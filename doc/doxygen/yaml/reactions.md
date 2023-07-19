@@ -6,7 +6,7 @@
 
 The fields common to all `reaction` entries are:
 
-`equation`
+<b>`equation`</b>
 
 The stoichiometric equation for the reaction. Each term (that is,
 stoichiometric coefficient, species name, `+` or `<=>`) in the
@@ -15,7 +15,7 @@ equation must be separated by a space.
 Reversible reactions may be written using `<=>` or `=` to separate
 reactants and products. Irreversible reactions are written using `=>`.
 
-`type`
+<b>`type`</b>
 
 A string specifying the type of reaction or rate coefficient
 parameterization. The default is `elementary`. Reaction types are:
@@ -39,12 +39,12 @@ Reactions on surfaces or edges specifying `type` as `Blowers-Masel`
 are treated as <tt>@ref sec-yaml-interface-Blowers-Masel</tt> or
 <tt>@ref sec-yaml-sticking-Blowers-Masel</tt>.
 
-`duplicate`
+<b>`duplicate`</b>
 
 Boolean indicating whether the reaction is a known duplicate of
 another reaction. The default is `false`.
 
-`orders`
+<b>`orders`</b>
 
 An optional mapping of species to explicit reaction orders to use.
 Reaction orders for reactant species not explicitly mentioned are
@@ -52,12 +52,12 @@ taken to be their respective stoichiometric coefficients. See
 [Reaction orders](https://cantera.org/science/kinetics.html#reaction-orders)
 for additional information.
 
-`negative-orders`
+<b>`negative-orders`</b>
 
 Boolean indicating whether negative reaction orders are allowed. The
 default is `false`.
 
-`nonreactant-orders`
+<b>`nonreactant-orders`</b>
 
 Boolean indicating whether orders for non-reactant species are
 allowed. The default is `false`.
@@ -71,15 +71,15 @@ specify the rate of the reaction.
 
 Arrhenius rate expressions are specified as a mapping with fields:
 
-`A`
+<b>`A`</b>
 
 The pre-exponential factor \f$ A \f$
 
-`b`
+<b>`b`</b>
 
 The temperature exponent \f$ b \f$
 
-`Ea`
+<b>`Ea`</b>
 
 The activation energy \f$ E_a \f$
 
@@ -97,19 +97,19 @@ Blowers Masel approximation as [described
 here](https://cantera.org/science/kinetics.html#sec-blowers-masel). The
 rate parameters are specified as a mapping with fields:
 
-`A`
+<b>`A`</b>
 
 The pre-exponential factor \f$ A\f$
 
-`b`
+<b>`b`</b>
 
 The temperature exponent \f$ b\f$
 
-`Ea0`
+<b>`Ea0`</b>
 
 The intrinsic activation energy \f$ E_{a0}\f$
 
-`w`
+<b>`w`</b>
 
 The average of the bond dissociation energy of the bond breaking and
 that being formed in the reaction \f$ w\f$
@@ -129,19 +129,19 @@ temperature as [described
 here](https://cantera.org/science/kinetics.html#two-temperature-plasma-reactions).
 The rate parameters are specified as a mapping with fields:
 
-`A`
+<b>`A`</b>
 
 The pre-exponential factor
 
-`b`
+<b>`b`</b>
 
 The temperature exponent, which is applied to the electron temperature
 
-`Ea-gas`
+<b>`Ea-gas`</b>
 
 The activation energy term \f$ E_{a,g}\f$  that is related to the gas temperature
 
-`Ea-electron`
+<b>`Ea-electron`</b>
 
 The activation energy term \f$ E_{a,e}\f$  that is related to the electron temperature
 
@@ -158,11 +158,11 @@ Some reaction types include parameters for the \"efficiency\" of
 different species as third-body colliders. For these reactions, the
 following additional fields are supported:
 
-`efficiencies`
+<b>`efficiencies`</b>
 
 A mapping of species names to efficiency values
 
-`default-efficiency`
+<b>`default-efficiency`</b>
 
 The efficiency for use for species not included in the
 `efficiencies` mapping. Defaults to 1.0.

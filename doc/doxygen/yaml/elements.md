@@ -5,20 +5,20 @@ not standard chemical elements, or defining specific isotopes.
 
 The fields of an `element` entry are:
 
-`symbol`
+<b>`symbol`</b>
 
 The symbol used for the element, as used when specifying the
 composition of species.
 
-`atomic-weight`
+<b>`atomic-weight`</b>
 
 The atomic weight of the element, in unified atomic mass units
 (dalton).
 
-`atomic-number`
+<b>`atomic-number`</b>
 
 The atomic number of the element. Optional.
 
-`entropy298`
+<b>`entropy298`</b>
 
 The standard molar entropy of the element at 298.15 K. Optional.

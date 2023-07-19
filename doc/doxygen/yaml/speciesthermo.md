@@ -2,6 +2,9 @@
 
 [TOC]
 
+Species thermodynamic models are specified using the `thermo` field of
+@ref sec-yaml-species.
+
 ## constant-cp {#sec-yaml-constant-cp}
 
 The constant heat capacity model, see @ref Cantera.ConstCpPoly or [described
@@ -9,28 +12,28 @@ here](https://cantera.org/science/species-thermo.html#constant-heat-capacity).
 
 Additional fields of a `constant-cp` thermo entry are:
 
-`T0`
+<b>`T0`</b>
 
 The reference temperature. Defaults to 298.15 K.
 
-`h0`
+<b>`h0`</b>
 
 The molar enthalpy at the reference temperature. Defaults to 0.0.
 
-`s0`
+<b>`s0`</b>
 
 The molar entropy at the reference temperature. Defaults to 0.0.
 
-`cp0`
+<b>`cp0`</b>
 
 The heat capacity at constant pressure. Defaults to 0.0.
 
-`T-min`
+<b>`T-min`</b>
 
 The minimum temperature at which this thermo data should be used.
 Defaults to 0.0.
 
-`T-max`
+<b>`T-max`</b>
 
 The maximum temperature at which this thermo data should be used.
 Defaults to infinity.
@@ -54,7 +57,7 @@ here](https://cantera.org/science/species-thermo.html#the-nasa-7-coefficient-pol
 
 Additional fields of a `NASA7` thermo entry are:
 
-`temperature-ranges`
+<b>`temperature-ranges`</b>
 
 A list giving the temperature intervals on which the polynomials are
 valid. For one temperature region, this list contains the minimum
@@ -62,7 +65,7 @@ and maximum temperatures for the polynomial. For two temperature
 regions, this list contains the minimum, intermediate, and maximum
 temperatures.
 
-`data`
+<b>`data`</b>
 
 A list with one item per temperature region, where that item is a 7
 item list of polynomial coefficients. The temperature regions are
@@ -91,14 +94,14 @@ here](https://cantera.org/science/species-thermo.html#the-nasa-9-coefficient-pol
 
 Additional fields of a `NASA9` thermo entry are:
 
-`temperature-ranges`
+<b>`temperature-ranges`</b>
 
 A list giving the temperature intervals on which the polynomials are
 valid. This list contains the minimum temperature, the intermediate
 temperatures between each set pair of regions, and the maximum
 temperature.
 
-`data`
+<b>`data`</b>
 
 A list with one item per temperature region, where that item is a 9
 item list of polynomial coefficients. The temperature regions are
@@ -131,18 +134,18 @@ here](https://cantera.org/documentation/dev/doxygen/html/d4/d9e/classCantera_1_1
 
 Additional fields of a `piecewise-Gibbs` entry are:
 
-`h0`
+<b>`h0`</b>
 
 The molar enthalpy at the reference temperature of 298.15 K.
 Defaults to 0.0.
 
-`dimensionless`
+<b>`dimensionless`</b>
 
 A boolean flag indicating whether the values of the Gibbs free
 energy are given in a dimensionless form, that is, divided by \f$RT\f$.
 Defaults to `false`.
 
-`data`
+<b>`data`</b>
 
 A mapping of temperatures to values of the Gibbs free energy. The
 Gibbs free energy can be either in molar units (if `dimensionless`
@@ -150,12 +153,12 @@ is `false`) or nondimensionalized by the corresponding temperature
 (if `dimensionless` is `true`). A value must be provided at
 \f$T^\circ = 298.15\f$ K.
 
-`T-min`
+<b>`T-min`</b>
 
 The minimum temperature at which this thermo data should be used.
 Defaults to 0.0.
 
-`T-max`
+<b>`T-max`</b>
 
 The maximum temperature at which this thermo data should be used.
 Defaults to infinity.
@@ -178,7 +181,7 @@ here](https://cantera.org/science/species-thermo.html#the-shomate-parameterizati
 
 Additional fields of a `Shomate` thermo entry are:
 
-`temperature-ranges`
+<b>`temperature-ranges`</b>
 
 A list giving the temperature intervals on which the polynomials are
 valid. For one temperature region, this list contains the minimum
@@ -186,7 +189,7 @@ and maximum temperatures for the polynomial. For two temperature
 regions, this list contains the minimum, intermediate, and maximum
 temperatures.
 
-`data`
+<b>`data`</b>
 
 A list with one item per temperature region, where that item is a 7
 item list of polynomial coefficients. The temperature regions are

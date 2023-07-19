@@ -2,7 +2,7 @@
 
 [TOC]
 
-Thermodyanmic models are specified using the `thermo` field of @ref sec-yaml-phases.
+Thermodynamic models are specified using the `thermo` field of @ref sec-yaml-phases.
 
 
 ## binary-solution-tabulated {#sec-yaml-binary-solution-tabulated}
@@ -10,14 +10,14 @@ Thermodyanmic models are specified using the `thermo` field of @ref sec-yaml-pha
 A phase implementing tabulated standard state thermodynamics for one
 species in a binary solution, see @ref Cantera.BinarySolutionTabulatedThermo.
 
-Includes the fields of @ref sec-yaml-ideal-condensed, plus:
+Includes the fields of <tt>@ref sec-yaml-ideal-condensed</tt>, plus:
 
-`tabulated-species`
+<b>`tabulated-species`</b>
 
 The name of the species to which the tabulated enthalpy and entropy
 is added.
 
-`tabulated-thermo`
+<b>`tabulated-thermo`</b>
 
 A mapping containing three (optionally four) lists of equal lengths:
 
@@ -36,7 +36,7 @@ lattice phases, see @ref Cantera.LatticeSolidPhase.
 
 Additional fields:
 
-`composition`
+<b>`composition`</b>
 
 A mapping of component phase names to their relative stoichiometries.
 
@@ -58,11 +58,11 @@ entry, see @ref sec-yaml-coverage-dependent-surface.
 
 Additional fields:
 
-`site-density`
+<b>`site-density`</b>
 
 The molar density of surface sites.
 
-`reference-state-coverage`
+<b>`reference-state-coverage`</b>
 
 The reference state coverage denoting the low-coverage limit
 (ideal-surface) thermodynamic properties.
@@ -87,7 +87,7 @@ The Debye-Hückel model, see @ref Cantera.DebyeHuckel.
 
 Additional parameters for this model are contained in the `activity-data` field:
 
-`activity-data`
+<b>`activity-data`</b>
 
 The activity data field contains the following fields:
 
@@ -131,11 +131,11 @@ In addition, the Debye-Hückel model uses several species-specific
 properties which may be defined in the `Debye-Huckel` field of the
 *species* entry. These properties are:
 
-`ionic-radius`
+<b>`ionic-radius`</b>
 
 Size of the species.
 
-`electrolyte-species-type`
+<b>`electrolyte-species-type`</b>
 
 One of `solvent`, `charged-species`, `weak-acid-associated`,
 `strong-acid-associated`, `polar-neutral`, or `nonpolar-neutral`.
@@ -143,7 +143,7 @@ The type `solvent` is the default for the first species in the
 phase. The type `charged-species` is the default for species with a
 net charge. Otherwise, the default is and `nonpolar-neutral`.
 
-`weak-acid-charge`
+<b>`weak-acid-charge`</b>
 
 Charge to use for species that can break apart into charged species.
 
@@ -172,7 +172,7 @@ A one-dimensional edge between two surfaces, see @ref Cantera.EdgePhase
 
 Additional fields:
 
-`site-density`
+<b>`site-density`</b>
 
 The molar density of sites per unit length along the edge
 
@@ -190,7 +190,7 @@ a metal, see @ref Cantera.MetalPhase.
 
 Additional fields:
 
-`density`
+<b>`density`</b>
 
 The density of the bulk metal
 
@@ -203,10 +203,9 @@ A phase with fixed composition, see @ref Cantera.StoichSubstance.
 A dilute or concentrated liquid electrolyte phase that obeys the Pitzer
 formulation for nonideality, see @ref Cantera.HMWSoln.
 
-Additional parameters for this model are contained in the
-`activity-data` field:
+Additional parameters for this model are contained in the `activity-data` field:
 
-`activity-data`
+<b>`activity-data`</b>
 
 The activity data field contains the following fields:
 
@@ -298,7 +297,7 @@ A condensed phase ideal solution, see @ref Cantera.IdealSolidSolnPhase.
 
 Additional fields:
 
-`standard-concentration-basis`
+<b>`standard-concentration-basis`</b>
 
 A string specifying the basis for the standard concentration. One of
 `unity`, `species-molar-volume`, or `solvent-molar-volume`.
@@ -326,12 +325,12 @@ activity coefficients are equal to one, see @ref Cantera.IdealMolalSoln.
 
 Additional fields:
 
-`standard-concentration-basis`
+<b>`standard-concentration-basis`</b>
 
 A string specifying the basis for the standard concentration. One of
 `unity`, `species-molar-volume`, or `solvent-molar-volume`.
 
-`cutoff`
+<b>`cutoff`</b>
 
 Parameters for cutoff treatments of activity coefficients
 
@@ -367,7 +366,7 @@ An ideal solution model using variable pressure standard state methods, see
 
 Additional fields:
 
-`standard-concentration-basis`
+<b>`standard-concentration-basis`</b>
 
 A string specifying the basis for the standard concentration. One of
 `unity`, `species-molar-volume`, or `solvent-molar-volume`.
@@ -378,7 +377,7 @@ An ideal surface phase, see @ref Cantera.SurfPhase.
 
 Additional fields:
 
-`site-density`
+<b>`site-density`</b>
 
 The molar density of surface sites
 
@@ -410,7 +409,7 @@ represent neutral molecules, see @ref Cantera.IonsFromNeutralVPSSTP.
 
 Additional fields:
 
-`neutral-phase`
+<b>`neutral-phase`</b>
 
 The `name` of the phase definition for the phase containing the
 neutral molecules.
@@ -434,7 +433,7 @@ solid atoms, see @ref Cantera.LatticePhase.
 
 Additional fields:
 
-`site-density`
+<b>`site-density`</b>
 
 The molar density of lattice sites
 
@@ -449,7 +448,7 @@ energy, see @ref Cantera.MargulesVPSSTP.
 
 Additional fields:
 
-`interactions`
+<b>`interactions`</b>
 
 A list of mappings, where each mapping has the following fields:
 
@@ -486,11 +485,11 @@ A condensed phase non-ideal solution with two species, see
 
 Additional fields:
 
-`excess-enthalpy`
+<b>`excess-enthalpy`</b>
 
 The molar excess enthalpy
 
-`product-species`
+<b>`product-species`</b>
 
 String specifying the \"product\" species
 
@@ -517,7 +516,7 @@ models, see @ref Cantera.PlasmaPhase.
 
 Additional fields:
 
-`electron-energy-distribution`
+<b>`electron-energy-distribution`</b>
 
 A mapping with the following fields:
 
@@ -569,7 +568,7 @@ species, see @ref Cantera.PureFluidPhase.
 
 Additional fields:
 
-`pure-fluid-name`
+<b>`pure-fluid-name`</b>
 
 Name of the pure fluid model to use: - `carbon-dioxide` -
 `heptane` - `HFC-134a` - `hydrogen` - `methane` - `nitrogen` -
@@ -582,7 +581,7 @@ free energy, see @ref Cantera.RedlichKisterVPSSTP.
 
 Additional fields:
 
-`interactions`
+<b>`interactions`</b>
 
 A list of mappings, where each mapping has the following fields:
 

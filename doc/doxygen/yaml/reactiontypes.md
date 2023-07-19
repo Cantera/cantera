@@ -11,11 +11,11 @@ here](https://cantera.org/science/kinetics.html#reactions-with-a-pressure-indepe
 
 Additional fields are:
 
-`rate-constant`
+<b>`rate-constant`</b>
 
 An @ref sec-yaml-Arrhenius-rate list or mapping.
 
-`negative-A`
+<b>`negative-A`</b>
 
 A boolean indicating whether a negative value for the
 pre-exponential factor is allowed. The default is `false`.
@@ -85,22 +85,22 @@ species. The latter case is equivalent to setting the efficiency for
 
 Includes field for specifying @ref sec-yaml-efficiencies as well as:
 
-`high-P-rate-constant`
+<b>`high-P-rate-constant`</b>
 
 An @ref sec-yaml-Arrhenius-rate expression for the high-pressure limit
 
-`low-P-rate-constant`
+<b>`low-P-rate-constant`</b>
 
 An @ref sec-yaml-Arrhenius-rate expression for the low-pressure limit
 
-`Troe`
+<b>`Troe`</b>
 
 Parameters for the
 [Troe](https://cantera.org/science/kinetics.html#the-troe-falloff-function)
 falloff function. A mapping containing the keys `A`, `T3`, `T1` and
 optionally `T2`. The default value for `T2` is 0.
 
-`SRI`
+<b>`SRI`</b>
 
 Parameters for the
 [SRI](https://cantera.org/science/kinetics.html#the-sri-falloff-function)
@@ -108,7 +108,7 @@ falloff function. A mapping containing the keys `A`, `B`, `C`, and
 optionally `D` and `E`. The default values for `D` and `E` are 1.0
 and 0.0, respectively.
 
-`Tsang`
+<b>`Tsang`</b>
 
 Parameters for the
 [Tsang](https://cantera.org/science/kinetics.html#tsang-s-approximation-to-f-cent)
@@ -149,7 +149,7 @@ here](https://cantera.org/science/kinetics.html#pressure-dependent-arrhenius-rat
 
 The only additional field in this reaction type is:
 
-`rate-constants`
+<b>`rate-constants`</b>
 
 A list of mappings, where each mapping is the mapping form of an
 @ref sec-yaml-Arrhenius-rate expression with the addition of a pressure `P`.
@@ -174,17 +174,17 @@ here](https://cantera.org/science/kinetics.html#chebyshev-reaction-rate-expressi
 
 Additional fields are:
 
-`temperature-range`
+<b>`temperature-range`</b>
 
 A list of two values specifying the minimum and maximum temperatures
 at which the rate constant is valid
 
-`pressure-range`
+<b>`pressure-range`</b>
 
 A list of two values specifying the minimum and maximum pressures at
 which the rate constant is valid
 
-`data`
+<b>`data`</b>
 
 A list of lists containing the Chebyshev coefficients
 
@@ -211,7 +211,7 @@ here](https://cantera.org/science/kinetics.html#sec-surface).
 
 Includes the fields of an <tt>@ref sec-yaml-elementary</tt> reaction plus:
 
-`coverage-dependencies`
+<b>`coverage-dependencies`</b>
 
 A mapping of species names to coverage dependence parameters, where
 these parameters are contained in either a mapping with the fields:
@@ -277,16 +277,16 @@ A sticking reaction occurring on a surface adjacent to a bulk phase, as
 
 Includes the fields of an <tt>@ref sec-yaml-interface-Arrhenius</tt> reaction plus:
 
-`sticking-coefficient`
+<b>`sticking-coefficient`</b>
 
 An @ref sec-yaml-Arrhenius-rate expression for the sticking coefficient
 
-`Motz-Wise`
+<b>`Motz-Wise`</b>
 
 A boolean indicating whether to use the Motz-Wise correction factor
 for sticking coefficients near unity. Defaults to `false`.
 
-`sticking-species`
+<b>`sticking-species`</b>
 
 The name of the sticking species. Required if the reaction includes
 multiple non-surface species.
@@ -319,11 +319,11 @@ here](https://cantera.org/documentation/dev/doxygen/html/d6/ddd/classCantera_1_1
 
 Includes the fields of an <tt>@ref sec-yaml-interface-Arrhenius</tt> reaction, plus:
 
-`beta`
+<b>`beta`</b>
 
 The symmetry factor for the reaction. Default is 0.5.
 
-`exchange-current-density-formulation`
+<b>`exchange-current-density-formulation`</b>
 
 Set to `true` if the rate constant parameterizes the exchange
 current density. Default is `false`.

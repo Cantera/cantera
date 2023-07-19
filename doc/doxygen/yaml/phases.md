@@ -9,11 +9,11 @@ species, and optionally reactions that can take place in that phase.
 
 The fields of a `phase` entry are:
 
-`name`
+<b>`name`</b>
 
 String identifier used for the phase. Required.
 
-`elements`
+<b>`elements`</b>
 
 Specification for the elements present in the phase. This can be:
 
@@ -30,7 +30,7 @@ Specification for the elements present in the phase. This can be:
     followed by the %Cantera data path. Standard elements can be
     included by referencing the fictitious section `default`.
 
-`species`
+<b>`species`</b>
 
 Specification for the species present in the phase. This can be:
 
@@ -49,24 +49,23 @@ Specification for the species present in the phase. This can be:
 Species may be skipped depending on the setting of the
 `skip-undeclared-elements` option.
 
-`skip-undeclared-elements`
+<b>`skip-undeclared-elements`</b>
 
 If set to `true`, do not add species that contain elements that are
 not explicitly included in the phase. The default is `false`, where
 the presence of such species is considered an error.
 
-`skip-undeclared-third-bodies`
+<b>`skip-undeclared-third-bodies`</b>
 
 If set to `true`, ignore third body efficiencies for species that
 are not defined in the phase. The default is `false`, where the
 presence of such third body specifications is considered an error.
 
-`state`
+<b>`state`</b>
 
-A mapping specifying the thermodynamic state. See
-`sec-yaml-setting-state`{.interpreted-text role="ref"}.
+A mapping specifying the thermodynamic state. See @ref sec-yaml-setting-state.
 
-`adjacent-phases`
+<b>`adjacent-phases`</b>
 
 For interface phases, specification of adjacent phases that
 participate in reactions on the interface. This can be:
@@ -80,7 +79,7 @@ participate in reactions on the interface. This can be:
     directory containing the current file is searched first,
     followed by the %Cantera data path.
 
-`thermo`
+<b>`thermo`</b>
 
 String specifying the phase thermodynamic model to be used.
 Supported model strings are:
@@ -109,7 +108,7 @@ Supported model strings are:
 -   <tt>@ref sec-yaml-Redlich-Kister</tt>
 -   <tt>@ref sec-yaml-Redlich-Kwong</tt>
 
-`kinetics`
+<b>`kinetics`</b>
 
 String specifying the kinetics model to be used. Supported model
 strings are:
@@ -119,7 +118,7 @@ strings are:
 -   `surface`: see @ref Cantera.InterfaceKinetics
 -   `edge`: see @ref Cantera.EdgeKinetics
 
-`reactions`
+<b>`reactions`</b>
 
 Source of reactions to include in the phase, if a kinetics model has
 been specified. This can be:
@@ -143,14 +142,14 @@ been specified. This can be:
     either `all` or `declared-species` and is applied as described
     above.
 
-`Motz-Wise`
+<b>`Motz-Wise`</b>
 
 Boolean indicating whether the Motz-Wise correction should be
 applied to sticking reactions. Applicable only to interface phases.
 The default is `false`. The value set at the phase level may be
 overridden on individual reactions.
 
-`transport`
+<b>`transport`</b>
 
 String specifying the transport model to be used. Supported model
 strings are:
@@ -165,7 +164,7 @@ strings are:
 -   `unity-Lewis-number`: see @ref Cantera.UnityLewisTransport
 -   `water`: see @ref Cantera.WaterTransport
 
-## Setting the State {#sec-yaml-setting-state}
+### state {#sec-yaml-setting-state}
 
 The state of a `phase` can be set using two properties to set the
 thermodynamic state, plus the composition.

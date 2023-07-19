@@ -1,49 +1,52 @@
 # Species Transport Models {#sec-yaml-species-transport-models}
 
+Species transport models are specified using the `transport` field of
+@ref sec-yaml-species.
+
 ## gas {#sec-yaml-species-transport-gas}
 
 Species transport properties are a rare exception to %Cantera's use of
 SI units, and use the units in which these properties are customarily
 reported. No conversions are supported.
 
-The additional fields of a `gas` transport entry are:
+The fields of a `gas` transport entry are:
 
-`geometry`
+<b>`geometry`</b>
 
 A string specifying the geometry of the molecule. One of `atom`,
 `linear`, or `nonlinear`.
 
-`diameter`
+<b>`diameter`</b>
 
 The Lennard-Jones collision diameter \[Å\]
 
-`well-depth`
+<b>`well-depth`</b>
 
 The Lennard-Jones well depth \[K\]
 
-`dipole`
+<b>`dipole`</b>
 
 The permanent dipole moment \[Debye\]. Default 0.0.
 
-`polarizability`
+<b>`polarizability`</b>
 
 The dipole polarizability \[Å\^3\]. Default 0.0.
 
-`rotational-relaxation`
+<b>`rotational-relaxation`</b>
 
 The rotational relaxation collision number at 298 K \[-\]. Default 0.0.
 
-`acentric-factor`
+<b>`acentric-factor`</b>
 
 Pitzer's acentric factor \[-\]. Default 0.0. This value may also be
 specified as part of the @ref sec-yaml-species-crit-props field,
 in which case the value provided there supersedes this one.
 
-`dispersion-coefficient`
+<b>`dispersion-coefficient`</b>
 
-The dispersion coefficient, normalized by $e^2$ \[Å\^5\]. Default 0.0.
+The dispersion coefficient, normalized by \f$e^2\f$ \[Å\^5\]. Default 0.0.
 
-`quadrupole-polarizability`
+<b>`quadrupole-polarizability`</b>
 
 The quadrupole polarizability \[Å\^5\]. Default 0.0.
 

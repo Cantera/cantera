@@ -2,21 +2,24 @@
 
 [TOC]
 
+Species equation of state models are specified using the `equation-of-state` field of
+@ref sec-yaml-species.
+
 ## constant-volume {#sec-yaml-eos-constant-volume}
 
 A constant volume model, see @ref Cantera.PDSS_ConstVol.
 
 Any one of the following may be specified:
 
-`molar-volume`
+<b>`molar-volume`</b>
 
 The molar volume of the species.
 
-`molar-density`
+<b>`molar-density`</b>
 
 The molar density of the species.
 
-`density`
+<b>`density`</b>
 
 The mass density of the species.
 
@@ -34,7 +37,7 @@ A model in which the density varies with temperature, see @ref Cantera.PDSS_SSVo
 
 Additional fields:
 
-`data`
+<b>`data`</b>
 
 Vector of 4 coefficients for a cubic polynomial in temperature
 
@@ -53,23 +56,23 @@ The Helgeson-Kirkham-Flowers-Tanger model, see @ref Cantera.PDSS_HKFT.
 
 Additional fields:
 
-`h0`
+<b>`h0`</b>
 
 Enthalpy of formation at the reference temperature and pressure
 
-`s0`
+<b>`s0`</b>
 
 Entropy of formation at the reference temperature and pressure
 
-`a`
+<b>`a`</b>
 
 4-element vector containing the coefficients \f$a_1, \ldots , a_4\f$
 
-`c`
+<b>`c`</b>
 
 2-element vector containing the coefficients \f$c_1\f$ and \f$c_2\f$
 
-`omega`
+<b>`omega`</b>
 
 The \f$\omega\f$ parameter at the reference temperature and pressure
 
@@ -94,19 +97,19 @@ A species using the ideal gas equation of state, see @ref Cantera.PDSS_IdealGas.
 
 ## ions-from-neutral-molecule {#sec-yaml-eos-ions-from-neutral}
 
-A species equation of state model used with the
-`ions-from-neutral-molecule` phase model, see @ref Cantera.PDSS_IonsFromNeutral.
+A species equation of state model used with the `ions-from-neutral-molecule` phase
+model, see @ref Cantera.PDSS_IonsFromNeutral.
 
 @deprecated This species thermo model is deprecated and will be removed after %Cantera 3.0.
 
 Additional fields:
 
-`special-species`
+<b>`special-species`</b>
 
 Boolean indicating whether the species is the \"special species\" in
 the phase. Default is `false`.
 
-`multipliers`
+<b>`multipliers`</b>
 
 A dictionary mapping species to neutral species multiplier values.
 
@@ -129,7 +132,7 @@ A model in which the molar volume varies with temperature, see @ref Cantera.PDSS
 
 Additional fields:
 
-`data`
+<b>`data`</b>
 
 Vector of 4 coefficients for a cubic polynomial in temperature
 
@@ -140,19 +143,19 @@ A model where species follow the Peng-Robinson equation of state, see
 
 Additional fields:
 
-`a`
+<b>`a`</b>
 
 Pure-species `a` coefficient \[Pa\*m\^6/kmol\^2\]
 
-`b`
+<b>`b`</b>
 
 Pure-species `b` coefficient \[m\^3/kmol\]
 
-`acentric-factor`
+<b>`acentric-factor`</b>
 
 Pitzer's acentric factor \[-\]
 
-`binary-a`
+<b>`binary-a`</b>
 
 Optional mapping where the keys are species names and the values are
 the `a` coefficients for binary interactions between the two species.
@@ -178,16 +181,16 @@ A model where species follow the Redlich-Kwong equation of state, see
 
 Additional fields:
 
-`a`
+<b>`a`</b>
 
 Pure-species `a` coefficient. Scalar or list of two values for a
 temperature-dependent expression.
 
-`b`
+<b>`b`</b>
 
 Pure-species `b` coefficient.
 
-`binary-a`
+<b>`binary-a`</b>
 
 Mapping where the keys are species and the values are the `a`
 coefficients for binary interactions between the two species.

@@ -2,9 +2,12 @@
 
 [TOC]
 
+Species coverage models are specified using the `coverage-dependencies` field of
+@ref sec-yaml-species.
+
 ## linear {#sec-yaml-species-coverage-linear}
 
-`enthalpy` and `entropy`
+<b>`enthalpy`</b> and <b>`entropy`</b>
 
 Slope of the coverage-dependent enthalpy or entropy.
 
@@ -22,7 +25,7 @@ coverage-dependencies:
 
 ## polynomial {#sec-yaml-species-coverage-polynomial}
 
-`enthalpy-coefficients` and `entropy-coefficients`
+<b>`enthalpy-coefficients`</b> and <b>`entropy-coefficients`</b>
 
 Array of polynomial coefficients in order of 1st, 2nd, 3rd, and
 4th-order used in coverage-dependent enthalpy or entropy calculation.
@@ -41,20 +44,20 @@ coverage-dependencies:
 
 ## piecewise-linear {#sec-yaml-species-coverage-piecewise-linear}
 
-`enthalpy-low` and `entropy-low`
+<b>`enthalpy-low`</b> and <b>`entropy-low`</b>
 
 Slope of the coverage-dependent enthalpy or entropy for the lower coverage region.
 
-`enthalpy-high` and `entropy-high`
+<b>`enthalpy-high`</b> and <b>`entropy-high`</b>
 
 Slope of the coverage-dependent enthalpy or entropy for the higher coverage region.
 
-`enthalpy-change` and `entropy-change`
+<b>`enthalpy-change`</b> and <b>`entropy-change`</b>
 
 Coverage that separates the lower and higher coverage regions of the
 coverage-dependent enthalpy or entropy.
 
-`heat-capacity-a` and `heat-capacity-b`
+<b>`heat-capacity-a`</b> and <b>`heat-capacity-b`</b>
 
 Coefficient \f$c^{(a)}\f$ or \f$c^{(b)}\f$ used in the coverage-dependent
 `heat capacity` model.
@@ -79,11 +82,11 @@ coverage-dependencies:
 
 ## interpolative {#sec-yaml-species-coverage-interpolative}
 
-`enthalpy-coverages` and `entropy-coverages`
+<b>`enthalpy-coverages`</b> and <b>`entropy-coverages`</b>
 
 Array of discrete coverage values used in coverage-dependent enthalpy or entropy.
 
-`enthalpies` and `entropies`
+<b>`enthalpies`</b> and <b>`entropies`</b>
 
 Array of discrete enthalpy or entropy values corresponding to the
 coverages in `enthalpy-coverages` and `entropy-coverages`, respectively.

@@ -53,14 +53,13 @@ to any unit. Supported base units are:
 -   Time: `s`, `min`, `hr`
 -   Temperature: `K`, `C`
 -   Current: `A`
--   Quantity: `mol` (gram mole), `gmol`, `mole`, `kmol`, `kgmol`,
-    `molec`
+-   Quantity: `mol` (gram mole), `gmol`, `mole`, `kmol`, `kgmol`,  `molec`
 
 Supported compound units are:
 
 -   Energy: `J`, `cal`, `erg`, `eV`
 -   Activation Energy: `K`, any unit of energy per quantity (`J/kmol`,
-    `cal/mol`, etc.), or any unit of energy (such as [eV]{.title-ref})
+    `cal/mol`, etc.), or any unit of energy (such as [eV])
 -   Force: `N`, `dyn`
 -   Pressure: `Pa`, `atm`, `bar`, `dyn/cm^2`
 -   Volume: `m^3`, `liter`, `L`, `l`, `cc`
