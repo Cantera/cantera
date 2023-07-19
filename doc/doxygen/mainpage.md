@@ -1,4 +1,4 @@
-# %Cantera API Documentation
+# %Cantera Developer API
 
 > **Note:** This is the **%Cantera Developer API** documentation; for general
 > information on %Cantera, refer to [**cantera.org**](https://cantera.org).
