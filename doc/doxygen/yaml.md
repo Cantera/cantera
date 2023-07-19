@@ -17,6 +17,9 @@ information on thermodynamics, kinetics, and transport in a single file.
 -   \subpage sec-yaml-reactions
     -   \subpage sec-yaml-reaction-models
 
+For an introductory tutorial of the YAML data language, refer to the
+\subpage sec-yaml-format-tutorial.
+
 %Cantera provides the following conversion utilities to obtain YAML input from other
 input file formats:
 
