@@ -49,9 +49,15 @@ The number of sites occupied by a surface or edge species. Default is 1.
 Additional model parameters used in the Debye-Hückel model. See
 @ref sec-yaml-Debye-Huckel for more information.
 
+`coverage-dependencies`
+
+Used in conjunction with the coverage-dependent surface phase model
+(<tt>@ref sec-yaml-coverage-dependent-surface</tt>). See
+<tt>@ref sec-yaml-species-coverage</tt>.
+
 ### thermo {#sec-yaml-species-thermo}
 
-Fields of a species `thermo` entry of @ref sec-yaml-species used by all models are:
+Fields of a species `thermo` entry used by all models are:
 
 `model`
 
@@ -72,7 +78,7 @@ Additional fields are specific to the species thermodynamics model.
 
 ### equation-of-state {#sec-yaml-species-eos}
 
-An `equation-of-state` entry of a @ref sec-yaml-species is identified as:
+A species `equation-of-state` entry is identified by the field
 
 `model`
 
@@ -111,3 +117,23 @@ Pitzer's acentric factor $omega$ \[-\]
 
 String specifying the model type. The only model that is
 specifically handled is <tt>@ref sec-yaml-species-transport-gas</tt>.
+
+### coverage-dependencies {#sec-yaml-species-coverage}
+
+Species `coverage-dependencies` entries are mappings where keys are the name of species
+whose coverage affects thermodynamic properties of the node-owner species, see
+@ref Cantera.CoverageDependentSurfPhase.
+
+Map entries of `coverage-dependencies` are identified by the field
+
+`model`
+
+String specifying the model to be used. Required. Supported model strings are:
+
+-   <tt>@ref sec-yaml-species-coverage-linear</tt>
+-   <tt>@ref sec-yaml-species-coverage-polynomial</tt>
+-   <tt>@ref sec-yaml-species-coverage-piecewise-linear</tt>
+-   <tt>@ref sec-yaml-species-coverage-interpolative</tt>
+
+Additional map entries that correspond to an individual dependency between the
+node-owner species and keyed species (see @ref sec-yaml-species-coverage-models).

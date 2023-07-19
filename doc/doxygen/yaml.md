@@ -13,7 +13,8 @@ information on thermodynamics, kinetics, and transport in a single file.
     -   \subpage sec-yaml-species-thermo-models
     -   \subpage sec-yaml-species-eos-models
     -   \subpage sec-yaml-species-transport-models
--   \subpage  sec-yaml-reactions
+    -   \subpage sec-yaml-species-coverage-models
+-   \subpage sec-yaml-reactions
     -   \subpage sec-yaml-reaction-models
 
 %Cantera provides the following conversion utilities to obtain YAML input from other
