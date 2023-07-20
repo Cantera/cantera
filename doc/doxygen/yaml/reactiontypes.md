@@ -36,7 +36,7 @@ here](https://cantera.org/science/kinetics.html#three-body-reactions).
 The reaction equation should include the third body collision partner `M`.
 
 Includes the fields of an <tt>@ref sec-yaml-elementary</tt> reaction, plus the fields
-for specifying @ref sec-yaml-efficiencies.
+for specifying @ref sec-yaml-reactions-efficiencies.
 
 **Example:**
 
@@ -83,7 +83,7 @@ collision partner `(+M)` or `(+name)` where `name` is the name of a
 species. The latter case is equivalent to setting the efficiency for
 `name` to 1 and the efficiency for all other species to 0.
 
-Includes field for specifying @ref sec-yaml-efficiencies as well as:
+Includes field for specifying @ref sec-yaml-reactions-efficiencies as well as:
 
 <b>`high-P-rate-constant`</b>
 
@@ -314,8 +314,7 @@ Motz-Wise: true
 
 ## electrochemical {#sec-yaml-electrochemical-reaction}
 
-Interface reactions involving charge transfer between phases, as [described
-here](https://cantera.org/documentation/dev/doxygen/html/d6/ddd/classCantera_1_1ElectrochemicalReaction.html#details).
+Interface reactions involving charge transfer between phases.
 
 Includes the fields of an <tt>@ref sec-yaml-interface-Arrhenius</tt> reaction, plus:
 

@@ -1,4 +1,4 @@
-\page sec-yaml-api YAML Input File Reference
+# YAML Input File Reference {#sec-yaml-api}
 
 All calculations in %Cantera require an input file to describe the properties of the
 relevant phase(s) of matter. %Cantera uses the
@@ -15,6 +15,7 @@ information on thermodynamics, kinetics, and transport in a single file.
     -   \subpage sec-yaml-species-transport-models
     -   \subpage sec-yaml-species-coverage-models
 -   \subpage sec-yaml-reactions
+    -   \subpage sec-yaml-reaction-rate-blocks
     -   \subpage sec-yaml-reaction-models
 
 For an introductory tutorial of the YAML data language, refer to the
