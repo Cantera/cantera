@@ -1,5 +1,5 @@
 
-# Input Units {#sec-yaml-units}
+@page sec-yaml-units Input Units
 
 While %Cantera generally works internally in SI units, input values can
 be provided using a number of different units.
@@ -30,13 +30,13 @@ Supported compound units are:
 Units can be specified on individual input values by placing them after
 the value, separated by a space:
 
-``` yaml
+```yaml
 {A: 1.45e9 cm^3/kmol, b: 0.4, Ea: 21033 kJ/kmol}
 ```
 
 or by using a `units` mapping:
 
-``` yaml
+```yaml
 units: {mass: g, quantity: mol, pressure: atm, activation-energy: cal/mol}
 ```
 

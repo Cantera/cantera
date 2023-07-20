@@ -1,8 +1,8 @@
-# Reaction Entries {#sec-yaml-reactions}
+@page sec-yaml-reactions Reaction Entries
 
 [TOC]
 
-## Overview
+# Overview
 
 %Cantera supports a number of different types of reactions, including
 several types of homogeneous reactions, surface reactions, and
@@ -10,7 +10,7 @@ electrochemical reactions. The reaction entries for all reaction types
 some common features. These general fields of a reaction entry are
 described first, followed by fields used for specific reaction types.
 
-### Reaction Equation {#sec-yaml-reactions-equation}
+## Reaction Equation {#sec-yaml-reactions-equation}
 
 The reaction equation, specified in the `equation` field of the reaction
 entry, determines the reactant and product stoichiometry. All tokens
@@ -18,7 +18,7 @@ entry, determines the reactant and product stoichiometry. All tokens
 reaction equation must be separated with spaces. Some examples of
 correctly and incorrectly formatted reaction equations are shown below:
 
-``` yaml
+```yaml
 - equation: 2 CH2 <=> CH + CH3  # OK
 - equation: 2 CH2<=>CH + CH3  # error - spaces required around '<=>''
 - equation: 2CH2 <=> CH + CH3  # error - space required between '2' and 'CH2'
@@ -32,7 +32,7 @@ found, then the reaction is regarded as reversible, and the reverse rate
 will be computed based on the equilibrium constant. If, on the other
 hand, `=>` is found, the reaction will be treated as irreversible.
 
-### Reaction Type {#sec-yaml-reactions-type}
+## Reaction Type {#sec-yaml-reactions-type}
 
 The type of the rate coefficient parameterization may be specified in
 the `type` field of the `reaction` entry. Available reaction types are:
@@ -74,7 +74,7 @@ Reactions on surfaces or edges specifying `type` as `Blowers-Masel`
 are treated as <tt>@ref sec-yaml-interface-Blowers-Masel</tt> or
 <tt>@ref sec-yaml-sticking-Blowers-Masel</tt>.
 
-### Rate Parameterization
+## Rate Parameterization
 
 The following reaction rate building blocks are supported:
 
@@ -97,7 +97,7 @@ the temperature exponent, @f$E_a@f$ is the activation energy, and @f$R@f$ is the
 gas constant. Rates in this form can be written as YAML mappings, where the key `E`
 is used to specify @f$E_a@f$. For example:
 
-``` yaml
+```yaml
 {A: 1.0e13, b: 0, E: 7.3 kcal/mol}
 ```
 
@@ -117,14 +117,14 @@ however, so the units associated with @f$A@f$ are really the units for
 @f$k_f@f$. One way to formally express this is to replace @f$T^b@f$ by the
 non-dimensional quantity @f$[T/(1\;\mathrm{K})]^b@f$.
 
-### Third-Body Colliders {#sec-yaml-reactions-efficiencies}
+## Third-Body Colliders {#sec-yaml-reactions-efficiencies}
 
-Some reaction types include parameters for the \"efficiency\" of
+Some reaction types include parameters for the "efficiency" of
 different species as third-body colliders `M`.
 
 **Example:**
 
-``` yaml
+```yaml
 - equation: O + H + M <=> OH + M
   type: three-body
   rate-constant: {A: 5.0e+5, b: -1.0, Ea: 0.0}
@@ -132,7 +132,7 @@ different species as third-body colliders `M`.
   efficiencies: {H2: 2.0, H2O: 6.0, AR: 0.7}
 ```
 
-### Duplicate Reactions {#sec-yaml-reaction-duplicates}
+## Duplicate Reactions {#sec-yaml-reaction-duplicates}
 
 When a reaction is imported into a phase, it is checked to see that it
 is not a duplicate of another reaction already present in the phase, and
@@ -151,7 +151,7 @@ While %Cantera does not provide such a form for reaction rates, it can be
 implemented by defining @f$N@f$ duplicate reactions, and assigning one rate
 coefficient in the sum to each reaction. By adding the field:
 
-``` yaml
+```yaml
 duplicate: true
 ```
 
@@ -160,7 +160,7 @@ it *must*. Any reaction that specifies that it is a duplicate, but
 cannot be paired with another reaction in the phase that qualifies as
 its duplicate generates an error.
 
-### Negative Pre-exponential Factors
+## Negative Pre-exponential Factors
 
 If some of the terms in the above sum have negative @f$A_n@f$, this scheme
 fails, since %Cantera normally does not allow negative pre-exponential
@@ -168,11 +168,11 @@ factors. But if there are duplicate reactions such that the total rate
 is positive, then the fact that negative @f$A@f$ parameters are acceptable
 can be indicated by adding the field:
 
-``` yaml
+```yaml
 negative-A: true
 ```
 
-### Reaction Orders {#sec-yaml-reaction-orders}
+## Reaction Orders {#sec-yaml-reaction-orders}
 
 Explicit reaction orders different from the stoichiometric coefficients
 are sometimes used for non-elementary reactions. For example, consider
@@ -191,7 +191,7 @@ the forward rate constant might be given as[^1]:
 
 This reaction could be defined as:
 
-``` yaml
+```yaml
 - equation: C8H18 + 12.5 O2 => 8 CO2 + 9 H2O
   rate-constant: {A: 4.6e11, b: 0.0, Ea: 30.0 kcal/mol}
   orders: {C8H18: 0.25, O2: 1.5}
@@ -211,7 +211,7 @@ cases negative reaction orders provide better fits for experimental
 data. In these cases, the default behavior may be overridden by adding
 the `negative-orders` field to the reaction entry. For example:
 
-``` yaml
+```yaml
 - equation: C8H18 + 12.5 O2 => 8 CO2 + 9 H2O
   rate-constant: {A: 4.6e11, b: 0.0, Ea: 30.0 kcal/mol}
   orders: {C8H18: -0.25, O2: 1.75}
@@ -224,7 +224,7 @@ Some global reactions could have reactions orders for non-reactant
 species. In this case, the `nonreactant-orders` field must be added to
 the reaction entry:
 
-``` yaml
+```yaml
 - equation: C8H18 + 12.5 O2 => 8 CO2 + 9 H2O
   rate-constant: {A: 4.6e11, b: 0.0, Ea: 30.0 kcal/mol}
   orders: {C8H18: -0.25, CO: 0.15}
@@ -232,7 +232,7 @@ the reaction entry:
   nonreactant-orders: true
 ```
 
-## Reaction API Reference
+# Reaction API Reference
 
 The fields common to most `reaction` entries are:
 
@@ -276,7 +276,7 @@ allowed. The default is `false`.
 
 <b>`efficiencies`</b>
 
-Some reaction types include parameters for the \"efficiency\" of
+Some reaction types include parameters for the "efficiency" of
 different species as third-body colliders. The `efficiencies` field
 holds a mapping of species names to efficiency values. See
 @ref sec-yaml-reactions-efficiencies.

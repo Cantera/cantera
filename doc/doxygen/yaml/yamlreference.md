@@ -1,4 +1,4 @@
-# YAML Format Reference {#sec-yaml-api}
+@page sec-yaml-api YAML Format Reference
 
 All calculations in %Cantera require an input file to describe the properties of the
 relevant phase(s) of matter. %Cantera uses the
@@ -22,7 +22,7 @@ information on thermodynamics, kinetics, and transport in a single file.
 For an introductory tutorial of the YAML data language, refer to the
 @ref sec-yaml-format-tutorial.
 
-## Conversion Utilities {#sec-yaml-conversion}
+# Conversion Utilities {#sec-yaml-conversion}
 
 %Cantera provides the following conversion utilities to obtain YAML input from other
 input file formats:

@@ -1,4 +1,4 @@
-# Species Transport Models {#sec-yaml-species-transport-models}
+@page sec-yaml-species-transport-models Species Transport Models
 
 Species transport models are specified using the `transport` field of
 @ref sec-yaml-species.
@@ -7,7 +7,7 @@ Species transport properties are a rare exception to %Cantera's use of
 SI units, and use the units in which these properties are customarily
 reported. No conversions are supported.
 
-## gas {#sec-yaml-species-transport-gas}
+# gas {#sec-yaml-species-transport-gas}
 
 The fields of a `gas` transport entry are:
 
@@ -52,7 +52,7 @@ The quadrupole polarizability \[Å\^5\]. Default 0.0.
 
 **Example:**
 
-``` yaml
+```yaml
 transport:
   model: gas
   geometry: linear

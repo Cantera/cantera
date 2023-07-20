@@ -1,22 +1,22 @@
-# Phase Definitions {#sec-yaml-phases}
+@page sec-yaml-phases Phase Definitions
 
 [TOC]
 
-## Overview
+# Overview
 
 For each phase that appears in a problem, a corresponding entry should
 be present in the input file(s). The phase entry specifies the elements
 and species present in that phase, and the models to be used for
 computing thermodynamic, kinetic, and transport properties.
 
-### Naming the Phase
+## Naming the Phase
 
 The `name` entry is a string that identifies the phase. It must be
 unique within the file among all phase definitions of any type. Phases
 are referenced by name when importing them. The `name` is also used to
 identify the phase within multiphase mixtures or at phase boundaries.
 
-### Setting the Thermodynamic Model {#sec-yaml-phase-setting-thermo}
+## Setting the Thermodynamic Model {#sec-yaml-phase-setting-thermo}
 
 The thermodynamic model used to represent a phase is specified in the
 `thermo` field. Supported models are:
@@ -47,7 +47,7 @@ The thermodynamic model used to represent a phase is specified in the
     An ideal solution based on the mixing-rule assumption that all molality-based
     activity coefficients are equal to one
 -   <tt>@ref sec-yaml-ideal-solution-VPSS</tt>:
-    An ideal solution; Uses \"variable pressure standard state\" methods for
+    An ideal solution; Uses "variable pressure standard state" methods for
     calculating thermodynamic properties
 -   <tt>@ref sec-yaml-ideal-surface</tt>:
     A surface between two bulk phases
@@ -81,7 +81,7 @@ Some thermodynamic models use additional fields in the `phase` entry,
 which are described in the documentation linked above
 (see also @subpage sec-yaml-phase-thermo-models).
 
-### Declaring the Elements {#sec-yaml-phase-declaring-elements}
+## Declaring the Elements {#sec-yaml-phase-declaring-elements}
 
 In most cases, it is not necessary to specify the elements present in a
 phase. If no `elements` field is present, elements will be added
@@ -96,7 +96,7 @@ If all of the elements to be added are either standard chemical elements or defi
 the <tt>[elements](@ref sec-yaml-elements)</tt> section of the current input file, the
 elements can be specified as a list of element symbols. For example:
 
-``` yaml
+```yaml
 elements: [H, C, O, Ar]
 ```
 
@@ -114,7 +114,7 @@ list of element names. The keys can be:
 
 **Example:**
 
-``` yaml
+```yaml
 elements:
 - default: [C, H, Ar]
 - isotopes: [O18]
@@ -124,7 +124,7 @@ elements:
 The order of the elements specified in the input file determines the
 order of the elements in the phase when it is imported by %Cantera.
 
-### Declaring the Species {#sec-yaml-phase-declaring-species}
+## Declaring the Species {#sec-yaml-phase-declaring-species}
 
 If the species present in the phase corresponds to those species defined
 in the `species` section of the input file, the `species` field may be
@@ -136,7 +136,7 @@ To include specific species from the `species` section of the input
 file, the `species` entry can be a list of species names from that
 section. For example:
 
-``` yaml
+```yaml
 species: [H2, O2, H2O]
 ```
 
@@ -149,7 +149,7 @@ section in that file, separated by a slash. If a relative path is
 specified, the directory containing the current file is searched first,
 followed by the %Cantera data path. Example:
 
-``` yaml
+```yaml
 species:
 - species: [O2, N2]
 - more_species: all
@@ -164,7 +164,7 @@ be skipped by setting the `skip-undeclared-elements` field to `true`.
 For example, to add all species from the `species` section that contain
 only hydrogen or oxygen, the phase definition could contain:
 
-``` yaml
+```yaml
 phases:
 - name: hydrogen-and-oxygen
   elements: [H, O]
@@ -172,7 +172,7 @@ phases:
   skip-undeclared-elements: true
 ```
 
-### Setting the Kinetics Model {#sec-yaml-phase-setting-kinetics}
+## Setting the Kinetics Model {#sec-yaml-phase-setting-kinetics}
 
 The kinetics model to be used, if any, is specified in the `kinetics`
 field. Supported model strings are:
@@ -184,7 +184,7 @@ field. Supported model strings are:
 
 If omitted, no kinetics model will be used.
 
-### Declaring the Reactions {#sec-yaml-phase-declaring-reactions}
+## Declaring the Reactions {#sec-yaml-phase-declaring-reactions}
 
 If a kinetics model has been specified, reactions may be added to the
 phase. By default, all reactions from the `reactions` section of the
@@ -204,7 +204,7 @@ of the species involved are declared as being in the phase, the
 To include reactions from multiple sections or other files, the
 `reactions` entry can be given as a list of section names, for example:
 
-``` yaml
+```yaml
 reactions:
 - OH_submechanism
 - otherfile.yaml/C1-reactions
@@ -217,7 +217,7 @@ mappings can be used, where the key is the section name (or file and
 section name) and the value is either the string `all` or the string
 `declared-species`. For example:
 
-``` yaml
+```yaml
 reactions:
 - OH_submechanism: all
 - otherfile.yaml/C1-reactions: all
@@ -229,7 +229,7 @@ present in the phase, the additional field
 `skip-undeclared-third-bodies` may be added to the phase entry with the
 value `true`.
 
-### Setting the Transport Model {#sec-yaml-phase-setting-transport}
+## Setting the Transport Model {#sec-yaml-phase-setting-transport}
 
 To enable transport property calculation, the transport model to be used
 can be specified in the `transport` field. Supported models are:
@@ -258,7 +258,7 @@ can be specified in the `transport` field. Supported models are:
 -   <tt>[water](@ref Cantera.WaterTransport)</tt>:
     A transport model for pure water applicable in both liquid and vapor phases
 
-### Declaring Adjacent Phases {#sec-yaml-phase-declaring-adjacent}
+## Declaring Adjacent Phases {#sec-yaml-phase-declaring-adjacent}
 
 For interface phases (surfaces and edges), the names of phases adjacent
 to the interface can be specified, in which case these additional phases
@@ -271,7 +271,7 @@ If the definitions of the adjacent phases are contained in the
 `phases` section of the same input file as the interface,
 they can be specified as a list of names:
 
-``` yaml
+```yaml
 adjacent: [gas, bulk]
 ```
 
@@ -280,7 +280,7 @@ or other input files, they can be specified as a list of single-key
 mappings where the key is the section name (or file and section name)
 and the value is the phase name:
 
-``` yaml
+```yaml
 adjacent:
 - {sectionname: gas} # a phase defined in a different section of the same YAML file
 - {path/to/other-file.yaml/phases: bulk} # a phase defined in the 'phases' section
@@ -293,7 +293,7 @@ higher-dimensional adjacent phases should be specified. For example,
 when defining a surface, adjacent bulk phases may be specified, but
 adjacent edges must not.
 
-### Setting the Initial State {#sec-yaml-phase-setting-state}
+## Setting the Initial State {#sec-yaml-phase-setting-state}
 
 The state of a phase can be set using two properties to set the
 thermodynamic state, plus the composition. This state is specified as a
@@ -342,7 +342,7 @@ normalized.
 
 **Examples:**
 
-``` yaml
+```yaml
 state:
   T: 300 K
   P: 101325 Pa
@@ -360,7 +360,7 @@ state:
 For pure fluid phases, the temperature, pressure, and vapor fraction may
 all be specified if and only if they define a consistent state.
 
-### Examples
+## Examples
 
 The following input file defines two equivalent gas phases including all
 reactions and species defined in the input file. The species and
@@ -369,7 +369,7 @@ definition is simplified by having the elements added based on the
 species definitions, taking the species definitions from the default
 `species` section, and reactions from the default `reactions` section.
 
-``` yaml
+```yaml
 phases:
 - name: gas1
   thermo: ideal-gas
@@ -400,7 +400,7 @@ reactions:
 An input file defining an interface and its adjacent bulk phases, with
 full species data not shown for clarity:
 
-``` yaml
+```yaml
 phases:
 - name: graphite
   thermo: lattice
@@ -453,7 +453,7 @@ graphite-anode-reactions:
   beta: 0.4
 ```
 
-## Phase API Reference
+# Phase API Reference
 
 A `phase` is a mapping that contains definitions for the elements,
 species, and optionally reactions that can take place in that phase.

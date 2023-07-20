@@ -1,4 +1,4 @@
-# General File Structure {#sec-yaml-general}
+@page sec-yaml-general General File Structure
 
 The top level of a %Cantera YAML input file is a mapping that defines different input
 file sections. Each section consists of a list of mappings that define objects of the
@@ -13,7 +13,7 @@ section.
 
 A simple input file has the following structure:
 
-``` yaml
+```yaml
 description: |-
   Optional description of the input file.
 

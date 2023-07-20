@@ -1,11 +1,11 @@
-# Species Thermodynamic Models {#sec-yaml-species-thermo-models}
+@page sec-yaml-species-thermo-models Species Thermodynamic Models
 
 [TOC]
 
 Species thermodynamic models are specified using the `thermo` field of
 @ref sec-yaml-species.
 
-## constant-cp {#sec-yaml-constant-cp}
+# constant-cp {#sec-yaml-constant-cp}
 
 The constant heat capacity model, see @ref Cantera.ConstCpPoly or [described
 here](https://cantera.org/science/species-thermo.html#constant-heat-capacity).
@@ -40,7 +40,7 @@ Defaults to infinity.
 
 **Example:**
 
-``` yaml
+```yaml
 thermo:
   model: constant-cp
   T0: 1000 K
@@ -49,7 +49,7 @@ thermo:
   cp0: 5.95 cal/mol/K
 ```
 
-## NASA7 {#sec-yaml-nasa7}
+# NASA7 {#sec-yaml-nasa7}
 
 The NASA 7-coefficient polynomial form given for one (@ref Cantera.NasaPoly1) or two
 temperature regions (@ref Cantera.NasaPoly2); also [described
@@ -75,7 +75,7 @@ listed in descending order.
 
 **Example:**
 
-``` yaml
+```yaml
 thermo:
   model: NASA7
   temperature-ranges: [300.0, 1000.0, 5000.0]
@@ -86,7 +86,7 @@ thermo:
     -6.753351e-15, -922.7977, 5.980528]
 ```
 
-## NASA9 {#sec-yaml-nasa9}
+# NASA9 {#sec-yaml-nasa9}
 
 The NASA 9-coefficient polynomial form given for a single (@ref Cantera.Nasa9Poly1) or
 multiple temperature regions (@ref Cantera.Nasa9PolyMultiTempRegion); also [described
@@ -109,7 +109,7 @@ arranged in ascending order.
 
 **Example:**
 
-``` yaml
+```yaml
 thermo:
   model: NASA9
   temperature-ranges: [200.00, 1000.00, 6000.0, 20000]
@@ -126,7 +126,7 @@ thermo:
      -1.672099740E+03]
 ```
 
-## piecewise-Gibbs {#sec-yaml-piecewise-gibbs}
+# piecewise-Gibbs {#sec-yaml-piecewise-gibbs}
 
 A model based on piecewise interpolation of the Gibbs free energy, see
 @ref Cantera.Mu0Poly.
@@ -164,7 +164,7 @@ Defaults to infinity.
 
 **Example:**
 
-``` yaml
+```yaml
 thermo:
   model: piecewise-Gibbs
   h0: -230.015 kJ/mol
@@ -172,7 +172,7 @@ thermo:
   data: {298.15: -91.50963, 333.15: -85.0}
 ```
 
-## Shomate {#sec-yaml-shomate}
+# Shomate {#sec-yaml-shomate}
 
 The Shomate polynomial form given for one (@ref Cantera.ShomatePoly) or two temperature
 regions (@ref Cantera.ShomatePoly2); also [described
@@ -196,7 +196,7 @@ arranged in ascending order.
 
 **Example:**
 
-``` yaml
+```yaml
 thermo:
   model: Shomate
   temperature-ranges: [298, 1300, 6000]

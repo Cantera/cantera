@@ -1,4 +1,4 @@
-# YAML Format Tutorial  {#sec-yaml-format-tutorial}
+@page sec-yaml-format-tutorial YAML Format Tutorial
 
 [TOC]
 
@@ -7,47 +7,47 @@ dimensional values in %Cantera YAML files are handled, and how to
 understand some of the error messages that may be encountered when
 reading these input files.
 
-## Syntax
+# Syntax
 
 %Cantera YAML files use a subset of the [YAML 1.2](https://yaml.org/spec/1.2/spec.html)
 specification. %Cantera YAML files consist of individual values, which may be strings,
 numbers or booleans, that are then composed as elements of nested mappings and
 sequences.
 
-## Strings
+# Strings
 
 Strings may be generally written without quotes, but may be enclosed in
 single quotes or double quotes if needed in order to avoid certain
 parsing ambiguities.
 
-``` yaml
+```yaml
 A string
 Another 'string'
 "A string: that requires quotes"
 ```
 
-## Numbers
+# Numbers
 
 Numbers can be written as integers, decimal values, or using E-notation
 
-``` yaml
+```yaml
 3
 3.14
 6.022e23
 ```
 
-## Booleans
+# Booleans
 
 Boolean values in YAML are written as the words `true` or `false`.
 
-## Sequences
+# Sequences
 
 A sequence of multiple items is specified by separating the items by
 commas and enclosing them in square brackets. The individual items can
 have any type \--strings, integers, floating-point numbers, mappings, or
 sequences.
 
-``` yaml
+```yaml
 elements: [O, H, C, N, Ar]
 temperature-ranges: [200.0, 1000.0, 3500.0]
 ```
@@ -56,7 +56,7 @@ The syntax above, using square brackets to define a list, is called
 **flow style** in YAML. Sequences can also be written in **block style**,
 using one line for each item in the sequence, with each line starting with a dash:
 
-``` yaml
+```yaml
 elements:
 - O
 - H
@@ -67,7 +67,7 @@ elements:
 
 Sequences can also be nested. The following examples are all equivalent:
 
-``` yaml
+```yaml
 data: [[1, 2], [3, 4]]
 
 data:
@@ -85,7 +85,7 @@ data:
   - 4
 ```
 
-## Mappings
+# Mappings
 
 A mapping is a container consisting of key\--value pairs. The keys in a
 mapping must be unique. Like sequences, there are two ways to write a
@@ -93,7 +93,7 @@ mapping. In the **flow style**, the mapping is enclosed in curly
 brackets, colons (followed by spaces) are used to separate keys and
 values, and key\--value pairs are separated by commas:
 
-``` yaml
+```yaml
 composition: {H: 2, C: 1, O: 1}
 ```
 
@@ -101,7 +101,7 @@ In the **block style**, each key is written on a new line, followed by a
 colon. The value can be placed either on the same line, or on the
 following line, indented one level:
 
-``` yaml
+```yaml
 composition:
   H: 2
   C:
@@ -114,12 +114,12 @@ file is itself a mapping, usually in the **block style**. We refer to
 the keys in this top-level mapping as the **sections** of the input
 file.
 
-## Sequences of Mappings
+# Sequences of Mappings
 
 A common structure in %Cantera input files is a nested sequence of
 mappings. This can be written in the **block style** as:
 
-``` yaml
+```yaml
 - equation: O2 + CO <=> O + CO2
   rate-constant: {A: 2.5e+12, b: 0, Ea: 47800}
 - equation: O2 + CH2O <=> HO2 + HCO
@@ -134,19 +134,19 @@ The keys in each mapping need not be the same. In this example, each of
 the three mappings in the sequence has `equation` and `rate-constant`
 keys, while only the third entry has `type` and `efficiencies` keys.
 
-## Comments
+# Comments
 
 The character `#` is the comment character. Everything to the right of
 this character on a line is ignored:
 
-``` yaml
+```yaml
 # set the default units
 units:
   length: cm  # use centimeters for length
   quantity: mol  # use moles for quantity
 ```
 
-## Dimensional Values
+# Dimensional Values
 
 Many fields have numerical values that represent dimensional
 quantities\-\--a pressure, or a density, for example. If these are
@@ -156,7 +156,7 @@ the units for each individual dimensional quantity, unless stated
 otherwise. All that is required is to write the units after the value,
 separated by a space:
 
-``` yaml
+```yaml
 pressure: 1.0e5  # default is Pascals
 pressure: 1.0 bar  # this is equivalent
 density: 4.0 g/cm^3
@@ -171,7 +171,7 @@ Compound unit strings may be used, as long as a few rules are followed:
 
 Examples of compound units:
 
-``` yaml
+```yaml
 A: 1.0e20 cm^6/mol^2/s  # OK
 h: 6.626e-34 J*s  # OK
 density: 3.0 g*cm^-3  # OK
@@ -185,7 +185,7 @@ API](%7B%7B%%20ct_docs%20sphinx/html/yaml/general.html#units%20%%7D%7D)
 documentation for additional details, including the full set of
 supported units.
 
-## Default units
+# Default Units
 
 Default units that apply to a whole input file or some portion thereof
 can be set using `units` mapping. A `units` mapping placed at the top
@@ -194,7 +194,7 @@ placed as a member of another mapping applies to that mapping and any
 nested mappings or sequences, and overrides higher-level `units`
 mappings:
 
-``` yaml
+```yaml
 units: {length: cm, mass: kg}
 section1:
   units: {length: m}
@@ -210,7 +210,7 @@ section3:
 Default units may be set for `mass`, `length`, `time`, `quantity`,
 `pressure`, `energy`, and `activation-energy`.
 
-## Error Handling
+# Error Handling
 
 During processing of an input file, errors may be encountered. These
 could be syntax errors, or could be ones that are flagged as errors by
@@ -219,7 +219,7 @@ value, a species that contains an undeclared element, a reaction that
 contains an undeclared species, missing species or element definitions,
 multiple definitions of elements, species, or reactions, and so on.
 
-## Syntax Errors
+# Syntax Errors
 
 Syntax errors are caught by the YAML parser, and must be corrected
 before proceeding further. If a syntax error is encountered, %Cantera
@@ -231,7 +231,7 @@ For example, consider the following input file, which is intended to
 create a gas with the species and reactions of GRI-Mech 3.0, but is
 missing the colon which is needed after the `thermo` key:
 
-``` yaml
+```yaml
 phases:
 - name: gas
   thermo ideal-gas
@@ -285,7 +285,7 @@ at the point where it found the colon. By looking back from the
 indicated point of the error, we can see that the problem is the missing
 colon in the previous line.
 
-## Cantera Errors
+# Cantera Errors
 
 Now let's consider the other class of errors, ones that %Cantera itself
 detects. Continuing the example above, suppose that the missing colon is
@@ -312,7 +312,7 @@ are declared. The `gri30` mechanism contains species composed of the
 elements H, O, C, N, and Ar. If the definition is modified to declare
 these additional elements:
 
-``` yaml
+```yaml
 phases:
 - name: gas
   thermo: ideal-gas

@@ -1,4 +1,4 @@
-# %Cantera YAML Documentation {#sec-yaml-documentation}
+@page sec-yaml-documentation %Cantera YAML Documentation
 
 This short guide describes %Cantera YAML input files that define phases and
 interfaces for use in %Cantera simulations. Each link below represents an entry

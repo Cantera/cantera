@@ -1,8 +1,8 @@
-# Element Entries {#sec-yaml-elements}
+@page sec-yaml-elements Element Entries
 
 [TOC]
 
-## Overview
+# Overview
 
 %Cantera provides built-in definitions for the chemical elements, including values for
 their atomic weights taken from IUPAC / CIAAW. These elements can be used by specifying
@@ -20,7 +20,7 @@ named explicitly in the `elements` field of the phase definition.
 
 **Example:**
 
-``` yaml
+```yaml
 elements:
 - symbol: C13
   atomic-weight: 13.003354826
@@ -29,7 +29,7 @@ elements:
   atomic-weight: 17.9991603
 ```
 
-## Element API Reference
+# Element API Reference
 
 The fields of an `element` entry are:
 

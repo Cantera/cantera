@@ -1,11 +1,11 @@
-# Species Coverage Models {#sec-yaml-species-coverage-models}
+@page sec-yaml-species-coverage-models Species Coverage Models
 
 [TOC]
 
 Species coverage models are specified using the `coverage-dependencies` field of
 @ref sec-yaml-species.
 
-## linear {#sec-yaml-species-coverage-linear}
+# linear {#sec-yaml-species-coverage-linear}
 
 <b>`enthalpy`</b> and <b>`entropy`</b>
 
@@ -13,7 +13,7 @@ Slope of the coverage-dependent enthalpy or entropy.
 
 **Example:**
 
-``` yaml
+```yaml
 coverage-dependencies:
   O_Pt:
     model: linear
@@ -23,7 +23,7 @@ coverage-dependencies:
   # + other entries (optional)
 ```
 
-## polynomial {#sec-yaml-species-coverage-polynomial}
+# polynomial {#sec-yaml-species-coverage-polynomial}
 
 <b>`enthalpy-coefficients`</b> and <b>`entropy-coefficients`</b>
 
@@ -32,7 +32,7 @@ Array of polynomial coefficients in order of 1st, 2nd, 3rd, and
 
 **Example:**
 
-``` yaml
+```yaml
 coverage-dependencies:
   OC_Pt:
     model: polynomial
@@ -42,7 +42,7 @@ coverage-dependencies:
   # + other entries (optional)
 ```
 
-## piecewise-linear {#sec-yaml-species-coverage-piecewise-linear}
+# piecewise-linear {#sec-yaml-species-coverage-piecewise-linear}
 
 <b>`enthalpy-low`</b> and <b>`entropy-low`</b>
 
@@ -64,7 +64,7 @@ Coefficient @f$c^{(a)}@f$ or @f$c^{(b)}@f$ used in the coverage-dependent
 
 **Example:**
 
-``` yaml
+```yaml
 coverage-dependencies:
   CO2_Pt:
     model: piecewise-linear
@@ -80,7 +80,7 @@ coverage-dependencies:
   # + other entries (optional)
 ```
 
-## interpolative {#sec-yaml-species-coverage-interpolative}
+# interpolative {#sec-yaml-species-coverage-interpolative}
 
 <b>`enthalpy-coverages`</b> and <b>`entropy-coverages`</b>
 
@@ -93,7 +93,7 @@ coverages in `enthalpy-coverages` and `entropy-coverages`, respectively.
 
 **Example:**
 
-``` yaml
+```yaml
 coverage-dependencies:
   C_Pt:
     model: interpolative

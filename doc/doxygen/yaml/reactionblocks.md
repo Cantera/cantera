@@ -1,11 +1,11 @@
-# Reaction Rate Blocks {#sec-yaml-reaction-rate-blocks}
+@page sec-yaml-reaction-rate-blocks Reaction Rate Blocks
 
 [TOC]
 
 The following reaction rate expressions are used as building blocks for most
 @ref sec-yaml-reaction-models.
 
-## Arrhenius {#sec-yaml-Arrhenius-rate}
+# Arrhenius {#sec-yaml-Arrhenius-rate}
 
 Arrhenius rate expressions are specified as a mapping with fields:
 
@@ -23,12 +23,12 @@ The activation energy @f$ E_a @f$
 
 or a corresponding three-element list. The following are equivalent:
 
-``` yaml
+```yaml
 {A: -2.70000E+13 cm^3/mol/s, b: 0, Ea: 355 cal/mol}
 [-2.70000E+13 cm^3/mol/s, 0, 355 cal/mol]
 ```
 
-## Blowers-Masel {#sec-yaml-Blowers-Masel-rate}
+# Blowers-Masel {#sec-yaml-Blowers-Masel-rate}
 
 Blowers-Masel rate expressions calculate the rate constant based on the
 Blowers Masel approximation as [described
@@ -54,12 +54,12 @@ that being formed in the reaction @f$ w@f$
 
 or a corresponding four-element list. The following are equivalent:
 
-``` yaml
+```yaml
 {A: 3.87e+04 cm^3/mol/s, b: 2.7, Ea0: 6260.0 cal/mol, w: 1e9 cal/mol}
 [3.87e+04 cm^3/mol/s, 2.7, 6260.0 cal/mol, 1e9 cal/mol]
 ```
 
-## Two-Temperature Plasma {#sec-yaml-two-temperature-plasma-rate}
+# Two-Temperature Plasma {#sec-yaml-two-temperature-plasma-rate}
 
 Two-temperature plasma reactions involve an electron as one of the
 reactants, where the electron temperature may differ from the gas
@@ -85,7 +85,7 @@ The activation energy term @f$ E_{a,e}@f$  that is related to the electron tempe
 
 or a corresponding four-element list. The following are equivalent:
 
-``` yaml
+```yaml
 {A: 17283, b: -3.1, Ea-gas: -5820 J/mol, Ea-electron: 1081 J/mol}
 [17283, -3.1, -5820 J/mol, 1081 J/mol]
 ```

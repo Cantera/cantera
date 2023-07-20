@@ -1,8 +1,8 @@
-# Species Entries {#sec-yaml-species}
+@page sec-yaml-species Species Entries
 
 [TOC]
 
-## Overview
+# Overview
 
 A species entry in %Cantera is used to specify the name, composition,
 thermodynamic, and transport properties of an individual species.
@@ -14,7 +14,7 @@ be defined in other sections of the input file or in other input files,
 and these species definitions can be used in phase definitions by
 explicitly referencing the section name.
 
-### Species Name
+## Species Name
 
 The name of a species is given in the `name` field of a `species` entry.
 Names may include almost all printable characters, with the exception of
@@ -22,11 +22,11 @@ spaces. The use of some characters such as `[`, `]`, and `,` may require
 that species names be enclosed in quotes when written in YAML. Some
 valid species names given in a YAML list include:
 
-``` yaml
+```yaml
 [CH4, methane, argon_2+, "C[CH2]", CH2(singlet), "H2O,l"]
 ```
 
-### Elemental Composition
+## Elemental Composition
 
 The elemental composition of a species is specified as a mapping in the
 `composition` entry.
@@ -45,18 +45,18 @@ solids. A charged vacancy can be defined to be composed solely of
 electrons.
 
 The number of atoms of an element must be non-negative, except for the
-special \"element\" `E` that represents an electron.
+special "element" `E` that represents an electron.
 
 **Examples:**
 
-``` yaml
+```yaml
 composition: {C: 1, O: 2}  # carbon dioxide
 composition: {Ar: 1, E: -2}  # Ar++
 composition: {Y: 1, Ba: 2, Cu: 3, O: 6.5}  # stoichiometric YBCO
 composition: {}  # A surface species representing an empty site
 ```
 
-### Thermodynamic Properties {#sec-yaml-species-thermo-properties}
+## Thermodynamic Properties {#sec-yaml-species-thermo-properties}
 
 In addition to the thermodynamic model used at the phase level for
 computing properties, parameterizations are usually required for the
@@ -80,7 +80,7 @@ the `model` field of the `thermo` field. The models available are:
 For descriptions of fields used by each model as well as examples,
 see @subpage sec-yaml-species-thermo-models.
 
-### Equation of State {#sec-yaml-species-equation-of-state}
+## Equation of State {#sec-yaml-species-equation-of-state}
 
 For some phase thermodynamic models, additional equation of state
 parameterizations are needed for each species. This information is
@@ -109,7 +109,7 @@ the type of parameterization used specified by the `model` field of the
 For descriptions of fields used by each model as well as examples,
 see @subpage sec-yaml-species-eos-models.
 
-### Transport Coefficients {#sec-yaml-species-transport-coefficients}
+## Transport Coefficients {#sec-yaml-species-transport-coefficients}
 
 Transport-related parameters for each species are needed in order to
 calculate transport properties of a phase. These parameters are provided
@@ -124,7 +124,7 @@ Currently, there is a single model type that is specifically handled:
 For descriptions of fields used by the model as well as an example,
 see @subpage sec-yaml-species-transport-models.
 
-### Coverage Dependencies {#sec-yaml-species-coverage}
+## Coverage Dependencies {#sec-yaml-species-coverage}
 
 The coverage-dependent surface species formulation calculates coverage-dependent
 correction factors to the ideal surface phase properties. Used in conjunction with the
@@ -141,7 +141,7 @@ Supported algebraic models are:
 For descriptions of fields used by each model as well as examples,
 see @subpage sec-yaml-species-coverage-models.
 
-## Species API Reference
+# Species API Reference
 
 The fields of a `species` entry are:
 

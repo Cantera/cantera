@@ -1,11 +1,11 @@
-# Species Equation of State Models {#sec-yaml-species-eos-models}
+@page sec-yaml-species-eos-models Species Equation of State Models
 
 [TOC]
 
 Species equation of state models are specified using the `equation-of-state` field of
 @ref sec-yaml-species.
 
-## constant-volume {#sec-yaml-eos-constant-volume}
+# constant-volume {#sec-yaml-eos-constant-volume}
 
 A constant volume model, see @ref Cantera.PDSS_ConstVol.
 
@@ -25,13 +25,13 @@ The mass density of the species.
 
 **Example:**
 
-``` yaml
+```yaml
 equation-of-state:
   model: constant-volume
   molar-volume: 1.3 cm^3/mol
 ```
 
-## density-temperature-polynomial {#sec-yaml-eos-density-temperature-polynomial}
+# density-temperature-polynomial {#sec-yaml-eos-density-temperature-polynomial}
 
 A model in which the density varies with temperature, see @ref Cantera.PDSS_SSVol.
 
@@ -43,14 +43,14 @@ Vector of 4 coefficients for a cubic polynomial in temperature
 
 **Example:**
 
-``` yaml
+```yaml
 equation-of-state:
   model: density-temperature-polynomial
   units: {mass: g, length: cm}
   data: [0.536504, -1.04279e-4, 3.84825e-9, -5.2853e-12]
 ```
 
-## HKFT {#sec-yaml-eos-hkft}
+# HKFT {#sec-yaml-eos-hkft}
 
 The Helgeson-Kirkham-Flowers-Tanger model, see @ref Cantera.PDSS_HKFT.
 
@@ -78,7 +78,7 @@ The @f$\omega@f$ parameter at the reference temperature and pressure
 
 **Example:**
 
-``` yaml
+```yaml
 equation-of-state:
   model: HKFT
   h0: -57433. cal/gmol
@@ -89,13 +89,13 @@ equation-of-state:
   omega: 33060 cal/gmol
 ```
 
-## ideal-gas {#sec-yaml-eos-ideal-gas}
+# ideal-gas {#sec-yaml-eos-ideal-gas}
 
 A species using the ideal gas equation of state, see @ref Cantera.PDSS_IdealGas.
 
 @deprecated This species thermo model is deprecated and will be removed after %Cantera 3.0.
 
-## ions-from-neutral-molecule {#sec-yaml-eos-ions-from-neutral}
+# ions-from-neutral-molecule {#sec-yaml-eos-ions-from-neutral}
 
 A species equation of state model used with the `ions-from-neutral-molecule` phase
 model, see @ref Cantera.PDSS_IonsFromNeutral.
@@ -106,7 +106,7 @@ Additional fields:
 
 <b>`special-species`</b>
 
-Boolean indicating whether the species is the \"special species\" in
+Boolean indicating whether the species is the "special species" in
 the phase. Default is `false`.
 
 <b>`multipliers`</b>
@@ -115,17 +115,17 @@ A dictionary mapping species to neutral species multiplier values.
 
 **Example:**
 
-``` yaml
+```yaml
 equation-of-state:
   model: ions-from-neutral-molecule
   multipliers: {KCl(l): 1.2}
 ```
 
-## liquid-water-IAPWS95 {#sec-yaml-eos-liquid-water-iapws95}
+# liquid-water-IAPWS95 {#sec-yaml-eos-liquid-water-iapws95}
 
 A detailed equation of state for liquid water, see @ref Cantera.PDSS_Water.
 
-## molar-volume-temperature-polynomial {#sec-yaml-eos-molar-volume-temperature-polynomial}
+# molar-volume-temperature-polynomial {#sec-yaml-eos-molar-volume-temperature-polynomial}
 
 A model in which the molar volume varies with temperature, see @ref Cantera.PDSS_SSVol.
 
@@ -135,7 +135,7 @@ Additional fields:
 
 Vector of 4 coefficients for a cubic polynomial in temperature
 
-## Peng-Robinson {#sec-yaml-eos-peng-robinson}
+# Peng-Robinson {#sec-yaml-eos-peng-robinson}
 
 A model where species follow the Peng-Robinson equation of state, see
 @ref Cantera.PengRobinson.
@@ -161,7 +161,7 @@ the `a` coefficients for binary interactions between the two species.
 
 **Example:**
 
-``` yaml
+```yaml
 equation-of-state:
   model: Peng-Robinson
   units: {length: cm, quantity: mol}
@@ -173,7 +173,7 @@ equation-of-state:
     CO2: 7.897e7 bar*cm^6/mol^2
 ```
 
-## Redlich-Kwong {#sec-yaml-eos-redlich-kwong}
+# Redlich-Kwong {#sec-yaml-eos-redlich-kwong}
 
 A model where species follow the Redlich-Kwong equation of state, see
 @ref Cantera.RedlichKwongMFTP.

@@ -1,11 +1,10 @@
-# Phase Thermodynamic Models {#sec-yaml-phase-thermo-models}
-
-[TOC]
+@page sec-yaml-phase-thermo-models Phase Thermodynamic Models
 
 Thermodynamic models are specified using the `thermo` field of @ref sec-yaml-phases.
 
+[TOC]
 
-## binary-solution-tabulated {#sec-yaml-binary-solution-tabulated}
+# binary-solution-tabulated {#sec-yaml-binary-solution-tabulated}
 
 A phase implementing tabulated standard state thermodynamics for one
 species in a binary solution, see @ref Cantera.BinarySolutionTabulatedThermo.
@@ -29,7 +28,7 @@ A mapping containing three (optionally four) lists of equal lengths:
 -   `molar-volume`: The molar volume of the phase at these mole fractions. This
     input is optional.
 
-## compound-lattice {#sec-yaml-compound-lattice}
+# compound-lattice {#sec-yaml-compound-lattice}
 
 A phase that is comprised of a fixed additive combination of other
 lattice phases, see @ref Cantera.LatticeSolidPhase.
@@ -42,12 +41,12 @@ A mapping of component phase names to their relative stoichiometries.
 
 **Example:**
 
-``` yaml
+```yaml
 thermo: compound-lattice
 composition: {Li7Si3(s): 1.0, Li7Si3-interstitial: 1.0}
 ```
 
-## coverage-dependent-surface {#sec-yaml-coverage-dependent-surface}
+# coverage-dependent-surface {#sec-yaml-coverage-dependent-surface}
 
 A coverage-dependent surface phase. That is, a surface phase where the
 enthalpy, entropy, and heat capacity of each species may depend on its
@@ -69,7 +68,7 @@ The reference state coverage denoting the low-coverage limit
 
 **Example:**
 
-``` yaml
+```yaml
 - name: covdep
   thermo: coverage-dependent-surface
   species: [Pt, OC_Pt, CO2_Pt, C_Pt, O_Pt]
@@ -81,7 +80,7 @@ The reference state coverage denoting the low-coverage limit
   reference-state-coverage: 0.22
 ```
 
-## Debye-Huckel {#sec-yaml-Debye-Huckel}
+# Debye-Huckel {#sec-yaml-Debye-Huckel}
 
 The Debye-Hückel model, see @ref Cantera.DebyeHuckel.
 
@@ -93,11 +92,11 @@ The activity data field contains the following fields:
 
 -   `model`: One of `dilute-limit`, `B-dot-with-variable-a`,
     `B-dot-with-common-a`, `beta_ij`, or `Pitzer-with-beta_ij`
--   `A_Debye`: The value of the Debye \"A\" parameter, or the string `variable`
+-   `A_Debye`: The value of the Debye "A" parameter, or the string `variable`
     to use a calculation based on the water equation of state.
     Defaults to the constant value of 1.172576 kg^0.5/gmol^0.5, a
     nominal value for water at 298 K and 1 atm.
--   `B_Debye`: The Debye \"B\" parameter. Defaults to 3.2864e+09
+-   `B_Debye`: The Debye "B" parameter. Defaults to 3.2864e+09
     kg^0.5/gmol^0.5/m, a nominal value for water.
 -   `max-ionic-strength`: The maximum ionic strength
 -   `use-Helgeson-fixed-form`: Boolean, `true` or `false`
@@ -111,7 +110,7 @@ The activity data field contains the following fields:
 
 **Example:**
 
-``` yaml
+```yaml
 thermo: Debye-Huckel
 activity-data:
   model: beta_ij
@@ -149,7 +148,7 @@ Charge to use for species that can break apart into charged species.
 
 **Example:**
 
-``` yaml
+```yaml
 name: NaCl(aq)
 composition: {Na: 1, Cl: 1}
 thermo:
@@ -166,7 +165,7 @@ Debye-Huckel:
   weak-acid-charge: -1.0
 ```
 
-## edge {#sec-yaml-edge}
+# edge {#sec-yaml-edge}
 
 A one-dimensional edge between two surfaces, see @ref Cantera.EdgePhase
 
@@ -178,12 +177,12 @@ The molar density of sites per unit length along the edge
 
 **Example:**
 
-``` yaml
+```yaml
 thermo: edge
 site-density: 5.0e-17 mol/cm
 ```
 
-## electron-cloud {#sec-yaml-electron-cloud}
+# electron-cloud {#sec-yaml-electron-cloud}
 
 A phase representing an electron cloud, such as conduction electrons in
 a metal, see @ref Cantera.MetalPhase.
@@ -194,11 +193,11 @@ Additional fields:
 
 The density of the bulk metal
 
-## fixed-stoichiometry {#sec-yaml-fixed-stoichiometry}
+# fixed-stoichiometry {#sec-yaml-fixed-stoichiometry}
 
 A phase with fixed composition, see @ref Cantera.StoichSubstance.
 
-## HMW-electrolyte {#sec-yaml-HMW-electrolyte}
+# HMW-electrolyte {#sec-yaml-HMW-electrolyte}
 
 A dilute or concentrated liquid electrolyte phase that obeys the Pitzer
 formulation for nonideality, see @ref Cantera.HMWSoln.
@@ -212,7 +211,7 @@ The activity data field contains the following fields:
 -   `temperature-model`: The form of the Pitzer temperature model. One of `constant`,
     `linear` or `complex`. The default is `constant`.
 
--   `A_Debye`: The value of the Debye \"A\" parameter, or the string `variable`
+-   `A_Debye`: The value of the Debye "A" parameter, or the string `variable`
     to use a calculation based on the water equation of state. The
     default is 1.172576 kg^0.5/gmol^0.5, a nominal value for water
     at 298 K and 1 atm.
@@ -260,7 +259,7 @@ The activity data field contains the following fields:
 
 **Example:**
 
-``` yaml
+```yaml
 thermo: HMW-electrolyte
 activity-data:
   temperature-model: complex
@@ -291,7 +290,7 @@ activity-data:
   - {species: [Cl-, Na+, H+], psi: [-0.004]}
 ```
 
-## ideal-condensed {#sec-yaml-ideal-condensed}
+# ideal-condensed {#sec-yaml-ideal-condensed}
 
 A condensed phase ideal solution, see @ref Cantera.IdealSolidSolnPhase.
 
@@ -302,13 +301,13 @@ Additional fields:
 A string specifying the basis for the standard concentration. One of
 `unity`, `species-molar-volume`, or `solvent-molar-volume`.
 
-## ideal-gas {#sec-yaml-ideal-gas}
+# ideal-gas {#sec-yaml-ideal-gas}
 
 The ideal gas model, see @ref Cantera.IdealGasPhase.
 
 **Example:**
 
-``` yaml
+```yaml
 - name: ohmech
   thermo: ideal-gas
   elements: [O, H, Ar, N]
@@ -318,7 +317,7 @@ The ideal gas model, see @ref Cantera.IdealGasPhase.
   state: {T: 300.0, P: 1 atm}
 ```
 
-## ideal-molal-solution {#sec-yaml-ideal-molal-solution}
+# ideal-molal-solution {#sec-yaml-ideal-molal-solution}
 
 A phase based on the mixing-rule assumption that all molality-based
 activity coefficients are equal to one, see @ref Cantera.IdealMolalSoln.
@@ -346,7 +345,7 @@ Parameters for cutoff treatments of activity coefficients
 
 **Example:**
 
-``` yaml
+```yaml
 thermo: ideal-molal-solution
 standard-concentration-basis: solvent-molar-volume
 cutoff:
@@ -359,7 +358,7 @@ cutoff:
   slope_g: 0.0
 ```
 
-## ideal-solution-VPSS {#sec-yaml-ideal-solution-VPSS}
+# ideal-solution-VPSS {#sec-yaml-ideal-solution-VPSS}
 
 An ideal solution model using variable pressure standard state methods, see
 @ref Cantera.IdealSolnGasVPSS.
@@ -371,7 +370,7 @@ Additional fields:
 A string specifying the basis for the standard concentration. One of
 `unity`, `species-molar-volume`, or `solvent-molar-volume`.
 
-## ideal-surface {#sec-yaml-ideal-surface}
+# ideal-surface {#sec-yaml-ideal-surface}
 
 An ideal surface phase, see @ref Cantera.SurfPhase.
 
@@ -383,7 +382,7 @@ The molar density of surface sites
 
 **Example:**
 
-``` yaml
+```yaml
 - name: Pt_surf
   thermo: ideal-surface
   adjacent-phases: [gas]
@@ -398,7 +397,7 @@ The molar density of surface sites
   site-density: 2.7063e-09
 ```
 
-## ions-from-neutral-molecule {#sec-yaml-ions-from-neutral-molecule}
+# ions-from-neutral-molecule {#sec-yaml-ions-from-neutral-molecule}
 
 A model that handles the specification of the chemical potentials for
 ionic species, given a specification of the chemical potentials for the
@@ -416,7 +415,7 @@ neutral molecules.
 
 **Example:**
 
-``` yaml
+```yaml
 - name: KCl-ions
   thermo: ions-from-neutral-molecule
   neutral-phase: KCl-neutral
@@ -426,7 +425,7 @@ neutral molecules.
   thermo: Margules
 ```
 
-## lattice {#sec-yaml-lattice}
+# lattice {#sec-yaml-lattice}
 
 A simple thermodynamic model for a bulk phase, assuming a lattice of
 solid atoms, see @ref Cantera.LatticePhase.
@@ -437,11 +436,11 @@ Additional fields:
 
 The molar density of lattice sites
 
-## liquid-water-IAPWS95 {#sec-yaml-liquid-water-IAPWS95}
+# liquid-water-IAPWS95 {#sec-yaml-liquid-water-IAPWS95}
 
 An equation of state for liquid water, see @ref Cantera.WaterSSTP.
 
-## Margules {#sec-yaml-Margules}
+# Margules {#sec-yaml-Margules}
 
 A phase employing the Margules approximation for the excess Gibbs free
 energy, see @ref Cantera.MargulesVPSSTP.
@@ -468,7 +467,7 @@ A list of mappings, where each mapping has the following fields:
 
 **Example:**
 
-``` yaml
+```yaml
 thermo: Margules
 interactions:
 - species: [KCl(l), LiCl(l)]
@@ -476,7 +475,7 @@ interactions:
   excess-entropy: [-7.627, 4.958]
 ```
 
-## Maskell-solid-solution {#sec-yaml-Maskell-solid-solution}
+# Maskell-solid-solution {#sec-yaml-Maskell-solid-solution}
 
 A condensed phase non-ideal solution with two species, see
 @ref Cantera.MaskellSolidSolnPhase.
@@ -491,24 +490,24 @@ The molar excess enthalpy
 
 <b>`product-species`</b>
 
-String specifying the \"product\" species
+String specifying the "product" species
 
 **Example:**
 
-``` yaml
+```yaml
 thermo: Maskell-solid-solution
 excess-enthalpy: 5 J/mol
 product-species: H(s)
 ```
 
-## Peng-Robinson {#sec-yaml-Peng-Robinson}
+# Peng-Robinson {#sec-yaml-Peng-Robinson}
 
 A multi-species Peng-Robinson phase, see @ref Cantera.PengRobinson.
 
 The parameters for each species are contained in the corresponding
 species entries. See @ref sec-yaml-eos-peng-robinson.
 
-## plasma {#sec-yaml-plasma}
+# plasma {#sec-yaml-plasma}
 
 A phase for plasma. This phase handles plasma properties such as the
 electron energy distribution and electron temperature with different
@@ -540,7 +539,7 @@ A mapping with the following fields:
 
 **Example:**
 
-``` yaml
+```yaml
 - name: isotropic-electron-energy-plasma
   thermo: plasma
   kinetics: gas
@@ -561,7 +560,7 @@ A mapping with the following fields:
     normalize: False
 ```
 
-## pure-fluid {#sec-yaml-pure-fluid}
+# pure-fluid {#sec-yaml-pure-fluid}
 
 A phase representing a pure fluid equation of state for one of several
 species, see @ref Cantera.PureFluidPhase.
@@ -574,7 +573,7 @@ Name of the pure fluid model to use: - `carbon-dioxide` -
 `heptane` - `HFC-134a` - `hydrogen` - `methane` - `nitrogen` -
 `oxygen` - `water`
 
-## Redlich-Kister {#sec-yaml-Redlich-Kister}
+# Redlich-Kister {#sec-yaml-Redlich-Kister}
 
 A phase employing the Redlich-Kister approximation for the excess Gibbs
 free energy, see @ref Cantera.RedlichKisterVPSSTP.
@@ -593,7 +592,7 @@ A list of mappings, where each mapping has the following fields:
 
 **Example:**
 
-``` yaml
+```yaml
 thermo: Redlich-Kister
 interactions:
 - species: [Li(C6), V(C6)]
@@ -603,7 +602,7 @@ interactions:
   excess-entropy: [0.0]
 ```
 
-## Redlich-Kwong {#sec-yaml-Redlich-Kwong}
+# Redlich-Kwong {#sec-yaml-Redlich-Kwong}
 
 A multi-species Redlich-Kwong phase, see @ref Cantera.RedlichKwongMFTP.
 

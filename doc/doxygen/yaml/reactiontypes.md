@@ -1,9 +1,9 @@
 
-# Reaction Models {#sec-yaml-reaction-models}
+@page sec-yaml-reaction-models Reaction Models
 
 [TOC]
 
-## elementary {#sec-yaml-elementary}
+# elementary {#sec-yaml-elementary}
 
 A homogeneous reaction with a pressure-independent rate coefficient and
 mass action kinetics, as [described
@@ -22,13 +22,13 @@ pre-exponential factor is allowed. The default is `false`.
 
 **Example:**
 
-``` yaml
+```yaml
 equation: N + NO <=> N2 + O
 rate-constant: {A: -2.70000E+13 cm^3/mol/s, b: 0, Ea: 355 cal/mol}
 negative-A: true
 ```
 
-## three-body {#sec-yaml-three-body}
+# three-body {#sec-yaml-three-body}
 
 A three body reaction as [described
 here](https://cantera.org/science/kinetics.html#three-body-reactions).
@@ -40,40 +40,40 @@ for specifying @ref sec-yaml-reactions-efficiencies.
 
 **Example:**
 
-``` yaml
+```yaml
 equation: 2 O + M = O2 + M
 type: three-body
 rate-constant: [1.20000E+17 cm^6/mol^2/s, -1, 0]
 efficiencies: {AR: 0.83, H2O: 5}
 ```
 
-## Blowers-Masel {#sec-yaml-Blowers-Masel}
+# Blowers-Masel {#sec-yaml-Blowers-Masel}
 
 Includes the fields of an <tt>@ref sec-yaml-elementary</tt> reaction, except that the
 `rate-constant` field is a @ref sec-yaml-Blowers-Masel-rate list or mapping.
 
 **Example:**
 
-``` yaml
+```yaml
 equation: O + H2 <=> H + OH
 type: Blowers-Masel
 rate-constant: {A: 3.87e+04 cm^2/mol/s, b: 2.7, Ea0: 6260.0 cal/mol, w: 1e9 cal/mol}
 ```
 
-## two-temperature-plasma {#sec-yaml-two-temperature-plasma}
+# two-temperature-plasma {#sec-yaml-two-temperature-plasma}
 
 Includes the fields of an <tt>@ref sec-yaml-elementary</tt> reaction, except that the
 `rate-constant` field is a @ref sec-yaml-two-temperature-plasma-rate list or mapping.
 
 **Example:**
 
-``` yaml
+```yaml
 equation: O + H => O + H
 type: two-temperature-plasma
 rate-constant: {A: 17283, b: -3.1, Ea-gas: -5820 J/mol, Ea-electron: 1081 J/mol}
 ```
 
-## falloff {#sec-yaml-falloff}
+# falloff {#sec-yaml-falloff}
 
 A falloff reaction as [described
 here](https://cantera.org/science/kinetics.html#falloff-reactions).
@@ -117,7 +117,7 @@ default value for `B` is 0.0.
 
 **Example:**
 
-``` yaml
+```yaml
 equation: H + CH2 (+ N2) <=> CH3 (+N2)
 type: falloff
 high-P-rate-constant: [6.00000E+14 cm^3/mol/s, 0, 0]
@@ -125,7 +125,7 @@ low-P-rate-constant: {A: 1.04000E+26 cm^6/mol^2/s, b: -2.76, Ea: 1600}
 Troe: {A: 0.562, T3: 91, T1: 5836}
 ```
 
-## chemically-activated {#sec-yaml-chemically-activated}
+# chemically-activated {#sec-yaml-chemically-activated}
 
 A chemically activated reaction as [described
 here](https://cantera.org/science/kinetics.html#chemically-activated-reactions).
@@ -134,14 +134,14 @@ The parameters are the same as for <tt>@ref sec-yaml-falloff</tt> reactions.
 
 **Example:**
 
-``` yaml
+```yaml
 equation: CH3 + OH (+M) <=> CH2O + H2 (+M)
 type: chemically-activated
 high-P-rate-constant: [5.88E-14, 6.721, -3022.227]
 low-P-rate-constant: [282320.078, 1.46878, -3270.56495]
 ```
 
-## pressure-dependent-Arrhenius {#sec-yaml-pressure-dependent-Arrhenius}
+# pressure-dependent-Arrhenius {#sec-yaml-pressure-dependent-Arrhenius}
 
 A pressure-dependent reaction using multiple Arrhenius expressions as
 [described
@@ -156,7 +156,7 @@ A list of mappings, where each mapping is the mapping form of an
 
 **Example:**
 
-``` yaml
+```yaml
 equation: H + CH4 <=> H2 + CH3
 type: pressure-dependent-Arrhenius
 rate-constants:
@@ -166,7 +166,7 @@ rate-constants:
 - {P: 1.01325 MPa, A: 1.680000e+16, b: -0.6, Ea: 14754.0}
 ```
 
-## Chebyshev {#sec-yaml-Chebyshev}
+# Chebyshev {#sec-yaml-Chebyshev}
 
 A reaction parameterized as a bivariate Chebyshev polynomial as
 [described
@@ -190,7 +190,7 @@ A list of lists containing the Chebyshev coefficients
 
 **Example:**
 
-``` yaml
+```yaml
 equation: CH4 <=> CH3 + H
 type: Chebyshev
 temperature-range: [290, 3000]
@@ -203,7 +203,7 @@ data: [[-1.44280e+01,  2.59970e-01, -2.24320e-02, -2.78700e-03],
        [-1.43220e-01,  7.71110e-02,  1.27080e-02, -6.41540e-04]]
 ```
 
-## interface-Arrhenius {#sec-yaml-interface-Arrhenius}
+# interface-Arrhenius {#sec-yaml-interface-Arrhenius}
 
 A reaction occurring on a surface between two bulk phases, or along an
 edge at the intersection of two surfaces, as [described
@@ -234,7 +234,7 @@ respectively.
 
 **Examples:**
 
-``` yaml
+```yaml
 - equation: 2 H(s) => H2 + 2 Pt(s)
   rate-constant: {A: 3.7e21 cm^2/mol/s, b: 0, Ea: 67400 J/mol}
   coverage-dependencies: {H(s): {a: 0, m: 0, E: -6000 J/mol}}
@@ -256,21 +256,21 @@ respectively.
     O(S): [0, 0, [1.0e6, 3.0e6, -7.0e7, 5.0e6]]
 ```
 
-## interface-Blowers-Masel {#sec-yaml-interface-Blowers-Masel}
+# interface-Blowers-Masel {#sec-yaml-interface-Blowers-Masel}
 
 Includes the same fields as <tt>@ref sec-yaml-interface-Arrhenius</tt>, while using the
 @ref sec-yaml-Blowers-Masel-rate parameterization for the rate constant.
 
 **Example:**
 
-``` yaml
+```yaml
 equation: 2 H(s) => H2 + 2 Pt(s)
 type: Blowers-Masel
 rate-constant: {A: 3.7e21 cm^2/mol/s, b: 0, Ea0: 67400 J/mol, w: 1000000 J/mol}
 coverage-dependencies: {H(s): {a: 0, m: 0, E: -6000 J/mol}}
 ```
 
-## sticking-Arrhenius {#sec-yaml-sticking-Arrhenius}
+# sticking-Arrhenius {#sec-yaml-sticking-Arrhenius}
 
 A sticking reaction occurring on a surface adjacent to a bulk phase, as
 [described here](https://cantera.org/science/kinetics.html#sec-sticking).
@@ -293,26 +293,26 @@ multiple non-surface species.
 
 **Example:**
 
-``` yaml
+```yaml
 equation: OH + PT(S) => OH(S)
 sticking-coefficient: {A: 1.0, b: 0, Ea: 0}
 ```
 
-## sticking-Blowers-Masel {#sec-yaml-sticking-Blowers-Masel}
+# sticking-Blowers-Masel {#sec-yaml-sticking-Blowers-Masel}
 
 Includes the same fields as <tt>@ref sec-yaml-sticking-Arrhenius</tt>, while using the
 @ref sec-yaml-Blowers-Masel-rate parameterization for the sticking coefficient.
 
 **Example:**
 
-``` yaml
+```yaml
 equation: OH + PT(S) => OH(S)
 type: Blowers-Masel
 sticking-coefficient: {A: 1.0, b: 0, Ea0: 0, w: 100000}
 Motz-Wise: true
 ```
 
-## electrochemical {#sec-yaml-electrochemical-reaction}
+# electrochemical {#sec-yaml-electrochemical-reaction}
 
 Interface reactions involving charge transfer between phases.
 
@@ -329,7 +329,7 @@ current density. Default is `false`.
 
 **Example:**
 
-``` yaml
+```yaml
 equation: LiC6 <=> Li+(e) + C6
 rate-constant: [5.74, 0.0, 0.0]
 beta: 0.4
