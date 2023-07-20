@@ -156,6 +156,7 @@ namespace Cantera
  *  molarVolume key is provided or not, the equation-of-state field in the pure species
  *  entries has to be defined.
  *
+ * @since New in %Cantera 2.5
  * @ingroup thermoprops
  */
 class BinarySolutionTabulatedThermo : public IdealSolidSolnPhase

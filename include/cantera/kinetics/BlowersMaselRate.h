@@ -65,6 +65,7 @@ protected:
  *        k_f =  A T^b \exp (-E_a/RT)
  *   \f]
  *
+ * @since New in %Cantera 2.6
  * @ingroup arrheniusGroup
  */
 class BlowersMaselRate : public ArrheniusBase
