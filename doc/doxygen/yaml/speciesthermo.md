@@ -142,7 +142,7 @@ Defaults to 0.0.
 <b>`dimensionless`</b>
 
 A boolean flag indicating whether the values of the Gibbs free
-energy are given in a dimensionless form, that is, divided by \f$RT\f$.
+energy are given in a dimensionless form, that is, divided by @f$RT@f$.
 Defaults to `false`.
 
 <b>`data`</b>
@@ -151,7 +151,7 @@ A mapping of temperatures to values of the Gibbs free energy. The
 Gibbs free energy can be either in molar units (if `dimensionless`
 is `false`) or nondimensionalized by the corresponding temperature
 (if `dimensionless` is `true`). A value must be provided at
-\f$T^\circ = 298.15\f$ K.
+@f$T^\circ = 298.15@f$ K.
 
 <b>`T-min`</b>
 

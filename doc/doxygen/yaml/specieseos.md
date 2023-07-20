@@ -66,15 +66,15 @@ Entropy of formation at the reference temperature and pressure
 
 <b>`a`</b>
 
-4-element vector containing the coefficients \f$a_1, \ldots , a_4\f$
+4-element vector containing the coefficients @f$a_1, \ldots , a_4@f$
 
 <b>`c`</b>
 
-2-element vector containing the coefficients \f$c_1\f$ and \f$c_2\f$
+2-element vector containing the coefficients @f$c_1@f$ and @f$c_2@f$
 
 <b>`omega`</b>
 
-The \f$\omega\f$ parameter at the reference temperature and pressure
+The @f$\omega@f$ parameter at the reference temperature and pressure
 
 **Example:**
 

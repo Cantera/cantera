@@ -85,34 +85,34 @@ The following reaction rate building blocks are supported:
 Most reaction types in %Cantera are parameterized by one or more modified
 <tt>@ref sec-yaml-Arrhenius-rate</tt> expressions, such as
 
-\f[
+@f[
     A T^b e^{-E_a / RT}
-\f]
+@f]
 
-where \f$A\f$ is the pre-exponential factor, \f$T\f$ is the temperature, \f$b\f$ is
-the temperature exponent, \f$E_a\f$ is the activation energy, and \f$R\f$ is the
+where @f$A@f$ is the pre-exponential factor, @f$T@f$ is the temperature, @f$b@f$ is
+the temperature exponent, @f$E_a@f$ is the activation energy, and @f$R@f$ is the
 gas constant. Rates in this form can be written as YAML mappings, where the key `E`
-is used to specify \f$E_a\f$. For example:
+is used to specify @f$E_a@f$. For example:
 
 ``` yaml
 {A: 1.0e13, b: 0, E: 7.3 kcal/mol}
 ```
 
-The units of \f$A\f$ can be specified explicitly if desired. If not
+The units of @f$A@f$ can be specified explicitly if desired. If not
 specified, they will be determined based on the `quantity`, `length`,
 and `time` units specified in the governing `units` fields. Since the
-units of \f$A\f$ depend on the reaction order, the units of each reactant
+units of @f$A@f$ depend on the reaction order, the units of each reactant
 concentration (dependent on phase type and dimensionality), and the
 units of the rate of progress (different for homogeneous and
 heterogeneous reactions), it is usually best not to specify units for
-\f$A\f$, in which case they will be computed taking all of these factors
+@f$A@f$, in which case they will be computed taking all of these factors
 into account.
 
-*Note:* if \f$b \ne 0\f$, then the term \f$T^b\f$ should have units of
-\f$\mathrm{K}^b\f$, which would change the units of \f$A\f$. This is not done,
-however, so the units associated with \f$A\f$ are really the units for
-\f$k_f\f$. One way to formally express this is to replace \f$T^b\f$ by the
-non-dimensional quantity \f$[T/(1\;\mathrm{K})]^b\f$.
+*Note:* if @f$b \ne 0@f$, then the term @f$T^b@f$ should have units of
+@f$\mathrm{K}^b@f$, which would change the units of @f$A@f$. This is not done,
+however, so the units associated with @f$A@f$ are really the units for
+@f$k_f@f$. One way to formally express this is to replace @f$T^b@f$ by the
+non-dimensional quantity @f$[T/(1\;\mathrm{K})]^b@f$.
 
 ### Third-Body Colliders {#sec-yaml-reactions-efficiencies}
 
@@ -140,12 +140,12 @@ with its own rate expression. Another case where duplicate reactions can
 be used is if it is desired to implement a reaction rate coefficient of
 the form:
 
-\f[
+@f[
     k_f(T) = \sum_{n=1}^{N} A_n T^{b_n} \exp(-E_n/RT)
-\f]
+@f]
 
 While %Cantera does not provide such a form for reaction rates, it can be
-implemented by defining \f$N\f$ duplicate reactions, and assigning one rate
+implemented by defining @f$N@f$ duplicate reactions, and assigning one rate
 coefficient in the sum to each reaction. By adding the field:
 
 ``` yaml
@@ -159,10 +159,10 @@ its duplicate generates an error.
 
 ### Negative Pre-exponential Factors
 
-If some of the terms in the above sum have negative \f$A_n\f$, this scheme
+If some of the terms in the above sum have negative @f$A_n@f$, this scheme
 fails, since %Cantera normally does not allow negative pre-exponential
 factors. But if there are duplicate reactions such that the total rate
-is positive, then the fact that negative \f$A\f$ parameters are acceptable
+is positive, then the fact that negative @f$A@f$ parameters are acceptable
 can be indicated by adding the field:
 
 ``` yaml
@@ -175,16 +175,16 @@ Explicit reaction orders different from the stoichiometric coefficients
 are sometimes used for non-elementary reactions. For example, consider
 the global reaction:
 
-\f[
+@f[
     \mathrm{C_8H_{18} + 12.5 O_2 \rightarrow 8 CO_2 + 9 H_2O}
-\f]
+@f]
 
 the forward rate constant might be given as[^1]:
 
-\f[
+@f[
     k_f = 4.6 \times 10^{11} [\mathrm{C_8H_{18}}]^{0.25} [\mathrm{O_2}]^{1.5}
         \exp\left(\frac{30.0\,\mathrm{kcal/mol}}{RT}\right)
-\f]
+@f]
 
 This reaction could be defined as:
 

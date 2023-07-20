@@ -192,7 +192,7 @@ as @ref sec-yaml-eos-redlich-kwong.
 
 -   <b>`critical-pressure`</b>: The critical pressure of the species \[Pa\]
 
--   <b>`acentric-factor`</b>: Pitzer's acentric factor \f$\omega\f$ \[-\]
+-   <b>`acentric-factor`</b>: Pitzer's acentric factor @f$\omega@f$ \[-\]
 
 <b>`transport`</b>
 

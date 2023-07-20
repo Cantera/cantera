@@ -104,10 +104,10 @@ The activity data field contains the following fields:
 -   `default-ionic-radius`: Ionic radius to use for species where the ionic radius has
     not been specified.
 -   `B-dot`: The value of B-dot.
--   `beta`: List of mappings providing values of \f$\beta_{ij}\f$ for different
+-   `beta`: List of mappings providing values of @f$\beta_{ij}@f$ for different
     species pairs. Each mapping contains a `species` key that
     contains a list of two species names, and a `beta` key that
-    contains the corresponding value of \f$\beta_{ij}\f$.
+    contains the corresponding value of @f$\beta_{ij}@f$.
 
 **Example:**
 
@@ -223,33 +223,33 @@ The activity data field contains the following fields:
     include:
 
     -   `species`: A list of one to three species names
-    -   `beta0`: The \f$\beta^{(0)}\f$ parameters for an cation/anion
+    -   `beta0`: The @f$\beta^{(0)}@f$ parameters for an cation/anion
         interaction. 1, 2, or 5 values depending on the value of
         `temperature-model`.
-    -   `beta1`: The \f$\beta^{(1)}\f$ parameters for an cation/anion
+    -   `beta1`: The @f$\beta^{(1)}@f$ parameters for an cation/anion
         interaction. 1, 2, or 5 values depending on the value of
         `temperature-model`.
-    -   `beta2`: The \f$\beta^{(2)}\f$ parameters for an cation/anion
+    -   `beta2`: The @f$\beta^{(2)}@f$ parameters for an cation/anion
         interaction. 1, 2, or 5 values depending on the value of
         `temperature-model`.
-    -   `Cphi`: The \f$C^\phi\f$ parameters for an cation/anion interaction. 1,
+    -   `Cphi`: The @f$C^\phi@f$ parameters for an cation/anion interaction. 1,
         2, or 5 values depending on the value of
         `temperature-model`.
-    -   `alpha1`: The \f$\alpha^{(1)}\f$ parameter for an cation/anion interaction.
-    -   `alpha2`: The \f$\alpha^{(2)}\f$ parameter for an cation/anion interaction.
-    -   `theta`: The \f$\theta\f$ parameters for a like-charged binary
+    -   `alpha1`: The @f$\alpha^{(1)}@f$ parameter for an cation/anion interaction.
+    -   `alpha2`: The @f$\alpha^{(2)}@f$ parameter for an cation/anion interaction.
+    -   `theta`: The @f$\theta@f$ parameters for a like-charged binary
         interaction. 1, 2, or 5 values depending on the value of
         `temperature-model`.
-    -   `lambda`: The \f$\lambda\f$ parameters for binary interactions involving
+    -   `lambda`: The @f$\lambda@f$ parameters for binary interactions involving
         at least one neutral species. 1, 2, or 5 values depending on
         the value of `temperature-model`.
-    -   `psi`: The \f$\Psi\f$ parameters for ternary interactions involving
+    -   `psi`: The @f$\Psi@f$ parameters for ternary interactions involving
         three charged species. 1, 2, or 5 values depending on the
         value of `temperature-model`.
-    -   `zeta`: The \f$\zeta\f$ parameters for ternary interactions involving
+    -   `zeta`: The @f$\zeta@f$ parameters for ternary interactions involving
         one neutral species. 1, 2, or 5 values depending on the
         value of `temperature-model`.
-    -   `mu`: The \f$\mu\f$ parameters for a neutral species self-interaction.
+    -   `mu`: The @f$\mu@f$ parameters for a neutral species self-interaction.
         1, 2, or 5 values depending on the value of
         `temperature-model`.
 -   `cropping-coefficients`:

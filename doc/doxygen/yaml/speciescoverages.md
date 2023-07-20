@@ -59,7 +59,7 @@ coverage-dependent enthalpy or entropy.
 
 <b>`heat-capacity-a`</b> and <b>`heat-capacity-b`</b>
 
-Coefficient \f$c^{(a)}\f$ or \f$c^{(b)}\f$ used in the coverage-dependent
+Coefficient @f$c^{(a)}@f$ or @f$c^{(b)}@f$ used in the coverage-dependent
 `heat capacity` model.
 
 **Example:**

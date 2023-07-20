@@ -11,15 +11,15 @@ Arrhenius rate expressions are specified as a mapping with fields:
 
 <b>`A`</b>
 
-The pre-exponential factor \f$ A \f$
+The pre-exponential factor @f$ A @f$
 
 <b>`b`</b>
 
-The temperature exponent \f$ b \f$
+The temperature exponent @f$ b @f$
 
 <b>`Ea`</b>
 
-The activation energy \f$ E_a \f$
+The activation energy @f$ E_a @f$
 
 or a corresponding three-element list. The following are equivalent:
 
@@ -37,20 +37,20 @@ rate parameters are specified as a mapping with fields:
 
 <b>`A`</b>
 
-The pre-exponential factor \f$ A\f$
+The pre-exponential factor @f$ A@f$
 
 <b>`b`</b>
 
-The temperature exponent \f$ b\f$
+The temperature exponent @f$ b@f$
 
 <b>`Ea0`</b>
 
-The intrinsic activation energy \f$ E_{a0}\f$
+The intrinsic activation energy @f$ E_{a0}@f$
 
 <b>`w`</b>
 
 The average of the bond dissociation energy of the bond breaking and
-that being formed in the reaction \f$ w\f$
+that being formed in the reaction @f$ w@f$
 
 or a corresponding four-element list. The following are equivalent:
 
@@ -77,11 +77,11 @@ The temperature exponent, which is applied to the electron temperature
 
 <b>`Ea-gas`</b>
 
-The activation energy term \f$ E_{a,g}\f$  that is related to the gas temperature
+The activation energy term @f$ E_{a,g}@f$  that is related to the gas temperature
 
 <b>`Ea-electron`</b>
 
-The activation energy term \f$ E_{a,e}\f$  that is related to the electron temperature
+The activation energy term @f$ E_{a,e}@f$  that is related to the electron temperature
 
 or a corresponding four-element list. The following are equivalent:
 

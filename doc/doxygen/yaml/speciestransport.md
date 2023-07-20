@@ -44,7 +44,7 @@ in which case the value provided there supersedes this one.
 
 <b>`dispersion-coefficient`</b>
 
-The dispersion coefficient, normalized by \f$e^2\f$ \[Å\^5\]. Default 0.0.
+The dispersion coefficient, normalized by @f$e^2@f$ \[Å\^5\]. Default 0.0.
 
 <b>`quadrupole-polarizability`</b>
 

@@ -227,7 +227,7 @@ these parameters are contained in either a mapping with the fields:
 or a list containing the three elements above, in the given order.
 
 Note that parameters `a`, `m` and `E` correspond to parameters
-\f$ \eta_{ki}\f$ , \f$ \mu_{ki}\f$  and \f$ \epsilon_{ki}\f$  in Eq 11.113 of
+@f$ \eta_{ki}@f$ , @f$ \mu_{ki}@f$  and @f$ \epsilon_{ki}@f$  in Eq 11.113 of
 \[Kee, R. J., Coltrin, M. E., & Glarborg, P.(2003). Chemically
 reacting flow: theory and practice. John Wiley & Sons\],
 respectively.
