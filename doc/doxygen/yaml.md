@@ -1,32 +1,31 @@
-# YAML Input File Reference {#sec-yaml-api}
+# %Cantera YAML Documentation {#sec-yaml-guide}
 
-All calculations in %Cantera require an input file to describe the properties of the
-relevant phase(s) of matter. %Cantera uses the
-[YAML data language](https://yaml.org/spec/1.2/spec.html#Introduction) to specify
-information on thermodynamics, kinetics, and transport in a single file.
+This short guide describes %Cantera YAML input files that define phases and
+interfaces for use in %Cantera simulations. Each link below represents a
+standalone module; while you certainly can read them in order, you can
+also jump to whichever section addresses your current needs. If you need
+tips on troubleshooting the YAML file syntax rules, please look at the
+[YAML Format Tutorial](\ref sec-yaml-format-tutorial).
 
--   @subpage sec-yaml-general
--   @subpage sec-yaml-phases
-    -   @subpage sec-yaml-phase-thermo-models
--   @subpage sec-yaml-elements
--   @subpage sec-yaml-species
-    -   @subpage sec-yaml-species-thermo-models
-    -   @subpage sec-yaml-species-eos-models
-    -   @subpage sec-yaml-species-transport-models
-    -   @subpage sec-yaml-species-coverage-models
--   @subpage sec-yaml-reactions
-    -   @subpage sec-yaml-reaction-rate-blocks
-    -   @subpage sec-yaml-reaction-models
+-   **[Phases and Interfaces:](\ref sec-yaml-phases)**
+    For each phase or interface that appears in a problem, a corresponding
+    entry should be present in the input file(s). Phase entries specify lists
+    of elements, species and reactions, as well as other relevant parameters.
+-   **[Species Definitions:](\ref sec-yaml-species)**
+    For each species declared as part of a phase description, thermodynamic
+    properties and other data need to be defined.
+-   **[Reaction Definitions:](\ref sec-yaml-reactions)**
+    %Cantera supports a number of different types of reactions, including
+    several types of homogeneous reactions, surface reactions, and
+    electrochemical reactions. For each, there is a corresponding entry
+    type.
 
-For an introductory tutorial of the YAML data language, refer to the
-@subpage sec-yaml-format-tutorial.
+**Additional Information**
 
-%Cantera provides the following conversion utilities to obtain YAML input from other
-input file formats:
-
--   <tt>[ck2yaml](https://cantera.org/tutorials/ck2yaml-tutorial.html)</tt> Conversion
-    from Chemkin-format files to YAML
--   <tt>[cti2yaml](https://cantera.org/tutorials/legacy2yaml.html#cti2yaml)</tt>
-    Conversion of legacy %Cantera CTI files to YAML
--   <tt>[ctml2yaml](https://cantera.org/tutorials/legacy2yaml.html#cti2yaml)</tt>
-    Conversion of legacy %Cantera XML (CTML) files to YAML
+-   <b>@subpage sec-yaml-format-tutorial</b> -
+    This module describes the basics of the YAML format as used by %Cantera,
+    how dimensional values are represented, and how to understand error
+    messages that occur while reading input files.
+-   <b>@subpage sec-yaml-api</b> -
+    Comprehensive documentation of the %Cantera YAML format, containing the
+    specification for each of the entry types discussed previously.
