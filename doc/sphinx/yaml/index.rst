@@ -1,16 +1,11 @@
 
-*************************
-YAML Input File Reference
-*************************
+**************************
+YAML Input File Converters
+**************************
 
 .. toctree::
    :maxdepth: 2
 
-   general
-   phases
-   elements
-   species
-   reactions
    cti_conversion
    ctml_conversion
    ck_conversion
