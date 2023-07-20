@@ -1,8 +1,12 @@
 
 @page sec-yaml-units Input Units
 
+[TOC]
+
 While %Cantera generally works internally in SI units, input values can
 be provided using a number of different units.
+
+# Overview
 
 Compound units are written using the asterisk (`*`) to indicate
 multiplication, the forward slash (`/`) to indicate division, and the
@@ -63,3 +67,28 @@ constant. Setting default units for `energy` and `quantity` will
 determine the default units of `activation-energy`, which can be
 overridden by explicitly giving the desired units of
 `activation-energy`.
+
+# Default Units {#sec-yaml-units-default}
+
+Default units that apply to a whole input file or some portion thereof
+can be set using `units` mapping. A `units` mapping placed at the top
+level of an input file applies to the entire file. A `units` mapping
+placed as a member of another mapping applies to that mapping and any
+nested mappings or sequences, and overrides higher-level `units`
+mappings:
+
+```yaml
+units: {length: cm, mass: kg}
+section1:
+  units: {length: m}
+  density: 4000  # interpreted as 4000 kg/m^3
+section2:
+  density: 0.1  # interpreted as 0.1 kg/cm^3
+section3:
+- units: {mass: mg}  # must be the first item in the list
+- name: species1
+  density: 5e4  # interpreted as 5e4 mg/cm^3
+```
+
+Default units may be set for `mass`, `length`, `time`, `quantity`,
+`pressure`, `energy`, and `activation-energy`.

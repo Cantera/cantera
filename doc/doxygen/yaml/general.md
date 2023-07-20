@@ -8,8 +8,8 @@ containing reaction, species, or element definitions can be used. The
 specific names `reactions`, `species`, and `elements` are used as defaults when looking
 for @ref sec-yaml-reactions, @ref sec-yaml-species, and @ref sec-yaml-elements to add to
 a phase. %Cantera uses SI input units by default, although input values can be
-provided using a number of different units, as described in the @ref sec-yaml-units
-section.
+provided using a number of different units, as described in the
+@ref sec-yaml-units-default section.
 
 A simple input file has the following structure:
 

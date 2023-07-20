@@ -180,35 +180,8 @@ A: 1.0e20 cm^6/mol^2-s  # error ('s' should be in denominator)
 density: 3.0g/cm^3  # error (missing space between value and units)
 ```
 
-See the [Units
-API](%7B%7B%%20ct_docs%20sphinx/html/yaml/general.html#units%20%%7D%7D)
-documentation for additional details, including the full set of
-supported units.
-
-# Default Units
-
-Default units that apply to a whole input file or some portion thereof
-can be set using `units` mapping. A `units` mapping placed at the top
-level of an input file applies to the entire file. A `units` mapping
-placed as a member of another mapping applies to that mapping and any
-nested mappings or sequences, and overrides higher-level `units`
-mappings:
-
-```yaml
-units: {length: cm, mass: kg}
-section1:
-  units: {length: m}
-  density: 4000  # interpreted as 4000 kg/m^3
-section2:
-  density: 0.1  # interpreted as 0.1 kg/cm^3
-section3:
-- units: {mass: mg}  # must be the first item in the list
-- name: species1
-  density: 5e4  # interpreted as 5e4 mg/cm^3
-```
-
-Default units may be set for `mass`, `length`, `time`, `quantity`,
-`pressure`, `energy`, and `activation-energy`.
+See the \ref sec-yaml-units documentation for additional details,
+including the full set of supported units.
 
 # Error Handling
 
