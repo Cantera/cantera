@@ -2,6 +2,7 @@
 
 > **Note:** This is the **%Cantera Developer API** documentation; for general
 > information on %Cantera, refer to [**cantera.org**](https://cantera.org).
+> The %Cantera source code is hosted on [GitHub](https://github.com/Cantera/cantera).
 
 Use sidebar or menu at the top to view detailed documentation of the code, or
 use the following shortcuts:
@@ -10,7 +11,7 @@ use the following shortcuts:
 * Index of [**Cantera C++ Classes**](classes.html)
 * @ref sec-yaml-documentation
 
-A topical overview is provided as follows:
+A topical overview of C++ modules is provided as follows:
 
 * @ref solnGroup (interface to %Cantera core objects)
 * @ref thermoprops (temperature, pressure, energy, ...)
@@ -23,5 +24,3 @@ A topical overview is provided as follows:
 For fundamental scientific theory used for the implementation of %Cantera, refer to the
 [Cantera Science Section](https://cantera.org/science/index.html) of the
 [Cantera Website](https://cantera.org).
-
-The %Cantera source code is hosted on [GitHub](https://github.com/Cantera/cantera).
