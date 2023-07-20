@@ -23,7 +23,7 @@ The thermodynamic model used to represent a phase is specified in the
 
 -   <tt>@ref sec-yaml-binary-solution-tabulated</tt>:
     A binary mixture where the excess enthalpy and entropy are interpolated between
-    tabulated values as a function of mole fraction; *New in %Cantera 2.5.0*
+    tabulated values as a function of mole fraction
 -   <tt>@ref sec-yaml-compound-lattice</tt>:
     A phase that is comprised of a fixed additive combination of other lattice phases
 -   <tt>@ref sec-yaml-coverage-dependent-surface</tt>:
@@ -78,7 +78,8 @@ The thermodynamic model used to represent a phase is specified in the
     A multi-species mixture obeying the Redlich-Kwong equation of state.
 
 Some thermodynamic models use additional fields in the `phase` entry,
-which are described in the linked documentation.
+which are described in the documentation linked above
+(see also @subpage sec-yaml-phase-thermo-models).
 
 ### Declaring the Elements {#sec-yaml-phase-declaring-elements}
 
@@ -171,7 +172,7 @@ phases:
   skip-undeclared-elements: true
 ```
 
-### Setting the Kinetics Model {#sec-yaml-phase-setting-transport}
+### Setting the Kinetics Model {#sec-yaml-phase-setting-kinetics}
 
 The kinetics model to be used, if any, is specified in the `kinetics`
 field. Supported model strings are:

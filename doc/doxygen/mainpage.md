@@ -8,7 +8,7 @@ use the following shortcuts:
 
 * Overview of [**Cantera C++ Modules**](modules.html)
 * Index of [**Cantera C++ Classes**](classes.html)
-* @ref sec-yaml-api
+* @ref sec-yaml-documentation
 
 A topical overview is provided as follows:
 

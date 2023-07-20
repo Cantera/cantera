@@ -78,7 +78,7 @@ the `model` field of the `thermo` field. The models available are:
     regions
 
 For descriptions of fields used by each model as well as examples,
-see @ref sec-yaml-species-thermo-models.
+see @subpage sec-yaml-species-thermo-models.
 
 ### Equation of State {#sec-yaml-species-equation-of-state}
 
@@ -107,7 +107,7 @@ the type of parameterization used specified by the `model` field of the
     equation of state
 
 For descriptions of fields used by each model as well as examples,
-see @ref sec-yaml-species-eos-models.
+see @subpage sec-yaml-species-eos-models.
 
 ### Transport Coefficients {#sec-yaml-species-transport-coefficients}
 
@@ -122,7 +122,7 @@ Currently, there is a single model type that is specifically handled:
 -   <tt>@ref sec-yaml-species-transport-gas</tt>: Gas phase transport
 
 For descriptions of fields used by the model as well as an example,
-see @ref sec-yaml-species-transport-models.
+see @subpage sec-yaml-species-transport-models.
 
 ### Coverage Dependencies {#sec-yaml-species-coverage}
 
@@ -139,7 +139,7 @@ Supported algebraic models are:
     Interpolative dependency model
 
 For descriptions of fields used by each model as well as examples,
-see @ref sec-yaml-species-coverage-models.
+see @subpage sec-yaml-species-coverage-models.
 
 ## Species API Reference
 

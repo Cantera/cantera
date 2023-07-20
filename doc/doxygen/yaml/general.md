@@ -7,11 +7,18 @@ an input file contains all of the phase definitions. Multiple sections
 containing reaction, species, or element definitions can be used. The
 specific names `reactions`, `species`, and `elements` are used as defaults when looking
 for @ref sec-yaml-reactions, @ref sec-yaml-species, and @ref sec-yaml-elements to add to
-a phase.
+a phase. %Cantera uses SI input units by default, although input values can be
+provided using a number of different units, as described in the @ref sec-yaml-units
+section.
 
 A simple input file has the following structure:
 
 ``` yaml
+description: |-
+  Optional description of the input file.
+
+# units: optional unit settings used for input data
+
 phases:
 - name: spam
   thermo: ideal-gas

@@ -123,8 +123,7 @@ equation-of-state:
 
 ## liquid-water-IAPWS95 {#sec-yaml-eos-liquid-water-iapws95}
 
-A detailed equation of state for liquid water, see @ref Cantera.PDSS_Water.  as [described
-here](https://cantera.org/documentation/dev/doxygen/html/de/d64/classCantera_1_1PDSS__Water.html#details).
+A detailed equation of state for liquid water, see @ref Cantera.PDSS_Water.
 
 ## molar-volume-temperature-polynomial {#sec-yaml-eos-molar-volume-temperature-polynomial}
 

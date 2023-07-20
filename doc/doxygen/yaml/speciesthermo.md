@@ -129,8 +129,7 @@ thermo:
 ## piecewise-Gibbs {#sec-yaml-piecewise-gibbs}
 
 A model based on piecewise interpolation of the Gibbs free energy, see
-@ref Cantera.Mu0Poly or [described
-here](https://cantera.org/documentation/dev/doxygen/html/d4/d9e/classCantera_1_1Mu0Poly.html#details).
+@ref Cantera.Mu0Poly.
 
 Additional fields of a `piecewise-Gibbs` entry are:
 

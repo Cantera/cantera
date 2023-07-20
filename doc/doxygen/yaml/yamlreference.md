@@ -8,19 +8,21 @@ information on thermodynamics, kinetics, and transport in a single file.
 -   @subpage sec-yaml-general
 -   @subpage sec-yaml-units
 -   @subpage sec-yaml-phases
-    -   @subpage sec-yaml-phase-thermo-models
+    -   @ref sec-yaml-phase-thermo-models
 -   @subpage sec-yaml-elements
 -   @subpage sec-yaml-species
-    -   @subpage sec-yaml-species-thermo-models
-    -   @subpage sec-yaml-species-eos-models
-    -   @subpage sec-yaml-species-transport-models
-    -   @subpage sec-yaml-species-coverage-models
+    -   @ref sec-yaml-species-thermo-models
+    -   @ref sec-yaml-species-eos-models
+    -   @ref sec-yaml-species-transport-models
+    -   @ref sec-yaml-species-coverage-models
 -   @subpage sec-yaml-reactions
-    -   @subpage sec-yaml-reaction-rate-blocks
-    -   @subpage sec-yaml-reaction-models
+    -   @ref sec-yaml-reaction-rate-blocks
+    -   @ref sec-yaml-reaction-models
 
 For an introductory tutorial of the YAML data language, refer to the
-@subpage sec-yaml-format-tutorial.
+@ref sec-yaml-format-tutorial.
+
+## Conversion Utilities {#sec-yaml-conversion}
 
 %Cantera provides the following conversion utilities to obtain YAML input from other
 input file formats:

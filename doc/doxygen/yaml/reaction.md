@@ -45,7 +45,6 @@ the `type` field of the `reaction` entry. Available reaction types are:
     A reaction rate constant parameterized as a modified Arrhenius
     reaction with one additional bond energy parameter to scale the
     activation energy according to the enthalpy of the reaction
-    *(New in %Cantera 2.6)*
 -   <tt>@ref sec-yaml-two-temperature-plasma</tt>
 -   <tt>@ref sec-yaml-falloff</tt>:
     A pressure-dependent reaction where the rate depends on the third-body
@@ -60,8 +59,9 @@ the `type` field of the `reaction` entry. Available reaction types are:
     A reaction rate parameterized by a bivariate Chebyshev polynomial in
     pressure and temperature
 
-Additional parameters defining the rate constant for each of these
-reaction types are described in the documentation linked above.
+Additional parameters defining the rate model for each of these
+reaction types are described in the documentation linked above
+(see also @subpage sec-yaml-reaction-models).
 
 The default parameterization is `elementary`. Reactions without a specified
 `type` on surfaces or edges are automatically treated as
@@ -81,6 +81,9 @@ The following reaction rate building blocks are supported:
 -   <tt>@ref sec-yaml-Arrhenius-rate</tt>
 -   <tt>@ref sec-yaml-Blowers-Masel-rate</tt>
 -   <tt>@ref sec-yaml-two-temperature-plasma-rate</tt>
+
+Additional parameters defining these building blocks are described in the
+documentation linked above (see also @subpage sec-yaml-reaction-rate-blocks).
 
 Most reaction types in %Cantera are parameterized by one or more modified
 <tt>@ref sec-yaml-Arrhenius-rate</tt> expressions, such as
