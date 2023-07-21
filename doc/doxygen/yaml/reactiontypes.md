@@ -33,6 +33,10 @@ negative-A: true
 A three body reaction as [described
 here](https://cantera.org/science/kinetics.html#three-body-reactions).
 
+@since Changed in %Cantera 3.0: three body reactions are detected based on the
+reaction equation; the rate parameterization is independent. For three body reactions
+with Arrhenius rate parameterizations, specifying the `type` is optional.
+
 The reaction equation should include the third body collision partner `M`.
 
 Includes the fields of an <tt>@ref sec-yaml-elementary</tt> reaction, plus the fields
@@ -60,10 +64,14 @@ type: Blowers-Masel
 rate-constant: {A: 3.87e+04 cm^2/mol/s, b: 2.7, Ea0: 6260.0 cal/mol, w: 1e9 cal/mol}
 ```
 
+@since New in %Cantera 2.6
+
 # two-temperature-plasma {#sec-yaml-two-temperature-plasma}
 
 Includes the fields of an <tt>@ref sec-yaml-elementary</tt> reaction, except that the
 `rate-constant` field is a @ref sec-yaml-two-temperature-plasma-rate list or mapping.
+
+@since New in %Cantera 2.6
 
 **Example:**
 
@@ -261,6 +269,8 @@ respectively.
 Includes the same fields as <tt>@ref sec-yaml-interface-Arrhenius</tt>, while using the
 @ref sec-yaml-Blowers-Masel-rate parameterization for the rate constant.
 
+@since New in %Cantera 2.6
+
 **Example:**
 
 ```yaml
@@ -302,6 +312,8 @@ sticking-coefficient: {A: 1.0, b: 0, Ea: 0}
 
 Includes the same fields as <tt>@ref sec-yaml-sticking-Arrhenius</tt>, while using the
 @ref sec-yaml-Blowers-Masel-rate parameterization for the sticking coefficient.
+
+@since New in %Cantera 2.6
 
 **Example:**
 

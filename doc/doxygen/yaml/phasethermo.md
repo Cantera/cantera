@@ -9,6 +9,8 @@ Thermodynamic models are specified using the `thermo` field of @ref sec-yaml-pha
 A phase implementing tabulated standard state thermodynamics for one
 species in a binary solution, see @ref Cantera.BinarySolutionTabulatedThermo.
 
+@since New in %Cantera 2.5
+
 Includes the fields of <tt>@ref sec-yaml-ideal-condensed</tt>, plus:
 
 <b>`tabulated-species`</b>
@@ -54,6 +56,8 @@ coverage and the coverage of other species in the phase. For full details,
 see @ref Cantera.CoverageDependentSurfPhase.
 The majority of coverage dependency parameters are provided in the species
 entry, see @ref sec-yaml-coverage-dependent-surface.
+
+@since New in %Cantera 3.0
 
 Additional fields:
 
@@ -504,6 +508,8 @@ product-species: H(s)
 
 A multi-species Peng-Robinson phase, see @ref Cantera.PengRobinson.
 
+@since New in %Cantera 3.0
+
 The parameters for each species are contained in the corresponding
 species entries. See @ref sec-yaml-eos-peng-robinson.
 
@@ -512,6 +518,8 @@ species entries. See @ref sec-yaml-eos-peng-robinson.
 A phase for plasma. This phase handles plasma properties such as the
 electron energy distribution and electron temperature with different
 models, see @ref Cantera.PlasmaPhase.
+
+@since New in %Cantera 2.6
 
 Additional fields:
 

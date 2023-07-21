@@ -40,7 +40,7 @@ The thermodynamic model used to represent a phase is specified in the
     A dilute or concentrated liquid electrolyte which obeys the Pitzer formulation
     for nonideality
 -   <tt>@ref sec-yaml-ideal-condensed</tt>:
-    A condensed phase ideal solution
+    An ideal liquid or solid solution
 -   <tt>@ref sec-yaml-ideal-gas</tt>:
     A mixture which obeys the ideal gas law
 -   <tt>@ref sec-yaml-ideal-molal-solution</tt>:
@@ -66,8 +66,8 @@ The thermodynamic model used to represent a phase is specified in the
 -   <tt>@ref sec-yaml-Peng-Robinson</tt>:
     A multi-species mixture obeying the Peng-Robinson equation of state
 -   <tt>@ref sec-yaml-plasma</tt>:
-    A plasma phase handling plasma properties such as the electron energy distribution
-    and electron temperature
+    A phase defined by a distinct electron temperature or
+    detailed electron energy distribution function
 -   <tt>@ref sec-yaml-pure-fluid</tt>:
     A phase representing one of several pure substances including liquid, vapor,
     two-phase, and supercritical regions

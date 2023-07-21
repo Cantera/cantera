@@ -93,7 +93,8 @@ equation-of-state:
 
 A species using the ideal gas equation of state, see @ref Cantera.PDSS_IdealGas.
 
-@deprecated This species thermo model is deprecated and will be removed after %Cantera 3.0.
+@deprecated Deprecated in %Cantera 3.0; handled at the phase level for all species
+in an ideal gas.
 
 # ions-from-neutral-molecule {#sec-yaml-eos-ions-from-neutral}
 
@@ -139,6 +140,8 @@ Vector of 4 coefficients for a cubic polynomial in temperature
 
 A model where species follow the Peng-Robinson equation of state, see
 @ref Cantera.PengRobinson.
+
+@since New in %Cantera 3.0
 
 Additional fields:
 

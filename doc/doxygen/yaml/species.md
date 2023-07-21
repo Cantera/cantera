@@ -138,6 +138,8 @@ Supported algebraic models are:
 -   <tt>@ref sec-yaml-species-coverage-interpolative</tt>:
     Interpolative dependency model
 
+@since New in %Cantera 3.0
+
 For descriptions of fields used by each model as well as examples,
 see @subpage sec-yaml-species-coverage-models.
 

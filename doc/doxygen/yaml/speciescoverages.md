@@ -7,6 +7,8 @@ Species coverage models are specified using the `coverage-dependencies` field of
 
 # linear {#sec-yaml-species-coverage-linear}
 
+@since New in %Cantera 3.0
+
 <b>`enthalpy`</b> and <b>`entropy`</b>
 
 Slope of the coverage-dependent enthalpy or entropy.
@@ -24,6 +26,8 @@ coverage-dependencies:
 ```
 
 # polynomial {#sec-yaml-species-coverage-polynomial}
+
+@since New in %Cantera 3.0
 
 <b>`enthalpy-coefficients`</b> and <b>`entropy-coefficients`</b>
 
@@ -43,6 +47,8 @@ coverage-dependencies:
 ```
 
 # piecewise-linear {#sec-yaml-species-coverage-piecewise-linear}
+
+@since New in %Cantera 3.0
 
 <b>`enthalpy-low`</b> and <b>`entropy-low`</b>
 
@@ -81,6 +87,8 @@ coverage-dependencies:
 ```
 
 # interpolative {#sec-yaml-species-coverage-interpolative}
+
+@since New in %Cantera 3.0
 
 <b>`enthalpy-coverages`</b> and <b>`entropy-coverages`</b>
 
