@@ -25,9 +25,7 @@ namespace Cantera
  * and classes \link Cantera::WaterSSTP WaterSSTP\endlink and
  * \link Cantera::PDSS_Water PDSS_Water\endlink).
  *
- * The reference is W. Wagner, A. Pruss, "The IAPWS Formulation 1995 for the
- * Thermodynamic Properties of Ordinary Water Substance for General and
- * Scientific Use," J. Phys. Chem. Ref. Dat, 31, 387, 2002.
+ * The reference is Wagner and Pruss \cite wagner2002.
  *
  * Units Note: This class works with reduced units exclusively.
  */

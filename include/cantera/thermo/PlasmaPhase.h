@@ -44,26 +44,9 @@ namespace Cantera
  *   \f]
  * where \f$ i \f$ is the index of energy levels.
  *
- * References:
- *
- * [1] J. T. Gudmundsson. On the effect of the electron energy distribution on the
- * plasma parameters of an argon discharge: a global (volume-averaged) model study.
- * Plasma Sources Science and Technology, 10.1 (2001): 76.
- * doi: https://doi.org/10.1088/0963-0252/10/1/310
- *
- * [2] H. Khalilpour and G. Foroutan. The effects of electron energy distribution
- * function on the plasma sheath structure in the presence of charged nanoparticles
- * Journal of Plasma Physics 86.2 (2020).
- * doi: https://doi.org/10.1017/S0022377820000161
- *
- * [3] G. J. M. Hagelaar and L. C. Pitchford
- * "Solving the Boltzmann equation to obtain electron transport
- * coefficients and rate coefficients for fluid models."
- * Plasma Sources Science and Technology 14.4 (2005): 722.
- * doi: https://doi.org/10.1088/0963-0252/14/4/011
- *
- * [4] A. Luque, "BOLOS: An open source solver for the Boltzmann equation,"
- * https://github.com/aluque/bolos.
+ * For references, see Gudmundsson @cite gudmundsson2001; Khalilpour and Foroutan
+ * @cite khalilpour2020; and Hagelaar and Pitchford @cite hagelaar2005.
+ * @cite BOLOS.
  *
  * @warning  This class is an experimental part of %Cantera and may be
  *           changed or removed without notice.
