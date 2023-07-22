@@ -63,9 +63,8 @@ struct InterfaceData : public BlowersMaselData
 //! Base class for rate parameterizations that involve interfaces
 /**
  * Rate expressions defined for interfaces may include coverage dependent terms,
- * where an example is given by [Kee, R. J., Coltrin, M. E., & Glarborg, P.(2003).
- * Chemically reacting flow: theory and practice. John Wiley & Sons. Eq 11.113].
- * Using Cantera nomenclature, this expression can be rewritten as
+ * where an example is given by Kee, et al. \cite kee2003, Eq 11.113.
+ * Using %Cantera nomenclature, this expression can be rewritten as
  *  \f[
  *      k_f = A T^b \exp \left( - \frac{E_a}{RT} \right)
  *          \prod_k 10^{a_k \theta_k} \theta_k^{m_k}

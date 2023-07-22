@@ -19,9 +19,7 @@ namespace Cantera
 //! Class MixTransport implements mixture-averaged transport properties for
 //! ideal gas mixtures.
 /*!
- * The model is based on that described in: R. J. Kee, M. J. Coltrin, and P.
- * Glarborg, "Chemically Reacting Flow: Theory & Practice", John Wiley & Sons,
- * 2003.
+ * The model is based on that described in Kee, et al. \cite kee2003.
  *
  * The viscosity is computed using the Wilke mixture rule (kg /m /s)
  *
