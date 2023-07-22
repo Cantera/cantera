@@ -44,19 +44,9 @@ namespace Cantera
  * The effective knudsen diffusion coefficients take into account the effects of
  * collisions of gas-phase molecules with the wall.
  *
- * References for the Dusty Gas Model
- *
- * 1. H. Zhu, R. J. Kee, "Modeling Electrochemical Impedance Spectra in SOFC
- *    Button Cells with Internal Methane Reforming," J. Electrochem. Soc.,
- *    153(9) A1765-1772 (2006).
- * 2. H. Zhu, R. J. Kee, V. M. Janardhanan, O. Deutschmann, D. G. Goodwin, J.
- *    Electrochem. Soc., 152, A2427 (2005).
- * 3. E. A. Mason, A. P. Malinauskas," Gas Transport in Porous Media: the Dusty-
- *    Gas Model", American Elsevier, New York (1983).
- * 4. J. W. Veldsink, R. M. J. van Damme, G. F. Versteeg, W. P. M. van Swaaij,
- *    "The use of the dusty gas model for the description of mass transport with
- *    chemical reaction in porous media," Chemical Engineering Journal, 57, 115
- *    - 125 (1995).
+ * For references on the Dusty Gas Model, see Zhu and Kee @cite zhu2006; Zhu, et al.
+ * @cite zhu2005; Mason and Malinauskas @cite mason1983; and Veldsink, et al.
+ * @cite veldsink1995.
  * @ingroup tranprops
  */
 class DustyGasTransport : public Transport
