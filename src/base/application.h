@@ -374,17 +374,18 @@ public:
     //! Set definition used for rate constant calculation.
     //! @see Kinetics::getFwdRateConstants()
     /*!
-     * If set to 'false' (default value), rate constants of three-body reactions are
-     * consistent with conventional definitions (for example Eq. 9.75 in Kee, Coltrin
-     * and Glarborg, 'Chemically Reacting Flow', Wiley Interscience, 2003). If set to
-     * 'true', output for rate constants of three-body reactions is multiplied by
-     * third-body concentrations, consistent with Cantera's behavior prior to version 3.0.
+     * If set to `false` (default value), rate constants of three-body reactions are
+     * consistent with conventional definitions (for example Eq. 9.75 in Kee, et al.
+     * @cite kee2003).
+     * If set to `true`, output for rate constants of three-body reactions is
+     * multiplied by third-body concentrations, consistent with %Cantera's behavior
+     * prior to version 3.0.
      */
     void use_legacy_rate_constants(bool legacy=true) {
         m_use_legacy_rate_constants = legacy;
     }
 
-    //! Returns `true` if legacy rate constant definition should be used
+    //! Returns `true` if legacy rate constant definition is used
     bool legacy_rate_constants_used() {
         return m_use_legacy_rate_constants;
     }

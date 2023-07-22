@@ -775,7 +775,7 @@ LAYOUT_FILE            = doc/doxygen/DoxygenLayout.xml
 # LATEX_BIB_STYLE. To use this feature you need bibtex and perl available in the
 # search path. See also \cite for info how to create references.
 
-CITE_BIB_FILES         =
+CITE_BIB_FILES         = doc/doxygen/cantera.bib
 
 #---------------------------------------------------------------------------
 # Configuration options related to warning and progress messages
@@ -899,6 +899,7 @@ FILE_PATTERNS          = *.h \
                          *.cpp \
                          *.txt \
                          *.md \
+                         *.bib \
                          *.dox
 
 # The RECURSIVE tag can be used to specify whether or not subdirectories should
