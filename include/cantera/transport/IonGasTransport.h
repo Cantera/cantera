@@ -19,30 +19,15 @@ namespace Cantera
  * polarizability is not provide for an ion, LJ model is used instead of n64 model.
  * Only neutral species are considered for thermal conductivity and viscosity.
  *
- * References for Stockmayer-(n,6,4) model:
- *
- * 1. Selle, Stefan, and Uwe Riedel. "Transport properties of ionized species."
- *    Annals of the New York Academy of Sciences 891.1 (1999): 72-80.
- * 2. Selle, Stefan, and Uwe Riedel. "Transport coefficients of reacting air at
- *    high temperatures." 38th Aerospace Sciences Meeting and Exhibit. 1999.
- * 3. Han, Jie, et al. "Numerical modelling of ion transport in flames."
- *    Combustion Theory and Modelling 19.6 (2015): 744-772.
- *    DOI: 10.1080/13647830.2015.1090018
- * 4. Chiflikian, R. V. "The analog of Blanc’s law for drift velocities
- *    of electrons in gas mixtures in weakly ionized plasma."
- *    Physics of Plasmas 2.10 (1995): 3902-3909.
- * 5. Viehland, L. A., et al. "Tables of transport collision integrals for
- *    (n, 6, 4) ion-neutral potentials." Atomic Data and Nuclear Data Tables
- *    16.6 (1975): 495-514.
+ * References for Stockmayer-(n,6,4) model: Selle and Riedel @cite selle1999,
+ * @cite selle2000; Han et al. @cite han2015; Chiflikian @cite chiflikian1995; and
+ * Viehland et al. @cite viehland1975.
  *
  * Stockmayer-(n,6,4) model is not suitable for collision between O2/O2-
  * due to resonant charge transfer. Therefore, an experimental collision
  * data is used instead.
  *
- * Data taken from:
- *
- * Prager, Jens. Modeling and simulation of charged species in
- * lean methane-oxygen flames. Diss. 2005. Page 104.
+ * Data taken from \cite prager2005.
  *
  * @ingroup tranprops
  */
