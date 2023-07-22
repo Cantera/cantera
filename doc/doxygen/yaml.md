@@ -1,5 +1,8 @@
 @page sec-yaml-documentation %Cantera YAML Documentation
 
+> **Note:** %Cantera provides @ref sec-yaml-conversion to generate YAML files
+> from Chemkin input data as well as legacy %Cantera formats.
+
 This short guide describes %Cantera YAML input files that define phases and
 interfaces for use in %Cantera simulations. Each link below represents an entry
 point to the @subpage sec-yaml-api; while you certainly can read them in order,
@@ -21,6 +24,3 @@ tips on troubleshooting the YAML file syntax rules, please look at the
     several types of homogeneous reactions, surface reactions, and
     electrochemical reactions. For each, there is a corresponding entry
     type.
-
-> **Note:** %Cantera provides @ref sec-yaml-conversion to generate YAML files
-> from Chemkin input data as well as legacy %Cantera formats.

@@ -180,7 +180,7 @@ A: 1.0e20 cm^6/mol^2-s  # error ('s' should be in denominator)
 density: 3.0g/cm^3  # error (missing space between value and units)
 ```
 
-See the \ref sec-yaml-units documentation for additional details,
+See the @ref sec-yaml-units documentation for additional details,
 including the full set of supported units.
 
 # Error Handling

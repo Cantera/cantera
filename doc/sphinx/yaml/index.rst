@@ -9,3 +9,4 @@ YAML Input File Converters
    cti_conversion
    ctml_conversion
    ck_conversion
+   yaml_format
