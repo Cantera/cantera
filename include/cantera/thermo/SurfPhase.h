@@ -159,9 +159,9 @@ public:
      * be equal to the actual concentrations, \f$ C^s_k \f$. Activity
      * concentrations are
      *
-     *      \f[
+     * \f[
      *            C^a_k = C^s_k = \frac{\theta_k  n_0}{s_k}
-     *      \f]
+     * \f]
      *
      * where \f$ \theta_k \f$ is the surface site fraction for species k,
      * \f$ n_0 \f$ is the surface site density for the phase, and
@@ -185,9 +185,9 @@ public:
      * (that is, generalized) concentration. For this phase, the standard
      * concentration is species- specific
      *
-     *        \f[
+     * \f[
      *            C^0_k = \frac{n_0}{s_k}
-     *        \f]
+     * \f]
      *
      * This definition implies that the activity is equal to \f$ \theta_k \f$.
      *

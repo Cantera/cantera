@@ -136,7 +136,7 @@ public:
     //! Calculate species-specific critical temperature
     /*!
      *  The temperature dependent parameter in P-R EoS is calculated as
-     *       \f[ T_{crit} = (0.0778 a)/(0.4572 b R) \f]
+     * \f[ T_{crit} = (0.0778 a)/(0.4572 b R) \f]
      *  Units: Kelvin
      *
      * @param a    species-specific coefficients used in P-R EoS

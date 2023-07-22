@@ -39,10 +39,10 @@ namespace Cantera
  *
  * The enthalpy function is given by the following relation.
  *
- *       \f[
+ * \f[
  *              h^o_k(T,P) =
  *                  h^{ref}_k(T) + \tilde v \left( P - P_{ref} \right)
- *       \f]
+ * \f]
  *
  * For an incompressible, stoichiometric substance, the molar internal energy is
  * independent of pressure. Since the thermodynamic properties are specified by
@@ -50,9 +50,9 @@ namespace Cantera
  * subtracted from the specified reference molar enthalpy to compute the molar
  * internal energy.
  *
- *       \f[
+ * \f[
  *            u^o_k(T,P) = h^{ref}_k(T) - P_{ref} \tilde v
- *       \f]
+ * \f]
  *
  * The standard state heat capacity and entropy are independent of pressure. The
  * standard state Gibbs free energy is obtained from the enthalpy and entropy
