@@ -52,11 +52,8 @@ struct TwoTempPlasmaData : public ReactionData
  *   \f]
  *
  * where \f$ T_e \f$ is the electron temperature, \f$ E_{a,g} \f$ is the activation
- * energy for gas, and \f$ E_{a,e} \f$ is the activation energy for electron.
- * Ref.: Kossyi, I. A., Kostinsky, A. Y., Matveyev, A. A., & Silakov, V. P. (1992).
- * Kinetic scheme of the non-equilibrium discharge in nitrogen-oxygen mixtures.
- * Plasma Sources Science and Technology, 1(3), 207.
- * doi: 10.1088/0963-0252/1/3/011
+ * energy for gas, and \f$ E_{a,e} \f$ is the activation energy for electron, see
+ * Kossyi, et al. @cite kossyi1992.
  *
  * @ingroup arrheniusGroup
  */
