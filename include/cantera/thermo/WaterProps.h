@@ -29,9 +29,9 @@ class PDSS_Water;
  * The electrochemical potential of species \f$k\f$ in a phase \f$p\f$, \f$ \zeta_k \f$,
  * is related to the chemical potential via the following equation,
  *
- *       \f[
+ * \f[
  *            \zeta_{k}(T,P) = \mu_{k}(T,P) + z_k \phi_p
- *       \f]
+ * \f]
  *
  * where  \f$ \nu_k \f$ is the charge of species \f$k\f$, and \f$ \phi_p \f$ is
  * the electric potential of phase \f$p\f$.
@@ -46,9 +46,9 @@ class PDSS_Water;
  * Note, the overall electrochemical potential of a phase may not be changed
  * by the potential because many phases enforce charge neutrality:
  *
- *       \f[
+ * \f[
  *            0 = \sum_k z_k X_k
- *       \f]
+ * \f]
  *
  * Whether charge neutrality is necessary for a phase is also specified within
  * the ThermoPhase object, by the function call

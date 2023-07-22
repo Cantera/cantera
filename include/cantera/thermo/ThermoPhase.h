@@ -509,9 +509,9 @@ public:
      *  species k in a phase p, \f$ \zeta_k \f$, is related to the chemical
      *  potential via the following equation,
      *
-     *       \f[
+     *  \f[
      *            \zeta_{k}(T,P) = \mu_{k}(T,P) + F z_k \phi_p
-     *       \f]
+     *  \f]
      *
      * @param mu  Output vector of species electrochemical
      *            potentials. Length: m_kk. Units: J/kmol
