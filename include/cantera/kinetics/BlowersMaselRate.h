@@ -40,9 +40,8 @@ protected:
 
 //! Blowers Masel reaction rate type depends on the enthalpy of reaction
 /**
- * The Blowers Masel approximation is written by Paul Blowers,
- * Rich Masel (DOI: https://doi.org/10.1002/aic.690461015) to
- * adjust the activation energy based on enthalpy change of a reaction:
+ * The Blowers Masel approximation \cite blowers2004 adjusts the activation energy
+ * based on enthalpy change of a reaction:
  *
  *   \f{eqnarray*}{
  *        E_a &=& 0\; \text{if }\Delta H < -4E_0 \\

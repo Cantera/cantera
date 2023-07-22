@@ -507,10 +507,10 @@ protected:
  * \f[ N = 0.75 - 1.27 \log_{10} F_{cent} \f]
  *
  *  References:
- *  Example of reaction database developed by Tsang utilizing this format:
- *      https://doi.org/10.1063/1.555890
- *  Example of Chemkin implementation of Tsang format (supplemental materials):
- *      https://doi.org/10.1016/j.combustflame.2011.02.010
+ *  * Example of reaction database developed by Tsang utilizing this format
+ *      \cite tsang1991
+ *  * Example of Chemkin implementation of Tsang format (supplemental materials)
+ *      \cite lucassen2011
  *
  * @ingroup falloffGroup
  */
