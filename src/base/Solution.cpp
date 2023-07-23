@@ -118,6 +118,10 @@ AnyMap Solution::parameters(bool withInput) const
     if (withInput) {
         auto transport = out["transport"];
         AnyMap input = m_thermo->input();
+        if (input.hasKey("reactions")) {
+            // all reactions are listed in the standard 'reactions' section
+            input.erase("reactions");
+        }
         out.update(input);
         if (input.hasKey("transport")) {
             // revert changes / ensure that correct model is referenced
