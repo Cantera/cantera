@@ -294,7 +294,7 @@ jobs:
       - name: Install Apt dependencies
         run: |
           sudo apt update
-          sudo apt install libboost-dev doxygen graphviz
+          sudo apt install libboost-dev doxygen graphviz texlive-bibtex-extra
       - name: Upgrade pip
         run: python3 -m pip install -U pip setuptools wheel
       - name: Install Python dependencies
