@@ -1,7 +1,7 @@
 /**
  * @file BinarySolutionTabulatedThermo.h
  * Header file for an binary solution model with tabulated standard state
- * thermodynamic data (see \ref thermoprops and class
+ * thermodynamic data (see @ref thermoprops and class
  * \link Cantera::BinarySolutionTabulatedThermo BinarySolutionTabulatedThermo\endlink).
  */
 

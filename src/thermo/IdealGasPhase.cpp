@@ -1,7 +1,7 @@
 /**
  *  @file IdealGasPhase.cpp
  *   ThermoPhase object for the ideal gas equation of
- * state - workhorse for %Cantera (see \ref thermoprops
+ * state - workhorse for %Cantera (see @ref thermoprops
  * and class \link Cantera::IdealGasPhase IdealGasPhase\endlink).
  */
 

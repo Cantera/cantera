@@ -1,6 +1,6 @@
 /**
  *  @file IdealSolidSolnPhase.cpp Implementation file for an ideal solid
- *      solution model with incompressible thermodynamics (see \ref
+ *      solution model with incompressible thermodynamics (see @ref
  *      thermoprops and \link Cantera::IdealSolidSolnPhase
  *      IdealSolidSolnPhase\endlink).
  */
@@ -392,7 +392,7 @@ void IdealSolidSolnPhase::getSpeciesParameters(const std::string &name,
 void IdealSolidSolnPhase::setToEquilState(const doublereal* mu_RT)
 {
     const vector_fp& grt = gibbs_RT_ref();
-    
+
     // Within the method, we protect against inf results if the exponent is too
     // high.
     //

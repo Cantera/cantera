@@ -2,7 +2,7 @@
  *  @file WaterProps.h
  *   Header for a class used to house several approximation
  *   routines for properties of water.
- *  (see \ref thermoprops
+ *  (see @ref thermoprops
  *   and class \link Cantera::WaterProps WaterProps\endlink).
  */
 
@@ -84,7 +84,7 @@ class PDSS_Water;
 //! properties of water.
 /*!
  * This is a helper class for WaterSSTP and PDSS_Water and does not constitute
- * a complete implementation of a thermo phase by itself (see \ref thermoprops
+ * a complete implementation of a thermo phase by itself (see @ref thermoprops
  * and classes \link Cantera::WaterSSTP WaterSSTP\endlink and
  * \link Cantera::PDSS_Water PDSS_Water\endlink).
  *

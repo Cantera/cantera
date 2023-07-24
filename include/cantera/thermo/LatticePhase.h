@@ -1,7 +1,7 @@
 /**
  *  @file LatticePhase.h Header for a simple thermodynamics model of a bulk
  *      phase derived from ThermoPhase, assuming a lattice of solid atoms (see
- *      \ref thermoprops and class \link Cantera::LatticePhase
+ *      @ref thermoprops and class \link Cantera::LatticePhase
  *      LatticePhase\endlink).
  */
 

@@ -3,7 +3,7 @@
  *   Declarations for the class PDSS_IonsFromNeutral (
  *    which handles calculations for a single ion in a fluid, whose properties
  *    are calculated from another neutral molecule.
- *    (see \ref pdssthermo and class \link Cantera::PDSS_IonsFromNeutral PDSS_IonsFromNeutral\endlink).
+ *    (see @ref pdssthermo and class \link Cantera::PDSS_IonsFromNeutral PDSS_IonsFromNeutral\endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or

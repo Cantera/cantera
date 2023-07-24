@@ -2,7 +2,7 @@
  *  @file HMWSoln.h
  *    Headers for the HMWSoln ThermoPhase object, which models concentrated
  *    electrolyte solutions
- *    (see \ref thermoprops and \link Cantera::HMWSoln HMWSoln \endlink) .
+ *    (see @ref thermoprops and \link Cantera::HMWSoln HMWSoln \endlink) .
  *
  * Class HMWSoln represents a concentrated liquid electrolyte phase which
  * obeys the Pitzer formulation for nonideality using molality-based
@@ -226,7 +226,7 @@ class WaterProps;
  *     I = \frac{1}{2} \sum_k{m_k  z_k^2}
  * \f]
  *
- * In contrast to several other Debye-Huckel implementations (see \ref
+ * In contrast to several other Debye-Huckel implementations (see @ref
  * DebyeHuckel), the parameter \f$ b\f$ in the above equation is a constant that
  * does not vary with respect to ion identity. This is an important
  * simplification as it avoids troubles with satisfaction of the Gibbs-Duhem

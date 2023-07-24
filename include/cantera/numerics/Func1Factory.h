@@ -111,21 +111,21 @@ private:
 };
 
 
-//! Create a new simple functor object (see \ref func1simple).
+//! Create a new simple functor object (see @ref func1simple).
 //! @param func1Type  String identifying functor type.
 //! @param coeff  Coefficient; definition depends on functor type.
 //! @ingroup func1simple
 //! @since New in %Cantera 3.0
 shared_ptr<Func1> newFunc1(const string& func1Type, double coeff=1.);
 
-//! Create a new advanced functor object (see \ref func1advanced).
+//! Create a new advanced functor object (see @ref func1advanced).
 //! @param func1Type  String identifying functor type.
 //! @param params  Parameter vector; definition depends on functor type.
 //! @ingroup func1advanced
 //! @since New in %Cantera 3.0
 shared_ptr<Func1> newFunc1(const string& func1Type, const vector<double>& params);
 
-//! Create a new compound functor object (see \ref func1compound).
+//! Create a new compound functor object (see @ref func1compound).
 //! @param func1Type  String identifying functor type.
 //! @param f1  First Func1 object.
 //! @param f2  Second Func1 object.
@@ -134,7 +134,7 @@ shared_ptr<Func1> newFunc1(const string& func1Type, const vector<double>& params
 shared_ptr<Func1> newFunc1(const string& func1Type,
                            const shared_ptr<Func1> f1, const shared_ptr<Func1> f2);
 
-//! Create a new modified functor object (see \ref func1modified).
+//! Create a new modified functor object (see @ref func1modified).
 //! @param func1Type  String identifying functor type.
 //! @param f  Func1 object.
 //! @param coeff  Coefficient; definition depends on functor type.

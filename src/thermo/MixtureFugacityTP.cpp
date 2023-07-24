@@ -1,7 +1,7 @@
 /**
  *  @file MixtureFugacityTP.cpp
  *    Methods file for a derived class of ThermoPhase that handles
- *    non-ideal mixtures based on the fugacity models (see \ref thermoprops and
+ *    non-ideal mixtures based on the fugacity models (see @ref thermoprops and
  *    class \link Cantera::MixtureFugacityTP MixtureFugacityTP\endlink).
  */
 

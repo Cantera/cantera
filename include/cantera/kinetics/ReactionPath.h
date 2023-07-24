@@ -196,9 +196,9 @@ public:
      *
      *  To generate a postscript reaction path diagram from the output of this
      *  method saved in file paths.dot, for example, give the command:
-     *  \code
+     *  @code
      *  dot -Tps paths.dot > paths.ps
-     *  \endcode
+     *  @endcode
      *  To generate a GIF image, replace -Tps with -Tgif
      */
     void exportToDot(std::ostream& s);

@@ -2,7 +2,7 @@
  *  @file GibbsExcessVPSSTP.h
  *   Header for intermediate ThermoPhase object for phases which
  *   employ Gibbs excess free energy based formulations
- *  (see \ref thermoprops
+ *  (see @ref thermoprops
  * and class \link Cantera::GibbsExcessVPSSTP GibbsExcessVPSSTP\endlink).
  */
 

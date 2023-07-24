@@ -2,7 +2,7 @@
  *  @file MolalityVPSSTP.h
  *   Header for intermediate ThermoPhase object for phases which
  *   employ molality based activity coefficient formulations
- *  (see \ref thermoprops
+ *  (see @ref thermoprops
  * and class \link Cantera::MolalityVPSSTP MolalityVPSSTP\endlink).
  *
  * Header file for a derived class of ThermoPhase that handles

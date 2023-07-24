@@ -3,7 +3,7 @@
  * This file contains definitions of constants, types and terms that are used
  * in internal routines and are unlikely to need modifying.
  *
- * All physical constants are stored here (see module \ref physConstants).
+ * All physical constants are stored here (see module @ref physConstants).
  *
  * This file is included in every file within the Cantera namespace.
  */

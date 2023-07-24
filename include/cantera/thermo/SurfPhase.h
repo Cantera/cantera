@@ -3,7 +3,7 @@
  *  Header for a simple thermodynamics model of a surface phase
  *  derived from ThermoPhase,
  *  assuming an ideal solution model
- *  (see \ref thermoprops and class \link Cantera::SurfPhase SurfPhase\endlink).
+ *  (see @ref thermoprops and class \link Cantera::SurfPhase SurfPhase\endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or

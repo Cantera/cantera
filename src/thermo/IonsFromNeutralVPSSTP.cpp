@@ -2,7 +2,7 @@
  *  @file IonsFromNeutralVPSSTP.cpp
  *   Definitions for the object which treats ionic liquids as made of ions as species
  *   even though the thermodynamics is obtained from the neutral molecule representation.
- *  (see \ref thermoprops
+ *  (see @ref thermoprops
  *   and class \link Cantera::IonsFromNeutralVPSSTP IonsFromNeutralVPSSTP\endlink).
  *
  * Header file for a derived class of ThermoPhase that handles variable pressure

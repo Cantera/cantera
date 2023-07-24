@@ -28,7 +28,7 @@ class Species;
  * of each species, and for describing the current state of the phase. They do
  * not in themselves contain Thermodynamic equation of state information.
  * However, they do comprise all of the necessary background functionality to
- * support thermodynamic calculations (see \ref thermoprops).
+ * support thermodynamic calculations (see @ref thermoprops).
  */
 
 //! Class Phase is the base class for phases of matter, managing the species and
@@ -156,7 +156,7 @@ public:
     std::string elementName(size_t m) const;
 
     //! Return the index of element named 'name'. The index is an integer
-    //! assigned to each element in the order it was added. Returns \ref npos
+    //! assigned to each element in the order it was added. Returns @ref npos
     //! if the specified element is not found.
     //!     @param name Name of the element
     size_t elementIndex(const std::string& name) const;
@@ -235,7 +235,7 @@ public:
     //!     @param name String name of the species. It may also be in the form
     //!            phaseName:speciesName
     //!     @return The index of the species. If the name is not found,
-    //!             the value \ref npos is returned.
+    //!             the value @ref npos is returned.
     size_t speciesIndex(const std::string& name) const;
 
     //! Name of the species with index k

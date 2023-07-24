@@ -2,7 +2,7 @@
  *  @file SpeciesThermoFactory.cpp
  *    Definitions for factory functions to build instances of classes that
  *    manage the standard-state thermodynamic properties of a set of species
- *    (see \ref spthermo);
+ *    (see @ref spthermo);
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or

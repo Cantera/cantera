@@ -1,7 +1,7 @@
 /**
  *  @file utilities.h
  *  Various templated functions that carry out common vector and polynomial operations
- *  (see \ref mathTemplates).
+ *  (see @ref mathTemplates).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -88,10 +88,10 @@ inline doublereal dot(InputIter x_begin, InputIter x_end,
 
 //! Multiply elements of an array by a scale factor.
 /*!
- * \code
+ * @code
  * vector_fp in(8, 1.0), out(8);
  * scale(in.begin(), in.end(), out.begin(), factor);
- * \endcode
+ * @endcode
  *
  * @param begin  Iterator pointing to the beginning, belonging to the
  *               iterator class InputIter.

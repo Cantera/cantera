@@ -57,7 +57,7 @@ struct isotopeWeightData {
 
 /*!
  * @var static vector<atomicWeightData> atomicWeightTable
- * \brief atomicWeightTable is a vector containing the atomic weights database.
+ * @brief atomicWeightTable is a vector containing the atomic weights database.
  *
  * atomicWeightTable is a static variable with scope limited to this file.
  * It can only be referenced via the functions in this file.
@@ -187,7 +187,7 @@ static vector<atomicWeightData> atomicWeightTable {
 
 /*!
  * @var static vector<isotopeWeightData> isotopeWeightTable
- * \brief isotopeWeightTable is a vector containing the atomic weights database.
+ * @brief isotopeWeightTable is a vector containing the atomic weights database.
  *
  * isotopeWeightTable is a static variable with scope limited to this file.
  * It can only be referenced via the functions in this file.

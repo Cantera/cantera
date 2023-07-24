@@ -1,5 +1,5 @@
 /**
- *  @file  MargulesVPSSTP.h (see \ref thermoprops and class \link
+ *  @file  MargulesVPSSTP.h (see @ref thermoprops and class \link
  *      Cantera::MargulesVPSSTP MargulesVPSSTP\endlink).
  */
 

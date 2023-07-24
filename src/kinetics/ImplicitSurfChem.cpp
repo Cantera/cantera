@@ -1,7 +1,7 @@
 /**
  *  @file ImplicitSurfChem.cpp
  * Definitions for the implicit integration of surface site density equations
- *  (see \ref  kineticsmgr and class
+ *  (see @ref  kineticsmgr and class
  *  \link Cantera::ImplicitSurfChem ImplicitSurfChem\endlink).
  */
 

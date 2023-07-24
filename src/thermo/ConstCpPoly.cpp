@@ -1,7 +1,7 @@
 /**
  *  @file ConstCpPoly.cpp
  * Declarations for the \link Cantera::SpeciesThermoInterpType SpeciesThermoInterpType \endlink object that
- * employs a constant heat capacity assumption (see \ref spthermo and
+ * employs a constant heat capacity assumption (see @ref spthermo and
  * \link Cantera::ConstCpPoly ConstCpPoly \endlink).
  */
 

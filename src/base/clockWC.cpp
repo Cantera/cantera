@@ -1,7 +1,7 @@
 /**
  * @file clockWC.cpp
  *    Definitions for a simple class that implements an Ansi C wall clock timer
- *     (see \ref Cantera::clockWC).
+ *     (see @ref Cantera::clockWC).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or

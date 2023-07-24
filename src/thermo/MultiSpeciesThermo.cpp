@@ -1,7 +1,7 @@
 /**
  *  @file MultiSpeciesThermo.cpp
  *  Declarations for a thermodynamic property manager for multiple species
- *  in a phase (see \ref spthermo and
+ *  in a phase (see @ref spthermo and
  * \link Cantera::MultiSpeciesThermo MultiSpeciesThermo\endlink).
  */
 

@@ -2,7 +2,7 @@
  *  @file PureFluidPhase.h
  *
  *   Header for a ThermoPhase class for a pure fluid phase consisting of
- *   gas, liquid, mixed-gas-liquid and supercritical fluid (see \ref thermoprops
+ *   gas, liquid, mixed-gas-liquid and supercritical fluid (see @ref thermoprops
  *   and class \link Cantera::PureFluidPhase PureFluidPhase\endlink).
  *
  * It inherits from ThermoPhase, but is built on top of the tpx package.
