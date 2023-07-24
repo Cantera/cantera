@@ -480,16 +480,12 @@ void StFlow::evalResidual(double* x, double* rsd, int* diag,
             // a result, these residual equations will force the solution
             // variables to the values for the boundary object
             rsd[index(c_offset_V,0)] = V(x,0);
-            if (doEnergy(0)) {
-                rsd[index(c_offset_T,0)] = T(x,0);
-            } else {
-                rsd[index(c_offset_T,0)] = T(x,0) - T_fixed(0);
-            }
-            if (m_isFree) {
-                rsd[index(c_offset_L, 0)] = lambda(x, 0);
-            } else {
-                // used to set mass flow rate (both axisymmetric and unstrained)
+            rsd[index(c_offset_T,0)] = T(x,0);
+            if (m_usesLambda) {
                 rsd[index(c_offset_L, 0)] = -rho_u(x, 0);
+            } else {
+                rsd[index(c_offset_L, 0)] = lambda(x, 0);
+                diag[index(c_offset_L, 0)] = 0;
             }
 
             // The default boundary condition for species is zero flux. However,
@@ -574,10 +570,10 @@ void StFlow::evalResidual(double* x, double* rsd, int* diag,
                 diag[index(c_offset_T, j)] = 0;
             }
 
-            if (m_isFree) {
-                rsd[index(c_offset_L, j)] = lambda(x, j);
-            } else {
+            if (m_usesLambda) {
                 rsd[index(c_offset_L, j)] = lambda(x, j) - lambda(x, j - 1);
+            } else {
+                rsd[index(c_offset_L, j)] = lambda(x, j);
             }
             diag[index(c_offset_L, j)] = 0;
         }
@@ -1015,8 +1011,6 @@ void StFlow::evalRightBoundary(double* x, double* rsd, int* diag, double rdt)
 
     rsd[index(c_offset_V,j)] = V(x,j);
     double sum = 0.0;
-    rsd[index(c_offset_L, j)] = lambda(x,j) - lambda(x,j-1);
-    diag[index(c_offset_L, j)] = 0;
     // set residual of poisson's equ to zero
     rsd[index(c_offset_E, j)] = x[index(c_offset_E, j)];
     for (size_t k = 0; k < m_nsp; k++) {
@@ -1025,24 +1019,16 @@ void StFlow::evalRightBoundary(double* x, double* rsd, int* diag, double rdt)
     }
     rsd[index(c_offset_Y + rightExcessSpecies(), j)] = 1.0 - sum;
     diag[index(c_offset_Y + rightExcessSpecies(), j)] = 0;
-    if (m_isFree) {
-        rsd[index(c_offset_U,j)] = rho_u(x,j) - rho_u(x,j-1);
-        rsd[index(c_offset_T,j)] = T(x,j) - T(x,j-1);
-    } else if (m_usesLambda) {
-        rsd[index(c_offset_U,j)] = rho_u(x,j);
-        if (m_do_energy[j]) {
-            rsd[index(c_offset_T,j)] = T(x,j);
-        } else {
-            rsd[index(c_offset_T, j)] = T(x,j) - T_fixed(j);
-        }
+    if (m_usesLambda) {
+        rsd[index(c_offset_U, j)] = rho_u(x, j);
+        rsd[index(c_offset_L, j)] = lambda(x, j);
     } else {
-        rsd[index(c_offset_U, j)] = rho_u(x, j) - rho_u(x, j - 1);
-        if (m_do_energy[j]) {
-            rsd[index(c_offset_T, j)] = T(x, j);
-        } else {
-            rsd[index(c_offset_T, j)] = T(x, j) - T_fixed(j);
-        }
+        rsd[index(c_offset_U, j)] = rho_u(x, j) - rho_u(x, j-1);
+        rsd[index(c_offset_L, j)] = lambda(x, j) - lambda(x, j-1);
     }
+
+    diag[index(c_offset_L, j)] = 0;
+    rsd[index(c_offset_T, j)] = T(x, j);
 }
 
 void StFlow::evalContinuity(size_t j, double* x, double* rsd, int* diag, double rdt)
@@ -1079,6 +1065,7 @@ void StFlow::evalContinuity(size_t j, double* x, double* rsd, int* diag, double 
                 - (density(j+1)*V(x,j+1) + density(j)*V(x,j));
         }
     } else {
+        // unstrained
         rsd[index(c_offset_U, j)] = rho_u(x, j) - rho_u(x, j - 1);
     }
 }

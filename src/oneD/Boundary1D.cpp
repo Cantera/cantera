@@ -191,6 +191,8 @@ void Inlet1D::eval(size_t jg, double* xg, double* rg,
             // The third flow residual is for T, where it is set to T(0).  Subtract
             // the local temperature to hold the flow T to the inlet T.
             rb[c_offset_T] -= m_temp;
+        } else {
+            rb[c_offset_T] -= m_flow->T_fixed(0);
         }
 
         if (m_flow->isFree()) {
@@ -221,6 +223,8 @@ void Inlet1D::eval(size_t jg, double* xg, double* rg,
         rb[c_offset_V] -= m_V0;
         if (m_flow->doEnergy(m_flow->nPoints() - 1)) {
             rb[c_offset_T] -= m_temp; // T
+        } else {
+            rb[c_offset_T] -= m_flow->T_fixed(m_flow->nPoints() - 1);
         }
         rb[c_offset_U] += m_mdot; // u
         for (size_t k = 0; k < m_nsp; k++) {
@@ -380,6 +384,11 @@ void Outlet1D::eval(size_t jg, double* xg, double* rg, integer* diagg,
         for (size_t k = c_offset_Y; k < nc; k++) {
             rb[k] = xb[k] - xb[k + nc];
         }
+        if (m_flow_left->doEnergy(0)) {
+            rb[c_offset_T] = xb[c_offset_T + nc] - xb[c_offset_T]; // zero T gradient
+        } else {
+            rb[c_offset_T] = xb[c_offset_T] - m_flow_left->T_fixed(0);
+        }
     }
 
     if (m_flow_left) {
@@ -389,8 +398,11 @@ void Outlet1D::eval(size_t jg, double* xg, double* rg, integer* diagg,
         double* rb = r - nc;
         int* db = diag - nc;
 
-        if (m_flow_left->doEnergy(m_flow_left->nPoints()-1)) {
+        size_t last = m_flow_left->nPoints() - 1;
+        if (m_flow_left->doEnergy(last)) {
             rb[c_offset_T] = xb[c_offset_T] - xb[c_offset_T - nc]; // zero T gradient
+        } else {
+            rb[c_offset_T] = xb[c_offset_T] - m_flow_left->T_fixed(last);
         }
         size_t kSkip = c_offset_Y + m_flow_left->rightExcessSpecies();
         for (size_t k = c_offset_Y; k < nc; k++) {
@@ -467,13 +479,11 @@ void OutletRes1D::eval(size_t jg, double* xg, double* rg,
         double* xb = x;
         double* rb = r;
 
-        // this seems wrong...
-        // zero Lambda
-        rb[c_offset_U] = xb[c_offset_L];
-
         if (m_flow_right->doEnergy(0)) {
             // zero gradient for T
             rb[c_offset_T] = xb[c_offset_T] - xb[c_offset_T + nc];
+        } else {
+            rb[c_offset_T] = xb[c_offset_T] - m_flow_left->T_fixed(0);
         }
 
         // specified mass fractions
@@ -488,11 +498,11 @@ void OutletRes1D::eval(size_t jg, double* xg, double* rg,
         double* rb = r - nc;
         int* db = diag - nc;
 
-        if (!m_flow_left->usesLambda()) {
-            rb[c_offset_L] = xb[c_offset_L]; // zero Lambda
-        }
-        if (m_flow_left->doEnergy(m_flow_left->nPoints()-1)) {
-            rb[c_offset_T] = xb[c_offset_T] - m_temp; // zero dT/dz
+        size_t last = m_flow_left->nPoints() - 1;
+        if (m_flow_left->doEnergy(last)) {
+            rb[c_offset_T] = xb[c_offset_T] - xb[c_offset_T - nc]; // zero T gradient
+        } else {
+            rb[c_offset_T] = xb[c_offset_T] - m_flow_left->T_fixed(last);
         }
         size_t kSkip = m_flow_left->rightExcessSpecies();
         for (size_t k = c_offset_Y; k < nc; k++) {
