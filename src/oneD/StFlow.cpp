@@ -298,6 +298,8 @@ void StFlow::setGasAtMidpoint(const double* x, size_t j)
 }
 
 bool StFlow::fixed_mdot() {
+    warn_deprecated("StFlow::fixed_mdot", "To be removed after"
+        " Cantera 3.0. Replaced by isFree().");
     return !m_isFree;
 }
 

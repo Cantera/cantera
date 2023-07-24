@@ -181,7 +181,7 @@ int Refiner::analyze(size_t n, const double* z, const double* x)
         }
 
         // Keep the point where the temperature is fixed
-        if (fflame && !fflame->fixed_mdot() && z[j] == fflame->m_zfixed) {
+        if (fflame && fflame->isFree() && z[j] == fflame->m_zfixed) {
             m_keep[j] = 1;
         }
     }

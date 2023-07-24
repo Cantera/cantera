@@ -188,15 +188,15 @@ void Inlet1D::eval(size_t jg, double* xg, double* rg,
             rb[c_offset_T] -= m_temp;
         }
 
-        if (m_flow->fixed_mdot()) {
-            // The flow domain sets this to -rho*u. Add mdot to specify the mass
-            // flow rate.
-            rb[c_offset_L] += m_mdot;
-        } else {
+        if (m_flow->isFree()) {
             // if the flow is a freely-propagating flame, mdot is not specified.
             // Set mdot equal to rho*u, and also set lambda to zero.
             m_mdot = m_flow->density(0) * xb[c_offset_U];
             rb[c_offset_L] = xb[c_offset_L];
+        } else {
+            // The flow domain sets this to -rho*u. Add mdot to specify the mass
+            // flow rate.
+            rb[c_offset_L] += m_mdot;
         }
 
         // add the convective term to the species residual equations
@@ -385,7 +385,7 @@ void Outlet1D::eval(size_t jg, double* xg, double* rg, integer* diagg,
         int* db = diag - nc;
 
         // zero Lambda
-        if (m_flow_left->fixed_mdot()) {
+        if (!m_flow_left->isFree()) {
             rb[c_offset_U] = xb[c_offset_L];
         }
 
@@ -488,9 +488,7 @@ void OutletRes1D::eval(size_t jg, double* xg, double* rg,
         double* rb = r - nc;
         int* db = diag - nc;
 
-        if (!m_flow_left->fixed_mdot()) {
-            ;
-        } else {
+        if (m_flow_left->isFree()) {
             rb[c_offset_U] = xb[c_offset_L]; // zero Lambda
         }
         if (m_flow_left->doEnergy(m_flow_left->nPoints()-1)) {

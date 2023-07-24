@@ -664,7 +664,7 @@ int Sim1D::setFixedTemperature(double t)
         StFlow* d_free = dynamic_cast<StFlow*>(&domain(n));
         size_t npnow = d.nPoints();
         size_t nstart = znew.size();
-        if (d_free && !d_free->fixed_mdot()) {
+        if (d_free && d_free->isFree()) {
             for (size_t m = 0; m < npnow - 1; m++) {
                 bool fixedpt = false;
                 double t1 = value(n, c_offset_T, m);
@@ -742,7 +742,7 @@ double Sim1D::fixedTemperature()
     double t_fixed = std::numeric_limits<double>::quiet_NaN();
     for (size_t n = 0; n < nDomains(); n++) {
         StFlow* d = dynamic_cast<StFlow*>(&domain(n));
-        if (d && !d->fixed_mdot() && d->m_tfixed > 0) {
+        if (d && d->isFree() && d->m_tfixed > 0) {
             t_fixed = d->m_tfixed;
             break;
         }
@@ -755,7 +755,7 @@ double Sim1D::fixedTemperatureLocation()
     double z_fixed = std::numeric_limits<double>::quiet_NaN();
     for (size_t n = 0; n < nDomains(); n++) {
         StFlow* d = dynamic_cast<StFlow*>(&domain(n));
-        if (d && !d->fixed_mdot() && d->m_tfixed > 0) {
+        if (d && d->isFree() && d->m_tfixed > 0) {
             z_fixed = d->m_zfixed;
             break;
         }

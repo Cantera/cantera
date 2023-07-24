@@ -292,7 +292,18 @@ public:
         return m_rho[j];
     }
 
+    //! @deprecated To be removed after %Cantera 3.0. Superseded by isFree()
     virtual bool fixed_mdot();
+
+    /**
+     * Retrieve flag indicating whether flow is freely propagating.
+     * The flow is unstrained and the axial mass flow rate is not specified.
+     * For free flame propagation, the axial velocity is determined by the solver.
+     * @since New in %Cantera 3.0
+     */
+    bool isFree() const {
+        return m_isFree;
+    }
 
     void setViscosityFlag(bool dovisc) {
         m_dovisc = dovisc;
