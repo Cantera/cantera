@@ -485,7 +485,12 @@ void StFlow::evalResidual(double* x, double* rsd, int* diag,
             } else {
                 rsd[index(c_offset_T,0)] = T(x,0) - T_fixed(0);
             }
-            rsd[index(c_offset_L,0)] = -rho_u(x,0);
+            if (m_isFree) {
+                rsd[index(c_offset_L, 0)] = lambda(x, 0);
+            } else {
+                // used to set mass flow rate
+                rsd[index(c_offset_L, 0)] = -rho_u(x, 0);
+            }
 
             // The default boundary condition for species is zero flux. However,
             // the boundary object may modify this.
@@ -569,7 +574,11 @@ void StFlow::evalResidual(double* x, double* rsd, int* diag,
                 diag[index(c_offset_T, j)] = 0;
             }
 
-            rsd[index(c_offset_L, j)] = lambda(x,j) - lambda(x,j-1);
+            if (m_isFree) {
+                rsd[index(c_offset_L, j)] = lambda(x, j);
+            } else {
+                rsd[index(c_offset_L, j)] = lambda(x, j) - lambda(x, j - 1);
+            }
             diag[index(c_offset_L, j)] = 0;
         }
     }

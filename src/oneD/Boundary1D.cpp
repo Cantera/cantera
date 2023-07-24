@@ -200,7 +200,7 @@ void Inlet1D::eval(size_t jg, double* xg, double* rg,
             rb[c_offset_L] = xb[c_offset_L];
         } else {
             // The flow domain sets this to -rho*u. Add mdot to specify the mass
-            // flow rate.
+            // flow rate (both axisymmetric and unstrained).
             rb[c_offset_L] += m_mdot;
         }
 
@@ -374,7 +374,9 @@ void Outlet1D::eval(size_t jg, double* xg, double* rg, integer* diagg,
         size_t nc = m_flow_right->nComponents();
         double* xb = x;
         double* rb = r;
-        rb[c_offset_U] = xb[c_offset_L];
+        if (!m_flow_right->usesLambda()) {
+            rb[c_offset_L] = xb[c_offset_L];
+        }
         if (m_flow_right->doEnergy(0)) {
             rb[c_offset_T] = xb[c_offset_T] - xb[c_offset_T + nc];
         }
@@ -493,8 +495,8 @@ void OutletRes1D::eval(size_t jg, double* xg, double* rg,
         double* rb = r - nc;
         int* db = diag - nc;
 
-        if (m_flow_left->isFree()) {
-            rb[c_offset_U] = xb[c_offset_L]; // zero Lambda
+        if (!m_flow_left->usesLambda()) {
+            rb[c_offset_L] = xb[c_offset_L]; // zero Lambda
         }
         if (m_flow_left->doEnergy(m_flow_left->nPoints()-1)) {
             rb[c_offset_T] = xb[c_offset_T] - m_temp; // zero dT/dz

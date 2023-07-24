@@ -305,6 +305,17 @@ public:
         return m_isFree;
     }
 
+    /**
+     * Retrieve flag indicating whether flow uses radial momentum.
+     * If `true`, radial momentum equation for @f$ V @f$ as well as
+     * @f$ d\Lambda/dz = 0 @f$ are solved; if `false`, @f$ \Lambda(z) = 0 @f$ and
+     * @f$ V(z) = 0 @f$ by definition.
+     * @since New in %Cantera 3.0
+     */
+    bool usesLambda() const {
+        return m_usesLambda;
+    }
+
     void setViscosityFlag(bool dovisc) {
         m_dovisc = dovisc;
     }
