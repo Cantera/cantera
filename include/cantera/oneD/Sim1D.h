@@ -107,13 +107,13 @@ public:
     /**
      * Output information on current solution for all domains to stream.
      * @param s  Output stream
-     * @deprecated To be removed after Cantera 3.0; replaced by show
+     * @deprecated To be removed after %Cantera 3.0; replaced by show()
      */
     void showSolution(std::ostream& s);
 
     /**
      * Show logging information on current solution for all domains.
-     * @deprecated To be removed after Cantera 3.0; replaced by show
+     * @deprecated To be removed after %Cantera 3.0; replaced by show()
      */
     void showSolution();
 

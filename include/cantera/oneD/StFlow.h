@@ -94,13 +94,15 @@ public:
     virtual void setKinetics(shared_ptr<Kinetics> kin);
 
     //! Set the kinetics manager.
-    //! @deprecated  To be removed after Cantera 3.0; replaced by Domain1D::setKinetics
+    //! @deprecated To be removed after %Cantera 3.0;
+    //!     replaced by Domain1D::setKinetics()
     void setKinetics(Kinetics& kin);
 
     virtual void setTransport(shared_ptr<Transport> trans);
 
     //! Set transport model to existing instance
-    //! @deprecated  To be removed after Cantera 3.0; replaced by Domain1D::setKinetics
+    //! @deprecated To be removed after %Cantera 3.0;
+    //!     replaced by Domain1D::setKinetics()
     void setTransport(Transport& trans);
 
     //! Set the transport model
@@ -204,7 +206,7 @@ public:
     //! Return the type of flow domain being represented, either "Free Flame" or
     //! "Axisymmetric Stagnation".
     //! @see setFreeFlow setAxisymmetricFlow
-    //! @deprecated  To be removed after Cantera 3.0; replaced by type.
+    //! @deprecated To be removed after %Cantera 3.0; replaced by type().
     virtual string flowType() const;
 
     void solveEnergyEqn(size_t j=npos);

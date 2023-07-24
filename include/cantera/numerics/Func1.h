@@ -181,7 +181,7 @@ public:
     void setC(doublereal c);
 
     //! accessor function for m_f1
-    //! @deprecated To be removed after Cantera 3.0; replaced by func1_shared.
+    //! @deprecated To be removed after %Cantera 3.0; replaced by func1_shared().
     Func1& func1() const;
 
     //! Accessor function for m_f1_shared
