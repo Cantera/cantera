@@ -513,11 +513,16 @@ void StFlow::evalResidual(double* x, double* rsd, int* diag,
             //    \rho dV/dt + \rho u dV/dz + \rho V^2
             //       = d(\mu dV/dz)/dz - lambda
             //-------------------------------------------------
-            rsd[index(c_offset_V,j)]
-            = (shear(x,j) - lambda(x,j) - rho_u(x,j)*dVdz(x,j)
-               - m_rho[j]*V(x,j)*V(x,j))/m_rho[j]
-              - rdt*(V(x,j) - V_prev(j));
-            diag[index(c_offset_V, j)] = 1;
+            if (m_usesLambda) {
+                rsd[index(c_offset_V,j)] =
+                    (shear(x, j) - lambda(x, j) - rho_u(x, j) * dVdz(x, j)
+                    - m_rho[j] * V(x, j) * V(x, j)) / m_rho[j]
+                    - rdt * (V(x, j) - V_prev(j));
+                diag[index(c_offset_V, j)] = 1;
+            } else {
+                rsd[index(c_offset_V, j)] = V(x, j);
+                diag[index(c_offset_V, j)] = 0;
+            }
 
             //-------------------------------------------------
             //    Species equations
@@ -1010,6 +1015,7 @@ void StFlow::evalRightBoundary(double* x, double* rsd, int* diag, double rdt)
     // and T, and zero diffusive flux for all species.
 
     rsd[index(c_offset_V,j)] = V(x,j);
+    diag[index(c_offset_V,j)] = 0;
     double sum = 0.0;
     // set residual of poisson's equ to zero
     rsd[index(c_offset_E, j)] = x[index(c_offset_E, j)];
