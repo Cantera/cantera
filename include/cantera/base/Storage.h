@@ -31,7 +31,7 @@ namespace Cantera
  *  A wrapper class handling storage to HDF; acts as a thin wrapper for HighFive.
  *  The class implements methods that are intended to be called from SolutionArray.
  *
- *  @since  New in Cantera 3.0.
+ *  @since New in %Cantera 3.0.
  *  @warning This class is an experimental part of the %Cantera API and may be
  *      changed or removed without notice.
  */

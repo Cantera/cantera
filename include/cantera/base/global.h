@@ -84,7 +84,7 @@ void loadExtension(const std::string& extType, const std::string& name);
 //! Load extensions providing user-defined models from the `extensions` section of the
 //! given node. @see Application::loadExtension
 //!
-//! @since New in Cantera 3.0
+//! @since New in %Cantera 3.0
 void loadExtensions(const AnyMap& node);
 
 //! @copydoc Application::searchPythonVersions
@@ -100,7 +100,7 @@ void appdelete();
 //! @copydoc Application::thread_complete
 void thread_complete();
 
-//! @defgroup globalSettings  Global Cantera Settings
+//! @defgroup globalSettings  Global %Cantera Settings
 //! @brief Functions for accessing global %Cantera settings.
 //! @ingroup globalData
 
@@ -109,15 +109,15 @@ void thread_complete();
 
 //! Returns `true` if %Cantera was loaded as a shared library in the current
 //! application. Returns `false` if it was statically linked.
-//! @since New in Cantera 3.0
+//! @since New in %Cantera 3.0
 bool usingSharedLibrary();
 
-//! @name Cantera Version Information
+//! @name %Cantera Version Information
 //! @{
 
 //! Returns the %Cantera version. This function is used to access the version from a
 //! library, rather than the \c CANTERA_VERSION macro that is available at compile time.
-//! @since New in Cantera 3.0
+//! @since New in %Cantera 3.0
 string version();
 
 //! Returns the hash of the git commit from which %Cantera was compiled, if known
@@ -131,7 +131,7 @@ std::string gitCommit();
 bool debugModeEnabled();
 
 //! Returns true if %Cantera was compiled with C++ \c HDF5 support.
-//! @since  New in Cantera 3.0.
+//! @since New in %Cantera 3.0.
 bool usesHDF5();
 
 //! @}
@@ -142,7 +142,7 @@ bool usesHDF5();
  *
  * Writing diagnostic information to the screen or to a file. It is often
  * useful to be able to write diagnostic messages to the screen or to a file.
- * Cantera defines a set of procedures for this purpose designed to write text messages
+ * %Cantera defines a set of procedures for this purpose designed to write text messages
  * to the screen to document the progress of a complex calculation, such as a
  * flame simulation.
  * @ingroup debugGroup
@@ -166,10 +166,10 @@ inline void debuglog(const std::string& msg, int loglevel)
 //!
 //! This function passes its arguments to the fmt library 'format' function to
 //! generate a formatted string from a Python-style (curly braces) format
-//! string. This method is used throughout Cantera to write log messages. It can
+//! string. This method is used throughout %Cantera to write log messages. It can
 //! also be called by user programs. The advantage of using writelog over
 //! writing directly to the standard output is that messages written with
-//! writelog will display correctly even when Cantera is used from MATLAB or
+//! writelog will display correctly even when %Cantera is used from MATLAB or
 //! other application that do not have a standard output stream.
 template <typename... Args>
 void writelog(const std::string& fmt, const Args&... args) {
@@ -322,7 +322,7 @@ void setLogger(Logger* logwriter);
 //! documentation says doing this from an error handler is not safe on all platforms
 //! and risks deadlocking. However, it can be useful for debugging and is therefore
 //! enabled when running tests.
-//! @since New in Cantera 3.0
+//! @since New in %Cantera 3.0
 //! @ingroup globalSettings
 void printStackTraceOnSegfault();
 

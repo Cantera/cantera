@@ -54,7 +54,7 @@ namespace Cantera
  */
 
 
-//! Base class for exceptions thrown by Cantera classes.
+//! Base class for exceptions thrown by %Cantera classes.
 /*!
  * This class is the base class for exceptions thrown by Cantera. It inherits
  * from std::exception so that normal error handling operations from
@@ -127,7 +127,7 @@ private:
 
 //! Array size error.
 /*!
- * This error is thrown if a supplied length to a vector supplied to Cantera is
+ * This error is thrown if a supplied length to a vector supplied to %Cantera is
  * too small.
  *
  * @ingroup errGroup

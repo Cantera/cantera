@@ -37,7 +37,7 @@ public:
      */
     Sim1D(vector<shared_ptr<Domain1D>>& domains);
 
-    //! @deprecated  To be removed after Cantera 3.0;
+    //! @deprecated To be removed after %Cantera 3.0;
     //!     superseded by Sim1D() using shared_ptr
     Sim1D(std::vector<Domain1D*>& domains);
 
@@ -120,13 +120,13 @@ public:
     /**
      * Output information on current solution for all domains to stream.
      * @param s  Output stream
-     * @since  New in Cantera 3.0.
+     * @since New in %Cantera 3.0.
      */
     void show(std::ostream& s);
 
     /**
      * Show logging information on current solution for all domains.
-     * @since  New in Cantera 3.0.
+     * @since New in %Cantera 3.0.
      */
     void show();
 
@@ -136,7 +136,7 @@ public:
      * @param id  Identifier of solution within the container file
      * @param desc  Description of the solution
      * @param loglevel  Level of diagnostic output
-     * @deprecated  To be removed after Cantera 3.0; loglevel is deprecated.
+     * @deprecated To be removed after %Cantera 3.0; loglevel is deprecated.
      */
     void save(const std::string& fname, const std::string& id,
               const std::string& desc, int loglevel);
@@ -155,7 +155,7 @@ public:
      * container files using the restore() method, while individual domains can be
      * loaded using SolutionArray::restore() for further analysis. While CSV do not
      * contain complete information, they can still be used for setting initial states
-     * of individual simulation objects for some Cantera API's.
+     * of individual simulation objects for some %Cantera API's.
      *
      * @param fname  Name of output file (CSV, YAML or HDF)
      * @param name  Identifier of storage location within the container file; this
@@ -178,7 +178,7 @@ public:
      * @param id  Identifier of solution within the container file
      * @param desc  Description of the solution
      * @param loglevel  Level of diagnostic output
-     * @deprecated  To be removed after Cantera 3.0; loglevel is deprecated.
+     * @deprecated To be removed after %Cantera 3.0; loglevel is deprecated.
      */
     void saveResidual(const std::string& fname, const std::string& id,
                       const std::string& desc, int loglevel);
@@ -199,7 +199,7 @@ public:
      * @param fname  Name of container file
      * @param id  Identifier of solution within the container file
      * @param loglevel  Level of diagnostic output
-     * @deprecated  To be removed after Cantera 3.0; loglevel is deprecated.
+     * @deprecated To be removed after %Cantera 3.0; loglevel is deprecated.
      * @return  AnyMap containing header information
      */
     AnyMap restore(const std::string& fname, const std::string& id, int loglevel);
@@ -220,7 +220,7 @@ public:
 
     //! @}
 
-    // @deprecated  To be removed after Cantera 3.0 (unused)
+    //! @deprecated To be removed after %Cantera 3.0 (unused)
     const doublereal* solution() {
         warn_deprecated("Sim1D::solution",
             "This method is unused and will be removed after Cantera 3.0.");
@@ -302,14 +302,14 @@ public:
 
     void getInitialSoln();
 
-    // @deprecated  To be removed after Cantera 3.0 (unused)
+    //! @deprecated To be removed after %Cantera 3.0 (unused)
     void setSolution(const doublereal* soln) {
         warn_deprecated("Sim1D::setSolution",
             "This method is unused and will be removed after Cantera 3.0.");
         std::copy(soln, soln + m_state->size(), m_state->data());
     }
 
-    // @deprecated  To be removed after Cantera 3.0 (unused)
+    //! @deprecated To be removed after %Cantera 3.0 (unused)
     const doublereal* solution() const {
         warn_deprecated("Sim1D::solution",
             "This method is unused and will be removed after Cantera 3.0.");

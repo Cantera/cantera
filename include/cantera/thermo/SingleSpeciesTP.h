@@ -125,7 +125,7 @@ public:
      *
      * @param murt  On return, Contains the chemical potential / RT of the
      *              single species and the phase. Units are unitless. Length = 1
-     * @deprecated To be removed after Cantera 3.0. Use getChemPotentials() instead.
+     * @deprecated To be removed after %Cantera 3.0. Use getChemPotentials() instead.
      */
     virtual void getChemPotentials_RT(doublereal* murt) const;
 

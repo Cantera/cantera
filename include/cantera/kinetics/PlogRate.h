@@ -172,7 +172,7 @@ public:
     //! has a negative pre-exponential factor.
     void validate(const std::string& equation, const Kinetics& kin);
 
-    //! @deprecated  To be removed after Cantera 3.0;
+    //! @deprecated To be removed after %Cantera 3.0;
     //!              superseded by two-parameter version
     void validate(const std::string& equation);
 

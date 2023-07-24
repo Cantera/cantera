@@ -77,7 +77,7 @@ public:
 
     //! Set the primary mass flow controller.
     /*!
-     * @since New in Cantera 3.0.
+     * @since New in %Cantera 3.0.
      */
     void setPrimary(FlowDevice* primary) {
         m_primary = primary;

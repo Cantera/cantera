@@ -19,10 +19,10 @@ namespace Cantera
 /*!
  * @defgroup globalData Global Data
  *
- * Global data are available anywhere. There are two kinds. Cantera has an
+ * Global data are available anywhere. There are two kinds. %Cantera has an
  * assortment of constant values for physical parameters. Also, Cantera
  * maintains a collection of global data which is specific to each process that
- * invokes Cantera functions. This process-specific data is stored in the class
+ * invokes %Cantera functions. This process-specific data is stored in the class
  * Application.
  */
 
@@ -54,7 +54,7 @@ protected:
         //! throwing an exception.
         /*!
          * This routine adds an error message to the end of the stack of errors
-         * that Cantera accumulates in the Application class.
+         * that %Cantera accumulates in the Application class.
          * @param r    Procedure name which is generating the error condition
          * @param msg  Descriptive message of the error condition.
          *
@@ -92,7 +92,7 @@ protected:
         //!  Prints all of the error messages to an ostream
         /*!
          * Write out all of the saved error messages to the ostream f using
-         * the function Logger::writelog. Cantera saves a stack of exceptions
+         * the function Logger::writelog. %Cantera saves a stack of exceptions
          * that it has caught in the Application class. This routine writes
          * out all of the error messages to the ostream and then clears them
          * from internal storage.
@@ -117,11 +117,11 @@ protected:
         //!  Write a message to the screen.
         /*!
          * The string may be of any length, and may contain end-of-line
-         * characters. This method is used throughout Cantera to write log
+         * characters. This method is used throughout %Cantera to write log
          * messages. It can also be called by user programs.  The advantage of
          * using writelog over writing directly to the standard output is that
          * messages written with writelog will display correctly even when
-         * Cantera is used from MATLAB or other application that do not have a
+         * %Cantera is used from MATLAB or other application that do not have a
          * standard output stream.
          *
          * @param msg  c++ string to be written to the screen
@@ -266,10 +266,10 @@ public:
      */
     std::string findInputFile(const std::string& name);
 
-    //! Get the Cantera data directories
+    //! Get the %Cantera data directories
     /*!
      * This routine returns a string including the names of all the
-     * directories searched by Cantera for data files.
+     * directories searched by %Cantera for data files.
      *
      * @param sep Separator to use between directories in the string
      * @return A string of directories separated by the input sep
@@ -287,13 +287,13 @@ public:
     //!     parameter depends on the specific extension interface. For example, for
     //!     Python extensions, this is the name of the Python module containing the
     //!     models.
-    //! @since New in Cantera 3.0
+    //! @since New in %Cantera 3.0
     void loadExtension(const std::string& extType, const std::string& name);
 
     //! Set the versions of Python to try when loading user-defined extensions,
     //! in order of preference. Separate multiple versions with commas, for example
     //! `"3.11,3.10"`.
-    //! @since New in Cantera 3.0
+    //! @since New in %Cantera 3.0
     void searchPythonVersions(const string& versions);
 
 #ifdef _WIN32
@@ -354,7 +354,7 @@ public:
         return m_suppress_warnings;
     }
 
-    //! Turns Cantera warnings into exceptions. Activated within the test
+    //! Turns %Cantera warnings into exceptions. Activated within the test
     //! suite to make sure that your warning message are being raised.
     void make_warnings_fatal() {
         m_fatal_warnings = true;
@@ -399,7 +399,7 @@ public:
     /*!
      * Delete the memory allocated per thread by Cantera.  It should be called
      * from within the thread just before the thread terminates.  If your
-     * version of Cantera has not been specifically compiled for thread safety
+     * version of %Cantera has not been specifically compiled for thread safety
      * this function does nothing.
      */
     void thread_complete();
@@ -414,7 +414,7 @@ protected:
      * be called by user programs.
      *
      * The current directory (".") is always searched first. Then, on Windows, the
-     * registry is checked to find the Cantera installation directory, and the
+     * registry is checked to find the %Cantera installation directory, and the
      * 'data' subdirectory of the installation directory will be added to the search
      * path.
      *

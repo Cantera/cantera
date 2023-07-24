@@ -128,14 +128,14 @@ public:
 
     //! Returns `true` if the held value is a vector of the specified type, such as
     //! `vector<double>`.
-    //! @since  New in Cantera 3.0.
+    //! @since New in %Cantera 3.0.
     template<class T>
     bool isVector() const;
 
     //! Returns `true` if the held value is a matrix of the specified type and a
     //! consistent number of columns, such as `vector<vector<double>>`. If the
     //! number of columns is provided, a match is required.
-    //! @since  New in Cantera 3.0.
+    //! @since New in %Cantera 3.0.
     template<class T>
     bool isMatrix(size_t cols=npos) const;
 
@@ -147,7 +147,7 @@ public:
     //! If not a vector or the type is not supported npos is returned.
     //! Types considered include `vector<double>`, `vector<long int>`, `vector<string>`,
     //! and `vector<bool`.
-    //! @since  New in Cantera 3.0.
+    //! @since New in %Cantera 3.0.
     size_t vectorSize() const;
 
     //! Returns rows and columns of a matrix.
@@ -155,7 +155,7 @@ public:
     //! npos; if the type is not supported, a npos pair is returned.
     //! Types considered include `vector<vector<double>>`, `vector<vector<long int>>`,
     //! `vector<vector<string>>` and `vector<vector<bool>>`.
-    //! @since  New in Cantera 3.0.
+    //! @since New in %Cantera 3.0.
     pair<size_t, size_t> matrixShape() const;
 
     explicit AnyValue(const std::string& value);
@@ -430,7 +430,7 @@ public:
     //! Create an AnyMap from a YAML file.
     /*!
      *  Searches the directory containing the optionally-specified parent file
-     *  first, followed by the current working directory and the Cantera include
+     *  first, followed by the current working directory and the %Cantera include
      *  path.
      */
     static AnyMap fromYamlFile(const std::string& name,
@@ -475,7 +475,7 @@ public:
     std::string keys_str() const;
 
     //! Return an unordered set of keys
-    //! @since  New in Cantera 3.0.
+    //! @since New in %Cantera 3.0.
     std::set<std::string> keys() const;
 
     //! Set a metadata value that applies to this AnyMap and its children.

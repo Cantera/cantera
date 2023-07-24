@@ -200,7 +200,7 @@ private:
      */
     std::unique_ptr<WaterProps> m_waterProps;
 
-    //! Molecular weight of Water -> Cantera assumption
+    //! Molecular weight of Water -> %Cantera assumption
     double m_mw = 0.0;
 
     //! Offset constants used to obtain consistency with the NIST database.

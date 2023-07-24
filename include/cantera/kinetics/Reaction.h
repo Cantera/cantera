@@ -60,7 +60,7 @@ public:
     UnitStack calculateRateCoeffUnits(const Kinetics& kin);
 
     //! Calculate the units of the rate constant.
-    //! @deprecated  To be removed after Cantera 3.0. Replaceable by
+    //! @deprecated To be removed after %Cantera 3.0. Replaceable by
     //!              calculateRateCoeffUnits.
     UnitStack calculateRateCoeffUnits3(const Kinetics& kin) {
         warn_deprecated("Reaction::calculateRateCoeffUnits3",
@@ -70,11 +70,11 @@ public:
     }
 
     //! Ensure that the rate constant and other parameters for this reaction are valid.
-    //! @since  New in Cantera 3.0.
+    //! @since New in %Cantera 3.0.
     void check();
 
     //! Ensure that the rate constant and other parameters for this reaction are valid.
-    //! @deprecated  To be removed after Cantera 3.0. Replaceable by check.
+    //! @deprecated To be removed after %Cantera 3.0. Replaceable by check.
     void validate() {
         warn_deprecated("Reaction::validate",
             "Deprecated in Cantera 3.0 and to be removed thereafter; replaceable "
@@ -178,7 +178,7 @@ public:
     }
 
     //! Check whether reaction involves third body collider
-    //! @since  New in Cantera 3.0.
+    //! @since New in %Cantera 3.0.
     bool usesThirdBody() const {
         return bool(m_third_body);
     }
@@ -216,30 +216,30 @@ public:
     ThirdBody(const std::string& third_body);
     ThirdBody(const AnyMap& node);
 
-    //! @deprecated  To be removed after Cantera 3.0; instantiate using string instead
+    //! @deprecated To be removed after %Cantera 3.0; instantiate using string instead
     ThirdBody(double default_efficiency);
 
     //! Name of the third body collider
-    //! @since  New in Cantera 3.0
+    //! @since New in %Cantera 3.0
     std::string name() const {
         return m_name;
     }
 
     //! Set name of the third body collider
-    //! @since  New in Cantera 3.0
+    //! @since New in %Cantera 3.0
     void setName(const std::string& third_body);
 
     //! Set third-body efficiencies from AnyMap *node*
-    //! @deprecated  To be removed after Cantera 3.0; renamed to setParameters
+    //! @deprecated To be removed after %Cantera 3.0; renamed to setParameters
     void setEfficiencies(const AnyMap& node);
 
     //! Set third-body efficiencies from AnyMap *node*
-    //! @since  New in Cantera 3.0
+    //! @since New in %Cantera 3.0
     void setParameters(const AnyMap& node);
 
     //! Get third-body efficiencies from AnyMap *node*
     //! @param node  AnyMap receiving serialized parameters
-    //! @since  New in Cantera 3.0
+    //! @since New in %Cantera 3.0
     void getParameters(AnyMap& node) const;
 
     //! Get the third-body efficiency for species *k*
@@ -247,7 +247,7 @@ public:
 
     //! Suffix representing the third body collider in reaction equation, for example
     //! `+ M` or `(+M)`
-    //! @since  New in Cantera 3.0
+    //! @since New in %Cantera 3.0
     std::string collider() const;
 
     //! Verify that all species involved in collision efficiencies are defined in the
@@ -256,7 +256,7 @@ public:
     //! species, in which case false is returned.
     //! @param rxn  Reaction object
     //! @param kin  Kinetics object
-    //! @since  New in Cantera 3.0
+    //! @since New in %Cantera 3.0
     bool checkSpecies(const Reaction& rxn, const Kinetics& kin) const;
 
     //! Map of species to third body efficiency
@@ -280,7 +280,7 @@ protected:
 
 //! A reaction with a non-reacting third body "M" that acts to add or remove
 //! energy from the reacting species
-//! @deprecated  To be removed after Cantera 3.0. Merged with Reaction
+//! @deprecated To be removed after %Cantera 3.0. Merged with Reaction
 class ThreeBodyReaction : public Reaction
 {
 public:
@@ -298,7 +298,7 @@ public:
 //! decreases as pressure increases due to collisional stabilization of a reaction
 //! intermediate; in this case, the forward rate constant is written as being
 //! proportional to the low-pressure rate constant.
-//! @deprecated  To be removed after Cantera 3.0. Merged with Reaction
+//! @deprecated To be removed after %Cantera 3.0. Merged with Reaction
 class FalloffReaction : public Reaction
 {
 public:

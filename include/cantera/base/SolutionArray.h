@@ -23,10 +23,10 @@ class ThermoPhase;
  * stored, reshaping operations need to be implemented in high-level API's.
  *
  * The SolutionArray class implements the main interface for saving and restoring of
- * Cantera simulation data. SolutionArray objects can be serialized to and from YAML and
+ * %Cantera simulation data. SolutionArray objects can be serialized to and from YAML and
  * HDF container files using the save() and restore() methods. In addition, there is
  * limited support for CSV files.
- * @since  New in Cantera 3.0.
+ * @since New in %Cantera 3.0.
  * @ingroup solnGroup
  */
 class SolutionArray

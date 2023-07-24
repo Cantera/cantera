@@ -24,7 +24,7 @@ namespace Cantera
 //! output stream or standard error stream, but classes may be derived from
 //! Logger that implement other output options. This is important when Cantera
 //! is used in applications that do not display the standard output, such as
-//! MATLAB. The Cantera MATLAB interface derives a class from Logger that
+//! MATLAB. The %Cantera MATLAB interface derives a class from Logger that
 //! implements these methods with MATLAB-specific procedures, insuring that the
 //! messages will be passed through to the user. It would also be possible to
 //! derive a class that displayed the messages in a pop-up window, or redirected
@@ -82,7 +82,7 @@ public:
      * The default behavior is to write to the standard error stream, and then
      * call exit(). Note that no end-of-line character is appended to the
      * message, and so if one is desired it must be included in the string. Note
-     * that this default behavior will terminate the application Cantera is
+     * that this default behavior will terminate the application %Cantera is
      * invoked from (MATLAB, Excel, etc.) If this is not desired, then derive a
      * class and reimplement this method.
      *

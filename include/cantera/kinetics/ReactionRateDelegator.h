@@ -15,7 +15,7 @@ namespace Cantera
 
 //! Delegate methods of the ReactionData class to external functions
 //!
-//! @since New in Cantera 3.0
+//! @since New in %Cantera 3.0
 class ReactionDataDelegator : public Delegator, public ReactionData
 {
 public:
@@ -63,7 +63,7 @@ protected:
 
 //! Delegate methods of the ReactionRate class to external functions
 //!
-//! @since New in Cantera 3.0
+//! @since New in %Cantera 3.0
 //! @ingroup otherRateGroup
 class ReactionRateDelegator : public Delegator, public ReactionRate
 {

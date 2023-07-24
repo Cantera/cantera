@@ -20,7 +20,7 @@ class ThermoPhase;
 //! A class for multiphase mixtures. The mixture can contain any
 //! number of phases of any type.
 /*!
- * This object is the basic tool used by Cantera for use in Multiphase
+ * This object is the basic tool used by %Cantera for use in Multiphase
  * equilibrium calculations.
  *
  * It is a container for a set of phases. Each phase has a given number of

@@ -365,7 +365,7 @@ public:
      *
      * @param rho Density (kg/m^3)
      * @param p Pressure (Pa)
-     * @since  New in Cantera 3.0.
+     * @since New in %Cantera 3.0.
      */
     virtual void setState_DP(doublereal rho, doublereal p)
     {

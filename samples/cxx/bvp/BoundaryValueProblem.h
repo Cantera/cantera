@@ -1,6 +1,6 @@
 /**
  *  @file BoundaryValueProblem.h
- *  Simplified interface to the capabilities provided by Cantera to
+ *  Simplified interface to the capabilities provided by %Cantera to
  *  solve boundary value problems.
  */
 

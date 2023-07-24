@@ -2,7 +2,7 @@
  * @file MaskellSolidSolnPhase.h Header file for a solid solution model
  * following Maskell, Shaw, and Tye. Electrochimica Acta 1982
  *
- * This class inherits from the Cantera class ThermoPhase and implements a
+ * This class inherits from the %Cantera class ThermoPhase and implements a
  * non-ideal solid solution model with incompressible thermodynamics.
  */
 
@@ -24,7 +24,7 @@ namespace Cantera
  *
  * @ingroup thermoprops
  *
- * @deprecated To be removed after Cantera 3.0. This class has numerous thermodynamic
+ * @deprecated To be removed after %Cantera 3.0. This class has numerous thermodynamic
  *    inconsistencies. See https://github.com/Cantera/cantera/issues/1321.
  */
 class MaskellSolidSolnPhase : public VPStandardStateTP
@@ -83,7 +83,7 @@ public:
 
     virtual void getActivityCoefficients(doublereal* ac) const;
     virtual void getChemPotentials(doublereal* mu) const;
-    //! @deprecated To be removed after Cantera 3.0. Use getChemPotentials() instead.
+    //! @deprecated To be removed after %Cantera 3.0. Use getChemPotentials() instead.
     virtual void getChemPotentials_RT(doublereal* mu) const;
 
     //! @}

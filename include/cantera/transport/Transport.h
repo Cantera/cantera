@@ -52,7 +52,7 @@ const int CK_Mode = 10;
  * quantities refers to the reference velocity being referenced to a particular
  * species. Below are the predefined constants for its value.
  *
- * @deprecated To be removed after Cantera 3.0.
+ * @deprecated To be removed after %Cantera 3.0.
  *
  * - VB_MASSAVG    Diffusion velocities are based on the mass averaged velocity
  * - VB_MOLEAVG    Diffusion velocities are based on the mole averaged velocities
@@ -69,22 +69,22 @@ typedef int VelocityBasis;
  */
 //! @{
 //! Diffusion velocities are based on the mass averaged velocity
-//! @deprecated To be removed after Cantera 3.0.
+//! @deprecated To be removed after %Cantera 3.0.
 const VelocityBasis VB_MASSAVG = -1;
 //! Diffusion velocities are based on the mole averaged velocities
-//! @deprecated To be removed after Cantera 3.0.
+//! @deprecated To be removed after %Cantera 3.0.
 const VelocityBasis VB_MOLEAVG = -2;
 //! Diffusion velocities are based on the relative motion wrt species 0
-//! @deprecated To be removed after Cantera 3.0.
+//! @deprecated To be removed after %Cantera 3.0.
 const VelocityBasis VB_SPECIES_0 = 0;
 //! Diffusion velocities are based on the relative motion wrt species 1
-//! @deprecated To be removed after Cantera 3.0.
+//! @deprecated To be removed after %Cantera 3.0.
 const VelocityBasis VB_SPECIES_1 = 1;
 //! Diffusion velocities are based on the relative motion wrt species 2
-//! @deprecated To be removed after Cantera 3.0.
+//! @deprecated To be removed after %Cantera 3.0.
 const VelocityBasis VB_SPECIES_2 = 2;
 //! Diffusion velocities are based on the relative motion wrt species 3
-//! @deprecated To be removed after Cantera 3.0.
+//! @deprecated To be removed after %Cantera 3.0.
 const VelocityBasis VB_SPECIES_3 = 3;
 //! @}
 
@@ -154,7 +154,7 @@ public:
      * @param thermo   Pointer to the ThermoPhase class representing this phase.
      * @param ndim     Dimension of the flux vector used in the calculation.
      *
-     * @deprecated The `thermo` and `ndim` parameters will be removed after Cantera 3.0.
+     * @deprecated The `thermo` and `ndim` parameters will be removed after %Cantera 3.0.
      *     The ThermoPhase object should be specifed when calling the `init` method.
      *
      * @see TransportFactory
@@ -169,7 +169,7 @@ public:
 
     //! Identifies the model represented by this Transport object. Each derived class
     //! should override this method to return a meaningful identifier.
-    //! @since  New in Cantera 3.0. The name returned by this method corresponds
+    //! @since New in %Cantera 3.0. The name returned by this method corresponds
     //!     to the canonical name used in the YAML input format.
     virtual std::string transportModel() const {
         return "none";
@@ -177,7 +177,7 @@ public:
 
     //! Identifies the Transport object type. Each derived class should override
     //! this method to return a meaningful identifier.
-    //! @deprecated  To be removed after Cantera 3.0. Replaced by transportModel
+    //! @deprecated To be removed after %Cantera 3.0. Replaced by transportModel
     std::string transportType() const {
         warn_deprecated("Transport::transportType",
             "To be removed after Cantera 3.0. Replaced by transportModel().");
@@ -196,19 +196,19 @@ public:
 
     /*!
      * Returns true if the transport manager is ready for use.
-     * @deprecated To be removed after Cantera 3.0.
+     * @deprecated To be removed after %Cantera 3.0.
      */
     bool ready();
 
     //! Set the number of dimensions to be expected in flux expressions
     /*!
      *  @param ndim  Number of dimensions in flux expressions
-     *  @deprecated Unused. To be removed after Cantera 3.0.
+     *  @deprecated Unused. To be removed after %Cantera 3.0.
      */
     void setNDim(const int ndim);
 
     //! Return the number of dimensions in flux expressions
-    //! @deprecated Unused. To be removed after Cantera 3.0.
+    //! @deprecated Unused. To be removed after %Cantera 3.0.
     size_t nDim() const {
         return m_nDim;
     }
@@ -256,7 +256,7 @@ public:
     }
 
     //! The ionic conductivity in 1/ohm/m.
-    //! @deprecated To be removed after Cantera 3.0. Not implemented by any model.
+    //! @deprecated To be removed after %Cantera 3.0. Not implemented by any model.
     virtual double ionConductivity() {
         throw NotImplementedError("Transport::ionConductivity",
             "Not implemented for transport model '{}'.", transportModel());
@@ -268,7 +268,7 @@ public:
      *
      * @param ionCond   Vector of ionic conductivities
      *
-     * @deprecated To be removed after Cantera 3.0. Not implemented by any model.
+     * @deprecated To be removed after %Cantera 3.0. Not implemented by any model.
      */
     virtual void getSpeciesIonConductivity(double* const ionCond) {
         throw NotImplementedError("Transport::getSpeciesIonConductivity",
@@ -290,7 +290,7 @@ public:
      *
      * The size of mobRat must be at least equal to nsp*nsp
      *
-     * @deprecated To be removed after Cantera 3.0. Not implemented by any model.
+     * @deprecated To be removed after %Cantera 3.0. Not implemented by any model.
      */
     virtual void mobilityRatio(double* mobRat) {
         throw NotImplementedError("Transport::mobilityRatio",
@@ -303,7 +303,7 @@ public:
      *
      * @param mobRat   Vector of mobility ratios
      *
-     * @deprecated To be removed after Cantera 3.0. Not implemented by any model.
+     * @deprecated To be removed after %Cantera 3.0. Not implemented by any model.
      */
     virtual void getSpeciesMobilityRatio(double** mobRat) {
         throw NotImplementedError("Transport::getSpeciesMobilityRatio",
@@ -365,7 +365,7 @@ public:
      *               The array must be dimensioned at least as large as the
      *               number of species.
      *
-     * @deprecated To be removed after Cantera 3.0. Not implemented by any model.
+     * @deprecated To be removed after %Cantera 3.0. Not implemented by any model.
      */
     virtual void getFluidMobilities(double* const mobil_f) {
         throw NotImplementedError("Transport::getFluidMobilities",
@@ -391,7 +391,7 @@ public:
      *
      * The units are Siemens m-1, where 1 S = 1 A / volt = 1 s^3 A^2 /kg /m^2
      *
-     * @deprecated To be removed after Cantera 3.0. Replaced by electricalConductivity()
+     * @deprecated To be removed after %Cantera 3.0. Replaced by electricalConductivity()
      */
     virtual double getElectricConduct() {
         throw NotImplementedError("Transport::getElectricConduct",
@@ -411,7 +411,7 @@ public:
      * @param grad_V  The electrostatic potential gradient.
      * @param current The electric current in A/m^2. This is a vector of length ndim
      *
-     * @deprecated To be removed after Cantera 3.0. Not implemented by any model.
+     * @deprecated To be removed after %Cantera 3.0. Not implemented by any model.
      */
     virtual void getElectricCurrent(int ndim,
                                     const double* grad_T,
@@ -468,7 +468,7 @@ public:
      * @param[out] fluxes  The diffusive mass fluxes. Flat vector with the m_nsp
      *             in the inner loop. length = ldx * ndim.
      *
-     * @deprecated To be removed after Cantera 3.0. Not implemented by any model.
+     * @deprecated To be removed after %Cantera 3.0. Not implemented by any model.
      */
     virtual void getSpeciesFluxesES(size_t ndim,
                                     const double* grad_T,
@@ -495,7 +495,7 @@ public:
      *               Flat vector with the m_nsp in the inner loop.
      *               length = ldx * ndim. units are m / s.
      *
-     * @deprecated To be removed after Cantera 3.0. Not implemented by any model.
+     * @deprecated To be removed after %Cantera 3.0. Not implemented by any model.
      */
     virtual void getSpeciesVdiff(size_t ndim,
                                  const double* grad_T,
@@ -525,7 +525,7 @@ public:
      *               Flat vector with the m_nsp in the inner loop. length = ldx
      *               * ndim. units are m / s.
      *
-     * @deprecated To be removed after Cantera 3.0. Not implemented by any model.
+     * @deprecated To be removed after %Cantera 3.0. Not implemented by any model.
      */
     virtual void getSpeciesVdiffES(size_t ndim,
                                    const double* grad_T,
@@ -722,7 +722,7 @@ public:
      * @param k       Species index to set the parameters on
      * @param p       Vector of parameters. The length of the vector varies with
      *                 the parameterization
-     * @deprecated  To be removed after Cantera 3.0.
+     * @deprecated To be removed after %Cantera 3.0.
      */
     virtual void setParameters(const int type, const int k, const double* const p) {
         throw NotImplementedError("Transport::setParameters",
@@ -742,7 +742,7 @@ public:
      * operators including all of the gas-phase operators.
      *
      * @param ivb   Species the velocity basis
-     * @deprecated  To be removed after Cantera 3.0.
+     * @deprecated To be removed after %Cantera 3.0.
      */
     void setVelocityBasis(VelocityBasis ivb) {
         m_velocityBasis = ivb;
@@ -755,7 +755,7 @@ public:
      * operators including all of the gas-phase operators.
      *
      * @returns the velocity basis
-     * @deprecated  To be removed after Cantera 3.0.
+     * @deprecated To be removed after %Cantera 3.0.
      */
     VelocityBasis getVelocityBasis() const {
         return m_velocityBasis;
@@ -790,13 +790,13 @@ public:
      *
      * @param   thermo  Reference to the ThermoPhase object that the transport
      *                  object will use
-     * @deprecated To be removed after Cantera 3.0. The ThermoPhase object should be
+     * @deprecated To be removed after %Cantera 3.0. The ThermoPhase object should be
      *     set as part of the call to `init`.
      */
     virtual void setThermo(ThermoPhase& thermo);
 
     //! Set root Solution holding all phase information
-    //! @deprecated Unused. To be removed after Cantera 3.0.
+    //! @deprecated Unused. To be removed after %Cantera 3.0.
     virtual void setRoot(std::shared_ptr<Solution> root);
 
     //! Boolean indicating the form of the transport properties polynomial fits.
@@ -812,7 +812,7 @@ protected:
      * Once finalize() has been called, the transport manager should be ready to
      * compute any supported transport property, and no further modifications to
      * the model parameters should be made.
-     * @deprecated To be removed after Cantera 3.0.
+     * @deprecated To be removed after %Cantera 3.0.
      */
     void finalize();
 
@@ -822,23 +822,23 @@ protected:
     ThermoPhase* m_thermo;
 
     //! true if finalize has been called
-    //! @deprecated To be removed after Cantera 3.0
+    //! @deprecated To be removed after %Cantera 3.0
     bool m_ready = false;
 
     //! Number of species
     size_t m_nsp = 0;
 
     //! Number of dimensions used in flux expressions
-    //! @deprecated To be removed after Cantera 3.0
+    //! @deprecated To be removed after %Cantera 3.0
     size_t m_nDim;
 
     //! Velocity basis from which diffusion velocities are computed.
     //! Defaults to the mass averaged basis = -2
-    //! @deprecated  To be removed after Cantera 3.0.
+    //! @deprecated To be removed after %Cantera 3.0.
     int m_velocityBasis = VB_MASSAVG;
 
     //! reference to Solution
-    //! @deprecated To be removed after Cantera 3.0
+    //! @deprecated To be removed after %Cantera 3.0
     std::weak_ptr<Solution> m_root;
 };
 

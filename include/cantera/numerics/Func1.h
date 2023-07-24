@@ -110,31 +110,31 @@ public:
 
     virtual ~Func1() = default;
 
-    //! @deprecated To be removed after Cantera 3.0. Only used by deprecated methods.
+    //! @deprecated To be removed after %Cantera 3.0. Only used by deprecated methods.
     Func1(const Func1& right);
 
-    //! @deprecated To be removed after Cantera 3.0. Only used by deprecated methods.
+    //! @deprecated To be removed after %Cantera 3.0. Only used by deprecated methods.
     Func1& operator=(const Func1& right);
 
     //! Duplicate the current function.
     /*!
      * This duplicates the current function, returning a reference to the newly
      * created function.
-     * @deprecated To be removed after Cantera 3.0. Only used by deprecated methods.
+     * @deprecated To be removed after %Cantera 3.0. Only used by deprecated methods.
      */
     virtual Func1& duplicate() const;
 
-    //! @deprecated To be removed after Cantera 3.0. Replaced by type.
+    //! @deprecated To be removed after %Cantera 3.0. Replaced by type.
     virtual int ID() const;
 
     //! Returns a string describing the type of the function
-    //! @since  New in Cantera 3.0.
+    //! @since New in %Cantera 3.0.
     virtual string type() const {
         return "functor";
     }
 
     //! Returns a string with the class name of the functor
-    //! @since  New in Cantera 3.0.
+    //! @since New in %Cantera 3.0.
     string typeName() const;
 
     //! Calls method eval to evaluate the function
@@ -147,7 +147,7 @@ public:
     /*!
      * This will create a new derivative function and return a reference to the
      * function.
-     * @deprecated To be changed after Cantera 3.0; for new behavior, see derivative3.
+     * @deprecated To be changed after %Cantera 3.0; for new behavior, see derivative3.
      */
     virtual Func1& derivative() const;
 
@@ -155,7 +155,7 @@ public:
     /*!
      * This will create a new derivative function
      * @return  shared pointer to new derivative function.
-     * @since  New in Cantera 3.0.
+     * @since New in %Cantera 3.0.
      */
     virtual shared_ptr<Func1> derivative3() const;
 
@@ -177,7 +177,7 @@ public:
     doublereal c() const;
 
     //! Function to set the stored constant
-    //! @deprecated To be removed after Cantera 3.0. Only used by deprecated methods.
+    //! @deprecated To be removed after %Cantera 3.0. Only used by deprecated methods.
     void setC(doublereal c);
 
     //! accessor function for m_f1
@@ -185,17 +185,17 @@ public:
     Func1& func1() const;
 
     //! Accessor function for m_f1_shared
-    //! @since  New in Cantera 3.0.
+    //! @since New in %Cantera 3.0.
     shared_ptr<Func1> func1_shared() const {
         return m_f1_shared;
     }
 
     //! accessor function for m_f2
-    //! @deprecated To be removed after Cantera 3.0. Only used by deprecated methods.
+    //! @deprecated To be removed after %Cantera 3.0. Only used by deprecated methods.
     Func1& func2() const;
 
     //! Accessor function for m_f2_shared
-    //! @since  New in Cantera 3.0.
+    //! @since New in %Cantera 3.0.
     shared_ptr<Func1> func2_shared() const {
         return m_f2_shared;
     }
@@ -203,16 +203,16 @@ public:
     //! Return the order of the function, if it makes sense
     virtual int order() const;
 
-    //! @deprecated To be removed after Cantera 3.0. Only used by deprecated methods.
+    //! @deprecated To be removed after %Cantera 3.0. Only used by deprecated methods.
     Func1& func1_dup() const;
 
-    //! @deprecated To be removed after Cantera 3.0. Only used by deprecated methods.
+    //! @deprecated To be removed after %Cantera 3.0. Only used by deprecated methods.
     Func1& func2_dup() const;
 
-    //! @deprecated To be removed after Cantera 3.0. Only used by deprecated methods.
+    //! @deprecated To be removed after %Cantera 3.0. Only used by deprecated methods.
     Func1* parent() const;
 
-    //! @deprecated To be removed after Cantera 3.0. Only used by deprecated methods.
+    //! @deprecated To be removed after %Cantera 3.0. Only used by deprecated methods.
     void setParent(Func1* p);
 
 protected:
@@ -408,7 +408,7 @@ public:
  * The functor class with type \c "log" returns \f$ f(x) = \log(a x) \f$.
  * @param a  Factor (default=1.0)
  * @ingroup func1simple
- * @since New in Cantera 3.0
+ * @since New in %Cantera 3.0
  */
 class Log1 : public Func1
 {
@@ -506,7 +506,7 @@ public:
     //! @param method  Evaluation method. If \c "linear" (default), a linear
     //!     interpolation between tabulated values is used; if \c "previous", the
     //!     last tabulated value is held until a new tabulated time value is reached.
-    //! @since  New in Cantera 3.0
+    //! @since New in %Cantera 3.0
     void setMethod(const string& method);
 
     virtual std::string write(const std::string& arg) const;
@@ -1090,7 +1090,7 @@ public:
  * @param t0 offset
  * @param fwhm full width at half max
  * @ingroup func1advanced
- * @since  New in Cantera 3.0.
+ * @since New in %Cantera 3.0.
  */
 class Gaussian1 : public Func1
 {
@@ -1146,7 +1146,7 @@ protected:
  * @param t0 offset
  * @param fwhm full width at half max
  * @ingroup func1advanced
- * @deprecated  To be removed after Cantera 3.0; replaced by Gaussian1.
+ * @deprecated To be removed after %Cantera 3.0; replaced by Gaussian1.
  */
 class Gaussian : public Gaussian1
 {

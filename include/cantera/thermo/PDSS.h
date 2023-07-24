@@ -67,7 +67,7 @@ namespace Cantera
  *     handle the calculation of the reference state. This object adds the
  *     pressure dependencies to the thermo functions.
  *
- * - PDSS_ConstVol (deprecated in Cantera 3.0)
+ * - PDSS_ConstVol (deprecated in %Cantera 3.0)
  *    - standardState model = "ConstVol" or "constant_incompressible"
  *    - This model assumes that the species in the phase obeys the constant
  *      partial molar volume pressure dependence. The manager uses a
@@ -247,22 +247,22 @@ public:
 
     //! Get the difference in the standard state enthalpy
     //! between the current pressure and the reference pressure, p0.
-    //! @deprecated To be removed after Cantera 3.0
+    //! @deprecated To be removed after %Cantera 3.0
     virtual doublereal enthalpyDelp_mole() const;
 
     //! Get the difference in the standard state entropy between
     //! the current pressure and the reference pressure, p0
-    //! @deprecated To be removed after Cantera 3.0
+    //! @deprecated To be removed after %Cantera 3.0
     virtual doublereal entropyDelp_mole() const;
 
     //! Get the difference in the standard state Gibbs free energy
     //! between the current pressure and the reference pressure, p0.
-    //! @deprecated To be removed after Cantera 3.0
+    //! @deprecated To be removed after %Cantera 3.0
     virtual doublereal gibbsDelp_mole() const;
 
     //! Get the difference in standard state heat capacity
     //! between the current pressure and the reference pressure, p0.
-    //! @deprecated To be removed after Cantera 3.0
+    //! @deprecated To be removed after %Cantera 3.0
     virtual doublereal cpDelp_mole() const;
 
     //! @}
@@ -364,7 +364,7 @@ public:
     /*!
      * @param  temp     Temperature (Kelvin)
      * @param  rho      Density (kg m-3)
-     * @deprecated  To be removed after Cantera 3.0
+     * @deprecated To be removed after %Cantera 3.0
      */
     virtual void setState_TR(doublereal temp, doublereal rho);
 
@@ -436,7 +436,7 @@ public:
      * @param minTemp   output - Minimum temperature
      * @param maxTemp   output - Maximum temperature
      * @param refPressure output - reference pressure (Pa).
-     * @deprecated To be removed after Cantera 3.0. Use getParameters() instead.
+     * @deprecated To be removed after %Cantera 3.0. Use getParameters() instead.
      */
     virtual void reportParams(size_t& kindex, int& type, doublereal* const c,
                               doublereal& minTemp, doublereal& maxTemp,

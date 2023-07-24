@@ -3,7 +3,7 @@
  *      with incompressible thermodynamics (see \ref thermoprops and
  *      \link Cantera::IdealSolidSolnPhase IdealSolidSolnPhase\endlink).
  *
- * This class inherits from the Cantera class ThermoPhase and implements an
+ * This class inherits from the %Cantera class ThermoPhase and implements an
  * ideal solid solution model with incompressible thermodynamics.
  */
 
@@ -306,7 +306,7 @@ public:
      *
      * @param mu   Output vector of dimensionless chemical potentials.
      *             Length = m_kk.
-     * @deprecated To be removed after Cantera 3.0. Use getChemPotentials() instead.
+     * @deprecated To be removed after %Cantera 3.0. Use getChemPotentials() instead.
      */
     virtual void getChemPotentials_RT(doublereal* mu) const;
 

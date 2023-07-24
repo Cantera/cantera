@@ -51,7 +51,7 @@ class VCS_SOLVE;
  * contains structures that point to the species belonging to this phase in the
  * global vcs species list.
  *
- * This object is considered not to own the underlying Cantera ThermoPhase
+ * This object is considered not to own the underlying %Cantera ThermoPhase
  * object for the phase.
  *
  * This object contains an idea of the temperature and pressure. It checks to

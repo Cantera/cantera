@@ -83,7 +83,7 @@ public:
      * coefficient set by a flow device specific function; unless a user-defined
      * pressure function is set, this is the pressure difference across the device.
      * The calculation of mass flow rate depends to the flow device.
-     * @since New in Cantera 3.0.
+     * @since New in %Cantera 3.0.
      */
     double evalPressureFunction();
 
@@ -97,7 +97,7 @@ public:
      * The mass flow rate [kg/s] is calculated for a Flow device, and multiplied by a
      * function of time, which returns 1.0 unless a user-defined function is provided.
      * The calculation of mass flow rate depends on the flow device.
-     * @since New in Cantera 3.0.
+     * @since New in %Cantera 3.0.
      */
     double evalTimeFunction();
 
@@ -108,7 +108,7 @@ public:
 
     //! Set current reactor network time
     /*!
-     * @since New in Cantera 3.0.
+     * @since New in %Cantera 3.0.
      */
     void setSimTime(double time) {
         m_time = time;

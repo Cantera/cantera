@@ -81,7 +81,7 @@ public:
      * @param c Vector of coefficients of the parameterization. The number and
      *     meaning of these coefficients is subclass-dependent.
      *
-     * @deprecated  To be removed after Cantera 3.0; superseded by setFalloffCoeffs()
+     * @deprecated To be removed after %Cantera 3.0; superseded by setFalloffCoeffs()
      */
     void init(const vector_fp& c);
 
@@ -144,7 +144,7 @@ public:
 
     //! The size of the work array required.
     /**
-     * @deprecated  To be removed after Cantera 3.0; unused.
+     * @deprecated To be removed after %Cantera 3.0; unused.
      */
     virtual size_t workSize() const {
         warn_deprecated("FalloffRate::workSize",
@@ -171,7 +171,7 @@ public:
     //! Get the values of the parameters for this object. *params* must be an
     //! array of at least nParameters() elements.
     /**
-     * @deprecated  To be removed after Cantera 3.0; superseded by getFalloffCoeffs()
+     * @deprecated To be removed after %Cantera 3.0; superseded by getFalloffCoeffs()
      */
     virtual void getParameters(double* params) const {
         warn_deprecated("FalloffRate::getParameters",
@@ -366,7 +366,7 @@ public:
 
     //! Sets params to contain, in order, \f[ (A, T_3, T_1, T_2) \f]
     /**
-     * @deprecated  To be removed after Cantera 3.0; superseded by getFalloffCoeffs()
+     * @deprecated To be removed after %Cantera 3.0; superseded by getFalloffCoeffs()
      */
     virtual void getParameters(double* params) const override;
 
@@ -466,7 +466,7 @@ public:
 
     //! Sets params to contain, in order, \f[ (a, b, c, d, e) \f]
     /**
-     * @deprecated  To be removed after Cantera 3.0; superseded by getFalloffCoeffs()
+     * @deprecated To be removed after %Cantera 3.0; superseded by getFalloffCoeffs()
      */
     virtual void getParameters(double* params) const override;
 
@@ -572,7 +572,7 @@ public:
 
     //! Sets params to contain, in order, \f[ (A, B) \f]
     /**
-     * @deprecated  To be removed after Cantera 3.0; superseded by getFalloffCoeffs()
+     * @deprecated To be removed after %Cantera 3.0; superseded by getFalloffCoeffs()
      */
     virtual void getParameters(double* params) const override;
 

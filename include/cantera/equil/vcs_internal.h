@@ -11,7 +11,7 @@
 #include "cantera/base/global.h"
 namespace Cantera
 {
-//! define this Cantera function to replace printf
+//! define this %Cantera function to replace printf
 /*!
  * We can replace this with printf easily
  */

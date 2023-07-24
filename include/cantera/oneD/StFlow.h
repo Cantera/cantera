@@ -87,7 +87,7 @@ public:
     /**
      * Set the thermo manager.
      *
-     * @deprecated  To be removed after Cantera 3.0 (unused)
+     * @deprecated To be removed after %Cantera 3.0 (unused)
      */
     void setThermo(ThermoPhase& th);
 
@@ -106,11 +106,11 @@ public:
     void setTransport(Transport& trans);
 
     //! Set the transport model
-    //! @since  New in Cantera 3.0.
+    //! @since New in %Cantera 3.0.
     void setTransportModel(const std::string& trans);
 
     //! Retrieve transport model
-    //! @since  New in Cantera 3.0.
+    //! @since New in %Cantera 3.0.
     std::string transportModel() const;
 
     //! Enable thermal diffusion, also known as Soret diffusion.
@@ -212,7 +212,7 @@ public:
     void solveEnergyEqn(size_t j=npos);
 
     //! Get the solving stage (used by IonFlow specialization)
-    //! @since New in Cantera 3.0
+    //! @since New in %Cantera 3.0
     virtual size_t getSolvingStage() const;
 
     //! Solving stage mode for handling ionized species (used by IonFlow specialization)

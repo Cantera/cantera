@@ -53,7 +53,7 @@ public:
 
     //! Get the initial value of the independent variable (typically time).
     /*!
-     * @since New in Cantera 3.0.
+     * @since New in %Cantera 3.0.
      */
     double getInitialTime() const {
         return m_initial_time;
