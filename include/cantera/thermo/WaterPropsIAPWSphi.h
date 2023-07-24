@@ -25,7 +25,7 @@ namespace Cantera
  * and classes \link Cantera::WaterSSTP WaterSSTP\endlink and
  * \link Cantera::PDSS_Water PDSS_Water\endlink).
  *
- * The reference is Wagner and Pruss \cite wagner2002.
+ * The reference is Wagner and Pruss @cite wagner2002.
  *
  * Units Note: This class works with reduced units exclusively.
  */

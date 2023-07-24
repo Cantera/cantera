@@ -508,9 +508,9 @@ protected:
  *
  *  References:
  *  * Example of reaction database developed by Tsang utilizing this format
- *      \cite tsang1991
+ *      @cite tsang1991
  *  * Example of Chemkin implementation of Tsang format (supplemental materials)
- *      \cite lucassen2011
+ *      @cite lucassen2011
  *
  * @ingroup falloffGroup
  */
