@@ -133,7 +133,7 @@ void PlogRate::validate(const std::string& equation, const Kinetics& kin)
     }
 
     fmt::memory_buffer err_reactions;
-    double T[] = {200.0, 500.0, 1000.0, 2000.0, 5000.0, 10000.0};
+    double T[] = {300.0, 500.0, 1000.0, 2000.0, 5000.0, 10000.0};
     PlogData data;
 
     for (auto iter = ++pressures_.begin(); iter->first < 1000; iter++) {
