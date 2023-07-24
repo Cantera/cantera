@@ -72,7 +72,7 @@ public:
 
     //! Set the Transport object by name
     //! @param model  name of transport model; if omitted, the default model is used
-    //! @since New in Cantera 3.0
+    //! @since New in %Cantera 3.0
     void setTransportModel(const std::string& model="");
 
     //! Accessor for the ThermoPhase pointer
@@ -139,11 +139,11 @@ public:
     //!   Solution is replaced.
     //! When the callback becomes invalid (for example, the corresponding object is
     //! being deleted, the removeChangedCallback() method must be invoked.
-    //! @since New in Cantera 3.0
+    //! @since New in %Cantera 3.0
     void registerChangedCallback(void* id, const function<void()>& callback);
 
     //! Remove the callback function associated with the specified object.
-    //! @since New in Cantera 3.0
+    //! @since New in %Cantera 3.0
     void removeChangedCallback(void* id);
 
 protected:

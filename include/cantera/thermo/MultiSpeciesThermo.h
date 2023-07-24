@@ -127,7 +127,7 @@ public:
      *
      * @param k Species Index
      * @deprecated The species index parameter is deprecated and will be removed after
-     *     Cantera 3.0. All species in a phase must have the same reference pressure.
+     *     %Cantera 3.0. All species in a phase must have the same reference pressure.
      */
     virtual doublereal refPressure(size_t k=npos) const;
 

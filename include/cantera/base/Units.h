@@ -74,7 +74,7 @@ private:
     //! Scale the unit by the factor `k`
     void scale(double k) { m_factor *= k; }
 
-    double m_factor = 1.0; //!< conversion factor to Cantera base units
+    double m_factor = 1.0; //!< conversion factor to %Cantera base units
     double m_mass_dim = 0.0;
     double m_length_dim = 0.0;
     double m_time_dim = 0.0;
@@ -232,7 +232,7 @@ public:
     //! units specified in `dest`. Works like `convert(AnyValue&, Units&)` but with
     //! special handling for the case where the destination units are undefined.
     //!
-    //! @since New in Cantera 3.0
+    //! @since New in %Cantera 3.0
     double convertRateCoeff(const AnyValue& val, const Units& dest) const;
 
     //! Convert an array of AnyValue nodes to the units specified in `dest`. For

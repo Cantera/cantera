@@ -20,7 +20,7 @@ namespace Cantera
  * This class is for a single Ideal Gas species.
  *
  * @ingroup pdssthermo
- * @deprecated To be removed after Cantera 3.0.
+ * @deprecated To be removed after %Cantera 3.0.
  */
 class PDSS_IdealGas : public PDSS_Nondimensional
 {

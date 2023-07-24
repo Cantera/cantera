@@ -140,7 +140,7 @@ public:
     //! Identifies the Kinetics manager type.
     //! Each class derived from Kinetics should override this method to return
     //! a meaningful identifier.
-    //! @since  Starting in Cantera 3.0, the name returned by this method corresponds
+    //! @since Starting in %Cantera 3.0, the name returned by this method corresponds
     //!     to the canonical name used in the YAML input format.
     virtual std::string kineticsType() const {
         return "none";
@@ -217,7 +217,7 @@ public:
      * cSurf. For heterogeneous mechanisms, this identifies the one surface
      * phase. For homogeneous mechanisms, this returns -1.
      *
-     * @deprecated To be removed after Cantera 3.0. Use reactionPhaseIndex instead.
+     * @deprecated To be removed after %Cantera 3.0. Use reactionPhaseIndex instead.
      */
     size_t surfacePhaseIndex() const;
 
@@ -229,8 +229,8 @@ public:
      * of phases. If there is more than one, the index of the first one is
      * returned. For homogeneous mechanisms, the value 0 is returned.
      *
-     * @deprecated Starting in Cantera 3.0, the reacting phase will always be the
-     *     first phase in the InterfaceKinetics object. To be removed after Cantera 3.1.
+     * @deprecated Starting in %Cantera 3.0, the reacting phase will always be the
+     *     first phase in the InterfaceKinetics object. To be removed after %Cantera 3.1.
      */
     size_t reactionPhaseIndex() const {
         return m_rxnphase;
@@ -238,7 +238,7 @@ public:
 
     /**
      * Return pointer to phase where the reactions occur.
-     * @since New in Cantera 3.0
+     * @since New in %Cantera 3.0
      */
     shared_ptr<ThermoPhase> reactionPhase() const;
 
@@ -324,7 +324,7 @@ public:
      *
      * @param nm   Input string name of the species
      * @param ph   Input string name of the phase.
-     * @deprecated To be removed after Cantera 3.0. Species names should be unique
+     * @deprecated To be removed after %Cantera 3.0. Species names should be unique
      *     across all phases.
      */
     size_t kineticsSpeciesIndex(const std::string& nm,
@@ -757,7 +757,7 @@ public:
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
      *
-     * @since  New in Cantera 3.0.
+     * @since New in %Cantera 3.0.
      */
     virtual Eigen::SparseMatrix<double> fwdRatesOfProgress_ddCi()
     {
@@ -830,7 +830,7 @@ public:
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
      *
-     * @since  New in Cantera 3.0.
+     * @since New in %Cantera 3.0.
      */
     virtual Eigen::SparseMatrix<double> revRatesOfProgress_ddCi()
     {
@@ -903,7 +903,7 @@ public:
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
      *
-     * @since  New in Cantera 3.0.
+     * @since New in %Cantera 3.0.
      */
     virtual Eigen::SparseMatrix<double> netRatesOfProgress_ddCi()
     {
@@ -960,7 +960,7 @@ public:
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
      *
-     * @since  New in Cantera 3.0.
+     * @since New in %Cantera 3.0.
      */
     Eigen::SparseMatrix<double> creationRates_ddCi();
 
@@ -1013,7 +1013,7 @@ public:
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
      *
-     * @since  New in Cantera 3.0.
+     * @since New in %Cantera 3.0.
      */
     Eigen::SparseMatrix<double> destructionRates_ddCi();
 
@@ -1066,7 +1066,7 @@ public:
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
      *
-     * @since  New in Cantera 3.0.
+     * @since New in %Cantera 3.0.
      */
     Eigen::SparseMatrix<double> netProductionRates_ddCi();
 
@@ -1152,8 +1152,8 @@ public:
      * String specifying the type of reaction.
      *
      * @param i   reaction index
-     * @since  Method returned magic number prior to Cantera 3.0.
-     * @deprecated  To be removed after Cantera 3.0. Replace with
+     * @since Method returned magic number prior to %Cantera 3.0.
+     * @deprecated To be removed after %Cantera 3.0. Replace with
      *     `kin->reaction(i)->type()`
      */
     virtual std::string reactionType(size_t i) const;
@@ -1162,7 +1162,7 @@ public:
      * String specifying the type of reaction.
      *
      * @param i   reaction index
-     * @deprecated  To be removed after Cantera 3.0.
+     * @deprecated To be removed after %Cantera 3.0.
      */
     virtual std::string reactionTypeStr(size_t i) const;
 
@@ -1181,18 +1181,18 @@ public:
      * Return a string representing the reaction.
      *
      * @param i   reaction index
-     * @deprecated To be removed after Cantera 3.0. Replace with
+     * @deprecated To be removed after %Cantera 3.0. Replace with
      *     `kin->reaction(i)->equation()`.
      */
     std::string reactionString(size_t i) const;
 
     //! Returns a string containing the reactants side of the reaction equation.
-    //! @deprecated To be removed after Cantera 3.0. Replace with
+    //! @deprecated To be removed after %Cantera 3.0. Replace with
     //!     `kin->reaction(i)->reactantString()`
     std::string reactantString(size_t i) const;
 
     //! Returns a string containing the products side of the reaction equation.
-    //! @deprecated To be removed after Cantera 3.0. Replace with
+    //! @deprecated To be removed after %Cantera 3.0. Replace with
     //!     `kin->reaction(i)->productString()`
     std::string productString(size_t i) const;
 
@@ -1255,12 +1255,12 @@ public:
      *    kinetics manager object as the value.
      *
      * @param thermo    Reference to the ThermoPhase to be added.
-     * @since New in Cantera 3.0. Replaces addPhase.
+     * @since New in %Cantera 3.0. Replaces addPhase.
      */
     virtual void addThermo(shared_ptr<ThermoPhase> thermo);
 
     //! @see Kinetics::addThermo(shared_ptr<ThermoPhase>)
-    //! @deprecated To be removed after Cantera 3.0. Replaced by addThermo
+    //! @deprecated To be removed after %Cantera 3.0. Replaced by addThermo
     //!     pointer.
     virtual void addPhase(ThermoPhase& thermo);
 
@@ -1391,7 +1391,7 @@ public:
      *     reaction mechanism
      * @param phase_data Output array where the values for the the specified
      *     phase are to be written.
-     * @deprecated Unused. To be removed after Cantera 3.0.
+     * @deprecated Unused. To be removed after %Cantera 3.0.
      */
     void selectPhase(const double* data, const ThermoPhase* phase,
                      double* phase_data);
@@ -1409,7 +1409,7 @@ public:
 
     //! Calculate the reaction enthalpy of a reaction which
     //! has not necessarily been added into the Kinetics object
-    //! @deprecated To be removed after Cantera 3.0
+    //! @deprecated To be removed after %Cantera 3.0
     virtual double reactionEnthalpy(const Composition& reactants,
                                     const Composition& products);
 
@@ -1486,7 +1486,7 @@ protected:
     std::vector<ThermoPhase*> m_thermo;
 
     //! vector of shared pointers, @see m_thermo
-    //! @todo replace m_thermo with shared version after Cantera 3.0
+    //! @todo replace m_thermo with shared version after %Cantera 3.0
     vector<shared_ptr<ThermoPhase>> m_sharedThermo;
 
     /**
@@ -1504,7 +1504,7 @@ protected:
     std::map<std::string, size_t> m_phaseindex;
 
     //! Index in the list of phases of the one surface phase.
-    //! @deprecated To be removed after Cantera 3.0.
+    //! @deprecated To be removed after %Cantera 3.0.
     size_t m_surfphase = npos;
 
     //! Phase Index where reactions are assumed to be taking place

@@ -1,7 +1,7 @@
 /**
  * @file core.h
  *
- * Support for Cantera core calculations from C++ application programs. This
+ * Support for %Cantera core calculations from C++ application programs. This
  * header file includes a minimal set of headers needed to create and use objects
  * that evaluate thermo properties, chemical kinetics and transport properties.
  */

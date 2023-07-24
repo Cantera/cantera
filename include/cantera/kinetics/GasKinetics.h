@@ -24,7 +24,7 @@ namespace Cantera
  * implements standard mass-action reaction rate expressions for low-density
  * gases.
  * @ingroup kineticsmgr
- * @deprecated Replace with BulkKinetics. To be removed after Cantera 3.0.
+ * @deprecated Replace with BulkKinetics. To be removed after %Cantera 3.0.
  */
 class GasKinetics : public BulkKinetics
 {
@@ -33,7 +33,7 @@ public:
     //! Constructor.
     GasKinetics() {}
 
-    //! @deprecated  To be removed after Cantera 3.0; code base only uses default.
+    //! @deprecated To be removed after %Cantera 3.0; code base only uses default.
     GasKinetics(ThermoPhase* thermo) : GasKinetics() {
         warn_deprecated("GasKinetics::GasKinetics(ThermoPhase*)",
             "To be removed after Cantera 3.0. Use default constructor instead.");

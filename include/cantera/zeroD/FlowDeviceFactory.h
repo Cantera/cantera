@@ -29,7 +29,7 @@ public:
     //! Create a new flow device by type name.
     /*!
      * @param flowDeviceType the type to be created.
-     * @deprecated  To be removed after Cantera 3.0; replaceable by newFlowDevice3.
+     * @deprecated To be removed after %Cantera 3.0; replaceable by newFlowDevice3.
      */
     virtual FlowDevice* newFlowDevice(const std::string& flowDeviceType);
 

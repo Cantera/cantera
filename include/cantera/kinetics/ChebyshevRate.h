@@ -124,7 +124,7 @@ public:
 
     void getParameters(AnyMap& rateNode) const;
 
-    //! @deprecated  To be removed after Cantera 3.0.
+    //! @deprecated To be removed after %Cantera 3.0.
     void getParameters(AnyMap& rateNode, const Units& rate_units) const {
         warn_deprecated("ChebyshevRate:getParameters",
             "To be removed after Cantera 3.0. Second argument is no longer needed.");

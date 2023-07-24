@@ -44,7 +44,7 @@ public:
      * @param model  The name of the thermo model
      * @returns a pointer to a new ThermoPhase object of the type specified. Throws a
      *     CanteraError if the named model isn't registered with ThermoFactory.
-     * @deprecated  To be removed after Cantera 3.0; superseded by newThermo()
+     * @deprecated To be removed after %Cantera 3.0; superseded by newThermo()
      */
     virtual ThermoPhase* newThermoPhase(const std::string& model);
 
@@ -60,7 +60,7 @@ private:
 };
 
 //! @copydoc newThermoModel(const string&)
-//! @deprecated  To be removed after Cantera 3.0; superseded by newThermoModel()
+//! @deprecated To be removed after %Cantera 3.0; superseded by newThermoModel()
 ThermoPhase* newThermoPhase(const string& model);
 
 //! Create a new ThermoPhase instance.
@@ -68,7 +68,7 @@ ThermoPhase* newThermoPhase(const string& model);
   * @param model   String to look up the model against
   * @returns a shared pointer to a new ThermoPhase object of the type specified. Throws a
   *     CanteraError if the named model is not registered with ThermoFactory.
-  * @since New in Cantera 3.0. Replaces newThermo
+  * @since New in %Cantera 3.0. Replaces newThermo
   */
  shared_ptr<ThermoPhase> newThermoModel(const string& model);
 
@@ -79,7 +79,7 @@ ThermoPhase* newThermoPhase(const string& model);
  * @param rootNode   The root node of the tree containing the phase definition,
  *     which will be used as the default location from which to read species
  *     definitions.
- * @since New in Cantera 3.0.
+ * @since New in %Cantera 3.0.
  */
 shared_ptr<ThermoPhase> newThermo(const AnyMap& phaseNode,
                                   const AnyMap& rootNode=AnyMap());
@@ -94,18 +94,18 @@ shared_ptr<ThermoPhase> newThermo(const AnyMap& phaseNode,
  * @param id     name (id) of the phase in the file.
  *               If this is blank, the first phase in the file is used.
  * @returns an initialized ThermoPhase object.
- * @since Changed in Cantera 3.0. Prior to Cantera 3.0, the function used a single
+ * @since Changed in %Cantera 3.0. Prior to %Cantera 3.0, the function used a single
  *      argument specifying the thermo model, which is now deprecated.
  */
 shared_ptr<ThermoPhase> newThermo(const string& infile, const string& id="");
 
 //! @copydoc newThermo(const AnyMap&, const AnyMap&)
-//! @deprecated  To be removed after Cantera 3.0; superseded by newThermo()
+//! @deprecated To be removed after %Cantera 3.0; superseded by newThermo()
 unique_ptr<ThermoPhase> newPhase(const AnyMap& phaseNode,
                                  const AnyMap& rootNode=AnyMap());
 
 //! @copydoc newThermo(const string&, const string&)
-//! @deprecated  To be removed after Cantera 3.0; superseded by newThermo()
+//! @deprecated To be removed after %Cantera 3.0; superseded by newThermo()
 ThermoPhase* newPhase(const std::string& infile, std::string id="");
 
 //! Initialize a ThermoPhase object

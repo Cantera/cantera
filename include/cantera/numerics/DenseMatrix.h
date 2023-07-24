@@ -20,7 +20,7 @@ namespace Cantera
 /**
  * @defgroup numerics  Numerical Utilities
  *
- * @details Cantera contains some capabilities for solving nonlinear equations and
+ * @details %Cantera contains some capabilities for solving nonlinear equations and
  * integrating both ODE and DAE equation systems in time.
  */
 

@@ -233,7 +233,7 @@ public:
     //! @warning  This method is an experimental part of the %Cantera
     //! API and may be changed or removed without notice.
     //!
-    //! @since New in Cantera 3.0
+    //! @since New in %Cantera 3.0
     //!
     virtual bool preconditionerSupported() const {return false;};
 

@@ -51,7 +51,7 @@ extern "C" {
     CANTERA_CAPI int flowdev_new(const char* type);
     CANTERA_CAPI int flowdev_del(int i);
     CANTERA_CAPI int flowdev_install(int i, int n, int m);
-    //! @deprecated To be removed after Cantera 3.0; replaced by flowdev_setPrimary
+    //! @deprecated To be removed after %Cantera 3.0; replaced by flowdev_setPrimary
     CANTERA_CAPI int flowdev_setMaster(int i, int n);
     CANTERA_CAPI int flowdev_setPrimary(int i, int n);
     CANTERA_CAPI double flowdev_massFlowRate(int i);

@@ -45,7 +45,7 @@ public:
      *  Note this is just an extra routine to check the arithmetic
      *
      * @returns the species standard state enthalpy in J kmol-1
-     * @deprecated To be removed after Cantera 3.0
+     * @deprecated To be removed after %Cantera 3.0
      */
     doublereal enthalpy_mole2() const;
 
@@ -161,7 +161,7 @@ private:
     //! between the reference state at Tr, Pr and T,P
     /*!
      *  This is an extra routine that was added to check the arithmetic
-     * @deprecated To be removed after Cantera 3.0
+     * @deprecated To be removed after %Cantera 3.0
      */
     doublereal deltaH() const;
 

@@ -29,7 +29,7 @@ public:
     //! Create a new wall by type name.
     /*!
      * @param wallType the type to be created.
-     * @deprecated  To be removed after Cantera 3.0; replaceable by newWall3.
+     * @deprecated To be removed after %Cantera 3.0; replaceable by newWall3.
      */
     virtual WallBase* newWall(const std::string& wallType);
 
@@ -51,7 +51,7 @@ private:
 //! @{
 
 //! Create a WallBase object of the specified type
-//! @deprecated  To be changed after %Cantera 3.0; for new behavior, see newWall3().
+//! @deprecated To be changed after %Cantera 3.0; for new behavior, see newWall3().
 WallBase* newWall(const string& model);
 
 //! Create a WallBase object of the specified type

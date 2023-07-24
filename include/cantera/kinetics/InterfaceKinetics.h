@@ -65,7 +65,7 @@ public:
      *               HKM Note -> Since the interface kinetics object will
      *               probably require multiple ThermoPhase objects, this is
      *               probably not a good idea to have this parameter.
-     * @deprecated  To be removed after Cantera 3.0; code base only uses default.
+     * @deprecated To be removed after %Cantera 3.0; code base only uses default.
      */
     InterfaceKinetics(ThermoPhase* thermo);
 

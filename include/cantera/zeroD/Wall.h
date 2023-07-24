@@ -40,7 +40,7 @@ public:
     /*!
      * This method is called by Reactor::evalWalls(). Base class method
      * does nothing (that is, constant volume), but may be overloaded.
-     * @deprecated To be removed after Cantera 3.0; replaceable by expansionRate.
+     * @deprecated To be removed after %Cantera 3.0; replaceable by expansionRate.
      */
     virtual double vdot(double t) {
         warn_deprecated("WallBase::vdot",
@@ -53,7 +53,7 @@ public:
     /*!
      * This method is called by Reactor::evalWalls(). Base class method
      * does nothing (that is, constant volume), but may be overloaded.
-     * @since New in Cantera 3.0.
+     * @since New in %Cantera 3.0.
      */
     virtual double expansionRate() {
         return 0.0;
@@ -63,7 +63,7 @@ public:
     /*!
      * This method is called by Reactor::evalWalls(). Base class method
      * does nothing (that is, an adiabatic wall), but may be overloaded.
-     * @deprecated To be removed after Cantera 3.0; replaceable by heatRate.
+     * @deprecated To be removed after %Cantera 3.0; replaceable by heatRate.
      */
     virtual double Q(double t) {
         warn_deprecated("WallBase::Q",
@@ -75,7 +75,7 @@ public:
     /*!
      * This method is called by Reactor::evalWalls(). Base class method
      * does nothing (that is, an adiabatic wall), but may be overloaded.
-     * @since New in Cantera 3.0.
+     * @since New in %Cantera 3.0.
      */
     virtual double heatRate() {
         return 0.0;
@@ -112,7 +112,7 @@ public:
 
     //! Set current reactor network time
     /*!
-     * @since New in Cantera 3.0.
+     * @since New in %Cantera 3.0.
      */
     void setSimTime(double time) {
         m_time = time;
@@ -148,7 +148,7 @@ public:
     }
 
     //! Wall velocity \f$ v(t) \f$ at current reactor network time.
-    //! @since New in Cantera 3.0.
+    //! @since New in %Cantera 3.0.
     double velocity() const;
 
     //! Set the wall velocity to a specified function of time, \f$ v(t) \f$.
@@ -183,12 +183,12 @@ public:
      * and and *F(t)* is a specified function evaluated at the current network time.
      * Positive values for `expansionRate` correspond to increases in the volume of
      * reactor on left, and decreases in the volume of the reactor on the right.
-     * @since New in Cantera 3.0.
+     * @since New in %Cantera 3.0.
      */
     virtual double expansionRate();
 
     //! Heat flux function \f$ q_0(t) \f$ evaluated at current reactor network time.
-    //! @since New in Cantera 3.0.
+    //! @since New in %Cantera 3.0.
     double heatFlux() const;
 
     //! Specify the heat flux function \f$ q_0(t) \f$.
@@ -218,7 +218,7 @@ public:
      * where *h* is the heat transfer coefficient, *A* is the wall area, and
      * *G(t)* is a specified function of time evaluated at the current network
      * time. Positive values denote a flux from left to right.
-     * @since New in Cantera 3.0.
+     * @since New in %Cantera 3.0.
      */
     virtual double heatRate();
 

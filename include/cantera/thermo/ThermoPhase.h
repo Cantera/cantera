@@ -53,7 +53,7 @@ enum class ThermoBasis
  * phases of matter of any type. It defines a common public interface, and
  * implements a few methods. Most of the methods, however, are declared virtual
  * and are meant to be overloaded in derived classes.  The standard way used
- * throughout Cantera to compute properties of phases of matter is through
+ * throughout %Cantera to compute properties of phases of matter is through
  * pointers of type ThermoPhase* that point to objects of subclasses of
  * ThermoPhase.
  *
@@ -66,7 +66,7 @@ enum class ThermoBasis
  *
  * Instances of subclasses of ThermoPhase should be created using the factory
  * class ThermoFactory, not by calling the constructor directly. This allows new
- * classes to be used with the various Cantera language interfaces.
+ * classes to be used with the various %Cantera language interfaces.
  *
  * To implement a new equation of state, derive a class from ThermoPhase and
  * overload the virtual methods in ThermoPhase. Methods that are not needed can
@@ -483,7 +483,7 @@ public:
      * @param mu  Output vector of dimensionless chemical potentials.
      *            Length: m_kk.
      *
-     * @deprecated To be removed after Cantera 3.0. Use getChemPotentials() instead.
+     * @deprecated To be removed after %Cantera 3.0. Use getChemPotentials() instead.
      */
     virtual void getChemPotentials_RT(doublereal* mu) const {
         throw NotImplementedError("ThermoPhase::getChemPotentials_RT");
@@ -888,7 +888,7 @@ public:
      * @param p    Pressure (Pa)
      * @param x    Vector of mole fractions.
      *             Length is equal to m_kk.
-     * @deprecated To be removed after Cantera 3.0.
+     * @deprecated To be removed after %Cantera 3.0.
      */
     virtual void setState_PX(doublereal p, doublereal* x);
 
@@ -901,7 +901,7 @@ public:
      * @param p    Pressure (Pa)
      * @param y    Vector of mass fractions.
      *             Length is equal to m_kk.
-     * @deprecated To be removed after Cantera 3.0.
+     * @deprecated To be removed after %Cantera 3.0.
      */
     virtual void setState_PY(doublereal p, doublereal* y);
 
@@ -1080,7 +1080,7 @@ public:
      *
      * @param rho Density (kg/m^3)
      * @param p   Pressure (Pa)
-     * @deprecated  To be removed after Cantera 3.0; renamed to setState_DP()
+     * @deprecated To be removed after %Cantera 3.0; renamed to setState_DP()
      */
     void setState_RP(doublereal rho, doublereal p);
 
@@ -1096,7 +1096,7 @@ public:
      *
      * @param rho Density (kg/m^3)
      * @param p   Pressure (Pa)
-     * @since  New in Cantera 3.0.
+     * @since New in %Cantera 3.0.
      */
     virtual void setState_DP(double rho, double p) {
         throw NotImplementedError("ThermoPhase::setState_DP");
@@ -1112,7 +1112,7 @@ public:
      * @param p    Pressure (Pa)
      * @param x    Vector of mole fractions.
      *             Length is equal to m_kk.
-     * @deprecated  To be removed after Cantera 3.0; replaceable by calls to
+     * @deprecated To be removed after %Cantera 3.0; replaceable by calls to
      *              setMoleFractions() and setState_DP().
      */
     virtual void setState_RPX(doublereal rho, doublereal p, const doublereal* x);
@@ -1127,7 +1127,7 @@ public:
      * @param p    Pressure (Pa)
      * @param x    Composition map of mole fractions. Species not in
      *              the composition map are assumed to have zero mole fraction
-     * @deprecated  To be removed after Cantera 3.0; replaceable by calls to
+     * @deprecated To be removed after %Cantera 3.0; replaceable by calls to
      *              setMoleFractionsByName() and setState_DP().
      */
     virtual void setState_RPX(doublereal rho, doublereal p, const compositionMap& x);
@@ -1143,7 +1143,7 @@ public:
      * @param x    String containing a composition map of the mole fractions.
      *              Species not in the composition map are assumed to have zero
      *              mole fraction
-     * @deprecated  To be removed after Cantera 3.0; replaceable by calls to
+     * @deprecated To be removed after %Cantera 3.0; replaceable by calls to
      *              setMoleFractionsByName() and setState_DP().
      */
     virtual void setState_RPX(doublereal rho, doublereal p, const std::string& x);
@@ -1158,7 +1158,7 @@ public:
      * @param p    Pressure (Pa)
      * @param y    Vector of mole fractions.
      *              Length is equal to m_kk.
-     * @deprecated  To be removed after Cantera 3.0; replaceable by calls to
+     * @deprecated To be removed after %Cantera 3.0; replaceable by calls to
      *              setMassFractions() and setState_DP().
      */
     virtual void setState_RPY(doublereal rho, doublereal p, const doublereal* y);
@@ -1173,7 +1173,7 @@ public:
      * @param p   Pressure (Pa)
      * @param y   Composition map of mole fractions. Species not in
      *             the composition map are assumed to have zero mole fraction
-     * @deprecated  To be removed after Cantera 3.0; replaceable by calls to
+     * @deprecated To be removed after %Cantera 3.0; replaceable by calls to
      *              setMassFractionsByName() and setState_DP().
      */
     virtual void setState_RPY(doublereal rho, doublereal p, const compositionMap& y);
@@ -1189,7 +1189,7 @@ public:
      * @param y    String containing a composition map of the mole fractions.
      *              Species not in the composition map are assumed to have zero
      *              mole fraction
-     * @deprecated  To be removed after Cantera 3.0; replaceable by calls to
+     * @deprecated To be removed after %Cantera 3.0; replaceable by calls to
      *              setMassFractionsByName() and setState_DP().
      */
     virtual void setState_RPY(doublereal rho, doublereal p, const std::string& y);
@@ -1813,7 +1813,7 @@ public:
      * override the getCsvReportData method.
      *
      * @param csvFile  ofstream file to print comma separated data for the phase
-     * @deprecated To be removed after Cantera 3.0.
+     * @deprecated To be removed after %Cantera 3.0.
      */
     virtual void reportCSV(std::ofstream& csvFile) const;
 
@@ -1827,7 +1827,7 @@ protected:
 
     //! Fills `names` and `data` with the column names and species thermo
     //! properties to be included in the output of the reportCSV method.
-    //! @deprecated To be removed after Cantera 3.0.
+    //! @deprecated To be removed after %Cantera 3.0.
     virtual void getCsvReportData(std::vector<std::string>& names,
                                   std::vector<vector_fp>& data) const;
 

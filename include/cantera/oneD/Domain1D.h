@@ -53,12 +53,12 @@ public:
     Domain1D& operator=(const Domain1D&) = delete;
 
     //! Domain type flag.
-    //! @deprecated  To be changed after Cantera 3.0; for new behavior, see type.
+    //! @deprecated To be changed after %Cantera 3.0; for new behavior, see type.
     int domainType();
 
     //! String indicating the domain implemented.
-    //! @since New in Cantera 3.0.
-    //! @todo Transition back to domainType after Cantera 3.0
+    //! @since New in %Cantera 3.0.
+    //! @todo Transition back to domainType after %Cantera 3.0
     virtual string type() const {
         return "domain";
     }
@@ -74,19 +74,19 @@ public:
     }
 
     //! Set the solution manager.
-    //! @since  New in Cantera 3.0.
+    //! @since New in %Cantera 3.0.
     void setSolution(shared_ptr<Solution> sol) {
         m_solution = sol;
     }
 
     //! Set the kinetics manager.
-    //! @since  New in Cantera 3.0.
+    //! @since New in %Cantera 3.0.
     virtual void setKinetics(shared_ptr<Kinetics> kin) {
         throw NotImplementedError("Domain1D::setKinetics");
     }
 
     //! Set transport model to existing instance
-    //! @since  New in Cantera 3.0.
+    //! @since New in %Cantera 3.0.
     virtual void setTransport(shared_ptr<Transport> trans) {
         throw NotImplementedError("Domain1D::setTransport");
     }
@@ -350,7 +350,7 @@ public:
      * @todo  Despite the method's name, data are copied; the intent is to access data
      *      directly in future revisions, where a non-const version will be implemented.
      *
-     * @since  New in Cantera 3.0.
+     * @since New in %Cantera 3.0.
      */
     virtual shared_ptr<SolutionArray> asArray(const double* soln) const {
         throw NotImplementedError("Domain1D::asArray", "Needs to be overloaded.");
@@ -362,7 +362,7 @@ public:
      * provide direct access to memory.
      * @param normalize If true, normalize concentrations (default=false)
      *
-     * @since  New in Cantera 3.0.
+     * @since New in %Cantera 3.0.
      */
     shared_ptr<SolutionArray> toArray(bool normalize=false) const;
 
@@ -373,7 +373,7 @@ public:
      * @param[in]  loglevel 0 to suppress all output; 1 to show warnings; 2 for
      *      verbose output
      *
-     * @deprecated  To be removed after Cantera 3.0; restore from SolutionArray instead.
+     * @deprecated To be removed after %Cantera 3.0; restore from SolutionArray instead.
      */
     void restore(const AnyMap& state, double* soln, int loglevel);
 
@@ -382,7 +382,7 @@ public:
      * @param[in]  arr SolutionArray defining the state of this domain
      * @param[out] soln Value of the solution vector, local to this domain
      *
-     * @since  New in Cantera 3.0.
+     * @since New in %Cantera 3.0.
      */
     virtual void fromArray(SolutionArray& arr, double* soln) {
         throw NotImplementedError("Domain1D::fromArray", "Needs to be overloaded.");
@@ -392,12 +392,12 @@ public:
     /*!
      * This method serves as an external interface for high-level API's.
      * @param  arr SolutionArray defining the state of this domain
-     * @since  New in Cantera 3.0.
+     * @since New in %Cantera 3.0.
      */
     void fromArray(const shared_ptr<SolutionArray>& arr);
 
     //! Return thermo/kinetics/transport manager used in the domain
-    //! @since  New in Cantera 3.0.
+    //! @since New in %Cantera 3.0.
     shared_ptr<Solution> solution() const {
         return m_solution;
     }
@@ -585,7 +585,7 @@ protected:
     vector_fp m_z;
     OneDim* m_container = nullptr;
     size_t m_index;
-    int m_type = 0; //!< @deprecated To be removed after Cantera 3.0
+    int m_type = 0; //!< @deprecated To be removed after %Cantera 3.0
 
     //! Starting location within the solution vector for unknowns that
     //! correspond to this domain

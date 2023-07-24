@@ -115,7 +115,7 @@ public:
     //!
     //! These units are often the same as the units of the rate expression itself, but
     //! not always; sticking coefficients are a notable exception.
-    //! @since New in Cantera 3.0
+    //! @since New in %Cantera 3.0
     const Units& conversionUnits() const {
         return m_conversion_units;
     }
@@ -126,7 +126,7 @@ public:
     //! reaction rate expression, which often have the same units (for example, the
     //! Arrhenius pre-exponential) but may also be different (for example, sticking
     //! coefficients).
-    //! @since New in Cantera 3.0
+    //! @since New in %Cantera 3.0
     virtual void setRateUnits(const UnitStack& rate_units) {
         if (rate_units.size() > 1) {
             m_conversion_units = rate_units.product();
@@ -139,7 +139,7 @@ public:
     virtual void check(const std::string& equation) {}
 
     //! Check basic syntax and settings of reaction rate expression
-    //! @deprecated  To be removed after Cantera 3.0.
+    //! @deprecated To be removed after %Cantera 3.0.
     //!              Superseded by single-parameter version
     void check(const std::string& equation, const AnyMap& node) {
         warn_deprecated("ReactionRate::check",
@@ -151,7 +151,7 @@ public:
     virtual void validate(const std::string& equation, const Kinetics& kin) {}
 
     //! Validate the reaction rate expression (legacy call)
-    //! @deprecated  To be removed after Cantera 3.0.
+    //! @deprecated To be removed after %Cantera 3.0.
     //!              Superseded by two-parameter version
     virtual void validate(const std::string& equation) {
         warn_deprecated("ReactionRate::validate",
@@ -220,13 +220,13 @@ public:
     }
 
     //! Boolean indicating whether rate has compositional dependence
-    //! @since New in Cantera 3.0
+    //! @since New in %Cantera 3.0
     bool compositionDependent() {
         return m_composition_dependent_rate;
     }
 
     //! Set rate compositional dependence
-    //! @since New in Cantera 3.0
+    //! @since New in %Cantera 3.0
     void setCompositionDependence(bool comp_dep) {
         m_composition_dependent_rate = comp_dep;
     }

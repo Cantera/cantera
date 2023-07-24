@@ -62,7 +62,7 @@ public:
         return m_area;
     }
 
-    //! @deprecated To be removed after Cantera 3.0. Access distance through the
+    //! @deprecated To be removed after %Cantera 3.0. Access distance through the
     //!     ReactorNet object
     double distance() const;
 

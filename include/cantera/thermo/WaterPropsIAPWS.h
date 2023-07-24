@@ -171,7 +171,7 @@ public:
     /*!
      * @param temperature   temperature (kelvin)
      * @param rho           density  (kg m-3)
-     * @deprecated  To be removed after Cantera 3.0; renamed to setState_TD()
+     * @deprecated To be removed after %Cantera 3.0; renamed to setState_TD()
      */
     void setState_TR(doublereal temperature, doublereal rho);
 
@@ -179,7 +179,7 @@ public:
     /*!
      * @param temperature   temperature (kelvin)
      * @param rho           density  (kg m-3)
-     * @since  New in Cantera 3.0.
+     * @since New in %Cantera 3.0.
      */
     void setState_TD(double temperature, double rho);
 
@@ -205,47 +205,47 @@ public:
 
     //! Calculate the Helmholtz free energy in mks units of J kmol-1 K-1,
     //! using the last temperature and density
-    //! @deprecated To be removed after Cantera 3.0. This class provides mass-based
+    //! @deprecated To be removed after %Cantera 3.0. This class provides mass-based
     //!     values only.
     doublereal helmholtzFE() const;
 
     //! Calculate the Gibbs free energy in mks units of J kmol-1 K-1.
     //! using the last temperature and density
-    //! @deprecated To be removed after Cantera 3.0. This class provides mass-based
+    //! @deprecated To be removed after %Cantera 3.0. This class provides mass-based
     //!     values only.
     doublereal Gibbs() const;
 
     //! Calculate the enthalpy in mks units of J kmol-1
     //! using the last temperature and density
-    //! @deprecated To be removed after Cantera 3.0. This class provides mass-based
+    //! @deprecated To be removed after %Cantera 3.0. This class provides mass-based
     //!     values only.
     doublereal enthalpy() const;
 
     //! Calculate the internal energy in mks units of J kmol-1
-    //! @deprecated To be removed after Cantera 3.0. This class provides mass-based
+    //! @deprecated To be removed after %Cantera 3.0. This class provides mass-based
     //!     values only.
     doublereal intEnergy() const;
 
     //! Calculate the entropy in mks units of J kmol-1 K-1
-    //! @deprecated To be removed after Cantera 3.0. This class provides mass-based
+    //! @deprecated To be removed after %Cantera 3.0. This class provides mass-based
     //!     values only.
     doublereal entropy() const;
 
     //! Calculate the constant volume heat capacity in mks units of J kmol-1 K-1
     //! at the last temperature and density
-    //! @deprecated To be removed after Cantera 3.0. This class provides mass-based
+    //! @deprecated To be removed after %Cantera 3.0. This class provides mass-based
     //!     values only.
     doublereal cv() const;
 
     //! Calculate the constant pressure heat capacity in mks units of J kmol-1 K-1
     //! at the last temperature and density
-    //! @deprecated To be removed after Cantera 3.0. This class provides mass-based
+    //! @deprecated To be removed after %Cantera 3.0. This class provides mass-based
     //!     values only.
     doublereal cp() const;
 
     //! Calculate the molar volume (kmol m-3) at the last temperature and
     //! density
-    //! @deprecated To be removed after Cantera 3.0. This class provides mass-based
+    //! @deprecated To be removed after %Cantera 3.0. This class provides mass-based
     //!     values only.
     doublereal molarVolume() const;
 
