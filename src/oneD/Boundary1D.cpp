@@ -183,10 +183,6 @@ void Inlet1D::eval(size_t jg, double* xg, double* rg,
         // the inlet, since this is set within the flow domain from the
         // continuity equation.
 
-        // spreading rate. The flow domain sets this to V(0),
-        // so for finite spreading rate subtract m_V0.
-        rb[c_offset_V] -= m_V0;
-
         if (m_flow->doEnergy(0)) {
             // The third flow residual is for T, where it is set to T(0).  Subtract
             // the local temperature to hold the flow T to the inlet T.
@@ -204,6 +200,10 @@ void Inlet1D::eval(size_t jg, double* xg, double* rg,
             // The flow domain sets this to -rho*u. Add mdot to specify the mass
             // flow rate
             rb[c_offset_L] += m_mdot;
+
+            // spreading rate. The flow domain sets this to V(0),
+            // so for finite spreading rate subtract m_V0.
+            rb[c_offset_V] -= m_V0;
         } else {
             rb[c_offset_U] = m_flow->density(0) * xb[c_offset_U] - m_mdot;
             rb[c_offset_L] = xb[c_offset_L];
@@ -217,7 +217,7 @@ void Inlet1D::eval(size_t jg, double* xg, double* rg,
         }
 
     } else {
-        // right inlet
+        // right inlet (should only be used for counter-flow flames)
         // Array elements corresponding to the last point in the flow domain
         double* rb = rg + loc() - m_flow->nComponents();
         rb[c_offset_V] -= m_V0;
