@@ -83,7 +83,7 @@ public:
         m_primary = primary;
     }
 
-    //! @deprecated To be removed after Cantera 3.0; replaced by setPrimary.
+    //! @deprecated To be removed after %Cantera 3.0; replaced by setPrimary().
     void setMaster(FlowDevice* master);
 
     virtual void setTimeFunction(Func1* g) {
