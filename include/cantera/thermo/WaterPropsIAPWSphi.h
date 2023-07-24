@@ -21,7 +21,7 @@ namespace Cantera
 //! Low level class for the real description of water.
 /*!
  * This is a helper class for WaterSSTP and PDSS_Water and does not constitute
- * a complete implementation of a thermo phase by itself (see \ref thermoprops
+ * a complete implementation of a thermo phase by itself (see @ref thermoprops
  * and classes \link Cantera::WaterSSTP WaterSSTP\endlink and
  * \link Cantera::PDSS_Water PDSS_Water\endlink).
  *

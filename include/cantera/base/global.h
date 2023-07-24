@@ -1,12 +1,12 @@
 /**
  * @file global.h
  * This file contains definitions for utility functions and text for modules,
- * inputfiles and logging, (see \ref inputGroup, and \ref logGroup).
+ * inputfiles and logging, (see @ref inputGroup, and @ref logGroup).
  *
  * These functions store some parameters in global storage that are accessible
  * at all times from the calling application. Contains module definitions for
- *     -  inputfiles  (see \ref inputGroup)
- *     -  text logs  (see \ref logGroup)
+ *     -  inputfiles  (see @ref inputGroup)
+ *     -  text logs  (see @ref logGroup)
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or

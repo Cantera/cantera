@@ -2,7 +2,7 @@
  *  @file PDSS_IdealGas.h
  *   Declarations for the class PDSS_IdealGas (pressure dependent standard state)
  *    which handles calculations for a single ideal gas species in a phase
- *    (see \ref pdssthermo and class \link Cantera::PDSS_IdealGas PDSS_IdealGas\endlink).
+ *    (see @ref pdssthermo and class \link Cantera::PDSS_IdealGas PDSS_IdealGas\endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or

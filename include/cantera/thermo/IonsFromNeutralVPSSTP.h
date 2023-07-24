@@ -1,7 +1,7 @@
 /**
  *  @file IonsFromNeutralVPSSTP.h Header for intermediate ThermoPhase object for
  *   phases which consist of ions whose thermodynamics is calculated from
- *   neutral molecule thermodynamics. (see \ref thermoprops and class \link
+ *   neutral molecule thermodynamics. (see @ref thermoprops and class \link
  *   Cantera::IonsFromNeutralVPSSTP IonsFromNeutralVPSSTP\endlink).
  */
 

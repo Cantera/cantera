@@ -1,5 +1,5 @@
 /**
- *  @file  RedlichKisterVPSSTP.h (see \ref thermoprops and class \link
+ *  @file  RedlichKisterVPSSTP.h (see @ref thermoprops and class \link
  *      Cantera::RedlichKisterVPSSTP RedlichKisterVPSSTP\endlink).
  */
 

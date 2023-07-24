@@ -2,7 +2,7 @@
  *  @file ThermoPhase.h
  * Header file for class ThermoPhase, the base class for phases with
  * thermodynamic properties, and the text for the Module thermoprops
- * (see \ref thermoprops and class \link Cantera::ThermoPhase ThermoPhase\endlink).
+ * (see @ref thermoprops and class \link Cantera::ThermoPhase ThermoPhase\endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or

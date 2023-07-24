@@ -1,7 +1,7 @@
 /**
  *  @file StoichSubstance.cpp
  * Definition file for the StoichSubstance class, which represents a fixed-composition
- * incompressible substance (see \ref thermoprops and
+ * incompressible substance (see @ref thermoprops and
  * class \link Cantera::StoichSubstance StoichSubstance\endlink)
  */
 

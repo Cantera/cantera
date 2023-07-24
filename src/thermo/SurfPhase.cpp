@@ -2,7 +2,7 @@
  *  @file SurfPhase.cpp
  *  Definitions for a simple thermodynamic model of a surface phase
  *  derived from ThermoPhase, assuming an ideal solution model
- *  (see \ref thermoprops and class
+ *  (see @ref thermoprops and class
  *  \link Cantera::SurfPhase SurfPhase\endlink).
  */
 

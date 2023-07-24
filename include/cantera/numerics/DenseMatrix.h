@@ -2,7 +2,7 @@
  *  @file DenseMatrix.h
  *  Headers for the DenseMatrix object, which deals with dense rectangular matrices and
  *  description of the numerics groupings of objects
- *  (see \ref numerics and \link Cantera::DenseMatrix DenseMatrix \endlink) .
+ *  (see @ref numerics and \link Cantera::DenseMatrix DenseMatrix \endlink) .
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or

@@ -1,6 +1,6 @@
 /**
  *  @file speciesThermoTypes.h Contains const definitions for types of species
- *       reference-state thermodynamics managers (see \ref spthermo)
+ *       reference-state thermodynamics managers (see @ref spthermo)
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or

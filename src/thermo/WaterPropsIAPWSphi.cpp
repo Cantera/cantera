@@ -28,7 +28,7 @@ using std::fabs;
  * H didn't turn out to be .611872 J/kg, but .611782 J/kg.
  * There may be a slight error here somehow.
  */
-//  \cond
+//  @cond
 static const doublereal ni0[9] = {
     0.0,
     -8.32044648201 - 0.000000001739715,
@@ -346,7 +346,7 @@ static const doublereal Bbetai[2] = {
     +0.3,
     +0.3
 };
-// \endcond
+// @endcond
 
 WaterPropsIAPWSphi::WaterPropsIAPWSphi()
 {

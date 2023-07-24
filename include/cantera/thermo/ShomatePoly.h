@@ -3,7 +3,7 @@
  *  Header for a single-species standard state object derived
  *  from \link Cantera::SpeciesThermoInterpType SpeciesThermoInterpType\endlink  based
  *  on the Shomate temperature polynomial form applied to one temperature region
- *  (see \ref spthermo and class \link Cantera::ShomatePoly ShomatePoly\endlink and
+ *  (see @ref spthermo and class \link Cantera::ShomatePoly ShomatePoly\endlink and
  *   \link Cantera::ShomatePoly2 ShomatePoly2\endlink).
  *    Shomate polynomial expressions.
  */

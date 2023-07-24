@@ -2,7 +2,7 @@
  *  @file PDSS_Water.h
  * Implementation of a pressure dependent standard state
  * virtual function for a Pure Water Phase
- * (see \ref pdssthermo and class \link Cantera::PDSS_Water PDSS_Water\endlink).
+ * (see @ref pdssthermo and class \link Cantera::PDSS_Water PDSS_Water\endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or

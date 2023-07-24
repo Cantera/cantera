@@ -2,7 +2,7 @@
  * @file ctexceptions.h
  *   Definitions for the classes that are
  *   thrown when %Cantera experiences an error condition
- *   (also contains errorhandling module text - see \ref errGroup).
+ *   (also contains errorhandling module text - see @ref errGroup).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or

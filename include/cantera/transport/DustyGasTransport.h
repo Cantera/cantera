@@ -1,7 +1,7 @@
 /**
  * @file DustyGasTransport.h Headers for the DustyGasTransport object, which
  *   models transport properties in porous media using the dusty gas
- *   approximation (see \ref tranprops and \link Cantera::DustyGasTransport
+ *   approximation (see @ref tranprops and \link Cantera::DustyGasTransport
  *   DustyGasTransport \endlink) .
  */
 

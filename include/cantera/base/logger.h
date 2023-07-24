@@ -1,7 +1,7 @@
 /**
  * @file logger.h
  * Header for Base class for 'loggers' that write text messages to log files
- * (see \ref logGroup and class \link Cantera::Logger Logger\endlink).
+ * (see @ref logGroup and class \link Cantera::Logger Logger\endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or

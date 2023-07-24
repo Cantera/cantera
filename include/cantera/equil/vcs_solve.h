@@ -1,7 +1,7 @@
 /**
  * @file vcs_solve.h Header file for the internal object that holds the vcs
  *    equilibrium problem (see Class \link Cantera::VCS_SOLVE
- *    VCS_SOLVE\endlink and \ref equilGroup ).
+ *    VCS_SOLVE\endlink and @ref equilGroup ).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or

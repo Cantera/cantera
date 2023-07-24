@@ -1,7 +1,7 @@
 /**
  *  @file IdealGasPhase.h
  *   ThermoPhase object for the ideal gas equation of
- * state - workhorse for %Cantera (see \ref thermoprops
+ * state - workhorse for %Cantera (see @ref thermoprops
  * and class \link Cantera::IdealGasPhase IdealGasPhase\endlink).
  */
 
@@ -97,7 +97,7 @@ namespace Cantera
  * \f]
  *
  * where R is the molar gas constant. For a complete list of physical constants
- * used within %Cantera, see \ref physConstants .
+ * used within %Cantera, see @ref physConstants .
  *
  * ## Specification of Solution Thermodynamic Properties
  *

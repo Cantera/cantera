@@ -1,7 +1,7 @@
 /**
  * @file Transport.h Headers for the Transport object, which is the virtual
  *     base class for all transport property evaluators and also includes the
- *     tranprops group definition (see \ref tranprops and \link
+ *     tranprops group definition (see @ref tranprops and \link
  *     Cantera::Transport Transport \endlink) .
  */
 
@@ -31,13 +31,13 @@ class Solution;
 class AnyMap;
 
 /*!
- * \addtogroup tranprops
+ * @addtogroup tranprops
  */
-//!  \cond
+//!  @cond
 
 const int CK_Mode = 10;
 
-//!   \endcond
+//!   @endcond
 
 //! The diffusion fluxes must be referenced to a particular reference
 //! fluid velocity.
@@ -65,7 +65,7 @@ const int CK_Mode = 10;
 typedef int VelocityBasis;
 
 /*!
- * \addtogroup tranprops
+ * @addtogroup tranprops
  */
 //! @{
 //! Diffusion velocities are based on the mass averaged velocity

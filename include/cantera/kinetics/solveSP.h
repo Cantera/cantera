@@ -1,5 +1,5 @@
 /**
- * @file solveSP.h Header file for implicit surface problem solver (see \ref
+ * @file solveSP.h Header file for implicit surface problem solver (see @ref
  *       chemkinetics and class \link Cantera::solveSP solveSP\endlink).
  */
 

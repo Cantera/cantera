@@ -1,6 +1,6 @@
 /**
  *  @file EdgePhase.h Declarations for the EdgePhase ThermoPhase object, which
- *       models the interface between two surfaces (see \ref thermoprops and
+ *       models the interface between two surfaces (see @ref thermoprops and
  *       \link Cantera::EdgePhase EdgePhase\endlink).
  */
 
