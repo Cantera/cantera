@@ -18,7 +18,7 @@ namespace Cantera
 //! ideal gas mixtures.
 /*!
  * The implementation generally follows the procedure outlined in Kee, et al.
- * \cite kee2003.
+ * @cite kee2003.
  *
  * @ingroup tranprops
  */

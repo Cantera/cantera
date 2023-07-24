@@ -45,7 +45,7 @@ namespace Cantera
  * where \f$ i \f$ is the index of energy levels.
  *
  * For references, see Gudmundsson @cite gudmundsson2001; Khalilpour and Foroutan
- * @cite khalilpour2020; and Hagelaar and Pitchford @cite hagelaar2005.
+ * @cite khalilpour2020; Hagelaar and Pitchford @cite hagelaar2005, and BOLOS
  * @cite BOLOS.
  *
  * @warning  This class is an experimental part of %Cantera and may be

@@ -19,7 +19,7 @@ class MMCollisionInt;
 //! Class GasTransport implements some functions and properties that are
 //! shared by the MixTransport and MultiTransport classes.
 //!
-//! For details, see Kee, et al. \cite kee2003 and \cite kee2017.
+//! For details, see Kee, et al. @cite kee2003 and @cite kee2017.
 //!
 //! @ingroup tranprops
 class GasTransport : public Transport

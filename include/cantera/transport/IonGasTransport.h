@@ -27,7 +27,7 @@ namespace Cantera
  * due to resonant charge transfer. Therefore, an experimental collision
  * data is used instead.
  *
- * Data taken from \cite prager2005.
+ * Data taken from @cite prager2005.
  *
  * @ingroup tranprops
  */
