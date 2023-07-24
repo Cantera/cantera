@@ -161,6 +161,9 @@ public:
     virtual double massFraction(size_t k) {
         return m_yin[k];
     }
+
+    //! @deprecated To be changed after %Cantera 3.0. Right-to-left flow
+    //!     will only be supported for counter-flow configurations.
     virtual void init();
     virtual void eval(size_t jg, double* xg, double* rg,
                       integer* diagg, double rdt);
@@ -236,6 +239,7 @@ public:
 
 /**
  * An outlet.
+ * Flow is assumed to be from left to right.
  */
 class Outlet1D : public Boundary1D
 {
@@ -264,6 +268,7 @@ public:
 
 /**
  * An outlet with specified composition.
+ * Flow is assumed to be from left to right.
  */
 class OutletRes1D : public Boundary1D
 {
@@ -287,6 +292,7 @@ public:
     virtual double massFraction(size_t k) {
         return m_yres[k];
     }
+
     virtual void init();
     virtual void eval(size_t jg, double* xg, double* rg,
                       integer* diagg, double rdt);

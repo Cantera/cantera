@@ -147,14 +147,19 @@ void Inlet1D::init()
     // if a flow domain is present on the left, then this must be a right inlet.
     // Note that an inlet object can only be a terminal object - it cannot have
     // flows on both the left and right
-    if (m_flow_left) {
+    if (m_flow_left && !m_flow_right) {
+        if (!m_flow_left->usesLambda()) {
+            throw CanteraError("Inlet1D::init",
+                "Right inlets with right-to-left flow are only supported for "
+                "strained flow configurations.");
+        }
         m_ilr = RightInlet;
         m_flow = m_flow_left;
     } else if (m_flow_right) {
         m_ilr = LeftInlet;
         m_flow = m_flow_right;
     } else {
-        throw CanteraError("Inlet1D::init","no flow!");
+        throw CanteraError("Inlet1D::init", "Inlet1D is not properly connected.");
     }
 
     // components = u, V, T, lambda, + mass fractions
@@ -358,10 +363,13 @@ void Outlet1D::init()
     _init(0);
 
     if (m_flow_right) {
-        m_flow_right->setViscosityFlag(false);
+        throw CanteraError("Outlet1D::init",
+            "Left outlets with right-to-left flow are not supported.");
     }
     if (m_flow_left) {
         m_flow_left->setViscosityFlag(false);
+    } else {
+        throw CanteraError("Outlet1D::init", "Outlet1D is not connected.");
     }
 }
 
@@ -377,39 +385,23 @@ void Outlet1D::eval(size_t jg, double* xg, double* rg, integer* diagg,
     double* r = rg + loc();
     integer* diag = diagg + loc();
 
-    if (m_flow_right) {
-        size_t nc = m_flow_right->nComponents();
-        double* xb = x;
-        double* rb = r;
-        for (size_t k = c_offset_Y; k < nc; k++) {
-            rb[k] = xb[k] - xb[k + nc];
-        }
-        if (m_flow_left->doEnergy(0)) {
-            rb[c_offset_T] = xb[c_offset_T + nc] - xb[c_offset_T]; // zero T gradient
-        } else {
-            rb[c_offset_T] = xb[c_offset_T] - m_flow_left->T_fixed(0);
-        }
+    // flow is left-to-right
+    size_t nc = m_flow_left->nComponents();
+    double* xb = x - nc;
+    double* rb = r - nc;
+    int* db = diag - nc;
+
+    size_t last = m_flow_left->nPoints() - 1;
+    if (m_flow_left->doEnergy(last)) {
+        rb[c_offset_T] = xb[c_offset_T] - xb[c_offset_T - nc]; // zero T gradient
+    } else {
+        rb[c_offset_T] = xb[c_offset_T] - m_flow_left->T_fixed(last);
     }
-
-    if (m_flow_left) {
-        // flow is left-to-right
-        size_t nc = m_flow_left->nComponents();
-        double* xb = x - nc;
-        double* rb = r - nc;
-        int* db = diag - nc;
-
-        size_t last = m_flow_left->nPoints() - 1;
-        if (m_flow_left->doEnergy(last)) {
-            rb[c_offset_T] = xb[c_offset_T] - xb[c_offset_T - nc]; // zero T gradient
-        } else {
-            rb[c_offset_T] = xb[c_offset_T] - m_flow_left->T_fixed(last);
-        }
-        size_t kSkip = c_offset_Y + m_flow_left->rightExcessSpecies();
-        for (size_t k = c_offset_Y; k < nc; k++) {
-            if (k != kSkip) {
-                rb[k] = xb[k] - xb[k - nc]; // zero mass fraction gradient
-                db[k] = 0;
-            }
+    size_t kSkip = c_offset_Y + m_flow_left->rightExcessSpecies();
+    for (size_t k = c_offset_Y; k < nc; k++) {
+        if (k != kSkip) {
+            rb[k] = xb[k] - xb[k - nc]; // zero mass fraction gradient
+            db[k] = 0;
         }
     }
 }
@@ -445,12 +437,14 @@ void OutletRes1D::init()
 {
     _init(0);
 
+    if (m_flow_right) {
+        throw CanteraError("OutletRes1D::init",
+            "Left outlets with right-to-left flow are not supported.");
+    }
     if (m_flow_left) {
         m_flow = m_flow_left;
-    } else if (m_flow_right) {
-        m_flow = m_flow_right;
     } else {
-        throw CanteraError("OutletRes1D::init","no flow!");
+        throw CanteraError("OutletRes1D::init", "no flow!");
     }
 
     m_nsp = m_flow->phase().nSpecies();
@@ -474,42 +468,22 @@ void OutletRes1D::eval(size_t jg, double* xg, double* rg,
     double* r = rg + loc();
     integer* diag = diagg + loc();
 
-    if (m_flow_right) {
-        size_t nc = m_flow_right->nComponents();
-        double* xb = x;
-        double* rb = r;
+    size_t nc = m_flow_left->nComponents();
+    double* xb = x - nc;
+    double* rb = r - nc;
+    int* db = diag - nc;
 
-        if (m_flow_right->doEnergy(0)) {
-            // zero gradient for T
-            rb[c_offset_T] = xb[c_offset_T] - xb[c_offset_T + nc];
-        } else {
-            rb[c_offset_T] = xb[c_offset_T] - m_flow_left->T_fixed(0);
-        }
-
-        // specified mass fractions
-        for (size_t k = c_offset_Y; k < nc; k++) {
-            rb[k] = xb[k] - m_yres[k-c_offset_Y];
-        }
+    size_t last = m_flow_left->nPoints() - 1;
+    if (m_flow_left->doEnergy(last)) {
+        rb[c_offset_T] = xb[c_offset_T] - xb[c_offset_T - nc]; // zero T gradient
+    } else {
+        rb[c_offset_T] = xb[c_offset_T] - m_flow_left->T_fixed(last);
     }
-
-    if (m_flow_left) {
-        size_t nc = m_flow_left->nComponents();
-        double* xb = x - nc;
-        double* rb = r - nc;
-        int* db = diag - nc;
-
-        size_t last = m_flow_left->nPoints() - 1;
-        if (m_flow_left->doEnergy(last)) {
-            rb[c_offset_T] = xb[c_offset_T] - xb[c_offset_T - nc]; // zero T gradient
-        } else {
-            rb[c_offset_T] = xb[c_offset_T] - m_flow_left->T_fixed(last);
-        }
-        size_t kSkip = m_flow_left->rightExcessSpecies();
-        for (size_t k = c_offset_Y; k < nc; k++) {
-            if (k != kSkip) {
-                rb[k] = xb[k] - m_yres[k-c_offset_Y]; // fixed Y
-                db[k] = 0;
-            }
+    size_t kSkip = m_flow_left->rightExcessSpecies();
+    for (size_t k = c_offset_Y; k < nc; k++) {
+        if (k != kSkip) {
+            rb[k] = xb[k] - m_yres[k-c_offset_Y]; // fixed Y
+            db[k] = 0;
         }
     }
 }
@@ -669,6 +643,7 @@ void ReactingSurf1D::init()
 {
     m_nv = m_nsp;
     _init(m_nsp);
+
     m_fixed_cov.resize(m_nsp, 0.0);
     m_fixed_cov[0] = 1.0;
     m_work.resize(m_kin->nTotalSpecies(), 0.0);

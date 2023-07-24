@@ -103,7 +103,7 @@ class TestOnedim(utilities.CanteraTest):
         gas = ct.Solution("h2o2.yaml")
         left = ct.Inlet1D(gas)
         flame = ct.FreeFlow(gas)
-        right = ct.Inlet1D(gas)
+        right = ct.Outlet1D(gas)
         # Some things don't work until the domains have been added to a Sim1D
         sim = ct.Sim1D((left, flame, right))
 
