@@ -198,10 +198,13 @@ void Inlet1D::eval(size_t jg, double* xg, double* rg,
             // Set mdot equal to rho*u, and also set lambda to zero.
             m_mdot = m_flow->density(0) * xb[c_offset_U];
             rb[c_offset_L] = xb[c_offset_L];
-        } else {
+        } else if (m_flow->usesLambda()) {
             // The flow domain sets this to -rho*u. Add mdot to specify the mass
-            // flow rate (both axisymmetric and unstrained).
+            // flow rate
             rb[c_offset_L] += m_mdot;
+        } else {
+            rb[c_offset_U] = m_flow->density(0) * xb[c_offset_U] - m_mdot;
+            rb[c_offset_L] = xb[c_offset_L];
         }
 
         // add the convective term to the species residual equations
@@ -374,27 +377,17 @@ void Outlet1D::eval(size_t jg, double* xg, double* rg, integer* diagg,
         size_t nc = m_flow_right->nComponents();
         double* xb = x;
         double* rb = r;
-        if (!m_flow_right->usesLambda()) {
-            rb[c_offset_L] = xb[c_offset_L];
-        }
-        if (m_flow_right->doEnergy(0)) {
-            rb[c_offset_T] = xb[c_offset_T] - xb[c_offset_T + nc];
-        }
         for (size_t k = c_offset_Y; k < nc; k++) {
             rb[k] = xb[k] - xb[k + nc];
         }
     }
 
     if (m_flow_left) {
+        // flow is left-to-right
         size_t nc = m_flow_left->nComponents();
         double* xb = x - nc;
         double* rb = r - nc;
         int* db = diag - nc;
-
-        // zero Lambda
-        if (!m_flow_left->isFree()) {
-            rb[c_offset_U] = xb[c_offset_L];
-        }
 
         if (m_flow_left->doEnergy(m_flow_left->nPoints()-1)) {
             rb[c_offset_T] = xb[c_offset_T] - xb[c_offset_T - nc]; // zero T gradient

@@ -488,7 +488,7 @@ void StFlow::evalResidual(double* x, double* rsd, int* diag,
             if (m_isFree) {
                 rsd[index(c_offset_L, 0)] = lambda(x, 0);
             } else {
-                // used to set mass flow rate
+                // used to set mass flow rate (both axisymmetric and unstrained)
                 rsd[index(c_offset_L, 0)] = -rho_u(x, 0);
             }
 
@@ -1025,7 +1025,10 @@ void StFlow::evalRightBoundary(double* x, double* rsd, int* diag, double rdt)
     }
     rsd[index(c_offset_Y + rightExcessSpecies(), j)] = 1.0 - sum;
     diag[index(c_offset_Y + rightExcessSpecies(), j)] = 0;
-    if (!m_isFree) {
+    if (m_isFree) {
+        rsd[index(c_offset_U,j)] = rho_u(x,j) - rho_u(x,j-1);
+        rsd[index(c_offset_T,j)] = T(x,j) - T(x,j-1);
+    } else if (m_usesLambda) {
         rsd[index(c_offset_U,j)] = rho_u(x,j);
         if (m_do_energy[j]) {
             rsd[index(c_offset_T,j)] = T(x,j);
@@ -1033,8 +1036,12 @@ void StFlow::evalRightBoundary(double* x, double* rsd, int* diag, double rdt)
             rsd[index(c_offset_T, j)] = T(x,j) - T_fixed(j);
         }
     } else {
-        rsd[index(c_offset_U,j)] = rho_u(x,j) - rho_u(x,j-1);
-        rsd[index(c_offset_T,j)] = T(x,j) - T(x,j-1);
+        rsd[index(c_offset_U, j)] = rho_u(x, j) - rho_u(x, j - 1);
+        if (m_do_energy[j]) {
+            rsd[index(c_offset_T, j)] = T(x, j);
+        } else {
+            rsd[index(c_offset_T, j)] = T(x, j) - T_fixed(j);
+        }
     }
 }
 
@@ -1047,14 +1054,14 @@ void StFlow::evalContinuity(size_t j, double* x, double* rsd, int* diag, double 
     //
     //    d(\rho u)/dz + 2\rho V = 0
     //----------------------------------------------
-    if (!m_isFree) {
+    if (m_usesLambda) {
         // Note that this propagates the mass flow rate information to the left
         // (j+1 -> j) from the value specified at the right boundary. The
         // lambda information propagates in the opposite direction.
         rsd[index(c_offset_U,j)] =
             -(rho_u(x,j+1) - rho_u(x,j))/m_dz[j]
             -(density(j+1)*V(x,j+1) + density(j)*V(x,j));
-    } else {
+    } else if (m_isFree) {
         if (grid(j) > m_zfixed) {
             rsd[index(c_offset_U,j)] =
                 - (rho_u(x,j) - rho_u(x,j-1))/m_dz[j-1]
@@ -1071,6 +1078,8 @@ void StFlow::evalContinuity(size_t j, double* x, double* rsd, int* diag, double 
                 - (rho_u(x,j+1) - rho_u(x,j))/m_dz[j]
                 - (density(j+1)*V(x,j+1) + density(j)*V(x,j));
         }
+    } else {
+        rsd[index(c_offset_U, j)] = rho_u(x, j) - rho_u(x, j - 1);
     }
 }
 
