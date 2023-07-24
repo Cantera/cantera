@@ -340,7 +340,7 @@ public:
     /*!
      * @param soln local solution vector for this domain
      *
-     * @deprecated  To be removed after Cantera 3.0; superseded by asArray.
+     * @deprecated To be removed after %Cantera 3.0; superseded by asArray().
      */
     AnyMap serialize(const double* soln) const;
 
@@ -490,11 +490,11 @@ public:
         }
     }
 
-    //! @deprecated To be removed after Cantera 3.0; replaced by show
+    //! @deprecated To be removed after %Cantera 3.0; replaced by show()
     virtual void showSolution_s(std::ostream& s, const double* x);
 
     //! Print the solution.
-    //! @deprecated To be removed after Cantera 3.0; replaced by show
+    //! @deprecated To be removed after %Cantera 3.0; replaced by show()
     virtual void showSolution(const double* x);
 
     //! Print the solution.

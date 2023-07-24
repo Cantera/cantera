@@ -41,7 +41,7 @@ private:
 
 /**
  *  Create a new kinetics manager.
- *  @deprecated  To be removed after Cantera 3.0; superseded by newKinetics.
+ *  @deprecated To be removed after %Cantera 3.0; superseded by newKinetics().
  */
 Kinetics* newKineticsMgr(const string& model);
 
