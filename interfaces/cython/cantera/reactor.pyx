@@ -915,6 +915,16 @@ cdef class WallBase:
             self.wall.setArea(value)
 
     @property
+    def left_reactor(self):
+        """Return the `Reactor` or `Reservoir` object left of the wall."""
+        return self._left_reactor
+
+    @property
+    def right_reactor(self):
+        """Return the `Reactor` or `Reservoir` object right of the wall."""
+        return self._right_reactor
+
+    @property
     def expansion_rate(self):
         """
         Get the rate of volumetric change [m^3/s] associated with the wall at the
@@ -1078,6 +1088,20 @@ cdef class FlowDevice:
         # Keep references to prevent premature garbage collection
         self._upstream = upstream
         self._downstream = downstream
+
+    @property
+    def upstream(self):
+        """
+        Return the `Reactor` or `Reservoir` object upstream of the flow device.
+        """
+        return self._upstream
+
+    @property
+    def downstream(self):
+        """
+        Return the `Reactor` or `Reservoir` object downstream of the flow device.
+        """
+        return self._downstream
 
     property mass_flow_rate:
         """
@@ -1383,6 +1407,13 @@ cdef class ReactorNet:
         reinitialization.
         """
         self.net.reinitialize()
+
+    @property
+    def reactors(self):
+        """
+        List of all reactors that are part of the reactor network.
+        """
+        return self._reactors
 
     @property
     def time(self):
