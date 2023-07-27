@@ -7,38 +7,17 @@
 %    run interfaces/matlab_experimental/testpath.m
 
 % get the list of directories on the Matlab path
-dirs = regexp(path, ['([^' pathsep ']*)'], 'match');
+dirs = split(path, pathsep);
 
 % if 'cantera' is already in the path, remove it
 for i = 1:length(dirs)
-    if strfind(dirs{i}, 'Cantera')
-        rmpath(dirs{i});
-        continue;
-    end
-    if strfind(dirs{i}, 'cantera')
+    if contains(dirs{i}, 'CANTERA', 'IgnoreCase', true)
         rmpath(dirs{i});
     end
 end
 
 cantera_root = getenv('CANTERA_ROOT');
 
-% Copy the Cantera shared library from the build directory if necessary
-if ispc
-    libname = 'cantera_shared.dll';
-elseif ismac
-    libname = 'libcantera_shared.dylib';
-elseif isunix
-    libname = 'libcantera_shared.so';
-end
-
-copyfile(fullfile(cantera_root, 'build', 'lib', libname), ...
-         fullfile(cantera_root, 'test', 'matlab_experimental'));
-
 % Add the Cantera toolbox to the Matlab path
 addpath(genpath([cantera_root, '/interfaces/matlab_experimental']));
 addpath(genpath([cantera_root, '/test/matlab_experimental']));
-
-% Set path to Python module
-if strcmp(getenv('PYTHONPATH'), '')
-    setenv('PYTHONPATH', fullfile(cantera_root, 'build', 'python'))
-end
