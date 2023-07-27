@@ -7,11 +7,11 @@ ctTestPath;
 rootDir = getenv('CANTERA_ROOT');
 
 if ispc
-    ctName = '/test/matlab_experimental/cantera_shared.dll';
+    ctName = '/build/lib/cantera_shared.dll';
 elseif ismac
-    ctname = '/test/matlab_experimental/libcantera_shared.dylib';
+    ctName = '/build/lib/libcantera_shared.dylib';
 elseif isunix
-    ctname = '/test/matlab_experimental/libcantera_shared.so';
+    ctName = '/build/lib/libcantera_shared.so';
 end
 % Load Cantera
 if ~libisloaded('libcantera_shared')
