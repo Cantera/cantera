@@ -9,7 +9,6 @@ on:
     branches:
       - main
       - testing
-      - matlab_tests
   pull_request:
     # Build when a pull request targets main
     branches:
@@ -46,22 +45,14 @@ jobs:
       - name: Upgrade pip
         run: python3 -m pip install -U pip setuptools wheel
       - name: Install Python dependencies
-        # h5py is optional; some versions don't have binaries (yet)
         run: |
-          python3 -m pip install ruamel.yaml scons==3.1.2 numpy cython pandas pytest \
-          pytest-github-actions-annotate-failures pint
-          python3 -m pip install h5py
+          python3 -m pip install ruamel.yaml scons==3.1.2
       - name: Build Cantera
         run: |
           python3 `which scons` build env_vars=all -j2 debug=n --debug=time \
-          hdf_libdir=$HDF5_LIBDIR hdf_include=$HDF5_INCLUDEDIR \
           cc_flags=-D_GLIBCXX_ASSERTIONS
       - name: Set up MATLAB
         uses: matlab-actions/setup-matlab@v1
-      - name: Print environment variables
-        uses: matlab-actions/run-command@v1
-        with:
-          command: disp(getenv('CANTERA_ROOT')); disp(getenv('CANTERA_DATA')); disp(getenv('CANTERA_TEST'));
       - name: Run tests
         uses: matlab-actions/run-tests@v1
         with:
