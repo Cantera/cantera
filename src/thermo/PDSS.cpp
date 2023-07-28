@@ -2,7 +2,7 @@
  * @file PDSS.cpp
  * Implementation of a pressure dependent standard state
  * virtual function
- * (see class \link Cantera::PDSS PDSS\endlink).
+ * (see class @link Cantera::PDSS PDSS@endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or

@@ -2,7 +2,7 @@
  *  @file ImplicitSurfChem.h
  * Declarations for the implicit integration of surface site density equations
  *  (see @ref  kineticsmgr and class
- *  \link Cantera::ImplicitSurfChem ImplicitSurfChem\endlink).
+ *  @link Cantera::ImplicitSurfChem ImplicitSurfChem@endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or

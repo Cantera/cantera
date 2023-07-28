@@ -2,7 +2,7 @@
  *  @file BandMatrix.h
  *   Declarations for the class BandMatrix
  *   which is a child class of GeneralMatrix for banded matrices handled by solvers
- *    (see class @ref numerics and \link Cantera::BandMatrix BandMatrix\endlink).
+ *    (see class @ref numerics and @link Cantera::BandMatrix BandMatrix@endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or

@@ -2,7 +2,7 @@
  * @file WaterPropsIAPWS.h
  * Headers for a class for calculating the equation of state of water
  * from the IAPWS 1995 Formulation based on the steam tables thermodynamic
- * basis (See class \link Cantera::WaterPropsIAPWS WaterPropsIAPWS\endlink).
+ * basis (See class @link Cantera::WaterPropsIAPWS WaterPropsIAPWS@endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -38,8 +38,8 @@ namespace Cantera
 /*!
  * This is a helper class for WaterSSTP and PDSS_Water and does not constitute
  * a complete implementation of a thermo phase by itself (see @ref thermoprops
- * and classes \link Cantera::WaterSSTP WaterSSTP\endlink and
- * \link Cantera::PDSS_Water PDSS_Water\endlink).
+ * and classes @link Cantera::WaterSSTP WaterSSTP@endlink and
+ * @link Cantera::PDSS_Water PDSS_Water@endlink).
  *
  * The reference is W. Wagner, A. Pruss, "The IAPWS Formulation 1995 for the
  * Thermodynamic Properties of Ordinary Water Substance for General and

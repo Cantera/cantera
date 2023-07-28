@@ -2,7 +2,7 @@
  * @file StoichSubstance.h
  * Header file for the StoichSubstance class, which represents a fixed-composition
  * incompressible substance (see @ref thermoprops and
- * class \link Cantera::StoichSubstance StoichSubstance\endlink)
+ * class @link Cantera::StoichSubstance StoichSubstance@endlink)
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or

@@ -2,7 +2,7 @@
  *  @file GibbsExcessVPSSTP.cpp
  *   Definitions for intermediate ThermoPhase object for phases which
  *   employ excess Gibbs free energy formulations
- *  (see @ref thermoprops and class \link Cantera::GibbsExcessVPSSTP GibbsExcessVPSSTP\endlink).
+ *  (see @ref thermoprops and class @link Cantera::GibbsExcessVPSSTP GibbsExcessVPSSTP@endlink).
  *
  * Header file for a derived class of ThermoPhase that handles variable pressure
  * standard state methods for calculating thermodynamic properties that are

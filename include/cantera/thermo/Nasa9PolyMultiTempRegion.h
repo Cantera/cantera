@@ -1,11 +1,11 @@
 /**
  *  @file Nasa9PolyMultiTempRegion.h
  *  Header for a single-species standard state object derived
- *  from \link Cantera::SpeciesThermoInterpType
- *  SpeciesThermoInterpType\endlink  based
+ *  from @link Cantera::SpeciesThermoInterpType
+ *  SpeciesThermoInterpType@endlink  based
  *  on the NASA 9 coefficient temperature polynomial form
  *   applied to multiple temperature regions
- *  (see @ref spthermo and class \link Cantera::Nasa9PolyMultiTempRegion Nasa9PolyMultiTempRegion\endlink).
+ *  (see @ref spthermo and class @link Cantera::Nasa9PolyMultiTempRegion Nasa9PolyMultiTempRegion@endlink).
  *
  *  This parameterization has multiple NASA temperature regions.
  */

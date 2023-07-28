@@ -2,7 +2,7 @@
  * @file Units.h
  * Header for unit conversion utilities, which are used to translate
  * user input from input files (See @ref inputGroup and
- * class \link Cantera::Units Units\endlink).
+ * class @link Cantera::Units Units@endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or

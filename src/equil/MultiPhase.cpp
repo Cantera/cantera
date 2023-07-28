@@ -1,6 +1,6 @@
 /**
  * @file MultiPhase.cpp
- * Definitions for the \link Cantera::MultiPhase MultiPhase\endlink
+ * Definitions for the @link Cantera::MultiPhase MultiPhase@endlink
  * object that is used to set up multiphase equilibrium problems (see @ref equilGroup).
  */
 

@@ -3,7 +3,7 @@
  *    Headers for the UnityLewisTransport object, which models transport
  *    properties in ideal gas solutions using the unity Lewis number
  *    approximation
- *    (see @ref tranprops and \link Cantera::UnityLewisTransport UnityLewisTransport \endlink) .
+ *    (see @ref tranprops and @link Cantera::UnityLewisTransport UnityLewisTransport @endlink) .
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or

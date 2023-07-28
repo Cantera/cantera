@@ -2,7 +2,7 @@
  *  @file ThermoPhase.cpp
  * Definition file for class ThermoPhase, the base class for phases with
  * thermodynamic properties
- * (see class \link Cantera::ThermoPhase ThermoPhase\endlink).
+ * (see class @link Cantera::ThermoPhase ThermoPhase@endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or

@@ -2,7 +2,7 @@
  *  @file HMWSoln.cpp
  *    Definitions for the HMWSoln ThermoPhase object, which
  *    models concentrated electrolyte solutions
- *    (see @ref thermoprops and \link Cantera::HMWSoln HMWSoln \endlink) .
+ *    (see @ref thermoprops and @link Cantera::HMWSoln HMWSoln @endlink) .
  *
  * Class HMWSoln represents a concentrated liquid electrolyte phase which obeys
  * the Pitzer formulation for nonideality using molality-based standard states.

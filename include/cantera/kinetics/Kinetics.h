@@ -2,7 +2,7 @@
  * @file Kinetics.h
  *  Base class for kinetics managers and also contains the kineticsmgr
  *  module documentation (see @ref  kineticsmgr and class
- *  \link Cantera::Kinetics Kinetics\endlink).
+ *  @link Cantera::Kinetics Kinetics@endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or

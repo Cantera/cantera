@@ -3,7 +3,7 @@
  *   Definitions for ThermoPhase object for phases which
  *   employ excess Gibbs free energy formulations related to RedlichKister
  *   expansions (see @ref thermoprops
- *    and class \link Cantera::RedlichKisterVPSSTP RedlichKisterVPSSTP\endlink).
+ *    and class @link Cantera::RedlichKisterVPSSTP RedlichKisterVPSSTP@endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or

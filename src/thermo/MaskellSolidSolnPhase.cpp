@@ -1,8 +1,8 @@
 /**
  *  @file MaskellSolidSolnPhase.cpp Implementation file for an ideal solid
  *      solution model with incompressible thermodynamics (see @ref
- *      thermoprops and \link Cantera::MaskellSolidSolnPhase
- *      MaskellSolidSolnPhase\endlink).
+ *      thermoprops and @link Cantera::MaskellSolidSolnPhase
+ *      MaskellSolidSolnPhase@endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or

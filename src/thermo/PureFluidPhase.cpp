@@ -1,8 +1,8 @@
 /**
  * @file PureFluidPhase.cpp Definitions for a ThermoPhase object for a pure
  *     fluid phase consisting of gas, liquid, mixed-gas-liquid and supercritical
- *     fluid (see @ref thermoprops and class \link Cantera::PureFluidPhase
- *     PureFluidPhase\endlink).
+ *     fluid (see @ref thermoprops and class @link Cantera::PureFluidPhase
+ *     PureFluidPhase@endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or

@@ -3,7 +3,7 @@
  *   Definitions for ThermoPhase object for phases which
  *   employ excess Gibbs free energy formulations related to Margules
  *   expansions (see @ref thermoprops
- *    and class \link Cantera::MargulesVPSSTP MargulesVPSSTP\endlink).
+ *    and class @link Cantera::MargulesVPSSTP MargulesVPSSTP@endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or

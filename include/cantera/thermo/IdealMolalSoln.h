@@ -2,7 +2,7 @@
  *  @file IdealMolalSoln.h
  *   ThermoPhase object for the ideal molal equation of
  * state (see @ref thermoprops
- * and class \link Cantera::IdealMolalSoln IdealMolalSoln\endlink).
+ * and class @link Cantera::IdealMolalSoln IdealMolalSoln@endlink).
  *
  * Header file for a derived class of ThermoPhase that handles variable pressure
  * standard state methods for calculating thermodynamic properties that are

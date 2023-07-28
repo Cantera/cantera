@@ -2,7 +2,7 @@
  * @file WaterPropsIAPWS.cpp
  * Definitions for a class for calculating the equation of state of water
  * from the IAPWS 1995 Formulation based on the steam tables thermodynamic
- * basis (See class \link Cantera::WaterPropsIAPWS WaterPropsIAPWS\endlink).
+ * basis (See class @link Cantera::WaterPropsIAPWS WaterPropsIAPWS@endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or

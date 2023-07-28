@@ -1,6 +1,6 @@
 /**
- *  @file  RedlichKisterVPSSTP.h (see @ref thermoprops and class \link
- *      Cantera::RedlichKisterVPSSTP RedlichKisterVPSSTP\endlink).
+ *  @file  RedlichKisterVPSSTP.h (see @ref thermoprops and class @link
+ *      Cantera::RedlichKisterVPSSTP RedlichKisterVPSSTP@endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or

@@ -1,8 +1,8 @@
 /**
  *  @file IdealSolidSolnPhase.cpp Implementation file for an ideal solid
  *      solution model with incompressible thermodynamics (see @ref
- *      thermoprops and \link Cantera::IdealSolidSolnPhase
- *      IdealSolidSolnPhase\endlink).
+ *      thermoprops and @link Cantera::IdealSolidSolnPhase
+ *      IdealSolidSolnPhase@endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or

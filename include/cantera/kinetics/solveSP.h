@@ -1,6 +1,6 @@
 /**
  * @file solveSP.h Header file for implicit surface problem solver (see @ref
- *       chemkinetics and class \link Cantera::solveSP solveSP\endlink).
+ *       chemkinetics and class @link Cantera::solveSP solveSP@endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
