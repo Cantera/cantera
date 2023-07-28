@@ -29,8 +29,8 @@ namespace Cantera
  * Individual Species," B. J. McBride, M. J. Zehe, S. Gordon
  * NASA/TP-2002-211556, Sept. 2002
  *
- * Nine coefficients @f$(a_0,\dots,a_8)@f$ are used to represent
- * @f$ C_p^0(T)@f$, @f$ H^0(T)@f$, and @f$ S^0(T) @f$ as
+ * Nine coefficients @f$ (a_0,\dots,a_8) @f$ are used to represent
+ * @f$ C_p^0(T) @f$, @f$ H^0(T) @f$, and @f$ S^0(T) @f$ as
  * polynomials in @f$ T @f$ :
  * @f[
  * \frac{C_p^0(T)}{R} = a_0 T^{-2} + a_1 T^{-1} + a_2 + a_3 T

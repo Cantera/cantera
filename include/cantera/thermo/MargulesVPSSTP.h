@@ -115,7 +115,7 @@ namespace Cantera
  *
  * ## Application within Kinetics Managers
  *
- * @f$ C^a_k@f$ are defined such that @f$ a_k = C^a_k / C^s_k, @f$ where
+ * @f$ C^a_k @f$ are defined such that @f$ a_k = C^a_k / C^s_k, @f$ where
  * @f$ C^s_k @f$ is a standard concentration defined below and @f$ a_k @f$ are
  * activities used in the thermodynamic functions.  These activity (or
  * generalized) concentrations are used by kinetics manager classes to compute
@@ -207,7 +207,7 @@ namespace Cantera
  *    k^{-1} =  k^1 K^1_c
  * @f]
  *
- * @f$k^{-1} @f$ has units of s-1.
+ * @f$ k^{-1} @f$ has units of s-1.
  *
  * @ingroup thermoprops
  */
@@ -239,9 +239,9 @@ public:
     //! @}
     //! @name Activities, Standard States, and Activity Concentrations
     //!
-    //! The activity @f$a_k@f$ of a species in solution is related to the
+    //! The activity @f$ a_k @f$ of a species in solution is related to the
     //! chemical potential by @f[ \mu_k = \mu_k^0(T) + \hat R T \log a_k. @f] The
-    //! quantity @f$\mu_k^0(T,P)@f$ is the chemical potential at unit activity,
+    //! quantity @f$ \mu_k^0(T,P) @f$ is the chemical potential at unit activity,
     //! which depends only on temperature and pressure.
     //! @{
 

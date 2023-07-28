@@ -550,7 +550,7 @@ private:
     //! MultiPhaseEquil solver.
     /*!
      * @param XY   Integer flag specifying properties to hold fixed.
-     * @param err  Error tolerance for @f$\Delta \mu/RT @f$ for all reactions.
+     * @param err  Error tolerance for @f$ \Delta \mu/RT @f$ for all reactions.
      *             Also used as the relative error tolerance for the outer loop.
      * @param maxsteps Maximum number of steps to take in solving the fixed TP
      *                 problem.

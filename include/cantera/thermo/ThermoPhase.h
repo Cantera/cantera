@@ -336,9 +336,9 @@ public:
     //! @}
     //! @name Activities, Standard States, and Activity Concentrations
     //!
-    //! The activity @f$a_k@f$ of a species in solution is related to the
+    //! The activity @f$ a_k @f$ of a species in solution is related to the
     //! chemical potential by @f[ \mu_k = \mu_k^0(T,P) + \hat R T \log a_k. @f]
-    //! The quantity @f$\mu_k^0(T,P)@f$ is the standard chemical potential at
+    //! The quantity @f$ \mu_k^0(T,P) @f$ is the standard chemical potential at
     //! unit activity, which depends on temperature and pressure, but not on
     //! composition. The activity is dimensionless.
     //! @{
@@ -393,7 +393,7 @@ public:
 
     //! This method returns an array of generalized concentrations
     /*!
-     * @f$ C^a_k@f$ are defined such that @f$ a_k = C^a_k / C^0_k, @f$ where
+     * @f$ C^a_k @f$ are defined such that @f$ a_k = C^a_k / C^0_k, @f$ where
      * @f$ C^0_k @f$ is a standard concentration defined below and @f$ a_k @f$
      * are activities used in the thermodynamic functions. These activity (or
      * generalized) concentrations are used by kinetics manager classes to

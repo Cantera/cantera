@@ -178,8 +178,8 @@ public:
      * \rho = \frac{\sum_k{X_k W_k}}{\sum_k{X_k V_k}}
      * @f]
      *
-     * where @f$X_k@f$ are the mole fractions, @f$W_k@f$ are the molecular
-     * weights, and @f$V_k@f$ are the pure species molar volumes.
+     * where @f$ X_k @f$ are the mole fractions, @f$ W_k @f$ are the molecular
+     * weights, and @f$ V_k @f$ are the pure species molar volumes.
      *
      * Note, the basis behind this formula is that in an ideal solution the
      * partial molar volumes are equal to the pure species molar volumes. We
@@ -191,19 +191,19 @@ public:
     //! @}
     //! @name Chemical Potentials and Activities
     //!
-    //! The activity @f$a_k@f$ of a species in solution is related to the
+    //! The activity @f$ a_k @f$ of a species in solution is related to the
     //! chemical potential by
     //! @f[
     //!  \mu_k(T,P,X_k) = \mu_k^0(T,P)
     //! + \hat R T \log a_k.
     //!  @f]
-    //! The quantity @f$\mu_k^0(T,P)@f$ is the standard state chemical potential
+    //! The quantity @f$ \mu_k^0(T,P) @f$ is the standard state chemical potential
     //! at unit activity. It may depend on the pressure and the temperature.
     //! However, it may not depend on the mole fractions of the species in the
     //! solid solution.
     //!
-    //! The activities are related to the generalized concentrations, @f$\tilde
-    //! C_k@f$, and standard concentrations, @f$C^0_k@f$, by the following
+    //! The activities are related to the generalized concentrations, @f$ \tilde
+    //! C_k @f$, and standard concentrations, @f$ C^0_k @f$, by the following
     //! formula:
     //!
     //!  @f[
@@ -287,7 +287,7 @@ public:
      * @f[
      *    \mu_k = \mu^o_k(T,p) + R T ln(X_k)
      * @f]
-     *  where @f$ \mu^o_k(T,p) = \mu^{ref}_k(T) + V_k * (p - p_o)@f$
+     *  where @f$ \mu^o_k(T,p) = \mu^{ref}_k(T) + V_k * (p - p_o) @f$
      *
      * @param mu  Output vector of chemical potentials.
      */
@@ -296,13 +296,13 @@ public:
     /**
      * Get the array of non-dimensional species solution
      * chemical potentials at the current T and P
-     * @f$\mu_k / \hat R T @f$.
+     * @f$ \mu_k / \hat R T @f$.
      * @f[
      *  \mu^0_k(T,P) = \mu^{ref}_k(T) + (P - P_{ref}) * V_k + RT ln(X_k)
      * @f]
-     * where @f$V_k@f$ is the molar volume of pure species *k*.
-     * @f$ \mu^{ref}_k(T)@f$ is the chemical potential of pure
-     * species *k* at the reference pressure, @f$P_{ref}@f$.
+     * where @f$ V_k @f$ is the molar volume of pure species *k*.
+     * @f$ \mu^{ref}_k(T) @f$ is the chemical potential of pure
+     * species *k* at the reference pressure, @f$ P_{ref} @f$.
      *
      * @param mu   Output vector of dimensionless chemical potentials.
      *             Length = m_kk.
@@ -400,9 +400,9 @@ public:
      * @f[
      *  h^0_k(T,P) = h^{ref}_k(T) + (P - P_{ref}) * V_k
      * @f]
-     * where @f$V_k@f$ is the molar volume of pure species *k*.
-     * @f$ h^{ref}_k(T)@f$ is the enthalpy of the pure species *k* at the
-     * reference pressure, @f$P_{ref}@f$.
+     * where @f$ V_k @f$ is the molar volume of pure species *k*.
+     * @f$ h^{ref}_k(T) @f$ is the enthalpy of the pure species *k* at the
+     * reference pressure, @f$ P_{ref} @f$.
      *
      * @param hrt Vector of length m_kk, which on return hrt[k] will contain the
      *            nondimensional standard state enthalpy of species k.
@@ -427,9 +427,9 @@ public:
      * @f[
      *  \mu^0_k(T,P) = \mu^{ref}_k(T) + (P - P_{ref}) * V_k
      * @f]
-     * where @f$V_k@f$ is the molar volume of pure species *k*.
-     * @f$ \mu^{ref}_k(T)@f$ is the chemical potential of pure species *k*
-     * at the reference pressure, @f$P_{ref}@f$.
+     * where @f$ V_k @f$ is the molar volume of pure species *k*.
+     * @f$ \mu^{ref}_k(T) @f$ is the chemical potential of pure species *k*
+     * at the reference pressure, @f$ P_{ref} @f$.
      *
      * @param grt Vector of length m_kk, which on return sr[k] will contain the
      *           nondimensional standard state Gibbs function for species k.
@@ -443,9 +443,9 @@ public:
      * @f[
      *  \mu^0_k(T,P) = \mu^{ref}_k(T) + (P - P_{ref}) * V_k
      * @f]
-     * where @f$V_k@f$ is the molar volume of pure species *k*.
-     * @f$ \mu^{ref}_k(T)@f$ is the chemical potential of pure species *k* at
-     * the reference pressure, @f$P_{ref}@f$.
+     * where @f$ V_k @f$ is the molar volume of pure species *k*.
+     * @f$ \mu^{ref}_k(T) @f$ is the chemical potential of pure species *k* at
+     * the reference pressure, @f$ P_{ref} @f$.
      *
      * @param gpure  Output vector of Gibbs functions for species. Length: m_kk.
      */
@@ -459,9 +459,9 @@ public:
      * @f[
      *  Cp^0_k(T,P) = Cp^{ref}_k(T)
      * @f]
-     * where @f$V_k@f$ is the molar volume of pure species *k*.
-     * @f$ Cp^{ref}_k(T)@f$ is the constant pressure heat capacity of species
-     * *k* at the reference pressure, @f$p_{ref}@f$.
+     * where @f$ V_k @f$ is the molar volume of pure species *k*.
+     * @f$ Cp^{ref}_k(T) @f$ is the constant pressure heat capacity of species
+     * *k* at the reference pressure, @f$ p_{ref} @f$.
      *
      * @param cpr Vector of length m_kk, which on return cpr[k] will contain the
      *           nondimensional constant pressure heat capacity for species k.

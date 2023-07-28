@@ -91,7 +91,7 @@ class WaterProps;
  *
  * For these incompressible, standard states, the molar internal energy is
  * independent of pressure. Since the thermodynamic properties are specified by
- * giving the standard-state enthalpy, the term @f$ P_0 \hat v@f$ is subtracted
+ * giving the standard-state enthalpy, the term @f$ P_0 \hat v @f$ is subtracted
  * from the specified molar enthalpy to compute the molar internal energy. The
  * entropy is assumed to be independent of the pressure.
  *
@@ -104,7 +104,7 @@ class WaterProps;
  *
  * For an incompressible, stoichiometric substance, the molar internal energy is
  * independent of pressure. Since the thermodynamic properties are specified by
- * giving the standard-state enthalpy, the term @f$ P_{ref} \tilde v@f$ is
+ * giving the standard-state enthalpy, the term @f$ P_{ref} \tilde v @f$ is
  * subtracted from the specified reference molar enthalpy to compute the molar
  * internal energy.
  *
@@ -136,7 +136,7 @@ class WaterProps;
  * @f]
  *
  * where @f$ \gamma_k^{\triangle} @f$ is the molality based activity coefficient
- * for species @f$k@f$.
+ * for species @f$ k @f$.
  *
  * Individual activity coefficients of ions can not be independently measured.
  * Instead, only binary pairs forming electroneutral solutions can be measured.
@@ -150,7 +150,7 @@ class WaterProps;
  * ### Ionic Strength
  *
  * Most of the parameterizations within the model use the ionic strength as a
- * key variable. The ionic strength, @f$ I@f$ is defined as follows
+ * key variable. The ionic strength, @f$ I @f$ is defined as follows
  *
  * @f[
  *    I = \frac{1}{2} \sum_k{m_k  z_k^2}
@@ -211,7 +211,7 @@ class WaterProps;
  * the theory of unsymmetrical mixing of electrolytes with different charges.
  * This theory depends on the total ionic strength of the solution, and
  * therefore, @f$ \Phi_{c{c'}} @f$ and  @f$ \Phi_{a{a'}} @f$  will depend on
- * *I*, the ionic strength.  @f$ B_{ca}@f$ is a strong function of the
+ * *I*, the ionic strength.  @f$ B_{ca} @f$ is a strong function of the
  * total ionic strength, *I*, of the electrolyte. The rest of the coefficients
  * are assumed to be independent of the molalities or ionic strengths. However,
  * all coefficients are potentially functions of the temperature and pressure
@@ -220,7 +220,7 @@ class WaterProps;
  * *A* is the Debye-Huckel constant. Its specification is described in its
  * own section below.
  *
- * @f$ I@f$ is the ionic strength of the solution, and is given by:
+ * @f$ I @f$ is the ionic strength of the solution, and is given by:
  *
  * @f[
  *     I = \frac{1}{2} \sum_k{m_k  z_k^2}
@@ -238,7 +238,7 @@ class WaterProps;
  *     Z = \sum_i m_i \left| z_i \right|
  * @f]
  *
- * The value of @f$ B_{ca}@f$ is given by the following function
+ * The value of @f$ B_{ca} @f$ is given by the following function
  *
  * @f[
  *     B_{ca} = \beta^{(0)}_{ca} + \beta^{(1)}_{ca} g(\alpha^{(1)}_{ca} \sqrt{I})
@@ -251,7 +251,7 @@ class WaterProps;
  *     g(x) = 2 \frac{(1 - (1 + x)\exp[-x])}{x^2}
  * @f]
  *
- * The formulation for @f$ B_{ca}@f$ combined with the formulation of the Debye-
+ * The formulation for @f$ B_{ca} @f$ combined with the formulation of the Debye-
  * Huckel term in the eqn. for the excess Gibbs free energy stems essentially
  * from an empirical fit to the ionic strength dependent data based over a wide
  * sampling of binary electrolyte systems. @f$ C_{ca} @f$, @f$ \lambda_{nc} @f$,
@@ -263,17 +263,17 @@ class WaterProps;
  * more complicated. @f$ b @f$ is a universal constant defined to be equal to
  * @f$ 1.2\ kg^{1/2}\ gmol^{-1/2} @f$. The exponential coefficient @f$
  * \alpha^{(1)}_{ca} @f$ is usually fixed at @f$ \alpha^{(1)}_{ca} = 2.0\
- * kg^{1/2} gmol^{-1/2}@f$ except for 2-2 electrolytes, while other parameters
+ * kg^{1/2} gmol^{-1/2} @f$ except for 2-2 electrolytes, while other parameters
  * were fit to experimental data. For 2-2 electrolytes, @f$ \alpha^{(1)}_{ca} =
- * 1.4\ kg^{1/2}\ gmol^{-1/2}@f$ is used in combination with either @f$
- * \alpha^{(2)}_{ca} = 12\ kg^{1/2}\ gmol^{-1/2}@f$ or @f$ \alpha^{(2)}_{ca} = k
+ * 1.4\ kg^{1/2}\ gmol^{-1/2} @f$ is used in combination with either @f$
+ * \alpha^{(2)}_{ca} = 12\ kg^{1/2}\ gmol^{-1/2} @f$ or @f$ \alpha^{(2)}_{ca} = k
  * A_\psi @f$, where *k* is a constant. For electrolytes other than 2-2
  * electrolytes the @f$ \beta^{(2)}_{ca} g(\alpha^{(2)}_{ca} \sqrt{I}) @f$  term
  * is not used in the fitting procedure; it is only used for divalent metal
  * solfates and other high-valence electrolytes which exhibit significant
  * association at low ionic strengths.
  *
- * The @f$ \beta^{(0)}_{ca} @f$, @f$ \beta^{(1)}_{ca}@f$, @f$ \beta^{(2)}_{ca}
+ * The @f$ \beta^{(0)}_{ca} @f$, @f$ \beta^{(1)}_{ca} @f$, @f$ \beta^{(2)}_{ca}
  * @f$, and @f$ C_{ca} @f$ binary coefficients are referred to as ion-
  * interaction or Pitzer parameters. These Pitzer parameters may vary with
  * temperature and pressure but they do not depend on the ionic strength. Their
@@ -485,23 +485,23 @@ class WaterProps;
  *        and pressure
  *    - PIZTER_TEMP_COMPLEX1     - string name "COMPLEX" or "COMPLEX1"
  *      - Uses the full temperature dependence for the
- *        @f$\beta^{(0)}_{MX} @f$ (5 coeffs),
- *        the  @f$\beta^{(1)}_{MX} @f$ (3 coeffs),
+ *        @f$ \beta^{(0)}_{MX} @f$ (5 coeffs),
+ *        the  @f$ \beta^{(1)}_{MX} @f$ (3 coeffs),
  *        and @f$ C^{\phi}_{MX} @f$ (5 coeffs) parameters described above.
  *    - PITZER_TEMP_LINEAR        - string name "LINEAR"
  *      - Uses just the temperature dependence for the
- *        @f$\beta^{(0)}_{MX} @f$, the @f$\beta^{(1)}_{MX} @f$,
+ *        @f$ \beta^{(0)}_{MX} @f$, the @f$ \beta^{(1)}_{MX} @f$,
  *        and @f$ C^{\phi}_{MX} @f$ coefficients described above.
  *        There are 2 coefficients for each term.
  *
  * The specification of the binary interaction between a cation and an anion is
- * given by the coefficients, @f$ B_{MX}@f$ and @f$ C_{MX}@f$ The specification
- * of @f$ B_{MX}@f$ is a function of @f$\beta^{(0)}_{MX} @f$,
- * @f$\beta^{(1)}_{MX} @f$, @f$\beta^{(2)}_{MX} @f$, @f$\alpha^{(1)}_{MX} @f$,
- * and @f$\alpha^{(2)}_{MX} @f$. @f$ C_{MX}@f$ is calculated from
- * @f$C^{\phi}_{MX} @f$ from the formula above.
+ * given by the coefficients, @f$ B_{MX} @f$ and @f$ C_{MX} @f$ The specification
+ * of @f$ B_{MX} @f$ is a function of @f$ \beta^{(0)}_{MX} @f$,
+ * @f$ \beta^{(1)}_{MX} @f$, @f$ \beta^{(2)}_{MX} @f$, @f$ \alpha^{(1)}_{MX} @f$,
+ * and @f$ \alpha^{(2)}_{MX} @f$. @f$ C_{MX} @f$ is calculated from
+ * @f$ C^{\phi}_{MX} @f$ from the formula above.
  *
- * The parameters for @f$ \beta^{(0)}@f$ fit the following equation:
+ * The parameters for @f$ \beta^{(0)} @f$ fit the following equation:
  *
  * @f[
  *     \beta^{(0)} = q_0^{{\beta}0} + q_1^{{\beta}0} \left( T - T_r \right)
@@ -513,7 +513,7 @@ class WaterProps;
  * This same `COMPLEX1` temperature dependence given above is used for the
  * following parameters:
  * @f$ \beta^{(0)}_{MX} @f$, @f$ \beta^{(1)}_{MX} @f$,
- * @f$ \beta^{(2)}_{MX} @f$, @f$ \Theta_{cc'} @f$, @f$\Theta_{aa'} @f$,
+ * @f$ \beta^{(2)}_{MX} @f$, @f$ \Theta_{cc'} @f$, @f$ \Theta_{aa'} @f$,
  * @f$ \Psi_{c{c'}a} @f$ and @f$ \Psi_{ca{a'}} @f$.
  *
  * ### Like-Charged Binary Ion Parameters and the Mixing Parameters
@@ -660,7 +660,7 @@ class WaterProps;
  *                    - R T \frac{d \ln(a_o)}{dT}
  * @f]
  *
- * The partial molar heat capacity, @f$ C_{p,k}(T,P)@f$:
+ * The partial molar heat capacity, @f$ C_{p,k}(T,P) @f$:
  *
  * @f[
  *     \bar C_{p,k}(T,P) =  C^{\triangle}_{p,k}(T,P)
@@ -737,7 +737,7 @@ class WaterProps;
  *      a_j  =  \gamma_j^\triangle m_j = \gamma_j^\triangle \frac{n_j}{\tilde{M}_o n_o}
  * @f]
  *
- * @f$k^1 @f$ has units of m^3/kmol/s.
+ * @f$ k^1 @f$ has units of m^3/kmol/s.
  *
  * Therefore the generalized activity concentration of a solute species has the following form
  *
@@ -882,8 +882,8 @@ protected:
      * \rho = \frac{\sum_k{X_k W_k}}{\sum_k{X_k V_k}}
      * @f]
      *
-     * where @f$X_k@f$ are the mole fractions, @f$W_k@f$ are the molecular
-     * weights, and @f$V_k@f$ are the pure species molar volumes.
+     * where @f$ X_k @f$ are the mole fractions, @f$ W_k @f$ are the molecular
+     * weights, and @f$ V_k @f$ are the pure species molar volumes.
      *
      * Note, the basis behind this formula is that in an ideal solution the
      * partial molar volumes are equal to the pure species molar volumes. We
@@ -899,16 +899,16 @@ public:
     //! @}
     //! @name Activities, Standard States, and Activity Concentrations
     //!
-    //! The activity @f$a_k@f$ of a species in solution is related to the
+    //! The activity @f$ a_k @f$ of a species in solution is related to the
     //! chemical potential by @f[ \mu_k = \mu_k^0(T) + \hat R T \log a_k. @f] The
-    //! quantity @f$\mu_k^0(T,P)@f$ is the chemical potential at unit activity,
+    //! quantity @f$ \mu_k^0(T,P) @f$ is the chemical potential at unit activity,
     //! which depends only on temperature and the pressure. Activity is assumed
     //! to be molality-based here.
     //! @{
 
     //! This method returns an array of generalized activity concentrations
     /*!
-     * The generalized activity concentrations, @f$ C_k^a@f$, are defined such
+     * The generalized activity concentrations, @f$ C_k^a @f$, are defined such
      * that @f$ a_k = C^a_k / C^0_k, @f$ where @f$ C^0_k @f$ is a standard
      * concentration defined below.  These generalized concentrations are used
      * by kinetics manager classes to compute the forward and reverse rates of
@@ -991,7 +991,7 @@ public:
      *      a_j  =  \gamma_j^\triangle m_j = \gamma_j^\triangle \frac{n_j}{\tilde{M}_o n_o}
      * @f]
      *
-     * @f$k^1 @f$ has units of m^3/kmol/s.
+     * @f$ k^1 @f$ has units of m^3/kmol/s.
      *
      * Therefore the generalized activity concentration of a solute species has
      * the following form

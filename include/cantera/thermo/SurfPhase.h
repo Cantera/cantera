@@ -167,7 +167,7 @@ public:
      * @f$ n_0 @f$ is the surface site density for the phase, and
      * @f$ s_k @f$ is the surface size of species k.
      *
-     * @f$ C^a_k@f$ that are defined such that @f$ a_k = C^a_k / C^0_k, @f$
+     * @f$ C^a_k @f$ that are defined such that @f$ a_k = C^a_k / C^0_k, @f$
      * where @f$ C^0_k @f$ is a standard concentration defined below and @f$ a_k
      * @f$ are activities used in the thermodynamic functions.  These activity
      * concentrations are used by kinetics manager classes to compute the

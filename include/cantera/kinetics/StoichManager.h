@@ -564,7 +564,7 @@ inline static void _scale(InputIter begin, InputIter end,
  * @f[
  *     r_i = \sum_m^{M_i} s_{k_{m,i}}
  * @f]
- * To understand the operations performed by this class, let @f$ N_{k,i}@f$
+ * To understand the operations performed by this class, let @f$ N_{k,i} @f$
  * denote the stoichiometric coefficient of species k on one side (reactant or
  * product) in reaction i. Then \b N is a sparse K by I matrix of stoichiometric
  * coefficients.
@@ -572,8 +572,8 @@ inline static void _scale(InputIter begin, InputIter end,
  * The following matrix operations may be carried out with a vector S of length
  * K, and a vector R of length I:
  *
- * - @f$ S = S + N R@f$   (incrementSpecies)
- * - @f$ S = S - N R@f$   (decrementSpecies)
+ * - @f$ S = S + N R @f$   (incrementSpecies)
+ * - @f$ S = S - N R @f$   (decrementSpecies)
  * - @f$ R = R + N^T S @f$ (incrementReaction)
  * - @f$ R = R - N^T S @f$ (decrementReaction)
  *

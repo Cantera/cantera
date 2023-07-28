@@ -39,7 +39,7 @@ namespace Cantera
  * no effect on any quantities, as the molar concentration is a constant.
  *
  * The standard state enthalpy function is given by the following relation,
- * which has a weak dependence on the system pressure, @f$P@f$.
+ * which has a weak dependence on the system pressure, @f$ P @f$.
  *
  * @f[
  *     h^o_k(T,P) =
@@ -125,7 +125,7 @@ namespace Cantera
  *
  * ## Application within Kinetics Managers
  *
- * @f$ C^a_k@f$ are defined such that @f$ C^a_k = a_k = X_k @f$. @f$ C^s_k @f$,
+ * @f$ C^a_k @f$ are defined such that @f$ C^a_k = a_k = X_k @f$. @f$ C^s_k @f$,
  * the standard concentration, is defined to be equal to one. @f$ a_k @f$ are
  * activities used in the thermodynamic functions.  These activity (or
  * generalized) concentrations are used by kinetics manager classes to compute
@@ -308,8 +308,8 @@ public:
      *      \rho = \frac{\sum_k{X_k W_k}}{\sum_k{X_k V_k}}
      * @f]
      *
-     * where @f$X_k@f$ are the mole fractions, @f$W_k@f$ are the molecular
-     * weights, and @f$V_k@f$ are the pure species molar volumes.
+     * where @f$ X_k @f$ are the mole fractions, @f$ W_k @f$ are the molecular
+     * weights, and @f$ V_k @f$ are the pure species molar volumes.
      *
      * Note, the basis behind this formula is that in an ideal solution the
      * partial molar volumes are equal to the pure species molar volumes. We
@@ -321,9 +321,9 @@ public:
     //! @}
     //! @name Activities, Standard States, and Activity Concentrations
     //!
-    //! The activity @f$a_k@f$ of a species in solution is related to the
+    //! The activity @f$ a_k @f$ of a species in solution is related to the
     //! chemical potential by @f[ \mu_k = \mu_k^0(T) + \hat R T \log a_k. @f] The
-    //! quantity @f$\mu_k^0(T,P)@f$ is the chemical potential at unit activity,
+    //! quantity @f$ \mu_k^0(T,P) @f$ is the chemical potential at unit activity,
     //! which depends only on temperature and the pressure. Activity is assumed
     //! to be molality-based here.
     //! @{

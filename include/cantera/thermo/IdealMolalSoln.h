@@ -177,8 +177,8 @@ protected:
      * \rho = \frac{\sum_k{X_k W_k}}{\sum_k{X_k V_k}}
      * @f]
      *
-     * where @f$X_k@f$ are the mole fractions, @f$W_k@f$ are the molecular
-     * weights, and @f$V_k@f$ are the pure species molar volumes.
+     * where @f$ X_k @f$ are the mole fractions, @f$ W_k @f$ are the molecular
+     * weights, and @f$ V_k @f$ are the pure species molar volumes.
      *
      * Note, the basis behind this formula is that in an ideal solution the
      * partial molar volumes are equal to the pure species molar volumes. We
@@ -216,9 +216,9 @@ public:
     //! @}
     //! @name Activities and Activity Concentrations
     //!
-    //! The activity @f$a_k@f$ of a species in solution is related to the
+    //! The activity @f$ a_k @f$ of a species in solution is related to the
     //! chemical potential by @f[ \mu_k = \mu_k^0(T) + \hat R T \log a_k. @f] The
-    //! quantity @f$\mu_k^0(T)@f$ is the chemical potential at unit activity,
+    //! quantity @f$ \mu_k^0(T) @f$ is the chemical potential at unit activity,
     //! which depends only on temperature and the pressure.
     //! @{
 
@@ -383,9 +383,9 @@ public:
      *
      * | model                | ActivityConc                     | StandardConc       |
      * | -------------------- | -------------------------------- | ------------------ |
-     * | unity                | @f$ {m_k}/ { m^{\Delta}}@f$      | @f$ 1.0        @f$ |
-     * | species-molar-volume | @f$  m_k / (m^{\Delta} V_k)@f$   | @f$ 1.0 / V_k  @f$ |
-     * | solvent-molar-volume | @f$  m_k / (m^{\Delta} V^0_0)@f$ | @f$ 1.0 / V^0_0@f$ |
+     * | unity                | @f$ {m_k}/ { m^{\Delta}} @f$      | @f$ 1.0        @f$ |
+     * | species-molar-volume | @f$  m_k / (m^{\Delta} V_k) @f$   | @f$ 1.0 / V_k  @f$ |
+     * | solvent-molar-volume | @f$  m_k / (m^{\Delta} V^0_0) @f$ | @f$ 1.0 / V^0_0 @f$ |
      */
     void setStandardConcentrationModel(const std::string& model);
 

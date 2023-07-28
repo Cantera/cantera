@@ -733,8 +733,8 @@ public:
      * mole fractions at constant temperature, pressure and molar concentration.
      *
      * The method returns a matrix with nReactions rows and nTotalSpecies columns.
-     * For a derivative with respect to @f$X_i@f$, all other @f$X_j@f$ are held
-     * constant, rather than enforcing @f$\sum X_j = 1@f$.
+     * For a derivative with respect to @f$ X_i @f$, all other @f$ X_j @f$ are held
+     * constant, rather than enforcing @f$ \sum X_j = 1 @f$.
      *
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
@@ -751,7 +751,7 @@ public:
      * concentrations.
      *
      * The method returns a matrix with nReactions rows and nTotalSpecies columns.
-     * For a derivative with respect to @f$c_i@f$, all other @f$c_j@f$ are held
+     * For a derivative with respect to @f$ c_i @f$, all other @f$ c_j @f$ are held
      * constant.
      *
      * @warning  This method is an experimental part of the %Cantera API and
@@ -806,8 +806,8 @@ public:
      * mole fractions at constant temperature, pressure and molar concentration.
      *
      * The method returns a matrix with nReactions rows and nTotalSpecies columns.
-     * For a derivative with respect to @f$X_i@f$, all other @f$X_j@f$ are held
-     * constant, rather than enforcing @f$\sum X_j = 1@f$.
+     * For a derivative with respect to @f$ X_i @f$, all other @f$ X_j @f$ are held
+     * constant, rather than enforcing @f$ \sum X_j = 1 @f$.
      *
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
@@ -824,7 +824,7 @@ public:
      * concentrations.
      *
      * The method returns a matrix with nReactions rows and nTotalSpecies columns.
-     * For a derivative with respect to @f$c_i@f$, all other @f$c_j@f$ are held
+     * For a derivative with respect to @f$ c_i @f$, all other @f$ c_j @f$ are held
      * constant.
      *
      * @warning  This method is an experimental part of the %Cantera API and
@@ -879,8 +879,8 @@ public:
      * mole fractions at constant temperature, pressure and molar concentration.
      *
      * The method returns a matrix with nReactions rows and nTotalSpecies columns.
-     * For a derivative with respect to @f$X_i@f$, all other @f$X_j@f$ are held
-     * constant, rather than enforcing @f$\sum X_j = 1@f$.
+     * For a derivative with respect to @f$ X_i @f$, all other @f$ X_j @f$ are held
+     * constant, rather than enforcing @f$ \sum X_j = 1 @f$.
      *
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
@@ -897,7 +897,7 @@ public:
      * concentrations.
      *
      * The method returns a matrix with nReactions rows and nTotalSpecies columns.
-     * For a derivative with respect to @f$c_i@f$, all other @f$c_j@f$ are held
+     * For a derivative with respect to @f$ c_i @f$, all other @f$ c_j @f$ are held
      * constant.
      *
      * @warning  This method is an experimental part of the %Cantera API and
@@ -940,8 +940,8 @@ public:
      * mole fractions at constant temperature, pressure and molar concentration.
      *
      * The method returns a matrix with nTotalSpecies rows and nTotalSpecies columns.
-     * For a derivative with respect to @f$X_i@f$, all other @f$X_j@f$ are held
-     * constant, rather than enforcing @f$\sum X_j = 1@f$.
+     * For a derivative with respect to @f$ X_i @f$, all other @f$ X_j @f$ are held
+     * constant, rather than enforcing @f$ \sum X_j = 1 @f$.
      *
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
@@ -954,7 +954,7 @@ public:
      * species.
      *
      * The method returns a matrix with nTotalSpecies rows and nTotalSpecies columns.
-     * For a derivative with respect to @f$c_i@f$, all other @f$c_j@f$ are held
+     * For a derivative with respect to @f$ c_i @f$, all other @f$ c_j @f$ are held
      * constant.
      *
      * @warning  This method is an experimental part of the %Cantera API and
@@ -993,8 +993,8 @@ public:
      * mole fractions at constant temperature, pressure and molar concentration.
      *
      * The method returns a matrix with nTotalSpecies rows and nTotalSpecies columns.
-     * For a derivative with respect to @f$X_i@f$, all other @f$X_j@f$ are held
-     * constant, rather than enforcing @f$\sum X_j = 1@f$.
+     * For a derivative with respect to @f$ X_i @f$, all other @f$ X_j @f$ are held
+     * constant, rather than enforcing @f$ \sum X_j = 1 @f$.
      *
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
@@ -1007,7 +1007,7 @@ public:
      * species.
      *
      * The method returns a matrix with nTotalSpecies rows and nTotalSpecies columns.
-     * For a derivative with respect to @f$c_i@f$, all other @f$c_j@f$ are held
+     * For a derivative with respect to @f$ c_i @f$, all other @f$ c_j @f$ are held
      * constant.
      *
      * @warning  This method is an experimental part of the %Cantera API and
@@ -1046,8 +1046,8 @@ public:
      * mole fractions at constant temperature, pressure and molar concentration.
      *
      * The method returns a matrix with nTotalSpecies rows and nTotalSpecies columns.
-     * For a derivative with respect to @f$X_i@f$, all other @f$X_j@f$ are held constant,
-     * rather than enforcing @f$\sum X_j = 1@f$.
+     * For a derivative with respect to @f$ X_i @f$, all other @f$ X_j @f$ are held constant,
+     * rather than enforcing @f$ \sum X_j = 1 @f$.
      *
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
@@ -1060,7 +1060,7 @@ public:
      * species.
      *
      * The method returns a matrix with nTotalSpecies rows and nTotalSpecies columns.
-     * For a derivative with respect to @f$c_i@f$, all other @f$c_j@f$ are held
+     * For a derivative with respect to @f$ c_i @f$, all other @f$ c_j @f$ are held
      * constant.
      *
      * @warning  This method is an experimental part of the %Cantera API and

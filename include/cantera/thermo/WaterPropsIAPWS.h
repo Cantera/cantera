@@ -110,12 +110,12 @@ namespace Cantera
  *
  * This class is not a ThermoPhase. However, it does maintain an internal
  * state of the object that is dependent on temperature and density. The
- * internal state is characterized by an internally stored @f$ \tau@f$ and a
+ * internal state is characterized by an internally stored @f$ \tau @f$ and a
  * @f$ \delta @f$ value, and an iState value, which indicates whether the
  * point is a liquid, a gas, or a supercritical fluid. Along with that the
- * @f$ \tau@f$ and a @f$ \delta @f$ values are polynomials of @f$ \tau@f$ and
+ * @f$ \tau @f$ and a @f$ \delta @f$ values are polynomials of @f$ \tau @f$ and
  * a @f$ \delta @f$ that are kept by the WaterPropsIAPWSphi class. Therefore,
- * whenever  @f$ \tau@f$ or @f$ \delta @f$ is changed, the function setState()
+ * whenever  @f$ \tau @f$ or @f$ \delta @f$ is changed, the function setState()
  * must be called in order for the internal state to be kept up to date.
  *
  * The class is pretty straightforward. However, one function deserves

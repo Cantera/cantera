@@ -130,7 +130,7 @@ const int PHSCALE_NBS = 1;
  * @f]
  *
  * where @f$ \gamma_k^{\triangle} @f$ is the molality based activity coefficient
- * for species @f$k@f$.
+ * for species @f$ k @f$.
  *
  * The chemical potential of the solvent is thus expressed in a different format
  * than the chemical potential of the solutes. Additionally, the activity of the
@@ -329,11 +329,11 @@ public:
      *     m_i = \frac{X_i}{M_o/1000 * X_{o,p}}
      * @f]
      * where
-     *    -  @f$M_o@f$ is the molecular weight of the solvent
-     *    -  @f$X_o@f$ is the mole fraction of the solvent
-     *    -  @f$X_i@f$ is the mole fraction of the solute.
-     *    -  @f$X_{o,p} = \max(X_o^{min}, X_o)@f$
-     *    -  @f$X_o^{min}@f$ = minimum mole fraction of solvent allowed
+     *    -  @f$ M_o @f$ is the molecular weight of the solvent
+     *    -  @f$ X_o @f$ is the mole fraction of the solvent
+     *    -  @f$ X_i @f$ is the mole fraction of the solute.
+     *    -  @f$ X_{o,p} = \max(X_o^{min}, X_o) @f$
+     *    -  @f$ X_o^{min} @f$ = minimum mole fraction of solvent allowed
      *                     in the denominator.
      *
      * The formulas for calculating mole fractions are
@@ -375,9 +375,9 @@ public:
     //! @}
     //! @name Activities, Standard States, and Activity Concentrations
     //!
-    //! The activity @f$a_k@f$ of a species in solution is related to the
+    //! The activity @f$ a_k @f$ of a species in solution is related to the
     //! chemical potential by @f[ \mu_k = \mu_k^0(T) + \hat R T \log a_k. @f] The
-    //! quantity @f$\mu_k^0(T,P)@f$ is the chemical potential at unit activity,
+    //! quantity @f$ \mu_k^0(T,P) @f$ is the chemical potential at unit activity,
     //! which depends only on temperature and pressure.
     //! @{
 

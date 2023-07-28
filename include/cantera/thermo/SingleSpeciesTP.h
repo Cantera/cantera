@@ -84,9 +84,9 @@ public:
     //! @}
     //! @name Activities, Standard State, and Activity Concentrations
     //!
-    //! The activity @f$a_k@f$ of a species in solution is related to the
+    //! The activity @f$ a_k @f$ of a species in solution is related to the
     //! chemical potential by @f[ \mu_k = \mu_k^0(T) + \hat R T \log a_k. @f]
-    //! The quantity @f$\mu_k^0(T)@f$ is the chemical potential at unit activity,
+    //! The quantity @f$ \mu_k^0(T) @f$ is the chemical potential at unit activity,
     //! which depends only on temperature.
     //! @{
 

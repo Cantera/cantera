@@ -65,7 +65,7 @@ protected:
  *     \log k(T,P) = \sum_{t=1}^{N_T} \sum_{p=1}^{N_P} \alpha_{tp}
  *                       \phi_t(\tilde{T}) \phi_p(\tilde{P})
  * @f]
- * where @f$\alpha_{tp}@f$ are the constants defining the rate, @f$\phi_n(x)@f$
+ * where @f$ \alpha_{tp} @f$ are the constants defining the rate, @f$ \phi_n(x) @f$
  * is the Chebyshev polynomial of the first kind of degree *n* evaluated at
  * *x*, and
  * @f[
