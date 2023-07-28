@@ -422,7 +422,7 @@ public:
      * array \c deltaProperty would be the standard-state Gibbs free energies of
      * reaction for each reaction.
      *
-     * @param property Input vector of property value. Length: m_kk.
+     * @param property Input vector of property value. Length: #m_kk.
      * @param deltaProperty Output vector of deltaRxn. Length: nReactions().
      */
     virtual void getReactionDelta(const double* property, double* deltaProperty) const;
@@ -569,7 +569,7 @@ public:
      * creation rates in array cdot, which must be dimensioned at least as
      * large as the total number of species in all phases. @see nTotalSpecies.
      *
-     * @param cdot   Output vector of creation rates. Length: m_kk.
+     * @param cdot   Output vector of creation rates. Length: #m_kk.
      */
     virtual void getCreationRates(doublereal* cdot);
 
@@ -578,7 +578,7 @@ public:
      * destruction rates in array ddot, which must be dimensioned at least as
      * large as the total number of species. @see nTotalSpecies.
      *
-     * @param ddot   Output vector of destruction rates. Length: m_kk.
+     * @param ddot   Output vector of destruction rates. Length: #m_kk.
      */
     virtual void getDestructionRates(doublereal* ddot);
 
@@ -588,7 +588,7 @@ public:
      * which must be dimensioned at least as large as the total number of
      * species. @see nTotalSpecies.
      *
-     * @param wdot   Output vector of net production rates. Length: m_kk.
+     * @param wdot   Output vector of net production rates. Length: #m_kk.
      */
     virtual void getNetProductionRates(doublereal* wdot);
 
@@ -732,7 +732,7 @@ public:
      * Calculate derivatives for forward rates-of-progress with respect to species
      * mole fractions at constant temperature, pressure and molar concentration.
      *
-     * The method returns a matrix with nReactions rows and nTotalSpecies columns.
+     * The method returns a matrix with nReactions() rows and nTotalSpecies() columns.
      * For a derivative with respect to @f$ X_i @f$, all other @f$ X_j @f$ are held
      * constant, rather than enforcing @f$ \sum X_j = 1 @f$.
      *
@@ -750,7 +750,7 @@ public:
      * concentration at constant temperature, pressure and remaining species
      * concentrations.
      *
-     * The method returns a matrix with nReactions rows and nTotalSpecies columns.
+     * The method returns a matrix with nReactions() rows and nTotalSpecies() columns.
      * For a derivative with respect to @f$ c_i @f$, all other @f$ c_j @f$ are held
      * constant.
      *
@@ -805,7 +805,7 @@ public:
      * Calculate derivatives for reverse rates-of-progress with respect to species
      * mole fractions at constant temperature, pressure and molar concentration.
      *
-     * The method returns a matrix with nReactions rows and nTotalSpecies columns.
+     * The method returns a matrix with nReactions() rows and nTotalSpecies() columns.
      * For a derivative with respect to @f$ X_i @f$, all other @f$ X_j @f$ are held
      * constant, rather than enforcing @f$ \sum X_j = 1 @f$.
      *
@@ -823,7 +823,7 @@ public:
      * concentration at constant temperature, pressure and remaining species
      * concentrations.
      *
-     * The method returns a matrix with nReactions rows and nTotalSpecies columns.
+     * The method returns a matrix with nReactions() rows and nTotalSpecies() columns.
      * For a derivative with respect to @f$ c_i @f$, all other @f$ c_j @f$ are held
      * constant.
      *
@@ -878,7 +878,7 @@ public:
      * Calculate derivatives for net rates-of-progress with respect to species
      * mole fractions at constant temperature, pressure and molar concentration.
      *
-     * The method returns a matrix with nReactions rows and nTotalSpecies columns.
+     * The method returns a matrix with nReactions() rows and nTotalSpecies() columns.
      * For a derivative with respect to @f$ X_i @f$, all other @f$ X_j @f$ are held
      * constant, rather than enforcing @f$ \sum X_j = 1 @f$.
      *
@@ -896,7 +896,7 @@ public:
      * concentration at constant temperature, pressure, and remaining species
      * concentrations.
      *
-     * The method returns a matrix with nReactions rows and nTotalSpecies columns.
+     * The method returns a matrix with nReactions() rows and nTotalSpecies() columns.
      * For a derivative with respect to @f$ c_i @f$, all other @f$ c_j @f$ are held
      * constant.
      *
@@ -914,21 +914,21 @@ public:
     /**
      * Calculate derivatives for species creation rates with respect to temperature
      * at constant pressure, molar concentration and mole fractions.
-     * @param[out] dwdot  Output vector of derivatives. Length: m_kk.
+     * @param[out] dwdot  Output vector of derivatives. Length: #m_kk.
      */
     void getCreationRates_ddT(double* dwdot);
 
     /**
      * Calculate derivatives for species creation rates with respect to pressure
      * at constant temperature, molar concentration and mole fractions.
-     * @param[out] dwdot  Output vector of derivatives. Length: m_kk.
+     * @param[out] dwdot  Output vector of derivatives. Length: #m_kk.
      */
     void getCreationRates_ddP(double* dwdot);
 
     /**
      * Calculate derivatives for species creation rates with respect to molar
      * concentration at constant temperature, pressure and mole fractions.
-     * @param[out] dwdot  Output vector of derivatives. Length: m_kk.
+     * @param[out] dwdot  Output vector of derivatives. Length: #m_kk.
      *
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
@@ -939,7 +939,7 @@ public:
      * Calculate derivatives for species creation rates with respect to species
      * mole fractions at constant temperature, pressure and molar concentration.
      *
-     * The method returns a matrix with nTotalSpecies rows and nTotalSpecies columns.
+     * The method returns a square matrix with nTotalSpecies() rows and columns.
      * For a derivative with respect to @f$ X_i @f$, all other @f$ X_j @f$ are held
      * constant, rather than enforcing @f$ \sum X_j = 1 @f$.
      *
@@ -953,7 +953,7 @@ public:
      * concentration at constant temperature, pressure, and concentration of all other
      * species.
      *
-     * The method returns a matrix with nTotalSpecies rows and nTotalSpecies columns.
+     * The method returns a square matrix with nTotalSpecies() rows and columns.
      * For a derivative with respect to @f$ c_i @f$, all other @f$ c_j @f$ are held
      * constant.
      *
@@ -967,21 +967,21 @@ public:
     /**
      * Calculate derivatives for species destruction rates with respect to temperature
      * at constant pressure, molar concentration and mole fractions.
-     * @param[out] dwdot  Output vector of derivatives. Length: m_kk.
+     * @param[out] dwdot  Output vector of derivatives. Length: #m_kk.
      */
     void getDestructionRates_ddT(double* dwdot);
 
     /**
      * Calculate derivatives for species destruction rates with respect to pressure
      * at constant temperature, molar concentration and mole fractions.
-     * @param[out] dwdot  Output vector of derivatives. Length: m_kk.
+     * @param[out] dwdot  Output vector of derivatives. Length: #m_kk.
      */
     void getDestructionRates_ddP(double* dwdot);
 
     /**
      * Calculate derivatives for species destruction rates with respect to molar
      * concentration at constant temperature, pressure and mole fractions.
-     * @param[out] dwdot  Output vector of derivatives. Length: m_kk.
+     * @param[out] dwdot  Output vector of derivatives. Length: #m_kk.
      *
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
@@ -992,7 +992,7 @@ public:
      * Calculate derivatives for species destruction rates with respect to species
      * mole fractions at constant temperature, pressure and molar concentration.
      *
-     * The method returns a matrix with nTotalSpecies rows and nTotalSpecies columns.
+     * The method returns a square matrix with nTotalSpecies() rows and columns.
      * For a derivative with respect to @f$ X_i @f$, all other @f$ X_j @f$ are held
      * constant, rather than enforcing @f$ \sum X_j = 1 @f$.
      *
@@ -1006,7 +1006,7 @@ public:
      * concentration at constant temperature, pressure, and concentration of all other
      * species.
      *
-     * The method returns a matrix with nTotalSpecies rows and nTotalSpecies columns.
+     * The method returns a square matrix with nTotalSpecies() rows and columns.
      * For a derivative with respect to @f$ c_i @f$, all other @f$ c_j @f$ are held
      * constant.
      *
@@ -1020,21 +1020,21 @@ public:
     /**
      * Calculate derivatives for species net production rates with respect to
      * temperature at constant pressure, molar concentration and mole fractions.
-     * @param[out] dwdot  Output vector of derivatives. Length: m_kk.
+     * @param[out] dwdot  Output vector of derivatives. Length: #m_kk.
      */
     void getNetProductionRates_ddT(double* dwdot);
 
     /**
      * Calculate derivatives for species net production rates with respect to pressure
      * at constant temperature, molar concentration and mole fractions.
-     * @param[out] dwdot  Output vector of derivatives. Length: m_kk.
+     * @param[out] dwdot  Output vector of derivatives. Length: #m_kk.
      */
     void getNetProductionRates_ddP(double* dwdot);
 
     /**
      * Calculate derivatives for species net production rates with respect to molar
      * concentration at constant temperature, pressure and mole fractions.
-     * @param[out] dwdot  Output vector of derivatives. Length: m_kk.
+     * @param[out] dwdot  Output vector of derivatives. Length: #m_kk.
      *
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
@@ -1045,9 +1045,9 @@ public:
      * Calculate derivatives for species net production rates with respect to species
      * mole fractions at constant temperature, pressure and molar concentration.
      *
-     * The method returns a matrix with nTotalSpecies rows and nTotalSpecies columns.
-     * For a derivative with respect to @f$ X_i @f$, all other @f$ X_j @f$ are held constant,
-     * rather than enforcing @f$ \sum X_j = 1 @f$.
+     * The method returns a square matrix with nTotalSpecies() rows and columns.
+     * For a derivative with respect to @f$ X_i @f$, all other @f$ X_j @f$ are held
+     * constant, rather than enforcing @f$ \sum X_j = 1 @f$.
      *
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
@@ -1059,7 +1059,7 @@ public:
      * concentration at constant temperature, pressure, and concentration of all other
      * species.
      *
-     * The method returns a matrix with nTotalSpecies rows and nTotalSpecies columns.
+     * The method returns a square matrix with nTotalSpecies() rows and columns.
      * For a derivative with respect to @f$ c_i @f$, all other @f$ c_j @f$ are held
      * constant.
      *
