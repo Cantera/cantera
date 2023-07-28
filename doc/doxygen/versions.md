@@ -4,8 +4,9 @@
 > interface documentation, refer to
 > [cantera.org](https://cantera.org/documentation/index.html#need-something-else).
 
-Previous versions of the **%Cantera Developer API**:
+**%Cantera Developer API** versions:
 
+* [dev/latest](https://cantera.org/documentation/dev/doxygen/html/index.html) (unstable)
 * [v2.6.0](https://cantera.org/documentation/docs-2.6/doxygen/html/modules.html)
 * [v2.5.1](https://cantera.org/documentation/docs-2.5/doxygen/html/modules.html)
 * [v2.4.0](https://cantera.org/documentation/docs-2.4/doxygen/html/modules.html)
