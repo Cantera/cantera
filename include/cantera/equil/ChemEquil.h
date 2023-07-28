@@ -238,7 +238,10 @@ protected:
      * Given a vector of dimensionless element abundances, this routine
      * calculates the moles of the elements and the moles of the species.
      *
-     * @param[in] x = current dimensionless element potentials..
+     * @param s ThermoPhase object
+     * @param[in] x current dimensionless element potentials
+     * @param[in] Xmol_i_calc Mole fractions of the species
+     * @param[in] pressureConst Pressure
      */
     double calcEmoles(ThermoPhase& s, vector_fp& x,
                       const double& n_t, const vector_fp& Xmol_i_calc,
