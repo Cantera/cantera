@@ -12,10 +12,8 @@
 #include "cantera/kinetics/InterfaceKinetics.h"
 #include "cantera/numerics/DenseMatrix.h"
 
-//! @addtogroup surfSolverGroup
-//! @{
-
 //! @defgroup solvesp_methods Surface Problem Solver Methods
+//! @ingroup surfSolverGroup
 //! @{
 
 //! This assumes that the initial guess supplied to the routine is far from
@@ -47,6 +45,7 @@ const int SFLUX_TRANSIENT = 4;
 //! @defgroup solvesp_bulkFunc Surface Problem Bulk Phase Mode
 //! Functionality expected from the bulk phase. This changes the equations
 //! that will be used to solve for the bulk mole fractions.
+//! @ingroup surfSolverGroup
 //! @{
 
 //! Deposition of a bulk phase is to be expected. Bulk mole fractions are
@@ -61,6 +60,9 @@ const int BULK_ETCH = 2;
 
 namespace Cantera
 {
+
+//! @addtogroup surfSolverGroup
+//! @{
 
 //! Method to solve a pseudo steady state surface problem
 /*!
