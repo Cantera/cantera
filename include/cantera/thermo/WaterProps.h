@@ -26,17 +26,17 @@ class PDSS_Water;
  *
  * ### Treatment of the phase potential and the electrochemical potential of a species
  *
- * The electrochemical potential of species \f$k\f$ in a phase \f$p\f$, \f$ \zeta_k \f$,
+ * The electrochemical potential of species @f$k@f$ in a phase @f$p@f$, @f$ \zeta_k @f$,
  * is related to the chemical potential via the following equation,
  *
- * \f[
+ * @f[
  *            \zeta_{k}(T,P) = \mu_{k}(T,P) + z_k \phi_p
- * \f]
+ * @f]
  *
- * where  \f$ \nu_k \f$ is the charge of species \f$k\f$, and \f$ \phi_p \f$ is
- * the electric potential of phase \f$p\f$.
+ * where  @f$ \nu_k @f$ is the charge of species @f$k@f$, and @f$ \phi_p @f$ is
+ * the electric potential of phase @f$p@f$.
  *
- * The potential  \f$ \phi_p \f$ is tracked and internally stored within the
+ * The potential  @f$ \phi_p @f$ is tracked and internally stored within the
  * base ThermoPhase object. It constitutes a specification of the internal state
  * of the phase; it's the third state variable, the first two being temperature
  * and density (or, pressure, for incompressible equations of state). It may be
@@ -46,9 +46,9 @@ class PDSS_Water;
  * Note, the overall electrochemical potential of a phase may not be changed
  * by the potential because many phases enforce charge neutrality:
  *
- * \f[
+ * @f[
  *            0 = \sum_k z_k X_k
- * \f]
+ * @f]
  *
  * Whether charge neutrality is necessary for a phase is also specified within
  * the ThermoPhase object, by the function call
@@ -57,7 +57,7 @@ class PDSS_Water;
  * such as DebyeHuckel and HMWSoln for the proper specification of the chemical
  * potentials.
  *
- * This equation, when applied to the \f$ \zeta_k \f$ equation described
+ * This equation, when applied to the @f$ \zeta_k @f$ equation described
  * above, results in a zero net change in the effective Gibbs free energy of
  * the phase. However, specific charged species in the phase may increase or
  * decrease their electrochemical potentials, which will have an effect on
@@ -176,10 +176,10 @@ public:
      * And, therefore, most be recalculated whenever T or P changes. The units
      * returned by this expression are sqrt(kg/gmol).
      *
-     * \f[
+     * @f[
      *   A_{Debye} = \frac{1}{8 \pi} \sqrt{\frac{2 N_{Avog} \rho_w}{1000}}
      *                     {\left(\frac{e^2}{\epsilon k_{boltz} T}\right)}^{\frac{3}{2}}
-     * \f]
+     * @f]
      *
      * Nominal value at 25C and 1atm = 1.172576 sqrt(kg/gmol).
      *

@@ -20,16 +20,16 @@ using Cantera::npos;
 
 /**
  * This class solves the Blasius boundary value problem on the domain (0,L):
- * \f[
+ * @f[
  *             \frac{d\zeta}{dz} = u.
- * \f]
- * \f[
+ * @f]
+ * @f[
  *             \frac{d^2u}{dz^2} + 0.5\zeta \frac{du}{dz} = 0.
- * \f]
+ * @f]
  * with boundary conditions
- * \f[
+ * @f[
  * \zeta(0) = 0, u(0) = 0, u(L) = 1.
- * \f]
+ * @f]
  * Note that this is formulated as a system of two equations, with maximum
  * order of 2, rather than as a single third-order boundary value problem.
  * For reasons having to do with the band structure of the Jacobian, no

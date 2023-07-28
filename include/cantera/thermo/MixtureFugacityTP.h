@@ -128,7 +128,7 @@ public:
     //! Get the array of non-dimensional species chemical potentials
     //! These are partial molar Gibbs free energies.
     /*!
-     * \f$ \mu_k / \hat R T \f$.
+     * @f$ \mu_k / \hat R T @f$.
      * Units: unitless
      *
      * We close the loop on this function, here, calling getChemPotentials() and
@@ -151,8 +151,8 @@ public:
 
     //! Get the array of chemical potentials at unit activity.
     /*!
-     * These are the standard state chemical potentials \f$ \mu^0_k(T,P)
-     * \f$. The values are evaluated at the current temperature and pressure.
+     * These are the standard state chemical potentials @f$ \mu^0_k(T,P)
+     * @f$. The values are evaluated at the current temperature and pressure.
      *
      * For all objects with the Mixture Fugacity approximation, we define the
      * standard state as an ideal gas at the current temperature and pressure
@@ -217,9 +217,9 @@ public:
      * standard state as an ideal gas at the current temperature and pressure
      * of the solution.
      *
-     * \f[
+     * @f[
      *  u^{ss}_k(T,P) = h^{ss}_k(T)  - P * V^{ss}_k
-     * \f]
+     * @f]
      *
      * @param urt    Output vector of nondimensional standard state internal
      *               energies. length = m_kk.
@@ -342,9 +342,9 @@ protected:
 
     //!  Calculate the value of z
     /*!
-     *  \f[
+     *  @f[
      *        z = \frac{P v}{R T}
-     *  \f]
+     *  @f]
      *
      *  returns the value of z
      */

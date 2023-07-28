@@ -76,9 +76,9 @@ class WaterProps;
  * #Cantera::WaterPropsIAPWS.
  *
  * The standard states for solutes are on the unit molality basis. Therefore, in
- * the documentation below, the normal \f$ o \f$ superscript is replaced with
- * the \f$ \triangle \f$ symbol. The reference state symbol is now
- * \f$ \triangle, ref \f$.
+ * the documentation below, the normal @f$ o @f$ superscript is replaced with
+ * the @f$ \triangle @f$ symbol. The reference state symbol is now
+ * @f$ \triangle, ref @f$.
  *
  * It is assumed that the reference state thermodynamics may be obtained by a
  * pointer to a populated species thermodynamic property manager class (see
@@ -91,26 +91,26 @@ class WaterProps;
  *
  * For these incompressible, standard states, the molar internal energy is
  * independent of pressure. Since the thermodynamic properties are specified by
- * giving the standard-state enthalpy, the term \f$ P_0 \hat v\f$ is subtracted
+ * giving the standard-state enthalpy, the term @f$ P_0 \hat v@f$ is subtracted
  * from the specified molar enthalpy to compute the molar internal energy. The
  * entropy is assumed to be independent of the pressure.
  *
  * The enthalpy function is given by the following relation.
  *
- * \f[
+ * @f[
  *    h^\triangle_k(T,P) = h^{\triangle,ref}_k(T)
  *        + \tilde{v}_k \left( P - P_{ref} \right)
- * \f]
+ * @f]
  *
  * For an incompressible, stoichiometric substance, the molar internal energy is
  * independent of pressure. Since the thermodynamic properties are specified by
- * giving the standard-state enthalpy, the term \f$ P_{ref} \tilde v\f$ is
+ * giving the standard-state enthalpy, the term @f$ P_{ref} \tilde v@f$ is
  * subtracted from the specified reference molar enthalpy to compute the molar
  * internal energy.
  *
- * \f[
+ * @f[
  *      u^\triangle_k(T,P) = h^{\triangle,ref}_k(T) - P_{ref} \tilde{v}_k
- * \f]
+ * @f]
  *
  * The solute standard state heat capacity and entropy are independent of
  * pressure. The solute standard state Gibbs free energy is obtained from the
@@ -125,18 +125,18 @@ class WaterProps;
  *
  * ## Specification of Solution Thermodynamic Properties
  *
- * Chemical potentials of the solutes, \f$ \mu_k \f$, and the solvent, \f$ \mu_o
- * \f$, which are based on the molality form, have the following general format:
+ * Chemical potentials of the solutes, @f$ \mu_k @f$, and the solvent, @f$ \mu_o
+ * @f$, which are based on the molality form, have the following general format:
  *
- * \f[
+ * @f[
  *    \mu_k = \mu^{\triangle}_k(T,P) + R T ln(\gamma_k^{\triangle} \frac{m_k}{m^\triangle})
- * \f]
- * \f[
+ * @f]
+ * @f[
  *    \mu_o = \mu^o_o(T,P) + RT ln(a_o)
- * \f]
+ * @f]
  *
- * where \f$ \gamma_k^{\triangle} \f$ is the molality based activity coefficient
- * for species \f$k\f$.
+ * where @f$ \gamma_k^{\triangle} @f$ is the molality based activity coefficient
+ * for species @f$k@f$.
  *
  * Individual activity coefficients of ions can not be independently measured.
  * Instead, only binary pairs forming electroneutral solutions can be measured.
@@ -150,13 +150,13 @@ class WaterProps;
  * ### Ionic Strength
  *
  * Most of the parameterizations within the model use the ionic strength as a
- * key variable. The ionic strength, \f$ I\f$ is defined as follows
+ * key variable. The ionic strength, @f$ I@f$ is defined as follows
  *
- * \f[
+ * @f[
  *    I = \frac{1}{2} \sum_k{m_k  z_k^2}
- * \f]
+ * @f]
  *
- * \f$ m_k \f$ is the molality of the kth species. \f$ z_k \f$ is the charge of
+ * @f$ m_k @f$ is the molality of the kth species. @f$ z_k @f$ is the charge of
  * the kth species. Note, the ionic strength is a defined units quantity. The
  * molality has defined units of gmol kg-1, and therefore the ionic strength has
  * units of sqrt(gmol/kg).
@@ -164,19 +164,19 @@ class WaterProps;
  * ### Specification of the Excess Gibbs Free Energy
  *
  * Pitzer's formulation may best be represented as a specification of the excess
- * Gibbs free energy, \f$ G^{ex} \f$, defined as the deviation of the total
+ * Gibbs free energy, @f$ G^{ex} @f$, defined as the deviation of the total
  * Gibbs free energy from that of an ideal molal solution.
- * \f[
+ * @f[
  *     G = G^{id} + G^{ex}
- * \f]
+ * @f]
  *
  * The ideal molal solution contribution, not equal to an ideal solution
  * contribution and in fact containing a singularity at the zero solvent mole
  * fraction limit, is given below.
- * \f[
+ * @f[
  *     G^{id} = n_o \mu^o_o + \sum_{k\ne o} n_k \mu_k^{\triangle}
  *           + \tilde{M}_o n_o ( RT (\sum{m_i(\ln(m_i)-1)}))
- * \f]
+ * @f]
  *
  * From the excess Gibbs free energy formulation, the activity coefficient
  * expression and the osmotic coefficient expression for the solvent may be
@@ -186,7 +186,7 @@ class WaterProps;
  * Pitzer employs the following general expression for the excess Gibbs free
  * energy
  *
- *  \f[
+ *  @f[
  *    \begin{array}{cclc}
  *     \frac{G^{ex}}{\tilde{M}_o  n_o RT} &= &
  *          \left( \frac{4A_{Debye}I}{3b} \right) \ln(1 + b \sqrt{I})
@@ -200,18 +200,18 @@ class WaterProps;
  *        + 2 \sum_{n < n'} \sum m_n m_{n'} \lambda_{n{n'}}
  *        +  \sum_n m^2_n \lambda_{nn}
  *    \end{array}
- *  \f]
+ *  @f]
  *
  * *a* is a subscript over all anions, *c* is a subscript extending over all
  * cations, and  *i* is a subscript that extends over all anions and cations.
  * *n* is a subscript that extends only over neutral solute molecules. The
  * second line contains cross terms where cations affect cations and/or
  * cation/anion pairs, and anions affect anions or cation/anion pairs. Note part
- * of the coefficients, \f$ \Phi_{c{c'}} \f$ and  \f$ \Phi_{a{a'}} \f$ stem from
+ * of the coefficients, @f$ \Phi_{c{c'}} @f$ and  @f$ \Phi_{a{a'}} @f$ stem from
  * the theory of unsymmetrical mixing of electrolytes with different charges.
  * This theory depends on the total ionic strength of the solution, and
- * therefore, \f$ \Phi_{c{c'}} \f$ and  \f$ \Phi_{a{a'}} \f$  will depend on
- * *I*, the ionic strength.  \f$ B_{ca}\f$ is a strong function of the
+ * therefore, @f$ \Phi_{c{c'}} @f$ and  @f$ \Phi_{a{a'}} @f$  will depend on
+ * *I*, the ionic strength.  @f$ B_{ca}@f$ is a strong function of the
  * total ionic strength, *I*, of the electrolyte. The rest of the coefficients
  * are assumed to be independent of the molalities or ionic strengths. However,
  * all coefficients are potentially functions of the temperature and pressure
@@ -220,71 +220,71 @@ class WaterProps;
  * *A* is the Debye-Huckel constant. Its specification is described in its
  * own section below.
  *
- * \f$ I\f$ is the ionic strength of the solution, and is given by:
+ * @f$ I@f$ is the ionic strength of the solution, and is given by:
  *
- * \f[
+ * @f[
  *     I = \frac{1}{2} \sum_k{m_k  z_k^2}
- * \f]
+ * @f]
  *
  * In contrast to several other Debye-Huckel implementations (see @ref
- * DebyeHuckel), the parameter \f$ b\f$ in the above equation is a constant that
+ * DebyeHuckel), the parameter @f$ b @f$ in the above equation is a constant that
  * does not vary with respect to ion identity. This is an important
  * simplification as it avoids troubles with satisfaction of the Gibbs-Duhem
  * analysis.
  *
- * The function \f$ Z \f$ is given by
+ * The function @f$ Z @f$ is given by
  *
- * \f[
+ * @f[
  *     Z = \sum_i m_i \left| z_i \right|
- * \f]
+ * @f]
  *
- * The value of \f$ B_{ca}\f$ is given by the following function
+ * The value of @f$ B_{ca}@f$ is given by the following function
  *
- * \f[
+ * @f[
  *     B_{ca} = \beta^{(0)}_{ca} + \beta^{(1)}_{ca} g(\alpha^{(1)}_{ca} \sqrt{I})
  *            + \beta^{(2)}_{ca} g(\alpha^{(2)}_{ca} \sqrt{I})
- * \f]
+ * @f]
  *
  * where
  *
- * \f[
+ * @f[
  *     g(x) = 2 \frac{(1 - (1 + x)\exp[-x])}{x^2}
- * \f]
+ * @f]
  *
- * The formulation for \f$ B_{ca}\f$ combined with the formulation of the Debye-
+ * The formulation for @f$ B_{ca}@f$ combined with the formulation of the Debye-
  * Huckel term in the eqn. for the excess Gibbs free energy stems essentially
  * from an empirical fit to the ionic strength dependent data based over a wide
- * sampling of binary electrolyte systems. \f$ C_{ca} \f$, \f$ \lambda_{nc} \f$,
- * \f$ \lambda_{na} \f$, \f$ \lambda_{nn} \f$, \f$ \Psi_{c{c'}a} \f$, \f$
- * \Psi_{a{a'}c} \f$ are experimentally derived coefficients that may have
+ * sampling of binary electrolyte systems. @f$ C_{ca} @f$, @f$ \lambda_{nc} @f$,
+ * @f$ \lambda_{na} @f$, @f$ \lambda_{nn} @f$, @f$ \Psi_{c{c'}a} @f$, @f$
+ * \Psi_{a{a'}c} @f$ are experimentally derived coefficients that may have
  * pressure and/or temperature dependencies.
  *
- * The \f$ \Phi_{c{c'}} \f$ and \f$ \Phi_{a{a'}} \f$ formulations are slightly
- * more complicated. \f$ b \f$ is a universal constant defined to be equal to
- * \f$ 1.2\ kg^{1/2}\ gmol^{-1/2} \f$. The exponential coefficient \f$
- * \alpha^{(1)}_{ca} \f$ is usually fixed at \f$ \alpha^{(1)}_{ca} = 2.0\
- * kg^{1/2} gmol^{-1/2}\f$ except for 2-2 electrolytes, while other parameters
- * were fit to experimental data. For 2-2 electrolytes, \f$ \alpha^{(1)}_{ca} =
- * 1.4\ kg^{1/2}\ gmol^{-1/2}\f$ is used in combination with either \f$
- * \alpha^{(2)}_{ca} = 12\ kg^{1/2}\ gmol^{-1/2}\f$ or \f$ \alpha^{(2)}_{ca} = k
- * A_\psi \f$, where *k* is a constant. For electrolytes other than 2-2
- * electrolytes the \f$ \beta^{(2)}_{ca} g(\alpha^{(2)}_{ca} \sqrt{I}) \f$  term
+ * The @f$ \Phi_{c{c'}} @f$ and @f$ \Phi_{a{a'}} @f$ formulations are slightly
+ * more complicated. @f$ b @f$ is a universal constant defined to be equal to
+ * @f$ 1.2\ kg^{1/2}\ gmol^{-1/2} @f$. The exponential coefficient @f$
+ * \alpha^{(1)}_{ca} @f$ is usually fixed at @f$ \alpha^{(1)}_{ca} = 2.0\
+ * kg^{1/2} gmol^{-1/2}@f$ except for 2-2 electrolytes, while other parameters
+ * were fit to experimental data. For 2-2 electrolytes, @f$ \alpha^{(1)}_{ca} =
+ * 1.4\ kg^{1/2}\ gmol^{-1/2}@f$ is used in combination with either @f$
+ * \alpha^{(2)}_{ca} = 12\ kg^{1/2}\ gmol^{-1/2}@f$ or @f$ \alpha^{(2)}_{ca} = k
+ * A_\psi @f$, where *k* is a constant. For electrolytes other than 2-2
+ * electrolytes the @f$ \beta^{(2)}_{ca} g(\alpha^{(2)}_{ca} \sqrt{I}) @f$  term
  * is not used in the fitting procedure; it is only used for divalent metal
  * solfates and other high-valence electrolytes which exhibit significant
  * association at low ionic strengths.
  *
- * The \f$ \beta^{(0)}_{ca} \f$, \f$ \beta^{(1)}_{ca}\f$, \f$ \beta^{(2)}_{ca}
- * \f$, and \f$ C_{ca} \f$ binary coefficients are referred to as ion-
+ * The @f$ \beta^{(0)}_{ca} @f$, @f$ \beta^{(1)}_{ca}@f$, @f$ \beta^{(2)}_{ca}
+ * @f$, and @f$ C_{ca} @f$ binary coefficients are referred to as ion-
  * interaction or Pitzer parameters. These Pitzer parameters may vary with
  * temperature and pressure but they do not depend on the ionic strength. Their
  * values and temperature derivatives of their values have been tabulated for a
  * range of electrolytes
  *
- * The \f$ \Phi_{c{c'}} \f$ and \f$ \Phi_{a{a'}} \f$ contributions, which
+ * The @f$ \Phi_{c{c'}} @f$ and @f$ \Phi_{a{a'}} @f$ contributions, which
  * capture cation-cation and anion-anion interactions, also have an ionic
  * strength dependence.
  *
- * Ternary contributions \f$ \Psi_{c{c'}a} \f$ and \f$ \Psi_{a{a'}c} \f$ have
+ * Ternary contributions @f$ \Psi_{c{c'}a} @f$ and @f$ \Psi_{a{a'}c} @f$ have
  * been measured also for some systems. The success of the Pitzer method lies in
  * its ability to model nonlinear activity coefficients of complex
  * multicomponent systems with just binary and minor ternary contributions,
@@ -296,9 +296,9 @@ class WaterProps;
  * the following derivative of the excess Gibbs Free Energy formulation
  * described above:
  *
- * \f[
+ * @f[
  *    \ln(\gamma_k^\triangle) = \frac{d\left( \frac{G^{ex}}{M_o n_o RT} \right)}{d(m_k)}\Bigg|_{n_i}
- * \f]
+ * @f]
  *
  * In the formulas below the following conventions are used. The subscript *M*
  * refers to a particular cation. The subscript X refers to a particular anion,
@@ -308,88 +308,88 @@ class WaterProps;
  *
  * The activity coefficient for a particular cation *M* is given by
  *
- * \f[
+ * @f[
  *     \ln(\gamma_M^\triangle) = -z_M^2(F) + \sum_a m_a \left( 2 B_{Ma} + Z C_{Ma} \right)
  *     + z_M   \left( \sum_a  \sum_c m_a m_c C_{ca} \right)
  *            + \sum_c m_c \left[ 2 \Phi_{Mc} + \sum_a m_a \Psi_{Mca} \right]
  *            + \sum_{a < a'} \sum m_a m_{a'} \Psi_{Ma{a'}}
  *            +  2 \sum_n m_n \lambda_{nM}
- * \f]
+ * @f]
  *
  * The activity coefficient for a particular anion *X* is given by
  *
- * \f[
+ * @f[
  *     \ln(\gamma_X^\triangle) = -z_X^2(F) + \sum_a m_c \left( 2 B_{cX} + Z C_{cX} \right)
  *     + \left|z_X \right|  \left( \sum_a  \sum_c m_a m_c C_{ca} \right)
  *            + \sum_a m_a \left[ 2 \Phi_{Xa} + \sum_c m_c \Psi_{cXa} \right]
  *            + \sum_{c < c'} \sum m_c m_{c'} \Psi_{c{c'}X}
  *            +  2 \sum_n m_n \lambda_{nM}
- * \f]
- * where the function \f$ F \f$ is given by
+ * @f]
+ * where the function @f$ F @f$ is given by
  *
- * \f[
+ * @f[
  *      F = - A_{\phi} \left[ \frac{\sqrt{I}}{1 + b \sqrt{I}}
  *                + \frac{2}{b} \ln{\left(1 + b\sqrt{I}\right)} \right]
  *                + \sum_a \sum_c m_a m_c B'_{ca}
  *                + \sum_{c < c'} \sum m_c m_{c'} \Phi'_{c{c'}}
  *                + \sum_{a < a'} \sum m_a m_{a'} \Phi'_{a{a'}}
- * \f]
+ * @f]
  *
- * We have employed the definition of \f$ A_{\phi} \f$, also used by Pitzer
+ * We have employed the definition of @f$ A_{\phi} @f$, also used by Pitzer
  * which is equal to
  *
- * \f[
+ * @f[
  *   A_{\phi} = \frac{A_{Debye}}{3}
- * \f]
+ * @f]
  *
- * In the above formulas, \f$ \Phi'_{c{c'}} \f$  and \f$ \Phi'_{a{a'}} \f$ are the
- * ionic strength derivatives of \f$ \Phi_{c{c'}} \f$  and \f$  \Phi_{a{a'}} \f$,
+ * In the above formulas, @f$ \Phi'_{c{c'}} @f$  and @f$ \Phi'_{a{a'}} @f$ are the
+ * ionic strength derivatives of @f$ \Phi_{c{c'}} @f$  and @f$  \Phi_{a{a'}} @f$,
  * respectively.
  *
- * The function \f$ B'_{MX} \f$ is defined as:
+ * The function @f$ B'_{MX} @f$ is defined as:
  *
- * \f[
+ * @f[
  *      B'_{MX} = \left( \frac{\beta^{(1)}_{MX} h(\alpha^{(1)}_{MX} \sqrt{I})}{I}  \right)
  *                \left( \frac{\beta^{(2)}_{MX} h(\alpha^{(2)}_{MX} \sqrt{I})}{I}  \right)
- * \f]
+ * @f]
  *
- * where \f$ h(x) \f$ is defined as
+ * where @f$ h(x) @f$ is defined as
  *
- * \f[
+ * @f[
  *     h(x) = g'(x) \frac{x}{2} =
  *      \frac{2\left(1 - \left(1 + x + \frac{x^2}{2} \right)\exp(-x) \right)}{x^2}
- * \f]
+ * @f]
  *
  * The activity coefficient for neutral species *N* is given by
  *
- * \f[
+ * @f[
  *     \ln(\gamma_N^\triangle) = 2 \left( \sum_i m_i \lambda_{iN}\right)
- * \f]
+ * @f]
  *
  * ### Activity of the Water Solvent
  *
- * The activity for the solvent water,\f$ a_o \f$, is not independent and must
+ * The activity for the solvent water,@f$ a_o @f$, is not independent and must
  * be determined either from the Gibbs-Duhem relation or from taking the
  * appropriate derivative of the same excess Gibbs free energy function as was
  * used to formulate the solvent activity coefficients. Pitzer's description
  * follows the later approach to derive a formula for the osmotic coefficient,
- * \f$ \phi \f$.
+ * @f$ \phi @f$.
  *
- * \f[
+ * @f[
  *      \phi - 1 = - \left( \frac{d\left(\frac{G^{ex}}{RT} \right)}{d(\tilde{M}_o n_o)}  \right)
  *               \frac{1}{\sum_{i \ne 0} m_i}
- * \f]
+ * @f]
  *
  * The osmotic coefficient may be related to the water activity by the following relation:
  *
- * \f[
+ * @f[
  *      \phi = - \frac{1}{\tilde{M}_o \sum_{i \neq o} m_i} \ln(a_o)
  *          = - \frac{n_o}{\sum_{i \neq o}n_i} \ln(a_o)
- * \f]
+ * @f]
  *
  * The result is the following
  *
- * \f[
+ * @f[
  *   \begin{array}{ccclc}
  *     \phi - 1 &= &
  *         \frac{2}{\sum_{i \ne 0} m_i}
@@ -405,28 +405,28 @@ class WaterProps;
  *       + \frac{1}{2} \left( \sum_n m^2_n \lambda_{nn}\right)
  *         \bigg]
  *   \end{array}
- * \f]
+ * @f]
  *
  * It can be shown that the expression
  *
- * \f[
+ * @f[
  *    B^{\phi}_{ca} = \beta^{(0)}_{ca} + \beta^{(1)}_{ca} \exp{(- \alpha^{(1)}_{ca} \sqrt{I})}
  *            + \beta^{(2)}_{ca} \exp{(- \alpha^{(2)}_{ca} \sqrt{I} )}
- * \f]
+ * @f]
  *
- * is consistent with the expression \f$ B_{ca} \f$ in the \f$ G^{ex} \f$
- * expression after carrying out the derivative wrt \f$ m_M \f$.
+ * is consistent with the expression @f$ B_{ca} @f$ in the @f$ G^{ex} @f$
+ * expression after carrying out the derivative wrt @f$ m_M @f$.
  *
- * Also taking into account that  \f$ {\Phi}_{c{c'}} \f$ and
- * \f$ {\Phi}_{a{a'}} \f$ has an ionic strength dependence.
+ * Also taking into account that  @f$ {\Phi}_{c{c'}} @f$ and
+ * @f$ {\Phi}_{a{a'}} @f$ has an ionic strength dependence.
  *
- * \f[
+ * @f[
  *   \Phi^{\phi}_{c{c'}} = {\Phi}_{c{c'}} + I \frac{d{\Phi}_{c{c'}}}{dI}
- * \f]
+ * @f]
  *
- * \f[
+ * @f[
  *   \Phi^{\phi}_{a{a'}} = \Phi_{a{a'}} + I \frac{d\Phi_{a{a'}}}{dI}
- * \f]
+ * @f]
  *
  * ### Temperature and Pressure Dependence of the Pitzer Parameters
  *
@@ -445,30 +445,30 @@ class WaterProps;
  * form was used to fit the temperature dependence of the Pitzer Coefficients
  * for each cation - anion pair, M X.
  *
- * \f[
+ * @f[
  *     \beta^{(0)}_{MX} = q^{b0}_0
  *                      + q^{b0}_1 \left( T - T_r \right)
  *                      + q^{b0}_2 \left( T^2 - T_r^2 \right)
  *                      + q^{b0}_3 \left( \frac{1}{T} - \frac{1}{T_r}\right)
  *                      + q^{b0}_4 \ln \left( \frac{T}{T_r} \right)
- * \f]
- * \f[
+ * @f]
+ * @f[
  *     \beta^{(1)}_{MX} = q^{b1}_0  + q^{b1}_1 \left( T - T_r \right)
  *                      + q^{b1}_{2} \left( T^2 - T_r^2 \right)
- * \f]
- * \f[
+ * @f]
+ * @f[
  *    C^{\phi}_{MX} = q^{Cphi}_0
  *                  + q^{Cphi}_1 \left( T - T_r \right)
  *                  + q^{Cphi}_2 \left( T^2 - T_r^2 \right)
  *                  + q^{Cphi}_3 \left( \frac{1}{T} - \frac{1}{T_r}\right)
  *                  + q^{Cphi}_4 \ln \left( \frac{T}{T_r} \right)
- * \f]
+ * @f]
  *
  * where
  *
- * \f[
+ * @f[
  *     C^{\phi}_{MX} =  2 {\left| z_M z_X \right|}^{1/2} C_{MX}
- * \f]
+ * @f]
  *
  * In later papers, Pitzer has added additional temperature dependencies to all
  * of the other remaining second and third order virial coefficients. Some of
@@ -485,90 +485,90 @@ class WaterProps;
  *        and pressure
  *    - PIZTER_TEMP_COMPLEX1     - string name "COMPLEX" or "COMPLEX1"
  *      - Uses the full temperature dependence for the
- *        \f$\beta^{(0)}_{MX} \f$ (5 coeffs),
- *        the  \f$\beta^{(1)}_{MX} \f$ (3 coeffs),
- *        and \f$ C^{\phi}_{MX} \f$ (5 coeffs) parameters described above.
+ *        @f$\beta^{(0)}_{MX} @f$ (5 coeffs),
+ *        the  @f$\beta^{(1)}_{MX} @f$ (3 coeffs),
+ *        and @f$ C^{\phi}_{MX} @f$ (5 coeffs) parameters described above.
  *    - PITZER_TEMP_LINEAR        - string name "LINEAR"
  *      - Uses just the temperature dependence for the
- *        \f$\beta^{(0)}_{MX} \f$, the \f$\beta^{(1)}_{MX} \f$,
- *        and \f$ C^{\phi}_{MX} \f$ coefficients described above.
+ *        @f$\beta^{(0)}_{MX} @f$, the @f$\beta^{(1)}_{MX} @f$,
+ *        and @f$ C^{\phi}_{MX} @f$ coefficients described above.
  *        There are 2 coefficients for each term.
  *
  * The specification of the binary interaction between a cation and an anion is
- * given by the coefficients, \f$ B_{MX}\f$ and \f$ C_{MX}\f$ The specification
- * of \f$ B_{MX}\f$ is a function of \f$\beta^{(0)}_{MX} \f$,
- * \f$\beta^{(1)}_{MX} \f$, \f$\beta^{(2)}_{MX} \f$, \f$\alpha^{(1)}_{MX} \f$,
- * and \f$\alpha^{(2)}_{MX} \f$. \f$ C_{MX}\f$ is calculated from
- * \f$C^{\phi}_{MX} \f$ from the formula above.
+ * given by the coefficients, @f$ B_{MX}@f$ and @f$ C_{MX}@f$ The specification
+ * of @f$ B_{MX}@f$ is a function of @f$\beta^{(0)}_{MX} @f$,
+ * @f$\beta^{(1)}_{MX} @f$, @f$\beta^{(2)}_{MX} @f$, @f$\alpha^{(1)}_{MX} @f$,
+ * and @f$\alpha^{(2)}_{MX} @f$. @f$ C_{MX}@f$ is calculated from
+ * @f$C^{\phi}_{MX} @f$ from the formula above.
  *
- * The parameters for \f$ \beta^{(0)}\f$ fit the following equation:
+ * The parameters for @f$ \beta^{(0)}@f$ fit the following equation:
  *
- * \f[
+ * @f[
  *     \beta^{(0)} = q_0^{{\beta}0} + q_1^{{\beta}0} \left( T - T_r \right)
  *            + q_2^{{\beta}0} \left( T^2 - T_r^2 \right)
  *            + q_3^{{\beta}0} \left( \frac{1}{T} - \frac{1}{T_r} \right)
  *            + q_4^{{\beta}0} \ln \left( \frac{T}{T_r} \right)
- * \f]
+ * @f]
  *
  * This same `COMPLEX1` temperature dependence given above is used for the
  * following parameters:
- * \f$ \beta^{(0)}_{MX} \f$, \f$ \beta^{(1)}_{MX} \f$,
- * \f$ \beta^{(2)}_{MX} \f$, \f$ \Theta_{cc'} \f$, \f$\Theta_{aa'} \f$,
- * \f$ \Psi_{c{c'}a} \f$ and \f$ \Psi_{ca{a'}} \f$.
+ * @f$ \beta^{(0)}_{MX} @f$, @f$ \beta^{(1)}_{MX} @f$,
+ * @f$ \beta^{(2)}_{MX} @f$, @f$ \Theta_{cc'} @f$, @f$\Theta_{aa'} @f$,
+ * @f$ \Psi_{c{c'}a} @f$ and @f$ \Psi_{ca{a'}} @f$.
  *
  * ### Like-Charged Binary Ion Parameters and the Mixing Parameters
  *
- * The previous section contained the functions, \f$ \Phi_{c{c'}} \f$,
- * \f$ \Phi_{a{a'}} \f$ and their derivatives wrt the ionic strength, \f$
- * \Phi'_{c{c'}} \f$ and \f$ \Phi'_{a{a'}} \f$. Part of these terms come from
+ * The previous section contained the functions, @f$ \Phi_{c{c'}} @f$,
+ * @f$ \Phi_{a{a'}} @f$ and their derivatives wrt the ionic strength, @f$
+ * \Phi'_{c{c'}} @f$ and @f$ \Phi'_{a{a'}} @f$. Part of these terms come from
  * theory.
  *
  * Since like charged ions repel each other and are generally not near each
  * other, the virial coefficients for same-charged ions are small. However,
  * Pitzer doesn't ignore these in his formulation. Relatively larger and longer
  * range terms between like-charged ions exist however, which appear only for
- * unsymmetrical mixing of same-sign charged ions with different charges. \f$
- * \Phi_{ij} \f$, where \f$ ij \f$ is either \f$ a{a'} \f$ or \f$ c{c'} \f$ is
+ * unsymmetrical mixing of same-sign charged ions with different charges. @f$
+ * \Phi_{ij} @f$, where @f$ ij @f$ is either @f$ a{a'} @f$ or @f$ c{c'} @f$ is
  * given by
  *
- * \f[
+ * @f[
  *     {\Phi}_{ij} = \Theta_{ij} + \,^E \Theta_{ij}(I)
- * \f]
+ * @f]
  *
- * \f$ \Theta_{ij} \f$ is the small virial coefficient expansion term. Dependent
+ * @f$ \Theta_{ij} @f$ is the small virial coefficient expansion term. Dependent
  * in general on temperature and pressure, its ionic strength dependence is
- * ignored in Pitzer's approach. \f$ \,^E\Theta_{ij}(I) \f$ accounts for the
+ * ignored in Pitzer's approach. @f$ \,^E\Theta_{ij}(I) @f$ accounts for the
  * electrostatic unsymmetrical mixing effects and is dependent only on the
  * charges of the ions i, j, the total ionic strength and on the dielectric
  * constant and density of the solvent. This seems to be a relatively well-
  * documented part of the theory. They theory below comes from Pitzer summation
  * (Pitzer) in the appendix. It's also mentioned in Bethke's book (Bethke), and
- * the equations are summarized in Harvie & Weare (1980). Within the code, \f$
- * \,^E\Theta_{ij}(I) \f$ is evaluated according to the algorithm described in
+ * the equations are summarized in Harvie & Weare (1980). Within the code, @f$
+ * \,^E\Theta_{ij}(I) @f$ is evaluated according to the algorithm described in
  * Appendix B [Pitzer] as
  *
- * \f[
+ * @f[
  *    \,^E\Theta_{ij}(I) = \left( \frac{z_i z_j}{4I} \right)
  *       \left( J(x_{ij})  - \frac{1}{2} J(x_{ii})
  *                         - \frac{1}{2} J(x_{jj})  \right)
- * \f]
+ * @f]
  *
- * where \f$ x_{ij} = 6 z_i z_j A_{\phi} \sqrt{I} \f$ and
+ * where @f$ x_{ij} = 6 z_i z_j A_{\phi} \sqrt{I} @f$ and
  *
- *  \f[
+ *  @f[
  *     J(x) = \frac{1}{x} \int_0^{\infty}{\left( 1 + q +
  *            \frac{1}{2} q^2 - e^q \right) y^2 dy}
- *  \f]
+ *  @f]
  *
- * and \f$ q = - (\frac{x}{y}) e^{-y} \f$. \f$ J(x) \f$ is evaluated by
+ * and @f$ q = - (\frac{x}{y}) e^{-y} @f$. @f$ J(x) @f$ is evaluated by
  * numerical integration.
  *
- * The \f$  \Theta_{ij} \f$ term is a constant value, specified for pair of cations
+ * The @f$  \Theta_{ij} @f$ term is a constant value, specified for pair of cations
  * or a pair of anions.
  *
  * ### Ternary Pitzer Parameters
  *
- * The \f$  \Psi_{c{c'}a} \f$ and \f$  \Psi_{ca{a'}} \f$ terms represent ternary
+ * The @f$  \Psi_{c{c'}a} @f$ and @f$  \Psi_{ca{a'}} @f$ terms represent ternary
  * interactions between two cations and an anion and two anions and a cation,
  * respectively. In Pitzer's implementation these terms are usually small in
  * absolute size.
@@ -576,7 +576,7 @@ class WaterProps;
  * ### Treatment of Neutral Species
  *
  * Binary virial-coefficient-like interactions between two neutral species may
- * be specified in the \f$ \lambda_{mn} \f$ terms that appear in the formulas
+ * be specified in the @f$ \lambda_{mn} @f$ terms that appear in the formulas
  * above. Currently these interactions are independent of pressure and ionic strength.
  * Also, currently, the neutrality of the species are not checked. Therefore, this
  * interaction may involve charged species in the solution as well.
@@ -587,44 +587,44 @@ class WaterProps;
  *
  * ### Specification of the Debye-Huckel Constant
  *
- * In the equations above, the formula for  \f$  A_{Debye} \f$ is needed. The
+ * In the equations above, the formula for  @f$  A_{Debye} @f$ is needed. The
  * HMWSoln object uses two methods for specifying these quantities. The default
- * method is to assume that \f$  A_{Debye} \f$  is a constant, given in the
+ * method is to assume that @f$  A_{Debye} @f$  is a constant, given in the
  * initialization process, and stored in the member double, m_A_Debye.
  * Optionally, a full water treatment may be employed that makes
- * \f$ A_{Debye} \f$ a full function of *T* and *P* and creates nontrivial
+ * @f$ A_{Debye} @f$ a full function of *T* and *P* and creates nontrivial
  * entries for the excess heat capacity, enthalpy, and excess volumes of
  * solution.
  *
- * \f[
+ * @f[
  *     A_{Debye} = \frac{F e B_{Debye}}{8 \pi \epsilon R T} {\left( C_o \tilde{M}_o \right)}^{1/2}
- * \f]
+ * @f]
  * where
  *
- * \f[
+ * @f[
  *     B_{Debye} = \frac{F} {{(\frac{\epsilon R T}{2})}^{1/2}}
- * \f]
+ * @f]
  * Therefore:
- * \f[
+ * @f[
  *     A_{Debye} = \frac{1}{8 \pi}
  *                 {\left(\frac{2 N_a \rho_o}{1000}\right)}^{1/2}
  *                 {\left(\frac{N_a e^2}{\epsilon R T }\right)}^{3/2}
- * \f]
+ * @f]
  *
  * Units = sqrt(kg/gmol)
  *
  * where
- *  - \f$ N_a \f$ is Avogadro's number
- *  - \f$ \rho_w \f$ is the density of water
- *  - \f$ e \f$ is the electronic charge
- *  - \f$ \epsilon = K \epsilon_o \f$ is the permittivity of water
- *  - \f$ K \f$ is the dielectric constant of water,
- *  - \f$ \epsilon_o \f$ is the permittivity of free space.
- *  - \f$ \rho_o \f$ is the density of the solvent in its standard state.
+ *  - @f$ N_a @f$ is Avogadro's number
+ *  - @f$ \rho_w @f$ is the density of water
+ *  - @f$ e @f$ is the electronic charge
+ *  - @f$ \epsilon = K \epsilon_o @f$ is the permittivity of water
+ *  - @f$ K @f$ is the dielectric constant of water,
+ *  - @f$ \epsilon_o @f$ is the permittivity of free space.
+ *  - @f$ \rho_o @f$ is the density of the solvent in its standard state.
  *
  * Nominal value at 298 K and 1 atm = 1.172576 (kg/gmol)^(1/2)
  * based on:
- *  - \f$ \epsilon / \epsilon_0 \f$ = 78.54 (water at 25C)
+ *  - @f$ \epsilon / \epsilon_0 @f$ = 78.54 (water at 25C)
  *  - T = 298.15 K
  *  - B_Debye = 3.28640E9 (kg/gmol)^(1/2) / m
  *
@@ -635,55 +635,55 @@ class WaterProps;
  * molar enthalpies, entropies, and heat capacities are all non-trivial to
  * compute. The following formulas are used.
  *
- * The partial molar enthalpy, \f$ \bar s_k(T,P) \f$:
+ * The partial molar enthalpy, @f$ \bar s_k(T,P) @f$:
  *
- * \f[
+ * @f[
  * \bar h_k(T,P) = h^{\triangle}_k(T,P)
  *               - R T^2 \frac{d \ln(\gamma_k^\triangle)}{dT}
- * \f]
+ * @f]
  * The solvent partial molar enthalpy is equal to
- * \f[
+ * @f[
  * \bar h_o(T,P) = h^{o}_o(T,P) - R T^2 \frac{d \ln(a_o)}{dT}
  *       = h^{o}_o(T,P)
  *       + R T^2 (\sum_{k \neq o} m_k)  \tilde{M_o} (\frac{d \phi}{dT})
- * \f]
+ * @f]
  *
- * The partial molar entropy, \f$ \bar s_k(T,P) \f$:
+ * The partial molar entropy, @f$ \bar s_k(T,P) @f$:
  *
- * \f[
+ * @f[
  *     \bar s_k(T,P) =  s^{\triangle}_k(T,P)
  *             - R \ln( \gamma^{\triangle}_k \frac{m_k}{m^{\triangle}}))
  *                    - R T \frac{d \ln(\gamma^{\triangle}_k) }{dT}
- * \f]
- * \f[
+ * @f]
+ * @f[
  *      \bar s_o(T,P) = s^o_o(T,P) - R \ln(a_o)
  *                    - R T \frac{d \ln(a_o)}{dT}
- * \f]
+ * @f]
  *
- * The partial molar heat capacity, \f$ C_{p,k}(T,P)\f$:
+ * The partial molar heat capacity, @f$ C_{p,k}(T,P)@f$:
  *
- * \f[
+ * @f[
  *     \bar C_{p,k}(T,P) =  C^{\triangle}_{p,k}(T,P)
  *             - 2 R T \frac{d \ln( \gamma^{\triangle}_k)}{dT}
  *                    - R T^2 \frac{d^2 \ln(\gamma^{\triangle}_k) }{{dT}^2}
- * \f]
- * \f[
+ * @f]
+ * @f[
  *      \bar C_{p,o}(T,P) = C^o_{p,o}(T,P)
  *                   - 2 R T \frac{d \ln(a_o)}{dT}
  *                    - R T^2 \frac{d^2 \ln(a_o)}{{dT}^2}
- * \f]
+ * @f]
  *
  * The pressure dependence of the activity coefficients leads to non-zero terms
  * for the excess Volume of the solution. Therefore, the partial molar volumes
  * are functions of the pressure derivatives of the activity coefficients.
- * \f[
+ * @f[
  *     \bar V_k(T,P) =  V^{\triangle}_k(T,P)
  *                    + R T \frac{d \ln(\gamma^{\triangle}_k) }{dP}
- * \f]
- * \f[
+ * @f]
+ * @f[
  *      \bar V_o(T,P) = V^o_o(T,P)
  *                    + R T \frac{d \ln(a_o)}{dP}
- * \f]
+ * @f]
  *
  * The majority of work for these functions take place in the internal routines
  * that calculate the first and second derivatives of the log of the activity
@@ -707,70 +707,70 @@ class WaterProps;
  *
  * For example, a bulk-phase binary reaction between liquid solute species *j*
  * and *k*, producing a new liquid solute species *l* would have the following
- * equation for its rate of progress variable, \f$ R^1 \f$, which has units of
+ * equation for its rate of progress variable, @f$ R^1 @f$, which has units of
  * kmol m-3 s-1.
  *
- * \f[
+ * @f[
  *    R^1 = k^1 C_j^a C_k^a =  k^1 (C^o_o \tilde{M}_o a_j) (C^o_o \tilde{M}_o a_k)
- * \f]
+ * @f]
  *
  * where
  *
- * \f[
+ * @f[
  *    C_j^a = C^o_o \tilde{M}_o a_j \quad and \quad C_k^a = C^o_o \tilde{M}_o a_k
- * \f]
+ * @f]
  *
- * \f$ C_j^a \f$ is the activity concentration of species *j*, and
- * \f$ C_k^a \f$ is the activity concentration of species *k*. \f$ C^o_o \f$ is
- * the concentration of water at 298 K and 1 atm. \f$ \tilde{M}_o \f$ has units
+ * @f$ C_j^a @f$ is the activity concentration of species *j*, and
+ * @f$ C_k^a @f$ is the activity concentration of species *k*. @f$ C^o_o @f$ is
+ * the concentration of water at 298 K and 1 atm. @f$ \tilde{M}_o @f$ has units
  * of kg solvent per gmol solvent and is equal to
  *
- * \f[
+ * @f[
  *     \tilde{M}_o = \frac{M_o}{1000}
- * \f]
+ * @f]
  *
- * \f$ a_j \f$ is the activity of species *j* at the current temperature and
+ * @f$ a_j @f$ is the activity of species *j* at the current temperature and
  * pressure and concentration of the liquid phase is given by the molality based
  * activity coefficient multiplied by the molality of the jth species.
  *
- * \f[
+ * @f[
  *      a_j  =  \gamma_j^\triangle m_j = \gamma_j^\triangle \frac{n_j}{\tilde{M}_o n_o}
- * \f]
+ * @f]
  *
- * \f$k^1 \f$ has units of m^3/kmol/s.
+ * @f$k^1 @f$ has units of m^3/kmol/s.
  *
  * Therefore the generalized activity concentration of a solute species has the following form
  *
- * \f[
+ * @f[
  *      C_j^a = C^o_o \frac{\gamma_j^\triangle n_j}{n_o}
- * \f]
+ * @f]
  *
  * The generalized activity concentration of the solvent has the same units, but it's a simpler form
  *
- * \f[
+ * @f[
  *      C_o^a = C^o_o a_o
- * \f]
+ * @f]
  *
  * The reverse rate constant can then be obtained from the law of microscopic reversibility
  * and the equilibrium expression for the system.
  *
- * \f[
+ * @f[
  *      \frac{a_j a_k}{ a_l} = K^{o,1} = \exp(\frac{\mu^o_l - \mu^o_j - \mu^o_k}{R T} )
- * \f]
+ * @f]
  *
- * \f$ K^{o,1} \f$ is the dimensionless form of the equilibrium constant.
+ * @f$ K^{o,1} @f$ is the dimensionless form of the equilibrium constant.
  *
- * \f[
+ * @f[
  *       R^{-1} = k^{-1} C_l^a =  k^{-1} (C_o  \tilde{M}_o a_l)
- * \f]
+ * @f]
  *
  * where
  *
- * \f[
+ * @f[
  *       k^{-1} =  k^1 K^{o,1} C_o \tilde{M}_o
- * \f]
+ * @f]
  *
- * \f$ k^{-1} \f$ has units of 1/s.
+ * @f$ k^{-1} @f$ has units of 1/s.
  *
  * @ingroup thermoprops
  */
@@ -833,11 +833,11 @@ public:
      * Molar entropy of the solution. Units: J/kmol/K. For an ideal, constant
      * partial molar volume solution mixture with pure species phases which
      * exhibit zero volume expansivity:
-     * \f[
+     * @f[
      * \hat s(T, P, X_k) = \sum_k X_k \hat s^0_k(T)
      *      - \hat R  \sum_k X_k log(X_k)
-     * \f]
-     * The reference-state pure-species entropies \f$ \hat s^0_k(T,p_{ref}) \f$
+     * @f]
+     * The reference-state pure-species entropies @f$ \hat s^0_k(T,p_{ref}) @f$
      * are computed by the species thermodynamic property manager. The pure
      * species entropies are independent of temperature since the volume
      * expansivities are equal to zero.
@@ -878,12 +878,12 @@ protected:
      *
      * The formula for this is
      *
-     * \f[
+     * @f[
      * \rho = \frac{\sum_k{X_k W_k}}{\sum_k{X_k V_k}}
-     * \f]
+     * @f]
      *
-     * where \f$X_k\f$ are the mole fractions, \f$W_k\f$ are the molecular
-     * weights, and \f$V_k\f$ are the pure species molar volumes.
+     * where @f$X_k@f$ are the mole fractions, @f$W_k@f$ are the molecular
+     * weights, and @f$V_k@f$ are the pure species molar volumes.
      *
      * Note, the basis behind this formula is that in an ideal solution the
      * partial molar volumes are equal to the pure species molar volumes. We
@@ -899,17 +899,17 @@ public:
     //! @}
     //! @name Activities, Standard States, and Activity Concentrations
     //!
-    //! The activity \f$a_k\f$ of a species in solution is related to the
-    //! chemical potential by \f[ \mu_k = \mu_k^0(T) + \hat R T \log a_k. \f] The
-    //! quantity \f$\mu_k^0(T,P)\f$ is the chemical potential at unit activity,
+    //! The activity @f$a_k@f$ of a species in solution is related to the
+    //! chemical potential by @f[ \mu_k = \mu_k^0(T) + \hat R T \log a_k. @f] The
+    //! quantity @f$\mu_k^0(T,P)@f$ is the chemical potential at unit activity,
     //! which depends only on temperature and the pressure. Activity is assumed
     //! to be molality-based here.
     //! @{
 
     //! This method returns an array of generalized activity concentrations
     /*!
-     * The generalized activity concentrations, \f$ C_k^a\f$, are defined such
-     * that \f$ a_k = C^a_k / C^0_k, \f$ where \f$ C^0_k \f$ is a standard
+     * The generalized activity concentrations, @f$ C_k^a@f$, are defined such
+     * that @f$ a_k = C^a_k / C^0_k, @f$ where @f$ C^0_k @f$ is a standard
      * concentration defined below.  These generalized concentrations are used
      * by kinetics manager classes to compute the forward and reverse rates of
      * elementary reactions.
@@ -917,16 +917,16 @@ public:
      * The generalized activity concentration of a solute species has the
      * following form
      *
-     *  \f[
+     *  @f[
      *      C_j^a = C^o_o \frac{\gamma_j^\triangle n_j}{n_o}
-     *  \f]
+     *  @f]
      *
      * The generalized activity concentration of the solvent has the same units,
      * but it's a simpler form
      *
-     *  \f[
+     *  @f[
      *      C_o^a = C^o_o a_o
-     *  \f]
+     *  @f]
      *
      * @param c Array of generalized concentrations. The
      *          units are kmol m-3 for both the solvent and the solute species
@@ -935,7 +935,7 @@ public:
 
     //! Return the standard concentration for the kth species
     /*!
-     * The standard concentration \f$ C^0_k \f$ used to normalize the activity
+     * The standard concentration @f$ C^0_k @f$ used to normalize the activity
      * (that is, generalized) concentration for use
      *
      * We have set the standard concentration for all solute species in this
@@ -944,9 +944,9 @@ public:
      * solvent). The solvent standard concentration is just equal to its
      * standard state concentration.
      *
-     *   \f[
+     *   @f[
      *      C_j^0 = C^o_o \tilde{M}_o \quad and  C_o^0 = C^o_o
-     *   \f]
+     *   @f]
      *
      * The consequence of this is that the standard concentrations have unequal
      * units between the solvent and the solute. However, both the solvent and
@@ -960,52 +960,52 @@ public:
      *
      * For example, a bulk-phase binary reaction between liquid solute species
      * *j* and *k*, producing a new liquid solute species *l* would have the
-     * following equation for its rate of progress variable, \f$ R^1 \f$, which
+     * following equation for its rate of progress variable, @f$ R^1 @f$, which
      * has units of kmol m-3 s-1.
      *
-     * \f[
+     * @f[
      *    R^1 = k^1 C_j^a C_k^a =  k^1 (C^o_o \tilde{M}_o a_j) (C^o_o \tilde{M}_o a_k)
-     * \f]
+     * @f]
      *
      * where
      *
-     * \f[
+     * @f[
      *      C_j^a = C^o_o \tilde{M}_o a_j \quad and \quad C_k^a = C^o_o \tilde{M}_o a_k
-     * \f]
+     * @f]
      *
-     * \f$ C_j^a \f$ is the activity concentration of species *j*, and
-     * \f$ C_k^a \f$ is the activity concentration of species *k*. \f$ C^o_o \f$
-     * is the concentration of water at 298 K and 1 atm. \f$ \tilde{M}_o \f$ has
+     * @f$ C_j^a @f$ is the activity concentration of species *j*, and
+     * @f$ C_k^a @f$ is the activity concentration of species *k*. @f$ C^o_o @f$
+     * is the concentration of water at 298 K and 1 atm. @f$ \tilde{M}_o @f$ has
      * units of kg solvent per gmol solvent and is equal to
      *
-     * \f[
+     * @f[
      *     \tilde{M}_o = \frac{M_o}{1000}
-     * \f]
+     * @f]
      *
-     * \f$ a_j \f$ is
+     * @f$ a_j @f$ is
      *  the activity of species *j* at the current temperature and pressure
      *  and concentration of the liquid phase is given by the molality based
      *  activity coefficient multiplied by the molality of the jth species.
      *
-     * \f[
+     * @f[
      *      a_j  =  \gamma_j^\triangle m_j = \gamma_j^\triangle \frac{n_j}{\tilde{M}_o n_o}
-     * \f]
+     * @f]
      *
-     * \f$k^1 \f$ has units of m^3/kmol/s.
+     * @f$k^1 @f$ has units of m^3/kmol/s.
      *
      * Therefore the generalized activity concentration of a solute species has
      * the following form
      *
-     * \f[
+     * @f[
      *     C_j^a = C^o_o \frac{\gamma_j^\triangle n_j}{n_o}
-     * \f]
+     * @f]
      *
      * The generalized activity concentration of the solvent has the same units,
      * but it's a simpler form
      *
-     * \f[
+     * @f[
      *     C_o^a = C^o_o a_o
-     * \f]
+     * @f]
      *
      * @param k Optional parameter indicating the species. The default is to
      *         assume this refers to species 0.
@@ -1037,9 +1037,9 @@ public:
      * This function returns a vector of chemical potentials of the
      * species in solution.
      *
-     * \f[
+     * @f[
      *    \mu_k = \mu^{\triangle}_k(T,P) + R T ln(\gamma_k^{\triangle} m_k)
-     * \f]
+     * @f]
      *
      * @param mu  Output vector of species chemical
      *            potentials. Length: m_kk. Units: J/kmol
@@ -1053,16 +1053,16 @@ public:
      * state enthalpies modified by the derivative of the molality-based
      * activity coefficient wrt temperature
      *
-     *  \f[
+     *  @f[
      * \bar h_k(T,P) = h^{\triangle}_k(T,P)
      *               - R T^2 \frac{d \ln(\gamma_k^\triangle)}{dT}
-     * \f]
+     * @f]
      * The solvent partial molar enthalpy is equal to
-     *  \f[
+     *  @f[
      * \bar h_o(T,P) = h^{o}_o(T,P) - R T^2 \frac{d \ln(a_o)}{dT}
      *       = h^{o}_o(T,P)
      *       + R T^2 (\sum_{k \neq o} m_k)  \tilde{M_o} (\frac{d \phi}{dT})
-     * \f]
+     * @f]
      *
      * @param hbar    Output vector of species partial molar enthalpies.
      *                Length: m_kk. units are J/kmol.
@@ -1081,15 +1081,15 @@ public:
      * entropies plus the ideal solution contribution plus complicated functions
      * of the temperature derivative of the activity coefficients.
      *
-     *  \f[
+     *  @f[
      *     \bar s_k(T,P) =  s^{\triangle}_k(T,P)
      *             - R \ln( \gamma^{\triangle}_k \frac{m_k}{m^{\triangle}}))
      *                    - R T \frac{d \ln(\gamma^{\triangle}_k) }{dT}
-     * \f]
-     * \f[
+     * @f]
+     * @f[
      *      \bar s_o(T,P) = s^o_o(T,P) - R \ln(a_o)
      *                    - R T \frac{d \ln(a_o)}{dT}
-     * \f]
+     * @f]
      *
      *  @param sbar    Output vector of species partial molar entropies.
      *                 Length = m_kk. units are J/kmol/K.
@@ -1102,14 +1102,14 @@ public:
      * For this solution, the partial molar volumes are functions of the
      * pressure derivatives of the activity coefficients.
      *
-     * \f[
+     * @f[
      *     \bar V_k(T,P)  = V^{\triangle}_k(T,P)
      *                    + R T \frac{d \ln(\gamma^{\triangle}_k) }{dP}
-     * \f]
-     * \f[
+     * @f]
+     * @f[
      *      \bar V_o(T,P) = V^o_o(T,P)
      *                    + R T \frac{d \ln(a_o)}{dP}
-     * \f]
+     * @f]
      *
      * @param vbar   Output vector of species partial molar volumes.
      *               Length = m_kk. units are m^3/kmol.
@@ -1121,16 +1121,16 @@ public:
     /*!
      * The following formulas are implemented within the code.
      *
-     * \f[
+     * @f[
      *     \bar C_{p,k}(T,P) =  C^{\triangle}_{p,k}(T,P)
      *             - 2 R T \frac{d \ln( \gamma^{\triangle}_k)}{dT}
      *                    - R T^2 \frac{d^2 \ln(\gamma^{\triangle}_k) }{{dT}^2}
-     * \f]
-     * \f[
+     * @f]
+     * @f[
      *      \bar C_{p,o}(T,P) = C^o_{p,o}(T,P)
      *                   - 2 R T \frac{d \ln(a_o)}{dT}
      *                    - R T^2 \frac{d^2 \ln(a_o)}{{dT}^2}
-     * \f]
+     * @f]
      *
      * @param cpbar   Output vector of species partial molar heat capacities at
      *                constant pressure. Length = m_kk. units are J/kmol/K.

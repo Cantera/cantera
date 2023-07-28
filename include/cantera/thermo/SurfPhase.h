@@ -24,7 +24,7 @@ namespace Cantera
  * defined to occupy one or more sites. The surface species are assumed to be
  * independent, and thus the species form an ideal solution.
  *
- * The density of surface sites is given by the variable \f$ n_0 \f$,
+ * The density of surface sites is given by the variable @f$ n_0 @f$,
  * which has SI units of kmol m-2.
  *
  * ## Specification of Species Standard State Properties
@@ -40,9 +40,9 @@ namespace Cantera
  * Therefore, The standard state internal energy for species *k* is equal to the
  * enthalpy for species *k*.
  *
- * \f[
+ * @f[
  *      u^o_k = h^o_k
- * \f]
+ * @f]
  *
  * Also, the standard state chemical potentials, entropy, and heat capacities
  * are independent of pressure. The standard state Gibbs free energy is obtained
@@ -51,43 +51,43 @@ namespace Cantera
  * ## Specification of Solution Thermodynamic Properties
  *
  * The activity of species defined in the phase is given by
- * \f[
+ * @f[
  *      a_k = \theta_k
- * \f]
+ * @f]
  *
  * The chemical potential for species *k* is equal to
- * \f[
+ * @f[
  *      \mu_k(T,P) = \mu^o_k(T) + R T \log(\theta_k)
- * \f]
+ * @f]
  *
  * Pressure is defined as an independent variable in this phase. However, it has
  * no effect on any quantities, as the molar concentration is a constant.
  *
  * The internal energy for species k is equal to the enthalpy for species *k*
- * \f[
+ * @f[
  *      u_k = h_k
- * \f]
+ * @f]
  *
  * The entropy for the phase is given by the following relation, which is
  * independent of the pressure:
  *
- * \f[
+ * @f[
  *      s_k(T,P) = s^o_k(T) - R \log(\theta_k)
- * \f]
+ * @f]
  *
  * ## Application within Kinetics Managers
  *
- * The activity concentration,\f$  C^a_k \f$, used by the kinetics manager, is equal to
- * the actual concentration, \f$ C^s_k \f$, and is given by the following
+ * The activity concentration,@f$  C^a_k @f$, used by the kinetics manager, is equal to
+ * the actual concentration, @f$ C^s_k @f$, and is given by the following
  * expression.
- * \f[
+ * @f[
  *      C^a_k = C^s_k = \frac{\theta_k  n_0}{s_k}
- * \f]
+ * @f]
  *
  * The standard concentration for species *k* is:
- * \f[
+ * @f[
  *      C^0_k = \frac{n_0}{s_k}
- * \f]
+ * @f]
  *
  * An example phase definition is given in the
  * <a href="../../sphinx/html/yaml/phases.html#ideal-surface"> YAML API Reference</a>.
@@ -117,11 +117,11 @@ public:
     //! Return the Molar Enthalpy. Units: J/kmol.
     /*!
      * For an ideal solution,
-     * \f[
+     * @f[
      * \hat h(T,P) = \sum_k X_k \hat h^0_k(T),
-     * \f]
+     * @f]
      * and is a function only of temperature. The standard-state pure-species
-     * Enthalpies \f$ \hat h^0_k(T) \f$ are computed by the species
+     * Enthalpies @f$ \hat h^0_k(T) @f$ are computed by the species
      * thermodynamic property manager.
      *
      * \see MultiSpeciesThermo
@@ -137,9 +137,9 @@ public:
 
     //! Return the Molar Entropy. Units: J/kmol-K
     /**
-     * \f[
+     * @f[
      *  \hat s(T,P) = \sum_k X_k (\hat s^0_k(T) - R \log(\theta_k))
-     * \f]
+     * @f]
      */
     virtual doublereal entropy_mole() const;
 
@@ -155,21 +155,21 @@ public:
 
     //! Return a vector of activity concentrations for each species
     /*!
-     * For this phase the activity concentrations,\f$ C^a_k \f$, are defined to
-     * be equal to the actual concentrations, \f$ C^s_k \f$. Activity
+     * For this phase the activity concentrations,@f$ C^a_k @f$, are defined to
+     * be equal to the actual concentrations, @f$ C^s_k @f$. Activity
      * concentrations are
      *
-     * \f[
+     * @f[
      *            C^a_k = C^s_k = \frac{\theta_k  n_0}{s_k}
-     * \f]
+     * @f]
      *
-     * where \f$ \theta_k \f$ is the surface site fraction for species k,
-     * \f$ n_0 \f$ is the surface site density for the phase, and
-     * \f$ s_k \f$ is the surface size of species k.
+     * where @f$ \theta_k @f$ is the surface site fraction for species k,
+     * @f$ n_0 @f$ is the surface site density for the phase, and
+     * @f$ s_k @f$ is the surface size of species k.
      *
-     * \f$ C^a_k\f$ that are defined such that \f$ a_k = C^a_k / C^0_k, \f$
-     * where \f$ C^0_k \f$ is a standard concentration defined below and \f$ a_k
-     * \f$ are activities used in the thermodynamic functions.  These activity
+     * @f$ C^a_k@f$ that are defined such that @f$ a_k = C^a_k / C^0_k, @f$
+     * where @f$ C^0_k @f$ is a standard concentration defined below and @f$ a_k
+     * @f$ are activities used in the thermodynamic functions.  These activity
      * concentrations are used by kinetics manager classes to compute the
      * forward and reverse rates of elementary reactions. Note that they may or
      * may not have units of concentration --- they might be partial pressures,
@@ -181,15 +181,15 @@ public:
 
     //! Return the standard concentration for the kth species
     /*!
-     * The standard concentration \f$ C^0_k \f$ used to normalize the activity
+     * The standard concentration @f$ C^0_k @f$ used to normalize the activity
      * (that is, generalized) concentration. For this phase, the standard
      * concentration is species- specific
      *
-     * \f[
+     * @f[
      *            C^0_k = \frac{n_0}{s_k}
-     * \f]
+     * @f]
      *
-     * This definition implies that the activity is equal to \f$ \theta_k \f$.
+     * This definition implies that the activity is equal to @f$ \theta_k @f$.
      *
      * @param k Optional parameter indicating the species. The default
      *          is to assume this refers to species 0.

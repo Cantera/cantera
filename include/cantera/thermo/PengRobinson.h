@@ -49,56 +49,56 @@ public:
     /*!
      * Since the mass density, temperature, and mass fractions are stored,
      * this method uses these values to implement the
-     * mechanical equation of state \f$ P(T, \rho, Y_1, \dots, Y_K) \f$.
+     * mechanical equation of state @f$ P(T, \rho, Y_1, \dots, Y_K) @f$.
      *
-     * \f[
+     * @f[
      *    P = \frac{RT}{v-b_{mix}}
      *        - \frac{\left(\alpha a\right)_{mix}}{v^2 + 2b_{mix}v - b_{mix}^2}
-     * \f]
+     * @f]
      *
      * where:
      *
-     * \f[
+     * @f[
      *    \alpha = \left[ 1 + \kappa \left(1-T_r^{0.5}\right)\right]^2
-     * \f]
+     * @f]
      *
      *  and
      *
-     * \f[
+     * @f[
      *    \kappa = \left(0.37464 + 1.54226\omega - 0.26992\omega^2\right),
      *        \qquad \qquad \text{For } \omega <= 0.491 \\
      *
      *    \kappa = \left(0.379642 + 1.487503\omega - 0.164423\omega^2 + 0.016667\omega^3 \right),
      *        \qquad \text{For } \omega > 0.491
-     * \f]
+     * @f]
      *
-     * Coefficients \f$ a_{mix}, b_{mix} \f$ and \f$(a \alpha)_{mix}\f$ are calculated as
+     * Coefficients @f$ a_{mix}, b_{mix} @f$ and @f$(a \alpha)_{mix}@f$ are calculated as
      *
-     * \f[
+     * @f[
      *    a_{mix} = \sum_i \sum_j X_i X_j a_{i, j} = \sum_i \sum_j X_i X_j \sqrt{a_i a_j}
-     * \f]
+     * @f]
      *
-     * \f[
+     * @f[
      *    b_{mix} = \sum_i X_i b_i
-     * \f]
+     * @f]
      *
-     * \f[
+     * @f[
      *   {a \alpha}_{mix} = \sum_i \sum_j X_i X_j {a \alpha}_{i, j}
      *       = \sum_i \sum_j X_i X_j \sqrt{a_i a_j} \sqrt{\alpha_i \alpha_j}
-     * \f]
+     * @f]
      */
     virtual double pressure() const;
 
     //! @}
 
-    //! Returns the standard concentration \f$ C^0_k \f$, which is used to
+    //! Returns the standard concentration @f$ C^0_k @f$, which is used to
     //! normalize the generalized concentration.
     /*!
      * This is defined as the concentration by which the generalized
      * concentration is normalized to produce the activity.
      * The ideal gas mixture is considered as the standard or reference state here.
      * Since the activity for an ideal gas mixture is simply the mole fraction,
-     * for an ideal gas,  \f$ C^0_k = P/\hat R T \f$.
+     * for an ideal gas,  @f$ C^0_k = P/\hat R T @f$.
      *
      * @param k Optional parameter indicating the species. The default is to
      *          assume this refers to species 0.
@@ -136,7 +136,7 @@ public:
     //! Calculate species-specific critical temperature
     /*!
      *  The temperature dependent parameter in P-R EoS is calculated as
-     * \f[ T_{crit} = (0.0778 a)/(0.4572 b R) \f]
+     * @f[ T_{crit} = (0.0778 a)/(0.4572 b R) @f]
      *  Units: Kelvin
      *
      * @param a    species-specific coefficients used in P-R EoS
@@ -160,8 +160,8 @@ public:
     //! Set the pure fluid interaction parameters for a species
     /*!
      *  @param species   Name of the species
-     *  @param a         \f$a\f$ parameter in the Peng-Robinson model [Pa-m^6/kmol^2]
-     *  @param b         \f$a\f$ parameter in the Peng-Robinson model [m^3/kmol]
+     *  @param a         @f$a@f$ parameter in the Peng-Robinson model [Pa-m^6/kmol^2]
+     *  @param b         @f$a@f$ parameter in the Peng-Robinson model [m^3/kmol]
      *  @param w         acentric factor
      */
     void setSpeciesCoeffs(const std::string& species, double a, double b,
@@ -171,7 +171,7 @@ public:
     /*!
      *  @param species_i   Name of one species
      *  @param species_j   Name of the other species
-     *  @param a           \f$a\f$ parameter in the Peng-Robinson model [Pa-m^6/kmol^2]
+     *  @param a           @f$a@f$ parameter in the Peng-Robinson model [Pa-m^6/kmol^2]
      */
     void setBinaryCoeffs(const std::string& species_i,
                          const std::string& species_j, double a);
@@ -191,13 +191,13 @@ protected:
 
     // Special functions not inherited from MixtureFugacityTP
 
-    //! Calculate temperature derivative \f$d(a \alpha)/dT\f$
+    //! Calculate temperature derivative @f$d(a \alpha)/dT@f$
     /*!
      *  These are stored internally.
      */
     double daAlpha_dT() const;
 
-    //! Calculate second derivative \f$d^2(a \alpha)/dT^2\f$
+    //! Calculate second derivative @f$d^2(a \alpha)/dT^2@f$
     /*!
      *  These are stored internally.
      */
@@ -209,21 +209,21 @@ public:
     virtual double thermalExpansionCoeff() const;
     virtual double soundSpeed() const;
 
-    //! Calculate \f$dp/dV\f$ and \f$dp/dT\f$ at the current conditions
+    //! Calculate @f$dp/dV@f$ and @f$dp/dT@f$ at the current conditions
     /*!
      *  These are stored internally.
      */
     void calculatePressureDerivatives() const;
 
-    //! Update the \f$a\f$, \f$b\f$, and \f$\alpha\f$ parameters
+    //! Update the @f$a@f$, @f$b@f$, and @f$\alpha@f$ parameters
     /*!
-     *  The \f$a\f$ and the \f$b\f$ parameters depend on the mole fraction and the
-     *  parameter \f$\alpha\f$ depends on the temperature. This function updates
+     *  The @f$a@f$ and the @f$b@f$ parameters depend on the mole fraction and the
+     *  parameter @f$\alpha@f$ depends on the temperature. This function updates
      *  the internal numbers based on the state of the object.
      */
     virtual void updateMixingExpressions();
 
-    //! Calculate the \f$a\f$, \f$b\f$, and \f$\alpha\f$ parameters given the temperature
+    //! Calculate the @f$a@f$, @f$b@f$, and @f$\alpha@f$ parameters given the temperature
     /*!
      * This function doesn't change the internal state of the object, so it is a
      * const function.  It does use the stored mole fractions in the object.
@@ -240,19 +240,19 @@ public:
     int solveCubic(double T, double pres, double a, double b, double aAlpha,
                    double Vroot[3]) const;
 protected:
-    //! Value of \f$b\f$ in the equation of state
+    //! Value of @f$b@f$ in the equation of state
     /*!
      *  `m_b` is a function of the mole fractions and species-specific b values.
      */
     double m_b = 0.0;
 
-    //! Value of \f$a\f$ in the equation of state
+    //! Value of @f$a@f$ in the equation of state
     /*!
      *  `m_a` depends only on the mole fractions.
      */
     double m_a = 0.0;
 
-    //! Value of \f$a \alpha\f$ in the equation of state
+    //! Value of @f$a \alpha@f$ in the equation of state
     /*!
      *  `m_aAlpha_mix` is a function of the temperature and the mole fractions.
      */

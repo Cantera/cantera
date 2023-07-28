@@ -24,25 +24,25 @@ namespace Cantera
  * distribution with isotropic-velocity model. The generalized electron
  * energy distribution for isotropic-velocity distribution can be
  * expressed as [1,2],
- *   \f[
+ *   @f[
  *          f(\epsilon) = c_1 \frac{\sqrt{\epsilon}}{\epsilon_m^{3/2}}
  *          \exp(-c_2 (\frac{\epsilon}{\epsilon_m})^x),
- *   \f]
- * where \f$ x = 1 \f$ and \f$ x = 2 \f$ correspond to the Maxwellian and
+ *   @f]
+ * where @f$ x = 1 @f$ and @f$ x = 2 @f$ correspond to the Maxwellian and
  * Druyvesteyn (default) electron energy distribution, respectively.
- * \f$ \epsilon_m = 3/2 T_e \f$ [eV] (mean electron energy). The second
+ * @f$ \epsilon_m = 3/2 T_e @f$ [eV] (mean electron energy). The second
  * method uses setDiscretizedElectronEnergyDist() to manually set electron
  * energy distribution and calculate electron temperature from mean electron
  * energy, which is calculated as [3],
- *   \f[
+ *   @f[
  *          \epsilon_m = \int_0^{\infty} \epsilon^{3/2} f(\epsilon) d\epsilon,
- *   \f]
+ *   @f]
  * which can be calculated using trapezoidal rule,
- *   \f[
+ *   @f[
  *          \epsilon_m = \sum_i (\epsilon^{5/2}_{i+1} - \epsilon^{5/2}_i)
  *                       (f(\epsilon_{i+1}) + f(\epsilon_i)) / 2,
- *   \f]
- * where \f$ i \f$ is the index of energy levels.
+ *   @f]
+ * where @f$ i @f$ is the index of energy levels.
  *
  * For references, see Gudmundsson @cite gudmundsson2001; Khalilpour and Foroutan
  * @cite khalilpour2020; Hagelaar and Pitchford @cite hagelaar2005, and BOLOS
@@ -108,7 +108,7 @@ public:
     }
 
     //! Set the shape factor of isotropic electron energy distribution.
-    //! Note that \f$ x = 1 \f$ and \f$ x = 2 \f$ correspond to the
+    //! Note that @f$ x = 1 @f$ and @f$ x = 2 @f$ correspond to the
     //! Maxwellian and Druyvesteyn distribution, respectively.
     //! @param  x The shape factor
     void setIsotropicShapeFactor(double x);
@@ -180,7 +180,7 @@ public:
 
     /**
      * Electron pressure. Units: Pa.
-     * \f[P = n_{k_e} R T_e\f]
+     * @f[P = n_{k_e} R T_e@f]
      */
     virtual double electronPressure() const {
         return GasConstant * concentration(m_electronSpeciesIndex) *
@@ -200,11 +200,11 @@ public:
     //! Return the Molar enthalpy. Units: J/kmol.
     /*!
      * For an ideal gas mixture with additional electron,
-     * \f[
+     * @f[
      * \hat h(T) = \sum_{k \neq k_e} X_k \hat h^0_k(T) + X_{k_e} \hat h^0_{k_e}(T_e),
-     * \f]
+     * @f]
      * and is a function only of temperature. The standard-state pure-species
-     * enthalpies \f$ \hat h^0_k(T) \f$ are computed by the species
+     * enthalpies @f$ \hat h^0_k(T) @f$ are computed by the species
      * thermodynamic property manager.
      *
      * \see MultiSpeciesThermo

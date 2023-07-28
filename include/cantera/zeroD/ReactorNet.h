@@ -168,10 +168,10 @@ public:
     //! Return the sensitivity of the *k*-th solution component with respect to
     //! the *p*-th sensitivity parameter.
     /*!
-     *  The sensitivity coefficient \f$ S_{ki} \f$ of solution variable \f$ y_k
-     *  \f$ with respect to sensitivity parameter \f$ p_i \f$ is defined as:
+     *  The sensitivity coefficient @f$ S_{ki} @f$ of solution variable @f$ y_k
+     *  @f$ with respect to sensitivity parameter @f$ p_i @f$ is defined as:
      *
-     *  \f[ S_{ki} = \frac{1}{y_k} \frac{\partial y_k}{\partial p_i} \f]
+     *  @f[ S_{ki} = \frac{1}{y_k} \frac{\partial y_k}{\partial p_i} @f]
      *
      *  For reaction sensitivities, the parameter is a multiplier on the forward
      *  rate constant (and implicitly on the reverse rate constant for

@@ -45,61 +45,61 @@ namespace Cantera
  * - Temperature polynomial for the standard state volume
  *   - This standard state model is invoked with the keyword "temperature_polynomial".
  *     The standard state volume is considered a function of temperature only.
- *     \f[
+ *     @f[
  *       V^o_k(T,P) = a_0 + a_1 T + a_2 T^2 + a_3 T^3
- *     \f]
+ *     @f]
  *
  * - Temperature polynomial for the standard state density
  *   - This standard state model is invoked with the keyword "density_temperature_polynomial".
  *     The standard state density, which is the inverse of the volume,
  *     is considered a function of temperature only.
- *     \f[
+ *     @f[
  *       {\rho}^o_k(T,P) = \frac{M_k}{V^o_k(T,P)} = a_0 + a_1 T + a_2 T^2 + a_3 T^3
- *     \f]
+ *     @f]
  *
  * ## Specification of Species Standard State Properties
  *
  * The standard molar Gibbs free energy for species *k* is determined from
  * the enthalpy and entropy expressions
  *
- * \f[
+ * @f[
  *            G^o_k(T,P) = H^o_k(T,P) - S^o_k(T,P)
- * \f]
+ * @f]
  *
  * The enthalpy is calculated mostly from the MultiSpeciesThermo object's enthalpy
  * evaluator. The dependence on pressure originates from the Maxwell relation
  *
- * \f[
+ * @f[
  *            {\left(\frac{dH^o_k}{dP}\right)}_T = T  {\left(\frac{dS^o_k}{dP}\right)}_T + V^o_k
- * \f]
+ * @f]
  * which is equal to
  *
- * \f[
+ * @f[
  *            {\left(\frac{dH^o_k}{dP}\right)}_T =  V^o_k -  T  {\left(\frac{dV^o_k}{dT}\right)}_P
- * \f]
+ * @f]
  *
  * The entropy is calculated mostly from the MultiSpeciesThermo objects entropy
  * evaluator. The dependence on pressure originates from the Maxwell relation:
  *
- * \f[
+ * @f[
  *              {\left(\frac{dS^o_k}{dP}\right)}_T =  - {\left(\frac{dV^o_k}{dT}\right)}_P
- * \f]
+ * @f]
  *
  * The standard state constant-pressure heat capacity expression is obtained
  * from taking the temperature derivative of the Maxwell relation involving the
  * enthalpy given above to yield an expression for the pressure dependence of
  * the heat capacity.
  *
- * \f[
+ * @f[
  *            {\left(\frac{d{C}^o_{p,k}}{dP}\right)}_T =  - T  {\left(\frac{{d}^2{V}^o_k}{{dT}^2}\right)}_T
- * \f]
+ * @f]
  *
  * The standard molar Internal Energy for species *k* is determined from the
  * following relation.
  *
- * \f[
+ * @f[
  *            U^o_k(T,P) = H^o_k(T,P) - p V^o_k
- * \f]
+ * @f]
  *
  * An example of the specification of a standard state using a temperature dependent
  * standard state volume is given in the

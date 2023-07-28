@@ -26,20 +26,20 @@ namespace Cantera
  * the Chemkin software package, but differs from the form used in the more
  * recent NASA equilibrium program.
  *
- * Seven coefficients \f$(a_0,\dots,a_6)\f$ are used to represent
- * \f$ c_p^0(T)\f$, \f$ h^0(T)\f$, and \f$ s^0(T) \f$ as
- * polynomials in \f$ T \f$ :
- * \f[
+ * Seven coefficients @f$(a_0,\dots,a_6)@f$ are used to represent
+ * @f$ c_p^0(T)@f$, @f$ h^0(T)@f$, and @f$ s^0(T) @f$ as
+ * polynomials in @f$ T @f$ :
+ * @f[
  * \frac{c_p(T)}{R} = a_0 + a_1 T + a_2 T^2 + a_3 T^3 + a_4 T^4
- * \f]
- * \f[
+ * @f]
+ * @f[
  * \frac{h^0(T)}{RT} = a_0 + \frac{a_1}{2} T + \frac{a_2}{3} T^2
  *                   + \frac{a_3}{4} T^3 + \frac{a_4}{5} T^4  + \frac{a_5}{T}.
- * \f]
- * \f[
+ * @f]
+ * @f[
  * \frac{s^0(T)}{R} = a_0\ln T + a_1 T + \frac{a_2}{2} T^2
  *                  + \frac{a_3}{3} T^3 + \frac{a_4}{4} T^4  + a_6.
- * \f]
+ * @f]
  *
  * This class is designed specifically for use by the class MultiSpeciesThermo.
  *

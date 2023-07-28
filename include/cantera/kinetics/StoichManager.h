@@ -32,14 +32,14 @@ namespace Cantera
  * coefficient matrix and a vector of reaction rates. For example, the species
  * creation rates are given by
  *
- * \f[
+ * @f[
  *  \dot C_k = \sum_k \nu^{(p)}_{k,i} R_i
- * \f]
+ * @f]
  *
- * where \f$ \nu^{(p)_{k,i}} \f$ is the product-side stoichiometric
+ * where @f$ \nu^{(p)_{k,i}} @f$ is the product-side stoichiometric
  * coefficient of species \a k in reaction \a i. This could be done by
  * straightforward matrix multiplication, but would be inefficient, since most
- * of the matrix elements of \f$ \nu^{(p)}_{k,i} \f$ are zero. We could do
+ * of the matrix elements of @f$ \nu^{(p)}_{k,i} @f$ are zero. We could do
  * better by using sparse-matrix algorithms to compute this product.
  *
  * If the reactions are general ones, with non-integral stoichiometric
@@ -559,12 +559,12 @@ inline static void _scale(InputIter begin, InputIter end,
  * products of irreversible reactions).
  *
  * This class is designed for use with elementary reactions, or at least ones
- * with integral stoichiometric coefficients. Let \f$ M(i) \f$ be the number of
+ * with integral stoichiometric coefficients. Let @f$ M(i) @f$ be the number of
  * molecules on the product or reactant side of reaction number i.
- * \f[
+ * @f[
  *     r_i = \sum_m^{M_i} s_{k_{m,i}}
- * \f]
- * To understand the operations performed by this class, let \f$ N_{k,i}\f$
+ * @f]
+ * To understand the operations performed by this class, let @f$ N_{k,i}@f$
  * denote the stoichiometric coefficient of species k on one side (reactant or
  * product) in reaction i. Then \b N is a sparse K by I matrix of stoichiometric
  * coefficients.
@@ -572,19 +572,19 @@ inline static void _scale(InputIter begin, InputIter end,
  * The following matrix operations may be carried out with a vector S of length
  * K, and a vector R of length I:
  *
- * - \f$ S = S + N R\f$   (incrementSpecies)
- * - \f$ S = S - N R\f$   (decrementSpecies)
- * - \f$ R = R + N^T S \f$ (incrementReaction)
- * - \f$ R = R - N^T S \f$ (decrementReaction)
+ * - @f$ S = S + N R@f$   (incrementSpecies)
+ * - @f$ S = S - N R@f$   (decrementSpecies)
+ * - @f$ R = R + N^T S @f$ (incrementReaction)
+ * - @f$ R = R - N^T S @f$ (decrementReaction)
  *
  * The actual implementation, however, does not compute these quantities by
  * matrix multiplication. A faster algorithm is used that makes use of the fact
  * that the \b integer-valued N matrix is very sparse, and the non-zero terms
  * are small positive integers.
- * \f[
+ * @f[
  * S_k = R_{i1} + \dots + R_{iM}
- * \f]
- * where M is the number of molecules, and \f$ i(m) \f$ is the
+ * @f]
+ * where M is the number of molecules, and @f$ i(m) @f$ is the
  * See @ref Stoichiometry
  * @ingroup Stoichiometry
  */

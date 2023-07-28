@@ -110,22 +110,22 @@ public:
     //! Units: 1/K2.
     /*!
      * The thermal expansion coefficient is defined as
-     * \f[
+     * @f[
      * \beta = \frac{1}{v}\left(\frac{\partial v}{\partial T}\right)_P
-     * \f]
+     * @f]
      */
     virtual doublereal dthermalExpansionCoeffdT() const;
 
     //! Returns the isothermal compressibility. Units: 1/Pa.
     /*!
      * The isothermal compressibility is defined as
-     * \f[
+     * @f[
      * \kappa_T = -\frac{1}{v}\left(\frac{\partial v}{\partial P}\right)_T
-     * \f]
+     * @f]
      *  or
-     * \f[
+     * @f[
      * \kappa_T = \frac{1}{\rho}\left(\frac{\partial \rho}{\partial P}\right)_T
-     * \f]
+     * @f]
      */
     virtual doublereal isothermalCompressibility() const;
 

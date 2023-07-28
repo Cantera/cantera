@@ -185,9 +185,9 @@ public:
      * This method carries out a time-accurate advancement of the
      * surface coverages for a specified amount of time.
      *
-     *  \f[
+     *  @f[
      *    \dot {\theta}_k = \dot s_k (\sigma_k / s_0)
-     *  \f]
+     *  @f]
      *
      * @param tstep  Time value to advance the surface coverages
      * @param rtol   The relative tolerance for the integrator
@@ -364,8 +364,8 @@ protected:
 
     //! Array of concentrations for each species in the kinetics mechanism
     /*!
-     * An array of generalized concentrations \f$ C_k \f$ that are defined
-     * such that \f$ a_k = C_k / C^0_k, \f$ where \f$ C^0_k \f$ is a standard
+     * An array of generalized concentrations @f$ C_k @f$ that are defined
+     * such that @f$ a_k = C_k / C^0_k, @f$ where @f$ C^0_k @f$ is a standard
      * concentration/ These generalized concentrations are used by this
      * kinetics manager class to compute the forward and reverse rates of
      * elementary reactions. The "units" for the concentrations of each phase
@@ -378,8 +378,8 @@ protected:
 
     //! Array of activity concentrations for each species in the kinetics object
     /*!
-     * An array of activity concentrations \f$ Ca_k \f$ that are defined
-     * such that \f$ a_k = Ca_k / C^0_k, \f$ where \f$ C^0_k \f$ is a standard
+     * An array of activity concentrations @f$ Ca_k @f$ that are defined
+     * such that @f$ a_k = Ca_k / C^0_k, @f$ where @f$ C^0_k @f$ is a standard
      * concentration. These activity concentrations are used by this
      * kinetics manager class to compute the forward and reverse rates of
      * elementary reactions. The "units" for the concentrations of each phase

@@ -25,7 +25,7 @@ namespace Cantera
  * standard states of the species are assumed to have zero volume expansivity
  * and zero isothermal compressibility.
  *
- * The density of matrix sites is given by the variable \f$ C_o \f$, which has
+ * The density of matrix sites is given by the variable @f$ C_o @f$, which has
  * SI units of kmol m-3.
  *
  * ## Specification of Species Standard State Properties
@@ -39,22 +39,22 @@ namespace Cantera
  * no effect on any quantities, as the molar concentration is a constant.
  *
  * The standard state enthalpy function is given by the following relation,
- * which has a weak dependence on the system pressure, \f$P\f$.
+ * which has a weak dependence on the system pressure, @f$P@f$.
  *
- * \f[
+ * @f[
  *     h^o_k(T,P) =
  *            h^{ref}_k(T) +  \left( \frac{P - P_{ref}}{C_o} \right)
- * \f]
+ * @f]
  *
  * For an incompressible substance, the molar internal energy is independent of
  * pressure. Since the thermodynamic properties are specified by giving the
- * standard-state enthalpy, the term \f$ \frac{P_{ref}}{C_o} \f$ is subtracted
+ * standard-state enthalpy, the term @f$ \frac{P_{ref}}{C_o} @f$ is subtracted
  * from the specified reference molar enthalpy to compute the standard state
  * molar internal energy:
  *
- * \f[
+ * @f[
  *      u^o_k(T,P) = h^{ref}_k(T) - \frac{P_{ref}}{C_o}
- * \f]
+ * @f]
  *
  * The standard state heat capacity, internal energy, and entropy are
  * independent of pressure. The standard state Gibbs free energy is obtained
@@ -63,56 +63,56 @@ namespace Cantera
  * The standard state molar volume is independent of temperature, pressure, and
  * species identity:
  *
- * \f[
+ * @f[
  *      V^o_k(T,P) = \frac{1.0}{C_o}
- * \f]
+ * @f]
  *
  * ## Specification of Solution Thermodynamic Properties
  *
- * The activity of species \f$ k \f$ defined in the phase, \f$ a_k \f$, is given
+ * The activity of species @f$ k @f$ defined in the phase, @f$ a_k @f$, is given
  * by the ideal solution law:
  *
- * \f[
+ * @f[
  *      a_k = X_k ,
- * \f]
+ * @f]
  *
- * where \f$ X_k \f$ is the mole fraction of species *k*. The chemical potential
+ * where @f$ X_k @f$ is the mole fraction of species *k*. The chemical potential
  * for species *k* is equal to
  *
- * \f[
+ * @f[
  *      \mu_k(T,P) = \mu^o_k(T, P) + R T \log(X_k)
- * \f]
+ * @f]
  *
  * The partial molar entropy for species *k* is given by the following relation,
  *
- * \f[
+ * @f[
  *      \tilde{s}_k(T,P) = s^o_k(T,P) - R \log(X_k) = s^{ref}_k(T) - R \log(X_k)
- * \f]
+ * @f]
  *
  * The partial molar enthalpy for species *k* is
  *
- * \f[
+ * @f[
  *      \tilde{h}_k(T,P) = h^o_k(T,P) = h^{ref}_k(T) + \left( \frac{P - P_{ref}}{C_o} \right)
- * \f]
+ * @f]
  *
  * The partial molar Internal Energy for species *k* is
  *
- * \f[
+ * @f[
  *      \tilde{u}_k(T,P) = u^o_k(T,P) = u^{ref}_k(T)
- * \f]
+ * @f]
  *
  * The partial molar Heat Capacity for species *k* is
  *
- * \f[
+ * @f[
  *      \tilde{Cp}_k(T,P) = Cp^o_k(T,P) = Cp^{ref}_k(T)
- * \f]
+ * @f]
  *
  * The partial molar volume is independent of temperature, pressure, and species
  * identity:
  *
- * \f[
+ * @f[
  *      \tilde{V}_k(T,P) =  V^o_k(T,P) = \frac{1.0}{C_o}
- * \f]
+ * @f]
  *
  * It is assumed that the reference state thermodynamics may be obtained by a
  * pointer to a populated species thermodynamic property manager class (see
@@ -125,57 +125,57 @@ namespace Cantera
  *
  * ## Application within Kinetics Managers
  *
- * \f$ C^a_k\f$ are defined such that \f$ C^a_k = a_k = X_k \f$. \f$ C^s_k \f$,
- * the standard concentration, is defined to be equal to one. \f$ a_k \f$ are
+ * @f$ C^a_k@f$ are defined such that @f$ C^a_k = a_k = X_k @f$. @f$ C^s_k @f$,
+ * the standard concentration, is defined to be equal to one. @f$ a_k @f$ are
  * activities used in the thermodynamic functions.  These activity (or
  * generalized) concentrations are used by kinetics manager classes to compute
  * the forward and reverse rates of elementary reactions. The activity
- * concentration,\f$  C^a_k \f$, is given by the following expression.
+ * concentration,@f$  C^a_k @f$, is given by the following expression.
  *
- * \f[
+ * @f[
  *      C^a_k = C^s_k  X_k  =  X_k
- * \f]
+ * @f]
  *
  * The standard concentration for species *k* is identically one
  *
- * \f[
+ * @f[
  *     C^s_k =  C^s = 1.0
- * \f]
+ * @f]
  *
  * For example, a bulk-phase binary gas reaction between species j and k,
  * producing a new species l would have the following equation for its rate of
- * progress variable, \f$ R^1 \f$, which has units of kmol m-3 s-1.
+ * progress variable, @f$ R^1 @f$, which has units of kmol m-3 s-1.
  *
- * \f[
+ * @f[
  *    R^1 = k^1 C_j^a C_k^a =  k^1  X_j X_k
- * \f]
+ * @f]
  *
  * The reverse rate constant can then be obtained from the law of microscopic
  * reversibility and the equilibrium expression for the system.
  *
- * \f[
+ * @f[
  *     \frac{X_j X_k}{ X_l} = K_a^{o,1} = \exp(\frac{\mu^o_l - \mu^o_j - \mu^o_k}{R T} )
- * \f]
+ * @f]
  *
- * \f$  K_a^{o,1} \f$ is the dimensionless form of the equilibrium constant,
- * associated with the pressure dependent standard states \f$ \mu^o_l(T,P) \f$
+ * @f$  K_a^{o,1} @f$ is the dimensionless form of the equilibrium constant,
+ * associated with the pressure dependent standard states @f$ \mu^o_l(T,P) @f$
  * and their associated activities,
- * \f$ a_l \f$, repeated here:
+ * @f$ a_l @f$, repeated here:
  *
- * \f[
+ * @f[
  *      \mu_l(T,P) = \mu^o_l(T, P) + R T \log(a_l)
- * \f]
+ * @f]
  *
- * The concentration equilibrium constant, \f$ K_c \f$, may be obtained by
+ * The concentration equilibrium constant, @f$ K_c @f$, may be obtained by
  * changing over to activity concentrations. When this is done:
  *
- * \f[
+ * @f[
  *     \frac{C^a_j C^a_k}{ C^a_l} = C^o K_a^{o,1} = K_c^1 =
  *         \exp(\frac{\mu^{o}_l - \mu^{o}_j - \mu^{o}_k}{R T} )
- * \f]
+ * @f]
  *
- * %Kinetics managers will calculate the concentration equilibrium constant, \f$
- * K_c \f$, using the second and third part of the above expression as a
+ * %Kinetics managers will calculate the concentration equilibrium constant, @f$
+ * K_c @f$, using the second and third part of the above expression as a
  * definition for the concentration equilibrium constant.
  *
  * @ingroup thermoprops
@@ -211,11 +211,11 @@ public:
     /*!
      * For an ideal solution,
      *
-     *   \f[
+     *   @f[
      *    \hat h(T,P) = \sum_k X_k \hat h^0_k(T,P),
-     *   \f]
+     *   @f]
      *
-     * The standard-state pure-species Enthalpies \f$ \hat h^0_k(T,P) \f$ are
+     * The standard-state pure-species Enthalpies @f$ \hat h^0_k(T,P) @f$ are
      * computed first by the species reference state thermodynamic property
      * manager and then a small pressure dependent term is added in.
      *
@@ -227,10 +227,10 @@ public:
     /*!
      * For an ideal, constant partial molar volume solution mixture with
      * pure species phases which exhibit zero volume expansivity:
-     *   \f[
+     *   @f[
      *       \hat s(T, P, X_k) = \sum_k X_k \hat s^0_k(T)  - \hat R  \sum_k X_k log(X_k)
-     *   \f]
-     * The reference-state pure-species entropies \f$ \hat s^0_k(T,p_{ref}) \f$
+     *   @f]
+     * The reference-state pure-species entropies @f$ \hat s^0_k(T,p_{ref}) @f$
      * are computed by the species thermodynamic property manager. The pure
      * species entropies are independent of pressure since the volume
      * expansivities are equal to zero.
@@ -246,11 +246,11 @@ public:
     /*!
      * For an ideal, constant partial molar volume solution mixture with
      * pure species phases which exhibit zero volume expansivity:
-     *   \f[
+     *   @f[
      *    \hat c_p(T,P) = \sum_k X_k \hat c^0_{p,k}(T) .
-     *   \f]
+     *   @f]
      * The heat capacity is independent of pressure. The reference-state pure-
-     * species heat capacities \f$ \hat c^0_{p,k}(T) \f$ are computed by the
+     * species heat capacities @f$ \hat c^0_{p,k}(T) @f$ are computed by the
      * species thermodynamic property manager.
      *
      * @see MultiSpeciesThermo
@@ -262,9 +262,9 @@ public:
     /*!
      * For an ideal, constant partial molar volume solution mixture with
      * pure species phases which exhibit zero volume expansivity:
-     *  \f[
+     *  @f[
      *     \hat c_v(T,P) = \hat c_p(T,P)
-     *  \f]
+     *  @f]
      *
      * The two heat capacities are equal.
      */
@@ -304,12 +304,12 @@ public:
     /*!
      * The formula for this is
      *
-     * \f[
+     * @f[
      *      \rho = \frac{\sum_k{X_k W_k}}{\sum_k{X_k V_k}}
-     * \f]
+     * @f]
      *
-     * where \f$X_k\f$ are the mole fractions, \f$W_k\f$ are the molecular
-     * weights, and \f$V_k\f$ are the pure species molar volumes.
+     * where @f$X_k@f$ are the mole fractions, @f$W_k@f$ are the molecular
+     * weights, and @f$V_k@f$ are the pure species molar volumes.
      *
      * Note, the basis behind this formula is that in an ideal solution the
      * partial molar volumes are equal to the pure species molar volumes. We
@@ -321,9 +321,9 @@ public:
     //! @}
     //! @name Activities, Standard States, and Activity Concentrations
     //!
-    //! The activity \f$a_k\f$ of a species in solution is related to the
-    //! chemical potential by \f[ \mu_k = \mu_k^0(T) + \hat R T \log a_k. \f] The
-    //! quantity \f$\mu_k^0(T,P)\f$ is the chemical potential at unit activity,
+    //! The activity @f$a_k@f$ of a species in solution is related to the
+    //! chemical potential by @f[ \mu_k = \mu_k^0(T) + \hat R T \log a_k. @f] The
+    //! quantity @f$\mu_k^0(T,P)@f$ is the chemical potential at unit activity,
     //! which depends only on temperature and the pressure. Activity is assumed
     //! to be molality-based here.
     //! @{
@@ -333,7 +333,7 @@ public:
 
     //! Return the standard concentration for the kth species
     /*!
-     * The standard concentration \f$ C^0_k \f$ used to normalize
+     * The standard concentration @f$ C^0_k @f$ used to normalize
      * the activity (that is, generalized) concentration for use
      *
      * For the time being, we will use the concentration of pure solvent for the
@@ -376,11 +376,11 @@ public:
      * Returns an array of partial molar enthalpies for the species in the
      * mixture. Units (J/kmol). For this phase, the partial molar enthalpies are
      * equal to the pure species enthalpies
-     * \f[
+     * @f[
      * \bar h_k(T,P) = \hat h^{ref}_k(T) + (P - P_{ref}) \hat V^0_k
-     * \f]
-     * The reference-state pure-species enthalpies, \f$ \hat h^{ref}_k(T) \f$,
-     * at the reference pressure,\f$ P_{ref} \f$, are computed by the species
+     * @f]
+     * The reference-state pure-species enthalpies, @f$ \hat h^{ref}_k(T) @f$,
+     * at the reference pressure,@f$ P_{ref} @f$, are computed by the species
      * thermodynamic property manager. They are polynomial functions of
      * temperature.
      * @see MultiSpeciesThermo
@@ -395,11 +395,11 @@ public:
      * solution. Units: J/kmol/K. For this phase, the partial molar entropies
      * are equal to the pure species entropies plus the ideal solution
      * contribution.
-     * \f[
+     * @f[
      * \bar s_k(T,P) =  \hat s^0_k(T) - R log(X_k)
-     * \f]
-     * The reference-state pure-species entropies,\f$ \hat s^{ref}_k(T) \f$, at
-     * the reference pressure, \f$ P_{ref} \f$, are computed by the species
+     * @f]
+     * The reference-state pure-species entropies,@f$ \hat s^{ref}_k(T) @f$, at
+     * the reference pressure, @f$ P_{ref} @f$, are computed by the species
      * thermodynamic property manager. They are polynomial functions of
      * temperature.
      * @see MultiSpeciesThermo
@@ -433,9 +433,9 @@ public:
      * A small pressure dependent term is added onto the reference state enthalpy
      * to get the pressure dependence of this term.
      *
-     * \f[
+     * @f[
      *    h^o_k(T,P) = h^{ref}_k(T) +  \left( \frac{P - P_{ref}}{C_o} \right)
-     * \f]
+     * @f]
      *
      * The reference state thermodynamics is obtained by a pointer to a
      * populated species thermodynamic property manager class (see
@@ -453,9 +453,9 @@ public:
      * The entropy of the standard state is defined as independent of
      * pressure here.
      *
-     * \f[
+     * @f[
      *      s^o_k(T,P) = s^{ref}_k(T)
-     * \f]
+     * @f]
      *
      * The reference state thermodynamics is obtained by a pointer to a
      * populated species thermodynamic property manager class (see
@@ -473,9 +473,9 @@ public:
      * The standard Gibbs free energies are obtained from the enthalpy and
      * entropy formulation.
      *
-     * \f[
+     * @f[
      *      g^o_k(T,P) = h^{o}_k(T,P) - T s^{o}_k(T,P)
-     * \f]
+     * @f]
      *
      * @param grt  Output vector of nondimensional standard state Gibbs free
      *             energies. Length: m_kk.
@@ -487,9 +487,9 @@ public:
     /*!
      * The heat capacity of the standard state is independent of pressure
      *
-     * \f[
+     * @f[
      *      Cp^o_k(T,P) = Cp^{ref}_k(T)
-     * \f]
+     * @f]
      *
      * The reference state thermodynamics is obtained by a pointer to a
      * populated species thermodynamic property manager class (see
@@ -589,7 +589,7 @@ protected:
 
     //! Vector of molar volumes for each species in the solution
     /**
-     * Species molar volumes \f$ m^3 kmol^-1 \f$
+     * Species molar volumes @f$ m^3 kmol^-1 @f$
      */
     vector_fp m_speciesMolarVolume;
 

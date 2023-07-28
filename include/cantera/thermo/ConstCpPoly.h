@@ -23,21 +23,21 @@ namespace Cantera
  * following relations are used to complete the specification of the
  * thermodynamic functions for the species.
  *
- * \f[
+ * @f[
  * \frac{c_p(T)}{R} = Cp0\_R
- * \f]
- * \f[
+ * @f]
+ * @f[
  * \frac{h^0(T)}{RT} = \frac{1}{T} * (h0\_R + (T - T_0) * Cp0\_R)
- * \f]
- * \f[
+ * @f]
+ * @f[
  * \frac{s^0(T)}{R} =  (s0\_R + (log(T) - log(T_0)) * Cp0\_R)
- * \f]
+ * @f]
  *
  * This parameterization takes 4 input values. These are:
- *       -   c[0] = \f$ T_0 \f$(Kelvin)
- *       -   c[1] = \f$ H_k^o(T_0, p_{ref}) \f$ (J/kmol)
- *       -   c[2] = \f$ S_k^o(T_0, p_{ref}) \f$    (J/kmol K)
- *       -   c[3] = \f$ {Cp}_k^o(T_0, p_{ref}) \f$  (J(kmol K)
+ *       -   c[0] = @f$ T_0 @f$(Kelvin)
+ *       -   c[1] = @f$ H_k^o(T_0, p_{ref}) @f$ (J/kmol)
+ *       -   c[2] = @f$ S_k^o(T_0, p_{ref}) @f$    (J/kmol K)
+ *       -   c[3] = @f$ {Cp}_k^o(T_0, p_{ref}) @f$  (J(kmol K)
  *
  * @ingroup spthermo
  */
@@ -54,18 +54,18 @@ public:
      * @param coeffs       Vector of coefficients used to set the parameters for
      *                     the standard state for species n. There are 4
      *                     coefficients for the ConstCpPoly parameterization.
-     *           -   c[0] = \f$ T_0 \f$(Kelvin)
-     *           -   c[1] = \f$ H_k^o(T_0, p_{ref}) \f$ (J/kmol)
-     *           -   c[2] = \f$ S_k^o(T_0, p_{ref}) \f$    (J/kmol K)
-     *           -   c[3] = \f$ {Cp}_k^o(T_0, p_{ref}) \f$  (J(kmol K)
+     *           -   c[0] = @f$ T_0 @f$(Kelvin)
+     *           -   c[1] = @f$ H_k^o(T_0, p_{ref}) @f$ (J/kmol)
+     *           -   c[2] = @f$ S_k^o(T_0, p_{ref}) @f$    (J/kmol K)
+     *           -   c[3] = @f$ {Cp}_k^o(T_0, p_{ref}) @f$  (J(kmol K)
      */
     ConstCpPoly(double tlow, double thigh, double pref, const double* coeffs);
 
     /*!
-     * @param t0  \f$ T_0 \f$ [K]
-     * @param h0  \f$ h_k^o(T_0, p_{ref}) \f$ [J/kmol]
-     * @param s0  \f$ s_k^o(T_0, p_{ref}) \f$ [J/kmol/K]
-     * @param cp0  \f$ c_{p,k}^o(T_0, p_{ref}) \f$ [J/kmol/K]
+     * @param t0  @f$ T_0 @f$ [K]
+     * @param h0  @f$ h_k^o(T_0, p_{ref}) @f$ [J/kmol]
+     * @param s0  @f$ s_k^o(T_0, p_{ref}) @f$ [J/kmol/K]
+     * @param cp0  @f$ c_{p,k}^o(T_0, p_{ref}) @f$ [J/kmol/K]
      */
     void setParameters(double t0, double h0, double s0, double cp0);
 

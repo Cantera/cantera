@@ -190,9 +190,9 @@ int solve(DenseMatrix& A, DenseMatrix& b);
 
 //! Multiply \c A*b and return the result in \c prod. Uses BLAS routine DGEMV.
 /*!
- * \f[
+ * @f[
  *     prod_i = sum^N_{j = 1}{A_{ij} b_j}
- * \f]
+ * @f]
  *
  * @param[in]  A     Dense Matrix A with M rows and N columns
  * @param[in]  b     vector b with length N
@@ -202,9 +202,9 @@ void multiply(const DenseMatrix& A, const double* const b, double* const prod);
 
 //! Multiply \c A*b and add it to the result in \c prod. Uses BLAS routine DGEMV.
 /*!
- * \f[
+ * @f[
  *     prod_i += sum^N_{j = 1}{A_{ij} b_j}
- * \f]
+ * @f]
  *
  * @param[in]  A     Dense Matrix A with M rows and N columns
  * @param[in]  b     vector b with length N

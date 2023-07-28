@@ -39,16 +39,16 @@ public:
      * with respect to the mass averaged velocity using gradients of the mole
      * fraction.
      *
-     * \f[
+     * @f[
      *     D^\prime_{km} = \frac{\lambda}{\rho c_p}
-     * \f]
+     * @f]
      *
      * In order to obtain the expected behavior from a unity Lewis number model,
      * this formulation requires that the correction velocity be computed as
      *
-     * \f[
+     * @f[
      *     V_c = \sum \frac{W_k}{\overline{W}} D^\prime_{km} \nabla X_k
-     * \f]
+     * @f]
      *
      * @param[out] d  Vector of diffusion coefficients for each species (m^2/s).
      * length m_nsp.
@@ -71,9 +71,9 @@ public:
      * These are the coefficients for calculating the diffusive mass fluxes
      * from the species mass fraction gradients, computed as
      *
-     * \f[
+     * @f[
      *     D_{km} = \frac{\lambda}{\rho c_p}
-     * \f]
+     * @f]
      *
      * @param[out] d  Vector of diffusion coefficients for each species (m^2/s).
      * length m_nsp.

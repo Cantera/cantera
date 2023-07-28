@@ -27,31 +27,31 @@ namespace Cantera
  * InterfaceKinetics object, in time. The following equation is used for each
  * surface phase, *i*.
  *
- *   \f[
+ *   @f[
  *        \dot \theta_k = \dot s_k (\sigma_k / s_0)
- *   \f]
+ *   @f]
  *
  * In this equation,
- * - \f$ \theta_k \f$ is the site coverage for the kth species.
- * - \f$ \dot s_k \f$ is the source term for the kth species
- * - \f$ \sigma_k \f$ is the number of surface sites covered by each species k.
- * - \f$ s_0 \f$ is the total site density of the interfacial phase.
+ * - @f$ \theta_k @f$ is the site coverage for the kth species.
+ * - @f$ \dot s_k @f$ is the source term for the kth species
+ * - @f$ \sigma_k @f$ is the number of surface sites covered by each species k.
+ * - @f$ s_0 @f$ is the total site density of the interfacial phase.
  *
  * Additionally, the 0'th equation in the set is discarded. Instead the
  * alternate equation is solved for
  *
- * \f[
+ * @f[
  *     \sum_{k=0}^{N-1}  \dot \theta_k = 0
- * \f]
+ * @f]
  *
- * This last equation serves to ensure that sum of the \f$ \theta_k \f$ values
+ * This last equation serves to ensure that sum of the @f$ \theta_k @f$ values
  * stays constant.
  *
  * The object uses the CVODE software to advance the surface equations.
  *
  * The solution vector used by this object is as follows: For each surface
- * phase with \f$ N_s \f$ surface sites, it consists of the surface coverages
- * \f$ \theta_k \f$ for \f$ k = 0, N_s - 1 \f$
+ * phase with @f$ N_s @f$ surface sites, it consists of the surface coverages
+ * @f$ \theta_k @f$ for @f$ k = 0, N_s - 1 @f$
  *
  * @ingroup surfSolverGroup
  */

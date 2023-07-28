@@ -103,7 +103,7 @@ private:
     void* m_linsol_matrix = nullptr; //!< matrix used by Sundials
     SundialsContext m_sundials_ctx; //!< SUNContext object for Sundials>=6.0
 
-    //! Object implementing the DAE residual function \f$ f(t, y, \dot{y}) = 0\f$
+    //! Object implementing the DAE residual function @f$ f(t, y, \dot{y}) = 0@f$
     FuncEval* m_func = nullptr;
 
     double m_t0 = 0.0; //!< The start time for the integrator

@@ -40,7 +40,7 @@ const int TabulatedFuncType = 120;
 class TimesConstant1;
 
 //! @defgroup func1 Functor Objects
-//! Functors implement functions of a single variable \f$ f(x) \f$.
+//! Functors implement functions of a single variable @f$ f(x) @f$.
 //! Functor objects can be combined to form compound expressions, which allows for
 //! the implementation of generic mathematical expressions.
 //! @ingroup numerics
@@ -266,9 +266,9 @@ shared_ptr<Func1> newPlusConstFunction(shared_ptr<Func1> f1, double c);
 
 //! Implements the \c sin() function.
 /*!
- * The functor class with type \c "sin" returns \f$ f(x) = \cos(\omega x) \f$,
- * where the argument \f$ x \f$ is in radians.
- * @param omega  Frequency \f$ \omega \f$ (default=1.0)
+ * The functor class with type \c "sin" returns @f$ f(x) = \cos(\omega x) @f$,
+ * where the argument @f$ x @f$ is in radians.
+ * @param omega  Frequency @f$ \omega @f$ (default=1.0)
  * @ingroup func1simple
  */
 class Sin1 : public Func1
@@ -315,9 +315,9 @@ public:
 
 //! Implements the \c cos() function.
 /*!
- * The functor class with type \c "cos" returns \f$ f(x) = \cos(\omega x) \f$,
- * where the argument \f$ x \f$ is in radians.
- * @param omega  Frequency \f$ \omega \f$ (default=1.0)
+ * The functor class with type \c "cos" returns @f$ f(x) = \cos(\omega x) @f$,
+ * where the argument @f$ x @f$ is in radians.
+ * @param omega  Frequency @f$ \omega @f$ (default=1.0)
  * @ingroup func1simple
  */
 class Cos1 : public Func1
@@ -361,7 +361,7 @@ public:
 
 //! Implements the \c exp() (exponential) function.
 /*!
- * The functor class with type \c "exp" returns \f$ f(x) = \exp(a x) \f$.
+ * The functor class with type \c "exp" returns @f$ f(x) = \exp(a x) @f$.
  * @param a  Factor (default=1.0)
  * @ingroup func1simple
  */
@@ -405,7 +405,7 @@ public:
 
 //! Implements the \c log() (natural logarithm) function.
 /*!
- * The functor class with type \c "log" returns \f$ f(x) = \log(a x) \f$.
+ * The functor class with type \c "log" returns @f$ f(x) = \log(a x) @f$.
  * @param a  Factor (default=1.0)
  * @ingroup func1simple
  * @since New in %Cantera 3.0
@@ -435,7 +435,7 @@ public:
 
 //! Implements the \c pow() (power) function.
 /*!
- * The functor class with type \c "pow" returns \f$ f(x) = x^n \f$.
+ * The functor class with type \c "pow" returns @f$ f(x) = x^n @f$.
  * @param n  Exponent
  * @ingroup func1simple
  */
@@ -498,8 +498,8 @@ public:
     Tabulated1(size_t n, const double* tvals, const double* fvals,
                const string& method="linear");
 
-    //! Constructor uses \f$ 2 n\f$ parameters in the following order:
-    //! \f$ [t_0, t_1, \dots, t_{n-1}, f_0, f_1, \dots, f_{n-1}] \f$
+    //! Constructor uses @f$ 2 n@f$ parameters in the following order:
+    //! @f$ [t_0, t_1, \dots, t_{n-1}, f_0, f_1, \dots, f_{n-1}] @f$
     Tabulated1(const vector<double>& params);
 
     //! Set the interpolation method
@@ -533,7 +533,7 @@ private:
 
 //! Implements a constant.
 /*!
- * The functor class with type \c "constant" returns \f$ f(x) = a \f$.
+ * The functor class with type \c "constant" returns @f$ f(x) = a @f$.
  * @param a  Constant
  * @ingroup func1simple
  */
@@ -580,9 +580,9 @@ public:
 
 /**
  * Implements the sum of two functions.
- * The functor class with type \c "sum" returns \f$ f(x) = f_1(x) + f_2(x) \f$.
- * @param f1  Functor \f$ f_1(x) \f$
- * @param f2  Functor \f$ f_2(x) \f$
+ * The functor class with type \c "sum" returns @f$ f(x) = f_1(x) + f_2(x) @f$.
+ * @param f1  Functor @f$ f_1(x) @f$
+ * @param f2  Functor @f$ f_2(x) @f$
  * @ingroup func1compound
  */
 class Sum1 : public Func1
@@ -651,9 +651,9 @@ public:
 
 /**
  * Implements the difference of two functions.
- * The functor class with type \c "diff" returns \f$ f(x) = f_1(x) - f_2(x) \f$.
- * @param f1  Functor \f$ f_1(x) \f$
- * @param f2  Functor \f$ f_2(x) \f$
+ * The functor class with type \c "diff" returns @f$ f(x) = f_1(x) - f_2(x) @f$.
+ * @param f1  Functor @f$ f_1(x) @f$
+ * @param f2  Functor @f$ f_2(x) @f$
  * @ingroup func1compound
  */
 class Diff1 : public Func1
@@ -724,9 +724,9 @@ public:
 
 /**
  * Implements the product of two functions.
- * The functor class with type \c "product" returns \f$ f(x) = f_1(x) f_2(x) \f$.
- * @param f1  Functor \f$ f_1(x) \f$
- * @param f2  Functor \f$ f_2(x) \f$
+ * The functor class with type \c "product" returns @f$ f(x) = f_1(x) f_2(x) @f$.
+ * @param f1  Functor @f$ f_1(x) @f$
+ * @param f2  Functor @f$ f_2(x) @f$
  * @ingroup func1compound
  */
 class Product1 : public Func1
@@ -794,9 +794,9 @@ public:
 
 /**
  * Implements the product of a function and a constant.
- * The functor class with type \c "times-constant" returns \f$ f(x) = a f_1(x) \f$.
- * @param f1  Functor \f$ f_1(x) \f$
- * @param a   Constant \f$ a \f$
+ * The functor class with type \c "times-constant" returns @f$ f(x) = a f_1(x) @f$.
+ * @param f1  Functor @f$ f_1(x) @f$
+ * @param a   Constant @f$ a @f$
  * @ingroup func1modified
  */
 class TimesConstant1 : public Func1
@@ -874,9 +874,9 @@ public:
 
 /**
  * Implements the sum of a function and a constant.
- * The functor class with type \c "plus-constant" returns \f$ f(x) = f_1(x) + a \f$.
- * @param f1  Functor \f$ f_1(x) \f$
- * @param a   Constant \f$ a \f$
+ * The functor class with type \c "plus-constant" returns @f$ f(x) = f_1(x) + a @f$.
+ * @param f1  Functor @f$ f_1(x) @f$
+ * @param a   Constant @f$ a @f$
  * @ingroup func1modified
  */
 class PlusConstant1 : public Func1
@@ -940,9 +940,9 @@ public:
 
 /**
  * Implements the ratio of two functions.
- * The functor class with type \c "ratio" returns \f$ f(x) = f_1(x) / f_2(x) \f$.
- * @param f1  Functor \f$ f_1(x) \f$
- * @param f2  Functor \f$ f_2(x) \f$
+ * The functor class with type \c "ratio" returns @f$ f(x) = f_1(x) / f_2(x) @f$.
+ * @param f1  Functor @f$ f_1(x) @f$
+ * @param f2  Functor @f$ f_2(x) @f$
  * @ingroup func1compound
  */
 class Ratio1 : public Func1
@@ -1009,9 +1009,9 @@ public:
 
 /**
  * Implements a composite function.
- * The functor class with type \c "composite" returns \f$ f(x) = f_1\left(f_2(x)\right) \f$.
- * @param f1  Functor \f$ f_1(x) \f$
- * @param f2  Functor \f$ f_2(x) \f$
+ * The functor class with type \c "composite" returns @f$ f(x) = f_1\left(f_2(x)\right) @f$.
+ * @param f1  Functor @f$ f_1(x) @f$
+ * @param f2  Functor @f$ f_2(x) @f$
  * @ingroup func1compound
  */
 class Composite1 : public Func1
@@ -1082,10 +1082,10 @@ public:
 /**
  * Implements a Gaussian function.
  * The functor class with type \c "Gaussian" returns
- * \f[
+ * @f[
  * f(t) = A e^{-[(t - t_0)/\tau]^2}
- * \f]
- * where \f$ \tau = \mathrm{fwhm} / (2 \sqrt{\ln 2}) \f$.
+ * @f]
+ * where @f$ \tau = \mathrm{fwhm} / (2 \sqrt{\ln 2}) @f$.
  * @param A peak value
  * @param t0 offset
  * @param fwhm full width at half max
@@ -1102,7 +1102,7 @@ public:
     }
 
     //! Constructor uses 3 parameters in the following order:
-    //! \f$ [A, t_0, \mathrm{fwhm}] \f$
+    //! @f$ [A, t_0, \mathrm{fwhm}] @f$
     Gaussian1(const vector<double>& params);
 
     Gaussian1(const Gaussian1& b) :
@@ -1138,10 +1138,10 @@ protected:
 
 /**
  * A Gaussian.
- * \f[
+ * @f[
  * f(t) = A e^{-[(t - t_0)/\tau]^2}
- * \f]
- * where \f[ \tau = \frac{fwhm}{2\sqrt{\ln 2}} \f]
+ * @f]
+ * where @f[ \tau = \frac{fwhm}{2\sqrt{\ln 2}} @f]
  * @param A peak value
  * @param t0 offset
  * @param fwhm full width at half max
@@ -1161,9 +1161,9 @@ class Gaussian : public Gaussian1
 /**
  * Implements a polynomial of degree \e n.
  * The functor class with type \c "polynomial" returns
- * \f[
+ * @f[
  * f(x) = a_n x^n + \dots + a_1 x + a_0
- * \f]
+ * @f]
  * @ingroup func1advanced
  */
 class Poly1 : public Func1
@@ -1174,8 +1174,8 @@ public:
         std::copy(c, c+m_cpoly.size(), m_cpoly.begin());
     }
 
-    //! Constructor uses \f$ n + 1 \f$ parameters in the following order:
-    //! \f$ [a_n, \dots, a_1, a_0] \f$
+    //! Constructor uses @f$ n + 1 @f$ parameters in the following order:
+    //! @f$ [a_n, \dots, a_1, a_0] @f$
     Poly1(const vector<double>& params);
 
     Poly1(const Poly1& b) :
@@ -1216,10 +1216,10 @@ protected:
 /**
  * Implements a Fourier cosine/sine series.
  * The functor class with type \c "Fourier" returns
- * \f[
+ * @f[
  * f(t) = \frac{A_0}{2} +
  * \sum_{n=1}^N A_n \cos (n \omega t) + B_n \sin (n \omega t)
- * \f]
+ * @f]
  * @ingroup func1advanced
  */
 class Fourier1 : public Func1
@@ -1234,8 +1234,8 @@ public:
         std::copy(b, b+n, m_csin.begin());
     }
 
-    //! Constructor uses \f$ 2 n + 2 \f$ parameters in the following order:
-    //! \f$ [a_0, a_1, \dots, a_n, \omega, b_1, \dots, b_n] \f$
+    //! Constructor uses @f$ 2 n + 2 @f$ parameters in the following order:
+    //! @f$ [a_0, a_1, \dots, a_n, \omega, b_1, \dots, b_n] @f$
     Fourier1(const vector<double>& params);
 
     Fourier1(const Fourier1& b) :
@@ -1282,9 +1282,9 @@ protected:
 /**
  * Implements a sum of Arrhenius terms.
  * The functor class with type \c "Arrhenius" returns
- * \f[
+ * @f[
  * f(T) = \sum_{n=1}^N A_n T^b_n \exp(-E_n/T)
- * \f]
+ * @f]
  * @ingroup func1advanced
  */
 class Arrhenius1 : public Func1
@@ -1302,8 +1302,8 @@ public:
         }
     }
 
-    //! Constructor uses \f$ 3 n\f$ parameters in the following order:
-    //! \f$ [A_1, b_1, E_1, A_2, b_2, E_2, \dots, A_n, b_n, E_n] \f$
+    //! Constructor uses @f$ 3 n@f$ parameters in the following order:
+    //! @f$ [A_1, b_1, E_1, A_2, b_2, E_2, \dots, A_n, b_n, E_n] @f$
     Arrhenius1(const vector<double>& params);
 
     Arrhenius1(const Arrhenius1& b) :
@@ -1343,7 +1343,7 @@ protected:
 
 /**
  * Implements a periodic function.
- * Takes any function and makes it periodic with period \f$ T \f$.
+ * Takes any function and makes it periodic with period @f$ T @f$.
  * @param f  Functor to be made periodic
  * @param T  Period
  * @ingroup func1modified

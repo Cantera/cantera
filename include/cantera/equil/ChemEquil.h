@@ -152,7 +152,7 @@ protected:
      *
      * @param s mixture to be updated
      * @param x vector of non-dimensional element potentials
-     * \f[ \lambda_m/RT \f].
+     * @f[ \lambda_m/RT @f].
      * @param t temperature in K.
      */
     void setToEquilState(ThermoPhase& s,

@@ -48,28 +48,28 @@ namespace Cantera
  * This class provides a very complicated polynomial for the specific
  * Helmholtz free energy of water, as a function of temperature and density.
  *
- * \f[
+ * @f[
  *     \frac{M\hat{f}(\rho,T)}{R T} = \phi(\delta, \tau) =
  *                     \phi^o(\delta, \tau) +  \phi^r(\delta, \tau)
- * \f]
+ * @f]
  *
  * where
  *
- * \f[
+ * @f[
  *     \delta = \rho / \rho_c \quad \mathrm{and} \quad \tau = T_c / T
- * \f]
+ * @f]
  *
  * The following constants are assumed
  *
- * \f[
+ * @f[
  *     T_c = 647.096\mathrm{\;K}
- * \f]
- * \f[
+ * @f]
+ * @f[
  *     \rho_c = 322 \mathrm{\;kg\,m^{-3}}
- * \f]
- * \f[
+ * @f]
+ * @f[
  *     R/M = 0.46151805 \mathrm{\;kJ\,kg^{-1}\,K^{-1}}
- * \f]
+ * @f]
  *
  * The free energy is a unique single-valued function of the temperature and
  * density over its entire range.
@@ -98,8 +98,8 @@ namespace Cantera
  * then calculating the correction factor.
  *
  * This class provides an interface to the WaterPropsIAPWSphi class, which
- * actually calculates the \f$ \phi^o(\delta, \tau)  \f$ and the
- * \f$ \phi^r(\delta, \tau) \f$ polynomials in dimensionless form.
+ * actually calculates the @f$ \phi^o(\delta, \tau)  @f$ and the
+ * @f$ \phi^r(\delta, \tau) @f$ polynomials in dimensionless form.
  *
  * All thermodynamic results from this class are returned in dimensional form.
  * This is because the gas constant (and molecular weight) used within this
@@ -110,12 +110,12 @@ namespace Cantera
  *
  * This class is not a ThermoPhase. However, it does maintain an internal
  * state of the object that is dependent on temperature and density. The
- * internal state is characterized by an internally stored \f$ \tau\f$ and a
- * \f$ \delta \f$ value, and an iState value, which indicates whether the
+ * internal state is characterized by an internally stored @f$ \tau@f$ and a
+ * @f$ \delta @f$ value, and an iState value, which indicates whether the
  * point is a liquid, a gas, or a supercritical fluid. Along with that the
- * \f$ \tau\f$ and a \f$ \delta \f$ values are polynomials of \f$ \tau\f$ and
- * a \f$ \delta \f$ that are kept by the WaterPropsIAPWSphi class. Therefore,
- * whenever  \f$ \tau\f$ or \f$ \delta \f$ is changed, the function setState()
+ * @f$ \tau@f$ and a @f$ \delta @f$ values are polynomials of @f$ \tau@f$ and
+ * a @f$ \delta @f$ that are kept by the WaterPropsIAPWSphi class. Therefore,
+ * whenever  @f$ \tau@f$ or @f$ \delta @f$ is changed, the function setState()
  * must be called in order for the internal state to be kept up to date.
  *
  * The class is pretty straightforward. However, one function deserves

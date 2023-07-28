@@ -59,14 +59,14 @@ protected:
 /*!
  * Given two rate expressions at two specific pressures:
  *
- *   * \f$ P_1: k_1(T) = A_1 T^{b_1} e^{-E_1 / RT} \f$
- *   * \f$ P_2: k_2(T) = A_2 T^{b_2} e^{-E_2 / RT} \f$
+ *   * @f$ P_1: k_1(T) = A_1 T^{b_1} e^{-E_1 / RT} @f$
+ *   * @f$ P_2: k_2(T) = A_2 T^{b_2} e^{-E_2 / RT} @f$
  *
- * The rate at an intermediate pressure \f$ P_1 < P < P_2 \f$ is computed as
- * \f[
+ * The rate at an intermediate pressure @f$ P_1 < P < P_2 @f$ is computed as
+ * @f[
  *  \log k(T,P) = \log k_1(T) + \bigl(\log k_2(T) - \log k_1(T)\bigr)
  *      \frac{\log P - \log P_1}{\log P_2 - \log P_1}
- * \f]
+ * @f]
  * Multiple rate expressions may be given at the same pressure, in which case
  * the rate used in the interpolation formula is the sum of all the rates given
  * at that pressure. For pressures outside the given range, the rate expression

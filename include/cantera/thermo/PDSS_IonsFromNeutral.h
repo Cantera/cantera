@@ -52,13 +52,13 @@ public:
     /*!
      * @copydoc PDSS::gibbs_RT()
      *
-     * \f[
+     * @f[
      *   \frac{\mu^o_k}{RT} = \sum_{m}{ \alpha_{m , k} \frac{\mu^o_{m}}{RT}} + ( 1 - \delta_{k,sp}) 2.0 \ln{2.0}
-     * \f]
+     * @f]
      *
-     * *m* is the neutral molecule species index. \f$ \alpha_{m , k} \f$ is the
+     * *m* is the neutral molecule species index. @f$ \alpha_{m , k} @f$ is the
      * stoichiometric coefficient for the neutral molecule, *m*, that creates the
-     * thermodynamics for the ionic species  *k*. A factor  \f$ 2.0 \ln{2.0} \f$
+     * thermodynamics for the ionic species  *k*. A factor  @f$ 2.0 \ln{2.0} @f$
      * is added to all ions except for the species ionic species, which in this
      * case is the single anion species, with species index *sp*.
      */

@@ -48,7 +48,7 @@
  *
  *   The first type are those whose underlying species have a reference state associated
  *   with them. The reference state describes the thermodynamic functions for a
- *   species at a single reference pressure, \f$p_0\f$. The thermodynamic functions
+ *   species at a single reference pressure, @f$p_0@f$. The thermodynamic functions
  *   are specified via derived objects of the SpeciesThermoInterpType object class, and usually
  *   consist of polynomials in temperature such as the NASA polynomial or the SHOMATE
  *   polynomial.  Calculators for these
@@ -68,7 +68,7 @@
  *   have any nontrivial examples of these types of phases.
  *   In general, the independent variables that completely describe the state of the
  *   system  for this class are temperature, the
- *   phase density, and \f$ N - 1 \f$ species mole or mass fractions.
+ *   phase density, and @f$ N - 1 @f$ species mole or mass fractions.
  *   Additionally, if the
  *   phase involves charged species, the phase electric potential is an added independent variable.
  *   Examples of the first class of %ThermoPhase functions, which includes the
@@ -291,18 +291,18 @@
  * Treatment of the %Phase Potential and the electrochemical potential of a species
  * </H3>
  *
- *  The electrochemical potential of species k in a phase p, \f$ \zeta_k \f$,
+ *  The electrochemical potential of species k in a phase p, @f$ \zeta_k @f$,
  *  is related to the chemical potential via
  *  the following equation,
  *
- *  \f[
+ *  @f[
  *      \zeta_{k}(T,P) = \mu_{k}(T,P) + z_k \phi_p
- *  \f]
+ *  @f]
  *
- *  where \f$ \nu_k \f$ is the charge of species k, and \f$ \phi_p \f$ is
+ *  where @f$ \nu_k @f$ is the charge of species k, and @f$ \phi_p @f$ is
  *  the electric potential of phase p.
  *
- *  The potential  \f$ \phi_p \f$ is tracked and internally stored within
+ *  The potential  @f$ \phi_p @f$ is tracked and internally stored within
  *  the base %ThermoPhase object. It constitutes a specification of the
  *  internal state of the phase; it's the third state variable, the first
  *  two being temperature and density (or, pressure, for incompressible
@@ -314,9 +314,9 @@
  *  changed by the potential because many phases enforce charge
  *  neutrality:
  *
- *  \f[
+ *  @f[
  *      0 = \sum_k z_k X_k
- *  \f]
+ *  @f]
  *
  *  Whether charge neutrality is necessary for a phase is also specified
  *  within the ThermoPhase object, by the function call
@@ -326,7 +326,7 @@
  *  Cantera::HMWSoln for the proper specification of the chemical potentials.
  *
  *
- *  This equation, when applied to the \f$ \zeta_k \f$ equation described
+ *  This equation, when applied to the @f$ \zeta_k @f$ equation described
  *  above, results in a zero net change in the effective Gibbs free
  *  energy of the phase. However, specific charged species in the phase
  *  may increase or decrease their electrochemical potentials, which will
@@ -346,14 +346,14 @@
  *  </H3>
  *
  *
- * The activity \f$a_k\f$ and activity coefficient \f$ \gamma_k \f$ of a
+ * The activity @f$a_k@f$ and activity coefficient @f$ \gamma_k @f$ of a
  * species in solution is related to the chemical potential by
  *
- * \f[
+ * @f[
  *    \mu_k = \mu_k^0(T,P) + \hat R T \log a_k.= \mu_k^0(T,P) + \hat R T \log x_k \gamma_k
- * \f]
+ * @f]
  *
- * The quantity \f$\mu_k^0(T,P)\f$ is
+ * The quantity @f$\mu_k^0(T,P)@f$ is
  * the standard chemical potential at unit activity,
  * which depends on the temperature and pressure,
  * but not on the composition. The
@@ -361,21 +361,21 @@
  * molality convention, where solute species employ the molality-based
  * activity coefficients:
  *
- * \f[
+ * @f[
  *  \mu_k =  \mu_k^\triangle(T,P) + R T ln(a_k^{\triangle}) =
  *            \mu_k^\triangle(T,P) + R T ln(\gamma_k^{\triangle} \frac{m_k}{m^\triangle})
- * \f]
+ * @f]
  *
  * And, the solvent employs the following convention
- * \f[
+ * @f[
  *    \mu_o = \mu^o_o(T,P) + RT ln(a_o)
- * \f]
+ * @f]
  *
- * where \f$ a_o \f$ is often redefined in terms of the osmotic coefficient \f$ \phi \f$.
+ * where @f$ a_o @f$ is often redefined in terms of the osmotic coefficient @f$ \phi @f$.
  *
- *   \f[
+ *   @f[
  *       \phi = \frac{- ln(a_o)}{\tilde{M}_o \sum_{i \ne o} m_i}
- *   \f]
+ *   @f]
  *
  *  %ThermoPhase classes which employ the molality based convention are all derived
  *  from the MolalityVPSSTP class. See the class description for further information
@@ -418,37 +418,37 @@
  *   however, kinetics is usually expressed in terms of unitless activities,
  *   which most often equate to solid phase mole fractions. In order to
  *   accommodate variability here, %Cantera has come up with the idea
- *   of activity concentrations, \f$ C^a_k \f$. Activity concentrations are the expressions
+ *   of activity concentrations, @f$ C^a_k @f$. Activity concentrations are the expressions
  *   used directly in kinetics expressions.
  *   These activity (or generalized) concentrations are used
  *   by kinetics manager classes to compute the forward and
  *   reverse rates of elementary reactions. Note that they may
  *   or may not have units of concentration --- they might be
  *   partial pressures, mole fractions, or surface coverages,
- *   The activity concentrations for species <I>k</I>, \f$ C^a_k \f$, are
- *   related to the activity for species, k, \f$ a_k \f$,
+ *   The activity concentrations for species <I>k</I>, @f$ C^a_k @f$, are
+ *   related to the activity for species, k, @f$ a_k @f$,
  *   via the following expression:
  *
- *   \f[
+ *   @f[
  *       a_k = C^a_k / C^0_k
- *   \f]
+ *   @f]
  *
- *  \f$ C^0_k \f$ are called standard concentrations. They serve as multiplicative factors
+ *  @f$ C^0_k @f$ are called standard concentrations. They serve as multiplicative factors
  *  between the activities and the generalized concentrations. Standard concentrations
  *  may be different for each species. They may depend on both the temperature
  *  and the pressure. However, they may not depend
  *  on the composition of the phase. For example, for the IdealGasPhase object
  *  the standard concentration is defined as
  *
- *  \f[
+ *  @f[
  *     C^0_k = P/ R T
- *  \f]
+ *  @f]
  *
  *  In many solid phase kinetics problems,
  *
- *   \f[
+ *   @f[
  *     C^0_k = 1.0 ,
- *  \f]
+ *   @f]
  *
  *  is employed making the units for activity concentrations in solids unitless.
  *

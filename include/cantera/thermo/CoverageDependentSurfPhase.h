@@ -35,32 +35,32 @@ namespace Cantera
  * to cause lateral interaction. Therefore, it is logical to set ideal surface
  * species properties as the low-coverage limit and add lateral interaction terms
  * to them as excess properties. Accordingly, standard state coverage-dependent
- * enthalpy, entropy, and heat capacity of a surface species \f$ k \f$ can be
+ * enthalpy, entropy, and heat capacity of a surface species @f$ k @f$ can be
  * formulated as follows.
  *
- * \f[
+ * @f[
  *  h_k^o(T,\theta)
  *      = \underbrace{h_k^{o,ideal}(T)
  *        + \int_{298}^{T}c_{p,k}^{o,ideal}(T)dT}_{\text{low-coverage limit}}
  *        + \underbrace{h_k^{o,cov}(T,\theta)
  *        + \int_{298}^{T}c_{p,k}^{o,cov}(T,\theta)dT}_{\text{coverage dependence}}
  *
- * \f]
+ * @f]
  *
- * \f[
+ * @f[
  *  s_k^o(T,\theta)
  *     = \underbrace{s_k^{o,ideal}(T)
  *       + \int_{298}^{T}\frac{c_{p,k}^{o,ideal}(T)}{T}dT}_{\text{low-coverage limit}}
  *       + \underbrace{s_k^{o,cov}(T,\theta)
  *       + \int_{298}^{T}\frac{c_{p,k}^{o,cov}(T,\theta)}{T}dT}_{\text{coverage
  *         dependence}}
- * \f]
+ * @f]
  *
- * \f[
+ * @f[
  *  c_{p,k}^o(T,\theta)
  *      = \underbrace{c_{p,k}^{o,ideal}(T)}_{\text{low-coverage limit}}
  *        + \underbrace{c_{p,k}^{o,cov}(T,\theta)}_{\text{coverage dependence}}
- * \f]
+ * @f]
  *
  * ## Mathematical Models for Coverage-dependent Correction Terms
  *
@@ -68,27 +68,27 @@ namespace Cantera
  * with one of the four algebraic models: linear dependecy model, polynomial
  * dependency model, piecewise-linear, and interpolative dependency model.
  * In the dependency model equations, a coverage-dependent correction term is denoted
- * by \f$ f^{cov} \f$ where \f$ f \f$ can be either enthalpy (\f$ h^{cov} \f$) or
- * entropy (\f$ s^{cov} \f$). Because lateral interaction can compose of both
- * self- and cross- interactions, the total correction term of species \f$ k \f$
- * is a sum of all interacting species \f$ j \f$ which can include itself.
- * Coefficients \f$ c^{(1)}_{k,j}-c^{(6)}_{k,j} \f$ are user-provided parameters
+ * by @f$ f^{cov} @f$ where @f$ f @f$ can be either enthalpy (@f$ h^{cov} @f$) or
+ * entropy (@f$ s^{cov} @f$). Because lateral interaction can compose of both
+ * self- and cross- interactions, the total correction term of species @f$ k @f$
+ * is a sum of all interacting species @f$ j @f$ which can include itself.
+ * Coefficients @f$ c^{(1)}_{k,j}-c^{(6)}_{k,j} @f$ are user-provided parameters
  * that can be given in a input yaml.
  *
  * Linear dependency model:
- * \f[
+ * @f[
  *  f^{cov}_k(\theta) = \sum_j c^{(1)}_{k,j} \theta_j
- * \f]
+ * @f]
  *
  * Polynomial dependency model:
- * \f[
+ * @f[
  *  f^{cov}_k(\theta) =
  *   \sum_j \left[c^{(1)}_{k,j}\theta_j + c^{(2)}_{k,j}\theta_j^2
  *           + c^{(3)}_{k,j}\theta_j^3 + c^{(4)}_{k,j}\theta_j^4\right]
- * \f]
+ * @f]
  *
  * Piecewise-linear dependency model:
- * \f[
+ * @f[
  * f^{cov}_k(\theta) = \sum_j \left\{
  *  \begin{array}{ll}
  *  c^{(5)}_{k,j}\theta_j & \text{, } \theta_j \leq \theta^\text{change}_{k,j} \\
@@ -97,31 +97,31 @@ namespace Cantera
  *  & \text{, } \theta_j > \theta^\text{change}_{k,j} \\
  *  \end{array}
  *  \right.
- * \f]
+ * @f]
  *
  * Interpolative dependency model:
- * \f[
+ * @f[
  *  f^{cov}_k(\theta) =
  *   \sum_j \left[\frac{f^{cov}_k(\theta^{higher}_j) - f^{cov}_k(\theta^{lower}_j)}
  *   {\theta^{higher}_j - \theta^{lower}_j}(\theta_j - \theta^{lower}_j)
  *   + f^{cov}_k (\theta^{lower}_j)\right] \\
  *   \text{where } \theta^{lower}_j \leq \theta_j < \theta^{higher}_j
- * \f]
+ * @f]
  *
  * Coverage-dependent heat capacity is calculated using an equation with a
  * quadratic dependence on coverages and a logarithmic dependence on temperature.
  * Temperature is nondimensionalized with a reference temperature of 1 K.
- * The coverage-dependent heat capacity of species \f$ k \f$ is a sum of
- * all quantities dependent on coverage of species \f$ j \f$. Coefficients
- * \f$ c^{(a)}_{k,j} \text{ and } c^{(b)}_{k,j} \f$ are user-provided parameters
+ * The coverage-dependent heat capacity of species @f$ k @f$ is a sum of
+ * all quantities dependent on coverage of species @f$ j @f$. Coefficients
+ * @f$ c^{(a)}_{k,j} \text{ and } c^{(b)}_{k,j} @f$ are user-provided parameters
  * that can be given in an input yaml.
  *
  * Coverage-dependent heat capacity model:
- * \f[
+ * @f[
  *  c^{cov}_{p,k}(\theta) =
  *   \sum_j \left(c^{(a)}_{k,j} \ln\left(\frac{T}{1\text{ K}}\right)
  *   + c^{(b)}_{k,j}\right) \theta_j^2
- * \f]
+ * @f]
  */
 class CoverageDependentSurfPhase : public SurfPhase
 {
@@ -174,12 +174,12 @@ public:
         size_t j;
         //! array of polynomial coefficients describing coverage-dependent enthalpy
         //! [J/kmol] in order of 1st-order, 2nd-order, 3rd-order, and 4th-order
-        //! coefficients (\f$ c^{(1)}, c^{(2)}, c^{(3)}, \text{ and } c^{(4)} \f$
+        //! coefficients (@f$ c^{(1)}, c^{(2)}, c^{(3)}, \text{ and } c^{(4)} @f$
         //! in the linear or the polynomial dependency model)
         vector_fp enthalpy_coeffs;
         //! array of polynomial coefficients describing coverage-dependent entropy
         //! [J/kmol/K] in order of 1st-order, 2nd-order, 3rd-order, and 4th-order
-        //! coefficients (\f$ c^{(1)}, c^{(2)}, c^{(3)}, \text{ and } c^{(4)} \f$
+        //! coefficients (@f$ c^{(1)}, c^{(2)}, c^{(3)}, \text{ and } c^{(4)} @f$
         //! in the linear or the polynomial dependency model)
         vector_fp entropy_coeffs;
         //! boolean indicating whether the dependency is linear
@@ -293,10 +293,10 @@ public:
         //! index of a species whose coverage affects heat capacity of
         //! a target species
         size_t j;
-        //! coefficient \f$ c^{(a)} \f$ [J/kmol/K] in the coverage-dependent
+        //! coefficient @f$ c^{(a)} @f$ [J/kmol/K] in the coverage-dependent
         //! heat capacity model
         double coeff_a;
-        //! coefficient \f$ c^{(b)} \f$ [J/kmol/K] in the coverage-dependent
+        //! coefficient @f$ c^{(b)} @f$ [J/kmol/K] in the coverage-dependent
         //! heat capacity model
         double coeff_b;
     };
@@ -328,8 +328,8 @@ public:
                                       AnyMap& speciesNode) const;
 
     //! @name Methods calculating reference state thermodynamic properties
-    //! Reference state properties are evaluated at \f$ T \text{ and }
-    //! \theta^{ref} \f$. With coverage fixed at a reference value,
+    //! Reference state properties are evaluated at @f$ T \text{ and }
+    //! \theta^{ref} @f$. With coverage fixed at a reference value,
     //! reference state properties are effectively only dependent on temperature.
     //! @{
     virtual void getEnthalpy_RT_ref(double* hrt) const;
@@ -339,131 +339,131 @@ public:
     //! @}
 
     //! @name Methods calculating standard state thermodynamic properties
-    //! Standard state properties are evaluated at \f$ T \text{ and } \theta \f$,
+    //! Standard state properties are evaluated at @f$ T \text{ and } \theta @f$,
     //! and thus are dependent both on temperature and coverage.
     //! @{
 
     //! Get the nondimensionalized standard state enthalpy vector.
     /*!
-     * \f[
+     * @f[
      *      \frac{h^o_k(T,\theta)}{RT}
      *          = \frac{h^{ref}_k(T) + h^{cov}_k(T,\theta)
      *            + \int_{298}^{T} c^{cov}_{p,k}(T,\theta)dT}{RT}
-     * \f]
+     * @f]
      */
     virtual void getEnthalpy_RT(double* hrt) const;
 
     //! Get the nondimensionalized standard state entropy vector.
     /*!
-     * \f[
+     * @f[
      *      \frac{s^o_k(T,\theta)}{R}
      *          = \frac{s^{ref}_k(T) + s^{cov}_k(T,\theta)
      *            + \int_{298}^{T}\frac{c^{cov}_{p,k}(T,\theta)}{T}dT}{R}
      *            - \ln\left(\frac{1}{\theta_{ref}}\right)
-     * \f]
+     * @f]
      */
     virtual void getEntropy_R(double* sr) const;
 
     //! Get the nondimensionalized standard state heat capacity vector.
     /*!
-     * \f[
+     * @f[
      *      \frac{c^o_{p,k}(T,\theta)}{RT}
      *          = \frac{c^{ref}_{p,k}(T) + c^{cov}_{p,k}(T,\theta)}{RT}
-     * \f]
+     * @f]
      */
     virtual void getCp_R(double* cpr) const;
 
     //! Get the nondimensionalized standard state gibbs free energy vector.
     /*!
-     * \f[
+     * @f[
      *      \frac{g^o_k(T,\theta)}{RT}
      *          = \frac{h^o_k(T,\theta)}{RT} + \frac{s^o_k(T,\theta)}{R}
-     * \f]
+     * @f]
      */
     virtual void getGibbs_RT(double* grt) const;
 
     //! Get the standard state gibbs free energy vector. Units: J/kmol.
     /*!
-     * \f[
+     * @f[
      *      g^o_k(T,\theta) = h^o_k(T,\theta) + Ts^o_k(T,\theta)
-     * \f]
+     * @f]
      */
     virtual void getPureGibbs(double* g) const;
 
     //! Get the standard state chemical potential vector. Units: J/kmol.
     /*!
-     * \f[
+     * @f[
      *      \mu^o_k(T,\theta) = h^o_k(T,\theta) + Ts^o_k(T,\theta)
-     * \f]
+     * @f]
      */
     virtual void getStandardChemPotentials(double* mu0) const;
     //! @}
 
     //! @name Methods calculating partial molar thermodynamic properties
-    //! Partial molar properties are evaluated at \f$ T \text{ and } \theta \f$,
+    //! Partial molar properties are evaluated at @f$ T \text{ and } \theta @f$,
     //! and thus are dependent both on temperature and coverage.
     //! @{
 
     //! Get the partial molar enthalpy vector. Units: J/kmol.
     /*!
-     * \f[
+     * @f[
      *      \tilde{h}_k(T,\theta) = h^o_k(T,\theta)
-     * \f]
+     * @f]
      */
     virtual void getPartialMolarEnthalpies(double* hbar) const;
 
     //! Get the partial molar entropy vector. Units: J/kmol/K.
     /*!
-     * \f[
+     * @f[
      *      \tilde{s}_k(T,\theta) = s^o_k(T,\theta) - R\ln(\theta_k)
-     * \f]
+     * @f]
      */
     virtual void getPartialMolarEntropies(double* sbar) const;
 
     //! Get the partial molar heat capacity vector. Units: J/kmol/K.
     /*!
-     * \f[
+     * @f[
      *      \tilde{c}_{p,k}(T,\theta) = c^o_{p,k}(T,\theta)
-     * \f]
+     * @f]
      */
     virtual void getPartialMolarCp(double* cpbar) const;
 
     //! Get the chemical potential vector. Units: J/kmol.
     /*!
-     * \f[
+     * @f[
      *      \mu_k(T,\theta) = \mu^o_k(T,\theta) + RT\ln(\theta_k)
-     * \f]
+     * @f]
      */
     virtual void getChemPotentials(double* mu) const;
     //! @}
 
     //! @name Methods calculating Phase thermodynamic properties
-    //! Phase properties are evaluated at \f$ T \text{ and } \theta \f$,
+    //! Phase properties are evaluated at @f$ T \text{ and } \theta @f$,
     //! and thus are dependent both on temperature and coverage.
 
     //! @{
 
     //! Return the solution's molar enthalpy. Units: J/kmol
     /*!
-     * \f[
+     * @f[
      *      \hat h(T,\theta) = \sum_k \theta_k \tilde{h}_k(T,\theta)
-     * \f]
+     * @f]
      */
     virtual double enthalpy_mole() const;
 
     //! Return the solution's molar entropy. Units: J/kmol/K
     /*!
-     * \f[
+     * @f[
      *      \hat s(T,\theta) = \sum_k \theta_k \tilde{s}_k(T,\theta)
-     * \f]
+     * @f]
      */
     virtual double entropy_mole() const;
 
     //! Return the solution's molar heat capacity. Units: J/kmol/K
     /*!
-     * \f[
+     * @f[
      *      \hat{c_p}(T,\theta) = \sum_k \theta_k \tilde{c_p}_k(T,\theta)
-     * \f]
+     * @f]
      */
     virtual double cp_mole() const;
     //! @}

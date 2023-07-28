@@ -33,26 +33,26 @@ namespace Cantera
  *
  * For an incompressible, stoichiometric substance, the molar internal energy is
  * independent of pressure. Since the thermodynamic properties are specified by
- * giving the standard-state enthalpy, the term \f$ P_0 \hat v\f$ is subtracted
+ * giving the standard-state enthalpy, the term @f$ P_0 \hat v@f$ is subtracted
  * from the specified molar enthalpy to compute the molar internal energy. The
  * entropy is assumed to be independent of the pressure.
  *
  * The enthalpy function is given by the following relation.
  *
- * \f[
+ * @f[
  *              h^o_k(T,P) =
  *                  h^{ref}_k(T) + \tilde v \left( P - P_{ref} \right)
- * \f]
+ * @f]
  *
  * For an incompressible, stoichiometric substance, the molar internal energy is
  * independent of pressure. Since the thermodynamic properties are specified by
- * giving the standard-state enthalpy, the term \f$ P_{ref} \tilde v\f$ is
+ * giving the standard-state enthalpy, the term @f$ P_{ref} \tilde v@f$ is
  * subtracted from the specified reference molar enthalpy to compute the molar
  * internal energy.
  *
- * \f[
+ * @f[
  *            u^o_k(T,P) = h^{ref}_k(T) - P_{ref} \tilde v
- * \f]
+ * @f]
  *
  * The standard state heat capacity and entropy are independent of pressure. The
  * standard state Gibbs free energy is obtained from the enthalpy and entropy
@@ -73,12 +73,12 @@ namespace Cantera
  * An example of a reaction using this is a sticking coefficient reaction of a
  * substance in an ideal gas phase on a surface with a bulk phase species in
  * this phase. In this case, the rate of progress for this reaction,
- * \f$ R_s \f$, may be expressed via the following equation:
- *   \f[
+ * @f$ R_s @f$, may be expressed via the following equation:
+ *   @f[
  *    R_s = k_s C_{gas}
- *   \f]
- * where the units for \f$ R_s \f$ are kmol m-2 s-1. \f$ C_{gas} \f$ has units
- * of kmol m-3. Therefore, the kinetic rate constant, \f$ k_s \f$, has units of
+ *   @f]
+ * where the units for @f$ R_s @f$ are kmol m-2 s-1. @f$ C_{gas} @f$ has units
+ * of kmol m-3. Therefore, the kinetic rate constant, @f$ k_s @f$, has units of
  * m s-1. Nowhere does the concentration of the bulk phase appear in the rate
  * constant expression, since it's a stoichiometric phase and the activity is
  * always equal to 1.0.
@@ -141,8 +141,8 @@ public:
 
     //! This method returns an array of generalized concentrations
     /*!
-     * \f$ C^a_k\f$ are defined such that \f$ a_k = C^a_k / C^0_k, \f$ where
-     * \f$ C^0_k \f$ is a standard concentration defined below and \f$ a_k \f$
+     * @f$ C^a_k@f$ are defined such that @f$ a_k = C^a_k / C^0_k, @f$ where
+     * @f$ C^0_k @f$ is a standard concentration defined below and @f$ a_k @f$
      * are activities used in the thermodynamic functions. These activity (or
      * generalized) concentrations are used by kinetics manager classes to
      * compute the forward and reverse rates of elementary reactions.
@@ -158,7 +158,7 @@ public:
 
     //! Return the standard concentration for the kth species
     /*!
-     * The standard concentration \f$ C^0_k \f$ used to normalize the activity
+     * The standard concentration @f$ C^0_k @f$ used to normalize the activity
      * (that is, generalized) concentration. This phase assumes that the kinetics
      * operator works on an dimensionless basis. Thus, the standard
      * concentration is equal to 1.0.
@@ -178,7 +178,7 @@ public:
      * potential expression, and therefore the standard chemical potential and
      * the chemical potential are both equal to the molar Gibbs function.
      *
-     * These are the standard state chemical potentials \f$ \mu^0_k(T,P) \f$.
+     * These are the standard state chemical potentials @f$ \mu^0_k(T,P) @f$.
      * The values are evaluated at the current temperature and pressure of the
      * solution
      *
@@ -202,7 +202,7 @@ public:
      * For an incompressible, stoichiometric substance, the molar internal
      * energy is independent of pressure. Since the thermodynamic properties
      * are specified by giving the standard-state enthalpy, the term
-     * \f$ P_{ref} \hat v\f$ is subtracted from the specified reference molar
+     * @f$ P_{ref} \hat v@f$ is subtracted from the specified reference molar
      * enthalpy to compute the standard state molar internal energy.
      *
      * @param urt  output vector of nondimensional standard state

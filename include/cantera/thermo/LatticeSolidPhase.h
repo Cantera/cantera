@@ -52,14 +52,14 @@ namespace Cantera
  * contains a value for the molar density of the entire mixture. This is the
  * same thing as saying that
  *
- * \f[
+ * @f[
  *     L_i = L^{solid}   \theta_i
- * \f]
+ * @f]
  *
- * \f$ L_i \f$ is the molar volume of the ith lattice. \f$ L^{solid} \f$ is the
- * molar volume of the entire solid. \f$  \theta_i \f$ is a fixed weighting
+ * @f$ L_i @f$ is the molar volume of the ith lattice. @f$ L^{solid} @f$ is the
+ * molar volume of the entire solid. @f$  \theta_i @f$ is a fixed weighting
  * factor for the ith lattice representing the lattice stoichiometric
- * coefficient. For this object the \f$ \theta_i \f$ values are fixed.
+ * coefficient. For this object the @f$ \theta_i @f$ values are fixed.
  *
  * Let's take FeS2 as an example, which may be thought of as a combination of
  * two lattices: Fe and S lattice. The Fe sublattice has a molar density of 1
@@ -81,16 +81,16 @@ namespace Cantera
  * The molar volume of the Lattice solid is calculated from the following
  * formula
  *
- *  \f[
+ *  @f[
  *         V = \sum_i{ \theta_i V_i^{lattice}}
- *  \f]
+ *  @f]
  *
- * where \f$ V_i^{lattice} \f$ is the molar volume of the ith sublattice. This
+ * where @f$ V_i^{lattice} @f$ is the molar volume of the ith sublattice. This
  * is calculated from the following standard formula.
  *
- * \f[
+ * @f[
  *     V_i = \sum_k{ X_k V_k}
- * \f]
+ * @f]
  *
  * where k is a species in the ith sublattice.
  *
@@ -143,14 +143,14 @@ public:
 
     //! Return the Molar Enthalpy. Units: J/kmol.
     /*!
-     * The molar enthalpy is determined by the following formula, where \f$
-     * \theta_n \f$ is the lattice stoichiometric coefficient of the nth lattice
+     * The molar enthalpy is determined by the following formula, where @f$
+     * \theta_n @f$ is the lattice stoichiometric coefficient of the nth lattice
      *
-     * \f[
+     * @f[
      *   \tilde h(T,P) = {\sum_n \theta_n  \tilde h_n(T,P) }
-     * \f]
+     * @f]
      *
-     * \f$ \tilde h_n(T,P) \f$ is the enthalpy of the nth lattice.
+     * @f$ \tilde h_n(T,P) @f$ is the enthalpy of the nth lattice.
      *
      *  units J/kmol
      */
@@ -158,14 +158,14 @@ public:
 
     //! Return the Molar Internal Energy. Units: J/kmol.
     /*!
-     * The molar enthalpy is determined by the following formula, where \f$
-     * \theta_n \f$ is the lattice stoichiometric coefficient of the nth lattice
+     * The molar enthalpy is determined by the following formula, where @f$
+     * \theta_n @f$ is the lattice stoichiometric coefficient of the nth lattice
      *
-     * \f[
+     * @f[
      *   \tilde u(T,P) = {\sum_n \theta_n \tilde u_n(T,P) }
-     * \f]
+     * @f]
      *
-     * \f$ \tilde u_n(T,P) \f$ is the internal energy of the nth lattice.
+     * @f$ \tilde u_n(T,P) @f$ is the internal energy of the nth lattice.
      *
      *  units J/kmol
      */
@@ -173,14 +173,14 @@ public:
 
     //! Return the Molar Entropy. Units: J/kmol/K.
     /*!
-     * The molar enthalpy is determined by the following formula, where \f$
-     * \theta_n \f$ is the lattice stoichiometric coefficient of the nth lattice
+     * The molar enthalpy is determined by the following formula, where @f$
+     * \theta_n @f$ is the lattice stoichiometric coefficient of the nth lattice
      *
-     * \f[
+     * @f[
      *   \tilde s(T,P) = \sum_n \theta_n \tilde s_n(T,P)
-     * \f]
+     * @f]
      *
-     * \f$ \tilde s_n(T,P) \f$ is the molar entropy of the nth lattice.
+     * @f$ \tilde s_n(T,P) @f$ is the molar entropy of the nth lattice.
      *
      *  units J/kmol/K
      */
@@ -189,14 +189,14 @@ public:
     //! Return the Molar Gibbs energy. Units: J/kmol.
     /*!
      * The molar Gibbs free energy is determined by the following formula, where
-     * \f$ \theta_n \f$ is the lattice stoichiometric coefficient of the nth
+     * @f$ \theta_n @f$ is the lattice stoichiometric coefficient of the nth
      * lattice
      *
-     * \f[
+     * @f[
      *   \tilde h(T,P) = {\sum_n \theta_n \tilde h_n(T,P) }
-     * \f]
+     * @f]
      *
-     * \f$ \tilde h_n(T,P) \f$ is the enthalpy of the nth lattice.
+     * @f$ \tilde h_n(T,P) @f$ is the enthalpy of the nth lattice.
      *
      *  units J/kmol
      */
@@ -205,14 +205,14 @@ public:
     //! Return the constant pressure heat capacity. Units: J/kmol/K
     /*!
      * The molar constant pressure heat capacity is determined by the following
-     * formula, where \f$ C_n \f$ is the lattice molar density of the nth
-     * lattice, and \f$ C_T \f$ is the molar density of the solid compound.
+     * formula, where @f$ C_n @f$ is the lattice molar density of the nth
+     * lattice, and @f$ C_T @f$ is the molar density of the solid compound.
      *
-     * \f[
+     * @f[
      *   \tilde c_{p,n}(T,P) = \frac{\sum_n C_n \tilde c_{p,n}(T,P) }{C_T},
-     * \f]
+     * @f]
      *
-     * \f$ \tilde c_{p,n}(T,P) \f$ is the heat capacity of the nth lattice.
+     * @f$ \tilde c_{p,n}(T,P) @f$ is the heat capacity of the nth lattice.
      *
      *  units J/kmol/K
      */
@@ -221,14 +221,14 @@ public:
     //! Return the constant volume heat capacity. Units: J/kmol/K
     /*!
      * The molar constant volume heat capacity is determined by the following
-     * formula, where \f$ C_n \f$ is the lattice molar density of the nth
-     * lattice, and \f$ C_T \f$ is the molar density of the solid compound.
+     * formula, where @f$ C_n @f$ is the lattice molar density of the nth
+     * lattice, and @f$ C_T @f$ is the molar density of the solid compound.
      *
-     * \f[
+     * @f[
      *   \tilde c_{v,n}(T,P) = \frac{\sum_n C_n \tilde c_{v,n}(T,P) }{C_T},
-     * \f]
+     * @f]
      *
-     * \f$ \tilde c_{v,n}(T,P) \f$ is the heat capacity of the nth lattice.
+     * @f$ \tilde c_{v,n}(T,P) @f$ is the heat capacity of the nth lattice.
      *
      *  units J/kmol/K
      */
@@ -254,11 +254,11 @@ public:
     /*!
      * The formula for this is
      *
-     * \f[
+     * @f[
      *      \rho = \sum_n{ \rho_n \theta_n }
-     * \f]
+     * @f]
      *
-     * where \f$ \rho_n \f$  is the density of the nth sublattice
+     * where @f$ \rho_n @f$  is the density of the nth sublattice
      */
     doublereal calcDensity();
 
@@ -344,11 +344,11 @@ public:
     /*!
      * Units (J/kmol). For this phase, the partial molar enthalpies are equal to
      * the pure species enthalpies
-     *  \f[
+     *  @f[
      * \bar h_k(T,P) = \hat h^{ref}_k(T) + (P - P_{ref}) \hat V^0_k
-     * \f]
-     * The reference-state pure-species enthalpies, \f$ \hat h^{ref}_k(T) \f$,
-     * at the reference pressure,\f$ P_{ref} \f$, are computed by the species
+     * @f]
+     * The reference-state pure-species enthalpies, @f$ \hat h^{ref}_k(T) @f$,
+     * at the reference pressure,@f$ P_{ref} @f$, are computed by the species
      * thermodynamic property manager. They are polynomial functions of
      * temperature.
      * @see MultiSpeciesThermo
@@ -363,11 +363,11 @@ public:
      * solution. Units: J/kmol/K. For this phase, the partial molar entropies
      * are equal to the pure species entropies plus the ideal solution
      * contribution.
-     *  \f[
+     *  @f[
      * \bar s_k(T,P) =  \hat s^0_k(T) - R log(X_k)
-     * \f]
-     * The reference-state pure-species entropies,\f$ \hat s^{ref}_k(T) \f$, at
-     * the reference pressure, \f$ P_{ref} \f$, are computed by the species
+     * @f]
+     * The reference-state pure-species entropies,@f$ \hat s^{ref}_k(T) @f$, at
+     * the reference pressure, @f$ P_{ref} @f$, are computed by the species
      * thermodynamic property manager. They are polynomial functions of
      * temperature.
      * @see MultiSpeciesThermo
@@ -401,7 +401,7 @@ public:
     //! the species at their standard states at the current *T* and *P* of the
     //! solution.
     /*!
-     * These are the standard state chemical potentials \f$ \mu^0_k(T,P) \f$.
+     * These are the standard state chemical potentials @f$ \mu^0_k(T,P) @f$.
      * The values are evaluated at the current temperature and pressure of the
      * solution.
      *
@@ -428,7 +428,7 @@ public:
     //! Add a lattice to this phase
     void addLattice(shared_ptr<ThermoPhase> lattice);
 
-    //! Set the lattice stoichiometric coefficients, \f$ \theta_i \f$
+    //! Set the lattice stoichiometric coefficients, @f$ \theta_i @f$
     void setLatticeStoichiometry(const compositionMap& comp);
 
     virtual void setParameters(const AnyMap& phaseNode,

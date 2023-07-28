@@ -337,9 +337,9 @@ public:
     //! Return the volumetric thermal expansion coefficient. Units: 1/K.
     /*!
      * The thermal expansion coefficient is defined as
-     * \f[
+     * @f[
      *     \beta = \frac{1}{v}\left(\frac{\partial v}{\partial T}\right)_P
-     * \f]
+     * @f]
      */
     virtual doublereal thermalExpansionCoeff() const;
     //! @}

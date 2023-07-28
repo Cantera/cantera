@@ -41,173 +41,173 @@ namespace Cantera
  * the generalization of the Margules formulation for a phase that has more than
  * 2 species.
  *
- * \f[
+ * @f[
  *     G^E = \sum_i \left(  H_{Ei} - T S_{Ei} \right)
- * \f]
- * \f[
+ * @f]
+ * @f[
  *    H^E_i = n X_{Ai} X_{Bi} \left( h_{o,i} +  h_{1,i} X_{Bi} \right)
- * \f]
- * \f[
+ * @f]
+ * @f[
  *    S^E_i = n X_{Ai} X_{Bi} \left( s_{o,i} +  s_{1,i} X_{Bi} \right)
- * \f]
+ * @f]
  *
  * where n is the total moles in the solution.
  *
  * The activity of a species defined in the phase is given by an excess Gibbs
  * free energy formulation.
  *
- * \f[
+ * @f[
  *      a_k = \gamma_k  X_k
- * \f]
+ * @f]
  *
  * where
  *
- * \f[
+ * @f[
  *      R T \ln( \gamma_k )= \frac{d(n G^E)}{d(n_k)}\Bigg|_{n_i}
- * \f]
+ * @f]
  *
  * Taking the derivatives results in the following expression
  *
- * \f[
+ * @f[
  *      R T \ln( \gamma_k )= \sum_i \left( \left( \delta_{Ai,k} X_{Bi} + \delta_{Bi,k} X_{Ai}  - X_{Ai} X_{Bi} \right)
  *       \left( g^E_{o,i} +  g^E_{1,i} X_{Bi} \right) +
  *       \left( \delta_{Bi,k} - X_{Bi} \right)      X_{Ai} X_{Bi}  g^E_{1,i} \right)
- * \f]
+ * @f]
  * where
- * \f$  g^E_{o,i} =  h_{o,i} - T s_{o,i} \f$ and
- * \f$ g^E_{1,i} =  h_{1,i} - T s_{1,i} \f$ and where
- * \f$ X_k \f$ is the mole fraction of species *k*.
+ * @f$  g^E_{o,i} =  h_{o,i} - T s_{o,i} @f$ and
+ * @f$ g^E_{1,i} =  h_{1,i} - T s_{1,i} @f$ and where
+ * @f$ X_k @f$ is the mole fraction of species *k*.
  *
  * This object inherits from the class VPStandardStateTP. Therefore, the
  * specification and calculation of all standard state and reference state
  * values are handled at that level. Various functional forms for the standard
  * state are permissible. The chemical potential for species *k* is equal to
  *
- * \f[
+ * @f[
  *      \mu_k(T,P) = \mu^o_k(T, P) + R T \ln(\gamma_k X_k)
- * \f]
+ * @f]
  *
  * The partial molar entropy for species *k* is given by
  *
- * \f[
+ * @f[
  *       \tilde{s}_k(T,P) =  s^o_k(T,P)  - R \ln( \gamma_k X_k )
  *              - R T \frac{d \ln(\gamma_k) }{dT}
- * \f]
+ * @f]
  *
  * The partial molar enthalpy for species *k* is given by
  *
- * \f[
+ * @f[
  *      \tilde{h}_k(T,P) = h^o_k(T,P) - R T^2 \frac{d \ln(\gamma_k)}{dT}
- * \f]
+ * @f]
  *
  * The partial molar volume for species *k* is
  *
- * \f[
+ * @f[
  *        \tilde V_k(T,P)  = V^o_k(T,P)  + R T \frac{d \ln(\gamma_k) }{dP}
- * \f]
+ * @f]
  *
  * The partial molar Heat Capacity for species *k* is
  *
- * \f[
+ * @f[
  *      \tilde{C}_{p,k}(T,P) = C^o_{p,k}(T,P)   - 2 R T \frac{d \ln( \gamma_k )}{dT}
  *              - R T^2 \frac{d^2 \ln(\gamma_k) }{{dT}^2}
- * \f]
+ * @f]
  *
  * ## Application within Kinetics Managers
  *
- * \f$ C^a_k\f$ are defined such that \f$ a_k = C^a_k / C^s_k, \f$ where
- * \f$ C^s_k \f$ is a standard concentration defined below and \f$ a_k \f$ are
+ * @f$ C^a_k@f$ are defined such that @f$ a_k = C^a_k / C^s_k, @f$ where
+ * @f$ C^s_k @f$ is a standard concentration defined below and @f$ a_k @f$ are
  * activities used in the thermodynamic functions.  These activity (or
  * generalized) concentrations are used by kinetics manager classes to compute
  * the forward and reverse rates of elementary reactions. The activity
- * concentration,\f$  C^a_k \f$,is given by the following expression.
+ * concentration,@f$  C^a_k @f$,is given by the following expression.
  *
- * \f[
+ * @f[
  *      C^a_k = C^s_k  X_k  = \frac{P}{R T} X_k
- * \f]
+ * @f]
  *
  * The standard concentration for species *k* is independent of *k* and equal to
  *
- * \f[
+ * @f[
  *     C^s_k =  C^s = \frac{P}{R T}
- * \f]
+ * @f]
  *
  * For example, a bulk-phase binary gas reaction between species j and k,
  * producing a new gas species l would have the following equation for its rate
- * of progress variable, \f$ R^1 \f$, which has units of kmol m-3 s-1.
+ * of progress variable, @f$ R^1 @f$, which has units of kmol m-3 s-1.
  *
- * \f[
+ * @f[
  *    R^1 = k^1 C_j^a C_k^a =  k^1 (C^s a_j) (C^s a_k)
- * \f]
+ * @f]
  * where
- * \f[
+ * @f[
  *    C_j^a = C^s a_j \mbox{\quad and \quad} C_k^a = C^s a_k
- * \f]
+ * @f]
  *
- * \f$ C_j^a \f$ is the activity concentration of species j, and \f$ C_k^a \f$
- * is the activity concentration of species k. \f$ C^s \f$ is the standard
- * concentration. \f$ a_j \f$ is the activity of species j which is equal to the
+ * @f$ C_j^a @f$ is the activity concentration of species j, and @f$ C_k^a @f$
+ * is the activity concentration of species k. @f$ C^s @f$ is the standard
+ * concentration. @f$ a_j @f$ is the activity of species j which is equal to the
  * mole fraction of j.
  *
  * The reverse rate constant can then be obtained from the law of microscopic
  * reversibility and the equilibrium expression for the system.
  *
- * \f[
+ * @f[
  *       \frac{a_j a_k}{ a_l} = K_a^{o,1} = \exp(\frac{\mu^o_l - \mu^o_j - \mu^o_k}{R T} )
- * \f]
+ * @f]
  *
- * \f$  K_a^{o,1} \f$ is the dimensionless form of the equilibrium constant,
- * associated with the pressure dependent standard states \f$ \mu^o_l(T,P) \f$
- * and their associated activities, \f$ a_l \f$, repeated here:
+ * @f$  K_a^{o,1} @f$ is the dimensionless form of the equilibrium constant,
+ * associated with the pressure dependent standard states @f$ \mu^o_l(T,P) @f$
+ * and their associated activities, @f$ a_l @f$, repeated here:
  *
- * \f[
+ * @f[
  *      \mu_l(T,P) = \mu^o_l(T, P) + R T \log(a_l)
- * \f]
+ * @f]
  *
  * We can switch over to expressing the equilibrium constant in terms of the
  * reference state chemical potentials
  *
- * \f[
+ * @f[
  *     K_a^{o,1} = \exp(\frac{\mu^{ref}_l - \mu^{ref}_j - \mu^{ref}_k}{R T} ) * \frac{P_{ref}}{P}
- * \f]
+ * @f]
  *
- * The concentration equilibrium constant, \f$ K_c \f$, may be obtained by
+ * The concentration equilibrium constant, @f$ K_c @f$, may be obtained by
  * changing over to activity concentrations. When this is done:
  *
- * \f[
+ * @f[
  *       \frac{C^a_j C^a_k}{ C^a_l} = C^o K_a^{o,1} = K_c^1 =
  *           \exp(\frac{\mu^{ref}_l - \mu^{ref}_j - \mu^{ref}_k}{R T} ) * \frac{P_{ref}}{RT}
- * \f]
+ * @f]
  *
- * %Kinetics managers will calculate the concentration equilibrium constant, \f$
- * K_c \f$, using the second and third part of the above expression as a
+ * %Kinetics managers will calculate the concentration equilibrium constant, @f$
+ * K_c @f$, using the second and third part of the above expression as a
  * definition for the concentration equilibrium constant.
  *
  * For completeness, the pressure equilibrium constant may be obtained as well
  *
- * \f[
+ * @f[
  *     \frac{P_j P_k}{ P_l P_{ref}} = K_p^1 = \exp(\frac{\mu^{ref}_l - \mu^{ref}_j - \mu^{ref}_k}{R T} )
- * \f]
+ * @f]
  *
- * \f$ K_p \f$ is the simplest form of the equilibrium constant for ideal gases.
+ * @f$ K_p @f$ is the simplest form of the equilibrium constant for ideal gases.
  * However, it isn't necessarily the simplest form of the equilibrium constant
- * for other types of phases; \f$ K_c \f$ is used instead because it is
+ * for other types of phases; @f$ K_c @f$ is used instead because it is
  * completely general.
  *
  * The reverse rate of progress may be written down as
- * \f[
+ * @f[
  *    R^{-1} = k^{-1} C_l^a =  k^{-1} (C^o a_l)
- * \f]
+ * @f]
  *
  * where we can use the concept of microscopic reversibility to write the
  * reverse rate constant in terms of the forward rate constant and the
- * concentration equilibrium constant, \f$ K_c \f$.
+ * concentration equilibrium constant, @f$ K_c @f$.
  *
- * \f[
+ * @f[
  *    k^{-1} =  k^1 K^1_c
- * \f]
+ * @f]
  *
- * \f$k^{-1} \f$ has units of s-1.
+ * @f$k^{-1} @f$ has units of s-1.
  *
  * @ingroup thermoprops
  */
@@ -239,9 +239,9 @@ public:
     //! @}
     //! @name Activities, Standard States, and Activity Concentrations
     //!
-    //! The activity \f$a_k\f$ of a species in solution is related to the
-    //! chemical potential by \f[ \mu_k = \mu_k^0(T) + \hat R T \log a_k. \f] The
-    //! quantity \f$\mu_k^0(T,P)\f$ is the chemical potential at unit activity,
+    //! The activity @f$a_k@f$ of a species in solution is related to the
+    //! chemical potential by @f[ \mu_k = \mu_k^0(T) + \hat R T \log a_k. @f] The
+    //! quantity @f$\mu_k^0(T,P)@f$ is the chemical potential at unit activity,
     //! which depends only on temperature and pressure.
     //! @{
 
@@ -262,9 +262,9 @@ public:
      * state enthalpies modified by the derivative of the molality-based
      * activity coefficient wrt temperature
      *
-     * \f[
+     * @f[
      *   \bar h_k(T,P) = h^o_k(T,P) - R T^2 \frac{d \ln(\gamma_k)}{dT}
-     * \f]
+     * @f]
      *
      * @param hbar  Vector of returned partial molar enthalpies
      *              (length m_kk, units = J/kmol)
@@ -280,11 +280,11 @@ public:
      * state enthalpies modified by the derivative of the activity coefficient
      * wrt temperature
      *
-     * \f[
+     * @f[
      *   \bar s_k(T,P) = s^o_k(T,P) - R T^2 \frac{d \ln(\gamma_k)}{dT}
      *                              - R \ln( \gamma_k X_k)
      *                              - R T \frac{d \ln(\gamma_k) }{dT}
-     * \f]
+     * @f]
      *
      * @param sbar  Vector of returned partial molar entropies
      *              (length m_kk, units = J/kmol/K)
@@ -300,13 +300,13 @@ public:
      * state enthalpies modified by the derivative of the activity coefficient
      * wrt temperature
      *
-     *  \f[
+     *  @f[
      *   ???????????????
      *   \bar s_k(T,P) = s^o_k(T,P) - R T^2 \frac{d \ln(\gamma_k)}{dT}
      *                              - R \ln( \gamma_k X_k)
      *                              - R T \frac{d \ln(\gamma_k) }{dT}
      *   ???????????????
-     *  \f]
+     *  @f]
      *
      * @param cpbar  Vector of returned partial molar heat capacities
      *              (length m_kk, units = J/kmol/K)

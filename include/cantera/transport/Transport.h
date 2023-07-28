@@ -335,9 +335,9 @@ public:
      * Frequently, but not always, the mobility is calculated from the diffusion
      * coefficient using the Einstein relation
      *
-     * \f[
+     * @f[
      *      \mu^e_k = \frac{F D_k}{R T}
-     * \f]
+     * @f]
      *
      * @param mobil_e  Returns the mobilities of the species in array \c
      *               mobil_e. The array must be dimensioned at least as large as
@@ -357,9 +357,9 @@ public:
      * Frequently, but not always, the mobility is calculated from the diffusion
      * coefficient using the Einstein relation
      *
-     * \f[
+     * @f[
      *      \mu^f_k = \frac{D_k}{R T}
-     * \f]
+     * @f]
      *
      * @param mobil_f  Returns the mobilities of the species in array \c mobil.
      *               The array must be dimensioned at least as large as the
@@ -377,12 +377,12 @@ public:
     //! Compute the mixture electrical conductivity (S m-1) at the current
     //! conditions of the phase (Siemens m-1)
     /*!
-     * The electrical conductivity, \f$ \sigma \f$, relates the electric current
+     * The electrical conductivity, @f$ \sigma @f$, relates the electric current
      * density, J, to the electric field, E.
      *
-     * \f[
+     * @f[
      *        \vec{J} = \sigma \vec{E}
-     * \f]
+     * @f]
      *
      * We assume here that the mixture electrical conductivity is an isotropic
      * quantity, at this stage. Tensors may be included at a later time.
@@ -579,13 +579,13 @@ public:
 
     //! Return a vector of Thermal diffusion coefficients [kg/m/sec].
     /*!
-     * The thermal diffusion coefficient \f$ D^T_k \f$ is defined so that the
+     * The thermal diffusion coefficient @f$ D^T_k @f$ is defined so that the
      * diffusive mass flux of species *k* induced by the local temperature
      * gradient is given by the following formula:
      *
-     * \f[
+     * @f[
      *     M_k J_k = -D^T_k \nabla \ln T.
-     * \f]
+     * @f]
      *
      * The thermal diffusion coefficient can be either positive or negative.
      *

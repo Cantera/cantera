@@ -23,28 +23,28 @@ namespace Cantera
  *
  * The viscosity is computed using the Wilke mixture rule (kg /m /s)
  *
- * \f[
+ * @f[
  *     \mu = \sum_k \frac{\mu_k X_k}{\sum_j \Phi_{k,j} X_j}.
- * \f]
+ * @f]
  *
- * Here \f$ \mu_k \f$ is the viscosity of pure species \e k, and
+ * Here @f$ \mu_k @f$ is the viscosity of pure species \e k, and
  *
- * \f[
+ * @f[
  *     \Phi_{k,j} = \frac{\left[1
  *                  + \sqrt{\left(\frac{\mu_k}{\mu_j}\sqrt{\frac{M_j}{M_k}}\right)}\right]^2}
  *                  {\sqrt{8}\sqrt{1 + M_k/M_j}}
- * \f]
+ * @f]
  *
  * The thermal conductivity is computed from the following mixture rule:
- * \f[
+ * @f[
  *     \lambda = 0.5 \left( \sum_k X_k \lambda_k  + \frac{1}{\sum_k X_k/\lambda_k} \right)
- * \f]
+ * @f]
  *
  * It's used to compute the flux of energy due to a thermal gradient
  *
- * \f[
+ * @f[
  *     j_T =  - \lambda  \nabla T
- * \f]
+ * @f]
  *
  * The flux of energy has units of energy (kg m2 /s2) per second per area.
  *
@@ -72,15 +72,15 @@ public:
     //! Returns the mixture thermal conductivity (W/m /K)
     /*!
      * The thermal conductivity is computed from the following mixture rule:
-     * \f[
+     * @f[
      *     \lambda = 0.5 \left( \sum_k X_k \lambda_k  + \frac{1}{\sum_k X_k/\lambda_k} \right)
-     * \f]
+     * @f]
      *
      * It's used to compute the flux of energy due to a thermal gradient
      *
-     * \f[
+     * @f[
      *     j_T =  - \lambda  \nabla T
-     * \f]
+     * @f]
      *
      * The flux of energy has units of energy (kg m2 /s2) per second per area.
      *
@@ -98,9 +98,9 @@ public:
      * Here, the mobility is calculated from the diffusion coefficient using the
      * Einstein relation
      *
-     * \f[
+     * @f[
      *     \mu^e_k = \frac{F D_k}{R T}
-     * \f]
+     * @f]
      *
      * @param mobil  Returns the mobilities of the species in array \c mobil.
      *               The array must be dimensioned at least as large as the
@@ -128,9 +128,9 @@ public:
      * Units for the returned fluxes are kg m-2 s-1.
      *
      * The diffusive mass flux of species \e k is computed from
-     * \f[
+     * @f[
      *     \vec{j}_k = -n M_k D_k \nabla X_k.
-     * \f]
+     * @f]
      *
      * @param ndim      Number of dimensions in the flux expressions
      * @param grad_T    Gradient of the temperature (length = ndim)

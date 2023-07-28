@@ -28,9 +28,9 @@ const int c_LT_ZERO = -2;
 /**
  *  Virtual base class for DAE residual function evaluators.
  *  Classes derived from ResidEval evaluate the residual function
- * \f[
+ * @f[
  *             \vec{F}(t,\vec{y}, \vec{y^\prime})
- * \f]
+ * @f]
  * The DAE solver attempts to find a solution y(t) such that F = 0.
  * @deprecated Unused. To be removed after %Cantera 3.0.
  *  @ingroup DAE_Group

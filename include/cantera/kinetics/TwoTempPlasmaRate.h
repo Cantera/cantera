@@ -47,12 +47,12 @@ struct TwoTempPlasmaData : public ReactionData
  * the electron temperature instead. In addition, the exponential term with
  * activation energy for electron is included.
  *
- *   \f[
+ *   @f[
  *        k_f =  A T_e^b \exp (-E_{a,g}/RT) \exp (E_{a,e} (T_e - T)/(R T T_e))
- *   \f]
+ *   @f]
  *
- * where \f$ T_e \f$ is the electron temperature, \f$ E_{a,g} \f$ is the activation
- * energy for gas, and \f$ E_{a,e} \f$ is the activation energy for electron, see
+ * where @f$ T_e @f$ is the electron temperature, @f$ E_{a,g} @f$ is the activation
+ * energy for gas, and @f$ E_{a,e} @f$ is the activation energy for electron, see
  * Kossyi, et al. @cite kossyi1992.
  *
  * @ingroup arrheniusGroup
