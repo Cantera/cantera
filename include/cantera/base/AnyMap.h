@@ -593,8 +593,8 @@ public:
     class OrderedIterator {
     public:
         OrderedIterator() {}
-        OrderedIterator(const OrderedProxy::OrderVector::const_iterator& start,
-                        const OrderedProxy::OrderVector::const_iterator& stop);
+        OrderedIterator(const AnyMap::OrderedProxy::OrderVector::const_iterator& start,
+                        const AnyMap::OrderedProxy::OrderVector::const_iterator& stop);
 
         const std::pair<const std::string, AnyValue>& operator*() const {
             return *m_iter->second;
