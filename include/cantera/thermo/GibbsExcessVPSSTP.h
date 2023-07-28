@@ -51,7 +51,7 @@ namespace Cantera
  * @f]
  *
  * where @f$ \gamma_k^{\triangle} @f$ is a molar based activity coefficient for
- * species @f$k@f$.
+ * species @f$ k @f$.
  *
  * GibbsExcessVPSSTP contains an internal vector with the current mole fraction
  * vector. That's one of its primary usages. In order to keep the mole fraction
@@ -104,8 +104,8 @@ protected:
      * \rho = \frac{\sum_k{X_k W_k}}{\sum_k{X_k V_k}}
      * @f]
      *
-     * where @f$X_k@f$ are the mole fractions, @f$W_k@f$ are the molecular
-     * weights, and @f$V_k@f$ are the pure species molar volumes.
+     * where @f$ X_k @f$ are the mole fractions, @f$ W_k @f$ are the molecular
+     * weights, and @f$ V_k @f$ are the pure species molar volumes.
      *
      * Note, the basis behind this formula is that in an ideal solution the
      * partial molar volumes are equal to the pure species molar volumes. We
@@ -121,9 +121,9 @@ public:
     //! @}
     //! @name Activities, Standard States, and Activity Concentrations
     //!
-    //! The activity @f$a_k@f$ of a species in solution is related to the
+    //! The activity @f$ a_k @f$ of a species in solution is related to the
     //! chemical potential by @f[ \mu_k = \mu_k^0(T) + \hat R T \log a_k. @f] The
-    //! quantity @f$\mu_k^0(T,P)@f$ is the chemical potential at unit activity,
+    //! quantity @f$ \mu_k^0(T,P) @f$ is the chemical potential at unit activity,
     //! which depends only on temperature and pressure.
     //! @{
 

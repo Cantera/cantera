@@ -498,7 +498,7 @@ public:
     Tabulated1(size_t n, const double* tvals, const double* fvals,
                const string& method="linear");
 
-    //! Constructor uses @f$ 2 n@f$ parameters in the following order:
+    //! Constructor uses @f$ 2 n @f$ parameters in the following order:
     //! @f$ [t_0, t_1, \dots, t_{n-1}, f_0, f_1, \dots, f_{n-1}] @f$
     Tabulated1(const vector<double>& params);
 
@@ -1302,7 +1302,7 @@ public:
         }
     }
 
-    //! Constructor uses @f$ 3 n@f$ parameters in the following order:
+    //! Constructor uses @f$ 3 n @f$ parameters in the following order:
     //! @f$ [A_1, b_1, E_1, A_2, b_2, E_2, \dots, A_n, b_n, E_n] @f$
     Arrhenius1(const vector<double>& params);
 

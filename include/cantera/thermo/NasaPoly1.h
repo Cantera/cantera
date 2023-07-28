@@ -27,8 +27,8 @@ namespace Cantera
  * the Chemkin software package, but differs from the form used in the more
  * recent NASA equilibrium program.
  *
- * Seven coefficients @f$(a_0,\dots,a_6)@f$ are used to represent
- * @f$ c_p^0(T)@f$, @f$ h^0(T)@f$, and @f$ s^0(T) @f$ as
+ * Seven coefficients @f$ (a_0,\dots,a_6) @f$ are used to represent
+ * @f$ c_p^0(T) @f$, @f$ h^0(T) @f$, and @f$ s^0(T) @f$ as
  * polynomials in @f$ T @f$ :
  * @f[
  * \frac{c_p(T)}{R} = a_0 + a_1 T + a_2 T^2 + a_3 T^3 + a_4 T^4

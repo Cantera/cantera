@@ -22,8 +22,8 @@ namespace Cantera
 //! The Shomate polynomial parameterization for one temperature range for one
 //! species
 /*!
- * Seven coefficients @f$(A,\dots,G)@f$ are used to represent
- * @f$ c_p^0(T)@f$, @f$ h^0(T)@f$, and @f$ s^0(T) @f$ as
+ * Seven coefficients @f$ (A,\dots,G) @f$ are used to represent
+ * @f$ c_p^0(T) @f$, @f$ h^0(T) @f$, and @f$ s^0(T) @f$ as
  * polynomials in the temperature, @f$ T @f$ :
  *
  * @f[
@@ -42,7 +42,7 @@ namespace Cantera
  * dimensional units, but the temperature,@f$ t @f$, is divided by 1000. The
  * following dimensions are assumed in the above expressions:
  *
- *    - @f$ \tilde{c}_p^0(T)@f$ = Heat Capacity (J/gmol*K)
+ *    - @f$ \tilde{c}_p^0(T) @f$ = Heat Capacity (J/gmol*K)
  *    - @f$ \tilde{h}^0(T) @f$ = standard Enthalpy (kJ/gmol)
  *    - @f$ \tilde{s}^0(T) @f$= standard Entropy (J/gmol*K)
  *    - @f$ t @f$= temperature (K) / 1000.
@@ -195,8 +195,8 @@ protected:
 //! The Shomate polynomial parameterization for two temperature ranges for one
 //! species
 /*!
- * Seven coefficients @f$(A,\dots,G)@f$ are used to represent
- * @f$ c_p^0(T)@f$, @f$ h^0(T)@f$, and @f$ s^0(T) @f$ as
+ * Seven coefficients @f$ (A,\dots,G) @f$ are used to represent
+ * @f$ c_p^0(T) @f$, @f$ h^0(T) @f$, and @f$ s^0(T) @f$ as
  * polynomials in the temperature, @f$ T @f$, in one temperature region:
  *
  * @f[
@@ -215,7 +215,7 @@ protected:
  * in dimensional units, but the temperature,@f$ t @f$, is divided by 1000. The
  * following dimensions are assumed in the above expressions:
  *
- *    - @f$ \tilde{c}_p^0(T)@f$ = Heat Capacity (J/gmol*K)
+ *    - @f$ \tilde{c}_p^0(T) @f$ = Heat Capacity (J/gmol*K)
  *    - @f$ \tilde{h}^0(T) @f$ = standard Enthalpy (kJ/gmol)
  *    - @f$ \tilde{s}^0(T) @f$= standard Entropy (J/gmol*K)
  *    - @f$ t @f$= temperature (K) / 1000.

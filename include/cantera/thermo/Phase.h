@@ -599,15 +599,15 @@ public:
 
     //! Elemental mass fraction of element m
     /*!
-     *  The elemental mass fraction @f$Z_{\mathrm{mass},m}@f$ of element @f$m@f$
+     *  The elemental mass fraction @f$ Z_{\mathrm{mass},m} @f$ of element @f$ m @f$
      *  is defined as
      *  @f[
      *      Z_{\mathrm{mass},m} = \sum_k \frac{a_{m,k} M_m}{M_k} Y_k
      *  @f]
-     *  with @f$a_{m,k}@f$ being the number of atoms of element @f$m@f$ in
-     *  species @f$k@f$, @f$M_m@f$ the atomic weight of element @f$m@f$,
-     *  @f$M_k@f$ the molecular weight of species @f$k@f$, and @f$Y_k@f$
-     *  the mass fraction of species @f$k@f$.
+     *  with @f$ a_{m,k} @f$ being the number of atoms of element @f$ m @f$ in
+     *  species @f$ k @f$, @f$ M_m @f$ the atomic weight of element @f$ m @f$,
+     *  @f$ M_k @f$ the molecular weight of species @f$ k @f$, and @f$ Y_k @f$
+     *  the mass fraction of species @f$ k @f$.
      *
      *  @param[in] m Index of the element within the phase. If m is outside
      *               the valid range, an exception will be thrown.
@@ -618,7 +618,7 @@ public:
 
     //! Elemental mole fraction of element m
     /*!
-     *  The elemental mole fraction @f$Z_{\mathrm{mole},m}@f$ of element @f$m@f$
+     *  The elemental mole fraction @f$ Z_{\mathrm{mole},m} @f$ of element @f$ m @f$
      *  is the number of atoms of element *m* divided by the total number of
      *  atoms. It is defined as:
      *
@@ -626,9 +626,9 @@ public:
      *      Z_{\mathrm{mole},m} = \frac{\sum_k a_{m,k} X_k}
      *                                 {\sum_k \sum_j a_{j,k} X_k}
      *  @f]
-     *  with @f$a_{m,k}@f$ being the number of atoms of element @f$m@f$ in
-     *  species @f$k@f$, @f$\sum_j@f$ being a sum over all elements, and
-     *  @f$X_k@f$ being the mole fraction of species @f$k@f$.
+     *  with @f$ a_{m,k} @f$ being the number of atoms of element @f$ m @f$ in
+     *  species @f$ k @f$, @f$ \sum_j @f$ being a sum over all elements, and
+     *  @f$ X_k @f$ being the mole fraction of species @f$ k @f$.
      *
      *  @param[in] m Index of the element within the phase. If m is outside the
      *               valid range, an exception will be thrown.

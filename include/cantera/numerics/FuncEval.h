@@ -22,7 +22,7 @@ namespace Cantera
 /**
  *  Virtual base class for ODE/DAE right-hand-side function evaluators.
  *  Classes derived from FuncEval evaluate the right-hand-side function
- * @f$ \vec{F}(t,\vec{y})@f$ in
+ * @f$ \vec{F}(t,\vec{y}) @f$ in
  * @f[
  *  \dot{\vec{y}} = \vec{F}(t,\vec{y}).
  * @f]

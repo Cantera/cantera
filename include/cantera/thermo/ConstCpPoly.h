@@ -34,7 +34,7 @@ namespace Cantera
  * @f]
  *
  * This parameterization takes 4 input values. These are:
- *       -   c[0] = @f$ T_0 @f$(Kelvin)
+ *       -   c[0] = @f$ T_0 @f$ (Kelvin)
  *       -   c[1] = @f$ H_k^o(T_0, p_{ref}) @f$ (J/kmol)
  *       -   c[2] = @f$ S_k^o(T_0, p_{ref}) @f$    (J/kmol K)
  *       -   c[3] = @f$ {Cp}_k^o(T_0, p_{ref}) @f$  (J(kmol K)
@@ -54,7 +54,7 @@ public:
      * @param coeffs       Vector of coefficients used to set the parameters for
      *                     the standard state for species n. There are 4
      *                     coefficients for the ConstCpPoly parameterization.
-     *           -   c[0] = @f$ T_0 @f$(Kelvin)
+     *           -   c[0] = @f$ T_0 @f$ (Kelvin)
      *           -   c[1] = @f$ H_k^o(T_0, p_{ref}) @f$ (J/kmol)
      *           -   c[2] = @f$ S_k^o(T_0, p_{ref}) @f$    (J/kmol K)
      *           -   c[3] = @f$ {Cp}_k^o(T_0, p_{ref}) @f$  (J(kmol K)

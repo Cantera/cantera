@@ -180,7 +180,7 @@ public:
 
     /**
      * Electron pressure. Units: Pa.
-     * @f[P = n_{k_e} R T_e@f]
+     * @f[P = n_{k_e} R T_e @f]
      */
     virtual double electronPressure() const {
         return GasConstant * concentration(m_electronSpeciesIndex) *

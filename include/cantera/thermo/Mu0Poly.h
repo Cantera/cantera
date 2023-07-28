@@ -24,7 +24,7 @@ namespace Cantera
  * The Mu0Poly class implements a piecewise constant heat capacity
  * approximation. of the standard state chemical potential of one species at a
  * single reference pressure. The chemical potential is input as a series of
- * (@f$T@f$, @f$ \mu^o(T)@f$) values. The first temperature is assumed to be
+ * (@f$ T @f$, @f$ \mu^o(T) @f$) values. The first temperature is assumed to be
  * equal to 298.15 K; however, this may be relaxed in the future. This
  * information, and an assumption of a constant heat capacity within each
  * interval is enough to calculate all thermodynamic functions.

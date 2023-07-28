@@ -65,7 +65,7 @@ class PDSS_Water;
  *
  * For an incompressible, stoichiometric substance, the molar internal energy is
  * independent of pressure. Since the thermodynamic properties are specified by
- * giving the standard-state enthalpy, the term @f$ P_0 \hat v@f$ is subtracted
+ * giving the standard-state enthalpy, the term @f$ P_0 \hat v @f$ is subtracted
  * from the specified molar enthalpy to compute the molar internal energy. The
  * entropy is assumed to be independent of the pressure.
  *
@@ -78,7 +78,7 @@ class PDSS_Water;
  *
  * For an incompressible, stoichiometric substance, the molar internal energy is
  * independent of pressure. Since the thermodynamic properties are specified by
- * giving the standard-state enthalpy, the term @f$ P_{ref} \tilde v@f$ is
+ * giving the standard-state enthalpy, the term @f$ P_{ref} \tilde v @f$ is
  * subtracted from the specified reference molar enthalpy to compute the molar
  * internal energy.
  *
@@ -110,7 +110,7 @@ class PDSS_Water;
  * @f]
  *
  * where @f$ \gamma_k^{\triangle} @f$ is the molality based activity coefficient
- * for species @f$k@f$.
+ * for species @f$ k @f$.
  *
  * Individual activity coefficients of ions can not be independently measured.
  * Instead, only binary pairs forming electroneutral solutions can be measured.
@@ -118,7 +118,7 @@ class PDSS_Water;
  * ### Ionic Strength
  *
  * Most of the parameterizations within the model use the ionic strength as a
- * key variable. The ionic strength, @f$ I@f$ is defined as follows
+ * key variable. The ionic strength, @f$ I @f$ is defined as follows
  *
  *  @f[
  *    I = \frac{1}{2} \sum_k{m_k  z_k^2}
@@ -155,7 +155,7 @@ class PDSS_Water;
  *   @f[
  *      z_k = z_{k1} +  z_{k2}
  *   @f]
- * Then, we may only need to specify one charge value, say, @f$  z_{k1}@f$, the
+ * Then, we may only need to specify one charge value, say, @f$  z_{k1} @f$, the
  * cation charge number, in order to get both numbers, since we have already
  * specified @f$ z_k @f$ in the definition of original species. Then, the
  * stoichiometric ionic strength may be calculated via the following formula.
@@ -166,7 +166,7 @@ class PDSS_Water;
  *  @f]
  *
  * The specification of which species are weakly associated acids is made in YAML
- * input files by specifying the corresponding charge @f$k1@f$ as the `weak-acid-charge`
+ * input files by specifying the corresponding charge @f$ k1 @f$ as the `weak-acid-charge`
  * parameter of the `Debye-Huckel` block in the corresponding species entry.
  *
  * Because we need the concept of a weakly associated acid in order to calculate
@@ -211,7 +211,7 @@ class PDSS_Water;
  * @f[
  *     \ln(\gamma_k^\triangle) = - z_k^2 A_{Debye} \sqrt{I}
  * @f]
- * where @f$ I@f$ is the ionic strength
+ * where @f$ I @f$ is the ionic strength
  * @f[
  *   I = \frac{1}{2} \sum_k{m_k  z_k^2}
  * @f]
@@ -289,7 +289,7 @@ class PDSS_Water;
  * @f]
  *
  * In the current treatment the binary interaction coefficients, @f$
- * \beta_{j,k}@f$, are independent of temperature and pressure.
+ * \beta_{j,k} @f$, are independent of temperature and pressure.
  *
  * @f[
  *    \ln(a_o) = \frac{X_o - 1.0}{X_o}
@@ -390,7 +390,7 @@ class PDSS_Water;
  * @f$ C_k^a @f$ is the activity concentration of species k. @f$ C_o @f$
  * is the concentration of water at 298 K and 1 atm. @f$ a_j @f$ is the activity
  * of species j at the current temperature and pressure and concentration of the
- * liquid phase. @f$k^1 @f$ has units of m3 kmol-1 s-1.
+ * liquid phase. @f$ k^1 @f$ has units of m3 kmol-1 s-1.
  *
  * The reverse rate constant can then be obtained from the law of microscopic
  * reversibility and the equilibrium expression for the system.
@@ -409,7 +409,7 @@ class PDSS_Water;
  *     k^{-1} =  k^1 K^{o,1} C_o
  * @f]
  *
- * @f$k^{-1} @f$ has units of s-1.
+ * @f$ k^{-1} @f$ has units of s-1.
  */
 class DebyeHuckel : public MolalityVPSSTP
 {
@@ -475,9 +475,9 @@ public:
     //! @}
     //! @name Activities, Standard States, and Activity Concentrations
     //!
-    //! The activity @f$a_k@f$ of a species in solution is related to the
+    //! The activity @f$ a_k @f$ of a species in solution is related to the
     //! chemical potential by @f[ \mu_k = \mu_k^0(T) + \hat R T \log a_k. @f] The
-    //! quantity @f$\mu_k^0(T,P)@f$ is the chemical potential at unit activity,
+    //! quantity @f$ \mu_k^0(T,P) @f$ is the chemical potential at unit activity,
     //! which depends only on temperature and the pressure. Activity is assumed
     //! to be molality-based here.
     //! @{

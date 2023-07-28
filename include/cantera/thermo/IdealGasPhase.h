@@ -144,7 +144,7 @@ namespace Cantera
  *
  * ## Application within Kinetics Managers
  *
- * @f$ C^a_k@f$ are defined such that @f$ a_k = C^a_k / C^s_k, @f$ where @f$
+ * @f$ C^a_k @f$ are defined such that @f$ a_k = C^a_k / C^s_k, @f$ where @f$
  * C^s_k @f$ is a standard concentration defined below and @f$ a_k @f$ are
  * activities used in the thermodynamic functions.  These activity (or
  * generalized) concentrations are used by kinetics manager classes to compute
@@ -237,7 +237,7 @@ namespace Cantera
  *    k^{-1} =  k^1 K^1_c
  * @f]
  *
- * @f$k^{-1} @f$ has units of s-1.
+ * @f$ k^{-1} @f$ has units of s-1.
  *
  * ## YAML Example
  *
@@ -406,19 +406,19 @@ public:
     //! @}
     //! @name Chemical Potentials and Activities
     //!
-    //! The activity @f$a_k@f$ of a species in solution is
+    //! The activity @f$ a_k @f$ of a species in solution is
     //! related to the chemical potential by
     //! @f[
     //!  \mu_k(T,P,X_k) = \mu_k^0(T,P)
     //! + \hat R T \log a_k.
     //!  @f]
-    //! The quantity @f$\mu_k^0(T,P)@f$ is the standard state chemical potential
+    //! The quantity @f$ \mu_k^0(T,P) @f$ is the standard state chemical potential
     //! at unit activity. It may depend on the pressure and the temperature.
     //! However, it may not depend on the mole fractions of the species in the
     //! solution.
     //!
-    //! The activities are related to the generalized concentrations, @f$\tilde
-    //! C_k@f$, and standard concentrations, @f$C^0_k@f$, by the following
+    //! The activities are related to the generalized concentrations, @f$ \tilde
+    //! C_k @f$, and standard concentrations, @f$ C^0_k @f$, by the following
     //! formula:
     //!
     //!  @f[

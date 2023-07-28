@@ -48,7 +48,7 @@
  *
  *   The first type are those whose underlying species have a reference state associated
  *   with them. The reference state describes the thermodynamic functions for a
- *   species at a single reference pressure, @f$p_0@f$. The thermodynamic functions
+ *   species at a single reference pressure, @f$ p_0 @f$. The thermodynamic functions
  *   are specified via derived objects of the SpeciesThermoInterpType object class, and usually
  *   consist of polynomials in temperature such as the NASA polynomial or the SHOMATE
  *   polynomial.  Calculators for these
@@ -346,14 +346,14 @@
  *  </H3>
  *
  *
- * The activity @f$a_k@f$ and activity coefficient @f$ \gamma_k @f$ of a
+ * The activity @f$ a_k @f$ and activity coefficient @f$ \gamma_k @f$ of a
  * species in solution is related to the chemical potential by
  *
  * @f[
  *    \mu_k = \mu_k^0(T,P) + \hat R T \log a_k.= \mu_k^0(T,P) + \hat R T \log x_k \gamma_k
  * @f]
  *
- * The quantity @f$\mu_k^0(T,P)@f$ is
+ * The quantity @f$ \mu_k^0(T,P) @f$ is
  * the standard chemical potential at unit activity,
  * which depends on the temperature and pressure,
  * but not on the composition. The

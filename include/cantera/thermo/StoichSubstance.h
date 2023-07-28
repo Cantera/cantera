@@ -33,7 +33,7 @@ namespace Cantera
  *
  * For an incompressible, stoichiometric substance, the molar internal energy is
  * independent of pressure. Since the thermodynamic properties are specified by
- * giving the standard-state enthalpy, the term @f$ P_0 \hat v@f$ is subtracted
+ * giving the standard-state enthalpy, the term @f$ P_0 \hat v @f$ is subtracted
  * from the specified molar enthalpy to compute the molar internal energy. The
  * entropy is assumed to be independent of the pressure.
  *
@@ -46,7 +46,7 @@ namespace Cantera
  *
  * For an incompressible, stoichiometric substance, the molar internal energy is
  * independent of pressure. Since the thermodynamic properties are specified by
- * giving the standard-state enthalpy, the term @f$ P_{ref} \tilde v@f$ is
+ * giving the standard-state enthalpy, the term @f$ P_{ref} \tilde v @f$ is
  * subtracted from the specified reference molar enthalpy to compute the molar
  * internal energy.
  *
@@ -141,7 +141,7 @@ public:
 
     //! This method returns an array of generalized concentrations
     /*!
-     * @f$ C^a_k@f$ are defined such that @f$ a_k = C^a_k / C^0_k, @f$ where
+     * @f$ C^a_k @f$ are defined such that @f$ a_k = C^a_k / C^0_k, @f$ where
      * @f$ C^0_k @f$ is a standard concentration defined below and @f$ a_k @f$
      * are activities used in the thermodynamic functions. These activity (or
      * generalized) concentrations are used by kinetics manager classes to
@@ -202,7 +202,7 @@ public:
      * For an incompressible, stoichiometric substance, the molar internal
      * energy is independent of pressure. Since the thermodynamic properties
      * are specified by giving the standard-state enthalpy, the term
-     * @f$ P_{ref} \hat v@f$ is subtracted from the specified reference molar
+     * @f$ P_{ref} \hat v @f$ is subtracted from the specified reference molar
      * enthalpy to compute the standard state molar internal energy.
      *
      * @param urt  output vector of nondimensional standard state
