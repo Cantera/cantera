@@ -482,13 +482,13 @@ protected:
     //! Array of size #m_nsp by #m_points for saving molar enthalpies
     Array2D m_hk;
 
-    //! Array of size #m_nsp by #m_points -1 for saving enthalpy fluxes
+    //! Array of size #m_nsp by #m_points-1 for saving enthalpy fluxes
     Array2D m_dhk_dz;
 
     // production rates
     Array2D m_wdot;
 
-    size_t m_nsp;
+    size_t m_nsp; //!< Number of species in the mechanism
 
     ThermoPhase* m_thermo = nullptr;
     Kinetics* m_kin = nullptr;

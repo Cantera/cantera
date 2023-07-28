@@ -576,7 +576,7 @@ protected:
 
     double m_rdt = 0.0;
     size_t m_nv = 0;
-    size_t m_points;
+    size_t m_points; //!< Number of grid points
     vector_fp m_slast;
     vector_fp m_max;
     vector_fp m_min;
