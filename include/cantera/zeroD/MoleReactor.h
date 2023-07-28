@@ -11,9 +11,10 @@
 namespace Cantera
 {
 
-/*!
+/**
  * MoleReactor is meant to serve the same purpose as the reactor class but with a state
  * vector composed of moles. It also serves as the base class for other mole reactors.
+ * @since New in %Cantera 3.0
  * @ingroup reactorGroup
  */
 class MoleReactor : public Reactor
