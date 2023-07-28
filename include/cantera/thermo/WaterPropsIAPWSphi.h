@@ -1,8 +1,8 @@
 /**
  * @file WaterPropsIAPWSphi.h
  * Header for Lowest level of the classes which support a real water model
- * (see class \link Cantera::WaterPropsIAPWS WaterPropsIAPWS\endlink and class
- * \link Cantera::WaterPropsIAPWSphi WaterPropsIAPWSphi\endlink).
+ * (see class @link Cantera::WaterPropsIAPWS WaterPropsIAPWS@endlink and class
+ * @link Cantera::WaterPropsIAPWSphi WaterPropsIAPWSphi@endlink).
  *
  * This class calculates dimensionless quantities.
  */
@@ -22,8 +22,8 @@ namespace Cantera
 /*!
  * This is a helper class for WaterSSTP and PDSS_Water and does not constitute
  * a complete implementation of a thermo phase by itself (see @ref thermoprops
- * and classes \link Cantera::WaterSSTP WaterSSTP\endlink and
- * \link Cantera::PDSS_Water PDSS_Water\endlink).
+ * and classes @link Cantera::WaterSSTP WaterSSTP@endlink and
+ * @link Cantera::PDSS_Water PDSS_Water@endlink).
  *
  * The reference is Wagner and Pruss @cite wagner2002.
  *

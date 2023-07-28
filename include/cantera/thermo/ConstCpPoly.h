@@ -1,8 +1,8 @@
 /**
  *  @file ConstCpPoly.h
- * Headers for the \link Cantera::SpeciesThermoInterpType SpeciesThermoInterpType\endlink
+ * Headers for the @link Cantera::SpeciesThermoInterpType SpeciesThermoInterpType@endlink
  * object that employs a constant heat capacity assumption (see @ref spthermo and
- * \link Cantera::ConstCpPoly ConstCpPoly\endlink).
+ * @link Cantera::ConstCpPoly ConstCpPoly@endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or

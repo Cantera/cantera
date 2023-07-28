@@ -2,7 +2,7 @@
  *  @file MultiSpeciesThermo.cpp
  *  Declarations for a thermodynamic property manager for multiple species
  *  in a phase (see @ref spthermo and
- * \link Cantera::MultiSpeciesThermo MultiSpeciesThermo\endlink).
+ * @link Cantera::MultiSpeciesThermo MultiSpeciesThermo@endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or

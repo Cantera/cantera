@@ -1,7 +1,7 @@
 /**
  * @file MultiSpeciesThermo.h
  *  Header for a general species thermodynamic property manager for a phase (see
- * \link Cantera::MultiSpeciesThermo MultiSpeciesThermo\endlink).
+ * @link Cantera::MultiSpeciesThermo MultiSpeciesThermo@endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -38,7 +38,7 @@ namespace Cantera
  * MultiSpeciesThermo object. However, there is no requirement that a
  * MultiSpeciesThermo object handles all of the species in a phase. The member
  * function
- * \link MultiSpeciesThermo::install_STIT() install_STIT()\endlink
+ * @link MultiSpeciesThermo::install_STIT() install_STIT()@endlink
  * is called to install each species into the MultiSpeciesThermo object.
  *
  * @ingroup spthermo

@@ -1,6 +1,6 @@
 /**
  * @file MultiPhase.h
- * Headers for the \link Cantera::MultiPhase MultiPhase\endlink
+ * Headers for the @link Cantera::MultiPhase MultiPhase@endlink
  * object that is used to set up multiphase equilibrium problems (see @ref equilGroup).
  */
 

@@ -4,7 +4,7 @@
  *  phase derived from SurfPhase, applying adsorbate lateral interaction
  *  correction factors to the SurfPhase thermodynamic properties.
  *  (see @ref thermoprops and class
- *  \link Cantera::CoverageDependentSurfPhase CoverageDependentSurfPhase\endlink).
+ *  @link Cantera::CoverageDependentSurfPhase CoverageDependentSurfPhase@endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or

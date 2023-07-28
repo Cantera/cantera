@@ -2,7 +2,7 @@
  *  @file MixTransport.h
  *    Headers for the MixTransport object, which models transport properties
  *    in ideal gas solutions using a mixture averaged approximation
- *    (see @ref tranprops and \link Cantera::MixTransport MixTransport \endlink) .
+ *    (see @ref tranprops and @link Cantera::MixTransport MixTransport @endlink) .
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or

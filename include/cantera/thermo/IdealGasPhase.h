@@ -2,7 +2,7 @@
  *  @file IdealGasPhase.h
  *   ThermoPhase object for the ideal gas equation of
  * state - workhorse for %Cantera (see @ref thermoprops
- * and class \link Cantera::IdealGasPhase IdealGasPhase\endlink).
+ * and class @link Cantera::IdealGasPhase IdealGasPhase@endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -33,8 +33,8 @@ namespace Cantera
  *
  * It is assumed that the reference state thermodynamics may be obtained by a
  * pointer to a populated species thermodynamic property manager class in the
- * base class, ThermoPhase::m_spthermo (see the base class \link
- * Cantera::MultiSpeciesThermo MultiSpeciesThermo \endlink for a description of
+ * base class, ThermoPhase::m_spthermo (see the base class @link
+ * Cantera::MultiSpeciesThermo MultiSpeciesThermo @endlink for a description of
  * the specification of reference state species thermodynamics functions). The
  * reference state, where the pressure is fixed at a single pressure, is a key
  * species property calculation for the Ideal Gas Equation of state.

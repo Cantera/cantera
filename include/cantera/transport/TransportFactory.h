@@ -1,7 +1,7 @@
 /**
  *  @file TransportFactory.h
  *  Header file defining class TransportFactory
- *     (see \link Cantera::TransportFactory TransportFactory\endlink)
+ *     (see @link Cantera::TransportFactory TransportFactory@endlink)
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or

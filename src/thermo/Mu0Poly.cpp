@@ -1,9 +1,9 @@
 /**
  *  @file Mu0Poly.cpp
  *  Definitions for a single-species standard state object derived
- *  from \link Cantera::SpeciesThermoInterpType SpeciesThermoInterpType\endlink  based
+ *  from @link Cantera::SpeciesThermoInterpType SpeciesThermoInterpType@endlink  based
  *  on a piecewise constant mu0 interpolation
- *  (see @ref spthermo and class \link Cantera::Mu0Poly Mu0Poly\endlink).
+ *  (see @ref spthermo and class @link Cantera::Mu0Poly Mu0Poly@endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or

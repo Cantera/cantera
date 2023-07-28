@@ -1,9 +1,9 @@
 /**
  *  @file NasaPoly2.h
  *  Header for a single-species standard state object derived
- *  from \link Cantera::SpeciesThermoInterpType SpeciesThermoInterpType\endlink  based
+ *  from @link Cantera::SpeciesThermoInterpType SpeciesThermoInterpType@endlink  based
  *  on the NASA temperature polynomial form applied to two temperature regions
- *  (see @ref spthermo and class \link Cantera::NasaPoly2 NasaPoly2\endlink).
+ *  (see @ref spthermo and class @link Cantera::NasaPoly2 NasaPoly2@endlink).
  *
  *  Two zoned NASA polynomial parameterization
  */

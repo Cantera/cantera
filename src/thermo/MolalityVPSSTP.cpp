@@ -3,7 +3,7 @@
  *   Definitions for intermediate ThermoPhase object for phases which
  *   employ molality based activity coefficient formulations
  *  (see @ref thermoprops
- * and class \link Cantera::MolalityVPSSTP MolalityVPSSTP\endlink).
+ * and class @link Cantera::MolalityVPSSTP MolalityVPSSTP@endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or

@@ -3,7 +3,7 @@
  *  Definitions for a simple thermodynamics model of a bulk solid phase
  *  derived from ThermoPhase,
  *  assuming an ideal solution model based on a lattice of solid atoms
- *  (see @ref thermoprops and class \link Cantera::LatticeSolidPhase LatticeSolidPhase\endlink).
+ *  (see @ref thermoprops and class @link Cantera::LatticeSolidPhase LatticeSolidPhase@endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or

@@ -3,7 +3,7 @@
  *    Declarations for the class PDSS_SSVol (pressure dependent standard state)
  *    which handles calculations for a single species with an expression for the standard state molar volume in a phase
  *    given by an enumerated data type
- *    (see class @ref pdssthermo and \link Cantera::PDSS_SSVol PDSS_SSVol\endlink).
+ *    (see class @ref pdssthermo and @link Cantera::PDSS_SSVol PDSS_SSVol@endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or

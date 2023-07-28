@@ -2,7 +2,7 @@
  *  @file PDSS_ConstVol.h
  *    Declarations for the class PDSS_ConstVol (pressure dependent standard state)
  *    which handles calculations for a single species with a constant molar volume in a phase
- *    (see class @ref pdssthermo and \link Cantera::PDSS_ConstVol PDSS_ConstVol\endlink).
+ *    (see class @ref pdssthermo and @link Cantera::PDSS_ConstVol PDSS_ConstVol@endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or

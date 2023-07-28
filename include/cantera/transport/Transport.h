@@ -1,8 +1,8 @@
 /**
  * @file Transport.h Headers for the Transport object, which is the virtual
  *     base class for all transport property evaluators and also includes the
- *     tranprops group definition (see @ref tranprops and \link
- *     Cantera::Transport Transport \endlink) .
+ *     tranprops group definition (see @ref tranprops and @link
+ *     Cantera::Transport Transport @endlink) .
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or

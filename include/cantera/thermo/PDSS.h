@@ -2,7 +2,7 @@
  *  @file PDSS.h
  *    Declarations for the virtual base class PDSS (pressure dependent standard state)
  *    which handles calculations for a single species in a phase
- *    (see @ref pdssthermo and class \link Cantera::PDSS PDSS\endlink).
+ *    (see @ref pdssthermo and class @link Cantera::PDSS PDSS@endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
