@@ -84,9 +84,9 @@ public:
     //! @}
     //! @name Activities, Standard State, and Activity Concentrations
     //!
-    //! The activity \f$a_k\f$ of a species in solution is related to the
-    //! chemical potential by \f[ \mu_k = \mu_k^0(T) + \hat R T \log a_k. \f]
-    //! The quantity \f$\mu_k^0(T)\f$ is the chemical potential at unit activity,
+    //! The activity @f$a_k@f$ of a species in solution is related to the
+    //! chemical potential by @f[ \mu_k = \mu_k^0(T) + \hat R T \log a_k. @f]
+    //! The quantity @f$\mu_k^0(T)@f$ is the chemical potential at unit activity,
     //! which depends only on temperature.
     //! @{
 
@@ -119,7 +119,7 @@ public:
     /*!
      *  These are the phase, partial molar, and the standard state dimensionless
      *  chemical potentials.
-     *  \f$ \mu_k / \hat R T \f$.
+     *  @f$ \mu_k / \hat R T @f$.
      *
      * Units: unitless
      *
@@ -133,7 +133,7 @@ public:
     /*!
      * These are the phase, partial molar, and the standard state chemical
      * potentials.
-     *     \f$ \mu(T,P) = \mu^0_k(T,P) \f$.
+     *     @f$ \mu(T,P) = \mu^0_k(T,P) @f$.
      *
      * @param mu   On return, Contains the chemical potential of the single
      *             species and the phase. Units are J / kmol . Length = 1
@@ -142,7 +142,7 @@ public:
 
     //! Get the species partial molar enthalpies. Units: J/kmol.
     /*!
-     * These are the phase enthalpies.  \f$ h_k \f$.
+     * These are the phase enthalpies.  @f$ h_k @f$.
      *
      * @param hbar    Output vector of species partial molar enthalpies.
      *                Length: 1. units are J/kmol.
@@ -151,7 +151,7 @@ public:
 
     //! Get the species partial molar internal energies. Units: J/kmol.
     /*!
-     * These are the phase internal energies.  \f$ u_k \f$.
+     * These are the phase internal energies.  @f$ u_k @f$.
      *
      * @param ubar On return, Contains the internal energy of the single species
      *             and the phase. Units are J / kmol . Length = 1
@@ -160,7 +160,7 @@ public:
 
     //! Get the species partial molar entropy. Units: J/kmol K.
     /*!
-     * This is the phase entropy.  \f$ s(T,P) = s_o(T,P) \f$.
+     * This is the phase entropy.  @f$ s(T,P) = s_o(T,P) @f$.
      *
      * @param sbar On return, Contains the entropy of the single species and the
      *             phase. Units are J / kmol / K . Length = 1
@@ -169,7 +169,7 @@ public:
 
     //! Get the species partial molar Heat Capacities. Units: J/ kmol /K.
     /*!
-     * This is the phase heat capacity.  \f$ Cp(T,P) = Cp_o(T,P) \f$.
+     * This is the phase heat capacity.  @f$ Cp(T,P) = Cp_o(T,P) @f$.
      *
      * @param cpbar On return, Contains the heat capacity of the single species
      *              and the phase. Units are J / kmol / K . Length = 1
@@ -178,7 +178,7 @@ public:
 
     //! Get the species partial molar volumes. Units: m^3/kmol.
     /*!
-     * This is the phase molar volume.  \f$ V(T,P) = V_o(T,P) \f$.
+     * This is the phase molar volume.  @f$ V(T,P) = V_o(T,P) @f$.
      *
      * @param vbar On return, Contains the molar volume of the single species
      *             and the phase. Units are m^3 / kmol. Length = 1

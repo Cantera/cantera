@@ -31,25 +31,25 @@ namespace Cantera
  *
  *  A good example of this type of phase is intercalation-based lithium storage
  *  materials used for lithium-ion battery electrodes.  Measuring the open
- *  circuit voltage \f$ E_eq \f$, relative to a reference electrode, as a
+ *  circuit voltage @f$ E_eq @f$, relative to a reference electrode, as a
  *  function of lithium mole fraction and as a function of temperature, provides
  *  a means to evaluate the gibbs free energy of reaction:
  *
- *  \f[
+ *  @f[
  *  \Delta g_{\rm rxn} = -\frac{E_eq}{nF}
- *  \f]
+ *  @f]
  *
- *  where \f$ n\f$ is the charge number transferred to the phase, via the
- *  reaction, and \f$ F \f$ is Faraday's constant.  The gibbs energy of
+ *  where @f$ n@f$ is the charge number transferred to the phase, via the
+ *  reaction, and @f$ F @f$ is Faraday's constant.  The gibbs energy of
  *  reaction, in turn, can be separated into enthalpy and entropy of reaction
  *  components:
  *
- *  \f[
+ *  @f[
  *  \Delta g_{\rm rxn} = \Delta h_{\rm rxn} - T\Delta s_{\rm rxn}
- *  \f]
- *  \f[
+ *  @f]
+ *  @f[
  *  \frac{d\Delta g_{\rm rxn}}{dT} =  - \Delta s_{\rm rxn}
- *  \f]
+ *  @f]
  *
  *  For the tabulated binary phase, the user identifies a 'tabulated' species,
  *  while the other is considered the 'reference' species.  The standard state
@@ -57,15 +57,15 @@ namespace Cantera
  *  excess energy contributions, and are calculated according to the reaction
  *  energy terms:
  *
- *  \f[
+ *  @f[
  *  \Delta h_{\rm rxn} = \sum_k \nu_k h^{\rm o}_k
- *  \f]
- *  \f[
+ *  @f]
+ *  @f[
  *  \Delta s_{\rm rxn} = \sum_k \nu_k s^{\rm o}_k + RT\ln\left(\prod_k\left(\frac{c_k}{c^{\rm o}_k} \right)^{\nu_k}\right)
- *  \f]
+ *  @f]
  *
  *  Where the 'reference' species is automatically assigned standard state
- *  thermo variables \f$ h^{\rm o} = 0\f$ and \f$ s^{\rm o} = 0\f$, and standard
+ *  thermo variables @f$ h^{\rm o} = 0@f$ and @f$ s^{\rm o} = 0@f$, and standard
  *  state thermo variables for species in any other phases are calculated
  *  according to the rules specified in that phase definition.
  *
@@ -73,7 +73,7 @@ namespace Cantera
  *  thermodynamics for binary solutions where the tabulated species is
  *  incorporated via an electrochemical reaction, such that the open circuit
  *  voltage can be measured, relative to a counter electrode species with
- *  standard state thermo properties \f$ h^{\rm o} = 0\f$.
+ *  standard state thermo properties @f$ h^{\rm o} = 0@f$.
  *  It is possible that this can be generalized such that this assumption about
  *  the counter-electrode is not required. At present, this is left as future
  *  work.
@@ -81,35 +81,35 @@ namespace Cantera
  *  The user therefore provides a table of three equally-sized vectors of
  *  tabulated data:
  *
- *  - \f$ x_{\rm tab}\f$ = array of mole fractions for the tabulated species
+ *  - @f$ x_{\rm tab}@f$ = array of mole fractions for the tabulated species
  *                         at which measurements were conducted and thermo
  *                         data are provided.
- *  - \f$ h_{\rm tab}\f$ = \f$ F\left(-E_{\rm eq}\left(x,T^{\rm o} \right) + T^{\rm o} \frac{dE_{\rm eq}\left(x,T^{\rm o} \right)}{dT}\right) \f$
- *  - \f$ s_{\rm tab}\f$ = \f$ F \left(\frac{dE_{\rm eq}\left(x,T^{\rm o} \right)}{dT} + s_{\rm counter}^{\rm o} \right) \f$
+ *  - @f$ h_{\rm tab}@f$ = @f$ F\left(-E_{\rm eq}\left(x,T^{\rm o} \right) + T^{\rm o} \frac{dE_{\rm eq}\left(x,T^{\rm o} \right)}{dT}\right) @f$
+ *  - @f$ s_{\rm tab}@f$ = @f$ F \left(\frac{dE_{\rm eq}\left(x,T^{\rm o} \right)}{dT} + s_{\rm counter}^{\rm o} \right) @f$
  *
- *  where \f$ E_{\rm eq}\left(x,T^{\rm o} \right) \f$ and \f$ \frac{dE_{\rm eq}\left(x,T^{\rm o} \right)}{dT} \f$
+ *  where @f$ E_{\rm eq}\left(x,T^{\rm o} \right) @f$ and @f$ \frac{dE_{\rm eq}\left(x,T^{\rm o} \right)}{dT} @f$
  *  are the experimentally-measured open circuit voltage and derivative in
  *  open circuit voltage with respect to temperature, respectively, both
- *  measured as a mole fraction of \f$ x \f$ for the tabulated species and at a
- *  temperature of \f$ T^{\rm o} \f$.  The arrays \f$ h_{\rm tab}\f$ and
- *  \f$ s_{\rm tab}\f$ must be the same length as the \f$ x_{\rm tab}\f$ array.
+ *  measured as a mole fraction of @f$ x @f$ for the tabulated species and at a
+ *  temperature of @f$ T^{\rm o} @f$.  The arrays @f$ h_{\rm tab}@f$ and
+ *  @f$ s_{\rm tab}@f$ must be the same length as the @f$ x_{\rm tab}@f$ array.
  *
  *  From these tabulated inputs, the standard state thermodynamic properties
- *  for the tabulated species (subscript \f$ k\f$, tab) are calculated as:
+ *  for the tabulated species (subscript @f$ k@f$, tab) are calculated as:
  *
- *  \f[
+ *  @f[
  *   h^{\rm o}_{k,\,{\rm tab}} =  h_{\rm tab}
- *  \f]
- *  \f[
+ *  @f]
+ *  @f[
  *   s^{\rm o}_{k,\,{\rm tab}} =  s_{\rm tab} + R\ln\frac{x_{k,\,{\rm tab}}}{1-x_{k,\,{\rm tab}}} + \frac{R}{F} \ln\left(\frac{c^{\rm o}_{k,\,{\rm ref}}}{c^{\rm o}_{k,\,{\rm tab}}}\right)
- *  \f]
+ *  @f]
  *
  *  Now, whenever the composition has changed, the lookup/interpolation of the
  *  tabulated thermo data is performed to update the standard state
  *  thermodynamic data for the tabulated species.
  *
  *  Furthermore, there is an optional feature to include non-ideal effects regarding
- *  partial molar volumes of the species, \f$ \bar V_k\f$. Being derived from
+ *  partial molar volumes of the species, @f$ \bar V_k@f$. Being derived from
  *  IdealSolidSolnPhase, the default assumption in BinarySolutionTabulatedThermo
  *  is that the species comprising the binary solution have constant partial molar
  *  volumes equal to their pure species molar volumes. However, this assumption only
@@ -121,19 +121,19 @@ namespace Cantera
  *  (XRD) measurements of the unit cell volume. Therefore, the user can provide an optional fourth vector of
  *  tabulated molar volume data with the same size as the other tabulated data:
  *
- *  - \f$ V_{\mathrm{m,tab}}\f$ = array of the molar volume of the binary solution phase at
+ *  - @f$ V_{\mathrm{m,tab}}@f$ = array of the molar volume of the binary solution phase at
  *  the tabulated mole fractions.
  *
- *  The partial molar volumes \f$ \bar V_1\f$ of the tabulated species and
- *  \f$ \bar V_2\f$ of the 'reference' species, respectively, can then be derived from
+ *  The partial molar volumes @f$ \bar V_1@f$ of the tabulated species and
+ *  @f$ \bar V_2@f$ of the 'reference' species, respectively, can then be derived from
  *  the provided molar volume:
  *
- *  \f[
+ *  @f[
  *  \bar V_1 = V_{\mathrm{m,tab}} + \left(1-x_{\mathrm {tab}}\right) \cdot
  *  \frac{\mathrm{d}V_{\mathrm{m,tab}}}{\mathrm{d}x_{\mathrm {tab}}} \\
  *  \bar V_2 = V_{\mathrm{m,tab}} - x_{\mathrm {tab}} \cdot
  *  \frac{\mathrm{d}V_{\mathrm{m,tab}}}{\mathrm{d}x_{\mathrm {tab}}}
- *  \f]
+ *  @f]
  *
  *  The derivation is implemented using forward differences at the boundaries of the
  *  input vector and a central differencing scheme at interior points. As the
@@ -144,12 +144,12 @@ namespace Cantera
  *  The calculation of the mass density incorporates the non-ideal behavior by using
  *  the provided molar volume in the equation:
  *
- *  \f[
+ *  @f[
  *  \rho = \frac{\sum_k{x_k W_k}}{V_\mathrm{m}}
- *  \f]
+ *  @f]
  *
- *  where \f$x_k\f$ are the mole fractions, \f$W_k\f$ are the molecular weights, and
- *  \f$V_\mathrm{m}\f$ is the molar volume interpolated from \f$V_{\mathrm{m,tab}}\f$.
+ *  where @f$x_k@f$ are the mole fractions, @f$W_k@f$ are the molecular weights, and
+ *  @f$V_\mathrm{m}@f$ is the molar volume interpolated from @f$V_{\mathrm{m,tab}}@f$.
  *
  *  If the optional fourth input vector is not specified, the molar volume is calculated
  *  by using the pure species molar volumes, as in IdealSolidSolnPhase. Regardless if the
@@ -199,12 +199,12 @@ public:
      *
      * The formula for this is
      *
-     * \f[
+     * @f[
      * \rho = \frac{\sum_k{X_k W_k}}{V_\mathrm{m}}
-     * \f]
+     * @f]
      *
-     * where \f$X_k\f$ are the mole fractions, \f$W_k\f$ are the molecular weights, and
-     * \f$V_\mathrm{m}\f$ is the molar volume interpolated from \f$V_{\mathrm{m,tab}}\f$.
+     * where @f$X_k@f$ are the mole fractions, @f$W_k@f$ are the molecular weights, and
+     * @f$V_\mathrm{m}@f$ is the molar volume interpolated from @f$V_{\mathrm{m,tab}}@f$.
      */
     virtual void calcDensity();
 

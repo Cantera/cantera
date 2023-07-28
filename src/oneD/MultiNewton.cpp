@@ -87,16 +87,16 @@ doublereal bound_step(const doublereal* x, const doublereal* step,
  *              number of components, and number of points.
  *
  * The return value is
- * \f[
+ * @f[
  *    \sum_{n,j} \left(\frac{s_{n,j}}{w_n}\right)^2
- * \f]
- * where the error weight for solution component \f$n\f$ is given by
- * \f[
+ * @f]
+ * where the error weight for solution component @f$n@f$ is given by
+ * @f[
  *     w_n = \epsilon_{r,n} \frac{\sum_j |x_{n,j}|}{J} + \epsilon_{a,n}.
- * \f]
- * Here \f$\epsilon_{r,n} \f$ is the relative error tolerance for component n,
+ * @f]
+ * Here @f$\epsilon_{r,n} @f$ is the relative error tolerance for component n,
  * and multiplies the average magnitude of solution component n in the domain.
- * The second term, \f$\epsilon_{a,n}\f$, is the absolute error tolerance for
+ * The second term, @f$\epsilon_{a,n}@f$, is the absolute error tolerance for
  * component n.
  */
 doublereal norm_square(const doublereal* x,

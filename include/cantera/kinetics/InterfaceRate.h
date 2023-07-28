@@ -65,25 +65,25 @@ struct InterfaceData : public BlowersMaselData
  * Rate expressions defined for interfaces may include coverage dependent terms,
  * where an example is given by Kee, et al. @cite kee2003, Eq 11.113.
  * Using %Cantera nomenclature, this expression can be rewritten as
- *  \f[
+ *  @f[
  *      k_f = A T^b \exp \left( - \frac{E_a}{RT} \right)
  *          \prod_k 10^{a_k \theta_k} \theta_k^{m_k}
  *          \exp \left( \frac{- E_k \theta_k}{RT} \right)
- *  \f]
+ *  @f]
  * It is evident that this expression combines a regular modified Arrhenius rate
- * expression \f$ A T^b \exp \left( - \frac{E_a}{RT} \right) \f$ with coverage-related
- * terms, where the parameters \f$ (a_k, E_k, m_k) \f$ describe the dependency on the
- * surface coverage of species \f$ k, \theta_k \f$. In addition to the linear coverage
- * dependence on the activation energy modifier \f$ E_k \f$, polynomial coverage
- * dependence is also available. When the dependence parameter \f$ E_k \f$ is given as
+ * expression @f$ A T^b \exp \left( - \frac{E_a}{RT} \right) @f$ with coverage-related
+ * terms, where the parameters @f$ (a_k, E_k, m_k) @f$ describe the dependency on the
+ * surface coverage of species @f$ k, \theta_k @f$. In addition to the linear coverage
+ * dependence on the activation energy modifier @f$ E_k @f$, polynomial coverage
+ * dependence is also available. When the dependence parameter @f$ E_k @f$ is given as
  * a scalar value, the linear dependency is applied whereas if a list of four values
- * are given as \f$ [E^{(1)}_k, ..., E^{(4)}_k] \f$, a polynomial dependency is applied as
- *  \f[
+ * are given as @f$ [E^{(1)}_k, ..., E^{(4)}_k] @f$, a polynomial dependency is applied as
+ *  @f[
  *      k_f = A T^b \exp \left( - \frac{E_a}{RT} \right)
  *          \prod_k 10^{a_k \theta_k} \theta_k^{m_k}
  *          \exp \left( \frac{- E^{(1)}_k \theta_k - E^{(2)}_k \theta_k^2
  *          - E^{(3)}_k \theta_k^3 - E^{(4)}_k \theta_k^4}{RT} \right)
- *  \f]
+ *  @f]
  * The InterfaceRateBase class implements terms related to coverage only, which allows
  * for combinations with arbitrary rate parameterizations (for example Arrhenius and
  * BlowersMaselRate).
@@ -143,12 +143,12 @@ public:
      *  For reactions that transfer charge across a potential difference, the
      *  activation energies are modified by the potential difference. The correction
      *  factor is based on the net electric potential energy change
-     *  \f[
+     *  @f[
      *   \Delta E_{p,j} = \sum_i E_{p,i} \nu_{i,j}
-     *  \f]
-     *  where potential energies are calculated as \f$ E_{p,i} = F \phi_i z_i \f$.
-     *  Here, \f$ F \f$ is Faraday's constant, \f$ \phi_i \f$ is the electric potential
-     *  of the species phase and \f$ z_i \f$ is the charge of the species.
+     *  @f]
+     *  where potential energies are calculated as @f$ E_{p,i} = F \phi_i z_i @f$.
+     *  Here, @f$ F @f$ is Faraday's constant, @f$ \phi_i @f$ is the electric potential
+     *  of the species phase and @f$ z_i @f$ is the charge of the species.
      *
      *  When an electrode reaction rate is specified in terms of its exchange current
      *  density, the correction factor is adjusted to the standard reaction rate
@@ -186,9 +186,9 @@ public:
     //! Boolean indicating whether rate uses electrochemistry
     /*!
      *  If this is true, the Butler-Volmer correction
-     *  \f[
+     *  @f[
      *    f_{BV} = \exp ( - \beta * Delta E_{p,j} / R T )
-     *  \f]
+     *  @f]
      *  is applied to the forward reaction rate.
      *
      *  @see voltageCorrection().

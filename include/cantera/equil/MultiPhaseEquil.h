@@ -109,7 +109,7 @@ protected:
     //! Estimate the initial mole numbers. This is done by running each
     //! reaction as far forward or backward as possible, subject to the
     //! constraint that all mole numbers remain non-negative. Reactions for
-    //! which \f$ \Delta \mu^0 \f$ are positive are run in reverse, and ones
+    //! which @f$ \Delta \mu^0 @f$ are positive are run in reverse, and ones
     //! for which it is negative are run in the forward direction. The end
     //! result is equivalent to solving the linear programming problem of
     //! minimizing the linear Gibbs function subject to the element and non-

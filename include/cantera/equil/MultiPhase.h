@@ -259,7 +259,7 @@ public:
 
     //! Charge (Coulombs) of phase with index \a p.
     /*!
-     *  The net charge is computed as \f[ Q_p = N_p \sum_k F z_k X_k \f]
+     *  The net charge is computed as @f[ Q_p = N_p \sum_k F z_k X_k @f]
      *  where the sum runs only over species in phase \a p.
      *  @param p index of the phase for which the charge is desired.
      */
@@ -276,9 +276,9 @@ public:
      * Write into array \a mu the chemical potentials of all species
      * [J/kmol]. The chemical potentials are related to the activities by
      *
-     * \f$
+     * @f$
      *          \mu_k = \mu_k^0(T, P) + RT \ln a_k.
-     * \f$.
+     * @f$.
      *
      * @param mu Chemical potential vector. Length = num global species. Units
      *           = J/kmol.
@@ -550,7 +550,7 @@ private:
     //! MultiPhaseEquil solver.
     /*!
      * @param XY   Integer flag specifying properties to hold fixed.
-     * @param err  Error tolerance for \f$\Delta \mu/RT \f$ for all reactions.
+     * @param err  Error tolerance for @f$\Delta \mu/RT @f$ for all reactions.
      *             Also used as the relative error tolerance for the outer loop.
      * @param maxsteps Maximum number of steps to take in solving the fixed TP
      *                 problem.

@@ -26,20 +26,20 @@ namespace Cantera
  * of species due to a pressure gradient that is part of Darcy's law.
  *
  * The dusty gas model expresses the value of the molar flux of species
- * \f$ k \f$, \f$ J_k \f$ by the following formula.
+ * @f$ k @f$, @f$ J_k @f$ by the following formula.
  *
- * \f[
+ * @f[
  *     \sum_{j \ne k}{\frac{X_j J_k - X_k J_j}{D^e_{kj}}} + \frac{J_k}{\mathcal{D}^{e}_{k,knud}} =
  *             - \nabla C_k  - \frac{C_k}{\mathcal{D}^{e}_{k,knud}} \frac{\kappa}{\mu} \nabla p
- * \f]
+ * @f]
  *
- * \f$ j \f$ is a sum over all species in the gas.
+ * @f$ j @f$ is a sum over all species in the gas.
  *
  * The effective Knudsen diffusion coefficients are given by the following form
  *
- * \f[
+ * @f[
  *    \mathcal{D}^e_{k,knud} =  \frac{2}{3} \frac{r_{pore} \phi}{\tau} \left( \frac{8 R T}{\pi W_k}  \right)^{1/2}
- * \f]
+ * @f]
  *
  * The effective knudsen diffusion coefficients take into account the effects of
  * collisions of gas-phase molecules with the wall.
@@ -71,9 +71,9 @@ public:
 
     //! Get the molar fluxes [kmol/m^2/s], given the thermodynamic state at two nearby points.
     /*!
-     *   \f[
+     *   @f[
      *       J_k = - \sum_{j = 1, N} \left[D^{multi}_{kj}\right]^{-1} \left( \nabla C_j  + \frac{C_j}{\mathcal{D}^{knud}_j} \frac{\kappa}{\mu} \nabla p \right)
-     *   \f]
+     *   @f]
      *
      * @param  state1  Array of temperature, density, and mass fractions for state 1.
      * @param  state2  Array of temperature, density, and mass fractions for state 2.
@@ -120,9 +120,9 @@ public:
      * The value for close-packed spheres is given below, where p is the
      * porosity, t is the tortuosity, and d is the diameter of the sphere
      *
-     * \f[
+     * @f[
      *     \kappa = \frac{p^3 d^2}{72 t (1 - p)^2}
-     * \f]
+     * @f]
      *
      * @param B  set the permeability of the media (units = m^2)
      */
@@ -173,15 +173,15 @@ private:
 
     //! Private routine to update the dusty gas binary diffusion coefficients
     /*!
-     * The dusty gas binary diffusion coefficients \f$  D^{dg}_{i,j} \f$ are
-     * evaluated from the binary gas-phase diffusion coefficients \f$
-     * D^{bin}_{i,j} \f$  using the following formula
+     * The dusty gas binary diffusion coefficients @f$  D^{dg}_{i,j} @f$ are
+     * evaluated from the binary gas-phase diffusion coefficients @f$
+     * D^{bin}_{i,j} @f$  using the following formula
      *
-     * \f[
+     * @f[
      *     D^{dg}_{i,j} =  \frac{\phi}{\tau} D^{bin}_{i,j}
-     * \f]
+     * @f]
      *
-     * where \f$ \phi \f$ is the porosity of the media and \f$ \tau \f$ is the
+     * where @f$ \phi @f$ is the porosity of the media and @f$ \tau @f$ is the
      * tortuosity of the media.
      */
     void updateBinaryDiffCoeffs();
@@ -197,22 +197,22 @@ private:
     /*!
      * The Knudsen diffusion coefficients are given by the following form
      *
-     * \f[
+     * @f[
      *     \mathcal{D}^{knud}_k =  \frac{2}{3} \frac{r_{pore} \phi}{\tau} \left( \frac{8 R T}{\pi W_k}  \right)^{1/2}
-     * \f]
+     * @f]
      */
     void updateKnudsenDiffCoeffs();
 
     //! Calculate the H matrix
     /*!
-     * The multicomponent diffusion H matrix \f$  H_{k,l} \f$ is given by the following form
+     * The multicomponent diffusion H matrix @f$  H_{k,l} @f$ is given by the following form
      *
-     * \f[
+     * @f[
      *    H_{k,l} = - \frac{X_k}{D_{k,l}}
-     * \f]
-     * \f[
+     * @f]
+     * @f[
      *    H_{k,k} = \frac{1}{\mathcal(D)^{knud}_{k}} + \sum_{j \ne k}^N{ \frac{X_j}{D_{k,j}} }
-     * \f]
+     * @f]
      */
     void eval_H_matrix();
 
@@ -273,11 +273,11 @@ private:
      * The permeability is the proportionality constant for Darcy's law which
      * relates discharge rate and viscosity to the applied pressure gradient.
      *
-     * Below is Darcy's law, where \f$ \kappa \f$ is the permeability
+     * Below is Darcy's law, where @f$ \kappa @f$ is the permeability
      *
-     * \f[
+     * @f[
      *     v = \frac{\kappa}{\mu} \frac{\delta P}{\delta x}
-     * \f]
+     * @f]
      *
      * units are m2
      */

@@ -113,19 +113,19 @@ public:
     /**
      * The falloff function. This is defined so that the rate coefficient is
      *
-     * \f[  k = F(Pr)\frac{Pr}{1 + Pr}. \f]
+     * @f[  k = F(Pr)\frac{Pr}{1 + Pr}. @f]
      *
-     * Here \f$ Pr \f$ is the reduced pressure, defined by
+     * Here @f$ Pr @f$ is the reduced pressure, defined by
      *
-     * \f[
+     * @f[
      * Pr = \frac{k_0 [M]}{k_\infty}.
-     * \f]
+     * @f]
      *
      * @param pr reduced pressure (dimensionless).
      * @param work array of size workSize() containing cached
      *             temperature-dependent intermediate results from a prior call
      *             to updateTemp.
-     * @returns the value of the falloff function \f$ F \f$ defined above
+     * @returns the value of the falloff function @f$ F @f$ defined above
      */
     virtual double F(double pr, const double* work) const {
         return 1.0;
@@ -288,29 +288,29 @@ public:
 
 //! The 3- or 4-parameter Troe falloff parameterization.
 /*!
- * The falloff function defines the value of \f$ F \f$ in the following
+ * The falloff function defines the value of @f$ F @f$ in the following
  * rate expression
  *
- *  \f[ k = k_{\infty} \left( \frac{P_r}{1 + P_r} \right) F \f]
+ *  @f[ k = k_{\infty} \left( \frac{P_r}{1 + P_r} \right) F @f]
  *  where
- *  \f[ P_r = \frac{k_0 [M]}{k_{\infty}} \f]
+ *  @f[ P_r = \frac{k_0 [M]}{k_{\infty}} @f]
  *
  * This parameterization is defined by
  *
- * \f[ F = F_{cent}^{1/(1 + f_1^2)} \f]
+ * @f[ F = F_{cent}^{1/(1 + f_1^2)} @f]
  *    where
- * \f[ F_{cent} = (1 - A)\exp(-T/T_3) + A \exp(-T/T_1) + \exp(-T_2/T) \f]
+ * @f[ F_{cent} = (1 - A)\exp(-T/T_3) + A \exp(-T/T_1) + \exp(-T_2/T) @f]
  *
- * \f[ f_1 = (\log_{10} P_r + C) /
- *              \left(N - 0.14 (\log_{10} P_r + C)\right) \f]
+ * @f[ f_1 = (\log_{10} P_r + C) /
+ *              \left(N - 0.14 (\log_{10} P_r + C)\right) @f]
  *
- * \f[ C = -0.4 - 0.67 \log_{10} F_{cent} \f]
+ * @f[ C = -0.4 - 0.67 \log_{10} F_{cent} @f]
  *
- * \f[ N = 0.75 - 1.27 \log_{10} F_{cent} \f]
+ * @f[ N = 0.75 - 1.27 \log_{10} F_{cent} @f]
  *
- *  - If \f$ T_3 \f$ is zero, then the corresponding term is set to zero.
- *  - If \f$ T_1 \f$ is zero, then the corresponding term is set to zero.
- *  - If \f$ T_2 \f$ is zero, then the corresponding term is set to zero.
+ *  - If @f$ T_3 @f$ is zero, then the corresponding term is set to zero.
+ *  - If @f$ T_1 @f$ is zero, then the corresponding term is set to zero.
+ *  - If @f$ T_2 @f$ is zero, then the corresponding term is set to zero.
  *
  * @ingroup falloffGroup
  */
@@ -364,7 +364,7 @@ public:
     virtual void setParameters(
         const AnyMap& node, const UnitStack& rate_units) override;
 
-    //! Sets params to contain, in order, \f[ (A, T_3, T_1, T_2) \f]
+    //! Sets params to contain, in order, @f[ (A, T_3, T_1, T_2) @f]
     /**
      * @deprecated To be removed after %Cantera 3.0; superseded by getFalloffCoeffs()
      */
@@ -388,22 +388,22 @@ protected:
 
 //! The SRI falloff function
 /*!
- * The falloff function defines the value of \f$ F \f$ in the following
+ * The falloff function defines the value of @f$ F @f$ in the following
  * rate expression
  *
- *  \f[ k = k_{\infty} \left( \frac{P_r}{1 + P_r} \right) F \f]
+ *  @f[ k = k_{\infty} \left( \frac{P_r}{1 + P_r} \right) F @f]
  *  where
- *  \f[ P_r = \frac{k_0 [M]}{k_{\infty}} \f]
+ *  @f[ P_r = \frac{k_0 [M]}{k_{\infty}} @f]
  *
- *  \f[ F = {\left( a \; exp(\frac{-b}{T}) + exp(\frac{-T}{c})\right)}^n
- *              \;  d \; T^e \f]
+ *  @f[ F = {\left( a \; exp(\frac{-b}{T}) + exp(\frac{-T}{c})\right)}^n
+ *              \;  d \; T^e @f]
  *      where
- *  \f[ n = \frac{1.0}{1.0 + (\log_{10} P_r)^2} \f]
+ *  @f[ n = \frac{1.0}{1.0 + (\log_{10} P_r)^2} @f]
  *
- *  \f$ c \f$ s required to greater than or equal to zero. If it is zero, then
+ *  @f$ c @f$ s required to greater than or equal to zero. If it is zero, then
  *  the corresponding term is set to zero.
  *
- *  \f$ d \f$ is required to be greater than zero.
+ *  @f$ d @f$ is required to be greater than zero.
  *
  * @ingroup falloffGroup
  */
@@ -464,7 +464,7 @@ public:
     virtual void setParameters(
         const AnyMap& node, const UnitStack& rate_units) override;
 
-    //! Sets params to contain, in order, \f[ (a, b, c, d, e) \f]
+    //! Sets params to contain, in order, @f[ (a, b, c, d, e) @f]
     /**
      * @deprecated To be removed after %Cantera 3.0; superseded by getFalloffCoeffs()
      */
@@ -492,19 +492,19 @@ protected:
 //! The 1- or 2-parameter Tsang falloff parameterization.
 /*!
  *  The Tsang falloff model is adapted from that of Troe.
- *  It provides a constant or linear in temperature value for \f$ F_{cent} \f$:
- *  \f[ F_{cent} = A + B*T \f]
+ *  It provides a constant or linear in temperature value for @f$ F_{cent} @f$:
+ *  @f[ F_{cent} = A + B*T @f]
  *
- *  The value of \f$ F_{cent} \f$ is then applied to Troe's model for the
- *  determination of the value of \f$ F \f$:
- * \f[ F = F_{cent}^{1/(1 + f_1^2)} \f]
+ *  The value of @f$ F_{cent} @f$ is then applied to Troe's model for the
+ *  determination of the value of @f$ F @f$:
+ * @f[ F = F_{cent}^{1/(1 + f_1^2)} @f]
  *    where
- * \f[ f_1 = (\log_{10} P_r + C) /
- *              \left(N - 0.14 (\log_{10} P_r + C)\right) \f]
+ * @f[ f_1 = (\log_{10} P_r + C) /
+ *              \left(N - 0.14 (\log_{10} P_r + C)\right) @f]
  *
- * \f[ C = -0.4 - 0.67 \log_{10} F_{cent} \f]
+ * @f[ C = -0.4 - 0.67 \log_{10} F_{cent} @f]
  *
- * \f[ N = 0.75 - 1.27 \log_{10} F_{cent} \f]
+ * @f[ N = 0.75 - 1.27 \log_{10} F_{cent} @f]
  *
  *  References:
  *  * Example of reaction database developed by Tsang utilizing this format
@@ -570,7 +570,7 @@ public:
     virtual void setParameters(
         const AnyMap& node, const UnitStack& rate_units) override;
 
-    //! Sets params to contain, in order, \f[ (A, B) \f]
+    //! Sets params to contain, in order, @f[ (A, B) @f]
     /**
      * @deprecated To be removed after %Cantera 3.0; superseded by getFalloffCoeffs()
      */

@@ -65,7 +65,7 @@ public:
 
     //! Get the array of non-dimensional species chemical potentials.
     /*!
-     * These are partial molar Gibbs free energies, \f$ \mu_k / \hat R T \f$.
+     * These are partial molar Gibbs free energies, @f$ \mu_k / \hat R T @f$.
      *
      * We close the loop on this function, here, calling getChemPotentials() and
      * then dividing by RT. No need for child classes to handle.
@@ -168,12 +168,12 @@ protected:
      *
      * The formula for this is
      *
-     * \f[
+     * @f[
      * \rho = \frac{\sum_k{X_k W_k}}{\sum_k{X_k V_k}}
-     * \f]
+     * @f]
      *
-     * where \f$X_k\f$ are the mole fractions, \f$W_k\f$ are the molecular
-     * weights, and \f$V_k\f$ are the pure species molar volumes.
+     * where @f$X_k@f$ are the mole fractions, @f$W_k@f$ are the molecular
+     * weights, and @f$V_k@f$ are the pure species molar volumes.
      *
      * Note, the basis behind this formula is that in an ideal solution the
      * partial molar volumes are equal to the pure species molar volumes. We

@@ -43,15 +43,15 @@ namespace Cantera
  * All of the Excess Gibbs free energy formulations in this area employ
  * symmetrical formulations.
  *
- * Chemical potentials of species k, \f$ \mu_o \f$, has the following general
+ * Chemical potentials of species k, @f$ \mu_o @f$, has the following general
  * format:
  *
- * \f[
+ * @f[
  *    \mu_k = \mu^o_k(T,P) + R T ln( \gamma_k X_k )
- * \f]
+ * @f]
  *
- * where \f$ \gamma_k^{\triangle} \f$ is a molar based activity coefficient for
- * species \f$k\f$.
+ * where @f$ \gamma_k^{\triangle} @f$ is a molar based activity coefficient for
+ * species @f$k@f$.
  *
  * GibbsExcessVPSSTP contains an internal vector with the current mole fraction
  * vector. That's one of its primary usages. In order to keep the mole fraction
@@ -100,12 +100,12 @@ protected:
      *
      * The formula for this is
      *
-     * \f[
+     * @f[
      * \rho = \frac{\sum_k{X_k W_k}}{\sum_k{X_k V_k}}
-     * \f]
+     * @f]
      *
-     * where \f$X_k\f$ are the mole fractions, \f$W_k\f$ are the molecular
-     * weights, and \f$V_k\f$ are the pure species molar volumes.
+     * where @f$X_k@f$ are the mole fractions, @f$W_k@f$ are the molecular
+     * weights, and @f$V_k@f$ are the pure species molar volumes.
      *
      * Note, the basis behind this formula is that in an ideal solution the
      * partial molar volumes are equal to the pure species molar volumes. We
@@ -121,9 +121,9 @@ public:
     //! @}
     //! @name Activities, Standard States, and Activity Concentrations
     //!
-    //! The activity \f$a_k\f$ of a species in solution is related to the
-    //! chemical potential by \f[ \mu_k = \mu_k^0(T) + \hat R T \log a_k. \f] The
-    //! quantity \f$\mu_k^0(T,P)\f$ is the chemical potential at unit activity,
+    //! The activity @f$a_k@f$ of a species in solution is related to the
+    //! chemical potential by @f[ \mu_k = \mu_k^0(T) + \hat R T \log a_k. @f] The
+    //! quantity @f$\mu_k^0(T,P)@f$ is the chemical potential at unit activity,
     //! which depends only on temperature and pressure.
     //! @{
 
@@ -131,10 +131,10 @@ public:
     virtual void getActivityConcentrations(doublereal* c) const;
 
     /**
-     * The standard concentration \f$ C^0_k \f$ used to normalize the
+     * The standard concentration @f$ C^0_k @f$ used to normalize the
      * generalized concentration. In many cases, this quantity will be the same
      * for all species in a phase - for example, for an ideal gas
-     * \f$ C^0_k = P/\hat R T \f$. For this reason, this method returns a single
+     * @f$ C^0_k = P/\hat R T @f$. For this reason, this method returns a single
      * value, instead of an array.  However, for phases in which the standard
      * concentration is species-specific (for example, surface species of different
      * sizes), this method may be called with an optional parameter indicating
@@ -152,9 +152,9 @@ public:
     //! class and classes that derive from it) at the current solution
     //! temperature, pressure, and solution concentration.
     /*!
-     * \f[
+     * @f[
      *  a_i^\triangle = \gamma_k^{\triangle} \frac{m_k}{m^\triangle}
-     * \f]
+     * @f]
      *
      * This function must be implemented in derived classes.
      *

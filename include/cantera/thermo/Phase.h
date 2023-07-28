@@ -47,7 +47,7 @@ class Species;
  * It also stores an array of species molecular weights, which are used to
  * convert between mole and mass representations of the composition. For
  * efficiency in mass/mole conversion, the vector of mass fractions divided
- * by molecular weight \f$ Y_k/M_k \f$ is also stored.
+ * by molecular weight @f$ Y_k/M_k @f$ is also stored.
  *
  * Class Phase is not usually used directly. Its primary use is as a base class
  * for class ThermoPhase. It is not generally necessary to overloaded any of
@@ -599,15 +599,15 @@ public:
 
     //! Elemental mass fraction of element m
     /*!
-     *  The elemental mass fraction \f$Z_{\mathrm{mass},m}\f$ of element \f$m\f$
+     *  The elemental mass fraction @f$Z_{\mathrm{mass},m}@f$ of element @f$m@f$
      *  is defined as
-     *  \f[
+     *  @f[
      *      Z_{\mathrm{mass},m} = \sum_k \frac{a_{m,k} M_m}{M_k} Y_k
-     *  \f]
-     *  with \f$a_{m,k}\f$ being the number of atoms of element \f$m\f$ in
-     *  species \f$k\f$, \f$M_m\f$ the atomic weight of element \f$m\f$,
-     *  \f$M_k\f$ the molecular weight of species \f$k\f$, and \f$Y_k\f$
-     *  the mass fraction of species \f$k\f$.
+     *  @f]
+     *  with @f$a_{m,k}@f$ being the number of atoms of element @f$m@f$ in
+     *  species @f$k@f$, @f$M_m@f$ the atomic weight of element @f$m@f$,
+     *  @f$M_k@f$ the molecular weight of species @f$k@f$, and @f$Y_k@f$
+     *  the mass fraction of species @f$k@f$.
      *
      *  @param[in] m Index of the element within the phase. If m is outside
      *               the valid range, an exception will be thrown.
@@ -618,17 +618,17 @@ public:
 
     //! Elemental mole fraction of element m
     /*!
-     *  The elemental mole fraction \f$Z_{\mathrm{mole},m}\f$ of element \f$m\f$
+     *  The elemental mole fraction @f$Z_{\mathrm{mole},m}@f$ of element @f$m@f$
      *  is the number of atoms of element *m* divided by the total number of
      *  atoms. It is defined as:
      *
-     *  \f[
+     *  @f[
      *      Z_{\mathrm{mole},m} = \frac{\sum_k a_{m,k} X_k}
      *                                 {\sum_k \sum_j a_{j,k} X_k}
-     *  \f]
-     *  with \f$a_{m,k}\f$ being the number of atoms of element \f$m\f$ in
-     *  species \f$k\f$, \f$\sum_j\f$ being a sum over all elements, and
-     *  \f$X_k\f$ being the mole fraction of species \f$k\f$.
+     *  @f]
+     *  with @f$a_{m,k}@f$ being the number of atoms of element @f$m@f$ in
+     *  species @f$k@f$, @f$\sum_j@f$ being a sum over all elements, and
+     *  @f$X_k@f$ being the mole fraction of species @f$k@f$.
      *
      *  @param[in] m Index of the element within the phase. If m is outside the
      *               valid range, an exception will be thrown.
@@ -685,8 +685,8 @@ public:
      *  This method must be overloaded in derived classes. Within %Cantera, the
      *  independent variable is either density or pressure. If the state is
      *  defined by temperature, density, and mass fractions, this method should
-     *  use these values to implement the mechanical equation of state \f$ P(T,
-     *  \rho, Y_1, \dots, Y_K) \f$. Alternatively, it returns a stored value.
+     *  use these values to implement the mechanical equation of state @f$ P(T,
+     *  \rho, Y_1, \dots, Y_K) @f$. Alternatively, it returns a stored value.
      */
     virtual double pressure() const {
         throw NotImplementedError("Phase::pressure",
@@ -758,7 +758,7 @@ public:
     //! @{
 
     //! Evaluate the mole-fraction-weighted mean of an array Q.
-    //! \f[ \sum_k X_k Q_k. \f]
+    //! @f[ \sum_k X_k Q_k. @f]
     //! Q should contain pure-species molar property values.
     //!     @param[in] Q Array of length m_kk that is to be averaged.
     //!     @return mole-fraction-weighted mean of Q
@@ -772,7 +772,7 @@ public:
         return m_mmw;
     }
 
-    //! Evaluate \f$ \sum_k X_k \log X_k \f$.
+    //! Evaluate @f$ \sum_k X_k \log X_k @f$.
     //! @return The indicated sum. Dimensionless.
     doublereal sum_xlogx() const;
 

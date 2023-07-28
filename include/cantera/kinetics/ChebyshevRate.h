@@ -61,27 +61,27 @@ protected:
 //! as a bivariate Chebyshev polynomial in temperature and pressure.
 /*!
  * The rate constant can be written as:
- * \f[
+ * @f[
  *     \log k(T,P) = \sum_{t=1}^{N_T} \sum_{p=1}^{N_P} \alpha_{tp}
  *                       \phi_t(\tilde{T}) \phi_p(\tilde{P})
- * \f]
- * where \f$\alpha_{tp}\f$ are the constants defining the rate, \f$\phi_n(x)\f$
+ * @f]
+ * where @f$\alpha_{tp}@f$ are the constants defining the rate, @f$\phi_n(x)@f$
  * is the Chebyshev polynomial of the first kind of degree *n* evaluated at
  * *x*, and
- * \f[
+ * @f[
  *  \tilde{T} \equiv \frac{2T^{-1} - T_\mathrm{min}^{-1} - T_\mathrm{max}^{-1}}
  *                        {T_\mathrm{max}^{-1} - T_\mathrm{min}^{-1}}
- * \f]
- * \f[
+ * @f]
+ * @f[
  *  \tilde{P} \equiv \frac{2 \log P - \log P_\mathrm{min} - \log P_\mathrm{max}}
  *                        {\log P_\mathrm{max} - \log P_\mathrm{min}}
- * \f]
+ * @f]
  * are reduced temperature and reduced pressures which map the ranges
- * \f$ (T_\mathrm{min}, T_\mathrm{max}) \f$ and
- * \f$ (P_\mathrm{min}, P_\mathrm{max}) \f$ to (-1, 1).
+ * @f$ (T_\mathrm{min}, T_\mathrm{max}) @f$ and
+ * @f$ (P_\mathrm{min}, P_\mathrm{max}) @f$ to (-1, 1).
  *
  * A ChebyshevRate rate expression is specified in terms of the coefficient matrix
- * \f$ \alpha \f$ and the temperature and pressure ranges. Note that the
+ * @f$ \alpha @f$ and the temperature and pressure ranges. Note that the
  * Chebyshev polynomials are not defined outside the interval (-1,1), and
  * therefore extrapolation of rates outside the range of temperatures and
  * pressures for which they are defined is strongly discouraged.

@@ -22,30 +22,30 @@ namespace Cantera
 //! The Shomate polynomial parameterization for one temperature range for one
 //! species
 /*!
- * Seven coefficients \f$(A,\dots,G)\f$ are used to represent
- * \f$ c_p^0(T)\f$, \f$ h^0(T)\f$, and \f$ s^0(T) \f$ as
- * polynomials in the temperature, \f$ T \f$ :
+ * Seven coefficients @f$(A,\dots,G)@f$ are used to represent
+ * @f$ c_p^0(T)@f$, @f$ h^0(T)@f$, and @f$ s^0(T) @f$ as
+ * polynomials in the temperature, @f$ T @f$ :
  *
- * \f[
+ * @f[
  * \tilde{c}_p^0(T) = A + B t + C t^2 + D t^3 + \frac{E}{t^2}
- * \f]
- * \f[
+ * @f]
+ * @f[
  * \tilde{h}^0(T) = A t + \frac{B t^2}{2} + \frac{C t^3}{3}
  *                + \frac{D t^4}{4}  - \frac{E}{t} + F.
- * \f]
- * \f[
+ * @f]
+ * @f[
  * \tilde{s}^0(T) = A\ln t + B t + \frac{C t^2}{2}
  *                + \frac{D t^3}{3} - \frac{E}{2t^2} + G.
- * \f]
+ * @f]
  *
  * In the above expressions, the thermodynamic polynomials are expressed in
- * dimensional units, but the temperature,\f$ t \f$, is divided by 1000. The
+ * dimensional units, but the temperature,@f$ t @f$, is divided by 1000. The
  * following dimensions are assumed in the above expressions:
  *
- *    - \f$ \tilde{c}_p^0(T)\f$ = Heat Capacity (J/gmol*K)
- *    - \f$ \tilde{h}^0(T) \f$ = standard Enthalpy (kJ/gmol)
- *    - \f$ \tilde{s}^0(T) \f$= standard Entropy (J/gmol*K)
- *    - \f$ t \f$= temperature (K) / 1000.
+ *    - @f$ \tilde{c}_p^0(T)@f$ = Heat Capacity (J/gmol*K)
+ *    - @f$ \tilde{h}^0(T) @f$ = standard Enthalpy (kJ/gmol)
+ *    - @f$ \tilde{s}^0(T) @f$= standard Entropy (J/gmol*K)
+ *    - @f$ t @f$= temperature (K) / 1000.
  *
  * For more information about Shomate polynomials, see the NIST website,
  * http://webbook.nist.gov/
@@ -69,7 +69,7 @@ public:
      *                     the parameters for the species standard state.
      *
      *  See the class description for the polynomial representation of the
-     *  thermo functions in terms of \f$ A, \dots, G \f$.
+     *  thermo functions in terms of @f$ A, \dots, G @f$.
      */
     ShomatePoly(double tlow, double thigh, double pref, const double* coeffs) :
         SpeciesThermoInterpType(tlow, thigh, pref),
@@ -195,30 +195,30 @@ protected:
 //! The Shomate polynomial parameterization for two temperature ranges for one
 //! species
 /*!
- * Seven coefficients \f$(A,\dots,G)\f$ are used to represent
- * \f$ c_p^0(T)\f$, \f$ h^0(T)\f$, and \f$ s^0(T) \f$ as
- * polynomials in the temperature, \f$ T \f$, in one temperature region:
+ * Seven coefficients @f$(A,\dots,G)@f$ are used to represent
+ * @f$ c_p^0(T)@f$, @f$ h^0(T)@f$, and @f$ s^0(T) @f$ as
+ * polynomials in the temperature, @f$ T @f$, in one temperature region:
  *
- * \f[
+ * @f[
  * \tilde{c}_p^0(T) = A + B t + C t^2 + D t^3 + \frac{E}{t^2}
- * \f]
- * \f[
+ * @f]
+ * @f[
  * \tilde{h}^0(T) = A t + \frac{B t^2}{2} + \frac{C t^3}{3}
  *                + \frac{D t^4}{4}  - \frac{E}{t}  + F.
- * \f]
- * \f[
+ * @f]
+ * @f[
  * \tilde{s}^0(T) = A\ln t + B t + \frac{C t^2}{2}
  *                + \frac{D t^3}{3} - \frac{E}{2t^2}  + G.
- * \f]
+ * @f]
  *
  * In the above expressions, the thermodynamic polynomials are expressed
- * in dimensional units, but the temperature,\f$ t \f$, is divided by 1000. The
+ * in dimensional units, but the temperature,@f$ t @f$, is divided by 1000. The
  * following dimensions are assumed in the above expressions:
  *
- *    - \f$ \tilde{c}_p^0(T)\f$ = Heat Capacity (J/gmol*K)
- *    - \f$ \tilde{h}^0(T) \f$ = standard Enthalpy (kJ/gmol)
- *    - \f$ \tilde{s}^0(T) \f$= standard Entropy (J/gmol*K)
- *    - \f$ t \f$= temperature (K) / 1000.
+ *    - @f$ \tilde{c}_p^0(T)@f$ = Heat Capacity (J/gmol*K)
+ *    - @f$ \tilde{h}^0(T) @f$ = standard Enthalpy (kJ/gmol)
+ *    - @f$ \tilde{s}^0(T) @f$= standard Entropy (J/gmol*K)
+ *    - @f$ t @f$= temperature (K) / 1000.
  *
  * For more information about Shomate polynomials, see the NIST website,
  * http://webbook.nist.gov/

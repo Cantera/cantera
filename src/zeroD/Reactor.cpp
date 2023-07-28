@@ -239,9 +239,9 @@ void Reactor::eval(double time, double* LHS, double* RHS)
     }
 
     // Energy equation.
-    // \f[
+    // @f[
     //     \dot U = -P\dot V + A \dot q + \dot m_{in} h_{in} - \dot m_{out} h.
-    // \f]
+    // @f]
     if (m_energy) {
         RHS[2] = - m_thermo->pressure() * m_vdot + m_Qdot;
     } else {

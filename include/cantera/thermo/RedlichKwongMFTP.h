@@ -45,11 +45,11 @@ public:
     /*!
      *  Since the mass density, temperature, and mass fractions are stored,
      *  this method uses these values to implement the
-     *  mechanical equation of state \f$ P(T, \rho, Y_1, \dots, Y_K) \f$.
+     *  mechanical equation of state @f$ P(T, \rho, Y_1, \dots, Y_K) @f$.
      *
-     * \f[
+     * @f[
      *    P = \frac{RT}{v-b_{mix}} - \frac{a_{mix}}{T^{0.5} v \left( v + b_{mix} \right) }
-     * \f]
+     * @f]
      */
     virtual doublereal pressure() const;
 
@@ -57,14 +57,14 @@ public:
 
 public:
 
-    //! Returns the standard concentration \f$ C^0_k \f$, which is used to
+    //! Returns the standard concentration @f$ C^0_k @f$, which is used to
     //! normalize the generalized concentration.
     /*!
      * This is defined as the concentration by which the generalized
      * concentration is normalized to produce the activity. In many cases, this
      * quantity will be the same for all species in a phase. Since the activity
      * for an ideal gas mixture is simply the mole fraction, for an ideal gas
-     * \f$ C^0_k = P/\hat R T \f$.
+     * @f$ C^0_k = P/\hat R T @f$.
      *
      * @param k Optional parameter indicating the species. The default is to
      *          assume this refers to species 0.
@@ -90,7 +90,7 @@ public:
     //! Get the array of non-dimensional species chemical potentials.
     //! These are partial molar Gibbs free energies.
     /*!
-     * \f$ \mu_k / \hat R T \f$.
+     * @f$ \mu_k / \hat R T @f$.
      * Units: unitless
      *
      * We close the loop on this function, here, calling getChemPotentials() and
@@ -130,7 +130,7 @@ public:
     /*!
      *  The "a" parameter for species *i* in the Redlich-Kwong model is assumed
      *  to be a linear function of temperature:
-     *  \f[ a = a_0 + a_1 T \f]
+     *  @f[ a = a_0 + a_1 T @f]
      *
      *  @param species   Name of the species
      *  @param a0        constant term in the expression for the "a" parameter
@@ -146,10 +146,10 @@ public:
     /*!
      *  The "a" parameter for interactions between species *i* and *j* is
      *  assumed by default to be computed as:
-     *  \f[ a_{ij} = \sqrt(a_{i,0} a_{j,0}) + \sqrt(a_{i,1} a_{j,1}) T \f]
+     *  @f[ a_{ij} = \sqrt(a_{i,0} a_{j,0}) + \sqrt(a_{i,1} a_{j,1}) T @f]
      *
      *  This function overrides the defaults with the specified parameters:
-     *  \f[ a_{ij} = a_{ij,0} + a_{ij,1} T \f]
+     *  @f[ a_{ij} = a_{ij,0} + a_{ij,1} T @f]
      *
      *  @param species_i   Name of one species
      *  @param species_j   Name of the other species

@@ -269,13 +269,13 @@ public:
     //! Returns the isothermal compressibility. Units: 1/Pa.
     /*!
      * The isothermal compressibility is defined as
-     * \f[
+     * @f[
      * \kappa_T = -\frac{1}{v}\left(\frac{\partial v}{\partial P}\right)_T
-     * \f]
+     * @f]
      *  or
-     * \f[
+     * @f[
      * \kappa_T = \frac{1}{\rho}\left(\frac{\partial \rho}{\partial P}\right)_T
-     * \f]
+     * @f]
      */
     virtual doublereal isothermalCompressibility() const {
         throw NotImplementedError("ThermoPhase::isothermalCompressibility");
@@ -284,9 +284,9 @@ public:
     //! Return the volumetric thermal expansion coefficient. Units: 1/K.
     /*!
      * The thermal expansion coefficient is defined as
-     * \f[
+     * @f[
      * \beta = \frac{1}{v}\left(\frac{\partial v}{\partial T}\right)_P
-     * \f]
+     * @f]
      */
     virtual doublereal thermalExpansionCoeff() const {
         throw NotImplementedError("ThermoPhase::thermalExpansionCoeff");
@@ -295,9 +295,9 @@ public:
     //! Return the speed of sound. Units: m/s.
     /*!
      * The speed of sound is defined as
-     * \f[
+     * @f[
      * c = \sqrt{\left(\frac{\partial P}{\partial\rho}\right)_s}
-     * \f]
+     * @f]
      */
     virtual double soundSpeed() const {
         throw NotImplementedError("ThermoPhase::soundSpeed");
@@ -336,9 +336,9 @@ public:
     //! @}
     //! @name Activities, Standard States, and Activity Concentrations
     //!
-    //! The activity \f$a_k\f$ of a species in solution is related to the
-    //! chemical potential by \f[ \mu_k = \mu_k^0(T,P) + \hat R T \log a_k. \f]
-    //! The quantity \f$\mu_k^0(T,P)\f$ is the standard chemical potential at
+    //! The activity @f$a_k@f$ of a species in solution is related to the
+    //! chemical potential by @f[ \mu_k = \mu_k^0(T,P) + \hat R T \log a_k. @f]
+    //! The quantity @f$\mu_k^0(T,P)@f$ is the standard chemical potential at
     //! unit activity, which depends on temperature and pressure, but not on
     //! composition. The activity is dimensionless.
     //! @{
@@ -393,8 +393,8 @@ public:
 
     //! This method returns an array of generalized concentrations
     /*!
-     * \f$ C^a_k\f$ are defined such that \f$ a_k = C^a_k / C^0_k, \f$ where
-     * \f$ C^0_k \f$ is a standard concentration defined below and \f$ a_k \f$
+     * @f$ C^a_k@f$ are defined such that @f$ a_k = C^a_k / C^0_k, @f$ where
+     * @f$ C^0_k @f$ is a standard concentration defined below and @f$ a_k @f$
      * are activities used in the thermodynamic functions. These activity (or
      * generalized) concentrations are used by kinetics manager classes to
      * compute the forward and reverse rates of elementary reactions. Note that
@@ -411,10 +411,10 @@ public:
 
     //! Return the standard concentration for the kth species
     /*!
-     * The standard concentration \f$ C^0_k \f$ used to normalize the activity
+     * The standard concentration @f$ C^0_k @f$ used to normalize the activity
      * (that is, generalized) concentration. In many cases, this quantity will be
-     * the same for all species in a phase - for example, for an ideal gas \f$
-     * C^0_k = P/\hat R T \f$. For this reason, this method returns a single
+     * the same for all species in a phase - for example, for an ideal gas @f$
+     * C^0_k = P/\hat R T @f$. For this reason, this method returns a single
      * value, instead of an array.  However, for phases in which the standard
      * concentration is species-specific (such as surface species of different
      * sizes), this method may be called with an optional parameter indicating
@@ -477,7 +477,7 @@ public:
     /**
      * Get the array of non-dimensional species chemical potentials
      * These are partial molar Gibbs free energies.
-     * \f$ \mu_k / \hat R T \f$.
+     * @f$ \mu_k / \hat R T @f$.
      * Units: unitless
      *
      * @param mu  Output vector of dimensionless chemical potentials.
@@ -504,14 +504,14 @@ public:
 
     //!  Get the species electrochemical potentials.
     /*!
-     *  These are partial molar quantities.  This method adds a term \f$ F z_k
-     *  \phi_p \f$ to each chemical potential. The electrochemical potential of
-     *  species k in a phase p, \f$ \zeta_k \f$, is related to the chemical
+     *  These are partial molar quantities.  This method adds a term @f$ F z_k
+     *  \phi_p @f$ to each chemical potential. The electrochemical potential of
+     *  species k in a phase p, @f$ \zeta_k @f$, is related to the chemical
      *  potential via the following equation,
      *
-     *  \f[
+     *  @f[
      *            \zeta_{k}(T,P) = \mu_{k}(T,P) + F z_k \phi_p
-     *  \f]
+     *  @f]
      *
      * @param mu  Output vector of species electrochemical
      *            potentials. Length: m_kk. Units: J/kmol
@@ -576,8 +576,8 @@ public:
     //! Get the array of chemical potentials at unit activity for the species at
     //! their standard states at the current *T* and *P* of the solution.
     /*!
-     * These are the standard state chemical potentials \f$ \mu^0_k(T,P)
-     * \f$. The values are evaluated at the current temperature and pressure of
+     * These are the standard state chemical potentials @f$ \mu^0_k(T,P)
+     * @f$. The values are evaluated at the current temperature and pressure of
      * the solution
      *
      * @param mu      Output vector of chemical potentials.
@@ -1256,20 +1256,20 @@ public:
      * Fuel and oxidizer compositions are given either as
      * mole fractions or mass fractions (specified by `basis`)
      * and do not need to be normalized.
-     * The mixture fraction \f$ Z \f$ can be computed from a single element
-     * \f[ Z_m = \frac{Z_{\mathrm{mass},m}-Z_{\mathrm{mass},m,\mathrm{ox}}}
-     * {Z_{\mathrm{mass},\mathrm{fuel}}-Z_{\mathrm{mass},m,\mathrm{ox}}} \f] where
-     * \f$ Z_{\mathrm{mass},m} \f$ is the elemental mass fraction of element m
-     * in the mixture, and \f$ Z_{\mathrm{mass},m,\mathrm{ox}} \f$ and
-     * \f$ Z_{\mathrm{mass},m,\mathrm{fuel}} \f$ are the elemental mass fractions
+     * The mixture fraction @f$ Z @f$ can be computed from a single element
+     * @f[ Z_m = \frac{Z_{\mathrm{mass},m}-Z_{\mathrm{mass},m,\mathrm{ox}}}
+     * {Z_{\mathrm{mass},\mathrm{fuel}}-Z_{\mathrm{mass},m,\mathrm{ox}}} @f] where
+     * @f$ Z_{\mathrm{mass},m} @f$ is the elemental mass fraction of element m
+     * in the mixture, and @f$ Z_{\mathrm{mass},m,\mathrm{ox}} @f$ and
+     * @f$ Z_{\mathrm{mass},m,\mathrm{fuel}} @f$ are the elemental mass fractions
      * of the oxidizer and fuel, or from the Bilger mixture fraction,
      * which considers the elements C, S, H and O (R. W. Bilger, "Turbulent jet
      * diffusion flames," Prog. Energy Combust. Sci., 109-131 (1979))
-     * \f[ Z_{\mathrm{Bilger}} = \frac{\beta-\beta_{\mathrm{ox}}}
-     * {\beta_{\mathrm{fuel}}-\beta_{\mathrm{ox}}} \f]
-     * with \f$ \beta = 2\frac{Z_C}{M_C}+2\frac{Z_S}{M_S}+\frac{1}{2}\frac{Z_H}{M_H}
-     * -\frac{Z_O}{M_O} \f$
-     * and \f$ M_m \f$ the atomic weight of element \f$ m \f$.
+     * @f[ Z_{\mathrm{Bilger}} = \frac{\beta-\beta_{\mathrm{ox}}}
+     * {\beta_{\mathrm{fuel}}-\beta_{\mathrm{ox}}} @f]
+     * with @f$ \beta = 2\frac{Z_C}{M_C}+2\frac{Z_S}{M_S}+\frac{1}{2}\frac{Z_H}{M_H}
+     * -\frac{Z_O}{M_O} @f$
+     * and @f$ M_m @f$ the atomic weight of element @f$ m @f$.
      *
      * @param fuelComp   composition of the fuel
      * @param oxComp     composition of the oxidizer
@@ -1327,11 +1327,11 @@ public:
     //! Compute the equivalence ratio for the current mixture
     //! given the compositions of fuel and oxidizer
     /*!
-     * The equivalence ratio \f$ \phi \f$ is computed from
-     * \f[ \phi = \frac{Z}{1-Z}\frac{1-Z_{\mathrm{st}}}{Z_{\mathrm{st}}} \f]
-     * where \f$ Z \f$ is the Bilger mixture fraction of the mixture
+     * The equivalence ratio @f$ \phi @f$ is computed from
+     * @f[ \phi = \frac{Z}{1-Z}\frac{1-Z_{\mathrm{st}}}{Z_{\mathrm{st}}} @f]
+     * where @f$ Z @f$ is the Bilger mixture fraction of the mixture
      * given the specified fuel and oxidizer compositions
-     * \f$ Z_{\mathrm{st}} \f$ is the mixture fraction at stoichiometric
+     * @f$ Z_{\mathrm{st}} @f$ is the mixture fraction at stoichiometric
      * conditions. Fuel and oxidizer compositions are given either as
      * mole fractions or mass fractions (specified by `basis`)
      * and do not need to be normalized.
@@ -1346,7 +1346,7 @@ public:
      *                   as mole or mass fractions (default: molar)
      * @returns          equivalence ratio
      * @see mixtureFraction for the definition of the Bilger mixture fraction
-     * @see equivalenceRatio() for the computation of \f$ \phi \f$ without arguments
+     * @see equivalenceRatio() for the computation of @f$ \phi @f$ without arguments
      */
     double equivalenceRatio(const double* fuelComp, const double* oxComp,
                             ThermoBasis basis=ThermoBasis::molar) const;
@@ -1361,12 +1361,12 @@ public:
     //! Compute the equivalence ratio for the current mixture
     //! from available oxygen and required oxygen
     /*!
-     * Computes the equivalence ratio \f$ \phi \f$ from
-     * \f[ \phi =
+     * Computes the equivalence ratio @f$ \phi @f$ from
+     * @f[ \phi =
      * \frac{Z_{\mathrm{mole},C} + Z_{\mathrm{mole},S} + \frac{1}{4}Z_{\mathrm{mole},H}}
-     * {\frac{1}{2}Z_{\mathrm{mole},O}} \f]
-     * where \f$ Z_{\mathrm{mole},m} \f$ is the elemental mole fraction
-     * of element \f$ m \f$. In this special case, the equivalence ratio
+     * {\frac{1}{2}Z_{\mathrm{mole},O}} @f]
+     * where @f$ Z_{\mathrm{mole},m} @f$ is the elemental mole fraction
+     * of element @f$ m @f$. In this special case, the equivalence ratio
      * is independent of a fuel or oxidizer composition because it only
      * considers the locally available oxygen compared to the required oxygen
      * for complete oxidation. It is the same as assuming that the oxidizer
@@ -1391,10 +1391,10 @@ public:
      * mole fractions or mass fractions (specified by `basis`)
      * and do not need to be normalized.
      * Elements C, S, H and O are considered for the oxidation.
-     * Note that the stoichiometric air to fuel ratio \f$ \mathit{AFR}_{\mathrm{st}} \f$
+     * Note that the stoichiometric air to fuel ratio @f$ \mathit{AFR}_{\mathrm{st}} @f$
      * does not depend on the current mixture composition. The current air to fuel ratio
-     * can be computed from \f$ \mathit{AFR} = \mathit{AFR}_{\mathrm{st}}/\phi \f$
-     * where \f$ \phi \f$ is the equivalence ratio of the current mixture
+     * can be computed from @f$ \mathit{AFR} = \mathit{AFR}_{\mathrm{st}}/\phi @f$
+     * where @f$ \phi @f$ is the equivalence ratio of the current mixture
      *
      * @param fuelComp   composition of the fuel
      * @param oxComp     composition of the oxidizer
@@ -1502,9 +1502,9 @@ public:
     //!This method is used by the ChemEquil equilibrium solver.
     /*!
      * It sets the state such that the chemical potentials satisfy
-     * \f[ \frac{\mu_k}{\hat R T} = \sum_m A_{k,m}
-     * \left(\frac{\lambda_m} {\hat R T}\right) \f] where
-     * \f$ \lambda_m \f$ is the element potential of element m. The
+     * @f[ \frac{\mu_k}{\hat R T} = \sum_m A_{k,m}
+     * \left(\frac{\lambda_m} {\hat R T}\right) @f] where
+     * @f$ \lambda_m @f$ is the element potential of element m. The
      * temperature is unchanged.  Any phase (ideal or not) that
      * implements this method can be equilibrated by ChemEquil.
      *
@@ -1777,9 +1777,9 @@ public:
      * act_coeff for the *m*-th species with respect to the number of moles of
      * the *k*-th species.
      *
-     * \f[
+     * @f[
      *     \frac{d \ln(\gamma_m) }{d \ln( n_k ) }\Bigg|_{n_i}
-     * \f]
+     * @f]
      *
      * When implemented, this method is used within the VCS equilibrium solver to
      * calculate the Jacobian elements, which accelerates convergence of the algorithm.

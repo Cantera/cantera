@@ -34,10 +34,10 @@ namespace Cantera
  * Activity coefficients for species k may be altered between scales s1 to s2
  * using the following formula
  *
- * \f[
+ * @f[
  *     ln(\gamma_k^{s2}) = ln(\gamma_k^{s1})
  *        + \frac{z_k}{z_j} \left(  ln(\gamma_j^{s2}) - ln(\gamma_j^{s1}) \right)
- * \f]
+ * @f]
  *
  * where j is any one species.
  */
@@ -51,17 +51,17 @@ const int PHSCALE_PITZER = 0;
  * Activity coefficients for species k may be altered between scales s1 to s2
  * using the following formula
  *
- * \f[
+ * @f[
  *     ln(\gamma_k^{s2}) = ln(\gamma_k^{s1})
  *        + \frac{z_k}{z_j} \left(  ln(\gamma_j^{s2}) - ln(\gamma_j^{s1}) \right)
- * \f]
+ * @f]
  *
  * where j is any one species. For the NBS scale, j is equal to the Cl- species
  * and
  *
- * \f[
+ * @f[
  *     ln(\gamma_{Cl-}^{s2}) = \frac{-A_{\phi} \sqrt{I}}{1.0 + 1.5 \sqrt{I}}
- * \f]
+ * @f]
  *
  * This is the NBS pH scale, which is used in all conventional pH measurements.
  * and is based on the Bates-Guggenheim equations.
@@ -83,88 +83,88 @@ const int PHSCALE_NBS = 1;
  * MolalityVPSSTP class return `cAC_CONVENTION_MOLALITY` from this member
  * function.
  *
- * The molality of a solute, \f$ m_i \f$, is defined as
+ * The molality of a solute, @f$ m_i @f$, is defined as
  *
- * \f[
+ * @f[
  *     m_i = \frac{n_i}{\tilde{M}_o n_o}
- * \f]
+ * @f]
  * where
- * \f[
+ * @f[
  *     \tilde{M}_o = \frac{M_o}{1000}
- * \f]
+ * @f]
  *
- * where \f$ M_o \f$ is the molecular weight of the solvent. The molality has
+ * where @f$ M_o @f$ is the molecular weight of the solvent. The molality has
  * units of gmol/kg. For the solute, the molality may be considered
  * as the amount of gmol's of solute per kg of solvent, a natural experimental
  * quantity.
  *
  * The formulas for calculating mole fractions if given the molalities of the
- * solutes is stated below. First calculate \f$ L^{sum} \f$, an intermediate
+ * solutes is stated below. First calculate @f$ L^{sum} @f$, an intermediate
  * quantity.
  *
- * \f[
+ * @f[
  *     L^{sum} = \frac{1}{\tilde{M}_o X_o} = \frac{1}{\tilde{M}_o} + \sum_{i\ne o} m_i
- * \f]
+ * @f]
  * Then,
- * \f[
+ * @f[
  *     X_o =   \frac{1}{\tilde{M}_o L^{sum}}
- * \f]
- * \f[
+ * @f]
+ * @f[
  *     X_i =   \frac{m_i}{L^{sum}}
- * \f]
- * where \f$ X_o \f$ is the mole fraction of solvent, and \f$ X_o \f$ is the
+ * @f]
+ * where @f$ X_o @f$ is the mole fraction of solvent, and @f$ X_o @f$ is the
  * mole fraction of solute *i*. Thus, the molality scale and the mole fraction
  * scale offer a one-to-one mapping between each other, except in the limit of a
  * zero solvent mole fraction.
  *
  * The standard states for thermodynamic objects that derive from MolalityVPSSTP
- * are on the unit molality basis. Chemical potentials of the solutes, \f$ \mu_k
- * \f$, and the solvent, \f$ \mu_o \f$, which are based on the molality form,
+ * are on the unit molality basis. Chemical potentials of the solutes, @f$ \mu_k
+ * @f$, and the solvent, @f$ \mu_o @f$, which are based on the molality form,
  * have the following general format:
  *
- * \f[
+ * @f[
  *    \mu_k = \mu^{\triangle}_k(T,P) + R T ln(\gamma_k^{\triangle} \frac{m_k}{m^\triangle})
- * \f]
- * \f[
+ * @f]
+ * @f[
  *    \mu_o = \mu^o_o(T,P) + RT ln(a_o)
- * \f]
+ * @f]
  *
- * where \f$ \gamma_k^{\triangle} \f$ is the molality based activity coefficient
- * for species \f$k\f$.
+ * where @f$ \gamma_k^{\triangle} @f$ is the molality based activity coefficient
+ * for species @f$k@f$.
  *
  * The chemical potential of the solvent is thus expressed in a different format
  * than the chemical potential of the solutes. Additionally, the activity of the
- * solvent, \f$ a_o \f$, is further reexpressed in terms of an osmotic
- * coefficient, \f$ \phi \f$.
- * \f[
+ * solvent, @f$ a_o @f$, is further reexpressed in terms of an osmotic
+ * coefficient, @f$ \phi @f$.
+ * @f[
  *     \phi = \frac{- ln(a_o)}{\tilde{M}_o \sum_{i \ne o} m_i}
- * \f]
+ * @f]
  *
- * MolalityVPSSTP::osmoticCoefficient() returns the value of \f$ \phi \f$. Note
+ * MolalityVPSSTP::osmoticCoefficient() returns the value of @f$ \phi @f$. Note
  * there are a few of definitions of the osmotic coefficient floating around. We
  * use the one defined in (Activity Coefficients in Electrolyte Solutions, K. S.
  * Pitzer CRC Press, Boca Raton, 1991, p. 85, Eqn. 28). This definition is most
  * clearly related to theoretical calculation.
  *
- * The molar-based activity coefficients \f$ \gamma_k \f$ may be calculated from
- * the molality-based activity coefficients, \f$ \gamma_k^\triangle \f$ by the
+ * The molar-based activity coefficients @f$ \gamma_k @f$ may be calculated from
+ * the molality-based activity coefficients, @f$ \gamma_k^\triangle @f$ by the
  * following formula.
- * \f[
+ * @f[
  *     \gamma_k = \frac{\gamma_k^\triangle}{X_o}
- * \f]
+ * @f]
  * For purposes of establishing a convention, the molar activity coefficient of
  * the solvent is set equal to the molality-based activity coefficient of the
  * solvent:
- * \f[
+ * @f[
  *     \gamma_o = \gamma_o^\triangle
- * \f]
+ * @f]
  *
  * The molality-based and molarity-based standard states may be related to one
  * another by the following formula.
  *
- * \f[
+ * @f[
  *   \mu_k^\triangle(T,P) = \mu_k^o(T,P) + R T \ln(\tilde{M}_o m^\triangle)
- * \f]
+ * @f]
  *
  * An important convention is followed in all routines that derive from
  * MolalityVPSSTP. Standard state thermodynamic functions and reference state
@@ -194,17 +194,17 @@ const int PHSCALE_NBS = 1;
  * Activity coefficients for species k may be altered between scales s1 to s2
  * using the following formula
  *
- * \f[
+ * @f[
  *     ln(\gamma_k^{s2}) = ln(\gamma_k^{s1})
  *        + \frac{z_k}{z_j} \left(  ln(\gamma_j^{s2}) - ln(\gamma_j^{s1}) \right)
- * \f]
+ * @f]
  *
  * where j is any one species. For the NBS scale, j is equal to the Cl- species
  * and
  *
- * \f[
+ * @f[
  *     ln(\gamma_{Cl-}^{s2}) = \frac{-A_{\phi} \sqrt{I}}{1.0 + 1.5 \sqrt{I}}
- * \f]
+ * @f]
  *
  * The Pitzer scale doesn't actually change anything. The pitzer scale is
  * defined as the raw unscaled activity coefficients produced by the underlying
@@ -289,15 +289,15 @@ public:
     /*!
      * We calculate the vector of molalities of the species in the phase and
      * store the result internally:
-     * \f[
+     * @f[
      *     m_i = \frac{X_i}{1000 * M_o * X_{o,p}}
-     * \f]
+     * @f]
      * where
-     *    - \f$ M_o \f$ is the molecular weight of the solvent
-     *    - \f$ X_o \f$ is the mole fraction of the solvent
-     *    - \f$ X_i \f$ is the mole fraction of the solute.
-     *    - \f$ X_{o,p} = \max (X_{o}^{min}, X_o) \f$
-     *    - \f$ X_{o}^{min} \f$ = minimum mole fraction of solvent allowed
+     *    - @f$ M_o @f$ is the molecular weight of the solvent
+     *    - @f$ X_o @f$ is the mole fraction of the solvent
+     *    - @f$ X_i @f$ is the mole fraction of the solute.
+     *    - @f$ X_{o,p} = \max (X_{o}^{min}, X_o) @f$
+     *    - @f$ X_{o}^{min} @f$ = minimum mole fraction of solvent allowed
      *              in the denominator.
      */
     void calcMolalities() const;
@@ -305,15 +305,15 @@ public:
     //! This function will return the molalities of the species.
     /*!
      * We calculate the vector of molalities of the species in the phase
-     * \f[
+     * @f[
      *     m_i = \frac{X_i}{1000 * M_o * X_{o,p}}
-     * \f]
+     * @f]
      * where
-     *    - \f$ M_o \f$ is the molecular weight of the solvent
-     *    - \f$ X_o \f$ is the mole fraction of the solvent
-     *    - \f$ X_i \f$ is the mole fraction of the solute.
-     *    - \f$ X_{o,p} = \max (X_{o}^{min}, X_o) \f$
-     *    - \f$ X_{o}^{min} \f$ = minimum mole fraction of solvent allowed
+     *    - @f$ M_o @f$ is the molecular weight of the solvent
+     *    - @f$ X_o @f$ is the mole fraction of the solvent
+     *    - @f$ X_i @f$ is the mole fraction of the solute.
+     *    - @f$ X_{o,p} = \max (X_{o}^{min}, X_o) @f$
+     *    - @f$ X_{o}^{min} @f$ = minimum mole fraction of solvent allowed
      *              in the denominator.
      *
      * @param molal       Output vector of molalities. Length: m_kk.
@@ -325,30 +325,30 @@ public:
      * Note, the entry for the solvent is not used. We are supplied with the
      * molalities of all of the solute species. We then calculate the mole
      * fractions of all species and update the ThermoPhase object.
-     * \f[
+     * @f[
      *     m_i = \frac{X_i}{M_o/1000 * X_{o,p}}
-     * \f]
+     * @f]
      * where
-     *    -  \f$M_o\f$ is the molecular weight of the solvent
-     *    -  \f$X_o\f$ is the mole fraction of the solvent
-     *    -  \f$X_i\f$ is the mole fraction of the solute.
-     *    -  \f$X_{o,p} = \max(X_o^{min}, X_o)\f$
-     *    -  \f$X_o^{min}\f$ = minimum mole fraction of solvent allowed
+     *    -  @f$M_o@f$ is the molecular weight of the solvent
+     *    -  @f$X_o@f$ is the mole fraction of the solvent
+     *    -  @f$X_i@f$ is the mole fraction of the solute.
+     *    -  @f$X_{o,p} = \max(X_o^{min}, X_o)@f$
+     *    -  @f$X_o^{min}@f$ = minimum mole fraction of solvent allowed
      *                     in the denominator.
      *
      * The formulas for calculating mole fractions are
-     * \f[
+     * @f[
      *     L^{sum} = \frac{1}{\tilde{M}_o X_o} = \frac{1}{\tilde{M}_o} + \sum_{i\ne o} m_i
-     * \f]
+     * @f]
      * Then,
-     * \f[
+     * @f[
      *     X_o =   \frac{1}{\tilde{M}_o L^{sum}}
-     * \f]
-     * \f[
+     * @f]
+     * @f[
      *     X_i =   \frac{m_i}{L^{sum}}
-     * \f]
+     * @f]
      * It is currently an error if the solvent mole fraction is attempted to be
-     * set to a value lower than \f$ X_o^{min} \f$.
+     * set to a value lower than @f$ X_o^{min} @f$.
      *
      * @param molal   Input vector of molalities. Length: m_kk.
      */
@@ -375,9 +375,9 @@ public:
     //! @}
     //! @name Activities, Standard States, and Activity Concentrations
     //!
-    //! The activity \f$a_k\f$ of a species in solution is related to the
-    //! chemical potential by \f[ \mu_k = \mu_k^0(T) + \hat R T \log a_k. \f] The
-    //! quantity \f$\mu_k^0(T,P)\f$ is the chemical potential at unit activity,
+    //! The activity @f$a_k@f$ of a species in solution is related to the
+    //! chemical potential by @f[ \mu_k = \mu_k^0(T) + \hat R T \log a_k. @f] The
+    //! quantity @f$\mu_k^0(T,P)@f$ is the chemical potential at unit activity,
     //! which depends only on temperature and pressure.
     //! @{
 
@@ -397,9 +397,9 @@ public:
      * consistent with the molality scale. Therefore, this function must return
      * molality-based activities.
      *
-     * \f[
+     * @f[
      *     a_i^\triangle = \gamma_k^{\triangle} \frac{m_k}{m^\triangle}
-     * \f]
+     * @f]
      *
      * This function must be implemented in derived classes.
      *
@@ -415,20 +415,20 @@ public:
      * of the molality-based activity coefficients.
      *  See Denbigh p. 278 for a thorough discussion.
      *
-     * The molar-based activity coefficients \f$ \gamma_k \f$ may be calculated
-     * from the molality-based activity coefficients, \f$ \gamma_k^\triangle \f$
+     * The molar-based activity coefficients @f$ \gamma_k @f$ may be calculated
+     * from the molality-based activity coefficients, @f$ \gamma_k^\triangle @f$
      * by the following formula.
-     * \f[
+     * @f[
      *     \gamma_k = \frac{\gamma_k^\triangle}{X_o}
-     * \f]
+     * @f]
      *
      * For purposes of establishing a convention, the molar activity coefficient of the
      * solvent is set equal to the molality-based activity coefficient of the
      * solvent:
      *
-     * \f[
+     * @f[
      *     \gamma_o = \gamma_o^\triangle
-     * \f]
+     * @f]
      *
      * Derived classes don't need to overload this function. This function is
      * handled at this level.
@@ -452,17 +452,17 @@ public:
      * Activity coefficients for species k may be altered between scales s1 to
      * s2 using the following formula
      *
-     * \f[
+     * @f[
      *     ln(\gamma_k^{s2}) = ln(\gamma_k^{s1})
      *        + \frac{z_k}{z_j} \left(  ln(\gamma_j^{s2}) - ln(\gamma_j^{s1}) \right)
-     * \f]
+     * @f]
      *
      * where j is any one species. For the NBS scale, j is equal to the Cl-
      * species and
      *
-     * \f[
+     * @f[
      *     ln(\gamma_{Cl-}^{s2}) = \frac{-A_{\phi} \sqrt{I}}{1.0 + 1.5 \sqrt{I}}
-     * \f]
+     * @f]
      *
      * @param acMolality Output vector containing the molality based activity
      *                   coefficients. length: m_kk.
@@ -471,9 +471,9 @@ public:
 
     //! Calculate the osmotic coefficient
     /*!
-     * \f[
+     * @f[
      *     \phi = \frac{- ln(a_o)}{\tilde{M}_o \sum_{i \ne o} m_i}
-     * \f]
+     * @f]
      *
      * Note there are a few of definitions of the osmotic coefficient floating
      * around. We use the one defined in (Activity Coefficients in Electrolyte

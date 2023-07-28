@@ -53,48 +53,48 @@ namespace Cantera
  *
  * The standard state enthalpy is independent of pressure:
  *
- * \f[
+ * @f[
  *      h^o_k(T,P) = h^{ref}_k(T)
- * \f]
+ * @f]
  *
  * The standard state constant-pressure heat capacity is independent of pressure:
  *
- * \f[
+ * @f[
  *      Cp^o_k(T,P) = Cp^{ref}_k(T)
- * \f]
+ * @f]
  *
  * The standard state entropy depends in the following fashion on pressure:
  *
- * \f[
+ * @f[
  *      S^o_k(T,P) = S^{ref}_k(T) -  R \ln(\frac{P}{P_{ref}})
- * \f]
+ * @f]
  * The standard state Gibbs free energy is obtained from the enthalpy and entropy
  * functions:
  *
- * \f[
+ * @f[
  *      \mu^o_k(T,P) =  h^o_k(T,P) - S^o_k(T,P) T
- * \f]
+ * @f]
  *
- * \f[
+ * @f[
  *      \mu^o_k(T,P) =  \mu^{ref}_k(T) + R T \ln( \frac{P}{P_{ref}})
- * \f]
+ * @f]
  *
  * where
- * \f[
+ * @f[
  *      \mu^{ref}_k(T) =   h^{ref}_k(T)   - T S^{ref}_k(T)
- * \f]
+ * @f]
  *
  * The standard state internal energy is obtained from the enthalpy function also
  *
- * \f[
+ * @f[
  *      u^o_k(T,P) = h^o_k(T) - R T
- * \f]
+ * @f]
  *
  * The molar volume of a species is given by the ideal gas law
  *
- * \f[
+ * @f[
  *      V^o_k(T,P) = \frac{R T}{P}
- * \f]
+ * @f]
  *
  * where R is the molar gas constant. For a complete list of physical constants
  * used within %Cantera, see @ref physConstants .
@@ -102,142 +102,142 @@ namespace Cantera
  * ## Specification of Solution Thermodynamic Properties
  *
  * The activity of a species defined in the phase is given by the ideal gas law:
- * \f[
+ * @f[
  *      a_k = X_k
- * \f]
- * where \f$ X_k \f$ is the mole fraction of species *k*. The chemical potential
+ * @f]
+ * where @f$ X_k @f$ is the mole fraction of species *k*. The chemical potential
  * for species *k* is equal to
  *
- * \f[
+ * @f[
  *      \mu_k(T,P) = \mu^o_k(T, P) + R T \log(X_k)
- * \f]
+ * @f]
  *
  * In terms of the reference state, the above can be rewritten
  *
- * \f[
+ * @f[
  *      \mu_k(T,P) = \mu^{ref}_k(T, P) + R T \log(\frac{P X_k}{P_{ref}})
- * \f]
+ * @f]
  *
  * The partial molar entropy for species *k* is given by the following relation,
  *
- * \f[
+ * @f[
  *      \tilde{s}_k(T,P) = s^o_k(T,P) - R \log(X_k) = s^{ref}_k(T) - R \log(\frac{P X_k}{P_{ref}})
- * \f]
+ * @f]
  *
  * The partial molar enthalpy for species *k* is
  *
- * \f[
+ * @f[
  *      \tilde{h}_k(T,P) = h^o_k(T,P) = h^{ref}_k(T)
- * \f]
+ * @f]
  *
  * The partial molar Internal Energy for species *k* is
  *
- * \f[
+ * @f[
  *      \tilde{u}_k(T,P) = u^o_k(T,P) = u^{ref}_k(T)
- * \f]
+ * @f]
  *
  * The partial molar Heat Capacity for species *k* is
  *
- * \f[
+ * @f[
  *      \tilde{Cp}_k(T,P) = Cp^o_k(T,P) = Cp^{ref}_k(T)
- * \f]
+ * @f]
  *
  * ## Application within Kinetics Managers
  *
- * \f$ C^a_k\f$ are defined such that \f$ a_k = C^a_k / C^s_k, \f$ where \f$
- * C^s_k \f$ is a standard concentration defined below and \f$ a_k \f$ are
+ * @f$ C^a_k@f$ are defined such that @f$ a_k = C^a_k / C^s_k, @f$ where @f$
+ * C^s_k @f$ is a standard concentration defined below and @f$ a_k @f$ are
  * activities used in the thermodynamic functions.  These activity (or
  * generalized) concentrations are used by kinetics manager classes to compute
  * the forward and reverse rates of elementary reactions. The activity
- * concentration,\f$  C^a_k \f$,is given by the following expression.
+ * concentration,@f$  C^a_k @f$,is given by the following expression.
  *
- * \f[
+ * @f[
  *      C^a_k = C^s_k  X_k  = \frac{P}{R T} X_k
- * \f]
+ * @f]
  *
  * The standard concentration for species *k* is independent of *k* and equal to
  *
- * \f[
+ * @f[
  *     C^s_k =  C^s = \frac{P}{R T}
- * \f]
+ * @f]
  *
  * For example, a bulk-phase binary gas reaction between species j and k,
  * producing a new gas species l would have the following equation for its rate
- * of progress variable, \f$ R^1 \f$, which has units of kmol m-3 s-1.
+ * of progress variable, @f$ R^1 @f$, which has units of kmol m-3 s-1.
  *
- * \f[
+ * @f[
  *    R^1 = k^1 C_j^a C_k^a =  k^1 (C^s a_j) (C^s a_k)
- * \f]
+ * @f]
  * where
- * \f[
+ * @f[
  *    C_j^a = C^s a_j \quad \mbox{and} \quad C_k^a = C^s a_k
- * \f]
+ * @f]
  *
- * \f$ C_j^a \f$ is the activity concentration of species j, and
- * \f$ C_k^a \f$ is the activity concentration of species k. \f$ C^s \f$ is the
- * standard concentration. \f$ a_j \f$ is the activity of species j which is
+ * @f$ C_j^a @f$ is the activity concentration of species j, and
+ * @f$ C_k^a @f$ is the activity concentration of species k. @f$ C^s @f$ is the
+ * standard concentration. @f$ a_j @f$ is the activity of species j which is
  * equal to the mole fraction of j.
  *
  * The reverse rate constant can then be obtained from the law of microscopic
  * reversibility and the equilibrium expression for the system.
  *
- * \f[
+ * @f[
  *     \frac{a_j a_k}{ a_l} = K_a^{o,1} = \exp(\frac{\mu^o_l - \mu^o_j - \mu^o_k}{R T} )
- * \f]
+ * @f]
  *
- * \f$  K_a^{o,1} \f$ is the dimensionless form of the equilibrium constant,
- * associated with the pressure dependent standard states \f$ \mu^o_l(T,P) \f$
- * and their associated activities, \f$ a_l \f$, repeated here:
+ * @f$  K_a^{o,1} @f$ is the dimensionless form of the equilibrium constant,
+ * associated with the pressure dependent standard states @f$ \mu^o_l(T,P) @f$
+ * and their associated activities, @f$ a_l @f$, repeated here:
  *
- * \f[
+ * @f[
  *      \mu_l(T,P) = \mu^o_l(T, P) + R T \log(a_l)
- * \f]
+ * @f]
  *
  * We can switch over to expressing the equilibrium constant in terms of the
  * reference state chemical potentials
  *
- * \f[
+ * @f[
  *     K_a^{o,1} = \exp(\frac{\mu^{ref}_l - \mu^{ref}_j - \mu^{ref}_k}{R T} ) * \frac{P_{ref}}{P}
- * \f]
+ * @f]
  *
- * The concentration equilibrium constant, \f$ K_c \f$, may be obtained by
+ * The concentration equilibrium constant, @f$ K_c @f$, may be obtained by
  * changing over to activity concentrations. When this is done:
  *
- * \f[
+ * @f[
  *       \frac{C^a_j C^a_k}{ C^a_l} = C^o K_a^{o,1} = K_c^1 =
  *           \exp(\frac{\mu^{ref}_l - \mu^{ref}_j - \mu^{ref}_k}{R T} ) * \frac{P_{ref}}{RT}
- * \f]
+ * @f]
  *
  * %Kinetics managers will calculate the concentration equilibrium constant,
- * \f$ K_c \f$, using the second and third part of the above expression as a
+ * @f$ K_c @f$, using the second and third part of the above expression as a
  * definition for the concentration equilibrium constant.
  *
  * For completeness, the pressure equilibrium constant may be obtained as well
  *
- * \f[
+ * @f[
  *       \frac{P_j P_k}{ P_l P_{ref}} = K_p^1 =
  *           \exp\left(\frac{\mu^{ref}_l - \mu^{ref}_j - \mu^{ref}_k}{R T} \right)
- * \f]
+ * @f]
  *
- * \f$ K_p \f$ is the simplest form of the equilibrium constant for ideal gases.
+ * @f$ K_p @f$ is the simplest form of the equilibrium constant for ideal gases.
  * However, it isn't necessarily the simplest form of the equilibrium constant
- * for other types of phases; \f$ K_c \f$ is used instead because it is
+ * for other types of phases; @f$ K_c @f$ is used instead because it is
  * completely general.
  *
  * The reverse rate of progress may be written down as
- * \f[
+ * @f[
  *    R^{-1} = k^{-1} C_l^a =  k^{-1} (C^o a_l)
- * \f]
+ * @f]
  *
  * where we can use the concept of microscopic reversibility to write the
  * reverse rate constant in terms of the forward rate constant and the
- * concentration equilibrium constant, \f$ K_c \f$.
+ * concentration equilibrium constant, @f$ K_c @f$.
  *
- * \f[
+ * @f[
  *    k^{-1} =  k^1 K^1_c
- * \f]
+ * @f]
  *
- * \f$k^{-1} \f$ has units of s-1.
+ * @f$k^{-1} @f$ has units of s-1.
  *
  * ## YAML Example
  *
@@ -283,11 +283,11 @@ public:
     //! Return the Molar enthalpy. Units: J/kmol.
     /*!
      * For an ideal gas mixture,
-     * \f[
+     * @f[
      * \hat h(T) = \sum_k X_k \hat h^0_k(T),
-     * \f]
+     * @f]
      * and is a function only of temperature. The standard-state pure-species
-     * enthalpies \f$ \hat h^0_k(T) \f$ are computed by the species
+     * enthalpies @f$ \hat h^0_k(T) @f$ are computed by the species
      * thermodynamic property manager.
      *
      * \see MultiSpeciesThermo
@@ -299,10 +299,10 @@ public:
     /**
      * Molar entropy. Units: J/kmol/K.
      * For an ideal gas mixture,
-     * \f[
+     * @f[
      * \hat s(T, P) = \sum_k X_k \hat s^0_k(T) - \hat R \log (P/P^0).
-     * \f]
-     * The reference-state pure-species entropies \f$ \hat s^0_k(T) \f$ are
+     * @f]
+     * The reference-state pure-species entropies @f$ \hat s^0_k(T) @f$ are
      * computed by the species thermodynamic property manager.
      * @see MultiSpeciesThermo
      */
@@ -311,10 +311,10 @@ public:
     /**
      * Molar heat capacity at constant pressure. Units: J/kmol/K.
      * For an ideal gas mixture,
-     * \f[
+     * @f[
      * \hat c_p(t) = \sum_k \hat c^0_{p,k}(T).
-     * \f]
-     * The reference-state pure-species heat capacities \f$ \hat c^0_{p,k}(T) \f$
+     * @f]
+     * The reference-state pure-species heat capacities @f$ \hat c^0_{p,k}(T) @f$
      * are computed by the species thermodynamic property manager.
      * @see MultiSpeciesThermo
      */
@@ -323,7 +323,7 @@ public:
     /**
      * Molar heat capacity at constant volume. Units: J/kmol/K.
      * For an ideal gas mixture,
-     * \f[ \hat c_v = \hat c_p - \hat R. \f]
+     * @f[ \hat c_v = \hat c_p - \hat R. @f]
      */
     virtual doublereal cv_mole() const;
 
@@ -334,7 +334,7 @@ public:
     /**
      * Pressure. Units: Pa.
      * For an ideal gas mixture,
-     * \f[ P = n \hat R T. \f]
+     * @f[ P = n \hat R T. @f]
      */
     virtual doublereal pressure() const {
         return GasConstant * molarDensity() * temperature();
@@ -344,9 +344,9 @@ public:
     /*!
      * Units: Pa.
      * This method is implemented by setting the mass density to
-     * \f[
+     * @f[
      * \rho = \frac{P \overline W}{\hat R T }.
-     * \f]
+     * @f]
      *
      * @param p Pressure (Pa)
      */
@@ -359,9 +359,9 @@ public:
      * Units: kg/m^3, Pa.
      * This method is implemented by setting the density to the input value and
      * setting the temperature to
-     * \f[
+     * @f[
      * T = \frac{P \overline W}{\hat R \rho}.
-     * \f]
+     * @f]
      *
      * @param rho Density (kg/m^3)
      * @param p Pressure (Pa)
@@ -380,9 +380,9 @@ public:
     //! Returns the isothermal compressibility. Units: 1/Pa.
     /**
      * The isothermal compressibility is defined as
-     * \f[
+     * @f[
      * \kappa_T = -\frac{1}{v}\left(\frac{\partial v}{\partial P}\right)_T
-     * \f]
+     * @f]
      *  For ideal gases it's equal to the inverse of the pressure
      */
     virtual doublereal isothermalCompressibility() const {
@@ -392,9 +392,9 @@ public:
     //! Return the volumetric thermal expansion coefficient. Units: 1/K.
     /*!
      * The thermal expansion coefficient is defined as
-     * \f[
+     * @f[
      * \beta = \frac{1}{v}\left(\frac{\partial v}{\partial T}\right)_P
-     * \f]
+     * @f]
      * For ideal gases, it's equal to the inverse of the temperature.
      */
     virtual doublereal thermalExpansionCoeff() const {
@@ -406,24 +406,24 @@ public:
     //! @}
     //! @name Chemical Potentials and Activities
     //!
-    //! The activity \f$a_k\f$ of a species in solution is
+    //! The activity @f$a_k@f$ of a species in solution is
     //! related to the chemical potential by
-    //! \f[
+    //! @f[
     //!  \mu_k(T,P,X_k) = \mu_k^0(T,P)
     //! + \hat R T \log a_k.
-    //!  \f]
-    //! The quantity \f$\mu_k^0(T,P)\f$ is the standard state chemical potential
+    //!  @f]
+    //! The quantity @f$\mu_k^0(T,P)@f$ is the standard state chemical potential
     //! at unit activity. It may depend on the pressure and the temperature.
     //! However, it may not depend on the mole fractions of the species in the
     //! solution.
     //!
-    //! The activities are related to the generalized concentrations, \f$\tilde
-    //! C_k\f$, and standard concentrations, \f$C^0_k\f$, by the following
+    //! The activities are related to the generalized concentrations, @f$\tilde
+    //! C_k@f$, and standard concentrations, @f$C^0_k@f$, by the following
     //! formula:
     //!
-    //!  \f[
+    //!  @f[
     //!  a_k = \frac{\tilde C_k}{C^0_k}
-    //!  \f]
+    //!  @f]
     //! The generalized concentrations are used in the kinetics classes to
     //! describe the rates of progress of reactions involving the species. Their
     //! formulation depends upon the specification of the rate constants for
@@ -445,14 +445,14 @@ public:
         getConcentrations(c);
     }
 
-    //! Returns the standard concentration \f$ C^0_k \f$, which is used to
+    //! Returns the standard concentration @f$ C^0_k @f$, which is used to
     //! normalize the generalized concentration.
     /*!
      * This is defined as the concentration by which the generalized
      * concentration is normalized to produce the activity. In many cases, this
      * quantity will be the same for all species in a phase. Since the activity
      * for an ideal gas mixture is simply the mole fraction, for an ideal gas
-     * \f$ C^0_k = P/\hat R T \f$.
+     * @f$ C^0_k = P/\hat R T @f$.
      *
      * @param k Optional parameter indicating the species. The default
      *          is to assume this refers to species 0.

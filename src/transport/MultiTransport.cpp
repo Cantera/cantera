@@ -21,7 +21,7 @@ namespace Cantera
 /**
  * The Parker temperature correction to the rotational collision number.
  *
- * @param tr Reduced temperature \f$ \epsilon/kT \f$
+ * @param tr Reduced temperature @f$ \epsilon/kT @f$
  * @param sqtr square root of tr.
  */
 doublereal Frot(doublereal tr, doublereal sqtr)
@@ -387,7 +387,7 @@ void MultiTransport::getMultiDiffCoeffs(const size_t ld, doublereal* const d)
                           (m_Lmatrix(i,j) - m_Lmatrix(i,i));
         }
     }
-    
+
 }
 
 void MultiTransport::update_T()

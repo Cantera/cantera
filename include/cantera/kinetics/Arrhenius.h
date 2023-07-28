@@ -161,9 +161,9 @@ protected:
 /*!
  * A reaction rate coefficient of the following form.
  *
- *   \f[
+ *   @f[
  *        k_f =  A T^b \exp (-Ea/RT)
- *   \f]
+ *   @f]
  *
  * @ingroup arrheniusGroup
  */

@@ -17,7 +17,7 @@ namespace Cantera
  * evaluated at those points, this function computes the weighted least-squares
  * polynomial fit of degree *deg*:
  *
- * \f[ f(x) = p[0] + p[1]*x + p[2]*x^2 + \cdots + p[deg]*x^deg \f]
+ * @f[ f(x) = p[0] + p[1]*x + p[2]*x^2 + \cdots + p[deg]*x^deg @f]
  *
  * @param n    The number of points at which the function is evaluated
  * @param deg  The degree of the polynomial fit to be computed. deg <= n - 1.

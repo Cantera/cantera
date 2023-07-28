@@ -147,11 +147,11 @@ public:
         return "Wall";
     }
 
-    //! Wall velocity \f$ v(t) \f$ at current reactor network time.
+    //! Wall velocity @f$ v(t) @f$ at current reactor network time.
     //! @since New in %Cantera 3.0.
     double velocity() const;
 
-    //! Set the wall velocity to a specified function of time, \f$ v(t) \f$.
+    //! Set the wall velocity to a specified function of time, @f$ v(t) @f$.
     void setVelocity(Func1* f=0) {
         if (f) {
             m_vf = f;
@@ -161,9 +161,9 @@ public:
     //! Rate of volume change (m^3/s) for the adjacent reactors.
     /*!
      * The volume rate of change is given by
-     * \f[
+     * @f[
      *     \dot V = K A (P_{left} - P_{right}) + F(t)
-     * \f]
+     * @f]
      * where *K* is the specified expansion rate coefficient, *A* is the wall
      * area, and *F(t)* is a specified function of time. Positive values for
      * `vdot` correspond to increases in the volume of reactor on left, and
@@ -176,9 +176,9 @@ public:
     //! Rate of volume change (m^3/s) for the adjacent reactors.
     /*!
      * The volume rate of change is given by
-     * \f[
+     * @f[
      *     \dot V = K A (P_{left} - P_{right}) + F(t)
-     * \f]
+     * @f]
      * where *K* is the specified expansion rate coefficient, *A* is the wall area,
      * and and *F(t)* is a specified function evaluated at the current network time.
      * Positive values for `expansionRate` correspond to increases in the volume of
@@ -187,11 +187,11 @@ public:
      */
     virtual double expansionRate();
 
-    //! Heat flux function \f$ q_0(t) \f$ evaluated at current reactor network time.
+    //! Heat flux function @f$ q_0(t) @f$ evaluated at current reactor network time.
     //! @since New in %Cantera 3.0.
     double heatFlux() const;
 
-    //! Specify the heat flux function \f$ q_0(t) \f$.
+    //! Specify the heat flux function @f$ q_0(t) @f$.
     void setHeatFlux(Func1* q) {
         m_qf = q;
     }
@@ -199,9 +199,9 @@ public:
     //! Heat flow rate through the wall (W).
     /*!
      * The heat flux is given by
-     * \f[
+     * @f[
      *     Q = h A (T_{left} - T_{right}) + A G(t)
-     * \f]
+     * @f]
      * where *h* is the heat transfer coefficient, *A* is the wall area, and
      * *G(t)* is a specified function of time. Positive values denote a flux
      * from left to right.
@@ -212,9 +212,9 @@ public:
     //! Heat flow rate through the wall (W).
     /*!
      * The heat flux is given by
-     * \f[
+     * @f[
      *     Q = h A (T_{left} - T_{right}) + A G(t)
-     * \f]
+     * @f]
      * where *h* is the heat transfer coefficient, *A* is the wall area, and
      * *G(t)* is a specified function of time evaluated at the current network
      * time. Positive values denote a flux from left to right.

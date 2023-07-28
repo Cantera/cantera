@@ -29,17 +29,17 @@ public:
     /*!
      * The viscosity is computed using the Wilke mixture rule (kg /m /s)
      *
-     * \f[
+     * @f[
      *     \mu = \sum_k \frac{\mu_k X_k}{\sum_j \Phi_{k,j} X_j}.
-     * \f]
+     * @f]
      *
-     * Here \f$ \mu_k \f$ is the viscosity of pure species \e k, and
+     * Here @f$ \mu_k @f$ is the viscosity of pure species \e k, and
      *
-     * \f[
+     * @f[
      *     \Phi_{k,j} = \frac{\left[1
      *                  + \sqrt{\left(\frac{\mu_k}{\mu_j}\sqrt{\frac{M_j}{M_k}}\right)}\right]^2}
      *                  {\sqrt{8}\sqrt{1 + M_k/M_j}}
-     * \f]
+     * @f]
      *
      * @returns the viscosity of the mixture (units =  Pa s = kg /m /s)
      *
@@ -74,11 +74,11 @@ public:
      *
      * This is Eqn. 12.180 from "Chemically Reacting Flow"
      *
-     * \f[
+     * @f[
      *     D_{km}' = \frac{\left( \bar{M} - X_k M_k \right)}{ \bar{\qquad M \qquad } }  {\left( \sum_{j \ne k} \frac{X_j}{D_{kj}} \right) }^{-1}
-     * \f]
+     * @f]
      *
-     * @param[out] d  Vector of mixture diffusion coefficients, \f$ D_{km}' \f$ ,
+     * @param[out] d  Vector of mixture diffusion coefficients, @f$ D_{km}' @f$ ,
      *     for each species (m^2/s). length m_nsp
      */
     virtual void getMixDiffCoeffs(doublereal* const d);
@@ -88,7 +88,7 @@ public:
     //! from the species mole fraction gradients, computed according to
     //! Eq. 12.176 in "Chemically Reacting Flow":
     //!
-    //! \f[  D_{km}^* = \frac{1-X_k}{\sum_{j \ne k}^K X_j/\mathcal{D}_{kj}} \f]
+    //! @f[  D_{km}^* = \frac{1-X_k}{\sum_{j \ne k}^K X_j/\mathcal{D}_{kj}} @f]
     //!
     //! @param[out] d vector of mixture-averaged diffusion coefficients for
     //!     each species, length m_nsp.
@@ -100,10 +100,10 @@ public:
      * from the species mass fraction gradients, computed according to
      * Eq. 12.178 in "Chemically Reacting Flow":
      *
-     * \f[
+     * @f[
      *     \frac{1}{D_{km}} = \sum_{j \ne k}^K \frac{X_j}{\mathcal{D}_{kj}} +
      *     \frac{X_k}{1-Y_k} \sum_{j \ne k}^K \frac{Y_j}{\mathcal{D}_{kj}}
-     * \f]
+     * @f]
      *
      * @param[out] d vector of mixture-averaged diffusion coefficients for
      *     each species, length m_nsp.
@@ -169,10 +169,10 @@ protected:
      *
      * The formula for the weighting function is from Poling and Prausnitz,
      * Eq. (9-5.14):
-     *  \f[
+     *  @f[
      *      \phi_{ij} = \frac{ \left[ 1 + \left( \mu_i / \mu_j \right)^{1/2} \left( M_j / M_i \right)^{1/4} \right]^2 }
      *                    {\left[ 8 \left( 1 + M_i / M_j \right) \right]^{1/2}}
-     *  \f]
+     *  @f]
      */
     virtual void updateViscosity_T();
 
@@ -228,25 +228,25 @@ protected:
      */
     void fitCollisionIntegrals(MMCollisionInt& integrals);
 
-    //! Generate polynomial fits to the viscosity \f$ \eta \f$ and conductivity
-    //! \f$ \lambda \f$.
+    //! Generate polynomial fits to the viscosity @f$ \eta @f$ and conductivity
+    //! @f$ \lambda @f$.
     /*!
      * If CK_mode, then the fits are of the form
-     * \f[
+     * @f[
      *      \log(\eta(i)) = \sum_{n=0}^3 a_n(i) \, (\log T)^n
-     * \f]
+     * @f]
      * and
-     * \f[
+     * @f[
      *      \log(\lambda(i)) = \sum_{n=0}^3 b_n(i) \, (\log T)^n
-     * \f]
+     * @f]
      * Otherwise the fits are of the form
-     * \f[
+     * @f[
      *      \left(\eta(i)\right)^{1/2} = T^{1/4} \sum_{n=0}^4 a_n(i) \, (\log T)^n
-     * \f]
+     * @f]
      * and
-     * \f[
+     * @f[
      *      \lambda(i) = T^{1/2} \sum_{n=0}^4 b_n(i) \, (\log T)^n
-     * \f]
+     * @f]
      *
      * @param integrals interpolator for the collision integrals
      */
@@ -255,13 +255,13 @@ protected:
     //! Generate polynomial fits to the binary diffusion coefficients
     /*!
      * If CK_mode, then the fits are of the form
-     * \f[
+     * @f[
      *      \log(D(i,j)) = \sum_{n=0}^3 c_n(i,j) \, (\log T)^n
-     * \f]
+     * @f]
      * Otherwise the fits are of the form
-     * \f[
+     * @f[
      *      D(i,j) = T^{3/2} \sum_{n=0}^4 c_n(i,j) \, (\log T)^n
-     * \f]
+     * @f]
      *
      * @param integrals interpolator for the collision integrals
      */

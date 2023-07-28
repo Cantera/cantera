@@ -50,19 +50,19 @@ protected:
  *               \Delta H)^2}{(V_P^2 - 4w^2 + (\Delta H)^2)}\; \text{Otherwise}
  *   \f}
  * where
- *   \f[
+ *   @f[
  *        V_P = \frac{2w (w + E_0)}{w - E_0},
- *   \f]
- * \f$ w \f$ is the average bond dissociation energy of the bond breaking
+ *   @f]
+ * @f$ w @f$ is the average bond dissociation energy of the bond breaking
  * and that being formed in the reaction. Since the expression is
- * very insensitive to \f$ w \f$ for \f$ w >= 2 E_0 \f$, \f$ w \f$
+ * very insensitive to @f$ w @f$ for @f$ w >= 2 E_0 @f$, @f$ w @f$
  * can be approximated to an arbitrary high value like 1000 kJ/mol.
  *
  * After the activation energy is determined by Blowers-Masel approximation,
  * it can be plugged into Arrhenius function to calculate the rate constant.
- *   \f[
+ *   @f[
  *        k_f =  A T^b \exp (-E_a/RT)
- *   \f]
+ *   @f]
  *
  * @ingroup arrheniusGroup
  */
