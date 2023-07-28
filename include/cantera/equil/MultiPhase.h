@@ -476,7 +476,7 @@ public:
 
     //! Get the mole numbers of all species in the multiphase object
     /*!
-     * @param[out] molNum Vector of doubles of length nSpecies containing the
+     * @param[out] molNum Vector of doubles of length nSpecies() containing the
      *               global mole numbers (kmol).
      */
     void getMoles(doublereal* molNum) const;
@@ -486,7 +486,7 @@ public:
      * The state of each phase object is also updated to have the specified
      * composition and the mixture temperature and pressure.
      *
-     * @param n    Vector of doubles of length nSpecies containing the global
+     * @param n    Vector of doubles of length nSpecies() containing the global
      *             mole numbers (kmol).
      */
     void setMoles(const doublereal* n);
