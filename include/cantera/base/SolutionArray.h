@@ -41,8 +41,8 @@ private:
 public:
     virtual ~SolutionArray() {}
 
-    /*!
-     *  Instantiate a new SolutionArray reference
+    /**
+     *  Instantiate a new SolutionArray reference.
      *
      *  @param sol  Solution object defining phase definitions
      *  @param size  Number of SolutionArray entries
@@ -55,7 +55,7 @@ public:
         return shared_ptr<SolutionArray>(new SolutionArray(sol, size, meta));
     }
 
-    /*!
+    /**
      *  Share locations from an existing SolutionArray and return new reference.
      *
      *  Both SolutionArray object share common data. The method is used for slicing
@@ -92,7 +92,7 @@ public:
         return static_cast<int>(m_apiShape.size());
     }
 
-    /*!
+    /**
      *  Print a concise summary of a SolutionArray.
      *  @param keys  List of components to be displayed; if empty, all components are
      *      considered.
@@ -126,7 +126,7 @@ public:
     //! auxiliary variable)
     bool hasComponent(const string& name) const;
 
-    /*!
+    /**
      *  Retrieve a component of the SolutionArray by name.
      *  Returns an AnyValue containing an array with length size() with a type
      *  specific to the component; in most cases, the type is double, but may differ
@@ -134,7 +134,7 @@ public:
      */
     AnyValue getComponent(const string& name) const;
 
-    /*!
+    /**
      *  Set a component of the SolutionArray by name.
      *  The passed AnyValue should containing an array with length size() with a type
      *  specific to the component; in most cases, the type is double, but may differ
@@ -145,12 +145,12 @@ public:
      */
     void setComponent(const string& name, const AnyValue& data);
 
-    /*!
+    /**
      *  Update the buffered location used to access SolutionArray entries.
      */
     void setLoc(int loc, bool restore=true);
 
-    /*!
+    /**
      *  Update state at given location to state of associated Solution object.
      */
     void updateState(int loc);
@@ -164,7 +164,7 @@ public:
     //! Normalize mass/mole fractions
     void normalize();
 
-    /*!
+    /**
      *  Add auxiliary component to SolutionArray. Initialization requires a subsequent
      *  call of setComponent.
      *
@@ -192,7 +192,7 @@ public:
     //! Append location entry at end of SolutionArray.
     void append(const vector<double>& state, const AnyMap& extra);
 
-    /*!
+    /**
      *  Write header data to a HDF container file.
      *
      *  @param fname  Name of HDF container file
@@ -203,7 +203,7 @@ public:
     static void writeHeader(const string& fname, const string& name, const string& desc,
                             bool overwrite=false);
 
-    /*!
+    /**
      *  Write header data to AnyMap; used by YAML serialization.
      *
      *  @param root  Root node of AnyMap structure
@@ -214,7 +214,7 @@ public:
     static void writeHeader(AnyMap& root, const string& name, const string& desc,
                             bool overwrite=false);
 
-    /*!
+    /**
      *  Write SolutionArray data to a CSV file.
      *
      *  @param fname  Name of CSV file
@@ -225,7 +225,7 @@ public:
      */
     void writeEntry(const string& fname, bool overwrite=false, const string& basis="");
 
-    /*!
+    /**
      *  Write SolutionArray data to a HDF container file.
      *
      *  @param fname  Name of HDF container file
@@ -237,8 +237,8 @@ public:
     void writeEntry(const string& fname, const string& name, const string& sub,
                     bool overwrite=false, int compression=0);
 
-    /*!
-     *  Write SolutionArray data to AnyMap; used by YAML serialization.
+    /**
+     *  Write SolutionArray data to AnyMap. Used by YAML serialization.
      *
      *  @param root  Root node of AnyMap structure
      *  @param name  Identifier of node holding header information and subgroup
@@ -248,7 +248,7 @@ public:
     void writeEntry(AnyMap& root, const string& name, const string& sub,
                     bool overwrite=false);
 
-    /*!
+    /**
      *  Save current SolutionArray contents to a data file.
      *
      *  Data can be saved either in CSV format (extension '*.csv'), YAML container
@@ -286,7 +286,7 @@ public:
               const string& desc="", bool overwrite=false, int compression=0,
               const string& basis="");
 
-    /*!
+    /**
      *  Read header information from a HDF container file.
      *
      *  @param fname  Name of HDF container file
@@ -294,15 +294,15 @@ public:
      */
     static AnyMap readHeader(const string& fname, const string& name);
 
-    /*!
-     *  Read header information from AnyMap; used by YAML serialization.
+    /**
+     *  Read header information from AnyMap. Used by YAML serialization.
      *
      *  @param root  Root node of AnyMap structure
      *  @param name  Identifier of node holding header information
      */
     static AnyMap readHeader(const AnyMap& root, const string& name);
 
-    /*!
+    /**
      *  Restore SolutionArray data from a HDF container file.
      *
      *  @param fname  Name of HDF container file
@@ -311,7 +311,7 @@ public:
      */
     void readEntry(const string& fname, const string& name, const string& sub);
 
-    /*!
+    /**
      *  Restore SolutionArray data from AnyMap; used by YAML serialization.
      *
      *  @param root  Root node of AnyMap structure
@@ -320,7 +320,7 @@ public:
      */
     void readEntry(const AnyMap& root, const string& name, const string& sub);
 
-    /*!
+    /**
      *  Restore SolutionArray data and header information from a container file.
      *
      *  This method retrieves data from a YAML or HDF files that were previously saved
@@ -339,23 +339,23 @@ protected:
     //! Service function used to resize SolutionArray
     void _resize(size_t size);
 
-    /*!
-     *  Initialize extra SolutionArray component
+    /**
+     *  Initialize extra SolutionArray component.
      *
      *  @param name  Name of component (property defining auxiliary variable)
      *  @param value  Default value; used to determine type of component
      */
     void _initExtra(const string& name, const AnyValue& value);
 
-    /*!
-     *  Resize extra SolutionArray component
+    /**
+     *  Resize extra SolutionArray component.
      *
      *  @param name  Name of component (property defining auxiliary variable)
      *  @param value  Default value
      */
     void _resizeExtra(const string& name, const AnyValue& value=AnyValue());
 
-    /*!
+    /**
      *  Set extra SolutionArray component
      *
      *  @param name  Name of component (property defining auxiliary variable)
@@ -363,10 +363,11 @@ protected:
      */
     void _setExtra(const string& name, const AnyValue& data=AnyValue());
 
-    /*!
-     *  Identify storage mode of state data (combination of properties defining state);
-     *  valid modes include Phase::nativeState ("native") or other property combinations
-     *  defined by Phase::fullStates (three-letter acronyms, for example "TDY", "TPX").
+    /**
+     *  Identify storage mode of state data. The storage mode is a combination of
+     *  properties defining state); valid modes include Phase::nativeState ("native") or
+     *  other property combinations defined by Phase::fullStates (three-letter acronyms,
+     *  for example "TDY", "TPX").
      */
     string _detectMode(const set<string>& names, bool native=true);
 

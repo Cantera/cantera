@@ -292,7 +292,7 @@ public:
         m_dovisc = dovisc;
     }
 
-    /*!
+    /**
      *  Evaluate the residual function for axisymmetric stagnation flow. If
      *  j == npos, the residual function is evaluated at all grid points.
      *  Otherwise, the residual function is only evaluated at grid points
