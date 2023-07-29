@@ -65,13 +65,30 @@
 
 ## C++
 
-* All classes, member variables, and methods should have Doxygen-style comments
-  (for example, comment lines starting with `//!` or comment blocks starting with
-  `/*!`; do not use `///` or `/**` in new code)
-* Doxygen-style groupings should bracket code using `//! @{` and `//! @}`
+### Doxygen Comments
+
+* All classes, member variables, and methods should use
+  [Doxygen-style comments](https://www.doxygen.nl/manual/docblocks.html).
+* Comments should provide brief and/or detailed descriptions. For example, comment
+  blocks starting with `/**` or `//!` use the autobrief feature (comments are split into
+  brief and detailed descriptions at the first dot `'.'`). For short comments, the C++
+  style `//!` is preferred; do not use `///` or `/*!` comment styles in new code.
+* [Doxygen commands](https://www.doxygen.nl/manual/commands.html) should use the `@`
+  prefix instead of `\` in order to better differentiate from LaTeX input.
+* Whenever appropriate, classes and functions should be added to
+  [Doxygen groupings](https://www.doxygen.nl/manual/grouping.html) using the `@ingroup`
+  command. Alternatively, entire code sections can be added using the `@addtogroup`
+  command, where grouped classes and functions are bracketed by `@{` and `@}`.
+* If applicable, new features should reference literature using the `@cite` command,
+  with BibTeX-style entries added to `cantera.bib`. Equations can be added using
+  LaTeX input bracketed by `@f[` and `@f]`. In-line math expressions are enclosed by
+  a pair of `@f$` directives, for example `@f$ \sin(x) @f$`.
 * Indicate the version added for new functions and classes with an annotation like
-  `@since New in Cantera X.Y` where `X.Y` is the next Cantera version. This notation
-  should also be used indicate significant changes in behavior.
+  `@since New in %Cantera X.Y` where `X.Y` is the next Cantera version. This notation
+  should also be used to indicate significant changes in behavior.
+
+### Style Guide
+
 * Avoid defining non-trivial functions in header files
 * Header files should include an 'include guard'
 * Protected and private member variable names are generally prefixed with
