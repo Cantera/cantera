@@ -13,7 +13,8 @@
 namespace Cantera
 {
 
-/*! Database for atomic weights
+/**
+ * Database for atomic weights.
  * Values are used from CIAAW. Atomic weights of the elements 2017
  * when a single value is given. Available online at
  * http://www.ciaaw.org/atomic-weights.htm
@@ -36,13 +37,9 @@ struct atomicWeightData {
     double atomicWeight; //!< Element atomic weight in kg / kg-mol, if known. -1 if no stable isotope
 };
 
-/*! Database for named isotopic weights
- * Values are used from
- * Kim S, Chen J, Cheng T, Gindulyte A, He J, He S, Li Q, Shoemaker BA,
- * Thiessen PA, Yu B, Zaslavsky L, Zhang J, Bolton EE. PubChem 2019
- * update: improved access to chemical data. Nucleic Acids Res. 2019
- * Jan 8; 47(D1):D1102-1109. doi:10.1093/nar/gky1033.
- * [PubMed PMID:30371825]
+/**
+ * Database for named isotopic weights.
+ * Values are used from Kim, et al. @cite kim2019.
  *
  * units = kg / kg-mol (or equivalently gm / gm-mol)
  *
