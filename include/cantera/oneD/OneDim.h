@@ -137,7 +137,7 @@ public:
         return m_bw;
     }
 
-    /*!
+    /**
      * Initialize all domains. On the first call, this methods calls the init
      * method of each domain, proceeding from left to right. Subsequent calls
      * do nothing.
@@ -174,7 +174,7 @@ public:
         return (m_rdt == 0.0);
     }
 
-    /*!
+    /**
      * Prepare to solve the steady-state problem. After invoking this method,
      * subsequent calls to solve() will solve the steady-state problem. Sets
      * the reciprocal of the time step to zero, and, if it was previously non-
@@ -210,7 +210,7 @@ public:
         return m_mask;
     }
 
-    /*!
+    /**
      * Take time steps using Backward Euler.
      *
      * @param nsteps number of steps

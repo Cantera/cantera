@@ -184,7 +184,7 @@ public:
             return transportModel();
     }
 
-    /*!
+    /**
      * Phase object. Every transport manager is designed to compute properties
      * for a specific phase of a mixture, which might be a liquid solution, a
      * gas mixture, a surface, etc. This method returns a reference to the
@@ -194,7 +194,7 @@ public:
         return *m_thermo;
     }
 
-    /*!
+    /**
      * Returns true if the transport manager is ready for use.
      * @deprecated To be removed after %Cantera 3.0.
      */
@@ -225,7 +225,7 @@ public:
     //! @name Transport Properties
     //! @{
 
-    /*!
+    /**
      * The viscosity in Pa-s.
      */
     virtual double viscosity() {

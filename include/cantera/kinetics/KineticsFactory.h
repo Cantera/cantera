@@ -101,8 +101,8 @@ unique_ptr<Kinetics> newKinetics(const std::vector<ThermoPhase*>& phases,
                                  const std::string& filename,
                                  const std::string& phase_name);
 
-/*!
- * @brief Add reactions to a Kinetics object.
+/**
+ * Add reactions to a Kinetics object.
  *
  * @param kin        The Kinetics object to be initialized
  * @param phaseNode  Phase entry for the phase where the reactions occur. This

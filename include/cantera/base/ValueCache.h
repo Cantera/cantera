@@ -14,7 +14,8 @@
 namespace Cantera
 {
 
-/*! A cached property value and the state at which it was evaluated
+/**
+ * A cached property value and the state at which it was evaluated.
  *
  * This struct stores the value of some property evaluated at a particular
  * thermodynamic state. The #value can be either a real scalar or an array,
@@ -115,7 +116,8 @@ struct CachedValue {
 typedef CachedValue<double>& CachedScalar;
 typedef CachedValue<vector_fp>& CachedArray;
 
-/*! Storage for cached values
+/**
+ * Storage for cached values.
  *
  * Stores cached values of properties evaluated at a particular thermodynamic
  * state. A class that needs cached values can have a ValueCache as a

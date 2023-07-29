@@ -132,7 +132,7 @@ public:
     //! coefficients for governing equations, length m_nv, default values 0
     virtual void eval(double t, double* LHS, double* RHS);
 
-    /*!
+    /**
      * Evaluate the reactor governing equations. Called by ReactorNet::eval.
      * @param[in] t time.
      * @param[in] y solution vector, length neq()
