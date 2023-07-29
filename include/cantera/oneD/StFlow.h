@@ -233,10 +233,16 @@ public:
 
     //! Turn radiation on / off.
     /*!
-     *  The simple radiation model used was established by Y. Liu and B. Rogg
-     *  [Y. Liu and B. Rogg, Modelling of thermally radiating diffusion flames
-     *  with detailed chemistry and transport, EUROTHERM Seminars, 17:114-127,
-     *  1991]. This model considers the radiation of CO2 and H2O.
+     * The simple radiation model used was established by Liu and Rogg
+     * @cite liu1991. This model considers the radiation of CO2 and H2O.
+     *
+     * This model uses the optically thin limit and the gray-gas approximation to
+     * simply calculate a volume specified heat flux out of the Planck absorption
+     * coefficients, the boundary emissivities and the temperature. Polynomial lines
+     * calculate the species Planck coefficients for H2O and CO2. The data for the
+     * lines are taken from the RADCAL program @cite RADCAL.
+     * The coefficients for the polynomials are taken from
+     * [TNF Workshop](https://tnfworkshop.org/radiation/) material.
      */
     void enableRadiation(bool doRadiation) {
         m_do_radiation = doRadiation;
