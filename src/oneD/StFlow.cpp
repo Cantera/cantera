@@ -408,21 +408,7 @@ void StFlow::evalResidual(double* x, double* rsd, int* diag,
     // grid points
     //----------------------------------------------------
 
-    // calculation of qdotRadiation
-
-    // The simple radiation model used was established by Y. Liu and B. Rogg [Y.
-    // Liu and B. Rogg, Modelling of thermally radiating diffusion flames with
-    // detailed chemistry and transport, EUROTHERM Seminars, 17:114-127, 1991].
-    // This model uses the optically thin limit and the gray-gas approximation
-    // to simply calculate a volume specified heat flux out of the Planck
-    // absorption coefficients, the boundary emissivities and the temperature.
-    // The model considers only CO2 and H2O as radiating species. Polynomial
-    // lines calculate the species Planck coefficients for H2O and CO2. The data
-    // for the lines is taken from the RADCAL program [Grosshandler, W. L.,
-    // RADCAL: A Narrow-Band Model for Radiation Calculations in a Combustion
-    // Environment, NIST technical note 1402, 1993]. The coefficients for the
-    // polynomials are taken from [http://www.sandia.gov/TNF/radiation.html].
-
+    // calculation of qdotRadiation (see docstring of enableRadiation)
     if (m_do_radiation) {
         // variable definitions for the Planck absorption coefficient and the
         // radiation calculation:
