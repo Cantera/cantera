@@ -368,6 +368,48 @@ class RateExpressionTests:
         drop_num = self.rop_ddP(mode="net")
         self.assertNear(drop[self.rxn_idx], drop_num, self.rtol)
 
+    def rate_ddT(self, mode=None, const_p=False, rtol=1e-6):
+        # numerical derivative for production rates with respect to temperature
+        def calc():
+            if mode == "creation":
+                return self.gas.creation_rates
+            if mode == "destruction":
+                return self.gas.destruction_rates
+            if mode == "net":
+                return self.gas.net_production_rates
+
+        dt = self.tpx[0] * rtol
+        dp = 0 if const_p else self.tpx[1] * rtol
+        self.gas.TP = self.tpx[0] + dt, self.tpx[1] + dp
+        rate1 = calc()
+        self.gas.TP = self.tpx[:2]
+        rate0 = calc()
+        return (rate1 - rate0) / dt
+
+    def test_net_rate_ddT(self):
+        # check equivalence of numerical and analytical derivatives of net creation
+        # rates with respect to temperature
+
+        # constant pressure - need to account for density change
+        # numeric: d(omegadot)/dT =
+        # analytic: d(omegadot)/dT + dC/dT d(omegadot)/dC
+        dcdt = - self.gas.density_mole / self.gas.T
+        drate = self.gas.net_production_rates_ddT
+        drate += self.gas.net_production_rates_ddC * dcdt
+        drate_num = self.rate_ddT(mode="net", const_p=True)
+        for spc_ix in self.rix + self.pix:
+            assert drate[spc_ix] == pytest.approx(drate_num[spc_ix], self.rtol)
+
+        # constant density (volume) - need to account for pressure change
+        # numeric: d(omegadot)/dT =
+        # analytic: d(omegadot)/dT + dP/dT d(omegadot)/dP
+        dpdt = self.gas.P / self.gas.T
+        drate = self.gas.net_production_rates_ddT
+        drate += self.gas.net_production_rates_ddP * dpdt
+        drate_num = self.rate_ddT(mode="creation") - self.rate_ddT(mode="destruction")
+        for spc_ix in self.rix + self.pix:
+            assert drate[spc_ix] == pytest.approx(drate_num[spc_ix], self.rtol)
+
     def rate_ddX(self, spc_ix, mode=None, const_t=True, rtol_deltac=1e-6,
                  atol_deltac=1e-20, ddX=True):
         # numerical derivative for production rates with respect to mole fractions
@@ -603,6 +645,10 @@ class FromScratchCases(RateExpressionTests):
     def test_net_rop_ddT(self):
         super().test_net_rop_ddT()
 
+    @pytest.mark.usefixtures("has_temperature_derivative_warnings")
+    def test_net_rate_ddT(self):
+        super().test_net_rate_ddT()
+
 
 class TestPlog(FromScratchCases, utilities.CanteraTest):
     # Plog reaction
@@ -638,6 +684,11 @@ class TestBlowersMasel(FromScratchCases, utilities.CanteraTest):
     @pytest.mark.filterwarnings("ignore:.*does not consider.*(electron|enthalpy).*:UserWarning")
     def test_net_rop_ddT(self):
         super().test_net_rop_ddT()
+
+    @pytest.mark.xfail(reason="Change of reaction enthalpy is not considered")
+    @pytest.mark.filterwarnings("ignore:.*does not consider.*(electron|enthalpy).*:UserWarning")
+    def test_net_rate_ddT(self):
+        super().test_net_rate_ddT()
 
 
 class FullTests:
