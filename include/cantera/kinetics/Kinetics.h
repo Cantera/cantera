@@ -598,7 +598,9 @@ public:
     //! @{
 
     /**
-     * @name Routines to Calculate Kinetics Derivatives (Jacobians)
+     * @anchor kinDerivs
+     * @par Routines to Calculate Kinetics Derivatives (Jacobians)
+     * @name
      *
      * Kinetics derivatives are calculated with respect to temperature, pressure,
      * molar concentrations and species mole fractions for forward/reverse/net rates
