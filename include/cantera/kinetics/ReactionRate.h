@@ -42,6 +42,8 @@ class Reaction;
 //!     partners, associated `DataType` containers should implement the methods
 //!     `perturbPressure(double deltaP)` and/or `perturbThirdBodies(double deltaM)`,
 //!     which allow for the calculation of numerical derivatives.
+//!  -  For additional information, refer to the @ref kinDerivs "Kinetics Derivatives"
+//!     documentation.
 //! @ingroup reactionGroup
 class ReactionRate
 {
