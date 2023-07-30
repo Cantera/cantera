@@ -597,42 +597,119 @@ public:
     //! @addtogroup derivGroup
     //! @{
 
-    //! @name Routines to Calculate Kinetics Derivatives (Jacobians)
-    //!
-    //! Kinetics derivatives are calculated with respect to temperature, pressure,
-    //! molar concentrations and species mole fractions for forward/reverse/net rates
-    //! of progress as well as creation/destruction and net production of species.
-    //!
-    //! The following suffixes are used to indicate derivatives:
-    //!  - `_ddT`: derivative with respect to temperature (a vector)
-    //!  - `_ddP`: derivative with respect to pressure (a vector)
-    //!  - `_ddC`: derivative with respect to molar concentration (a vector)
-    //!  - `_ddX`: derivative with respect to species mole fractions (a matrix)
-    //!  - `_ddCi`: derivative with respect to species concentrations (a matrix)
-    //!
-    //! Settings for derivative evaluation are set by keyword/value pairs using
-    //! the methods getDerivativeSettings() and setDerivativeSettings().
-    //!
-    //! For BulkKinetics, the following keyword/value pairs are supported:
-    //!  - `skip-third-bodies` (boolean) ... if `false` (default), third body
-    //!    concentrations are considered for the evaluation of jacobians
-    //!  - `skip-falloff` (boolean) ... if `false` (default), third-body effects
-    //!    on rate constants are considered for the evaluation of derivatives.
-    //!  - `rtol-delta` (double) ... relative tolerance used to perturb properties
-    //!    when calculating numerical derivatives. The default value is 1e-8.
-    //!
-    //! For InterfaceKinetics, the following keyword/value pairs are supported:
-    //!  - `skip-coverage-dependence` (boolean) ... if `false` (default), rate constant
-    //!    coverage dependence is not considered when evaluating derivatives.
-    //!  - `skip-electrochemistry` (boolean) ... if `false` (default), electrical charge
-    //!    is not considered in evaluating the derivatives and these reactions are
-    //!    treated as normal surface reactions.
-    //!  - `rtol-delta` (double) ... relative tolerance used to perturb properties
-    //!    when calculating numerical derivatives. The default value is 1e-8.
-    //!
-    //! @warning  The calculation of derivatives is an experimental part of the
-    //!      %Cantera API and may be changed or removed without notice.
-    //! @{
+    /**
+     * @name Routines to Calculate Kinetics Derivatives (Jacobians)
+     *
+     * Kinetics derivatives are calculated with respect to temperature, pressure,
+     * molar concentrations and species mole fractions for forward/reverse/net rates
+     * of progress as well as creation/destruction and net production of species.
+     *
+     * The following suffixes are used to indicate derivatives:
+     *  - `_ddT`: derivative with respect to temperature (a vector)
+     *  - `_ddP`: derivative with respect to pressure (a vector)
+     *  - `_ddC`: derivative with respect to molar concentration (a vector)
+     *  - `_ddX`: derivative with respect to species mole fractions (a matrix)
+     *  - `_ddCi`: derivative with respect to species concentrations (a matrix)
+     *
+     * @since New in Cantera 2.6
+     *
+     * @warning The calculation of kinetics derivatives is an experimental part of the
+     *    %Cantera API and may be changed or removed without notice.
+     *
+     * Source term derivatives are based on a generic rate-of-progress expression
+     * for the @f$ i @f$-th reaction @f$ R_i @f$, which is a function of temperature
+     * @f$ T @f$, pressure @f$ P @f$ and molar concentrations @f$ C_j @f$:
+     * @f[
+     *     R_i = k_{f,i} C_M^{\nu_{M,i}} \prod_j C_j^{\nu_{ji}^\prime} -
+     *           k_{r,i} C_M^{\nu_{M,i}} \prod_j C_j^{\nu_{ji}^{\prime\prime}}
+     * @f]
+     * Forward/reverse rate expressions @f$ k_{f,i} @f$ and @f$ k_{r,i} @f$ are
+     * implemented by ReactionRate specializations; forward/reverse stoichiometric
+     * coefficients are @f$ \nu_{ji}^\prime @f$ and @f$ \nu_{ji}^{\prime\prime} @f$.
+     * Unless the reaction involves third-body colliders, @f$ \nu_{M,i} = 0 @f$.
+     * For three-body reactions, effective ThirdBody collider concentrations @f$ C_M @f$
+     * are considered with @f$ \nu_{M,i} = 1 @f$. For more detailed information on
+     * relevant theory, see, for example, Perini, et al. @cite perini2012 or Niemeyer,
+     * et al. @cite niemeyer2017, although specifics of %Cantera's implementation may
+     * differ.
+     *
+     * Partial derivatives are obtained from the product rule, where resulting terms
+     * consider reaction rate derivatives, derivatives of the concentration product
+     * term, and, if applicable, third-body term derivatives. ReactionRate
+     * specializations may implement exact derivatives (example:
+     * ArrheniusRate::ddTScaledFromStruct) or approximate them numerically (examples:
+     * ReactionData::perturbTemperature, PlogData::perturbPressure,
+     * FalloffData::perturbThirdBodies). Derivatives of concentration and third-body
+     * terms are based on analytic expressions.
+     *
+     * %Species creation and destruction rates are obtained by multiplying
+     * rate-of-progress vectors by stoichiometric coefficient matrices. As this is a
+     * linear operation, it is possible to calculate derivatives the same way.
+     *
+     * All derivatives are calculated for source terms while holding other properties
+     * constant, independent of whether equation of state or @f$ \sum X_k = 1 @f$
+     * constraints are satisfied. Thus, derivatives deviate from Jacobians and
+     * numerical derivatives that implicitly enforce these constraints. Depending
+     * on application and equation of state, derivatives can nevertheless be used to
+     * obtain Jacobians, for example:
+     *
+     *  - The Jacobian of net production rates @f$ \dot{\omega}_{k,\mathrm{net}} @f$
+     *    with respect to temperature at constant pressure needs to consider changes
+     *    of molar density @f$ C @f$ due to temperature
+     *    @f[
+     *      \left.
+     *          \frac{\partial \dot{\omega}_{k,\mathrm{net}}}{\partial T}
+     *      \right|_{P=\mathrm{const}} =
+     *      \frac{\partial \dot{\omega}_{k,\mathrm{net}}}{\partial T} +
+     *      \frac{\partial \dot{\omega}_{k,\mathrm{net}}}{\partial C}
+     *      \left. \frac{\partial C}{\partial T} \right|_{P=\mathrm{const}}
+     *    @f]
+     *    where for an ideal gas @f$ \partial C / \partial T = - C / T @f$. The
+     *    remaining partial derivatives are obtained from getNetProductionRates_ddT()
+     *    and getNetProductionRates_ddC(), respectively.
+     *
+     *  - The Jacobian of @f$ \dot{\omega}_{k,\mathrm{net}} @f$ with respect to
+     *    temperature at constant volume needs to consider pressure changes due to
+     *    temperature
+     *    @f[
+     *      \left.
+     *          \frac{\partial \dot{\omega}_{k,\mathrm{net}}}{\partial T}
+     *      \right|_{V=\mathrm{const}} =
+     *      \frac{\partial \dot{\omega}_{k,\mathrm{net}}}{\partial T} +
+     *      \frac{\partial \dot{\omega}_{k,\mathrm{net}}}{\partial P}
+     *      \left. \frac{\partial P}{\partial T} \right|_{V=\mathrm{const}}
+     *    @f]
+     *    where for an ideal gas @f$ \partial P / \partial T = P / T @f$. The
+     *    remaining partial derivatives are obtained from getNetProductionRates_ddT()
+     *    and getNetProductionRates_ddP(), respectively.
+     *
+     *  - Similar expressions can be derived for other derivatives and source terms.
+     *
+     * While some applications require exact derivatives, others can tolerate
+     * approximate derivatives that neglect terms to increase computational speed
+     * and/or improve Jacobian sparsity (example: AdaptivePreconditioner).
+     * Derivative evaluations settings are accessible by keyword/value pairs
+     * using the methods getDerivativeSettings() and setDerivativeSettings().
+     *
+     * For BulkKinetics, the following keyword/value pairs are supported:
+     *  - `skip-third-bodies` (boolean): if `false` (default), third body
+     *    concentrations are considered for the evaluation of Jacobians
+     *  - `skip-falloff` (boolean): if `false` (default), third-body effects
+     *    on rate constants are considered for the evaluation of derivatives.
+     *  - `rtol-delta` (double): relative tolerance used to perturb properties
+     *    when calculating numerical derivatives. The default value is 1e-8.
+     *
+     * For InterfaceKinetics, the following keyword/value pairs are supported:
+     *  - `skip-coverage-dependence` (boolean): if `false` (default), rate constant
+     *    coverage dependence is not considered when evaluating derivatives.
+     *  - `skip-electrochemistry` (boolean): if `false` (default), electrical charge
+     *    is not considered in evaluating the derivatives and these reactions are
+     *    treated as normal surface reactions.
+     *  - `rtol-delta` (double): relative tolerance used to perturb properties
+     *    when calculating numerical derivatives. The default value is 1e-8.
+     *
+     * @{
+     */
 
     /**
      * Retrieve derivative settings.
@@ -1070,7 +1147,7 @@ public:
      */
     Eigen::SparseMatrix<double> netProductionRates_ddCi();
 
-    //! @}
+    /** @} End of Kinetics Derivatives */
     //! @} End of addtogroup derivGroup
 
     //! @name Reaction Mechanism Informational Query Routines
