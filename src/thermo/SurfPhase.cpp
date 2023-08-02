@@ -273,7 +273,7 @@ void SurfPhase::setCoveragesByName(const std::string& cov)
     setCoveragesByName(parseCompString(cov, speciesNames()));
 }
 
-void SurfPhase::setCoveragesByName(const compositionMap& cov)
+void SurfPhase::setCoveragesByName(const Composition& cov)
 {
     vector_fp cv(m_kk, 0.0);
     bool ifound = false;

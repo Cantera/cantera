@@ -429,7 +429,7 @@ public:
     void addLattice(shared_ptr<ThermoPhase> lattice);
 
     //! Set the lattice stoichiometric coefficients, @f$ \theta_i @f$
-    void setLatticeStoichiometry(const compositionMap& comp);
+    void setLatticeStoichiometry(const Composition& comp);
 
     virtual void setParameters(const AnyMap& phaseNode,
                                const AnyMap& rootNode=AnyMap());

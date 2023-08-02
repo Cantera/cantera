@@ -342,7 +342,7 @@ void Phase::setMoleFractions_NoNorm(const double* const x)
     compositionChanged();
 }
 
-void Phase::setMoleFractionsByName(const compositionMap& xMap)
+void Phase::setMoleFractionsByName(const Composition& xMap)
 {
     vector_fp mf = getCompositionFromMap(xMap);
     setMoleFractions(mf.data());
@@ -378,7 +378,7 @@ void Phase::setMassFractions_NoNorm(const double* const y)
     compositionChanged();
 }
 
-void Phase::setMassFractionsByName(const compositionMap& yMap)
+void Phase::setMassFractionsByName(const Composition& yMap)
 {
     vector_fp mf = getCompositionFromMap(yMap);
     setMassFractions(mf.data());
@@ -407,7 +407,7 @@ void Phase::setState_TNX(doublereal t, doublereal n, const doublereal* x)
     setMolarDensity(n);
 }
 
-void Phase::setState_TRX(doublereal t, doublereal dens, const compositionMap& x)
+void Phase::setState_TRX(doublereal t, doublereal dens, const Composition& x)
 {
     warn_deprecated("Phase::setState_TRX",
         "To be removed after Cantera 3.0. Replaceable by calls to "
@@ -425,7 +425,7 @@ void Phase::setState_TRY(doublereal t, doublereal dens, const doublereal* y)
     setState_TD(t, dens);
 }
 
-void Phase::setState_TRY(doublereal t, doublereal dens, const compositionMap& y)
+void Phase::setState_TRY(doublereal t, doublereal dens, const Composition& y)
 {
     warn_deprecated("Phase::setState_TRY",
         "To be removed after Cantera 3.0. Replaceable by calls to "
@@ -513,9 +513,9 @@ void Phase::getCharges(double* charges) const
     copy(m_speciesCharge.begin(), m_speciesCharge.end(), charges);
 }
 
-compositionMap Phase::getMoleFractionsByName(double threshold) const
+Composition Phase::getMoleFractionsByName(double threshold) const
 {
-    compositionMap comp;
+    Composition comp;
     for (size_t k = 0; k < m_kk; k++) {
         double x = moleFraction(k);
         if (x > threshold) {
@@ -525,9 +525,9 @@ compositionMap Phase::getMoleFractionsByName(double threshold) const
     return comp;
 }
 
-compositionMap Phase::getMassFractionsByName(double threshold) const
+Composition Phase::getMassFractionsByName(double threshold) const
 {
-    compositionMap comp;
+    Composition comp;
     for (size_t k = 0; k < m_kk; k++) {
         double x = massFraction(k);
         if (x > threshold) {
@@ -957,7 +957,7 @@ void Phase::addSpeciesAlias(const std::string& name, const std::string& alias)
     }
 }
 
-vector<std::string> Phase::findIsomers(const compositionMap& compMap) const
+vector<std::string> Phase::findIsomers(const Composition& compMap) const
 {
     vector<std::string> isomerNames;
 
@@ -1028,7 +1028,7 @@ void Phase::compositionChanged() {
     m_stateNum++;
 }
 
-vector_fp Phase::getCompositionFromMap(const compositionMap& comp) const
+vector_fp Phase::getCompositionFromMap(const Composition& comp) const
 {
     vector_fp X(m_kk);
     for (const auto& [name, value] : comp) {

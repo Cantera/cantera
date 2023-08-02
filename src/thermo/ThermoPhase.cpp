@@ -88,7 +88,7 @@ void ThermoPhase::setState_TPX(doublereal t, doublereal p, const doublereal* x)
     setState_TP(t,p);
 }
 
-void ThermoPhase::setState_TPX(doublereal t, doublereal p, const compositionMap& x)
+void ThermoPhase::setState_TPX(doublereal t, doublereal p, const Composition& x)
 {
     setMoleFractionsByName(x);
     setState_TP(t,p);
@@ -106,7 +106,7 @@ void ThermoPhase::setState_TPY(doublereal t, doublereal p, const doublereal* y)
     setState_TP(t,p);
 }
 
-void ThermoPhase::setState_TPY(doublereal t, doublereal p, const compositionMap& y)
+void ThermoPhase::setState_TPY(doublereal t, doublereal p, const Composition& y)
 {
     setMassFractionsByName(y);
     setState_TP(t,p);
@@ -140,7 +140,7 @@ void ThermoPhase::setState_RPX(doublereal rho, doublereal p, const doublereal* x
     setState_DP(rho, p);
 }
 
-void ThermoPhase::setState_RPX(doublereal rho, doublereal p, const compositionMap& x)
+void ThermoPhase::setState_RPX(doublereal rho, doublereal p, const Composition& x)
 {
     warn_deprecated("ThermoPhase::setState_RPX",
         "To be removed after Cantera 3.0. Replaceable by calls to "
@@ -167,7 +167,7 @@ void ThermoPhase::setState_RPY(doublereal rho, doublereal p, const doublereal* y
     setState_DP(rho, p);
 }
 
-void ThermoPhase::setState_RPY(doublereal rho, doublereal p, const compositionMap& y)
+void ThermoPhase::setState_RPY(doublereal rho, doublereal p, const Composition& y)
 {
     warn_deprecated("ThermoPhase::setState_RPY",
         "To be removed after Cantera 3.0. Replaceable by calls to "
@@ -756,9 +756,9 @@ double ThermoPhase::o2Present(const double* y) const
     return 0.5 * o2pres / sum;
 }
 
-double ThermoPhase::stoichAirFuelRatio(const compositionMap& fuelComp,
-                                          const compositionMap& oxComp,
-                                          ThermoBasis basis) const
+double ThermoPhase::stoichAirFuelRatio(const Composition& fuelComp,
+                                       const Composition& oxComp,
+                                       ThermoBasis basis) const
 {
     vector_fp fuel(getCompositionFromMap(fuelComp));
     vector_fp ox(getCompositionFromMap(oxComp));
@@ -849,8 +849,8 @@ void ThermoPhase::setEquivalenceRatio(double phi, const std::string& fuelComp,
             basis);
 }
 
-void ThermoPhase::setEquivalenceRatio(double phi, const compositionMap& fuelComp,
-                                        const compositionMap& oxComp, ThermoBasis basis)
+void ThermoPhase::setEquivalenceRatio(double phi, const Composition& fuelComp,
+                                      const Composition& oxComp, ThermoBasis basis)
 {
     vector_fp fuel = getCompositionFromMap(fuelComp);
     vector_fp ox = getCompositionFromMap(oxComp);
@@ -869,9 +869,9 @@ double ThermoPhase::equivalenceRatio() const
     return o2_required / o2_present;
 }
 
-double ThermoPhase::equivalenceRatio(const compositionMap& fuelComp,
-                                        const compositionMap& oxComp,
-                                        ThermoBasis basis) const
+double ThermoPhase::equivalenceRatio(const Composition& fuelComp,
+                                     const Composition& oxComp,
+                                     ThermoBasis basis) const
 {
     vector_fp fuel(getCompositionFromMap(fuelComp));
     vector_fp ox(getCompositionFromMap(oxComp));
@@ -917,8 +917,8 @@ double ThermoPhase::equivalenceRatio(const double* fuelComp,
     return std::max(Z / (1.0 - Z) * AFR_st, 0.0);
 }
 
-void ThermoPhase::setMixtureFraction(double mixFrac, const compositionMap& fuelComp,
-                                     const compositionMap& oxComp, ThermoBasis basis)
+void ThermoPhase::setMixtureFraction(double mixFrac, const Composition& fuelComp,
+                                     const Composition& oxComp, ThermoBasis basis)
 {
     vector_fp fuel(getCompositionFromMap(fuelComp));
     vector_fp ox(getCompositionFromMap(oxComp));
@@ -972,10 +972,10 @@ void ThermoPhase::setMixtureFraction(double mixFrac, const double* fuelComp,
     setPressure(p);
 }
 
-double ThermoPhase::mixtureFraction(const compositionMap& fuelComp,
-                                       const compositionMap& oxComp,
-                                       ThermoBasis basis,
-                                       const std::string& element) const
+double ThermoPhase::mixtureFraction(const Composition& fuelComp,
+                                    const Composition& oxComp,
+                                    ThermoBasis basis,
+                                    const std::string& element) const
 {
     vector_fp fuel(getCompositionFromMap(fuelComp));
     vector_fp ox(getCompositionFromMap(oxComp));

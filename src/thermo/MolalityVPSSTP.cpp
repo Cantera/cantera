@@ -102,7 +102,7 @@ void MolalityVPSSTP::setMolalities(const doublereal* const molal)
     calcMolalities();
 }
 
-void MolalityVPSSTP::setMolalitiesByName(const compositionMap& mMap)
+void MolalityVPSSTP::setMolalitiesByName(const Composition& mMap)
 {
     // HKM -> Might need to be more complicated here, setting neutrals so that
     //        the existing mole fractions are preserved.
@@ -172,7 +172,7 @@ void MolalityVPSSTP::setMolalitiesByName(const compositionMap& mMap)
 
 void MolalityVPSSTP::setMolalitiesByName(const std::string& x)
 {
-    compositionMap xx = parseCompString(x, speciesNames());
+    Composition xx = parseCompString(x, speciesNames());
     setMolalitiesByName(xx);
 }
 
@@ -238,7 +238,7 @@ void MolalityVPSSTP::setState_TPM(doublereal t, doublereal p,
     setState_TP(t, p);
 }
 
-void MolalityVPSSTP::setState_TPM(doublereal t, doublereal p, const compositionMap& m)
+void MolalityVPSSTP::setState_TPM(doublereal t, doublereal p, const Composition& m)
 {
     setMolalitiesByName(m);
     setState_TP(t, p);

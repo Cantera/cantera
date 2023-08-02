@@ -27,7 +27,7 @@ public:
     Species() = default;
 
     //! Constructor
-    Species(const std::string& name, const compositionMap& comp,
+    Species(const string& name, const Composition& comp,
             double charge=0.0, double size=1.0);
 
     //! Species objects are not copyable or assignable
@@ -42,7 +42,7 @@ public:
 
     //! The elemental composition of the species. Keys are element names; values
     //! are the corresponding atomicities.
-    compositionMap composition;
+    Composition composition;
 
     //! The electrical charge on the species, in units of the elementary charge.
     double charge = 0.0;

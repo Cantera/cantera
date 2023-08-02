@@ -816,7 +816,7 @@ public:
      * @param x    Composition map of mole fractions. Species not in
      *             the composition map are assumed to have zero mole fraction
      */
-    virtual void setState_TPX(doublereal t, doublereal p, const compositionMap& x);
+    virtual void setState_TPX(doublereal t, doublereal p, const Composition& x);
 
     //! Set the temperature (K), pressure (Pa), and mole fractions.
     /*!
@@ -855,7 +855,7 @@ public:
      * @param y    Composition map of mass fractions. Species not in
      *             the composition map are assumed to have zero mass fraction
      */
-    virtual void setState_TPY(doublereal t, doublereal p, const compositionMap& y);
+    virtual void setState_TPY(doublereal t, doublereal p, const Composition& y);
 
     //! Set the internally stored temperature (K), pressure (Pa), and mass
     //! fractions of the phase
@@ -1130,7 +1130,7 @@ public:
      * @deprecated To be removed after %Cantera 3.0; replaceable by calls to
      *              setMoleFractionsByName() and setState_DP().
      */
-    virtual void setState_RPX(doublereal rho, doublereal p, const compositionMap& x);
+    virtual void setState_RPX(doublereal rho, doublereal p, const Composition& x);
 
     //! Set the density (kg/m**3), pressure (Pa) and mole fractions
     /*!
@@ -1176,7 +1176,7 @@ public:
      * @deprecated To be removed after %Cantera 3.0; replaceable by calls to
      *              setMassFractionsByName() and setState_DP().
      */
-    virtual void setState_RPY(doublereal rho, doublereal p, const compositionMap& y);
+    virtual void setState_RPY(doublereal rho, doublereal p, const Composition& y);
 
     //! Set the density (kg/m**3), pressure (Pa) and mass fractions
     /*!
@@ -1244,8 +1244,8 @@ public:
     void setMixtureFraction(double mixFrac, const std::string& fuelComp,
             const std::string& oxComp, ThermoBasis basis=ThermoBasis::molar);
     //! @copydoc ThermoPhase::setMixtureFraction
-    void setMixtureFraction(double mixFrac, const compositionMap& fuelComp,
-            const compositionMap& oxComp, ThermoBasis basis=ThermoBasis::molar);
+    void setMixtureFraction(double mixFrac, const Composition& fuelComp,
+            const Composition& oxComp, ThermoBasis basis=ThermoBasis::molar);
     //! @}
     //! @name Compute Mixture Fraction
     //! @{
@@ -1290,7 +1290,7 @@ public:
                            ThermoBasis basis=ThermoBasis::molar,
                            const std::string& element="Bilger") const;
     //! @copydoc ThermoPhase::mixtureFraction
-    double mixtureFraction(const compositionMap& fuelComp, const compositionMap& oxComp,
+    double mixtureFraction(const Composition& fuelComp, const Composition& oxComp,
                            ThermoBasis basis=ThermoBasis::molar,
                            const std::string& element="Bilger") const;
     //! @}
@@ -1317,8 +1317,8 @@ public:
     void setEquivalenceRatio(double phi, const std::string& fuelComp,
             const std::string& oxComp, ThermoBasis basis=ThermoBasis::molar);
     //! @copydoc ThermoPhase::setEquivalenceRatio
-    void setEquivalenceRatio(double phi, const compositionMap& fuelComp,
-            const compositionMap& oxComp, ThermoBasis basis=ThermoBasis::molar);
+    void setEquivalenceRatio(double phi, const Composition& fuelComp,
+            const Composition& oxComp, ThermoBasis basis=ThermoBasis::molar);
     //! @}
 
     //! @name Compute Equivalence Ratio
@@ -1354,8 +1354,8 @@ public:
     double equivalenceRatio(const std::string& fuelComp, const std::string& oxComp,
                             ThermoBasis basis=ThermoBasis::molar) const;
     //! @copydoc ThermoPhase::equivalenceRatio
-    double equivalenceRatio(const compositionMap& fuelComp,
-            const compositionMap& oxComp, ThermoBasis basis=ThermoBasis::molar) const;
+    double equivalenceRatio(const Composition& fuelComp,
+            const Composition& oxComp, ThermoBasis basis=ThermoBasis::molar) const;
     //! @}
 
     //! Compute the equivalence ratio for the current mixture
@@ -1409,8 +1409,8 @@ public:
     double stoichAirFuelRatio(const std::string& fuelComp, const std::string& oxComp,
                               ThermoBasis basis=ThermoBasis::molar) const;
     //! @copydoc ThermoPhase::stoichAirFuelRatio
-    double stoichAirFuelRatio(const compositionMap& fuelComp,
-            const compositionMap& oxComp, ThermoBasis basis=ThermoBasis::molar) const;
+    double stoichAirFuelRatio(const Composition& fuelComp,
+            const Composition& oxComp, ThermoBasis basis=ThermoBasis::molar) const;
     //! @}
 
 private:

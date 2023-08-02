@@ -358,7 +358,7 @@ public:
     //! Set the species mole fractions by name.
     //! Species not listed by name in \c xMap are set to zero.
     //!     @param xMap map from species names to mole fraction values.
-    void setMoleFractionsByName(const compositionMap& xMap);
+    void setMoleFractionsByName(const Composition& xMap);
 
     //! Set the mole fractions of a group of species by name. Species which
     //! are not listed by name in the composition map are set to zero.
@@ -368,7 +368,7 @@ public:
     //! Set the species mass fractions by name.
     //! Species not listed by name in \c yMap are set to zero.
     //!     @param yMap map from species names to mass fraction values.
-    void setMassFractionsByName(const compositionMap& yMap);
+    void setMassFractionsByName(const Composition& yMap);
 
     //! Set the species mass fractions by name.
     //! Species not listed by name in \c x are set to zero.
@@ -391,7 +391,7 @@ public:
     //!                  a zero mole fraction.
     //!     @deprecated To be removed after %Cantera 3.0; replaceable by calls to
     //!                 setMoleFractionsByName() and setState_TD().
-    void setState_TRX(doublereal t, doublereal dens, const compositionMap& x);
+    void setState_TRX(doublereal t, doublereal dens, const Composition& x);
 
     //! Set the internally stored temperature (K), density, and mass fractions.
     //!     @param t     Temperature in kelvin
@@ -409,7 +409,7 @@ public:
     //!                  a zero mass fraction.
     //!     @deprecated To be removed after %Cantera 3.0; replaceable by calls to
     //!                 setMassFractionsByName() and setState_TD().
-    void setState_TRY(doublereal t, doublereal dens, const compositionMap& y);
+    void setState_TRY(doublereal t, doublereal dens, const Composition& y);
 
     //! Set the internally stored temperature (K), molar density (kmol/m^3), and
     //! mole fractions.
@@ -490,7 +490,7 @@ public:
     //!     @param threshold   Exclude species with mole fractions less than or
     //!                        equal to this threshold.
     //!     @return Map of species names to mole fractions
-    compositionMap getMoleFractionsByName(double threshold=0.0) const;
+    Composition getMoleFractionsByName(double threshold=0.0) const;
 
     //! Return the mole fraction of a single species
     //!     @param  k  species index
@@ -506,7 +506,7 @@ public:
     //!     @param threshold   Exclude species with mass fractions less than or
     //!                        equal to this threshold.
     //!     @return Map of species names to mass fractions
-    compositionMap getMassFractionsByName(double threshold=0.0) const;
+    Composition getMassFractionsByName(double threshold=0.0) const;
 
     //! Return the mass fraction of a single species
     //!     @param  k species index
@@ -830,9 +830,9 @@ public:
     void addSpeciesAlias(const std::string& name, const std::string& alias);
 
     //! Return a vector with isomers names matching a given composition map
-    //!     @param compMap compositionMap of the species.
+    //!     @param compMap Composition of the species.
     //!     @return A vector of species names for matching species.
-    virtual std::vector<std::string> findIsomers(const compositionMap& compMap) const;
+    virtual vector<string> findIsomers(const Composition& compMap) const;
 
     //! Return a vector with isomers names matching a given composition string
     //!     @param comp String containing a composition map
@@ -893,13 +893,13 @@ public:
         m_caseSensitiveSpecies = cflag;
     }
 
-    //! Converts a compositionMap to a vector with entries for each species
+    //! Converts a Composition to a vector with entries for each species
     //! Species that are not specified are set to zero in the vector
     /*!
-     * @param[in] comp compositionMap containing the mixture composition
+     * @param[in] comp Composition containing the mixture composition
      * @return vector with length m_kk
      */
-    vector_fp getCompositionFromMap(const compositionMap& comp) const;
+    vector_fp getCompositionFromMap(const Composition& comp) const;
 
     //! Converts a mixture composition from mole fractions to mass fractions
     //!     @param[in] Y mixture composition in mass fractions (length m_kk)

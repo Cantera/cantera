@@ -458,11 +458,11 @@ public:
 
     //! Set the number of moles of species in the mixture
     /*!
-     * @param xMap  CompositionMap of the species with nonzero mole numbers.
+     * @param xMap  Composition of the species with nonzero mole numbers.
      *              Mole numbers that are less than or equal to zero will be
      *              set to zero. units = kmol.
      */
-    void setMolesByName(const compositionMap& xMap);
+    void setMolesByName(const Composition& xMap);
 
     //! Set the moles via a string containing their names.
     /*!

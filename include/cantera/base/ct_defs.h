@@ -177,6 +177,7 @@ const double Tiny = 1.e-20;
 //! Map connecting a string name with a double.
 /*!
  * This is used mostly to assign concentrations and mole fractions to species.
+ * @deprecated To be removed after %Cantera 3.0
  */
 typedef map<string, double> compositionMap;
 

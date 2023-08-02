@@ -8,7 +8,7 @@ namespace Cantera
 
 TEST(parseCompString, space_separated)
 {
-    compositionMap c = parseCompString("foo:1.0  bar:2   baz:1e-4");
+    Composition c = parseCompString("foo:1.0  bar:2   baz:1e-4");
     ASSERT_EQ((size_t) 3, c.size());
     ASSERT_DOUBLE_EQ(1.0, c["foo"]);
     ASSERT_DOUBLE_EQ(2.0, c["bar"]);
@@ -17,7 +17,7 @@ TEST(parseCompString, space_separated)
 
 TEST(parseCompString, comma_separated)
 {
-    compositionMap c = parseCompString("foo:1.0,  bar: 2,   baz:1e-4");
+    Composition c = parseCompString("foo:1.0,  bar: 2,   baz:1e-4");
     ASSERT_EQ((size_t) 3, c.size());
     ASSERT_DOUBLE_EQ(1.0, c["foo"]);
     ASSERT_DOUBLE_EQ(2.0, c["bar"]);
@@ -26,7 +26,7 @@ TEST(parseCompString, comma_separated)
 
 TEST(parseCompString, extra_spaces)
 {
-    compositionMap c = parseCompString("foo: 1.0  bar:  2   baz : 1e-4");
+    Composition c = parseCompString("foo: 1.0  bar:  2   baz : 1e-4");
     ASSERT_EQ((size_t) 3, c.size());
     ASSERT_DOUBLE_EQ(1.0, c["foo"]);
     ASSERT_DOUBLE_EQ(2.0, c["bar"]);
@@ -35,7 +35,7 @@ TEST(parseCompString, extra_spaces)
 
 TEST(parseCompString, name_with_colon)
 {
-    compositionMap c = parseCompString("foo: 1.0  co:lon:2,baz: 1e-4");
+    Composition c = parseCompString("foo: 1.0  co:lon:2,baz: 1e-4");
     ASSERT_EQ((size_t) 3, c.size());
     ASSERT_DOUBLE_EQ(1.0, c["foo"]);
     ASSERT_DOUBLE_EQ(2.0, c["co:lon"]);
@@ -44,7 +44,7 @@ TEST(parseCompString, name_with_colon)
 
 TEST(parseCompString, name_with_final_colon)
 {
-    compositionMap c = parseCompString("co:lons::1.0");
+    Composition c = parseCompString("co:lons::1.0");
     ASSERT_EQ((size_t) 1, c.size());
     ASSERT_DOUBLE_EQ(1.0, c["co:lons:"]);
 }
@@ -52,7 +52,7 @@ TEST(parseCompString, name_with_final_colon)
 TEST(parseCompString, default_values)
 {
     std::vector<std::string> x = { "foo", "bar", "baz" };
-    compositionMap c = parseCompString("foo:1.0  baz:2", x);
+    Composition c = parseCompString("foo:1.0  baz:2", x);
     ASSERT_EQ((size_t) 3, c.size());
     ASSERT_FALSE(c.find("bar") == c.end());
     ASSERT_DOUBLE_EQ(0.0, c["bar"]);
@@ -60,7 +60,7 @@ TEST(parseCompString, default_values)
 
 TEST(parseCompString, delimiters)
 {
-    compositionMap c = parseCompString("\nfoo:1.0\tbar:2;baz:1e-4,qux:-1  ");
+    Composition c = parseCompString("\nfoo:1.0\tbar:2;baz:1e-4,qux:-1  ");
     ASSERT_EQ((size_t) 4, c.size());
     ASSERT_DOUBLE_EQ(1.0, c["foo"]);
     ASSERT_DOUBLE_EQ(2.0, c["bar"]);

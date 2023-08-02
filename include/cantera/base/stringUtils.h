@@ -58,8 +58,8 @@ std::string stripnonprint(const std::string& s);
  *      empty or unspecified, all values are allowed.
  * @return     map of names to values
  */
-compositionMap parseCompString(const std::string& ss,
-        const std::vector<std::string>& names=std::vector<std::string>());
+Composition parseCompString(const string& ss,
+        const vector<string>& names=vector<string>());
 
 //! Translate a string into one doublereal value
 /*!

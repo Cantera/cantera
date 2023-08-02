@@ -292,7 +292,7 @@ public:
     void setCoveragesByName(const std::string& cov);
 
     //! Set the coverages from a map of name:value pairs
-    void setCoveragesByName(const compositionMap& cov);
+    void setCoveragesByName(const Composition& cov);
 
     //! Return a vector of surface coverages
     /*!

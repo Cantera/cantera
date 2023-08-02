@@ -297,7 +297,7 @@ void LatticeSolidPhase::setParameters(const AnyMap& phaseNode,
 void LatticeSolidPhase::initThermo()
 {
     if (m_input.hasKey("composition")) {
-        compositionMap composition = m_input["composition"].asMap<double>();
+        Composition composition = m_input["composition"].asMap<double>();
         for (auto& [name, stoich] : composition) {
             AnyMap& node = m_rootNode["phases"].getMapWhere("name", name);
             addLattice(newThermo(node, m_rootNode));
@@ -375,7 +375,7 @@ void LatticeSolidPhase::addLattice(shared_ptr<ThermoPhase> lattice)
     }
 }
 
-void LatticeSolidPhase::setLatticeStoichiometry(const compositionMap& comp)
+void LatticeSolidPhase::setLatticeStoichiometry(const Composition& comp)
 {
     for (size_t i = 0; i < m_lattice.size(); i++) {
         theta_[i] = getValue(comp, m_lattice[i]->name(), 0.0);
