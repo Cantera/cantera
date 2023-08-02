@@ -18,7 +18,7 @@ public:
 TEST_F(TestThermoMethods, getMoleFractionsByName)
 {
     thermo->setMoleFractionsByName("O2:0.2, H2:0.3, AR:0.5");
-    compositionMap X = thermo->getMoleFractionsByName();
+    Composition X = thermo->getMoleFractionsByName();
     EXPECT_DOUBLE_EQ(X["O2"], 0.2);
     EXPECT_DOUBLE_EQ(X["H2"], 0.3);
     EXPECT_DOUBLE_EQ(X["AR"], 0.5);
@@ -34,7 +34,7 @@ TEST_F(TestThermoMethods, getMoleFractionsByName)
 TEST_F(TestThermoMethods, getMassFractionsByName)
 {
     thermo->setMassFractionsByName("O2:0.2, H2:0.3, AR:0.5");
-    compositionMap Y = thermo->getMassFractionsByName();
+    Composition Y = thermo->getMassFractionsByName();
     EXPECT_DOUBLE_EQ(Y["O2"], 0.2);
     EXPECT_DOUBLE_EQ(Y["H2"], 0.3);
     EXPECT_DOUBLE_EQ(Y["AR"], 0.5);
@@ -248,8 +248,8 @@ public:
     }
 
     shared_ptr<Solution> m_sol;
-    compositionMap m_fuel;
-    compositionMap m_ox;
+    Composition m_fuel;
+    Composition m_ox;
 };
 
 TEST_F(EquilRatio_MixFrac_Test, EquilRatio_MixFrac_Arbitrary_Mixture_Molar)

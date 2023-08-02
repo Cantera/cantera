@@ -17,7 +17,7 @@ using namespace std;
 
 namespace Cantera {
 
-Species::Species(const std::string& name_, const compositionMap& comp_,
+Species::Species(const std::string& name_, const Composition& comp_,
                  double charge_, double size_)
     : name(name_)
     , composition(comp_)

@@ -340,7 +340,7 @@ void MultiPhase::setPhaseMoleFractions(const size_t n, const doublereal* const x
     }
 }
 
-void MultiPhase::setMolesByName(const compositionMap& xMap)
+void MultiPhase::setMolesByName(const Composition& xMap)
 {
     size_t kk = nSpecies();
     vector_fp moles(kk, 0.0);
@@ -353,7 +353,7 @@ void MultiPhase::setMolesByName(const compositionMap& xMap)
 void MultiPhase::setMolesByName(const std::string& x)
 {
     // build the composition map from the string, and then set the moles.
-    compositionMap xx = parseCompString(x, m_snames);
+    Composition xx = parseCompString(x, m_snames);
     setMolesByName(xx);
 }
 

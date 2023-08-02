@@ -191,7 +191,7 @@ public:
 
     void check_CH4_O2(const std::string& solver) {
         for (int i = 0; i < 5; i++) {
-            compositionMap comp;
+            Composition comp;
             comp["CH4"] = i * 0.6 / 5.0;
             comp["O2"] = 1.0 - i * 0.6 / 5.0;
             comp["N2"] = 0.2;

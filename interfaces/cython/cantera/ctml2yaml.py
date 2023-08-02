@@ -250,8 +250,7 @@ def split_species_value_string(node: etree.Element) -> Dict[str, float]:
     values are the number associated with each species. This is useful for things like
     elemental composition, mole fraction mappings, coverage mappings, etc.
 
-    The algorithm is reimplemented from ``compositionMap::parseCompString`` in
-    ``base/stringUtils.cpp``.
+    The algorithm is reimplemented from :ct:`parseCompString`.
     """
     text = clean_node_text(node)
     pairs = FlowMap({})

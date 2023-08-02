@@ -56,10 +56,9 @@ std::string stripnonprint(const std::string& s)
     return ss;
 }
 
-compositionMap parseCompString(const std::string& ss,
-                               const std::vector<std::string>& names)
+Composition parseCompString(const string& ss, const vector<string>& names)
 {
-    compositionMap x;
+    Composition x;
     for (size_t k = 0; k < names.size(); k++) {
         x[names[k]] = 0.0;
     }
