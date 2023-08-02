@@ -98,9 +98,14 @@
 * Do not indent the contents of namespaces
 * Code should follow the C++17 standard, with minimum required compiler versions
   GCC 7.0, Clang 4.0, MSVC 14.14 (Visual Studio 2017 version 15.7) and Intel 19.0.
+* Cantera moves frequently used C++ standard namespace types and functions into the
+  declarative region, meaning that the `std` scope resolution can be omitted. This
+  applies to the following: `string`, `vector`, `map`, `set`, `pair`, `shared_ptr`,
+  `make_shared`, `unique_ptr`, `make_unique` and `function`. Example: use `string`
+  instead of `std::string`; a `using namespace std;` declaration is not required.
 * Avoid manual memory management (that is, `new` and `delete`), preferring to use
-  standard library containers, as well as `std::unique_ptr` and
-  `std::shared_ptr` when dynamic allocation is required.
+  standard library containers, as well as `unique_ptr` and `shared_ptr` when dynamic
+  allocation is required.
 * Portions of Boost which are "header only" may be used. If possible, include
   Boost header files only within .cpp files rather than other header files to
   avoid unnecessary increases in compilation time. Boost should not be added
