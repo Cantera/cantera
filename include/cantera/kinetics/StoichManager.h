@@ -550,7 +550,7 @@ inline static void _scale(InputIter begin, InputIter end,
     }
 }
 
-/*!
+/**
  * This class handles operations involving the stoichiometric coefficients on
  * one side of a reaction (reactant or product) for a set of reactions
  * comprising a reaction mechanism. This class is used by class Kinetics, which

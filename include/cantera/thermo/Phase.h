@@ -113,7 +113,8 @@ public:
     Phase(const Phase&) = delete;
     Phase& operator=(const Phase&) = delete;
 
-    /*! @name Name
+    /**
+     * @name Name
      * Class Phase uses the string name to identify a phase. For phases instantiated
      * from YAML input files, the name is the value of the corresponding key in the
      * phase map.

@@ -49,7 +49,7 @@ public:
     virtual doublereal intEnergy_mole() const;
     virtual doublereal entropy_R() const;
 
-    /*!
+    /**
      * @copydoc PDSS::gibbs_RT()
      *
      * @f[

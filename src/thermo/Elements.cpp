@@ -52,7 +52,7 @@ struct isotopeWeightData {
     int atomicNumber; //!< Isotope atomic number
 };
 
-/*!
+/**
  * @var static vector<atomicWeightData> atomicWeightTable
  * @brief atomicWeightTable is a vector containing the atomic weights database.
  *
@@ -182,7 +182,7 @@ static vector<atomicWeightData> atomicWeightTable {
     {"Og", "oganesson",      -1.0},
 };
 
-/*!
+/**
  * @var static vector<isotopeWeightData> isotopeWeightTable
  * @brief isotopeWeightTable is a vector containing the atomic weights database.
  *

@@ -146,7 +146,7 @@ public:
      */
     void tdpolycalc(doublereal tau, doublereal delta);
 
-    /*!
+    /**
      * Calculate Equation 6.6 for phiR, the residual part of the
      * dimensionless Helmholtz free energy.
      */

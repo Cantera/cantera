@@ -1382,7 +1382,7 @@ public:
      */
     virtual std::pair<size_t, size_t> checkDuplicates(bool throw_err=true) const;
 
-    /*!
+    /**
      * Takes as input an array of properties for all species in the mechanism
      * and copies those values belonging to a particular phase to the output
      * array.

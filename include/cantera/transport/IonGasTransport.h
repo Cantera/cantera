@@ -74,7 +74,7 @@ protected:
     //! Use Stockmayer-(n,6,4) model for collision between charged and neutral species.
     virtual void fitDiffCoeffs(MMCollisionInt& integrals);
 
-    /*!
+    /**
      * Collision integral of omega11 of n64 collision model.
      * The collision integral was fitted by Han et al. using the table
      * by Viehlan et al.

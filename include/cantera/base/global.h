@@ -27,7 +27,7 @@ class AnyMap;
 //! @defgroup ioGroup File Input/Output
 //! @details Classes and functions used for reading and writing of %Cantera input files.
 
-/*!
+/**
  * @defgroup inputGroup Input File Handling
  * @brief Handling of %Cantera input files.
  *
@@ -136,7 +136,7 @@ bool usesHDF5();
 
 //! @}
 
-/*!
+/**
  * @defgroup logGroup Logging
  * @brief Logging and generation of diagnostic output.
  *

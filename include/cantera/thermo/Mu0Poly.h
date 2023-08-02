@@ -113,7 +113,7 @@ public:
         return MU0_INTERP;
     }
 
-    /*!
+    /**
      * @copydoc SpeciesThermoInterpType::updateProperties
      *
      * Temperature Polynomial:

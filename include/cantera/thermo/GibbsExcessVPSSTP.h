@@ -18,7 +18,7 @@
 namespace Cantera
 {
 
-/*!
+/**
  * GibbsExcessVPSSTP is a derived class of ThermoPhase that handles variable
  * pressure standard state methods for calculating thermodynamic properties that
  * are further based on expressing the Excess Gibbs free energy as a function of

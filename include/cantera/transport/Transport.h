@@ -30,7 +30,7 @@ class ThermoPhase;
 class Solution;
 class AnyMap;
 
-/*!
+/**
  * @addtogroup tranprops
  */
 //!  @cond
@@ -64,7 +64,7 @@ const int CK_Mode = 10;
  */
 typedef int VelocityBasis;
 
-/*!
+/**
  * @addtogroup tranprops
  */
 //! @{

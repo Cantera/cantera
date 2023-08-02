@@ -94,7 +94,7 @@ public:
      */
     int vcs_solve_TP(int print_lvl, int printDetails, int maxit);
 
-    /*!
+    /**
      * We make decisions on the initial mole number, and major-minor status
      * here. We also fix up the total moles in a phase.
      *
@@ -467,7 +467,7 @@ public:
      */
     int vcs_TP(int ipr, int ip1, int maxit, double T, double pres);
 
-    /*!
+    /**
      * Evaluate the standard state free energies at the current temperature
      * and pressure. Ideal gas pressure contribution is added in here.
      *
@@ -628,7 +628,7 @@ public:
      */
     void vcs_elab();
 
-    /*!
+    /**
      * Checks to see if the element abundances are in compliance. If they are,
      * then TRUE is returned. If not, FALSE is returned. Note the number of
      * constraints checked is usually equal to the number of components in the
@@ -651,7 +651,7 @@ public:
      */
     bool vcs_elabcheck(int ibound);
 
-    /*!
+    /**
      * Computes the elemental abundances vector for a single phase,
      * elemAbundPhase[], and returns it through the argument list. The mole
      * numbers of species are taken from the current value in
@@ -659,7 +659,7 @@ public:
      */
     void vcs_elabPhase(size_t iphase, double* const elemAbundPhase);
 
-    /*!
+    /**
      * This subroutine corrects for element abundances. At the end of the
      * subroutine, the total moles in all phases are recalculated again,
      * because we have changed the number of moles in this routine.

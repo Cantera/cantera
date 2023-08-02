@@ -57,7 +57,8 @@ public:
 
     virtual double thermalConductivity();
 
-    /*! Returns the matrix of binary diffusion coefficients
+    /**
+     * Returns the matrix of binary diffusion coefficients
      *
      *      d[ld*j +  i] = rp*m_bdiff(i,j)*(DP)_R;
      *

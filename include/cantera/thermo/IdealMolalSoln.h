@@ -226,7 +226,7 @@ public:
     virtual void getActivityConcentrations(doublereal* c) const;
     virtual doublereal standardConcentration(size_t k=0) const;
 
-    /*!
+    /**
      * Get the array of non-dimensional activities at the current solution
      * temperature, pressure, and solution concentration.
      *
@@ -236,7 +236,7 @@ public:
      */
     virtual void getActivities(doublereal* ac) const;
 
-    /*!
+    /**
      * Get the array of non-dimensional molality-based activity coefficients at
      * the current solution temperature, pressure, and solution concentration.
      *
@@ -400,7 +400,7 @@ public:
      */
     double speciesMolarVolume(int k) const;
 
-    /*!
+    /**
      * Fill in a return vector containing the species molar volumes
      * units - @f$ m^3 kmol^{-1} @f$
      *
