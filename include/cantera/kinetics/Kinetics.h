@@ -419,7 +419,7 @@ public:
      * @f]
      * For example, if this method is called with the array of standard-state
      * molar Gibbs free energies for the species, then the values returned in
-     * array \c deltaProperty would be the standard-state Gibbs free energies of
+     * array @c deltaProperty would be the standard-state Gibbs free energies of
      * reaction for each reaction.
      *
      * @param property Input vector of property value. Length: #m_kk.

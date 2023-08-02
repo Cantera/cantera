@@ -38,14 +38,14 @@ class BandMatrix : public GeneralMatrix
 public:
     //! Base Constructor
     /*!
-     * Create an \c 0 by \c 0 matrix, and initialize all elements to \c 0.
+     * Create an @c 0 by @c 0 matrix, and initialize all elements to @c 0.
      */
     BandMatrix();
     ~BandMatrix();
 
     //! Creates a banded matrix and sets all elements to zero
     /*!
-     * Create an \c n by \c n  banded matrix, and initialize all elements to \c v.
+     * Create an @c n by @c n  banded matrix, and initialize all elements to @c v.
      *
      * @param n   size of the square matrix
      * @param kl  band size on the lower portion of the matrix
@@ -131,7 +131,7 @@ public:
     //! Return the number of rows of storage needed for the band storage
     size_t ldim() const;
 
-    //! Multiply A*b and write result to \c prod.
+    //! Multiply A*b and write result to @c prod.
     virtual void mult(const double* b, double* prod) const;
     virtual void leftMult(const double* const b, double* const prod) const;
 

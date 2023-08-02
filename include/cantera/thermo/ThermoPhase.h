@@ -152,8 +152,8 @@ public:
     //! or phase are valid.
     /*!
      * If no argument is supplied, the value returned will be the lowest
-     * temperature at which the data for \e all species are valid. Otherwise,
-     * the value will be only for species \a k. This function is a wrapper that
+     * temperature at which the data for @e all species are valid. Otherwise,
+     * the value will be only for species @e k. This function is a wrapper that
      * calls the species thermo minTemp function.
      *
      * @param k index of the species. Default is -1, which will return the max
@@ -205,8 +205,8 @@ public:
     //! are valid.
     /*!
      * If no argument is supplied, the value returned will be the highest
-     * temperature at which the data for \e all species are valid. Otherwise,
-     * the value will be only for species \a k. This function is a wrapper that
+     * temperature at which the data for @e all species are valid. Otherwise,
+     * the value will be only for species @e k. This function is a wrapper that
      * calls the species thermo maxTemp function.
      *
      * @param k index of the species. Default is -1, which will return the min

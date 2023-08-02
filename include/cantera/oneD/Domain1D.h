@@ -207,7 +207,7 @@ public:
         m_name[n] = name;
     }
 
-    //! index of component with name \a name.
+    //! index of component with name @e name.
     virtual size_t componentIndex(const string& name) const;
 
     void setBounds(size_t n, double lower, double upper) {
@@ -536,7 +536,7 @@ public:
      */
     virtual void _getInitialSoln(double* x);
 
-    //! Initial value of solution component \a n at grid point \a j.
+    //! Initial value of solution component @e n at grid point @e j.
     virtual double initialValue(size_t n, size_t j);
 
     /**

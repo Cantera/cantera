@@ -29,7 +29,7 @@ namespace Cantera
 
 //! Templated Inner product of two vectors of length 4.
 /*!
- * If either \a x or \a y has length greater than 4, only the first 4 elements
+ * If either @e x or @e y has length greater than 4, only the first 4 elements
  * will be used.
  *
  * @param x   first reference to the templated class V
@@ -44,7 +44,7 @@ inline double dot4(const V& x, const V& y)
 
 //! Templated Inner product of two vectors of length 5
 /*!
- * If either \a x or \a y has length greater than 4, only the first 4 elements
+ * If either @e x or @e y has length greater than 4, only the first 4 elements
  * will be used.
  *
  * @param x   first reference to the templated class V

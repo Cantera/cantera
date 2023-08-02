@@ -423,13 +423,13 @@ public:
     //! Returns the number of element constraints
     size_t nElemConstraints() const;
 
-    //! Name of the element constraint with index \c e.
+    //! Name of the element constraint with index @c e.
     /*!
      * @param e Element index.
      */
     string elementName(const size_t e) const;
 
-    //! Type of the element constraint with index \c e.
+    //! Type of the element constraint with index @c e.
     /*!
      * @param e Element index.
      */

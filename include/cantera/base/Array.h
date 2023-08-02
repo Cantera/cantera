@@ -52,7 +52,7 @@ public:
 
     //! Constructor.
     /*!
-     * Create an \c m by \c n array, and initialize all elements to \c v.
+     * Create an @c m by @c n array, and initialize all elements to @c v.
      *
      * @param m   Number of rows
      * @param n   Number of columns
@@ -62,8 +62,8 @@ public:
 
     //! Constructor.
     /*!
-     * Create an \c m by \c n array, initialized with the contents of the array
-     * \c values.
+     * Create an @c m by @c n array, initialized with the contents of the array
+     * @c values.
      *
      * @param m   Number of rows
      * @param n   Number of columns

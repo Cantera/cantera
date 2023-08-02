@@ -113,7 +113,7 @@ public:
      */
     string elementName(size_t m) const;
 
-    //! Returns the index of the element with name \a name.
+    //! Returns the index of the element with name @e name.
     /*!
      * @param name   String name of the global element
      */
@@ -133,14 +133,14 @@ public:
     //! which take an array pointer.
     void checkSpeciesArraySize(size_t kk) const;
 
-    //! Name of species with global index \a kGlob
+    //! Name of species with global index @e kGlob
     /*!
      * @param kGlob   global species index
      */
     string speciesName(const size_t kGlob) const;
 
-    //! Returns the Number of atoms of global element \a mGlob in
-    //! global species \a kGlob.
+    //! Returns the Number of atoms of global element @e mGlob in
+    //! global species @e kGlob.
     /*!
      * @param kGlob   global species index
      * @param mGlob   global element index
@@ -151,7 +151,7 @@ public:
     //! Returns the global Species mole fractions.
     /*!
      *   Write the array of species mole
-     *   fractions into array \c x. The mole fractions are
+     *   fractions into array @c x. The mole fractions are
      *   normalized to sum to one in each phase.
      *
      *    @param x  vector of mole fractions. Length = number of global species.
@@ -211,14 +211,14 @@ public:
     //! which take an array pointer.
     void checkPhaseArraySize(size_t mm) const;
 
-    //! Returns the moles of global species \c k. units = kmol
+    //! Returns the moles of global species @c k. units = kmol
     /*!
      * @param kGlob   Global species index k
      */
     double speciesMoles(size_t kGlob) const;
 
-    //! Return the global index of the species belonging to phase number \c p
-    //! with local index \c k within the phase.
+    //! Return the global index of the species belonging to phase number @c p
+    //! with local index @c k within the phase.
     /*!
      * @param k local index of the species within the phase
      * @param p index of the phase
@@ -227,8 +227,8 @@ public:
         return m_spstart[p] + k;
     }
 
-    //! Return the global index of the species belonging to phase name \c phaseName
-    //! with species name \c speciesName
+    //! Return the global index of the species belonging to phase name @c phaseName
+    //! with species name @c speciesName
     /*!
      * @param speciesName    Species Name
      * @param phaseName      Phase Name
@@ -257,15 +257,15 @@ public:
     //! Total charge summed over all phases (Coulombs).
     double charge() const;
 
-    //! Charge (Coulombs) of phase with index \a p.
+    //! Charge (Coulombs) of phase with index @e p.
     /*!
      *  The net charge is computed as @f[ Q_p = N_p \sum_k F z_k X_k @f]
-     *  where the sum runs only over species in phase \a p.
+     *  where the sum runs only over species in phase @e p.
      *  @param p index of the phase for which the charge is desired.
      */
     double phaseCharge(size_t p) const;
 
-    //! Total moles of global element \a m, summed over all phases.
+    //! Total moles of global element @e m, summed over all phases.
     /*!
      * @param m   Index of the global element
      */
@@ -273,7 +273,7 @@ public:
 
     //! Returns a vector of Chemical potentials.
     /*!
-     * Write into array \a mu the chemical potentials of all species
+     * Write into array @e mu the chemical potentials of all species
      * [J/kmol]. The chemical potentials are related to the activities by
      *
      * @f$
@@ -287,16 +287,16 @@ public:
 
     //! Returns a vector of Valid chemical potentials.
     /*!
-     * Write into array \a mu the chemical potentials of all species with
+     * Write into array @e mu the chemical potentials of all species with
      * thermo data valid for the current temperature [J/kmol]. For other
-     * species, set the chemical potential to the value \a not_mu. If \a
+     * species, set the chemical potential to the value @e not_mu. If @e
      * standard is set to true, then the values returned are standard chemical
      * potentials.
      *
      * This method is designed for use in computing chemical equilibrium by
      * Gibbs minimization. For solution phases (more than one species), this
      * does the same thing as getChemPotentials. But for stoichiometric
-     * phases, this writes into array \a mu the user-specified value \a not_mu
+     * phases, this writes into array @e mu the user-specified value @e not_mu
      * instead of the chemical potential if the temperature is outside the
      * range for which the thermo data for the one species in the phase are
      * valid. The need for this arises since many condensed phases have thermo
@@ -307,7 +307,7 @@ public:
      * result in spurious chemical potentials, and can lead to condensed
      * phases appearing when in fact they should be absent.
      *
-     * By setting \a not_mu to a large positive value, it is possible to force
+     * By setting @e not_mu to a large positive value, it is possible to force
      * routines which seek to minimize the Gibbs free energy of the mixture to
      * zero out any phases outside the temperature range for which their
      * thermo data are valid.
@@ -316,7 +316,7 @@ public:
      *               for which the thermo data is not valid
      * @param mu    Vector of chemical potentials. length = Global species,
      *              units = J kmol-1
-     * @param standard  If this method is called with \a standard set to true,
+     * @param standard  If this method is called with @e standard set to true,
      *                  then the composition-independent standard chemical
      *                  potentials are returned instead of the composition-
      *                  dependent chemical potentials.
@@ -426,7 +426,7 @@ public:
         return m_phase.size();
     }
 
-    //! Return true is species \a kGlob is a species in a multicomponent
+    //! Return true is species @e kGlob is a species in a multicomponent
     //! solution phase.
     /*!
      * @param kGlob   index of the global species
@@ -506,7 +506,7 @@ public:
      */
     void getElemAbundances(double* elemAbundances) const;
 
-    //! Return true if the phase \a p has valid thermo data for the current
+    //! Return true if the phase @e p has valid thermo data for the current
     //! temperature.
     /*!
      * @param p  Index of the phase.

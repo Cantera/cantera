@@ -33,7 +33,7 @@ public:
      *     \mu = \sum_k \frac{\mu_k X_k}{\sum_j \Phi_{k,j} X_j}.
      * @f]
      *
-     * Here @f$ \mu_k @f$ is the viscosity of pure species \e k, and
+     * Here @f$ \mu_k @f$ is the viscosity of pure species @e k, and
      *
      * @f[
      *     \Phi_{k,j} = \frac{\left[1

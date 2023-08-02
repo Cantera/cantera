@@ -218,7 +218,7 @@ public:
     //! which take an array pointer.
     void checkElementArraySize(size_t mm) const;
 
-    //! Number of atoms of element \c m in species \c k.
+    //! Number of atoms of element @c m in species @c k.
     //!     @param k    species index
     //!     @param m    element index
     double nAtoms(size_t k, size_t m) const;
@@ -357,7 +357,7 @@ public:
     //! @{
 
     //! Set the species mole fractions by name.
-    //! Species not listed by name in \c xMap are set to zero.
+    //! Species not listed by name in @c xMap are set to zero.
     //!     @param xMap map from species names to mole fraction values.
     void setMoleFractionsByName(const Composition& xMap);
 
@@ -367,12 +367,12 @@ public:
     void setMoleFractionsByName(const string& x);
 
     //! Set the species mass fractions by name.
-    //! Species not listed by name in \c yMap are set to zero.
+    //! Species not listed by name in @c yMap are set to zero.
     //!     @param yMap map from species names to mass fraction values.
     void setMassFractionsByName(const Composition& yMap);
 
     //! Set the species mass fractions by name.
-    //! Species not listed by name in \c x are set to zero.
+    //! Species not listed by name in @c x are set to zero.
     //!     @param x String containing a composition map
     void setMassFractionsByName(const string& x);
 
@@ -458,9 +458,9 @@ public:
 
     //! @} end group set thermo state
 
-    //! Molecular weight of species \c k.
-    //!     @param k   index of species \c k
-    //!     @returns the molecular weight of species \c k.
+    //! Molecular weight of species @c k.
+    //!     @param k   index of species @c k
+    //!     @returns the molecular weight of species @c k.
     double molecularWeight(size_t k) const;
 
     //! Copy the vector of molecular weights into vector weights.

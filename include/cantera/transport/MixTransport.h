@@ -27,7 +27,7 @@ namespace Cantera
  *     \mu = \sum_k \frac{\mu_k X_k}{\sum_j \Phi_{k,j} X_j}.
  * @f]
  *
- * Here @f$ \mu_k @f$ is the viscosity of pure species \e k, and
+ * Here @f$ \mu_k @f$ is the viscosity of pure species @e k, and
  *
  * @f[
  *     \Phi_{k,j} = \frac{\left[1
@@ -102,7 +102,7 @@ public:
      *     \mu^e_k = \frac{F D_k}{R T}
      * @f]
      *
-     * @param mobil  Returns the mobilities of the species in array \c mobil.
+     * @param mobil  Returns the mobilities of the species in array @c mobil.
      *               The array must be dimensioned at least as large as the
      *               number of species.
      */
@@ -127,7 +127,7 @@ public:
     /*!
      * Units for the returned fluxes are kg m-2 s-1.
      *
-     * The diffusive mass flux of species \e k is computed from
+     * The diffusive mass flux of species @e k is computed from
      * @f[
      *     \vec{j}_k = -n M_k D_k \nabla X_k.
      * @f]
