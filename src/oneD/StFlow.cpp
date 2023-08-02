@@ -737,7 +737,7 @@ AnyMap StFlow::getMeta() const
         state["emissivity-right"] = m_epsilon_right;
     }
 
-    std::set<bool> energy_flags(m_do_energy.begin(), m_do_energy.end());
+    set<bool> energy_flags(m_do_energy.begin(), m_do_energy.end());
     if (energy_flags.size() == 1) {
         state["energy-enabled"] = m_do_energy[0];
     } else {
@@ -746,7 +746,7 @@ AnyMap StFlow::getMeta() const
 
     state["Soret-enabled"] = m_do_soret;
 
-    std::set<bool> species_flags(m_do_species.begin(), m_do_species.end());
+    set<bool> species_flags(m_do_species.begin(), m_do_species.end());
     if (species_flags.size() == 1) {
         state["species-enabled"] = m_do_species[0];
     } else {

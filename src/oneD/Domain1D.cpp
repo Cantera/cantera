@@ -112,7 +112,7 @@ AnyMap Domain1D::getMeta() const
     auto wrap_tols = [this](const vector_fp& tols) {
         // If all tolerances are the same, just store the scalar value.
         // Otherwise, store them by component name
-        std::set<double> unique_tols(tols.begin(), tols.end());
+        set<double> unique_tols(tols.begin(), tols.end());
         if (unique_tols.size() == 1) {
             return AnyValue(tols[0]);
         } else {
