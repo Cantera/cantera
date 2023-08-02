@@ -158,8 +158,6 @@ const int VT = -100, PH = -101, PS = -102, VP = -103, PT = -104,
 const double SmallNumber = 1.e-300;
 //! largest number to compare to inf.
 const double BigNumber = 1.e300;
-//! largest x such that exp(x) is valid
-const double MaxExp = 690.775527898;
 
 //! Fairly random number to be used to initialize variables against
 //! to see if they are subsequently defined.
