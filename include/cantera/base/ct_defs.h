@@ -191,9 +191,6 @@ typedef vector<double> vector_fp;
 //! Vector of ints
 typedef vector<int> vector_int;
 
-//! A grouplist is a vector of groups of species
-typedef vector<vector<size_t>> grouplist_t;
-
 //! index returned by functions to indicate "no position"
 const size_t npos = static_cast<size_t>(-1);
 
