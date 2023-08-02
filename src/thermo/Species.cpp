@@ -125,7 +125,7 @@ unique_ptr<Species> newSpecies(const AnyMap& node)
 
     // Store input parameters in the "input" map, unless they are stored in a
     // child object
-    const static std::set<std::string> known_keys{
+    const static set<string> known_keys{
         "thermo", "transport"
     };
     s->input.setUnits(node.units());

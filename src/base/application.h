@@ -437,9 +437,8 @@ protected:
     //! Versions of Python to consider when attempting to load user extensions
     vector<string> m_pythonSearchVersions = {"3.11", "3.10", "3.9", "3.8"};
 
-    //! Vector of deprecation warnings that have been emitted (to suppress
-    //! duplicates)
-    std::set<std::string> warnings;
+    //! Set of deprecation warnings that have been emitted (to suppress duplicates)
+    set<string> warnings;
 
     bool m_suppress_deprecation_warnings = false;
     bool m_fatal_deprecation_warnings = false;
@@ -448,7 +447,7 @@ protected:
     bool m_fatal_warnings = false;
     bool m_use_legacy_rate_constants = false;
 
-    std::set<std::pair<std::string, std::string>> m_loaded_extensions;
+    set<pair<string, string>> m_loaded_extensions;
 
     ThreadMessages pMessenger;
 

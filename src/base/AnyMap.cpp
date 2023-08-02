@@ -1461,9 +1461,9 @@ std::string AnyMap::keys_str() const
     return to_string(b);
 }
 
-std::set<std::string> AnyMap::keys() const
+set<string> AnyMap::keys() const
 {
-    std::set<std::string> out;
+    set<string> out;
     auto iter = this->begin();
     while (iter != this->end()) {
         out.insert(iter->first);

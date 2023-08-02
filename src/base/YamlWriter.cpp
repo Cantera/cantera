@@ -73,7 +73,7 @@ std::string YamlWriter::toYamlString() const
     output["date"].setLoc(-2, 0);
 
     // Add remaining header information, ignoring obsolete information
-    std::set<std::string> exclude = {
+    set<string> exclude = {
         "description", "generator", "cantera-version", "git-commit", "date"};
     for (const auto& [key, value] : m_header) {
         if (!exclude.count(key)) {
