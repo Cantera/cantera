@@ -46,7 +46,7 @@ using std::set;
 using std::function;
 using std::pair;
 
-/*!
+/**
  * @defgroup physConstants Physical Constants
  * @brief Physical constants used by %Cantera.
  *

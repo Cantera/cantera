@@ -84,7 +84,7 @@ public:
         mnp_high.setRefPressure(Pref);
     }
 
-    /*!
+    /**
      * @param Tmid  Temperature [K] at the boundary between the low and high
      *              temperature polynomials
      * @param low   Vector of 7 coefficients for the low temperature polynomial

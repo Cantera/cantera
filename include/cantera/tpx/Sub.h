@@ -30,7 +30,7 @@ enum type { H, S, U, V, P, T };
 
 const double Undef = 999.1234;
 
-/*!
+/**
  * Base class from which all pure substances are derived
  */
 class Substance

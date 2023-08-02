@@ -16,13 +16,13 @@
 namespace Cantera
 {
 
-/*!
+/**
  * @addtogroup thermoprops
  *
  * Standard ThermoPhase objects may be instantiated by calling the main %Cantera
  * factory class for ThermoPhase objects; This class is called ThermoFactory.
  */
-//@{
+//! @{
 
 
 //! Factory class for thermodynamic property managers.
@@ -120,7 +120,7 @@ ThermoPhase* newPhase(const std::string& infile, std::string id="");
 void setupPhase(ThermoPhase& phase, const AnyMap& phaseNode,
                 const AnyMap& rootNode=AnyMap());
 
-//@}
+//! @}
 
 }
 

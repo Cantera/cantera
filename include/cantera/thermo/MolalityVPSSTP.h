@@ -68,7 +68,7 @@ const int PHSCALE_PITZER = 0;
  */
 const int PHSCALE_NBS = 1;
 
-/*!
+/**
  * MolalityVPSSTP is a derived class of ThermoPhase that handles variable
  * pressure standard state methods for calculating thermodynamic properties that
  * are further based on molality-scaled activities. This category incorporates
@@ -602,7 +602,7 @@ protected:
     //! Molecular weight of the Solvent
     double m_weightSolvent = 18.01528;
 
-    /*!
+    /**
      * In any molality implementation, it makes sense to have a minimum solvent
      * mole fraction requirement, since the implementation becomes singular in
      * the xmolSolvent=0 limit. The default is to set it to 0.01. We then modify

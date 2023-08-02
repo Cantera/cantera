@@ -16,7 +16,7 @@
 namespace Cantera
 {
 
-/*!
+/**
  * @defgroup globalData Global Data
  *
  * Global data are available anywhere. There are two kinds. %Cantera has an

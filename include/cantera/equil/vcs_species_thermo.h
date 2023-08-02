@@ -24,7 +24,7 @@ class vcs_VolPhase;
 #define VCS_SSSTAR_CONSTANT 0
 #define VCS_SSSTAR_IDEAL_GAS 1
 
-/*!
+/**
  * Identifies the thermo model for the species. This structure is shared by
  * volumetric and surface species. However, each will have its own types of
  * thermodynamic models. These quantities all have appropriate units.

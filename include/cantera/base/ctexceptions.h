@@ -22,7 +22,7 @@ namespace Cantera
  * @defgroup debugGroup Errors and Diagnostics
 */
 
-/*!
+/**
  * @defgroup errGroup Errors
  *
  * @brief Handling of errors and unknown events within %Cantera.

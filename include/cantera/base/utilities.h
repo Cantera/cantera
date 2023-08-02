@@ -24,9 +24,8 @@
 
 namespace Cantera
 {
-/** @addtogroup mathTemplates
- *  @{
- */
+//! @addtogroup mathTemplates
+//! @{
 
 //! Templated Inner product of two vectors of length 4.
 /*!
@@ -169,7 +168,7 @@ R poly3(D x, R* c)
     return (((c[3]*x + c[2])*x + c[1])*x + c[0]);
 }
 
-/** @}*/
+//! @}
 
 //! Check to see that a number is finite (not NaN, +Inf or -Inf)
 void checkFinite(const double tmp);

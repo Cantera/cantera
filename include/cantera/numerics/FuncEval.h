@@ -86,7 +86,8 @@ public:
      */
     int evalDaeNoThrow(double t, double* y, double* ydot, double* residual);
 
-    /** Evaluate the setup processes for the Jacobian preconditioner.
+    /**
+     * Evaluate the setup processes for the Jacobian preconditioner.
      * @param[in] t time.
      * @param[in] y solution vector, length neq()
      * @param gamma the gamma in M=I-gamma*J
@@ -97,7 +98,8 @@ public:
         throw NotImplementedError("FuncEval::preconditionerSetup");
     }
 
-    /** Evaluate the linear system Ax=b where A is the preconditioner.
+    /**
+     * Evaluate the linear system Ax=b where A is the preconditioner.
      * @param[in] rhs right hand side vector used in linear system
      * @param[out] output output vector for solution
      * @warning This function is an experimental part of the %Cantera API and may be
@@ -112,7 +114,8 @@ public:
         throw NotImplementedError("FuncEval::updatePreconditioner");
     }
 
-    /** Preconditioner setup that doesn't throw an error but returns a
+    /**
+     * Preconditioner setup that doesn't throw an error but returns a
      * CVODES flag. It also helps as a first level of polymorphism
      * which identifies the specific FuncEval, e.g., ReactorNet.
      * @param[in] t time.
@@ -123,7 +126,8 @@ public:
      */
     int preconditioner_setup_nothrow(double t, double* y, double gamma);
 
-    /** Preconditioner solve that doesn't throw an error but returns a
+    /**
+     * Preconditioner solve that doesn't throw an error but returns a
      * CVODES flag. It also helps as a first level of polymorphism
      * which identifies the specific FuncEval, e.g., ReactorNet.
      * @param[in] rhs right hand side vector used in linear system

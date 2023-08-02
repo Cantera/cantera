@@ -82,7 +82,7 @@ public:
     virtual size_t temperaturePolySize() const { return 7; }
     virtual void updateTemperaturePoly(double T, double* T_poly) const;
 
-    /*!
+    /**
      * @copydoc SpeciesThermoInterpType::updateProperties
      *
      * Temperature Polynomial:

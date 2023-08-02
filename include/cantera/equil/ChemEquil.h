@@ -91,7 +91,7 @@ public:
 
     virtual ~ChemEquil() = default;
 
-    /*!
+    /**
      * Equilibrate a phase, holding the elemental composition fixed at the
      * initial value found within the ThermoPhase object *s*.
      *
@@ -101,7 +101,7 @@ public:
      */
     int equilibrate(ThermoPhase& s, const char* XY, int loglevel = 0);
 
-    /*!
+    /**
      * Compute the equilibrium composition for two specified properties and the
      * specified element moles.
      *
@@ -140,13 +140,13 @@ protected:
         return m_comp[k*m_mm + m];
     }
 
-    /*!
+    /**
      * Prepare for equilibrium calculations.
      * @param s object representing the solution phase.
      */
     void initialize(ThermoPhase& s);
 
-    /*!
+    /**
      * Set mixture to an equilibrium state consistent with specified element
      * potentials and temperature.
      *
@@ -166,7 +166,7 @@ protected:
     int estimateElementPotentials(ThermoPhase& s, vector_fp& lambda,
                                   vector_fp& elMolesGoal, int loglevel = 0);
 
-    /*!
+    /**
      * Do a calculation of the element potentials using the Brinkley method,
      * p. 129 Smith and Missen.
      *

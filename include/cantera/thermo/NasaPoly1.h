@@ -89,7 +89,7 @@ public:
         T_poly[5] = std::log(T);
     }
 
-    /*!
+    /**
      * @copydoc SpeciesThermoInterpType::updateProperties
      *
      * Temperature Polynomial:

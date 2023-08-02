@@ -61,7 +61,7 @@ public:
      */
     ConstCpPoly(double tlow, double thigh, double pref, const double* coeffs);
 
-    /*!
+    /**
      * @param t0  @f$ T_0 @f$ [K]
      * @param h0  @f$ h_k^o(T_0, p_{ref}) @f$ [J/kmol]
      * @param s0  @f$ s_k^o(T_0, p_{ref}) @f$ [J/kmol/K]
@@ -73,7 +73,7 @@ public:
         return CONSTANT_CP;
     }
 
-    /*!
+    /**
      * @copydoc SpeciesThermoInterpType::updateProperties
      *
      * Form and Length of the temperature polynomial:

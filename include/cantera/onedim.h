@@ -1,6 +1,6 @@
 //! @file onedim.h
 
-/*!
+/**
  * @defgroup onedGroup One-Dimensional Reacting Flows
  *
  * @details These classes comprise %Cantera's ability to solve steady-state

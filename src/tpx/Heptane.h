@@ -30,8 +30,8 @@ public:
     //! Pressure. Equation P-2 in Reynolds.
     double Pp();
 
-    /*!
-     * internal energy.
+    /**
+     * Internal energy.
      * See Reynolds eqn (15) section 2
      *  u = (the integral from T to To of co(T)dT) +
      *         sum from i to N ([C(i) - T*Cprime(i)] + uo
@@ -48,7 +48,7 @@ private:
     //! liquid density. Equation D2 in Reynolds.
     double ldens();
 
-    /*!
+    /**
      * C returns a multiplier in each term of the sum
      * in P-2, used in conjunction with C in the function Pp
      * - j is used to represent which of the values in the summation to calculate
@@ -60,13 +60,13 @@ private:
     //! derivative of C(i)
     double Cprime(int i, double, double, double);
 
-    /*!
+    /**
      * I = integral from o-rho { 1/(rho^2) * H(i, rho) d rho }
      * ( see section 2 of Reynolds TPSI )
      */
     double I(int i, double, double);
 
-    /*!
+    /**
      * H returns a multiplier in each term of the sum in P-2.
      * this is used in conjunction with C in the function Pp
      * this represents the product rho^n

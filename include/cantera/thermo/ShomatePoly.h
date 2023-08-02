@@ -110,7 +110,7 @@ public:
         T_poly[5] = 1.0/tt;
     }
 
-    /*!
+    /**
      * @copydoc SpeciesThermoInterpType::updateProperties
      *
      * Form of the temperature polynomial:
@@ -270,7 +270,7 @@ public:
         msp_high.setRefPressure(Pref);
     }
 
-    /*!
+    /**
      * @param Tmid  Temperature [K] at the boundary between the low and high
      *              temperature polynomials
      * @param low   Vector of 7 coefficients for the low temperature polynomial

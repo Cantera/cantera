@@ -470,7 +470,7 @@ void solveSP::resjac_eval(DenseMatrix& jac,
     }
 }
 
-/*!
+/**
  * This function calculates a damping factor for the Newton iteration update
  * vector, dxneg, to insure that all site and bulk fractions, x, remain
  * bounded between zero and one.

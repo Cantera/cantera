@@ -127,7 +127,7 @@ public:
         return m_bw;
     }
 
-    /*!
+    /**
      * Initialize. This method is called by OneDim::init() for each domain once
      * at the beginning of a simulation. Base class method does nothing, but may
      * be overloaded.
@@ -137,14 +137,14 @@ public:
     virtual void setInitialState(doublereal* xlocal = 0) {}
     virtual void setState(size_t point, const doublereal* state, doublereal* x) {}
 
-    /*!
+    /**
      * When called, this function should reset "bad" values in the state vector
      * such as negative species concentrations. This function may be called
      * after a failed solution attempt.
      */
     virtual void resetBadValues(double* xg) {}
 
-    /*!
+    /**
      * Resize the domain to have nv components and np grid points. This method
      * is virtual so that subclasses can perform other actions required to
      * resize the domain.
@@ -302,7 +302,7 @@ public:
         return (m_rdt != 0.0);
     }
 
-    /*!
+    /**
      * Set this if something has changed in the governing
      * equations (for example, the value of a constant has been changed,
      * so that the last-computed Jacobian is no longer valid.

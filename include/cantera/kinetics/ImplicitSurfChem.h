@@ -79,28 +79,28 @@ public:
 
     virtual ~ImplicitSurfChem() = default;
 
-    /*!
+    /**
      *  Must be called before calling method 'advance'
      */
     virtual void initialize(doublereal t0 = 0.0);
 
-    /*!
+    /**
      *  Set the maximum integration step-size.  Note, setting this value to zero
      *  disables this option
      */
     virtual void setMaxStepSize(double maxstep = 0.0);
 
-    /*!
+    /**
      *  Set the relative and absolute integration tolerances.
      */
     virtual void setTolerances(double rtol=1.e-7, double atol=1.e-14);
 
-    /*!
+    /**
      *  Set the maximum number of CVODES integration steps.
      */
     virtual void setMaxSteps(size_t maxsteps = 20000);
 
-    /*!
+    /**
      *  Set the maximum number of CVODES error test failures
      */
     virtual void setMaxErrTestFails(size_t maxErrTestFails = 7);
@@ -172,7 +172,7 @@ public:
      */
     virtual void getState(doublereal* y);
 
-    /*!
+    /**
      * Get the specifications for the problem from the values
      * in the ThermoPhase objects for all phases.
      *

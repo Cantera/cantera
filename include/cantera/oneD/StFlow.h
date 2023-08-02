@@ -147,7 +147,7 @@ public:
         m_tfix = tfixed;
     }
 
-    /*!
+    /**
      * Set the temperature fixed point at grid point j, and disable the energy
      * equation so that the solution will be held to this value.
      */

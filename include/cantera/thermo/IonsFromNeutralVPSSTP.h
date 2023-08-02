@@ -29,7 +29,7 @@ enum IonSolnType_enumType {
     cIonSolnType_MULTICATIONANION
 };
 
-/*!
+/**
  * The IonsFromNeutralVPSSTP is a derived class of ThermoPhase that handles the
  * specification of the chemical potentials for ionic species, given a
  * specification of the chemical potentials for the same phase expressed in
