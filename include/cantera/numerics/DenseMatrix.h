@@ -59,7 +59,7 @@ public:
 
     //! Constructor.
     /*!
-     * Create an \c n by \c m matrix, and initialize all elements to \c v.
+     * Create an @c n by @c m matrix, and initialize all elements to @c v.
      *
      * @param n  New number of rows
      * @param m  New number of columns
@@ -93,7 +93,7 @@ public:
 
     virtual void mult(const double* b, double* prod) const;
 
-    //! Multiply A*B and write result to \c prod.
+    //! Multiply A*B and write result to @c prod.
     /*!
      * Take this matrix to be of size NxM.
      * @param[in]  b     DenseMatrix B of size MxP
@@ -188,7 +188,7 @@ int solve(DenseMatrix& A, double* b, size_t nrhs=1, size_t ldb=0);
  */
 int solve(DenseMatrix& A, DenseMatrix& b);
 
-//! Multiply \c A*b and return the result in \c prod. Uses BLAS routine DGEMV.
+//! Multiply @c A*b and return the result in @c prod. Uses BLAS routine DGEMV.
 /*!
  * @f[
  *     prod_i = sum^N_{j = 1}{A_{ij} b_j}
@@ -200,7 +200,7 @@ int solve(DenseMatrix& A, DenseMatrix& b);
  */
 void multiply(const DenseMatrix& A, const double* const b, double* const prod);
 
-//! Multiply \c A*b and add it to the result in \c prod. Uses BLAS routine DGEMV.
+//! Multiply @c A*b and add it to the result in @c prod. Uses BLAS routine DGEMV.
 /*!
  * @f[
  *     prod_i += sum^N_{j = 1}{A_{ij} b_j}

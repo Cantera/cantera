@@ -339,7 +339,7 @@ public:
      *      \mu^e_k = \frac{F D_k}{R T}
      * @f]
      *
-     * @param mobil_e  Returns the mobilities of the species in array \c
+     * @param mobil_e  Returns the mobilities of the species in array @c
      *               mobil_e. The array must be dimensioned at least as large as
      *               the number of species.
      */
@@ -361,7 +361,7 @@ public:
      *      \mu^f_k = \frac{D_k}{R T}
      * @f]
      *
-     * @param mobil_f  Returns the mobilities of the species in array \c mobil.
+     * @param mobil_f  Returns the mobilities of the species in array @c mobil.
      *               The array must be dimensioned at least as large as the
      *               number of species.
      *

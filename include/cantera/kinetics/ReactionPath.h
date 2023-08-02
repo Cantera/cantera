@@ -84,7 +84,7 @@ public:
     typedef map<size_t, double> rxn_path_map;
 
     /**
-     *  Constructor. Construct a one-way path from \c begin to \c end.
+     *  Constructor. Construct a one-way path from @c begin to @c end.
      */
     Path(SpeciesNode* begin, SpeciesNode* end);
 
@@ -114,7 +114,7 @@ public:
     }
 
     /**
-     *  If \c n is one of the nodes this path connects, then
+     *  If @c n is one of the nodes this path connects, then
      *  the other node is returned. Otherwise zero is returned.
      */
     SpeciesNode* otherNode(SpeciesNode* n) {
@@ -171,12 +171,12 @@ public:
         return m_flxmax;
     }
 
-    //! The net flow from node \c k1 to node \c k2
+    //! The net flow from node @c k1 to node @c k2
     double netFlow(size_t k1, size_t k2) {
         return flow(k1, k2) - flow(k2, k1);
     }
 
-    //! The one-way flow from node \c k1 to node \c k2
+    //! The one-way flow from node @c k1 to node @c k2
     double flow(size_t k1, size_t k2) {
         return (m_paths[k1][k2] ? m_paths[k1][k2]->flow() : 0.0);
     }
@@ -190,7 +190,7 @@ public:
 
     /**
      *  Export the reaction path diagram. This method writes to stream
-     *  \c s the commands for the 'dot' program in the \c GraphViz
+     *  @c s the commands for the 'dot' program in the @c GraphViz
      *  package from AT&T. (GraphViz may be downloaded from www.graphviz.org.)
      *
      *  To generate a postscript reaction path diagram from the output of this

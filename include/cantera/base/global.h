@@ -39,13 +39,13 @@ class AnyMap;
  * for input files along a path that includes platform-specific default
  * locations, and possibly user-specified locations:
  *
- *    - The current directory \c "." is always searched first. Then, on Windows, the
+ *    - The current directory @c "." is always searched first. Then, on Windows, the
  *      registry is checked to find the %Cantera installation directory, and the
- *      \c data subdirectory of the installation directory will be added to the search
+ *      @c data subdirectory of the installation directory will be added to the search
  *      path.
- *    - On any platform, if environment variable \c CANTERA_DATA is set to a directory
+ *    - On any platform, if environment variable @c CANTERA_DATA is set to a directory
  *      name or a list of directory names separated with the OS-dependent path
- *      separator (that is, \c ";" on Windows, \c ":" elsewhere), then these directories
+ *      separator (that is, @c ";" on Windows, @c ":" elsewhere), then these directories
  *      will be added to the search path.
  *    - Finally, the location where the data files were installed when %Cantera was
  *      built is added to the search path.
@@ -116,7 +116,7 @@ bool usingSharedLibrary();
 //! @{
 
 //! Returns the %Cantera version. This function is used to access the version from a
-//! library, rather than the \c CANTERA_VERSION macro that is available at compile time.
+//! library, rather than the @c CANTERA_VERSION macro that is available at compile time.
 //! @since New in %Cantera 3.0
 string version();
 
@@ -130,7 +130,7 @@ string gitCommit();
 //! preprocessor macro is defined.
 bool debugModeEnabled();
 
-//! Returns true if %Cantera was compiled with C++ \c HDF5 support.
+//! Returns true if %Cantera was compiled with C++ @c HDF5 support.
 //! @since New in %Cantera 3.0.
 bool usesHDF5();
 

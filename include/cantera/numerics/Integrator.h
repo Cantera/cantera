@@ -333,7 +333,7 @@ private:
 // defined in Integrators.cpp
 
 //! Create new Integrator object
-//! @param itype Integration mode; either \c CVODE or \c IDA
+//! @param itype Integration mode; either @c CVODE or @c IDA
 //! @ingroup odeGroup
 Integrator* newIntegrator(const string& itype);
 

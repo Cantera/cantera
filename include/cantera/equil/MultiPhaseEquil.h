@@ -96,7 +96,7 @@ protected:
     //! The component species are taken to be the first M species in array
     //! 'species' that have linearly-independent compositions.
     //!
-    //! @param order On entry, vector \a order should contain species index
+    //! @param order On entry, vector @e order should contain species index
     //!     numbers in the order of decreasing desirability as a component.
     //!     For example, if it is desired to choose the components from among
     //!     the major species, this array might list species index numbers in

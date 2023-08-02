@@ -80,7 +80,7 @@ public:
     //! Set electron energy levels.
     //! @param  levels The vector of electron energy levels (eV).
     //!                Length: #m_nPoints.
-    //! @param  length The length of the \p levels.
+    //! @param  length The length of the @c levels.
     void setElectronEnergyLevels(const double* levels, size_t length);
 
     //! Get electron energy levels.

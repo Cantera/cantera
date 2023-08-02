@@ -216,8 +216,8 @@ public:
     virtual size_t getSolvingStage() const;
 
     //! Solving stage mode for handling ionized species (used by IonFlow specialization)
-    //! - \c stage=1: the fluxes of charged species are set to zero
-    //! - \c stage=2: the electric field equation is solved, and the drift flux for
+    //! - @c stage=1: the fluxes of charged species are set to zero
+    //! - @c stage=2: the electric field equation is solved, and the drift flux for
     //!     ionized species is evaluated
     virtual void setSolvingStage(const size_t stage);
 

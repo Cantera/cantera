@@ -37,7 +37,7 @@ namespace Cantera
  * @f]
  *
  * where @f$ \nu^{(p)_{k,i}} @f$ is the product-side stoichiometric
- * coefficient of species \a k in reaction \a i. This could be done by
+ * coefficient of species @e k in reaction @e i. This could be done by
  * straightforward matrix multiplication, but would be inefficient, since most
  * of the matrix elements of @f$ \nu^{(p)}_{k,i} @f$ are zero. We could do
  * better by using sparse-matrix algorithms to compute this product.
@@ -563,7 +563,7 @@ inline static void _scale(InputIter begin, InputIter end,
  * @f]
  * To understand the operations performed by this class, let @f$ N_{k,i} @f$
  * denote the stoichiometric coefficient of species k on one side (reactant or
- * product) in reaction i. Then \b N is a sparse K by I matrix of stoichiometric
+ * product) in reaction i. Then @b N is a sparse K by I matrix of stoichiometric
  * coefficients.
  *
  * The following matrix operations may be carried out with a vector S of length
@@ -576,7 +576,7 @@ inline static void _scale(InputIter begin, InputIter end,
  *
  * The actual implementation, however, does not compute these quantities by
  * matrix multiplication. A faster algorithm is used that makes use of the fact
- * that the \b integer-valued N matrix is very sparse, and the non-zero terms
+ * that the @b integer-valued N matrix is very sparse, and the non-zero terms
  * are small positive integers.
  * @f[
  * S_k = R_{i1} + \dots + R_{iM}

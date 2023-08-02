@@ -99,7 +99,7 @@ public:
     //! Minimum temperature.
     /*!
      * If no argument is supplied, this method returns the minimum temperature
-     * for which \e all parameterizations are valid. If an integer index k is
+     * for which @e all parameterizations are valid. If an integer index k is
      * supplied, then the value returned is the minimum temperature for
      * species k in the phase.
      *
@@ -110,7 +110,7 @@ public:
     //! Maximum temperature.
     /*!
      * If no argument is supplied, this method returns the maximum temperature
-     * for which \e all parameterizations are valid. If an integer index k is
+     * for which @e all parameterizations are valid. If an integer index k is
      * supplied, then the value returned is the maximum temperature for
      * parameterization k.
      *
