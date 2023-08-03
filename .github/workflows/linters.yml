@@ -1,0 +1,43 @@
+name: Linters
+
+on:
+  pull_request:
+  # Build when a pull request targets main
+    branches:
+      - main
+
+jobs:
+  linter:
+    name: Lint checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v3
+        name: Checkout the repository
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Check example keywords
+        run: python3 doc/example-keywords.py compare
+      - name: Get changed C++ files
+        id: changed-cxx-files
+        uses: tj-actions/changed-files@v37
+        with:
+          files: |
+            **.h
+            **.cpp
+      # Comment blocks starting with "/*!" do not support autobrief
+      - name: Check for problematic Doxygen comment blocks
+        if: steps.changed-cxx-files.outputs.any_changed == 'true'
+        run: |
+          RETCODE=0
+          for file in ${{ steps.changed-cxx-files.outputs.all_changed_files }}; do
+            RESULT=`perl -0777 -ne 'while(m/\n\n *\/\*!.*?\*\//gs){print "$&\n";}' $file`
+            if [ "$RESULT" ]; then
+              echo ------ ${file} ------
+              echo "$RESULT"
+              RETCODE=1
+            fi
+          done
+          exit $RETCODE
