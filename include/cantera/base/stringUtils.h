@@ -26,7 +26,7 @@ namespace Cantera
  * @param sep   Separator
  */
 string vec2str(const vector<double>& v, const string& fmt="%g",
-                    const string& sep=", ");
+               const string& sep=", ");
 
 //! Strip non-printing characters wherever they are
 /*!
@@ -59,7 +59,7 @@ string stripnonprint(const string& s);
  * @return     map of names to values
  */
 Composition parseCompString(const string& ss,
-        const vector<string>& names=vector<string>());
+                            const vector<string>& names=vector<string>());
 
 //! Translate a string into one double value
 /*!
@@ -104,8 +104,7 @@ double fpValueCheck(const string& val);
  * @param oval   String to be broken up
  * @param v     Output vector of tokens.
  */
-void tokenizeString(const string& oval,
-                    vector<string>& v);
+void tokenizeString(const string& oval, vector<string>& v);
 
 //! This function separates a string up into tokens according to the location of
 //! path separators.
@@ -117,8 +116,7 @@ void tokenizeString(const string& oval,
  *
  * @since New in %Cantera 3.0.
  */
-void tokenizePath(const string& oval,
-                  vector<string>& v);
+void tokenizePath(const string& oval, vector<string>& v);
 
 //! Copy the contents of a string into a char array of a given length
 /*!

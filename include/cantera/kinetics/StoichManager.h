@@ -334,7 +334,8 @@ class C_AnyN
 public:
     C_AnyN() = default;
 
-    C_AnyN(size_t rxn, const vector<size_t>& ic, const vector<double>& order_, const vector<double>& stoich_) :
+    C_AnyN(size_t rxn, const vector<size_t>& ic,
+           const vector<double>& order_, const vector<double>& stoich_) :
         m_n(ic.size()),
         m_rxn(rxn) {
         m_ic.resize(m_n);
@@ -676,10 +677,12 @@ public:
     void add(size_t rxn, const vector<size_t>& k, const vector<double>& order,
              const vector<double>& stoich) {
         if (order.size() != k.size()) {
-           throw CanteraError("StoichManagerN::add()", "size of order and species arrays differ");
+            throw CanteraError(\
+                "StoichManagerN::add()", "size of order and species arrays differ");
         }
         if (stoich.size() != k.size()) {
-           throw CanteraError("StoichManagerN::add()", "size of stoich and species arrays differ");
+            throw CanteraError(
+                "StoichManagerN::add()", "size of stoich and species arrays differ");
         }
         bool frac = false;
         for (size_t n = 0; n < stoich.size(); n++) {

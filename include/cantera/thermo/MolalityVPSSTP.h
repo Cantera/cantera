@@ -537,8 +537,7 @@ public:
         getdlnActCoeffdlnN_numderiv(ld, dlnActCoeffdlnN);
     }
 
-    virtual string report(bool show_thermo=true,
-                               double threshold=1e-14) const;
+    virtual string report(bool show_thermo=true, double threshold=1e-14) const;
 
 protected:
     virtual void getCsvReportData(vector<string>& names,

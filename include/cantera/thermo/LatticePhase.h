@@ -189,8 +189,7 @@ public:
      *                  an empty phase will be created.
      * @param id        string id of the phase name
      */
-    explicit LatticePhase(const string& inputFile="",
-                          const string& id="");
+    explicit LatticePhase(const string& inputFile="", const string& id="");
 
     virtual string type() const {
         return "lattice";

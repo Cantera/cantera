@@ -226,8 +226,7 @@ public:
         m_local = k;
     }
 
-    void linkNodes(size_t k1, size_t k2, size_t rxn, double value,
-                   string legend = "");
+    void linkNodes(size_t k1, size_t k2, size_t rxn, double value, string legend = "");
 
     void include(const string& aaname) {
         m_include.push_back(aaname);

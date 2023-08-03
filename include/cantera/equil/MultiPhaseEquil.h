@@ -66,7 +66,7 @@ public:
     }
 
     double equilibrate(int XY, double err = 1.0e-9,
-                           int maxsteps = 1000, int loglevel=-99);
+                       int maxsteps = 1000, int loglevel=-99);
     double error();
 
     string reactionString(size_t j) {

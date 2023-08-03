@@ -117,7 +117,8 @@ public:
     //! Add a coverage dependency for species *sp*, with exponential dependence
     //! *a*, power-law exponent *m*, and activation energy dependence *e*,
     //! where *e* is in Kelvin, that is, energy divided by the molar gas constant.
-    virtual void addCoverageDependence(const string& sp, double a, double m, const vector<double>& e);
+    virtual void addCoverageDependence(const string& sp, double a, double m,
+                                       const vector<double>& e);
 
     //! Boolean indicating whether rate uses exchange current density formulation
     bool exchangeCurrentDensityFormulation() {
@@ -441,7 +442,9 @@ public:
         return RateType::activationEnergy() + m_ecov * GasConstant;
     }
 
-    void addCoverageDependence(const string& sp, double a, double m, const vector<double>& e) override {
+    void addCoverageDependence(const string& sp, double a, double m,
+                               const vector<double>& e) override
+    {
         InterfaceRateBase::addCoverageDependence(sp, a, m, e);
         RateType::setCompositionDependence(true);
     }

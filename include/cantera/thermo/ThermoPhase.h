@@ -1804,8 +1804,7 @@ public:
      * @param threshold   Show information about species with mole fractions
      *                    greater than *threshold*.
      */
-    virtual string report(bool show_thermo=true,
-                               double threshold=-1e-14) const;
+    virtual string report(bool show_thermo=true, double threshold=-1e-14) const;
 
     //! returns a summary of the state of the phase to a comma separated file.
     /*!

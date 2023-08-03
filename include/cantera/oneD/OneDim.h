@@ -193,8 +193,7 @@ public:
      *                  the default value is used.
      * @param count   Set to zero to omit this call from the statistics
      */
-    void eval(size_t j, double* x, double* r, double rdt=-1.0,
-              int count = 1);
+    void eval(size_t j, double* x, double* r, double rdt=-1.0, int count = 1);
 
     //! Return a pointer to the domain global point *i* belongs to.
     /*!
@@ -220,8 +219,7 @@ public:
      * @param loglevel controls amount of printed diagnostics
      * @returns size of last timestep taken
      */
-    double timeStep(int nsteps, double dt, double* x,
-                    double* r, int loglevel);
+    double timeStep(int nsteps, double dt, double* x, double* r, int loglevel);
 
     void resetBadValues(double* x);
 

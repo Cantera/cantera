@@ -27,7 +27,7 @@ class AnyMap;
 /*!
  * Used for converting quantities between unit systems and checking for
  * dimensional consistency. Units objects are mainly used within UnitSystem
- * class to convert values from a user-specified Unit system to Cantera's
+ * class to convert values from a user-specified Unit system to %Cantera's
  * base units (SI + kmol).
  * @ingroup unitsGroup
  */
@@ -238,10 +238,8 @@ public:
     //! Convert an array of AnyValue nodes to the units specified in `dest`. For
     //! each node, if the value is a double, convert it using the default units,
     //! and if it is a string, treat it as a value with the given dimensions.
-    vector<double> convert(const vector<AnyValue>& vals,
-                      const string& dest) const;
-    vector<double> convert(const vector<AnyValue>& vals,
-                      const Units& dest) const;
+    vector<double> convert(const vector<AnyValue>& vals, const string& dest) const;
+    vector<double> convert(const vector<AnyValue>& vals, const Units& dest) const;
 
     //! Convert `value` from the units of `src` to the units of `dest`, allowing
     //! for the different dimensions that can be used for activation energies
@@ -261,8 +259,7 @@ public:
     //! input is a double, convert it using the default units. If the input is a
     //! string, treat this as a dimensioned value, such as '2.7e4 J/kmol', and
     //! convert from the specified units.
-    double convertActivationEnergy(const AnyValue& val,
-                                   const string& dest) const;
+    double convertActivationEnergy(const AnyValue& val, const string& dest) const;
 
     //! Get the changes to the defaults from `other` to this UnitSystem
     AnyMap getDelta(const UnitSystem& other) const;

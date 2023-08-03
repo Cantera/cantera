@@ -283,7 +283,7 @@ public:
      *     value of -1.0 is returned.
      */
     double density(double temperature, double pressure,
-                       int phase = -1, double rhoguess = -1.0);
+                   int phase = -1, double rhoguess = -1.0);
 
     //! Calculates the density given the temperature and the pressure,
     //! and a guess at the density, while not changing the internal state

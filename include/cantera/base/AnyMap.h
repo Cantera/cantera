@@ -74,7 +74,7 @@ class AnyMap;
  * Elements are set using assignment, and the assignment operator has been
  * overloaded for specific types so that only those types are allowed to be
  * used in an AnyValue. The allowed types are:
- * - AnyMap
+ * - `AnyMap`
  * - `double`
  * - `long int`
  * - `bool`
@@ -341,7 +341,8 @@ vector<double>& AnyValue::asVector<double>(size_t nMin, size_t nMax);
 
 //! Implicit conversion of long int to double if accessed as a vector<vector<double>>
 template<>
-const vector<vector<double>>& AnyValue::asVector<vector<double>>(size_t nMin, size_t nMax) const;
+const vector<vector<double>>& AnyValue::asVector<vector<double>>(size_t nMin,
+                                                                 size_t nMax) const;
 
 template<>
 vector<vector<double>>& AnyValue::asVector<vector<double>>(size_t nMin, size_t nMax);
@@ -499,7 +500,7 @@ public:
 
     //! If `key` exists, return it as a `string`, otherwise return `default_`.
     const string& getString(const string& key,
-                                 const string& default_) const;
+                            const string& default_) const;
 
     //! Convert the item stored by the given `key` to the units specified in
     //! `units`. If the stored value is a double, convert it using the default

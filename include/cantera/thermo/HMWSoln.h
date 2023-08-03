@@ -1187,7 +1187,7 @@ public:
     }
 
     void setCroppingCoefficients(double ln_gamma_k_min, double ln_gamma_k_max,
-        double ln_gamma_o_min, double ln_gamma_o_max);
+                                 double ln_gamma_o_min, double ln_gamma_o_max);
 
     virtual void initThermo();
     virtual void getParameters(AnyMap& phaseNode) const;
@@ -1253,8 +1253,7 @@ public:
      * @param pressure    Pressure of the derivative calculation
      *                    or -1 to indicate the current pressure
      */
-    double ADebye_L(double temperature = -1.0,
-                    double pressure = -1.0) const;
+    double ADebye_L(double temperature = -1.0, double pressure = -1.0) const;
 
     /**
      * Return Pitzer's definition of A_J. This is basically the temperature
@@ -1271,8 +1270,7 @@ public:
      * @param pressure    Pressure of the derivative calculation
      *                    or -1 to indicate the current pressure
      */
-    double ADebye_J(double temperature = -1.0,
-                    double pressure = -1.0) const;
+    double ADebye_J(double temperature = -1.0, double pressure = -1.0) const;
 
     /**
      * Return Pitzer's definition of A_V. This is the derivative wrt pressure of
@@ -1289,8 +1287,7 @@ public:
      * @param pressure    Pressure of the derivative calculation
      *                    or -1 to indicate the current pressure
      */
-    double ADebye_V(double temperature = -1.0,
-                    double pressure = -1.0) const;
+    double ADebye_V(double temperature = -1.0, double pressure = -1.0) const;
 
     //! Value of the 2nd derivative of the Debye Huckel constant with respect to
     //! temperature as a function of temperature and pressure.
