@@ -9,7 +9,7 @@
 
 namespace Cantera
 {
-ResidJacEval::ResidJacEval(doublereal atol) :
+ResidJacEval::ResidJacEval(double atol) :
     m_atol(atol)
 {
     warn_deprecated("class ResidJacEval", "To be removed after Cantera 3.0");
@@ -20,7 +20,7 @@ int ResidJacEval::nEquations() const
     return neq_;
 }
 
-void ResidJacEval::setAtol(doublereal atol)
+void ResidJacEval::setAtol(double atol)
 {
     m_atol = atol;
     if (m_atol <= 0.0) {
@@ -29,8 +29,8 @@ void ResidJacEval::setAtol(doublereal atol)
     }
 }
 
-int ResidJacEval::getInitialConditions(doublereal t0, doublereal* const y,
-                                       doublereal* const ydot)
+int ResidJacEval::getInitialConditions(double t0, double* const y,
+                                       double* const ydot)
 {
     for (int i = 0; i < neq_; i++) {
         y[i] = 0.0;
@@ -43,31 +43,31 @@ int ResidJacEval::getInitialConditions(doublereal t0, doublereal* const y,
     return 1;
 }
 
-void ResidJacEval::user_out2(const int ifunc, const doublereal t,
-                             const doublereal deltaT, const doublereal* y,
-                             const doublereal* ydot)
+void ResidJacEval::user_out2(const int ifunc, const double t,
+                             const double deltaT, const double* y,
+                             const double* ydot)
 {
 }
 
-void ResidJacEval::user_out(const int ifunc, const doublereal t,
-                            const doublereal* y, const doublereal* ydot)
+void ResidJacEval::user_out(const int ifunc, const double t,
+                            const double* y, const double* ydot)
 {
     user_out2(ifunc, t, 0.0, y, ydot);
 }
 
-int ResidJacEval::evalTimeTrackingEqns(const doublereal t,
-                                       const doublereal delta_t,
-                                       const doublereal* y,
-                                       const doublereal* ydot)
+int ResidJacEval::evalTimeTrackingEqns(const double t,
+                                       const double delta_t,
+                                       const double* y,
+                                       const double* ydot)
 {
     return 1;
 }
 
-int ResidJacEval::calcDeltaSolnVariables(const doublereal t,
-                                         const doublereal* const ySoln,
-                                         const doublereal* const ySolnDot,
-                                         doublereal* const deltaYSoln,
-                                         const doublereal* const solnWeights)
+int ResidJacEval::calcDeltaSolnVariables(const double t,
+                                         const double* const ySoln,
+                                         const double* const ySolnDot,
+                                         double* const deltaYSoln,
+                                         const double* const solnWeights)
 {
     if (!solnWeights) {
         for (int i = 0; i < neq_; i++) {
@@ -81,10 +81,10 @@ int ResidJacEval::calcDeltaSolnVariables(const doublereal t,
     return 1;
 }
 
-void ResidJacEval::calcSolnScales(const doublereal t,
-                                  const doublereal* const ysoln,
-                                  const doublereal* const ysolnOld,
-                                  doublereal* const ysolnScales)
+void ResidJacEval::calcSolnScales(const double t,
+                                  const double* const ysoln,
+                                  const double* const ysolnOld,
+                                  double* const ysolnScales)
 {
     if (ysolnScales && ysolnScales[0] == 0.0) {
         for (int i = 0; i < neq_; i++) {
@@ -93,61 +93,61 @@ void ResidJacEval::calcSolnScales(const doublereal t,
     }
 }
 
-doublereal ResidJacEval::filterNewStep(doublereal t, const doublereal* const ybase, doublereal* const step)
+double ResidJacEval::filterNewStep(double t, const double* const ybase, double* const step)
 {
     return 0.0;
 }
 
-doublereal ResidJacEval::filterSolnPrediction(doublereal t, doublereal* const y)
+double ResidJacEval::filterSolnPrediction(double t, double* const y)
 {
     return 0.0;
 }
 
-bool ResidJacEval::evalStoppingCritera(const doublereal t,
-                                       const doublereal delta_t,
-                                       const doublereal* const y,
-                                       const doublereal* const ydot)
+bool ResidJacEval::evalStoppingCritera(const double t,
+                                       const double delta_t,
+                                       const double* const y,
+                                       const double* const ydot)
 {
     return false;
 }
 
-int ResidJacEval::matrixConditioning(doublereal* const matrix, const int nrows,
-                                     doublereal* const rhs)
+int ResidJacEval::matrixConditioning(double* const matrix, const int nrows,
+                                     double* const rhs)
 {
     return 1;
 }
 
-int ResidJacEval::evalResidNJ(const doublereal t, const doublereal deltaT,
-                              const doublereal* y, const doublereal* ydot,
-                              doublereal* const resid,
+int ResidJacEval::evalResidNJ(const double t, const double deltaT,
+                              const double* y, const double* ydot,
+                              double* const resid,
                               const ResidEval_Type_Enum evalType,
-                              const int id_x, const doublereal delta_x)
+                              const int id_x, const double delta_x)
 {
     throw NotImplementedError("ResidJacEval::evalResidNJ");
 }
 
-int ResidJacEval::eval(const doublereal t, const doublereal* const y, const doublereal* const ydot,
-                       doublereal* const r)
+int ResidJacEval::eval(const double t, const double* const y, const double* const ydot,
+                       double* const r)
 {
     double deltaT = -1.0;
     return evalResidNJ(t, deltaT, y, ydot, r);
 }
 
-int ResidJacEval::evalJacobian(const doublereal t, const doublereal delta_t,
-                               doublereal cj, const doublereal* const y,
-                               const doublereal* const ydot, DenseMatrix& J,
-                               doublereal* const resid)
+int ResidJacEval::evalJacobian(const double t, const double delta_t,
+                               double cj, const double* const y,
+                               const double* const ydot, DenseMatrix& J,
+                               double* const resid)
 {
-    doublereal* const* jac_colPts = J.colPts();
+    double* const* jac_colPts = J.colPts();
     return evalJacobianDP(t, delta_t, cj, y, ydot, jac_colPts, resid);
 }
 
-int ResidJacEval::evalJacobianDP(const doublereal t, const doublereal delta_t,
-                                 const doublereal c_j,
-                                 const doublereal* const y,
-                                 const doublereal* const ydot,
-                                 doublereal* const* jac_colPts,
-                                 doublereal* const resid)
+int ResidJacEval::evalJacobianDP(const double t, const double delta_t,
+                                 const double c_j,
+                                 const double* const y,
+                                 const double* const ydot,
+                                 double* const* jac_colPts,
+                                 double* const resid)
 {
     throw NotImplementedError("ResidJacEval::evalJacobianDP");
 }

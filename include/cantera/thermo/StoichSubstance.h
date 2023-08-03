@@ -115,7 +115,7 @@ public:
      * For an incompressible substance, the density is independent of pressure.
      * This method simply returns the stored pressure value.
      */
-    virtual doublereal pressure() const;
+    virtual double pressure() const;
 
     //! Set the pressure at constant temperature. Units: Pa.
     /*!
@@ -125,10 +125,10 @@ public:
      *
      * @param p Pressure (units - Pa)
      */
-    virtual void setPressure(doublereal p);
+    virtual void setPressure(double p);
 
-    virtual doublereal isothermalCompressibility() const;
-    virtual doublereal thermalExpansionCoeff() const;
+    virtual double isothermalCompressibility() const;
+    virtual double thermalExpansionCoeff() const;
 
     //! @}
     //! @name Activities, Standard States, and Activity Concentrations
@@ -154,7 +154,7 @@ public:
      *           units depend upon the implementation of the
      *           reaction rate expressions within the phase.
      */
-    virtual void getActivityConcentrations(doublereal* c) const;
+    virtual void getActivityConcentrations(double* c) const;
 
     //! Return the standard concentration for the kth species
     /*!
@@ -168,8 +168,8 @@ public:
      * @return
      *   Returns The standard Concentration as 1.0
      */
-    virtual doublereal standardConcentration(size_t k=0) const;
-    virtual doublereal logStandardConc(size_t k=0) const;
+    virtual double standardConcentration(size_t k=0) const;
+    virtual double logStandardConc(size_t k=0) const;
 
     //! Get the array of chemical potentials at unit activity for the species at
     //! their standard states at the current *T* and *P* of the solution.
@@ -185,16 +185,16 @@ public:
      * @param mu0     Output vector of chemical potentials.
      *                Length: m_kk.
      */
-    virtual void getStandardChemPotentials(doublereal* mu0) const;
+    virtual void getStandardChemPotentials(double* mu0) const;
 
     //! @}
     //! @name  Properties of the Standard State of the Species in the Solution
     //! @{
 
-    virtual void getEnthalpy_RT(doublereal* hrt) const;
-    virtual void getEntropy_R(doublereal* sr) const;
-    virtual void getGibbs_RT(doublereal* grt) const;
-    virtual void getCp_R(doublereal* cpr) const;
+    virtual void getEnthalpy_RT(double* hrt) const;
+    virtual void getEntropy_R(double* sr) const;
+    virtual void getGibbs_RT(double* grt) const;
+    virtual void getCp_R(double* cpr) const;
 
     //! Returns the vector of nondimensional Internal Energies of the standard
     //! state species at the current *T* and *P* of the solution
@@ -208,7 +208,7 @@ public:
      * @param urt  output vector of nondimensional standard state
      *             internal energies of the species. Length: m_kk.
      */
-    virtual void getIntEnergy_RT(doublereal* urt) const;
+    virtual void getIntEnergy_RT(double* urt) const;
 
     //! @}
     //! @name Thermodynamic Values for the Species Reference States
@@ -221,7 +221,7 @@ public:
      * @param urt    Output vector of nondimensional reference state internal
      *               energies of the species. Length: m_kk
      */
-    virtual void getIntEnergy_RT_ref(doublereal* urt) const;
+    virtual void getIntEnergy_RT_ref(double* urt) const;
     //! @}
 
     virtual void initThermo();

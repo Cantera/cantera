@@ -125,7 +125,7 @@ double IonGasTransport::thermalConductivity()
         updateCond_T();
     }
     if (!m_condmix_ok) {
-        doublereal sum1 = 0.0, sum2 = 0.0;
+        double sum1 = 0.0, sum2 = 0.0;
         for (size_t k : m_kNeutral) {
             sum1 += m_molefracs[k] * m_cond[k];
             sum2 += m_molefracs[k] / m_cond[k];

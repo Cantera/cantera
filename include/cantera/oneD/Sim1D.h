@@ -65,7 +65,7 @@ public:
      *     the leftmost grid point in the domain.
      * @param value the value.
      */
-    void setValue(size_t dom, size_t comp, size_t localPoint, doublereal value);
+    void setValue(size_t dom, size_t comp, size_t localPoint, double value);
 
     /**
      * Get one entry in the solution vector.
@@ -74,9 +74,9 @@ public:
      * @param localPoint grid point within the domain, beginning with 0 for
      *     the leftmost grid point in the domain.
      */
-    doublereal value(size_t dom, size_t comp, size_t localPoint) const;
+    double value(size_t dom, size_t comp, size_t localPoint) const;
 
-    doublereal workValue(size_t dom, size_t comp, size_t localPoint) const;
+    double workValue(size_t dom, size_t comp, size_t localPoint) const;
 
     /**
      * Specify a profile for one component of one domain.
@@ -96,7 +96,7 @@ public:
                     const vector<double>& values);
 
     //! Set component 'comp' of domain 'dom' to value 'v' at all points.
-    void setFlatProfile(size_t dom, size_t comp, doublereal v);
+    void setFlatProfile(size_t dom, size_t comp, double v);
 
     //! @}
 
@@ -221,7 +221,7 @@ public:
     //! @}
 
     //! @deprecated To be removed after %Cantera 3.0 (unused)
-    const doublereal* solution() {
+    const double* solution() {
         warn_deprecated("Sim1D::solution",
             "This method is unused and will be removed after Cantera 3.0.");
         return m_state->data();
@@ -231,7 +231,7 @@ public:
 
     void solve(int loglevel = 0, bool refine_grid = true);
 
-    void eval(doublereal rdt=-1.0, int count = 1) {
+    void eval(double rdt=-1.0, int count = 1) {
         OneDim::eval(npos, m_state->data(), m_xnew.data(), rdt, count);
     }
 
@@ -303,20 +303,20 @@ public:
     void getInitialSoln();
 
     //! @deprecated To be removed after %Cantera 3.0 (unused)
-    void setSolution(const doublereal* soln) {
+    void setSolution(const double* soln) {
         warn_deprecated("Sim1D::setSolution",
             "This method is unused and will be removed after Cantera 3.0.");
         std::copy(soln, soln + m_state->size(), m_state->data());
     }
 
     //! @deprecated To be removed after %Cantera 3.0 (unused)
-    const doublereal* solution() const {
+    const double* solution() const {
         warn_deprecated("Sim1D::solution",
             "This method is unused and will be removed after Cantera 3.0.");
         return m_state->data();
     }
 
-    doublereal jacobian(int i, int j);
+    double jacobian(int i, int j);
 
     void evalSSJacobian();
 
@@ -360,7 +360,7 @@ protected:
     vector<double> m_xnew;
 
     //! timestep
-    doublereal m_tstep;
+    double m_tstep;
 
     //! array of number of steps to take before re-attempting the steady-state
     //! solution

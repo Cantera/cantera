@@ -81,7 +81,7 @@ public:
      * @param loglevel Determines the amount of printing to the output file.
      */
     int equilibrate(int XY, int estimateEquil = 0,
-                    int printLvl= 0, doublereal err = 1.0e-6,
+                    int printLvl= 0, double err = 1.0e-6,
                     int maxsteps = VCS_MAXSTEPS, int loglevel=-99);
 
     //! Equilibrate the solution using the current element abundances
@@ -105,7 +105,7 @@ public:
      * @param loglevel Determines the amount of printing to the output file.
      */
     int equilibrate_TP(int estimateEquil = 0,
-                       int printLvl= 0, doublereal err = 1.0e-6,
+                       int printLvl= 0, double err = 1.0e-6,
                        int maxsteps = VCS_MAXSTEPS, int loglevel=-99);
 
     //! Equilibrate the solution using the current element abundances
@@ -141,9 +141,9 @@ public:
      * @param maxsteps max steps allowed.
      * @param loglevel Determines the amount of printing to the output file.
      */
-    int equilibrate_HP(doublereal Htarget, int XY, double Tlow, double Thigh,
+    int equilibrate_HP(double Htarget, int XY, double Tlow, double Thigh,
                        int estimateEquil = 0,
-                       int printLvl = 0, doublereal err = 1.0E-6,
+                       int printLvl = 0, double err = 1.0E-6,
                        int maxsteps = VCS_MAXSTEPS, int loglevel=-99);
 
     //! Equilibrate the solution using the current element abundances stored in
@@ -176,9 +176,9 @@ public:
      * @param maxsteps max steps allowed.
      * @param loglevel Determines the amount of printing to the output file.
      */
-    int equilibrate_SP(doublereal Starget, double Tlow, double Thigh,
+    int equilibrate_SP(double Starget, double Tlow, double Thigh,
                        int estimateEquil = 0,
-                       int printLvl = 0, doublereal err = 1.0E-6,
+                       int printLvl = 0, double err = 1.0E-6,
                        int maxsteps = VCS_MAXSTEPS, int loglevel=-99);
 
     //! Equilibrate the solution using the current element abundances stored
@@ -209,9 +209,9 @@ public:
      * @param maxsteps max steps allowed.
      * @param logLevel Determines the amount of printing to the output file.
      */
-    int equilibrate_TV(int XY, doublereal xtarget,
+    int equilibrate_TV(int XY, double xtarget,
                        int estimateEquil = 0,
-                       int printLvl = 0, doublereal err = 1.0E-6,
+                       int printLvl = 0, double err = 1.0E-6,
                        int maxsteps = VCS_MAXSTEPS, int logLevel = -99);
 
     //! Report the equilibrium answer in a comma separated table format

@@ -24,7 +24,7 @@ public:
         return "Reservoir";
     }
 
-    virtual void initialize(doublereal t0 = 0.0) {}
+    virtual void initialize(double t0 = 0.0) {}
 
     void insert(ThermoPhase& contents) {
         setThermoMgr(contents);

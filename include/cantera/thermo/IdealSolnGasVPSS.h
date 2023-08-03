@@ -51,16 +51,16 @@ public:
     //! @name Molar Thermodynamic Properties
     //! @{
 
-    virtual doublereal enthalpy_mole() const;
-    virtual doublereal entropy_mole() const;
-    virtual doublereal cp_mole() const;
-    virtual doublereal cv_mole() const;
+    virtual double enthalpy_mole() const;
+    virtual double entropy_mole() const;
+    virtual double cp_mole() const;
+    virtual double cv_mole() const;
 
     //! @}
     //! @name Mechanical Properties
     //! @{
 
-    void setPressure(doublereal p);
+    void setPressure(double p);
 
 protected:
     /**
@@ -84,7 +84,7 @@ protected:
 
 public:
     virtual Units standardConcentrationUnits() const;
-    virtual void getActivityConcentrations(doublereal* c) const;
+    virtual void getActivityConcentrations(double* c) const;
 
     //! Returns the standard concentration @f$ C^0_k @f$, which is used to
     //! normalize the generalized concentration.
@@ -98,7 +98,7 @@ public:
      * @return
      *   Returns the standard Concentration in units of m3 kmol-1.
      */
-    virtual doublereal standardConcentration(size_t k=0) const;
+    virtual double standardConcentration(size_t k=0) const;
 
     //! Get the array of non-dimensional activity coefficients at the current
     //! solution temperature, pressure, and solution concentration.
@@ -107,18 +107,18 @@ public:
      *
      * @param ac Output vector of activity coefficients. Length: m_kk.
      */
-    virtual void getActivityCoefficients(doublereal* ac) const;
+    virtual void getActivityCoefficients(double* ac) const;
 
 
     //! @name  Partial Molar Properties of the Solution
     //! @{
 
-    virtual void getChemPotentials(doublereal* mu) const;
-    virtual void getPartialMolarEnthalpies(doublereal* hbar) const;
-    virtual void getPartialMolarEntropies(doublereal* sbar) const;
-    virtual void getPartialMolarIntEnergies(doublereal* ubar) const;
-    virtual void getPartialMolarCp(doublereal* cpbar) const;
-    virtual void getPartialMolarVolumes(doublereal* vbar) const;
+    virtual void getChemPotentials(double* mu) const;
+    virtual void getPartialMolarEnthalpies(double* hbar) const;
+    virtual void getPartialMolarEntropies(double* sbar) const;
+    virtual void getPartialMolarIntEnergies(double* ubar) const;
+    virtual void getPartialMolarCp(double* cpbar) const;
+    virtual void getPartialMolarVolumes(double* vbar) const;
     //! @}
 
 public:
@@ -133,7 +133,7 @@ public:
     virtual bool addSpecies(shared_ptr<Species> spec);
     virtual void initThermo();
     virtual void getParameters(AnyMap& phaseNode) const;
-    virtual void setToEquilState(const doublereal* lambda_RT);
+    virtual void setToEquilState(const double* lambda_RT);
 
     //! @}
 

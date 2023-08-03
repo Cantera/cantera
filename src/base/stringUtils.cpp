@@ -119,16 +119,16 @@ Composition parseCompString(const string& ss, const vector<string>& names)
     return x;
 }
 
-doublereal fpValue(const std::string& val)
+double fpValue(const std::string& val)
 {
-    doublereal rval;
+    double rval;
     std::stringstream ss(val);
     ss.imbue(std::locale("C"));
     ss >> rval;
     return rval;
 }
 
-doublereal fpValueCheck(const std::string& val)
+double fpValueCheck(const std::string& val)
 {
     std::string str = ba::trim_copy(val);
     if (str.empty()) {

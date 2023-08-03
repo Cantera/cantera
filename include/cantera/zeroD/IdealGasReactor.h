@@ -28,13 +28,13 @@ public:
 
     virtual void setThermoMgr(ThermoPhase& thermo);
 
-    virtual void getState(doublereal* y);
+    virtual void getState(double* y);
 
-    virtual void initialize(doublereal t0 = 0.0);
+    virtual void initialize(double t0 = 0.0);
 
     virtual void eval(double t, double* LHS, double* RHS);
 
-    virtual void updateState(doublereal* y);
+    virtual void updateState(double* y);
 
     //! Return the index in the solution vector for this reactor of the
     //! component named *nm*. Possible values for *nm* are "mass",

@@ -34,10 +34,10 @@ namespace Cantera
  *
  * @param x   first reference to the templated class V
  * @param y   second reference to the templated class V
- * @return This class returns a hard-coded type, doublereal.
+ * @return This class returns a hard-coded type, double.
  */
 template<class V>
-inline doublereal dot4(const V& x, const V& y)
+inline double dot4(const V& x, const V& y)
 {
     return x[0]*y[0] + x[1]*y[1] + x[2]*y[2] + x[3]*y[3];
 }
@@ -49,10 +49,10 @@ inline doublereal dot4(const V& x, const V& y)
  *
  * @param x   first reference to the templated class V
  * @param y   second reference to the templated class V
- * @return This class returns a hard-coded type, doublereal.
+ * @return This class returns a hard-coded type, double.
  */
 template<class V>
-inline doublereal dot5(const V& x, const V& y)
+inline double dot5(const V& x, const V& y)
 {
     return x[0]*y[0] + x[1]*y[1] + x[2]*y[2] + x[3]*y[3] +
            x[4]*y[4];
@@ -61,13 +61,13 @@ inline doublereal dot5(const V& x, const V& y)
 //! Function that calculates a templated inner product.
 /*!
  * This inner product is templated twice. The output variable is hard coded
- * to return a doublereal.
+ * to return a double.
  *
  * template<class InputIter, class InputIter2>
  *
  * @code
  *     double x[8], y[8];
- *     doublereal dsum = dot<double *,double *>(x, &x+7, y);
+ *     double dsum = dot<double *,double *>(x, &x+7, y);
  * @endcode
  *
  * @param x_begin  Iterator pointing to the beginning, belonging to the
@@ -79,7 +79,7 @@ inline doublereal dot5(const V& x, const V& y)
  * @return The return is hard-coded to return a double.
  */
 template<class InputIter, class InputIter2>
-inline doublereal dot(InputIter x_begin, InputIter x_end,
+inline double dot(InputIter x_begin, InputIter x_end,
                       InputIter2 y_begin)
 {
     return std::inner_product(x_begin, x_end, y_begin, 0.0);

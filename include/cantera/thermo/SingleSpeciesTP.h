@@ -74,12 +74,12 @@ public:
     //! classes don't need to supply entries for these functions.
     //! @{
 
-    virtual doublereal enthalpy_mole() const;
-    virtual doublereal intEnergy_mole() const;
-    virtual doublereal entropy_mole() const;
-    virtual doublereal gibbs_mole() const;
-    virtual doublereal cp_mole() const;
-    virtual doublereal cv_mole() const;
+    virtual double enthalpy_mole() const;
+    virtual double intEnergy_mole() const;
+    virtual double entropy_mole() const;
+    virtual double gibbs_mole() const;
+    virtual double cp_mole() const;
+    virtual double cv_mole() const;
 
     //! @}
     //! @name Activities, Standard State, and Activity Concentrations
@@ -98,11 +98,11 @@ public:
      *
      * @param a   Output vector of activities. Length: 1.
      */
-    virtual void getActivities(doublereal* a) const {
+    virtual void getActivities(double* a) const {
         a[0] = 1.0;
     }
 
-    virtual void getActivityCoefficients(doublereal* ac) const {
+    virtual void getActivityCoefficients(double* ac) const {
         ac[0] = 1.0;
     }
 
@@ -127,7 +127,7 @@ public:
      *              single species and the phase. Units are unitless. Length = 1
      * @deprecated To be removed after %Cantera 3.0. Use getChemPotentials() instead.
      */
-    virtual void getChemPotentials_RT(doublereal* murt) const;
+    virtual void getChemPotentials_RT(double* murt) const;
 
     //! Get the array of chemical potentials
     /*!
@@ -138,7 +138,7 @@ public:
      * @param mu   On return, Contains the chemical potential of the single
      *             species and the phase. Units are J / kmol . Length = 1
      */
-    virtual void getChemPotentials(doublereal* mu) const;
+    virtual void getChemPotentials(double* mu) const;
 
     //! Get the species partial molar enthalpies. Units: J/kmol.
     /*!
@@ -147,7 +147,7 @@ public:
      * @param hbar    Output vector of species partial molar enthalpies.
      *                Length: 1. units are J/kmol.
      */
-    virtual void getPartialMolarEnthalpies(doublereal* hbar) const;
+    virtual void getPartialMolarEnthalpies(double* hbar) const;
 
     //! Get the species partial molar internal energies. Units: J/kmol.
     /*!
@@ -156,7 +156,7 @@ public:
      * @param ubar On return, Contains the internal energy of the single species
      *             and the phase. Units are J / kmol . Length = 1
      */
-    virtual void getPartialMolarIntEnergies(doublereal* ubar) const;
+    virtual void getPartialMolarIntEnergies(double* ubar) const;
 
     //! Get the species partial molar entropy. Units: J/kmol K.
     /*!
@@ -165,7 +165,7 @@ public:
      * @param sbar On return, Contains the entropy of the single species and the
      *             phase. Units are J / kmol / K . Length = 1
      */
-    virtual void getPartialMolarEntropies(doublereal* sbar) const;
+    virtual void getPartialMolarEntropies(double* sbar) const;
 
     //! Get the species partial molar Heat Capacities. Units: J/ kmol /K.
     /*!
@@ -174,7 +174,7 @@ public:
      * @param cpbar On return, Contains the heat capacity of the single species
      *              and the phase. Units are J / kmol / K . Length = 1
      */
-    virtual void getPartialMolarCp(doublereal* cpbar) const;
+    virtual void getPartialMolarCp(double* cpbar) const;
 
     //! Get the species partial molar volumes. Units: m^3/kmol.
     /*!
@@ -183,7 +183,7 @@ public:
      * @param vbar On return, Contains the molar volume of the single species
      *             and the phase. Units are m^3 / kmol. Length = 1
      */
-    virtual void getPartialMolarVolumes(doublereal* vbar) const;
+    virtual void getPartialMolarVolumes(double* vbar) const;
 
     //! @}
     //! @name  Properties of the Standard State of the Species in the Solution
@@ -194,7 +194,7 @@ public:
     //! are not resolved at the SingleSpeciesTP level.
     //! @{
 
-    virtual void getPureGibbs(doublereal* gpure) const;
+    virtual void getPureGibbs(double* gpure) const;
 
     //! Get the molar volumes of each species in their standard states at the
     //! current *T* and *P* of the solution.
@@ -207,7 +207,7 @@ public:
      * @param vbar On output this contains the standard volume of the species
      *             and phase (m^3/kmol). Vector of length 1
      */
-    virtual void getStandardVolumes(doublereal* vbar) const;
+    virtual void getStandardVolumes(double* vbar) const;
 
     //! @}
     //! @name Thermodynamic Values for the Species Reference State
@@ -217,11 +217,11 @@ public:
     //! involve a specification of the equation of state.
     //! @{
 
-    virtual void getEnthalpy_RT_ref(doublereal* hrt) const;
-    virtual void getGibbs_RT_ref(doublereal* grt) const;
-    virtual void getGibbs_ref(doublereal* g) const;
-    virtual void getEntropy_R_ref(doublereal* er) const;
-    virtual void getCp_R_ref(doublereal* cprt) const;
+    virtual void getEnthalpy_RT_ref(double* hrt) const;
+    virtual void getGibbs_RT_ref(double* grt) const;
+    virtual void getGibbs_ref(double* g) const;
+    virtual void getEntropy_R_ref(double* er) const;
+    virtual void getCp_R_ref(double* cprt) const;
 
     //! @}
     //! @name Setting the State
@@ -230,10 +230,10 @@ public:
     //! @{
 
     //! Mass fractions are fixed, with Y[0] = 1.0.
-    virtual void setMassFractions(const doublereal* const y) {};
+    virtual void setMassFractions(const double* const y) {};
 
     //! Mole fractions are fixed, with x[0] = 1.0.
-    virtual void setMoleFractions(const doublereal* const x) {};
+    virtual void setMoleFractions(const double* const x) {};
 
     virtual void setState_HP(double h, double p, double tol=1e-9);
     virtual void setState_UV(double u, double v, double tol=1e-9);

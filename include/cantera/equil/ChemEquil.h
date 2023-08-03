@@ -136,7 +136,7 @@ protected:
     ThermoPhase* m_phase;
 
     //! number of atoms of element m in species k.
-    doublereal nAtoms(size_t k, size_t m) const {
+    double nAtoms(size_t k, size_t m) const {
         return m_comp[k*m_mm + m];
     }
 
@@ -156,7 +156,7 @@ protected:
      * @param t temperature in K.
      */
     void setToEquilState(ThermoPhase& s,
-                         const vector<double>& x, doublereal t);
+                         const vector<double>& x, double t);
 
     //! Estimate the initial mole numbers. This version borrows from the
     //! MultiPhaseEquil solver.
@@ -274,7 +274,7 @@ protected:
 
     //! Storage of the element compositions. natom(k,m) = m_comp[k*m_mm+ m];
     vector<double> m_comp;
-    doublereal m_temp, m_dens;
+    double m_temp, m_dens;
     double m_p0 = OneAtm;
 
     //! Index of the element id corresponding to the electric charge of each

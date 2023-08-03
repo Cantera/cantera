@@ -60,8 +60,8 @@ public:
      *                  coeffs]. This is the coefficient order used in the
      *                  standard NASA format.
      */
-    NasaPoly2(doublereal tlow, doublereal thigh, doublereal pref,
-              const doublereal* coeffs) :
+    NasaPoly2(double tlow, double thigh, double pref,
+              const double* coeffs) :
         SpeciesThermoInterpType(tlow, thigh, pref),
         m_midT(coeffs[0]),
         mnp_low(tlow, coeffs[0], pref, coeffs + 8),
@@ -103,8 +103,8 @@ public:
     }
 
     //! @copydoc NasaPoly1::updateProperties
-    void updateProperties(const doublereal* tt,
-                          doublereal* cp_R, doublereal* h_RT, doublereal* s_R) const {
+    void updateProperties(const double* tt,
+                          double* cp_R, double* h_RT, double* s_R) const {
         if (tt[0] <= m_midT) {
             mnp_low.updateProperties(tt, cp_R, h_RT, s_R);
         } else {
@@ -112,10 +112,10 @@ public:
         }
     }
 
-    void updatePropertiesTemp(const doublereal temp,
-                              doublereal* cp_R,
-                              doublereal* h_RT,
-                              doublereal* s_R) const {
+    void updatePropertiesTemp(const double temp,
+                              double* cp_R,
+                              double* h_RT,
+                              double* s_R) const {
         if (temp <= m_midT) {
             mnp_low.updatePropertiesTemp(temp, cp_R, h_RT, s_R);
         } else {
@@ -126,9 +126,9 @@ public:
     size_t nCoeffs() const { return 15; }
 
     void reportParameters(size_t& n, int& type,
-                          doublereal& tlow, doublereal& thigh,
-                          doublereal& pref,
-                          doublereal* const coeffs) const {
+                          double& tlow, double& thigh,
+                          double& pref,
+                          double* const coeffs) const {
         mnp_high.reportParameters(n, type, coeffs[0], thigh, pref, coeffs + 1);
         mnp_low.reportParameters(n, type, tlow, coeffs[0], pref, coeffs + 8);
         type = NASA2;
@@ -136,7 +136,7 @@ public:
 
     virtual void getParameters(AnyMap& thermo) const;
 
-    doublereal reportHf298(doublereal* const h298 = 0) const {
+    double reportHf298(double* const h298 = 0) const {
         double h;
         if (298.15 <= m_midT) {
             h = mnp_low.reportHf298(0);
@@ -154,9 +154,9 @@ public:
         mnp_high.resetHf298();
     }
 
-    void modifyOneHf298(const size_t k, const doublereal Hf298New) {
-        doublereal h298now = reportHf298(0);
-        doublereal delH = Hf298New - h298now;
+    void modifyOneHf298(const size_t k, const double Hf298New) {
+        double h298now = reportHf298(0);
+        double delH = Hf298New - h298now;
         double h = mnp_low.reportHf298(0);
         double hnew = h + delH;
         mnp_low.modifyOneHf298(k, hnew);

@@ -35,13 +35,13 @@ void ConstPressureReactor::getState(double* y)
     getSurfaceInitialConditions(y + m_nsp + 2);
 }
 
-void ConstPressureReactor::initialize(doublereal t0)
+void ConstPressureReactor::initialize(double t0)
 {
     Reactor::initialize(t0);
     m_nv -= 1; // Constant pressure reactor has one fewer state variable
 }
 
-void ConstPressureReactor::updateState(doublereal* y)
+void ConstPressureReactor::updateState(double* y)
 {
     // The components of y are [0] the total mass, [1] the total enthalpy,
     // [2...K+2) are the mass fractions of each species, and [K+2...] are the
@@ -69,7 +69,7 @@ void ConstPressureReactor::eval(double time, double* LHS, double* RHS)
 
     m_thermo->restoreState(m_state);
     const vector<double>& mw = m_thermo->molecularWeights();
-    const doublereal* Y = m_thermo->massFractions();
+    const double* Y = m_thermo->massFractions();
 
     evalSurfaces(LHS + m_nsp + 2, RHS + m_nsp + 2, m_sdot.data());
     double mdot_surf = dot(m_sdot.begin(), m_sdot.end(), mw.begin());

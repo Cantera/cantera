@@ -140,7 +140,7 @@ public:
      *
      * units = returns density in kg m-3.
      */
-    static doublereal density_T(doublereal T, doublereal P, int ifunc);
+    static double density_T(double T, double P, int ifunc);
 
     //! Bradley-Pitzer equation for the dielectric constant
     //! of water as a function of temperature and pressure.
@@ -165,7 +165,7 @@ public:
      *
      * value at 25C and 1 atm, relEps = 78.38
      */
-    doublereal relEpsilon(doublereal T, doublereal P_pascal, int ifunc = 0);
+    double relEpsilon(double T, double P_pascal, int ifunc = 0);
 
     //! ADebye calculates the value of A_Debye as a function of temperature and
     //! pressure according to relations that take into account the temperature
@@ -202,14 +202,14 @@ public:
      * A_Debye computed with this function agrees with the Pitzer table p. 99 to
      * 4 significant digits at 25C. and 20C. (Aphi = ADebye/3)
      */
-    doublereal ADebye(doublereal T, doublereal P, int ifunc);
+    double ADebye(double T, double P, int ifunc);
 
     //! Returns the saturation pressure given the temperature
     /*!
      * @param T temperature (kelvin)
      * @returns the saturation pressure (pascal)
      */
-    doublereal satPressure(doublereal T);
+    double satPressure(double T);
 
     //! Returns the density of water
     /*!
@@ -219,27 +219,27 @@ public:
      * @param T Temperature (kelvin)
      * @param P pressure (pascal)
      */
-    doublereal density_IAPWS(doublereal T, doublereal P);
+    double density_IAPWS(double T, double P);
 
     //! Returns the density of water
     /*!
      * This function uses the internal state of the underlying water object
      */
-    doublereal density_IAPWS() const;
+    double density_IAPWS() const;
 
     //! returns the coefficient of thermal expansion
     /*!
      * @param T Temperature (kelvin)
      * @param P pressure (pascal)
      */
-    doublereal coeffThermalExp_IAPWS(doublereal T, doublereal P);
+    double coeffThermalExp_IAPWS(double T, double P);
 
     //! Returns the isothermal compressibility of water
     /*!
      * @param T  temperature in kelvin
      * @param P  pressure in pascal
      */
-    doublereal isothermalCompressibility_IAPWS(doublereal T, doublereal P);
+    double isothermalCompressibility_IAPWS(double T, double P);
 
 protected:
     //! Pointer to the WaterPropsIAPWS object

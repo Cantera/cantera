@@ -173,7 +173,7 @@ public:
      * @param rho           density  (kg m-3)
      * @deprecated To be removed after %Cantera 3.0; renamed to setState_TD()
      */
-    void setState_TR(doublereal temperature, doublereal rho);
+    void setState_TR(double temperature, double rho);
 
     //! Set the internal state of the object wrt temperature and density
     /*!
@@ -207,47 +207,47 @@ public:
     //! using the last temperature and density
     //! @deprecated To be removed after %Cantera 3.0. This class provides mass-based
     //!     values only.
-    doublereal helmholtzFE() const;
+    double helmholtzFE() const;
 
     //! Calculate the Gibbs free energy in mks units of J kmol-1 K-1.
     //! using the last temperature and density
     //! @deprecated To be removed after %Cantera 3.0. This class provides mass-based
     //!     values only.
-    doublereal Gibbs() const;
+    double Gibbs() const;
 
     //! Calculate the enthalpy in mks units of J kmol-1
     //! using the last temperature and density
     //! @deprecated To be removed after %Cantera 3.0. This class provides mass-based
     //!     values only.
-    doublereal enthalpy() const;
+    double enthalpy() const;
 
     //! Calculate the internal energy in mks units of J kmol-1
     //! @deprecated To be removed after %Cantera 3.0. This class provides mass-based
     //!     values only.
-    doublereal intEnergy() const;
+    double intEnergy() const;
 
     //! Calculate the entropy in mks units of J kmol-1 K-1
     //! @deprecated To be removed after %Cantera 3.0. This class provides mass-based
     //!     values only.
-    doublereal entropy() const;
+    double entropy() const;
 
     //! Calculate the constant volume heat capacity in mks units of J kmol-1 K-1
     //! at the last temperature and density
     //! @deprecated To be removed after %Cantera 3.0. This class provides mass-based
     //!     values only.
-    doublereal cv() const;
+    double cv() const;
 
     //! Calculate the constant pressure heat capacity in mks units of J kmol-1 K-1
     //! at the last temperature and density
     //! @deprecated To be removed after %Cantera 3.0. This class provides mass-based
     //!     values only.
-    doublereal cp() const;
+    double cp() const;
 
     //! Calculate the molar volume (kmol m-3) at the last temperature and
     //! density
     //! @deprecated To be removed after %Cantera 3.0. This class provides mass-based
     //!     values only.
-    doublereal molarVolume() const;
+    double molarVolume() const;
 
     //! Calculates the pressure (Pascals), given the current value of the
     //! temperature and density.
@@ -256,7 +256,7 @@ public:
      *
      *  @returns the pressure (Pascal)
      */
-    doublereal pressure() const;
+    double pressure() const;
 
     //! Calculates the density given the temperature and the pressure,
     //! and a guess at the density. Sets the internal state.
@@ -282,8 +282,8 @@ public:
      * @returns the density. If an error is encountered in the calculation the
      *     value of -1.0 is returned.
      */
-    doublereal density(doublereal temperature, doublereal pressure,
-                       int phase = -1, doublereal rhoguess = -1.0);
+    double density(double temperature, double pressure,
+                       int phase = -1, double rhoguess = -1.0);
 
     //! Calculates the density given the temperature and the pressure,
     //! and a guess at the density, while not changing the internal state
@@ -308,7 +308,7 @@ public:
      * @returns the density. If an error is encountered in the calculation the
      *     value of -1.0 is returned.
      */
-    doublereal density_const(doublereal pressure, int phase = -1, doublereal rhoguess = -1.0) const;
+    double density_const(double pressure, int phase = -1, double rhoguess = -1.0) const;
 
     //! Returns the density (kg m-3)
     /*!
@@ -316,13 +316,13 @@ public:
      *
      * @returns the density (kg m-3)
      */
-    doublereal density() const;
+    double density() const;
 
     //! Returns the temperature (Kelvin)
     /*!
      * @return s the internally stored temperature
      */
-    doublereal temperature() const;
+    double temperature() const;
 
     //! Returns the coefficient of thermal expansion.
     /*!
@@ -330,7 +330,7 @@ public:
      *
      * @returns the coefficient of thermal expansion
      */
-    doublereal coeffThermExp() const;
+    double coeffThermExp() const;
 
     //! Returns the isochoric pressure derivative wrt temperature
     /*!
@@ -340,7 +340,7 @@ public:
      *
      *     beta = delta (phi0_d() + phiR_d()) - tau delta (phi0_dt() + phiR_dt())
      */
-    doublereal coeffPresExp() const;
+    double coeffPresExp() const;
 
     //! Returns the coefficient of isothermal compressibility for the state of
     //! the object
@@ -351,7 +351,7 @@ public:
      *
      * @returns the isothermal compressibility
      */
-    doublereal isothermalCompressibility() const;
+    double isothermalCompressibility() const;
 
     //! Returns the value of dp / drho at constant T for the state of the object
     /*!
@@ -359,7 +359,7 @@ public:
      *
      * @returns dpdrho
      */
-    doublereal dpdrho() const;
+    double dpdrho() const;
 
     //! This function returns an estimated value for the saturation pressure.
     /*!
@@ -370,7 +370,7 @@ public:
      *
      * @returns the estimated saturation pressure
      */
-    doublereal psat_est(doublereal temperature) const;
+    double psat_est(double temperature) const;
 
     //! This function returns the saturation pressure given the temperature as
     //! an input parameter, and sets the internal state to the saturated
@@ -389,21 +389,21 @@ public:
      * @param waterState    integer specifying the water state
      * @returns the saturation pressure. units = Pascal
      */
-    doublereal psat(doublereal temperature, int waterState = WATER_LIQUID);
+    double psat(double temperature, int waterState = WATER_LIQUID);
 
     //! Return the value of the density at the water spinodal point (on the
     //! liquid side) for the current temperature.
     /*!
      * @returns the density with units of kg m-3
      */
-    doublereal densSpinodalWater() const;
+    double densSpinodalWater() const;
 
     //! Return the value of the density at the water spinodal point (on the gas
     //! side) for the current temperature.
     /*!
      * @returns the density with units of kg m-3
      */
-    doublereal densSpinodalSteam() const;
+    double densSpinodalSteam() const;
 
     //! Returns the Phase State flag for the current state of the object
     /*!
@@ -421,7 +421,7 @@ public:
     /*!
      * This is hard coded to the value 647.096 Kelvin
      */
-    doublereal Tcrit() const {
+    double Tcrit() const {
         return 647.096;
     }
 
@@ -429,7 +429,7 @@ public:
     /*!
      * This is hard coded to the value of 22.064E6 pascals
      */
-    doublereal Pcrit() const {
+    double Pcrit() const {
         return 22.064E6;
     }
 
@@ -437,7 +437,7 @@ public:
     /*!
      * This is equal to 322 kg m-3.
      */
-    doublereal Rhocrit() const {
+    double Rhocrit() const {
         return 322.;
     }
 
@@ -447,7 +447,7 @@ private:
      * @param temperature   input temperature (kelvin)
      * @param rho           density in kg m-3
      */
-    void calcDim(doublereal temperature, doublereal rho);
+    void calcDim(double temperature, double rho);
 
     //! Utility routine in the calculation of the saturation pressure
     /*!
@@ -459,8 +459,8 @@ private:
      * @param densGas        output Density of gas
      * @param delGRT         output delGRT
      */
-    void corr(doublereal temperature, doublereal pressure, doublereal& densLiq,
-              doublereal& densGas, doublereal& delGRT);
+    void corr(double temperature, double pressure, double& densLiq,
+              double& densGas, double& delGRT);
 
     //! Utility routine in the calculation of the saturation pressure
     /*!
@@ -470,8 +470,8 @@ private:
      * @param densGas        output Density of gas
      * @param pcorr          output corrected pressure
      */
-    void corr1(doublereal temperature, doublereal pressure, doublereal& densLiq,
-               doublereal& densGas, doublereal& pcorr);
+    void corr1(double temperature, double pressure, double& densLiq,
+               double& densGas, double& pcorr);
 
     //! pointer to the underlying object that does the calculations.
     mutable WaterPropsIAPWSphi m_phi;

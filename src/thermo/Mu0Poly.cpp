@@ -99,8 +99,8 @@ void Mu0Poly::setParameters(double h0, const std::map<double, double>& T_mu)
     }
 }
 
-void Mu0Poly::updateProperties(const doublereal* tt, doublereal* cp_R,
-                               doublereal* h_RT, doublereal* s_R) const
+void Mu0Poly::updateProperties(const double* tt, double* cp_R,
+                               double* h_RT, double* s_R) const
 {
     size_t j = m_numIntervals;
     double T = *tt;
@@ -118,10 +118,10 @@ void Mu0Poly::updateProperties(const doublereal* tt, doublereal* cp_R,
     *s_R = m_s0_R_int[j] + cp_Rj * (log(T/T1));
 }
 
-void Mu0Poly::updatePropertiesTemp(const doublereal T,
-                                   doublereal* cp_R,
-                                   doublereal* h_RT,
-                                   doublereal* s_R) const
+void Mu0Poly::updatePropertiesTemp(const double T,
+                                   double* cp_R,
+                                   double* h_RT,
+                                   double* s_R) const
 {
     updateProperties(&T, cp_R, h_RT, s_R);
 }
@@ -132,9 +132,9 @@ size_t Mu0Poly::nCoeffs() const
 }
 
 void Mu0Poly::reportParameters(size_t& n, int& type,
-                               doublereal& tlow, doublereal& thigh,
-                               doublereal& pref,
-                               doublereal* const coeffs) const
+                               double& tlow, double& thigh,
+                               double& pref,
+                               double* const coeffs) const
 {
     n = 0;
     type = MU0_INTERP;

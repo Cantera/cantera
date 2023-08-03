@@ -35,7 +35,7 @@ public:
 
     // See PDSS.h for documentation of functions overridden from Class PDSS
 
-    virtual doublereal enthalpy_mole() const;
+    virtual double enthalpy_mole() const;
 
     //! Return the molar enthalpy in units of J kmol-1
     /*!
@@ -47,34 +47,34 @@ public:
      * @returns the species standard state enthalpy in J kmol-1
      * @deprecated To be removed after %Cantera 3.0
      */
-    doublereal enthalpy_mole2() const;
+    double enthalpy_mole2() const;
 
-    virtual doublereal intEnergy_mole() const;
-    virtual doublereal entropy_mole() const;
-    virtual doublereal gibbs_mole() const;
-    virtual doublereal cp_mole() const;
-    virtual doublereal molarVolume() const;
-    virtual doublereal density() const;
+    virtual double intEnergy_mole() const;
+    virtual double entropy_mole() const;
+    virtual double gibbs_mole() const;
+    virtual double cp_mole() const;
+    virtual double molarVolume() const;
+    virtual double density() const;
 
     //! @}
     //! @name Properties of the Reference State of the Species in the Solution
     //! @{
 
-    doublereal refPressure() const {
+    double refPressure() const {
         return m_p0;
     }
 
-    virtual doublereal gibbs_RT_ref() const;
-    virtual doublereal enthalpy_RT_ref() const;
-    virtual doublereal entropy_R_ref() const;
-    virtual doublereal cp_R_ref() const;
-    virtual doublereal molarVolume_ref() const;
+    virtual double gibbs_RT_ref() const;
+    virtual double enthalpy_RT_ref() const;
+    virtual double entropy_R_ref() const;
+    virtual double cp_R_ref() const;
+    virtual double molarVolume_ref() const;
 
     //! @}
     //! @name Mechanical Equation of State Properties
     //! @{
 
-    virtual void setState_TP(doublereal temp, doublereal pres);
+    virtual void setState_TP(double temp, double pres);
 
     //! @}
     //! @name Initialization of the Object
@@ -133,9 +133,9 @@ public:
      * @param maxTemp   output - Maximum temperature
      * @param refPressure output - reference pressure (Pa).
      */
-    virtual void reportParams(size_t& kindex, int& type, doublereal* const c,
-                              doublereal& minTemp, doublereal& maxTemp,
-                              doublereal& refPressure) const;
+    virtual void reportParams(size_t& kindex, int& type, double* const c,
+                              double& minTemp, double& maxTemp,
+                              double& refPressure) const;
     //! @}
 
 private:
@@ -147,7 +147,7 @@ private:
     /*!
      *  This is eEqn. 59 in Johnson et al. (1992).
      */
-    doublereal deltaG() const;
+    double deltaG() const;
 
     //! Main routine that actually calculates the entropy difference
     //! between the reference state at Tr, Pr and T,P
@@ -155,7 +155,7 @@ private:
      *  This is Eqn. 61 in Johnson et al. (1992). Actually, there appears to
      *  be an error in the latter. This is a correction.
      */
-    doublereal deltaS() const;
+    double deltaS() const;
 
     //! Routine that actually calculates the enthalpy difference
     //! between the reference state at Tr, Pr and T,P
@@ -163,7 +163,7 @@ private:
      *  This is an extra routine that was added to check the arithmetic
      * @deprecated To be removed after %Cantera 3.0
      */
-    doublereal deltaH() const;
+    double deltaH() const;
 
     //! Internal formula for the calculation of a_g()
     /*!
@@ -176,7 +176,7 @@ private:
      *                 - 2 2nd derivative wrt temperature
      *                 - 3 derivative wrt pressure
      */
-    doublereal ag(const doublereal temp, const int ifunc = 0) const;
+    double ag(const double temp, const int ifunc = 0) const;
 
     //! Internal formula for the calculation of b_g()
     /*!
@@ -189,7 +189,7 @@ private:
      *                 - 2 2nd derivative wrt temperature
      *                 - 3 derivative wrt pressure
      */
-    doublereal bg(const doublereal temp, const int ifunc = 0) const;
+    double bg(const double temp, const int ifunc = 0) const;
 
     //! function g appearing in the formulation
     /*!
@@ -203,7 +203,7 @@ private:
      *                 - 2 2nd derivative wrt temperature
      *                 - 3 derivative wrt pressure
      */
-    doublereal g(const doublereal temp, const doublereal pres, const int ifunc = 0) const;
+    double g(const double temp, const double pres, const int ifunc = 0) const;
 
     //! Difference function f appearing in the formulation
     /*!
@@ -218,7 +218,7 @@ private:
      *                 - 2 2nd derivative wrt temperature
      *                 - 3 derivative wrt pressure
      */
-    doublereal f(const doublereal temp, const doublereal pres, const int ifunc = 0) const;
+    double f(const double temp, const double pres, const int ifunc = 0) const;
 
     //! Evaluate the Gstar value appearing in the HKFT formulation
     /*!
@@ -230,7 +230,7 @@ private:
      *                 - 2 2nd derivative wrt temperature
      *                 - 3 derivative wrt pressure
      */
-    doublereal gstar(const doublereal temp, const doublereal pres,
+    double gstar(const double temp, const double pres,
                      const int ifunc = 0) const;
 
     //! Function to look up Element Free Energies
@@ -245,7 +245,7 @@ private:
      * @exception CanteraError
      *    If a match is not found, a CanteraError is thrown as well
      */
-    doublereal LookupGe(const std::string& elemName);
+    double LookupGe(const std::string& elemName);
 
     //! Translate a Gibbs free energy of formation value to a NIST-based Chemical potential
     /*!

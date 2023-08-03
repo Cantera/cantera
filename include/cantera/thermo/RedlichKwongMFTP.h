@@ -35,8 +35,8 @@ public:
 
     //! @name Molar Thermodynamic properties
     //! @{
-    virtual doublereal cp_mole() const;
-    virtual doublereal cv_mole() const;
+    virtual double cp_mole() const;
+    virtual double cv_mole() const;
     //! @}
     //! @name Mechanical Properties
     //! @{
@@ -51,7 +51,7 @@ public:
      *    P = \frac{RT}{v-b_{mix}} - \frac{a_{mix}}{T^{0.5} v \left( v + b_{mix} \right) }
      * @f]
      */
-    virtual doublereal pressure() const;
+    virtual double pressure() const;
 
     //! @}
 
@@ -71,7 +71,7 @@ public:
      * @return
      *   Returns the standard Concentration in units of m3 kmol-1.
      */
-    virtual doublereal standardConcentration(size_t k=0) const;
+    virtual double standardConcentration(size_t k=0) const;
 
     //! Get the array of non-dimensional activity coefficients at the current
     //! solution temperature, pressure, and solution concentration.
@@ -82,7 +82,7 @@ public:
      *
      * @param ac Output vector of activity coefficients. Length: m_kk.
      */
-    virtual void getActivityCoefficients(doublereal* ac) const;
+    virtual void getActivityCoefficients(double* ac) const;
 
     //! @name  Partial Molar Properties of the Solution
     //! @{
@@ -100,16 +100,16 @@ public:
      *              Length: m_kk.
      * @deprecated To be removed after %Cantera 3.0. Use getChemPotentials() instead.
      */
-    virtual void getChemPotentials_RT(doublereal* mu) const;
+    virtual void getChemPotentials_RT(double* mu) const;
 
-    virtual void getChemPotentials(doublereal* mu) const;
-    virtual void getPartialMolarEnthalpies(doublereal* hbar) const;
-    virtual void getPartialMolarEntropies(doublereal* sbar) const;
-    virtual void getPartialMolarIntEnergies(doublereal* ubar) const;
+    virtual void getChemPotentials(double* mu) const;
+    virtual void getPartialMolarEnthalpies(double* hbar) const;
+    virtual void getPartialMolarEntropies(double* sbar) const;
+    virtual void getPartialMolarIntEnergies(double* ubar) const;
     virtual void getPartialMolarCp(double* cpbar) const {
         throw NotImplementedError("RedlichKwongMFTP::getPartialMolarCp");
     }
-    virtual void getPartialMolarVolumes(doublereal* vbar) const;
+    virtual void getPartialMolarVolumes(double* vbar) const;
     //! @}
 
 public:
@@ -163,16 +163,16 @@ public:
 
 protected:
     // Special functions inherited from MixtureFugacityTP
-    virtual doublereal sresid() const;
-    virtual doublereal hresid() const;
+    virtual double sresid() const;
+    virtual double hresid() const;
 
 public:
-    virtual doublereal liquidVolEst(doublereal TKelvin, doublereal& pres) const;
-    virtual doublereal densityCalc(doublereal T, doublereal pressure, int phase, doublereal rhoguess);
+    virtual double liquidVolEst(double TKelvin, double& pres) const;
+    virtual double densityCalc(double T, double pressure, int phase, double rhoguess);
 
-    virtual doublereal densSpinodalLiquid() const;
-    virtual doublereal densSpinodalGas() const;
-    virtual doublereal dpdVCalc(doublereal TKelvin, doublereal molarVol, doublereal& presCalc) const;
+    virtual double densSpinodalLiquid() const;
+    virtual double densSpinodalGas() const;
+    virtual double dpdVCalc(double TKelvin, double molarVol, double& presCalc) const;
 
     virtual double isothermalCompressibility() const;
     virtual double thermalExpansionCoeff() const;
@@ -201,13 +201,13 @@ public:
      * @param aCalc (output)  Returns the a value
      * @param bCalc (output)  Returns the b value.
      */
-    void calculateAB(doublereal temp, doublereal& aCalc, doublereal& bCalc) const;
+    void calculateAB(double temp, double& aCalc, double& bCalc) const;
 
     // Special functions not inherited from MixtureFugacityTP
 
-    doublereal da_dt() const;
+    double da_dt() const;
 
-    void calcCriticalConditions(doublereal& pc, doublereal& tc, doublereal& vc) const;
+    void calcCriticalConditions(double& pc, double& tc, double& vc) const;
 
     //! Prepare variables and call the function to solve the cubic equation of state
     int solveCubic(double T, double pres, double a, double b, double Vroot[3]) const;
@@ -280,13 +280,13 @@ private:
     /*!
      *  this was calculated from a small nonlinear solve
      */
-    static const doublereal omega_a;
+    static const double omega_a;
 
     //! Omega constant for b
-    static const doublereal omega_b;
+    static const double omega_b;
 
     //! Omega constant for the critical molar volume
-    static const doublereal omega_vc;
+    static const double omega_vc;
 };
 }
 

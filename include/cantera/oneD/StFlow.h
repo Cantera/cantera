@@ -72,7 +72,7 @@ public:
     //! @name Problem Specification
     //! @{
 
-    virtual void setupGrid(size_t n, const doublereal* z);
+    virtual void setupGrid(size_t n, const double* z);
 
     virtual void resetBadValues(double* xg);
 
@@ -125,19 +125,19 @@ public:
 
     //! Set the pressure. Since the flow equations are for the limit of small
     //! Mach number, the pressure is very nearly constant throughout the flow.
-    void setPressure(doublereal p) {
+    void setPressure(double p) {
         m_press = p;
     }
 
     //! The current pressure [Pa].
-    doublereal pressure() const {
+    double pressure() const {
         return m_press;
     }
 
     //! Write the initial solution estimate into array x.
     virtual void _getInitialSoln(double* x);
 
-    virtual void _finalize(const doublereal* x);
+    virtual void _finalize(const double* x);
 
     //! Sometimes it is desired to carry out the simulation using a specified
     //! temperature profile, rather than computing it by solving the energy
@@ -151,13 +151,13 @@ public:
      * Set the temperature fixed point at grid point j, and disable the energy
      * equation so that the solution will be held to this value.
      */
-    void setTemperature(size_t j, doublereal t) {
+    void setTemperature(size_t j, double t) {
         m_fixedtemp[j] = t;
         m_do_energy[j] = false;
     }
 
     //! The fixed temperature value at point j.
-    doublereal T_fixed(size_t j) const {
+    double T_fixed(size_t j) const {
         return m_fixedtemp[j];
     }
 
@@ -282,13 +282,13 @@ public:
     virtual void resize(size_t components, size_t points);
 
     //! Set the gas object state to be consistent with the solution at point j.
-    void setGas(const doublereal* x, size_t j);
+    void setGas(const double* x, size_t j);
 
     //! Set the gas state to be consistent with the solution at the midpoint
     //! between j and j + 1.
-    void setGasAtMidpoint(const doublereal* x, size_t j);
+    void setGasAtMidpoint(const double* x, size_t j);
 
-    doublereal density(size_t j) const {
+    double density(size_t j) const {
         return m_rho[j];
     }
 
@@ -305,8 +305,8 @@ public:
      *  j-1, j, and j+1. This option is used to efficiently evaluate the
      *  Jacobian numerically.
      */
-    virtual void eval(size_t j, doublereal* x, doublereal* r,
-                      integer* mask, doublereal rdt);
+    virtual void eval(size_t j, double* x, double* r,
+                      integer* mask, double rdt);
 
     //! Evaluate all residual components at the right boundary.
     virtual void evalRightBoundary(double* x, double* res, int* diag,
@@ -331,12 +331,12 @@ protected:
     virtual AnyMap getMeta() const;
     virtual void setMeta(const AnyMap& state);
 
-    doublereal wdot(size_t k, size_t j) const {
+    double wdot(size_t k, size_t j) const {
         return m_wdot(k,j);
     }
 
     //! Write the net production rates at point `j` into array `m_wdot`
-    void getWdot(doublereal* x, size_t j) {
+    void getWdot(double* x, size_t j) {
         setGas(x,j);
         m_kin->getNetProductionRates(&m_wdot(0,j));
     }
@@ -355,7 +355,7 @@ protected:
      * Update the thermodynamic properties from point j0 to point j1
      * (inclusive), based on solution x.
      */
-    void updateThermo(const doublereal* x, size_t j0, size_t j1) {
+    void updateThermo(const double* x, size_t j0, size_t j1) {
         for (size_t j = j0; j <= j1; j++) {
             setGas(x,j);
             m_rho[j] = m_thermo->density();
@@ -368,52 +368,52 @@ protected:
     //! @name Solution components
     //! @{
 
-    doublereal T(const doublereal* x, size_t j) const {
+    double T(const double* x, size_t j) const {
         return x[index(c_offset_T, j)];
     }
-    doublereal& T(doublereal* x, size_t j) {
+    double& T(double* x, size_t j) {
         return x[index(c_offset_T, j)];
     }
-    doublereal T_prev(size_t j) const {
+    double T_prev(size_t j) const {
         return prevSoln(c_offset_T, j);
     }
 
-    doublereal rho_u(const doublereal* x, size_t j) const {
+    double rho_u(const double* x, size_t j) const {
         return m_rho[j]*x[index(c_offset_U, j)];
     }
 
-    doublereal u(const doublereal* x, size_t j) const {
+    double u(const double* x, size_t j) const {
         return x[index(c_offset_U, j)];
     }
 
-    doublereal V(const doublereal* x, size_t j) const {
+    double V(const double* x, size_t j) const {
         return x[index(c_offset_V, j)];
     }
-    doublereal V_prev(size_t j) const {
+    double V_prev(size_t j) const {
         return prevSoln(c_offset_V, j);
     }
 
-    doublereal lambda(const doublereal* x, size_t j) const {
+    double lambda(const double* x, size_t j) const {
         return x[index(c_offset_L, j)];
     }
 
-    doublereal Y(const doublereal* x, size_t k, size_t j) const {
+    double Y(const double* x, size_t k, size_t j) const {
         return x[index(c_offset_Y + k, j)];
     }
 
-    doublereal& Y(doublereal* x, size_t k, size_t j) {
+    double& Y(double* x, size_t k, size_t j) {
         return x[index(c_offset_Y + k, j)];
     }
 
-    doublereal Y_prev(size_t k, size_t j) const {
+    double Y_prev(size_t k, size_t j) const {
         return prevSoln(c_offset_Y + k, j);
     }
 
-    doublereal X(const doublereal* x, size_t k, size_t j) const {
+    double X(const double* x, size_t k, size_t j) const {
         return m_wtm[j]*Y(x,k,j)/m_wt[k];
     }
 
-    doublereal flux(size_t k, size_t j) const {
+    double flux(size_t k, size_t j) const {
         return m_flux(k, j);
     }
     //! @}
@@ -422,31 +422,31 @@ protected:
     //!
     //! These use upwind differencing, assuming u(z) is negative
     //! @{
-    doublereal dVdz(const doublereal* x, size_t j) const {
+    double dVdz(const double* x, size_t j) const {
         size_t jloc = (u(x,j) > 0.0 ? j : j + 1);
         return (V(x,jloc) - V(x,jloc-1))/m_dz[jloc-1];
     }
 
-    doublereal dYdz(const doublereal* x, size_t k, size_t j) const {
+    double dYdz(const double* x, size_t k, size_t j) const {
         size_t jloc = (u(x,j) > 0.0 ? j : j + 1);
         return (Y(x,k,jloc) - Y(x,k,jloc-1))/m_dz[jloc-1];
     }
 
-    doublereal dTdz(const doublereal* x, size_t j) const {
+    double dTdz(const double* x, size_t j) const {
         size_t jloc = (u(x,j) > 0.0 ? j : j + 1);
         return (T(x,jloc) - T(x,jloc-1))/m_dz[jloc-1];
     }
     //! @}
 
-    doublereal shear(const doublereal* x, size_t j) const {
-        doublereal c1 = m_visc[j-1]*(V(x,j) - V(x,j-1));
-        doublereal c2 = m_visc[j]*(V(x,j+1) - V(x,j));
+    double shear(const double* x, size_t j) const {
+        double c1 = m_visc[j-1]*(V(x,j) - V(x,j-1));
+        double c2 = m_visc[j]*(V(x,j+1) - V(x,j));
         return 2.0*(c2/(z(j+1) - z(j)) - c1/(z(j) - z(j-1)))/(z(j+1) - z(j-1));
     }
 
-    doublereal divHeatFlux(const doublereal* x, size_t j) const {
-        doublereal c1 = m_tcon[j-1]*(T(x,j) - T(x,j-1));
-        doublereal c2 = m_tcon[j]*(T(x,j+1) - T(x,j));
+    double divHeatFlux(const double* x, size_t j) const {
+        double c1 = m_tcon[j-1]*(T(x,j) - T(x,j-1));
+        double c2 = m_tcon[j]*(T(x,j+1) - T(x,j));
         return -2.0*(c2/(z(j+1) - z(j)) - c1/(z(j) - z(j-1)))/(z(j+1) - z(j-1));
     }
 
@@ -455,7 +455,7 @@ protected:
     }
 
     //! Update the diffusive mass fluxes.
-    virtual void updateDiffFluxes(const doublereal* x, size_t j0, size_t j1);
+    virtual void updateDiffFluxes(const double* x, size_t j0, size_t j1);
 
     //! Get the gradient of species specific molar enthalpies
     virtual void grad_hk(const double* x, size_t j);
@@ -537,7 +537,7 @@ protected:
 
     //! Update the transport properties at grid points in the range from `j0`
     //! to `j1`, based on solution `x`.
-    virtual void updateTransport(doublereal* x, size_t j0, size_t j1);
+    virtual void updateTransport(double* x, size_t j0, size_t j1);
 
 public:
     //! Location of the point where temperature is fixed

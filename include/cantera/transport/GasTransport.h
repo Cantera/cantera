@@ -45,10 +45,10 @@ public:
      *
      * @see updateViscosity_T()
      */
-    virtual doublereal viscosity();
+    virtual double viscosity();
 
     //! Get the pure-species viscosities
-    virtual void getSpeciesViscosities(doublereal* const visc) {
+    virtual void getSpeciesViscosities(double* const visc) {
         update_T();
         updateViscosity_T();
         std::copy(m_visc.begin(), m_visc.end(), visc);
@@ -61,7 +61,7 @@ public:
      * @param ld   offset of rows in the storage
      * @param d    output vector of diffusion coefficients. Units of m**2 / s
      */
-    virtual void getBinaryDiffCoeffs(const size_t ld, doublereal* const d);
+    virtual void getBinaryDiffCoeffs(const size_t ld, double* const d);
 
     //! Returns the Mixture-averaged diffusion coefficients [m^2/s].
     /*!
@@ -81,7 +81,7 @@ public:
      * @param[out] d  Vector of mixture diffusion coefficients, @f$ D_{km}' @f$ ,
      *     for each species (m^2/s). length m_nsp
      */
-    virtual void getMixDiffCoeffs(doublereal* const d);
+    virtual void getMixDiffCoeffs(double* const d);
 
     //! Returns the mixture-averaged diffusion coefficients [m^2/s].
     //! These are the coefficients for calculating the molar diffusive fluxes
@@ -92,7 +92,7 @@ public:
     //!
     //! @param[out] d vector of mixture-averaged diffusion coefficients for
     //!     each species, length m_nsp.
-    virtual void getMixDiffCoeffsMole(doublereal* const d);
+    virtual void getMixDiffCoeffsMole(double* const d);
 
     //! Returns the mixture-averaged diffusion coefficients [m^2/s].
     /*!
@@ -108,7 +108,7 @@ public:
      * @param[out] d vector of mixture-averaged diffusion coefficients for
      *     each species, length m_nsp.
      */
-    virtual void getMixDiffCoeffsMass(doublereal* const d);
+    virtual void getMixDiffCoeffsMass(double* const d);
 
     //! Return the polynomial fits to the viscosity of species i
     //! @see fitProperties()
@@ -219,8 +219,8 @@ protected:
      * @param f_eps    Multiplicative correction factor to be applied to epsilon(i,j)
      * @param f_sigma  Multiplicative correction factor to be applied to diam(i,j)
      */
-    void makePolarCorrections(size_t i, size_t j, doublereal& f_eps,
-                              doublereal& f_sigma);
+    void makePolarCorrections(size_t i, size_t j, double& f_eps,
+                              double& f_sigma);
 
     //! Generate polynomial fits to collision integrals
     /*!
@@ -289,9 +289,9 @@ protected:
      *
      * @note This method is not used currently.
      */
-    void getBinDiffCorrection(doublereal t, MMCollisionInt& integrals, size_t k,
-                              size_t j, doublereal xk, doublereal xj,
-                              doublereal& fkj, doublereal& fjk);
+    void getBinDiffCorrection(double t, MMCollisionInt& integrals, size_t k,
+                              size_t j, double xk, double xj,
+                              double& fkj, double& fjk);
 
     //! @}
 

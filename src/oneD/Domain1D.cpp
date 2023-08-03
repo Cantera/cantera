@@ -73,7 +73,7 @@ size_t Domain1D::componentIndex(const std::string& name) const
                        "no component named "+name);
 }
 
-void Domain1D::setTransientTolerances(doublereal rtol, doublereal atol, size_t n)
+void Domain1D::setTransientTolerances(double rtol, double atol, size_t n)
 {
     if (n == npos) {
         for (n = 0; n < m_nv; n++) {
@@ -86,7 +86,7 @@ void Domain1D::setTransientTolerances(doublereal rtol, doublereal atol, size_t n
     }
 }
 
-void Domain1D::setSteadyTolerances(doublereal rtol, doublereal atol, size_t n)
+void Domain1D::setSteadyTolerances(double rtol, double atol, size_t n)
 {
     if (n == npos) {
         for (n = 0; n < m_nv; n++) {
@@ -230,7 +230,7 @@ void Domain1D::locate()
     }
 }
 
-void Domain1D::setupGrid(size_t n, const doublereal* z)
+void Domain1D::setupGrid(size_t n, const double* z)
 {
     if (n > 1) {
         resize(m_nv, n);
@@ -303,7 +303,7 @@ void Domain1D::setProfile(const std::string& name, double* values, double* soln)
     throw CanteraError("Domain1D::setProfile", "unknown component: "+name);
 }
 
-void Domain1D::_getInitialSoln(doublereal* x)
+void Domain1D::_getInitialSoln(double* x)
 {
     for (size_t j = 0; j < m_points; j++) {
         for (size_t n = 0; n < m_nv; n++) {
@@ -312,7 +312,7 @@ void Domain1D::_getInitialSoln(doublereal* x)
     }
 }
 
-doublereal Domain1D::initialValue(size_t n, size_t j)
+double Domain1D::initialValue(size_t n, size_t j)
 {
     throw NotImplementedError("Domain1D::initialValue");
 }
