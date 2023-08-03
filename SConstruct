@@ -1512,7 +1512,7 @@ if env['system_sundials'] == 'y':
     if sundials_ver < parse_version("3.0") or sundials_ver >= parse_version("7.0"):
         logger.error(f"Sundials version {env['sundials_version']!r} is not supported.")
         sys.exit(1)
-    elif sundials_ver > parse_version("6.4.1"):
+    elif sundials_ver > parse_version("6.6.0"):
         logger.warning(f"Sundials version {env['sundials_version']!r} has not been tested.")
 
     logger.info(f"Using system installation of Sundials version {sundials_version!r}.")
