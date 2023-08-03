@@ -24,21 +24,21 @@ namespace Cantera
  * thermodynamic functions for the species.
  *
  * @f[
- * \frac{c_p(T)}{R} = Cp0\_R
+ *  \hat{c}_p^\circ(T) = \hat{c}_p^\circ(T^\circ)
  * @f]
  * @f[
- * \frac{h^0(T)}{RT} = \frac{1}{T} * (h0\_R + (T - T_0) * Cp0\_R)
+ *  \hat{h}^\circ(T) = \hat{h}^\circ\left(T_0\right)
+ *      + \hat{c}_p^\circ \left(T-T^\circ\right)
  * @f]
  * @f[
- * \frac{s^0(T)}{R} =  (s0\_R + (log(T) - \log(T_0)) * Cp0\_R)
+ *  \hat{s}^\circ(T) = \hat{s}^\circ(T_0)
+ *      + \hat{c}_p^\circ \ln{\left(\frac{T}{T^\circ}\right)}
  * @f]
  *
- * This parameterization takes 4 input values. These are:
- *       -   c[0] = @f$ T_0 @f$ (Kelvin)
- *       -   c[1] = @f$ H_k^o(T_0, p_{ref}) @f$ (J/kmol)
- *       -   c[2] = @f$ S_k^o(T_0, p_{ref}) @f$    (J/kmol K)
- *       -   c[3] = @f$ {Cp}_k^o(T_0, p_{ref}) @f$  (J(kmol K)
- *
+ * This parameterization takes 4 input values @f$ T^\circ @f$,
+ * @f$ \hat{h}^\circ(T^\circ) @f$, @f$ \hat{s}^\circ(T^\circ) @f$ and
+ * @f$ \hat{c}_p^\circ(T^\circ) @f$, see setParameters(). The default value of
+ * @f$ T^\circ @f$ is 298.15 K; the default value for the other parameters is 0.0.
  * @ingroup spthermo
  */
 class ConstCpPoly: public SpeciesThermoInterpType
@@ -52,20 +52,17 @@ public:
      * @param thigh        Maximum temperature
      * @param pref         reference pressure (Pa).
      * @param coeffs       Vector of coefficients used to set the parameters for
-     *                     the standard state for species n. There are 4
-     *                     coefficients for the ConstCpPoly parameterization.
-     *           -   c[0] = @f$ T_0 @f$ (Kelvin)
-     *           -   c[1] = @f$ H_k^o(T_0, p_{ref}) @f$ (J/kmol)
-     *           -   c[2] = @f$ S_k^o(T_0, p_{ref}) @f$    (J/kmol K)
-     *           -   c[3] = @f$ {Cp}_k^o(T_0, p_{ref}) @f$  (J(kmol K)
+     *                     the standard state for species n. Contains 4 parameters
+     *                     in the order of setParameters() arguments.
      */
     ConstCpPoly(double tlow, double thigh, double pref, const double* coeffs);
 
     /**
-     * @param t0  @f$ T_0 @f$ [K]
-     * @param h0  @f$ h_k^o(T_0, p_{ref}) @f$ [J/kmol]
-     * @param s0  @f$ s_k^o(T_0, p_{ref}) @f$ [J/kmol/K]
-     * @param cp0  @f$ c_{p,k}^o(T_0, p_{ref}) @f$ [J/kmol/K]
+     * Set ConstCpPoly parameters.
+     * @param t0  @f$ T^\circ @f$ [K]
+     * @param h0  @f$ \hat{h}^\circ(T^\circ) @f$ [J/kmol]
+     * @param s0  @f$ \hat{s}^\circ(T^\circ) @f$ [J/kmol/K]
+     * @param cp0  @f$ \hat{c}_p^\circ(T^\circ) @f$ [J/kmol/K]
      */
     void setParameters(double t0, double h0, double s0, double cp0);
 
@@ -99,7 +96,7 @@ public:
 
 protected:
     //! Base temperature
-    double m_t0 = 0.0;
+    double m_t0 = 298.15;
     //! Dimensionless value of the heat capacity
     double m_cp0_R = 0.0;
     //! dimensionless value of the enthalpy at t0
@@ -107,7 +104,7 @@ protected:
     //! Dimensionless value of the entropy at t0
     double m_s0_R = 0.0;
     //! log of the t0 value
-    double m_logt0 = 0.0;
+    double m_logt0 = log(298.15);
     //! Original value of h0_R, restored by calling resetHf298()
     double m_h0_R_orig = 0.0;
 };
