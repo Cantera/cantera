@@ -60,7 +60,7 @@ public:
         m_age = age;
     }
 
-    vector_int& transientMask() {
+    vector<int>& transientMask() {
         return m_mask;
     }
 
@@ -79,7 +79,7 @@ protected:
     double m_atol = sqrt(std::numeric_limits<double>::epsilon());
     double m_elapsed = 0.0;
     vector_fp m_ssdiag;
-    vector_int m_mask;
+    vector<int> m_mask;
     int m_nevals = 0;
     int m_age = 100000;
     size_t m_size;

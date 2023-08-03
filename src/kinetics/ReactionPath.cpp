@@ -93,7 +93,7 @@ ReactionPathDiagram::~ReactionPathDiagram()
     }
 }
 
-vector_int ReactionPathDiagram::reactions()
+vector<int> ReactionPathDiagram::reactions()
 {
     doublereal flmax = 0.0;
     for (size_t i = 0; i < nPaths(); i++) {
@@ -109,7 +109,7 @@ vector_int ReactionPathDiagram::reactions()
             }
         }
     }
-    vector_int r;
+    vector<int> r;
     for (const auto& rxn : m_rxns) {
         r.push_back(int(rxn));
     }
@@ -608,7 +608,7 @@ int ReactionPathBuilder::init(ostream& logfile, Kinetics& kin)
     }
 
     // build species groups
-    vector_int comp(m_nel);
+    vector<int> comp(m_nel);
     m_sgroup.resize(m_ns);
     for (size_t j = 0; j < m_ns; j++) {
         for (size_t m = 0; m < m_nel; m++) {
@@ -686,7 +686,7 @@ int ReactionPathBuilder::build(Kinetics& s, const string& element,
     vector<string>& in_nodes = r.included();
     vector<string>& out_nodes = r.excluded();
 
-    vector_int status(s.nTotalSpecies(), 0);
+    vector<int> status(s.nTotalSpecies(), 0);
     for (size_t ni = 0; ni < in_nodes.size(); ni++) {
         status[s.kineticsSpeciesIndex(in_nodes[ni])] = 1;
     }

@@ -25,7 +25,7 @@ namespace Cantera
 // include Sundials headers in BandMatrix.h
 struct BandMatrix::PivData {
 #if CT_USE_LAPACK
-    vector_int data;
+    vector<int> data;
 #else
     std::vector<sunindextype> data;
 #endif

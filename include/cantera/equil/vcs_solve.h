@@ -1163,7 +1163,7 @@ public:
      *  interfacial current, which is set to zero in this initial treatment.
      *  Later we may have non-zero interfacial currents.
      */
-    vector_int m_speciesUnknownType;
+    vector<int> m_speciesUnknownType;
 
     //! Change in the number of moles of phase, iphase, due to the
     //! noncomponent formation reaction, irxn, for species, k:
@@ -1352,7 +1352,7 @@ public:
      * is `kspec = irxn + m_numComponents`. For possible values and their
      * meanings, see vcs_evaluate_speciesType().
      */
-    vector_int m_speciesStatus;
+    vector<int> m_speciesStatus;
 
     //! Mapping from the species number to the phase number
     std::vector<size_t> m_phaseID;
@@ -1383,13 +1383,13 @@ public:
      *    that a species has neg 0 or pos value of that constraint (other than
      *    charge)
      */
-    vector_int m_elType;
+    vector<int> m_elType;
 
     //! Specifies whether an element constraint is active
     /*!
      * The default is true. Length = nelements
      */
-    vector_int m_elementActive;
+    vector<int> m_elementActive;
 
     //! Array of Phase Structures. Length = number of phases.
     std::vector<std::unique_ptr<vcs_VolPhase>> m_VolPhaseList;
@@ -1401,7 +1401,7 @@ public:
      *
      * length = number of species
      */
-    vector_int m_actConventionSpecies;
+    vector<int> m_actConventionSpecies;
 
     //! specifies the activity convention of the phase.
     /*!
@@ -1410,7 +1410,7 @@ public:
      *
      * length = number of phases
      */
-    vector_int m_phaseActConvention;
+    vector<int> m_phaseActConvention;
 
     //! specifies the ln(Mnaught) used to calculate the chemical potentials
     /*!

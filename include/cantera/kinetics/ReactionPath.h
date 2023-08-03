@@ -252,7 +252,7 @@ public:
         return m_exclude;
     }
     std::vector<size_t> species();
-    vector_int reactions();
+    vector<int> reactions();
     void findMajorPaths(doublereal threshold, size_t lda, doublereal* a);
     void setFont(const std::string& font) {
         m_font = font;
@@ -322,7 +322,7 @@ protected:
     std::vector<std::vector<size_t> > m_reac;
     std::vector<std::vector<size_t> > m_prod;
     DenseMatrix m_elatoms;
-    std::vector<vector_int> m_groups;
+    std::vector<vector<int>> m_groups;
     std::vector<Group> m_sgroup;
     std::vector<std::string> m_elementSymbols;
 

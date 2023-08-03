@@ -112,21 +112,21 @@ public:
 
     //! Return a changeable value of the pivot vector
     /*!
-     * @returns a reference to the pivot vector as a vector_int
+     * @returns a reference to the pivot vector as a vector<int>
      */
-    vector_int& ipiv();
+    vector<int>& ipiv();
 
     //! Return a changeable value of the pivot vector
     /*!
-     *  @returns a reference to the pivot vector as a vector_int
+     *  @returns a reference to the pivot vector as a vector<int>
      */
-    const vector_int& ipiv() const {
+    const vector<int>& ipiv() const {
         return m_ipiv;
     }
 
 protected:
     //! Vector of pivots. Length is equal to the max of m and n.
-    vector_int m_ipiv;
+    vector<int> m_ipiv;
 
     //! Vector of column pointers
     std::vector<doublereal*> m_colPts;

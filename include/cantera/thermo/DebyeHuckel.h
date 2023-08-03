@@ -806,7 +806,7 @@ protected:
      *  - nonpolarNeutral
      *  .
      */
-    vector_int m_electrolyteSpeciesType;
+    vector<int> m_electrolyteSpeciesType;
 
     //! a_k = Size of the ionic species in the DH formulation. units = meters
     vector_fp m_Aionic;

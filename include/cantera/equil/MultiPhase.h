@@ -602,7 +602,7 @@ private:
     std::vector<std::string> m_enames;
 
     //! Atomic number of each global element.
-    vector_int m_atomicNumber;
+    vector<int> m_atomicNumber;
 
     //! Vector of species names in the problem. Vector is over all species
     //! defined in the object, the global species index.

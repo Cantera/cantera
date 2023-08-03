@@ -3193,7 +3193,7 @@ void VCS_SOLVE::vcs_inest(double* const aw, double* const sa, double* const sm,
 
 void VCS_SOLVE::vcs_SSPhase()
 {
-    vector_int numPhSpecies(m_numPhases, 0);
+    vector<int> numPhSpecies(m_numPhases, 0);
     for (size_t kspec = 0; kspec < m_nsp; ++kspec) {
         numPhSpecies[m_phaseID[kspec]]++;
     }

@@ -125,7 +125,7 @@ void DenseMatrix::leftMult(const double* const b, double* const prod) const
     }
 }
 
-vector_int& DenseMatrix::ipiv()
+vector<int>& DenseMatrix::ipiv()
 {
     return m_ipiv;
 }

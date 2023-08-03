@@ -583,7 +583,7 @@ private:
 
     //! boolean indicating whether an element constraint is active
     //! for the current  problem
-    vector_int m_elementActive;
+    vector<int> m_elementActive;
 
     //! Type of the element constraint
     /*!
@@ -596,7 +596,7 @@ private:
      *   a species has neg 0 or pos value of that constraint (other than
      *   charge)
      */
-    vector_int m_elementType;
+    vector<int> m_elementType;
 
     //! Formula Matrix for the phase
     /*!
@@ -613,7 +613,7 @@ private:
      *  - metal electron -> VCS_SPECIES_INTERFACIALVOLTAGE.
      *    (unknown is the interfacial voltage (volts))
      */
-    vector_int m_speciesUnknownType;
+    vector<int> m_speciesUnknownType;
 
     //! Index of the element number in the global list of elements stored in VCS_SOLVE
     std::vector<size_t> m_elemGlobalIndex;
