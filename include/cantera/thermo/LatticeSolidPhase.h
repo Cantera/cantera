@@ -364,7 +364,7 @@ public:
      * are equal to the pure species entropies plus the ideal solution
      * contribution.
      *  @f[
-     * \bar s_k(T,P) =  \hat s^0_k(T) - R log(X_k)
+     * \bar s_k(T,P) =  \hat s^0_k(T) - R \log(X_k)
      * @f]
      * The reference-state pure-species entropies,@f$ \hat s^{ref}_k(T) @f$, at
      * the reference pressure, @f$ P_{ref} @f$, are computed by the species

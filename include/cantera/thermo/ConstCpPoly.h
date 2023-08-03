@@ -30,7 +30,7 @@ namespace Cantera
  * \frac{h^0(T)}{RT} = \frac{1}{T} * (h0\_R + (T - T_0) * Cp0\_R)
  * @f]
  * @f[
- * \frac{s^0(T)}{R} =  (s0\_R + (log(T) - log(T_0)) * Cp0\_R)
+ * \frac{s^0(T)}{R} =  (s0\_R + (log(T) - \log(T_0)) * Cp0\_R)
  * @f]
  *
  * This parameterization takes 4 input values. These are:

@@ -35,8 +35,8 @@ namespace Cantera
  * using the following formula
  *
  * @f[
- *     ln(\gamma_k^{s2}) = ln(\gamma_k^{s1})
- *        + \frac{z_k}{z_j} \left(  ln(\gamma_j^{s2}) - ln(\gamma_j^{s1}) \right)
+ *     \ln(\gamma_k^{s2}) = \ln(\gamma_k^{s1})
+ *        + \frac{z_k}{z_j} \left( \ln(\gamma_j^{s2}) - \ln(\gamma_j^{s1}) \right)
  * @f]
  *
  * where j is any one species.
@@ -52,15 +52,15 @@ const int PHSCALE_PITZER = 0;
  * using the following formula
  *
  * @f[
- *     ln(\gamma_k^{s2}) = ln(\gamma_k^{s1})
- *        + \frac{z_k}{z_j} \left(  ln(\gamma_j^{s2}) - ln(\gamma_j^{s1}) \right)
+ *     \ln(\gamma_k^{s2}) = \ln(\gamma_k^{s1})
+ *        + \frac{z_k}{z_j} \left( \ln(\gamma_j^{s2}) - \ln(\gamma_j^{s1}) \right)
  * @f]
  *
  * where j is any one species. For the NBS scale, j is equal to the Cl- species
  * and
  *
  * @f[
- *     ln(\gamma_{Cl-}^{s2}) = \frac{-A_{\phi} \sqrt{I}}{1.0 + 1.5 \sqrt{I}}
+ *     \ln(\gamma_{Cl-}^{s2}) = \frac{-A_{\phi} \sqrt{I}}{1.0 + 1.5 \sqrt{I}}
  * @f]
  *
  * This is the NBS pH scale, which is used in all conventional pH measurements.
@@ -123,10 +123,10 @@ const int PHSCALE_NBS = 1;
  * have the following general format:
  *
  * @f[
- *    \mu_k = \mu^{\triangle}_k(T,P) + R T ln(\gamma_k^{\triangle} \frac{m_k}{m^\triangle})
+ *    \mu_k = \mu^{\triangle}_k(T,P) + R T \ln(\gamma_k^{\triangle} \frac{m_k}{m^\triangle})
  * @f]
  * @f[
- *    \mu_o = \mu^o_o(T,P) + RT ln(a_o)
+ *    \mu_o = \mu^o_o(T,P) + RT \ln(a_o)
  * @f]
  *
  * where @f$ \gamma_k^{\triangle} @f$ is the molality based activity coefficient
@@ -137,7 +137,7 @@ const int PHSCALE_NBS = 1;
  * solvent, @f$ a_o @f$, is further reexpressed in terms of an osmotic
  * coefficient, @f$ \phi @f$.
  * @f[
- *     \phi = \frac{- ln(a_o)}{\tilde{M}_o \sum_{i \ne o} m_i}
+ *     \phi = \frac{- \ln(a_o)}{\tilde{M}_o \sum_{i \ne o} m_i}
  * @f]
  *
  * MolalityVPSSTP::osmoticCoefficient() returns the value of @f$ \phi @f$. Note
@@ -195,15 +195,15 @@ const int PHSCALE_NBS = 1;
  * using the following formula
  *
  * @f[
- *     ln(\gamma_k^{s2}) = ln(\gamma_k^{s1})
- *        + \frac{z_k}{z_j} \left(  ln(\gamma_j^{s2}) - ln(\gamma_j^{s1}) \right)
+ *     \ln(\gamma_k^{s2}) = \ln(\gamma_k^{s1})
+ *        + \frac{z_k}{z_j} \left( \ln(\gamma_j^{s2}) - \ln(\gamma_j^{s1}) \right)
  * @f]
  *
  * where j is any one species. For the NBS scale, j is equal to the Cl- species
  * and
  *
  * @f[
- *     ln(\gamma_{Cl-}^{s2}) = \frac{-A_{\phi} \sqrt{I}}{1.0 + 1.5 \sqrt{I}}
+ *     \ln(\gamma_{Cl-}^{s2}) = \frac{-A_{\phi} \sqrt{I}}{1.0 + 1.5 \sqrt{I}}
  * @f]
  *
  * The Pitzer scale doesn't actually change anything. The pitzer scale is
@@ -453,15 +453,15 @@ public:
      * s2 using the following formula
      *
      * @f[
-     *     ln(\gamma_k^{s2}) = ln(\gamma_k^{s1})
-     *        + \frac{z_k}{z_j} \left(  ln(\gamma_j^{s2}) - ln(\gamma_j^{s1}) \right)
+     *     \ln(\gamma_k^{s2}) = \ln(\gamma_k^{s1})
+     *        + \frac{z_k}{z_j} \left( \ln(\gamma_j^{s2}) - \ln(\gamma_j^{s1}) \right)
      * @f]
      *
      * where j is any one species. For the NBS scale, j is equal to the Cl-
      * species and
      *
      * @f[
-     *     ln(\gamma_{Cl-}^{s2}) = \frac{-A_{\phi} \sqrt{I}}{1.0 + 1.5 \sqrt{I}}
+     *     \ln(\gamma_{Cl-}^{s2}) = \frac{-A_{\phi} \sqrt{I}}{1.0 + 1.5 \sqrt{I}}
      * @f]
      *
      * @param acMolality Output vector containing the molality based activity
@@ -472,7 +472,7 @@ public:
     //! Calculate the osmotic coefficient
     /*!
      * @f[
-     *     \phi = \frac{- ln(a_o)}{\tilde{M}_o \sum_{i \ne o} m_i}
+     *     \phi = \frac{- \ln(a_o)}{\tilde{M}_o \sum_{i \ne o} m_i}
      * @f]
      *
      * Note there are a few of definitions of the osmotic coefficient floating

@@ -395,7 +395,7 @@ protected:
  *  where
  *  @f[ P_r = \frac{k_0 [M]}{k_{\infty}} @f]
  *
- *  @f[ F = {\left( a \; exp(\frac{-b}{T}) + exp(\frac{-T}{c})\right)}^n
+ *  @f[ F = {\left( a \; \exp(\frac{-b}{T}) + \exp(\frac{-T}{c})\right)}^n
  *              \;  d \; T^e @f]
  *      where
  *  @f[ n = \frac{1.0}{1.0 + (\log_{10} P_r)^2} @f]
