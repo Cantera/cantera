@@ -872,10 +872,10 @@ FalloffReaction::FalloffReaction(const Composition& reactants_,
 {
     warn_deprecated("FalloffReaction",
         "To be removed after Cantera 3.0. Replaceable with Reaction.");
-    // cannot be delegated as std::make_shared does not work for FalloffRate
+    // cannot be delegated as make_shared does not work for FalloffRate
     reactants = reactants_;
     products = products_;
-    m_third_body = std::make_shared<ThirdBody>(tbody_);
+    m_third_body = make_shared<ThirdBody>(tbody_);
     AnyMap node = rate_.parameters();
     node.applyUnits();
     std::string rate_type = node["type"].asString();
