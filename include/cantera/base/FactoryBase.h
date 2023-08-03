@@ -77,7 +77,7 @@ public:
     }
 
     //! Register a new object construction function
-    void reg(const std::string& name, std::function<T*(Args...)> f) {
+    void reg(const std::string& name, function<T*(Args...)> f) {
         m_creators[name] = f;
     }
 
@@ -123,7 +123,7 @@ protected:
     }
 
 private:
-    std::unordered_map<std::string, std::function<T*(Args...)>> m_creators;
+    std::unordered_map<std::string, function<T*(Args...)>> m_creators;
 
     //! Map of synonyms to canonical names
     std::unordered_map<std::string, std::string> m_synonyms;

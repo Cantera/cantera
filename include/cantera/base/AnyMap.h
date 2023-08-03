@@ -189,7 +189,7 @@ public:
     //! Assign a vector where all the values have the same units
     void setQuantity(const vector<double>& values, const std::string& units);
 
-    typedef std::function<void(AnyValue&, const UnitSystem&)> unitConverter;
+    typedef function<void(AnyValue&, const UnitSystem&)> unitConverter;
 
     //! Assign a value of any type where the unit conversion requires a
     //! different behavior besides scaling all values by the same factor
