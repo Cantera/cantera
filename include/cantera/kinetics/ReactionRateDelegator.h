@@ -58,7 +58,7 @@ protected:
     shared_ptr<ExternalHandle> m_wrappedData;
 
     //! Delegated `update` method taking the Solution wrapper as its argument
-    std::function<double(void*)> m_update;
+    function<double(void*)> m_update;
 };
 
 //! Delegate methods of the ReactionRate class to external functions

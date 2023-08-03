@@ -388,7 +388,7 @@ void Application::loadExtension(const string& extType, const string& name)
 
         // Only one Python module can be loaded at a time, and a handle needs to be held
         // to prevent it from being unloaded.
-        static std::function<loader_t> loader;
+        static function<loader_t> loader;
         bool loaded = false;
 
         for (const auto& py_ver : m_pythonSearchVersions) {

@@ -256,7 +256,7 @@ protected:
     //! it is computed. It's initialized to #m_mm.
     size_t m_nComponents;
 
-    std::function<double(ThermoPhase&)> m_p1, m_p2;
+    function<double(ThermoPhase&)> m_p1, m_p2;
 
     //! Current value of the mole fractions in the single phase. length = #m_kk.
     vector<double> m_molefractions;

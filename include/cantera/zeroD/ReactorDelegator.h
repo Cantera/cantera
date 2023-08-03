@@ -186,19 +186,19 @@ public:
     }
 
 private:
-    std::function<void(double)> m_initialize;
-    std::function<void()> m_syncState;
-    std::function<void(std::array<size_t, 1>, double*)> m_getState;
-    std::function<void(std::array<size_t, 1>, double*)> m_updateState;
-    std::function<void(std::array<size_t, 1>, double*)> m_updateSurfaceState;
-    std::function<void(std::array<size_t, 1>, double*)> m_getSurfaceInitialConditions;
-    std::function<void(bool)> m_updateConnected;
-    std::function<void(std::array<size_t, 2>, double, double*, double*)> m_eval;
-    std::function<void(double)> m_evalWalls;
-    std::function<void(std::array<size_t, 3>, double*, double*, double*)> m_evalSurfaces;
-    std::function<std::string(size_t)> m_componentName;
-    std::function<size_t(const std::string&)> m_componentIndex;
-    std::function<size_t(const std::string&)> m_speciesIndex;
+    function<void(double)> m_initialize;
+    function<void()> m_syncState;
+    function<void(std::array<size_t, 1>, double*)> m_getState;
+    function<void(std::array<size_t, 1>, double*)> m_updateState;
+    function<void(std::array<size_t, 1>, double*)> m_updateSurfaceState;
+    function<void(std::array<size_t, 1>, double*)> m_getSurfaceInitialConditions;
+    function<void(bool)> m_updateConnected;
+    function<void(std::array<size_t, 2>, double, double*, double*)> m_eval;
+    function<void(double)> m_evalWalls;
+    function<void(std::array<size_t, 3>, double*, double*, double*)> m_evalSurfaces;
+    function<std::string(size_t)> m_componentName;
+    function<size_t(const std::string&)> m_componentIndex;
+    function<size_t(const std::string&)> m_speciesIndex;
 };
 
 }
