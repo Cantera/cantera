@@ -139,8 +139,7 @@ public:
      *      "a" parameter of the specified species [Pa-m^6/kmol^2/K]
      *  @param b         "b" parameter in the Redlich-Kwong model [m^3/kmol]
      */
-    void setSpeciesCoeffs(const string& species, double a0, double a1,
-                              double b);
+    void setSpeciesCoeffs(const string& species, double a0, double a1, double b);
 
     //! Set values for the interaction parameter between two species
     /*!

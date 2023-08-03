@@ -80,7 +80,8 @@ public:
         m_chem = cflag;
     }
 
-    //! Returns `true` if changes in the reactor composition due to chemical reactions are enabled.
+    //! Returns `true` if changes in the reactor composition due to chemical reactions
+    //! are enabled.
     bool chemistryEnabled() const {
         return m_chem;
     }

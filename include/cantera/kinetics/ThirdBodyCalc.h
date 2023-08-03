@@ -21,7 +21,7 @@ class ThirdBodyCalc
 public:
     //! Install reaction that uses third-body effects in ThirdBodyCalc manager
     void install(size_t rxnNumber, const map<size_t, double>& efficiencies,
-                  double default_efficiency, bool mass_action) {
+                 double default_efficiency, bool mass_action) {
         m_reaction_index.push_back(rxnNumber);
         m_default.push_back(default_efficiency);
 

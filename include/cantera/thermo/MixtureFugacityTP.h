@@ -418,7 +418,7 @@ public:
      *            return a -2.
      */
     virtual double densityCalc(double TKelvin, double pressure, int phaseRequested,
-                                   double rhoguess);
+                               double rhoguess);
 
 protected:
     //! Utility routine in the calculation of the saturation pressure
@@ -469,8 +469,7 @@ public:
      * @param molarVolLiquid  (return) Molar volume of the liquid
      * @returns the saturation pressure at the given temperature
      */
-    double calculatePsat(double TKelvin, double& molarVolGas,
-                             double& molarVolLiquid);
+    double calculatePsat(double TKelvin, double& molarVolGas, double& molarVolLiquid);
 
 public:
     //! Calculate the saturation pressure at the current mixture content for the

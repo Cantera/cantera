@@ -226,8 +226,8 @@ private:
      * @returns the 1. /  delta T to be used on the next step
      */
     double calc_t(double netProdRateSolnSP[], double XMolSolnSP[],
-                      int* label, int* label_old,
-                      double* label_factor, int ioflag);
+                  int* label, int* label_old,
+                  double* label_factor, int ioflag);
 
     //! Calculate the solution and residual weights
     /*!

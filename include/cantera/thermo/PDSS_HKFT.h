@@ -230,8 +230,7 @@ private:
      *                 - 2 2nd derivative wrt temperature
      *                 - 3 derivative wrt pressure
      */
-    double gstar(const double temp, const double pres,
-                     const int ifunc = 0) const;
+    double gstar(const double temp, const double pres, const int ifunc = 0) const;
 
     //! Function to look up Element Free Energies
     /*!

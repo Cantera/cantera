@@ -43,7 +43,7 @@ public:
      * all domains between their specified lower and upper bounds.
      */
     double boundStep(const double* x0, const double* step0,
-                         const OneDim& r, int loglevel);
+                     const OneDim& r, int loglevel);
 
     /**
      * On entry, step0 must contain an undamped Newton step for the solution x0.
@@ -57,16 +57,14 @@ public:
                  OneDim& r, MultiJac& jac, int loglevel, bool writetitle);
 
     //! Compute the weighted 2-norm of `step`.
-    double norm2(const double* x, const double* step,
-                     OneDim& r) const;
+    double norm2(const double* x, const double* step, OneDim& r) const;
 
     /**
      * Find the solution to F(X) = 0 by damped Newton iteration. On entry, x0
      * contains an initial estimate of the solution. On successful return, x1
      * contains the converged solution.
      */
-    int solve(double* x0, double* x1, OneDim& r, MultiJac& jac,
-              int loglevel);
+    int solve(double* x0, double* x1, OneDim& r, MultiJac& jac, int loglevel);
 
     //! Set options.
     void setOptions(int maxJacAge = 5) {

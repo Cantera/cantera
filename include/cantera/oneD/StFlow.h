@@ -305,8 +305,7 @@ public:
      *  j-1, j, and j+1. This option is used to efficiently evaluate the
      *  Jacobian numerically.
      */
-    virtual void eval(size_t j, double* x, double* r,
-                      integer* mask, double rdt);
+    virtual void eval(size_t j, double* x, double* r, integer* mask, double rdt);
 
     //! Evaluate all residual components at the right boundary.
     virtual void evalRightBoundary(double* x, double* res, int* diag,

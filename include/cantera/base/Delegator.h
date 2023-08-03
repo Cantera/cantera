@@ -524,13 +524,10 @@ protected:
     map<string, function<void(bool)>*> m_funcs_v_b;
     map<string, function<void(double)>*> m_funcs_v_d;
     map<string, function<void(AnyMap&)>*> m_funcs_v_AMr;
-    map<string,
-        function<void(const AnyMap&, const UnitStack&)>*> m_funcs_v_cAMr_cUSr;
+    map<string, function<void(const AnyMap&, const UnitStack&)>*> m_funcs_v_cAMr_cUSr;
     map<string, function<void(const string&, void*)>*> m_funcs_v_csr_vp;
-    map<string,
-        function<void(std::array<size_t, 1>, double*)>*> m_funcs_v_dp;
-    map<string,
-        function<void(std::array<size_t, 1>, double, double*)>*> m_funcs_v_d_dp;
+    map<string, function<void(std::array<size_t, 1>, double*)>*> m_funcs_v_dp;
+    map<string, function<void(std::array<size_t, 1>, double, double*)>*> m_funcs_v_d_dp;
     map<string,
         function<void(std::array<size_t, 2>, double, double*, double*)>*> m_funcs_v_d_dp_dp;
     map<string,
@@ -540,15 +537,11 @@ protected:
     map<string, function<double(void*)>> m_base_d_vp;
     map<string, function<double(void*)>*> m_funcs_d_vp;
 
-    map<string,
-        function<string(size_t)>> m_base_s_sz;
-    map<string,
-        function<string(size_t)>*> m_funcs_s_sz;
+    map<string, function<string(size_t)>> m_base_s_sz;
+    map<string, function<string(size_t)>*> m_funcs_s_sz;
 
-    map<string,
-        function<size_t(const string&)>> m_base_sz_csr;
-    map<string,
-        function<size_t(const string&)>*> m_funcs_sz_csr;
+    map<string, function<size_t(const string&)>> m_base_sz_csr;
+    map<string, function<size_t(const string&)>*> m_funcs_sz_csr;
     //! @}
 
     //! Handles to wrappers for the delegated object in external language interfaces.

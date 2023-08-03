@@ -186,8 +186,7 @@ public:
     virtual void initThermo();
     virtual void getParameters(AnyMap& phaseNode) const;
 
-    virtual string report(bool show_thermo=true,
-                               double threshold=1e-14) const;
+    virtual string report(bool show_thermo=true, double threshold=1e-14) const;
 
     virtual bool compatibleWithMultiPhase() const {
         return false;

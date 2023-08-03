@@ -164,8 +164,7 @@ public:
      *  @param b         @f$ a @f$ parameter in the Peng-Robinson model [m^3/kmol]
      *  @param w         acentric factor
      */
-    void setSpeciesCoeffs(const string& species, double a, double b,
-                          double w);
+    void setSpeciesCoeffs(const string& species, double a, double b, double w);
 
     //! Set values for the interaction parameter between two species
     /*!
@@ -173,8 +172,7 @@ public:
      *  @param species_j   Name of the other species
      *  @param a           @f$ a @f$ parameter in the Peng-Robinson model [Pa-m^6/kmol^2]
      */
-    void setBinaryCoeffs(const string& species_i,
-                         const string& species_j, double a);
+    void setBinaryCoeffs(const string& species_i, const string& species_j, double a);
     //! @}
 
 protected:
