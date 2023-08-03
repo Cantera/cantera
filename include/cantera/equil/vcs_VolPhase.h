@@ -252,7 +252,7 @@ public:
     /**
      * This is essentially a scatter operation.
      *
-     * @param LnAcJac_VCS Jacobian parameter
+     * @param LnACJac_VCS Jacobian parameter
      *     The Jacobians are actually d( lnActCoeff) / d (MolNumber);
      *     dLnActCoeffdMolNumber(k,j)
      *
@@ -261,7 +261,7 @@ public:
      */
     void sendToVCS_LnActCoeffJac(Array2D& LnACJac_VCS);
 
-    //! Set the pointer for Cantera's ThermoPhase parameter
+    //! Set the pointer for %Cantera's ThermoPhase parameter
     /*!
      * When we first initialize the ThermoPhase object, we read the state of the
      * ThermoPhase into vcs_VolPhase object.

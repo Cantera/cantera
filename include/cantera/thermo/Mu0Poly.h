@@ -93,7 +93,6 @@ public:
      *            - coeffs[6] = @f$ T_3 @f$  (Kelvin)
      *            - coeffs[7] = @f$ \mu^o(T_3) @f$ (J/kmol)
      *            - ........
-     *            .
      */
     Mu0Poly(double tlow, double thigh, double pref, const double* coeffs);
 
