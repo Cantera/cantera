@@ -247,9 +247,9 @@ public:
      */
     void setState_T(const double temperature_Kelvin);
 
-    // Downloads the ln ActCoeff Jacobian into the VCS version of the
-    // ln ActCoeff Jacobian.
-    /*
+    //! Downloads the ln ActCoeff Jacobian into the VCS version of the
+    //! ln ActCoeff Jacobian.
+    /**
      * This is essentially a scatter operation.
      *
      * @param LnAcJac_VCS Jacobian parameter

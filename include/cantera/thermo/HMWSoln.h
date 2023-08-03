@@ -1966,7 +1966,7 @@ private:
     virtual void applyphScale(doublereal* acMolality) const;
 
 private:
-    /*
+    /**
      * This function will be called to update the internally stored
      * natural logarithm of the molality activity coefficients
      */
@@ -1996,7 +1996,7 @@ private:
 
     //! This function will be called to update the internally stored
     //! natural logarithm of the molality activity coefficients
-    /*
+    /**
      * Normally they are all one. However, sometimes they are not,
      * due to stability schemes
      *

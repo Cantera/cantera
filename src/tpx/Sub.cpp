@@ -1,5 +1,5 @@
-//! @file Sub.cpp
-/*
+/**
+ * @file Sub.cpp
  * The Substance class
  * D. Goodwin, Caltech Nov. 1996
  */

@@ -20,7 +20,7 @@ using std::exp;
 using std::pow;
 using std::fabs;
 
-/*
+/**
  * The added constants were calculated so that u = s = 0
  * for liquid at the triple point. These where determined
  * by the program testPress. I'm not quite satisfied with

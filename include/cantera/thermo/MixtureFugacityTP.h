@@ -352,7 +352,7 @@ protected:
 
     //! Calculate the deviation terms for the total entropy of the mixture from
     //! the ideal gas mixture
-    /*
+    /**
      * Here we use the current state conditions
      *
      * @returns the change in entropy in units of J kmol-1 K-1.
@@ -361,7 +361,7 @@ protected:
 
     //! Calculate the deviation terms for the total enthalpy of the mixture from
     //! the ideal gas mixture
-    /*
+    /**
      * Here we use the current state conditions
      *
      * @returns the change in entropy in units of J kmol-1.
