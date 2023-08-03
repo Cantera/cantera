@@ -82,7 +82,7 @@ public:
      * @param n phase Index in this kinetics object.
      * @param V Electric potential (volts)
      */
-    void setElectricPotential(int n, doublereal V);
+    void setElectricPotential(int n, double V);
 
     //! @name Reaction Rates Of Progress
     //! @{
@@ -94,23 +94,23 @@ public:
      *   where deltaG is the electrochemical potential difference between
      *   products minus reactants.
      */
-    virtual void getEquilibriumConstants(doublereal* kc);
+    virtual void getEquilibriumConstants(double* kc);
 
-    virtual void getDeltaGibbs(doublereal* deltaG);
+    virtual void getDeltaGibbs(double* deltaG);
 
-    virtual void getDeltaElectrochemPotentials(doublereal* deltaM);
-    virtual void getDeltaEnthalpy(doublereal* deltaH);
-    virtual void getDeltaEntropy(doublereal* deltaS);
+    virtual void getDeltaElectrochemPotentials(double* deltaM);
+    virtual void getDeltaEnthalpy(double* deltaH);
+    virtual void getDeltaEntropy(double* deltaS);
 
-    virtual void getDeltaSSGibbs(doublereal* deltaG);
-    virtual void getDeltaSSEnthalpy(doublereal* deltaH);
-    virtual void getDeltaSSEntropy(doublereal* deltaS);
+    virtual void getDeltaSSGibbs(double* deltaG);
+    virtual void getDeltaSSEnthalpy(double* deltaH);
+    virtual void getDeltaSSEntropy(double* deltaS);
 
     //! @}
     //! @name Reaction Mechanism Informational Query Routines
     //! @{
 
-    virtual void getActivityConcentrations(doublereal* const conc);
+    virtual void getActivityConcentrations(double* const conc);
 
     virtual bool isReversible(size_t i) {
         if (std::find(m_revindex.begin(), m_revindex.end(), i)
@@ -121,8 +121,8 @@ public:
         }
     }
 
-    virtual void getFwdRateConstants(doublereal* kfwd);
-    virtual void getRevRateConstants(doublereal* krev,
+    virtual void getFwdRateConstants(double* kfwd);
+    virtual void getRevRateConstants(double* krev,
                                      bool doIrreversible = false);
 
     //! @}
@@ -199,7 +199,7 @@ public:
      * @param maxErrTestFails   the maximum permissible number of error test failures
      *                           If not supplied, uses the default value in CVODES (7).
      */
-    void advanceCoverages(doublereal tstep, double rtol=1.e-7,
+    void advanceCoverages(double tstep, double rtol=1.e-7,
                           double atol=1.e-14, double maxStepSize=0,
                           size_t maxSteps=20000, size_t maxErrTestFails=7);
 
@@ -222,7 +222,7 @@ public:
      *             system is solved directly.
      */
     void solvePseudoSteadyStateProblem(int ifuncOverride = -1,
-                                       doublereal timeScaleOverride = 1.0);
+                                       double timeScaleOverride = 1.0);
 
     void setIOFlag(int ioFlag);
 

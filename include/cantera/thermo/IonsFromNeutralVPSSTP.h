@@ -98,12 +98,12 @@ public:
     /*!
      * This is calculated from the partial molar enthalpies of the species.
      */
-    virtual doublereal enthalpy_mole() const;
+    virtual double enthalpy_mole() const;
 
-    virtual doublereal entropy_mole() const;
-    virtual doublereal gibbs_mole() const;
-    virtual doublereal cp_mole() const;
-    virtual doublereal cv_mole() const;
+    virtual double entropy_mole() const;
+    virtual double gibbs_mole() const;
+    virtual double cp_mole() const;
+    virtual double cv_mole() const;
 
     //! @}
     //! @name Activities, Standard States, and Activity Concentrations
@@ -115,13 +115,13 @@ public:
     //! on temperature and pressure.
     //! @{
 
-    virtual void getActivityCoefficients(doublereal* ac) const;
+    virtual void getActivityCoefficients(double* ac) const;
 
     //! @}
     //! @name  Partial Molar Properties of the Solution
     //! @{
 
-    virtual void getChemPotentials(doublereal* mu) const;
+    virtual void getChemPotentials(double* mu) const;
 
     //! Returns an array of partial molar enthalpies for the species in the
     //! mixture.
@@ -139,7 +139,7 @@ public:
      *  @param hbar  Output vector of species partial molar enthalpies.
      *               Length: m_kk. Units: J/kmol
      */
-    virtual void getPartialMolarEnthalpies(doublereal* hbar) const;
+    virtual void getPartialMolarEnthalpies(double* hbar) const;
 
     //! Returns an array of partial molar entropies for the species in the
     //! mixture.
@@ -159,13 +159,13 @@ public:
      *  @param sbar  Output vector of species partial molar entropies.
      *               Length: m_kk. Units: J/kmol/K
      */
-    virtual void getPartialMolarEntropies(doublereal* sbar) const;
+    virtual void getPartialMolarEntropies(double* sbar) const;
 
-    virtual void getdlnActCoeffds(const doublereal dTds, const doublereal* const dXds,
-                                  doublereal* dlnActCoeffds) const;
-    virtual void getdlnActCoeffdlnX_diag(doublereal* dlnActCoeffdlnX_diag) const;
-    virtual void getdlnActCoeffdlnN_diag(doublereal* dlnActCoeffdlnN_diag) const;
-    virtual void getdlnActCoeffdlnN(const size_t ld, doublereal* const dlnActCoeffdlnN);
+    virtual void getdlnActCoeffds(const double dTds, const double* const dXds,
+                                  double* dlnActCoeffds) const;
+    virtual void getdlnActCoeffdlnX_diag(double* dlnActCoeffdlnX_diag) const;
+    virtual void getdlnActCoeffdlnN_diag(double* dlnActCoeffdlnN_diag) const;
+    virtual void getdlnActCoeffdlnN(const size_t ld, double* const dlnActCoeffdlnN);
     //! @}
 
     //! Get the Salt Dissociation Coefficients.
@@ -205,7 +205,7 @@ public:
      * @param  dx  input vector of ion mole fraction gradients
      * @param  dy  output Vector of neutral molecule mole fraction gradients
      */
-    void getNeutralMoleculeMoleGrads(const doublereal* const dx, doublereal* const dy) const;
+    void getNeutralMoleculeMoleGrads(const double* const dx, double* const dy) const;
 
     //! Get the list of cations in this object
     /*!
@@ -234,7 +234,7 @@ public:
     /*!
      *  @param mf Dump the mole fractions into this vector.
      */
-    virtual void calcIonMoleFractions(doublereal* const mf) const;
+    virtual void calcIonMoleFractions(double* const mf) const;
 
     //! Calculate neutral molecule mole fractions
     /*!

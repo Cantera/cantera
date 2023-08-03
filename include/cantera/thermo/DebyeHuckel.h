@@ -436,7 +436,7 @@ public:
     //! @name  Molar Thermodynamic Properties of the Solution
     //! @{
 
-    virtual doublereal enthalpy_mole() const;
+    virtual double enthalpy_mole() const;
 
     //! Molar entropy. Units: J/kmol/K.
     /**
@@ -453,10 +453,10 @@ public:
      * temperature since the volume expansivities are equal to zero.
      * @see MultiSpeciesThermo
      */
-    virtual doublereal entropy_mole() const;
+    virtual double entropy_mole() const;
 
-    virtual doublereal gibbs_mole() const;
-    virtual doublereal cp_mole() const;
+    virtual double gibbs_mole() const;
+    virtual double cp_mole() const;
 
     //! @}
     //! @name Mechanical Equation of State Properties
@@ -482,7 +482,7 @@ public:
     //! to be molality-based here.
     //! @{
 
-    virtual void getActivityConcentrations(doublereal* c) const;
+    virtual void getActivityConcentrations(double* c) const;
 
     //! Return the standard concentration for the kth species
     /*!
@@ -498,7 +498,7 @@ public:
      *         assume this refers to species 0.
      * @return the standard Concentration in units of m^3/kmol
      */
-    virtual doublereal standardConcentration(size_t k=0) const;
+    virtual double standardConcentration(size_t k=0) const;
 
     //! Get the array of non-dimensional activities at the current solution
     //! temperature, pressure, and solution concentration.
@@ -507,7 +507,7 @@ public:
      *
      * @param ac  Output vector of activities. Length: m_kk.
      */
-    virtual void getActivities(doublereal* ac) const;
+    virtual void getActivities(double* ac) const;
 
     //! Get the array of non-dimensional molality-based activity coefficients at
     //! the current solution temperature, pressure, and solution concentration.
@@ -520,7 +520,7 @@ public:
      * @param acMolality Vector of Molality-based activity coefficients
      *                   Length: m_kk
      */
-    virtual void getMolalityActivityCoefficients(doublereal* acMolality) const;
+    virtual void getMolalityActivityCoefficients(double* acMolality) const;
 
     //! @}
     //! @name Partial Molar Properties of the Solution
@@ -539,7 +539,7 @@ public:
      * @param mu  Output vector of species chemical
      *            potentials. Length: m_kk. Units: J/kmol
      */
-    virtual void getChemPotentials(doublereal* mu) const;
+    virtual void getChemPotentials(double* mu) const;
 
     //! Returns an array of partial molar enthalpies for the species
     //! in the mixture. Units (J/kmol)
@@ -562,7 +562,7 @@ public:
      * @param hbar    Output vector of species partial molar enthalpies.
      *                Length: m_kk. units are J/kmol.
      */
-    virtual void getPartialMolarEnthalpies(doublereal* hbar) const;
+    virtual void getPartialMolarEnthalpies(double* hbar) const;
 
     //! Returns an array of partial molar entropies of the species in the
     //! solution. Units: J/kmol/K.
@@ -592,9 +592,9 @@ public:
      *  @param sbar    Output vector of species partial molar entropies.
      *                 Length = m_kk. units are J/kmol/K.
      */
-    virtual void getPartialMolarEntropies(doublereal* sbar) const;
+    virtual void getPartialMolarEntropies(double* sbar) const;
 
-    virtual void getPartialMolarCp(doublereal* cpbar) const;
+    virtual void getPartialMolarCp(double* cpbar) const;
 
     //! Return an array of partial molar volumes for the species in the mixture.
     //! Units: m^3/kmol.
@@ -612,7 +612,7 @@ public:
      *  @param vbar   Output vector of species partial molar volumes.
      *                Length = m_kk. units are m^3/kmol.
      */
-    virtual void getPartialMolarVolumes(doublereal* vbar) const;
+    virtual void getPartialMolarVolumes(double* vbar) const;
 
     //! @}
 

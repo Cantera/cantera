@@ -138,7 +138,7 @@ public:
      *              Length: m_kk.
      * @deprecated To be removed after %Cantera 3.0. Use getChemPotentials() instead.
      */
-    virtual void getChemPotentials_RT(doublereal* mu) const;
+    virtual void getChemPotentials_RT(double* mu) const;
 
     //! @}
     //! @name  Properties of the Standard State of the Species in the Solution
@@ -161,7 +161,7 @@ public:
      * @param mu   Output vector of standard state chemical potentials.
      *             length = m_kk. units are J / kmol.
      */
-    virtual void getStandardChemPotentials(doublereal* mu) const;
+    virtual void getStandardChemPotentials(double* mu) const;
 
     //! Get the nondimensional Enthalpy functions for the species at their
     //! standard states at the current *T* and *P* of the solution.
@@ -173,7 +173,7 @@ public:
     * @param hrt     Output vector of standard state enthalpies.
     *                length = m_kk. units are unitless.
     */
-    virtual void getEnthalpy_RT(doublereal* hrt) const;
+    virtual void getEnthalpy_RT(double* hrt) const;
 
     //! Get the array of nondimensional Enthalpy functions for the standard
     //! state species at the current *T* and *P* of the solution.
@@ -185,7 +185,7 @@ public:
      * @param sr     Output vector of nondimensional standard state entropies.
      *               length = m_kk.
      */
-    virtual void getEntropy_R(doublereal* sr) const;
+    virtual void getEntropy_R(double* sr) const;
 
     //! Get the nondimensional Gibbs functions for the species at their standard
     //! states of solution at the current T and P of the solution.
@@ -197,7 +197,7 @@ public:
      * @param grt    Output vector of nondimensional standard state Gibbs free
      *               energies. length = m_kk.
      */
-    virtual void getGibbs_RT(doublereal* grt) const;
+    virtual void getGibbs_RT(double* grt) const;
 
     //! Get the pure Gibbs free energies of each species. Species are assumed to
     //! be in their standard states.
@@ -207,7 +207,7 @@ public:
      * @param[out] gpure   Array of standard state Gibbs free energies. length =
      *     m_kk. units are J/kmol.
      */
-    virtual void getPureGibbs(doublereal* gpure) const;
+    virtual void getPureGibbs(double* gpure) const;
 
     //! Returns the vector of nondimensional internal Energies of the standard
     //! state at the current temperature and pressure of the solution for each
@@ -224,7 +224,7 @@ public:
      * @param urt    Output vector of nondimensional standard state internal
      *               energies. length = m_kk.
      */
-    virtual void getIntEnergy_RT(doublereal* urt) const;
+    virtual void getIntEnergy_RT(double* urt) const;
 
     //! Get the nondimensional Heat Capacities at constant pressure for the
     //! standard state of the species at the current T and P.
@@ -237,7 +237,7 @@ public:
      *               Capacities at constant pressure for the standard state of
      *               the species. Length: m_kk.
      */
-    virtual void getCp_R(doublereal* cpr) const;
+    virtual void getCp_R(double* cpr) const;
 
     //! Get the molar volumes of each species in their standard states at the
     //! current *T* and *P* of the solution.
@@ -251,7 +251,7 @@ public:
      * @param vol Output vector of species volumes. length = m_kk.
      *            units =  m^3 / kmol
      */
-    virtual void getStandardVolumes(doublereal* vol) const;
+    virtual void getStandardVolumes(double* vol) const;
     //! @}
 
     //! Set the temperature of the phase
@@ -261,7 +261,7 @@ public:
      *
      * @param temp  Temperature (kelvin)
      */
-    virtual void setTemperature(const doublereal temp);
+    virtual void setTemperature(const double temp);
 
     //! Set the internally stored pressure (Pa) at constant temperature and
     //! composition
@@ -271,7 +271,7 @@ public:
      *
      *  @param p input Pressure (Pa)
      */
-    virtual void setPressure(doublereal p);
+    virtual void setPressure(double p);
 
 protected:
     virtual void compositionChanged();
@@ -305,8 +305,8 @@ public:
     //! routine _updateRefStateThermo().
     //! @{
 
-    virtual void getEnthalpy_RT_ref(doublereal* hrt) const;
-    virtual void getGibbs_RT_ref(doublereal* grt) const;
+    virtual void getEnthalpy_RT_ref(double* hrt) const;
+    virtual void getGibbs_RT_ref(double* grt) const;
 
 protected:
     //! Returns the vector of nondimensional Gibbs free energies of the
@@ -320,10 +320,10 @@ protected:
     const vector<double>& gibbs_RT_ref() const;
 
 public:
-    virtual void getGibbs_ref(doublereal* g) const;
-    virtual void getEntropy_R_ref(doublereal* er) const;
-    virtual void getCp_R_ref(doublereal* cprt) const;
-    virtual void getStandardVolumes_ref(doublereal* vol) const;
+    virtual void getGibbs_ref(double* g) const;
+    virtual void getEntropy_R_ref(double* er) const;
+    virtual void getCp_R_ref(double* cprt) const;
+    virtual void getStandardVolumes_ref(double* vol) const;
 
     //! @}
     //! @name Initialization Methods - For Internal use
@@ -348,7 +348,7 @@ protected:
      *
      *  returns the value of z
      */
-    doublereal z() const;
+    double z() const;
 
     //! Calculate the deviation terms for the total entropy of the mixture from
     //! the ideal gas mixture
@@ -357,7 +357,7 @@ protected:
      *
      * @returns the change in entropy in units of J kmol-1 K-1.
      */
-    virtual doublereal sresid() const;
+    virtual double sresid() const;
 
     //! Calculate the deviation terms for the total enthalpy of the mixture from
     //! the ideal gas mixture
@@ -366,7 +366,7 @@ protected:
      *
      * @returns the change in entropy in units of J kmol-1.
      */
-    virtual doublereal hresid() const;
+    virtual double hresid() const;
 
     //! Estimate for the saturation pressure
     /*!
@@ -376,7 +376,7 @@ protected:
      * @param TKelvin  temperature in kelvin
      * @return the estimated saturation pressure at the given temperature
      */
-    virtual doublereal psatEst(doublereal TKelvin) const;
+    virtual double psatEst(double TKelvin) const;
 
 public:
     //! Estimate for the molar volume of the liquid
@@ -393,7 +393,7 @@ public:
      * @returns the estimate of the liquid volume. If the liquid can't be
      *          found, this routine returns -1.
      */
-    virtual doublereal liquidVolEst(doublereal TKelvin, doublereal& pres) const;
+    virtual double liquidVolEst(double TKelvin, double& pres) const;
 
     //! Calculates the density given the temperature and the pressure and a
     //! guess at the density.
@@ -417,8 +417,8 @@ public:
      *            have found an acceptable density at a different phase, we
      *            return a -2.
      */
-    virtual doublereal densityCalc(doublereal TKelvin, doublereal pressure, int phaseRequested,
-                                   doublereal rhoguess);
+    virtual double densityCalc(double TKelvin, double pressure, int phaseRequested,
+                                   double rhoguess);
 
 protected:
     //! Utility routine in the calculation of the saturation pressure
@@ -430,8 +430,8 @@ protected:
      * @param[out] liqGRT    deltaG/RT of liquid
      * @param[out] gasGRT    deltaG/RT of gas
      */
-    int corr0(doublereal TKelvin, doublereal pres, doublereal& densLiq,
-              doublereal& densGas, doublereal& liqGRT, doublereal& gasGRT);
+    int corr0(double TKelvin, double pres, double& densLiq,
+              double& densGas, double& liqGRT, double& gasGRT);
 
 public:
     //! Returns the Phase State flag for the current state of the object
@@ -451,14 +451,14 @@ public:
     /*!
      * @returns the density with units of kg m-3
      */
-    virtual doublereal densSpinodalLiquid() const;
+    virtual double densSpinodalLiquid() const;
 
     //! Return the value of the density at the gas spinodal point (on the gas
     //! side) for the current temperature.
     /*!
      * @returns the density with units of kg m-3
      */
-    virtual doublereal densSpinodalGas() const;
+    virtual double densSpinodalGas() const;
 
 public:
     //! Calculate the saturation pressure at the current mixture content for the
@@ -469,8 +469,8 @@ public:
      * @param molarVolLiquid  (return) Molar volume of the liquid
      * @returns the saturation pressure at the given temperature
      */
-    doublereal calculatePsat(doublereal TKelvin, doublereal& molarVolGas,
-                             doublereal& molarVolLiquid);
+    double calculatePsat(double TKelvin, double& molarVolGas,
+                             double& molarVolLiquid);
 
 public:
     //! Calculate the saturation pressure at the current mixture content for the
@@ -479,7 +479,7 @@ public:
      * @param TKelvin   Temperature (Kelvin)
      * @return          The saturation pressure at the given temperature
      */
-    virtual doublereal satPressure(doublereal TKelvin);
+    virtual double satPressure(double TKelvin);
     virtual void getActivityConcentrations(double* c) const;
 
 protected:
@@ -493,7 +493,7 @@ protected:
      * @param   presCalc  Returns the pressure.
      * @returns the derivative of the pressure wrt the molar volume
      */
-    virtual doublereal dpdVCalc(doublereal TKelvin, doublereal molarVol, doublereal& presCalc) const;
+    virtual double dpdVCalc(double TKelvin, double molarVol, double& presCalc) const;
 
     virtual void updateMixingExpressions();
 

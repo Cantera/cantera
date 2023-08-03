@@ -33,62 +33,62 @@ public:
         return false;
     }
 
-    virtual doublereal enthalpy_mole() const {
+    virtual double enthalpy_mole() const {
         return 0.0;
     }
-    virtual doublereal intEnergy_mole() const {
+    virtual double intEnergy_mole() const {
         return - pressure() * molarVolume();
     }
-    virtual doublereal entropy_mole() const {
+    virtual double entropy_mole() const {
         return 0.0;
     }
-    virtual doublereal gibbs_mole() const {
+    virtual double gibbs_mole() const {
         return 0.0;
     }
-    virtual doublereal cp_mole() const {
+    virtual double cp_mole() const {
         return 0.0;
     }
-    virtual doublereal cv_mole() const {
+    virtual double cv_mole() const {
         return 0.0;
     }
 
-    virtual void setPressure(doublereal pres) {
+    virtual void setPressure(double pres) {
         m_press = pres;
     }
-    virtual doublereal pressure() const {
+    virtual double pressure() const {
         return m_press;
     }
 
-    virtual void getChemPotentials(doublereal* mu) const {
+    virtual void getChemPotentials(double* mu) const {
         for (size_t n = 0; n < nSpecies(); n++) {
             mu[n] = 0.0;
         }
     }
 
-    virtual void getEnthalpy_RT(doublereal* hrt) const {
+    virtual void getEnthalpy_RT(double* hrt) const {
         for (size_t n = 0; n < nSpecies(); n++) {
             hrt[n] = 0.0;
         }
     }
 
-    virtual void getEntropy_R(doublereal* sr) const {
+    virtual void getEntropy_R(double* sr) const {
         for (size_t n = 0; n < nSpecies(); n++) {
             sr[n] = 0.0;
         }
     }
 
-    virtual void getStandardChemPotentials(doublereal* mu0) const {
+    virtual void getStandardChemPotentials(double* mu0) const {
         for (size_t n = 0; n < nSpecies(); n++) {
             mu0[n] = 0.0;
         }
     }
 
-    virtual void getActivityConcentrations(doublereal* c) const {
+    virtual void getActivityConcentrations(double* c) const {
         for (size_t n = 0; n < nSpecies(); n++) {
             c[n] = 1.0;
         }
     }
-    virtual void getPartialMolarEnthalpies(doublereal *h) const {
+    virtual void getPartialMolarEnthalpies(double *h) const {
         for (size_t n = 0; n < nSpecies(); n++) {
             h[n] = 0.0;
         }
@@ -98,11 +98,11 @@ public:
         return Units(1.0);
     }
 
-    virtual doublereal standardConcentration(size_t k=0) const {
+    virtual double standardConcentration(size_t k=0) const {
         return 1.0;
     }
 
-    virtual doublereal logStandardConc(size_t k=0) const {
+    virtual double logStandardConc(size_t k=0) const {
         return 0.0;
     }
 
@@ -118,7 +118,7 @@ public:
     }
 
 private:
-    doublereal m_press;
+    double m_press;
 };
 }
 

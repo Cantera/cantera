@@ -21,15 +21,15 @@ PDSS_Water::PDSS_Water() :
     m_mw = 2*getElementWeight("H") + getElementWeight("O");
 
     // Set the baseline
-    doublereal T = 298.15;
+    double T = 298.15;
     m_p0 = OneAtm;
-    doublereal presLow = 1.0E-2;
-    doublereal oneBar = 1.0E5;
-    doublereal dens = 1.0E-9;
+    double presLow = 1.0E-2;
+    double oneBar = 1.0E5;
+    double dens = 1.0E-9;
     m_dens = m_sub.density(T, presLow, WATER_GAS, dens);
     m_pres = presLow;
     SW_Offset = 0.0;
-    doublereal s = entropy_mole();
+    double s = entropy_mole();
     s -= GasConstant * log(oneBar/presLow);
     if (s != 188.835E3) {
         SW_Offset = 188.835E3 - s;
@@ -37,7 +37,7 @@ PDSS_Water::PDSS_Water() :
     s = entropy_mole();
     s -= GasConstant * log(oneBar/presLow);
 
-    doublereal h = enthalpy_mole();
+    double h = enthalpy_mole();
     if (h != -241.826E6) {
         EW_Offset = -241.826E6 - h;
     }
@@ -49,42 +49,42 @@ PDSS_Water::PDSS_Water() :
     m_pres = OneAtm;
 }
 
-doublereal PDSS_Water::enthalpy_mole() const
+double PDSS_Water::enthalpy_mole() const
 {
     return m_sub.enthalpy_mass() * m_mw + EW_Offset;
 }
 
-doublereal PDSS_Water::intEnergy_mole() const
+double PDSS_Water::intEnergy_mole() const
 {
     return m_sub.intEnergy_mass() * m_mw + EW_Offset;
 }
 
-doublereal PDSS_Water::entropy_mole() const
+double PDSS_Water::entropy_mole() const
 {
     return m_sub.entropy_mass() * m_mw + SW_Offset;
 }
 
-doublereal PDSS_Water::gibbs_mole() const
+double PDSS_Water::gibbs_mole() const
 {
     return m_sub.gibbs_mass() * m_mw+ EW_Offset - SW_Offset * m_temp;
 }
 
-doublereal PDSS_Water::cp_mole() const
+double PDSS_Water::cp_mole() const
 {
     return m_sub.cp_mass() * m_mw;
 }
 
-doublereal PDSS_Water::cv_mole() const
+double PDSS_Water::cv_mole() const
 {
     return m_sub.cv_mass() * m_mw;
 }
 
-doublereal PDSS_Water::molarVolume() const
+double PDSS_Water::molarVolume() const
 {
     return m_mw / m_sub.density();
 }
 
-doublereal PDSS_Water::gibbs_RT_ref() const
+double PDSS_Water::gibbs_RT_ref() const
 {
     m_sub.density(m_temp, m_p0, m_iState);
     double h = m_sub.enthalpy_mass() * m_mw;
@@ -92,7 +92,7 @@ doublereal PDSS_Water::gibbs_RT_ref() const
     return (h + EW_Offset - SW_Offset * m_temp) / (m_temp * GasConstant);
 }
 
-doublereal PDSS_Water::enthalpy_RT_ref() const
+double PDSS_Water::enthalpy_RT_ref() const
 {
     m_sub.density(m_temp, m_p0, m_iState);
     double h = m_sub.enthalpy_mass() * m_mw;
@@ -100,7 +100,7 @@ doublereal PDSS_Water::enthalpy_RT_ref() const
     return (h + EW_Offset) / (m_temp * GasConstant);
 }
 
-doublereal PDSS_Water::entropy_R_ref() const
+double PDSS_Water::entropy_R_ref() const
 {
     m_sub.density(m_temp, m_p0, m_iState);
     double s = m_sub.entropy_mass() * m_mw;
@@ -108,7 +108,7 @@ doublereal PDSS_Water::entropy_R_ref() const
     return (s + SW_Offset) / GasConstant;
 }
 
-doublereal PDSS_Water::cp_R_ref() const
+double PDSS_Water::cp_R_ref() const
 {
     m_sub.density(m_temp, m_p0, m_iState);
     double cp = m_sub.cp_mass() * m_mw;
@@ -116,7 +116,7 @@ doublereal PDSS_Water::cp_R_ref() const
     return cp / GasConstant;
 }
 
-doublereal PDSS_Water::molarVolume_ref() const
+double PDSS_Water::molarVolume_ref() const
 {
     m_sub.density(m_temp, m_p0, m_iState);
     double mv = m_mw / m_sub.density();
@@ -124,24 +124,24 @@ doublereal PDSS_Water::molarVolume_ref() const
     return mv;
 }
 
-doublereal PDSS_Water::pressure() const
+double PDSS_Water::pressure() const
 {
     m_pres = m_sub.pressure();
     return m_pres;
 }
 
-void PDSS_Water::setPressure(doublereal p)
+void PDSS_Water::setPressure(double p)
 {
     // In this routine we must be sure to only find the water branch of the
     // curve and not the gas branch
-    doublereal T = m_temp;
-    doublereal dens = m_dens;
+    double T = m_temp;
+    double dens = m_dens;
     int waterState = WATER_LIQUID;
     if (T > m_sub.Tcrit()) {
         waterState = WATER_SUPERCRIT;
     }
 
-    doublereal dd = m_sub.density(T, p, waterState, dens);
+    double dd = m_sub.density(T, p, waterState, dens);
     if (dd <= 0.0) {
         throw CanteraError("PDSS_Water:setPressure",
             "Failed to set water SS state: T = {} K and p = {} Pa", T, p);
@@ -157,65 +157,65 @@ void PDSS_Water::setPressure(doublereal p)
     }
 }
 
-doublereal PDSS_Water::thermalExpansionCoeff() const
+double PDSS_Water::thermalExpansionCoeff() const
 {
     return m_sub.coeffThermExp();
 }
 
-doublereal PDSS_Water::dthermalExpansionCoeffdT() const
+double PDSS_Water::dthermalExpansionCoeffdT() const
 {
-    doublereal pres = pressure();
-    doublereal dens_save = m_dens;
-    doublereal tt = m_temp - 0.04;
-    doublereal dd = m_sub.density(tt, pres, m_iState, m_dens);
+    double pres = pressure();
+    double dens_save = m_dens;
+    double tt = m_temp - 0.04;
+    double dd = m_sub.density(tt, pres, m_iState, m_dens);
     if (dd < 0.0) {
         throw CanteraError("PDSS_Water::dthermalExpansionCoeffdT",
             "unable to solve for the density at T = {}, P = {}", tt, pres);
     }
-    doublereal vald = m_sub.coeffThermExp();
+    double vald = m_sub.coeffThermExp();
     m_sub.setState_TD(m_temp, dens_save);
-    doublereal val2 = m_sub.coeffThermExp();
+    double val2 = m_sub.coeffThermExp();
     return (val2 - vald) / 0.04;
 }
 
-doublereal PDSS_Water::isothermalCompressibility() const
+double PDSS_Water::isothermalCompressibility() const
 {
     return m_sub.isothermalCompressibility();
 }
 
-doublereal PDSS_Water::critTemperature() const
+double PDSS_Water::critTemperature() const
 {
     return m_sub.Tcrit();
 }
 
-doublereal PDSS_Water::critPressure() const
+double PDSS_Water::critPressure() const
 {
     return m_sub.Pcrit();
 }
 
-doublereal PDSS_Water::critDensity() const
+double PDSS_Water::critDensity() const
 {
     return m_sub.Rhocrit();
 }
 
-void PDSS_Water::setDensity(doublereal dens)
+void PDSS_Water::setDensity(double dens)
 {
     m_dens = dens;
     m_sub.setState_TD(m_temp, m_dens);
 }
 
-doublereal PDSS_Water::density() const
+double PDSS_Water::density() const
 {
     return m_dens;
 }
 
-void PDSS_Water::setTemperature(doublereal temp)
+void PDSS_Water::setTemperature(double temp)
 {
     m_temp = temp;
     m_sub.setState_TD(temp, m_dens);
 }
 
-void PDSS_Water::setState_TP(doublereal temp, doublereal pres)
+void PDSS_Water::setState_TP(double temp, double pres)
 {
     m_temp = temp;
     setPressure(pres);
@@ -229,10 +229,10 @@ void PDSS_Water::setState_TR(double temp, double dens)
     m_sub.setState_TD(m_temp, m_dens);
 }
 
-doublereal PDSS_Water::pref_safe(doublereal temp) const
+double PDSS_Water::pref_safe(double temp) const
 {
     if (temp < m_sub.Tcrit()) {
-        doublereal pp = m_sub.psat_est(temp);
+        double pp = m_sub.psat_est(temp);
         if (pp > OneAtm) {
             return pp;
         }
@@ -242,9 +242,9 @@ doublereal PDSS_Water::pref_safe(doublereal temp) const
     return OneAtm;
 }
 
-doublereal PDSS_Water::satPressure(doublereal t)
+double PDSS_Water::satPressure(double t)
 {
-    doublereal pp = m_sub.psat(t, WATER_LIQUID);
+    double pp = m_sub.psat(t, WATER_LIQUID);
     m_dens = m_sub.density();
     m_temp = t;
     return pp;

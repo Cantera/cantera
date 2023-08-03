@@ -35,14 +35,14 @@ public:
      * @param b    Vector to do the rh multiplication
      * @param prod OUTPUT vector to receive the result
      */
-    virtual void mult(const doublereal* b, doublereal* prod) const = 0;
+    virtual void mult(const double* b, double* prod) const = 0;
 
     //! Multiply b*A and write result to prod.
     /*!
      * @param b    Vector to do the lh multiplication
      * @param prod OUTPUT vector to receive the result
      */
-    virtual void leftMult(const doublereal* const b, doublereal* const prod) const = 0;
+    virtual void leftMult(const double* const b, double* const prod) const = 0;
 
     //! Factors the A matrix, overwriting A.
     /*!
@@ -66,7 +66,7 @@ public:
      *
      * @returns the inverse of the condition number
      */
-    virtual doublereal rcondQR() {
+    virtual double rcondQR() {
         throw NotImplementedError("GeneralMatrix::rcondQR");
     }
 
@@ -77,7 +77,7 @@ public:
      * @param a1norm Norm of the matrix
      * @returns the inverse of the condition number
      */
-    virtual doublereal rcond(doublereal a1norm) = 0;
+    virtual double rcond(double a1norm) = 0;
 
     //! Change the way the matrix is factored
     /*!
@@ -93,7 +93,7 @@ public:
     virtual int factorAlgorithm() const = 0;
 
     //! Calculate the one norm of the matrix
-    virtual doublereal oneNorm() const = 0;
+    virtual double oneNorm() const = 0;
 
     //! Return the number of rows in the matrix
     virtual size_t nRows() const = 0;
@@ -110,7 +110,7 @@ public:
      * @param ldb  Leading dimension of the right-hand side array. Defaults to
      *              nRows()
      */
-    virtual int solve(doublereal* b, size_t nrhs=1, size_t ldb=0) = 0;
+    virtual int solve(double* b, size_t nrhs=1, size_t ldb=0) = 0;
 
     //! true if the current factorization is up to date with the matrix
     virtual bool factored() const {
@@ -123,7 +123,7 @@ public:
      * @param j   Value of the column
      * @returns a pointer to the top of the column
      */
-    virtual doublereal* ptrColumn(size_t j) = 0;
+    virtual double* ptrColumn(size_t j) = 0;
 
     //! Index into the (i,j) element
     /*!
@@ -131,7 +131,7 @@ public:
      * @param j  column
      * @returns a changeable reference to the matrix entry
      */
-    virtual doublereal& operator()(size_t i, size_t j) = 0;
+    virtual double& operator()(size_t i, size_t j) = 0;
 
     //! Constant Index into the (i,j) element
     /*!
@@ -139,7 +139,7 @@ public:
      * @param j  column
      * @returns an unchangeable reference to the matrix entry
      */
-    virtual doublereal operator()(size_t i, size_t j) const = 0;
+    virtual double operator()(size_t i, size_t j) const = 0;
 
     //! Return an iterator pointing to the first element
     /*!
@@ -160,7 +160,7 @@ public:
      *
      * @returns a vector of pointers to the top of the columns of the matrices.
      */
-    virtual doublereal* const* colPts() = 0;
+    virtual double* const* colPts() = 0;
 
     //! Check to see if we have any zero rows in the Jacobian
     /*!
@@ -170,7 +170,7 @@ public:
      * @param valueSmall  OUTPUT value of the largest coefficient in the smallest row
      * @return index of the row that is most nearly zero
      */
-    virtual size_t checkRows(doublereal& valueSmall) const = 0;
+    virtual size_t checkRows(double& valueSmall) const = 0;
 
     //! Check to see if we have any zero columns in the Jacobian
     /*!
@@ -180,7 +180,7 @@ public:
      * @param valueSmall  OUTPUT value of the largest coefficient in the smallest column
      * @return index of the column that is most nearly zero
      */
-    virtual size_t checkColumns(doublereal& valueSmall) const = 0;
+    virtual size_t checkColumns(double& valueSmall) const = 0;
 
 protected:
     //! Indicates whether the matrix is factored. 0 for unfactored; Non-zero

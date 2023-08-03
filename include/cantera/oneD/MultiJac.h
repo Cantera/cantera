@@ -31,10 +31,10 @@ public:
      * reciprocal of the time step. If zero, the steady-state Jacobian is
      * evaluated.
      */
-    void eval(doublereal* x0, doublereal* resid0, double rdt);
+    void eval(double* x0, double* resid0, double rdt);
 
     //! Elapsed CPU time spent computing the Jacobian.
-    doublereal elapsedTime() const {
+    double elapsedTime() const {
         return m_elapsed;
     }
 
@@ -53,7 +53,7 @@ public:
         m_age++;
     }
 
-    void updateTransient(doublereal rdt, integer* mask);
+    void updateTransient(double rdt, integer* mask);
 
     //! Set the Jacobian age.
     void setAge(int age) {
@@ -64,7 +64,7 @@ public:
         return m_mask;
     }
 
-    void incrementDiagonal(int j, doublereal d);
+    void incrementDiagonal(int j, double d);
 
 protected:
     //! Residual evaluator for this Jacobian

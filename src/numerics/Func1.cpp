@@ -52,13 +52,13 @@ string Func1::typeName() const
 }
 
 // Calls method eval to evaluate the function
-doublereal Func1::operator()(doublereal t) const
+double Func1::operator()(double t) const
 {
     return eval(t);
 }
 
 // Evaluate the function.
-doublereal Func1::eval(doublereal t) const
+double Func1::eval(double t) const
 {
     return 0.0;
 }
@@ -103,13 +103,13 @@ bool Func1::isIdentical(Func1& other) const
 }
 
 //! accessor function for the returned constant
-doublereal Func1::c() const
+double Func1::c() const
 {
     return m_c;
 }
 
 // Function to set the stored constant
-void Func1::setC(doublereal c)
+void Func1::setC(double c)
 {
     m_c = c;
 }
@@ -866,14 +866,14 @@ Func1& PlusConstant1::derivative() const {
 }
 
 
-doublereal Func1::isProportional(TimesConstant1& other)
+double Func1::isProportional(TimesConstant1& other)
 {
     if (isIdentical(other.func1())) {
         return other.c();
     }
     return 0.0;
 }
-doublereal Func1::isProportional(Func1& other)
+double Func1::isProportional(Func1& other)
 {
     if (isIdentical(other)) {
         return 1.0;
@@ -986,7 +986,7 @@ Func1& newSumFunction(Func1& f1, Func1& f2)
         delete &f2;
         return f1;
     }
-    doublereal c = f1.isProportional(f2);
+    double c = f1.isProportional(f2);
     if (c != 0) {
         if (c == -1.0) {
             return *(new Const1(0.0));
@@ -1032,7 +1032,7 @@ Func1& newDiffFunction(Func1& f1, Func1& f2)
         delete &f2;
         return *(new Const1(0.0));
     }
-    doublereal c = f1.isProportional(f2);
+    double c = f1.isProportional(f2);
     if (c != 0.0) {
         if (c == 1.0) {
             return *(new Const1(0.0));
@@ -1085,18 +1085,18 @@ Func1& newProdFunction(Func1& f1, Func1& f2)
         return *(new Const1(0.0));
     }
     if (isConstant(f1) && isConstant(f2)) {
-        doublereal c1c2 = f1.c() * f2.c();
+        double c1c2 = f1.c() * f2.c();
         delete &f1;
         delete &f2;
         return *(new Const1(c1c2));
     }
     if (isConstant(f1)) {
-        doublereal c = f1.c();
+        double c = f1.c();
         delete &f1;
         return newTimesConstFunction(f2, c);
     }
     if (isConstant(f2)) {
-        doublereal c = f2.c();
+        double c = f2.c();
         delete &f2;
         return newTimesConstFunction(f1, c);
     }
@@ -1119,7 +1119,7 @@ Func1& newProdFunction(Func1& f1, Func1& f2)
     bool tc2 = isTimesConst(f2);
 
     if (tc1 || tc2) {
-        doublereal c1 = 1.0, c2 = 1.0;
+        double c1 = 1.0, c2 = 1.0;
         Func1* ff1 = 0, *ff2 = 0;
         if (tc1) {
             c1 = f1.c();
@@ -1269,7 +1269,7 @@ Func1& newCompositeFunction(Func1& f1, Func1& f2)
         return *(new Const1(1.0));
     }
     if (isPow(f1) && isPow(f2)) {
-        doublereal c1c2 = f1.c() * f2.c();
+        double c1c2 = f1.c() * f2.c();
         delete &f1;
         delete &f2;
         return *(new Pow1(c1c2));
@@ -1297,9 +1297,9 @@ shared_ptr<Func1> newCompositeFunction(shared_ptr<Func1> f1, shared_ptr<Func1> f
     return make_shared<Composite1>(f1, f2);
 }
 
-Func1& newTimesConstFunction(Func1& f, doublereal c)
+Func1& newTimesConstFunction(Func1& f, double c)
 {
-    warn_deprecated("newTimesConstFunction(Func1&, doublereal)",
+    warn_deprecated("newTimesConstFunction(Func1&, double)",
         "To be removed after Cantera 3.0; replaced by shared pointer version.");
 
     if (c == 0.0) {
@@ -1330,16 +1330,16 @@ shared_ptr<Func1> newTimesConstFunction(shared_ptr<Func1> f, double c)
     return make_shared<TimesConstant1>(f, c);
 }
 
-Func1& newPlusConstFunction(Func1& f, doublereal c)
+Func1& newPlusConstFunction(Func1& f, double c)
 {
-    warn_deprecated("newPlusConstFunction(Func1&, doublereal)",
+    warn_deprecated("newPlusConstFunction(Func1&, double)",
         "To be removed after Cantera 3.0; replaced by shared pointer version.");
 
     if (c == 0.0) {
         return f;
     }
     if (isConstant(f)) {
-        doublereal cc = f.c() + c;
+        double cc = f.c() + c;
         delete &f;
         return *(new Const1(cc));
     }

@@ -134,8 +134,8 @@ public:
      */
     virtual void init() {  }
 
-    virtual void setInitialState(doublereal* xlocal = 0) {}
-    virtual void setState(size_t point, const doublereal* state, doublereal* x) {}
+    virtual void setInitialState(double* xlocal = 0) {}
+    virtual void setState(size_t point, const double* state, double* x) {}
 
     /**
      * When called, this function should reset "bad" values in the state vector
@@ -210,7 +210,7 @@ public:
     //! index of component with name \a name.
     virtual size_t componentIndex(const std::string& name) const;
 
-    void setBounds(size_t n, doublereal lower, doublereal upper) {
+    void setBounds(size_t n, double lower, double upper) {
         m_min[n] = lower;
         m_max[n] = upper;
     }
@@ -223,7 +223,7 @@ public:
      *      default), these tolerances will be applied to all solution
      *      components.
      */
-    void setTransientTolerances(doublereal rtol, doublereal atol, size_t n=npos);
+    void setTransientTolerances(double rtol, double atol, size_t n=npos);
 
     //! Set tolerances for steady-state mode
     /*!
@@ -233,15 +233,15 @@ public:
      *     default), these tolerances will be applied to all solution
      *     components.
      */
-    void setSteadyTolerances(doublereal rtol, doublereal atol, size_t n=npos);
+    void setSteadyTolerances(double rtol, double atol, size_t n=npos);
 
     //! Relative tolerance of the nth component.
-    doublereal rtol(size_t n) {
+    double rtol(size_t n) {
         return (m_rdt == 0.0 ? m_rtol_ss[n] : m_rtol_ts[n]);
     }
 
     //! Absolute tolerance of the nth component.
-    doublereal atol(size_t n) {
+    double atol(size_t n) {
         return (m_rdt == 0.0 ? m_atol_ss[n] : m_atol_ts[n]);
     }
 
@@ -266,12 +266,12 @@ public:
     }
 
     //! Upper bound on the nth component.
-    doublereal upperBound(size_t n) const {
+    double upperBound(size_t n) const {
         return m_max[n];
     }
 
     //! Lower bound on the nth component
-    doublereal lowerBound(size_t n) const {
+    double lowerBound(size_t n) const {
         return m_min[n];
     }
 
@@ -279,7 +279,7 @@ public:
     /*!
      * Copy the internally-stored solution at the last time step to array x0.
      */
-    void initTimeInteg(doublereal dt, const doublereal* x0) {
+    void initTimeInteg(double dt, const double* x0) {
         std::copy(x0 + loc(), x0 + loc() + size(), m_slast.begin());
         m_rdt = 1.0/dt;
     }
@@ -322,15 +322,15 @@ public:
      *  @param[in] rdt Reciprocal of the timestep (`rdt=0` implies steady-
      *  state.)
      */
-    virtual void eval(size_t j, doublereal* x, doublereal* r,
-                      integer* mask, doublereal rdt=0.0) {
+    virtual void eval(size_t j, double* x, double* r,
+                      integer* mask, double rdt=0.0) {
         throw NotImplementedError("Domain1D::eval");
     }
 
     size_t index(size_t n, size_t j) const {
         return m_nv*j + n;
     }
-    doublereal value(const doublereal* x, size_t n, size_t j) const {
+    double value(const double* x, size_t n, size_t j) const {
         return x[index(n,j)];
     }
 
@@ -503,13 +503,13 @@ public:
     //! Print the solution.
     virtual void show(const double* x);
 
-    doublereal z(size_t jlocal) const {
+    double z(size_t jlocal) const {
         return m_z[jlocal];
     }
-    doublereal zmin() const {
+    double zmin() const {
         return m_z[0];
     }
-    doublereal zmax() const {
+    double zmax() const {
         return m_z[m_points - 1];
     }
 
@@ -521,12 +521,12 @@ public:
     const vector<double>& grid() const {
         return m_z;
     }
-    doublereal grid(size_t point) const {
+    double grid(size_t point) const {
         return m_z[point];
     }
 
     //! called to set up initial grid, and after grid refinement
-    virtual void setupGrid(size_t n, const doublereal* z);
+    virtual void setupGrid(size_t n, const double* z);
 
     /**
      * Writes some or all initial solution values into the global solution
@@ -535,10 +535,10 @@ public:
      * been set locally prior to installing this domain into the container to be
      * written to the global solution vector.
      */
-    virtual void _getInitialSoln(doublereal* x);
+    virtual void _getInitialSoln(double* x);
 
     //! Initial value of solution component \a n at grid point \a j.
-    virtual doublereal initialValue(size_t n, size_t j);
+    virtual double initialValue(size_t n, size_t j);
 
     /**
      * In some cases, a domain may need to set parameters that depend on the
@@ -548,7 +548,7 @@ public:
      * this domain that will be used as the initial guess. If no such parameters
      * need to be set, then method _finalize does not need to be overloaded.
      */
-    virtual void _finalize(const doublereal* x) {}
+    virtual void _finalize(const double* x) {}
 
     /**
      * In some cases, for computational efficiency some properties (such as

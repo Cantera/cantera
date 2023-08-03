@@ -34,7 +34,7 @@ public:
 
     //! Compute the undamped Newton step.  The residual function is evaluated
     //! at `x`, but the Jacobian is not recomputed.
-    void step(doublereal* x, doublereal* step,
+    void step(double* x, double* step,
               OneDim& r, MultiJac& jac, int loglevel);
 
     /**
@@ -42,7 +42,7 @@ public:
      * must be multiplied in order to keep all solution components in
      * all domains between their specified lower and upper bounds.
      */
-    doublereal boundStep(const doublereal* x0, const doublereal* step0,
+    double boundStep(const double* x0, const double* step0,
                          const OneDim& r, int loglevel);
 
     /**
@@ -52,12 +52,12 @@ public:
      * successful, the new solution after taking the damped step is returned in
      * x1, and the undamped step at x1 is returned in step1.
      */
-    int dampStep(const doublereal* x0, const doublereal* step0,
-                 doublereal* x1, doublereal* step1, doublereal& s1,
+    int dampStep(const double* x0, const double* step0,
+                 double* x1, double* step1, double& s1,
                  OneDim& r, MultiJac& jac, int loglevel, bool writetitle);
 
     //! Compute the weighted 2-norm of `step`.
-    doublereal norm2(const doublereal* x, const doublereal* step,
+    double norm2(const double* x, const double* step,
                      OneDim& r) const;
 
     /**
@@ -65,7 +65,7 @@ public:
      * contains an initial estimate of the solution. On successful return, x1
      * contains the converged solution.
      */
-    int solve(doublereal* x0, doublereal* x1, OneDim& r, MultiJac& jac,
+    int solve(double* x0, double* x1, OneDim& r, MultiJac& jac,
               int loglevel);
 
     //! Set options.

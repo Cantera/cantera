@@ -67,12 +67,12 @@ const vector<string>& Phase::elementNames() const
     return m_elementNames;
 }
 
-doublereal Phase::atomicWeight(size_t m) const
+double Phase::atomicWeight(size_t m) const
 {
     return m_atomicWeights[m];
 }
 
-doublereal Phase::entropyElement298(size_t m) const
+double Phase::entropyElement298(size_t m) const
 {
     checkElementIndex(m);
     return m_entropy298[m];
@@ -100,7 +100,7 @@ int Phase::changeElementType(int m, int elem_type)
     return old;
 }
 
-doublereal Phase::nAtoms(size_t k, size_t m) const
+double Phase::nAtoms(size_t k, size_t m) const
 {
     checkElementIndex(m);
     checkSpeciesIndex(k);
@@ -254,7 +254,7 @@ void Phase::saveState(vector<double>& state) const
     saveState(state.size(), &state[0]);
 }
 
-void Phase::saveState(size_t lenstate, doublereal* state) const
+void Phase::saveState(size_t lenstate, double* state) const
 {
     auto native = nativeState();
 
@@ -389,7 +389,7 @@ void Phase::setMassFractionsByName(const std::string& y)
     setMassFractionsByName(parseCompString(y));
 }
 
-void Phase::setState_TRX(doublereal t, doublereal dens, const doublereal* x)
+void Phase::setState_TRX(double t, double dens, const double* x)
 {
     warn_deprecated("Phase::setState_TRX",
         "To be removed after Cantera 3.0. Replaceable by calls to "
@@ -398,7 +398,7 @@ void Phase::setState_TRX(doublereal t, doublereal dens, const doublereal* x)
     setState_TD(t, dens);
 }
 
-void Phase::setState_TNX(doublereal t, doublereal n, const doublereal* x)
+void Phase::setState_TNX(double t, double n, const double* x)
 {
     warn_deprecated("Phase::setState_TNX", "To be removed after Cantera 3.0. "
                     "Use 'setMoleFractions' and 'setState_TD' instead.");
@@ -407,7 +407,7 @@ void Phase::setState_TNX(doublereal t, doublereal n, const doublereal* x)
     setMolarDensity(n);
 }
 
-void Phase::setState_TRX(doublereal t, doublereal dens, const Composition& x)
+void Phase::setState_TRX(double t, double dens, const Composition& x)
 {
     warn_deprecated("Phase::setState_TRX",
         "To be removed after Cantera 3.0. Replaceable by calls to "
@@ -416,7 +416,7 @@ void Phase::setState_TRX(doublereal t, doublereal dens, const Composition& x)
     setState_TD(t, dens);
 }
 
-void Phase::setState_TRY(doublereal t, doublereal dens, const doublereal* y)
+void Phase::setState_TRY(double t, double dens, const double* y)
 {
     warn_deprecated("Phase::setState_TRY",
         "To be removed after Cantera 3.0. Replaceable by calls to "
@@ -425,7 +425,7 @@ void Phase::setState_TRY(doublereal t, doublereal dens, const doublereal* y)
     setState_TD(t, dens);
 }
 
-void Phase::setState_TRY(doublereal t, doublereal dens, const Composition& y)
+void Phase::setState_TRY(double t, double dens, const Composition& y)
 {
     warn_deprecated("Phase::setState_TRY",
         "To be removed after Cantera 3.0. Replaceable by calls to "
@@ -434,7 +434,7 @@ void Phase::setState_TRY(doublereal t, doublereal dens, const Composition& y)
     setState_TD(t, dens);
 }
 
-void Phase::setState_TR(doublereal t, doublereal rho)
+void Phase::setState_TR(double t, double rho)
 {
     warn_deprecated("Phase::setState_TR",
         "To be removed after Cantera 3.0. Renamed to setState_TD.");
@@ -447,7 +447,7 @@ void Phase::setState_TD(double t, double rho)
     setDensity(rho);
 }
 
-void Phase::setState_TX(doublereal t, doublereal* x)
+void Phase::setState_TX(double t, double* x)
 {
     warn_deprecated("Phase::setState_TX", "To be removed after Cantera 3.0. "
                     "Use calls to 'setTemperature' and 'setMoleFractions' instead.");
@@ -455,7 +455,7 @@ void Phase::setState_TX(doublereal t, doublereal* x)
     setMoleFractions(x);
 }
 
-void Phase::setState_TY(doublereal t, doublereal* y)
+void Phase::setState_TY(double t, double* y)
 {
     warn_deprecated("Phase::setState_TY", "To be removed after Cantera 3.0. "
                     "Use calls to 'setTemperature' and 'setMassFractions' instead.");
@@ -463,7 +463,7 @@ void Phase::setState_TY(doublereal t, doublereal* y)
     setMassFractions(y);
 }
 
-void Phase::setState_RX(doublereal rho, doublereal* x)
+void Phase::setState_RX(double rho, double* x)
 {
     warn_deprecated("Phase::setState_RX", "To be removed after Cantera 3.0. "
                     "Use calls to 'setDensity' and 'setMoleFractions' instead.");
@@ -471,7 +471,7 @@ void Phase::setState_RX(doublereal rho, doublereal* x)
     setDensity(rho);
 }
 
-void Phase::setState_RY(doublereal rho, doublereal* y)
+void Phase::setState_RY(double rho, double* y)
 {
     warn_deprecated("Phase::setState_RY", "To be removed after Cantera 3.0. "
                     "Use calls to 'setDensity' and 'setMassFractions' instead.");
@@ -479,7 +479,7 @@ void Phase::setState_RY(doublereal rho, doublereal* y)
     setDensity(rho);
 }
 
-doublereal Phase::molecularWeight(size_t k) const
+double Phase::molecularWeight(size_t k) const
 {
     checkSpeciesIndex(k);
     return m_molwts[k];
@@ -492,7 +492,7 @@ void Phase::getMolecularWeights(vector<double>& weights) const
     weights = molecularWeights();
 }
 
-void Phase::getMolecularWeights(doublereal* weights) const
+void Phase::getMolecularWeights(double* weights) const
 {
     const vector<double>& mw = molecularWeights();
     copy(mw.begin(), mw.end(), weights);
@@ -657,10 +657,10 @@ void Phase::setMolesNoTruncate(const double* const N)
     compositionChanged();
 }
 
-doublereal Phase::elementalMassFraction(const size_t m) const
+double Phase::elementalMassFraction(const size_t m) const
 {
     checkElementIndex(m);
-    doublereal Z_m = 0.0;
+    double Z_m = 0.0;
     for (size_t k = 0; k != m_kk; ++k) {
         Z_m += nAtoms(k, m) * atomicWeight(m) / molecularWeight(k)
             * massFraction(k);
@@ -668,7 +668,7 @@ doublereal Phase::elementalMassFraction(const size_t m) const
     return Z_m;
 }
 
-doublereal Phase::elementalMoleFraction(const size_t m) const
+double Phase::elementalMoleFraction(const size_t m) const
 {
     checkElementIndex(m);
     double denom = 0;
@@ -679,7 +679,7 @@ doublereal Phase::elementalMoleFraction(const size_t m) const
         }
         denom += atoms * moleFraction(k);
     }
-    doublereal numerator = 0.0;
+    double numerator = 0.0;
     for (size_t k = 0; k != m_kk; ++k) {
         numerator += nAtoms(k, m) * moleFraction(k);
     }
@@ -725,26 +725,26 @@ void Phase::assignDensity(const double density_)
     }
 }
 
-doublereal Phase::chargeDensity() const
+double Phase::chargeDensity() const
 {
-    doublereal cdens = 0.0;
+    double cdens = 0.0;
     for (size_t k = 0; k < m_kk; k++) {
         cdens += charge(k)*moleFraction(k);
     }
     return cdens * Faraday;
 }
 
-doublereal Phase::mean_X(const doublereal* const Q) const
+double Phase::mean_X(const double* const Q) const
 {
     return m_mmw*std::inner_product(m_ym.begin(), m_ym.end(), Q, 0.0);
 }
 
-doublereal Phase::mean_X(const vector<double>& Q) const
+double Phase::mean_X(const vector<double>& Q) const
 {
     return m_mmw*std::inner_product(m_ym.begin(), m_ym.end(), Q.begin(), 0.0);
 }
 
-doublereal Phase::sum_xlogx() const
+double Phase::sum_xlogx() const
 {
     double sumxlogx = 0;
     for (size_t k = 0; k < m_kk; k++) {
@@ -753,8 +753,8 @@ doublereal Phase::sum_xlogx() const
     return m_mmw * sumxlogx + std::log(m_mmw);
 }
 
-size_t Phase::addElement(const std::string& symbol, doublereal weight,
-                         int atomic_number, doublereal entropy298,
+size_t Phase::addElement(const std::string& symbol, double weight,
+                         int atomic_number, double entropy298,
                          int elem_type)
 {
     // Look up the atomic weight if not given
@@ -856,7 +856,7 @@ bool Phase::addSpecies(shared_ptr<Species> spec) {
     if (spec->charge != 0.0) {
         size_t eindex = elementIndex("E");
         if (eindex != npos) {
-            doublereal ecomp = comp[eindex];
+            double ecomp = comp[eindex];
             if (fabs(spec->charge + ecomp) > 0.001) {
                 if (ecomp != 0.0) {
                     throw CanteraError("Phase::addSpecies",

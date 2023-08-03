@@ -52,12 +52,12 @@ Units ThermoPhase::standardConcentrationUnits() const
     return Units(1.0, 0, -static_cast<double>(nDim()), 0, 0, 0, 1);
 }
 
-doublereal ThermoPhase::logStandardConc(size_t k) const
+double ThermoPhase::logStandardConc(size_t k) const
 {
     return log(standardConcentration(k));
 }
 
-void ThermoPhase::getActivities(doublereal* a) const
+void ThermoPhase::getActivities(double* a) const
 {
     getActivityConcentrations(a);
     for (size_t k = 0; k < nSpecies(); k++) {
@@ -65,7 +65,7 @@ void ThermoPhase::getActivities(doublereal* a) const
     }
 }
 
-void ThermoPhase::getLnActivityCoefficients(doublereal* lnac) const
+void ThermoPhase::getLnActivityCoefficients(double* lnac) const
 {
     getActivityCoefficients(lnac);
     for (size_t k = 0; k < m_kk; k++) {
@@ -73,7 +73,7 @@ void ThermoPhase::getLnActivityCoefficients(doublereal* lnac) const
     }
 }
 
-void ThermoPhase::getElectrochemPotentials(doublereal* mu) const
+void ThermoPhase::getElectrochemPotentials(double* mu) const
 {
     getChemPotentials(mu);
     double ve = Faraday * electricPotential();
@@ -82,43 +82,43 @@ void ThermoPhase::getElectrochemPotentials(doublereal* mu) const
     }
 }
 
-void ThermoPhase::setState_TPX(doublereal t, doublereal p, const doublereal* x)
+void ThermoPhase::setState_TPX(double t, double p, const double* x)
 {
     setMoleFractions(x);
     setState_TP(t,p);
 }
 
-void ThermoPhase::setState_TPX(doublereal t, doublereal p, const Composition& x)
+void ThermoPhase::setState_TPX(double t, double p, const Composition& x)
 {
     setMoleFractionsByName(x);
     setState_TP(t,p);
 }
 
-void ThermoPhase::setState_TPX(doublereal t, doublereal p, const std::string& x)
+void ThermoPhase::setState_TPX(double t, double p, const std::string& x)
 {
     setMoleFractionsByName(x);
     setState_TP(t,p);
 }
 
-void ThermoPhase::setState_TPY(doublereal t, doublereal p, const doublereal* y)
+void ThermoPhase::setState_TPY(double t, double p, const double* y)
 {
     setMassFractions(y);
     setState_TP(t,p);
 }
 
-void ThermoPhase::setState_TPY(doublereal t, doublereal p, const Composition& y)
+void ThermoPhase::setState_TPY(double t, double p, const Composition& y)
 {
     setMassFractionsByName(y);
     setState_TP(t,p);
 }
 
-void ThermoPhase::setState_TPY(doublereal t, doublereal p, const std::string& y)
+void ThermoPhase::setState_TPY(double t, double p, const std::string& y)
 {
     setMassFractionsByName(y);
     setState_TP(t,p);
 }
 
-void ThermoPhase::setState_TP(doublereal t, doublereal p)
+void ThermoPhase::setState_TP(double t, double p)
 {
     double tsave = temperature();
     double dsave = density();
@@ -131,7 +131,7 @@ void ThermoPhase::setState_TP(doublereal t, doublereal p)
     }
 }
 
-void ThermoPhase::setState_RPX(doublereal rho, doublereal p, const doublereal* x)
+void ThermoPhase::setState_RPX(double rho, double p, const double* x)
 {
     warn_deprecated("ThermoPhase::setState_RPX",
         "To be removed after Cantera 3.0. Replaceable by calls to "
@@ -140,7 +140,7 @@ void ThermoPhase::setState_RPX(doublereal rho, doublereal p, const doublereal* x
     setState_DP(rho, p);
 }
 
-void ThermoPhase::setState_RPX(doublereal rho, doublereal p, const Composition& x)
+void ThermoPhase::setState_RPX(double rho, double p, const Composition& x)
 {
     warn_deprecated("ThermoPhase::setState_RPX",
         "To be removed after Cantera 3.0. Replaceable by calls to "
@@ -149,7 +149,7 @@ void ThermoPhase::setState_RPX(doublereal rho, doublereal p, const Composition& 
     setState_DP(rho, p);
 }
 
-void ThermoPhase::setState_RPX(doublereal rho, doublereal p, const std::string& x)
+void ThermoPhase::setState_RPX(double rho, double p, const std::string& x)
 {
     warn_deprecated("ThermoPhase::setState_RPX",
         "To be removed after Cantera 3.0. Replaceable by calls to "
@@ -158,7 +158,7 @@ void ThermoPhase::setState_RPX(doublereal rho, doublereal p, const std::string& 
     setState_DP(rho, p);
 }
 
-void ThermoPhase::setState_RPY(doublereal rho, doublereal p, const doublereal* y)
+void ThermoPhase::setState_RPY(double rho, double p, const double* y)
 {
     warn_deprecated("ThermoPhase::setState_RPY",
         "To be removed after Cantera 3.0. Replaceable by calls to "
@@ -167,7 +167,7 @@ void ThermoPhase::setState_RPY(doublereal rho, doublereal p, const doublereal* y
     setState_DP(rho, p);
 }
 
-void ThermoPhase::setState_RPY(doublereal rho, doublereal p, const Composition& y)
+void ThermoPhase::setState_RPY(double rho, double p, const Composition& y)
 {
     warn_deprecated("ThermoPhase::setState_RPY",
         "To be removed after Cantera 3.0. Replaceable by calls to "
@@ -176,7 +176,7 @@ void ThermoPhase::setState_RPY(doublereal rho, doublereal p, const Composition& 
     setState_DP(rho, p);
 }
 
-void ThermoPhase::setState_RPY(doublereal rho, doublereal p, const std::string& y)
+void ThermoPhase::setState_RPY(double rho, double p, const std::string& y)
 {
     warn_deprecated("ThermoPhase::setState_RPY",
         "To be removed after Cantera 3.0. Replaceable by calls to "
@@ -185,14 +185,14 @@ void ThermoPhase::setState_RPY(doublereal rho, doublereal p, const std::string& 
     setState_DP(rho, p);
 }
 
-void ThermoPhase::setState_RP(doublereal rho, doublereal p)
+void ThermoPhase::setState_RP(double rho, double p)
 {
     warn_deprecated("ThermoPhase::setState_RP",
         "To be removed after Cantera 3.0. Renamed to setState_DP.");
     setState_DP(rho, p);
 }
 
-void ThermoPhase::setState_PX(doublereal p, doublereal* x)
+void ThermoPhase::setState_PX(double p, double* x)
 {
     warn_deprecated("ThermoPhase::setState_PX", "To be removed after Cantera 3.0. "
         "Call 'setMoleFractions' and 'setPressure' instead.");
@@ -200,7 +200,7 @@ void ThermoPhase::setState_PX(doublereal p, doublereal* x)
     setPressure(p);
 }
 
-void ThermoPhase::setState_PY(doublereal p, doublereal* y)
+void ThermoPhase::setState_PY(double p, double* y)
 {
     warn_deprecated("ThermoPhase::setState_PX", "To be removed after Cantera 3.0. "
         "Call 'setMassFractions' and 'setPressure' instead.");
@@ -328,7 +328,7 @@ void ThermoPhase::setState(const AnyMap& input_state)
     }
 }
 
-void ThermoPhase::setState_conditional_TP(doublereal t, doublereal p, bool set_p)
+void ThermoPhase::setState_conditional_TP(double t, double p, bool set_p)
 {
     setTemperature(t);
     if (set_p) {
@@ -339,12 +339,12 @@ void ThermoPhase::setState_conditional_TP(doublereal t, doublereal p, bool set_p
 void ThermoPhase::setState_HPorUV(double Htarget, double p,
                                   double rtol, bool doUV)
 {
-    doublereal dt;
-    doublereal v = 0.0;
+    double dt;
+    double v = 0.0;
 
     // Assign the specific volume or pressure and make sure it's positive
     if (doUV) {
-        doublereal v = p;
+        double v = p;
         if (v < 1.0E-300) {
             throw CanteraError("ThermoPhase::setState_HPorUV (UV)",
                                "Input specific volume is too small or negative. v = {}", v);
@@ -541,8 +541,8 @@ void ThermoPhase::setState_SV(double Starget, double v, double rtol)
 void ThermoPhase::setState_SPorSV(double Starget, double p,
                                   double rtol, bool doSV)
 {
-    doublereal v = 0.0;
-    doublereal dt;
+    double v = 0.0;
+    double dt;
     if (doSV) {
         v = p;
         if (v < 1.0E-300) {
@@ -1293,7 +1293,7 @@ void ThermoPhase::equilibrate(const std::string& XY, const std::string& solver,
     }
 }
 
-void ThermoPhase::getdlnActCoeffdlnN(const size_t ld, doublereal* const dlnActCoeffdlnN)
+void ThermoPhase::getdlnActCoeffdlnN(const size_t ld, double* const dlnActCoeffdlnN)
 {
     for (size_t m = 0; m < m_kk; m++) {
         for (size_t k = 0; k < m_kk; k++) {
@@ -1303,7 +1303,7 @@ void ThermoPhase::getdlnActCoeffdlnN(const size_t ld, doublereal* const dlnActCo
     return;
 }
 
-void ThermoPhase::getdlnActCoeffdlnN_numderiv(const size_t ld, doublereal* const dlnActCoeffdlnN)
+void ThermoPhase::getdlnActCoeffdlnN_numderiv(const size_t ld, double* const dlnActCoeffdlnN)
 {
     double deltaMoles_j = 0.0;
     double pres = pressure();
@@ -1357,7 +1357,7 @@ void ThermoPhase::getdlnActCoeffdlnN_numderiv(const size_t ld, doublereal* const
     setPressure(pres);
 }
 
-std::string ThermoPhase::report(bool show_thermo, doublereal threshold) const
+std::string ThermoPhase::report(bool show_thermo, double threshold) const
 {
     if (type() == "none") {
         throw NotImplementedError("ThermoPhase::report",

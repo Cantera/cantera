@@ -148,7 +148,7 @@ public:
      *  @param  j            column index.
      *  @returns a reference to A(i,j) which may be assigned.
      */
-    doublereal& operator()(size_t i, size_t j) {
+    double& operator()(size_t i, size_t j) {
         return value(i,j);
     }
 
@@ -158,7 +158,7 @@ public:
      * @param j   Index for the column to be retrieved.
      * @returns the value of the matrix entry
      */
-    doublereal operator()(size_t i, size_t j) const {
+    double operator()(size_t i, size_t j) const {
         return value(i,j);
     }
 
@@ -171,7 +171,7 @@ public:
      * @param j   The column index
      * @returns a changeable reference to the matrix entry
      */
-    doublereal& value(size_t i, size_t j) {
+    double& value(size_t i, size_t j) {
         return m_data[m_nrows*j + i];
     }
 
@@ -182,7 +182,7 @@ public:
      * @param i   The row index
      * @param j   The column index
      */
-    doublereal value(size_t i, size_t j) const {
+    double value(size_t i, size_t j) const {
         return m_data[m_nrows*j + i];
     }
 
@@ -232,7 +232,7 @@ public:
      * @param j   Value of the column
      * @returns a pointer to the top of the column
      */
-    doublereal* ptrColumn(size_t j) {
+    double* ptrColumn(size_t j) {
         return &m_data[m_nrows*j];
     }
 
@@ -242,7 +242,7 @@ public:
      * @param j   Value of the column
      * @returns a const pointer to the top of the column
      */
-    const doublereal* ptrColumn(size_t j) const {
+    const double* ptrColumn(size_t j) const {
         return &m_data[m_nrows*j];
     }
 

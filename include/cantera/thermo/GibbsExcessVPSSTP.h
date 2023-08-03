@@ -128,7 +128,7 @@ public:
     //! @{
 
     virtual Units standardConcentrationUnits() const;
-    virtual void getActivityConcentrations(doublereal* c) const;
+    virtual void getActivityConcentrations(double* c) const;
 
     /**
      * The standard concentration @f$ C^0_k @f$ used to normalize the
@@ -145,8 +145,8 @@ public:
      *
      * @param k species index. Defaults to zero.
      */
-    virtual doublereal standardConcentration(size_t k=0) const;
-    virtual doublereal logStandardConc(size_t k=0) const;
+    virtual double standardConcentration(size_t k=0) const;
+    virtual double logStandardConc(size_t k=0) const;
 
     //! Get the array of non-dimensional activities (molality based for this
     //! class and classes that derive from it) at the current solution
@@ -160,9 +160,9 @@ public:
      *
      * @param ac     Output vector of molality-based activities. Length: m_kk.
      */
-    virtual void getActivities(doublereal* ac) const;
+    virtual void getActivities(double* ac) const;
 
-    virtual void getActivityCoefficients(doublereal* ac) const;
+    virtual void getActivityCoefficients(double* ac) const;
 
     //! Get the array of temperature derivatives of the log activity coefficients
     /*!
@@ -173,11 +173,11 @@ public:
      * @param dlnActCoeffdT    Output vector of temperature derivatives of the
      *                         log Activity Coefficients. length = m_kk
      */
-    virtual void getdlnActCoeffdT(doublereal* dlnActCoeffdT) const {
+    virtual void getdlnActCoeffdT(double* dlnActCoeffdT) const {
         throw NotImplementedError("GibbsExcessVPSSTP::getdlnActCoeffdT");
     }
 
-    virtual void getdlnActCoeffdlnN(const size_t ld, doublereal* const dlnActCoeffdlnN) {
+    virtual void getdlnActCoeffdlnN(const size_t ld, double* const dlnActCoeffdlnN) {
         throw NotImplementedError("GibbsExcessVPSSTP::getdlnActCoeffdlnN: "
                                   "nonzero and nonimplemented");
     }
@@ -198,7 +198,7 @@ public:
      * @param dlnActCoeffdlnX    Output vector of derivatives of the
      *                         log Activity Coefficients. length = m_kk
      */
-    virtual void getdlnActCoeffdlnX(doublereal* dlnActCoeffdlnX) const {
+    virtual void getdlnActCoeffdlnX(double* dlnActCoeffdlnX) const {
         throw NotImplementedError("GibbsExcessVPSSTP::getdlnActCoeffdlnX");
     }
 
@@ -216,7 +216,7 @@ public:
      *  @param vbar   Output vector of species partial molar volumes.
      *                Length = m_kk. units are m^3/kmol.
      */
-    virtual void getPartialMolarVolumes(doublereal* vbar) const;
+    virtual void getPartialMolarVolumes(double* vbar) const;
     //! @deprecated Unused. To be removed after %Cantera 3.0.
     virtual const vector<double>& getPartialMolarVolumesVector() const;
     //! @}
@@ -231,7 +231,7 @@ protected:
      * @param x   vector of mole fractions.
      * @deprecated Unused. To be removed after %Cantera 3.0.
      */
-    double checkMFSum(const doublereal* const x) const;
+    double checkMFSum(const double* const x) const;
 
     //! Storage for the current values of the mole fractions of the species
     /*!

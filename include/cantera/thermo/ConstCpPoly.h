@@ -80,25 +80,25 @@ public:
      *  - m_t[0] = tt;
      *
      */
-    void updateProperties(const doublereal* tt,
-                          doublereal* cp_R, doublereal* h_RT,
-                          doublereal* s_R) const;
+    void updateProperties(const double* tt,
+                          double* cp_R, double* h_RT,
+                          double* s_R) const;
 
-    void updatePropertiesTemp(const doublereal temp,
-                              doublereal* cp_R, doublereal* h_RT,
-                              doublereal* s_R) const;
+    void updatePropertiesTemp(const double temp,
+                              double* cp_R, double* h_RT,
+                              double* s_R) const;
 
     size_t nCoeffs() const { return 4; }
 
     void reportParameters(size_t& n, int& type,
-                          doublereal& tlow, doublereal& thigh,
-                          doublereal& pref,
-                          doublereal* const coeffs) const;
+                          double& tlow, double& thigh,
+                          double& pref,
+                          double* const coeffs) const;
 
     virtual void getParameters(AnyMap& thermo) const;
 
-    virtual doublereal reportHf298(doublereal* const h298 = 0) const;
-    virtual void modifyOneHf298(const size_t k, const doublereal Hf298New);
+    virtual double reportHf298(double* const h298 = 0) const;
+    virtual void modifyOneHf298(const size_t k, const double Hf298New);
     virtual void resetHf298();
 
 protected:

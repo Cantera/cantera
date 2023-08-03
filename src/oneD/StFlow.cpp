@@ -209,7 +209,7 @@ void StFlow::resize(size_t ncomponents, size_t points)
     m_z.resize(m_points);
 }
 
-void StFlow::setupGrid(size_t n, const doublereal* z)
+void StFlow::setupGrid(size_t n, const double* z)
 {
     resize(m_nv, n);
 
@@ -277,19 +277,19 @@ void StFlow::_getInitialSoln(double* x)
     }
 }
 
-void StFlow::setGas(const doublereal* x, size_t j)
+void StFlow::setGas(const double* x, size_t j)
 {
     m_thermo->setTemperature(T(x,j));
-    const doublereal* yy = x + m_nv*j + c_offset_Y;
+    const double* yy = x + m_nv*j + c_offset_Y;
     m_thermo->setMassFractions_NoNorm(yy);
     m_thermo->setPressure(m_press);
 }
 
-void StFlow::setGasAtMidpoint(const doublereal* x, size_t j)
+void StFlow::setGasAtMidpoint(const double* x, size_t j)
 {
     m_thermo->setTemperature(0.5*(T(x,j)+T(x,j+1)));
-    const doublereal* yyj = x + m_nv*j + c_offset_Y;
-    const doublereal* yyjp = x + m_nv*(j+1) + c_offset_Y;
+    const double* yyj = x + m_nv*j + c_offset_Y;
+    const double* yyjp = x + m_nv*(j+1) + c_offset_Y;
     for (size_t k = 0; k < m_nsp; k++) {
         m_ybar[k] = 0.5*(yyj[k] + yyjp[k]);
     }
@@ -301,7 +301,7 @@ bool StFlow::fixed_mdot() {
     return !m_isFree;
 }
 
-void StFlow::_finalize(const doublereal* x)
+void StFlow::_finalize(const double* x)
 {
     if (!m_do_multicomponent && m_do_soret) {
         throw CanteraError("StFlow::_finalize",
@@ -348,8 +348,8 @@ void StFlow::_finalize(const doublereal* x)
     }
 }
 
-void StFlow::eval(size_t jg, doublereal* xg,
-                  doublereal* rg, integer* diagg, doublereal rdt)
+void StFlow::eval(size_t jg, double* xg,
+                  double* rg, integer* diagg, double rdt)
 {
     // if evaluating a Jacobian, and the global point is outside the domain of
     // influence for this domain, then skip evaluating the residual
@@ -358,8 +358,8 @@ void StFlow::eval(size_t jg, doublereal* xg,
     }
 
     // start of local part of global arrays
-    doublereal* x = xg + loc();
-    doublereal* rsd = rg + loc();
+    double* x = xg + loc();
+    double* rsd = rg + loc();
     integer* diag = diagg + loc();
 
     size_t jmin, jmax;
@@ -412,12 +412,12 @@ void StFlow::evalResidual(double* x, double* rsd, int* diag,
     if (m_do_radiation) {
         // variable definitions for the Planck absorption coefficient and the
         // radiation calculation:
-        doublereal k_P_ref = 1.0*OneAtm;
+        double k_P_ref = 1.0*OneAtm;
 
         // polynomial coefficients:
-        const doublereal c_H2O[6] = {-0.23093, -1.12390, 9.41530, -2.99880,
+        const double c_H2O[6] = {-0.23093, -1.12390, 9.41530, -2.99880,
                                      0.51382, -1.86840e-5};
-        const doublereal c_CO2[6] = {18.741, -121.310, 273.500, -194.050,
+        const double c_CO2[6] = {18.741, -121.310, 273.500, -194.050,
                                      56.310, -5.8169};
 
         // calculation of the two boundary values
@@ -574,13 +574,13 @@ void StFlow::evalResidual(double* x, double* rsd, int* diag,
     }
 }
 
-void StFlow::updateTransport(doublereal* x, size_t j0, size_t j1)
+void StFlow::updateTransport(double* x, size_t j0, size_t j1)
 {
      if (m_do_multicomponent) {
         for (size_t j = j0; j < j1; j++) {
             setGasAtMidpoint(x,j);
-            doublereal wtm = m_thermo->meanMolecularWeight();
-            doublereal rho = m_thermo->density();
+            double wtm = m_thermo->meanMolecularWeight();
+            double rho = m_thermo->density();
             m_visc[j] = (m_dovisc ? m_trans->viscosity() : 0.0);
             m_trans->getMultiDiffCoeffs(m_nsp, &m_multidiff[mindex(0,0,j)]);
 
@@ -604,7 +604,7 @@ void StFlow::updateTransport(doublereal* x, size_t j0, size_t j1)
     }
 }
 
-void StFlow::show(const doublereal* x)
+void StFlow::show(const double* x)
 {
     writelog("    Pressure:  {:10.4g} Pa\n", m_press);
 
@@ -621,13 +621,13 @@ void StFlow::show(const doublereal* x)
     }
 }
 
-void StFlow::updateDiffFluxes(const doublereal* x, size_t j0, size_t j1)
+void StFlow::updateDiffFluxes(const double* x, size_t j0, size_t j1)
 {
     if (m_do_multicomponent) {
         for (size_t j = j0; j < j1; j++) {
             double dz = z(j+1) - z(j);
             for (size_t k = 0; k < m_nsp; k++) {
-                doublereal sum = 0.0;
+                double sum = 0.0;
                 for (size_t m = 0; m < m_nsp; m++) {
                     sum += m_wt[m] * m_multidiff[mindex(k,m,j)] * (X(x,m,j+1)-X(x,m,j));
                 }
@@ -957,7 +957,7 @@ bool StFlow::doElectricField(size_t j) const
         "Not used by '{}' objects.", type());
 }
 
-void StFlow::setBoundaryEmissivities(doublereal e_left, doublereal e_right)
+void StFlow::setBoundaryEmissivities(double e_left, double e_right)
 {
     if (e_left < 0 || e_left > 1) {
         throw CanteraError("StFlow::setBoundaryEmissivities",
@@ -1004,7 +1004,7 @@ void StFlow::evalRightBoundary(double* x, double* rsd, int* diag, double rdt)
     // and T, and zero diffusive flux for all species.
 
     rsd[index(c_offset_V,j)] = V(x,j);
-    doublereal sum = 0.0;
+    double sum = 0.0;
     rsd[index(c_offset_L, j)] = lambda(x,j) - lambda(x,j-1);
     diag[index(c_offset_L, j)] = 0;
     // set residual of poisson's equ to zero

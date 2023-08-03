@@ -46,9 +46,9 @@ public:
      * and for water, even near the critical point. Pressures above 500 MPa and
      * temperature above 900 C are suspect.
      */
-    virtual doublereal viscosity();
+    virtual double viscosity();
 
-    virtual doublereal bulkViscosity() {
+    virtual double bulkViscosity() {
         return 0.0;
     }
 
@@ -64,7 +64,7 @@ public:
      * and for water, even near the critical point. Pressures above 500 MPa and
      * temperature above 900 C are suspect.
      */
-    virtual doublereal thermalConductivity();
+    virtual double thermalConductivity();
 
     virtual void init(ThermoPhase* thermo, int mode=0, int log_level=0);
 };

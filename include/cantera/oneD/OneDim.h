@@ -58,7 +58,7 @@ public:
      * @param x1         Final solution satisfying F(x1) = 0.
      * @param loglevel   Controls amount of diagnostic output.
      */
-    int solve(doublereal* x0, doublereal* x1, int loglevel);
+    int solve(double* x0, double* x1, int loglevel);
 
     //! Number of domains.
     size_t nDomains() const {
@@ -154,15 +154,15 @@ public:
      * solution x. On return, array r contains the steady-state residual
      * values. Used only for diagnostic output.
      */
-    doublereal ssnorm(doublereal* x, doublereal* r);
+    double ssnorm(double* x, double* r);
 
     //! Reciprocal of the time step.
-    doublereal rdt() const {
+    double rdt() const {
         return m_rdt;
     }
 
     //! Prepare for time stepping beginning with solution *x* and timestep *dt*.
-    void initTimeInteg(doublereal dt, doublereal* x);
+    void initTimeInteg(double dt, double* x);
 
     //! True if transient mode.
     bool transient() const {
@@ -193,7 +193,7 @@ public:
      *                  the default value is used.
      * @param count   Set to zero to omit this call from the statistics
      */
-    void eval(size_t j, double* x, double* r, doublereal rdt=-1.0,
+    void eval(size_t j, double* x, double* r, double rdt=-1.0,
               int count = 1);
 
     //! Return a pointer to the domain global point *i* belongs to.
@@ -238,13 +238,13 @@ public:
     AnyMap serialize(const double* soln) const;
 
     // options
-    void setMinTimeStep(doublereal tmin) {
+    void setMinTimeStep(double tmin) {
         m_tmin = tmin;
     }
-    void setMaxTimeStep(doublereal tmax) {
+    void setMaxTimeStep(double tmax) {
         m_tmax = tmax;
     }
-    void setTimeStepFactor(doublereal tfactor) {
+    void setTimeStepFactor(double tfactor) {
         m_tfactor = tfactor;
     }
 
@@ -333,7 +333,7 @@ public:
     }
 
 protected:
-    void evalSSJacobian(doublereal* x, doublereal* xnew);
+    void evalSSJacobian(double* x, double* xnew);
 
     double m_tmin = 1e-16; //!< minimum timestep size
     double m_tmax = 1e+08; //!< maximum timestep size

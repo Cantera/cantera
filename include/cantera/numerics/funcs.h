@@ -35,7 +35,7 @@ namespace Cantera
  * @returns the value of of the interpolated function at x.
  * @ingroup mathUtils
  */
-doublereal linearInterp(doublereal x, const vector<double>& xpts,
+double linearInterp(double x, const vector<double>& xpts,
                         const vector<double>& fpts);
 
 //! Numerical integration of a function using the trapezoidal rule.

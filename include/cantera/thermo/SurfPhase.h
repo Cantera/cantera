@@ -126,14 +126,14 @@ public:
      *
      * \see MultiSpeciesThermo
      */
-    virtual doublereal enthalpy_mole() const;
+    virtual double enthalpy_mole() const;
 
     //! Return the Molar Internal Energy. Units: J/kmol
     /**
      * For a surface phase, the pressure is not a relevant thermodynamic
      * variable, and so the Enthalpy is equal to the Internal Energy.
      */
-    virtual doublereal intEnergy_mole() const;
+    virtual double intEnergy_mole() const;
 
     //! Return the Molar Entropy. Units: J/kmol-K
     /**
@@ -141,17 +141,17 @@ public:
      *  \hat s(T,P) = \sum_k X_k (\hat s^0_k(T) - R \log(\theta_k))
      * @f]
      */
-    virtual doublereal entropy_mole() const;
+    virtual double entropy_mole() const;
 
-    virtual doublereal cp_mole() const;
-    virtual doublereal cv_mole() const;
+    virtual double cp_mole() const;
+    virtual double cv_mole() const;
 
-    virtual void getChemPotentials(doublereal* mu) const;
-    virtual void getPartialMolarEnthalpies(doublereal* hbar) const;
-    virtual void getPartialMolarEntropies(doublereal* sbar) const;
-    virtual void getPartialMolarCp(doublereal* cpbar) const;
-    virtual void getPartialMolarVolumes(doublereal* vbar) const;
-    virtual void getStandardChemPotentials(doublereal* mu0) const;
+    virtual void getChemPotentials(double* mu) const;
+    virtual void getPartialMolarEnthalpies(double* hbar) const;
+    virtual void getPartialMolarEntropies(double* sbar) const;
+    virtual void getPartialMolarCp(double* cpbar) const;
+    virtual void getPartialMolarVolumes(double* vbar) const;
+    virtual void getStandardChemPotentials(double* mu0) const;
 
     //! Return a vector of activity concentrations for each species
     /*!
@@ -177,7 +177,7 @@ public:
      *
      * @param c vector of activity concentration (kmol m-2).
      */
-    virtual void getActivityConcentrations(doublereal* c) const;
+    virtual void getActivityConcentrations(double* c) const;
 
     //! Return the standard concentration for the kth species
     /*!
@@ -196,8 +196,8 @@ public:
      * @return the standard concentration in units of kmol/m^2 for surface phases or
      *     kmol/m for edge phases.
      */
-    virtual doublereal standardConcentration(size_t k = 0) const;
-    virtual doublereal logStandardConc(size_t k=0) const;
+    virtual double standardConcentration(size_t k = 0) const;
+    virtual double logStandardConc(size_t k=0) const;
 
     virtual void initThermo();
     virtual void getParameters(AnyMap& phaseNode) const;
@@ -231,16 +231,16 @@ public:
     /*!
      *  @param n0 Site density of the surface phase (kmol m-2)
      */
-    void setSiteDensity(doublereal n0);
+    void setSiteDensity(double n0);
 
-    virtual void getGibbs_RT(doublereal* grt) const;
-    virtual void getEnthalpy_RT(doublereal* hrt) const;
-    virtual void getEntropy_R(doublereal* sr) const;
-    virtual void getCp_R(doublereal* cpr) const;
-    virtual void getStandardVolumes(doublereal* vol) const;
+    virtual void getGibbs_RT(double* grt) const;
+    virtual void getEnthalpy_RT(double* hrt) const;
+    virtual void getEntropy_R(double* sr) const;
+    virtual void getCp_R(double* cpr) const;
+    virtual void getStandardVolumes(double* vol) const;
 
     //! Return the thermodynamic pressure (Pa).
-    virtual doublereal pressure() const {
+    virtual double pressure() const {
         return m_press;
     }
 
@@ -249,15 +249,15 @@ public:
     /*!
      *  @param p input Pressure (Pa)
      */
-    virtual void setPressure(doublereal p) {
+    virtual void setPressure(double p) {
         m_press = p;
     }
 
-    virtual void getPureGibbs(doublereal* g) const;
-    virtual void getGibbs_RT_ref(doublereal* grt) const;
-    virtual void getEnthalpy_RT_ref(doublereal* hrt) const;
-    virtual void getEntropy_R_ref(doublereal* er) const;
-    virtual void getCp_R_ref(doublereal* cprt) const;
+    virtual void getPureGibbs(double* g) const;
+    virtual void getGibbs_RT_ref(double* grt) const;
+    virtual void getEnthalpy_RT_ref(double* hrt) const;
+    virtual void getEntropy_R_ref(double* er) const;
+    virtual void getCp_R_ref(double* cprt) const;
 
     //! Set the surface site fractions to a specified state.
     /*!
@@ -271,7 +271,7 @@ public:
      *
      * This routine normalizes the theta's to 1, before application
      */
-    void setCoverages(const doublereal* theta);
+    void setCoverages(const double* theta);
 
     //! Set the surface site fractions to a specified state.
     /*!
@@ -283,7 +283,7 @@ public:
      * @param theta    This is the surface site fraction for the kth species in
      *                 the surface phase. This is a dimensionless quantity.
      */
-    void setCoveragesNoNorm(const doublereal* theta);
+    void setCoveragesNoNorm(const double* theta);
 
     //! Set the coverages from a string of colon-separated name:value pairs.
     /*!
@@ -301,7 +301,7 @@ public:
      * @param theta Array theta must be at least as long as the number of
      *              species.
      */
-    void getCoverages(doublereal* theta) const;
+    void getCoverages(double* theta) const;
 
     //! @copydoc ThermoPhase::setState
     /*!
@@ -319,7 +319,7 @@ protected:
     vector<double> m_speciesSize;
 
     //! log of the surface site density
-    doublereal m_logn0;
+    double m_logn0;
 
     //! Current value of the pressure (Pa)
     double m_press = OneAtm;

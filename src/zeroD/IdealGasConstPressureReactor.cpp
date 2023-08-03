@@ -46,13 +46,13 @@ void IdealGasConstPressureReactor::getState(double* y)
     getSurfaceInitialConditions(y + m_nsp + 2);
 }
 
-void IdealGasConstPressureReactor::initialize(doublereal t0)
+void IdealGasConstPressureReactor::initialize(double t0)
 {
     ConstPressureReactor::initialize(t0);
     m_hk.resize(m_nsp, 0.0);
 }
 
-void IdealGasConstPressureReactor::updateState(doublereal* y)
+void IdealGasConstPressureReactor::updateState(double* y)
 {
     // The components of y are [0] the total mass, [1] the temperature,
     // [2...K+2) are the mass fractions of each species, and [K+2...] are the

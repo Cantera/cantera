@@ -74,7 +74,7 @@ public:
      *              Length: m_kk.
      * @deprecated To be removed after %Cantera 3.0. Use getChemPotentials() instead.
      */
-    virtual void getChemPotentials_RT(doublereal* mu) const;
+    virtual void getChemPotentials_RT(double* mu) const;
 
     //! @}
     //! @name  Properties of the Standard State of the Species in the Solution
@@ -85,14 +85,14 @@ public:
     //! recalculated unless the temperature or pressure changes.
     //! @{
 
-    virtual void getStandardChemPotentials(doublereal* mu) const;
-    virtual void getEnthalpy_RT(doublereal* hrt) const;
-    virtual void getEntropy_R(doublereal* sr) const;
-    virtual void getGibbs_RT(doublereal* grt) const;
-    virtual void getPureGibbs(doublereal* gpure) const;
-    virtual void getIntEnergy_RT(doublereal* urt) const;
-    virtual void getCp_R(doublereal* cpr) const;
-    virtual void getStandardVolumes(doublereal* vol) const;
+    virtual void getStandardChemPotentials(double* mu) const;
+    virtual void getEnthalpy_RT(double* hrt) const;
+    virtual void getEntropy_R(double* sr) const;
+    virtual void getGibbs_RT(double* grt) const;
+    virtual void getPureGibbs(double* gpure) const;
+    virtual void getIntEnergy_RT(double* urt) const;
+    virtual void getCp_R(double* cpr) const;
+    virtual void getStandardVolumes(double* vol) const;
     virtual const vector<double>& getStandardVolumes() const;
     //! @}
 
@@ -103,7 +103,7 @@ public:
      *
      * @param temp  Temperature (kelvin)
      */
-    virtual void setTemperature(const doublereal temp);
+    virtual void setTemperature(const double temp);
 
     //! Set the internally stored pressure (Pa) at constant temperature and
     //! composition
@@ -113,7 +113,7 @@ public:
      *
      *  @param p input Pressure (Pa)
      */
-    virtual void setPressure(doublereal p);
+    virtual void setPressure(double p);
 
     //! Set the temperature and pressure at the same time
     /*!
@@ -123,7 +123,7 @@ public:
      *  @param T  temperature (kelvin)
      *  @param pres pressure (pascal)
      */
-    virtual void setState_TP(doublereal T, doublereal pres);
+    virtual void setState_TP(double T, double pres);
 
     //! Returns the current pressure of the phase
     /*!
@@ -132,7 +132,7 @@ public:
      *
      * @returns the pressure in pascals.
      */
-    virtual doublereal pressure() const {
+    virtual double pressure() const {
         return m_Pcurrent;
     }
 
@@ -216,17 +216,17 @@ public:
     //! routine _updateRefStateThermo().
     //! @{
 
-    virtual void getEnthalpy_RT_ref(doublereal* hrt) const;
-    virtual void getGibbs_RT_ref(doublereal* grt) const;
+    virtual void getEnthalpy_RT_ref(double* hrt) const;
+    virtual void getGibbs_RT_ref(double* grt) const;
 
 protected:
     const vector<double>& Gibbs_RT_ref() const;
 
 public:
-    virtual void getGibbs_ref(doublereal* g) const;
-    virtual void getEntropy_R_ref(doublereal* er) const;
-    virtual void getCp_R_ref(doublereal* cprt) const;
-    virtual void getStandardVolumes_ref(doublereal* vol) const;
+    virtual void getGibbs_ref(double* g) const;
+    virtual void getEntropy_R_ref(double* er) const;
+    virtual void getCp_R_ref(double* cprt) const;
+    virtual void getStandardVolumes_ref(double* vol) const;
 
     //! @}
     //! @name Initialization Methods - For Internal use

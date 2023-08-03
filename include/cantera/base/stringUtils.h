@@ -61,16 +61,16 @@ std::string stripnonprint(const std::string& s);
 Composition parseCompString(const string& ss,
         const vector<string>& names=vector<string>());
 
-//! Translate a string into one doublereal value
+//! Translate a string into one double value
 /*!
  * No error checking is done on the conversion.
  *
  * @param val   String value of the double
  * @returns     a double
  */
-doublereal fpValue(const std::string& val);
+double fpValue(const std::string& val);
 
-//! Translate a string into one doublereal value, with error checking
+//! Translate a string into one double value, with error checking
 /*!
  * fpValueCheck is a wrapper around the C++ stringstream double parser. It
  * does quite a bit more error checking than atof() or strtod(), and is quite
@@ -91,7 +91,7 @@ doublereal fpValue(const std::string& val);
  * @param val   String representation of the number
  * @returns     a double
  */
-doublereal fpValueCheck(const std::string& val);
+double fpValueCheck(const std::string& val);
 
 //! This function separates a string up into tokens according to the location of
 //! white space.

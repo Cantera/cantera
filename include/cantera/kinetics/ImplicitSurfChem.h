@@ -82,7 +82,7 @@ public:
     /**
      *  Must be called before calling method 'advance'
      */
-    virtual void initialize(doublereal t0 = 0.0);
+    virtual void initialize(double t0 = 0.0);
 
     /**
      *  Set the maximum integration step-size.  Note, setting this value to zero
@@ -113,7 +113,7 @@ public:
      *  @param t0  Initial Time -> this is an input
      *  @param t1  Final Time -> This is an input
      */
-    void integrate(doublereal t0, doublereal t1);
+    void integrate(double t0, double t1);
 
     //! Integrate from t0 to t1 without reinitializing the integrator.
     /*!
@@ -123,7 +123,7 @@ public:
      *  @param t0  Initial Time -> this is an input
      *  @param t1  Final Time -> This is an input
      */
-    void integrate0(doublereal t0, doublereal t1);
+    void integrate0(double t0, double t1);
 
     //! Solve for the pseudo steady-state of the surface problem
     /*!
@@ -145,7 +145,7 @@ public:
      *             system is solved directly.
      */
     void solvePseudoSteadyStateProblem(int ifuncOverride = -1,
-                                       doublereal timeScaleOverride = 1.0);
+                                       double timeScaleOverride = 1.0);
 
     // overloaded methods of class FuncEval
 
@@ -170,7 +170,7 @@ public:
      *            On output, this contains the initial value
      *           of the solution.
      */
-    virtual void getState(doublereal* y);
+    virtual void getState(double* y);
 
     /**
      * Get the specifications for the problem from the values
@@ -183,7 +183,7 @@ public:
      *                  vectors are contiguous within the object, in the same
      *                  order as the unknown vector.
      */
-    void getConcSpecies(doublereal* const vecConcSpecies) const;
+    void getConcSpecies(double* const vecConcSpecies) const;
 
     //! Sets the concentrations within phases that are unknowns in
     //! the surface problem
@@ -195,7 +195,7 @@ public:
      *                  vectors are contiguous within the object, in the same
      *                  order as the unknown vector.
      */
-    void setConcSpecies(const doublereal* const vecConcSpecies);
+    void setConcSpecies(const double* const vecConcSpecies);
 
     //! Sets the state variable in all thermodynamic phases (surface and
     //! surrounding bulk phases) to the input temperature and pressure
@@ -203,7 +203,7 @@ public:
      *  @param TKelvin input temperature (kelvin)
      *  @param PresPa   input pressure in pascal.
      */
-    void setCommonState_TP(doublereal TKelvin, doublereal PresPa);
+    void setCommonState_TP(double TKelvin, double PresPa);
 
     //! Returns a reference to the vector of pointers to the
     //! InterfaceKinetics objects
@@ -230,7 +230,7 @@ protected:
      * @param y Current value of the solution vector. The length is equal to
      *     the sum of the number of surface sites in all the surface phases.
      */
-    void updateState(doublereal* y);
+    void updateState(double* y);
 
     //! vector of pointers to surface phases.
     std::vector<SurfPhase*> m_surf;
@@ -261,8 +261,8 @@ protected:
     std::vector<vector<int>> pLocVec;
     //! Pointer to the CVODE integrator
     std::unique_ptr<Integrator> m_integ;
-    doublereal m_atol, m_rtol; // tolerances
-    doublereal m_maxstep; //!< max step size
+    double m_atol, m_rtol; // tolerances
+    double m_maxstep; //!< max step size
     size_t m_nmax; //!< maximum number of steps allowed
     size_t m_maxErrTestFails; //!< maximum number of error test failures allowed
     vector<double> m_work;

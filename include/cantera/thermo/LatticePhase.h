@@ -221,7 +221,7 @@ public:
      *
      * \see MultiSpeciesThermo
      */
-    virtual doublereal enthalpy_mole() const;
+    virtual double enthalpy_mole() const;
 
     //! Molar entropy of the solution. Units: J/kmol/K
     /*!
@@ -239,7 +239,7 @@ public:
      *
      * @see MultiSpeciesThermo
      */
-    virtual doublereal entropy_mole() const;
+    virtual double entropy_mole() const;
 
     //! Molar heat capacity at constant pressure of the solution.
     //! Units: J/kmol/K.
@@ -255,7 +255,7 @@ public:
      *
      * @see MultiSpeciesThermo
      */
-    virtual doublereal cp_mole() const;
+    virtual double cp_mole() const;
 
     //! Molar heat capacity at constant volume of the solution.
     //! Units: J/kmol/K.
@@ -268,7 +268,7 @@ public:
      *
      * The two heat capacities are equal.
      */
-    virtual doublereal cv_mole() const;
+    virtual double cv_mole() const;
 
     //! @}
     //! @name Mechanical Equation of State Properties
@@ -285,7 +285,7 @@ public:
      * For this incompressible system, we return the internally stored
      * independent value of the pressure.
      */
-    virtual doublereal pressure() const {
+    virtual double pressure() const {
         return m_Pcurrent;
     }
 
@@ -297,7 +297,7 @@ public:
      *
      * @param p   Input Pressure (Pa)
      */
-    virtual void setPressure(doublereal p);
+    virtual void setPressure(double p);
 
     //! Calculate the density of the mixture using the partial molar volumes and
     //! mole fractions as input
@@ -316,7 +316,7 @@ public:
      * have additionally specified in this class that the pure species molar
      * volumes are independent of temperature and pressure.
      */
-    doublereal calcDensity();
+    double calcDensity();
 
     //! @}
     //! @name Activities, Standard States, and Activity Concentrations
@@ -329,7 +329,7 @@ public:
     //! @{
 
     virtual Units standardConcentrationUnits() const;
-    virtual void getActivityConcentrations(doublereal* c) const;
+    virtual void getActivityConcentrations(double* c) const;
 
     //! Return the standard concentration for the kth species
     /*!
@@ -345,8 +345,8 @@ public:
      *         assume this refers to species 0.
      * @returns the standard Concentration in units of m^3/kmol.
      */
-    virtual doublereal standardConcentration(size_t k=0) const;
-    virtual doublereal logStandardConc(size_t k=0) const;
+    virtual double standardConcentration(size_t k=0) const;
+    virtual double logStandardConc(size_t k=0) const;
 
     //! Get the array of non-dimensional activity coefficients at
     //! the current solution temperature, pressure, and solution concentration.
@@ -355,7 +355,7 @@ public:
      *
      * @param ac Output vector of activity coefficients. Length: m_kk.
      */
-    virtual void getActivityCoefficients(doublereal* ac) const;
+    virtual void getActivityCoefficients(double* ac) const;
 
     //! @}
     //! @name  Partial Molar Properties of the Solution
@@ -370,7 +370,7 @@ public:
      * @param mu  Output vector of species chemical
      *            potentials. Length: m_kk. Units: J/kmol
      */
-    virtual void getChemPotentials(doublereal* mu) const;
+    virtual void getChemPotentials(double* mu) const;
 
     /**
      * Returns an array of partial molar enthalpies for the species in the
@@ -388,7 +388,7 @@ public:
      * @param hbar Output vector containing partial molar enthalpies.
      *             Length: m_kk.
      */
-    virtual void getPartialMolarEnthalpies(doublereal* hbar) const;
+    virtual void getPartialMolarEnthalpies(double* hbar) const;
 
     /**
      * Returns an array of partial molar entropies of the species in the
@@ -407,7 +407,7 @@ public:
      * @param sbar Output vector containing partial molar entropies.
      *             Length: m_kk.
      */
-    virtual void getPartialMolarEntropies(doublereal* sbar) const;
+    virtual void getPartialMolarEntropies(double* sbar) const;
 
     /**
      * Returns an array of partial molar Heat Capacities at constant pressure of
@@ -416,11 +416,11 @@ public:
      *
      * @param cpbar  Output vector of partial heat capacities. Length: m_kk.
      */
-    virtual void getPartialMolarCp(doublereal* cpbar) const;
+    virtual void getPartialMolarCp(double* cpbar) const;
 
-    virtual void getPartialMolarVolumes(doublereal* vbar) const;
-    virtual void getStandardChemPotentials(doublereal* mu) const;
-    virtual void getPureGibbs(doublereal* gpure) const;
+    virtual void getPartialMolarVolumes(double* vbar) const;
+    virtual void getStandardChemPotentials(double* mu) const;
+    virtual void getPureGibbs(double* gpure) const;
 
     //! @}
     //! @name  Properties of the Standard State of the Species in the Solution
@@ -445,7 +445,7 @@ public:
      * @param hrt      Output vector of nondimensional standard state enthalpies.
      *                 Length: m_kk.
      */
-    virtual void getEnthalpy_RT(doublereal* hrt) const;
+    virtual void getEnthalpy_RT(double* hrt) const;
 
     //! Get the array of nondimensional Entropy functions for the species
     //! standard states at the current *T* and *P* of the solution.
@@ -465,7 +465,7 @@ public:
      * @param sr   Output vector of nondimensional standard state entropies.
      *             Length: m_kk.
      */
-    virtual void getEntropy_R(doublereal* sr) const;
+    virtual void getEntropy_R(double* sr) const;
 
     //! Get the nondimensional Gibbs functions for the species standard states
     //! at the current *T* and *P* of the solution.
@@ -480,7 +480,7 @@ public:
      * @param grt  Output vector of nondimensional standard state Gibbs free
      *             energies. Length: m_kk.
      */
-    virtual void getGibbs_RT(doublereal* grt) const;
+    virtual void getGibbs_RT(double* grt) const;
 
     //! Get the nondimensional Heat Capacities at constant pressure for the
     //! species standard states at the current *T* and *P* of the solution
@@ -499,7 +499,7 @@ public:
      * @param cpr   Output vector of nondimensional standard state heat
      *              capacities. Length: m_kk.
      */
-    virtual void getCp_R(doublereal* cpr) const;
+    virtual void getCp_R(double* cpr) const;
 
     //! Get the molar volumes of the species standard states at the current
     //! *T* and *P* of the solution.
@@ -509,7 +509,7 @@ public:
      * @param vol     Output vector containing the standard state volumes.
      *                Length: m_kk.
      */
-    virtual void getStandardVolumes(doublereal* vol) const;
+    virtual void getStandardVolumes(double* vol) const;
 
     //! @}
     //! @name Thermodynamic Values for the Species Reference States
@@ -525,8 +525,8 @@ public:
      */
     const vector<double>& gibbs_RT_ref() const;
 
-    virtual void getGibbs_RT_ref(doublereal* grt) const;
-    virtual void getGibbs_ref(doublereal* g) const;
+    virtual void getGibbs_RT_ref(double* grt) const;
+    virtual void getGibbs_ref(double* g) const;
 
     //! Returns a reference to the dimensionless reference state Entropy vector.
     /*!
