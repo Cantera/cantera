@@ -1028,9 +1028,9 @@ private:
 
     size_t m_mm = 0; //!< Number of elements.
     vector_fp m_atomicWeights; //!< element atomic weights (kg kmol-1)
-    vector_int m_atomicNumbers; //!< element atomic numbers
+    vector<int> m_atomicNumbers; //!< element atomic numbers
     std::vector<std::string> m_elementNames; //!< element names
-    vector_int m_elem_type; //!< Vector of element types
+    vector<int> m_elem_type; //!< Vector of element types
 
     //! Entropy at 298.15 K and 1 bar of stable state pure elements (J kmol-1)
     vector_fp m_entropy298;

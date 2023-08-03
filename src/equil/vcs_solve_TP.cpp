@@ -2062,7 +2062,7 @@ int VCS_SOLVE::vcs_basopt(const bool doJustComponents, double aw[], double sa[],
     size_t ncTrial = std::min(m_nelem, m_nsp);
     m_numComponents = ncTrial;
     *usedZeroedSpecies = false;
-    vector_int ipiv(ncTrial);
+    vector<int> ipiv(ncTrial);
 
     // Use a temporary work array for the mole numbers, aw[]
     std::copy(m_molNumSpecies_old.begin(),

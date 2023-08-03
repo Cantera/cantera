@@ -475,7 +475,7 @@ protected:
      *
      *  length = number of phases in the object. By default all phases are stable.
      */
-    vector_int m_phaseIsStable;
+    vector<int> m_phaseIsStable;
 
     //! Vector of vector of booleans indicating whether a phase participates in
     //! a reaction as a reactant

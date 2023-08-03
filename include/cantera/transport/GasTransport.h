@@ -406,7 +406,7 @@ protected:
      *  m_poly[i][j] contains the index for (i,j) interactions in
      *  #m_omega22_poly, #m_astar_poly, #m_bstar_poly, and #m_cstar_poly.
      */
-    std::vector<vector_int> m_poly;
+    std::vector<vector<int>> m_poly;
 
     //! Fit for omega22 collision integral
     /*!
@@ -418,7 +418,7 @@ protected:
 
     //! Flag to indicate for which (i,j) interaction pairs the
     //! actual temperature is used instead of the reduced temperature
-    std::vector<vector_int> m_star_poly_uses_actualT;
+    std::vector<vector<int>> m_star_poly_uses_actualT;
 
     //! Fit for astar collision integral
     /*!

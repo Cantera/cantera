@@ -47,7 +47,7 @@ ImplicitSurfChem::ImplicitSurfChem(
         m_specStartIndex.push_back(kinSpIndex);
         kinSpIndex += nsp;
         size_t nPhases = kinPtr->nPhases();
-        vector_int pLocTmp(nPhases);
+        vector<int> pLocTmp(nPhases);
         size_t imatch = npos;
         for (size_t ip = 0; ip < nPhases; ip++) {
             if (ip != ns) {

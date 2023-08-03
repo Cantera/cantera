@@ -187,6 +187,7 @@ typedef map<string, double> Composition;
 //! Vector of doubles.
 typedef vector<double> vector_fp;
 //! Vector of ints
+//! @deprecated To be removed after %Cantera 3.0
 typedef vector<int> vector_int;
 
 //! index returned by functions to indicate "no position"

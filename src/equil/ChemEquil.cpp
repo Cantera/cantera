@@ -849,7 +849,7 @@ int ChemEquil::estimateEP_Brinkley(ThermoPhase& s, vector_fp& x,
 
     vector_fp x_old(m_mm+1, 0.0);
     vector_fp resid(m_mm+1, 0.0);
-    vector_int lumpSum(m_mm+1, 0);
+    vector<int> lumpSum(m_mm+1, 0);
 
     // Get the nondimensional Gibbs functions for the species at their standard
     // states of solution at the current T and P of the solution.

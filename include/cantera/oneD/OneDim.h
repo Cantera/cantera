@@ -206,7 +206,7 @@ public:
     //! Call after one or more grids has changed size, for example after being refined.
     virtual void resize();
 
-    vector_int& transientMask() {
+    vector<int>& transientMask() {
         return m_mask;
     }
 
@@ -299,20 +299,20 @@ public:
     }
 
     //! Return number of Jacobian evaluations made in each call to solve()
-    const vector_int& jacobianCountStats() {
+    const vector<int>& jacobianCountStats() {
         saveStats();
         return m_jacEvals;
     }
 
     //! Return number of non-Jacobian function evaluations made in each call to
     //! solve()
-    const vector_int& evalCountStats() {
+    const vector<int>& evalCountStats() {
         saveStats();
         return m_funcEvals;
     }
 
     //! Return number of time steps taken in each call to solve()
-    const vector_int& timeStepStats() {
+    const vector<int>& timeStepStats() {
         saveStats();
         return m_timeSteps;
     }
@@ -362,7 +362,7 @@ protected:
     bool m_init = false;
     std::vector<size_t> m_nvars;
     std::vector<size_t> m_loc;
-    vector_int m_mask;
+    vector<int> m_mask;
     size_t m_pts = 0;
 
     // options
@@ -386,14 +386,14 @@ private:
     int m_nevals = 0;
     double m_evaltime = 0;
     std::vector<size_t> m_gridpts;
-    vector_int m_jacEvals;
+    vector<int> m_jacEvals;
     vector_fp m_jacElapsed;
-    vector_int m_funcEvals;
+    vector<int> m_funcEvals;
     vector_fp m_funcElapsed;
 
     //! Number of time steps taken in each call to solve() (for example, for each
     //! successive grid refinement)
-    vector_int m_timeSteps;
+    vector<int> m_timeSteps;
 };
 
 }

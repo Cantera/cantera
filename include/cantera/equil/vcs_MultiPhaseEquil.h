@@ -232,7 +232,7 @@ protected:
      *
      * `m_order[korig] = k_sorted`
      */
-    vector_int m_order;
+    vector<int> m_order;
 
     //! Pointer to the MultiPhase mixture that will be equilibrated.
     /*!
@@ -263,7 +263,7 @@ protected:
 
     //! Vector of indices for species that are included in the calculation. This
     //! is used to exclude pure-phase species with invalid thermo data
-    vector_int m_species;
+    vector<int> m_species;
 
     //! The object that contains the problem statement and does all of the equilibration work
     /*!

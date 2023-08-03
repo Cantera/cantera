@@ -364,7 +364,7 @@ protected:
 
     //! array of number of steps to take before re-attempting the steady-state
     //! solution
-    vector_int m_steps;
+    vector<int> m_steps;
 
     //! User-supplied function called after a successful steady-state solve.
     Func1* m_steady_callback;

@@ -178,9 +178,9 @@ protected:
     vector_fp m_deltaG_RT, m_mu;
     std::vector<bool> m_majorsp;
     std::vector<size_t> m_sortindex;
-    vector_int m_lastsort;
-    vector_int m_dsoln;
-    vector_int m_incl_element, m_incl_species;
+    vector<int> m_lastsort;
+    vector<int> m_dsoln;
+    vector<int> m_incl_element, m_incl_species;
 
     // Vector of indices for species that are included in the calculation.
     // This is used to exclude pure-phase species with invalid thermo data

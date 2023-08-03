@@ -258,7 +258,7 @@ protected:
     size_t m_numTotalBulkSpecies = 0;
     size_t m_numTotalSpecies = 0;
 
-    std::vector<vector_int> pLocVec;
+    std::vector<vector<int>> pLocVec;
     //! Pointer to the CVODE integrator
     std::unique_ptr<Integrator> m_integ;
     doublereal m_atol, m_rtol; // tolerances

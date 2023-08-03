@@ -291,7 +291,7 @@ protected:
     std::vector<double*> m_lu_col_ptrs;
 
     //! Extra work array needed - size = n
-    vector_int iwork_;
+    vector<int> iwork_;
 
     //! Extra dp work array needed - size = 3n
     vector_fp work_;

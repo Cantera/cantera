@@ -1780,7 +1780,7 @@ private:
      * n = m_kk*i + j
      * m_CounterIJ[n] = counterIJ
      */
-    mutable vector_int m_CounterIJ;
+    mutable vector<int> m_CounterIJ;
 
     //! This is elambda, MEC
     mutable double elambda[17];
@@ -1949,7 +1949,7 @@ private:
      *  * 2 = In a cropped regime where there is no temperature
      *        or pressure dependence
      */
-    mutable vector_int CROP_speciesCropped_;
+    mutable vector<int> CROP_speciesCropped_;
     //! @}
 
     //!  Initialize all of the species-dependent lengths in the object

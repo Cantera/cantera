@@ -265,7 +265,7 @@ protected:
 
     //! Vector of length nWalls(), indicating whether this reactor is on the left (0)
     //! or right (1) of each wall.
-    vector_int m_lr;
+    vector<int> m_lr;
     std::string m_name;
 
     //! The ReactorNet that this reactor is part of
