@@ -59,7 +59,7 @@ public:
 /**
  * Class ChemEquil implements a chemical equilibrium solver for single-phase
  * solutions. It is a "non-stoichiometric" solver in the terminology of Smith
- * and Missen, meaning that every intermediate state is a valid chemical
+ * and Missen @cite smith1982, meaning that every intermediate state is a valid chemical
  * equilibrium state, but does not necessarily satisfy the element constraints.
  * In contrast, the solver implemented in class MultiPhaseEquil uses a
  * "stoichiometric" algorithm, in which each intermediate state satisfies the
@@ -168,7 +168,7 @@ protected:
 
     /**
      * Do a calculation of the element potentials using the Brinkley method,
-     * p. 129 Smith and Missen.
+     * p. 129 Smith and Missen @cite smith1982.
      *
      * We have found that the previous estimate may not be good enough to
      * avoid drastic numerical issues associated with the use of a numerically

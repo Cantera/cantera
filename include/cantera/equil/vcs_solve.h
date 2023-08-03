@@ -357,7 +357,7 @@ public:
 
     //! Calculates formation reaction step sizes.
     /*!
-     * This is equation 6.4-16, p. 143 in Smith and Missen.
+     * This is equation 6.4-16, p. 143 in Smith and Missen @cite smith1982.
      *
      * Output
      * -------
@@ -905,7 +905,7 @@ private:
 
     //! Estimate equilibrium compositions
     /*!
-     * Algorithm covered in a section of Smith and Missen's Book.
+     * Algorithm covered in a section of Smith and Missen's Book @cite smith1982.
      *
      * Linear programming module is based on using dbolm.
      *
