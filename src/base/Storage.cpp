@@ -170,7 +170,7 @@ void Storage::deleteGroup(const string& id)
     }
 }
 
-std::pair<size_t, set<string>> Storage::contents(const string& id) const
+pair<size_t, set<string>> Storage::contents(const string& id) const
 {
     try {
         checkGroupRead(id);
@@ -606,7 +606,7 @@ void Storage::deleteGroup(const string& id)
                        "Saving to HDF requires HighFive installation.");
 }
 
-std::pair<size_t, set<string>> Storage::contents(const string& id) const
+pair<size_t, set<string>> Storage::contents(const string& id) const
 {
     throw CanteraError("Storage::contents",
                        "Saving to HDF requires HighFive installation.");

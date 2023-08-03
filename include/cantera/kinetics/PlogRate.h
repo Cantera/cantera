@@ -182,7 +182,7 @@ public:
 
 protected:
     //! log(p) to (index range) in the rates_ vector
-    std::map<double, std::pair<size_t, size_t>> pressures_;
+    std::map<double, pair<size_t, size_t>> pressures_;
 
     // Rate expressions which are referenced by the indices stored in pressures_
     vector<ArrheniusRate> rates_;

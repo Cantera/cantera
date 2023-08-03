@@ -405,7 +405,7 @@ TEST(Reaction, PlogFromYaml)
     auto R = newReaction(rxn, *(sol->kinetics()));
     EXPECT_FALSE(R->usesThirdBody());
     const auto& rateMap = std::dynamic_pointer_cast<PlogRate>(R->rate())->getRates();
-    vector<std::pair<double, ArrheniusRate>> rates(rateMap.begin(), rateMap.end());
+    vector<pair<double, ArrheniusRate>> rates(rateMap.begin(), rateMap.end());
     EXPECT_EQ(rates.size(), (size_t) 4);
     EXPECT_NEAR(rates[0].first, 0.039474 * OneAtm, 1e-6);
     EXPECT_NEAR(rates[2].first, OneAtm, 1e-6);

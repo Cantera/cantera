@@ -104,7 +104,7 @@ void Kinetics::checkSpeciesArraySize(size_t kk) const
     }
 }
 
-std::pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err) const
+pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err) const
 {
     //! Map of (key indicating participating species) to reaction numbers
     std::map<size_t, vector<size_t> > participants;

@@ -143,7 +143,7 @@ void Reactor::updateState(double* y)
 
         double T = m_thermo->temperature();
         boost::uintmax_t maxiter = 100;
-        std::pair<double, double> TT;
+        pair<double, double> TT;
         try {
             TT = bmt::bracket_and_solve_root(
                 u_err, T, 1.2, true, bmt::eps_tolerance<double>(48), maxiter);

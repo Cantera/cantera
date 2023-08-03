@@ -1459,7 +1459,7 @@ public:
      * both elements of the pair. If no unmarked duplicates or unmatched marked
      * duplicate reactions are found, returns `(npos, npos)`.
      */
-    virtual std::pair<size_t, size_t> checkDuplicates(bool throw_err=true) const;
+    virtual pair<size_t, size_t> checkDuplicates(bool throw_err=true) const;
 
     /**
      * Takes as input an array of properties for all species in the mechanism

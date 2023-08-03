@@ -203,7 +203,7 @@ protected:
     //! Mark species *k* as having its thermodynamic data installed
     void markInstalled(size_t k);
 
-    typedef std::pair<size_t, shared_ptr<SpeciesThermoInterpType> > index_STIT;
+    typedef pair<size_t, shared_ptr<SpeciesThermoInterpType> > index_STIT;
     typedef std::map<int, vector<index_STIT> > STIT_map;
     typedef std::map<int, vector<double>> tpoly_map;
 
@@ -219,7 +219,7 @@ protected:
     //! Map from species index to location within #m_sp, such that
     //! `m_sp[m_speciesLoc[k].first][m_speciesLoc[k].second]` is the
     //! SpeciesThermoInterpType object for species `k`.
-    std::map<size_t, std::pair<int, size_t> > m_speciesLoc;
+    std::map<size_t, pair<int, size_t> > m_speciesLoc;
 
     //! Maximum value of the lowest temperature
     double m_tlow_max = 0.0;

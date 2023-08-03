@@ -593,7 +593,7 @@ double MultiPhaseEquil::computeReactionSteps(vector<double>& dxi)
 void MultiPhaseEquil::computeN()
 {
     // Sort the list of species by mole fraction (decreasing order)
-    vector<std::pair<double, size_t> > moleFractions(m_nsp);
+    vector<pair<double, size_t> > moleFractions(m_nsp);
     for (size_t k = 0; k < m_nsp; k++) {
         // use -Xk to generate reversed sort order
         moleFractions[k] = {-m_mix->speciesMoles(m_species[k]), k};
