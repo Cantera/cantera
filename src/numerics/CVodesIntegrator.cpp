@@ -254,6 +254,7 @@ void CVodesIntegrator::initialize(double t0, FuncEval& func)
     m_neq = func.neq();
     m_t0 = t0;
     m_time = t0;
+    m_tInteg = t0;
     m_func = &func;
     func.clearErrors();
     // Initialize preconditioner if applied
@@ -351,6 +352,7 @@ void CVodesIntegrator::reinitialize(double t0, FuncEval& func)
 {
     m_t0 = t0;
     m_time = t0;
+    m_tInteg = t0;
     func.getState(NV_DATA_S(m_y));
     m_func = &func;
     func.clearErrors();
@@ -513,24 +515,40 @@ void CVodesIntegrator::integrate(double tout)
     if (tout == m_time) {
         return;
     }
-    int flag = CVode(m_cvode_mem, tout, m_y, &m_time, CV_NORMAL);
-    if (flag != CV_SUCCESS) {
-        string f_errs = m_func->getErrors();
-        if (!f_errs.empty()) {
-            f_errs = "Exceptions caught during RHS evaluation:\n" + f_errs;
+    int nsteps = 0;
+    while (m_tInteg < tout) {
+        if (nsteps >= m_maxsteps) {
+            throw CanteraError("CVodesIntegrator::integrate",
+                "Maximum number of timesteps ({}) taken without reaching output "
+                "time ({}).\nCurrent integrator time: {}",
+                nsteps, tout, m_tInteg);
         }
-        throw CanteraError("CVodesIntegrator::integrate",
-            "CVodes error encountered. Error code: {}\n{}\n"
-            "{}"
-            "Components with largest weighted error estimates:\n{}",
-            flag, m_error_message, f_errs, getErrorInfo(10));
+        int flag = CVode(m_cvode_mem, tout, m_y, &m_tInteg, CV_ONE_STEP);
+        if (flag != CV_SUCCESS) {
+            string f_errs = m_func->getErrors();
+            if (!f_errs.empty()) {
+                f_errs = "Exceptions caught during RHS evaluation:\n" + f_errs;
+            }
+            throw CanteraError("CVodesIntegrator::integrate",
+                "CVodes error encountered. Error code: {}\n{}\n"
+                "{}"
+                "Components with largest weighted error estimates:\n{}",
+                flag, m_error_message, f_errs, getErrorInfo(10));
+        }
+        nsteps++;
     }
+    int flag = CVodeGetDky(m_cvode_mem, tout, 0, m_y);
+    if (flag != CV_SUCCESS) {
+        throw CanteraError("CvodesIntegrator::integrate",
+                           "CVodeGetDky failed. result = {}", flag);
+    }
+    m_time = tout;
     m_sens_ok = false;
 }
 
 double CVodesIntegrator::step(double tout)
 {
-    int flag = CVode(m_cvode_mem, tout, m_y, &m_time, CV_ONE_STEP);
+    int flag = CVode(m_cvode_mem, tout, m_y, &m_tInteg, CV_ONE_STEP);
     if (flag != CV_SUCCESS) {
         string f_errs = m_func->getErrors();
         if (!f_errs.empty()) {
@@ -544,6 +562,7 @@ double CVodesIntegrator::step(double tout)
 
     }
     m_sens_ok = false;
+    m_time = m_tInteg;
     return m_time;
 }
 

@@ -97,8 +97,16 @@ private:
     void* m_linsol_matrix = nullptr; //!< matrix used by Sundials
     FuncEval* m_func = nullptr;
     double m_t0 = 0.0;
-    double m_time; //!< The current integrator time
+
+    //! The current system time, corresponding to #m_y
+    double m_time;
+
+    //! The latest time reached by the integrator. May be greater than #m_time.
+    double m_tInteg;
+
+    //! The system state at #m_time
     N_Vector m_y = nullptr;
+
     N_Vector m_abstol = nullptr;
     N_Vector m_dky = nullptr;
     string m_type = "DENSE";
