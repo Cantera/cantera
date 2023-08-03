@@ -700,7 +700,7 @@ private:
     std::unordered_map<std::string, AnyValue> m_data;
 
     //! The default units that are used to convert stored values
-    std::shared_ptr<UnitSystem> m_units;
+    shared_ptr<UnitSystem> m_units;
 
     //! Cache for previously-parsed input (YAML) files. The key is the full path
     //! to the file, and the second element of the value is the last-modified

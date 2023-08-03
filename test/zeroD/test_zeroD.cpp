@@ -47,7 +47,7 @@ TEST(zerodim, test_individual_reactor_initialization)
     double tol = 1e-7;
     std::string X0 = "H2:1.0, O2:0.5, AR:8.0";
     // reactor solution, phase, and kinetics objects
-    std::shared_ptr<Solution> sol1 = newSolution("h2o2.yaml");
+    shared_ptr<Solution> sol1 = newSolution("h2o2.yaml");
     sol1->thermo()->setState_TPX(T0, P0, X0);
     // set up reactor object
     Reactor reactor1;
@@ -60,7 +60,7 @@ TEST(zerodim, test_individual_reactor_initialization)
     network.initialize();
     network.advance(1.0);
     // secondary gas for comparison
-    std::shared_ptr<Solution> sol2 = newSolution("h2o2.yaml");
+    shared_ptr<Solution> sol2 = newSolution("h2o2.yaml");
     sol2->thermo()->setState_TPX(T0, P0, X0);
     sol2->thermo()->equilibrate("UV");
     // secondary reactor for comparison
@@ -172,7 +172,7 @@ TEST(AdaptivePreconditionerTests, test_precon_solver_stats)
     ReactorNet network;
     network.addReactor(reactor);
     // setup preconditioner
-    std::shared_ptr<PreconditionerBase> precon_ptr = newPreconditioner("Adaptive");
+    shared_ptr<PreconditionerBase> precon_ptr = newPreconditioner("Adaptive");
     network.setPreconditioner(precon_ptr);
     EXPECT_THROW(network.step(), CanteraError);
     // take a step

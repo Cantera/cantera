@@ -21,7 +21,7 @@ public:
         test_phase->setMoleFractions(&moleFracs[0]);
     }
 
-    std::shared_ptr<ThermoPhase> test_phase;
+    shared_ptr<ThermoPhase> test_phase;
 };
 
 TEST_F(PengRobinson_Test, chem_potentials)

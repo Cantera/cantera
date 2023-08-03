@@ -797,7 +797,7 @@ public:
 
     //! Set root Solution holding all phase information
     //! @deprecated Unused. To be removed after %Cantera 3.0.
-    virtual void setRoot(std::shared_ptr<Solution> root);
+    virtual void setRoot(shared_ptr<Solution> root);
 
     //! Boolean indicating the form of the transport properties polynomial fits.
     //! Returns true if the Chemkin form is used.

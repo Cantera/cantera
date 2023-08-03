@@ -28,7 +28,7 @@ void run()
     // Containers for Cantera objects to be used in different. Each thread needs
     // to have its own set of linked Cantera objects. Multiple threads accessing
     // the same objects at the same time will cause errors.
-    vector<std::shared_ptr<Solution>> sols;
+    vector<shared_ptr<Solution>> sols;
     vector<std::unique_ptr<IdealGasConstPressureReactor>> reactors;
     vector<std::unique_ptr<ReactorNet>> nets;
 

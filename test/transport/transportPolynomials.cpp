@@ -57,7 +57,7 @@ public:
         }
     }
 
-    std::shared_ptr<ThermoPhase> phase;
+    shared_ptr<ThermoPhase> phase;
     MixTransport tran;
     MixTransport ck_tran;
 };

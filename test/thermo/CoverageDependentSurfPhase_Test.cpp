@@ -32,8 +32,8 @@ public:
         covdepsurf_phase = newInterface("copt_covdepsurf_example.yaml", "covdep")->thermo();
         idealsurf_phase = newInterface("copt_covdepsurf_example.yaml", "ideal")->thermo();
     }
-    std::shared_ptr<SurfPhase> covdepsurf_phase;
-    std::shared_ptr<SurfPhase> idealsurf_phase;
+    shared_ptr<SurfPhase> covdepsurf_phase;
+    shared_ptr<SurfPhase> idealsurf_phase;
     // To call unit convert methods
     UnitSystem us;
 

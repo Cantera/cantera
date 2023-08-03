@@ -1476,7 +1476,7 @@ public:
                      double* phase_data);
 
     //! Set root Solution holding all phase information
-    virtual void setRoot(std::shared_ptr<Solution> root) {
+    virtual void setRoot(shared_ptr<Solution> root) {
         m_root = root;
     }
 
