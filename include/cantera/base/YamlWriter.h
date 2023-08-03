@@ -66,7 +66,7 @@ public:
     //! @param units  A map where keys are dimensions (mass, length, time,
     //!     quantity, pressure, energy, activation-energy) and the values are
     //!     corresponding units supported by the UnitSystem class.
-    void setUnits(const std::map<std::string, std::string>& units={});
+    void setUnits(const map<std::string, std::string>& units={});
 
     //! Set the units to be used in the output file. Dimensions not specified
     //! will use Cantera's defaults.

@@ -520,34 +520,34 @@ protected:
     //! @{
 
     // Delegates with no return value
-    std::map<std::string, function<void()>*> m_funcs_v;
-    std::map<std::string, function<void(bool)>*> m_funcs_v_b;
-    std::map<std::string, function<void(double)>*> m_funcs_v_d;
+    map<std::string, function<void()>*> m_funcs_v;
+    map<std::string, function<void(bool)>*> m_funcs_v_b;
+    map<std::string, function<void(double)>*> m_funcs_v_d;
     map<string, function<void(AnyMap&)>*> m_funcs_v_AMr;
-    std::map<std::string,
+    map<std::string,
         function<void(const AnyMap&, const UnitStack&)>*> m_funcs_v_cAMr_cUSr;
     map<string, function<void(const string&, void*)>*> m_funcs_v_csr_vp;
-    std::map<std::string,
+    map<std::string,
         function<void(std::array<size_t, 1>, double*)>*> m_funcs_v_dp;
-    std::map<std::string,
+    map<std::string,
         function<void(std::array<size_t, 1>, double, double*)>*> m_funcs_v_d_dp;
-    std::map<std::string,
+    map<std::string,
         function<void(std::array<size_t, 2>, double, double*, double*)>*> m_funcs_v_d_dp_dp;
-    std::map<std::string,
+    map<std::string,
         function<void(std::array<size_t, 3>, double*, double*, double*)>*> m_funcs_v_dp_dp_dp;
 
     // Delegates with a return value
-    std::map<std::string, function<double(void*)>> m_base_d_vp;
-    std::map<std::string, function<double(void*)>*> m_funcs_d_vp;
+    map<std::string, function<double(void*)>> m_base_d_vp;
+    map<std::string, function<double(void*)>*> m_funcs_d_vp;
 
-    std::map<std::string,
+    map<std::string,
         function<std::string(size_t)>> m_base_s_sz;
-    std::map<std::string,
+    map<std::string,
         function<std::string(size_t)>*> m_funcs_s_sz;
 
-    std::map<std::string,
+    map<std::string,
         function<size_t(const std::string&)>> m_base_sz_csr;
-    std::map<std::string,
+    map<std::string,
         function<size_t(const std::string&)>*> m_funcs_sz_csr;
     //! @}
 

@@ -179,7 +179,7 @@ std::string Phase::speciesSPName(int k) const
     return m_name + ":" + speciesName(k);
 }
 
-std::map<std::string, size_t> Phase::nativeState() const
+map<std::string, size_t> Phase::nativeState() const
 {
     if (isPure()) {
         if (isCompressible()) {

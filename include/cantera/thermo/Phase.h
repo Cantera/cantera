@@ -290,7 +290,7 @@ public:
     //! 2, respectively. Mass fractions "Y" are omitted for pure species.
     //! In all cases, offsets into the state vector are used by saveState()
     //! and restoreState().
-    virtual std::map<std::string, size_t> nativeState() const;
+    virtual map<std::string, size_t> nativeState() const;
 
     //! Return string acronym representing the native state of a Phase.
     //! Examples: "TP", "TDY", "TPY".
@@ -969,7 +969,7 @@ protected:
 
     vector<double> m_speciesCharge; //!< Vector of species charges. length m_kk.
 
-    std::map<std::string, shared_ptr<Species> > m_species;
+    map<std::string, shared_ptr<Species> > m_species;
 
     //! Flag determining behavior when adding species with an undefined element
     UndefElement::behavior m_undefinedElementBehavior = UndefElement::add;
@@ -1021,10 +1021,10 @@ private:
     vector<std::string> m_speciesNames;
 
     //! Map of species names to indices
-    std::map<std::string, size_t> m_speciesIndices;
+    map<std::string, size_t> m_speciesIndices;
 
     //! Map of lower-case species names to indices
-    std::map<std::string, size_t> m_speciesLower;
+    map<std::string, size_t> m_speciesLower;
 
     size_t m_mm = 0; //!< Number of elements.
     vector<double> m_atomicWeights; //!< element atomic weights (kg kmol-1)

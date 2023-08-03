@@ -270,9 +270,9 @@ public:
         //! a target species
         size_t j;
         //! map of <coverage[dimensionless], enthalpy[J/kmol]> pairs
-        std::map<double, double> enthalpy_map;
+        map<double, double> enthalpy_map;
         //! map of <coverage[dimensionless], entropy[J/kmol/K]> pairs
-        std::map<double, double> entropy_map;
+        map<double, double> entropy_map;
         //! boolean indicating whether the dependency is piecewise-linear
         bool isPiecewise;
     };

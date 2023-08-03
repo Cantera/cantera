@@ -122,7 +122,7 @@ std::string YamlWriter::toYamlString() const
     output["species"] = speciesDefs;
 
     // build reaction definitions for all phases
-    std::map<std::string, vector<AnyMap>> allReactions;
+    map<std::string, vector<AnyMap>> allReactions;
     for (const auto& phase : m_phases) {
         const auto kin = phase->kinetics();
         if (!kin || !kin->nReactions()) {
@@ -140,7 +140,7 @@ std::string YamlWriter::toYamlString() const
 
     // key: canonical phase in allReactions
     // value: phases using this reaction set
-    std::map<std::string, vector<std::string>> phaseGroups;
+    map<std::string, vector<std::string>> phaseGroups;
 
     for (const auto& phase : m_phases) {
         const auto kin = phase->kinetics();
@@ -192,7 +192,7 @@ void YamlWriter::toYamlFile(const std::string& filename) const
     out << toYamlString();
 }
 
-void YamlWriter::setUnits(const std::map<std::string, std::string>& units)
+void YamlWriter::setUnits(const map<std::string, std::string>& units)
 {
     m_output_units = UnitSystem();
     m_output_units.setDefaults(units);

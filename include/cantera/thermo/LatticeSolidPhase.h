@@ -123,7 +123,7 @@ public:
         return false;
     }
 
-    std::map<std::string, size_t> nativeState() const {
+    map<std::string, size_t> nativeState() const {
         return { {"T", 0}, {"P", 1}, {"X", 2} };
     }
 

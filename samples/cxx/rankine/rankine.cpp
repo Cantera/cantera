@@ -17,7 +17,7 @@
 
 using namespace Cantera;
 
-std::map<std::string,double> h, s, T, P, x;
+map<std::string,double> h, s, T, P, x;
 vector<std::string> states;
 
 template<class F>

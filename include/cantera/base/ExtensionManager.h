@@ -108,11 +108,11 @@ public:
 
 protected:
     //! Functions for wrapping and linking ReactionData objects
-    static std::map<std::string,
+    static map<std::string,
         function<void(ReactionDataDelegator&)>> s_ReactionData_linkers;
 
     //! Functions for wrapping and linking Solution objects
-    static std::map<std::string,
+    static map<std::string,
         function<shared_ptr<ExternalHandle>(shared_ptr<Solution>)>> s_Solution_linkers;
 
     //! Mapping from user-defined rate types to Solution wrapper types

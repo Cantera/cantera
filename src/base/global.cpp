@@ -213,7 +213,7 @@ vector<FactoryBase*> FactoryBase::s_vFactoryRegistry;
 
 std::string demangle(const std::type_info& type)
 {
-    static std::map<std::string, std::string> typenames = {
+    static map<std::string, std::string> typenames = {
         {typeid(void).name(), "void"},
         {typeid(double).name(), "double"},
         {typeid(long int).name(), "long int"},

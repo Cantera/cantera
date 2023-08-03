@@ -14,7 +14,7 @@
 namespace {
 using namespace Cantera;
 
-const std::map<std::string, Units> knownUnits{
+const map<std::string, Units> knownUnits{
     {"", Units(1.0)},
     {"1", Units(1.0)},
 
@@ -80,7 +80,7 @@ const std::map<std::string, Units> knownUnits{
     {"J/kmol", Units(1.0, 1, 2, -2, 0, 0, -1)},
 };
 
-const std::map<std::string, double> prefixes{
+const map<std::string, double> prefixes{
     {"Y", 1e24},
     {"Z", 1e21},
     {"E", 1e18},
@@ -233,7 +233,7 @@ Units Units::pow(double exponent) const
 
 std::string Units::str(bool skip_unity) const
 {
-    std::map<std::string, double> dims{
+    map<std::string, double> dims{
         {"kg", m_mass_dim},
         {"m", m_length_dim},
         {"s", m_time_dim},
@@ -395,10 +395,10 @@ UnitSystem::UnitSystem(std::initializer_list<std::string> units)
     setDefaults(units);
 }
 
-std::map<std::string, std::string> UnitSystem::defaults() const
+map<std::string, std::string> UnitSystem::defaults() const
 {
     // Unit system defaults
-    std::map<std::string, std::string> units{
+    map<std::string, std::string> units{
         {"mass", "kg"},
         {"length", "m"},
         {"time", "s"},
@@ -469,7 +469,7 @@ void UnitSystem::setDefaults(std::initializer_list<std::string> units)
     }
 }
 
-void UnitSystem::setDefaults(const std::map<std::string, std::string>& units)
+void UnitSystem::setDefaults(const map<std::string, std::string>& units)
 {
     for (const auto& [dimension, name] : units) {
         Units unit(name);

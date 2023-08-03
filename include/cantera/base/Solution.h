@@ -155,13 +155,13 @@ protected:
     vector<shared_ptr<Solution>> m_adjacent;
 
     //! Adjacent phases, for access by name
-    std::map<std::string, shared_ptr<Solution>> m_adjacentByName;
+    map<std::string, shared_ptr<Solution>> m_adjacentByName;
 
     AnyMap m_header;  //!< Additional input fields; usually from a YAML input file
 
     //! Wrappers for this Solution object in extension languages, for evaluation
     //! of user-defined reaction rates
-    std::map<std::string, shared_ptr<ExternalHandle>> m_externalHandles;
+    map<std::string, shared_ptr<ExternalHandle>> m_externalHandles;
 
     //! Callback functions that are invoked when the therm, kinetics, or transport
     //! members of the Solution are replaced.
@@ -229,7 +229,7 @@ shared_ptr<Solution> newSolution(
     const AnyMap& phaseNode, const AnyMap& rootNode=AnyMap(),
     const std::string& transport="",
     const vector<shared_ptr<Solution>>& adjacent={},
-    const std::map<std::string, shared_ptr<Solution>>& related={});
+    const map<std::string, shared_ptr<Solution>>& related={});
 
 }
 

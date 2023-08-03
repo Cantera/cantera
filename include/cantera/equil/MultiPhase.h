@@ -612,7 +612,7 @@ private:
     /*!
      * -> used in the construction. However, wonder if it needs to be global.
      */
-    std::map<std::string, size_t> m_enamemap;
+    map<std::string, size_t> m_enamemap;
 
     //! Current value of the temperature (kelvin)
     double m_temp = 298.15;

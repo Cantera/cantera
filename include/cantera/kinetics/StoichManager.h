@@ -156,7 +156,7 @@ public:
         R[m_rxn] -= S[m_ic0];
     }
 
-    void resizeCoeffs(const std::map<pair<size_t, size_t>, size_t>& indices)
+    void resizeCoeffs(const map<pair<size_t, size_t>, size_t>& indices)
     {
         m_jc0 = indices.at({m_rxn, m_ic0});
     }
@@ -218,7 +218,7 @@ public:
         R[m_rxn] -= (S[m_ic0] + S[m_ic1]);
     }
 
-    void resizeCoeffs(const std::map<pair<size_t, size_t>, size_t>& indices)
+    void resizeCoeffs(const map<pair<size_t, size_t>, size_t>& indices)
     {
         m_jc0 = indices.at({m_rxn, m_ic0});
         m_jc1 = indices.at({m_rxn, m_ic1});
@@ -289,7 +289,7 @@ public:
         R[m_rxn] -= (S[m_ic0] + S[m_ic1] + S[m_ic2]);
     }
 
-    void resizeCoeffs(const std::map<pair<size_t, size_t>, size_t>& indices)
+    void resizeCoeffs(const map<pair<size_t, size_t>, size_t>& indices)
     {
         m_jc0 = indices.at({m_rxn, m_ic0});
         m_jc1 = indices.at({m_rxn, m_ic1});
@@ -392,7 +392,7 @@ public:
         }
     }
 
-    void resizeCoeffs(const std::map<pair<size_t, size_t>, size_t>& indices)
+    void resizeCoeffs(const map<pair<size_t, size_t>, size_t>& indices)
     {
         for (size_t i = 0; i < m_n; i++) {
             m_jc[i] = indices.at({m_rxn, m_ic[i]});
@@ -622,7 +622,7 @@ public:
         m_values.resize(nCoeffs, 0.);
 
         // Set up index pairs for derivatives
-        std::map<pair<size_t, size_t>, size_t> indices;
+        map<pair<size_t, size_t>, size_t> indices;
         size_t n = 0;
         for (int i = 0; i < tmp.outerSize(); i++) {
             for (Eigen::SparseMatrix<double>::InnerIterator it(tmp, i); it; ++it) {

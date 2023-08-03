@@ -1512,8 +1512,8 @@ protected:
      *  @return 0.0 if the stoichiometries are not multiples of one another
      *    Otherwise, it returns the ratio of the stoichiometric coefficients.
      */
-    double checkDuplicateStoich(std::map<int, double>& r1,
-                                std::map<int, double>& r2) const;
+    double checkDuplicateStoich(map<int, double>& r1,
+                                map<int, double>& r2) const;
 
     //! @name Stoichiometry management
     //!
@@ -1580,7 +1580,7 @@ protected:
      * function, phaseIndex() decrements by one before returning the index
      * value, so that missing phases return -1.
      */
-    std::map<std::string, size_t> m_phaseindex;
+    map<std::string, size_t> m_phaseindex;
 
     //! Index in the list of phases of the one surface phase.
     //! @deprecated To be removed after %Cantera 3.0.

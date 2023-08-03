@@ -100,7 +100,7 @@ const vector<std::string>& elementNames();
  *
  * @since New in version 3.0
  */
-const std::map<std::string, double>& elementWeights();
+const map<std::string, double>& elementWeights();
 
 //! Get the atomic weight of an element.
 /*!

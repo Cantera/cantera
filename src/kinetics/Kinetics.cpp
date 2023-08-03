@@ -107,8 +107,8 @@ void Kinetics::checkSpeciesArraySize(size_t kk) const
 pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err) const
 {
     //! Map of (key indicating participating species) to reaction numbers
-    std::map<size_t, vector<size_t> > participants;
-    vector<std::map<int, double> > net_stoich;
+    map<size_t, vector<size_t> > participants;
+    vector<map<int, double> > net_stoich;
     std::unordered_set<size_t> unmatched_duplicates;
     for (size_t i = 0; i < m_reactions.size(); i++) {
         if (m_reactions[i]->duplicate) {
@@ -121,7 +121,7 @@ pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err) const
         unsigned long int key = 0;
         Reaction& R = *m_reactions[i];
         net_stoich.emplace_back();
-        std::map<int, double>& net = net_stoich.back();
+        map<int, double>& net = net_stoich.back();
         for (const auto& [name, stoich] : R.reactants) {
             int k = static_cast<int>(kineticsSpeciesIndex(name));
             key += k*(k+1);
@@ -197,8 +197,8 @@ pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err) const
     return {npos, npos};
 }
 
-double Kinetics::checkDuplicateStoich(std::map<int, double>& r1,
-                                      std::map<int, double>& r2) const
+double Kinetics::checkDuplicateStoich(map<int, double>& r1,
+                                      map<int, double>& r2) const
 {
     std::unordered_set<int> keys; // species keys (k+1 or -k-1)
     for (auto& [speciesKey, stoich] : r1) {

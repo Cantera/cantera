@@ -25,7 +25,7 @@ Mu0Poly::Mu0Poly(double tlow, double thigh, double pref, const double* coeffs) :
     m_numIntervals(0),
     m_H298(0.0)
 {
-    std::map<double, double> T_mu;
+    map<double, double> T_mu;
     size_t nPoints = (size_t) coeffs[0];
     for (size_t i = 0; i < nPoints; i++) {
         T_mu[coeffs[2*i+2]] = coeffs[2*i+3];
@@ -33,7 +33,7 @@ Mu0Poly::Mu0Poly(double tlow, double thigh, double pref, const double* coeffs) :
     setParameters(coeffs[1], T_mu);
 }
 
-void Mu0Poly::setParameters(double h0, const std::map<double, double>& T_mu)
+void Mu0Poly::setParameters(double h0, const map<double, double>& T_mu)
 {
     size_t nPoints = T_mu.size();
     if (nPoints < 2) {

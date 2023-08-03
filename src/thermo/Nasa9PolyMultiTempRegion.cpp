@@ -79,7 +79,7 @@ Nasa9PolyMultiTempRegion::Nasa9PolyMultiTempRegion(double tlow, double thigh, do
     }
 }
 
-void Nasa9PolyMultiTempRegion::setParameters(const std::map<double, vector<double>>& regions)
+void Nasa9PolyMultiTempRegion::setParameters(const map<double, vector<double>>& regions)
 {
     m_regionPts.clear();
     m_lowerTempBounds.clear();

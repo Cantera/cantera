@@ -210,7 +210,7 @@ protected:
 
     //! Vector of pairs of reaction rates indices and reaction rates
     vector<pair<size_t, RateType>> m_rxn_rates;
-    std::map<size_t, size_t> m_indices; //! Mapping of indices
+    map<size_t, size_t> m_indices; //! Mapping of indices
     DataType m_shared;
 };
 

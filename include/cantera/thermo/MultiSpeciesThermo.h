@@ -204,8 +204,8 @@ protected:
     void markInstalled(size_t k);
 
     typedef pair<size_t, shared_ptr<SpeciesThermoInterpType> > index_STIT;
-    typedef std::map<int, vector<index_STIT> > STIT_map;
-    typedef std::map<int, vector<double>> tpoly_map;
+    typedef map<int, vector<index_STIT> > STIT_map;
+    typedef map<int, vector<double>> tpoly_map;
 
     //! This is the main data structure, which contains the
     //! SpeciesThermoInterpType objects, sorted by the parameterization type.
@@ -219,7 +219,7 @@ protected:
     //! Map from species index to location within #m_sp, such that
     //! `m_sp[m_speciesLoc[k].first][m_speciesLoc[k].second]` is the
     //! SpeciesThermoInterpType object for species `k`.
-    std::map<size_t, pair<int, size_t> > m_speciesLoc;
+    map<size_t, pair<int, size_t> > m_speciesLoc;
 
     //! Maximum value of the lowest temperature
     double m_tlow_max = 0.0;
