@@ -343,8 +343,8 @@ protected:
 
     shared_ptr<vector<double>> m_state; //!< Solution vector
 
-    std::unique_ptr<MultiJac> m_jac; //!< Jacobian evaluator
-    std::unique_ptr<MultiNewton> m_newt; //!< Newton iterator
+    unique_ptr<MultiJac> m_jac; //!< Jacobian evaluator
+    unique_ptr<MultiNewton> m_newt; //!< Newton iterator
     double m_rdt = 0.0; //!< reciprocal of time step
     bool m_jac_ok = false; //!< if true, Jacobian is current
 

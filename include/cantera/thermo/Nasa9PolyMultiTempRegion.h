@@ -123,7 +123,7 @@ protected:
     vector<double> m_lowerTempBounds;
 
     //! Individual temperature region objects
-    vector<std::unique_ptr<Nasa9Poly1>> m_regionPts;
+    vector<unique_ptr<Nasa9Poly1>> m_regionPts;
 
     //! current region
     mutable int m_currRegion = 0;

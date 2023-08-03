@@ -245,7 +245,7 @@ public:
     virtual bool addSpecies(shared_ptr<Species> spec);
 
     //! Install a PDSS object for species *k*
-    void installPDSS(size_t k, std::unique_ptr<PDSS>&& pdss);
+    void installPDSS(size_t k, unique_ptr<PDSS>&& pdss);
     //! @}
 
     PDSS* providePDSS(size_t k);
@@ -282,7 +282,7 @@ protected:
      *  Storage is in species index order. VPStandardStateTp owns each of the
      *  objects. Copy operations are deep.
      */
-    vector<std::unique_ptr<PDSS>> m_PDSS_storage;
+    vector<unique_ptr<PDSS>> m_PDSS_storage;
 
     //! Vector containing the species reference enthalpies at T = m_tlast
     //! and P = p_ref.

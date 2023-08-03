@@ -260,7 +260,7 @@ protected:
 
     vector<vector<int>> pLocVec;
     //! Pointer to the CVODE integrator
-    std::unique_ptr<Integrator> m_integ;
+    unique_ptr<Integrator> m_integ;
     double m_atol, m_rtol; // tolerances
     double m_maxstep; //!< max step size
     size_t m_nmax; //!< maximum number of steps allowed
@@ -293,7 +293,7 @@ protected:
     /**
      * Pointer to the helper method, Placid, which solves the surface problem.
      */
-    std::unique_ptr<solveSP> m_surfSolver;
+    unique_ptr<solveSP> m_surfSolver;
 
     //! If true, a common temperature and pressure for all surface and bulk
     //! phases associated with the surface problem is imposed

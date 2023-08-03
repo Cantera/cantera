@@ -601,7 +601,7 @@ protected:
 
     //! Identity tag for the domain
     std::string m_id;
-    std::unique_ptr<Refiner> m_refiner;
+    unique_ptr<Refiner> m_refiner;
     vector<std::string> m_name;
     int m_bw = -1;
     bool m_force_full_update = false;

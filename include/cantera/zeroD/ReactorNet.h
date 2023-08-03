@@ -318,7 +318,7 @@ protected:
     virtual int lastOrder() const;
 
     vector<Reactor*> m_reactors;
-    std::unique_ptr<Integrator> m_integ;
+    unique_ptr<Integrator> m_integ;
 
     //! The independent variable in the system. May be either time or space depending
     //! on the type of reactors in the network.

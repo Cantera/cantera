@@ -204,7 +204,7 @@ protected:
 
 private:
     //! Pointer to the underlying tpx object Substance that does the work
-    mutable std::unique_ptr<tpx::Substance> m_sub;
+    mutable unique_ptr<tpx::Substance> m_sub;
 
     //! Name for this substance used by the TPX package
     std::string m_tpx_name;

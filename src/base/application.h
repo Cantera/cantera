@@ -156,7 +156,7 @@ protected:
         vector<std::string> errorMessage;
 
         //! Current pointer to the logwriter
-        std::unique_ptr<Logger> logwriter;
+        unique_ptr<Logger> logwriter;
     };
 
     //! Typedef for thread specific messages

@@ -117,7 +117,7 @@ private:
     //! ensure that HDF group is writeable
     bool checkGroupWrite(const string& id, bool permissive);
 
-    std::unique_ptr<HighFive::File> m_file; //!< HDF container file
+    unique_ptr<HighFive::File> m_file; //!< HDF container file
     bool m_write; //!< HDF access mode
     int m_compressionLevel=0; //!< HDF compression level
 #endif

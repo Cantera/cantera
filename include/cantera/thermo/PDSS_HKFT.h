@@ -268,7 +268,7 @@ private:
     mutable double m_densWaterSS = -1.0;
 
     //!  Pointer to the water property calculator
-    std::unique_ptr<WaterProps> m_waterProps;
+    unique_ptr<WaterProps> m_waterProps;
 
     //! Input value of deltaG of Formation at Tr and Pr    (cal gmol-1)
     /*!

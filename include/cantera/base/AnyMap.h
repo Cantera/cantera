@@ -585,7 +585,7 @@ public:
     private:
         const AnyMap* m_data;
         OrderVector m_ordered;
-        std::unique_ptr<std::pair<const std::string, AnyValue>> m_units;
+        unique_ptr<std::pair<const std::string, AnyValue>> m_units;
     };
 
     //! Defined to allow the OrderedProxy class to be used with range-based
