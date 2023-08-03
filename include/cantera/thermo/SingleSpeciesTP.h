@@ -59,7 +59,7 @@ public:
     //! Base empty constructor.
     SingleSpeciesTP() = default;
 
-    virtual std::string type() const {
+    virtual string type() const {
         return "SingleSpecies";
     }
 

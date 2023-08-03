@@ -148,7 +148,7 @@ void ReactorNet::reinitialize()
     }
 }
 
-void ReactorNet::setLinearSolverType(const std::string& linSolverType)
+void ReactorNet::setLinearSolverType(const string& linSolverType)
 {
     m_linearSolverType = linSolverType;
     m_integrator_init = false;
@@ -465,7 +465,7 @@ size_t ReactorNet::globalComponentIndex(const string& component, size_t reactor)
     return m_start[reactor] + m_reactors[reactor]->componentIndex(component);
 }
 
-std::string ReactorNet::componentName(size_t i) const
+string ReactorNet::componentName(size_t i) const
 {
     for (auto r : m_reactors) {
         if (i < r->neq()) {
@@ -478,7 +478,7 @@ std::string ReactorNet::componentName(size_t i) const
 }
 
 size_t ReactorNet::registerSensitivityParameter(
-    const std::string& name, double value, double scale)
+    const string& name, double value, double scale)
 {
     if (m_integrator_init) {
         throw CanteraError("ReactorNet::registerSensitivityParameter",
@@ -508,7 +508,7 @@ AnyMap ReactorNet::solverStats() const
     }
 }
 
-std::string ReactorNet::linearSolverType() const
+string ReactorNet::linearSolverType() const
 {
     if (m_integ) {
         return m_integ->linearSolverType();

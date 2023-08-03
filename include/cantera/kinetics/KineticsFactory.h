@@ -28,7 +28,7 @@ public:
     /**
      * Return a new, empty kinetics manager.
      */
-    virtual Kinetics* newKinetics(const std::string& model);
+    virtual Kinetics* newKinetics(const string& model);
 
 private:
     static KineticsFactory* s_factory;
@@ -98,8 +98,8 @@ shared_ptr<Kinetics> newKinetics(const vector<shared_ptr<ThermoPhase>>& phases,
 //! @deprecated To be removed after %Cantera 3.0;
 //!     superseded by newKinetics() returning shared_ptr
 unique_ptr<Kinetics> newKinetics(const vector<ThermoPhase*>& phases,
-                                 const std::string& filename,
-                                 const std::string& phase_name);
+                                 const string& filename,
+                                 const string& phase_name);
 
 /**
  * Add reactions to a Kinetics object.

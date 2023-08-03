@@ -43,7 +43,7 @@ public:
 
     //! Get a value from the metadata applicable to the AnyMap tree containing
     //! this node.
-    const AnyValue& getMetadata(const std::string& key) const;
+    const AnyValue& getMetadata(const string& key) const;
 
 protected:
     //! The line where this value occurs in the input file. Set to -1 for values
@@ -59,8 +59,8 @@ protected:
     shared_ptr<AnyMap> m_metadata;
 
     friend class InputFileError;
-    friend void warn_deprecated(const std::string& source, const AnyBase& node,
-                                const std::string& message);
+    friend void warn_deprecated(const string& source, const AnyBase& node,
+                                const string& message);
 };
 
 class AnyMap;
@@ -78,7 +78,7 @@ class AnyMap;
  * - `double`
  * - `long int`
  * - `bool`
- * - `std::string`
+ * - `string`
  * - `vector` of any of the above
  * @ingroup anyGroup
  */
@@ -92,16 +92,16 @@ public:
     bool operator!=(const AnyValue& other) const;
 
     //! If this AnyValue is an AnyMap, return the value stored in `key`.
-    AnyValue& operator[](const std::string& key);
-    const AnyValue& operator[](const std::string& key) const;
+    AnyValue& operator[](const string& key);
+    const AnyValue& operator[](const string& key) const;
 
     //! Returns `true` if this AnyValue is an AnyMap and that map contains
     //! a key with the given name.
-    bool hasKey(const std::string& key) const;
+    bool hasKey(const string& key) const;
 
     //! Set the name of the key storing this value in an AnyMap. Used for
     //! providing informative error messages in class InputFileError.
-    void setKey(const std::string& key);
+    void setKey(const string& key);
 
     //! Propagate metadata to any child elements
     void propagateMetadata(shared_ptr<AnyMap>& file);
@@ -117,7 +117,7 @@ public:
     const std::type_info& type() const;
 
     //! Returns a string specifying the type of the held value.
-    std::string type_str() const;
+    string type_str() const;
 
     //! Return boolean indicating whether AnyValue is empty.
     bool empty() const;
@@ -158,16 +158,16 @@ public:
     //! @since New in %Cantera 3.0.
     pair<size_t, size_t> matrixShape() const;
 
-    explicit AnyValue(const std::string& value);
+    explicit AnyValue(const string& value);
     explicit AnyValue(const char* value);
-    AnyValue& operator=(const std::string& value);
+    AnyValue& operator=(const string& value);
     AnyValue& operator=(const char* value);
     //! Return the held value, if it is a string
-    const std::string& asString() const;
-    bool operator==(const std::string& other) const;
-    bool operator!=(const std::string& other) const;
-    friend bool operator==(const std::string& lhs, const AnyValue& rhs);
-    friend bool operator!=(const std::string& lhs, const AnyValue& rhs);
+    const string& asString() const;
+    bool operator==(const string& other) const;
+    bool operator!=(const string& other) const;
+    friend bool operator==(const string& lhs, const AnyValue& rhs);
+    friend bool operator!=(const string& lhs, const AnyValue& rhs);
 
     //! @name Quantity conversions
     //! Assign a quantity consisting of one or more values and their
@@ -179,7 +179,7 @@ public:
     //! Assign a scalar quantity with units as a string, for example
     //! `{3.0, "m^2"}`. If the `is_act_energy` flag is set to `true`, the units
     //! will be converted using the special rules for activation energies.
-    void setQuantity(double value, const std::string& units, bool is_act_energy=false);
+    void setQuantity(double value, const string& units, bool is_act_energy=false);
 
     //! Assign a scalar quantity with units as a Units object, for cases where
     //! the units vary and are determined dynamically, such as reaction
@@ -187,7 +187,7 @@ public:
     void setQuantity(double value, const Units& units);
 
     //! Assign a vector where all the values have the same units
-    void setQuantity(const vector<double>& values, const std::string& units);
+    void setQuantity(const vector<double>& values, const string& units);
 
     typedef function<void(AnyValue&, const UnitSystem&)> unitConverter;
 
@@ -245,15 +245,15 @@ public:
     AnyValue& operator=(AnyMap&& value);
 
     template<class T>
-    AnyValue& operator=(const std::unordered_map<std::string, T> items);
+    AnyValue& operator=(const std::unordered_map<string, T> items);
 
     template<class T>
-    AnyValue& operator=(const map<std::string, T> items);
+    AnyValue& operator=(const map<string, T> items);
 
     //! Return the held `AnyMap` as a `map` where all of the values have
     //! the specified type.
     template<class T>
-    map<std::string, T> asMap() const;
+    map<string, T> asMap() const;
 
     //! Access a `vector<AnyMap>` as a mapping using the value of `name` from
     //! each item as the key in the new mapping.
@@ -264,8 +264,8 @@ public:
      * ```
      * calling `asMap("name")` will create a map with keys ``O2`` and ``CH4``.
      */
-    std::unordered_map<std::string, const AnyMap*> asMap(const std::string& name) const;
-    std::unordered_map<std::string, AnyMap*> asMap(const std::string& name);
+    std::unordered_map<string, const AnyMap*> asMap(const string& name) const;
+    std::unordered_map<string, AnyMap*> asMap(const string& name);
 
     //! Treating the value as `vector<AnyMap>`, return the item where the given
     //! key has the specified value.
@@ -278,11 +278,11 @@ public:
      * If the value does not exist but the `create` flag is set to true, a new
      * map with that key and value will be created and returned.
      */
-    AnyMap& getMapWhere(const std::string& key, const std::string& value, bool create=false);
-    const AnyMap& getMapWhere(const std::string& key, const std::string& value) const;
+    AnyMap& getMapWhere(const string& key, const string& value, bool create=false);
+    const AnyMap& getMapWhere(const string& key, const string& value) const;
 
     //! Returns `true` when getMapWhere() would succeed
-    bool hasMapWhere(const std::string& key, const std::string& value) const;
+    bool hasMapWhere(const string& key, const string& value) const;
 
     //! Return values used to determine the sort order when outputting to YAML
     pair <int, int> order() const;
@@ -298,7 +298,7 @@ private:
     void checkSize(const vector<T>& v, size_t nMin, size_t nMax) const;
 
     //! Key of this value in a parent `AnyMap`
-    std::string m_key;
+    string m_key;
 
     //! The held value
     std::any m_value;
@@ -364,7 +364,7 @@ vector<AnyMap>& AnyValue::asVector<AnyMap>(size_t nMin, size_t nMax);
  * ```
  * AnyMap breakfast;
  * breakfast["spam"] = 123.4; // Creates a value of type 'double'
- * breakfast["eggs"] = "scrambled"; // Creates a value of type 'std::string'
+ * breakfast["eggs"] = "scrambled"; // Creates a value of type 'string'
  *
  * // Create a nested AnyMap named "beans" which has a key named "baked"
  * // whose value is a vector<double>
@@ -372,7 +372,7 @@ vector<AnyMap>& AnyValue::asVector<AnyMap>(size_t nMin, size_t nMax);
  * breakfast["beans"]["baked"] = v;
  *
  * // Create a nested AnyMap with values of the same type
- * map<std::string, double> breads{{"wheat", 4.0}, {"white", 2.5}};
+ * map<string, double> breads{{"wheat", 4.0}, {"white", 2.5}};
  * breakfast["toast"] = breads;
  * // Equivalent to:
  * breakfast["toast"]["wheat"] = 4.0
@@ -383,10 +383,10 @@ vector<AnyMap>& AnyValue::asVector<AnyMap>(size_t nMin, size_t nMax);
  *
  * ```
  * double val1 = breakfast["spam"].asDouble();
- * std::string val2 = breakfast["eggs"].asString();
+ * string val2 = breakfast["eggs"].asString();
  * vector<double> val3 = breakfast["beans"]["baked"].asVector<double>();
  *
- * map<std::string, double> = breakfast["toast"].asMap<double>();
+ * map<string, double> = breakfast["toast"].asMap<double>();
  * ```
  *
  * ## Checking for elements
@@ -416,8 +416,8 @@ vector<AnyMap>& AnyValue::asVector<AnyMap>(size_t nMin, size_t nMax);
  * ```
  * if (breakfast["sausage"].is<vector<double>>()) {
  *     // access using asVector<double>
- * } else if (breakfast["sausage"].type() == typeid(vector<std::string>)) {
- *     // access using asVector<std::string>
+ * } else if (breakfast["sausage"].type() == typeid(vector<string>)) {
+ *     // access using asVector<string>
  * }
  * ```
  * @ingroup anyGroup
@@ -433,35 +433,35 @@ public:
      *  first, followed by the current working directory and the %Cantera include
      *  path.
      */
-    static AnyMap fromYamlFile(const std::string& name,
-                               const std::string& parent_name="");
+    static AnyMap fromYamlFile(const string& name,
+                               const string& parent_name="");
 
     //! Create an AnyMap from a string containing a YAML document
-    static AnyMap fromYamlString(const std::string& yaml);
+    static AnyMap fromYamlString(const string& yaml);
 
-    std::string toYamlString() const;
+    string toYamlString() const;
 
     //! Get the value of the item stored in `key`.
-    AnyValue& operator[](const std::string& key);
-    const AnyValue& operator[](const std::string& key) const;
+    AnyValue& operator[](const string& key);
+    const AnyValue& operator[](const string& key) const;
 
     //! Used to create a new item which will be populated from a YAML input
     //! string, where the item with `key` occurs at the specified line and
     //! column within the string.
-    AnyValue& createForYaml(const std::string& key, int line, int column);
+    AnyValue& createForYaml(const string& key, int line, int column);
 
     //! Get the value of the item stored in `key`. Raises an exception if the
     //! value does not exist.
-    const AnyValue& at(const std::string& key) const;
+    const AnyValue& at(const string& key) const;
 
     //! Return boolean indicating whether AnyMap is empty.
     bool empty() const;
 
     //! Returns `true` if the map contains an item named `key`.
-    bool hasKey(const std::string& key) const;
+    bool hasKey(const string& key) const;
 
     //! Erase the value held by `key`.
-    void erase(const std::string& key);
+    void erase(const string& key);
 
     //! Erase all items in the mapping
     void clear();
@@ -472,7 +472,7 @@ public:
 
     //! Return a string listing the keys in this AnyMap, for use in error
     //! messages, for example
-    std::string keys_str() const;
+    string keys_str() const;
 
     //! Return an unordered set of keys
     //! @since New in %Cantera 3.0.
@@ -480,7 +480,7 @@ public:
 
     //! Set a metadata value that applies to this AnyMap and its children.
     //! Mainly for internal use in reading or writing from files.
-    void setMetadata(const std::string& key, const AnyValue& value);
+    void setMetadata(const string& key, const AnyValue& value);
 
     //! Copy metadata including input line/column from an existing AnyMap
     void copyMetadata(const AnyMap& other);
@@ -489,31 +489,31 @@ public:
     void propagateMetadata(shared_ptr<AnyMap>& file);
 
     //! If `key` exists, return it as a `bool`, otherwise return `default_`.
-    bool getBool(const std::string& key, bool default_) const;
+    bool getBool(const string& key, bool default_) const;
 
     //! If `key` exists, return it as a `long int`, otherwise return `default_`.
-    long int getInt(const std::string& key, long int default_) const;
+    long int getInt(const string& key, long int default_) const;
 
     //! If `key` exists, return it as a `double`, otherwise return `default_`.
-    double getDouble(const std::string& key, double default_) const;
+    double getDouble(const string& key, double default_) const;
 
     //! If `key` exists, return it as a `string`, otherwise return `default_`.
-    const std::string& getString(const std::string& key,
-                                 const std::string& default_) const;
+    const string& getString(const string& key,
+                                 const string& default_) const;
 
     //! Convert the item stored by the given `key` to the units specified in
     //! `units`. If the stored value is a double, convert it using the default
     //! units. If the input is a string, treat this as a dimensioned value, such
     //! as '988 kg/m^3' and convert from the specified units.
-    double convert(const std::string& key, const std::string& units) const;
-    double convert(const std::string& key, const Units& units) const;
+    double convert(const string& key, const string& units) const;
+    double convert(const string& key, const Units& units) const;
 
     //! Convert the item stored by the given `key` to the units specified in
     //! `units`. If the stored value is a double, convert it using the default
     //! units. If the input is a string, treat this as a dimensioned value, such
     //! as '988 kg/m^3' and convert from the specified units. If the key is
     //! missing, the `default_` value is returned.
-    double convert(const std::string& key, const std::string& units,
+    double convert(const string& key, const string& units,
                    double default_) const;
 
     //! Convert a vector of dimensional values
@@ -531,7 +531,7 @@ public:
      * @param nMax   Maximum allowed length of the vector. An exception is
      *     thrown if this condition is not met.
      */
-    vector<double> convertVector(const std::string& key, const std::string& units,
+    vector<double> convertVector(const string& key, const string& units,
                             size_t nMin=npos, size_t nMax=npos) const;
 
     //! Defined to allow use with range-based for loops. Iteration automatically
@@ -539,13 +539,13 @@ public:
     class Iterator {
     public:
         Iterator() {}
-        Iterator(const std::unordered_map<std::string, AnyValue>::const_iterator& start,
-                 const std::unordered_map<std::string, AnyValue>::const_iterator& stop);
+        Iterator(const std::unordered_map<string, AnyValue>::const_iterator& start,
+                 const std::unordered_map<string, AnyValue>::const_iterator& stop);
 
-        const pair<const std::string, AnyValue>& operator*() const {
+        const pair<const string, AnyValue>& operator*() const {
             return *m_iter;
         }
-        const pair<const std::string, AnyValue>* operator->() const {
+        const pair<const string, AnyValue>* operator->() const {
             return &*m_iter;
         }
         bool operator!=(const Iterator& right) const {
@@ -554,8 +554,8 @@ public:
         Iterator& operator++();
 
     private:
-        std::unordered_map<std::string, AnyValue>::const_iterator m_iter;
-        std::unordered_map<std::string, AnyValue>::const_iterator m_stop;
+        std::unordered_map<string, AnyValue>::const_iterator m_iter;
+        std::unordered_map<string, AnyValue>::const_iterator m_stop;
     };
 
     //! Defined to allow use with range-based for loops
@@ -581,11 +581,11 @@ public:
 
         typedef vector<pair<
             pair<int, int>,
-            const pair<const std::string, AnyValue>*>> OrderVector;
+            const pair<const string, AnyValue>*>> OrderVector;
     private:
         const AnyMap* m_data;
         OrderVector m_ordered;
-        unique_ptr<pair<const std::string, AnyValue>> m_units;
+        unique_ptr<pair<const string, AnyValue>> m_units;
     };
 
     //! Defined to allow the OrderedProxy class to be used with range-based
@@ -596,10 +596,10 @@ public:
         OrderedIterator(const AnyMap::OrderedProxy::OrderVector::const_iterator& start,
                         const AnyMap::OrderedProxy::OrderVector::const_iterator& stop);
 
-        const pair<const std::string, AnyValue>& operator*() const {
+        const pair<const string, AnyValue>& operator*() const {
             return *m_iter->second;
         }
-        const pair<const std::string, AnyValue>* operator->() const {
+        const pair<const string, AnyValue>* operator->() const {
             return &(*m_iter->second);
         }
         bool operator!=(const OrderedIterator& right) const {
@@ -689,15 +689,15 @@ public:
      *     second string is the name of a key
      * @returns  ``true``, to facilitate static initialization
      */
-    static bool addOrderingRules(const std::string& objectType,
-                                 const vector<vector<std::string>>& specs);
+    static bool addOrderingRules(const string& objectType,
+                                 const vector<vector<string>>& specs);
 
     //! Remove the specified file from the input cache if it is present
-    static void clearCachedFile(const std::string& filename);
+    static void clearCachedFile(const string& filename);
 
 private:
     //! The stored data
-    std::unordered_map<std::string, AnyValue> m_data;
+    std::unordered_map<string, AnyValue> m_data;
 
     //! The default units that are used to convert stored values
     shared_ptr<UnitSystem> m_units;
@@ -711,12 +711,12 @@ private:
     //! Information about fields that should appear first when outputting to
     //! YAML. Keys in this map are matched to `__type__` keys in AnyMap
     //! objects, and values are a list of field names.
-    static std::unordered_map<std::string, vector<std::string>> s_headFields;
+    static std::unordered_map<string, vector<string>> s_headFields;
 
     //! Information about fields that should appear last when outputting to
     //! YAML. Keys in this map are matched to `__type__` keys in AnyMap
     //! objects, and values are a list of field names.
-    static std::unordered_map<std::string, vector<std::string>> s_tailFields;
+    static std::unordered_map<string, vector<string>> s_tailFields;
 
     friend class AnyValue;
     friend YAML::Emitter& YAML::operator<<(YAML::Emitter& out, const AnyMap& rhs);
@@ -740,8 +740,8 @@ public:
     //! `node`. The `message` and `args` are processed as in the CanteraError
     //! class.
     template <typename... Args>
-    InputFileError(const std::string& procedure, const AnyBase& node,
-                   const std::string& message, const Args&... args)
+    InputFileError(const string& procedure, const AnyBase& node,
+                   const string& message, const Args&... args)
         : CanteraError(
             procedure,
             formatError(
@@ -754,8 +754,8 @@ public:
     //! `node1` and `node2`. The `message` and `args` are processed as in the
     //! CanteraError class.
     template <typename... Args>
-    InputFileError(const std::string& procedure, const AnyBase& node1,
-                   const AnyBase& node2, const std::string& message,
+    InputFileError(const string& procedure, const AnyBase& node1,
+                   const AnyBase& node2, const string& message,
                    const Args&... args)
         : CanteraError(
             procedure,
@@ -766,21 +766,21 @@ public:
         {
         }
 
-    virtual std::string getClass() const {
+    virtual string getClass() const {
         return "InputFileError";
     }
 protected:
-    static std::string formatError(const std::string& message,
+    static string formatError(const string& message,
                                    int line, int column,
                                    const shared_ptr<AnyMap>& metadata);
-    static std::string formatError2(const std::string& message,
+    static string formatError2(const string& message,
         int line1, int column1, const shared_ptr<AnyMap>& metadata1,
         int line2, int column2, const shared_ptr<AnyMap>& metadata2);
 };
 
 //! A deprecation warning for syntax in an input file
-void warn_deprecated(const std::string& source, const AnyBase& node,
-                     const std::string& message);
+void warn_deprecated(const string& source, const AnyBase& node,
+                     const string& message);
 
 }
 

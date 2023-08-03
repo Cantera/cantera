@@ -73,7 +73,7 @@ public:
 
     virtual void resizeReactions();
 
-    virtual std::string kineticsType() const {
+    virtual string kineticsType() const {
         return "surface";
     }
 
@@ -354,7 +354,7 @@ protected:
 
     //! Vector of rate handlers for interface reactions
     vector<unique_ptr<MultiRateBase>> m_interfaceRates;
-    map<std::string, size_t> m_interfaceTypes; //!< Rate handler mapping
+    map<string, size_t> m_interfaceTypes; //!< Rate handler mapping
 
     //! Vector of irreversible reaction numbers
     /*!

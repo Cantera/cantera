@@ -268,7 +268,7 @@ void SurfPhase::getCoverages(double* theta) const
     }
 }
 
-void SurfPhase::setCoveragesByName(const std::string& cov)
+void SurfPhase::setCoveragesByName(const string& cov)
 {
     setCoveragesByName(parseCompString(cov, speciesNames()));
 }
@@ -340,7 +340,7 @@ void SurfPhase::getParameters(AnyMap& phaseNode) const
         m_n0, Units(1.0, 0, -static_cast<double>(m_ndim), 0, 0, 0, 1));
 }
 
-EdgePhase::EdgePhase(const std::string& infile, const std::string& id_)
+EdgePhase::EdgePhase(const string& infile, const string& id_)
 {
     setNDim(1);
     initThermoFile(infile, id_);

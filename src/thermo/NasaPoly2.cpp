@@ -28,7 +28,7 @@ void NasaPoly2::getParameters(AnyMap& thermo) const
     mnp_high.getParameters(thermo);
 }
 
-void NasaPoly2::validate(const std::string& name)
+void NasaPoly2::validate(const string& name)
 {
     if (thermo_warnings_suppressed()) {
         return;

@@ -22,13 +22,13 @@ class IdealGasConstPressureMoleReactor : public ConstPressureMoleReactor
 public:
     IdealGasConstPressureMoleReactor() {}
 
-    virtual std::string type() const {
+    virtual string type() const {
         return "IdealGasConstPressureMoleReactor";
     };
 
-    virtual size_t componentIndex(const std::string& nm) const;
+    virtual size_t componentIndex(const string& nm) const;
 
-    virtual std::string componentName(size_t k);
+    virtual string componentName(size_t k);
 
     virtual void setThermoMgr(ThermoPhase& thermo);
 

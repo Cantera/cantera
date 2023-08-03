@@ -171,14 +171,14 @@ public:
     //! should override this method to return a meaningful identifier.
     //! @since New in %Cantera 3.0. The name returned by this method corresponds
     //!     to the canonical name used in the YAML input format.
-    virtual std::string transportModel() const {
+    virtual string transportModel() const {
         return "none";
     }
 
     //! Identifies the Transport object type. Each derived class should override
     //! this method to return a meaningful identifier.
     //! @deprecated To be removed after %Cantera 3.0. Replaced by transportModel
-    std::string transportType() const {
+    string transportType() const {
         warn_deprecated("Transport::transportType",
             "To be removed after Cantera 3.0. Replaced by transportModel().");
             return transportModel();

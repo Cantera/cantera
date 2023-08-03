@@ -22,7 +22,7 @@ class MassFlowController : public FlowDevice
 public:
     MassFlowController() = default;
 
-    virtual std::string type() const {
+    virtual string type() const {
         return "MassFlowController";
     }
 
@@ -67,7 +67,7 @@ class PressureController : public FlowDevice
 public:
     PressureController() = default;
 
-    virtual std::string type() const {
+    virtual string type() const {
         return "PressureController";
     }
 
@@ -128,7 +128,7 @@ class Valve : public FlowDevice
 public:
     Valve() = default;
 
-    virtual std::string type() const {
+    virtual string type() const {
         return "Valve";
     }
 

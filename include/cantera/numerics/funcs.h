@@ -76,7 +76,7 @@ double simpson(const Eigen::ArrayXd& f, const Eigen::ArrayXd& x);
  * @param  x vector of function coordinate
  * @ingroup mathUtils
  */
-double numericalQuadrature(const std::string& method,
+double numericalQuadrature(const string& method,
                            const Eigen::ArrayXd& f,
                            const Eigen::ArrayXd& x);
 }

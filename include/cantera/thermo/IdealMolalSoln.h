@@ -76,10 +76,10 @@ public:
      *      about the phase. If blank, an empty phase will be created.
      *  @param id          id of the phase within the input file
      */
-    explicit IdealMolalSoln(const std::string& inputFile="",
-                            const std::string& id="");
+    explicit IdealMolalSoln(const string& inputFile="",
+                            const string& id="");
 
-    virtual std::string type() const {
+    virtual string type() const {
         return "ideal-molal-solution";
     }
 
@@ -387,10 +387,10 @@ public:
      * | species-molar-volume | @f$  m_k / (m^{\Delta} V_k) @f$   | @f$ 1.0 / V_k  @f$ |
      * | solvent-molar-volume | @f$  m_k / (m^{\Delta} V^0_0) @f$ | @f$ 1.0 / V^0_0 @f$ |
      */
-    void setStandardConcentrationModel(const std::string& model);
+    void setStandardConcentrationModel(const string& model);
 
     //! Set cutoff model. Must be one of 'none', 'poly', or 'polyExp'.
-    void setCutoffModel(const std::string& model);
+    void setCutoffModel(const string& model);
 
     //! Report the molar volume of species k
     /*!

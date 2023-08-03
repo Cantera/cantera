@@ -69,10 +69,10 @@ public:
      * @param  id        ID of the phase in the input file. Defaults to the
      *                   empty string.
      */
-    explicit PlasmaPhase(const std::string& inputFile="",
-                         const std::string& id="");
+    explicit PlasmaPhase(const string& inputFile="",
+                         const string& id="");
 
-    virtual std::string type() const {
+    virtual string type() const {
         return "plasma";
     }
 
@@ -127,21 +127,21 @@ public:
     void setMeanElectronEnergy(double energy);
 
     //! Get electron energy distribution type
-    std::string electronEnergyDistributionType() const {
+    string electronEnergyDistributionType() const {
         return m_distributionType;
     }
 
     //! Set electron energy distribution type
-    void setElectronEnergyDistributionType(const std::string& type);
+    void setElectronEnergyDistributionType(const string& type);
 
     //! Numerical quadrature method. Method: #m_quadratureMethod
-    std::string quadratureMethod() const {
+    string quadratureMethod() const {
         return m_quadratureMethod;
     }
 
     //! Set numerical quadrature method for intergating electron
     //! energy distribution function. Method: #m_quadratureMethod
-    void setQuadratureMethod(const std::string& method) {
+    void setQuadratureMethod(const string& method) {
         m_quadratureMethod = method;
     }
 

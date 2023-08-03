@@ -27,7 +27,7 @@ class UnityLewisTransport : public MixTransport
 public:
     UnityLewisTransport() = default;
 
-    virtual std::string transportModel() const {
+    virtual string transportModel() const {
         return "unity-Lewis-number";
     }
 

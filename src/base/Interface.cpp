@@ -32,8 +32,8 @@ void Interface::setKinetics(shared_ptr<Kinetics> kinetics) {
     m_surfkin = surfkin;
 }
 
-shared_ptr<Interface> newInterface(const std::string& infile,
-    const std::string& name, const vector<std::string>& adjacent)
+shared_ptr<Interface> newInterface(const string& infile,
+    const string& name, const vector<string>& adjacent)
 {
     auto sol = newSolution(infile, name, "", adjacent);
     auto iface = std::dynamic_pointer_cast<Interface>(sol);
@@ -46,8 +46,8 @@ shared_ptr<Interface> newInterface(const std::string& infile,
     return iface;
 }
 
-shared_ptr<Interface> newInterface(const std::string& infile,
-    const std::string& name, const vector<shared_ptr<Solution>>& adjacent)
+shared_ptr<Interface> newInterface(const string& infile,
+    const string& name, const vector<shared_ptr<Solution>>& adjacent)
 {
     auto rootNode = AnyMap::fromYamlFile(infile);
     AnyMap& phaseNode = rootNode["phases"].getMapWhere("name", name);

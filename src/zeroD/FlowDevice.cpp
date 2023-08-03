@@ -27,7 +27,7 @@ bool FlowDevice::install(ReactorBase& in, ReactorBase& out)
 
     m_nspin = mixin.nSpecies();
     m_nspout = mixout.nSpecies();
-    std::string nm;
+    string nm;
     size_t ki, ko;
     for (ki = 0; ki < m_nspin; ki++) {
         nm = mixin.speciesName(ki);

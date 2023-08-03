@@ -221,7 +221,7 @@ public:
      * @param reportFile Base name of the file to get the report. File name is
      *     incremented by 1 for each report.
      */
-    void reportCSV(const std::string& reportFile);
+    void reportCSV(const string& reportFile);
 
 protected:
     //! Vector that takes into account of the current sorting of the species

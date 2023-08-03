@@ -125,7 +125,7 @@ public:
         return m_comp[m];
     }
 
-    std::ostream& fmt(std::ostream& s, const vector<std::string>& esymbols) const;
+    std::ostream& fmt(std::ostream& s, const vector<string>& esymbols) const;
 
     friend std::ostream& operator<<(std::ostream& s,
                                     const Group& g);

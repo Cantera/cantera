@@ -25,7 +25,7 @@ public:
         make_deprecation_warnings_fatal();
     }
 
-    void setup(const std::string & filename)
+    void setup(const string & filename)
     {
         test_phase = newThermo(filename);
     }

@@ -17,12 +17,12 @@ using namespace std;
 namespace Cantera
 {
 
-std::string Phase::name() const
+string Phase::name() const
 {
     return m_name;
 }
 
-void Phase::setName(const std::string& name)
+void Phase::setName(const string& name)
 {
     m_name = name;
 }
@@ -52,7 +52,7 @@ string Phase::elementName(size_t m) const
     return m_elementNames[m];
 }
 
-size_t Phase::elementIndex(const std::string& elementName) const
+size_t Phase::elementIndex(const string& elementName) const
 {
     for (size_t i = 0; i < m_mm; i++) {
         if (m_elementNames[i] == elementName) {
@@ -116,9 +116,9 @@ void Phase::getAtoms(size_t k, double* atomArray) const
     }
 }
 
-size_t Phase::findSpeciesLower(const std::string& name) const
+size_t Phase::findSpeciesLower(const string& name) const
 {
-    std::string nLower = toLowerCopy(name);
+    string nLower = toLowerCopy(name);
     size_t loc = npos;
     auto it = m_speciesLower.find(nLower);
     if (it == m_speciesLower.end()) {
@@ -135,7 +135,7 @@ size_t Phase::findSpeciesLower(const std::string& name) const
     return loc;
 }
 
-size_t Phase::speciesIndex(const std::string& nameStr) const
+size_t Phase::speciesIndex(const string& nameStr) const
 {
     size_t loc = npos;
 
@@ -173,13 +173,13 @@ void Phase::checkSpeciesArraySize(size_t kk) const
     }
 }
 
-std::string Phase::speciesSPName(int k) const
+string Phase::speciesSPName(int k) const
 {
     warn_deprecated("Phase::speciesSPName", "To be removed after Cantera 3.0");
     return m_name + ":" + speciesName(k);
 }
 
-map<std::string, size_t> Phase::nativeState() const
+map<string, size_t> Phase::nativeState() const
 {
     if (isPure()) {
         if (isCompressible()) {
@@ -209,7 +209,7 @@ string Phase::nativeMode() const
     return out;
 }
 
-vector<std::string> Phase::fullStates() const
+vector<string> Phase::fullStates() const
 {
     if (isPure()) {
         if (isCompressible()) {
@@ -227,7 +227,7 @@ vector<std::string> Phase::fullStates() const
     }
 }
 
-vector<std::string> Phase::partialStates() const
+vector<string> Phase::partialStates() const
 {
     if (isPure()) {
         return {};
@@ -348,7 +348,7 @@ void Phase::setMoleFractionsByName(const Composition& xMap)
     setMoleFractions(mf.data());
 }
 
-void Phase::setMoleFractionsByName(const std::string& x)
+void Phase::setMoleFractionsByName(const string& x)
 {
     setMoleFractionsByName(parseCompString(x));
 }
@@ -384,7 +384,7 @@ void Phase::setMassFractionsByName(const Composition& yMap)
     setMassFractions(mf.data());
 }
 
-void Phase::setMassFractionsByName(const std::string& y)
+void Phase::setMassFractionsByName(const string& y)
 {
     setMassFractionsByName(parseCompString(y));
 }
@@ -548,7 +548,7 @@ double Phase::moleFraction(size_t k) const
     return m_ym[k] * m_mmw;
 }
 
-double Phase::moleFraction(const std::string& nameSpec) const
+double Phase::moleFraction(const string& nameSpec) const
 {
     size_t iloc = speciesIndex(nameSpec);
     if (iloc != npos) {
@@ -571,7 +571,7 @@ double Phase::massFraction(size_t k) const
     return m_y[k];
 }
 
-double Phase::massFraction(const std::string& nameSpec) const
+double Phase::massFraction(const string& nameSpec) const
 {
     size_t iloc = speciesIndex(nameSpec);
     if (iloc != npos) {
@@ -753,7 +753,7 @@ double Phase::sum_xlogx() const
     return m_mmw * sumxlogx + std::log(m_mmw);
 }
 
-size_t Phase::addElement(const std::string& symbol, double weight,
+size_t Phase::addElement(const string& symbol, double weight,
                          int atomic_number, double entropy298,
                          int elem_type)
 {
@@ -901,7 +901,7 @@ bool Phase::addSpecies(shared_ptr<Species> spec) {
     m_speciesIndices[spec->name] = m_kk;
     m_speciesCharge.push_back(spec->charge);
 
-    std::string nLower = toLowerCopy(spec->name);
+    string nLower = toLowerCopy(spec->name);
     if (m_speciesLower.find(nLower) == m_speciesLower.end()) {
         m_speciesLower[nLower] = m_kk;
     } else {
@@ -941,7 +941,7 @@ void Phase::modifySpecies(size_t k, shared_ptr<Species> spec)
     invalidateCache();
 }
 
-void Phase::addSpeciesAlias(const std::string& name, const std::string& alias)
+void Phase::addSpeciesAlias(const string& name, const string& alias)
 {
     if (speciesIndex(alias) != npos) {
         throw CanteraError("Phase::addSpeciesAlias",
@@ -957,9 +957,9 @@ void Phase::addSpeciesAlias(const std::string& name, const std::string& alias)
     }
 }
 
-vector<std::string> Phase::findIsomers(const Composition& compMap) const
+vector<string> Phase::findIsomers(const Composition& compMap) const
 {
-    vector<std::string> isomerNames;
+    vector<string> isomerNames;
 
     for (const auto& [name, species] : m_species) {
         if (species->composition == compMap) {
@@ -970,12 +970,12 @@ vector<std::string> Phase::findIsomers(const Composition& compMap) const
     return isomerNames;
 }
 
-vector<std::string> Phase::findIsomers(const std::string& comp) const
+vector<string> Phase::findIsomers(const string& comp) const
 {
     return findIsomers(parseCompString(comp));
 }
 
-shared_ptr<Species> Phase::species(const std::string& name) const
+shared_ptr<Species> Phase::species(const string& name) const
 {
     size_t k = speciesIndex(name);
     if (k != npos) {

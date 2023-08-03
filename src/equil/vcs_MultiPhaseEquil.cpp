@@ -488,7 +488,7 @@ int vcs_MultiPhaseEquil::equilibrate_TP(int estimateEquil,
     return iSuccess;
 }
 
-void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
+void vcs_MultiPhaseEquil::reportCSV(const string& reportFile)
 {
     size_t nphase = m_vsolve.m_numPhases;
 
@@ -569,7 +569,7 @@ void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
                         "   (J/kmol),  (J/kmol),     (kmol), (m**3/kmol),     (m**3)\n");
             }
             for (size_t k = 0; k < nSpecies; k++) {
-                std::string sName = tref.speciesName(k);
+                string sName = tref.speciesName(k);
                 fprintf(FP,"%12s, %11s, %11.3e, %11.3e, %11.3e, %11.3e, %11.3e,"
                         "%11.3e, %11.3e, %11.3e, %11.3e, %11.3e\n",
                         sName.c_str(),
@@ -593,7 +593,7 @@ void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
                 molalities[k] = 0.0;
             }
             for (size_t k = 0; k < nSpecies; k++) {
-                std::string sName = tref.speciesName(k);
+                string sName = tref.speciesName(k);
                 fprintf(FP,"%12s, %11s, %11.3e, %11.3e, %11.3e, %11.3e, %11.3e, "
                         "%11.3e, %11.3e,% 11.3e, %11.3e, %11.3e\n",
                         sName.c_str(),

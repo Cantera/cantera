@@ -25,7 +25,7 @@ public:
 
     // Overloaded methods of class ThermoPhase
 
-    virtual std::string type() const {
+    virtual string type() const {
         return "electron-cloud";
     }
 

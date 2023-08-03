@@ -53,7 +53,7 @@ void Domain1D::resize(size_t nv, size_t np)
     locate();
 }
 
-std::string Domain1D::componentName(size_t n) const
+string Domain1D::componentName(size_t n) const
 {
     if (m_name[n] != "") {
         return m_name[n];
@@ -62,7 +62,7 @@ std::string Domain1D::componentName(size_t n) const
     }
 }
 
-size_t Domain1D::componentIndex(const std::string& name) const
+size_t Domain1D::componentIndex(const string& name) const
 {
     for (size_t n = 0; n < nComponents(); n++) {
         if (name == componentName(n)) {
@@ -181,7 +181,7 @@ void Domain1D::setMeta(const AnyMap& meta)
             out.assign(nComponents(), tol.asDouble());
         } else {
             for (size_t i = 0; i < nComponents(); i++) {
-                std::string name = componentName(i);
+                string name = componentName(i);
                 if (tol.hasKey(name)) {
                     out[i] = tol[name].asDouble();
                 } else {
@@ -290,7 +290,7 @@ void Domain1D::show(const double* x)
     writelog("\n");
 }
 
-void Domain1D::setProfile(const std::string& name, double* values, double* soln)
+void Domain1D::setProfile(const string& name, double* values, double* soln)
 {
     for (size_t n = 0; n < m_nv; n++) {
         if (name == componentName(n)) {

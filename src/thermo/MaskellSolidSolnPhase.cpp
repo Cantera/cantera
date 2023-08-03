@@ -172,7 +172,7 @@ void MaskellSolidSolnPhase::getParameters(AnyMap& phaseNode) const
     phaseNode["product-species"] = speciesName(product_species_index);
 }
 
-void MaskellSolidSolnPhase::setProductSpecies(const std::string& name)
+void MaskellSolidSolnPhase::setProductSpecies(const string& name)
 {
     product_species_index = static_cast<int>(speciesIndex(name));
     if (product_species_index == -1) {

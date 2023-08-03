@@ -51,11 +51,11 @@ public:
     }
 
     //! Get preconditioner application side for CVODES
-    std::string preconditionerSide() const {
+    string preconditionerSide() const {
         return m_precon_side;
     }
 
-    virtual void setPreconditionerSide(const std::string& preconSide) {
+    virtual void setPreconditionerSide(const string& preconSide) {
         m_precon_side = preconSide;
     }
 
@@ -125,7 +125,7 @@ protected:
     //! Absolute tolerance of the ODE solver
     double m_atol = 0;
 
-    std::string m_precon_side = "none";
+    string m_precon_side = "none";
 };
 
 }

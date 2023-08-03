@@ -111,13 +111,13 @@ public:
     /*!
      *  @param m index of the global element
      */
-    std::string elementName(size_t m) const;
+    string elementName(size_t m) const;
 
     //! Returns the index of the element with name \a name.
     /*!
      * @param name   String name of the global element
      */
-    size_t elementIndex(const std::string& name) const;
+    size_t elementIndex(const string& name) const;
 
     //! Number of species, summed over all phases.
     size_t nSpecies() const {
@@ -137,7 +137,7 @@ public:
     /*!
      * @param kGlob   global species index
      */
-    std::string speciesName(const size_t kGlob) const;
+    string speciesName(const size_t kGlob) const;
 
     //! Returns the Number of atoms of global element \a mGlob in
     //! global species \a kGlob.
@@ -170,14 +170,14 @@ public:
     /*!
      *   @param iph  phase Index
      */
-    std::string phaseName(const size_t iph) const;
+    string phaseName(const size_t iph) const;
 
     //! Returns the index, given the phase name
     /*!
      * @param pName Name of the phase
      * @returns the index. A value of -1 means the phase isn't in the object.
      */
-    int phaseIndex(const std::string& pName) const;
+    int phaseIndex(const string& pName) const;
 
     //! Return the number of moles in phase n.
     /*!
@@ -238,7 +238,7 @@ public:
      * If the species or phase name is not recognized, this routine throws a
      * CanteraError.
      */
-    size_t speciesIndex(const std::string& speciesName, const std::string& phaseName);
+    size_t speciesIndex(const string& speciesName, const string& phaseName);
 
     //! Minimum temperature for which all solution phases have valid thermo
     //! data. Stoichiometric phases are not considered, since they may have
@@ -358,7 +358,7 @@ public:
      *
      * @ingroup equilGroup
      */
-    void equilibrate(const std::string& XY, const std::string& solver="auto",
+    void equilibrate(const string& XY, const string& solver="auto",
                      double rtol=1e-9, int max_steps=50000, int max_iter=100,
                      int estimate_equil=0, int log_level=0);
 
@@ -472,7 +472,7 @@ public:
      * @param x string x in the form of a composition map
      *             where values are the moles of the species.
      */
-    void setMolesByName(const std::string& x);
+    void setMolesByName(const string& x);
 
     //! Get the mole numbers of all species in the multiphase object
     /*!
@@ -599,20 +599,20 @@ private:
 
     //! String names of the global elements. This has a length equal to the
     //! number of global elements.
-    vector<std::string> m_enames;
+    vector<string> m_enames;
 
     //! Atomic number of each global element.
     vector<int> m_atomicNumber;
 
     //! Vector of species names in the problem. Vector is over all species
     //! defined in the object, the global species index.
-    vector<std::string> m_snames;
+    vector<string> m_snames;
 
     //! Returns the global element index, given the element string name
     /*!
      * -> used in the construction. However, wonder if it needs to be global.
      */
-    map<std::string, size_t> m_enamemap;
+    map<string, size_t> m_enamemap;
 
     //! Current value of the temperature (kelvin)
     double m_temp = 298.15;

@@ -31,7 +31,7 @@ public:
      * @param flowDeviceType the type to be created.
      * @deprecated To be removed after %Cantera 3.0; replaceable by newFlowDevice3.
      */
-    virtual FlowDevice* newFlowDevice(const std::string& flowDeviceType);
+    virtual FlowDevice* newFlowDevice(const string& flowDeviceType);
 
 private:
     static FlowDeviceFactory* s_factory;

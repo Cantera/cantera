@@ -67,8 +67,8 @@ public:
         return 0;
     }
 
-    //! Set the mole fractions by specifying a std::string.
-    virtual void setMoleFractions(const std::string& xin) {
+    //! Set the mole fractions by specifying a string.
+    virtual void setMoleFractions(const string& xin) {
         throw NotImplementedError("Boundary1D::setMoleFractions");
     }
 
@@ -154,7 +154,7 @@ public:
         return m_nsp;
     }
 
-    virtual void setMoleFractions(const std::string& xin);
+    virtual void setMoleFractions(const string& xin);
     virtual void setMoleFractions(const double* xin);
     virtual double massFraction(size_t k) {
         return m_yin[k];
@@ -170,7 +170,7 @@ protected:
     double m_V0 = 0.0;
     size_t m_nsp = 0;
     vector<double> m_yin;
-    std::string m_xstr;
+    string m_xstr;
     StFlow* m_flow = nullptr;
 };
 
@@ -184,7 +184,7 @@ public:
         m_type = cEmptyType;
     }
 
-    Empty1D(shared_ptr<Solution> solution, const std::string& id="") : Empty1D() {
+    Empty1D(shared_ptr<Solution> solution, const string& id="") : Empty1D() {
         m_solution = solution;
         m_id = id;
     }
@@ -215,7 +215,7 @@ public:
         m_type = cSymmType;
     }
 
-    Symm1D(shared_ptr<Solution> solution, const std::string& id="") : Symm1D() {
+    Symm1D(shared_ptr<Solution> solution, const string& id="") : Symm1D() {
         m_solution = solution;
         m_id = id;
     }
@@ -244,7 +244,7 @@ public:
         m_type = cOutletType;
     }
 
-    Outlet1D(shared_ptr<Solution> solution, const std::string& id="") : Outlet1D() {
+    Outlet1D(shared_ptr<Solution> solution, const string& id="") : Outlet1D() {
         m_solution = solution;
         m_id = id;
     }
@@ -283,7 +283,7 @@ public:
         return m_nsp;
     }
 
-    virtual void setMoleFractions(const std::string& xin);
+    virtual void setMoleFractions(const string& xin);
     virtual void setMoleFractions(const double* xin);
     virtual double massFraction(size_t k) {
         return m_yres[k];
@@ -297,7 +297,7 @@ public:
 protected:
     size_t m_nsp = 0;
     vector<double> m_yres;
-    std::string m_xstr;
+    string m_xstr;
     StFlow* m_flow = nullptr;
 };
 
@@ -313,7 +313,7 @@ public:
         m_type = cSurfType;
     }
 
-    Surf1D(shared_ptr<Solution> solution, const std::string& id="") : Surf1D() {
+    Surf1D(shared_ptr<Solution> solution, const string& id="") : Surf1D() {
         m_solution = solution;
         m_id = id;
     }
@@ -342,7 +342,7 @@ class ReactingSurf1D : public Boundary1D
 {
 public:
     ReactingSurf1D();
-    ReactingSurf1D(shared_ptr<Solution> solution, const std::string& id="");
+    ReactingSurf1D(shared_ptr<Solution> solution, const string& id="");
 
     virtual string type() const {
         return "reacting-surface";
@@ -361,7 +361,7 @@ public:
         return m_enabled;
     }
 
-    virtual std::string componentName(size_t n) const;
+    virtual string componentName(size_t n) const;
 
     virtual void init();
     virtual void resetBadValues(double* xg);

@@ -238,8 +238,8 @@ public:
 
     void test_stoich_mixture(ThermoBasis basis, double mf, double AFR_st) {
         auto& gas = *m_sol->thermo();
-        std::string sfuel = "CH4";
-        std::string sox = "O2:21,N2:79";
+        string sfuel = "CH4";
+        string sox = "O2:21,N2:79";
         gas.setState_TP(300.0, 1e5);
         gas.setEquivalenceRatio(1.0, sfuel, sox, basis);
         gas.setMixtureFraction(gas.mixtureFraction(sfuel, sox, basis, "Bilger"), sfuel, sox, basis);

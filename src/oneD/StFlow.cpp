@@ -97,7 +97,7 @@ StFlow::StFlow(shared_ptr<ThermoPhase> th, size_t nsp, size_t points)
     m_solution->setThermo(th);
 }
 
-StFlow::StFlow(shared_ptr<Solution> sol, const std::string& id, size_t points)
+StFlow::StFlow(shared_ptr<Solution> sol, const string& id, size_t points)
     : StFlow(sol->thermo().get(), sol->thermo()->nSpecies(), points)
 {
     m_solution = sol;
@@ -234,7 +234,7 @@ void StFlow::resetBadValues(double* xg)
     }
 }
 
-void StFlow::setTransportModel(const std::string& trans)
+void StFlow::setTransportModel(const string& trans)
 {
     if (!m_solution) {
         // @todo remove after Cantera 3.0
@@ -245,7 +245,7 @@ void StFlow::setTransportModel(const std::string& trans)
     m_solution->setTransportModel(trans);
 }
 
-std::string StFlow::transportModel() const {
+string StFlow::transportModel() const {
     return m_trans->transportModel();
 }
 
@@ -685,7 +685,7 @@ string StFlow::componentName(size_t n) const
     }
 }
 
-size_t StFlow::componentIndex(const std::string& name) const
+size_t StFlow::componentIndex(const string& name) const
 {
     if (name=="velocity") {
         return c_offset_U;
@@ -819,7 +819,7 @@ void StFlow::fromArray(SolutionArray& arr, double* soln)
         if (!componentActive(i)) {
             continue;
         }
-        std::string name = componentName(i);
+        string name = componentName(i);
         if (arr.hasComponent(name)) {
             const vector<double> data = arr.getComponent(name).as<vector<double>>();
             for (size_t j = 0; j < nPoints(); j++) {

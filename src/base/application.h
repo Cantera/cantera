@@ -62,7 +62,7 @@ protected:
          * entire message.
          * @ingroup errGroup
          */
-        void addError(const std::string& r, const std::string& msg="");
+        void addError(const string& r, const string& msg="");
 
         //! Return the number of errors that have been encountered so far.
         /*!
@@ -87,7 +87,7 @@ protected:
          *
          * @ingroup errGroup
          */
-        std::string lastErrorMessage();
+        string lastErrorMessage();
 
         //!  Prints all of the error messages to an ostream
         /*!
@@ -127,7 +127,7 @@ protected:
          * @param msg  c++ string to be written to the screen
          * @ingroup logGroup
          */
-        void writelog(const std::string& msg);
+        void writelog(const string& msg);
 
         //! Write an end of line character to the screen and flush output
         void writelogendl();
@@ -138,7 +138,7 @@ protected:
          * @param msg  String to be written to the screen
          * @ingroup logGroup
          */
-        void warnlog(const std::string& warning, const std::string& msg);
+        void warnlog(const string& warning, const string& msg);
 
         //! Install a logger.
         /*!
@@ -153,7 +153,7 @@ protected:
 
     protected:
         //! Current list of error messages
-        vector<std::string> errorMessage;
+        vector<string> errorMessage;
 
         //! Current pointer to the logwriter
         unique_ptr<Logger> logwriter;
@@ -206,7 +206,7 @@ public:
     static void ApplicationDestroy();
 
     //! @copydoc Messages::addError
-    void addError(const std::string& r, const std::string& msg="") {
+    void addError(const string& r, const string& msg="") {
         pMessenger->addError(r, msg);
     }
 
@@ -221,7 +221,7 @@ public:
     }
 
     //! @copydoc Messages::lastErrorMessage
-    std::string lastErrorMessage() {
+    string lastErrorMessage() {
         return pMessenger->lastErrorMessage();
     }
 
@@ -241,7 +241,7 @@ public:
      *
      * @param dir  String name for the directory to be added to the search path
      */
-    void addDataDirectory(const std::string& dir);
+    void addDataDirectory(const string& dir);
 
     //! Find an input file.
     /*!
@@ -264,7 +264,7 @@ public:
      *
      * @ingroup inputGroup
      */
-    std::string findInputFile(const std::string& name);
+    string findInputFile(const string& name);
 
     //! Get the %Cantera data directories
     /*!
@@ -276,7 +276,7 @@ public:
      *
      * @ingroup inputGroup
      */
-    std::string getDataDirectories(const std::string& sep) {
+    string getDataDirectories(const string& sep) {
         return boost::algorithm::join(inputDirs, sep);
     }
 
@@ -288,7 +288,7 @@ public:
     //!     Python extensions, this is the name of the Python module containing the
     //!     models.
     //! @since New in %Cantera 3.0
-    void loadExtension(const std::string& extType, const std::string& name);
+    void loadExtension(const string& extType, const string& name);
 
     //! Set the versions of Python to try when loading user-defined extensions,
     //! in order of preference. Separate multiple versions with commas, for example
@@ -297,12 +297,12 @@ public:
     void searchPythonVersions(const string& versions);
 
 #ifdef _WIN32
-    long int readStringRegistryKey(const std::string& keyName, const std::string& valueName,
-                                   std::string& value, const std::string& defaultValue);
+    long int readStringRegistryKey(const string& keyName, const string& valueName,
+                                   string& value, const string& defaultValue);
 #endif
 
     //! @copydoc Messages::writelog
-    void writelog(const std::string& msg) {
+    void writelog(const string& msg) {
         pMessenger->writelog(msg);
     }
 
@@ -312,7 +312,7 @@ public:
     }
 
     //! @copydoc Messages::warnlog
-    void warnlog(const std::string& warning, const std::string& msg) {
+    void warnlog(const string& warning, const string& msg) {
         pMessenger->warnlog(warning, msg);
     }
 
@@ -320,7 +320,7 @@ public:
     //! information (removal version, alternatives) can be specified in
     //! *extra*. Deprecation warnings are printed once per method per
     //! invocation of the application.
-    void warn_deprecated(const std::string& method, const std::string& extra="");
+    void warn_deprecated(const string& method, const string& extra="");
 
     //! Globally disable printing of deprecation warnings. Used primarily to
     //! prevent certain tests from failing.
@@ -339,8 +339,8 @@ public:
     //! @param warning  Warning type; see Logger::warn()
     //! @param method  Name of method triggering the warning
     //! @param extra  Additional information printed for the warning
-    void warn(const std::string& warning,
-              const std::string& method, const std::string& extra="");
+    void warn(const string& warning,
+              const string& method, const string& extra="");
 
     //! Globally disable printing of (user) warnings. Used primarily to
     //! prevent certain tests from failing.
@@ -432,7 +432,7 @@ protected:
     void setDefaultDirectories();
 
     //! Current vector of input directories to search for input files
-    vector<std::string> inputDirs;
+    vector<string> inputDirs;
 
     //! Versions of Python to consider when attempting to load user extensions
     vector<string> m_pythonSearchVersions = {"3.11", "3.10", "3.9", "3.8"};

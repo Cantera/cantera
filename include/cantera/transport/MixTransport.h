@@ -57,7 +57,7 @@ public:
     //! Default constructor.
     MixTransport() = default;
 
-    virtual std::string transportModel() const {
+    virtual string transportModel() const {
         return (m_mode == CK_Mode) ? "mixture-averaged-CK" : "mixture-averaged";
     }
 

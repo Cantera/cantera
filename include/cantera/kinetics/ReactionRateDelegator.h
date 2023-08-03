@@ -32,7 +32,7 @@ public:
 
     //! Set the type of the ReactionData class. This should match the corresponding
     //! ReactionRate class's type
-    void setType(const std::string& name) {
+    void setType(const string& name) {
         m_rateType = name;
     }
 
@@ -48,7 +48,7 @@ public:
 
 protected:
     //! The reaction rate type
-    std::string m_rateType;
+    string m_rateType;
 
     //! An external language's wrapper for the Solution object where this ReactionData
     //! object is being used
@@ -73,11 +73,11 @@ public:
     virtual unique_ptr<MultiRateBase> newMultiRate() const override;
 
     //! Set the reaction type based on the user-provided reaction rate parameterization
-    void setType(const std::string& type) {
+    void setType(const string& type) {
         m_rateType = type;
     }
 
-    virtual const std::string type() const override {
+    virtual const string type() const override {
         return m_rateType;
     }
 

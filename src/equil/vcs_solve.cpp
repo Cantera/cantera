@@ -152,7 +152,7 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
         size_t nelem = tPhase->nElements();
 
         // Query Cantera for the equation of state type of the current phase.
-        std::string eos = tPhase->type();
+        string eos = tPhase->type();
         bool gasPhase = (eos == "ideal-gas");
 
         // Find out the number of species in the phase
@@ -857,7 +857,7 @@ size_t VCS_SOLVE::vcs_RxnStepSizes(int& forceComponentCalc, size_t& kSpecial)
 {
     size_t iphDel = npos;
     size_t k = 0;
-    std::string ANOTE;
+    string ANOTE;
     if (m_debug_print_lvl >= 2) {
         plogf("   ");
         for (int j = 0; j < 82; j++) {
@@ -3384,12 +3384,12 @@ void VCS_SOLVE::addPhaseElements(vcs_VolPhase* volPhase)
     // Loop through the elements in the vol phase object
     for (size_t eVP = 0; eVP < neVP; eVP++) {
         size_t foundPos = npos;
-        std::string enVP = volPhase->elementName(eVP);
+        string enVP = volPhase->elementName(eVP);
 
         // Search for matches with the existing elements. If found, then fill in
         // the entry in the global mapping array.
         for (size_t e = 0; e < m_nelem; e++) {
-            std::string en = m_elementName[e];
+            string en = m_elementName[e];
             if (!strcmp(enVP.c_str(), en.c_str())) {
                 volPhase->setElemGlobalIndex(eVP, e);
                 foundPos = e;

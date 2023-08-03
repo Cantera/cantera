@@ -104,9 +104,9 @@ public:
      * @param id     name of the phase id in the file.
      *               If this is blank, the first phase in the file is used.
      */
-    explicit SurfPhase(const std::string& infile="", const std::string& id="");
+    explicit SurfPhase(const string& infile="", const string& id="");
 
-    virtual std::string type() const {
+    virtual string type() const {
         return "ideal-surface";
     }
 
@@ -289,7 +289,7 @@ public:
     /*!
      *  @param cov  String containing colon-separated name:value pairs
      */
-    void setCoveragesByName(const std::string& cov);
+    void setCoveragesByName(const string& cov);
 
     //! Set the coverages from a map of name:value pairs
     void setCoveragesByName(const Composition& cov);

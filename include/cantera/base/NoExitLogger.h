@@ -16,7 +16,7 @@ public:
     NoExitLogger() {}
     virtual ~NoExitLogger() {}
 
-    virtual void error(const std::string& msg)
+    virtual void error(const string& msg)
     {
        std::cerr << msg << std::endl;
     }

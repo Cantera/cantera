@@ -29,7 +29,7 @@ public:
     Reaction() {}
     Reaction(const Composition& reactants, const Composition& products,
              shared_ptr<ReactionRate> rate, shared_ptr<ThirdBody> tbody=nullptr);
-    Reaction(const std::string& equation,
+    Reaction(const string& equation,
              shared_ptr<ReactionRate> rate, shared_ptr<ThirdBody> tbody=nullptr);
 
     //! Construct a Reaction and corresponding ReactionRate based on AnyMap (YAML)
@@ -39,20 +39,20 @@ public:
     virtual ~Reaction() {}
 
     //! The reactant side of the chemical equation for this reaction
-    std::string reactantString() const;
+    string reactantString() const;
 
     //! The product side of the chemical equation for this reaction
-    std::string productString() const;
+    string productString() const;
 
     //! The chemical equation for this reaction
-    std::string equation() const;
+    string equation() const;
 
     //! Set the reactants and products based on the reaction equation. If a Kinetics
     //! object is provided, it is used to check that all reactants and products exist.
-    void setEquation(const std::string& equation, const Kinetics* kin=0);
+    void setEquation(const string& equation, const Kinetics* kin=0);
 
     //! The type of reaction, including reaction rate information
-    std::string type() const;
+    string type() const;
 
     //! Calculate the units of the rate constant. These are determined by the units
     //! of the standard concentration of the reactant species' phases and the phase
@@ -141,7 +141,7 @@ public:
 
     //! An identification string for the reaction, used in some filtering
     //! operations
-    std::string id;
+    string id;
 
     //! True if the current reaction is reversible. False otherwise
     bool reversible = true;
@@ -213,7 +213,7 @@ class ThirdBody
 {
 public:
     explicit ThirdBody() {};
-    ThirdBody(const std::string& third_body);
+    ThirdBody(const string& third_body);
     ThirdBody(const AnyMap& node);
 
     //! @deprecated To be removed after %Cantera 3.0; instantiate using string instead
@@ -221,13 +221,13 @@ public:
 
     //! Name of the third body collider
     //! @since New in %Cantera 3.0
-    std::string name() const {
+    string name() const {
         return m_name;
     }
 
     //! Set name of the third body collider
     //! @since New in %Cantera 3.0
-    void setName(const std::string& third_body);
+    void setName(const string& third_body);
 
     //! Set third-body efficiencies from AnyMap *node*
     //! @deprecated To be removed after %Cantera 3.0; renamed to setParameters
@@ -243,12 +243,12 @@ public:
     void getParameters(AnyMap& node) const;
 
     //! Get the third-body efficiency for species *k*
-    double efficiency(const std::string& k) const;
+    double efficiency(const string& k) const;
 
     //! Suffix representing the third body collider in reaction equation, for example
     //! `+ M` or `(+M)`
     //! @since New in %Cantera 3.0
-    std::string collider() const;
+    string collider() const;
 
     //! Verify that all species involved in collision efficiencies are defined in the
     //! Kinetics object. The function returns true if all species are found, and raises
@@ -274,7 +274,7 @@ public:
 
 protected:
     //! Name of the third body collider
-    std::string m_name = "M";
+    string m_name = "M";
 };
 
 
@@ -314,7 +314,7 @@ public:
 /*!
  * @param type string identifying type of reaction.
  */
-unique_ptr<Reaction> newReaction(const std::string& type);
+unique_ptr<Reaction> newReaction(const string& type);
 
 //! Create a new Reaction object using the specified parameters
 /*!
@@ -331,7 +331,7 @@ vector<shared_ptr<Reaction>> getReactions(const AnyValue& items,
                                                Kinetics& kinetics);
 
 //! Parse reaction equation
-void parseReactionEquation(Reaction& R, const std::string& equation,
+void parseReactionEquation(Reaction& R, const string& equation,
                            const AnyBase& reactionNode, const Kinetics* kin);
 
 using ThreeBodyReaction3 = ThreeBodyReaction; // @todo: remove after Cantera 3.0

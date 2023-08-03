@@ -113,7 +113,7 @@ public:
         return make_unique<MultiRate<ChebyshevRate, ChebyshevData>>();
     }
 
-    const std::string type() const { return "Chebyshev"; }
+    const string type() const { return "Chebyshev"; }
 
     //! Perform object setup based on AnyMap node information
     /*!
@@ -131,7 +131,7 @@ public:
         return getParameters(rateNode);
     }
 
-    virtual void validate(const std::string& equation, const Kinetics& kin);
+    virtual void validate(const string& equation, const Kinetics& kin);
 
     //! Update information specific to reaction
     /*!

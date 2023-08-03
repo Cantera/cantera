@@ -63,7 +63,7 @@ public:
 
     virtual void setThermo(ThermoPhase& thermo);
 
-    virtual std::string transportModel() const {
+    virtual string transportModel() const {
         return "DustyGas";
     }
 

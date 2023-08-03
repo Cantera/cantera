@@ -23,11 +23,11 @@ void calc_potentials()
 {
     double Tk = 273.15 + 25.0;
 
-    std::string filename = "LiC6_electrodebulk.yaml";
-    std::string phasename = "LiC6_and_Vacancies";
+    string filename = "LiC6_electrodebulk.yaml";
+    string phasename = "LiC6_and_Vacancies";
     auto sol = newSolution(filename, phasename);
     auto electrodebulk = sol->thermo();
-    std::string intercalatingSpeciesName("Li(C6)");
+    string intercalatingSpeciesName("Li(C6)");
     size_t intercalatingSpeciesIdx = electrodebulk->speciesIndex(intercalatingSpeciesName);
     size_t nsp_tot = electrodebulk->nSpecies();
 

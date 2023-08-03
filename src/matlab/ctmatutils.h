@@ -39,13 +39,13 @@ inline char* getString(const mxArray* p)
     size_t m = mxGetM(p);
     size_t n = mxGetN(p);
     mwSize buflen = (mwSize)(m*n + 1);
-    std::string msg;
+    string msg;
 
     if (m == 1) {
         input_buf = (char*)mxCalloc(buflen, sizeof(char));
         status = mxGetString(p, input_buf, buflen);
         if (status != 0) {
-            msg = std::string(input_buf)
+            msg = string(input_buf)
                   + "\nNot enough space. String is truncated.";
             mexWarnMsgTxt(msg.c_str());
         }

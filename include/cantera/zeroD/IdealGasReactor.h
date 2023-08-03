@@ -22,7 +22,7 @@ class IdealGasReactor : public Reactor
 public:
     IdealGasReactor() {}
 
-    virtual std::string type() const {
+    virtual string type() const {
         return "IdealGasReactor";
     }
 
@@ -40,8 +40,8 @@ public:
     //! component named *nm*. Possible values for *nm* are "mass",
     //! "volume", "temperature", the name of a homogeneous phase species, or the
     //! name of a surface species.
-    virtual size_t componentIndex(const std::string& nm) const;
-    std::string componentName(size_t k);
+    virtual size_t componentIndex(const string& nm) const;
+    string componentName(size_t k);
 
 protected:
     vector<double> m_uk; //!< Species molar internal energies

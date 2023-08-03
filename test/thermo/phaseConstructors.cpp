@@ -33,32 +33,32 @@
 namespace Cantera
 {
 
-shared_ptr<Species> make_species(const std::string& name,
-     const std::string& composition, const double* nasa_coeffs)
+shared_ptr<Species> make_species(const string& name,
+     const string& composition, const double* nasa_coeffs)
 {
     auto species = make_shared<Species>(name, parseCompString(composition));
     species->thermo = make_shared<NasaPoly2>(200, 3500, 101325, nasa_coeffs);
     return species;
 }
 
-shared_ptr<Species> make_shomate_species(const std::string& name,
-     const std::string& composition, const double* shomate_coeffs)
+shared_ptr<Species> make_shomate_species(const string& name,
+     const string& composition, const double* shomate_coeffs)
 {
     auto species = make_shared<Species>(name, parseCompString(composition));
     species->thermo = make_shared<ShomatePoly>(200, 3500, 101325, shomate_coeffs);
     return species;
 }
 
-shared_ptr<Species> make_shomate2_species(const std::string& name,
-     const std::string& composition, const double* shomate_coeffs)
+shared_ptr<Species> make_shomate2_species(const string& name,
+     const string& composition, const double* shomate_coeffs)
 {
     auto species = make_shared<Species>(name, parseCompString(composition));
     species->thermo = make_shared<ShomatePoly2>(200, 3500, 101325, shomate_coeffs);
     return species;
 }
 
-shared_ptr<Species> make_species(const std::string& name,
-    const std::string& composition, double h298,
+shared_ptr<Species> make_species(const string& name,
+    const string& composition, double h298,
     double T1, double mu1, double T2, double mu2, double pref=101325)
 {
     auto species = make_shared<Species>(name, parseCompString(composition));
@@ -67,8 +67,8 @@ shared_ptr<Species> make_species(const std::string& name,
     return species;
 }
 
-shared_ptr<Species> make_const_cp_species(const std::string& name,
-    const std::string& composition, double T0, double h0, double s0, double cp)
+shared_ptr<Species> make_const_cp_species(const string& name,
+    const string& composition, double T0, double h0, double s0, double cp)
 {
     auto species = make_shared<Species>(name, parseCompString(composition));
     double coeffs[] = {T0, h0, s0, cp};

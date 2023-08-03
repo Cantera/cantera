@@ -34,8 +34,8 @@ double cCut_default = .05;
 namespace Cantera
 {
 
-IdealMolalSoln::IdealMolalSoln(const std::string& inputFile,
-                               const std::string& id_) :
+IdealMolalSoln::IdealMolalSoln(const string& inputFile,
+                               const string& id_) :
     IMS_X_o_cutoff_(X_o_cutoff_default),
     IMS_gamma_o_min_(gamma_o_min_default),
     IMS_gamma_k_min_(gamma_k_min_default),
@@ -371,7 +371,7 @@ void IdealMolalSoln::getParameters(AnyMap& phaseNode) const
     }
 }
 
-void IdealMolalSoln::setStandardConcentrationModel(const std::string& model)
+void IdealMolalSoln::setStandardConcentrationModel(const string& model)
 {
     if (caseInsensitiveEquals(model, "unity")) {
         m_formGC = 0;
@@ -387,7 +387,7 @@ void IdealMolalSoln::setStandardConcentrationModel(const std::string& model)
     }
 }
 
-void IdealMolalSoln::setCutoffModel(const std::string& model)
+void IdealMolalSoln::setCutoffModel(const string& model)
 {
     if (caseInsensitiveEquals(model, "none")) {
         IMS_typeCutoff_ = 0;

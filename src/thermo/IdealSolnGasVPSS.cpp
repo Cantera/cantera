@@ -23,7 +23,7 @@ IdealSolnGasVPSS::IdealSolnGasVPSS(const string& infile, string id_)
     initThermoFile(infile, id_);
 }
 
-void IdealSolnGasVPSS::setStandardConcentrationModel(const std::string& model)
+void IdealSolnGasVPSS::setStandardConcentrationModel(const string& model)
 {
     if (caseInsensitiveEquals(model, "unity")) {
         m_formGC = 0;

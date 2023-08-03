@@ -18,7 +18,7 @@
 namespace Cantera
 {
 
-LatticePhase::LatticePhase(const std::string& inputFile, const std::string& id_)
+LatticePhase::LatticePhase(const string& inputFile, const string& id_)
 {
     initThermoFile(inputFile, id_);
 }
@@ -288,7 +288,7 @@ void LatticePhase::getParameters(AnyMap& phaseNode) const
     phaseNode["site-density"].setQuantity(m_site_density, "kmol/m^3");
 }
 
-void LatticePhase::getSpeciesParameters(const std::string& name,
+void LatticePhase::getSpeciesParameters(const string& name,
                                         AnyMap& speciesNode) const
 {
     ThermoPhase::getSpeciesParameters(name, speciesNode);

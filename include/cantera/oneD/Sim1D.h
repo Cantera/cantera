@@ -54,7 +54,7 @@ public:
      * @param vals A vector of values corresponding to the relative position
      *     locations.
      */
-    void setInitialGuess(const std::string& component, vector<double>& locs,
+    void setInitialGuess(const string& component, vector<double>& locs,
                          vector<double>& vals);
 
     /**
@@ -138,8 +138,8 @@ public:
      * @param loglevel  Level of diagnostic output
      * @deprecated To be removed after %Cantera 3.0; loglevel is deprecated.
      */
-    void save(const std::string& fname, const std::string& id,
-              const std::string& desc, int loglevel);
+    void save(const string& fname, const string& id,
+              const string& desc, int loglevel);
 
     /**
      * Save current simulation data to a container file or CSV format.
@@ -168,8 +168,8 @@ public:
      *      if not specified (default=""), the native basis of the underlying
      *      ThermoPhase manager is used - @see nativeState (CSV only)
      */
-    void save(const std::string& fname, const std::string& name,
-              const std::string& desc, bool overwrite=false, int compression=0,
+    void save(const string& fname, const string& name,
+              const string& desc, bool overwrite=false, int compression=0,
               const string& basis="");
 
     /**
@@ -180,8 +180,8 @@ public:
      * @param loglevel  Level of diagnostic output
      * @deprecated To be removed after %Cantera 3.0; loglevel is deprecated.
      */
-    void saveResidual(const std::string& fname, const std::string& id,
-                      const std::string& desc, int loglevel);
+    void saveResidual(const string& fname, const string& id,
+                      const string& desc, int loglevel);
 
     /**
      * Save the residual of the current solution to a container file.
@@ -191,8 +191,8 @@ public:
      * @param overwrite  Force overwrite if name exists; optional (default=false)
      * @param compression  Compression level (optional; HDF only)
      */
-    void saveResidual(const std::string& fname, const std::string& name,
-                      const std::string& desc, bool overwrite=false, int compression=0);
+    void saveResidual(const string& fname, const string& name,
+                      const string& desc, bool overwrite=false, int compression=0);
 
     /**
      * Initialize the solution with a previously-saved solution.
@@ -202,7 +202,7 @@ public:
      * @deprecated To be removed after %Cantera 3.0; loglevel is deprecated.
      * @return  AnyMap containing header information
      */
-    AnyMap restore(const std::string& fname, const std::string& id, int loglevel);
+    AnyMap restore(const string& fname, const string& id, int loglevel);
 
     /**
      * Retrieve data and settings from a previously saved simulation.
@@ -216,7 +216,7 @@ public:
      *      data
      * @return  AnyMap containing header information
      */
-    AnyMap restore(const std::string& fname, const std::string& name);
+    AnyMap restore(const string& fname, const string& name);
 
     //! @}
 

@@ -308,10 +308,10 @@ public:
      * @param id     name of the phase id in the file. If blank, the first phase
      *               in the file is used.
      */
-    explicit CoverageDependentSurfPhase(const std::string& infile="",
-                                        const std::string& id="");
+    explicit CoverageDependentSurfPhase(const string& infile="",
+                                        const string& id="");
 
-    virtual std::string type() const {
+    virtual string type() const {
         return "coverage-dependent-surface";
     }
 
@@ -324,7 +324,7 @@ public:
     virtual void initThermo();
     virtual bool addSpecies(shared_ptr<Species> spec);
     virtual void getParameters(AnyMap& phaseNode) const;
-    virtual void getSpeciesParameters(const std::string& name,
+    virtual void getSpeciesParameters(const string& name,
                                       AnyMap& speciesNode) const;
 
     //! @name Methods calculating reference state thermodynamic properties

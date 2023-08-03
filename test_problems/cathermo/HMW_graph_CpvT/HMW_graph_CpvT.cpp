@@ -18,7 +18,7 @@ int main(int argc, char** argv)
     size_t i;
 
     try {
-        std::string iFile = (argc > 1) ? argv[1] : "HMW_NaCl.yaml";
+        string iFile = (argc > 1) ? argv[1] : "HMW_NaCl.yaml";
         double Cp0_R[20], pmCp[20];
 
         HMWSoln* HMW = new HMWSoln(iFile, "NaCl_electrolyte");

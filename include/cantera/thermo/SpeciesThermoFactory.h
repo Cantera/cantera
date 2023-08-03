@@ -39,7 +39,7 @@ SpeciesThermoInterpType* newSpeciesThermoInterpType(int type, double tlow,
  *  @param coeffs The array of coefficients for the parameterization
  *  @returns the pointer to the newly allocated SpeciesThermoInterpType object
  */
-SpeciesThermoInterpType* newSpeciesThermoInterpType(const std::string& type,
+SpeciesThermoInterpType* newSpeciesThermoInterpType(const string& type,
     double tlow, double thigh, double pref, const double* coeffs);
 
 //! Create a new SpeciesThermoInterpType object using the specified parameters

@@ -68,8 +68,8 @@ protected:
  * @returns an initialized Interface object.
  * @ingroup solnGroup
  */
-shared_ptr<Interface> newInterface(const std::string& infile,
-    const std::string& name="", const vector<std::string>& adjacent={});
+shared_ptr<Interface> newInterface(const string& infile,
+    const string& name="", const vector<string>& adjacent={});
 
 
 //! Create and initialize a new Interface from an input file
@@ -84,8 +84,8 @@ shared_ptr<Interface> newInterface(const std::string& infile,
  * @returns an initialized Interface object.
  * @ingroup solnGroup
  */
-shared_ptr<Interface> newInterface(const std::string& infile,
-    const std::string& name, const vector<shared_ptr<Solution>>& adjacent);
+shared_ptr<Interface> newInterface(const string& infile,
+    const string& name, const vector<shared_ptr<Solution>>& adjacent);
 
 //! Create and initialize a new Interface from AnyMap objects
 /*!

@@ -121,7 +121,7 @@ class NegativePreexponentialFactor : public testing::Test
 {
 public:
     NegativePreexponentialFactor() {}
-    void setup(const std::string& infile) {
+    void setup(const string& infile) {
         soln = newSolution(infile);
         soln->thermo()->setState_TPX(2000, OneAtm,
             "H2O:1.0, H:0.2, O2:0.3, NH:0.05, NO:0.05, N2O:0.05");

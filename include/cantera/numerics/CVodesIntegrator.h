@@ -57,10 +57,10 @@ public:
     virtual int maxSteps();
     virtual void setMaxErrTestFails(int n);
     virtual AnyMap solverStats() const;
-    void setLinearSolverType(const std::string& linSolverType) {
+    void setLinearSolverType(const string& linSolverType) {
         m_type = linSolverType;
     }
-    virtual std::string linearSolverType() const {
+    virtual string linearSolverType() const {
         return m_type;
     }
     virtual void setBandwidth(int N_Upper, int N_Lower) {
@@ -77,10 +77,10 @@ public:
     //! with each solution component.
     //! This information can be used to identify which variables are
     //! responsible for integrator failures or unexpected small timesteps.
-    virtual std::string getErrorInfo(int N);
+    virtual string getErrorInfo(int N);
 
     //! Error message information provide by CVodes
-    std::string m_error_message;
+    string m_error_message;
 
 protected:
     //! Applies user-specified options to the underlying CVODES solver. Called

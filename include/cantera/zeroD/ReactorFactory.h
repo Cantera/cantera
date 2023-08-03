@@ -31,7 +31,7 @@ public:
      * @param reactorType the type to be created.
      * @deprecated To be removed after %Cantera 3.0; replaceable by newReactor3.
      */
-    virtual ReactorBase* newReactor(const std::string& reactorType);
+    virtual ReactorBase* newReactor(const string& reactorType);
 
 private:
     static ReactorFactory* s_factory;

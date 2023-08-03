@@ -69,17 +69,17 @@ class AnyMap;
  */
 
 //! @copydoc Application::findInputFile
-std::string findInputFile(const std::string& name);
+string findInputFile(const string& name);
 
 //! @copydoc Application::addDataDirectory
-void addDirectory(const std::string& dir);
+void addDirectory(const string& dir);
 
 //! @copydoc Application::getDataDirectories
-std::string getDataDirectories(const std::string& sep);
+string getDataDirectories(const string& sep);
 //! @}
 
 //! @copydoc Application::loadExtension
-void loadExtension(const std::string& extType, const std::string& name);
+void loadExtension(const string& extType, const string& name);
 
 //! Load extensions providing user-defined models from the `extensions` section of the
 //! given node. @see Application::loadExtension
@@ -121,7 +121,7 @@ bool usingSharedLibrary();
 string version();
 
 //! Returns the hash of the git commit from which %Cantera was compiled, if known
-std::string gitCommit();
+string gitCommit();
 
 //! @}
 
@@ -151,11 +151,11 @@ bool usesHDF5();
 //! @addtogroup logGroup
 //! @{
 
-//! @copydoc Application::Messages::writelog(const std::string&)
-void writelog_direct(const std::string& msg);
+//! @copydoc Application::Messages::writelog(const string&)
+void writelog_direct(const string& msg);
 
 //! Write a message to the log only if loglevel > 0
-inline void debuglog(const std::string& msg, int loglevel)
+inline void debuglog(const string& msg, int loglevel)
 {
     if (loglevel > 0) {
         writelog_direct(msg);
@@ -172,7 +172,7 @@ inline void debuglog(const std::string& msg, int loglevel)
 //! writelog will display correctly even when %Cantera is used from MATLAB or
 //! other application that do not have a standard output stream.
 template <typename... Args>
-void writelog(const std::string& fmt, const Args&... args) {
+void writelog(const string& fmt, const Args&... args) {
     if (sizeof...(args) == 0) {
         writelog_direct(fmt);
     } else {
@@ -212,7 +212,7 @@ void writeline(char repeat, size_t count,
 //! @cond
 
 //! helper function passing deprecation warning to global handler
-void _warn_deprecated(const std::string& method, const std::string& extra="");
+void _warn_deprecated(const string& method, const string& extra="");
 
 //! @endcond
 
@@ -224,7 +224,7 @@ void _warn_deprecated(const std::string& method, const std::string& extra="");
  * @param args  arguments for the format string
  */
 template <typename... Args>
-void warn_deprecated(const std::string& method, const std::string& msg,
+void warn_deprecated(const string& method, const string& msg,
                      const Args&... args) {
     if (sizeof...(args) == 0) {
         _warn_deprecated(method, msg);
@@ -236,8 +236,8 @@ void warn_deprecated(const std::string& method, const std::string& msg,
 //! @cond
 
 //! helper function passing generic warning to global handler
-void _warn(const std::string& warning,
-           const std::string& method, const std::string& extra);
+void _warn(const string& warning,
+           const string& method, const string& extra);
 
 //! @endcond
 
@@ -250,8 +250,8 @@ void _warn(const std::string& warning,
  * @param args  arguments for the format string
  */
 template <typename... Args>
-void warn(const std::string& warning, const std::string& method,
-          const std::string& msg, const Args&... args) {
+void warn(const string& warning, const string& method,
+          const string& msg, const Args&... args) {
     if (sizeof...(args) == 0) {
         _warn(warning, method, msg);
     } else {
@@ -266,7 +266,7 @@ void warn(const std::string& warning, const std::string& method,
  * @param args  arguments for the format string
  */
 template <typename... Args>
-void warn_user(const std::string& method, const std::string& msg,
+void warn_user(const string& method, const string& msg,
                const Args&... args) {
     if (sizeof...(args) == 0) {
         _warn("Cantera", method, msg);
@@ -343,7 +343,7 @@ template <typename T> int sign(T x) {
 //! Convert a type name to a human readable string, using `boost::core::demangle` if
 //! available. Also has a set of short names for some common types.
 //! @note Mainly for internal use by AnyMap and Delegator
-std::string demangle(const std::type_info& type);
+string demangle(const std::type_info& type);
 
 }
 

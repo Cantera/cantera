@@ -239,10 +239,10 @@ public:
      * @param id        name (ID) of the phase in the input file. If empty, the
      *                  first phase definition in the input file will be used.
      */
-    explicit RedlichKisterVPSSTP(const std::string& inputFile="",
-                                 const std::string& id="");
+    explicit RedlichKisterVPSSTP(const string& inputFile="",
+                                 const string& id="");
 
-    virtual std::string type() const {
+    virtual string type() const {
         return "Redlich-Kister";
     }
 
@@ -358,7 +358,7 @@ public:
      * @param excess_entropy   coefficients of the excess entropy polynomial
      * @param n_entropy        number of excess entropy polynomial coefficients
      */
-    void addBinaryInteraction(const std::string& speciesA, const std::string& speciesB,
+    void addBinaryInteraction(const string& speciesA, const string& speciesB,
         const double* excess_enthalpy, size_t n_enthalpy,
         const double* excess_entropy, size_t n_entropy);
 

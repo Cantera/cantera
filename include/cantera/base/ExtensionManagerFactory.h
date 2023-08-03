@@ -19,7 +19,7 @@ class ExtensionManagerFactory : public Factory<ExtensionManager>
 {
 public:
     //! Create a new ExtensionManager
-    static shared_ptr<ExtensionManager> build(const std::string& extensionType) {
+    static shared_ptr<ExtensionManager> build(const string& extensionType) {
         return shared_ptr<ExtensionManager>(factory().create(extensionType));
     }
 

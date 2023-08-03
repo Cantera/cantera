@@ -285,7 +285,7 @@ void PDSS_HKFT::initThermo()
     // If the discrepancy is greater than 100 cal gmol-1, print
     // an error and exit.
     if (fabs(Hcalc -DHjmol) > m_units.convertTo(100, "J/kmol")) {
-        std::string sname = m_tp->speciesName(m_spindex);
+        string sname = m_tp->speciesName(m_spindex);
         if (s_InputInconsistencyErrorExit) {
             throw CanteraError("PDSS_HKFT::initThermo", "For {}, DHjmol is"
                 " not consistent with G and S: {} vs {} J/kmol",
@@ -614,7 +614,7 @@ double PDSS_HKFT::gstar(const double temp, const double pres, const int ifunc) c
     return res;
 }
 
-double PDSS_HKFT::LookupGe(const std::string& elemName)
+double PDSS_HKFT::LookupGe(const string& elemName)
 {
     size_t iE = m_tp->elementIndex(elemName);
     if (iE == npos) {

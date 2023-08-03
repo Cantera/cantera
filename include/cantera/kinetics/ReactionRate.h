@@ -88,10 +88,10 @@ public:
     }
 
     //! String identifying reaction rate specialization
-    virtual const std::string type() const = 0;
+    virtual const string type() const = 0;
 
     //! String identifying sub-type of reaction rate specialization
-    virtual const std::string subType() const {
+    virtual const string subType() const {
         return "";
     }
 
@@ -138,24 +138,24 @@ public:
     }
 
     //! Check basic syntax and settings of reaction rate expression
-    virtual void check(const std::string& equation) {}
+    virtual void check(const string& equation) {}
 
     //! Check basic syntax and settings of reaction rate expression
     //! @deprecated To be removed after %Cantera 3.0.
     //!              Superseded by single-parameter version
-    void check(const std::string& equation, const AnyMap& node) {
+    void check(const string& equation, const AnyMap& node) {
         warn_deprecated("ReactionRate::check",
             "To be removed after Cantera 3.0; superseded by single-parameter version.");
         check(equation);
     }
 
     //! Validate the reaction rate expression
-    virtual void validate(const std::string& equation, const Kinetics& kin) {}
+    virtual void validate(const string& equation, const Kinetics& kin) {}
 
     //! Validate the reaction rate expression (legacy call)
     //! @deprecated To be removed after %Cantera 3.0.
     //!              Superseded by two-parameter version
-    virtual void validate(const std::string& equation) {
+    virtual void validate(const string& equation) {
         warn_deprecated("ReactionRate::validate",
             "To be removed after Cantera 3.0; superseded by two-parameter version.");
     }

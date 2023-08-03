@@ -89,7 +89,7 @@ public:
 
     void setParent(VPStandardStateTP* phase, size_t k);
 
-    void setNeutralSpeciesMultiplier(const std::string& species, double mult);
+    void setNeutralSpeciesMultiplier(const string& species, double mult);
     void setSpecialSpecies(bool special=true);
     virtual void getParameters(AnyMap& eosNode) const;
     virtual void initThermo();
@@ -99,7 +99,7 @@ protected:
     //! Pointer to the Neutral Molecule ThermoPhase object
     shared_ptr<ThermoPhase> neutralMoleculePhase_;
 
-    map<std::string, double> neutralSpeciesMultipliers_;
+    map<string, double> neutralSpeciesMultipliers_;
 
     //! Number of neutral molecule species that make up the stoichiometric
     //! vector for this species, in terms of calculating thermodynamic functions

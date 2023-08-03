@@ -31,7 +31,7 @@ public:
      * @param wallType the type to be created.
      * @deprecated To be removed after %Cantera 3.0; replaceable by newWall3.
      */
-    virtual WallBase* newWall(const std::string& wallType);
+    virtual WallBase* newWall(const string& wallType);
 
 private:
     static WallFactory* s_factory;

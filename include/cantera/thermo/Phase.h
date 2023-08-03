@@ -132,18 +132,18 @@ public:
     /*!
      *   Names are unique within a %Cantera problem.
      */
-    std::string name() const;
+    string name() const;
 
     //! Sets the string name for the phase.
     //!     @param nm String name of the phase
-    void setName(const std::string& nm);
+    void setName(const string& nm);
 
     //! String indicating the thermodynamic model implemented. Usually
     //! corresponds to the name of the derived class, less any suffixes such as
     //! "Phase", TP", "VPSS", etc.
     //! @since Starting in %Cantera 3.0, the name returned by this method corresponds
     //!     to the canonical name used in the YAML input format.
-    virtual std::string type() const {
+    virtual string type() const {
         return "Phase";
     }
 
@@ -154,16 +154,16 @@ public:
 
     //! Name of the element with index m.
     //!     @param m  Element index.
-    std::string elementName(size_t m) const;
+    string elementName(size_t m) const;
 
     //! Return the index of element named 'name'. The index is an integer
     //! assigned to each element in the order it was added. Returns @ref npos
     //! if the specified element is not found.
     //!     @param name Name of the element
-    size_t elementIndex(const std::string& name) const;
+    size_t elementIndex(const string& name) const;
 
     //! Return a read-only reference to the vector of element names.
-    const vector<std::string>& elementNames() const;
+    const vector<string>& elementNames() const;
 
     //! Atomic weight of element m.
     //!     @param m  Element index
@@ -237,21 +237,21 @@ public:
     //!            phaseName:speciesName
     //!     @return The index of the species. If the name is not found,
     //!             the value @ref npos is returned.
-    size_t speciesIndex(const std::string& name) const;
+    size_t speciesIndex(const string& name) const;
 
     //! Name of the species with index k
     //!     @param k index of the species
-    std::string speciesName(size_t k) const;
+    string speciesName(size_t k) const;
 
     //! Returns the expanded species name of a species, including the phase name
     //! This is guaranteed to be unique within a %Cantera problem.
     //!     @param k  Species index within the phase
     //!     @return   The "phaseName:speciesName" string
     //! @deprecated Unused. To be removed after %Cantera 3.0
-    std::string speciesSPName(int k) const;
+    string speciesSPName(int k) const;
 
     //! Return a const reference to the vector of species names
-    const vector<std::string>& speciesNames() const;
+    const vector<string>& speciesNames() const;
 
     //! Returns the number of species in the phase
     size_t nSpecies() const {
@@ -290,7 +290,7 @@ public:
     //! 2, respectively. Mass fractions "Y" are omitted for pure species.
     //! In all cases, offsets into the state vector are used by saveState()
     //! and restoreState().
-    virtual map<std::string, size_t> nativeState() const;
+    virtual map<string, size_t> nativeState() const;
 
     //! Return string acronym representing the native state of a Phase.
     //! Examples: "TP", "TDY", "TPY".
@@ -315,13 +315,13 @@ public:
     //!    "H": specific enthalpy
     //!    "S": specific entropy
     //!    "Q": vapor fraction
-    virtual vector<std::string> fullStates() const;
+    virtual vector<string> fullStates() const;
 
     //! Return a vector of settable partial property sets within a phase.
     //! Partial states encompass all valid combinations of properties that allow
     //! for the specification of a state while ignoring species concentrations
     //! (such as "TD", "TP", "SV").
-    virtual vector<std::string> partialStates() const;
+    virtual vector<string> partialStates() const;
 
     //! Return size of vector defining internal state of the phase.
     //! Used by saveState() and restoreState().
@@ -364,7 +364,7 @@ public:
     //! Set the mole fractions of a group of species by name. Species which
     //! are not listed by name in the composition map are set to zero.
     //!     @param x string x in the form of a composition map
-    void setMoleFractionsByName(const std::string& x);
+    void setMoleFractionsByName(const string& x);
 
     //! Set the species mass fractions by name.
     //! Species not listed by name in \c yMap are set to zero.
@@ -374,7 +374,7 @@ public:
     //! Set the species mass fractions by name.
     //! Species not listed by name in \c x are set to zero.
     //!     @param x String containing a composition map
-    void setMassFractionsByName(const std::string& x);
+    void setMassFractionsByName(const string& x);
 
     //! Set the internally stored temperature (K), density, and mole fractions.
     //!     @param t     Temperature in kelvin
@@ -501,7 +501,7 @@ public:
     //! Return the mole fraction of a single species
     //!     @param  name  String name of the species
     //!     @return Mole fraction of the species
-    double moleFraction(const std::string& name) const;
+    double moleFraction(const string& name) const;
 
     //! Get the mass fractions by name.
     //!     @param threshold   Exclude species with mass fractions less than or
@@ -517,7 +517,7 @@ public:
     //! Return the mass fraction of a single species
     //!     @param  name  String name of the species
     //!     @return Mass Fraction of the species
-    double massFraction(const std::string& name) const;
+    double massFraction(const string& name) const;
 
     //! Get the species mole fraction vector.
     //!     @param x On return, x contains the mole fractions. Must have a
@@ -789,7 +789,7 @@ public:
     //! @{
 
     //! Add an element.
-    //!     @param symbol Atomic symbol std::string.
+    //!     @param symbol Atomic symbol string.
     //!     @param weight Atomic mass in amu.
     //!     @param atomicNumber Atomic number of the element (unitless)
     //!     @param entropy298 Entropy of the element at 298 K and 1 bar in its
@@ -799,7 +799,7 @@ public:
     //!     @param elem_type Specifies the type of the element constraint
     //!         equation. This defaults to CT_ELEM_TYPE_ABSPOS, that is, an element.
     //!     @return index of the element added
-    size_t addElement(const std::string& symbol, double weight=-12345.0,
+    size_t addElement(const string& symbol, double weight=-12345.0,
                       int atomicNumber=0, double entropy298=ENTROPY298_UNKNOWN,
                       int elem_type=CT_ELEM_TYPE_ABSPOS);
 
@@ -828,7 +828,7 @@ public:
     //! Aliases are case-sensitive.
     //!     @param name original species name
     //!     @param alias alternate name
-    void addSpeciesAlias(const std::string& name, const std::string& alias);
+    void addSpeciesAlias(const string& name, const string& alias);
 
     //! Return a vector with isomers names matching a given composition map
     //!     @param compMap Composition of the species.
@@ -838,12 +838,12 @@ public:
     //! Return a vector with isomers names matching a given composition string
     //!     @param comp String containing a composition map
     //!     @return A vector of species names for matching species.
-    virtual vector<std::string> findIsomers(const std::string& comp) const;
+    virtual vector<string> findIsomers(const string& comp) const;
 
     //! Return the Species object for the named species. Changes to this object
     //! do not affect the ThermoPhase object until the #modifySpecies function
     //! is called.
-    shared_ptr<Species> species(const std::string& name) const;
+    shared_ptr<Species> species(const string& name) const;
 
     //! Return the Species object for species whose index is *k*. Changes to
     //! this object do not affect the ThermoPhase object until the
@@ -916,7 +916,7 @@ protected:
     //! Ensure that phase is compressible.
     //! An error is raised if the state is incompressible
     //!     @param setter  name of setter (used for exception handling)
-    void assertCompressible(const std::string& setter) const {
+    void assertCompressible(const string& setter) const {
         if (!isCompressible()) {
             throw CanteraError("Phase::assertCompressible",
                                "Setter '{}' is not available. Density is not an "
@@ -969,7 +969,7 @@ protected:
 
     vector<double> m_speciesCharge; //!< Vector of species charges. length m_kk.
 
-    map<std::string, shared_ptr<Species> > m_species;
+    map<string, shared_ptr<Species> > m_species;
 
     //! Flag determining behavior when adding species with an undefined element
     UndefElement::behavior m_undefinedElementBehavior = UndefElement::add;
@@ -981,12 +981,12 @@ private:
     //! Find lowercase species name in m_speciesIndices when case sensitive
     //! species names are not enforced and a user specifies a non-canonical
     //! species name. Raise exception if lowercase name is not unique.
-    size_t findSpeciesLower(const std::string& nameStr) const;
+    size_t findSpeciesLower(const string& nameStr) const;
 
     //! Name of the phase.
     //! Initially, this is the name specified in the YAML input file. It may be changed
     //! to another value during the course of a calculation.
-    std::string m_name;
+    string m_name;
 
     double m_temp = 0.001; //!< Temperature (K). This is an independent variable
 
@@ -1018,18 +1018,18 @@ private:
     int m_stateNum = -1;
 
     //! Vector of the species names
-    vector<std::string> m_speciesNames;
+    vector<string> m_speciesNames;
 
     //! Map of species names to indices
-    map<std::string, size_t> m_speciesIndices;
+    map<string, size_t> m_speciesIndices;
 
     //! Map of lower-case species names to indices
-    map<std::string, size_t> m_speciesLower;
+    map<string, size_t> m_speciesLower;
 
     size_t m_mm = 0; //!< Number of elements.
     vector<double> m_atomicWeights; //!< element atomic weights (kg kmol-1)
     vector<int> m_atomicNumbers; //!< element atomic numbers
-    vector<std::string> m_elementNames; //!< element names
+    vector<string> m_elementNames; //!< element names
     vector<int> m_elem_type; //!< Vector of element types
 
     //! Entropy at 298.15 K and 1 bar of stable state pure elements (J kmol-1)

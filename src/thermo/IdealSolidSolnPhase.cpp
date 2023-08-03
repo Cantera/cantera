@@ -362,7 +362,7 @@ void IdealSolidSolnPhase::getParameters(AnyMap& phaseNode) const
     }
 }
 
-void IdealSolidSolnPhase::getSpeciesParameters(const std::string &name,
+void IdealSolidSolnPhase::getSpeciesParameters(const string &name,
                                                AnyMap& speciesNode) const
 {
     ThermoPhase::getSpeciesParameters(name, speciesNode);
@@ -419,7 +419,7 @@ void IdealSolidSolnPhase::setToEquilState(const double* mu_RT)
     setPressure(pres);
 }
 
-void IdealSolidSolnPhase::setStandardConcentrationModel(const std::string& model)
+void IdealSolidSolnPhase::setStandardConcentrationModel(const string& model)
 {
     if (caseInsensitiveEquals(model, "unity")) {
         m_formGC = 0;

@@ -49,11 +49,11 @@ SpeciesThermoInterpType* newSpeciesThermoInterpType(int type, double tlow,
     }
 }
 
-SpeciesThermoInterpType* newSpeciesThermoInterpType(const std::string& stype,
+SpeciesThermoInterpType* newSpeciesThermoInterpType(const string& stype,
     double tlow, double thigh, double pref, const double* coeffs)
 {
     int itype = -1;
-    std::string type = toLowerCopy(stype);
+    string type = toLowerCopy(stype);
     if (type == "nasa2" || type == "nasa") {
         itype = NASA2; // two-region 7-coefficient NASA polynomials
     } else if (type == "const_cp" || type == "simple") {
@@ -185,7 +185,7 @@ void setupMu0(Mu0Poly& thermo, const AnyMap& node)
 
 unique_ptr<SpeciesThermoInterpType> newSpeciesThermo(const AnyMap& node)
 {
-    std::string model = node["model"].asString();
+    string model = node["model"].asString();
     if (model == "NASA7") {
         auto thermo = make_unique<NasaPoly2>();
         setupNasaPoly(*thermo, node);

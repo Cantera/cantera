@@ -40,7 +40,7 @@ public:
         addPhase(*thermo);
     }
 
-    virtual std::string kineticsType() const {
+    virtual string kineticsType() const {
         return "gas";
     }
 

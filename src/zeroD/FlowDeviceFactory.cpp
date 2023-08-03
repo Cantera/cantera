@@ -34,7 +34,7 @@ void FlowDeviceFactory::deleteFactory() {
 }
 
 
-FlowDevice* FlowDeviceFactory::newFlowDevice(const std::string& flowDeviceType)
+FlowDevice* FlowDeviceFactory::newFlowDevice(const string& flowDeviceType)
 {
     warn_deprecated("FlowDeviceFactory::newFlowDevice",
         "To be removed after Cantera 3.0; for new behavior, see 'newFlowDevice3'.");

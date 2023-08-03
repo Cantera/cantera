@@ -258,10 +258,10 @@ public:
      * @param id        ID of the phase in the input file. Defaults to the
      *                  empty string.
      */
-    explicit IdealGasPhase(const std::string& inputFile="",
-                           const std::string& id="");
+    explicit IdealGasPhase(const string& inputFile="",
+                           const string& id="");
 
-    virtual std::string type() const {
+    virtual string type() const {
         return "ideal-gas";
     }
 
@@ -273,7 +273,7 @@ public:
     /*!
      * For the `IdealGasPhase`, this string is always `gas`.
      */
-    virtual std::string phaseOfMatter() const {
+    virtual string phaseOfMatter() const {
         return "gas";
     }
 

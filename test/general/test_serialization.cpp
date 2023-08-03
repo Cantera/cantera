@@ -197,7 +197,7 @@ TEST(YamlWriter, reaction_units_from_Yaml)
     writer.addPhase(original);
     writer.setPrecision(14);
     auto units = UnitSystem();
-    map<std::string, std::string> defaults{
+    map<string, string> defaults{
         {"activation-energy", "K"},
         {"quantity", "mol"},
         {"length", "cm"}

@@ -25,7 +25,7 @@ public:
         m_nDim = 1;
     }
 
-    virtual std::string kineticsType() const {
+    virtual string kineticsType() const {
         return "edge";
     }
 };

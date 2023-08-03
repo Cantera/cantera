@@ -19,8 +19,8 @@
 namespace Cantera
 {
 
-BinarySolutionTabulatedThermo::BinarySolutionTabulatedThermo(const std::string& inputFile,
-                                                             const std::string& id_)
+BinarySolutionTabulatedThermo::BinarySolutionTabulatedThermo(const string& inputFile,
+                                                             const string& id_)
 {
     initThermoFile(inputFile, id_);
 }

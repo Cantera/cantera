@@ -53,7 +53,7 @@ OneDim::~OneDim()
 {
 }
 
-size_t OneDim::domainIndex(const std::string& name)
+size_t OneDim::domainIndex(const string& name)
 {
     for (size_t n = 0; n < m_dom.size(); n++) {
         if (domain(n).id() == name) {
@@ -63,7 +63,7 @@ size_t OneDim::domainIndex(const std::string& name)
     throw CanteraError("OneDim::domainIndex","no domain named >>"+name+"<<");
 }
 
-std::tuple<std::string, size_t, std::string> OneDim::component(size_t i) {
+std::tuple<string, size_t, string> OneDim::component(size_t i) {
     size_t n;
     for (n = nDomains()-1; n != npos; n--) {
         if (i >= start(n)) {

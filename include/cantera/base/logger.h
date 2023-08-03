@@ -54,7 +54,7 @@ public:
      *
      * @param msg      String message to be written to cout
      */
-    virtual void write(const std::string& msg) {
+    virtual void write(const string& msg) {
         std::cout << msg;
     }
 
@@ -73,7 +73,7 @@ public:
      * @param warning  String specifying type of warning
      * @param msg      String message to be written to cout
      */
-    virtual void warn(const std::string& warning, const std::string& msg) {
+    virtual void warn(const string& warning, const string& msg) {
         std::clog << warning << "Warning: " << msg << std::endl;
     }
 
@@ -88,7 +88,7 @@ public:
      *
      * @param msg    Error message to be written to cerr.
      */
-    virtual void error(const std::string& msg) {
+    virtual void error(const string& msg) {
         std::cerr << msg << std::endl;
         exit(EXIT_FAILURE);
     }

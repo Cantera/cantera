@@ -104,7 +104,7 @@ public:
     /*!
      * @param linSolverType    Type of the linear solver
      */
-    virtual void setLinearSolverType(const std::string& linSolverType) {
+    virtual void setLinearSolverType(const string& linSolverType) {
         warn("setLinearSolverType");
     }
 
@@ -149,7 +149,7 @@ public:
     }
 
     //! Return the integrator problem type
-    virtual std::string linearSolverType() const {
+    virtual string linearSolverType() const {
         warn("linearSolverType");
         return "";
     }
@@ -324,7 +324,7 @@ protected:
 
 private:
     double m_dummy;
-    void warn(const std::string& msg) const {
+    void warn(const string& msg) const {
         writelog(">>>> Warning: method "+msg+" of base class "
                  +"Integrator called. Nothing done.\n");
     }
@@ -335,7 +335,7 @@ private:
 //! Create new Integrator object
 //! @param itype Integration mode; either \c CVODE or \c IDA
 //! @ingroup odeGroup
-Integrator* newIntegrator(const std::string& itype);
+Integrator* newIntegrator(const string& itype);
 
 } // namespace
 

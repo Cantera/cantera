@@ -110,7 +110,7 @@ double simpson(const Eigen::ArrayXd& f, const Eigen::ArrayXd& x)
     }
 }
 
-double numericalQuadrature(const std::string& method,
+double numericalQuadrature(const string& method,
                            const Eigen::ArrayXd& f,
                            const Eigen::ArrayXd& x)
 {

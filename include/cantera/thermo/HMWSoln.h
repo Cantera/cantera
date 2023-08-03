@@ -791,12 +791,12 @@ public:
      * @param id        ID of the phase in the input file. Defaults to the
      *                  empty string.
      */
-    explicit HMWSoln(const std::string& inputFile="", const std::string& id="");
+    explicit HMWSoln(const string& inputFile="", const string& id="");
 
     //! @name  Utilities
     //! @{
 
-    virtual std::string type() const {
+    virtual string type() const {
         return "HMW-electrolyte";
     }
 
@@ -1160,20 +1160,20 @@ public:
      *  -------------- Utilities -------------------------------
      */
 
-    void setBinarySalt(const std::string& sp1, const std::string& sp2,
+    void setBinarySalt(const string& sp1, const string& sp2,
         size_t nParams, double* beta0, double* beta1, double* beta2,
         double* Cphi, double alpha1, double alpha2);
-    void setTheta(const std::string& sp1, const std::string& sp2,
+    void setTheta(const string& sp1, const string& sp2,
         size_t nParams, double* theta);
-    void setPsi(const std::string& sp1, const std::string& sp2,
-        const std::string& sp3, size_t nParams, double* psi);
-    void setLambda(const std::string& sp1, const std::string& sp2,
+    void setPsi(const string& sp1, const string& sp2,
+        const string& sp3, size_t nParams, double* psi);
+    void setLambda(const string& sp1, const string& sp2,
         size_t nParams, double* lambda);
-    void setMunnn(const std::string& sp, size_t nParams, double* munnn);
-    void setZeta(const std::string& sp1, const std::string& sp2,
-        const std::string& sp3, size_t nParams, double* psi);
+    void setMunnn(const string& sp, size_t nParams, double* munnn);
+    void setZeta(const string& sp1, const string& sp2,
+        const string& sp3, size_t nParams, double* psi);
 
-    void setPitzerTempModel(const std::string& model);
+    void setPitzerTempModel(const string& model);
     void setPitzerRefTemperature(double Tref) {
         m_TempPitzerRef = Tref;
     }

@@ -245,7 +245,7 @@ private:
      * @exception CanteraError
      *    If a match is not found, a CanteraError is thrown as well
      */
-    double LookupGe(const std::string& elemName);
+    double LookupGe(const string& elemName);
 
     //! Translate a Gibbs free energy of formation value to a NIST-based Chemical potential
     /*!

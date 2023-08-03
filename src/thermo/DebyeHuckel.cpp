@@ -253,7 +253,7 @@ void DebyeHuckel::getPartialMolarCp(double* cpbar) const
 /*!
  *  @param estString  input string that will be interpreted
  */
-static int interp_est(const std::string& estString)
+static int interp_est(const string& estString)
 {
     if (caseInsensitiveEquals(estString, "solvent")) {
         return cEST_solvent;
@@ -278,7 +278,7 @@ static int interp_est(const std::string& estString)
     }
 }
 
-void DebyeHuckel::setDebyeHuckelModel(const std::string& model) {
+void DebyeHuckel::setDebyeHuckelModel(const string& model) {
     if (model == ""
         || model == "dilute-limit"
         || caseInsensitiveEquals(model, "Dilute_limit")) {
@@ -339,7 +339,7 @@ void DebyeHuckel::setDefaultIonicRadius(double value)
     }
 }
 
-void DebyeHuckel::setBeta(const std::string& sp1, const std::string& sp2,
+void DebyeHuckel::setBeta(const string& sp1, const string& sp2,
                           double value)
 {
     size_t k1 = speciesIndex(sp1);
@@ -465,7 +465,7 @@ void DebyeHuckel::getParameters(AnyMap& phaseNode) const
             for (size_t j = i; j < m_kk; j++) {
                 if (m_Beta_ij(i, j) != 0) {
                     AnyMap entry;
-                    entry["species"] = vector<std::string>{
+                    entry["species"] = vector<string>{
                         speciesName(i), speciesName(j)};
                     entry["beta"] = m_Beta_ij(i, j);
                     beta.push_back(std::move(entry));
@@ -477,7 +477,7 @@ void DebyeHuckel::getParameters(AnyMap& phaseNode) const
     phaseNode["activity-data"] = std::move(activityNode);
 }
 
-void DebyeHuckel::getSpeciesParameters(const std::string& name,
+void DebyeHuckel::getSpeciesParameters(const string& name,
                                        AnyMap& speciesNode) const
 {
     MolalityVPSSTP::getSpeciesParameters(name, speciesNode);

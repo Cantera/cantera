@@ -208,7 +208,7 @@ void MargulesVPSSTP::getParameters(AnyMap& phaseNode) const
     vector<AnyMap> interactions;
     for (size_t n = 0; n < m_pSpecies_A_ij.size(); n++) {
         AnyMap interaction;
-        interaction["species"] = vector<std::string>{
+        interaction["species"] = vector<string>{
             speciesName(m_pSpecies_A_ij[n]), speciesName(m_pSpecies_B_ij[n])};
         if (m_HE_b_ij[n] != 0 || m_HE_c_ij[n] != 0) {
             interaction["excess-enthalpy"].setQuantity(
@@ -236,8 +236,8 @@ void MargulesVPSSTP::initLengths()
     dlnActCoeffdlnN_.resize(m_kk, m_kk);
 }
 
-void MargulesVPSSTP::addBinaryInteraction(const std::string& speciesA,
-    const std::string& speciesB, double h0, double h1, double s0, double s1,
+void MargulesVPSSTP::addBinaryInteraction(const string& speciesA,
+    const string& speciesB, double h0, double h1, double s0, double s1,
     double vh0, double vh1, double vs0, double vs1)
 {
     size_t kA = speciesIndex(speciesA);

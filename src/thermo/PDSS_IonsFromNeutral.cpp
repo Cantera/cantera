@@ -25,7 +25,7 @@ void PDSS_IonsFromNeutral::setParent(VPStandardStateTP* phase, size_t k)
     neutralMoleculePhase_ = dynamic_cast<IonsFromNeutralVPSSTP&>(*phase).getNeutralMoleculePhase();
 }
 
-void PDSS_IonsFromNeutral::setNeutralSpeciesMultiplier(const std::string& species, double mult)
+void PDSS_IonsFromNeutral::setNeutralSpeciesMultiplier(const string& species, double mult)
 {
     neutralSpeciesMultipliers_[species] = mult;
     numMult_++;

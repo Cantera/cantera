@@ -118,7 +118,7 @@ int flamespeed(double phi, bool refine_grid, int loglevel)
         // Save initial guess to container file
 
         // Solution is saved in HDF5 or YAML file format
-        std::string fileName;
+        string fileName;
         if (usesHDF5()) {
             // Cantera is compiled with native HDF5 support
             fileName = "flamespeed.h5";

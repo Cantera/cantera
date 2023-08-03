@@ -55,7 +55,7 @@ public:
      *  @param thermo    ThermoPhase object
      *  @param log_level log level
      */
-    virtual Transport* newTransport(const std::string& model, ThermoPhase* thermo, int log_level=0);
+    virtual Transport* newTransport(const string& model, ThermoPhase* thermo, int log_level=0);
 
     //! Build a new transport manager using the default transport manager
     //! in the phase description and return a base class pointer to it
@@ -83,12 +83,12 @@ private:
     TransportFactory();
 
     //! Models included in this map are initialized in CK compatibility mode
-    map<std::string, bool> m_CK_mode;
+    map<string, bool> m_CK_mode;
 };
 
-//! @copydoc TransportFactory::newTransport(const std::string&, ThermoPhase*, int)
+//! @copydoc TransportFactory::newTransport(const string&, ThermoPhase*, int)
 //! @deprecated To be removed after %Cantera 3.0; superseded by newTransport()
-Transport* newTransportMgr(const std::string& model="", ThermoPhase* thermo=0,
+Transport* newTransportMgr(const string& model="", ThermoPhase* thermo=0,
                            int log_level=0);
 
 //!  Create a new Transport instance.

@@ -26,7 +26,7 @@ PengRobinson::PengRobinson(const string& infile, const string& id_)
     initThermoFile(infile, id_);
 }
 
-void PengRobinson::setSpeciesCoeffs(const std::string& species, double a, double b,
+void PengRobinson::setSpeciesCoeffs(const string& species, double a, double b,
                                     double w)
 {
     size_t k = speciesIndex(species);
@@ -72,8 +72,8 @@ void PengRobinson::setSpeciesCoeffs(const std::string& species, double a, double
     m_b_coeffs[k] = b;
 }
 
-void PengRobinson::setBinaryCoeffs(const std::string& species_i,
-        const std::string& species_j, double a0)
+void PengRobinson::setBinaryCoeffs(const string& species_i,
+        const string& species_j, double a0)
 {
     size_t ki = speciesIndex(species_i);
     if (ki == npos) {
@@ -340,7 +340,7 @@ void PengRobinson::initThermo()
 {
     // Contents of 'critical-properties.yaml', loaded later if needed
     AnyMap critPropsDb;
-    std::unordered_map<std::string, AnyMap*> dbSpecies;
+    std::unordered_map<string, AnyMap*> dbSpecies;
 
     for (auto& [name, species] : m_species) {
         auto& data = species->input;
@@ -421,7 +421,7 @@ void PengRobinson::initThermo()
     }
 }
 
-void PengRobinson::getSpeciesParameters(const std::string& name,
+void PengRobinson::getSpeciesParameters(const string& name,
                                         AnyMap& speciesNode) const
 {
     MixtureFugacityTP::getSpeciesParameters(name, speciesNode);

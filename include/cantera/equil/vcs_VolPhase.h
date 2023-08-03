@@ -427,7 +427,7 @@ public:
     /*!
      * @param e Element index.
      */
-    std::string elementName(const size_t e) const;
+    string elementName(const size_t e) const;
 
     //! Type of the element constraint with index \c e.
     /*!
@@ -469,7 +469,7 @@ public:
     size_t nSpecies() const;
 
     //! Return the name corresponding to the equation of state
-    std::string eos_name() const;
+    string eos_name() const;
 
 private:
     //! Evaluate the activity coefficients at the current conditions
@@ -579,7 +579,7 @@ private:
     /*!
      * Length =  nElemConstraints
      */
-    vector<std::string> m_elementNames;
+    vector<string> m_elementNames;
 
     //! boolean indicating whether an element constraint is active
     //! for the current  problem
@@ -623,7 +623,7 @@ private:
 
 public:
     //! String name for the phase
-    std::string PhaseName;
+    string PhaseName;
 
 private:
     //!  Total moles of inert in the phase

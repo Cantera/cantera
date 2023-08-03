@@ -63,7 +63,7 @@ public:
     //!     transport properties
     //! @param id  name of flow domain
     //! @param points  initial number of grid points
-    StFlow(shared_ptr<Solution> sol, const std::string& id="", size_t points=1);
+    StFlow(shared_ptr<Solution> sol, const string& id="", size_t points=1);
 
     ~StFlow();
 
@@ -107,11 +107,11 @@ public:
 
     //! Set the transport model
     //! @since New in %Cantera 3.0.
-    void setTransportModel(const std::string& trans);
+    void setTransportModel(const string& trans);
 
     //! Retrieve transport model
     //! @since New in %Cantera 3.0.
-    std::string transportModel() const;
+    string transportModel() const;
 
     //! Enable thermal diffusion, also known as Soret diffusion.
     //! Requires that multicomponent transport properties be
@@ -163,9 +163,9 @@ public:
 
     //! @}
 
-    virtual std::string componentName(size_t n) const;
+    virtual string componentName(size_t n) const;
 
-    virtual size_t componentIndex(const std::string& name) const;
+    virtual size_t componentIndex(const string& name) const;
 
     //! Returns true if the specified component is an active part of the solver state
     virtual bool componentActive(size_t n) const;

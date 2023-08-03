@@ -36,9 +36,9 @@ public:
      * @param id     name of the phase id in the file.
      *               If this is blank, the first phase in the file is used.
      */
-    explicit EdgePhase(const std::string& infile="", const std::string& id="");
+    explicit EdgePhase(const string& infile="", const string& id="");
 
-    virtual std::string type() const {
+    virtual string type() const {
         return "edge";
     }
 };

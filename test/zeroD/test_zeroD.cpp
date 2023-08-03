@@ -45,7 +45,7 @@ TEST(zerodim, test_individual_reactor_initialization)
     double T0 = 1100.0;
     double P0 = 10 * OneAtm;
     double tol = 1e-7;
-    std::string X0 = "H2:1.0, O2:0.5, AR:8.0";
+    string X0 = "H2:1.0, O2:0.5, AR:8.0";
     // reactor solution, phase, and kinetics objects
     shared_ptr<Solution> sol1 = newSolution("h2o2.yaml");
     sol1->thermo()->setState_TPX(T0, P0, X0);

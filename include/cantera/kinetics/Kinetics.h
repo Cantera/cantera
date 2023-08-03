@@ -142,7 +142,7 @@ public:
     //! a meaningful identifier.
     //! @since Starting in %Cantera 3.0, the name returned by this method corresponds
     //!     to the canonical name used in the YAML input format.
-    virtual std::string kineticsType() const {
+    virtual string kineticsType() const {
         return "none";
     }
 
@@ -199,12 +199,12 @@ public:
      * Return the phase index of a phase in the list of phases defined within
      * the object.
      *
-     *  @param ph std::string name of the phase
+     *  @param ph string name of the phase
      *
      * If a -1 is returned, then the phase is not defined in the Kinetics
      * object.
      */
-    size_t phaseIndex(const std::string& ph) const {
+    size_t phaseIndex(const string& ph) const {
         if (m_phaseindex.find(ph) == m_phaseindex.end()) {
             return npos;
         } else {
@@ -298,11 +298,11 @@ public:
      *
      * @param k species index
      */
-    std::string kineticsSpeciesName(size_t k) const;
+    string kineticsSpeciesName(size_t k) const;
 
     /**
      * This routine will look up a species number based on the input
-     * std::string nm. The lookup of species will occur for all phases
+     * string nm. The lookup of species will occur for all phases
      * listed in the kinetics object.
      *
      *  return
@@ -311,11 +311,11 @@ public:
      *
      * @param nm   Input string name of the species
      */
-    size_t kineticsSpeciesIndex(const std::string& nm) const;
+    size_t kineticsSpeciesIndex(const string& nm) const;
 
     /**
      * This routine will look up a species number based on the input
-     * std::string nm. The lookup of species will occur in the specified
+     * string nm. The lookup of species will occur in the specified
      * phase of the object, or all phases if ph is "<any>".
      *
      *  return
@@ -327,8 +327,8 @@ public:
      * @deprecated To be removed after %Cantera 3.0. Species names should be unique
      *     across all phases.
      */
-    size_t kineticsSpeciesIndex(const std::string& nm,
-                                const std::string& ph) const;
+    size_t kineticsSpeciesIndex(const string& nm,
+                                const string& ph) const;
 
     /**
      * This function looks up the name of a species and returns a
@@ -337,8 +337,8 @@ public:
      *
      * @param nm   String containing the name of the species.
      */
-    ThermoPhase& speciesPhase(const std::string& nm);
-    const ThermoPhase& speciesPhase(const std::string& nm) const;
+    ThermoPhase& speciesPhase(const string& nm);
+    const ThermoPhase& speciesPhase(const string& nm) const;
 
     /**
      * This function takes as an argument the kineticsSpecies index
@@ -1235,7 +1235,7 @@ public:
      * @deprecated To be removed after %Cantera 3.0. Replace with
      *     `kin->reaction(i)->type()`
      */
-    virtual std::string reactionType(size_t i) const;
+    virtual string reactionType(size_t i) const;
 
     /**
      * String specifying the type of reaction.
@@ -1243,7 +1243,7 @@ public:
      * @param i   reaction index
      * @deprecated To be removed after %Cantera 3.0.
      */
-    virtual std::string reactionTypeStr(size_t i) const;
+    virtual string reactionTypeStr(size_t i) const;
 
     /**
      * True if reaction i has been declared to be reversible. If isReversible(i)
@@ -1263,17 +1263,17 @@ public:
      * @deprecated To be removed after %Cantera 3.0. Replace with
      *     `kin->reaction(i)->equation()`.
      */
-    std::string reactionString(size_t i) const;
+    string reactionString(size_t i) const;
 
     //! Returns a string containing the reactants side of the reaction equation.
     //! @deprecated To be removed after %Cantera 3.0. Replace with
     //!     `kin->reaction(i)->reactantString()`
-    std::string reactantString(size_t i) const;
+    string reactantString(size_t i) const;
 
     //! Returns a string containing the products side of the reaction equation.
     //! @deprecated To be removed after %Cantera 3.0. Replace with
     //!     `kin->reaction(i)->productString()`
-    std::string productString(size_t i) const;
+    string productString(size_t i) const;
 
     /**
      * Return the forward rate constants
@@ -1329,7 +1329,7 @@ public:
      *    mechanism.
      *  - #m_thermo -> vector of pointers to ThermoPhase phases that
      *    participate in the kinetics mechanism.
-     *  - #m_phaseindex -> map containing the std::string id of each
+     *  - #m_phaseindex -> map containing the string id of each
      *    ThermoPhase phase as a key and the index of the phase within the
      *    kinetics manager object as the value.
      *
@@ -1580,7 +1580,7 @@ protected:
      * function, phaseIndex() decrements by one before returning the index
      * value, so that missing phases return -1.
      */
-    map<std::string, size_t> m_phaseindex;
+    map<string, size_t> m_phaseindex;
 
     //! Index in the list of phases of the one surface phase.
     //! @deprecated To be removed after %Cantera 3.0.

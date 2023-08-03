@@ -45,7 +45,7 @@ class Reactor : public ReactorBase
 public:
     Reactor() = default;
 
-    virtual std::string type() const {
+    virtual string type() const {
         return "Reactor";
     }
 
@@ -171,11 +171,11 @@ public:
     //! component named *nm*. Possible values for *nm* are "mass", "volume",
     //! "int_energy", the name of a homogeneous phase species, or the name of a
     //! surface species.
-    virtual size_t componentIndex(const std::string& nm) const;
+    virtual size_t componentIndex(const string& nm) const;
 
     //! Return the name of the solution component with index *i*.
     //! @see componentIndex()
-    virtual std::string componentName(size_t k);
+    virtual string componentName(size_t k);
 
     //! Set absolute step size limits during advance
     //! @param limits array of step size limits with length neq
@@ -195,7 +195,7 @@ public:
     //! Set individual step size limit for component name *nm*
     //! @param nm component name
     //! @param limit value for step size limit
-    void setAdvanceLimit(const std::string& nm, const double limit);
+    void setAdvanceLimit(const string& nm, const double limit);
 
     //! Calculate the Jacobian of a specific Reactor specialization.
     //! @warning Depending on the particular implementation, this may return an
@@ -242,7 +242,7 @@ protected:
     //! named *nm*, in either the homogeneous phase or a surface phase, relative
     //! to the start of the species terms. Used to implement componentIndex for
     //! specific reactor implementations.
-    virtual size_t speciesIndex(const std::string& nm) const;
+    virtual size_t speciesIndex(const string& nm) const;
 
     //! Evaluate terms related to Walls. Calculates #m_vdot and #m_Qdot based on
     //! wall movement and heat transfer.

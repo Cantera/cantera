@@ -26,7 +26,7 @@ void TransportData::getParameters(AnyMap &transportNode) const
 }
 
 GasTransportData::GasTransportData(
-        const std::string& geometry_,
+        const string& geometry_,
         double diameter_, double well_depth_, double dipole_,
         double polarizability_, double rot_relax, double acentric,
         double dispersion, double quad_polar)
@@ -43,7 +43,7 @@ GasTransportData::GasTransportData(
 }
 
 void GasTransportData::setCustomaryUnits(
-        const std::string& geometry_,
+        const string& geometry_,
         double diameter_, double well_depth_, double dipole_,
         double polarizability_, double rot_relax, double acentric,
         double dispersion, double quad_polar)
@@ -160,7 +160,7 @@ void GasTransportData::getParameters(AnyMap& transportNode) const
 
 void setupGasTransportData(GasTransportData& tr, const AnyMap& node)
 {
-    std::string geometry = node["geometry"].asString();
+    string geometry = node["geometry"].asString();
     double welldepth = node["well-depth"].asDouble();
     double diameter = node["diameter"].asDouble();
     double dipole = node.getDouble("dipole", 0.0);

@@ -54,7 +54,7 @@ Reaction::Reaction(const Composition& reactants_,
     }
 }
 
-Reaction::Reaction(const std::string& equation,
+Reaction::Reaction(const string& equation,
                    shared_ptr<ReactionRate> rate_,
                    shared_ptr<ThirdBody> tbody_)
     : m_third_body(tbody_)
@@ -68,7 +68,7 @@ Reaction::Reaction(const std::string& equation,
 
 Reaction::Reaction(const AnyMap& node, const Kinetics& kin)
 {
-    std::string rate_type = node.getString("type", "Arrhenius");
+    string rate_type = node.getString("type", "Arrhenius");
     if (!kin.nPhases()) {
         throw InputFileError("Reaction", node,
             "Cannot instantiate Reaction with empty Kinetics object.");
@@ -191,7 +191,7 @@ void Reaction::getParameters(AnyMap& reactionNode) const
     reactionNode.update(m_rate->parameters());
 
     // strip information not needed for reconstruction
-    std::string rtype = reactionNode["type"].asString();
+    string rtype = reactionNode["type"].asString();
     if (rtype == "pressure-dependent-Arrhenius") {
         // skip
     } else if (m_explicit_type && ba::ends_with(rtype, "Arrhenius")) {
@@ -260,7 +260,7 @@ void Reaction::setRate(shared_ptr<ReactionRate> rate)
     }
     m_rate = rate;
 
-    std::string rate_type = m_rate->type();
+    string rate_type = m_rate->type();
     if (m_third_body) {
         if (rate_type == "falloff" || rate_type == "chemically-activated") {
             if (m_third_body->mass_action && !m_from_composition) {
@@ -294,7 +294,7 @@ void Reaction::setRate(shared_ptr<ReactionRate> rate)
     }
 }
 
-std::string Reaction::reactantString() const
+string Reaction::reactantString() const
 {
     std::ostringstream result;
     for (auto iter = reactants.begin(); iter != reactants.end(); ++iter) {
@@ -312,7 +312,7 @@ std::string Reaction::reactantString() const
     return result.str();
 }
 
-std::string Reaction::productString() const
+string Reaction::productString() const
 {
     std::ostringstream result;
     for (auto iter = products.begin(); iter != products.end(); ++iter) {
@@ -330,7 +330,7 @@ std::string Reaction::productString() const
     return result.str();
 }
 
-std::string Reaction::equation() const
+string Reaction::equation() const
 {
     if (reversible) {
         return reactantString() + " <=> " + productString();
@@ -339,11 +339,11 @@ std::string Reaction::equation() const
     }
 }
 
-void Reaction::setEquation(const std::string& equation, const Kinetics* kin)
+void Reaction::setEquation(const string& equation, const Kinetics* kin)
 {
     parseReactionEquation(*this, equation, input, kin);
 
-    std::string rate_type = input.getString("type", "");
+    string rate_type = input.getString("type", "");
     if (ba::starts_with(rate_type, "three-body")) {
         // state type when serializing
         m_explicit_type = true;
@@ -356,7 +356,7 @@ void Reaction::setEquation(const std::string& equation, const Kinetics* kin)
         return;
     }
 
-    std::string third_body;
+    string third_body;
     size_t count = 0;
     size_t countM = 0;
     for (const auto& [name, stoich] : reactants) {
@@ -461,7 +461,7 @@ void Reaction::setEquation(const std::string& equation, const Kinetics* kin)
     }
 
     if (m_third_body) {
-        std::string tName = m_third_body->name();
+        string tName = m_third_body->name();
         if (tName != third_body && third_body != "M" && tName != "M") {
             throw InputFileError("Reaction::setEquation", input,
                 "Detected incompatible third body colliders in reaction '{}'\n"
@@ -489,14 +489,14 @@ void Reaction::setEquation(const std::string& equation, const Kinetics* kin)
     }
 }
 
-std::string Reaction::type() const
+string Reaction::type() const
 {
     if (!m_rate) {
         throw CanteraError("Reaction::type", "Empty Reaction does not have a type");
     }
 
-    std::string rate_type = m_rate->type();
-    std::string sub_type = m_rate->subType();
+    string rate_type = m_rate->type();
+    string sub_type = m_rate->subType();
     if (sub_type != "") {
         return rate_type + "-" + sub_type;
     }
@@ -552,7 +552,7 @@ UnitStack Reaction::calculateRateCoeffUnits(const Kinetics& kin)
     return rate_units;
 }
 
-void updateUndeclared(vector<std::string>& undeclared,
+void updateUndeclared(vector<string>& undeclared,
                       const Composition& comp, const Kinetics& kin)
 {
     for (const auto& [name, stoich]: comp) {
@@ -583,7 +583,7 @@ void Reaction::checkBalance(const Kinetics& kin) const
         }
     }
 
-    std::string msg;
+    string msg;
     bool ok = true;
     for (const auto& [elem, balance] : balr) {
         double elemsum = balr[elem] + balp[elem];
@@ -632,7 +632,7 @@ void Reaction::checkBalance(const Kinetics& kin) const
 bool Reaction::checkSpecies(const Kinetics& kin) const
 {
     // Check for undeclared species
-    vector<std::string> undeclared;
+    vector<string> undeclared;
     updateUndeclared(undeclared, reactants, kin);
     updateUndeclared(undeclared, products, kin);
     if (!undeclared.empty()) {
@@ -712,14 +712,14 @@ ThirdBody::ThirdBody(double default_eff)
         "after Cantera 3.0. Instantiate with collider name instead.");
 }
 
-ThirdBody::ThirdBody(const std::string& third_body)
+ThirdBody::ThirdBody(const string& third_body)
 {
     setName(third_body);
 }
 
-void ThirdBody::setName(const std::string& third_body)
+void ThirdBody::setName(const string& third_body)
 {
-    std::string name = third_body;
+    string name = third_body;
     if (ba::starts_with(third_body, "(+ ")) {
         mass_action = false;
         name = third_body.substr(3, third_body.size() - 4);
@@ -792,12 +792,12 @@ void ThirdBody::getParameters(AnyMap& node) const
     }
 }
 
-double ThirdBody::efficiency(const std::string& k) const
+double ThirdBody::efficiency(const string& k) const
 {
     return getValue(efficiencies, k, default_efficiency);
 }
 
-std::string ThirdBody::collider() const
+string ThirdBody::collider() const
 {
     if (mass_action) {
         return " + " + m_name;
@@ -807,7 +807,7 @@ std::string ThirdBody::collider() const
 
 bool ThirdBody::checkSpecies(const Reaction& rxn, const Kinetics& kin) const
 {
-    vector<std::string> undeclared;
+    vector<string> undeclared;
     updateUndeclared(undeclared, efficiencies, kin);
 
     if (!undeclared.empty()) {
@@ -878,7 +878,7 @@ FalloffReaction::FalloffReaction(const Composition& reactants_,
     m_third_body = make_shared<ThirdBody>(tbody_);
     AnyMap node = rate_.parameters();
     node.applyUnits();
-    std::string rate_type = node["type"].asString();
+    string rate_type = node["type"].asString();
     setRate(newReactionRate(node));
 }
 
@@ -893,7 +893,7 @@ FalloffReaction::FalloffReaction(const AnyMap& node, const Kinetics& kin)
     }
 }
 
-unique_ptr<Reaction> newReaction(const std::string& type)
+unique_ptr<Reaction> newReaction(const string& type)
 {
     return make_unique<Reaction>();
 }
@@ -903,12 +903,12 @@ unique_ptr<Reaction> newReaction(const AnyMap& rxn_node, const Kinetics& kin)
     return make_unique<Reaction>(rxn_node, kin);
 }
 
-void parseReactionEquation(Reaction& R, const std::string& equation,
+void parseReactionEquation(Reaction& R, const string& equation,
                            const AnyBase& reactionNode, const Kinetics* kin)
 {
     // Parse the reaction equation to determine participating species and
     // stoichiometric coefficients
-    vector<std::string> tokens;
+    vector<string> tokens;
     tokenizeString(equation, tokens);
     tokens.push_back("+"); // makes parsing last species not a special case
 
@@ -917,7 +917,7 @@ void parseReactionEquation(Reaction& R, const std::string& equation,
     for (size_t i = 1; i < tokens.size(); i++) {
         if (tokens[i] == "+" || ba::starts_with(tokens[i], "(+") ||
             tokens[i] == "<=>" || tokens[i] == "=" || tokens[i] == "=>") {
-            std::string species = tokens[i-1];
+            string species = tokens[i-1];
 
             double stoich = 1.0;
             bool mass_action = true;

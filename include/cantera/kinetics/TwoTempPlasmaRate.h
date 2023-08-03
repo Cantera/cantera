@@ -78,7 +78,7 @@ public:
         return make_unique<MultiRate<TwoTempPlasmaRate, TwoTempPlasmaData>>();
     }
 
-    virtual const std::string type() const override {
+    virtual const string type() const override {
         return "two-temperature-plasma";
     }
 

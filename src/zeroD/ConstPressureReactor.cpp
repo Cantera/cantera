@@ -131,7 +131,7 @@ size_t ConstPressureReactor::componentIndex(const string& nm) const
     }
 }
 
-std::string ConstPressureReactor::componentName(size_t k) {
+string ConstPressureReactor::componentName(size_t k) {
     if (k == 0) {
         return "mass";
     } else if (k == 1) {

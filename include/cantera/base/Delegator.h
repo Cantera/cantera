@@ -104,18 +104,18 @@ class Delegator
 {
 public:
     //! Get the name of the user-defined class in the extension language
-    std::string delegatorName() const {
+    string delegatorName() const {
         return m_delegatorName;
     }
 
     //! Set the name of the user-defined class in the extension language
-    void setDelegatorName(const std::string& delegatorName) {
+    void setDelegatorName(const string& delegatorName) {
         m_delegatorName = delegatorName;
     }
 
     //! Set delegates for member functions with the signature `void()`.
-    void setDelegate(const std::string& name, const function<void()>& func,
-                     const std::string& when)
+    void setDelegate(const string& name, const function<void()>& func,
+                     const string& when)
     {
         if (!m_funcs_v.count(name)) {
             throw NotImplementedError("Delegator::setDelegate",
@@ -125,8 +125,8 @@ public:
     }
 
     //! set delegates for member functions with the signature `void(bool)`
-    void setDelegate(const std::string& name, const function<void(bool)>& func,
-                     const std::string& when)
+    void setDelegate(const string& name, const function<void(bool)>& func,
+                     const string& when)
     {
         if (!m_funcs_v_b.count(name)) {
             throw NotImplementedError("Delegator::setDelegate",
@@ -136,8 +136,8 @@ public:
     }
 
     //! set delegates for member functions with the signature `void(double)`
-    void setDelegate(const std::string& name, const function<void(double)>& func,
-                     const std::string& when)
+    void setDelegate(const string& name, const function<void(double)>& func,
+                     const string& when)
     {
         if (!m_funcs_v_d.count(name)) {
             throw NotImplementedError("Delegator::setDelegate",
@@ -159,9 +159,9 @@ public:
 
     //! set delegates for member functions with the signature
     //! `void(AnyMap&, UnitStack&)`
-    void setDelegate(const std::string& name,
+    void setDelegate(const string& name,
                      const function<void(const AnyMap&, const UnitStack&)>& func,
-                     const std::string& when)
+                     const string& when)
     {
         if (!m_funcs_v_cAMr_cUSr.count(name)) {
             throw NotImplementedError("Delegator::setDelegate",
@@ -186,9 +186,9 @@ public:
     }
 
     //! Set delegates for member functions with the signature `void(double*)`
-    void setDelegate(const std::string& name,
+    void setDelegate(const string& name,
                      const function<void(std::array<size_t, 1>, double*)>& func,
-                     const std::string& when)
+                     const string& when)
     {
         if (!m_funcs_v_dp.count(name)) {
             throw NotImplementedError("Delegator::setDelegate",
@@ -199,9 +199,9 @@ public:
 
     //! Set delegates for member functions with the signature `void(double, double*)`
     void setDelegate(
-        const std::string& name,
+        const string& name,
         const function<void(std::array<size_t, 1>, double, double*)>& func,
-        const std::string& when)
+        const string& when)
     {
         if (!m_funcs_v_d_dp.count(name)) {
             throw NotImplementedError("Delegator::setDelegate",
@@ -214,9 +214,9 @@ public:
     //! Set delegates for member functions with the signature
     //! `void(double, double*, double*)`
     void setDelegate(
-        const std::string& name,
+        const string& name,
         const function<void(std::array <size_t, 2>, double, double*, double*)>& func,
-        const std::string& when)
+        const string& when)
     {
         if (!m_funcs_v_d_dp_dp.count(name)) {
             throw NotImplementedError("Delegator::setDelegate",
@@ -229,9 +229,9 @@ public:
     //! Set delegates for member functions with the signature
     //! `void(double*, double*, double*)`
     void setDelegate(
-        const std::string& name,
+        const string& name,
         const function<void(std::array<size_t, 3>, double*, double*, double*)>& func,
-        const std::string& when)
+        const string& when)
     {
         if (!m_funcs_v_dp_dp_dp.count(name)) {
             throw NotImplementedError("Delegator::setDelegate",
@@ -242,9 +242,9 @@ public:
     }
 
     //! set delegates for member functions with the signature `double(void*)`
-    void setDelegate(const std::string& name,
+    void setDelegate(const string& name,
                      const function<int(double&, void*)>& func,
-                     const std::string& when)
+                     const string& when)
     {
         if (!m_funcs_d_vp.count(name)) {
             throw NotImplementedError("Delegator::setDelegate",
@@ -254,9 +254,9 @@ public:
     }
 
     //! Set delegates for member functions with the signature `string(size_t)`
-    void setDelegate(const std::string& name,
-                     const function<int(std::string&, size_t)>& func,
-                     const std::string& when)
+    void setDelegate(const string& name,
+                     const function<int(string&, size_t)>& func,
+                     const string& when)
     {
         if (!m_funcs_s_sz.count(name)) {
             throw NotImplementedError("Delegator::setDelegate",
@@ -267,9 +267,9 @@ public:
     }
 
     //! Set delegates for member functions with the signature `size_t(string)`
-    void setDelegate(const std::string& name,
-                     const function<int(size_t&, const std::string&)>& func,
-                     const std::string& when)
+    void setDelegate(const string& name,
+                     const function<int(size_t&, const string&)>& func,
+                     const string& when)
     {
         if (!m_funcs_sz_csr.count(name)) {
             throw NotImplementedError("Delegator::setDelegate",
@@ -298,7 +298,7 @@ public:
 
 protected:
     //! Install a function with the signature `void()` as being delegatable
-    void install(const std::string& name, function<void()>& target,
+    void install(const string& name, function<void()>& target,
                  const function<void()>& func)
     {
         target = func;
@@ -306,7 +306,7 @@ protected:
     }
 
     //! Install a function with the signature `void(bool)` as being delegatable
-    void install(const std::string& name, function<void(bool)>& target,
+    void install(const string& name, function<void(bool)>& target,
                  const function<void(bool)>& func)
     {
         target = func;
@@ -314,7 +314,7 @@ protected:
     }
 
     //! Install a function with the signature `void(double)` as being delegatable
-    void install(const std::string& name, function<void(double)>& target,
+    void install(const string& name, function<void(double)>& target,
                  const function<void(double)>& func)
     {
         target = func;
@@ -331,7 +331,7 @@ protected:
 
     //! Install a function with the signature `void(const AnyMap&, const UnitStack&)`
     //! as being delegatable
-    void install(const std::string& name,
+    void install(const string& name,
                  function<void(const AnyMap&, const UnitStack&)>& target,
                  const function<void(const AnyMap&, const UnitStack&)>& func)
     {
@@ -349,7 +349,7 @@ protected:
     }
 
     //! Install a function with the signature `void(double*)` as being delegatable
-    void install(const std::string& name,
+    void install(const string& name,
                  function<void(std::array<size_t, 1>, double*)>& target,
                  const function<void(std::array<size_t, 1>, double*)>& func)
     {
@@ -358,7 +358,7 @@ protected:
     }
 
     //! Install a function with the signature `void(double, double*)` as being delegatable
-    void install(const std::string& name,
+    void install(const string& name,
                  function<void(std::array<size_t, 1>, double, double*)>& target,
                  const function<void(std::array<size_t, 1>, double, double*)>& func)
     {
@@ -368,7 +368,7 @@ protected:
 
     //! Install a function with the signature `void(double, double*, double*)` as being
     //! delegatable
-    void install(const std::string& name,
+    void install(const string& name,
                  function<void(std::array<size_t, 2>, double, double*, double*)>& target,
                  const function<void(std::array<size_t, 2>, double, double*, double*)>& func)
     {
@@ -378,7 +378,7 @@ protected:
 
     //! Install a function with the signature
     //! `void(double*, double*, double*)` as being delegatable
-    void install(const std::string& name,
+    void install(const string& name,
                  function<void(std::array<size_t, 3>, double*, double*, double*)>& target,
                  const function<void(std::array<size_t, 3>, double*, double*, double*)>& base)
     {
@@ -387,7 +387,7 @@ protected:
     }
 
     //! Install a function with the signature `double(void*)` as being delegatable
-    void install(const std::string& name, function<double(void*)>& target,
+    void install(const string& name, function<double(void*)>& target,
                  const function<double(void*)>& func)
     {
         target = func;
@@ -395,9 +395,9 @@ protected:
     }
 
     //! Install a function with the signature `string(size_t)` as being delegatable
-    void install(const std::string& name,
-                 function<std::string(size_t)>& target,
-                 const function<std::string(size_t)>& base)
+    void install(const string& name,
+                 function<string(size_t)>& target,
+                 const function<string(size_t)>& base)
     {
         target = base;
         m_funcs_s_sz[name] = &target;
@@ -405,9 +405,9 @@ protected:
     }
 
     //! Install a function with the signature `size_t(string)` as being delegatable
-    void install(const std::string& name,
-                 function<size_t(const std::string&)>& target,
-                 const function<size_t(const std::string&)>& base)
+    void install(const string& name,
+                 function<size_t(const string&)>& target,
+                 const function<size_t(const string&)>& base)
     {
         target = base;
         m_funcs_sz_csr[name] = &target;
@@ -418,7 +418,7 @@ protected:
     template <typename BaseFunc, class ... Args>
     function<void(Args ...)> makeDelegate(
         const function<void(Args ...)>& func,
-        const std::string& when,
+        const string& when,
         BaseFunc base)
     {
         if (when == "before") {
@@ -445,9 +445,9 @@ protected:
     //! Create a delegate for a function with a return value
     template <typename ReturnType, class ... Args>
     function<ReturnType(Args ...)> makeDelegate(
-        const std::string& name,
+        const string& name,
         const function<int(ReturnType&, Args ...)>& func,
-        const std::string& when,
+        const string& when,
         const function<ReturnType(Args ...)>& base)
     {
         if (when == "before") {
@@ -510,7 +510,7 @@ protected:
     //! - `v` for `void`
     //! - `b` for `bool`
     //! - `d` for `double`
-    //! - `s` for `std::string`
+    //! - `s` for `string`
     //! - `sz` for `size_t`
     //! - `AM` for `AnyMap`
     //! - `US` for `UnitStack`
@@ -520,35 +520,35 @@ protected:
     //! @{
 
     // Delegates with no return value
-    map<std::string, function<void()>*> m_funcs_v;
-    map<std::string, function<void(bool)>*> m_funcs_v_b;
-    map<std::string, function<void(double)>*> m_funcs_v_d;
+    map<string, function<void()>*> m_funcs_v;
+    map<string, function<void(bool)>*> m_funcs_v_b;
+    map<string, function<void(double)>*> m_funcs_v_d;
     map<string, function<void(AnyMap&)>*> m_funcs_v_AMr;
-    map<std::string,
+    map<string,
         function<void(const AnyMap&, const UnitStack&)>*> m_funcs_v_cAMr_cUSr;
     map<string, function<void(const string&, void*)>*> m_funcs_v_csr_vp;
-    map<std::string,
+    map<string,
         function<void(std::array<size_t, 1>, double*)>*> m_funcs_v_dp;
-    map<std::string,
+    map<string,
         function<void(std::array<size_t, 1>, double, double*)>*> m_funcs_v_d_dp;
-    map<std::string,
+    map<string,
         function<void(std::array<size_t, 2>, double, double*, double*)>*> m_funcs_v_d_dp_dp;
-    map<std::string,
+    map<string,
         function<void(std::array<size_t, 3>, double*, double*, double*)>*> m_funcs_v_dp_dp_dp;
 
     // Delegates with a return value
-    map<std::string, function<double(void*)>> m_base_d_vp;
-    map<std::string, function<double(void*)>*> m_funcs_d_vp;
+    map<string, function<double(void*)>> m_base_d_vp;
+    map<string, function<double(void*)>*> m_funcs_d_vp;
 
-    map<std::string,
-        function<std::string(size_t)>> m_base_s_sz;
-    map<std::string,
-        function<std::string(size_t)>*> m_funcs_s_sz;
+    map<string,
+        function<string(size_t)>> m_base_s_sz;
+    map<string,
+        function<string(size_t)>*> m_funcs_s_sz;
 
-    map<std::string,
-        function<size_t(const std::string&)>> m_base_sz_csr;
-    map<std::string,
-        function<size_t(const std::string&)>*> m_funcs_sz_csr;
+    map<string,
+        function<size_t(const string&)>> m_base_sz_csr;
+    map<string,
+        function<size_t(const string&)>*> m_funcs_sz_csr;
     //! @}
 
     //! Handles to wrappers for the delegated object in external language interfaces.
@@ -557,7 +557,7 @@ protected:
     map<string, shared_ptr<ExternalHandle>> m_handles;
 
     //! Name of the class in the extension language
-    std::string m_delegatorName;
+    string m_delegatorName;
 };
 
 }

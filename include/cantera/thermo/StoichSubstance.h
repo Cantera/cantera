@@ -96,10 +96,10 @@ public:
      * @param id     name of the phase id in the file.
      *               If this is blank, the first phase in the file is used.
      */
-    explicit StoichSubstance(const std::string& infile="",
-                             const std::string& id="");
+    explicit StoichSubstance(const string& infile="",
+                             const string& id="");
 
-    virtual std::string type() const {
+    virtual string type() const {
         return "fixed-stoichiometry";
     }
 
@@ -225,7 +225,7 @@ public:
     //! @}
 
     virtual void initThermo();
-    virtual void getSpeciesParameters(const std::string& name,
+    virtual void getSpeciesParameters(const string& name,
                                       AnyMap& speciesNode) const;
 };
 

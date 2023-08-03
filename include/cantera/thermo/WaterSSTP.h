@@ -73,14 +73,14 @@ public:
      * @param inputFile String name of the input file
      * @param id        string id of the phase name
      */
-    explicit WaterSSTP(const std::string& inputFile="",
-                       const std::string& id="");
+    explicit WaterSSTP(const string& inputFile="",
+                       const string& id="");
 
-    virtual std::string type() const {
+    virtual string type() const {
         return "liquid-water-IAPWS95";
     }
 
-    virtual std::string phaseOfMatter() const;
+    virtual string phaseOfMatter() const;
 
     //! @name  Molar Thermodynamic Properties of the Solution
     //! @{

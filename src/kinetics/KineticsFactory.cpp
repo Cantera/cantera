@@ -79,7 +79,7 @@ shared_ptr<Kinetics> newKinetics(const vector<shared_ptr<ThermoPhase>>& phases,
                                  const AnyMap& rootNode,
                                  shared_ptr<Solution> soln)
 {
-    std::string kinType = phaseNode.getString("kinetics", "none");
+    string kinType = phaseNode.getString("kinetics", "none");
     kinType = KineticsFactory::factory()->canonicalize(kinType);
     if (kinType == "none") {
         // determine phase with minimum number of dimensions
@@ -114,7 +114,7 @@ unique_ptr<Kinetics> newKinetics(const vector<ThermoPhase*>& phases,
     warn_deprecated("newKinetics(vector<ThermoPhase*>&, AnyMap&, AnyMap&)",
         "To be removed after Cantera 3.0; superseded by\nnewKinetics"
         "(const vector<shared_ptr<ThermoPhase>>&, const AnyMap&, const AnyMap&).");
-    std::string kinType = phaseNode.getString("kinetics", "none");
+    string kinType = phaseNode.getString("kinetics", "none");
     kinType = KineticsFactory::factory()->canonicalize(kinType);
     if (kinType == "none") {
         // determine phase with minimum number of dimensions
@@ -155,8 +155,8 @@ shared_ptr<Kinetics> newKinetics(const vector<shared_ptr<ThermoPhase>>& phases,
 }
 
 unique_ptr<Kinetics> newKinetics(const vector<ThermoPhase*>& phases,
-                                 const std::string& filename,
-                                 const std::string& phase_name)
+                                 const string& filename,
+                                 const string& phase_name)
 {
     warn_deprecated("newKinetics(vector<ThermoPhase*>&, const string&, const string&)",
         "To be removed after Cantera 3.0; superseded by\nnewKinetics"

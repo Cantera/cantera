@@ -44,12 +44,12 @@ public:
         return make_unique<MultiRate<CustomFunc1Rate, ArrheniusData>>();
     }
 
-    const std::string type() const override { return "custom-rate-function"; }
+    const string type() const override { return "custom-rate-function"; }
 
     void getParameters(AnyMap& rateNode, const Units& rate_units=Units(0.)) const;
     using ReactionRate::getParameters;
 
-    virtual void validate(const std::string& equation, const Kinetics& kin) override;
+    virtual void validate(const string& equation, const Kinetics& kin) override;
 
     //! Update information specific to reaction
     /*!

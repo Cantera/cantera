@@ -124,7 +124,7 @@ void ThermoFactory::deleteFactory()
     s_factory = 0;
 }
 
-ThermoPhase* ThermoFactory::newThermoPhase(const std::string& model)
+ThermoPhase* ThermoFactory::newThermoPhase(const string& model)
 {
     warn_deprecated("newThermoPhase",
         "To be removed after Cantera 3.0; superseded by newThermoModel.");
@@ -197,11 +197,11 @@ unique_ptr<ThermoPhase> newPhase(const AnyMap& phaseNode, const AnyMap& rootNode
     return t;
 }
 
-ThermoPhase* newPhase(const std::string& infile, std::string id)
+ThermoPhase* newPhase(const string& infile, string id)
 {
     warn_deprecated("newPhase",
         "To be removed after Cantera 3.0; superseded by\n"
-        "newThermo(const std::string&, const std::string&).");
+        "newThermo(const string&, const string&).");
     return newThermo(infile, id).get();
 }
 
@@ -292,8 +292,8 @@ void setupPhase(ThermoPhase& thermo, const AnyMap& phaseNode, const AnyMap& root
                 const auto& names = elemNode.begin()->second.asVector<string>();
                 const auto& slash = boost::ifind_last(source, "/");
                 if (slash) {
-                    std::string fileName(source.begin(), slash.begin());
-                    std::string node(slash.end(), source.end());
+                    string fileName(source.begin(), slash.begin());
+                    string node(slash.end(), source.end());
                     const AnyMap elements = AnyMap::fromYamlFile(fileName,
                         rootNode.getString("__file__", ""));
                     addElements(thermo, names, elements.at(node), false);
@@ -337,8 +337,8 @@ void setupPhase(ThermoPhase& thermo, const AnyMap& phaseNode, const AnyMap& root
                 const auto& slash = boost::ifind_last(source, "/");
                 if (slash) {
                     // source is a different input file
-                    std::string fileName(source.begin(), slash.begin());
-                    std::string node(slash.end(), source.end());
+                    string fileName(source.begin(), slash.begin());
+                    string node(slash.end(), source.end());
                     AnyMap species = AnyMap::fromYamlFile(fileName,
                         rootNode.getString("__file__", ""));
                     addSpecies(thermo, names, species[node]);

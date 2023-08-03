@@ -20,7 +20,7 @@ class Reservoir : public ReactorBase
 public:
     Reservoir() {}
 
-    virtual std::string type() const {
+    virtual string type() const {
         return "Reservoir";
     }
 

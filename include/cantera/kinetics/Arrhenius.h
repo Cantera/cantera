@@ -85,9 +85,9 @@ public:
     virtual void getParameters(AnyMap& node) const override;
 
     //! Check rate expression
-    virtual void check(const std::string& equation) override;
+    virtual void check(const string& equation) override;
 
-    virtual void validate(const std::string& equation, const Kinetics& kin) override;
+    virtual void validate(const string& equation, const Kinetics& kin) override;
 
     //! Return the pre-exponential factor *A* (in m, kmol, s to powers depending
     //! on the reaction order)
@@ -151,10 +151,10 @@ protected:
     double m_E4_R = 0.; //!< Optional 4th energy parameter (in temperature units)
     double m_logA = NAN; //!< Logarithm of pre-exponential factor
     double m_order = NAN; //!< Reaction order
-    std::string m_A_str = "A"; //!< The string for the pre-exponential factor
-    std::string m_b_str = "b"; //!< The string for temperature exponent
-    std::string m_Ea_str = "Ea"; //!< The string for activation energy
-    std::string m_E4_str = ""; //!< The string for an optional 4th parameter
+    string m_A_str = "A"; //!< The string for the pre-exponential factor
+    string m_b_str = "b"; //!< The string for temperature exponent
+    string m_Ea_str = "Ea"; //!< The string for activation energy
+    string m_E4_str = ""; //!< The string for an optional 4th parameter
 };
 
 //! Arrhenius reaction rate type depends only on temperature
@@ -176,7 +176,7 @@ public:
         return make_unique<MultiRate<ArrheniusRate, ArrheniusData>>();
     }
 
-    virtual const std::string type() const override {
+    virtual const string type() const override {
         return "Arrhenius";
     }
 

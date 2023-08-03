@@ -43,7 +43,7 @@ public:
     //! @param units        A string representation of the units. See UnitSystem
     //!                     for a description of the formatting options.
     //! @param force_unity  ensure that conversion factor is equal to one
-    explicit Units(const std::string& units, bool force_unity=false);
+    explicit Units(const string& units, bool force_unity=false);
 
     //! Returns `true` if the specified Units are dimensionally consistent
     bool convertible(const Units& other) const;
@@ -58,7 +58,7 @@ public:
 
     //! Provide a string representation of these Units
     //! @param skip_unity  do not print '1' if conversion factor is equal to one
-    std::string str(bool skip_unity=true) const;
+    string str(bool skip_unity=true) const;
 
     //! Raise these Units to a power, changing both the conversion factor and
     //! the dimensions of these Units.
@@ -68,7 +68,7 @@ public:
 
     //! Return dimension of primary unit component
     //! ("mass", "length", "time", "temperature", "current", or "quantity")
-    double dimension(const std::string& primary) const;
+    double dimension(const string& primary) const;
 
 private:
     //! Scale the unit by the factor `k`
@@ -169,14 +169,14 @@ class UnitSystem
 {
 public:
     //! Create a unit system with the specified default units
-    UnitSystem(std::initializer_list<std::string> units);
+    UnitSystem(std::initializer_list<string> units);
 
     //! Default constructor for unit system (needed as VS2019 does not
     //! recognize an optional argument with a default value)
     UnitSystem() : UnitSystem({}) {}
 
     //! Return default units used by the unit system
-    map<std::string, std::string> defaults() const;
+    map<string, string> defaults() const;
 
     //! Set the default units to convert from when explicit units are not
     //! provided. Defaults can be set for mass, length, time, quantity, energy,
@@ -185,7 +185,7 @@ public:
     //!
     //! * To use SI+kmol: `setDefaults({"kg", "m", "s", "Pa", "J", "kmol"});`
     //! * To use CGS+mol: `setDefaults({"cm", "g", "dyn/cm^2", "erg", "mol"});`
-    void setDefaults(std::initializer_list<std::string> units);
+    void setDefaults(std::initializer_list<string> units);
 
     //! Set the default units using a map of dimension to unit pairs.
     //!
@@ -200,32 +200,32 @@ public:
     //! };
     //! setDefaults(defaults);
     //! ```
-    void setDefaults(const map<std::string, std::string>& units);
+    void setDefaults(const map<string, string>& units);
 
     //! Set the default units to convert from when using the
     //! `convertActivationEnergy` function.
-    void setDefaultActivationEnergy(const std::string& e_units);
+    void setDefaultActivationEnergy(const string& e_units);
 
     //! Convert `value` from the units of `src` to the units of `dest`.
-    double convert(double value, const std::string& src,
-                   const std::string& dest) const;
+    double convert(double value, const string& src,
+                   const string& dest) const;
     double convert(double value, const Units& src, const Units& dest) const;
 
     //! Convert `value` to the specified `dest` units from the appropriate units
     //! for this unit system (defined by `setDefaults`)
-    double convertTo(double value, const std::string& dest) const;
+    double convertTo(double value, const string& dest) const;
     double convertTo(double value, const Units& dest) const;
 
     //! Convert `value` from the specified `src` units to units appropriate for
     //! this unit system (defined by `setDefaults`)
-    double convertFrom(double value, const std::string& src) const;
+    double convertFrom(double value, const string& src) const;
     double convertFrom(double value, const Units& src) const;
 
     //! Convert a generic AnyValue node to the units specified in `dest`. If the
     //! input is a double, convert it using the default units. If the input is a
     //! string, treat this as a dimensioned value, such as '988 kg/m^3' and convert
     //! from the specified units.
-    double convert(const AnyValue& val, const std::string& dest) const;
+    double convert(const AnyValue& val, const string& dest) const;
     double convert(const AnyValue& val, const Units& dest) const;
 
     //! Convert a generic AnyValue node representing a reaction rate coefficient to the
@@ -239,30 +239,30 @@ public:
     //! each node, if the value is a double, convert it using the default units,
     //! and if it is a string, treat it as a value with the given dimensions.
     vector<double> convert(const vector<AnyValue>& vals,
-                      const std::string& dest) const;
+                      const string& dest) const;
     vector<double> convert(const vector<AnyValue>& vals,
                       const Units& dest) const;
 
     //! Convert `value` from the units of `src` to the units of `dest`, allowing
     //! for the different dimensions that can be used for activation energies
-    double convertActivationEnergy(double value, const std::string& src,
-                                   const std::string& dest) const;
+    double convertActivationEnergy(double value, const string& src,
+                                   const string& dest) const;
 
     //! Convert `value` to the units specified by `dest` from the default
     //! activation energy units
-    double convertActivationEnergyTo(double value, const std::string& dest) const;
+    double convertActivationEnergyTo(double value, const string& dest) const;
     double convertActivationEnergyTo(double value, const Units& dest) const;
 
     //! Convert `value` from the units specified by `src` to the default
     //! activation energy units
-    double convertActivationEnergyFrom(double value, const std::string& src) const;
+    double convertActivationEnergyFrom(double value, const string& src) const;
 
     //! Convert a generic AnyValue node to the units specified in `dest`. If the
     //! input is a double, convert it using the default units. If the input is a
     //! string, treat this as a dimensioned value, such as '2.7e4 J/kmol', and
     //! convert from the specified units.
     double convertActivationEnergy(const AnyValue& val,
-                                   const std::string& dest) const;
+                                   const string& dest) const;
 
     //! Get the changes to the defaults from `other` to this UnitSystem
     AnyMap getDelta(const UnitSystem& other) const;
@@ -295,7 +295,7 @@ private:
 
     //! Map of dimensions (mass, length, etc.) to names of specified default
     //! units
-    map<std::string, std::string> m_defaults;
+    map<string, string> m_defaults;
 };
 
 }

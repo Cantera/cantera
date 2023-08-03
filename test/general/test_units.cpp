@@ -93,7 +93,7 @@ TEST(Units, with_defaults2) {
 }
 
 TEST(Units, with_defaults_map) {
-    map<std::string, std::string> defaults{
+    map<string, string> defaults{
         {"length", "cm"}, {"mass", "g"}, {"quantity", "mol"},
         {"pressure", "atm"}, {"energy", "J"}
     };
@@ -111,9 +111,9 @@ TEST(Units, with_defaults_map) {
 
 TEST(Units, bad_defaults) {
     UnitSystem U;
-    map<std::string, std::string> bad_key{{"length", "m"}, {"joy", "MJ"}};
+    map<string, string> bad_key{{"length", "m"}, {"joy", "MJ"}};
     EXPECT_THROW(U.setDefaults(bad_key), CanteraError);
-    map<std::string, std::string> bad_value{{"length", "m"}, {"time", "J"}};
+    map<string, string> bad_value{{"length", "m"}, {"time", "J"}};
     EXPECT_THROW(U.setDefaults(bad_value), CanteraError);
 }
 
@@ -153,7 +153,7 @@ TEST(Units, activation_energies4) {
 
 TEST(Units, activation_energies5) {
     UnitSystem U;
-    map<std::string, std::string> defaults{
+    map<string, string> defaults{
         {"quantity", "mol"}, {"energy", "cal"}, {"activation-energy", "K"}
     };
     U.setDefaults(defaults);
@@ -163,7 +163,7 @@ TEST(Units, activation_energies5) {
 
 TEST(Units, activation_energies6) {
     UnitSystem U;
-    map<std::string, std::string> defaults{
+    map<string, string> defaults{
         {"activation-energy", "eV"}
     };
     U.setDefaults(defaults);

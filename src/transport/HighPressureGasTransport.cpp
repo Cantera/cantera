@@ -324,7 +324,7 @@ double HighPressureGasTransport::viscosity()
         //   been named in this specific way.  They are perhaps the most obvious
         //   names, but it would of course be preferred to have a more general
         //   approach, here.
-        vector<std::string> spnames = m_thermo->speciesNames();
+        vector<string> spnames = m_thermo->speciesNames();
         if (spnames[i] == "He") {
             FQ_mix_o += molefracs[i]*FQ_i(1.38,Tr,m_mw[i]);
         } else if (spnames[i] == "H2") {

@@ -70,7 +70,7 @@ public:
         return *m_dom[i];
     }
 
-    size_t domainIndex(const std::string& name);
+    size_t domainIndex(const string& name);
 
     //! Check that the specified domain index is in range.
     //! Throws an exception if n is greater than nDomains()-1
@@ -130,7 +130,7 @@ public:
 
     //! Return the domain, local point index, and component name for the i-th
     //! component of the global solution vector
-    std::tuple<std::string, size_t, std::string> component(size_t i);
+    std::tuple<string, size_t, string> component(size_t i);
 
     //! Jacobian bandwidth.
     size_t bandwidth() const {
