@@ -207,7 +207,7 @@ void PengRobinson::getPartialMolarEnthalpies(double* hbar) const
     // First we get the reference state contributions
     getEnthalpy_RT_ref(hbar);
     scale(hbar, hbar+m_kk, hbar, RT());
-    vector_fp tmp;
+    vector<double> tmp;
     tmp.resize(m_kk,0.0);
 
     // We calculate m_dpdni

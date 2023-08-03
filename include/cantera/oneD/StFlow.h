@@ -142,7 +142,7 @@ public:
     //! Sometimes it is desired to carry out the simulation using a specified
     //! temperature profile, rather than computing it by solving the energy
     //! equation. This method specifies this profile.
-    void setFixedTempProfile(vector_fp& zfixed, vector_fp& tfixed) {
+    void setFixedTempProfile(vector<double>& zfixed, vector<double>& tfixed) {
         m_zfix = zfixed;
         m_tfix = tfixed;
     }
@@ -467,21 +467,21 @@ protected:
     double m_press = -1.0; // pressure
 
     // grid parameters
-    vector_fp m_dz;
+    vector<double> m_dz;
 
     // mixture thermo properties
-    vector_fp m_rho;
-    vector_fp m_wtm;
+    vector<double> m_rho;
+    vector<double> m_wtm;
 
     // species thermo properties
-    vector_fp m_wt;
-    vector_fp m_cp;
+    vector<double> m_wt;
+    vector<double> m_cp;
 
     // transport properties
-    vector_fp m_visc;
-    vector_fp m_tcon;
-    vector_fp m_diff;
-    vector_fp m_multidiff;
+    vector<double> m_visc;
+    vector<double> m_tcon;
+    vector<double> m_diff;
+    vector<double> m_multidiff;
     Array2D m_dthermal;
     Array2D m_flux;
 
@@ -518,12 +518,12 @@ protected:
     bool m_do_radiation = false;
 
     //! radiative heat loss vector
-    vector_fp m_qdotRadiation;
+    vector<double> m_qdotRadiation;
 
     // fixed T and Y values
-    vector_fp m_fixedtemp;
-    vector_fp m_zfix;
-    vector_fp m_tfix;
+    vector<double> m_fixedtemp;
+    vector<double> m_zfix;
+    vector<double> m_tfix;
 
     //! Index of species with a large mass fraction at each boundary, for which
     //! the mass fraction may be calculated as 1 minus the sum of the other mass
@@ -547,7 +547,7 @@ public:
     double m_tfixed = -1.0;
 
 private:
-    vector_fp m_ybar;
+    vector<double> m_ybar;
 };
 
 }

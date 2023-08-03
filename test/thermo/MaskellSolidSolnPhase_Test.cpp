@@ -31,7 +31,7 @@ public:
     }
 
     void set_r(const double r) {
-        vector_fp moleFracs(2);
+        vector<double> moleFracs(2);
         moleFracs[0] = r;
         moleFracs[1] = 1-r;
         test_phase->setMoleFractions(&moleFracs[0]);
@@ -39,7 +39,7 @@ public:
 
     void check_chemPotentials(const double expected_result[9])
     {
-        vector_fp chemPotentials(2);
+        vector<double> chemPotentials(2);
         for(int i=0; i < 9; ++i)
         {
             const double r = 0.1 * (i+1);
@@ -83,7 +83,7 @@ TEST_F(MaskellSolidSolnPhase_Test, chem_potentials)
 TEST_F(MaskellSolidSolnPhase_Test, partialMolarVolumes)
 {
     setup("MaskellSolidSolnPhase_valid.yaml");
-    vector_fp pmv(2);
+    vector<double> pmv(2);
     test_phase->getPartialMolarVolumes(&pmv[0]);
     EXPECT_EQ(0.005, pmv[0]);
     EXPECT_EQ(0.01, pmv[1]);
@@ -125,7 +125,7 @@ TEST_F(MaskellSolidSolnPhase_Test, fromScratch) {
     p->initThermo();
     p->setState_TPX(298, 1, "H(s):0.90   He(s):0.10");
 
-    vector_fp pmv(2);
+    vector<double> pmv(2);
     p->getPartialMolarVolumes(&pmv[0]);
     EXPECT_EQ(0.005, pmv[0]);
     EXPECT_EQ(0.01, pmv[1]);

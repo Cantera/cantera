@@ -31,7 +31,7 @@ void GibbsExcessVPSSTP::compositionChanged()
 
 void GibbsExcessVPSSTP::calcDensity()
 {
-    const vector_fp& vbar = getStandardVolumes();
+    const vector<double>& vbar = getStandardVolumes();
     doublereal vtotal = 0.0;
     for (size_t i = 0; i < m_kk; i++) {
         vtotal += vbar[i] * moleFractions_[i];
@@ -93,7 +93,7 @@ void GibbsExcessVPSSTP::getPartialMolarVolumes(doublereal* vbar) const
     getStandardVolumes(vbar);
 }
 
-const vector_fp& GibbsExcessVPSSTP::getPartialMolarVolumesVector() const
+const vector<double>& GibbsExcessVPSSTP::getPartialMolarVolumesVector() const
 {
     warn_deprecated("GibbsExcessVPSSTP::getPartialMolarVolumesVector",
                     "Unused. To be removed after Cantera 3.0.");

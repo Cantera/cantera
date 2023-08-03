@@ -1829,7 +1829,7 @@ protected:
     //! properties to be included in the output of the reportCSV method.
     //! @deprecated To be removed after %Cantera 3.0.
     virtual void getCsvReportData(std::vector<std::string>& names,
-                                  std::vector<vector_fp>& data) const;
+                                  std::vector<vector<double>>& data) const;
 
     //! Pointer to the calculation manager for species reference-state
     //! thermodynamic properties

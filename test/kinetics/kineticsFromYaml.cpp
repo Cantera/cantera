@@ -334,7 +334,7 @@ TEST(Reaction, FalloffFromYaml2)
     EXPECT_DOUBLE_EQ(rate->highRate().preExponentialFactor(), 6e11);
     EXPECT_DOUBLE_EQ(rate->lowRate().preExponentialFactor(), 1.04e20);
     EXPECT_DOUBLE_EQ(rate->lowRate().activationEnergy(), 1600);
-    vector_fp params;
+    vector<double> params;
     rate->getFalloffCoeffs(params);
     ASSERT_EQ(params.size(), (size_t) 3);
     EXPECT_DOUBLE_EQ(params[0], 0.562);
@@ -364,7 +364,7 @@ TEST(Reaction, FalloffFromYaml3)
     EXPECT_DOUBLE_EQ(rate->lowRate().preExponentialFactor(), 3.57e26);
     EXPECT_DOUBLE_EQ(rate->highRate().activationEnergy(), 123800.0);
     EXPECT_DOUBLE_EQ(rate->lowRate().activationEnergy(), 124900.0);
-    vector_fp params(2);
+    vector<double> params(2);
     rate->getFalloffCoeffs(params);
     EXPECT_DOUBLE_EQ(params[0], 0.95);
     EXPECT_DOUBLE_EQ(params[1], -0.0001);
@@ -541,7 +541,7 @@ TEST(Reaction, PythonExtensibleRate)
     EXPECT_EQ(R->type(), "square-rate");
     auto rate = R->rate();
     EXPECT_EQ(rate->type(), "square-rate");
-    vector_fp kf(sol->kinetics()->nReactions());
+    vector<double> kf(sol->kinetics()->nReactions());
     sol->kinetics()->getFwdRateConstants(kf.data());
     EXPECT_DOUBLE_EQ(kf[0], 3.14 * 300 * 300);
 }
@@ -612,7 +612,7 @@ TEST(Kinetics, InterfaceKineticsFromYaml)
     auto soln2 = newInterface("surface-phases.yaml", "Pt-multi-sites");
     auto kin2 = soln2->kinetics();
     auto R4 = kin2->reaction(3);
-    vector_fp coeffs{1.0e6, 3.0e6, -7.0e7, 5.0e6};
+    vector<double> coeffs{1.0e6, 3.0e6, -7.0e7, 5.0e6};
     const auto rate4 = std::dynamic_pointer_cast<InterfaceArrheniusRate>(R4->rate());
     AnyMap coverage_deps2;
     rate4->getCoverageDependencies(coverage_deps2);
@@ -654,7 +654,7 @@ TEST(Kinetics, ElectrochemFromYaml)
     auto soln = newInterface("surface-phases.yaml", "anode-surface");
     auto kin = soln->kinetics();
     soln->adjacent("graphite")->thermo()->setElectricPotential(0.4);
-    vector_fp ropf(kin->nReactions()), ropr(kin->nReactions());
+    vector<double> ropf(kin->nReactions()), ropr(kin->nReactions());
     kin->getFwdRatesOfProgress(ropf.data());
     kin->getRevRatesOfProgress(ropr.data());
 
@@ -778,8 +778,8 @@ public:
                   kin->reaction(iNew)->equation());
         EXPECT_EQ(kin->isReversible(iOld), kin->isReversible(iNew));
 
-        vector_fp kf(kin->nReactions()), kr(kin->nReactions());
-        vector_fp ropf(kin->nReactions()), ropr(kin->nReactions());
+        vector<double> kf(kin->nReactions()), kr(kin->nReactions());
+        vector<double> ropf(kin->nReactions()), ropr(kin->nReactions());
         kin->getFwdRateConstants(kf.data());
         kin->getRevRateConstants(kr.data());
         kin->getFwdRatesOfProgress(ropf.data());
@@ -940,7 +940,7 @@ TEST_F(ReactionToYaml, unconvertible3)
         {{"H2", 1}, {"OH", 1}}, {{"H2O", 1}, {"H", 1}},
         make_shared<TroeRate>(
             ArrheniusRate(1e5, -1.0, 12.5), ArrheniusRate(1e5, -1.0, 12.5),
-            vector_fp{0.562, 91.0, 5836.0, 8552.0}));
+            vector<double>{0.562, 91.0, 5836.0, 8552.0}));
     AnyMap params = R.parameters();
     UnitSystem U{"g", "cm", "mol"};
     params.setUnits(U);

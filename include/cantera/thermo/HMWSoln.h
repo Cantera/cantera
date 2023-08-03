@@ -1460,7 +1460,7 @@ private:
     std::unique_ptr<WaterProps> m_waterProps;
 
     //! vector of size m_kk, used as a temporary holding area.
-    mutable vector_fp m_tmpV;
+    mutable vector<double> m_tmpV;
 
     /**
      *  Array of 2D data used in the Pitzer/HMW formulation. Beta0_ij[i][j] is
@@ -1469,16 +1469,16 @@ private:
      *  symmetric. counterIJ where counterIJ = m_counterIJ[i][j] is used to
      *  access this array.
      */
-    mutable vector_fp m_Beta0MX_ij;
+    mutable vector<double> m_Beta0MX_ij;
 
     //! Derivative of Beta0_ij[i][j] wrt T. Vector index is counterIJ
-    mutable vector_fp m_Beta0MX_ij_L;
+    mutable vector<double> m_Beta0MX_ij_L;
 
     //! Derivative of Beta0_ij[i][j] wrt TT. Vector index is counterIJ
-    mutable vector_fp m_Beta0MX_ij_LL;
+    mutable vector<double> m_Beta0MX_ij_LL;
 
     //! Derivative of Beta0_ij[i][j] wrt P. Vector index is counterIJ
-    mutable vector_fp m_Beta0MX_ij_P;
+    mutable vector<double> m_Beta0MX_ij_P;
 
     //! Array of coefficients for Beta0, a variable in Pitzer's papers
     /*!
@@ -1493,16 +1493,16 @@ private:
     //! iff i and j are both charged and have opposite sign. The array is also
     //! symmetric. counterIJ where counterIJ = m_counterIJ[i][j] is used to
     //! access this array.
-    mutable vector_fp m_Beta1MX_ij;
+    mutable vector<double> m_Beta1MX_ij;
 
     //! Derivative of Beta1_ij[i][j] wrt T. Vector index is counterIJ
-    mutable vector_fp m_Beta1MX_ij_L;
+    mutable vector<double> m_Beta1MX_ij_L;
 
     //! Derivative of Beta1_ij[i][j] wrt TT. Vector index is counterIJ
-    mutable vector_fp m_Beta1MX_ij_LL;
+    mutable vector<double> m_Beta1MX_ij_LL;
 
     //! Derivative of Beta1_ij[i][j] wrt P. Vector index is counterIJ
-    mutable vector_fp m_Beta1MX_ij_P;
+    mutable vector<double> m_Beta1MX_ij_P;
 
     //! Array of coefficients for Beta1, a variable in Pitzer's papers
     /*!
@@ -1517,16 +1517,16 @@ private:
     //! iff i and j are both charged and have opposite sign, and i and j both
     //! have charges of 2 or more. The array is also symmetric. counterIJ where
     //! counterIJ = m_counterIJ[i][j] is used to access this array.
-    mutable vector_fp m_Beta2MX_ij;
+    mutable vector<double> m_Beta2MX_ij;
 
     //! Derivative of Beta2_ij[i][j] wrt T. Vector index is counterIJ
-    mutable vector_fp m_Beta2MX_ij_L;
+    mutable vector<double> m_Beta2MX_ij_L;
 
     //! Derivative of Beta2_ij[i][j] wrt TT. Vector index is counterIJ
-    mutable vector_fp m_Beta2MX_ij_LL;
+    mutable vector<double> m_Beta2MX_ij_LL;
 
     //! Derivative of Beta2_ij[i][j] wrt P. Vector index is counterIJ
-    mutable vector_fp m_Beta2MX_ij_P;
+    mutable vector<double> m_Beta2MX_ij_P;
 
     //! Array of coefficients for Beta2, a variable in Pitzer's papers
     /*!
@@ -1543,7 +1543,7 @@ private:
     // nonzero iff i and j are both charged and have opposite sign. It is
     // symmetric wrt i, j. counterIJ where counterIJ = m_counterIJ[i][j] is used
     // to access this array.
-    vector_fp m_Alpha1MX_ij;
+    vector<double> m_Alpha1MX_ij;
 
     //! Array of 2D data used in the Pitzer/HMW formulation. Alpha2MX_ij[i][j]
     //! is the value of the alpha2 coefficient for the ij interaction. It will
@@ -1551,23 +1551,23 @@ private:
     //! and j both have charges of 2 or more, usually. It is symmetric wrt i, j.
     //! counterIJ, where counterIJ = m_counterIJ[i][j], is used to access this
     //! array.
-    vector_fp m_Alpha2MX_ij;
+    vector<double> m_Alpha2MX_ij;
 
     //! Array of 2D data used in the Pitzer/HMW formulation. CphiMX_ij[i][j] is
     //! the value of the Cphi coefficient for the ij interaction. It will be
     //! nonzero iff i and j are both charged and have opposite sign, and i and j
     //! both have charges of 2 or more. The array is also symmetric. counterIJ
     //! where counterIJ = m_counterIJ[i][j] is used to access this array.
-    mutable vector_fp m_CphiMX_ij;
+    mutable vector<double> m_CphiMX_ij;
 
     //! Derivative of Cphi_ij[i][j] wrt T. Vector index is counterIJ
-    mutable vector_fp m_CphiMX_ij_L;
+    mutable vector<double> m_CphiMX_ij_L;
 
     //! Derivative of Cphi_ij[i][j] wrt TT. Vector index is counterIJ
-    mutable vector_fp m_CphiMX_ij_LL;
+    mutable vector<double> m_CphiMX_ij_LL;
 
     //! Derivative of Cphi_ij[i][j] wrt P. Vector index is counterIJ
-    mutable vector_fp m_CphiMX_ij_P;
+    mutable vector<double> m_CphiMX_ij_P;
 
     //! Array of coefficients for CphiMX, a parameter in the activity
     //! coefficient formulation
@@ -1588,16 +1588,16 @@ private:
      *  HKM Recent Pitzer papers have used a functional form for Theta_ij, which
      *      depends on the ionic strength.
      */
-    mutable vector_fp m_Theta_ij;
+    mutable vector<double> m_Theta_ij;
 
     //! Derivative of Theta_ij[i][j] wrt T. Vector index is counterIJ
-    mutable vector_fp m_Theta_ij_L;
+    mutable vector<double> m_Theta_ij_L;
 
     //! Derivative of Theta_ij[i][j] wrt TT. Vector index is counterIJ
-    mutable vector_fp m_Theta_ij_LL;
+    mutable vector<double> m_Theta_ij_LL;
 
     //! Derivative of Theta_ij[i][j] wrt P. Vector index is counterIJ
-    mutable vector_fp m_Theta_ij_P;
+    mutable vector<double> m_Theta_ij_P;
 
     //! Array of coefficients for Theta_ij[i][j] in the Pitzer/HMW formulation.
     /*!
@@ -1622,19 +1622,19 @@ private:
      * symmetric wrt cations, and the last two coordinates are symmetric wrt
      * anions.
      */
-    mutable vector_fp m_Psi_ijk;
+    mutable vector<double> m_Psi_ijk;
 
     //! Derivative of Psi_ijk[n] wrt T. See m_Psi_ijk for reference on the
     //! indexing into this variable.
-    mutable vector_fp m_Psi_ijk_L;
+    mutable vector<double> m_Psi_ijk_L;
 
     //! Derivative of Psi_ijk[n] wrt TT. See m_Psi_ijk for reference on the
     //! indexing into this variable.
-    mutable vector_fp m_Psi_ijk_LL;
+    mutable vector<double> m_Psi_ijk_LL;
 
     //! Derivative of Psi_ijk[n] wrt P. See m_Psi_ijk for reference on the
     //! indexing into this variable.
-    mutable vector_fp m_Psi_ijk_P;
+    mutable vector<double> m_Psi_ijk_P;
 
     //! Array of coefficients for Psi_ijk[n] in the Pitzer/HMW formulation.
     /*!
@@ -1692,7 +1692,7 @@ private:
      * the Mu coefficient for the nnn interaction. This is a general interaction
      * representing neutral species interacting with itself.
      */
-    mutable vector_fp m_Mu_nnn;
+    mutable vector<double> m_Mu_nnn;
 
     //! Mu coefficient temperature derivative for the self-ternary neutral
     //! coefficient
@@ -1702,7 +1702,7 @@ private:
      * interaction. This is a general interaction representing neutral species
      * interacting with itself.
      */
-    mutable vector_fp m_Mu_nnn_L;
+    mutable vector<double> m_Mu_nnn_L;
 
     //! Mu coefficient 2nd temperature derivative for the self-ternary neutral
     //! coefficient
@@ -1712,7 +1712,7 @@ private:
      * interaction. This is a general interaction representing neutral species
      * interacting with itself.
      */
-    mutable vector_fp m_Mu_nnn_LL;
+    mutable vector<double> m_Mu_nnn_LL;
 
     //! Mu coefficient pressure derivative for the self-ternary neutral
     //! coefficient
@@ -1722,7 +1722,7 @@ private:
      * interaction. This is a general interaction representing neutral species
      * interacting with itself.
      */
-    mutable vector_fp m_Mu_nnn_P;
+    mutable vector<double> m_Mu_nnn_P;
 
     //! Array of coefficients form_Mu_nnn term
     Array2D m_Mu_nnn_coeff;
@@ -1732,44 +1732,44 @@ private:
      * mutable because we change this if the composition or temperature or
      * pressure changes. Index is the species index
      */
-    mutable vector_fp m_lnActCoeffMolal_Scaled;
+    mutable vector<double> m_lnActCoeffMolal_Scaled;
 
     //! Logarithm of the activity coefficients on the molality scale.
     /*!
      * mutable because we change this if the composition or temperature or
      * pressure changes. Index is the species index
      */
-    mutable vector_fp m_lnActCoeffMolal_Unscaled;
+    mutable vector<double> m_lnActCoeffMolal_Unscaled;
 
     //! Derivative of the Logarithm of the activity coefficients on the molality
     //! scale wrt T. Index is the species index
-    mutable vector_fp m_dlnActCoeffMolaldT_Scaled;
+    mutable vector<double> m_dlnActCoeffMolaldT_Scaled;
 
     //! Derivative of the Logarithm of the activity coefficients on the molality
     //! scale wrt T. Index is the species index
-    mutable vector_fp m_dlnActCoeffMolaldT_Unscaled;
+    mutable vector<double> m_dlnActCoeffMolaldT_Unscaled;
 
     //! Derivative of the Logarithm of the activity coefficients on the molality
     //! scale wrt TT. Index is the species index.
-    mutable vector_fp m_d2lnActCoeffMolaldT2_Scaled;
+    mutable vector<double> m_d2lnActCoeffMolaldT2_Scaled;
 
     //! Derivative of the Logarithm of the activity coefficients on the molality
     //! scale wrt TT. Index is the species index
-    mutable vector_fp m_d2lnActCoeffMolaldT2_Unscaled;
+    mutable vector<double> m_d2lnActCoeffMolaldT2_Unscaled;
 
     //! Derivative of the Logarithm of the activity coefficients on the
     //! molality scale wrt P. Index is the species index
-    mutable vector_fp m_dlnActCoeffMolaldP_Scaled;
+    mutable vector<double> m_dlnActCoeffMolaldP_Scaled;
 
     //! Derivative of the Logarithm of the activity coefficients on the
     //! molality scale wrt P. Index is the species index
-    mutable vector_fp m_dlnActCoeffMolaldP_Unscaled;
+    mutable vector<double> m_dlnActCoeffMolaldP_Unscaled;
 
     // -------- Temporary Variables Used in the Activity Coeff Calc
 
     //! Cropped and modified values of the molalities used in activity
     //! coefficient calculations
-    mutable vector_fp m_molalitiesCropped;
+    mutable vector<double> m_molalitiesCropped;
 
     //! Boolean indicating whether the molalities are cropped or are modified
     mutable bool m_molalitiesAreCropped = false;
@@ -1795,108 +1795,108 @@ private:
      */
 
     //! This is the value of g(x) in Pitzer's papers. Vector index is counterIJ
-    mutable vector_fp m_gfunc_IJ;
+    mutable vector<double> m_gfunc_IJ;
 
     //! This is the value of g2(x2) in Pitzer's papers. Vector index is counterIJ
-    mutable vector_fp m_g2func_IJ;
+    mutable vector<double> m_g2func_IJ;
 
     //! hfunc, was called gprime in Pitzer's paper. However, it's not the
     //! derivative of gfunc(x), so I renamed it. Vector index is counterIJ
-    mutable vector_fp m_hfunc_IJ;
+    mutable vector<double> m_hfunc_IJ;
 
     //! hfunc2, was called gprime in Pitzer's paper. However, it's not the
     //! derivative of gfunc(x), so I renamed it. Vector index is counterIJ
-    mutable vector_fp m_h2func_IJ;
+    mutable vector<double> m_h2func_IJ;
 
     //! Intermediate variable called BMX in Pitzer's paper. This is the basic
     //! cation - anion interaction. Vector index is counterIJ
-    mutable vector_fp m_BMX_IJ;
+    mutable vector<double> m_BMX_IJ;
 
     //! Derivative of BMX_IJ wrt T. Vector index is counterIJ
-    mutable vector_fp m_BMX_IJ_L;
+    mutable vector<double> m_BMX_IJ_L;
 
     //! Derivative of BMX_IJ wrt TT. Vector index is counterIJ
-    mutable vector_fp m_BMX_IJ_LL;
+    mutable vector<double> m_BMX_IJ_LL;
 
     //! Derivative of BMX_IJ wrt P. Vector index is counterIJ
-    mutable vector_fp m_BMX_IJ_P;
+    mutable vector<double> m_BMX_IJ_P;
 
     //! Intermediate variable called BprimeMX in Pitzer's paper. Vector index is
     //! counterIJ
-    mutable vector_fp m_BprimeMX_IJ;
+    mutable vector<double> m_BprimeMX_IJ;
 
     //! Derivative of BprimeMX wrt T. Vector index is counterIJ
-    mutable vector_fp m_BprimeMX_IJ_L;
+    mutable vector<double> m_BprimeMX_IJ_L;
 
     //! Derivative of BprimeMX wrt TT. Vector index is counterIJ
-    mutable vector_fp m_BprimeMX_IJ_LL;
+    mutable vector<double> m_BprimeMX_IJ_LL;
 
     //! Derivative of BprimeMX wrt P. Vector index is counterIJ
-    mutable vector_fp m_BprimeMX_IJ_P;
+    mutable vector<double> m_BprimeMX_IJ_P;
 
     //! Intermediate variable called BphiMX in Pitzer's paper. Vector index is
     //! counterIJ
-    mutable vector_fp m_BphiMX_IJ;
+    mutable vector<double> m_BphiMX_IJ;
 
     //! Derivative of BphiMX_IJ wrt T. Vector index is counterIJ
-    mutable vector_fp m_BphiMX_IJ_L;
+    mutable vector<double> m_BphiMX_IJ_L;
 
     //! Derivative of BphiMX_IJ wrt TT. Vector index is counterIJ
-    mutable vector_fp m_BphiMX_IJ_LL;
+    mutable vector<double> m_BphiMX_IJ_LL;
 
     //! Derivative of BphiMX_IJ wrt P. Vector index is counterIJ
-    mutable vector_fp m_BphiMX_IJ_P;
+    mutable vector<double> m_BphiMX_IJ_P;
 
     //! Intermediate variable called Phi in Pitzer's paper. Vector index is
     //! counterIJ
-    mutable vector_fp m_Phi_IJ;
+    mutable vector<double> m_Phi_IJ;
 
     //! Derivative of m_Phi_IJ wrt T. Vector index is counterIJ
-    mutable vector_fp m_Phi_IJ_L;
+    mutable vector<double> m_Phi_IJ_L;
 
     //! Derivative of m_Phi_IJ wrt TT. Vector index is counterIJ
-    mutable vector_fp m_Phi_IJ_LL;
+    mutable vector<double> m_Phi_IJ_LL;
 
     //! Derivative of m_Phi_IJ wrt P. Vector index is counterIJ
-    mutable vector_fp m_Phi_IJ_P;
+    mutable vector<double> m_Phi_IJ_P;
 
     //! Intermediate variable called Phiprime in Pitzer's paper. Vector index is
     //! counterIJ
-    mutable vector_fp m_Phiprime_IJ;
+    mutable vector<double> m_Phiprime_IJ;
 
     //! Intermediate variable called PhiPhi in Pitzer's paper. Vector index is
     //! counterIJ
-    mutable vector_fp m_PhiPhi_IJ;
+    mutable vector<double> m_PhiPhi_IJ;
 
     //! Derivative of m_PhiPhi_IJ wrt T. Vector index is counterIJ
-    mutable vector_fp m_PhiPhi_IJ_L;
+    mutable vector<double> m_PhiPhi_IJ_L;
 
     //! Derivative of m_PhiPhi_IJ wrt TT. Vector index is counterIJ
-    mutable vector_fp m_PhiPhi_IJ_LL;
+    mutable vector<double> m_PhiPhi_IJ_LL;
 
     //! Derivative of m_PhiPhi_IJ wrt P. Vector index is counterIJ
-    mutable vector_fp m_PhiPhi_IJ_P;
+    mutable vector<double> m_PhiPhi_IJ_P;
 
     //! Intermediate variable called CMX in Pitzer's paper. Vector index is
     //! counterIJ
-    mutable vector_fp m_CMX_IJ;
+    mutable vector<double> m_CMX_IJ;
 
     //! Derivative of m_CMX_IJ wrt T. Vector index is counterIJ
-    mutable vector_fp m_CMX_IJ_L;
+    mutable vector<double> m_CMX_IJ_L;
 
     //! Derivative of m_CMX_IJ wrt TT. Vector index is counterIJ
-    mutable vector_fp m_CMX_IJ_LL;
+    mutable vector<double> m_CMX_IJ_LL;
 
     //! Derivative of m_CMX_IJ wrt P. Vector index is counterIJ
-    mutable vector_fp m_CMX_IJ_P;
+    mutable vector<double> m_CMX_IJ_P;
 
     //! Intermediate storage of the activity coefficient itself. Vector index is
     //! the species index
-    mutable vector_fp m_gamma_tmp;
+    mutable vector<double> m_gamma_tmp;
 
     //! Logarithm of the molal activity coefficients. Normally these are all
     //! one. However, stability schemes will change that
-    mutable vector_fp IMS_lnActCoeffMolal_;
+    mutable vector<double> IMS_lnActCoeffMolal_;
 
     //! value of the solute mole fraction that centers the cutoff polynomials
     //! for the cutoff =1 process;

@@ -168,25 +168,25 @@ public:
     /*!
      * Iterator points to the beginning of the data, and it is changeable.
      */
-    virtual vector_fp::iterator begin();
+    virtual vector<double>::iterator begin();
 
     //! Returns an iterator for the end of the band storage data
     /*!
      * Iterator points to the end of the data, and it is changeable.
      */
-    vector_fp::iterator end();
+    vector<double>::iterator end();
 
     //! Returns a const iterator for the start of the band storage data
     /*!
      * Iterator points to the beginning of the data, and it is not changeable.
      */
-    vector_fp::const_iterator begin() const;
+    vector<double>::const_iterator begin() const;
 
     //! Returns a const iterator for the end of the band storage data
     /*!
      * Iterator points to the end of the data, and it is not changeable.
      */
-    vector_fp::const_iterator end() const;
+    vector<double>::const_iterator end() const;
 
     virtual void zero();
 
@@ -264,10 +264,10 @@ public:
 
 protected:
     //! Matrix data
-    vector_fp data;
+    vector<double> data;
 
     //! Factorized data
-    vector_fp ludata;
+    vector<double> ludata;
 
     //! Number of rows and columns of the matrix
     size_t m_n = 0;
@@ -294,7 +294,7 @@ protected:
     vector<int> iwork_;
 
     //! Extra dp work array needed - size = 3n
-    vector_fp work_;
+    vector<double> work_;
 
     int m_info = 0;
 };

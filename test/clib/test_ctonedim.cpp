@@ -179,7 +179,7 @@ TEST(ctonedim, freeflame_from_parts)
     // grid
     int nz = 21;
     double lz = 0.02;
-    vector_fp z(nz);
+    vector<double> z(nz);
     double dz = lz;
     dz /= (double)(nz - 1);
     for (int iz = 0; iz < nz; iz++) {

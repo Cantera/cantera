@@ -113,8 +113,8 @@ TEST_F(WaterPropsIAPWS_Test, normal_boiling_point)
 
 TEST_F(WaterPropsIAPWS_Test, saturation_pressure_estimate)
 {
-    vector_fp TT{273.15, 313.9999, 314.0001, 373.15, 647.25};
-    vector_fp psat{611.212, 7722.3, 7675.46, 101007, 2.2093e+07};
+    vector<double> TT{273.15, 313.9999, 314.0001, 373.15, 647.25};
+    vector<double> psat{611.212, 7722.3, 7675.46, 101007, 2.2093e+07};
 
     for (size_t i = 0; i < TT.size(); i++) {
         double P = water.psat_est(TT[i]);
@@ -124,11 +124,11 @@ TEST_F(WaterPropsIAPWS_Test, saturation_pressure_estimate)
 
 TEST_F(WaterPropsIAPWS_Test, expansion_coeffs)
 {
-    vector_fp TT{300.0, 300.0, 700.0};
-    vector_fp PP{10.0, 10.0e6, 10.0e6};
-    vector_fp alpha{0.003333433139236, -0.02277763412159, 0.002346416506367};
-    vector_fp beta{1.000020308917, 1265.572840683, 1.240519803181};
-    vector_fp beta_num{1.0000203087, 1265.46651311, 1.2405192843};
+    vector<double> TT{300.0, 300.0, 700.0};
+    vector<double> PP{10.0, 10.0e6, 10.0e6};
+    vector<double> alpha{0.003333433139236, -0.02277763412159, 0.002346416506367};
+    vector<double> beta{1.000020308917, 1265.572840683, 1.240519803181};
+    vector<double> beta_num{1.0000203087, 1265.46651311, 1.2405192843};
     for (size_t i = 0; i < TT.size(); i++) {
         double rho = water.density(TT[i], PP[i], WATER_GAS);
         water.setState_TD(TT[i], rho);

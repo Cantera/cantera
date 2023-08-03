@@ -281,19 +281,19 @@ protected:
     double m_Qdot = 0.0; //!< net heat transfer into the reactor, through walls [W]
 
     double m_mass = 0.0; //!< total mass
-    vector_fp m_work;
+    vector<double> m_work;
 
     //! Production rates of gas phase species on surfaces [kmol/s]
-    vector_fp m_sdot;
+    vector<double> m_sdot;
 
-    vector_fp m_wdot; //!< Species net molar production rates
-    vector_fp m_uk; //!< Species molar internal energies
+    vector<double> m_wdot; //!< Species net molar production rates
+    vector<double> m_uk; //!< Species molar internal energies
     bool m_chem = false;
     bool m_energy = true;
     size_t m_nv = 0;
     size_t m_nv_surf; //!!< Number of variables associated with reactor surfaces
 
-    vector_fp m_advancelimits; //!< Advance step limit
+    vector<double> m_advancelimits; //!< Advance step limit
 
     // Data associated each sensitivity parameter
     std::vector<SensitivityParameter> m_sensParams;

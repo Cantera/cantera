@@ -216,7 +216,7 @@ void MultiTransport::getSpeciesFluxes(size_t ndim, const doublereal* const grad_
     for (size_t j = 0; j < m_nsp; j++) {
         m_aa(jmax,j) = y[j];
     }
-    vector_fp gsave(ndim), grx(ldx*m_nsp);
+    vector<double> gsave(ndim), grx(ldx*m_nsp);
     for (size_t n = 0; n < ldx*ndim; n++) {
         grx[n] = grad_X[n];
     }
@@ -469,7 +469,7 @@ void MultiTransport::updateThermal_T()
      *       Chemkin has traditionally subtracted 1.5 here (SAND86-8246).
      *       The original Dixon-Lewis paper subtracted 1.5 here.
      */
-    vector_fp cp(m_thermo->nSpecies());
+    vector<double> cp(m_thermo->nSpecies());
     m_thermo->getCp_R_ref(&cp[0]);
     for (size_t k = 0; k < m_nsp; k++) {
         m_cinternal[k] = cp[k] - 2.5;

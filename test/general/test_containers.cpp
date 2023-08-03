@@ -131,11 +131,11 @@ TEST(AnyMap, equality2) {
     // Build two identical maps
     std::vector<AnyMap> M(2);
     for (auto& m : M) {
-        m["group"]["vector_double"] = vector_fp{1.1, 3.2, 2.4};
+        m["group"]["vector_double"] = vector<double>{1.1, 3.2, 2.4};
         m["group"]["vector_int"] = std::vector<long int>{3,5,7,9};
         m["group"]["changes"] = "a string";
         m["group"]["changes"] = 9;
-        m["group"]["vector_vector_double"] = std::vector<vector_fp>{
+        m["group"]["vector_vector_double"] = std::vector<vector<double>>{
             {1.2, 2.1}, {3.4, 4.3}, {5.6, 6.5}
         };
         m["bool"] = true;
@@ -222,9 +222,9 @@ TEST(AnyMap, nested)
 TEST(AnyMap, vector)
 {
     AnyMap m;
-    vector_fp yy{9.6, 14.4, 28.8};
+    vector<double> yy{9.6, 14.4, 28.8};
     m["nested"]["item"] = yy;
-    vector_fp& yref = m["nested"]["item"].asVector<double>();
+    vector<double>& yref = m["nested"]["item"].asVector<double>();
     yref.push_back(-1);
     EXPECT_EQ(yy.size(), (size_t) 3); // Should have added a copy
     // Should have modified the copy in the map
@@ -234,7 +234,7 @@ TEST(AnyMap, vector)
 TEST(AnyMap, vector_length)
 {
     AnyMap m;
-    m["foo"] = vector_fp{2.4, 9.6, 14.4, 28.8};
+    m["foo"] = vector<double>{2.4, 9.6, 14.4, 28.8};
     // Valid lengths
     m["foo"].asVector<double>(4);
     m["foo"].asVector<double>(2, 5);
@@ -269,10 +269,10 @@ TEST(AnyMap, conversion_to_double)
     const AnyMap n = m;
     EXPECT_EQ(m["scalar"].asDouble(), 8);
     EXPECT_EQ(m["list"].asVector<double>()[1], 4);
-    EXPECT_EQ(m["nested"].asVector<vector_fp>()[1][2], 91);
+    EXPECT_EQ(m["nested"].asVector<vector<double>>()[1][2], 91);
     EXPECT_EQ(n.at("scalar").asDouble(), 8);
     EXPECT_EQ(n.at("list").asVector<double>()[0], 7);
-    EXPECT_EQ(n.at("nested").asVector<vector_fp>()[0][2], 5);
+    EXPECT_EQ(n.at("nested").asVector<vector<double>>()[0][2], 5);
 }
 
 TEST(AnyMap, conversion_to_anyvalue)
@@ -361,7 +361,7 @@ TEST(AnyMap, loadYaml)
     EXPECT_EQ(m["thermo"]["temperature-ranges"].asVector<long int>()[0], 200);
     EXPECT_EQ(m["transport"]["geometry"].asString(), "nonlinear");
     EXPECT_TRUE(m["transport"]["flag"].asBool());
-    auto coeffs = m["thermo"]["data"].asVector<vector_fp>();
+    auto coeffs = m["thermo"]["data"].asVector<vector<double>>();
     EXPECT_EQ(coeffs.size(), (size_t) 2);
     EXPECT_EQ(coeffs[0].size(), (size_t) 7);
     EXPECT_DOUBLE_EQ(coeffs[1][2], -8.280690600E-07);
@@ -395,8 +395,8 @@ TEST(AnyMap, dumpYamlString)
     for (const auto& [key, value] : original) {
         EXPECT_TRUE(generated.hasKey(key));
     }
-    EXPECT_EQ(original["species"].getMapWhere("name", "OH")["thermo"]["data"].asVector<vector_fp>(),
-        generated["species"].getMapWhere("name", "OH")["thermo"]["data"].asVector<vector_fp>());
+    EXPECT_EQ(original["species"].getMapWhere("name", "OH")["thermo"]["data"].asVector<vector<double>>(),
+        generated["species"].getMapWhere("name", "OH")["thermo"]["data"].asVector<vector<double>>());
 }
 
 TEST(AnyMap, YamlFlowStyle)

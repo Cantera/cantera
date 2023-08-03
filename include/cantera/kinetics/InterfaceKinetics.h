@@ -330,7 +330,7 @@ protected:
     //! @return a sparse matrix of derivative contributions for each reaction of
     //! dimensions nTotalReactions by nTotalSpecies
     Eigen::SparseMatrix<double> calculateCompositionDerivatives(StoichManagerN& stoich,
-                                            const vector_fp& in);
+                                            const vector<double>& in);
 
     //! Helper function ensuring that all rate derivatives can be calculated
     //! @param name  method name used for error output
@@ -341,7 +341,7 @@ protected:
     //! @}
 
     //! Temporary work vector of length m_kk
-    vector_fp m_grt;
+    vector<double> m_grt;
 
     //! List of reactions numbers which are reversible reactions
     /*!
@@ -374,7 +374,7 @@ protected:
      * ThermoPhase objects in the class, and the order of the species within
      * each ThermoPhase class.
      */
-    vector_fp m_conc;
+    vector<double> m_conc;
 
     //! Array of activity concentrations for each species in the kinetics object
     /*!
@@ -388,7 +388,7 @@ protected:
      * ThermoPhase objects in the class, and the order of the species within
      * each ThermoPhase class.
      */
-    vector_fp m_actConc;
+    vector<double> m_actConc;
 
     //! Vector of standard state chemical potentials for all species
     /*!
@@ -397,7 +397,7 @@ protected:
      *
      * Length = m_kk. Units = J/kmol.
      */
-    vector_fp m_mu0;
+    vector<double> m_mu0;
 
     //! Vector of chemical potentials for all species
     /*!
@@ -406,7 +406,7 @@ protected:
      *
      * Length = m_kk. Units = J/kmol.
      */
-    vector_fp m_mu;
+    vector<double> m_mu;
 
     //! Vector of standard state electrochemical potentials modified by a
     //! standard concentration term.
@@ -420,14 +420,14 @@ protected:
      * for the species. Frequently, for solid species, Cs is equal to 1.
      * However, for gases Cs is P/RT. Length = m_kk. Units = J/kmol.
      */
-    vector_fp m_mu0_Kc;
+    vector<double> m_mu0_Kc;
 
     //! Vector of phase electric potentials
     /*!
      * Temporary vector containing the potential of each phase in the kinetics
      * object. length = number of phases. Units = Volts.
      */
-    vector_fp m_phi;
+    vector<double> m_phi;
 
     //! Pointer to the single surface phase
     SurfPhase* m_surf = nullptr;
@@ -500,8 +500,8 @@ protected:
     size_t m_nDim = 2;
 
     //! Buffers for partial rop results with length nReactions()
-    vector_fp m_rbuf0;
-    vector_fp m_rbuf1;
+    vector<double> m_rbuf0;
+    vector<double> m_rbuf1;
 
     //! A flag used to neglect rate coefficient coverage dependence in derivative
     //! formation

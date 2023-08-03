@@ -169,7 +169,7 @@ protected:
     int m_ilr;
     double m_V0 = 0.0;
     size_t m_nsp = 0;
-    vector_fp m_yin;
+    vector<double> m_yin;
     std::string m_xstr;
     StFlow* m_flow = nullptr;
 };
@@ -296,7 +296,7 @@ public:
 
 protected:
     size_t m_nsp = 0;
-    vector_fp m_yres;
+    vector<double> m_yres;
     std::string m_xstr;
     StFlow* m_flow = nullptr;
 };
@@ -388,8 +388,8 @@ protected:
     size_t m_surfindex = 0;
     size_t m_nsp = 0;
     bool m_enabled = false;
-    vector_fp m_work;
-    vector_fp m_fixed_cov;
+    vector<double> m_work;
+    vector<double> m_fixed_cov;
 };
 
 //! @} End of bdryGroup

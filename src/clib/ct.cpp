@@ -430,7 +430,7 @@ extern "C" {
         try {
             ThermoPhase& p = ThermoCabinet::item(n);
             p.checkElementArraySize(lenm);
-            const vector_fp& wt = p.atomicWeights();
+            const vector<double>& wt = p.atomicWeights();
             copy(wt.begin(), wt.end(), atw);
             return 0;
         } catch (...) {
@@ -443,7 +443,7 @@ extern "C" {
         try {
             ThermoPhase& p = ThermoCabinet::item(n);
             p.checkSpeciesArraySize(lenm);
-            const vector_fp& wt = p.molecularWeights();
+            const vector<double>& wt = p.molecularWeights();
             copy(wt.begin(), wt.end(), mw);
             return 0;
         } catch (...) {

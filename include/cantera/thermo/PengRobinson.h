@@ -260,12 +260,12 @@ protected:
 
     // Vectors required to store species-specific a_coeff, b_coeff, alpha, kappa
     // and other derivatives. Length = m_kk.
-    vector_fp m_b_coeffs;
-    vector_fp m_kappa;
-    vector_fp m_acentric; //!< acentric factor for each species, length #m_kk
-    mutable vector_fp m_dalphadT;
-    mutable vector_fp m_d2alphadT2;
-    vector_fp m_alpha;
+    vector<double> m_b_coeffs;
+    vector<double> m_kappa;
+    vector<double> m_acentric; //!< acentric factor for each species, length #m_kk
+    mutable vector<double> m_dalphadT;
+    mutable vector<double> m_d2alphadT2;
+    vector<double> m_alpha;
 
     // Matrices for Binary coefficients a_{i,j} and {a*alpha}_{i.j} are saved in an
     // array form. Size = (m_kk, m_kk).
@@ -280,10 +280,10 @@ protected:
     double m_Vroot[3] = {0.0, 0.0, 0.0};
 
     //! Temporary storage - length = m_kk.
-    mutable vector_fp m_pp;
+    mutable vector<double> m_pp;
 
     // Partial molar volumes of the species
-    mutable vector_fp m_partialMolarVolumes;
+    mutable vector<double> m_partialMolarVolumes;
 
     //! The derivative of the pressure with respect to the volume
     /*!
@@ -304,7 +304,7 @@ protected:
      *  Calculated at the current conditions. Total volume, temperature and
      *  other mole number kept constant
      */
-    mutable vector_fp m_dpdni;
+    mutable vector<double> m_dpdni;
 
     enum class CoeffSource { EoS, CritProps, Database };
     //! For each species, specifies the source of the a, b, and omega coefficients

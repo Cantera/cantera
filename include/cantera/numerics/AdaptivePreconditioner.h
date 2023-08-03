@@ -41,7 +41,7 @@ public:
 
     void setValue(size_t row, size_t col, double value) override;
 
-    virtual void stateAdjustment(vector_fp& state) override;
+    virtual void stateAdjustment(vector<double>& state) override;
 
     virtual void updatePreconditioner() override;
 

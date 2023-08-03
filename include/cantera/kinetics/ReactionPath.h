@@ -316,9 +316,9 @@ protected:
     size_t m_nr;
     size_t m_ns;
     size_t m_nel;
-    vector_fp m_ropf;
-    vector_fp m_ropr;
-    vector_fp m_x;
+    vector<double> m_ropf;
+    vector<double> m_ropr;
+    vector<double> m_x;
     std::vector<std::vector<size_t> > m_reac;
     std::vector<std::vector<size_t> > m_prod;
     DenseMatrix m_elatoms;

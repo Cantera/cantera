@@ -233,7 +233,7 @@ protected:
     double PrNum_, PrDen_; //!< terms appearing in the reduced pressure
 
     Array2D m_coeffs; //!<< coefficient array
-    vector_fp dotProd_; //!< dot product of coeffs with the reduced pressure polynomial
+    vector<double> dotProd_; //!< dot product of coeffs with the reduced pressure polynomial
 };
 
 }

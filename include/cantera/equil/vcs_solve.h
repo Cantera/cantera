@@ -974,11 +974,11 @@ private:
                                    int& rangeErrorFound);
 
     // data used by vcs_solve_TP and it's helper functions
-    vector_fp m_sm;
-    vector_fp m_ss;
-    vector_fp m_sa;
-    vector_fp m_aw;
-    vector_fp m_wx;
+    vector<double> m_sm;
+    vector<double> m_ss;
+    vector<double> m_sa;
+    vector<double> m_aw;
+    vector<double> m_wx;
 
 public:
     //! Print level for print routines
@@ -1102,14 +1102,14 @@ public:
      *                handled by the alt_min treatment or should be handled as a
      *                major species.
      */
-    vector_fp m_scSize;
+    vector<double> m_scSize;
 
     //! total size of the species
     /*!
      *  This is used as a multiplier to the mole number in figuring out which
      *  species should be components.
      */
-    vector_fp m_spSize;
+    vector<double> m_spSize;
 
     //! Standard state chemical potentials for species K at the current
     //! temperature and pressure.
@@ -1117,14 +1117,14 @@ public:
      *  The first NC entries are for components. The following NR entries are
      *  for the current non-component species in the mechanism.
      */
-    vector_fp m_SSfeSpecies;
+    vector<double> m_SSfeSpecies;
 
     //! Free energy vector from the start of the current iteration
     /*!
      *  The free energies are saved at the start of the current iteration.
      *  Length = number of species
      */
-    vector_fp m_feSpecies_old;
+    vector<double> m_feSpecies_old;
 
     //! Dimensionless new free energy for all the species in the mechanism
     //! at the new tentative T, P, and mole numbers.
@@ -1133,7 +1133,7 @@ public:
      *   NR entries are for the current non-component species in the mechanism.
      *  Length = number of species
      */
-    vector_fp m_feSpecies_new;
+    vector<double> m_feSpecies_new;
 
     //! Setting for whether to do an initial estimate
     /*!
@@ -1150,7 +1150,7 @@ public:
      *  Total number of moles of the kth species.
      *  Length = Total number of species = m
      */
-    vector_fp m_molNumSpecies_old;
+    vector<double> m_molNumSpecies_old;
 
     //! Specifies the species unknown type
     /*!
@@ -1177,11 +1177,11 @@ public:
     Array2D m_phaseParticipation;
 
     //! electric potential of the iph phase
-    vector_fp m_phasePhi;
+    vector<double> m_phasePhi;
 
     //! Tentative value of the mole number vector. It's also used to store the
     //! mole fraction vector.
-    vector_fp m_molNumSpecies_new;
+    vector<double> m_molNumSpecies_new;
 
     //! Delta G(irxn) for the noncomponent species in the mechanism.
     /*!
@@ -1191,27 +1191,27 @@ public:
      * mechanism. It starts with the first current noncomponent species in the
      * mechanism.
      */
-    vector_fp m_deltaGRxn_new;
+    vector<double> m_deltaGRxn_new;
 
     //!  Last deltag[irxn] from the previous step
-    vector_fp m_deltaGRxn_old;
+    vector<double> m_deltaGRxn_old;
 
     //! Last deltag[irxn] from the previous step with additions for
     //! possible births of zeroed phases.
-    vector_fp m_deltaGRxn_Deficient;
+    vector<double> m_deltaGRxn_Deficient;
 
     //! Temporary vector of Rxn DeltaG's
     /*!
      *  This is used from time to time, for printing purposes
      */
-    vector_fp m_deltaGRxn_tmp;
+    vector<double> m_deltaGRxn_tmp;
 
     //! Reaction Adjustments for each species during the current step
     /*!
      *  delta Moles for each species during the current step.
      *  Length = number of species
      */
-    vector_fp m_deltaMolNumSpecies;
+    vector<double> m_deltaMolNumSpecies;
 
     //! Element abundances vector
     /*!
@@ -1220,7 +1220,7 @@ public:
      *  constraint conditions are added to this vector. This is input from the
      *  input file and is considered a constant from thereon. units = kmoles
      */
-    vector_fp m_elemAbundances;
+    vector<double> m_elemAbundances;
 
     //! Element abundances vector Goals
     /*!
@@ -1229,7 +1229,7 @@ public:
      * added to this vector. This is input from the input file and is considered
      * a constant from thereon. units = kmoles
      */
-    vector_fp m_elemAbundancesGoal;
+    vector<double> m_elemAbundancesGoal;
 
     //! Total number of kmoles in all phases
     /*!
@@ -1244,7 +1244,7 @@ public:
      *
      * Length = number of phases
      */
-    vector_fp m_tPhaseMoles_old;
+    vector<double> m_tPhaseMoles_old;
 
     //! total kmols of species in each phase in the tentative soln vector
     /*!
@@ -1253,19 +1253,19 @@ public:
      *
      * Length = number of phases
      */
-    vector_fp m_tPhaseMoles_new;
+    vector<double> m_tPhaseMoles_new;
 
     //! Temporary vector of length NPhase
-    mutable vector_fp m_TmpPhase;
+    mutable vector<double> m_TmpPhase;
 
     //! Temporary vector of length NPhase
-    mutable vector_fp m_TmpPhase2;
+    mutable vector<double> m_TmpPhase2;
 
     //! Change in the total moles in each phase
     /*!
      *  Length number of phases.
      */
-    vector_fp m_deltaPhaseMoles;
+    vector<double> m_deltaPhaseMoles;
 
     //! Temperature (Kelvin)
     double m_temperature;
@@ -1278,7 +1278,7 @@ public:
      * TPhInertMoles[iph] = Total kmoles of inert to add to each phase
      * length = number of phases
      */
-    vector_fp TPhInertMoles;
+    vector<double> TPhInertMoles;
 
     //! Tolerance requirement for major species
     double m_tolmaj= 1e-8;
@@ -1417,18 +1417,18 @@ public:
      * For molar based activity conventions this will be equal to 0.0.
      * length = number of species.
      */
-    vector_fp m_lnMnaughtSpecies;
+    vector<double> m_lnMnaughtSpecies;
 
     //! Molar-based Activity Coefficients for Species.
     //! Length = number of species
-    vector_fp m_actCoeffSpecies_new;
+    vector<double> m_actCoeffSpecies_new;
 
     //! Molar-based Activity Coefficients for Species based on old mole numbers
     /*!
      * These activity coefficients are based on the m_molNumSpecies_old
      * values Molar based activity coefficients. Length = number of species
      */
-    vector_fp m_actCoeffSpecies_old;
+    vector<double> m_actCoeffSpecies_old;
 
     //! Change in the log of the activity coefficient with respect to the mole
     //! number multiplied by the phase mole number
@@ -1446,10 +1446,10 @@ public:
      *
      * note: this is a candidate for removal. I don't think we use it.
      */
-    vector_fp m_wtSpecies;
+    vector<double> m_wtSpecies;
 
     //! Charge of each species. Length = number of species.
-    vector_fp m_chargeSpecies;
+    vector<double> m_chargeSpecies;
 
     std::vector<std::vector<size_t> > phasePopProblemLists_;
 
@@ -1476,7 +1476,7 @@ public:
      *  units = mks (m^3/kmol)
      *  Length = number of species
      */
-    vector_fp m_PMVolumeSpecies;
+    vector<double> m_PMVolumeSpecies;
 
     //! dimensionless value of Faraday's constant, F / RT  (1/volt)
     double m_Faraday_dim;

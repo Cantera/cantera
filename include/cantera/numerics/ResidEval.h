@@ -102,7 +102,7 @@ public:
                              const doublereal* const yold, doublereal deltaT,
                              doublereal* const r) {
         int nn = nEquations();
-        vector_fp ydot(nn);
+        vector<double> ydot(nn);
         for (int i = 0; i < nn; i++) {
             ydot[i] = (y[i] - yold[i]) / deltaT;
         }

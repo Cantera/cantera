@@ -72,7 +72,7 @@ public:
     }
 
     //! Update third-body concentrations in full vector
-    void update(const vector_fp& conc, double ctot, double* concm) const {
+    void update(const vector<double>& conc, double ctot, double* concm) const {
         for (size_t i = 0; i < m_reaction_index.size(); i++) {
             double sum = 0.0;
             for (size_t j = 0; j < m_species[i].size(); j++) {
@@ -139,10 +139,10 @@ protected:
     std::vector<std::vector<size_t> > m_species;
 
     //! m_eff[i][j] is the efficiency of the j-th species in reaction i.
-    std::vector<vector_fp> m_eff;
+    std::vector<vector<double>> m_eff;
 
     //! The default efficiency for each reaction
-    vector_fp m_default;
+    vector<double> m_default;
 
     //! Sparse efficiency matrix (compensated for defaults)
     //! Each triplet corresponds to (reaction index, species index, efficiency)

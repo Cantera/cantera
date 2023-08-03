@@ -44,7 +44,7 @@ public:
     std::string componentName(size_t k);
 
 protected:
-    vector_fp m_uk; //!< Species molar internal energies
+    vector<double> m_uk; //!< Species molar internal energies
 };
 
 }

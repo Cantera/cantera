@@ -163,7 +163,7 @@ protected:
      * These are used in wilke's rule to calculate the viscosity of the
      * solution. units = W /m /K = kg m /s^3 /K. length = m_kk.
      */
-    vector_fp m_cond;
+    vector<double> m_cond;
 
     //! Internal storage for the calculated mixture thermal conductivity
     /*!

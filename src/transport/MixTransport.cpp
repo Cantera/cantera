@@ -62,10 +62,10 @@ void MixTransport::getSpeciesFluxes(size_t ndim, const doublereal* const grad_T,
     update_T();
     update_C();
     getMixDiffCoeffs(m_spwork.data());
-    const vector_fp& mw = m_thermo->molecularWeights();
+    const vector<double>& mw = m_thermo->molecularWeights();
     const doublereal* y = m_thermo->massFractions();
     doublereal rhon = m_thermo->molarDensity();
-    vector_fp sum(ndim,0.0);
+    vector<double> sum(ndim,0.0);
     for (size_t n = 0; n < ndim; n++) {
         for (size_t k = 0; k < m_nsp; k++) {
             fluxes[n*ldf + k] = -rhon * mw[k] * m_spwork[k] * grad_X[n*ldx + k];

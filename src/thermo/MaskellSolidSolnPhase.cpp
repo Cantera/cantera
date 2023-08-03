@@ -58,9 +58,9 @@ doublereal MaskellSolidSolnPhase::entropy_mole() const
 
 void MaskellSolidSolnPhase::calcDensity()
 {
-    const vector_fp& vbar = getStandardVolumes();
+    const vector<double>& vbar = getStandardVolumes();
 
-    vector_fp moleFracs(m_kk);
+    vector<double> moleFracs(m_kk);
     Phase::getMoleFractions(&moleFracs[0]);
     doublereal vtotal = 0.0;
     for (size_t i = 0; i < m_kk; i++) {

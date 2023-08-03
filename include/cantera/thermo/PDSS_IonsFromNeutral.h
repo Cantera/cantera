@@ -110,7 +110,7 @@ protected:
 
     //! Stoichiometric coefficient for this species using the Neutral Molecule
     //! Species in the vector idNeutralMoleculeVec
-    vector_fp factorVec;
+    vector<double> factorVec;
 
     //! Add 2RTln2 to the entropy and Gibbs free energies for this species
     /*!
@@ -119,7 +119,7 @@ protected:
     bool add2RTln2_ = true;
 
     //! Vector of length equal to the number of species in the neutral molecule phase
-    mutable vector_fp tmpNM;
+    mutable vector<double> tmpNM;
 };
 }
 

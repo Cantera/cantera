@@ -30,7 +30,7 @@ namespace Cantera
 void VCS_SOLVE::checkDelta1(double* const dsLocal,
                             double* const delTPhMoles, size_t kspec)
 {
-    vector_fp dchange(m_numPhases, 0.0);
+    vector<double> dchange(m_numPhases, 0.0);
     for (size_t k = 0; k < kspec; k++) {
         if (m_speciesUnknownType[k] != VCS_SPECIES_TYPE_INTERFACIALVOLTAGE) {
             size_t iph = m_phaseID[k];
@@ -1756,7 +1756,7 @@ bool VCS_SOLVE::vcs_delete_multiphase(const size_t iph)
 
 int VCS_SOLVE::vcs_recheck_deleted()
 {
-    vector_fp& xtcutoff = m_TmpPhase;
+    vector<double>& xtcutoff = m_TmpPhase;
     if (m_debug_print_lvl >= 2) {
         plogf("   --- Start rechecking deleted species in multispec phases\n");
     }

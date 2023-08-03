@@ -169,7 +169,7 @@ public:
         _update();
     }
 
-    virtual void update(double T, const vector_fp& extra) override {
+    virtual void update(double T, const vector<double>& extra) override {
         m_shared.update(T, extra);
         _update();
     }

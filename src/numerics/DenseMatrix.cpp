@@ -240,7 +240,7 @@ int invert(DenseMatrix& A, size_t nn)
             return info;
         }
 
-        vector_fp work(n);
+        vector<double> work(n);
         integer lwork = static_cast<int>(work.size());
         ct_dgetri(n, A.ptrColumn(0), static_cast<int>(A.nRows()),
                   &A.ipiv()[0], &work[0], lwork, info);

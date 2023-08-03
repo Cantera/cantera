@@ -75,9 +75,9 @@ void demoprog()
 
     auto kin = sol->kinetics();
     int irxns = kin->nReactions();
-    vector_fp qf(irxns);
-    vector_fp qr(irxns);
-    vector_fp q(irxns);
+    vector<double> qf(irxns);
+    vector<double> qr(irxns);
+    vector<double> q(irxns);
 
     // since the gas has been set to an equilibrium state, the forward
     // and reverse rates of progress should be equal for all
@@ -107,7 +107,7 @@ void demoprog()
     writelog("Thermal conductivity: {:14.5g} W/m/K\n", tr->thermalConductivity());
 
     int nsp = gas->nSpecies();
-    vector_fp diff(nsp);
+    vector<double> diff(nsp);
     tr->getMixDiffCoeffs(&diff[0]);
     int k;
     writelog("\n\n{:20s}  {:21s}\n", "Species", "Diffusion Coefficient");

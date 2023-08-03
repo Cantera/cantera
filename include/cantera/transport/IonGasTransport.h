@@ -84,7 +84,7 @@ protected:
     double omega11_n64(const double tstar, const double gamma);
 
     //! electrical properties
-    vector_fp m_speciesCharge;
+    vector<double> m_speciesCharge;
 
     //! index of ions (exclude electron.)
     std::vector<size_t> m_kIon;
@@ -99,7 +99,7 @@ protected:
     DenseMatrix m_gamma;
 
     //! polynomial of the collision integral for O2/O2-
-    vector_fp m_om11_O2;
+    vector<double> m_om11_O2;
 };
 
 }

@@ -45,7 +45,7 @@ public:
     std::string componentName(size_t k);
 
 protected:
-    vector_fp m_hk; //!< Species molar enthalpies
+    vector<double> m_hk; //!< Species molar enthalpies
 };
 }
 

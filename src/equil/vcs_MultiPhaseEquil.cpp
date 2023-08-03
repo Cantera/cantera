@@ -443,7 +443,7 @@ int vcs_MultiPhaseEquil::equilibrate_TP(int estimateEquil,
 
     double te = tickTock.secondsWC();
     if (printLvl > 0) {
-        vector_fp mu(m_mix->nSpecies());
+        vector<double> mu(m_mix->nSpecies());
         m_mix->getChemPotentials(mu.data());
         plogf("\n Results from vcs:\n");
         if (iSuccess != 0) {
@@ -497,12 +497,12 @@ void vcs_MultiPhaseEquil::reportCSV(const std::string& reportFile)
         throw CanteraError("vcs_MultiPhaseEquil::reportCSV",
                            "Failure to open file");
     }
-    vector_fp VolPM;
-    vector_fp activity;
-    vector_fp ac;
-    vector_fp mu;
-    vector_fp mu0;
-    vector_fp molalities;
+    vector<double> VolPM;
+    vector<double> activity;
+    vector<double> ac;
+    vector<double> mu;
+    vector<double> mu0;
+    vector<double> molalities;
 
     double vol = 0.0;
     for (size_t iphase = 0; iphase < nphase; iphase++) {

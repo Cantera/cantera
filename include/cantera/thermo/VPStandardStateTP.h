@@ -93,7 +93,7 @@ public:
     virtual void getIntEnergy_RT(doublereal* urt) const;
     virtual void getCp_R(doublereal* cpr) const;
     virtual void getStandardVolumes(doublereal* vol) const;
-    virtual const vector_fp& getStandardVolumes() const;
+    virtual const vector<double>& getStandardVolumes() const;
     //! @}
 
     //! Set the temperature of the phase
@@ -220,7 +220,7 @@ public:
     virtual void getGibbs_RT_ref(doublereal* grt) const;
 
 protected:
-    const vector_fp& Gibbs_RT_ref() const;
+    const vector<double>& Gibbs_RT_ref() const;
 
 public:
     virtual void getGibbs_ref(doublereal* g) const;
@@ -286,42 +286,42 @@ protected:
 
     //! Vector containing the species reference enthalpies at T = m_tlast
     //! and P = p_ref.
-    mutable vector_fp m_h0_RT;
+    mutable vector<double> m_h0_RT;
 
     //! Vector containing the species reference constant pressure heat
     //! capacities at T = m_tlast and P = p_ref.
-    mutable vector_fp m_cp0_R;
+    mutable vector<double> m_cp0_R;
 
     //! Vector containing the species reference Gibbs functions at T = m_tlast
     //! and P = p_ref.
-    mutable vector_fp m_g0_RT;
+    mutable vector<double> m_g0_RT;
 
     //! Vector containing the species reference entropies at T = m_tlast
     //! and P = p_ref.
-    mutable vector_fp m_s0_R;
+    mutable vector<double> m_s0_R;
 
     //! Vector containing the species reference molar volumes
-    mutable vector_fp m_V0;
+    mutable vector<double> m_V0;
 
     //! Vector containing the species Standard State enthalpies at T = m_tlast
     //! and P = m_plast.
-    mutable vector_fp m_hss_RT;
+    mutable vector<double> m_hss_RT;
 
     //! Vector containing the species Standard State constant pressure heat
     //! capacities at T = m_tlast and P = m_plast.
-    mutable vector_fp m_cpss_R;
+    mutable vector<double> m_cpss_R;
 
     //! Vector containing the species Standard State Gibbs functions at T =
     //! m_tlast and P = m_plast.
-    mutable vector_fp m_gss_RT;
+    mutable vector<double> m_gss_RT;
 
     //! Vector containing the species Standard State entropies at T = m_tlast
     //! and P = m_plast.
-    mutable vector_fp m_sss_R;
+    mutable vector<double> m_sss_R;
 
     //! Vector containing the species standard state volumes at T = m_tlast and
     //! P = m_plast
-    mutable vector_fp m_Vss;
+    mutable vector<double> m_Vss;
 };
 }
 

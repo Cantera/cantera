@@ -760,8 +760,8 @@ double ThermoPhase::stoichAirFuelRatio(const Composition& fuelComp,
                                        const Composition& oxComp,
                                        ThermoBasis basis) const
 {
-    vector_fp fuel(getCompositionFromMap(fuelComp));
-    vector_fp ox(getCompositionFromMap(oxComp));
+    vector<double> fuel(getCompositionFromMap(fuelComp));
+    vector<double> ox(getCompositionFromMap(oxComp));
     return stoichAirFuelRatio(fuel.data(), ox.data(), basis);
 }
 
@@ -779,7 +779,7 @@ double ThermoPhase::stoichAirFuelRatio(const double* fuelComp,
                                           const double* oxComp,
                                           ThermoBasis basis) const
 {
-    vector_fp fuel, ox;
+    vector<double> fuel, ox;
     if (basis == ThermoBasis::molar) { // convert input compositions to mass fractions
         fuel.resize(m_kk);
         ox.resize(m_kk);
@@ -816,7 +816,7 @@ void ThermoPhase::setEquivalenceRatio(double phi, const double* fuelComp,
 
     double p = pressure();
 
-    vector_fp fuel, ox;
+    vector<double> fuel, ox;
     if (basis == ThermoBasis::molar) { // convert input compositions to mass fractions
         fuel.resize(m_kk);
         ox.resize(m_kk);
@@ -831,7 +831,7 @@ void ThermoPhase::setEquivalenceRatio(double phi, const double* fuelComp,
     double sum_f = std::accumulate(fuelComp, fuelComp+m_kk, 0.0);
     double sum_o = std::accumulate(oxComp, oxComp+m_kk, 0.0);
 
-    vector_fp y(m_kk);
+    vector<double> y(m_kk);
     for (size_t k = 0; k != m_kk; ++k) {
         y[k] = phi * fuelComp[k]/sum_f + AFR_st * oxComp[k]/sum_o;
     }
@@ -852,8 +852,8 @@ void ThermoPhase::setEquivalenceRatio(double phi, const std::string& fuelComp,
 void ThermoPhase::setEquivalenceRatio(double phi, const Composition& fuelComp,
                                       const Composition& oxComp, ThermoBasis basis)
 {
-    vector_fp fuel = getCompositionFromMap(fuelComp);
-    vector_fp ox = getCompositionFromMap(oxComp);
+    vector<double> fuel = getCompositionFromMap(fuelComp);
+    vector<double> ox = getCompositionFromMap(oxComp);
     setEquivalenceRatio(phi, fuel.data(), ox.data(), basis);
 }
 
@@ -873,8 +873,8 @@ double ThermoPhase::equivalenceRatio(const Composition& fuelComp,
                                      const Composition& oxComp,
                                      ThermoBasis basis) const
 {
-    vector_fp fuel(getCompositionFromMap(fuelComp));
-    vector_fp ox(getCompositionFromMap(oxComp));
+    vector<double> fuel(getCompositionFromMap(fuelComp));
+    vector<double> ox(getCompositionFromMap(oxComp));
     return equivalenceRatio(fuel.data(), ox.data(), basis);
 }
 
@@ -902,7 +902,7 @@ double ThermoPhase::equivalenceRatio(const double* fuelComp,
         return std::numeric_limits<double>::infinity(); // pure fuel
     }
 
-    vector_fp fuel, ox;
+    vector<double> fuel, ox;
     if (basis == ThermoBasis::molar) { // convert input compositions to mass fractions
         fuel.resize(m_kk);
         ox.resize(m_kk);
@@ -920,8 +920,8 @@ double ThermoPhase::equivalenceRatio(const double* fuelComp,
 void ThermoPhase::setMixtureFraction(double mixFrac, const Composition& fuelComp,
                                      const Composition& oxComp, ThermoBasis basis)
 {
-    vector_fp fuel(getCompositionFromMap(fuelComp));
-    vector_fp ox(getCompositionFromMap(oxComp));
+    vector<double> fuel(getCompositionFromMap(fuelComp));
+    vector<double> ox(getCompositionFromMap(oxComp));
     setMixtureFraction(mixFrac, fuel.data(), ox.data(), basis);
 }
 
@@ -942,7 +942,7 @@ void ThermoPhase::setMixtureFraction(double mixFrac, const double* fuelComp,
                            "Mixture fraction must be between 0 and 1");
     }
 
-    vector_fp fuel, ox;
+    vector<double> fuel, ox;
     if (basis == ThermoBasis::molar) { // convert input compositions to mass fractions
         fuel.resize(m_kk);
         ox.resize(m_kk);
@@ -962,7 +962,7 @@ void ThermoPhase::setMixtureFraction(double mixFrac, const double* fuelComp,
 
     double p = pressure();
 
-    vector_fp y(m_kk);
+    vector<double> y(m_kk);
 
     for (size_t k = 0; k != m_kk; ++k) {
         y[k] = mixFrac * fuelComp[k]/sum_yf + (1.0-mixFrac) * oxComp[k]/sum_yo;
@@ -977,8 +977,8 @@ double ThermoPhase::mixtureFraction(const Composition& fuelComp,
                                     ThermoBasis basis,
                                     const std::string& element) const
 {
-    vector_fp fuel(getCompositionFromMap(fuelComp));
-    vector_fp ox(getCompositionFromMap(oxComp));
+    vector<double> fuel(getCompositionFromMap(fuelComp));
+    vector<double> ox(getCompositionFromMap(oxComp));
     return mixtureFraction(fuel.data(), ox.data(), basis, element);
 }
 
@@ -998,7 +998,7 @@ double ThermoPhase::mixtureFraction(const double* fuelComp,
                                        ThermoBasis basis,
                                        const std::string& element) const
 {
-    vector_fp fuel, ox;
+    vector<double> fuel, ox;
     if (basis == ThermoBasis::molar) { // convert input compositions to mass fractions
         fuel.resize(m_kk);
         ox.resize(m_kk);
@@ -1253,7 +1253,7 @@ void ThermoPhase::equilibrate(const std::string& XY, const std::string& solver,
                               int estimate_equil, int log_level)
 {
     if (solver == "auto" || solver == "element_potential") {
-        vector_fp initial_state;
+        vector<double> initial_state;
         saveState(initial_state);
         debuglog("Trying ChemEquil solver\n", log_level);
         try {
@@ -1309,14 +1309,14 @@ void ThermoPhase::getdlnActCoeffdlnN_numderiv(const size_t ld, doublereal* const
     double pres = pressure();
 
     // Evaluate the current base activity coefficients if necessary
-    vector_fp ActCoeff_Base(m_kk);
+    vector<double> ActCoeff_Base(m_kk);
     getActivityCoefficients(ActCoeff_Base.data());
-    vector_fp Xmol_Base(m_kk);
+    vector<double> Xmol_Base(m_kk);
     getMoleFractions(Xmol_Base.data());
 
     // Make copies of ActCoeff and Xmol_ for use in taking differences
-    vector_fp ActCoeff(m_kk);
-    vector_fp Xmol(m_kk);
+    vector<double> ActCoeff(m_kk);
+    vector<double> Xmol(m_kk);
     double v_totalMoles = 1.0;
     double TMoles_base = v_totalMoles;
 
@@ -1440,9 +1440,9 @@ std::string ThermoPhase::report(bool show_thermo, doublereal threshold) const
             }
         }
 
-        vector_fp x(m_kk);
-        vector_fp y(m_kk);
-        vector_fp mu(m_kk);
+        vector<double> x(m_kk);
+        vector<double> y(m_kk);
+        vector<double> mu(m_kk);
         getMoleFractions(&x[0]);
         getMassFractions(&y[0]);
         getChemPotentials(&mu[0]);
@@ -1496,10 +1496,10 @@ void ThermoPhase::reportCSV(std::ofstream& csvFile) const
     int tabS = 15;
     int tabM = 30;
     csvFile.precision(8);
-    vector_fp X(nSpecies());
+    vector<double> X(nSpecies());
     getMoleFractions(&X[0]);
     std::vector<std::string> pNames;
-    std::vector<vector_fp> data;
+    std::vector<vector<double>> data;
     getCsvReportData(pNames, data);
 
     csvFile << setw(tabS) << "Species,";
@@ -1524,11 +1524,11 @@ void ThermoPhase::reportCSV(std::ofstream& csvFile) const
 }
 
 void ThermoPhase::getCsvReportData(std::vector<std::string>& names,
-                                   std::vector<vector_fp>& data) const
+                                   std::vector<vector<double>>& data) const
 {
     warn_deprecated("ThermoPhase::getCsvReportData", "To be removed after Cantera 3.0.");
     names.clear();
-    data.assign(10, vector_fp(nSpecies()));
+    data.assign(10, vector<double>(nSpecies()));
 
     names.push_back("X");
     getMoleFractions(&data[0][0]);

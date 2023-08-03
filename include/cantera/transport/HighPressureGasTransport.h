@@ -82,7 +82,7 @@ protected:
 
     virtual doublereal Zcrit_i(size_t i);
 
-    vector_fp store(size_t i, size_t nsp);
+    vector<double> store(size_t i, size_t nsp);
 
     virtual doublereal FQ_i(doublereal Q, doublereal Tr, doublereal MW);
 

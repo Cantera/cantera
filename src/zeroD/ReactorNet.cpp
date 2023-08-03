@@ -537,7 +537,7 @@ void ReactorNet::preconditionerSetup(double t, double* y, double gamma)
     // Set gamma value for M =I - gamma*J
     precon->setGamma(gamma);
     // Make a copy of state to adjust it for preconditioner
-    vector_fp yCopy(m_nv);
+    vector<double> yCopy(m_nv);
     // Get state of reactor
     getState(yCopy.data());
     // transform state based on preconditioner rules

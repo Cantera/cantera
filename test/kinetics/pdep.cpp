@@ -54,7 +54,7 @@ TEST_F(PdepTest, PlogLowPressure)
 {
     // Test that P-log reactions have the right low-pressure limit
     set_TP(500.0, 1e-7);
-    vector_fp kf(7);
+    vector<double> kf(7);
     soln_->kinetics()->getFwdRateConstants(&kf[0]);
 
     // Pre-exponential factor decreases by 10^3 for second-order reaction
@@ -74,7 +74,7 @@ TEST_F(PdepTest, PlogHighPressure)
 {
     // Test that P-log reactions have the right high-pressure limit
     set_TP(500.0, 1e10);
-    vector_fp kf(7);
+    vector<double> kf(7);
     soln_->kinetics()->getFwdRateConstants(&kf[0]);
 
     // Pre-exponential factor decreases by 10^3 for second-order reaction
@@ -90,7 +90,7 @@ TEST_F(PdepTest, PlogDuplicatePressures)
 {
     // Test that multiple rate expressions are combined when necessary
     set_TP(500.0, 1e10);
-    vector_fp kf(7);
+    vector<double> kf(7);
 
     soln_->kinetics()->getFwdRateConstants(&kf[0]);
     double kf1 = k(1.3700e+14, -0.79, 17603.0) + k(1.2800e+03, 1.71, 9774.0);
@@ -105,7 +105,7 @@ TEST_F(PdepTest, PlogCornerCases)
     // Test rate evaluation at the corner cases where the pressure
     // is exactly of the specified interpolation values
     set_TP(500.0, 101325);
-    vector_fp kf(7);
+    vector<double> kf(7);
     soln_->kinetics()->getFwdRateConstants(&kf[0]);
 
     double kf0 = k(4.910800e+28, -4.8507, 24772.8);
@@ -120,7 +120,7 @@ TEST_F(PdepTest, PlogCornerCases)
 TEST_F(PdepTest, PlogIntermediatePressure1)
 {
     set_TP(1100.0, 20*101325);
-    vector_fp ropf(7);
+    vector<double> ropf(7);
     soln_->kinetics()->getFwdRatesOfProgress(&ropf[0]);
 
     // Expected rates computed using Chemkin
@@ -134,7 +134,7 @@ TEST_F(PdepTest, PlogIntermediatePressure1)
 TEST_F(PdepTest, PlogIntermediatePressure2)
 {
     set_TP(1100.0, 0.5*101325);
-    vector_fp ropf(7);
+    vector<double> ropf(7);
     soln_->kinetics()->getFwdRatesOfProgress(&ropf[0]);
 
     EXPECT_NEAR(5.244649e+02, ropf[0], 5e-2);
@@ -146,7 +146,7 @@ TEST_F(PdepTest, PlogIntermediatePressure2)
 TEST_F(PdepTest, PlogIntermediatePressure3)
 {
     set_TP(800.0, 70*101325);
-    vector_fp ropf(7);
+    vector<double> ropf(7);
     soln_->kinetics()->getFwdRatesOfProgress(&ropf[0]);
 
     EXPECT_NEAR(2.274501e+04, ropf[0], 1e+1);
@@ -158,7 +158,7 @@ TEST_F(PdepTest, PlogIntermediatePressure3)
 TEST_F(PdepTest, ChebyshevIntermediate1)
 {
     // Test Chebyshev rates in the normal interpolation region
-    vector_fp kf(7);
+    vector<double> kf(7);
 
     set_TP(1100.0, 20 * 101325);
     soln_->kinetics()->getFwdRateConstants(&kf[0]);
@@ -175,7 +175,7 @@ TEST_F(PdepTest, ChebyshevIntermediate1)
 TEST_F(PdepTest, ChebyshevIntermediate2)
 {
     // Test Chebyshev rates in the normal interpolation region
-    vector_fp kf(7);
+    vector<double> kf(7);
 
     set_TP(400.0, 0.1 * 101325);
     soln_->kinetics()->getFwdRateConstants(&kf[0]);
@@ -188,7 +188,7 @@ TEST_F(PdepTest, ChebyshevIntermediate2)
 TEST_F(PdepTest, ChebyshevIntermediateROP)
 {
     set_TP(1100.0, 30 * 101325);
-    vector_fp ropf(7);
+    vector<double> ropf(7);
     // Expected rates computed using Chemkin
     soln_->kinetics()->getFwdRatesOfProgress(&ropf[0]);
     EXPECT_NEAR(4.552930e+03, ropf[4], 1e-1);
@@ -197,7 +197,7 @@ TEST_F(PdepTest, ChebyshevIntermediateROP)
 
 TEST_F(PdepTest, ChebyshevEdgeCases)
 {
-    vector_fp kf(7);
+    vector<double> kf(7);
 
     // Minimum P
     set_TP(500.0, 1000.0);

@@ -187,7 +187,7 @@ public:
     void setQuantity(double value, const Units& units);
 
     //! Assign a vector where all the values have the same units
-    void setQuantity(const vector_fp& values, const std::string& units);
+    void setQuantity(const vector<double>& values, const std::string& units);
 
     typedef std::function<void(AnyValue&, const UnitSystem&)> unitConverter;
 
@@ -341,10 +341,10 @@ std::vector<double>& AnyValue::asVector<double>(size_t nMin, size_t nMax);
 
 //! Implicit conversion of long int to double if accessed as a vector<vector<double>>
 template<>
-const std::vector<vector_fp>& AnyValue::asVector<vector_fp>(size_t nMin, size_t nMax) const;
+const std::vector<vector<double>>& AnyValue::asVector<vector<double>>(size_t nMin, size_t nMax) const;
 
 template<>
-std::vector<vector_fp>& AnyValue::asVector<vector_fp>(size_t nMin, size_t nMax);
+std::vector<vector<double>>& AnyValue::asVector<vector<double>>(size_t nMin, size_t nMax);
 
 //! Implicit conversion of AnyMap to a vector<AnyMap> of length 1, or an empty
 //! vector<AnyValue> an empty vector<AnyMap>
@@ -384,7 +384,7 @@ std::vector<AnyMap>& AnyValue::asVector<AnyMap>(size_t nMin, size_t nMax);
  * ```
  * double val1 = breakfast["spam"].asDouble();
  * std::string val2 = breakfast["eggs"].asString();
- * vector_fp val3 = breakfast["beans"]["baked"].asVector<double>();
+ * vector<double> val3 = breakfast["beans"]["baked"].asVector<double>();
  *
  * std::map<std::string, double> = breakfast["toast"].asMap<double>();
  * ```
@@ -531,7 +531,7 @@ public:
      * @param nMax   Maximum allowed length of the vector. An exception is
      *     thrown if this condition is not met.
      */
-    vector_fp convertVector(const std::string& key, const std::string& units,
+    vector<double> convertVector(const std::string& key, const std::string& units,
                             size_t nMin=npos, size_t nMax=npos) const;
 
     //! Defined to allow use with range-based for loops. Iteration automatically

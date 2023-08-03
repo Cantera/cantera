@@ -42,7 +42,7 @@ public:
         // number of chemical species in the system.
         m_nSpecies = m_gas->nSpecies();
 
-        // resize the vector_fp storage containers for species partial molar enthalpies
+        // resize the vector<double> storage containers for species partial molar enthalpies
         // and net production rates. internal values are updated and used by the solver
         // per iteration.
         m_hbar.resize(m_nSpecies);
@@ -133,8 +133,8 @@ private:
     // private member variables, to be used internally.
     shared_ptr<ThermoPhase> m_gas;
     shared_ptr<Kinetics> m_kinetics;
-    vector_fp m_hbar;
-    vector_fp m_wdot;
+    vector<double> m_hbar;
+    vector<double> m_wdot;
     double m_pressure;
     size_t m_nSpecies;
     size_t m_nEqs;

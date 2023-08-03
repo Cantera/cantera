@@ -8,8 +8,8 @@
 
 namespace Cantera {
 
-void NasaPoly2::setParameters(double Tmid, const vector_fp& low,
-                              const vector_fp& high) {
+void NasaPoly2::setParameters(double Tmid, const vector<double>& low,
+                              const vector<double>& high) {
     m_midT = Tmid;
     mnp_low.setMaxTemp(Tmid);
     mnp_high.setMinTemp(Tmid);
@@ -21,9 +21,9 @@ void NasaPoly2::getParameters(AnyMap& thermo) const
 {
     thermo["model"] = "NASA7";
     SpeciesThermoInterpType::getParameters(thermo);
-    vector_fp Tranges {m_lowT, m_midT, m_highT};
+    vector<double> Tranges {m_lowT, m_midT, m_highT};
     thermo["temperature-ranges"].setQuantity(Tranges, "K");
-    thermo["data"] = std::vector<vector_fp>();
+    thermo["data"] = std::vector<vector<double>>();
     mnp_low.getParameters(thermo);
     mnp_high.getParameters(thermo);
 }

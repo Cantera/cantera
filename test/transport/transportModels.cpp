@@ -94,7 +94,7 @@ TEST_F(NoTransportTest, check_exceptions_vector)
 {
     // vector quantities
     auto tr = soln_->transport();
-    vector_fp out(soln_->thermo()->nSpecies());
+    vector<double> out(soln_->thermo()->nSpecies());
     ASSERT_THROW(tr->getSpeciesViscosities(out.data()), CanteraError);
     ASSERT_THROW(tr->getSpeciesIonConductivity(out.data()), CanteraError);
     ASSERT_THROW(tr->mobilityRatio(out.data()), CanteraError);

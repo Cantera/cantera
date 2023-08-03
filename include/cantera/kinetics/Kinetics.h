@@ -554,7 +554,7 @@ public:
      * Provide direct access to current third-body concentration values.
      * @see getThirdBodyConcentrations.
      */
-    virtual const vector_fp& thirdBodyConcentrations() const {
+    virtual const vector<double>& thirdBodyConcentrations() const {
         throw NotImplementedError("Kinetics::thirdBodyConcentrations",
             "Not applicable/implemented for Kinetics object of type '{}'",
             kineticsType());
@@ -1544,7 +1544,7 @@ protected:
 
     //! Vector of perturbation factors for each reaction's rate of
     //! progress vector. It is initialized to one.
-    vector_fp m_perturb;
+    vector<double> m_perturb;
 
     //! Vector of Reaction objects represented by this Kinetics manager
     std::vector<shared_ptr<Reaction> > m_reactions;
@@ -1597,28 +1597,28 @@ protected:
     size_t m_mindim = 4;
 
     //! Forward rate constant for each reaction
-    vector_fp m_rfn;
+    vector<double> m_rfn;
 
     //! Delta G^0 for all reactions
-    vector_fp m_delta_gibbs0;
+    vector<double> m_delta_gibbs0;
 
     //! Reciprocal of the equilibrium constant in concentration units
-    vector_fp m_rkcn;
+    vector<double> m_rkcn;
 
     //! Forward rate-of-progress for each reaction
-    vector_fp m_ropf;
+    vector<double> m_ropf;
 
     //! Reverse rate-of-progress for each reaction
-    vector_fp m_ropr;
+    vector<double> m_ropr;
 
     //! Net rate-of-progress for each reaction
-    vector_fp m_ropnet;
+    vector<double> m_ropnet;
 
     //! The enthalpy change for each reaction to calculate Blowers-Masel rates
-    vector_fp m_dH;
+    vector<double> m_dH;
 
     //! Buffer used for storage of intermediate reaction-specific results
-    vector_fp m_rbuf;
+    vector<double> m_rbuf;
 
     //! See skipUndeclaredSpecies()
     bool m_skipUndeclaredSpecies = false;

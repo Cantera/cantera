@@ -515,7 +515,7 @@ public:
     //! @name Thermodynamic Values for the Species Reference States
     //! @{
 
-    const vector_fp& enthalpy_RT_ref() const;
+    const vector<double>& enthalpy_RT_ref() const;
 
     //! Returns a reference to the dimensionless reference state Gibbs free
     //! energy vector.
@@ -523,7 +523,7 @@ public:
      * This function is part of the layer that checks/recalculates the reference
      * state thermo functions.
      */
-    const vector_fp& gibbs_RT_ref() const;
+    const vector<double>& gibbs_RT_ref() const;
 
     virtual void getGibbs_RT_ref(doublereal* grt) const;
     virtual void getGibbs_ref(doublereal* g) const;
@@ -533,7 +533,7 @@ public:
      * This function is part of the layer that checks/recalculates the reference
      * state thermo functions.
      */
-    const vector_fp& entropy_R_ref() const;
+    const vector<double>& entropy_R_ref() const;
 
     //! Returns a reference to the dimensionless reference state Heat Capacity
     //! vector.
@@ -541,7 +541,7 @@ public:
      * This function is part of the layer that checks/recalculates the reference
      * state thermo functions.
      */
-    const vector_fp& cp_R_ref() const;
+    const vector<double>& cp_R_ref() const;
 
     //! @}
     //! @name  Utilities for Initialization of the Object
@@ -575,23 +575,23 @@ protected:
     double m_Pcurrent = OneAtm;
 
     //! Reference state enthalpies / RT
-    mutable vector_fp m_h0_RT;
+    mutable vector<double> m_h0_RT;
 
     //! Temporary storage for the reference state heat capacities
-    mutable vector_fp m_cp0_R;
+    mutable vector<double> m_cp0_R;
 
     //! Temporary storage for the reference state Gibbs energies
-    mutable vector_fp m_g0_RT;
+    mutable vector<double> m_g0_RT;
 
     //! Temporary storage for the reference state entropies at the current
     //! temperature
-    mutable vector_fp m_s0_R;
+    mutable vector<double> m_s0_R;
 
     //! Vector of molar volumes for each species in the solution
     /**
      * Species molar volumes @f$ m^3 kmol^-1 @f$
      */
-    vector_fp m_speciesMolarVolume;
+    vector<double> m_speciesMolarVolume;
 
     //! Site Density of the lattice solid
     /*!

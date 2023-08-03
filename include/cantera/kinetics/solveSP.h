@@ -440,34 +440,34 @@ private:
     size_t m_maxTotSpecies = 0;
 
     //! Temporary vector with length equal to max m_maxTotSpecies
-    vector_fp m_netProductionRatesSave;
+    vector<double> m_netProductionRatesSave;
 
     //! Temporary vector with length equal to max m_maxTotSpecies
-    vector_fp m_numEqn1;
+    vector<double> m_numEqn1;
 
     //! Temporary vector with length equal to max m_maxTotSpecies
-    vector_fp m_numEqn2;
+    vector<double> m_numEqn2;
 
     //! Temporary vector with length equal to max m_maxTotSpecies
-    vector_fp m_CSolnSave;
+    vector<double> m_CSolnSave;
 
     //! Solution vector. length MAX(1, m_neq)
-    vector_fp m_CSolnSP;
+    vector<double> m_CSolnSP;
 
     //! Saved initial solution vector. length MAX(1, m_neq)
-    vector_fp m_CSolnSPInit;
+    vector<double> m_CSolnSPInit;
 
     //! Saved  solution vector at the old time step. length MAX(1, m_neq)
-    vector_fp m_CSolnSPOld;
+    vector<double> m_CSolnSPOld;
 
     //! Weights for the residual norm calculation. length MAX(1, m_neq)
-    vector_fp m_wtResid;
+    vector<double> m_wtResid;
 
     //! Weights for the species concentrations norm calculation
     /*!
      * length MAX(1, m_neq)
      */
-    vector_fp m_wtSpecies;
+    vector<double> m_wtSpecies;
 
     //!  Residual for the surface problem
     /*!
@@ -479,10 +479,10 @@ private:
      *
      * length MAX(1, m_neq)
      */
-    vector_fp m_resid;
+    vector<double> m_resid;
 
     //! Vector of mole fractions. length m_maxTotSpecies
-    vector_fp m_XMolKinSpecies;
+    vector<double> m_XMolKinSpecies;
 
     //! Jacobian. m_neq by m_neq computed Jacobian matrix for the local
     //! Newton's method.

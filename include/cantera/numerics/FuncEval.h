@@ -178,10 +178,10 @@ public:
     //! Values for the problem parameters for which sensitivities are computed
     //! This is the array which is perturbed and passed back as the fourth
     //! argument to eval().
-    vector_fp m_sens_params;
+    vector<double> m_sens_params;
 
     //! Scaling factors for each sensitivity parameter
-    vector_fp m_paramScales;
+    vector<double> m_paramScales;
 
 protected:
     // If true, errors are accumulated in m_errors. Otherwise, they are printed

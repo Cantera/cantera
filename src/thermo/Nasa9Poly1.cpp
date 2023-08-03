@@ -30,7 +30,7 @@ Nasa9Poly1::Nasa9Poly1(double tlow, double thigh, double pref,
 {
 }
 
-void Nasa9Poly1::setParameters(const vector_fp &coeffs)
+void Nasa9Poly1::setParameters(const vector<double> &coeffs)
 {
     if (coeffs.size() != 9) {
         throw CanteraError("Nasa9Poly1::setParameters", "Array must contain "
@@ -111,7 +111,7 @@ void Nasa9Poly1::getParameters(AnyMap& thermo) const {
     // Nasa9Poly1 is only used as an embedded model within
     // Nasa9PolyMultiTempRegion, so all that needs to be added here are the
     // polynomial coefficients
-    thermo["data"].asVector<vector_fp>().push_back(m_coeff);
+    thermo["data"].asVector<vector<double>>().push_back(m_coeff);
 }
 
 }

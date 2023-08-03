@@ -145,13 +145,13 @@ public:
     /*!
      * We might drop this later
      */
-    virtual vector_fp::iterator begin() = 0;
+    virtual vector<double>::iterator begin() = 0;
 
     //! Return a const iterator pointing to the first element
     /*!
      * We might drop this later
      */
-    virtual vector_fp::const_iterator begin() const = 0;
+    virtual vector<double>::const_iterator begin() const = 0;
 
     //! Return a vector of const pointers to the columns
     /*!

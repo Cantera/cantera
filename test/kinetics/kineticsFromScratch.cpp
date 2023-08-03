@@ -47,7 +47,7 @@ public:
         pp->setState_TPX(1200, 5*OneAtm, X);
         pp_ref->setState_TPX(1200, 5*OneAtm, X);
 
-        vector_fp k(1), k_ref(kin_ref->nReactions());
+        vector<double> k(1), k_ref(kin_ref->nReactions());
 
         kin.getFwdRateConstants(&k[0]);
         kin_ref->getFwdRateConstants(&k_ref[0]);
@@ -283,7 +283,7 @@ TEST_F(KineticsFromScratch, add_falloff_reaction1)
     Composition prod = parseCompString("H2O2:1");
     ArrheniusRate high_rate(7.4e10, -0.37, 0.0);
     ArrheniusRate low_rate(2.3e12, -0.9, -7112800.0);
-    vector_fp falloff_params { 0.7346, 94.0, 1756.0, 5182.0 };
+    vector<double> falloff_params { 0.7346, 94.0, 1756.0, 5182.0 };
     auto rate = make_shared<TroeRate>(low_rate, high_rate, falloff_params);
     auto tbody = make_shared<ThirdBody>();
     tbody->efficiencies = parseCompString("AR:0.7 H2:2.0 H2O:6.0");
@@ -306,7 +306,7 @@ TEST_F(KineticsFromScratch, add_falloff_reaction2)
     std::string equation = "2 OH (+ M) <=> H2O2 (+ M)";
     ArrheniusRate high_rate(7.4e10, -0.37, 0.0);
     ArrheniusRate low_rate(2.3e12, -0.9, -7112800.0);
-    vector_fp falloff_params { 0.7346, 94.0, 1756.0, 5182.0 };
+    vector<double> falloff_params { 0.7346, 94.0, 1756.0, 5182.0 };
     auto rate = make_shared<TroeRate>(low_rate, high_rate, falloff_params);
     auto tbody = make_shared<ThirdBody>();
     tbody->efficiencies = parseCompString("AR:0.7 H2:2.0 H2O:6.0");
@@ -321,7 +321,7 @@ TEST_F(KineticsFromScratch, missing_third_body)
     std::string equation = "2 OH <=> H2O2";
     ArrheniusRate high_rate(7.4e10, -0.37, 0.0);
     ArrheniusRate low_rate(2.3e12, -0.9, -7112800.0);
-    vector_fp falloff_params { 0.7346, 94.0, 1756.0, 5182.0 };
+    vector<double> falloff_params { 0.7346, 94.0, 1756.0, 5182.0 };
     auto rate = make_shared<TroeRate>(low_rate, high_rate, falloff_params);
     ASSERT_THROW(Reaction(equation, rate), CanteraError);
 }
@@ -545,7 +545,7 @@ public:
         std::dynamic_pointer_cast<SurfPhase>(surf)->setCoveragesByName(Xs);
         std::dynamic_pointer_cast<SurfPhase>(surf_ref)->setCoveragesByName(Xs);
 
-        vector_fp k(1), k_ref(kin_ref->nReactions());
+        vector<double> k(1), k_ref(kin_ref->nReactions());
 
         kin.getFwdRateConstants(&k[0]);
         kin_ref->getFwdRateConstants(&k_ref[0]);
@@ -637,8 +637,8 @@ public:
         // need to invalidate cache to force update
         kin_ref->invalidateCache();
 
-        vector_fp k(kin.nReactions()), k_ref(kin_ref->nReactions());
-        vector_fp w(kin.nTotalSpecies()), w_ref(kin_ref->nTotalSpecies());
+        vector<double> k(kin.nReactions()), k_ref(kin_ref->nReactions());
+        vector<double> w(kin.nTotalSpecies()), w_ref(kin_ref->nTotalSpecies());
 
         kin.getFwdRateConstants(k.data());
         kin_ref->getFwdRateConstants(k_ref.data());

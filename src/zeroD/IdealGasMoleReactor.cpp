@@ -103,7 +103,7 @@ void IdealGasMoleReactor::eval(double time, double* LHS, double* RHS)
     m_thermo->restoreState(m_state);
 
     m_thermo->getPartialMolarIntEnergies(&m_uk[0]);
-    const vector_fp& imw = m_thermo->inverseMolecularWeights();
+    const vector<double>& imw = m_thermo->inverseMolecularWeights();
 
     if (m_chem) {
         m_kin->getNetProductionRates(&m_wdot[0]); // "omega dot"
@@ -195,11 +195,11 @@ Eigen::SparseMatrix<double> IdealGasMoleReactor::jacobian()
         double deltaTemp = m_thermo->temperature()
             * std::sqrt(std::numeric_limits<double>::epsilon());
         // finite difference temperature derivatives
-        vector_fp lhsPerturbed(m_nv, 1.0), lhsCurrent(m_nv, 1.0);
-        vector_fp rhsPerturbed(m_nv, 0.0), rhsCurrent(m_nv, 0.0);
-        vector_fp yCurrent(m_nv);
+        vector<double> lhsPerturbed(m_nv, 1.0), lhsCurrent(m_nv, 1.0);
+        vector<double> rhsPerturbed(m_nv, 0.0), rhsCurrent(m_nv, 0.0);
+        vector<double> yCurrent(m_nv);
         getState(yCurrent.data());
-        vector_fp yPerturbed = yCurrent;
+        vector<double> yPerturbed = yCurrent;
         // perturb temperature
         yPerturbed[0] += deltaTemp;
         // getting perturbed state

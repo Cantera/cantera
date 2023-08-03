@@ -515,10 +515,10 @@ public:
 
     void setProfile(const std::string& name, double* values, double* soln);
 
-    vector_fp& grid() {
+    vector<double>& grid() {
         return m_z;
     }
-    const vector_fp& grid() const {
+    const vector<double>& grid() const {
         return m_z;
     }
     doublereal grid(size_t point) const {
@@ -577,12 +577,12 @@ protected:
     double m_rdt = 0.0;
     size_t m_nv = 0;
     size_t m_points; //!< Number of grid points
-    vector_fp m_slast;
-    vector_fp m_max;
-    vector_fp m_min;
-    vector_fp m_rtol_ss, m_rtol_ts;
-    vector_fp m_atol_ss, m_atol_ts;
-    vector_fp m_z;
+    vector<double> m_slast;
+    vector<double> m_max;
+    vector<double> m_min;
+    vector<double> m_rtol_ss, m_rtol_ts;
+    vector<double> m_atol_ss, m_atol_ts;
+    vector<double> m_z;
     OneDim* m_container = nullptr;
     size_t m_index;
     int m_type = 0; //!< @deprecated To be removed after %Cantera 3.0

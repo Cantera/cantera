@@ -204,7 +204,7 @@ public:
     int changeElementType(int m, int elem_type);
 
     //! Return a read-only reference to the vector of atomic weights.
-    const vector_fp& atomicWeights() const;
+    const vector<double>& atomicWeights() const;
 
     //! Number of elements.
     size_t nElements() const;
@@ -330,7 +330,7 @@ public:
     //! Save the current internal state of the phase.
     //! Write to vector 'state' the current internal state.
     //!     @param state output vector. Will be resized to stateSize().
-    void saveState(vector_fp& state) const;
+    void saveState(vector<double>& state) const;
 
     //! Write to array 'state' the current internal state.
     //!     @param lenstate length of the state array. Must be >= stateSize()
@@ -340,7 +340,7 @@ public:
 
     //! Restore a state saved on a previous call to saveState.
     //!     @param state State vector containing the previously saved state.
-    void restoreState(const vector_fp& state);
+    void restoreState(const vector<double>& state);
 
     //! Restore the state of the phase from a previously saved state vector.
     //!     @param lenstate   Length of the state vector
@@ -466,7 +466,7 @@ public:
     //! Copy the vector of molecular weights into vector weights.
     //!     @param weights Output vector of molecular weights (kg/kmol)
     //! @deprecated Unused. To be removed after %Cantera 3.0
-    void getMolecularWeights(vector_fp& weights) const;
+    void getMolecularWeights(vector<double>& weights) const;
 
     //! Copy the vector of molecular weights into array weights.
     //!     @param weights  Output array of molecular weights (kg/kmol)
@@ -474,11 +474,11 @@ public:
 
     //! Return a const reference to the internal vector of molecular weights.
     //! units = kg / kmol
-    const vector_fp& molecularWeights() const;
+    const vector<double>& molecularWeights() const;
 
     //! Return a const reference to the internal vector of molecular weights.
     //! units = kmol / kg
-    const vector_fp& inverseMolecularWeights() const;
+    const vector<double>& inverseMolecularWeights() const;
 
     //! Copy the vector of species charges into array charges.
     //!     @param charges Output array of species charges (elem. charge)
@@ -766,7 +766,7 @@ public:
     doublereal mean_X(const doublereal* const Q) const;
 
     //! @copydoc Phase::mean_X(const doublereal* const Q) const
-    doublereal mean_X(const vector_fp& Q) const;
+    doublereal mean_X(const vector<double>& Q) const;
 
     //!  The mean molecular weight. Units: (kg/kmol)
     doublereal meanMolecularWeight() const {
@@ -900,7 +900,7 @@ public:
      * @param[in] comp Composition containing the mixture composition
      * @return vector with length m_kk
      */
-    vector_fp getCompositionFromMap(const Composition& comp) const;
+    vector<double> getCompositionFromMap(const Composition& comp) const;
 
     //! Converts a mixture composition from mole fractions to mass fractions
     //!     @param[in] Y mixture composition in mass fractions (length m_kk)
@@ -965,9 +965,9 @@ protected:
     //! Atomic composition of the species. The number of atoms of element i
     //! in species k is equal to m_speciesComp[k * m_mm + i]
     //! The length of this vector is equal to m_kk * m_mm
-    vector_fp m_speciesComp;
+    vector<double> m_speciesComp;
 
-    vector_fp m_speciesCharge; //!< Vector of species charges. length m_kk.
+    vector<double> m_speciesCharge; //!< Vector of species charges. length m_kk.
 
     std::map<std::string, shared_ptr<Species> > m_species;
 
@@ -1000,18 +1000,18 @@ private:
 
     //! m_ym[k] = mole fraction of species k divided by the mean molecular
     //! weight of mixture.
-    mutable vector_fp m_ym;
+    mutable vector<double> m_ym;
 
     //! Mass fractions of the species
     /*!
      *   Note, this vector
      *   Length is m_kk
      */
-    mutable vector_fp m_y;
+    mutable vector<double> m_y;
 
-    vector_fp m_molwts; //!< species molecular weights (kg kmol-1)
+    vector<double> m_molwts; //!< species molecular weights (kg kmol-1)
 
-    vector_fp m_rmolwts; //!< inverse of species molecular weights (kmol kg-1)
+    vector<double> m_rmolwts; //!< inverse of species molecular weights (kmol kg-1)
 
     //! State Change variable. Whenever the mole fraction vector changes,
     //! this int is incremented.
@@ -1027,13 +1027,13 @@ private:
     std::map<std::string, size_t> m_speciesLower;
 
     size_t m_mm = 0; //!< Number of elements.
-    vector_fp m_atomicWeights; //!< element atomic weights (kg kmol-1)
+    vector<double> m_atomicWeights; //!< element atomic weights (kg kmol-1)
     vector<int> m_atomicNumbers; //!< element atomic numbers
     std::vector<std::string> m_elementNames; //!< element names
     vector<int> m_elem_type; //!< Vector of element types
 
     //! Entropy at 298.15 K and 1 bar of stable state pure elements (J kmol-1)
-    vector_fp m_entropy298;
+    vector<double> m_entropy298;
 };
 
 }

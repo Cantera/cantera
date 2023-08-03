@@ -10,8 +10,8 @@
 namespace Cantera
 {
 
-doublereal linearInterp(doublereal x, const vector_fp& xpts,
-                        const vector_fp& fpts)
+doublereal linearInterp(doublereal x, const vector<double>& xpts,
+                        const vector<double>& fpts)
 {
     if (x <= xpts[0]) {
         return fpts[0];

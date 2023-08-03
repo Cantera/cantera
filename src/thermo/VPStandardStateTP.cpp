@@ -98,7 +98,7 @@ void VPStandardStateTP::getStandardVolumes(doublereal* vol) const
     updateStandardStateThermo();
     std::copy(m_Vss.begin(), m_Vss.end(), vol);
 }
-const vector_fp& VPStandardStateTP::getStandardVolumes() const
+const vector<double>& VPStandardStateTP::getStandardVolumes() const
 {
     updateStandardStateThermo();
     return m_Vss;
@@ -125,7 +125,7 @@ void VPStandardStateTP::getGibbs_ref(doublereal* g) const
     scale(g, g+m_kk, g, RT());
 }
 
-const vector_fp& VPStandardStateTP::Gibbs_RT_ref() const
+const vector<double>& VPStandardStateTP::Gibbs_RT_ref() const
 {
     updateStandardStateThermo();
     return m_g0_RT;

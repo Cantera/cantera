@@ -410,7 +410,7 @@ public:
 
 protected:
     //! Species molar volume @f$ m^3 kmol^{-1} @f$
-    vector_fp m_speciesMolarVolume;
+    vector<double> m_speciesMolarVolume;
 
     /**
      * The standard concentrations can have one of three different forms:
@@ -424,13 +424,13 @@ protected:
 
 private:
     //! vector of size m_kk, used as a temporary holding area.
-    mutable vector_fp m_tmpV;
+    mutable vector<double> m_tmpV;
 
     //! Logarithm of the molal activity coefficients
     /*!
      *   Normally these are all one. However, stability schemes will change that
      */
-    mutable vector_fp IMS_lnActCoeffMolal_;
+    mutable vector<double> IMS_lnActCoeffMolal_;
 public:
     //! value of the solute mole fraction that centers the cutoff polynomials
     //! for the cutoff =1 process;

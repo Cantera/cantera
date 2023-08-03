@@ -114,7 +114,7 @@ void ChemEquil::initialize(ThermoPhase& s)
 }
 
 void ChemEquil::setToEquilState(ThermoPhase& s,
-                                const vector_fp& lambda_RT, doublereal t)
+                                const vector<double>& lambda_RT, doublereal t)
 {
     // Construct the chemical potentials by summing element potentials
     fill(m_mu_RT.begin(), m_mu_RT.end(), 0.0);
@@ -163,7 +163,7 @@ void ChemEquil::update(const ThermoPhase& s)
     }
 }
 
-int ChemEquil::setInitialMoles(ThermoPhase& s, vector_fp& elMoleGoal,
+int ChemEquil::setInitialMoles(ThermoPhase& s, vector<double>& elMoleGoal,
                                int loglevel)
 {
     MultiPhase mp;
@@ -199,12 +199,12 @@ int ChemEquil::setInitialMoles(ThermoPhase& s, vector_fp& elMoleGoal,
     return 0;
 }
 
-int ChemEquil::estimateElementPotentials(ThermoPhase& s, vector_fp& lambda_RT,
-        vector_fp& elMolesGoal, int loglevel)
+int ChemEquil::estimateElementPotentials(ThermoPhase& s, vector<double>& lambda_RT,
+        vector<double>& elMolesGoal, int loglevel)
 {
-    vector_fp b(m_mm, -999.0);
-    vector_fp mu_RT(m_kk, 0.0);
-    vector_fp xMF_est(m_kk, 0.0);
+    vector<double> b(m_mm, -999.0);
+    vector<double> mu_RT(m_kk, 0.0);
+    vector<double> xMF_est(m_kk, 0.0);
 
     s.getMoleFractions(xMF_est.data());
     for (size_t n = 0; n < s.nSpecies(); n++) {
@@ -217,7 +217,7 @@ int ChemEquil::estimateElementPotentials(ThermoPhase& s, vector_fp& lambda_RT,
     mp.addPhase(&s, 1.0);
     mp.init();
     int usedZeroedSpecies = 0;
-    vector_fp formRxnMatrix;
+    vector<double> formRxnMatrix;
     m_nComponents = BasisOptimize(&usedZeroedSpecies, false,
                                   &mp, m_orderVectorSpecies,
                                   m_orderVectorElements, formRxnMatrix);
@@ -295,17 +295,17 @@ int ChemEquil::equilibrate(ThermoPhase& s, const char* XY, int loglevel)
 {
     initialize(s);
     update(s);
-    vector_fp elMolesGoal = m_elementmolefracs;
+    vector<double> elMolesGoal = m_elementmolefracs;
     return equilibrate(s, XY, elMolesGoal, loglevel-1);
 }
 
 int ChemEquil::equilibrate(ThermoPhase& s, const char* XYstr,
-                           vector_fp& elMolesGoal, int loglevel)
+                           vector<double>& elMolesGoal, int loglevel)
 {
     int fail = 0;
     bool tempFixed = true;
     int XY = _equilflag(XYstr);
-    vector_fp state;
+    vector<double> state;
     s.saveState(state);
     m_loglevel = loglevel;
 
@@ -375,8 +375,8 @@ int ChemEquil::equilibrate(ThermoPhase& s, const char* XYstr,
     size_t mm = m_mm;
     size_t nvar = mm + 1;
     DenseMatrix jac(nvar, nvar); // Jacobian
-    vector_fp x(nvar, -102.0); // solution vector
-    vector_fp res_trial(nvar, 0.0); // residual
+    vector<double> x(nvar, -102.0); // solution vector
+    vector<double> res_trial(nvar, 0.0); // residual
 
     // Replace one of the element abundance fraction equations with the
     // specified property calculation.
@@ -398,7 +398,7 @@ int ChemEquil::equilibrate(ThermoPhase& s, const char* XYstr,
     // start with a composition with everything non-zero. Note that since we
     // have already save the target element moles, changing the composition at
     // this point only affects the starting point, not the final solution.
-    vector_fp xmm(m_kk, 0.0);
+    vector<double> xmm(m_kk, 0.0);
     for (size_t k = 0; k < m_kk; k++) {
         xmm[k] = s.moleFraction(k) + 1.0E-32;
     }
@@ -508,8 +508,8 @@ int ChemEquil::equilibrate(ThermoPhase& s, const char* XYstr,
     // Setting the max and min values for x[]. Also, if element abundance vector
     // is zero, setting x[] to -1000. This effectively zeroes out all species
     // containing that element.
-    vector_fp above(nvar);
-    vector_fp below(nvar);
+    vector<double> above(nvar);
+    vector<double> below(nvar);
     for (size_t m = 0; m < mm; m++) {
         above[m] = 200.0;
         below[m] = -2000.0;
@@ -523,9 +523,9 @@ int ChemEquil::equilibrate(ThermoPhase& s, const char* XYstr,
     above[mm] = log(s.maxTemp() + 25.0);
     below[mm] = log(s.minTemp() - 25.0);
 
-    vector_fp grad(nvar, 0.0); // gradient of f = F*F/2
-    vector_fp oldx(nvar, 0.0); // old solution
-    vector_fp oldresid(nvar, 0.0);
+    vector<double> grad(nvar, 0.0); // gradient of f = F*F/2
+    vector<double> oldx(nvar, 0.0); // old solution
+    vector<double> oldresid(nvar, 0.0);
 
     for (int iter = 0; iter < options.maxIterations; iter++) {
         // check for convergence.
@@ -672,9 +672,9 @@ int ChemEquil::equilibrate(ThermoPhase& s, const char* XYstr,
 }
 
 
-int ChemEquil::dampStep(ThermoPhase& mix, vector_fp& oldx,
-                        double oldf, vector_fp& grad, vector_fp& step, vector_fp& x,
-                        double& f, vector_fp& elmols, double xval, double yval)
+int ChemEquil::dampStep(ThermoPhase& mix, vector<double>& oldx,
+                        double oldf, vector<double>& grad, vector<double>& step, vector<double>& x,
+                        double& f, vector<double>& elmols, double xval, double yval)
 {
     // Carry out a delta damping approach on the dimensionless element
     // potentials.
@@ -711,14 +711,14 @@ int ChemEquil::dampStep(ThermoPhase& mix, vector_fp& oldx,
     return 1;
 }
 
-void ChemEquil::equilResidual(ThermoPhase& s, const vector_fp& x,
-                              const vector_fp& elmFracGoal, vector_fp& resid,
+void ChemEquil::equilResidual(ThermoPhase& s, const vector<double>& x,
+                              const vector<double>& elmFracGoal, vector<double>& resid,
                               doublereal xval, doublereal yval, int loglevel)
 {
     setToEquilState(s, x, exp(x[m_mm]));
 
     // residuals are the total element moles
-    vector_fp& elmFrac = m_elementmolefracs;
+    vector<double>& elmFrac = m_elementmolefracs;
     for (size_t n = 0; n < m_mm; n++) {
         size_t m = m_orderVectorElements[n];
         // drive element potential for absent elements to -1000
@@ -757,12 +757,12 @@ void ChemEquil::equilResidual(ThermoPhase& s, const vector_fp& x,
     }
 }
 
-void ChemEquil::equilJacobian(ThermoPhase& s, vector_fp& x,
-                              const vector_fp& elmols, DenseMatrix& jac,
+void ChemEquil::equilJacobian(ThermoPhase& s, vector<double>& x,
+                              const vector<double>& elmols, DenseMatrix& jac,
                               doublereal xval, doublereal yval, int loglevel)
 {
-    vector_fp& r0 = m_jwork1;
-    vector_fp& r1 = m_jwork2;
+    vector<double>& r0 = m_jwork1;
+    vector<double>& r1 = m_jwork2;
     size_t len = x.size();
     r0.resize(len);
     r1.resize(len);
@@ -790,16 +790,16 @@ void ChemEquil::equilJacobian(ThermoPhase& s, vector_fp& x,
     m_doResPerturb = false;
 }
 
-double ChemEquil::calcEmoles(ThermoPhase& s, vector_fp& x, const double& n_t,
-                             const vector_fp& Xmol_i_calc,
-                             vector_fp& eMolesCalc, vector_fp& n_i_calc,
+double ChemEquil::calcEmoles(ThermoPhase& s, vector<double>& x, const double& n_t,
+                             const vector<double>& Xmol_i_calc,
+                             vector<double>& eMolesCalc, vector<double>& n_i_calc,
                              double pressureConst)
 {
     double n_t_calc = 0.0;
 
     // Calculate the activity coefficients of the solution, at the previous
     // solution state.
-    vector_fp actCoeff(m_kk, 1.0);
+    vector<double> actCoeff(m_kk, 1.0);
     s.setMoleFractions(Xmol_i_calc.data());
     s.setPressure(pressureConst);
     s.getActivityCoefficients(actCoeff.data());
@@ -826,37 +826,37 @@ double ChemEquil::calcEmoles(ThermoPhase& s, vector_fp& x, const double& n_t,
     return n_t_calc;
 }
 
-int ChemEquil::estimateEP_Brinkley(ThermoPhase& s, vector_fp& x,
-                                   vector_fp& elMoles)
+int ChemEquil::estimateEP_Brinkley(ThermoPhase& s, vector<double>& x,
+                                   vector<double>& elMoles)
 {
     // Before we do anything, we will save the state of the solution. Then, if
     // things go drastically wrong, we will restore the saved state.
-    vector_fp state;
+    vector<double> state;
     s.saveState(state);
     bool modifiedMatrix = false;
     size_t neq = m_mm+1;
     int retn = 1;
     DenseMatrix a1(neq, neq, 0.0);
-    vector_fp b(neq, 0.0);
-    vector_fp n_i(m_kk,0.0);
-    vector_fp n_i_calc(m_kk,0.0);
-    vector_fp actCoeff(m_kk, 1.0);
+    vector<double> b(neq, 0.0);
+    vector<double> n_i(m_kk,0.0);
+    vector<double> n_i_calc(m_kk,0.0);
+    vector<double> actCoeff(m_kk, 1.0);
     double beta = 1.0;
 
     s.getMoleFractions(n_i.data());
     double pressureConst = s.pressure();
-    vector_fp Xmol_i_calc = n_i;
+    vector<double> Xmol_i_calc = n_i;
 
-    vector_fp x_old(m_mm+1, 0.0);
-    vector_fp resid(m_mm+1, 0.0);
+    vector<double> x_old(m_mm+1, 0.0);
+    vector<double> resid(m_mm+1, 0.0);
     vector<int> lumpSum(m_mm+1, 0);
 
     // Get the nondimensional Gibbs functions for the species at their standard
     // states of solution at the current T and P of the solution.
     s.getGibbs_RT(m_muSS_RT.data());
 
-    vector_fp eMolesCalc(m_mm, 0.0);
-    vector_fp eMolesFix(m_mm, 0.0);
+    vector<double> eMolesCalc(m_mm, 0.0);
+    vector<double> eMolesFix(m_mm, 0.0);
     double elMolesTotal = 0.0;
     for (size_t m = 0; m < m_mm; m++) {
         elMolesTotal += elMoles[m];
@@ -1295,7 +1295,7 @@ int ChemEquil::estimateEP_Brinkley(ThermoPhase& s, vector_fp& x,
 }
 
 
-void ChemEquil::adjustEloc(ThermoPhase& s, vector_fp& elMolesGoal)
+void ChemEquil::adjustEloc(ThermoPhase& s, vector<double>& elMolesGoal)
 {
     if (m_eloc == npos) {
         return;

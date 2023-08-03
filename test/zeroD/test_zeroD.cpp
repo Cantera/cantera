@@ -68,8 +68,8 @@ TEST(zerodim, test_individual_reactor_initialization)
     reactor2.insert(sol2);
     reactor2.initialize(0.0);
     // get state of reactors
-    vector_fp state1(reactor1.neq());
-    vector_fp state2(reactor2.neq());
+    vector<double> state1(reactor1.neq());
+    vector<double> state2(reactor2.neq());
     reactor1.getState(state1.data());
     reactor2.getState(state2.data());
     // compare the reactors.
@@ -90,10 +90,10 @@ TEST(MoleReactorTestSet, test_mole_reactor_get_state)
     reactor.setInitialVolume(0.5);
     reactor.setEnergy(false);
     reactor.initialize();
-    vector_fp state(reactor.neq());
+    vector<double> state(reactor.neq());
     // test get state
     const ThermoPhase& thermo = reactor.contents();
-    const vector_fp& imw = thermo.inverseMolecularWeights();
+    const vector<double>& imw = thermo.inverseMolecularWeights();
     // prescribed state
     double mass = reactor.volume() * thermo.density();
     size_t H2I = reactor.componentIndex("H2")-1;
@@ -133,8 +133,8 @@ TEST(AdaptivePreconditionerTests, test_adaptive_precon_utils)
     identity.setIdentity();
     EXPECT_TRUE(precon.matrix().isApprox(identity));
     // test solve
-    vector_fp output(testSize, 0);
-    vector_fp rhs_vector(testSize, 10);
+    vector<double> output(testSize, 0);
+    vector<double> rhs_vector(testSize, 10);
     precon.solve(testSize, rhs_vector.data(), output.data());
     for (size_t i = 0; i < testSize; i++) {
         EXPECT_NEAR(rhs_vector[i], output[i], tol);

@@ -50,7 +50,7 @@ void Array2D::resize(size_t n, size_t m, double v)
     m_data.resize(n*m, v);
 }
 
-void Array2D::appendColumn(const vector_fp& c)
+void Array2D::appendColumn(const vector<double>& c)
 {
     m_ncols++;
     m_data.resize(m_nrows * m_ncols);

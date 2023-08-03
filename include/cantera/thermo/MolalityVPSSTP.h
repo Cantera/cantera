@@ -542,7 +542,7 @@ public:
 
 protected:
     virtual void getCsvReportData(std::vector<std::string>& names,
-                                  std::vector<vector_fp>& data) const;
+                                  std::vector<vector<double>>& data) const;
 
     //! Get the array of unscaled non-dimensional molality based activity
     //! coefficients at the current solution temperature, pressure, and solution
@@ -618,7 +618,7 @@ protected:
 
     //! Current value of the molalities of the species in the phase. Note this
     //! vector is a mutable quantity. units are (kg/kmol)
-    mutable vector_fp m_molalities;
+    mutable vector<double> m_molalities;
 };
 
 }

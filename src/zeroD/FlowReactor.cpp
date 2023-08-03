@@ -24,7 +24,7 @@ void FlowReactor::getStateDae(double* y, double* ydot)
     }
     m_thermo->restoreState(m_state);
     m_thermo->getMassFractions(y+m_offset_Y);
-    const vector_fp& mw = m_thermo->molecularWeights();
+    const vector<double>& mw = m_thermo->molecularWeights();
 
     // set the first component to the initial density
     y[0] = m_rho;
@@ -55,7 +55,7 @@ void FlowReactor::getStateDae(double* y, double* ydot)
         kin->advanceCoverages(100.0, m_ss_rtol, m_ss_atol, 0, m_max_ss_steps,
                               m_max_ss_error_fails);
         auto& surf = dynamic_cast<SurfPhase&>(kin->thermo(kin->reactionPhaseIndex()));
-        vector_fp cov(surf.nSpecies());
+        vector<double> cov(surf.nSpecies());
         surf.getCoverages(cov.data());
         m_surf->setCoverages(cov.data());
     }
@@ -259,7 +259,7 @@ void FlowReactor::evalDae(double time, double* y, double* ydot, double* residual
     m_thermo->restoreState(m_state);
 
     evalSurfaces(ydot + m_nsp + 4, m_sdot.data());
-    const vector_fp& mw = m_thermo->molecularWeights();
+    const vector<double>& mw = m_thermo->molecularWeights();
     double sk_wk = 0;
     for (size_t i = 0; i < m_nsp; ++i) {
         sk_wk = m_sdot[i] * mw[i];

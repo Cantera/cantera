@@ -14,7 +14,7 @@ public:
 
     //vary the composition of a co2-h2 mixture
     void set_r(const double r) {
-        vector_fp moleFracs(7);
+        vector<double> moleFracs(7);
         moleFracs[0] = r;
         moleFracs[2] = 1-r;
         test_phase->setMoleFractions(&moleFracs[0]);

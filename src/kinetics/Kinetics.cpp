@@ -690,7 +690,7 @@ bool Kinetics::addReaction(shared_ptr<Reaction> r, bool resize)
 
     // Reactant and product stoichiometric coefficients, such that rstoich[i] is
     // the coefficient for species rk[i]
-    vector_fp rstoich, pstoich;
+    vector<double> rstoich, pstoich;
 
     for (const auto& [name, stoich] : r->reactants) {
         rk.push_back(kineticsSpeciesIndex(name));
@@ -705,7 +705,7 @@ bool Kinetics::addReaction(shared_ptr<Reaction> r, bool resize)
     // The default order for each reactant is its stoichiometric coefficient,
     // which can be overridden by entries in the Reaction.orders map. rorder[i]
     // is the order for species rk[i].
-    vector_fp rorder = rstoich;
+    vector<double> rorder = rstoich;
     for (const auto& [name, order] : r->orders) {
         size_t k = kineticsSpeciesIndex(name);
         // Find the index of species k within rk
@@ -795,7 +795,7 @@ shared_ptr<const Reaction> Kinetics::reaction(size_t i) const
 double Kinetics::reactionEnthalpy(const Composition& reactants, const Composition& products)
 {
     warn_deprecated("Kinetics::reactionEnthalpy", "To be removed after Cantera 3.0");
-    vector_fp hk(nTotalSpecies());
+    vector<double> hk(nTotalSpecies());
     for (size_t n = 0; n < nPhases(); n++) {
         thermo(n).getPartialMolarEnthalpies(&hk[m_start[n]]);
     }

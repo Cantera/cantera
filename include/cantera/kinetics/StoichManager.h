@@ -161,7 +161,7 @@ public:
         m_jc0 = indices.at({m_rxn, m_ic0});
     }
 
-    void derivatives(const double* S, const double* R, vector_fp& jac) const
+    void derivatives(const double* S, const double* R, vector<double>& jac) const
     {
         jac[m_jc0] += R[m_rxn]; // index (m_ic0, m_rxn)
     }
@@ -224,7 +224,7 @@ public:
         m_jc1 = indices.at({m_rxn, m_ic1});
     }
 
-    void derivatives(const double* S, const double* R, vector_fp& jac) const
+    void derivatives(const double* S, const double* R, vector<double>& jac) const
     {
         if (S[m_ic1] > 0) {
             jac[m_jc0] += R[m_rxn] * S[m_ic1]; // index (m_ic0, m_rxn)
@@ -296,7 +296,7 @@ public:
         m_jc2 = indices.at({m_rxn, m_ic2});
     }
 
-    void derivatives(const double* S, const double* R, vector_fp& jac) const
+    void derivatives(const double* S, const double* R, vector<double>& jac) const
     {
         if (S[m_ic1] > 0 && S[m_ic2] > 0) {
             jac[m_jc0] += R[m_rxn] * S[m_ic1] * S[m_ic2];; // index (m_ic0, m_rxn)
@@ -334,7 +334,7 @@ class C_AnyN
 public:
     C_AnyN() = default;
 
-    C_AnyN(size_t rxn, const std::vector<size_t>& ic, const vector_fp& order_, const vector_fp& stoich_) :
+    C_AnyN(size_t rxn, const std::vector<size_t>& ic, const vector<double>& order_, const vector<double>& stoich_) :
         m_n(ic.size()),
         m_rxn(rxn) {
         m_ic.resize(m_n);
@@ -404,7 +404,7 @@ public:
         }
     }
 
-    void derivatives(const double* S, const double* R, vector_fp& jac) const
+    void derivatives(const double* S, const double* R, vector<double>& jac) const
     {
         for (size_t i = 0; i < m_n; i++) {
             // calculate derivative
@@ -465,14 +465,14 @@ private:
      * This is either for the reactants or products. Length = m_n. Species
      * number, m_ic[n], has a reaction order of m_order[n].
      */
-    vector_fp m_order;
+    vector<double> m_order;
 
     //! Stoichiometric coefficients for the reaction, reactant or product side.
     /*!
      *  This is either for the reactants or products. Length = m_n. Species
      *  number m_ic[m], has a stoichiometric coefficient of m_stoich[n].
      */
-    vector_fp m_stoich;
+    vector<double> m_stoich;
 
     std::vector<size_t> m_jc; //!< Indices in derivative triplet vector
 
@@ -647,13 +647,13 @@ public:
      * of each species in the power list expression is set to one automatically.
      */
     void add(size_t rxn, const std::vector<size_t>& k) {
-        vector_fp order(k.size(), 1.0);
-        vector_fp stoich(k.size(), 1.0);
+        vector<double> order(k.size(), 1.0);
+        vector<double> stoich(k.size(), 1.0);
         add(rxn, k, order, stoich);
     }
 
-    void add(size_t rxn, const std::vector<size_t>& k, const vector_fp& order) {
-        vector_fp stoich(k.size(), 1.0);
+    void add(size_t rxn, const std::vector<size_t>& k, const vector<double>& order) {
+        vector<double> stoich(k.size(), 1.0);
         add(rxn, k, order, stoich);
     }
 
@@ -673,8 +673,8 @@ public:
      *  @param stoich  This is used to handle fractional stoichiometric
      *     coefficients on the product side of irreversible reactions.
      */
-    void add(size_t rxn, const std::vector<size_t>& k, const vector_fp& order,
-             const vector_fp& stoich) {
+    void add(size_t rxn, const std::vector<size_t>& k, const vector<double>& order,
+             const vector<double>& stoich) {
         if (order.size() != k.size()) {
            throw CanteraError("StoichManagerN::add()", "size of order and species arrays differ");
         }
@@ -816,7 +816,7 @@ private:
     //! Storage indicies used to build derivatives
     std::vector<int> m_outerIndices;
     std::vector<int> m_innerIndices;
-    vector_fp m_values;
+    vector<double> m_values;
 };
 
 }

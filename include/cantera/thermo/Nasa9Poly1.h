@@ -75,7 +75,7 @@ public:
     Nasa9Poly1(double tlow, double thigh, double pref, const double* coeffs);
 
     //! Set the array of 9 polynomial coefficients
-    void setParameters(const vector_fp& coeffs);
+    void setParameters(const vector<double>& coeffs);
 
     virtual int reportType() const;
 
@@ -128,7 +128,7 @@ public:
 
 protected:
     //! array of polynomial coefficients
-    vector_fp m_coeff;
+    vector<double> m_coeff;
 };
 
 }

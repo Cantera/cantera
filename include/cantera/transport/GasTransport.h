@@ -297,7 +297,7 @@ protected:
 
     //! Vector of species mole fractions. These are processed so that all mole
     //! fractions are >= *Tiny*. Length = m_kk.
-    vector_fp m_molefracs;
+    vector<double> m_molefracs;
 
     //! Internal storage for the viscosity of the mixture  (kg /m /s)
     double m_viscmix = 0.0;
@@ -322,19 +322,19 @@ protected:
     DenseMatrix m_phi;
 
     //! work space length = m_kk
-    vector_fp m_spwork;
+    vector<double> m_spwork;
 
     //! vector of species viscosities (kg /m /s). These are used in Wilke's
     //! rule to calculate the viscosity of the solution. length = m_kk.
-    vector_fp m_visc;
+    vector<double> m_visc;
 
     //! Polynomial fits to the viscosity of each species. m_visccoeffs[k] is
     //! the vector of polynomial coefficients for species k that fits the
     //! viscosity as a function of temperature.
-    std::vector<vector_fp> m_visccoeffs;
+    std::vector<vector<double>> m_visccoeffs;
 
     //! Local copy of the species molecular weights.
-    vector_fp m_mw;
+    vector<double> m_mw;
 
     //! Holds square roots of molecular weight ratios
     /*!
@@ -354,10 +354,10 @@ protected:
     //! vector of square root of species viscosities sqrt(kg /m /s). These are
     //! used in Wilke's rule to calculate the viscosity of the solution.
     //! length = m_kk.
-    vector_fp m_sqvisc;
+    vector<double> m_sqvisc;
 
     //! Powers of the ln temperature, up to fourth order
-    vector_fp m_polytempvec;
+    vector<double> m_polytempvec;
 
     //! Current value of the temperature at which the properties in this object
     //! are calculated (Kelvin).
@@ -388,7 +388,7 @@ protected:
      *         }
      *      }
      */
-    std::vector<vector_fp> m_diffcoeffs;
+    std::vector<vector<double>> m_diffcoeffs;
 
     //! Matrix of binary diffusion coefficients at the reference pressure and
     //! the current temperature Size is nsp x nsp.
@@ -399,7 +399,7 @@ protected:
      *  Dimensions are number of species (nsp) polynomial order of the collision
      *  integral fit (degree+1).
      */
-    std::vector<vector_fp> m_condcoeffs;
+    std::vector<vector<double>> m_condcoeffs;
 
     //! Indices for the (i,j) interaction in collision integral fits
     /*!
@@ -414,7 +414,7 @@ protected:
      * (length degree+1) for the collision integral fit for the species pair
      * (i,j).
      */
-    std::vector<vector_fp> m_omega22_poly;
+    std::vector<vector<double>> m_omega22_poly;
 
     //! Flag to indicate for which (i,j) interaction pairs the
     //! actual temperature is used instead of the reduced temperature
@@ -426,7 +426,7 @@ protected:
      * (length degree+1) for the collision integral fit for the species pair
      * (i,j).
      */
-    std::vector<vector_fp> m_astar_poly;
+    std::vector<vector<double>> m_astar_poly;
 
     //! Fit for bstar collision integral
     /*!
@@ -434,7 +434,7 @@ protected:
      * (length degree+1) for the collision integral fit for the species pair
      * (i,j).
      */
-    std::vector<vector_fp> m_bstar_poly;
+    std::vector<vector<double>> m_bstar_poly;
 
     //! Fit for cstar collision integral
     /*!
@@ -442,13 +442,13 @@ protected:
      * (length degree+1) for the collision integral fit for the species pair
      * (i,j).
      */
-    std::vector<vector_fp> m_cstar_poly;
+    std::vector<vector<double>> m_cstar_poly;
 
     //! Rotational relaxation number for each species
     /*!
      * length is the number of species in the phase. units are dimensionless
      */
-    vector_fp m_zrot;
+    vector<double> m_zrot;
 
     //! Dimensionless rotational heat capacity of each species
     /*!
@@ -456,7 +456,7 @@ protected:
      * species respectively length is the number of species in the phase.
      * Dimensionless  (Cr / R)
      */
-    vector_fp m_crot;
+    vector<double> m_crot;
 
     //! Vector of booleans indicating whether a species is a polar molecule
     /*!
@@ -468,20 +468,20 @@ protected:
     /*!
      * Length = nsp. Units = m^3
      */
-    vector_fp m_alpha;
+    vector<double> m_alpha;
 
     //! Lennard-Jones well-depth of the species in the current phase
     /*!
      * length is the number of species in the phase. Units are Joules (Note this
      * is not Joules/kmol) (note, no kmol -> this is a per molecule amount)
      */
-    vector_fp m_eps;
+    vector<double> m_eps;
 
     //! Lennard-Jones diameter of the species in the current phase
     /*!
      * length is the number of species in the phase. units are in meters.
      */
-    vector_fp m_sigma;
+    vector<double> m_sigma;
 
     //! This is the reduced mass of the interaction between species i and j
     /*!
@@ -536,13 +536,13 @@ protected:
     /*!
      * Length is the number of species in the phase. Dimensionless.
      */
-    vector_fp m_w_ac;
+    vector<double> m_w_ac;
 
     //! Dispersion coefficient
-    vector_fp m_disp;
+    vector<double> m_disp;
 
     //! Quadrupole polarizability
-    vector_fp m_quad_polar;
+    vector<double> m_quad_polar;
 
     //! Level of verbose printing during initialization
     int m_log_level = 0;

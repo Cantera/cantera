@@ -49,7 +49,7 @@ protected:
     }
 
     NasaPoly1 poly;
-    vector_fp tpow_;
+    vector<double> tpow_;
 };
 
 TEST_F(NasaPoly1Test, Initialization)
@@ -98,13 +98,13 @@ TEST(Nasa9Test, Nasa9Thermo) {
     IdealGasPhase g("gasNASA9.yaml", "nasa9");
     size_t nsp = g.nSpecies();
     double pres = 1.0E5;
-    vector_fp Xset(nsp, 0.0);
+    vector<double> Xset(nsp, 0.0);
     Xset[0] = 0.5;
     Xset[1] = 0.5;
 
-    vector_fp cp_R(nsp, 0.0);
-    vector_fp H_RT(nsp, 0.0);
-    vector_fp S_R(nsp, 0.0);
+    vector<double> cp_R(nsp, 0.0);
+    vector<double> H_RT(nsp, 0.0);
+    vector<double> S_R(nsp, 0.0);
 
     double T0 = 300.0;
     double dT = 199.0;

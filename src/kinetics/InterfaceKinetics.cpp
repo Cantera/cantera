@@ -615,8 +615,8 @@ void InterfaceKinetics::setPhaseStability(const size_t iphase, const int isStabl
 
 double InterfaceKinetics::interfaceCurrent(const size_t iphase)
 {
-    vector_fp charges(m_kk, 0.0);
-    vector_fp netProdRates(m_kk, 0.0);
+    vector<double> charges(m_kk, 0.0);
+    vector<double> netProdRates(m_kk, 0.0);
     double dotProduct = 0.0;
 
     thermo(iphase).getCharges(charges.data());
@@ -635,7 +635,7 @@ Eigen::SparseMatrix<double> InterfaceKinetics::fwdRatesOfProgress_ddCi()
     // check derivatives are valid
     assertDerivativesValid("InterfaceKinetics::fwdRatesOfProgress_ddCi");
     // forward reaction rate coefficients
-    vector_fp& rop_rates = m_rbuf0;
+    vector<double>& rop_rates = m_rbuf0;
     getFwdRateConstants(rop_rates.data());
     return calculateCompositionDerivatives(m_reactantStoich, rop_rates);
 }
@@ -645,7 +645,7 @@ Eigen::SparseMatrix<double> InterfaceKinetics::revRatesOfProgress_ddCi()
     // check derivatives are valid
     assertDerivativesValid("InterfaceKinetics::revRatesOfProgress_ddCi");
     // reverse reaction rate coefficients
-    vector_fp& rop_rates = m_rbuf0;
+    vector<double>& rop_rates = m_rbuf0;
     getFwdRateConstants(rop_rates.data());
     applyEquilibriumConstants(rop_rates.data());
     return calculateCompositionDerivatives(m_revProductStoich, rop_rates);
@@ -656,7 +656,7 @@ Eigen::SparseMatrix<double> InterfaceKinetics::netRatesOfProgress_ddCi()
     // check derivatives are valid
     assertDerivativesValid("InterfaceKinetics::netRatesOfProgress_ddCi");
     // forward reaction rate coefficients
-    vector_fp& rop_rates = m_rbuf0;
+    vector<double>& rop_rates = m_rbuf0;
     getFwdRateConstants(rop_rates.data());
     Eigen::SparseMatrix<double> jac = calculateCompositionDerivatives(m_reactantStoich,
         rop_rates);
@@ -690,9 +690,9 @@ void InterfaceKinetics::getDerivativeSettings(AnyMap& settings) const
 }
 
 Eigen::SparseMatrix<double> InterfaceKinetics::calculateCompositionDerivatives(
-    StoichManagerN& stoich, const vector_fp& in)
+    StoichManagerN& stoich, const vector<double>& in)
 {
-    vector_fp& outV = m_rbuf1;
+    vector<double>& outV = m_rbuf1;
     // derivatives handled by StoichManagerN
     copy(in.begin(), in.end(), outV.begin());
     return stoich.derivatives(m_actConc.data(), outV.data());

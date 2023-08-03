@@ -74,7 +74,7 @@ public:
      *                  region and each value is the array of 9 polynomial
      *                  coefficients for that region.
      */
-    void setParameters(const std::map<double, vector_fp>& regions);
+    void setParameters(const std::map<double, vector<double>>& regions);
 
     virtual int reportType() const;
 
@@ -120,7 +120,7 @@ public:
 
 protected:
     //! Lower boundaries of each temperature regions
-    vector_fp m_lowerTempBounds;
+    vector<double> m_lowerTempBounds;
 
     //! Individual temperature region objects
     std::vector<std::unique_ptr<Nasa9Poly1>> m_regionPts;

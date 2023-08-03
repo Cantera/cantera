@@ -87,7 +87,7 @@ TEST(ThermoFromYaml, SurfPhase)
     EXPECT_EQ(thermo->nSpecies(), (size_t) 3);
     auto surf = std::dynamic_pointer_cast<SurfPhase>(thermo);
     EXPECT_DOUBLE_EQ(surf->siteDensity(), 2.7063e-8);
-    vector_fp cov(surf->nSpecies());
+    vector<double> cov(surf->nSpecies());
     surf->getCoverages(cov.data());
     EXPECT_DOUBLE_EQ(cov[surf->speciesIndex("Pt(s)")], 0.5);
     EXPECT_DOUBLE_EQ(cov[surf->speciesIndex("H(s)")], 0.4);
@@ -140,7 +140,7 @@ TEST(ThermoFromYaml, IdealMolalSoln)
     EXPECT_NEAR(thermo->density(), 12.058, 1e-3);
 
     size_t N = thermo->nSpecies();
-    vector_fp mv(N);
+    vector<double> mv(N);
     double mvRef[] = {1.5, 1.3, 0.1, 0.1};
     thermo->getPartialMolarVolumes(mv.data());
     for (size_t k = 0; k < N; k++) {
@@ -158,8 +158,8 @@ TEST(ThermoFromYaml, DebyeHuckel_bdot_ak)
     EXPECT_NEAR(thermo->cp_mass(), 1.58216e5, 1e0);
     EXPECT_NEAR(thermo->entropy_mass(), 4.042462e3, 1e-2);
 
-    vector_fp actcoeff(thermo->nSpecies());
-    vector_fp mu_ss(thermo->nSpecies());
+    vector<double> actcoeff(thermo->nSpecies());
+    vector<double> mu_ss(thermo->nSpecies());
     auto& molphase = dynamic_cast<MolalityVPSSTP&>(*thermo);
     molphase.getMolalityActivityCoefficients(actcoeff.data());
     thermo->getStandardChemPotentials(mu_ss.data());
@@ -182,8 +182,8 @@ TEST(ThermoFromYaml, DebyeHuckel_beta_ij)
     EXPECT_NEAR(thermo->cp_mass(), 81263.5, 1e-1);
     EXPECT_NEAR(thermo->entropy_mass(), 4022.519, 1e-2);
 
-    vector_fp actcoeff(thermo->nSpecies());
-    vector_fp mu_ss(thermo->nSpecies());
+    vector<double> actcoeff(thermo->nSpecies());
+    vector<double> mu_ss(thermo->nSpecies());
     auto& molphase = dynamic_cast<MolalityVPSSTP&>(*thermo);
     molphase.getMolalityActivityCoefficients(actcoeff.data());
     thermo->getStandardChemPotentials(mu_ss.data());
@@ -201,7 +201,7 @@ TEST(ThermoFromYaml, IonsFromNeutral)
     suppress_deprecation_warnings();
     auto thermo = newThermo("thermo-models.yaml", "ions-from-neutral-molecule");
     ASSERT_EQ((int) thermo->nSpecies(), 2);
-    vector_fp mu(thermo->nSpecies());
+    vector<double> mu(thermo->nSpecies());
     thermo->getChemPotentials(mu.data());
 
     // Values for regression testing only -- same as "fromScratch" test
@@ -225,7 +225,7 @@ TEST(ThermoFromYaml, IonsFromNeutral_fromString)
         input["phases"].getMapWhere("name", "ions-from-neutral-molecule"),
         input);
     ASSERT_EQ((int) thermo->nSpecies(), 2);
-    vector_fp mu(thermo->nSpecies());
+    vector<double> mu(thermo->nSpecies());
     thermo->getChemPotentials(mu.data());
 
     // Values for regression testing only -- same as "fromScratch" test
@@ -254,8 +254,8 @@ TEST(ThermoFromYaml, IdealSolnGas_liquid)
 TEST(ThermoFromYaml, RedlichKister)
 {
     auto thermo = newThermo("thermo-models.yaml", "Redlich-Kister-LiC6");
-    vector_fp chemPotentials(2);
-    vector_fp dlnActCoeffdx(2);
+    vector<double> chemPotentials(2);
+    vector<double> dlnActCoeffdx(2);
     thermo->setState_TP(298.15, OneAtm);
     thermo->setMoleFractionsByName("Li(C6): 0.6375, V(C6): 0.3625");
     thermo->getChemPotentials(chemPotentials.data());
@@ -274,7 +274,7 @@ TEST(ThermoFromYaml, MaskellSolidSoln)
 {
     suppress_deprecation_warnings();
     auto thermo = newThermo("thermo-models.yaml", "MaskellSolidSoln");
-    vector_fp chemPotentials(2);
+    vector<double> chemPotentials(2);
     thermo->getChemPotentials(chemPotentials.data());
     EXPECT_NEAR(chemPotentials[0], -4.989677789060059e6, 1e-6);
     EXPECT_NEAR(chemPotentials[1], 4.989677789060059e6 + 1000, 1e-6);
@@ -286,7 +286,7 @@ TEST(ThermoFromYaml, HMWSoln)
     auto thermo = newThermo("thermo-models.yaml", "HMW-NaCl-electrolyte");
     size_t N = thermo->nSpecies();
     auto HMW = dynamic_cast<MolalityVPSSTP*>(thermo.get());
-    vector_fp acMol(N), mf(N), activities(N), moll(N), mu0(N);
+    vector<double> acMol(N), mf(N), activities(N), moll(N), mu0(N);
     thermo->getMoleFractions(mf.data());
     HMW->getMolalities(moll.data());
     HMW->getMolalityActivityCoefficients(acMol.data());
@@ -320,7 +320,7 @@ TEST(ThermoFromYaml, HMWSoln_HKFT)
 
     // Regression test based on HMWSoln.fromScratch_HKFT
     size_t N = thermo->nSpecies();
-    vector_fp mv(N), h(N), acoeff(N);
+    vector<double> mv(N), h(N), acoeff(N);
     thermo->getPartialMolarVolumes(mv.data());
     thermo->getPartialMolarEnthalpies(h.data());
     thermo->getActivityCoefficients(acoeff.data());
@@ -400,8 +400,8 @@ TEST(ThermoFromYaml, IdealSolidSolnPhase)
     // pressure:
     double h_avg = 0;
     size_t N = thermo->nSpecies();
-    vector_fp X_k(N);
-    vector_fp h_k(N);
+    vector<double> X_k(N);
+    vector<double> h_k(N);
     thermo->getMoleFractions(X_k.data());
     thermo->getPartialMolarEnthalpies(h_k.data());
     for (size_t k = 0; k < N; k++) {
@@ -427,8 +427,8 @@ TEST(ThermoFromYaml, Lattice)
     EXPECT_NEAR(thermo->enthalpy_mass(), -2077955.0584538165, 1e-6);
     double mu_ref[] = {-4.62717474e+08, -4.64248485e+07, 1.16370186e+05};
     double vol_ref[] = {0.095564748201438871, 0.2, 0.09557086};
-    vector_fp mu(thermo->nSpecies());
-    vector_fp vol(thermo->nSpecies());
+    vector<double> mu(thermo->nSpecies());
+    vector<double> vol(thermo->nSpecies());
     thermo->getChemPotentials(mu.data());
     thermo->getPartialMolarVolumes(vol.data());
 
@@ -454,8 +454,8 @@ TEST(ThermoFromYaml, Lattice_fromString)
     EXPECT_NEAR(thermo->enthalpy_mass(), -2077955.0584538165, 1e-6);
     double mu_ref[] = {-4.62717474e+08, -4.64248485e+07, 1.16370186e+05};
     double vol_ref[] = {0.095564748201438871, 0.2, 0.09557086};
-    vector_fp mu(thermo->nSpecies());
-    vector_fp vol(thermo->nSpecies());
+    vector<double> mu(thermo->nSpecies());
+    vector<double> vol(thermo->nSpecies());
     thermo->getChemPotentials(mu.data());
     thermo->getPartialMolarVolumes(vol.data());
 

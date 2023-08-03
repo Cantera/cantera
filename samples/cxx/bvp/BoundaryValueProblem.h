@@ -73,7 +73,7 @@ public:
         m_left(0), m_right(0), m_sim(0)
     {
         // Create the initial uniform grid
-        Cantera::vector_fp z(np);
+        Cantera::vector<double> z(np);
         int iz;
         for (iz = 0; iz < np; iz++) {
             z[iz] = zmin + iz*(zmax - zmin)/(np-1);

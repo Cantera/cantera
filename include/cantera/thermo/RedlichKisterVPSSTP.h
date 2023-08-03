@@ -430,11 +430,11 @@ protected:
 
     //! Enthalpy term for the binary mole fraction interaction of the excess
     //! Gibbs free energy expression
-    vector<vector_fp> m_HE_m_ij;
+    vector<vector<double>> m_HE_m_ij;
 
     //! Entropy term for the binary mole fraction interaction of the excess
     //! Gibbs free energy expression
-    vector<vector_fp> m_SE_m_ij;
+    vector<vector<double>> m_SE_m_ij;
 
     //! Two dimensional array of derivatives of activity coefficients wrt mole
     //! fractions

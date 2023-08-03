@@ -274,7 +274,7 @@ int solveSP::solveSurfProb(int ifunc, doublereal time_scale, doublereal TKelvin,
 
 void solveSP::updateState(const doublereal* CSolnSP)
 {
-    vector_fp X;
+    vector<double> X;
     size_t loc = 0;
     for (size_t n = 0; n < m_numSurfPhases; n++) {
         X.resize(m_nSpeciesSurfPhase[n]);

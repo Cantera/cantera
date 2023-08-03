@@ -439,7 +439,7 @@ void IdasIntegrator::sensInit(double t0, FuncEval& func)
                            IDA_STAGGERED, IDASensResFn(0), m_yS, m_ySdot);
     checkError(flag, "sensInit", "IDASensInit");
 
-    vector_fp atol(m_np);
+    vector<double> atol(m_np);
     for (size_t n = 0; n < m_np; n++) {
         // This scaling factor is tuned so that reaction and species enthalpy
         // sensitivities can be computed simultaneously with the same abstol.

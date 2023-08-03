@@ -238,9 +238,9 @@ public:
     //! Convert an array of AnyValue nodes to the units specified in `dest`. For
     //! each node, if the value is a double, convert it using the default units,
     //! and if it is a string, treat it as a value with the given dimensions.
-    vector_fp convert(const std::vector<AnyValue>& vals,
+    vector<double> convert(const std::vector<AnyValue>& vals,
                       const std::string& dest) const;
-    vector_fp convert(const std::vector<AnyValue>& vals,
+    vector<double> convert(const std::vector<AnyValue>& vals,
                       const Units& dest) const;
 
     //! Convert `value` from the units of `src` to the units of `dest`, allowing

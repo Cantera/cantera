@@ -316,7 +316,7 @@ protected:
     double m_n0 = 1.0;
 
     //! Vector of species sizes (number of sites occupied). length m_kk.
-    vector_fp m_speciesSize;
+    vector<double> m_speciesSize;
 
     //! log of the surface site density
     doublereal m_logn0;
@@ -325,26 +325,26 @@ protected:
     double m_press = OneAtm;
 
     //! Temporary storage for the reference state enthalpies
-    mutable vector_fp m_h0;
+    mutable vector<double> m_h0;
 
     //! Temporary storage for the reference state entropies
-    mutable vector_fp m_s0;
+    mutable vector<double> m_s0;
 
     //! Temporary storage for the reference state heat capacities
-    mutable vector_fp m_cp0;
+    mutable vector<double> m_cp0;
 
     //! Temporary storage for the reference state Gibbs energies
-    mutable vector_fp m_mu0;
+    mutable vector<double> m_mu0;
 
     //! Temporary work array
-    mutable vector_fp m_work;
+    mutable vector<double> m_work;
 
     //! vector storing the log of the size of each species.
     /*!
      * The size of each species is defined as the number of surface sites each
      * species occupies.
      */
-    mutable vector_fp m_logsize;
+    mutable vector<double> m_logsize;
 
     //! Update the species reference state thermodynamic functions
     /*!

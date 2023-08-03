@@ -39,7 +39,7 @@ public:
                      doublereal prune = -0.1);
 
     //! Get the grid refinement criteria. @see Refiner::setCriteria
-    vector_fp getCriteria()
+    vector<double> getCriteria()
     {
         return {m_ratio, m_slope, m_curve, m_prune};
     }

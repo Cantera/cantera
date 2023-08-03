@@ -93,11 +93,11 @@ void BinarySolutionTabulatedThermo::initThermo()
                 m_input["tabulated-species"].asString(), name());
         }
         const AnyMap& table = m_input["tabulated-thermo"].as<AnyMap>();
-        vector_fp x = table["mole-fractions"].asVector<double>();
+        vector<double> x = table["mole-fractions"].asVector<double>();
         size_t N = x.size();
-        vector_fp h = table.convertVector("enthalpy", "J/kmol", N);
-        vector_fp s = table.convertVector("entropy", "J/kmol/K", N);
-        vector_fp vmol(N);
+        vector<double> h = table.convertVector("enthalpy", "J/kmol", N);
+        vector<double> s = table.convertVector("entropy", "J/kmol/K", N);
+        vector<double> vmol(N);
         // Check for molar-volume key in tabulatedThermo table,
         // otherwise calculate molar volume from pure species molar volumes
         if (table.hasKey("molar-volume")) {
@@ -157,7 +157,7 @@ void BinarySolutionTabulatedThermo::getParameters(AnyMap& phaseNode) const
 }
 
 double BinarySolutionTabulatedThermo::interpolate(const double x,
-                                                  const vector_fp& inputData) const
+                                                  const vector<double>& inputData) const
 {
     double c;
     // Check if x is out of bound
@@ -176,8 +176,8 @@ double BinarySolutionTabulatedThermo::interpolate(const double x,
     return c;
 }
 
-void BinarySolutionTabulatedThermo::diff(const vector_fp& inputData,
-                                         vector_fp& derivedData) const
+void BinarySolutionTabulatedThermo::diff(const vector<double>& inputData,
+                                         vector<double>& derivedData) const
 {
     if (inputData.size() > 1) {
         derivedData[0] = (inputData[1] - inputData[0]) /

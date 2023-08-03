@@ -508,7 +508,7 @@ struct convert<Cantera::AnyValue> {
             if (types == Type::Integer) {
                 target = node.as<std::vector<long int>>();
             } else if (types == (Type::Integer | Type::Double) || types == Type::Double) {
-                vector_fp values;
+                vector<double> values;
                 for (const auto& elem : node) {
                     values.push_back(fpValue(elem.as<string>()));
                 }
@@ -776,7 +776,7 @@ void AnyValue::setQuantity(double value, const Units& units) {
     m_equals = eq_comparer<Quantity>;
 }
 
-void AnyValue::setQuantity(const vector_fp& values, const std::string& units) {
+void AnyValue::setQuantity(const vector<double>& values, const std::string& units) {
     AnyValue v;
     v = values;
     m_value = Quantity{v, Units(units), false};
@@ -1194,10 +1194,10 @@ void AnyValue::applyUnits(shared_ptr<UnitSystem>& units)
             } else {
                 *this = Q.value.as<double>() / units->convertTo(1.0, Q.units);
             }
-        } else if (Q.value.is<vector_fp>()) {
+        } else if (Q.value.is<vector<double>>()) {
             double factor = 1.0 / units->convertTo(1.0, Q.units);
             auto& old = Q.value.asVector<double>();
-            vector_fp converted(old.size());
+            vector<double> converted(old.size());
             scale(old.begin(), old.end(), converted.begin(), factor);
             *this = std::move(converted);
         } else {
@@ -1287,39 +1287,39 @@ std::vector<double>& AnyValue::asVector<double>(size_t nMin, size_t nMax)
 }
 
 template<>
-const std::vector<vector_fp>& AnyValue::asVector<vector_fp>(size_t nMin, size_t nMax) const
+const std::vector<vector<double>>& AnyValue::asVector<vector<double>>(size_t nMin, size_t nMax) const
 {
     if (is<std::vector<std::vector<long int>>>()) {
-        std::vector<vector_fp> v;
+        std::vector<vector<double>> v;
         for (const auto& outer : asVector<std::vector<long int>>()) {
-            v.push_back(vector_fp());
+            v.push_back(vector<double>());
             for (const auto& inner : outer) {
                 v.back().push_back(inner);
             }
         }
         const_cast<AnyValue*>(this)->m_value = v;
     }
-    const auto& vv = as<std::vector<vector_fp>>();
-    m_equals = eq_comparer<std::vector<vector_fp>>;
+    const auto& vv = as<std::vector<vector<double>>>();
+    m_equals = eq_comparer<std::vector<vector<double>>>;
     checkSize(vv, nMin, nMax);
     return vv;
 }
 
 template<>
-std::vector<vector_fp>& AnyValue::asVector<vector_fp>(size_t nMin, size_t nMax)
+std::vector<vector<double>>& AnyValue::asVector<vector<double>>(size_t nMin, size_t nMax)
 {
     if (is<std::vector<std::vector<long int>>>()) {
-        std::vector<vector_fp> v;
+        std::vector<vector<double>> v;
         for (const auto& outer : asVector<std::vector<long int>>()) {
-            v.push_back(vector_fp());
+            v.push_back(vector<double>());
             for (const auto& inner : outer) {
                 v.back().push_back(inner);
             }
         }
         m_value = v;
     }
-    auto& vv = as<std::vector<vector_fp>>();
-    m_equals = eq_comparer<std::vector<vector_fp>>;
+    auto& vv = as<std::vector<vector<double>>>();
+    m_equals = eq_comparer<std::vector<vector<double>>>;
     checkSize(vv, nMin, nMax);
     return vv;
 }
@@ -1555,7 +1555,7 @@ double AnyMap::convert(const std::string& key, const std::string& dest,
     }
 }
 
-vector_fp AnyMap::convertVector(const std::string& key, const std::string& dest,
+vector<double> AnyMap::convertVector(const std::string& key, const std::string& dest,
                                 size_t nMin, size_t nMax) const
 {
     return units().convert(at(key).asVector<AnyValue>(nMin, nMax), dest);

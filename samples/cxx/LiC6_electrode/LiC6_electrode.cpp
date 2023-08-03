@@ -34,9 +34,9 @@ void calc_potentials()
     std::ofstream fout("LiC6_electrode_output.csv", std::ofstream::out);
     fout << "x[LiC6], ChemPotential[LiC6], ChemPotential[C6], Uref, ActCoeff[LiC6], ActCoeff[C6], dlnActCoeffdx[LiC6], dlnActCoeffdx[C6]" << std::endl;
 
-    vector_fp spvals(nsp_tot);
-    vector_fp actCoeff(nsp_tot);
-    vector_fp dlnActCoeffdlnX_diag(nsp_tot);
+    vector<double> spvals(nsp_tot);
+    vector<double> actCoeff(nsp_tot);
+    vector<double> dlnActCoeffdlnX_diag(nsp_tot);
     double xmin = 0.6;
     double xmax = 0.9;
 
@@ -44,12 +44,12 @@ void calc_potentials()
     double dx = (xmax-xmin)/(numSteps-1);
 
     size_t nsp_electrodeBulk = electrodebulk->nSpecies();
-    vector_fp xv(nsp_electrodeBulk, 0.0);
+    vector<double> xv(nsp_electrodeBulk, 0.0);
 
     for (int i = 0; i < numSteps; ++i) {
         double x = xmin + i*dx;
 
-        vector_fp xv(nsp_electrodeBulk, 0.0);
+        vector<double> xv(nsp_electrodeBulk, 0.0);
         // Set the fraction of intercalated lithium
         xv[intercalatingSpeciesIdx] = x;
 

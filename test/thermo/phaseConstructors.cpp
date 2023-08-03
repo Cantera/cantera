@@ -108,7 +108,7 @@ TEST(IonsFromNeutralConstructor, fromScratch)
 
     ASSERT_EQ((int) p.nSpecies(), 2);
     p.setState_TPX(500, 2e5, "K+:0.1, Cl-:0.1");
-    vector_fp mu(p.nSpecies());
+    vector<double> mu(p.nSpecies());
     p.getChemPotentials(mu.data());
 
     // Values for regression testing only -- same as ThermoFromYaml test
@@ -348,8 +348,8 @@ TEST(DebyeHuckel, fromScratch)
     EXPECT_NEAR(p.density(), 60.296, 1e-2);
     EXPECT_NEAR(p.cp_mass(), 1.58216e5, 2e0);
     EXPECT_NEAR(p.entropy_mass(), 4.01292e3, 2e-2);
-    vector_fp actcoeff(p.nSpecies());
-    vector_fp mu_ss(p.nSpecies());
+    vector<double> actcoeff(p.nSpecies());
+    vector<double> mu_ss(p.nSpecies());
     p.getMolalityActivityCoefficients(actcoeff.data());
     p.getStandardChemPotentials(mu_ss.data());
     double act_ref[] = {1.21762, 0.538061, 0.472329, 0.717707, 0.507258, 1.0};
@@ -418,8 +418,8 @@ TEST(LatticeSolidPhase, fromScratch)
     EXPECT_NEAR(p.enthalpy_mass(), -2077955.0584538165, 1e-6);
     double mu_ref[] = {-4.62717474e+08, -4.64248485e+07, 1.16370186e+05};
     double vol_ref[] = {0.095564748201438857, 0.2, 0.095570863884152812};
-    vector_fp mu(p.nSpecies());
-    vector_fp vol(p.nSpecies());
+    vector<double> mu(p.nSpecies());
+    vector<double> vol(p.nSpecies());
     p.getChemPotentials(mu.data());
     p.getPartialMolarVolumes(vol.data());
 
@@ -519,7 +519,7 @@ TEST(HMWSoln, fromScratch)
     p.setState_TP(150 + 273.15, 101325);
 
     size_t N = p.nSpecies();
-    vector_fp acMol(N), mf(N), activities(N), moll(N), mu0(N);
+    vector<double> acMol(N), mf(N), activities(N), moll(N), mu0(N);
     p.getMolalityActivityCoefficients(acMol.data());
     p.getMoleFractions(mf.data());
     p.getActivities(activities.data());
@@ -603,7 +603,7 @@ TEST(HMWSoln, fromScratch_HKFT)
     p.setState_TP(50 + 273.15, 101325);
 
     size_t N = p.nSpecies();
-    vector_fp mv(N), h(N), mu(N), ac(N), acoeff(N);
+    vector<double> mv(N), h(N), mu(N), ac(N), acoeff(N);
     p.getPartialMolarVolumes(mv.data());
     p.getPartialMolarEnthalpies(h.data());
     p.getChemPotentials(mu.data());

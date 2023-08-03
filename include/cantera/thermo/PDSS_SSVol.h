@@ -183,7 +183,7 @@ private:
     SSVolume_Model volumeModel_ = SSVolume_Model::tpoly;
 
     //! coefficients for the temperature representation
-    vector_fp TCoeff_;
+    vector<double> TCoeff_;
 
     //! Derivative of the volume wrt temperature
     mutable doublereal dVdT_;

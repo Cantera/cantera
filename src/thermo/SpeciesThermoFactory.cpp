@@ -88,8 +88,8 @@ void setupSpeciesThermo(SpeciesThermoInterpType& thermo,
 void setupNasaPoly(NasaPoly2& thermo, const AnyMap& node)
 {
     setupSpeciesThermo(thermo, node);
-    vector_fp Tranges = node.convertVector("temperature-ranges", "K", 2, 3);
-    const auto& data = node["data"].asVector<vector_fp>(Tranges.size()-1);
+    vector<double> Tranges = node.convertVector("temperature-ranges", "K", 2, 3);
+    const auto& data = node["data"].asVector<vector<double>>(Tranges.size()-1);
     for (const auto& poly : data) {
         if (poly.size() != 7) {
             throw CanteraError("setupNasaPoly", "Wrong number of coefficients "
@@ -108,8 +108,8 @@ void setupNasaPoly(NasaPoly2& thermo, const AnyMap& node)
 void setupShomatePoly(ShomatePoly2& thermo, const AnyMap& node)
 {
     setupSpeciesThermo(thermo, node);
-    vector_fp Tranges = node.convertVector("temperature-ranges", "K", 2, 3);
-    const auto& data = node["data"].asVector<vector_fp>(Tranges.size()-1);
+    vector<double> Tranges = node.convertVector("temperature-ranges", "K", 2, 3);
+    const auto& data = node["data"].asVector<vector<double>>(Tranges.size()-1);
     for (const auto& poly : data) {
         if (poly.size() != 7) {
             throw CanteraError("setupShomatePoly", "Wrong number of coefficients "
@@ -144,9 +144,9 @@ void setupConstCp(ConstCpPoly& thermo, const AnyMap& node)
 void setupNasa9Poly(Nasa9PolyMultiTempRegion& thermo, const AnyMap& node)
 {
     setupSpeciesThermo(thermo, node);
-    vector_fp Tranges = node.convertVector("temperature-ranges", "K", 2, 999);
-    const auto& data = node["data"].asVector<vector_fp>(Tranges.size()-1);
-    map<double, vector_fp> regions;
+    vector<double> Tranges = node.convertVector("temperature-ranges", "K", 2, 999);
+    const auto& data = node["data"].asVector<vector<double>>(Tranges.size()-1);
+    map<double, vector<double>> regions;
     for (size_t i = 0; i < data.size(); i++) {
         if (data[i].size() != 9) {
             throw CanteraError("setupNasa9Poly", "Wrong number of coefficients "

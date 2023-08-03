@@ -13,7 +13,7 @@ public:
     }
 
     void set_defect_X(const double x) {
-        vector_fp moleFracs(2);
+        vector<double> moleFracs(2);
         moleFracs[0] = x;
         moleFracs[1] = 1-x;
         test_phase->setMoleFractions(&moleFracs[0]);
@@ -105,7 +105,7 @@ TEST_F(BinarySolutionTabulatedThermo_Test,chem_potentials)
     double xmax = 0.75;
     int numSteps= 9;
     double dx = (xmax-xmin)/(numSteps-1);
-    vector_fp chemPotentials(2);
+    vector<double> chemPotentials(2);
     for (int i = 0; i < numSteps; ++i)
     {
         set_defect_X(xmin + i*dx);
@@ -135,7 +135,7 @@ TEST_F(BinarySolutionTabulatedThermo_Test,partialMolarEntropies)
     double xmax = 0.75;
     int numSteps= 9;
     double dx = (xmax-xmin)/(numSteps-1);
-    vector_fp partialMolarEntropies(2);
+    vector<double> partialMolarEntropies(2);
     for (int i = 0; i < 9; ++i)
     {
         set_defect_X(xmin + i*dx);
@@ -191,7 +191,7 @@ TEST_F(BinarySolutionTabulatedThermo_Test,partialMolarVolumes)
     double xmax = 0.75;
     int numSteps= 9;
     double dx = (xmax-xmin)/(numSteps-1);
-    vector_fp partialMolarVolumes(2);
+    vector<double> partialMolarVolumes(2);
     for (int i = 0; i < 9; ++i)
     {
         set_defect_X(xmin + i*dx);

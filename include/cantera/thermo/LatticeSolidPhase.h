@@ -464,13 +464,13 @@ protected:
      *  Note these mole fractions sum to one when summed over all phases.
      *  However, this is not what's passed down to the lower m_lattice objects.
      */
-    mutable vector_fp m_x;
+    mutable vector<double> m_x;
 
     //! Lattice stoichiometric coefficients
-    vector_fp theta_;
+    vector<double> theta_;
 
     //! Temporary vector
-    mutable vector_fp tmpV_;
+    mutable vector<double> tmpV_;
 
     std::vector<size_t> lkstart_;
 

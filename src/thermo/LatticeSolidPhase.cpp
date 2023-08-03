@@ -364,8 +364,8 @@ void LatticeSolidPhase::addLattice(shared_ptr<ThermoPhase> lattice)
 
     for (size_t k = 0; k < lattice->nSpecies(); k++) {
         ThermoPhase::addSpecies(lattice->species(k));
-        vector_fp constArr(lattice->nElements());
-        const vector_fp& aws = lattice->atomicWeights();
+        vector<double> constArr(lattice->nElements());
+        const vector<double>& aws = lattice->atomicWeights();
         for (size_t es = 0; es < lattice->nElements(); es++) {
             addElement(lattice->elementName(es), aws[es], lattice->atomicNumber(es),
                        lattice->entropyElement298(es), lattice->elementType(es));

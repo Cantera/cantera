@@ -78,7 +78,7 @@ void IdealGasReactor::eval(double time, double* LHS, double* RHS)
     evalWalls(time);
     m_thermo->restoreState(m_state);
     m_thermo->getPartialMolarIntEnergies(&m_uk[0]);
-    const vector_fp& mw = m_thermo->molecularWeights();
+    const vector<double>& mw = m_thermo->molecularWeights();
     const doublereal* Y = m_thermo->massFractions();
 
     if (m_chem) {
