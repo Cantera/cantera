@@ -1392,7 +1392,7 @@ public:
     vector<int> m_elementActive;
 
     //! Array of Phase Structures. Length = number of phases.
-    vector<std::unique_ptr<vcs_VolPhase>> m_VolPhaseList;
+    vector<unique_ptr<vcs_VolPhase>> m_VolPhaseList;
 
     //! specifies the activity convention of the phase containing the species
     /*!
@@ -1459,7 +1459,7 @@ public:
     /*!
      * SpeciesThermo[k] pointer to the thermo information for the kth species
      */
-    vector<std::unique_ptr<VCS_SPECIES_THERMO>> m_speciesThermoList;
+    vector<unique_ptr<VCS_SPECIES_THERMO>> m_speciesThermoList;
 
     //! Choice of Hessians
     /*!

@@ -284,7 +284,7 @@ protected:
     struct PivData; // pImpl wrapper class
 
     //! Pivot vector
-    std::unique_ptr<PivData> m_ipiv;
+    unique_ptr<PivData> m_ipiv;
 
     //! Vector of column pointers
     vector<double*> m_colPtrs;

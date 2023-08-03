@@ -284,7 +284,7 @@ private:
     double m_perm = -1.0;
 
     //! Pointer to the transport object for the gas phase
-    std::unique_ptr<Transport> m_gastran;
+    unique_ptr<Transport> m_gastran;
 };
 }
 #endif

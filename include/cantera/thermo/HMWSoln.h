@@ -1457,7 +1457,7 @@ private:
     PDSS* m_waterSS = nullptr;
 
     //! Pointer to the water property calculator
-    std::unique_ptr<WaterProps> m_waterProps;
+    unique_ptr<WaterProps> m_waterProps;
 
     //! vector of size m_kk, used as a temporary holding area.
     mutable vector<double> m_tmpV;

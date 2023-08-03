@@ -198,7 +198,7 @@ private:
      * of water. This object owns m_waterProps, and the WaterPropsIAPWS object
      * used by WaterProps is m_sub, which is defined above.
      */
-    std::unique_ptr<WaterProps> m_waterProps;
+    unique_ptr<WaterProps> m_waterProps;
 
     //! Molecular weight of Water -> %Cantera assumption
     double m_mw = 0.0;

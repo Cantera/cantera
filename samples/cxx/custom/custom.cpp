@@ -180,7 +180,7 @@ int main() {
     //     relative tolerance: 1.0e-9
     //     absolute tolerance: 1.0e-15
     //     max step size: +inf
-    std::unique_ptr<Integrator> integrator(newIntegrator("CVODE"));
+    unique_ptr<Integrator> integrator(newIntegrator("CVODE"));
 
     // initialize the integrator, specifying the start time and the RHS evaluator object.
     // internally, the integrator will apply settings, allocate needed memory, and populate

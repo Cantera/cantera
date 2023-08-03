@@ -911,7 +911,7 @@ protected:
     double m_densWaterSS = 1000.0;
 
     //! Pointer to the water property calculator
-    std::unique_ptr<WaterProps> m_waterProps;
+    unique_ptr<WaterProps> m_waterProps;
 
     //! vector of size m_kk, used as a temporary holding area.
     mutable vector<double> m_tmpV;

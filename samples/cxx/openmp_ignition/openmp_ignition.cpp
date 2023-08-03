@@ -29,8 +29,8 @@ void run()
     // to have its own set of linked Cantera objects. Multiple threads accessing
     // the same objects at the same time will cause errors.
     vector<shared_ptr<Solution>> sols;
-    vector<std::unique_ptr<IdealGasConstPressureReactor>> reactors;
-    vector<std::unique_ptr<ReactorNet>> nets;
+    vector<unique_ptr<IdealGasConstPressureReactor>> reactors;
+    vector<unique_ptr<ReactorNet>> nets;
 
     // Create and link the Cantera objects for each thread. This step should be
     // done in serial
