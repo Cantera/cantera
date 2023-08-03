@@ -1106,7 +1106,7 @@ bool AnyValue::hasMapWhere(const std::string& key, const std::string& value) con
     }
 }
 
-std::pair<int, int> AnyValue::order() const
+pair<int, int> AnyValue::order() const
 {
     return {m_line, m_column};
 }
@@ -1594,7 +1594,7 @@ AnyMap::OrderedProxy::OrderedProxy(const AnyMap& data)
         m_units = make_unique<pair<const string, AnyValue>>(
             "units", m_data->at("__units__"));
         m_units->second.setFlowStyle();
-        m_ordered.emplace_back(std::pair<int, int>{-2, 0}, m_units.get());
+        m_ordered.emplace_back(pair<int, int>{-2, 0}, m_units.get());
     }
 
     int head = 0; // sort key of the first programmatically-added item

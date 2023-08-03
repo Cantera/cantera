@@ -285,7 +285,7 @@ public:
     bool hasMapWhere(const std::string& key, const std::string& value) const;
 
     //! Return values used to determine the sort order when outputting to YAML
-    std::pair <int, int> order() const;
+    pair <int, int> order() const;
 
     //! See AnyMap::applyUnits()
     void applyUnits(shared_ptr<UnitSystem>& units);
@@ -542,10 +542,10 @@ public:
         Iterator(const std::unordered_map<std::string, AnyValue>::const_iterator& start,
                  const std::unordered_map<std::string, AnyValue>::const_iterator& stop);
 
-        const std::pair<const std::string, AnyValue>& operator*() const {
+        const pair<const std::string, AnyValue>& operator*() const {
             return *m_iter;
         }
-        const std::pair<const std::string, AnyValue>* operator->() const {
+        const pair<const std::string, AnyValue>* operator->() const {
             return &*m_iter;
         }
         bool operator!=(const Iterator& right) const {
@@ -579,13 +579,13 @@ public:
         OrderedIterator begin() const;
         OrderedIterator end() const;
 
-        typedef vector<std::pair<
-            std::pair<int, int>,
-            const std::pair<const std::string, AnyValue>*>> OrderVector;
+        typedef vector<pair<
+            pair<int, int>,
+            const pair<const std::string, AnyValue>*>> OrderVector;
     private:
         const AnyMap* m_data;
         OrderVector m_ordered;
-        unique_ptr<std::pair<const std::string, AnyValue>> m_units;
+        unique_ptr<pair<const std::string, AnyValue>> m_units;
     };
 
     //! Defined to allow the OrderedProxy class to be used with range-based
@@ -596,10 +596,10 @@ public:
         OrderedIterator(const AnyMap::OrderedProxy::OrderVector::const_iterator& start,
                         const AnyMap::OrderedProxy::OrderVector::const_iterator& stop);
 
-        const std::pair<const std::string, AnyValue>& operator*() const {
+        const pair<const std::string, AnyValue>& operator*() const {
             return *m_iter->second;
         }
-        const std::pair<const std::string, AnyValue>* operator->() const {
+        const pair<const std::string, AnyValue>* operator->() const {
             return &(*m_iter->second);
         }
         bool operator!=(const OrderedIterator& right) const {

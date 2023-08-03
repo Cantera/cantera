@@ -238,7 +238,7 @@ protected:
     Array2D a_coeff_vec;
 
     //! Explicitly-specified binary interaction parameters
-    std::map<std::string, std::map<std::string, std::pair<double, double>>> m_binaryParameters;
+    std::map<std::string, std::map<std::string, pair<double, double>>> m_binaryParameters;
 
     enum class CoeffSource { EoS, CritProps, Database };
     //! For each species, specifies the source of the a and b coefficients

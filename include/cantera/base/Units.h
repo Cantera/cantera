@@ -109,7 +109,7 @@ struct UnitStack
     }
 
     //! Alternative constructor allows for direct assignment of vector
-    UnitStack(std::initializer_list<std::pair<Units, double>> units)
+    UnitStack(std::initializer_list<pair<Units, double>> units)
         : stack(units) {}
 
     UnitStack() = default;
@@ -137,7 +137,7 @@ struct UnitStack
     //! Calculate product of units-exponent stack
     Units product() const;
 
-    vector<std::pair<Units, double>> stack; //!< Stack uses vector of pairs
+    vector<pair<Units, double>> stack; //!< Stack uses vector of pairs
 };
 
 

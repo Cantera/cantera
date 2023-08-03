@@ -1843,7 +1843,7 @@ int VCS_SOLVE::vcs_report(int iconv)
     bool inertYes = false;
 
     // SORT DEPENDENT SPECIES IN DECREASING ORDER OF MOLES
-    vector<std::pair<double, size_t>> x_order;
+    vector<pair<double, size_t>> x_order;
     for (size_t i = 0; i < m_nsp; i++) {
         x_order.push_back({-m_molNumSpecies_old[i], i});
     }
