@@ -14,6 +14,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         name: Checkout the repository
+        with:
+          fetch-depth: 100
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
@@ -42,3 +44,10 @@ jobs:
             fi
           done
           exit $RETCODE
+      - name: Whitespace errors
+        if: success() || failure()
+        run: |
+          git config --global core.autocrlf false
+          git config --global core.whitespace \
+            -cr-at-eol,tab-in-indent,blank-at-eol,blank-at-eof
+          git diff --check ${{ github.event.pull_request.base.sha }}
