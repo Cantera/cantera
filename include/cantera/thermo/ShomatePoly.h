@@ -83,7 +83,7 @@ public:
 
     //! Set array of 7 polynomial coefficients. Input values are assumed to be
     //! on a kJ/mol basis.
-    void setParameters(const vector_fp& coeffs) {
+    void setParameters(const vector<double>& coeffs) {
         if (coeffs.size() != 7) {
             throw CanteraError("ShomatePoly::setParameters", "Array must "
                 "contain 7 coefficients, but {} were given.", coeffs.size());
@@ -163,11 +163,11 @@ public:
     virtual void getParameters(AnyMap& thermo) const {
         // ShomatePoly is only used as an embedded model within ShomatePoly2, so
         // all that needs to be added here are the polynomial coefficients
-        vector_fp dimensioned_coeffs(m_coeff.size());
+        vector<double> dimensioned_coeffs(m_coeff.size());
         for (size_t i = 0; i < m_coeff.size(); i++) {
             dimensioned_coeffs[i] = m_coeff[i] * GasConstant / 1000;
         }
-        thermo["data"].asVector<vector_fp>().push_back(dimensioned_coeffs);
+        thermo["data"].asVector<vector<double>>().push_back(dimensioned_coeffs);
     }
 
     virtual doublereal reportHf298(doublereal* const h298 = 0) const {
@@ -188,7 +188,7 @@ public:
 
 protected:
     //! Array of coefficients
-    vector_fp m_coeff;
+    vector<double> m_coeff;
     double m_coeff5_orig;
 };
 
@@ -276,7 +276,7 @@ public:
      * @param low   Vector of 7 coefficients for the low temperature polynomial
      * @param high  Vector of 7 coefficients for the high temperature polynomial
      */
-    void setParameters(double Tmid, const vector_fp& low, const vector_fp& high) {
+    void setParameters(double Tmid, const vector<double>& low, const vector<double>& high) {
         m_midT = Tmid;
         msp_low.setMaxTemp(Tmid);
         msp_high.setMinTemp(Tmid);
@@ -331,9 +331,9 @@ public:
     virtual void getParameters(AnyMap& thermo) const {
         SpeciesThermoInterpType::getParameters(thermo);
         thermo["model"] = "Shomate";
-        vector_fp Tranges {m_lowT, m_midT, m_highT};
+        vector<double> Tranges {m_lowT, m_midT, m_highT};
         thermo["temperature-ranges"].setQuantity(Tranges, "K");
-        thermo["data"] = std::vector<vector_fp>();
+        thermo["data"] = std::vector<vector<double>>();
         msp_low.getParameters(thermo);
         msp_high.getParameters(thermo);
     }

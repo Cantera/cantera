@@ -90,7 +90,7 @@ public:
      * @param low   Vector of 7 coefficients for the low temperature polynomial
      * @param high  Vector of 7 coefficients for the high temperature polynomial
      */
-    void setParameters(double Tmid, const vector_fp& low, const vector_fp& high);
+    void setParameters(double Tmid, const vector<double>& low, const vector<double>& high);
 
     virtual int reportType() const {
         return NASA2;

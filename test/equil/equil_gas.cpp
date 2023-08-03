@@ -38,7 +38,7 @@ TEST_F(OverconstrainedEquil, ChemEquil)
     gas->equilibrate("TP", "element_potential");
     EXPECT_NEAR(gas->moleFraction("C2H2"), 1.0, 1e-10);
     EXPECT_NEAR(gas->moleFraction("CH"), 0.0, 1e-10);
-    vector_fp mu(2);
+    vector<double> mu(2);
     gas->getChemPotentials(&mu[0]);
     EXPECT_NEAR(2*mu[0], mu[1], 1e-7*std::abs(mu[0]));
 }
@@ -49,7 +49,7 @@ TEST_F(OverconstrainedEquil, VcsNonideal)
     gas->equilibrate("TP", "vcs");
     EXPECT_NEAR(gas->moleFraction("C2H2"), 1.0, 1e-10);
     EXPECT_NEAR(gas->moleFraction("CH"), 0.0, 1e-10);
-    vector_fp mu(2);
+    vector<double> mu(2);
     gas->getChemPotentials(&mu[0]);
     EXPECT_NEAR(2*mu[0], mu[1], 1e-7*std::abs(mu[0]));
 }
@@ -60,7 +60,7 @@ TEST_F(OverconstrainedEquil, DISABLED_MultiphaseEquil)
     gas->equilibrate("TP", "gibbs");
     EXPECT_NEAR(gas->moleFraction("C2H2"), 1.0, 1e-10);
     EXPECT_NEAR(gas->moleFraction("CH"), 0.0, 1e-10);
-    vector_fp mu(2);
+    vector<double> mu(2);
     gas->getChemPotentials(&mu[0]);
     EXPECT_NEAR(2*mu[0], mu[1], 1e-7*std::abs(mu[0]));
 }
@@ -76,7 +76,7 @@ TEST_F(OverconstrainedEquil, BasisOptimize)
     std::vector<size_t> orderVectorElements;
 
     bool doFormMatrix = true;
-    vector_fp formRxnMatrix;
+    vector<double> formRxnMatrix;
 
     size_t nc = BasisOptimize(&usedZeroedSpecies, doFormMatrix, &mphase,
                               orderVectorSpecies, orderVectorElements,
@@ -95,7 +95,7 @@ TEST_F(OverconstrainedEquil, DISABLED_BasisOptimize2)
     std::vector<size_t> orderVectorElements;
 
     bool doFormMatrix = true;
-    vector_fp formRxnMatrix;
+    vector<double> formRxnMatrix;
 
     size_t nc = BasisOptimize(&usedZeroedSpecies, doFormMatrix, &mphase,
                               orderVectorSpecies, orderVectorElements,
@@ -122,7 +122,7 @@ public:
             EXPECT_CLOSE(Yelem[i], gas.elementalMassFraction(i), tol);
         }
 
-        vector_fp mu(gas.nSpecies());
+        vector<double> mu(gas.nSpecies());
         gas.getChemPotentials(&mu[0]);
         double mu_C = mu[gas.speciesIndex("C")];
         double mu_H = mu[gas.speciesIndex("H")];
@@ -146,8 +146,8 @@ public:
     }
 
     IdealGasPhase gas;
-    vector_fp X;
-    vector_fp Yelem;
+    vector<double> X;
+    vector<double> Yelem;
 };
 
 class GriMatrix : public GriEquilibriumTest

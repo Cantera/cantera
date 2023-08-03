@@ -176,12 +176,12 @@ public:
         //! [J/kmol] in order of 1st-order, 2nd-order, 3rd-order, and 4th-order
         //! coefficients (@f$ c^{(1)}, c^{(2)}, c^{(3)}, \text{ and } c^{(4)} @f$
         //! in the linear or the polynomial dependency model)
-        vector_fp enthalpy_coeffs;
+        vector<double> enthalpy_coeffs;
         //! array of polynomial coefficients describing coverage-dependent entropy
         //! [J/kmol/K] in order of 1st-order, 2nd-order, 3rd-order, and 4th-order
         //! coefficients (@f$ c^{(1)}, c^{(2)}, c^{(3)}, \text{ and } c^{(4)} @f$
         //! in the linear or the polynomial dependency model)
-        vector_fp entropy_coeffs;
+        vector<double> entropy_coeffs;
         //! boolean indicating whether the dependency is linear
         bool isLinear;
     };
@@ -235,8 +235,8 @@ public:
             } else if (dep_map["model"] == "interpolative") {
                 if (dep_map.hasKey("enthalpy-coverages") ||
                     dep_map.hasKey("enthalpies")) {
-                    auto hcovs = dep_map["enthalpy-coverages"].as<vector_fp>();
-                    vector_fp enthalpies = dep_map.convertVector("enthalpies", "J/kmol");
+                    auto hcovs = dep_map["enthalpy-coverages"].as<vector<double>>();
+                    vector<double> enthalpies = dep_map.convertVector("enthalpies", "J/kmol");
                     if (hcovs.size() != enthalpies.size()) {
                         throw InputFileError("CoverageDependentSurfPhase::\
                         addInterpolativeDependency", node,
@@ -249,8 +249,8 @@ public:
                 }
                 if (dep_map.hasKey("entropy-coverages") ||
                     dep_map.hasKey("entropies")) {
-                    auto scovs = dep_map["entropy-coverages"].as<vector_fp>();
-                    vector_fp entropies = dep_map.convertVector("entropies",
+                    auto scovs = dep_map["entropy-coverages"].as<vector<double>>();
+                    vector<double> entropies = dep_map.convertVector("entropies",
                                                                 "J/kmol/K");
                     if (scovs.size() != entropies.size()) {
                         throw InputFileError("CoverageDependentSurfPhase::\
@@ -470,35 +470,35 @@ public:
 
 protected:
     //! Temporary storage for the coverages.
-    mutable vector_fp m_cov;
+    mutable vector<double> m_cov;
 
     //! Temporary storage for the coverage-dependent enthalpies.
-    mutable vector_fp m_h_cov;
+    mutable vector<double> m_h_cov;
 
     //! Temporary storage for the coverage-dependent entropies.
-    mutable vector_fp m_s_cov;
+    mutable vector<double> m_s_cov;
 
     //! Temporary storage for the coverage-dependent heat capacities.
-    mutable vector_fp m_cp_cov;
+    mutable vector<double> m_cp_cov;
 
     //! Temporary storage for the coverage-dependent chemical potentials.
-    mutable vector_fp m_mu_cov;
+    mutable vector<double> m_mu_cov;
 
     //! Temporary storage for the sum of reference state enthalpies and
     //! coverage-dependent enthalpies.
-    mutable vector_fp m_enthalpy;
+    mutable vector<double> m_enthalpy;
 
     //! Temporary storage for the sum of reference state entropies and
     //! coverage-dependent entropies.
-    mutable vector_fp m_entropy;
+    mutable vector<double> m_entropy;
 
     //! Temporary storage for the sum of reference state heat capacities and
     //! coverage-dependent heat capacities.
-    mutable vector_fp m_heatcapacity;
+    mutable vector<double> m_heatcapacity;
 
     //! Temporary storage for the sum of reference state chemical potentials
     //! and coverage-dependent chemical potentials.
-    mutable vector_fp m_chempot;
+    mutable vector<double> m_chempot;
 
     //! Array of enthalpy and entropy coverage dependency parameters used in
     //! the linear and polynomial dependency equations.

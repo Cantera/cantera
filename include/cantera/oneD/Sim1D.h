@@ -54,8 +54,8 @@ public:
      * @param vals A vector of values corresponding to the relative position
      *     locations.
      */
-    void setInitialGuess(const std::string& component, vector_fp& locs,
-                         vector_fp& vals);
+    void setInitialGuess(const std::string& component, vector<double>& locs,
+                         vector<double>& vals);
 
     /**
      * Set a single value in the solution vector.
@@ -92,8 +92,8 @@ public:
      * the grid points will be linearly interpolated based on the (pos,
      * values) specification.
      */
-    void setProfile(size_t dom, size_t comp, const vector_fp& pos,
-                    const vector_fp& values);
+    void setProfile(size_t dom, size_t comp, const vector<double>& pos,
+                    const vector<double>& values);
 
     //! Set component 'comp' of domain 'dom' to value 'v' at all points.
     void setFlatProfile(size_t dom, size_t comp, doublereal v);
@@ -266,7 +266,7 @@ public:
      * or equal to zero (that is, the domain must be specified).
      * @see Refiner::getCriteria
      */
-    vector_fp getRefineCriteria(int dom);
+    vector<double> getRefineCriteria(int dom);
 
     /**
      * Set the maximum number of grid points in the domain. If dom >= 0,
@@ -346,18 +346,18 @@ public:
 
 protected:
     //! the solution vector after the last successful timestepping
-    vector_fp m_xlast_ts;
+    vector<double> m_xlast_ts;
 
     //! the solution vector after the last successful steady-state solve (stored
     //! before grid refinement)
-    vector_fp m_xlast_ss;
+    vector<double> m_xlast_ss;
 
     //! the grids for each domain after the last successful steady-state solve
     //! (stored before grid refinement)
-    std::vector<vector_fp> m_grid_last_ss;
+    std::vector<vector<double>> m_grid_last_ss;
 
     //! a work array used to hold the residual or the new solution
-    vector_fp m_xnew;
+    vector<double> m_xnew;
 
     //! timestep
     doublereal m_tstep;

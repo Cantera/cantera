@@ -92,7 +92,7 @@ protected:
     SurfPhase* m_thermo = nullptr;
     Kinetics* m_kinetics = nullptr;
     ReactorBase* m_reactor = nullptr;
-    vector_fp m_cov;
+    vector<double> m_cov;
     std::vector<SensitivityParameter> m_params;
 };
 

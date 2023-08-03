@@ -487,7 +487,7 @@ public:
      * is that it also checks to see if a recalculation of the reference
      * thermodynamics functions needs to be done.
      */
-    const vector_fp& enthalpy_RT_ref() const;
+    const vector<double>& enthalpy_RT_ref() const;
 
     /**
      * Returns a reference to the vector of nondimensional enthalpies of the
@@ -495,7 +495,7 @@ public:
      * is that it also checks to see if a recalculation of the reference
      * thermodynamics functions needs to be done.
      */
-    const vector_fp& gibbs_RT_ref() const {
+    const vector<double>& gibbs_RT_ref() const {
         _updateThermo();
         return m_g0_RT;
     }
@@ -506,7 +506,7 @@ public:
      * is that it also checks to see if a recalculation of the reference
      * thermodynamics functions needs to be done.
      */
-    const vector_fp& entropy_R_ref() const;
+    const vector<double>& entropy_R_ref() const;
 
     /**
      * Returns a reference to the vector of nondimensional enthalpies of the
@@ -514,7 +514,7 @@ public:
      * is that it also checks to see if a recalculation of the reference
      * thermodynamics functions needs to be done.
      */
-    const vector_fp& cp_R_ref() const {
+    const vector<double>& cp_R_ref() const {
         _updateThermo();
         return m_cp0_R;
     }
@@ -599,27 +599,27 @@ protected:
      * Species molar volumes (@f$ m^3 kmol^-1 @f$) at the current mixture state.
      * For the IdealSolidSolnPhase class, these are constant.
      */
-    mutable vector_fp m_speciesMolarVolume;
+    mutable vector<double> m_speciesMolarVolume;
 
     //! Vector containing the species reference enthalpies at T = m_tlast
-    mutable vector_fp m_h0_RT;
+    mutable vector<double> m_h0_RT;
 
     //! Vector containing the species reference constant pressure heat
     //! capacities at T = m_tlast
-    mutable vector_fp m_cp0_R;
+    mutable vector<double> m_cp0_R;
 
     //! Vector containing the species reference Gibbs functions at T = m_tlast
-    mutable vector_fp m_g0_RT;
+    mutable vector<double> m_g0_RT;
 
     //! Vector containing the species reference entropies at T = m_tlast
-    mutable vector_fp m_s0_R;
+    mutable vector<double> m_s0_R;
 
     //! Vector containing the species reference exp(-G/RT) functions at
     //! T = m_tlast
-    mutable vector_fp m_expg0_RT;
+    mutable vector<double> m_expg0_RT;
 
     //! Temporary array used in equilibrium calculations
-    mutable vector_fp m_pp;
+    mutable vector<double> m_pp;
 
 private:
     //! @name Utility Functions

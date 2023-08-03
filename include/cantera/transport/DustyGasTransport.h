@@ -221,16 +221,16 @@ private:
      *  units kg /kmol
      *  length = m_nsp;
      */
-    vector_fp m_mw;
+    vector<double> m_mw;
 
     //! binary diffusion coefficients
     DenseMatrix m_d;
 
     //! mole fractions
-    vector_fp m_x;
+    vector<double> m_x;
 
     //! Knudsen diffusion coefficients. @see updateKnudsenDiffCoeffs()
-    vector_fp m_dk;
+    vector<double> m_dk;
 
     //! temperature
     double m_temp = -1.0;
@@ -239,10 +239,10 @@ private:
     DenseMatrix m_multidiff;
 
     //! work space of size m_nsp;
-    vector_fp m_spwork;
+    vector<double> m_spwork;
 
     //! work space of size m_nsp;
-    vector_fp m_spwork2;
+    vector<double> m_spwork2;
 
     //! Pressure Gradient
     double m_gradP = 0.0;

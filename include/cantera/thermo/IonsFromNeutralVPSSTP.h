@@ -179,14 +179,14 @@ public:
      *     This is the mapping between ion species and neutral molecule for
      *     quick invert.
      */
-    void getDissociationCoeffs(vector_fp& fm_neutralMolec_ions, vector_fp& charges, std::vector<size_t>& neutMolIndex) const;
+    void getDissociationCoeffs(vector<double>& fm_neutralMolec_ions, vector<double>& charges, std::vector<size_t>& neutMolIndex) const;
 
     //! Return the current value of the neutral mole fraction vector
     /*!
      *  @param neutralMoleculeMoleFractions  Vector of neutral molecule mole
      *      fractions.
      */
-    void getNeutralMolecMoleFractions(vector_fp& neutralMoleculeMoleFractions) const {
+    void getNeutralMolecMoleFractions(vector<double>& neutralMoleculeMoleFractions) const {
         neutralMoleculeMoleFractions = NeutralMolecMoleFractions_;
     }
 
@@ -340,7 +340,7 @@ protected:
      *
      *  This is the number of ions of type i in the neutral molecule jNeut.
      */
-    vector_fp fm_neutralMolec_ions_;
+    vector<double> fm_neutralMolec_ions_;
 
     //! Mapping between ion species and neutral molecule for quick invert.
     /*!
@@ -369,7 +369,7 @@ protected:
     std::vector<size_t> fm_invert_ionForNeutral;
 
     //! Mole fractions using the Neutral Molecule Mole fraction basis
-    mutable vector_fp NeutralMolecMoleFractions_;
+    mutable vector<double> NeutralMolecMoleFractions_;
 
     //! List of the species in this ThermoPhase which are cation species
     std::vector<size_t> cationList_;
@@ -392,13 +392,13 @@ private:
     GibbsExcessVPSSTP* geThermo;
     // Temporary vectors that I don't want to allocate every time the function
     // is called
-    mutable vector_fp y_;
-    mutable vector_fp dlnActCoeff_NeutralMolecule_;
-    mutable vector_fp dX_NeutralMolecule_;
-    mutable vector_fp m_work; // length m_kk
+    mutable vector<double> y_;
+    mutable vector<double> dlnActCoeff_NeutralMolecule_;
+    mutable vector<double> dX_NeutralMolecule_;
+    mutable vector<double> m_work; // length m_kk
 
     //! Temporary mole fraction vector
-    mutable vector_fp moleFractionsTmp_;
+    mutable vector<double> moleFractionsTmp_;
 
     //! Storage vector for the neutral molecule chemical potentials
     /*!
@@ -408,7 +408,7 @@ private:
      *  - Units = Joules/kmol
      *  - Length =  numNeutralMoleculeSpecies_
      */
-    mutable vector_fp muNeutralMolecule_;
+    mutable vector<double> muNeutralMolecule_;
 
     //! Storage vector for the neutral molecule ln activity coefficients
     /*!
@@ -418,7 +418,7 @@ private:
      *  - Units = none
      *  - Length =  numNeutralMoleculeSpecies_
      */
-    mutable vector_fp lnActCoeff_NeutralMolecule_;
+    mutable vector<double> lnActCoeff_NeutralMolecule_;
 
     //! Storage vector for the neutral molecule d ln activity coefficients dT
     /*!
@@ -428,7 +428,7 @@ private:
      *  - Units =  1/Kelvin
      *  - Length =  numNeutralMoleculeSpecies_
      */
-    mutable vector_fp dlnActCoeffdT_NeutralMolecule_;
+    mutable vector<double> dlnActCoeffdT_NeutralMolecule_;
 
     //! Storage vector for the neutral molecule d ln activity coefficients dX -
     //! diagonal component
@@ -439,7 +439,7 @@ private:
      *  - Units =  none
      *  - Length =  numNeutralMoleculeSpecies_
      */
-    mutable vector_fp dlnActCoeffdlnX_diag_NeutralMolecule_;
+    mutable vector<double> dlnActCoeffdlnX_diag_NeutralMolecule_;
 
     //! Storage vector for the neutral molecule d ln activity coefficients dlnN
     //! - diagonal component
@@ -450,7 +450,7 @@ private:
      *  - Units =  none
      *  - Length =  numNeutralMoleculeSpecies_
      */
-    mutable vector_fp dlnActCoeffdlnN_diag_NeutralMolecule_;
+    mutable vector<double> dlnActCoeffdlnN_diag_NeutralMolecule_;
 
     //! Storage vector for the neutral molecule d ln activity coefficients dlnN
     /*!

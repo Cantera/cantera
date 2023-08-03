@@ -525,8 +525,8 @@ public:
     virtual Func1& derivative() const;
     virtual shared_ptr<Func1> derivative3() const;
 private:
-    vector_fp m_tvec; //!< Vector of time values
-    vector_fp m_fvec; //!< Vector of function values
+    vector<double> m_tvec; //!< Vector of time values
+    vector<double> m_fvec; //!< Vector of function values
     bool m_isLinear; //!< Boolean indicating interpolation method
 };
 
@@ -1209,7 +1209,7 @@ public:
     }
 
 protected:
-    vector_fp m_cpoly;
+    vector<double> m_cpoly;
 };
 
 
@@ -1275,7 +1275,7 @@ public:
 
 protected:
     doublereal m_omega, m_a0_2;
-    vector_fp m_ccos, m_csin;
+    vector<double> m_ccos, m_csin;
 };
 
 
@@ -1338,7 +1338,7 @@ public:
     }
 
 protected:
-    vector_fp m_A, m_b, m_E;
+    vector<double> m_A, m_b, m_E;
 };
 
 /**

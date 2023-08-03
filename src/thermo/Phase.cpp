@@ -78,7 +78,7 @@ doublereal Phase::entropyElement298(size_t m) const
     return m_entropy298[m];
 }
 
-const vector_fp& Phase::atomicWeights() const
+const vector<double>& Phase::atomicWeights() const
 {
     return m_atomicWeights;
 }
@@ -248,7 +248,7 @@ size_t Phase::stateSize() const {
     }
 }
 
-void Phase::saveState(vector_fp& state) const
+void Phase::saveState(vector<double>& state) const
 {
     state.resize(stateSize());
     saveState(state.size(), &state[0]);
@@ -272,7 +272,7 @@ void Phase::saveState(size_t lenstate, doublereal* state) const
     }
 }
 
-void Phase::restoreState(const vector_fp& state)
+void Phase::restoreState(const vector<double>& state)
 {
     restoreState(state.size(),&state[0]);
 }
@@ -344,7 +344,7 @@ void Phase::setMoleFractions_NoNorm(const double* const x)
 
 void Phase::setMoleFractionsByName(const Composition& xMap)
 {
-    vector_fp mf = getCompositionFromMap(xMap);
+    vector<double> mf = getCompositionFromMap(xMap);
     setMoleFractions(mf.data());
 }
 
@@ -380,7 +380,7 @@ void Phase::setMassFractions_NoNorm(const double* const y)
 
 void Phase::setMassFractionsByName(const Composition& yMap)
 {
-    vector_fp mf = getCompositionFromMap(yMap);
+    vector<double> mf = getCompositionFromMap(yMap);
     setMassFractions(mf.data());
 }
 
@@ -485,25 +485,25 @@ doublereal Phase::molecularWeight(size_t k) const
     return m_molwts[k];
 }
 
-void Phase::getMolecularWeights(vector_fp& weights) const
+void Phase::getMolecularWeights(vector<double>& weights) const
 {
-    warn_deprecated("Phase::getMolecularWeights(vector_fp&)", "To be removed after "
+    warn_deprecated("Phase::getMolecularWeights(vector<double>&)", "To be removed after "
         "Cantera 3.0. Use 'getMolecularWeights(vec.data())' instead.");
     weights = molecularWeights();
 }
 
 void Phase::getMolecularWeights(doublereal* weights) const
 {
-    const vector_fp& mw = molecularWeights();
+    const vector<double>& mw = molecularWeights();
     copy(mw.begin(), mw.end(), weights);
 }
 
-const vector_fp& Phase::molecularWeights() const
+const vector<double>& Phase::molecularWeights() const
 {
     return m_molwts;
 }
 
-const vector_fp& Phase::inverseMolecularWeights() const
+const vector<double>& Phase::inverseMolecularWeights() const
 {
     return m_rmolwts;
 }
@@ -739,7 +739,7 @@ doublereal Phase::mean_X(const doublereal* const Q) const
     return m_mmw*std::inner_product(m_ym.begin(), m_ym.end(), Q, 0.0);
 }
 
-doublereal Phase::mean_X(const vector_fp& Q) const
+doublereal Phase::mean_X(const vector<double>& Q) const
 {
     return m_mmw*std::inner_product(m_ym.begin(), m_ym.end(), Q.begin(), 0.0);
 }
@@ -806,7 +806,7 @@ size_t Phase::addElement(const std::string& symbol, doublereal weight,
 
     // Update species compositions
     if (m_kk) {
-        vector_fp old(m_speciesComp);
+        vector<double> old(m_speciesComp);
         m_speciesComp.resize(m_kk*m_mm, 0.0);
         for (size_t k = 0; k < m_kk; k++) {
             size_t m_old = m_mm - 1;
@@ -827,7 +827,7 @@ bool Phase::addSpecies(shared_ptr<Species> spec) {
             m_name, spec->name);
     }
 
-    vector_fp comp(nElements());
+    vector<double> comp(nElements());
     for (const auto& [eName, stoich] : spec->composition) {
         size_t m = elementIndex(eName);
         if (m == npos) { // Element doesn't exist in this phase
@@ -852,7 +852,7 @@ bool Phase::addSpecies(shared_ptr<Species> spec) {
     }
 
     size_t ne = nElements();
-    const vector_fp& aw = atomicWeights();
+    const vector<double>& aw = atomicWeights();
     if (spec->charge != 0.0) {
         size_t eindex = elementIndex("E");
         if (eindex != npos) {
@@ -1028,9 +1028,9 @@ void Phase::compositionChanged() {
     m_stateNum++;
 }
 
-vector_fp Phase::getCompositionFromMap(const Composition& comp) const
+vector<double> Phase::getCompositionFromMap(const Composition& comp) const
 {
-    vector_fp X(m_kk);
+    vector<double> X(m_kk);
     for (const auto& [name, value] : comp) {
         size_t loc = speciesIndex(name);
         if (loc == npos) {

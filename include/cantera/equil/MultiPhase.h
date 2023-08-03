@@ -74,7 +74,7 @@ public:
      *   @param phases Vector of pointers to phases
      *   @param phaseMoles Vector of mole numbers in each phase (kmol)
      */
-    void addPhases(std::vector<ThermoPhase*>& phases, const vector_fp& phaseMoles);
+    void addPhases(std::vector<ThermoPhase*>& phases, const vector<double>& phaseMoles);
 
     //! Add all phases present in 'mix' to this mixture.
     /*!
@@ -565,7 +565,7 @@ private:
     /*!
      * Length = m_np, number of phases.
      */
-    vector_fp m_moles;
+    vector<double> m_moles;
 
     //! Vector of the ThermoPhase pointers.
     std::vector<ThermoPhase*> m_phase;
@@ -580,7 +580,7 @@ private:
 
     //! Locally stored vector of mole fractions of all species comprising the
     //! MultiPhase object.
-    vector_fp m_moleFractions;
+    vector<double> m_moleFractions;
 
     //! Mapping between the global species number and the phase ID
     /*!
@@ -653,7 +653,7 @@ private:
      *  m_elemAbundances[mGlobal] = kmol of element mGlobal summed over all
      *      species in all phases.
      */
-    mutable vector_fp m_elemAbundances;
+    mutable vector<double> m_elemAbundances;
 };
 
 //! Function to output a MultiPhase description to a stream
@@ -700,7 +700,7 @@ std::ostream& operator<<(std::ostream& s, MultiPhase& x);
 size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn,
                      MultiPhase* mphase, std::vector<size_t>& orderVectorSpecies,
                      std::vector<size_t>& orderVectorElements,
-                     vector_fp& formRxnMatrix);
+                     vector<double>& formRxnMatrix);
 
 //! Handles the potential rearrangement of the constraint equations
 //! represented by the Formula Matrix.
@@ -740,7 +740,7 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn,
  *
  * @ingroup equilGroup
  */
-void ElemRearrange(size_t nComponents, const vector_fp& elementAbundances,
+void ElemRearrange(size_t nComponents, const vector<double>& elementAbundances,
                    MultiPhase* mphase,
                    std::vector<size_t>& orderVectorSpecies,
                    std::vector<size_t>& orderVectorElements);

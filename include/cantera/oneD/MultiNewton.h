@@ -78,7 +78,7 @@ public:
 
 protected:
     //! Work arrays of size #m_n used in solve().
-    vector_fp m_x, m_stp, m_stp1;
+    vector<double> m_x, m_stp, m_stp1;
 
     int m_maxAge = 5;
 

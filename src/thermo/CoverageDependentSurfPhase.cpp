@@ -154,10 +154,10 @@ void CoverageDependentSurfPhase::getSpeciesParameters(const std::string& name,
                 auto& covdepNode =
                     speciesNode["coverage-dependencies"][speciesName(item.j)]
                         .getMapWhere("model", "polynomial", true);
-                vector_fp hvec (
+                vector<double> hvec (
                     item.enthalpy_coeffs.begin() + 1, item.enthalpy_coeffs.end());
                 covdepNode["enthalpy-coefficients"].setQuantity(hvec, "J/kmol");
-                vector_fp svec (
+                vector<double> svec (
                     item.entropy_coeffs.begin() + 1, item.entropy_coeffs.end());
                 covdepNode["entropy-coefficients"].setQuantity(svec, "J/kmol/K");
             }
@@ -170,7 +170,7 @@ void CoverageDependentSurfPhase::getSpeciesParameters(const std::string& name,
                 auto& covdepNode =
                     speciesNode["coverage-dependencies"][speciesName(item.j)]
                         .getMapWhere("model", "piecewise-linear", true);
-                vector_fp hcovs, enthalpies, scovs, entropies;
+                vector<double> hcovs, enthalpies, scovs, entropies;
                 for (const auto& hmap : item.enthalpy_map) {
                     hcovs.push_back(hmap.first);
                     enthalpies.push_back(hmap.second);
@@ -193,7 +193,7 @@ void CoverageDependentSurfPhase::getSpeciesParameters(const std::string& name,
                 auto& covdepNode =
                     speciesNode["coverage-dependencies"][speciesName(item.j)]
                         .getMapWhere("model", "interpolative", true);
-                vector_fp hcovs, enthalpies, scovs, entropies;
+                vector<double> hcovs, enthalpies, scovs, entropies;
                 for (const auto& hmap : item.enthalpy_map) {
                     hcovs.push_back(hmap.first);
                     enthalpies.push_back(hmap.second);

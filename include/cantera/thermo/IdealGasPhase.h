@@ -515,7 +515,7 @@ public:
      * This function is part of the layer that checks/recalculates the reference
      * state thermo functions.
      */
-    const vector_fp& enthalpy_RT_ref() const {
+    const vector<double>& enthalpy_RT_ref() const {
         updateThermo();
         return m_h0_RT;
     }
@@ -525,7 +525,7 @@ public:
      * This function is part of the layer that checks/recalculates the reference
      * state thermo functions.
      */
-    const vector_fp& gibbs_RT_ref() const {
+    const vector<double>& gibbs_RT_ref() const {
         updateThermo();
         return m_g0_RT;
     }
@@ -535,7 +535,7 @@ public:
      * This function is part of the layer that checks/recalculates the reference
      * state thermo functions.
      */
-    const vector_fp& entropy_R_ref() const {
+    const vector<double>& entropy_R_ref() const {
         updateThermo();
         return m_s0_R;
     }
@@ -545,7 +545,7 @@ public:
      * This function is part of the layer that checks/recalculates the reference
      * state thermo functions.
      */
-    const vector_fp& cp_R_ref() const {
+    const vector<double>& cp_R_ref() const {
         updateThermo();
         return m_cp0_R;
     }
@@ -564,21 +564,21 @@ protected:
     double m_p0 = -1.0;
 
     //! Temporary storage for dimensionless reference state enthalpies
-    mutable vector_fp m_h0_RT;
+    mutable vector<double> m_h0_RT;
 
     //! Temporary storage for dimensionless reference state heat capacities
-    mutable vector_fp m_cp0_R;
+    mutable vector<double> m_cp0_R;
 
     //! Temporary storage for dimensionless reference state Gibbs energies
-    mutable vector_fp m_g0_RT;
+    mutable vector<double> m_g0_RT;
 
     //! Temporary storage for dimensionless reference state entropies
-    mutable vector_fp m_s0_R;
+    mutable vector<double> m_s0_R;
 
-    mutable vector_fp m_expg0_RT;
+    mutable vector<double> m_expg0_RT;
 
     //! Temporary array containing internally calculated partial pressures
-    mutable vector_fp m_pp;
+    mutable vector<double> m_pp;
 
     //! Update the species reference state thermodynamic functions
     /*!

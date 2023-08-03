@@ -185,6 +185,7 @@ typedef map<string, double> Composition;
 
 //! Turn on the use of stl vectors for the basic array type within cantera
 //! Vector of doubles.
+//! @deprecated To be removed after %Cantera 3.0
 typedef vector<double> vector_fp;
 //! Vector of ints
 //! @deprecated To be removed after %Cantera 3.0

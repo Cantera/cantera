@@ -15,7 +15,7 @@ int main(int argc, char** argv)
         auto tranDusty = std::dynamic_pointer_cast<DustyGasTransport>(tran);
 
         size_t nsp = g->nSpecies();
-        vector_fp multiD(nsp*nsp);
+        vector<double> multiD(nsp*nsp);
 
         double T = 500;
         g->setState_TPX(T, OneAtm,
@@ -35,13 +35,13 @@ int main(int argc, char** argv)
             printf("\n");
         }
 
-        vector_fp state1;
+        vector<double> state1;
         g->saveState(state1);
         g->setState_TP(T, 1.2 * OneAtm);
-        vector_fp state2;
+        vector<double> state2;
         g->saveState(state2);
         double delta = 0.001;
-        vector_fp fluxes;
+        vector<double> fluxes;
         fluxes.resize(nsp);
 
         tranDusty->getMolarFluxes(&state1[0], &state1[0], delta, &fluxes[0]);

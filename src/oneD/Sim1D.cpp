@@ -58,7 +58,7 @@ Sim1D::Sim1D(vector<Domain1D*>& domains) :
     m_steps = { 10 };
 }
 
-void Sim1D::setInitialGuess(const std::string& component, vector_fp& locs, vector_fp& vals)
+void Sim1D::setInitialGuess(const std::string& component, vector<double>& locs, vector<double>& vals)
 {
     for (size_t dom=0; dom<nDomains(); dom++) {
         Domain1D& d = domain(dom);
@@ -96,7 +96,7 @@ doublereal Sim1D::workValue(size_t dom, size_t comp, size_t localPoint) const
 }
 
 void Sim1D::setProfile(size_t dom, size_t comp,
-                       const vector_fp& pos, const vector_fp& values)
+                       const vector<double>& pos, const vector<double>& values)
 {
     if (pos.front() != 0.0 || pos.back() != 1.0) {
         throw CanteraError("Sim1D::setProfile",
@@ -189,7 +189,7 @@ void Sim1D::saveResidual(const std::string& fname, const std::string& id,
 void Sim1D::saveResidual(const std::string& fname, const std::string& name,
                          const std::string& desc, bool overwrite, int compression)
 {
-    vector_fp res(m_state->size(), -999);
+    vector<double> res(m_state->size(), -999);
     OneDim::eval(npos, m_state->data(), &res[0], 0.0);
     // Temporarily put the residual into m_state, since this is the vector that the
     // save() function reads.
@@ -405,7 +405,7 @@ void Sim1D::restoreSteadySolution()
     }
     *m_state = m_xlast_ss;
     for (size_t n = 0; n < nDomains(); n++) {
-        vector_fp& z = m_grid_last_ss[n];
+        vector<double>& z = m_grid_last_ss[n];
         domain(n).setupGrid(z.size(), z.data());
     }
 }
@@ -561,7 +561,7 @@ void Sim1D::solve(int loglevel, bool refine_grid)
 int Sim1D::refine(int loglevel)
 {
     int ianalyze, np = 0;
-    vector_fp znew, xnew;
+    vector<double> znew, xnew;
     std::vector<size_t> dsize;
 
     m_xlast_ss = *m_state;
@@ -650,7 +650,7 @@ int Sim1D::refine(int loglevel)
 int Sim1D::setFixedTemperature(double t)
 {
     int np = 0;
-    vector_fp znew, xnew;
+    vector<double> znew, xnew;
     double zfixed = 0.0;
     double z1 = 0.0, z2 = 0.0;
     std::vector<size_t> dsize;
@@ -777,7 +777,7 @@ void Sim1D::setRefineCriteria(int dom, double ratio,
     }
 }
 
-vector_fp Sim1D::getRefineCriteria(int dom)
+vector<double> Sim1D::getRefineCriteria(int dom)
 {
    if (dom >= 0) {
        Refiner& r = domain(dom).refiner();

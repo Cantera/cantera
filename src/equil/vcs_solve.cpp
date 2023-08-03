@@ -23,7 +23,7 @@ namespace Cantera
 
 namespace {
 
-void printProgress(const vector<string>& spName, const vector_fp& soln, const vector_fp& ff)
+void printProgress(const vector<string>& spName, const vector<double>& soln, const vector<double>& ff)
 {
     double sum = 0.0;
     plogf(" --- Summary of current progress:\n");
@@ -768,8 +768,8 @@ int VCS_SOLVE::vcs_popPhaseRxnStepSizes(const size_t iphasePop)
             m_deltaMolNumSpecies[kspec] = -m_molNumSpecies_old[kspec];
         }
     } else {
-        vector_fp fracDelta(Vphase->nSpecies());
-        vector_fp X_est(Vphase->nSpecies());
+        vector<double> fracDelta(Vphase->nSpecies());
+        vector<double> X_est(Vphase->nSpecies());
         fracDelta = Vphase->creationMoleNumbers(creationGlobalRxnNumbers);
 
         double sumFrac = 0.0;
@@ -1145,21 +1145,21 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
     // We will do a full Newton calculation later, but for now, ...
     bool doSuccessiveSubstitution = true;
     double funcPhaseStability;
-    vector_fp X_est(nsp, 0.0);
-    vector_fp delFrac(nsp, 0.0);
-    vector_fp E_phi(nsp, 0.0);
-    vector_fp fracDelta_old(nsp, 0.0);
-    vector_fp fracDelta_raw(nsp, 0.0);
+    vector<double> X_est(nsp, 0.0);
+    vector<double> delFrac(nsp, 0.0);
+    vector<double> E_phi(nsp, 0.0);
+    vector<double> fracDelta_old(nsp, 0.0);
+    vector<double> fracDelta_raw(nsp, 0.0);
     vector<size_t> creationGlobalRxnNumbers(nsp, npos);
     m_deltaGRxn_Deficient = m_deltaGRxn_old;
-    vector_fp feSpecies_Deficient = m_feSpecies_old;
+    vector<double> feSpecies_Deficient = m_feSpecies_old;
 
     // get the activity coefficients
     Vphase->sendToVCS_ActCoeff(VCS_STATECALC_OLD, &m_actCoeffSpecies_new[0]);
 
     // Get the stored estimate for the composition of the phase if
     // it gets created
-    vector_fp fracDelta_new = Vphase->creationMoleNumbers(creationGlobalRxnNumbers);
+    vector<double> fracDelta_new = Vphase->creationMoleNumbers(creationGlobalRxnNumbers);
 
     std::vector<size_t> componentList;
     for (size_t k = 0; k < nsp; k++) {
@@ -1547,7 +1547,7 @@ int VCS_SOLVE::vcs_prep(int printLvl)
 
     // NC = number of components is in the vcs.h common block. This call to
     // BASOPT doesn't calculate the stoichiometric reaction matrix.
-    vector_fp awSpace(m_nsp + (m_nelem + 2)*(m_nelem), 0.0);
+    vector<double> awSpace(m_nsp + (m_nelem + 2)*(m_nelem), 0.0);
     double* aw = &awSpace[0];
     if (aw == NULL) {
         plogf("vcs_prep_oneTime: failed to get memory: global bailout\n");
@@ -1973,8 +1973,8 @@ int VCS_SOLVE::vcs_report(int iconv)
     plogf("\n");
 
     // TABLE OF PHASE INFORMATION
-    vector_fp gaPhase(m_nelem, 0.0);
-    vector_fp gaTPhase(m_nelem, 0.0);
+    vector<double> gaPhase(m_nelem, 0.0);
+    vector<double> gaTPhase(m_nelem, 0.0);
     double totalMoles = 0.0;
     double gibbsPhase = 0.0;
     double gibbsTotal = 0.0;
@@ -2208,7 +2208,7 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
 {
     int retn = 0;
 
-    vector_fp ga_save(m_elemAbundances);
+    vector<double> ga_save(m_elemAbundances);
     if (m_debug_print_lvl >= 2) {
         plogf("   --- vcsc_elcorr: Element abundances correction routine");
         if (m_nelem != m_numComponents) {
@@ -2569,10 +2569,10 @@ int VCS_SOLVE::vcs_inest_TP()
     }
 
     // temporary space for usage in this routine and in subroutines
-    vector_fp sm(m_nelem*m_nelem, 0.0);
-    vector_fp ss(m_nelem, 0.0);
-    vector_fp sa(m_nelem, 0.0);
-    vector_fp aw(m_nsp + m_nelem, 0.0);
+    vector<double> sm(m_nelem*m_nelem, 0.0);
+    vector<double> ss(m_nelem, 0.0);
+    vector<double> sa(m_nelem, 0.0);
+    vector<double> aw(m_nsp + m_nelem, 0.0);
 
     // Go get the estimate of the solution
     if (m_debug_print_lvl >= 2) {
@@ -2656,11 +2656,11 @@ int VCS_SOLVE::vcs_setMolesLinProg()
     int iter = 0;
     bool abundancesOK = true;
     bool usedZeroedSpecies;
-    vector_fp sm(m_nelem * m_nelem, 0.0);
-    vector_fp ss(m_nelem, 0.0);
-    vector_fp sa(m_nelem, 0.0);
-    vector_fp wx(m_nelem, 0.0);
-    vector_fp aw(m_nsp, 0.0);
+    vector<double> sm(m_nelem * m_nelem, 0.0);
+    vector<double> ss(m_nelem, 0.0);
+    vector<double> sa(m_nelem, 0.0);
+    vector<double> wx(m_nelem, 0.0);
+    vector<double> aw(m_nsp, 0.0);
 
     for (size_t ik = 0; ik < m_nsp; ik++) {
         if (m_speciesUnknownType[ik] != VCS_SPECIES_INTERFACIALVOLTAGE) {
@@ -3042,8 +3042,8 @@ void VCS_SOLVE::vcs_inest(double* const aw, double* const sa, double* const sm,
     }
 
     // ESTIMATE REACTION ADJUSTMENTS
-    vector_fp& xtphMax = m_TmpPhase;
-    vector_fp& xtphMin = m_TmpPhase2;
+    vector<double>& xtphMax = m_TmpPhase;
+    vector<double>& xtphMin = m_TmpPhase2;
     m_deltaPhaseMoles.assign(m_deltaPhaseMoles.size(), 0.0);
     for (size_t iph = 0; iph < m_numPhases; iph++) {
         xtphMax[iph] = log(m_tPhaseMoles_new[iph] * 1.0E32);

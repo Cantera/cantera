@@ -249,13 +249,13 @@ TEST(Units, anymap_quantities) {
     values.emplace_back("hello");
     m["b"] = values;
     m.applyUnits();
-    EXPECT_TRUE(m["a"].is<vector_fp>());
+    EXPECT_TRUE(m["a"].is<vector<double>>());
     m.applyUnits();
-    EXPECT_TRUE(m["a"].is<vector_fp>());
+    EXPECT_TRUE(m["a"].is<vector<double>>());
     auto converted = m["a"].asVector<double>();
     EXPECT_DOUBLE_EQ(converted[0], 8.0);
     EXPECT_DOUBLE_EQ(converted[1], 1.2);
-    EXPECT_FALSE(m["b"].is<vector_fp>());
+    EXPECT_FALSE(m["b"].is<vector<double>>());
 }
 
 TEST(Units, to_anymap_nested) {

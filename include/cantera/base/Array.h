@@ -34,16 +34,16 @@ public:
     //! Type definition for the iterator class that is can be used by Array2D
     //! types.
     /*!
-     * This is just equal to vector_fp::iterator.
+     * This is just equal to vector<double>::iterator.
      */
-    typedef vector_fp::iterator iterator;
+    typedef vector<double>::iterator iterator;
 
     //! Type definition for the const_iterator class that is can be used by
     //! Array2D types.
     /*!
-     * This is just equal to vector_fp::const_iterator.
+     * This is just equal to vector<double>::const_iterator.
      */
-    typedef vector_fp::const_iterator const_iterator;
+    typedef vector<double>::const_iterator const_iterator;
 
     /**
      * Default constructor. Create an empty array.
@@ -93,7 +93,7 @@ public:
      * @param c  This vector is the entries in the column to be added. It must
      *           have a length equal to m_nrows or greater.
      */
-    void appendColumn(const vector_fp& c);
+    void appendColumn(const vector<double>& c);
 
     //! Append a column to the existing matrix
     /*!
@@ -217,12 +217,12 @@ public:
     }
 
     //! Return a reference to the data vector
-    vector_fp& data() {
+    vector<double>& data() {
         return m_data;
     }
 
     //! Return a const reference to the data vector
-    const vector_fp& data() const {
+    const vector<double>& data() const {
         return m_data;
     }
 
@@ -248,7 +248,7 @@ public:
 
 protected:
     //! Data stored in a single array
-    vector_fp m_data;
+    vector<double> m_data;
 
     //! Number of rows
     size_t m_nrows = 0;

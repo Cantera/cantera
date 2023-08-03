@@ -69,9 +69,9 @@ public:
      * If in the future the class GasTransport is improved, this method may
      * be discarded. This method specifies this profile.
     */
-    void setElectronTransport(vector_fp& tfix,
-                              vector_fp& diff_e,
-                              vector_fp& mobi_e);
+    void setElectronTransport(vector<double>& tfix,
+                              vector<double>& diff_e,
+                              vector<double>& mobi_e);
 
 protected:
     /*!
@@ -94,7 +94,7 @@ protected:
     bool m_import_electron_transport = false;
 
     //! electrical properties
-    vector_fp m_speciesCharge;
+    vector<double> m_speciesCharge;
 
     //! index of species with charges
     std::vector<size_t> m_kCharge;
@@ -103,11 +103,11 @@ protected:
     std::vector<size_t> m_kNeutral;
 
     //! coefficients of polynomial fitting of fixed electron transport profile
-    vector_fp m_mobi_e_fix;
-    vector_fp m_diff_e_fix;
+    vector<double> m_mobi_e_fix;
+    vector<double> m_diff_e_fix;
 
     //! mobility
-    vector_fp m_mobility;
+    vector<double> m_mobility;
 
     //! solving stage
     size_t m_stage = 1;

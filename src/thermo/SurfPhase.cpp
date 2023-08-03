@@ -194,7 +194,7 @@ bool SurfPhase::addSpecies(shared_ptr<Species> spec)
         m_speciesSize.push_back(spec->size);
         m_logsize.push_back(log(spec->size));
         if (m_kk == 1) {
-            vector_fp cov{1.0};
+            vector<double> cov{1.0};
             setCoverages(cov.data());
         }
     }
@@ -275,7 +275,7 @@ void SurfPhase::setCoveragesByName(const std::string& cov)
 
 void SurfPhase::setCoveragesByName(const Composition& cov)
 {
-    vector_fp cv(m_kk, 0.0);
+    vector<double> cv(m_kk, 0.0);
     bool ifound = false;
     for (size_t k = 0; k < m_kk; k++) {
         double c = getValue(cov, speciesName(k), 0.0);

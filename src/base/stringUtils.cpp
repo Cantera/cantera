@@ -30,7 +30,7 @@ namespace ba = boost::algorithm;
 namespace Cantera
 {
 
-std::string vec2str(const vector_fp& v, const std::string& fmt,
+std::string vec2str(const vector<double>& v, const std::string& fmt,
                     const std::string& sep)
 {
     char buf[64];

@@ -354,8 +354,8 @@ TEST_F(ThermoToYaml, DiscretizedElectronEnergyPlasma)
 {
     setup("oxygen-plasma.yaml", "discretized-electron-energy-plasma");
     auto& electronEnergyDist = data["electron-energy-distribution"].as<AnyMap>();
-    vector_fp levels = electronEnergyDist["energy-levels"].asVector<double>();
-    vector_fp dist = electronEnergyDist["distribution"].asVector<double>();
+    vector<double> levels = electronEnergyDist["energy-levels"].asVector<double>();
+    vector<double> dist = electronEnergyDist["distribution"].asVector<double>();
     EXPECT_EQ(electronEnergyDist["type"], "discretized");
     EXPECT_DOUBLE_EQ(levels[3], 10.0);
     EXPECT_DOUBLE_EQ(dist[3], 0.01);
@@ -412,8 +412,8 @@ public:
         EXPECT_NEAR(original->enthalpy_mole(), duplicate->enthalpy_mole(),
                     rtol * fabs(original->enthalpy_mole()));
 
-        vector_fp Y1(kk), Y2(kk), h1(kk), h2(kk), s1(kk), s2(kk);
-        vector_fp mu1(kk), mu2(kk), v1(kk), v2(kk), a1(kk), a2(kk);
+        vector<double> Y1(kk), Y2(kk), h1(kk), h2(kk), s1(kk), s2(kk);
+        vector<double> mu1(kk), mu2(kk), v1(kk), v2(kk), a1(kk), a2(kk);
         original->getMassFractions(Y1.data());
         duplicate->getMassFractions(Y2.data());
         original->getPartialMolarEnthalpies(h1.data());
@@ -573,8 +573,8 @@ TEST_F(ThermoYamlRoundTrip, IsotropicElectronEnergyPlasma)
     compareThermo(800, 2*OneAtm);
     auto origPlasma = std::dynamic_pointer_cast<PlasmaPhase>(original);
     auto duplPlasma = std::dynamic_pointer_cast<PlasmaPhase>(duplicate);
-    vector_fp origDist(origPlasma->nElectronEnergyLevels());
-    vector_fp duplDist(duplPlasma->nElectronEnergyLevels());
+    vector<double> origDist(origPlasma->nElectronEnergyLevels());
+    vector<double> duplDist(duplPlasma->nElectronEnergyLevels());
     origPlasma->getElectronEnergyLevels(origDist.data());
     duplPlasma->getElectronEnergyLevels(duplDist.data());
     EXPECT_DOUBLE_EQ(origDist[2], duplDist[2]);

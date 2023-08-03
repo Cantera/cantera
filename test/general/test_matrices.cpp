@@ -8,11 +8,11 @@ class BandMatrixTest : public testing::Test
 {
 public:
     BandMatrixTest()
-        : x(vector_fp{1,2,3,4,5,6})
-        , b1(vector_fp{-8, -8, 6, 40, 149, 81})
-        , b2(vector_fp{1, 8, 30, 72, 140, 65})
-        , v1(vector_fp{3, 13, 28, 55, 100, 92})
-        , v2(vector_fp{0, 5, 16, 39, 115, 116})
+        : x(vector<double>{1,2,3,4,5,6})
+        , b1(vector<double>{-8, -8, 6, 40, 149, 81})
+        , b2(vector<double>{1, 8, 30, 72, 140, 65})
+        , v1(vector<double>{3, 13, 28, 55, 100, 92})
+        , v2(vector<double>{0, 5, 16, 39, 115, 116})
     {
         A1.resize(6, 1, 2); // one lower, two upper
         A2.resize(6, 2, 1); // two lower, one upper
@@ -38,14 +38,14 @@ public:
     }
 
     BandMatrix A1, A2;
-    vector_fp x;
-    vector_fp b1, b2;
-    vector_fp v1, v2;
+    vector<double> x;
+    vector<double> b1, b2;
+    vector<double> v1, v2;
 };
 
 TEST_F(BandMatrixTest, matrix_times_vector)
 {
-    vector_fp c(6, 0.0);
+    vector<double> c(6, 0.0);
     A1.mult(x.data(), c.data());
     for (size_t i = 0; i < 6; i++) {
         EXPECT_DOUBLE_EQ(b1[i], c[i]);
@@ -58,7 +58,7 @@ TEST_F(BandMatrixTest, matrix_times_vector)
 
 TEST_F(BandMatrixTest, vector_times_matrix)
 {
-    vector_fp c(6, 0.0);
+    vector<double> c(6, 0.0);
     A1.leftMult(x.data(), c.data());
     for (size_t i = 0; i < 6; i++) {
         EXPECT_DOUBLE_EQ(v1[i], c[i]);
@@ -71,7 +71,7 @@ TEST_F(BandMatrixTest, vector_times_matrix)
 
 TEST_F(BandMatrixTest, solve_linear_system)
 {
-    vector_fp c(6, 0.0);
+    vector<double> c(6, 0.0);
     A1.solve(b1.data(), c.data());
     for (size_t i = 0; i < 6; i++) {
         EXPECT_NEAR(x[i], c[i], 1e-10);
@@ -109,11 +109,11 @@ class DenseMatrixTest : public testing::Test
 {
 public:
     DenseMatrixTest()
-        : x4(vector_fp{1,2,3,4})
-        , x3(vector_fp{3,2,1})
-        , b1(vector_fp{14, 32, 66, -34})
-        , b2(vector_fp{-6, 4, 26, 2})
-        , b3(vector_fp{14, 32, 66})
+        : x4(vector<double>{1,2,3,4})
+        , x3(vector<double>{3,2,1})
+        , b1(vector<double>{14, 32, 66, -34})
+        , b2(vector<double>{-6, 4, 26, 2})
+        , b3(vector<double>{14, 32, 66})
     {
         A1.resize(4, 4); // square
         A2.resize(4, 3); // more rows
@@ -140,13 +140,13 @@ public:
     }
 
     DenseMatrix A1, A2, A3;
-    vector_fp x4, x3;
-    vector_fp b1, b2, b3;
+    vector<double> x4, x3;
+    vector<double> b1, b2, b3;
 };
 
 TEST_F(DenseMatrixTest, matrix_times_vector)
 {
-    vector_fp c(4, 0.0);
+    vector<double> c(4, 0.0);
     A1.mult(x4.data(), c.data());
     for (size_t i = 0; i < 4; i++) {
         EXPECT_DOUBLE_EQ(b1[i], c[i]);
@@ -182,7 +182,7 @@ TEST_F(DenseMatrixTest, matrix_times_matrix)
 
 TEST_F(DenseMatrixTest, solve_single_rhs)
 {
-    vector_fp c(b1);
+    vector<double> c(b1);
     solve(A1, c.data());
     for (size_t i = 0; i < 4; i++) {
         EXPECT_NEAR(x4[i], c[i], 1e-12);
@@ -207,7 +207,7 @@ TEST_F(DenseMatrixTest, solve_multi_rhs)
 
 TEST_F(DenseMatrixTest, increment)
 {
-    vector_fp c(b1.size(), 3.0);
+    vector<double> c(b1.size(), 3.0);
     increment(A1, x4.data(), c.data());
     for (size_t i = 0; i < 4; i++) {
         EXPECT_DOUBLE_EQ(3.0 + b1[i], c[i]);

@@ -79,7 +79,7 @@ Nasa9PolyMultiTempRegion::Nasa9PolyMultiTempRegion(double tlow, double thigh, do
     }
 }
 
-void Nasa9PolyMultiTempRegion::setParameters(const std::map<double, vector_fp>& regions)
+void Nasa9PolyMultiTempRegion::setParameters(const std::map<double, vector<double>>& regions)
 {
     m_regionPts.clear();
     m_lowerTempBounds.clear();
@@ -184,7 +184,7 @@ void Nasa9PolyMultiTempRegion::getParameters(AnyMap& thermo) const
     auto T_ranges = m_lowerTempBounds;
     T_ranges.push_back(m_highT);
     thermo["temperature-ranges"].setQuantity(T_ranges, "K");
-    thermo["data"] = std::vector<vector_fp>();
+    thermo["data"] = std::vector<vector<double>>();
     for (const auto& region : m_regionPts) {
         region->getParameters(thermo);
     }

@@ -44,7 +44,7 @@ int main(int argc, char** argv)
         auto gas = sol->thermo();
         size_t nsp = gas->nSpecies();
         double pres = 1.0E5;
-        vector_fp Xset(nsp, 0.0);
+        vector<double> Xset(nsp, 0.0);
         Xset[0] =  0.269205 ;
         Xset[1] =  0.000107082;
         Xset[2] =  1.36377e-09 ;
@@ -108,7 +108,7 @@ int main(int argc, char** argv)
             Xset[k] /= sum;
         }
 
-        vector_fp X2set(nsp, 0.0);
+        vector<double> X2set(nsp, 0.0);
         X2set[0]  = 0.25 ;
         X2set[5]  = 0.17;
         X2set[14] = 0.15;
@@ -118,7 +118,7 @@ int main(int argc, char** argv)
 
         double dist = 0.1;
 
-        vector_fp X3set(nsp, 0.0);
+        vector<double> X3set(nsp, 0.0);
         X3set[0]  = 0.27 ;
         X3set[5]  = 0.15;
         X3set[14] = 0.18;
@@ -126,7 +126,7 @@ int main(int argc, char** argv)
         X3set[47] = 0.36 ;
         double T3 = 1400.;
 
-        vector_fp grad_T(3, 0.0);
+        vector<double> grad_T(3, 0.0);
         Array2D grad_X(nsp, 2, 0.0);
 
         for (size_t k = 0; k < nsp; k++) {
@@ -139,7 +139,7 @@ int main(int argc, char** argv)
 
         auto tran = sol->transport();
         gas->setState_TPX(1500.0, pres, Xset.data());
-        vector_fp mixDiffs(nsp, 0.0);
+        vector<double> mixDiffs(nsp, 0.0);
 
         tran->getMixDiffCoeffs(mixDiffs.data());
         printf(" Dump of the mixture Diffusivities:\n");
@@ -148,7 +148,7 @@ int main(int argc, char** argv)
             printf("    %15s %13.2g\n", sss.c_str(), mixDiffs[k]);
         }
 
-        vector_fp specVisc(nsp, 0.0);
+        vector<double> specVisc(nsp, 0.0);
         tran->getSpeciesViscosities(specVisc.data());
         printf(" Dump of the species viscosities:\n");
         for (size_t k = 0; k < nsp; k++) {
@@ -156,7 +156,7 @@ int main(int argc, char** argv)
             printf("    %15s %13.4g\n", sss.c_str(), specVisc[k]);
         }
 
-        vector_fp thermDiff(nsp, 0.0);
+        vector<double> thermDiff(nsp, 0.0);
         tran->getThermalDiffCoeffs(thermDiff.data());
         printf(" Dump of the Thermal Diffusivities :\n");
         for (size_t k = 0; k < nsp; k++) {
@@ -185,7 +185,7 @@ int main(int argc, char** argv)
             printf(" H2 -   %15s %13.4g %13.4g\n", sss.c_str(), Bdiff(0,k), Bdiff(k,0));
         }
 
-        vector_fp specMob(nsp, 0.0);
+        vector<double> specMob(nsp, 0.0);
 
         printf(" Dump of the species mobilities:\n");
         for (size_t k = 0; k < nsp; k++) {

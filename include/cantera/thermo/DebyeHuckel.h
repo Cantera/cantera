@@ -809,7 +809,7 @@ protected:
     vector<int> m_electrolyteSpeciesType;
 
     //! a_k = Size of the ionic species in the DH formulation. units = meters
-    vector_fp m_Aionic;
+    vector<double> m_Aionic;
 
     //! Default ionic radius for species where it is not specified
     double m_Aionic_default = NAN;
@@ -896,7 +896,7 @@ protected:
      *  in some formulations to extend DH to higher molalities. B_dot is
      *  specific to the major ionic pair.
      */
-    vector_fp m_B_Dot;
+    vector<double> m_B_Dot;
 
     //! Pointer to the Water standard state object
     /*!
@@ -914,7 +914,7 @@ protected:
     std::unique_ptr<WaterProps> m_waterProps;
 
     //! vector of size m_kk, used as a temporary holding area.
-    mutable vector_fp m_tmpV;
+    mutable vector<double> m_tmpV;
 
     /**
      * Stoichiometric species charge -> This is for calculations
@@ -928,7 +928,7 @@ protected:
      * For species that aren't ion pairs, it's equal to the
      * m_speciesCharge[] value.
      */
-    vector_fp m_speciesCharge_Stoich;
+    vector<double> m_speciesCharge_Stoich;
 
     /**
      *  Array of 2D data used in the DHFORM_BETAIJ formulation
@@ -943,16 +943,16 @@ protected:
      *  mutable because we change this if the composition or temperature or
      *  pressure changes.
      */
-    mutable vector_fp m_lnActCoeffMolal;
+    mutable vector<double> m_lnActCoeffMolal;
 
     //! Derivative of log act coeff wrt T
-    mutable vector_fp m_dlnActCoeffMolaldT;
+    mutable vector<double> m_dlnActCoeffMolaldT;
 
     //! 2nd Derivative of log act coeff wrt T
-    mutable vector_fp m_d2lnActCoeffMolaldT2;
+    mutable vector<double> m_d2lnActCoeffMolaldT2;
 
     //! Derivative of log act coeff wrt P
-    mutable vector_fp m_dlnActCoeffMolaldP;
+    mutable vector<double> m_dlnActCoeffMolaldP;
 
 private:
     //! Calculate the log activity coefficients

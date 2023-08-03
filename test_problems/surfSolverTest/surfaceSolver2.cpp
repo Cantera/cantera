@@ -79,7 +79,7 @@ void printBulk(ostream& oooo, shared_ptr<ThermoPhase> bulkPhaseTP,
          << "   (kmol/m^3)                   (kmol/m^2/s) " << endl;
     double sum = 0.0;
     double Wsum = 0.0;
-    const vector_fp& molecW = bulkPhaseTP->molecularWeights();
+    const vector<double>& molecW = bulkPhaseTP->molecularWeights();
     size_t nspBulk = bulkPhaseTP->nSpecies();
     for (size_t k = 0; k < nspBulk; k++) {
         kstart = iKin_ptr->kineticsSpeciesIndex(k, nBulk);

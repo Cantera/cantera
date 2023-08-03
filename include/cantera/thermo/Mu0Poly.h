@@ -147,20 +147,20 @@ protected:
     double m_H298 = 0.0;
 
     //! Points at which the standard state chemical potential are given.
-    vector_fp m_t0_int;
+    vector<double> m_t0_int;
 
     //! Mu0's are primary input data. They aren't strictly needed, but are kept
     //! here for convenience.
-    vector_fp m_mu0_R_int;
+    vector<double> m_mu0_R_int;
 
     //! Dimensionless Enthalpies at the temperature points
-    vector_fp m_h0_R_int;
+    vector<double> m_h0_R_int;
 
     //! Entropy at the points
-    vector_fp m_s0_R_int;
+    vector<double> m_s0_R_int;
 
     //! Heat capacity at the points
-    vector_fp m_cp0_R_int;
+    vector<double> m_cp0_R_int;
 };
 
 }

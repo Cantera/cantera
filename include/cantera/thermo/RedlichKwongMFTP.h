@@ -232,8 +232,8 @@ protected:
      */
     double m_a_current = 0.0;
 
-    vector_fp a_vec_Curr_;
-    vector_fp b_vec_Curr_;
+    vector<double> a_vec_Curr_;
+    vector<double> b_vec_Curr_;
 
     Array2D a_coeff_vec;
 
@@ -249,10 +249,10 @@ protected:
     double Vroot_[3] = {0.0, 0.0, 0.0};
 
     //! Temporary storage - length = m_kk.
-    mutable vector_fp m_pp;
+    mutable vector<double> m_pp;
 
     // Partial molar volumes of the species
-    mutable vector_fp m_partialMolarVolumes;
+    mutable vector<double> m_partialMolarVolumes;
 
     //! The derivative of the pressure wrt the volume
     /*!
@@ -273,7 +273,7 @@ protected:
      *  Calculated at the current conditions. Total volume, temperature and
      *  other mole number kept constant
      */
-    mutable vector_fp dpdni_;
+    mutable vector<double> dpdni_;
 
 private:
     //! Omega constant for a -> value of a in terms of critical properties

@@ -132,26 +132,26 @@ protected:
     //! Dense matrix for cstar
     DenseMatrix m_cstar;
 
-    vector_fp m_cinternal;
+    vector<double> m_cinternal;
 
-    vector_fp m_sqrt_eps_k;
+    vector<double> m_sqrt_eps_k;
     DenseMatrix m_log_eps_k;
-    vector_fp m_frot_298;
-    vector_fp m_rotrelax;
+    vector<double> m_frot_298;
+    vector<double> m_rotrelax;
 
     doublereal m_lambda;
 
     // L matrix quantities
     DenseMatrix m_Lmatrix;
     DenseMatrix m_aa;
-    vector_fp m_a;
-    vector_fp m_b;
+    vector<double> m_a;
+    vector<double> m_b;
 
     // work space
-    vector_fp m_spwork1, m_spwork2, m_spwork3;
+    vector<double> m_spwork1, m_spwork2, m_spwork3;
 
     //! Mole fraction vector from last L-matrix evaluation
-    vector_fp m_molefracs_last;
+    vector<double> m_molefracs_last;
 
     void correctBinDiffCoeffs();
 

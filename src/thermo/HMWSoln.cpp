@@ -556,9 +556,9 @@ void HMWSoln::setCroppingCoefficients(double ln_gamma_k_min,
         CROP_ln_gamma_o_max = ln_gamma_o_max;
 }
 
-vector_fp getSizedVector(const AnyMap& item, const std::string& key, size_t nCoeffs)
+vector<double> getSizedVector(const AnyMap& item, const std::string& key, size_t nCoeffs)
 {
-    vector_fp v;
+    vector<double> v;
     if (item[key].is<double>()) {
         // Allow a single value to be given directly, rather than as a list of
         // one item
@@ -606,10 +606,10 @@ void HMWSoln::initThermo()
                 double q2 = (nsp == 3) ? charge(speciesIndex(species[2])) : 0;
                 if (nsp == 2 && q0 * q1 < 0) {
                     // Two species with opposite charges - binary salt
-                    vector_fp beta0 = getSizedVector(item, "beta0", nCoeffs);
-                    vector_fp beta1 = getSizedVector(item, "beta1", nCoeffs);
-                    vector_fp beta2 = getSizedVector(item, "beta2", nCoeffs);
-                    vector_fp Cphi = getSizedVector(item, "Cphi", nCoeffs);
+                    vector<double> beta0 = getSizedVector(item, "beta0", nCoeffs);
+                    vector<double> beta1 = getSizedVector(item, "beta1", nCoeffs);
+                    vector<double> beta2 = getSizedVector(item, "beta2", nCoeffs);
+                    vector<double> Cphi = getSizedVector(item, "Cphi", nCoeffs);
                     if (beta0.size() != beta1.size() || beta0.size() != beta2.size()
                         || beta0.size() != Cphi.size()) {
                         throw InputFileError("HMWSoln::initThermo", item,
@@ -623,25 +623,25 @@ void HMWSoln::initThermo()
                         alpha1, alpha2);
                 } else if (nsp == 2 && q0 * q1 > 0) {
                     // Two species with like charges - "theta" interaction
-                    vector_fp theta = getSizedVector(item, "theta", nCoeffs);
+                    vector<double> theta = getSizedVector(item, "theta", nCoeffs);
                     setTheta(species[0], species[1], theta.size(), theta.data());
                 } else if (nsp == 2 && q0 * q1 == 0) {
                     // Two species, including at least one neutral
-                    vector_fp lambda = getSizedVector(item, "lambda", nCoeffs);
+                    vector<double> lambda = getSizedVector(item, "lambda", nCoeffs);
                     setLambda(species[0], species[1], lambda.size(), lambda.data());
                 } else if (nsp == 3 && q0 * q1 * q2 != 0) {
                     // Three charged species - "psi" interaction
-                    vector_fp psi = getSizedVector(item, "psi", nCoeffs);
+                    vector<double> psi = getSizedVector(item, "psi", nCoeffs);
                     setPsi(species[0], species[1], species[2],
                            psi.size(), psi.data());
                 } else if (nsp == 3 && q0 * q1 * q2 == 0) {
                     // Three species, including one neutral
-                    vector_fp zeta = getSizedVector(item, "zeta", nCoeffs);
+                    vector<double> zeta = getSizedVector(item, "zeta", nCoeffs);
                     setZeta(species[0], species[1], species[2],
                             zeta.size(), zeta.data());
                 } else if (nsp == 1) {
                     // single species (should be neutral)
-                    vector_fp mu = getSizedVector(item, "mu", nCoeffs);
+                    vector<double> mu = getSizedVector(item, "mu", nCoeffs);
                     setMunnn(species[0], mu.size(), mu.data());
                 }
             }
@@ -672,7 +672,7 @@ void HMWSoln::initThermo()
 
     // Lastly calculate the charge balance and then add stuff until the charges
     // compensate
-    vector_fp mf(m_kk, 0.0);
+    vector<double> mf(m_kk, 0.0);
     getMoleFractions(mf.data());
     bool notDone = true;
 
@@ -739,7 +739,7 @@ void HMWSoln::initThermo()
     setMoleFSolventMin(1.0E-5);
 }
 
-void assignTrimmed(AnyMap& interaction, const std::string& key, vector_fp& values) {
+void assignTrimmed(AnyMap& interaction, const std::string& key, vector<double>& values) {
     while (values.size() > 1 && values.back() == 0) {
         values.pop_back();
     }
@@ -790,7 +790,7 @@ void HMWSoln::getParameters(AnyMap& phaseNode) const
                 AnyMap interaction;
                 interaction["species"] = vector<std::string>{
                     speciesName(i), speciesName(j)};
-                vector_fp lambda(nParams);
+                vector<double> lambda(nParams);
                 for (size_t n = 0; n < nParams; n++) {
                     lambda[n] = m_Lambda_nj_coeff(n, c);
                 }
@@ -818,7 +818,7 @@ void HMWSoln::getParameters(AnyMap& phaseNode) const
                 AnyMap interaction;
                 interaction["species"] = vector<std::string>{
                     speciesName(i), speciesName(j)};
-                vector_fp beta0(nParams), beta1(nParams), beta2(nParams), Cphi(nParams);
+                vector<double> beta0(nParams), beta1(nParams), beta2(nParams), Cphi(nParams);
                 size_t last_nonzero = 0;
                 for (size_t n = 0; n < nParams; n++) {
                     beta0[n] = m_Beta0MX_ij_coeff(n, c);
@@ -864,7 +864,7 @@ void HMWSoln::getParameters(AnyMap& phaseNode) const
                 AnyMap interaction;
                 interaction["species"] = vector<std::string>{
                     speciesName(i), speciesName(j)};
-                vector_fp theta(nParams);
+                vector<double> theta(nParams);
                 for (size_t n = 0; n < nParams; n++) {
                     theta[n] = m_Theta_ij_coeff(n, c);
                 }
@@ -896,7 +896,7 @@ void HMWSoln::getParameters(AnyMap& phaseNode) const
                         AnyMap interaction;
                         interaction["species"] = vector<std::string>{
                             speciesName(i), speciesName(j), speciesName(k)};
-                        vector_fp psi(nParams);
+                        vector<double> psi(nParams);
                         for (size_t m = 0; m < nParams; m++) {
                             psi[m] = m_Psi_ijk_coeff(m, c);
                         }
@@ -928,7 +928,7 @@ void HMWSoln::getParameters(AnyMap& phaseNode) const
                         AnyMap interaction;
                         interaction["species"] = vector<std::string>{
                             speciesName(i), speciesName(j), speciesName(k)};
-                        vector_fp zeta(nParams);
+                        vector<double> zeta(nParams);
                         for (size_t m = 0; m < nParams; m++) {
                             zeta[m] = m_Psi_ijk_coeff(m, c);
                         }
@@ -947,7 +947,7 @@ void HMWSoln::getParameters(AnyMap& phaseNode) const
             if (m_Mu_nnn_coeff(n, i) != 0) {
                 AnyMap interaction;
                 interaction["species"] = vector<std::string>{speciesName(i)};
-                vector_fp mu(nParams);
+                vector<double> mu(nParams);
                 for (size_t m = 0; m < nParams; m++) {
                     mu[m] = m_Mu_nnn_coeff(m, i);
                 }
@@ -1809,11 +1809,11 @@ void HMWSoln::s_updatePitzer_CoeffWRTemp(int doDerivs) const
 void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
 {
     // Use the CROPPED molality of the species in solution.
-    const vector_fp& molality = m_molalitiesCropped;
+    const vector<double>& molality = m_molalitiesCropped;
 
     // These are data inputs about the Pitzer correlation. They come from the
     // input file for the Pitzer model.
-    vector_fp& gamma_Unscaled = m_gamma_tmp;
+    vector<double>& gamma_Unscaled = m_gamma_tmp;
 
     // Local variables defined by Coltrin
     double etheta[5][5], etheta_prime[5][5], sqrtIs;
@@ -2343,7 +2343,7 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
     // immediately preceding the calling of this routine. Therefore, some
     // quantities do not need to be recalculated in this routine.
 
-    const vector_fp& molality = m_molalitiesCropped;
+    const vector<double>& molality = m_molalitiesCropped;
     double* d_gamma_dT_Unscaled = m_gamma_tmp.data();
 
     // Local variables defined by Coltrin
@@ -3964,7 +3964,7 @@ void HMWSoln::s_updateIMS_lnMolalityActCoeff() const
 void HMWSoln::printCoeffs() const
 {
     calcMolalities();
-    vector_fp& moleF = m_tmpV;
+    vector<double>& moleF = m_tmpV;
 
     // Update the coefficients wrt Temperature. Calculate the derivatives as well
     s_updatePitzer_CoeffWRTemp(2);

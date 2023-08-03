@@ -54,7 +54,7 @@ void RedlichKisterVPSSTP::getChemPotentials(doublereal* mu) const
 doublereal RedlichKisterVPSSTP::enthalpy_mole() const
 {
     double h = 0;
-    vector_fp hbar(m_kk);
+    vector<double> hbar(m_kk);
     getPartialMolarEnthalpies(&hbar[0]);
     for (size_t i = 0; i < m_kk; i++) {
         h += moleFractions_[i]*hbar[i];
@@ -65,7 +65,7 @@ doublereal RedlichKisterVPSSTP::enthalpy_mole() const
 doublereal RedlichKisterVPSSTP::entropy_mole() const
 {
     double s = 0;
-    vector_fp sbar(m_kk);
+    vector<double> sbar(m_kk);
     getPartialMolarEntropies(&sbar[0]);
     for (size_t i = 0; i < m_kk; i++) {
         s += moleFractions_[i]*sbar[i];
@@ -76,7 +76,7 @@ doublereal RedlichKisterVPSSTP::entropy_mole() const
 doublereal RedlichKisterVPSSTP::cp_mole() const
 {
     double cp = 0;
-    vector_fp cpbar(m_kk);
+    vector<double> cpbar(m_kk);
     getPartialMolarCp(&cpbar[0]);
     for (size_t i = 0; i < m_kk; i++) {
         cp += moleFractions_[i]*cpbar[i];
@@ -152,8 +152,8 @@ void RedlichKisterVPSSTP::initThermo()
     if (m_input.hasKey("interactions")) {
         for (const auto& item : m_input["interactions"].asVector<AnyMap>()) {
             auto& species = item["species"].asVector<string>(2);
-            vector_fp h_excess = item.convertVector("excess-enthalpy", "J/kmol");
-            vector_fp s_excess = item.convertVector("excess-entropy", "J/kmol/K");
+            vector<double> h_excess = item.convertVector("excess-enthalpy", "J/kmol");
+            vector<double> s_excess = item.convertVector("excess-entropy", "J/kmol/K");
             addBinaryInteraction(species[0], species[1],
                                  h_excess.data(), h_excess.size(),
                                  s_excess.data(), s_excess.size());
@@ -171,8 +171,8 @@ void RedlichKisterVPSSTP::getParameters(AnyMap& phaseNode) const
         AnyMap interaction;
         interaction["species"] = vector<std::string>{
             speciesName(m_pSpecies_A_ij[n]), speciesName(m_pSpecies_B_ij[n])};
-        vector_fp h = m_HE_m_ij[n];
-        vector_fp s = m_SE_m_ij[n];
+        vector<double> h = m_HE_m_ij[n];
+        vector<double> s = m_SE_m_ij[n];
         while (h.size() > 1 && h.back() == 0) {
             h.pop_back();
         }
@@ -206,8 +206,8 @@ void RedlichKisterVPSSTP::s_update_lnActCoeff() const
         double XA = moleFractions_[iA];
         double XB = moleFractions_[iB];
         doublereal deltaX = XA - XB;
-        const vector_fp& he_vec = m_HE_m_ij[i];
-        const vector_fp& se_vec = m_SE_m_ij[i];
+        const vector<double>& he_vec = m_HE_m_ij[i];
+        const vector<double>& se_vec = m_SE_m_ij[i];
         doublereal poly = 1.0;
         doublereal polyMm1 = 1.0;
         doublereal sum = 0.0;
@@ -251,7 +251,7 @@ void RedlichKisterVPSSTP::s_update_dlnActCoeff_dT() const
         doublereal deltaX = XA - XB;
         doublereal poly = 1.0;
         doublereal sum = 0.0;
-        const vector_fp& he_vec = m_HE_m_ij[i];
+        const vector<double>& he_vec = m_HE_m_ij[i];
         doublereal sumMm1 = 0.0;
         doublereal polyMm1 = 1.0;
         doublereal sum2 = 0.0;
@@ -312,8 +312,8 @@ void RedlichKisterVPSSTP::s_update_dlnActCoeff_dlnX_diag() const
       double deltaX = XA - XB;
       double poly = 1.0;
       double sum = 0.0;
-      const vector_fp& he_vec = m_HE_m_ij[i];
-      const vector_fp& se_vec = m_SE_m_ij[i];
+      const vector<double>& he_vec = m_HE_m_ij[i];
+      const vector<double>& se_vec = m_SE_m_ij[i];
       double sumMm1 = 0.0;
       double polyMm1 = 1.0;
       double polyMm2 = 1.0;
@@ -361,8 +361,8 @@ void RedlichKisterVPSSTP::s_update_dlnActCoeff_dX_() const
         doublereal deltaX = XA - XB;
         doublereal poly = 1.0;
         doublereal sum = 0.0;
-        const vector_fp& he_vec = m_HE_m_ij[i];
-        const vector_fp& se_vec = m_SE_m_ij[i];
+        const vector<double>& he_vec = m_HE_m_ij[i];
+        const vector<double>& se_vec = m_SE_m_ij[i];
         doublereal sumMm1 = 0.0;
         doublereal polyMm1 = 1.0;
         doublereal polyMm2 = 1.0;

@@ -286,14 +286,14 @@ public:
     }
 
     //! Return CPU time spent evaluating Jacobians in each call to solve()
-    const vector_fp& jacobianTimeStats() {
+    const vector<double>& jacobianTimeStats() {
         saveStats();
         return m_jacElapsed;
     }
 
     //! Return CPU time spent on non-Jacobian function evaluations in each call
     //! to solve()
-    const vector_fp& evalTimeStats() {
+    const vector<double>& evalTimeStats() {
         saveStats();
         return m_funcElapsed;
     }
@@ -387,9 +387,9 @@ private:
     double m_evaltime = 0;
     std::vector<size_t> m_gridpts;
     vector<int> m_jacEvals;
-    vector_fp m_jacElapsed;
+    vector<double> m_jacElapsed;
     vector<int> m_funcEvals;
-    vector_fp m_funcElapsed;
+    vector<double> m_funcElapsed;
 
     //! Number of time steps taken in each call to solve() (for example, for each
     //! successive grid refinement)

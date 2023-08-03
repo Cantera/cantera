@@ -114,7 +114,7 @@ struct CachedValue {
 };
 
 typedef CachedValue<double>& CachedScalar;
-typedef CachedValue<vector_fp>& CachedArray;
+typedef CachedValue<vector<double>>& CachedArray;
 
 /**
  * Storage for cached values.
@@ -162,7 +162,7 @@ public:
         return m_scalarCache[id];
     }
 
-    //! Get a reference to a CachedValue object representing an array (vector_fp)
+    //! Get a reference to a CachedValue object representing an array (vector<double>)
     //! with the given id.
     CachedArray getArray(int id) {
         return m_arrayCache[id];
@@ -179,7 +179,7 @@ protected:
     std::map<int, CachedValue<double> > m_scalarCache;
 
     //! Cached array values
-    std::map<int, CachedValue<vector_fp> > m_arrayCache;
+    std::map<int, CachedValue<vector<double>> > m_arrayCache;
 
     //! The last assigned id. Automatically incremented by the getId() method.
     static int m_last_id;

@@ -129,7 +129,7 @@ MultiPhaseEquil::MultiPhaseEquil(MultiPhase* mix, bool start, int loglevel) : m_
 
     // Take a very small step in composition space, so that no
     // species has precisely zero moles.
-    vector_fp dxi(nFree(), 1.0e-20);
+    vector<double> dxi(nFree(), 1.0e-20);
     if (!dxi.empty()) {
         multiply(m_N, dxi.data(), m_work.data());
         unsort(m_work);
@@ -390,7 +390,7 @@ void MultiPhaseEquil::getComponents(const std::vector<size_t>& order)
     }
 }
 
-void MultiPhaseEquil::unsort(vector_fp& x)
+void MultiPhaseEquil::unsort(vector<double>& x)
 {
     m_work2 = x;
     for (size_t k = 0; k < m_nsp; k++) {
@@ -398,7 +398,7 @@ void MultiPhaseEquil::unsort(vector_fp& x)
     }
 }
 
-void MultiPhaseEquil::step(doublereal omega, vector_fp& deltaN,
+void MultiPhaseEquil::step(doublereal omega, vector<double>& deltaN,
                            int loglevel)
 {
     if (omega < 0.0) {
@@ -507,9 +507,9 @@ doublereal MultiPhaseEquil::stepComposition(int loglevel)
     return omega;
 }
 
-doublereal MultiPhaseEquil::computeReactionSteps(vector_fp& dxi)
+doublereal MultiPhaseEquil::computeReactionSteps(vector<double>& dxi)
 {
-    vector_fp nu;
+    vector<double> nu;
     doublereal grad = 0.0;
     dxi.resize(nFree());
     computeN();
@@ -663,14 +663,14 @@ void MultiPhaseEquil::reportCSV(const std::string& reportFile)
     if (!FP) {
         throw CanteraError("MultiPhaseEquil::reportCSV", "Failure to open file");
     }
-    vector_fp mf(m_nsp_mix, 1.0);
-    vector_fp fe(m_nsp_mix, 0.0);
-    vector_fp VolPM;
-    vector_fp activity;
-    vector_fp ac;
-    vector_fp mu;
-    vector_fp mu0;
-    vector_fp molalities;
+    vector<double> mf(m_nsp_mix, 1.0);
+    vector<double> fe(m_nsp_mix, 0.0);
+    vector<double> VolPM;
+    vector<double> activity;
+    vector<double> ac;
+    vector<double> mu;
+    vector<double> mu0;
+    vector<double> molalities;
 
     double vol = 0.0;
     for (size_t iphase = 0; iphase < m_mix->nPhases(); iphase++) {

@@ -265,15 +265,15 @@ protected:
     doublereal m_maxstep; //!< max step size
     size_t m_nmax; //!< maximum number of steps allowed
     size_t m_maxErrTestFails; //!< maximum number of error test failures allowed
-    vector_fp m_work;
+    vector<double> m_work;
 
     /**
      * Temporary vector - length num species in the Kinetics object. This is
      * the sum of the number of species in each phase included in the kinetics
      * object.
      */
-    vector_fp m_concSpecies;
-    vector_fp m_concSpeciesSave;
+    vector<double> m_concSpecies;
+    vector<double> m_concSpeciesSave;
 
     /**
      * Index into the species vector of the kinetics manager,

@@ -74,11 +74,11 @@ protected:
      */
     OneDim* m_resid;
 
-    vector_fp m_r1;
+    vector<double> m_r1;
     double m_rtol = 1e-5;
     double m_atol = sqrt(std::numeric_limits<double>::epsilon());
     double m_elapsed = 0.0;
-    vector_fp m_ssdiag;
+    vector<double> m_ssdiag;
     vector<int> m_mask;
     int m_nevals = 0;
     int m_age = 100000;

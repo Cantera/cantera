@@ -334,7 +334,7 @@ protected:
     //! m_start[n] is the starting point in the state vector for reactor n
     std::vector<size_t> m_start;
 
-    vector_fp m_atol;
+    vector<double> m_atol;
     double m_rtol = 1.0e-9;
     double m_rtolsens = 1.0e-4;
     double m_atols = 1.0e-15;
@@ -353,13 +353,13 @@ protected:
     //! Names corresponding to each sensitivity parameter
     std::vector<std::string> m_paramNames;
 
-    vector_fp m_ydot;
-    vector_fp m_yest;
-    vector_fp m_advancelimits;
+    vector<double> m_ydot;
+    vector<double> m_yest;
+    vector<double> m_advancelimits;
     //! m_LHS is a vector representing the coefficients on the
     //! "left hand side" of each governing equation
-    vector_fp m_LHS;
-    vector_fp m_RHS;
+    vector<double> m_LHS;
+    vector<double> m_RHS;
 };
 }
 

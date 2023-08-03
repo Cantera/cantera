@@ -38,15 +38,15 @@ double HighPressureGasTransport::thermalConductivity()
     doublereal Lprime_m = 0.0;
     const doublereal c1 = 1./16.04;
     size_t nsp = m_thermo->nSpecies();
-    vector_fp molefracs(nsp);
+    vector<double> molefracs(nsp);
     m_thermo->getMoleFractions(&molefracs[0]);
-    vector_fp cp_0_R(nsp);
+    vector<double> cp_0_R(nsp);
     m_thermo->getCp_R_ref(&cp_0_R[0]);
 
-    vector_fp L_i(nsp);
-    vector_fp f_i(nsp);
-    vector_fp h_i(nsp);
-    vector_fp V_k(nsp);
+    vector<double> L_i(nsp);
+    vector<double> f_i(nsp);
+    vector<double> h_i(nsp);
+    vector<double> V_k(nsp);
 
     m_thermo -> getPartialMolarVolumes(&V_k[0]);
     doublereal L_i_min = BigNumber;
@@ -134,9 +134,9 @@ void HighPressureGasTransport::getThermalDiffCoeffs(doublereal* const dt)
 
 void HighPressureGasTransport::getBinaryDiffCoeffs(const size_t ld, doublereal* const d)
 {
-    vector_fp PcP(5);
+    vector<double> PcP(5);
     size_t nsp = m_thermo->nSpecies();
-    vector_fp molefracs(nsp);
+    vector<double> molefracs(nsp);
     m_thermo->getMoleFractions(&molefracs[0]);
 
     update_T();
@@ -207,7 +207,7 @@ void HighPressureGasTransport::getMultiDiffCoeffs(const size_t ld, doublereal* c
     // Correct the binary diffusion coefficients for high-pressure effects; this
     // is basically the same routine used in 'getBinaryDiffCoeffs,' above:
     size_t nsp = m_thermo->nSpecies();
-    vector_fp molefracs(nsp);
+    vector<double> molefracs(nsp);
     m_thermo->getMoleFractions(&molefracs[0]);
     update_T();
     // Evaluate the binary diffusion coefficients from the polynomial fits -
@@ -287,7 +287,7 @@ doublereal HighPressureGasTransport::viscosity()
     doublereal tKelvin = m_thermo->temperature();
     double Pvp_mix = m_thermo->satPressure(tKelvin);
     size_t nsp = m_thermo->nSpecies();
-    vector_fp molefracs(nsp);
+    vector<double> molefracs(nsp);
     m_thermo->getMoleFractions(&molefracs[0]);
 
     double x_H = molefracs[0];
@@ -394,7 +394,7 @@ doublereal HighPressureGasTransport::viscosity()
 doublereal HighPressureGasTransport::Tcrit_i(size_t i)
 {
     // Store current molefracs and set temp molefrac of species i to 1.0:
-    vector_fp molefracs = store(i, m_thermo->nSpecies());
+    vector<double> molefracs = store(i, m_thermo->nSpecies());
 
     double tc = m_thermo->critTemperature();
     // Restore actual molefracs:
@@ -405,7 +405,7 @@ doublereal HighPressureGasTransport::Tcrit_i(size_t i)
 doublereal HighPressureGasTransport::Pcrit_i(size_t i)
 {
     // Store current molefracs and set temp molefrac of species i to 1.0:
-    vector_fp molefracs = store(i, m_thermo->nSpecies());
+    vector<double> molefracs = store(i, m_thermo->nSpecies());
 
     double pc = m_thermo->critPressure();
     // Restore actual molefracs:
@@ -416,7 +416,7 @@ doublereal HighPressureGasTransport::Pcrit_i(size_t i)
 doublereal HighPressureGasTransport::Vcrit_i(size_t i)
 {
     // Store current molefracs and set temp molefrac of species i to 1.0:
-    vector_fp molefracs = store(i, m_thermo->nSpecies());
+    vector<double> molefracs = store(i, m_thermo->nSpecies());
 
     double vc = m_thermo->critVolume();
     // Restore actual molefracs:
@@ -427,7 +427,7 @@ doublereal HighPressureGasTransport::Vcrit_i(size_t i)
 doublereal HighPressureGasTransport::Zcrit_i(size_t i)
 {
     // Store current molefracs and set temp molefrac of species i to 1.0:
-    vector_fp molefracs = store(i, m_thermo->nSpecies());
+    vector<double> molefracs = store(i, m_thermo->nSpecies());
 
     double zc = m_thermo->critCompressibility();
     // Restore actual molefracs:
@@ -435,11 +435,11 @@ doublereal HighPressureGasTransport::Zcrit_i(size_t i)
     return zc;
 }
 
-vector_fp HighPressureGasTransport::store(size_t i, size_t nsp)
+vector<double> HighPressureGasTransport::store(size_t i, size_t nsp)
 {
-    vector_fp molefracs(nsp);
+    vector<double> molefracs(nsp);
     m_thermo->getMoleFractions(&molefracs[0]);
-    vector_fp mf_temp(nsp, 0.0);
+    vector<double> mf_temp(nsp, 0.0);
     mf_temp[i] = 1;
     m_thermo->setMoleFractions(&mf_temp[0]);
     return molefracs;

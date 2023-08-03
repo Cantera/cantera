@@ -233,7 +233,7 @@ shared_ptr<SolutionArray> Inlet1D::asArray(const double* soln) const
     double pressure = m_flow->phase().pressure();
     auto phase = m_solution->thermo();
     phase->setState_TPY(m_temp, pressure, m_yin.data());
-    vector_fp data(phase->stateSize());
+    vector<double> data(phase->stateSize());
     phase->saveState(data);
 
     arr->setState(0, data);
@@ -516,7 +516,7 @@ shared_ptr<SolutionArray> OutletRes1D::asArray(const double* soln) const
     double pressure = m_flow->phase().pressure();
     auto phase = m_solution->thermo();
     phase->setState_TPY(m_temp, pressure, &m_yres[0]);
-    vector_fp data(phase->stateSize());
+    vector<double> data(phase->stateSize());
     phase->saveState(data);
 
     arr->setState(0, data);
@@ -738,7 +738,7 @@ void ReactingSurf1D::eval(size_t jg, double* xg, double* rg,
     }
     if (m_flow_left) {
         size_t nc = m_flow_left->nComponents();
-        const vector_fp& mwleft = m_phase_left->molecularWeights();
+        const vector<double>& mwleft = m_phase_left->molecularWeights();
         double* rb = r - nc;
         double* xb = x - nc;
         rb[c_offset_T] = xb[c_offset_T] - m_temp; // specified T
@@ -770,7 +770,7 @@ shared_ptr<SolutionArray> ReactingSurf1D::asArray(const double* soln) const
     // set state of surface phase
     m_sphase->setState_TP(m_temp, m_sphase->pressure());
     m_sphase->setCoverages(soln);
-    vector_fp data(m_sphase->stateSize());
+    vector<double> data(m_sphase->stateSize());
     m_sphase->saveState(data.size(), &data[0]);
 
     auto arr = SolutionArray::create(m_solution, 1, meta);

@@ -218,7 +218,7 @@ public:
      */
     virtual void getPartialMolarVolumes(doublereal* vbar) const;
     //! @deprecated Unused. To be removed after %Cantera 3.0.
-    virtual const vector_fp& getPartialMolarVolumesVector() const;
+    virtual const vector<double>& getPartialMolarVolumesVector() const;
     //! @}
 
     virtual bool addSpecies(shared_ptr<Species> spec);
@@ -241,29 +241,29 @@ protected:
      * Note in order to do this, the setState functions are redefined to always
      * keep this vector current.
      */
-    mutable vector_fp moleFractions_;
+    mutable vector<double> moleFractions_;
 
     //! Storage for the current values of the activity coefficients of the
     //! species
-    mutable vector_fp lnActCoeff_Scaled_;
+    mutable vector<double> lnActCoeff_Scaled_;
 
     //! Storage for the current derivative values of the gradients with respect
     //! to temperature of the log of the activity coefficients of the species
-    mutable vector_fp dlnActCoeffdT_Scaled_;
+    mutable vector<double> dlnActCoeffdT_Scaled_;
 
     //! Storage for the current derivative values of the gradients with respect
     //! to temperature of the log of the activity coefficients of the species
-    mutable vector_fp d2lnActCoeffdT2_Scaled_;
+    mutable vector<double> d2lnActCoeffdT2_Scaled_;
 
     //! Storage for the current derivative values of the gradients with respect
     //! to logarithm of the mole fraction of the log of the activity
     //! coefficients of the species
-    mutable vector_fp dlnActCoeffdlnN_diag_;
+    mutable vector<double> dlnActCoeffdlnN_diag_;
 
     //! Storage for the current derivative values of the gradients with respect
     //! to logarithm of the mole fraction of the log of the activity
     //! coefficients of the species
-    mutable vector_fp dlnActCoeffdlnX_diag_;
+    mutable vector<double> dlnActCoeffdlnX_diag_;
 
     //! Storage for the current derivative values of the gradients with respect
     //! to logarithm of the species mole number of the log of the activity

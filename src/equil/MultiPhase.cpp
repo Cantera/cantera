@@ -28,7 +28,7 @@ void MultiPhase::addPhases(MultiPhase& mix)
 }
 
 void MultiPhase::addPhases(std::vector<ThermoPhase*>& phases,
-                           const vector_fp& phaseMoles)
+                           const vector<double>& phaseMoles)
 {
     for (size_t n = 0; n < phases.size(); n++) {
         addPhase(phases[n], phaseMoles[n]);
@@ -343,7 +343,7 @@ void MultiPhase::setPhaseMoleFractions(const size_t n, const doublereal* const x
 void MultiPhase::setMolesByName(const Composition& xMap)
 {
     size_t kk = nSpecies();
-    vector_fp moles(kk, 0.0);
+    vector<double> moles(kk, 0.0);
     for (size_t k = 0; k < kk; k++) {
         moles[k] = std::max(getValue(xMap, speciesName(k), 0.0), 0.0);
     }
@@ -404,7 +404,7 @@ void MultiPhase::setMoles(const doublereal* n)
 
 void MultiPhase::addSpeciesMoles(const int indexS, const doublereal addedMoles)
 {
-    vector_fp tmpMoles(m_nsp, 0.0);
+    vector<double> tmpMoles(m_nsp, 0.0);
     getMoles(tmpMoles.data());
     tmpMoles[indexS] += addedMoles;
     tmpMoles[indexS] = std::max(tmpMoles[indexS], 0.0);
@@ -636,8 +636,8 @@ void MultiPhase::equilibrate(const std::string& XY, const std::string& solver,
 {
     // Save the initial state so that it can be restored in case one of the
     // solvers fails
-    vector_fp initial_moleFractions = m_moleFractions;
-    vector_fp initial_moles = m_moles;
+    vector<double> initial_moleFractions = m_moleFractions;
+    vector<double> initial_moles = m_moles;
     double initial_T = m_temp;
     double initial_P = m_press;
     int ixy = _equilflag(XY.c_str());

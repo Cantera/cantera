@@ -290,24 +290,24 @@ int BandMatrix::solve(doublereal* b, size_t nrhs, size_t ldb)
     return m_info;
 }
 
-vector_fp::iterator BandMatrix::begin()
+vector<double>::iterator BandMatrix::begin()
 {
     m_factored = false;
     return data.begin();
 }
 
-vector_fp::iterator BandMatrix::end()
+vector<double>::iterator BandMatrix::end()
 {
     m_factored = false;
     return data.end();
 }
 
-vector_fp::const_iterator BandMatrix::begin() const
+vector<double>::const_iterator BandMatrix::begin() const
 {
     return data.begin();
 }
 
-vector_fp::const_iterator BandMatrix::end() const
+vector<double>::const_iterator BandMatrix::end() const
 {
     return data.end();
 }

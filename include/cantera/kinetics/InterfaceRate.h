@@ -34,7 +34,7 @@ struct InterfaceData : public BlowersMaselData
 
     virtual void update(double T) override;
 
-    virtual void update(double T, const vector_fp& values) override;
+    virtual void update(double T, const vector<double>& values) override;
 
     using BlowersMaselData::update;
 
@@ -52,11 +52,11 @@ struct InterfaceData : public BlowersMaselData
 
     double sqrtT = NAN; //!< square root of temperature
 
-    vector_fp coverages; //!< surface coverages
-    vector_fp logCoverages; //!< logarithm of surface coverages
-    vector_fp electricPotentials; //!< electric potentials of phases
-    vector_fp standardChemPotentials; //!< standard state chemical potentials
-    vector_fp standardConcentrations; //!< standard state concentrations
+    vector<double> coverages; //!< surface coverages
+    vector<double> logCoverages; //!< logarithm of surface coverages
+    vector<double> electricPotentials; //!< electric potentials of phases
+    vector<double> standardChemPotentials; //!< standard state chemical potentials
+    vector<double> standardConcentrations; //!< standard state concentrations
 };
 
 
@@ -117,7 +117,7 @@ public:
     //! Add a coverage dependency for species *sp*, with exponential dependence
     //! *a*, power-law exponent *m*, and activation energy dependence *e*,
     //! where *e* is in Kelvin, that is, energy divided by the molar gas constant.
-    virtual void addCoverageDependence(const string& sp, double a, double m, const vector_fp& e);
+    virtual void addCoverageDependence(const string& sp, double a, double m, const vector<double>& e);
 
     //! Boolean indicating whether rate uses exchange current density formulation
     bool exchangeCurrentDensityFormulation() {
@@ -243,13 +243,13 @@ protected:
     //! coverage species in the Kinetics object
     map<size_t, size_t> m_indices;
     vector<string> m_cov; //!< Vector holding names of coverage species
-    vector_fp m_ac; //!< Vector holding coverage-specific exponential dependence
+    vector<double> m_ac; //!< Vector holding coverage-specific exponential dependence
     //! Vector holding coverage-specific activation energy dependence as a
     //! 5-membered array of polynomial coeffcients starting from 0th-order to
     //! 4th-order coefficients
-    vector<vector_fp> m_ec;
+    vector<vector<double>> m_ec;
     vector<bool> m_lindep; //!< Vector holding boolean for linear dependence
-    vector_fp m_mc; //!< Vector holding coverage-specific power-law exponents
+    vector<double> m_mc; //!< Vector holding coverage-specific power-law exponents
 
 private:
     //! Pairs of species index and multipliers to calculate enthalpy change
@@ -441,7 +441,7 @@ public:
         return RateType::activationEnergy() + m_ecov * GasConstant;
     }
 
-    void addCoverageDependence(const string& sp, double a, double m, const vector_fp& e) override {
+    void addCoverageDependence(const string& sp, double a, double m, const vector<double>& e) override {
         InterfaceRateBase::addCoverageDependence(sp, a, m, e);
         RateType::setCompositionDependence(true);
     }

@@ -44,7 +44,7 @@ void MoleReactor::initialize(double t0)
 void MoleReactor::updateSurfaceState(double* y)
 {
     size_t loc = 0;
-    vector_fp coverages(m_nv_surf, 0.0);
+    vector<double> coverages(m_nv_surf, 0.0);
     for (auto& S : m_surfaces) {
         auto surf = S->thermo();
         double invArea = 1/S->area();
@@ -144,7 +144,7 @@ void MoleReactor::getMoles(double* y)
 {
     // Use inverse molecular weights to convert to moles
     const double* Y = m_thermo->massFractions();
-    const vector_fp& imw = m_thermo->inverseMolecularWeights();
+    const vector<double>& imw = m_thermo->inverseMolecularWeights();
     for (size_t i = 0; i < m_nsp; i++) {
         y[i] = m_mass * imw[i] * Y[i];
     }
@@ -152,7 +152,7 @@ void MoleReactor::getMoles(double* y)
 
 void MoleReactor::setMassFromMoles(double* y)
 {
-    const vector_fp& mw = m_thermo->molecularWeights();
+    const vector<double>& mw = m_thermo->molecularWeights();
     // calculate mass from moles
     m_mass = 0;
     for (size_t i = 0; i < m_nsp; i++) {
@@ -233,7 +233,7 @@ void MoleReactor::eval(double time, double* LHS, double* RHS)
 
     evalSurfaces(LHS + m_nsp + m_sidx, RHS + m_nsp + m_sidx, m_sdot.data());
     // inverse molecular weights for conversion
-    const vector_fp& imw = m_thermo->inverseMolecularWeights();
+    const vector<double>& imw = m_thermo->inverseMolecularWeights();
     // volume equation
     RHS[1] = m_vdot;
 

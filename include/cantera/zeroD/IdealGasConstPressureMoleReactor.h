@@ -50,7 +50,7 @@ public:
     virtual bool preconditionerSupported() const {return true;};
 
 protected:
-    vector_fp m_hk; //!< Species molar enthalpies
+    vector<double> m_hk; //!< Species molar enthalpies
 };
 
 }

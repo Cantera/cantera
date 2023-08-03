@@ -65,7 +65,7 @@ public:
     }
 
     //! Set array of 7 polynomial coefficients
-    void setParameters(const vector_fp& coeffs) {
+    void setParameters(const vector<double>& coeffs) {
         if (coeffs.size() != 7) {
             throw CanteraError("NasaPoly1::setParameters", "Array must contain "
                 "7 coefficients, but {} were given.", coeffs.size());
@@ -144,7 +144,7 @@ public:
     virtual void getParameters(AnyMap& thermo) const {
         // NasaPoly1 is only used as an embedded model within NasaPoly2, so all
         // that needs to be added here are the polynomial coefficients
-        thermo["data"].asVector<vector_fp>().push_back(m_coeff);
+        thermo["data"].asVector<vector<double>>().push_back(m_coeff);
     }
 
     virtual doublereal reportHf298(doublereal* const h298 = 0) const {
@@ -179,7 +179,7 @@ public:
 
 protected:
     //! array of polynomial coefficients, stored in the order [a0, ..., a6]
-    vector_fp m_coeff;
+    vector<double> m_coeff;
 
     double m_coeff5_orig;
 };

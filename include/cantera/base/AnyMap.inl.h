@@ -31,7 +31,7 @@ const T &AnyValue::as() const {
                    && m_value.type() == typeid(vector<AnyValue>)) {
             // Implicit conversion of vector<AnyValue> to vector<double>
             auto& asAny = as<vector<AnyValue>>();
-            vector_fp asDouble(asAny.size());
+            vector<double> asDouble(asAny.size());
             for (size_t i = 0; i < asAny.size(); i++) {
                 asDouble[i] = asAny[i].as<double>();
             }

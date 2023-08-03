@@ -31,7 +31,7 @@ struct BlowersMaselData : public ReactionData
 
     bool ready = false; //!< boolean indicating whether vectors are accessible
     double density = NAN; //!< used to determine if updates are needed
-    vector_fp partialMolarEnthalpies; //!< partial molar enthalpies
+    vector<double> partialMolarEnthalpies; //!< partial molar enthalpies
 
 protected:
     int m_state_mf_number = -1; //!< integer that is incremented when composition changes

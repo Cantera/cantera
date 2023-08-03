@@ -88,7 +88,7 @@ inline doublereal dot(InputIter x_begin, InputIter x_end,
 //! Multiply elements of an array by a scale factor.
 /*!
  * @code
- * vector_fp in(8, 1.0), out(8);
+ * vector<double> in(8, 1.0), out(8);
  * scale(in.begin(), in.end(), out.begin(), factor);
  * @endcode
  *

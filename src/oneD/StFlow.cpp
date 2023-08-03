@@ -78,7 +78,7 @@ StFlow::StFlow(ThermoPhase* ph, size_t nsp, size_t points) :
     m_refiner->setActive(c_offset_T, false);
     m_refiner->setActive(c_offset_L, false);
 
-    vector_fp gr;
+    vector<double> gr;
     for (size_t ng = 0; ng < m_points; ng++) {
         gr.push_back(1.0*ng/m_points);
     }
@@ -779,7 +779,7 @@ shared_ptr<SolutionArray> StFlow::asArray(const double* soln) const
     AnyValue value;
     value = m_z;
     arr->setComponent("grid", value);
-    vector_fp data(nPoints());
+    vector<double> data(nPoints());
     for (size_t i = 0; i < nComponents(); i++) {
         if (componentActive(i)) {
             auto name = componentName(i);
@@ -821,7 +821,7 @@ void StFlow::fromArray(SolutionArray& arr, double* soln)
         }
         std::string name = componentName(i);
         if (arr.hasComponent(name)) {
-            const vector_fp data = arr.getComponent(name).as<std::vector<double>>();
+            const vector<double> data = arr.getComponent(name).as<std::vector<double>>();
             for (size_t j = 0; j < nPoints(); j++) {
                 soln[index(i,j)] = data[j];
             }

@@ -53,7 +53,7 @@ doublereal MargulesVPSSTP::enthalpy_mole() const
 {
     size_t kk = nSpecies();
     double h = 0;
-    vector_fp hbar(kk);
+    vector<double> hbar(kk);
     getPartialMolarEnthalpies(&hbar[0]);
     for (size_t i = 0; i < kk; i++) {
         h += moleFractions_[i]*hbar[i];
@@ -65,7 +65,7 @@ doublereal MargulesVPSSTP::entropy_mole() const
 {
     size_t kk = nSpecies();
     double s = 0;
-    vector_fp sbar(kk);
+    vector<double> sbar(kk);
     getPartialMolarEntropies(&sbar[0]);
     for (size_t i = 0; i < kk; i++) {
         s += moleFractions_[i]*sbar[i];
@@ -77,7 +77,7 @@ doublereal MargulesVPSSTP::cp_mole() const
 {
     size_t kk = nSpecies();
     double cp = 0;
-    vector_fp cpbar(kk);
+    vector<double> cpbar(kk);
     getPartialMolarCp(&cpbar[0]);
     for (size_t i = 0; i < kk; i++) {
         cp += moleFractions_[i]*cpbar[i];
@@ -182,7 +182,7 @@ void MargulesVPSSTP::initThermo()
     if (m_input.hasKey("interactions")) {
         for (auto& item : m_input["interactions"].asVector<AnyMap>()) {
             auto& species = item["species"].asVector<string>(2);
-            vector_fp h(2), s(2), vh(2), vs(2);
+            vector<double> h(2), s(2), vh(2), vs(2);
             if (item.hasKey("excess-enthalpy")) {
                 h = item.convertVector("excess-enthalpy", "J/kmol", 2);
             }

@@ -94,7 +94,7 @@ TEST_F(TestThermoMethods, setState_AnyMap)
 
 TEST_F(TestThermoMethods, setConcentrations)
 {
-    vector_fp C0(thermo->nSpecies());
+    vector<double> C0(thermo->nSpecies());
     double ctot = 0.0;
     for (size_t k = 0; k < thermo->nSpecies(); k++) {
         if (k == 2) {
@@ -209,8 +209,8 @@ public:
 
     void test_pure_mixture(ThermoBasis basis, bool oxidizer, double phi, double mf) {
         auto& gas = *m_sol->thermo();
-        vector_fp v_ox(gas.nSpecies());
-        vector_fp v_fuel(gas.nSpecies());
+        vector<double> v_ox(gas.nSpecies());
+        vector<double> v_fuel(gas.nSpecies());
         v_ox[gas.speciesIndex("O2")] = 21.0;
         v_ox[gas.speciesIndex("N2")] = 79.0;
         v_fuel[gas.speciesIndex("CH4")] = 10.0;

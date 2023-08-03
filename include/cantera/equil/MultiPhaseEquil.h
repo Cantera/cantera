@@ -51,7 +51,7 @@ public:
         }
     }
 
-    void getStoichVector(size_t rxn, vector_fp& nu) {
+    void getStoichVector(size_t rxn, vector<double>& nu) {
         nu.resize(m_nsp, 0.0);
         if (rxn > nFree()) {
             return;
@@ -124,12 +124,12 @@ protected:
 
     //! Re-arrange a vector of species properties in sorted form
     //! (components first) into unsorted, sequential form.
-    void unsort(vector_fp& x);
+    void unsort(vector<double>& x);
 
-    void step(doublereal omega, vector_fp& deltaN, int loglevel = 0);
+    void step(doublereal omega, vector<double>& deltaN, int loglevel = 0);
 
     //! Compute the change in extent of reaction for each reaction.
-    doublereal computeReactionSteps(vector_fp& dxi);
+    doublereal computeReactionSteps(vector<double>& dxi);
 
     void updateMixMoles();
 
@@ -173,9 +173,9 @@ protected:
     doublereal m_press, m_temp;
     std::vector<size_t> m_order;
     DenseMatrix m_N, m_A;
-    vector_fp m_work, m_work2, m_work3;
-    vector_fp m_moles, m_lastmoles, m_dxi;
-    vector_fp m_deltaG_RT, m_mu;
+    vector<double> m_work, m_work2, m_work3;
+    vector<double> m_moles, m_lastmoles, m_dxi;
+    vector<double> m_deltaG_RT, m_mu;
     std::vector<bool> m_majorsp;
     std::vector<size_t> m_sortindex;
     vector<int> m_lastsort;

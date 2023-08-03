@@ -144,11 +144,11 @@ void MixtureFugacityTP::getGibbs_RT_ref(doublereal* grt) const
 
 void MixtureFugacityTP::getGibbs_ref(doublereal* g) const
 {
-    const vector_fp& gibbsrt = gibbs_RT_ref();
+    const vector<double>& gibbsrt = gibbs_RT_ref();
     scale(gibbsrt.begin(), gibbsrt.end(), g, RT());
 }
 
-const vector_fp& MixtureFugacityTP::gibbs_RT_ref() const
+const vector<double>& MixtureFugacityTP::gibbs_RT_ref() const
 {
     return m_g0_RT;
 }

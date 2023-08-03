@@ -147,7 +147,7 @@ protected:
     int m_formGC = 0;
 
     //! Temporary storage - length = m_kk.
-    vector_fp m_pp;
+    vector<double> m_pp;
 };
 }
 

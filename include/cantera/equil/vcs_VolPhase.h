@@ -317,7 +317,7 @@ private:
 
 public:
     //! Return a const reference to the mole fractions stored in the object.
-    const vector_fp & moleFractions() const;
+    const vector<double> & moleFractions() const;
 
     double moleFraction(size_t klocal) const;
 
@@ -332,7 +332,7 @@ public:
     /*!
      * @returns a const reference to the vector of creationMoleNumbers
      */
-    const vector_fp & creationMoleNumbers(std::vector<size_t> &creationGlobalRxnNumbers) const;
+    const vector<double> & creationMoleNumbers(std::vector<size_t> &creationGlobalRxnNumbers) const;
 
     //! Returns whether the phase is an ideal solution phase
     bool isIdealSoln() const;
@@ -684,13 +684,13 @@ private:
     double v_totalMoles = 0.0;
 
     //! Vector of the current mole fractions for species in the phase
-    vector_fp Xmol_;
+    vector<double> Xmol_;
 
     //! Vector of current creationMoleNumbers_
     /*!
      *  These are the actual unknowns in the phase stability problem
      */
-    vector_fp creationMoleNumbers_;
+    vector<double> creationMoleNumbers_;
 
     //! Vector of creation global reaction numbers for the phase stability problem
     /*!
@@ -723,7 +723,7 @@ private:
      * in temperature. Pressure effects have to be added in to get to the
      * standard state. Units are J/kmol.
      */
-    mutable vector_fp SS0ChemicalPotential;
+    mutable vector<double> SS0ChemicalPotential;
 
     //! Vector of calculated Star chemical potentials for the
     //! current Temperature and pressure.
@@ -731,20 +731,20 @@ private:
      * Note, This is the chemical potential at unit activity. Thus, we can call
      * it the standard state chemical potential as well. Units are J/kmol.
      */
-    mutable vector_fp StarChemicalPotential;
+    mutable vector<double> StarChemicalPotential;
 
     //! Vector of the Star molar Volumes of the species. units  m3 / kmol
-    mutable vector_fp StarMolarVol;
+    mutable vector<double> StarMolarVol;
 
     //! Vector of the Partial molar Volumes of the species. units  m3 / kmol
-    mutable vector_fp PartialMolarVol;
+    mutable vector<double> PartialMolarVol;
 
     //! Vector of calculated activity coefficients for the current state
     /*!
      * Whether or not this vector is current is determined by the bool
      * #m_UpToDate_AC.
      */
-    mutable vector_fp ActCoeff;
+    mutable vector<double> ActCoeff;
 
     //! Vector of the derivatives of the ln activity coefficient wrt to the
     //! current mole number multiplied by the current phase moles

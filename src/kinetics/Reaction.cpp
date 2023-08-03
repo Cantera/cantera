@@ -676,7 +676,7 @@ bool Reaction::checkSpecies(const Kinetics& kin) const
 bool Reaction::usesElectrochemistry(const Kinetics& kin) const
 {
     // Check electrochemistry
-    vector_fp e_counter(kin.nPhases(), 0.0);
+    vector<double> e_counter(kin.nPhases(), 0.0);
 
     // Find the number of electrons in the products for each phase
     for (const auto& [name, stoich] : products) {

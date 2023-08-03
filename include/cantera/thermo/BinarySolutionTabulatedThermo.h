@@ -223,7 +223,7 @@ protected:
      *  @returns          Linear interpolation of tabulated data at the current
      *                    mole fraction x.
      */
-    double interpolate(const double x, const vector_fp& inputData) const;
+    double interpolate(const double x, const vector<double>& inputData) const;
 
     //! Numerical derivative of the molar volume table
     /*!
@@ -235,7 +235,7 @@ protected:
      *  @param  derivedData  Output vector of tabulated data that is numerically
      *                       derived with respect to the mole fraction.
      */
-    void diff(const vector_fp& inputData, vector_fp& derivedData) const;
+    void diff(const vector<double>& inputData, vector<double>& derivedData) const;
 
     //! Current tabulated species index
     size_t m_kk_tab = npos;
@@ -247,11 +247,11 @@ protected:
     mutable double m_s0_tab;
 
     //! Vector for storing tabulated thermo
-    vector_fp m_molefrac_tab;
-    vector_fp m_enthalpy_tab;
-    vector_fp m_entropy_tab;
-    vector_fp m_molar_volume_tab;
-    vector_fp m_derived_molar_volume_tab;
+    vector<double> m_molefrac_tab;
+    vector<double> m_enthalpy_tab;
+    vector<double> m_entropy_tab;
+    vector<double> m_molar_volume_tab;
+    vector<double> m_derived_molar_volume_tab;
 
 private:
     virtual void _updateThermo() const;

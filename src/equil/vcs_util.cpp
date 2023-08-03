@@ -16,7 +16,7 @@
 namespace Cantera
 {
 
-double vcs_l2norm(const vector_fp& vec)
+double vcs_l2norm(const vector<double>& vec)
 {
     if (vec.empty()) {
         return 0.0;

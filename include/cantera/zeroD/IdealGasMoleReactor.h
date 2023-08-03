@@ -50,7 +50,7 @@ public:
     virtual bool preconditionerSupported() const {return true;};
 
 protected:
-    vector_fp m_uk; //!< Species molar internal energies
+    vector<double> m_uk; //!< Species molar internal energies
 };
 
 }

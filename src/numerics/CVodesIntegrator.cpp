@@ -238,7 +238,7 @@ void CVodesIntegrator::sensInit(double t0, FuncEval& func)
                              CV_STAGGERED, CVSensRhsFn(0), m_yS);
     checkError(flag, "sensInit", "CVodeSensInit");
 
-    vector_fp atol(m_np);
+    vector<double> atol(m_np);
     for (size_t n = 0; n < m_np; n++) {
         // This scaling factor is tuned so that reaction and species enthalpy
         // sensitivities can be computed simultaneously with the same abstol.

@@ -109,7 +109,7 @@ void Domain1D::needJacUpdate()
 
 AnyMap Domain1D::getMeta() const
 {
-    auto wrap_tols = [this](const vector_fp& tols) {
+    auto wrap_tols = [this](const vector<double>& tols) {
         // If all tolerances are the same, just store the scalar value.
         // Otherwise, store them by component name
         set<double> unique_tols(tols.begin(), tols.end());
@@ -171,7 +171,7 @@ void Domain1D::fromArray(const shared_ptr<SolutionArray>& arr)
 
 void Domain1D::setMeta(const AnyMap& meta)
 {
-    auto set_tols = [&](const AnyValue& tols, const string& which, vector_fp& out)
+    auto set_tols = [&](const AnyValue& tols, const string& which, vector<double>& out)
     {
         if (!tols.hasKey(which)) {
             return;

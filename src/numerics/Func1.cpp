@@ -515,8 +515,8 @@ Func1& Tabulated1::duplicate() const {
 Func1& Tabulated1::derivative() const {
     warn_deprecated("Tabulated1::derivative",
         "To be changed after Cantera 3.0; for new behavior, see 'derivative3'.");
-    vector_fp tvec;
-    vector_fp dvec;
+    vector<double> tvec;
+    vector<double> dvec;
     size_t siz = m_tvec.size();
     if (m_isLinear) {
         // piece-wise continuous derivative
@@ -541,8 +541,8 @@ Func1& Tabulated1::derivative() const {
 }
 
 shared_ptr<Func1> Tabulated1::derivative3() const {
-    vector_fp tvec;
-    vector_fp dvec;
+    vector<double> tvec;
+    vector<double> dvec;
     size_t siz = m_tvec.size();
     if (m_isLinear) {
         // piece-wise continuous derivative

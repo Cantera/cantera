@@ -34,7 +34,7 @@ public:
 
     //! Column of the formula matrix, comprising the
     //! element composition of the species
-    vector_fp FormulaMatrixCol;
+    vector<double> FormulaMatrixCol;
 
     //! Charge state of the species -> This may be duplication of what's in the
     //! FormulaMatrixCol entries. However, it's prudent to separate it out.

@@ -108,7 +108,7 @@ void MolalityVPSSTP::setMolalitiesByName(const Composition& mMap)
     //        the existing mole fractions are preserved.
 
     // Get a vector of mole fractions
-    vector_fp mf(m_kk, 0.0);
+    vector<double> mf(m_kk, 0.0);
     getMoleFractions(mf.data());
     double xmolSmin = std::max(mf[0], m_xmolSolventMIN);
     for (size_t k = 0; k < m_kk; k++) {
@@ -216,7 +216,7 @@ void MolalityVPSSTP::getMolalityActivityCoefficients(doublereal* acMolality) con
 doublereal MolalityVPSSTP::osmoticCoefficient() const
 {
     // First, we calculate the activities all over again
-    vector_fp act(m_kk);
+    vector<double> act(m_kk);
     getActivities(act.data());
 
     // Then, we calculate the sum of the solvent molalities
@@ -371,12 +371,12 @@ std::string MolalityVPSSTP::report(bool show_thermo, doublereal threshold) const
         doublereal phi = electricPotential();
         fmt_append(b, "         potential    {:12.6g}  V\n", phi);
 
-        vector_fp x(m_kk);
-        vector_fp molal(m_kk);
-        vector_fp mu(m_kk);
-        vector_fp muss(m_kk);
-        vector_fp acMolal(m_kk);
-        vector_fp actMolal(m_kk);
+        vector<double> x(m_kk);
+        vector<double> molal(m_kk);
+        vector<double> mu(m_kk);
+        vector<double> muss(m_kk);
+        vector<double> acMolal(m_kk);
+        vector<double> actMolal(m_kk);
         getMoleFractions(&x[0]);
         getMolalities(&molal[0]);
         getChemPotentials(&mu[0]);
@@ -464,10 +464,10 @@ std::string MolalityVPSSTP::report(bool show_thermo, doublereal threshold) const
 }
 
 void MolalityVPSSTP::getCsvReportData(std::vector<std::string>& names,
-                                      std::vector<vector_fp>& data) const
+                                      std::vector<vector<double>>& data) const
 {
     names.clear();
-    data.assign(10, vector_fp(nSpecies()));
+    data.assign(10, vector<double>(nSpecies()));
 
     names.push_back("X");
     getMoleFractions(&data[0][0]);

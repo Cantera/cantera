@@ -293,7 +293,7 @@ protected:
     virtual void _updateReferenceStateThermo() const;
 
     //! Temporary storage - length = m_kk.
-    mutable vector_fp m_tmpV;
+    mutable vector<double> m_tmpV;
 public:
 
     //! @name Thermodynamic Values for the Species Reference States
@@ -317,7 +317,7 @@ protected:
      *          of the reference state of the species
      *          length = m_kk, units = dimensionless.
      */
-    const vector_fp& gibbs_RT_ref() const;
+    const vector<double>& gibbs_RT_ref() const;
 
 public:
     virtual void getGibbs_ref(doublereal* g) const;
@@ -543,7 +543,7 @@ protected:
     /*!
      * This vector is kept up-to-date when some the setState functions are called.
      */
-    vector_fp moleFractions_;
+    vector<double> moleFractions_;
 
     //! Current state of the fluid
     /*!
@@ -558,16 +558,16 @@ protected:
     int forcedState_ = FLUID_UNDEFINED;
 
     //! Temporary storage for dimensionless reference state enthalpies
-    mutable vector_fp m_h0_RT;
+    mutable vector<double> m_h0_RT;
 
     //! Temporary storage for dimensionless reference state heat capacities
-    mutable vector_fp m_cp0_R;
+    mutable vector<double> m_cp0_R;
 
     //! Temporary storage for dimensionless reference state Gibbs energies
-    mutable vector_fp m_g0_RT;
+    mutable vector<double> m_g0_RT;
 
     //! Temporary storage for dimensionless reference state entropies
-    mutable vector_fp m_s0_R;
+    mutable vector<double> m_s0_R;
 };
 }
 

@@ -67,9 +67,9 @@ int Refiner::analyze(size_t n, const doublereal* z,
     }
 
     // find locations where cell size ratio is too large.
-    vector_fp v(n), s(n-1);
+    vector<double> v(n), s(n-1);
 
-    vector_fp dz(n-1);
+    vector<double> dz(n-1);
     for (size_t j = 0; j < n-1; j++) {
         dz[j] = z[j+1] - z[j];
     }

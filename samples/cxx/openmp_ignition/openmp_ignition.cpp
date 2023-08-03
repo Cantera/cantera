@@ -45,8 +45,8 @@ void run()
 
     // Points at which to compute ignition delay time
     int nPoints = 50;
-    vector_fp T0(nPoints);
-    vector_fp ignition_time(nPoints);
+    vector<double> T0(nPoints);
+    vector<double> ignition_time(nPoints);
     for (int i = 0; i < nPoints; i++) {
         T0[i] = 1000 + 500 * ((float) i) / ((float) nPoints);
     }
