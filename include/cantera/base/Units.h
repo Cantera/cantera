@@ -176,7 +176,7 @@ public:
     UnitSystem() : UnitSystem({}) {}
 
     //! Return default units used by the unit system
-    std::map<std::string, std::string> defaults() const;
+    map<std::string, std::string> defaults() const;
 
     //! Set the default units to convert from when explicit units are not
     //! provided. Defaults can be set for mass, length, time, quantity, energy,
@@ -193,14 +193,14 @@ public:
     //! Cantera's default units:
     //! ```
     //! UnitSystem system;
-    //! std::map<string, string> defaults{
+    //! map<string, string> defaults{
     //!     {"length", "m"}, {"mass", "kg"}, {"time", "s"},
     //!     {"quantity", "kmol"}, {"pressure", "Pa"}, {"energy", "J"},
     //!     {"activation-energy", "J/kmol"}
     //! };
     //! setDefaults(defaults);
     //! ```
-    void setDefaults(const std::map<std::string, std::string>& units);
+    void setDefaults(const map<std::string, std::string>& units);
 
     //! Set the default units to convert from when using the
     //! `convertActivationEnergy` function.
@@ -295,7 +295,7 @@ private:
 
     //! Map of dimensions (mass, length, etc.) to names of specified default
     //! units
-    std::map<std::string, std::string> m_defaults;
+    map<std::string, std::string> m_defaults;
 };
 
 }

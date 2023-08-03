@@ -172,7 +172,7 @@ protected:
      * DAE, and zero if it is not.
      */
     vector<int> m_alg;
-    std::map<int, int> m_constrain;
+    map<int, int> m_constrain;
 };
 
 }

@@ -207,7 +207,7 @@ AnyMap legacyH5(shared_ptr<SolutionArray> arr, const AnyMap& header={})
     auto meta = arr->meta();
     AnyMap out;
 
-    std::map<std::string, std::string> meta_pairs = {
+    map<std::string, std::string> meta_pairs = {
         {"type", "Domain1D_type"},
         {"name", "name"},
         {"emissivity-left", "emissivity_left"},
@@ -219,7 +219,7 @@ AnyMap legacyH5(shared_ptr<SolutionArray> arr, const AnyMap& header={})
         }
     }
 
-    std::map<std::string, std::string> tol_pairs = {
+    map<std::string, std::string> tol_pairs = {
         {"transient-abstol", "transient_abstol"},
         {"steady-abstol", "steady_abstol"},
         {"transient-reltol", "transient_reltol"},
@@ -240,7 +240,7 @@ AnyMap legacyH5(shared_ptr<SolutionArray> arr, const AnyMap& header={})
         return out;
     }
 
-    std::map<std::string, std::string> header_pairs = {
+    map<std::string, std::string> header_pairs = {
         {"transport-model", "transport_model"},
         {"radiation-enabled", "radiation_enabled"},
         {"energy-enabled", "energy_enabled"},
@@ -253,7 +253,7 @@ AnyMap legacyH5(shared_ptr<SolutionArray> arr, const AnyMap& header={})
         }
     }
 
-    std::map<std::string, std::string> refiner_pairs = {
+    map<std::string, std::string> refiner_pairs = {
         {"ratio", "ratio"},
         {"slope", "slope"},
         {"curve", "curve"},
@@ -303,7 +303,7 @@ AnyMap Sim1D::restore(const std::string& fname, const std::string& name)
     }
     AnyMap header;
     if (extension == "h5" || extension == "hdf"  || extension == "hdf5") {
-        std::map<std::string, shared_ptr<SolutionArray>> arrs;
+        map<std::string, shared_ptr<SolutionArray>> arrs;
         header = SolutionArray::readHeader(fname, name);
 
         for (auto dom : m_dom) {
@@ -323,7 +323,7 @@ AnyMap Sim1D::restore(const std::string& fname, const std::string& name)
         finalize();
     } else if (extension == "yaml" || extension == "yml") {
         AnyMap root = AnyMap::fromYamlFile(fname);
-        std::map<std::string, shared_ptr<SolutionArray>> arrs;
+        map<std::string, shared_ptr<SolutionArray>> arrs;
         header = SolutionArray::readHeader(root, name);
 
         for (auto dom : m_dom) {

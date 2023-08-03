@@ -99,7 +99,7 @@ public:
 protected:
     //! Indices of grid points that need new grid points added after them
     set<size_t> m_loc;
-    std::map<size_t, int> m_keep;
+    map<size_t, int> m_keep;
     //! Names of components that require the addition of new grid points
     set<string> m_c;
     vector<bool> m_active;

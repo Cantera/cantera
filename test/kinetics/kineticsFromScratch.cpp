@@ -621,7 +621,7 @@ public:
     BulkKinetics kin;
     shared_ptr<Kinetics> kin_ref;
     vector<shared_ptr<Reaction>> reactions;
-    std::map<std::string, shared_ptr<Species>> species;
+    map<std::string, shared_ptr<Species>> species;
 
     void check_rates(size_t N, const std::string& X) {
         for (size_t i = 0; i < kin_ref->nReactions(); i++) {

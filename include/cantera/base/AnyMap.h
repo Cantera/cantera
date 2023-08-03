@@ -248,12 +248,12 @@ public:
     AnyValue& operator=(const std::unordered_map<std::string, T> items);
 
     template<class T>
-    AnyValue& operator=(const std::map<std::string, T> items);
+    AnyValue& operator=(const map<std::string, T> items);
 
-    //! Return the held `AnyMap` as a `std::map` where all of the values have
+    //! Return the held `AnyMap` as a `map` where all of the values have
     //! the specified type.
     template<class T>
-    std::map<std::string, T> asMap() const;
+    map<std::string, T> asMap() const;
 
     //! Access a `vector<AnyMap>` as a mapping using the value of `name` from
     //! each item as the key in the new mapping.
@@ -372,7 +372,7 @@ vector<AnyMap>& AnyValue::asVector<AnyMap>(size_t nMin, size_t nMax);
  * breakfast["beans"]["baked"] = v;
  *
  * // Create a nested AnyMap with values of the same type
- * std::map<std::string, double> breads{{"wheat", 4.0}, {"white", 2.5}};
+ * map<std::string, double> breads{{"wheat", 4.0}, {"white", 2.5}};
  * breakfast["toast"] = breads;
  * // Equivalent to:
  * breakfast["toast"]["wheat"] = 4.0
@@ -386,7 +386,7 @@ vector<AnyMap>& AnyValue::asVector<AnyMap>(size_t nMin, size_t nMax);
  * std::string val2 = breakfast["eggs"].asString();
  * vector<double> val3 = breakfast["beans"]["baked"].asVector<double>();
  *
- * std::map<std::string, double> = breakfast["toast"].asMap<double>();
+ * map<std::string, double> = breakfast["toast"].asMap<double>();
  * ```
  *
  * ## Checking for elements

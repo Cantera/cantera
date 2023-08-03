@@ -223,7 +223,7 @@ shared_ptr<Solution> newSolution(const AnyMap& phaseNode,
                                  const AnyMap& rootNode,
                                  const std::string& transport,
                                  const vector<shared_ptr<Solution>>& adjacent,
-                                 const std::map<std::string, shared_ptr<Solution>>& related)
+                                 const map<std::string, shared_ptr<Solution>>& related)
 {
     // thermo phase
     auto thermo = newThermo(phaseNode, rootNode);

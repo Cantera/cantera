@@ -190,7 +190,7 @@ TEST(AnyMap, map_conversion) {
     EXPECT_EQ(keys.size(), (size_t) 13);
     EXPECT_EQ(m["empty"].as<AnyMap>().keys_str(), "");
 
-    std::map<std::string, double> zz{{"a", 9.1}, {"b", 13.5}};
+    map<std::string, double> zz{{"a", 9.1}, {"b", 13.5}};
     m["foo"] = zz;
     EXPECT_TRUE(m["foo"].hasKey("a"));
     EXPECT_DOUBLE_EQ(m["foo"]["b"].asDouble(), 13.5);
@@ -246,7 +246,7 @@ TEST(AnyMap, vector_length)
 TEST(AnyMap, getters_with_defaults)
 {
     AnyMap m;
-    std::map<std::string, double> zz{{"a", 9.0}, {"b", 13.5}};
+    map<std::string, double> zz{{"a", 9.0}, {"b", 13.5}};
     m["foo"] = zz;
     m["foo"]["c"] = 4;
     m["bar"] = "baz";

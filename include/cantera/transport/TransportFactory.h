@@ -83,7 +83,7 @@ private:
     TransportFactory();
 
     //! Models included in this map are initialized in CK compatibility mode
-    std::map<std::string, bool> m_CK_mode;
+    map<std::string, bool> m_CK_mode;
 };
 
 //! @copydoc TransportFactory::newTransport(const std::string&, ThermoPhase*, int)

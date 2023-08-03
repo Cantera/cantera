@@ -273,7 +273,7 @@ protected:
     Array2D m_aAlpha_binary;
 
     //! Explicitly-specified binary interaction parameters, to enable serialization
-    std::map<std::string, std::map<std::string, double>> m_binaryParameters;
+    map<std::string, map<std::string, double>> m_binaryParameters;
 
     int m_NSolns = 0;
 

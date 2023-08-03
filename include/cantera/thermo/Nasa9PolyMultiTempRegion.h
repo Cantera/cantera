@@ -74,7 +74,7 @@ public:
      *                  region and each value is the array of 9 polynomial
      *                  coefficients for that region.
      */
-    void setParameters(const std::map<double, vector<double>>& regions);
+    void setParameters(const map<double, vector<double>>& regions);
 
     virtual int reportType() const;
 

@@ -180,7 +180,7 @@ protected:
         void removeThreadMessages();
 
         //! Typedef for map between a thread and the message
-        typedef std::map<std::thread::id, pMessages_t> threadMsgMap_t;
+        typedef map<std::thread::id, pMessages_t> threadMsgMap_t;
 
     private:
         //! Thread Msg Map

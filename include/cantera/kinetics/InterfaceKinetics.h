@@ -354,7 +354,7 @@ protected:
 
     //! Vector of rate handlers for interface reactions
     vector<unique_ptr<MultiRateBase>> m_interfaceRates;
-    std::map<std::string, size_t> m_interfaceTypes; //!< Rate handler mapping
+    map<std::string, size_t> m_interfaceTypes; //!< Rate handler mapping
 
     //! Vector of irreversible reaction numbers
     /*!

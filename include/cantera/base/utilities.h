@@ -182,14 +182,14 @@ void checkFinite(const double tmp);
  */
 void checkFinite(const std::string& name, double* values, size_t N);
 
-//! Const accessor for a value in a std::map.
+//! Const accessor for a value in a map.
 /*
- * Similar to std::map.at(key), but returns *default_val* if the key is not
+ * Similar to map.at(key), but returns *default_val* if the key is not
  * found instead of throwing an exception.
  */
 template <class T, class U>
-const U& getValue(const std::map<T, U>& m, const T& key, const U& default_val) {
-    typename std::map<T,U>::const_iterator iter = m.find(key);
+const U& getValue(const map<T, U>& m, const T& key, const U& default_val) {
+    typename map<T,U>::const_iterator iter = m.find(key);
     return (iter == m.end()) ? default_val : iter->second;
 }
 

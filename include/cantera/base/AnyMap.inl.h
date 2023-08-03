@@ -131,7 +131,7 @@ AnyValue& AnyValue::operator=(const std::unordered_map<std::string, T> items) {
 }
 
 template<class T>
-AnyValue& AnyValue::operator=(const std::map<std::string, T> items) {
+AnyValue& AnyValue::operator=(const map<std::string, T> items) {
     m_value = AnyMap();
     m_equals = eq_comparer<AnyMap>;
     AnyMap& dest = as<AnyMap>();
@@ -159,9 +159,9 @@ inline AnyMap& AnyValue::as<AnyMap>() {
 }
 
 template<class T>
-std::map<std::string, T> AnyValue::asMap() const
+map<std::string, T> AnyValue::asMap() const
 {
-    std::map<std::string, T> dest;
+    map<std::string, T> dest;
     for (const auto& item : as<AnyMap>()) {
         dest[item.first] = item.second.as<T>();
     }

@@ -107,7 +107,7 @@ public:
      *               energy [J/kmol] as the values. Must contain one point at
      *               298.15 K.
      */
-    void setParameters(double h0, const std::map<double, double>& T_mu);
+    void setParameters(double h0, const map<double, double>& T_mu);
 
     virtual int reportType() const {
         return MU0_INTERP;

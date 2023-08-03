@@ -81,7 +81,7 @@ protected:
 class Path
 {
 public:
-    typedef std::map<size_t, double> rxn_path_map;
+    typedef map<size_t, double> rxn_path_map;
 
     /**
      *  Constructor. Construct a one-way path from \c begin to \c end.
@@ -147,7 +147,7 @@ public:
     void writeLabel(std::ostream& s, double threshold = 0.005);
 
 protected:
-    std::map<std::string, double> m_label;
+    map<std::string, double> m_label;
     SpeciesNode* m_a, *m_b;
     rxn_path_map m_rxn;
     double m_total = 0.0;
@@ -281,7 +281,7 @@ public:
 
 protected:
     double m_flxmax = 0.0;
-    std::map<size_t, std::map<size_t, Path*> > m_paths;
+    map<size_t, map<size_t, Path*> > m_paths;
 
     //! map of species index to SpeciesNode
     map<size_t, SpeciesNode*> m_nodes;
@@ -329,11 +329,11 @@ protected:
     //! m_transfer[reaction][reactant number][product number] where "reactant
     //! number" means the number of the reactant in the reaction equation. For example,
     //! for "A+B -> C+D", "B" is reactant number 1 and "C" is product number 0.
-    std::map<size_t, std::map<size_t, std::map<size_t, Group> > > m_transfer;
+    map<size_t, map<size_t, map<size_t, Group> > > m_transfer;
 
     vector<bool> m_determinate;
     Array2D m_atoms;
-    std::map<std::string, size_t> m_enamemap;
+    map<std::string, size_t> m_enamemap;
 };
 
 }
