@@ -50,7 +50,7 @@ public:
         }
     }
 
-    std::shared_ptr<ThermoPhase> test_phase;
+    shared_ptr<ThermoPhase> test_phase;
 };
 
 TEST_F(MaskellSolidSolnPhase_Test, construct_from_file)

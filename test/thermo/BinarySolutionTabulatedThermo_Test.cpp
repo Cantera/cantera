@@ -19,7 +19,7 @@ public:
         test_phase->setMoleFractions(&moleFracs[0]);
     }
 
-    std::shared_ptr<ThermoPhase> test_phase;
+    shared_ptr<ThermoPhase> test_phase;
 };
 
 TEST_F(BinarySolutionTabulatedThermo_Test,interp_h)

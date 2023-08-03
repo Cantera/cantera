@@ -92,7 +92,7 @@ void Transport::setThermo(ThermoPhase& thermo)
     }
 }
 
-void Transport::setRoot(std::shared_ptr<Solution> root)
+void Transport::setRoot(shared_ptr<Solution> root)
 {
     warn_deprecated("Transport::setRoot", "To be removed after Cantera 3.0");
     m_root = root;

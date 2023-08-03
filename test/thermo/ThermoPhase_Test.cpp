@@ -9,7 +9,7 @@ namespace Cantera
 class TestThermoMethods : public testing::Test
 {
 public:
-    std::shared_ptr<ThermoPhase> thermo;
+    shared_ptr<ThermoPhase> thermo;
     TestThermoMethods() {
         thermo = newThermo("h2o2.yaml", "");
     }
