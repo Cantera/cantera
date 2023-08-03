@@ -43,12 +43,12 @@ protected:
  * The Blowers Masel approximation @cite blowers2004 adjusts the activation energy
  * based on enthalpy change of a reaction:
  *
- *   \f{eqnarray*}{
- *        E_a &=& 0\; \text{if }\Delta H < -4E_0 \\
- *        E_a &=& \Delta H\; \text{if }\Delta H > 4E_0 \\
+ *   @f{eqnarray*}{
+ *        E_a &=& 0\; &\text{if }\Delta H < -4E_0 \\
+ *        E_a &=& \Delta H\; &\text{if }\Delta H > 4E_0 \\
  *        E_a &=& \frac{(w + \Delta H / 2)(V_P - 2w +
- *               \Delta H)^2}{(V_P^2 - 4w^2 + (\Delta H)^2)}\; \text{Otherwise}
- *   \f}
+ *               \Delta H)^2}{(V_P^2 - 4w^2 + (\Delta H)^2)}\; &\text{otherwise}
+ *   @f}
  * where
  *   @f[
  *        V_P = \frac{2w (w + E_0)}{w - E_0},
