@@ -204,7 +204,7 @@ protected:
     void markInstalled(size_t k);
 
     typedef std::pair<size_t, shared_ptr<SpeciesThermoInterpType> > index_STIT;
-    typedef std::map<int, std::vector<index_STIT> > STIT_map;
+    typedef std::map<int, vector<index_STIT> > STIT_map;
     typedef std::map<int, vector<double>> tpoly_map;
 
     //! This is the main data structure, which contains the
@@ -231,7 +231,7 @@ protected:
     double m_p0 = 0.0;
 
     //! indicates if data for species has been installed
-    std::vector<bool> m_installed;
+    vector<bool> m_installed;
 };
 
 }

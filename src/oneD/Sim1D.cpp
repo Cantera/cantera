@@ -562,7 +562,7 @@ int Sim1D::refine(int loglevel)
 {
     int ianalyze, np = 0;
     vector<double> znew, xnew;
-    std::vector<size_t> dsize;
+    vector<size_t> dsize;
 
     m_xlast_ss = *m_state;
     m_grid_last_ss.clear();
@@ -653,7 +653,7 @@ int Sim1D::setFixedTemperature(double t)
     vector<double> znew, xnew;
     double zfixed = 0.0;
     double z1 = 0.0, z2 = 0.0;
-    std::vector<size_t> dsize;
+    vector<size_t> dsize;
 
     for (size_t n = 0; n < nDomains(); n++) {
         Domain1D& d = domain(n);

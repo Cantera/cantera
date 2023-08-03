@@ -182,7 +182,7 @@ void Solution::removeChangedCallback(void* id)
 shared_ptr<Solution> newSolution(const std::string &infile,
                                  const std::string &name,
                                  const std::string &transport,
-                                 const std::vector<shared_ptr<Solution>> &adjacent)
+                                 const vector<shared_ptr<Solution>> &adjacent)
 {
     // get file extension
     size_t dot = infile.find_last_of(".");
@@ -205,12 +205,12 @@ shared_ptr<Solution> newSolution(const std::string &infile,
 }
 
 shared_ptr<Solution> newSolution(const std::string& infile, const std::string& name,
-    const std::string& transport, const std::vector<std::string>& adjacent)
+    const std::string& transport, const vector<std::string>& adjacent)
 {
     auto rootNode = AnyMap::fromYamlFile(infile);
     AnyMap& phaseNode = rootNode["phases"].getMapWhere("name", name);
 
-    std::vector<shared_ptr<Solution>> adjPhases;
+    vector<shared_ptr<Solution>> adjPhases;
     // Create explicitly-specified adjacent bulk phases
     for (auto& name : adjacent) {
         auto& adjNode = rootNode["phases"].getMapWhere("name", name);
@@ -222,7 +222,7 @@ shared_ptr<Solution> newSolution(const std::string& infile, const std::string& n
 shared_ptr<Solution> newSolution(const AnyMap& phaseNode,
                                  const AnyMap& rootNode,
                                  const std::string& transport,
-                                 const std::vector<shared_ptr<Solution>>& adjacent,
+                                 const vector<shared_ptr<Solution>>& adjacent,
                                  const std::map<std::string, shared_ptr<Solution>>& related)
 {
     // thermo phase
@@ -270,12 +270,12 @@ shared_ptr<Solution> newSolution(const AnyMap& phaseNode,
         };
 
         auto& adjPhases = phaseNode["adjacent-phases"];
-        if (adjPhases.is<std::vector<std::string>>()) {
+        if (adjPhases.is<vector<std::string>>()) {
             // 'adjacent' is a list of bulk phases from the current input file
-            for (auto& phase : adjPhases.as<std::vector<std::string>>()) {
+            for (auto& phase : adjPhases.as<vector<std::string>>()) {
                 addPhase(rootNode["phases"], rootNode, phase);
             }
-        } else if (adjPhases.is<std::vector<AnyMap>>()) {
+        } else if (adjPhases.is<vector<AnyMap>>()) {
             // Each element of 'adjacent' is a map with one item, where the key is
             // a section in this file or another YAML file, and the value is a list of
             // phase names to read from that section

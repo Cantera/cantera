@@ -16,8 +16,8 @@ int BasisOptimize_print_lvl = 0;
 static const double USEDBEFORE = -1;
 
 size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
-                     std::vector<size_t>& orderVectorSpecies,
-                     std::vector<size_t>& orderVectorElements,
+                     vector<size_t>& orderVectorSpecies,
+                     vector<size_t>& orderVectorElements,
                      vector<double>& formRxnMatrix)
 {
     // Get the total number of elements defined in the multiphase object
@@ -291,8 +291,8 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
 
 void ElemRearrange(size_t nComponents, const vector<double>& elementAbundances,
                    MultiPhase* mphase,
-                   std::vector<size_t>& orderVectorSpecies,
-                   std::vector<size_t>& orderVectorElements)
+                   vector<size_t>& orderVectorSpecies,
+                   vector<size_t>& orderVectorElements)
 {
     size_t nelements = mphase->nElements();
     // Get the total number of species in the multiphase object

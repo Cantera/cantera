@@ -135,7 +135,7 @@ Eigen::SparseMatrix<double> IdealGasConstPressureMoleReactor::jacobian()
     // map derivatives from the surface chemistry jacobian
     // to the reactor jacobian
     if (!m_surfaces.empty()) {
-        std::vector<Eigen::Triplet<double>> species_trips(dnk_dnj.nonZeros());
+        vector<Eigen::Triplet<double>> species_trips(dnk_dnj.nonZeros());
         for (int k = 0; k < dnk_dnj.outerSize(); k++) {
             for (Eigen::SparseMatrix<double>::InnerIterator it(dnk_dnj, k); it; ++it) {
                 species_trips.emplace_back(static_cast<int>(it.row()),

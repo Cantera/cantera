@@ -69,7 +69,7 @@ protected:
  * @ingroup solnGroup
  */
 shared_ptr<Interface> newInterface(const std::string& infile,
-    const std::string& name="", const std::vector<std::string>& adjacent={});
+    const std::string& name="", const vector<std::string>& adjacent={});
 
 
 //! Create and initialize a new Interface from an input file
@@ -85,7 +85,7 @@ shared_ptr<Interface> newInterface(const std::string& infile,
  * @ingroup solnGroup
  */
 shared_ptr<Interface> newInterface(const std::string& infile,
-    const std::string& name, const std::vector<shared_ptr<Solution>>& adjacent);
+    const std::string& name, const vector<shared_ptr<Solution>>& adjacent);
 
 //! Create and initialize a new Interface from AnyMap objects
 /*!
@@ -101,7 +101,7 @@ shared_ptr<Interface> newInterface(const std::string& infile,
  * @ingroup solnGroup
  */
 shared_ptr<Interface> newInterface(AnyMap& phaseNode, const AnyMap& rootNode=AnyMap(),
-    const std::vector<shared_ptr<Solution>>& adjacent={});
+    const vector<shared_ptr<Solution>>& adjacent={});
 }
 
 #endif

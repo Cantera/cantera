@@ -812,7 +812,7 @@ void StFlow::fromArray(SolutionArray& arr, double* soln)
     auto phase = arr.thermo();
     m_press = phase->pressure();
 
-    const auto grid = arr.getComponent("grid").as<std::vector<double>>();
+    const auto grid = arr.getComponent("grid").as<vector<double>>();
     setupGrid(nPoints(), &grid[0]);
 
     for (size_t i = 0; i < nComponents(); i++) {
@@ -821,7 +821,7 @@ void StFlow::fromArray(SolutionArray& arr, double* soln)
         }
         std::string name = componentName(i);
         if (arr.hasComponent(name)) {
-            const vector<double> data = arr.getComponent(name).as<std::vector<double>>();
+            const vector<double> data = arr.getComponent(name).as<vector<double>>();
             for (size_t j = 0; j < nPoints(); j++) {
                 soln[index(i,j)] = data[j];
             }

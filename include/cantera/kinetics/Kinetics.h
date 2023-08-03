@@ -1547,7 +1547,7 @@ protected:
     vector<double> m_perturb;
 
     //! Vector of Reaction objects represented by this Kinetics manager
-    std::vector<shared_ptr<Reaction> > m_reactions;
+    vector<shared_ptr<Reaction> > m_reactions;
 
     //! m_thermo is a vector of pointers to ThermoPhase objects that are
     //! involved with this kinetics operator
@@ -1562,7 +1562,7 @@ protected:
      * Note that this kinetics object doesn't own these ThermoPhase objects
      * and is not responsible for creating or deleting them.
      */
-    std::vector<ThermoPhase*> m_thermo;
+    vector<ThermoPhase*> m_thermo;
 
     //! vector of shared pointers, @see m_thermo
     //! @todo replace m_thermo with shared version after %Cantera 3.0
@@ -1572,7 +1572,7 @@ protected:
      * m_start is a vector of integers specifying the beginning position for the
      * species vector for the n'th phase in the kinetics class.
      */
-    std::vector<size_t> m_start;
+    vector<size_t> m_start;
 
     /**
      * Mapping of the phase name to the position of the phase within the

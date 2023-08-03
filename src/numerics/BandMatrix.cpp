@@ -27,7 +27,7 @@ struct BandMatrix::PivData {
 #if CT_USE_LAPACK
     vector<int> data;
 #else
-    std::vector<sunindextype> data;
+    vector<sunindextype> data;
 #endif
 };
 

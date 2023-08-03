@@ -36,7 +36,7 @@ TEST(Polyfit, sequential)
 
     // Coefficients calculated using Numpy's polyfit function for polynomials
     // of degrees 0 - 5.
-    std::vector<vector<double>> PP{
+    vector<vector<double>> PP{
         {0.17142857142857154},
         {0.66190476190476177, -0.49047619047619029},
         {0.73605442176870761, -0.19387755102040838, -0.14829931972789107},
@@ -69,7 +69,7 @@ TEST(Polyfit, weighted)
 
     // Coefficients calculated using Numpy's polyfit function for polynomials
     // of degrees 0 - 5.
-    std::vector<vector<double>> PP{
+    vector<vector<double>> PP{
         {-0.64153846153846139},
         {0.24582603619381152, -0.41199065966141246},
         {0.64897277949822718, -0.10796777523450461, -0.14749113594542437},

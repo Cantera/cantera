@@ -57,7 +57,7 @@ protected:
 
 private:
     //! statically held list of Factories.
-    static std::vector<FactoryBase*> s_vFactoryRegistry;
+    static vector<FactoryBase*> s_vFactoryRegistry;
 };
 
 //! Factory class that supports registering functions to create objects

@@ -655,13 +655,13 @@ double UnitSystem::convertRateCoeff(const AnyValue& v, const Units& dest) const
         "likely while creating a standalone ReactionRate object.");
 }
 
-vector<double> UnitSystem::convert(const std::vector<AnyValue>& vals,
+vector<double> UnitSystem::convert(const vector<AnyValue>& vals,
                               const std::string& dest) const
 {
     return convert(vals, Units(dest));
 }
 
-vector<double> UnitSystem::convert(const std::vector<AnyValue>& vals,
+vector<double> UnitSystem::convert(const vector<AnyValue>& vals,
                               const Units& dest) const
 {
     vector<double> out;

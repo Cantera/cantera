@@ -27,7 +27,7 @@ void MultiPhase::addPhases(MultiPhase& mix)
     }
 }
 
-void MultiPhase::addPhases(std::vector<ThermoPhase*>& phases,
+void MultiPhase::addPhases(vector<ThermoPhase*>& phases,
                            const vector<double>& phaseMoles)
 {
     for (size_t n = 0; n < phases.size(); n++) {

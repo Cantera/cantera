@@ -282,7 +282,7 @@ protected:
      *  Storage is in species index order. VPStandardStateTp owns each of the
      *  objects. Copy operations are deep.
      */
-    std::vector<std::unique_ptr<PDSS>> m_PDSS_storage;
+    vector<std::unique_ptr<PDSS>> m_PDSS_storage;
 
     //! Vector containing the species reference enthalpies at T = m_tlast
     //! and P = p_ref.

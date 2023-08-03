@@ -133,7 +133,7 @@ void ChebyshevRate::getParameters(AnyMap& rateNode) const
     rateNode["pressure-range"].setQuantity({Pmin(), Pmax()}, "Pa");
     size_t nT = m_coeffs.nRows();
     size_t nP = m_coeffs.nColumns();
-    std::vector<vector<double>> coeffs2d(nT, vector<double>(nP));
+    vector<vector<double>> coeffs2d(nT, vector<double>(nP));
     for (size_t i = 0; i < nT; i++) {
         for (size_t j = 0; j < nP; j++) {
             coeffs2d[i][j] = m_coeffs(i, j);

@@ -398,7 +398,7 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
 
     // Fill in the species to phase mapping. Check for bad values at the same
     // time.
-    std::vector<size_t> numPhSp(m_numPhases, 0);
+    vector<size_t> numPhSp(m_numPhases, 0);
     for (size_t kspec = 0; kspec < m_nsp; kspec++) {
         size_t iph = m_phaseID[kspec];
         if (iph >= m_numPhases) {
@@ -613,7 +613,7 @@ bool VCS_SOLVE::vcs_popPhasePossible(const size_t iphasePop) const
     return false;
 }
 
-size_t VCS_SOLVE::vcs_popPhaseID(std::vector<size_t> & phasePopPhaseIDs)
+size_t VCS_SOLVE::vcs_popPhaseID(vector<size_t> & phasePopPhaseIDs)
 {
     size_t iphasePop = npos;
     double FephaseMax = -1.0E30;
@@ -711,7 +711,7 @@ int VCS_SOLVE::vcs_popPhaseRxnStepSizes(const size_t iphasePop)
     size_t kspec = Vphase->spGlobalIndexVCS(0);
     // Identify the formation reaction for that species
     size_t irxn = kspec - m_numComponents;
-    std::vector<size_t> creationGlobalRxnNumbers;
+    vector<size_t> creationGlobalRxnNumbers;
 
     // Calculate the initial moles of the phase being born.
     //   Here we set it to 10x of the value which would cause the phase to be
@@ -1161,7 +1161,7 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
     // it gets created
     vector<double> fracDelta_new = Vphase->creationMoleNumbers(creationGlobalRxnNumbers);
 
-    std::vector<size_t> componentList;
+    vector<size_t> componentList;
     for (size_t k = 0; k < nsp; k++) {
         size_t kspec = Vphase->spGlobalIndexVCS(k);
         if (kspec < m_numComponents) {
@@ -1843,7 +1843,7 @@ int VCS_SOLVE::vcs_report(int iconv)
     bool inertYes = false;
 
     // SORT DEPENDENT SPECIES IN DECREASING ORDER OF MOLES
-    std::vector<std::pair<double, size_t>> x_order;
+    vector<std::pair<double, size_t>> x_order;
     for (size_t i = 0; i < m_nsp; i++) {
         x_order.push_back({-m_molNumSpecies_old[i], i});
     }

@@ -460,7 +460,7 @@ void DebyeHuckel::getParameters(AnyMap& phaseNode) const
         }
     }
     if (m_Beta_ij.nRows() && m_Beta_ij.nColumns()) {
-        std::vector<AnyMap> beta;
+        vector<AnyMap> beta;
         for (size_t i = 0; i < m_kk; i++) {
             for (size_t j = i; j < m_kk; j++) {
                 if (m_Beta_ij(i, j) != 0) {

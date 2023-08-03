@@ -133,7 +133,7 @@ TEST(ctonedim, catcomb_stack)
     ASSERT_EQ(ret, 0);
 
     // set up stack
-    std::vector<int> doms{inlet, flow, reac_surf};
+    vector<int> doms{inlet, flow, reac_surf};
     int flame = sim1D_new(3, doms.data());
     ASSERT_GE(flame, 0);
     int dom = sim1D_domainIndex(flame, "flow");
@@ -200,7 +200,7 @@ TEST(ctonedim, freeflame_from_parts)
     double uout = bdry_mdot(reac) / rho_out;
 
     // set up stack
-    std::vector<int> doms{reac, flow, prod};
+    vector<int> doms{reac, flow, prod};
     int flame = sim1D_new(3, doms.data());
     int dom = sim1D_domainIndex(flame, "flow");
     ASSERT_EQ(dom, 1);

@@ -78,7 +78,7 @@ protected:
     //! Top-level information used in YAML header block
     AnyMap m_header;
 
-    std::vector<shared_ptr<Solution>> m_phases;
+    vector<shared_ptr<Solution>> m_phases;
 
     //! See setPrecision()
     long int m_float_precision = 15;

@@ -317,7 +317,7 @@ protected:
     //! and deliberately not exposed in external interfaces.
     virtual int lastOrder() const;
 
-    std::vector<Reactor*> m_reactors;
+    vector<Reactor*> m_reactors;
     std::unique_ptr<Integrator> m_integ;
 
     //! The independent variable in the system. May be either time or space depending
@@ -332,7 +332,7 @@ protected:
     size_t m_nv = 0;
 
     //! m_start[n] is the starting point in the state vector for reactor n
-    std::vector<size_t> m_start;
+    vector<size_t> m_start;
 
     vector<double> m_atol;
     double m_rtol = 1.0e-9;
@@ -351,7 +351,7 @@ protected:
     bool m_timeIsIndependent = true;
 
     //! Names corresponding to each sensitivity parameter
-    std::vector<std::string> m_paramNames;
+    vector<std::string> m_paramNames;
 
     vector<double> m_ydot;
     vector<double> m_yest;

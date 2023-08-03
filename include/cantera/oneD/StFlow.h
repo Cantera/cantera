@@ -506,12 +506,12 @@ protected:
 
     //! Indices within the ThermoPhase of the radiating species. First index is
     //! for CO2, second is for H2O.
-    std::vector<size_t> m_kRadiating;
+    vector<size_t> m_kRadiating;
 
     // flags
-    std::vector<bool> m_do_energy;
+    vector<bool> m_do_energy;
     bool m_do_soret = false;
-    std::vector<bool> m_do_species;
+    vector<bool> m_do_species;
     bool m_do_multicomponent = false;
 
     //! flag for the radiative heat loss

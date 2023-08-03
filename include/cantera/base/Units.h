@@ -137,7 +137,7 @@ struct UnitStack
     //! Calculate product of units-exponent stack
     Units product() const;
 
-    std::vector<std::pair<Units, double>> stack; //!< Stack uses vector of pairs
+    vector<std::pair<Units, double>> stack; //!< Stack uses vector of pairs
 };
 
 
@@ -238,9 +238,9 @@ public:
     //! Convert an array of AnyValue nodes to the units specified in `dest`. For
     //! each node, if the value is a double, convert it using the default units,
     //! and if it is a string, treat it as a value with the given dimensions.
-    vector<double> convert(const std::vector<AnyValue>& vals,
+    vector<double> convert(const vector<AnyValue>& vals,
                       const std::string& dest) const;
-    vector<double> convert(const std::vector<AnyValue>& vals,
+    vector<double> convert(const vector<AnyValue>& vals,
                       const Units& dest) const;
 
     //! Convert `value` from the units of `src` to the units of `dest`, allowing

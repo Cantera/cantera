@@ -552,7 +552,7 @@ UnitStack Reaction::calculateRateCoeffUnits(const Kinetics& kin)
     return rate_units;
 }
 
-void updateUndeclared(std::vector<std::string>& undeclared,
+void updateUndeclared(vector<std::string>& undeclared,
                       const Composition& comp, const Kinetics& kin)
 {
     for (const auto& [name, stoich]: comp) {
@@ -632,7 +632,7 @@ void Reaction::checkBalance(const Kinetics& kin) const
 bool Reaction::checkSpecies(const Kinetics& kin) const
 {
     // Check for undeclared species
-    std::vector<std::string> undeclared;
+    vector<std::string> undeclared;
     updateUndeclared(undeclared, reactants, kin);
     updateUndeclared(undeclared, products, kin);
     if (!undeclared.empty()) {
@@ -807,7 +807,7 @@ std::string ThirdBody::collider() const
 
 bool ThirdBody::checkSpecies(const Reaction& rxn, const Kinetics& kin) const
 {
-    std::vector<std::string> undeclared;
+    vector<std::string> undeclared;
     updateUndeclared(undeclared, efficiencies, kin);
 
     if (!undeclared.empty()) {
@@ -908,7 +908,7 @@ void parseReactionEquation(Reaction& R, const std::string& equation,
 {
     // Parse the reaction equation to determine participating species and
     // stoichiometric coefficients
-    std::vector<std::string> tokens;
+    vector<std::string> tokens;
     tokenizeString(equation, tokens);
     tokens.push_back("+"); // makes parsing last species not a special case
 
@@ -973,10 +973,10 @@ void parseReactionEquation(Reaction& R, const std::string& equation,
     }
 }
 
-std::vector<shared_ptr<Reaction>> getReactions(const AnyValue& items,
+vector<shared_ptr<Reaction>> getReactions(const AnyValue& items,
                                                Kinetics& kinetics)
 {
-    std::vector<shared_ptr<Reaction>> all_reactions;
+    vector<shared_ptr<Reaction>> all_reactions;
     for (const auto& node : items.asVector<AnyMap>()) {
         auto R = make_shared<Reaction>(node, kinetics);
         R->check();

@@ -378,7 +378,7 @@ void ReactionPathDiagram::linkNodes(size_t k1, size_t k2, size_t rxn,
     m_flxmax = std::max(ff->flow(), m_flxmax);
 }
 
-std::vector<size_t> ReactionPathDiagram::species()
+vector<size_t> ReactionPathDiagram::species()
 {
     return m_speciesNumber;
 }
@@ -652,7 +652,7 @@ int ReactionPathBuilder::init(ostream& logfile, Kinetics& kin)
 }
 
 string reactionLabel(size_t i, size_t kr, size_t nr,
-                     const std::vector<size_t>& slist, const Kinetics& s)
+                     const vector<size_t>& slist, const Kinetics& s)
 {
     string label = "";
     for (size_t j = 0; j < nr; j++) {

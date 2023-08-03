@@ -506,7 +506,7 @@ struct convert<Cantera::AnyValue> {
             // Convert sequences of the same element type to vectors of that type
             Type types = elementTypes(node);
             if (types == Type::Integer) {
-                target = node.as<std::vector<long int>>();
+                target = node.as<vector<long int>>();
             } else if (types == (Type::Integer | Type::Double) || types == Type::Double) {
                 vector<double> values;
                 for (const auto& elem : node) {
@@ -514,11 +514,11 @@ struct convert<Cantera::AnyValue> {
                 }
                 target = std::move(values);
             } else if (types == Type::String) {
-                target = node.as<std::vector<std::string>>();
+                target = node.as<vector<std::string>>();
             } else if (types == Type::Bool) {
-                target = node.as<std::vector<bool>>();
+                target = node.as<vector<bool>>();
             } else if (types == Type::Map) {
-                target = node.as<std::vector<AnyMap>>();
+                target = node.as<vector<AnyMap>>();
             } else if (types == Type::Sequence) {
                 // Create nested vectors when data types are compatible
                 Type subtypes = Type::Unknown;
@@ -526,7 +526,7 @@ struct convert<Cantera::AnyValue> {
                     subtypes = subtypes | elementTypes(el);
                 }
                 if (subtypes == Type::Integer) {
-                    target = node.as<std::vector<std::vector<long int>>>();
+                    target = node.as<vector<vector<long int>>>();
                 } else if (subtypes == (Type::Integer | Type::Double) || subtypes == Type::Double) {
                     vector<vector<double>> values;
                     for (const auto& row : node) {
@@ -537,15 +537,15 @@ struct convert<Cantera::AnyValue> {
                     }
                     target = std::move(values);
                 } else if (subtypes == Type::String) {
-                    target = node.as<std::vector<std::vector<std::string>>>();
+                    target = node.as<vector<vector<std::string>>>();
                 } else if (subtypes == Type::Bool) {
-                    target = node.as<std::vector<std::vector<bool>>>();
+                    target = node.as<vector<vector<bool>>>();
                 } else {
-                    target = node.as<std::vector<AnyValue>>();
+                    target = node.as<vector<AnyValue>>();
                 }
             } else {
                 // If types are different, create a vector of generic values
-                target = node.as<std::vector<AnyValue>>();
+                target = node.as<vector<AnyValue>>();
             }
             return true;
         } else if (node.IsMap()) {
@@ -566,8 +566,8 @@ namespace Cantera {
 std::unordered_map<string,
                    pair<AnyMap, std::filesystem::file_time_type>> AnyMap::s_cache;
 
-std::unordered_map<std::string, std::vector<std::string>> AnyMap::s_headFields;
-std::unordered_map<std::string, std::vector<std::string>> AnyMap::s_tailFields;
+std::unordered_map<std::string, vector<std::string>> AnyMap::s_headFields;
+std::unordered_map<std::string, vector<std::string>> AnyMap::s_tailFields;
 
 // Methods of class AnyBase
 
@@ -629,11 +629,11 @@ void AnyValue::propagateMetadata(shared_ptr<AnyMap>& metadata)
     m_metadata = metadata;
     if (is<AnyMap>()) {
         as<AnyMap>().propagateMetadata(m_metadata);
-    } else if (is<std::vector<AnyValue>>()) {
+    } else if (is<vector<AnyValue>>()) {
         for (auto& item : asVector<AnyValue>()) {
             item.propagateMetadata(m_metadata);
         }
-    } else if (is<std::vector<AnyMap>>()) {
+    } else if (is<vector<AnyMap>>()) {
         for (auto& item : asVector<AnyMap>()) {
             item.propagateMetadata(m_metadata);
         }
@@ -1004,7 +1004,7 @@ std::unordered_map<std::string, AnyMap*> AnyValue::asMap(const std::string& name
 
 const AnyMap& AnyValue::getMapWhere(const std::string& key, const std::string& value) const
 {
-    if (is<std::vector<AnyMap>>()) {
+    if (is<vector<AnyMap>>()) {
         if (value == "") {
             return asVector<AnyMap>().at(0);
         }
@@ -1035,7 +1035,7 @@ const AnyMap& AnyValue::getMapWhere(const std::string& key, const std::string& v
 AnyMap& AnyValue::getMapWhere(const std::string& key, const std::string& value,
                               bool create)
 {
-    if (is<std::vector<AnyMap>>()) {
+    if (is<vector<AnyMap>>()) {
         if (value == "") {
             return asVector<AnyMap>().at(0);
         }
@@ -1061,7 +1061,7 @@ AnyMap& AnyValue::getMapWhere(const std::string& key, const std::string& value,
         } else if (create) {
             AnyMap newChild;
             newChild[key] = value;
-            std::vector<AnyMap> nodes{std::move(as<AnyMap>()), std::move(newChild)};
+            vector<AnyMap> nodes{std::move(as<AnyMap>()), std::move(newChild)};
             operator=(std::move(nodes));
             return asVector<AnyMap>().back();
         } else {
@@ -1085,7 +1085,7 @@ AnyMap& AnyValue::getMapWhere(const std::string& key, const std::string& value,
 
 bool AnyValue::hasMapWhere(const std::string& key, const std::string& value) const
 {
-    if (is<std::vector<AnyMap>>()) {
+    if (is<vector<AnyMap>>()) {
         if (value == "") {
             return true;
         }
@@ -1128,8 +1128,8 @@ void AnyValue::applyUnits(shared_ptr<UnitSystem>& units)
         }
         // Units declaration applicable to this map
         m.applyUnits(units);
-    } else if (is<std::vector<AnyMap>>()) {
-        auto& list = as<std::vector<AnyMap>>();
+    } else if (is<vector<AnyMap>>()) {
+        auto& list = as<vector<AnyMap>>();
         if (list.size() && list[0].hasKey("units") && list[0].size() == 1) {
             // First item in the list is a units declaration, which applies to
             // the items in the list
@@ -1216,21 +1216,21 @@ void AnyValue::setFlowStyle(bool flow)
 // Explicit template specializations to allow certain conversions
 
 template<>
-const std::vector<AnyValue>& AnyValue::asVector<AnyValue>(size_t nMin, size_t nMax) const
+const vector<AnyValue>& AnyValue::asVector<AnyValue>(size_t nMin, size_t nMax) const
 {
-    if (!is<std::vector<AnyValue>>()) {
-        std::vector<AnyValue> v;
-        if (is<std::vector<double>>()) {
+    if (!is<vector<AnyValue>>()) {
+        vector<AnyValue> v;
+        if (is<vector<double>>()) {
             for (const auto& el : asVector<double>()) {
                 v.push_back(AnyValue(el));
             }
             const_cast<AnyValue*>(this)->m_value = v;
-        } else if (is<std::vector<long int>>()) {
+        } else if (is<vector<long int>>()) {
             for (const auto& el : asVector<long int>()) {
                 v.push_back(AnyValue(el));
             }
             const_cast<AnyValue*>(this)->m_value = v;
-        } else if (is<std::vector<std::string>>()) {
+        } else if (is<vector<std::string>>()) {
             for (const auto& el : asVector<std::string>()) {
                 v.push_back(AnyValue(el));
             }
@@ -1239,59 +1239,59 @@ const std::vector<AnyValue>& AnyValue::asVector<AnyValue>(size_t nMin, size_t nM
         // If none of these special cases match, the value won't be replaced,
         // and an exception will be thrown.
     }
-    const auto& vv = as<std::vector<AnyValue>>();
-    m_equals = eq_comparer<std::vector<AnyValue>>;
+    const auto& vv = as<vector<AnyValue>>();
+    m_equals = eq_comparer<vector<AnyValue>>;
     checkSize(vv, nMin, nMax);
     return vv;
 }
 
 template<>
-std::vector<AnyValue>& AnyValue::asVector<AnyValue>(size_t nMin, size_t nMax)
+vector<AnyValue>& AnyValue::asVector<AnyValue>(size_t nMin, size_t nMax)
 {
-    auto& v = const_cast<std::vector<AnyValue>&>(
+    auto& v = const_cast<vector<AnyValue>&>(
         const_cast<const AnyValue*>(this)->asVector<AnyValue>());
     checkSize(v, nMin, nMax);
     return v;
 }
 
 template<>
-const std::vector<double>& AnyValue::asVector<double>(size_t nMin, size_t nMax) const
+const vector<double>& AnyValue::asVector<double>(size_t nMin, size_t nMax) const
 {
-    if (is<std::vector<long int>>()) {
-        std::vector<double> v;
+    if (is<vector<long int>>()) {
+        vector<double> v;
         for (const auto& el : asVector<long int>()) {
             v.push_back(el);
         }
         const_cast<AnyValue*>(this)->m_value = v;
     }
-    const auto& vv = as<std::vector<double>>();
-    m_equals = eq_comparer<std::vector<double>>;
+    const auto& vv = as<vector<double>>();
+    m_equals = eq_comparer<vector<double>>;
     checkSize(vv, nMin, nMax);
     return vv;
 }
 
 template<>
-std::vector<double>& AnyValue::asVector<double>(size_t nMin, size_t nMax)
+vector<double>& AnyValue::asVector<double>(size_t nMin, size_t nMax)
 {
-    if (is<std::vector<long int>>()) {
-        std::vector<double> v;
+    if (is<vector<long int>>()) {
+        vector<double> v;
         for (const auto& el : asVector<long int>()) {
             v.push_back(el);
         }
         m_value = v;
     }
-    auto& vv = as<std::vector<double>>();
-    m_equals = eq_comparer<std::vector<double>>;
+    auto& vv = as<vector<double>>();
+    m_equals = eq_comparer<vector<double>>;
     checkSize(vv, nMin, nMax);
     return vv;
 }
 
 template<>
-const std::vector<vector<double>>& AnyValue::asVector<vector<double>>(size_t nMin, size_t nMax) const
+const vector<vector<double>>& AnyValue::asVector<vector<double>>(size_t nMin, size_t nMax) const
 {
-    if (is<std::vector<std::vector<long int>>>()) {
-        std::vector<vector<double>> v;
-        for (const auto& outer : asVector<std::vector<long int>>()) {
+    if (is<vector<vector<long int>>>()) {
+        vector<vector<double>> v;
+        for (const auto& outer : asVector<vector<long int>>()) {
             v.push_back(vector<double>());
             for (const auto& inner : outer) {
                 v.back().push_back(inner);
@@ -1299,18 +1299,18 @@ const std::vector<vector<double>>& AnyValue::asVector<vector<double>>(size_t nMi
         }
         const_cast<AnyValue*>(this)->m_value = v;
     }
-    const auto& vv = as<std::vector<vector<double>>>();
-    m_equals = eq_comparer<std::vector<vector<double>>>;
+    const auto& vv = as<vector<vector<double>>>();
+    m_equals = eq_comparer<vector<vector<double>>>;
     checkSize(vv, nMin, nMax);
     return vv;
 }
 
 template<>
-std::vector<vector<double>>& AnyValue::asVector<vector<double>>(size_t nMin, size_t nMax)
+vector<vector<double>>& AnyValue::asVector<vector<double>>(size_t nMin, size_t nMax)
 {
-    if (is<std::vector<std::vector<long int>>>()) {
-        std::vector<vector<double>> v;
-        for (const auto& outer : asVector<std::vector<long int>>()) {
+    if (is<vector<vector<long int>>>()) {
+        vector<vector<double>> v;
+        for (const auto& outer : asVector<vector<long int>>()) {
             v.push_back(vector<double>());
             for (const auto& inner : outer) {
                 v.back().push_back(inner);
@@ -1318,14 +1318,14 @@ std::vector<vector<double>>& AnyValue::asVector<vector<double>>(size_t nMin, siz
         }
         m_value = v;
     }
-    auto& vv = as<std::vector<vector<double>>>();
-    m_equals = eq_comparer<std::vector<vector<double>>>;
+    auto& vv = as<vector<vector<double>>>();
+    m_equals = eq_comparer<vector<vector<double>>>;
     checkSize(vv, nMin, nMax);
     return vv;
 }
 
 template<>
-const std::vector<AnyMap>& AnyValue::asVector<AnyMap>(size_t nMin, size_t nMax) const
+const vector<AnyMap>& AnyValue::asVector<AnyMap>(size_t nMin, size_t nMax) const
 {
     if (is<AnyMap>()) {
         vector<AnyMap> v;
@@ -1340,7 +1340,7 @@ const std::vector<AnyMap>& AnyValue::asVector<AnyMap>(size_t nMin, size_t nMax) 
 }
 
 template<>
-std::vector<AnyMap>& AnyValue::asVector<AnyMap>(size_t nMin, size_t nMax)
+vector<AnyMap>& AnyValue::asVector<AnyMap>(size_t nMin, size_t nMax)
 {
     if (is<AnyMap>()) {
         vector<AnyMap> v;

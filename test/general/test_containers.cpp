@@ -129,19 +129,19 @@ TEST(AnyMap, equality1) {
 
 TEST(AnyMap, equality2) {
     // Build two identical maps
-    std::vector<AnyMap> M(2);
+    vector<AnyMap> M(2);
     for (auto& m : M) {
         m["group"]["vector_double"] = vector<double>{1.1, 3.2, 2.4};
-        m["group"]["vector_int"] = std::vector<long int>{3,5,7,9};
+        m["group"]["vector_int"] = vector<long int>{3,5,7,9};
         m["group"]["changes"] = "a string";
         m["group"]["changes"] = 9;
-        m["group"]["vector_vector_double"] = std::vector<vector<double>>{
+        m["group"]["vector_vector_double"] = vector<vector<double>>{
             {1.2, 2.1}, {3.4, 4.3}, {5.6, 6.5}
         };
         m["bool"] = true;
         m["int"] = 33;
-        m["vector_any_int"] = std::vector<long int>{3, 9, -1};
-        m["strings"] = std::vector<std::string>{"spam", "eggs", "spam"};
+        m["vector_any_int"] = vector<long int>{3, 9, -1};
+        m["strings"] = vector<std::string>{"spam", "eggs", "spam"};
     }
 
     EXPECT_EQ(M[0], M[1]);
@@ -304,7 +304,7 @@ TEST(AnyMap, iterators)
 {
     AnyMap m = AnyMap::fromYamlString(
         "{a: 1, b: two, c: 3.01, d: {foo: 1, bar: 2}}");
-    std::vector<std::string> keys;
+    vector<std::string> keys;
     for (const auto& [key, value] : m) {
         keys.push_back(key);
     }
@@ -417,10 +417,10 @@ TEST(AnyMap, YamlFlowStyle)
 
 TEST(AnyMap, nestedVectorsToYaml)
 {
-    std::vector<std::string> words{"foo", "bar", "baz", "qux", "foobar"};
-    std::vector<std::vector<std::string>> strings;
-    std::vector<std::vector<bool>> booleans;
-    std::vector<std::vector<long int>> integers;
+    vector<std::string> words{"foo", "bar", "baz", "qux", "foobar"};
+    vector<vector<std::string>> strings;
+    vector<vector<bool>> booleans;
+    vector<vector<long int>> integers;
     for (size_t i = 0; i < 3; i++) {
         strings.emplace_back();
         booleans.emplace_back();
@@ -438,9 +438,9 @@ TEST(AnyMap, nestedVectorsToYaml)
     std::string serialized = original.toYamlString();
     AnyMap generated = AnyMap::fromYamlString(serialized);
 
-    EXPECT_EQ(generated["strings"].asVector<std::vector<std::string>>(), strings);
-    EXPECT_EQ(generated["booleans"].asVector<std::vector<bool>>(), booleans);
-    EXPECT_EQ(generated["integers"].asVector<std::vector<long int>>(), integers);
+    EXPECT_EQ(generated["strings"].asVector<vector<std::string>>(), strings);
+    EXPECT_EQ(generated["booleans"].asVector<vector<bool>>(), booleans);
+    EXPECT_EQ(generated["integers"].asVector<vector<long int>>(), integers);
 }
 
 TEST(AnyMap, definedKeyOrdering)

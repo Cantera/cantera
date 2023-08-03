@@ -152,7 +152,7 @@ protected:
     shared_ptr<Transport> m_transport;  //!< Transport manager
 
     //! Adjacent phases, for access by index
-    std::vector<shared_ptr<Solution>> m_adjacent;
+    vector<shared_ptr<Solution>> m_adjacent;
 
     //! Adjacent phases, for access by name
     std::map<std::string, shared_ptr<Solution>> m_adjacentByName;
@@ -185,7 +185,7 @@ protected:
  * @ingroup solnGroup
  */
 shared_ptr<Solution> newSolution(const std::string& infile, const std::string& name,
-    const std::string& transport, const std::vector<std::string>& adjacent);
+    const std::string& transport, const vector<std::string>& adjacent);
 
 //! Create and initialize a new Solution manager from an input file
 /*!
@@ -204,7 +204,7 @@ shared_ptr<Solution> newSolution(const std::string& infile, const std::string& n
 shared_ptr<Solution> newSolution(const std::string& infile,
                                  const std::string& name="",
                                  const std::string& transport="",
-                                 const std::vector<shared_ptr<Solution>>& adjacent={});
+                                 const vector<shared_ptr<Solution>>& adjacent={});
 
 //! Create and initialize a new Solution manager from AnyMap objects
 /*!
@@ -228,7 +228,7 @@ shared_ptr<Solution> newSolution(const std::string& infile,
 shared_ptr<Solution> newSolution(
     const AnyMap& phaseNode, const AnyMap& rootNode=AnyMap(),
     const std::string& transport="",
-    const std::vector<shared_ptr<Solution>>& adjacent={},
+    const vector<shared_ptr<Solution>>& adjacent={},
     const std::map<std::string, shared_ptr<Solution>>& related={});
 
 }

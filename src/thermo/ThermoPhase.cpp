@@ -1498,8 +1498,8 @@ void ThermoPhase::reportCSV(std::ofstream& csvFile) const
     csvFile.precision(8);
     vector<double> X(nSpecies());
     getMoleFractions(&X[0]);
-    std::vector<std::string> pNames;
-    std::vector<vector<double>> data;
+    vector<std::string> pNames;
+    vector<vector<double>> data;
     getCsvReportData(pNames, data);
 
     csvFile << setw(tabS) << "Species,";
@@ -1523,8 +1523,8 @@ void ThermoPhase::reportCSV(std::ofstream& csvFile) const
     }
 }
 
-void ThermoPhase::getCsvReportData(std::vector<std::string>& names,
-                                   std::vector<vector<double>>& data) const
+void ThermoPhase::getCsvReportData(vector<std::string>& names,
+                                   vector<vector<double>>& data) const
 {
     warn_deprecated("ThermoPhase::getCsvReportData", "To be removed after Cantera 3.0.");
     names.clear();

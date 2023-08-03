@@ -502,14 +502,14 @@ protected:
 
     //! Array of enthalpy and entropy coverage dependency parameters used in
     //! the linear and polynomial dependency equations.
-    std::vector<PolynomialDependency> m_PolynomialDependency;
+    vector<PolynomialDependency> m_PolynomialDependency;
 
     //! Array of enthalpy and entropy coverage dependency parameters used in
     //! the piecewise-linear and interpolative dependency equations.
-    std::vector<InterpolativeDependency> m_InterpolativeDependency;
+    vector<InterpolativeDependency> m_InterpolativeDependency;
 
     //! Array of heat capacity coverage dependency parameters.
-    std::vector<HeatCapacityDependency> m_HeatCapacityDependency;
+    vector<HeatCapacityDependency> m_HeatCapacityDependency;
 
 private:
     //! Storage for the user-defined reference state coverage which has to be

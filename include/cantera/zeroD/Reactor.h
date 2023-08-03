@@ -296,10 +296,10 @@ protected:
     vector<double> m_advancelimits; //!< Advance step limit
 
     // Data associated each sensitivity parameter
-    std::vector<SensitivityParameter> m_sensParams;
+    vector<SensitivityParameter> m_sensParams;
 
     //! Vector of triplets representing the jacobian
-    std::vector<Eigen::Triplet<double>> m_jac_trips;
+    vector<Eigen::Triplet<double>> m_jac_trips;
 };
 }
 

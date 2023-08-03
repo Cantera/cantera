@@ -463,8 +463,8 @@ std::string MolalityVPSSTP::report(bool show_thermo, double threshold) const
     return to_string(b);
 }
 
-void MolalityVPSSTP::getCsvReportData(std::vector<std::string>& names,
-                                      std::vector<vector<double>>& data) const
+void MolalityVPSSTP::getCsvReportData(vector<std::string>& names,
+                                      vector<vector<double>>& data) const
 {
     names.clear();
     data.assign(10, vector<double>(nSpecies()));

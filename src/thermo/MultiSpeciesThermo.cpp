@@ -97,7 +97,7 @@ void MultiSpeciesThermo::update(double t, double* cp_R,
     auto iter = m_sp.begin();
     auto jter = m_tpoly.begin();
     for (; iter != m_sp.end(); iter++, jter++) {
-        const std::vector<index_STIT>& species = iter->second;
+        const vector<index_STIT>& species = iter->second;
         double* tpoly = &jter->second[0];
         species[0].second->updateTemperaturePoly(t, tpoly);
         for (auto& [i, spthermo] : species) {

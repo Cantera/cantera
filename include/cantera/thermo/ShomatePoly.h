@@ -333,7 +333,7 @@ public:
         thermo["model"] = "Shomate";
         vector<double> Tranges {m_lowT, m_midT, m_highT};
         thermo["temperature-ranges"].setQuantity(Tranges, "K");
-        thermo["data"] = std::vector<vector<double>>();
+        thermo["data"] = vector<vector<double>>();
         msp_low.getParameters(thermo);
         msp_high.getParameters(thermo);
     }

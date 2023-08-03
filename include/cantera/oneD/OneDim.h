@@ -33,7 +33,7 @@ public:
 
     //! @deprecated To be removed after %Cantera 3.0;
     //!     superseded by OneDim() using vector<shared_ptr<Domain1D>>
-    OneDim(std::vector<Domain1D*> domains);
+    OneDim(vector<Domain1D*> domains);
     virtual ~OneDim();
     OneDim(const OneDim&) = delete;
     OneDim& operator=(const OneDim&) = delete;
@@ -280,7 +280,7 @@ public:
     void clearStats();
 
     //! Return total grid size in each call to solve()
-    const std::vector<size_t>& gridSizeStats() {
+    const vector<size_t>& gridSizeStats() {
         saveStats();
         return m_gridpts;
     }
@@ -360,8 +360,8 @@ protected:
     vector<Domain1D*> m_bulk; //!< @todo remove raw pointers after %Cantera 3.0
 
     bool m_init = false;
-    std::vector<size_t> m_nvars;
-    std::vector<size_t> m_loc;
+    vector<size_t> m_nvars;
+    vector<size_t> m_loc;
     vector<int> m_mask;
     size_t m_pts = 0;
 
@@ -385,7 +385,7 @@ private:
     // statistics
     int m_nevals = 0;
     double m_evaltime = 0;
-    std::vector<size_t> m_gridpts;
+    vector<size_t> m_gridpts;
     vector<int> m_jacEvals;
     vector<double> m_jacElapsed;
     vector<int> m_funcEvals;

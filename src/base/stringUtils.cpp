@@ -182,7 +182,7 @@ double fpValueCheck(const std::string& val)
     return fpValue(str);
 }
 
-void tokenizeString(const std::string& in_val, std::vector<std::string>& v)
+void tokenizeString(const std::string& in_val, vector<std::string>& v)
 {
     std::string val = ba::trim_copy(in_val);
     v.clear();
@@ -194,7 +194,7 @@ void tokenizeString(const std::string& in_val, std::vector<std::string>& v)
     ba::split(v, val, ba::is_space(), ba::token_compress_on);
 }
 
-void tokenizePath(const std::string& in_val, std::vector<std::string>& v)
+void tokenizePath(const std::string& in_val, vector<std::string>& v)
 {
     std::string val = ba::trim_copy(in_val);
     v.clear();

@@ -326,13 +326,13 @@ public:
      * @param n_k Pointer to a vector of n_k's
      * @param creationGlobalRxnNumbers  Vector of global creation reaction numbers
      */
-    void setCreationMoleNumbers(const double* const n_k, const std::vector<size_t> &creationGlobalRxnNumbers);
+    void setCreationMoleNumbers(const double* const n_k, const vector<size_t> &creationGlobalRxnNumbers);
 
     //! Return a const reference to the creationMoleNumbers stored in the object.
     /*!
      * @returns a const reference to the vector of creationMoleNumbers
      */
-    const vector<double> & creationMoleNumbers(std::vector<size_t> &creationGlobalRxnNumbers) const;
+    const vector<double> & creationMoleNumbers(vector<size_t> &creationGlobalRxnNumbers) const;
 
     //! Returns whether the phase is an ideal solution phase
     bool isIdealSoln() const;
@@ -579,7 +579,7 @@ private:
     /*!
      * Length =  nElemConstraints
      */
-    std::vector<std::string> m_elementNames;
+    vector<std::string> m_elementNames;
 
     //! boolean indicating whether an element constraint is active
     //! for the current  problem
@@ -616,7 +616,7 @@ private:
     vector<int> m_speciesUnknownType;
 
     //! Index of the element number in the global list of elements stored in VCS_SOLVE
-    std::vector<size_t> m_elemGlobalIndex;
+    vector<size_t> m_elemGlobalIndex;
 
     //! Number of species in the phase
     size_t m_numSpecies = 0;
@@ -666,13 +666,13 @@ private:
      *  Note, as part of the vcs algorithm, the order of the species
      *  vector is changed during the algorithm
      */
-    std::vector<size_t> IndSpecies;
+    vector<size_t> IndSpecies;
 
     //! Vector of Species structures for the species belonging to this phase
     /*!
      * The index into this vector is the species index within the phase.
      */
-    std::vector<vcs_SpeciesProperties*> ListSpeciesPtr;
+    vector<vcs_SpeciesProperties*> ListSpeciesPtr;
 
     /**
      *  If we are using Cantera, this is the pointer to the ThermoPhase
@@ -707,7 +707,7 @@ private:
      *
      * Length = number of species in phase
      */
-    std::vector<size_t> creationGlobalRxnNumbers_;
+    vector<size_t> creationGlobalRxnNumbers_;
 
     //! If the potential is a solution variable in VCS, it acts as a species.
     //! This is the species index in the phase for the potential

@@ -331,7 +331,7 @@ protected:
     //! Polynomial fits to the viscosity of each species. m_visccoeffs[k] is
     //! the vector of polynomial coefficients for species k that fits the
     //! viscosity as a function of temperature.
-    std::vector<vector<double>> m_visccoeffs;
+    vector<vector<double>> m_visccoeffs;
 
     //! Local copy of the species molecular weights.
     vector<double> m_mw;
@@ -388,7 +388,7 @@ protected:
      *         }
      *      }
      */
-    std::vector<vector<double>> m_diffcoeffs;
+    vector<vector<double>> m_diffcoeffs;
 
     //! Matrix of binary diffusion coefficients at the reference pressure and
     //! the current temperature Size is nsp x nsp.
@@ -399,14 +399,14 @@ protected:
      *  Dimensions are number of species (nsp) polynomial order of the collision
      *  integral fit (degree+1).
      */
-    std::vector<vector<double>> m_condcoeffs;
+    vector<vector<double>> m_condcoeffs;
 
     //! Indices for the (i,j) interaction in collision integral fits
     /*!
      *  m_poly[i][j] contains the index for (i,j) interactions in
      *  #m_omega22_poly, #m_astar_poly, #m_bstar_poly, and #m_cstar_poly.
      */
-    std::vector<vector<int>> m_poly;
+    vector<vector<int>> m_poly;
 
     //! Fit for omega22 collision integral
     /*!
@@ -414,11 +414,11 @@ protected:
      * (length degree+1) for the collision integral fit for the species pair
      * (i,j).
      */
-    std::vector<vector<double>> m_omega22_poly;
+    vector<vector<double>> m_omega22_poly;
 
     //! Flag to indicate for which (i,j) interaction pairs the
     //! actual temperature is used instead of the reduced temperature
-    std::vector<vector<int>> m_star_poly_uses_actualT;
+    vector<vector<int>> m_star_poly_uses_actualT;
 
     //! Fit for astar collision integral
     /*!
@@ -426,7 +426,7 @@ protected:
      * (length degree+1) for the collision integral fit for the species pair
      * (i,j).
      */
-    std::vector<vector<double>> m_astar_poly;
+    vector<vector<double>> m_astar_poly;
 
     //! Fit for bstar collision integral
     /*!
@@ -434,7 +434,7 @@ protected:
      * (length degree+1) for the collision integral fit for the species pair
      * (i,j).
      */
-    std::vector<vector<double>> m_bstar_poly;
+    vector<vector<double>> m_bstar_poly;
 
     //! Fit for cstar collision integral
     /*!
@@ -442,7 +442,7 @@ protected:
      * (length degree+1) for the collision integral fit for the species pair
      * (i,j).
      */
-    std::vector<vector<double>> m_cstar_poly;
+    vector<vector<double>> m_cstar_poly;
 
     //! Rotational relaxation number for each species
     /*!
@@ -462,7 +462,7 @@ protected:
     /*!
      * Length is nsp
      */
-    std::vector<bool> m_polar;
+    vector<bool> m_polar;
 
     //! Polarizability of each species in the phase
     /*!

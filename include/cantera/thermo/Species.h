@@ -93,7 +93,7 @@ protected:
 unique_ptr<Species> newSpecies(const AnyMap& node);
 
 //! Generate Species objects for each item (an AnyMap) in `items`.
-std::vector<shared_ptr<Species>> getSpecies(const AnyValue& items);
+vector<shared_ptr<Species>> getSpecies(const AnyValue& items);
 
 }
 

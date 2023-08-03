@@ -28,7 +28,7 @@ public:
         m_comp(elnumbers), m_sign(0) {
         validate();
     }
-    Group(const std::vector<size_t>& elnumbers) :
+    Group(const vector<size_t>& elnumbers) :
         m_comp(elnumbers.size()), m_sign(0) {
         for (size_t i = 0; i < elnumbers.size(); i++) {
             m_comp[i] = int(elnumbers[i]);
@@ -125,7 +125,7 @@ public:
         return m_comp[m];
     }
 
-    std::ostream& fmt(std::ostream& s, const std::vector<std::string>& esymbols) const;
+    std::ostream& fmt(std::ostream& s, const vector<std::string>& esymbols) const;
 
     friend std::ostream& operator<<(std::ostream& s,
                                     const Group& g);

@@ -38,7 +38,7 @@ public:
     UnitSystem us;
 
     vector<double> test_Ts;
-    std::vector<vector<double>> test_covs;
+    vector<vector<double>> test_covs;
 };
 
 TEST_F(CoverageDependentSurfPhase_Test, reference_enthalpies_RT)

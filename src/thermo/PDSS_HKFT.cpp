@@ -355,7 +355,7 @@ void PDSS_HKFT::getParameters(AnyMap& eosNode) const
     eosNode["g0"].setQuantity(m_deltaG_formation_tr_pr, "cal/gmol");
     eosNode["s0"].setQuantity(m_Entrop_tr_pr, "cal/gmol/K");
 
-    std::vector<AnyValue> a(4), c(2);
+    vector<AnyValue> a(4), c(2);
     a[0].setQuantity(m_a1, "cal/gmol/bar");
     a[1].setQuantity(m_a2, "cal/gmol");
     a[2].setQuantity(m_a3, "cal*K/gmol/bar");

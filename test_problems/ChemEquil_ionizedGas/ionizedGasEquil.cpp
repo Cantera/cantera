@@ -36,7 +36,7 @@ int main(int argc, char** argv)
         FILE* FF = fopen("table.csv","w");
         size_t kk = gas->nSpecies();
         vector<double> Xmol(kk, 0.0);
-        const std::vector<string> &snames = gas->speciesNames();
+        const vector<string> &snames = gas->speciesNames();
         fprintf(FF,"Temperature,  Pressure,");
         for (size_t k = 0; k < kk; k++) {
             fprintf(FF, "%11s", snames[k].c_str());

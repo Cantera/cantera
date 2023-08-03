@@ -287,8 +287,8 @@ protected:
     std::unique_ptr<PivData> m_ipiv;
 
     //! Vector of column pointers
-    std::vector<double*> m_colPtrs;
-    std::vector<double*> m_lu_col_ptrs;
+    vector<double*> m_colPtrs;
+    vector<double*> m_lu_col_ptrs;
 
     //! Extra work array needed - size = n
     vector<int> iwork_;

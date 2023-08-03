@@ -107,8 +107,8 @@ void Kinetics::checkSpeciesArraySize(size_t kk) const
 std::pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err) const
 {
     //! Map of (key indicating participating species) to reaction numbers
-    std::map<size_t, std::vector<size_t> > participants;
-    std::vector<std::map<int, double> > net_stoich;
+    std::map<size_t, vector<size_t> > participants;
+    vector<std::map<int, double> > net_stoich;
     std::unordered_set<size_t> unmatched_duplicates;
     for (size_t i = 0; i < m_reactions.size(); i++) {
         if (m_reactions[i]->duplicate) {
@@ -686,7 +686,7 @@ bool Kinetics::addReaction(shared_ptr<Reaction> r, bool resize)
     size_t irxn = nReactions(); // index of the new reaction
 
     // indices of reactant and product species within this Kinetics object
-    std::vector<size_t> rk, pk;
+    vector<size_t> rk, pk;
 
     // Reactant and product stoichiometric coefficients, such that rstoich[i] is
     // the coefficient for species rk[i]

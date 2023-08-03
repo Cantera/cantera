@@ -153,7 +153,7 @@ protected:
 
     protected:
         //! Current list of error messages
-        std::vector<std::string> errorMessage;
+        vector<std::string> errorMessage;
 
         //! Current pointer to the logwriter
         std::unique_ptr<Logger> logwriter;
@@ -432,7 +432,7 @@ protected:
     void setDefaultDirectories();
 
     //! Current vector of input directories to search for input files
-    std::vector<std::string> inputDirs;
+    vector<std::string> inputDirs;
 
     //! Versions of Python to consider when attempting to load user extensions
     vector<string> m_pythonSearchVersions = {"3.11", "3.10", "3.9", "3.8"};

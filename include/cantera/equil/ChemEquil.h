@@ -290,14 +290,14 @@ protected:
     //! each species, at the temperature and pressure of the solution (the star
     //! standard state).
     vector<double> m_muSS_RT;
-    std::vector<size_t> m_component;
+    vector<size_t> m_component;
 
     //! element fractional cutoff, below which the element will be zeroed.
     double m_elemFracCutoff = 1e-100;
     bool m_doResPerturb = false;
 
-    std::vector<size_t> m_orderVectorElements;
-    std::vector<size_t> m_orderVectorSpecies;
+    vector<size_t> m_orderVectorElements;
+    vector<size_t> m_orderVectorSpecies;
 
     //! Verbosity of printed output. No messages when m_loglevel == 0. More
     //! output as level increases.

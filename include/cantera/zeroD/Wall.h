@@ -122,7 +122,7 @@ protected:
     ReactorBase* m_left = nullptr;
     ReactorBase* m_right = nullptr;
 
-    std::vector<ReactorSurface> m_surf;
+    vector<ReactorSurface> m_surf;
 
     //! current reactor network time
     double m_time = 0.0;

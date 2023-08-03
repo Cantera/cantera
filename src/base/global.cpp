@@ -209,7 +209,7 @@ bool usesHDF5()
 #endif
 }
 
-std::vector<FactoryBase*> FactoryBase::s_vFactoryRegistry;
+vector<FactoryBase*> FactoryBase::s_vFactoryRegistry;
 
 std::string demangle(const std::type_info& type)
 {

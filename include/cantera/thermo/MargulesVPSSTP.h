@@ -454,14 +454,14 @@ protected:
      *  Each Margules excess Gibbs free energy term involves two species, A and
      *  B. This vector identifies species A.
      */
-    std::vector<size_t> m_pSpecies_A_ij;
+    vector<size_t> m_pSpecies_A_ij;
 
     //! vector of species indices representing species B in the interaction
     /*!
      *  Each Margules excess Gibbs free energy term involves two species, A and
      *  B. This vector identifies species B.
      */
-    std::vector<size_t> m_pSpecies_B_ij;
+    vector<size_t> m_pSpecies_B_ij;
 
     //! form of the Margules interaction expression
     /*!

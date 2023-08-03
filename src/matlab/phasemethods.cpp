@@ -182,7 +182,7 @@ void phasemethods(int nlhs, mxArray* plhs[],
     } else if (job < 30) {
         iok = 0;
         size_t nsp = thermo_nSpecies(ph);
-        std::vector<double> x(nsp);
+        vector<double> x(nsp);
         switch (job) {
         case 20:
             iok = thermo_getMoleFractions(ph,nsp, &x[0]);
@@ -216,7 +216,7 @@ void phasemethods(int nlhs, mxArray* plhs[],
     } else if (job < 40) {
         iok = 0;
         size_t nel = thermo_nElements(ph);
-        std::vector<double> x(nel);
+        vector<double> x(nel);
         switch (job) {
         case 30:
             iok = thermo_getAtomicWeights(ph,nel, &x[0]);

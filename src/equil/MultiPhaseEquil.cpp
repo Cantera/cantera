@@ -247,7 +247,7 @@ int MultiPhaseEquil::setInitialMoles(int loglevel)
     return 0;
 }
 
-void MultiPhaseEquil::getComponents(const std::vector<size_t>& order)
+void MultiPhaseEquil::getComponents(const vector<size_t>& order)
 {
     // if the input species array has the wrong size, ignore it
     // and consider the species for components in declaration order.
@@ -593,7 +593,7 @@ double MultiPhaseEquil::computeReactionSteps(vector<double>& dxi)
 void MultiPhaseEquil::computeN()
 {
     // Sort the list of species by mole fraction (decreasing order)
-    std::vector<std::pair<double, size_t> > moleFractions(m_nsp);
+    vector<std::pair<double, size_t> > moleFractions(m_nsp);
     for (size_t k = 0; k < m_nsp; k++) {
         // use -Xk to generate reversed sort order
         moleFractions[k] = {-m_mix->speciesMoles(m_species[k]), k};

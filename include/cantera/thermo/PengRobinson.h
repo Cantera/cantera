@@ -308,7 +308,7 @@ protected:
 
     enum class CoeffSource { EoS, CritProps, Database };
     //! For each species, specifies the source of the a, b, and omega coefficients
-    std::vector<CoeffSource> m_coeffSource;
+    vector<CoeffSource> m_coeffSource;
 
 private:
     //! Omega constant: a0 (= omega_a) used in Peng-Robinson equation of state

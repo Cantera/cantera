@@ -35,7 +35,7 @@ void PDSS_SSVol::setDensityPolynomial(double* coeffs) {
 void PDSS_SSVol::getParameters(AnyMap& eosNode) const
 {
     PDSS::getParameters(eosNode);
-    std::vector<AnyValue> data(4);
+    vector<AnyValue> data(4);
     if (volumeModel_ == SSVolume_Model::density_tpoly) {
         eosNode["model"] = "density-temperature-polynomial";
         data[0].setQuantity(TCoeff_[0], "kg/m^3");

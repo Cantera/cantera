@@ -79,7 +79,7 @@ class AnyMap;
  * - `long int`
  * - `bool`
  * - `std::string`
- * - `std::vector` of any of the above
+ * - `vector` of any of the above
  * @ingroup anyGroup
  */
 class AnyValue : public AnyBase
@@ -230,15 +230,15 @@ public:
     friend bool operator!=(const int& lhs, const AnyValue& rhs);
 
     template<class T>
-    AnyValue& operator=(const std::vector<T>& value);
+    AnyValue& operator=(const vector<T>& value);
     //! Return the held value, if it is a vector of type `T`. If called with one
     //! argument, requires the vector to be of the specified size. If called
     //! with two arguments, requires the vector to be within the range specified
     //! by the two values, inclusive.
     template<class T>
-    const std::vector<T>& asVector(size_t nMin=npos, size_t nMax=npos) const;
+    const vector<T>& asVector(size_t nMin=npos, size_t nMax=npos) const;
     template<class T>
-    std::vector<T>& asVector(size_t nMin=npos, size_t nMax=npos);
+    vector<T>& asVector(size_t nMin=npos, size_t nMax=npos);
 
     explicit AnyValue(const AnyMap& value);
     AnyValue& operator=(const AnyMap& value);
@@ -295,7 +295,7 @@ public:
 
 private:
     template<class T>
-    void checkSize(const std::vector<T>& v, size_t nMin, size_t nMax) const;
+    void checkSize(const vector<T>& v, size_t nMin, size_t nMax) const;
 
     //! Key of this value in a parent `AnyMap`
     std::string m_key;
@@ -327,32 +327,32 @@ private:
 
 //! Implicit conversion to vector<AnyValue>
 template<>
-const std::vector<AnyValue>& AnyValue::asVector<AnyValue>(size_t nMin, size_t nMax) const;
+const vector<AnyValue>& AnyValue::asVector<AnyValue>(size_t nMin, size_t nMax) const;
 
 template<>
-std::vector<AnyValue>& AnyValue::asVector<AnyValue>(size_t nMin, size_t nMax);
+vector<AnyValue>& AnyValue::asVector<AnyValue>(size_t nMin, size_t nMax);
 
 //! Implicit conversion of long int to double if accessed as a vector<double>
 template<>
-const std::vector<double>& AnyValue::asVector<double>(size_t nMin, size_t nMax) const;
+const vector<double>& AnyValue::asVector<double>(size_t nMin, size_t nMax) const;
 
 template<>
-std::vector<double>& AnyValue::asVector<double>(size_t nMin, size_t nMax);
+vector<double>& AnyValue::asVector<double>(size_t nMin, size_t nMax);
 
 //! Implicit conversion of long int to double if accessed as a vector<vector<double>>
 template<>
-const std::vector<vector<double>>& AnyValue::asVector<vector<double>>(size_t nMin, size_t nMax) const;
+const vector<vector<double>>& AnyValue::asVector<vector<double>>(size_t nMin, size_t nMax) const;
 
 template<>
-std::vector<vector<double>>& AnyValue::asVector<vector<double>>(size_t nMin, size_t nMax);
+vector<vector<double>>& AnyValue::asVector<vector<double>>(size_t nMin, size_t nMax);
 
 //! Implicit conversion of AnyMap to a vector<AnyMap> of length 1, or an empty
 //! vector<AnyValue> an empty vector<AnyMap>
 template<>
-const std::vector<AnyMap>& AnyValue::asVector<AnyMap>(size_t nMin, size_t nMax) const;
+const vector<AnyMap>& AnyValue::asVector<AnyMap>(size_t nMin, size_t nMax) const;
 
 template<>
-std::vector<AnyMap>& AnyValue::asVector<AnyMap>(size_t nMin, size_t nMax);
+vector<AnyMap>& AnyValue::asVector<AnyMap>(size_t nMin, size_t nMax);
 
 //! A map of string keys to values whose type can vary at runtime
 /*!
@@ -368,7 +368,7 @@ std::vector<AnyMap>& AnyValue::asVector<AnyMap>(size_t nMin, size_t nMax);
  *
  * // Create a nested AnyMap named "beans" which has a key named "baked"
  * // whose value is a vector<double>
- * std::vector<double> v{3.14, 1.59, 2.65};
+ * vector<double> v{3.14, 1.59, 2.65};
  * breakfast["beans"]["baked"] = v;
  *
  * // Create a nested AnyMap with values of the same type
@@ -579,7 +579,7 @@ public:
         OrderedIterator begin() const;
         OrderedIterator end() const;
 
-        typedef std::vector<std::pair<
+        typedef vector<std::pair<
             std::pair<int, int>,
             const std::pair<const std::string, AnyValue>*>> OrderVector;
     private:
@@ -690,7 +690,7 @@ public:
      * @returns  ``true``, to facilitate static initialization
      */
     static bool addOrderingRules(const std::string& objectType,
-                                 const std::vector<std::vector<std::string>>& specs);
+                                 const vector<vector<std::string>>& specs);
 
     //! Remove the specified file from the input cache if it is present
     static void clearCachedFile(const std::string& filename);
@@ -711,12 +711,12 @@ private:
     //! Information about fields that should appear first when outputting to
     //! YAML. Keys in this map are matched to `__type__` keys in AnyMap
     //! objects, and values are a list of field names.
-    static std::unordered_map<std::string, std::vector<std::string>> s_headFields;
+    static std::unordered_map<std::string, vector<std::string>> s_headFields;
 
     //! Information about fields that should appear last when outputting to
     //! YAML. Keys in this map are matched to `__type__` keys in AnyMap
     //! objects, and values are a list of field names.
-    static std::unordered_map<std::string, std::vector<std::string>> s_tailFields;
+    static std::unordered_map<std::string, vector<std::string>> s_tailFields;
 
     friend class AnyValue;
     friend YAML::Emitter& YAML::operator<<(YAML::Emitter& out, const AnyMap& rhs);

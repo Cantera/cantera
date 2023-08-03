@@ -457,7 +457,7 @@ protected:
     double m_molar_density = 0.0;
 
     //! Vector of sublattice ThermoPhase objects
-    std::vector<shared_ptr<ThermoPhase>> m_lattice;
+    vector<shared_ptr<ThermoPhase>> m_lattice;
 
     //! Vector of mole fractions
     /*!
@@ -472,7 +472,7 @@ protected:
     //! Temporary vector
     mutable vector<double> tmpV_;
 
-    std::vector<size_t> lkstart_;
+    vector<size_t> lkstart_;
 
     //! Root node of the AnyMap which contains this phase definition.
     //! Used to look up the phase definitions for the constituent phases.

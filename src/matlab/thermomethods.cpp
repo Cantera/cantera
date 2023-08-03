@@ -229,7 +229,7 @@ static void thermoget(int nlhs, mxArray* plhs[],
     } else if (job < 50) {
         int iok = 0;
         size_t nsp = thermo_nSpecies(n);
-        std::vector<double> x(nsp);
+        vector<double> x(nsp);
         switch (job) {
         case 32:
             iok = thermo_getEnthalpies_RT(n, nsp, &x[0]);

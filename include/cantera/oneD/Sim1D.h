@@ -39,7 +39,7 @@ public:
 
     //! @deprecated To be removed after %Cantera 3.0;
     //!     superseded by Sim1D() using shared_ptr
-    Sim1D(std::vector<Domain1D*>& domains);
+    Sim1D(vector<Domain1D*>& domains);
 
     //! @name Setting initial values
     //!
@@ -354,7 +354,7 @@ protected:
 
     //! the grids for each domain after the last successful steady-state solve
     //! (stored before grid refinement)
-    std::vector<vector<double>> m_grid_last_ss;
+    vector<vector<double>> m_grid_last_ss;
 
     //! a work array used to hold the residual or the new solution
     vector<double> m_xnew;

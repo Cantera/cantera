@@ -74,7 +74,7 @@ public:
      *   @param phases Vector of pointers to phases
      *   @param phaseMoles Vector of mole numbers in each phase (kmol)
      */
-    void addPhases(std::vector<ThermoPhase*>& phases, const vector<double>& phaseMoles);
+    void addPhases(vector<ThermoPhase*>& phases, const vector<double>& phaseMoles);
 
     //! Add all phases present in 'mix' to this mixture.
     /*!
@@ -568,7 +568,7 @@ private:
     vector<double> m_moles;
 
     //! Vector of the ThermoPhase pointers.
-    std::vector<ThermoPhase*> m_phase;
+    vector<ThermoPhase*> m_phase;
 
     //! Global Stoichiometric Coefficient array
     /*!
@@ -587,7 +587,7 @@ private:
      *  m_spphase[kGlobal] = iPhase
      *  Length = number of global species
      */
-    std::vector<size_t> m_spphase;
+    vector<size_t> m_spphase;
 
     //! Vector of ints containing of first species index in the global list of
     //! species for each phase
@@ -595,18 +595,18 @@ private:
      *  kfirst = m_spstart[ip], kfirst is the index of the first species in
      *                          the ip'th phase.
      */
-    std::vector<size_t> m_spstart;
+    vector<size_t> m_spstart;
 
     //! String names of the global elements. This has a length equal to the
     //! number of global elements.
-    std::vector<std::string> m_enames;
+    vector<std::string> m_enames;
 
     //! Atomic number of each global element.
     vector<int> m_atomicNumber;
 
     //! Vector of species names in the problem. Vector is over all species
     //! defined in the object, the global species index.
-    std::vector<std::string> m_snames;
+    vector<std::string> m_snames;
 
     //! Returns the global element index, given the element string name
     /*!
@@ -638,7 +638,7 @@ private:
      * If the current temperature is outside the range of valid temperatures
      * for the phase thermodynamics, the phase flag is set to false.
      */
-    mutable std::vector<bool> m_temp_OK;
+    mutable vector<bool> m_temp_OK;
 
     //! Minimum temperature for which thermo parameterizations are valid.
     //! Stoichiometric phases are ignored in this determination. units Kelvin
@@ -698,8 +698,8 @@ std::ostream& operator<<(std::ostream& s, MultiPhase& x);
  * @ingroup equilGroup
  */
 size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn,
-                     MultiPhase* mphase, std::vector<size_t>& orderVectorSpecies,
-                     std::vector<size_t>& orderVectorElements,
+                     MultiPhase* mphase, vector<size_t>& orderVectorSpecies,
+                     vector<size_t>& orderVectorElements,
                      vector<double>& formRxnMatrix);
 
 //! Handles the potential rearrangement of the constraint equations
@@ -742,8 +742,8 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn,
  */
 void ElemRearrange(size_t nComponents, const vector<double>& elementAbundances,
                    MultiPhase* mphase,
-                   std::vector<size_t>& orderVectorSpecies,
-                   std::vector<size_t>& orderVectorElements);
+                   vector<size_t>& orderVectorSpecies,
+                   vector<size_t>& orderVectorElements);
 
 //! External int that is used to turn on debug printing for the
 //! BasisOptimize program.

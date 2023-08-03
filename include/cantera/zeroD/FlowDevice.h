@@ -134,7 +134,7 @@ private:
     size_t m_nspout = 0;
     ReactorBase* m_in = nullptr;
     ReactorBase* m_out = nullptr;
-    std::vector<size_t> m_in2out, m_out2in;
+    vector<size_t> m_in2out, m_out2in;
 };
 
 }

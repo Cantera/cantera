@@ -310,7 +310,7 @@ std::string Application::findInputFile(const std::string& name)
     string::size_type islash = name.find('/');
     string::size_type ibslash = name.find('\\');
     string::size_type icolon = name.find(':');
-    std::vector<string>& dirs = inputDirs;
+    vector<string>& dirs = inputDirs;
 
     // Expand "~/" to user's home directory, if possible
     if (name.find("~/") == 0 || name.find("~\\") == 0) {

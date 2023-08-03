@@ -185,7 +185,7 @@ protected:
     std::map<double, std::pair<size_t, size_t>> pressures_;
 
     // Rate expressions which are referenced by the indices stored in pressures_
-    std::vector<ArrheniusRate> rates_;
+    vector<ArrheniusRate> rates_;
 
     double logP_ = -1000; //!< log(p) at the current state
     double logP1_ = 1000; //!< log(p) at the lower pressure reference

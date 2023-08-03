@@ -88,7 +88,7 @@ protected:
     //! by the electrical drift
     virtual void electricFieldMethod(const double* x, size_t j0, size_t j1);
     //! flag for solving electric field or not
-    std::vector<bool> m_do_electric_field;
+    vector<bool> m_do_electric_field;
 
     //! flag for importing transport of electron
     bool m_import_electron_transport = false;
@@ -97,10 +97,10 @@ protected:
     vector<double> m_speciesCharge;
 
     //! index of species with charges
-    std::vector<size_t> m_kCharge;
+    vector<size_t> m_kCharge;
 
     //! index of neutral species
-    std::vector<size_t> m_kNeutral;
+    vector<size_t> m_kNeutral;
 
     //! coefficients of polynomial fitting of fixed electron transport profile
     vector<double> m_mobi_e_fix;
