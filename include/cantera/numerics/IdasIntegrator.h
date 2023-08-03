@@ -107,7 +107,11 @@ private:
     FuncEval* m_func = nullptr;
 
     double m_t0 = 0.0; //!< The start time for the integrator
-    double m_time; //!< The current integrator time
+    double m_time; //!< The current integrator time, corresponding to #m_y
+
+    //! The latest time reached by the integrator. May be greater than #m_time
+    double m_tInteg;
+
     N_Vector m_y = nullptr; //!< The current system state
     N_Vector m_ydot = nullptr; //!< The time derivatives of the system state
     N_Vector m_abstol = nullptr; //!< Absolute tolerances for each state variable

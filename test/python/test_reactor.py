@@ -221,7 +221,7 @@ class TestReactor(utilities.CanteraTest):
         self.net.max_time_step = max_step_size
         self.net.max_steps = max_steps
         with self.assertRaisesRegex(
-                ct.CanteraError, 'mxstep steps taken before reaching tout'):
+                ct.CanteraError, 'Maximum number of timesteps'):
             self.net.advance(1e-04)
         self.assertLessEqual(self.net.time, max_steps * max_step_size)
         self.assertEqual(self.net.max_steps, max_steps)
@@ -1605,7 +1605,7 @@ class TestFlowReactor2(utilities.CanteraTest):
         sim.max_steps = 13
         assert sim.max_steps == 13
 
-        with pytest.raises(ct.CanteraError, match="mxstep steps taken"):
+        with pytest.raises(ct.CanteraError, match="Maximum number of timesteps"):
             sim.advance(0.1)
 
         assert sim.solver_stats['steps'] == 13
@@ -1624,11 +1624,12 @@ class TestFlowReactor2(utilities.CanteraTest):
         surf.TP = gas.TP
         r, rsurf, sim = self.make_reactors(gas, surf)
 
-        sim.max_time_step = 0.2
+        sim.max_time_step = 0.002
         sim.advance(0.01)
+        sim.step()
         x1 = sim.distance
         x2 = sim.step()
-        dx_limit = 0.05 * (x2-x1)
+        dx_limit = 0.1 * (x2-x1)
 
         sim.max_time_step = dx_limit
         assert sim.max_time_step == dx_limit
@@ -1746,7 +1747,7 @@ class TestFlowReactor2(utilities.CanteraTest):
         # With few steps allowed, won't be able to reach steady-state
         r.inlet_surface_max_error_failures = 10
         r.inlet_surface_max_steps = 200
-        with pytest.raises(ct.CanteraError, match="mxstep steps taken"):
+        with pytest.raises(ct.CanteraError, match="Maximum number of timesteps"):
             sim.initialize()
 
         # Relaxing the tolerances will allow the integrator to reach steady-state
