@@ -100,7 +100,7 @@ void appdelete();
 //! @copydoc Application::thread_complete
 void thread_complete();
 
-//! @defgroup globalSettings  Global %Cantera Settings
+//! @defgroup globalSettings  Global Cantera Settings
 //! @brief Functions for accessing global %Cantera settings.
 //! @ingroup globalData
 
