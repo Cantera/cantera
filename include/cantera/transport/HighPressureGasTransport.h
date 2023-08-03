@@ -45,7 +45,7 @@ protected:
     HighPressureGasTransport(ThermoPhase* thermo=0);
 
 public:
-    virtual std::string transportModel() const {
+    virtual string transportModel() const {
         return "HighPressureGas";
     }
 

@@ -107,7 +107,7 @@ public:
     //! Base empty constructor
     LatticeSolidPhase() = default;
 
-    virtual std::string type() const {
+    virtual string type() const {
         return "compound-lattice";
     }
 
@@ -115,7 +115,7 @@ public:
     /*!
      * `LatticeSolid` phases only represent solids.
      */
-    virtual std::string phaseOfMatter() const {
+    virtual string phaseOfMatter() const {
         return "solid";
     }
 
@@ -123,7 +123,7 @@ public:
         return false;
     }
 
-    map<std::string, size_t> nativeState() const {
+    map<string, size_t> nativeState() const {
         return { {"T", 0}, {"P", 1}, {"X", 2} };
     }
 
@@ -435,7 +435,7 @@ public:
                                const AnyMap& rootNode=AnyMap());
     virtual void initThermo();
     virtual void getParameters(AnyMap& phaseNode) const;
-    virtual void getSpeciesParameters(const std::string& name,
+    virtual void getSpeciesParameters(const string& name,
                                       AnyMap& speciesNode) const;
 
     //! Set the Lattice mole fractions using a string
@@ -444,7 +444,7 @@ public:
      * @param x  string containing Name:value pairs that will specify the mole
      *           fractions of species on a particular lattice
      */
-    void setLatticeMoleFractionsByName(int n, const std::string& x);
+    void setLatticeMoleFractionsByName(int n, const string& x);
 
     virtual void modifyOneHf298SS(const size_t k, const double Hf298New);
     virtual void resetHf298(const size_t k=npos);

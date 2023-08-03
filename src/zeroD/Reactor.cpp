@@ -465,7 +465,7 @@ size_t Reactor::componentIndex(const string& nm) const
     }
 }
 
-std::string Reactor::componentName(size_t k) {
+string Reactor::componentName(size_t k) {
     if (k == 0) {
         return "mass";
     } else if (k == 1) {

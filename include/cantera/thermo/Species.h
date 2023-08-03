@@ -38,7 +38,7 @@ public:
     AnyMap parameters(const ThermoPhase* phase=0, bool withInput=true) const;
 
     //! The name of the species
-    std::string name;
+    string name;
 
     //! The elemental composition of the species. Keys are element names; values
     //! are the corresponding atomicities.

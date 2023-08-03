@@ -37,7 +37,7 @@ void Group::validate()
 }
 
 std::ostream& Group::fmt(std::ostream& s,
-                         const vector<std::string>& esymbols) const
+                         const vector<string>& esymbols) const
 {
     s << "(";
     bool first = true;

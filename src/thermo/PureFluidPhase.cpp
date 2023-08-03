@@ -54,18 +54,18 @@ void PureFluidPhase::getParameters(AnyMap& phaseNode) const
     phaseNode["pure-fluid-name"] = m_sub->name();
 }
 
-vector<std::string> PureFluidPhase::fullStates() const
+vector<string> PureFluidPhase::fullStates() const
 {
     return {"TD", "UV", "DP", "HP", "SP", "SV",
             "ST", "TV", "PV", "UP", "VH", "TH", "SH", "TPQ"};
 }
 
-vector<std::string> PureFluidPhase::partialStates() const
+vector<string> PureFluidPhase::partialStates() const
 {
     return {"TP", "TQ", "PQ"};
 }
 
-std::string PureFluidPhase::phaseOfMatter() const
+string PureFluidPhase::phaseOfMatter() const
 {
     if (temperature() >= critTemperature() || pressure() >= critPressure()) {
         return "supercritical";
@@ -383,7 +383,7 @@ void PureFluidPhase::setState_Psat(double p, double x)
     ThermoPhase::setDensity(1.0/m_sub->v());
 }
 
-std::string PureFluidPhase::report(bool show_thermo, double threshold) const
+string PureFluidPhase::report(bool show_thermo, double threshold) const
 {
     fmt::memory_buffer b;
     // This is the width of the first column of names in the report.

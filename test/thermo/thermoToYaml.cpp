@@ -6,12 +6,12 @@
 #include "cantera/thermo/PlasmaPhase.h"
 
 using namespace Cantera;
-typedef vector<std::string> strvec;
+typedef vector<string> strvec;
 
 class ThermoToYaml : public testing::Test
 {
 public:
-    void setup(const std::string& fileName, const std::string& phaseName="") {
+    void setup(const string& fileName, const string& phaseName="") {
         thermo = newThermo(fileName, phaseName);
         // Because ThermoPhase::input may already contain the data we are trying
         // to check for here, clear it so that the only parameters are those
@@ -55,7 +55,7 @@ TEST_F(ThermoToYaml, IdealSolidSoln)
 {
     setup("thermo-models.yaml", "IdealSolidSolnPhase2");
     EXPECT_EQ(data["name"], "IdealSolidSolnPhase2");
-    EXPECT_EQ(data["species"].asVector<std::string>().size(), thermo->nSpecies());
+    EXPECT_EQ(data["species"].asVector<string>().size(), thermo->nSpecies());
     EXPECT_EQ(data["standard-concentration-basis"], "solvent-molar-volume");
 
     EXPECT_DOUBLE_EQ(eosData[0]["molar-volume"].asDouble(), 1.5);
@@ -190,7 +190,7 @@ TEST_F(ThermoToYaml, Margules)
     setup("thermo-models.yaml", "molten-salt-Margules");
     auto& interactions = data["interactions"].asVector<AnyMap>();
     EXPECT_EQ(interactions.size(), (size_t) 1);
-    EXPECT_EQ(interactions[0]["species"].asVector<std::string>()[0], "KCl(l)");
+    EXPECT_EQ(interactions[0]["species"].asVector<string>()[0], "KCl(l)");
     EXPECT_EQ(interactions[0]["excess-enthalpy"].asVector<double>()[1], -377e3);
 }
 
@@ -242,7 +242,7 @@ TEST_F(ThermoToYaml, DebyeHuckel_beta_ij)
     auto& beta = data["activity-data"]["beta"].asVector<AnyMap>();
     ASSERT_EQ(beta.size(), (size_t) 3);
     for (size_t i = 0; i < 3; i++) {
-        auto species = beta[i]["species"].asVector<std::string>();
+        auto species = beta[i]["species"].asVector<string>();
         std::sort(species.begin(), species.end());
         if (species[0] == "Cl-" && species[1] == "H+") {
             EXPECT_DOUBLE_EQ(beta[i]["beta"].asDouble(), 0.27);
@@ -263,7 +263,7 @@ TEST_F(ThermoToYaml, HMWSoln1)
     auto& interactions = data["activity-data"]["interactions"].asVector<AnyMap>();
     EXPECT_EQ(interactions.size(), (size_t) 7);
     for (auto& item : interactions) {
-        auto species = item["species"].asVector<std::string>();
+        auto species = item["species"].asVector<string>();
         std::sort(species.begin(), species.end());
         if (species == strvec{"Cl-", "Na+"}) {
             auto& beta0 = item["beta0"].asVector<double>();
@@ -298,7 +298,7 @@ TEST_F(ThermoToYaml, HMWSoln2)
     auto& interactions = data["activity-data"]["interactions"].asVector<AnyMap>();
     EXPECT_EQ(interactions.size(), (size_t) 4);
     for (auto& item : interactions) {
-        auto species = item["species"].asVector<std::string>();
+        auto species = item["species"].asVector<string>();
         std::sort(species.begin(), species.end());
         if (species == strvec{"Cl-", "NaCl(aq)"}) {
             EXPECT_DOUBLE_EQ(item["lambda"].asVector<double>()[0], 0.3);
@@ -365,8 +365,8 @@ TEST_F(ThermoToYaml, DiscretizedElectronEnergyPlasma)
 class ThermoYamlRoundTrip : public testing::Test
 {
 public:
-    void roundtrip(const std::string& fileName, const std::string& phaseName="",
-        const vector<std::string> extraPhases={}) {
+    void roundtrip(const string& fileName, const string& phaseName="",
+        const vector<string> extraPhases={}) {
         original = newThermo(fileName, phaseName);
         YamlWriter writer;
         writer.addPhase(original);
@@ -383,7 +383,7 @@ public:
         rtol = 1e-14;
     }
 
-    void compareThermo(double T, double P, const std::string& X="") {
+    void compareThermo(double T, double P, const string& X="") {
         size_t kk = original->nSpecies();
         ASSERT_EQ(original->nSpecies(), duplicate->nSpecies());
 

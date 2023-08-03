@@ -657,7 +657,7 @@ double MultiPhaseEquil::phaseMoles(size_t iph) const
     return m_mix->phaseMoles(iph);
 }
 
-void MultiPhaseEquil::reportCSV(const std::string& reportFile)
+void MultiPhaseEquil::reportCSV(const string& reportFile)
 {
     FILE* FP = fopen(reportFile.c_str(), "w");
     if (!FP) {

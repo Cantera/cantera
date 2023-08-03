@@ -8,7 +8,7 @@
 namespace Cantera
 {
 // re-declared to avoid needing to include global.h here
-std::string demangle(const std::type_info& type);
+string demangle(const std::type_info& type);
 
 // Definitions for AnyValue templated functions
 
@@ -120,7 +120,7 @@ vector<T> &AnyValue::asVector(size_t nMin, size_t nMax) {
 }
 
 template<class T>
-AnyValue& AnyValue::operator=(const std::unordered_map<std::string, T> items) {
+AnyValue& AnyValue::operator=(const std::unordered_map<string, T> items) {
     m_value = AnyMap();
     m_equals = eq_comparer<AnyMap>;
     AnyMap& dest = as<AnyMap>();
@@ -131,7 +131,7 @@ AnyValue& AnyValue::operator=(const std::unordered_map<std::string, T> items) {
 }
 
 template<class T>
-AnyValue& AnyValue::operator=(const map<std::string, T> items) {
+AnyValue& AnyValue::operator=(const map<string, T> items) {
     m_value = AnyMap();
     m_equals = eq_comparer<AnyMap>;
     AnyMap& dest = as<AnyMap>();
@@ -159,9 +159,9 @@ inline AnyMap& AnyValue::as<AnyMap>() {
 }
 
 template<class T>
-map<std::string, T> AnyValue::asMap() const
+map<string, T> AnyValue::asMap() const
 {
-    map<std::string, T> dest;
+    map<string, T> dest;
     for (const auto& item : as<AnyMap>()) {
         dest[item.first] = item.second.as<T>();
     }
@@ -219,7 +219,7 @@ bool AnyValue::eq_comparer(const std::any& lhs, const std::any& rhs)
     typedef vector<double> vd;
     typedef vector<long int> vi;
     typedef vector<AnyValue> va;
-    typedef vector<std::string> vs;
+    typedef vector<string> vs;
 
     auto& ltype = lhs.type();
     auto& rtype = rhs.type();

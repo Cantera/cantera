@@ -58,7 +58,7 @@ Sim1D::Sim1D(vector<Domain1D*>& domains) :
     m_steps = { 10 };
 }
 
-void Sim1D::setInitialGuess(const std::string& component, vector<double>& locs, vector<double>& vals)
+void Sim1D::setInitialGuess(const string& component, vector<double>& locs, vector<double>& vals)
 {
     for (size_t dom=0; dom<nDomains(); dom++) {
         Domain1D& d = domain(dom);
@@ -114,8 +114,8 @@ void Sim1D::setProfile(size_t dom, size_t comp,
     }
 }
 
-void Sim1D::save(const std::string& fname, const std::string& id,
-                 const std::string& desc, int loglevel)
+void Sim1D::save(const string& fname, const string& id,
+                 const string& desc, int loglevel)
 {
     warn_deprecated("Sim1D::save",
         "To be removed after Cantera 3.0; use version without loglevel instead.");
@@ -125,8 +125,8 @@ void Sim1D::save(const std::string& fname, const std::string& id,
     }
 }
 
-void Sim1D::save(const std::string& fname, const std::string& name,
-                 const std::string& desc, bool overwrite, int compression,
+void Sim1D::save(const string& fname, const string& name,
+                 const string& desc, bool overwrite, int compression,
                  const string& basis)
 {
     size_t dot = fname.find_last_of(".");
@@ -175,8 +175,8 @@ void Sim1D::save(const std::string& fname, const std::string& name,
     throw CanteraError("Sim1D::save", "Unsupported file format '{}'.", extension);
 }
 
-void Sim1D::saveResidual(const std::string& fname, const std::string& id,
-                         const std::string& desc, int loglevel)
+void Sim1D::saveResidual(const string& fname, const string& id,
+                         const string& desc, int loglevel)
 {
     warn_deprecated("Sim1D::saveResidual",
         "To be removed after Cantera 3.0; use version without loglevel instead.");
@@ -186,8 +186,8 @@ void Sim1D::saveResidual(const std::string& fname, const std::string& id,
     }
 }
 
-void Sim1D::saveResidual(const std::string& fname, const std::string& name,
-                         const std::string& desc, bool overwrite, int compression)
+void Sim1D::saveResidual(const string& fname, const string& name,
+                         const string& desc, bool overwrite, int compression)
 {
     vector<double> res(m_state->size(), -999);
     OneDim::eval(npos, m_state->data(), &res[0], 0.0);
@@ -207,7 +207,7 @@ AnyMap legacyH5(shared_ptr<SolutionArray> arr, const AnyMap& header={})
     auto meta = arr->meta();
     AnyMap out;
 
-    map<std::string, std::string> meta_pairs = {
+    map<string, string> meta_pairs = {
         {"type", "Domain1D_type"},
         {"name", "name"},
         {"emissivity-left", "emissivity_left"},
@@ -219,7 +219,7 @@ AnyMap legacyH5(shared_ptr<SolutionArray> arr, const AnyMap& header={})
         }
     }
 
-    map<std::string, std::string> tol_pairs = {
+    map<string, string> tol_pairs = {
         {"transient-abstol", "transient_abstol"},
         {"steady-abstol", "steady_abstol"},
         {"transient-reltol", "transient_reltol"},
@@ -240,7 +240,7 @@ AnyMap legacyH5(shared_ptr<SolutionArray> arr, const AnyMap& header={})
         return out;
     }
 
-    map<std::string, std::string> header_pairs = {
+    map<string, string> header_pairs = {
         {"transport-model", "transport_model"},
         {"radiation-enabled", "radiation_enabled"},
         {"energy-enabled", "energy_enabled"},
@@ -253,7 +253,7 @@ AnyMap legacyH5(shared_ptr<SolutionArray> arr, const AnyMap& header={})
         }
     }
 
-    map<std::string, std::string> refiner_pairs = {
+    map<string, string> refiner_pairs = {
         {"ratio", "ratio"},
         {"slope", "slope"},
         {"curve", "curve"},
@@ -286,14 +286,14 @@ AnyMap legacyH5(shared_ptr<SolutionArray> arr, const AnyMap& header={})
 
 } // end unnamed namespace
 
-AnyMap Sim1D::restore(const std::string& fname, const std::string& id, int loglevel)
+AnyMap Sim1D::restore(const string& fname, const string& id, int loglevel)
 {
     warn_deprecated("Sim1D::saveResidual",
         "To be removed after Cantera 3.0; use version without loglevel instead.");
     return restore(fname, id);
 }
 
-AnyMap Sim1D::restore(const std::string& fname, const std::string& name)
+AnyMap Sim1D::restore(const string& fname, const string& name)
 {
     size_t dot = fname.find_last_of(".");
     string extension = (dot != npos) ? toLowerCopy(fname.substr(dot+1)) : "";
@@ -303,7 +303,7 @@ AnyMap Sim1D::restore(const std::string& fname, const std::string& name)
     }
     AnyMap header;
     if (extension == "h5" || extension == "hdf"  || extension == "hdf5") {
-        map<std::string, shared_ptr<SolutionArray>> arrs;
+        map<string, shared_ptr<SolutionArray>> arrs;
         header = SolutionArray::readHeader(fname, name);
 
         for (auto dom : m_dom) {
@@ -323,7 +323,7 @@ AnyMap Sim1D::restore(const std::string& fname, const std::string& name)
         finalize();
     } else if (extension == "yaml" || extension == "yml") {
         AnyMap root = AnyMap::fromYamlFile(fname);
-        map<std::string, shared_ptr<SolutionArray>> arrs;
+        map<string, shared_ptr<SolutionArray>> arrs;
         header = SolutionArray::readHeader(root, name);
 
         for (auto dom : m_dom) {

@@ -125,7 +125,7 @@ void PlogRate::setRates(const std::multimap<double, ArrheniusRate>& rates)
     pressures_.insert({1000.0, pressures_.rbegin()->second});
 }
 
-void PlogRate::validate(const std::string& equation, const Kinetics& kin)
+void PlogRate::validate(const string& equation, const Kinetics& kin)
 {
     if (!valid()) {
         throw InputFileError("PlogRate::validate", m_input,
@@ -157,7 +157,7 @@ void PlogRate::validate(const std::string& equation, const Kinetics& kin)
     }
 }
 
-void PlogRate::validate(const std::string& equation) {
+void PlogRate::validate(const string& equation) {
     warn_deprecated("PlogRate::validate",
         "To be removed after Cantera 3.0; superseded by two-parameter version.");
     validate(equation, Kinetics());

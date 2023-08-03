@@ -171,9 +171,9 @@ public:
      * @param id     The name of this phase. This is used to look up
      *               the phase in the input file.
      */
-    explicit BinarySolutionTabulatedThermo(const std::string& infile="", const std::string& id="");
+    explicit BinarySolutionTabulatedThermo(const string& infile="", const string& id="");
 
-    virtual std::string type() const {
+    virtual string type() const {
         return "binary-solution-tabulated";
     }
 

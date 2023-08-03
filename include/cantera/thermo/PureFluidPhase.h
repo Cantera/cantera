@@ -33,7 +33,7 @@ public:
     //! Empty Base Constructor
     PureFluidPhase() = default;
 
-    virtual std::string type() const {
+    virtual string type() const {
         return "pure-fluid";
     }
 
@@ -52,11 +52,11 @@ public:
      * at the current pressure, the mechanical phase is `gas`. Otherwise, the mechanical
      * phase is `liquid`.
      */
-    virtual std::string phaseOfMatter() const;
+    virtual string phaseOfMatter() const;
 
     //! Set the name of the TPX substance to use for the equation of state. This
     //! function should be called before initThermo().
-    void setSubstance(const std::string& name) {
+    void setSubstance(const string& name) {
         m_tpx_name = name;
     }
 
@@ -68,8 +68,8 @@ public:
         return true;
     }
 
-    virtual vector<std::string> fullStates() const;
-    virtual vector<std::string> partialStates() const;
+    virtual vector<string> fullStates() const;
+    virtual vector<string> partialStates() const;
 
     virtual double minTemp(size_t k=npos) const;
     virtual double maxTemp(size_t k=npos) const;
@@ -186,7 +186,7 @@ public:
     virtual void initThermo();
     virtual void getParameters(AnyMap& phaseNode) const;
 
-    virtual std::string report(bool show_thermo=true,
+    virtual string report(bool show_thermo=true,
                                double threshold=1e-14) const;
 
     virtual bool compatibleWithMultiPhase() const {
@@ -207,7 +207,7 @@ private:
     mutable unique_ptr<tpx::Substance> m_sub;
 
     //! Name for this substance used by the TPX package
-    std::string m_tpx_name;
+    string m_tpx_name;
 
     //! Molecular weight of the substance (kg kmol-1)
     double m_mw = -1.0;

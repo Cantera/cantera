@@ -36,7 +36,7 @@ class IonGasTransport : public MixTransport
 public:
     IonGasTransport() = default;
 
-    virtual std::string transportModel() const {
+    virtual string transportModel() const {
         return "ionized-gas";
     }
 

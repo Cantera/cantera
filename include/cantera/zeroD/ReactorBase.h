@@ -49,24 +49,24 @@ struct SensitivityParameter
 class ReactorBase
 {
 public:
-    explicit ReactorBase(const std::string& name = "(none)");
+    explicit ReactorBase(const string& name = "(none)");
     virtual ~ReactorBase() = default;
     ReactorBase(const ReactorBase&) = delete;
     ReactorBase& operator=(const ReactorBase&) = delete;
 
     //! String indicating the reactor model implemented. Usually
     //! corresponds to the name of the derived class.
-    virtual std::string type() const {
+    virtual string type() const {
         return "ReactorBase";
     }
 
     //! Return the name of this reactor
-    std::string name() const {
+    string name() const {
         return m_name;
     }
 
     //! Set the name of this reactor
-    void setName(const std::string& name) {
+    void setName(const string& name) {
         m_name = name;
     }
 
@@ -266,7 +266,7 @@ protected:
     //! Vector of length nWalls(), indicating whether this reactor is on the left (0)
     //! or right (1) of each wall.
     vector<int> m_lr;
-    std::string m_name;
+    string m_name;
 
     //! The ReactorNet that this reactor is part of
     ReactorNet* m_net = nullptr;

@@ -29,7 +29,7 @@ public:
      *   Returns NULL if something went wrong. Throws an exception if the string
      *   wasn't matched.
      */
-    virtual PDSS* newPDSS(const std::string& model);
+    virtual PDSS* newPDSS(const string& model);
 
 private:
     //! static member of a single instance
@@ -42,7 +42,7 @@ private:
     static std::mutex thermo_mutex;
 };
 
-PDSS* newPDSS(const std::string& model);
+PDSS* newPDSS(const string& model);
 
 }
 

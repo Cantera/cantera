@@ -168,7 +168,7 @@ public:
     };
 
     //! Return a string containing the text of any suppressed errors
-    std::string getErrors() const;
+    string getErrors() const;
 
     //! Clear any previously-stored suppressed errors
     void clearErrors() {
@@ -188,7 +188,7 @@ protected:
     bool m_suppress_errors = false;
 
     //! Errors occurring during function evaluations
-    vector<std::string> m_errors;
+    vector<string> m_errors;
 };
 
 }

@@ -17,8 +17,8 @@ using namespace std;
 
 namespace Cantera
 {
-RedlichKisterVPSSTP::RedlichKisterVPSSTP(const std::string& inputFile,
-        const std::string& id_)
+RedlichKisterVPSSTP::RedlichKisterVPSSTP(const string& inputFile,
+        const string& id_)
 {
     initThermoFile(inputFile, id_);
 }
@@ -169,7 +169,7 @@ void RedlichKisterVPSSTP::getParameters(AnyMap& phaseNode) const
     vector<AnyMap> interactions;
     for (size_t n = 0; n < m_pSpecies_A_ij.size(); n++) {
         AnyMap interaction;
-        interaction["species"] = vector<std::string>{
+        interaction["species"] = vector<string>{
             speciesName(m_pSpecies_A_ij[n]), speciesName(m_pSpecies_B_ij[n])};
         vector<double> h = m_HE_m_ij[n];
         vector<double> s = m_SE_m_ij[n];
@@ -454,7 +454,7 @@ void RedlichKisterVPSSTP::getdlnActCoeffdlnN(const size_t ld, double* dlnActCoef
 }
 
 void RedlichKisterVPSSTP::addBinaryInteraction(
-    const std::string& speciesA, const std::string& speciesB,
+    const string& speciesA, const string& speciesB,
     const double* excess_enthalpy, size_t n_enthalpy,
     const double* excess_entropy, size_t n_entropy)
 {

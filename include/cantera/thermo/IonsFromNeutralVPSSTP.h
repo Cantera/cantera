@@ -79,14 +79,14 @@ public:
      * @param id        name (ID) of the phase in the input file. If empty, the
      *                  first phase definition in the input file will be used.
      */
-    explicit IonsFromNeutralVPSSTP(const std::string& inputFile="",
-                                   const std::string& id="");
+    explicit IonsFromNeutralVPSSTP(const string& inputFile="",
+                                   const string& id="");
 
     //! @}
     //! @name  Utilities
     //! @{
 
-    virtual std::string type() const {
+    virtual string type() const {
         return "IonsFromNeutral";
     }
 

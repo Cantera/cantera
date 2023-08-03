@@ -48,7 +48,7 @@ public:
     GasTransportData() = default;
 
     //! Construct a GasTransportData object using MKS units for all parameters.
-    GasTransportData(const std::string& geometry, double diameter,
+    GasTransportData(const string& geometry, double diameter,
                      double well_depth, double dipole=0.0,
                      double polarizability=0.0, double rot_relax=0.0,
                      double acentric=0.0, double dispersion=0.0,
@@ -57,7 +57,7 @@ public:
     //! Set the parameters using "customary" units: diameter in Angstroms, well
     //! depth in Kelvin, dipole in Debye, and polarizability in Angstroms^3.
     //! These are the units used in in CK-style input files.
-    void setCustomaryUnits(const std::string& geometry, double diameter,
+    void setCustomaryUnits(const string& geometry, double diameter,
                            double well_depth, double dipole=0.0,
                            double polarizability=0.0, double rot_relax=0.0,
                            double acentric=0.0, double dispersion=0.0,
@@ -73,7 +73,7 @@ public:
 
     //! A string specifying the molecular geometry. One of `atom`, `linear`, or
     //! `nonlinear`.
-    std::string geometry;
+    string geometry;
 
     //! The Lennard-Jones collision diameter [m]
     double diameter = 0.0;

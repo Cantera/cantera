@@ -89,9 +89,9 @@ public:
         install("componentName", m_componentName,
             [this](size_t k) { return R::componentName(k); });
         install("componentIndex", m_componentIndex,
-            [this](const std::string& nm) { return R::componentIndex(nm); });
+            [this](const string& nm) { return R::componentIndex(nm); });
         install("speciesIndex", m_speciesIndex,
-            [this](const std::string& nm) { return R::speciesIndex(nm); });
+            [this](const string& nm) { return R::speciesIndex(nm); });
     }
 
     // Overrides of Reactor methods
@@ -143,15 +143,15 @@ public:
         m_evalSurfaces(sizes, LHS, RHS, sdot);
     }
 
-    virtual std::string componentName(size_t k) override {
+    virtual string componentName(size_t k) override {
         return m_componentName(k);
     }
 
-    virtual size_t componentIndex(const std::string& nm) const override {
+    virtual size_t componentIndex(const string& nm) const override {
         return m_componentIndex(nm);
     }
 
-    virtual size_t speciesIndex(const std::string& nm) const override {
+    virtual size_t speciesIndex(const string& nm) const override {
         return m_speciesIndex(nm);
     }
 
@@ -196,9 +196,9 @@ private:
     function<void(std::array<size_t, 2>, double, double*, double*)> m_eval;
     function<void(double)> m_evalWalls;
     function<void(std::array<size_t, 3>, double*, double*, double*)> m_evalSurfaces;
-    function<std::string(size_t)> m_componentName;
-    function<size_t(const std::string&)> m_componentIndex;
-    function<size_t(const std::string&)> m_speciesIndex;
+    function<string(size_t)> m_componentName;
+    function<size_t(const string&)> m_componentIndex;
+    function<size_t(const string&)> m_speciesIndex;
 };
 
 }

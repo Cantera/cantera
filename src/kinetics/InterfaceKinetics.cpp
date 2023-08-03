@@ -423,7 +423,7 @@ bool InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base, bool resize)
     rate->setRateIndex(nReactions() - 1);
     rate->setContext(*r_base, *this);
 
-    std::string rtype = rate->subType();
+    string rtype = rate->subType();
     if (rtype == "") {
         rtype = rate->type();
     }
@@ -460,7 +460,7 @@ void InterfaceKinetics::modifyReaction(size_t i, shared_ptr<Reaction> r_base)
     rate->setRateIndex(i);
     rate->setContext(*r_base, *this);
 
-    std::string rtype = rate->subType();
+    string rtype = rate->subType();
     if (rtype == "") {
         rtype = rate->type();
     }

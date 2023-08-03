@@ -170,7 +170,7 @@ void MolalityVPSSTP::setMolalitiesByName(const Composition& mMap)
     calcMolalities();
 }
 
-void MolalityVPSSTP::setMolalitiesByName(const std::string& x)
+void MolalityVPSSTP::setMolalitiesByName(const string& x)
 {
     Composition xx = parseCompString(x, speciesNames());
     setMolalitiesByName(xx);
@@ -244,7 +244,7 @@ void MolalityVPSSTP::setState_TPM(double t, double p, const Composition& m)
     setState_TP(t, p);
 }
 
-void MolalityVPSSTP::setState_TPM(double t, double p, const std::string& m)
+void MolalityVPSSTP::setState_TPM(double t, double p, const string& m)
 {
     setMolalitiesByName(m);
     setState_TP(t, p);
@@ -355,7 +355,7 @@ bool MolalityVPSSTP::addSpecies(shared_ptr<Species> spec)
     return added;
 }
 
-std::string MolalityVPSSTP::report(bool show_thermo, double threshold) const
+string MolalityVPSSTP::report(bool show_thermo, double threshold) const
 {
     fmt::memory_buffer b;
     try {
@@ -463,7 +463,7 @@ std::string MolalityVPSSTP::report(bool show_thermo, double threshold) const
     return to_string(b);
 }
 
-void MolalityVPSSTP::getCsvReportData(vector<std::string>& names,
+void MolalityVPSSTP::getCsvReportData(vector<string>& names,
                                       vector<vector<double>>& data) const
 {
     names.clear();

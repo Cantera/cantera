@@ -51,12 +51,12 @@ void PDSSFactory::deleteFactory() {
     s_factory = 0;
 }
 
-PDSS* PDSSFactory::newPDSS(const std::string& model)
+PDSS* PDSSFactory::newPDSS(const string& model)
 {
     return create(model);
 }
 
-PDSS* newPDSS(const std::string& model)
+PDSS* newPDSS(const string& model)
 {
     return PDSSFactory::factory()->newPDSS(model);
 }

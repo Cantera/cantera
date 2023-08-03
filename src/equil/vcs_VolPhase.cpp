@@ -753,7 +753,7 @@ size_t vcs_VolPhase::nElemConstraints() const
     return m_numElemConstraints;
 }
 
-std::string vcs_VolPhase::elementName(const size_t e) const
+string vcs_VolPhase::elementName(const size_t e) const
 {
     return m_elementNames[e];
 }
@@ -831,7 +831,7 @@ size_t vcs_VolPhase::transferElementsFM(const ThermoPhase* const tPhase)
             eFound = ne;
             m_elementType[ne] = VCS_ELEM_TYPE_ELECTRONCHARGE;
             m_elementActive[ne] = 0;
-            std::string ename = "E";
+            string ename = "E";
             m_elementNames[ne] = ename;
             ne++;
             elemResize(ne);
@@ -850,7 +850,7 @@ size_t vcs_VolPhase::transferElementsFM(const ThermoPhase* const tPhase)
     }
 
     if (cne) {
-        std::string pname = tPhase->name();
+        string pname = tPhase->name();
         if (pname == "") {
             pname = fmt::format("phase{}", VP_ID_);
         }
@@ -911,7 +911,7 @@ size_t vcs_VolPhase::nSpecies() const
     return m_numSpecies;
 }
 
-std::string vcs_VolPhase::eos_name() const
+string vcs_VolPhase::eos_name() const
 {
     switch (m_eqnState) {
     case VCS_EOS_CONSTANT:

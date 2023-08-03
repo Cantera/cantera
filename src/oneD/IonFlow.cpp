@@ -53,7 +53,7 @@ IonFlow::IonFlow(ThermoPhase* ph, size_t nsp, size_t points) :
     m_do_electric_field.resize(m_points,false);
 }
 
-IonFlow::IonFlow(shared_ptr<Solution> sol, const std::string& id, size_t points)
+IonFlow::IonFlow(shared_ptr<Solution> sol, const string& id, size_t points)
     : IonFlow(sol->thermo().get(), sol->thermo()->nSpecies(), points)
 {
     m_solution = sol;

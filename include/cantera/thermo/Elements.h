@@ -86,11 +86,11 @@ namespace Cantera
 
 //! Get a vector of the atomic symbols of the elements defined in Cantera.
 //! @since New in version 3.0
-const vector<std::string>& elementSymbols();
+const vector<string>& elementSymbols();
 
 //! Get a vector of the names of the elements defined in Cantera.
 //! @since New in version 3.0
-const vector<std::string>& elementNames();
+const vector<string>& elementNames();
 
 //! Get a map with the element and isotope symbols and names as keys and weights as
 //! values.
@@ -100,7 +100,7 @@ const vector<std::string>& elementNames();
  *
  * @since New in version 3.0
  */
-const map<std::string, double>& elementWeights();
+const map<string, double>& elementWeights();
 
 //! Get the atomic weight of an element.
 /*!
@@ -112,7 +112,7 @@ const map<std::string, double>& elementWeights();
  * @exception CanteraError if a match for ename is not found or the
  * element has no stable isotopes, and therefore no standard atomic weight
  */
-double getElementWeight(const std::string& ename);
+double getElementWeight(const string& ename);
 
 //! Get the atomic weight of an element.
 /*!
@@ -139,7 +139,7 @@ double getElementWeight(int atomicNumber);
  * @return The symbol of the element in a string
  * @exception CanteraError if a match for ename is not found
  */
-std::string getElementSymbol(const std::string& ename);
+string getElementSymbol(const string& ename);
 
 //! Get the symbol for an element
 /*!
@@ -153,7 +153,7 @@ std::string getElementSymbol(const std::string& ename);
  * @exception IndexError if the passed atomic number less than 1 or
  * larger than the number of elements defined
  */
-std::string getElementSymbol(int atomicNumber);
+string getElementSymbol(int atomicNumber);
 
 //! Get the name of an element
 /*!
@@ -164,7 +164,7 @@ std::string getElementSymbol(int atomicNumber);
  * @return The name of the element, in a string
  * @exception CanteraError if a match for ename is not found
  */
-std::string getElementName(const std::string& ename);
+string getElementName(const string& ename);
 
 //! Get the name of an element
 /*!
@@ -178,7 +178,7 @@ std::string getElementName(const std::string& ename);
  * @exception CanteraError IndexError if the passed atomic number less than 1 or
  * larger than the number of elements defined
  */
-std::string getElementName(int atomicNumber);
+string getElementName(int atomicNumber);
 
 //! Get the atomic number for an element
 /*!
@@ -189,7 +189,7 @@ std::string getElementName(int atomicNumber);
  *  @return The integer atomic number of the element
  *  @exception CanteraError if a match for ename is not found
  */
-int getAtomicNumber(const std::string& ename);
+int getAtomicNumber(const string& ename);
 
 //! Get the number of named elements defined in Cantera.
 //! This array excludes named isotopes

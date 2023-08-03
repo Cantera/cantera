@@ -84,7 +84,7 @@ private:
 /*!
  * @param type string identifying type of reaction rate.
  */
-shared_ptr<ReactionRate> newReactionRate(const std::string& type);
+shared_ptr<ReactionRate> newReactionRate(const string& type);
 
 //! Create a new Rate object using the specified parameters
 /*!

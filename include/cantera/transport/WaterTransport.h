@@ -31,7 +31,7 @@ public:
      */
     WaterTransport(ThermoPhase* thermo = 0, int ndim = -1);
 
-    virtual std::string transportModel() const {
+    virtual string transportModel() const {
         return "Water";
     }
 

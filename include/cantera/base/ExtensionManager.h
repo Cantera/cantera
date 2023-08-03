@@ -39,7 +39,7 @@ public:
 
     //! Register ReactionRate defined in a user extension with ReactionRateFactory
     //! @param extensionName
-    virtual void registerRateBuilders(const std::string& extensionName) {
+    virtual void registerRateBuilders(const string& extensionName) {
         throw NotImplementedError("ExtensionManager::registerRateBuilders");
     };
 
@@ -74,7 +74,7 @@ public:
     //! @param rateName  The name of the reaction rate type, which corresponds to the
     //!     name used to register the wrapper generator using registerReactionDataLinker
     //! @param data  The ReactionData object to be wrapped
-    static void wrapReactionData(const std::string& rateName,
+    static void wrapReactionData(const string& rateName,
                                  ReactionDataDelegator& data);
 
     //! Create an object in an external language that wraps the specified Solution
@@ -83,7 +83,7 @@ public:
     //! @param wrapperType  A name specifying the wrapper type, which corresponds to
     //!     the name used to register the wrapper generator using registerSolutionLinker
     //! @param soln  The Solution object to be wrapped
-    static shared_ptr<ExternalHandle> wrapSolution(const std::string& wrapperType,
+    static shared_ptr<ExternalHandle> wrapSolution(const string& wrapperType,
                                                    shared_ptr<Solution> soln);
 
     //! Register a function that can be used to create wrappers for ReactionData objects
@@ -99,7 +99,7 @@ public:
 
     //! Register a function that can be used to create wrappers for Solution objects in
     //! an external language and link it to the corresponding C++ objects
-    static void registerSolutionLinker(const std::string& wrapperName,
+    static void registerSolutionLinker(const string& wrapperName,
         function<shared_ptr<ExternalHandle>(shared_ptr<Solution>)> link);
 
     //! Get the Solution wrapper type corresponding to the specified user-defined
@@ -108,11 +108,11 @@ public:
 
 protected:
     //! Functions for wrapping and linking ReactionData objects
-    static map<std::string,
+    static map<string,
         function<void(ReactionDataDelegator&)>> s_ReactionData_linkers;
 
     //! Functions for wrapping and linking Solution objects
-    static map<std::string,
+    static map<string,
         function<shared_ptr<ExternalHandle>(shared_ptr<Solution>)>> s_Solution_linkers;
 
     //! Mapping from user-defined rate types to Solution wrapper types

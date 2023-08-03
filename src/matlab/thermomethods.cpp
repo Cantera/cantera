@@ -121,8 +121,8 @@ static void thermoget(int nlhs, mxArray* plhs[],
 
     if (job == 0) {
         checkNArgs(5, nrhs);
-        std::string fileName = getString(prhs[3]);
-        std::string phaseName = getString(prhs[4]);
+        string fileName = getString(prhs[3]);
+        string phaseName = getString(prhs[4]);
         if (phaseName == "-") {
             phaseName = "";
         }

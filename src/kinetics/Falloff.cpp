@@ -182,7 +182,7 @@ void FalloffRate::getParameters(AnyMap& node) const
     }
 }
 
-void FalloffRate::check(const std::string& equation)
+void FalloffRate::check(const string& equation)
 {
     m_lowRate.check(equation);
     m_highRate.check(equation);
@@ -197,7 +197,7 @@ void FalloffRate::check(const std::string& equation)
     }
 }
 
-void FalloffRate::validate(const std::string& equation, const Kinetics& kin)
+void FalloffRate::validate(const string& equation, const Kinetics& kin)
 {
     try {
         m_lowRate.validate(equation, kin);

@@ -20,7 +20,7 @@ public:
     ML_Logger() {}
     virtual ~ML_Logger() {}
 
-    virtual void write(const std::string& s) {
+    virtual void write(const string& s) {
         mexPrintf("%s", s.c_str());
     }
 
@@ -28,7 +28,7 @@ public:
         mexPrintf("\n");
     }
 
-    virtual void error(const std::string& msg) {
+    virtual void error(const string& msg) {
         mexErrMsgTxt(msg.c_str());
     }
 };

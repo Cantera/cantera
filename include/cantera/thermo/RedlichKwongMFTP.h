@@ -26,10 +26,10 @@ public:
      * @param id     name (ID) of the phase in the input file. If empty, the
      *               first phase definition in the input file will be used.
      */
-    explicit RedlichKwongMFTP(const std::string& infile="",
-                              const std::string& id="");
+    explicit RedlichKwongMFTP(const string& infile="",
+                              const string& id="");
 
-    virtual std::string type() const {
+    virtual string type() const {
         return "Redlich-Kwong";
     }
 
@@ -123,7 +123,7 @@ public:
 
     virtual bool addSpecies(shared_ptr<Species> spec);
     virtual void initThermo();
-    virtual void getSpeciesParameters(const std::string& name,
+    virtual void getSpeciesParameters(const string& name,
                                       AnyMap& speciesNode) const;
 
     //! Set the pure fluid interaction parameters for a species
@@ -139,7 +139,7 @@ public:
      *      "a" parameter of the specified species [Pa-m^6/kmol^2/K]
      *  @param b         "b" parameter in the Redlich-Kwong model [m^3/kmol]
      */
-    void setSpeciesCoeffs(const std::string& species, double a0, double a1,
+    void setSpeciesCoeffs(const string& species, double a0, double a1,
                               double b);
 
     //! Set values for the interaction parameter between two species
@@ -157,8 +157,8 @@ public:
      *  @param a1          temperature-proportional term in the "a" expression
      *      [Pa-m^6/kmol^2/K]
      */
-    void setBinaryCoeffs(const std::string& species_i,
-                         const std::string& species_j, double a0, double a1);
+    void setBinaryCoeffs(const string& species_i,
+                         const string& species_j, double a0, double a1);
     //! @}
 
 protected:
@@ -238,7 +238,7 @@ protected:
     Array2D a_coeff_vec;
 
     //! Explicitly-specified binary interaction parameters
-    map<std::string, map<std::string, pair<double, double>>> m_binaryParameters;
+    map<string, map<string, pair<double, double>>> m_binaryParameters;
 
     enum class CoeffSource { EoS, CritProps, Database };
     //! For each species, specifies the source of the a and b coefficients

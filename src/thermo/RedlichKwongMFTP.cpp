@@ -26,7 +26,7 @@ RedlichKwongMFTP::RedlichKwongMFTP(const string& infile, const string& id_)
     initThermoFile(infile, id_);
 }
 
-void RedlichKwongMFTP::setSpeciesCoeffs(const std::string& species,
+void RedlichKwongMFTP::setSpeciesCoeffs(const string& species,
                                         double a0, double a1, double b)
 {
     size_t k = speciesIndex(species);
@@ -68,8 +68,8 @@ void RedlichKwongMFTP::setSpeciesCoeffs(const std::string& species,
     b_vec_Curr_[k] = b;
 }
 
-void RedlichKwongMFTP::setBinaryCoeffs(const std::string& species_i,
-        const std::string& species_j, double a0, double a1)
+void RedlichKwongMFTP::setBinaryCoeffs(const string& species_i,
+        const string& species_j, double a0, double a1)
 {
     size_t ki = speciesIndex(species_i);
     if (ki == npos) {
@@ -383,7 +383,7 @@ void RedlichKwongMFTP::initThermo()
 {
     // Contents of 'critical-properties.yaml', loaded later if needed
     AnyMap critPropsDb;
-    std::unordered_map<std::string, AnyMap*> dbSpecies;
+    std::unordered_map<string, AnyMap*> dbSpecies;
 
     for (auto& [name, species] : m_species) {
         auto& data = species->input;
@@ -478,7 +478,7 @@ void RedlichKwongMFTP::initThermo()
     }
 }
 
-void RedlichKwongMFTP::getSpeciesParameters(const std::string& name,
+void RedlichKwongMFTP::getSpeciesParameters(const string& name,
                                             AnyMap& speciesNode) const
 {
     MixtureFugacityTP::getSpeciesParameters(name, speciesNode);

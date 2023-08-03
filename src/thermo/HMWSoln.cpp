@@ -38,7 +38,7 @@ HMWSoln::~HMWSoln()
     // Defined in .cpp to limit dependence on WaterProps.h
 }
 
-HMWSoln::HMWSoln(const std::string& inputFile, const std::string& id_) :
+HMWSoln::HMWSoln(const string& inputFile, const string& id_) :
     m_maxIionicStrength(maxIionicStrength_default),
     CROP_ln_gamma_o_min(crop_ln_gamma_o_min_default),
     CROP_ln_gamma_o_max(crop_ln_gamma_o_max_default),
@@ -325,7 +325,7 @@ double HMWSoln::satPressure(double t) {
     return pres;
 }
 
-static void check_nParams(const std::string& method, size_t nParams,
+static void check_nParams(const string& method, size_t nParams,
                           size_t m_formPitzerTemp)
 {
     if (m_formPitzerTemp == PITZER_TEMP_CONSTANT && nParams != 1) {
@@ -341,7 +341,7 @@ static void check_nParams(const std::string& method, size_t nParams,
     }
 }
 
-void HMWSoln::setBinarySalt(const std::string& sp1, const std::string& sp2,
+void HMWSoln::setBinarySalt(const string& sp1, const string& sp2,
     size_t nParams, double* beta0, double* beta1, double* beta2,
     double* Cphi, double alpha1, double alpha2)
 {
@@ -376,7 +376,7 @@ void HMWSoln::setBinarySalt(const std::string& sp1, const std::string& sp2,
     m_Alpha2MX_ij[c] = alpha2;
 }
 
-void HMWSoln::setTheta(const std::string& sp1, const std::string& sp2,
+void HMWSoln::setTheta(const string& sp1, const string& sp2,
         size_t nParams, double* theta)
 {
     size_t k1 = speciesIndex(sp1);
@@ -399,8 +399,8 @@ void HMWSoln::setTheta(const std::string& sp1, const std::string& sp2,
     }
 }
 
-void HMWSoln::setPsi(const std::string& sp1, const std::string& sp2,
-        const std::string& sp3, size_t nParams, double* psi)
+void HMWSoln::setPsi(const string& sp1, const string& sp2,
+        const string& sp3, size_t nParams, double* psi)
 {
     size_t k1 = speciesIndex(sp1);
     size_t k2 = speciesIndex(sp2);
@@ -435,7 +435,7 @@ void HMWSoln::setPsi(const std::string& sp1, const std::string& sp2,
     }
 }
 
-void HMWSoln::setLambda(const std::string& sp1, const std::string& sp2,
+void HMWSoln::setLambda(const string& sp1, const string& sp2,
         size_t nParams, double* lambda)
 {
     size_t k1 = speciesIndex(sp1);
@@ -462,7 +462,7 @@ void HMWSoln::setLambda(const std::string& sp1, const std::string& sp2,
     m_Lambda_nj(k1, k2) = lambda[0];
 }
 
-void HMWSoln::setMunnn(const std::string& sp, size_t nParams, double* munnn)
+void HMWSoln::setMunnn(const string& sp, size_t nParams, double* munnn)
 {
     size_t k = speciesIndex(sp);
     if (k == npos) {
@@ -480,8 +480,8 @@ void HMWSoln::setMunnn(const std::string& sp, size_t nParams, double* munnn)
     m_Mu_nnn[k] = munnn[0];
 }
 
-void HMWSoln::setZeta(const std::string& sp1, const std::string& sp2,
-        const std::string& sp3, size_t nParams, double* psi)
+void HMWSoln::setZeta(const string& sp1, const string& sp2,
+        const string& sp3, size_t nParams, double* psi)
 {
     size_t k1 = speciesIndex(sp1);
     size_t k2 = speciesIndex(sp2);
@@ -523,7 +523,7 @@ void HMWSoln::setZeta(const std::string& sp1, const std::string& sp2,
     m_Psi_ijk[c] = psi[0];
 }
 
-void HMWSoln::setPitzerTempModel(const std::string& model)
+void HMWSoln::setPitzerTempModel(const string& model)
 {
     if (caseInsensitiveEquals(model, "constant") || caseInsensitiveEquals(model, "default")) {
         m_formPitzerTemp = PITZER_TEMP_CONSTANT;
@@ -556,7 +556,7 @@ void HMWSoln::setCroppingCoefficients(double ln_gamma_k_min,
         CROP_ln_gamma_o_max = ln_gamma_o_max;
 }
 
-vector<double> getSizedVector(const AnyMap& item, const std::string& key, size_t nCoeffs)
+vector<double> getSizedVector(const AnyMap& item, const string& key, size_t nCoeffs)
 {
     vector<double> v;
     if (item[key].is<double>()) {
@@ -739,7 +739,7 @@ void HMWSoln::initThermo()
     setMoleFSolventMin(1.0E-5);
 }
 
-void assignTrimmed(AnyMap& interaction, const std::string& key, vector<double>& values) {
+void assignTrimmed(AnyMap& interaction, const string& key, vector<double>& values) {
     while (values.size() > 1 && values.back() == 0) {
         values.pop_back();
     }
@@ -788,7 +788,7 @@ void HMWSoln::getParameters(AnyMap& phaseNode) const
             }
             if (lambda_found) {
                 AnyMap interaction;
-                interaction["species"] = vector<std::string>{
+                interaction["species"] = vector<string>{
                     speciesName(i), speciesName(j)};
                 vector<double> lambda(nParams);
                 for (size_t n = 0; n < nParams; n++) {
@@ -816,7 +816,7 @@ void HMWSoln::getParameters(AnyMap& phaseNode) const
             }
             if (salt_found) {
                 AnyMap interaction;
-                interaction["species"] = vector<std::string>{
+                interaction["species"] = vector<string>{
                     speciesName(i), speciesName(j)};
                 vector<double> beta0(nParams), beta1(nParams), beta2(nParams), Cphi(nParams);
                 size_t last_nonzero = 0;
@@ -862,7 +862,7 @@ void HMWSoln::getParameters(AnyMap& phaseNode) const
             }
             if (theta_found) {
                 AnyMap interaction;
-                interaction["species"] = vector<std::string>{
+                interaction["species"] = vector<string>{
                     speciesName(i), speciesName(j)};
                 vector<double> theta(nParams);
                 for (size_t n = 0; n < nParams; n++) {
@@ -894,7 +894,7 @@ void HMWSoln::getParameters(AnyMap& phaseNode) const
                 for (size_t n = 0; n < nParams; n++) {
                     if (m_Psi_ijk_coeff(n, c) != 0) {
                         AnyMap interaction;
-                        interaction["species"] = vector<std::string>{
+                        interaction["species"] = vector<string>{
                             speciesName(i), speciesName(j), speciesName(k)};
                         vector<double> psi(nParams);
                         for (size_t m = 0; m < nParams; m++) {
@@ -926,7 +926,7 @@ void HMWSoln::getParameters(AnyMap& phaseNode) const
                 for (size_t n = 0; n < nParams; n++) {
                     if (m_Psi_ijk_coeff(n, c) != 0) {
                         AnyMap interaction;
-                        interaction["species"] = vector<std::string>{
+                        interaction["species"] = vector<string>{
                             speciesName(i), speciesName(j), speciesName(k)};
                         vector<double> zeta(nParams);
                         for (size_t m = 0; m < nParams; m++) {
@@ -946,7 +946,7 @@ void HMWSoln::getParameters(AnyMap& phaseNode) const
         for (size_t n = 0; n < nParams; n++) {
             if (m_Mu_nnn_coeff(n, i) != 0) {
                 AnyMap interaction;
-                interaction["species"] = vector<std::string>{speciesName(i)};
+                interaction["species"] = vector<string>{speciesName(i)};
                 vector<double> mu(nParams);
                 for (size_t m = 0; m < nParams; m++) {
                     mu[m] = m_Mu_nnn_coeff(m, i);

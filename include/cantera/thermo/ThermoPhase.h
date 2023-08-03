@@ -107,7 +107,7 @@ public:
     //! @name  Information Methods
     //! @{
 
-    virtual std::string type() const {
+    virtual string type() const {
         return "none";
     }
 
@@ -136,7 +136,7 @@ public:
      * @todo Needs to be implemented for all phase types. Currently only implemented for
      * PureFluidPhase.
      */
-    virtual std::string phaseOfMatter() const {
+    virtual string phaseOfMatter() const {
         return "unspecified";
     }
 
@@ -829,7 +829,7 @@ public:
      *             Species not in the composition map are assumed to have zero
      *             mole fraction
      */
-    virtual void setState_TPX(double t, double p, const std::string& x);
+    virtual void setState_TPX(double t, double p, const string& x);
 
     //! Set the internally stored temperature (K), pressure (Pa), and mass
     //! fractions of the phase.
@@ -869,7 +869,7 @@ public:
      *             Species not in the composition map are assumed to have zero
      *             mass fraction
      */
-    virtual void setState_TPY(double t, double p, const std::string& y);
+    virtual void setState_TPY(double t, double p, const string& y);
 
     //! Set the temperature (K) and pressure (Pa)
     /*!
@@ -1146,7 +1146,7 @@ public:
      * @deprecated To be removed after %Cantera 3.0; replaceable by calls to
      *              setMoleFractionsByName() and setState_DP().
      */
-    virtual void setState_RPX(double rho, double p, const std::string& x);
+    virtual void setState_RPX(double rho, double p, const string& x);
 
     //! Set the density (kg/m**3), pressure (Pa) and mass fractions
     /*!
@@ -1192,7 +1192,7 @@ public:
      * @deprecated To be removed after %Cantera 3.0; replaceable by calls to
      *              setMassFractionsByName() and setState_DP().
      */
-    virtual void setState_RPY(double rho, double p, const std::string& y);
+    virtual void setState_RPY(double rho, double p, const string& y);
 
     //! Set the state using an AnyMap containing any combination of properties
     //! supported by the thermodynamic model
@@ -1241,8 +1241,8 @@ public:
     void setMixtureFraction(double mixFrac, const double* fuelComp,
                             const double* oxComp, ThermoBasis basis=ThermoBasis::molar);
     //! @copydoc ThermoPhase::setMixtureFraction
-    void setMixtureFraction(double mixFrac, const std::string& fuelComp,
-            const std::string& oxComp, ThermoBasis basis=ThermoBasis::molar);
+    void setMixtureFraction(double mixFrac, const string& fuelComp,
+            const string& oxComp, ThermoBasis basis=ThermoBasis::molar);
     //! @copydoc ThermoPhase::setMixtureFraction
     void setMixtureFraction(double mixFrac, const Composition& fuelComp,
             const Composition& oxComp, ThermoBasis basis=ThermoBasis::molar);
@@ -1284,15 +1284,15 @@ public:
      */
     double mixtureFraction(const double* fuelComp, const double* oxComp,
                            ThermoBasis basis=ThermoBasis::molar,
-                           const std::string& element="Bilger") const;
+                           const string& element="Bilger") const;
     //! @copydoc ThermoPhase::mixtureFraction
-    double mixtureFraction(const std::string& fuelComp, const std::string& oxComp,
+    double mixtureFraction(const string& fuelComp, const string& oxComp,
                            ThermoBasis basis=ThermoBasis::molar,
-                           const std::string& element="Bilger") const;
+                           const string& element="Bilger") const;
     //! @copydoc ThermoPhase::mixtureFraction
     double mixtureFraction(const Composition& fuelComp, const Composition& oxComp,
                            ThermoBasis basis=ThermoBasis::molar,
-                           const std::string& element="Bilger") const;
+                           const string& element="Bilger") const;
     //! @}
     //! @name Set Mixture Composition by Equivalence Ratio
     //! @{
@@ -1314,8 +1314,8 @@ public:
     void setEquivalenceRatio(double phi, const double* fuelComp, const double* oxComp,
                              ThermoBasis basis=ThermoBasis::molar);
     //! @copydoc ThermoPhase::setEquivalenceRatio
-    void setEquivalenceRatio(double phi, const std::string& fuelComp,
-            const std::string& oxComp, ThermoBasis basis=ThermoBasis::molar);
+    void setEquivalenceRatio(double phi, const string& fuelComp,
+            const string& oxComp, ThermoBasis basis=ThermoBasis::molar);
     //! @copydoc ThermoPhase::setEquivalenceRatio
     void setEquivalenceRatio(double phi, const Composition& fuelComp,
             const Composition& oxComp, ThermoBasis basis=ThermoBasis::molar);
@@ -1351,7 +1351,7 @@ public:
     double equivalenceRatio(const double* fuelComp, const double* oxComp,
                             ThermoBasis basis=ThermoBasis::molar) const;
     //! @copydoc ThermoPhase::equivalenceRatio
-    double equivalenceRatio(const std::string& fuelComp, const std::string& oxComp,
+    double equivalenceRatio(const string& fuelComp, const string& oxComp,
                             ThermoBasis basis=ThermoBasis::molar) const;
     //! @copydoc ThermoPhase::equivalenceRatio
     double equivalenceRatio(const Composition& fuelComp,
@@ -1406,7 +1406,7 @@ public:
     double stoichAirFuelRatio(const double* fuelComp, const double* oxComp,
                               ThermoBasis basis=ThermoBasis::molar) const;
     //! @copydoc ThermoPhase::stoichAirFuelRatio
-    double stoichAirFuelRatio(const std::string& fuelComp, const std::string& oxComp,
+    double stoichAirFuelRatio(const string& fuelComp, const string& oxComp,
                               ThermoBasis basis=ThermoBasis::molar) const;
     //! @copydoc ThermoPhase::stoichAirFuelRatio
     double stoichAirFuelRatio(const Composition& fuelComp,
@@ -1495,7 +1495,7 @@ public:
      *
      * @ingroup equilGroup
      */
-    void equilibrate(const std::string& XY, const std::string& solver="auto",
+    void equilibrate(const string& XY, const string& solver="auto",
                      double rtol=1e-9, int max_steps=50000, int max_iter=100,
                      int estimate_equil=0, int log_level=0);
 
@@ -1651,7 +1651,7 @@ public:
      * @param id  Optional parameter identifying the name of the phase. If
      *            blank, the first phase definition encountered will be used.
      */
-    void initThermoFile(const std::string& inputFile, const std::string& id);
+    void initThermoFile(const string& inputFile, const string& id);
 
     //! Initialize the ThermoPhase object after all species have been set up
     /*!
@@ -1688,7 +1688,7 @@ public:
      * @param name         Name of the species
      * @param speciesNode  Mapping to be populated with parameters
      */
-    virtual void getSpeciesParameters(const std::string& name,
+    virtual void getSpeciesParameters(const string& name,
                                       AnyMap& speciesNode) const {}
 
     //! Access input data associated with the phase description
@@ -1804,7 +1804,7 @@ public:
      * @param threshold   Show information about species with mole fractions
      *                    greater than *threshold*.
      */
-    virtual std::string report(bool show_thermo=true,
+    virtual string report(bool show_thermo=true,
                                double threshold=-1e-14) const;
 
     //! returns a summary of the state of the phase to a comma separated file.
@@ -1828,7 +1828,7 @@ protected:
     //! Fills `names` and `data` with the column names and species thermo
     //! properties to be included in the output of the reportCSV method.
     //! @deprecated To be removed after %Cantera 3.0.
-    virtual void getCsvReportData(vector<std::string>& names,
+    virtual void getCsvReportData(vector<string>& names,
                                   vector<vector<double>>& data) const;
 
     //! Pointer to the calculation manager for species reference-state

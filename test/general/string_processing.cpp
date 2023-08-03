@@ -51,7 +51,7 @@ TEST(parseCompString, name_with_final_colon)
 
 TEST(parseCompString, default_values)
 {
-    vector<std::string> x = { "foo", "bar", "baz" };
+    vector<string> x = { "foo", "bar", "baz" };
     Composition c = parseCompString("foo:1.0  baz:2", x);
     ASSERT_EQ((size_t) 3, c.size());
     ASSERT_FALSE(c.find("bar") == c.end());
@@ -70,7 +70,7 @@ TEST(parseCompString, delimiters)
 
 TEST(parseCompString, missing_element)
 {
-    vector<std::string> x = { "foo", "bar" };
+    vector<string> x = { "foo", "bar" };
     ASSERT_THROW(parseCompString("foo:1.0  bar:2   baz:1e-4", x),
                  CanteraError);
 }

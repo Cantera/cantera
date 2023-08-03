@@ -151,7 +151,7 @@ size_t IdealGasReactor::componentIndex(const string& nm) const
     }
 }
 
-std::string IdealGasReactor::componentName(size_t k) {
+string IdealGasReactor::componentName(size_t k) {
     if (k == 2) {
         return "temperature";
     } else {

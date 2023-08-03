@@ -53,10 +53,10 @@ public:
      * @param id     The name of this phase. This is used to look up
      *               the phase in the input file.
      */
-    explicit IdealSolidSolnPhase(const std::string& infile="",
-                                 const std::string& id="");
+    explicit IdealSolidSolnPhase(const string& infile="",
+                                 const string& id="");
 
-    virtual std::string type() const {
+    virtual string type() const {
         return "ideal-condensed";
     }
 
@@ -526,7 +526,7 @@ public:
     virtual bool addSpecies(shared_ptr<Species> spec);
     virtual void initThermo();
     virtual void getParameters(AnyMap& phaseNode) const;
-    virtual void getSpeciesParameters(const std::string& name,
+    virtual void getSpeciesParameters(const string& name,
                                       AnyMap& speciesNode) const;
     virtual void setToEquilState(const double* mu_RT);
 
@@ -544,7 +544,7 @@ public:
      *  The value and form of the generalized concentration will affect
      *  reaction rate constants involving species in this phase.
      */
-    void setStandardConcentrationModel(const std::string& model);
+    void setStandardConcentrationModel(const string& model);
 
     /**
      * Report the molar volume of species k

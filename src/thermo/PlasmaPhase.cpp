@@ -11,7 +11,7 @@
 
 namespace Cantera {
 
-PlasmaPhase::PlasmaPhase(const std::string& inputFile, const std::string& id_)
+PlasmaPhase::PlasmaPhase(const string& inputFile, const string& id_)
 {
     initThermoFile(inputFile, id_);
 
@@ -44,7 +44,7 @@ void PlasmaPhase::normalizeElectronEnergyDistribution() {
     m_electronEnergyDist /= norm;
 }
 
-void PlasmaPhase::setElectronEnergyDistributionType(const std::string& type)
+void PlasmaPhase::setElectronEnergyDistributionType(const string& type)
 {
     if (type == "discretized" ||
         type == "isotropic") {

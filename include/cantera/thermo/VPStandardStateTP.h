@@ -238,7 +238,7 @@ public:
     //! @{
 
     virtual void initThermo();
-    virtual void getSpeciesParameters(const std::string& name,
+    virtual void getSpeciesParameters(const string& name,
                                       AnyMap& speciesNode) const;
 
     using Phase::addSpecies;

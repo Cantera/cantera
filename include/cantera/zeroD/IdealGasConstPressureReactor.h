@@ -24,7 +24,7 @@ class IdealGasConstPressureReactor : public ConstPressureReactor
 public:
     IdealGasConstPressureReactor() {}
 
-    virtual std::string type() const {
+    virtual string type() const {
         return "IdealGasConstPressureReactor";
     }
 
@@ -41,8 +41,8 @@ public:
     //! component named *nm*. Possible values for *nm* are "mass",
     //! "temperature", the name of a homogeneous phase species, or the name of a
     //! surface species.
-    virtual size_t componentIndex(const std::string& nm) const;
-    std::string componentName(size_t k);
+    virtual size_t componentIndex(const string& nm) const;
+    string componentName(size_t k);
 
 protected:
     vector<double> m_hk; //!< Species molar enthalpies

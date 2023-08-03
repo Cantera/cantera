@@ -69,7 +69,7 @@ public:
                            int maxsteps = 1000, int loglevel=-99);
     double error();
 
-    std::string reactionString(size_t j) {
+    string reactionString(size_t j) {
         return "";
     }
     void setInitialMixMoles(int loglevel = 0) {
@@ -81,7 +81,7 @@ public:
         return m_species[m_order[n]];
     }
 
-    void reportCSV(const std::string& reportFile);
+    void reportCSV(const string& reportFile);
 
     double phaseMoles(size_t iph) const;
 
@@ -154,7 +154,7 @@ protected:
     double mu(size_t n) const {
         return m_mu[m_species[m_order[n]]];
     }
-    std::string speciesName(size_t n) const {
+    string speciesName(size_t n) const {
         return
             m_mix->speciesName(m_species[m_order[n]]);
     }

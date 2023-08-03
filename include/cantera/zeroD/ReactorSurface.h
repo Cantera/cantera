@@ -61,7 +61,7 @@ public:
     void setCoverages(const Composition& cov);
 
     //! Set the surface coverages by name
-    void setCoverages(const std::string& cov);
+    void setCoverages(const string& cov);
 
     //! Get the surface coverages. Array `cov` should have length equal to the
     //! number of surface species.

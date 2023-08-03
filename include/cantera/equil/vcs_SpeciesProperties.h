@@ -24,7 +24,7 @@ public:
     size_t NumElements;
 
     //! Name of the species
-    std::string SpName;
+    string SpName;
 
     //! Pointer to the thermo structure for this species
     VCS_SPECIES_THERMO* SpeciesThermo = nullptr;

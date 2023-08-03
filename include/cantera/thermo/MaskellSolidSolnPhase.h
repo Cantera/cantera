@@ -32,7 +32,7 @@ class MaskellSolidSolnPhase : public VPStandardStateTP
 public:
     MaskellSolidSolnPhase();
 
-    virtual std::string type() const {
+    virtual string type() const {
         return "MaskellSolidsoln";
     }
 
@@ -107,7 +107,7 @@ public:
     void set_h_mix(const double hmix) { h_mixing = hmix; }
 
     //! Set the product Species. Must be called after species have been added.
-    void setProductSpecies(const std::string& name);
+    void setProductSpecies(const string& name);
     //! @}
 
 private:

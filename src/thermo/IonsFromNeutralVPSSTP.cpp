@@ -432,10 +432,10 @@ void IonsFromNeutralVPSSTP::compositionChanged()
  *     @param elemVectorI
  *     @param nElementsI
  */
-static double factorOverlap(const vector<std::string>& elnamesVN ,
+static double factorOverlap(const vector<string>& elnamesVN ,
                             const vector<double>& elemVectorN,
                             const size_t nElementsN,
-                            const vector<std::string>& elnamesVI ,
+                            const vector<string>& elnamesVI ,
                             const vector<double>& elemVectorI,
                             const size_t nElementsI)
 {
@@ -490,11 +490,11 @@ void IonsFromNeutralVPSSTP::initThermo()
     }
 
     size_t nElementsN = neutralMoleculePhase_->nElements();
-    const vector<std::string>& elnamesVN = neutralMoleculePhase_->elementNames();
+    const vector<string>& elnamesVN = neutralMoleculePhase_->elementNames();
     vector<double> elemVectorN(nElementsN);
 
     size_t nElementsI = nElements();
-    const vector<std::string>& elnamesVI = elementNames();
+    const vector<string>& elnamesVI = elementNames();
     vector<double> elemVectorI(nElementsI);
 
     if (indexSpecialSpecies_ == npos) {

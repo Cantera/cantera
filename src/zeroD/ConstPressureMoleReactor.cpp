@@ -118,7 +118,7 @@ size_t ConstPressureMoleReactor::componentIndex(const string& nm) const
     }
 }
 
-std::string ConstPressureMoleReactor::componentName(size_t k) {
+string ConstPressureMoleReactor::componentName(size_t k) {
     if (k == 0) {
         return "enthalpy";
     } else if (k >= m_sidx && k < neq()) {

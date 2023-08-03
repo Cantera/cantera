@@ -156,7 +156,7 @@ public:
 
     //! Check for problems with the parameterization, and generate warnings or
     //! throw and exception if any are found.
-    virtual void validate(const std::string& name) {}
+    virtual void validate(const string& name) {}
 
     //! Returns an integer representing the type of parameterization
     virtual int reportType() const { return 0; };

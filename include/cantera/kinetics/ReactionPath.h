@@ -96,7 +96,7 @@ public:
      * total flow, and the flow associated with this label.
      */
     void addReaction(size_t rxnNumber, double value,
-                     const std::string& label = "");
+                     const string& label = "");
 
     //! Upstream node.
     const SpeciesNode* begin() const {
@@ -147,7 +147,7 @@ public:
     void writeLabel(std::ostream& s, double threshold = 0.005);
 
 protected:
-    map<std::string, double> m_label;
+    map<string, double> m_label;
     SpeciesNode* m_a, *m_b;
     rxn_path_map m_rxn;
     double m_total = 0.0;
@@ -220,41 +220,41 @@ public:
         return m_nodes.size();
     }
 
-    void addNode(size_t k, const std::string& nm, double x = 0.0);
+    void addNode(size_t k, const string& nm, double x = 0.0);
 
     void displayOnly(size_t k=npos) {
         m_local = k;
     }
 
     void linkNodes(size_t k1, size_t k2, size_t rxn, double value,
-                   std::string legend = "");
+                   string legend = "");
 
-    void include(const std::string& aaname) {
+    void include(const string& aaname) {
         m_include.push_back(aaname);
     }
-    void exclude(const std::string& aaname) {
+    void exclude(const string& aaname) {
         m_exclude.push_back(aaname);
     }
-    void include(vector<std::string>& names) {
+    void include(vector<string>& names) {
         for (size_t i = 0; i < names.size(); i++) {
             m_include.push_back(names[i]);
         }
     }
-    void exclude(vector<std::string>& names) {
+    void exclude(vector<string>& names) {
         for (size_t i = 0; i < names.size(); i++) {
             m_exclude.push_back(names[i]);
         }
     }
-    vector<std::string>& included() {
+    vector<string>& included() {
         return m_include;
     }
-    vector<std::string>& excluded() {
+    vector<string>& excluded() {
         return m_exclude;
     }
     vector<size_t> species();
     vector<int> reactions();
     void findMajorPaths(double threshold, size_t lda, double* a);
-    void setFont(const std::string& font) {
+    void setFont(const string& font) {
         m_font = font;
     }
     // public attributes
@@ -286,8 +286,8 @@ protected:
     //! map of species index to SpeciesNode
     map<size_t, SpeciesNode*> m_nodes;
     vector<Path*> m_pathlist;
-    vector<std::string> m_include;
-    vector<std::string> m_exclude;
+    vector<string> m_include;
+    vector<string> m_exclude;
     vector<size_t> m_speciesNumber;
 
     //! Indices of reactions that are included in the diagram
@@ -304,7 +304,7 @@ public:
 
     int init(std::ostream& logfile, Kinetics& s);
 
-    int build(Kinetics& s, const std::string& element, std::ostream& output,
+    int build(Kinetics& s, const string& element, std::ostream& output,
               ReactionPathDiagram& r, bool quiet=false);
 
     //! Analyze a reaction to determine which reactants lead to which products.
@@ -324,7 +324,7 @@ protected:
     DenseMatrix m_elatoms;
     vector<vector<int>> m_groups;
     vector<Group> m_sgroup;
-    vector<std::string> m_elementSymbols;
+    vector<string> m_elementSymbols;
 
     //! m_transfer[reaction][reactant number][product number] where "reactant
     //! number" means the number of the reactant in the reaction equation. For example,
@@ -333,7 +333,7 @@ protected:
 
     vector<bool> m_determinate;
     Array2D m_atoms;
-    map<std::string, size_t> m_enamemap;
+    map<string, size_t> m_enamemap;
 };
 
 }

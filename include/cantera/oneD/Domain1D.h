@@ -201,14 +201,14 @@ public:
     }
 
     //! Name of the nth component. May be overloaded.
-    virtual std::string componentName(size_t n) const;
+    virtual string componentName(size_t n) const;
 
-    void setComponentName(size_t n, const std::string& name) {
+    void setComponentName(size_t n, const string& name) {
         m_name[n] = name;
     }
 
     //! index of component with name \a name.
-    virtual size_t componentIndex(const std::string& name) const;
+    virtual size_t componentIndex(const string& name) const;
 
     void setBounds(size_t n, double lower, double upper) {
         m_min[n] = lower;
@@ -478,11 +478,11 @@ public:
     }
 
     //! Specify an identifying tag for this domain.
-    void setID(const std::string& s) {
+    void setID(const string& s) {
         m_id = s;
     }
 
-    std::string id() const {
+    string id() const {
         if (m_id != "") {
             return m_id;
         } else {
@@ -513,7 +513,7 @@ public:
         return m_z[m_points - 1];
     }
 
-    void setProfile(const std::string& name, double* values, double* soln);
+    void setProfile(const string& name, double* values, double* soln);
 
     vector<double>& grid() {
         return m_z;
@@ -600,9 +600,9 @@ protected:
     Domain1D* m_right = nullptr;
 
     //! Identity tag for the domain
-    std::string m_id;
+    string m_id;
     unique_ptr<Refiner> m_refiner;
-    vector<std::string> m_name;
+    vector<string> m_name;
     int m_bw = -1;
     bool m_force_full_update = false;
 

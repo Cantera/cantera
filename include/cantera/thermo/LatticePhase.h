@@ -189,10 +189,10 @@ public:
      *                  an empty phase will be created.
      * @param id        string id of the phase name
      */
-    explicit LatticePhase(const std::string& inputFile="",
-                          const std::string& id="");
+    explicit LatticePhase(const string& inputFile="",
+                          const string& id="");
 
-    virtual std::string type() const {
+    virtual string type() const {
         return "lattice";
     }
 
@@ -200,7 +200,7 @@ public:
         return false;
     }
 
-    map<std::string, size_t> nativeState() const {
+    map<string, size_t> nativeState() const {
         return { {"T", 0}, {"P", 1}, {"X", 2} };
     }
 
@@ -554,7 +554,7 @@ public:
 
     virtual void initThermo();
     virtual void getParameters(AnyMap& phaseNode) const;
-    virtual void getSpeciesParameters(const std::string& name,
+    virtual void getSpeciesParameters(const string& name,
                                       AnyMap& speciesNode) const;
 
     //! @}

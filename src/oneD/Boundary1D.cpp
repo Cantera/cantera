@@ -116,7 +116,7 @@ void Inlet1D::show(const double* x)
     writelog("\n");
 }
 
-void Inlet1D::setMoleFractions(const std::string& xin)
+void Inlet1D::setMoleFractions(const string& xin)
 {
     m_xstr = xin;
     if (m_flow) {
@@ -410,7 +410,7 @@ shared_ptr<SolutionArray> Outlet1D::asArray(const double* soln) const
 
 // -------- OutletRes1D --------
 
-void OutletRes1D::setMoleFractions(const std::string& xres)
+void OutletRes1D::setMoleFractions(const string& xres)
 {
     m_xstr = xres;
     if (m_flow) {
@@ -600,7 +600,7 @@ ReactingSurf1D::ReactingSurf1D()
     m_type = cSurfType;
 }
 
-ReactingSurf1D::ReactingSurf1D(shared_ptr<Solution> solution, const std::string& id)
+ReactingSurf1D::ReactingSurf1D(shared_ptr<Solution> solution, const string& id)
 {
     auto phase = std::dynamic_pointer_cast<SurfPhase>(solution->thermo());
     if (!phase) {

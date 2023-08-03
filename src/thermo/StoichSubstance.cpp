@@ -17,7 +17,7 @@ namespace Cantera
 
 // ----  Constructors -------
 
-StoichSubstance::StoichSubstance(const std::string& infile, const std::string& id_)
+StoichSubstance::StoichSubstance(const string& infile, const string& id_)
 {
     initThermoFile(infile, id_);
 }
@@ -150,7 +150,7 @@ void StoichSubstance::initThermo()
     SingleSpeciesTP::initThermo();
 }
 
-void StoichSubstance::getSpeciesParameters(const std::string& name,
+void StoichSubstance::getSpeciesParameters(const string& name,
                                            AnyMap& speciesNode) const
 {
     SingleSpeciesTP::getSpeciesParameters(name, speciesNode);

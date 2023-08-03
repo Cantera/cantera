@@ -40,7 +40,7 @@ public:
     //! Set the type of linear solver used in the integration.
     //! @param linSolverType type of linear solver. Default type: "DENSE"
     //! Other options include: "DIAG", "DENSE", "GMRES", "BAND"
-    void setLinearSolverType(const std::string& linSolverType="DENSE");
+    void setLinearSolverType(const string& linSolverType="DENSE");
 
     //! Set preconditioner used by the linear solver
     //! @param preconditioner preconditioner object used for the linear solver
@@ -107,7 +107,7 @@ public:
     }
 
     //! Problem type of integrator
-    std::string linearSolverType() const;
+    string linearSolverType() const;
 
     //! Returns the maximum number of internal integration steps the
     //! integrator will take before reaching the next output point
@@ -187,7 +187,7 @@ public:
     //! Return the sensitivity of the component named *component* with respect to
     //! the *p*-th sensitivity parameter.
     //! @copydetails ReactorNet::sensitivity(size_t, size_t)
-    double sensitivity(const std::string& component, size_t p, int reactor=0) {
+    double sensitivity(const string& component, size_t p, int reactor=0) {
         size_t k = globalComponentIndex(component, reactor);
         return sensitivity(k, p);
     }
@@ -234,12 +234,12 @@ public:
     //! Return the index corresponding to the component named *component* in the
     //! reactor with index *reactor* in the global state vector for the
     //! reactor network.
-    size_t globalComponentIndex(const std::string& component, size_t reactor=0);
+    size_t globalComponentIndex(const string& component, size_t reactor=0);
 
     //! Return the name of the i-th component of the global state vector. The
     //! name returned includes both the name of the reactor and the specific
     //! component, for example `'reactor1: CH4'`.
-    std::string componentName(size_t i) const;
+    string componentName(size_t i) const;
 
     //! Used by Reactor and Wall objects to register the addition of
     //! sensitivity parameters so that the ReactorNet can keep track of the
@@ -250,7 +250,7 @@ public:
     //!     coefficient
     //! @returns the index of this parameter in the vector of sensitivity
     //!     parameters (global across all reactors)
-    size_t registerSensitivityParameter(const std::string& name, double value,
+    size_t registerSensitivityParameter(const string& name, double value,
                                         double scale);
 
     //! The name of the p-th sensitivity parameter added to this ReactorNet.
@@ -351,7 +351,7 @@ protected:
     bool m_timeIsIndependent = true;
 
     //! Names corresponding to each sensitivity parameter
-    vector<std::string> m_paramNames;
+    vector<string> m_paramNames;
 
     vector<double> m_ydot;
     vector<double> m_yest;

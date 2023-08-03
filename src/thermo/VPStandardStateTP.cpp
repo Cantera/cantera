@@ -162,7 +162,7 @@ void VPStandardStateTP::initThermo()
     }
 }
 
-void VPStandardStateTP::getSpeciesParameters(const std::string& name,
+void VPStandardStateTP::getSpeciesParameters(const string& name,
                                              AnyMap& speciesNode) const
 {
     AnyMap eos;

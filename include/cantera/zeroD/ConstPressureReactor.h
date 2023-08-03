@@ -25,7 +25,7 @@ class ConstPressureReactor : public Reactor
 public:
     ConstPressureReactor() {}
 
-    virtual std::string type() const {
+    virtual string type() const {
         return "ConstPressureReactor";
     }
 
@@ -40,8 +40,8 @@ public:
     //! component named *nm*. Possible values for *nm* are "mass", "enthalpy",
     //! the name of a homogeneous phase species, or the name of a surface
     //! species.
-    virtual size_t componentIndex(const std::string& nm) const;
-    std::string componentName(size_t k);
+    virtual size_t componentIndex(const string& nm) const;
+    string componentName(size_t k);
 };
 
 }

@@ -30,8 +30,8 @@ namespace ba = boost::algorithm;
 namespace Cantera
 {
 
-std::string vec2str(const vector<double>& v, const std::string& fmt,
-                    const std::string& sep)
+string vec2str(const vector<double>& v, const string& fmt,
+                    const string& sep)
 {
     char buf[64];
     std::stringstream o;
@@ -45,9 +45,9 @@ std::string vec2str(const vector<double>& v, const std::string& fmt,
     return o.str();
 }
 
-std::string stripnonprint(const std::string& s)
+string stripnonprint(const string& s)
 {
-    std::string ss = "";
+    string ss = "";
     for (size_t i = 0; i < s.size(); i++) {
         if (isprint(s[i])) {
             ss += s[i];
@@ -73,7 +73,7 @@ Composition parseCompString(const string& ss, const vector<string>& names)
         }
         size_t valstart = ss.find_first_not_of(" \t\n", colon+1);
         stop = ss.find_first_of(", ;\n\t", valstart);
-        std::string name = ba::trim_copy(ss.substr(start, colon-start));
+        string name = ba::trim_copy(ss.substr(start, colon-start));
         if (!names.empty() && x.find(name) == x.end()) {
             throw CanteraError("parseCompString",
                 "unknown species '" + name + "'");
@@ -87,7 +87,7 @@ Composition parseCompString(const string& ss, const vector<string>& names)
             // this case, take the current substring as part of the key and look
             // to the right of the next colon for the corresponding value.
             // Otherwise, this is an invalid composition string.
-            std::string testname = ss.substr(start, stop-start);
+            string testname = ss.substr(start, stop-start);
             if (testname.find_first_of(" \n\t") != npos) {
                 // Space, tab, and newline are never allowed in names
                 throw;
@@ -119,7 +119,7 @@ Composition parseCompString(const string& ss, const vector<string>& names)
     return x;
 }
 
-double fpValue(const std::string& val)
+double fpValue(const string& val)
 {
     double rval;
     std::stringstream ss(val);
@@ -128,9 +128,9 @@ double fpValue(const std::string& val)
     return rval;
 }
 
-double fpValueCheck(const std::string& val)
+double fpValueCheck(const string& val)
 {
-    std::string str = ba::trim_copy(val);
+    string str = ba::trim_copy(val);
     if (str.empty()) {
         throw CanteraError("fpValueCheck", "string has zero length");
     }
@@ -182,9 +182,9 @@ double fpValueCheck(const std::string& val)
     return fpValue(str);
 }
 
-void tokenizeString(const std::string& in_val, vector<std::string>& v)
+void tokenizeString(const string& in_val, vector<string>& v)
 {
-    std::string val = ba::trim_copy(in_val);
+    string val = ba::trim_copy(in_val);
     v.clear();
     if (val.empty()) {
         // In this case, prefer v to be empty instead of split's behavior of
@@ -194,14 +194,14 @@ void tokenizeString(const std::string& in_val, vector<std::string>& v)
     ba::split(v, val, ba::is_space(), ba::token_compress_on);
 }
 
-void tokenizePath(const std::string& in_val, vector<std::string>& v)
+void tokenizePath(const string& in_val, vector<string>& v)
 {
-    std::string val = ba::trim_copy(in_val);
+    string val = ba::trim_copy(in_val);
     v.clear();
     ba::split(v, val, ba::is_any_of("/\\"), ba::token_compress_on);
 }
 
-size_t copyString(const std::string& source, char* dest, size_t length)
+size_t copyString(const string& source, char* dest, size_t length)
 {
     const char* c_src = source.c_str();
     size_t N = std::min(length, source.length()+1);
@@ -213,15 +213,15 @@ size_t copyString(const std::string& source, char* dest, size_t length)
     return ret;
 }
 
-std::string trimCopy(const std::string &input) {
+string trimCopy(const string &input) {
     return ba::trim_copy(input);
 }
 
-std::string toLowerCopy(const std::string &input) {
+string toLowerCopy(const string &input) {
     return ba::to_lower_copy(input);
 }
 
-bool caseInsensitiveEquals(const std::string &input, const std::string &test) {
+bool caseInsensitiveEquals(const string &input, const string &test) {
     return ba::iequals(input, test);
 }
 

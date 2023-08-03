@@ -201,7 +201,7 @@ double MultiPhase::charge() const
     return sum;
 }
 
-size_t MultiPhase::speciesIndex(const std::string& speciesName, const std::string& phaseName)
+size_t MultiPhase::speciesIndex(const string& speciesName, const string& phaseName)
 {
     if (!m_init) {
         init();
@@ -350,7 +350,7 @@ void MultiPhase::setMolesByName(const Composition& xMap)
     setMoles(moles.data());
 }
 
-void MultiPhase::setMolesByName(const std::string& x)
+void MultiPhase::setMolesByName(const string& x)
 {
     // build the composition map from the string, and then set the moles.
     Composition xx = parseCompString(x, m_snames);
@@ -630,7 +630,7 @@ double MultiPhase::equilibrate_MultiPhaseEquil(int XY, double err,
     return -1.0;
 }
 
-void MultiPhase::equilibrate(const std::string& XY, const std::string& solver,
+void MultiPhase::equilibrate(const string& XY, const string& solver,
                              double rtol, int max_steps, int max_iter,
                              int estimate_equil, int log_level)
 {
@@ -717,12 +717,12 @@ void MultiPhase::checkElementArraySize(size_t mm) const
     }
 }
 
-std::string MultiPhase::elementName(size_t m) const
+string MultiPhase::elementName(size_t m) const
 {
     return m_enames[m];
 }
 
-size_t MultiPhase::elementIndex(const std::string& name) const
+size_t MultiPhase::elementIndex(const string& name) const
 {
     for (size_t e = 0; e < m_nel; e++) {
         if (m_enames[e] == name) {
@@ -746,7 +746,7 @@ void MultiPhase::checkSpeciesArraySize(size_t kk) const
     }
 }
 
-std::string MultiPhase::speciesName(const size_t k) const
+string MultiPhase::speciesName(const size_t k) const
 {
     return m_snames[k];
 }
@@ -761,12 +761,12 @@ void MultiPhase::getMoleFractions(double* const x) const
     std::copy(m_moleFractions.begin(), m_moleFractions.end(), x);
 }
 
-std::string MultiPhase::phaseName(const size_t iph) const
+string MultiPhase::phaseName(const size_t iph) const
 {
     return m_phase[iph]->name();
 }
 
-int MultiPhase::phaseIndex(const std::string& pName) const
+int MultiPhase::phaseIndex(const string& pName) const
 {
     for (int iph = 0; iph < (int) nPhases(); iph++) {
         if (m_phase[iph]->name() == pName) {

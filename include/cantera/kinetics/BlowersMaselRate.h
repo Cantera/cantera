@@ -90,7 +90,7 @@ public:
         return make_unique<MultiRate<BlowersMaselRate, BlowersMaselData>>();
     }
 
-    virtual const std::string type() const override {
+    virtual const string type() const override {
         return "Blowers-Masel";
     }
 

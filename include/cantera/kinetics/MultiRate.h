@@ -26,7 +26,7 @@ class MultiRate final : public MultiRateBase
     CT_DEFINE_HAS_MEMBER(has_ddM, perturbThirdBodies)
 
 public:
-    virtual std::string type() override {
+    virtual string type() override {
         if (!m_rxn_rates.size()) {
             throw CanteraError("MultiRate::type",
                  "Cannot determine type of empty rate handler.");

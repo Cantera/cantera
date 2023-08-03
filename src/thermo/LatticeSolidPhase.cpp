@@ -320,8 +320,8 @@ void LatticeSolidPhase::getParameters(AnyMap& phaseNode) const
 
     // Remove fields not used in this model
     phaseNode.erase("species");
-    vector<std::string> elements;
-    for (auto& el : phaseNode["elements"].asVector<std::string>()) {
+    vector<string> elements;
+    for (auto& el : phaseNode["elements"].asVector<string>()) {
         if (!ba::starts_with(el, "LC_")) {
             elements.push_back(el);
         }
@@ -329,7 +329,7 @@ void LatticeSolidPhase::getParameters(AnyMap& phaseNode) const
     phaseNode["elements"] = elements;
 }
 
-void LatticeSolidPhase::getSpeciesParameters(const std::string& name,
+void LatticeSolidPhase::getSpeciesParameters(const string& name,
                                              AnyMap& speciesNode) const
 {
     // Use child lattice phases to determine species parameters so that these
@@ -411,7 +411,7 @@ void LatticeSolidPhase::_updateThermo() const
     }
 }
 
-void LatticeSolidPhase::setLatticeMoleFractionsByName(int nn, const std::string& x)
+void LatticeSolidPhase::setLatticeMoleFractionsByName(int nn, const string& x)
 {
     m_lattice[nn]->setMoleFractionsByName(x);
     size_t loc = 0;

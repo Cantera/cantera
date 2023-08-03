@@ -22,8 +22,8 @@ using namespace std;
 namespace Cantera
 {
 
-CoverageDependentSurfPhase::CoverageDependentSurfPhase(const std::string& infile,
-                                                       const std::string& id_):
+CoverageDependentSurfPhase::CoverageDependentSurfPhase(const string& infile,
+                                                       const string& id_):
     m_theta_ref(1.0),
     m_stateNumlast(-2)
 {
@@ -136,7 +136,7 @@ void CoverageDependentSurfPhase::getParameters(AnyMap& phaseNode) const
     phaseNode["reference-state-coverage"] = m_theta_ref;
 }
 
-void CoverageDependentSurfPhase::getSpeciesParameters(const std::string& name,
+void CoverageDependentSurfPhase::getSpeciesParameters(const string& name,
                                                       AnyMap& speciesNode) const
 {
     SurfPhase::getSpeciesParameters(name, speciesNode);

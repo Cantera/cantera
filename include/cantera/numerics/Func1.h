@@ -171,7 +171,7 @@ public:
     virtual double isProportional(Func1& other);
 
     //! Write LaTeX string describing function.
-    virtual std::string write(const std::string& arg) const;
+    virtual string write(const string& arg) const;
 
     //! Accessor function for the stored constant
     double c() const;
@@ -293,7 +293,7 @@ public:
         return *this;
     }
 
-    virtual std::string write(const std::string& arg) const;
+    virtual string write(const string& arg) const;
 
     virtual int ID() const {
         return SinFuncType;
@@ -343,7 +343,7 @@ public:
     }
 
     virtual Func1& duplicate() const;
-    virtual std::string write(const std::string& arg) const;
+    virtual string write(const string& arg) const;
     virtual int ID() const {
         return CosFuncType;
     }
@@ -385,7 +385,7 @@ public:
         Func1::operator=(right);
         return *this;
     }
-    virtual std::string write(const std::string& arg) const;
+    virtual string write(const string& arg) const;
     virtual int ID() const {
         return ExpFuncType;
     }
@@ -430,7 +430,7 @@ public:
 
     virtual shared_ptr<Func1> derivative3() const;
 
-    virtual std::string write(const string& arg) const;
+    virtual string write(const string& arg) const;
 };
 
 //! Implements the \c pow() (power) function.
@@ -459,7 +459,7 @@ public:
         Func1::operator=(right);
         return *this;
     }
-    virtual std::string write(const std::string& arg) const;
+    virtual string write(const string& arg) const;
     virtual int ID() const {
         return PowFuncType;
     }
@@ -509,7 +509,7 @@ public:
     //! @since New in %Cantera 3.0
     void setMethod(const string& method);
 
-    virtual std::string write(const std::string& arg) const;
+    virtual string write(const string& arg) const;
     virtual int ID() const {
         return TabulatedFuncType;
     }
@@ -559,7 +559,7 @@ public:
         return *this;
     }
 
-    virtual std::string write(const std::string& arg) const;
+    virtual string write(const string& arg) const;
     virtual int ID() const {
         return ConstFuncType;
     }
@@ -646,7 +646,7 @@ public:
         return 0;
     }
 
-    virtual std::string write(const std::string& arg) const;
+    virtual string write(const string& arg) const;
 };
 
 /**
@@ -718,7 +718,7 @@ public:
         return 0;
     }
 
-    virtual std::string write(const std::string& arg) const;
+    virtual string write(const string& arg) const;
 };
 
 
@@ -776,7 +776,7 @@ public:
         return "product";
     }
 
-    virtual std::string write(const std::string& arg) const;
+    virtual string write(const string& arg) const;
 
     virtual double eval(double t) const {
         return m_f1->eval(t) * m_f2->eval(t);
@@ -865,7 +865,7 @@ public:
         return newTimesConstFunction(m_f1_shared->derivative3(), m_c);
     }
 
-    virtual std::string write(const std::string& arg) const;
+    virtual string write(const string& arg) const;
 
     virtual int order() const {
         return 0;
@@ -930,7 +930,7 @@ public:
         return m_f1_shared->derivative3();
     }
 
-    virtual std::string write(const std::string& arg) const;
+    virtual string write(const string& arg) const;
 
     virtual int order() const {
         return 0;
@@ -1000,7 +1000,7 @@ public:
 
     virtual shared_ptr<Func1> derivative3() const;
 
-    virtual std::string write(const std::string& arg) const;
+    virtual string write(const string& arg) const;
 
     virtual int order() const {
         return 1;
@@ -1069,7 +1069,7 @@ public:
 
     virtual shared_ptr<Func1> derivative3() const;
 
-    virtual std::string write(const std::string& arg) const;
+    virtual string write(const string& arg) const;
 
     virtual int order() const {
         return 2;

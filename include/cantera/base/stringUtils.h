@@ -25,15 +25,15 @@ namespace Cantera
  * @param fmt   Format to be used (printf style) for each element
  * @param sep   Separator
  */
-std::string vec2str(const vector<double>& v, const std::string& fmt="%g",
-                    const std::string& sep=", ");
+string vec2str(const vector<double>& v, const string& fmt="%g",
+                    const string& sep=", ");
 
 //! Strip non-printing characters wherever they are
 /*!
  * @param s        Input string
  * @returns a copy of the string, stripped of all non- printing characters.
  */
-std::string stripnonprint(const std::string& s);
+string stripnonprint(const string& s);
 
 //! Parse a composition string into a map consisting of individual
 //! key:composition pairs.
@@ -68,7 +68,7 @@ Composition parseCompString(const string& ss,
  * @param val   String value of the double
  * @returns     a double
  */
-double fpValue(const std::string& val);
+double fpValue(const string& val);
 
 //! Translate a string into one double value, with error checking
 /*!
@@ -91,7 +91,7 @@ double fpValue(const std::string& val);
  * @param val   String representation of the number
  * @returns     a double
  */
-double fpValueCheck(const std::string& val);
+double fpValueCheck(const string& val);
 
 //! This function separates a string up into tokens according to the location of
 //! white space.
@@ -104,8 +104,8 @@ double fpValueCheck(const std::string& val);
  * @param oval   String to be broken up
  * @param v     Output vector of tokens.
  */
-void tokenizeString(const std::string& oval,
-                    vector<std::string>& v);
+void tokenizeString(const string& oval,
+                    vector<string>& v);
 
 //! This function separates a string up into tokens according to the location of
 //! path separators.
@@ -117,35 +117,35 @@ void tokenizeString(const std::string& oval,
  *
  * @since New in %Cantera 3.0.
  */
-void tokenizePath(const std::string& oval,
-                  vector<std::string>& v);
+void tokenizePath(const string& oval,
+                  vector<string>& v);
 
-//! Copy the contents of a std::string into a char array of a given length
+//! Copy the contents of a string into a char array of a given length
 /*!
  *  If *length* is less than the size of *source*, the string will be truncated
  *  and the function will return the length of the buffer required to hold
  *  *source*. Otherwise, returns 0.
  */
-size_t copyString(const std::string& source, char* dest, size_t length);
+size_t copyString(const string& source, char* dest, size_t length);
 
 //! Trim.
 /*!
  *  Remove all leading and trailing spaces (with default locale).
  */
-std::string trimCopy(const std::string &input);
+string trimCopy(const string &input);
 
 //! Convert to lower case.
 /*!
  *  Convert the given string to lower case (with default locale).
  */
-std::string toLowerCopy(const std::string& input);
+string toLowerCopy(const string& input);
 
 //! Case insensitive equality predicate.
 /*!
  *  Returns true if and only if all elements in both strings are the same
  *  when compared case insensitively (with default locale).
  */
-bool caseInsensitiveEquals(const std::string &input, const std::string &test);
+bool caseInsensitiveEquals(const string &input, const string &test);
 
 //! @}
 

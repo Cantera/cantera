@@ -266,7 +266,7 @@ string Kinetics::kineticsSpeciesName(size_t k) const
     return "<unknown>";
 }
 
-size_t Kinetics::kineticsSpeciesIndex(const std::string& nm) const
+size_t Kinetics::kineticsSpeciesIndex(const string& nm) const
 {
     for (size_t n = 0; n < m_thermo.size(); n++) {
         // Check the ThermoPhase object for a match
@@ -278,8 +278,8 @@ size_t Kinetics::kineticsSpeciesIndex(const std::string& nm) const
     return npos;
 }
 
-size_t Kinetics::kineticsSpeciesIndex(const std::string& nm,
-                                      const std::string& ph) const
+size_t Kinetics::kineticsSpeciesIndex(const string& nm,
+                                      const string& ph) const
 {
     warn_deprecated("Kinetics::kineticsSpeciesIndex(species_name, phase_name)",
         "To be removed after Cantera 3.0. Use kineticsSpeciesIndex(species_name).\n"
@@ -301,7 +301,7 @@ size_t Kinetics::kineticsSpeciesIndex(const std::string& nm,
     return npos;
 }
 
-ThermoPhase& Kinetics::speciesPhase(const std::string& nm)
+ThermoPhase& Kinetics::speciesPhase(const string& nm)
 {
     for (size_t n = 0; n < m_thermo.size(); n++) {
         size_t k = thermo(n).speciesIndex(nm);
@@ -312,7 +312,7 @@ ThermoPhase& Kinetics::speciesPhase(const std::string& nm)
     throw CanteraError("Kinetics::speciesPhase", "unknown species '{}'", nm);
 }
 
-const ThermoPhase& Kinetics::speciesPhase(const std::string& nm) const
+const ThermoPhase& Kinetics::speciesPhase(const string& nm) const
 {
     for (const auto thermo : m_thermo) {
         if (thermo->speciesIndex(nm) != npos) {
@@ -343,31 +343,31 @@ double Kinetics::productStoichCoeff(size_t kSpec, size_t irxn) const
     return m_productStoich.stoichCoeffs().coeff(kSpec, irxn);
 }
 
-std::string Kinetics::reactionType(size_t i) const {
+string Kinetics::reactionType(size_t i) const {
     warn_deprecated("Kinetics::reactionType", "To be removed after Cantera 3.0.");
     return m_reactions[i]->type();
 }
 
-std::string Kinetics::reactionTypeStr(size_t i) const {
+string Kinetics::reactionTypeStr(size_t i) const {
     warn_deprecated("Kinetics::reactionTypeStr", "To be removed after Cantera 3.0.");
     return reactionType(i);
 }
 
-std::string Kinetics::reactionString(size_t i) const
+string Kinetics::reactionString(size_t i) const
 {
     warn_deprecated("Kinetics::reactionString", "To be removed after Cantera 3.0.");
     return m_reactions[i]->equation();
 }
 
 //! Returns a string containing the reactants side of the reaction equation.
-std::string Kinetics::reactantString(size_t i) const
+string Kinetics::reactantString(size_t i) const
 {
     warn_deprecated("Kinetics::reactantString", "To be removed after Cantera 3.0.");
     return m_reactions[i]->reactantString();
 }
 
 //! Returns a string containing the products side of the reaction equation.
-std::string Kinetics::productString(size_t i) const
+string Kinetics::productString(size_t i) const
 {
     warn_deprecated("Kinetics::productString", "To be removed after Cantera 3.0.");
     return m_reactions[i]->productString();

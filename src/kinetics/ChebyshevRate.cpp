@@ -157,7 +157,7 @@ void ChebyshevRate::getParameters(AnyMap& rateNode) const
     rateNode["data"].setQuantity(coeffs, converter);
 }
 
-void ChebyshevRate::validate(const std::string& equation, const Kinetics& kin)
+void ChebyshevRate::validate(const string& equation, const Kinetics& kin)
 {
     if (!valid()) {
         throw InputFileError("ChebyshevRate::validate", m_input,

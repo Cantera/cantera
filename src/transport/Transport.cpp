@@ -80,8 +80,8 @@ void Transport::setThermo(ThermoPhase& thermo)
                                "the transport manager has been constructed because num species isn't the same.");
         }
         for (size_t i = 0; i < newNum; i++) {
-            std::string newS0 = thermo.speciesName(i);
-            std::string oldS0 = m_thermo->speciesName(i);
+            string newS0 = thermo.speciesName(i);
+            string oldS0 = m_thermo->speciesName(i);
             if (newNum != oldNum) {
                 throw CanteraError("Transport::setThermo",
                                    "base object cannot be changed after "

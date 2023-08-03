@@ -248,7 +248,7 @@ const map<string, double>& elementWeights() {
     return symMap;
 }
 
-double getElementWeight(const std::string& ename)
+double getElementWeight(const string& ename)
 {
     const auto& elementMap = elementWeights();
     double elementWeight = 0.0;
@@ -286,7 +286,7 @@ double getElementWeight(int atomicNumber)
     return elementWeight;
 }
 
-string getElementSymbol(const std::string& ename)
+string getElementSymbol(const string& ename)
 {
     string name = toLowerCopy(trimCopy(ename));
     for (const auto& atom : atomicWeightTable) {
@@ -311,7 +311,7 @@ string getElementSymbol(int atomicNumber)
     return atomicWeightTable[atomicNumber - 1].symbol;
 }
 
-string getElementName(const std::string& ename)
+string getElementName(const string& ename)
 {
     string symbol = trimCopy(ename);
     for (const auto& atom : atomicWeightTable) {
@@ -336,7 +336,7 @@ string getElementName(int atomicNumber)
     return atomicWeightTable[atomicNumber - 1].fullName;
 }
 
-int getAtomicNumber(const std::string& ename)
+int getAtomicNumber(const string& ename)
 {
     size_t numElements = numElementsDefined();
     size_t numIsotopes = numIsotopesDefined();

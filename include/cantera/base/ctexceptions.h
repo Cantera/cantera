@@ -80,7 +80,7 @@ public:
      * @param args Arguments which will be used to interpolate the format string
      */
     template <typename... Args>
-    CanteraError(const std::string& procedure, const std::string& msg,
+    CanteraError(const string& procedure, const string& msg,
                  const Args&... args)
         : procedure_(procedure)
     {
@@ -98,13 +98,13 @@ public:
     const char* what() const throw();
 
     //! Method overridden by derived classes to format the error message
-    virtual std::string getMessage() const;
+    virtual string getMessage() const;
 
     //! Get the name of the method that threw the exception
-    virtual std::string getMethod() const;
+    virtual string getMethod() const;
 
     //! Method overridden by derived classes to indicate their type
-    virtual std::string getClass() const {
+    virtual string getClass() const {
         return "CanteraError";
     }
 
@@ -114,14 +114,14 @@ protected:
     CanteraError() {};
 
     //! Constructor used by derived classes that override getMessage()
-    explicit CanteraError(const std::string& procedure);
+    explicit CanteraError(const string& procedure);
 
     //! The name of the procedure where the exception occurred
-    std::string procedure_;
-    mutable std::string formattedMessage_; //!< Formatted message returned by what()
+    string procedure_;
+    mutable string formattedMessage_; //!< Formatted message returned by what()
 
 private:
-    std::string msg_; //!< Message associated with the exception
+    string msg_; //!< Message associated with the exception
 };
 
 
@@ -145,11 +145,11 @@ public:
      * @param sz   This is the length supplied to Cantera.
      * @param reqd This is the required length needed by Cantera
      */
-    ArraySizeError(const std::string& procedure, size_t sz, size_t reqd) :
+    ArraySizeError(const string& procedure, size_t sz, size_t reqd) :
         CanteraError(procedure), sz_(sz), reqd_(reqd) {}
 
-    virtual std::string getMessage() const;
-    virtual std::string getClass() const {
+    virtual string getMessage() const;
+    virtual string getClass() const {
         return "ArraySizeError";
     }
 
@@ -176,17 +176,17 @@ public:
      * @param mmax This is the maximum allowed value of the index. The
      *             minimum allowed value is assumed to be 0.
      */
-    IndexError(const std::string& func, const std::string& arrayName, size_t m, size_t mmax) :
+    IndexError(const string& func, const string& arrayName, size_t m, size_t mmax) :
         CanteraError(func), arrayName_(arrayName), m_(m), mmax_(mmax) {}
 
     virtual ~IndexError() throw() {};
-    virtual std::string getMessage() const;
-    virtual std::string getClass() const {
+    virtual string getMessage() const;
+    virtual string getClass() const {
         return "IndexError";
     }
 
 private:
-    std::string arrayName_;
+    string arrayName_;
     size_t m_, mmax_;
 };
 
@@ -197,16 +197,16 @@ class NotImplementedError : public CanteraError
 public:
     //! @param func Name of the unimplemented function, such as
     //!     `ClassName::functionName`
-    NotImplementedError(const std::string& func) :
+    NotImplementedError(const string& func) :
         CanteraError(func, "Not implemented.") {}
 
     //! Alternative constructor taking same arguments as CanteraError
     template <typename... Args>
-    NotImplementedError(const std::string& func, const std::string& msg,
+    NotImplementedError(const string& func, const string& msg,
                         const Args&... args) :
         CanteraError(func, msg, args...) {}
 
-    virtual std::string getClass() const {
+    virtual string getClass() const {
         return "NotImplementedError";
     }
 };
@@ -217,11 +217,11 @@ public:
 //! Provides a line number
 #define STR_TRACE_LINE(s) #s
 
-//! Provides a std::string variable containing the file and line number
+//! Provides a string variable containing the file and line number
 /*!
  * This is a std:string containing the file name and the line number
  */
-#define STR_TRACE (std::string(__FILE__) + ":" + XSTR_TRACE_LINE(__LINE__))
+#define STR_TRACE (string(__FILE__) + ":" + XSTR_TRACE_LINE(__LINE__))
 
 #ifdef NDEBUG
 #ifndef AssertTrace
@@ -246,7 +246,7 @@ public:
  * @ingroup errGroup
  */
 #ifndef AssertTrace
-#  define AssertTrace(expr)  ((expr) ? (void) 0 : throw CanteraError(STR_TRACE, std::string("failed assert: ") + #expr))
+#  define AssertTrace(expr)  ((expr) ? (void) 0 : throw CanteraError(STR_TRACE, string("failed assert: ") + #expr))
 #endif
 
 //! Assertion must be true or an error is thrown
@@ -260,7 +260,7 @@ public:
  * @ingroup errGroup
  */
 #ifndef AssertThrow
-#  define AssertThrow(expr, procedure)   ((expr) ? (void) 0 : throw CanteraError(procedure, std::string("failed assert: ") + #expr))
+#  define AssertThrow(expr, procedure)   ((expr) ? (void) 0 : throw CanteraError(procedure, string("failed assert: ") + #expr))
 #endif
 
 //! Assertion must be true or an error is thrown
@@ -277,7 +277,7 @@ public:
  * @ingroup errGroup
  */
 #ifndef AssertThrowMsg
-#  define AssertThrowMsg(expr, procedure, ...)  ((expr) ? (void) 0 : throw CanteraError(procedure + std::string(":\nfailed assert: \"") + std::string(#expr) + std::string("\""), __VA_ARGS__))
+#  define AssertThrowMsg(expr, procedure, ...)  ((expr) ? (void) 0 : throw CanteraError(procedure + string(":\nfailed assert: \"") + string(#expr) + string("\""), __VA_ARGS__))
 #endif
 
 #endif

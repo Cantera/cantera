@@ -30,7 +30,7 @@ public:
     virtual ~MultiRateBase() {}
 
     //! Identifier of reaction rate type
-    virtual std::string type() = 0;
+    virtual string type() = 0;
 
     //! Add reaction rate object to the evaluator
     //! @param rxn_index  index of reaction

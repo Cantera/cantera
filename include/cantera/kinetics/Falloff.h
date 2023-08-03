@@ -152,7 +152,7 @@ public:
         return 0;
     }
 
-    virtual const std::string type() const override {
+    virtual const string type() const override {
         if (m_chemicallyActivated) {
             return "chemically-activated";
         }
@@ -206,8 +206,8 @@ public:
         return pr * m_rc_high;
     }
 
-    virtual void check(const std::string& equation) override;
-    virtual void validate(const std::string& equation, const Kinetics& kin) override;
+    virtual void check(const string& equation) override;
+    virtual void validate(const string& equation, const Kinetics& kin) override;
 
     //! Get flag indicating whether negative A values are permitted
     bool allowNegativePreExponentialFactor() const {
@@ -280,7 +280,7 @@ public:
         return make_unique<MultiRate<LindemannRate, FalloffData>>();
     }
 
-    virtual const std::string subType() const override {
+    virtual const string subType() const override {
         return "Lindemann";
     }
 };
@@ -353,7 +353,7 @@ public:
         return 1;
     }
 
-    virtual const std::string subType() const override {
+    virtual const string subType() const override {
         return "Troe";
     }
 
@@ -453,7 +453,7 @@ public:
         return 2;
     }
 
-    virtual const std::string subType() const override {
+    virtual const string subType() const override {
         return "SRI";
     }
 
@@ -559,7 +559,7 @@ public:
         return 1;
     }
 
-    virtual const std::string subType() const override {
+    virtual const string subType() const override {
         return "Tsang";
     }
 

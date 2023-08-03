@@ -89,7 +89,7 @@ public:
     }
 
     //! Identifier of reaction rate type
-    const std::string type() const { return "pressure-dependent-Arrhenius"; }
+    const string type() const { return "pressure-dependent-Arrhenius"; }
 
     //! Perform object setup based on AnyMap node information
     /*!
@@ -170,11 +170,11 @@ public:
     //! temperatures at each interpolation pressure. This is potentially an
     //! issue when one of the Arrhenius expressions at a particular pressure
     //! has a negative pre-exponential factor.
-    void validate(const std::string& equation, const Kinetics& kin);
+    void validate(const string& equation, const Kinetics& kin);
 
     //! @deprecated To be removed after %Cantera 3.0;
     //!              superseded by two-parameter version
-    void validate(const std::string& equation);
+    void validate(const string& equation);
 
     //! Return the pressures and Arrhenius expressions which comprise this
     //! reaction.

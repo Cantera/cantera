@@ -104,7 +104,7 @@ TEST(AnyMap, paths) {
     EXPECT_TRUE(m["compound"].hasKey("second"));
 
     EXPECT_EQ(m["compound"]["first"].asString(), "bar");
-    EXPECT_EQ(m["compound"]["second"].as<std::string>(), "baz");
+    EXPECT_EQ(m["compound"]["second"].as<string>(), "baz");
     EXPECT_EQ(m["several"]["layers"]["deep"].asString(), "foo");
     EXPECT_THROW(m.at("missing"), std::exception);
     EXPECT_FALSE(m.hasKey("missing"));
@@ -141,7 +141,7 @@ TEST(AnyMap, equality2) {
         m["bool"] = true;
         m["int"] = 33;
         m["vector_any_int"] = vector<long int>{3, 9, -1};
-        m["strings"] = vector<std::string>{"spam", "eggs", "spam"};
+        m["strings"] = vector<string>{"spam", "eggs", "spam"};
     }
 
     EXPECT_EQ(M[0], M[1]);
@@ -180,17 +180,17 @@ TEST(AnyMap, map_conversion) {
     m["compound"]["second"] = "baz";
     m["empty"] = AnyMap();
 
-    auto x = m["compound"].asMap<std::string>();
+    auto x = m["compound"].asMap<string>();
     EXPECT_EQ(x.size(), (size_t) 2);
     EXPECT_EQ(x["first"], "bar");
     EXPECT_EQ(x["second"], "baz");
-    std::string keys = m["compound"].as<AnyMap>().keys_str();
+    string keys = m["compound"].as<AnyMap>().keys_str();
     EXPECT_NE(keys.find("first"), npos);
     EXPECT_NE(keys.find("second"), npos);
     EXPECT_EQ(keys.size(), (size_t) 13);
     EXPECT_EQ(m["empty"].as<AnyMap>().keys_str(), "");
 
-    map<std::string, double> zz{{"a", 9.1}, {"b", 13.5}};
+    map<string, double> zz{{"a", 9.1}, {"b", 13.5}};
     m["foo"] = zz;
     EXPECT_TRUE(m["foo"].hasKey("a"));
     EXPECT_DOUBLE_EQ(m["foo"]["b"].asDouble(), 13.5);
@@ -246,7 +246,7 @@ TEST(AnyMap, vector_length)
 TEST(AnyMap, getters_with_defaults)
 {
     AnyMap m;
-    map<std::string, double> zz{{"a", 9.0}, {"b", 13.5}};
+    map<string, double> zz{{"a", 9.0}, {"b", 13.5}};
     m["foo"] = zz;
     m["foo"]["c"] = 4;
     m["bar"] = "baz";
@@ -304,7 +304,7 @@ TEST(AnyMap, iterators)
 {
     AnyMap m = AnyMap::fromYamlString(
         "{a: 1, b: two, c: 3.01, d: {foo: 1, bar: 2}}");
-    vector<std::string> keys;
+    vector<string> keys;
     for (const auto& [key, value] : m) {
         keys.push_back(key);
     }
@@ -390,7 +390,7 @@ TEST(AnyMap, missingKeyAt)
 TEST(AnyMap, dumpYamlString)
 {
     AnyMap original = AnyMap::fromYamlFile("h2o2.yaml");
-    std::string serialized = original.toYamlString();
+    string serialized = original.toYamlString();
     AnyMap generated = AnyMap::fromYamlString(serialized);
     for (const auto& [key, value] : original) {
         EXPECT_TRUE(generated.hasKey(key));
@@ -406,7 +406,7 @@ TEST(AnyMap, YamlFlowStyle)
     original["y"] = true;
     original["z"] = AnyMap::fromYamlString("{zero: 1, half: 2}");
     original.setFlowStyle();
-    std::string serialized = original.toYamlString();
+    string serialized = original.toYamlString();
     // The serialized version should contain two lines, and end with a newline.
     EXPECT_EQ(std::count(serialized.begin(), serialized.end(), '\n'), 2);
     AnyMap generated = AnyMap::fromYamlString(serialized);
@@ -417,8 +417,8 @@ TEST(AnyMap, YamlFlowStyle)
 
 TEST(AnyMap, nestedVectorsToYaml)
 {
-    vector<std::string> words{"foo", "bar", "baz", "qux", "foobar"};
-    vector<vector<std::string>> strings;
+    vector<string> words{"foo", "bar", "baz", "qux", "foobar"};
+    vector<vector<string>> strings;
     vector<vector<bool>> booleans;
     vector<vector<long int>> integers;
     for (size_t i = 0; i < 3; i++) {
@@ -435,10 +435,10 @@ TEST(AnyMap, nestedVectorsToYaml)
     original["strings"] = strings;
     original["booleans"] = booleans;
     original["integers"] = integers;
-    std::string serialized = original.toYamlString();
+    string serialized = original.toYamlString();
     AnyMap generated = AnyMap::fromYamlString(serialized);
 
-    EXPECT_EQ(generated["strings"].asVector<vector<std::string>>(), strings);
+    EXPECT_EQ(generated["strings"].asVector<vector<string>>(), strings);
     EXPECT_EQ(generated["booleans"].asVector<vector<bool>>(), booleans);
     EXPECT_EQ(generated["integers"].asVector<vector<long int>>(), integers);
 }
@@ -457,8 +457,8 @@ TEST(AnyMap, definedKeyOrdering)
         {"tail", "one"}
     });
 
-    std::string result = m.toYamlString();
-    std::unordered_map<std::string, size_t> loc;
+    string result = m.toYamlString();
+    std::unordered_map<string, size_t> loc;
     for (auto& [key, value] : m) {
         loc[key] = result.find(key);
     }

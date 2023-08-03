@@ -248,7 +248,7 @@ size_t IdealGasConstPressureMoleReactor::componentIndex(const string& nm) const
     }
 }
 
-std::string IdealGasConstPressureMoleReactor::componentName(size_t k) {
+string IdealGasConstPressureMoleReactor::componentName(size_t k) {
     if (k == 0) {
         return "temperature";
     } else if (k >= m_sidx && k < neq()) {

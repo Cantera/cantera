@@ -243,7 +243,7 @@ public:
     /*!
      * All derived phases from `MolalityVPSSTP` always represent liquids.
      */
-    virtual std::string phaseOfMatter() const {
+    virtual string phaseOfMatter() const {
         return "liquid";
     }
 
@@ -370,7 +370,7 @@ public:
      *
      * @param name  String containing the information for a composition map.
      */
-    void setMolalitiesByName(const std::string& name);
+    void setMolalitiesByName(const string& name);
 
     //! @}
     //! @name Activities, Standard States, and Activity Concentrations
@@ -525,7 +525,7 @@ public:
      * @param m           String which gets translated into a composition
      *                    map for the molalities of the solutes.
      */
-    void setState_TPM(double t, double p, const std::string& m);
+    void setState_TPM(double t, double p, const string& m);
 
     //! @copydoc ThermoPhase::setState
     /*!
@@ -537,11 +537,11 @@ public:
         getdlnActCoeffdlnN_numderiv(ld, dlnActCoeffdlnN);
     }
 
-    virtual std::string report(bool show_thermo=true,
+    virtual string report(bool show_thermo=true,
                                double threshold=1e-14) const;
 
 protected:
-    virtual void getCsvReportData(vector<std::string>& names,
+    virtual void getCsvReportData(vector<string>& names,
                                   vector<vector<double>>& data) const;
 
     //! Get the array of unscaled non-dimensional molality based activity

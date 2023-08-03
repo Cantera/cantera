@@ -22,7 +22,7 @@ class MoleReactor : public Reactor
 public:
     MoleReactor() {}
 
-    virtual std::string type() const {
+    virtual string type() const {
         return "MoleReactor";
     }
 
@@ -34,9 +34,9 @@ public:
 
     virtual void eval(double t, double* LHS, double* RHS);
 
-    size_t componentIndex(const std::string& nm) const;
+    size_t componentIndex(const string& nm) const;
 
-    std::string componentName(size_t k);
+    string componentName(size_t k);
 
 protected:
     //! For each surface in the reactor, update vector of triplets with all relevant

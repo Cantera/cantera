@@ -28,12 +28,12 @@ class IdealSolnGasVPSS : public VPStandardStateTP
 {
 public:
     //! Create an object from an input file
-    explicit IdealSolnGasVPSS(const std::string& infile="", std::string id="");
+    explicit IdealSolnGasVPSS(const string& infile="", string id="");
 
     //! @name  Utilities (IdealSolnGasVPSS)
     //! @{
 
-    virtual std::string type() const {
+    virtual string type() const {
         return "ideal-solution-VPSS";
     }
 
@@ -45,7 +45,7 @@ public:
     /**
      * Must be one of 'unity', 'species-molar-volume', or 'solvent-molar-volume'.
      */
-    void setStandardConcentrationModel(const std::string& model);
+    void setStandardConcentrationModel(const string& model);
 
     //! @}
     //! @name Molar Thermodynamic Properties

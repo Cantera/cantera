@@ -28,10 +28,10 @@ public:
      * @param id        ID of the phase in the input file. If empty, the
      *                  first phase definition in the input file will be used.
      */
-    explicit PengRobinson(const std::string& infile="",
-                          const std::string& id="");
+    explicit PengRobinson(const string& infile="",
+                          const string& id="");
 
-    virtual std::string type() const {
+    virtual string type() const {
         return "Peng-Robinson";
     }
 
@@ -154,7 +154,7 @@ public:
 
     virtual bool addSpecies(shared_ptr<Species> spec);
     virtual void initThermo();
-    virtual void getSpeciesParameters(const std::string& name,
+    virtual void getSpeciesParameters(const string& name,
                                       AnyMap& speciesNode) const;
 
     //! Set the pure fluid interaction parameters for a species
@@ -164,7 +164,7 @@ public:
      *  @param b         @f$ a @f$ parameter in the Peng-Robinson model [m^3/kmol]
      *  @param w         acentric factor
      */
-    void setSpeciesCoeffs(const std::string& species, double a, double b,
+    void setSpeciesCoeffs(const string& species, double a, double b,
                           double w);
 
     //! Set values for the interaction parameter between two species
@@ -173,8 +173,8 @@ public:
      *  @param species_j   Name of the other species
      *  @param a           @f$ a @f$ parameter in the Peng-Robinson model [Pa-m^6/kmol^2]
      */
-    void setBinaryCoeffs(const std::string& species_i,
-                         const std::string& species_j, double a);
+    void setBinaryCoeffs(const string& species_i,
+                         const string& species_j, double a);
     //! @}
 
 protected:
@@ -273,7 +273,7 @@ protected:
     Array2D m_aAlpha_binary;
 
     //! Explicitly-specified binary interaction parameters, to enable serialization
-    map<std::string, map<std::string, double>> m_binaryParameters;
+    map<string, map<string, double>> m_binaryParameters;
 
     int m_NSolns = 0;
 

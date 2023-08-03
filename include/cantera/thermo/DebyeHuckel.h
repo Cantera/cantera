@@ -422,13 +422,13 @@ public:
      *                    If blank, an empty phase will be created.
      *  @param id         id attribute containing the name of the phase.
      */
-    explicit DebyeHuckel(const std::string& inputFile="",
-                         const std::string& id="");
+    explicit DebyeHuckel(const string& inputFile="",
+                         const string& id="");
 
     //! @name  Utilities
     //! @{
 
-    virtual std::string type() const {
+    virtual string type() const {
         return "Debye-Huckel";
     }
 
@@ -623,7 +623,7 @@ public:
     virtual bool addSpecies(shared_ptr<Species> spec);
     virtual void initThermo();
     virtual void getParameters(AnyMap& phaseNode) const;
-    virtual void getSpeciesParameters(const std::string& name,
+    virtual void getSpeciesParameters(const string& name,
                                   AnyMap& speciesNode) const;
 
     //! Return the Debye Huckel constant as a function of temperature
@@ -729,7 +729,7 @@ public:
     //! Set the DebyeHuckel parameterization form. Must be one of
     //! 'dilute-limit', 'B-dot-with-variable-a', 'B-dot-with-common-a',
     //! 'beta_ij', or 'Pitzer-with-beta_ij'.
-    void setDebyeHuckelModel(const std::string& form);
+    void setDebyeHuckelModel(const string& form);
 
     //! Returns the form of the Debye-Huckel parameterization used
     int formDH() const {
@@ -749,7 +749,7 @@ public:
     void setDefaultIonicRadius(double value);
 
     //! Set the value for the beta interaction between species sp1 and sp2.
-    void setBeta(const std::string& sp1, const std::string& sp2, double value);
+    void setBeta(const string& sp1, const string& sp2, double value);
 
     //! Returns a reference to M_Beta_ij
     Array2D& get_Beta_ij() {

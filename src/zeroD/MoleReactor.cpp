@@ -297,7 +297,7 @@ size_t MoleReactor::componentIndex(const string& nm) const
     }
 }
 
-std::string MoleReactor::componentName(size_t k) {
+string MoleReactor::componentName(size_t k) {
     if (k == 0) {
         return "int_energy";
     } else if (k == 1) {

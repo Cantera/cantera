@@ -38,7 +38,7 @@ public:
     //!     transport properties
     //! @param id  name of flow domain
     //! @param points  initial number of grid points
-    IonFlow(shared_ptr<Solution> sol, const std::string& id="", size_t points = 1);
+    IonFlow(shared_ptr<Solution> sol, const string& id="", size_t points = 1);
 
     virtual string type() const;
 

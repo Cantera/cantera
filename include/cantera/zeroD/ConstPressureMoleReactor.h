@@ -22,13 +22,13 @@ class ConstPressureMoleReactor : public MoleReactor
 public:
     ConstPressureMoleReactor() {}
 
-    virtual std::string type() const {
+    virtual string type() const {
         return "ConstPressureMoleReactor";
     };
 
-    virtual size_t componentIndex(const std::string& nm) const;
+    virtual size_t componentIndex(const string& nm) const;
 
-    virtual std::string componentName(size_t k);
+    virtual string componentName(size_t k);
 
     virtual void getState(double* y);
 

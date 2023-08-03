@@ -31,7 +31,7 @@ public:
 
     //! String indicating the flow device implemented. Usually
     //! corresponds to the name of the derived class.
-    virtual std::string type() const {
+    virtual string type() const {
         return "FlowDevice";
     }
 

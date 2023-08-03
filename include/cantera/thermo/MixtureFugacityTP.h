@@ -83,7 +83,7 @@ public:
     //! @name  Utilities
     //! @{
 
-    virtual std::string type() const {
+    virtual string type() const {
         return "MixtureFugacity";
     }
 

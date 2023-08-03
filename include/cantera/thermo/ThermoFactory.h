@@ -46,7 +46,7 @@ public:
      *     CanteraError if the named model isn't registered with ThermoFactory.
      * @deprecated To be removed after %Cantera 3.0; superseded by newThermo()
      */
-    virtual ThermoPhase* newThermoPhase(const std::string& model);
+    virtual ThermoPhase* newThermoPhase(const string& model);
 
 private:
     //! static member of a single instance
@@ -106,7 +106,7 @@ unique_ptr<ThermoPhase> newPhase(const AnyMap& phaseNode,
 
 //! @copydoc newThermo(const string&, const string&)
 //! @deprecated To be removed after %Cantera 3.0; superseded by newThermo()
-ThermoPhase* newPhase(const std::string& infile, std::string id="");
+ThermoPhase* newPhase(const string& infile, string id="");
 
 //! Initialize a ThermoPhase object
 /*!

@@ -12,7 +12,7 @@ using namespace std;
 
 std::stringstream ss;
 
-void printValue(const std::string& label, double value)
+void printValue(const string& label, double value)
 {
     ss.str("");
     ss.clear();

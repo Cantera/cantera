@@ -165,7 +165,7 @@ public:
         mnp_high.modifyOneHf298(k, hnew);
     }
 
-    void validate(const std::string& name);
+    void validate(const string& name);
 
 protected:
     //! Midrange temperature

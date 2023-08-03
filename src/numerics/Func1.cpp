@@ -225,7 +225,7 @@ shared_ptr<Func1> Cos1::derivative3() const
     return newTimesConstFunction(s, -m_c);
 }
 
-std::string Cos1::write(const std::string& arg) const
+string Cos1::write(const string& arg) const
 {
     if (m_c == 1.0) {
         return fmt::format("\\cos({})", arg);
@@ -272,7 +272,7 @@ shared_ptr<Func1> Exp1::derivative3() const
     return f;
 }
 
-std::string Exp1::write(const std::string& arg) const
+string Exp1::write(const string& arg) const
 {
     if (m_c == 1.0) {
         return fmt::format("\\exp({})", arg);
@@ -299,7 +299,7 @@ shared_ptr<Func1> Log1::derivative3() const
     return f;
 }
 
-std::string Log1::write(const std::string& arg) const
+string Log1::write(const string& arg) const
 {
     if (m_c == 1.0) {
         return fmt::format("\\log({})", arg);
@@ -427,7 +427,7 @@ Arrhenius1::Arrhenius1(const vector<double>& params)
 }
 
 Tabulated1::Tabulated1(size_t n, const double* tvals, const double* fvals,
-                       const std::string& method)
+                       const string& method)
 {
     m_tvec.resize(n);
     std::copy(tvals, tvals + n, m_tvec.begin());
@@ -615,12 +615,12 @@ Func1& Periodic1::duplicate() const {
     return *((Func1*)np);
 }
 
-string Func1::write(const std::string& arg) const
+string Func1::write(const string& arg) const
 {
     return fmt::format("\\mathrm{{{}}}({})", type(), arg);
 }
 
-string Pow1::write(const std::string& arg) const
+string Pow1::write(const string& arg) const
 {
     if (m_c == 0.5) {
         return "\\sqrt{" + arg + "}";
@@ -635,12 +635,12 @@ string Pow1::write(const std::string& arg) const
     }
 }
 
-string Tabulated1::write(const std::string& arg) const
+string Tabulated1::write(const string& arg) const
 {
     return fmt::format("\\mathrm{{Tabulated}}({})", arg);
 }
 
-string Const1::write(const std::string& arg) const
+string Const1::write(const string& arg) const
 {
     return fmt::format("{}", m_c);
 }
@@ -658,7 +658,7 @@ Func1& Const1::derivative() const {
     return *z;
 }
 
-string Ratio1::write(const std::string& arg) const
+string Ratio1::write(const string& arg) const
 {
     return "\\frac{" + m_f1->write(arg) + "}{"
            + m_f2->write(arg) + "}";
@@ -690,7 +690,7 @@ shared_ptr<Func1> Ratio1::derivative3() const {
     return newRatioFunction(s, p);
 }
 
-string Product1::write(const std::string& arg) const
+string Product1::write(const string& arg) const
 {
     string s = m_f1->write(arg);
     if (m_f1->order() < order()) {
@@ -725,7 +725,7 @@ shared_ptr<Func1> Product1::derivative3() const {
     return newSumFunction(a1, a2);
 }
 
-string Sum1::write(const std::string& arg) const
+string Sum1::write(const string& arg) const
 {
     string s1 = m_f1->write(arg);
     string s2 = m_f2->write(arg);
@@ -752,7 +752,7 @@ Func1& Sum1::derivative() const {
     return newSumFunction(d1, d2);
 }
 
-string Diff1::write(const std::string& arg) const
+string Diff1::write(const string& arg) const
 {
     string s1 = m_f1->write(arg);
     string s2 = m_f2->write(arg);
@@ -777,7 +777,7 @@ Func1& Diff1::derivative() const {
     return newDiffFunction(m_f1->derivative(), m_f2->derivative());
 }
 
-string Composite1::write(const std::string& arg) const
+string Composite1::write(const string& arg) const
 {
     string g = m_f2->write(arg);
     return m_f1->write(g);
@@ -808,7 +808,7 @@ shared_ptr<Func1> Composite1::derivative3() const {
     return newProdFunction(d3, d2);
 }
 
-string TimesConstant1::write(const std::string& arg) const
+string TimesConstant1::write(const string& arg) const
 {
     string s = m_f1->write(arg);
     if (m_f1->order() < order()) {
@@ -843,7 +843,7 @@ Func1& TimesConstant1::derivative() const {
     return *d;
 }
 
-string PlusConstant1::write(const std::string& arg) const
+string PlusConstant1::write(const string& arg) const
 {
     if (m_c == 0.0) {
         return m_f1->write(arg);

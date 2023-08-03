@@ -22,11 +22,11 @@ std::mutex yaml_cache_mutex;
 std::mutex yaml_field_order_mutex;
 using namespace Cantera;
 
-bool isFloat(const std::string& val)
+bool isFloat(const string& val)
 {
     // This function duplicates the logic of fpValueCheck, but doesn't throw
     // exceptions if the string isn't a float
-    std::string str = ba::trim_copy(val);
+    string str = ba::trim_copy(val);
     if (str.empty()) {
         return false;
     }
@@ -72,9 +72,9 @@ bool isFloat(const std::string& val)
     return true;
 }
 
-bool isInt(const std::string& val)
+bool isInt(const string& val)
 {
-    std::string str = ba::trim_copy(val);
+    string str = ba::trim_copy(val);
     if (str.empty()) {
         return false;
     }
@@ -94,8 +94,8 @@ bool isInt(const std::string& val)
     return true;
 }
 
-bool isBool(const std::string& val) {
-    std::string str = ba::trim_copy(val);
+bool isBool(const string& val) {
+    string str = ba::trim_copy(val);
     return (val == "true" || val == "True" || val == "false" || val == "False");
 }
 
@@ -124,7 +124,7 @@ Type elementTypes(const YAML::Node& node)
         } else if (el.IsSequence()) {
             types = types | Type::Sequence;
         } else if (el.IsScalar()) {
-            std::string nodestr = el.as<std::string>();
+            string nodestr = el.as<string>();
             if (isInt(nodestr)) {
                 types = types | Type::Integer;
             } else if (isFloat(nodestr)) {
@@ -251,7 +251,7 @@ struct convert<Cantera::AnyMap> {
             target["items"] = node.as<AnyValue>();
             return true;
         } else if (!node.IsMap()) {
-            std::string text = YAML::Dump(node);
+            string text = YAML::Dump(node);
             if (text.size() > 300) {
                 text.resize(300);
             }
@@ -259,7 +259,7 @@ struct convert<Cantera::AnyMap> {
                 "YAML node is not a map. Node begins with:\n'''\n{}\n'''", text);
         }
         for (const auto& child : node) {
-            std::string key = child.first.as<std::string>();
+            string key = child.first.as<string>();
             const auto& loc = child.second.Mark();
             AnyValue& value = target.createForYaml(key, loc.line, loc.column);
             if (child.second.IsMap()) {
@@ -327,7 +327,7 @@ YAML::Emitter& operator<<(YAML::Emitter& out, const AnyMap& rhs)
 //! Write YAML strings spanning multiple lines if input includes endline '\n'
 void emitString(YAML::Emitter& out, const string& str0) {
     size_t endline = str0.rfind('\n');
-    if (endline == std::string::npos) {
+    if (endline == string::npos) {
         out << str0;
         return;
     }
@@ -340,7 +340,7 @@ void emitString(YAML::Emitter& out, const string& str0) {
     }
 
     // Deblank lines (remove whitespace surrounding line breaks)
-    while (endline != std::string::npos) {
+    while (endline != string::npos) {
         size_t len = 1;
         while (str1[endline + len] == ' ') {
             len++; // account for whitespace after line break
@@ -479,7 +479,7 @@ struct convert<Cantera::AnyValue> {
         target.setLoc(node.Mark().line, node.Mark().column);
         if (node.IsScalar()) {
             // Scalar nodes are int, doubles, or strings
-            std::string nodestr = node.as<std::string>();
+            string nodestr = node.as<string>();
             if (node.Tag() == "!") {
                 // Prevent quoted strings from being implicitly converted to
                 // numeric types. For example, the quoted YAML string '12345' should not
@@ -514,7 +514,7 @@ struct convert<Cantera::AnyValue> {
                 }
                 target = std::move(values);
             } else if (types == Type::String) {
-                target = node.as<vector<std::string>>();
+                target = node.as<vector<string>>();
             } else if (types == Type::Bool) {
                 target = node.as<vector<bool>>();
             } else if (types == Type::Map) {
@@ -537,7 +537,7 @@ struct convert<Cantera::AnyValue> {
                     }
                     target = std::move(values);
                 } else if (subtypes == Type::String) {
-                    target = node.as<vector<vector<std::string>>>();
+                    target = node.as<vector<vector<string>>>();
                 } else if (subtypes == Type::Bool) {
                     target = node.as<vector<vector<bool>>>();
                 } else {
@@ -566,8 +566,8 @@ namespace Cantera {
 std::unordered_map<string,
                    pair<AnyMap, std::filesystem::file_time_type>> AnyMap::s_cache;
 
-std::unordered_map<std::string, vector<std::string>> AnyMap::s_headFields;
-std::unordered_map<std::string, vector<std::string>> AnyMap::s_tailFields;
+std::unordered_map<string, vector<string>> AnyMap::s_headFields;
+std::unordered_map<string, vector<string>> AnyMap::s_tailFields;
 
 // Methods of class AnyBase
 
@@ -577,7 +577,7 @@ void AnyBase::setLoc(int line, int column)
     m_column = column;
 }
 
-const AnyValue& AnyBase::getMetadata(const std::string& key) const
+const AnyValue& AnyBase::getMetadata(const string& key) const
 {
     if (m_metadata && m_metadata->hasKey(key)) {
         return m_metadata->at(key);
@@ -604,21 +604,21 @@ bool AnyValue::operator!=(const AnyValue& other) const
     return !m_equals(m_value, other.m_value);
 }
 
-AnyValue& AnyValue::operator[](const std::string& key)
+AnyValue& AnyValue::operator[](const string& key)
 {
     return as<AnyMap>()[key];
 }
 
-const AnyValue& AnyValue::operator[](const std::string& key) const
+const AnyValue& AnyValue::operator[](const string& key) const
 {
     return as<AnyMap>().at(key);
 }
 
-bool AnyValue::hasKey(const std::string& key) const {
+bool AnyValue::hasKey(const string& key) const {
     return (is<AnyMap>() && as<AnyMap>().hasKey(key));
 }
 
-void AnyValue::setKey(const std::string &key) { m_key = key; }
+void AnyValue::setKey(const string &key) { m_key = key; }
 
 const std::type_info &AnyValue::type() const {
     return m_value.type();
@@ -640,7 +640,7 @@ void AnyValue::propagateMetadata(shared_ptr<AnyMap>& metadata)
     }
 }
 
-std::string AnyValue::type_str() const {
+string AnyValue::type_str() const {
     return demangle(type());
 }
 
@@ -649,7 +649,7 @@ bool AnyValue::empty() const {
 }
 
 bool AnyValue::isScalar() const {
-    return is<double>() || is<long int>() || is<std::string>() || is<bool>();
+    return is<double>() || is<long int>() || is<string>() || is<bool>();
 }
 
 size_t AnyValue::vectorSize() const {
@@ -712,7 +712,7 @@ pair<size_t, size_t> AnyValue::matrixShape() const {
     return {npos, npos};
 }
 
-// Specializations for "std::string" and "const char*"
+// Specializations for "string" and "const char*"
 
 AnyValue::AnyValue(const string& value)
     : m_value{value}
@@ -736,11 +736,11 @@ AnyValue &AnyValue::operator=(const char *value) {
     return *this;
 }
 
-const std::string &AnyValue::asString() const {
-    return as<std::string>();
+const string &AnyValue::asString() const {
+    return as<string>();
 }
 
-bool AnyValue::operator==(const std::string& other) const
+bool AnyValue::operator==(const string& other) const
 {
     if (m_value.type() == typeid(string)) {
         return std::any_cast<string>(m_value) == other;
@@ -749,24 +749,24 @@ bool AnyValue::operator==(const std::string& other) const
     }
 }
 
-bool AnyValue::operator!=(const std::string& other) const
+bool AnyValue::operator!=(const string& other) const
 {
     return !(*this == other);
 }
 
-bool operator==(const std::string& lhs, const AnyValue& rhs)
+bool operator==(const string& lhs, const AnyValue& rhs)
 {
     return rhs == lhs;
 }
 
-bool operator!=(const std::string& lhs, const AnyValue& rhs)
+bool operator!=(const string& lhs, const AnyValue& rhs)
 {
     return rhs != lhs;
 }
 
 // Specialization for "Quantity"
 
-void AnyValue::setQuantity(double value, const std::string& units, bool is_act_energy) {
+void AnyValue::setQuantity(double value, const string& units, bool is_act_energy) {
     m_value = Quantity{AnyValue(value), Units(units), is_act_energy};
     m_equals = eq_comparer<Quantity>;
 }
@@ -776,7 +776,7 @@ void AnyValue::setQuantity(double value, const Units& units) {
     m_equals = eq_comparer<Quantity>;
 }
 
-void AnyValue::setQuantity(const vector<double>& values, const std::string& units) {
+void AnyValue::setQuantity(const vector<double>& values, const string& units) {
     AnyValue v;
     v = values;
     m_value = Quantity{v, Units(units), false};
@@ -973,10 +973,10 @@ AnyValue& AnyValue::operator=(AnyMap&& value) {
     return *this;
 }
 
-std::unordered_map<std::string, const AnyMap*> AnyValue::asMap(
-    const std::string& name) const
+std::unordered_map<string, const AnyMap*> AnyValue::asMap(
+    const string& name) const
 {
-    std::unordered_map<std::string, const AnyMap*> mapped;
+    std::unordered_map<string, const AnyMap*> mapped;
     for (const auto& item : asVector<AnyMap>()) {
         auto key = item[name].asString();
         if (mapped.count(key)) {
@@ -988,9 +988,9 @@ std::unordered_map<std::string, const AnyMap*> AnyValue::asMap(
     return mapped;
 }
 
-std::unordered_map<std::string, AnyMap*> AnyValue::asMap(const std::string& name)
+std::unordered_map<string, AnyMap*> AnyValue::asMap(const string& name)
 {
-    std::unordered_map<std::string, AnyMap*> mapped;
+    std::unordered_map<string, AnyMap*> mapped;
     for (auto& item : asVector<AnyMap>()) {
         auto key = item.at(name).asString();
         if (mapped.count(key)) {
@@ -1002,7 +1002,7 @@ std::unordered_map<std::string, AnyMap*> AnyValue::asMap(const std::string& name
     return mapped;
 }
 
-const AnyMap& AnyValue::getMapWhere(const std::string& key, const std::string& value) const
+const AnyMap& AnyValue::getMapWhere(const string& key, const string& value) const
 {
     if (is<vector<AnyMap>>()) {
         if (value == "") {
@@ -1032,7 +1032,7 @@ const AnyMap& AnyValue::getMapWhere(const std::string& key, const std::string& v
     }
 }
 
-AnyMap& AnyValue::getMapWhere(const std::string& key, const std::string& value,
+AnyMap& AnyValue::getMapWhere(const string& key, const string& value,
                               bool create)
 {
     if (is<vector<AnyMap>>()) {
@@ -1083,7 +1083,7 @@ AnyMap& AnyValue::getMapWhere(const std::string& key, const std::string& value,
     }
 }
 
-bool AnyValue::hasMapWhere(const std::string& key, const std::string& value) const
+bool AnyValue::hasMapWhere(const string& key, const string& value) const
 {
     if (is<vector<AnyMap>>()) {
         if (value == "") {
@@ -1230,8 +1230,8 @@ const vector<AnyValue>& AnyValue::asVector<AnyValue>(size_t nMin, size_t nMax) c
                 v.push_back(AnyValue(el));
             }
             const_cast<AnyValue*>(this)->m_value = v;
-        } else if (is<vector<std::string>>()) {
-            for (const auto& el : asVector<std::string>()) {
+        } else if (is<vector<string>>()) {
+            for (const auto& el : asVector<string>()) {
                 v.push_back(AnyValue(el));
             }
             const_cast<AnyValue*>(this)->m_value = v;
@@ -1361,7 +1361,7 @@ AnyMap::AnyMap()
 {
 }
 
-AnyValue& AnyMap::operator[](const std::string& key)
+AnyValue& AnyMap::operator[](const string& key)
 {
     const auto& iter = m_data.find(key);
     if (iter == m_data.end()) {
@@ -1385,7 +1385,7 @@ AnyValue& AnyMap::operator[](const std::string& key)
     }
 }
 
-const AnyValue& AnyMap::operator[](const std::string& key) const
+const AnyValue& AnyMap::operator[](const string& key) const
 {
     try {
         return m_data.at(key);
@@ -1395,7 +1395,7 @@ const AnyValue& AnyMap::operator[](const std::string& key) const
     }
 }
 
-AnyValue& AnyMap::createForYaml(const std::string& key, int line, int column)
+AnyValue& AnyMap::createForYaml(const string& key, int line, int column)
 {
     AnyValue& value = m_data.emplace(key, AnyValue()).first->second;
     value.setKey(key);
@@ -1407,7 +1407,7 @@ AnyValue& AnyMap::createForYaml(const std::string& key, int line, int column)
     return value;
 }
 
-const AnyValue& AnyMap::at(const std::string& key) const
+const AnyValue& AnyMap::at(const string& key) const
 {
     try {
         return m_data.at(key);
@@ -1422,12 +1422,12 @@ bool AnyMap::empty() const
     return m_data.size() == 0;
 }
 
-bool AnyMap::hasKey(const std::string& key) const
+bool AnyMap::hasKey(const string& key) const
 {
     return (m_data.find(key) != m_data.end());
 }
 
-void AnyMap::erase(const std::string& key)
+void AnyMap::erase(const string& key)
 {
     m_data.erase(key);
 }
@@ -1446,7 +1446,7 @@ void AnyMap::update(const AnyMap& other, bool keepExisting)
     }
 }
 
-std::string AnyMap::keys_str() const
+string AnyMap::keys_str() const
 {
     fmt::memory_buffer b;
     auto iter = this->begin();
@@ -1480,7 +1480,7 @@ void AnyMap::propagateMetadata(shared_ptr<AnyMap>& metadata)
     }
 }
 
-void AnyMap::setMetadata(const std::string& key, const AnyValue& value)
+void AnyMap::setMetadata(const string& key, const AnyValue& value)
 {
     if (m_metadata) {
         // Fork the metadata tree at this point to avoid affecting parent nodes
@@ -1514,38 +1514,38 @@ void AnyMap::copyMetadata(const AnyMap& other)
     propagateMetadata(m_metadata);
 }
 
-bool AnyMap::getBool(const std::string& key, bool default_) const
+bool AnyMap::getBool(const string& key, bool default_) const
 {
     return (hasKey(key)) ? m_data.at(key).asBool() : default_;
 }
 
-double AnyMap::getDouble(const std::string& key, double default_) const
+double AnyMap::getDouble(const string& key, double default_) const
 {
     return (hasKey(key)) ? m_data.at(key).asDouble() : default_;
 }
 
-long int AnyMap::getInt(const std::string& key, long int default_) const
+long int AnyMap::getInt(const string& key, long int default_) const
 {
     return (hasKey(key)) ? m_data.at(key).asInt() : default_;
 }
 
-const std::string& AnyMap::getString(const std::string& key,
-                                     const std::string& default_) const
+const string& AnyMap::getString(const string& key,
+                                     const string& default_) const
 {
     return (hasKey(key)) ? m_data.at(key).asString() : default_;
 }
 
-double AnyMap::convert(const std::string& key, const std::string& dest) const
+double AnyMap::convert(const string& key, const string& dest) const
 {
     return units().convert(at(key), dest);
 }
 
-double AnyMap::convert(const std::string& key, const Units& dest) const
+double AnyMap::convert(const string& key, const Units& dest) const
 {
     return units().convert(at(key), dest);
 }
 
-double AnyMap::convert(const std::string& key, const std::string& dest,
+double AnyMap::convert(const string& key, const string& dest,
                        double default_) const
 {
     if (hasKey(key)) {
@@ -1555,15 +1555,15 @@ double AnyMap::convert(const std::string& key, const std::string& dest,
     }
 }
 
-vector<double> AnyMap::convertVector(const std::string& key, const std::string& dest,
+vector<double> AnyMap::convertVector(const string& key, const string& dest,
                                 size_t nMin, size_t nMax) const
 {
     return units().convert(at(key).asVector<AnyValue>(nMin, nMax), dest);
 }
 
 AnyMap::Iterator::Iterator(
-    const std::unordered_map<std::string, AnyValue>::const_iterator& start,
-    const std::unordered_map<std::string, AnyValue>::const_iterator& stop)
+    const std::unordered_map<string, AnyValue>::const_iterator& start,
+    const std::unordered_map<string, AnyValue>::const_iterator& stop)
 {
     m_iter = start;
     m_stop = stop;
@@ -1705,7 +1705,7 @@ void AnyMap::applyUnits(shared_ptr<UnitSystem>& units) {
     }
     if (hasKey("__units__")) {
         m_units = make_shared<UnitSystem>(*units);
-        m_units->setDefaults(m_data["__units__"].asMap<std::string>());
+        m_units->setDefaults(m_data["__units__"].asMap<string>());
     } else {
         m_units = units;
     }
@@ -1747,15 +1747,15 @@ bool AnyMap::addOrderingRules(const string& objectType,
     return true;
 }
 
-void AnyMap::clearCachedFile(const std::string& filename)
+void AnyMap::clearCachedFile(const string& filename)
 {
-    std::string fullName = findInputFile(filename);
+    string fullName = findInputFile(filename);
     if (s_cache.count(fullName)) {
         s_cache.erase(fullName);
     }
 }
 
-AnyMap AnyMap::fromYamlString(const std::string& yaml) {
+AnyMap AnyMap::fromYamlString(const string& yaml) {
     AnyMap amap;
     try {
         YAML::Node node = YAML::Load(yaml);
@@ -1771,14 +1771,14 @@ AnyMap AnyMap::fromYamlString(const std::string& yaml) {
     return amap;
 }
 
-AnyMap AnyMap::fromYamlFile(const std::string& name,
-                            const std::string& parent_name)
+AnyMap AnyMap::fromYamlFile(const string& name,
+                            const string& parent_name)
 {
-    std::string fullName;
+    string fullName;
     // See if a file with this name exists in a path relative to the parent file
     size_t islash = parent_name.find_last_of("/\\");
     if (islash != npos) {
-        std::string parent_path = parent_name.substr(0, islash);
+        string parent_path = parent_name.substr(0, islash);
         if (std::ifstream(parent_path + "/" + name).good()) {
             fullName = parent_path + "/" + name;
         }
@@ -1830,7 +1830,7 @@ AnyMap AnyMap::fromYamlFile(const std::string& name,
     return cache_item;
 }
 
-std::string AnyMap::toYamlString() const
+string AnyMap::toYamlString() const
 {
     YAML::Emitter out;
     const_cast<AnyMap*>(this)->applyUnits();
@@ -1849,7 +1849,7 @@ AnyMap::Iterator end(const AnyValue& v) {
 
 namespace {
 void formatInputFile(fmt::memory_buffer& b, const shared_ptr<AnyMap>& metadata,
-        const std::string& filename, int lineno, int column, int lineno2=-1, int column2=-1)
+        const string& filename, int lineno, int column, int lineno2=-1, int column2=-1)
 {
     if (lineno2 == -1) {
         lineno2 = lineno;
@@ -1863,7 +1863,7 @@ void formatInputFile(fmt::memory_buffer& b, const shared_ptr<AnyMap>& metadata,
         buffer << infile.rdbuf();
         (*metadata)["file-contents"] = buffer.str();
     }
-    std::string line;
+    string line;
     int i = 0;
     int lastShown = -1;
     std::stringstream contents((*metadata)["file-contents"].asString());
@@ -1885,14 +1885,14 @@ void formatInputFile(fmt::memory_buffer& b, const shared_ptr<AnyMap>& metadata,
 }
 }
 
-std::string InputFileError::formatError(const std::string& message,
+string InputFileError::formatError(const string& message,
                                         int lineno, int column,
                                         const shared_ptr<AnyMap>& metadata)
 {
     if (!metadata) {
         return message;
     }
-    std::string filename = metadata->getString("filename", "input string");
+    string filename = metadata->getString("filename", "input string");
 
     fmt::memory_buffer b;
     fmt_append(b, "Error on line {} of {}:\n{}\n", lineno+1, filename, message);
@@ -1900,7 +1900,7 @@ std::string InputFileError::formatError(const std::string& message,
     return to_string(b);
 }
 
-std::string InputFileError::formatError2(const std::string& message,
+string InputFileError::formatError2(const string& message,
                                          int line1, int column1,
                                          const shared_ptr<AnyMap>& metadata1,
                                          int line2, int column2,
@@ -1909,8 +1909,8 @@ std::string InputFileError::formatError2(const std::string& message,
     if (!metadata1 || !metadata2) {
         return message;
     }
-    std::string filename1 = metadata1->getString("filename", "input string");
-    std::string filename2 = metadata2->getString("filename", "input string");
+    string filename1 = metadata1->getString("filename", "input string");
+    string filename2 = metadata2->getString("filename", "input string");
 
     fmt::memory_buffer b;
     if (filename1 == filename2) {
@@ -1929,15 +1929,15 @@ std::string InputFileError::formatError2(const std::string& message,
     return to_string(b);
 }
 
-void warn_deprecated(const std::string& source, const AnyBase& node,
-                     const std::string& message)
+void warn_deprecated(const string& source, const AnyBase& node,
+                     const string& message)
 {
     if (!node.m_metadata) {
         warn_deprecated(source, message);
         return;
     }
 
-    std::string filename = node.m_metadata->getString("filename", "input string");
+    string filename = node.m_metadata->getString("filename", "input string");
     fmt::memory_buffer b;
     fmt_append(b, message);
     fmt_append(b, "\n");

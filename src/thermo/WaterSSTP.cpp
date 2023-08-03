@@ -18,8 +18,8 @@ WaterSSTP::WaterSSTP(const string& inputFile, const string& id)
     initThermoFile(inputFile, id);
 }
 
-std::string WaterSSTP::phaseOfMatter() const {
-    const vector<std::string> phases = {
+string WaterSSTP::phaseOfMatter() const {
+    const vector<string> phases = {
         "gas", "liquid", "supercritical", "unstable-liquid", "unstable-gas"
     };
     return phases[m_sub.phaseState()];

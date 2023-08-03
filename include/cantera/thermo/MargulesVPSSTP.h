@@ -221,10 +221,10 @@ public:
      * @param id        name (ID) of the phase in the input file. If empty, the
      *                  first phase definition in the input file will be used.
      */
-    explicit MargulesVPSSTP(const std::string& inputFile="",
-                            const std::string& id="");
+    explicit MargulesVPSSTP(const string& inputFile="",
+                            const string& id="");
 
-    virtual std::string type() const {
+    virtual string type() const {
         return "Margules";
     }
 
@@ -352,8 +352,8 @@ public:
      * @param vs0        first entropy coefficient for excess volume [m^3/kmol/K]
      * @param vs1        second entropy coefficient for excess volume [m^3/kmol/K]
      */
-    void addBinaryInteraction(const std::string& speciesA,
-        const std::string& speciesB, double h0, double h1, double s0, double s1,
+    void addBinaryInteraction(const string& speciesA,
+        const string& speciesB, double h0, double h1, double s0, double s1,
         double vh0, double vh1, double vs0, double vs1);
 
     //! @}

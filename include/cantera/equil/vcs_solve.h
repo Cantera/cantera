@@ -1039,7 +1039,7 @@ public:
      */
     size_t addElement(const char* elNameNew, int elType, int elactive);
 
-    void reportCSV(const std::string& reportFile);
+    void reportCSV(const string& reportFile);
 
     //!  Total number of species in the problems
     size_t m_nsp;
@@ -1362,13 +1362,13 @@ public:
     vector<char> m_SSPhase;
 
     //! Species string name for the kth species
-    vector<std::string> m_speciesName;
+    vector<string> m_speciesName;
 
     //! Vector of strings containing the element names
     /*!
      *   ElName[j]  = String containing element names
      */
-    vector<std::string> m_elementName;
+    vector<string> m_elementName;
 
     //! Type of the element constraint
     /*!
