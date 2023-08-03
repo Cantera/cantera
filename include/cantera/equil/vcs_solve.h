@@ -604,7 +604,7 @@ public:
 
     //! Recalculate all of the activity coefficients in all of the phases
     //! based on input mole numbers
-    /*
+    /**
      * @param moleSpeciesVCS kmol of species to be used in the update.
      *
      * NOTE: This routine needs to be regulated.

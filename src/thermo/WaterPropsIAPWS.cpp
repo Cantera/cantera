@@ -29,7 +29,7 @@ static const doublereal M_water = 18.015268;
 static const double R_water = 461.51805; // J/kg/K (Eq. 6.3)
 
 //! Gas constant that is quoted in the paper
-/*
+/**
  * Note, this is the Rgas value quoted in the paper. For consistency
  * we have to use that value and not the updated value
  *

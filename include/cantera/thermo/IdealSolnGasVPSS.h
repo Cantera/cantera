@@ -42,7 +42,7 @@ public:
     }
 
     //! Set the standard concentration model
-    /*
+    /**
      * Must be one of 'unity', 'species-molar-volume', or 'solvent-molar-volume'.
      */
     void setStandardConcentrationModel(const std::string& model);

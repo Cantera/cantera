@@ -1,4 +1,4 @@
-/*
+/**
  * @file: solveSP.cpp Implicit surface site concentration solver
  */
 
@@ -523,7 +523,7 @@ static doublereal calc_damping(doublereal x[], doublereal dxneg[], size_t dim, i
 
 } /* calc_damping */
 
-/*
+/**
  *    This function calculates the norm of an update, dx[], based on the
  *    weighted values of x.
  */
