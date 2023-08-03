@@ -334,7 +334,7 @@ class C_AnyN
 public:
     C_AnyN() = default;
 
-    C_AnyN(size_t rxn, const std::vector<size_t>& ic, const vector<double>& order_, const vector<double>& stoich_) :
+    C_AnyN(size_t rxn, const vector<size_t>& ic, const vector<double>& order_, const vector<double>& stoich_) :
         m_n(ic.size()),
         m_rxn(rxn) {
         m_ic.resize(m_n);
@@ -458,7 +458,7 @@ private:
      *  reaction order matrix or the stoichiometric order matrix for this
      *  reaction, m_rxn.
      */
-    std::vector<size_t> m_ic;
+    vector<size_t> m_ic;
 
     //! Reaction orders for the reaction
     /*!
@@ -474,7 +474,7 @@ private:
      */
     vector<double> m_stoich;
 
-    std::vector<size_t> m_jc; //!< Indices in derivative triplet vector
+    vector<size_t> m_jc; //!< Indices in derivative triplet vector
 
     double m_sum_order; //!< Sum of reaction order vector
 };
@@ -646,13 +646,13 @@ public:
      * This function is the same as the add() function below. However, the order
      * of each species in the power list expression is set to one automatically.
      */
-    void add(size_t rxn, const std::vector<size_t>& k) {
+    void add(size_t rxn, const vector<size_t>& k) {
         vector<double> order(k.size(), 1.0);
         vector<double> stoich(k.size(), 1.0);
         add(rxn, k, order, stoich);
     }
 
-    void add(size_t rxn, const std::vector<size_t>& k, const vector<double>& order) {
+    void add(size_t rxn, const vector<size_t>& k, const vector<double>& order) {
         vector<double> stoich(k.size(), 1.0);
         add(rxn, k, order, stoich);
     }
@@ -673,7 +673,7 @@ public:
      *  @param stoich  This is used to handle fractional stoichiometric
      *     coefficients on the product side of irreversible reactions.
      */
-    void add(size_t rxn, const std::vector<size_t>& k, const vector<double>& order,
+    void add(size_t rxn, const vector<size_t>& k, const vector<double>& order,
              const vector<double>& stoich) {
         if (order.size() != k.size()) {
            throw CanteraError("StoichManagerN::add()", "size of order and species arrays differ");
@@ -696,7 +696,7 @@ public:
             // coefficients (by repeating species when necessary) so that the
             // simpler 'multiply' function can be used to compute the rate
             // instead of 'power'.
-            std::vector<size_t> kRep;
+            vector<size_t> kRep;
             for (size_t n = 0; n < k.size(); n++) {
                 for (size_t i = 0; i < stoich[n]; i++) {
                     kRep.push_back(k[n]);
@@ -804,18 +804,18 @@ public:
 private:
     bool m_ready; //!< Boolean flag indicating whether object is fully configured
 
-    std::vector<C1> m_c1_list;
-    std::vector<C2> m_c2_list;
-    std::vector<C3> m_c3_list;
-    std::vector<C_AnyN> m_cn_list;
+    vector<C1> m_c1_list;
+    vector<C2> m_c2_list;
+    vector<C3> m_c3_list;
+    vector<C_AnyN> m_cn_list;
 
     //! Sparse matrices for stoichiometric coefficients
     SparseTriplets m_coeffList;
     Eigen::SparseMatrix<double> m_stoichCoeffs;
 
     //! Storage indicies used to build derivatives
-    std::vector<int> m_outerIndices;
-    std::vector<int> m_innerIndices;
+    vector<int> m_outerIndices;
+    vector<int> m_innerIndices;
     vector<double> m_values;
 };
 

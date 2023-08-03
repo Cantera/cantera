@@ -82,12 +82,12 @@ std::string YamlWriter::toYamlString() const
     }
 
     // Build phase definitions
-    std::vector<AnyMap> phaseDefs(m_phases.size());
+    vector<AnyMap> phaseDefs(m_phases.size());
     size_t nspecies_total = 0;
     for (size_t i = 0; i < m_phases.size(); i++) {
         phaseDefs[i] = m_phases[i]->parameters(!m_skip_user_defined);
         if (m_phases[i]->nAdjacent()) {
-            std::vector<std::string> adj_names;
+            vector<std::string> adj_names;
             for (size_t j = 0; j < m_phases[i]->nAdjacent(); j++) {
                 adj_names.push_back(m_phases[i]->adjacent(j)->name());
             }
@@ -98,7 +98,7 @@ std::string YamlWriter::toYamlString() const
     output["phases"] = phaseDefs;
 
     // Build species definitions for all phases
-    std::vector<AnyMap> speciesDefs;
+    vector<AnyMap> speciesDefs;
     speciesDefs.reserve(nspecies_total);
     std::unordered_map<std::string, size_t> speciesDefIndex;
     for (const auto& phase : m_phases) {
@@ -122,13 +122,13 @@ std::string YamlWriter::toYamlString() const
     output["species"] = speciesDefs;
 
     // build reaction definitions for all phases
-    std::map<std::string, std::vector<AnyMap>> allReactions;
+    std::map<std::string, vector<AnyMap>> allReactions;
     for (const auto& phase : m_phases) {
         const auto kin = phase->kinetics();
         if (!kin || !kin->nReactions()) {
             continue;
         }
-        std::vector<AnyMap> reactions;
+        vector<AnyMap> reactions;
         for (size_t i = 0; i < kin->nReactions(); i++) {
             reactions.push_back(kin->reaction(i)->parameters(!m_skip_user_defined));
         }
@@ -140,7 +140,7 @@ std::string YamlWriter::toYamlString() const
 
     // key: canonical phase in allReactions
     // value: phases using this reaction set
-    std::map<std::string, std::vector<std::string>> phaseGroups;
+    std::map<std::string, vector<std::string>> phaseGroups;
 
     for (const auto& phase : m_phases) {
         const auto kin = phase->kinetics();
@@ -176,7 +176,7 @@ std::string YamlWriter::toYamlString() const
 
             for (auto& name : dependentPhases) {
                 AnyMap& phaseDef = output["phases"].getMapWhere("name", name);
-                phaseDef["reactions"] = std::vector<std::string>{groupName};
+                phaseDef["reactions"] = vector<std::string>{groupName};
             }
         }
     }

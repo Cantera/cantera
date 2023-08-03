@@ -87,10 +87,10 @@ protected:
     vector<double> m_speciesCharge;
 
     //! index of ions (exclude electron.)
-    std::vector<size_t> m_kIon;
+    vector<size_t> m_kIon;
 
     //! index of neutral species
-    std::vector<size_t> m_kNeutral;
+    vector<size_t> m_kNeutral;
 
     //! index of electron
     size_t m_kElectron = npos;

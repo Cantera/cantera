@@ -154,7 +154,7 @@ shared_ptr<Kinetics> newKinetics(const vector<shared_ptr<ThermoPhase>>& phases,
     return newKinetics(phases, phaseNode, root);
 }
 
-unique_ptr<Kinetics> newKinetics(const std::vector<ThermoPhase*>& phases,
+unique_ptr<Kinetics> newKinetics(const vector<ThermoPhase*>& phases,
                                  const std::string& filename,
                                  const std::string& phase_name)
 {

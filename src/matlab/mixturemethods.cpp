@@ -146,7 +146,7 @@ void mixturemethods(int nlhs, mxArray* plhs[],
         // species properties
         int iok = 0;
         mwSize nsp = (mwSize) mix_nSpecies(i);
-        std::vector<double> x(nsp);
+        vector<double> x(nsp);
         switch (job) {
         case 41:
             iok = mix_getChemPotentials(i,nsp, &x[0]);

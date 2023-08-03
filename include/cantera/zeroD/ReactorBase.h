@@ -258,10 +258,10 @@ protected:
     double m_intEnergy = 0.0; //!< Current internal energy of the reactor [J/kg]
     double m_pressure = 0.0; //!< Current pressure in the reactor [Pa]
     vector<double> m_state;
-    std::vector<FlowDevice*> m_inlet, m_outlet;
+    vector<FlowDevice*> m_inlet, m_outlet;
 
-    std::vector<WallBase*> m_wall;
-    std::vector<ReactorSurface*> m_surfaces;
+    vector<WallBase*> m_wall;
+    vector<ReactorSurface*> m_surfaces;
 
     //! Vector of length nWalls(), indicating whether this reactor is on the left (0)
     //! or right (1) of each wall.

@@ -86,11 +86,11 @@ namespace Cantera
 
 //! Get a vector of the atomic symbols of the elements defined in Cantera.
 //! @since New in version 3.0
-const std::vector<std::string>& elementSymbols();
+const vector<std::string>& elementSymbols();
 
 //! Get a vector of the names of the elements defined in Cantera.
 //! @since New in version 3.0
-const std::vector<std::string>& elementNames();
+const vector<std::string>& elementNames();
 
 //! Get a map with the element and isotope symbols and names as keys and weights as
 //! values.

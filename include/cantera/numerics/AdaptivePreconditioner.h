@@ -106,7 +106,7 @@ protected:
     double m_drop_tol = 0;
 
     //! Vector of triples representing the jacobian used in preconditioning
-    std::vector<Eigen::Triplet<double>> m_jac_trips;
+    vector<Eigen::Triplet<double>> m_jac_trips;
 
     //! Storage of appropriately sized identity matrix for making the preconditioner
     Eigen::SparseMatrix<double> m_identity;

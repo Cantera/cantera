@@ -242,7 +242,7 @@ TEST(Units, to_anymap) {
 
 TEST(Units, anymap_quantities) {
     AnyMap m;
-    std::vector<AnyValue> values(2);
+    vector<AnyValue> values(2);
     values[0].setQuantity(8, "kg/m^3");
     values[1].setQuantity(12, "mg/cl");
     m["a"] = values;
@@ -265,7 +265,7 @@ TEST(Units, to_anymap_nested) {
         AnyMap m;
         m["A"].setQuantity(90, "kg/m");
         m["nested"]["B"].setQuantity(12, "m^2");
-        auto C = std::vector<AnyMap>(2);
+        auto C = vector<AnyMap>(2);
         C[0]["foo"].setQuantity(17, "m^2");
         C[1]["bar"].setQuantity(19, "kmol");
         m["nested"]["C"] = C;

@@ -72,8 +72,8 @@ TEST_F(OverconstrainedEquil, BasisOptimize)
     mphase.addPhase(gas.get(), 10.0);
     mphase.init();
     int usedZeroedSpecies = 0;
-    std::vector<size_t> orderVectorSpecies;
-    std::vector<size_t> orderVectorElements;
+    vector<size_t> orderVectorSpecies;
+    vector<size_t> orderVectorElements;
 
     bool doFormMatrix = true;
     vector<double> formRxnMatrix;
@@ -91,8 +91,8 @@ TEST_F(OverconstrainedEquil, DISABLED_BasisOptimize2)
     mphase.addPhase(gas.get(), 10.0);
     mphase.init();
     int usedZeroedSpecies = 0;
-    std::vector<size_t> orderVectorSpecies;
-    std::vector<size_t> orderVectorElements;
+    vector<size_t> orderVectorSpecies;
+    vector<size_t> orderVectorElements;
 
     bool doFormMatrix = true;
     vector<double> formRxnMatrix;

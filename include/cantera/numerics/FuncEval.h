@@ -188,7 +188,7 @@ protected:
     bool m_suppress_errors = false;
 
     //! Errors occurring during function evaluations
-    std::vector<std::string> m_errors;
+    vector<std::string> m_errors;
 };
 
 }

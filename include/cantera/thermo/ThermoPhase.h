@@ -1828,8 +1828,8 @@ protected:
     //! Fills `names` and `data` with the column names and species thermo
     //! properties to be included in the output of the reportCSV method.
     //! @deprecated To be removed after %Cantera 3.0.
-    virtual void getCsvReportData(std::vector<std::string>& names,
-                                  std::vector<vector<double>>& data) const;
+    virtual void getCsvReportData(vector<std::string>& names,
+                                  vector<vector<double>>& data) const;
 
     //! Pointer to the calculation manager for species reference-state
     //! thermodynamic properties

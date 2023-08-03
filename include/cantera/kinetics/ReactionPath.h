@@ -74,7 +74,7 @@ public:
 protected:
     double m_in = 0.0;
     double m_out = 0.0;
-    std::vector<Path*> m_paths;
+    vector<Path*> m_paths;
 };
 
 
@@ -235,23 +235,23 @@ public:
     void exclude(const std::string& aaname) {
         m_exclude.push_back(aaname);
     }
-    void include(std::vector<std::string>& names) {
+    void include(vector<std::string>& names) {
         for (size_t i = 0; i < names.size(); i++) {
             m_include.push_back(names[i]);
         }
     }
-    void exclude(std::vector<std::string>& names) {
+    void exclude(vector<std::string>& names) {
         for (size_t i = 0; i < names.size(); i++) {
             m_exclude.push_back(names[i]);
         }
     }
-    std::vector<std::string>& included() {
+    vector<std::string>& included() {
         return m_include;
     }
-    std::vector<std::string>& excluded() {
+    vector<std::string>& excluded() {
         return m_exclude;
     }
-    std::vector<size_t> species();
+    vector<size_t> species();
     vector<int> reactions();
     void findMajorPaths(double threshold, size_t lda, double* a);
     void setFont(const std::string& font) {
@@ -285,10 +285,10 @@ protected:
 
     //! map of species index to SpeciesNode
     map<size_t, SpeciesNode*> m_nodes;
-    std::vector<Path*> m_pathlist;
-    std::vector<std::string> m_include;
-    std::vector<std::string> m_exclude;
-    std::vector<size_t> m_speciesNumber;
+    vector<Path*> m_pathlist;
+    vector<std::string> m_include;
+    vector<std::string> m_exclude;
+    vector<size_t> m_speciesNumber;
 
     //! Indices of reactions that are included in the diagram
     set<size_t> m_rxns;
@@ -319,19 +319,19 @@ protected:
     vector<double> m_ropf;
     vector<double> m_ropr;
     vector<double> m_x;
-    std::vector<std::vector<size_t> > m_reac;
-    std::vector<std::vector<size_t> > m_prod;
+    vector<vector<size_t> > m_reac;
+    vector<vector<size_t> > m_prod;
     DenseMatrix m_elatoms;
-    std::vector<vector<int>> m_groups;
-    std::vector<Group> m_sgroup;
-    std::vector<std::string> m_elementSymbols;
+    vector<vector<int>> m_groups;
+    vector<Group> m_sgroup;
+    vector<std::string> m_elementSymbols;
 
     //! m_transfer[reaction][reactant number][product number] where "reactant
     //! number" means the number of the reactant in the reaction equation. For example,
     //! for "A+B -> C+D", "B" is reactant number 1 and "C" is product number 0.
     std::map<size_t, std::map<size_t, std::map<size_t, Group> > > m_transfer;
 
-    std::vector<bool> m_determinate;
+    vector<bool> m_determinate;
     Array2D m_atoms;
     std::map<std::string, size_t> m_enamemap;
 };

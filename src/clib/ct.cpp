@@ -83,7 +83,7 @@ extern "C" {
         try {
             shared_ptr<Solution> soln;
             if (na) {
-                std::vector<shared_ptr<Solution>> adj;
+                vector<shared_ptr<Solution>> adj;
                 for (int i = 0; i < na; i++) {
                     adj.push_back(SolutionCabinet::at(adjacent[i]));
                 }

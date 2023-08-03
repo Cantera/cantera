@@ -405,7 +405,7 @@ TEST(Reaction, PlogFromYaml)
     auto R = newReaction(rxn, *(sol->kinetics()));
     EXPECT_FALSE(R->usesThirdBody());
     const auto& rateMap = std::dynamic_pointer_cast<PlogRate>(R->rate())->getRates();
-    std::vector<std::pair<double, ArrheniusRate>> rates(rateMap.begin(), rateMap.end());
+    vector<std::pair<double, ArrheniusRate>> rates(rateMap.begin(), rateMap.end());
     EXPECT_EQ(rates.size(), (size_t) 4);
     EXPECT_NEAR(rates[0].first, 0.039474 * OneAtm, 1e-6);
     EXPECT_NEAR(rates[2].first, OneAtm, 1e-6);
@@ -749,7 +749,7 @@ TEST(KineticsFromYaml, InvalidExtension)
 {
     AnyMap input = AnyMap::fromYamlFile("h2o2.yaml");
     newSolution(input["phases"].asVector<AnyMap>()[0], input);
-    std::vector<AnyMap> extensions(1);
+    vector<AnyMap> extensions(1);
     extensions[0]["type"] = "nonexistent";
     extensions[0]["name"] = "fake";
     input["extensions"] = extensions;

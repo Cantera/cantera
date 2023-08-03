@@ -71,7 +71,7 @@ shared_ptr<Kinetics> newKinetics(const vector<shared_ptr<ThermoPhase>>& phases,
 //! @see newKinetics(const vector<shared_ptr<ThermoPhase>>&, const AnyMap&, const AnyMap&, shared_ptr<Solution>)
 //! @deprecated To be removed after %Cantera 3.0;
 //!     superseded by newKinetics() returning shared_ptr
-unique_ptr<Kinetics> newKinetics(const std::vector<ThermoPhase*>& phases,
+unique_ptr<Kinetics> newKinetics(const vector<ThermoPhase*>& phases,
                                  const AnyMap& phaseNode,
                                  const AnyMap& rootNode=AnyMap());
 
@@ -97,7 +97,7 @@ shared_ptr<Kinetics> newKinetics(const vector<shared_ptr<ThermoPhase>>& phases,
 //! @copydoc newKinetics(const vector<shared_ptr<ThermoPhase>>&, const string&, const string&)
 //! @deprecated To be removed after %Cantera 3.0;
 //!     superseded by newKinetics() returning shared_ptr
-unique_ptr<Kinetics> newKinetics(const std::vector<ThermoPhase*>& phases,
+unique_ptr<Kinetics> newKinetics(const vector<ThermoPhase*>& phases,
                                  const std::string& filename,
                                  const std::string& phase_name);
 

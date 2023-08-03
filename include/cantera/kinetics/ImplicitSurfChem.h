@@ -72,7 +72,7 @@ public:
      * @param maxErrTestFails   the maximum permissible number of error test failures
      *                           If not supplied, uses the default value in CVODES (7).
      */
-    ImplicitSurfChem(std::vector<InterfaceKinetics*> k,
+    ImplicitSurfChem(vector<InterfaceKinetics*> k,
                      double rtol=1.e-7, double atol=1.e-14,
                      double maxStepSize=0, size_t maxSteps=20000,
                      size_t maxErrTestFails=7);
@@ -210,11 +210,11 @@ public:
     /*!
      * This should probably go away in the future, as it opens up the class.
      */
-    std::vector<InterfaceKinetics*> & getObjects() {
+    vector<InterfaceKinetics*> & getObjects() {
         return m_vecKinPtrs;
     }
 
-    int checkMatch(std::vector<ThermoPhase*> m_vec, ThermoPhase* thPtr);
+    int checkMatch(vector<ThermoPhase*> m_vec, ThermoPhase* thPtr);
 
     void setIOFlag(int ioFlag) {
         m_ioFlag = ioFlag;
@@ -233,21 +233,21 @@ protected:
     void updateState(double* y);
 
     //! vector of pointers to surface phases.
-    std::vector<SurfPhase*> m_surf;
+    vector<SurfPhase*> m_surf;
 
     //! Vector of pointers to bulk phases
-    std::vector<ThermoPhase*> m_bulkPhases;
+    vector<ThermoPhase*> m_bulkPhases;
 
     //! vector of pointers to InterfaceKinetics objects
-    std::vector<InterfaceKinetics*> m_vecKinPtrs;
+    vector<InterfaceKinetics*> m_vecKinPtrs;
 
     //! Vector of number of species in each Surface Phase
-    std::vector<size_t> m_nsp;
+    vector<size_t> m_nsp;
 
     //! index of the surface phase in each InterfaceKinetics object
-    std::vector<size_t> m_surfindex;
+    vector<size_t> m_surfindex;
 
-    std::vector<size_t> m_specStartIndex;
+    vector<size_t> m_specStartIndex;
 
     //! Total number of surface species in all surface phases
     /*!
@@ -258,7 +258,7 @@ protected:
     size_t m_numTotalBulkSpecies = 0;
     size_t m_numTotalSpecies = 0;
 
-    std::vector<vector<int>> pLocVec;
+    vector<vector<int>> pLocVec;
     //! Pointer to the CVODE integrator
     std::unique_ptr<Integrator> m_integ;
     double m_atol, m_rtol; // tolerances

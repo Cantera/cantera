@@ -106,7 +106,7 @@ protected:
     size_t numMult_ = 0;
 
     //! Vector of species indices in the neutral molecule ThermoPhase
-    std::vector<size_t> idNeutralMoleculeVec;
+    vector<size_t> idNeutralMoleculeVec;
 
     //! Stoichiometric coefficient for this species using the Neutral Molecule
     //! Species in the vector idNeutralMoleculeVec

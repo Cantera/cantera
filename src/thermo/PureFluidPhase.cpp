@@ -54,13 +54,13 @@ void PureFluidPhase::getParameters(AnyMap& phaseNode) const
     phaseNode["pure-fluid-name"] = m_sub->name();
 }
 
-std::vector<std::string> PureFluidPhase::fullStates() const
+vector<std::string> PureFluidPhase::fullStates() const
 {
     return {"TD", "UV", "DP", "HP", "SP", "SV",
             "ST", "TV", "PV", "UP", "VH", "TH", "SH", "TPQ"};
 }
 
-std::vector<std::string> PureFluidPhase::partialStates() const
+vector<std::string> PureFluidPhase::partialStates() const
 {
     return {"TP", "TQ", "PQ"};
 }

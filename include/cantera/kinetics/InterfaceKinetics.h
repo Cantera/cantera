@@ -348,19 +348,19 @@ protected:
      *  This is a vector of reaction numbers. Each reaction in the list is
      *  reversible. Length = number of reversible reactions
      */
-    std::vector<size_t> m_revindex;
+    vector<size_t> m_revindex;
 
     bool m_redo_rates = false;
 
     //! Vector of rate handlers for interface reactions
-    std::vector<unique_ptr<MultiRateBase>> m_interfaceRates;
+    vector<unique_ptr<MultiRateBase>> m_interfaceRates;
     std::map<std::string, size_t> m_interfaceTypes; //!< Rate handler mapping
 
     //! Vector of irreversible reaction numbers
     /*!
      * vector containing the reaction numbers of irreversible reactions.
      */
-    std::vector<size_t> m_irrev;
+    vector<size_t> m_irrev;
 
     //! Array of concentrations for each species in the kinetics mechanism
     /*!
@@ -465,7 +465,7 @@ protected:
      *
      *  length = number of phases in the object. By default all phases exist.
      */
-    std::vector<bool> m_phaseExists;
+    vector<bool> m_phaseExists;
 
     //! Vector of int indicating whether phases are stable or not
     /*!
@@ -483,7 +483,7 @@ protected:
      *  m_rxnPhaseIsReactant[j][p] indicates whether a species in phase p
      *  participates in reaction j as a reactant.
      */
-    std::vector<std::vector<bool> > m_rxnPhaseIsReactant;
+    vector<vector<bool> > m_rxnPhaseIsReactant;
 
     //! Vector of vector of booleans indicating whether a phase participates in a
     //! reaction as a product
@@ -491,7 +491,7 @@ protected:
      *  m_rxnPhaseIsReactant[j][p] indicates whether a species in phase p
      *  participates in reaction j as a product.
      */
-    std::vector<std::vector<bool> > m_rxnPhaseIsProduct;
+    vector<vector<bool> > m_rxnPhaseIsProduct;
 
     int m_ioFlag = 0;
 

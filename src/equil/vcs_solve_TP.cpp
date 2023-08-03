@@ -378,7 +378,7 @@ void VCS_SOLVE::solve_tp_inner(size_t& iti, size_t& it1,
     //
     // First step is a major branch in the algorithm. We first determine if a
     // phase pops into existence.
-    std::vector<size_t> phasePopPhaseIDs(0);
+    vector<size_t> phasePopPhaseIDs(0);
     size_t iphasePop = vcs_popPhaseID(phasePopPhaseIDs);
     if (iphasePop != npos) {
         int soldel = vcs_popPhaseRxnStepSizes(iphasePop);

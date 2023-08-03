@@ -78,7 +78,7 @@ ImplicitSurfChem::ImplicitSurfChem(
     m_work.resize(ntmax);
 }
 
-int ImplicitSurfChem::checkMatch(std::vector<ThermoPhase*> m_vec, ThermoPhase* thPtr)
+int ImplicitSurfChem::checkMatch(vector<ThermoPhase*> m_vec, ThermoPhase* thPtr)
 {
     int retn = -1;
     for (int i = 0; i < (int) m_vec.size(); i++) {

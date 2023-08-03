@@ -23,7 +23,7 @@ using namespace Cantera;
 using std::cout;
 using std::endl;
 
-void write_csv(const std::string& name, const std::vector<std::string>& names,
+void write_csv(const std::string& name, const vector<std::string>& names,
                const Array2D& data)
 {
     std::ofstream s(name);
@@ -71,7 +71,7 @@ void transport_example()
     }
 
     // Create a list of labels for the CSV output file
-    std::vector<std::string> labels {
+    vector<std::string> labels {
         "Temperature (K)",
         "Viscosity (Pa*s)",
         "Thermal Conductivity (W/m*K)"

@@ -163,7 +163,7 @@ public:
     size_t elementIndex(const std::string& name) const;
 
     //! Return a read-only reference to the vector of element names.
-    const std::vector<std::string>& elementNames() const;
+    const vector<std::string>& elementNames() const;
 
     //! Atomic weight of element m.
     //!     @param m  Element index
@@ -251,7 +251,7 @@ public:
     std::string speciesSPName(int k) const;
 
     //! Return a const reference to the vector of species names
-    const std::vector<std::string>& speciesNames() const;
+    const vector<std::string>& speciesNames() const;
 
     //! Returns the number of species in the phase
     size_t nSpecies() const {
@@ -315,13 +315,13 @@ public:
     //!    "H": specific enthalpy
     //!    "S": specific entropy
     //!    "Q": vapor fraction
-    virtual std::vector<std::string> fullStates() const;
+    virtual vector<std::string> fullStates() const;
 
     //! Return a vector of settable partial property sets within a phase.
     //! Partial states encompass all valid combinations of properties that allow
     //! for the specification of a state while ignoring species concentrations
     //! (such as "TD", "TP", "SV").
-    virtual std::vector<std::string> partialStates() const;
+    virtual vector<std::string> partialStates() const;
 
     //! Return size of vector defining internal state of the phase.
     //! Used by saveState() and restoreState().
@@ -838,7 +838,7 @@ public:
     //! Return a vector with isomers names matching a given composition string
     //!     @param comp String containing a composition map
     //!     @return A vector of species names for matching species.
-    virtual std::vector<std::string> findIsomers(const std::string& comp) const;
+    virtual vector<std::string> findIsomers(const std::string& comp) const;
 
     //! Return the Species object for the named species. Changes to this object
     //! do not affect the ThermoPhase object until the #modifySpecies function
@@ -1018,7 +1018,7 @@ private:
     int m_stateNum = -1;
 
     //! Vector of the species names
-    std::vector<std::string> m_speciesNames;
+    vector<std::string> m_speciesNames;
 
     //! Map of species names to indices
     std::map<std::string, size_t> m_speciesIndices;
@@ -1029,7 +1029,7 @@ private:
     size_t m_mm = 0; //!< Number of elements.
     vector<double> m_atomicWeights; //!< element atomic weights (kg kmol-1)
     vector<int> m_atomicNumbers; //!< element atomic numbers
-    std::vector<std::string> m_elementNames; //!< element names
+    vector<std::string> m_elementNames; //!< element names
     vector<int> m_elem_type; //!< Vector of element types
 
     //! Entropy at 298.15 K and 1 bar of stable state pure elements (J kmol-1)

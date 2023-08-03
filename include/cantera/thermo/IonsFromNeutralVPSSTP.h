@@ -179,7 +179,7 @@ public:
      *     This is the mapping between ion species and neutral molecule for
      *     quick invert.
      */
-    void getDissociationCoeffs(vector<double>& fm_neutralMolec_ions, vector<double>& charges, std::vector<size_t>& neutMolIndex) const;
+    void getDissociationCoeffs(vector<double>& fm_neutralMolec_ions, vector<double>& charges, vector<size_t>& neutMolIndex) const;
 
     //! Return the current value of the neutral mole fraction vector
     /*!
@@ -211,7 +211,7 @@ public:
     /*!
      *  @param cation  List of cations
      */
-    void getCationList(std::vector<size_t>& cation) const {
+    void getCationList(vector<size_t>& cation) const {
         cation=cationList_;
     }
 
@@ -219,7 +219,7 @@ public:
     /*!
      *  @param anion  List of anions
      */
-    void getAnionList(std::vector<size_t>& anion) const {
+    void getAnionList(vector<size_t>& anion) const {
         anion=anionList_;
     }
 
@@ -366,20 +366,20 @@ protected:
      * true, then we need to do a formal inversion which takes a great deal of
      * time and is not currently implemented.
      */
-    std::vector<size_t> fm_invert_ionForNeutral;
+    vector<size_t> fm_invert_ionForNeutral;
 
     //! Mole fractions using the Neutral Molecule Mole fraction basis
     mutable vector<double> NeutralMolecMoleFractions_;
 
     //! List of the species in this ThermoPhase which are cation species
-    std::vector<size_t> cationList_;
+    vector<size_t> cationList_;
 
     //! List of the species in this ThermoPhase which are anion species
-    std::vector<size_t> anionList_;
+    vector<size_t> anionList_;
 
     //! List of the species in this ThermoPhase which are passed through to the
     //! neutralMoleculePhase ThermoPhase. These have neutral charges.
-    std::vector<size_t> passThroughList_;
+    vector<size_t> passThroughList_;
 
     //! This is a pointer to the neutral Molecule Phase
     shared_ptr<ThermoPhase> neutralMoleculePhase_;

@@ -606,7 +606,7 @@ public:
         kin_ref = newKinetics(th, "../data/kineticsfromscratch.yaml");
         kin.addThermo(p);
 
-        std::vector<shared_ptr<Species>> S = getSpecies(
+        vector<shared_ptr<Species>> S = getSpecies(
             AnyMap::fromYamlFile("h2o2.yaml")["species"]);
         for (auto sp : S) {
             species[sp->name] = sp;
@@ -620,7 +620,7 @@ public:
     shared_ptr<ThermoPhase> pp_ref;
     BulkKinetics kin;
     shared_ptr<Kinetics> kin_ref;
-    std::vector<shared_ptr<Reaction>> reactions;
+    vector<shared_ptr<Reaction>> reactions;
     std::map<std::string, shared_ptr<Species>> species;
 
     void check_rates(size_t N, const std::string& X) {

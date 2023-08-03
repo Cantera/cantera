@@ -60,7 +60,7 @@ void surfmethods(int nlhs, mxArray* plhs[],
     } else if (job < 200) {
         // return array parameters
         nsp = thermo_nSpecies(surf);
-        std::vector<double> x(nsp);
+        vector<double> x(nsp);
         iok = -1;
         switch (job) {
         case 101:

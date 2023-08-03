@@ -102,7 +102,7 @@ protected:
     std::map<size_t, int> m_keep;
     //! Names of components that require the addition of new grid points
     set<string> m_c;
-    std::vector<bool> m_active;
+    vector<bool> m_active;
     double m_ratio = 10.0;
     double m_slope = 0.8;
     double m_curve = 0.8;

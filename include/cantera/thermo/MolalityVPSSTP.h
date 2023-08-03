@@ -541,8 +541,8 @@ public:
                                double threshold=1e-14) const;
 
 protected:
-    virtual void getCsvReportData(std::vector<std::string>& names,
-                                  std::vector<vector<double>>& data) const;
+    virtual void getCsvReportData(vector<std::string>& names,
+                                  vector<vector<double>>& data) const;
 
     //! Get the array of unscaled non-dimensional molality based activity
     //! coefficients at the current solution temperature, pressure, and solution

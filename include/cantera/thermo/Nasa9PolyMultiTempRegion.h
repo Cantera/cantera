@@ -49,7 +49,7 @@ public:
      * Note, after the constructor, we will own the underlying Nasa9Poly1
      * objects and be responsible for owning them.
      */
-    Nasa9PolyMultiTempRegion(std::vector<Nasa9Poly1*> &regionPts);
+    Nasa9PolyMultiTempRegion(vector<Nasa9Poly1*> &regionPts);
 
     //! Constructor with all input data
     /*!
@@ -123,7 +123,7 @@ protected:
     vector<double> m_lowerTempBounds;
 
     //! Individual temperature region objects
-    std::vector<std::unique_ptr<Nasa9Poly1>> m_regionPts;
+    vector<std::unique_ptr<Nasa9Poly1>> m_regionPts;
 
     //! current region
     mutable int m_currRegion = 0;

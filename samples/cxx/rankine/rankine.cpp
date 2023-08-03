@@ -18,7 +18,7 @@
 using namespace Cantera;
 
 std::map<std::string,double> h, s, T, P, x;
-std::vector<std::string> states;
+vector<std::string> states;
 
 template<class F>
 void saveState(F& fluid, std::string name)

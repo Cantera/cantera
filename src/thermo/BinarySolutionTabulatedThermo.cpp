@@ -110,7 +110,7 @@ void BinarySolutionTabulatedThermo::initThermo()
         }
 
         // Sort the x, h, s, vmol data in the order of increasing x
-        std::vector<std::pair<double,double>> x_h(N), x_s(N), x_vmol(N);
+        vector<std::pair<double,double>> x_h(N), x_s(N), x_vmol(N);
         for(size_t i = 0; i < N; i++) {
             x_h[i] = {x[i], h[i]};
             x_s[i] = {x[i], s[i]};

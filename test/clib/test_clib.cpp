@@ -109,7 +109,7 @@ TEST(ct, new_interface)
     int sol = soln_newSolution("ptcombust.yaml", "gas", "");
     ASSERT_EQ(sol, 0);
 
-    std::vector<int> adj{sol};
+    vector<int> adj{sol};
     int surf = soln_newInterface("ptcombust.yaml", "Pt_surf", 1, adj.data());
     ASSERT_EQ(surf, 1);
 
@@ -134,7 +134,7 @@ TEST(ct, new_interface_auto)
 {
     ct_resetStorage();
 
-    std::vector<int> adj;
+    vector<int> adj;
     int surf = soln_newInterface("ptcombust.yaml", "Pt_surf", 0, adj.data());
     ASSERT_EQ(surf, 1);
 

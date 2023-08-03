@@ -242,7 +242,7 @@ protected:
 
     enum class CoeffSource { EoS, CritProps, Database };
     //! For each species, specifies the source of the a and b coefficients
-    std::vector<CoeffSource> m_coeffSource;
+    vector<CoeffSource> m_coeffSource;
 
     int NSolns_ = 0;
 

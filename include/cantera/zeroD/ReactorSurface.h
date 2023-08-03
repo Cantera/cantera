@@ -93,7 +93,7 @@ protected:
     Kinetics* m_kinetics = nullptr;
     ReactorBase* m_reactor = nullptr;
     vector<double> m_cov;
-    std::vector<SensitivityParameter> m_params;
+    vector<SensitivityParameter> m_params;
 };
 
 }

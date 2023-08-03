@@ -335,7 +335,7 @@ public:
      * @returns the phase id of the phase that pops back into existence. Returns
      *         -1 if there are no phases
      */
-    size_t vcs_popPhaseID(std::vector<size_t> &phasePopPhaseIDs);
+    size_t vcs_popPhaseID(vector<size_t> &phasePopPhaseIDs);
 
     //! Calculates the deltas of the reactions due to phases popping
     //! into existence
@@ -1304,7 +1304,7 @@ public:
      *     kspec = current order in the vcs_solve object
      *     k     = original order in the MultiPhase object
      */
-    std::vector<size_t> m_speciesMapIndex;
+    vector<size_t> m_speciesMapIndex;
 
     //! Index that keeps track of the index of the species within the local
     //! phase
@@ -1318,7 +1318,7 @@ public:
      *
      * Length = number of species
      */
-    std::vector<size_t> m_speciesLocalPhaseIndex;
+    vector<size_t> m_speciesLocalPhaseIndex;
 
     //! Index vector that keeps track of the rearrangement of the elements
     /*!
@@ -1331,7 +1331,7 @@ public:
      *     eNum  = current order in the vcs_solve object
      *     e     = original order in the MultiPhase object
      */
-    std::vector<size_t> m_elementMapIndex;
+    vector<size_t> m_elementMapIndex;
 
     //! Mapping between the species index for noncomponent species and the
     //! full species index.
@@ -1344,7 +1344,7 @@ public:
      * number of noncomponent species in the mechanism. It starts with the
      * first current noncomponent species in the mechanism. kspec = ir[irxn]
      */
-    std::vector<size_t> m_indexRxnToSpecies;
+    vector<size_t> m_indexRxnToSpecies;
 
     //! Major -Minor status vector for the species in the problem
     /*!
@@ -1355,20 +1355,20 @@ public:
     vector<int> m_speciesStatus;
 
     //! Mapping from the species number to the phase number
-    std::vector<size_t> m_phaseID;
+    vector<size_t> m_phaseID;
 
     //! Boolean indicating whether a species belongs to a single-species phase
     // vector<bool> can't be used here because it doesn't work with std::swap
-    std::vector<char> m_SSPhase;
+    vector<char> m_SSPhase;
 
     //! Species string name for the kth species
-    std::vector<std::string> m_speciesName;
+    vector<std::string> m_speciesName;
 
     //! Vector of strings containing the element names
     /*!
      *   ElName[j]  = String containing element names
      */
-    std::vector<std::string> m_elementName;
+    vector<std::string> m_elementName;
 
     //! Type of the element constraint
     /*!
@@ -1392,7 +1392,7 @@ public:
     vector<int> m_elementActive;
 
     //! Array of Phase Structures. Length = number of phases.
-    std::vector<std::unique_ptr<vcs_VolPhase>> m_VolPhaseList;
+    vector<std::unique_ptr<vcs_VolPhase>> m_VolPhaseList;
 
     //! specifies the activity convention of the phase containing the species
     /*!
@@ -1451,7 +1451,7 @@ public:
     //! Charge of each species. Length = number of species.
     vector<double> m_chargeSpecies;
 
-    std::vector<std::vector<size_t> > phasePopProblemLists_;
+    vector<vector<size_t> > phasePopProblemLists_;
 
     //! Vector of pointers to thermo structures which identify the model
     //! and parameters for evaluating the thermodynamic functions for that
@@ -1459,7 +1459,7 @@ public:
     /*!
      * SpeciesThermo[k] pointer to the thermo information for the kth species
      */
-    std::vector<std::unique_ptr<VCS_SPECIES_THERMO>> m_speciesThermoList;
+    vector<std::unique_ptr<VCS_SPECIES_THERMO>> m_speciesThermoList;
 
     //! Choice of Hessians
     /*!

@@ -6,7 +6,7 @@
 #include "cantera/thermo/PlasmaPhase.h"
 
 using namespace Cantera;
-typedef std::vector<std::string> strvec;
+typedef vector<std::string> strvec;
 
 class ThermoToYaml : public testing::Test
 {
@@ -34,8 +34,8 @@ public:
 
     shared_ptr<ThermoPhase> thermo;
     AnyMap data;
-    std::vector<AnyMap> speciesData;
-    std::vector<AnyMap> eosData;
+    vector<AnyMap> speciesData;
+    vector<AnyMap> eosData;
 };
 
 TEST_F(ThermoToYaml, simpleIdealGas)
@@ -366,7 +366,7 @@ class ThermoYamlRoundTrip : public testing::Test
 {
 public:
     void roundtrip(const std::string& fileName, const std::string& phaseName="",
-        const std::vector<std::string> extraPhases={}) {
+        const vector<std::string> extraPhases={}) {
         original = newThermo(fileName, phaseName);
         YamlWriter writer;
         writer.addPhase(original);

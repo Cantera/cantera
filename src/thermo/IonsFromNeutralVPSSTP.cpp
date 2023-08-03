@@ -68,7 +68,7 @@ double IonsFromNeutralVPSSTP::cv_mole() const
 // -- Activities, Standard States, Activity Concentrations -----------
 
 void IonsFromNeutralVPSSTP::getDissociationCoeffs(vector<double>& coeffs,
-        vector<double>& charges, std::vector<size_t>& neutMolIndex) const
+        vector<double>& charges, vector<size_t>& neutMolIndex) const
 {
     coeffs = fm_neutralMolec_ions_;
     charges = m_speciesCharge;
@@ -432,10 +432,10 @@ void IonsFromNeutralVPSSTP::compositionChanged()
  *     @param elemVectorI
  *     @param nElementsI
  */
-static double factorOverlap(const std::vector<std::string>& elnamesVN ,
+static double factorOverlap(const vector<std::string>& elnamesVN ,
                             const vector<double>& elemVectorN,
                             const size_t nElementsN,
-                            const std::vector<std::string>& elnamesVI ,
+                            const vector<std::string>& elnamesVI ,
                             const vector<double>& elemVectorI,
                             const size_t nElementsI)
 {
@@ -490,11 +490,11 @@ void IonsFromNeutralVPSSTP::initThermo()
     }
 
     size_t nElementsN = neutralMoleculePhase_->nElements();
-    const std::vector<std::string>& elnamesVN = neutralMoleculePhase_->elementNames();
+    const vector<std::string>& elnamesVN = neutralMoleculePhase_->elementNames();
     vector<double> elemVectorN(nElementsN);
 
     size_t nElementsI = nElements();
-    const std::vector<std::string>& elnamesVI = elementNames();
+    const vector<std::string>& elnamesVI = elementNames();
     vector<double> elemVectorI(nElementsI);
 
     if (indexSpecialSpecies_ == npos) {

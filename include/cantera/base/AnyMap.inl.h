@@ -36,7 +36,7 @@ const T &AnyValue::as() const {
                 asDouble[i] = asAny[i].as<double>();
             }
             const_cast<AnyValue*>(this)->m_value = std::move(asDouble);
-            m_equals = eq_comparer<std::vector<double>>;
+            m_equals = eq_comparer<vector<double>>;
         }
         return std::any_cast<const T&>(m_value);
     } catch (std::bad_any_cast&) {
@@ -69,11 +69,11 @@ bool AnyValue::is() const {
     return m_value.type() == typeid(T);
 }
 
-template<> bool AnyValue::is<std::vector<double>>() const;
+template<> bool AnyValue::is<vector<double>>() const;
 
 template<class T>
 bool AnyValue::isVector() const {
-    return m_value.type() == typeid(std::vector<T>);
+    return m_value.type() == typeid(vector<T>);
 }
 
 template<class T>
@@ -99,22 +99,22 @@ bool AnyValue::isMatrix(size_t cols) const {
 }
 
 template<class T>
-AnyValue &AnyValue::operator=(const std::vector<T> &value) {
+AnyValue &AnyValue::operator=(const vector<T> &value) {
     m_value = value;
-    m_equals = eq_comparer<std::vector<T>>;
+    m_equals = eq_comparer<vector<T>>;
     return *this;
 }
 
 template<class T>
-const std::vector<T> &AnyValue::asVector(size_t nMin, size_t nMax) const {
-    const auto& v = as<std::vector<T>>();
+const vector<T> &AnyValue::asVector(size_t nMin, size_t nMax) const {
+    const auto& v = as<vector<T>>();
     checkSize(v, nMin, nMax);
     return v;
 }
 
 template<class T>
-std::vector<T> &AnyValue::asVector(size_t nMin, size_t nMax) {
-    auto& v = as<std::vector<T>>();
+vector<T> &AnyValue::asVector(size_t nMin, size_t nMax) {
+    auto& v = as<vector<T>>();
     checkSize(v, nMin, nMax);
     return v;
 }
@@ -169,7 +169,7 @@ std::map<std::string, T> AnyValue::asMap() const
 }
 
 template<class T>
-void AnyValue::checkSize(const std::vector<T>& v, size_t nMin, size_t nMax) const
+void AnyValue::checkSize(const vector<T>& v, size_t nMin, size_t nMax) const
 {
     if (nMin != npos && nMax == npos && v.size() != nMin) {
         throw InputFileError("AnyValue::checkSize", *this,
@@ -198,8 +198,8 @@ bool AnyValue::vector_eq(const std::any& lhs, const std::any& rhs)
 template<class T, class U>
 bool AnyValue::vector2_eq(const std::any& lhs, const std::any& rhs)
 {
-    const auto& lvec = std::any_cast<std::vector<T>>(lhs);
-    const auto& rvec = std::any_cast<std::vector<U>>(rhs);
+    const auto& lvec = std::any_cast<vector<T>>(lhs);
+    const auto& rvec = std::any_cast<vector<U>>(rhs);
     if (lvec.size() != rvec.size()) {
         return false;
     } else {

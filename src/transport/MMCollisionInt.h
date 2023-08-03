@@ -51,10 +51,10 @@ public:
 private:
     double fitDelta(int table, int ntstar, int degree, double* c);
 
-    std::vector<vector<double>> m_o22poly;
-    std::vector<vector<double>> m_apoly;
-    std::vector<vector<double>> m_bpoly;
-    std::vector<vector<double>> m_cpoly;
+    vector<vector<double>> m_o22poly;
+    vector<vector<double>> m_apoly;
+    vector<vector<double>> m_bpoly;
+    vector<vector<double>> m_cpoly;
 
     static double delta[8];
     static double tstar22[37];

@@ -104,7 +104,7 @@ protected:
     //!     have length = nSpecies(), then the species will be considered as
     //!     candidates to be components in declaration order, beginning with
     //!     the first phase added.
-    void getComponents(const std::vector<size_t>& order);
+    void getComponents(const vector<size_t>& order);
 
     //! Estimate the initial mole numbers. This is done by running each
     //! reaction as far forward or backward as possible, subject to the
@@ -171,22 +171,22 @@ protected:
     int m_iter;
     MultiPhase* m_mix;
     double m_press, m_temp;
-    std::vector<size_t> m_order;
+    vector<size_t> m_order;
     DenseMatrix m_N, m_A;
     vector<double> m_work, m_work2, m_work3;
     vector<double> m_moles, m_lastmoles, m_dxi;
     vector<double> m_deltaG_RT, m_mu;
-    std::vector<bool> m_majorsp;
-    std::vector<size_t> m_sortindex;
+    vector<bool> m_majorsp;
+    vector<size_t> m_sortindex;
     vector<int> m_lastsort;
     vector<int> m_dsoln;
     vector<int> m_incl_element, m_incl_species;
 
     // Vector of indices for species that are included in the calculation.
     // This is used to exclude pure-phase species with invalid thermo data
-    std::vector<size_t> m_species;
-    std::vector<size_t> m_element;
-    std::vector<bool> m_solnrxn;
+    vector<size_t> m_species;
+    vector<size_t> m_element;
+    vector<bool> m_solnrxn;
     bool m_force = true;
 };
 

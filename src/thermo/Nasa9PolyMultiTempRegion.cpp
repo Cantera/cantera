@@ -184,7 +184,7 @@ void Nasa9PolyMultiTempRegion::getParameters(AnyMap& thermo) const
     auto T_ranges = m_lowerTempBounds;
     T_ranges.push_back(m_highT);
     thermo["temperature-ranges"].setQuantity(T_ranges, "K");
-    thermo["data"] = std::vector<vector<double>>();
+    thermo["data"] = vector<vector<double>>();
     for (const auto& region : m_regionPts) {
         region->getParameters(thermo);
     }

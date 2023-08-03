@@ -129,7 +129,7 @@ protected:
     vector<int> m_ipiv;
 
     //! Vector of column pointers
-    std::vector<double*> m_colPts;
+    vector<double*> m_colPts;
 
 public:
     //! Error Handling Flag

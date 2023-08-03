@@ -308,7 +308,7 @@ private:
     /*!
      * Each of these is associated with one and only one surface phase.
      */
-    std::vector<InterfaceKinetics*> &m_objects;
+    vector<InterfaceKinetics*> &m_objects;
 
     //! Total number of equations to solve in the implicit problem.
     /*!
@@ -343,21 +343,21 @@ private:
      *  in some places)
      *  m_surfKinObjID[i] = i
      */
-    std::vector<size_t> m_indexKinObjSurfPhase;
+    vector<size_t> m_indexKinObjSurfPhase;
 
     //! Vector of length number of surface phases containing
     //! the number of surface species in each phase
     /*!
      *  Length is equal to the number of surface phases, m_numSurfPhases
      */
-    std::vector<size_t> m_nSpeciesSurfPhase;
+    vector<size_t> m_nSpeciesSurfPhase;
 
     //! Vector of surface phase pointers
     /*!
      *  This is created during the constructor
      *  Length is equal to the number of surface phases, m_numSurfPhases
      */
-    std::vector<SurfPhase*> m_ptrsSurfPhase;
+    vector<SurfPhase*> m_ptrsSurfPhase;
 
     //! Index of the start of the unknowns for each solution phase
     /*!
@@ -369,7 +369,7 @@ private:
      *  i_eqn is the equation number of the first unknown in the
      *  solution vector corresponding to isp'th phase.
      */
-    std::vector<size_t> m_eqnIndexStartSolnPhase;
+    vector<size_t> m_eqnIndexStartSolnPhase;
 
     //! Phase ID in the InterfaceKinetics object of the surface phase
     /*!
@@ -378,7 +378,7 @@ private:
      *
      * Length is equal to m_numSurfPhases
      */
-    std::vector<size_t> m_kinObjPhaseIDSurfPhase;
+    vector<size_t> m_kinObjPhaseIDSurfPhase;
 
     //! Total number of volumetric condensed phases included in the steady state
     //! problem handled by this routine.
@@ -397,7 +397,7 @@ private:
     /*!
      * Length is number of bulk phases
      */
-    std::vector<size_t> m_numBulkSpecies;
+    vector<size_t> m_numBulkSpecies;
 
     //! Total number of species in all bulk phases.
     /*!
@@ -407,7 +407,7 @@ private:
     size_t m_numTotBulkSpeciesSS = 0;
 
     //! Vector of bulk phase pointers, length is equal to m_numBulkPhases.
-    std::vector<ThermoPhase*> m_bulkPhasePtrs;
+    vector<ThermoPhase*> m_bulkPhasePtrs;
 
     //! Index between the equation index and the position in the kinetic
     //! species array for the appropriate kinetics operator
@@ -417,14 +417,14 @@ private:
      *  ksp = m_kinSpecIndex[ieq]
      *  ksp is the kinetic species index for the ieq'th equation.
      */
-    std::vector<size_t> m_kinSpecIndex;
+    vector<size_t> m_kinSpecIndex;
 
     //! Index between the equation index and the index of the
     //! InterfaceKinetics object
     /*!
      *   Length m_neq
      */
-    std::vector<size_t> m_kinObjIndex;
+    vector<size_t> m_kinObjIndex;
 
     //! Vector containing the indices of the largest species
     //! in each surface phase
@@ -433,7 +433,7 @@ private:
      *  varies from 0 to (num species in phase - 1) and `i` is the surface
      *  phase index in the problem. Length is equal to #m_numSurfPhases.
      */
-    std::vector<size_t> m_spSurfLarge;
+    vector<size_t> m_spSurfLarge;
 
     //! Maximum number of species in any single kinetics operator
     //! -> also maxed wrt the total # of solution species
