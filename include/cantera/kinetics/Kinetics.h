@@ -60,7 +60,7 @@ class AnyMap;
 //! quantities internally, and re-evaluate them only when the temperature has
 //! actually changed. Or a manager designed for use with reaction mechanisms
 //! with a few repeated activation energies might precompute the terms @f$
-//! exp(-E/RT) @f$, instead of evaluating the exponential repeatedly for each
+//! \exp(-E/RT) @f$, instead of evaluating the exponential repeatedly for each
 //! reaction. There are many other possible 'management styles', each of which
 //! might be better suited to some reaction mechanisms than others.
 //!
@@ -401,7 +401,7 @@ public:
      *  total number of reactions.
      *
      * @f[
-     *       Kc_i = exp [ \Delta G_{ss,i} ] prod(Cs_k) exp(\sum_k \nu_{k,i} F \phi_n) ]
+     *       Kc_i = \exp [ \Delta G_{ss,i} ] \prod(Cs_k) \exp(\sum_k \nu_{k,i} F \phi_n)
      * @f]
      *
      * @param kc   Output vector containing the equilibrium constants.

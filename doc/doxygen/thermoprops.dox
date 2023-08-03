@@ -362,19 +362,19 @@
  * activity coefficients:
  *
  * @f[
- *  \mu_k =  \mu_k^\triangle(T,P) + R T ln(a_k^{\triangle}) =
- *            \mu_k^\triangle(T,P) + R T ln(\gamma_k^{\triangle} \frac{m_k}{m^\triangle})
+ *  \mu_k =  \mu_k^\triangle(T,P) + R T \ln(a_k^{\triangle}) =
+ *            \mu_k^\triangle(T,P) + R T \ln(\gamma_k^{\triangle} \frac{m_k}{m^\triangle})
  * @f]
  *
  * And, the solvent employs the following convention
  * @f[
- *    \mu_o = \mu^o_o(T,P) + RT ln(a_o)
+ *    \mu_o = \mu^o_o(T,P) + RT \ln(a_o)
  * @f]
  *
  * where @f$ a_o @f$ is often redefined in terms of the osmotic coefficient @f$ \phi @f$.
  *
  *   @f[
- *       \phi = \frac{- ln(a_o)}{\tilde{M}_o \sum_{i \ne o} m_i}
+ *       \phi = \frac{- \ln(a_o)}{\tilde{M}_o \sum_{i \ne o} m_i}
  *   @f]
  *
  *  %ThermoPhase classes which employ the molality based convention are all derived

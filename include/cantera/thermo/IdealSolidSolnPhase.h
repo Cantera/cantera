@@ -89,7 +89,7 @@ public:
      * partial molar volume solution mixture with pure species phases which
      * exhibit zero volume expansivity:
      * @f[
-     * \hat s(T, P, X_k) = \sum_k X_k \hat s^0_k(T)  - \hat R \sum_k X_k log(X_k)
+     * \hat s(T, P, X_k) = \sum_k X_k \hat s^0_k(T)  - \hat R \sum_k X_k \log(X_k)
      * @f]
      * The reference-state pure-species entropies
      * @f$ \hat s^0_k(T,p_{ref}) @f$ are computed by the species thermodynamic
@@ -104,7 +104,7 @@ public:
      * constant partial molar volume solution mixture with pure species phases
      * which exhibit zero volume expansivity:
      * @f[
-     * \hat g(T, P) = \sum_k X_k \hat g^0_k(T,P) + \hat R T \sum_k X_k log(X_k)
+     * \hat g(T, P) = \sum_k X_k \hat g^0_k(T,P) + \hat R T \sum_k X_k \log(X_k)
      * @f]
      * The reference-state pure-species Gibbs free energies
      * @f$ \hat g^0_k(T) @f$ are computed by the species thermodynamic
@@ -280,11 +280,11 @@ public:
      * This function returns a vector of chemical potentials of the
      * species in solution.
      * @f[
-     *    \mu_k = \mu^{ref}_k(T) + V_k * (p - p_o) + R T ln(X_k)
+     *    \mu_k = \mu^{ref}_k(T) + V_k * (p - p_o) + R T \ln(X_k)
      * @f]
      *  or another way to phrase this is
      * @f[
-     *    \mu_k = \mu^o_k(T,p) + R T ln(X_k)
+     *    \mu_k = \mu^o_k(T,p) + R T \ln(X_k)
      * @f]
      *  where @f$ \mu^o_k(T,p) = \mu^{ref}_k(T) + V_k * (p - p_o) @f$
      *
@@ -297,7 +297,7 @@ public:
      * chemical potentials at the current T and P
      * @f$ \mu_k / \hat R T @f$.
      * @f[
-     *  \mu^0_k(T,P) = \mu^{ref}_k(T) + (P - P_{ref}) * V_k + RT ln(X_k)
+     *  \mu^0_k(T,P) = \mu^{ref}_k(T) + (P - P_{ref}) * V_k + RT \ln(X_k)
      * @f]
      * where @f$ V_k @f$ is the molar volume of pure species *k*.
      * @f$ \mu^{ref}_k(T) @f$ is the chemical potential of pure
@@ -337,8 +337,8 @@ public:
      * solution. Units: J/kmol/K. For this phase, the partial molar entropies
      * are equal to the pure species entropies plus the ideal solution
      * contribution.
-     *  @f[
-     * \bar s_k(T,P) =  \hat s^0_k(T) - R log(X_k)
+     * @f[
+     *  \bar s_k(T,P) =  \hat s^0_k(T) - R \log(X_k)
      * @f]
      * The reference-state pure-species entropies,@f$ \hat s^{ref}_k(T) @f$, at
      * the reference pressure, @f$ P_{ref} @f$, are computed by the species

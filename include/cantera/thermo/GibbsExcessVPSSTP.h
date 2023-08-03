@@ -47,7 +47,7 @@ namespace Cantera
  * format:
  *
  * @f[
- *    \mu_k = \mu^o_k(T,P) + R T ln( \gamma_k X_k )
+ *    \mu_k = \mu^o_k(T,P) + R T \ln( \gamma_k X_k )
  * @f]
  *
  * where @f$ \gamma_k^{\triangle} @f$ is a molar based activity coefficient for

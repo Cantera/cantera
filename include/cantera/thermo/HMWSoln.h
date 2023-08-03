@@ -129,10 +129,10 @@ class WaterProps;
  * @f$, which are based on the molality form, have the following general format:
  *
  * @f[
- *    \mu_k = \mu^{\triangle}_k(T,P) + R T ln(\gamma_k^{\triangle} \frac{m_k}{m^\triangle})
+ *    \mu_k = \mu^{\triangle}_k(T,P) + R T \ln(\gamma_k^{\triangle} \frac{m_k}{m^\triangle})
  * @f]
  * @f[
- *    \mu_o = \mu^o_o(T,P) + RT ln(a_o)
+ *    \mu_o = \mu^o_o(T,P) + RT \ln(a_o)
  * @f]
  *
  * where @f$ \gamma_k^{\triangle} @f$ is the molality based activity coefficient
@@ -835,7 +835,7 @@ public:
      * exhibit zero volume expansivity:
      * @f[
      * \hat s(T, P, X_k) = \sum_k X_k \hat s^0_k(T)
-     *      - \hat R  \sum_k X_k log(X_k)
+     *      - \hat R  \sum_k X_k \log(X_k)
      * @f]
      * The reference-state pure-species entropies @f$ \hat s^0_k(T,p_{ref}) @f$
      * are computed by the species thermodynamic property manager. The pure
@@ -1038,7 +1038,7 @@ public:
      * species in solution.
      *
      * @f[
-     *    \mu_k = \mu^{\triangle}_k(T,P) + R T ln(\gamma_k^{\triangle} m_k)
+     *    \mu_k = \mu^{\triangle}_k(T,P) + R T \ln(\gamma_k^{\triangle} m_k)
      * @f]
      *
      * @param mu  Output vector of species chemical
