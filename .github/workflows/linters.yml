@@ -21,6 +21,7 @@ jobs:
       - name: Check example keywords
         run: python3 doc/example-keywords.py compare
       - name: Get changed C++ files
+        if: success() || failure()
         id: changed-cxx-files
         uses: tj-actions/changed-files@v37
         with:
@@ -29,7 +30,7 @@ jobs:
             **.cpp
       # Comment blocks starting with "/*!" do not support autobrief
       - name: Check for problematic Doxygen comment blocks
-        if: steps.changed-cxx-files.outputs.any_changed == 'true'
+        if: (success() || failure()) && steps.changed-cxx-files.outputs.any_changed == 'true'
         run: |
           RETCODE=0
           for file in ${{ steps.changed-cxx-files.outputs.all_changed_files }}; do
