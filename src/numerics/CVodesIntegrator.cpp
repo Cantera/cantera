@@ -236,10 +236,8 @@ void CVodesIntegrator::sensInit(double t0, FuncEval& func)
 
     int flag = CVodeSensInit(m_cvode_mem, static_cast<int>(m_np),
                              CV_STAGGERED, CVSensRhsFn(0), m_yS);
+    checkError(flag, "sensInit", "CVodeSensInit");
 
-    if (flag != CV_SUCCESS) {
-        throw CanteraError("CVodesIntegrator::sensInit", "Error in CVodeSensInit");
-    }
     vector_fp atol(m_np);
     for (size_t n = 0; n < m_np; n++) {
         // This scaling factor is tuned so that reaction and species enthalpy
@@ -247,6 +245,7 @@ void CVodesIntegrator::sensInit(double t0, FuncEval& func)
         atol[n] = m_abstolsens / func.m_paramScales[n];
     }
     flag = CVodeSensSStolerances(m_cvode_mem, m_reltolsens, atol.data());
+    checkError(flag, "sensInit", "CVodeSensSStolerances");
 }
 
 void CVodesIntegrator::initialize(double t0, FuncEval& func)
@@ -311,39 +310,24 @@ void CVodesIntegrator::initialize(double t0, FuncEval& func)
                                "CVodeInit failed.");
         }
     }
-    CVodeSetErrHandlerFn(m_cvode_mem, &cvodes_err, this);
+    flag = CVodeSetErrHandlerFn(m_cvode_mem, &cvodes_err, this);
 
     if (m_itol == CV_SV) {
         flag = CVodeSVtolerances(m_cvode_mem, m_reltol, m_abstol);
+        checkError(flag, "initialize", "CVodeSVtolerances");
     } else {
         flag = CVodeSStolerances(m_cvode_mem, m_reltol, m_abstols);
-    }
-    if (flag != CV_SUCCESS) {
-        if (flag == CV_MEM_FAIL) {
-            throw CanteraError("CVodesIntegrator::initialize",
-                               "Memory allocation failed.");
-        } else if (flag == CV_ILL_INPUT) {
-            throw CanteraError("CVodesIntegrator::initialize",
-                               "Illegal value for CVodeInit input argument.");
-        } else {
-            throw CanteraError("CVodesIntegrator::initialize",
-                               "CVodeInit failed.");
-        }
+        checkError(flag, "initialize", "CVodeSStolerances");
     }
 
     flag = CVodeSetUserData(m_cvode_mem, &func);
-    if (flag != CV_SUCCESS) {
-        throw CanteraError("CVodesIntegrator::initialize",
-                           "CVodeSetUserData failed.");
-    }
+    checkError(flag, "initialize", "CVodeSetUserData");
+
     if (func.nparams() > 0) {
         sensInit(t0, func);
         flag = CVodeSetSensParams(m_cvode_mem, func.m_sens_params.data(),
                                   func.m_paramScales.data(), NULL);
-        if (flag != CV_SUCCESS) {
-            throw CanteraError("CVodesIntegrator::initialize",
-                               "CVodeSetSensParams failed.");
-        }
+        checkError(flag, "initialize", "CVodeSetSensParams");
     }
     applyOptions();
 }
@@ -361,10 +345,7 @@ void CVodesIntegrator::reinitialize(double t0, FuncEval& func)
         m_preconditioner->initialize(m_neq);
     }
     int result = CVodeReInit(m_cvode_mem, m_t0, m_y);
-    if (result != CV_SUCCESS) {
-        throw CanteraError("CVodesIntegrator::reinitialize",
-                           "CVodeReInit failed. result = {}", result);
-    }
+    checkError(result, "reinitialize", "CVodeReInit");
     applyOptions();
 }
 
@@ -494,7 +475,8 @@ void CVodesIntegrator::applyOptions()
     }
 
     if (m_maxord > 0) {
-        CVodeSetMaxOrd(m_cvode_mem, m_maxord);
+        int flag = CVodeSetMaxOrd(m_cvode_mem, m_maxord);
+        checkError(flag, "applyOptions", "CVodeSetMaxOrd");
     }
     if (m_maxsteps > 0) {
         CVodeSetMaxNumSteps(m_cvode_mem, m_maxsteps);
@@ -543,10 +525,7 @@ void CVodesIntegrator::integrate(double tout)
         nsteps++;
     }
     int flag = CVodeGetDky(m_cvode_mem, tout, 0, m_y);
-    if (flag != CV_SUCCESS) {
-        throw CanteraError("CvodesIntegrator::integrate",
-                           "CVodeGetDky failed. result = {}", flag);
-    }
+    checkError(flag, "integrate", "CVodeGetDky");
     m_time = tout;
     m_sens_ok = false;
 }
@@ -574,16 +553,7 @@ double CVodesIntegrator::step(double tout)
 double* CVodesIntegrator::derivative(double tout, int n)
 {
     int flag = CVodeGetDky(m_cvode_mem, tout, n, m_dky);
-    if (flag != CV_SUCCESS) {
-        string f_errs = m_func->getErrors();
-        if (!f_errs.empty()) {
-            f_errs = "Exceptions caught evaluating derivative:\n" + f_errs;
-        }
-        throw CanteraError("CVodesIntegrator::derivative",
-            "CVodes error encountered. Error code: {}\n{}\n"
-            "{}",
-            flag, m_error_message, f_errs);
-    }
+    checkError(flag, "derivative", "CVodeGetDky");
     return NV_DATA_S(m_dky);
 }
 
@@ -668,10 +638,7 @@ double CVodesIntegrator::sensitivity(size_t k, size_t p)
     }
     if (!m_sens_ok && m_np) {
         int flag = CVodeGetSens(m_cvode_mem, &m_time, m_yS);
-        if (flag != CV_SUCCESS) {
-            throw CanteraError("CVodesIntegrator::sensitivity",
-                               "CVodeGetSens failed. Error code: {}", flag);
-        }
+        checkError(flag, "sensitivity", "CVodeGetSens");
         m_sens_ok = true;
     }
 
@@ -709,6 +676,22 @@ string CVodesIntegrator::getErrorInfo(int N)
                    get<2>(weightedErrors[i]), get<1>(weightedErrors[i]));
     }
     return to_string(s);
+}
+
+void CVodesIntegrator::checkError(long flag, const string& ctMethod,
+                                  const string& cvodesMethod) const
+{
+    if (flag == CV_SUCCESS) {
+        return;
+    } else if (flag == CV_MEM_NULL) {
+        throw CanteraError("CVodesIntegrator::" + ctMethod,
+                           "CVODES integrator is not initialized");
+    } else {
+        const char* flagname = CVodeGetReturnFlagName(flag);
+        throw CanteraError("CVodesIntegrator::" + ctMethod,
+            "{} returned error code {} ({}):\n{}",
+            cvodesMethod, flag, flagname, m_error_message);
+    }
 }
 
 }

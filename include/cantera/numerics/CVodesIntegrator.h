@@ -90,6 +90,10 @@ protected:
 private:
     void sensInit(double t0, FuncEval& func);
 
+    //! Check whether a CVODES method indicated an error. If so, throw an exception
+    //! containing the method name and the error code stashed by the cvodes_err() function.
+    void checkError(long flag, const string& ctMethod, const string& cvodesMethod) const;
+
     size_t m_neq = 0;
     void* m_cvode_mem = nullptr;
     SundialsContext m_sundials_ctx; //!< SUNContext object for Sundials>=6.0
