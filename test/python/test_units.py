@@ -4,7 +4,7 @@ from typing import Optional, Tuple, Dict
 import sys
 
 import pytest
-import cantera.with_units as ctu
+ctu = pytest.importorskip("cantera.with_units")
 import cantera as ct
 try:
     from pint.testing import assert_allclose
