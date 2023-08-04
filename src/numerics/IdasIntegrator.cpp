@@ -512,7 +512,7 @@ double IdasIntegrator::sensitivity(size_t k, size_t p)
         return 0.0;
     }
     if (!m_sens_ok && m_np) {
-        int flag = IDAGetSens(m_ida_mem, &m_time, m_yS);
+        int flag = IDAGetSensDky(m_ida_mem, m_time, 0, m_yS);
         checkError(flag, "sensitivity", "IDAGetSens");
         m_sens_ok = true;
     }

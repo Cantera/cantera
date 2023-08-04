@@ -637,7 +637,7 @@ double CVodesIntegrator::sensitivity(size_t k, size_t p)
         return 0.0;
     }
     if (!m_sens_ok && m_np) {
-        int flag = CVodeGetSens(m_cvode_mem, &m_time, m_yS);
+        int flag = CVodeGetSensDky(m_cvode_mem, m_time, 0, m_yS);
         checkError(flag, "sensitivity", "CVodeGetSens");
         m_sens_ok = true;
     }
