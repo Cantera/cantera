@@ -150,7 +150,7 @@ public:
     // overloaded methods of class FuncEval
 
     //! Return the number of equations
-    virtual size_t neq() {
+    virtual size_t neq() const {
         return m_nv;
     }
 

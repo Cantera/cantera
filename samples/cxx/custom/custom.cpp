@@ -113,7 +113,7 @@ public:
      * Number of equations in the ODE system.
      *   - overridden from FuncEval, called by the integrator during initialization.
      */
-    size_t neq() {
+    size_t neq() const {
         return m_nEqs;
     }
 

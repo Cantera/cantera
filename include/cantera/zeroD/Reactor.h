@@ -157,7 +157,7 @@ public:
 
     //! Number of sensitivity parameters associated with this reactor
     //! (including walls)
-    virtual size_t nSensParams();
+    virtual size_t nSensParams() const;
 
     //! Add a sensitivity parameter associated with the reaction number *rxn*
     //! (in the homogeneous phase).
@@ -183,14 +183,14 @@ public:
 
     //! Check whether Reactor object uses advance limits
     //! @returns           True if at least one limit is set, False otherwise
-    bool hasAdvanceLimits() {
+    bool hasAdvanceLimits() const {
         return !m_advancelimits.empty();
     }
 
     //! Retrieve absolute step size limits during advance
     //! @param[out] limits array of step size limits with length neq
     //! @returns           True if at least one limit is set, False otherwise
-    bool getAdvanceLimits(double* limits);
+    bool getAdvanceLimits(double* limits) const;
 
     //! Set individual step size limit for component name *nm*
     //! @param nm component name
