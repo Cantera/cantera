@@ -514,6 +514,11 @@ void CVodesIntegrator::integrate(double tout)
 {
     if (tout == m_time) {
         return;
+    } else if (tout < m_time) {
+        throw CanteraError("CVodesIntegrator::integrate",
+                           "Cannot integrate backwards in time.\n"
+                           "Requested time {} < current time {}",
+                           tout, m_time);
     }
     int nsteps = 0;
     while (m_tInteg < tout) {
