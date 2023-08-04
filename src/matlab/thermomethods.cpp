@@ -121,8 +121,8 @@ static void thermoget(int nlhs, mxArray* plhs[],
 
     if (job == 0) {
         checkNArgs(5, nrhs);
-        string fileName = getString(prhs[3]);
-        string phaseName = getString(prhs[4]);
+        std::string fileName = getString(prhs[3]);
+        std::string phaseName = getString(prhs[4]);
         if (phaseName == "-") {
             phaseName = "";
         }
@@ -229,7 +229,7 @@ static void thermoget(int nlhs, mxArray* plhs[],
     } else if (job < 50) {
         int iok = 0;
         size_t nsp = thermo_nSpecies(n);
-        vector<double> x(nsp);
+        std::vector<double> x(nsp);
         switch (job) {
         case 32:
             iok = thermo_getEnthalpies_RT(n, nsp, &x[0]);

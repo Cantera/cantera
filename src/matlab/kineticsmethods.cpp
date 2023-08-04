@@ -22,8 +22,8 @@ void kineticsmethods(int nlhs, mxArray* plhs[],
     // construct a new instance
     if (job == 0) {
         checkNArgs(10, nrhs);
-        string fileName = getString(prhs[3]);
-        string phaseName = getString(prhs[4]);
+        std::string fileName = getString(prhs[3]);
+        std::string phaseName = getString(prhs[4]);
         if (phaseName == "-") {
             phaseName = "";
         }
