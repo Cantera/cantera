@@ -72,7 +72,7 @@ void onedimmethods(int nlhs, mxArray* plhs[],
                 mexErrMsgTxt("wrong size for domain array");
             }
 
-            vector<int> ptrs(sz);
+            std::vector<int> ptrs(sz);
             for (size_t k = 0; k < sz; k++) {
                 ptrs[k] = int(dom_ids[k]);
             }
@@ -363,7 +363,7 @@ void onedimmethods(int nlhs, mxArray* plhs[],
             tstep = getDouble(prhs[3]);
             ns = getInt(prhs[4]);
             dts = mxGetPr(prhs[5]);
-            vector<int> nsteps(ns);
+            std::vector<int> nsteps(ns);
             for (n = 0; n < ns; n++) {
                 nsteps[n] = int(dts[n]);
             }
