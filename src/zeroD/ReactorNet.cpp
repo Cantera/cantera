@@ -272,7 +272,7 @@ void ReactorNet::getEstimate(double time, int k, double* yest)
     }
 }
 
-int ReactorNet::lastOrder()
+int ReactorNet::lastOrder() const
 {
     if (m_integ) {
         return m_integ->lastOrder();
@@ -425,7 +425,7 @@ void ReactorNet::setAdvanceLimits(const double *limits)
     }
 }
 
-bool ReactorNet::hasAdvanceLimits()
+bool ReactorNet::hasAdvanceLimits() const
 {
     bool has_limit = false;
     for (size_t n = 0; n < m_reactors.size(); n++) {
@@ -434,7 +434,7 @@ bool ReactorNet::hasAdvanceLimits()
     return has_limit;
 }
 
-bool ReactorNet::getAdvanceLimits(double *limits)
+bool ReactorNet::getAdvanceLimits(double *limits) const
 {
     bool has_limit = false;
     for (size_t n = 0; n < m_reactors.size(); n++) {
@@ -569,7 +569,7 @@ void ReactorNet::updatePreconditioner(double gamma)
     precon->updatePreconditioner();
 }
 
-void ReactorNet::checkPreconditionerSupported() {
+void ReactorNet::checkPreconditionerSupported() const {
     // check for non-mole-based reactors and throw an error otherwise
     for (auto reactor : m_reactors) {
         if (!reactor->preconditionerSupported()) {

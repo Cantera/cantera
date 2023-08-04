@@ -60,7 +60,7 @@ public:
     }
 
     //! Get the maximum integrator step.
-    double maxTimeStep() {
+    double maxTimeStep() const {
         return m_maxstep;
     }
 
@@ -205,11 +205,11 @@ public:
                       double* ydot, double* p, Array2D* j);
 
     // overloaded methods of class FuncEval
-    virtual size_t neq() {
+    virtual size_t neq() const {
         return m_nv;
     }
 
-    size_t nReactors() {
+    size_t nReactors() const {
         return m_reactors.size();
     }
 
@@ -227,7 +227,7 @@ public:
 
     virtual void getConstraints(double* constraints);
 
-    virtual size_t nparams() {
+    virtual size_t nparams() const {
         return m_sens_params.size();
     }
 
@@ -254,7 +254,7 @@ public:
                                         double scale);
 
     //! The name of the p-th sensitivity parameter added to this ReactorNet.
-    const std::string& sensitivityParameterName(size_t p) {
+    const string& sensitivityParameterName(size_t p) const {
         return m_paramNames.at(p);
     }
 
@@ -284,10 +284,10 @@ public:
     void setAdvanceLimits(const double* limits);
 
     //! Check whether ReactorNet object uses advance limits
-    bool hasAdvanceLimits();
+    bool hasAdvanceLimits() const;
 
     //! Retrieve absolute step size limits during advance
-    bool getAdvanceLimits(double* limits);
+    bool getAdvanceLimits(double* limits) const;
 
     virtual void preconditionerSetup(double t, double* y, double gamma);
 
@@ -302,7 +302,7 @@ public:
 
 protected:
     //! Check that preconditioning is supported by all reactors in the network
-    virtual void checkPreconditionerSupported();
+    virtual void checkPreconditionerSupported() const;
 
     //! Update the preconditioner based on the already computed jacobian values
     virtual void updatePreconditioner(double gamma);
@@ -315,7 +315,7 @@ protected:
     //! Returns the order used for last solution step of the ODE integrator
     //! The function is intended for internal use by ReactorNet::advance
     //! and deliberately not exposed in external interfaces.
-    virtual int lastOrder();
+    virtual int lastOrder() const;
 
     std::vector<Reactor*> m_reactors;
     std::unique_ptr<Integrator> m_integ;

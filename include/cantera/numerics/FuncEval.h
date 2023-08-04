@@ -150,10 +150,10 @@ public:
     }
 
     //! Number of equations.
-    virtual size_t neq()=0;
+    virtual size_t neq() const = 0;
 
     //! Number of sensitivity parameters.
-    virtual size_t nparams() {
+    virtual size_t nparams() const {
         return m_sens_params.size();
     }
 

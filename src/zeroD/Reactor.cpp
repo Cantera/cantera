@@ -109,7 +109,7 @@ void Reactor::initialize(double t0)
     m_work.resize(maxnt);
 }
 
-size_t Reactor::nSensParams()
+size_t Reactor::nSensParams() const
 {
     size_t ns = m_sensParams.size();
     for (auto& S : m_surfaces) {
@@ -549,7 +549,7 @@ void Reactor::setAdvanceLimits(const double *limits)
     }
 }
 
-bool Reactor::getAdvanceLimits(double *limits)
+bool Reactor::getAdvanceLimits(double *limits) const
 {
     bool has_limit = hasAdvanceLimits();
     if (has_limit) {
