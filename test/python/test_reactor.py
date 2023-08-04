@@ -348,6 +348,12 @@ class TestReactor(utilities.CanteraTest):
         with pytest.raises(ct.CanteraError, match="No component named 'spam'"):
             self.r1.set_advance_limit("spam", 0.1)
 
+    def test_advance_reverse(self):
+        self.make_reactors(n_reactors=1)
+        self.net.advance(0.1)
+        with pytest.raises(ct.CanteraError, match="backwards in time"):
+            self.net.advance(0.09)
+
     def test_heat_transfer2(self):
         # Result should be the same if (m * cp) / (U * A) is held constant
         self.make_reactors(T1=300, T2=1000)
@@ -1530,6 +1536,15 @@ class TestFlowReactor2(utilities.CanteraTest):
         rsurf = ct.ReactorSurface(surf, r)
         sim = ct.ReactorNet([r])
         return r, rsurf, sim
+
+    def test_advance_reverse(self):
+        surf, gas = self.import_phases()
+        gas.TPX = 1500, 4000, 'NH3:1.0, SiF4:0.4'
+        r, rsurf, sim = self.make_reactors(gas, surf)
+
+        sim.advance(0.1)
+        with pytest.raises(ct.CanteraError, match="backwards in time"):
+            sim.advance(0.09)
 
     def test_no_mass_flow_rate(self):
         surf, gas = self.import_phases()
