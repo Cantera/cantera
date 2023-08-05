@@ -23,7 +23,8 @@ namespace Cantera
 
 namespace {
 
-void printProgress(const vector<string>& spName, const vector<double>& soln, const vector<double>& ff)
+void printProgress(const vector<string>& spName, const vector<double>& soln,
+                   const vector<double>& ff)
 {
     double sum = 0.0;
     plogf(" --- Summary of current progress:\n");

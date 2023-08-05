@@ -55,7 +55,8 @@ public:
      *  @param thermo    ThermoPhase object
      *  @param log_level log level
      */
-    virtual Transport* newTransport(const string& model, ThermoPhase* thermo, int log_level=0);
+    virtual Transport* newTransport(const string& model, ThermoPhase* thermo,
+                                    int log_level=0);
 
     //! Build a new transport manager using the default transport manager
     //! in the phase description and return a base class pointer to it

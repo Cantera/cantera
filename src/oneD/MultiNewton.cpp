@@ -32,8 +32,7 @@ public:
  * Newton step between specified lower and upper bounds. This function only
  * considers one domain.
  */
-double bound_step(const double* x, const double* step,
-                      Domain1D& r, int loglevel)
+double bound_step(const double* x, const double* step, Domain1D& r, int loglevel)
 {
     size_t np = r.nPoints();
     size_t nv = r.nComponents();
@@ -99,8 +98,7 @@ double bound_step(const double* x, const double* step,
  * The second term, @f$ \epsilon_{a,n} @f$, is the absolute error tolerance for
  * component n.
  */
-double norm_square(const double* x,
-                       const double* step, Domain1D& r)
+double norm_square(const double* x, const double* step, Domain1D& r)
 {
     double sum = 0.0;
     double f2max = 0.0;
@@ -144,8 +142,7 @@ void MultiNewton::resize(size_t sz)
     m_stp1.resize(m_n);
 }
 
-double MultiNewton::norm2(const double* x,
-                              const double* step, OneDim& r) const
+double MultiNewton::norm2(const double* x, const double* step, OneDim& r) const
 {
     double sum = 0.0;
     size_t nd = r.nDomains();
@@ -157,8 +154,7 @@ double MultiNewton::norm2(const double* x,
     return sqrt(sum);
 }
 
-void MultiNewton::step(double* x, double* step,
-                       OneDim& r, MultiJac& jac, int loglevel)
+void MultiNewton::step(double* x, double* step, OneDim& r, MultiJac& jac, int loglevel)
 {
     r.eval(npos, x, step);
     for (size_t n = 0; n < r.size(); n++) {
@@ -191,8 +187,8 @@ void MultiNewton::step(double* x, double* step,
     }
 }
 
-double MultiNewton::boundStep(const double* x0,
-                                  const double* step0, const OneDim& r, int loglevel)
+double MultiNewton::boundStep(const double* x0, const double* step0, const OneDim& r,
+                              int loglevel)
 {
     double fbound = 1.0;
     for (size_t i = 0; i < r.nDomains(); i++) {
@@ -284,8 +280,7 @@ int MultiNewton::dampStep(const double* x0, const double* step0,
     }
 }
 
-int MultiNewton::solve(double* x0, double* x1,
-                       OneDim& r, MultiJac& jac, int loglevel)
+int MultiNewton::solve(double* x0, double* x1, OneDim& r, MultiJac& jac, int loglevel)
 {
     clock_t t0 = clock();
     int m = 0;

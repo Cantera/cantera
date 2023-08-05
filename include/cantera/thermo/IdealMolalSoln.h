@@ -76,8 +76,7 @@ public:
      *      about the phase. If blank, an empty phase will be created.
      *  @param id          id of the phase within the input file
      */
-    explicit IdealMolalSoln(const string& inputFile="",
-                            const string& id="");
+    explicit IdealMolalSoln(const string& inputFile="", const string& id="");
 
     virtual string type() const {
         return "ideal-molal-solution";

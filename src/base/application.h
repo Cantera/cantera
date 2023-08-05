@@ -339,8 +339,7 @@ public:
     //! @param warning  Warning type; see Logger::warn()
     //! @param method  Name of method triggering the warning
     //! @param extra  Additional information printed for the warning
-    void warn(const string& warning,
-              const string& method, const string& extra="");
+    void warn(const string& warning, const string& method, const string& extra="");
 
     //! Globally disable printing of (user) warnings. Used primarily to
     //! prevent certain tests from failing.

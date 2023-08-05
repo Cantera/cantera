@@ -170,8 +170,7 @@ void SingleSpeciesTP::getCp_R_ref(double* cpr) const
 
 // ------------------ Setting the State ------------------------
 
-void SingleSpeciesTP::setState_HP(double h, double p,
-                                  double tol)
+void SingleSpeciesTP::setState_HP(double h, double p, double tol)
 {
     double dt;
     setPressure(p);
@@ -186,8 +185,7 @@ void SingleSpeciesTP::setState_HP(double h, double p,
                        "no convergence. dt = {}", dt);
 }
 
-void SingleSpeciesTP::setState_UV(double u, double v,
-                                  double tol)
+void SingleSpeciesTP::setState_UV(double u, double v, double tol)
 {
     double dt;
     if (v == 0.0) {
@@ -206,8 +204,7 @@ void SingleSpeciesTP::setState_UV(double u, double v,
                        "no convergence. dt = {}\nu = {} v = {}", dt, u, v);
 }
 
-void SingleSpeciesTP::setState_SP(double s, double p,
-                                  double tol)
+void SingleSpeciesTP::setState_SP(double s, double p, double tol)
 {
     double dt;
     setPressure(p);
@@ -222,8 +219,7 @@ void SingleSpeciesTP::setState_SP(double s, double p,
                        "no convergence. dt = {}", dt);
 }
 
-void SingleSpeciesTP::setState_SV(double s, double v,
-                                  double tol)
+void SingleSpeciesTP::setState_SV(double s, double v, double tol)
 {
     double dt;
     if (v == 0.0) {

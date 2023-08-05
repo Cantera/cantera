@@ -507,8 +507,7 @@ public:
      * @param molalities  Input vector of molalities of the solutes.
      *                    Length: m_kk.
      */
-    void setState_TPM(double t, double p,
-                      const double* const molalities);
+    void setState_TPM(double t, double p, const double* const molalities);
 
     //! Set the temperature (K), pressure (Pa), and molalities.
     /*!

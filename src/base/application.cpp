@@ -132,8 +132,7 @@ void Application::ApplicationDestroy()
     }
 }
 
-void Application::warn_deprecated(const string& method,
-                                  const string& extra)
+void Application::warn_deprecated(const string& method, const string& extra)
 {
     if (m_fatal_deprecation_warnings) {
         throw CanteraError(method, "Deprecated: " + extra);
@@ -144,9 +143,7 @@ void Application::warn_deprecated(const string& method,
     warnlog("Deprecation", fmt::format("{}: {}", method, extra));
 }
 
-void Application::warn(const string& warning,
-                       const string& method,
-                       const string& extra)
+void Application::warn(const string& warning, const string& method, const string& extra)
 {
     if (m_fatal_warnings) {
         throw CanteraError(method, extra);

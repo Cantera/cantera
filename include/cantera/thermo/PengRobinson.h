@@ -28,8 +28,7 @@ public:
      * @param id        ID of the phase in the input file. If empty, the
      *                  first phase definition in the input file will be used.
      */
-    explicit PengRobinson(const string& infile="",
-                          const string& id="");
+    explicit PengRobinson(const string& infile="", const string& id="");
 
     virtual string type() const {
         return "Peng-Robinson";
@@ -154,8 +153,7 @@ public:
 
     virtual bool addSpecies(shared_ptr<Species> spec);
     virtual void initThermo();
-    virtual void getSpeciesParameters(const string& name,
-                                      AnyMap& speciesNode) const;
+    virtual void getSpeciesParameters(const string& name, AnyMap& speciesNode) const;
 
     //! Set the pure fluid interaction parameters for a species
     /*!

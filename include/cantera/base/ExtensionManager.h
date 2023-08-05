@@ -74,8 +74,7 @@ public:
     //! @param rateName  The name of the reaction rate type, which corresponds to the
     //!     name used to register the wrapper generator using registerReactionDataLinker
     //! @param data  The ReactionData object to be wrapped
-    static void wrapReactionData(const string& rateName,
-                                 ReactionDataDelegator& data);
+    static void wrapReactionData(const string& rateName, ReactionDataDelegator& data);
 
     //! Create an object in an external language that wraps the specified Solution
     //! object.
@@ -108,8 +107,7 @@ public:
 
 protected:
     //! Functions for wrapping and linking ReactionData objects
-    static map<string,
-        function<void(ReactionDataDelegator&)>> s_ReactionData_linkers;
+    static map<string, function<void(ReactionDataDelegator&)>> s_ReactionData_linkers;
 
     //! Functions for wrapping and linking Solution objects
     static map<string,

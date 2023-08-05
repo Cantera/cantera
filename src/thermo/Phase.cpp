@@ -753,9 +753,8 @@ double Phase::sum_xlogx() const
     return m_mmw * sumxlogx + std::log(m_mmw);
 }
 
-size_t Phase::addElement(const string& symbol, double weight,
-                         int atomic_number, double entropy298,
-                         int elem_type)
+size_t Phase::addElement(const string& symbol, double weight, int atomic_number,
+                         double entropy298, int elem_type)
 {
     // Look up the atomic weight if not given
     if (weight == 0.0) {

@@ -207,8 +207,7 @@ public:
     void setDefaultActivationEnergy(const string& e_units);
 
     //! Convert `value` from the units of `src` to the units of `dest`.
-    double convert(double value, const string& src,
-                   const string& dest) const;
+    double convert(double value, const string& src, const string& dest) const;
     double convert(double value, const Units& src, const Units& dest) const;
 
     //! Convert `value` to the specified `dest` units from the appropriate units

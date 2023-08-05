@@ -97,8 +97,7 @@ public:
     virtual void updateProperties(const double* tt,
                                   double* cp_R, double* h_RT, double* s_R) const;
 
-    virtual void updatePropertiesTemp(const double temp,
-                                      double* cp_R, double* h_RT,
+    virtual void updatePropertiesTemp(const double temp, double* cp_R, double* h_RT,
                                       double* s_R) const;
 
     //! This utility function reports back the type of parameterization and all
@@ -119,10 +118,8 @@ public:
      *       - coeffs[2] is max temperature
      *       - coeffs[3+i] from i =0,9 are the coefficients themselves
      */
-    virtual void reportParameters(size_t& n, int& type,
-                                  double& tlow, double& thigh,
-                                  double& pref,
-                                  double* const coeffs) const;
+    virtual void reportParameters(size_t& n, int& type, double& tlow, double& thigh,
+                                  double& pref, double* const coeffs) const;
 
     virtual void getParameters(AnyMap& thermo) const;
 

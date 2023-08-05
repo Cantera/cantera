@@ -155,8 +155,7 @@ shared_ptr<Kinetics> newKinetics(const vector<shared_ptr<ThermoPhase>>& phases,
 }
 
 unique_ptr<Kinetics> newKinetics(const vector<ThermoPhase*>& phases,
-                                 const string& filename,
-                                 const string& phase_name)
+                                 const string& filename, const string& phase_name)
 {
     warn_deprecated("newKinetics(vector<ThermoPhase*>&, const string&, const string&)",
         "To be removed after Cantera 3.0; superseded by\nnewKinetics"

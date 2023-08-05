@@ -68,8 +68,8 @@ void RedlichKwongMFTP::setSpeciesCoeffs(const string& species,
     b_vec_Curr_[k] = b;
 }
 
-void RedlichKwongMFTP::setBinaryCoeffs(const string& species_i,
-        const string& species_j, double a0, double a1)
+void RedlichKwongMFTP::setBinaryCoeffs(const string& species_i, const string& species_j,
+                                       double a0, double a1)
 {
     size_t ki = speciesIndex(species_i);
     if (ki == npos) {
@@ -590,7 +590,8 @@ double RedlichKwongMFTP::liquidVolEst(double TKelvin, double& presGuess) const
     return v;
 }
 
-double RedlichKwongMFTP::densityCalc(double TKelvin, double presPa, int phaseRequested, double rhoguess)
+double RedlichKwongMFTP::densityCalc(double TKelvin, double presPa, int phaseRequested,
+                                     double rhoguess)
 {
     // It's necessary to set the temperature so that m_a_current is set correctly.
     setTemperature(TKelvin);

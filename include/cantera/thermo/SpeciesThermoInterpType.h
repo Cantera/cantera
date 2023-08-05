@@ -185,8 +185,7 @@ public:
      * @param h_RT    Vector of Dimensionless enthalpies. (length m_kk).
      * @param s_R     Vector of Dimensionless entropies. (length m_kk).
      */
-    virtual void updateProperties(const double* tt,
-                                  double* cp_R, double* h_RT,
+    virtual void updateProperties(const double* tt, double* cp_R, double* h_RT,
                                   double* s_R) const;
 
     //! Compute the reference-state property of one species
@@ -222,9 +221,8 @@ public:
      * @param coeffs    Vector of coefficients used to set the
      *                  parameters for the standard state.
      */
-    virtual void reportParameters(size_t& index, int& type,
-                                  double& minTemp, double& maxTemp,
-                                  double& refPressure,
+    virtual void reportParameters(size_t& index, int& type, double& minTemp,
+                                  double& maxTemp, double& refPressure,
                                   double* const coeffs) const;
 
     //! Return the parameters of the species thermo object such that an

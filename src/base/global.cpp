@@ -59,8 +59,7 @@ void _warn_deprecated(const string& method, const string& extra)
     app()->warn_deprecated(method, extra);
 }
 
-void _warn(const string& warning,
-           const string& method, const string& extra)
+void _warn(const string& warning, const string& method, const string& extra)
 {
     app()->warn(warning, method, extra);
 }

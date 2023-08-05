@@ -231,8 +231,7 @@ double MolalityVPSSTP::osmoticCoefficient() const
     return oc;
 }
 
-void MolalityVPSSTP::setState_TPM(double t, double p,
-                                  const double* const molalities)
+void MolalityVPSSTP::setState_TPM(double t, double p, const double* const molalities)
 {
     setMolalities(molalities);
     setState_TP(t, p);

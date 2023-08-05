@@ -91,8 +91,7 @@ void MultiSpeciesThermo::update_single(size_t k, double t, double* cp_R,
     }
 }
 
-void MultiSpeciesThermo::update(double t, double* cp_R,
-                                  double* h_RT, double* s_R) const
+void MultiSpeciesThermo::update(double t, double* cp_R, double* h_RT, double* s_R) const
 {
     auto iter = m_sp.begin();
     auto jter = m_tpoly.begin();
@@ -115,9 +114,8 @@ int MultiSpeciesThermo::reportType(size_t index) const
     return -1;
 }
 
-void MultiSpeciesThermo::reportParams(size_t index, int& type,
-        double* const c, double& minTemp_, double& maxTemp_,
-        double& refPressure_) const
+void MultiSpeciesThermo::reportParams(size_t index, int& type, double* const c,
+        double& minTemp_, double& maxTemp_, double& refPressure_) const
 {
     const SpeciesThermoInterpType* sp = provideSTIT(index);
     size_t n;

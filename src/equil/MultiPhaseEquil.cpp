@@ -152,8 +152,7 @@ MultiPhaseEquil::MultiPhaseEquil(MultiPhase* mix, bool start, int loglevel) : m_
     // has all non-zero mole numbers for the included species.
 }
 
-double MultiPhaseEquil::equilibrate(int XY, double err,
-                                        int maxsteps, int loglevel)
+double MultiPhaseEquil::equilibrate(int XY, double err, int maxsteps, int loglevel)
 {
     int i;
     m_iter = 0;
@@ -398,8 +397,7 @@ void MultiPhaseEquil::unsort(vector<double>& x)
     }
 }
 
-void MultiPhaseEquil::step(double omega, vector<double>& deltaN,
-                           int loglevel)
+void MultiPhaseEquil::step(double omega, vector<double>& deltaN, int loglevel)
 {
     if (omega < 0.0) {
         throw CanteraError("MultiPhaseEquil::step","negative omega");

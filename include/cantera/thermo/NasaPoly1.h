@@ -121,18 +121,15 @@ public:
         *s_R = s;
     }
 
-    virtual void updatePropertiesTemp(const double temp,
-                                      double* cp_R, double* h_RT,
+    virtual void updatePropertiesTemp(const double temp, double* cp_R, double* h_RT,
                                       double* s_R) const {
         double tPoly[6];
         updateTemperaturePoly(temp, tPoly);
         updateProperties(tPoly, cp_R, h_RT, s_R);
     }
 
-    virtual void reportParameters(size_t& n, int& type,
-                                  double& tlow, double& thigh,
-                                  double& pref,
-                                  double* const coeffs) const {
+    virtual void reportParameters(size_t& n, int& type, double& tlow, double& thigh,
+                                  double& pref, double* const coeffs) const {
         n = 0;
         type = NASA1;
         tlow = m_lowT;

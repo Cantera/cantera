@@ -348,8 +348,7 @@ void StFlow::_finalize(const double* x)
     }
 }
 
-void StFlow::eval(size_t jg, double* xg,
-                  double* rg, integer* diagg, double rdt)
+void StFlow::eval(size_t jg, double* xg, double* rg, integer* diagg, double rdt)
 {
     // if evaluating a Jacobian, and the global point is outside the domain of
     // influence for this domain, then skip evaluating the residual

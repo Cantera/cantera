@@ -647,10 +647,8 @@ void PDSS_HKFT::convertDGFormation()
     m_Mu0_tr_pr = dg + totalSum;
 }
 
-void PDSS_HKFT::reportParams(size_t& kindex, int& type,
-                             double* const c,
-                             double& minTemp_,
-                             double& maxTemp_,
+void PDSS_HKFT::reportParams(size_t& kindex, int& type, double* const c,
+                             double& minTemp_, double& maxTemp_,
                              double& refPressure_) const
 {
     // Fill in the first part

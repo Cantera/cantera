@@ -73,7 +73,7 @@ double WaterPropsIAPWS::pressure() const
 }
 
 double WaterPropsIAPWS::density(double temperature, double pressure,
-                                    int phase, double rhoguess)
+                                int phase, double rhoguess)
 {
     if (fabs(pressure - P_c) / P_c < 1.e-8 &&
         fabs(temperature - T_c) / T_c < 1.e-8) {
@@ -132,8 +132,7 @@ double WaterPropsIAPWS::density(double temperature, double pressure,
     return density_retn;
 }
 
-double WaterPropsIAPWS::density_const(double pressure,
-        int phase, double rhoguess) const
+double WaterPropsIAPWS::density_const(double pressure, int phase, double rhoguess) const
 {
     double temperature = T_c / tau;
     double deltaGuess = 0.0;

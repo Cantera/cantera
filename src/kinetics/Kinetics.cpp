@@ -197,8 +197,7 @@ pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err) const
     return {npos, npos};
 }
 
-double Kinetics::checkDuplicateStoich(map<int, double>& r1,
-                                      map<int, double>& r2) const
+double Kinetics::checkDuplicateStoich(map<int, double>& r1, map<int, double>& r2) const
 {
     std::unordered_set<int> keys; // species keys (k+1 or -k-1)
     for (auto& [speciesKey, stoich] : r1) {
@@ -278,8 +277,7 @@ size_t Kinetics::kineticsSpeciesIndex(const string& nm) const
     return npos;
 }
 
-size_t Kinetics::kineticsSpeciesIndex(const string& nm,
-                                      const string& ph) const
+size_t Kinetics::kineticsSpeciesIndex(const string& nm, const string& ph) const
 {
     warn_deprecated("Kinetics::kineticsSpeciesIndex(species_name, phase_name)",
         "To be removed after Cantera 3.0. Use kineticsSpeciesIndex(species_name).\n"

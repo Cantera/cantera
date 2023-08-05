@@ -79,8 +79,7 @@ public:
      * @param id        name (ID) of the phase in the input file. If empty, the
      *                  first phase definition in the input file will be used.
      */
-    explicit IonsFromNeutralVPSSTP(const string& inputFile="",
-                                   const string& id="");
+    explicit IonsFromNeutralVPSSTP(const string& inputFile="", const string& id="");
 
     //! @}
     //! @name  Utilities
@@ -179,7 +178,8 @@ public:
      *     This is the mapping between ion species and neutral molecule for
      *     quick invert.
      */
-    void getDissociationCoeffs(vector<double>& fm_neutralMolec_ions, vector<double>& charges, vector<size_t>& neutMolIndex) const;
+    void getDissociationCoeffs(vector<double>& fm_neutralMolec_ions,
+        vector<double>& charges, vector<size_t>& neutMolIndex) const;
 
     //! Return the current value of the neutral mole fraction vector
     /*!

@@ -322,8 +322,7 @@ public:
      *  @param[in] rdt Reciprocal of the timestep (`rdt=0` implies steady-
      *  state.)
      */
-    virtual void eval(size_t j, double* x, double* r,
-                      integer* mask, double rdt=0.0) {
+    virtual void eval(size_t j, double* x, double* r, integer* mask, double rdt=0.0) {
         throw NotImplementedError("Domain1D::eval");
     }
 

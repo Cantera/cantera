@@ -53,8 +53,7 @@ public:
      * @param id     The name of this phase. This is used to look up
      *               the phase in the input file.
      */
-    explicit IdealSolidSolnPhase(const string& infile="",
-                                 const string& id="");
+    explicit IdealSolidSolnPhase(const string& infile="", const string& id="");
 
     virtual string type() const {
         return "ideal-condensed";
@@ -526,8 +525,7 @@ public:
     virtual bool addSpecies(shared_ptr<Species> spec);
     virtual void initThermo();
     virtual void getParameters(AnyMap& phaseNode) const;
-    virtual void getSpeciesParameters(const string& name,
-                                      AnyMap& speciesNode) const;
+    virtual void getSpeciesParameters(const string& name, AnyMap& speciesNode) const;
     virtual void setToEquilState(const double* mu_RT);
 
     //! Set the form for the standard and generalized concentrations

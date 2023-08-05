@@ -339,8 +339,7 @@ void DebyeHuckel::setDefaultIonicRadius(double value)
     }
 }
 
-void DebyeHuckel::setBeta(const string& sp1, const string& sp2,
-                          double value)
+void DebyeHuckel::setBeta(const string& sp1, const string& sp2, double value)
 {
     size_t k1 = speciesIndex(sp1);
     if (k1 == npos) {
@@ -477,8 +476,7 @@ void DebyeHuckel::getParameters(AnyMap& phaseNode) const
     phaseNode["activity-data"] = std::move(activityNode);
 }
 
-void DebyeHuckel::getSpeciesParameters(const string& name,
-                                       AnyMap& speciesNode) const
+void DebyeHuckel::getSpeciesParameters(const string& name, AnyMap& speciesNode) const
 {
     MolalityVPSSTP::getSpeciesParameters(name, speciesNode);
     size_t k = speciesIndex(name);

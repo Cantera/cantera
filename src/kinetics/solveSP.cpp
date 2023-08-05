@@ -319,9 +319,8 @@ void solveSP::evalSurfLarge(const double* CSolnSP)
     }
 }
 
-void solveSP::fun_eval(double* resid, const double* CSoln,
-                       const double* CSolnOld, const bool do_time,
-                       const double deltaT)
+void solveSP::fun_eval(double* resid, const double* CSoln, const double* CSolnOld,
+                       const bool do_time, const double deltaT)
 {
     size_t k;
     double lenScale = 1.0E-9;
@@ -426,8 +425,7 @@ void solveSP::fun_eval(double* resid, const double* CSoln,
     }
 }
 
-void solveSP::resjac_eval(DenseMatrix& jac,
-                          double resid[], double CSoln[],
+void solveSP::resjac_eval(DenseMatrix& jac, double resid[], double CSoln[],
                           const double CSolnOld[], const bool do_time,
                           const double deltaT)
 {
@@ -572,10 +570,8 @@ void solveSP::calcWeights(double wtSpecies[], double wtResid[],
     }
 }
 
-double solveSP::calc_t(double netProdRateSolnSP[],
-                          double XMolSolnSP[],
-                          int* label, int* label_old,
-                          double* label_factor, int ioflag)
+double solveSP::calc_t(double netProdRateSolnSP[], double XMolSolnSP[], int* label,
+                       int* label_old, double* label_factor, int ioflag)
 {
     double inv_timeScale = 1.0E-10;
     size_t kindexSP = 0;

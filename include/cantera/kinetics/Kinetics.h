@@ -1512,8 +1512,7 @@ protected:
      *  @return 0.0 if the stoichiometries are not multiples of one another
      *    Otherwise, it returns the ratio of the stoichiometric coefficients.
      */
-    double checkDuplicateStoich(map<int, double>& r1,
-                                map<int, double>& r2) const;
+    double checkDuplicateStoich(map<int, double>& r1, map<int, double>& r2) const;
 
     //! @name Stoichiometry management
     //!

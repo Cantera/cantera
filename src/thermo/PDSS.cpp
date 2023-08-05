@@ -188,11 +188,8 @@ double PDSS::satPressure(double t)
     throw NotImplementedError("PDSS::satPressure");
 }
 
-void PDSS::reportParams(size_t& kindex, int& type,
-                        double* const c,
-                        double& minTemp_,
-                        double& maxTemp_,
-                        double& refPressure_) const
+void PDSS::reportParams(size_t& kindex, int& type, double* const c, double& minTemp_,
+                        double& maxTemp_, double& refPressure_) const
 {
     warn_deprecated("PDSS:reportParams", "To be removed after Cantera 3.0. "
                     "Use getParameters(AnyMap&) instead.");

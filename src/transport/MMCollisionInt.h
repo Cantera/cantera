@@ -41,8 +41,7 @@ public:
     double astar(double ts, double deltastar);
     double bstar(double ts, double deltastar);
     double cstar(double ts, double deltastar);
-    void fit(int degree, double deltastar,
-             double* astar, double* bstar, double* cstar);
+    void fit(int degree, double deltastar, double* astar, double* bstar, double* cstar);
     void fit_omega22(int degree, double deltastar, double* om22);
     double omega11(double ts, double deltastar) {
         return omega22(ts, deltastar)/astar(ts, deltastar);
