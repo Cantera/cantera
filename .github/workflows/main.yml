@@ -669,7 +669,7 @@ jobs:
         echo "deb ${INTEL_REPO}/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list
         sudo apt-get update
     - name: Install Intel oneAPI
-      timeout-minutes: 5
+      timeout-minutes: 15
       run: |
         sudo apt-get install intel-oneapi-compiler-fortran intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic \
         intel-oneapi-mpi intel-oneapi-mpi-devel intel-oneapi-mkl ninja-build libboost-dev libhdf5-dev
@@ -717,7 +717,7 @@ jobs:
         echo "deb ${INTEL_REPO}/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list
         sudo apt-get update
     - name: Install Intel oneAPI
-      timeout-minutes: 5
+      timeout-minutes: 15
       run: |
         sudo apt-get install intel-oneapi-compiler-fortran intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic \
         intel-oneapi-mpi intel-oneapi-mpi-devel intel-oneapi-mkl ninja-build libboost-dev
