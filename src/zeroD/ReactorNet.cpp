@@ -373,8 +373,7 @@ double ReactorNet::sensitivity(size_t k, size_t p)
     return m_integ->sensitivity(k, p) / denom;
 }
 
-void ReactorNet::evalJacobian(double t, double* y,
-                              double* ydot, double* p, Array2D* j)
+void ReactorNet::evalJacobian(double t, double* y, double* ydot, double* p, Array2D* j)
 {
     //evaluate the unperturbed ydot
     eval(t, y, ydot, p);

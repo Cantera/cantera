@@ -973,8 +973,7 @@ AnyValue& AnyValue::operator=(AnyMap&& value) {
     return *this;
 }
 
-std::unordered_map<string, const AnyMap*> AnyValue::asMap(
-    const string& name) const
+std::unordered_map<string, const AnyMap*> AnyValue::asMap(const string& name) const
 {
     std::unordered_map<string, const AnyMap*> mapped;
     for (const auto& item : asVector<AnyMap>()) {
@@ -1032,8 +1031,7 @@ const AnyMap& AnyValue::getMapWhere(const string& key, const string& value) cons
     }
 }
 
-AnyMap& AnyValue::getMapWhere(const string& key, const string& value,
-                              bool create)
+AnyMap& AnyValue::getMapWhere(const string& key, const string& value, bool create)
 {
     if (is<vector<AnyMap>>()) {
         if (value == "") {
@@ -1529,8 +1527,7 @@ long int AnyMap::getInt(const string& key, long int default_) const
     return (hasKey(key)) ? m_data.at(key).asInt() : default_;
 }
 
-const string& AnyMap::getString(const string& key,
-                                     const string& default_) const
+const string& AnyMap::getString(const string& key, const string& default_) const
 {
     return (hasKey(key)) ? m_data.at(key).asString() : default_;
 }
@@ -1556,7 +1553,7 @@ double AnyMap::convert(const string& key, const string& dest,
 }
 
 vector<double> AnyMap::convertVector(const string& key, const string& dest,
-                                size_t nMin, size_t nMax) const
+                                     size_t nMin, size_t nMax) const
 {
     return units().convert(at(key).asVector<AnyValue>(nMin, nMax), dest);
 }
@@ -1771,8 +1768,7 @@ AnyMap AnyMap::fromYamlString(const string& yaml) {
     return amap;
 }
 
-AnyMap AnyMap::fromYamlFile(const string& name,
-                            const string& parent_name)
+AnyMap AnyMap::fromYamlFile(const string& name, const string& parent_name)
 {
     string fullName;
     // See if a file with this name exists in a path relative to the parent file
@@ -1885,9 +1881,8 @@ void formatInputFile(fmt::memory_buffer& b, const shared_ptr<AnyMap>& metadata,
 }
 }
 
-string InputFileError::formatError(const string& message,
-                                        int lineno, int column,
-                                        const shared_ptr<AnyMap>& metadata)
+string InputFileError::formatError(const string& message, int lineno, int column,
+                                   const shared_ptr<AnyMap>& metadata)
 {
     if (!metadata) {
         return message;
@@ -1900,11 +1895,10 @@ string InputFileError::formatError(const string& message,
     return to_string(b);
 }
 
-string InputFileError::formatError2(const string& message,
-                                         int line1, int column1,
-                                         const shared_ptr<AnyMap>& metadata1,
-                                         int line2, int column2,
-                                         const shared_ptr<AnyMap>& metadata2)
+string InputFileError::formatError2(const string& message, int line1, int column1,
+                                    const shared_ptr<AnyMap>& metadata1,
+                                    int line2, int column2,
+                                    const shared_ptr<AnyMap>& metadata2)
 {
     if (!metadata1 || !metadata2) {
         return message;
@@ -1929,8 +1923,7 @@ string InputFileError::formatError2(const string& message,
     return to_string(b);
 }
 
-void warn_deprecated(const string& source, const AnyBase& node,
-                     const string& message)
+void warn_deprecated(const string& source, const AnyBase& node, const string& message)
 {
     if (!node.m_metadata) {
         warn_deprecated(source, message);

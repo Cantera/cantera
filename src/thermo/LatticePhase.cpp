@@ -288,8 +288,7 @@ void LatticePhase::getParameters(AnyMap& phaseNode) const
     phaseNode["site-density"].setQuantity(m_site_density, "kmol/m^3");
 }
 
-void LatticePhase::getSpeciesParameters(const string& name,
-                                        AnyMap& speciesNode) const
+void LatticePhase::getSpeciesParameters(const string& name, AnyMap& speciesNode) const
 {
     ThermoPhase::getSpeciesParameters(name, speciesNode);
     size_t k = speciesIndex(name);

@@ -15,7 +15,8 @@ public:
         ck_tran.init(phase.get(), CK_Mode);
     }
 
-    void check_viscosity_poly(const string& speciek, const vector<double>& visc_coeff_expected, int cmode) {
+    void check_viscosity_poly(const string& speciek,
+                              const vector<double>& visc_coeff_expected, int cmode) {
         size_t k = phase->speciesIndex(speciek);
         vector<double> coeffs (cmode == CK_Mode ? 4 : 5);
         if (cmode == CK_Mode) {
@@ -28,7 +29,8 @@ public:
         }
     }
 
-    void check_cond_poly(const string& speciek, const vector<double>& cond_coeff_expected, int cmode) {
+    void check_cond_poly(const string& speciek,
+                         const vector<double>& cond_coeff_expected, int cmode) {
         MixTransport tran;
         tran.init(phase.get(), cmode);
         size_t k = phase->speciesIndex(speciek);
@@ -43,7 +45,8 @@ public:
         }
     }
 
-    void check_bindiff_poly(const string& speciek, const string& speciej, const vector<double>& bindiff_coeff_expected, int cmode) {
+    void check_bindiff_poly(const string& speciek, const string& speciej,
+                            const vector<double>& bindiff_coeff_expected, int cmode) {
         size_t k = phase->speciesIndex(speciek);
         size_t j = phase->speciesIndex(speciej);
         vector<double> coeffs (cmode == CK_Mode ? 4 : 5);

@@ -67,8 +67,7 @@ double SpeciesThermoInterpType::reportHf298(double* const h298) const
     throw NotImplementedError("SpeciesThermoInterpType::reportHf298");
 }
 
-void SpeciesThermoInterpType::modifyOneHf298(const size_t k,
-                                             const double Hf298New)
+void SpeciesThermoInterpType::modifyOneHf298(const size_t k, const double Hf298New)
 {
     throw NotImplementedError("SpeciesThermoInterpType::modifyOneHf298");
 }

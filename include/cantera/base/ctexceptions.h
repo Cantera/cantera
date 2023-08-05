@@ -80,8 +80,7 @@ public:
      * @param args Arguments which will be used to interpolate the format string
      */
     template <typename... Args>
-    CanteraError(const string& procedure, const string& msg,
-                 const Args&... args)
+    CanteraError(const string& procedure, const string& msg, const Args&... args)
         : procedure_(procedure)
     {
         if (sizeof...(args) == 0) {
@@ -202,8 +201,7 @@ public:
 
     //! Alternative constructor taking same arguments as CanteraError
     template <typename... Args>
-    NotImplementedError(const string& func, const string& msg,
-                        const Args&... args) :
+    NotImplementedError(const string& func, const string& msg, const Args&... args) :
         CanteraError(func, msg, args...) {}
 
     virtual string getClass() const {

@@ -422,8 +422,7 @@ public:
      *                    If blank, an empty phase will be created.
      *  @param id         id attribute containing the name of the phase.
      */
-    explicit DebyeHuckel(const string& inputFile="",
-                         const string& id="");
+    explicit DebyeHuckel(const string& inputFile="", const string& id="");
 
     //! @name  Utilities
     //! @{
@@ -623,8 +622,7 @@ public:
     virtual bool addSpecies(shared_ptr<Species> spec);
     virtual void initThermo();
     virtual void getParameters(AnyMap& phaseNode) const;
-    virtual void getSpeciesParameters(const string& name,
-                                  AnyMap& speciesNode) const;
+    virtual void getSpeciesParameters(const string& name, AnyMap& speciesNode) const;
 
     //! Return the Debye Huckel constant as a function of temperature
     //! and pressure (Units = sqrt(kg/gmol))

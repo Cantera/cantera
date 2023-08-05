@@ -541,9 +541,8 @@ void InterfaceKinetics::resizeSpecies()
     m_phi.resize(nPhases(), 0.0);
 }
 
-void InterfaceKinetics::advanceCoverages(double tstep, double rtol,
-                                         double atol, double maxStepSize,
-                                         size_t maxSteps, size_t maxErrTestFails)
+void InterfaceKinetics::advanceCoverages(double tstep, double rtol, double atol,
+        double maxStepSize, size_t maxSteps, size_t maxErrTestFails)
 {
     if (m_integrator == 0) {
         vector<InterfaceKinetics*> k{this};

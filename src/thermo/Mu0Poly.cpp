@@ -131,10 +131,8 @@ size_t Mu0Poly::nCoeffs() const
   return 2*m_numIntervals + 4;
 }
 
-void Mu0Poly::reportParameters(size_t& n, int& type,
-                               double& tlow, double& thigh,
-                               double& pref,
-                               double* const coeffs) const
+void Mu0Poly::reportParameters(size_t& n, int& type, double& tlow, double& thigh,
+                               double& pref, double* const coeffs) const
 {
     n = 0;
     type = MU0_INTERP;

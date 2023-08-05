@@ -765,9 +765,8 @@ double ThermoPhase::stoichAirFuelRatio(const Composition& fuelComp,
     return stoichAirFuelRatio(fuel.data(), ox.data(), basis);
 }
 
-double ThermoPhase::stoichAirFuelRatio(const string& fuelComp,
-                                          const string& oxComp,
-                                          ThermoBasis basis) const
+double ThermoPhase::stoichAirFuelRatio(const string& fuelComp, const string& oxComp,
+                                       ThermoBasis basis) const
 {
     return stoichAirFuelRatio(
             parseCompString(fuelComp.find(":") != string::npos ? fuelComp : fuelComp+":1.0"),
@@ -878,9 +877,8 @@ double ThermoPhase::equivalenceRatio(const Composition& fuelComp,
     return equivalenceRatio(fuel.data(), ox.data(), basis);
 }
 
-double ThermoPhase::equivalenceRatio(const string& fuelComp,
-                                        const string& oxComp,
-                                        ThermoBasis basis) const
+double ThermoPhase::equivalenceRatio(const string& fuelComp, const string& oxComp,
+                                     ThermoBasis basis) const
 {
     return equivalenceRatio(
         parseCompString(fuelComp.find(":") != string::npos ? fuelComp : fuelComp+":1.0"),
@@ -982,10 +980,8 @@ double ThermoPhase::mixtureFraction(const Composition& fuelComp,
     return mixtureFraction(fuel.data(), ox.data(), basis, element);
 }
 
-double ThermoPhase::mixtureFraction(const string& fuelComp,
-                                       const string& oxComp,
-                                       ThermoBasis basis,
-                                       const string& element) const
+double ThermoPhase::mixtureFraction(const string& fuelComp, const string& oxComp,
+                                    ThermoBasis basis, const string& element) const
 {
     return mixtureFraction(
             parseCompString(fuelComp.find(":") != string::npos ? fuelComp : fuelComp+":1.0"),
@@ -993,10 +989,8 @@ double ThermoPhase::mixtureFraction(const string& fuelComp,
             basis, element);
 }
 
-double ThermoPhase::mixtureFraction(const double* fuelComp,
-                                       const double* oxComp,
-                                       ThermoBasis basis,
-                                       const string& element) const
+double ThermoPhase::mixtureFraction(const double* fuelComp, const double* oxComp,
+                                    ThermoBasis basis, const string& element) const
 {
     vector<double> fuel, ox;
     if (basis == ThermoBasis::molar) { // convert input compositions to mass fractions
@@ -1075,8 +1069,7 @@ const MultiSpeciesThermo& ThermoPhase::speciesThermo(int k) const
 }
 
 
-void ThermoPhase::initThermoFile(const string& inputFile,
-                                 const string& id)
+void ThermoPhase::initThermoFile(const string& inputFile, const string& id)
 {
     if (inputFile.empty()) {
         // No input file specified - nothing to set up
@@ -1303,7 +1296,8 @@ void ThermoPhase::getdlnActCoeffdlnN(const size_t ld, double* const dlnActCoeffd
     return;
 }
 
-void ThermoPhase::getdlnActCoeffdlnN_numderiv(const size_t ld, double* const dlnActCoeffdlnN)
+void ThermoPhase::getdlnActCoeffdlnN_numderiv(const size_t ld,
+                                              double* const dlnActCoeffdlnN)
 {
     double deltaMoles_j = 0.0;
     double pres = pressure();

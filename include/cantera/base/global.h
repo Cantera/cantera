@@ -224,8 +224,7 @@ void _warn_deprecated(const string& method, const string& extra="");
  * @param args  arguments for the format string
  */
 template <typename... Args>
-void warn_deprecated(const string& method, const string& msg,
-                     const Args&... args) {
+void warn_deprecated(const string& method, const string& msg, const Args&... args) {
     if (sizeof...(args) == 0) {
         _warn_deprecated(method, msg);
     } else {
@@ -236,8 +235,7 @@ void warn_deprecated(const string& method, const string& msg,
 //! @cond
 
 //! helper function passing generic warning to global handler
-void _warn(const string& warning,
-           const string& method, const string& extra);
+void _warn(const string& warning, const string& method, const string& extra);
 
 //! @endcond
 
@@ -266,8 +264,7 @@ void warn(const string& warning, const string& method,
  * @param args  arguments for the format string
  */
 template <typename... Args>
-void warn_user(const string& method, const string& msg,
-               const Args&... args) {
+void warn_user(const string& method, const string& msg, const Args&... args) {
     if (sizeof...(args) == 0) {
         _warn("Cantera", method, msg);
     } else {

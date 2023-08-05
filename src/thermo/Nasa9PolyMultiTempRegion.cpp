@@ -114,9 +114,7 @@ void Nasa9PolyMultiTempRegion::updateTemperaturePoly(double T, double* T_poly) c
 }
 
 void Nasa9PolyMultiTempRegion::updateProperties(const double* tt,
-        double* cp_R,
-        double* h_RT,
-        double* s_R) const
+        double* cp_R, double* h_RT, double* s_R) const
 {
     m_currRegion = 0;
     for (size_t i = 1; i < m_regionPts.size(); i++) {
@@ -130,8 +128,7 @@ void Nasa9PolyMultiTempRegion::updateProperties(const double* tt,
 }
 
 void Nasa9PolyMultiTempRegion::updatePropertiesTemp(const double temp,
-        double* cp_R, double* h_RT,
-        double* s_R) const
+        double* cp_R, double* h_RT, double* s_R) const
 {
     // Now find the region
     m_currRegion = 0;
@@ -151,9 +148,7 @@ size_t Nasa9PolyMultiTempRegion::nCoeffs() const
 }
 
 void Nasa9PolyMultiTempRegion::reportParameters(size_t& n, int& type,
-        double& tlow, double& thigh,
-        double& pref,
-        double* const coeffs) const
+        double& tlow, double& thigh, double& pref, double* const coeffs) const
 {
     n = 0;
     type = NASA9MULTITEMP;

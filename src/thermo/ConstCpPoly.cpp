@@ -60,10 +60,8 @@ void ConstCpPoly::updatePropertiesTemp(const double temp,
     *s_R = m_s0_R + m_cp0_R * (logt - m_logt0);
 }
 
-void ConstCpPoly::reportParameters(size_t& n, int& type,
-                                   double& tlow, double& thigh,
-                                   double& pref,
-                                   double* const coeffs) const
+void ConstCpPoly::reportParameters(size_t& n, int& type, double& tlow, double& thigh,
+                                   double& pref, double* const coeffs) const
 {
     n = 0;
     type = CONSTANT_CP;

@@ -1424,8 +1424,7 @@ private:
      *              are being calculated.
      * @param doUV  True if solving for UV, false for HP.
      */
-    void setState_HPorUV(double h, double p,
-                         double tol=1e-9, bool doUV = false);
+    void setState_HPorUV(double h, double p, double tol=1e-9, bool doUV = false);
 
     //! Carry out work in SP and SV calculations.
     /*!
@@ -1688,8 +1687,7 @@ public:
      * @param name         Name of the species
      * @param speciesNode  Mapping to be populated with parameters
      */
-    virtual void getSpeciesParameters(const string& name,
-                                      AnyMap& speciesNode) const {}
+    virtual void getSpeciesParameters(const string& name, AnyMap& speciesNode) const {}
 
     //! Access input data associated with the phase description
     const AnyMap& input() const;

@@ -10,8 +10,7 @@
 namespace Cantera
 {
 
-double linearInterp(double x, const vector<double>& xpts,
-                        const vector<double>& fpts)
+double linearInterp(double x, const vector<double>& xpts, const vector<double>& fpts)
 {
     if (x <= xpts[0]) {
         return fpts[0];
@@ -22,8 +21,8 @@ double linearInterp(double x, const vector<double>& xpts,
     auto loc = lower_bound(xpts.begin(), xpts.end(), x);
     int iloc = int(loc - xpts.begin()) - 1;
     double ff = fpts[iloc] +
-                    (x - xpts[iloc])*(fpts[iloc + 1]
-                                      - fpts[iloc])/(xpts[iloc + 1] - xpts[iloc]);
+                (x - xpts[iloc])*(fpts[iloc + 1]
+                                  - fpts[iloc])/(xpts[iloc + 1] - xpts[iloc]);
     return ff;
 }
 

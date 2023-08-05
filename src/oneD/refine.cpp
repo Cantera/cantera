@@ -18,8 +18,7 @@ Refiner::Refiner(Domain1D& domain) :
     m_active.resize(m_nv, true);
 }
 
-void Refiner::setCriteria(double ratio, double slope,
-                          double curve, double prune)
+void Refiner::setCriteria(double ratio, double slope, double curve, double prune)
 {
     if (ratio < 2.0) {
         throw CanteraError("Refiner::setCriteria",
@@ -41,8 +40,7 @@ void Refiner::setCriteria(double ratio, double slope,
     m_prune = prune;
 }
 
-int Refiner::analyze(size_t n, const double* z,
-                     const double* x)
+int Refiner::analyze(size_t n, const double* z, const double* x)
 {
     if (n >= m_npmax) {
         throw CanteraError("Refiner::analyze", "max number of grid points reached ({}).", m_npmax);
@@ -226,8 +224,7 @@ void Refiner::show()
     }
 }
 
-int Refiner::getNewGrid(int n, const double* z,
-                        int nn, double* zn)
+int Refiner::getNewGrid(int n, const double* z, int nn, double* zn)
 {
     int nnew = static_cast<int>(m_loc.size());
     if (nnew + n > nn) {

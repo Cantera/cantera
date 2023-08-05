@@ -79,8 +79,7 @@ inline double dot5(const V& x, const V& y)
  * @return The return is hard-coded to return a double.
  */
 template<class InputIter, class InputIter2>
-inline double dot(InputIter x_begin, InputIter x_end,
-                      InputIter2 y_begin)
+inline double dot(InputIter x_begin, InputIter x_end, InputIter2 y_begin)
 {
     return std::inner_product(x_begin, x_end, y_begin, 0.0);
 }

@@ -410,8 +410,7 @@ double MMCollisionInt::cstar(double ts, double deltastar)
     return quadInterp(log(ts), &m_logTemp[i1], values.data());
 }
 
-void MMCollisionInt::fit_omega22(int degree, double deltastar,
-                                 double* o22)
+void MMCollisionInt::fit_omega22(int degree, double deltastar, double* o22)
 {
     int n = m_nmax - m_nmin + 1;
     vector<double> values(n);
@@ -433,8 +432,7 @@ void MMCollisionInt::fit_omega22(int degree, double deltastar,
     }
 }
 
-void MMCollisionInt::fit(int degree, double deltastar,
-                         double* a, double* b, double* c)
+void MMCollisionInt::fit(int degree, double deltastar, double* a, double* b, double* c)
 {
     int n = m_nmax - m_nmin + 1;
     vector<double> values(n);

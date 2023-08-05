@@ -26,8 +26,7 @@ PengRobinson::PengRobinson(const string& infile, const string& id_)
     initThermoFile(infile, id_);
 }
 
-void PengRobinson::setSpeciesCoeffs(const string& species, double a, double b,
-                                    double w)
+void PengRobinson::setSpeciesCoeffs(const string& species, double a, double b, double w)
 {
     size_t k = speciesIndex(species);
     if (k == npos) {
@@ -421,8 +420,7 @@ void PengRobinson::initThermo()
     }
 }
 
-void PengRobinson::getSpeciesParameters(const string& name,
-                                        AnyMap& speciesNode) const
+void PengRobinson::getSpeciesParameters(const string& name, AnyMap& speciesNode) const
 {
     MixtureFugacityTP::getSpeciesParameters(name, speciesNode);
     size_t k = speciesIndex(name);

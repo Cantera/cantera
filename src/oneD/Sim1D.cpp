@@ -58,7 +58,8 @@ Sim1D::Sim1D(vector<Domain1D*>& domains) :
     m_steps = { 10 };
 }
 
-void Sim1D::setInitialGuess(const string& component, vector<double>& locs, vector<double>& vals)
+void Sim1D::setInitialGuess(const string& component, vector<double>& locs,
+                            vector<double>& vals)
 {
     for (size_t dom=0; dom<nDomains(); dom++) {
         Domain1D& d = domain(dom);
@@ -125,9 +126,8 @@ void Sim1D::save(const string& fname, const string& id,
     }
 }
 
-void Sim1D::save(const string& fname, const string& name,
-                 const string& desc, bool overwrite, int compression,
-                 const string& basis)
+void Sim1D::save(const string& fname, const string& name, const string& desc,
+                 bool overwrite, int compression, const string& basis)
 {
     size_t dot = fname.find_last_of(".");
     string extension = (dot != npos) ? toLowerCopy(fname.substr(dot+1)) : "";

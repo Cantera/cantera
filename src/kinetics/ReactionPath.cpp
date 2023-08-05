@@ -47,8 +47,7 @@ Path::Path(SpeciesNode* begin, SpeciesNode* end)
     end->addPath(this);
 }
 
-void Path::addReaction(size_t rxnNumber, double value,
-                       const string& label)
+void Path::addReaction(size_t rxnNumber, double value, const string& label)
 {
     m_rxn[rxnNumber] += value;
     m_total += value;
@@ -126,8 +125,7 @@ void ReactionPathDiagram::add(ReactionPathDiagram& d)
     }
 }
 
-void ReactionPathDiagram::findMajorPaths(double athreshold, size_t lda,
-        double* a)
+void ReactionPathDiagram::findMajorPaths(double athreshold, size_t lda, double* a)
 {
     double netmax = 0.0;
     for (size_t n = 0; n < nNodes(); n++) {

@@ -214,8 +214,7 @@ void InterfaceRateBase::getCoverageDependencies(AnyMap& dependencies,
     }
 }
 
-void InterfaceRateBase::addCoverageDependence(const string& sp,
-                                              double a, double m,
+void InterfaceRateBase::addCoverageDependence(const string& sp, double a, double m,
                                               const vector<double>& e)
 {
     if (std::find(m_cov.begin(), m_cov.end(), sp) == m_cov.end()) {

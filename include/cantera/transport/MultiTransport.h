@@ -102,8 +102,7 @@ public:
      * @param delta  Distance from state 1 to state 2 (m).
      * @param fluxes Output mass fluxes of the species. (length = m_nsp)
      */
-    virtual void getMassFluxes(const double* state1,
-                               const double* state2, double delta,
+    virtual void getMassFluxes(const double* state1, const double* state2, double delta,
                                double* fluxes);
 
     virtual void init(ThermoPhase* thermo, int mode=0, int log_level=0);

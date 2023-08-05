@@ -238,8 +238,7 @@ void MultiPhase::getChemPotentials(double* mu) const
     }
 }
 
-void MultiPhase::getValidChemPotentials(double not_mu,
-                                        double* mu, bool standard) const
+void MultiPhase::getValidChemPotentials(double not_mu, double* mu, bool standard) const
 {
     updatePhases();
     // iterate over the phases
@@ -421,8 +420,7 @@ void MultiPhase::setState_TP(const double T, const double Pres)
     updatePhases();
 }
 
-void MultiPhase::setState_TPMoles(const double T, const double Pres,
-                                  const double* n)
+void MultiPhase::setState_TPMoles(const double T, const double Pres, const double* n)
 {
     m_temp = T;
     m_press = Pres;
@@ -469,9 +467,8 @@ double MultiPhase::volume() const
     return sum;
 }
 
-double MultiPhase::equilibrate_MultiPhaseEquil(int XY, double err,
-                                               int maxsteps, int maxiter,
-                                               int loglevel)
+double MultiPhase::equilibrate_MultiPhaseEquil(int XY, double err, int maxsteps,
+                                               int maxiter, int loglevel)
 {
     bool strt = false;
     double dta = 0.0;

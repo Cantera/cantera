@@ -325,8 +325,7 @@ double HMWSoln::satPressure(double t) {
     return pres;
 }
 
-static void check_nParams(const string& method, size_t nParams,
-                          size_t m_formPitzerTemp)
+static void check_nParams(const string& method, size_t nParams, size_t m_formPitzerTemp)
 {
     if (m_formPitzerTemp == PITZER_TEMP_CONSTANT && nParams != 1) {
         throw CanteraError(method, "'constant' temperature model requires one"

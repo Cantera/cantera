@@ -81,9 +81,8 @@ public:
      *
      * @param fluxes   Vector of species molar fluxes due to diffusional driving force
      */
-    virtual void getMolarFluxes(const double* const state1,
-                                const double* const state2, const double delta,
-                                double* const fluxes);
+    virtual void getMolarFluxes(const double* const state1, const double* const state2,
+                                const double delta, double* const fluxes);
 
     // new methods added in this class
 

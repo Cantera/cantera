@@ -55,8 +55,7 @@ void Nasa9Poly1::updateTemperaturePoly(double T, double* T_poly) const
     T_poly[6] = std::log(T);
 }
 
-void Nasa9Poly1::updateProperties(const double* tt,
-                                  double* cp_R, double* h_RT,
+void Nasa9Poly1::updateProperties(const double* tt, double* cp_R, double* h_RT,
                                   double* s_R) const
 {
 
@@ -80,8 +79,7 @@ void Nasa9Poly1::updateProperties(const double* tt,
     *s_R = sdivR;
 }
 
-void Nasa9Poly1::updatePropertiesTemp(const double temp,
-                                      double* cp_R, double* h_RT,
+void Nasa9Poly1::updatePropertiesTemp(const double temp, double* cp_R, double* h_RT,
                                       double* s_R) const
 {
     double tPoly[7];
@@ -89,10 +87,8 @@ void Nasa9Poly1::updatePropertiesTemp(const double temp,
     updateProperties(tPoly, cp_R, h_RT, s_R);
 }
 
-void Nasa9Poly1::reportParameters(size_t& n, int& type,
-                                  double& tlow, double& thigh,
-                                  double& pref,
-                                  double* const coeffs) const
+void Nasa9Poly1::reportParameters(size_t& n, int& type, double& tlow, double& thigh,
+                                  double& pref, double* const coeffs) const
 {
     n = 0;
     type = NASA9;

@@ -60,8 +60,7 @@ public:
      *                  coeffs]. This is the coefficient order used in the
      *                  standard NASA format.
      */
-    NasaPoly2(double tlow, double thigh, double pref,
-              const double* coeffs) :
+    NasaPoly2(double tlow, double thigh, double pref, const double* coeffs) :
         SpeciesThermoInterpType(tlow, thigh, pref),
         m_midT(coeffs[0]),
         mnp_low(tlow, coeffs[0], pref, coeffs + 8),
@@ -125,10 +124,8 @@ public:
 
     size_t nCoeffs() const { return 15; }
 
-    void reportParameters(size_t& n, int& type,
-                          double& tlow, double& thigh,
-                          double& pref,
-                          double* const coeffs) const {
+    void reportParameters(size_t& n, int& type, double& tlow, double& thigh,
+                          double& pref, double* const coeffs) const {
         mnp_high.reportParameters(n, type, coeffs[0], thigh, pref, coeffs + 1);
         mnp_low.reportParameters(n, type, tlow, coeffs[0], pref, coeffs + 8);
         type = NASA2;

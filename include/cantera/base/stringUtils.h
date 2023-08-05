@@ -25,8 +25,7 @@ namespace Cantera
  * @param fmt   Format to be used (printf style) for each element
  * @param sep   Separator
  */
-string vec2str(const vector<double>& v, const string& fmt="%g",
-               const string& sep=", ");
+string vec2str(const vector<double>& v, const string& fmt="%g", const string& sep=", ");
 
 //! Strip non-printing characters wherever they are
 /*!

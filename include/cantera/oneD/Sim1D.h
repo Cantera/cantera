@@ -138,8 +138,7 @@ public:
      * @param loglevel  Level of diagnostic output
      * @deprecated To be removed after %Cantera 3.0; loglevel is deprecated.
      */
-    void save(const string& fname, const string& id,
-              const string& desc, int loglevel);
+    void save(const string& fname, const string& id, const string& desc, int loglevel);
 
     /**
      * Save current simulation data to a container file or CSV format.
@@ -168,9 +167,8 @@ public:
      *      if not specified (default=""), the native basis of the underlying
      *      ThermoPhase manager is used - @see nativeState (CSV only)
      */
-    void save(const string& fname, const string& name,
-              const string& desc, bool overwrite=false, int compression=0,
-              const string& basis="");
+    void save(const string& fname, const string& name, const string& desc,
+              bool overwrite=false, int compression=0, const string& basis="");
 
     /**
      * Save the residual of the current solution to a container file.

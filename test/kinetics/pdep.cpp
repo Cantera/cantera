@@ -21,8 +21,7 @@ public:
     }
 
     void SetUp() {
-        string Xref = "H:1.0, R1A:1.0, R1B:1.0, R2:1.0, "
-                           "R3:1.0, R4:1.0, R5:1.0, R6:1.0";
+        string Xref = "H:1.0, R1A:1.0, R1B:1.0, R2:1.0, R3:1.0, R4:1.0, R5:1.0, R6:1.0";
 
         soln_->thermo()->setState_TPX(900.0, 101325 * 8.0, Xref);
     }

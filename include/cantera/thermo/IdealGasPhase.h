@@ -258,8 +258,7 @@ public:
      * @param id        ID of the phase in the input file. Defaults to the
      *                  empty string.
      */
-    explicit IdealGasPhase(const string& inputFile="",
-                           const string& id="");
+    explicit IdealGasPhase(const string& inputFile="", const string& id="");
 
     virtual string type() const {
         return "ideal-gas";

@@ -253,8 +253,8 @@ void MultiTransport::getSpeciesFluxes(size_t ndim, const double* const grad_T,
     }
 }
 
-void MultiTransport::getMassFluxes(const double* state1, const double* state2, double delta,
-                                   double* fluxes)
+void MultiTransport::getMassFluxes(const double* state1, const double* state2,
+                                   double delta, double* fluxes)
 {
     double* x1 = m_spwork1.data();
     double* x2 = m_spwork2.data();

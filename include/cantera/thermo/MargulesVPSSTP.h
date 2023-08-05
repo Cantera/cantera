@@ -221,8 +221,7 @@ public:
      * @param id        name (ID) of the phase in the input file. If empty, the
      *                  first phase definition in the input file will be used.
      */
-    explicit MargulesVPSSTP(const string& inputFile="",
-                            const string& id="");
+    explicit MargulesVPSSTP(const string& inputFile="", const string& id="");
 
     virtual string type() const {
         return "Margules";
@@ -360,7 +359,8 @@ public:
     //! @name  Derivatives of Thermodynamic Variables needed for Applications
     //! @{
 
-    virtual void getdlnActCoeffds(const double dTds, const double* const dXds, double* dlnActCoeffds) const;
+    virtual void getdlnActCoeffds(const double dTds, const double* const dXds,
+                                  double* dlnActCoeffds) const;
     virtual void getdlnActCoeffdlnX_diag(double* dlnActCoeffdlnX_diag) const;
     virtual void getdlnActCoeffdlnN_diag(double* dlnActCoeffdlnN_diag) const;
     virtual void getdlnActCoeffdlnN(const size_t ld, double* const dlnActCoeffdlnN);

@@ -119,8 +119,7 @@ public:
      * Temperature Polynomial:
      *     tt[0] = temp (Kelvin)
      */
-    virtual void updateProperties(const double* tt,
-                                  double* cp_R, double* h_RT,
+    virtual void updateProperties(const double* tt, double* cp_R, double* h_RT,
                                   double* s_R) const;
 
     virtual void updatePropertiesTemp(const double temp,
@@ -130,10 +129,8 @@ public:
 
     virtual size_t nCoeffs() const;
 
-    virtual void reportParameters(size_t& n, int& type,
-                                  double& tlow, double& thigh,
-                                  double& pref,
-                                  double* const coeffs) const;
+    virtual void reportParameters(size_t& n, int& type, double& tlow, double& thigh,
+                                  double& pref, double* const coeffs) const;
 
     virtual void getParameters(AnyMap& thermo) const;
 

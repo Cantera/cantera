@@ -34,8 +34,7 @@ double cCut_default = .05;
 namespace Cantera
 {
 
-IdealMolalSoln::IdealMolalSoln(const string& inputFile,
-                               const string& id_) :
+IdealMolalSoln::IdealMolalSoln(const string& inputFile, const string& id_) :
     IMS_X_o_cutoff_(X_o_cutoff_default),
     IMS_gamma_o_min_(gamma_o_min_default),
     IMS_gamma_k_min_(gamma_k_min_default),

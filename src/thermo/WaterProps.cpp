@@ -93,8 +93,7 @@ double WaterProps::density_T(double T, double P, int ifunc)
     return rho;
 }
 
-double WaterProps::relEpsilon(double T, double P_pascal,
-                                  int ifunc)
+double WaterProps::relEpsilon(double T, double P_pascal, int ifunc)
 {
     static const double U1 = 3.4279E2;
     static const double U2 = -5.0866E-3;

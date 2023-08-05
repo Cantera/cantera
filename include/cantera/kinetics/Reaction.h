@@ -327,8 +327,7 @@ unique_ptr<Reaction> newReaction(const AnyMap& rxn_node,
 //! Create Reaction objects for each item (an AnyMap) in `items`. The species
 //! involved in these reactions must exist in the phases associated with the
 //! Kinetics object `kinetics`.
-vector<shared_ptr<Reaction>> getReactions(const AnyValue& items,
-                                               Kinetics& kinetics);
+vector<shared_ptr<Reaction>> getReactions(const AnyValue& items, Kinetics& kinetics);
 
 //! Parse reaction equation
 void parseReactionEquation(Reaction& R, const string& equation,

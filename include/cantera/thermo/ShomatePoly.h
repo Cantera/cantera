@@ -122,8 +122,7 @@ public:
      *   - `t[4] = log(t)`
      *   - `t[5] = 1.0/t;
      */
-    virtual void updateProperties(const double* tt,
-                                  double* cp_R, double* h_RT,
+    virtual void updateProperties(const double* tt, double* cp_R, double* h_RT,
                                   double* s_R) const {
         double A = m_coeff[0];
         double Bt = m_coeff[1]*tt[0];
@@ -138,18 +137,15 @@ public:
         *s_R = A*tt[4] + Bt + 0.5*Ct2 + 1.0/3.0*Dt3 - 0.5*Etm2 + G;
     }
 
-    virtual void updatePropertiesTemp(const double temp,
-                                      double* cp_R, double* h_RT,
+    virtual void updatePropertiesTemp(const double temp, double* cp_R, double* h_RT,
                                       double* s_R) const {
         double tPoly[6];
         updateTemperaturePoly(temp, tPoly);
         updateProperties(tPoly, cp_R, h_RT, s_R);
     }
 
-    virtual void reportParameters(size_t& n, int& type,
-                                  double& tlow, double& thigh,
-                                  double& pref,
-                                  double* const coeffs) const {
+    virtual void reportParameters(size_t& n, int& type, double& tlow, double& thigh,
+                                  double& pref, double* const coeffs) const {
         n = 0;
         type = SHOMATE;
         tlow = m_lowT;
@@ -295,8 +291,7 @@ public:
     }
 
     //! @copydoc ShomatePoly::updateProperties
-    virtual void updateProperties(const double* tt,
-                                  double* cp_R, double* h_RT,
+    virtual void updateProperties(const double* tt, double* cp_R, double* h_RT,
                                   double* s_R) const {
         double T = 1000 * tt[0];
         if (T <= m_midT) {
@@ -319,10 +314,8 @@ public:
 
     virtual size_t nCoeffs() const { return 15; }
 
-    virtual void reportParameters(size_t& n, int& type,
-                                  double& tlow, double& thigh,
-                                  double& pref,
-                                  double* const coeffs) const {
+    virtual void reportParameters(size_t& n, int& type, double& tlow, double& thigh,
+                                  double& pref, double* const coeffs) const {
         msp_low.reportParameters(n, type, tlow, coeffs[0], pref, coeffs + 1);
         msp_high.reportParameters(n, type, coeffs[0], thigh, pref, coeffs + 8);
         type = SHOMATE2;

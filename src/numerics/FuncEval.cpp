@@ -25,8 +25,7 @@ int FuncEval::evalNoThrow(double t, double* y, double* ydot)
         }
         return -1; // unrecoverable error
     } catch (...) {
-        string msg = "FuncEval::eval_nothrow: unhandled exception"
-            " of unknown type\n";
+        string msg = "FuncEval::eval_nothrow: unhandled exception of unknown type\n";
         if (suppressErrors()) {
             m_errors.push_back(msg);
         } else {
@@ -58,8 +57,7 @@ int FuncEval::evalDaeNoThrow(double t, double* y, double* ydot, double* r)
         }
         return -1; // unrecoverable error
     } catch (...) {
-        string msg = "FuncEval::eval_nothrow: unhandled exception"
-            " of unknown type\n";
+        string msg = "FuncEval::eval_nothrow: unhandled exception of unknown type\n";
         if (suppressErrors()) {
             m_errors.push_back(msg);
         } else {

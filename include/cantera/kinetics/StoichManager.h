@@ -363,31 +363,27 @@ public:
         }
     }
 
-    void incrementSpecies(const double* input,
-                          double* output) const {
+    void incrementSpecies(const double* input, double* output) const {
         double x = input[m_rxn];
         for (size_t n = 0; n < m_n; n++) {
             output[m_ic[n]] += m_stoich[n]*x;
         }
     }
 
-    void decrementSpecies(const double* input,
-                          double* output) const {
+    void decrementSpecies(const double* input, double* output) const {
         double x = input[m_rxn];
         for (size_t n = 0; n < m_n; n++) {
             output[m_ic[n]] -= m_stoich[n]*x;
         }
     }
 
-    void incrementReaction(const double* input,
-                           double* output) const {
+    void incrementReaction(const double* input, double* output) const {
         for (size_t n = 0; n < m_n; n++) {
             output[m_rxn] += m_stoich[n]*input[m_ic[n]];
         }
     }
 
-    void decrementReaction(const double* input,
-                           double* output) const {
+    void decrementReaction(const double* input, double* output) const {
         for (size_t n = 0; n < m_n; n++) {
             output[m_rxn] -= m_stoich[n]*input[m_ic[n]];
         }
@@ -677,7 +673,7 @@ public:
     void add(size_t rxn, const vector<size_t>& k, const vector<double>& order,
              const vector<double>& stoich) {
         if (order.size() != k.size()) {
-            throw CanteraError(\
+            throw CanteraError(
                 "StoichManagerN::add()", "size of order and species arrays differ");
         }
         if (stoich.size() != k.size()) {

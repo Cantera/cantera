@@ -34,8 +34,7 @@ public:
 
     //! Compute the undamped Newton step.  The residual function is evaluated
     //! at `x`, but the Jacobian is not recomputed.
-    void step(double* x, double* step,
-              OneDim& r, MultiJac& jac, int loglevel);
+    void step(double* x, double* step, OneDim& r, MultiJac& jac, int loglevel);
 
     /**
      * Return the factor by which the undamped Newton step 'step0'
@@ -52,9 +51,8 @@ public:
      * successful, the new solution after taking the damped step is returned in
      * x1, and the undamped step at x1 is returned in step1.
      */
-    int dampStep(const double* x0, const double* step0,
-                 double* x1, double* step1, double& s1,
-                 OneDim& r, MultiJac& jac, int loglevel, bool writetitle);
+    int dampStep(const double* x0, const double* step0, double* x1, double* step1,
+                 double& s1, OneDim& r, MultiJac& jac, int loglevel, bool writetitle);
 
     //! Compute the weighted 2-norm of `step`.
     double norm2(const double* x, const double* step, OneDim& r) const;

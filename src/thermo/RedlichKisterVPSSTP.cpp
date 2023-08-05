@@ -17,8 +17,7 @@ using namespace std;
 
 namespace Cantera
 {
-RedlichKisterVPSSTP::RedlichKisterVPSSTP(const string& inputFile,
-        const string& id_)
+RedlichKisterVPSSTP::RedlichKisterVPSSTP(const string& inputFile, const string& id_)
 {
     initThermoFile(inputFile, id_);
 }

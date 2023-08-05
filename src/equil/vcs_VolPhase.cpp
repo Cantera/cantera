@@ -600,7 +600,8 @@ void vcs_VolPhase::setCreationMoleNumbers(const double* const n_k,
     }
 }
 
-const vector<double>& vcs_VolPhase::creationMoleNumbers(vector<size_t> &creationGlobalRxnNumbers) const
+const vector<double>& vcs_VolPhase::creationMoleNumbers(
+        vector<size_t> &creationGlobalRxnNumbers) const
 {
     creationGlobalRxnNumbers = creationGlobalRxnNumbers_;
     return creationMoleNumbers_;

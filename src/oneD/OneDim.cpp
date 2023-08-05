@@ -379,8 +379,7 @@ void OneDim::init()
     m_init = true;
 }
 
-double OneDim::timeStep(int nsteps, double dt, double* x,
-                            double* r, int loglevel)
+double OneDim::timeStep(int nsteps, double dt, double* x, double* r, int loglevel)
 {
     // set the Jacobian age parameter to the transient value
     newton().setOptions(m_ts_jac_age);

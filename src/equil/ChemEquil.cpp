@@ -163,8 +163,7 @@ void ChemEquil::update(const ThermoPhase& s)
     }
 }
 
-int ChemEquil::setInitialMoles(ThermoPhase& s, vector<double>& elMoleGoal,
-                               int loglevel)
+int ChemEquil::setInitialMoles(ThermoPhase& s, vector<double>& elMoleGoal, int loglevel)
 {
     MultiPhase mp;
     mp.addPhase(&s, 1.0);
@@ -672,8 +671,8 @@ int ChemEquil::equilibrate(ThermoPhase& s, const char* XYstr,
 }
 
 
-int ChemEquil::dampStep(ThermoPhase& mix, vector<double>& oldx,
-                        double oldf, vector<double>& grad, vector<double>& step, vector<double>& x,
+int ChemEquil::dampStep(ThermoPhase& mix, vector<double>& oldx, double oldf,
+                        vector<double>& grad, vector<double>& step, vector<double>& x,
                         double& f, vector<double>& elmols, double xval, double yval)
 {
     // Carry out a delta damping approach on the dimensionless element

@@ -533,7 +533,7 @@ public:
      *     thrown if this condition is not met.
      */
     vector<double> convertVector(const string& key, const string& units,
-                            size_t nMin=npos, size_t nMax=npos) const;
+                                 size_t nMin=npos, size_t nMax=npos) const;
 
     //! Defined to allow use with range-based for loops. Iteration automatically
     //! skips over keys that start and end with double underscores.
@@ -771,9 +771,8 @@ public:
         return "InputFileError";
     }
 protected:
-    static string formatError(const string& message,
-                                   int line, int column,
-                                   const shared_ptr<AnyMap>& metadata);
+    static string formatError(const string& message, int line, int column,
+                              const shared_ptr<AnyMap>& metadata);
     static string formatError2(const string& message,
         int line1, int column1, const shared_ptr<AnyMap>& metadata1,
         int line2, int column2, const shared_ptr<AnyMap>& metadata2);

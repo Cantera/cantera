@@ -23,8 +23,7 @@ using namespace Cantera;
 using std::cout;
 using std::endl;
 
-void write_csv(const string& name, const vector<string>& names,
-               const Array2D& data)
+void write_csv(const string& name, const vector<string>& names, const Array2D& data)
 {
     std::ofstream s(name);
     for (size_t i = 0; i < data.nRows(); i++) {

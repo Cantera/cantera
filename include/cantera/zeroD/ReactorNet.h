@@ -250,8 +250,7 @@ public:
     //!     coefficient
     //! @returns the index of this parameter in the vector of sensitivity
     //!     parameters (global across all reactors)
-    size_t registerSensitivityParameter(const string& name, double value,
-                                        double scale);
+    size_t registerSensitivityParameter(const string& name, double value, double scale);
 
     //! The name of the p-th sensitivity parameter added to this ReactorNet.
     const string& sensitivityParameterName(size_t p) const {

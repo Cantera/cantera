@@ -535,8 +535,7 @@ void UnitSystem::setDefaultActivationEnergy(const string& e_units)
     m_explicit_activation_energy = true;
 }
 
-double UnitSystem::convert(double value, const string& src,
-                           const string& dest) const
+double UnitSystem::convert(double value, const string& src, const string& dest) const
 {
     return convert(value, Units(src), Units(dest));
 }
@@ -656,13 +655,13 @@ double UnitSystem::convertRateCoeff(const AnyValue& v, const Units& dest) const
 }
 
 vector<double> UnitSystem::convert(const vector<AnyValue>& vals,
-                              const string& dest) const
+                                   const string& dest) const
 {
     return convert(vals, Units(dest));
 }
 
 vector<double> UnitSystem::convert(const vector<AnyValue>& vals,
-                              const Units& dest) const
+                                   const Units& dest) const
 {
     vector<double> out;
     for (const auto& val : vals) {
@@ -703,8 +702,7 @@ double UnitSystem::convertActivationEnergy(double value, const string& src,
     return value;
 }
 
-double UnitSystem::convertActivationEnergyTo(double value,
-                                             const string& dest) const
+double UnitSystem::convertActivationEnergyTo(double value, const string& dest) const
 {
     return convertActivationEnergyTo(value, Units(dest));
 }
@@ -724,8 +722,7 @@ double UnitSystem::convertActivationEnergyTo(double value,
     }
 }
 
-double UnitSystem::convertActivationEnergyFrom(double value,
-                                               const string& src) const
+double UnitSystem::convertActivationEnergyFrom(double value, const string& src) const
 {
     Units usrc(src);
     if (usrc.convertible(Units("J/kmol"))) {
@@ -740,8 +737,7 @@ double UnitSystem::convertActivationEnergyFrom(double value,
     }
 }
 
-double UnitSystem::convertActivationEnergy(const AnyValue& v,
-                                           const string& dest) const
+double UnitSystem::convertActivationEnergy(const AnyValue& v, const string& dest) const
 {
     try {
         auto [value, units] = split_unit(v);

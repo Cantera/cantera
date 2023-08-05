@@ -95,8 +95,7 @@ public:
      * Add a reaction to the path. Increment the flow from this reaction, the
      * total flow, and the flow associated with this label.
      */
-    void addReaction(size_t rxnNumber, double value,
-                     const string& label = "");
+    void addReaction(size_t rxnNumber, double value, const string& label = "");
 
     //! Upstream node.
     const SpeciesNode* begin() const {

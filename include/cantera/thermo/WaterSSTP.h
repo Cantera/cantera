@@ -73,8 +73,7 @@ public:
      * @param inputFile String name of the input file
      * @param id        string id of the phase name
      */
-    explicit WaterSSTP(const string& inputFile="",
-                       const string& id="");
+    explicit WaterSSTP(const string& inputFile="", const string& id="");
 
     virtual string type() const {
         return "liquid-water-IAPWS95";

@@ -94,8 +94,7 @@ public:
      * @param h_RT    Vector of Dimensionless enthalpies. (length m_kk).
      * @param s_R     Vector of Dimensionless entropies. (length m_kk).
      */
-    virtual void update(double T, double* cp_R,
-                        double* h_RT, double* s_R) const;
+    virtual void update(double T, double* cp_R, double* h_RT, double* s_R) const;
 
     //! Minimum temperature.
     /*!
@@ -149,11 +148,8 @@ public:
      * @param maxTemp   output - Maximum temperature
      * @param refPressure output - reference pressure (Pa).
      */
-    virtual void reportParams(size_t index, int& type,
-                              double* const c,
-                              double& minTemp,
-                              double& maxTemp,
-                              double& refPressure) const;
+    virtual void reportParams(size_t index, int& type, double* const c, double& minTemp,
+                              double& maxTemp, double& refPressure) const;
 
     //! Report the 298 K Heat of Formation of the standard state of one species
     //! (J kmol-1)
