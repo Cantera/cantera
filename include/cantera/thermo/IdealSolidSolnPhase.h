@@ -89,7 +89,7 @@ public:
      * partial molar volume solution mixture with pure species phases which
      * exhibit zero volume expansivity:
      * @f[
-     * \hat s(T, P, X_k) = \sum_k X_k \hat s^0_k(T)  - \hat R \sum_k X_k \log(X_k)
+     * \hat s(T, P, X_k) = \sum_k X_k \hat s^0_k(T)  - \hat R \sum_k X_k \ln(X_k)
      * @f]
      * The reference-state pure-species entropies
      * @f$ \hat s^0_k(T,p_{ref}) @f$ are computed by the species thermodynamic
@@ -104,7 +104,7 @@ public:
      * constant partial molar volume solution mixture with pure species phases
      * which exhibit zero volume expansivity:
      * @f[
-     * \hat g(T, P) = \sum_k X_k \hat g^0_k(T,P) + \hat R T \sum_k X_k \log(X_k)
+     * \hat g(T, P) = \sum_k X_k \hat g^0_k(T,P) + \hat R T \sum_k X_k \ln(X_k)
      * @f]
      * The reference-state pure-species Gibbs free energies
      * @f$ \hat g^0_k(T) @f$ are computed by the species thermodynamic
@@ -338,7 +338,7 @@ public:
      * are equal to the pure species entropies plus the ideal solution
      * contribution.
      * @f[
-     *  \bar s_k(T,P) =  \hat s^0_k(T) - R \log(X_k)
+     *  \bar s_k(T,P) =  \hat s^0_k(T) - R \ln(X_k)
      * @f]
      * The reference-state pure-species entropies,@f$ \hat s^{ref}_k(T) @f$, at
      * the reference pressure, @f$ P_{ref} @f$, are computed by the species

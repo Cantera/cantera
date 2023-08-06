@@ -443,7 +443,7 @@ public:
      * pure species phases which exhibit zero volume expansivity:
      * @f[
      * \hat s(T, P, X_k) = \sum_k X_k \hat s^0_k(T)
-     *      - \hat R  \sum_k X_k \log(X_k)
+     *      - \hat R  \sum_k X_k \ln(X_k)
      * @f]
      * The reference-state pure-species entropies
      * @f$ \hat s^0_k(T,p_{ref}) @f$ are computed by the
@@ -575,7 +575,7 @@ public:
      * For this phase, the partial molar entropies are equal to the SS species
      * entropies plus the ideal solution contribution:
      * @f[
-     *     \bar s_k(T,P) =  \hat s^0_k(T) - R \log(M0 * molality[k])
+     *     \bar s_k(T,P) =  \hat s^0_k(T) - R \ln(M0 * molality[k])
      * @f]
      * @f[
      *     \bar s_{solvent}(T,P) =  \hat s^0_{solvent}(T)
