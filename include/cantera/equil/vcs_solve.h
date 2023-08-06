@@ -820,7 +820,7 @@ private:
      * We are checking the equation:
      *
      *         sum_u = sum_j_comp [ sigma_i_j * u_j ]
-     *               = u_i_O + \log((AC_i * W_i)/m_tPhaseMoles_old)
+     *               = u_i_O + \ln((AC_i * W_i)/m_tPhaseMoles_old)
      *
      * by first evaluating:
      *
