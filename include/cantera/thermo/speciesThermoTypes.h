@@ -34,8 +34,6 @@
 
 //! Constant Cp thermo.
 //! This is implemented in ConstCpPoly in constCpPoly.h for one species.
-//! If the whole phase is constcp, SimpleThermo in SimpleThermo.h
-//! implements this for the whole phase.
 #define SIMPLE 32
 
 //! piecewise interpolation of mu0.

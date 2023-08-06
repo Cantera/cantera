@@ -63,15 +63,15 @@ namespace Cantera
  * - PDSS_IdealGas
  *   - standardState model = "IdealGas"
  *   - This model assumes that the species in the phase obeys the ideal gas law
- *     for their pressure dependence. The manager uses a SimpleThermo object to
- *     handle the calculation of the reference state. This object adds the
+ *     for their pressure dependence. The manager uses a SpeciesThermoInterpType object
+ *     to handle the calculation of the reference state. This object adds the
  *     pressure dependencies to the thermo functions.
  *
  * - PDSS_ConstVol (deprecated in %Cantera 3.0)
  *    - standardState model = "ConstVol" or "constant_incompressible"
  *    - This model assumes that the species in the phase obeys the constant
  *      partial molar volume pressure dependence. The manager uses a
- *      SimpleThermo object to handle the calculation of the reference state.
+ *      SpeciesThermoInterpType object to handle the calculation of the reference state.
  *      This object adds the pressure dependencies to these thermo functions.
  *
  * - PDSS_SSVol
@@ -81,9 +81,9 @@ namespace Cantera
  *     equation of state, but one that separates out the calculation of the
  *     standard state density and/or volume. Models include a cubic polynomial
  *     in temperature for either the standard state volume or the standard state
- *     density. The manager uses a SimpleThermo object to handle the calculation
- *     of the reference state. This object then adds the pressure dependencies
- *     and the volume terms to these thermo functions to complete the
+ *     density. The manager uses a SpeciesThermoInterpType object to handle the
+ *     calculation of the reference state. This object then adds the pressure
+ *     dependencies and the volume terms to these thermo functions to complete the
  *     representation.
  *
  * - PDSS_Water
