@@ -773,7 +773,7 @@ public:
         return m_mmw;
     }
 
-    //! Evaluate @f$ \sum_k X_k \log X_k @f$.
+    //! Evaluate @f$ \sum_k X_k \ln X_k @f$.
     //! @return The indicated sum. Dimensionless.
     double sum_xlogx() const;
 

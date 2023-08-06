@@ -57,7 +57,7 @@ namespace Cantera
  *
  * The chemical potential for species *k* is equal to
  * @f[
- *      \mu_k(T,P) = \mu^o_k(T) + R T \log(\theta_k)
+ *      \mu_k(T,P) = \mu^o_k(T) + R T \ln \theta_k
  * @f]
  *
  * Pressure is defined as an independent variable in this phase. However, it has
@@ -72,7 +72,7 @@ namespace Cantera
  * independent of the pressure:
  *
  * @f[
- *      s_k(T,P) = s^o_k(T) - R \log(\theta_k)
+ *      s_k(T,P) = s^o_k(T) - R \ln \theta_k
  * @f]
  *
  * ## Application within Kinetics Managers
@@ -138,7 +138,7 @@ public:
     //! Return the Molar Entropy. Units: J/kmol-K
     /**
      * @f[
-     *  \hat s(T,P) = \sum_k X_k (\hat s^0_k(T) - R \log(\theta_k))
+     *  \hat s(T,P) = \sum_k X_k (\hat s^0_k(T) - R \ln \theta_k)
      * @f]
      */
     virtual double entropy_mole() const;

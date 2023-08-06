@@ -193,8 +193,7 @@ public:
     //! The activity @f$ a_k @f$ of a species in solution is related to the
     //! chemical potential by
     //! @f[
-    //!  \mu_k(T,P,X_k) = \mu_k^0(T,P)
-    //! + \hat R T \log a_k.
+    //!   \mu_k(T,P,X_k) = \mu_k^0(T,P) + \hat R T \ln a_k.
     //!  @f]
     //! The quantity @f$ \mu_k^0(T,P) @f$ is the standard state chemical potential
     //! at unit activity. It may depend on the pressure and the temperature.

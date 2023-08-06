@@ -80,13 +80,13 @@ namespace Cantera
  * for species *k* is equal to
  *
  * @f[
- *      \mu_k(T,P) = \mu^o_k(T, P) + R T \log(X_k)
+ *      \mu_k(T,P) = \mu^o_k(T, P) + R T \ln X_k
  * @f]
  *
  * The partial molar entropy for species *k* is given by the following relation,
  *
  * @f[
- *      \tilde{s}_k(T,P) = s^o_k(T,P) - R \log(X_k) = s^{ref}_k(T) - R \log(X_k)
+ *      \tilde{s}_k(T,P) = s^o_k(T,P) - R \ln X_k = s^{ref}_k(T) - R \ln X_k
  * @f]
  *
  * The partial molar enthalpy for species *k* is
@@ -163,7 +163,7 @@ namespace Cantera
  * @f$ a_l @f$, repeated here:
  *
  * @f[
- *      \mu_l(T,P) = \mu^o_l(T, P) + R T \log(a_l)
+ *      \mu_l(T,P) = \mu^o_l(T, P) + R T \ln a_l
  * @f]
  *
  * The concentration equilibrium constant, @f$ K_c @f$, may be obtained by
@@ -321,7 +321,7 @@ public:
     //! @name Activities, Standard States, and Activity Concentrations
     //!
     //! The activity @f$ a_k @f$ of a species in solution is related to the
-    //! chemical potential by @f[ \mu_k = \mu_k^0(T) + \hat R T \log a_k. @f] The
+    //! chemical potential by @f[ \mu_k = \mu_k^0(T) + \hat R T \ln a_k. @f] The
     //! quantity @f$ \mu_k^0(T,P) @f$ is the chemical potential at unit activity,
     //! which depends only on temperature and the pressure. Activity is assumed
     //! to be molality-based here.

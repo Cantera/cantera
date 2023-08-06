@@ -179,7 +179,7 @@ namespace Cantera
  * and their associated activities, @f$ a_l @f$, repeated here:
  *
  * @f[
- *      \mu_l(T,P) = \mu^o_l(T, P) + R T \log(a_l)
+ *      \mu_l(T,P) = \mu^o_l(T, P) + R T \ln a_l
  * @f]
  *
  * We can switch over to expressing the equilibrium constant in terms of the
@@ -258,7 +258,7 @@ public:
     //!
     //! The activity @f$ a_k @f$ of a species in solution is
     //! related to the chemical potential by @f[ \mu_k = \mu_k^0(T)
-    //! + \hat R T \log a_k. @f] The quantity @f$ \mu_k^0(T,P) @f$ is
+    //! + \hat R T \ln a_k. @f] The quantity @f$ \mu_k^0(T,P) @f$ is
     //! the chemical potential at unit activity, which depends only
     //! on temperature and pressure.
     //! @{

@@ -64,8 +64,8 @@ protected:
  *
  * The rate at an intermediate pressure @f$ P_1 < P < P_2 @f$ is computed as
  * @f[
- *  \log k(T,P) = \log k_1(T) + \bigl(\log k_2(T) - \log k_1(T)\bigr)
- *      \frac{\log P - \log P_1}{\log P_2 - \log P_1}
+ *  \ln k(T,P) = \ln k_1(T) + \bigl(\ln k_2(T) - \ln k_1(T)\bigr)
+ *      \frac{\ln P - \ln P_1}{\ln P_2 - \ln P_1}
  * @f]
  * Multiple rate expressions may be given at the same pressure, in which case
  * the rate used in the interpolation formula is the sum of all the rates given

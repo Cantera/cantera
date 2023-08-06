@@ -405,7 +405,7 @@ public:
 
 //! Implements the @c log() (natural logarithm) function.
 /*!
- * The functor class with type @c "log" returns @f$ f(x) = \log(a x) @f$.
+ * The functor class with type @c "log" returns @f$ f(x) = \ln(a x) @f$.
  * @param a  Factor (default=1.0)
  * @ingroup func1simple
  * @since New in %Cantera 3.0
