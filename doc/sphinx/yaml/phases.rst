@@ -234,6 +234,8 @@ Includes the fields of :ref:`sec-yaml-ideal-condensed`, plus:
         The molar volume of the phase at these mole fractions. This input is
         optional.
 
+.. versionadded:: 2.5
+
 
 .. _sec-yaml-compound-lattice:
 
@@ -287,6 +289,8 @@ Example::
         coverages: {Pt: 0.5, OC_Pt: 0.5, CO2_Pt: 0.0, C_Pt: 0.0, O_Pt: 0.0}
       site-density: 2.72e-09
       reference-state-coverage: 0.22
+
+.. versionadded:: 3.0
 
 
 .. _sec-yaml-Debye-Huckel:
@@ -825,6 +829,8 @@ A multi-species Peng-Robinson phase as
 The parameters for each species are contained in the corresponding species
 entries. See :ref:`Peng-Robinson species equation of state <sec-yaml-eos-peng-robinson>`.
 
+.. versionadded:: 3.0
+
 
 .. _sec-yaml-plasma:
 
@@ -892,6 +898,8 @@ Example::
         energy-levels: [0.0, 0.1, 1.0, 10.0]
         distribution: [0.0, 0.2, 0.7, 0.01]
         normalize: False
+
+.. versionadded:: 2.6
 
 
 .. _sec-yaml-pure-fluid:
