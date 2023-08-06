@@ -62,8 +62,8 @@ protected:
 /*!
  * The rate constant can be written as:
  * @f[
- *     \log k(T,P) = \sum_{t=1}^{N_T} \sum_{p=1}^{N_P} \alpha_{tp}
- *                       \phi_t(\tilde{T}) \phi_p(\tilde{P})
+ *     \log_{10} k(T,P) = \sum_{t=1}^{N_T} \sum_{p=1}^{N_P} \alpha_{tp}
+ *                        \phi_t(\tilde{T}) \phi_p(\tilde{P})
  * @f]
  * where @f$ \alpha_{tp} @f$ are the constants defining the rate, @f$ \phi_n(x) @f$
  * is the Chebyshev polynomial of the first kind of degree *n* evaluated at
@@ -73,8 +73,8 @@ protected:
  *                        {T_\mathrm{max}^{-1} - T_\mathrm{min}^{-1}}
  * @f]
  * @f[
- *  \tilde{P} \equiv \frac{2 \log P - \log P_\mathrm{min} - \log P_\mathrm{max}}
- *                        {\log P_\mathrm{max} - \log P_\mathrm{min}}
+ *  \tilde{P} \equiv \frac{2 \log_{10} P - \log_{10} P_\mathrm{min} - \log_{10} P_\mathrm{max}}
+ *                        {\log_{10} P_\mathrm{max} - \log_{10} P_\mathrm{min}}
  * @f]
  * are reduced temperature and reduced pressures which map the ranges
  * @f$ (T_\mathrm{min}, T_\mathrm{max}) @f$ and

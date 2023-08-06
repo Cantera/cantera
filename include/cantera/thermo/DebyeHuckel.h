@@ -231,7 +231,7 @@ class PDSS_Water;
  *
  * @f[
  *    \ln(\gamma_k^\triangle) = -z_k^2 \frac{A_{Debye} \sqrt{I}}{ 1 + B_{Debye}  a_k \sqrt{I}}
- *                        + \log(10) B^{dot}_k  I
+ *                        + \ln(10) B^{dot}_k  I
  * @f]
  *
  * Note, this particular form where @f$ a_k @f$ can differ in multielectrolyte
@@ -245,7 +245,7 @@ class PDSS_Water;
  *       \ln(a_o) = \frac{X_o - 1.0}{X_o}
  *        + \frac{ 2 A_{Debye} \tilde{M}_o}{3} (I)^{1/2}
  *                        \left[ \sum_k{\frac{1}{2} m_k z_k^2 \sigma( B_{Debye} a_k \sqrt{I} ) } \right]
- *                        - \frac{\log(10)}{2} \tilde{M}_o I \sum_k{ B^{dot}_k m_k}
+ *                        - \frac{\ln 10}{2} \tilde{M}_o I \sum_k{ B^{dot}_k m_k}
  *  @f]
  *    where
  *  @f[
@@ -263,7 +263,7 @@ class PDSS_Water;
  *
  * @f[
  *    \ln(\gamma_k^\triangle) = -z_k^2 \frac{A_{Debye} \sqrt{I}}{ 1 + B_{Debye}  a \sqrt{I}}
- *                        + \log(10) B^{dot}_k  I
+ *                        + \ln(10) B^{dot}_k  I
  * @f]
  *
  * The value of a is determined at the beginning of the calculation, and not changed.
@@ -271,7 +271,7 @@ class PDSS_Water;
  *  @f[
  *       \ln(a_o) = \frac{X_o - 1.0}{X_o}
  *        + \frac{ 2 A_{Debye} \tilde{M}_o}{3} (I)^{3/2} \sigma( B_{Debye} a \sqrt{I} )
- *                        - \frac{\log(10)}{2} \tilde{M}_o I \sum_k{ B^{dot}_k m_k}
+ *                        - \frac{\ln 10}{2} \tilde{M}_o I \sum_k{ B^{dot}_k m_k}
  *  @f]
  *
  * ### Beta_IJ formulation
@@ -475,7 +475,7 @@ public:
     //! @name Activities, Standard States, and Activity Concentrations
     //!
     //! The activity @f$ a_k @f$ of a species in solution is related to the
-    //! chemical potential by @f[ \mu_k = \mu_k^0(T) + \hat R T \log a_k. @f] The
+    //! chemical potential by @f[ \mu_k = \mu_k^0(T) + \hat R T \ln a_k. @f] The
     //! quantity @f$ \mu_k^0(T,P) @f$ is the chemical potential at unit activity,
     //! which depends only on temperature and the pressure. Activity is assumed
     //! to be molality-based here.
