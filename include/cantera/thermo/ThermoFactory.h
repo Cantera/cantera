@@ -18,9 +18,6 @@ namespace Cantera
 
 /**
  * @addtogroup thermoprops
- *
- * Standard ThermoPhase objects may be instantiated by calling the main %Cantera
- * factory class for ThermoPhase objects; This class is called ThermoFactory.
  */
 //! @{
 

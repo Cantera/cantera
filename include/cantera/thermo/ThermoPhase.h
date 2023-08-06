@@ -19,6 +19,115 @@
 namespace Cantera
 {
 
+/**
+ * @defgroup thermoprops Thermodynamic Properties
+ *
+ * These classes are used to compute the thermodynamic properties of phases of matter.
+ * The main base class for describing thermodynamic properties of phases within %Cantera
+ * is called ThermoPhase. %ThermoPhase is a large class that describes the interface
+ * within %Cantera to thermodynamic functions for a phase.
+ *
+ * ## Categorizing the Different ThermoPhase Objects
+ *
+ * ThermoPhase objects may be cataloged into four general bins.
+ *
+ * The first type are those whose underlying species have a reference state associated
+ * with them. The reference state describes the thermodynamic functions for a species at
+ * a single reference pressure, @f$ p_0 @f$. The thermodynamic functions are specified
+ * via derived objects of the SpeciesThermoInterpType object class, and usually consist
+ * of polynomials in temperature such as the NASA polynomial or the Shomate polynomial.
+ * Calculators for these reference states, which manage the calculation for all of the
+ * species in a phase, are all derived from the virtual base class
+ * SpeciesThermoInterpType. Calculators are needed because the actual calculation of the
+ * reference state thermodynamics has been shown to be relatively expensive. A great
+ * deal of work has gone into devising efficient schemes for calculating the
+ * thermodynamic polynomials of a set of species in a phase, in particular gas species
+ * in ideal gas phases whose reference state thermodynamics is specified by NASA
+ * polynomials.
+ *
+ * The reference state thermodynamics combined with the mixing rules and an assumption
+ * about the pressure dependence yields the thermodynamic functions for the phase.
+ * Expressions involving the specification of the fugacities of species would fall into
+ * this category of %ThermoPhase objects. Note, however, that at this time, we do not
+ * have any nontrivial examples of these types of phases. In general, the independent
+ * variables that completely describe the state of the system  for this class are
+ * temperature, the phase density, and @f$ N - 1 @f$ species mole or mass fractions.
+ * Additionally, if the phase involves charged species, the phase electric potential is
+ * an added independent variable. Examples of this first class of %ThermoPhase models,
+ * which includes the IdealGasPhase object, the most commonly used object with %Cantera,
+ * include:
+ *
+ * - IdealGasPhase
+ * - StoichSubstance
+ * - SurfPhase
+ * - EdgePhase
+ * - LatticePhase
+ * - LatticeSolidPhase
+ * - PureFluidPhase
+ * - IdealSolidSolnPhase
+ * - VPStandardStateTP
+ *
+ * The second class of objects are all derivatives of the VPStandardStateTP class listed
+ * above. These classes assume that there exists a standard state for each species in
+ * the phase, where the thermodynamic functions are specified as a function of
+ * temperature and pressure. Standard state objects for each species are all derived
+ * from the PDSS virtual base class. In turn, these standard states may employ reference
+ * state calculation to aid in their calculations. However, there are some PDSS objects
+ * which do not employ reference state calculations. An example of this is real equation
+ * of state for liquid water used within the calculation of brine thermodynamics. In
+ * general, the independent variables that completely describe the state of the system
+ * for this class are temperature, the phase pressure, and @f$ N - 1 @f$ species mole or
+ * mass fractions or molalities. The standard state thermodynamics combined with the
+ * mixing rules yields the thermodynamic functions for the phase. Mixing rules are given
+ * in terms of specifying the molar-base activity coefficients or activities. Lists of
+ * phases which belong to this group are given below
+ *
+ * - IdealSolnGasVPSS
+ * - MolalityVPSSTP
+ *
+ * Note, the ideal gas and ideal solution approximations are lumped together in the
+ * class IdealSolnGasVPSS, because at this level they look alike having the same mixing
+ * rules with respect to the specification of the excess thermodynamic properties.
+ *
+ * The third class of objects are all derivatives of the MolalityVPSSTP object. They
+ * assume that the standard states are temperature and pressure dependent but they also
+ * assume that the standard states are molality-based. In other words, they assume that
+ * the standard state of the solute species are in a pseudo state of 1 molality but at
+ * infinite dilution. A solvent must be specified in these calculations, defined as the
+ * first species in the phase, and its standard state is the pure solvent state. Phases
+ * which belong to this group include:
+ *
+ * - DebyeHuckel
+ * - IdealMolalSoln
+ * - HMWSoln
+ *
+ * The fourth class of %ThermoPhase objects are stoichiometric phases. Stoichiometric
+ * phases are phases which consist of one and only one species. The class
+ * SingleSpeciesTP is the base class for these substances. Within the class, the general
+ * %ThermoPhase interface is dumbed down so that phases consisting of one species may be
+ * succinctly described. These phases may have PDSS classes or SpeciesThermoInterpType
+ * calculators associated with them. In general, the independent variables that
+ * completely describe the state of the system for this class are temperature and either
+ * the phase density or the phase pressure. Classes in this group include:
+ *
+ * - StoichSubstance
+ * - WaterSSTP
+ *
+ * ## Creating ThermoPhase objects
+ *
+ * Instances of subclasses of ThermoPhase should be created using the factory methods
+ * newThermo(const string&, const string&), newThermo(const AnyMap&, const AnyMap&), or
+ * newThermoPhase(). This allows new classes to be used with the various %Cantera
+ * language interfaces.
+ *
+ * ## Defining new thermodynamic models
+ *
+ * To implement a new equation of state, derive a class from ThermoPhase or a relevant
+ * existing derived class and overload the virtual methods in ThermoPhase. Methods that
+ * are not needed can be left unimplemented, which will cause an exception to be thrown
+ * if they are called.
+ */
+
 //! @name CONSTANTS - Specification of the Molality convention
 //! @{
 
@@ -54,7 +163,7 @@ enum class ThermoBasis
  * implements a few methods. Most of the methods, however, are declared virtual
  * and are meant to be overloaded in derived classes.  The standard way used
  * throughout %Cantera to compute properties of phases of matter is through
- * pointers of type ThermoPhase* that point to objects of subclasses of
+ * pointers of type `ThermoPhase*` that point to objects of subclasses of
  * ThermoPhase.
  *
  * Class ThermoPhase extends class Phase by adding methods to compute
@@ -64,35 +173,216 @@ enum class ThermoBasis
  * particular equation of state of the phase of interest, while those of class
  * Phase do not, since they only involve data values stored within the object.
  *
- * Instances of subclasses of ThermoPhase should be created using the factory
- * class ThermoFactory, not by calling the constructor directly. This allows new
- * classes to be used with the various %Cantera language interfaces.
+ * ## Calculating and accessing thermodynamic properties
  *
- * To implement a new equation of state, derive a class from ThermoPhase and
- * overload the virtual methods in ThermoPhase. Methods that are not needed can
- * be left unimplemented, which will cause an exception to be thrown if it is
- * called.
+ * The calculation of thermodynamic functions within %ThermoPhase is broken down roughly
+ * into two or more steps. First, the standard state properties of all of the species
+ * are calculated at the current temperature and at either the current pressure or at a
+ * reference pressure. If the calculation is carried out at a reference pressure instead
+ * of at the current pressure the calculation is called a "reference state properties"
+ * calculation, just to make the distinction (even though it may be considered to be a
+ * fixed-pressure standard-state calculation). The next step is to adjust the reference
+ * state calculation to the current pressure. The thermodynamic functions then are
+ * considered to be at the standard state of each species. Lastly the mixing
+ * contributions are added to arrive at the thermodynamic functions for the solution.
  *
- * Relationship with the kinetics operator:
+ * The %ThermoPhase class provides interfaces to thermodynamic properties calculated for
+ * the reference state of each species, the standard state values for each species, the
+ * thermodynamic functions for solution values, both on a per mole of solution basis
+ * (such as ThermoPhase::enthalpy_mole()), on a per kg of solution basis, and on a
+ * partial molar basis for each species (such as
+ * ThermoPhase::getPartialMolarEnthalpies). At each level, functions for the enthalpy,
+ * entropy, Gibbs free energy, internal energy, and volume are provided. So, 5 levels
+ * (reference state, standard state, partial molar, per mole of solution, and per mass
+ * of solution) and 5 functions multiplied together makes 25 possible functions. That's
+ * why %ThermoPhase is such a large class.
  *
- * Describe activity coefficients.
+ * ## Setting the State of the phase
  *
- * Describe K_a, K_p, and K_c, These are three different equilibrium
- * constants.
+ * Typically, the way the ThermoPhase object works is that there are a set of functions
+ * that set the state of the phase via setting the internal independent variables. Then,
+ * there are another set of functions that query the thermodynamic functions evaluated
+ * at the current %State of the phase. Internally, most of the intermediate work
+ * generally occurs at the point where the internal state of the system is set and not
+ * at the time when individual thermodynamic functions are queried (though the actual
+ * breakdown in work is dependent on the individual derived ThermoPhase object).
+ * Therefore, for efficiency, the user should lump together queries of thermodynamic
+ * functions after setting the state. Moreover, in setting the state, if the density is
+ * the independent variable, the following order should be used:
  *
- *   K_a is the calculation of the equilibrium constant from the standard state
+ * - Set the temperature
+ * - Set the mole or mass fractions or set the molalities
+ * - set the pressure.
+ *
+ * For classes which inherit from VPStandardStateTP, the above order may be used, or the
+ * following order may be used. It's not important.
+ *
+ * - Set the temperature
+ * - Set the pressure
+ * - Set the mole or mass fractions or set the molalities
+ *
+ * See the @ref sec-thermophase-set-state "list of methods" that can be used to set
+ * the complete state of ThermoPhase objects.
+ *
+ * ## Treatment of the phase potential and the electrochemical potential of a species
+ *
+ * The electrochemical potential of species k in a phase p, @f$ \zeta_k @f$, is related
+ * to the chemical potential as:
+ *
+ * @f[
+ *     \zeta_{k}(T,P) = \mu_{k}(T,P) + z_k \phi_p
+ * @f]
+ *
+ * where @f$ \nu_k @f$ is the charge of species k, and @f$ \phi_p @f$ is the electric
+ * potential of phase p.
+ *
+ * The potential @f$ \phi_p @f$ is tracked and internally stored within the base
+ * ThermoPhase object. It constitutes a specification of the internal state of the
+ * phase; it's the third state variable, the first two being temperature and density
+ * (or, pressure, for incompressible equations of state). It may be set with the
+ * function, setElectricPotential(), and may be queried with the function
+ * electricPotential().
+ *
+ * Note, the overall electrochemical potential of a phase may not be changed by the
+ * potential because many phases enforce charge neutrality:
+ *
+ * @f[
+ *     0 = \sum_k z_k X_k
+ * @f]
+ *
+ * Whether charge neutrality is necessary for a phase is also specified within the
+ * ThermoPhase object, by the function call chargeNeutralityNecessary(). Note, that it
+ * is not necessary for the ideal gas phase, currently. However, it is necessary for
+ * liquid phases such as DebyeHuckel and HMWSoln for the proper specification of the
+ * chemical potentials.
+ *
+ * This equation, when applied to the @f$ \zeta_k @f$ equation described above, results
+ * in a zero net change in the effective Gibbs free energy of the phase. However,
+ * specific charged species in the phase may increase or decrease their electrochemical
+ * potentials, which will have an effect on interfacial reactions involving charged
+ * species, when there is a potential drop between phases. This effect is used within
+ * the InterfaceKinetics and EdgeKinetics classes.
+ *
+ * ## Specification of Activities and Activity Conventions
+ *
+ * The activity @f$ a_k @f$ and activity coefficient @f$ \gamma_k @f$ of a species in
+ * solution is related to the chemical potential by
+ *
+ * @f[
+ *   \mu_k = \mu_k^0(T,P) + \hat R T \ln a_k = \mu_k^0(T,P) + \hat R T \ln x_k \gamma_k
+ * @f]
+ *
+ * The quantity @f$ \mu_k^0(T,P) @f$ is the standard chemical potential at unit
+ * activity, which depends on the temperature and pressure, but not on the composition.
+ * The activity is dimensionless. Within liquid electrolytes it's common to use a
+ * molality convention, where solute species employ the molality-based activity
+ * coefficients:
+ *
+ * @f[
+ *   \mu_k =  \mu_k^\triangle(T,P) + R T \ln a_k^{\triangle} =
+ *            \mu_k^\triangle(T,P) + R T \ln \frac{\gamma_k^{\triangle} m_k}{m^\triangle}
+ * @f]
+ *
+ * And the solvent employs the convention
+ * @f[
+ *   \mu_o = \mu^o_o(T,P) + RT \ln a_o
+ * @f]
+ *
+ * where @f$ a_o @f$ is often redefined in terms of the osmotic coefficient @f$ \phi
+ * @f$:
+ *
+ * @f[
+ *   \phi = \frac{- \ln a_o}{\tilde{M}_o \sum_{i \ne o} m_i}
+ * @f]
+ *
+ * ThermoPhase classes which employ the molality based convention are all derived from
+ * the MolalityVPSSTP class. See the class description for further information on its
+ * capabilities.
+ *
+ * The activity convention used by a ThermoPhase object may be queried via the
+ * activityConvention() function. A zero means molar based, while a one
+ * means molality based.
+ *
+ * The function getActivities() returns a vector of activities. Whether these are
+ * molar-based or molality-based depends on the value of activityConvention().
+ *
+ * The function getActivityCoefficients() always returns molar-based activity
+ * coefficients regardless of the activity convention used. The function
+ * MolalityVPSSTP::getMolalityActivityCoefficients() returns molality
+ * based activity coefficients for those ThermoPhase objects derived
+ * from the MolalityVPSSTP class. The function MolalityVPSSTP::osmoticCoefficient()
+ * returns the osmotic coefficient.
+
+ * ## Activity Concentrations: Relationship of ThermoPhase to Kinetics Expressions
+ *
+ * %Cantera can handle both thermodynamics and kinetics mechanisms. Reversible kinetics
+ * mechanisms within %Cantera must be compatible with thermodynamics in the sense that
+ * at equilibrium, or at infinite times, the concentrations of species must conform to
+ * thermodynamics. This means that for every valid reversible kinetics reaction in a
+ * mechanism, it must be reducible to an expression involving the ratio of the product
+ * activity to the reactant activities being equal to the exponential of the
+ * dimensionless standard state gibbs free energies of reaction. Irreversible kinetics
+ * reactions do not have this requirement; however, their usage can yield unexpected and
+ * inconsistent results in many situations.
+ *
+ * The actual units used in a kinetics expression depend on the context or the relative
+ * field of study. For example, in gas phase kinetics, species in kinetics expressions
+ * are expressed in terms of concentrations, for example, gmol cm-3. In solid phase
+ * studies, however, kinetics is usually expressed in terms of unitless activities,
+ * which most often equate to solid phase mole fractions. In order to accommodate
+ * variability here, %Cantera has come up with the idea of activity concentrations,
+ * @f$ C^a_k @f$. Activity concentrations are the expressions used directly in kinetics
+ * expressions. These activity (or generalized) concentrations are used by kinetics
+ * manager classes to compute the forward and reverse rates of elementary reactions.
+ * Note that they may or may not have units of concentration --- they might be partial
+ * pressures, mole fractions, or surface coverages, The activity concentrations for
+ * species *k*, @f$ C^a_k @f$, are related to the activity for species *k*, @f$ a_k @f$,
+ * via the expression:
+ *
+ * @f[
+ *   a_k = C^a_k / C^0_k
+ * @f]
+ *
+ * @f$ C^0_k @f$ are called standard concentrations. They serve as multiplicative
+ * factors between the activities and the generalized concentrations. Standard
+ * concentrations may be different for each species. They may depend on both the
+ * temperature and the pressure. However, they may not depend on the composition of the
+ * phase. For example, for the IdealGasPhase object the standard concentration is
+ * defined as
+ *
+ * @f[
+ *   C^0_k = \frac{P}{RT}
+ * @f]
+ *
+ * while in many solid phase kinetics problems,
+ *
+ * @f[
+ *   C^0_k = 1.0
+ * @f]
+ *
+ * is employed making the units for activity concentrations in solids unitless.
+ *
+ * ThermoPhase member functions dealing with this concept include
+ * getActivityConcentrations(), which provides a vector of the current activity
+ * concentrations. The function standardConcentration() returns the standard
+ * concentration of the kth species. The function logStandardConc(), returns the natural
+ * log of the kth standard concentration. The function standardConcentrationUnits()
+ * returns the units of the standard concentration.
+ *
+ * ### Equilibrium constants
+ *
+ * - @f$ K_a @f$ is the equilibrium constant defined in terms of the standard state
  *   Gibbs free energy values. It is by definition dimensionless.
  *
- *   K_p is the calculation of the equilibrium constant from the reference state
+ * - @f$ K_p @f$ is the equilibrium constant defined in terms of the reference state
  *   Gibbs free energy values. It is by definition dimensionless. The pressure
  *   dependence is handled entirely on the RHS of the equilibrium expression.
  *
- *   K_c is the equilibrium constant calculated from the activity
- *   concentrations. The dimensions depend on the number of products and
- *   reactants.
+ * - @f$ K_c @f$ is the equilibrium constant defined in terms of the activity
+ *   concentrations. The dimensions depend on the number of products and reactants.
  *
- * The kinetics manager requires the calculation of K_c for the calculation of
- * the reverse rate constant
+ * The kinetics manager requires the calculation of @f$ K_c @f$ for the calculation of
+ * the reverse rate constant.
  *
  * @ingroup thermoprops
  * @ingroup phases
@@ -790,6 +1080,7 @@ public:
     }
 
     //! @name Setting the State
+    //! @anchor sec-thermophase-set-state
     //!
     //! These methods set all or part of the thermodynamic state.
     //! @{
