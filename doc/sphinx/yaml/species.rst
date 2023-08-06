@@ -211,8 +211,7 @@ Piecewise Gibbs
 ---------------
 
 A model based on piecewise interpolation of the Gibbs free energy as
-`described here <https://cantera.org/documentation/dev/doxygen/html/d4/d9e/classCantera_1_1Mu0Poly.html#details>`__
-Additional fields of a ``piecewise-Gibbs`` entry are:
+:ct:`described here <Mu0Poly>`. Additional fields of a ``piecewise-Gibbs`` entry are:
 
 ``h0``
     The molar enthalpy at the reference temperature of 298.15 K. Defaults to
@@ -286,8 +285,7 @@ Species equation of state models
 Constant volume
 ---------------
 
-A constant volume model as
-`described here <https://cantera.org/documentation/dev/doxygen/html/da/d33/classCantera_1_1PDSS__ConstVol.html#details>`__.
+A constant volume model as :ct:`described here <PDSS_ConstVol>`.
 
 Any one of the following may be specified:
 
@@ -313,7 +311,7 @@ Density temperature polynomial
 ------------------------------
 
 A model in which the density varies with temperature as
-`described here <https://cantera.org/documentation/dev/doxygen/html/d0/d2f/classCantera_1_1PDSS__SSVol.html#details>`__.
+:ct:`described here <PDSS_SSVol>`.
 
 Additional fields:
 
@@ -333,8 +331,7 @@ Example::
 HKFT
 ----
 
-The Helgeson-Kirkham-Flowers-Tanger model as
-`described here <https://cantera.org/documentation/dev/doxygen/html/d9/d18/classCantera_1_1PDSS__HKFT.html#details>`__.
+The Helgeson-Kirkham-Flowers-Tanger model as :ct:`described here <PDSS_HKFT>`.
 
 Additional fields:
 
@@ -371,7 +368,7 @@ Ideal gas
 ---------
 
 A species using the ideal gas equation of state, as
-`described here <https://cantera.org/documentation/dev/doxygen/html/df/d31/classCantera_1_1PDSS__IdealGas.html#details>`__.
+:ct:`described here <PDSS_IdealGas>`.
 
 .. deprecated:: 3.0
 
@@ -383,8 +380,7 @@ Ions from neutral molecule
 --------------------------
 
 A species equation of state model used with the ``ions-from-neutral-molecule``
-phase model, as
-`described here <https://cantera.org/documentation/dev/doxygen/html/d5/df4/classCantera_1_1PDSS__IonsFromNeutral.html#details>`__.
+phase model, as :ct:`described here <PDSS_IonsFromNeutral>`.
 
 .. deprecated:: 3.0
 
@@ -411,8 +407,7 @@ Example::
 Liquid Water IAPWS95
 --------------------
 
-A detailed equation of state for liquid water as
-`described here <https://cantera.org/documentation/dev/doxygen/html/de/d64/classCantera_1_1PDSS__Water.html#details>`__.
+A detailed equation of state for liquid water as :ct:`described here <PDSS_Water>`.
 
 
 .. _sec-yaml-eos-molar-volume-temperature-polynomial:
@@ -421,7 +416,7 @@ Molar volume temperature polynomial
 -----------------------------------
 
 A model in which the molar volume varies with temperature as
-`described here <https://cantera.org/documentation/dev/doxygen/html/d0/d2f/classCantera_1_1PDSS__SSVol.html#details>`__.
+:ct:`described here <PDSS_SSVol>`.
 
 Additional fields:
 
@@ -434,7 +429,7 @@ Peng-Robinson
 -------------
 
 A model where species follow the Peng-Robinson equation of state as
-`described here <https://cantera.org/documentation/dev/doxygen/html/d3/ddc/classCantera_1_1PengRobinson.html#details>`__.
+:ct:`described here <PengRobinson>`.
 
 Additional fields:
 
@@ -470,7 +465,7 @@ Redlich-Kwong
 -------------
 
 A model where species follow the Redlich-Kwong equation of state as
-`described here <https://cantera.org/documentation/dev/doxygen/html/d6/d29/classCantera_1_1RedlichKwongMFTP.html#details>`__.
+:ct:`described here <RedlichKwongMFTP>`.
 
 Additional fields:
 
@@ -492,8 +487,7 @@ Coverage-dependent Surface
 --------------------------
 
 A model where species thermodynamic properties are calculated as a function
-coverage as
-`described here <https://cantera.org/documentation/dev/doxygen/html/db/d25/classCantera_1_1CoverageDependentSurfPhase.html#details>`__.
+coverage as :ct:`described here <CoverageDependentSurfPhase>`.
 
 Additional fields:
 
