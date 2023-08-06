@@ -488,8 +488,7 @@ Example::
 ``electrochemical``
 -------------------
 
-Interface reactions involving charge transfer between phases,
-as `described here <https://cantera.org/documentation/dev/doxygen/html/d6/ddd/classCantera_1_1ElectrochemicalReaction.html#details>`__.
+Interface reactions involving charge transfer between phases.
 
 Includes the fields of an :ref:`sec-yaml-interface-Arrhenius` reaction, plus:
 
