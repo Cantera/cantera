@@ -75,6 +75,7 @@ and optionally reactions that can take place in that phase. The fields of a
 
     - :ref:`binary-solution-tabulated <sec-yaml-binary-solution-tabulated>`
     - :ref:`compound-lattice <sec-yaml-compound-lattice>`
+    - :ref:`coverage-dependent-surface <sec-yaml-coverage-dependent-surface>`
     - :ref:`Debye-Huckel <sec-yaml-Debye-Huckel>`
     - :ref:`edge <sec-yaml-edge>`
     - :ref:`electron-cloud <sec-yaml-electron-cloud>`
@@ -85,7 +86,6 @@ and optionally reactions that can take place in that phase. The fields of a
     - :ref:`ideal-condensed <sec-yaml-ideal-condensed>`
     - :ref:`ideal-solution-VPSS <sec-yaml-ideal-solution-VPSS>`
     - :ref:`ideal-surface <sec-yaml-ideal-surface>`
-    - :ref:`coverage-dependent-surface <sec-yaml-coverage-dependent-surface>`
     - :ref:`ions-from-neutral-molecule <sec-yaml-ions-from-neutral-molecule>`
     - :ref:`lattice <sec-yaml-lattice>`
     - :ref:`liquid-water-IAPWS95 <sec-yaml-liquid-water-IAPWS95>`
@@ -254,6 +254,41 @@ Example::
     composition: {Li7Si3(s): 1.0, Li7Si3-interstitial: 1.0}
 
 
+.. _sec-yaml-coverage-dependent-surface:
+
+``coverage-dependent-surface``
+------------------------------
+
+A coverage-dependent surface phase. That is, a surface phase where the enthalpy,
+entropy, and heat capacity of each species may depend on its coverage and the
+coverage of other species in the phase.
+Full details are
+`described here <https://cantera.org/documentation/dev/doxygen/html/db/d25/classCantera_1_1CoverageDependentSurfPhase.html#details>`__.
+Majority of coverage dependency parameters are provided in the species entry as
+`described here <https://cantera.org/documentation/dev/sphinx/html/yaml/species.html#coverage-dependent-surface>`__.
+
+Additional fields:
+
+``site-density``
+    The molar density of surface sites.
+
+``reference-state-coverage``
+    The reference state coverage denoting the low-coverage limit (ideal-surface)
+    thermodynamic properties.
+
+Example::
+
+    - name: covdep
+      thermo: coverage-dependent-surface
+      species: [Pt, OC_Pt, CO2_Pt, C_Pt, O_Pt]
+      state:
+        T: 500.0
+        P: 1.01325e+05
+        coverages: {Pt: 0.5, OC_Pt: 0.5, CO2_Pt: 0.0, C_Pt: 0.0, O_Pt: 0.0}
+      site-density: 2.72e-09
+      reference-state-coverage: 0.22
+
+
 .. _sec-yaml-Debye-Huckel:
 
 ``Debye-Huckel``
@@ -368,6 +403,20 @@ Example::
 
     thermo: edge
     site-density: 5.0e-17 mol/cm
+
+
+.. _sec-yaml-electron-cloud:
+
+``electron-cloud``
+------------------
+
+A phase representing an electron cloud, such as conduction electrons in a metal,
+as `described here <https://cantera.org/documentation/dev/doxygen/html/d9/d13/classCantera_1_1MetalPhase.html#details>`__.
+
+Additional fields:
+
+``density``
+    The density of the bulk metal
 
 
 .. _sec-yaml-fixed-stoichiometry:
@@ -637,41 +686,6 @@ Example::
       site-density: 2.7063e-09
 
 
-.. _sec-yaml-coverage-dependent-surface:
-
-``coverage-dependent-surface``
-------------------------------
-
-A coverage-dependent surface phase. That is, a surface phase where the enthalpy,
-entropy, and heat capacity of each species may depend on its coverage and the
-coverage of other species in the phase.
-Full details are
-`described here <https://cantera.org/documentation/dev/doxygen/html/db/d25/classCantera_1_1CoverageDependentSurfPhase.html#details>`__.
-Majority of coverage dependency parameters are provided in the species entry as
-`described here <https://cantera.org/documentation/dev/sphinx/html/yaml/species.html#coverage-dependent-surface>`__.
-
-Additional fields:
-
-``site-density``
-    The molar density of surface sites.
-
-``reference-state-coverage``
-    The reference state coverage denoting the low-coverage limit (ideal-surface)
-    thermodynamic properties.
-
-Example::
-
-    - name: covdep
-      thermo: coverage-dependent-surface
-      species: [Pt, OC_Pt, CO2_Pt, C_Pt, O_Pt]
-      state:
-        T: 500.0
-        P: 1.01325e+05
-        coverages: {Pt: 0.5, OC_Pt: 0.5, CO2_Pt: 0.0, C_Pt: 0.0, O_Pt: 0.0}
-      site-density: 2.72e-09
-      reference-state-coverage: 0.22
-
-
 .. _sec-yaml-ions-from-neutral-molecule:
 
 ``ions-from-neutral-molecule``
@@ -800,18 +814,84 @@ Example::
     product-species: H(s)
 
 
-.. _sec-yaml-electron-cloud:
+.. _sec-yaml-Peng-Robinson:
 
-``electron-cloud``
-------------------
+``Peng-Robinson``
+-----------------
 
-A phase representing an electron cloud, such as conduction electrons in a metal,
-as `described here <https://cantera.org/documentation/dev/doxygen/html/d9/d13/classCantera_1_1MetalPhase.html#details>`__.
+A multi-species Peng-Robinson phase as
+`described here <https://cantera.org/documentation/dev/doxygen/html/d3/ddc/classCantera_1_1PengRobinson.html#details>`__.
+
+The parameters for each species are contained in the corresponding species
+entries. See :ref:`Peng-Robinson species equation of state <sec-yaml-eos-peng-robinson>`.
+
+
+.. _sec-yaml-plasma:
+
+``plasma``
+----------
+
+A phase for plasma. This phase handles plasma properties such as the electron
+energy distribution and electron temperature with different models as
+`described here <https://cantera.org/documentation/dev/doxygen/html/d5/dd7/classCantera_1_1PlasmaPhase.html#details>`__.
+
 
 Additional fields:
 
-``density``
-    The density of the bulk metal
+``electron-energy-distribution``
+    A mapping with the following fields:
+
+    ``type``
+        String specifying the type of the electron energy distribution to be used.
+        Supported model strings are:
+
+        - `isotropic`
+        - `discretized`
+
+    ``shape-factor``
+        A constant in the isotropic distribution, which is shown as x in the
+        detailed description of this class. The value needs to be a positive
+        number. This field is only used with `isotropic`. Defaults to 2.0.
+
+    ``mean-electron-energy``
+        Mean electron energy of the isotropic distribution. The default sets
+        the electron temperature equal gas temperature and uses the
+        corresponding electron energy as mean electron energy.  This field
+        is only used with `isotropic`.
+
+    ``energy-levels``
+        A list of values specifying the electron energy levels. The default
+        uses 1001 equal spaced points from 0 to 1 eV.
+
+    ``distribution``
+        A list of values specifying the discretized electron energy distribution.
+        This field is only used with `discretized`.
+
+    ``normalize``
+        A flag specifying whether normalizing the discretized electron energy
+        distribution or not. This field is only used with `discretized`.
+        Defaults to ``true``.
+
+Example::
+
+    - name: isotropic-electron-energy-plasma
+      thermo: plasma
+      kinetics: gas
+      transport: ionized-gas
+      electron-energy-distribution:
+        type: isotropic
+        shape-factor: 2.0
+        mean-electron-energy: 1.0 eV
+        energy-levels: [0.0, 0.1, 1.0, 10.0]
+    - name: discretized-electron-energy-plasma
+      thermo: plasma
+      kinetics: gas
+      transport: ionized-gas
+      electron-energy-distribution:
+        type: discretized
+        energy-levels: [0.0, 0.1, 1.0, 10.0]
+        distribution: [0.0, 0.2, 0.7, 0.01]
+        normalize: False
 
 
 .. _sec-yaml-pure-fluid:
@@ -882,81 +962,3 @@ A multi-species Redlich-Kwong phase as
 
 The parameters for each species are contained in the corresponding species
 entries. See :ref:`Redlich-Kwong species equation of state <sec-yaml-eos-redlich-kwong>`.
-
-.. _sec-yaml-Peng-Robinson:
-
-``Peng-Robinson``
------------------
-
-A multi-species Peng-Robinson phase as
-`described here <https://cantera.org/documentation/dev/doxygen/html/d3/ddc/classCantera_1_1PengRobinson.html#details>`__.
-
-The parameters for each species are contained in the corresponding species
-entries. See :ref:`Peng-Robinson species equation of state <sec-yaml-eos-peng-robinson>`.
-
-.. _sec-yaml-plasma:
-
-``plasma``
-----------
-
-A phase for plasma. This phase handles plasma properties such as the electron
-energy distribution and electron temperature with different models as
-`described here <https://cantera.org/documentation/dev/doxygen/html/d5/dd7/classCantera_1_1PlasmaPhase.html#details>`__.
-
-
-Additional fields:
-
-``electron-energy-distribution``
-    A mapping with the following fields:
-
-    ``type``
-        String specifying the type of the electron energy distribution to be used.
-        Supported model strings are:
-
-        - `isotropic`
-        - `discretized`
-
-    ``shape-factor``
-        A constant in the isotropic distribution, which is shown as x in the
-        detailed description of this class. The value needs to be a positive
-        number. This field is only used with `isotropic`. Defaults to 2.0.
-
-    ``mean-electron-energy``
-        Mean electron energy of the isotropic distribution. The default sets
-        the electron temperature equal gas temperature and uses the
-        corresponding electron energy as mean electron energy.  This field
-        is only used with `isotropic`.
-
-    ``energy-levels``
-        A list of values specifying the electron energy levels. The default
-        uses 1001 equal spaced points from 0 to 1 eV.
-
-    ``distribution``
-        A list of values specifying the discretized electron energy distribution.
-        This field is only used with `discretized`.
-
-    ``normalize``
-        A flag specifying whether normalizing the discretized electron energy
-        distribution or not. This field is only used with `discretized`.
-        Defaults to ``true``.
-
-Example::
-
-    - name: isotropic-electron-energy-plasma
-      thermo: plasma
-      kinetics: gas
-      transport: ionized-gas
-      electron-energy-distribution:
-        type: isotropic
-        shape-factor: 2.0
-        mean-electron-energy: 1.0 eV
-        energy-levels: [0.0, 0.1, 1.0, 10.0]
-    - name: discretized-electron-energy-plasma
-      thermo: plasma
-      kinetics: gas
-      transport: ionized-gas
-      electron-energy-distribution:
-        type: discretized
-        energy-levels: [0.0, 0.1, 1.0, 10.0]
-        distribution: [0.0, 0.2, 0.7, 0.01]
-        normalize: False
