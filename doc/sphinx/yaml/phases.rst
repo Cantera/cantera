@@ -102,9 +102,9 @@ and optionally reactions that can take place in that phase. The fields of a
     are:
 
     - none
-    - `gas <https://cantera.org/documentation/dev/doxygen/html/de/dae/classCantera_1_1GasKinetics.html#details>`__
-    - `surface <https://cantera.org/documentation/dev/doxygen/html/d1/d72/classCantera_1_1InterfaceKinetics.html#details>`__
-    - `edge <https://cantera.org/documentation/dev/doxygen/html/d0/df0/classCantera_1_1EdgeKinetics.html#details>`__
+    - :ct:`gas <GasKinetics>`
+    - :ct:`surface <InterfaceKinetics>`
+    - :ct:`edge <EdgeKinetics>`
 
 ``reactions``
     Source of reactions to include in the phase, if a kinetics model has been
@@ -139,15 +139,14 @@ and optionally reactions that can take place in that phase. The fields of a
     are:
 
     - none
-    - `high-pressure <https://cantera.org/documentation/dev/doxygen/html/d9/d63/classCantera_1_1HighPressureGasTransport.html#details>`__
-    - `ionized-gas <https://cantera.org/documentation/dev/doxygen/html/d4/d65/classCantera_1_1IonGasTransport.html#details>`__
-    - `mixture-averaged <https://cantera.org/documentation/dev/doxygen/html/d9/d17/classCantera_1_1MixTransport.html#details>`__
-    - `mixture-averaged-CK <https://cantera.org/documentation/dev/doxygen/html/d9/d17/classCantera_1_1MixTransport.html#details>`__
-    - `multicomponent <https://cantera.org/documentation/dev/doxygen/html/df/d7c/classCantera_1_1MultiTransport.html#details>`__
-    - `multicomponent-CK <https://cantera.org/documentation/dev/doxygen/html/df/d7c/classCantera_1_1MultiTransport.html#details>`__
-    - `unity-Lewis-number <https://cantera.org/documentation/dev/doxygen/html/d3/dd6/classCantera_1_1UnityLewisTransport.html#details>`__
-    - `water <https://cantera.org/documentation/dev/doxygen/html/df/d1f/classCantera_1_1WaterTransport.html#details>`__
-
+    - :ct:`high-pressure <HighPressureGasTransport>`
+    - :ct:`ionized-gas <IonGasTransport>`
+    - :ct:`mixture-averaged <MixTransport>`
+    - :ct:`mixture-averaged-CK <MixTransport>`
+    - :ct:`multicomponent <MultiTransport>`
+    - :ct:`multicomponent-CK <MultiTransport>`
+    - :ct:`unity-Lewis-number <UnityLewisTransport>`
+    - :ct:`water <WaterTransport>`
 
 
 .. _sec-yaml-setting-state:
@@ -208,7 +207,7 @@ Phase thermodynamic models
 -----------------------------
 
 A phase implementing tabulated standard state thermodynamics for one species in
-a binary solution, as `described here <https://cantera.org/documentation/dev/doxygen/html/de/ddf/classCantera_1_1BinarySolutionTabulatedThermo.html#details>`__.
+a binary solution, as :ct:`described here <BinarySolutionTabulatedThermo>`.
 
 Includes the fields of :ref:`sec-yaml-ideal-condensed`, plus:
 
@@ -243,7 +242,7 @@ Includes the fields of :ref:`sec-yaml-ideal-condensed`, plus:
 --------------------
 
 A phase that is comprised of a fixed additive combination of other lattice
-phases, as `described here <https://cantera.org/documentation/dev/doxygen/html/de/de1/classCantera_1_1LatticeSolidPhase.html#details>`__.
+phases, as :ct:`described here <LatticeSolidPhase>`.
 
 Additional fields:
 
@@ -264,10 +263,9 @@ Example::
 A coverage-dependent surface phase. That is, a surface phase where the enthalpy,
 entropy, and heat capacity of each species may depend on its coverage and the
 coverage of other species in the phase.
-Full details are
-`described here <https://cantera.org/documentation/dev/doxygen/html/db/d25/classCantera_1_1CoverageDependentSurfPhase.html#details>`__.
-Majority of coverage dependency parameters are provided in the species entry as
-`described here <https://cantera.org/documentation/dev/sphinx/html/yaml/species.html#coverage-dependent-surface>`__.
+Full details are :ct:`described here <CoverageDependentSurfPhase>`.
+The majority of coverage dependency parameters are provided in the species entry as
+:ref:`described here <sec-yaml-coverage-dependent-surface-species>`.
 
 Additional fields:
 
@@ -298,8 +296,7 @@ Example::
 ``Debye-Huckel``
 ----------------
 
-The Debye-Hückel model as
-`described here <https://cantera.org/documentation/dev/doxygen/html/d8/d9a/classCantera_1_1DebyeHuckel.html#details>`__.
+The Debye-Hückel model as :ct:`described here <DebyeHuckel>`.
 
 Additional parameters for this model are contained in the ``activity-data``
 field:
@@ -395,8 +392,7 @@ Example::
 ``edge``
 --------
 
-A one-dimensional edge between two surfaces, as
-`described here <https://cantera.org/documentation/dev/doxygen/html/d9/d17/classCantera_1_1EdgePhase.html#details>`__.
+A one-dimensional edge between two surfaces, as :ct:`described here <EdgePhase>`.
 
 Additional fields:
 
@@ -415,7 +411,7 @@ Example::
 ------------------
 
 A phase representing an electron cloud, such as conduction electrons in a metal,
-as `described here <https://cantera.org/documentation/dev/doxygen/html/d9/d13/classCantera_1_1MetalPhase.html#details>`__.
+as :ct:`described here <MetalPhase>`.
 
 Additional fields:
 
@@ -428,8 +424,7 @@ Additional fields:
 ``fixed-stoichiometry``
 -----------------------
 
-A phase with fixed composition, as
-`described here <https://cantera.org/documentation/dev/doxygen/html/d3/d50/classCantera_1_1StoichSubstance.html#details>`__.
+A phase with fixed composition, as :ct:`described here <StoichSubstance>`.
 
 
 .. _sec-yaml-HMW-electrolyte:
@@ -438,8 +433,7 @@ A phase with fixed composition, as
 -------------------
 
 A dilute or concentrated liquid electrolyte phase that obeys the Pitzer
-formulation for nonideality, as
-`described here <https://cantera.org/documentation/dev/doxygen/html/de/d1d/classCantera_1_1HMWSoln.html#details>`__.
+formulation for nonideality, as :ct:`described here <HMWSoln>`.
 
 Additional parameters for this model are contained in the ``activity-data``
 field:
@@ -562,8 +556,7 @@ Example::
 ``ideal-gas``
 -------------
 
-The ideal gas model as
-`described here <https://cantera.org/documentation/dev/doxygen/html/d7/dfa/classCantera_1_1IdealGasPhase.html#details>`__.
+The ideal gas model as :ct:`described here <IdealGasPhase>`.
 
 Example::
 
@@ -582,8 +575,7 @@ Example::
 ------------------------
 
 A phase based on the mixing-rule assumption that all molality-based activity
-coefficients are equal to one, as
-`described here <https://cantera.org/documentation/dev/doxygen/html/da/d5c/classCantera_1_1IdealMolalSoln.html#details>`__.
+coefficients are equal to one, as :ct:`described here <IdealMolalSoln>`.
 
 Additional fields:
 
@@ -636,8 +628,7 @@ Example::
 ``ideal-condensed``
 -------------------
 
-A condensed phase ideal solution as
-`described here <https://cantera.org/documentation/dev/doxygen/html/d3/d4c/classCantera_1_1IdealSolidSolnPhase.html#details>`__.
+A condensed phase ideal solution as :ct:`described here <IdealSolidSolnPhase>`.
 
 Additional fields:
 
@@ -652,7 +643,7 @@ Additional fields:
 -----------------------
 
 An ideal solution model using variable pressure standard state methods as
-`described here <https://cantera.org/documentation/dev/doxygen/html/dc/ddb/classCantera_1_1IdealSolnGasVPSS.html#details>`__.
+:ct:`described here <IdealSolnGasVPSS>`.
 
 Additional fields:
 
@@ -666,8 +657,7 @@ Additional fields:
 ``ideal-surface``
 -----------------
 
-An ideal surface phase, as
-`described here <https://cantera.org/documentation/dev/doxygen/html/d2/d95/classCantera_1_1SurfPhase.html#details>`__.
+An ideal surface phase, as :ct:`described here <SurfPhase>`.
 
 Additional fields:
 
@@ -698,8 +688,7 @@ Example::
 A model that handles the specification of the chemical potentials for ionic
 species, given a specification of the chemical potentials for the same phase
 expressed in terms of combinations of the ionic species that represent neutral
-molecules, as
-`described here <https://cantera.org/documentation/dev/doxygen/html/d7/d4a/classCantera_1_1IonsFromNeutralVPSSTP.html#details>`__.
+molecules, as :ct:`described here <IonsFromNeutralVPSSTP>`.
 
 .. deprecated:: 3.0
 
@@ -728,8 +717,7 @@ Example::
 -----------
 
 A simple thermodynamic model for a bulk phase, assuming a lattice of solid
-atoms, as
-`described here <https://cantera.org/documentation/dev/doxygen/html/d1/da0/classCantera_1_1LatticePhase.html#details>`__.
+atoms, as :ct:`described here <LatticePhase>`.
 
 Additional fields:
 
@@ -742,8 +730,7 @@ Additional fields:
 ``liquid-water-IAPWS95``
 ------------------------
 
-An equation of state for liquid water, as
-`described here <https://cantera.org/documentation/dev/doxygen/html/dc/d86/classCantera_1_1WaterSSTP.html#details>`__.
+An equation of state for liquid water, as :ct:`described here <WaterSSTP>`.
 
 
 .. _sec-yaml-Margules:
@@ -752,7 +739,7 @@ An equation of state for liquid water, as
 ------------
 
 A phase employing the Margules approximation for the excess Gibbs free energy, as
-`described here <https://cantera.org/documentation/dev/doxygen/html/d7/dfe/classCantera_1_1MargulesVPSSTP.html#details>`__.
+:ct:`described here <MargulesVPSSTP>`.
 
 Additional fields:
 
@@ -797,7 +784,7 @@ Example::
 --------------------------
 
 A condensed phase non-ideal solution with two species, as
-`described here <https://cantera.org/documentation/dev/doxygen/html/dd/d3a/classCantera_1_1MaskellSolidSolnPhase.html#details>`__.
+:ct:`described here <MaskellSolidSolnPhase>`.
 
 .. deprecated:: 3.0
 
@@ -823,8 +810,7 @@ Example::
 ``Peng-Robinson``
 -----------------
 
-A multi-species Peng-Robinson phase as
-`described here <https://cantera.org/documentation/dev/doxygen/html/d3/ddc/classCantera_1_1PengRobinson.html#details>`__.
+A multi-species Peng-Robinson phase as :ct:`described here <PengRobinson>`.
 
 The parameters for each species are contained in the corresponding species
 entries. See :ref:`Peng-Robinson species equation of state <sec-yaml-eos-peng-robinson>`.
@@ -839,7 +825,7 @@ entries. See :ref:`Peng-Robinson species equation of state <sec-yaml-eos-peng-ro
 
 A phase for plasma. This phase handles plasma properties such as the electron
 energy distribution and electron temperature with different models as
-`described here <https://cantera.org/documentation/dev/doxygen/html/d5/dd7/classCantera_1_1PlasmaPhase.html#details>`__.
+:ct:`described here <PlasmaPhase>`.
 
 
 Additional fields:
@@ -908,7 +894,7 @@ Example::
 --------------
 
 A phase representing a pure fluid equation of state for one of several species,
-as `described here <https://cantera.org/documentation/dev/doxygen/html/d1/d29/classCantera_1_1PureFluidPhase.html#details>`__.
+as :ct:`described here <PureFluidPhase>`.
 
 Additional fields:
 
@@ -930,8 +916,7 @@ Additional fields:
 ------------------
 
 A phase employing the Redlich-Kister approximation for the excess Gibbs free
-energy, as
-`described here <https://cantera.org/documentation/dev/doxygen/html/d0/d23/classCantera_1_1RedlichKisterVPSSTP.html#details>`__.
+energy, as :ct:`described here <RedlichKisterVPSSTP>`.
 
 Additional fields:
 
@@ -965,8 +950,7 @@ Example::
 ``Redlich-Kwong``
 -----------------
 
-A multi-species Redlich-Kwong phase as
-`described here <https://cantera.org/documentation/dev/doxygen/html/d6/d29/classCantera_1_1RedlichKwongMFTP.html#details>`__.
+A multi-species Redlich-Kwong phase as :ct:`described here <RedlichKwongMFTP>`.
 
 The parameters for each species are contained in the corresponding species
 entries. See :ref:`Redlich-Kwong species equation of state <sec-yaml-eos-redlich-kwong>`.
