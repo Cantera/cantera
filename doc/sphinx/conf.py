@@ -176,11 +176,26 @@ html_theme = 'pydata_sphinx_theme'
 html_theme_options = {
     "show_toc_level": 2,
     "navbar_center": ["cantera-org-links"],
+    "navbar_end": ["version-switcher", "theme-switcher", "navbar-icon-links"],
     "logo": {
         "link": "/index.html",
         "alt_text": "Cantera",
     },
     "primary_sidebar_end": ["numfocus"],
+    "switcher": {
+        "json_url": "/documentation/dev/sphinx/html/_static/doc-versions.json",
+        # "json_url": "https://cantera.org/doc-versions.json",
+        "version_match": version,
+    },
+    "check_switcher": False,
+    "icon_links": [
+        {
+            "name": "GitHub",
+            "url": "https://github.com/Cantera/cantera",
+            "icon": "fa-brands fa-square-github",
+            "type": "fontawesome",
+        }
+   ],
 }
 
 # Add any paths that contain custom themes here, relative to this directory.
