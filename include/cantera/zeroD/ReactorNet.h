@@ -217,7 +217,7 @@ public:
 
     //! eval coupling for IDA / DAEs
     virtual void evalDae(double t, double* y, double* ydot, double* p,
-                         double* residaul);
+                         double* residual);
 
     virtual void getState(double* y);
     virtual void getStateDae(double* y, double* ydot);

@@ -65,7 +65,7 @@ namespace Cantera
  * ## Mathematical Models for Coverage-dependent Correction Terms
  *
  * Coverage-dependent correction terms for enthalpy and entropy can be calculated
- * with one of the four algebraic models: linear dependecy model, polynomial
+ * with one of the four algebraic models: linear dependency model, polynomial
  * dependency model, piecewise-linear, and interpolative dependency model.
  * In the dependency model equations, a coverage-dependent correction term is denoted
  * by @f$ f^{cov} @f$ where @f$ f @f$ can be either enthalpy (@f$ h^{cov} @f$) or

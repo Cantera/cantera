@@ -138,7 +138,7 @@ public:
         return m_quadratureMethod;
     }
 
-    //! Set numerical quadrature method for intergating electron
+    //! Set numerical quadrature method for integrating electron
     //! energy distribution function. Method: #m_quadratureMethod
     void setQuadratureMethod(const string& method) {
         m_quadratureMethod = method;

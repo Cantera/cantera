@@ -270,7 +270,7 @@ class WaterProps;
  * A_\psi @f$, where *k* is a constant. For electrolytes other than 2-2
  * electrolytes the @f$ \beta^{(2)}_{ca} g(\alpha^{(2)}_{ca} \sqrt{I}) @f$  term
  * is not used in the fitting procedure; it is only used for divalent metal
- * solfates and other high-valence electrolytes which exhibit significant
+ * sulfates and other high-valence electrolytes which exhibit significant
  * association at low ionic strengths.
  *
  * The @f$ \beta^{(0)}_{ca} @f$, @f$ \beta^{(1)}_{ca} @f$, @f$ \beta^{(2)}_{ca}

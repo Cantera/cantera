@@ -209,7 +209,7 @@ Example::
 ``Blowers-Masel``
 -----------------
 
-Includes the fields of an :ref:`elemntary <sec-yaml-elementary>` reaction, except that
+Includes the fields of an :ref:`elementary <sec-yaml-elementary>` reaction, except that
 the ``rate-constant`` field is a
 :ref:`Blowers-Masel-type <sec-yaml-Blowers-Masel-rate>` list or mapping.
 
