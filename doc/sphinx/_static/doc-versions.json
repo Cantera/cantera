@@ -1,0 +1,35 @@
+[
+    {
+        "name": "3.0 (dev)",
+        "version": "3.0",
+        "url": "/documentation/dev/sphinx/html/"
+    },
+    {
+        "version": "2.6.0 (stable)",
+        "url": "/documentation/docs-2.6/sphinx/html/"
+    },
+    {
+        "version": "2.5.1",
+        "url": "/documentation/docs-2.5/sphinx/html/"
+    },
+    {
+        "version": "2.4.0",
+        "url": "/documentation/docs-2.4/sphinx/html/"
+    },
+    {
+        "version": "2.3.0",
+        "url": "/documentation/docs-2.3/sphinx/html/"
+    },
+    {
+        "version": "2.2.1",
+        "url": "/documentation/docs-2.2/sphinx/html/"
+    },
+    {
+        "version": "2.1.2",
+        "url": "/documentation/docs-2.1/sphinx/html/"
+    },
+    {
+        "version": "2.0.2",
+        "url": "/documentation/docs-2.0/sphinx/html/"
+    }
+]
