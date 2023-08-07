@@ -179,7 +179,8 @@ html_theme_options = {
     "logo": {
         "link": "/index.html",
         "alt_text": "Cantera",
-    }
+    },
+    "primary_sidebar_end": ["numfocus"],
 }
 
 # Add any paths that contain custom themes here, relative to this directory.
