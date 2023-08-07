@@ -167,7 +167,7 @@ protected:
      * Updates the array of pure species viscosities, and the weighting
      * functions in the viscosity mixture rule. The flag m_visc_ok is set to true.
      *
-     * The formula for the weighting function is from Poling and Prausnitz,
+     * The formula for the weighting function is from Poling et al. @cite poling2001,
      * Eq. (9-5.14):
      *  @f[
      *      \phi_{ij} = \frac{ \left[ 1 + \left( \mu_i / \mu_j \right)^{1/2} \left( M_j / M_i \right)^{1/4} \right]^2 }
@@ -196,7 +196,7 @@ protected:
     virtual void setupCollisionParameters();
 
     //! Setup range for polynomial fits to collision integrals of
-    //! Monchick & Mason
+    //! Monchick & Mason @cite monchick1961
     void setupCollisionIntegral();
 
     //! Read the transport database
@@ -209,10 +209,9 @@ protected:
 
     //! Corrections for polar-nonpolar binary diffusion coefficients
     /*!
-     * Calculate corrections to the well depth parameter and the diameter for
-     * use in computing the binary diffusion coefficient of polar-nonpolar
-     * pairs. For more information about this correction, see Dixon-Lewis, Proc.
-     * Royal Society (1968).
+     * Calculate corrections to the well depth parameter and the diameter for use in
+     * computing the binary diffusion coefficient of polar-nonpolar pairs. For more
+     * information about this correction, see Dixon-Lewis @cite dixon-lewis1968.
      *
      * @param i        Species one - this is a bimolecular correction routine
      * @param j        species two - this is a bimolecular correction routine
@@ -276,7 +275,7 @@ protected:
      * d(j,k). This method computes the multiplier by which the first-order
      * binary diffusion coefficient should be multiplied to produce the value
      * correct to second order. The expressions here are taken from Marerro and
-     * Mason, J. Phys. Chem. Ref. Data, vol. 1, p. 3 (1972).
+     * Mason @cite marrero1972.
      *
      * @param t   Temperature (K)
      * @param integrals interpolator for the collision integrals

@@ -37,11 +37,11 @@ public:
 
     //! Return the thermal diffusion coefficients (kg/m/s)
     /*!
-     * Eqn. (12.126) displays how they are calculated. The reference work is
-     * from Dixon-Lewis.
+     * Eqn. (12.126) of Kee et al. @cite kee2003 displays how they are calculated. The
+     * reference work is from Dixon-Lewis @cite dixon-lewis1968.
      *
-     * Eqns. (12.168) shows how they are used in an expression for the species
-     * flux.
+     * Eqns. (12.168) of Kee et al. @cite kee2003 shows how they are used in an
+     * expression for the species flux.
      *
      * @param dt  Vector of thermal diffusion coefficients. Units = kg/m/s
      */

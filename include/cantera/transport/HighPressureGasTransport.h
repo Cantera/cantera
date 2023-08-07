@@ -28,10 +28,12 @@ namespace Cantera
  *     future version of  %Cantera. See
  *     https://github.com/Cantera/cantera/issues/267 for additional information.
  *
- * The implementation employs a method of corresponding states, using the
- * Takahashi approach for binary diffusion coefficients, (using multicomponent
- * averaging rules for the mixture properties, and the Lucas method for the
- * viscosity of a high-pressure gas mixture.
+ * The implementation employs a method of corresponding states, using the Takahashi
+ * @cite takahashi1975 approach for binary diffusion coefficients (using multicomponent
+ * averaging rules for the mixture properties), and the Lucas method for the viscosity
+ * of a high-pressure gas mixture. All methods are described in Poling et al.
+ * @cite poling2001 (viscosity in Ch. 9, thermal conductivity in Ch. 10, and diffusion
+ * coefficients in Ch. 11).
  *
  * @ingroup tranprops
  */

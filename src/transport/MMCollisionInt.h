@@ -1,6 +1,6 @@
 /**
  * @file MMCollisionInt.h
- *  Monk and Monchick collision integrals
+ *  Monchick and Mason collision integrals
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -17,8 +17,7 @@ namespace Cantera
 //! Calculation of Collision integrals
 /*!
  * This class provides functions that interpolate the tabulated collision
- * integrals in Monchick and Mason, "Transport Properties of Polar Gases," J.
- * Chem. Phys. (1961)
+ * integrals in Monchick and Mason @cite monchick1961.
  *
  * @ingroup tranprops
  */

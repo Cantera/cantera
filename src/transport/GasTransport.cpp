@@ -88,7 +88,7 @@ void GasTransport::updateViscosity_T()
         updateSpeciesViscosities();
     }
 
-    // see Eq. (9-5.15) of Reid, Prausnitz, and Poling
+    // see Eq. (9-5.14) of Poling et al. (2001)
     for (size_t j = 0; j < m_nsp; j++) {
         for (size_t k = j; k < m_nsp; k++) {
             double vratiokj = m_visc[k]/m_visc[j];
