@@ -167,43 +167,17 @@ pygments_style = 'sphinx'
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = 'cttheme'
-html_sidebars = {
-    '**': ['localtoc.html', 'relations.html', 'sourcelink.html', 'searchbox.html', 'numfocus.html'],
-}
+html_theme = 'pydata_sphinx_theme'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
 
-# Copy the Bootstrap 4 font families.
-font_families = [
-    # Default on Apple
-    '-apple-system',
-    # Default for older versions of Chrome on Mac
-    'BlinkMacSystemFont',
-    # Windows
-    '"Segoe UI"',
-    # Android
-    'Roboto',
-    # Standard fallbacks
-    '"Helvetica Neue"', 'Arial', 'sans-serif',
-    # Emoji fonts
-    '"Apple Color Emoji"', '"Segoe UI Emoji"', '"Segoe UI Symbol"']
-
-code_font_families = [
-    'SFMono-Regular',
-    'Menlo',
-    'Monaco',
-    'Consolas',
-    '"Liberation Mono"',
-    '"Courier New"', 'monospace'
-]
 html_theme_options = {
-    'font_family': ','.join(font_families),
-    'head_font_family': ','.join(font_families),
-    'caption_font_family': ','.join(font_families),
-    'code_font_family': ','.join(code_font_families),
+    "show_toc_level": 2,
+    "logo": {
+        "text": "Cantera",
+    },
 }
 
 # Add any paths that contain custom themes here, relative to this directory.
@@ -218,7 +192,7 @@ html_short_title = "Cantera"
 
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
-#html_logo = None
+html_logo = '_static/images/cantera-icon.png'
 
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
