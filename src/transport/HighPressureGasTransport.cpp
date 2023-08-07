@@ -1,13 +1,6 @@
 /**
  *  @file HighPressureGasTransport.cpp
  *  Implementation file for class HighPressureGasTransport
- *
- *  Transport parameters are calculated using corresponding states models:
- *      Binary diffusion coefficients use the generalized chart described by
- *      Takahashi, et al. and viscosity calculations use the Lucas method.
- *      All methods are described in Reid, Prausnitz, and Polling, "The Properties
- *      of Gases and Liquids, 4th ed., 1987 (viscosity in Ch. 9, Thermal
- *      conductivity in Ch. 10, and Diffusion coefficients in Ch. 11).
  **/
 
 // This file is part of Cantera. See License.txt in the top-level directory or
