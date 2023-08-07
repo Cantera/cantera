@@ -314,8 +314,8 @@ protected:
     //! Update boolean for the binary diffusivities at unit pressure
     bool m_bindiff_ok = false;
 
-    //! Type of the polynomial fits to temperature. CK_Mode means Chemkin mode.
-    //! Currently CA_Mode is used which are different types of fits to temperature.
+    //! Type of the polynomial fits to temperature. `CK_Mode` means Chemkin mode.
+    //! Any other value means to use %Cantera's preferred fitting functions.
     int m_mode = 0;
 
     //! m_phi is a Viscosity Weighting Function. size = m_nsp * n_nsp
