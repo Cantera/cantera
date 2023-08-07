@@ -175,9 +175,11 @@ html_theme = 'pydata_sphinx_theme'
 
 html_theme_options = {
     "show_toc_level": 2,
+    "navbar_center": ["cantera-org-links"],
     "logo": {
-        "text": "Cantera",
-    },
+        "link": "/index.html",
+        "alt_text": "Cantera",
+    }
 }
 
 # Add any paths that contain custom themes here, relative to this directory.
@@ -192,7 +194,7 @@ html_short_title = "Cantera"
 
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
-html_logo = '_static/images/cantera-icon.png'
+html_logo = '_static/images/cantera-logo.png'
 
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
