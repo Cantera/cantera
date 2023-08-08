@@ -1373,9 +1373,10 @@ if not env['BOOST_LIB_VERSION']:
                  " 'boost_inc_dir' to point to the boost headers.")
 else:
     logger.info(f"Found Boost version {env['BOOST_LIB_VERSION']}")
-if parse_version(env['BOOST_LIB_VERSION']) < parse_version("1.61"):
-    # dll support is available in Boost 1.61 or newer
-    config_error("Cantera requires Boost version 1.61 or newer.")
+if parse_version(env['BOOST_LIB_VERSION']) < parse_version("1.70"):
+    # Boost.DLL with std::filesystem (making it header-only) is available in Boost 1.70
+    # or newer
+    config_error("Cantera requires Boost version 1.70 or newer.")
 
 # check BLAS/LAPACK installations
 if env["system_blas_lapack"] == "n":
