@@ -5,6 +5,7 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/zeroD/Wall.h"
+#include "cantera/zeroD/ReactorSurface.h"
 #include "cantera/zeroD/FlowDevice.h"
 #include "cantera/zeroD/ConstPressureMoleReactor.h"
 #include "cantera/base/utilities.h"
