@@ -7,6 +7,7 @@
 
 #include "cantera/base/Array.h"
 #include "cantera/base/utilities.h"
+#include "cantera/base/global.h"
 
 namespace Cantera
 {
@@ -96,6 +97,25 @@ void Array2D::getColumn(size_t m, double* const col)
     }
 }
 
+Array2D::iterator Array2D::begin() {
+    warn_deprecated("Array2D::begin", "To be removed after Cantera 3.0.");
+    return m_data.begin();
+}
+
+Array2D::iterator Array2D::end() {
+    warn_deprecated("Array2D::end", "To be removed after Cantera 3.0.");
+    return m_data.end();
+}
+
+Array2D::const_iterator Array2D::begin() const {
+    warn_deprecated("Array2D::begin", "To be removed after Cantera 3.0.");
+    return m_data.begin();
+}
+
+Array2D::const_iterator Array2D::end() const {
+    warn_deprecated("Array2D::end", "To be removed after Cantera 3.0.");
+    return m_data.end();
+}
 
 std::ostream& operator<<(std::ostream& s, const Array2D& m)
 {
