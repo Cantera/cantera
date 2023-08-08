@@ -1546,7 +1546,7 @@ protected:
     vector<double> m_perturb;
 
     //! Vector of Reaction objects represented by this Kinetics manager
-    vector<shared_ptr<Reaction> > m_reactions;
+    vector<shared_ptr<Reaction>> m_reactions;
 
     //! m_thermo is a vector of pointers to ThermoPhase objects that are
     //! involved with this kinetics operator

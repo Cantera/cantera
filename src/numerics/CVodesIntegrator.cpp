@@ -660,7 +660,7 @@ string CVodesIntegrator::getErrorInfo(int N)
     CVodeGetErrWeights(m_cvode_mem, errw);
     CVodeGetEstLocalErrors(m_cvode_mem, errs);
 
-    vector<tuple<double, double, size_t> > weightedErrors;
+    vector<tuple<double, double, size_t>> weightedErrors;
     for (size_t i=0; i<m_neq; i++) {
         double err = NV_Ith_S(errs, i) * NV_Ith_S(errw, i);
         weightedErrors.emplace_back(-abs(err), err, i);

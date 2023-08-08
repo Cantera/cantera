@@ -540,8 +540,8 @@ int ReactionPathBuilder::init(ostream& logfile, Kinetics& kin)
 
     // all reactants / products, even ones appearing on both sides of the
     // reaction
-    vector<vector<size_t> > allProducts(m_nr);
-    vector<vector<size_t> > allReactants(m_nr);
+    vector<vector<size_t>> allProducts(m_nr);
+    vector<vector<size_t>> allReactants(m_nr);
     for (size_t i = 0; i < m_nr; i++) {
         for (size_t k = 0; k < m_ns; k++) {
             for (int n = 0; n < kin.reactantStoichCoeff(k, i); n++) {
@@ -733,7 +733,7 @@ int ReactionPathBuilder::build(Kinetics& s, const string& element,
                         double f;
                         if ((m_atoms(kkp,m) < m_elatoms(m, i)) &&
                                 (m_atoms(kkr,m) < m_elatoms(m, i))) {
-                            map<size_t, map<size_t, Group> >& g = m_transfer[i];
+                            map<size_t, map<size_t, Group>>& g = m_transfer[i];
                             if (g.empty()) {
                                 if (!warn[i] && !quiet) {
                                     output << endl;

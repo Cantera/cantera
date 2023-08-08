@@ -1451,7 +1451,7 @@ public:
     //! Charge of each species. Length = number of species.
     vector<double> m_chargeSpecies;
 
-    vector<vector<size_t> > phasePopProblemLists_;
+    vector<vector<size_t>> phasePopProblemLists_;
 
     //! Vector of pointers to thermo structures which identify the model
     //! and parameters for evaluating the thermodynamic functions for that

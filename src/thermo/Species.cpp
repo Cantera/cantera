@@ -142,7 +142,7 @@ unique_ptr<Species> newSpecies(const AnyMap& node)
 
 vector<shared_ptr<Species>> getSpecies(const AnyValue& items)
 {
-    vector<shared_ptr<Species> > all_species;
+    vector<shared_ptr<Species>> all_species;
     for (const auto& node : items.asVector<AnyMap>()) {
         all_species.emplace_back(newSpecies(node));
     }

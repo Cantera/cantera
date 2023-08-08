@@ -483,7 +483,7 @@ protected:
      *  m_rxnPhaseIsReactant[j][p] indicates whether a species in phase p
      *  participates in reaction j as a reactant.
      */
-    vector<vector<bool> > m_rxnPhaseIsReactant;
+    vector<vector<bool>> m_rxnPhaseIsReactant;
 
     //! Vector of vector of booleans indicating whether a phase participates in a
     //! reaction as a product
@@ -491,7 +491,7 @@ protected:
      *  m_rxnPhaseIsReactant[j][p] indicates whether a species in phase p
      *  participates in reaction j as a product.
      */
-    vector<vector<bool> > m_rxnPhaseIsProduct;
+    vector<vector<bool>> m_rxnPhaseIsProduct;
 
     int m_ioFlag = 0;
 

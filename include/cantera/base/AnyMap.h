@@ -285,7 +285,7 @@ public:
     bool hasMapWhere(const string& key, const string& value) const;
 
     //! Return values used to determine the sort order when outputting to YAML
-    pair <int, int> order() const;
+    pair<int, int> order() const;
 
     //! See AnyMap::applyUnits()
     void applyUnits(shared_ptr<UnitSystem>& units);

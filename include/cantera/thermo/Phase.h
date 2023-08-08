@@ -969,7 +969,7 @@ protected:
 
     vector<double> m_speciesCharge; //!< Vector of species charges. length m_kk.
 
-    map<string, shared_ptr<Species> > m_species;
+    map<string, shared_ptr<Species>> m_species;
 
     //! Flag determining behavior when adding species with an undefined element
     UndefElement::behavior m_undefinedElementBehavior = UndefElement::add;
