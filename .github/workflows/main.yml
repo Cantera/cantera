@@ -326,7 +326,7 @@ jobs:
       - name: Install Python dependencies
         run: |
           python3 -m pip install ruamel.yaml scons numpy cython sphinx==5.1.1 \
-          sphinxcontrib-katex sphinxcontrib-matlabdomain sphinxcontrib-doxylink pint \
+          sphinxcontrib-matlabdomain sphinxcontrib-doxylink pint \
           pydata-sphinx-theme==0.13.3
       - name: Build Cantera with documentation
         run: python3 `which scons` build -j2 doxygen_docs=y sphinx_docs=y debug=n optimize=n use_pch=n
