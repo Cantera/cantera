@@ -12,7 +12,7 @@ namespace tpx
 {
 
 //! Pure species representation of nitrogen. Values and functions are
-//! from "Thermodynamic Properties in SI" by W.C. Reynolds
+//! from Reynolds @cite reynolds1979.
 class nitrogen : public Substance
 {
 public:
@@ -50,4 +50,3 @@ private:
 }
 
 #endif // ! TPX_NITROGEN_H
-

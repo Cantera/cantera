@@ -12,7 +12,7 @@ namespace tpx
 {
 
 //! Pure species representation of carbon dioxide. Values and functions are
-//! from "Thermodynamic Properties in SI" by W.C. Reynolds
+//! from Reynolds @cite reynolds1979.
 class CarbonDioxide : public Substance
 {
 public:
