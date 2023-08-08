@@ -11,7 +11,7 @@
 namespace tpx
 {
 //! Pure species representation of oxygen. Values and functions are
-//! from "Thermodynamic Properties in SI" by W.C. Reynolds
+//! from Reynolds @cite reynolds1979.
 class oxygen : public Substance
 {
 public:
