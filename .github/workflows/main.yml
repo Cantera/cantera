@@ -397,7 +397,7 @@ jobs:
       - name: Install Apt dependencies
         run: |
           sudo apt update
-          sudo apt install graphviz libhdf5-103
+          sudo apt install graphviz libhdf5-103 libfmt-dev
       - name: Download the wheel artifact
         uses: actions/download-artifact@v3
         with:
