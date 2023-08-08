@@ -40,7 +40,6 @@ extensions = [
               'sphinx.ext.todo',
               'sphinx.ext.autosummary',
               'sphinxcontrib.doxylink',
-              'sphinxcontrib.katex',  # Use KaTeX because it's faster and the main site uses it
               'sphinx.ext.intersphinx',
               ]
 
