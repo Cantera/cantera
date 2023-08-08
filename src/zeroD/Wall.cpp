@@ -6,12 +6,9 @@
 #include "cantera/base/stringUtils.h"
 #include "cantera/numerics/Func1.h"
 #include "cantera/zeroD/Wall.h"
-#include "cantera/thermo/SurfPhase.h"
 
 namespace Cantera
 {
-
-WallBase::WallBase() : m_surf(2) {}
 
 bool WallBase::install(ReactorBase& rleft, ReactorBase& rright)
 {
@@ -23,15 +20,11 @@ bool WallBase::install(ReactorBase& rleft, ReactorBase& rright)
     m_right = &rright;
     m_left->addWall(*this, 0);
     m_right->addWall(*this, 1);
-    m_surf[0].setReactor(&rleft);
-    m_surf[1].setReactor(&rright);
     return true;
 }
 
 void WallBase::setArea(double a) {
     m_area = a;
-    m_surf[0].setArea(a);
-    m_surf[1].setArea(a);
 }
 
 double Wall::velocity() const {

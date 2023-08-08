@@ -7,14 +7,11 @@
 #define CT_WALL_H
 
 #include "cantera/base/ctexceptions.h"
-#include "cantera/zeroD/ReactorSurface.h"
 #include "cantera/zeroD/ReactorBase.h"
 
 namespace Cantera
 {
 
-class Kinetics;
-class SurfPhase;
 class Func1;
 
 /**
@@ -24,7 +21,7 @@ class Func1;
 class WallBase
 {
 public:
-    WallBase();
+    WallBase() = default;
 
     virtual ~WallBase() {}
     WallBase(const WallBase&) = delete;
@@ -121,8 +118,6 @@ public:
 protected:
     ReactorBase* m_left = nullptr;
     ReactorBase* m_right = nullptr;
-
-    vector<ReactorSurface> m_surf;
 
     //! current reactor network time
     double m_time = 0.0;
