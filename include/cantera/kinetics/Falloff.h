@@ -63,9 +63,20 @@ protected:
 
 
 /**
- * Base class for falloff rate calculators. Each instance of a subclass of FalloffRate
- * calculates the falloff reaction rate based on specific implementations of the
- * falloff function.
+ * Base class for falloff rate calculators.
+ * Each instance of a subclass of FalloffRate calculates the falloff reaction rate
+ * based on specific implementations of the falloff function.
+ *
+ * The falloff function @f$ F(P_r, T) @f$ is implemented by FalloffRate specializations,
+ * and is defined so that the rate coefficient is
+ * @f[
+ *  k = k_\infty \frac{P_r}{1 + P_r} F(P_r,T)
+ * @f]
+ *
+ * Here @f$ P_r @f$ is the reduced pressure, defined by
+ * @f[
+ *  P_r = \frac{k_0 [M]}{k_\infty}.
+ * @f]
  * @ingroup falloffGroup
  */
 class FalloffRate : public ReactionRate
@@ -111,15 +122,7 @@ public:
     virtual void updateTemp(double T, double* work) const {}
 
     /**
-     * The falloff function. This is defined so that the rate coefficient is
-     *
-     * @f[  k = F(Pr)\frac{Pr}{1 + Pr}. @f]
-     *
-     * Here @f$ Pr @f$ is the reduced pressure, defined by
-     *
-     * @f[
-     * Pr = \frac{k_0 [M]}{k_\infty}.
-     * @f]
+     * The falloff function.
      *
      * @param pr reduced pressure (dimensionless).
      * @param work array of size workSize() containing cached
@@ -262,7 +265,7 @@ protected:
 
 //! The Lindemann falloff parameterization.
 /**
- * This class implements the trivial falloff function F = 1.0.
+ * This class implements the trivial falloff function F = 1.0 @cite lindemann1922.
  *
  * @ingroup falloffGroup
  */
@@ -289,24 +292,38 @@ public:
 //! The 3- or 4-parameter Troe falloff parameterization.
 /*!
  * The falloff function defines the value of @f$ F @f$ in the following
- * rate expression
+ * rate expression @cite gilbert1983
  *
- *  @f[ k = k_{\infty} \left( \frac{P_r}{1 + P_r} \right) F @f]
- *  where
- *  @f[ P_r = \frac{k_0 [M]}{k_{\infty}} @f]
+ * @f[
+ *  k = k_{\infty} \left( \frac{P_r}{1 + P_r} \right) F(T, P_r)
+ * @f]
+ * where
+ * @f[
+ *  P_r = \frac{k_0 [M]}{k_{\infty}}
+ * @f]
  *
  * This parameterization is defined by
  *
- * @f[ F = F_{cent}^{1/(1 + f_1^2)} @f]
- *    where
- * @f[ F_{cent} = (1 - A)\exp(-T/T_3) + A \exp(-T/T_1) + \exp(-T_2/T) @f]
+ * @f[
+ *  \log_{10} F(T, P_r) = \frac{\log_{10} F_{cent}(T)}{1 + f_1^2}
+ * @f]
+ * where
+ * @f[
+ *  F_{cent}(T) = (1 - A)\exp\left(\frac{-T}{T_3}\right)
+ *      + A \exp\left(\frac{-T}{T_1}\right) + \exp\left(\frac{-T_2}{T}\right)
+ * @f]
  *
- * @f[ f_1 = (\log_{10} P_r + C) /
- *              \left(N - 0.14 (\log_{10} P_r + C)\right) @f]
+ * @f[
+ *  f_1 = \frac{\log_{10} P_r + C}{N - 0.14 (\log_{10} P_r + C)}
+ * @f]
  *
- * @f[ C = -0.4 - 0.67 \log_{10} F_{cent} @f]
+ * @f[
+ *  C = -0.4 - 0.67 \log_{10} F_{cent}
+ * @f]
  *
- * @f[ N = 0.75 - 1.27 \log_{10} F_{cent} @f]
+ * @f[
+ *  N = 0.75 - 1.27 \log_{10} F_{cent}
+ * @f]
  *
  *  - If @f$ T_3 @f$ is zero, then the corresponding term is set to zero.
  *  - If @f$ T_1 @f$ is zero, then the corresponding term is set to zero.
@@ -388,22 +405,34 @@ protected:
 
 //! The SRI falloff function
 /*!
+ * This falloff function is based on the one originally due to Stewart et al.
+ * @cite stewart1989, which required three parameters @f$ a @f$, @f$ b @f$, and
+ * @f$ c @f$. Kee et al. @cite kee1989 generalized this slightly by adding two more
+ * parameters @f$ d @f$ and @f$ e @f$. (The original form corresponds to @f$ d = 1 @f$
+ * and @f$ e = 0 @f$.) In keeping with the nomenclature of Kee et al. @cite kee1989,
+ * the rate is referred to as the *SRI falloff function*.
+ *
  * The falloff function defines the value of @f$ F @f$ in the following
  * rate expression
+ * @f[
+ *  k = k_{\infty} \left( \frac{P_r}{1 + P_r} \right) F
+ * @f]
+ * where
+ * @f[
+ *  P_r = \frac{k_0 [M]}{k_{\infty}}
+ * @f]
  *
- *  @f[ k = k_{\infty} \left( \frac{P_r}{1 + P_r} \right) F @f]
- *  where
- *  @f[ P_r = \frac{k_0 [M]}{k_{\infty}} @f]
+ * @f[
+ *  F(T, P_r) = {\left[ a \; \exp\left(\frac{-b}{T}\right)
+ *      + \exp\left(\frac{-T}{c}\right)\right]}^n \; d \; T^e
+ * @f]
+ * where
+ * @f[
+ *  n = \frac{1.0}{1.0 + (\log_{10} P_r)^2}
+ * @f]
  *
- *  @f[ F = {\left( a \; \exp(\frac{-b}{T}) + \exp(\frac{-T}{c})\right)}^n
- *              \;  d \; T^e @f]
- *      where
- *  @f[ n = \frac{1.0}{1.0 + (\log_{10} P_r)^2} @f]
- *
- *  @f$ c @f$ s required to greater than or equal to zero. If it is zero, then
- *  the corresponding term is set to zero.
- *
- *  @f$ d @f$ is required to be greater than zero.
+ * @f$ c @f$ is required to be greater than or equal to zero. If it is zero, then the
+ * corresponding term is set to zero. @f$ d @f$ is required to be greater than zero.
  *
  * @ingroup falloffGroup
  */
@@ -496,15 +525,14 @@ protected:
  *  @f[ F_{cent} = A + B*T @f]
  *
  *  The value of @f$ F_{cent} @f$ is then applied to Troe's model for the
- *  determination of the value of @f$ F @f$:
- * @f[ F = F_{cent}^{1/(1 + f_1^2)} @f]
- *    where
- * @f[ f_1 = (\log_{10} P_r + C) /
- *              \left(N - 0.14 (\log_{10} P_r + C)\right) @f]
+ *  determination of the value of @f$ F(T, P_r) @f$:
+ *  @f[ \log_{10} F(T, P_r) = \frac{\log_{10} F_{cent}(T)}{1 + f_1^2} @f]
+ *  where
+ *  @f[ f_1 = \frac{\log_{10} P_r + C}{N - 0.14 (\log_{10} P_r + C)} @f]
  *
- * @f[ C = -0.4 - 0.67 \log_{10} F_{cent} @f]
+ *  @f[ C = -0.4 - 0.67 \log_{10} F_{cent} @f]
  *
- * @f[ N = 0.75 - 1.27 \log_{10} F_{cent} @f]
+ *  @f[ N = 0.75 - 1.27 \log_{10} F_{cent} @f]
  *
  *  References:
  *  * Example of reaction database developed by Tsang utilizing this format
