@@ -23,11 +23,8 @@ namespace Cantera
 /*!
  * This parameterization expresses the heat capacity via a 7 coefficient
  * polynomial. Note that this is the form used in the 2002 NASA equilibrium
- * program. A reference to the form is provided below:
- *
- * "NASA Glenn Coefficients for Calculating Thermodynamic Properties of
- * Individual Species," B. J. McBride, M. J. Zehe, S. Gordon
- * NASA/TP-2002-211556, Sept. 2002
+ * program. A reference to the form is provided in McBride, et al.
+ * @cite mcbride2002.
  *
  * Nine coefficients @f$ (a_0,\dots,a_8) @f$ are used to represent
  * @f$ C_p^0(T) @f$, @f$ H^0(T) @f$, and @f$ S^0(T) @f$ as
