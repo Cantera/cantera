@@ -1338,7 +1338,7 @@ if env["system_eigen"] in ("n", "default"):
             config_error("Eigen not found and submodule checkout failed.\n"
                          "Try manually checking out the submodule with:\n\n"
                          "    git submodule update --init --recursive ext/eigen\n")
-    eigen_include = "'../ext/eigen/Eigen/Core'"
+    eigen_include = '"../ext/eigen/Eigen/Core"'
 
 eigen_versions = 'QUOTE(EIGEN_WORLD_VERSION) "." QUOTE(EIGEN_MAJOR_VERSION) "." QUOTE(EIGEN_MINOR_VERSION)'
 eigen_version_source = get_expression_value([eigen_include], eigen_versions)
