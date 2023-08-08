@@ -1239,7 +1239,10 @@ if env['system_fmt'] in ('n', 'default'):
     env['system_fmt'] = False
     logger.info(f"Using private installation of fmt library.")
 
-env.Append(CPPDEFINES={"FMT_HEADER_ONLY": 1})
+if env["OS"] == "Windows" and parse_version(fmt_lib_version) < parse_version("8.0.0"):
+    # Workaround for symbols not exported on Windows in older fmt versions
+    env.Append(CPPDEFINES={"FMT_HEADER_ONLY": 1})
+
 logger.info(f"Using fmt version {fmt_lib_version}")
 
 # Check for yaml-cpp library and checkout submodule if needed
