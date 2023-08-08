@@ -143,13 +143,13 @@ public:
 
     //! Return an iterator pointing to the first element
     /*!
-     * We might drop this later
+     * @deprecated Unused. To be removed after %Cantera 3.0.
      */
     virtual vector<double>::iterator begin() = 0;
 
     //! Return a const iterator pointing to the first element
     /*!
-     * We might drop this later
+     * @deprecated Unused. To be removed after %Cantera 3.0.
      */
     virtual vector<double>::const_iterator begin() const = 0;
 

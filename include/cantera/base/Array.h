@@ -35,6 +35,7 @@ public:
     //! types.
     /*!
      * This is just equal to vector<double>::iterator.
+     * @deprecated Unused. To be removed after %Cantera 3.0.
      */
     typedef vector<double>::iterator iterator;
 
@@ -42,6 +43,7 @@ public:
     //! Array2D types.
     /*!
      * This is just equal to vector<double>::const_iterator.
+     * @deprecated Unused. To be removed after %Cantera 3.0.
      */
     typedef vector<double>::const_iterator const_iterator;
 
@@ -197,24 +199,20 @@ public:
     }
 
     //! Return an iterator pointing to the first element
-    iterator begin() {
-        return m_data.begin();
-    }
+    //! @deprecated Unused. To be removed after %Cantera 3.0.
+    iterator begin();
 
     //! Return an iterator pointing past the last element
-    iterator end() {
-        return m_data.end();
-    }
+    //! @deprecated Unused. To be removed after %Cantera 3.0.
+    iterator end();
 
     //! Return a const iterator pointing to the first element
-    const_iterator begin() const {
-        return m_data.begin();
-    }
+    //! @deprecated Unused. To be removed after %Cantera 3.0.
+    const_iterator begin() const;
 
     //! Return a const iterator pointing to past the last element
-    const_iterator end() const {
-        return m_data.end();
-    }
+    //! @deprecated Unused. To be removed after %Cantera 3.0.
+    const_iterator end() const;
 
     //! Return a reference to the data vector
     vector<double>& data() {
@@ -225,6 +223,8 @@ public:
     const vector<double>& data() const {
         return m_data;
     }
+
+    void operator*=(double a);
 
     //! Return a pointer to the top of column j, columns are contiguous
     //! in memory
