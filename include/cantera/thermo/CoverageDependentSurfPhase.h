@@ -137,36 +137,8 @@ public:
          *          a target species
          * @param dep_map map of coverage-dependency parameters
          */
-        PolynomialDependency(size_t k, size_t j, const AnyMap& dep_map):
-            k(k),
-            j(j),
-            enthalpy_coeffs({0.0, 0.0, 0.0, 0.0, 0.0}),
-            entropy_coeffs({0.0, 0.0, 0.0, 0.0, 0.0}),
-            isLinear(false)
-        {
-            // For linear model
-            if (dep_map["model"] == "linear") {
-                if (dep_map.hasKey("enthalpy")) {
-                    enthalpy_coeffs[1] = dep_map.convert("enthalpy", "J/kmol");
-                }
-                if (dep_map.hasKey("entropy")) {
-                    entropy_coeffs[1] = dep_map.convert("entropy", "J/kmol/K");
-                }
-                isLinear = true;
-            // For polynomial(4th) model
-            } else if (dep_map["model"] == "polynomial") {
-                if (dep_map.hasKey("enthalpy-coefficients")) {
-                    enthalpy_coeffs = dep_map.convertVector(
-                        "enthalpy-coefficients", "J/kmol");
-                    enthalpy_coeffs.insert(enthalpy_coeffs.begin(), 0.0);
-                }
-                if (dep_map.hasKey("entropy-coefficients")) {
-                    entropy_coeffs = dep_map.convertVector(
-                        "entropy-coefficients", "J/kmol/K");
-                    entropy_coeffs.insert(entropy_coeffs.begin(), 0.0);
-                }
-            }
-        }
+        PolynomialDependency(size_t k, size_t j, const AnyMap& dep_map);
+
         //! index of a target species whose enthalpy and entropy is calculated
         size_t k;
         //! index of a species whose coverage affects enthalpy and entropy of
@@ -199,71 +171,8 @@ public:
          * @param node species node of a target species
          */
         InterpolativeDependency(size_t k, size_t j,
-                                const AnyMap& dep_map, const AnyBase& node):
-            k(k),
-            j(j),
-            enthalpy_map({{0.0, 0.0}, {1.0, 0.0}}),
-            entropy_map({{0.0, 0.0}, {1.0, 0.0}}),
-            isPiecewise(false)
-        {
-            // For piecewise-linear model
-            // Piecewise-linear model coefficients are converted into
-            // a map <coverages: values>
-            if (dep_map["model"] == "piecewise-linear") {
-                if (dep_map.hasKey("enthalpy-low") ||
-                    dep_map.hasKey("enthalpy-change") ||
-                    dep_map.hasKey("enthalpy-high")) {
-                    auto cov_change = dep_map["enthalpy-change"].as<double>();
-                    enthalpy_map[cov_change] =
-                        dep_map.convert("enthalpy-low", "J/kmol") * cov_change;
-                    enthalpy_map[1.0] = (1.0 - cov_change)
-                        * dep_map.convert("enthalpy-high", "J/kmol")
-                        + enthalpy_map[cov_change];
-                }
-                if (dep_map.hasKey("entropy-low") ||
-                    dep_map.hasKey("entropy-change") ||
-                    dep_map.hasKey("entropy-high")) {
-                    auto cov_change = dep_map["entropy-change"].as<double>();
-                    entropy_map[cov_change] =
-                        dep_map.convert("entropy-low", "J/kmol/K") * cov_change;
-                    entropy_map[1.0] = (1.0 - cov_change)
-                        * dep_map.convert("entropy-high", "J/kmol/K")
-                        + entropy_map[cov_change];
-                }
-                isPiecewise = true;
-            // For interpolative model
-            } else if (dep_map["model"] == "interpolative") {
-                if (dep_map.hasKey("enthalpy-coverages") ||
-                    dep_map.hasKey("enthalpies")) {
-                    auto hcovs = dep_map["enthalpy-coverages"].as<vector<double>>();
-                    vector<double> enthalpies = dep_map.convertVector("enthalpies", "J/kmol");
-                    if (hcovs.size() != enthalpies.size()) {
-                        throw InputFileError("CoverageDependentSurfPhase::\
-                        addInterpolativeDependency", node,
-                        "Sizes of coverages array and enthalpies array are \
-                        not equal.");
-                    }
-                    for (size_t i = 0; i < hcovs.size(); i++) {
-                        enthalpy_map[hcovs[i]] = enthalpies[i];
-                    }
-                }
-                if (dep_map.hasKey("entropy-coverages") ||
-                    dep_map.hasKey("entropies")) {
-                    auto scovs = dep_map["entropy-coverages"].as<vector<double>>();
-                    vector<double> entropies = dep_map.convertVector("entropies",
-                                                                "J/kmol/K");
-                    if (scovs.size() != entropies.size()) {
-                        throw InputFileError("CoverageDependentSurfPhase::\
-                        addInterpolativeDependency", node,
-                        "Sizes of coverages array and entropies array are \
-                        not equal.");
-                    }
-                    for (size_t i = 0; i < scovs.size(); i++) {
-                        entropy_map[scovs[i]] = entropies[i];
-                    }
-                }
-            }
-        }
+                                const AnyMap& dep_map, const AnyBase& node);
+
         //! index of a target species whose enthalpy and entropy are calculated
         size_t k;
         //! index of a species whose coverage affects enthalpy and entropy of
