@@ -107,8 +107,8 @@ void Kinetics::checkSpeciesArraySize(size_t kk) const
 pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err) const
 {
     //! Map of (key indicating participating species) to reaction numbers
-    map<size_t, vector<size_t> > participants;
-    vector<map<int, double> > net_stoich;
+    map<size_t, vector<size_t>> participants;
+    vector<map<int, double>> net_stoich;
     std::unordered_set<size_t> unmatched_duplicates;
     for (size_t i = 0; i < m_reactions.size(); i++) {
         if (m_reactions[i]->duplicate) {

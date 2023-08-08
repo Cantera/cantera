@@ -176,10 +176,10 @@ public:
 
 protected:
     //! Cached scalar values
-    map<int, CachedValue<double> > m_scalarCache;
+    map<int, CachedValue<double>> m_scalarCache;
 
     //! Cached array values
-    map<int, CachedValue<vector<double>> > m_arrayCache;
+    map<int, CachedValue<vector<double>>> m_arrayCache;
 
     //! The last assigned id. Automatically incremented by the getId() method.
     static int m_last_id;

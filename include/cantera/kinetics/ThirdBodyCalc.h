@@ -136,7 +136,7 @@ protected:
     vector<size_t> m_no_mass_action_index;
 
     //! m_species[i][j] is the index of the j-th species in reaction i.
-    vector<vector<size_t> > m_species;
+    vector<vector<size_t>> m_species;
 
     //! m_eff[i][j] is the efficiency of the j-th species in reaction i.
     vector<vector<double>> m_eff;

@@ -279,7 +279,7 @@ public:
 
 protected:
     double m_flxmax = 0.0;
-    map<size_t, map<size_t, Path*> > m_paths;
+    map<size_t, map<size_t, Path*>> m_paths;
 
     //! map of species index to SpeciesNode
     map<size_t, SpeciesNode*> m_nodes;
@@ -317,8 +317,8 @@ protected:
     vector<double> m_ropf;
     vector<double> m_ropr;
     vector<double> m_x;
-    vector<vector<size_t> > m_reac;
-    vector<vector<size_t> > m_prod;
+    vector<vector<size_t>> m_reac;
+    vector<vector<size_t>> m_prod;
     DenseMatrix m_elatoms;
     vector<vector<int>> m_groups;
     vector<Group> m_sgroup;
@@ -327,7 +327,7 @@ protected:
     //! m_transfer[reaction][reactant number][product number] where "reactant
     //! number" means the number of the reactant in the reaction equation. For example,
     //! for "A+B -> C+D", "B" is reactant number 1 and "C" is product number 0.
-    map<size_t, map<size_t, map<size_t, Group> > > m_transfer;
+    map<size_t, map<size_t, map<size_t, Group>>> m_transfer;
 
     vector<bool> m_determinate;
     Array2D m_atoms;
