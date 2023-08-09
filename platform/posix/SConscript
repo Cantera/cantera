@@ -18,7 +18,13 @@ pc_libdirs = []
 pc_incdirs = []
 pc_cflags = list(localenv['CXXFLAGS'])
 
-if not localenv["package_build"]:
+if localenv["package_build"]:
+    # Remove local conda build environment from the installed include list
+    for i in range(len(pc_cflags) - 1):
+        if pc_cflags[i] == '-isystem' and '/_build_env/' in pc_cflags[i+1]:
+            del pc_cflags[i:i+2]
+            break
+else:
     pc_incdirs.extend(localenv["extra_inc_dirs"])
     pc_libdirs.extend(localenv["extra_lib_dirs"])
 
