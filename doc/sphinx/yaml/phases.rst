@@ -265,7 +265,7 @@ entropy, and heat capacity of each species may depend on its coverage and the
 coverage of other species in the phase.
 Full details are :ct:`described here <CoverageDependentSurfPhase>`.
 The majority of coverage dependency parameters are provided in the species entry as
-:ref:`described here <sec-yaml-coverage-dependent-surface-species>`.
+:ref:`described here <sec-yaml-species-coverage>`.
 
 Additional fields:
 
