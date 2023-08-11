@@ -50,17 +50,17 @@ classdef ctTestKinetics < matlab.unittest.TestCase
             self.verifyEqual(self.phase.nReactions, 29);
             self.verifyEqual(self.phase.nTotalSpecies, 10);
             self.verifyEqual(self.phase.nPhases, 1);
+            self.verifyEqual(self.phase.reactionPhaseIndex, 1);
         end
 
         function testIsReversible(self)
-            self.assumeFail('Fails because of incorrect reaction indexing');
-
             for i = 1:self.phase.nReactions
                 self.verifyTrue(self.phase.isReversible(i));
             end
-            % To do: test on a mechanism where not all reactions are
-            % reversible
-
+            
+            diamond = Solution('diamond.yaml', 'diamond_100', 'none');
+            self.verifyFalse(diamond.isReversible(20));
+            clear diamond
         end
 
         function testMultipler(self)
@@ -111,11 +111,8 @@ classdef ctTestKinetics < matlab.unittest.TestCase
         end
 
         function testStoichCoeffs(self)
-            self.assumeFail(['Fails because StoichCoeffs methods do not', ...
-                             ' convert species names to species indices']);
-
-            nu_r = self.phase.reactantStoichCoeffs;
-            nu_p = self.phase.productStoichCoeffs;
+            nu_r = full(self.phase.reactantStoichCoeffs);
+            nu_p = full(self.phase.productStoichCoeffs);
 
             function checkReactant(s, i, val)
                 k = self.phase.kineticsSpeciesIndex(s);

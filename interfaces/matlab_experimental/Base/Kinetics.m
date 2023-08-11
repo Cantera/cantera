@@ -109,6 +109,7 @@ classdef Kinetics < handle
 
         reactionEquations % All reaction equations within the Kinetics object.
 
+        reactionPhaseIndex % The index of the phase where the reactions occur. 
     end
 
     methods
@@ -163,12 +164,15 @@ classdef Kinetics < handle
             %     >> n = kin.kineticsSpeciesIndex(name, phase)
             %
             % :param name:
-            %    String name of the species.
+            %    String name or integer index of the species.
             % :param phase:
-            %    String name of the phase.
+            %    String name or integer index of the phase.
             % :return:
             %    Index of the species.
 
+            if nargin == 2
+                phase = '';
+            end
             n = ctFunc('kin_speciesIndex', kin.kinID, name, phase) + 1;
         end
 
@@ -208,6 +212,10 @@ classdef Kinetics < handle
             %    Index of the phase.
 
             n = ctFunc('kin_phaseIndex', kin.kinID, phase) + 1;
+        end
+
+        function n = get.reactionPhaseIndex(kin)
+            n = ctFunc('kin_reactionPhaseIndex', kin.kinID) + 1;
         end
 
         function rxn = reactionEquation(kin, irxn)
@@ -256,7 +264,11 @@ classdef Kinetics < handle
                 krange = 1:nsp;
                 irange = 1:nr;
             elseif nargin == 3
-                krange = species;
+                if ischar(species)
+                    krange = {species};
+                else
+                    krange = species;
+                end
                 irange = rxns;
             else
                 error('stoichReactant requires 1 or 3 arguments.')
@@ -265,17 +277,31 @@ classdef Kinetics < handle
             for k = krange
 
                 for i = irange
-                    t = ctFunc('kin_reactantStoichCoeff', kin.kinID, k - 1, i - 1);
+                    if iscell(k)
+                        kk = kin.kineticsSpeciesIndex(k{:});
+                    elseif ischar(k)
+                        kk = kin.kineticsSpeciesIndex(k);
+                    else
+                        kk = k;
+                    end
+
+                    t = ctFunc('kin_reactantStoichCoeff', kin.kinID, kk - 1, i - 1);
 
                     if t ~= 0.0
-                        temp(k, i) = t;
+                        temp(kk, i) = t;
                     end
 
                 end
 
             end
 
-            n = temp;
+            if nnz(temp) == 1
+                n = nonzeros(temp);
+            elseif nnz(temp) == 0
+                n = 0;
+            else
+                n = temp;
+            end
         end
 
         function n = productStoichCoeffs(kin, species, rxns)
@@ -303,7 +329,11 @@ classdef Kinetics < handle
                 krange = 1:nsp;
                 irange = 1:nr;
             elseif nargin == 3
-                krange = species;
+                if ischar(species)
+                    krange = {species};
+                else
+                    krange = species;
+                end
                 irange = rxns;
             else
                 error('stoichProduct requires 1 or 3 arguments.')
@@ -312,17 +342,30 @@ classdef Kinetics < handle
             for k = krange
 
                 for i = irange
-                    t = ctFunc('kin_productStoichCoeff', kin.kinID, k - 1, i - 1);
+                    
+                    if iscell(k)
+                        kk = kin.kineticsSpeciesIndex(k{:});
+                    else
+                        kk = k;
+                    end
+
+                    t = ctFunc('kin_productStoichCoeff', kin.kinID, kk - 1, i - 1);
 
                     if t ~= 0.0
-                        temp(k, i) = t;
+                        temp(kk, i) = t;
                     end
 
                 end
 
             end
 
-            n = temp;
+            if nnz(temp) == 1
+                n = nonzeros(temp);
+            elseif nnz(temp) == 0
+                n = 0;
+            else 
+                n = temp;
+            end
         end
 
         function n = netStoichCoeffs(kin, species, rxns)
@@ -342,10 +385,10 @@ classdef Kinetics < handle
             %    A sparse matrix of all net stoichiometric coefficients.
 
             if nargin == 1
-                n = kin.stoichProduct - kin.stoichReactant;
+                n = kin.productStoichCoeffs - kin.reactantStoichCoeffs;
             elseif nargin == 3
-                n = kin.stoichProduct(species, rxns) - ...
-                    kin.stoichReactant(species, rxns);
+                n = kin.productStoichCoeffs(species, rxns) - ...
+                    kin.reactantStoichCoeffs(species, rxns);
             else
                 error('stoichNet requires 1 or 3 arguments.');
             end
@@ -378,7 +421,7 @@ classdef Kinetics < handle
             % :return:
             %    True if reaction number i is reversible. false if irreversible.
 
-            n = boolean(ctFunc('kin_isReversible', kin.kinID, i));
+            n = boolean(ctFunc('kin_isReversible', kin.kinID, i - 1));
         end
 
         function wdot = get.netProdRates(kin)
