@@ -1720,8 +1720,10 @@ def convert(filename=None, output_name=None, text=None, encoding="latin-1"):
     return len(_species), len(_reactions), surfaces, output_name
 
 
-def main():
-    """Parse command line arguments and pass them to `convert`."""
+def create_argparser():
+    """
+    Create argparse parser
+    """
     parser = argparse.ArgumentParser(
         description=(
             "Convert legacy CTI input files to YAML format, where the first contiguous "
@@ -1743,6 +1745,12 @@ def main():
         "--no-validate", action="store_true", default=False,
         help="Skip validation step.")
 
+    return parser
+
+
+def main():
+    """Parse command line arguments and pass them to `convert`."""
+    parser = create_argparser()
     if len(sys.argv) not in [2, 3, 4, 5]:
         if len(sys.argv) > 5:
             print(

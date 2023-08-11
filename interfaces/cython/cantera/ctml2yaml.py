@@ -2652,8 +2652,10 @@ def convert(
             emitter.dump(output_reactions, output_file)
 
 
-def main():
-    """Parse command line arguments and pass them to `convert`."""
+def create_argparser():
+    """
+    Create argparse parser
+    """
     parser = argparse.ArgumentParser(
         description="Convert legacy CTML input files to YAML format",
         epilog=(
@@ -2664,6 +2666,13 @@ def main():
     )
     parser.add_argument("input", help="The input CTML filename. Must be specified.")
     parser.add_argument("output", nargs="?", help="The output YAML filename. Optional.")
+
+    return parser
+
+
+def main():
+    """Parse command line arguments and pass them to `convert`."""
+    parser = create_argparser()
     if len(sys.argv) not in [2, 3]:
         if len(sys.argv) > 3:
             print(
