@@ -717,13 +717,10 @@ def convert(
     return output_files
 
 
-def main():
+def create_argparser():
     """
-    Parse command line arguments and pass them to `convert`
-
-    .. versionadded:: 3.0
+    Create argparse parser
     """
-
     parser = argparse.ArgumentParser(
         description="Convert Cantera YAML input files to Chemkin-format mechanisms",
     )
@@ -795,7 +792,16 @@ def main():
         default=True,
         help="Check that the mechanism can be loaded back into Cantera.",
     )
+    return parser
 
+
+def main():
+    """
+    Parse command line arguments and pass them to `convert`
+
+    .. versionadded:: 3.0
+    """
+    parser = create_argparser()
     args = parser.parse_args()
 
     output_paths = convert(
