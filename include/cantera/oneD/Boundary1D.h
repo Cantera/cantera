@@ -104,6 +104,8 @@ public:
 
     virtual void setupGrid(size_t n, const double* z) {}
 
+    virtual void fromArray(SolutionArray& arr, double* soln);
+
 protected:
     void _init(size_t n);
 
@@ -201,7 +203,6 @@ public:
                       integer* diagg, double rdt);
 
     virtual shared_ptr<SolutionArray> asArray(const double* soln) const;
-    virtual void fromArray(SolutionArray& arr, double* soln) {}
 };
 
 /**
@@ -230,7 +231,6 @@ public:
                       integer* diagg, double rdt);
 
     virtual shared_ptr<SolutionArray> asArray(const double* soln) const;
-    virtual void fromArray(SolutionArray& arr, double* soln) {}
 };
 
 
@@ -259,7 +259,6 @@ public:
                       integer* diagg, double rdt);
 
     virtual shared_ptr<SolutionArray> asArray(const double* soln) const;
-    virtual void fromArray(SolutionArray& arr, double* soln) {}
 };
 
 
