@@ -77,6 +77,11 @@ void Boundary1D::_init(size_t n)
     }
 }
 
+void Boundary1D::fromArray(SolutionArray& arr, double* soln)
+{
+    setMeta(arr.meta());
+}
+
 // ---------------- Inlet1D methods ----------------
 
 Inlet1D::Inlet1D()
@@ -574,9 +579,10 @@ shared_ptr<SolutionArray> Surf1D::asArray(const double* soln) const
 
 void Surf1D::fromArray(SolutionArray& arr, double* soln)
 {
-    Boundary1D::setMeta(arr.meta());
-    arr.setLoc(0);
-    m_temp = arr.thermo()->temperature();
+    auto meta = arr.meta();
+    m_temp = meta["temperature"].asDouble();
+    meta.erase("temperature");
+    Boundary1D::setMeta(meta);
 }
 
 void Surf1D::show(std::ostream& s, const double* x)
