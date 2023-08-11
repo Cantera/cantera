@@ -1502,6 +1502,87 @@ class TestBurnerFlame(utilities.CanteraTest):
         for rhou_j in sim.density * sim.velocity:
             self.assertNear(rhou_j, rhou, 1e-4)
 
+
+class TestStagnationFlame(utilities.CanteraTest):
+    def setUp(self):
+        self.gas = ct.Solution("h2o2.yaml")
+
+    def create_stagnation(self, comp, tsurf, tinlet, mdot, width):
+        p = 0.05 * ct.one_atm  # pressure
+        self.gas.TPX = tinlet, p, comp
+
+        sim = ct.ImpingingJet(gas=self.gas, width=width)
+        sim.inlet.mdot = mdot
+        sim.surface.T = tsurf
+        return sim
+
+    def run_stagnation(self, xh2, mdot, width):
+        # Simplified version of the example 'stagnation_flame.py'
+        tburner = 373.0  # burner temperature
+        tsurf = 500.0
+        comp = {'H2': xh2, 'O2': 1, 'AR': 7}
+        sim = self.create_stagnation(comp, tsurf, tburner, mdot, width)
+
+        sim.set_grid_min(1e-4)
+        sim.set_refine_criteria(3., 0.1, 0.2, 0.06)
+        sim.set_initial_guess(products='equil')  # assume adiabatic equilibrium products
+
+        sim.solve(loglevel=0, auto=True)
+
+        assert sim.T.max() > tburner + tsurf
+        self.sim = sim
+
+    def test_stagnation_case1(self):
+        self.run_stagnation(xh2=1.8, mdot=0.06, width=0.2)
+
+    @pytest.mark.skipif("native" not in ct.hdf_support(),
+                        reason="Cantera compiled without HDF support")
+    def test_restore_hdf(self):
+        self.run_save_restore("h5")
+
+    def test_restore_yaml(self):
+        self.run_save_restore("yaml")
+
+    def run_save_restore(self, mode):
+        filename = self.test_work_path / f"stagnation.{mode}"
+        filename.unlink(missing_ok=True)
+
+        self.run_stagnation(xh2=1.8, mdot=0.06, width=0.1)
+        self.sim.save(filename, "test")
+
+        jet = ct.ImpingingJet(gas=self.gas)
+        jet.restore(filename, "test")
+
+        self.check_save_restore(jet)
+
+    def check_save_restore(self, jet):
+        # pytest.approx is used as equality for floats cannot be guaranteed for loaded
+        # HDF5 files if they were created on a different OS and/or architecture
+        assert list(jet.grid) == pytest.approx(list(self.sim.grid))
+        assert list(jet.T) == pytest.approx(list(self.sim.T), 1e-3)
+        k = self.sim.gas.species_index('H2')
+        assert list(jet.X[k, :]) == pytest.approx(list(self.sim.X[k, :]), 1e-4)
+
+        settings = self.sim.flame.get_settings3()
+        for k, v in jet.flame.get_settings3().items():
+            assert k in settings
+            if k == "fixed_temperature":
+                # fixed temperature is NaN
+                continue
+            if isinstance(v, dict):
+                for kk, vv in v.items():
+                    if isinstance(vv, float):
+                        assert settings[k][kk] == pytest.approx(vv)
+                    else:
+                        assert settings[k][kk] == vv
+            if isinstance(k, float):
+                assert settings[k] == pytest.approx(v)
+            else:
+                assert settings[k] == v
+
+        jet.solve(loglevel=0)
+
+
 class TestImpingingJet(utilities.CanteraTest):
     def setUp(self):
         self.gas = ct.Solution("ptcombust-simple.yaml", "gas")
