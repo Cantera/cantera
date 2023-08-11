@@ -55,10 +55,14 @@
 * Avoid introducing trailing whitespace
 * Limit line lengths to 88 characters when possible
 * Write comments to explain non-obvious operations
-* Use whitespaces to improve code readability (examples: after commas; before and
-  after mathematical operators (`+`/`-`/`*`/`/` except `^`), binary operators
-  (`&&`/`||`/...), and comparisons (`<`/`>`/`==`/...); before and after equality
-  signs `=` unless used for the assignment of a default parameter)
+* Use whitespaces to improve code readability. Examples: after commas; before and
+  after binary operators (`&&`/`||`/...), and comparisons (`<`/`>`/`==`/...); before and
+  after equality signs `=` unless used for the assignment of a default parameter. For
+  mathematical operators (`+`/`-`/`*`/`/` except `^`), whitespace should be added around
+  the operators with the lowest priority (examples: `x + y + z`, `x*2 - 1`, or
+  `(a+b) * (a-b)`). For additional guidance, refer to
+  [Python PEP-8](https://peps.python.org/pep-0008/#whitespace-in-expressions-and-statements),
+  where recommendations can be extrapolated to other programming languages
 * Do not go out of your way to change formatting in otherwise unmodified code
 * Write 'for example', 'such as', or 'that is' instead of using the Latin
   abbreviations 'i.e.' and 'e.g.'.
