@@ -29,13 +29,20 @@ static class InteropUtil
     /// <remarks>
     /// The Cantera C API is not very consistent on whether the size should be specified
     /// as an int or a nuint (size_t), so users of this delegate may need to wrap their
-    /// LibCantera call in a lambda to perform the appropriate conversions,
-    /// and/or pass in the Cantera handle as a capture. For example:
+    /// LibCantera call in a lambda to perform the appropriate conversions.
     /// <code>
-    /// (size, buffer) => kin_getType(_handle, (nuint) size, buffer)
+    /// (size, buffer) => kin_getType((nuint) size, buffer)
     /// </code>
     /// </remarks>
     public unsafe delegate int FillStringBufferFunc(int size, byte* buffer);
+
+    /// <inheritdoc cref="FillStringBufferFunc"/>
+    unsafe public delegate int FillStringBufferFunc<THandle>(
+        THandle arg, int size, byte* buffer) where THandle : CanteraHandle;
+
+    /// <inheritdoc cref="FillStringBufferFunc"/>
+    unsafe public delegate int FillStringBufferFunc<THandle, TArg>(
+        THandle handle, TArg arg, int size, byte* buffer) where THandle : CanteraHandle;
 
     public static double CheckReturn(double code)
     {
@@ -134,6 +141,10 @@ static class InteropUtil
         }
     }
 
+    // Note: the code in all three GetString overloads is virtually identical,
+    // but because they take different number of type arguments, it must be
+    // duplicated. Ensure that code changes in all three methods is synched.
+
     [SuppressMessage("Reliability", "CA2014:NoStackallocInLoops",
         Justification = "Loop is executed at most twice.")]
     public static string GetString(int initialSize, FillStringBufferFunc func)
@@ -182,6 +193,133 @@ static class InteropUtil
             fixed(byte* buffer = span)
             {
                 neededSize = CheckReturn(func(initialSize, buffer));
+
+                if (initialSize >= neededSize)
+                {
+                    value = new String((sbyte*) buffer);
+                    return true;
+                }
+            }
+
+            value = null;
+            return false;
+        }
+    }
+
+    [SuppressMessage("Reliability", "CA2014:NoStackallocInLoops",
+        Justification = "Loop is executed at most twice.")]
+    public static string GetString<THandle>(THandle handle, int initialSize,
+                                            FillStringBufferFunc<THandle> func)
+        where THandle : CanteraHandle
+    {
+        // take up to two tries
+        // 1) use the initial size
+        //    if the initial size was large enough, return the string
+        //    if the initial size was not large enough ...
+        // 2) try again with the needed size
+        //    if the needed size was large enough, return the string
+        //    otherwise, catastrophe, throw!
+        for (var i = 0; i < 2; i++)
+        {
+            int neededSize;
+
+            if (initialSize <= 120)
+            {
+                Span<byte> span = stackalloc byte[initialSize];
+                if (TryGetString(handle, span, func, out var value, out neededSize))
+                {
+                    return value;
+                }
+            }
+            else
+            {
+                using (MemoryPool<byte>.Shared.Rent(initialSize, out var span))
+                {
+                    if (TryGetString(handle, span, func, out var value, out neededSize))
+                    {
+                        return value;
+                    }
+                }
+            }
+
+            initialSize = neededSize;
+        }
+
+        throw new InvalidOperationException(
+            "Could not retrieve a string value from Cantera!");
+
+        unsafe static bool TryGetString(THandle handle, Span<byte> span, FillStringBufferFunc<THandle> func,
+                                        [NotNullWhen(true)] out string? value, out int neededSize)
+        {
+            var initialSize = span.Length;
+
+            fixed(byte* buffer = span)
+            {
+                neededSize = CheckReturn(func(handle, initialSize, buffer));
+
+                if (initialSize >= neededSize)
+                {
+                    value = new String((sbyte*) buffer);
+                    return true;
+                }
+            }
+
+            value = null;
+            return false;
+        }
+    }
+
+    [SuppressMessage("Reliability", "CA2014:NoStackallocInLoops",
+        Justification = "Loop is executed at most twice.")]
+    public static string GetString<THandle, TArg>(THandle handle, TArg arg, int initialSize,
+                                                   FillStringBufferFunc<THandle, TArg> func)
+        where THandle : CanteraHandle
+    {
+        // take up to two tries
+        // 1) use the initial size
+        //    if the initial size was large enough, return the string
+        //    if the initial size was not large enough ...
+        // 2) try again with the needed size
+        //    if the needed size was large enough, return the string
+        //    otherwise, catastrophe, throw!
+        for (var i = 0; i < 2; i++)
+        {
+            int neededSize;
+
+            if (initialSize <= 120)
+            {
+                Span<byte> span = stackalloc byte[initialSize];
+                if (TryGetString(handle, arg, span, func, out var value, out neededSize))
+                {
+                    return value;
+                }
+            }
+            else
+            {
+                using (MemoryPool<byte>.Shared.Rent(initialSize, out var span))
+                {
+                    if (TryGetString(handle, arg, span, func, out var value, out neededSize))
+                    {
+                        return value;
+                    }
+                }
+            }
+
+            initialSize = neededSize;
+        }
+
+        throw new InvalidOperationException(
+            "Could not retrieve a string value from Cantera!");
+
+        unsafe static bool TryGetString(THandle handle, TArg arg, Span<byte> span,
+                                        FillStringBufferFunc<THandle, TArg> func,
+                                        [NotNullWhen(true)] out string? value, out int neededSize)
+        {
+            var initialSize = span.Length;
+
+            fixed(byte* buffer = span)
+            {
+                neededSize = CheckReturn(func(handle, arg, initialSize, buffer));
 
                 if (initialSize >= neededSize)
                 {

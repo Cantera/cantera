@@ -1,7 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <LangVersion>10</LangVersion>
+    <!-- Use C# 11 to take advantage of cached method references in Delegates -->
+    <!-- This requires building with a .NET 7 SDK (or newer) -->
+    <LangVersion>11</LangVersion>
     <TargetFrameworks>net6.0;netstandard2.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
@@ -16,6 +18,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="../Cantera.CodeAnalysis/Cantera.CodeAnalysis.csproj"
+                      OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+
     <InternalsVisibleTo Include="Cantera.Tests" />
 
     <None Include="$(DataDir)/*" CopyToOutputDirectory="PreserveNewest" LinkBase="data/" />
