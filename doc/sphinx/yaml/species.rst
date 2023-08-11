@@ -36,6 +36,12 @@ The fields of a ``species`` entry are:
     Mapping containing the species transport model specification and
     parameters. See :ref:`sec-yaml-species-transport`.
 
+``coverage-dependencies``
+    Mapping where keys are the names of other species whose coverages affects
+    thermodynamic properties of this species. The map values are the dependency entries
+    including ``model`` and model-specific parameters as :ref:`described here
+    <sec-yaml-species-coverage>`.
+
 ``sites``
     The number of sites occupied by a surface or edge species. Default is 1.
 
@@ -135,6 +141,7 @@ Example::
          2.486903333E-06, -9.705954110E-11, 1.437538881E-15, 4.938707040E+06,
          -1.672099740E+03]
 
+
 .. _sec-yaml-shomate:
 
 Shomate polynomials
@@ -204,6 +211,7 @@ Example::
       h0: 9.22 kcal/mol
       s0: -3.02 cal/mol/K
       cp0: 5.95 cal/mol/K
+
 
 .. _sec-yaml-piecewise-gibbs:
 
@@ -423,6 +431,7 @@ Additional fields:
 ``data``
     Vector of 4 coefficients for a cubic polynomial in temperature
 
+
 .. _sec-yaml-eos-peng-robinson:
 
 Peng-Robinson
@@ -479,98 +488,6 @@ Additional fields:
 ``binary-a``
     Mapping where the keys are species and the values are the ``a``
     coefficients for binary interactions between the two species.
-
-
-.. _sec-yaml-coverage-dependent-surface-species:
-
-Coverage-dependent Surface
---------------------------
-
-A model where species thermodynamic properties are calculated as a function
-coverage as :ct:`described here <CoverageDependentSurfPhase>`.
-
-Additional fields:
-
-``coverage-dependencies``
-    Mapping where keys are the name of species whose coverage affects
-    thermodynamic properties of the node-owner species. The map values are
-    the dependency entries including ``model``, model-specific parameters,
-    ``heat-capacity-a``, and ``heat-capacity-b`` that correspond
-    to an individual dependency between the node-owner species and keyed species.
-
-``model``
-    Dependency model for coverage-dependent enthalpy or entropy. It should be
-    one of the four: ``linear``, ``polynomial``, ``piecewise-linear``
-    or ``interpolative``. The ``model`` and model-specific parameters are grouped
-    as follow.
-
-    ``linear``: ``enthalpy``, ``entropy``
-
-    ``polynomial``: ``enthalpy-coefficients``, ``entropy-coefficients``
-
-    ``piecewise-linear``: ``enthalpy-low``, ``enthalpy-high``, ``enthalpy-change``,
-    ``entropy-low``, ``entropy-high``, ``entropy-change``
-
-    ``interpolative``: ``enthalpy-coverages``, ``enthalpies``, ``entropy-coverages``,
-    ``entropies``
-
-``enthalpy`` or ``entropy``
-    Slope of the coverage-dependent enthalpy or entropy used in the ``linear``
-    model.
-
-``enthalpy-coefficients`` or ``entropy-coefficients``
-    Array of polynomial coefficients in order of 1st, 2nd, 3rd, and 4th-order
-    used in coverage-dependent enthalpy or entropy calculation with the ``polynomial``
-    model.
-
-``enthalpy-low`` or ``entropy-low``
-    Slope of the coverage-dependent enthalpy or entropy for the lower coverage
-    region used in the ``piecewise-linear`` model.
-
-``enthalpy-high`` or ``entropy-high``
-    Slope of the coverage-dependent enthalpy or entropy for the higher coverage
-    region used in the ``piecewise-linear`` model.
-
-``enthalpy-change`` or ``entropy-change``
-    Coverage that separates the lower and higher coverage regions of the
-    coverage-dependent enthalpy or entropy used in the ``piecewise-linear`` model.
-
-``enthalpy-coverages`` or ``entropy-coverages``
-    Array of discrete coverage values used in coverage-dependent enthalpy
-    or entropy used in the ``interpolative`` model.
-
-``enthalpies`` or ``entropies``
-    Array of discrete enthalpy or entropy values corresponding to the coverages
-    in ``enthalpy-coverages`` or ``entropy-coverages``, respectively, used in the
-    ``interpolative`` model.
-
-``heat-capacity-a`` or ``heat-capacity-b``
-    Coefficient :math:`c^{(a)}` or :math:`c^{(b)}` used in the coverage-dependent
-    ``heat capacity`` model.
-
-Example::
-
-    coverage-dependencies:
-      OC_Pt: {model: linear,
-              units: {energy: eV, quantity: molec},
-              enthalpy: 0.48, entropy: -0.031}
-      C_Pt: {model: polynomial,
-             units: {energy: J, quantity: mol},
-             enthalpy-coefficients: [0.0, -3.86e4, 0.0, 4.2e5],
-             entropy-coefficients: [0.8e3, 0.0, -1.26e4, 0.0]}
-      CO2_Pt: {model: piecewise-linear,
-               units: {energy: kJ, quantity: mol},
-               enthalpy-low: 0.5e2, enthalpy-high: 1.0e2,
-               enthalpy-change: 0.4,
-               entropy-low: 0.1e2, entropy-high: -0.2e2,
-               entropy-change: 0.4,
-               heat-capacity-a: 0.02e-1, heat-capacity-b: -0.156e-1}
-      O_Pt: {model: interpolative,
-             units: {energy: kcal, quantity: mol},
-             enthalpy-coverages: [0.0, 0.2, 0.4, 0.7, 0.9, 1.0],
-             enthalpies: [0.0, 0.5, 1.0, 2.7, 3.5, 4.0],
-             entropy-coverages: [0.0, 0.5, 1.0],
-             entropies: [0.0, -0.7, -2.0]}
 
 
 .. _sec-yaml-species-transport:
@@ -630,3 +547,152 @@ Example::
       diameter: 3.458
       polarizability: 1.6
       rotational-relaxation: 3.8
+
+
+.. _sec-yaml-species-coverage:
+
+Species coverage dependencies
+=============================
+
+The coverage-dependent surface species formulation calculates coverage-dependent
+correction factors to the ideal surface phase properties. Used in conjunction with the
+:ref:`coverage-dependent-surface <sec-yaml-coverage-dependent-surface>` phase model.
+Full details are :ct:`described here <CoverageDependentSurfPhase>`.
+
+Fields of a species ``coverage-dependencies`` map entry used by all models are:
+
+``model``
+    String specifying the model to be used. Required. Supported model strings are:
+
+    - ``linear`` (:ref:`details <sec-yaml-species-coverage-linear>`)
+    - ``polynomial`` (:ref:`details <sec-yaml-species-coverage-polynomial>`)
+    - ``piecewise-linear`` (:ref:`details <sec-yaml-species-coverage-piecewise-linear>`)
+    - ``interpolative`` (:ref:`details <sec-yaml-species-coverage-interpolative>`)
+
+
+.. _sec-yaml-species-coverage-linear:
+
+Linear dependency model
+-----------------------
+
+``enthalpy``
+    Slope of the coverage-dependent enthalpy.
+
+``entropy``
+    Slope of the coverage-dependent entropy.
+
+Example::
+
+    coverage-dependencies:
+      O_Pt:
+        model: linear
+        units: {energy: eV, quantity: molec}
+        enthalpy: 0.48
+        entropy: -0.031
+      # + other entries (optional)
+
+
+.. _sec-yaml-species-coverage-polynomial:
+
+Polynomial dependency model
+---------------------------
+
+``enthalpy-coefficients``
+    Array of polynomial coefficients in order of 1st, 2nd, 3rd, and
+    4th-order used in coverage-dependent enthalpy calculation.
+
+``entropy-coefficients``
+    Array of polynomial coefficients in order of 1st, 2nd, 3rd, and
+    4th-order used in coverage-dependent entropy calculation.
+
+Example::
+
+    coverage-dependencies:
+      OC_Pt:
+        model: polynomial
+        units: {energy: J, quantity: mol}
+        enthalpy-coefficients: [0.0, -3.86e4, 0.0, 4.2e5]
+        entropy-coefficients: [0.8e3, 0.0, -1.26e4, 0.0]
+      # + other entries (optional)
+
+
+.. _sec-yaml-species-coverage-piecewise-linear:
+
+Piecewise-linear dependency model
+---------------------------------
+
+``enthalpy-low``
+    Slope of the coverage-dependent enthalpy for the lower coverage region.
+
+``entropy-low``
+    Slope of the coverage-dependent entropy for the lower coverage region.
+
+``enthalpy-high``
+    Slope of the coverage-dependent enthalpy for the higher coverage region.
+
+``entropy-high``
+    Slope of the coverage-dependent entropy for the higher coverage region.
+
+``enthalpy-change``
+    Coverage that separates the lower and higher coverage regions of the
+    coverage-dependent enthalpy.
+
+``entropy-change``
+    Coverage that separates the lower and higher coverage regions of the
+    coverage-dependent entropy.
+
+``heat-capacity-a``
+    Coefficient :math:`c^{(a)}` used in the
+    :ct:`coverage-dependent heat capacity <HeatCapacityDependency>` model.
+
+``heat-capacity-b``
+    Coefficient :math:`c^{(b)}` used in the
+    :ct:`coverage-dependent heat capacity <HeatCapacityDependency>` model.
+
+Example::
+
+    coverage-dependencies:
+      CO2_Pt:
+        model: piecewise-linear
+        units: {energy: kJ, quantity: mol}
+        enthalpy-low: 0.5e2
+        enthalpy-high: 1.0e2
+        enthalpy-change: 0.4
+        entropy-low: 0.1e2
+        entropy-high: -0.2e2
+        entropy-change: 0.4
+        heat-capacity-a: 0.02e-1
+        heat-capacity-b: -0.156e-1
+      # + other entries (optional)
+
+
+.. _sec-yaml-species-coverage-interpolative:
+
+Interpolative dependency model
+------------------------------
+
+``enthalpy-coverages``
+    Array of discrete coverage values used in coverage-dependent enthalpy.
+
+``entropy-coverages``
+    Array of discrete coverage values used in coverage-dependent entropy.
+
+``enthalpies``
+    Array of discrete enthalpy values corresponding to the
+    coverages in ``enthalpy-coverages``.
+
+``entropies``
+    Array of discrete entropy values corresponding to the
+    coverages in ``entropy-coverages``.
+
+Example::
+
+    coverage-dependencies:
+      C_Pt:
+        model: interpolative
+        units: {energy: kcal, quantity: mol}
+        enthalpy-coverages: [0.0, 0.2, 0.4, 0.7, 0.9, 1.0]
+        entropy-coverages: [0.0, 0.5, 1.0]
+        enthalpies: [0.0, 0.5, 1.0, 2.7, 3.5, 4.0]
+        entropies: [0.0, -0.7, -2.0]
+      # + other entries (optional)
