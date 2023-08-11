@@ -188,7 +188,6 @@ classdef ctTestThermo < matlab.unittest.TestCase
             self.phase.basis = 'mass';
             self.verifyMatches(self.phase.basis, 'mass'); 
 
-            self.assumeFail('ThermoPhase.phaseName method is missing')
             self.verifyInstanceOf(self.phase.phaseName, 'char');
             self.phase.phaseName = 'spam';
             self.verifyMatches(self.phase.phaseName, 'spam');
@@ -235,10 +234,10 @@ classdef ctTestThermo < matlab.unittest.TestCase
 
                 self.verifyEqual(n1, n);
                 self.verifyEqual(n2, n);
-
-                self.getInvalidValue('nAtoms', {'C', 'H2'}, 'no such species');
-                self.getInvalidValue('nAtoms', {'H', 'CH4'}, 'no such element');
             end
+
+            self.getInvalidValue('nAtoms', {'C', 'H2'}, 'no such species');
+            self.getInvalidValue('nAtoms', {'H', 'CH4'}, 'no such element');
         end
 
         function testElementalMassFraction(self)
@@ -298,8 +297,6 @@ classdef ctTestThermo < matlab.unittest.TestCase
         end
 
         function testReport(self)
-            self.assumeFail('Fails because ThermoPhase.report method is missing');
-
             str = self.phase.report;
 
             self.verifySubstring(str, self.phase.phaseName);
@@ -312,18 +309,12 @@ classdef ctTestThermo < matlab.unittest.TestCase
         end
 
         function testRefInfo(self)
-            self.assumeFail(['Fails because ThermoPhase.refPressure passes', ...
-                            ' incorrect number of parameters to Clib']);
-
             self.verifyEqual(self.phase.refPressure, OneAtm, 'RelTol', self.rtol);
             self.verifyEqual(self.phase.minTemp, 300, 'RelTol', self.rtol);
             self.verifyEqual(self.phase.maxTemp, 3500, 'RelTol', self.rtol);
         end
 
         function testSingleGetters(self)
-            self.assumeFail(['Fails because specific volume does not', ...
-                            ' change units depending on basis'])
-
             val = self.phase.T;
             exp = 300;
             self.verifyEqual(val, exp, 'RelTol', self.rtol);
@@ -443,15 +434,7 @@ classdef ctTestThermo < matlab.unittest.TestCase
         end
 
         function testSetterErrors(self)
-            self.assumeFail('Fails because of incorrect error messages');
-
-            self.setInvalidValue('TD', 400, 'not supported');
-            self.setInvalidValue('TP', {300, 101325, 'CH4:1.0'}, ...
-                                     'incorrect number');
-            self.setInvalidValue('HPY', {1.2e6, 101325}, ...
-                                     'incorrect number'); 
-            self.setInvalidValue('UVX', {-4e5, 4.4, 'H2:1.0', -1}, ...
-                                     'incorrect number');           
+            self.setInvalidValue('TD', {400}, 'not exceed');   
         end
 
         function testInvalidProperty(self)

@@ -459,7 +459,7 @@ classdef ThermoPhase < handle
         %% ThermoPhase Utility Methods
 
         function display(tp)
-            disp(tp.report);
+            ctFunc('thermo_print', tp.tpID, 1, 1);
         end
 
         function tp = equilibrate(tp, xy, solver, rtol, maxsteps, maxiter, loglevel)
@@ -956,7 +956,7 @@ classdef ThermoPhase < handle
         end
 
         function p = get.refPressure(tp)
-            p = ctFunc('thermo_refPressure', tp.tpID, -1);
+            p = ctFunc('thermo_refPressure', tp.tpID);
         end
 
         function p = get.satPressure(tp)
