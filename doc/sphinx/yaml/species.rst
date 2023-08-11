@@ -55,11 +55,11 @@ Fields of a species ``thermo`` entry used by all models are:
     String specifying the model to be used. Required. Supported model strings
     are:
 
-    - :ref:`NASA7 <sec-yaml-nasa7>`
-    - :ref:`NASA9 <sec-yaml-nasa9>`
-    - :ref:`Shomate <sec-yaml-shomate>`
-    - :ref:`constant-cp <sec-yaml-constcp>`
-    - :ref:`piecewise-Gibbs <sec-yaml-piecewise-gibbs>`
+    - ``NASA7`` (:ref:`details <sec-yaml-nasa7>`)
+    - ``NASA9`` (:ref:`details <sec-yaml-nasa9>`)
+    - ``Shomate`` (:ref:`details <sec-yaml-shomate>`)
+    - ``constant-cp`` (:ref:`details <sec-yaml-constcp>`)
+    - ``piecewise-Gibbs`` (:ref:`details <sec-yaml-piecewise-gibbs>`)
 
 ``reference-pressure``
     The reference pressure at which the given thermodynamic properties apply.
@@ -269,15 +269,15 @@ Species equation of state models
     String specifying the model to be used. Required. Supported model strings
     are:
 
-    - :ref:`constant-volume <sec-yaml-eos-constant-volume>`
-    - :ref:`density-temperature-polynomial <sec-yaml-eos-density-temperature-polynomial>`
-    - :ref:`HKFT <sec-yaml-eos-hkft>`
-    - :ref:`ideal-gas <sec-yaml-eos-ideal-gas>`
-    - :ref:`ions-from-neutral-molecule <sec-yaml-eos-ions-from-neutral>`
-    - :ref:`liquid-water-IAPWS95 <sec-yaml-eos-liquid-water-iapws95>`
-    - :ref:`molar-volume-temperature-polynomial <sec-yaml-eos-molar-volume-temperature-polynomial>`
-    - :ref:`Peng-Robinson <sec-yaml-eos-peng-robinson>`
-    - :ref:`Redlich-Kwong <sec-yaml-eos-redlich-kwong>`
+    - ``constant-volume`` (:ref:`details <sec-yaml-eos-constant-volume>`)
+    - ``density-temperature-polynomial`` (:ref:`details <sec-yaml-eos-density-temperature-polynomial>`)
+    - ``HKFT`` (:ref:`details <sec-yaml-eos-hkft>`)
+    - ``ideal-gas`` (:ref:`details <sec-yaml-eos-ideal-gas>`)
+    - ``ions-from-neutral-molecule`` (:ref:`details <sec-yaml-eos-ions-from-neutral>`)
+    - ``liquid-water-IAPWS95`` (:ref:`details <sec-yaml-eos-liquid-water-iapws95>`)
+    - ``molar-volume-temperature-polynomial`` (:ref:`details <sec-yaml-eos-molar-volume-temperature-polynomial>`)
+    - ``Peng-Robinson`` (:ref:`details <sec-yaml-eos-peng-robinson>`)
+    - ``Redlich-Kwong`` (:ref:`details <sec-yaml-eos-redlich-kwong>`)
 
 
 .. _sec-yaml-eos-constant-volume:

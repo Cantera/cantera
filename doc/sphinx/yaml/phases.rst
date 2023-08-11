@@ -73,38 +73,38 @@ and optionally reactions that can take place in that phase. The fields of a
     String specifying the phase thermodynamic model to be used. Supported model
     strings are:
 
-    - :ref:`binary-solution-tabulated <sec-yaml-binary-solution-tabulated>`
-    - :ref:`compound-lattice <sec-yaml-compound-lattice>`
-    - :ref:`coverage-dependent-surface <sec-yaml-coverage-dependent-surface>`
-    - :ref:`Debye-Huckel <sec-yaml-Debye-Huckel>`
-    - :ref:`edge <sec-yaml-edge>`
-    - :ref:`electron-cloud <sec-yaml-electron-cloud>`
-    - :ref:`fixed-stoichiometry <sec-yaml-fixed-stoichiometry>`
-    - :ref:`HMW-electrolyte <sec-yaml-HMW-electrolyte>`
-    - :ref:`ideal-gas <sec-yaml-ideal-gas>`
-    - :ref:`ideal-molal-solution <sec-yaml-ideal-molal-solution>`
-    - :ref:`ideal-condensed <sec-yaml-ideal-condensed>`
-    - :ref:`ideal-solution-VPSS <sec-yaml-ideal-solution-VPSS>`
-    - :ref:`ideal-surface <sec-yaml-ideal-surface>`
-    - :ref:`ions-from-neutral-molecule <sec-yaml-ions-from-neutral-molecule>`
-    - :ref:`lattice <sec-yaml-lattice>`
-    - :ref:`liquid-water-IAPWS95 <sec-yaml-liquid-water-IAPWS95>`
-    - :ref:`Margules <sec-yaml-Margules>`
-    - :ref:`Maskell-solid-solution <sec-yaml-Maskell-solid-solution>`
-    - :ref:`Peng-Robinson <sec-yaml-Peng-Robinson>`
-    - :ref:`plasma <sec-yaml-plasma>`
-    - :ref:`pure-fluid <sec-yaml-pure-fluid>`
-    - :ref:`Redlich-Kister <sec-yaml-Redlich-Kister>`
-    - :ref:`Redlich-Kwong <sec-yaml-Redlich-Kwong>`
+    - ``binary-solution-tabulated`` (:ref:`details <sec-yaml-binary-solution-tabulated>`)
+    - ``compound-lattice`` (:ref:`details <sec-yaml-compound-lattice>`)
+    - ``coverage-dependent-surface`` (:ref:`details <sec-yaml-coverage-dependent-surface>`)
+    - ``Debye-Huckel`` (:ref:`details <sec-yaml-Debye-Huckel>`)
+    - ``edge`` (:ref:`details <sec-yaml-edge>`)
+    - ``electron-cloud`` (:ref:`details <sec-yaml-electron-cloud>`)
+    - ``fixed-stoichiometry`` (:ref:`details <sec-yaml-fixed-stoichiometry>`)
+    - ``HMW-electrolyte`` (:ref:`details <sec-yaml-HMW-electrolyte>`)
+    - ``ideal-gas`` (:ref:`details <sec-yaml-ideal-gas>`)
+    - ``ideal-molal-solution`` (:ref:`details <sec-yaml-ideal-molal-solution>`)
+    - ``ideal-condensed`` (:ref:`details <sec-yaml-ideal-condensed>`)
+    - ``ideal-solution-VPSS`` (:ref:`details <sec-yaml-ideal-solution-VPSS>`)
+    - ``ideal-surface`` (:ref:`details <sec-yaml-ideal-surface>`)
+    - ``ions-from-neutral-molecule`` (:ref:`details <sec-yaml-ions-from-neutral-molecule>`)
+    - ``lattice`` (:ref:`details <sec-yaml-lattice>`)
+    - ``liquid-water-IAPWS95`` (:ref:`details <sec-yaml-liquid-water-IAPWS95>`)
+    - ``Margules`` (:ref:`details <sec-yaml-Margules>`)
+    - ``Maskell-solid-solution`` (:ref:`details <sec-yaml-Maskell-solid-solution>`)
+    - ``Peng-Robinson`` (:ref:`details <sec-yaml-Peng-Robinson>`)
+    - ``plasma`` (:ref:`details <sec-yaml-plasma>`)
+    - ``pure-fluid`` (:ref:`details <sec-yaml-pure-fluid>`)
+    - ``Redlich-Kister`` (:ref:`details <sec-yaml-Redlich-Kister>`)
+    - ``Redlich-Kwong`` (:ref:`details <sec-yaml-Redlich-Kwong>`)
 
 ``kinetics``
     String specifying the kinetics model to be used. Supported model strings
     are:
 
-    - none
-    - :ct:`gas <GasKinetics>`
-    - :ct:`surface <InterfaceKinetics>`
-    - :ct:`edge <EdgeKinetics>`
+    - ``none``
+    - ``gas`` (:ct:`details <GasKinetics>`)
+    - ``surface`` (:ct:`details <InterfaceKinetics>`)
+    - ``edge`` (:ct:`details <EdgeKinetics>`)
 
 ``reactions``
     Source of reactions to include in the phase, if a kinetics model has been
@@ -138,15 +138,15 @@ and optionally reactions that can take place in that phase. The fields of a
     String specifying the transport model to be used. Supported model strings
     are:
 
-    - none
-    - :ct:`high-pressure <HighPressureGasTransport>`
-    - :ct:`ionized-gas <IonGasTransport>`
-    - :ct:`mixture-averaged <MixTransport>`
-    - :ct:`mixture-averaged-CK <MixTransport>`
-    - :ct:`multicomponent <MultiTransport>`
-    - :ct:`multicomponent-CK <MultiTransport>`
-    - :ct:`unity-Lewis-number <UnityLewisTransport>`
-    - :ct:`water <WaterTransport>`
+    - ``none``
+    - ``high-pressure`` (:ct:`details <HighPressureGasTransport>`)
+    - ``ionized-gas`` (:ct:`details <IonGasTransport>`)
+    - ``mixture-averaged`` (:ct:`details <MixTransport>`)
+    - ``mixture-averaged-CK`` (:ct:`details <MixTransport>`)
+    - ``multicomponent`` (:ct:`details <MultiTransport>`)
+    - ``multicomponent-CK`` (:ct:`details <MultiTransport>`)
+    - ``unity-Lewis-number`` (:ct:`details <UnityLewisTransport>`)
+    - ``water`` (:ct:`details <WaterTransport>`)
 
 
 .. _sec-yaml-setting-state:
