@@ -907,7 +907,7 @@ for option in opts.keys():
     if isinstance(original, str):
         modified = os.path.expandvars(os.path.expanduser(env[option]))
         if original != modified:
-            logger.info(f"Expanding {original:!r} to {modified:!r}")
+            logger.info(f"Expanding {original!r} to {modified!r}")
             env[option] = modified
 
 if "help" in COMMAND_LINE_TARGETS:
