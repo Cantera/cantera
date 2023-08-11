@@ -128,13 +128,26 @@
 
 ## Python
 
+### Sphinx comments
+
+* Cantera Python documentation is based on the Python documentation generator
+  [Sphinx](https://www.sphinx-doc.org/en/master/index.html)
+* All classes, member variables, and methods should include
+  [Python docstrings](https://peps.python.org/pep-0257/#what-is-a-docstring)
+* Docstrings should use annotations compatible with
+  [automatic documentation generation from code](https://www.sphinx-doc.org/en/master/tutorial/automatic-doc-generation.html).
+  For guidance, refer to existing Cantera documentation or online tutorials (see
+  [example](https://sphinx-rtd-tutorial.readthedocs.io/en/latest/docstrings.html))
+* Indicate the version added for new functions and classes with an annotation like
+  `.. versionadded:: X.Y` where `X.Y` is the next Cantera version. Significant changes
+  in behavior should be indicated with `.. versionchanged:: X.Y`.
+
+### Style Guide
+
 * Style generally follows PEP8 (https://www.python.org/dev/peps/pep-0008/)
 * Code in `.py` and `.pyx` files needs to be written to work with Python 3
 * The minimum Python version that Cantera supports is Python 3.8, so code should only
   use features added in Python 3.8 or earlier
-* Indicate the version added for new functions and classes with an annotation like
-  `.. versionadded:: X.Y` where `X.Y` is the next Cantera version. Significant changes
-  in behavior should be indicated with `.. versionchanged:: X.Y`.
 * Please use double quotes in all new Python code
 
 ## C#
