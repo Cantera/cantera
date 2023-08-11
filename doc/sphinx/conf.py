@@ -39,6 +39,7 @@ extensions = [
               'sphinx.ext.autodoc',
               'sphinx.ext.todo',
               'sphinx.ext.autosummary',
+              'sphinxarg.ext',
               'sphinxcontrib.doxylink',
               'sphinx.ext.intersphinx',
               ]
