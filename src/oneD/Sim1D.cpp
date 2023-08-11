@@ -308,7 +308,13 @@ AnyMap Sim1D::restore(const string& fname, const string& name)
 
         for (auto dom : m_dom) {
             auto arr = SolutionArray::create(dom->solution());
-            arr->readEntry(fname, name, dom->id());
+            try {
+                arr->readEntry(fname, name, dom->id());
+            } catch (CanteraError& err) {
+                throw CanteraError("Sim1D::restore",
+                    "Encountered exception when reading entry '{}' from '{}':\n{}",
+                    name, fname, err.getMessage());
+            }
             dom->resize(dom->nComponents(), arr->size());
             if (!header.hasKey("generator")) {
                 arr->meta() = legacyH5(arr, header);
@@ -318,7 +324,13 @@ AnyMap Sim1D::restore(const string& fname, const string& name)
         resize();
         m_xlast_ts.clear();
         for (auto dom : m_dom) {
-            dom->fromArray(*arrs[dom->id()], m_state->data() + dom->loc());
+            try {
+                dom->fromArray(*arrs[dom->id()], m_state->data() + dom->loc());
+            } catch (CanteraError& err) {
+                throw CanteraError("Sim1D::restore",
+                    "Encountered exception when restoring domain '{}' from HDF:\n{}",
+                    dom->id(), err.getMessage());
+            }
         }
         finalize();
     } else if (extension == "yaml" || extension == "yml") {
@@ -328,14 +340,26 @@ AnyMap Sim1D::restore(const string& fname, const string& name)
 
         for (auto dom : m_dom) {
             auto arr = SolutionArray::create(dom->solution());
-            arr->readEntry(root, name, dom->id());
+            try {
+                arr->readEntry(root, name, dom->id());
+            } catch (CanteraError& err) {
+                throw CanteraError("Sim1D::restore",
+                    "Encountered exception when reading entry '{}' from '{}':\n{}",
+                    name, fname, err.getMessage());
+            }
             dom->resize(dom->nComponents(), arr->size());
             arrs[dom->id()] = arr;
         }
         resize();
         m_xlast_ts.clear();
         for (auto dom : m_dom) {
-            dom->fromArray(*arrs[dom->id()], m_state->data() + dom->loc());
+            try {
+                dom->fromArray(*arrs[dom->id()], m_state->data() + dom->loc());
+            } catch (CanteraError& err) {
+                throw CanteraError("Sim1D::restore",
+                    "Encountered exception when restoring domain '{}' from YAML:\n{}",
+                    dom->id(), err.getMessage());
+            }
         }
         finalize();
     } else {
