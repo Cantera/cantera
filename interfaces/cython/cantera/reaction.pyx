@@ -1502,10 +1502,19 @@ cdef class Reaction:
         species names and the values, are the stoichiometric coefficients, for example
         ``{'CH4':1, 'OH':1}``, or as a composition string, for example
         ``'CH4:1, OH:1'``.
+
+        .. deprecated:: 3.0
+
+            Setter for reactants is deprecated and will be removed after Cantera 3.0.
+            Use constructor instead.
         """
         def __get__(self):
             return comp_map_to_dict(self.reaction.reactants)
         def __set__(self, reactants):
+            warnings.warn(
+                "'Reaction.reactants' setter is deprecated and will be removed after "
+                "Cantera 3.0.\nInstantiate using constructor instead.",
+                DeprecationWarning)
             self.reaction.reactants = comp_map(reactants)
 
     property products:
@@ -1514,10 +1523,19 @@ cdef class Reaction:
         species names and the values, are the stoichiometric coefficients, for example
         ``{'CH3':1, 'H2O':1}``, or as a composition string, for example
         ``'CH3:1, H2O:1'``.
+
+        .. deprecated:: 3.0
+
+            Setter for products is deprecated and will be removed after Cantera 3.0.
+            Use constructor instead.
         """
         def __get__(self):
             return comp_map_to_dict(self.reaction.products)
         def __set__(self, products):
+            warnings.warn(
+                "'Reaction.products' setter is deprecated and will be removed after "
+                "Cantera 3.0.\nInstantiate using constructor instead.",
+                DeprecationWarning)
             self.reaction.products = comp_map(products)
 
     def __contains__(self, species):
