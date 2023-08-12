@@ -822,7 +822,9 @@ bool ThirdBody::checkSpecies(const Reaction& rxn, const Kinetics& kin) const
             throw InputFileError("ThirdBody::checkSpecies", rxn.input, "Reaction '{}'\n"
                 "is a three-body reaction with undeclared species: '{}'",
                 rxn.equation(), ba::join(undeclared, "', '"));
-        } else if (kin.skipUndeclaredSpecies() && m_name != "M") {
+        } else if (kin.skipUndeclaredThirdBodies() && m_name != "M") {
+            // Prevent addition of reaction silently as "skip-undeclared-third-bodies"
+            // is set to true
             return false;
         }
     }
