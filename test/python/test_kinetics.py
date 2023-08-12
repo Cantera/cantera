@@ -304,7 +304,7 @@ class KineticsFromReactions(utilities.CanteraTest):
         surf.net_rates_of_progress_ddCi
 
     def test_electrochemistry_flags(self):
-             # Phases
+        # Phases
         mech = "lithium_ion_battery.yaml"
         anode, cathode, metal, electrolyte = ct.import_phases(
             mech, ["anode", "cathode", "electron", "electrolyte"])
@@ -314,6 +314,41 @@ class KineticsFromReactions(utilities.CanteraTest):
         # set skip and try to get jacobian again
         anode_int.derivative_settings = {"skip-electrochemistry": True}
         anode_int.net_rates_of_progress_ddCi
+
+    def test_submechanism(self):
+        # Simplified samples/python/kinetics/extract_submechanism.py
+        gri30 = ct.Solution('gri30.yaml', transport_model=None)
+        h2o2 = ct.Solution('h2o2.yaml', transport_model=None)
+
+        reactions_plus = []
+        reactions = []
+        dest_species = set(h2o2.species_names)
+        colliders = dest_species.union([None, "M"])
+        for R in gri30.reactions():
+            if not all(S in dest_species for S in R.reactants):
+                continue
+            if not all(S in dest_species for S in R.products):
+                continue
+            reactions_plus.append(R)
+            if R.third_body_name not in colliders:
+                continue
+            reactions.append(R)
+
+        gas = ct.Solution(thermo='ideal-gas', kinetics='gas',
+                          species=h2o2.species(), reactions=reactions_plus)
+        # there is one third-body reaction with an undeclared third body species
+        gas.n_reactions < len(reactions_plus)
+        assert gas.n_species == len(h2o2.species_names)
+
+        gas = ct.Solution(thermo='ideal-gas', kinetics='gas', species=h2o2.species(),
+                          reactions=reactions)
+        assert gas.n_reactions == len(reactions)
+        assert gas.n_species == len(h2o2.species_names)
+
+        gas.write_yaml("reduced.yaml")
+        restored = ct.Solution("reduced.yaml")
+        assert gas.species_names == restored.species_names
+        assert gas.reaction_equations() == restored.reaction_equations()
 
 
 class KineticsRepeatability(utilities.CanteraTest):
