@@ -1673,6 +1673,18 @@ cdef class Reaction:
             if self.reaction.usesThirdBody():
                 return ThirdBody.wrap(self.reaction.thirdBody())
 
+    @property
+    def third_body_name(self):
+        """
+        Returns name of `ThirdBody` collider if `Reaction` uses a third body collider,
+        and ``None`` otherwise.
+
+        .. versionadded:: 3.0
+        """
+        if self.reaction.usesThirdBody():
+            return ThirdBody.wrap(self.reaction.thirdBody()).name
+        return None
+
     property efficiencies:
         """
         Get/Set a `dict` defining non-default third-body efficiencies for this reaction,
