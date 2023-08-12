@@ -1625,6 +1625,9 @@ protected:
     //! See skipUndeclaredThirdBodies()
     bool m_skipUndeclaredThirdBodies = false;
 
+    //! Flag indicating whether reactions include undeclared third bodies
+    bool m_hasUndeclaredThirdBodies = false;
+
     //! reference to Solution
     std::weak_ptr<Solution> m_root;
 };

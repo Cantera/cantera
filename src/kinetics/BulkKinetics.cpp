@@ -88,6 +88,8 @@ void BulkKinetics::addThirdBody(shared_ptr<Reaction> r)
             throw CanteraError("BulkKinetics::addThirdBody", "Found third-body"
                 " efficiency for undefined species '{}' while adding reaction '{}'",
                 name, r->equation());
+        } else {
+            m_hasUndeclaredThirdBodies = true;
         }
     }
     m_multi_concm.install(nReactions() - 1, efficiencies,
