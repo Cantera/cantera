@@ -102,6 +102,11 @@ TEST_F(KineticsFromScratch, add_three_body_reaction1)
 
     kin.addReaction(R);
     check_rates(1);
+
+    reac = parseCompString("O:2, M:1");
+    prod = parseCompString("O2:1, M:1");
+    ASSERT_THROW(make_shared<Reaction>(reac, prod, rate, tbody), CanteraError);
+
 }
 
 TEST_F(KineticsFromScratch, add_three_body_reaction2)
@@ -116,6 +121,8 @@ TEST_F(KineticsFromScratch, add_three_body_reaction2)
     auto tbody = make_shared<ThirdBody>();
     tbody->efficiencies = parseCompString("AR:0.83 H2:2.4 H2O:15.4");
     auto R = make_shared<Reaction>(equation, rate, tbody);
+    auto reac = R->reactants;
+    EXPECT_EQ(reac.count("M"), (size_t) 0);
 
     kin.addReaction(R);
     check_rates(1);
@@ -160,6 +167,9 @@ TEST_F(KineticsFromScratch, multiple_third_bodies4)
     auto R = make_shared<Reaction>(equation, rate, tbody);
     EXPECT_EQ(R->thirdBody()->name(), "O2");
     EXPECT_EQ(R->thirdBody()->default_efficiency, 0.);
+    EXPECT_EQ(R->reactants.count("H2"), (size_t) 1);
+    EXPECT_EQ(R->reactants.count("O2"), (size_t) 0);
+    EXPECT_EQ(R->reactants.count("M"), (size_t) 0);
 
     AnyMap input = R->parameters(false);
     EXPECT_FALSE(input.hasKey("type"));
@@ -187,6 +197,9 @@ TEST_F(KineticsFromScratch, multiple_third_bodies6)
     auto R = make_shared<Reaction>(reac, prod, rate, tbody);
     EXPECT_EQ(R->thirdBody()->name(), "O2");
     EXPECT_EQ(R->thirdBody()->default_efficiency, 0.);
+    EXPECT_EQ(R->reactants.count("H2"), (size_t) 1);
+    EXPECT_EQ(R->reactants.count("O2"), (size_t) 0);
+    EXPECT_EQ(R->reactants.count("M"), (size_t) 0);
 
     AnyMap input = R->parameters(false);
     EXPECT_FALSE(input.hasKey("type"));
@@ -235,6 +248,24 @@ TEST_F(KineticsFromScratch, multiple_third_bodies8)
     EXPECT_EQ(input["default-efficiency"].asDouble(), 0.);
 }
 
+TEST_F(KineticsFromScratch, multiple_third_bodies9)
+{
+    Composition reac = parseCompString("H2:1, O2:1");
+    Composition prod = parseCompString("H2:1, O:2");
+    auto rate = make_shared<ArrheniusRate>(1.2e11, -1.0, 0.0);
+    auto tbody = make_shared<ThirdBody>("O2");
+    auto R = make_shared<Reaction>(reac, prod, rate, tbody);
+    EXPECT_EQ(R->thirdBody()->name(), "O2");
+    EXPECT_EQ(R->thirdBody()->default_efficiency, 0.);
+    EXPECT_EQ(R->reactants.count("H2"), (size_t) 1);
+    EXPECT_EQ(R->reactants.count("O2"), (size_t) 1);
+    EXPECT_EQ(R->reactants.count("M"), (size_t) 0);
+
+    reac = parseCompString("H2:1, O2:1");
+    prod = parseCompString("H2:1, O2:1");
+    ASSERT_THROW(make_shared<Reaction>(reac, prod, rate, tbody), CanteraError);
+}
+
 TEST_F(KineticsFromScratch, add_two_temperature_plasma)
 {
     string equation = "O + H => O + H";
@@ -267,6 +298,35 @@ TEST_F(KineticsFromScratch, skip_undefined_third_body)
     kin.skipUndeclaredThirdBodies(true);
     kin.addReaction(R);
     ASSERT_EQ((size_t) 1, kin.nReactions());
+}
+
+TEST_F(KineticsFromScratch, skip_explicit_third_body)
+{
+    string equation = "2 O + CO2 <=> O2 + CO2";
+    auto rate = make_shared<ArrheniusRate>(1.2e11, -1.0, 0.0);
+    auto R = make_shared<Reaction>(equation, rate);
+    EXPECT_EQ(R->thirdBody()->name(), "CO2");
+
+    ASSERT_THROW(kin.addReaction(R), CanteraError);
+    kin.skipUndeclaredThirdBodies(true);
+    kin.addReaction(R);
+    ASSERT_EQ((size_t) 0, kin.nReactions());
+}
+
+TEST_F(KineticsFromScratch, third_body_composition)
+{
+    string equation = "2 O + H2O <=> O2 + H2O";
+    auto rate = make_shared<ArrheniusRate>(1.2e11, -1.0, 0.0);
+    auto R = make_shared<Reaction>(equation, rate);
+    EXPECT_EQ(R->thirdBody()->name(), "H2O");
+    EXPECT_TRUE(R->thirdBody()->explicit_3rd);
+
+    Composition reac = R->reactants;
+    EXPECT_EQ(reac.count("H2O"), (size_t) 0);
+    EXPECT_EQ(reac.count("M"), (size_t) 0);
+    Composition prod = R->products;
+    EXPECT_EQ(prod.count("H2O"), (size_t) 0);
+    EXPECT_EQ(reac.count("M"), (size_t) 0);
 }
 
 TEST_F(KineticsFromScratch, add_falloff_reaction1)
