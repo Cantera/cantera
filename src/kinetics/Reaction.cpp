@@ -35,21 +35,35 @@ Reaction::Reaction(const Composition& reactants_,
     , m_from_composition(true)
     , m_third_body(tbody_)
 {
+    if (reactants.count("M") || products.count("M")) {
+        throw CanteraError("Reaction::Reaction",
+            "Third body 'M' must not be included in either reactant or product maps.");
+    }
     setRate(rate_);
 
     // set flags ensuring correct serialization output
-    bool count = 0;
+    Composition third;
     for (const auto& [name, stoich] : reactants) {
         if (products.count(name)) {
-            count = true;
-            break;
+            third[name] = products.at(name) - stoich;
         }
     }
-    if (count) {
-        if (tbody_ && tbody_->name() != "M") {
+    if (tbody_) {
+        string name = tbody_->name();
+        if (reactants.count(name) && products.count(name)) {
+            throw CanteraError("Reaction::Reaction",
+                "'{}' not acting as third body collider must not be included in both "
+                "reactant and product maps.", name);
+        }
+        if (name != "M") {
             m_third_body->explicit_3rd = true;
-        } else if (!tbody_) {
-            m_explicit_type = true;
+        }
+    } else if (!tbody_ && third.size() == 1) {
+        // implicit third body
+        string name = third.begin()->first;
+        m_third_body = make_shared<ThirdBody>(name);
+        if (name != "M") {
+            m_third_body->explicit_3rd = true;
         }
     }
 }
@@ -61,7 +75,7 @@ Reaction::Reaction(const string& equation,
 {
     setEquation(equation);
     setRate(rate_);
-    if (tbody_ && tbody_->name() != "M") {
+    if (m_third_body && m_third_body->name() != "M") {
         m_third_body->explicit_3rd = true;
     }
 }
