@@ -643,6 +643,9 @@ AnyMap Kinetics::parameters()
         if (nReactions() == 0) {
             out["reactions"] = "none";
         }
+        if (m_hasUndeclaredThirdBodies) {
+            out["skip-undeclared-third-bodies"] = true;
+        }
     }
     return out;
 }
