@@ -130,6 +130,8 @@ protected:
 
 /**
  * An inlet.
+ * Unstrained flows use an inlet to the left of the flow domain (left-to-right flow).
+ * Strained flow configurations may have inlets on the either side of the flow domain.
  */
 class Inlet1D : public Boundary1D
 {
@@ -160,8 +162,6 @@ public:
         return m_yin[k];
     }
 
-    //! @deprecated To be changed after %Cantera 3.0. Right-to-left flow
-    //!     will only be supported for counter-flow configurations.
     virtual void init();
     virtual void eval(size_t jg, double* xg, double* rg,
                       integer* diagg, double rdt);
