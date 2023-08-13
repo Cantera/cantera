@@ -312,7 +312,7 @@ public:
      * @f$ V(z) = 0 @f$ by definition.
      * @since New in %Cantera 3.0
      */
-    bool usesLambda() const {
+    bool isStrained() const {
         return m_usesLambda;
     }
 
