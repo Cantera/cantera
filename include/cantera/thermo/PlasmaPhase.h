@@ -71,11 +71,11 @@ public:
      */
     explicit PlasmaPhase(const string& inputFile="", const string& id="");
 
-    virtual string type() const {
+    string type() const override {
         return "plasma";
     }
 
-    virtual void initThermo();
+    void initThermo() override;
 
     //! Set electron energy levels.
     //! @param  levels The vector of electron energy levels (eV).
@@ -119,7 +119,7 @@ public:
 
     //! Set the internally stored electron temperature of the phase (K).
     //! @param  Te Electron temperature in Kelvin
-    virtual void setElectronTemperature(double Te);
+    void setElectronTemperature(double Te) override;
 
     //! Set mean electron energy [eV]. This method also sets electron temperature
     //! accordingly.
@@ -161,11 +161,11 @@ public:
         return m_do_normalizeElectronEnergyDist;
     }
 
-    virtual bool addSpecies(shared_ptr<Species> spec);
+    bool addSpecies(shared_ptr<Species> spec) override;
 
     //! Electron Temperature (K)
     //!     @return The electron temperature of the phase
-    virtual double electronTemperature() const {
+    double electronTemperature() const override {
         return m_electronTemp;
     }
 
@@ -208,49 +208,49 @@ public:
      *
      * \see MultiSpeciesThermo
      */
-    virtual double enthalpy_mole() const;
+    double enthalpy_mole() const override;
 
-    virtual double cp_mole() const {
+    double cp_mole() const override {
         throw NotImplementedError("PlasmaPhase::cp_mole");
     }
 
-    virtual double entropy_mole() const {
+    double entropy_mole() const override {
         throw NotImplementedError("PlasmaPhase::entropy_mole");
     }
 
-    virtual double gibbs_mole() const {
+    double gibbs_mole() const override {
         throw NotImplementedError("PlasmaPhase::gibbs_mole");
     }
 
-    virtual double intEnergy_mole() const {
+    double intEnergy_mole() const override {
         throw NotImplementedError("PlasmaPhase::intEnergy_mole");
     }
 
-    virtual void getEntropy_R(double* sr) const;
+    void getEntropy_R(double* sr) const override;
 
-    virtual void getGibbs_RT(double* grt) const;
+    void getGibbs_RT(double* grt) const override;
 
-    virtual void getGibbs_ref(double* g) const;
+    void getGibbs_ref(double* g) const override;
 
-    virtual void getStandardVolumes_ref(double* vol) const;
+    void getStandardVolumes_ref(double* vol) const override;
 
-    virtual void getChemPotentials(double* mu) const;
+    void getChemPotentials(double* mu) const override;
 
-    virtual void getStandardChemPotentials(double* muStar) const;
+    void getStandardChemPotentials(double* muStar) const override;
 
-    virtual void getPartialMolarEnthalpies(double* hbar) const;
+    void getPartialMolarEnthalpies(double* hbar) const override;
 
-    virtual void getPartialMolarEntropies(double* sbar) const;
+    void getPartialMolarEntropies(double* sbar) const override;
 
-    virtual void getPartialMolarIntEnergies(double* ubar) const;
+    void getPartialMolarIntEnergies(double* ubar) const override;
 
-    virtual void getParameters(AnyMap& phaseNode) const;
+    void getParameters(AnyMap& phaseNode) const override;
 
-    virtual void setParameters(const AnyMap& phaseNode,
-                               const AnyMap& rootNode=AnyMap());
+    void setParameters(const AnyMap& phaseNode,
+                       const AnyMap& rootNode=AnyMap()) override;
 
 protected:
-    virtual void updateThermo() const;
+    void updateThermo() const override;
 
     //! Check the electron energy levels
     /*!

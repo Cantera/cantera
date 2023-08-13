@@ -75,11 +75,11 @@ public:
     //! @name  Utilities
     //! @{
 
-    virtual string type() const {
+    string type() const override {
         return "MixtureFugacity";
     }
 
-    virtual int standardStateConvention() const;
+    int standardStateConvention() const override;
 
     //! Set the solution branch to force the ThermoPhase to exist on one branch
     //! or another
@@ -88,7 +88,7 @@ public:
      *       -1 means gas. The value -2 means unrestricted. Values of zero or
      *       greater refer to species dominated condensed phases.
      */
-    virtual void setForcedSolutionBranch(int solnBranch);
+    void setForcedSolutionBranch(int solnBranch);
 
     //! Report the solution branch which the solution is restricted to
     /*!
@@ -96,7 +96,7 @@ public:
      *      gas. The value -2 means unrestricted. Values of zero or greater
      *      refer to species dominated condensed phases.
      */
-    virtual int forcedSolutionBranch() const;
+    int forcedSolutionBranch() const;
 
     //! Report the solution branch which the solution is actually on
     /*!
@@ -104,14 +104,14 @@ public:
      *      gas. The value -2 means superfluid.. Values of zero or greater refer
      *      to species dominated condensed phases.
      */
-    virtual int reportSolnBranchActual() const;
+    int reportSolnBranchActual() const;
 
     //! @}
     //! @name Molar Thermodynamic properties
     //! @{
 
-    virtual double enthalpy_mole() const;
-    virtual double entropy_mole() const;
+    double enthalpy_mole() const override;
+    double entropy_mole() const override;
 
     //! @}
     //! @name  Partial Molar Properties of the Solution
@@ -130,7 +130,7 @@ public:
      *              Length: m_kk.
      * @deprecated To be removed after %Cantera 3.0. Use getChemPotentials() instead.
      */
-    virtual void getChemPotentials_RT(double* mu) const;
+    void getChemPotentials_RT(double* mu) const override;
 
     //! @}
     //! @name  Properties of the Standard State of the Species in the Solution
@@ -153,7 +153,7 @@ public:
      * @param mu   Output vector of standard state chemical potentials.
      *             length = m_kk. units are J / kmol.
      */
-    virtual void getStandardChemPotentials(double* mu) const;
+    void getStandardChemPotentials(double* mu) const override;
 
     //! Get the nondimensional Enthalpy functions for the species at their
     //! standard states at the current *T* and *P* of the solution.
@@ -165,7 +165,7 @@ public:
     * @param hrt     Output vector of standard state enthalpies.
     *                length = m_kk. units are unitless.
     */
-    virtual void getEnthalpy_RT(double* hrt) const;
+    void getEnthalpy_RT(double* hrt) const override;
 
     //! Get the array of nondimensional Enthalpy functions for the standard
     //! state species at the current *T* and *P* of the solution.
@@ -177,7 +177,7 @@ public:
      * @param sr     Output vector of nondimensional standard state entropies.
      *               length = m_kk.
      */
-    virtual void getEntropy_R(double* sr) const;
+    void getEntropy_R(double* sr) const override;
 
     //! Get the nondimensional Gibbs functions for the species at their standard
     //! states of solution at the current T and P of the solution.
@@ -189,7 +189,7 @@ public:
      * @param grt    Output vector of nondimensional standard state Gibbs free
      *               energies. length = m_kk.
      */
-    virtual void getGibbs_RT(double* grt) const;
+    void getGibbs_RT(double* grt) const override;
 
     //! Get the pure Gibbs free energies of each species. Species are assumed to
     //! be in their standard states.
@@ -199,7 +199,7 @@ public:
      * @param[out] gpure   Array of standard state Gibbs free energies. length =
      *     m_kk. units are J/kmol.
      */
-    virtual void getPureGibbs(double* gpure) const;
+    void getPureGibbs(double* gpure) const override;
 
     //! Returns the vector of nondimensional internal Energies of the standard
     //! state at the current temperature and pressure of the solution for each
@@ -216,7 +216,7 @@ public:
      * @param urt    Output vector of nondimensional standard state internal
      *               energies. length = m_kk.
      */
-    virtual void getIntEnergy_RT(double* urt) const;
+    void getIntEnergy_RT(double* urt) const override;
 
     //! Get the nondimensional Heat Capacities at constant pressure for the
     //! standard state of the species at the current T and P.
@@ -229,7 +229,7 @@ public:
      *               Capacities at constant pressure for the standard state of
      *               the species. Length: m_kk.
      */
-    virtual void getCp_R(double* cpr) const;
+    void getCp_R(double* cpr) const override;
 
     //! Get the molar volumes of each species in their standard states at the
     //! current *T* and *P* of the solution.
@@ -243,7 +243,7 @@ public:
      * @param vol Output vector of species volumes. length = m_kk.
      *            units =  m^3 / kmol
      */
-    virtual void getStandardVolumes(double* vol) const;
+    void getStandardVolumes(double* vol) const override;
     //! @}
 
     //! Set the temperature of the phase
@@ -253,7 +253,7 @@ public:
      *
      * @param temp  Temperature (kelvin)
      */
-    virtual void setTemperature(const double temp);
+    void setTemperature(const double temp) override;
 
     //! Set the internally stored pressure (Pa) at constant temperature and
     //! composition
@@ -263,10 +263,10 @@ public:
      *
      *  @param p input Pressure (Pa)
      */
-    virtual void setPressure(double p);
+    void setPressure(double p) override;
 
 protected:
-    virtual void compositionChanged();
+    void compositionChanged() override;
 
     //! Updates the reference state thermodynamic functions at the current T of
     //! the solution.
@@ -297,8 +297,8 @@ public:
     //! routine _updateRefStateThermo().
     //! @{
 
-    virtual void getEnthalpy_RT_ref(double* hrt) const;
-    virtual void getGibbs_RT_ref(double* grt) const;
+    void getEnthalpy_RT_ref(double* hrt) const override;
+    void getGibbs_RT_ref(double* grt) const override;
 
 protected:
     //! Returns the vector of nondimensional Gibbs free energies of the
@@ -312,10 +312,10 @@ protected:
     const vector<double>& gibbs_RT_ref() const;
 
 public:
-    virtual void getGibbs_ref(double* g) const;
-    virtual void getEntropy_R_ref(double* er) const;
-    virtual void getCp_R_ref(double* cprt) const;
-    virtual void getStandardVolumes_ref(double* vol) const;
+    void getGibbs_ref(double* g) const override;
+    void getEntropy_R_ref(double* er) const override;
+    void getCp_R_ref(double* cprt) const override;
+    void getStandardVolumes_ref(double* vol) const override;
 
     //! @}
     //! @name Initialization Methods - For Internal use
@@ -325,7 +325,7 @@ public:
     //! input file. They are not normally used in application programs.
     //! To see how they are used, see importPhase().
     //! @{
-    virtual bool addSpecies(shared_ptr<Species> spec);
+    bool addSpecies(shared_ptr<Species> spec) override;
     //! @}
 
 protected:
@@ -470,8 +470,8 @@ public:
      * @param TKelvin   Temperature (Kelvin)
      * @return          The saturation pressure at the given temperature
      */
-    virtual double satPressure(double TKelvin);
-    virtual void getActivityConcentrations(double* c) const;
+    double satPressure(double TKelvin) override;
+    void getActivityConcentrations(double* c) const override;
 
 protected:
     //! Calculate the pressure and the pressure derivative given the temperature
@@ -492,11 +492,11 @@ protected:
     //! @name Critical State Properties.
     //! @{
 
-    virtual double critTemperature() const;
-    virtual double critPressure() const;
-    virtual double critVolume() const;
-    virtual double critCompressibility() const;
-    virtual double critDensity() const;
+    double critTemperature() const override;
+    double critPressure() const override;
+    double critVolume() const override;
+    double critCompressibility() const override;
+    double critDensity() const override;
     virtual void calcCriticalConditions(double& pc, double& tc, double& vc) const;
 
     //! Solve the cubic equation of state

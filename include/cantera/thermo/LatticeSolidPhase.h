@@ -107,7 +107,7 @@ public:
     //! Base empty constructor
     LatticeSolidPhase() = default;
 
-    virtual string type() const {
+    string type() const override {
         return "compound-lattice";
     }
 
@@ -115,21 +115,21 @@ public:
     /*!
      * `LatticeSolid` phases only represent solids.
      */
-    virtual string phaseOfMatter() const {
+    string phaseOfMatter() const override {
         return "solid";
     }
 
-    virtual bool isCompressible() const {
+    bool isCompressible() const override {
         return false;
     }
 
-    map<string, size_t> nativeState() const {
+    map<string, size_t> nativeState() const override {
         return { {"T", 0}, {"P", 1}, {"X", 2} };
     }
 
-    virtual double minTemp(size_t k = npos) const;
-    virtual double maxTemp(size_t k = npos) const;
-    virtual double refPressure() const;
+    double minTemp(size_t k=npos) const override;
+    double maxTemp(size_t k=npos) const override;
+    double refPressure() const override;
 
     //! This method returns the convention used in specification of the standard
     //! state, of which there are currently two, temperature based, and variable
@@ -137,7 +137,7 @@ public:
     /*!
      *  All of the thermo is determined by slave ThermoPhase routines.
      */
-    virtual int standardStateConvention() const {
+    int standardStateConvention() const override {
         return cSS_CONVENTION_SLAVE;
     }
 
@@ -154,7 +154,7 @@ public:
      *
      *  units J/kmol
      */
-    virtual double enthalpy_mole() const;
+    double enthalpy_mole() const override;
 
     //! Return the Molar Internal Energy. Units: J/kmol.
     /*!
@@ -169,7 +169,7 @@ public:
      *
      *  units J/kmol
      */
-    virtual double intEnergy_mole() const;
+    double intEnergy_mole() const override;
 
     //! Return the Molar Entropy. Units: J/kmol/K.
     /*!
@@ -184,7 +184,7 @@ public:
      *
      *  units J/kmol/K
      */
-    virtual double entropy_mole() const;
+    double entropy_mole() const override;
 
     //! Return the Molar Gibbs energy. Units: J/kmol.
     /*!
@@ -200,7 +200,7 @@ public:
      *
      *  units J/kmol
      */
-    virtual double gibbs_mole() const;
+    double gibbs_mole() const override;
 
     //! Return the constant pressure heat capacity. Units: J/kmol/K
     /*!
@@ -216,7 +216,7 @@ public:
      *
      *  units J/kmol/K
      */
-    virtual double cp_mole() const;
+    double cp_mole() const override;
 
     //! Return the constant volume heat capacity. Units: J/kmol/K
     /*!
@@ -232,7 +232,7 @@ public:
      *
      *  units J/kmol/K
      */
-    virtual double cv_mole() const {
+    double cv_mole() const override {
         return cp_mole();
     }
 
@@ -240,7 +240,7 @@ public:
     /*!
      *  This method simply returns the stored pressure value.
      */
-    virtual double pressure() const {
+    double pressure() const override {
         return m_press;
     }
 
@@ -248,7 +248,7 @@ public:
     /*!
      * @param p Pressure (units - Pa)
      */
-    virtual void setPressure(double p);
+    void setPressure(double p) override;
 
     //! Calculate the density of the solid mixture
     /*!
@@ -275,7 +275,7 @@ public:
      *           pass portions of this vector to the sublattices which assume
      *           that the portions individually sum to one. Length is m_kk.
      */
-    virtual void setMoleFractions(const double* const x);
+    void setMoleFractions(const double* const x) override;
 
     //! Get the species mole fraction vector.
     /*!
@@ -292,31 +292,31 @@ public:
      */
     void getMoleFractions(double* const x) const;
 
-    virtual void setMassFractions(const double* const y) {
+    void setMassFractions(const double* const y) override {
         throw NotImplementedError("LatticeSolidPhase::setMassFractions");
     }
 
-    virtual void setMassFractions_NoNorm(const double* const y) {
+    void setMassFractions_NoNorm(const double* const y) override {
         throw NotImplementedError("LatticeSolidPhase::setMassFractions_NoNorm");
     }
 
-    virtual void getConcentrations(double* const c) const {
+    void getConcentrations(double* const c) const override {
         throw NotImplementedError("LatticeSolidPhase::getConcentrations");
     }
 
-    virtual double concentration(size_t k) const {
+    double concentration(size_t k) const override {
         throw NotImplementedError("LatticeSolidPhase::concentration");
     }
 
-    virtual void setConcentrations(const double* const conc) {
+    void setConcentrations(const double* const conc) override {
         throw NotImplementedError("LatticeSolidPhase::setConcentrations");
     }
 
-    virtual Units standardConcentrationUnits() const;
+    Units standardConcentrationUnits() const override;
 
-    virtual void getActivityConcentrations(double* c) const;
+    void getActivityConcentrations(double* c) const override;
 
-    virtual void getActivityCoefficients(double* ac) const;
+    void getActivityCoefficients(double* ac) const override;
 
     //! Get the species chemical potentials. Units: J/kmol.
     /*!
@@ -330,7 +330,7 @@ public:
      * @param mu  Output vector of species chemical potentials. Length: m_kk.
      *            Units: J/kmol
      */
-    virtual void getChemPotentials(double* mu) const;
+    void getChemPotentials(double* mu) const override;
 
     //! Returns an array of partial molar enthalpies for the species in the
     //! mixture.
@@ -349,7 +349,7 @@ public:
      * @param hbar Output vector containing partial molar enthalpies.
      *             Length: m_kk.
      */
-    virtual void getPartialMolarEnthalpies(double* hbar) const;
+    void getPartialMolarEnthalpies(double* hbar) const override;
 
     /**
      * Returns an array of partial molar entropies of the species in the
@@ -368,7 +368,7 @@ public:
      * @param sbar Output vector containing partial molar entropies.
      *             Length: m_kk.
      */
-    virtual void getPartialMolarEntropies(double* sbar) const;
+    void getPartialMolarEntropies(double* sbar) const override;
 
     /**
      * Returns an array of partial molar Heat Capacities at constant pressure of
@@ -377,7 +377,7 @@ public:
      *
      * @param cpbar  Output vector of partial heat capacities. Length: m_kk.
      */
-    virtual void getPartialMolarCp(double* cpbar) const;
+    void getPartialMolarCp(double* cpbar) const override;
 
     /**
      * returns an array of partial molar volumes of the species in the solution.
@@ -388,7 +388,7 @@ public:
      *
      * @param vbar  Output vector of partial molar volumes. Length: m_kk.
      */
-    virtual void getPartialMolarVolumes(double* vbar) const;
+    void getPartialMolarVolumes(double* vbar) const override;
 
     //! Get the array of standard state chemical potentials at unit activity for
     //! the species at their standard states at the current *T* and *P* of the
@@ -404,19 +404,19 @@ public:
      * @param mu0    Output vector of chemical potentials.
      *               Length: m_kk. Units: J/kmol
      */
-    virtual void getStandardChemPotentials(double* mu0) const;
+    void getStandardChemPotentials(double* mu0) const override;
 
-    virtual double standardConcentration(size_t k=0) const;
-    virtual double logStandardConc(size_t k=0) const;
+    double standardConcentration(size_t k=0) const override;
+    double logStandardConc(size_t k=0) const override;
 
     //! @name Thermodynamic Values for the Species Reference States
     //! @{
 
-    virtual void getGibbs_RT_ref(double* grt) const;
-    virtual void getGibbs_ref(double* g) const;
+    void getGibbs_RT_ref(double* grt) const override;
+    void getGibbs_ref(double* g) const override;
     //! @}
 
-    virtual bool addSpecies(shared_ptr<Species> spec);
+    bool addSpecies(shared_ptr<Species> spec) override;
 
     //! Add a lattice to this phase
     void addLattice(shared_ptr<ThermoPhase> lattice);
@@ -424,11 +424,11 @@ public:
     //! Set the lattice stoichiometric coefficients, @f$ \theta_i @f$
     void setLatticeStoichiometry(const Composition& comp);
 
-    virtual void setParameters(const AnyMap& phaseNode,
-                               const AnyMap& rootNode=AnyMap());
-    virtual void initThermo();
-    virtual void getParameters(AnyMap& phaseNode) const;
-    virtual void getSpeciesParameters(const string& name, AnyMap& speciesNode) const;
+    void setParameters(const AnyMap& phaseNode,
+                       const AnyMap& rootNode=AnyMap()) override;
+    void initThermo() override;
+    void getParameters(AnyMap& phaseNode) const override;
+    void getSpeciesParameters(const string& name, AnyMap& speciesNode) const override;
 
     //! Set the Lattice mole fractions using a string
     /*!
@@ -438,8 +438,8 @@ public:
      */
     void setLatticeMoleFractionsByName(int n, const string& x);
 
-    virtual void modifyOneHf298SS(const size_t k, const double Hf298New);
-    virtual void resetHf298(const size_t k=npos);
+    void modifyOneHf298SS(const size_t k, const double Hf298New) override;
+    void resetHf298(const size_t k=npos) override;
 
 protected:
     //! Current value of the pressure

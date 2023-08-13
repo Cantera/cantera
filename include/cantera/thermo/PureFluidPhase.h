@@ -33,7 +33,7 @@ public:
     //! Empty Base Constructor
     PureFluidPhase() = default;
 
-    virtual string type() const {
+    string type() const override {
         return "pure-fluid";
     }
 
@@ -52,7 +52,7 @@ public:
      * at the current pressure, the mechanical phase is `gas`. Otherwise, the mechanical
      * phase is `liquid`.
      */
-    virtual string phaseOfMatter() const;
+    string phaseOfMatter() const override;
 
     //! Set the name of the TPX substance to use for the equation of state. This
     //! function should be called before initThermo().
@@ -60,33 +60,33 @@ public:
         m_tpx_name = name;
     }
 
-    virtual bool isPure() const {
+    bool isPure() const override {
         return true;
     }
 
-    virtual bool hasPhaseTransition() const {
+    bool hasPhaseTransition() const override {
         return true;
     }
 
-    virtual vector<string> fullStates() const;
-    virtual vector<string> partialStates() const;
+    vector<string> fullStates() const override;
+    vector<string> partialStates() const override;
 
-    virtual double minTemp(size_t k=npos) const;
-    virtual double maxTemp(size_t k=npos) const;
+    double minTemp(size_t k=npos) const override;
+    double maxTemp(size_t k=npos) const override;
 
-    virtual double enthalpy_mole() const;
-    virtual double intEnergy_mole() const;
-    virtual double entropy_mole() const;
-    virtual double gibbs_mole() const;
-    virtual double cp_mole() const;
-    virtual double cv_mole() const;
+    double enthalpy_mole() const override;
+    double intEnergy_mole() const override;
+    double entropy_mole() const override;
+    double gibbs_mole() const override;
+    double cp_mole() const override;
+    double cv_mole() const override;
 
     //! Return the thermodynamic pressure (Pa).
     /*!
      * This method calculates the current pressure consistent with the
      * independent variables, T, rho.
      */
-    virtual double pressure() const;
+    double pressure() const override;
 
     //! sets the thermodynamic pressure (Pa).
     /*!
@@ -95,28 +95,28 @@ public:
      *
      * @param p  Pressure (Pa)
      */
-    virtual void setPressure(double p);
-    virtual void setTemperature(const double T);
-    virtual void setDensity(const double rho);
+    void setPressure(double p) override;
+    void setTemperature(const double T) override;
+    void setDensity(const double rho) override;
 
-    virtual void getChemPotentials(double* mu) const {
+    void getChemPotentials(double* mu) const override{
         mu[0] = gibbs_mole();
     }
 
-    virtual void getPartialMolarEnthalpies(double* hbar) const;
-    virtual void getPartialMolarEntropies(double* sbar) const;
-    virtual void getPartialMolarIntEnergies(double* ubar) const;
-    virtual void getPartialMolarCp(double* cpbar) const;
-    virtual void getPartialMolarVolumes(double* vbar) const;
+    void getPartialMolarEnthalpies(double* hbar) const override;
+    void getPartialMolarEntropies(double* sbar) const override;
+    void getPartialMolarIntEnergies(double* ubar) const override;
+    void getPartialMolarCp(double* cpbar) const override;
+    void getPartialMolarVolumes(double* vbar) const override;
 
-    virtual Units standardConcentrationUnits() const;
-    virtual void getActivityConcentrations(double* c) const;
-    virtual double standardConcentration(size_t k=0) const;
+    Units standardConcentrationUnits() const override;
+    void getActivityConcentrations(double* c) const override;
+    double standardConcentration(size_t k=0) const override;
 
-    virtual void getActivities(double* a) const;
+    void getActivities(double* a) const override;
 
-    virtual double isothermalCompressibility() const;
-    virtual double thermalExpansionCoeff() const;
+    double isothermalCompressibility() const override;
+    double thermalExpansionCoeff() const override;
 
     //! Returns a reference to the substance object
     tpx::Substance& TPX_Substance();
@@ -129,10 +129,10 @@ public:
     //! activity of the fluid is always then defined to be equal to one.
     //! @{
 
-    virtual void getStandardChemPotentials(double* mu) const;
-    virtual void getEnthalpy_RT(double* hrt) const;
-    virtual void getEntropy_R(double* sr) const;
-    virtual void getGibbs_RT(double* grt) const;
+    void getStandardChemPotentials(double* mu) const override;
+    void getEnthalpy_RT(double* hrt) const override;
+    void getEntropy_R(double* sr) const override;
+    void getGibbs_RT(double* grt) const override;
 
     //! @}
     //! @name Thermodynamic Values for the Species Reference States
@@ -141,10 +141,10 @@ public:
     //! the reference pressure and current temperature of the fluid.
     //! @{
 
-    virtual void getEnthalpy_RT_ref(double* hrt) const;
-    virtual void getGibbs_RT_ref(double* grt) const;
-    virtual void getGibbs_ref(double* g) const;
-    virtual void getEntropy_R_ref(double* er) const;
+    void getEnthalpy_RT_ref(double* hrt) const override;
+    void getGibbs_RT_ref(double* grt) const override;
+    void getGibbs_ref(double* g) const override;
+    void getEntropy_R_ref(double* er) const override;
 
     //! @}
     //! @name Setting the State
@@ -152,43 +152,43 @@ public:
     //! These methods set all or part of the thermodynamic state.
     //! @{
 
-    virtual void setState_HP(double h, double p, double tol=1e-9);
-    virtual void setState_UV(double u, double v, double tol=1e-9);
-    virtual void setState_SV(double s, double v, double tol=1e-9);
-    virtual void setState_SP(double s, double p, double tol=1e-9);
-    virtual void setState_ST(double s, double t, double tol=1e-9);
-    virtual void setState_TV(double t, double v, double tol=1e-9);
-    virtual void setState_PV(double p, double v, double tol=1e-9);
-    virtual void setState_UP(double u, double p, double tol=1e-9);
-    virtual void setState_VH(double v, double h, double tol=1e-9);
-    virtual void setState_TH(double t, double h, double tol=1e-9);
-    virtual void setState_SH(double s, double h, double tol=1e-9);
+    void setState_HP(double h, double p, double tol=1e-9) override;
+    void setState_UV(double u, double v, double tol=1e-9) override;
+    void setState_SV(double s, double v, double tol=1e-9) override;
+    void setState_SP(double s, double p, double tol=1e-9) override;
+    void setState_ST(double s, double t, double tol=1e-9) override;
+    void setState_TV(double t, double v, double tol=1e-9) override;
+    void setState_PV(double p, double v, double tol=1e-9) override;
+    void setState_UP(double u, double p, double tol=1e-9) override;
+    void setState_VH(double v, double h, double tol=1e-9) override;
+    void setState_TH(double t, double h, double tol=1e-9) override;
+    void setState_SH(double s, double h, double tol=1e-9) override;
     //! @}
     //! @name Critical State Properties
     //! @{
 
-    virtual double critTemperature() const;
-    virtual double critPressure() const;
-    virtual double critDensity() const;
+    double critTemperature() const override;
+    double critPressure() const override;
+    double critDensity() const override;
 
     //! @}
     //! @name Saturation properties.
     //! @{
 
-    virtual double satTemperature(double p) const;
-    virtual double satPressure(double t);
-    virtual double vaporFraction() const;
+    double satTemperature(double p) const override;
+    double satPressure(double t) override;
+    double vaporFraction() const override;
 
-    virtual void setState_Tsat(double t, double x);
-    virtual void setState_Psat(double p, double x);
+    void setState_Tsat(double t, double x) override;
+    void setState_Psat(double p, double x) override;
     //! @}
 
-    virtual void initThermo();
-    virtual void getParameters(AnyMap& phaseNode) const;
+    void initThermo() override;
+    void getParameters(AnyMap& phaseNode) const override;
 
-    virtual string report(bool show_thermo=true, double threshold=1e-14) const;
+    string report(bool show_thermo=true, double threshold=1e-14) const override;
 
-    virtual bool compatibleWithMultiPhase() const {
+    bool compatibleWithMultiPhase() const override {
         return false;
     }
 

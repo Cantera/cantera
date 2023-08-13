@@ -94,28 +94,7 @@ public:
     //! @{
 
 protected:
-    /**
-     * Calculate the density of the mixture using the partial molar volumes and
-     * mole fractions as input
-     *
-     * The formula for this is
-     *
-     * @f[
-     * \rho = \frac{\sum_k{X_k W_k}}{\sum_k{X_k V_k}}
-     * @f]
-     *
-     * where @f$ X_k @f$ are the mole fractions, @f$ W_k @f$ are the molecular
-     * weights, and @f$ V_k @f$ are the pure species molar volumes.
-     *
-     * Note, the basis behind this formula is that in an ideal solution the
-     * partial molar volumes are equal to the pure species molar volumes. We
-     * have additionally specified in this class that the pure species molar
-     * volumes are independent of temperature and pressure.
-     *
-     * NOTE: This is a non-virtual function, which is not a member of the
-     *       ThermoPhase base class.
-     */
-    void calcDensity();
+    void calcDensity() override;
 
 public:
     //! @}
@@ -127,8 +106,8 @@ public:
     //! which depends only on temperature and pressure.
     //! @{
 
-    virtual Units standardConcentrationUnits() const;
-    virtual void getActivityConcentrations(double* c) const;
+    Units standardConcentrationUnits() const override;
+    void getActivityConcentrations(double* c) const override;
 
     /**
      * The standard concentration @f$ C^0_k @f$ used to normalize the
@@ -145,8 +124,8 @@ public:
      *
      * @param k species index. Defaults to zero.
      */
-    virtual double standardConcentration(size_t k=0) const;
-    virtual double logStandardConc(size_t k=0) const;
+    double standardConcentration(size_t k=0) const override;
+    double logStandardConc(size_t k=0) const override;
 
     //! Get the array of non-dimensional activities (molality based for this
     //! class and classes that derive from it) at the current solution
@@ -160,13 +139,12 @@ public:
      *
      * @param ac     Output vector of molality-based activities. Length: m_kk.
      */
-    virtual void getActivities(double* ac) const;
+    void getActivities(double* ac) const override;
 
-    virtual void getActivityCoefficients(double* ac) const;
+    void getActivityCoefficients(double* ac) const override;
 
     //! Get the array of temperature derivatives of the log activity coefficients
     /*!
-     * This function is virtual, and first appears in GibbsExcessVPSSTP.
      *
      * units = 1/Kelvin
      *
@@ -177,7 +155,7 @@ public:
         throw NotImplementedError("GibbsExcessVPSSTP::getdlnActCoeffdT");
     }
 
-    virtual void getdlnActCoeffdlnN(const size_t ld, double* const dlnActCoeffdlnN) {
+    void getdlnActCoeffdlnN(const size_t ld, double* const dlnActCoeffdlnN) override {
         throw NotImplementedError("GibbsExcessVPSSTP::getdlnActCoeffdlnN: "
                                   "nonzero and nonimplemented");
     }
@@ -216,15 +194,15 @@ public:
      *  @param vbar   Output vector of species partial molar volumes.
      *                Length = m_kk. units are m^3/kmol.
      */
-    virtual void getPartialMolarVolumes(double* vbar) const;
+    void getPartialMolarVolumes(double* vbar) const override;
     //! @deprecated Unused. To be removed after %Cantera 3.0.
     virtual const vector<double>& getPartialMolarVolumesVector() const;
     //! @}
 
-    virtual bool addSpecies(shared_ptr<Species> spec);
+    bool addSpecies(shared_ptr<Species> spec) override;
 
 protected:
-    virtual void compositionChanged();
+    void compositionChanged() override;
 
     //! utility routine to check mole fraction sum
     /*!

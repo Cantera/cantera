@@ -98,11 +98,11 @@ public:
      */
     explicit StoichSubstance(const string& infile="", const string& id="");
 
-    virtual string type() const {
+    string type() const override {
         return "fixed-stoichiometry";
     }
 
-    virtual bool isCompressible() const {
+    bool isCompressible() const override {
         return false;
     }
 
@@ -114,7 +114,7 @@ public:
      * For an incompressible substance, the density is independent of pressure.
      * This method simply returns the stored pressure value.
      */
-    virtual double pressure() const;
+    double pressure() const override;
 
     //! Set the pressure at constant temperature. Units: Pa.
     /*!
@@ -124,10 +124,10 @@ public:
      *
      * @param p Pressure (units - Pa)
      */
-    virtual void setPressure(double p);
+    void setPressure(double p) override;
 
-    virtual double isothermalCompressibility() const;
-    virtual double thermalExpansionCoeff() const;
+    double isothermalCompressibility() const override;
+    double thermalExpansionCoeff() const override;
 
     //! @}
     //! @name Activities, Standard States, and Activity Concentrations
@@ -136,7 +136,7 @@ public:
     //! is only one species. Therefore, the activity is equal to one.
     //! @{
 
-    virtual Units standardConcentrationUnits() const;
+    Units standardConcentrationUnits() const override;
 
     //! This method returns an array of generalized concentrations
     /*!
@@ -153,7 +153,7 @@ public:
      *           units depend upon the implementation of the
      *           reaction rate expressions within the phase.
      */
-    virtual void getActivityConcentrations(double* c) const;
+    void getActivityConcentrations(double* c) const override;
 
     //! Return the standard concentration for the kth species
     /*!
@@ -167,8 +167,8 @@ public:
      * @return
      *   Returns The standard Concentration as 1.0
      */
-    virtual double standardConcentration(size_t k=0) const;
-    virtual double logStandardConc(size_t k=0) const;
+    double standardConcentration(size_t k=0) const override;
+    double logStandardConc(size_t k=0) const override;
 
     //! Get the array of chemical potentials at unit activity for the species at
     //! their standard states at the current *T* and *P* of the solution.
@@ -184,16 +184,16 @@ public:
      * @param mu0     Output vector of chemical potentials.
      *                Length: m_kk.
      */
-    virtual void getStandardChemPotentials(double* mu0) const;
+    void getStandardChemPotentials(double* mu0) const override;
 
     //! @}
     //! @name  Properties of the Standard State of the Species in the Solution
     //! @{
 
-    virtual void getEnthalpy_RT(double* hrt) const;
-    virtual void getEntropy_R(double* sr) const;
-    virtual void getGibbs_RT(double* grt) const;
-    virtual void getCp_R(double* cpr) const;
+    void getEnthalpy_RT(double* hrt) const override;
+    void getEntropy_R(double* sr) const override;
+    void getGibbs_RT(double* grt) const override;
+    void getCp_R(double* cpr) const override;
 
     //! Returns the vector of nondimensional Internal Energies of the standard
     //! state species at the current *T* and *P* of the solution
@@ -207,7 +207,7 @@ public:
      * @param urt  output vector of nondimensional standard state
      *             internal energies of the species. Length: m_kk.
      */
-    virtual void getIntEnergy_RT(double* urt) const;
+    void getIntEnergy_RT(double* urt) const override;
 
     //! @}
     //! @name Thermodynamic Values for the Species Reference States
@@ -220,11 +220,11 @@ public:
      * @param urt    Output vector of nondimensional reference state internal
      *               energies of the species. Length: m_kk
      */
-    virtual void getIntEnergy_RT_ref(double* urt) const;
+    void getIntEnergy_RT_ref(double* urt) const override;
     //! @}
 
-    virtual void initThermo();
-    virtual void getSpeciesParameters(const string& name, AnyMap& speciesNode) const;
+    void initThermo() override;
+    void getSpeciesParameters(const string& name, AnyMap& speciesNode) const override;
 };
 
 }

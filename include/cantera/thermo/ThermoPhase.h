@@ -397,7 +397,7 @@ public:
     //! @name  Information Methods
     //! @{
 
-    virtual string type() const {
+    string type() const override {
         return "none";
     }
 
@@ -1917,9 +1917,9 @@ public:
     //! To see how they are used, see importPhase().
     //! @{
 
-    virtual bool addSpecies(shared_ptr<Species> spec);
+    bool addSpecies(shared_ptr<Species> spec) override;
 
-    virtual void modifySpecies(size_t k, shared_ptr<Species> spec);
+    void modifySpecies(size_t k, shared_ptr<Species> spec) override;
 
     //! Return a changeable reference to the calculation manager for species
     //! reference-state thermodynamic properties
@@ -1984,7 +1984,7 @@ public:
     const AnyMap& input() const;
     AnyMap& input();
 
-    virtual void invalidateCache();
+    void invalidateCache() override;
 
     //! @}
     //! @name  Derivatives of Thermodynamic Variables needed for Applications
