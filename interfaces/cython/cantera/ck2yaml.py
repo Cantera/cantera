@@ -2216,8 +2216,9 @@ def main(argv):
 
     if '--id' in options:
         phase_name = options.get('--id', 'gas')
-        logger.warning("\nFutureWarning: "
-                       "Option '--id=...' will be replaced by '--name=...'")
+        logger.warning("\nDeprecationWarning: "
+                       "Option '--id=...' is replaced by '--name=...' and will be "
+                       "removed after Cantera 3.0.\n")
     else:
         phase_name = options.get('--name', 'gas')
 
