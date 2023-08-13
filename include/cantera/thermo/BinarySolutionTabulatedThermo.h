@@ -173,14 +173,14 @@ public:
      */
     explicit BinarySolutionTabulatedThermo(const string& infile="", const string& id="");
 
-    virtual string type() const {
+    string type() const override {
         return "binary-solution-tabulated";
     }
 
-    virtual bool addSpecies(shared_ptr<Species> spec);
-    virtual void initThermo();
-    virtual bool ready() const;
-    virtual void getParameters(AnyMap& phaseNode) const;
+    bool addSpecies(shared_ptr<Species> spec) override;
+    void initThermo() override;
+    bool ready() const override;
+    void getParameters(AnyMap& phaseNode) const override;
 
     /**
      * returns an array of partial molar volumes of the species
@@ -191,7 +191,7 @@ public:
      *
      * @param vbar  Output vector of partial molar volumes. Length: m_kk.
      */
-    virtual void getPartialMolarVolumes(double* vbar) const;
+    void getPartialMolarVolumes(double* vbar) const override;
 
     /**
      * Overloads the calcDensity() method of IdealSolidSoln to also consider non-ideal
@@ -206,11 +206,11 @@ public:
      * where @f$ X_k @f$ are the mole fractions, @f$ W_k @f$ are the molecular weights, and
      * @f$ V_\mathrm{m} @f$ is the molar volume interpolated from @f$ V_{\mathrm{m,tab}} @f$.
      */
-    virtual void calcDensity();
+    void calcDensity() override;
 
 protected:
     //! If the compositions have changed, update the tabulated thermo lookup
-    virtual void compositionChanged();
+    void compositionChanged() override;
 
     //! Species thermodynamics linear interpolation function
     /*!
@@ -254,7 +254,7 @@ protected:
     vector<double> m_derived_molar_volume_tab;
 
 private:
-    virtual void _updateThermo() const;
+    void _updateThermo() const override;
 };
 }
 

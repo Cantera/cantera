@@ -106,11 +106,11 @@ public:
      */
     explicit SurfPhase(const string& infile="", const string& id="");
 
-    virtual string type() const {
+    string type() const override {
         return "ideal-surface";
     }
 
-    virtual bool isCompressible() const {
+    bool isCompressible() const override {
         return false;
     }
 
@@ -126,14 +126,14 @@ public:
      *
      * \see MultiSpeciesThermo
      */
-    virtual double enthalpy_mole() const;
+    double enthalpy_mole() const override;
 
     //! Return the Molar Internal Energy. Units: J/kmol
     /**
      * For a surface phase, the pressure is not a relevant thermodynamic
      * variable, and so the Enthalpy is equal to the Internal Energy.
      */
-    virtual double intEnergy_mole() const;
+    double intEnergy_mole() const override;
 
     //! Return the Molar Entropy. Units: J/kmol-K
     /**
@@ -141,17 +141,17 @@ public:
      *  \hat s(T,P) = \sum_k X_k (\hat s^0_k(T) - R \ln \theta_k)
      * @f]
      */
-    virtual double entropy_mole() const;
+    double entropy_mole() const override;
 
-    virtual double cp_mole() const;
-    virtual double cv_mole() const;
+    double cp_mole() const override;
+    double cv_mole() const override;
 
-    virtual void getChemPotentials(double* mu) const;
-    virtual void getPartialMolarEnthalpies(double* hbar) const;
-    virtual void getPartialMolarEntropies(double* sbar) const;
-    virtual void getPartialMolarCp(double* cpbar) const;
-    virtual void getPartialMolarVolumes(double* vbar) const;
-    virtual void getStandardChemPotentials(double* mu0) const;
+    void getChemPotentials(double* mu) const override;
+    void getPartialMolarEnthalpies(double* hbar) const override;
+    void getPartialMolarEntropies(double* sbar) const override;
+    void getPartialMolarCp(double* cpbar) const override;
+    void getPartialMolarVolumes(double* vbar) const override;
+    void getStandardChemPotentials(double* mu0) const override;
 
     //! Return a vector of activity concentrations for each species
     /*!
@@ -177,7 +177,7 @@ public:
      *
      * @param c vector of activity concentration (kmol m-2).
      */
-    virtual void getActivityConcentrations(double* c) const;
+    void getActivityConcentrations(double* c) const override;
 
     //! Return the standard concentration for the kth species
     /*!
@@ -196,23 +196,23 @@ public:
      * @return the standard concentration in units of kmol/m^2 for surface phases or
      *     kmol/m for edge phases.
      */
-    virtual double standardConcentration(size_t k = 0) const;
-    virtual double logStandardConc(size_t k=0) const;
+    double standardConcentration(size_t k=0) const override;
+    double logStandardConc(size_t k=0) const override;
 
-    virtual void initThermo();
-    virtual void getParameters(AnyMap& phaseNode) const;
+    void initThermo() override;
+    void getParameters(AnyMap& phaseNode) const override;
 
-    virtual bool addSpecies(shared_ptr<Species> spec);
+    bool addSpecies(shared_ptr<Species> spec) override;
 
     //! Since interface phases have no volume, this returns 0.0.
-    virtual double molarVolume() const {
+    virtual double molarVolume() const override {
         return 0.0;
     }
 
     //! Since interface phases have no volume, setting this to a value other than 0.0
     //! raises an exception.
     //! @deprecated Unused. To be removed after %Cantera 3.0
-    virtual void setMolarDensity(const double vm);
+    void setMolarDensity(const double vm) override;
 
     //! Returns the site density
     /*!
@@ -223,7 +223,7 @@ public:
     }
 
     //! Returns the number of sites occupied by one molecule of species *k*.
-    virtual double size(size_t k) const {
+    double size(size_t k) const {
         return m_speciesSize[k];
     }
 
@@ -233,14 +233,14 @@ public:
      */
     void setSiteDensity(double n0);
 
-    virtual void getGibbs_RT(double* grt) const;
-    virtual void getEnthalpy_RT(double* hrt) const;
-    virtual void getEntropy_R(double* sr) const;
-    virtual void getCp_R(double* cpr) const;
-    virtual void getStandardVolumes(double* vol) const;
+    void getGibbs_RT(double* grt) const override;
+    void getEnthalpy_RT(double* hrt) const override;
+    void getEntropy_R(double* sr) const override;
+    void getCp_R(double* cpr) const override;
+    void getStandardVolumes(double* vol) const override;
 
     //! Return the thermodynamic pressure (Pa).
-    virtual double pressure() const {
+    double pressure() const override {
         return m_press;
     }
 
@@ -249,15 +249,15 @@ public:
     /*!
      *  @param p input Pressure (Pa)
      */
-    virtual void setPressure(double p) {
+    void setPressure(double p) override {
         m_press = p;
     }
 
-    virtual void getPureGibbs(double* g) const;
-    virtual void getGibbs_RT_ref(double* grt) const;
-    virtual void getEnthalpy_RT_ref(double* hrt) const;
-    virtual void getEntropy_R_ref(double* er) const;
-    virtual void getCp_R_ref(double* cprt) const;
+    void getPureGibbs(double* g) const override;
+    void getGibbs_RT_ref(double* grt) const override;
+    void getEnthalpy_RT_ref(double* hrt) const override;
+    void getEntropy_R_ref(double* er) const override;
+    void getCp_R_ref(double* cprt) const override;
 
     //! Set the surface site fractions to a specified state.
     /*!
@@ -307,10 +307,10 @@ public:
     /*!
      * Additionally uses the key `coverages` to set the fractional coverages.
      */
-    virtual void setState(const AnyMap& state);
+    void setState(const AnyMap& state) override;
 
 protected:
-    virtual void compositionChanged();
+    void compositionChanged() override;
 
     //! Surface site density (kmol m-2)
     double m_n0 = 1.0;

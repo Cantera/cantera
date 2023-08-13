@@ -85,7 +85,7 @@ public:
     //! @name  Utilities
     //! @{
 
-    virtual string type() const {
+    string type() const override {
         return "IonsFromNeutral";
     }
 
@@ -97,12 +97,12 @@ public:
     /*!
      * This is calculated from the partial molar enthalpies of the species.
      */
-    virtual double enthalpy_mole() const;
+    double enthalpy_mole() const override;
 
-    virtual double entropy_mole() const;
-    virtual double gibbs_mole() const;
-    virtual double cp_mole() const;
-    virtual double cv_mole() const;
+    double entropy_mole() const override;
+    double gibbs_mole() const override;
+    double cp_mole() const override;
+    double cv_mole() const override;
 
     //! @}
     //! @name Activities, Standard States, and Activity Concentrations
@@ -114,13 +114,13 @@ public:
     //! on temperature and pressure.
     //! @{
 
-    virtual void getActivityCoefficients(double* ac) const;
+    void getActivityCoefficients(double* ac) const override;
 
     //! @}
     //! @name  Partial Molar Properties of the Solution
     //! @{
 
-    virtual void getChemPotentials(double* mu) const;
+    void getChemPotentials(double* mu) const override;
 
     //! Returns an array of partial molar enthalpies for the species in the
     //! mixture.
@@ -138,7 +138,7 @@ public:
      *  @param hbar  Output vector of species partial molar enthalpies.
      *               Length: m_kk. Units: J/kmol
      */
-    virtual void getPartialMolarEnthalpies(double* hbar) const;
+    void getPartialMolarEnthalpies(double* hbar) const override;
 
     //! Returns an array of partial molar entropies for the species in the
     //! mixture.
@@ -158,13 +158,13 @@ public:
      *  @param sbar  Output vector of species partial molar entropies.
      *               Length: m_kk. Units: J/kmol/K
      */
-    virtual void getPartialMolarEntropies(double* sbar) const;
+    void getPartialMolarEntropies(double* sbar) const override;
 
-    virtual void getdlnActCoeffds(const double dTds, const double* const dXds,
-                                  double* dlnActCoeffds) const;
-    virtual void getdlnActCoeffdlnX_diag(double* dlnActCoeffdlnX_diag) const;
-    virtual void getdlnActCoeffdlnN_diag(double* dlnActCoeffdlnN_diag) const;
-    virtual void getdlnActCoeffdlnN(const size_t ld, double* const dlnActCoeffdlnN);
+    void getdlnActCoeffds(const double dTds, const double* const dXds,
+                          double* dlnActCoeffds) const override;
+    void getdlnActCoeffdlnX_diag(double* dlnActCoeffdlnX_diag) const override;
+    void getdlnActCoeffdlnN_diag(double* dlnActCoeffdlnN_diag) const override;
+    void getdlnActCoeffdlnN(const size_t ld, double* const dlnActCoeffdlnN) override;
     //! @}
 
     //! Get the Salt Dissociation Coefficients.
@@ -228,7 +228,7 @@ public:
     //! These methods set all or part of the thermodynamic state.
     //! @{
 
-    virtual void calcDensity();
+    void calcDensity() override;
 
     //! Calculate ion mole fractions from neutral molecule mole fractions.
     /*!
@@ -252,14 +252,14 @@ public:
 
     //! @}
 
-    virtual bool addSpecies(shared_ptr<Species> spec);
+    bool addSpecies(shared_ptr<Species> spec) override;
     void setNeutralMoleculePhase(shared_ptr<ThermoPhase> neutral);
     shared_ptr<ThermoPhase> getNeutralMoleculePhase();
 
-    virtual void setParameters(const AnyMap& phaseNode,
-                               const AnyMap& rootNode=AnyMap());
-    virtual void initThermo();
-    virtual void getParameters(AnyMap& phaseNode) const;
+    void setParameters(const AnyMap& phaseNode,
+                       const AnyMap& rootNode=AnyMap()) override;
+    void initThermo() override;
+    void getParameters(AnyMap& phaseNode) const override;
 
 private:
     //! Update the activity coefficients
@@ -312,7 +312,7 @@ private:
     void s_update_dlnActCoeff_dlnN() const;
 
 protected:
-    virtual void compositionChanged();
+    void compositionChanged() override;
 
     //! Ion solution type
     /*!

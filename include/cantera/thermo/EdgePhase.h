@@ -38,7 +38,7 @@ public:
      */
     explicit EdgePhase(const string& infile="", const string& id="");
 
-    virtual string type() const {
+    string type() const override {
         return "edge";
     }
 };

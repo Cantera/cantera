@@ -243,7 +243,7 @@ public:
     /*!
      * All derived phases from `MolalityVPSSTP` always represent liquids.
      */
-    virtual string phaseOfMatter() const {
+    string phaseOfMatter() const override {
         return "liquid";
     }
 
@@ -384,10 +384,10 @@ public:
     /**
      *  We set the convention to molality here.
      */
-    int activityConvention() const;
+    int activityConvention() const override;
 
-    virtual void getActivityConcentrations(double* c) const;
-    virtual double standardConcentration(size_t k=0) const;
+    void getActivityConcentrations(double* c) const override;
+    double standardConcentration(size_t k=0) const override;
 
     //! Get the array of non-dimensional activities (molality based for this
     //! class and classes that derive from it) at the current solution
@@ -405,7 +405,7 @@ public:
      *
      * @param ac     Output vector of molality-based activities. Length: m_kk.
      */
-    virtual void getActivities(double* ac) const;
+    void getActivities(double* ac) const override;
 
     //! Get the array of non-dimensional activity coefficients at
     //! the current solution temperature, pressure, and solution concentration.
@@ -436,7 +436,7 @@ public:
      * @param ac  Output vector containing the mole-fraction based activity
      *            coefficients. length: m_kk.
      */
-    virtual void getActivityCoefficients(double* ac) const;
+    void getActivityCoefficients(double* ac) const override;
 
     //! Get the array of non-dimensional molality based activity coefficients at
     //! the current solution temperature, pressure, and solution concentration.
@@ -494,8 +494,8 @@ public:
     //! see importPhase().
     //! @{
 
-    virtual bool addSpecies(shared_ptr<Species> spec);
-    virtual void initThermo();
+    bool addSpecies(shared_ptr<Species> spec) override;
+    void initThermo() override;
 
     //! @}
 
@@ -530,17 +530,17 @@ public:
     /*!
      * Additionally uses the keys `molalities` or `M` to set the molalities.
      */
-    virtual void setState(const AnyMap& state);
+    void setState(const AnyMap& state) override;
 
-    virtual void getdlnActCoeffdlnN(const size_t ld, double* const dlnActCoeffdlnN) {
+    void getdlnActCoeffdlnN(const size_t ld, double* const dlnActCoeffdlnN) override {
         getdlnActCoeffdlnN_numderiv(ld, dlnActCoeffdlnN);
     }
 
-    virtual string report(bool show_thermo=true, double threshold=1e-14) const;
+    string report(bool show_thermo=true, double threshold=1e-14) const override;
 
 protected:
-    virtual void getCsvReportData(vector<string>& names,
-                                  vector<vector<double>>& data) const;
+    void getCsvReportData(vector<string>& names,
+                          vector<vector<double>>& data) const override;
 
     //! Get the array of unscaled non-dimensional molality based activity
     //! coefficients at the current solution temperature, pressure, and solution
@@ -578,7 +578,7 @@ private:
      * Right now we use a restrictive interpretation. The species must be named
      * "Cl-". It must consist of exactly one Cl and one E atom.
      */
-    virtual size_t findCLMIndex() const;
+    size_t findCLMIndex() const;
 
 protected:
     //! Scaling to be used for output of single-ion species activity

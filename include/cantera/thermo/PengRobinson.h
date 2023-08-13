@@ -30,15 +30,15 @@ public:
      */
     explicit PengRobinson(const string& infile="", const string& id="");
 
-    virtual string type() const {
+    string type() const override {
         return "Peng-Robinson";
     }
 
     //! @name Molar Thermodynamic properties
     //! @{
 
-    virtual double cp_mole() const;
-    virtual double cv_mole() const;
+    double cp_mole() const override;
+    double cv_mole() const override;
 
     //! @}
     //! @name Mechanical Properties
@@ -86,7 +86,7 @@ public:
      *       = \sum_i \sum_j X_i X_j \sqrt{a_i a_j} \sqrt{\alpha_i \alpha_j}
      * @f]
      */
-    virtual double pressure() const;
+    double pressure() const override;
 
     //! @}
 
@@ -104,7 +104,7 @@ public:
      * @return
      *   Returns the standard Concentration in units of m^3 / kmol.
      */
-    virtual double standardConcentration(size_t k=0) const;
+    double standardConcentration(size_t k=0) const override;
 
     //! Get the array of non-dimensional activity coefficients at the current
     //! solution temperature, pressure, and solution concentration.
@@ -115,21 +115,21 @@ public:
      *
      * @param ac Output vector of activity coefficients. Length: m_kk.
      */
-    virtual void getActivityCoefficients(double* ac) const;
+    void getActivityCoefficients(double* ac) const override;
 
     //! @name  Partial Molar Properties of the Solution
     //! @{
 
-    virtual void getChemPotentials(double* mu) const;
-    virtual void getPartialMolarEnthalpies(double* hbar) const;
-    virtual void getPartialMolarEntropies(double* sbar) const;
-    virtual void getPartialMolarIntEnergies(double* ubar) const;
+    void getChemPotentials(double* mu) const override;
+    void getPartialMolarEnthalpies(double* hbar) const override;
+    void getPartialMolarEntropies(double* sbar) const override;
+    void getPartialMolarIntEnergies(double* ubar) const override;
     //! Calculate species-specific molar specific heats
     /*!
      *  This function is currently not implemented for Peng-Robinson phase.
      */
-    virtual void getPartialMolarCp(double* cpbar) const;
-    virtual void getPartialMolarVolumes(double* vbar) const;
+    void getPartialMolarCp(double* cpbar) const override;
+    void getPartialMolarVolumes(double* vbar) const override;
     //! @}
 
     //! Calculate species-specific critical temperature
@@ -141,7 +141,7 @@ public:
      * @param a    species-specific coefficients used in P-R EoS
      * @param b    species-specific coefficients used in P-R EoS
      */
-    virtual double speciesCritTemperature(double a, double b) const;
+    double speciesCritTemperature(double a, double b) const;
 
     //! @name Initialization Methods - For Internal use
     //!
@@ -151,9 +151,9 @@ public:
     //! To see how they are used, see importPhase().
     //! @{
 
-    virtual bool addSpecies(shared_ptr<Species> spec);
-    virtual void initThermo();
-    virtual void getSpeciesParameters(const string& name, AnyMap& speciesNode) const;
+    bool addSpecies(shared_ptr<Species> spec) override;
+    void initThermo() override;
+    void getSpeciesParameters(const string& name, AnyMap& speciesNode) const override;
 
     //! Set the pure fluid interaction parameters for a species
     /*!
@@ -175,15 +175,15 @@ public:
 
 protected:
     // Special functions inherited from MixtureFugacityTP
-    virtual double sresid() const;
-    virtual double hresid() const;
+    double sresid() const override;
+    double hresid() const override;
 
-    virtual double liquidVolEst(double T, double& pres) const;
-    virtual double densityCalc(double T, double pressure, int phase, double rhoguess);
+    double liquidVolEst(double T, double& pres) const override;
+    double densityCalc(double T, double pressure, int phase, double rhoguess) override;
 
-    virtual double densSpinodalLiquid() const;
-    virtual double densSpinodalGas() const;
-    virtual double dpdVCalc(double T, double molarVol, double& presCalc) const;
+    double densSpinodalLiquid() const override;
+    double densSpinodalGas() const override;
+    double dpdVCalc(double T, double molarVol, double& presCalc) const override;
 
     // Special functions not inherited from MixtureFugacityTP
 
@@ -201,9 +201,9 @@ protected:
 
 public:
 
-    virtual double isothermalCompressibility() const;
-    virtual double thermalExpansionCoeff() const;
-    virtual double soundSpeed() const;
+    double isothermalCompressibility() const override;
+    double thermalExpansionCoeff() const override;
+    double soundSpeed() const override;
 
     //! Calculate @f$ dp/dV @f$ and @f$ dp/dT @f$ at the current conditions
     /*!
@@ -217,7 +217,7 @@ public:
      *  parameter @f$ \alpha @f$ depends on the temperature. This function updates
      *  the internal numbers based on the state of the object.
      */
-    virtual void updateMixingExpressions();
+    void updateMixingExpressions() override;
 
     //! Calculate the @f$ a @f$, @f$ b @f$, and @f$ \alpha @f$ parameters given the temperature
     /*!
@@ -230,7 +230,7 @@ public:
      */
     void calculateAB(double& aCalc, double& bCalc, double& aAlpha) const;
 
-    void calcCriticalConditions(double& pc, double& tc, double& vc) const;
+    void calcCriticalConditions(double& pc, double& tc, double& vc) const override;
 
     //! Prepare variables and call the function to solve the cubic equation of state
     int solveCubic(double T, double pres, double a, double b, double aAlpha,

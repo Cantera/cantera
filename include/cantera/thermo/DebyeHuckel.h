@@ -414,7 +414,7 @@ class PDSS_Water;
 class DebyeHuckel : public MolalityVPSSTP
 {
 public:
-    virtual ~DebyeHuckel();
+    ~DebyeHuckel() override;
 
     //! Full constructor for creating the phase.
     /*!
@@ -427,7 +427,7 @@ public:
     //! @name  Utilities
     //! @{
 
-    virtual string type() const {
+    string type() const override {
         return "Debye-Huckel";
     }
 
@@ -435,7 +435,7 @@ public:
     //! @name  Molar Thermodynamic Properties of the Solution
     //! @{
 
-    virtual double enthalpy_mole() const;
+    double enthalpy_mole() const override;
 
     //! Molar entropy. Units: J/kmol/K.
     /**
@@ -452,10 +452,10 @@ public:
      * temperature since the volume expansivities are equal to zero.
      * @see MultiSpeciesThermo
      */
-    virtual double entropy_mole() const;
+    double entropy_mole() const override;
 
-    virtual double gibbs_mole() const;
-    virtual double cp_mole() const;
+    double gibbs_mole() const override;
+    double cp_mole() const override;
 
     //! @}
     //! @name Mechanical Equation of State Properties
@@ -468,7 +468,7 @@ public:
     //! @{
 
 protected:
-    virtual void calcDensity();
+    void calcDensity() override;
 
 public:
     //! @}
@@ -481,7 +481,7 @@ public:
     //! to be molality-based here.
     //! @{
 
-    virtual void getActivityConcentrations(double* c) const;
+    void getActivityConcentrations(double* c) const override;
 
     //! Return the standard concentration for the kth species
     /*!
@@ -497,7 +497,7 @@ public:
      *         assume this refers to species 0.
      * @return the standard Concentration in units of m^3/kmol
      */
-    virtual double standardConcentration(size_t k=0) const;
+    double standardConcentration(size_t k=0) const override;
 
     //! Get the array of non-dimensional activities at the current solution
     //! temperature, pressure, and solution concentration.
@@ -506,7 +506,7 @@ public:
      *
      * @param ac  Output vector of activities. Length: m_kk.
      */
-    virtual void getActivities(double* ac) const;
+    void getActivities(double* ac) const override;
 
     //! Get the array of non-dimensional molality-based activity coefficients at
     //! the current solution temperature, pressure, and solution concentration.
@@ -519,7 +519,7 @@ public:
      * @param acMolality Vector of Molality-based activity coefficients
      *                   Length: m_kk
      */
-    virtual void getMolalityActivityCoefficients(double* acMolality) const;
+    void getMolalityActivityCoefficients(double* acMolality) const override;
 
     //! @}
     //! @name Partial Molar Properties of the Solution
@@ -538,7 +538,7 @@ public:
      * @param mu  Output vector of species chemical
      *            potentials. Length: m_kk. Units: J/kmol
      */
-    virtual void getChemPotentials(double* mu) const;
+    void getChemPotentials(double* mu) const override;
 
     //! Returns an array of partial molar enthalpies for the species
     //! in the mixture. Units (J/kmol)
@@ -561,7 +561,7 @@ public:
      * @param hbar    Output vector of species partial molar enthalpies.
      *                Length: m_kk. units are J/kmol.
      */
-    virtual void getPartialMolarEnthalpies(double* hbar) const;
+    void getPartialMolarEnthalpies(double* hbar) const override;
 
     //! Returns an array of partial molar entropies of the species in the
     //! solution. Units: J/kmol/K.
@@ -591,9 +591,9 @@ public:
      *  @param sbar    Output vector of species partial molar entropies.
      *                 Length = m_kk. units are J/kmol/K.
      */
-    virtual void getPartialMolarEntropies(double* sbar) const;
+    void getPartialMolarEntropies(double* sbar) const override;
 
-    virtual void getPartialMolarCp(double* cpbar) const;
+    void getPartialMolarCp(double* cpbar) const override;
 
     //! Return an array of partial molar volumes for the species in the mixture.
     //! Units: m^3/kmol.
@@ -611,7 +611,7 @@ public:
      *  @param vbar   Output vector of species partial molar volumes.
      *                Length = m_kk. units are m^3/kmol.
      */
-    virtual void getPartialMolarVolumes(double* vbar) const;
+    void getPartialMolarVolumes(double* vbar) const override;
 
     //! @}
 
@@ -619,10 +619,10 @@ public:
      *  -------------- Utilities -------------------------------
      */
 
-    virtual bool addSpecies(shared_ptr<Species> spec);
-    virtual void initThermo();
-    virtual void getParameters(AnyMap& phaseNode) const;
-    virtual void getSpeciesParameters(const string& name, AnyMap& speciesNode) const;
+    bool addSpecies(shared_ptr<Species> spec) override;
+    void initThermo() override;
+    void getParameters(AnyMap& phaseNode) const override;
+    void getSpeciesParameters(const string& name, AnyMap& speciesNode) const override;
 
     //! Return the Debye Huckel constant as a function of temperature
     //! and pressure (Units = sqrt(kg/gmol))

@@ -48,16 +48,16 @@ public:
     //! Constructor.
     VPStandardStateTP();
 
-    virtual ~VPStandardStateTP();
+    ~VPStandardStateTP() override;
 
-    virtual bool isCompressible() const {
+    bool isCompressible() const override {
         return false;
     }
 
     //! @name  Utilities (VPStandardStateTP)
     //! @{
 
-    virtual int standardStateConvention() const;
+    int standardStateConvention() const override;
 
     //! @}
     //! @name  Partial Molar Properties of the Solution (VPStandardStateTP)
@@ -74,7 +74,7 @@ public:
      *              Length: m_kk.
      * @deprecated To be removed after %Cantera 3.0. Use getChemPotentials() instead.
      */
-    virtual void getChemPotentials_RT(double* mu) const;
+    void getChemPotentials_RT(double* mu) const override;
 
     //! @}
     //! @name  Properties of the Standard State of the Species in the Solution
@@ -85,14 +85,14 @@ public:
     //! recalculated unless the temperature or pressure changes.
     //! @{
 
-    virtual void getStandardChemPotentials(double* mu) const;
-    virtual void getEnthalpy_RT(double* hrt) const;
-    virtual void getEntropy_R(double* sr) const;
-    virtual void getGibbs_RT(double* grt) const;
-    virtual void getPureGibbs(double* gpure) const;
-    virtual void getIntEnergy_RT(double* urt) const;
-    virtual void getCp_R(double* cpr) const;
-    virtual void getStandardVolumes(double* vol) const;
+    void getStandardChemPotentials(double* mu) const override;
+    void getEnthalpy_RT(double* hrt) const override;
+    void getEntropy_R(double* sr) const override;
+    void getGibbs_RT(double* grt) const override;
+    void getPureGibbs(double* gpure) const override;
+    void getIntEnergy_RT(double* urt) const override;
+    void getCp_R(double* cpr) const override;
+    void getStandardVolumes(double* vol) const override;
     virtual const vector<double>& getStandardVolumes() const;
     //! @}
 
@@ -103,7 +103,7 @@ public:
      *
      * @param temp  Temperature (kelvin)
      */
-    virtual void setTemperature(const double temp);
+    void setTemperature(const double temp) override;
 
     //! Set the internally stored pressure (Pa) at constant temperature and
     //! composition
@@ -113,7 +113,7 @@ public:
      *
      *  @param p input Pressure (Pa)
      */
-    virtual void setPressure(double p);
+    void setPressure(double p) override;
 
     //! Set the temperature and pressure at the same time
     /*!
@@ -123,7 +123,7 @@ public:
      *  @param T  temperature (kelvin)
      *  @param pres pressure (pascal)
      */
-    virtual void setState_TP(double T, double pres);
+    void setState_TP(double T, double pres) override;
 
     //! Returns the current pressure of the phase
     /*!
@@ -132,7 +132,7 @@ public:
      *
      * @returns the pressure in pascals.
      */
-    virtual double pressure() const {
+    double pressure() const override {
         return m_Pcurrent;
     }
 
@@ -157,8 +157,8 @@ public:
      */
     virtual void updateStandardStateThermo() const;
 
-    virtual double minTemp(size_t k=npos) const;
-    virtual double maxTemp(size_t k=npos) const;
+    double minTemp(size_t k=npos) const override;
+    double maxTemp(size_t k=npos) const override;
 
 
 protected:
@@ -216,17 +216,17 @@ public:
     //! routine _updateRefStateThermo().
     //! @{
 
-    virtual void getEnthalpy_RT_ref(double* hrt) const;
-    virtual void getGibbs_RT_ref(double* grt) const;
+    void getEnthalpy_RT_ref(double* hrt) const override;
+    void getGibbs_RT_ref(double* grt) const override;
 
 protected:
     const vector<double>& Gibbs_RT_ref() const;
 
 public:
-    virtual void getGibbs_ref(double* g) const;
-    virtual void getEntropy_R_ref(double* er) const;
-    virtual void getCp_R_ref(double* cprt) const;
-    virtual void getStandardVolumes_ref(double* vol) const;
+    void getGibbs_ref(double* g) const override;
+    void getEntropy_R_ref(double* er) const override;
+    void getCp_R_ref(double* cprt) const override;
+    void getStandardVolumes_ref(double* vol) const override;
 
     //! @}
     //! @name Initialization Methods - For Internal use
@@ -237,12 +237,11 @@ public:
     //! To see how they are used, see importPhase().
     //! @{
 
-    virtual void initThermo();
-    virtual void getSpeciesParameters(const string& name,
-                                      AnyMap& speciesNode) const;
+    void initThermo() override;
+    void getSpeciesParameters(const string& name, AnyMap& speciesNode) const override;
 
     using Phase::addSpecies;
-    virtual bool addSpecies(shared_ptr<Species> spec);
+    bool addSpecies(shared_ptr<Species> spec) override;
 
     //! Install a PDSS object for species *k*
     void installPDSS(size_t k, unique_ptr<PDSS>&& pdss);
@@ -252,7 +251,7 @@ public:
     const PDSS* providePDSS(size_t k) const;
 
 protected:
-    virtual void invalidateCache();
+    void invalidateCache() override;
 
     //! Current value of the pressure - state variable
     /*!

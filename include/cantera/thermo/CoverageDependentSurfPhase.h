@@ -220,7 +220,7 @@ public:
     explicit CoverageDependentSurfPhase(const string& infile="",
                                         const string& id="");
 
-    virtual string type() const {
+    string type() const override {
         return "coverage-dependent-surface";
     }
 
@@ -230,21 +230,20 @@ public:
      */
     void addInterpolativeDependency(const InterpolativeDependency& int_deps);
 
-    virtual void initThermo();
-    virtual bool addSpecies(shared_ptr<Species> spec);
-    virtual void getParameters(AnyMap& phaseNode) const;
-    virtual void getSpeciesParameters(const string& name,
-                                      AnyMap& speciesNode) const;
+    void initThermo() override;
+    bool addSpecies(shared_ptr<Species> spec) override;
+    void getParameters(AnyMap& phaseNode) const override;
+    void getSpeciesParameters(const string& name, AnyMap& speciesNode) const override;
 
     //! @name Methods calculating reference state thermodynamic properties
     //! Reference state properties are evaluated at @f$ T \text{ and }
     //! \theta^{ref} @f$. With coverage fixed at a reference value,
     //! reference state properties are effectively only dependent on temperature.
     //! @{
-    virtual void getEnthalpy_RT_ref(double* hrt) const;
-    virtual void getEntropy_R_ref(double* sr) const;
-    virtual void getCp_R_ref(double* cpr) const;
-    virtual void getGibbs_RT_ref(double* grt) const;
+    void getEnthalpy_RT_ref(double* hrt) const override;
+    void getEntropy_R_ref(double* sr) const override;
+    void getCp_R_ref(double* cpr) const override;
+    void getGibbs_RT_ref(double* grt) const override;
     //! @}
 
     //! @name Methods calculating standard state thermodynamic properties
@@ -260,7 +259,7 @@ public:
      *            + \int_{298}^{T} c^{cov}_{p,k}(T,\theta)dT}{RT}
      * @f]
      */
-    virtual void getEnthalpy_RT(double* hrt) const;
+    void getEnthalpy_RT(double* hrt) const override;
 
     //! Get the nondimensionalized standard state entropy vector.
     /*!
@@ -271,7 +270,7 @@ public:
      *            - \ln\left(\frac{1}{\theta_{ref}}\right)
      * @f]
      */
-    virtual void getEntropy_R(double* sr) const;
+    void getEntropy_R(double* sr) const override;
 
     //! Get the nondimensionalized standard state heat capacity vector.
     /*!
@@ -280,7 +279,7 @@ public:
      *          = \frac{c^{ref}_{p,k}(T) + c^{cov}_{p,k}(T,\theta)}{RT}
      * @f]
      */
-    virtual void getCp_R(double* cpr) const;
+    void getCp_R(double* cpr) const override;
 
     //! Get the nondimensionalized standard state gibbs free energy vector.
     /*!
@@ -289,7 +288,7 @@ public:
      *          = \frac{h^o_k(T,\theta)}{RT} + \frac{s^o_k(T,\theta)}{R}
      * @f]
      */
-    virtual void getGibbs_RT(double* grt) const;
+    void getGibbs_RT(double* grt) const override;
 
     //! Get the standard state gibbs free energy vector. Units: J/kmol.
     /*!
@@ -297,7 +296,7 @@ public:
      *      g^o_k(T,\theta) = h^o_k(T,\theta) + Ts^o_k(T,\theta)
      * @f]
      */
-    virtual void getPureGibbs(double* g) const;
+    void getPureGibbs(double* g) const override;
 
     //! Get the standard state chemical potential vector. Units: J/kmol.
     /*!
@@ -305,7 +304,7 @@ public:
      *      \mu^o_k(T,\theta) = h^o_k(T,\theta) + Ts^o_k(T,\theta)
      * @f]
      */
-    virtual void getStandardChemPotentials(double* mu0) const;
+    void getStandardChemPotentials(double* mu0) const override;
     //! @}
 
     //! @name Methods calculating partial molar thermodynamic properties
@@ -319,7 +318,7 @@ public:
      *      \tilde{h}_k(T,\theta) = h^o_k(T,\theta)
      * @f]
      */
-    virtual void getPartialMolarEnthalpies(double* hbar) const;
+    void getPartialMolarEnthalpies(double* hbar) const override;
 
     //! Get the partial molar entropy vector. Units: J/kmol/K.
     /*!
@@ -327,7 +326,7 @@ public:
      *      \tilde{s}_k(T,\theta) = s^o_k(T,\theta) - R\ln(\theta_k)
      * @f]
      */
-    virtual void getPartialMolarEntropies(double* sbar) const;
+    void getPartialMolarEntropies(double* sbar) const override;
 
     //! Get the partial molar heat capacity vector. Units: J/kmol/K.
     /*!
@@ -335,7 +334,7 @@ public:
      *      \tilde{c}_{p,k}(T,\theta) = c^o_{p,k}(T,\theta)
      * @f]
      */
-    virtual void getPartialMolarCp(double* cpbar) const;
+    void getPartialMolarCp(double* cpbar) const override;
 
     //! Get the chemical potential vector. Units: J/kmol.
     /*!
@@ -343,7 +342,7 @@ public:
      *      \mu_k(T,\theta) = \mu^o_k(T,\theta) + RT\ln(\theta_k)
      * @f]
      */
-    virtual void getChemPotentials(double* mu) const;
+    void getChemPotentials(double* mu) const override;
     //! @}
 
     //! @name Methods calculating Phase thermodynamic properties
@@ -358,7 +357,7 @@ public:
      *      \hat h(T,\theta) = \sum_k \theta_k \tilde{h}_k(T,\theta)
      * @f]
      */
-    virtual double enthalpy_mole() const;
+    double enthalpy_mole() const override;
 
     //! Return the solution's molar entropy. Units: J/kmol/K
     /*!
@@ -366,7 +365,7 @@ public:
      *      \hat s(T,\theta) = \sum_k \theta_k \tilde{s}_k(T,\theta)
      * @f]
      */
-    virtual double entropy_mole() const;
+    double entropy_mole() const override;
 
     //! Return the solution's molar heat capacity. Units: J/kmol/K
     /*!
@@ -374,7 +373,7 @@ public:
      *      \hat{c_p}(T,\theta) = \sum_k \theta_k \tilde{c_p}_k(T,\theta)
      * @f]
      */
-    virtual double cp_mole() const;
+    double cp_mole() const override;
     //! @}
 
 protected:

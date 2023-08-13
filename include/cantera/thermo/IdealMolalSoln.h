@@ -78,11 +78,11 @@ public:
      */
     explicit IdealMolalSoln(const string& inputFile="", const string& id="");
 
-    virtual string type() const {
+    string type() const override {
         return "ideal-molal-solution";
     }
 
-    virtual bool isIdeal() const {
+    bool isIdeal() const override {
         return true;
     }
 
@@ -103,7 +103,7 @@ public:
      *
      * Units: J/kmol
      */
-    virtual double enthalpy_mole() const;
+    double enthalpy_mole() const override;
 
     //! Molar internal energy of the solution: Units: J/kmol.
     /*!
@@ -115,7 +115,7 @@ public:
      * The formula is written in terms of the partial molar internal energy.
      * @f$ \bar{u}_k(T, p, m_k) @f$.
      */
-    virtual double intEnergy_mole() const;
+    double intEnergy_mole() const override;
 
     //! Molar entropy of the solution. Units: J/kmol/K.
     /*!
@@ -131,7 +131,7 @@ public:
      *
      * Units: J/kmol/K.
      */
-    virtual double entropy_mole() const;
+    double entropy_mole() const override;
 
     //! Molar Gibbs function for the solution: Units J/kmol.
     /*!
@@ -143,7 +143,7 @@ public:
      *
      * Units: J/kmol
      */
-    virtual double gibbs_mole() const;
+    double gibbs_mole() const override;
 
     //! Molar heat capacity of the solution at constant pressure. Units: J/kmol/K.
     /*!
@@ -153,7 +153,7 @@ public:
      *
      * Units: J/kmol/K
      */
-    virtual double cp_mole() const;
+    double cp_mole() const override;
 
     //! @}
     //! @name Mechanical Equation of State Properties
@@ -166,25 +166,7 @@ public:
     //! @{
 
 protected:
-    /**
-     * Calculate the density of the mixture using the partial molar volumes and
-     * mole fractions as input
-     *
-     * The formula for this is
-     *
-     * @f[
-     * \rho = \frac{\sum_k{X_k W_k}}{\sum_k{X_k V_k}}
-     * @f]
-     *
-     * where @f$ X_k @f$ are the mole fractions, @f$ W_k @f$ are the molecular
-     * weights, and @f$ V_k @f$ are the pure species molar volumes.
-     *
-     * Note, the basis behind this formula is that in an ideal solution the
-     * partial molar volumes are equal to the pure species molar volumes. We
-     * have additionally specified in this class that the pure species molar
-     * volumes are independent of temperature and pressure.
-     */
-    void calcDensity();
+    void calcDensity() override;
 
 public:
     //! The isothermal compressibility. Units: 1/Pa.
@@ -197,7 +179,7 @@ public:
      * It's equal to zero for this model, since the molar volume doesn't change
      * with pressure or temperature.
      */
-    virtual double isothermalCompressibility() const;
+    double isothermalCompressibility() const override;
 
     //! The thermal expansion coefficient. Units: 1/K.
     /*!
@@ -210,7 +192,7 @@ public:
      * It's equal to zero for this model, since the molar volume doesn't change
      * with pressure or temperature.
      */
-    virtual double thermalExpansionCoeff() const;
+    double thermalExpansionCoeff() const override;
 
     //! @}
     //! @name Activities and Activity Concentrations
@@ -221,9 +203,9 @@ public:
     //! which depends only on temperature and the pressure.
     //! @{
 
-    virtual Units standardConcentrationUnits() const;
-    virtual void getActivityConcentrations(double* c) const;
-    virtual double standardConcentration(size_t k=0) const;
+    Units standardConcentrationUnits() const override;
+    void getActivityConcentrations(double* c) const override;
+    double standardConcentration(size_t k=0) const override;
 
     /**
      * Get the array of non-dimensional activities at the current solution
@@ -233,7 +215,7 @@ public:
      *
      * @param ac      Output activity coefficients. Length: m_kk.
      */
-    virtual void getActivities(double* ac) const;
+    void getActivities(double* ac) const override;
 
     /**
      * Get the array of non-dimensional molality-based activity coefficients at
@@ -245,7 +227,7 @@ public:
      * @param acMolality      Output Molality-based activity coefficients.
      *                        Length: m_kk.
      */
-    virtual void getMolalityActivityCoefficients(double* acMolality) const;
+    void getMolalityActivityCoefficients(double* acMolality) const override;
 
     //! @}
     //! @name  Partial Molar Properties of the Solution
@@ -273,7 +255,7 @@ public:
      *
      * @param mu     Output vector of species chemical potentials. Length: m_kk.
      */
-    virtual void getChemPotentials(double* mu) const;
+    void getChemPotentials(double* mu) const override;
 
     //! Returns an array of partial molar enthalpies for the species in the
     //! mixture.
@@ -292,7 +274,7 @@ public:
      * @param hbar   Output vector of partial molar enthalpies.
      *               Length: m_kk.
      */
-    virtual void getPartialMolarEnthalpies(double* hbar) const;
+    void getPartialMolarEnthalpies(double* hbar) const override;
 
     //! Returns an array of partial molar internal energies for the species in the
     //! mixture.
@@ -305,7 +287,7 @@ public:
      * @f]
      * @param hbar   Output vector of partial molar internal energies, length #m_kk
      */
-    virtual void getPartialMolarIntEnergies(double* hbar) const;
+    void getPartialMolarIntEnergies(double* hbar) const override;
 
     //! Returns an array of partial molar entropies of the species in the
     //! solution. Units: J/kmol.
@@ -335,7 +317,7 @@ public:
      * @param sbar Output vector of partial molar entropies.
      *             Length: m_kk.
      */
-    virtual void getPartialMolarEntropies(double* sbar) const;
+    void getPartialMolarEntropies(double* sbar) const override;
 
     // partial molar volumes of the species Units: m^3 kmol-1.
     /*!
@@ -345,7 +327,7 @@ public:
      * Units: m^3 kmol-1.
      *  @param vbar Output vector of partial molar volumes.
      */
-    virtual void getPartialMolarVolumes(double* vbar) const;
+    void getPartialMolarVolumes(double* vbar) const override;
 
     //! Partial molar heat capacity of the solution:. UnitsL J/kmol/K
     /*!
@@ -363,17 +345,17 @@ public:
      * @param cpbar  Output vector of partial molar heat capacities.
      *               Length: m_kk.
      */
-    virtual void getPartialMolarCp(double* cpbar) const;
+    void getPartialMolarCp(double* cpbar) const override;
 
     //! @}
 
     // -------------- Utilities -------------------------------
 
-    virtual bool addSpecies(shared_ptr<Species> spec);
+    bool addSpecies(shared_ptr<Species> spec) override;
 
-    virtual void initThermo();
+    void initThermo() override;
 
-    virtual void getParameters(AnyMap& phaseNode) const;
+    void getParameters(AnyMap& phaseNode) const override;
 
     //! Set the standard concentration model.
     /*!

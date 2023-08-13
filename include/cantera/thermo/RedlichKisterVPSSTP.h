@@ -241,17 +241,17 @@ public:
      */
     explicit RedlichKisterVPSSTP(const string& inputFile="", const string& id="");
 
-    virtual string type() const {
+    string type() const override {
         return "Redlich-Kister";
     }
 
     //! @name  Molar Thermodynamic Properties
     //! @{
 
-    virtual double enthalpy_mole() const;
-    virtual double entropy_mole() const;
-    virtual double cp_mole() const;
-    virtual double cv_mole() const;
+    double enthalpy_mole() const override;
+    double entropy_mole() const override;
+    double cp_mole() const override;
+    double cv_mole() const override;
 
     //! @}
     //! @name Activities, Standard States, and Activity Concentrations
@@ -263,13 +263,13 @@ public:
     //! on temperature and pressure.
     //! @{
 
-    virtual void getLnActivityCoefficients(double* lnac) const;
+    void getLnActivityCoefficients(double* lnac) const override;
 
     //! @}
     //! @name  Partial Molar Properties of the Solution
     //! @{
 
-    virtual void getChemPotentials(double* mu) const;
+    void getChemPotentials(double* mu) const override;
 
     //! Returns an array of partial molar enthalpies for the species in the
     //! mixture.
@@ -287,7 +287,7 @@ public:
      * @param hbar  Vector of returned partial molar enthalpies
      *              (length m_kk, units = J/kmol)
      */
-    virtual void getPartialMolarEnthalpies(double* hbar) const;
+    void getPartialMolarEnthalpies(double* hbar) const override;
 
     //! Returns an array of partial molar entropies for the species in the
     //! mixture.
@@ -304,7 +304,7 @@ public:
      * @param sbar  Vector of returned partial molar entropies
      *              (length m_kk, units = J/kmol/K)
      */
-    virtual void getPartialMolarEntropies(double* sbar) const;
+    void getPartialMolarEntropies(double* sbar) const override;
 
     //! Returns an array of partial molar heat capacities for the species in the
     //! mixture.
@@ -321,9 +321,9 @@ public:
      * @param cpbar  Vector of returned partial molar heat capacities
      *              (length m_kk, units = J/kmol/K)
      */
-    virtual void getPartialMolarCp(double* cpbar) const;
+    void getPartialMolarCp(double* cpbar) const override;
 
-    virtual void getPartialMolarVolumes(double* vbar) const;
+    void getPartialMolarVolumes(double* vbar) const override;
     //! @}
 
     //! Get the array of temperature second derivatives of the log activity
@@ -334,9 +334,9 @@ public:
      * @param d2lnActCoeffdT2  Output vector of temperature 2nd derivatives of
      *                         the log Activity Coefficients. length = m_kk
      */
-    virtual void getd2lnActCoeffdT2(double* d2lnActCoeffdT2) const;
+    void getd2lnActCoeffdT2(double* d2lnActCoeffdT2) const;
 
-    virtual void getdlnActCoeffdT(double* dlnActCoeffdT) const;
+    void getdlnActCoeffdT(double* dlnActCoeffdT) const override;
 
     //! @name Initialization
     //!
@@ -345,8 +345,8 @@ public:
     //! input file. They are not normally used in application programs.
     //! To see how they are used, see importPhase().
 
-    virtual void initThermo();
-    virtual void getParameters(AnyMap& phaseNode) const;
+    void initThermo() override;
+    void getParameters(AnyMap& phaseNode) const override;
 
     //! Add a binary species interaction with the specified parameters
     /*!
@@ -364,11 +364,11 @@ public:
     //! @name  Derivatives of Thermodynamic Variables needed for Applications
     //! @{
 
-    virtual void getdlnActCoeffds(const double dTds, const double* const dXds,
-                                  double* dlnActCoeffds) const;
-    virtual void getdlnActCoeffdlnX_diag(double* dlnActCoeffdlnX_diag) const;
-    virtual void getdlnActCoeffdlnN_diag(double* dlnActCoeffdlnN_diag) const;
-    virtual void getdlnActCoeffdlnN(const size_t ld, double* const dlnActCoeffdlnN);
+    void getdlnActCoeffds(const double dTds, const double* const dXds,
+                          double* dlnActCoeffds) const override;
+    void getdlnActCoeffdlnX_diag(double* dlnActCoeffdlnX_diag) const override;
+    void getdlnActCoeffdlnN_diag(double* dlnActCoeffdlnN_diag) const override;
+    void getdlnActCoeffdlnN(const size_t ld, double* const dlnActCoeffdlnN) override;
     //! @}
 
 private:

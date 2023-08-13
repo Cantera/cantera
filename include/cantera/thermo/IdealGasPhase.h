@@ -260,11 +260,11 @@ public:
      */
     explicit IdealGasPhase(const string& inputFile="", const string& id="");
 
-    virtual string type() const {
+    string type() const override {
         return "ideal-gas";
     }
 
-    virtual bool isIdeal() const {
+    bool isIdeal() const override {
         return true;
     }
 
@@ -272,7 +272,7 @@ public:
     /*!
      * For the `IdealGasPhase`, this string is always `gas`.
      */
-    virtual string phaseOfMatter() const {
+    string phaseOfMatter() const override {
         return "gas";
     }
 
@@ -291,7 +291,7 @@ public:
      *
      * \see MultiSpeciesThermo
      */
-    virtual double enthalpy_mole() const {
+    double enthalpy_mole() const override {
         return RT() * mean_X(enthalpy_RT_ref());
     }
 
@@ -305,7 +305,7 @@ public:
      * computed by the species thermodynamic property manager.
      * @see MultiSpeciesThermo
      */
-    virtual double entropy_mole() const;
+    double entropy_mole() const override;
 
     /**
      * Molar heat capacity at constant pressure. Units: J/kmol/K.
@@ -317,14 +317,14 @@ public:
      * are computed by the species thermodynamic property manager.
      * @see MultiSpeciesThermo
      */
-    virtual double cp_mole() const;
+    double cp_mole() const override;
 
     /**
      * Molar heat capacity at constant volume. Units: J/kmol/K.
      * For an ideal gas mixture,
      * @f[ \hat c_v = \hat c_p - \hat R. @f]
      */
-    virtual double cv_mole() const;
+    double cv_mole() const override;
 
     //! @}
     //! @name Mechanical Equation of State
@@ -335,7 +335,7 @@ public:
      * For an ideal gas mixture,
      * @f[ P = n \hat R T. @f]
      */
-    virtual double pressure() const {
+    double pressure() const override {
         return GasConstant * molarDensity() * temperature();
     }
 
@@ -349,7 +349,7 @@ public:
      *
      * @param p Pressure (Pa)
      */
-    virtual void setPressure(double p) {
+    void setPressure(double p) override {
         setDensity(p * meanMolecularWeight() / RT());
     }
 
@@ -366,8 +366,7 @@ public:
      * @param p Pressure (Pa)
      * @since New in %Cantera 3.0.
      */
-    virtual void setState_DP(double rho, double p)
-    {
+    void setState_DP(double rho, double p) override {
         if (p <= 0) {
             throw CanteraError("IdealGasPhase::setState_DP",
                                "pressure must be positive");
@@ -384,7 +383,7 @@ public:
      * @f]
      *  For ideal gases it's equal to the inverse of the pressure
      */
-    virtual double isothermalCompressibility() const {
+    double isothermalCompressibility() const override {
         return 1.0 / pressure();
     }
 
@@ -396,11 +395,11 @@ public:
      * @f]
      * For ideal gases, it's equal to the inverse of the temperature.
      */
-    virtual double thermalExpansionCoeff() const {
+    double thermalExpansionCoeff() const override {
         return 1.0 / temperature();
     }
 
-    virtual double soundSpeed() const;
+    double soundSpeed() const override;
 
     //! @}
     //! @name Chemical Potentials and Activities
@@ -439,7 +438,7 @@ public:
      *           upon the implementation of the reaction rate expressions within
      *           the phase.
      */
-    virtual void getActivityConcentrations(double* c) const {
+    void getActivityConcentrations(double* c) const override {
         getConcentrations(c);
     }
 
@@ -457,7 +456,7 @@ public:
      * @return
      *   Returns the standard Concentration in units of m3 kmol-1.
      */
-    virtual double standardConcentration(size_t k = 0) const;
+    double standardConcentration(size_t k=0) const override;
 
     //! Get the array of non-dimensional activity coefficients at the current
     //! solution temperature, pressure, and solution concentration.
@@ -466,43 +465,43 @@ public:
      *
      * @param ac Output vector of activity coefficients. Length: m_kk.
      */
-    virtual void getActivityCoefficients(double* ac) const;
+    void getActivityCoefficients(double* ac) const override;
 
     //! @}
     //! @name Partial Molar Properties of the Solution
     //! @{
 
-    virtual void getChemPotentials(double* mu) const;
-    virtual void getPartialMolarEnthalpies(double* hbar) const;
-    virtual void getPartialMolarEntropies(double* sbar) const;
-    virtual void getPartialMolarIntEnergies(double* ubar) const;
-    virtual void getPartialMolarCp(double* cpbar) const;
-    virtual void getPartialMolarVolumes(double* vbar) const;
+    void getChemPotentials(double* mu) const override;
+    void getPartialMolarEnthalpies(double* hbar) const override;
+    void getPartialMolarEntropies(double* sbar) const override;
+    void getPartialMolarIntEnergies(double* ubar) const override;
+    void getPartialMolarCp(double* cpbar) const override;
+    void getPartialMolarVolumes(double* vbar) const override;
 
     //! @}
     //! @name  Properties of the Standard State of the Species in the Solution
     //! @{
 
-    virtual void getStandardChemPotentials(double* mu) const;
-    virtual void getEnthalpy_RT(double* hrt) const;
-    virtual void getEntropy_R(double* sr) const;
-    virtual void getGibbs_RT(double* grt) const;
-    virtual void getPureGibbs(double* gpure) const;
-    virtual void getIntEnergy_RT(double* urt) const;
-    virtual void getCp_R(double* cpr) const;
-    virtual void getStandardVolumes(double* vol) const;
+    void getStandardChemPotentials(double* mu) const override;
+    void getEnthalpy_RT(double* hrt) const override;
+    void getEntropy_R(double* sr) const override;
+    void getGibbs_RT(double* grt) const override;
+    void getPureGibbs(double* gpure) const override;
+    void getIntEnergy_RT(double* urt) const override;
+    void getCp_R(double* cpr) const override;
+    void getStandardVolumes(double* vol) const override;
 
     //! @}
     //! @name Thermodynamic Values for the Species Reference States
     //! @{
 
-    virtual void getEnthalpy_RT_ref(double* hrt) const;
-    virtual void getGibbs_RT_ref(double* grt) const;
-    virtual void getGibbs_ref(double* g) const;
-    virtual void getEntropy_R_ref(double* er) const;
-    virtual void getIntEnergy_RT_ref(double* urt) const;
-    virtual void getCp_R_ref(double* cprt) const;
-    virtual void getStandardVolumes_ref(double* vol) const;
+    void getEnthalpy_RT_ref(double* hrt) const override;
+    void getGibbs_RT_ref(double* grt) const override;
+    void getGibbs_ref(double* g) const override;
+    void getEntropy_R_ref(double* er) const override;
+    void getIntEnergy_RT_ref(double* urt) const override;
+    void getCp_R_ref(double* cprt) const override;
+    void getStandardVolumes_ref(double* vol) const override;
 
     //! @}
     //! @name NonVirtual Internal methods to Return References to Reference State Thermo
@@ -550,8 +549,8 @@ public:
 
     //! @}
 
-    virtual bool addSpecies(shared_ptr<Species> spec);
-    virtual void setToEquilState(const double* mu_RT);
+    bool addSpecies(shared_ptr<Species> spec) override;
+    void setToEquilState(const double* mu_RT) override;
 
 protected:
     //! Reference state pressure
