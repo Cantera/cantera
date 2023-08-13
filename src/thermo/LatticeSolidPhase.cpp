@@ -32,10 +32,9 @@ double LatticeSolidPhase::minTemp(size_t k) const
             }
         }
     }
-    double mm = 1.0E300;
-    for (size_t n = 0; n < m_lattice.size(); n++) {
-        double ml = m_lattice[n]->minTemp();
-        mm = std::min(mm, ml);
+    double mm = 0;
+    for (auto& lattice : m_lattice) {
+        mm = std::max(mm, lattice->minTemp());
     }
     return mm;
 }
@@ -49,10 +48,9 @@ double LatticeSolidPhase::maxTemp(size_t k) const
             }
         }
     }
-    double mm = -1.0E300;
-    for (size_t n = 0; n < m_lattice.size(); n++) {
-        double ml = m_lattice[n]->maxTemp();
-        mm = std::max(mm, ml);
+    double mm = BigNumber;
+    for (auto& lattice : m_lattice) {
+        mm = std::min(mm, lattice->maxTemp());
     }
     return mm;
 }
