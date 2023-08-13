@@ -148,7 +148,7 @@ void Inlet1D::init()
     // Note that an inlet object can only be a terminal object - it cannot have
     // flows on both the left and right
     if (m_flow_left && !m_flow_right) {
-        if (!m_flow_left->usesLambda()) {
+        if (!m_flow_left->isStrained()) {
             throw CanteraError("Inlet1D::init",
                 "Right inlets with right-to-left flow are only supported for "
                 "strained flow configurations.");
@@ -201,7 +201,7 @@ void Inlet1D::eval(size_t jg, double* xg, double* rg,
             // Set mdot equal to rho*u, and also set lambda to zero.
             m_mdot = m_flow->density(0) * xb[c_offset_U];
             rb[c_offset_L] = xb[c_offset_L];
-        } else if (m_flow->usesLambda()) {
+        } else if (m_flow->isStrained()) {
             // The flow domain sets this to -rho*u. Add mdot to specify the mass
             // flow rate
             rb[c_offset_L] += m_mdot;
