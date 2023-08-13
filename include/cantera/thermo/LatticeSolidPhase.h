@@ -284,20 +284,13 @@ public:
      *
      * @param x On return, x contains the mole fractions. Must have a length
      *          greater than or equal to the number of species.
+     *
+     * @todo This method shadows but does not override Phase::getMoleFractions(). The
+     *       LatticeSolidPhase class should be revised to avoid needing to override the
+     *       methods for getting composition. See
+     *       https://github.com/Cantera/cantera/issues/1310 for additional information.
      */
-    virtual void getMoleFractions(double* const x) const;
-
-    virtual double moleFraction(const int k) const {
-        throw NotImplementedError("LatticeSolidPhase::moleFraction");
-    }
-
-    virtual void getMassFractions(double* const y) const {
-        throw NotImplementedError("LatticeSolidPhase::getMassFractions");
-    }
-
-    virtual double massFraction(const int k) const {
-        throw NotImplementedError("LatticeSolidPhase::massFraction");
-    }
+    void getMoleFractions(double* const x) const;
 
     virtual void setMassFractions(const double* const y) {
         throw NotImplementedError("LatticeSolidPhase::setMassFractions");
