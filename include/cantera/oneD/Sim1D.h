@@ -333,7 +333,7 @@ public:
      */
     void solveAdjoint(const double* b, double* lambda);
 
-    virtual void resize();
+    void resize() override;
 
     //! Set a function that will be called after each successful steady-state
     //! solve, before regridding. Intended to be used for observing solver

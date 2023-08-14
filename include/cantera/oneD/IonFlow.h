@@ -40,21 +40,21 @@ public:
     //! @param points  initial number of grid points
     IonFlow(shared_ptr<Solution> sol, const string& id="", size_t points = 1);
 
-    virtual string type() const;
+    string type() const override;
 
-    virtual size_t getSolvingStage() const {
+    size_t getSolvingStage() const override {
         return m_stage;
     }
-    virtual void setSolvingStage(const size_t stage);
+    void setSolvingStage(const size_t stage) override;
 
-    virtual void resize(size_t components, size_t points);
-    virtual bool componentActive(size_t n) const;
+    void resize(size_t components, size_t points) override;
+    bool componentActive(size_t n) const override;
 
-    virtual void _finalize(const double* x);
+    void _finalize(const double* x) override;
 
-    virtual void solveElectricField(size_t j=npos);
-    virtual void fixElectricField(size_t j=npos);
-    virtual bool doElectricField(size_t j) const {
+    void solveElectricField(size_t j=npos) override;
+    void fixElectricField(size_t j=npos) override;
+    bool doElectricField(size_t j) const override {
         return m_do_electric_field[j];
     }
 
@@ -78,15 +78,15 @@ protected:
      * This function overloads the original function. The residual function
      * of electric field is added.
      */
-    virtual void evalResidual(double* x, double* rsd, int* diag,
-                              double rdt, size_t jmin, size_t jmax);
-    virtual void updateTransport(double* x, size_t j0, size_t j1);
-    virtual void updateDiffFluxes(const double* x, size_t j0, size_t j1);
+    void evalResidual(double* x, double* rsd, int* diag,
+                      double rdt, size_t jmin, size_t jmax) override;
+    void updateTransport(double* x, size_t j0, size_t j1) override;
+    void updateDiffFluxes(const double* x, size_t j0, size_t j1) override;
     //! Solving phase one: the fluxes of charged species are turned off
-    virtual void frozenIonMethod(const double* x, size_t j0, size_t j1);
+    void frozenIonMethod(const double* x, size_t j0, size_t j1);
     //! Solving phase two: the electric field equation is added coupled
     //! by the electrical drift
-    virtual void electricFieldMethod(const double* x, size_t j0, size_t j1);
+    void electricFieldMethod(const double* x, size_t j0, size_t j1);
     //! flag for solving electric field or not
     vector<bool> m_do_electric_field;
 

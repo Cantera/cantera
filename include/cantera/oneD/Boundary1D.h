@@ -41,15 +41,15 @@ class Boundary1D : public Domain1D
 public:
     Boundary1D();
 
-    virtual void init() {
+    void init() override {
         _init(1);
     }
 
-    virtual string type() const {
+    string type() const override {
         return "boundary";
     }
 
-    virtual bool isConnector() {
+    bool isConnector() override {
         return true;
     }
 
@@ -102,9 +102,9 @@ public:
         return m_mdot;
     }
 
-    virtual void setupGrid(size_t n, const double* z) {}
+    void setupGrid(size_t n, const double* z) override {}
 
-    virtual void fromArray(SolutionArray& arr, double* soln);
+    void fromArray(SolutionArray& arr, double* soln) override;
 
 protected:
     void _init(size_t n);
@@ -142,33 +142,31 @@ public:
 
     Inlet1D(shared_ptr<Solution> solution, const string& id="");
 
-    virtual string type() const {
+    string type() const override {
         return "inlet";
     }
 
-    virtual void setSpreadRate(double V0);
+    void setSpreadRate(double V0) override;
 
-    virtual double spreadRate() {
+    double spreadRate() override {
         return m_V0;
     }
 
-    virtual void show(const double* x);
+    void show(const double* x) override;
 
-    virtual size_t nSpecies() {
+    size_t nSpecies() override {
         return m_nsp;
     }
 
-    virtual void setMoleFractions(const string& xin);
-    virtual void setMoleFractions(const double* xin);
-    virtual double massFraction(size_t k) {
+    void setMoleFractions(const string& xin) override;
+    void setMoleFractions(const double* xin) override;
+    double massFraction(size_t k) override {
         return m_yin[k];
     }
-
-    virtual void init();
-    virtual void eval(size_t jg, double* xg, double* rg,
-                      integer* diagg, double rdt);
-    virtual shared_ptr<SolutionArray> asArray(const double* soln) const;
-    virtual void fromArray(SolutionArray& arr, double* soln);
+    void init() override;
+    void eval(size_t jg, double* xg, double* rg, integer* diagg, double rdt) override;
+    shared_ptr<SolutionArray> asArray(const double* soln) const override;
+    void fromArray(SolutionArray& arr, double* soln) override;
 
 protected:
     int m_ilr;
@@ -194,18 +192,17 @@ public:
         m_id = id;
     }
 
-    virtual string type() const {
+    string type() const override {
         return "empty";
     }
 
-    virtual void show(const double* x) {}
+    void show(const double* x) override {}
 
-    virtual void init();
+    void init() override;
 
-    virtual void eval(size_t jg, double* xg, double* rg,
-                      integer* diagg, double rdt);
+    void eval(size_t jg, double* xg, double* rg, integer* diagg, double rdt) override;
 
-    virtual shared_ptr<SolutionArray> asArray(const double* soln) const;
+    shared_ptr<SolutionArray> asArray(const double* soln) const override;
 };
 
 /**
@@ -224,16 +221,15 @@ public:
         m_id = id;
     }
 
-    virtual string type() const {
+    string type() const override {
         return "symmetry-plane";
     }
 
-    virtual void init();
+    void init() override;
 
-    virtual void eval(size_t jg, double* xg, double* rg,
-                      integer* diagg, double rdt);
+    void eval(size_t jg, double* xg, double* rg, integer* diagg, double rdt) override;
 
-    virtual shared_ptr<SolutionArray> asArray(const double* soln) const;
+    shared_ptr<SolutionArray> asArray(const double* soln) const override;
 };
 
 
@@ -253,16 +249,15 @@ public:
         m_id = id;
     }
 
-    virtual string type() const {
+    string type() const override {
         return "outlet";
     }
 
-    virtual void init();
+    void init() override;
 
-    virtual void eval(size_t jg, double* xg, double* rg,
-                      integer* diagg, double rdt);
+    void eval(size_t jg, double* xg, double* rg, integer* diagg, double rdt) override;
 
-    virtual shared_ptr<SolutionArray> asArray(const double* soln) const;
+    shared_ptr<SolutionArray> asArray(const double* soln) const override;
 };
 
 
@@ -277,27 +272,26 @@ public:
 
     OutletRes1D(shared_ptr<Solution> solution, const string& id="");
 
-    virtual string type() const {
+    string type() const override {
         return "outlet-reservoir";
     }
 
-    virtual void show(const double* x) {}
+    void show(const double* x) override {}
 
-    virtual size_t nSpecies() {
+    size_t nSpecies() override {
         return m_nsp;
     }
 
-    virtual void setMoleFractions(const string& xin);
-    virtual void setMoleFractions(const double* xin);
-    virtual double massFraction(size_t k) {
+    void setMoleFractions(const string& xin) override;
+    void setMoleFractions(const double* xin) override;
+    double massFraction(size_t k) override {
         return m_yres[k];
     }
 
-    virtual void init();
-    virtual void eval(size_t jg, double* xg, double* rg,
-                      integer* diagg, double rdt);
-    virtual shared_ptr<SolutionArray> asArray(const double* soln) const;
-    virtual void fromArray(SolutionArray& arr, double* soln);
+    void init() override;
+    void eval(size_t jg, double* xg, double* rg, integer* diagg, double rdt) override;
+    shared_ptr<SolutionArray> asArray(const double* soln) const override;
+    void fromArray(SolutionArray& arr, double* soln) override;
 
 protected:
     size_t m_nsp = 0;
@@ -323,21 +317,20 @@ public:
         m_id = id;
     }
 
-    virtual string type() const {
+    string type() const override {
         return "surface";
     }
 
-    virtual void init();
+    void init() override;
 
-    virtual void eval(size_t jg, double* xg, double* rg,
-                      integer* diagg, double rdt);
+    void eval(size_t jg, double* xg, double* rg, integer* diagg, double rdt) override;
 
-    virtual shared_ptr<SolutionArray> asArray(const double* soln) const;
-    virtual void fromArray(SolutionArray& arr, double* soln);
+    shared_ptr<SolutionArray> asArray(const double* soln) const override;
+    void fromArray(SolutionArray& arr, double* soln) override;
 
-    virtual void show(std::ostream& s, const double* x);
+    void show(std::ostream& s, const double* x) override;
 
-    virtual void show(const double* x);
+    void show(const double* x) override;
 };
 
 /**
@@ -349,11 +342,11 @@ public:
     ReactingSurf1D();
     ReactingSurf1D(shared_ptr<Solution> solution, const string& id="");
 
-    virtual string type() const {
+    string type() const override {
         return "reacting-surface";
     }
 
-    virtual void setKinetics(shared_ptr<Kinetics> kin);
+    void setKinetics(shared_ptr<Kinetics> kin) override;
 
     //! @deprecated To be removed after %Cantera 3.0; replaced by setKinetics()
     void setKineticsMgr(InterfaceKinetics* kin);
@@ -366,26 +359,25 @@ public:
         return m_enabled;
     }
 
-    virtual string componentName(size_t n) const;
+    string componentName(size_t n) const override;
 
-    virtual void init();
-    virtual void resetBadValues(double* xg);
+    void init() override;
+    void resetBadValues(double* xg) override;
 
-    virtual void eval(size_t jg, double* xg, double* rg,
-                      integer* diagg, double rdt);
+    void eval(size_t jg, double* xg, double* rg, integer* diagg, double rdt) override;
 
-    virtual shared_ptr<SolutionArray> asArray(const double* soln) const;
-    virtual void fromArray(SolutionArray& arr, double* soln);
+    shared_ptr<SolutionArray> asArray(const double* soln) const override;
+    void fromArray(SolutionArray& arr, double* soln) override;
 
-    virtual void _getInitialSoln(double* x) {
+    void _getInitialSoln(double* x) override {
         m_sphase->getCoverages(x);
     }
 
-    virtual void _finalize(const double* x) {
+    void _finalize(const double* x) override {
         std::copy(x, x+m_nsp, m_fixed_cov.begin());
     }
 
-    virtual void show(const double* x);
+    void show(const double* x) override;
 
 protected:
     InterfaceKinetics* m_kin = nullptr;
