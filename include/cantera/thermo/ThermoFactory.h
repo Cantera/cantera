@@ -34,7 +34,7 @@ public:
     static ThermoFactory* factory();
 
     //! delete the static instance of this factory
-    virtual void deleteFactory();
+    void deleteFactory() override;
 
     //! Create a new thermodynamic property manager.
     /*!
@@ -43,7 +43,7 @@ public:
      *     CanteraError if the named model isn't registered with ThermoFactory.
      * @deprecated To be removed after %Cantera 3.0; superseded by newThermo()
      */
-    virtual ThermoPhase* newThermoPhase(const string& model);
+    ThermoPhase* newThermoPhase(const string& model);
 
 private:
     //! static member of a single instance

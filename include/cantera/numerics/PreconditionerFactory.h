@@ -20,7 +20,7 @@ public:
     static PreconditionerFactory* factory();
 
     //! Delete preconditioner factory
-    virtual void deleteFactory();
+    void deleteFactory() override;
 
 private:
     static PreconditionerFactory* s_factory;

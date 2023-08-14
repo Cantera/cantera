@@ -41,9 +41,9 @@ public:
 
     void setValue(size_t row, size_t col, double value) override;
 
-    virtual void stateAdjustment(vector<double>& state) override;
+    void stateAdjustment(vector<double>& state) override;
 
-    virtual void updatePreconditioner() override;
+    void updatePreconditioner() override;
 
     //! Prune preconditioner elements
     void prunePreconditioner();

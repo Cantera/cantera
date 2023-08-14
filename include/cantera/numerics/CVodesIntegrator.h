@@ -31,53 +31,53 @@ public:
      *  Jacobian function, Newton iteration.
      */
     CVodesIntegrator();
-    virtual ~CVodesIntegrator();
-    virtual void setTolerances(double reltol, size_t n, double* abstol);
-    virtual void setTolerances(double reltol, double abstol);
-    virtual void setSensitivityTolerances(double reltol, double abstol);
-    virtual void initialize(double t0, FuncEval& func);
-    virtual void reinitialize(double t0, FuncEval& func);
-    virtual void integrate(double tout);
-    virtual double step(double tout);
-    virtual double& solution(size_t k);
-    virtual double* solution();
-    virtual double* derivative(double tout, int n);
-    virtual int lastOrder() const;
-    virtual int nEquations() const {
+    ~CVodesIntegrator() override;
+    void setTolerances(double reltol, size_t n, double* abstol) override;
+    void setTolerances(double reltol, double abstol) override;
+    void setSensitivityTolerances(double reltol, double abstol) override;
+    void initialize(double t0, FuncEval& func) override;
+    void reinitialize(double t0, FuncEval& func) override;
+    void integrate(double tout) override;
+    double step(double tout) override;
+    double& solution(size_t k) override;
+    double* solution() override;
+    double* derivative(double tout, int n) override;
+    int lastOrder() const override;
+    int nEquations() const  override{
         return static_cast<int>(m_neq);
     }
-    virtual int nEvals() const;
-    virtual void setMaxOrder(int n) {
+    int nEvals() const override;
+    void setMaxOrder(int n) override {
         m_maxord = n;
     }
-    virtual void setMethod(MethodType t);
-    virtual void setMaxStepSize(double hmax);
-    virtual void setMinStepSize(double hmin);
-    virtual void setMaxSteps(int nmax);
-    virtual int maxSteps();
-    virtual void setMaxErrTestFails(int n);
-    virtual AnyMap solverStats() const;
-    void setLinearSolverType(const string& linSolverType) {
+    void setMethod(MethodType t) override;
+    void setMaxStepSize(double hmax) override;
+    void setMinStepSize(double hmin) override;
+    void setMaxSteps(int nmax) override;
+    int maxSteps() override;
+    void setMaxErrTestFails(int n) override;
+    AnyMap solverStats() const override;
+    void setLinearSolverType(const string& linSolverType) override {
         m_type = linSolverType;
     }
-    virtual string linearSolverType() const {
+    string linearSolverType() const override {
         return m_type;
     }
-    virtual void setBandwidth(int N_Upper, int N_Lower) {
+    void setBandwidth(int N_Upper, int N_Lower) override {
         m_mupper = N_Upper;
         m_mlower = N_Lower;
     }
-    virtual int nSensParams() {
+    int nSensParams() override {
         return static_cast<int>(m_np);
     }
-    virtual double sensitivity(size_t k, size_t p);
-    virtual void setProblemType(int probtype);
+    double sensitivity(size_t k, size_t p) override;
+    void setProblemType(int probtype) override;
 
     //! Returns a string listing the weighted error estimates associated
     //! with each solution component.
     //! This information can be used to identify which variables are
     //! responsible for integrator failures or unexpected small timesteps.
-    virtual string getErrorInfo(int N);
+    string getErrorInfo(int N);
 
     //! Error message information provide by CVodes
     string m_error_message;

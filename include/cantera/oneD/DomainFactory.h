@@ -29,7 +29,7 @@ public:
      */
     static DomainFactory* factory();
 
-    virtual void deleteFactory();
+    void deleteFactory() override;
 
 private:
     //! Pointer to the single instance of the factory

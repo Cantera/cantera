@@ -25,7 +25,7 @@ namespace Cantera
 class PythonExtensionManager : public ExtensionManager
 {
 public:
-    virtual void registerRateBuilders(const string& extensionName) override;
+    void registerRateBuilders(const string& extensionName) override;
 
     void registerRateBuilder(const string& moduleName,
         const string& className, const string& rateName) override;

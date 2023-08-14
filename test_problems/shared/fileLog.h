@@ -10,11 +10,11 @@ public:
         m_fs.open(fName, std::ios::out);
     }
 
-    virtual void write(const std::string& msg) {
+    void write(const std::string& msg) override {
         m_fs << msg;
     }
 
-    virtual void writeendl() {
+    void writeendl() override {
         m_fs << std::endl;
     }
 

@@ -86,7 +86,7 @@ public:
      * @param m  This is the number of columns in the new matrix
      * @param v  Default fill value -> defaults to zero.
      */
-    void resize(size_t n, size_t m, double v=0.0);
+    virtual void resize(size_t n, size_t m, double v=0.0);
 
     //! Append a column to the existing matrix using a std vector
     /*!

@@ -94,7 +94,7 @@ public:
     virtual ~CanteraError() throw() {};
 
     //! Get a description of the error
-    const char* what() const throw();
+    const char* what() const throw() override;
 
     //! Method overridden by derived classes to format the error message
     virtual string getMessage() const;
@@ -147,8 +147,8 @@ public:
     ArraySizeError(const string& procedure, size_t sz, size_t reqd) :
         CanteraError(procedure), sz_(sz), reqd_(reqd) {}
 
-    virtual string getMessage() const;
-    virtual string getClass() const {
+    string getMessage() const override;
+    string getClass() const override {
         return "ArraySizeError";
     }
 
@@ -178,9 +178,9 @@ public:
     IndexError(const string& func, const string& arrayName, size_t m, size_t mmax) :
         CanteraError(func), arrayName_(arrayName), m_(m), mmax_(mmax) {}
 
-    virtual ~IndexError() throw() {};
-    virtual string getMessage() const;
-    virtual string getClass() const {
+    ~IndexError() throw() override {};
+    string getMessage() const override;
+    string getClass() const override {
         return "IndexError";
     }
 
@@ -204,7 +204,7 @@ public:
     NotImplementedError(const string& func, const string& msg, const Args&... args) :
         CanteraError(func, msg, args...) {}
 
-    virtual string getClass() const {
+    string getClass() const override {
         return "NotImplementedError";
     }
 };

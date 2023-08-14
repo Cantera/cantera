@@ -24,7 +24,7 @@ public:
     }
 
     //! Delete the static instance of this factory
-    virtual void deleteFactory();
+    void deleteFactory() override;
 
     //! Static function that returns the static instance of the factory, creating it
     //! if necessary.

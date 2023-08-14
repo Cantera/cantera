@@ -24,14 +24,14 @@ class WallFactory : public Factory<WallBase>
 public:
     static WallFactory* factory();
 
-    virtual void deleteFactory();
+    void deleteFactory() override;
 
     //! Create a new wall by type name.
     /*!
      * @param wallType the type to be created.
      * @deprecated To be removed after %Cantera 3.0; replaceable by newWall3.
      */
-    virtual WallBase* newWall(const string& wallType);
+    WallBase* newWall(const string& wallType);
 
 private:
     static WallFactory* s_factory;

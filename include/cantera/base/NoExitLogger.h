@@ -14,10 +14,8 @@ namespace Cantera {
 class NoExitLogger : public Logger {
 public:
     NoExitLogger() {}
-    virtual ~NoExitLogger() {}
 
-    virtual void error(const string& msg)
-    {
+    void error(const string& msg) override {
        std::cerr << msg << std::endl;
     }
 };

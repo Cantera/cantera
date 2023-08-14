@@ -69,7 +69,7 @@ public:
     ResidJacEval(double atol = 1.0e-13);
 
     //! Return the number of equations in the equation system
-    virtual int nEquations() const;
+    int nEquations() const override;
 
     //! Evaluate the residual function
     /*!
@@ -96,11 +96,10 @@ public:
                             const int id_x = -1,
                             const double delta_x = 0.0);
 
-    virtual int eval(const double t, const double* const y,
-                     const double* const ydot,
-                     double* const r);
+    int eval(const double t, const double* const y, const double* const ydot,
+             double* const r) override;
 
-    virtual int getInitialConditions(const double t0, double* const y, double* const ydot);
+    int getInitialConditions(const double t0, double* const y, double* const ydot) override;
 
     //! Filter the solution predictions
     /*!
