@@ -20,15 +20,15 @@ struct PlogData : public ReactionData
 {
     PlogData() = default;
 
-    virtual void update(double T) override;
+    void update(double T) override;
 
-    virtual void update(double T, double P) override {
+    void update(double T, double P) override {
         ReactionData::update(T);
         pressure = P;
         logP = std::log(P);
     }
 
-    virtual bool update(const ThermoPhase& phase, const Kinetics& kin) override;
+    bool update(const ThermoPhase& phase, const Kinetics& kin) override;
 
     using ReactionData::update;
 
@@ -39,9 +39,9 @@ struct PlogData : public ReactionData
      */
     void perturbPressure(double deltaP);
 
-    virtual void restore() override;
+    void restore() override;
 
-    virtual void invalidateCache() override {
+    void invalidateCache() override {
         ReactionData::invalidateCache();
         pressure = NAN;
     }
@@ -84,22 +84,22 @@ public:
 
     PlogRate(const AnyMap& node, const UnitStack& rate_units={});
 
-    unique_ptr<MultiRateBase> newMultiRate() const {
+    unique_ptr<MultiRateBase> newMultiRate() const override {
         return make_unique<MultiRate<PlogRate, PlogData>>();
     }
 
     //! Identifier of reaction rate type
-    const string type() const { return "pressure-dependent-Arrhenius"; }
+    const string type() const override { return "pressure-dependent-Arrhenius"; }
 
     //! Perform object setup based on AnyMap node information
     /*!
      *  @param node  AnyMap containing rate information
      *  @param rate_units  Unit definitions specific to rate information
      */
-    void setParameters(const AnyMap& node, const UnitStack& rate_units);
+    void setParameters(const AnyMap& node, const UnitStack& rate_units) override;
 
     void getParameters(AnyMap& rateNode, const Units& rate_units) const;
-    void getParameters(AnyMap& rateNode) const {
+    void getParameters(AnyMap& rateNode) const override {
         return getParameters(rateNode, Units(0));
     }
 
@@ -170,11 +170,11 @@ public:
     //! temperatures at each interpolation pressure. This is potentially an
     //! issue when one of the Arrhenius expressions at a particular pressure
     //! has a negative pre-exponential factor.
-    void validate(const string& equation, const Kinetics& kin);
+    void validate(const string& equation, const Kinetics& kin) override;
 
     //! @deprecated To be removed after %Cantera 3.0;
     //!              superseded by two-parameter version
-    void validate(const string& equation);
+    void validate(const string& equation) override;
 
     //! Return the pressures and Arrhenius expressions which comprise this
     //! reaction.

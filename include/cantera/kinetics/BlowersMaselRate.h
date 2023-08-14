@@ -20,11 +20,11 @@ struct BlowersMaselData : public ReactionData
 {
     BlowersMaselData() = default;
 
-    virtual void update(double T) override;
-    virtual bool update(const ThermoPhase& phase, const Kinetics& kin) override;
+    void update(double T) override;
+    bool update(const ThermoPhase& phase, const Kinetics& kin) override;
     using ReactionData::update;
 
-    virtual void resize(size_t nSpecies, size_t nReactions, size_t nPhases) override {
+    void resize(size_t nSpecies, size_t nReactions, size_t nPhases) override {
         partialMolarEnthalpies.resize(nSpecies, 0.);
         ready = true;
     }
@@ -90,11 +90,11 @@ public:
         return make_unique<MultiRate<BlowersMaselRate, BlowersMaselData>>();
     }
 
-    virtual const string type() const override {
+    const string type() const override {
         return "Blowers-Masel";
     }
 
-    virtual void setContext(const Reaction& rxn, const Kinetics& kin) override;
+    void setContext(const Reaction& rxn, const Kinetics& kin) override;
 
     //! Evaluate reaction rate
     double evalRate(double logT, double recipT) const {
@@ -149,7 +149,7 @@ protected:
     }
 
 public:
-    virtual double activationEnergy() const override {
+    double activationEnergy() const override {
         return effectiveActivationEnergy_R(m_deltaH_R) * GasConstant;
     }
 

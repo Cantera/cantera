@@ -30,17 +30,17 @@ struct InterfaceData : public BlowersMaselData
 {
     InterfaceData() = default;
 
-    virtual bool update(const ThermoPhase& bulk, const Kinetics& kin) override;
+    bool update(const ThermoPhase& bulk, const Kinetics& kin) override;
 
-    virtual void update(double T) override;
+    void update(double T) override;
 
-    virtual void update(double T, const vector<double>& values) override;
+    void update(double T, const vector<double>& values) override;
 
     using BlowersMaselData::update;
 
     virtual void perturbTemperature(double deltaT);
 
-    virtual void resize(size_t nSpecies, size_t nReactions, size_t nPhases) override {
+    void resize(size_t nSpecies, size_t nReactions, size_t nPhases) override {
         coverages.resize(nSpecies, 0.);
         logCoverages.resize(nSpecies, 0.);
         partialMolarEnthalpies.resize(nSpecies, 0.);
@@ -384,24 +384,22 @@ public:
     }
 
     //! Identifier of reaction rate type
-    virtual const string type() const override {
+    const string type() const override {
         return "interface-" + RateType::type();
     }
 
-    virtual void setParameters(
-        const AnyMap& node, const UnitStack& rate_units) override
-    {
+    void setParameters(const AnyMap& node, const UnitStack& rate_units) override {
         InterfaceRateBase::setParameters(node);
         RateType::setParameters(node, rate_units);
     }
 
-    virtual void getParameters(AnyMap& node) const override {
+    void getParameters(AnyMap& node) const override {
         RateType::getParameters(node);
         node["type"] = type();
         InterfaceRateBase::getParameters(node);
     }
 
-    virtual void setContext(const Reaction& rxn, const Kinetics& kin) override {
+    void setContext(const Reaction& rxn, const Kinetics& kin) override {
         RateType::setContext(rxn, kin);
         InterfaceRateBase::setContext(rxn, kin);
     }
@@ -433,12 +431,12 @@ public:
         throw NotImplementedError("InterfaceRate<>::ddTScaledFromStruct");
     }
 
-    virtual double preExponentialFactor() const override {
+    double preExponentialFactor() const override {
         return RateType::preExponentialFactor() *
             std::exp(std::log(10.0) * m_acov + m_mcov);
     }
 
-    virtual double activationEnergy() const override {
+    double activationEnergy() const override {
         return RateType::activationEnergy() + m_ecov * GasConstant;
     }
 
@@ -483,7 +481,7 @@ public:
     }
 
     //! Identifier of reaction rate type
-    virtual const string type() const override {
+    const string type() const override {
         return "sticking-" + RateType::type();
     }
 
@@ -492,9 +490,7 @@ public:
         RateType::m_conversion_units = Units(1.0);
     }
 
-    virtual void setParameters(
-        const AnyMap& node, const UnitStack& rate_units) override
-    {
+    void setParameters(const AnyMap& node, const UnitStack& rate_units) override {
         InterfaceRateBase::setParameters(node);
         setRateUnits(rate_units);
         RateType::m_negativeA_ok = node.getBool("negative-A", false);
@@ -507,7 +503,7 @@ public:
             node["sticking-coefficient"], node.units(), rate_units);
     }
 
-    virtual void getParameters(AnyMap& node) const override {
+    void getParameters(AnyMap& node) const override {
         node["type"] = type();
         if (RateType::m_negativeA_ok) {
             node["negative-A"] = true;
@@ -522,13 +518,13 @@ public:
         InterfaceRateBase::getParameters(node);
     }
 
-    virtual void setContext(const Reaction& rxn, const Kinetics& kin) override {
+    void setContext(const Reaction& rxn, const Kinetics& kin) override {
         RateType::setContext(rxn, kin);
         InterfaceRateBase::setContext(rxn, kin);
         StickingCoverage::setContext(rxn, kin);
     }
 
-    virtual void validate(const string &equation, const Kinetics& kin) override {
+    void validate(const string &equation, const Kinetics& kin) override {
         RateType::validate(equation, kin);
         fmt::memory_buffer err_reactions;
         double T[] = {200.0, 500.0, 1000.0, 2000.0, 5000.0, 10000.0};
@@ -578,12 +574,12 @@ public:
         throw NotImplementedError("StickingRate<>::ddTScaledFromStruct");
     }
 
-    virtual double preExponentialFactor() const override {
+    double preExponentialFactor() const override {
         return RateType::preExponentialFactor() *
             std::exp(std::log(10.0) * m_acov + m_mcov);
     }
 
-    virtual double activationEnergy() const override {
+    double activationEnergy() const override {
         return RateType::activationEnergy() + m_ecov * GasConstant;
     }
 };
