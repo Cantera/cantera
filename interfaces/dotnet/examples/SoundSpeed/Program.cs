@@ -11,7 +11,7 @@ Application.DataDirectories.AddAssemblyDirectory();
 
 Application.AddConsoleLogging();
 
-var phase = Application.CreateThermoPhase("gri30.yaml");
+var phase = ThermoPhase.Load("gri30.yaml");
 var species = phase.Species;
 
 species.SetMoleFractions(("CH4", 1.00), ("O2", 2.00), ("N2", 7.52));

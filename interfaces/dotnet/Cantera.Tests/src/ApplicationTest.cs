@@ -136,7 +136,7 @@ public class ApplicationTest
     /// </summary>
     static void ProduceRealLogOutput()
     {
-        using var thermo = Application.CreateThermoPhase("gri30.yaml");
+        using var thermo = ThermoPhase.Load("gri30.yaml");
 
         var handle = (ThermoPhaseHandle) typeof(ThermoPhase)
             .GetField("_handle", BindingFlags.NonPublic | BindingFlags.Instance)!
@@ -150,7 +150,7 @@ public class ApplicationTest
     /// </summary>
     static void ProduceMockLogOutput()
     {
-        var eventField = typeof(Application).GetField("s_invokeMessageLoggedDelegate",
+        var eventField = typeof(LibCantera).GetField("s_invokeMessageLoggedDelegate",
             BindingFlags.Static | BindingFlags.NonPublic);
 
         Assert.NotNull(eventField);
