@@ -1,9 +1,11 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
-using System.Text.RegularExpressions;
+using System.Diagnostics;
+using System.Reflection;
 using Cantera.Interop;
 using Xunit;
+using Xunit.Sdk;
 
 namespace Cantera.Tests;
 
@@ -42,16 +44,27 @@ public class ExceptionTest
         var thrown =
             Assert.ThrowsAny<Exception>(() => CallbackException.ThrowIfAny());
 
-        var methodCalls = thrown.StackTrace!
-            .Split('\n')
-            .Select(f => Regex.Match(f, "^   at (.*)\\(").Groups[1].Value);
+        var methodCalls = new StackTrace(thrown).GetFrames()
+            .Select(f=> f.GetMethod());
 
-        var methodName = typeof(CallbackException).FullName + '.'
-            + nameof(CallbackException.ThrowIfAny);
+        var method = typeof(CallbackException).GetMethod(nameof(CallbackException.ThrowIfAny),
+            BindingFlags.NonPublic | BindingFlags.Static);
 
-        // Test that the method was inlined,
-        // meaning it does not appear in the stack trace.
-        Assert.DoesNotContain(methodName, methodCalls);
+        Assert.NotNull(method);
+
+        try
+        {
+            // Test that the method was inlined,
+            // meaning it does not appear in the stack trace.
+            Assert.DoesNotContain(method, methodCalls);
+        }
+        catch (DoesNotContainException)
+        {
+            // The method may have not been inlined because we’re running in Debug mode,
+            // or tiered compilation hasn’t inlined it yet.
+            // So, check that the appropriate flag is set so that it _could_ be inlined.
+            Assert.False((method.MethodImplementationFlags & MethodImplAttributes.AggressiveInlining) == 0);
+        }
     }
 
     [Fact]
