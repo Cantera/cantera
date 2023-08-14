@@ -76,19 +76,19 @@ public:
      */
     void setParameters(const map<double, vector<double>>& regions);
 
-    virtual int reportType() const;
+    int reportType() const override;
 
-    virtual size_t temperaturePolySize() const { return 7; }
-    virtual void updateTemperaturePoly(double T, double* T_poly) const;
+    size_t temperaturePolySize() const override { return 7; }
+    void updateTemperaturePoly(double T, double* T_poly) const override;
 
     //! @copydoc Nasa9Poly1::updateProperties
-    virtual void updateProperties(const double* tt, double* cp_R, double* h_RT,
-                                  double* s_R) const;
+    void updateProperties(const double* tt, double* cp_R, double* h_RT,
+                          double* s_R) const override;
 
-    virtual void updatePropertiesTemp(const double temp, double* cp_R, double* h_RT,
-                                      double* s_R) const;
+    void updatePropertiesTemp(const double temp, double* cp_R, double* h_RT,
+                              double* s_R) const override;
 
-    virtual size_t nCoeffs() const;
+    size_t nCoeffs() const override;
 
     //! This utility function reports back the type of parameterization and all
     //! of the parameters for the species, index.
@@ -109,10 +109,10 @@ public:
      *        coeffs[index+1] = maxTempZone
      *        coeffs[index+2+i] from i =0,9 are the coefficients themselves
      */
-    virtual void reportParameters(size_t& n, int& type, double& tlow, double& thigh,
-                                  double& pref, double* const coeffs) const;
+    void reportParameters(size_t& n, int& type, double& tlow, double& thigh,
+                          double& pref, double* const coeffs) const override;
 
-    virtual void getParameters(AnyMap& thermo) const;
+    void getParameters(AnyMap& thermo) const override;
 
 protected:
     //! Lower boundaries of each temperature regions

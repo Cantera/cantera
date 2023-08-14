@@ -94,13 +94,13 @@ public:
         m_coeff5_orig = m_coeff[5];
     }
 
-    virtual int reportType() const {
+    int reportType() const override {
         return SHOMATE;
     }
 
-    virtual size_t temperaturePolySize() const { return 6; }
+    size_t temperaturePolySize() const override { return 6; }
 
-    virtual void updateTemperaturePoly(double T, double* T_poly) const {
+    void updateTemperaturePoly(double T, double* T_poly) const override {
         double tt = 1.e-3*T;
         T_poly[0] = tt;
         T_poly[1] = tt * tt;
@@ -122,8 +122,8 @@ public:
      *   - `t[4] = log(t)`
      *   - `t[5] = 1.0/t;
      */
-    virtual void updateProperties(const double* tt, double* cp_R, double* h_RT,
-                                  double* s_R) const {
+    void updateProperties(const double* tt, double* cp_R, double* h_RT,
+                          double* s_R) const override {
         double A = m_coeff[0];
         double Bt = m_coeff[1]*tt[0];
         double Ct2 = m_coeff[2]*tt[1];
@@ -137,15 +137,15 @@ public:
         *s_R = A*tt[4] + Bt + 0.5*Ct2 + 1.0/3.0*Dt3 - 0.5*Etm2 + G;
     }
 
-    virtual void updatePropertiesTemp(const double temp, double* cp_R, double* h_RT,
-                                      double* s_R) const {
+    void updatePropertiesTemp(const double temp, double* cp_R, double* h_RT,
+                              double* s_R) const override {
         double tPoly[6];
         updateTemperaturePoly(temp, tPoly);
         updateProperties(tPoly, cp_R, h_RT, s_R);
     }
 
-    virtual void reportParameters(size_t& n, int& type, double& tlow, double& thigh,
-                                  double& pref, double* const coeffs) const {
+    void reportParameters(size_t& n, int& type, double& tlow, double& thigh,
+                          double& pref, double* const coeffs) const override {
         n = 0;
         type = SHOMATE;
         tlow = m_lowT;
@@ -156,7 +156,7 @@ public:
         }
     }
 
-    virtual void getParameters(AnyMap& thermo) const {
+    void getParameters(AnyMap& thermo) const override {
         // ShomatePoly is only used as an embedded model within ShomatePoly2, so
         // all that needs to be added here are the polynomial coefficients
         vector<double> dimensioned_coeffs(m_coeff.size());
@@ -166,19 +166,19 @@ public:
         thermo["data"].asVector<vector<double>>().push_back(dimensioned_coeffs);
     }
 
-    virtual double reportHf298(double* const h298 = 0) const {
+    double reportHf298(double* const h298=nullptr) const override {
         double cp_R, h_RT, s_R;
         updatePropertiesTemp(298.15, &cp_R, &h_RT, &s_R);
         return h_RT * GasConstant * 298.15;
     }
 
-    virtual void modifyOneHf298(const size_t k, const double Hf298New) {
+    void modifyOneHf298(const size_t k, const double Hf298New) override {
         double hnow = reportHf298();
         double delH = Hf298New - hnow;
         m_coeff[5] += delH / (1e3 * GasConstant);
     }
 
-    virtual void resetHf298() {
+    void resetHf298() override {
         m_coeff[5] = m_coeff5_orig;
     }
 
@@ -250,17 +250,17 @@ public:
     {
     }
 
-    virtual void setMinTemp(double Tmin) {
+    void setMinTemp(double Tmin) override {
         SpeciesThermoInterpType::setMinTemp(Tmin);
         msp_low.setMinTemp(Tmin);
     }
 
-    virtual void setMaxTemp(double Tmax) {
+    void setMaxTemp(double Tmax) override {
         SpeciesThermoInterpType::setMaxTemp(Tmax);
         msp_high.setMaxTemp(Tmax);
     }
 
-    virtual void setRefPressure(double Pref) {
+    void setRefPressure(double Pref) override {
         SpeciesThermoInterpType::setRefPressure(Pref);
         msp_low.setRefPressure(Pref);
         msp_high.setRefPressure(Pref);
@@ -280,19 +280,19 @@ public:
         msp_high.setParameters(high);
     }
 
-    virtual int reportType() const {
+    int reportType() const override {
         return SHOMATE2;
     }
 
-    virtual size_t temperaturePolySize() const { return 7; }
+    size_t temperaturePolySize() const override{ return 7; }
 
-    virtual void updateTemperaturePoly(double T, double* T_poly) const {
+    void updateTemperaturePoly(double T, double* T_poly) const override {
         msp_low.updateTemperaturePoly(T, T_poly);
     }
 
     //! @copydoc ShomatePoly::updateProperties
-    virtual void updateProperties(const double* tt, double* cp_R, double* h_RT,
-                                  double* s_R) const {
+    void updateProperties(const double* tt, double* cp_R, double* h_RT,
+                          double* s_R) const override {
         double T = 1000 * tt[0];
         if (T <= m_midT) {
             msp_low.updateProperties(tt, cp_R, h_RT, s_R);
@@ -301,10 +301,8 @@ public:
         }
     }
 
-    virtual void updatePropertiesTemp(const double temp,
-                                      double* cp_R,
-                                      double* h_RT,
-                                      double* s_R) const {
+    void updatePropertiesTemp(const double temp, double* cp_R, double* h_RT,
+                              double* s_R) const override {
         if (temp <= m_midT) {
             msp_low.updatePropertiesTemp(temp, cp_R, h_RT, s_R);
         } else {
@@ -312,16 +310,16 @@ public:
         }
     }
 
-    virtual size_t nCoeffs() const { return 15; }
+    size_t nCoeffs() const override { return 15; }
 
-    virtual void reportParameters(size_t& n, int& type, double& tlow, double& thigh,
-                                  double& pref, double* const coeffs) const {
+    void reportParameters(size_t& n, int& type, double& tlow, double& thigh,
+                          double& pref, double* const coeffs) const override {
         msp_low.reportParameters(n, type, tlow, coeffs[0], pref, coeffs + 1);
         msp_high.reportParameters(n, type, coeffs[0], thigh, pref, coeffs + 8);
         type = SHOMATE2;
     }
 
-    virtual void getParameters(AnyMap& thermo) const {
+    void getParameters(AnyMap& thermo) const override {
         SpeciesThermoInterpType::getParameters(thermo);
         thermo["model"] = "Shomate";
         vector<double> Tranges {m_lowT, m_midT, m_highT};
@@ -331,7 +329,7 @@ public:
         msp_high.getParameters(thermo);
     }
 
-    virtual double reportHf298(double* const h298 = 0) const {
+    double reportHf298(double* const h298=nullptr) const override {
         double h;
         if (298.15 <= m_midT) {
             h = msp_low.reportHf298(h298);
@@ -344,7 +342,7 @@ public:
         return h;
     }
 
-    virtual void modifyOneHf298(const size_t k, const double Hf298New) {
+    void modifyOneHf298(const size_t k, const double Hf298New) override {
         double h298now = reportHf298(0);
         double delH = Hf298New - h298now;
         double h = msp_low.reportHf298(0);
@@ -355,7 +353,7 @@ public:
         msp_high.modifyOneHf298(k, hnew);
     }
 
-    virtual void resetHf298() {
+    void resetHf298() override {
         msp_low.resetHf298();
         msp_high.resetHf298();
     }

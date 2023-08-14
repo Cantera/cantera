@@ -33,25 +33,25 @@ public:
 
     // See PDSS.h for documentation of functions overridden from Class PDSS
 
-    virtual double intEnergy_mole() const;
-    virtual double cv_mole() const;
+    double intEnergy_mole() const override;
+    double cv_mole() const override;
 
     //! @}
     //! @name Mechanical Equation of State Properties
     //! @{
 
-    virtual double pressure() const;
-    virtual void setPressure(double pres);
-    virtual void setTemperature(double temp);
-    virtual void setState_TP(double temp, double pres);
-    virtual void setState_TR(double temp, double rho);
+    double pressure() const override;
+    void setPressure(double pres) override;
+    void setTemperature(double temp) override;
+    void setState_TP(double temp, double pres) override;
+    void setState_TR(double temp, double rho) override;
 
     //! @}
     //! @name Initialization of the Object
     //! @{
 
-    virtual void initThermo();
-    virtual void getParameters(AnyMap& eosNode) const;
+    void initThermo() override;
+    void getParameters(AnyMap& eosNode) const override;
     //! @}
 };
 }

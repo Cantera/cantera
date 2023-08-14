@@ -108,7 +108,7 @@ public:
      */
     void setParameters(double h0, const map<double, double>& T_mu);
 
-    virtual int reportType() const {
+    int reportType() const override {
         return MU0_INTERP;
     }
 
@@ -118,20 +118,18 @@ public:
      * Temperature Polynomial:
      *     tt[0] = temp (Kelvin)
      */
-    virtual void updateProperties(const double* tt, double* cp_R, double* h_RT,
-                                  double* s_R) const;
+    void updateProperties(const double* tt, double* cp_R, double* h_RT,
+                          double* s_R) const override;
 
-    virtual void updatePropertiesTemp(const double temp,
-                                      double* cp_R,
-                                      double* h_RT,
-                                      double* s_R) const;
+    void updatePropertiesTemp(const double temp, double* cp_R, double* h_RT,
+                              double* s_R) const override;
 
-    virtual size_t nCoeffs() const;
+    size_t nCoeffs() const override;
 
-    virtual void reportParameters(size_t& n, int& type, double& tlow, double& thigh,
-                                  double& pref, double* const coeffs) const;
+    void reportParameters(size_t& n, int& type, double& tlow, double& thigh,
+                          double& pref, double* const coeffs) const override;
 
-    virtual void getParameters(AnyMap& thermo) const;
+    void getParameters(AnyMap& thermo) const override;
 
 protected:
     //! Number of intervals in the interpolating linear approximation. Number

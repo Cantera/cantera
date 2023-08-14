@@ -74,13 +74,13 @@ public:
         m_coeff5_orig = m_coeff[5];
     }
 
-    virtual int reportType() const {
+    int reportType() const override {
         return NASA1;
     }
 
-    virtual size_t temperaturePolySize() const { return 6; }
+    size_t temperaturePolySize() const override { return 6; }
 
-    virtual void updateTemperaturePoly(double T, double* T_poly) const {
+    void updateTemperaturePoly(double T, double* T_poly) const override {
         T_poly[0] = T;
         T_poly[1] = T * T;
         T_poly[2] = T_poly[1] * T;
@@ -100,8 +100,8 @@ public:
      *  tt[4] = 1.0/t;
      *  tt[5] = std::log(t);
      */
-    virtual void updateProperties(const double* tt,
-                                  double* cp_R, double* h_RT, double* s_R) const {
+    void updateProperties(const double* tt, double* cp_R, double* h_RT,
+                          double* s_R) const override {
         double ct0 = m_coeff[0]; // a0
         double ct1 = m_coeff[1]*tt[0]; // a1 * T
         double ct2 = m_coeff[2]*tt[1]; // a2 * T^2
@@ -121,15 +121,15 @@ public:
         *s_R = s;
     }
 
-    virtual void updatePropertiesTemp(const double temp, double* cp_R, double* h_RT,
-                                      double* s_R) const {
+    void updatePropertiesTemp(const double temp, double* cp_R, double* h_RT,
+                              double* s_R) const override {
         double tPoly[6];
         updateTemperaturePoly(temp, tPoly);
         updateProperties(tPoly, cp_R, h_RT, s_R);
     }
 
-    virtual void reportParameters(size_t& n, int& type, double& tlow, double& thigh,
-                                  double& pref, double* const coeffs) const {
+    void reportParameters(size_t& n, int& type, double& tlow, double& thigh,
+                          double& pref, double* const coeffs) const override {
         n = 0;
         type = NASA1;
         tlow = m_lowT;
@@ -138,13 +138,13 @@ public:
         std::copy(m_coeff.begin(), m_coeff.end(), coeffs);
     }
 
-    virtual void getParameters(AnyMap& thermo) const {
+    void getParameters(AnyMap& thermo) const override {
         // NasaPoly1 is only used as an embedded model within NasaPoly2, so all
         // that needs to be added here are the polynomial coefficients
         thermo["data"].asVector<vector<double>>().push_back(m_coeff);
     }
 
-    virtual double reportHf298(double* const h298 = 0) const {
+    double reportHf298(double* const h298=nullptr) const override {
         double tt[6];
         double temp = 298.15;
         updateTemperaturePoly(temp, tt);
@@ -164,13 +164,13 @@ public:
         return h;
     }
 
-    virtual void modifyOneHf298(const size_t k, const double Hf298New) {
+    void modifyOneHf298(const size_t k, const double Hf298New) override {
         double hcurr = reportHf298(0);
         double delH = Hf298New - hcurr;
         m_coeff[5] += (delH) / GasConstant;
     }
 
-    virtual void resetHf298() {
+    void resetHf298() override {
         m_coeff[5] = m_coeff5_orig;
     }
 

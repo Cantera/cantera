@@ -35,7 +35,7 @@ public:
 
     // See PDSS.h for documentation of functions overridden from Class PDSS
 
-    virtual double enthalpy_mole() const;
+    double enthalpy_mole() const override;
 
     //! Return the molar enthalpy in units of J kmol-1
     /*!
@@ -49,12 +49,12 @@ public:
      */
     double enthalpy_mole2() const;
 
-    virtual double intEnergy_mole() const;
-    virtual double entropy_mole() const;
-    virtual double gibbs_mole() const;
-    virtual double cp_mole() const;
-    virtual double molarVolume() const;
-    virtual double density() const;
+    double intEnergy_mole() const override;
+    double entropy_mole() const override;
+    double gibbs_mole() const override;
+    double cp_mole() const override;
+    double molarVolume() const override;
+    double density() const override;
 
     //! @}
     //! @name Properties of the Reference State of the Species in the Solution
@@ -64,28 +64,28 @@ public:
         return m_p0;
     }
 
-    virtual double gibbs_RT_ref() const;
-    virtual double enthalpy_RT_ref() const;
-    virtual double entropy_R_ref() const;
-    virtual double cp_R_ref() const;
-    virtual double molarVolume_ref() const;
+    double gibbs_RT_ref() const override;
+    double enthalpy_RT_ref() const override;
+    double entropy_R_ref() const override;
+    double cp_R_ref() const override;
+    double molarVolume_ref() const override;
 
     //! @}
     //! @name Mechanical Equation of State Properties
     //! @{
 
-    virtual void setState_TP(double temp, double pres);
+    void setState_TP(double temp, double pres) override;
 
     //! @}
     //! @name Initialization of the Object
     //! @{
 
-    void setParent(VPStandardStateTP* phase, size_t k) {
+    void setParent(VPStandardStateTP* phase, size_t k) override {
         m_tp = phase;
         m_spindex = k;
     }
 
-    virtual void initThermo();
+    void initThermo() override;
 
      //! Set enthalpy of formation at Pr, Tr [J/kmol]
     void setDeltaH0(double dh0);
@@ -105,7 +105,7 @@ public:
     void set_c(double* c);
     void setOmega(double omega); //!< Set omega [J/kmol]
 
-    virtual void getParameters(AnyMap& eosNode) const;
+    void getParameters(AnyMap& eosNode) const override;
 
     //! This utility function reports back the type of parameterization and
     //! all of the parameters for the species, index.
@@ -133,9 +133,8 @@ public:
      * @param maxTemp   output - Maximum temperature
      * @param refPressure output - reference pressure (Pa).
      */
-    virtual void reportParams(size_t& kindex, int& type, double* const c,
-                              double& minTemp, double& maxTemp,
-                              double& refPressure) const;
+    void reportParams(size_t& kindex, int& type, double* const c, double& minTemp,
+                      double& maxTemp, double& refPressure) const override;
     //! @}
 
 private:

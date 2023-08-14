@@ -45,9 +45,9 @@ public:
 
     // See PDSS.h for documentation of functions overridden from Class PDSS
 
-    virtual double enthalpy_RT() const;
-    virtual double intEnergy_mole() const;
-    virtual double entropy_R() const;
+    double enthalpy_RT() const override;
+    double intEnergy_mole() const override;
+    double entropy_R() const override;
 
     /**
      * @copydoc PDSS::gibbs_RT()
@@ -62,37 +62,37 @@ public:
      * is added to all ions except for the species ionic species, which in this
      * case is the single anion species, with species index *sp*.
      */
-    virtual double gibbs_RT() const;
-    virtual double cp_R() const;
-    virtual double molarVolume() const;
-    virtual double density() const;
+    double gibbs_RT() const override;
+    double cp_R() const override;
+    double molarVolume() const override;
+    double density() const override;
 
     //! @}
     //! @name Properties of the Reference State of the Species in the Solution
     //! @{
 
-    virtual double gibbs_RT_ref() const;
-    virtual double enthalpy_RT_ref() const;
-    virtual double entropy_R_ref() const;
-    virtual double cp_R_ref() const;
-    virtual double molarVolume_ref() const;
+    double gibbs_RT_ref() const override;
+    double enthalpy_RT_ref() const override;
+    double entropy_R_ref() const override;
+    double cp_R_ref() const override;
+    double molarVolume_ref() const override;
 
     //! @}
     //! @name Mechanical Equation of State Properties
     //! @{
 
-    virtual void setState_TP(double temp, double pres);
+    void setState_TP(double temp, double pres) override;
 
     //! @}
     //! @name Initialization of the Object
     //! @{
 
-    void setParent(VPStandardStateTP* phase, size_t k);
+    void setParent(VPStandardStateTP* phase, size_t k) override;
 
     void setNeutralSpeciesMultiplier(const string& species, double mult);
     void setSpecialSpecies(bool special=true);
-    virtual void getParameters(AnyMap& eosNode) const;
-    virtual void initThermo();
+    void getParameters(AnyMap& eosNode) const override;
+    void initThermo() override;
     //! @}
 
 protected:

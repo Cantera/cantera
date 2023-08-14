@@ -119,29 +119,29 @@ public:
 
     // See PDSS.h for documentation of functions overridden from Class PDSS
 
-    virtual double intEnergy_mole() const;
-    virtual double cv_mole() const;
+    double intEnergy_mole() const override;
+    double cv_mole() const override;
 
     //! @}
 
     //! @name Mechanical Equation of State Properties
     //! @{
 
-    virtual void setPressure(double pres);
-    virtual void setTemperature(double temp);
-    virtual void setState_TP(double temp, double pres);
+    void setPressure(double pres) override;
+    void setTemperature(double temp) override;
+    void setState_TP(double temp, double pres) override;
 
     //! @}
     //! @name Miscellaneous properties of the standard state
     //! @{
 
-    virtual double satPressure(double t);
+    double satPressure(double t) override;
 
     //! @}
     //! @name Initialization of the Object
     //! @{
 
-    virtual void initThermo();
+    void initThermo() override;
 
     //! Set polynomial coefficients for the standard state molar volume as a
     //! function of temperature. Cubic polynomial (4 coefficients). Leading
@@ -153,7 +153,7 @@ public:
     //! is the constant (temperature-independent) term [kg/m^3].
     void setDensityPolynomial(double* coeffs);
 
-    virtual void getParameters(AnyMap& eosNode) const;
+    void getParameters(AnyMap& eosNode) const override;
 
     //! @}
 

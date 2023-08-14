@@ -476,10 +476,10 @@ protected:
 class PDSS_Molar : public virtual PDSS
 {
 public:
-    virtual double enthalpy_RT() const;
-    virtual double entropy_R() const;
-    virtual double gibbs_RT() const;
-    virtual double cp_R() const;
+    double enthalpy_RT() const override;
+    double entropy_R() const override;
+    double gibbs_RT() const override;
+    double cp_R() const override;
 };
 
 //! Base class for PDSS classes which compute nondimensional properties directly
@@ -488,22 +488,22 @@ class PDSS_Nondimensional : public virtual PDSS
 public:
     PDSS_Nondimensional();
 
-    virtual double enthalpy_mole() const;
-    virtual double entropy_mole() const;
-    virtual double gibbs_mole() const;
-    virtual double cp_mole() const;
+    double enthalpy_mole() const override;
+    double entropy_mole() const override;
+    double gibbs_mole() const override;
+    double cp_mole() const override;
 
-    virtual double enthalpy_RT_ref() const;
-    virtual double entropy_R_ref() const;
-    virtual double gibbs_RT_ref() const;
-    virtual double cp_R_ref() const;
-    virtual double molarVolume_ref() const;
-    virtual double enthalpy_RT() const;
-    virtual double entropy_R() const;
-    virtual double gibbs_RT() const;
-    virtual double cp_R() const;
-    virtual double molarVolume() const;
-    virtual double density() const;
+    double enthalpy_RT_ref() const override;
+    double entropy_R_ref() const override;
+    double gibbs_RT_ref() const override;
+    double cp_R_ref() const override;
+    double molarVolume_ref() const override;
+    double enthalpy_RT() const override;
+    double entropy_R() const override;
+    double gibbs_RT() const override;
+    double cp_R() const override;
+    double molarVolume() const override;
+    double density() const override;
 
 protected:
     double m_h0_RT; //!< Reference state enthalpy divided by RT
