@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <AssemblyName>Cantera.Net</AssemblyName>
     <!-- Use C# 11 to take advantage of cached method references in Delegates -->
     <!-- This requires building with a .NET 7 SDK (or newer) -->
     <LangVersion>11</LangVersion>
@@ -9,12 +10,34 @@
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <AssemblyName>CanteraDotNet</AssemblyName>
-    <IsPackable>false</IsPackable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <IsPackable>true</IsPackable>
+    <Version>0.1.0</Version>
 
-    <LibDir>$([MSBuild]::NormalizePath($(MSBuildProjectDirectory)/../../../build/lib))</LibDir>
-    <DataDir>$([MSBuild]::NormalizePath($(MSBuildProjectDirectory)/../../../data))</DataDir>
+    <Product>Cantera</Product>
+    <PackageId>Cantera</PackageId>
+    <Authors>Cantera Developers</Authors>
+    <Description>Cantera is an open-source suite of tools for problems involving chemical kinetics, <!--
+      -->thermodynamics, and transport processes. This package provides a way for developers <!--
+      -->to use Cantera in .NET projects.</Description>
+    <Copyright>© 2001-2009, California Institute of Technology. <!--
+      -->© 2009, Sandia Corporation. <!--
+      -->© 2011-$([System.DateTime]::Now.Year), Cantera Developers. All rights reserved.</Copyright>
+    <PackageProjectUrl>https://cantera.org/</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Cantera/cantera/</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseFile>License.txt</PackageLicenseFile>
+    <PackageIcon>cantera-logo-emblem-only.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+
+    <!-- Root directory of the Cantera git repository -->
+    <RootDir>$([MSBuild]::NormalizePath($(MSBuildProjectDirectory)/../../..))</RootDir>
+    <!-- Directory of example data files -->
+    <DataDir>$(RootDir)/data</DataDir>
+    <!-- Local directory for native Cantera build -->
+    <BaseBuildDir>$(RootDir)/build</BaseBuildDir>
+    <!-- Directory for transient artifacts that will be included in the Nuget package -->
+    <ArtifactsDir>$(MSBuildProjectDirectory)/out</ArtifactsDir>
   </PropertyGroup>
 
   <ItemGroup>
@@ -22,21 +45,53 @@
                       OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
 
     <InternalsVisibleTo Include="Cantera.Tests" />
-
-    <None Include="$(DataDir)/*" CopyToOutputDirectory="PreserveNewest" LinkBase="data/" />
   </ItemGroup>
 
-  <ItemGroup Condition="$([MSBuild]::IsOsPlatform(Windows))">
-    <None Include="$(LibDir)/cantera_shared.dll" CopyToOutputDirectory="PreserveNewest"/>
-  </ItemGroup>
-  <ItemGroup Condition="$([MSBuild]::IsOsPlatform(OSX))">
-    <None Include="$(LibDir)/libcantera_shared.dylib" CopyToOutputDirectory="PreserveNewest"/>
-  </ItemGroup>
-  <ItemGroup Condition="$([MSBuild]::IsOsPlatform(Linux))">
-    <None Include="$(LibDir)/libcantera_shared.so" CopyToOutputDirectory="PreserveNewest"/>
-  </ItemGroup>
+  <Choose>
+    <When Condition="$(DoPack) == 'true'">
+      <!-- Copy native libraries when generating a package.
+           These will have been built separately on machines supporting the appropriate architectures. -->
+      <ItemGroup>
+        <Content Include="$(ArtifactsDir)/native/win-x64/cantera_shared.dll" PackagePath="runtimes/win-x64/native/"
+                 Condition="!$([System.Text.RegularExpressions.Regex]::IsMatch($(NoPack), '(^|;)win-x64(;|$)'))" />
+        <Content Include="$(ArtifactsDir)/native/win-arm64/cantera_shared.dll" PackagePath="runtimes/win-arm64/native/"
+                 Condition="!$([System.Text.RegularExpressions.Regex]::IsMatch($(NoPack), '(^|;)win-arm64(;|$)'))" />
+        <Content Include="$(ArtifactsDir)/native/linux-x64/libcantera_shared.so" PackagePath="runtimes/linux-x64/native/"
+                 Condition="!$([System.Text.RegularExpressions.Regex]::IsMatch($(NoPack), '(^|;)linux-x64(;|$)'))" />
+        <Content Include="$(ArtifactsDir)/native/linux-arm64/libcantera_shared.so" PackagePath="runtimes/linux-arm64/native/"
+                 Condition="!$([System.Text.RegularExpressions.Regex]::IsMatch($(NoPack), '(^|;)linux-arm64(;|$)'))" />
+        <Content Include="$(ArtifactsDir)/native/linux-musl-x64/libcantera_shared.so" PackagePath="runtimes/linux-musl-x64/native/"
+                 Condition="!$([System.Text.RegularExpressions.Regex]::IsMatch($(NoPack), '(^|;)linux-musl-x64(;|$)'))" />
+        <Content Include="$(ArtifactsDir)/native/linux-musl-arm64/libcantera_shared.so" PackagePath="runtimes/linux-musl-arm64/native/"
+                 Condition="!$([System.Text.RegularExpressions.Regex]::IsMatch($(NoPack), '(^|;)linux-musl-arm64(;|$)'))" />
+        <Content Include="$(ArtifactsDir)/native/osx-x64/libcantera_shared.dylib" PackagePath="runtimes/osx-x64/native/"
+                 Condition="!$([System.Text.RegularExpressions.Regex]::IsMatch($(NoPack), '(^|;)osx-x64(;|$)'))" />
+        <Content Include="$(ArtifactsDir)/native/osx-arm64/libcantera_shared.dylib" PackagePath="runtimes/osx-arm64/native/"
+                 Condition="!$([System.Text.RegularExpressions.Regex]::IsMatch($(NoPack), '(^|;)osx-arm64(;|$)'))" />
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
+        <Content Include="$(MSBuildProjectDirectory)/Cantera.targets" PackagePath="build/" />
+        <Content Include="$(RootDir)/License.txt" PackagePath="" />
+        <Content Include="$(MSBuildProjectDirectory)/cantera-logo-emblem-only.png" PackagePath="" />
+        <Content Include="$(DataDir)/*" PackagePath="data/" />
+        <Content Include="$(RootDir)/README.md" PackagePath="" />
+      </ItemGroup>
+    </When>
+    <Otherwise>
+      <!-- Copy native library for local testing/build -->
+      <ItemGroup>
+        <None Include="$(BaseBuildDir)/lib/cantera_shared.dll" CopyToOutputDirectory="PreserveNewest"
+              Condition="$([MSBuild]::IsOsPlatform(Windows))" />
+        <None Include="$(BaseBuildDir)/lib/libcantera_shared.dylib" CopyToOutputDirectory="PreserveNewest"
+              Condition="$([MSBuild]::IsOsPlatform(OSX))" />
+        <None Include="$(BaseBuildDir)/lib/libcantera_shared.so" CopyToOutputDirectory="PreserveNewest"
+              Condition="$([MSBuild]::IsOsPlatform(Linux))" />
+
+        <None Include="$(DataDir)/*" CopyToOutputDirectory="PreserveNewest" LinkBase="data/" />
+      </ItemGroup>
+    </Otherwise>
+  </Choose>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <PackageReference Include="Nullable" Version="1.3.1">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
@@ -46,16 +101,21 @@
 
   <Target Name="GenerateInterop" BeforeTargets="CoreCompile">
     <PropertyGroup>
-      <Script>$([MSBuild]::NormalizePath(../../../interfaces/sourcegen/run.py))</Script>
+      <Script>$([MSBuild]::NormalizePath($(MSBuildProjectDirectory)/../../../interfaces/sourcegen/run.py))</Script>
       <GeneratedPath>$([MSBuild]::NormalizePath($(IntermediateOutputPath)/sourcegen/))</GeneratedPath>
     </PropertyGroup>
 
     <Exec Command="python3 $(Script) csharp $(GeneratedPath) $(TargetFramework)"
-      Condition="'$(GenerateInterop)' == 'true' Or !Exists('$(GeneratedPath)')"/>
+          Condition="'$(GenerateInterop)' == 'true' Or !Exists('$(GeneratedPath)')"/>
 
     <ItemGroup>
       <Compile Remove="$(GeneratedPath)*.cs" />
       <Compile Include="$(GeneratedPath)*.cs" />
     </ItemGroup>
   </Target>
+
+  <Target Name="PrepareForPack" BeforeTargets="Pack">
+    <Error Condition="$(DoPack) != 'true'" Text="Specify property DoPack=true to perform packaging!" />
+  </Target>
+
 </Project>

@@ -1,0 +1,9 @@
+<Project>
+  <ItemGroup>
+    <DataFiles Include="$([MSBuild]::NormalizePath($(MSBuildThisFileDirectory)../data/))*.*"/>
+  </ItemGroup>
+
+  <Target Name="CopyDataFiles" AfterTargets="Build">
+    <Copy SourceFiles="@(DataFiles)" DestinationFolder="$(TargetDir)/data" />
+  </Target>
+</Project>
