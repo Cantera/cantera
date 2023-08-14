@@ -22,22 +22,23 @@ public:
         m_formula = "C2F4H2";
     }
 
-    double MolWt();
-    double Tcrit();
-    double Pcrit();
-    double Vcrit();
-    double Tmin();
-    double Tmax();
+    double MolWt() override;
+    double Tcrit() override;
+    double Pcrit() override;
+    double Vcrit() override;
+    double Tmin() override;
+    double Tmax() override;
 
-    double Pp();
+    double Pp() override;
     double fp();
-    double up();
-    double sp() {
+    double up() override;
+    double sp() override {
         return ((up() - m_energy_offset) - fp())/T + m_entropy_offset;
     }
-    double Psat();
-private:
-    double ldens();
+    double Psat() override;
+
+protected:
+    double ldens() override;
 };
 }
 #endif // ! HFC134_H

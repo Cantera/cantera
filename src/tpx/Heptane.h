@@ -20,15 +20,15 @@ public:
         m_formula = "C7H16";
     }
 
-    double MolWt();
-    double Tcrit();
-    double Pcrit();
-    double Vcrit();
-    double Tmin();
-    double Tmax();
+    double MolWt() override;
+    double Tcrit() override;
+    double Pcrit() override;
+    double Vcrit() override;
+    double Tmin() override;
+    double Tmax() override;
 
     //! Pressure. Equation P-2 in Reynolds.
-    double Pp();
+    double Pp() override;
 
     /**
      * Internal energy.
@@ -36,17 +36,17 @@ public:
      *  u = (the integral from T to To of co(T)dT) +
      *         sum from i to N ([C(i) - T*Cprime(i)] + uo
      */
-    double up();
+    double up() override;
 
     //! Entropy. See Reynolds eqn (16) section 2
-    double sp();
+    double sp() override;
 
     //! Pressure at Saturation. Equation S-2 in Reynolds.
-    double Psat();
+    double Psat() override;
 
 private:
     //! liquid density. Equation D2 in Reynolds.
-    double ldens();
+    double ldens() override;
 
     /**
      * C returns a multiplier in each term of the sum
