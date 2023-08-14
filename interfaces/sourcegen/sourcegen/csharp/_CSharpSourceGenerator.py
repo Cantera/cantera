@@ -3,7 +3,7 @@
 
 from itertools import starmap
 from pathlib import Path
-from typing import List, Dict
+from typing import List, Dict, Optional
 import re
 
 from ._dataclasses import CsFunc
@@ -106,7 +106,7 @@ class CSharpSourceGenerator(SourceGenerator):
 
         return normalize_indent(text)
 
-    def __init__(self, out_dir: Path, config: dict):
+    def __init__(self, out_dir: Path, config: dict, moniker: Optional[str]):
         self._out_dir = out_dir
 
         # use the typed config
