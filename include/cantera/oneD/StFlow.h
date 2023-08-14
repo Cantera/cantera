@@ -67,14 +67,14 @@ public:
 
     ~StFlow();
 
-    virtual string type() const;
+    string type() const override;
 
     //! @name Problem Specification
     //! @{
 
-    virtual void setupGrid(size_t n, const double* z);
+    void setupGrid(size_t n, const double* z) override;
 
-    virtual void resetBadValues(double* xg);
+    void resetBadValues(double* xg) override;
 
     ThermoPhase& phase() {
         return *m_thermo;
@@ -91,14 +91,14 @@ public:
      */
     void setThermo(ThermoPhase& th);
 
-    virtual void setKinetics(shared_ptr<Kinetics> kin);
+    void setKinetics(shared_ptr<Kinetics> kin) override;
 
     //! Set the kinetics manager.
     //! @deprecated To be removed after %Cantera 3.0;
     //!     replaced by Domain1D::setKinetics()
     void setKinetics(Kinetics& kin);
 
-    virtual void setTransport(shared_ptr<Transport> trans);
+    void setTransport(shared_ptr<Transport> trans) override;
 
     //! Set transport model to existing instance
     //! @deprecated To be removed after %Cantera 3.0;
@@ -135,9 +135,9 @@ public:
     }
 
     //! Write the initial solution estimate into array x.
-    virtual void _getInitialSoln(double* x);
+    void _getInitialSoln(double* x) override;
 
-    virtual void _finalize(const double* x);
+    void _finalize(const double* x) override;
 
     //! Sometimes it is desired to carry out the simulation using a specified
     //! temperature profile, rather than computing it by solving the energy
@@ -163,18 +163,18 @@ public:
 
     //! @}
 
-    virtual string componentName(size_t n) const;
+    string componentName(size_t n) const override;
 
-    virtual size_t componentIndex(const string& name) const;
+    size_t componentIndex(const string& name) const override;
 
     //! Returns true if the specified component is an active part of the solver state
     virtual bool componentActive(size_t n) const;
 
     //! Print the solution.
-    virtual void show(const double* x);
+    void show(const double* x) override;
 
-    virtual shared_ptr<SolutionArray> asArray(const double* soln) const;
-    virtual void fromArray(SolutionArray& arr, double* soln);
+    shared_ptr<SolutionArray> asArray(const double* soln) const override;
+    void fromArray(SolutionArray& arr, double* soln) override;
 
     //! Set flow configuration for freely-propagating flames, using an internal point
     //! with a fixed temperature as the condition to determine the inlet mass flux.
@@ -279,7 +279,7 @@ public:
     }
 
     //! Change the grid size. Called after grid refinement.
-    virtual void resize(size_t components, size_t points);
+    void resize(size_t components, size_t points) override;
 
     //! Set the gas object state to be consistent with the solution at point j.
     void setGas(const double* x, size_t j);
@@ -327,16 +327,14 @@ public:
      *  j-1, j, and j+1. This option is used to efficiently evaluate the
      *  Jacobian numerically.
      */
-    virtual void eval(size_t j, double* x, double* r, integer* mask, double rdt);
+    void eval(size_t j, double* x, double* r, integer* mask, double rdt) override;
 
     //! Evaluate all residual components at the right boundary.
-    virtual void evalRightBoundary(double* x, double* res, int* diag,
-                                   double rdt);
+    virtual void evalRightBoundary(double* x, double* res, int* diag, double rdt);
 
     //! Evaluate the residual corresponding to the continuity equation at all
     //! interior grid points.
-    virtual void evalContinuity(size_t j, double* x, double* r,
-                                int* diag, double rdt);
+    virtual void evalContinuity(size_t j, double* x, double* r, int* diag, double rdt);
 
     //! Index of the species on the left boundary with the largest mass fraction
     size_t leftExcessSpecies() const {
@@ -349,8 +347,8 @@ public:
     }
 
 protected:
-    virtual AnyMap getMeta() const;
-    virtual void setMeta(const AnyMap& state);
+    AnyMap getMeta() const override;
+    void setMeta(const AnyMap& state) override;
 
     double wdot(size_t k, size_t j) const {
         return m_wdot(k,j);
