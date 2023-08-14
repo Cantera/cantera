@@ -96,92 +96,91 @@ public:
 
     // Overrides of Reactor methods
 
-    virtual void initialize(double t0) override {
+    void initialize(double t0) override {
         m_initialize(t0);
     }
 
-    virtual void syncState() override {
+    void syncState() override {
         m_syncState();
     }
 
-    virtual void getState(double* y) override {
+    void getState(double* y) override {
         std::array<size_t, 1> sizes{R::neq()};
         m_getState(sizes, y);
     }
 
-    virtual void updateState(double* y) override {
+    void updateState(double* y) override {
         std::array<size_t, 1> sizes{R::neq()};
         m_updateState(sizes, y);
     }
 
-    virtual void updateSurfaceState(double* y) override {
+    void updateSurfaceState(double* y) override {
         std::array<size_t, 1> sizes{R::m_nv_surf};
         m_updateSurfaceState(sizes, y);
     }
 
-    virtual void getSurfaceInitialConditions(double* y) override {
+    void getSurfaceInitialConditions(double* y) override {
         std::array<size_t, 1> sizes{R::m_nv_surf};
         m_getSurfaceInitialConditions(sizes, y);
     }
 
-    virtual void updateConnected(bool updatePressure) override {
+    void updateConnected(bool updatePressure) override {
         m_updateConnected(updatePressure);
     }
 
-    virtual void eval(double t, double* LHS, double* RHS) override {
+    void eval(double t, double* LHS, double* RHS) override {
         std::array<size_t, 2> sizes{R::neq(), R::neq()};
         m_eval(sizes, t, LHS, RHS);
     }
 
-    virtual void evalWalls(double t) override {
+    void evalWalls(double t) override {
         m_evalWalls(t);
     }
 
-    virtual void evalSurfaces(double* LHS, double* RHS, double* sdot) override
-    {
+    void evalSurfaces(double* LHS, double* RHS, double* sdot) override {
         std::array<size_t, 3> sizes{R::m_nv_surf, R::m_nv_surf, R::m_nsp};
         m_evalSurfaces(sizes, LHS, RHS, sdot);
     }
 
-    virtual string componentName(size_t k) override {
+    string componentName(size_t k) override {
         return m_componentName(k);
     }
 
-    virtual size_t componentIndex(const string& nm) const override {
+    size_t componentIndex(const string& nm) const override {
         return m_componentIndex(nm);
     }
 
-    virtual size_t speciesIndex(const string& nm) const override {
+    size_t speciesIndex(const string& nm) const override {
         return m_speciesIndex(nm);
     }
 
     // Public access to protected Reactor variables needed by derived classes
 
-    virtual void setNEq(size_t n) override {
+    void setNEq(size_t n) override {
         R::m_nv = n;
     }
 
-    virtual double expansionRate() const override {
+    double expansionRate() const override {
         return R::m_vdot;
     }
 
-    virtual void setExpansionRate(double v) override {
+    void setExpansionRate(double v) override {
         R::m_vdot = v;
     }
 
-    virtual double heatRate() const override {
+    double heatRate() const override {
         return R::m_Qdot;
     }
 
-    virtual void setHeatRate(double q) override {
+    void setHeatRate(double q) override {
         R::m_Qdot = q;
     }
 
-    virtual void restoreThermoState() override {
+    void restoreThermoState() override {
         R::m_thermo->restoreState(R::m_state);
     }
 
-    virtual void restoreSurfaceState(size_t n) override {
+    void restoreSurfaceState(size_t n) override {
         R::m_surfaces.at(n)->syncState();
     }
 

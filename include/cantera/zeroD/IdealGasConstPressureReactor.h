@@ -24,25 +24,25 @@ class IdealGasConstPressureReactor : public ConstPressureReactor
 public:
     IdealGasConstPressureReactor() {}
 
-    virtual string type() const {
+    string type() const override {
         return "IdealGasConstPressureReactor";
     }
 
-    virtual void setThermoMgr(ThermoPhase& thermo);
+    void setThermoMgr(ThermoPhase& thermo) override;
 
-    virtual void getState(double* y);
+    void getState(double* y) override;
 
-    virtual void initialize(double t0 = 0.0);
-    virtual void eval(double t, double* LHS, double* RHS);
+    void initialize(double t0=0.0) override;
+    void eval(double t, double* LHS, double* RHS) override;
 
-    virtual void updateState(double* y);
+    void updateState(double* y) override;
 
     //! Return the index in the solution vector for this reactor of the
     //! component named *nm*. Possible values for *nm* are "mass",
     //! "temperature", the name of a homogeneous phase species, or the name of a
     //! surface species.
-    virtual size_t componentIndex(const string& nm) const;
-    string componentName(size_t k);
+    size_t componentIndex(const string& nm) const override;
+    string componentName(size_t k) override;
 
 protected:
     vector<double> m_hk; //!< Species molar enthalpies

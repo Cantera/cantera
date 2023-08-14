@@ -45,7 +45,7 @@ class Reactor : public ReactorBase
 public:
     Reactor() = default;
 
-    virtual string type() const {
+    string type() const override {
         return "Reactor";
     }
 
@@ -74,9 +74,9 @@ public:
 
     void insert(shared_ptr<Solution> sol);
 
-    virtual void setKineticsMgr(Kinetics& kin);
+    void setKineticsMgr(Kinetics& kin) override;
 
-    void setChemistry(bool cflag=true) {
+    void setChemistry(bool cflag=true) override {
         m_chem = cflag;
     }
 
@@ -86,7 +86,7 @@ public:
         return m_chem;
     }
 
-    void setEnergy(int eflag=1) {
+    void setEnergy(int eflag=1) override {
         if (eflag > 0) {
             m_energy = true;
         } else {
@@ -123,7 +123,7 @@ public:
         throw NotImplementedError("Reactor::getStateDae(y, ydot)");
     }
 
-    virtual void initialize(double t0 = 0.0);
+    void initialize(double t0=0.0) override;
 
     //! Evaluate the reactor governing equations. Called by ReactorNet::eval.
     //! @param[in] t time.
@@ -150,8 +150,7 @@ public:
         throw NotImplementedError("Reactor::getConstraints");
     }
 
-
-    virtual void syncState();
+    void syncState() override;
 
     //! Set the state of the reactor to correspond to the state vector *y*.
     virtual void updateState(double* y);
