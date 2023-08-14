@@ -78,7 +78,7 @@ public:
      * @param m  New number of columns
      * @param v  Default fill value. defaults to zero.
      */
-    void resize(size_t n, size_t m, double v = 0.0);
+    void resize(size_t n, size_t m, double v=0.0) override;
 
     virtual double* const* colPts();
 

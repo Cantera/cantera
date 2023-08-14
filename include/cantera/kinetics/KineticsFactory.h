@@ -23,12 +23,12 @@ class KineticsFactory : public Factory<Kinetics>
 public:
     static KineticsFactory* factory();
 
-    virtual void deleteFactory();
+    void deleteFactory() override;
 
     /**
      * Return a new, empty kinetics manager.
      */
-    virtual Kinetics* newKinetics(const string& model);
+    Kinetics* newKinetics(const string& model);
 
 private:
     static KineticsFactory* s_factory;

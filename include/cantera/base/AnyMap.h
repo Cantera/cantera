@@ -767,7 +767,7 @@ public:
         {
         }
 
-    virtual string getClass() const {
+    string getClass() const override {
         return "InputFileError";
     }
 protected:

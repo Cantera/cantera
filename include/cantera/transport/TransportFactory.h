@@ -45,7 +45,7 @@ public:
     static TransportFactory* factory();
 
     //! Deletes the statically allocated factory instance.
-    virtual void deleteFactory();
+    void deleteFactory() override;
 
     //! Build a new transport manager using a transport manager
     //! that may not be the same as in the phase description
@@ -55,8 +55,7 @@ public:
      *  @param thermo    ThermoPhase object
      *  @param log_level log level
      */
-    virtual Transport* newTransport(const string& model, ThermoPhase* thermo,
-                                    int log_level=0);
+    Transport* newTransport(const string& model, ThermoPhase* thermo, int log_level=0);
 
     //! Build a new transport manager using the default transport manager
     //! in the phase description and return a base class pointer to it
@@ -64,7 +63,7 @@ public:
      * @param thermo    ThermoPhase object
      * @param log_level log level
      */
-    virtual Transport* newTransport(ThermoPhase* thermo, int log_level=0);
+    Transport* newTransport(ThermoPhase* thermo, int log_level=0);
 
 private:
     //! Static instance of the factor -> This is the only instance of this

@@ -30,7 +30,7 @@ public:
      */
     static Func1Factory* factory();
 
-    virtual void deleteFactory();
+    void deleteFactory() override;
 
 private:
     //! Pointer to the single instance of the factory
@@ -64,7 +64,7 @@ public:
      */
     static Math1FactoryA* factory();
 
-    virtual void deleteFactory();
+    void deleteFactory() override;
 
 private:
     //! Pointer to the single instance of the factory
@@ -97,7 +97,7 @@ public:
      */
     static Math1FactoryB* factory();
 
-    virtual void deleteFactory();
+    void deleteFactory() override;
 
 private:
     //! Pointer to the single instance of the factory

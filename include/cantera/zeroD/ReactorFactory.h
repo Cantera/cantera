@@ -24,14 +24,14 @@ class ReactorFactory : public Factory<ReactorBase>
 public:
     static ReactorFactory* factory();
 
-    virtual void deleteFactory();
+    void deleteFactory() override;
 
     //! Create a new reactor by type name.
     /*!
      * @param reactorType the type to be created.
      * @deprecated To be removed after %Cantera 3.0; replaceable by newReactor3.
      */
-    virtual ReactorBase* newReactor(const string& reactorType);
+    ReactorBase* newReactor(const string& reactorType);
 
 private:
     static ReactorFactory* s_factory;

@@ -50,7 +50,7 @@ inline int get_sundials_version()
 class PythonLogger : public Cantera::Logger
 {
 public:
-    virtual void write(const std::string& s) {
+    void write(const std::string& s) override {
         // 1000 bytes is the maximum size permitted by PySys_WriteStdout
         static const size_t N = 999;
         for (size_t i = 0; i < s.size(); i+=N) {
@@ -59,12 +59,12 @@ public:
         std::cout.flush();
     }
 
-    virtual void writeendl() {
+    void writeendl() override {
         PySys_WriteStdout("%s", "\n");
         std::cout.flush();
     }
 
-    virtual void warn(const std::string& warning, const std::string& msg) {
+    void warn(const std::string& warning, const std::string& msg) override {
         if (mapped_PyWarnings.find(warning) != mapped_PyWarnings.end()) {
             PyErr_WarnEx(mapped_PyWarnings[warning], msg.c_str(), 1);
         } else {
@@ -73,7 +73,7 @@ public:
         }
     }
 
-    virtual void error(const std::string& msg) {
+    void error(const std::string& msg) override {
         PyErr_SetString(PyExc_RuntimeError, msg.c_str());
     }
 };

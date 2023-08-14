@@ -293,23 +293,23 @@ public:
         return *this;
     }
 
-    virtual string write(const string& arg) const;
+    string write(const string& arg) const override;
 
-    virtual int ID() const {
+    int ID() const override {
         return SinFuncType;
     }
 
-    virtual string type() const {
+    string type() const override {
         return "sin";
     }
 
-    virtual double eval(double t) const {
+    double eval(double t) const override{
         return sin(m_c*t);
     }
 
-    virtual Func1& duplicate() const;
-    virtual Func1& derivative() const;
-    virtual shared_ptr<Func1> derivative3() const;
+    Func1& duplicate() const override;
+    Func1& derivative() const override;
+    shared_ptr<Func1> derivative3() const override;
 };
 
 
@@ -342,20 +342,20 @@ public:
         return *this;
     }
 
-    virtual Func1& duplicate() const;
-    virtual string write(const string& arg) const;
-    virtual int ID() const {
+    Func1& duplicate() const override;
+    string write(const string& arg) const override;
+    int ID() const override {
         return CosFuncType;
     }
-    virtual string type() const {
+    string type() const override {
         return "cos";
     }
 
-    virtual double eval(double t) const {
+    double eval(double t) const override {
         return cos(m_c * t);
     }
-    virtual Func1& derivative() const;
-    virtual shared_ptr<Func1> derivative3() const;
+    Func1& derivative() const override;
+    shared_ptr<Func1> derivative3() const override;
 };
 
 
@@ -385,21 +385,21 @@ public:
         Func1::operator=(right);
         return *this;
     }
-    virtual string write(const string& arg) const;
-    virtual int ID() const {
+    string write(const string& arg) const override;
+    int ID() const override {
         return ExpFuncType;
     }
-    virtual string type() const {
+    string type() const override {
         return "exp";
     }
 
-    virtual double eval(double t) const {
+    double eval(double t) const override {
         return exp(m_c*t);
     }
 
-    virtual Func1& duplicate() const;
-    virtual Func1& derivative() const;
-    virtual shared_ptr<Func1> derivative3() const;
+    Func1& duplicate() const override;
+    Func1& derivative() const override;
+    shared_ptr<Func1> derivative3() const override;
 };
 
 
@@ -420,17 +420,17 @@ public:
     //! Constructor uses single parameter (factor)
     Log1(const vector<double>& params);
 
-    virtual string type() const {
+    string type() const override {
         return "log";
     }
 
-    virtual double eval(double t) const {
+    double eval(double t) const override {
         return log(m_c * t);
     }
 
-    virtual shared_ptr<Func1> derivative3() const;
+    shared_ptr<Func1> derivative3() const override;
 
-    virtual string write(const string& arg) const;
+    string write(const string& arg) const override;
 };
 
 //! Implements the @c pow() (power) function.
@@ -459,20 +459,20 @@ public:
         Func1::operator=(right);
         return *this;
     }
-    virtual string write(const string& arg) const;
-    virtual int ID() const {
+    string write(const string& arg) const override;
+    int ID() const override {
         return PowFuncType;
     }
-    virtual string type() const {
+    string type() const override {
         return "pow";
     }
 
-    virtual double eval(double t) const {
+    double eval(double t) const override {
         return pow(t, m_c);
     }
-    virtual Func1& duplicate() const;
-    virtual Func1& derivative() const;
-    virtual shared_ptr<Func1> derivative3() const;
+    Func1& duplicate() const override;
+    Func1& derivative() const override;
+    shared_ptr<Func1> derivative3() const override;
 };
 
 //! Implements a tabulated function.
@@ -509,21 +509,21 @@ public:
     //! @since New in %Cantera 3.0
     void setMethod(const string& method);
 
-    virtual string write(const string& arg) const;
-    virtual int ID() const {
+    string write(const string& arg) const override;
+    int ID() const override {
         return TabulatedFuncType;
     }
-    virtual string type() const {
+    string type() const override {
         if (m_isLinear) {
             return "tabulated-linear";
         }
         return "tabulated-previous";
     }
 
-    virtual double eval(double t) const;
-    virtual Func1& duplicate() const;
-    virtual Func1& derivative() const;
-    virtual shared_ptr<Func1> derivative3() const;
+    double eval(double t) const override;
+    Func1& duplicate() const override;
+    Func1& derivative() const override;
+    shared_ptr<Func1> derivative3() const override;
 private:
     vector<double> m_tvec; //!< Vector of time values
     vector<double> m_fvec; //!< Vector of function values
@@ -559,20 +559,20 @@ public:
         return *this;
     }
 
-    virtual string write(const string& arg) const;
-    virtual int ID() const {
+    string write(const string& arg) const override;
+    int ID() const override {
         return ConstFuncType;
     }
-    virtual string type() const {
+    string type() const override {
         return "constant";
     }
 
-    virtual double eval(double t) const {
+    double eval(double t) const override {
         return m_c;
     }
-    virtual Func1& duplicate() const;
-    virtual Func1& derivative() const;
-    virtual shared_ptr<Func1> derivative3() const {
+    Func1& duplicate() const override;
+    Func1& derivative() const override;
+    shared_ptr<Func1> derivative3() const override {
         return make_shared<Const1>(0.0);
     }
 };
@@ -597,7 +597,7 @@ public:
 
     Sum1(shared_ptr<Func1> f1, shared_ptr<Func1> f2) : Func1(f1, f2) {}
 
-    virtual ~Sum1() {
+    ~Sum1() override {
         if (!m_f1_shared) {
             delete m_f1;
         }
@@ -624,29 +624,29 @@ public:
         return *this;
     }
 
-    virtual int ID() const {
+    int ID() const override {
         return SumFuncType;
     }
-    virtual string type() const {
+    string type() const override {
         return "sum";
     }
 
-    virtual double eval(double t) const {
+    double eval(double t) const override {
         return m_f1->eval(t) + m_f2->eval(t);
     }
 
-    virtual Func1& duplicate() const;
-    virtual Func1& derivative() const;
+    Func1& duplicate() const override;
+    Func1& derivative() const override;
 
-    virtual shared_ptr<Func1> derivative3() const {
+    shared_ptr<Func1> derivative3() const override {
         return newSumFunction(m_f1_shared->derivative3(), m_f2_shared->derivative3());
     }
 
-    virtual int order() const {
+    int order() const override {
         return 0;
     }
 
-    virtual string write(const string& arg) const;
+    string write(const string& arg) const override;
 };
 
 /**
@@ -668,7 +668,7 @@ public:
 
     Diff1(shared_ptr<Func1> f1, shared_ptr<Func1> f2) : Func1(f1, f2) {}
 
-    virtual ~Diff1() {
+    ~Diff1() override {
         if (!m_f1_shared) {
             delete m_f1;
         }
@@ -695,30 +695,30 @@ public:
         return *this;
     }
 
-    virtual int ID() const {
+    int ID() const override {
         return DiffFuncType;
     }
 
-    virtual string type() const {
+    string type() const override {
         return "diff";
     }
 
-    virtual double eval(double t) const {
+    double eval(double t) const override {
         return m_f1->eval(t) - m_f2->eval(t);
     }
 
-    virtual Func1& duplicate() const;
-    virtual Func1& derivative() const;
+    Func1& duplicate() const override;
+    Func1& derivative() const override;
 
-    virtual shared_ptr<Func1> derivative3() const {
+    shared_ptr<Func1> derivative3() const override {
         return newDiffFunction(m_f1_shared->derivative3(), m_f2_shared->derivative3());
     }
 
-    virtual int order() const {
+    int order() const override {
         return 0;
     }
 
-    virtual string write(const string& arg) const;
+    string write(const string& arg) const override;
 };
 
 
@@ -741,7 +741,7 @@ public:
 
     Product1(shared_ptr<Func1> f1, shared_ptr<Func1> f2) : Func1(f1, f2) {}
 
-    virtual ~Product1() {
+    ~Product1() override {
         if (!m_f1_shared) {
             delete m_f1;
         }
@@ -768,26 +768,26 @@ public:
         return *this;
     }
 
-    virtual int ID() const {
+    int ID() const override {
         return ProdFuncType;
     }
 
-    virtual string type() const {
+    string type() const override {
         return "product";
     }
 
-    virtual string write(const string& arg) const;
+    string write(const string& arg) const override;
 
-    virtual double eval(double t) const {
+    double eval(double t) const override {
         return m_f1->eval(t) * m_f2->eval(t);
     }
 
-    virtual Func1& duplicate() const;
-    virtual Func1& derivative() const;
+    Func1& duplicate() const override;
+    Func1& derivative() const override;
 
-    virtual shared_ptr<Func1> derivative3() const;
+    shared_ptr<Func1> derivative3() const override;
 
-    virtual int order() const {
+    int order() const override {
         return 1;
     }
 };
@@ -810,7 +810,7 @@ public:
 
     TimesConstant1(shared_ptr<Func1> f1, double a) : Func1(f1, a) {}
 
-    virtual ~TimesConstant1() {
+    ~TimesConstant1() override {
         if (!m_f1_shared) {
             delete m_f1;
         }
@@ -831,14 +831,14 @@ public:
         m_parent = 0;
         return *this;
     }
-    virtual int ID() const {
+    int ID() const override {
         return TimesConstantFuncType;
     }
-    virtual string type() const {
+    string type() const override {
         return "times-constant";
     }
 
-    virtual double isProportional(TimesConstant1& other) {
+    double isProportional(TimesConstant1& other) override {
         if (func1().isIdentical(other.func1())) {
             return (other.c()/c());
         } else {
@@ -846,7 +846,7 @@ public:
         }
     }
 
-    virtual double isProportional(Func1& other) {
+    double isProportional(Func1& other) override {
         if (func1().isIdentical(other)) {
             return 1.0/c();
         } else {
@@ -854,20 +854,20 @@ public:
         }
     }
 
-    virtual double eval(double t) const {
+    double eval(double t) const override {
         return m_f1->eval(t) * m_c;
     }
 
-    virtual Func1& duplicate() const;
-    virtual Func1& derivative() const;
+    Func1& duplicate() const override;
+    Func1& derivative() const override;
 
-    virtual shared_ptr<Func1> derivative3() const {
+    shared_ptr<Func1> derivative3() const override {
         return newTimesConstFunction(m_f1_shared->derivative3(), m_c);
     }
 
-    virtual string write(const string& arg) const;
+    string write(const string& arg) const override;
 
-    virtual int order() const {
+    int order() const override {
         return 0;
     }
 };
@@ -890,7 +890,7 @@ public:
 
     PlusConstant1(shared_ptr<Func1> f1, double a) : Func1(f1, a) {}
 
-    virtual ~PlusConstant1() {
+    ~PlusConstant1() override {
         if (!m_f1_shared) {
             delete m_f1;
         }
@@ -912,27 +912,27 @@ public:
         return *this;
     }
 
-    virtual int ID() const {
+    int ID() const override {
         return PlusConstantFuncType;
     }
-    virtual string type() const {
+    string type() const override {
         return "plus-constant";
     }
 
-    virtual double eval(double t) const {
+    double eval(double t) const override {
         return m_f1->eval(t) + m_c;
     }
 
-    virtual Func1& duplicate() const;
-    virtual Func1& derivative() const;
+    Func1& duplicate() const override;
+    Func1& derivative() const override;
 
-    virtual shared_ptr<Func1> derivative3() const {
+    shared_ptr<Func1> derivative3() const override {
         return m_f1_shared->derivative3();
     }
 
-    virtual string write(const string& arg) const;
+    string write(const string& arg) const override;
 
-    virtual int order() const {
+    int order() const override {
         return 0;
     }
 };
@@ -957,7 +957,7 @@ public:
 
     Ratio1(shared_ptr<Func1> f1, shared_ptr<Func1> f2) : Func1(f1, f2) {}
 
-    virtual ~Ratio1() {
+    ~Ratio1() override {
         if (!m_f1_shared) {
             delete m_f1;
         }
@@ -984,25 +984,25 @@ public:
         return *this;
     }
 
-    virtual int ID() const {
+    int ID() const override {
         return RatioFuncType;
     }
-    virtual string type() const {
+    string type() const override {
         return "ratio";
     }
 
-    virtual double eval(double t) const {
+    double eval(double t) const override {
         return m_f1->eval(t) / m_f2->eval(t);
     }
 
-    virtual Func1& duplicate() const;
-    virtual Func1& derivative() const;
+    Func1& duplicate() const override;
+    Func1& derivative() const override;
 
-    virtual shared_ptr<Func1> derivative3() const;
+    shared_ptr<Func1> derivative3() const override;
 
-    virtual string write(const string& arg) const;
+    string write(const string& arg) const override;
 
-    virtual int order() const {
+    int order() const override {
         return 1;
     }
 };
@@ -1026,7 +1026,7 @@ public:
 
     Composite1(shared_ptr<Func1> f1, shared_ptr<Func1> f2) : Func1(f1, f2) {}
 
-    virtual ~Composite1() {
+    ~Composite1() override {
         if (!m_f1_shared) {
             delete m_f1;
         }
@@ -1053,25 +1053,25 @@ public:
         return *this;
     }
 
-    virtual int ID() const {
+    int ID() const override {
         return CompositeFuncType;
     }
-    virtual string type() const {
+    string type() const override {
         return "composite";
     }
 
-    virtual double eval(double t) const {
+    double eval(double t) const override {
         return m_f1->eval(m_f2->eval(t));
     }
 
-    virtual Func1& duplicate() const;
-    virtual Func1& derivative() const;
+    Func1& duplicate() const override;
+    Func1& derivative() const override;
 
-    virtual shared_ptr<Func1> derivative3() const;
+    shared_ptr<Func1> derivative3() const override;
 
-    virtual string write(const string& arg) const;
+    string write(const string& arg) const override;
 
-    virtual int order() const {
+    int order() const override {
         return 2;
     }
 };
@@ -1122,11 +1122,11 @@ public:
         return *this;
     }
 
-    virtual string type() const {
+    string type() const override {
         return "Gaussian";
     }
 
-    virtual double eval(double t) const {
+    double eval(double t) const override {
         double x = (t - m_t0)/m_tau;
         return m_A * std::exp(-x*x);
     }
@@ -1154,7 +1154,7 @@ class Gaussian : public Gaussian1
 
     Gaussian(const Gaussian& b);
 
-    virtual Func1& duplicate() const;
+    Func1& duplicate() const override;
 };
 
 
@@ -1193,13 +1193,13 @@ public:
         return *this;
     }
 
-    virtual string type() const {
+    string type() const override {
         return "polynomial";
     }
 
-    virtual Func1& duplicate() const;
+    Func1& duplicate() const override;
 
-    virtual double eval(double t) const {
+    double eval(double t) const override {
         double r = m_cpoly[m_cpoly.size()-1];
         for (size_t n = 1; n < m_cpoly.size(); n++) {
             r *= t;
@@ -1256,13 +1256,13 @@ public:
         return *this;
     }
 
-    virtual string type() const {
+    string type() const override {
         return "Fourier";
     }
 
-    virtual Func1& duplicate() const;
+    Func1& duplicate() const override;
 
-    virtual double eval(double t) const {
+    double eval(double t) const override {
         size_t n, nn;
         double sum = m_a0_2;
         for (n = 0; n < m_ccos.size(); n++) {
@@ -1323,13 +1323,13 @@ public:
         return *this;
     }
 
-    virtual string type() const {
+    string type() const override {
         return "Arrhenius";
     }
 
-    virtual Func1& duplicate() const;
+    Func1& duplicate() const override;
 
-    virtual double eval(double t) const {
+    double eval(double t) const override {
         double sum = 0.0;
         for (size_t n = 0; n < m_A.size(); n++) {
             sum += m_A[n]*std::pow(t,m_b[n])*std::exp(-m_E[n]/t);
@@ -1371,19 +1371,19 @@ public:
         return *this;
     }
 
-    virtual string type() const {
+    string type() const override {
         return "periodic";
     }
 
-    virtual Func1& duplicate() const;
+    Func1& duplicate() const override;
 
-    virtual ~Periodic1() {
+    ~Periodic1() override {
         if (!m_f1_shared) {
             delete m_f1;
         }
     }
 
-    virtual double eval(double t) const {
+    double eval(double t) const override {
         int np = int(t/m_c);
         double time = t - np*m_c;
         return m_f1->eval(time);

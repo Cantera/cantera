@@ -24,14 +24,14 @@ class FlowDeviceFactory : public Factory<FlowDevice>
 public:
     static FlowDeviceFactory* factory();
 
-    virtual void deleteFactory();
+    void deleteFactory() override;
 
     //! Create a new flow device by type name.
     /*!
      * @param flowDeviceType the type to be created.
      * @deprecated To be removed after %Cantera 3.0; replaceable by newFlowDevice3.
      */
-    virtual FlowDevice* newFlowDevice(const string& flowDeviceType);
+    FlowDevice* newFlowDevice(const string& flowDeviceType);
 
 private:
     static FlowDeviceFactory* s_factory;

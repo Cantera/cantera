@@ -205,7 +205,7 @@ public:
     bool addSpecies(shared_ptr<Species> spec) override;
 
     //! Since interface phases have no volume, this returns 0.0.
-    virtual double molarVolume() const override {
+    double molarVolume() const override {
         return 0.0;
     }
 
