@@ -49,7 +49,7 @@ public:
     void getParameters(AnyMap& rateNode, const Units& rate_units=Units(0.)) const;
     using ReactionRate::getParameters;
 
-    virtual void validate(const string& equation, const Kinetics& kin) override;
+    void validate(const string& equation, const Kinetics& kin) override;
 
     //! Update information specific to reaction
     /*!

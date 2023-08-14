@@ -24,15 +24,15 @@ struct ChebyshevData : public ReactionData
 {
     ChebyshevData() = default;
 
-    virtual void update(double T) override;
+    void update(double T) override;
 
-    virtual void update(double T, double P) override {
+    void update(double T, double P) override {
         ReactionData::update(T);
         pressure = P;
         log10P = std::log10(P);
     }
 
-    virtual bool update(const ThermoPhase& phase, const Kinetics& kin) override;
+    bool update(const ThermoPhase& phase, const Kinetics& kin) override;
 
     using ReactionData::update;
 
@@ -43,9 +43,9 @@ struct ChebyshevData : public ReactionData
      */
     void perturbPressure(double deltaP);
 
-    virtual void restore() override;
+    void restore() override;
 
-    virtual void invalidateCache() override {
+    void invalidateCache() override {
         ReactionData::invalidateCache();
         pressure = NAN;
     }
@@ -109,20 +109,20 @@ public:
 
     ChebyshevRate(const AnyMap& node, const UnitStack& rate_units={});
 
-    unique_ptr<MultiRateBase> newMultiRate() const {
+    unique_ptr<MultiRateBase> newMultiRate() const override {
         return make_unique<MultiRate<ChebyshevRate, ChebyshevData>>();
     }
 
-    const string type() const { return "Chebyshev"; }
+    const string type() const override { return "Chebyshev"; }
 
     //! Perform object setup based on AnyMap node information
     /*!
      *  @param node  AnyMap containing rate information
      *  @param rate_units  Unit definitions specific to rate information
      */
-    void setParameters(const AnyMap& node, const UnitStack& rate_units);
+    void setParameters(const AnyMap& node, const UnitStack& rate_units) override;
 
-    void getParameters(AnyMap& rateNode) const;
+    void getParameters(AnyMap& rateNode) const override;
 
     //! @deprecated To be removed after %Cantera 3.0.
     void getParameters(AnyMap& rateNode, const Units& rate_units) const {
@@ -131,7 +131,7 @@ public:
         return getParameters(rateNode);
     }
 
-    virtual void validate(const string& equation, const Kinetics& kin);
+    void validate(const string& equation, const Kinetics& kin) override;
 
     //! Update information specific to reaction
     /*!

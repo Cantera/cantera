@@ -28,7 +28,7 @@ class AnyMap;
  */
 struct ArrheniusData : public ReactionData
 {
-    virtual bool update(const ThermoPhase& phase, const Kinetics& kin);
+    bool update(const ThermoPhase& phase, const Kinetics& kin) override;
     using ReactionData::update;
 };
 
@@ -79,15 +79,14 @@ public:
     //! equivalent field
     void getRateParameters(AnyMap& node) const;
 
-    virtual void setParameters(
-        const AnyMap& node, const UnitStack& rate_units) override;
+    void setParameters(const AnyMap& node, const UnitStack& rate_units) override;
 
-    virtual void getParameters(AnyMap& node) const override;
+    void getParameters(AnyMap& node) const override;
 
     //! Check rate expression
-    virtual void check(const string& equation) override;
+    void check(const string& equation) override;
 
-    virtual void validate(const string& equation, const Kinetics& kin) override;
+    void validate(const string& equation, const Kinetics& kin) override;
 
     //! Return the pre-exponential factor *A* (in m, kmol, s to powers depending
     //! on the reaction order)
@@ -176,7 +175,7 @@ public:
         return make_unique<MultiRate<ArrheniusRate, ArrheniusData>>();
     }
 
-    virtual const string type() const override {
+    const string type() const override {
         return "Arrhenius";
     }
 

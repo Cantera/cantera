@@ -21,14 +21,14 @@ struct TwoTempPlasmaData : public ReactionData
 {
     TwoTempPlasmaData() = default;
 
-    virtual bool update(const ThermoPhase& phase, const Kinetics& kin) override;
-    virtual void update(double T) override;
-    virtual void update(double T, double Te) override;
+    bool update(const ThermoPhase& phase, const Kinetics& kin) override;
+    void update(double T) override;
+    void update(double T, double Te) override;
     using ReactionData::update;
 
     virtual void updateTe(double Te);
 
-    virtual void invalidateCache() override {
+    void invalidateCache() override {
         ReactionData::invalidateCache();
         electronTemp = NAN;
     }
@@ -78,11 +78,11 @@ public:
         return make_unique<MultiRate<TwoTempPlasmaRate, TwoTempPlasmaData>>();
     }
 
-    virtual const string type() const override {
+    const string type() const override {
         return "two-temperature-plasma";
     }
 
-    virtual void setContext(const Reaction& rxn, const Kinetics& kin) override;
+    void setContext(const Reaction& rxn, const Kinetics& kin) override;
 
     //! Evaluate reaction rate
     /*!

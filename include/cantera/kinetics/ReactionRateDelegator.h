@@ -70,14 +70,14 @@ class ReactionRateDelegator : public Delegator, public ReactionRate
 public:
     ReactionRateDelegator();
 
-    virtual unique_ptr<MultiRateBase> newMultiRate() const override;
+    unique_ptr<MultiRateBase> newMultiRate() const override;
 
     //! Set the reaction type based on the user-provided reaction rate parameterization
     void setType(const string& type) {
         m_rateType = type;
     }
 
-    virtual const string type() const override {
+    const string type() const override {
         return m_rateType;
     }
 
