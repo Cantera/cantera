@@ -36,27 +36,27 @@ class IonGasTransport : public MixTransport
 public:
     IonGasTransport() = default;
 
-    virtual string transportModel() const {
+    string transportModel() const override {
         return "ionized-gas";
     }
 
-    virtual void init(ThermoPhase* thermo, int mode, int log_level);
+    void init(ThermoPhase* thermo, int mode, int log_level) override;
 
     //! Viscosity of the mixture  (kg/m/s).
     //! Only Neutral species contribute to Viscosity.
-    virtual double viscosity();
+    double viscosity() override;
 
     //! Returns the mixture thermal conductivity (W/m/K).
     //! Only Neutral species contribute to thermal conductivity.
-    virtual double thermalConductivity();
+    double thermalConductivity() override;
 
     //! The mobilities for ions in gas.
     //! The ion mobilities are calculated by Blanc's law.
-    virtual void getMobilities(double* const mobi);
+    void getMobilities(double* const mobi) override;
 
     //! The mixture transport for ionized gas.
     //! The binary transport between two charged species is neglected.
-    virtual void getMixDiffCoeffs(double* const d);
+    void getMixDiffCoeffs(double* const d) override;
 
     /**
      * The electrical conductivity (Siemens/m).
@@ -64,7 +64,7 @@ public:
      *     \sigma = \sum_k{\left|C_k\right| \mu_k \frac{X_k P}{k_b T}}
      * @f]
      */
-    virtual double electricalConductivity();
+    double electricalConductivity() override;
 
 protected:
     //! setup parameters for n64 model
@@ -72,7 +72,7 @@ protected:
 
     //! Generate polynomial fits to the binary diffusion coefficients.
     //! Use Stockmayer-(n,6,4) model for collision between charged and neutral species.
-    virtual void fitDiffCoeffs(MMCollisionInt& integrals);
+    void fitDiffCoeffs(MMCollisionInt& integrals) override;
 
     /**
      * Collision integral of omega11 of n64 collision model.

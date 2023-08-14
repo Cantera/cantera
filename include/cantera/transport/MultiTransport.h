@@ -31,7 +31,7 @@ public:
      */
     MultiTransport(ThermoPhase* thermo=0);
 
-    virtual string transportModel() const {
+    string transportModel() const override {
         return (m_mode == CK_Mode) ? "multicomponent-CK" : "multicomponent";
     }
 
@@ -45,11 +45,11 @@ public:
      *
      * @param dt  Vector of thermal diffusion coefficients. Units = kg/m/s
      */
-    virtual void getThermalDiffCoeffs(double* const dt);
+    void getThermalDiffCoeffs(double* const dt) override;
 
-    virtual double thermalConductivity();
+    double thermalConductivity() override;
 
-    virtual void getMultiDiffCoeffs(const size_t ld, double* const d);
+    void getMultiDiffCoeffs(const size_t ld, double* const d) override;
 
     //! Get the species diffusive mass fluxes wrt to the mass averaged velocity,
     //! given the gradients in mole fraction and temperature
@@ -67,9 +67,9 @@ public:
      * @param fluxes   Output of the diffusive mass fluxes. Flat vector with the
      *                 m_nsp in the inner loop. length = ldx * ndim
      */
-    virtual void getSpeciesFluxes(size_t ndim, const double* const grad_T,
-                                  size_t ldx, const double* const grad_X,
-                                  size_t ldf, double* const fluxes);
+    void getSpeciesFluxes(size_t ndim, const double* const grad_T,
+                          size_t ldx, const double* const grad_X,
+                          size_t ldf, double* const fluxes) override;
 
     //! Get the molar diffusional fluxes [kmol/m^2/s] of the species, given the
     //! thermodynamic state at two nearby points.
@@ -84,10 +84,8 @@ public:
      * @param delta  Distance from state 1 to state 2 (m).
      * @param fluxes Output molar fluxes of the species. (length = m_nsp)
      */
-    virtual void getMolarFluxes(const double* const state1,
-                                const double* const state2,
-                                const double delta,
-                                double* const fluxes);
+    void getMolarFluxes(const double* const state1, const double* const state2,
+                        const double delta, double* const fluxes) override;
 
     //! Get the mass diffusional fluxes [kg/m^2/s] of the species, given the
     //! thermodynamic state at two nearby points.
@@ -102,19 +100,19 @@ public:
      * @param delta  Distance from state 1 to state 2 (m).
      * @param fluxes Output mass fluxes of the species. (length = m_nsp)
      */
-    virtual void getMassFluxes(const double* state1, const double* state2, double delta,
-                               double* fluxes);
+    void getMassFluxes(const double* state1, const double* state2, double delta,
+                       double* fluxes) override;
 
-    virtual void init(ThermoPhase* thermo, int mode=0, int log_level=0);
+    void init(ThermoPhase* thermo, int mode=0, int log_level=0) override;
 
 protected:
     //! Update basic temperature-dependent quantities if the temperature has
     //! changed.
-    void update_T();
+    void update_T() override;
 
     //! Update basic concentration-dependent quantities if the concentrations
     //! have changed.
-    void update_C();
+    void update_C() override;
 
     //! Update the temperature-dependent terms needed to compute the thermal
     //! conductivity and thermal diffusion coefficients.

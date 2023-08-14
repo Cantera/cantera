@@ -27,7 +27,7 @@ class UnityLewisTransport : public MixTransport
 public:
     UnityLewisTransport() = default;
 
-    virtual string transportModel() const {
+    string transportModel() const override {
         return "unity-Lewis-number";
     }
 
@@ -53,7 +53,7 @@ public:
      * @param[out] d  Vector of diffusion coefficients for each species (m^2/s).
      * length m_nsp.
      */
-    virtual void getMixDiffCoeffs(double* const d) {
+    void getMixDiffCoeffs(double* const d) override {
         double Dm = thermalConductivity() / (m_thermo->density() * m_thermo->cp_mass());
         for (size_t k = 0; k < m_nsp; k++) {
             d[k] = Dm;
@@ -61,7 +61,7 @@ public:
     }
 
     //! Not implemented for unity Lewis number approximation
-    virtual void getMixDiffCoeffsMole(double* const d){
+    void getMixDiffCoeffsMole(double* const d) override {
         throw NotImplementedError("UnityLewisTransport::getMixDiffCoeffsMole");
     }
 
@@ -78,7 +78,7 @@ public:
      * @param[out] d  Vector of diffusion coefficients for each species (m^2/s).
      * length m_nsp.
      */
-    virtual void getMixDiffCoeffsMass(double* const d){
+    void getMixDiffCoeffsMass(double* const d) override {
         double Dm = thermalConductivity() / (m_thermo->density() * m_thermo->cp_mass());
         for (size_t k = 0; k < m_nsp; k++) {
             d[k] = Dm;

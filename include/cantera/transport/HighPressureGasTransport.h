@@ -47,7 +47,7 @@ protected:
     HighPressureGasTransport(ThermoPhase* thermo=0);
 
 public:
-    virtual string transportModel() const {
+    string transportModel() const override {
         return "HighPressureGas";
     }
 
@@ -55,9 +55,9 @@ public:
     /*!
      *  Currently not implemented for this model
      */
-    virtual void getThermalDiffCoeffs(double* const dt);
+    void getThermalDiffCoeffs(double* const dt) override;
 
-    virtual double thermalConductivity();
+    double thermalConductivity() override;
 
     /**
      * Returns the matrix of binary diffusion coefficients
@@ -67,28 +67,28 @@ public:
      * @param ld    offset of rows in the storage
      * @param d     output vector of diffusion coefficients.  Units of m**2 / s
      */
-    virtual void getBinaryDiffCoeffs(const size_t ld, double* const d);
+    void getBinaryDiffCoeffs(const size_t ld, double* const d) override;
 
-    virtual void getMultiDiffCoeffs(const size_t ld, double* const d);
+    void getMultiDiffCoeffs(const size_t ld, double* const d) override;
 
-    virtual double viscosity();
+    double viscosity() override;
 
     friend class TransportFactory;
 
 protected:
-    virtual double Tcrit_i(size_t i);
+    double Tcrit_i(size_t i);
 
-    virtual double Pcrit_i(size_t i);
+    double Pcrit_i(size_t i);
 
-    virtual double Vcrit_i(size_t i);
+    double Vcrit_i(size_t i);
 
-    virtual double Zcrit_i(size_t i);
+    double Zcrit_i(size_t i);
 
     vector<double> store(size_t i, size_t nsp);
 
-    virtual double FQ_i(double Q, double Tr, double MW);
+    double FQ_i(double Q, double Tr, double MW);
 
-    virtual double setPcorr(double Pr, double Tr);
+    double setPcorr(double Pr, double Tr);
 };
 }
 #endif

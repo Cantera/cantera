@@ -31,7 +31,7 @@ public:
      */
     WaterTransport(ThermoPhase* thermo = 0, int ndim = -1);
 
-    virtual string transportModel() const {
+    string transportModel() const override {
         return "Water";
     }
 
@@ -46,9 +46,9 @@ public:
      * and for water, even near the critical point. Pressures above 500 MPa and
      * temperature above 900 C are suspect.
      */
-    virtual double viscosity();
+    double viscosity() override;
 
-    virtual double bulkViscosity() {
+    double bulkViscosity() override {
         return 0.0;
     }
 
@@ -64,9 +64,9 @@ public:
      * and for water, even near the critical point. Pressures above 500 MPa and
      * temperature above 900 C are suspect.
      */
-    virtual double thermalConductivity();
+    double thermalConductivity() override;
 
-    virtual void init(ThermoPhase* thermo, int mode=0, int log_level=0);
+    void init(ThermoPhase* thermo, int mode=0, int log_level=0) override;
 };
 }
 #endif
