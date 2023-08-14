@@ -67,17 +67,17 @@ public:
         mnp_high(coeffs[0], thigh, pref, coeffs + 1) {
     }
 
-    virtual void setMinTemp(double Tmin) {
+    void setMinTemp(double Tmin) override {
         SpeciesThermoInterpType::setMinTemp(Tmin);
         mnp_low.setMinTemp(Tmin);
     }
 
-    virtual void setMaxTemp(double Tmax) {
+    void setMaxTemp(double Tmax) override {
         SpeciesThermoInterpType::setMaxTemp(Tmax);
         mnp_high.setMaxTemp(Tmax);
     }
 
-    virtual void setRefPressure(double Pref) {
+    void setRefPressure(double Pref) override {
         SpeciesThermoInterpType::setRefPressure(Pref);
         mnp_low.setRefPressure(Pref);
         mnp_high.setRefPressure(Pref);
@@ -91,19 +91,19 @@ public:
      */
     void setParameters(double Tmid, const vector<double>& low, const vector<double>& high);
 
-    virtual int reportType() const {
+    int reportType() const override {
         return NASA2;
     }
 
-    virtual size_t temperaturePolySize() const { return 6; }
+    size_t temperaturePolySize() const override { return 6; }
 
-    virtual void updateTemperaturePoly(double T, double* T_poly) const {
+    void updateTemperaturePoly(double T, double* T_poly) const override {
         mnp_low.updateTemperaturePoly(T, T_poly);
     }
 
     //! @copydoc NasaPoly1::updateProperties
     void updateProperties(const double* tt,
-                          double* cp_R, double* h_RT, double* s_R) const {
+                          double* cp_R, double* h_RT, double* s_R) const override {
         if (tt[0] <= m_midT) {
             mnp_low.updateProperties(tt, cp_R, h_RT, s_R);
         } else {
@@ -112,9 +112,7 @@ public:
     }
 
     void updatePropertiesTemp(const double temp,
-                              double* cp_R,
-                              double* h_RT,
-                              double* s_R) const {
+                              double* cp_R, double* h_RT, double* s_R) const override {
         if (temp <= m_midT) {
             mnp_low.updatePropertiesTemp(temp, cp_R, h_RT, s_R);
         } else {
@@ -122,18 +120,18 @@ public:
         }
     }
 
-    size_t nCoeffs() const { return 15; }
+    size_t nCoeffs() const override { return 15; }
 
     void reportParameters(size_t& n, int& type, double& tlow, double& thigh,
-                          double& pref, double* const coeffs) const {
+                          double& pref, double* const coeffs) const override {
         mnp_high.reportParameters(n, type, coeffs[0], thigh, pref, coeffs + 1);
         mnp_low.reportParameters(n, type, tlow, coeffs[0], pref, coeffs + 8);
         type = NASA2;
     }
 
-    virtual void getParameters(AnyMap& thermo) const;
+    void getParameters(AnyMap& thermo) const override;
 
-    double reportHf298(double* const h298 = 0) const {
+    double reportHf298(double* const h298=nullptr) const override {
         double h;
         if (298.15 <= m_midT) {
             h = mnp_low.reportHf298(0);
@@ -146,12 +144,12 @@ public:
         return h;
     }
 
-    void resetHf298() {
+    void resetHf298() override {
         mnp_low.resetHf298();
         mnp_high.resetHf298();
     }
 
-    void modifyOneHf298(const size_t k, const double Hf298New) {
+    void modifyOneHf298(const size_t k, const double Hf298New) override {
         double h298now = reportHf298(0);
         double delH = Hf298New - h298now;
         double h = mnp_low.reportHf298(0);
@@ -162,7 +160,7 @@ public:
         mnp_high.modifyOneHf298(k, hnew);
     }
 
-    void validate(const string& name);
+    void validate(const string& name) override;
 
 protected:
     //! Midrange temperature

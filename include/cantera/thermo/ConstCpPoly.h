@@ -66,7 +66,7 @@ public:
      */
     void setParameters(double t0, double h0, double s0, double cp0);
 
-    virtual int reportType() const {
+    int reportType() const override {
         return CONSTANT_CP;
     }
 
@@ -78,21 +78,21 @@ public:
      *
      */
     void updateProperties(const double* tt, double* cp_R, double* h_RT,
-                          double* s_R) const;
+                          double* s_R) const override;
 
     void updatePropertiesTemp(const double temp, double* cp_R, double* h_RT,
-                              double* s_R) const;
+                              double* s_R) const override;
 
-    size_t nCoeffs() const { return 4; }
+    size_t nCoeffs() const override { return 4; }
 
     void reportParameters(size_t& n, int& type, double& tlow, double& thigh,
-                          double& pref, double* const coeffs) const;
+                          double& pref, double* const coeffs) const override;
 
-    virtual void getParameters(AnyMap& thermo) const;
+    void getParameters(AnyMap& thermo) const override;
 
-    virtual double reportHf298(double* const h298 = 0) const;
-    virtual void modifyOneHf298(const size_t k, const double Hf298New);
-    virtual void resetHf298();
+    double reportHf298(double* const h298=nullptr) const override;
+    void modifyOneHf298(const size_t k, const double Hf298New) override;
+    void resetHf298() override;
 
 protected:
     //! Base temperature
