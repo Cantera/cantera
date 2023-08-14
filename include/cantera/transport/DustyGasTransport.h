@@ -61,13 +61,13 @@ public:
 
     //  overloaded base class methods
 
-    virtual void setThermo(ThermoPhase& thermo);
+    void setThermo(ThermoPhase& thermo) override;
 
-    virtual string transportModel() const {
+    string transportModel() const override {
         return "DustyGas";
     }
 
-    virtual void getMultiDiffCoeffs(const size_t ld, double* const d);
+    void getMultiDiffCoeffs(const size_t ld, double* const d) override;
 
     //! Get the molar fluxes [kmol/m^2/s], given the thermodynamic state at two nearby points.
     /*!
@@ -81,8 +81,8 @@ public:
      *
      * @param fluxes   Vector of species molar fluxes due to diffusional driving force
      */
-    virtual void getMolarFluxes(const double* const state1, const double* const state2,
-                                const double delta, double* const fluxes);
+    void getMolarFluxes(const double* const state1, const double* const state2,
+                        const double delta, double* const fluxes) override;
 
     // new methods added in this class
 

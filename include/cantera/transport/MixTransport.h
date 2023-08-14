@@ -57,7 +57,7 @@ public:
     //! Default constructor.
     MixTransport() = default;
 
-    virtual string transportModel() const {
+    string transportModel() const override {
         return (m_mode == CK_Mode) ? "mixture-averaged-CK" : "mixture-averaged";
     }
 
@@ -67,7 +67,7 @@ public:
      *
      * @param dt  Vector of thermal diffusion coefficients. Units = kg/m/s
      */
-    virtual void getThermalDiffCoeffs(double* const dt);
+    void getThermalDiffCoeffs(double* const dt) override;
 
     //! Returns the mixture thermal conductivity (W/m /K)
     /*!
@@ -88,7 +88,7 @@ public:
      *
      * @returns the mixture thermal conductivity, with units of W/m/K
      */
-    virtual double thermalConductivity();
+    double thermalConductivity() override;
 
     //! Get the Electrical mobilities (m^2/V/s).
     /*!
@@ -106,21 +106,21 @@ public:
      *               The array must be dimensioned at least as large as the
      *               number of species.
      */
-    virtual void getMobilities(double* const mobil);
+    void getMobilities(double* const mobil) override;
 
     //! Update the internal parameters whenever the temperature has changed
     /*!
      * This is called whenever a transport property is requested if the
      * temperature has changed since the last call to update_T().
      */
-    virtual void update_T();
+    void update_T() override;
 
     //! Update the internal parameters whenever the concentrations have changed
     /*!
      * This is called whenever a transport property is requested if the
      * concentrations have changed since the last call to update_C().
      */
-    virtual void update_C();
+    void update_C() override;
 
     //! Get the species diffusive mass fluxes wrt to the mass averaged velocity,
     //! given the gradients in mole fraction and temperature
@@ -143,11 +143,11 @@ public:
      * @param fluxes    Output of the diffusive mass fluxes. Flat vector with
      *                  the m_nsp in the inner loop. length = ldx * ndim
      */
-    virtual void getSpeciesFluxes(size_t ndim, const double* const grad_T,
-                                  size_t ldx, const double* const grad_X,
-                                  size_t ldf, double* const fluxes);
+    void getSpeciesFluxes(size_t ndim, const double* const grad_T,
+                          size_t ldx, const double* const grad_X,
+                          size_t ldf, double* const fluxes) override;
 
-    virtual void init(ThermoPhase* thermo, int mode=0, int log_level=0);
+    void init(ThermoPhase* thermo, int mode=0, int log_level=0) override;
 
 protected:
     //! Update the temperature dependent parts of the species thermal

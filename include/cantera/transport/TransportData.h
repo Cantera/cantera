@@ -67,9 +67,9 @@ public:
     //! inconsistent with the atomic composition, non-positive diameter, or
     //! negative values for well depth, dipole, polarizability, or
     //! rotational relaxation number.
-    virtual void validate(const Species& species);
+    void validate(const Species& species) override;
 
-    virtual void getParameters(AnyMap& transportNode) const;
+    void getParameters(AnyMap& transportNode) const override;
 
     //! A string specifying the molecular geometry. One of `atom`, `linear`, or
     //! `nonlinear`.

@@ -45,10 +45,10 @@ public:
      *
      * @see updateViscosity_T()
      */
-    virtual double viscosity();
+    double viscosity() override;
 
     //! Get the pure-species viscosities
-    virtual void getSpeciesViscosities(double* const visc) {
+    void getSpeciesViscosities(double* const visc) override {
         update_T();
         updateViscosity_T();
         std::copy(m_visc.begin(), m_visc.end(), visc);
@@ -61,7 +61,7 @@ public:
      * @param ld   offset of rows in the storage
      * @param d    output vector of diffusion coefficients. Units of m**2 / s
      */
-    virtual void getBinaryDiffCoeffs(const size_t ld, double* const d);
+    void getBinaryDiffCoeffs(const size_t ld, double* const d) override;
 
     //! Returns the Mixture-averaged diffusion coefficients [m^2/s].
     /*!
@@ -81,7 +81,7 @@ public:
      * @param[out] d  Vector of mixture diffusion coefficients, @f$ D_{km}' @f$ ,
      *     for each species (m^2/s). length m_nsp
      */
-    virtual void getMixDiffCoeffs(double* const d);
+    void getMixDiffCoeffs(double* const d) override;
 
     //! Returns the mixture-averaged diffusion coefficients [m^2/s].
     //! These are the coefficients for calculating the molar diffusive fluxes
@@ -92,7 +92,7 @@ public:
     //!
     //! @param[out] d vector of mixture-averaged diffusion coefficients for
     //!     each species, length m_nsp.
-    virtual void getMixDiffCoeffsMole(double* const d);
+    void getMixDiffCoeffsMole(double* const d) override;
 
     //! Returns the mixture-averaged diffusion coefficients [m^2/s].
     /*!
@@ -108,51 +108,49 @@ public:
      * @param[out] d vector of mixture-averaged diffusion coefficients for
      *     each species, length m_nsp.
      */
-    virtual void getMixDiffCoeffsMass(double* const d);
+    void getMixDiffCoeffsMass(double* const d) override;
 
     //! Return the polynomial fits to the viscosity of species i
     //! @see fitProperties()
-    virtual void getViscosityPolynomial(size_t i, double* coeffs) const;
+    void getViscosityPolynomial(size_t i, double* coeffs) const override;
 
     //! Return the temperature fits of the heat conductivity of species i
     //! @see fitProperties()
-    virtual void getConductivityPolynomial(size_t i, double* coeffs) const;
+    void getConductivityPolynomial(size_t i, double* coeffs) const override;
 
     //! Return the polynomial fits to the binary diffusivity of species pair (i, j)
     //! @see fitDiffCoeffs()
-    virtual void getBinDiffusivityPolynomial(size_t i, size_t j, double* coeffs) const;
+    void getBinDiffusivityPolynomial(size_t i, size_t j, double* coeffs) const override;
 
     //! Return the polynomial fits to the collision integral of species pair (i, j)
     //! @see fitCollisionIntegrals()
-    virtual void getCollisionIntegralPolynomial(size_t i, size_t j,
-                                                double* astar_coeffs,
-                                                double* bstar_coeffs,
-                                                double* cstar_coeffs) const;
+    void getCollisionIntegralPolynomial(size_t i, size_t j,
+                                        double* astar_coeffs,
+                                        double* bstar_coeffs,
+                                        double* cstar_coeffs) const override;
 
     //! Modify the polynomial fits to the viscosity of species i
     //! @see fitProperties()
-    virtual void setViscosityPolynomial(size_t i, double* coeffs);
+    void setViscosityPolynomial(size_t i, double* coeffs) override;
 
     //! Modify the temperature fits of the heat conductivity of species i
     //! @see fitProperties()
-    virtual void setConductivityPolynomial(size_t i, double* coeffs);
+    void setConductivityPolynomial(size_t i, double* coeffs) override;
 
     //! Modify the polynomial fits to the binary diffusivity of species pair (i, j)
     //! @see fitDiffCoeffs()
-    virtual void setBinDiffusivityPolynomial(size_t i, size_t j, double* coeffs);
+    void setBinDiffusivityPolynomial(size_t i, size_t j, double* coeffs) override;
 
     //! Modify the polynomial fits to the collision integral of species pair (i, j)
     //! @see fitCollisionIntegrals()
-    virtual void setCollisionIntegralPolynomial(size_t i, size_t j,
-                                                double* astar_coeffs,
-                                                double* bstar_coeffs,
-                                                double* cstar_coeffs, bool actualT);
+    void setCollisionIntegralPolynomial(size_t i, size_t j,
+                                        double* astar_coeffs,
+                                        double* bstar_coeffs,
+                                        double* cstar_coeffs, bool actualT) override;
 
-    virtual void init(ThermoPhase* thermo, int mode=0, int log_level=0);
+    void init(ThermoPhase* thermo, int mode=0, int log_level=0) override;
 
-    //! Boolean indicating the form of the transport properties polynomial fits.
-    //! Returns true if the Chemkin form is used.
-    bool CKMode() const {
+    bool CKMode() const override {
         return m_mode == CK_Mode;
     }
 
