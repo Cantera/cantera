@@ -30,7 +30,7 @@ class ReactorNet : public FuncEval
 {
 public:
     ReactorNet();
-    virtual ~ReactorNet();
+    ~ReactorNet() override;
     ReactorNet(const ReactorNet&) = delete;
     ReactorNet& operator=(const ReactorNet&) = delete;
 
@@ -205,7 +205,7 @@ public:
                       double* ydot, double* p, Array2D* j);
 
     // overloaded methods of class FuncEval
-    virtual size_t neq() const {
+    size_t neq() const override {
         return m_nv;
     }
 
@@ -213,21 +213,21 @@ public:
         return m_reactors.size();
     }
 
-    virtual void eval(double t, double* y, double* ydot, double* p);
+    void eval(double t, double* y, double* ydot, double* p) override;
 
     //! eval coupling for IDA / DAEs
-    virtual void evalDae(double t, double* y, double* ydot, double* p,
-                         double* residual);
+    void evalDae(double t, double* y, double* ydot, double* p,
+                 double* residual) override;
 
-    virtual void getState(double* y);
-    virtual void getStateDae(double* y, double* ydot);
+    void getState(double* y) override;
+    void getStateDae(double* y, double* ydot) override;
 
     //! Return k-th derivative at the current state of the system
     virtual void getDerivative(int k, double* dky);
 
-    virtual void getConstraints(double* constraints);
+    void getConstraints(double* constraints) override;
 
-    virtual size_t nparams() const {
+    size_t nparams() const override {
         return m_sens_params.size();
     }
 
@@ -288,9 +288,9 @@ public:
     //! Retrieve absolute step size limits during advance
     bool getAdvanceLimits(double* limits) const;
 
-    virtual void preconditionerSetup(double t, double* y, double gamma);
+    void preconditionerSetup(double t, double* y, double gamma) override;
 
-    virtual void preconditionerSolve(double* rhs, double* output);
+    void preconditionerSolve(double* rhs, double* output) override;
 
     //! Get solver stats from integrator
     AnyMap solverStats() const;
@@ -303,8 +303,7 @@ protected:
     //! Check that preconditioning is supported by all reactors in the network
     virtual void checkPreconditionerSupported() const;
 
-    //! Update the preconditioner based on the already computed jacobian values
-    virtual void updatePreconditioner(double gamma);
+    void updatePreconditioner(double gamma) override;
 
     //! Estimate a future state based on current derivatives.
     //! The function is intended for internal use by ReactorNet::advance

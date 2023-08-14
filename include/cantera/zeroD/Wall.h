@@ -138,7 +138,7 @@ public:
 
     //! String indicating the wall model implemented. Usually
     //! corresponds to the name of the derived class.
-    virtual string type() const {
+    string type() const override {
         return "Wall";
     }
 
@@ -166,7 +166,7 @@ public:
      * @deprecated Still used by traditional MATLAB toolbox; replaceable by
      *      expansionRate.
      */
-    virtual double vdot(double t);
+    double vdot(double t) override;
 
     //! Rate of volume change (m^3/s) for the adjacent reactors.
     /*!
@@ -180,7 +180,7 @@ public:
      * reactor on left, and decreases in the volume of the reactor on the right.
      * @since New in %Cantera 3.0.
      */
-    virtual double expansionRate();
+    double expansionRate() override;
 
     //! Heat flux function @f$ q_0(t) @f$ evaluated at current reactor network time.
     //! @since New in %Cantera 3.0.
@@ -202,7 +202,7 @@ public:
      * from left to right.
      * @deprecated Still used by traditional MATLAB toolbox; replaceable by heatRate.
      */
-    virtual double Q(double t);
+    double Q(double t) override;
 
     //! Heat flow rate through the wall (W).
     /*!
@@ -215,7 +215,7 @@ public:
      * time. Positive values denote a flux from left to right.
      * @since New in %Cantera 3.0.
      */
-    virtual double heatRate();
+    double heatRate() override;
 
     void setThermalResistance(double Rth) {
         m_rrth = 1.0/Rth;

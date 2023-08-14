@@ -22,7 +22,7 @@ class MassFlowController : public FlowDevice
 public:
     MassFlowController() = default;
 
-    virtual string type() const {
+    string type() const override {
         return "MassFlowController";
     }
 
@@ -46,14 +46,14 @@ public:
         return m_coeff;
     }
 
-    virtual void setPressureFunction(Func1* f) {
+    void setPressureFunction(Func1* f) override {
         throw NotImplementedError("MassFlowController::setPressureFunction");
     }
 
     //! If a function of time has been specified for mdot, then update the
     //! stored mass flow rate. Otherwise, mdot is a constant, and does not
     //! need updating.
-    virtual void updateMassFlowRate(double time);
+    void updateMassFlowRate(double time) override;
 };
 
 /**
@@ -67,11 +67,11 @@ class PressureController : public FlowDevice
 public:
     PressureController() = default;
 
-    virtual string type() const {
+    string type() const override {
         return "PressureController";
     }
 
-    virtual bool ready() {
+    bool ready() override {
         return FlowDevice::ready() && m_primary != 0;
     }
 
@@ -86,7 +86,7 @@ public:
     //! @deprecated To be removed after %Cantera 3.0; replaced by setPrimary().
     void setMaster(FlowDevice* master);
 
-    virtual void setTimeFunction(Func1* g) {
+    void setTimeFunction(Func1* g) override {
         throw NotImplementedError("PressureController::setTimeFunction");
     }
 
@@ -109,7 +109,7 @@ public:
         return m_coeff;
     }
 
-    virtual void updateMassFlowRate(double time);
+    void updateMassFlowRate(double time) override;
 
 protected:
     FlowDevice* m_primary = nullptr;
@@ -128,7 +128,7 @@ class Valve : public FlowDevice
 public:
     Valve() = default;
 
-    virtual string type() const {
+    string type() const override {
         return "Valve";
     }
 
@@ -152,7 +152,7 @@ public:
     }
 
     //! Compute the current mass flow rate, based on the pressure difference.
-    virtual void updateMassFlowRate(double time);
+    void updateMassFlowRate(double time) override;
 };
 
 }

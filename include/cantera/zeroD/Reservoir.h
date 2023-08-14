@@ -20,11 +20,11 @@ class Reservoir : public ReactorBase
 public:
     Reservoir() {}
 
-    virtual string type() const {
+    string type() const override {
         return "Reservoir";
     }
 
-    virtual void initialize(double t0 = 0.0) {}
+    void initialize(double t0=0.0) override {}
 
     void insert(ThermoPhase& contents) {
         setThermoMgr(contents);
