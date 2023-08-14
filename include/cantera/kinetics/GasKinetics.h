@@ -40,7 +40,7 @@ public:
         addPhase(*thermo);
     }
 
-    virtual string kineticsType() const {
+    string kineticsType() const override {
         return "gas";
     }
 

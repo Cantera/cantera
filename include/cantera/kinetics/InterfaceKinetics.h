@@ -69,11 +69,11 @@ public:
      */
     InterfaceKinetics(ThermoPhase* thermo);
 
-    virtual ~InterfaceKinetics();
+    ~InterfaceKinetics() override;
 
-    virtual void resizeReactions();
+    void resizeReactions() override;
 
-    virtual string kineticsType() const {
+    string kineticsType() const override {
         return "surface";
     }
 
@@ -94,25 +94,25 @@ public:
      *   where deltaG is the electrochemical potential difference between
      *   products minus reactants.
      */
-    virtual void getEquilibriumConstants(double* kc);
+    void getEquilibriumConstants(double* kc) override;
 
-    virtual void getDeltaGibbs(double* deltaG);
+    void getDeltaGibbs(double* deltaG) override;
 
-    virtual void getDeltaElectrochemPotentials(double* deltaM);
-    virtual void getDeltaEnthalpy(double* deltaH);
-    virtual void getDeltaEntropy(double* deltaS);
+    void getDeltaElectrochemPotentials(double* deltaM) override;
+    void getDeltaEnthalpy(double* deltaH) override;
+    void getDeltaEntropy(double* deltaS) override;
 
-    virtual void getDeltaSSGibbs(double* deltaG);
-    virtual void getDeltaSSEnthalpy(double* deltaH);
-    virtual void getDeltaSSEntropy(double* deltaS);
+    void getDeltaSSGibbs(double* deltaG) override;
+    void getDeltaSSEnthalpy(double* deltaH) override;
+    void getDeltaSSEntropy(double* deltaS) override;
 
     //! @}
     //! @name Reaction Mechanism Informational Query Routines
     //! @{
 
-    virtual void getActivityConcentrations(double* const conc);
+    void getActivityConcentrations(double* const conc) override;
 
-    virtual bool isReversible(size_t i) {
+    bool isReversible(size_t i) override {
         if (std::find(m_revindex.begin(), m_revindex.end(), i)
                 < m_revindex.end()) {
             return true;
@@ -121,9 +121,8 @@ public:
         }
     }
 
-    virtual void getFwdRateConstants(double* kfwd);
-    virtual void getRevRateConstants(double* krev,
-                                     bool doIrreversible = false);
+    void getFwdRateConstants(double* kfwd) override;
+    void getRevRateConstants(double* krev, bool doIrreversible=false) override;
 
     //! @}
     //! @name Reaction Mechanism Construction
@@ -142,23 +141,23 @@ public:
      *
      * @param thermo    Reference to the ThermoPhase to be added.
      */
-    virtual void addThermo(shared_ptr<ThermoPhase> thermo);
+    void addThermo(shared_ptr<ThermoPhase> thermo) override;
 
     //! @see InterfaceKinetics::addThermo(shared_ptr<ThermoPhase>)
-    virtual void addPhase(ThermoPhase& thermo);
+    void addPhase(ThermoPhase& thermo) override;
 
-    virtual void init();
-    virtual void resizeSpecies();
-    virtual bool addReaction(shared_ptr<Reaction> r, bool resize=true);
-    virtual void modifyReaction(size_t i, shared_ptr<Reaction> rNew);
-    virtual void setMultiplier(size_t i, double f);
+    void init() override;
+    void resizeSpecies() override;
+    bool addReaction(shared_ptr<Reaction> r, bool resize=true) override;
+    void modifyReaction(size_t i, shared_ptr<Reaction> rNew) override;
+    void setMultiplier(size_t i, double f) override;
     //! @}
 
     //! Internal routine that updates the Rates of Progress of the reactions
     /*!
      *  This is actually the guts of the functionality of the object
      */
-    virtual void updateROP();
+    void updateROP() override;
 
     //! Update properties that depend on temperature
     /*!
@@ -306,11 +305,11 @@ public:
     */
     double interfaceCurrent(const size_t iphase);
 
-    virtual void setDerivativeSettings(const AnyMap& settings);
-    virtual void getDerivativeSettings(AnyMap& settings) const;
-    virtual Eigen::SparseMatrix<double> fwdRatesOfProgress_ddCi();
-    virtual Eigen::SparseMatrix<double> revRatesOfProgress_ddCi();
-    virtual Eigen::SparseMatrix<double> netRatesOfProgress_ddCi();
+    void setDerivativeSettings(const AnyMap& settings) override;
+    void getDerivativeSettings(AnyMap& settings) const override;
+    Eigen::SparseMatrix<double> fwdRatesOfProgress_ddCi() override;
+    Eigen::SparseMatrix<double> revRatesOfProgress_ddCi() override;
+    Eigen::SparseMatrix<double> netRatesOfProgress_ddCi() override;
 
 protected:
     //! @name Internal service methods

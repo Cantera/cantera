@@ -77,33 +77,31 @@ public:
                      double maxStepSize=0, size_t maxSteps=20000,
                      size_t maxErrTestFails=7);
 
-    virtual ~ImplicitSurfChem() = default;
-
     /**
      *  Must be called before calling method 'advance'
      */
-    virtual void initialize(double t0 = 0.0);
+    void initialize(double t0=0.0);
 
     /**
      *  Set the maximum integration step-size.  Note, setting this value to zero
      *  disables this option
      */
-    virtual void setMaxStepSize(double maxstep = 0.0);
+    void setMaxStepSize(double maxstep=0.0);
 
     /**
      *  Set the relative and absolute integration tolerances.
      */
-    virtual void setTolerances(double rtol=1.e-7, double atol=1.e-14);
+    void setTolerances(double rtol=1.e-7, double atol=1.e-14);
 
     /**
      *  Set the maximum number of CVODES integration steps.
      */
-    virtual void setMaxSteps(size_t maxsteps = 20000);
+    void setMaxSteps(size_t maxsteps=20000);
 
     /**
      *  Set the maximum number of CVODES error test failures
      */
-    virtual void setMaxErrTestFails(size_t maxErrTestFails = 7);
+    void setMaxErrTestFails(size_t maxErrTestFails=7);
 
     //! Integrate from t0 to t1. The integrator is reinitialized first.
     /*!
@@ -150,7 +148,7 @@ public:
     // overloaded methods of class FuncEval
 
     //! Return the number of equations
-    virtual size_t neq() const {
+    size_t neq() const override {
         return m_nv;
     }
 
@@ -162,7 +160,7 @@ public:
      *                derivative of the surface coverages.
      *  @param p   Unused parameter pass-through parameter vector
      */
-    virtual void eval(double t, double* y, double* ydot, double* p);
+    void eval(double t, double* y, double* ydot, double* p) override;
 
     //! Get the current state of the solution vector
     /*!
@@ -170,7 +168,7 @@ public:
      *            On output, this contains the initial value
      *           of the solution.
      */
-    virtual void getState(double* y);
+    void getState(double* y) override;
 
     /**
      * Get the specifications for the problem from the values

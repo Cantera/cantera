@@ -25,7 +25,7 @@ public:
         m_nDim = 1;
     }
 
-    virtual string kineticsType() const {
+    string kineticsType() const override {
         return "edge";
     }
 };
