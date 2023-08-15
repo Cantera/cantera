@@ -107,7 +107,7 @@ public:
         make_deprecation_warnings_fatal();
     }
 
-    void SetUp() {
+    void SetUp() override {
         // See if we should skip this test specific test case
         if (setup.hasKey("known-failures")) {
             auto current = testing::UnitTest::GetInstance()->current_test_info()->name();

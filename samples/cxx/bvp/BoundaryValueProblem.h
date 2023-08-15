@@ -190,7 +190,7 @@ public:
      * grid points. Overload in derived classes to specify other
      * choices for initial values.
      */
-    virtual double initialValue(size_t n, size_t j) {
+    double initialValue(size_t n, size_t j) override {
         return 0.0;
     }
 

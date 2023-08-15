@@ -58,12 +58,9 @@ public:
         setComponent(1, B); // u will be component 1
     }
 
-    // destructor
-    virtual ~Blasius() {}
-
     // specify guesses for the initial values. These can be anything
     // that leads to a converged solution.
-    virtual double initialValue(size_t n, size_t j) {
+    double initialValue(size_t n, size_t j) override {
         switch (n) {
         case 0:
             return 0.1*z(j);
@@ -77,7 +74,7 @@ public:
     // Specify the residual function. This is where the ODE system and boundary
     // conditions are specified. The solver will attempt to find a solution
     // x so that rsd is zero.
-    void eval(size_t jg, double* x, double* rsd, int* diag, double rdt) {
+    void eval(size_t jg, double* x, double* rsd, int* diag, double rdt) override {
         size_t jpt = jg - firstPoint();
         size_t jmin, jmax;
         if (jg == npos) {  // evaluate all points
