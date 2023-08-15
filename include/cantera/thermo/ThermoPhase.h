@@ -1554,8 +1554,7 @@ public:
      * in the mixture, and @f$ Z_{\mathrm{mass},m,\mathrm{ox}} @f$ and
      * @f$ Z_{\mathrm{mass},m,\mathrm{fuel}} @f$ are the elemental mass fractions
      * of the oxidizer and fuel, or from the Bilger mixture fraction,
-     * which considers the elements C, S, H and O (R. W. Bilger, "Turbulent jet
-     * diffusion flames," Prog. Energy Combust. Sci., 109-131 (1979))
+     * which considers the elements C, S, H and O @cite bilger1979
      * @f[ Z_{\mathrm{Bilger}} = \frac{\beta-\beta_{\mathrm{ox}}}
      * {\beta_{\mathrm{fuel}}-\beta_{\mathrm{ox}}} @f]
      * with @f$ \beta = 2\frac{Z_C}{M_C}+2\frac{Z_S}{M_S}+\frac{1}{2}\frac{Z_H}{M_H}
@@ -1620,7 +1619,7 @@ public:
     /*!
      * The equivalence ratio @f$ \phi @f$ is computed from
      * @f[ \phi = \frac{Z}{1-Z}\frac{1-Z_{\mathrm{st}}}{Z_{\mathrm{st}}} @f]
-     * where @f$ Z @f$ is the Bilger mixture fraction of the mixture
+     * where @f$ Z @f$ is the Bilger mixture fraction @cite bilger1979 of the mixture
      * given the specified fuel and oxidizer compositions
      * @f$ Z_{\mathrm{st}} @f$ is the mixture fraction at stoichiometric
      * conditions. Fuel and oxidizer compositions are given either as

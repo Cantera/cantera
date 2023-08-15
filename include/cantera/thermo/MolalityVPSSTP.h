@@ -413,7 +413,7 @@ public:
      * These are mole-fraction based activity coefficients. In this
      * object, their calculation is based on translating the values
      * of the molality-based activity coefficients.
-     *  See Denbigh p. 278 for a thorough discussion.
+     *  See Denbigh p. 278 @cite denbigh1981 for a thorough discussion.
      *
      * The molar-based activity coefficients @f$ \gamma_k @f$ may be calculated
      * from the molality-based activity coefficients, @f$ \gamma_k^\triangle @f$
@@ -441,8 +441,8 @@ public:
     //! Get the array of non-dimensional molality based activity coefficients at
     //! the current solution temperature, pressure, and solution concentration.
     /*!
-     * See Denbigh p. 278 for a thorough discussion. This class must be
-     * overridden in classes which derive from MolalityVPSSTP. This function
+     * See Denbigh p. 278 @cite denbigh1981 for a thorough discussion. This method must
+     * be overridden in classes which derive from MolalityVPSSTP. This function
      * takes over from the molar-based activity coefficient calculation,
      * getActivityCoefficients(), in derived classes.
      *
@@ -546,8 +546,8 @@ protected:
     //! coefficients at the current solution temperature, pressure, and solution
     //! concentration.
     /*!
-     * See Denbigh p. 278 for a thorough discussion. This class must be
-     * overridden in classes which derive from MolalityVPSSTP. This function
+     * See Denbigh p. 278 @cite denbigh1981 for a thorough discussion. This method must
+     * be overridden in classes which derive from MolalityVPSSTP. This function
      * takes over from the molar-based activity coefficient calculation,
      * getActivityCoefficients(), in derived classes.
      *
