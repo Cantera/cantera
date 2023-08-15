@@ -500,8 +500,10 @@ cdef class SolutionArrayBase:
     information used by the derived user-facing `SolutionArray` API, it uses a flattened
     one-dimensional data structure internally.
 
-    **Warning:** this class is an experimental part of the Cantera API and
-    may be changed or removed without notice.
+        .. warning::
+
+            This class is an experimental part of the Cantera API and
+            may be changed or removed without notice.
 
     .. versionadded:: 3.0
     """
