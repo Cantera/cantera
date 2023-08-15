@@ -9,11 +9,10 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 /**
- * @defgroup tranprops Transport Properties for Species in Phases
+ * @defgroup tranprops Transport Properties
  *
- * @ingroup phases
- *
- * These classes provide transport properties.
+ * These classes provide transport properties, including diffusion coefficients,
+ * thermal conductivity, and viscosity.
  */
 
 #ifndef CT_TRANSPORT_H
