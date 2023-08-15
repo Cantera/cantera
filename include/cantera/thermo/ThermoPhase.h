@@ -385,7 +385,6 @@ enum class ThermoBasis
  * the reverse rate constant.
  *
  * @ingroup thermoprops
- * @ingroup phases
  */
 class ThermoPhase : public Phase
 {
