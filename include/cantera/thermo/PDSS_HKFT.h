@@ -144,14 +144,14 @@ private:
     //! Main routine that actually calculates the Gibbs free energy difference
     //! between the reference state at Tr, Pr and T,P
     /*!
-     *  This is eEqn. 59 in Johnson et al. (1992).
+     *  This is Eqn. 59 in Johnson et al. @cite johnson1992.
      */
     double deltaG() const;
 
     //! Main routine that actually calculates the entropy difference
     //! between the reference state at Tr, Pr and T,P
     /*!
-     *  This is Eqn. 61 in Johnson et al. (1992). Actually, there appears to
+     *  This is Eqn. 61 in Johnson et al. @cite johnson1992. Actually, there appears to
      *  be an error in the latter. This is a correction.
      */
     double deltaS() const;
@@ -192,7 +192,8 @@ private:
 
     //! function g appearing in the formulation
     /*!
-     * Function g appearing in the Johnson et al formulation
+     * Function @f$ g @f$ (Eqn. 49) appearing in the Johnson et al. @cite johnson1992
+     * formulation.
      *
      * @param temp      Temperature kelvin
      * @param pres      Pressure (pascal)
@@ -206,8 +207,8 @@ private:
 
     //! Difference function f appearing in the formulation
     /*!
-     * Function f appearing in the Johnson et al formulation of omega_j
-     *   Eqn. 33 ref
+     * Function @f$ f @f$ (Eqn. 52) appearing in the Johnson et al. @cite johnson1992
+     * formulation of @f$ \omega_j @f$ (Eqn. 46).
      *
      * @param temp      Temperature kelvin
      * @param pres      Pressure (pascal)

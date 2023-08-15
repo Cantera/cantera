@@ -435,8 +435,8 @@ class WaterProps;
  * dependence of these coefficients strongly influence the value of the excess
  * Enthalpy and excess Volumes of Pitzer solutions. Therefore, these are readily
  * measurable quantities. HMWSoln provides several different methods for putting
- * these dependencies into the coefficients. HMWSoln has an implementation
- * described by Silverter and Pitzer (1977), which was used to fit experimental
+ * these dependencies into the coefficients. HMWSoln has an implementation described
+ * by Silvester and Pitzer @cite silvester1977, which was used to fit experimental
  * data for NaCl over an extensive range, below the critical temperature of
  * water. They found a temperature functional form for fitting the 3 following
  * coefficients that describe the Pitzer parameterization for a single salt to
@@ -543,8 +543,8 @@ class WaterProps;
  * constant and density of the solvent. This seems to be a relatively well-
  * documented part of the theory. They theory below comes from Pitzer summation
  * (Pitzer) in the appendix. It's also mentioned in Bethke's book (Bethke), and
- * the equations are summarized in Harvie & Weare (1980). Within the code, @f$
- * \,^E\Theta_{ij}(I) @f$ is evaluated according to the algorithm described in
+ * the equations are summarized in Harvie & Weare @cite harvie1980. Within the code,
+ * @f$ \,^E\Theta_{ij}(I) @f$ is evaluated according to the algorithm described in
  * Appendix B [Pitzer] as
  *
  * @f[
@@ -1277,8 +1277,8 @@ public:
     //!  activity coefficients at the current solution temperature,
     //!  pressure, and solution concentration.
     /*!
-     *  See Denbigh p. 278 for a thorough discussion. This class must be
-     *  overridden in classes which derive from MolalityVPSSTP. This function
+     *  See Denbigh p. 278 @cite denbigh1981 for a thorough discussion. This method must
+     *  be overridden in classes which derive from MolalityVPSSTP. This function
      *  takes over from the molar-based activity coefficient calculation,
      *  getActivityCoefficients(), in derived classes.
      *
@@ -2017,7 +2017,7 @@ private:
     //! Calculate the lambda interactions.
     /*!
      * Calculate E-lambda terms for charge combinations of like sign, using
-     * method of Pitzer (1975). This implementation is based on Bethke,
+     * method of Pitzer @cite pitzer1975. This implementation is based on Bethke,
      * Appendix 2.
      *
      * @param is Ionic strength

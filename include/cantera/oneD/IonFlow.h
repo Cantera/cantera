@@ -21,11 +21,8 @@ namespace Cantera
  * The second stage evaluates drift flux from electric field calculated from
  * Poisson's equation, which is solved together with other equations. Poisson's
  * equation is coupled because the total charge densities depends on the species'
- * concentration.
- * Reference:
- * Pederson, Timothy, and R. C. Brown.
- * "Simulation of electric field effects in premixed methane flames."
- * Combustion and Flames 94.4(1993): 433-448.
+ * concentration. See Pedersen and Brown @cite pedersen1993 for details.
+ *
  * @ingroup flowGroup
  */
 class IonFlow : public StFlow
@@ -61,11 +58,7 @@ public:
     /**
      * Sometimes it is desired to carry out the simulation using a specified
      * electron transport profile, rather than assuming it as a constant (0.4).
-     * Reference:
-     * Bisetti, Fabrizio, and Mbark El Morsli.
-     * "Calculation and analysis of the mobility and diffusion coefficient
-     * of thermal electrons in methane/air premixed flames."
-     * Combustion and flame 159.12 (2012): 3518-3521.
+     * See Bisetti and El Morsli @cite bisetti2012.
      * If in the future the class GasTransport is improved, this method may
      * be discarded. This method specifies this profile.
     */

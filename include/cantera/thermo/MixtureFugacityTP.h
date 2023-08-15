@@ -506,9 +506,7 @@ protected:
      * a positive number (1 or 2). If it only finds the liquid branch solution,
      * it will return -1 or -2 instead of 1 or 2.
      * If it returns 0, then there is an error.
-     * The cubic equation is solved using Nickall's method
-     * (Ref: The Mathematical Gazette(1993), 77(November), 354--359,
-     *  https://www.jstor.org/stable/3619777)
+     * The cubic equation is solved using Nickalls' method @cite nickalls1993.
      *
      * @param   T         temperature (kelvin)
      * @param   pres      pressure (Pa)
