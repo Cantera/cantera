@@ -138,22 +138,17 @@ public:
 
     //! Updates the standard state thermodynamic functions at the current T and P of the solution.
     /*!
-     * If m_useTmpStandardStateStorage is true, this function must be called for
-     * every call to functions in this class. It checks to see whether the
-     * temperature or pressure has changed and thus the ss thermodynamics
-     * functions for all of the species must be recalculated.
+     * This function must be called for every call to functions in this class. It checks
+     * to see whether the temperature or pressure has changed and thus the ss
+     * thermodynamics functions for all of the species must be recalculated.
      *
-     * This function is responsible for updating the following internal members,
-     * when  m_useTmpStandardStateStorage is true.
+     * This function is responsible for updating the following internal members:
      *
-     *  -  m_hss_RT;
-     *  -  m_cpss_R;
-     *  -  m_gss_RT;
-     *  -  m_sss_R;
-     *  -  m_Vss
-     *
-     *  If m_useTmpStandardStateStorage is not true, this function may be
-     *  required to be called by child classes to update internal member data.
+     * - #m_hss_RT;
+     * - #m_cpss_R;
+     * - #m_gss_RT;
+     * - #m_sss_R;
+     * - #m_Vss
      */
     virtual void updateStandardStateThermo() const;
 
@@ -187,22 +182,17 @@ protected:
     //! Updates the standard state thermodynamic functions at the current T and
     //! P of the solution.
     /*!
-     * If m_useTmpStandardStateStorage is true,
-     * this function must be called for every call to functions in this class.
+     * This function must be called for every call to functions in this class. This
+     * function is responsible for updating the following internal members:
      *
-     * This function is responsible for updating the following internal members,
-     * when m_useTmpStandardStateStorage is true.
+     * - #m_hss_RT;
+     * - #m_cpss_R;
+     * - #m_gss_RT;
+     * - #m_sss_R;
+     * - #m_Vss
      *
-     *  -  m_hss_RT;
-     *  -  m_cpss_R;
-     *  -  m_gss_RT;
-     *  -  m_sss_R;
-     *  -  m_Vss
-     *
-     *  This function doesn't check to see if the temperature or pressure
-     *  has changed. It automatically assumes that it has changed.
-     *  If m_useTmpStandardStateStorage is not true, this function may be
-     *  required to be called by child classes to update internal member data..
+     * This function doesn't check to see if the temperature or pressure has changed. It
+     * automatically assumes that it has changed.
      */
     virtual void _updateStandardStateThermo() const;
 
