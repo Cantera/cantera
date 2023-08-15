@@ -19,18 +19,6 @@ namespace Cantera
 class Solution;
 class Species;
 
-/**
- * @defgroup phases Models of Phases of Matter
- *
- * These classes are used to represent the composition and state of a single
- * phase of matter. Together these classes form the basis for describing the
- * species and element compositions of a phase as well as the stoichiometry
- * of each species, and for describing the current state of the phase. They do
- * not in themselves contain Thermodynamic equation of state information.
- * However, they do comprise all of the necessary background functionality to
- * support thermodynamic calculations (see @ref thermoprops).
- */
-
 //! Class Phase is the base class for phases of matter, managing the species and
 //! elements in a phase, as well as the independent variables of temperature,
 //! mass density (compressible substances) or pressure (incompressible
@@ -101,7 +89,7 @@ class Species;
  *     Jacobian and some analytical Jacobians use non-conforming calculations.
  *     These can easily be changed to the set mole number setState functions.
  *
- * @ingroup phases
+ * @ingroup thermoprops
  */
 class Phase
 {
