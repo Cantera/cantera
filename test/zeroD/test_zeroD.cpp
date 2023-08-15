@@ -27,12 +27,10 @@ TEST(zerodim, simple)
     network.initialize();
 
     double t = 0.0;
-    int count = 0;
     while (t < 0.1) {
         ASSERT_GE(cppReactor.temperature(), T);
         t = network.time() + 5e-3;
         network.advance(t);
-        count++;
     }
 }
 
