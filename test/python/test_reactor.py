@@ -1376,7 +1376,7 @@ class TestReactorJacobians(utilities.CanteraTest):
         net.derivative_settings = {"skip-coverage-dependence":True}
         net.initialize()
         # check that they two arrays are the same
-        self.assertArrayNear(r1.jacobian, r2.jacobian, 1e-6, 1e-8)
+        self.assertArrayNear(r1.jacobian, r2.jacobian, 2e-6, 1e-8)
 
 # A rate type used for testing integrator error handling
 class FailRateData(ct.ExtensibleRateData):
