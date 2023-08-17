@@ -36,6 +36,15 @@ for programName, sources in samples:
     localenv['tmpl_progname'] = programName
     localenv['tmpl_sourcename'] = programName + '.c'
 
+    if localenv['package_build']:
+        # For package builds, use environment variables or rely on SCons to find the
+        # default compiler
+        localenv['tmpl_cc'] = "env['CC'] = os.environ.get('CC', env['CC'])"
+    else:
+        # Otherwise, use the same compiler that was used to build Cantera, with the
+        # environment variables optionally overriding
+        localenv['tmpl_cc'] = env.subst("env['CC'] = os.environ.get('CC', '$CC')")
+
     sconstruct = localenv.SubstFile('SConstruct', 'SConstruct.in')
     install("$inst_sampledir/clib", sconstruct)
 
