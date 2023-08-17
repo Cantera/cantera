@@ -151,12 +151,6 @@ public:
      * out, if this value is nonzero.
      */
     int m_printLevel = 0;
-
-    // Listing of friend functions which are defined below
-
-    friend int solve(DenseMatrix& A, double* b, size_t nrhs, size_t ldb);
-    friend int solve(DenseMatrix& A, DenseMatrix& b);
-    friend int invert(DenseMatrix& A, int nn);
 };
 
 
