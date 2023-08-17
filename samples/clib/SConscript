@@ -21,6 +21,11 @@ for programName, sources in samples:
         linkflags.append(f"-Wl,-rpath,{localenv['ct_shlibdir']}")
         libdirs.extend(localenv["extra_lib_dirs"])
 
+    if env["OS"] == "Darwin" and env["use_rpath_linkage"] and not env.subst("$__RPATH"):
+        # SCons fails to specify RPATH on macOS, so circumvent that behavior by
+        # specifying this directly as part of LINKFLAGS
+        linkflags.extend(env.subst(f'$RPATHPREFIX{d}$RPATHSUFFIX') for d in libdirs)
+
     localenv["tmpl_compiler_flags"] = repr(localenv["CCFLAGS"])
     localenv['tmpl_cantera_incdirs'] = repr([x for x in incdirs if x])
     localenv['tmpl_cantera_libs'] = repr(localenv['cantera_shared_libs'])
