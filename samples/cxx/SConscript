@@ -102,19 +102,14 @@ set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}
         env_args.append('MSVC_VERSION={0!r}'.format(localenv['MSVC_VERSION']))
     localenv['tmpl_env_args'] = ', '.join(env_args)
 
-    if localenv["package_build"]:
-        # We do not want to specify the conda compilers from the build environment,
-        # because those won't be installed on the user's system.
-        if localenv["OS"] == "Darwin":
-            localenv["CXX"] = "clang++"
-            localenv["CC"] = "clang"
-        elif localenv["OS"] == "Windows":
-            # compilation needs the Visual Studio Command Prompt
-            localenv["CXX"] = "cl"
-            localenv["CC"] = "cl"
-        else:
-            localenv["CXX"] = "g++"
-            localenv["CC"] = "gcc"
+    if localenv['package_build']:
+        # For package builds, use environment variables or rely on SCons to find the
+        # default compiler
+        localenv['tmpl_cxx'] = "env['CXX'] = os.environ.get('CXX', env['CXX'])"
+    else:
+        # Otherwise, use the same compiler that was used to build Cantera, with the
+        # environment variables optionally overriding
+        localenv['tmpl_cxx'] = env.subst("env['CXX'] = os.environ.get('CXX', '$CXX')")
 
     sconstruct = localenv.SubstFile(pjoin(subdir, 'SConstruct'), 'SConstruct.in')
     install(pjoin('$inst_sampledir', 'cxx', subdir), sconstruct)

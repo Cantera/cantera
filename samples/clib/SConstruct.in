@@ -1,7 +1,7 @@
 import os
 env = Environment(ENV = os.environ)
 
-env['CC'] = '@CC@'
+@tmpl_cc@
 env.Append(CCFLAGS=@tmpl_compiler_flags@,
            CPPPATH=@tmpl_cantera_incdirs@,
            LIBS=@tmpl_cantera_libs@,

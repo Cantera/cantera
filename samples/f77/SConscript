@@ -58,19 +58,16 @@ localenv['tmpl_cantera_libdirs'] = repr([x for x in libdirs if x])
 localenv['tmpl_cantera_linkflags'] = repr([x for x in linkflags if x])
 localenv['tmpl_cantera_frameworks'] = repr(localenv['FRAMEWORKS'])
 
-if localenv["package_build"]:
-    # We do not want to specify the conda compilers from the build environment,
-    # because those won't be installed on the user's system.
-    if localenv["OS"] == "Darwin":
-        localenv["F77"] = "gfortran"
-        localenv["CC"] = "clang"
-    elif env["OS"] == "Windows":
-        # compilation needs the Visual Studio Command Prompt
-        localenv["F77"] = "ifx"
-        localenv["CC"] = "cl"
-    else:
-        localenv["F77"] = "gfortran"
-        localenv["CC"] = "gcc"
+if localenv['package_build']:
+    # For package builds, use environment variables or rely on SCons to find the
+    # default compilers
+    localenv['tmpl_cc'] = "env['CC'] = os.environ.get('CC', env['CC'])"
+    localenv['tmpl_f77'] = "env['F77'] = os.environ.get('F77', env['F77'])"
+else:
+    # Otherwise, use the same compilers that were used to build Cantera, with the
+    # environment variables optionally overriding
+    localenv['tmpl_cc'] = env.subst("env['cc'] = os.environ.get('cc', '$cc')")
+    localenv['tmpl_f77'] = env.subst("env['F77'] = os.environ.get('F77', '$F77')")
 
 sconstruct = localenv.SubstFile('SConstruct', 'SConstruct.in')
 install("$inst_sampledir/f77", sconstruct)
