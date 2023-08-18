@@ -224,12 +224,14 @@ void Application::setDefaultDirectories()
     // environment variable).
 #ifdef _WIN32
     string pathsep = ";";
+    string dirsep = "\\";
 #else
     string pathsep = ":";
+    string dirsep = "/";
 #endif
 
-    if (getenv("CANTERA_DATA") != 0) {
-        string s = string(getenv("CANTERA_DATA"));
+    if (getenv("CANTERA_DATA") != nullptr) {
+        string s(getenv("CANTERA_DATA"));
         size_t start = 0;
         size_t end = s.find(pathsep);
         while (end != npos) {
@@ -238,6 +240,13 @@ void Application::setDefaultDirectories()
             end = s.find(pathsep, start);
         }
         inputDirs.push_back(s.substr(start,end));
+    }
+
+    // If a conda environment is active, add the location of the Cantera data directory
+    // that may exist in that environment.
+    if (getenv("CONDA_PREFIX") != nullptr) {
+        string s(getenv("CONDA_PREFIX"));
+        inputDirs.push_back(s + dirsep + "share" + dirsep + "cantera" + dirsep + "data");
     }
 
 #ifdef _WIN32
