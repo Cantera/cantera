@@ -2050,7 +2050,7 @@ if conda_prefix is not None and sys.executable.startswith(str(conda_prefix)):
             env["prefix"] = conda_prefix.resolve().as_posix()
         logger.info(
             f"Using conda environment as default 'prefix': {env['prefix']}")
-elif env["layout"] == "conda":
+elif env["layout"] == "conda" and not env["package_build"]:
     logger.error("Layout option 'conda' requires a conda environment.")
     sys.exit(1)
 
