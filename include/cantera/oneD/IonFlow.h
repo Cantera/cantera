@@ -68,11 +68,17 @@ public:
 
 protected:
     /*!
-     * This function overloads the original function. The residual function
-     * of electric field is added.
+     * This function overloads the original electric field function.
+     * The residual function of a non-zero electric field is added.
      */
-    void evalResidual(double* x, double* rsd, int* diag,
-                      double rdt, size_t jmin, size_t jmax) override;
+    void evalElectricField(double* x, double* rsd, int* diag,
+                           double rdt, size_t jmin, size_t jmax) override;
+    /*!
+     * This function overloads the original species function.
+     * A Neumann boundary for the charged species at the left boundary is added.
+     */
+    void evalSpecies(double* x, double* rsd, int* diag,
+                     double rdt, size_t jmin, size_t jmax) override;
     void updateTransport(double* x, size_t j0, size_t j1) override;
     void updateDiffFluxes(const double* x, size_t j0, size_t j1) override;
     //! Solving phase one: the fluxes of charged species are turned off
