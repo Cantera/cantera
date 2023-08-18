@@ -24,9 +24,27 @@
 #include "cantera/clib/ctrpath.h"
 #include "cantera/clib/ctsurf.h"
 
+void exit_with_error()
+{
+    int buflen = 0;
+    char* output_buf = 0;
+    buflen = ct_getCanteraError(buflen, output_buf) + 1;
+    output_buf = malloc(sizeof(char) * buflen);
+    ct_getCanteraError(buflen, output_buf);
+    printf("%s", output_buf);
+    free(output_buf);
+    exit(1);
+}
+
 int main(int argc, char** argv)
 {
     int soln = soln_newSolution("gri30.yaml", "gri30", "");
+    // In principle, one ought to check for errors after every Cantera call. But this
+    // is the only one likely to occur in part of this example, due to the input file
+    // not being found.
+    if (soln < 0) {
+        exit_with_error();
+    }
     int thermo = soln_thermo(soln);
 
     thermo_setTemperature(thermo, 500);
