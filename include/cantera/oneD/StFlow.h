@@ -26,7 +26,7 @@ enum offset
     , c_offset_V //! strain rate
     , c_offset_T //! temperature
     , c_offset_L //! (1/r)dP/dr
-    , c_offset_E //! electric poisson's equation
+    , c_offset_E //! electric field equation
     , c_offset_Y //! mass fractions
 };
 
@@ -232,6 +232,10 @@ public:
         return m_qdotRadiation[j];
     }
 
+    //! Computes the radiative heat loss vector over points jmin to jmax and stores
+    //! the data in the qdotRadiation variable.
+    void computeRadiation(double* x, size_t jmin, size_t jmax);
+
     //! Set the emissivities for the boundary values
     /*!
      * Reads the emissivities for the left and right boundary values in the
@@ -300,13 +304,6 @@ public:
      */
     void eval(size_t j, double* x, double* r, integer* mask, double rdt) override;
 
-    //! Evaluate all residual components at the right boundary.
-    virtual void evalRightBoundary(double* x, double* res, int* diag, double rdt);
-
-    //! Evaluate the residual corresponding to the continuity equation at all
-    //! interior grid points.
-    virtual void evalContinuity(size_t j, double* x, double* r, int* diag, double rdt);
-
     //! Index of the species on the left boundary with the largest mass fraction
     size_t leftExcessSpecies() const {
         return m_kExcessLeft;
@@ -336,10 +333,29 @@ protected:
     //! to be updated are defined.
     virtual void updateProperties(size_t jg, double* x, size_t jmin, size_t jmax);
 
-    //! Evaluate the residual function. This function is called in eval
-    //! after updateProperties is called.
-    virtual void evalResidual(double* x, double* rsd, int* diag,
+    //! Evaluate the residual function for the continuity equation.
+    virtual void evalContinuity(double* x, double* rsd, int* diag,
+                                double rdt, size_t jmin, size_t jmax);
+
+    //! Evaluate the residual function for the momentum equation.
+    virtual void evalMomentum(double* x, double* rsd, int* diag,
                               double rdt, size_t jmin, size_t jmax);
+
+    //! Evaluate the residual function for the energy equation.
+    virtual void evalEnergy(double* x, double* rsd, int* diag,
+                            double rdt, size_t jmin, size_t jmax);
+
+    //! Evaluate the residual function for the species equation.
+    virtual void evalSpecies(double* x, double* rsd, int* diag,
+                             double rdt, size_t jmin, size_t jmax);
+
+    //! Evaluate the residual function for the lambda equation.
+    virtual void evalLambda(double* x, double* rsd, int* diag,
+                            double rdt, size_t jmin, size_t jmax);
+
+    //! Evaluate the residual function for the lambda equation.
+    virtual void evalElectricField(double* x, double* rsd, int* diag,
+                                   double rdt, size_t jmin, size_t jmax);
 
     /**
      * Update the thermodynamic properties from point j0 to point j1
@@ -352,6 +368,7 @@ protected:
             m_wtm[j] = m_thermo->meanMolecularWeight();
             m_cp[j] = m_thermo->cp_mass();
             m_thermo->getPartialMolarEnthalpies(&m_hk(0, j));
+            m_kin->getNetProductionRates(&m_wdot(0, j));
         }
     }
 

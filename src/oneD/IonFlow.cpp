@@ -199,40 +199,60 @@ void IonFlow::setSolvingStage(const size_t stage)
     }
 }
 
-void IonFlow::evalResidual(double* x, double* rsd, int* diag,
-                           double rdt, size_t jmin, size_t jmax)
+void IonFlow::evalElectricField(double* x, double* rsd, int* diag,
+                                double rdt, size_t jmin, size_t jmax)
 {
-    StFlow::evalResidual(x, rsd, diag, rdt, jmin, jmax);
+    //-----------------------------------------------
+    //    Electric field by Gauss's law
+    //
+    //    dE/dz = e/eps_0 * sum(q_k*n_k)
+    //
+    //    E = -dV/dz
+    //-----------------------------------------------
+    StFlow::evalElectricField(x, rsd, diag, rdt, jmin, jmax);
     if (m_stage != 2) {
         return;
     }
 
     for (size_t j = jmin; j <= jmax; j++) {
         if (j == 0) {
-            // enforcing the flux for charged species is difficult
-            // since charged species are also affected by electric
-            // force, so Neumann boundary condition is used.
-            for (size_t k : m_kCharge) {
-                rsd[index(c_offset_Y + k, 0)] = Y(x,k,0) - Y(x,k,1);
-            }
             rsd[index(c_offset_E, j)] = E(x,0);
             diag[index(c_offset_E, j)] = 0;
         } else if (j == m_points - 1) {
             rsd[index(c_offset_E, j)] = dEdz(x,j) - rho_e(x,j) / epsilon_0;
             diag[index(c_offset_E, j)] = 0;
         } else {
-            //-----------------------------------------------
-            //    Electric field by Gauss's law
-            //
-            //    dE/dz = e/eps_0 * sum(q_k*n_k)
-            //
-            //    E = -dV/dz
-            //-----------------------------------------------
             rsd[index(c_offset_E, j)] = dEdz(x,j) - rho_e(x,j) / epsilon_0;
             diag[index(c_offset_E, j)] = 0;
         }
     }
 }
+
+void IonFlow::evalSpecies(double* x, double* rsd, int* diag,
+                          double rdt, size_t jmin, size_t jmax)
+{
+    //-----------------------------------------------
+    //    Species equations
+    //-----------------------------------------------
+    StFlow::evalSpecies(x, rsd, diag, rdt, jmin, jmax);
+    if (m_stage != 2) {
+        return;
+    }
+
+    for (size_t j = jmin; j <= jmax; j++) {
+        if (j == 0) { // left boundary
+            // enforcing the flux for charged species is difficult
+            // since charged species are also affected by electric
+            // force, so Neumann boundary condition is used.
+            for (size_t k : m_kCharge) {
+                rsd[index(c_offset_Y + k, 0)] = Y(x,k,0) - Y(x,k,1);
+            }
+        } else if (j == m_points - 1) { // right boundary
+        } else { // interior points
+        }
+    }
+}
+
 
 void IonFlow::solveElectricField(size_t j)
 {
