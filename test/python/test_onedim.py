@@ -1282,6 +1282,7 @@ class TestCounterflowPremixedFlame(utilities.CanteraTest):
         sim.solve(loglevel=0, auto=True)
         self.assertTrue(all(sim.T >= T - 1e-3))
         self.assertTrue(all(sim.spread_rate >= -1e-9))
+        assert np.allclose(sim.L, sim.L[0])
         return sim
 
     @utilities.slow_test
@@ -1391,6 +1392,7 @@ class TestCounterflowPremixedFlameNonIdeal(utilities.CanteraTest):
         sim.solve(loglevel=0, auto=True)
         self.assertTrue(all(sim.T >= T - 1e-3))
         self.assertTrue(all(sim.spread_rate >= -1e-9))
+        assert np.allclose(sim.L, sim.L[0])
         return sim
 
     @utilities.slow_test
@@ -1436,6 +1438,7 @@ class TestBurnerFlame(utilities.CanteraTest):
         sim.burner.mdot = gas.density * 0.15
         sim.solve(loglevel=0, auto=True)
         self.assertGreater(sim.T[1], T)
+        assert np.allclose(sim.L, 0)
 
     def test_case1(self):
         self.solve(phi=0.5, T=500, width=2.0, P=0.1)
@@ -1530,6 +1533,7 @@ class TestStagnationFlame(utilities.CanteraTest):
         sim.solve(loglevel=0, auto=True)
 
         assert sim.T.max() > tburner + tsurf
+        assert np.allclose(sim.L, sim.L[0])
         self.sim = sim
 
     def test_stagnation_case1(self):
@@ -1717,6 +1721,7 @@ class TestTwinFlame(utilities.CanteraTest):
         sim.reactants.mdot = gas.density * axial_velocity
         sim.solve(loglevel=0, auto=True)
         self.assertGreater(sim.T[-1], T + 100)
+        assert np.allclose(sim.L, sim.L[0])
         return sim
 
     def test_restart(self):
