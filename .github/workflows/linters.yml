@@ -8,6 +8,12 @@ on:
 
 jobs:
   linter:
+    env:
+      # one or more Git pathspec patterns
+      # see https://git-scm.com/docs/gitglossary#Documentation/gitglossary.txt-aiddefpathspecapathspec
+      # Note: individual items may need to be surrounded in single quotes
+      #       to escape them from interpretation by the shell
+      WhitespaceCheckHints: "':!*.sln'"
     name: Lint checks
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -50,4 +56,5 @@ jobs:
           git config --global core.autocrlf false
           git config --global core.whitespace \
             -cr-at-eol,tab-in-indent,blank-at-eol,blank-at-eof
-          git diff --check ${{ github.event.pull_request.base.sha }}
+          git diff --check ${{ github.event.pull_request.base.sha }} \
+            -- . ${{ env.WhitespaceCheckHints }}
