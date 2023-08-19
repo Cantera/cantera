@@ -22,7 +22,7 @@ if localenv["toolchain"] != "mingw":
     localenv["LIBS"] = [lib for lib in localenv["LIBS"] if not lib.startswith("python")]
 
 setup_cfg = localenv.SubstFile("setup.cfg", "setup.cfg.in")
-readme = localenv.Command("README.rst", "#README.rst", Copy("$TARGET", "$SOURCE"))
+readme = localenv.Command("README.md", "#README.md", Copy("$TARGET", "$SOURCE"))
 license = localenv.Command("LICENSE.txt", "#build/ext/LICENSE.txt",
                            Copy("$TARGET", "$SOURCE"))
 localenv.Depends(license, localenv["license_target"])

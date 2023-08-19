@@ -2,7 +2,7 @@
 name = Cantera
 version = @cantera_version@
 description = Cantera is an open-source suite of tools for problems involving chemical kinetics, thermodynamics, and transport processes.
-long_description = file: README.rst
+long_description = file: README.md
 long_description_content_type = text/x-rst
 license_files = LICENSE.txt
 url = https://cantera.org

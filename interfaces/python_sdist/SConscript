@@ -146,7 +146,7 @@ license = sdist(localenv.Command("LICENSE.txt", "#build/ext/LICENSE.txt",
 localenv.Depends(license, localenv["license_target"])
 
 sdist(localenv.SubstFile("setup.cfg", "setup.cfg.in"))
-sdist(localenv.Command("README.rst", "#README.rst", Copy("$TARGET", "$SOURCE")))
+sdist(localenv.Command("README.md", "#README.md", Copy("$TARGET", "$SOURCE")))
 
 
 def build_sdist(target, source, env):
