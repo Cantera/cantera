@@ -5,13 +5,15 @@ using Xunit;
 
 namespace Cantera.Tests;
 
-public class ApplicationFixture
+public class LibCanteraFixture
 {
-    public ApplicationFixture()
+    internal const string Collection = "LibCantera";
+
+    public LibCanteraFixture()
     {
         Application.DataDirectories.AddAssemblyDirectory();
     }
 }
 
-[CollectionDefinition("Application")]
-public class DatabaseCollection : ICollectionFixture<ApplicationFixture> { }
+[CollectionDefinition(LibCanteraFixture.Collection)]
+public class LibCanteraCollection : ICollectionFixture<LibCanteraFixture> { }

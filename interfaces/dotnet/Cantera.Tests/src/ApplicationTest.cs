@@ -8,7 +8,7 @@ using Xunit;
 
 namespace Cantera.Tests;
 
-[Collection("Application")]
+[Collection(LibCanteraFixture.Collection)]
 public class ApplicationTest
 {
     class FooException : Exception { }

@@ -9,6 +9,7 @@ using Xunit.Sdk;
 
 namespace Cantera.Tests;
 
+[Collection(LibCanteraFixture.Collection)]
 public class ExceptionTest
 {
     class FooException : Exception { }
