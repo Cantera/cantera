@@ -52,7 +52,7 @@ set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}
     # Note: These CMakeLists.txt and SConstruct files are automatically installed
     # by the "RecursiveInstall" that grabs everything in the cxx directory.
 
-    flag_excludes = ["$(", "/TP", "$)", "/nologo"]
+    flag_excludes = [r"\$\(", "/TP", r"\$\)", "/nologo"]
     incdirs = [localenv["ct_incroot"]]
     libdirs = [localenv["ct_libdir"]]
     if localenv["package_build"]:
@@ -60,8 +60,8 @@ set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}
         # conda package for now.
         # Users should compile against their local SDKs, which should be backwards
         # compatible with the SDK used for building.
-        flag_excludes.extend(["-isysroot", "-mmacosx", "-march", "-mtune"
-                              "-fdebug-prefix-map"])
+        flag_excludes.extend(["-isysroot", "-mmacosx", "-march", "-mtune",
+                              "-fdebug-prefix-map", ".*/_build_env/"])
     else:
         incdirs.extend([localenv["sundials_include"], localenv["boost_inc_dir"]])
         incdirs.append(localenv["hdf_include"])
@@ -78,7 +78,8 @@ set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}
                                    for d in libdirs])
 
     cc_flags = compiler_flag_list(localenv["CCFLAGS"] + localenv["CXXFLAGS"],
-                                  flag_excludes)
+                                  env["CC"], flag_excludes)
+    link_flags = compiler_flag_list(localenv["LINKFLAGS"], env["CC"], flag_excludes)
     localenv["tmpl_compiler_flags"] = repr(cc_flags)
     localenv['tmpl_cantera_frameworks'] = repr(localenv['FRAMEWORKS'])
     localenv['tmpl_cantera_incdirs'] = repr([x for x in incdirs if x])
@@ -90,7 +91,7 @@ set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}
         localenv['cmake_cantera_incdirs'] += ' "/usr/local/include"'
     localenv['tmpl_cantera_libdirs'] = repr([x for x in libdirs if x])
     localenv['cmake_cantera_libdirs'] = ' '.join(quoted(x) for x in libdirs if x)
-    localenv['tmpl_cantera_linkflags'] = repr(localenv['LINKFLAGS'])
+    localenv['tmpl_cantera_linkflags'] = repr(link_flags)
     localenv['tmpl_progname'] = name
     localenv['tmpl_sourcename'] = name + '.cpp'
     env_args = []

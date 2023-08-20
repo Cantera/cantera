@@ -1098,24 +1098,45 @@ def add_RegressionTest(env: "SCEnvironment") -> None:
 
 def compiler_flag_list(
         flags: "Union[str, Iterable]",
-        excludes: "Optional[Iterable]" = []
+        compiler: str,
+        excludes: "Optional[Iterable]" = (),
     ) -> "List[str]":
     """
     Separate concatenated compiler flags in ``flags``.
-    Entries listed in ``excludes`` are omitted.
+
+    ``compiler`` is either ``"cl"`` for MSVC or anything else for a different
+    compiler.
+
+    Entries starting with the regular expression patterns in ``excludes`` are omitted.
     """
     if not isinstance(flags, str):
         flags = " ".join(flags)
-    # split concatenated entries. Options can start with "-", "/", or "$"
-    flags = re.findall(r"""(?:^|\ +)        # start of string or leading whitespace
-                       ([-/\$].+?)          # capture start of option
-                       (?=\ +[-/\$]|\ *$)   # start of next option or end of string
-                       """, flags, re.VERBOSE)
-    cc_flags = []
+
+    if compiler == "cl":
+        # Options can start with "/", or "$"
+        expr = r"""(?:^|\ +)           # start of string or leading whitespace
+                   ([/\$].+?)          # capture start of option
+                   (?=\ +[-/\$]|\ *$)  # start of next option or end of string
+                """
+    else:
+        # Options can start with "-"
+        expr = r"""(?:^|\ +)           # start of string or leading whitespace
+                   (-.+?)              # capture start of option
+                   (?=\ +-|\ *$)  # start of next option or end of string
+                """
+
+    # split concatenated entries
+    flags = re.findall(expr, flags, re.VERBOSE)
+
+    # Remove duplicates and excluded items
     excludes = tuple(excludes)
+    cc_flags = []
     for flag in flags:
-        if not flag.startswith(excludes) and flag not in cc_flags:
+        if flag in cc_flags:
+                continue
+        if not any(re.match(exclude, flag) for exclude in excludes):
             cc_flags.append(flag)
+
     return cc_flags
 
 
