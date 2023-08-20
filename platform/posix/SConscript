@@ -51,8 +51,8 @@ if localenv["package_build"]:
     # compatible with the SDK used for building.
     excludes = (
         "-isysroot", "-mmacosx", "-march", "-mtune", "-fdebug-prefix-map")
-    localenv["CCFLAGS"] = compiler_flag_list(localenv["CCFLAGS"], excludes)
-    localenv["CXXFLAGS"] = compiler_flag_list(localenv["CXXFLAGS"], excludes)
+    localenv["CCFLAGS"] = compiler_flag_list(localenv["CCFLAGS"], env["CC"], excludes)
+    localenv["CXXFLAGS"] = compiler_flag_list(localenv["CXXFLAGS"], env["CC"], excludes)
 
 # Generate cantera.pc for use with pkg-config
 localenv["pc_prefix"] = localenv["prefix"]
