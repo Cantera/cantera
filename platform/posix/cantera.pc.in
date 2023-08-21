@@ -9,4 +9,4 @@ URL: https://cantera.org
 Version: @cantera_version@
 
 Libs: -L${libdir} -Wl,-rpath,${libdir} @pc_libdirs@ @pc_libs@
-Cflags: @pc_cflags@ -I${includedir} @pc_incdirs@
+Cflags: @pc_cflags@ -isystem ${includedir}
