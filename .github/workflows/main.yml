@@ -320,13 +320,13 @@ jobs:
       - name: Install Apt dependencies
         run: |
           sudo apt update
-          sudo apt install libboost-dev doxygen graphviz texlive-bibtex-extra
+          sudo apt install libboost-dev graphviz texlive-bibtex-extra
       - name: Upgrade pip
         run: python3 -m pip install -U pip setuptools wheel
       - name: Install Python dependencies
         run: |
-          python3 -m pip install ruamel.yaml scons numpy cython sphinx==5.1.1 \
-          sphinxcontrib-matlabdomain sphinxcontrib-doxylink pint \
+          python3 -m pip install ruamel.yaml scons numpy cython doxygen>=1.9.4 \
+          sphinx==5.1.1 sphinxcontrib-matlabdomain sphinxcontrib-doxylink pint \
           pydata-sphinx-theme==0.13.3 sphinx-argparse
       - name: Build Cantera with documentation
         run: python3 `which scons` build -j2 doxygen_docs=y sphinx_docs=y debug=n optimize=n use_pch=n
