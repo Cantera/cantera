@@ -117,6 +117,17 @@ TEST_F(TestThermoMethods, setConcentrations)
     EXPECT_NEAR(thermo->moleFraction(2), -1e-8 / ctot, 1e-16);
 }
 
+TEST(ThermoConstructors, newPhase)
+{
+    suppress_deprecation_warnings();
+    // Test deprecated newPhase(infile, phasename) factory function
+    unique_ptr<ThermoPhase> gas(newPhase("h2o2.yaml", ""));
+    gas->setState_TPX(400, 2 * OneAtm, "H2:1.0, O2:1.0");
+    EXPECT_NEAR(gas->moleFraction("H2"), 0.5, 1e-8);
+    EXPECT_NEAR(gas->pressure(), 2 * OneAtm, 1e-5);
+    make_deprecation_warnings_fatal();
+}
+
 class EquilRatio_MixFrac_Test : public testing::Test
 {
 public:
