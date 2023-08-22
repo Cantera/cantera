@@ -179,8 +179,3 @@
   as the interop layer cannot marshall exceptions between managed and native code,
   and the process will crash. Use `CallbackException.Register()` within a catch-all
   block to log the exception for later throwing back in managed code.
-* The primary API for accessing Cantera is the `Application` class, which handles
-  required static initialization of the library. When exposing a new wrapper for CLib
-  functionality, do not expose a public constructor. Rather, mark the constructor
-  `internal` and wrap it in an appropriate factory method in the `Application` class
-  (`public static CreateFoo(string filename) { ... }`).

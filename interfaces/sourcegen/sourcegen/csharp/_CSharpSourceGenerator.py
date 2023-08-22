@@ -3,7 +3,7 @@
 
 from itertools import starmap
 from pathlib import Path
-from typing import List, Dict
+from typing import List, Dict, Optional
 import re
 
 from ._dataclasses import CsFunc
@@ -84,13 +84,13 @@ class CSharpSourceGenerator(SourceGenerator):
             p_type = getter.params[1].p_type
 
             # for get-string type functions we need to look up the type of the second
-            # (index 1) param for a cast because sometimes it"s an int and other times
-            # its a nuint (size_t)
+            # (index 1) param for a cast because sometimes it’s an int and other times
+            # it’s a nuint (size_t)
             text = f"""
                 public unsafe string {cs_name}
                 {{
-                    get => InteropUtil.GetString(40, (length, buffer) =>
-                        LibCantera.{getter.name}(_handle, ({p_type}) length, buffer));
+                    get => InteropUtil.GetString(_handle, 40, static (handle, length, buffer) =>
+                        LibCantera.{getter.name}(handle, ({p_type}) length, buffer));
             """
 
             if setter:
@@ -106,7 +106,7 @@ class CSharpSourceGenerator(SourceGenerator):
 
         return normalize_indent(text)
 
-    def __init__(self, out_dir: Path, config: dict):
+    def __init__(self, out_dir: Path, config: dict, moniker: Optional[str]):
         self._out_dir = out_dir
 
         # use the typed config

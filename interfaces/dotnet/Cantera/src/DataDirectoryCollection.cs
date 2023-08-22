@@ -13,12 +13,11 @@ public class DataDirectoryCollection : IReadOnlyList<DirectoryInfo>
 {
     unsafe static IEnumerable<DirectoryInfo> GetDirs()
     {
-        const char sep = ';';
-
+        const string sep = ";";
         return InteropUtil
-            .GetString(500, (size, buffer) =>
-                LibCantera.ct_getDataDirectories(size, buffer, sep.ToString()))
-            .Split(sep)
+            .GetString(500, static (size, buffer) =>
+                LibCantera.ct_getDataDirectories(size, buffer, sep))
+            .Split(sep[0])
             .Select(d => new DirectoryInfo(d));
     }
 

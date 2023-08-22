@@ -44,6 +44,14 @@ public partial class ThermoPhase
         });
     }
 
+    /// <summary>
+    /// Creates a new <see cref="ThermoPhase" /> object by loading and parsing the
+    /// given configuration file. Optionally chooses the phase to load by
+    /// looking up the given name.
+    /// </summary>
+    public static ThermoPhase Load(string filename, string? phaseName = null) =>
+        new ThermoPhase(LibCantera.thermo_newFromFile(filename, phaseName ?? ""));
+
     readonly Lazy<SpeciesCollection> _species;
 
     /// <summary>
@@ -51,12 +59,12 @@ public partial class ThermoPhase
     /// </summary>
     public SpeciesCollection Species => _species.Value;
 
-    internal ThermoPhase(string filename, string? phaseName)
+    ThermoPhase(ThermoPhaseHandle handle)
     {
-        _handle = LibCantera.thermo_newFromFile(filename, phaseName ?? "");
-        _handle.EnsureValid();
+        handle.EnsureValid();
+        _handle = handle;
 
-        _species = new(() => new SpeciesCollection(_handle));
+        _species = new(() => new SpeciesCollection(handle));
     }
 
     /// <summary>

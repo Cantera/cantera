@@ -11,9 +11,11 @@ The `sourcegen.generate_source` function crudely parses the CLib header files an
 
 `sourcegen.generate_source` then delegates the source generation to a language-specific sub-package. The sub-package creates the source files in a location appropriate to the build for that language’s build process.
 
-`sourcegen.generate_source` takes two mandatory arguments:
+`sourcegen.generate_source` takes three arguments:
 1. The name of the language-specific module.
 1. The full path of the directory where generated files shall be placed.
+1. An optional language/framework moniker. This is useful when the source generator will generate output for
+    multiple versions/frameworks of a language but needs to taylor its output for each version/framework.
 
 The language-specific sub-packages export a class that derives from `SourceGenerator`:
 1. An initializer which takes the output directory and the parsed config object\
@@ -34,4 +36,3 @@ Each sub-package can contain a yaml-based config file named `config.yaml`. The c
 The config file may contain additional values for use by the language-specific sub-package.
 
 ## running from the command line
-

@@ -13,6 +13,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoundSpeed", "examples\Soun
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application", "examples\Application\Application.csproj", "{B78E1156-3E56-4C29-A33F-3E6810DBD9A9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cantera.CodeAnalysis", "Cantera.CodeAnalysis\Cantera.CodeAnalysis.csproj", "{8652772F-B45B-499C-8184-A78E5559EC69}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cantera.CodeAnalysis.Tests", "Cantera.CodeAnalysis.Tests\Cantera.CodeAnalysis.Tests.csproj", "{F259A3FA-CC5E-4750-8AF5-297576357E7C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -38,6 +42,14 @@ Global
 		{B78E1156-3E56-4C29-A33F-3E6810DBD9A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B78E1156-3E56-4C29-A33F-3E6810DBD9A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B78E1156-3E56-4C29-A33F-3E6810DBD9A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8652772F-B45B-499C-8184-A78E5559EC69}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8652772F-B45B-499C-8184-A78E5559EC69}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8652772F-B45B-499C-8184-A78E5559EC69}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8652772F-B45B-499C-8184-A78E5559EC69}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F259A3FA-CC5E-4750-8AF5-297576357E7C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F259A3FA-CC5E-4750-8AF5-297576357E7C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F259A3FA-CC5E-4750-8AF5-297576357E7C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F259A3FA-CC5E-4750-8AF5-297576357E7C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{FC37B09C-F14F-4B23-BC6B-AA8A3DC3463D} = {94A48235-04A4-4B09-844C-9A07120430B1}

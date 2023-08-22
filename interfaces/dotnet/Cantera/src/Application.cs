@@ -34,38 +34,6 @@ public class LogMessageEventArgs
 /// </remarks>
 public static class Application
 {
-    static Application()
-    {
-        s_invokeMessageLoggedDelegate = (level, category, message) =>
-        {
-            try
-            {
-                MessageLogged
-                    ?.Invoke(null, new LogMessageEventArgs(level, category, message));
-            }
-            catch (Exception ex)
-            {
-                CallbackException.Register(ex);
-            }
-        };
-
-        InteropUtil.CheckReturn(
-            LibCantera.ct_setLogCallback(s_invokeMessageLoggedDelegate));
-    }
-
-    /// <summary>
-    /// Represents the delegate that is marshalled to LibCantera as a function pointer.
-    /// </summary>
-    /// <remarks>
-    /// ct_setLogWriter() needs a delegate which is marshalled as a function pointer to
-    /// the C++ Cantera library. We could create one implicitly when calling
-    /// <c>LibCantera.ct_setLogWriter(LogMessage)</c>, but the garbage collector would
-    /// not know the native method is using it and could reclaim it. By explicitly
-    /// storing it as
-    /// a class member, we ensure it is not collected until the class is.
-    /// </remarks>
-    static readonly LibCantera.LogCallback s_invokeMessageLoggedDelegate;
-
     unsafe static readonly Lazy<string> s_version =
         new(() => InteropUtil.GetString(10, LibCantera.ct_getCanteraVersion));
 
@@ -90,6 +58,18 @@ public static class Application
     public static DataDirectoryCollection DataDirectories =>
         s_dataDirectories.Value;
 #pragma warning restore CS1591
+
+    internal static void RaiseMessageLogged(LogLevel logLevel, string category, string message)
+    {
+        try
+        {
+            MessageLogged?.Invoke(null, new(logLevel, category, message));
+        }
+        catch (Exception ex)
+        {
+            CallbackException.Register(ex);
+        }
+    }
 
     /// <summary>
     /// Convenience method to add logging to the console.
@@ -120,13 +100,4 @@ public static class Application
             Console.WriteLine(message);
         }
     }
-
-    /// <summary>
-    /// Returns a new <see cref="ThermoPhase" /> object by loading and parsing the
-    /// given configuration file. Optionally chooses the phase to load by
-    /// looking up the given name.
-    /// </summary>
-    public static ThermoPhase CreateThermoPhase(string filename,
-                                                string? phaseName = null) =>
-        new ThermoPhase(filename, phaseName);
 }

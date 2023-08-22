@@ -5,13 +5,13 @@ using Xunit;
 
 namespace Cantera.Tests;
 
-[Collection("Application")]
+[Collection(LibCanteraFixture.Collection)]
 public class ThermoPhaseTest
 {
     [Fact]
     public void ThermoPhase_SpeciesRetrieved()
     {
-        using var thermo = Application.CreateThermoPhase("gri30.yaml");
+        using var thermo = ThermoPhase.Load("gri30.yaml");
 
         Assert.NotEmpty(thermo.Species);
         Assert.NotEmpty(thermo.Species[0].Name);

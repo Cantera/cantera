@@ -3,7 +3,7 @@
 
 from abc import ABCMeta, abstractmethod
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
 from ._dataclasses import HeaderFile
 
@@ -12,7 +12,7 @@ class SourceGenerator(metaclass=ABCMeta):
     """Specifies the interface of a language-specific SourceGenerator"""
 
     @abstractmethod
-    def __init__(self, out_dir: Path, config: dict):
+    def __init__(self, out_dir: Path, config: dict, moniker: Optional[str]):
         pass
 
     @abstractmethod
