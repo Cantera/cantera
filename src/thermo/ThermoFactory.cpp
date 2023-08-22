@@ -202,7 +202,27 @@ ThermoPhase* newPhase(const string& infile, string id)
     warn_deprecated("newPhase",
         "To be removed after Cantera 3.0; superseded by\n"
         "newThermo(const string&, const string&).");
-    return newThermo(infile, id).get();
+    size_t dot = infile.find_last_of(".");
+    if (dot == npos) {
+        newThermoModel(infile);
+    }
+    string extension;
+    extension = toLowerCopy(infile.substr(dot+1));
+    string id_ = id;
+    if (id == "-") {
+        id_ = "";
+    }
+    if (extension == "cti" || extension == "xml") {
+        throw CanteraError("newPhase",
+                           "The CTI and XML formats are no longer supported.");
+    }
+
+    AnyMap root = AnyMap::fromYamlFile(infile);
+    AnyMap& phase = root["phases"].getMapWhere("name", id_);
+    string model = phase["thermo"].asString();
+    unique_ptr<ThermoPhase> t(ThermoFactory::factory()->create(model));
+    setupPhase(*t, phase, root);
+    return t.release();
 }
 
 void addDefaultElements(ThermoPhase& thermo, const vector<string>& element_names) {
