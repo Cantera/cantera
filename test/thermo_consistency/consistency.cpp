@@ -107,7 +107,7 @@ public:
         make_deprecation_warnings_fatal();
     }
 
-    void SetUp() {
+    void SetUp() override {
         // See if we should skip this test specific test case
         if (setup.hasKey("known-failures")) {
             auto current = testing::UnitTest::GetInstance()->current_test_info()->name();
@@ -164,7 +164,7 @@ TEST_P(TestConsistency, g_eq_h_minus_Ts) {
 
 TEST_P(TestConsistency, hk_eq_uk_plus_P_vk)
 {
-    vector_fp hk(nsp), uk(nsp), vk(nsp);
+    vector<double> hk(nsp), uk(nsp), vk(nsp);
     try {
         phase->getPartialMolarEnthalpies(hk.data());
         phase->getPartialMolarIntEnergies(uk.data());
@@ -181,7 +181,7 @@ TEST_P(TestConsistency, hk_eq_uk_plus_P_vk)
 
 TEST_P(TestConsistency, gk_eq_hk_minus_T_sk)
 {
-    vector_fp gk(nsp), hk(nsp), sk(nsp);
+    vector<double> gk(nsp), hk(nsp), sk(nsp);
     try {
         phase->getChemPotentials(gk.data());
         phase->getPartialMolarEnthalpies(hk.data());
@@ -198,7 +198,7 @@ TEST_P(TestConsistency, gk_eq_hk_minus_T_sk)
 
 TEST_P(TestConsistency, h_eq_sum_hk_Xk)
 {
-    vector_fp hk(nsp);
+    vector<double> hk(nsp);
     try {
         phase->getPartialMolarEnthalpies(hk.data());
     } catch (NotImplementedError& err) {
@@ -209,7 +209,7 @@ TEST_P(TestConsistency, h_eq_sum_hk_Xk)
 
 TEST_P(TestConsistency, u_eq_sum_uk_Xk)
 {
-    vector_fp uk(nsp);
+    vector<double> uk(nsp);
     double u;
     try {
         phase->getPartialMolarIntEnergies(uk.data());
@@ -222,7 +222,7 @@ TEST_P(TestConsistency, u_eq_sum_uk_Xk)
 
 TEST_P(TestConsistency, g_eq_sum_gk_Xk)
 {
-    vector_fp gk(nsp);
+    vector<double> gk(nsp);
     double g;
     try {
         phase->getChemPotentials(gk.data());
@@ -235,7 +235,7 @@ TEST_P(TestConsistency, g_eq_sum_gk_Xk)
 
 TEST_P(TestConsistency, s_eq_sum_sk_Xk)
 {
-    vector_fp sk(nsp);
+    vector<double> sk(nsp);
     double s;
     try {
         phase->getPartialMolarEntropies(sk.data());
@@ -248,7 +248,7 @@ TEST_P(TestConsistency, s_eq_sum_sk_Xk)
 
 TEST_P(TestConsistency, v_eq_sum_vk_Xk)
 {
-    vector_fp vk(nsp);
+    vector<double> vk(nsp);
     try {
         phase->getPartialMolarVolumes(vk.data());
     } catch (NotImplementedError& err) {
@@ -259,7 +259,7 @@ TEST_P(TestConsistency, v_eq_sum_vk_Xk)
 
 TEST_P(TestConsistency, cp_eq_sum_cpk_Xk)
 {
-    vector_fp cpk(nsp);
+    vector<double> cpk(nsp);
     double cp;
     try {
         phase->getPartialMolarCp(cpk.data());
@@ -418,7 +418,7 @@ TEST_P(TestConsistency, betaT_eq_minus_dmv_dP_const_T_div_mv)
     double T = phase->temperature();
     double P1 = phase->pressure();
     double mv1 = phase->molarVolume();
-    
+
     double P2 = P1 * (1 + 1e-6);
     phase->setState_TP(T, P2);
     double betaT2 = phase->isothermalCompressibility();
@@ -428,7 +428,7 @@ TEST_P(TestConsistency, betaT_eq_minus_dmv_dP_const_T_div_mv)
     double mv_mid = 0.5 * (mv1 + mv2);
     double betaT_fd = -1 / mv_mid * (mv2 - mv1) / (P2 - P1);
 
-    EXPECT_NEAR(betaT_fd, betaT_mid, 
+    EXPECT_NEAR(betaT_fd, betaT_mid,
                 max({rtol_fd * betaT_mid, rtol_fd * betaT_fd, atol_c}));
 }
 
@@ -454,7 +454,7 @@ TEST_P(TestConsistency, alphaV_eq_dmv_dT_const_P_div_mv)
     double mv_mid = 0.5 * (mv1 + mv2);
     double alphaV_fd = 1 / mv_mid * (mv2 - mv1) / (T2 - T1);
 
-    EXPECT_NEAR(alphaV_fd, alphaV_mid, 
+    EXPECT_NEAR(alphaV_fd, alphaV_mid,
                 max({rtol_fd * alphaV_mid, rtol_fd * alphaV_fd, atol_e}));
 }
 
@@ -474,7 +474,7 @@ TEST_P(TestConsistency, c_eq_sqrt_dP_drho_const_s)
     phase->setState_SV(phase->entropy_mass(), 1 / rho2);
     double c2 = phase->soundSpeed();
     double P2 = phase->pressure();
-    
+
     double c_mid = 0.5 * (c1 + c2);
     double c_fd = sqrt((P2 - P1) / (rho2 - rho1));
 
@@ -485,7 +485,7 @@ TEST_P(TestConsistency, c_eq_sqrt_dP_drho_const_s)
 
 TEST_P(TestConsistency, hk0_eq_uk0_plus_p_vk0)
 {
-    vector_fp h0(nsp), u0(nsp), v0(nsp);
+    vector<double> h0(nsp), u0(nsp), v0(nsp);
     try {
         phase->getEnthalpy_RT(h0.data());
         phase->getIntEnergy_RT(u0.data());
@@ -500,7 +500,7 @@ TEST_P(TestConsistency, hk0_eq_uk0_plus_p_vk0)
 
 TEST_P(TestConsistency, gk0_eq_hk0_minus_T_sk0)
 {
-    vector_fp g0(nsp), h0(nsp), s0(nsp);
+    vector<double> g0(nsp), h0(nsp), s0(nsp);
     try {
         phase->getEnthalpy_RT(h0.data());
         phase->getGibbs_RT(g0.data());
@@ -516,7 +516,7 @@ TEST_P(TestConsistency, gk0_eq_hk0_minus_T_sk0)
 
 TEST_P(TestConsistency, cpk0_eq_dhk0dT)
 {
-    vector_fp h1(nsp), h2(nsp), cp1(nsp), cp2(nsp);
+    vector<double> h1(nsp), h2(nsp), cp1(nsp), cp2(nsp);
     try {
         phase->getEnthalpy_RT(h1.data());
         phase->getCp_R(cp1.data());
@@ -538,7 +538,7 @@ TEST_P(TestConsistency, cpk0_eq_dhk0dT)
 
 TEST_P(TestConsistency, standard_gibbs_nondim)
 {
-    vector_fp g0_RT(nsp), mu0(nsp);
+    vector<double> g0_RT(nsp), mu0(nsp);
     try {
         phase->getGibbs_RT(g0_RT.data());
         phase->getStandardChemPotentials(mu0.data());
@@ -555,7 +555,7 @@ TEST_P(TestConsistency, standard_gibbs_nondim)
 }
 
 TEST_P(TestConsistency, chem_potentials_to_activities) {
-    vector_fp mu0(nsp), mu(nsp), a(nsp);
+    vector<double> mu0(nsp), mu(nsp), a(nsp);
     try {
         phase->getChemPotentials(mu.data());
         phase->getStandardChemPotentials(mu0.data());
@@ -577,7 +577,7 @@ TEST_P(TestConsistency, chem_potentials_to_activities) {
 }
 
 TEST_P(TestConsistency, activity_coeffs) {
-    vector_fp a(nsp), gamma(nsp), X(nsp);
+    vector<double> a(nsp), gamma(nsp), X(nsp);
     try {
         phase->getActivities(a.data());
         phase->getActivityCoefficients(gamma.data());
@@ -592,7 +592,7 @@ TEST_P(TestConsistency, activity_coeffs) {
 }
 
 TEST_P(TestConsistency, activity_concentrations) {
-    vector_fp a(nsp), Cact(nsp);
+    vector<double> a(nsp), Cact(nsp);
     try {
         phase->getActivities(a.data());
         phase->getActivityConcentrations(Cact.data());
@@ -613,7 +613,7 @@ TEST_P(TestConsistency, log_standard_concentrations) {
 }
 
 TEST_P(TestConsistency, log_activity_coeffs) {
-    vector_fp gamma(nsp), log_gamma(nsp);
+    vector<double> gamma(nsp), log_gamma(nsp);
     try {
         phase->getActivityCoefficients(gamma.data());
         phase->getLnActivityCoefficients(log_gamma.data());
@@ -629,7 +629,7 @@ TEST_P(TestConsistency, log_activity_coeffs) {
 
 TEST_P(TestConsistency, hRef_eq_uRef_plus_P_vRef)
 {
-    vector_fp hRef(nsp), uRef(nsp), vRef(nsp);
+    vector<double> hRef(nsp), uRef(nsp), vRef(nsp);
     try {
         phase->getEnthalpy_RT_ref(hRef.data());
         phase->getIntEnergy_RT_ref(uRef.data());
@@ -648,7 +648,7 @@ TEST_P(TestConsistency, hRef_eq_uRef_plus_P_vRef)
 
 TEST_P(TestConsistency, gRef_eq_hRef_minus_T_sRef)
 {
-    vector_fp hRef(nsp), gRef_RT(nsp), gRef(nsp), sRef(nsp);
+    vector<double> hRef(nsp), gRef_RT(nsp), gRef(nsp), sRef(nsp);
     try {
         phase->getEnthalpy_RT_ref(hRef.data());
         phase->getGibbs_ref(gRef.data());
@@ -672,7 +672,7 @@ TEST_P(TestConsistency, gRef_eq_hRef_minus_T_sRef)
 
 TEST_P(TestConsistency, cpRef_eq_dhRefdT)
 {
-    vector_fp h1(nsp), h2(nsp), cp1(nsp), cp2(nsp);
+    vector<double> h1(nsp), h2(nsp), cp1(nsp), cp2(nsp);
     try {
         phase->getEnthalpy_RT_ref(h1.data());
         phase->getCp_R_ref(cp1.data());

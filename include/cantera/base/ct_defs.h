@@ -3,7 +3,7 @@
  * This file contains definitions of constants, types and terms that are used
  * in internal routines and are unlikely to need modifying.
  *
- * All physical constants are stored here (see module \ref physConstants).
+ * All physical constants are stored here (see module @ref physConstants).
  *
  * This file is included in every file within the Cantera namespace.
  */
@@ -46,14 +46,21 @@ using std::set;
 using std::function;
 using std::pair;
 
-/*!
- * All physical constants are stored here.
- *
+/**
  * @defgroup physConstants Physical Constants
+ * @brief Physical constants used by %Cantera.
+ *
  * %Cantera uses the MKS system of units. The unit for moles
  * is defined to be the kmol. All values of physical constants
  * are consistent with the 2018 CODATA recommendations.
  * @ingroup globalData
+ */
+
+//! @addtogroup physConstants
+//! @{
+
+/**
+ * @name Numerical Constants
  * @{
  */
 
@@ -66,23 +73,23 @@ const double Sqrt2 = 1.41421356237309504880;
 //! @}
 //! @name Defined Constants
 //!
-//! These constants are defined by CODATA to have a particular value.
-//! https://physics.nist.gov/cuu/Constants/index.html
+//! These constants are defined by CODATA to have a particular value; see
+//! [NIST Reference on Constants, Units, and Uncertainty](https://physics.nist.gov/cuu/Constants/index.html).
 //! @{
 
-//! Avogadro's Number \f$ N_{\mathrm{A}} \f$ [number/kmol]
+//! Avogadro's Number @f$ N_{\mathrm{A}} @f$ [number/kmol]
 const double Avogadro = 6.02214076e26;
 
-//! Boltzmann constant \f$ k \f$ [J/K]
+//! Boltzmann constant @f$ k @f$ [J/K]
 const double Boltzmann = 1.380649e-23;
 
-//! Planck constant \f$ h \f$ [J-s]
+//! Planck constant @f$ h @f$ [J-s]
 const double Planck = 6.62607015e-34;
 
-//! Elementary charge \f$ e \f$ [C]
+//! Elementary charge @f$ e @f$ [C]
 const double ElectronCharge = 1.602176634e-19;
 
-//! Speed of Light in a vacuum \f$ c \f$ [m/s]
+//! Speed of Light in a vacuum @f$ c @f$ [m/s]
 const double lightSpeed = 299792458.0;
 
 //! One atmosphere [Pa]
@@ -97,10 +104,10 @@ const double OneBar = 1.0E5;
 //! These constants are measured and reported by CODATA
 //! @{
 
-//! Fine structure constant \f$ \alpha \f$ []
+//! Fine structure constant @f$ \alpha @f$ []
 const double fineStructureConstant = 7.2973525693e-3;
 
-//! Electron Mass \f$ m_e \f$ [kg]
+//! Electron Mass @f$ m_e @f$ [kg]
 const double ElectronMass = 9.1093837015e-31;
 
 //! @}
@@ -109,7 +116,7 @@ const double ElectronMass = 9.1093837015e-31;
 //! These constants are found from the defined and measured constants
 //! @{
 
-//! Universal Gas Constant \f$ R_u \f$ [J/kmol/K]
+//! Universal Gas Constant @f$ R_u @f$ [J/kmol/K]
 const double GasConstant = Avogadro * Boltzmann;
 
 const double logGasConstant = std::log(GasConstant);
@@ -117,19 +124,22 @@ const double logGasConstant = std::log(GasConstant);
 //! Universal gas constant in cal/mol/K
 const double GasConst_cal_mol_K = GasConstant / 4184.0;
 
-//! Stefan-Boltzmann constant \f$ \sigma \f$ [W/m2/K4]
+//! Stefan-Boltzmann constant @f$ \sigma @f$ [W/m2/K4]
 const double StefanBoltz = 2.0 * std::pow(Pi, 5) * std::pow(Boltzmann, 4) / (15.0 * std::pow(Planck, 3) * lightSpeed * lightSpeed); // 5.670374419e-8
 
-//! Faraday constant \f$ F \f$ [C/kmol]
+//! Faraday constant @f$ F @f$ [C/kmol]
 const double Faraday = ElectronCharge * Avogadro;
 
-//! Permeability of free space \f$ \mu_0 \f$ [N/A2]
+//! Permeability of free space @f$ \mu_0 @f$ [N/A2]
 const double permeability_0 = 2 * fineStructureConstant * Planck / (ElectronCharge * ElectronCharge * lightSpeed);
 
-//! Permittivity of free space \f$ \varepsilon_0 \f$ [F/m]
+//! Permittivity of free space @f$ \varepsilon_0 @f$ [F/m]
 const double epsilon_0 = 1.0 / (lightSpeed * lightSpeed * permeability_0);
 
 //! @}
+
+//! @}
+
 //! @name Thermodynamic Equilibrium Constraints
 //!
 //! Integer numbers representing pairs of thermodynamic variables
@@ -148,8 +158,6 @@ const int VT = -100, PH = -101, PS = -102, VP = -103, PT = -104,
 const double SmallNumber = 1.e-300;
 //! largest number to compare to inf.
 const double BigNumber = 1.e300;
-//! largest x such that exp(x) is valid
-const double MaxExp = 690.775527898;
 
 //! Fairly random number to be used to initialize variables against
 //! to see if they are subsequently defined.
@@ -167,8 +175,9 @@ const double Tiny = 1.e-20;
 //! Map connecting a string name with a double.
 /*!
  * This is used mostly to assign concentrations and mole fractions to species.
+ * @deprecated To be removed after %Cantera 3.0
  */
-typedef map<string, double> compositionMap;
+typedef map<string, double> compositionMap [[deprecated("replaceable by Composition")]];
 
 //! Map from string names to doubles. Used for defining species mole/mass
 //! fractions, elemental compositions, and reaction stoichiometries.
@@ -176,12 +185,11 @@ typedef map<string, double> Composition;
 
 //! Turn on the use of stl vectors for the basic array type within cantera
 //! Vector of doubles.
-typedef vector<double> vector_fp;
+//! @deprecated To be removed after %Cantera 3.0
+typedef vector<double> vector_fp [[deprecated("replaceable by vector<double>")]];
 //! Vector of ints
-typedef vector<int> vector_int;
-
-//! A grouplist is a vector of groups of species
-typedef vector<vector<size_t>> grouplist_t;
+//! @deprecated To be removed after %Cantera 3.0
+typedef vector<int> vector_int [[deprecated("replaceable by vector<int>")]];
 
 //! index returned by functions to indicate "no position"
 const size_t npos = static_cast<size_t>(-1);

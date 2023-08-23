@@ -2,7 +2,7 @@
  *  @file HMWSoln.cpp
  *    Definitions for the HMWSoln ThermoPhase object, which
  *    models concentrated electrolyte solutions
- *    (see \ref thermoprops and \link Cantera::HMWSoln HMWSoln \endlink) .
+ *    (see @ref thermoprops and @link Cantera::HMWSoln HMWSoln @endlink) .
  *
  * Class HMWSoln represents a concentrated liquid electrolyte phase which obeys
  * the Pitzer formulation for nonideality using molality-based standard states.
@@ -38,7 +38,7 @@ HMWSoln::~HMWSoln()
     // Defined in .cpp to limit dependence on WaterProps.h
 }
 
-HMWSoln::HMWSoln(const std::string& inputFile, const std::string& id_) :
+HMWSoln::HMWSoln(const string& inputFile, const string& id_) :
     m_maxIionicStrength(maxIionicStrength_default),
     CROP_ln_gamma_o_min(crop_ln_gamma_o_min_default),
     CROP_ln_gamma_o_max(crop_ln_gamma_o_max_default),
@@ -51,13 +51,13 @@ HMWSoln::HMWSoln(const std::string& inputFile, const std::string& id_) :
 
 // -------- Molar Thermodynamic Properties of the Solution ---------------
 
-doublereal HMWSoln::enthalpy_mole() const
+double HMWSoln::enthalpy_mole() const
 {
     getPartialMolarEnthalpies(m_tmpV.data());
     return mean_X(m_tmpV);
 }
 
-doublereal HMWSoln::relative_enthalpy() const
+double HMWSoln::relative_enthalpy() const
 {
     getPartialMolarEnthalpies(m_tmpV.data());
     double hbar = mean_X(m_tmpV);
@@ -69,7 +69,7 @@ doublereal HMWSoln::relative_enthalpy() const
     return hbar - h0bar;
 }
 
-doublereal HMWSoln::relative_molal_enthalpy() const
+double HMWSoln::relative_molal_enthalpy() const
 {
     double L = relative_enthalpy();
     getMoleFractions(m_tmpV.data());
@@ -109,25 +109,25 @@ doublereal HMWSoln::relative_molal_enthalpy() const
     return L / xuse;
 }
 
-doublereal HMWSoln::entropy_mole() const
+double HMWSoln::entropy_mole() const
 {
     getPartialMolarEntropies(m_tmpV.data());
     return mean_X(m_tmpV);
 }
 
-doublereal HMWSoln::gibbs_mole() const
+double HMWSoln::gibbs_mole() const
 {
     getChemPotentials(m_tmpV.data());
     return mean_X(m_tmpV);
 }
 
-doublereal HMWSoln::cp_mole() const
+double HMWSoln::cp_mole() const
 {
     getPartialMolarCp(m_tmpV.data());
     return mean_X(m_tmpV);
 }
 
-doublereal HMWSoln::cv_mole() const
+double HMWSoln::cv_mole() const
 {
     double kappa_t = isothermalCompressibility();
     double beta = thermalExpansionCoeff();
@@ -156,7 +156,7 @@ void HMWSoln::calcDensity()
 
 // ------- Activities and Activity Concentrations
 
-void HMWSoln::getActivityConcentrations(doublereal* c) const
+void HMWSoln::getActivityConcentrations(double* c) const
 {
     double cs_solvent = standardConcentration();
     getActivities(c);
@@ -169,7 +169,7 @@ void HMWSoln::getActivityConcentrations(doublereal* c) const
     }
 }
 
-doublereal HMWSoln::standardConcentration(size_t k) const
+double HMWSoln::standardConcentration(size_t k) const
 {
     getStandardVolumes(m_tmpV.data());
     double mvSolvent = m_tmpV[0];
@@ -179,7 +179,7 @@ doublereal HMWSoln::standardConcentration(size_t k) const
     return 1.0 / mvSolvent;
 }
 
-void HMWSoln::getActivities(doublereal* ac) const
+void HMWSoln::getActivities(double* ac) const
 {
     updateStandardStateThermo();
 
@@ -195,7 +195,7 @@ void HMWSoln::getActivities(doublereal* ac) const
     ac[0] = exp(m_lnActCoeffMolal_Scaled[0]) * xmolSolvent;
 }
 
-void HMWSoln::getUnscaledMolalityActivityCoefficients(doublereal* acMolality) const
+void HMWSoln::getUnscaledMolalityActivityCoefficients(double* acMolality) const
 {
     updateStandardStateThermo();
     A_Debye_TP(-1.0, -1.0);
@@ -208,7 +208,7 @@ void HMWSoln::getUnscaledMolalityActivityCoefficients(doublereal* acMolality) co
 
 // ------ Partial Molar Properties of the Solution -----------------
 
-void HMWSoln::getChemPotentials(doublereal* mu) const
+void HMWSoln::getChemPotentials(double* mu) const
 {
     double xx;
 
@@ -228,7 +228,7 @@ void HMWSoln::getChemPotentials(doublereal* mu) const
     mu[0] += RT() * (log(xx) + m_lnActCoeffMolal_Scaled[0]);
 }
 
-void HMWSoln::getPartialMolarEnthalpies(doublereal* hbar) const
+void HMWSoln::getPartialMolarEnthalpies(double* hbar) const
 {
     // Get the nondimensional standard state enthalpies
     getEnthalpy_RT(hbar);
@@ -247,7 +247,7 @@ void HMWSoln::getPartialMolarEnthalpies(doublereal* hbar) const
     }
 }
 
-void HMWSoln::getPartialMolarEntropies(doublereal* sbar) const
+void HMWSoln::getPartialMolarEntropies(double* sbar) const
 {
     // Get the standard state entropies at the temperature and pressure of the
     // solution.
@@ -264,7 +264,7 @@ void HMWSoln::getPartialMolarEntropies(doublereal* sbar) const
 
     // First we will add in the obvious dependence on the T term out front of
     // the log activity term
-    doublereal mm;
+    double mm;
     for (size_t k = 1; k < m_kk; k++) {
         mm = std::max(SmallNumber, m_molalities[k]);
         sbar[k] -= GasConstant * (log(mm) + m_lnActCoeffMolal_Scaled[k]);
@@ -282,7 +282,7 @@ void HMWSoln::getPartialMolarEntropies(doublereal* sbar) const
     }
 }
 
-void HMWSoln::getPartialMolarVolumes(doublereal* vbar) const
+void HMWSoln::getPartialMolarVolumes(double* vbar) const
 {
     // Get the standard state values in m^3 kmol-1
     getStandardVolumes(vbar);
@@ -295,7 +295,7 @@ void HMWSoln::getPartialMolarVolumes(doublereal* vbar) const
     }
 }
 
-void HMWSoln::getPartialMolarCp(doublereal* cpbar) const
+void HMWSoln::getPartialMolarCp(double* cpbar) const
 {
     getCp_R(cpbar);
     for (size_t k = 0; k < m_kk; k++) {
@@ -315,7 +315,7 @@ void HMWSoln::getPartialMolarCp(doublereal* cpbar) const
 
 // -------------- Utilities -------------------------------
 
-doublereal HMWSoln::satPressure(doublereal t) {
+double HMWSoln::satPressure(double t) {
     double p_old = pressure();
     double t_old = temperature();
     double pres = m_waterSS->satPressure(t);
@@ -325,8 +325,7 @@ doublereal HMWSoln::satPressure(doublereal t) {
     return pres;
 }
 
-static void check_nParams(const std::string& method, size_t nParams,
-                          size_t m_formPitzerTemp)
+static void check_nParams(const string& method, size_t nParams, size_t m_formPitzerTemp)
 {
     if (m_formPitzerTemp == PITZER_TEMP_CONSTANT && nParams != 1) {
         throw CanteraError(method, "'constant' temperature model requires one"
@@ -341,7 +340,7 @@ static void check_nParams(const std::string& method, size_t nParams,
     }
 }
 
-void HMWSoln::setBinarySalt(const std::string& sp1, const std::string& sp2,
+void HMWSoln::setBinarySalt(const string& sp1, const string& sp2,
     size_t nParams, double* beta0, double* beta1, double* beta2,
     double* Cphi, double alpha1, double alpha2)
 {
@@ -376,7 +375,7 @@ void HMWSoln::setBinarySalt(const std::string& sp1, const std::string& sp2,
     m_Alpha2MX_ij[c] = alpha2;
 }
 
-void HMWSoln::setTheta(const std::string& sp1, const std::string& sp2,
+void HMWSoln::setTheta(const string& sp1, const string& sp2,
         size_t nParams, double* theta)
 {
     size_t k1 = speciesIndex(sp1);
@@ -399,8 +398,8 @@ void HMWSoln::setTheta(const std::string& sp1, const std::string& sp2,
     }
 }
 
-void HMWSoln::setPsi(const std::string& sp1, const std::string& sp2,
-        const std::string& sp3, size_t nParams, double* psi)
+void HMWSoln::setPsi(const string& sp1, const string& sp2,
+        const string& sp3, size_t nParams, double* psi)
 {
     size_t k1 = speciesIndex(sp1);
     size_t k2 = speciesIndex(sp2);
@@ -435,7 +434,7 @@ void HMWSoln::setPsi(const std::string& sp1, const std::string& sp2,
     }
 }
 
-void HMWSoln::setLambda(const std::string& sp1, const std::string& sp2,
+void HMWSoln::setLambda(const string& sp1, const string& sp2,
         size_t nParams, double* lambda)
 {
     size_t k1 = speciesIndex(sp1);
@@ -462,7 +461,7 @@ void HMWSoln::setLambda(const std::string& sp1, const std::string& sp2,
     m_Lambda_nj(k1, k2) = lambda[0];
 }
 
-void HMWSoln::setMunnn(const std::string& sp, size_t nParams, double* munnn)
+void HMWSoln::setMunnn(const string& sp, size_t nParams, double* munnn)
 {
     size_t k = speciesIndex(sp);
     if (k == npos) {
@@ -480,8 +479,8 @@ void HMWSoln::setMunnn(const std::string& sp, size_t nParams, double* munnn)
     m_Mu_nnn[k] = munnn[0];
 }
 
-void HMWSoln::setZeta(const std::string& sp1, const std::string& sp2,
-        const std::string& sp3, size_t nParams, double* psi)
+void HMWSoln::setZeta(const string& sp1, const string& sp2,
+        const string& sp3, size_t nParams, double* psi)
 {
     size_t k1 = speciesIndex(sp1);
     size_t k2 = speciesIndex(sp2);
@@ -523,7 +522,7 @@ void HMWSoln::setZeta(const std::string& sp1, const std::string& sp2,
     m_Psi_ijk[c] = psi[0];
 }
 
-void HMWSoln::setPitzerTempModel(const std::string& model)
+void HMWSoln::setPitzerTempModel(const string& model)
 {
     if (caseInsensitiveEquals(model, "constant") || caseInsensitiveEquals(model, "default")) {
         m_formPitzerTemp = PITZER_TEMP_CONSTANT;
@@ -556,9 +555,9 @@ void HMWSoln::setCroppingCoefficients(double ln_gamma_k_min,
         CROP_ln_gamma_o_max = ln_gamma_o_max;
 }
 
-vector_fp getSizedVector(const AnyMap& item, const std::string& key, size_t nCoeffs)
+vector<double> getSizedVector(const AnyMap& item, const string& key, size_t nCoeffs)
 {
-    vector_fp v;
+    vector<double> v;
     if (item[key].is<double>()) {
         // Allow a single value to be given directly, rather than as a list of
         // one item
@@ -606,10 +605,10 @@ void HMWSoln::initThermo()
                 double q2 = (nsp == 3) ? charge(speciesIndex(species[2])) : 0;
                 if (nsp == 2 && q0 * q1 < 0) {
                     // Two species with opposite charges - binary salt
-                    vector_fp beta0 = getSizedVector(item, "beta0", nCoeffs);
-                    vector_fp beta1 = getSizedVector(item, "beta1", nCoeffs);
-                    vector_fp beta2 = getSizedVector(item, "beta2", nCoeffs);
-                    vector_fp Cphi = getSizedVector(item, "Cphi", nCoeffs);
+                    vector<double> beta0 = getSizedVector(item, "beta0", nCoeffs);
+                    vector<double> beta1 = getSizedVector(item, "beta1", nCoeffs);
+                    vector<double> beta2 = getSizedVector(item, "beta2", nCoeffs);
+                    vector<double> Cphi = getSizedVector(item, "Cphi", nCoeffs);
                     if (beta0.size() != beta1.size() || beta0.size() != beta2.size()
                         || beta0.size() != Cphi.size()) {
                         throw InputFileError("HMWSoln::initThermo", item,
@@ -623,25 +622,25 @@ void HMWSoln::initThermo()
                         alpha1, alpha2);
                 } else if (nsp == 2 && q0 * q1 > 0) {
                     // Two species with like charges - "theta" interaction
-                    vector_fp theta = getSizedVector(item, "theta", nCoeffs);
+                    vector<double> theta = getSizedVector(item, "theta", nCoeffs);
                     setTheta(species[0], species[1], theta.size(), theta.data());
                 } else if (nsp == 2 && q0 * q1 == 0) {
                     // Two species, including at least one neutral
-                    vector_fp lambda = getSizedVector(item, "lambda", nCoeffs);
+                    vector<double> lambda = getSizedVector(item, "lambda", nCoeffs);
                     setLambda(species[0], species[1], lambda.size(), lambda.data());
                 } else if (nsp == 3 && q0 * q1 * q2 != 0) {
                     // Three charged species - "psi" interaction
-                    vector_fp psi = getSizedVector(item, "psi", nCoeffs);
+                    vector<double> psi = getSizedVector(item, "psi", nCoeffs);
                     setPsi(species[0], species[1], species[2],
                            psi.size(), psi.data());
                 } else if (nsp == 3 && q0 * q1 * q2 == 0) {
                     // Three species, including one neutral
-                    vector_fp zeta = getSizedVector(item, "zeta", nCoeffs);
+                    vector<double> zeta = getSizedVector(item, "zeta", nCoeffs);
                     setZeta(species[0], species[1], species[2],
                             zeta.size(), zeta.data());
                 } else if (nsp == 1) {
                     // single species (should be neutral)
-                    vector_fp mu = getSizedVector(item, "mu", nCoeffs);
+                    vector<double> mu = getSizedVector(item, "mu", nCoeffs);
                     setMunnn(species[0], mu.size(), mu.data());
                 }
             }
@@ -672,7 +671,7 @@ void HMWSoln::initThermo()
 
     // Lastly calculate the charge balance and then add stuff until the charges
     // compensate
-    vector_fp mf(m_kk, 0.0);
+    vector<double> mf(m_kk, 0.0);
     getMoleFractions(mf.data());
     bool notDone = true;
 
@@ -739,7 +738,7 @@ void HMWSoln::initThermo()
     setMoleFSolventMin(1.0E-5);
 }
 
-void assignTrimmed(AnyMap& interaction, const std::string& key, vector_fp& values) {
+void assignTrimmed(AnyMap& interaction, const string& key, vector<double>& values) {
     while (values.size() > 1 && values.back() == 0) {
         values.pop_back();
     }
@@ -788,9 +787,9 @@ void HMWSoln::getParameters(AnyMap& phaseNode) const
             }
             if (lambda_found) {
                 AnyMap interaction;
-                interaction["species"] = vector<std::string>{
+                interaction["species"] = vector<string>{
                     speciesName(i), speciesName(j)};
-                vector_fp lambda(nParams);
+                vector<double> lambda(nParams);
                 for (size_t n = 0; n < nParams; n++) {
                     lambda[n] = m_Lambda_nj_coeff(n, c);
                 }
@@ -816,9 +815,9 @@ void HMWSoln::getParameters(AnyMap& phaseNode) const
             }
             if (salt_found) {
                 AnyMap interaction;
-                interaction["species"] = vector<std::string>{
+                interaction["species"] = vector<string>{
                     speciesName(i), speciesName(j)};
-                vector_fp beta0(nParams), beta1(nParams), beta2(nParams), Cphi(nParams);
+                vector<double> beta0(nParams), beta1(nParams), beta2(nParams), Cphi(nParams);
                 size_t last_nonzero = 0;
                 for (size_t n = 0; n < nParams; n++) {
                     beta0[n] = m_Beta0MX_ij_coeff(n, c);
@@ -862,9 +861,9 @@ void HMWSoln::getParameters(AnyMap& phaseNode) const
             }
             if (theta_found) {
                 AnyMap interaction;
-                interaction["species"] = vector<std::string>{
+                interaction["species"] = vector<string>{
                     speciesName(i), speciesName(j)};
-                vector_fp theta(nParams);
+                vector<double> theta(nParams);
                 for (size_t n = 0; n < nParams; n++) {
                     theta[n] = m_Theta_ij_coeff(n, c);
                 }
@@ -894,9 +893,9 @@ void HMWSoln::getParameters(AnyMap& phaseNode) const
                 for (size_t n = 0; n < nParams; n++) {
                     if (m_Psi_ijk_coeff(n, c) != 0) {
                         AnyMap interaction;
-                        interaction["species"] = vector<std::string>{
+                        interaction["species"] = vector<string>{
                             speciesName(i), speciesName(j), speciesName(k)};
-                        vector_fp psi(nParams);
+                        vector<double> psi(nParams);
                         for (size_t m = 0; m < nParams; m++) {
                             psi[m] = m_Psi_ijk_coeff(m, c);
                         }
@@ -926,9 +925,9 @@ void HMWSoln::getParameters(AnyMap& phaseNode) const
                 for (size_t n = 0; n < nParams; n++) {
                     if (m_Psi_ijk_coeff(n, c) != 0) {
                         AnyMap interaction;
-                        interaction["species"] = vector<std::string>{
+                        interaction["species"] = vector<string>{
                             speciesName(i), speciesName(j), speciesName(k)};
-                        vector_fp zeta(nParams);
+                        vector<double> zeta(nParams);
                         for (size_t m = 0; m < nParams; m++) {
                             zeta[m] = m_Psi_ijk_coeff(m, c);
                         }
@@ -946,8 +945,8 @@ void HMWSoln::getParameters(AnyMap& phaseNode) const
         for (size_t n = 0; n < nParams; n++) {
             if (m_Mu_nnn_coeff(n, i) != 0) {
                 AnyMap interaction;
-                interaction["species"] = vector<std::string>{speciesName(i)};
-                vector_fp mu(nParams);
+                interaction["species"] = vector<string>{speciesName(i)};
+                vector<double> mu(nParams);
                 for (size_t m = 0; m < nParams; m++) {
                     mu[m] = m_Mu_nnn_coeff(m, i);
                 }
@@ -1014,15 +1013,15 @@ double HMWSoln::A_Debye_TP(double tempArg, double presArg) const
 
 double HMWSoln::dA_DebyedT_TP(double tempArg, double presArg) const
 {
-    doublereal T = temperature();
+    double T = temperature();
     if (tempArg != -1.0) {
         T = tempArg;
     }
-    doublereal P = pressure();
+    double P = pressure();
     if (presArg != -1.0) {
         P = presArg;
     }
-    doublereal dAdT;
+    double dAdT;
     switch (m_form_A_Debye) {
     case A_DEBYE_CONST:
         dAdT = 0.0;
@@ -1309,7 +1308,7 @@ void HMWSoln::s_update_lnMolalityActCoeff() const
 
 void HMWSoln::calcMolalitiesCropped() const
 {
-    doublereal Imax = 0.0;
+    double Imax = 0.0;
     m_molalitiesAreCropped = false;
 
     for (size_t k = 0; k < m_kk; k++) {
@@ -1809,11 +1808,11 @@ void HMWSoln::s_updatePitzer_CoeffWRTemp(int doDerivs) const
 void HMWSoln::s_updatePitzer_lnMolalityActCoeff() const
 {
     // Use the CROPPED molality of the species in solution.
-    const vector_fp& molality = m_molalitiesCropped;
+    const vector<double>& molality = m_molalitiesCropped;
 
     // These are data inputs about the Pitzer correlation. They come from the
     // input file for the Pitzer model.
-    vector_fp& gamma_Unscaled = m_gamma_tmp;
+    vector<double>& gamma_Unscaled = m_gamma_tmp;
 
     // Local variables defined by Coltrin
     double etheta[5][5], etheta_prime[5][5], sqrtIs;
@@ -2343,7 +2342,7 @@ void HMWSoln::s_updatePitzer_dlnMolalityActCoeff_dT() const
     // immediately preceding the calling of this routine. Therefore, some
     // quantities do not need to be recalculated in this routine.
 
-    const vector_fp& molality = m_molalitiesCropped;
+    const vector<double>& molality = m_molalitiesCropped;
     double* d_gamma_dT_Unscaled = m_gamma_tmp.data();
 
     // Local variables defined by Coltrin
@@ -3964,7 +3963,7 @@ void HMWSoln::s_updateIMS_lnMolalityActCoeff() const
 void HMWSoln::printCoeffs() const
 {
     calcMolalities();
-    vector_fp& moleF = m_tmpV;
+    vector<double>& moleF = m_tmpV;
 
     // Update the coefficients wrt Temperature. Calculate the derivatives as well
     s_updatePitzer_CoeffWRTemp(2);
@@ -4005,15 +4004,15 @@ void HMWSoln::printCoeffs() const
     }
 }
 
-void HMWSoln::applyphScale(doublereal* acMolality) const
+void HMWSoln::applyphScale(double* acMolality) const
 {
     if (m_pHScalingType == PHSCALE_PITZER) {
         return;
     }
     AssertTrace(m_pHScalingType == PHSCALE_NBS);
-    doublereal lnGammaClMs2 = s_NBS_CLM_lnMolalityActCoeff();
-    doublereal lnGammaCLMs1 = m_lnActCoeffMolal_Unscaled[m_indexCLM];
-    doublereal afac = -1.0 *(lnGammaClMs2 - lnGammaCLMs1);
+    double lnGammaClMs2 = s_NBS_CLM_lnMolalityActCoeff();
+    double lnGammaCLMs1 = m_lnActCoeffMolal_Unscaled[m_indexCLM];
+    double afac = -1.0 *(lnGammaClMs2 - lnGammaCLMs1);
     for (size_t k = 0; k < m_kk; k++) {
         acMolality[k] *= exp(charge(k) * afac);
     }
@@ -4026,9 +4025,9 @@ void HMWSoln::s_updateScaling_pHScaling() const
         return;
     }
     AssertTrace(m_pHScalingType == PHSCALE_NBS);
-    doublereal lnGammaClMs2 = s_NBS_CLM_lnMolalityActCoeff();
-    doublereal lnGammaCLMs1 = m_lnActCoeffMolal_Unscaled[m_indexCLM];
-    doublereal afac = -1.0 *(lnGammaClMs2 - lnGammaCLMs1);
+    double lnGammaClMs2 = s_NBS_CLM_lnMolalityActCoeff();
+    double lnGammaCLMs1 = m_lnActCoeffMolal_Unscaled[m_indexCLM];
+    double afac = -1.0 *(lnGammaClMs2 - lnGammaCLMs1);
     for (size_t k = 0; k < m_kk; k++) {
         m_lnActCoeffMolal_Scaled[k] = m_lnActCoeffMolal_Unscaled[k] + charge(k) * afac;
     }
@@ -4041,9 +4040,9 @@ void HMWSoln::s_updateScaling_pHScaling_dT() const
         return;
     }
     AssertTrace(m_pHScalingType == PHSCALE_NBS);
-    doublereal dlnGammaClM_dT_s2 = s_NBS_CLM_dlnMolalityActCoeff_dT();
-    doublereal dlnGammaCLM_dT_s1 = m_dlnActCoeffMolaldT_Unscaled[m_indexCLM];
-    doublereal afac = -1.0 *(dlnGammaClM_dT_s2 - dlnGammaCLM_dT_s1);
+    double dlnGammaClM_dT_s2 = s_NBS_CLM_dlnMolalityActCoeff_dT();
+    double dlnGammaCLM_dT_s1 = m_dlnActCoeffMolaldT_Unscaled[m_indexCLM];
+    double afac = -1.0 *(dlnGammaClM_dT_s2 - dlnGammaCLM_dT_s1);
     for (size_t k = 0; k < m_kk; k++) {
         m_dlnActCoeffMolaldT_Scaled[k] = m_dlnActCoeffMolaldT_Unscaled[k] + charge(k) * afac;
     }
@@ -4056,9 +4055,9 @@ void HMWSoln::s_updateScaling_pHScaling_dT2() const
         return;
     }
     AssertTrace(m_pHScalingType == PHSCALE_NBS);
-    doublereal d2lnGammaClM_dT2_s2 = s_NBS_CLM_d2lnMolalityActCoeff_dT2();
-    doublereal d2lnGammaCLM_dT2_s1 = m_d2lnActCoeffMolaldT2_Unscaled[m_indexCLM];
-    doublereal afac = -1.0 *(d2lnGammaClM_dT2_s2 - d2lnGammaCLM_dT2_s1);
+    double d2lnGammaClM_dT2_s2 = s_NBS_CLM_d2lnMolalityActCoeff_dT2();
+    double d2lnGammaCLM_dT2_s1 = m_d2lnActCoeffMolaldT2_Unscaled[m_indexCLM];
+    double afac = -1.0 *(d2lnGammaClM_dT2_s2 - d2lnGammaCLM_dT2_s1);
     for (size_t k = 0; k < m_kk; k++) {
         m_d2lnActCoeffMolaldT2_Scaled[k] = m_d2lnActCoeffMolaldT2_Unscaled[k] + charge(k) * afac;
     }
@@ -4071,40 +4070,40 @@ void HMWSoln::s_updateScaling_pHScaling_dP() const
         return;
     }
     AssertTrace(m_pHScalingType == PHSCALE_NBS);
-    doublereal dlnGammaClM_dP_s2 = s_NBS_CLM_dlnMolalityActCoeff_dP();
-    doublereal dlnGammaCLM_dP_s1 = m_dlnActCoeffMolaldP_Unscaled[m_indexCLM];
-    doublereal afac = -1.0 *(dlnGammaClM_dP_s2 - dlnGammaCLM_dP_s1);
+    double dlnGammaClM_dP_s2 = s_NBS_CLM_dlnMolalityActCoeff_dP();
+    double dlnGammaCLM_dP_s1 = m_dlnActCoeffMolaldP_Unscaled[m_indexCLM];
+    double afac = -1.0 *(dlnGammaClM_dP_s2 - dlnGammaCLM_dP_s1);
     for (size_t k = 0; k < m_kk; k++) {
         m_dlnActCoeffMolaldP_Scaled[k] = m_dlnActCoeffMolaldP_Unscaled[k] + charge(k) * afac;
     }
 }
 
-doublereal HMWSoln::s_NBS_CLM_lnMolalityActCoeff() const
+double HMWSoln::s_NBS_CLM_lnMolalityActCoeff() const
 {
-    doublereal sqrtIs = sqrt(m_IionicMolality);
-    doublereal A = A_Debye_TP();
-    doublereal lnGammaClMs2 = - A * sqrtIs /(1.0 + 1.5 * sqrtIs);
+    double sqrtIs = sqrt(m_IionicMolality);
+    double A = A_Debye_TP();
+    double lnGammaClMs2 = - A * sqrtIs /(1.0 + 1.5 * sqrtIs);
     return lnGammaClMs2;
 }
 
-doublereal HMWSoln::s_NBS_CLM_dlnMolalityActCoeff_dT() const
+double HMWSoln::s_NBS_CLM_dlnMolalityActCoeff_dT() const
 {
-    doublereal sqrtIs = sqrt(m_IionicMolality);
-    doublereal dAdT = dA_DebyedT_TP();
+    double sqrtIs = sqrt(m_IionicMolality);
+    double dAdT = dA_DebyedT_TP();
     return - dAdT * sqrtIs /(1.0 + 1.5 * sqrtIs);
 }
 
-doublereal HMWSoln::s_NBS_CLM_d2lnMolalityActCoeff_dT2() const
+double HMWSoln::s_NBS_CLM_d2lnMolalityActCoeff_dT2() const
 {
-    doublereal sqrtIs = sqrt(m_IionicMolality);
-    doublereal d2AdT2 = d2A_DebyedT2_TP();
+    double sqrtIs = sqrt(m_IionicMolality);
+    double d2AdT2 = d2A_DebyedT2_TP();
     return - d2AdT2 * sqrtIs /(1.0 + 1.5 * sqrtIs);
 }
 
-doublereal HMWSoln::s_NBS_CLM_dlnMolalityActCoeff_dP() const
+double HMWSoln::s_NBS_CLM_dlnMolalityActCoeff_dP() const
 {
-    doublereal sqrtIs = sqrt(m_IionicMolality);
-    doublereal dAdP = dA_DebyedP_TP();
+    double sqrtIs = sqrt(m_IionicMolality);
+    double dAdP = dA_DebyedP_TP();
     return - dAdP * sqrtIs /(1.0 + 1.5 * sqrtIs);
 }
 

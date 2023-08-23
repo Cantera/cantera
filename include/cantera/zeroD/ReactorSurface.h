@@ -16,7 +16,7 @@ class SurfPhase;
 
 //! A surface where reactions can occur that is in contact with the bulk fluid of a
 //! Reactor.
-//! @ingroup ZeroD
+//! @ingroup wallGroup
 class ReactorSurface
 {
 public:
@@ -61,7 +61,7 @@ public:
     void setCoverages(const Composition& cov);
 
     //! Set the surface coverages by name
-    void setCoverages(const std::string& cov);
+    void setCoverages(const string& cov);
 
     //! Get the surface coverages. Array `cov` should have length equal to the
     //! number of surface species.
@@ -92,8 +92,8 @@ protected:
     SurfPhase* m_thermo = nullptr;
     Kinetics* m_kinetics = nullptr;
     ReactorBase* m_reactor = nullptr;
-    vector_fp m_cov;
-    std::vector<SensitivityParameter> m_params;
+    vector<double> m_cov;
+    vector<SensitivityParameter> m_params;
 };
 
 }

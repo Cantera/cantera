@@ -72,7 +72,7 @@ void IdealGasConstPressureMoleReactor::eval(double time, double* LHS, double* RH
     m_thermo->restoreState(m_state);
 
     m_thermo->getPartialMolarEnthalpies(&m_hk[0]);
-    const vector_fp& imw = m_thermo->inverseMolecularWeights();
+    const vector<double>& imw = m_thermo->inverseMolecularWeights();
 
     if (m_chem) {
         m_kin->getNetProductionRates(&m_wdot[0]); // "omega dot"
@@ -135,7 +135,7 @@ Eigen::SparseMatrix<double> IdealGasConstPressureMoleReactor::jacobian()
     // map derivatives from the surface chemistry jacobian
     // to the reactor jacobian
     if (!m_surfaces.empty()) {
-        std::vector<Eigen::Triplet<double>> species_trips(dnk_dnj.nonZeros());
+        vector<Eigen::Triplet<double>> species_trips(dnk_dnj.nonZeros());
         for (int k = 0; k < dnk_dnj.outerSize(); k++) {
             for (Eigen::SparseMatrix<double>::InnerIterator it(dnk_dnj, k); it; ++it) {
                 species_trips.emplace_back(static_cast<int>(it.row()),
@@ -153,7 +153,7 @@ Eigen::SparseMatrix<double> IdealGasConstPressureMoleReactor::jacobian()
     // surface phase net production rates mapped to reactor gas phase
     for (auto &S: m_surfaces) {
         auto curr_kin = S->kinetics();
-        vector_fp prod_rates(curr_kin->nTotalSpecies());
+        vector<double> prod_rates(curr_kin->nTotalSpecies());
         curr_kin->getNetProductionRates(prod_rates.data());
         for (size_t i = 0; i < curr_kin->nTotalSpecies(); i++) {
             size_t row = speciesIndex(curr_kin->kineticsSpeciesName(i));
@@ -182,12 +182,12 @@ Eigen::SparseMatrix<double> IdealGasConstPressureMoleReactor::jacobian()
         double deltaTemp = m_thermo->temperature()
             * std::sqrt(std::numeric_limits<double>::epsilon());
         // get current state
-        vector_fp yCurrent(m_nv);
+        vector<double> yCurrent(m_nv);
         getState(yCurrent.data());
         // finite difference temperature derivatives
-        vector_fp lhsPerturbed(m_nv, 1.0), lhsCurrent(m_nv, 1.0);
-        vector_fp rhsPerturbed(m_nv, 0.0), rhsCurrent(m_nv, 0.0);
-        vector_fp yPerturbed = yCurrent;
+        vector<double> lhsPerturbed(m_nv, 1.0), lhsCurrent(m_nv, 1.0);
+        vector<double> rhsPerturbed(m_nv, 0.0), rhsCurrent(m_nv, 0.0);
+        vector<double> yPerturbed = yCurrent;
         // perturb temperature
         yPerturbed[0] += deltaTemp;
         // getting perturbed state
@@ -248,7 +248,7 @@ size_t IdealGasConstPressureMoleReactor::componentIndex(const string& nm) const
     }
 }
 
-std::string IdealGasConstPressureMoleReactor::componentName(size_t k) {
+string IdealGasConstPressureMoleReactor::componentName(size_t k) {
     if (k == 0) {
         return "temperature";
     } else if (k >= m_sidx && k < neq()) {

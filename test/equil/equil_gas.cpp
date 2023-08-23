@@ -21,7 +21,7 @@ class OverconstrainedEquil : public testing::Test
 {
 public:
     OverconstrainedEquil() {}
-    void setup(const std::string& elements="H, C, O, N, Ar") {
+    void setup(const string& elements="H, C, O, N, Ar") {
         AnyMap phase = AnyMap::fromYamlString(
             "{name: gas, thermo: ideal-gas, elements: [" + elements + "], "
             " species: [{gri30.yaml/species: [CH, C2H2]}]}");
@@ -38,7 +38,7 @@ TEST_F(OverconstrainedEquil, ChemEquil)
     gas->equilibrate("TP", "element_potential");
     EXPECT_NEAR(gas->moleFraction("C2H2"), 1.0, 1e-10);
     EXPECT_NEAR(gas->moleFraction("CH"), 0.0, 1e-10);
-    vector_fp mu(2);
+    vector<double> mu(2);
     gas->getChemPotentials(&mu[0]);
     EXPECT_NEAR(2*mu[0], mu[1], 1e-7*std::abs(mu[0]));
 }
@@ -49,7 +49,7 @@ TEST_F(OverconstrainedEquil, VcsNonideal)
     gas->equilibrate("TP", "vcs");
     EXPECT_NEAR(gas->moleFraction("C2H2"), 1.0, 1e-10);
     EXPECT_NEAR(gas->moleFraction("CH"), 0.0, 1e-10);
-    vector_fp mu(2);
+    vector<double> mu(2);
     gas->getChemPotentials(&mu[0]);
     EXPECT_NEAR(2*mu[0], mu[1], 1e-7*std::abs(mu[0]));
 }
@@ -60,7 +60,7 @@ TEST_F(OverconstrainedEquil, DISABLED_MultiphaseEquil)
     gas->equilibrate("TP", "gibbs");
     EXPECT_NEAR(gas->moleFraction("C2H2"), 1.0, 1e-10);
     EXPECT_NEAR(gas->moleFraction("CH"), 0.0, 1e-10);
-    vector_fp mu(2);
+    vector<double> mu(2);
     gas->getChemPotentials(&mu[0]);
     EXPECT_NEAR(2*mu[0], mu[1], 1e-7*std::abs(mu[0]));
 }
@@ -72,11 +72,11 @@ TEST_F(OverconstrainedEquil, BasisOptimize)
     mphase.addPhase(gas.get(), 10.0);
     mphase.init();
     int usedZeroedSpecies = 0;
-    std::vector<size_t> orderVectorSpecies;
-    std::vector<size_t> orderVectorElements;
+    vector<size_t> orderVectorSpecies;
+    vector<size_t> orderVectorElements;
 
     bool doFormMatrix = true;
-    vector_fp formRxnMatrix;
+    vector<double> formRxnMatrix;
 
     size_t nc = BasisOptimize(&usedZeroedSpecies, doFormMatrix, &mphase,
                               orderVectorSpecies, orderVectorElements,
@@ -91,11 +91,11 @@ TEST_F(OverconstrainedEquil, DISABLED_BasisOptimize2)
     mphase.addPhase(gas.get(), 10.0);
     mphase.init();
     int usedZeroedSpecies = 0;
-    std::vector<size_t> orderVectorSpecies;
-    std::vector<size_t> orderVectorElements;
+    vector<size_t> orderVectorSpecies;
+    vector<size_t> orderVectorElements;
 
     bool doFormMatrix = true;
-    vector_fp formRxnMatrix;
+    vector<double> formRxnMatrix;
 
     size_t nc = BasisOptimize(&usedZeroedSpecies, doFormMatrix, &mphase,
                               orderVectorSpecies, orderVectorElements,
@@ -122,7 +122,7 @@ public:
             EXPECT_CLOSE(Yelem[i], gas.elementalMassFraction(i), tol);
         }
 
-        vector_fp mu(gas.nSpecies());
+        vector<double> mu(gas.nSpecies());
         gas.getChemPotentials(&mu[0]);
         double mu_C = mu[gas.speciesIndex("C")];
         double mu_H = mu[gas.speciesIndex("H")];
@@ -136,18 +136,18 @@ public:
                 continue;
             }
             shared_ptr<Species> s = gas.species(k);
-            double muk = mu_C * getValue(s->composition, std::string("C"), 0.0) +
-                         mu_H * getValue(s->composition, std::string("H"), 0.0) +
-                         mu_O * getValue(s->composition, std::string("O"), 0.0) +
-                         mu_N * getValue(s->composition, std::string("N"), 0.0) +
-                         mu_Ar * getValue(s->composition, std::string("AR"), 0.0);
+            double muk = mu_C * getValue(s->composition, string("C"), 0.0) +
+                         mu_H * getValue(s->composition, string("H"), 0.0) +
+                         mu_O * getValue(s->composition, string("O"), 0.0) +
+                         mu_N * getValue(s->composition, string("N"), 0.0) +
+                         mu_Ar * getValue(s->composition, string("AR"), 0.0);
             EXPECT_CLOSE(muk, mu[k], 1e-7);
         }
     }
 
     IdealGasPhase gas;
-    vector_fp X;
-    vector_fp Yelem;
+    vector<double> X;
+    vector<double> Yelem;
 };
 
 class GriMatrix : public GriEquilibriumTest
@@ -159,7 +159,7 @@ public:
         check();
     }
 
-    void check_CH4_N2(const std::string& solver) {
+    void check_CH4_N2(const string& solver) {
         for (int i = 0; i < 5; i++) {
             double T = 500 + 300 * i;
             gas.setState_TPX(T, OneAtm, "CH4:3, N2:2");
@@ -169,7 +169,7 @@ public:
         }
     }
 
-    void check_O2_N2(const std::string& solver) {
+    void check_O2_N2(const string& solver) {
         for (int i = 0; i < 5; i++) {
             double T = 500 + 300 * i;
             gas.setState_TPX(T, OneAtm, "O2:3, N2:2");
@@ -179,7 +179,7 @@ public:
         }
     }
 
-    void check_CH4_O2_N2(const std::string& solver) {
+    void check_CH4_O2_N2(const string& solver) {
         for (int i = 0; i < 6; i++) {
             double T = 500 + 300 * i;
             gas.setState_TPX(T, OneAtm, "CH4:3, O2:3, N2:4");
@@ -189,9 +189,9 @@ public:
         }
     }
 
-    void check_CH4_O2(const std::string& solver) {
+    void check_CH4_O2(const string& solver) {
         for (int i = 0; i < 5; i++) {
-            compositionMap comp;
+            Composition comp;
             comp["CH4"] = i * 0.6 / 5.0;
             comp["O2"] = 1.0 - i * 0.6 / 5.0;
             comp["N2"] = 0.2;
@@ -227,7 +227,7 @@ TEST_F(GriMatrix, SLOW_TEST(VcsNonideal_CH4_O2)) { check_CH4_O2("vcs"); }
 class PropertyPairs : public GriEquilibriumTest
 {
 public:
-    void check_TP(const std::string& solver) {
+    void check_TP(const string& solver) {
         gas.setState_TPX(500, 1e5, "CH4:0.3, O2:0.3, N2:0.4");
         save_elemental_mole_fractions();
         gas.equilibrate("TP", solver);
@@ -236,7 +236,7 @@ public:
         check();
     }
 
-    void check_HP(const std::string& solver) {
+    void check_HP(const string& solver) {
         gas.setState_TPX(500, 1e5, "CH4:0.3, O2:0.3, N2:0.4");
         double h0 = gas.enthalpy_mass();
         save_elemental_mole_fractions();
@@ -246,7 +246,7 @@ public:
         check();
     }
 
-    void check_SP(const std::string& solver) {
+    void check_SP(const string& solver) {
         gas.setState_TPX(500, 3e5, "CH4:0.3, O2:0.3, N2:0.4");
         double s0 = gas.entropy_mass();
         save_elemental_mole_fractions();
@@ -256,7 +256,7 @@ public:
         check();
     }
 
-    void check_SV(const std::string& solver) {
+    void check_SV(const string& solver) {
         gas.setState_TPX(500, 3e5, "CH4:0.3, O2:0.3, N2:0.4");
         double s0 = gas.entropy_mass();
         double rho0 = gas.density();
@@ -267,7 +267,7 @@ public:
         check();
     }
 
-    void check_TV(const std::string& solver) {
+    void check_TV(const string& solver) {
         gas.setState_TPX(500, 3e5, "CH4:0.3, O2:0.3, N2:0.4");
         double rho0 = gas.density();
         save_elemental_mole_fractions();
@@ -279,7 +279,7 @@ public:
         check(5e-8);
     }
 
-    void check_UV(const std::string& solver) {
+    void check_UV(const string& solver) {
         gas.setState_TPX(500, 3e5, "CH4:0.3, O2:0.3, N2:0.4");
         double u0 = gas.intEnergy_mass();
         double rho0 = gas.density();

@@ -32,13 +32,12 @@ public:
  * Newton step between specified lower and upper bounds. This function only
  * considers one domain.
  */
-doublereal bound_step(const doublereal* x, const doublereal* step,
-                      Domain1D& r, int loglevel)
+double bound_step(const double* x, const double* step, Domain1D& r, int loglevel)
 {
     size_t np = r.nPoints();
     size_t nv = r.nComponents();
     Indx index(nv, np);
-    doublereal fbound = 1.0;
+    double fbound = 1.0;
     bool wroteTitle = false;
     for (size_t m = 0; m < nv; m++) {
         double above = r.upperBound(m);
@@ -87,23 +86,22 @@ doublereal bound_step(const doublereal* x, const doublereal* step,
  *              number of components, and number of points.
  *
  * The return value is
- * \f[
+ * @f[
  *    \sum_{n,j} \left(\frac{s_{n,j}}{w_n}\right)^2
- * \f]
- * where the error weight for solution component \f$n\f$ is given by
- * \f[
+ * @f]
+ * where the error weight for solution component @f$ n @f$ is given by
+ * @f[
  *     w_n = \epsilon_{r,n} \frac{\sum_j |x_{n,j}|}{J} + \epsilon_{a,n}.
- * \f]
- * Here \f$\epsilon_{r,n} \f$ is the relative error tolerance for component n,
+ * @f]
+ * Here @f$ \epsilon_{r,n} @f$ is the relative error tolerance for component n,
  * and multiplies the average magnitude of solution component n in the domain.
- * The second term, \f$\epsilon_{a,n}\f$, is the absolute error tolerance for
+ * The second term, @f$ \epsilon_{a,n} @f$, is the absolute error tolerance for
  * component n.
  */
-doublereal norm_square(const doublereal* x,
-                       const doublereal* step, Domain1D& r)
+double norm_square(const double* x, const double* step, Domain1D& r)
 {
     double sum = 0.0;
-    doublereal f2max = 0.0;
+    double f2max = 0.0;
     size_t nv = r.nComponents();
     size_t np = r.nPoints();
 
@@ -126,7 +124,7 @@ doublereal norm_square(const doublereal* x,
 
 
 // constants
-const doublereal DampFactor = sqrt(2.0);
+const double DampFactor = sqrt(2.0);
 const size_t NDAMP = 7;
 
 // ---------------- MultiNewton methods ----------------
@@ -144,8 +142,7 @@ void MultiNewton::resize(size_t sz)
     m_stp1.resize(m_n);
 }
 
-doublereal MultiNewton::norm2(const doublereal* x,
-                              const doublereal* step, OneDim& r) const
+double MultiNewton::norm2(const double* x, const double* step, OneDim& r) const
 {
     double sum = 0.0;
     size_t nd = r.nDomains();
@@ -157,8 +154,7 @@ doublereal MultiNewton::norm2(const doublereal* x,
     return sqrt(sum);
 }
 
-void MultiNewton::step(doublereal* x, doublereal* step,
-                       OneDim& r, MultiJac& jac, int loglevel)
+void MultiNewton::step(double* x, double* step, OneDim& r, MultiJac& jac, int loglevel)
 {
     r.eval(npos, x, step);
     for (size_t n = 0; n < r.size(); n++) {
@@ -191,10 +187,10 @@ void MultiNewton::step(doublereal* x, doublereal* step,
     }
 }
 
-doublereal MultiNewton::boundStep(const doublereal* x0,
-                                  const doublereal* step0, const OneDim& r, int loglevel)
+double MultiNewton::boundStep(const double* x0, const double* step0, const OneDim& r,
+                              int loglevel)
 {
-    doublereal fbound = 1.0;
+    double fbound = 1.0;
     for (size_t i = 0; i < r.nDomains(); i++) {
         fbound = std::min(fbound,
                           bound_step(x0 + r.start(i), step0 + r.start(i),
@@ -203,8 +199,8 @@ doublereal MultiNewton::boundStep(const doublereal* x0,
     return fbound;
 }
 
-int MultiNewton::dampStep(const doublereal* x0, const doublereal* step0,
-                          doublereal* x1, doublereal* step1, doublereal& s1,
+int MultiNewton::dampStep(const double* x0, const double* step0,
+                          double* x1, double* step1, double& s1,
                           OneDim& r, MultiJac& jac, int loglevel, bool writetitle)
 {
     // write header
@@ -219,10 +215,10 @@ int MultiNewton::dampStep(const doublereal* x0, const doublereal* step0,
     }
 
     // compute the weighted norm of the undamped step size step0
-    doublereal s0 = norm2(x0, step0, r);
+    double s0 = norm2(x0, step0, r);
 
     // compute the multiplier to keep all components in bounds
-    doublereal fbound = boundStep(x0, step0, r, loglevel-1);
+    double fbound = boundStep(x0, step0, r, loglevel-1);
 
     // if fbound is very small, then x0 is already close to the boundary and
     // step0 points out of the allowed domain. In this case, the Newton
@@ -235,7 +231,7 @@ int MultiNewton::dampStep(const doublereal* x0, const doublereal* step0,
     // ---------- Attempt damped step ----------
 
     // damping coefficient starts at 1.0
-    doublereal damp = 1.0;
+    double damp = 1.0;
     size_t m;
     for (m = 0; m < NDAMP; m++) {
         double ff = fbound*damp;
@@ -253,7 +249,7 @@ int MultiNewton::dampStep(const doublereal* x0, const doublereal* step0,
 
         // write log information
         if (loglevel > 0) {
-            doublereal ss = r.ssnorm(x1,step1);
+            double ss = r.ssnorm(x1,step1);
             writelog("\n{:d}  {:9.5f}   {:9.5f}   {:9.5f}   {:9.5f}   {:9.5f} {:4d}  {:d}/{:d}",
                      m, damp, fbound, log10(ss+SmallNumber),
                      log10(s0+SmallNumber), log10(s1+SmallNumber),
@@ -284,18 +280,17 @@ int MultiNewton::dampStep(const doublereal* x0, const doublereal* step0,
     }
 }
 
-int MultiNewton::solve(doublereal* x0, doublereal* x1,
-                       OneDim& r, MultiJac& jac, int loglevel)
+int MultiNewton::solve(double* x0, double* x1, OneDim& r, MultiJac& jac, int loglevel)
 {
     clock_t t0 = clock();
     int m = 0;
     bool forceNewJac = false;
-    doublereal s1=1.e30;
+    double s1=1.e30;
 
     copy(x0, x0 + m_n, &m_x[0]);
 
     bool frst = true;
-    doublereal rdt = r.rdt();
+    double rdt = r.rdt();
     int j0 = jac.nEvals();
     int nJacReeval = 0;
 
@@ -329,7 +324,7 @@ int MultiNewton::solve(doublereal* x0, doublereal* x1,
                          "log10(ss)","log10(s1)","N_jac");
                 writelog("\n    ------------------------------------");
             }
-            doublereal ss = r.ssnorm(&m_x[0], &m_stp[0]);
+            double ss = r.ssnorm(&m_x[0], &m_stp[0]);
             writelog("\n    {:10.4f}    {:10.4f}       {:d}",
                      log10(ss),log10(s1),jac.nEvals());
         }

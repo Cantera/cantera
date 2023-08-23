@@ -227,6 +227,7 @@ void IdasIntegrator::initialize(double t0, FuncEval& func)
     m_neq = func.neq();
     m_t0 = t0;
     m_time = t0;
+    m_tInteg = t0;
     m_func = &func;
     func.clearErrors();
 
@@ -317,6 +318,7 @@ void IdasIntegrator::reinitialize(double t0, FuncEval& func)
 {
     m_t0 = t0;
     m_time = t0;
+    m_tInteg = t0;
     func.getStateDae(NV_DATA_S(m_y), NV_DATA_S(m_ydot));
     m_func = &func;
     func.clearErrors();
@@ -437,7 +439,7 @@ void IdasIntegrator::sensInit(double t0, FuncEval& func)
                            IDA_STAGGERED, IDASensResFn(0), m_yS, m_ySdot);
     checkError(flag, "sensInit", "IDASensInit");
 
-    vector_fp atol(m_np);
+    vector<double> atol(m_np);
     for (size_t n = 0; n < m_np; n++) {
         // This scaling factor is tuned so that reaction and species enthalpy
         // sensitivities can be computed simultaneously with the same abstol.
@@ -451,24 +453,42 @@ void IdasIntegrator::integrate(double tout)
 {
     if (tout == m_time) {
         return;
-    }
-    int flag = IDASolve(m_ida_mem, tout, &m_time, m_y, m_ydot, IDA_NORMAL);
-    if (flag != IDA_SUCCESS) {
-        string f_errs = m_func->getErrors();
-        if (!f_errs.empty()) {
-            f_errs = "Exceptions caught during RHS evaluation:\n" + f_errs;
-        }
+    } else if (tout < m_time) {
         throw CanteraError("IdasIntegrator::integrate",
-            "IDA error encountered. Error code: {}\n{}\n"
-            "{}"
-            "Components with largest weighted error estimates:\n{}",
-            flag, m_error_message, f_errs, getErrorInfo(10));
+                           "Cannot integrate backwards in time.\n"
+                           "Requested time {} < current time {}",
+                           tout, m_time);
     }
+    int nsteps = 0;
+    while (m_tInteg < tout) {
+        if (nsteps >= m_maxsteps) {
+            throw CanteraError("IdasIntegrator::integrate",
+                "Maximum number of timesteps ({}) taken without reaching output "
+                "time ({}).\nCurrent integrator time: {}",
+                nsteps, tout, m_time);
+        }
+        int flag = IDASolve(m_ida_mem, tout, &m_tInteg, m_y, m_ydot, IDA_ONE_STEP);
+        if (flag != IDA_SUCCESS) {
+            string f_errs = m_func->getErrors();
+            if (!f_errs.empty()) {
+                f_errs = "Exceptions caught during RHS evaluation:\n" + f_errs;
+            }
+            throw CanteraError("IdasIntegrator::integrate",
+                "IDA error encountered. Error code: {}\n{}\n"
+                "{}"
+                "Components with largest weighted error estimates:\n{}",
+                flag, m_error_message, f_errs, getErrorInfo(10));
+        }
+        nsteps++;
+    }
+    int flag = IDAGetDky(m_ida_mem, tout, 0, m_y);
+    checkError(flag, "integrate", "IDAGetDky");
+    m_time = tout;
 }
 
 double IdasIntegrator::step(double tout)
 {
-    int flag = IDASolve(m_ida_mem, tout, &m_time, m_y, m_ydot, IDA_ONE_STEP);
+    int flag = IDASolve(m_ida_mem, tout, &m_tInteg, m_y, m_ydot, IDA_ONE_STEP);
     if (flag != IDA_SUCCESS) {
         string f_errs = m_func->getErrors();
         if (!f_errs.empty()) {
@@ -481,6 +501,7 @@ double IdasIntegrator::step(double tout)
             flag, f_errs, m_error_message, getErrorInfo(10));
 
     }
+    m_time = m_tInteg;
     return m_time;
 }
 
@@ -491,7 +512,7 @@ double IdasIntegrator::sensitivity(size_t k, size_t p)
         return 0.0;
     }
     if (!m_sens_ok && m_np) {
-        int flag = IDAGetSens(m_ida_mem, &m_time, m_yS);
+        int flag = IDAGetSensDky(m_ida_mem, m_time, 0, m_yS);
         checkError(flag, "sensitivity", "IDAGetSens");
         m_sens_ok = true;
     }

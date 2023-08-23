@@ -53,7 +53,7 @@ IonFlow::IonFlow(ThermoPhase* ph, size_t nsp, size_t points) :
     m_do_electric_field.resize(m_points,false);
 }
 
-IonFlow::IonFlow(shared_ptr<Solution> sol, const std::string& id, size_t points)
+IonFlow::IonFlow(shared_ptr<Solution> sol, const string& id, size_t points)
     : IonFlow(sol->thermo().get(), sol->thermo()->nSpecies(), points)
 {
     m_solution = sol;
@@ -287,17 +287,17 @@ void IonFlow::fixElectricField(size_t j)
     }
 }
 
-void IonFlow::setElectronTransport(vector_fp& tfix, vector_fp& diff_e,
-                                   vector_fp& mobi_e)
+void IonFlow::setElectronTransport(vector<double>& tfix, vector<double>& diff_e,
+                                   vector<double>& mobi_e)
 {
     m_import_electron_transport = true;
     size_t degree = 5;
     size_t n = tfix.size();
-    vector_fp tlog;
+    vector<double> tlog;
     for (size_t i = 0; i < n; i++) {
         tlog.push_back(log(tfix[i]));
     }
-    vector_fp w(n, -1.0);
+    vector<double> w(n, -1.0);
     m_diff_e_fix.resize(degree + 1);
     m_mobi_e_fix.resize(degree + 1);
     polyfit(n, degree, tlog.data(), diff_e.data(), w.data(), m_diff_e_fix.data());

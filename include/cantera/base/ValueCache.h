@@ -14,7 +14,8 @@
 namespace Cantera
 {
 
-/*! A cached property value and the state at which it was evaluated
+/**
+ * A cached property value and the state at which it was evaluated.
  *
  * This struct stores the value of some property evaluated at a particular
  * thermodynamic state. The #value can be either a real scalar or an array,
@@ -113,9 +114,10 @@ struct CachedValue {
 };
 
 typedef CachedValue<double>& CachedScalar;
-typedef CachedValue<vector_fp>& CachedArray;
+typedef CachedValue<vector<double>>& CachedArray;
 
-/*! Storage for cached values
+/**
+ * Storage for cached values.
  *
  * Stores cached values of properties evaluated at a particular thermodynamic
  * state. A class that needs cached values can have a ValueCache as a
@@ -134,7 +136,7 @@ typedef CachedValue<vector_fp>& CachedArray;
  * @code
  * class Example {
  *     ValueCache m_cache;
- *     doublereal get_property(doublereal T, doublereal P) {
+ *     double get_property(double T, double P) {
  *         const static int cacheId = m_cache.getId();
  *         CachedScalar cached = m_cache.getScalar(cacheId);
  *         if (T != cached.state1 || P != cached.state2) {
@@ -155,12 +157,12 @@ public:
     int getId();
 
     //! Get a reference to a CachedValue object representing a scalar
-    //! (doublereal) with the given id.
+    //! (double) with the given id.
     CachedScalar getScalar(int id) {
         return m_scalarCache[id];
     }
 
-    //! Get a reference to a CachedValue object representing an array (vector_fp)
+    //! Get a reference to a CachedValue object representing an array (vector<double>)
     //! with the given id.
     CachedArray getArray(int id) {
         return m_arrayCache[id];
@@ -174,10 +176,10 @@ public:
 
 protected:
     //! Cached scalar values
-    std::map<int, CachedValue<double> > m_scalarCache;
+    map<int, CachedValue<double>> m_scalarCache;
 
     //! Cached array values
-    std::map<int, CachedValue<vector_fp> > m_arrayCache;
+    map<int, CachedValue<vector<double>>> m_arrayCache;
 
     //! The last assigned id. Automatically incremented by the getId() method.
     static int m_last_id;

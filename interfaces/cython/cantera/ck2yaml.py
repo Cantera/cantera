@@ -111,7 +111,6 @@ else:
         return repr(data)
 
 def represent_float(self, data):
-    # type: (Any) -> Any
     if data != data:
         value = '.nan'
     elif data == self.inf_value:
@@ -209,7 +208,7 @@ class Nasa7:
     """
     Thermodynamic data parameterized as two seven-coefficient NASA
     polynomials.
-    See https://cantera.org/science/science-species.html#the-nasa-7-coefficient-polynomial-parameterization
+    See https://cantera.org/science/species-thermo.html#the-nasa-7-coefficient-polynomial-parameterization
     """
     def __init__(self, *, Tmin, Tmax, Tmid, low_coeffs, high_coeffs, note=''):
         self.Tmin = Tmin
@@ -240,7 +239,7 @@ class Nasa9:
     """
     Thermodynamic data parameterized as any number of nine-coefficient NASA
     polynomials.
-    See https://cantera.org/science/science-species.html#the-nasa-9-coefficient-polynomial-parameterization
+    See https://cantera.org/science/species-thermo.html#the-nasa-9-coefficient-polynomial-parameterization
 
     :param data:
         List of polynomials, where each polynomial is written as
@@ -1947,7 +1946,7 @@ class Parser:
             metadata = BlockMap([
                 ("generator", "ck2yaml"),
                 ("input-files", FlowList(files)),
-                ("cantera-version", "3.0.0b1"),
+                ("cantera-version", "3.0.0"),
                 ("date", formatdate(localtime=True)),
             ])
             if desc.strip():
@@ -2217,8 +2216,9 @@ def main(argv):
 
     if '--id' in options:
         phase_name = options.get('--id', 'gas')
-        logger.warning("\nFutureWarning: "
-                       "Option '--id=...' will be replaced by '--name=...'")
+        logger.warning("\nDeprecationWarning: "
+                       "Option '--id=...' is replaced by '--name=...' and will be "
+                       "removed after Cantera 3.0.\n")
     else:
         phase_name = options.get('--name', 'gas')
 

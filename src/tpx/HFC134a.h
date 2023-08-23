@@ -12,12 +12,8 @@ namespace tpx
 {
 //! Equation of state for HFC-134a.
 //!
-//! Implements the equation of state given in:
-//! R. Tillner-Roth and H. D. Baehr. "An International Standard Formulation for
-//! The Thermodynamic Properties of 1,1,1,2-Tetrafluoroethane (HFC-134a) for
-//! Temperatures From 170 K to 455 K and Pressures up to 70 MPa". J. Phys.
-//! Chem. Ref. Data, Vol. 23, No. 5, 1994. pp. 657--729.
-//! http://dx.doi.org/10.1063/1.555958
+//! Implements the equation of state given in Tillner-Roth and Baehr
+//! @cite tillner-roth1994.
 class HFC134a : public Substance
 {
 public:
@@ -26,22 +22,23 @@ public:
         m_formula = "C2F4H2";
     }
 
-    double MolWt();
-    double Tcrit();
-    double Pcrit();
-    double Vcrit();
-    double Tmin();
-    double Tmax();
+    double MolWt() override;
+    double Tcrit() override;
+    double Pcrit() override;
+    double Vcrit() override;
+    double Tmin() override;
+    double Tmax() override;
 
-    double Pp();
+    double Pp() override;
     double fp();
-    double up();
-    double sp() {
+    double up() override;
+    double sp() override {
         return ((up() - m_energy_offset) - fp())/T + m_entropy_offset;
     }
-    double Psat();
-private:
-    double ldens();
+    double Psat() override;
+
+protected:
+    double ldens() override;
 };
 }
 #endif // ! HFC134_H

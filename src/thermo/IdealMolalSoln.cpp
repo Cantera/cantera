@@ -1,8 +1,8 @@
 /**
  *  @file IdealMolalSoln.cpp
  *   ThermoPhase object for the ideal molal equation of
- * state (see \ref thermoprops
- * and class \link Cantera::IdealMolalSoln IdealMolalSoln\endlink).
+ * state (see @ref thermoprops
+ * and class @link Cantera::IdealMolalSoln IdealMolalSoln@endlink).
  *
  * Definition file for a derived class of ThermoPhase that handles variable
  * pressure standard state methods for calculating thermodynamic properties that
@@ -34,8 +34,7 @@ double cCut_default = .05;
 namespace Cantera
 {
 
-IdealMolalSoln::IdealMolalSoln(const std::string& inputFile,
-                               const std::string& id_) :
+IdealMolalSoln::IdealMolalSoln(const string& inputFile, const string& id_) :
     IMS_X_o_cutoff_(X_o_cutoff_default),
     IMS_gamma_o_min_(gamma_o_min_default),
     IMS_gamma_k_min_(gamma_k_min_default),
@@ -46,31 +45,31 @@ IdealMolalSoln::IdealMolalSoln(const std::string& inputFile,
     initThermoFile(inputFile, id_);
 }
 
-doublereal IdealMolalSoln::enthalpy_mole() const
+double IdealMolalSoln::enthalpy_mole() const
 {
     getPartialMolarEnthalpies(m_tmpV.data());
     return mean_X(m_tmpV);
 }
 
-doublereal IdealMolalSoln::intEnergy_mole() const
+double IdealMolalSoln::intEnergy_mole() const
 {
     getPartialMolarIntEnergies(m_tmpV.data());
     return mean_X(m_tmpV);
 }
 
-doublereal IdealMolalSoln::entropy_mole() const
+double IdealMolalSoln::entropy_mole() const
 {
     getPartialMolarEntropies(m_tmpV.data());
     return mean_X(m_tmpV);
 }
 
-doublereal IdealMolalSoln::gibbs_mole() const
+double IdealMolalSoln::gibbs_mole() const
 {
     getChemPotentials(m_tmpV.data());
     return mean_X(m_tmpV);
 }
 
-doublereal IdealMolalSoln::cp_mole() const
+double IdealMolalSoln::cp_mole() const
 {
     getPartialMolarCp(m_tmpV.data());
     return mean_X(m_tmpV);
@@ -81,16 +80,16 @@ doublereal IdealMolalSoln::cp_mole() const
 void IdealMolalSoln::calcDensity()
 {
     getPartialMolarVolumes(m_tmpV.data());
-    doublereal dd = meanMolecularWeight() / mean_X(m_tmpV);
+    double dd = meanMolecularWeight() / mean_X(m_tmpV);
     Phase::assignDensity(dd);
 }
 
-doublereal IdealMolalSoln::isothermalCompressibility() const
+double IdealMolalSoln::isothermalCompressibility() const
 {
     return 0.0;
 }
 
-doublereal IdealMolalSoln::thermalExpansionCoeff() const
+double IdealMolalSoln::thermalExpansionCoeff() const
 {
     return 0.0;
 }
@@ -107,7 +106,7 @@ Units IdealMolalSoln::standardConcentrationUnits() const
     }
 }
 
-void IdealMolalSoln::getActivityConcentrations(doublereal* c) const
+void IdealMolalSoln::getActivityConcentrations(double* c) const
 {
     if (m_formGC != 1) {
         double c_solvent = standardConcentration();
@@ -124,7 +123,7 @@ void IdealMolalSoln::getActivityConcentrations(doublereal* c) const
     }
 }
 
-doublereal IdealMolalSoln::standardConcentration(size_t k) const
+double IdealMolalSoln::standardConcentration(size_t k) const
 {
     switch (m_formGC) {
     case 0:
@@ -140,7 +139,7 @@ doublereal IdealMolalSoln::standardConcentration(size_t k) const
     }
 }
 
-void IdealMolalSoln::getActivities(doublereal* ac) const
+void IdealMolalSoln::getActivities(double* ac) const
 {
     _updateStandardStateThermo();
 
@@ -169,7 +168,7 @@ void IdealMolalSoln::getActivities(doublereal* ac) const
     }
 }
 
-void IdealMolalSoln::getMolalityActivityCoefficients(doublereal* acMolality) const
+void IdealMolalSoln::getMolalityActivityCoefficients(double* acMolality) const
 {
     if (IMS_typeCutoff_ == 0) {
         for (size_t k = 0; k < m_kk; k++) {
@@ -191,7 +190,7 @@ void IdealMolalSoln::getMolalityActivityCoefficients(doublereal* acMolality) con
 
 // ------ Partial Molar Properties of the Solution -----------------
 
-void IdealMolalSoln::getChemPotentials(doublereal* mu) const
+void IdealMolalSoln::getChemPotentials(double* mu) const
 {
     // First get the standard chemical potentials. This requires updates of
     // standard state as a function of T and P These are defined at unit
@@ -229,7 +228,7 @@ void IdealMolalSoln::getChemPotentials(doublereal* mu) const
     }
 }
 
-void IdealMolalSoln::getPartialMolarEnthalpies(doublereal* hbar) const
+void IdealMolalSoln::getPartialMolarEnthalpies(double* hbar) const
 {
     getEnthalpy_RT(hbar);
     for (size_t k = 0; k < m_kk; k++) {
@@ -245,13 +244,13 @@ void IdealMolalSoln::getPartialMolarIntEnergies(double* ubar) const
     }
 }
 
-void IdealMolalSoln::getPartialMolarEntropies(doublereal* sbar) const
+void IdealMolalSoln::getPartialMolarEntropies(double* sbar) const
 {
     getEntropy_R(sbar);
     calcMolalities();
     if (IMS_typeCutoff_ == 0) {
         for (size_t k = 1; k < m_kk; k++) {
-            doublereal mm = std::max(SmallNumber, m_molalities[k]);
+            double mm = std::max(SmallNumber, m_molalities[k]);
             sbar[k] -= GasConstant * log(mm);
         }
         double xmolSolvent = moleFraction(0);
@@ -263,7 +262,7 @@ void IdealMolalSoln::getPartialMolarEntropies(doublereal* sbar) const
 
         // First we will add in the obvious dependence on the T term out front
         // of the log activity term
-        doublereal mm;
+        double mm;
         for (size_t k = 1; k < m_kk; k++) {
             mm = std::max(SmallNumber, m_molalities[k]);
             sbar[k] -= GasConstant * (log(mm) + IMS_lnActCoeffMolal_[k]);
@@ -274,12 +273,12 @@ void IdealMolalSoln::getPartialMolarEntropies(doublereal* sbar) const
     }
 }
 
-void IdealMolalSoln::getPartialMolarVolumes(doublereal* vbar) const
+void IdealMolalSoln::getPartialMolarVolumes(double* vbar) const
 {
     getStandardVolumes(vbar);
 }
 
-void IdealMolalSoln::getPartialMolarCp(doublereal* cpbar) const
+void IdealMolalSoln::getPartialMolarCp(double* cpbar) const
 {
     // Get the nondimensional Gibbs standard state of the species at the T and P
     // of the solution.
@@ -371,7 +370,7 @@ void IdealMolalSoln::getParameters(AnyMap& phaseNode) const
     }
 }
 
-void IdealMolalSoln::setStandardConcentrationModel(const std::string& model)
+void IdealMolalSoln::setStandardConcentrationModel(const string& model)
 {
     if (caseInsensitiveEquals(model, "unity")) {
         m_formGC = 0;
@@ -387,7 +386,7 @@ void IdealMolalSoln::setStandardConcentrationModel(const std::string& model)
     }
 }
 
-void IdealMolalSoln::setCutoffModel(const std::string& model)
+void IdealMolalSoln::setCutoffModel(const string& model)
 {
     if (caseInsensitiveEquals(model, "none")) {
         IMS_typeCutoff_ = 0;

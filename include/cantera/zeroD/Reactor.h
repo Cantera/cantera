@@ -38,14 +38,14 @@ class AnyMap;
  *  - surface heat loss rate (W)
  *  - species surface production rates (kmol/s)
  *
- * @ingroup ZeroD
+ * @ingroup reactorGroup
  */
 class Reactor : public ReactorBase
 {
 public:
     Reactor() = default;
 
-    virtual std::string type() const {
+    string type() const override {
         return "Reactor";
     }
 
@@ -74,18 +74,19 @@ public:
 
     void insert(shared_ptr<Solution> sol);
 
-    virtual void setKineticsMgr(Kinetics& kin);
+    void setKineticsMgr(Kinetics& kin) override;
 
-    void setChemistry(bool cflag=true) {
+    void setChemistry(bool cflag=true) override {
         m_chem = cflag;
     }
 
-    //! Returns `true` if changes in the reactor composition due to chemical reactions are enabled.
+    //! Returns `true` if changes in the reactor composition due to chemical reactions
+    //! are enabled.
     bool chemistryEnabled() const {
         return m_chem;
     }
 
-    void setEnergy(int eflag=1) {
+    void setEnergy(int eflag=1) override {
         if (eflag > 0) {
             m_energy = true;
         } else {
@@ -122,7 +123,7 @@ public:
         throw NotImplementedError("Reactor::getStateDae(y, ydot)");
     }
 
-    virtual void initialize(double t0 = 0.0);
+    void initialize(double t0=0.0) override;
 
     //! Evaluate the reactor governing equations. Called by ReactorNet::eval.
     //! @param[in] t time.
@@ -132,7 +133,7 @@ public:
     //! coefficients for governing equations, length m_nv, default values 0
     virtual void eval(double t, double* LHS, double* RHS);
 
-    /*!
+    /**
      * Evaluate the reactor governing equations. Called by ReactorNet::eval.
      * @param[in] t time.
      * @param[in] y solution vector, length neq()
@@ -149,15 +150,14 @@ public:
         throw NotImplementedError("Reactor::getConstraints");
     }
 
-
-    virtual void syncState();
+    void syncState() override;
 
     //! Set the state of the reactor to correspond to the state vector *y*.
     virtual void updateState(double* y);
 
     //! Number of sensitivity parameters associated with this reactor
     //! (including walls)
-    virtual size_t nSensParams();
+    virtual size_t nSensParams() const;
 
     //! Add a sensitivity parameter associated with the reaction number *rxn*
     //! (in the homogeneous phase).
@@ -171,11 +171,11 @@ public:
     //! component named *nm*. Possible values for *nm* are "mass", "volume",
     //! "int_energy", the name of a homogeneous phase species, or the name of a
     //! surface species.
-    virtual size_t componentIndex(const std::string& nm) const;
+    virtual size_t componentIndex(const string& nm) const;
 
     //! Return the name of the solution component with index *i*.
     //! @see componentIndex()
-    virtual std::string componentName(size_t k);
+    virtual string componentName(size_t k);
 
     //! Set absolute step size limits during advance
     //! @param limits array of step size limits with length neq
@@ -183,24 +183,25 @@ public:
 
     //! Check whether Reactor object uses advance limits
     //! @returns           True if at least one limit is set, False otherwise
-    bool hasAdvanceLimits() {
+    bool hasAdvanceLimits() const {
         return !m_advancelimits.empty();
     }
 
     //! Retrieve absolute step size limits during advance
     //! @param[out] limits array of step size limits with length neq
     //! @returns           True if at least one limit is set, False otherwise
-    bool getAdvanceLimits(double* limits);
+    bool getAdvanceLimits(double* limits) const;
 
     //! Set individual step size limit for component name *nm*
     //! @param nm component name
     //! @param limit value for step size limit
-    void setAdvanceLimit(const std::string& nm, const double limit);
+    void setAdvanceLimit(const string& nm, const double limit);
 
-    //! Method to calculate the reactor specific jacobian
+    //! Calculate the Jacobian of a specific Reactor specialization.
     //! @warning Depending on the particular implementation, this may return an
     //! approximate Jacobian intended only for use in forming a preconditioner for
     //! iterative solvers.
+    //! @ingroup derivGroup
     //!
     //! @warning  This method is an experimental part of the %Cantera
     //! API and may be changed or removed without notice.
@@ -232,7 +233,7 @@ public:
     //! @warning  This method is an experimental part of the %Cantera
     //! API and may be changed or removed without notice.
     //!
-    //! @since New in Cantera 3.0
+    //! @since New in %Cantera 3.0
     //!
     virtual bool preconditionerSupported() const {return false;};
 
@@ -241,7 +242,7 @@ protected:
     //! named *nm*, in either the homogeneous phase or a surface phase, relative
     //! to the start of the species terms. Used to implement componentIndex for
     //! specific reactor implementations.
-    virtual size_t speciesIndex(const std::string& nm) const;
+    virtual size_t speciesIndex(const string& nm) const;
 
     //! Evaluate terms related to Walls. Calculates #m_vdot and #m_Qdot based on
     //! wall movement and heat transfer.
@@ -280,25 +281,25 @@ protected:
     double m_Qdot = 0.0; //!< net heat transfer into the reactor, through walls [W]
 
     double m_mass = 0.0; //!< total mass
-    vector_fp m_work;
+    vector<double> m_work;
 
     //! Production rates of gas phase species on surfaces [kmol/s]
-    vector_fp m_sdot;
+    vector<double> m_sdot;
 
-    vector_fp m_wdot; //!< Species net molar production rates
-    vector_fp m_uk; //!< Species molar internal energies
+    vector<double> m_wdot; //!< Species net molar production rates
+    vector<double> m_uk; //!< Species molar internal energies
     bool m_chem = false;
     bool m_energy = true;
     size_t m_nv = 0;
     size_t m_nv_surf; //!!< Number of variables associated with reactor surfaces
 
-    vector_fp m_advancelimits; //!< Advance step limit
+    vector<double> m_advancelimits; //!< Advance step limit
 
     // Data associated each sensitivity parameter
-    std::vector<SensitivityParameter> m_sensParams;
+    vector<SensitivityParameter> m_sensParams;
 
     //! Vector of triplets representing the jacobian
-    std::vector<Eigen::Triplet<double>> m_jac_trips;
+    vector<Eigen::Triplet<double>> m_jac_trips;
 };
 }
 

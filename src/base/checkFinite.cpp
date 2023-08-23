@@ -25,11 +25,11 @@ void checkFinite(const double tmp)
     }
 }
 
-void checkFinite(const std::string& name, double* values, size_t N)
+void checkFinite(const string& name, double* values, size_t N)
 {
     for (size_t i = 0; i < N; i++) {
         if (!std::isfinite(values[i])) {
-            std::string message = name + " contains non-finite elements:\n\n";
+            string message = name + " contains non-finite elements:\n\n";
             for (size_t j = 0; j < N; j++) {
                 if (!std::isfinite(values[j])) {
                     message += fmt::format("{}[{}] = {}\n", name, j, values[j]);

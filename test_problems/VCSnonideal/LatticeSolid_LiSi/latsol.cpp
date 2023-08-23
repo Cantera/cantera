@@ -21,7 +21,7 @@ void testProblem(int printLvl)
         "Li7Si3_latsol.yaml", "MoltenSalt_electrolyte");
 
     // set states
-    vector_fp x(salt->nSpecies(), 0);
+    vector<double> x(salt->nSpecies(), 0);
     x[0] = 0.7;
     x[1] = 1.0 - x[0];
 

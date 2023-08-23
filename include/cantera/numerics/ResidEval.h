@@ -28,11 +28,11 @@ const int c_LT_ZERO = -2;
 /**
  *  Virtual base class for DAE residual function evaluators.
  *  Classes derived from ResidEval evaluate the residual function
- * \f[
+ * @f[
  *             \vec{F}(t,\vec{y}, \vec{y^\prime})
- * \f]
+ * @f]
  * The DAE solver attempts to find a solution y(t) such that F = 0.
- * @deprecated Unused. To be removed after Cantera 3.0.
+ * @deprecated Unused. To be removed after %Cantera 3.0.
  *  @ingroup DAE_Group
  */
 class ResidEval
@@ -87,22 +87,22 @@ public:
      * @param ydot rate of change of solution vector. (input)
      * @param r residual vector (output)
      */
-    virtual int eval(const doublereal t, const doublereal* const y,
-                     const doublereal* const ydot,
-                     doublereal* const r) {
+    virtual int eval(const double t, const double* const y,
+                     const double* const ydot,
+                     double* const r) {
         throw NotImplementedError("ResidEval::eval");
     }
 
-    virtual int evalSS(const doublereal t, const doublereal* const y,
-                       doublereal* const r) {
+    virtual int evalSS(const double t, const double* const y,
+                       double* const r) {
         return eval(t, y, 0, r);
     }
 
-    virtual int evalSimpleTD(const doublereal t, const doublereal* const y,
-                             const doublereal* const yold, doublereal deltaT,
-                             doublereal* const r) {
+    virtual int evalSimpleTD(const double t, const double* const y,
+                             const double* const yold, double deltaT,
+                             double* const r) {
         int nn = nEquations();
-        vector_fp ydot(nn);
+        vector<double> ydot(nn);
         for (int i = 0; i < nn; i++) {
             ydot[i] = (y[i] - yold[i]) / deltaT;
         }
@@ -121,8 +121,8 @@ public:
      *            1  Means a successful operation
      *           -0 or neg value Means an unsuccessful operation
      */
-    virtual int getInitialConditions(const doublereal t0, doublereal* const y,
-                                     doublereal* const ydot) {
+    virtual int getInitialConditions(const double t0, double* const y,
+                                     double* const ydot) {
         initSizes();
         throw NotImplementedError("ResidEval::GetInitialConditions");
         return 1;
@@ -171,8 +171,8 @@ protected:
      * The first index is the equation number. The second index is 1 if it is a
      * DAE, and zero if it is not.
      */
-    vector_int m_alg;
-    std::map<int, int> m_constrain;
+    vector<int> m_alg;
+    map<int, int> m_constrain;
 };
 
 }

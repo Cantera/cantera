@@ -1,8 +1,8 @@
 /**
  *  @file BinarySolutionTabulatedThermo.cpp Implementation file for an binary
  *      solution model with tabulated standard state thermodynamic data (see
- *       \ref thermoprops and class
- *       \link Cantera::BinarySolutionTabulatedThermo BinarySolutionTabulatedThermo\endlink).
+ *       @ref thermoprops and class
+ *       @link Cantera::BinarySolutionTabulatedThermo BinarySolutionTabulatedThermo@endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -19,8 +19,8 @@
 namespace Cantera
 {
 
-BinarySolutionTabulatedThermo::BinarySolutionTabulatedThermo(const std::string& inputFile,
-                                                             const std::string& id_)
+BinarySolutionTabulatedThermo::BinarySolutionTabulatedThermo(const string& inputFile,
+                                                             const string& id_)
 {
     initThermoFile(inputFile, id_);
 }
@@ -93,11 +93,11 @@ void BinarySolutionTabulatedThermo::initThermo()
                 m_input["tabulated-species"].asString(), name());
         }
         const AnyMap& table = m_input["tabulated-thermo"].as<AnyMap>();
-        vector_fp x = table["mole-fractions"].asVector<double>();
+        vector<double> x = table["mole-fractions"].asVector<double>();
         size_t N = x.size();
-        vector_fp h = table.convertVector("enthalpy", "J/kmol", N);
-        vector_fp s = table.convertVector("entropy", "J/kmol/K", N);
-        vector_fp vmol(N);
+        vector<double> h = table.convertVector("enthalpy", "J/kmol", N);
+        vector<double> s = table.convertVector("entropy", "J/kmol/K", N);
+        vector<double> vmol(N);
         // Check for molar-volume key in tabulatedThermo table,
         // otherwise calculate molar volume from pure species molar volumes
         if (table.hasKey("molar-volume")) {
@@ -110,7 +110,7 @@ void BinarySolutionTabulatedThermo::initThermo()
         }
 
         // Sort the x, h, s, vmol data in the order of increasing x
-        std::vector<std::pair<double,double>> x_h(N), x_s(N), x_vmol(N);
+        vector<pair<double,double>> x_h(N), x_s(N), x_vmol(N);
         for(size_t i = 0; i < N; i++) {
             x_h[i] = {x[i], h[i]};
             x_s[i] = {x[i], s[i]};
@@ -157,7 +157,7 @@ void BinarySolutionTabulatedThermo::getParameters(AnyMap& phaseNode) const
 }
 
 double BinarySolutionTabulatedThermo::interpolate(const double x,
-                                                  const vector_fp& inputData) const
+                                                  const vector<double>& inputData) const
 {
     double c;
     // Check if x is out of bound
@@ -176,8 +176,8 @@ double BinarySolutionTabulatedThermo::interpolate(const double x,
     return c;
 }
 
-void BinarySolutionTabulatedThermo::diff(const vector_fp& inputData,
-                                         vector_fp& derivedData) const
+void BinarySolutionTabulatedThermo::diff(const vector<double>& inputData,
+                                         vector<double>& derivedData) const
 {
     if (inputData.size() > 1) {
         derivedData[0] = (inputData[1] - inputData[0]) /

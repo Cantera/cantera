@@ -13,7 +13,8 @@
 namespace Cantera
 {
 
-/*! Database for atomic weights
+/**
+ * Database for atomic weights.
  * Values are used from CIAAW. Atomic weights of the elements 2017
  * when a single value is given. Available online at
  * http://www.ciaaw.org/atomic-weights.htm
@@ -36,13 +37,9 @@ struct atomicWeightData {
     double atomicWeight; //!< Element atomic weight in kg / kg-mol, if known. -1 if no stable isotope
 };
 
-/*! Database for named isotopic weights
- * Values are used from
- * Kim S, Chen J, Cheng T, Gindulyte A, He J, He S, Li Q, Shoemaker BA,
- * Thiessen PA, Yu B, Zaslavsky L, Zhang J, Bolton EE. PubChem 2019
- * update: improved access to chemical data. Nucleic Acids Res. 2019
- * Jan 8; 47(D1):D1102-1109. doi:10.1093/nar/gky1033.
- * [PubMed PMID:30371825]
+/**
+ * Database for named isotopic weights.
+ * Values are used from Kim, et al. @cite kim2019.
  *
  * units = kg / kg-mol (or equivalently gm / gm-mol)
  *
@@ -55,9 +52,9 @@ struct isotopeWeightData {
     int atomicNumber; //!< Isotope atomic number
 };
 
-/*!
+/**
  * @var static vector<atomicWeightData> atomicWeightTable
- * \brief atomicWeightTable is a vector containing the atomic weights database.
+ * @brief atomicWeightTable is a vector containing the atomic weights database.
  *
  * atomicWeightTable is a static variable with scope limited to this file.
  * It can only be referenced via the functions in this file.
@@ -185,9 +182,9 @@ static vector<atomicWeightData> atomicWeightTable {
     {"Og", "oganesson",      -1.0},
 };
 
-/*!
+/**
  * @var static vector<isotopeWeightData> isotopeWeightTable
- * \brief isotopeWeightTable is a vector containing the atomic weights database.
+ * @brief isotopeWeightTable is a vector containing the atomic weights database.
  *
  * isotopeWeightTable is a static variable with scope limited to this file.
  * It can only be referenced via the functions in this file.
@@ -251,7 +248,7 @@ const map<string, double>& elementWeights() {
     return symMap;
 }
 
-double getElementWeight(const std::string& ename)
+double getElementWeight(const string& ename)
 {
     const auto& elementMap = elementWeights();
     double elementWeight = 0.0;
@@ -289,7 +286,7 @@ double getElementWeight(int atomicNumber)
     return elementWeight;
 }
 
-string getElementSymbol(const std::string& ename)
+string getElementSymbol(const string& ename)
 {
     string name = toLowerCopy(trimCopy(ename));
     for (const auto& atom : atomicWeightTable) {
@@ -314,7 +311,7 @@ string getElementSymbol(int atomicNumber)
     return atomicWeightTable[atomicNumber - 1].symbol;
 }
 
-string getElementName(const std::string& ename)
+string getElementName(const string& ename)
 {
     string symbol = trimCopy(ename);
     for (const auto& atom : atomicWeightTable) {
@@ -339,7 +336,7 @@ string getElementName(int atomicNumber)
     return atomicWeightTable[atomicNumber - 1].fullName;
 }
 
-int getAtomicNumber(const std::string& ename)
+int getAtomicNumber(const string& ename)
 {
     size_t numElements = numElementsDefined();
     size_t numIsotopes = numIsotopesDefined();

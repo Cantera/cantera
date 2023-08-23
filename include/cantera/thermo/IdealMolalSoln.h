@@ -1,8 +1,8 @@
 /**
  *  @file IdealMolalSoln.h
  *   ThermoPhase object for the ideal molal equation of
- * state (see \ref thermoprops
- * and class \link Cantera::IdealMolalSoln IdealMolalSoln\endlink).
+ * state (see @ref thermoprops
+ * and class @link Cantera::IdealMolalSoln IdealMolalSoln@endlink).
  *
  * Header file for a derived class of ThermoPhase that handles variable pressure
  * standard state methods for calculating thermodynamic properties that are
@@ -50,8 +50,8 @@ namespace Cantera
  * The standard concentrations can have three different forms.
  * See setStandardConcentrationModel().
  *
- * \f$ V^0_0 \f$ is the solvent standard molar volume. \f$ m^{\Delta} \f$ is a
- * constant equal to a molality of \f$ 1.0 \quad\mbox{gm kmol}^{-1} \f$.
+ * @f$ V^0_0 @f$ is the solvent standard molar volume. @f$ m^{\Delta} @f$ is a
+ * constant equal to a molality of @f$ 1.0 \quad\mbox{gm kmol}^{-1} @f$.
  *
  * The current default is to have mformGC = 2.
  *
@@ -76,14 +76,13 @@ public:
      *      about the phase. If blank, an empty phase will be created.
      *  @param id          id of the phase within the input file
      */
-    explicit IdealMolalSoln(const std::string& inputFile="",
-                            const std::string& id="");
+    explicit IdealMolalSoln(const string& inputFile="", const string& id="");
 
-    virtual std::string type() const {
+    string type() const override {
         return "ideal-molal-solution";
     }
 
-    virtual bool isIdeal() const {
+    bool isIdeal() const override {
         return true;
     }
 
@@ -94,67 +93,67 @@ public:
     /*!
      * Returns the amount of enthalpy per mole of solution. For an ideal molal
      * solution,
-     * \f[
+     * @f[
      * \bar{h}(T, P, X_k) = \sum_k X_k \bar{h}_k(T)
-     * \f]
+     * @f]
      * The formula is written in terms of the partial molar enthalpies.
-     * \f$ \bar{h}_k(T, p, m_k) \f$.
+     * @f$ \bar{h}_k(T, p, m_k) @f$.
      * See the partial molar enthalpy function, getPartialMolarEnthalpies(),
      * for details.
      *
      * Units: J/kmol
      */
-    virtual doublereal enthalpy_mole() const;
+    double enthalpy_mole() const override;
 
     //! Molar internal energy of the solution: Units: J/kmol.
     /*!
      * Returns the amount of internal energy per mole of solution. For an ideal
      * molal solution,
-     * \f[
+     * @f[
      * \bar{u}(T, P, X_k) = \sum_k X_k \bar{u}_k(T)
-     * \f]
+     * @f]
      * The formula is written in terms of the partial molar internal energy.
-     * \f$ \bar{u}_k(T, p, m_k) \f$.
+     * @f$ \bar{u}_k(T, p, m_k) @f$.
      */
-    virtual doublereal intEnergy_mole() const;
+    double intEnergy_mole() const override;
 
     //! Molar entropy of the solution. Units: J/kmol/K.
     /*!
      * Returns the amount of entropy per mole of solution. For an ideal molal
      * solution,
-     * \f[
+     * @f[
      * \bar{s}(T, P, X_k) = \sum_k X_k \bar{s}_k(T)
-     * \f]
+     * @f]
      * The formula is written in terms of the partial molar entropies.
-     * \f$ \bar{s}_k(T, p, m_k) \f$.
+     * @f$ \bar{s}_k(T, p, m_k) @f$.
      * See the partial molar entropies function, getPartialMolarEntropies(),
      * for details.
      *
      * Units: J/kmol/K.
      */
-    virtual doublereal entropy_mole() const;
+    double entropy_mole() const override;
 
     //! Molar Gibbs function for the solution: Units J/kmol.
     /*!
      * Returns the Gibbs free energy of the solution per mole of the solution.
      *
-     * \f[
+     * @f[
      * \bar{g}(T, P, X_k) = \sum_k X_k \mu_k(T)
-     * \f]
+     * @f]
      *
      * Units: J/kmol
      */
-    virtual doublereal gibbs_mole() const;
+    double gibbs_mole() const override;
 
     //! Molar heat capacity of the solution at constant pressure. Units: J/kmol/K.
     /*!
-     * \f[
+     * @f[
      * \bar{c}_p(T, P, X_k) = \sum_k X_k \bar{c}_{p,k}(T)
-     * \f]
+     * @f]
      *
      * Units: J/kmol/K
      */
-    virtual doublereal cp_mole() const;
+    double cp_mole() const override;
 
     //! @}
     //! @name Mechanical Equation of State Properties
@@ -167,66 +166,48 @@ public:
     //! @{
 
 protected:
-    /**
-     * Calculate the density of the mixture using the partial molar volumes and
-     * mole fractions as input
-     *
-     * The formula for this is
-     *
-     * \f[
-     * \rho = \frac{\sum_k{X_k W_k}}{\sum_k{X_k V_k}}
-     * \f]
-     *
-     * where \f$X_k\f$ are the mole fractions, \f$W_k\f$ are the molecular
-     * weights, and \f$V_k\f$ are the pure species molar volumes.
-     *
-     * Note, the basis behind this formula is that in an ideal solution the
-     * partial molar volumes are equal to the pure species molar volumes. We
-     * have additionally specified in this class that the pure species molar
-     * volumes are independent of temperature and pressure.
-     */
-    void calcDensity();
+    void calcDensity() override;
 
 public:
     //! The isothermal compressibility. Units: 1/Pa.
     /*!
      * The isothermal compressibility is defined as
-     * \f[
+     * @f[
      * \kappa_T = -\frac{1}{v}\left(\frac{\partial v}{\partial P}\right)_T
-     * \f]
+     * @f]
      *
      * It's equal to zero for this model, since the molar volume doesn't change
      * with pressure or temperature.
      */
-    virtual doublereal isothermalCompressibility() const;
+    double isothermalCompressibility() const override;
 
     //! The thermal expansion coefficient. Units: 1/K.
     /*!
      * The thermal expansion coefficient is defined as
      *
-     * \f[
+     * @f[
      * \beta = \frac{1}{v}\left(\frac{\partial v}{\partial T}\right)_P
-     * \f]
+     * @f]
      *
      * It's equal to zero for this model, since the molar volume doesn't change
      * with pressure or temperature.
      */
-    virtual doublereal thermalExpansionCoeff() const;
+    double thermalExpansionCoeff() const override;
 
     //! @}
     //! @name Activities and Activity Concentrations
     //!
-    //! The activity \f$a_k\f$ of a species in solution is related to the
-    //! chemical potential by \f[ \mu_k = \mu_k^0(T) + \hat R T \log a_k. \f] The
-    //! quantity \f$\mu_k^0(T)\f$ is the chemical potential at unit activity,
+    //! The activity @f$ a_k @f$ of a species in solution is related to the
+    //! chemical potential by @f[ \mu_k = \mu_k^0(T) + \hat R T \ln a_k. @f] The
+    //! quantity @f$ \mu_k^0(T) @f$ is the chemical potential at unit activity,
     //! which depends only on temperature and the pressure.
     //! @{
 
-    virtual Units standardConcentrationUnits() const;
-    virtual void getActivityConcentrations(doublereal* c) const;
-    virtual doublereal standardConcentration(size_t k=0) const;
+    Units standardConcentrationUnits() const override;
+    void getActivityConcentrations(double* c) const override;
+    double standardConcentration(size_t k=0) const override;
 
-    /*!
+    /**
      * Get the array of non-dimensional activities at the current solution
      * temperature, pressure, and solution concentration.
      *
@@ -234,9 +215,9 @@ public:
      *
      * @param ac      Output activity coefficients. Length: m_kk.
      */
-    virtual void getActivities(doublereal* ac) const;
+    void getActivities(double* ac) const override;
 
-    /*!
+    /**
      * Get the array of non-dimensional molality-based activity coefficients at
      * the current solution temperature, pressure, and solution concentration.
      *
@@ -246,7 +227,7 @@ public:
      * @param acMolality      Output Molality-based activity coefficients.
      *                        Length: m_kk.
      */
-    virtual void getMolalityActivityCoefficients(doublereal* acMolality) const;
+    void getMolalityActivityCoefficients(double* acMolality) const override;
 
     //! @}
     //! @name  Partial Molar Properties of the Solution
@@ -257,35 +238,35 @@ public:
      * This function returns a vector of chemical potentials of the species in
      * solution.
      *
-     * \f[
+     * @f[
      *    \mu_k = \mu^{o}_k(T,P) + R T \ln(\frac{m_k}{m^\Delta})
-     * \f]
-     * \f[
+     * @f]
+     * @f[
      *    \mu_w = \mu^{o}_w(T,P) +
      *            R T ((X_w - 1.0) / X_w)
-     * \f]
+     * @f]
      *
-     * \f$ w \f$ refers to the solvent species.
-     * \f$ X_w \f$ is the mole fraction of the solvent.
-     * \f$ m_k \f$ is the molality of the kth solute.
-     * \f$ m^\Delta \f$ is 1 gmol solute per kg solvent.
+     * @f$ w @f$ refers to the solvent species.
+     * @f$ X_w @f$ is the mole fraction of the solvent.
+     * @f$ m_k @f$ is the molality of the kth solute.
+     * @f$ m^\Delta @f$ is 1 gmol solute per kg solvent.
      *
      * Units: J/kmol.
      *
      * @param mu     Output vector of species chemical potentials. Length: m_kk.
      */
-    virtual void getChemPotentials(doublereal* mu) const;
+    void getChemPotentials(double* mu) const override;
 
     //! Returns an array of partial molar enthalpies for the species in the
     //! mixture.
     /*!
      * Units (J/kmol). For this phase, the partial molar enthalpies are equal to
      * the species standard state enthalpies.
-     *  \f[
+     *  @f[
      * \bar h_k(T,P) = \hat h^{ref}_k(T) + (P - P_{ref}) \hat V^0_k
-     * \f]
-     * The reference-state pure-species enthalpies, \f$ \hat h^{ref}_k(T) \f$,
-     * at the reference pressure,\f$ P_{ref} \f$, are computed by the species
+     * @f]
+     * The reference-state pure-species enthalpies, @f$ \hat h^{ref}_k(T) @f$,
+     * at the reference pressure,@f$ P_{ref} @f$, are computed by the species
      * thermodynamic property manager. They are polynomial functions of
      * temperature.
      * @see MultiSpeciesThermo
@@ -293,7 +274,7 @@ public:
      * @param hbar   Output vector of partial molar enthalpies.
      *               Length: m_kk.
      */
-    virtual void getPartialMolarEnthalpies(doublereal* hbar) const;
+    void getPartialMolarEnthalpies(double* hbar) const override;
 
     //! Returns an array of partial molar internal energies for the species in the
     //! mixture.
@@ -301,34 +282,34 @@ public:
      * Units (J/kmol). For this phase, the partial molar internal energies are equal to
      * the species standard state internal energies (which are equal to the reference
      * state internal energies)
-     *  \f[
+     *  @f[
      * \bar u_k(T,P) = \hat u^{ref}_k(T)
-     * \f]
+     * @f]
      * @param hbar   Output vector of partial molar internal energies, length #m_kk
      */
-    virtual void getPartialMolarIntEnergies(doublereal* hbar) const;
+    void getPartialMolarIntEnergies(double* hbar) const override;
 
     //! Returns an array of partial molar entropies of the species in the
     //! solution. Units: J/kmol.
     /*!
      * Maxwell's equations provide an insight in how to calculate this
      * (p.215 Smith and Van Ness)
-     * \f[
+     * @f[
      *      \frac{d(\mu_k)}{dT} = -\bar{s}_i
-     * \f]
+     * @f]
      * For this phase, the partial molar entropies are equal to the standard
      * state species entropies plus the ideal molal solution contribution.
      *
-     * \f[
+     * @f[
      *   \bar{s}_k(T,P) =  s^0_k(T) - R \ln( \frac{m_k}{m^{\triangle}} )
-     * \f]
-     * \f[
+     * @f]
+     * @f[
      *   \bar{s}_w(T,P) =  s^0_w(T) - R ((X_w - 1.0) / X_w)
-     * \f]
+     * @f]
      *
-     * The subscript, w, refers to the solvent species. \f$ X_w \f$ is the mole
-     * fraction of solvent. The reference-state pure-species entropies,\f$
-     * s^0_k(T) \f$, at the reference pressure, \f$ P_{ref} \f$, are computed by
+     * The subscript, w, refers to the solvent species. @f$ X_w @f$ is the mole
+     * fraction of solvent. The reference-state pure-species entropies,@f$
+     * s^0_k(T) @f$, at the reference pressure, @f$ P_{ref} @f$, are computed by
      * the species thermodynamic property manager. They are polynomial functions
      * of temperature.
      * @see MultiSpeciesThermo
@@ -336,7 +317,7 @@ public:
      * @param sbar Output vector of partial molar entropies.
      *             Length: m_kk.
      */
-    virtual void getPartialMolarEntropies(doublereal* sbar) const;
+    void getPartialMolarEntropies(double* sbar) const override;
 
     // partial molar volumes of the species Units: m^3 kmol-1.
     /*!
@@ -346,16 +327,16 @@ public:
      * Units: m^3 kmol-1.
      *  @param vbar Output vector of partial molar volumes.
      */
-    virtual void getPartialMolarVolumes(doublereal* vbar) const;
+    void getPartialMolarVolumes(double* vbar) const override;
 
     //! Partial molar heat capacity of the solution:. UnitsL J/kmol/K
     /*!
      * The kth partial molar heat capacity is equal to the temperature
      * derivative of the partial molar enthalpy of the kth species in the
      * solution at constant P and composition (p. 220 Smith and Van Ness).
-     * \f[
+     * @f[
      *    \bar{Cp}_k(T,P) =  {Cp}^0_k(T)
-     * \f]
+     * @f]
      *
      * For this solution, this is equal to the reference state heat capacities.
      *
@@ -364,17 +345,17 @@ public:
      * @param cpbar  Output vector of partial molar heat capacities.
      *               Length: m_kk.
      */
-    virtual void getPartialMolarCp(doublereal* cpbar) const;
+    void getPartialMolarCp(double* cpbar) const override;
 
     //! @}
 
     // -------------- Utilities -------------------------------
 
-    virtual bool addSpecies(shared_ptr<Species> spec);
+    bool addSpecies(shared_ptr<Species> spec) override;
 
-    virtual void initThermo();
+    void initThermo() override;
 
-    virtual void getParameters(AnyMap& phaseNode) const;
+    void getParameters(AnyMap& phaseNode) const override;
 
     //! Set the standard concentration model.
     /*!
@@ -383,34 +364,34 @@ public:
      *
      * | model                | ActivityConc                     | StandardConc       |
      * | -------------------- | -------------------------------- | ------------------ |
-     * | unity                | \f$ {m_k}/ { m^{\Delta}}\f$      | \f$ 1.0        \f$ |
-     * | species-molar-volume | \f$  m_k / (m^{\Delta} V_k)\f$   | \f$ 1.0 / V_k  \f$ |
-     * | solvent-molar-volume | \f$  m_k / (m^{\Delta} V^0_0)\f$ | \f$ 1.0 / V^0_0\f$ |
+     * | unity                | @f$ {m_k}/ { m^{\Delta}} @f$      | @f$ 1.0        @f$ |
+     * | species-molar-volume | @f$  m_k / (m^{\Delta} V_k) @f$   | @f$ 1.0 / V_k  @f$ |
+     * | solvent-molar-volume | @f$  m_k / (m^{\Delta} V^0_0) @f$ | @f$ 1.0 / V^0_0 @f$ |
      */
-    void setStandardConcentrationModel(const std::string& model);
+    void setStandardConcentrationModel(const string& model);
 
     //! Set cutoff model. Must be one of 'none', 'poly', or 'polyExp'.
-    void setCutoffModel(const std::string& model);
+    void setCutoffModel(const string& model);
 
     //! Report the molar volume of species k
     /*!
-     * units - \f$ m^3 kmol^{-1} \f$
+     * units - @f$ m^3 kmol^{-1} @f$
      *
      * @param k Species index.
      */
     double speciesMolarVolume(int k) const;
 
-    /*!
+    /**
      * Fill in a return vector containing the species molar volumes
-     * units - \f$ m^3 kmol^{-1} \f$
+     * units - @f$ m^3 kmol^{-1} @f$
      *
      * @param smv Output vector of species molar volumes.
      */
     void getSpeciesMolarVolumes(double* smv) const;
 
 protected:
-    //! Species molar volume \f$ m^3 kmol^{-1} \f$
-    vector_fp m_speciesMolarVolume;
+    //! Species molar volume @f$ m^3 kmol^{-1} @f$
+    vector<double> m_speciesMolarVolume;
 
     /**
      * The standard concentrations can have one of three different forms:
@@ -424,31 +405,31 @@ protected:
 
 private:
     //! vector of size m_kk, used as a temporary holding area.
-    mutable vector_fp m_tmpV;
+    mutable vector<double> m_tmpV;
 
     //! Logarithm of the molal activity coefficients
     /*!
      *   Normally these are all one. However, stability schemes will change that
      */
-    mutable vector_fp IMS_lnActCoeffMolal_;
+    mutable vector<double> IMS_lnActCoeffMolal_;
 public:
     //! value of the solute mole fraction that centers the cutoff polynomials
     //! for the cutoff =1 process;
-    doublereal IMS_X_o_cutoff_;
+    double IMS_X_o_cutoff_;
 
     //! gamma_o value for the cutoff process at the zero solvent point
-    doublereal IMS_gamma_o_min_;
+    double IMS_gamma_o_min_;
 
     //! gamma_k minimum for the cutoff process at the zero solvent point
-    doublereal IMS_gamma_k_min_;
+    double IMS_gamma_k_min_;
 
     //! Parameter in the polyExp cutoff treatment. This is the slope of the f
     //! function at the zero solvent point. Default value is 0.6
-    doublereal IMS_slopefCut_;
+    double IMS_slopefCut_;
 
     //! Parameter in the polyExp cutoff treatment. This is the slope of the g
     //! function at the zero solvent point. Default value is 0.0
-    doublereal IMS_slopegCut_;
+    double IMS_slopegCut_;
 
     //! @name Parameters in the polyExp cutoff having to do with rate of exp decay
     //! @{

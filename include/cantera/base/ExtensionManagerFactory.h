@@ -14,17 +14,17 @@ namespace Cantera
 
 //! A factory class for creating ExtensionManager objects
 //!
-//! @since New in Cantera 3.0
+//! @since New in %Cantera 3.0
 class ExtensionManagerFactory : public Factory<ExtensionManager>
 {
 public:
     //! Create a new ExtensionManager
-    static shared_ptr<ExtensionManager> build(const std::string& extensionType) {
+    static shared_ptr<ExtensionManager> build(const string& extensionType) {
         return shared_ptr<ExtensionManager>(factory().create(extensionType));
     }
 
     //! Delete the static instance of this factory
-    virtual void deleteFactory();
+    void deleteFactory() override;
 
     //! Static function that returns the static instance of the factory, creating it
     //! if necessary.

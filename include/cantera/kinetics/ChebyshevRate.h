@@ -24,15 +24,15 @@ struct ChebyshevData : public ReactionData
 {
     ChebyshevData() = default;
 
-    virtual void update(double T) override;
+    void update(double T) override;
 
-    virtual void update(double T, double P) override {
+    void update(double T, double P) override {
         ReactionData::update(T);
         pressure = P;
         log10P = std::log10(P);
     }
 
-    virtual bool update(const ThermoPhase& phase, const Kinetics& kin) override;
+    bool update(const ThermoPhase& phase, const Kinetics& kin) override;
 
     using ReactionData::update;
 
@@ -43,9 +43,9 @@ struct ChebyshevData : public ReactionData
      */
     void perturbPressure(double deltaP);
 
-    virtual void restore() override;
+    void restore() override;
 
-    virtual void invalidateCache() override {
+    void invalidateCache() override {
         ReactionData::invalidateCache();
         pressure = NAN;
     }
@@ -61,30 +61,32 @@ protected:
 //! as a bivariate Chebyshev polynomial in temperature and pressure.
 /*!
  * The rate constant can be written as:
- * \f[
- *     \log k(T,P) = \sum_{t=1}^{N_T} \sum_{p=1}^{N_P} \alpha_{tp}
- *                       \phi_t(\tilde{T}) \phi_p(\tilde{P})
- * \f]
- * where \f$\alpha_{tp}\f$ are the constants defining the rate, \f$\phi_n(x)\f$
+ * @f[
+ *     \log_{10} k(T,P) = \sum_{t=1}^{N_T} \sum_{p=1}^{N_P} \alpha_{tp}
+ *                        \phi_t(\tilde{T}) \phi_p(\tilde{P})
+ * @f]
+ * where @f$ \alpha_{tp} @f$ are the constants defining the rate, @f$ \phi_n(x) @f$
  * is the Chebyshev polynomial of the first kind of degree *n* evaluated at
  * *x*, and
- * \f[
+ * @f[
  *  \tilde{T} \equiv \frac{2T^{-1} - T_\mathrm{min}^{-1} - T_\mathrm{max}^{-1}}
  *                        {T_\mathrm{max}^{-1} - T_\mathrm{min}^{-1}}
- * \f]
- * \f[
- *  \tilde{P} \equiv \frac{2 \log P - \log P_\mathrm{min} - \log P_\mathrm{max}}
- *                        {\log P_\mathrm{max} - \log P_\mathrm{min}}
- * \f]
+ * @f]
+ * @f[
+ *  \tilde{P} \equiv \frac{2 \log_{10} P - \log_{10} P_\mathrm{min} - \log_{10} P_\mathrm{max}}
+ *                        {\log_{10} P_\mathrm{max} - \log_{10} P_\mathrm{min}}
+ * @f]
  * are reduced temperature and reduced pressures which map the ranges
- * \f$ (T_\mathrm{min}, T_\mathrm{max}) \f$ and
- * \f$ (P_\mathrm{min}, P_\mathrm{max}) \f$ to (-1, 1).
+ * @f$ (T_\mathrm{min}, T_\mathrm{max}) @f$ and
+ * @f$ (P_\mathrm{min}, P_\mathrm{max}) @f$ to (-1, 1).
  *
  * A ChebyshevRate rate expression is specified in terms of the coefficient matrix
- * \f$ \alpha \f$ and the temperature and pressure ranges. Note that the
+ * @f$ \alpha @f$ and the temperature and pressure ranges. Note that the
  * Chebyshev polynomials are not defined outside the interval (-1,1), and
  * therefore extrapolation of rates outside the range of temperatures and
  * pressures for which they are defined is strongly discouraged.
+ *
+ * @ingroup otherRateGroup
  */
 class ChebyshevRate final : public ReactionRate
 {
@@ -107,29 +109,29 @@ public:
 
     ChebyshevRate(const AnyMap& node, const UnitStack& rate_units={});
 
-    unique_ptr<MultiRateBase> newMultiRate() const {
+    unique_ptr<MultiRateBase> newMultiRate() const override {
         return make_unique<MultiRate<ChebyshevRate, ChebyshevData>>();
     }
 
-    const std::string type() const { return "Chebyshev"; }
+    const string type() const override { return "Chebyshev"; }
 
     //! Perform object setup based on AnyMap node information
     /*!
      *  @param node  AnyMap containing rate information
      *  @param rate_units  Unit definitions specific to rate information
      */
-    void setParameters(const AnyMap& node, const UnitStack& rate_units);
+    void setParameters(const AnyMap& node, const UnitStack& rate_units) override;
 
-    void getParameters(AnyMap& rateNode) const;
+    void getParameters(AnyMap& rateNode) const override;
 
-    //! @deprecated  To be removed after Cantera 3.0.
+    //! @deprecated To be removed after %Cantera 3.0.
     void getParameters(AnyMap& rateNode, const Units& rate_units) const {
         warn_deprecated("ChebyshevRate:getParameters",
             "To be removed after Cantera 3.0. Second argument is no longer needed.");
         return getParameters(rateNode);
     }
 
-    virtual void validate(const std::string& equation, const Kinetics& kin);
+    void validate(const string& equation, const Kinetics& kin) override;
 
     //! Update information specific to reaction
     /*!
@@ -231,7 +233,7 @@ protected:
     double PrNum_, PrDen_; //!< terms appearing in the reduced pressure
 
     Array2D m_coeffs; //!<< coefficient array
-    vector_fp dotProd_; //!< dot product of coeffs with the reduced pressure polynomial
+    vector<double> dotProd_; //!< dot product of coeffs with the reduced pressure polynomial
 };
 
 }

@@ -28,9 +28,9 @@ void run()
     // Containers for Cantera objects to be used in different. Each thread needs
     // to have its own set of linked Cantera objects. Multiple threads accessing
     // the same objects at the same time will cause errors.
-    std::vector<std::shared_ptr<Solution>> sols;
-    std::vector<std::unique_ptr<IdealGasConstPressureReactor>> reactors;
-    std::vector<std::unique_ptr<ReactorNet>> nets;
+    vector<shared_ptr<Solution>> sols;
+    vector<unique_ptr<IdealGasConstPressureReactor>> reactors;
+    vector<unique_ptr<ReactorNet>> nets;
 
     // Create and link the Cantera objects for each thread. This step should be
     // done in serial
@@ -45,8 +45,8 @@ void run()
 
     // Points at which to compute ignition delay time
     int nPoints = 50;
-    vector_fp T0(nPoints);
-    vector_fp ignition_time(nPoints);
+    vector<double> T0(nPoints);
+    vector<double> ignition_time(nPoints);
     for (int i = 0; i < nPoints; i++) {
         T0[i] = 1000 + 500 * ((float) i) / ((float) nPoints);
     }

@@ -41,14 +41,15 @@ public:
 
     void setValue(size_t row, size_t col, double value) override;
 
-    virtual void stateAdjustment(vector_fp& state) override;
+    void stateAdjustment(vector<double>& state) override;
 
-    virtual void updatePreconditioner() override;
+    void updatePreconditioner() override;
 
     //! Prune preconditioner elements
     void prunePreconditioner();
 
-    //! Function used to return semi-analytical jacobian matrix
+    //! Return semi-analytical Jacobian of an AdaptivePreconditioner object.
+    //! @ingroup derivGroup
     Eigen::SparseMatrix<double> jacobian() {
         Eigen::SparseMatrix<double> jacobian_mat(m_dim, m_dim);
         jacobian_mat.setFromTriplets(m_jac_trips.begin(), m_jac_trips.end());
@@ -105,7 +106,7 @@ protected:
     double m_drop_tol = 0;
 
     //! Vector of triples representing the jacobian used in preconditioning
-    std::vector<Eigen::Triplet<double>> m_jac_trips;
+    vector<Eigen::Triplet<double>> m_jac_trips;
 
     //! Storage of appropriately sized identity matrix for making the preconditioner
     Eigen::SparseMatrix<double> m_identity;

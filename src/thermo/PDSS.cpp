@@ -2,7 +2,7 @@
  * @file PDSS.cpp
  * Implementation of a pressure dependent standard state
  * virtual function
- * (see class \link Cantera::PDSS PDSS\endlink).
+ * (see class @link Cantera::PDSS PDSS@endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -15,184 +15,181 @@
 namespace Cantera
 {
 
-doublereal PDSS::enthalpy_mole() const
+double PDSS::enthalpy_mole() const
 {
     throw NotImplementedError("PDSS::enthalpy_mole");
 }
 
-doublereal PDSS::enthalpy_RT() const
+double PDSS::enthalpy_RT() const
 {
     throw NotImplementedError("PDSS::enthalpy_RT");
 }
 
-doublereal PDSS::intEnergy_mole() const
+double PDSS::intEnergy_mole() const
 {
     throw NotImplementedError("PDSS::intEnergy_mole");
 }
 
-doublereal PDSS::entropy_mole() const
+double PDSS::entropy_mole() const
 {
     throw NotImplementedError("PDSS::entropy_mole");
 }
 
-doublereal PDSS::entropy_R() const
+double PDSS::entropy_R() const
 {
     throw NotImplementedError("PDSS::entropy_R");
 }
 
-doublereal PDSS::gibbs_mole() const
+double PDSS::gibbs_mole() const
 {
     throw NotImplementedError("PDSS::gibbs_mole");
 }
 
-doublereal PDSS::gibbs_RT() const
+double PDSS::gibbs_RT() const
 {
     throw NotImplementedError("PDSS::gibbs_RT");
 }
 
-doublereal PDSS::cp_mole() const
+double PDSS::cp_mole() const
 {
     throw NotImplementedError("PDSS::cp_mole");
 }
 
-doublereal PDSS::cp_R() const
+double PDSS::cp_R() const
 {
     throw NotImplementedError("PDSS::cp_R");
 }
 
-doublereal PDSS::molarVolume() const
+double PDSS::molarVolume() const
 {
     throw NotImplementedError("PDSS::molarVolume");
 }
 
-doublereal PDSS::density() const
+double PDSS::density() const
 {
     throw NotImplementedError("PDSS::density");
 }
 
-doublereal PDSS::cv_mole() const
+double PDSS::cv_mole() const
 {
     throw NotImplementedError("PDSS::cv_mole");
 }
 
-doublereal PDSS::gibbs_RT_ref() const
+double PDSS::gibbs_RT_ref() const
 {
     throw NotImplementedError("PDSS::gibbs_RT_ref");
 }
 
-doublereal PDSS::enthalpy_RT_ref() const
+double PDSS::enthalpy_RT_ref() const
 {
     throw NotImplementedError("PDSS::enthalpy_RT_ref");
 }
 
-doublereal PDSS::entropy_R_ref() const
+double PDSS::entropy_R_ref() const
 {
     throw NotImplementedError("PDSS::entropy_RT_ref");
 }
 
-doublereal PDSS::cp_R_ref() const
+double PDSS::cp_R_ref() const
 {
     throw NotImplementedError("PDSS::entropy_RT_ref");
 }
 
-doublereal PDSS::molarVolume_ref() const
+double PDSS::molarVolume_ref() const
 {
     throw NotImplementedError("PDSS::molarVolume_ref");
 }
 
-doublereal PDSS::enthalpyDelp_mole() const
+double PDSS::enthalpyDelp_mole() const
 {
     warn_deprecated("PDSS::enthalpyDelp_mole", "To be removed after Cantera 3.0");
     return enthalpy_mole() - m_temp * GasConstant * enthalpy_RT_ref();
 }
 
-doublereal PDSS::entropyDelp_mole() const
+double PDSS::entropyDelp_mole() const
 {
     warn_deprecated("PDSS::entropyDelp_mole", "To be removed after Cantera 3.0");
     return entropy_mole() - GasConstant * entropy_R_ref();
 }
 
-doublereal PDSS::gibbsDelp_mole() const
+double PDSS::gibbsDelp_mole() const
 {
     warn_deprecated("PDSS::gibbsDelp_mole", "To be removed after Cantera 3.0");
     return gibbs_mole() - m_temp * GasConstant * gibbs_RT_ref();
 }
 
-doublereal PDSS::cpDelp_mole() const
+double PDSS::cpDelp_mole() const
 {
     warn_deprecated("PDSS::cpDelp_mole", "To be removed after Cantera 3.0");
     return cp_mole() - GasConstant * cp_R_ref();
 }
 
-doublereal PDSS::pressure() const
+double PDSS::pressure() const
 {
     return m_pres;
 }
 
-doublereal PDSS::thermalExpansionCoeff() const
+double PDSS::thermalExpansionCoeff() const
 {
     throw NotImplementedError("PDSS::thermalExpansionCoeff");
 }
 
-doublereal PDSS::critTemperature() const
+double PDSS::critTemperature() const
 {
     throw NotImplementedError("PDSS::critTemperature");
 }
 
-doublereal PDSS::critPressure() const
+double PDSS::critPressure() const
 {
     throw NotImplementedError("PDSS::critPressure");
 }
 
-doublereal PDSS::critDensity() const
+double PDSS::critDensity() const
 {
     throw NotImplementedError("PDSS::critDensity");
 }
 
-void PDSS::setPressure(doublereal pres)
+void PDSS::setPressure(double pres)
 {
     m_pres = pres;
 }
 
-doublereal PDSS::temperature() const
+double PDSS::temperature() const
 {
     return m_temp;
 }
 
-void PDSS::setTemperature(doublereal temp)
+void PDSS::setTemperature(double temp)
 {
     m_temp = temp;
 }
 
-doublereal PDSS::molecularWeight() const
+double PDSS::molecularWeight() const
 {
     return m_mw;
 }
-void PDSS::setMolecularWeight(doublereal mw)
+void PDSS::setMolecularWeight(double mw)
 {
     m_mw = mw;
 }
 
-void PDSS::setState_TP(doublereal temp, doublereal pres)
+void PDSS::setState_TP(double temp, double pres)
 {
     throw NotImplementedError("PDSS::setState_TP");
 }
 
-void PDSS::setState_TR(doublereal temp, doublereal rho)
+void PDSS::setState_TR(double temp, double rho)
 {
     throw NotImplementedError("PDSS::setState_TR");
 }
 
-doublereal PDSS::satPressure(doublereal t)
+double PDSS::satPressure(double t)
 {
     throw NotImplementedError("PDSS::satPressure");
 }
 
-void PDSS::reportParams(size_t& kindex, int& type,
-                        doublereal* const c,
-                        doublereal& minTemp_,
-                        doublereal& maxTemp_,
-                        doublereal& refPressure_) const
+void PDSS::reportParams(size_t& kindex, int& type, double* const c, double& minTemp_,
+                        double& maxTemp_, double& refPressure_) const
 {
     warn_deprecated("PDSS:reportParams", "To be removed after Cantera 3.0. "
                     "Use getParameters(AnyMap&) instead.");
@@ -205,22 +202,22 @@ void PDSS::reportParams(size_t& kindex, int& type,
 
 // PDSS_Molar methods
 
-doublereal PDSS_Molar::enthalpy_RT() const
+double PDSS_Molar::enthalpy_RT() const
 {
     return enthalpy_mole() / (GasConstant * temperature());
 }
 
-doublereal PDSS_Molar::entropy_R() const
+double PDSS_Molar::entropy_R() const
 {
     return entropy_mole() / GasConstant;
 }
 
-doublereal PDSS_Molar::gibbs_RT() const
+double PDSS_Molar::gibbs_RT() const
 {
     return gibbs_mole() / (GasConstant * temperature());
 }
 
-doublereal PDSS_Molar::cp_R() const
+double PDSS_Molar::cp_R() const
 {
     return cp_mole() / GasConstant;
 }
@@ -241,22 +238,22 @@ PDSS_Nondimensional::PDSS_Nondimensional()
 {
 }
 
-doublereal PDSS_Nondimensional::enthalpy_mole() const
+double PDSS_Nondimensional::enthalpy_mole() const
 {
     return enthalpy_RT() * GasConstant * temperature();
 }
 
-doublereal PDSS_Nondimensional::entropy_mole() const
+double PDSS_Nondimensional::entropy_mole() const
 {
     return entropy_R() * GasConstant;
 }
 
-doublereal PDSS_Nondimensional::gibbs_mole() const
+double PDSS_Nondimensional::gibbs_mole() const
 {
     return gibbs_RT() * GasConstant * temperature();
 }
 
-doublereal PDSS_Nondimensional::cp_mole() const
+double PDSS_Nondimensional::cp_mole() const
 {
     return cp_R() * GasConstant;
 }

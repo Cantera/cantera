@@ -2,7 +2,7 @@
  *  @file ThermoPhase.h
  * Header file for class ThermoPhase, the base class for phases with
  * thermodynamic properties, and the text for the Module thermoprops
- * (see \ref thermoprops and class \link Cantera::ThermoPhase ThermoPhase\endlink).
+ * (see @ref thermoprops and class @link Cantera::ThermoPhase ThermoPhase@endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -18,6 +18,115 @@
 
 namespace Cantera
 {
+
+/**
+ * @defgroup thermoprops Thermodynamic Properties
+ *
+ * These classes are used to compute the thermodynamic properties of phases of matter.
+ * The main base class for describing thermodynamic properties of phases within %Cantera
+ * is called ThermoPhase. %ThermoPhase is a large class that describes the interface
+ * within %Cantera to thermodynamic functions for a phase.
+ *
+ * ## Categorizing the Different ThermoPhase Objects
+ *
+ * ThermoPhase objects may be cataloged into four general bins.
+ *
+ * The first type are those whose underlying species have a reference state associated
+ * with them. The reference state describes the thermodynamic functions for a species at
+ * a single reference pressure, @f$ p_0 @f$. The thermodynamic functions are specified
+ * via derived objects of the SpeciesThermoInterpType object class, and usually consist
+ * of polynomials in temperature such as the NASA polynomial or the Shomate polynomial.
+ * Calculators for these reference states, which manage the calculation for all of the
+ * species in a phase, are all derived from the virtual base class
+ * SpeciesThermoInterpType. Calculators are needed because the actual calculation of the
+ * reference state thermodynamics has been shown to be relatively expensive. A great
+ * deal of work has gone into devising efficient schemes for calculating the
+ * thermodynamic polynomials of a set of species in a phase, in particular gas species
+ * in ideal gas phases whose reference state thermodynamics is specified by NASA
+ * polynomials.
+ *
+ * The reference state thermodynamics combined with the mixing rules and an assumption
+ * about the pressure dependence yields the thermodynamic functions for the phase.
+ * Expressions involving the specification of the fugacities of species would fall into
+ * this category of %ThermoPhase objects. Note, however, that at this time, we do not
+ * have any nontrivial examples of these types of phases. In general, the independent
+ * variables that completely describe the state of the system  for this class are
+ * temperature, the phase density, and @f$ N - 1 @f$ species mole or mass fractions.
+ * Additionally, if the phase involves charged species, the phase electric potential is
+ * an added independent variable. Examples of this first class of %ThermoPhase models,
+ * which includes the IdealGasPhase object, the most commonly used object with %Cantera,
+ * include:
+ *
+ * - IdealGasPhase
+ * - StoichSubstance
+ * - SurfPhase
+ * - EdgePhase
+ * - LatticePhase
+ * - LatticeSolidPhase
+ * - PureFluidPhase
+ * - IdealSolidSolnPhase
+ * - VPStandardStateTP
+ *
+ * The second class of objects are all derivatives of the VPStandardStateTP class listed
+ * above. These classes assume that there exists a standard state for each species in
+ * the phase, where the thermodynamic functions are specified as a function of
+ * temperature and pressure. Standard state objects for each species are all derived
+ * from the PDSS virtual base class. In turn, these standard states may employ reference
+ * state calculation to aid in their calculations. However, there are some PDSS objects
+ * which do not employ reference state calculations. An example of this is real equation
+ * of state for liquid water used within the calculation of brine thermodynamics. In
+ * general, the independent variables that completely describe the state of the system
+ * for this class are temperature, the phase pressure, and @f$ N - 1 @f$ species mole or
+ * mass fractions or molalities. The standard state thermodynamics combined with the
+ * mixing rules yields the thermodynamic functions for the phase. Mixing rules are given
+ * in terms of specifying the molar-base activity coefficients or activities. Lists of
+ * phases which belong to this group are given below
+ *
+ * - IdealSolnGasVPSS
+ * - MolalityVPSSTP
+ *
+ * Note, the ideal gas and ideal solution approximations are lumped together in the
+ * class IdealSolnGasVPSS, because at this level they look alike having the same mixing
+ * rules with respect to the specification of the excess thermodynamic properties.
+ *
+ * The third class of objects are all derivatives of the MolalityVPSSTP object. They
+ * assume that the standard states are temperature and pressure dependent but they also
+ * assume that the standard states are molality-based. In other words, they assume that
+ * the standard state of the solute species are in a pseudo state of 1 molality but at
+ * infinite dilution. A solvent must be specified in these calculations, defined as the
+ * first species in the phase, and its standard state is the pure solvent state. Phases
+ * which belong to this group include:
+ *
+ * - DebyeHuckel
+ * - IdealMolalSoln
+ * - HMWSoln
+ *
+ * The fourth class of %ThermoPhase objects are stoichiometric phases. Stoichiometric
+ * phases are phases which consist of one and only one species. The class
+ * SingleSpeciesTP is the base class for these substances. Within the class, the general
+ * %ThermoPhase interface is dumbed down so that phases consisting of one species may be
+ * succinctly described. These phases may have PDSS classes or SpeciesThermoInterpType
+ * calculators associated with them. In general, the independent variables that
+ * completely describe the state of the system for this class are temperature and either
+ * the phase density or the phase pressure. Classes in this group include:
+ *
+ * - StoichSubstance
+ * - WaterSSTP
+ *
+ * ## Creating ThermoPhase objects
+ *
+ * Instances of subclasses of ThermoPhase should be created using the factory methods
+ * newThermo(const string&, const string&), newThermo(const AnyMap&, const AnyMap&), or
+ * newThermoPhase(). This allows new classes to be used with the various %Cantera
+ * language interfaces.
+ *
+ * ## Defining new thermodynamic models
+ *
+ * To implement a new equation of state, derive a class from ThermoPhase or a relevant
+ * existing derived class and overload the virtual methods in ThermoPhase. Methods that
+ * are not needed can be left unimplemented, which will cause an exception to be thrown
+ * if they are called.
+ */
 
 //! @name CONSTANTS - Specification of the Molality convention
 //! @{
@@ -53,8 +162,8 @@ enum class ThermoBasis
  * phases of matter of any type. It defines a common public interface, and
  * implements a few methods. Most of the methods, however, are declared virtual
  * and are meant to be overloaded in derived classes.  The standard way used
- * throughout Cantera to compute properties of phases of matter is through
- * pointers of type ThermoPhase* that point to objects of subclasses of
+ * throughout %Cantera to compute properties of phases of matter is through
+ * pointers of type `ThermoPhase*` that point to objects of subclasses of
  * ThermoPhase.
  *
  * Class ThermoPhase extends class Phase by adding methods to compute
@@ -64,38 +173,218 @@ enum class ThermoBasis
  * particular equation of state of the phase of interest, while those of class
  * Phase do not, since they only involve data values stored within the object.
  *
- * Instances of subclasses of ThermoPhase should be created using the factory
- * class ThermoFactory, not by calling the constructor directly. This allows new
- * classes to be used with the various Cantera language interfaces.
+ * ## Calculating and accessing thermodynamic properties
  *
- * To implement a new equation of state, derive a class from ThermoPhase and
- * overload the virtual methods in ThermoPhase. Methods that are not needed can
- * be left unimplemented, which will cause an exception to be thrown if it is
- * called.
+ * The calculation of thermodynamic functions within %ThermoPhase is broken down roughly
+ * into two or more steps. First, the standard state properties of all of the species
+ * are calculated at the current temperature and at either the current pressure or at a
+ * reference pressure. If the calculation is carried out at a reference pressure instead
+ * of at the current pressure the calculation is called a "reference state properties"
+ * calculation, just to make the distinction (even though it may be considered to be a
+ * fixed-pressure standard-state calculation). The next step is to adjust the reference
+ * state calculation to the current pressure. The thermodynamic functions then are
+ * considered to be at the standard state of each species. Lastly the mixing
+ * contributions are added to arrive at the thermodynamic functions for the solution.
  *
- * Relationship with the kinetics operator:
+ * The %ThermoPhase class provides interfaces to thermodynamic properties calculated for
+ * the reference state of each species, the standard state values for each species, the
+ * thermodynamic functions for solution values, both on a per mole of solution basis
+ * (such as ThermoPhase::enthalpy_mole()), on a per kg of solution basis, and on a
+ * partial molar basis for each species (such as
+ * ThermoPhase::getPartialMolarEnthalpies). At each level, functions for the enthalpy,
+ * entropy, Gibbs free energy, internal energy, and volume are provided. So, 5 levels
+ * (reference state, standard state, partial molar, per mole of solution, and per mass
+ * of solution) and 5 functions multiplied together makes 25 possible functions. That's
+ * why %ThermoPhase is such a large class.
  *
- * Describe activity coefficients.
+ * ## Setting the State of the phase
  *
- * Describe K_a, K_p, and K_c, These are three different equilibrium
- * constants.
+ * Typically, the way the ThermoPhase object works is that there are a set of functions
+ * that set the state of the phase via setting the internal independent variables. Then,
+ * there are another set of functions that query the thermodynamic functions evaluated
+ * at the current %State of the phase. Internally, most of the intermediate work
+ * generally occurs at the point where the internal state of the system is set and not
+ * at the time when individual thermodynamic functions are queried (though the actual
+ * breakdown in work is dependent on the individual derived ThermoPhase object).
+ * Therefore, for efficiency, the user should lump together queries of thermodynamic
+ * functions after setting the state. Moreover, in setting the state, if the density is
+ * the independent variable, the following order should be used:
  *
- *   K_a is the calculation of the equilibrium constant from the standard state
+ * - Set the temperature
+ * - Set the mole or mass fractions or set the molalities
+ * - set the pressure.
+ *
+ * For classes which inherit from VPStandardStateTP, the above order may be used, or the
+ * following order may be used. It's not important.
+ *
+ * - Set the temperature
+ * - Set the pressure
+ * - Set the mole or mass fractions or set the molalities
+ *
+ * See the @ref sec-thermophase-set-state "list of methods" that can be used to set
+ * the complete state of ThermoPhase objects.
+ *
+ * ## Treatment of the phase potential and the electrochemical potential of a species
+ *
+ * The electrochemical potential of species k in a phase p, @f$ \zeta_k @f$, is related
+ * to the chemical potential as:
+ *
+ * @f[
+ *     \zeta_{k}(T,P) = \mu_{k}(T,P) + z_k \phi_p
+ * @f]
+ *
+ * where @f$ \nu_k @f$ is the charge of species k, and @f$ \phi_p @f$ is the electric
+ * potential of phase p.
+ *
+ * The potential @f$ \phi_p @f$ is tracked and internally stored within the base
+ * ThermoPhase object. It constitutes a specification of the internal state of the
+ * phase; it's the third state variable, the first two being temperature and density
+ * (or, pressure, for incompressible equations of state). It may be set with the
+ * function, setElectricPotential(), and may be queried with the function
+ * electricPotential().
+ *
+ * Note, the overall electrochemical potential of a phase may not be changed by the
+ * potential because many phases enforce charge neutrality:
+ *
+ * @f[
+ *     0 = \sum_k z_k X_k
+ * @f]
+ *
+ * Whether charge neutrality is necessary for a phase is also specified within the
+ * ThermoPhase object, by the function call chargeNeutralityNecessary(). Note, that it
+ * is not necessary for the ideal gas phase, currently. However, it is necessary for
+ * liquid phases such as DebyeHuckel and HMWSoln for the proper specification of the
+ * chemical potentials.
+ *
+ * This equation, when applied to the @f$ \zeta_k @f$ equation described above, results
+ * in a zero net change in the effective Gibbs free energy of the phase. However,
+ * specific charged species in the phase may increase or decrease their electrochemical
+ * potentials, which will have an effect on interfacial reactions involving charged
+ * species, when there is a potential drop between phases. This effect is used within
+ * the InterfaceKinetics and EdgeKinetics classes.
+ *
+ * ## Specification of Activities and Activity Conventions
+ *
+ * The activity @f$ a_k @f$ and activity coefficient @f$ \gamma_k @f$ of a species in
+ * solution is related to the chemical potential by
+ *
+ * @f[
+ *   \mu_k = \mu_k^0(T,P) + \hat R T \ln a_k = \mu_k^0(T,P) + \hat R T \ln x_k \gamma_k
+ * @f]
+ *
+ * The quantity @f$ \mu_k^0(T,P) @f$ is the standard chemical potential at unit
+ * activity, which depends on the temperature and pressure, but not on the composition.
+ * The activity is dimensionless. Within liquid electrolytes it's common to use a
+ * molality convention, where solute species employ the molality-based activity
+ * coefficients:
+ *
+ * @f[
+ *   \mu_k =  \mu_k^\triangle(T,P) + R T \ln a_k^{\triangle} =
+ *            \mu_k^\triangle(T,P) + R T \ln \frac{\gamma_k^{\triangle} m_k}{m^\triangle}
+ * @f]
+ *
+ * And the solvent employs the convention
+ * @f[
+ *   \mu_o = \mu^o_o(T,P) + RT \ln a_o
+ * @f]
+ *
+ * where @f$ a_o @f$ is often redefined in terms of the osmotic coefficient @f$ \phi
+ * @f$:
+ *
+ * @f[
+ *   \phi = \frac{- \ln a_o}{\tilde{M}_o \sum_{i \ne o} m_i}
+ * @f]
+ *
+ * ThermoPhase classes which employ the molality based convention are all derived from
+ * the MolalityVPSSTP class. See the class description for further information on its
+ * capabilities.
+ *
+ * The activity convention used by a ThermoPhase object may be queried via the
+ * activityConvention() function. A zero means molar based, while a one
+ * means molality based.
+ *
+ * The function getActivities() returns a vector of activities. Whether these are
+ * molar-based or molality-based depends on the value of activityConvention().
+ *
+ * The function getActivityCoefficients() always returns molar-based activity
+ * coefficients regardless of the activity convention used. The function
+ * MolalityVPSSTP::getMolalityActivityCoefficients() returns molality
+ * based activity coefficients for those ThermoPhase objects derived
+ * from the MolalityVPSSTP class. The function MolalityVPSSTP::osmoticCoefficient()
+ * returns the osmotic coefficient.
+
+ * ## Activity Concentrations: Relationship of ThermoPhase to Kinetics Expressions
+ *
+ * %Cantera can handle both thermodynamics and kinetics mechanisms. Reversible kinetics
+ * mechanisms within %Cantera must be compatible with thermodynamics in the sense that
+ * at equilibrium, or at infinite times, the concentrations of species must conform to
+ * thermodynamics. This means that for every valid reversible kinetics reaction in a
+ * mechanism, it must be reducible to an expression involving the ratio of the product
+ * activity to the reactant activities being equal to the exponential of the
+ * dimensionless standard state gibbs free energies of reaction. Irreversible kinetics
+ * reactions do not have this requirement; however, their usage can yield unexpected and
+ * inconsistent results in many situations.
+ *
+ * The actual units used in a kinetics expression depend on the context or the relative
+ * field of study. For example, in gas phase kinetics, species in kinetics expressions
+ * are expressed in terms of concentrations, for example, gmol cm-3. In solid phase
+ * studies, however, kinetics is usually expressed in terms of unitless activities,
+ * which most often equate to solid phase mole fractions. In order to accommodate
+ * variability here, %Cantera has come up with the idea of activity concentrations,
+ * @f$ C^a_k @f$. Activity concentrations are the expressions used directly in kinetics
+ * expressions. These activity (or generalized) concentrations are used by kinetics
+ * manager classes to compute the forward and reverse rates of elementary reactions.
+ * Note that they may or may not have units of concentration --- they might be partial
+ * pressures, mole fractions, or surface coverages, The activity concentrations for
+ * species *k*, @f$ C^a_k @f$, are related to the activity for species *k*, @f$ a_k @f$,
+ * via the expression:
+ *
+ * @f[
+ *   a_k = C^a_k / C^0_k
+ * @f]
+ *
+ * @f$ C^0_k @f$ are called standard concentrations. They serve as multiplicative
+ * factors between the activities and the generalized concentrations. Standard
+ * concentrations may be different for each species. They may depend on both the
+ * temperature and the pressure. However, they may not depend on the composition of the
+ * phase. For example, for the IdealGasPhase object the standard concentration is
+ * defined as
+ *
+ * @f[
+ *   C^0_k = \frac{P}{RT}
+ * @f]
+ *
+ * while in many solid phase kinetics problems,
+ *
+ * @f[
+ *   C^0_k = 1.0
+ * @f]
+ *
+ * is employed making the units for activity concentrations in solids unitless.
+ *
+ * ThermoPhase member functions dealing with this concept include
+ * getActivityConcentrations(), which provides a vector of the current activity
+ * concentrations. The function standardConcentration() returns the standard
+ * concentration of the kth species. The function logStandardConc(), returns the natural
+ * log of the kth standard concentration. The function standardConcentrationUnits()
+ * returns the units of the standard concentration.
+ *
+ * ### Equilibrium constants
+ *
+ * - @f$ K_a @f$ is the equilibrium constant defined in terms of the standard state
  *   Gibbs free energy values. It is by definition dimensionless.
  *
- *   K_p is the calculation of the equilibrium constant from the reference state
+ * - @f$ K_p @f$ is the equilibrium constant defined in terms of the reference state
  *   Gibbs free energy values. It is by definition dimensionless. The pressure
  *   dependence is handled entirely on the RHS of the equilibrium expression.
  *
- *   K_c is the equilibrium constant calculated from the activity
- *   concentrations. The dimensions depend on the number of products and
- *   reactants.
+ * - @f$ K_c @f$ is the equilibrium constant defined in terms of the activity
+ *   concentrations. The dimensions depend on the number of products and reactants.
  *
- * The kinetics manager requires the calculation of K_c for the calculation of
- * the reverse rate constant
+ * The kinetics manager requires the calculation of @f$ K_c @f$ for the calculation of
+ * the reverse rate constant.
  *
  * @ingroup thermoprops
- * @ingroup phases
  */
 class ThermoPhase : public Phase
 {
@@ -107,7 +396,7 @@ public:
     //! @name  Information Methods
     //! @{
 
-    virtual std::string type() const {
+    string type() const override {
         return "none";
     }
 
@@ -136,7 +425,7 @@ public:
      * @todo Needs to be implemented for all phase types. Currently only implemented for
      * PureFluidPhase.
      */
-    virtual std::string phaseOfMatter() const {
+    virtual string phaseOfMatter() const {
         return "unspecified";
     }
 
@@ -144,7 +433,7 @@ public:
      * Returns the reference pressure in Pa. This function is a wrapper
      * that calls the species thermo refPressure function.
      */
-    virtual doublereal refPressure() const {
+    virtual double refPressure() const {
         return m_spthermo.refPressure();
     }
 
@@ -152,14 +441,14 @@ public:
     //! or phase are valid.
     /*!
      * If no argument is supplied, the value returned will be the lowest
-     * temperature at which the data for \e all species are valid. Otherwise,
-     * the value will be only for species \a k. This function is a wrapper that
+     * temperature at which the data for @e all species are valid. Otherwise,
+     * the value will be only for species @e k. This function is a wrapper that
      * calls the species thermo minTemp function.
      *
      * @param k index of the species. Default is -1, which will return the max
      *          of the min value over all species.
      */
-    virtual doublereal minTemp(size_t k = npos) const {
+    virtual double minTemp(size_t k = npos) const {
         return m_spthermo.minTemp(k);
     }
 
@@ -174,7 +463,7 @@ public:
      *   @returns    the current value of the Heat of Formation at 298K
      *       and 1 bar
      */
-    doublereal Hf298SS(const size_t k) const {
+    double Hf298SS(const size_t k) const {
         return m_spthermo.reportOneHf298(k);
     }
 
@@ -189,7 +478,7 @@ public:
      *   @param  Hf298New    Specify the new value of the Heat of Formation at
      *       298K and 1 bar
      */
-    virtual void modifyOneHf298SS(const size_t k, const doublereal Hf298New) {
+    virtual void modifyOneHf298SS(const size_t k, const double Hf298New) {
         m_spthermo.modifyOneHf298(k, Hf298New);
         invalidateCache();
     }
@@ -205,14 +494,14 @@ public:
     //! are valid.
     /*!
      * If no argument is supplied, the value returned will be the highest
-     * temperature at which the data for \e all species are valid. Otherwise,
-     * the value will be only for species \a k. This function is a wrapper that
+     * temperature at which the data for @e all species are valid. Otherwise,
+     * the value will be only for species @e k. This function is a wrapper that
      * calls the species thermo maxTemp function.
      *
      * @param k index of the species. Default is -1, which will return the min
      *          of the max value over all species.
      */
-    virtual doublereal maxTemp(size_t k = npos) const {
+    virtual double maxTemp(size_t k = npos) const {
         return m_spthermo.maxTemp(k);
     }
 
@@ -233,32 +522,32 @@ public:
     //! @{
 
     //! Molar enthalpy. Units: J/kmol.
-    virtual doublereal enthalpy_mole() const {
+    virtual double enthalpy_mole() const {
         throw NotImplementedError("ThermoPhase::enthalpy_mole");
     }
 
     //! Molar internal energy. Units: J/kmol.
-    virtual doublereal intEnergy_mole() const {
+    virtual double intEnergy_mole() const {
         return enthalpy_mole() - pressure()* molarVolume();
     }
 
     //! Molar entropy. Units: J/kmol/K.
-    virtual doublereal entropy_mole() const {
+    virtual double entropy_mole() const {
         throw NotImplementedError("ThermoPhase::entropy_mole");
     }
 
     //! Molar Gibbs function. Units: J/kmol.
-    virtual doublereal gibbs_mole() const {
+    virtual double gibbs_mole() const {
         return enthalpy_mole() - temperature()*entropy_mole();
     }
 
     //! Molar heat capacity at constant pressure. Units: J/kmol/K.
-    virtual doublereal cp_mole() const {
+    virtual double cp_mole() const {
         throw NotImplementedError("ThermoPhase::cp_mole");
     }
 
     //! Molar heat capacity at constant volume. Units: J/kmol/K.
-    virtual doublereal cv_mole() const {
+    virtual double cv_mole() const {
         throw NotImplementedError("ThermoPhase::cv_mole");
     }
 
@@ -269,35 +558,35 @@ public:
     //! Returns the isothermal compressibility. Units: 1/Pa.
     /*!
      * The isothermal compressibility is defined as
-     * \f[
+     * @f[
      * \kappa_T = -\frac{1}{v}\left(\frac{\partial v}{\partial P}\right)_T
-     * \f]
+     * @f]
      *  or
-     * \f[
+     * @f[
      * \kappa_T = \frac{1}{\rho}\left(\frac{\partial \rho}{\partial P}\right)_T
-     * \f]
+     * @f]
      */
-    virtual doublereal isothermalCompressibility() const {
+    virtual double isothermalCompressibility() const {
         throw NotImplementedError("ThermoPhase::isothermalCompressibility");
     }
 
     //! Return the volumetric thermal expansion coefficient. Units: 1/K.
     /*!
      * The thermal expansion coefficient is defined as
-     * \f[
+     * @f[
      * \beta = \frac{1}{v}\left(\frac{\partial v}{\partial T}\right)_P
-     * \f]
+     * @f]
      */
-    virtual doublereal thermalExpansionCoeff() const {
+    virtual double thermalExpansionCoeff() const {
         throw NotImplementedError("ThermoPhase::thermalExpansionCoeff");
     }
 
     //! Return the speed of sound. Units: m/s.
     /*!
-     * The speed of sound is defined as 
-     * \f[
+     * The speed of sound is defined as
+     * @f[
      * c = \sqrt{\left(\frac{\partial P}{\partial\rho}\right)_s}
-     * \f]
+     * @f]
      */
     virtual double soundSpeed() const {
         throw NotImplementedError("ThermoPhase::soundSpeed");
@@ -320,7 +609,7 @@ public:
      *
      * @param v Input value of the electric potential in Volts
      */
-    void setElectricPotential(doublereal v) {
+    void setElectricPotential(double v) {
         m_phi = v;
         invalidateCache();
     }
@@ -329,16 +618,16 @@ public:
     /*!
      *  Units are Volts (which are Joules/coulomb)
      */
-    doublereal electricPotential() const {
+    double electricPotential() const {
         return m_phi;
     }
 
     //! @}
     //! @name Activities, Standard States, and Activity Concentrations
     //!
-    //! The activity \f$a_k\f$ of a species in solution is related to the
-    //! chemical potential by \f[ \mu_k = \mu_k^0(T,P) + \hat R T \log a_k. \f]
-    //! The quantity \f$\mu_k^0(T,P)\f$ is the standard chemical potential at
+    //! The activity @f$ a_k @f$ of a species in solution is related to the
+    //! chemical potential by @f[ \mu_k = \mu_k^0(T,P) + \hat R T \ln a_k. @f]
+    //! The quantity @f$ \mu_k^0(T,P) @f$ is the standard chemical potential at
     //! unit activity, which depends on temperature and pressure, but not on
     //! composition. The activity is dimensionless.
     //! @{
@@ -393,8 +682,8 @@ public:
 
     //! This method returns an array of generalized concentrations
     /*!
-     * \f$ C^a_k\f$ are defined such that \f$ a_k = C^a_k / C^0_k, \f$ where
-     * \f$ C^0_k \f$ is a standard concentration defined below and \f$ a_k \f$
+     * @f$ C^a_k @f$ are defined such that @f$ a_k = C^a_k / C^0_k, @f$ where
+     * @f$ C^0_k @f$ is a standard concentration defined below and @f$ a_k @f$
      * are activities used in the thermodynamic functions. These activity (or
      * generalized) concentrations are used by kinetics manager classes to
      * compute the forward and reverse rates of elementary reactions. Note that
@@ -405,16 +694,16 @@ public:
      *           upon the implementation of the reaction rate expressions within
      *           the phase.
      */
-    virtual void getActivityConcentrations(doublereal* c) const {
+    virtual void getActivityConcentrations(double* c) const {
         throw NotImplementedError("ThermoPhase::getActivityConcentrations");
     }
 
     //! Return the standard concentration for the kth species
     /*!
-     * The standard concentration \f$ C^0_k \f$ used to normalize the activity
+     * The standard concentration @f$ C^0_k @f$ used to normalize the activity
      * (that is, generalized) concentration. In many cases, this quantity will be
-     * the same for all species in a phase - for example, for an ideal gas \f$
-     * C^0_k = P/\hat R T \f$. For this reason, this method returns a single
+     * the same for all species in a phase - for example, for an ideal gas @f$
+     * C^0_k = P/\hat R T @f$. For this reason, this method returns a single
      * value, instead of an array.  However, for phases in which the standard
      * concentration is species-specific (such as surface species of different
      * sizes), this method may be called with an optional parameter indicating
@@ -426,7 +715,7 @@ public:
      *   Returns the standard concentration. The units are by definition
      *   dependent on the ThermoPhase and kinetics manager representation.
      */
-    virtual doublereal standardConcentration(size_t k=0) const {
+    virtual double standardConcentration(size_t k=0) const {
         throw NotImplementedError("ThermoPhase::standardConcentration");
     }
 
@@ -434,7 +723,7 @@ public:
     /*!
      * @param k    index of the species (defaults to zero)
      */
-    virtual doublereal logStandardConc(size_t k=0) const;
+    virtual double logStandardConc(size_t k=0) const;
 
     //! Get the array of non-dimensional activities at the current solution
     //! temperature, pressure, and solution concentration.
@@ -448,14 +737,14 @@ public:
      *
      * @param a   Output vector of activities. Length: m_kk.
      */
-    virtual void getActivities(doublereal* a) const;
+    virtual void getActivities(double* a) const;
 
     //! Get the array of non-dimensional molar-based activity coefficients at
     //! the current solution temperature, pressure, and solution concentration.
     /*!
      * @param ac Output vector of activity coefficients. Length: m_kk.
      */
-    virtual void getActivityCoefficients(doublereal* ac) const {
+    virtual void getActivityCoefficients(double* ac) const {
         if (m_kk == 1) {
             ac[0] = 1.0;
         } else {
@@ -468,7 +757,7 @@ public:
     /*!
      * @param lnac Output vector of ln activity coefficients. Length: m_kk.
      */
-    virtual void getLnActivityCoefficients(doublereal* lnac) const;
+    virtual void getLnActivityCoefficients(double* lnac) const;
 
     //! @}
     //! @name  Partial Molar Properties of the Solution
@@ -477,15 +766,15 @@ public:
     /**
      * Get the array of non-dimensional species chemical potentials
      * These are partial molar Gibbs free energies.
-     * \f$ \mu_k / \hat R T \f$.
+     * @f$ \mu_k / \hat R T @f$.
      * Units: unitless
      *
      * @param mu  Output vector of dimensionless chemical potentials.
      *            Length: m_kk.
      *
-     * @deprecated To be removed after Cantera 3.0. Use getChemPotentials() instead.
+     * @deprecated To be removed after %Cantera 3.0. Use getChemPotentials() instead.
      */
-    virtual void getChemPotentials_RT(doublereal* mu) const {
+    virtual void getChemPotentials_RT(double* mu) const {
         throw NotImplementedError("ThermoPhase::getChemPotentials_RT");
     }
 
@@ -498,25 +787,25 @@ public:
      * @param mu  Output vector of species chemical
      *            potentials. Length: m_kk. Units: J/kmol
      */
-    virtual void getChemPotentials(doublereal* mu) const {
+    virtual void getChemPotentials(double* mu) const {
         throw NotImplementedError("ThermoPhase::getChemPotentials");
     }
 
     //!  Get the species electrochemical potentials.
     /*!
-     *  These are partial molar quantities.  This method adds a term \f$ F z_k
-     *  \phi_p \f$ to each chemical potential. The electrochemical potential of
-     *  species k in a phase p, \f$ \zeta_k \f$, is related to the chemical
+     *  These are partial molar quantities.  This method adds a term @f$ F z_k
+     *  \phi_p @f$ to each chemical potential. The electrochemical potential of
+     *  species k in a phase p, @f$ \zeta_k @f$, is related to the chemical
      *  potential via the following equation,
      *
-     *       \f[
+     *  @f[
      *            \zeta_{k}(T,P) = \mu_{k}(T,P) + F z_k \phi_p
-     *       \f]
+     *  @f]
      *
      * @param mu  Output vector of species electrochemical
      *            potentials. Length: m_kk. Units: J/kmol
      */
-    void getElectrochemPotentials(doublereal* mu) const;
+    void getElectrochemPotentials(double* mu) const;
 
     //! Returns an array of partial molar enthalpies for the species
     //! in the mixture. Units (J/kmol)
@@ -524,7 +813,7 @@ public:
      * @param hbar    Output vector of species partial molar enthalpies.
      *                Length: m_kk. units are J/kmol.
      */
-    virtual void getPartialMolarEnthalpies(doublereal* hbar) const {
+    virtual void getPartialMolarEnthalpies(double* hbar) const {
         throw NotImplementedError("ThermoPhase::getPartialMolarEnthalpies");
     }
 
@@ -534,7 +823,7 @@ public:
      * @param sbar    Output vector of species partial molar entropies.
      *                Length = m_kk. units are J/kmol/K.
      */
-    virtual void getPartialMolarEntropies(doublereal* sbar) const {
+    virtual void getPartialMolarEntropies(double* sbar) const {
         throw NotImplementedError("ThermoPhase::getPartialMolarEntropies");
     }
 
@@ -544,7 +833,7 @@ public:
      * @param ubar    Output vector of species partial molar internal energies.
      *                Length = m_kk. units are J/kmol.
      */
-    virtual void getPartialMolarIntEnergies(doublereal* ubar) const {
+    virtual void getPartialMolarIntEnergies(double* ubar) const {
         throw NotImplementedError("ThermoPhase::getPartialMolarIntEnergies");
     }
 
@@ -555,7 +844,7 @@ public:
      *                capacities at constant pressure.
      *                Length = m_kk. units are J/kmol/K.
      */
-    virtual void getPartialMolarCp(doublereal* cpbar) const {
+    virtual void getPartialMolarCp(double* cpbar) const {
         throw NotImplementedError("ThermoPhase::getPartialMolarCp");
     }
 
@@ -565,7 +854,7 @@ public:
      *  @param vbar   Output vector of species partial molar volumes.
      *                Length = m_kk. units are m^3/kmol.
      */
-    virtual void getPartialMolarVolumes(doublereal* vbar) const {
+    virtual void getPartialMolarVolumes(double* vbar) const {
         throw NotImplementedError("ThermoPhase::getPartialMolarVolumes");
     }
 
@@ -576,14 +865,14 @@ public:
     //! Get the array of chemical potentials at unit activity for the species at
     //! their standard states at the current *T* and *P* of the solution.
     /*!
-     * These are the standard state chemical potentials \f$ \mu^0_k(T,P)
-     * \f$. The values are evaluated at the current temperature and pressure of
+     * These are the standard state chemical potentials @f$ \mu^0_k(T,P)
+     * @f$. The values are evaluated at the current temperature and pressure of
      * the solution
      *
      * @param mu      Output vector of chemical potentials.
      *                Length: m_kk.
      */
-    virtual void getStandardChemPotentials(doublereal* mu) const {
+    virtual void getStandardChemPotentials(double* mu) const {
         throw NotImplementedError("ThermoPhase::getStandardChemPotentials");
     }
 
@@ -593,7 +882,7 @@ public:
      * @param hrt      Output vector of nondimensional standard state enthalpies.
      *                 Length: m_kk.
      */
-    virtual void getEnthalpy_RT(doublereal* hrt) const {
+    virtual void getEnthalpy_RT(double* hrt) const {
         throw NotImplementedError("ThermoPhase::getEnthalpy_RT");
     }
 
@@ -603,7 +892,7 @@ public:
      * @param sr   Output vector of nondimensional standard state entropies.
      *             Length: m_kk.
      */
-    virtual void getEntropy_R(doublereal* sr) const {
+    virtual void getEntropy_R(double* sr) const {
         throw NotImplementedError("ThermoPhase::getEntropy_R");
     }
 
@@ -613,7 +902,7 @@ public:
      * @param grt  Output vector of nondimensional standard state Gibbs free
      *             energies. Length: m_kk.
      */
-    virtual void getGibbs_RT(doublereal* grt) const {
+    virtual void getGibbs_RT(double* grt) const {
         throw NotImplementedError("ThermoPhase::getGibbs_RT");
     }
 
@@ -624,7 +913,7 @@ public:
      * @param gpure  Output vector of standard state Gibbs free energies.
      *               Length: m_kk.
      */
-    virtual void getPureGibbs(doublereal* gpure) const {
+    virtual void getPureGibbs(double* gpure) const {
         throw NotImplementedError("ThermoPhase::getPureGibbs");
     }
 
@@ -634,7 +923,7 @@ public:
      * @param urt  output vector of nondimensional standard state internal energies
      *             of the species. Length: m_kk.
      */
-    virtual void getIntEnergy_RT(doublereal* urt) const {
+    virtual void getIntEnergy_RT(double* urt) const {
         throw NotImplementedError("ThermoPhase::getIntEnergy_RT");
     }
 
@@ -645,7 +934,7 @@ public:
      * @param cpr   Output vector of nondimensional standard state heat
      *              capacities. Length: m_kk.
      */
-    virtual void getCp_R(doublereal* cpr) const {
+    virtual void getCp_R(double* cpr) const {
         throw NotImplementedError("ThermoPhase::getCp_R");
     }
 
@@ -657,7 +946,7 @@ public:
      * @param vol     Output vector containing the standard state volumes.
      *                Length: m_kk.
      */
-    virtual void getStandardVolumes(doublereal* vol) const {
+    virtual void getStandardVolumes(double* vol) const {
         throw NotImplementedError("ThermoPhase::getStandardVolumes");
     }
 
@@ -672,7 +961,7 @@ public:
      * @param hrt     Output vector containing the nondimensional reference
      *                state enthalpies. Length: m_kk.
      */
-    virtual void getEnthalpy_RT_ref(doublereal* hrt) const {
+    virtual void getEnthalpy_RT_ref(double* hrt) const {
         throw NotImplementedError("ThermoPhase::getEnthalpy_RT_ref");
     }
 
@@ -683,7 +972,7 @@ public:
      * @param grt     Output vector containing the nondimensional reference state
      *                Gibbs Free energies.  Length: m_kk.
      */
-    virtual void getGibbs_RT_ref(doublereal* grt) const {
+    virtual void getGibbs_RT_ref(double* grt) const {
         throw NotImplementedError("ThermoPhase::getGibbs_RT_ref");
     }
 
@@ -694,7 +983,7 @@ public:
      * @param g       Output vector containing the reference state
      *                Gibbs Free energies. Length: m_kk. Units: J/kmol.
      */
-    virtual void getGibbs_ref(doublereal* g) const {
+    virtual void getGibbs_ref(double* g) const {
         throw NotImplementedError("ThermoPhase::getGibbs_ref");
     }
 
@@ -705,7 +994,7 @@ public:
      * @param er      Output vector containing the nondimensional reference
      *                state entropies. Length: m_kk.
      */
-    virtual void getEntropy_R_ref(doublereal* er) const {
+    virtual void getEntropy_R_ref(double* er) const {
         throw NotImplementedError("ThermoPhase::getEntropy_R_ref");
     }
 
@@ -716,7 +1005,7 @@ public:
      * @param urt    Output vector of nondimensional reference state internal
      *               energies of the species. Length: m_kk
      */
-    virtual void getIntEnergy_RT_ref(doublereal* urt) const {
+    virtual void getIntEnergy_RT_ref(double* urt) const {
         throw NotImplementedError("ThermoPhase::getIntEnergy_RT_ref");
     }
 
@@ -728,7 +1017,7 @@ public:
      *               heat capacities at constant pressure for the species.
      *               Length: m_kk
      */
-    virtual void getCp_R_ref(doublereal* cprt) const {
+    virtual void getCp_R_ref(double* cprt) const {
         throw NotImplementedError("ThermoPhase::getCp_R_ref");
     }
 
@@ -740,7 +1029,7 @@ public:
      * @param vol     Output vector containing the standard state volumes.
      *                Length: m_kk.
      */
-    virtual void getStandardVolumes_ref(doublereal* vol) const {
+    virtual void getStandardVolumes_ref(double* vol) const {
         throw NotImplementedError("ThermoPhase::getStandardVolumes_ref");
     }
 
@@ -751,32 +1040,32 @@ public:
     //! @{
 
     //! Specific enthalpy. Units: J/kg.
-    doublereal enthalpy_mass() const {
+    double enthalpy_mass() const {
         return enthalpy_mole()/meanMolecularWeight();
     }
 
     //! Specific internal energy. Units: J/kg.
-    doublereal intEnergy_mass() const {
+    double intEnergy_mass() const {
         return intEnergy_mole()/meanMolecularWeight();
     }
 
     //! Specific entropy. Units: J/kg/K.
-    doublereal entropy_mass() const {
+    double entropy_mass() const {
         return entropy_mole()/meanMolecularWeight();
     }
 
     //! Specific Gibbs function. Units: J/kg.
-    doublereal gibbs_mass() const {
+    double gibbs_mass() const {
         return gibbs_mole()/meanMolecularWeight();
     }
 
     //! Specific heat at constant pressure. Units: J/kg/K.
-    doublereal cp_mass() const {
+    double cp_mass() const {
         return cp_mole()/meanMolecularWeight();
     }
 
     //! Specific heat at constant volume. Units: J/kg/K.
-    doublereal cv_mass() const {
+    double cv_mass() const {
         return cv_mole()/meanMolecularWeight();
     }
     //! @}
@@ -785,11 +1074,12 @@ public:
     /*!
      *  The units are Joules kmol-1
      */
-    doublereal RT() const {
+    double RT() const {
         return temperature() * GasConstant;
     }
 
     //! @name Setting the State
+    //! @anchor sec-thermophase-set-state
     //!
     //! These methods set all or part of the thermodynamic state.
     //! @{
@@ -804,7 +1094,7 @@ public:
      * @param x    Vector of mole fractions.
      *             Length is equal to m_kk.
      */
-    virtual void setState_TPX(doublereal t, doublereal p, const doublereal* x);
+    virtual void setState_TPX(double t, double p, const double* x);
 
     //! Set the temperature (K), pressure (Pa), and mole fractions.
     /*!
@@ -816,7 +1106,7 @@ public:
      * @param x    Composition map of mole fractions. Species not in
      *             the composition map are assumed to have zero mole fraction
      */
-    virtual void setState_TPX(doublereal t, doublereal p, const compositionMap& x);
+    virtual void setState_TPX(double t, double p, const Composition& x);
 
     //! Set the temperature (K), pressure (Pa), and mole fractions.
     /*!
@@ -829,7 +1119,7 @@ public:
      *             Species not in the composition map are assumed to have zero
      *             mole fraction
      */
-    virtual void setState_TPX(doublereal t, doublereal p, const std::string& x);
+    virtual void setState_TPX(double t, double p, const string& x);
 
     //! Set the internally stored temperature (K), pressure (Pa), and mass
     //! fractions of the phase.
@@ -842,7 +1132,7 @@ public:
      * @param y    Vector of mass fractions.
      *             Length is equal to m_kk.
      */
-    virtual void setState_TPY(doublereal t, doublereal p, const doublereal* y);
+    virtual void setState_TPY(double t, double p, const double* y);
 
     //! Set the internally stored temperature (K), pressure (Pa), and mass
     //! fractions of the phase
@@ -855,7 +1145,7 @@ public:
      * @param y    Composition map of mass fractions. Species not in
      *             the composition map are assumed to have zero mass fraction
      */
-    virtual void setState_TPY(doublereal t, doublereal p, const compositionMap& y);
+    virtual void setState_TPY(double t, double p, const Composition& y);
 
     //! Set the internally stored temperature (K), pressure (Pa), and mass
     //! fractions of the phase
@@ -869,7 +1159,7 @@ public:
      *             Species not in the composition map are assumed to have zero
      *             mass fraction
      */
-    virtual void setState_TPY(doublereal t, doublereal p, const std::string& y);
+    virtual void setState_TPY(double t, double p, const string& y);
 
     //! Set the temperature (K) and pressure (Pa)
     /*!
@@ -878,7 +1168,7 @@ public:
      * @param t    Temperature (K)
      * @param p    Pressure (Pa)
      */
-    virtual void setState_TP(doublereal t, doublereal p);
+    virtual void setState_TP(double t, double p);
 
     //! Set the pressure (Pa) and mole fractions.
     /*!
@@ -888,9 +1178,9 @@ public:
      * @param p    Pressure (Pa)
      * @param x    Vector of mole fractions.
      *             Length is equal to m_kk.
-     * @deprecated To be removed after Cantera 3.0.
+     * @deprecated To be removed after %Cantera 3.0.
      */
-    virtual void setState_PX(doublereal p, doublereal* x);
+    virtual void setState_PX(double p, double* x);
 
     //! Set the internally stored pressure (Pa) and mass fractions.
     /*!
@@ -901,9 +1191,9 @@ public:
      * @param p    Pressure (Pa)
      * @param y    Vector of mass fractions.
      *             Length is equal to m_kk.
-     * @deprecated To be removed after Cantera 3.0.
+     * @deprecated To be removed after %Cantera 3.0.
      */
-    virtual void setState_PY(doublereal p, doublereal* y);
+    virtual void setState_PY(double p, double* y);
 
     //! Set the internally stored specific enthalpy (J/kg) and pressure (Pa) of
     //! the phase.
@@ -1080,9 +1370,9 @@ public:
      *
      * @param rho Density (kg/m^3)
      * @param p   Pressure (Pa)
-     * @deprecated  To be removed after Cantera 3.0; renamed to setState_DP()
+     * @deprecated To be removed after %Cantera 3.0; renamed to setState_DP()
      */
-    void setState_RP(doublereal rho, doublereal p);
+    void setState_RP(double rho, double p);
 
     //! Set the density (kg/m**3) and pressure (Pa) at constant composition
     /*!
@@ -1096,7 +1386,7 @@ public:
      *
      * @param rho Density (kg/m^3)
      * @param p   Pressure (Pa)
-     * @since  New in Cantera 3.0.
+     * @since New in %Cantera 3.0.
      */
     virtual void setState_DP(double rho, double p) {
         throw NotImplementedError("ThermoPhase::setState_DP");
@@ -1112,10 +1402,10 @@ public:
      * @param p    Pressure (Pa)
      * @param x    Vector of mole fractions.
      *             Length is equal to m_kk.
-     * @deprecated  To be removed after Cantera 3.0; replaceable by calls to
+     * @deprecated To be removed after %Cantera 3.0; replaceable by calls to
      *              setMoleFractions() and setState_DP().
      */
-    virtual void setState_RPX(doublereal rho, doublereal p, const doublereal* x);
+    virtual void setState_RPX(double rho, double p, const double* x);
 
     //! Set the density (kg/m**3), pressure (Pa) and mole fractions
     /*!
@@ -1127,10 +1417,10 @@ public:
      * @param p    Pressure (Pa)
      * @param x    Composition map of mole fractions. Species not in
      *              the composition map are assumed to have zero mole fraction
-     * @deprecated  To be removed after Cantera 3.0; replaceable by calls to
+     * @deprecated To be removed after %Cantera 3.0; replaceable by calls to
      *              setMoleFractionsByName() and setState_DP().
      */
-    virtual void setState_RPX(doublereal rho, doublereal p, const compositionMap& x);
+    virtual void setState_RPX(double rho, double p, const Composition& x);
 
     //! Set the density (kg/m**3), pressure (Pa) and mole fractions
     /*!
@@ -1143,10 +1433,10 @@ public:
      * @param x    String containing a composition map of the mole fractions.
      *              Species not in the composition map are assumed to have zero
      *              mole fraction
-     * @deprecated  To be removed after Cantera 3.0; replaceable by calls to
+     * @deprecated To be removed after %Cantera 3.0; replaceable by calls to
      *              setMoleFractionsByName() and setState_DP().
      */
-    virtual void setState_RPX(doublereal rho, doublereal p, const std::string& x);
+    virtual void setState_RPX(double rho, double p, const string& x);
 
     //! Set the density (kg/m**3), pressure (Pa) and mass fractions
     /*!
@@ -1158,10 +1448,10 @@ public:
      * @param p    Pressure (Pa)
      * @param y    Vector of mole fractions.
      *              Length is equal to m_kk.
-     * @deprecated  To be removed after Cantera 3.0; replaceable by calls to
+     * @deprecated To be removed after %Cantera 3.0; replaceable by calls to
      *              setMassFractions() and setState_DP().
      */
-    virtual void setState_RPY(doublereal rho, doublereal p, const doublereal* y);
+    virtual void setState_RPY(double rho, double p, const double* y);
 
     //! Set the density (kg/m**3), pressure (Pa) and mass fractions
     /*!
@@ -1173,10 +1463,10 @@ public:
      * @param p   Pressure (Pa)
      * @param y   Composition map of mole fractions. Species not in
      *             the composition map are assumed to have zero mole fraction
-     * @deprecated  To be removed after Cantera 3.0; replaceable by calls to
+     * @deprecated To be removed after %Cantera 3.0; replaceable by calls to
      *              setMassFractionsByName() and setState_DP().
      */
-    virtual void setState_RPY(doublereal rho, doublereal p, const compositionMap& y);
+    virtual void setState_RPY(double rho, double p, const Composition& y);
 
     //! Set the density (kg/m**3), pressure (Pa) and mass fractions
     /*!
@@ -1189,10 +1479,10 @@ public:
      * @param y    String containing a composition map of the mole fractions.
      *              Species not in the composition map are assumed to have zero
      *              mole fraction
-     * @deprecated  To be removed after Cantera 3.0; replaceable by calls to
+     * @deprecated To be removed after %Cantera 3.0; replaceable by calls to
      *              setMassFractionsByName() and setState_DP().
      */
-    virtual void setState_RPY(doublereal rho, doublereal p, const std::string& y);
+    virtual void setState_RPY(double rho, double p, const string& y);
 
     //! Set the state using an AnyMap containing any combination of properties
     //! supported by the thermodynamic model
@@ -1241,11 +1531,11 @@ public:
     void setMixtureFraction(double mixFrac, const double* fuelComp,
                             const double* oxComp, ThermoBasis basis=ThermoBasis::molar);
     //! @copydoc ThermoPhase::setMixtureFraction
-    void setMixtureFraction(double mixFrac, const std::string& fuelComp,
-            const std::string& oxComp, ThermoBasis basis=ThermoBasis::molar);
+    void setMixtureFraction(double mixFrac, const string& fuelComp,
+            const string& oxComp, ThermoBasis basis=ThermoBasis::molar);
     //! @copydoc ThermoPhase::setMixtureFraction
-    void setMixtureFraction(double mixFrac, const compositionMap& fuelComp,
-            const compositionMap& oxComp, ThermoBasis basis=ThermoBasis::molar);
+    void setMixtureFraction(double mixFrac, const Composition& fuelComp,
+            const Composition& oxComp, ThermoBasis basis=ThermoBasis::molar);
     //! @}
     //! @name Compute Mixture Fraction
     //! @{
@@ -1256,20 +1546,19 @@ public:
      * Fuel and oxidizer compositions are given either as
      * mole fractions or mass fractions (specified by `basis`)
      * and do not need to be normalized.
-     * The mixture fraction \f$ Z \f$ can be computed from a single element
-     * \f[ Z_m = \frac{Z_{\mathrm{mass},m}-Z_{\mathrm{mass},m,\mathrm{ox}}}
-     * {Z_{\mathrm{mass},\mathrm{fuel}}-Z_{\mathrm{mass},m,\mathrm{ox}}} \f] where
-     * \f$ Z_{\mathrm{mass},m} \f$ is the elemental mass fraction of element m
-     * in the mixture, and \f$ Z_{\mathrm{mass},m,\mathrm{ox}} \f$ and
-     * \f$ Z_{\mathrm{mass},m,\mathrm{fuel}} \f$ are the elemental mass fractions
+     * The mixture fraction @f$ Z @f$ can be computed from a single element
+     * @f[ Z_m = \frac{Z_{\mathrm{mass},m}-Z_{\mathrm{mass},m,\mathrm{ox}}}
+     * {Z_{\mathrm{mass},\mathrm{fuel}}-Z_{\mathrm{mass},m,\mathrm{ox}}} @f] where
+     * @f$ Z_{\mathrm{mass},m} @f$ is the elemental mass fraction of element m
+     * in the mixture, and @f$ Z_{\mathrm{mass},m,\mathrm{ox}} @f$ and
+     * @f$ Z_{\mathrm{mass},m,\mathrm{fuel}} @f$ are the elemental mass fractions
      * of the oxidizer and fuel, or from the Bilger mixture fraction,
-     * which considers the elements C, S, H and O (R. W. Bilger, "Turbulent jet
-     * diffusion flames," Prog. Energy Combust. Sci., 109-131 (1979))
-     * \f[ Z_{\mathrm{Bilger}} = \frac{\beta-\beta_{\mathrm{ox}}}
-     * {\beta_{\mathrm{fuel}}-\beta_{\mathrm{ox}}} \f]
-     * with \f$ \beta = 2\frac{Z_C}{M_C}+2\frac{Z_S}{M_S}+\frac{1}{2}\frac{Z_H}{M_H}
-     * -\frac{Z_O}{M_O} \f$
-     * and \f$ M_m \f$ the atomic weight of element \f$ m \f$.
+     * which considers the elements C, S, H and O @cite bilger1979
+     * @f[ Z_{\mathrm{Bilger}} = \frac{\beta-\beta_{\mathrm{ox}}}
+     * {\beta_{\mathrm{fuel}}-\beta_{\mathrm{ox}}} @f]
+     * with @f$ \beta = 2\frac{Z_C}{M_C}+2\frac{Z_S}{M_S}+\frac{1}{2}\frac{Z_H}{M_H}
+     * -\frac{Z_O}{M_O} @f$
+     * and @f$ M_m @f$ the atomic weight of element @f$ m @f$.
      *
      * @param fuelComp   composition of the fuel
      * @param oxComp     composition of the oxidizer
@@ -1284,15 +1573,15 @@ public:
      */
     double mixtureFraction(const double* fuelComp, const double* oxComp,
                            ThermoBasis basis=ThermoBasis::molar,
-                           const std::string& element="Bilger") const;
+                           const string& element="Bilger") const;
     //! @copydoc ThermoPhase::mixtureFraction
-    double mixtureFraction(const std::string& fuelComp, const std::string& oxComp,
+    double mixtureFraction(const string& fuelComp, const string& oxComp,
                            ThermoBasis basis=ThermoBasis::molar,
-                           const std::string& element="Bilger") const;
+                           const string& element="Bilger") const;
     //! @copydoc ThermoPhase::mixtureFraction
-    double mixtureFraction(const compositionMap& fuelComp, const compositionMap& oxComp,
+    double mixtureFraction(const Composition& fuelComp, const Composition& oxComp,
                            ThermoBasis basis=ThermoBasis::molar,
-                           const std::string& element="Bilger") const;
+                           const string& element="Bilger") const;
     //! @}
     //! @name Set Mixture Composition by Equivalence Ratio
     //! @{
@@ -1314,11 +1603,11 @@ public:
     void setEquivalenceRatio(double phi, const double* fuelComp, const double* oxComp,
                              ThermoBasis basis=ThermoBasis::molar);
     //! @copydoc ThermoPhase::setEquivalenceRatio
-    void setEquivalenceRatio(double phi, const std::string& fuelComp,
-            const std::string& oxComp, ThermoBasis basis=ThermoBasis::molar);
+    void setEquivalenceRatio(double phi, const string& fuelComp,
+            const string& oxComp, ThermoBasis basis=ThermoBasis::molar);
     //! @copydoc ThermoPhase::setEquivalenceRatio
-    void setEquivalenceRatio(double phi, const compositionMap& fuelComp,
-            const compositionMap& oxComp, ThermoBasis basis=ThermoBasis::molar);
+    void setEquivalenceRatio(double phi, const Composition& fuelComp,
+            const Composition& oxComp, ThermoBasis basis=ThermoBasis::molar);
     //! @}
 
     //! @name Compute Equivalence Ratio
@@ -1327,11 +1616,11 @@ public:
     //! Compute the equivalence ratio for the current mixture
     //! given the compositions of fuel and oxidizer
     /*!
-     * The equivalence ratio \f$ \phi \f$ is computed from
-     * \f[ \phi = \frac{Z}{1-Z}\frac{1-Z_{\mathrm{st}}}{Z_{\mathrm{st}}} \f]
-     * where \f$ Z \f$ is the Bilger mixture fraction of the mixture
+     * The equivalence ratio @f$ \phi @f$ is computed from
+     * @f[ \phi = \frac{Z}{1-Z}\frac{1-Z_{\mathrm{st}}}{Z_{\mathrm{st}}} @f]
+     * where @f$ Z @f$ is the Bilger mixture fraction @cite bilger1979 of the mixture
      * given the specified fuel and oxidizer compositions
-     * \f$ Z_{\mathrm{st}} \f$ is the mixture fraction at stoichiometric
+     * @f$ Z_{\mathrm{st}} @f$ is the mixture fraction at stoichiometric
      * conditions. Fuel and oxidizer compositions are given either as
      * mole fractions or mass fractions (specified by `basis`)
      * and do not need to be normalized.
@@ -1346,27 +1635,27 @@ public:
      *                   as mole or mass fractions (default: molar)
      * @returns          equivalence ratio
      * @see mixtureFraction for the definition of the Bilger mixture fraction
-     * @see equivalenceRatio() for the computation of \f$ \phi \f$ without arguments
+     * @see equivalenceRatio() for the computation of @f$ \phi @f$ without arguments
      */
     double equivalenceRatio(const double* fuelComp, const double* oxComp,
                             ThermoBasis basis=ThermoBasis::molar) const;
     //! @copydoc ThermoPhase::equivalenceRatio
-    double equivalenceRatio(const std::string& fuelComp, const std::string& oxComp,
+    double equivalenceRatio(const string& fuelComp, const string& oxComp,
                             ThermoBasis basis=ThermoBasis::molar) const;
     //! @copydoc ThermoPhase::equivalenceRatio
-    double equivalenceRatio(const compositionMap& fuelComp,
-            const compositionMap& oxComp, ThermoBasis basis=ThermoBasis::molar) const;
+    double equivalenceRatio(const Composition& fuelComp,
+            const Composition& oxComp, ThermoBasis basis=ThermoBasis::molar) const;
     //! @}
 
     //! Compute the equivalence ratio for the current mixture
     //! from available oxygen and required oxygen
     /*!
-     * Computes the equivalence ratio \f$ \phi \f$ from
-     * \f[ \phi =
+     * Computes the equivalence ratio @f$ \phi @f$ from
+     * @f[ \phi =
      * \frac{Z_{\mathrm{mole},C} + Z_{\mathrm{mole},S} + \frac{1}{4}Z_{\mathrm{mole},H}}
-     * {\frac{1}{2}Z_{\mathrm{mole},O}} \f]
-     * where \f$ Z_{\mathrm{mole},m} \f$ is the elemental mole fraction
-     * of element \f$ m \f$. In this special case, the equivalence ratio
+     * {\frac{1}{2}Z_{\mathrm{mole},O}} @f]
+     * where @f$ Z_{\mathrm{mole},m} @f$ is the elemental mole fraction
+     * of element @f$ m @f$. In this special case, the equivalence ratio
      * is independent of a fuel or oxidizer composition because it only
      * considers the locally available oxygen compared to the required oxygen
      * for complete oxidation. It is the same as assuming that the oxidizer
@@ -1391,10 +1680,10 @@ public:
      * mole fractions or mass fractions (specified by `basis`)
      * and do not need to be normalized.
      * Elements C, S, H and O are considered for the oxidation.
-     * Note that the stoichiometric air to fuel ratio \f$ \mathit{AFR}_{\mathrm{st}} \f$
+     * Note that the stoichiometric air to fuel ratio @f$ \mathit{AFR}_{\mathrm{st}} @f$
      * does not depend on the current mixture composition. The current air to fuel ratio
-     * can be computed from \f$ \mathit{AFR} = \mathit{AFR}_{\mathrm{st}}/\phi \f$
-     * where \f$ \phi \f$ is the equivalence ratio of the current mixture
+     * can be computed from @f$ \mathit{AFR} = \mathit{AFR}_{\mathrm{st}}/\phi @f$
+     * where @f$ \phi @f$ is the equivalence ratio of the current mixture
      *
      * @param fuelComp   composition of the fuel
      * @param oxComp     composition of the oxidizer
@@ -1406,11 +1695,11 @@ public:
     double stoichAirFuelRatio(const double* fuelComp, const double* oxComp,
                               ThermoBasis basis=ThermoBasis::molar) const;
     //! @copydoc ThermoPhase::stoichAirFuelRatio
-    double stoichAirFuelRatio(const std::string& fuelComp, const std::string& oxComp,
+    double stoichAirFuelRatio(const string& fuelComp, const string& oxComp,
                               ThermoBasis basis=ThermoBasis::molar) const;
     //! @copydoc ThermoPhase::stoichAirFuelRatio
-    double stoichAirFuelRatio(const compositionMap& fuelComp,
-            const compositionMap& oxComp, ThermoBasis basis=ThermoBasis::molar) const;
+    double stoichAirFuelRatio(const Composition& fuelComp,
+            const Composition& oxComp, ThermoBasis basis=ThermoBasis::molar) const;
     //! @}
 
 private:
@@ -1424,8 +1713,7 @@ private:
      *              are being calculated.
      * @param doUV  True if solving for UV, false for HP.
      */
-    void setState_HPorUV(doublereal h, doublereal p,
-                         doublereal tol=1e-9, bool doUV = false);
+    void setState_HPorUV(double h, double p, double tol=1e-9, bool doUV = false);
 
     //! Carry out work in SP and SV calculations.
     /*!
@@ -1440,7 +1728,7 @@ private:
 
     //! Helper function used by setState_HPorUV and setState_SPorSV.
     //! Sets the temperature and (if set_p is true) the pressure.
-    void setState_conditional_TP(doublereal t, doublereal p, bool set_p);
+    void setState_conditional_TP(double t, double p, bool set_p);
 
     //! Helper function for computing the amount of oxygen required for complete
     //! oxidation.
@@ -1493,25 +1781,25 @@ public:
      *      log_level=0 suppresses diagnostics, and increasingly-verbose
      *      messages are written as loglevel increases.
      *
-     * @ingroup equilfunctions
+     * @ingroup equilGroup
      */
-    void equilibrate(const std::string& XY, const std::string& solver="auto",
+    void equilibrate(const string& XY, const string& solver="auto",
                      double rtol=1e-9, int max_steps=50000, int max_iter=100,
                      int estimate_equil=0, int log_level=0);
 
     //!This method is used by the ChemEquil equilibrium solver.
     /*!
      * It sets the state such that the chemical potentials satisfy
-     * \f[ \frac{\mu_k}{\hat R T} = \sum_m A_{k,m}
-     * \left(\frac{\lambda_m} {\hat R T}\right) \f] where
-     * \f$ \lambda_m \f$ is the element potential of element m. The
+     * @f[ \frac{\mu_k}{\hat R T} = \sum_m A_{k,m}
+     * \left(\frac{\lambda_m} {\hat R T}\right) @f] where
+     * @f$ \lambda_m @f$ is the element potential of element m. The
      * temperature is unchanged.  Any phase (ideal or not) that
      * implements this method can be equilibrated by ChemEquil.
      *
      * @param mu_RT Input vector of dimensionless chemical potentials
      *                  The length is equal to nSpecies().
      */
-    virtual void setToEquilState(const doublereal* mu_RT) {
+    virtual void setToEquilState(const double* mu_RT) {
         throw NotImplementedError("ThermoPhase::setToEquilState");
     }
 
@@ -1530,27 +1818,27 @@ public:
     //! @{
 
     //! Critical temperature (K).
-    virtual doublereal critTemperature() const {
+    virtual double critTemperature() const {
         throw NotImplementedError("ThermoPhase::critTemperature");
     }
 
     //! Critical pressure (Pa).
-    virtual doublereal critPressure() const {
+    virtual double critPressure() const {
         throw NotImplementedError("ThermoPhase::critPressure");
     }
 
     //! Critical volume (m3/kmol).
-    virtual doublereal critVolume() const {
+    virtual double critVolume() const {
         throw NotImplementedError("ThermoPhase::critVolume");
     }
 
     //! Critical compressibility (unitless).
-    virtual doublereal critCompressibility() const {
+    virtual double critCompressibility() const {
         throw NotImplementedError("ThermoPhase::critCompressibility");
     }
 
     //! Critical density (kg/m3).
-    virtual doublereal critDensity() const {
+    virtual double critDensity() const {
         throw NotImplementedError("ThermoPhase::critDensity");
     }
 
@@ -1565,7 +1853,7 @@ public:
     /*!
      * @param p Pressure (Pa)
      */
-    virtual doublereal satTemperature(doublereal p) const {
+    virtual double satTemperature(double p) const {
         throw NotImplementedError("ThermoPhase::satTemperature");
     }
 
@@ -1573,12 +1861,12 @@ public:
     /*!
      * @param t Temperature (Kelvin)
      */
-    virtual doublereal satPressure(doublereal t) {
+    virtual double satPressure(double t) {
         throw NotImplementedError("ThermoPhase::satPressure");
     }
 
     //! Return the fraction of vapor at the current conditions
-    virtual doublereal vaporFraction() const {
+    virtual double vaporFraction() const {
         throw NotImplementedError("ThermoPhase::vaporFraction");
     }
 
@@ -1587,7 +1875,7 @@ public:
      * @param t  Temperature (kelvin)
      * @param x  Fraction of vapor
      */
-    virtual void setState_Tsat(doublereal t, doublereal x) {
+    virtual void setState_Tsat(double t, double x) {
         throw NotImplementedError("ThermoPhase::setState_Tsat");
     }
 
@@ -1596,7 +1884,7 @@ public:
      * @param p  Pressure (Pa)
      * @param x  Fraction of vapor
      */
-    virtual void setState_Psat(doublereal p, doublereal x) {
+    virtual void setState_Psat(double p, double x) {
         throw NotImplementedError("ThermoPhase::setState_Psat");
     }
 
@@ -1627,9 +1915,9 @@ public:
     //! To see how they are used, see importPhase().
     //! @{
 
-    virtual bool addSpecies(shared_ptr<Species> spec);
+    bool addSpecies(shared_ptr<Species> spec) override;
 
-    virtual void modifySpecies(size_t k, shared_ptr<Species> spec);
+    void modifySpecies(size_t k, shared_ptr<Species> spec) override;
 
     //! Return a changeable reference to the calculation manager for species
     //! reference-state thermodynamic properties
@@ -1651,7 +1939,7 @@ public:
      * @param id  Optional parameter identifying the name of the phase. If
      *            blank, the first phase definition encountered will be used.
      */
-    void initThermoFile(const std::string& inputFile, const std::string& id);
+    void initThermoFile(const string& inputFile, const string& id);
 
     //! Initialize the ThermoPhase object after all species have been set up
     /*!
@@ -1688,14 +1976,13 @@ public:
      * @param name         Name of the species
      * @param speciesNode  Mapping to be populated with parameters
      */
-    virtual void getSpeciesParameters(const std::string& name,
-                                      AnyMap& speciesNode) const {}
+    virtual void getSpeciesParameters(const string& name, AnyMap& speciesNode) const {}
 
     //! Access input data associated with the phase description
     const AnyMap& input() const;
     AnyMap& input();
 
-    virtual void invalidateCache();
+    void invalidateCache() override;
 
     //! @}
     //! @name  Derivatives of Thermodynamic Variables needed for Applications
@@ -1719,8 +2006,8 @@ public:
      *                       m_kk units are 1/units(s). if s is a physical
      *                       coordinate then the units are 1/m.
      */
-    virtual void getdlnActCoeffds(const doublereal dTds, const doublereal* const dXds,
-                                  doublereal* dlnActCoeffds) const {
+    virtual void getdlnActCoeffds(const double dTds, const double* const dXds,
+                                  double* dlnActCoeffds) const {
         throw NotImplementedError("ThermoPhase::getdlnActCoeffds");
     }
 
@@ -1739,7 +2026,7 @@ public:
      * @param dlnActCoeffdlnX_diag    Output vector of derivatives of the log
      *     Activity Coefficients wrt the mole fractions. length = m_kk
      */
-    virtual void getdlnActCoeffdlnX_diag(doublereal* dlnActCoeffdlnX_diag) const {
+    virtual void getdlnActCoeffdlnX_diag(double* dlnActCoeffdlnX_diag) const {
         throw NotImplementedError("ThermoPhase::getdlnActCoeffdlnX_diag");
     }
 
@@ -1759,7 +2046,7 @@ public:
      * @param dlnActCoeffdlnN_diag    Output vector of derivatives of the
      *                                log Activity Coefficients. length = m_kk
      */
-    virtual void getdlnActCoeffdlnN_diag(doublereal* dlnActCoeffdlnN_diag) const {
+    virtual void getdlnActCoeffdlnN_diag(double* dlnActCoeffdlnN_diag) const {
         throw NotImplementedError("ThermoPhase::getdlnActCoeffdlnN_diag");
     }
 
@@ -1777,9 +2064,9 @@ public:
      * act_coeff for the *m*-th species with respect to the number of moles of
      * the *k*-th species.
      *
-     * \f[
+     * @f[
      *     \frac{d \ln(\gamma_m) }{d \ln( n_k ) }\Bigg|_{n_i}
-     * \f]
+     * @f]
      *
      * When implemented, this method is used within the VCS equilibrium solver to
      * calculate the Jacobian elements, which accelerates convergence of the algorithm.
@@ -1788,7 +2075,7 @@ public:
      * @param dlnActCoeffdlnN    Output vector of derivatives of the
      *                           log Activity Coefficients. length = m_kk * m_kk
      */
-    virtual void getdlnActCoeffdlnN(const size_t ld, doublereal* const dlnActCoeffdlnN);
+    virtual void getdlnActCoeffdlnN(const size_t ld, double* const dlnActCoeffdlnN);
 
     virtual void getdlnActCoeffdlnN_numderiv(const size_t ld,
                                              double* const dlnActCoeffdlnN);
@@ -1804,8 +2091,7 @@ public:
      * @param threshold   Show information about species with mole fractions
      *                    greater than *threshold*.
      */
-    virtual std::string report(bool show_thermo=true,
-                               doublereal threshold=-1e-14) const;
+    virtual string report(bool show_thermo=true, double threshold=-1e-14) const;
 
     //! returns a summary of the state of the phase to a comma separated file.
     /*!
@@ -1813,7 +2099,7 @@ public:
      * override the getCsvReportData method.
      *
      * @param csvFile  ofstream file to print comma separated data for the phase
-     * @deprecated To be removed after Cantera 3.0.
+     * @deprecated To be removed after %Cantera 3.0.
      */
     virtual void reportCSV(std::ofstream& csvFile) const;
 
@@ -1827,9 +2113,9 @@ protected:
 
     //! Fills `names` and `data` with the column names and species thermo
     //! properties to be included in the output of the reportCSV method.
-    //! @deprecated To be removed after Cantera 3.0.
-    virtual void getCsvReportData(std::vector<std::string>& names,
-                                  std::vector<vector_fp>& data) const;
+    //! @deprecated To be removed after %Cantera 3.0.
+    virtual void getCsvReportData(vector<string>& names,
+                                  vector<vector<double>>& data) const;
 
     //! Pointer to the calculation manager for species reference-state
     //! thermodynamic properties

@@ -17,12 +17,12 @@ using namespace std;
 namespace Cantera
 {
 
-std::string Phase::name() const
+string Phase::name() const
 {
     return m_name;
 }
 
-void Phase::setName(const std::string& name)
+void Phase::setName(const string& name)
 {
     m_name = name;
 }
@@ -52,7 +52,7 @@ string Phase::elementName(size_t m) const
     return m_elementNames[m];
 }
 
-size_t Phase::elementIndex(const std::string& elementName) const
+size_t Phase::elementIndex(const string& elementName) const
 {
     for (size_t i = 0; i < m_mm; i++) {
         if (m_elementNames[i] == elementName) {
@@ -67,18 +67,18 @@ const vector<string>& Phase::elementNames() const
     return m_elementNames;
 }
 
-doublereal Phase::atomicWeight(size_t m) const
+double Phase::atomicWeight(size_t m) const
 {
     return m_atomicWeights[m];
 }
 
-doublereal Phase::entropyElement298(size_t m) const
+double Phase::entropyElement298(size_t m) const
 {
     checkElementIndex(m);
     return m_entropy298[m];
 }
 
-const vector_fp& Phase::atomicWeights() const
+const vector<double>& Phase::atomicWeights() const
 {
     return m_atomicWeights;
 }
@@ -100,7 +100,7 @@ int Phase::changeElementType(int m, int elem_type)
     return old;
 }
 
-doublereal Phase::nAtoms(size_t k, size_t m) const
+double Phase::nAtoms(size_t k, size_t m) const
 {
     checkElementIndex(m);
     checkSpeciesIndex(k);
@@ -116,9 +116,9 @@ void Phase::getAtoms(size_t k, double* atomArray) const
     }
 }
 
-size_t Phase::findSpeciesLower(const std::string& name) const
+size_t Phase::findSpeciesLower(const string& name) const
 {
-    std::string nLower = toLowerCopy(name);
+    string nLower = toLowerCopy(name);
     size_t loc = npos;
     auto it = m_speciesLower.find(nLower);
     if (it == m_speciesLower.end()) {
@@ -135,7 +135,7 @@ size_t Phase::findSpeciesLower(const std::string& name) const
     return loc;
 }
 
-size_t Phase::speciesIndex(const std::string& nameStr) const
+size_t Phase::speciesIndex(const string& nameStr) const
 {
     size_t loc = npos;
 
@@ -173,13 +173,13 @@ void Phase::checkSpeciesArraySize(size_t kk) const
     }
 }
 
-std::string Phase::speciesSPName(int k) const
+string Phase::speciesSPName(int k) const
 {
     warn_deprecated("Phase::speciesSPName", "To be removed after Cantera 3.0");
     return m_name + ":" + speciesName(k);
 }
 
-std::map<std::string, size_t> Phase::nativeState() const
+map<string, size_t> Phase::nativeState() const
 {
     if (isPure()) {
         if (isCompressible()) {
@@ -209,7 +209,7 @@ string Phase::nativeMode() const
     return out;
 }
 
-vector<std::string> Phase::fullStates() const
+vector<string> Phase::fullStates() const
 {
     if (isPure()) {
         if (isCompressible()) {
@@ -227,7 +227,7 @@ vector<std::string> Phase::fullStates() const
     }
 }
 
-vector<std::string> Phase::partialStates() const
+vector<string> Phase::partialStates() const
 {
     if (isPure()) {
         return {};
@@ -248,13 +248,13 @@ size_t Phase::stateSize() const {
     }
 }
 
-void Phase::saveState(vector_fp& state) const
+void Phase::saveState(vector<double>& state) const
 {
     state.resize(stateSize());
     saveState(state.size(), &state[0]);
 }
 
-void Phase::saveState(size_t lenstate, doublereal* state) const
+void Phase::saveState(size_t lenstate, double* state) const
 {
     auto native = nativeState();
 
@@ -272,7 +272,7 @@ void Phase::saveState(size_t lenstate, doublereal* state) const
     }
 }
 
-void Phase::restoreState(const vector_fp& state)
+void Phase::restoreState(const vector<double>& state)
 {
     restoreState(state.size(),&state[0]);
 }
@@ -342,13 +342,13 @@ void Phase::setMoleFractions_NoNorm(const double* const x)
     compositionChanged();
 }
 
-void Phase::setMoleFractionsByName(const compositionMap& xMap)
+void Phase::setMoleFractionsByName(const Composition& xMap)
 {
-    vector_fp mf = getCompositionFromMap(xMap);
+    vector<double> mf = getCompositionFromMap(xMap);
     setMoleFractions(mf.data());
 }
 
-void Phase::setMoleFractionsByName(const std::string& x)
+void Phase::setMoleFractionsByName(const string& x)
 {
     setMoleFractionsByName(parseCompString(x));
 }
@@ -378,18 +378,18 @@ void Phase::setMassFractions_NoNorm(const double* const y)
     compositionChanged();
 }
 
-void Phase::setMassFractionsByName(const compositionMap& yMap)
+void Phase::setMassFractionsByName(const Composition& yMap)
 {
-    vector_fp mf = getCompositionFromMap(yMap);
+    vector<double> mf = getCompositionFromMap(yMap);
     setMassFractions(mf.data());
 }
 
-void Phase::setMassFractionsByName(const std::string& y)
+void Phase::setMassFractionsByName(const string& y)
 {
     setMassFractionsByName(parseCompString(y));
 }
 
-void Phase::setState_TRX(doublereal t, doublereal dens, const doublereal* x)
+void Phase::setState_TRX(double t, double dens, const double* x)
 {
     warn_deprecated("Phase::setState_TRX",
         "To be removed after Cantera 3.0. Replaceable by calls to "
@@ -398,7 +398,7 @@ void Phase::setState_TRX(doublereal t, doublereal dens, const doublereal* x)
     setState_TD(t, dens);
 }
 
-void Phase::setState_TNX(doublereal t, doublereal n, const doublereal* x)
+void Phase::setState_TNX(double t, double n, const double* x)
 {
     warn_deprecated("Phase::setState_TNX", "To be removed after Cantera 3.0. "
                     "Use 'setMoleFractions' and 'setState_TD' instead.");
@@ -407,7 +407,7 @@ void Phase::setState_TNX(doublereal t, doublereal n, const doublereal* x)
     setMolarDensity(n);
 }
 
-void Phase::setState_TRX(doublereal t, doublereal dens, const compositionMap& x)
+void Phase::setState_TRX(double t, double dens, const Composition& x)
 {
     warn_deprecated("Phase::setState_TRX",
         "To be removed after Cantera 3.0. Replaceable by calls to "
@@ -416,7 +416,7 @@ void Phase::setState_TRX(doublereal t, doublereal dens, const compositionMap& x)
     setState_TD(t, dens);
 }
 
-void Phase::setState_TRY(doublereal t, doublereal dens, const doublereal* y)
+void Phase::setState_TRY(double t, double dens, const double* y)
 {
     warn_deprecated("Phase::setState_TRY",
         "To be removed after Cantera 3.0. Replaceable by calls to "
@@ -425,7 +425,7 @@ void Phase::setState_TRY(doublereal t, doublereal dens, const doublereal* y)
     setState_TD(t, dens);
 }
 
-void Phase::setState_TRY(doublereal t, doublereal dens, const compositionMap& y)
+void Phase::setState_TRY(double t, double dens, const Composition& y)
 {
     warn_deprecated("Phase::setState_TRY",
         "To be removed after Cantera 3.0. Replaceable by calls to "
@@ -434,7 +434,7 @@ void Phase::setState_TRY(doublereal t, doublereal dens, const compositionMap& y)
     setState_TD(t, dens);
 }
 
-void Phase::setState_TR(doublereal t, doublereal rho)
+void Phase::setState_TR(double t, double rho)
 {
     warn_deprecated("Phase::setState_TR",
         "To be removed after Cantera 3.0. Renamed to setState_TD.");
@@ -447,7 +447,7 @@ void Phase::setState_TD(double t, double rho)
     setDensity(rho);
 }
 
-void Phase::setState_TX(doublereal t, doublereal* x)
+void Phase::setState_TX(double t, double* x)
 {
     warn_deprecated("Phase::setState_TX", "To be removed after Cantera 3.0. "
                     "Use calls to 'setTemperature' and 'setMoleFractions' instead.");
@@ -455,7 +455,7 @@ void Phase::setState_TX(doublereal t, doublereal* x)
     setMoleFractions(x);
 }
 
-void Phase::setState_TY(doublereal t, doublereal* y)
+void Phase::setState_TY(double t, double* y)
 {
     warn_deprecated("Phase::setState_TY", "To be removed after Cantera 3.0. "
                     "Use calls to 'setTemperature' and 'setMassFractions' instead.");
@@ -463,7 +463,7 @@ void Phase::setState_TY(doublereal t, doublereal* y)
     setMassFractions(y);
 }
 
-void Phase::setState_RX(doublereal rho, doublereal* x)
+void Phase::setState_RX(double rho, double* x)
 {
     warn_deprecated("Phase::setState_RX", "To be removed after Cantera 3.0. "
                     "Use calls to 'setDensity' and 'setMoleFractions' instead.");
@@ -471,7 +471,7 @@ void Phase::setState_RX(doublereal rho, doublereal* x)
     setDensity(rho);
 }
 
-void Phase::setState_RY(doublereal rho, doublereal* y)
+void Phase::setState_RY(double rho, double* y)
 {
     warn_deprecated("Phase::setState_RY", "To be removed after Cantera 3.0. "
                     "Use calls to 'setDensity' and 'setMassFractions' instead.");
@@ -479,31 +479,31 @@ void Phase::setState_RY(doublereal rho, doublereal* y)
     setDensity(rho);
 }
 
-doublereal Phase::molecularWeight(size_t k) const
+double Phase::molecularWeight(size_t k) const
 {
     checkSpeciesIndex(k);
     return m_molwts[k];
 }
 
-void Phase::getMolecularWeights(vector_fp& weights) const
+void Phase::getMolecularWeights(vector<double>& weights) const
 {
-    warn_deprecated("Phase::getMolecularWeights(vector_fp&)", "To be removed after "
+    warn_deprecated("Phase::getMolecularWeights(vector<double>&)", "To be removed after "
         "Cantera 3.0. Use 'getMolecularWeights(vec.data())' instead.");
     weights = molecularWeights();
 }
 
-void Phase::getMolecularWeights(doublereal* weights) const
+void Phase::getMolecularWeights(double* weights) const
 {
-    const vector_fp& mw = molecularWeights();
+    const vector<double>& mw = molecularWeights();
     copy(mw.begin(), mw.end(), weights);
 }
 
-const vector_fp& Phase::molecularWeights() const
+const vector<double>& Phase::molecularWeights() const
 {
     return m_molwts;
 }
 
-const vector_fp& Phase::inverseMolecularWeights() const
+const vector<double>& Phase::inverseMolecularWeights() const
 {
     return m_rmolwts;
 }
@@ -513,9 +513,9 @@ void Phase::getCharges(double* charges) const
     copy(m_speciesCharge.begin(), m_speciesCharge.end(), charges);
 }
 
-compositionMap Phase::getMoleFractionsByName(double threshold) const
+Composition Phase::getMoleFractionsByName(double threshold) const
 {
-    compositionMap comp;
+    Composition comp;
     for (size_t k = 0; k < m_kk; k++) {
         double x = moleFraction(k);
         if (x > threshold) {
@@ -525,9 +525,9 @@ compositionMap Phase::getMoleFractionsByName(double threshold) const
     return comp;
 }
 
-compositionMap Phase::getMassFractionsByName(double threshold) const
+Composition Phase::getMassFractionsByName(double threshold) const
 {
-    compositionMap comp;
+    Composition comp;
     for (size_t k = 0; k < m_kk; k++) {
         double x = massFraction(k);
         if (x > threshold) {
@@ -548,7 +548,7 @@ double Phase::moleFraction(size_t k) const
     return m_ym[k] * m_mmw;
 }
 
-double Phase::moleFraction(const std::string& nameSpec) const
+double Phase::moleFraction(const string& nameSpec) const
 {
     size_t iloc = speciesIndex(nameSpec);
     if (iloc != npos) {
@@ -571,7 +571,7 @@ double Phase::massFraction(size_t k) const
     return m_y[k];
 }
 
-double Phase::massFraction(const std::string& nameSpec) const
+double Phase::massFraction(const string& nameSpec) const
 {
     size_t iloc = speciesIndex(nameSpec);
     if (iloc != npos) {
@@ -657,10 +657,10 @@ void Phase::setMolesNoTruncate(const double* const N)
     compositionChanged();
 }
 
-doublereal Phase::elementalMassFraction(const size_t m) const
+double Phase::elementalMassFraction(const size_t m) const
 {
     checkElementIndex(m);
-    doublereal Z_m = 0.0;
+    double Z_m = 0.0;
     for (size_t k = 0; k != m_kk; ++k) {
         Z_m += nAtoms(k, m) * atomicWeight(m) / molecularWeight(k)
             * massFraction(k);
@@ -668,7 +668,7 @@ doublereal Phase::elementalMassFraction(const size_t m) const
     return Z_m;
 }
 
-doublereal Phase::elementalMoleFraction(const size_t m) const
+double Phase::elementalMoleFraction(const size_t m) const
 {
     checkElementIndex(m);
     double denom = 0;
@@ -679,7 +679,7 @@ doublereal Phase::elementalMoleFraction(const size_t m) const
         }
         denom += atoms * moleFraction(k);
     }
-    doublereal numerator = 0.0;
+    double numerator = 0.0;
     for (size_t k = 0; k != m_kk; ++k) {
         numerator += nAtoms(k, m) * moleFraction(k);
     }
@@ -725,26 +725,26 @@ void Phase::assignDensity(const double density_)
     }
 }
 
-doublereal Phase::chargeDensity() const
+double Phase::chargeDensity() const
 {
-    doublereal cdens = 0.0;
+    double cdens = 0.0;
     for (size_t k = 0; k < m_kk; k++) {
         cdens += charge(k)*moleFraction(k);
     }
     return cdens * Faraday;
 }
 
-doublereal Phase::mean_X(const doublereal* const Q) const
+double Phase::mean_X(const double* const Q) const
 {
     return m_mmw*std::inner_product(m_ym.begin(), m_ym.end(), Q, 0.0);
 }
 
-doublereal Phase::mean_X(const vector_fp& Q) const
+double Phase::mean_X(const vector<double>& Q) const
 {
     return m_mmw*std::inner_product(m_ym.begin(), m_ym.end(), Q.begin(), 0.0);
 }
 
-doublereal Phase::sum_xlogx() const
+double Phase::sum_xlogx() const
 {
     double sumxlogx = 0;
     for (size_t k = 0; k < m_kk; k++) {
@@ -753,9 +753,8 @@ doublereal Phase::sum_xlogx() const
     return m_mmw * sumxlogx + std::log(m_mmw);
 }
 
-size_t Phase::addElement(const std::string& symbol, doublereal weight,
-                         int atomic_number, doublereal entropy298,
-                         int elem_type)
+size_t Phase::addElement(const string& symbol, double weight, int atomic_number,
+                         double entropy298, int elem_type)
 {
     // Look up the atomic weight if not given
     if (weight == 0.0) {
@@ -806,7 +805,7 @@ size_t Phase::addElement(const std::string& symbol, doublereal weight,
 
     // Update species compositions
     if (m_kk) {
-        vector_fp old(m_speciesComp);
+        vector<double> old(m_speciesComp);
         m_speciesComp.resize(m_kk*m_mm, 0.0);
         for (size_t k = 0; k < m_kk; k++) {
             size_t m_old = m_mm - 1;
@@ -827,7 +826,7 @@ bool Phase::addSpecies(shared_ptr<Species> spec) {
             m_name, spec->name);
     }
 
-    vector_fp comp(nElements());
+    vector<double> comp(nElements());
     for (const auto& [eName, stoich] : spec->composition) {
         size_t m = elementIndex(eName);
         if (m == npos) { // Element doesn't exist in this phase
@@ -852,11 +851,11 @@ bool Phase::addSpecies(shared_ptr<Species> spec) {
     }
 
     size_t ne = nElements();
-    const vector_fp& aw = atomicWeights();
+    const vector<double>& aw = atomicWeights();
     if (spec->charge != 0.0) {
         size_t eindex = elementIndex("E");
         if (eindex != npos) {
-            doublereal ecomp = comp[eindex];
+            double ecomp = comp[eindex];
             if (fabs(spec->charge + ecomp) > 0.001) {
                 if (ecomp != 0.0) {
                     throw CanteraError("Phase::addSpecies",
@@ -901,7 +900,7 @@ bool Phase::addSpecies(shared_ptr<Species> spec) {
     m_speciesIndices[spec->name] = m_kk;
     m_speciesCharge.push_back(spec->charge);
 
-    std::string nLower = toLowerCopy(spec->name);
+    string nLower = toLowerCopy(spec->name);
     if (m_speciesLower.find(nLower) == m_speciesLower.end()) {
         m_speciesLower[nLower] = m_kk;
     } else {
@@ -941,7 +940,7 @@ void Phase::modifySpecies(size_t k, shared_ptr<Species> spec)
     invalidateCache();
 }
 
-void Phase::addSpeciesAlias(const std::string& name, const std::string& alias)
+void Phase::addSpeciesAlias(const string& name, const string& alias)
 {
     if (speciesIndex(alias) != npos) {
         throw CanteraError("Phase::addSpeciesAlias",
@@ -957,9 +956,9 @@ void Phase::addSpeciesAlias(const std::string& name, const std::string& alias)
     }
 }
 
-vector<std::string> Phase::findIsomers(const compositionMap& compMap) const
+vector<string> Phase::findIsomers(const Composition& compMap) const
 {
-    vector<std::string> isomerNames;
+    vector<string> isomerNames;
 
     for (const auto& [name, species] : m_species) {
         if (species->composition == compMap) {
@@ -970,12 +969,12 @@ vector<std::string> Phase::findIsomers(const compositionMap& compMap) const
     return isomerNames;
 }
 
-vector<std::string> Phase::findIsomers(const std::string& comp) const
+vector<string> Phase::findIsomers(const string& comp) const
 {
     return findIsomers(parseCompString(comp));
 }
 
-shared_ptr<Species> Phase::species(const std::string& name) const
+shared_ptr<Species> Phase::species(const string& name) const
 {
     size_t k = speciesIndex(name);
     if (k != npos) {
@@ -1028,9 +1027,9 @@ void Phase::compositionChanged() {
     m_stateNum++;
 }
 
-vector_fp Phase::getCompositionFromMap(const compositionMap& comp) const
+vector<double> Phase::getCompositionFromMap(const Composition& comp) const
 {
-    vector_fp X(m_kk);
+    vector<double> X(m_kk);
     for (const auto& [name, value] : comp) {
         size_t loc = speciesIndex(name);
         if (loc == npos) {

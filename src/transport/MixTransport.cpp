@@ -20,16 +20,16 @@ void MixTransport::init(ThermoPhase* thermo, int mode, int log_level)
     m_cond.resize(m_nsp);
 }
 
-void MixTransport::getMobilities(doublereal* const mobil)
+void MixTransport::getMobilities(double* const mobil)
 {
     getMixDiffCoeffs(m_spwork.data());
-    doublereal c1 = ElectronCharge / (Boltzmann * m_temp);
+    double c1 = ElectronCharge / (Boltzmann * m_temp);
     for (size_t k = 0; k < m_nsp; k++) {
         mobil[k] = c1 * m_spwork[k];
     }
 }
 
-doublereal MixTransport::thermalConductivity()
+double MixTransport::thermalConductivity()
 {
     update_T();
     update_C();
@@ -37,7 +37,7 @@ doublereal MixTransport::thermalConductivity()
         updateCond_T();
     }
     if (!m_condmix_ok) {
-        doublereal sum1 = 0.0, sum2 = 0.0;
+        double sum1 = 0.0, sum2 = 0.0;
         for (size_t k = 0; k < m_nsp; k++) {
             sum1 += m_molefracs[k] * m_cond[k];
             sum2 += m_molefracs[k] / m_cond[k];
@@ -48,24 +48,24 @@ doublereal MixTransport::thermalConductivity()
     return m_lambda;
 }
 
-void MixTransport::getThermalDiffCoeffs(doublereal* const dt)
+void MixTransport::getThermalDiffCoeffs(double* const dt)
 {
     for (size_t k = 0; k < m_nsp; k++) {
         dt[k] = 0.0;
     }
 }
 
-void MixTransport::getSpeciesFluxes(size_t ndim, const doublereal* const grad_T,
-                                    size_t ldx, const doublereal* const grad_X,
-                                    size_t ldf, doublereal* const fluxes)
+void MixTransport::getSpeciesFluxes(size_t ndim, const double* const grad_T,
+                                    size_t ldx, const double* const grad_X,
+                                    size_t ldf, double* const fluxes)
 {
     update_T();
     update_C();
     getMixDiffCoeffs(m_spwork.data());
-    const vector_fp& mw = m_thermo->molecularWeights();
-    const doublereal* y = m_thermo->massFractions();
-    doublereal rhon = m_thermo->molarDensity();
-    vector_fp sum(ndim,0.0);
+    const vector<double>& mw = m_thermo->molecularWeights();
+    const double* y = m_thermo->massFractions();
+    double rhon = m_thermo->molarDensity();
+    vector<double> sum(ndim,0.0);
     for (size_t n = 0; n < ndim; n++) {
         for (size_t k = 0; k < m_nsp; k++) {
             fluxes[n*ldf + k] = -rhon * mw[k] * m_spwork[k] * grad_X[n*ldx + k];
@@ -82,7 +82,7 @@ void MixTransport::getSpeciesFluxes(size_t ndim, const doublereal* const grad_T,
 
 void MixTransport::update_T()
 {
-    doublereal t = m_thermo->temperature();
+    double t = m_thermo->temperature();
     if (t == m_temp && m_nsp == m_thermo->nSpecies()) {
         return;
     }

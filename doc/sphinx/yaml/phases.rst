@@ -73,39 +73,38 @@ and optionally reactions that can take place in that phase. The fields of a
     String specifying the phase thermodynamic model to be used. Supported model
     strings are:
 
-    - :ref:`binary-solution-tabulated <sec-yaml-binary-solution-tabulated>`
-    - :ref:`compound-lattice <sec-yaml-compound-lattice>`
-    - :ref:`constant-density <sec-yaml-constant-density>`
-    - :ref:`Debye-Huckel <sec-yaml-Debye-Huckel>`
-    - :ref:`edge <sec-yaml-edge>`
-    - :ref:`electron-cloud <sec-yaml-electron-cloud>`
-    - :ref:`fixed-stoichiometry <sec-yaml-fixed-stoichiometry>`
-    - :ref:`HMW-electrolyte <sec-yaml-HMW-electrolyte>`
-    - :ref:`ideal-gas <sec-yaml-ideal-gas>`
-    - :ref:`ideal-molal-solution <sec-yaml-ideal-molal-solution>`
-    - :ref:`ideal-condensed <sec-yaml-ideal-condensed>`
-    - :ref:`ideal-solution-VPSS <sec-yaml-ideal-solution-VPSS>`
-    - :ref:`ideal-surface <sec-yaml-ideal-surface>`
-    - :ref:`coverage-dependent-surface <sec-yaml-coverage-dependent-surface>`
-    - :ref:`ions-from-neutral-molecule <sec-yaml-ions-from-neutral-molecule>`
-    - :ref:`lattice <sec-yaml-lattice>`
-    - :ref:`liquid-water-IAPWS95 <sec-yaml-liquid-water-IAPWS95>`
-    - :ref:`Margules <sec-yaml-Margules>`
-    - :ref:`Maskell-solid-solution <sec-yaml-Maskell-solid-solution>`
-    - :ref:`Peng-Robinson <sec-yaml-Peng-Robinson>`
-    - :ref:`plasma <sec-yaml-plasma>`
-    - :ref:`pure-fluid <sec-yaml-pure-fluid>`
-    - :ref:`Redlich-Kister <sec-yaml-Redlich-Kister>`
-    - :ref:`Redlich-Kwong <sec-yaml-Redlich-Kwong>`
+    - ``binary-solution-tabulated`` (:ref:`details <sec-yaml-binary-solution-tabulated>`)
+    - ``compound-lattice`` (:ref:`details <sec-yaml-compound-lattice>`)
+    - ``coverage-dependent-surface`` (:ref:`details <sec-yaml-coverage-dependent-surface>`)
+    - ``Debye-Huckel`` (:ref:`details <sec-yaml-Debye-Huckel>`)
+    - ``edge`` (:ref:`details <sec-yaml-edge>`)
+    - ``electron-cloud`` (:ref:`details <sec-yaml-electron-cloud>`)
+    - ``fixed-stoichiometry`` (:ref:`details <sec-yaml-fixed-stoichiometry>`)
+    - ``HMW-electrolyte`` (:ref:`details <sec-yaml-HMW-electrolyte>`)
+    - ``ideal-gas`` (:ref:`details <sec-yaml-ideal-gas>`)
+    - ``ideal-molal-solution`` (:ref:`details <sec-yaml-ideal-molal-solution>`)
+    - ``ideal-condensed`` (:ref:`details <sec-yaml-ideal-condensed>`)
+    - ``ideal-solution-VPSS`` (:ref:`details <sec-yaml-ideal-solution-VPSS>`)
+    - ``ideal-surface`` (:ref:`details <sec-yaml-ideal-surface>`)
+    - ``ions-from-neutral-molecule`` (:ref:`details <sec-yaml-ions-from-neutral-molecule>`)
+    - ``lattice`` (:ref:`details <sec-yaml-lattice>`)
+    - ``liquid-water-IAPWS95`` (:ref:`details <sec-yaml-liquid-water-IAPWS95>`)
+    - ``Margules`` (:ref:`details <sec-yaml-Margules>`)
+    - ``Maskell-solid-solution`` (:ref:`details <sec-yaml-Maskell-solid-solution>`)
+    - ``Peng-Robinson`` (:ref:`details <sec-yaml-Peng-Robinson>`)
+    - ``plasma`` (:ref:`details <sec-yaml-plasma>`)
+    - ``pure-fluid`` (:ref:`details <sec-yaml-pure-fluid>`)
+    - ``Redlich-Kister`` (:ref:`details <sec-yaml-Redlich-Kister>`)
+    - ``Redlich-Kwong`` (:ref:`details <sec-yaml-Redlich-Kwong>`)
 
 ``kinetics``
     String specifying the kinetics model to be used. Supported model strings
     are:
 
-    - none
-    - `gas <https://cantera.org/documentation/dev/doxygen/html/de/dae/classCantera_1_1GasKinetics.html#details>`__
-    - `surface <https://cantera.org/documentation/dev/doxygen/html/d1/d72/classCantera_1_1InterfaceKinetics.html#details>`__
-    - `edge <https://cantera.org/documentation/dev/doxygen/html/d0/df0/classCantera_1_1EdgeKinetics.html#details>`__
+    - ``none``
+    - ``gas`` (:ct:`details <GasKinetics>`)
+    - ``surface`` (:ct:`details <InterfaceKinetics>`)
+    - ``edge`` (:ct:`details <EdgeKinetics>`)
 
 ``reactions``
     Source of reactions to include in the phase, if a kinetics model has been
@@ -139,16 +138,15 @@ and optionally reactions that can take place in that phase. The fields of a
     String specifying the transport model to be used. Supported model strings
     are:
 
-    - none
-    - `high-pressure <https://cantera.org/documentation/dev/doxygen/html/d9/d63/classCantera_1_1HighPressureGasTransport.html#details>`__
-    - `ionized-gas <https://cantera.org/documentation/dev/doxygen/html/d4/d65/classCantera_1_1IonGasTransport.html#details>`__
-    - `mixture-averaged <https://cantera.org/documentation/dev/doxygen/html/d9/d17/classCantera_1_1MixTransport.html#details>`__
-    - `mixture-averaged-CK <https://cantera.org/documentation/dev/doxygen/html/d9/d17/classCantera_1_1MixTransport.html#details>`__
-    - `multicomponent <https://cantera.org/documentation/dev/doxygen/html/df/d7c/classCantera_1_1MultiTransport.html#details>`__
-    - `multicomponent-CK <https://cantera.org/documentation/dev/doxygen/html/df/d7c/classCantera_1_1MultiTransport.html#details>`__
-    - `unity-Lewis-number <https://cantera.org/documentation/dev/doxygen/html/d3/dd6/classCantera_1_1UnityLewisTransport.html#details>`__
-    - `water <https://cantera.org/documentation/dev/doxygen/html/df/d1f/classCantera_1_1WaterTransport.html#details>`__
-
+    - ``none``
+    - ``high-pressure`` (:ct:`details <HighPressureGasTransport>`)
+    - ``ionized-gas`` (:ct:`details <IonGasTransport>`)
+    - ``mixture-averaged`` (:ct:`details <MixTransport>`)
+    - ``mixture-averaged-CK`` (:ct:`details <MixTransport>`)
+    - ``multicomponent`` (:ct:`details <MultiTransport>`)
+    - ``multicomponent-CK`` (:ct:`details <MultiTransport>`)
+    - ``unity-Lewis-number`` (:ct:`details <UnityLewisTransport>`)
+    - ``water`` (:ct:`details <WaterTransport>`)
 
 
 .. _sec-yaml-setting-state:
@@ -209,7 +207,7 @@ Phase thermodynamic models
 -----------------------------
 
 A phase implementing tabulated standard state thermodynamics for one species in
-a binary solution, as `described here <https://cantera.org/documentation/dev/doxygen/html/de/ddf/classCantera_1_1BinarySolutionTabulatedThermo.html#details>`__.
+a binary solution, as :ct:`described here <BinarySolutionTabulatedThermo>`.
 
 Includes the fields of :ref:`sec-yaml-ideal-condensed`, plus:
 
@@ -235,6 +233,8 @@ Includes the fields of :ref:`sec-yaml-ideal-condensed`, plus:
         The molar volume of the phase at these mole fractions. This input is
         optional.
 
+.. versionadded:: 2.5
+
 
 .. _sec-yaml-compound-lattice:
 
@@ -242,7 +242,7 @@ Includes the fields of :ref:`sec-yaml-ideal-condensed`, plus:
 --------------------
 
 A phase that is comprised of a fixed additive combination of other lattice
-phases, as `described here <https://cantera.org/documentation/dev/doxygen/html/de/de1/classCantera_1_1LatticeSolidPhase.html#details>`__.
+phases, as :ct:`described here <LatticeSolidPhase>`.
 
 Additional fields:
 
@@ -255,23 +255,40 @@ Example::
     composition: {Li7Si3(s): 1.0, Li7Si3-interstitial: 1.0}
 
 
-.. _sec-yaml-constant-density:
+.. _sec-yaml-coverage-dependent-surface:
 
-``constant-density``
---------------------
+``coverage-dependent-surface``
+------------------------------
 
-An incompressible phase with constant density, as
-`described here <https://cantera.org/documentation/dev/doxygen/html/d9/de4/classCantera_1_1ConstDensityThermo.html#details>`__.
+A coverage-dependent surface phase. That is, a surface phase where the enthalpy,
+entropy, and heat capacity of each species may depend on its coverage and the
+coverage of other species in the phase.
+Full details are :ct:`described here <CoverageDependentSurfPhase>`.
+The majority of coverage dependency parameters are provided in the species entry as
+:ref:`described here <sec-yaml-species-coverage>`.
 
 Additional fields:
 
-``density``
-    The density of the phase
+``site-density``
+    The molar density of surface sites.
+
+``reference-state-coverage``
+    The reference state coverage denoting the low-coverage limit (ideal-surface)
+    thermodynamic properties.
 
 Example::
 
-    thermo: constant-density
-    density: 0.7 g/cm^3
+    - name: covdep
+      thermo: coverage-dependent-surface
+      species: [Pt, OC_Pt, CO2_Pt, C_Pt, O_Pt]
+      state:
+        T: 500.0
+        P: 1.01325e+05
+        coverages: {Pt: 0.5, OC_Pt: 0.5, CO2_Pt: 0.0, C_Pt: 0.0, O_Pt: 0.0}
+      site-density: 2.72e-09
+      reference-state-coverage: 0.22
+
+.. versionadded:: 3.0
 
 
 .. _sec-yaml-Debye-Huckel:
@@ -279,8 +296,7 @@ Example::
 ``Debye-Huckel``
 ----------------
 
-The Debye-Hückel model as
-`described here <https://cantera.org/documentation/dev/doxygen/html/d8/d9a/classCantera_1_1DebyeHuckel.html#details>`__.
+The Debye-Hückel model as :ct:`described here <DebyeHuckel>`.
 
 Additional parameters for this model are contained in the ``activity-data``
 field:
@@ -376,8 +392,7 @@ Example::
 ``edge``
 --------
 
-A one-dimensional edge between two surfaces, as
-`described here <https://cantera.org/documentation/dev/doxygen/html/d9/d17/classCantera_1_1EdgePhase.html#details>`__.
+A one-dimensional edge between two surfaces, as :ct:`described here <EdgePhase>`.
 
 Additional fields:
 
@@ -390,13 +405,26 @@ Example::
     site-density: 5.0e-17 mol/cm
 
 
+.. _sec-yaml-electron-cloud:
+
+``electron-cloud``
+------------------
+
+A phase representing an electron cloud, such as conduction electrons in a metal,
+as :ct:`described here <MetalPhase>`.
+
+Additional fields:
+
+``density``
+    The density of the bulk metal
+
+
 .. _sec-yaml-fixed-stoichiometry:
 
 ``fixed-stoichiometry``
 -----------------------
 
-A phase with fixed composition, as
-`described here <https://cantera.org/documentation/dev/doxygen/html/d3/d50/classCantera_1_1StoichSubstance.html#details>`__.
+A phase with fixed composition, as :ct:`described here <StoichSubstance>`.
 
 
 .. _sec-yaml-HMW-electrolyte:
@@ -405,8 +433,7 @@ A phase with fixed composition, as
 -------------------
 
 A dilute or concentrated liquid electrolyte phase that obeys the Pitzer
-formulation for nonideality, as
-`described here <https://cantera.org/documentation/dev/doxygen/html/de/d1d/classCantera_1_1HMWSoln.html#details>`__.
+formulation for nonideality, as :ct:`described here <HMWSoln>`.
 
 Additional parameters for this model are contained in the ``activity-data``
 field:
@@ -529,8 +556,7 @@ Example::
 ``ideal-gas``
 -------------
 
-The ideal gas model as
-`described here <https://cantera.org/documentation/dev/doxygen/html/d7/dfa/classCantera_1_1IdealGasPhase.html#details>`__.
+The ideal gas model as :ct:`described here <IdealGasPhase>`.
 
 Example::
 
@@ -549,8 +575,7 @@ Example::
 ------------------------
 
 A phase based on the mixing-rule assumption that all molality-based activity
-coefficients are equal to one, as
-`described here <https://cantera.org/documentation/dev/doxygen/html/da/d5c/classCantera_1_1IdealMolalSoln.html#details>`__.
+coefficients are equal to one, as :ct:`described here <IdealMolalSoln>`.
 
 Additional fields:
 
@@ -603,8 +628,7 @@ Example::
 ``ideal-condensed``
 -------------------
 
-A condensed phase ideal solution as
-`described here <https://cantera.org/documentation/dev/doxygen/html/d3/d4c/classCantera_1_1IdealSolidSolnPhase.html#details>`__.
+A condensed phase ideal solution as :ct:`described here <IdealSolidSolnPhase>`.
 
 Additional fields:
 
@@ -619,7 +643,7 @@ Additional fields:
 -----------------------
 
 An ideal solution model using variable pressure standard state methods as
-`described here <https://cantera.org/documentation/dev/doxygen/html/dc/ddb/classCantera_1_1IdealSolnGasVPSS.html#details>`__.
+:ct:`described here <IdealSolnGasVPSS>`.
 
 Additional fields:
 
@@ -633,8 +657,7 @@ Additional fields:
 ``ideal-surface``
 -----------------
 
-An ideal surface phase, as
-`described here <https://cantera.org/documentation/dev/doxygen/html/d2/d95/classCantera_1_1SurfPhase.html#details>`__.
+An ideal surface phase, as :ct:`described here <SurfPhase>`.
 
 Additional fields:
 
@@ -657,41 +680,6 @@ Example::
       site-density: 2.7063e-09
 
 
-.. _sec-yaml-coverage-dependent-surface:
-
-``coverage-dependent-surface``
-------------------------------
-
-A coverage-dependent surface phase. That is, a surface phase where the enthalpy,
-entropy, and heat capacity of each species may depend on its coverage and the
-coverage of other species in the phase.
-Full details are
-`described here <https://cantera.org/documentation/dev/doxygen/html/db/d25/classCantera_1_1CoverageDependentSurfPhase.html#details>`__.
-Majority of coverage dependency parameters are provided in the species entry as
-`described here <https://cantera.org/documentation/dev/sphinx/html/yaml/species.html#coverage-dependent-surface>`__.
-
-Additional fields:
-
-``site-density``
-    The molar density of surface sites.
-
-``reference-state-coverage``
-    The reference state coverage denoting the low-coverage limit (ideal-surface)
-    thermodynamic properties.
-
-Example::
-
-    - name: covdep
-      thermo: coverage-dependent-surface
-      species: [Pt, OC_Pt, CO2_Pt, C_Pt, O_Pt]
-      state:
-        T: 500.0
-        P: 1.01325e+05
-        coverages: {Pt: 0.5, OC_Pt: 0.5, CO2_Pt: 0.0, C_Pt: 0.0, O_Pt: 0.0}
-      site-density: 2.72e-09
-      reference-state-coverage: 0.22
-
-
 .. _sec-yaml-ions-from-neutral-molecule:
 
 ``ions-from-neutral-molecule``
@@ -700,8 +688,7 @@ Example::
 A model that handles the specification of the chemical potentials for ionic
 species, given a specification of the chemical potentials for the same phase
 expressed in terms of combinations of the ionic species that represent neutral
-molecules, as
-`described here <https://cantera.org/documentation/dev/doxygen/html/d7/d4a/classCantera_1_1IonsFromNeutralVPSSTP.html#details>`__.
+molecules, as :ct:`described here <IonsFromNeutralVPSSTP>`.
 
 .. deprecated:: 3.0
 
@@ -730,8 +717,7 @@ Example::
 -----------
 
 A simple thermodynamic model for a bulk phase, assuming a lattice of solid
-atoms, as
-`described here <https://cantera.org/documentation/dev/doxygen/html/d1/da0/classCantera_1_1LatticePhase.html#details>`__.
+atoms, as :ct:`described here <LatticePhase>`.
 
 Additional fields:
 
@@ -744,8 +730,7 @@ Additional fields:
 ``liquid-water-IAPWS95``
 ------------------------
 
-An equation of state for liquid water, as
-`described here <https://cantera.org/documentation/dev/doxygen/html/dc/d86/classCantera_1_1WaterSSTP.html#details>`__.
+An equation of state for liquid water, as :ct:`described here <WaterSSTP>`.
 
 
 .. _sec-yaml-Margules:
@@ -754,7 +739,7 @@ An equation of state for liquid water, as
 ------------
 
 A phase employing the Margules approximation for the excess Gibbs free energy, as
-`described here <https://cantera.org/documentation/dev/doxygen/html/d7/dfe/classCantera_1_1MargulesVPSSTP.html#details>`__.
+:ct:`described here <MargulesVPSSTP>`.
 
 Additional fields:
 
@@ -799,7 +784,7 @@ Example::
 --------------------------
 
 A condensed phase non-ideal solution with two species, as
-`described here <https://cantera.org/documentation/dev/doxygen/html/dd/d3a/classCantera_1_1MaskellSolidSolnPhase.html#details>`__.
+:ct:`described here <MaskellSolidSolnPhase>`.
 
 .. deprecated:: 3.0
 
@@ -820,99 +805,18 @@ Example::
     product-species: H(s)
 
 
-.. _sec-yaml-electron-cloud:
-
-``electron-cloud``
-------------------
-
-A phase representing an electron cloud, such as conduction electrons in a metal,
-as `described here <https://cantera.org/documentation/dev/doxygen/html/d9/d13/classCantera_1_1MetalPhase.html#details>`__.
-
-Additional fields:
-
-``density``
-    The density of the bulk metal
-
-
-.. _sec-yaml-pure-fluid:
-
-``pure-fluid``
---------------
-
-A phase representing a pure fluid equation of state for one of several species,
-as `described here <https://cantera.org/documentation/dev/doxygen/html/d1/d29/classCantera_1_1PureFluidPhase.html#details>`__.
-
-Additional fields:
-
-``pure-fluid-name``
-    Name of the pure fluid model to use:
-    - ``carbon-dioxide``
-    - ``heptane``
-    - ``HFC-134a``
-    - ``hydrogen``
-    - ``methane``
-    - ``nitrogen``
-    - ``oxygen``
-    - ``water``
-
-
-.. _sec-yaml-Redlich-Kister:
-
-``Redlich-Kister``
-------------------
-
-A phase employing the Redlich-Kister approximation for the excess Gibbs free
-energy, as
-`described here <https://cantera.org/documentation/dev/doxygen/html/d0/d23/classCantera_1_1RedlichKisterVPSSTP.html#details>`__.
-
-Additional fields:
-
-``interactions``
-    A list of mappings, where each mapping has the following fields:
-
-    ``species``
-        A list of two species names
-
-    ``excess-enthalpy``
-        A list of polynomial coefficients for the excess enthalpy of the
-        specified binary interaction
-
-    ``excess-entropy``
-        A list of polynomial coefficients for the excess entropy of the
-        specified binary interaction
-
-Example::
-
-  thermo: Redlich-Kister
-  interactions:
-  - species: [Li(C6), V(C6)]
-    excess-enthalpy: [-3.268e+06, 3.955e+06, -4.573e+06, 6.147e+06, -3.339e+06,
-                      1.117e+07, 2.997e+05, -4.866e+07, 1.362e+05, 1.373e+08,
-                      -2.129e+07, -1.722e+08, 3.956e+07, 9.302e+07, -3.280e+07]
-    excess-entropy: [0.0]
-
-
-.. _sec-yaml-Redlich-Kwong:
-
-``Redlich-Kwong``
------------------
-
-A multi-species Redlich-Kwong phase as
-`described here <https://cantera.org/documentation/dev/doxygen/html/d6/d29/classCantera_1_1RedlichKwongMFTP.html#details>`__.
-
-The parameters for each species are contained in the corresponding species
-entries. See :ref:`Redlich-Kwong species equation of state <sec-yaml-eos-redlich-kwong>`.
-
 .. _sec-yaml-Peng-Robinson:
 
 ``Peng-Robinson``
 -----------------
 
-A multi-species Peng-Robinson phase as
-`described here <https://cantera.org/documentation/dev/doxygen/html/d3/ddc/classCantera_1_1PengRobinson.html#details>`__.
+A multi-species Peng-Robinson phase as :ct:`described here <PengRobinson>`.
 
 The parameters for each species are contained in the corresponding species
 entries. See :ref:`Peng-Robinson species equation of state <sec-yaml-eos-peng-robinson>`.
+
+.. versionadded:: 3.0
+
 
 .. _sec-yaml-plasma:
 
@@ -921,7 +825,7 @@ entries. See :ref:`Peng-Robinson species equation of state <sec-yaml-eos-peng-ro
 
 A phase for plasma. This phase handles plasma properties such as the electron
 energy distribution and electron temperature with different models as
-`described here <https://cantera.org/documentation/dev/doxygen/html/d5/dd7/classCantera_1_1PlasmaPhase.html#details>`__.
+:ct:`described here <PlasmaPhase>`.
 
 
 Additional fields:
@@ -980,3 +884,73 @@ Example::
         energy-levels: [0.0, 0.1, 1.0, 10.0]
         distribution: [0.0, 0.2, 0.7, 0.01]
         normalize: False
+
+.. versionadded:: 2.6
+
+
+.. _sec-yaml-pure-fluid:
+
+``pure-fluid``
+--------------
+
+A phase representing a pure fluid equation of state for one of several species,
+as :ct:`described here <PureFluidPhase>`.
+
+Additional fields:
+
+``pure-fluid-name``
+    Name of the pure fluid model to use:
+    - ``carbon-dioxide``
+    - ``heptane``
+    - ``HFC-134a``
+    - ``hydrogen``
+    - ``methane``
+    - ``nitrogen``
+    - ``oxygen``
+    - ``water``
+
+
+.. _sec-yaml-Redlich-Kister:
+
+``Redlich-Kister``
+------------------
+
+A phase employing the Redlich-Kister approximation for the excess Gibbs free
+energy, as :ct:`described here <RedlichKisterVPSSTP>`.
+
+Additional fields:
+
+``interactions``
+    A list of mappings, where each mapping has the following fields:
+
+    ``species``
+        A list of two species names
+
+    ``excess-enthalpy``
+        A list of polynomial coefficients for the excess enthalpy of the
+        specified binary interaction
+
+    ``excess-entropy``
+        A list of polynomial coefficients for the excess entropy of the
+        specified binary interaction
+
+Example::
+
+  thermo: Redlich-Kister
+  interactions:
+  - species: [Li(C6), V(C6)]
+    excess-enthalpy: [-3.268e+06, 3.955e+06, -4.573e+06, 6.147e+06, -3.339e+06,
+                      1.117e+07, 2.997e+05, -4.866e+07, 1.362e+05, 1.373e+08,
+                      -2.129e+07, -1.722e+08, 3.956e+07, 9.302e+07, -3.280e+07]
+    excess-entropy: [0.0]
+
+
+.. _sec-yaml-Redlich-Kwong:
+
+``Redlich-Kwong``
+-----------------
+
+A multi-species Redlich-Kwong phase as :ct:`described here <RedlichKwongMFTP>`.
+
+The parameters for each species are contained in the corresponding species
+entries. See :ref:`Redlich-Kwong species equation of state <sec-yaml-eos-redlich-kwong>`.

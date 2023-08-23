@@ -1,8 +1,8 @@
 /**
  *  @file ImplicitSurfChem.h
  * Declarations for the implicit integration of surface site density equations
- *  (see \ref  kineticsmgr and class
- *  \link Cantera::ImplicitSurfChem ImplicitSurfChem\endlink).
+ *  (see @ref  kineticsmgr and class
+ *  @link Cantera::ImplicitSurfChem ImplicitSurfChem@endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -18,6 +18,8 @@
 namespace Cantera
 {
 
+//! @defgroup surfSolverGroup Surface Problem Solver
+
 //! Advances the surface coverages of the associated set of SurfacePhase
 //! objects in time
 /*!
@@ -25,33 +27,33 @@ namespace Cantera
  * InterfaceKinetics object, in time. The following equation is used for each
  * surface phase, *i*.
  *
- *   \f[
+ *   @f[
  *        \dot \theta_k = \dot s_k (\sigma_k / s_0)
- *   \f]
+ *   @f]
  *
  * In this equation,
- * - \f$ \theta_k \f$ is the site coverage for the kth species.
- * - \f$ \dot s_k \f$ is the source term for the kth species
- * - \f$ \sigma_k \f$ is the number of surface sites covered by each species k.
- * - \f$ s_0 \f$ is the total site density of the interfacial phase.
+ * - @f$ \theta_k @f$ is the site coverage for the kth species.
+ * - @f$ \dot s_k @f$ is the source term for the kth species
+ * - @f$ \sigma_k @f$ is the number of surface sites covered by each species k.
+ * - @f$ s_0 @f$ is the total site density of the interfacial phase.
  *
  * Additionally, the 0'th equation in the set is discarded. Instead the
  * alternate equation is solved for
  *
- * \f[
+ * @f[
  *     \sum_{k=0}^{N-1}  \dot \theta_k = 0
- * \f]
+ * @f]
  *
- * This last equation serves to ensure that sum of the \f$ \theta_k \f$ values
+ * This last equation serves to ensure that sum of the @f$ \theta_k @f$ values
  * stays constant.
  *
  * The object uses the CVODE software to advance the surface equations.
  *
  * The solution vector used by this object is as follows: For each surface
- * phase with \f$ N_s \f$ surface sites, it consists of the surface coverages
- * \f$ \theta_k \f$ for \f$ k = 0, N_s - 1 \f$
+ * phase with @f$ N_s @f$ surface sites, it consists of the surface coverages
+ * @f$ \theta_k @f$ for @f$ k = 0, N_s - 1 @f$
  *
- * @ingroup  kineticsmgr
+ * @ingroup surfSolverGroup
  */
 class ImplicitSurfChem : public FuncEval
 {
@@ -70,38 +72,36 @@ public:
      * @param maxErrTestFails   the maximum permissible number of error test failures
      *                           If not supplied, uses the default value in CVODES (7).
      */
-    ImplicitSurfChem(std::vector<InterfaceKinetics*> k,
+    ImplicitSurfChem(vector<InterfaceKinetics*> k,
                      double rtol=1.e-7, double atol=1.e-14,
                      double maxStepSize=0, size_t maxSteps=20000,
                      size_t maxErrTestFails=7);
 
-    virtual ~ImplicitSurfChem() = default;
-
-    /*!
+    /**
      *  Must be called before calling method 'advance'
      */
-    virtual void initialize(doublereal t0 = 0.0);
+    void initialize(double t0=0.0);
 
-    /*!
+    /**
      *  Set the maximum integration step-size.  Note, setting this value to zero
      *  disables this option
      */
-    virtual void setMaxStepSize(double maxstep = 0.0);
+    void setMaxStepSize(double maxstep=0.0);
 
-    /*!
+    /**
      *  Set the relative and absolute integration tolerances.
      */
-    virtual void setTolerances(double rtol=1.e-7, double atol=1.e-14);
+    void setTolerances(double rtol=1.e-7, double atol=1.e-14);
 
-    /*!
+    /**
      *  Set the maximum number of CVODES integration steps.
      */
-    virtual void setMaxSteps(size_t maxsteps = 20000);
+    void setMaxSteps(size_t maxsteps=20000);
 
-    /*!
+    /**
      *  Set the maximum number of CVODES error test failures
      */
-    virtual void setMaxErrTestFails(size_t maxErrTestFails = 7);
+    void setMaxErrTestFails(size_t maxErrTestFails=7);
 
     //! Integrate from t0 to t1. The integrator is reinitialized first.
     /*!
@@ -111,7 +111,7 @@ public:
      *  @param t0  Initial Time -> this is an input
      *  @param t1  Final Time -> This is an input
      */
-    void integrate(doublereal t0, doublereal t1);
+    void integrate(double t0, double t1);
 
     //! Integrate from t0 to t1 without reinitializing the integrator.
     /*!
@@ -121,7 +121,7 @@ public:
      *  @param t0  Initial Time -> this is an input
      *  @param t1  Final Time -> This is an input
      */
-    void integrate0(doublereal t0, doublereal t1);
+    void integrate0(double t0, double t1);
 
     //! Solve for the pseudo steady-state of the surface problem
     /*!
@@ -143,12 +143,12 @@ public:
      *             system is solved directly.
      */
     void solvePseudoSteadyStateProblem(int ifuncOverride = -1,
-                                       doublereal timeScaleOverride = 1.0);
+                                       double timeScaleOverride = 1.0);
 
     // overloaded methods of class FuncEval
 
     //! Return the number of equations
-    virtual size_t neq() {
+    size_t neq() const override {
         return m_nv;
     }
 
@@ -160,7 +160,7 @@ public:
      *                derivative of the surface coverages.
      *  @param p   Unused parameter pass-through parameter vector
      */
-    virtual void eval(double t, double* y, double* ydot, double* p);
+    void eval(double t, double* y, double* ydot, double* p) override;
 
     //! Get the current state of the solution vector
     /*!
@@ -168,9 +168,9 @@ public:
      *            On output, this contains the initial value
      *           of the solution.
      */
-    virtual void getState(doublereal* y);
+    void getState(double* y) override;
 
-    /*!
+    /**
      * Get the specifications for the problem from the values
      * in the ThermoPhase objects for all phases.
      *
@@ -181,7 +181,7 @@ public:
      *                  vectors are contiguous within the object, in the same
      *                  order as the unknown vector.
      */
-    void getConcSpecies(doublereal* const vecConcSpecies) const;
+    void getConcSpecies(double* const vecConcSpecies) const;
 
     //! Sets the concentrations within phases that are unknowns in
     //! the surface problem
@@ -193,7 +193,7 @@ public:
      *                  vectors are contiguous within the object, in the same
      *                  order as the unknown vector.
      */
-    void setConcSpecies(const doublereal* const vecConcSpecies);
+    void setConcSpecies(const double* const vecConcSpecies);
 
     //! Sets the state variable in all thermodynamic phases (surface and
     //! surrounding bulk phases) to the input temperature and pressure
@@ -201,18 +201,18 @@ public:
      *  @param TKelvin input temperature (kelvin)
      *  @param PresPa   input pressure in pascal.
      */
-    void setCommonState_TP(doublereal TKelvin, doublereal PresPa);
+    void setCommonState_TP(double TKelvin, double PresPa);
 
     //! Returns a reference to the vector of pointers to the
     //! InterfaceKinetics objects
     /*!
      * This should probably go away in the future, as it opens up the class.
      */
-    std::vector<InterfaceKinetics*> & getObjects() {
+    vector<InterfaceKinetics*> & getObjects() {
         return m_vecKinPtrs;
     }
 
-    int checkMatch(std::vector<ThermoPhase*> m_vec, ThermoPhase* thPtr);
+    int checkMatch(vector<ThermoPhase*> m_vec, ThermoPhase* thPtr);
 
     void setIOFlag(int ioFlag) {
         m_ioFlag = ioFlag;
@@ -228,24 +228,24 @@ protected:
      * @param y Current value of the solution vector. The length is equal to
      *     the sum of the number of surface sites in all the surface phases.
      */
-    void updateState(doublereal* y);
+    void updateState(double* y);
 
     //! vector of pointers to surface phases.
-    std::vector<SurfPhase*> m_surf;
+    vector<SurfPhase*> m_surf;
 
     //! Vector of pointers to bulk phases
-    std::vector<ThermoPhase*> m_bulkPhases;
+    vector<ThermoPhase*> m_bulkPhases;
 
     //! vector of pointers to InterfaceKinetics objects
-    std::vector<InterfaceKinetics*> m_vecKinPtrs;
+    vector<InterfaceKinetics*> m_vecKinPtrs;
 
     //! Vector of number of species in each Surface Phase
-    std::vector<size_t> m_nsp;
+    vector<size_t> m_nsp;
 
     //! index of the surface phase in each InterfaceKinetics object
-    std::vector<size_t> m_surfindex;
+    vector<size_t> m_surfindex;
 
-    std::vector<size_t> m_specStartIndex;
+    vector<size_t> m_specStartIndex;
 
     //! Total number of surface species in all surface phases
     /*!
@@ -256,22 +256,22 @@ protected:
     size_t m_numTotalBulkSpecies = 0;
     size_t m_numTotalSpecies = 0;
 
-    std::vector<vector_int> pLocVec;
+    vector<vector<int>> pLocVec;
     //! Pointer to the CVODE integrator
-    std::unique_ptr<Integrator> m_integ;
-    doublereal m_atol, m_rtol; // tolerances
-    doublereal m_maxstep; //!< max step size
+    unique_ptr<Integrator> m_integ;
+    double m_atol, m_rtol; // tolerances
+    double m_maxstep; //!< max step size
     size_t m_nmax; //!< maximum number of steps allowed
     size_t m_maxErrTestFails; //!< maximum number of error test failures allowed
-    vector_fp m_work;
+    vector<double> m_work;
 
     /**
      * Temporary vector - length num species in the Kinetics object. This is
      * the sum of the number of species in each phase included in the kinetics
      * object.
      */
-    vector_fp m_concSpecies;
-    vector_fp m_concSpeciesSave;
+    vector<double> m_concSpecies;
+    vector<double> m_concSpeciesSave;
 
     /**
      * Index into the species vector of the kinetics manager,
@@ -291,7 +291,7 @@ protected:
     /**
      * Pointer to the helper method, Placid, which solves the surface problem.
      */
-    std::unique_ptr<solveSP> m_surfSolver;
+    unique_ptr<solveSP> m_surfSolver;
 
     //! If true, a common temperature and pressure for all surface and bulk
     //! phases associated with the surface problem is imposed

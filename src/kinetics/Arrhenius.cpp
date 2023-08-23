@@ -120,7 +120,7 @@ void ArrheniusBase::getParameters(AnyMap& node) const {
     }
 }
 
-void ArrheniusBase::check(const std::string& equation)
+void ArrheniusBase::check(const string& equation)
 {
     if (!m_negativeA_ok && m_A < 0) {
         if (equation == "") {
@@ -135,7 +135,7 @@ void ArrheniusBase::check(const std::string& equation)
     }
 }
 
-void ArrheniusBase::validate(const std::string& equation, const Kinetics& kin)
+void ArrheniusBase::validate(const string& equation, const Kinetics& kin)
 {
     if (!valid()) {
         throw InputFileError("ArrheniusBase::validate", m_input,

@@ -18,17 +18,17 @@ class ML_Logger : public Logger
 {
 public:
     ML_Logger() {}
-    virtual ~ML_Logger() {}
+    ~ML_Logger() override {}
 
-    virtual void write(const std::string& s) {
+    void write(const string& s) override {
         mexPrintf("%s", s.c_str());
     }
 
-    virtual void writeendl() {
+    void writeendl() override {
         mexPrintf("\n");
     }
 
-    virtual void error(const std::string& msg) {
+    void error(const string& msg) override {
         mexErrMsgTxt(msg.c_str());
     }
 };

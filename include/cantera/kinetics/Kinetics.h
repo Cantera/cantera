@@ -1,8 +1,8 @@
 /**
  * @file Kinetics.h
  *  Base class for kinetics managers and also contains the kineticsmgr
- *  module documentation (see \ref  kineticsmgr and class
- *  \link Cantera::Kinetics Kinetics\endlink).
+ *  module documentation (see @ref  kineticsmgr and class
+ *  @link Cantera::Kinetics Kinetics@endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -22,11 +22,19 @@ class Reaction;
 class Solution;
 class AnyMap;
 
+//! @defgroup derivGroup Derivative Calculations
+//! @details Methods for calculating analytical and/or numerical derivatives.
+
 /**
  * @defgroup chemkinetics Chemical Kinetics
  */
 
+//! @defgroup reactionGroup Reactions and Reaction Rates
+//! Classes for handling reactions and reaction rates.
+//! @ingroup chemkinetics
+
 //! @defgroup kineticsmgr Kinetics Managers
+//! Classes implementing models for chemical kinetics.
 //! @section kinmodman Models and Managers
 //!
 //! A kinetics manager is a C++ class that implements a kinetics model; a
@@ -51,8 +59,8 @@ class AnyMap;
 //! that depend only on temperature, a manager class may choose to store these
 //! quantities internally, and re-evaluate them only when the temperature has
 //! actually changed. Or a manager designed for use with reaction mechanisms
-//! with a few repeated activation energies might precompute the terms \f$
-//! exp(-E/RT) \f$, instead of evaluating the exponential repeatedly for each
+//! with a few repeated activation energies might precompute the terms @f$
+//! \exp(-E/RT) @f$, instead of evaluating the exponential repeatedly for each
 //! reaction. There are many other possible 'management styles', each of which
 //! might be better suited to some reaction mechanisms than others.
 //!
@@ -85,12 +93,16 @@ class AnyMap;
 //! phase 'a', another bulk phase 'b', and the surface phase 'a:b' at the a/b
 //! interface. Phase 'a' contains 12 species, phase 'b' contains 3, and at the
 //! interface there are 5 adsorbed species defined in phase 'a:b'. Then methods
-//! like getNetProductionRates(doublereal* net) will write and output array of
+//! like getNetProductionRates(double* net) will write and output array of
 //! length 20, beginning at the location pointed to by 'net'. The first 12
 //! values will be the net production rates for all 12 species of phase 'a'
 //! (even if some do not participate in the reactions), the next 3 will be for
 //! phase 'b', and finally the net production rates for the surface species will
 //! occupy the last 5 locations.
+//! @ingroup chemkinetics
+
+//! @defgroup rateEvaluators Rate Evaluators
+//! These classes are used to evaluate the rates of reactions.
 //! @ingroup chemkinetics
 
 
@@ -128,9 +140,9 @@ public:
     //! Identifies the Kinetics manager type.
     //! Each class derived from Kinetics should override this method to return
     //! a meaningful identifier.
-    //! @since  Starting in Cantera 3.0, the name returned by this method corresponds
+    //! @since Starting in %Cantera 3.0, the name returned by this method corresponds
     //!     to the canonical name used in the YAML input format.
-    virtual std::string kineticsType() const {
+    virtual string kineticsType() const {
         return "none";
     }
 
@@ -187,12 +199,12 @@ public:
      * Return the phase index of a phase in the list of phases defined within
      * the object.
      *
-     *  @param ph std::string name of the phase
+     *  @param ph string name of the phase
      *
      * If a -1 is returned, then the phase is not defined in the Kinetics
      * object.
      */
-    size_t phaseIndex(const std::string& ph) const {
+    size_t phaseIndex(const string& ph) const {
         if (m_phaseindex.find(ph) == m_phaseindex.end()) {
             return npos;
         } else {
@@ -205,7 +217,7 @@ public:
      * cSurf. For heterogeneous mechanisms, this identifies the one surface
      * phase. For homogeneous mechanisms, this returns -1.
      *
-     * @deprecated To be removed after Cantera 3.0. Use reactionPhaseIndex instead.
+     * @deprecated To be removed after %Cantera 3.0. Use reactionPhaseIndex instead.
      */
     size_t surfacePhaseIndex() const;
 
@@ -217,8 +229,8 @@ public:
      * of phases. If there is more than one, the index of the first one is
      * returned. For homogeneous mechanisms, the value 0 is returned.
      *
-     * @deprecated Starting in Cantera 3.0, the reacting phase will always be the
-     *     first phase in the InterfaceKinetics object. To be removed after Cantera 3.1.
+     * @deprecated Starting in %Cantera 3.0, the reacting phase will always be the
+     *     first phase in the InterfaceKinetics object. To be removed after %Cantera 3.1.
      */
     size_t reactionPhaseIndex() const {
         return m_rxnphase;
@@ -226,7 +238,7 @@ public:
 
     /**
      * Return pointer to phase where the reactions occur.
-     * @since New in Cantera 3.0
+     * @since New in %Cantera 3.0
      */
     shared_ptr<ThermoPhase> reactionPhase() const;
 
@@ -286,11 +298,11 @@ public:
      *
      * @param k species index
      */
-    std::string kineticsSpeciesName(size_t k) const;
+    string kineticsSpeciesName(size_t k) const;
 
     /**
      * This routine will look up a species number based on the input
-     * std::string nm. The lookup of species will occur for all phases
+     * string nm. The lookup of species will occur for all phases
      * listed in the kinetics object.
      *
      *  return
@@ -299,11 +311,11 @@ public:
      *
      * @param nm   Input string name of the species
      */
-    size_t kineticsSpeciesIndex(const std::string& nm) const;
+    size_t kineticsSpeciesIndex(const string& nm) const;
 
     /**
      * This routine will look up a species number based on the input
-     * std::string nm. The lookup of species will occur in the specified
+     * string nm. The lookup of species will occur in the specified
      * phase of the object, or all phases if ph is "<any>".
      *
      *  return
@@ -312,11 +324,11 @@ public:
      *
      * @param nm   Input string name of the species
      * @param ph   Input string name of the phase.
-     * @deprecated To be removed after Cantera 3.0. Species names should be unique
+     * @deprecated To be removed after %Cantera 3.0. Species names should be unique
      *     across all phases.
      */
-    size_t kineticsSpeciesIndex(const std::string& nm,
-                                const std::string& ph) const;
+    size_t kineticsSpeciesIndex(const string& nm,
+                                const string& ph) const;
 
     /**
      * This function looks up the name of a species and returns a
@@ -325,8 +337,8 @@ public:
      *
      * @param nm   String containing the name of the species.
      */
-    ThermoPhase& speciesPhase(const std::string& nm);
-    const ThermoPhase& speciesPhase(const std::string& nm) const;
+    ThermoPhase& speciesPhase(const string& nm);
+    const ThermoPhase& speciesPhase(const string& nm) const;
 
     /**
      * This function takes as an argument the kineticsSpecies index
@@ -361,7 +373,7 @@ public:
      * @param fwdROP  Output vector containing forward rates
      *                of progress of the reactions. Length: nReactions().
      */
-    virtual void getFwdRatesOfProgress(doublereal* fwdROP);
+    virtual void getFwdRatesOfProgress(double* fwdROP);
 
     //!  Return the Reverse rates of progress of the reactions
     /*!
@@ -371,7 +383,7 @@ public:
      * @param revROP  Output vector containing reverse rates
      *                of progress of the reactions. Length: nReactions().
      */
-    virtual void getRevRatesOfProgress(doublereal* revROP);
+    virtual void getRevRatesOfProgress(double* revROP);
 
     /**
      * Net rates of progress. Return the net (forward - reverse) rates of
@@ -380,7 +392,7 @@ public:
      *
      * @param netROP  Output vector of the net ROP. Length: nReactions().
      */
-    virtual void getNetRatesOfProgress(doublereal* netROP);
+    virtual void getNetRatesOfProgress(double* netROP);
 
     //! Return a vector of Equilibrium constants.
     /*!
@@ -388,29 +400,29 @@ public:
      *  units in array kc, which must be dimensioned at least as large as the
      *  total number of reactions.
      *
-     * \f[
-     *       Kc_i = exp [ \Delta G_{ss,i} ] prod(Cs_k) exp(\sum_k \nu_{k,i} F \phi_n) ]
-     * \f]
+     * @f[
+     *       Kc_i = \exp [ \Delta G_{ss,i} ] \prod(Cs_k) \exp(\sum_k \nu_{k,i} F \phi_n)
+     * @f]
      *
      * @param kc   Output vector containing the equilibrium constants.
      *             Length: nReactions().
      */
-    virtual void getEquilibriumConstants(doublereal* kc) {
+    virtual void getEquilibriumConstants(double* kc) {
         throw NotImplementedError("Kinetics::getEquilibriumConstants");
     }
 
     /**
      * Change in species properties. Given an array of molar species property
-     * values \f$ z_k, k = 1, \dots, K \f$, return the array of reaction values
-     * \f[
+     * values @f$ z_k, k = 1, \dots, K @f$, return the array of reaction values
+     * @f[
      *    \Delta Z_i = \sum_k \nu_{k,i} z_k, i = 1, \dots, I.
-     * \f]
+     * @f]
      * For example, if this method is called with the array of standard-state
      * molar Gibbs free energies for the species, then the values returned in
-     * array \c deltaProperty would be the standard-state Gibbs free energies of
+     * array @c deltaProperty would be the standard-state Gibbs free energies of
      * reaction for each reaction.
      *
-     * @param property Input vector of property value. Length: m_kk.
+     * @param property Input vector of property value. Length: #m_kk.
      * @param deltaProperty Output vector of deltaRxn. Length: nReactions().
      */
     virtual void getReactionDelta(const double* property, double* deltaProperty) const;
@@ -437,7 +449,7 @@ public:
      * @param deltaG  Output vector of deltaG's for reactions Length:
      *     nReactions().
      */
-    virtual void getDeltaGibbs(doublereal* deltaG) {
+    virtual void getDeltaGibbs(double* deltaG) {
         throw NotImplementedError("Kinetics::getDeltaGibbs");
     }
 
@@ -452,7 +464,7 @@ public:
      * @param deltaM  Output vector of deltaM's for reactions Length:
      *     nReactions().
      */
-    virtual void getDeltaElectrochemPotentials(doublereal* deltaM) {
+    virtual void getDeltaElectrochemPotentials(double* deltaM) {
         throw NotImplementedError("Kinetics::getDeltaElectrochemPotentials");
     }
 
@@ -465,7 +477,7 @@ public:
      * @param deltaH  Output vector of deltaH's for reactions Length:
      *     nReactions().
      */
-    virtual void getDeltaEnthalpy(doublereal* deltaH) {
+    virtual void getDeltaEnthalpy(double* deltaH) {
         throw NotImplementedError("Kinetics::getDeltaEnthalpy");
     }
 
@@ -478,7 +490,7 @@ public:
      * @param deltaS  Output vector of deltaS's for reactions Length:
      *     nReactions().
      */
-    virtual void getDeltaEntropy(doublereal* deltaS) {
+    virtual void getDeltaEntropy(double* deltaS) {
         throw NotImplementedError("Kinetics::getDeltaEntropy");
     }
 
@@ -492,7 +504,7 @@ public:
      * @param deltaG  Output vector of ss deltaG's for reactions Length:
      *     nReactions().
      */
-    virtual void getDeltaSSGibbs(doublereal* deltaG) {
+    virtual void getDeltaSSGibbs(double* deltaG) {
         throw NotImplementedError("Kinetics::getDeltaSSGibbs");
     }
 
@@ -506,7 +518,7 @@ public:
      * @param deltaH  Output vector of ss deltaH's for reactions Length:
      *     nReactions().
      */
-    virtual void getDeltaSSEnthalpy(doublereal* deltaH) {
+    virtual void getDeltaSSEnthalpy(double* deltaH) {
         throw NotImplementedError("Kinetics::getDeltaSSEnthalpy");
     }
 
@@ -520,7 +532,7 @@ public:
      * @param deltaS  Output vector of ss deltaS's for reactions Length:
      *     nReactions().
      */
-    virtual void getDeltaSSEntropy(doublereal* deltaS) {
+    virtual void getDeltaSSEntropy(double* deltaS) {
         throw NotImplementedError("Kinetics::getDeltaSSEntropy");
     }
 
@@ -542,7 +554,7 @@ public:
      * Provide direct access to current third-body concentration values.
      * @see getThirdBodyConcentrations.
      */
-    virtual const vector_fp& thirdBodyConcentrations() const {
+    virtual const vector<double>& thirdBodyConcentrations() const {
         throw NotImplementedError("Kinetics::thirdBodyConcentrations",
             "Not applicable/implemented for Kinetics object of type '{}'",
             kineticsType());
@@ -557,18 +569,18 @@ public:
      * creation rates in array cdot, which must be dimensioned at least as
      * large as the total number of species in all phases. @see nTotalSpecies.
      *
-     * @param cdot   Output vector of creation rates. Length: m_kk.
+     * @param cdot   Output vector of creation rates. Length: #m_kk.
      */
-    virtual void getCreationRates(doublereal* cdot);
+    virtual void getCreationRates(double* cdot);
 
     /**
      * Species destruction rates [kmol/m^3/s or kmol/m^2/s]. Return the species
      * destruction rates in array ddot, which must be dimensioned at least as
      * large as the total number of species. @see nTotalSpecies.
      *
-     * @param ddot   Output vector of destruction rates. Length: m_kk.
+     * @param ddot   Output vector of destruction rates. Length: #m_kk.
      */
-    virtual void getDestructionRates(doublereal* ddot);
+    virtual void getDestructionRates(double* ddot);
 
     /**
      * Species net production rates [kmol/m^3/s or kmol/m^2/s]. Return the
@@ -576,47 +588,130 @@ public:
      * which must be dimensioned at least as large as the total number of
      * species. @see nTotalSpecies.
      *
-     * @param wdot   Output vector of net production rates. Length: m_kk.
+     * @param wdot   Output vector of net production rates. Length: #m_kk.
      */
-    virtual void getNetProductionRates(doublereal* wdot);
+    virtual void getNetProductionRates(double* wdot);
 
     //! @}
-    //! @name Routines to Calculate Derivatives (Jacobians)
-    //!
-    //! Derivatives are calculated with respect to temperature, pressure, molar
-    //! concentrations and species mole fractions for forward/reverse/net rates of
-    //! progress as well as creation/destruction and net production of species.
-    //!
-    //! The following suffixes are used to indicate derivatives:
-    //!  - `_ddT`: derivative with respect to temperature (a vector)
-    //!  - `_ddP`: derivative with respect to pressure (a vector)
-    //!  - `_ddC`: derivative with respect to molar concentration (a vector)
-    //!  - `_ddX`: derivative with respect to species mole fractions (a matrix)
-    //!  - `_ddCi`: derivative with respect to species concentrations (a matrix)
-    //!
-    //! Settings for derivative evaluation are set by keyword/value pairs using
-    //! the methods getDerivativeSettings() and setDerivativeSettings().
-    //!
-    //! For BulkKinetics, the following keyword/value pairs are supported:
-    //!  - `skip-third-bodies` (boolean) ... if `false` (default), third body
-    //!    concentrations are considered for the evaluation of jacobians
-    //!  - `skip-falloff` (boolean) ... if `false` (default), third-body effects
-    //!    on rate constants are considered for the evaluation of derivatives.
-    //!  - `rtol-delta` (double) ... relative tolerance used to perturb properties
-    //!    when calculating numerical derivatives. The default value is 1e-8.
-    //!
-    //! For InterfaceKinetics, the following keyword/value pairs are supported:
-    //!  - `skip-coverage-dependence` (boolean) ... if `false` (default), rate constant
-    //!    coverage dependence is not considered when evaluating derivatives.
-    //!  - `skip-electrochemistry` (boolean) ... if `false` (default), electrical charge
-    //!    is not considered in evaluating the derivatives and these reactions are
-    //!    treated as normal surface reactions.
-    //!  - `rtol-delta` (double) ... relative tolerance used to perturb properties
-    //!    when calculating numerical derivatives. The default value is 1e-8.
-    //!
-    //! @warning  The calculation of derivatives is an experimental part of the
-    //!      %Cantera API and may be changed or removed without notice.
+
+    //! @addtogroup derivGroup
     //! @{
+
+    /**
+     * @anchor kinDerivs
+     * @par Routines to Calculate Kinetics Derivatives (Jacobians)
+     * @name
+     *
+     * Kinetics derivatives are calculated with respect to temperature, pressure,
+     * molar concentrations and species mole fractions for forward/reverse/net rates
+     * of progress as well as creation/destruction and net production of species.
+     *
+     * The following suffixes are used to indicate derivatives:
+     *  - `_ddT`: derivative with respect to temperature (a vector)
+     *  - `_ddP`: derivative with respect to pressure (a vector)
+     *  - `_ddC`: derivative with respect to molar concentration (a vector)
+     *  - `_ddX`: derivative with respect to species mole fractions (a matrix)
+     *  - `_ddCi`: derivative with respect to species concentrations (a matrix)
+     *
+     * @since New in Cantera 2.6
+     *
+     * @warning The calculation of kinetics derivatives is an experimental part of the
+     *    %Cantera API and may be changed or removed without notice.
+     *
+     * Source term derivatives are based on a generic rate-of-progress expression
+     * for the @f$ i @f$-th reaction @f$ R_i @f$, which is a function of temperature
+     * @f$ T @f$, pressure @f$ P @f$ and molar concentrations @f$ C_j @f$:
+     * @f[
+     *     R_i = k_{f,i} C_M^{\nu_{M,i}} \prod_j C_j^{\nu_{ji}^\prime} -
+     *           k_{r,i} C_M^{\nu_{M,i}} \prod_j C_j^{\nu_{ji}^{\prime\prime}}
+     * @f]
+     * Forward/reverse rate expressions @f$ k_{f,i} @f$ and @f$ k_{r,i} @f$ are
+     * implemented by ReactionRate specializations; forward/reverse stoichiometric
+     * coefficients are @f$ \nu_{ji}^\prime @f$ and @f$ \nu_{ji}^{\prime\prime} @f$.
+     * Unless the reaction involves third-body colliders, @f$ \nu_{M,i} = 0 @f$.
+     * For three-body reactions, effective ThirdBody collider concentrations @f$ C_M @f$
+     * are considered with @f$ \nu_{M,i} = 1 @f$. For more detailed information on
+     * relevant theory, see, for example, Perini, et al. @cite perini2012 or Niemeyer,
+     * et al. @cite niemeyer2017, although specifics of %Cantera's implementation may
+     * differ.
+     *
+     * Partial derivatives are obtained from the product rule, where resulting terms
+     * consider reaction rate derivatives, derivatives of the concentration product
+     * term, and, if applicable, third-body term derivatives. ReactionRate
+     * specializations may implement exact derivatives (example:
+     * ArrheniusRate::ddTScaledFromStruct) or approximate them numerically (examples:
+     * ReactionData::perturbTemperature, PlogData::perturbPressure,
+     * FalloffData::perturbThirdBodies). Derivatives of concentration and third-body
+     * terms are based on analytic expressions.
+     *
+     * %Species creation and destruction rates are obtained by multiplying
+     * rate-of-progress vectors by stoichiometric coefficient matrices. As this is a
+     * linear operation, it is possible to calculate derivatives the same way.
+     *
+     * All derivatives are calculated for source terms while holding other properties
+     * constant, independent of whether equation of state or @f$ \sum X_k = 1 @f$
+     * constraints are satisfied. Thus, derivatives deviate from Jacobians and
+     * numerical derivatives that implicitly enforce these constraints. Depending
+     * on application and equation of state, derivatives can nevertheless be used to
+     * obtain Jacobians, for example:
+     *
+     *  - The Jacobian of net production rates @f$ \dot{\omega}_{k,\mathrm{net}} @f$
+     *    with respect to temperature at constant pressure needs to consider changes
+     *    of molar density @f$ C @f$ due to temperature
+     *    @f[
+     *      \left.
+     *          \frac{\partial \dot{\omega}_{k,\mathrm{net}}}{\partial T}
+     *      \right|_{P=\mathrm{const}} =
+     *      \frac{\partial \dot{\omega}_{k,\mathrm{net}}}{\partial T} +
+     *      \frac{\partial \dot{\omega}_{k,\mathrm{net}}}{\partial C}
+     *      \left. \frac{\partial C}{\partial T} \right|_{P=\mathrm{const}}
+     *    @f]
+     *    where for an ideal gas @f$ \partial C / \partial T = - C / T @f$. The
+     *    remaining partial derivatives are obtained from getNetProductionRates_ddT()
+     *    and getNetProductionRates_ddC(), respectively.
+     *
+     *  - The Jacobian of @f$ \dot{\omega}_{k,\mathrm{net}} @f$ with respect to
+     *    temperature at constant volume needs to consider pressure changes due to
+     *    temperature
+     *    @f[
+     *      \left.
+     *          \frac{\partial \dot{\omega}_{k,\mathrm{net}}}{\partial T}
+     *      \right|_{V=\mathrm{const}} =
+     *      \frac{\partial \dot{\omega}_{k,\mathrm{net}}}{\partial T} +
+     *      \frac{\partial \dot{\omega}_{k,\mathrm{net}}}{\partial P}
+     *      \left. \frac{\partial P}{\partial T} \right|_{V=\mathrm{const}}
+     *    @f]
+     *    where for an ideal gas @f$ \partial P / \partial T = P / T @f$. The
+     *    remaining partial derivatives are obtained from getNetProductionRates_ddT()
+     *    and getNetProductionRates_ddP(), respectively.
+     *
+     *  - Similar expressions can be derived for other derivatives and source terms.
+     *
+     * While some applications require exact derivatives, others can tolerate
+     * approximate derivatives that neglect terms to increase computational speed
+     * and/or improve Jacobian sparsity (example: AdaptivePreconditioner).
+     * Derivative evaluations settings are accessible by keyword/value pairs
+     * using the methods getDerivativeSettings() and setDerivativeSettings().
+     *
+     * For BulkKinetics, the following keyword/value pairs are supported:
+     *  - `skip-third-bodies` (boolean): if `false` (default), third body
+     *    concentrations are considered for the evaluation of Jacobians
+     *  - `skip-falloff` (boolean): if `false` (default), third-body effects
+     *    on rate constants are considered for the evaluation of derivatives.
+     *  - `rtol-delta` (double): relative tolerance used to perturb properties
+     *    when calculating numerical derivatives. The default value is 1e-8.
+     *
+     * For InterfaceKinetics, the following keyword/value pairs are supported:
+     *  - `skip-coverage-dependence` (boolean): if `false` (default), rate constant
+     *    coverage dependence is not considered when evaluating derivatives.
+     *  - `skip-electrochemistry` (boolean): if `false` (default), electrical charge
+     *    is not considered in evaluating the derivatives and these reactions are
+     *    treated as normal surface reactions.
+     *  - `rtol-delta` (double): relative tolerance used to perturb properties
+     *    when calculating numerical derivatives. The default value is 1e-8.
+     *
+     * @{
+     */
 
     /**
      * Retrieve derivative settings.
@@ -716,9 +811,9 @@ public:
      * Calculate derivatives for forward rates-of-progress with respect to species
      * mole fractions at constant temperature, pressure and molar concentration.
      *
-     * The method returns a matrix with nReactions rows and nTotalSpecies columns.
-     * For a derivative with respect to \f$X_i\f$, all other \f$X_j\f$ are held
-     * constant, rather than enforcing \f$\sum X_j = 1\f$.
+     * The method returns a matrix with nReactions() rows and nTotalSpecies() columns.
+     * For a derivative with respect to @f$ X_i @f$, all other @f$ X_j @f$ are held
+     * constant, rather than enforcing @f$ \sum X_j = 1 @f$.
      *
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
@@ -734,14 +829,14 @@ public:
      * concentration at constant temperature, pressure and remaining species
      * concentrations.
      *
-     * The method returns a matrix with nReactions rows and nTotalSpecies columns.
-     * For a derivative with respect to \f$c_i\f$, all other \f$c_j\f$ are held
+     * The method returns a matrix with nReactions() rows and nTotalSpecies() columns.
+     * For a derivative with respect to @f$ c_i @f$, all other @f$ c_j @f$ are held
      * constant.
      *
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
      *
-     * @since  New in Cantera 3.0.
+     * @since New in %Cantera 3.0.
      */
     virtual Eigen::SparseMatrix<double> fwdRatesOfProgress_ddCi()
     {
@@ -789,9 +884,9 @@ public:
      * Calculate derivatives for reverse rates-of-progress with respect to species
      * mole fractions at constant temperature, pressure and molar concentration.
      *
-     * The method returns a matrix with nReactions rows and nTotalSpecies columns.
-     * For a derivative with respect to \f$X_i\f$, all other \f$X_j\f$ are held
-     * constant, rather than enforcing \f$\sum X_j = 1\f$.
+     * The method returns a matrix with nReactions() rows and nTotalSpecies() columns.
+     * For a derivative with respect to @f$ X_i @f$, all other @f$ X_j @f$ are held
+     * constant, rather than enforcing @f$ \sum X_j = 1 @f$.
      *
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
@@ -807,14 +902,14 @@ public:
      * concentration at constant temperature, pressure and remaining species
      * concentrations.
      *
-     * The method returns a matrix with nReactions rows and nTotalSpecies columns.
-     * For a derivative with respect to \f$c_i\f$, all other \f$c_j\f$ are held
+     * The method returns a matrix with nReactions() rows and nTotalSpecies() columns.
+     * For a derivative with respect to @f$ c_i @f$, all other @f$ c_j @f$ are held
      * constant.
      *
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
      *
-     * @since  New in Cantera 3.0.
+     * @since New in %Cantera 3.0.
      */
     virtual Eigen::SparseMatrix<double> revRatesOfProgress_ddCi()
     {
@@ -862,9 +957,9 @@ public:
      * Calculate derivatives for net rates-of-progress with respect to species
      * mole fractions at constant temperature, pressure and molar concentration.
      *
-     * The method returns a matrix with nReactions rows and nTotalSpecies columns.
-     * For a derivative with respect to \f$X_i\f$, all other \f$X_j\f$ are held
-     * constant, rather than enforcing \f$\sum X_j = 1\f$.
+     * The method returns a matrix with nReactions() rows and nTotalSpecies() columns.
+     * For a derivative with respect to @f$ X_i @f$, all other @f$ X_j @f$ are held
+     * constant, rather than enforcing @f$ \sum X_j = 1 @f$.
      *
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
@@ -880,14 +975,14 @@ public:
      * concentration at constant temperature, pressure, and remaining species
      * concentrations.
      *
-     * The method returns a matrix with nReactions rows and nTotalSpecies columns.
-     * For a derivative with respect to \f$c_i\f$, all other \f$c_j\f$ are held
+     * The method returns a matrix with nReactions() rows and nTotalSpecies() columns.
+     * For a derivative with respect to @f$ c_i @f$, all other @f$ c_j @f$ are held
      * constant.
      *
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
      *
-     * @since  New in Cantera 3.0.
+     * @since New in %Cantera 3.0.
      */
     virtual Eigen::SparseMatrix<double> netRatesOfProgress_ddCi()
     {
@@ -898,21 +993,21 @@ public:
     /**
      * Calculate derivatives for species creation rates with respect to temperature
      * at constant pressure, molar concentration and mole fractions.
-     * @param[out] dwdot  Output vector of derivatives. Length: m_kk.
+     * @param[out] dwdot  Output vector of derivatives. Length: #m_kk.
      */
     void getCreationRates_ddT(double* dwdot);
 
     /**
      * Calculate derivatives for species creation rates with respect to pressure
      * at constant temperature, molar concentration and mole fractions.
-     * @param[out] dwdot  Output vector of derivatives. Length: m_kk.
+     * @param[out] dwdot  Output vector of derivatives. Length: #m_kk.
      */
     void getCreationRates_ddP(double* dwdot);
 
     /**
      * Calculate derivatives for species creation rates with respect to molar
      * concentration at constant temperature, pressure and mole fractions.
-     * @param[out] dwdot  Output vector of derivatives. Length: m_kk.
+     * @param[out] dwdot  Output vector of derivatives. Length: #m_kk.
      *
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
@@ -923,9 +1018,9 @@ public:
      * Calculate derivatives for species creation rates with respect to species
      * mole fractions at constant temperature, pressure and molar concentration.
      *
-     * The method returns a matrix with nTotalSpecies rows and nTotalSpecies columns.
-     * For a derivative with respect to \f$X_i\f$, all other \f$X_j\f$ are held
-     * constant, rather than enforcing \f$\sum X_j = 1\f$.
+     * The method returns a square matrix with nTotalSpecies() rows and columns.
+     * For a derivative with respect to @f$ X_i @f$, all other @f$ X_j @f$ are held
+     * constant, rather than enforcing @f$ \sum X_j = 1 @f$.
      *
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
@@ -937,35 +1032,35 @@ public:
      * concentration at constant temperature, pressure, and concentration of all other
      * species.
      *
-     * The method returns a matrix with nTotalSpecies rows and nTotalSpecies columns.
-     * For a derivative with respect to \f$c_i\f$, all other \f$c_j\f$ are held
+     * The method returns a square matrix with nTotalSpecies() rows and columns.
+     * For a derivative with respect to @f$ c_i @f$, all other @f$ c_j @f$ are held
      * constant.
      *
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
      *
-     * @since  New in Cantera 3.0.
+     * @since New in %Cantera 3.0.
      */
     Eigen::SparseMatrix<double> creationRates_ddCi();
 
     /**
      * Calculate derivatives for species destruction rates with respect to temperature
      * at constant pressure, molar concentration and mole fractions.
-     * @param[out] dwdot  Output vector of derivatives. Length: m_kk.
+     * @param[out] dwdot  Output vector of derivatives. Length: #m_kk.
      */
     void getDestructionRates_ddT(double* dwdot);
 
     /**
      * Calculate derivatives for species destruction rates with respect to pressure
      * at constant temperature, molar concentration and mole fractions.
-     * @param[out] dwdot  Output vector of derivatives. Length: m_kk.
+     * @param[out] dwdot  Output vector of derivatives. Length: #m_kk.
      */
     void getDestructionRates_ddP(double* dwdot);
 
     /**
      * Calculate derivatives for species destruction rates with respect to molar
      * concentration at constant temperature, pressure and mole fractions.
-     * @param[out] dwdot  Output vector of derivatives. Length: m_kk.
+     * @param[out] dwdot  Output vector of derivatives. Length: #m_kk.
      *
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
@@ -976,9 +1071,9 @@ public:
      * Calculate derivatives for species destruction rates with respect to species
      * mole fractions at constant temperature, pressure and molar concentration.
      *
-     * The method returns a matrix with nTotalSpecies rows and nTotalSpecies columns.
-     * For a derivative with respect to \f$X_i\f$, all other \f$X_j\f$ are held
-     * constant, rather than enforcing \f$\sum X_j = 1\f$.
+     * The method returns a square matrix with nTotalSpecies() rows and columns.
+     * For a derivative with respect to @f$ X_i @f$, all other @f$ X_j @f$ are held
+     * constant, rather than enforcing @f$ \sum X_j = 1 @f$.
      *
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
@@ -990,35 +1085,35 @@ public:
      * concentration at constant temperature, pressure, and concentration of all other
      * species.
      *
-     * The method returns a matrix with nTotalSpecies rows and nTotalSpecies columns.
-     * For a derivative with respect to \f$c_i\f$, all other \f$c_j\f$ are held
+     * The method returns a square matrix with nTotalSpecies() rows and columns.
+     * For a derivative with respect to @f$ c_i @f$, all other @f$ c_j @f$ are held
      * constant.
      *
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
      *
-     * @since  New in Cantera 3.0.
+     * @since New in %Cantera 3.0.
      */
     Eigen::SparseMatrix<double> destructionRates_ddCi();
 
     /**
      * Calculate derivatives for species net production rates with respect to
      * temperature at constant pressure, molar concentration and mole fractions.
-     * @param[out] dwdot  Output vector of derivatives. Length: m_kk.
+     * @param[out] dwdot  Output vector of derivatives. Length: #m_kk.
      */
     void getNetProductionRates_ddT(double* dwdot);
 
     /**
      * Calculate derivatives for species net production rates with respect to pressure
      * at constant temperature, molar concentration and mole fractions.
-     * @param[out] dwdot  Output vector of derivatives. Length: m_kk.
+     * @param[out] dwdot  Output vector of derivatives. Length: #m_kk.
      */
     void getNetProductionRates_ddP(double* dwdot);
 
     /**
      * Calculate derivatives for species net production rates with respect to molar
      * concentration at constant temperature, pressure and mole fractions.
-     * @param[out] dwdot  Output vector of derivatives. Length: m_kk.
+     * @param[out] dwdot  Output vector of derivatives. Length: #m_kk.
      *
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
@@ -1029,9 +1124,9 @@ public:
      * Calculate derivatives for species net production rates with respect to species
      * mole fractions at constant temperature, pressure and molar concentration.
      *
-     * The method returns a matrix with nTotalSpecies rows and nTotalSpecies columns.
-     * For a derivative with respect to \f$X_i\f$, all other \f$X_j\f$ are held constant,
-     * rather than enforcing \f$\sum X_j = 1\f$.
+     * The method returns a square matrix with nTotalSpecies() rows and columns.
+     * For a derivative with respect to @f$ X_i @f$, all other @f$ X_j @f$ are held
+     * constant, rather than enforcing @f$ \sum X_j = 1 @f$.
      *
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
@@ -1043,18 +1138,20 @@ public:
      * concentration at constant temperature, pressure, and concentration of all other
      * species.
      *
-     * The method returns a matrix with nTotalSpecies rows and nTotalSpecies columns.
-     * For a derivative with respect to \f$c_i\f$, all other \f$c_j\f$ are held
+     * The method returns a square matrix with nTotalSpecies() rows and columns.
+     * For a derivative with respect to @f$ c_i @f$, all other @f$ c_j @f$ are held
      * constant.
      *
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
      *
-     * @since  New in Cantera 3.0.
+     * @since New in %Cantera 3.0.
      */
     Eigen::SparseMatrix<double> netProductionRates_ddCi();
 
-    //! @}
+    /** @} End of Kinetics Derivatives */
+    //! @} End of addtogroup derivGroup
+
     //! @name Reaction Mechanism Informational Query Routines
     //! @{
 
@@ -1103,7 +1200,7 @@ public:
      * @param k   kinetic species index
      * @param i   reaction index
      */
-    virtual doublereal reactantOrder(size_t k, size_t i) const {
+    virtual double reactantOrder(size_t k, size_t i) const {
         throw NotImplementedError("Kinetics::reactantOrder");
     }
 
@@ -1117,7 +1214,7 @@ public:
      * @param k   kinetic species index
      * @param i   reaction index
      */
-    virtual doublereal productOrder(int k, int i) const {
+    virtual double productOrder(int k, int i) const {
         throw NotImplementedError("Kinetics::productOrder");
     }
 
@@ -1126,7 +1223,7 @@ public:
      *  @param[out] conc  Vector of activity concentrations. Length is equal
      *               to the number of species in the kinetics object
      */
-    virtual void getActivityConcentrations(doublereal* const conc) {
+    virtual void getActivityConcentrations(double* const conc) {
         throw NotImplementedError("Kinetics::getActivityConcentrations");
     }
 
@@ -1134,19 +1231,19 @@ public:
      * String specifying the type of reaction.
      *
      * @param i   reaction index
-     * @since  Method returned magic number prior to Cantera 3.0.
-     * @deprecated  To be removed after Cantera 3.0. Replace with
+     * @since Method returned magic number prior to %Cantera 3.0.
+     * @deprecated To be removed after %Cantera 3.0. Replace with
      *     `kin->reaction(i)->type()`
      */
-    virtual std::string reactionType(size_t i) const;
+    virtual string reactionType(size_t i) const;
 
     /**
      * String specifying the type of reaction.
      *
      * @param i   reaction index
-     * @deprecated  To be removed after Cantera 3.0.
+     * @deprecated To be removed after %Cantera 3.0.
      */
-    virtual std::string reactionTypeStr(size_t i) const;
+    virtual string reactionTypeStr(size_t i) const;
 
     /**
      * True if reaction i has been declared to be reversible. If isReversible(i)
@@ -1163,20 +1260,20 @@ public:
      * Return a string representing the reaction.
      *
      * @param i   reaction index
-     * @deprecated To be removed after Cantera 3.0. Replace with
+     * @deprecated To be removed after %Cantera 3.0. Replace with
      *     `kin->reaction(i)->equation()`.
      */
-    std::string reactionString(size_t i) const;
+    string reactionString(size_t i) const;
 
     //! Returns a string containing the reactants side of the reaction equation.
-    //! @deprecated To be removed after Cantera 3.0. Replace with
+    //! @deprecated To be removed after %Cantera 3.0. Replace with
     //!     `kin->reaction(i)->reactantString()`
-    std::string reactantString(size_t i) const;
+    string reactantString(size_t i) const;
 
     //! Returns a string containing the products side of the reaction equation.
-    //! @deprecated To be removed after Cantera 3.0. Replace with
+    //! @deprecated To be removed after %Cantera 3.0. Replace with
     //!     `kin->reaction(i)->productString()`
-    std::string productString(size_t i) const;
+    string productString(size_t i) const;
 
     /**
      * Return the forward rate constants
@@ -1232,17 +1329,17 @@ public:
      *    mechanism.
      *  - #m_thermo -> vector of pointers to ThermoPhase phases that
      *    participate in the kinetics mechanism.
-     *  - #m_phaseindex -> map containing the std::string id of each
+     *  - #m_phaseindex -> map containing the string id of each
      *    ThermoPhase phase as a key and the index of the phase within the
      *    kinetics manager object as the value.
      *
      * @param thermo    Reference to the ThermoPhase to be added.
-     * @since New in Cantera 3.0. Replaces addPhase.
+     * @since New in %Cantera 3.0. Replaces addPhase.
      */
     virtual void addThermo(shared_ptr<ThermoPhase> thermo);
 
     //! @see Kinetics::addThermo(shared_ptr<ThermoPhase>)
-    //! @deprecated To be removed after Cantera 3.0. Replaced by addThermo
+    //! @deprecated To be removed after %Cantera 3.0. Replaced by addThermo
     //!     pointer.
     virtual void addPhase(ThermoPhase& thermo);
 
@@ -1334,7 +1431,7 @@ public:
     /*!
      * @param i index of the reaction
      */
-    doublereal multiplier(size_t i) const {
+    double multiplier(size_t i) const {
         return m_perturb[i];
     }
 
@@ -1343,7 +1440,7 @@ public:
      *  @param i  index of the reaction
      *  @param f  value of the multiplier.
      */
-    virtual void setMultiplier(size_t i, doublereal f) {
+    virtual void setMultiplier(size_t i, double f) {
         m_perturb[i] = f;
     }
 
@@ -1362,9 +1459,9 @@ public:
      * both elements of the pair. If no unmarked duplicates or unmatched marked
      * duplicate reactions are found, returns `(npos, npos)`.
      */
-    virtual std::pair<size_t, size_t> checkDuplicates(bool throw_err=true) const;
+    virtual pair<size_t, size_t> checkDuplicates(bool throw_err=true) const;
 
-    /*!
+    /**
      * Takes as input an array of properties for all species in the mechanism
      * and copies those values belonging to a particular phase to the output
      * array.
@@ -1373,13 +1470,13 @@ public:
      *     reaction mechanism
      * @param phase_data Output array where the values for the the specified
      *     phase are to be written.
-     * @deprecated Unused. To be removed after Cantera 3.0.
+     * @deprecated Unused. To be removed after %Cantera 3.0.
      */
     void selectPhase(const double* data, const ThermoPhase* phase,
                      double* phase_data);
 
     //! Set root Solution holding all phase information
-    virtual void setRoot(std::shared_ptr<Solution> root) {
+    virtual void setRoot(shared_ptr<Solution> root) {
         m_root = root;
     }
 
@@ -1391,7 +1488,7 @@ public:
 
     //! Calculate the reaction enthalpy of a reaction which
     //! has not necessarily been added into the Kinetics object
-    //! @deprecated To be removed after Cantera 3.0
+    //! @deprecated To be removed after %Cantera 3.0
     virtual double reactionEnthalpy(const Composition& reactants,
                                     const Composition& products);
 
@@ -1414,11 +1511,8 @@ protected:
      *
      *  @return 0.0 if the stoichiometries are not multiples of one another
      *    Otherwise, it returns the ratio of the stoichiometric coefficients.
-     *
-     * @ingroup kineticsmgr
      */
-    double checkDuplicateStoich(std::map<int, double>& r1,
-                                std::map<int, double>& r2) const;
+    double checkDuplicateStoich(map<int, double>& r1, map<int, double>& r2) const;
 
     //! @name Stoichiometry management
     //!
@@ -1449,10 +1543,10 @@ protected:
 
     //! Vector of perturbation factors for each reaction's rate of
     //! progress vector. It is initialized to one.
-    vector_fp m_perturb;
+    vector<double> m_perturb;
 
     //! Vector of Reaction objects represented by this Kinetics manager
-    std::vector<shared_ptr<Reaction> > m_reactions;
+    vector<shared_ptr<Reaction>> m_reactions;
 
     //! m_thermo is a vector of pointers to ThermoPhase objects that are
     //! involved with this kinetics operator
@@ -1467,17 +1561,17 @@ protected:
      * Note that this kinetics object doesn't own these ThermoPhase objects
      * and is not responsible for creating or deleting them.
      */
-    std::vector<ThermoPhase*> m_thermo;
+    vector<ThermoPhase*> m_thermo;
 
     //! vector of shared pointers, @see m_thermo
-    //! @todo replace m_thermo with shared version after Cantera 3.0
+    //! @todo replace m_thermo with shared version after %Cantera 3.0
     vector<shared_ptr<ThermoPhase>> m_sharedThermo;
 
     /**
      * m_start is a vector of integers specifying the beginning position for the
      * species vector for the n'th phase in the kinetics class.
      */
-    std::vector<size_t> m_start;
+    vector<size_t> m_start;
 
     /**
      * Mapping of the phase name to the position of the phase within the
@@ -1485,10 +1579,10 @@ protected:
      * function, phaseIndex() decrements by one before returning the index
      * value, so that missing phases return -1.
      */
-    std::map<std::string, size_t> m_phaseindex;
+    map<string, size_t> m_phaseindex;
 
     //! Index in the list of phases of the one surface phase.
-    //! @deprecated To be removed after Cantera 3.0.
+    //! @deprecated To be removed after %Cantera 3.0.
     size_t m_surfphase = npos;
 
     //! Phase Index where reactions are assumed to be taking place
@@ -1502,34 +1596,37 @@ protected:
     size_t m_mindim = 4;
 
     //! Forward rate constant for each reaction
-    vector_fp m_rfn;
+    vector<double> m_rfn;
 
     //! Delta G^0 for all reactions
-    vector_fp m_delta_gibbs0;
+    vector<double> m_delta_gibbs0;
 
     //! Reciprocal of the equilibrium constant in concentration units
-    vector_fp m_rkcn;
+    vector<double> m_rkcn;
 
     //! Forward rate-of-progress for each reaction
-    vector_fp m_ropf;
+    vector<double> m_ropf;
 
     //! Reverse rate-of-progress for each reaction
-    vector_fp m_ropr;
+    vector<double> m_ropr;
 
     //! Net rate-of-progress for each reaction
-    vector_fp m_ropnet;
+    vector<double> m_ropnet;
 
     //! The enthalpy change for each reaction to calculate Blowers-Masel rates
-    vector_fp m_dH;
+    vector<double> m_dH;
 
     //! Buffer used for storage of intermediate reaction-specific results
-    vector_fp m_rbuf;
+    vector<double> m_rbuf;
 
     //! See skipUndeclaredSpecies()
     bool m_skipUndeclaredSpecies = false;
 
     //! See skipUndeclaredThirdBodies()
     bool m_skipUndeclaredThirdBodies = false;
+
+    //! Flag indicating whether reactions include undeclared third bodies
+    bool m_hasUndeclaredThirdBodies = false;
 
     //! reference to Solution
     std::weak_ptr<Solution> m_root;

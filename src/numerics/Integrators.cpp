@@ -11,7 +11,7 @@
 namespace Cantera
 {
 
-Integrator* newIntegrator(const std::string& itype)
+Integrator* newIntegrator(const string& itype)
 {
     if (itype == "CVODE") {
         return new CVodesIntegrator();

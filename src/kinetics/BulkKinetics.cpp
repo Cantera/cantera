@@ -88,6 +88,8 @@ void BulkKinetics::addThirdBody(shared_ptr<Reaction> r)
             throw CanteraError("BulkKinetics::addThirdBody", "Found third-body"
                 " efficiency for undefined species '{}' while adding reaction '{}'",
                 name, r->equation());
+        } else {
+            m_hasUndeclaredThirdBodies = true;
         }
     }
     m_multi_concm.install(nReactions() - 1, efficiencies,
@@ -174,7 +176,7 @@ void BulkKinetics::getEquilibriumConstants(double* kc)
 {
     updateROP();
 
-    vector_fp& delta_gibbs0 = m_rbuf0;
+    vector<double>& delta_gibbs0 = m_rbuf0;
     fill(delta_gibbs0.begin(), delta_gibbs0.end(), 0.0);
 
     // compute Delta G^0 for all reactions
@@ -394,7 +396,7 @@ Eigen::SparseMatrix<double> BulkKinetics::fwdRatesOfProgress_ddX()
     assertDerivativesValid("BulkKinetics::fwdRatesOfProgress_ddX");
 
     // forward reaction rate coefficients
-    vector_fp& rop_rates = m_rbuf0;
+    vector<double>& rop_rates = m_rbuf0;
     getFwdRateConstants(rop_rates.data());
     return calculateCompositionDerivatives(m_reactantStoich, rop_rates);
 }
@@ -404,7 +406,7 @@ Eigen::SparseMatrix<double> BulkKinetics::revRatesOfProgress_ddX()
     assertDerivativesValid("BulkKinetics::revRatesOfProgress_ddX");
 
     // reverse reaction rate coefficients
-    vector_fp& rop_rates = m_rbuf0;
+    vector<double>& rop_rates = m_rbuf0;
     getFwdRateConstants(rop_rates.data());
     applyEquilibriumConstants(rop_rates.data());
     return calculateCompositionDerivatives(m_revProductStoich, rop_rates);
@@ -415,7 +417,7 @@ Eigen::SparseMatrix<double> BulkKinetics::netRatesOfProgress_ddX()
     assertDerivativesValid("BulkKinetics::netRatesOfProgress_ddX");
 
     // forward reaction rate coefficients
-    vector_fp& rop_rates = m_rbuf0;
+    vector<double>& rop_rates = m_rbuf0;
     getFwdRateConstants(rop_rates.data());
     auto jac = calculateCompositionDerivatives(m_reactantStoich, rop_rates);
 
@@ -429,7 +431,7 @@ Eigen::SparseMatrix<double> BulkKinetics::fwdRatesOfProgress_ddCi()
     assertDerivativesValid("BulkKinetics::fwdRatesOfProgress_ddCi");
 
     // forward reaction rate coefficients
-    vector_fp& rop_rates = m_rbuf0;
+    vector<double>& rop_rates = m_rbuf0;
     getFwdRateConstants(rop_rates.data());
     return calculateCompositionDerivatives(m_reactantStoich, rop_rates, false);
 }
@@ -439,7 +441,7 @@ Eigen::SparseMatrix<double> BulkKinetics::revRatesOfProgress_ddCi()
     assertDerivativesValid("BulkKinetics::revRatesOfProgress_ddCi");
 
     // reverse reaction rate coefficients
-    vector_fp& rop_rates = m_rbuf0;
+    vector<double>& rop_rates = m_rbuf0;
     getFwdRateConstants(rop_rates.data());
     applyEquilibriumConstants(rop_rates.data());
     return calculateCompositionDerivatives(m_revProductStoich, rop_rates, false);
@@ -450,7 +452,7 @@ Eigen::SparseMatrix<double> BulkKinetics::netRatesOfProgress_ddCi()
     assertDerivativesValid("BulkKinetics::netRatesOfProgress_ddCi");
 
     // forward reaction rate coefficients
-    vector_fp& rop_rates = m_rbuf0;
+    vector<double>& rop_rates = m_rbuf0;
     getFwdRateConstants(rop_rates.data());
     auto jac = calculateCompositionDerivatives(m_reactantStoich, rop_rates, false);
 
@@ -572,8 +574,8 @@ void BulkKinetics::applyEquilibriumConstants_ddT(double* drkcn)
     double P = thermo().pressure();
     double rrt = 1. / thermo().RT();
 
-    vector_fp& grt = m_sbuf0;
-    vector_fp& delta_gibbs0 = m_rbuf1;
+    vector<double>& grt = m_sbuf0;
+    vector<double>& delta_gibbs0 = m_rbuf1;
     fill(delta_gibbs0.begin(), delta_gibbs0.end(), 0.0);
 
     // compute perturbed Delta G^0 for all reversible reactions
@@ -601,7 +603,7 @@ void BulkKinetics::applyEquilibriumConstants_ddT(double* drkcn)
     thermo().restoreState(m_state);
 }
 
-void BulkKinetics::process_ddT(const vector_fp& in, double* drop)
+void BulkKinetics::process_ddT(const vector<double>& in, double* drop)
 {
     // apply temperature derivative
     copy(in.begin(), in.end(), drop);
@@ -610,7 +612,7 @@ void BulkKinetics::process_ddT(const vector_fp& in, double* drop)
     }
 }
 
-void BulkKinetics::process_ddP(const vector_fp& in, double* drop)
+void BulkKinetics::process_ddP(const vector<double>& in, double* drop)
 {
     // apply pressure derivative
     copy(in.begin(), in.end(), drop);
@@ -619,7 +621,7 @@ void BulkKinetics::process_ddP(const vector_fp& in, double* drop)
     }
 }
 
-void BulkKinetics::process_ddC(StoichManagerN& stoich, const vector_fp& in,
+void BulkKinetics::process_ddC(StoichManagerN& stoich, const vector<double>& in,
                                double* drop, bool mass_action)
 {
     Eigen::Map<Eigen::VectorXd> out(drop, nReactions());
@@ -655,11 +657,11 @@ void BulkKinetics::process_ddC(StoichManagerN& stoich, const vector_fp& in,
 }
 
 Eigen::SparseMatrix<double> BulkKinetics::calculateCompositionDerivatives(
-    StoichManagerN& stoich, const vector_fp& in, bool ddX)
+    StoichManagerN& stoich, const vector<double>& in, bool ddX)
 {
     Eigen::SparseMatrix<double> out;
-    vector_fp& scaled = m_rbuf1;
-    vector_fp& outV = m_rbuf2;
+    vector<double>& scaled = m_rbuf1;
+    vector<double>& outV = m_rbuf2;
 
     // convert from concentration to mole fraction output
     copy(in.begin(), in.end(), scaled.begin());

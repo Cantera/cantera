@@ -2,7 +2,7 @@
  * @file MaskellSolidSolnPhase.h Header file for a solid solution model
  * following Maskell, Shaw, and Tye. Electrochimica Acta 1982
  *
- * This class inherits from the Cantera class ThermoPhase and implements a
+ * This class inherits from the %Cantera class ThermoPhase and implements a
  * non-ideal solid solution model with incompressible thermodynamics.
  */
 
@@ -24,7 +24,7 @@ namespace Cantera
  *
  * @ingroup thermoprops
  *
- * @deprecated To be removed after Cantera 3.0. This class has numerous thermodynamic
+ * @deprecated To be removed after %Cantera 3.0. This class has numerous thermodynamic
  *    inconsistencies. See https://github.com/Cantera/cantera/issues/1321.
  */
 class MaskellSolidSolnPhase : public VPStandardStateTP
@@ -32,20 +32,20 @@ class MaskellSolidSolnPhase : public VPStandardStateTP
 public:
     MaskellSolidSolnPhase();
 
-    virtual std::string type() const {
+    string type() const override {
         return "MaskellSolidsoln";
     }
 
-    virtual Units standardConcentrationUnits() const { return Units(1.0); }
-    virtual void getActivityConcentrations(doublereal* c) const;
-    virtual doublereal standardConcentration(size_t k=0) const { return 1.0; }
-    virtual doublereal logStandardConc(size_t k=0) const { return 0.0; }
+    Units standardConcentrationUnits() const override { return Units(1.0); }
+    void getActivityConcentrations(double* c) const override;
+    double standardConcentration(size_t k=0) const override { return 1.0; }
+    double logStandardConc(size_t k=0) const override { return 0.0; }
 
     //! @name Molar Thermodynamic Properties of the Solution
     //! @{
 
-    virtual doublereal enthalpy_mole() const;
-    virtual doublereal entropy_mole() const;
+    double enthalpy_mole() const override;
+    double entropy_mole() const override;
 
     //! @}
     //! @name Mechanical Equation of State Properties
@@ -62,7 +62,7 @@ public:
      * For this incompressible system, we return the internally stored
      * independent value of the pressure.
      */
-    virtual doublereal pressure() const {
+    double pressure() const override {
         return m_Pcurrent;
     }
 
@@ -73,41 +73,41 @@ public:
      *
      * @param p   Input Pressure (Pa)
      */
-    virtual void setPressure(doublereal p);
+    void setPressure(double p) override;
 
-    virtual void calcDensity();
+    void calcDensity() override;
 
     //! @}
     //! @name Chemical Potentials and Activities
     //! @{
 
-    virtual void getActivityCoefficients(doublereal* ac) const;
-    virtual void getChemPotentials(doublereal* mu) const;
-    //! @deprecated To be removed after Cantera 3.0. Use getChemPotentials() instead.
-    virtual void getChemPotentials_RT(doublereal* mu) const;
+    void getActivityCoefficients(double* ac) const override;
+    void getChemPotentials(double* mu) const override;
+    //! @deprecated To be removed after %Cantera 3.0. Use getChemPotentials() instead.
+    void getChemPotentials_RT(double* mu) const override;
 
     //! @}
     //! @name  Partial Molar Properties of the Solution
     //! @{
 
-    virtual void getPartialMolarEnthalpies(doublereal* hbar) const;
-    virtual void getPartialMolarEntropies(doublereal* sbar) const;
-    virtual void getPartialMolarCp(doublereal* cpbar) const;
-    virtual void getPartialMolarVolumes(doublereal* vbar) const;
-    virtual void getPureGibbs(doublereal* gpure) const;
-    virtual void getStandardChemPotentials(doublereal* mu) const;
+    void getPartialMolarEnthalpies(double* hbar) const override;
+    void getPartialMolarEntropies(double* sbar) const override;
+    void getPartialMolarCp(double* cpbar) const override;
+    void getPartialMolarVolumes(double* vbar) const override;
+    void getPureGibbs(double* gpure) const override;
+    void getStandardChemPotentials(double* mu) const override;
 
     //! @}
     //! @name Utility Functions
     //! @{
 
-    virtual void initThermo();
-    virtual void getParameters(AnyMap& phaseNode) const;
+    void initThermo() override;
+    void getParameters(AnyMap& phaseNode) const override;
 
-    void set_h_mix(const doublereal hmix) { h_mixing = hmix; }
+    void set_h_mix(const double hmix) { h_mixing = hmix; }
 
     //! Set the product Species. Must be called after species have been added.
-    void setProductSpecies(const std::string& name);
+    void setProductSpecies(const string& name);
     //! @}
 
 private:
@@ -127,9 +127,9 @@ private:
     int reactant_species_index = -1;
 
     // Functions to calculate some of the pieces of the mixing terms.
-    doublereal s() const;
-    doublereal fm(const doublereal r) const;
-    doublereal p(const doublereal r) const;
+    double s() const;
+    double fm(const double r) const;
+    double p(const double r) const;
 };
 }
 

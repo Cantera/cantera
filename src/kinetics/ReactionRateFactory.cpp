@@ -114,7 +114,7 @@ void ReactionRateFactory::deleteFactory() {
     s_factory = 0;
 }
 
-shared_ptr<ReactionRate> newReactionRate(const std::string& type)
+shared_ptr<ReactionRate> newReactionRate(const string& type)
 {
     return shared_ptr<ReactionRate> (
         ReactionRateFactory::factory()->create(type, AnyMap(), UnitStack({})));
@@ -123,7 +123,7 @@ shared_ptr<ReactionRate> newReactionRate(const std::string& type)
 shared_ptr<ReactionRate> newReactionRate(
     const AnyMap& rate_node, const UnitStack& rate_units)
 {
-    std::string type = ""; // default is to create Arrhenius from empty
+    string type = ""; // default is to create Arrhenius from empty
     if (rate_node.hasKey("type")) {
         type = rate_node["type"].asString();
     }

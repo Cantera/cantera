@@ -1,6 +1,6 @@
 /**
- * @file solveSP.h Header file for implicit surface problem solver (see \ref
- *       chemkinetics and class \link Cantera::solveSP solveSP\endlink).
+ * @file solveSP.h Header file for implicit surface problem solver (see @ref
+ *       chemkinetics and class @link Cantera::solveSP solveSP@endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -13,6 +13,7 @@
 #include "cantera/numerics/DenseMatrix.h"
 
 //! @defgroup solvesp_methods Surface Problem Solver Methods
+//! @ingroup surfSolverGroup
 //! @{
 
 //! This assumes that the initial guess supplied to the routine is far from
@@ -39,11 +40,12 @@ const int SFLUX_JACOBIAN = 3;
 //! whether it's converged to a steady state or not. This is a poor man's time
 //! stepping algorithm.
 const int SFLUX_TRANSIENT = 4;
-//! @}
+//! @} End of solvesp_method
 
 //! @defgroup solvesp_bulkFunc Surface Problem Bulk Phase Mode
 //! Functionality expected from the bulk phase. This changes the equations
 //! that will be used to solve for the bulk mole fractions.
+//! @ingroup surfSolverGroup
 //! @{
 
 //! Deposition of a bulk phase is to be expected. Bulk mole fractions are
@@ -54,10 +56,13 @@ const int BULK_DEPOSITION = 1;
 //! constant, and given by the initial conditions. This is also used whenever
 //! the condensed phase is part of the larger solution.
 const int BULK_ETCH = 2;
-//! @}
+//! @} End of solvesp_bulkFunc
 
 namespace Cantera
 {
+
+//! @addtogroup surfSolverGroup
+//! @{
 
 //! Method to solve a pseudo steady state surface problem
 /*!
@@ -178,19 +183,19 @@ public:
      *          Note the actual converged solution is returned as part of the
      *          internal state of the InterfaceKinetics objects.
      */
-    int solveSurfProb(int ifunc, doublereal time_scale, doublereal TKelvin,
-                      doublereal PGas, doublereal reltol, doublereal abstol);
+    int solveSurfProb(int ifunc, double time_scale, double TKelvin,
+                      double PGas, double reltol, double abstol);
 
 private:
     //! Printing routine that optionally gets called at the start of every
     //! invocation
-    void print_header(int ioflag, int ifunc, doublereal time_scale,
-                      int damping, doublereal reltol, doublereal abstol);
+    void print_header(int ioflag, int ifunc, double time_scale,
+                      int damping, double reltol, double abstol);
 
     //! Printing routine that gets called after every iteration
-    void printIteration(int ioflag, doublereal damp, int label_d, int label_t,
-                        doublereal inv_t, doublereal t_real, size_t iter,
-                        doublereal update_norm, doublereal resid_norm,
+    void printIteration(int ioflag, double damp, int label_d, int label_t,
+                        double inv_t, double t_real, size_t iter,
+                        double update_norm, double resid_norm,
                         bool do_time, bool final=false);
 
     //! Calculate a conservative delta T to use in a pseudo-steady state
@@ -220,9 +225,9 @@ private:
      * @param ioflag Level of the output requested.
      * @returns the 1. /  delta T to be used on the next step
      */
-    doublereal calc_t(doublereal netProdRateSolnSP[], doublereal XMolSolnSP[],
-                      int* label, int* label_old,
-                      doublereal* label_factor, int ioflag);
+    double calc_t(double netProdRateSolnSP[], double XMolSolnSP[],
+                  int* label, int* label_old,
+                  double* label_factor, int ioflag);
 
     //! Calculate the solution and residual weights
     /*!
@@ -234,21 +239,21 @@ private:
      *  @param abstol     Absolute error tolerance
      *  @param reltol     Relative error tolerance
      */
-    void calcWeights(doublereal wtSpecies[], doublereal wtResid[],
-                     const Array2D& Jac, const doublereal CSolnSP[],
-                     const doublereal abstol, const doublereal reltol);
+    void calcWeights(double wtSpecies[], double wtResid[],
+                     const Array2D& Jac, const double CSolnSP[],
+                     const double abstol, const double reltol);
 
     /**
      * Update the surface states of the surface phases.
      */
-    void updateState(const doublereal* cSurfSpec);
+    void updateState(const double* cSurfSpec);
 
     //! Update mole fraction vector consisting of unknowns in surface problem
     /*!
      * @param XMolSolnSP  Vector of mole fractions for the unknowns in the
      *                    surface problem.
      */
-    void updateMFSolnSP(doublereal* XMolSolnSP);
+    void updateMFSolnSP(double* XMolSolnSP);
 
     //! Update the mole fraction vector for a specific kinetic species vector
     //! corresponding to one InterfaceKinetics object
@@ -259,7 +264,7 @@ private:
      *                  phases in the InterfaceKinetics object
      * @param isp       ID of the InterfaceKinetics Object.
      */
-    void updateMFKinSpecies(doublereal* XMolKinSp, int isp);
+    void updateMFKinSpecies(double* XMolKinSp, int isp);
 
     //! Update the vector that keeps track of the largest species in each
     //! surface phase.
@@ -267,7 +272,7 @@ private:
      * @param CSolnSP Vector of the current values of the surface concentrations
      *                in all of the surface species.
      */
-    void evalSurfLarge(const doublereal* CSolnSP);
+    void evalSurfLarge(const double* CSolnSP);
 
     //! Main Function evaluation
     /*!
@@ -279,8 +284,8 @@ private:
      *  @param do_time Calculate a time dependent residual
      *  @param deltaT  Delta time for time dependent problem.
      */
-    void fun_eval(doublereal* resid, const doublereal* CSolnSP,
-                  const doublereal* CSolnOldSP, const bool do_time, const doublereal deltaT);
+    void fun_eval(double* resid, const double* CSolnSP,
+                  const double* CSolnOldSP, const bool do_time, const double deltaT);
 
     //! Main routine that calculates the current residual and Jacobian
     /*!
@@ -294,16 +299,16 @@ private:
      *  @param do_time Calculate a time dependent residual
      *  @param deltaT  Delta time for time dependent problem.
      */
-    void resjac_eval(DenseMatrix& jac, doublereal* resid,
-                     doublereal* CSolnSP,
-                     const doublereal* CSolnSPOld, const bool do_time,
-                     const doublereal deltaT);
+    void resjac_eval(DenseMatrix& jac, double* resid,
+                     double* CSolnSP,
+                     const double* CSolnSPOld, const bool do_time,
+                     const double deltaT);
 
     //! Vector of interface kinetics objects
     /*!
      * Each of these is associated with one and only one surface phase.
      */
-    std::vector<InterfaceKinetics*> &m_objects;
+    vector<InterfaceKinetics*> &m_objects;
 
     //! Total number of equations to solve in the implicit problem.
     /*!
@@ -338,21 +343,21 @@ private:
      *  in some places)
      *  m_surfKinObjID[i] = i
      */
-    std::vector<size_t> m_indexKinObjSurfPhase;
+    vector<size_t> m_indexKinObjSurfPhase;
 
     //! Vector of length number of surface phases containing
     //! the number of surface species in each phase
     /*!
      *  Length is equal to the number of surface phases, m_numSurfPhases
      */
-    std::vector<size_t> m_nSpeciesSurfPhase;
+    vector<size_t> m_nSpeciesSurfPhase;
 
     //! Vector of surface phase pointers
     /*!
      *  This is created during the constructor
      *  Length is equal to the number of surface phases, m_numSurfPhases
      */
-    std::vector<SurfPhase*> m_ptrsSurfPhase;
+    vector<SurfPhase*> m_ptrsSurfPhase;
 
     //! Index of the start of the unknowns for each solution phase
     /*!
@@ -364,7 +369,7 @@ private:
      *  i_eqn is the equation number of the first unknown in the
      *  solution vector corresponding to isp'th phase.
      */
-    std::vector<size_t> m_eqnIndexStartSolnPhase;
+    vector<size_t> m_eqnIndexStartSolnPhase;
 
     //! Phase ID in the InterfaceKinetics object of the surface phase
     /*!
@@ -373,7 +378,7 @@ private:
      *
      * Length is equal to m_numSurfPhases
      */
-    std::vector<size_t> m_kinObjPhaseIDSurfPhase;
+    vector<size_t> m_kinObjPhaseIDSurfPhase;
 
     //! Total number of volumetric condensed phases included in the steady state
     //! problem handled by this routine.
@@ -392,7 +397,7 @@ private:
     /*!
      * Length is number of bulk phases
      */
-    std::vector<size_t> m_numBulkSpecies;
+    vector<size_t> m_numBulkSpecies;
 
     //! Total number of species in all bulk phases.
     /*!
@@ -402,7 +407,7 @@ private:
     size_t m_numTotBulkSpeciesSS = 0;
 
     //! Vector of bulk phase pointers, length is equal to m_numBulkPhases.
-    std::vector<ThermoPhase*> m_bulkPhasePtrs;
+    vector<ThermoPhase*> m_bulkPhasePtrs;
 
     //! Index between the equation index and the position in the kinetic
     //! species array for the appropriate kinetics operator
@@ -412,14 +417,14 @@ private:
      *  ksp = m_kinSpecIndex[ieq]
      *  ksp is the kinetic species index for the ieq'th equation.
      */
-    std::vector<size_t> m_kinSpecIndex;
+    vector<size_t> m_kinSpecIndex;
 
     //! Index between the equation index and the index of the
     //! InterfaceKinetics object
     /*!
      *   Length m_neq
      */
-    std::vector<size_t> m_kinObjIndex;
+    vector<size_t> m_kinObjIndex;
 
     //! Vector containing the indices of the largest species
     //! in each surface phase
@@ -428,41 +433,41 @@ private:
      *  varies from 0 to (num species in phase - 1) and `i` is the surface
      *  phase index in the problem. Length is equal to #m_numSurfPhases.
      */
-    std::vector<size_t> m_spSurfLarge;
+    vector<size_t> m_spSurfLarge;
 
     //! Maximum number of species in any single kinetics operator
     //! -> also maxed wrt the total # of solution species
     size_t m_maxTotSpecies = 0;
 
     //! Temporary vector with length equal to max m_maxTotSpecies
-    vector_fp m_netProductionRatesSave;
+    vector<double> m_netProductionRatesSave;
 
     //! Temporary vector with length equal to max m_maxTotSpecies
-    vector_fp m_numEqn1;
+    vector<double> m_numEqn1;
 
     //! Temporary vector with length equal to max m_maxTotSpecies
-    vector_fp m_numEqn2;
+    vector<double> m_numEqn2;
 
     //! Temporary vector with length equal to max m_maxTotSpecies
-    vector_fp m_CSolnSave;
+    vector<double> m_CSolnSave;
 
     //! Solution vector. length MAX(1, m_neq)
-    vector_fp m_CSolnSP;
+    vector<double> m_CSolnSP;
 
     //! Saved initial solution vector. length MAX(1, m_neq)
-    vector_fp m_CSolnSPInit;
+    vector<double> m_CSolnSPInit;
 
     //! Saved  solution vector at the old time step. length MAX(1, m_neq)
-    vector_fp m_CSolnSPOld;
+    vector<double> m_CSolnSPOld;
 
     //! Weights for the residual norm calculation. length MAX(1, m_neq)
-    vector_fp m_wtResid;
+    vector<double> m_wtResid;
 
     //! Weights for the species concentrations norm calculation
     /*!
      * length MAX(1, m_neq)
      */
-    vector_fp m_wtSpecies;
+    vector<double> m_wtSpecies;
 
     //!  Residual for the surface problem
     /*!
@@ -474,10 +479,10 @@ private:
      *
      * length MAX(1, m_neq)
      */
-    vector_fp m_resid;
+    vector<double> m_resid;
 
     //! Vector of mole fractions. length m_maxTotSpecies
-    vector_fp m_XMolKinSpecies;
+    vector<double> m_XMolKinSpecies;
 
     //! Jacobian. m_neq by m_neq computed Jacobian matrix for the local
     //! Newton's method.
@@ -486,5 +491,8 @@ private:
 public:
     int m_ioflag = 0;
 };
+
+//! @} End of surfSolverGroup
+
 }
 #endif

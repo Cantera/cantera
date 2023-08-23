@@ -21,17 +21,19 @@ namespace Cantera
 //! high pressure gas mixtures.
 /*!
  * @attention This class currently does not have any test cases or examples. Its
- *     implementation may be incomplete, and future changes to Cantera may
+ *     implementation may be incomplete, and future changes to %Cantera may
  *     unexpectedly cause this class to stop working. If you use this class,
  *     please consider contributing examples or test cases. In the absence of
  *     new tests or examples, this class may be deprecated and removed in a
- *     future version of Cantera. See
+ *     future version of  %Cantera. See
  *     https://github.com/Cantera/cantera/issues/267 for additional information.
  *
- * The implementation employs a method of corresponding states, using the
- * Takahashi approach for binary diffusion coefficients, (using multicomponent
- * averaging rules for the mixture properties, and the Lucas method for the
- * viscosity of a high-pressure gas mixture.
+ * The implementation employs a method of corresponding states, using the Takahashi
+ * @cite takahashi1975 approach for binary diffusion coefficients (using multicomponent
+ * averaging rules for the mixture properties), and the Lucas method for the viscosity
+ * of a high-pressure gas mixture. All methods are described in Poling et al.
+ * @cite poling2001 (viscosity in Ch. 9, thermal conductivity in Ch. 10, and diffusion
+ * coefficients in Ch. 11).
  *
  * @ingroup tranprops
  */
@@ -45,7 +47,7 @@ protected:
     HighPressureGasTransport(ThermoPhase* thermo=0);
 
 public:
-    virtual std::string transportModel() const {
+    string transportModel() const override {
         return "HighPressureGas";
     }
 
@@ -53,39 +55,40 @@ public:
     /*!
      *  Currently not implemented for this model
      */
-    virtual void getThermalDiffCoeffs(doublereal* const dt);
+    void getThermalDiffCoeffs(double* const dt) override;
 
-    virtual double thermalConductivity();
+    double thermalConductivity() override;
 
-    /*! Returns the matrix of binary diffusion coefficients
+    /**
+     * Returns the matrix of binary diffusion coefficients
      *
      *      d[ld*j +  i] = rp*m_bdiff(i,j)*(DP)_R;
      *
      * @param ld    offset of rows in the storage
      * @param d     output vector of diffusion coefficients.  Units of m**2 / s
      */
-    virtual void getBinaryDiffCoeffs(const size_t ld, doublereal* const d);
+    void getBinaryDiffCoeffs(const size_t ld, double* const d) override;
 
-    virtual void getMultiDiffCoeffs(const size_t ld, doublereal* const d);
+    void getMultiDiffCoeffs(const size_t ld, double* const d) override;
 
-    virtual doublereal viscosity();
+    double viscosity() override;
 
     friend class TransportFactory;
 
 protected:
-    virtual doublereal Tcrit_i(size_t i);
+    double Tcrit_i(size_t i);
 
-    virtual doublereal Pcrit_i(size_t i);
+    double Pcrit_i(size_t i);
 
-    virtual doublereal Vcrit_i(size_t i);
+    double Vcrit_i(size_t i);
 
-    virtual doublereal Zcrit_i(size_t i);
+    double Zcrit_i(size_t i);
 
-    vector_fp store(size_t i, size_t nsp);
+    vector<double> store(size_t i, size_t nsp);
 
-    virtual doublereal FQ_i(doublereal Q, doublereal Tr, doublereal MW);
+    double FQ_i(double Q, double Tr, double MW);
 
-    virtual doublereal setPcorr(doublereal Pr, doublereal Tr);
+    double setPcorr(double Pr, double Tr);
 };
 }
 #endif

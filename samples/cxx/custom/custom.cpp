@@ -42,7 +42,7 @@ public:
         // number of chemical species in the system.
         m_nSpecies = m_gas->nSpecies();
 
-        // resize the vector_fp storage containers for species partial molar enthalpies
+        // resize the vector<double> storage containers for species partial molar enthalpies
         // and net production rates. internal values are updated and used by the solver
         // per iteration.
         m_hbar.resize(m_nSpecies);
@@ -62,7 +62,7 @@ public:
      * @param[in] p sensitivity parameter vector, length nparams()
      *   - note: sensitivity analysis isn't implemented in this example
      */
-    void eval(double t, double* y, double* ydot, double* p) {
+    void eval(double t, double* y, double* ydot, double* p) override {
         // the solution vector *y* is [T, Y_1, Y_2, ... Y_K], where T is the
         // system temperature, and Y_k is the mass fraction of species k.
         // similarly, the time derivative of the solution vector, *ydot*, is
@@ -113,7 +113,7 @@ public:
      * Number of equations in the ODE system.
      *   - overridden from FuncEval, called by the integrator during initialization.
      */
-    size_t neq() {
+    size_t neq() const override {
         return m_nEqs;
     }
 
@@ -122,7 +122,7 @@ public:
      *   - overridden from FuncEval, called by the integrator during initialization.
      * @param[out] y solution vector, length neq()
      */
-    void getState(double* y) {
+    void getState(double* y) override {
         // the solution vector *y* is [T, Y_1, Y_2, ... Y_K], where T is the
         // system temperature, and Y_k is the mass fraction of species k.
         y[0] = m_gas->temperature();
@@ -133,8 +133,8 @@ private:
     // private member variables, to be used internally.
     shared_ptr<ThermoPhase> m_gas;
     shared_ptr<Kinetics> m_kinetics;
-    vector_fp m_hbar;
-    vector_fp m_wdot;
+    vector<double> m_hbar;
+    vector<double> m_wdot;
     double m_pressure;
     size_t m_nSpecies;
     size_t m_nEqs;
@@ -180,7 +180,7 @@ int main() {
     //     relative tolerance: 1.0e-9
     //     absolute tolerance: 1.0e-15
     //     max step size: +inf
-    std::unique_ptr<Integrator> integrator(newIntegrator("CVODE"));
+    unique_ptr<Integrator> integrator(newIntegrator("CVODE"));
 
     // initialize the integrator, specifying the start time and the RHS evaluator object.
     // internally, the integrator will apply settings, allocate needed memory, and populate

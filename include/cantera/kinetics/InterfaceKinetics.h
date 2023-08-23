@@ -1,6 +1,5 @@
 /**
  * @file InterfaceKinetics.h
- * @ingroup chemkinetics
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -51,7 +50,7 @@ class ImplicitSurfChem;
  * kinetics operator. Nonexistent phases are deemed to be unstable by default,
  * but this can be changed.
  *
- *  @ingroup chemkinetics
+ * @ingroup kineticsmgr
  */
 class InterfaceKinetics : public Kinetics
 {
@@ -66,15 +65,15 @@ public:
      *               HKM Note -> Since the interface kinetics object will
      *               probably require multiple ThermoPhase objects, this is
      *               probably not a good idea to have this parameter.
-     * @deprecated  To be removed after Cantera 3.0; code base only uses default.
+     * @deprecated To be removed after %Cantera 3.0; code base only uses default.
      */
     InterfaceKinetics(ThermoPhase* thermo);
 
-    virtual ~InterfaceKinetics();
+    ~InterfaceKinetics() override;
 
-    virtual void resizeReactions();
+    void resizeReactions() override;
 
-    virtual std::string kineticsType() const {
+    string kineticsType() const override {
         return "surface";
     }
 
@@ -83,7 +82,7 @@ public:
      * @param n phase Index in this kinetics object.
      * @param V Electric potential (volts)
      */
-    void setElectricPotential(int n, doublereal V);
+    void setElectricPotential(int n, double V);
 
     //! @name Reaction Rates Of Progress
     //! @{
@@ -95,25 +94,25 @@ public:
      *   where deltaG is the electrochemical potential difference between
      *   products minus reactants.
      */
-    virtual void getEquilibriumConstants(doublereal* kc);
+    void getEquilibriumConstants(double* kc) override;
 
-    virtual void getDeltaGibbs(doublereal* deltaG);
+    void getDeltaGibbs(double* deltaG) override;
 
-    virtual void getDeltaElectrochemPotentials(doublereal* deltaM);
-    virtual void getDeltaEnthalpy(doublereal* deltaH);
-    virtual void getDeltaEntropy(doublereal* deltaS);
+    void getDeltaElectrochemPotentials(double* deltaM) override;
+    void getDeltaEnthalpy(double* deltaH) override;
+    void getDeltaEntropy(double* deltaS) override;
 
-    virtual void getDeltaSSGibbs(doublereal* deltaG);
-    virtual void getDeltaSSEnthalpy(doublereal* deltaH);
-    virtual void getDeltaSSEntropy(doublereal* deltaS);
+    void getDeltaSSGibbs(double* deltaG) override;
+    void getDeltaSSEnthalpy(double* deltaH) override;
+    void getDeltaSSEntropy(double* deltaS) override;
 
     //! @}
     //! @name Reaction Mechanism Informational Query Routines
     //! @{
 
-    virtual void getActivityConcentrations(doublereal* const conc);
+    void getActivityConcentrations(double* const conc) override;
 
-    virtual bool isReversible(size_t i) {
+    bool isReversible(size_t i) override {
         if (std::find(m_revindex.begin(), m_revindex.end(), i)
                 < m_revindex.end()) {
             return true;
@@ -122,9 +121,8 @@ public:
         }
     }
 
-    virtual void getFwdRateConstants(doublereal* kfwd);
-    virtual void getRevRateConstants(doublereal* krev,
-                                     bool doIrreversible = false);
+    void getFwdRateConstants(double* kfwd) override;
+    void getRevRateConstants(double* krev, bool doIrreversible=false) override;
 
     //! @}
     //! @name Reaction Mechanism Construction
@@ -143,23 +141,23 @@ public:
      *
      * @param thermo    Reference to the ThermoPhase to be added.
      */
-    virtual void addThermo(shared_ptr<ThermoPhase> thermo);
+    void addThermo(shared_ptr<ThermoPhase> thermo) override;
 
     //! @see InterfaceKinetics::addThermo(shared_ptr<ThermoPhase>)
-    virtual void addPhase(ThermoPhase& thermo);
+    void addPhase(ThermoPhase& thermo) override;
 
-    virtual void init();
-    virtual void resizeSpecies();
-    virtual bool addReaction(shared_ptr<Reaction> r, bool resize=true);
-    virtual void modifyReaction(size_t i, shared_ptr<Reaction> rNew);
-    virtual void setMultiplier(size_t i, double f);
+    void init() override;
+    void resizeSpecies() override;
+    bool addReaction(shared_ptr<Reaction> r, bool resize=true) override;
+    void modifyReaction(size_t i, shared_ptr<Reaction> rNew) override;
+    void setMultiplier(size_t i, double f) override;
     //! @}
 
     //! Internal routine that updates the Rates of Progress of the reactions
     /*!
      *  This is actually the guts of the functionality of the object
      */
-    virtual void updateROP();
+    void updateROP() override;
 
     //! Update properties that depend on temperature
     /*!
@@ -186,9 +184,9 @@ public:
      * This method carries out a time-accurate advancement of the
      * surface coverages for a specified amount of time.
      *
-     *  \f[
+     *  @f[
      *    \dot {\theta}_k = \dot s_k (\sigma_k / s_0)
-     *  \f]
+     *  @f]
      *
      * @param tstep  Time value to advance the surface coverages
      * @param rtol   The relative tolerance for the integrator
@@ -200,7 +198,7 @@ public:
      * @param maxErrTestFails   the maximum permissible number of error test failures
      *                           If not supplied, uses the default value in CVODES (7).
      */
-    void advanceCoverages(doublereal tstep, double rtol=1.e-7,
+    void advanceCoverages(double tstep, double rtol=1.e-7,
                           double atol=1.e-14, double maxStepSize=0,
                           size_t maxSteps=20000, size_t maxErrTestFails=7);
 
@@ -223,7 +221,7 @@ public:
      *             system is solved directly.
      */
     void solvePseudoSteadyStateProblem(int ifuncOverride = -1,
-                                       doublereal timeScaleOverride = 1.0);
+                                       double timeScaleOverride = 1.0);
 
     void setIOFlag(int ioFlag);
 
@@ -307,11 +305,11 @@ public:
     */
     double interfaceCurrent(const size_t iphase);
 
-    virtual void setDerivativeSettings(const AnyMap& settings);
-    virtual void getDerivativeSettings(AnyMap& settings) const;
-    virtual Eigen::SparseMatrix<double> fwdRatesOfProgress_ddCi();
-    virtual Eigen::SparseMatrix<double> revRatesOfProgress_ddCi();
-    virtual Eigen::SparseMatrix<double> netRatesOfProgress_ddCi();
+    void setDerivativeSettings(const AnyMap& settings) override;
+    void getDerivativeSettings(AnyMap& settings) const override;
+    Eigen::SparseMatrix<double> fwdRatesOfProgress_ddCi() override;
+    Eigen::SparseMatrix<double> revRatesOfProgress_ddCi() override;
+    Eigen::SparseMatrix<double> netRatesOfProgress_ddCi() override;
 
 protected:
     //! @name Internal service methods
@@ -331,7 +329,7 @@ protected:
     //! @return a sparse matrix of derivative contributions for each reaction of
     //! dimensions nTotalReactions by nTotalSpecies
     Eigen::SparseMatrix<double> calculateCompositionDerivatives(StoichManagerN& stoich,
-                                            const vector_fp& in);
+                                            const vector<double>& in);
 
     //! Helper function ensuring that all rate derivatives can be calculated
     //! @param name  method name used for error output
@@ -342,31 +340,31 @@ protected:
     //! @}
 
     //! Temporary work vector of length m_kk
-    vector_fp m_grt;
+    vector<double> m_grt;
 
     //! List of reactions numbers which are reversible reactions
     /*!
      *  This is a vector of reaction numbers. Each reaction in the list is
      *  reversible. Length = number of reversible reactions
      */
-    std::vector<size_t> m_revindex;
+    vector<size_t> m_revindex;
 
     bool m_redo_rates = false;
 
     //! Vector of rate handlers for interface reactions
-    std::vector<unique_ptr<MultiRateBase>> m_interfaceRates;
-    std::map<std::string, size_t> m_interfaceTypes; //!< Rate handler mapping
+    vector<unique_ptr<MultiRateBase>> m_interfaceRates;
+    map<string, size_t> m_interfaceTypes; //!< Rate handler mapping
 
     //! Vector of irreversible reaction numbers
     /*!
      * vector containing the reaction numbers of irreversible reactions.
      */
-    std::vector<size_t> m_irrev;
+    vector<size_t> m_irrev;
 
     //! Array of concentrations for each species in the kinetics mechanism
     /*!
-     * An array of generalized concentrations \f$ C_k \f$ that are defined
-     * such that \f$ a_k = C_k / C^0_k, \f$ where \f$ C^0_k \f$ is a standard
+     * An array of generalized concentrations @f$ C_k @f$ that are defined
+     * such that @f$ a_k = C_k / C^0_k, @f$ where @f$ C^0_k @f$ is a standard
      * concentration/ These generalized concentrations are used by this
      * kinetics manager class to compute the forward and reverse rates of
      * elementary reactions. The "units" for the concentrations of each phase
@@ -375,12 +373,12 @@ protected:
      * ThermoPhase objects in the class, and the order of the species within
      * each ThermoPhase class.
      */
-    vector_fp m_conc;
+    vector<double> m_conc;
 
     //! Array of activity concentrations for each species in the kinetics object
     /*!
-     * An array of activity concentrations \f$ Ca_k \f$ that are defined
-     * such that \f$ a_k = Ca_k / C^0_k, \f$ where \f$ C^0_k \f$ is a standard
+     * An array of activity concentrations @f$ Ca_k @f$ that are defined
+     * such that @f$ a_k = Ca_k / C^0_k, @f$ where @f$ C^0_k @f$ is a standard
      * concentration. These activity concentrations are used by this
      * kinetics manager class to compute the forward and reverse rates of
      * elementary reactions. The "units" for the concentrations of each phase
@@ -389,7 +387,7 @@ protected:
      * ThermoPhase objects in the class, and the order of the species within
      * each ThermoPhase class.
      */
-    vector_fp m_actConc;
+    vector<double> m_actConc;
 
     //! Vector of standard state chemical potentials for all species
     /*!
@@ -398,7 +396,7 @@ protected:
      *
      * Length = m_kk. Units = J/kmol.
      */
-    vector_fp m_mu0;
+    vector<double> m_mu0;
 
     //! Vector of chemical potentials for all species
     /*!
@@ -407,7 +405,7 @@ protected:
      *
      * Length = m_kk. Units = J/kmol.
      */
-    vector_fp m_mu;
+    vector<double> m_mu;
 
     //! Vector of standard state electrochemical potentials modified by a
     //! standard concentration term.
@@ -421,14 +419,14 @@ protected:
      * for the species. Frequently, for solid species, Cs is equal to 1.
      * However, for gases Cs is P/RT. Length = m_kk. Units = J/kmol.
      */
-    vector_fp m_mu0_Kc;
+    vector<double> m_mu0_Kc;
 
     //! Vector of phase electric potentials
     /*!
      * Temporary vector containing the potential of each phase in the kinetics
      * object. length = number of phases. Units = Volts.
      */
-    vector_fp m_phi;
+    vector<double> m_phi;
 
     //! Pointer to the single surface phase
     SurfPhase* m_surf = nullptr;
@@ -466,7 +464,7 @@ protected:
      *
      *  length = number of phases in the object. By default all phases exist.
      */
-    std::vector<bool> m_phaseExists;
+    vector<bool> m_phaseExists;
 
     //! Vector of int indicating whether phases are stable or not
     /*!
@@ -476,7 +474,7 @@ protected:
      *
      *  length = number of phases in the object. By default all phases are stable.
      */
-    vector_int m_phaseIsStable;
+    vector<int> m_phaseIsStable;
 
     //! Vector of vector of booleans indicating whether a phase participates in
     //! a reaction as a reactant
@@ -484,7 +482,7 @@ protected:
      *  m_rxnPhaseIsReactant[j][p] indicates whether a species in phase p
      *  participates in reaction j as a reactant.
      */
-    std::vector<std::vector<bool> > m_rxnPhaseIsReactant;
+    vector<vector<bool>> m_rxnPhaseIsReactant;
 
     //! Vector of vector of booleans indicating whether a phase participates in a
     //! reaction as a product
@@ -492,7 +490,7 @@ protected:
      *  m_rxnPhaseIsReactant[j][p] indicates whether a species in phase p
      *  participates in reaction j as a product.
      */
-    std::vector<std::vector<bool> > m_rxnPhaseIsProduct;
+    vector<vector<bool>> m_rxnPhaseIsProduct;
 
     int m_ioFlag = 0;
 
@@ -501,8 +499,8 @@ protected:
     size_t m_nDim = 2;
 
     //! Buffers for partial rop results with length nReactions()
-    vector_fp m_rbuf0;
-    vector_fp m_rbuf1;
+    vector<double> m_rbuf0;
+    vector<double> m_rbuf1;
 
     //! A flag used to neglect rate coefficient coverage dependence in derivative
     //! formation

@@ -11,44 +11,46 @@
 namespace Cantera
 {
 
-/*!
+/**
  * IdealGasConstPressureMoleReactor is a class for ideal gas constant-pressure reactors
  * which use a state of moles.
+ * @since New in %Cantera 3.0
+ * @ingroup reactorGroup
  */
 class IdealGasConstPressureMoleReactor : public ConstPressureMoleReactor
 {
 public:
     IdealGasConstPressureMoleReactor() {}
 
-    virtual std::string type() const {
+    string type() const override {
         return "IdealGasConstPressureMoleReactor";
     };
 
-    virtual size_t componentIndex(const std::string& nm) const;
+    size_t componentIndex(const string& nm) const override;
 
-    virtual std::string componentName(size_t k);
+    string componentName(size_t k) override;
 
-    virtual void setThermoMgr(ThermoPhase& thermo);
+    void setThermoMgr(ThermoPhase& thermo) override;
 
-    virtual void getState(double* y);
+    void getState(double* y) override;
 
-    virtual void initialize(double t0 = 0.0);
+    void initialize(double t0=0.0) override;
 
-    virtual void eval(double t, double* LHS, double* RHS);
+    void eval(double t, double* LHS, double* RHS) override;
 
-    virtual void updateState(double* y);
+    void updateState(double* y) override;
 
     //! Calculate an approximate Jacobian to accelerate preconditioned solvers
 
     //! Neglects derivatives with respect to mole fractions that would generate a
     //! fully-dense Jacobian. Currently also neglects terms related to interactions
     //! between reactors, for example via inlets and outlets.
-    virtual Eigen::SparseMatrix<double> jacobian();
+    Eigen::SparseMatrix<double> jacobian() override;
 
-    virtual bool preconditionerSupported() const {return true;};
+    bool preconditionerSupported() const override { return true; };
 
 protected:
-    vector_fp m_hk; //!< Species molar enthalpies
+    vector<double> m_hk; //!< Species molar enthalpies
 };
 
 }

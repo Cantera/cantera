@@ -1,7 +1,7 @@
 /**
  *  @file WaterSSTP.cpp
- * Definitions for a ThermoPhase class consisting of pure water (see \ref thermoprops
- * and class \link Cantera::WaterSSTP WaterSSTP\endlink).
+ * Definitions for a ThermoPhase class consisting of pure water (see @ref thermoprops
+ * and class @link Cantera::WaterSSTP WaterSSTP@endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -18,8 +18,8 @@ WaterSSTP::WaterSSTP(const string& inputFile, const string& id)
     initThermoFile(inputFile, id);
 }
 
-std::string WaterSSTP::phaseOfMatter() const {
-    const vector<std::string> phases = {
+string WaterSSTP::phaseOfMatter() const {
+    const vector<string> phases = {
         "gas", "liquid", "supercritical", "unstable-liquid", "unstable-gas"
     };
     return phases[m_sub.phaseState()];
@@ -50,17 +50,17 @@ void WaterSSTP::initThermo()
     setMolecularWeight(0,m_mw);
 
     // Set the baseline
-    doublereal T = 298.15;
+    double T = 298.15;
     Phase::setDensity(7.0E-8);
     Phase::setTemperature(T);
 
-    doublereal presLow = 1.0E-2;
-    doublereal oneBar = 1.0E5;
-    doublereal dd = m_sub.density(T, presLow, WATER_GAS, 7.0E-8);
+    double presLow = 1.0E-2;
+    double oneBar = 1.0E5;
+    double dd = m_sub.density(T, presLow, WATER_GAS, 7.0E-8);
     setDensity(dd);
     setTemperature(T);
     SW_Offset = 0.0;
-    doublereal s = entropy_mole();
+    double s = entropy_mole();
     s -= GasConstant * log(oneBar/presLow);
     if (s != 188.835E3) {
         SW_Offset = 188.835E3 - s;
@@ -68,7 +68,7 @@ void WaterSSTP::initThermo()
     s = entropy_mole();
     s -= GasConstant * log(oneBar/presLow);
 
-    doublereal h = enthalpy_mole();
+    double h = enthalpy_mole();
     if (h != -241.826E6) {
         EW_Offset = -241.826E6 - h;
     }
@@ -85,22 +85,22 @@ void WaterSSTP::initThermo()
     m_ready = true;
 }
 
-void WaterSSTP::getEnthalpy_RT(doublereal* hrt) const
+void WaterSSTP::getEnthalpy_RT(double* hrt) const
 {
     *hrt = (m_sub.enthalpy_mass() * m_mw + EW_Offset) / RT();
 }
 
-void WaterSSTP::getIntEnergy_RT(doublereal* ubar) const
+void WaterSSTP::getIntEnergy_RT(double* ubar) const
 {
     *ubar = (m_sub.intEnergy_mass() * m_mw + EW_Offset)/ RT();
 }
 
-void WaterSSTP::getEntropy_R(doublereal* sr) const
+void WaterSSTP::getEntropy_R(double* sr) const
 {
     sr[0] = (m_sub.entropy_mass() * m_mw + SW_Offset) / GasConstant;
 }
 
-void WaterSSTP::getGibbs_RT(doublereal* grt) const
+void WaterSSTP::getGibbs_RT(double* grt) const
 {
     *grt = (m_sub.gibbs_mass() * m_mw + EW_Offset) / RT()
            - SW_Offset / GasConstant;
@@ -109,7 +109,7 @@ void WaterSSTP::getGibbs_RT(doublereal* grt) const
     }
 }
 
-void WaterSSTP::getStandardChemPotentials(doublereal* gss) const
+void WaterSSTP::getStandardChemPotentials(double* gss) const
 {
     *gss = (m_sub.gibbs_mass() * m_mw + EW_Offset - SW_Offset*temperature());
     if (!m_ready) {
@@ -118,19 +118,19 @@ void WaterSSTP::getStandardChemPotentials(doublereal* gss) const
     }
 }
 
-void WaterSSTP::getCp_R(doublereal* cpr) const
+void WaterSSTP::getCp_R(double* cpr) const
 {
     cpr[0] = m_sub.cp_mass() * m_mw / GasConstant;
 }
 
-doublereal WaterSSTP::cv_mole() const
+double WaterSSTP::cv_mole() const
 {
     return m_sub.cv_mass() * m_mw;
 }
 
-void WaterSSTP::getEnthalpy_RT_ref(doublereal* hrt) const
+void WaterSSTP::getEnthalpy_RT_ref(double* hrt) const
 {
-    doublereal p = pressure();
+    double p = pressure();
     double T = temperature();
     double dens = density();
     int waterState = WATER_GAS;
@@ -138,7 +138,7 @@ void WaterSSTP::getEnthalpy_RT_ref(doublereal* hrt) const
     if (dens > rc) {
         waterState = WATER_LIQUID;
     }
-    doublereal dd = m_sub.density(T, OneAtm, waterState, dens);
+    double dd = m_sub.density(T, OneAtm, waterState, dens);
     if (dd <= 0.0) {
         throw CanteraError("WaterSSTP::getEnthalpy_RT_ref", "error");
     }
@@ -147,9 +147,9 @@ void WaterSSTP::getEnthalpy_RT_ref(doublereal* hrt) const
     dd = m_sub.density(T, p, waterState, dens);
 }
 
-void WaterSSTP::getGibbs_RT_ref(doublereal* grt) const
+void WaterSSTP::getGibbs_RT_ref(double* grt) const
 {
-    doublereal p = pressure();
+    double p = pressure();
     double T = temperature();
     double dens = density();
     int waterState = WATER_GAS;
@@ -157,7 +157,7 @@ void WaterSSTP::getGibbs_RT_ref(doublereal* grt) const
     if (dens > rc) {
         waterState = WATER_LIQUID;
     }
-    doublereal dd = m_sub.density(T, OneAtm, waterState, dens);
+    double dd = m_sub.density(T, OneAtm, waterState, dens);
     if (dd <= 0.0) {
         throw CanteraError("WaterSSTP::getGibbs_RT_ref", "error");
     }
@@ -167,7 +167,7 @@ void WaterSSTP::getGibbs_RT_ref(doublereal* grt) const
     dd = m_sub.density(T, p, waterState, dens);
 }
 
-void WaterSSTP::getGibbs_ref(doublereal* g) const
+void WaterSSTP::getGibbs_ref(double* g) const
 {
     getGibbs_RT_ref(g);
     for (size_t k = 0; k < m_kk; k++) {
@@ -175,9 +175,9 @@ void WaterSSTP::getGibbs_ref(doublereal* g) const
     }
 }
 
-void WaterSSTP::getEntropy_R_ref(doublereal* sr) const
+void WaterSSTP::getEntropy_R_ref(double* sr) const
 {
-    doublereal p = pressure();
+    double p = pressure();
     double T = temperature();
     double dens = density();
     int waterState = WATER_GAS;
@@ -185,7 +185,7 @@ void WaterSSTP::getEntropy_R_ref(doublereal* sr) const
     if (dens > rc) {
         waterState = WATER_LIQUID;
     }
-    doublereal dd = m_sub.density(T, OneAtm, waterState, dens);
+    double dd = m_sub.density(T, OneAtm, waterState, dens);
 
     if (dd <= 0.0) {
         throw CanteraError("WaterSSTP::getEntropy_R_ref", "error");
@@ -197,9 +197,9 @@ void WaterSSTP::getEntropy_R_ref(doublereal* sr) const
     dd = m_sub.density(T, p, waterState, dens);
 }
 
-void WaterSSTP::getCp_R_ref(doublereal* cpr) const
+void WaterSSTP::getCp_R_ref(double* cpr) const
 {
-    doublereal p = pressure();
+    double p = pressure();
     double T = temperature();
     double dens = density();
     int waterState = WATER_GAS;
@@ -207,7 +207,7 @@ void WaterSSTP::getCp_R_ref(doublereal* cpr) const
     if (dens > rc) {
         waterState = WATER_LIQUID;
     }
-    doublereal dd = m_sub.density(T, OneAtm, waterState, dens);
+    double dd = m_sub.density(T, OneAtm, waterState, dens);
     m_sub.setState_TD(T, dd);
     if (dd <= 0.0) {
         throw CanteraError("WaterSSTP::getCp_R_ref", "error");
@@ -217,9 +217,9 @@ void WaterSSTP::getCp_R_ref(doublereal* cpr) const
     dd = m_sub.density(T, p, waterState, dens);
 }
 
-void WaterSSTP::getStandardVolumes_ref(doublereal* vol) const
+void WaterSSTP::getStandardVolumes_ref(double* vol) const
 {
-    doublereal p = pressure();
+    double p = pressure();
     double T = temperature();
     double dens = density();
     int waterState = WATER_GAS;
@@ -227,7 +227,7 @@ void WaterSSTP::getStandardVolumes_ref(doublereal* vol) const
     if (dens > rc) {
         waterState = WATER_LIQUID;
     }
-    doublereal dd = m_sub.density(T, OneAtm, waterState, dens);
+    double dd = m_sub.density(T, OneAtm, waterState, dens);
     if (dd <= 0.0) {
         throw CanteraError("WaterSSTP::getStandardVolumes_ref", "error");
     }
@@ -235,12 +235,12 @@ void WaterSSTP::getStandardVolumes_ref(doublereal* vol) const
     dd = m_sub.density(T, p, waterState, dens);
 }
 
-doublereal WaterSSTP::pressure() const
+double WaterSSTP::pressure() const
 {
     return m_sub.pressure();
 }
 
-void WaterSSTP::setPressure(doublereal p)
+void WaterSSTP::setPressure(double p)
 {
     double T = temperature();
     double dens = density();
@@ -264,49 +264,49 @@ void WaterSSTP::setPressure(doublereal p)
     setDensity(dd);
 }
 
-doublereal WaterSSTP::isothermalCompressibility() const
+double WaterSSTP::isothermalCompressibility() const
 {
     return m_sub.isothermalCompressibility();
 }
 
-doublereal WaterSSTP::thermalExpansionCoeff() const
+double WaterSSTP::thermalExpansionCoeff() const
 {
     return m_sub.coeffThermExp();
 }
 
-doublereal WaterSSTP::dthermalExpansionCoeffdT() const
+double WaterSSTP::dthermalExpansionCoeffdT() const
 {
-    doublereal pres = pressure();
-    doublereal dens_save = density();
+    double pres = pressure();
+    double dens_save = density();
     double T = temperature();
     double tt = T - 0.04;
-    doublereal dd = m_sub.density(tt, pres, WATER_LIQUID, dens_save);
+    double dd = m_sub.density(tt, pres, WATER_LIQUID, dens_save);
     if (dd < 0.0) {
         throw CanteraError("WaterSSTP::dthermalExpansionCoeffdT",
             "Unable to solve for the density at T = {}, P = {}", tt, pres);
     }
-    doublereal vald = m_sub.coeffThermExp();
+    double vald = m_sub.coeffThermExp();
     m_sub.setState_TD(T, dens_save);
-    doublereal val2 = m_sub.coeffThermExp();
+    double val2 = m_sub.coeffThermExp();
     return (val2 - vald) / 0.04;
 }
 
-doublereal WaterSSTP::critTemperature() const
+double WaterSSTP::critTemperature() const
 {
     return m_sub.Tcrit();
 }
 
-doublereal WaterSSTP::critPressure() const
+double WaterSSTP::critPressure() const
 {
     return m_sub.Pcrit();
 }
 
-doublereal WaterSSTP::critDensity() const
+double WaterSSTP::critDensity() const
 {
     return m_sub.Rhocrit();
 }
 
-void WaterSSTP::setTemperature(const doublereal temp)
+void WaterSSTP::setTemperature(const double temp)
 {
     if (temp < 273.16) {
         throw CanteraError("WaterSSTP::setTemperature",
@@ -317,21 +317,21 @@ void WaterSSTP::setTemperature(const doublereal temp)
     m_sub.setState_TD(temp, density());
 }
 
-void WaterSSTP::setDensity(const doublereal dens)
+void WaterSSTP::setDensity(const double dens)
 {
     Phase::setDensity(dens);
     m_sub.setState_TD(temperature(), dens);
 }
 
-doublereal WaterSSTP::satPressure(doublereal t) {
-    doublereal tsave = temperature();
-    doublereal dsave = density();
-    doublereal pp = m_sub.psat(t);
+double WaterSSTP::satPressure(double t) {
+    double tsave = temperature();
+    double dsave = density();
+    double pp = m_sub.psat(t);
     m_sub.setState_TD(tsave, dsave);
     return pp;
 }
 
-doublereal WaterSSTP::vaporFraction() const
+double WaterSSTP::vaporFraction() const
 {
     if (temperature() >= m_sub.Tcrit()) {
         double dens = density();

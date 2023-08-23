@@ -58,7 +58,8 @@ Sim1D::Sim1D(vector<Domain1D*>& domains) :
     m_steps = { 10 };
 }
 
-void Sim1D::setInitialGuess(const std::string& component, vector_fp& locs, vector_fp& vals)
+void Sim1D::setInitialGuess(const string& component, vector<double>& locs,
+                            vector<double>& vals)
 {
     for (size_t dom=0; dom<nDomains(); dom++) {
         Domain1D& d = domain(dom);
@@ -71,7 +72,7 @@ void Sim1D::setInitialGuess(const std::string& component, vector_fp& locs, vecto
     }
 }
 
-void Sim1D::setValue(size_t dom, size_t comp, size_t localPoint, doublereal value)
+void Sim1D::setValue(size_t dom, size_t comp, size_t localPoint, double value)
 {
     size_t iloc = domain(dom).loc() + domain(dom).index(comp, localPoint);
     AssertThrowMsg(iloc < m_state->size(), "Sim1D::setValue",
@@ -79,7 +80,7 @@ void Sim1D::setValue(size_t dom, size_t comp, size_t localPoint, doublereal valu
     (*m_state)[iloc] = value;
 }
 
-doublereal Sim1D::value(size_t dom, size_t comp, size_t localPoint) const
+double Sim1D::value(size_t dom, size_t comp, size_t localPoint) const
 {
     size_t iloc = domain(dom).loc() + domain(dom).index(comp, localPoint);
     AssertThrowMsg(iloc < m_state->size(), "Sim1D::value",
@@ -87,7 +88,7 @@ doublereal Sim1D::value(size_t dom, size_t comp, size_t localPoint) const
     return (*m_state)[iloc];
 }
 
-doublereal Sim1D::workValue(size_t dom, size_t comp, size_t localPoint) const
+double Sim1D::workValue(size_t dom, size_t comp, size_t localPoint) const
 {
     size_t iloc = domain(dom).loc() + domain(dom).index(comp, localPoint);
     AssertThrowMsg(iloc < m_state->size(), "Sim1D::workValue",
@@ -96,7 +97,7 @@ doublereal Sim1D::workValue(size_t dom, size_t comp, size_t localPoint) const
 }
 
 void Sim1D::setProfile(size_t dom, size_t comp,
-                       const vector_fp& pos, const vector_fp& values)
+                       const vector<double>& pos, const vector<double>& values)
 {
     if (pos.front() != 0.0 || pos.back() != 1.0) {
         throw CanteraError("Sim1D::setProfile",
@@ -104,8 +105,8 @@ void Sim1D::setProfile(size_t dom, size_t comp,
             "[{}, {}] instead.", pos.front(), pos.back());
     }
     Domain1D& d = domain(dom);
-    doublereal z0 = d.zmin();
-    doublereal z1 = d.zmax();
+    double z0 = d.zmin();
+    double z1 = d.zmax();
     for (size_t n = 0; n < d.nPoints(); n++) {
         double zpt = d.z(n);
         double frac = (zpt - z0)/(z1 - z0);
@@ -114,8 +115,8 @@ void Sim1D::setProfile(size_t dom, size_t comp,
     }
 }
 
-void Sim1D::save(const std::string& fname, const std::string& id,
-                 const std::string& desc, int loglevel)
+void Sim1D::save(const string& fname, const string& id,
+                 const string& desc, int loglevel)
 {
     warn_deprecated("Sim1D::save",
         "To be removed after Cantera 3.0; use version without loglevel instead.");
@@ -125,9 +126,8 @@ void Sim1D::save(const std::string& fname, const std::string& id,
     }
 }
 
-void Sim1D::save(const std::string& fname, const std::string& name,
-                 const std::string& desc, bool overwrite, int compression,
-                 const string& basis)
+void Sim1D::save(const string& fname, const string& name, const string& desc,
+                 bool overwrite, int compression, const string& basis)
 {
     size_t dot = fname.find_last_of(".");
     string extension = (dot != npos) ? toLowerCopy(fname.substr(dot+1)) : "";
@@ -175,8 +175,8 @@ void Sim1D::save(const std::string& fname, const std::string& name,
     throw CanteraError("Sim1D::save", "Unsupported file format '{}'.", extension);
 }
 
-void Sim1D::saveResidual(const std::string& fname, const std::string& id,
-                         const std::string& desc, int loglevel)
+void Sim1D::saveResidual(const string& fname, const string& id,
+                         const string& desc, int loglevel)
 {
     warn_deprecated("Sim1D::saveResidual",
         "To be removed after Cantera 3.0; use version without loglevel instead.");
@@ -186,10 +186,10 @@ void Sim1D::saveResidual(const std::string& fname, const std::string& id,
     }
 }
 
-void Sim1D::saveResidual(const std::string& fname, const std::string& name,
-                         const std::string& desc, bool overwrite, int compression)
+void Sim1D::saveResidual(const string& fname, const string& name,
+                         const string& desc, bool overwrite, int compression)
 {
-    vector_fp res(m_state->size(), -999);
+    vector<double> res(m_state->size(), -999);
     OneDim::eval(npos, m_state->data(), &res[0], 0.0);
     // Temporarily put the residual into m_state, since this is the vector that the
     // save() function reads.
@@ -207,7 +207,7 @@ AnyMap legacyH5(shared_ptr<SolutionArray> arr, const AnyMap& header={})
     auto meta = arr->meta();
     AnyMap out;
 
-    std::map<std::string, std::string> meta_pairs = {
+    map<string, string> meta_pairs = {
         {"type", "Domain1D_type"},
         {"name", "name"},
         {"emissivity-left", "emissivity_left"},
@@ -219,7 +219,7 @@ AnyMap legacyH5(shared_ptr<SolutionArray> arr, const AnyMap& header={})
         }
     }
 
-    std::map<std::string, std::string> tol_pairs = {
+    map<string, string> tol_pairs = {
         {"transient-abstol", "transient_abstol"},
         {"steady-abstol", "steady_abstol"},
         {"transient-reltol", "transient_reltol"},
@@ -240,7 +240,7 @@ AnyMap legacyH5(shared_ptr<SolutionArray> arr, const AnyMap& header={})
         return out;
     }
 
-    std::map<std::string, std::string> header_pairs = {
+    map<string, string> header_pairs = {
         {"transport-model", "transport_model"},
         {"radiation-enabled", "radiation_enabled"},
         {"energy-enabled", "energy_enabled"},
@@ -253,7 +253,7 @@ AnyMap legacyH5(shared_ptr<SolutionArray> arr, const AnyMap& header={})
         }
     }
 
-    std::map<std::string, std::string> refiner_pairs = {
+    map<string, string> refiner_pairs = {
         {"ratio", "ratio"},
         {"slope", "slope"},
         {"curve", "curve"},
@@ -286,14 +286,14 @@ AnyMap legacyH5(shared_ptr<SolutionArray> arr, const AnyMap& header={})
 
 } // end unnamed namespace
 
-AnyMap Sim1D::restore(const std::string& fname, const std::string& id, int loglevel)
+AnyMap Sim1D::restore(const string& fname, const string& id, int loglevel)
 {
     warn_deprecated("Sim1D::saveResidual",
         "To be removed after Cantera 3.0; use version without loglevel instead.");
     return restore(fname, id);
 }
 
-AnyMap Sim1D::restore(const std::string& fname, const std::string& name)
+AnyMap Sim1D::restore(const string& fname, const string& name)
 {
     size_t dot = fname.find_last_of(".");
     string extension = (dot != npos) ? toLowerCopy(fname.substr(dot+1)) : "";
@@ -303,12 +303,18 @@ AnyMap Sim1D::restore(const std::string& fname, const std::string& name)
     }
     AnyMap header;
     if (extension == "h5" || extension == "hdf"  || extension == "hdf5") {
-        std::map<std::string, shared_ptr<SolutionArray>> arrs;
+        map<string, shared_ptr<SolutionArray>> arrs;
         header = SolutionArray::readHeader(fname, name);
 
         for (auto dom : m_dom) {
             auto arr = SolutionArray::create(dom->solution());
-            arr->readEntry(fname, name, dom->id());
+            try {
+                arr->readEntry(fname, name, dom->id());
+            } catch (CanteraError& err) {
+                throw CanteraError("Sim1D::restore",
+                    "Encountered exception when reading entry '{}' from '{}':\n{}",
+                    name, fname, err.getMessage());
+            }
             dom->resize(dom->nComponents(), arr->size());
             if (!header.hasKey("generator")) {
                 arr->meta() = legacyH5(arr, header);
@@ -318,24 +324,42 @@ AnyMap Sim1D::restore(const std::string& fname, const std::string& name)
         resize();
         m_xlast_ts.clear();
         for (auto dom : m_dom) {
-            dom->fromArray(*arrs[dom->id()], m_state->data() + dom->loc());
+            try {
+                dom->fromArray(*arrs[dom->id()], m_state->data() + dom->loc());
+            } catch (CanteraError& err) {
+                throw CanteraError("Sim1D::restore",
+                    "Encountered exception when restoring domain '{}' from HDF:\n{}",
+                    dom->id(), err.getMessage());
+            }
         }
         finalize();
     } else if (extension == "yaml" || extension == "yml") {
         AnyMap root = AnyMap::fromYamlFile(fname);
-        std::map<std::string, shared_ptr<SolutionArray>> arrs;
+        map<string, shared_ptr<SolutionArray>> arrs;
         header = SolutionArray::readHeader(root, name);
 
         for (auto dom : m_dom) {
             auto arr = SolutionArray::create(dom->solution());
-            arr->readEntry(root, name, dom->id());
+            try {
+                arr->readEntry(root, name, dom->id());
+            } catch (CanteraError& err) {
+                throw CanteraError("Sim1D::restore",
+                    "Encountered exception when reading entry '{}' from '{}':\n{}",
+                    name, fname, err.getMessage());
+            }
             dom->resize(dom->nComponents(), arr->size());
             arrs[dom->id()] = arr;
         }
         resize();
         m_xlast_ts.clear();
         for (auto dom : m_dom) {
-            dom->fromArray(*arrs[dom->id()], m_state->data() + dom->loc());
+            try {
+                dom->fromArray(*arrs[dom->id()], m_state->data() + dom->loc());
+            } catch (CanteraError& err) {
+                throw CanteraError("Sim1D::restore",
+                    "Encountered exception when restoring domain '{}' from YAML:\n{}",
+                    dom->id(), err.getMessage());
+            }
         }
         finalize();
     } else {
@@ -346,7 +370,7 @@ AnyMap Sim1D::restore(const std::string& fname, const std::string& name)
     return header;
 }
 
-void Sim1D::setFlatProfile(size_t dom, size_t comp, doublereal v)
+void Sim1D::setFlatProfile(size_t dom, size_t comp, double v)
 {
     size_t np = domain(dom).nPoints();
     for (size_t n = 0; n < np; n++) {
@@ -405,7 +429,7 @@ void Sim1D::restoreSteadySolution()
     }
     *m_state = m_xlast_ss;
     for (size_t n = 0; n < nDomains(); n++) {
-        vector_fp& z = m_grid_last_ss[n];
+        vector<double>& z = m_grid_last_ss[n];
         domain(n).setupGrid(z.size(), z.data());
     }
 }
@@ -450,7 +474,7 @@ int Sim1D::newtonSolve(int loglevel)
 void Sim1D::solve(int loglevel, bool refine_grid)
 {
     int new_points = 1;
-    doublereal dt = m_tstep;
+    double dt = m_tstep;
     m_nsteps = 0;
     finalize();
 
@@ -561,8 +585,8 @@ void Sim1D::solve(int loglevel, bool refine_grid)
 int Sim1D::refine(int loglevel)
 {
     int ianalyze, np = 0;
-    vector_fp znew, xnew;
-    std::vector<size_t> dsize;
+    vector<double> znew, xnew;
+    vector<size_t> dsize;
 
     m_xlast_ss = *m_state;
     m_grid_last_ss.clear();
@@ -650,10 +674,10 @@ int Sim1D::refine(int loglevel)
 int Sim1D::setFixedTemperature(double t)
 {
     int np = 0;
-    vector_fp znew, xnew;
+    vector<double> znew, xnew;
     double zfixed = 0.0;
     double z1 = 0.0, z2 = 0.0;
-    std::vector<size_t> dsize;
+    vector<size_t> dsize;
 
     for (size_t n = 0; n < nDomains(); n++) {
         Domain1D& d = domain(n);
@@ -664,11 +688,11 @@ int Sim1D::setFixedTemperature(double t)
         StFlow* d_free = dynamic_cast<StFlow*>(&domain(n));
         size_t npnow = d.nPoints();
         size_t nstart = znew.size();
-        if (d_free && !d_free->fixed_mdot()) {
+        if (d_free && d_free->isFree()) {
             for (size_t m = 0; m < npnow - 1; m++) {
                 bool fixedpt = false;
-                double t1 = value(n, 2, m);
-                double t2 = value(n, 2, m + 1);
+                double t1 = value(n, c_offset_T, m);
+                double t2 = value(n, c_offset_T, m + 1);
                 // threshold to avoid adding new point too close to existing point
                 double thresh = min(1., 1.e-1 * (t2 - t1));
                 z1 = d.grid(m);
@@ -742,7 +766,7 @@ double Sim1D::fixedTemperature()
     double t_fixed = std::numeric_limits<double>::quiet_NaN();
     for (size_t n = 0; n < nDomains(); n++) {
         StFlow* d = dynamic_cast<StFlow*>(&domain(n));
-        if (d && !d->fixed_mdot() && d->m_tfixed > 0) {
+        if (d && d->isFree() && d->m_tfixed > 0) {
             t_fixed = d->m_tfixed;
             break;
         }
@@ -755,7 +779,7 @@ double Sim1D::fixedTemperatureLocation()
     double z_fixed = std::numeric_limits<double>::quiet_NaN();
     for (size_t n = 0; n < nDomains(); n++) {
         StFlow* d = dynamic_cast<StFlow*>(&domain(n));
-        if (d && !d->fixed_mdot() && d->m_tfixed > 0) {
+        if (d && d->isFree() && d->m_tfixed > 0) {
             z_fixed = d->m_zfixed;
             break;
         }
@@ -777,7 +801,7 @@ void Sim1D::setRefineCriteria(int dom, double ratio,
     }
 }
 
-vector_fp Sim1D::getRefineCriteria(int dom)
+vector<double> Sim1D::getRefineCriteria(int dom)
 {
    if (dom >= 0) {
        Refiner& r = domain(dom).refiner();
@@ -820,7 +844,7 @@ size_t Sim1D::maxGridPoints(size_t dom)
     return r.maxPoints();
 }
 
-doublereal Sim1D::jacobian(int i, int j)
+double Sim1D::jacobian(int i, int j)
 {
     return OneDim::jacobian().value(i,j);
 }

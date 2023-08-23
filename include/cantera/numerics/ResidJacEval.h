@@ -46,18 +46,18 @@ enum ResidEval_Type_Enum {
 //! Wrappers for the function evaluators for Nonlinear solvers and Time steppers
 /*!
  * @attention This class currently does not have any test cases or examples. Its
- *     implementation may be incomplete, and future changes to Cantera may
+ *     implementation may be incomplete, and future changes to %Cantera may
  *     unexpectedly cause this class to stop working. If you use this class,
  *     please consider contributing examples or test cases. In the absence of
  *     new tests or examples, this class may be deprecated and removed in a
- *     future version of Cantera. See
+ *     future version of  %Cantera. See
  *     https://github.com/Cantera/cantera/issues/267 for additional information.
  *
  * A class for full (non-sparse dense matrices with Fortran-compatible data
  * storage. The class adds support for identifying what types of calls are made
  * to the residual evaluator by adding the ResidEval_Type_Enum class.
  *
- * @deprecated Unused. To be removed after Cantera 3.0.
+ * @deprecated Unused. To be removed after %Cantera 3.0.
  */
 class ResidJacEval : public ResidEval
 {
@@ -66,10 +66,10 @@ public:
     /*!
      * @param atol   Initial value of the global tolerance (defaults to 1.0E-13)
      */
-    ResidJacEval(doublereal atol = 1.0e-13);
+    ResidJacEval(double atol = 1.0e-13);
 
     //! Return the number of equations in the equation system
-    virtual int nEquations() const;
+    int nEquations() const override;
 
     //! Evaluate the residual function
     /*!
@@ -88,19 +88,18 @@ public:
      *            1  Means a successful operation
      *           -0 or neg value Means an unsuccessful operation
      */
-    virtual int evalResidNJ(const doublereal t, const doublereal delta_t,
-                            const doublereal* const y,
-                            const doublereal* const ydot,
-                            doublereal* const resid,
+    virtual int evalResidNJ(const double t, const double delta_t,
+                            const double* const y,
+                            const double* const ydot,
+                            double* const resid,
                             const ResidEval_Type_Enum evalType = Base_ResidEval,
                             const int id_x = -1,
-                            const doublereal delta_x = 0.0);
+                            const double delta_x = 0.0);
 
-    virtual int eval(const doublereal t, const doublereal* const y,
-                     const doublereal* const ydot,
-                     doublereal* const r);
+    int eval(const double t, const double* const y, const double* const ydot,
+             double* const r) override;
 
-    virtual int getInitialConditions(const doublereal t0, doublereal* const y, doublereal* const ydot);
+    int getInitialConditions(const double t0, double* const y, double* const ydot) override;
 
     //! Filter the solution predictions
     /*!
@@ -112,8 +111,8 @@ public:
      * @param step          Proposed step in the solution that will be cropped
      * @returns             the norm of the amount of filtering
      */
-    virtual doublereal filterNewStep(const doublereal t, const doublereal* const ybase,
-                                     doublereal* const step);
+    virtual double filterNewStep(const double t, const double* const ybase,
+                                     double* const step);
 
     //! Filter the solution predictions
     /*!
@@ -124,13 +123,13 @@ public:
      * @param y             Solution vector (input, output)
      * @returns the norm of the amount of filtering
      */
-    virtual doublereal filterSolnPrediction(const doublereal t, doublereal* const y);
+    virtual double filterSolnPrediction(const double t, double* const y);
 
     //! Set a global value of the absolute tolerance
     /*!
      *  @param atol   Value of atol
      */
-    void setAtol(doublereal atol);
+    void setAtol(double atol);
 
     //! Evaluate the time tracking equations, if any
     /*!
@@ -147,8 +146,8 @@ public:
      *            1  Means a successful operation
      *           -0 or neg value Means an unsuccessful operation
      */
-    virtual int evalTimeTrackingEqns(const doublereal t, const doublereal delta_t, const doublereal* const y,
-                                     const doublereal* const ydot);
+    virtual int evalTimeTrackingEqns(const double t, const double delta_t, const double* const y,
+                                     const double* const ydot);
 
     //! Evaluate any stopping criteria other than a final time limit
     /*!
@@ -163,10 +162,10 @@ public:
      * @param y             Solution vector (input, do not modify)
      * @param ydot          Rate of change of solution vector. (input, do not modify)
      */
-    virtual bool evalStoppingCritera(const doublereal t,
-                                     const doublereal delta_t,
-                                     const doublereal* const y,
-                                     const doublereal* const ydot);
+    virtual bool evalStoppingCritera(const double t,
+                                     const double delta_t,
+                                     const double* const y,
+                                     const double* const ydot);
 
     //! Return a vector of delta y's for calculation of the numerical Jacobian
     /*!
@@ -185,11 +184,11 @@ public:
      *           -0 or neg value Means an unsuccessful operation
      */
     virtual int
-    calcDeltaSolnVariables(const doublereal t,
-                           const doublereal* const y,
-                           const doublereal* const ydot,
-                           doublereal* const delta_y,
-                           const doublereal* const solnWeights = 0);
+    calcDeltaSolnVariables(const double t,
+                           const double* const y,
+                           const double* const ydot,
+                           double* const delta_y,
+                           const double* const solnWeights = 0);
 
     //! Returns a vector of column scale factors that can be used to column
     //! scale Jacobians.
@@ -201,8 +200,8 @@ public:
      * @param y_old         Old Solution vector (input, do not modify)
      * @param yScales       Value of the column scales
      */
-    virtual void calcSolnScales(const doublereal t, const doublereal* const y,
-                                const doublereal* const y_old, doublereal* const yScales);
+    virtual void calcSolnScales(const double t, const double* const y,
+                                const double* const y_old, double* const yScales);
 
     //! This function may be used to create output at various points in the
     //! execution of an application.
@@ -217,10 +216,10 @@ public:
      * @param y             Solution vector (input, do not modify)
      * @param ydot          Rate of change of solution vector. (input)
      */
-    virtual void user_out2(const int ifunc, const doublereal t,
-                           const doublereal delta_t,
-                           const doublereal* const y,
-                           const doublereal* const ydot);
+    virtual void user_out2(const int ifunc, const double t,
+                           const double delta_t,
+                           const double* const y,
+                           const double* const ydot);
 
     //! This function may be used to create output at various points in the
     //! execution of an application.
@@ -232,9 +231,9 @@ public:
      * @param y             Solution vector (input, do not modify)
      * @param ydot          Rate of change of solution vector. (input)
      */
-    virtual void user_out(const int ifunc, const doublereal t,
-                          const doublereal* y,
-                          const doublereal* ydot);
+    virtual void user_out(const int ifunc, const double t,
+                          const double* y,
+                          const double* ydot);
 
     //! Multiply the matrix by another matrix that leads to better conditioning
     /*!
@@ -255,8 +254,8 @@ public:
      *            1  Means a successful operation
      *           -0 or neg value Means an unsuccessful operation
      */
-    virtual int matrixConditioning(doublereal* const matrix, const int nrows,
-                                   doublereal* const rhs);
+    virtual int matrixConditioning(double* const matrix, const int nrows,
+                                   double* const rhs);
 
     //! Calculate an analytical Jacobian and the residual at the current time
     //! and values.
@@ -274,9 +273,9 @@ public:
      *            1  Means a successful operation
      *           -0 or neg value Means an unsuccessful operation
      */
-    virtual int evalJacobian(const doublereal t, const doublereal delta_t, doublereal cj,
-                             const doublereal* const y, const doublereal* const ydot,
-                             DenseMatrix& J, doublereal* const resid);
+    virtual int evalJacobian(const double t, const double delta_t, double cj,
+                             const double* const y, const double* const ydot,
+                             DenseMatrix& J, double* const resid);
 
     //! Calculate an analytical Jacobian and the residual at the current time and values.
     /*!
@@ -294,15 +293,15 @@ public:
      *            1  Means a successful operation
      *           -0 or neg value Means an unsuccessful operation
      */
-    virtual int evalJacobianDP(const doublereal t, const doublereal delta_t, doublereal cj,
-                               const doublereal* const y,
-                               const doublereal* const ydot,
-                               doublereal* const* jacobianColPts,
-                               doublereal* const resid);
+    virtual int evalJacobianDP(const double t, const double delta_t, double cj,
+                               const double* const y,
+                               const double* const ydot,
+                               double* const* jacobianColPts,
+                               double* const resid);
 
 protected:
     //! constant value of atol
-    doublereal m_atol;
+    double m_atol;
 
     //! Number of equations
     int neq_;

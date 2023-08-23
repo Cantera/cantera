@@ -2,7 +2,7 @@
  *  @file DenseMatrix.h
  *  Headers for the DenseMatrix object, which deals with dense rectangular matrices and
  *  description of the numerics groupings of objects
- *  (see \ref numerics and \link Cantera::DenseMatrix DenseMatrix \endlink) .
+ *  (see @ref numerics and @link Cantera::DenseMatrix DenseMatrix @endlink) .
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -18,12 +18,16 @@
 namespace Cantera
 {
 /**
- * @defgroup numerics  Numerical Utilities within Cantera
+ * @defgroup numerics  Numerical Utilities
  *
- * Cantera contains some capabilities for solving nonlinear equations and
- * integrating both ODE and DAE equation systems in time. This section describes
- * these capabilities.
- *
+ * @details %Cantera contains some capabilities for solving nonlinear equations and
+ * integrating both ODE and DAE equation systems in time.
+ */
+
+/**
+ * @defgroup matrices  Matrix Handling
+ * Classes and methods implementing matrix operations.
+ * @ingroup numerics
  */
 
 //! A class for full (non-sparse) matrices with Fortran-compatible data storage,
@@ -45,7 +49,7 @@ namespace Cantera
  * m_printLevel. The default is for no reporting. If m_printLevel is nonzero,
  * the error condition is reported to Cantera's log file.
  *
- * @ingroup numerics
+ * @ingroup matrices
  */
 class DenseMatrix : public Array2D
 {
@@ -55,13 +59,13 @@ public:
 
     //! Constructor.
     /*!
-     * Create an \c n by \c m matrix, and initialize all elements to \c v.
+     * Create an @c n by @c m matrix, and initialize all elements to @c v.
      *
      * @param n  New number of rows
      * @param m  New number of columns
      * @param v  Default fill value. defaults to zero.
      */
-    DenseMatrix(size_t n, size_t m, doublereal v = 0.0);
+    DenseMatrix(size_t n, size_t m, double v = 0.0);
 
     DenseMatrix(const DenseMatrix& y);
     DenseMatrix& operator=(const DenseMatrix& y);
@@ -74,9 +78,9 @@ public:
      * @param m  New number of columns
      * @param v  Default fill value. defaults to zero.
      */
-    void resize(size_t n, size_t m, doublereal v = 0.0);
+    void resize(size_t n, size_t m, double v=0.0) override;
 
-    virtual doublereal* const* colPts();
+    virtual double* const* colPts();
 
     //! Return a const vector of const pointers to the columns
     /*!
@@ -85,11 +89,11 @@ public:
      *
      * @returns a vector of pointers to the top of the columns of the matrices.
      */
-    const doublereal* const* const_colPts() const;
+    const double* const* const_colPts() const;
 
     virtual void mult(const double* b, double* prod) const;
 
-    //! Multiply A*B and write result to \c prod.
+    //! Multiply A*B and write result to @c prod.
     /*!
      * Take this matrix to be of size NxM.
      * @param[in]  b     DenseMatrix B of size MxP
@@ -108,24 +112,24 @@ public:
 
     //! Return a changeable value of the pivot vector
     /*!
-     * @returns a reference to the pivot vector as a vector_int
+     * @returns a reference to the pivot vector as a vector<int>
      */
-    vector_int& ipiv();
+    vector<int>& ipiv();
 
     //! Return a changeable value of the pivot vector
     /*!
-     *  @returns a reference to the pivot vector as a vector_int
+     *  @returns a reference to the pivot vector as a vector<int>
      */
-    const vector_int& ipiv() const {
+    const vector<int>& ipiv() const {
         return m_ipiv;
     }
 
 protected:
     //! Vector of pivots. Length is equal to the max of m and n.
-    vector_int m_ipiv;
+    vector<int> m_ipiv;
 
     //! Vector of column pointers
-    std::vector<doublereal*> m_colPts;
+    vector<double*> m_colPts;
 
 public:
     //! Error Handling Flag
@@ -147,12 +151,6 @@ public:
      * out, if this value is nonzero.
      */
     int m_printLevel = 0;
-
-    // Listing of friend functions which are defined below
-
-    friend int solve(DenseMatrix& A, double* b, size_t nrhs, size_t ldb);
-    friend int solve(DenseMatrix& A, DenseMatrix& b);
-    friend int invert(DenseMatrix& A, int nn);
 };
 
 
@@ -184,11 +182,11 @@ int solve(DenseMatrix& A, double* b, size_t nrhs=1, size_t ldb=0);
  */
 int solve(DenseMatrix& A, DenseMatrix& b);
 
-//! Multiply \c A*b and return the result in \c prod. Uses BLAS routine DGEMV.
+//! Multiply @c A*b and return the result in @c prod. Uses BLAS routine DGEMV.
 /*!
- * \f[
+ * @f[
  *     prod_i = sum^N_{j = 1}{A_{ij} b_j}
- * \f]
+ * @f]
  *
  * @param[in]  A     Dense Matrix A with M rows and N columns
  * @param[in]  b     vector b with length N
@@ -196,11 +194,11 @@ int solve(DenseMatrix& A, DenseMatrix& b);
  */
 void multiply(const DenseMatrix& A, const double* const b, double* const prod);
 
-//! Multiply \c A*b and add it to the result in \c prod. Uses BLAS routine DGEMV.
+//! Multiply @c A*b and add it to the result in @c prod. Uses BLAS routine DGEMV.
 /*!
- * \f[
+ * @f[
  *     prod_i += sum^N_{j = 1}{A_{ij} b_j}
- * \f]
+ * @f]
  *
  * @param[in]  A     Dense Matrix A with M rows and N columns
  * @param[in]  b     vector b with length N

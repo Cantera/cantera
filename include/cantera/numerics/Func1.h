@@ -40,47 +40,48 @@ const int TabulatedFuncType = 120;
 class TimesConstant1;
 
 //! @defgroup func1 Functor Objects
-//! Functors implement functions of a single variable \f$ f(x) \f$.
+//! Functors implement functions of a single variable @f$ f(x) @f$.
 //! Functor objects can be combined to form compound expressions, which allows for
 //! the implementation of generic mathematical expressions.
+//! @ingroup numerics
 
 //! @defgroup func1simple Simple Functors
 //! Simple functors implement standard mathematical expressions with a single
 //! parameter.
 //! The following simple functor types are implemented:
-//! - \c "sin" (class Sin1), \c "cos" (class Cos1),
-//! - \c "exp" (class Exp1), \c "log" (class Log1),
-//! - \c "pow" (class Pow1),
-//! - \c "constant" (class Const1).
+//! - @c "sin" (class Sin1), @c "cos" (class Cos1),
+//! - @c "exp" (class Exp1), @c "log" (class Log1),
+//! - @c "pow" (class Pow1),
+//! - @c "constant" (class Const1).
 //! @ingroup func1
 
 //! @defgroup func1advanced Advanced Functors
 //! Advanced functors implement expressions that require multiple parameters.
 //! The following advanced functor types are implemented:
-//! - \c "tabulated-linear" and \c "tabulated-previous" (class Tabulated1),
-//! - \c "polynomial" (class Poly1),
-//! - \c "Fourier" (class Fourier1),
-//! - \c "Gaussian" (class Gaussian1),
-//! - \c "Arrhenius" (class Arrhenius1).
+//! - @c "tabulated-linear" and @c "tabulated-previous" (class Tabulated1),
+//! - @c "polynomial" (class Poly1),
+//! - @c "Fourier" (class Fourier1),
+//! - @c "Gaussian" (class Gaussian1),
+//! - @c "Arrhenius" (class Arrhenius1).
 //! @ingroup func1
 
 //! @defgroup func1compound Compound Functors
 //! Compound functors implement expressions that are composed of other functors.
 //! The following compound functor types are implemented:
-//! - \c "sum" (class Sum1),
-//! - \c "diff" (class Diff1),
-//! - \c "product" (class Product1),
-//! - \c "ratio" (class Ratio1),
-//! - \c "composite" (class Composite1),
+//! - @c "sum" (class Sum1),
+//! - @c "diff" (class Diff1),
+//! - @c "product" (class Product1),
+//! - @c "ratio" (class Ratio1),
+//! - @c "composite" (class Composite1),
 //! @ingroup func1
 
 //! @defgroup func1modified Modified Functors
 //! Modified functors implement expressions that involve one functor and
 //! a single parameter.
 //! The following modified functor types are implemented:
-//! - \c "times-constant" (class TimesConstant1),
-//! - \c "plus-constant" (class PlusConstant1),
-//! - \c "periodic" (class Periodic1).
+//! - @c "times-constant" (class TimesConstant1),
+//! - @c "plus-constant" (class PlusConstant1),
+//! - @c "periodic" (class Periodic1).
 //! @ingroup func1
 
 //! @defgroup func1helper Helper Functions
@@ -109,44 +110,44 @@ public:
 
     virtual ~Func1() = default;
 
-    //! @deprecated To be removed after Cantera 3.0. Only used by deprecated methods.
+    //! @deprecated To be removed after %Cantera 3.0. Only used by deprecated methods.
     Func1(const Func1& right);
 
-    //! @deprecated To be removed after Cantera 3.0. Only used by deprecated methods.
+    //! @deprecated To be removed after %Cantera 3.0. Only used by deprecated methods.
     Func1& operator=(const Func1& right);
 
     //! Duplicate the current function.
     /*!
      * This duplicates the current function, returning a reference to the newly
      * created function.
-     * @deprecated To be removed after Cantera 3.0. Only used by deprecated methods.
+     * @deprecated To be removed after %Cantera 3.0. Only used by deprecated methods.
      */
     virtual Func1& duplicate() const;
 
-    //! @deprecated To be removed after Cantera 3.0. Replaced by type.
+    //! @deprecated To be removed after %Cantera 3.0. Replaced by type.
     virtual int ID() const;
 
     //! Returns a string describing the type of the function
-    //! @since  New in Cantera 3.0.
+    //! @since New in %Cantera 3.0.
     virtual string type() const {
         return "functor";
     }
 
     //! Returns a string with the class name of the functor
-    //! @since  New in Cantera 3.0.
+    //! @since New in %Cantera 3.0.
     string typeName() const;
 
     //! Calls method eval to evaluate the function
-    doublereal operator()(doublereal t) const;
+    double operator()(double t) const;
 
     //! Evaluate the function.
-    virtual doublereal eval(doublereal t) const;
+    virtual double eval(double t) const;
 
     //! Creates a derivative to the current function
     /*!
      * This will create a new derivative function and return a reference to the
      * function.
-     * @deprecated To be changed after Cantera 3.0; for new behavior, see derivative3.
+     * @deprecated To be changed after %Cantera 3.0; for new behavior, see derivative3.
      */
     virtual Func1& derivative() const;
 
@@ -154,7 +155,7 @@ public:
     /*!
      * This will create a new derivative function
      * @return  shared pointer to new derivative function.
-     * @since  New in Cantera 3.0.
+     * @since New in %Cantera 3.0.
      */
     virtual shared_ptr<Func1> derivative3() const;
 
@@ -166,35 +167,35 @@ public:
      */
     bool isIdentical(Func1& other) const;
 
-    virtual doublereal isProportional(TimesConstant1& other);
-    virtual doublereal isProportional(Func1& other);
+    virtual double isProportional(TimesConstant1& other);
+    virtual double isProportional(Func1& other);
 
     //! Write LaTeX string describing function.
-    virtual std::string write(const std::string& arg) const;
+    virtual string write(const string& arg) const;
 
     //! Accessor function for the stored constant
-    doublereal c() const;
+    double c() const;
 
     //! Function to set the stored constant
-    //! @deprecated To be removed after Cantera 3.0. Only used by deprecated methods.
-    void setC(doublereal c);
+    //! @deprecated To be removed after %Cantera 3.0. Only used by deprecated methods.
+    void setC(double c);
 
     //! accessor function for m_f1
-    //! @deprecated To be removed after Cantera 3.0; replaced by func1_shared.
+    //! @deprecated To be removed after %Cantera 3.0; replaced by func1_shared().
     Func1& func1() const;
 
     //! Accessor function for m_f1_shared
-    //! @since  New in Cantera 3.0.
+    //! @since New in %Cantera 3.0.
     shared_ptr<Func1> func1_shared() const {
         return m_f1_shared;
     }
 
     //! accessor function for m_f2
-    //! @deprecated To be removed after Cantera 3.0. Only used by deprecated methods.
+    //! @deprecated To be removed after %Cantera 3.0. Only used by deprecated methods.
     Func1& func2() const;
 
     //! Accessor function for m_f2_shared
-    //! @since  New in Cantera 3.0.
+    //! @since New in %Cantera 3.0.
     shared_ptr<Func1> func2_shared() const {
         return m_f2_shared;
     }
@@ -202,16 +203,16 @@ public:
     //! Return the order of the function, if it makes sense
     virtual int order() const;
 
-    //! @deprecated To be removed after Cantera 3.0. Only used by deprecated methods.
+    //! @deprecated To be removed after %Cantera 3.0. Only used by deprecated methods.
     Func1& func1_dup() const;
 
-    //! @deprecated To be removed after Cantera 3.0. Only used by deprecated methods.
+    //! @deprecated To be removed after %Cantera 3.0. Only used by deprecated methods.
     Func1& func2_dup() const;
 
-    //! @deprecated To be removed after Cantera 3.0. Only used by deprecated methods.
+    //! @deprecated To be removed after %Cantera 3.0. Only used by deprecated methods.
     Func1* parent() const;
 
-    //! @deprecated To be removed after Cantera 3.0. Only used by deprecated methods.
+    //! @deprecated To be removed after %Cantera 3.0. Only used by deprecated methods.
     void setParent(Func1* p);
 
 protected:
@@ -231,8 +232,8 @@ Func1& newDiffFunction(Func1& f1, Func1& f2);
 Func1& newProdFunction(Func1& f1, Func1& f2);
 Func1& newRatioFunction(Func1& f1, Func1& f2);
 Func1& newCompositeFunction(Func1& f1, Func1& f2);
-Func1& newTimesConstFunction(Func1& f1, doublereal c);
-Func1& newPlusConstFunction(Func1& f1, doublereal c);
+Func1& newTimesConstFunction(Func1& f1, double c);
+Func1& newPlusConstFunction(Func1& f1, double c);
 
 
 //! Sum of two functions.
@@ -263,11 +264,11 @@ shared_ptr<Func1> newTimesConstFunction(shared_ptr<Func1> f1, double c);
 //! @ingroup func1helper
 shared_ptr<Func1> newPlusConstFunction(shared_ptr<Func1> f1, double c);
 
-//! Implements the \c sin() function.
+//! Implements the @c sin() function.
 /*!
- * The functor class with type \c "sin" returns \f$ f(x) = \cos(\omega x) \f$,
- * where the argument \f$ x \f$ is in radians.
- * @param omega  Frequency \f$ \omega \f$ (default=1.0)
+ * The functor class with type @c "sin" returns @f$ f(x) = \cos(\omega x) @f$,
+ * where the argument @f$ x @f$ is in radians.
+ * @param omega  Frequency @f$ \omega @f$ (default=1.0)
  * @ingroup func1simple
  */
 class Sin1 : public Func1
@@ -292,31 +293,31 @@ public:
         return *this;
     }
 
-    virtual std::string write(const std::string& arg) const;
+    string write(const string& arg) const override;
 
-    virtual int ID() const {
+    int ID() const override {
         return SinFuncType;
     }
 
-    virtual string type() const {
+    string type() const override {
         return "sin";
     }
 
-    virtual doublereal eval(doublereal t) const {
+    double eval(double t) const override{
         return sin(m_c*t);
     }
 
-    virtual Func1& duplicate() const;
-    virtual Func1& derivative() const;
-    virtual shared_ptr<Func1> derivative3() const;
+    Func1& duplicate() const override;
+    Func1& derivative() const override;
+    shared_ptr<Func1> derivative3() const override;
 };
 
 
-//! Implements the \c cos() function.
+//! Implements the @c cos() function.
 /*!
- * The functor class with type \c "cos" returns \f$ f(x) = \cos(\omega x) \f$,
- * where the argument \f$ x \f$ is in radians.
- * @param omega  Frequency \f$ \omega \f$ (default=1.0)
+ * The functor class with type @c "cos" returns @f$ f(x) = \cos(\omega x) @f$,
+ * where the argument @f$ x @f$ is in radians.
+ * @param omega  Frequency @f$ \omega @f$ (default=1.0)
  * @ingroup func1simple
  */
 class Cos1 : public Func1
@@ -341,26 +342,26 @@ public:
         return *this;
     }
 
-    virtual Func1& duplicate() const;
-    virtual std::string write(const std::string& arg) const;
-    virtual int ID() const {
+    Func1& duplicate() const override;
+    string write(const string& arg) const override;
+    int ID() const override {
         return CosFuncType;
     }
-    virtual string type() const {
+    string type() const override {
         return "cos";
     }
 
-    virtual doublereal eval(doublereal t) const {
+    double eval(double t) const override {
         return cos(m_c * t);
     }
-    virtual Func1& derivative() const;
-    virtual shared_ptr<Func1> derivative3() const;
+    Func1& derivative() const override;
+    shared_ptr<Func1> derivative3() const override;
 };
 
 
-//! Implements the \c exp() (exponential) function.
+//! Implements the @c exp() (exponential) function.
 /*!
- * The functor class with type \c "exp" returns \f$ f(x) = \exp(a x) \f$.
+ * The functor class with type @c "exp" returns @f$ f(x) = \exp(a x) @f$.
  * @param a  Factor (default=1.0)
  * @ingroup func1simple
  */
@@ -384,30 +385,30 @@ public:
         Func1::operator=(right);
         return *this;
     }
-    virtual std::string write(const std::string& arg) const;
-    virtual int ID() const {
+    string write(const string& arg) const override;
+    int ID() const override {
         return ExpFuncType;
     }
-    virtual string type() const {
+    string type() const override {
         return "exp";
     }
 
-    virtual doublereal eval(doublereal t) const {
+    double eval(double t) const override {
         return exp(m_c*t);
     }
 
-    virtual Func1& duplicate() const;
-    virtual Func1& derivative() const;
-    virtual shared_ptr<Func1> derivative3() const;
+    Func1& duplicate() const override;
+    Func1& derivative() const override;
+    shared_ptr<Func1> derivative3() const override;
 };
 
 
-//! Implements the \c log() (natural logarithm) function.
+//! Implements the @c log() (natural logarithm) function.
 /*!
- * The functor class with type \c "log" returns \f$ f(x) = \log(a x) \f$.
+ * The functor class with type @c "log" returns @f$ f(x) = \ln(a x) @f$.
  * @param a  Factor (default=1.0)
  * @ingroup func1simple
- * @since New in Cantera 3.0
+ * @since New in %Cantera 3.0
  */
 class Log1 : public Func1
 {
@@ -419,22 +420,22 @@ public:
     //! Constructor uses single parameter (factor)
     Log1(const vector<double>& params);
 
-    virtual string type() const {
+    string type() const override {
         return "log";
     }
 
-    virtual double eval(double t) const {
+    double eval(double t) const override {
         return log(m_c * t);
     }
 
-    virtual shared_ptr<Func1> derivative3() const;
+    shared_ptr<Func1> derivative3() const override;
 
-    virtual std::string write(const string& arg) const;
+    string write(const string& arg) const override;
 };
 
-//! Implements the \c pow() (power) function.
+//! Implements the @c pow() (power) function.
 /*!
- * The functor class with type \c "pow" returns \f$ f(x) = x^n \f$.
+ * The functor class with type @c "pow" returns @f$ f(x) = x^n @f$.
  * @param n  Exponent
  * @ingroup func1simple
  */
@@ -458,30 +459,30 @@ public:
         Func1::operator=(right);
         return *this;
     }
-    virtual std::string write(const std::string& arg) const;
-    virtual int ID() const {
+    string write(const string& arg) const override;
+    int ID() const override {
         return PowFuncType;
     }
-    virtual string type() const {
+    string type() const override {
         return "pow";
     }
 
-    virtual doublereal eval(doublereal t) const {
+    double eval(double t) const override {
         return pow(t, m_c);
     }
-    virtual Func1& duplicate() const;
-    virtual Func1& derivative() const;
-    virtual shared_ptr<Func1> derivative3() const;
+    Func1& duplicate() const override;
+    Func1& derivative() const override;
+    shared_ptr<Func1> derivative3() const override;
 };
 
 //! Implements a tabulated function.
 /*!
- * The functor class is based on tabulated arrays \c tvals and \c fvals, where
- * \c tvals contain independent variables and \c fvals are corresponding function
+ * The functor class is based on tabulated arrays @c tvals and @c fvals, where
+ * @c tvals contain independent variables and @c fvals are corresponding function
  * values. Depending on configuration, the function is either interpolated linearly
- * between the tabulated points (type \c "tabulated-linear" ; default), or yields
+ * between the tabulated points (type @c "tabulated-linear" ; default), or yields
  * the last tabulated value until a new tabulated time value is reached (type
- * \c "tabulated-previous" ).
+ * @c "tabulated-previous" ).
  * @ingroup func1advanced
  */
 class Tabulated1 : public Func1
@@ -497,42 +498,42 @@ public:
     Tabulated1(size_t n, const double* tvals, const double* fvals,
                const string& method="linear");
 
-    //! Constructor uses \f$ 2 n\f$ parameters in the following order:
-    //! \f$ [t_0, t_1, \dots, t_{n-1}, f_0, f_1, \dots, f_{n-1}] \f$
+    //! Constructor uses @f$ 2 n @f$ parameters in the following order:
+    //! @f$ [t_0, t_1, \dots, t_{n-1}, f_0, f_1, \dots, f_{n-1}] @f$
     Tabulated1(const vector<double>& params);
 
     //! Set the interpolation method
-    //! @param method  Evaluation method. If \c "linear" (default), a linear
-    //!     interpolation between tabulated values is used; if \c "previous", the
+    //! @param method  Evaluation method. If @c "linear" (default), a linear
+    //!     interpolation between tabulated values is used; if @c "previous", the
     //!     last tabulated value is held until a new tabulated time value is reached.
-    //! @since  New in Cantera 3.0
+    //! @since New in %Cantera 3.0
     void setMethod(const string& method);
 
-    virtual std::string write(const std::string& arg) const;
-    virtual int ID() const {
+    string write(const string& arg) const override;
+    int ID() const override {
         return TabulatedFuncType;
     }
-    virtual string type() const {
+    string type() const override {
         if (m_isLinear) {
             return "tabulated-linear";
         }
         return "tabulated-previous";
     }
 
-    virtual double eval(double t) const;
-    virtual Func1& duplicate() const;
-    virtual Func1& derivative() const;
-    virtual shared_ptr<Func1> derivative3() const;
+    double eval(double t) const override;
+    Func1& duplicate() const override;
+    Func1& derivative() const override;
+    shared_ptr<Func1> derivative3() const override;
 private:
-    vector_fp m_tvec; //!< Vector of time values
-    vector_fp m_fvec; //!< Vector of function values
+    vector<double> m_tvec; //!< Vector of time values
+    vector<double> m_fvec; //!< Vector of function values
     bool m_isLinear; //!< Boolean indicating interpolation method
 };
 
 
 //! Implements a constant.
 /*!
- * The functor class with type \c "constant" returns \f$ f(x) = a \f$.
+ * The functor class with type @c "constant" returns @f$ f(x) = a @f$.
  * @param a  Constant
  * @ingroup func1simple
  */
@@ -558,20 +559,20 @@ public:
         return *this;
     }
 
-    virtual std::string write(const std::string& arg) const;
-    virtual int ID() const {
+    string write(const string& arg) const override;
+    int ID() const override {
         return ConstFuncType;
     }
-    virtual string type() const {
+    string type() const override {
         return "constant";
     }
 
-    virtual doublereal eval(doublereal t) const {
+    double eval(double t) const override {
         return m_c;
     }
-    virtual Func1& duplicate() const;
-    virtual Func1& derivative() const;
-    virtual shared_ptr<Func1> derivative3() const {
+    Func1& duplicate() const override;
+    Func1& derivative() const override;
+    shared_ptr<Func1> derivative3() const override {
         return make_shared<Const1>(0.0);
     }
 };
@@ -579,9 +580,9 @@ public:
 
 /**
  * Implements the sum of two functions.
- * The functor class with type \c "sum" returns \f$ f(x) = f_1(x) + f_2(x) \f$.
- * @param f1  Functor \f$ f_1(x) \f$
- * @param f2  Functor \f$ f_2(x) \f$
+ * The functor class with type @c "sum" returns @f$ f(x) = f_1(x) + f_2(x) @f$.
+ * @param f1  Functor @f$ f_1(x) @f$
+ * @param f2  Functor @f$ f_2(x) @f$
  * @ingroup func1compound
  */
 class Sum1 : public Func1
@@ -596,7 +597,7 @@ public:
 
     Sum1(shared_ptr<Func1> f1, shared_ptr<Func1> f2) : Func1(f1, f2) {}
 
-    virtual ~Sum1() {
+    ~Sum1() override {
         if (!m_f1_shared) {
             delete m_f1;
         }
@@ -623,36 +624,36 @@ public:
         return *this;
     }
 
-    virtual int ID() const {
+    int ID() const override {
         return SumFuncType;
     }
-    virtual string type() const {
+    string type() const override {
         return "sum";
     }
 
-    virtual doublereal eval(doublereal t) const {
+    double eval(double t) const override {
         return m_f1->eval(t) + m_f2->eval(t);
     }
 
-    virtual Func1& duplicate() const;
-    virtual Func1& derivative() const;
+    Func1& duplicate() const override;
+    Func1& derivative() const override;
 
-    virtual shared_ptr<Func1> derivative3() const {
+    shared_ptr<Func1> derivative3() const override {
         return newSumFunction(m_f1_shared->derivative3(), m_f2_shared->derivative3());
     }
 
-    virtual int order() const {
+    int order() const override {
         return 0;
     }
 
-    virtual std::string write(const std::string& arg) const;
+    string write(const string& arg) const override;
 };
 
 /**
  * Implements the difference of two functions.
- * The functor class with type \c "diff" returns \f$ f(x) = f_1(x) - f_2(x) \f$.
- * @param f1  Functor \f$ f_1(x) \f$
- * @param f2  Functor \f$ f_2(x) \f$
+ * The functor class with type @c "diff" returns @f$ f(x) = f_1(x) - f_2(x) @f$.
+ * @param f1  Functor @f$ f_1(x) @f$
+ * @param f2  Functor @f$ f_2(x) @f$
  * @ingroup func1compound
  */
 class Diff1 : public Func1
@@ -667,7 +668,7 @@ public:
 
     Diff1(shared_ptr<Func1> f1, shared_ptr<Func1> f2) : Func1(f1, f2) {}
 
-    virtual ~Diff1() {
+    ~Diff1() override {
         if (!m_f1_shared) {
             delete m_f1;
         }
@@ -694,38 +695,38 @@ public:
         return *this;
     }
 
-    virtual int ID() const {
+    int ID() const override {
         return DiffFuncType;
     }
 
-    virtual string type() const {
+    string type() const override {
         return "diff";
     }
 
-    virtual doublereal eval(doublereal t) const {
+    double eval(double t) const override {
         return m_f1->eval(t) - m_f2->eval(t);
     }
 
-    virtual Func1& duplicate() const;
-    virtual Func1& derivative() const;
+    Func1& duplicate() const override;
+    Func1& derivative() const override;
 
-    virtual shared_ptr<Func1> derivative3() const {
+    shared_ptr<Func1> derivative3() const override {
         return newDiffFunction(m_f1_shared->derivative3(), m_f2_shared->derivative3());
     }
 
-    virtual int order() const {
+    int order() const override {
         return 0;
     }
 
-    virtual std::string write(const std::string& arg) const;
+    string write(const string& arg) const override;
 };
 
 
 /**
  * Implements the product of two functions.
- * The functor class with type \c "product" returns \f$ f(x) = f_1(x) f_2(x) \f$.
- * @param f1  Functor \f$ f_1(x) \f$
- * @param f2  Functor \f$ f_2(x) \f$
+ * The functor class with type @c "product" returns @f$ f(x) = f_1(x) f_2(x) @f$.
+ * @param f1  Functor @f$ f_1(x) @f$
+ * @param f2  Functor @f$ f_2(x) @f$
  * @ingroup func1compound
  */
 class Product1 : public Func1
@@ -740,7 +741,7 @@ public:
 
     Product1(shared_ptr<Func1> f1, shared_ptr<Func1> f2) : Func1(f1, f2) {}
 
-    virtual ~Product1() {
+    ~Product1() override {
         if (!m_f1_shared) {
             delete m_f1;
         }
@@ -767,35 +768,35 @@ public:
         return *this;
     }
 
-    virtual int ID() const {
+    int ID() const override {
         return ProdFuncType;
     }
 
-    virtual string type() const {
+    string type() const override {
         return "product";
     }
 
-    virtual std::string write(const std::string& arg) const;
+    string write(const string& arg) const override;
 
-    virtual doublereal eval(doublereal t) const {
+    double eval(double t) const override {
         return m_f1->eval(t) * m_f2->eval(t);
     }
 
-    virtual Func1& duplicate() const;
-    virtual Func1& derivative() const;
+    Func1& duplicate() const override;
+    Func1& derivative() const override;
 
-    virtual shared_ptr<Func1> derivative3() const;
+    shared_ptr<Func1> derivative3() const override;
 
-    virtual int order() const {
+    int order() const override {
         return 1;
     }
 };
 
 /**
  * Implements the product of a function and a constant.
- * The functor class with type \c "times-constant" returns \f$ f(x) = a f_1(x) \f$.
- * @param f1  Functor \f$ f_1(x) \f$
- * @param a   Constant \f$ a \f$
+ * The functor class with type @c "times-constant" returns @f$ f(x) = a f_1(x) @f$.
+ * @param f1  Functor @f$ f_1(x) @f$
+ * @param a   Constant @f$ a @f$
  * @ingroup func1modified
  */
 class TimesConstant1 : public Func1
@@ -809,7 +810,7 @@ public:
 
     TimesConstant1(shared_ptr<Func1> f1, double a) : Func1(f1, a) {}
 
-    virtual ~TimesConstant1() {
+    ~TimesConstant1() override {
         if (!m_f1_shared) {
             delete m_f1;
         }
@@ -830,14 +831,14 @@ public:
         m_parent = 0;
         return *this;
     }
-    virtual int ID() const {
+    int ID() const override {
         return TimesConstantFuncType;
     }
-    virtual string type() const {
+    string type() const override {
         return "times-constant";
     }
 
-    virtual doublereal isProportional(TimesConstant1& other) {
+    double isProportional(TimesConstant1& other) override {
         if (func1().isIdentical(other.func1())) {
             return (other.c()/c());
         } else {
@@ -845,7 +846,7 @@ public:
         }
     }
 
-    virtual doublereal isProportional(Func1& other) {
+    double isProportional(Func1& other) override {
         if (func1().isIdentical(other)) {
             return 1.0/c();
         } else {
@@ -853,29 +854,29 @@ public:
         }
     }
 
-    virtual doublereal eval(doublereal t) const {
+    double eval(double t) const override {
         return m_f1->eval(t) * m_c;
     }
 
-    virtual Func1& duplicate() const;
-    virtual Func1& derivative() const;
+    Func1& duplicate() const override;
+    Func1& derivative() const override;
 
-    virtual shared_ptr<Func1> derivative3() const {
+    shared_ptr<Func1> derivative3() const override {
         return newTimesConstFunction(m_f1_shared->derivative3(), m_c);
     }
 
-    virtual std::string write(const std::string& arg) const;
+    string write(const string& arg) const override;
 
-    virtual int order() const {
+    int order() const override {
         return 0;
     }
 };
 
 /**
  * Implements the sum of a function and a constant.
- * The functor class with type \c "plus-constant" returns \f$ f(x) = f_1(x) + a \f$.
- * @param f1  Functor \f$ f_1(x) \f$
- * @param a   Constant \f$ a \f$
+ * The functor class with type @c "plus-constant" returns @f$ f(x) = f_1(x) + a @f$.
+ * @param f1  Functor @f$ f_1(x) @f$
+ * @param a   Constant @f$ a @f$
  * @ingroup func1modified
  */
 class PlusConstant1 : public Func1
@@ -889,7 +890,7 @@ public:
 
     PlusConstant1(shared_ptr<Func1> f1, double a) : Func1(f1, a) {}
 
-    virtual ~PlusConstant1() {
+    ~PlusConstant1() override {
         if (!m_f1_shared) {
             delete m_f1;
         }
@@ -911,27 +912,27 @@ public:
         return *this;
     }
 
-    virtual int ID() const {
+    int ID() const override {
         return PlusConstantFuncType;
     }
-    virtual string type() const {
+    string type() const override {
         return "plus-constant";
     }
 
-    virtual doublereal eval(doublereal t) const {
+    double eval(double t) const override {
         return m_f1->eval(t) + m_c;
     }
 
-    virtual Func1& duplicate() const;
-    virtual Func1& derivative() const;
+    Func1& duplicate() const override;
+    Func1& derivative() const override;
 
-    virtual shared_ptr<Func1> derivative3() const {
+    shared_ptr<Func1> derivative3() const override {
         return m_f1_shared->derivative3();
     }
 
-    virtual std::string write(const std::string& arg) const;
+    string write(const string& arg) const override;
 
-    virtual int order() const {
+    int order() const override {
         return 0;
     }
 };
@@ -939,9 +940,9 @@ public:
 
 /**
  * Implements the ratio of two functions.
- * The functor class with type \c "ratio" returns \f$ f(x) = f_1(x) / f_2(x) \f$.
- * @param f1  Functor \f$ f_1(x) \f$
- * @param f2  Functor \f$ f_2(x) \f$
+ * The functor class with type @c "ratio" returns @f$ f(x) = f_1(x) / f_2(x) @f$.
+ * @param f1  Functor @f$ f_1(x) @f$
+ * @param f2  Functor @f$ f_2(x) @f$
  * @ingroup func1compound
  */
 class Ratio1 : public Func1
@@ -956,7 +957,7 @@ public:
 
     Ratio1(shared_ptr<Func1> f1, shared_ptr<Func1> f2) : Func1(f1, f2) {}
 
-    virtual ~Ratio1() {
+    ~Ratio1() override {
         if (!m_f1_shared) {
             delete m_f1;
         }
@@ -983,34 +984,34 @@ public:
         return *this;
     }
 
-    virtual int ID() const {
+    int ID() const override {
         return RatioFuncType;
     }
-    virtual string type() const {
+    string type() const override {
         return "ratio";
     }
 
-    virtual doublereal eval(doublereal t) const {
+    double eval(double t) const override {
         return m_f1->eval(t) / m_f2->eval(t);
     }
 
-    virtual Func1& duplicate() const;
-    virtual Func1& derivative() const;
+    Func1& duplicate() const override;
+    Func1& derivative() const override;
 
-    virtual shared_ptr<Func1> derivative3() const;
+    shared_ptr<Func1> derivative3() const override;
 
-    virtual std::string write(const std::string& arg) const;
+    string write(const string& arg) const override;
 
-    virtual int order() const {
+    int order() const override {
         return 1;
     }
 };
 
 /**
  * Implements a composite function.
- * The functor class with type \c "composite" returns \f$ f(x) = f_1\left(f_2(x)\right) \f$.
- * @param f1  Functor \f$ f_1(x) \f$
- * @param f2  Functor \f$ f_2(x) \f$
+ * The functor class with type @c "composite" returns @f$ f(x) = f_1\left(f_2(x)\right) @f$.
+ * @param f1  Functor @f$ f_1(x) @f$
+ * @param f2  Functor @f$ f_2(x) @f$
  * @ingroup func1compound
  */
 class Composite1 : public Func1
@@ -1025,7 +1026,7 @@ public:
 
     Composite1(shared_ptr<Func1> f1, shared_ptr<Func1> f2) : Func1(f1, f2) {}
 
-    virtual ~Composite1() {
+    ~Composite1() override {
         if (!m_f1_shared) {
             delete m_f1;
         }
@@ -1052,25 +1053,25 @@ public:
         return *this;
     }
 
-    virtual int ID() const {
+    int ID() const override {
         return CompositeFuncType;
     }
-    virtual string type() const {
+    string type() const override {
         return "composite";
     }
 
-    virtual doublereal eval(doublereal t) const {
+    double eval(double t) const override {
         return m_f1->eval(m_f2->eval(t));
     }
 
-    virtual Func1& duplicate() const;
-    virtual Func1& derivative() const;
+    Func1& duplicate() const override;
+    Func1& derivative() const override;
 
-    virtual shared_ptr<Func1> derivative3() const;
+    shared_ptr<Func1> derivative3() const override;
 
-    virtual std::string write(const std::string& arg) const;
+    string write(const string& arg) const override;
 
-    virtual int order() const {
+    int order() const override {
         return 2;
     }
 };
@@ -1080,16 +1081,16 @@ public:
 
 /**
  * Implements a Gaussian function.
- * The functor class with type \c "Gaussian" returns
- * \f[
+ * The functor class with type @c "Gaussian" returns
+ * @f[
  * f(t) = A e^{-[(t - t_0)/\tau]^2}
- * \f]
- * where \f$ \tau = \mathrm{fwhm} / (2 \sqrt{\ln 2}) \f$.
+ * @f]
+ * where @f$ \tau = \mathrm{fwhm} / (2 \sqrt{\ln 2}) @f$.
  * @param A peak value
  * @param t0 offset
  * @param fwhm full width at half max
  * @ingroup func1advanced
- * @since  New in Cantera 3.0.
+ * @since New in %Cantera 3.0.
  */
 class Gaussian1 : public Func1
 {
@@ -1101,7 +1102,7 @@ public:
     }
 
     //! Constructor uses 3 parameters in the following order:
-    //! \f$ [A, t_0, \mathrm{fwhm}] \f$
+    //! @f$ [A, t_0, \mathrm{fwhm}] @f$
     Gaussian1(const vector<double>& params);
 
     Gaussian1(const Gaussian1& b) :
@@ -1121,31 +1122,31 @@ public:
         return *this;
     }
 
-    virtual string type() const {
+    string type() const override {
         return "Gaussian";
     }
 
-    virtual doublereal eval(doublereal t) const {
-        doublereal x = (t - m_t0)/m_tau;
+    double eval(double t) const override {
+        double x = (t - m_t0)/m_tau;
         return m_A * std::exp(-x*x);
     }
 
 protected:
-    doublereal m_A, m_t0, m_tau;
+    double m_A, m_t0, m_tau;
 };
 
 
 /**
  * A Gaussian.
- * \f[
+ * @f[
  * f(t) = A e^{-[(t - t_0)/\tau]^2}
- * \f]
- * where \f[ \tau = \frac{fwhm}{2\sqrt{\ln 2}} \f]
+ * @f]
+ * where @f[ \tau = \frac{fwhm}{2\sqrt{\ln 2}} @f]
  * @param A peak value
  * @param t0 offset
  * @param fwhm full width at half max
  * @ingroup func1advanced
- * @deprecated  To be removed after Cantera 3.0; replaced by Gaussian1.
+ * @deprecated To be removed after %Cantera 3.0; replaced by Gaussian1.
  */
 class Gaussian : public Gaussian1
 {
@@ -1153,16 +1154,16 @@ class Gaussian : public Gaussian1
 
     Gaussian(const Gaussian& b);
 
-    virtual Func1& duplicate() const;
+    Func1& duplicate() const override;
 };
 
 
 /**
- * Implements a polynomial of degree \e n.
- * The functor class with type \c "polynomial" returns
- * \f[
+ * Implements a polynomial of degree @e n.
+ * The functor class with type @c "polynomial" returns
+ * @f[
  * f(x) = a_n x^n + \dots + a_1 x + a_0
- * \f]
+ * @f]
  * @ingroup func1advanced
  */
 class Poly1 : public Func1
@@ -1173,8 +1174,8 @@ public:
         std::copy(c, c+m_cpoly.size(), m_cpoly.begin());
     }
 
-    //! Constructor uses \f$ n + 1 \f$ parameters in the following order:
-    //! \f$ [a_n, \dots, a_1, a_0] \f$
+    //! Constructor uses @f$ n + 1 @f$ parameters in the following order:
+    //! @f$ [a_n, \dots, a_1, a_0] @f$
     Poly1(const vector<double>& params);
 
     Poly1(const Poly1& b) :
@@ -1192,14 +1193,14 @@ public:
         return *this;
     }
 
-    virtual string type() const {
+    string type() const override {
         return "polynomial";
     }
 
-    virtual Func1& duplicate() const;
+    Func1& duplicate() const override;
 
-    virtual doublereal eval(doublereal t) const {
-        doublereal r = m_cpoly[m_cpoly.size()-1];
+    double eval(double t) const override {
+        double r = m_cpoly[m_cpoly.size()-1];
         for (size_t n = 1; n < m_cpoly.size(); n++) {
             r *= t;
             r += m_cpoly[m_cpoly.size() - n - 1];
@@ -1208,17 +1209,17 @@ public:
     }
 
 protected:
-    vector_fp m_cpoly;
+    vector<double> m_cpoly;
 };
 
 
 /**
  * Implements a Fourier cosine/sine series.
- * The functor class with type \c "Fourier" returns
- * \f[
+ * The functor class with type @c "Fourier" returns
+ * @f[
  * f(t) = \frac{A_0}{2} +
  * \sum_{n=1}^N A_n \cos (n \omega t) + B_n \sin (n \omega t)
- * \f]
+ * @f]
  * @ingroup func1advanced
  */
 class Fourier1 : public Func1
@@ -1233,8 +1234,8 @@ public:
         std::copy(b, b+n, m_csin.begin());
     }
 
-    //! Constructor uses \f$ 2 n + 2 \f$ parameters in the following order:
-    //! \f$ [a_0, a_1, \dots, a_n, \omega, b_1, \dots, b_n] \f$
+    //! Constructor uses @f$ 2 n + 2 @f$ parameters in the following order:
+    //! @f$ [a_0, a_1, \dots, a_n, \omega, b_1, \dots, b_n] @f$
     Fourier1(const vector<double>& params);
 
     Fourier1(const Fourier1& b) :
@@ -1255,15 +1256,15 @@ public:
         return *this;
     }
 
-    virtual string type() const {
+    string type() const override {
         return "Fourier";
     }
 
-    virtual Func1& duplicate() const;
+    Func1& duplicate() const override;
 
-    virtual doublereal eval(doublereal t) const {
+    double eval(double t) const override {
         size_t n, nn;
-        doublereal sum = m_a0_2;
+        double sum = m_a0_2;
         for (n = 0; n < m_ccos.size(); n++) {
             nn = n + 1;
             sum += m_ccos[n]*std::cos(m_omega*nn*t)
@@ -1273,17 +1274,17 @@ public:
     }
 
 protected:
-    doublereal m_omega, m_a0_2;
-    vector_fp m_ccos, m_csin;
+    double m_omega, m_a0_2;
+    vector<double> m_ccos, m_csin;
 };
 
 
 /**
  * Implements a sum of Arrhenius terms.
- * The functor class with type \c "Arrhenius" returns
- * \f[
+ * The functor class with type @c "Arrhenius" returns
+ * @f[
  * f(T) = \sum_{n=1}^N A_n T^b_n \exp(-E_n/T)
- * \f]
+ * @f]
  * @ingroup func1advanced
  */
 class Arrhenius1 : public Func1
@@ -1301,8 +1302,8 @@ public:
         }
     }
 
-    //! Constructor uses \f$ 3 n\f$ parameters in the following order:
-    //! \f$ [A_1, b_1, E_1, A_2, b_2, E_2, \dots, A_n, b_n, E_n] \f$
+    //! Constructor uses @f$ 3 n @f$ parameters in the following order:
+    //! @f$ [A_1, b_1, E_1, A_2, b_2, E_2, \dots, A_n, b_n, E_n] @f$
     Arrhenius1(const vector<double>& params);
 
     Arrhenius1(const Arrhenius1& b) :
@@ -1322,14 +1323,14 @@ public:
         return *this;
     }
 
-    virtual string type() const {
+    string type() const override {
         return "Arrhenius";
     }
 
-    virtual Func1& duplicate() const;
+    Func1& duplicate() const override;
 
-    virtual doublereal eval(doublereal t) const {
-        doublereal sum = 0.0;
+    double eval(double t) const override {
+        double sum = 0.0;
         for (size_t n = 0; n < m_A.size(); n++) {
             sum += m_A[n]*std::pow(t,m_b[n])*std::exp(-m_E[n]/t);
         }
@@ -1337,12 +1338,12 @@ public:
     }
 
 protected:
-    vector_fp m_A, m_b, m_E;
+    vector<double> m_A, m_b, m_E;
 };
 
 /**
  * Implements a periodic function.
- * Takes any function and makes it periodic with period \f$ T \f$.
+ * Takes any function and makes it periodic with period @f$ T @f$.
  * @param f  Functor to be made periodic
  * @param T  Period
  * @ingroup func1modified
@@ -1370,21 +1371,21 @@ public:
         return *this;
     }
 
-    virtual string type() const {
+    string type() const override {
         return "periodic";
     }
 
-    virtual Func1& duplicate() const;
+    Func1& duplicate() const override;
 
-    virtual ~Periodic1() {
+    ~Periodic1() override {
         if (!m_f1_shared) {
             delete m_f1;
         }
     }
 
-    virtual doublereal eval(doublereal t) const {
+    double eval(double t) const override {
         int np = int(t/m_c);
-        doublereal time = t - np*m_c;
+        double time = t - np*m_c;
         return m_f1->eval(time);
     }
 };

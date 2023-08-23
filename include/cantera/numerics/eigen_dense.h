@@ -18,12 +18,18 @@
 namespace Cantera
 {
 
+//! @addtogroup matrices
+//! @{
+
 typedef Eigen::Map<Eigen::MatrixXd> MappedMatrix;
 typedef Eigen::Map<const Eigen::MatrixXd> ConstMappedMatrix;
 typedef Eigen::Map<Eigen::VectorXd> MappedVector;
 typedef Eigen::Map<const Eigen::VectorXd> ConstMappedVector;
 typedef Eigen::Map<Eigen::RowVectorXd> MappedRowVector;
 typedef Eigen::Map<const Eigen::RowVectorXd> ConstMappedRowVector;
+
+//! @}
+
 }
 
 #endif

@@ -80,8 +80,8 @@ void Transport::setThermo(ThermoPhase& thermo)
                                "the transport manager has been constructed because num species isn't the same.");
         }
         for (size_t i = 0; i < newNum; i++) {
-            std::string newS0 = thermo.speciesName(i);
-            std::string oldS0 = m_thermo->speciesName(i);
+            string newS0 = thermo.speciesName(i);
+            string oldS0 = m_thermo->speciesName(i);
             if (newNum != oldNum) {
                 throw CanteraError("Transport::setThermo",
                                    "base object cannot be changed after "
@@ -92,7 +92,7 @@ void Transport::setThermo(ThermoPhase& thermo)
     }
 }
 
-void Transport::setRoot(std::shared_ptr<Solution> root)
+void Transport::setRoot(shared_ptr<Solution> root)
 {
     warn_deprecated("Transport::setRoot", "To be removed after Cantera 3.0");
     m_root = root;

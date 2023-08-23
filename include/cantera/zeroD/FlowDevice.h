@@ -18,7 +18,7 @@ class ReactorBase;
 /**
  * Base class for 'flow devices' (valves, pressure regulators, etc.)
  * connecting reactors.
- * @ingroup ZeroD
+ * @ingroup flowDeviceGroup
  */
 class FlowDevice
 {
@@ -31,7 +31,7 @@ public:
 
     //! String indicating the flow device implemented. Usually
     //! corresponds to the name of the derived class.
-    virtual std::string type() const {
+    virtual string type() const {
         return "FlowDevice";
     }
 
@@ -83,7 +83,7 @@ public:
      * coefficient set by a flow device specific function; unless a user-defined
      * pressure function is set, this is the pressure difference across the device.
      * The calculation of mass flow rate depends to the flow device.
-     * @since New in Cantera 3.0.
+     * @since New in %Cantera 3.0.
      */
     double evalPressureFunction();
 
@@ -97,7 +97,7 @@ public:
      * The mass flow rate [kg/s] is calculated for a Flow device, and multiplied by a
      * function of time, which returns 1.0 unless a user-defined function is provided.
      * The calculation of mass flow rate depends on the flow device.
-     * @since New in Cantera 3.0.
+     * @since New in %Cantera 3.0.
      */
     double evalTimeFunction();
 
@@ -108,7 +108,7 @@ public:
 
     //! Set current reactor network time
     /*!
-     * @since New in Cantera 3.0.
+     * @since New in %Cantera 3.0.
      */
     void setSimTime(double time) {
         m_time = time;
@@ -134,7 +134,7 @@ private:
     size_t m_nspout = 0;
     ReactorBase* m_in = nullptr;
     ReactorBase* m_out = nullptr;
-    std::vector<size_t> m_in2out, m_out2in;
+    vector<size_t> m_in2out, m_out2in;
 };
 
 }

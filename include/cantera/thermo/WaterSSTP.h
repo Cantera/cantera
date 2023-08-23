@@ -1,7 +1,7 @@
 /**
  *  @file WaterSSTP.h
- * Declares a ThermoPhase class consisting of pure water (see \ref thermoprops
- * and class \link Cantera::WaterSSTP WaterSSTP\endlink).
+ * Declares a ThermoPhase class consisting of pure water (see @ref thermoprops
+ * and class @link Cantera::WaterSSTP WaterSSTP@endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -73,43 +73,42 @@ public:
      * @param inputFile String name of the input file
      * @param id        string id of the phase name
      */
-    explicit WaterSSTP(const std::string& inputFile="",
-                       const std::string& id="");
+    explicit WaterSSTP(const string& inputFile="", const string& id="");
 
-    virtual std::string type() const {
+    string type() const override {
         return "liquid-water-IAPWS95";
     }
 
-    virtual std::string phaseOfMatter() const;
+    string phaseOfMatter() const override;
 
     //! @name  Molar Thermodynamic Properties of the Solution
     //! @{
 
-    virtual doublereal cv_mole() const;
+    double cv_mole() const override;
 
     //! @}
     //! @name Mechanical Equation of State Properties
     //! @{
 
-    virtual doublereal pressure() const;
-    virtual void setPressure(doublereal p);
-    virtual doublereal isothermalCompressibility() const;
-    virtual doublereal thermalExpansionCoeff() const;
+    double pressure() const override;
+    void setPressure(double p) override;
+    double isothermalCompressibility() const override;
+    double thermalExpansionCoeff() const override;
 
     //! Return the derivative of the volumetric thermal expansion coefficient.
     //! Units: 1/K2.
-    virtual doublereal dthermalExpansionCoeffdT() const;
+    double dthermalExpansionCoeffdT() const;
 
     //! @}
     //! @name Properties of the Standard State of the Species in the Solution
     //! @{
 
-    virtual void getStandardChemPotentials(doublereal* gss) const;
-    virtual void getGibbs_RT(doublereal* grt) const;
-    virtual void getEnthalpy_RT(doublereal* hrt) const;
-    virtual void getEntropy_R(doublereal* sr) const;
-    virtual void getCp_R(doublereal* cpr) const;
-    virtual void getIntEnergy_RT(doublereal* urt) const;
+    void getStandardChemPotentials(double* gss) const override;
+    void getGibbs_RT(double* grt) const override;
+    void getEnthalpy_RT(double* hrt) const override;
+    void getEntropy_R(double* sr) const override;
+    void getCp_R(double* cpr) const override;
+    void getIntEnergy_RT(double* urt) const override;
 
     //! @}
     //! @name Thermodynamic Values for the Species Reference State
@@ -119,21 +118,21 @@ public:
     //! equation of state.
     //! @{
 
-    virtual void getEnthalpy_RT_ref(doublereal* hrt) const;
-    virtual void getGibbs_RT_ref(doublereal* grt) const;
-    virtual void getGibbs_ref(doublereal* g) const;
-    virtual void getEntropy_R_ref(doublereal* er) const;
-    virtual void getCp_R_ref(doublereal* cprt) const;
-    virtual void getStandardVolumes_ref(doublereal* vol) const;
+    void getEnthalpy_RT_ref(double* hrt) const override;
+    void getGibbs_RT_ref(double* grt) const override;
+    void getGibbs_ref(double* g) const override;
+    void getEntropy_R_ref(double* er) const override;
+    void getCp_R_ref(double* cprt) const override;
+    void getStandardVolumes_ref(double* vol) const override;
     //! @}
 
-    virtual doublereal critTemperature() const;
-    virtual doublereal critPressure() const;
-    virtual doublereal critDensity() const;
+    double critTemperature() const override;
+    double critPressure() const override;
+    double critDensity() const override;
 
-    virtual doublereal satPressure(doublereal t);
+    double satPressure(double t) override;
 
-    virtual bool compatibleWithMultiPhase() const {
+    bool compatibleWithMultiPhase() const override{
         return false;
     }
 
@@ -143,7 +142,7 @@ public:
      * functionality of the routine. Above Tcrit, we query the density to toggle
      * between 0 and 1.
      */
-    virtual doublereal vaporFraction() const;
+    double vaporFraction() const override;
 
     //! Set the temperature of the phase
     /*!
@@ -152,7 +151,7 @@ public:
      *
      * @param temp Temperature (Kelvin)
      */
-    virtual void setTemperature(const doublereal temp);
+    void setTemperature(const double temp) override;
 
     //! Set the density of the phase
     /*!
@@ -161,9 +160,9 @@ public:
      *
      * @param dens value of the density in kg m-3
      */
-    virtual void setDensity(const doublereal dens);
+    void setDensity(const double dens) override;
 
-    virtual void initThermo();
+    void initThermo() override;
 
     //! Get a pointer to a changeable WaterPropsIAPWS object
     WaterPropsIAPWS* getWater() {
@@ -198,9 +197,9 @@ private:
      * of water. This object owns m_waterProps, and the WaterPropsIAPWS object
      * used by WaterProps is m_sub, which is defined above.
      */
-    std::unique_ptr<WaterProps> m_waterProps;
+    unique_ptr<WaterProps> m_waterProps;
 
-    //! Molecular weight of Water -> Cantera assumption
+    //! Molecular weight of Water -> %Cantera assumption
     double m_mw = 0.0;
 
     //! Offset constants used to obtain consistency with the NIST database.

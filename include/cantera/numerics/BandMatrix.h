@@ -2,7 +2,7 @@
  *  @file BandMatrix.h
  *   Declarations for the class BandMatrix
  *   which is a child class of GeneralMatrix for banded matrices handled by solvers
- *    (see class \ref numerics and \link Cantera::BandMatrix BandMatrix\endlink).
+ *    (see class @ref numerics and @link Cantera::BandMatrix BandMatrix@endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -30,27 +30,29 @@ namespace Cantera
  * This class is a derived class of the base class GeneralMatrix. However,
  * within the oneD directory, the class is used as is, without reference to the
  * GeneralMatrix base type.
+ *
+ * @ingroup matrices
  */
 class BandMatrix : public GeneralMatrix
 {
 public:
     //! Base Constructor
     /*!
-     * Create an \c 0 by \c 0 matrix, and initialize all elements to \c 0.
+     * Create an @c 0 by @c 0 matrix, and initialize all elements to @c 0.
      */
     BandMatrix();
     ~BandMatrix();
 
     //! Creates a banded matrix and sets all elements to zero
     /*!
-     * Create an \c n by \c n  banded matrix, and initialize all elements to \c v.
+     * Create an @c n by @c n  banded matrix, and initialize all elements to @c v.
      *
      * @param n   size of the square matrix
      * @param kl  band size on the lower portion of the matrix
      * @param ku  band size on the upper portion of the matrix
      * @param v   initial value of all matrix components.
      */
-    BandMatrix(size_t n, size_t kl, size_t ku, doublereal v = 0.0);
+    BandMatrix(size_t n, size_t kl, size_t ku, double v = 0.0);
 
     BandMatrix(const BandMatrix& y);
     BandMatrix& operator=(const BandMatrix& y);
@@ -64,16 +66,16 @@ public:
      * @param ku  band size on the upper portion of the matrix
      * @param v   initial value of all matrix components.
      */
-    void resize(size_t n, size_t kl, size_t ku, doublereal v = 0.0);
+    void resize(size_t n, size_t kl, size_t ku, double v = 0.0);
 
     //! Fill or zero the matrix
     /*!
      *  @param v  Fill value, defaults to zero.
      */
-    void bfill(doublereal v = 0.0);
+    void bfill(double v = 0.0);
 
-    doublereal& operator()(size_t i, size_t j);
-    doublereal operator()(size_t i, size_t j) const;
+    double& operator()(size_t i, size_t j) override;
+    double operator()(size_t i, size_t j) const override;
 
     //! Return a changeable reference to element (i,j).
     /*!
@@ -84,7 +86,7 @@ public:
      * @param j  column
      * @returns a reference to the value of the matrix entry
      */
-    doublereal& value(size_t i, size_t j);
+    double& value(size_t i, size_t j);
 
     //! Return the value of element (i,j).
     /*!
@@ -93,7 +95,7 @@ public:
      * @param j  column
      * @returns the value of the matrix entry
      */
-    doublereal value(size_t i, size_t j) const;
+    double value(size_t i, size_t j) const;
 
     //! Returns the location in the internal 1D array corresponding to the (i,j)
     //! element in the banded array
@@ -113,9 +115,9 @@ public:
      * @param j  column
      * @returns the value of the matrix entry
      */
-    doublereal _value(size_t i, size_t j) const;
+    double _value(size_t i, size_t j) const;
 
-    virtual size_t nRows() const;
+    size_t nRows() const override;
 
     //! Number of columns
     size_t nColumns() const;
@@ -129,9 +131,9 @@ public:
     //! Return the number of rows of storage needed for the band storage
     size_t ldim() const;
 
-    //! Multiply A*b and write result to \c prod.
-    virtual void mult(const doublereal* b, doublereal* prod) const;
-    virtual void leftMult(const doublereal* const b, doublereal* const prod) const;
+    //! Multiply A*b and write result to @c prod.
+    void mult(const double* b, double* prod) const override;
+    void leftMult(const double* const b, double* const prod) const override;
 
     //! Perform an LU decomposition, the LAPACK routine DGBTRF is used.
     /*!
@@ -140,7 +142,7 @@ public:
      * @returns a success flag. 0 indicates a success; ~0 indicates some
      *         error occurred, see the LAPACK documentation
      */
-    int factor();
+    int factor() override;
 
     //! Solve the matrix problem Ax = b
     /*!
@@ -149,7 +151,7 @@ public:
      * @return a success flag. 0 indicates a success; ~0 indicates some error
      *     occurred, see the LAPACK documentation
      */
-    int solve(const doublereal* const b, doublereal* const x);
+    int solve(const double* const b, double* const x);
 
     //! Solve the matrix problem Ax = b
     /*!
@@ -160,33 +162,37 @@ public:
      * @returns a success flag. 0 indicates a success; ~0 indicates some error
      *     occurred, see the LAPACK documentation
      */
-    int solve(doublereal* b, size_t nrhs=1, size_t ldb=0);
+    int solve(double* b, size_t nrhs=1, size_t ldb=0) override;
 
     //! Returns an iterator for the start of the band storage data
     /*!
      * Iterator points to the beginning of the data, and it is changeable.
+     * @deprecated Unused. To be removed after %Cantera 3.0.
      */
-    virtual vector_fp::iterator begin();
+    vector<double>::iterator begin() override;
 
     //! Returns an iterator for the end of the band storage data
     /*!
      * Iterator points to the end of the data, and it is changeable.
+     * @deprecated Unused. To be removed after %Cantera 3.0.
      */
-    vector_fp::iterator end();
+    vector<double>::iterator end();
 
     //! Returns a const iterator for the start of the band storage data
     /*!
      * Iterator points to the beginning of the data, and it is not changeable.
+     * @deprecated Unused. To be removed after %Cantera 3.0.
      */
-    vector_fp::const_iterator begin() const;
+    vector<double>::const_iterator begin() const override;
 
     //! Returns a const iterator for the end of the band storage data
     /*!
      * Iterator points to the end of the data, and it is not changeable.
+     * @deprecated Unused. To be removed after %Cantera 3.0.
      */
-    vector_fp::const_iterator end() const;
+    vector<double>::const_iterator end() const;
 
-    virtual void zero();
+    void zero() override;
 
     //! Returns an estimate of the inverse of the condition number for the matrix
     /*!
@@ -195,14 +201,14 @@ public:
      * @param a1norm Norm of the matrix
      * @returns the inverse of the condition number
      */
-    virtual doublereal rcond(doublereal a1norm);
+    double rcond(double a1norm) override;
 
     //! Returns the factor algorithm used.  This method will always return 0
     //! (LU) for band matrices.
-    virtual int factorAlgorithm() const;
+    int factorAlgorithm() const override;
 
     //! Returns the one norm of the matrix
-    virtual doublereal oneNorm() const;
+    double oneNorm() const override;
 
     //! Return a pointer to the top of column j
     /*!
@@ -226,7 +232,7 @@ public:
      *  @param j   Value of the column
      *  @returns a pointer to the top of the column
      */
-    virtual doublereal* ptrColumn(size_t j);
+    double* ptrColumn(size_t j) override;
 
     //! Return a vector of const pointers to the columns
     /*!
@@ -235,7 +241,7 @@ public:
      *
      * @returns a vector of pointers to the top of the columns of the matrices.
      */
-    virtual doublereal* const* colPts();
+    double* const* colPts() override;
 
     //! Check to see if we have any zero rows in the Jacobian
     /*!
@@ -245,7 +251,7 @@ public:
      * @param valueSmall  OUTPUT value of the largest coefficient in the smallest row
      * @return index of the row that is most nearly zero
      */
-    virtual size_t checkRows(doublereal& valueSmall) const;
+    size_t checkRows(double& valueSmall) const override;
 
     //! Check to see if we have any zero columns in the Jacobian
     /*!
@@ -255,17 +261,17 @@ public:
      * @param valueSmall  OUTPUT value of the largest coefficient in the smallest column
      * @return index of the column that is most nearly zero
      */
-    virtual size_t checkColumns(doublereal& valueSmall) const;
+    size_t checkColumns(double& valueSmall) const override;
 
     //! LAPACK "info" flag after last factor/solve operation
     int info() const { return m_info; };
 
 protected:
     //! Matrix data
-    vector_fp data;
+    vector<double> data;
 
     //! Factorized data
-    vector_fp ludata;
+    vector<double> ludata;
 
     //! Number of rows and columns of the matrix
     size_t m_n = 0;
@@ -282,17 +288,17 @@ protected:
     struct PivData; // pImpl wrapper class
 
     //! Pivot vector
-    std::unique_ptr<PivData> m_ipiv;
+    unique_ptr<PivData> m_ipiv;
 
     //! Vector of column pointers
-    std::vector<doublereal*> m_colPtrs;
-    std::vector<double*> m_lu_col_ptrs;
+    vector<double*> m_colPtrs;
+    vector<double*> m_lu_col_ptrs;
 
     //! Extra work array needed - size = n
-    vector_int iwork_;
+    vector<int> iwork_;
 
     //! Extra dp work array needed - size = 3n
-    vector_fp work_;
+    vector<double> work_;
 
     int m_info = 0;
 };

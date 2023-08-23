@@ -1,9 +1,9 @@
 /**
  *  @file NasaPoly1.h
  *  Header for a single-species standard state object derived
- *  from \link Cantera::SpeciesThermoInterpType SpeciesThermoInterpType\endlink  based
+ *  from @link Cantera::SpeciesThermoInterpType SpeciesThermoInterpType@endlink  based
  *  on the NASA temperature polynomial form applied to one temperature region
- *  (see \ref spthermo and class \link Cantera::NasaPoly1 NasaPoly1\endlink).
+ *  (see @ref spthermo and class @link Cantera::NasaPoly1 NasaPoly1@endlink).
  *
  *  This parameterization has one NASA temperature region.
  */
@@ -27,20 +27,20 @@ namespace Cantera
  * the Chemkin software package, but differs from the form used in the more
  * recent NASA equilibrium program.
  *
- * Seven coefficients \f$(a_0,\dots,a_6)\f$ are used to represent
- * \f$ c_p^0(T)\f$, \f$ h^0(T)\f$, and \f$ s^0(T) \f$ as
- * polynomials in \f$ T \f$ :
- * \f[
+ * Seven coefficients @f$ (a_0,\dots,a_6) @f$ are used to represent
+ * @f$ c_p^0(T) @f$, @f$ h^0(T) @f$, and @f$ s^0(T) @f$ as
+ * polynomials in @f$ T @f$ :
+ * @f[
  * \frac{c_p(T)}{R} = a_0 + a_1 T + a_2 T^2 + a_3 T^3 + a_4 T^4
- * \f]
- * \f[
+ * @f]
+ * @f[
  * \frac{h^0(T)}{RT} = a_0 + \frac{a_1}{2} T + \frac{a_2}{3} T^2
  *                   + \frac{a_3}{4} T^3 + \frac{a_4}{5} T^4  + \frac{a_5}{T}.
- * \f]
- * \f[
+ * @f]
+ * @f[
  * \frac{s^0(T)}{R} = a_0\ln T + a_1 T + \frac{a_2}{2} T^2
  *                  + \frac{a_3}{3} T^3 + \frac{a_4}{4} T^4  + a_6.
- * \f]
+ * @f]
  *
  * @ingroup spthermo
  */
@@ -65,7 +65,7 @@ public:
     }
 
     //! Set array of 7 polynomial coefficients
-    void setParameters(const vector_fp& coeffs) {
+    void setParameters(const vector<double>& coeffs) {
         if (coeffs.size() != 7) {
             throw CanteraError("NasaPoly1::setParameters", "Array must contain "
                 "7 coefficients, but {} were given.", coeffs.size());
@@ -74,13 +74,13 @@ public:
         m_coeff5_orig = m_coeff[5];
     }
 
-    virtual int reportType() const {
+    int reportType() const override {
         return NASA1;
     }
 
-    virtual size_t temperaturePolySize() const { return 6; }
+    size_t temperaturePolySize() const override { return 6; }
 
-    virtual void updateTemperaturePoly(double T, double* T_poly) const {
+    void updateTemperaturePoly(double T, double* T_poly) const override {
         T_poly[0] = T;
         T_poly[1] = T * T;
         T_poly[2] = T_poly[1] * T;
@@ -89,7 +89,7 @@ public:
         T_poly[5] = std::log(T);
     }
 
-    /*!
+    /**
      * @copydoc SpeciesThermoInterpType::updateProperties
      *
      * Temperature Polynomial:
@@ -100,15 +100,15 @@ public:
      *  tt[4] = 1.0/t;
      *  tt[5] = std::log(t);
      */
-    virtual void updateProperties(const doublereal* tt,
-                                  doublereal* cp_R, doublereal* h_RT, doublereal* s_R) const {
-        doublereal ct0 = m_coeff[0]; // a0
-        doublereal ct1 = m_coeff[1]*tt[0]; // a1 * T
-        doublereal ct2 = m_coeff[2]*tt[1]; // a2 * T^2
-        doublereal ct3 = m_coeff[3]*tt[2]; // a3 * T^3
-        doublereal ct4 = m_coeff[4]*tt[3]; // a4 * T^4
+    void updateProperties(const double* tt, double* cp_R, double* h_RT,
+                          double* s_R) const override {
+        double ct0 = m_coeff[0]; // a0
+        double ct1 = m_coeff[1]*tt[0]; // a1 * T
+        double ct2 = m_coeff[2]*tt[1]; // a2 * T^2
+        double ct3 = m_coeff[3]*tt[2]; // a3 * T^3
+        double ct4 = m_coeff[4]*tt[3]; // a4 * T^4
 
-        doublereal cp, h, s;
+        double cp, h, s;
         cp = ct0 + ct1 + ct2 + ct3 + ct4;
         h = ct0 + 0.5*ct1 + 1.0/3.0*ct2 + 0.25*ct3 + 0.2*ct4
             + m_coeff[5]*tt[4]; // last term is a5/T
@@ -121,18 +121,15 @@ public:
         *s_R = s;
     }
 
-    virtual void updatePropertiesTemp(const doublereal temp,
-                                      doublereal* cp_R, doublereal* h_RT,
-                                      doublereal* s_R) const {
+    void updatePropertiesTemp(const double temp, double* cp_R, double* h_RT,
+                              double* s_R) const override {
         double tPoly[6];
         updateTemperaturePoly(temp, tPoly);
         updateProperties(tPoly, cp_R, h_RT, s_R);
     }
 
-    virtual void reportParameters(size_t& n, int& type,
-                                  doublereal& tlow, doublereal& thigh,
-                                  doublereal& pref,
-                                  doublereal* const coeffs) const {
+    void reportParameters(size_t& n, int& type, double& tlow, double& thigh,
+                          double& pref, double* const coeffs) const override {
         n = 0;
         type = NASA1;
         tlow = m_lowT;
@@ -141,21 +138,21 @@ public:
         std::copy(m_coeff.begin(), m_coeff.end(), coeffs);
     }
 
-    virtual void getParameters(AnyMap& thermo) const {
+    void getParameters(AnyMap& thermo) const override {
         // NasaPoly1 is only used as an embedded model within NasaPoly2, so all
         // that needs to be added here are the polynomial coefficients
-        thermo["data"].asVector<vector_fp>().push_back(m_coeff);
+        thermo["data"].asVector<vector<double>>().push_back(m_coeff);
     }
 
-    virtual doublereal reportHf298(doublereal* const h298 = 0) const {
+    double reportHf298(double* const h298=nullptr) const override {
         double tt[6];
         double temp = 298.15;
         updateTemperaturePoly(temp, tt);
-        doublereal ct0 = m_coeff[0]; // a0
-        doublereal ct1 = m_coeff[1]*tt[0]; // a1 * T
-        doublereal ct2 = m_coeff[2]*tt[1]; // a2 * T^2
-        doublereal ct3 = m_coeff[3]*tt[2]; // a3 * T^3
-        doublereal ct4 = m_coeff[4]*tt[3]; // a4 * T^4
+        double ct0 = m_coeff[0]; // a0
+        double ct1 = m_coeff[1]*tt[0]; // a1 * T
+        double ct2 = m_coeff[2]*tt[1]; // a2 * T^2
+        double ct3 = m_coeff[3]*tt[2]; // a3 * T^3
+        double ct4 = m_coeff[4]*tt[3]; // a4 * T^4
 
         double h_RT = ct0 + 0.5*ct1 + 1.0/3.0*ct2 + 0.25*ct3 + 0.2*ct4
                       + m_coeff[5]*tt[4]; // last t
@@ -167,19 +164,19 @@ public:
         return h;
     }
 
-    virtual void modifyOneHf298(const size_t k, const doublereal Hf298New) {
+    void modifyOneHf298(const size_t k, const double Hf298New) override {
         double hcurr = reportHf298(0);
         double delH = Hf298New - hcurr;
         m_coeff[5] += (delH) / GasConstant;
     }
 
-    virtual void resetHf298() {
+    void resetHf298() override {
         m_coeff[5] = m_coeff5_orig;
     }
 
 protected:
     //! array of polynomial coefficients, stored in the order [a0, ..., a6]
-    vector_fp m_coeff;
+    vector<double> m_coeff;
 
     double m_coeff5_orig;
 };

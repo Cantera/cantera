@@ -32,21 +32,21 @@ public:
         covdepsurf_phase = newInterface("copt_covdepsurf_example.yaml", "covdep")->thermo();
         idealsurf_phase = newInterface("copt_covdepsurf_example.yaml", "ideal")->thermo();
     }
-    std::shared_ptr<SurfPhase> covdepsurf_phase;
-    std::shared_ptr<SurfPhase> idealsurf_phase;
+    shared_ptr<SurfPhase> covdepsurf_phase;
+    shared_ptr<SurfPhase> idealsurf_phase;
     // To call unit convert methods
     UnitSystem us;
 
-    vector_fp test_Ts;
-    std::vector<vector_fp> test_covs;
+    vector<double> test_Ts;
+    vector<vector<double>> test_covs;
 };
 
 TEST_F(CoverageDependentSurfPhase_Test, reference_enthalpies_RT)
 {
     // This test checks if CoverageDependentSurfPhase reference enthalpy is
     // properly matches with SurfPhase reference enthalpy
-    vector_fp enthalpies_RT_ref(5);
-    vector_fp expected_result(5);
+    vector<double> enthalpies_RT_ref(5);
+    vector<double> expected_result(5);
 
     for (size_t i = 0; i < 10; i++) {
         covdepsurf_phase->setTemperature(test_Ts[i]);
@@ -65,8 +65,8 @@ TEST_F(CoverageDependentSurfPhase_Test, reference_entropies_R)
 {
     // This test checks if CoverageDependentSurfPhase reference entropy is
     // properly matches with SurfPhase reference entropy
-    vector_fp entropies_R_ref(5);
-    vector_fp expected_result(5);
+    vector<double> entropies_R_ref(5);
+    vector<double> expected_result(5);
 
     for (size_t i = 0; i < 10; i++) {
         covdepsurf_phase->setTemperature(test_Ts[i]);
@@ -85,8 +85,8 @@ TEST_F(CoverageDependentSurfPhase_Test, reference_cp_R)
 {
     // This test checks if CoverageDependentSurfPhase reference heat capacity is
     // properly matches with SurfPhase reference heat capacity
-    vector_fp cps_R_ref(5);
-    vector_fp expected_result(5);
+    vector<double> cps_R_ref(5);
+    vector<double> expected_result(5);
 
     for (size_t i = 0; i < 10; i++) {
         covdepsurf_phase->setTemperature(test_Ts[i]);
@@ -105,8 +105,8 @@ TEST_F(CoverageDependentSurfPhase_Test, reference_gibbs_RT)
 {
     // This test checks if CoverageDependentSurfPhase reference gibbs free energy is
     // properly matches with SurfPhase reference gibbs free energy
-    vector_fp gibbs_RT_ref(5);
-    vector_fp expected_result(5);
+    vector<double> gibbs_RT_ref(5);
+    vector<double> expected_result(5);
 
     for (size_t i = 0; i < 10; i++) {
         covdepsurf_phase->setTemperature(test_Ts[i]);
@@ -133,7 +133,7 @@ TEST_F(CoverageDependentSurfPhase_Test, standard_enthalpies_RT)
     double h_low = us.convertFrom(0.5e2, "kJ/mol");
     double h_high = us.convertFrom(1.0e2, "kJ/mol");
     // Parameters for polynomial dependency
-    vector_fp h_coeffs {0.0, 0.0, -3.86e4, 0.0, 4.2e5};
+    vector<double> h_coeffs {0.0, 0.0, -3.86e4, 0.0, 4.2e5};
     for (size_t i = 0; i < h_coeffs.size(); i++) {
         h_coeffs[i] = us.convertFrom(h_coeffs[i], "J/mol");
     }
@@ -145,8 +145,8 @@ TEST_F(CoverageDependentSurfPhase_Test, standard_enthalpies_RT)
     double int_cp_tnow = test_Ts[5] * (cp_a * log(test_Ts[5]) - cp_a + cp_b);
     double int_cp_298 = 298.15 * (cp_a * log(298.15) - cp_a + cp_b);
 
-    vector_fp enthalpies_RT(5);
-    vector_fp expected_result(5);
+    vector<double> enthalpies_RT(5);
+    vector<double> expected_result(5);
 
     // Get CoverageDependentSurfPhase standard enthalpy method value
     covdepsurf_phase->setTemperature(test_Ts[5]);
@@ -179,7 +179,7 @@ TEST_F(CoverageDependentSurfPhase_Test, standard_entropies_R)
     double s_low = us.convertFrom(0.1e2, "kJ/mol/K");
     double s_high = us.convertFrom(-0.2e2, "kJ/mol/K");
     // Parameters for polynomial dependency
-    vector_fp s_coeffs {0.0, 0.8e3, 0.0, -1.26e4, 0.0};
+    vector<double> s_coeffs {0.0, 0.8e3, 0.0, -1.26e4, 0.0};
     for (size_t i = 0; i < s_coeffs.size(); i++) {
         s_coeffs[i] = us.convertFrom(s_coeffs[i], "J/mol/K");
     }
@@ -193,8 +193,8 @@ TEST_F(CoverageDependentSurfPhase_Test, standard_entropies_R)
     // Parameter for reference coverage correction
     double ref_cov = 0.22;
 
-    vector_fp entropies_R(5);
-    vector_fp expected_result(5);
+    vector<double> entropies_R(5);
+    vector<double> expected_result(5);
 
     // Get CoverageDependentSurfPhase standard entropy method value
     covdepsurf_phase->setTemperature(test_Ts[3]);
@@ -226,8 +226,8 @@ TEST_F(CoverageDependentSurfPhase_Test, standard_cp_R)
     double cp_a = us.convertFrom(0.02e-1, "kJ/mol/K");
     double cp_b = us.convertFrom(-0.156e-1, "kJ/mol/K");
 
-    vector_fp cps_R(5);
-    vector_fp expected_result(5);
+    vector<double> cps_R(5);
+    vector<double> expected_result(5);
 
     // Get CoverageDependentSurfPhase standard heat capacity method value
     covdepsurf_phase->setTemperature(test_Ts[4]);

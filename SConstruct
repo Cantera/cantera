@@ -869,6 +869,9 @@ elif env["CC"] == "cl": # Visual Studio
     config.select("cl")
 
 elif "icc" in env.subst("$CC"):
+    logger.warning("Support for the deprecated Intel compiler suite (icc/icpc) "
+                   "will be removed after Cantera 3.0.\nConsider using the new "
+                   "LLVM-based Intel oneAPI compilers (icx/icpx) instead.")
     config.select("icc")
 
 elif "icx" in env.subst("$CC"):
@@ -904,7 +907,7 @@ for option in opts.keys():
     if isinstance(original, str):
         modified = os.path.expandvars(os.path.expanduser(env[option]))
         if original != modified:
-            logger.info(f"Expanding {original:!r} to {modified:!r}")
+            logger.info(f"Expanding {original!r} to {modified!r}")
             env[option] = modified
 
 if "help" in COMMAND_LINE_TARGETS:
@@ -947,7 +950,7 @@ for arg in ARGUMENTS:
         logger.error(f"Encountered unexpected command line option: {arg!r}")
         sys.exit(1)
 
-env["cantera_version"] = "3.0.0b1"
+env["cantera_version"] = "3.0.0"
 # For use where pre-release tags are not permitted (MSI, sonames)
 env['cantera_pure_version'] = re.match(r'(\d+\.\d+\.\d+)', env['cantera_version']).group(0)
 env['cantera_short_version'] = re.match(r'(\d+\.\d+)', env['cantera_version']).group(0)
@@ -1181,20 +1184,36 @@ if nan_works.strip() != "1":
         "either remove this option or add the '-fno-finite-math-only option'."
     )
 
-# Check for fmt library and checkout submodule if needed
-# Test for 'ostream.h' to ensure that version >= 3.0.0 is available
-if env['system_fmt'] in ('y', 'default'):
-    if conf.CheckCXXHeader('fmt/ostream.h', '""'):
-        env['system_fmt'] = True
-        logger.info("Using system installation of fmt library.")
+def split_version(version):
+    """Split integer version into version string."""
+    version = divmod(float(version.strip()), 10000)
+    (fmt_maj, (fmt_min, fmt_pat)) = version[0], divmod(version[1], 100)
+    return f"{fmt_maj:.0f}.{fmt_min:.0f}.{fmt_pat:.0f}"
 
+# Check for fmt library and checkout submodule if needed
+if env['system_fmt'] in ('y', 'default'):
+    fmt_version_source = get_expression_value(
+        ['<fmt/format.h>'], 'FMT_VERSION', ['FMT_HEADER_ONLY'])
+    retcode, fmt_lib_version = conf.TryRun(fmt_version_source, '.cpp')
+    if retcode:
+        fmt_lib_version = split_version(fmt_lib_version)
+        fmt_min_version = "6.1.2"
+        if parse_version(fmt_lib_version) < parse_version(fmt_min_version):
+            if env['system_fmt'] == 'y':
+                config_error(
+                    f"System fmt version {fmt_lib_version} is not supported;"
+                    f"version {fmt_min_version} or higher is required.")
+                logger.info(
+                    f"System fmt version {fmt_lib_version} is not supported; "
+                    "using private installation instead.")
+        else:
+            env['system_fmt'] = True
+            logger.info(f"Using system installation of fmt library.")
     elif env['system_fmt'] == 'y':
         config_error('Expected system installation of fmt library, but it '
             'could not be found.')
 
 if env['system_fmt'] in ('n', 'default'):
-    env['system_fmt'] = False
-    logger.info("Using private installation of fmt library.")
     if not os.path.exists('ext/fmt/include/fmt/ostream.h'):
         if not os.path.exists('.git'):
             config_error('fmt is missing. Install source in ext/fmt.')
@@ -1209,17 +1228,22 @@ if env['system_fmt'] in ('n', 'default'):
                          'Try manually checking out the submodule with:\n\n'
                          '    git submodule update --init --recursive ext/fmt\n')
 
-fmt_include = '<fmt/format.h>' if env['system_fmt'] else '"../ext/fmt/include/fmt/format.h"'
-fmt_version_source = get_expression_value([fmt_include], 'FMT_VERSION', ['FMT_HEADER_ONLY'])
-retcode, fmt_lib_version = conf.TryRun(fmt_version_source, '.cpp')
-try:
-    fmt_lib_version = divmod(float(fmt_lib_version.strip()), 10000)
-    (fmt_maj, (fmt_min, fmt_pat)) = fmt_lib_version[0], divmod(fmt_lib_version[1], 100)
-    env['FMT_VERSION'] = '{major:.0f}.{minor:.0f}.{patch:.0f}'.format(major=fmt_maj, minor=fmt_min, patch=fmt_pat)
-    logger.info(f"Found fmt version {env['FMT_VERSION']}")
-except ValueError:
-    env['FMT_VERSION'] = '0.0.0'
-    logger.info("INFO: Could not find version of fmt")
+    fmt_version_source = get_expression_value(
+        ['"../ext/fmt/include/fmt/format.h"'], 'FMT_VERSION', ['FMT_HEADER_ONLY'])
+    retcode, fmt_lib_version = conf.TryRun(fmt_version_source, '.cpp')
+    if not retcode:
+        config_error('Expected private installation of fmt library, but it is '
+            'not configured correctly.')
+
+    fmt_lib_version = split_version(fmt_lib_version)
+    env['system_fmt'] = False
+    logger.info(f"Using private installation of fmt library.")
+
+if env["OS"] == "Windows" and parse_version(fmt_lib_version) < parse_version("8.0.0"):
+    # Workaround for symbols not exported on Windows in older fmt versions
+    env.Append(CPPDEFINES={"FMT_HEADER_ONLY": 1})
+
+logger.info(f"Using fmt version {fmt_lib_version}")
 
 # Check for yaml-cpp library and checkout submodule if needed
 if env['system_yamlcpp'] in ('y', 'default'):
@@ -1314,7 +1338,7 @@ if env["system_eigen"] in ("n", "default"):
             config_error("Eigen not found and submodule checkout failed.\n"
                          "Try manually checking out the submodule with:\n\n"
                          "    git submodule update --init --recursive ext/eigen\n")
-    eigen_include = "'../ext/eigen/Eigen/Core'"
+    eigen_include = '"../ext/eigen/Eigen/Core"'
 
 eigen_versions = 'QUOTE(EIGEN_WORLD_VERSION) "." QUOTE(EIGEN_MAJOR_VERSION) "." QUOTE(EIGEN_MINOR_VERSION)'
 eigen_version_source = get_expression_value([eigen_include], eigen_versions)
@@ -1352,9 +1376,10 @@ if not env['BOOST_LIB_VERSION']:
                  " 'boost_inc_dir' to point to the boost headers.")
 else:
     logger.info(f"Found Boost version {env['BOOST_LIB_VERSION']}")
-if parse_version(env['BOOST_LIB_VERSION']) < parse_version("1.61"):
-    # dll support is available in Boost 1.61 or newer
-    config_error("Cantera requires Boost version 1.61 or newer.")
+if parse_version(env['BOOST_LIB_VERSION']) < parse_version("1.70"):
+    # Boost.DLL with std::filesystem (making it header-only) is available in Boost 1.70
+    # or newer
+    config_error("Cantera requires Boost version 1.70 or newer.")
 
 # check BLAS/LAPACK installations
 if env["system_blas_lapack"] == "n":
@@ -1491,7 +1516,7 @@ if env['system_sundials'] == 'y':
     if sundials_ver < parse_version("3.0") or sundials_ver >= parse_version("7.0"):
         logger.error(f"Sundials version {env['sundials_version']!r} is not supported.")
         sys.exit(1)
-    elif sundials_ver > parse_version("6.4.1"):
+    elif sundials_ver > parse_version("6.6.0"):
         logger.warning(f"Sundials version {env['sundials_version']!r} has not been tested.")
 
     logger.info(f"Using system installation of Sundials version {sundials_version!r}.")
@@ -1548,13 +1573,21 @@ if env["use_hdf5"] and env["system_highfive"] in ("y", "default"):
 
     if conf.CheckLibWithHeader(
             "hdf5", "highfive/H5File.hpp", language="C++", autoadd=False):
-        env["system_highfive"] = True
 
         highfive_include = "<highfive/H5Version.hpp>"
         h5_version_source = get_expression_value(
             [highfive_include], "QUOTE(HIGHFIVE_VERSION)")
         retcode, h5_lib_version = conf.TryRun(h5_version_source, ".cpp")
         if retcode:
+            if parse_version(h5_lib_version) < parse_version("2.5"):
+                if env["system_highfive"] == "y":
+                    config_error(
+                        f"System HighFive version {h5_lib_version} is not "
+                        "supported; version 2.5 or higher is required.")
+                logger.info(
+                    f"System HighFive version {h5_lib_version} is not supported.")
+            else:
+                env["system_highfive"] = True
             env["HIGHFIVE_VERSION"] = h5_lib_version.strip()
         else:
             config_error("Detected invalid HighFive configuration.")
@@ -2017,7 +2050,7 @@ if conda_prefix is not None and sys.executable.startswith(str(conda_prefix)):
             env["prefix"] = conda_prefix.resolve().as_posix()
         logger.info(
             f"Using conda environment as default 'prefix': {env['prefix']}")
-elif env["layout"] == "conda":
+elif env["layout"] == "conda" and not env["package_build"]:
     logger.error("Layout option 'conda' requires a conda environment.")
     sys.exit(1)
 

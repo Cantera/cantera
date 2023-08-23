@@ -2,10 +2,6 @@
  *  @file Integrator.h
  */
 
-/**
- * @defgroup intGroup Integrators for initial value problems
- */
-
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
@@ -108,7 +104,7 @@ public:
     /*!
      * @param linSolverType    Type of the linear solver
      */
-    virtual void setLinearSolverType(const std::string& linSolverType) {
+    virtual void setLinearSolverType(const string& linSolverType) {
         warn("setLinearSolverType");
     }
 
@@ -153,7 +149,7 @@ public:
     }
 
     //! Return the integrator problem type
-    virtual std::string linearSolverType() const {
+    virtual string linearSolverType() const {
         warn("linearSolverType");
         return "";
     }
@@ -328,14 +324,18 @@ protected:
 
 private:
     double m_dummy;
-    void warn(const std::string& msg) const {
+    void warn(const string& msg) const {
         writelog(">>>> Warning: method "+msg+" of base class "
                  +"Integrator called. Nothing done.\n");
     }
 };
 
 // defined in Integrators.cpp
-Integrator* newIntegrator(const std::string& itype);
+
+//! Create new Integrator object
+//! @param itype Integration mode; either @c CVODE or @c IDA
+//! @ingroup odeGroup
+Integrator* newIntegrator(const string& itype);
 
 } // namespace
 

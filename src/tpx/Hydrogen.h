@@ -12,7 +12,7 @@ namespace tpx
 {
 
 //! Pure species representation of hydrogen. Values and functions are
-//! from "Thermodynamic Properties in SI" by W.C. Reynolds
+//! from Reynolds @cite reynolds1979.
 class hydrogen : public Substance
 {
 public:
@@ -21,23 +21,25 @@ public:
         m_formula = "H2";
     }
 
-    double MolWt();
-    double Tcrit();
-    double Pcrit();
-    double Vcrit();
-    double Tmin();
-    double Tmax();
+    double MolWt() override;
+    double Tcrit() override;
+    double Pcrit() override;
+    double Vcrit() override;
+    double Tmin() override;
+    double Tmax() override;
 
-    double Pp();
-    double up();
-    double sp();
+    double Pp() override;
+    double up() override;
+    double sp() override;
 
     //! Saturation pressure. Equation s3 in Reynolds TPSI.
-    double Psat();
+    double Psat() override;
+
+protected:
+    //! Liquid density. Equation D4 in Reynolds TPSI.
+    double ldens() override;
 
 private:
-    //! Liquid density. Equation D4 in Reynolds TPSI.
-    double ldens();
     double C(int i, double rt, double rt2);
     double Cprime(int i, double rt, double rt2, double rt3);
     double I(int i, double egrho);

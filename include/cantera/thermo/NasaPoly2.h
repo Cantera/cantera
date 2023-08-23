@@ -1,9 +1,9 @@
 /**
  *  @file NasaPoly2.h
  *  Header for a single-species standard state object derived
- *  from \link Cantera::SpeciesThermoInterpType SpeciesThermoInterpType\endlink  based
+ *  from @link Cantera::SpeciesThermoInterpType SpeciesThermoInterpType@endlink  based
  *  on the NASA temperature polynomial form applied to two temperature regions
- *  (see \ref spthermo and class \link Cantera::NasaPoly2 NasaPoly2\endlink).
+ *  (see @ref spthermo and class @link Cantera::NasaPoly2 NasaPoly2@endlink).
  *
  *  Two zoned NASA polynomial parameterization
  */
@@ -26,20 +26,20 @@ namespace Cantera
  * the Chemkin software package, but differs from the form used in the more
  * recent NASA equilibrium program.
  *
- * Seven coefficients \f$(a_0,\dots,a_6)\f$ are used to represent
- * \f$ c_p^0(T)\f$, \f$ h^0(T)\f$, and \f$ s^0(T) \f$ as
- * polynomials in \f$ T \f$ :
- * \f[
+ * Seven coefficients @f$ (a_0,\dots,a_6) @f$ are used to represent
+ * @f$ c_p^0(T) @f$, @f$ h^0(T) @f$, and @f$ s^0(T) @f$ as
+ * polynomials in @f$ T @f$ :
+ * @f[
  * \frac{c_p(T)}{R} = a_0 + a_1 T + a_2 T^2 + a_3 T^3 + a_4 T^4
- * \f]
- * \f[
+ * @f]
+ * @f[
  * \frac{h^0(T)}{RT} = a_0 + \frac{a_1}{2} T + \frac{a_2}{3} T^2
  *                   + \frac{a_3}{4} T^3 + \frac{a_4}{5} T^4  + \frac{a_5}{T}.
- * \f]
- * \f[
+ * @f]
+ * @f[
  * \frac{s^0(T)}{R} = a_0\ln T + a_1 T + \frac{a_2}{2} T^2
  *                  + \frac{a_3}{3} T^3 + \frac{a_4}{4} T^4  + a_6.
- * \f]
+ * @f]
  *
  * This class is designed specifically for use by the class MultiSpeciesThermo.
  *
@@ -60,51 +60,50 @@ public:
      *                  coeffs]. This is the coefficient order used in the
      *                  standard NASA format.
      */
-    NasaPoly2(doublereal tlow, doublereal thigh, doublereal pref,
-              const doublereal* coeffs) :
+    NasaPoly2(double tlow, double thigh, double pref, const double* coeffs) :
         SpeciesThermoInterpType(tlow, thigh, pref),
         m_midT(coeffs[0]),
         mnp_low(tlow, coeffs[0], pref, coeffs + 8),
         mnp_high(coeffs[0], thigh, pref, coeffs + 1) {
     }
 
-    virtual void setMinTemp(double Tmin) {
+    void setMinTemp(double Tmin) override {
         SpeciesThermoInterpType::setMinTemp(Tmin);
         mnp_low.setMinTemp(Tmin);
     }
 
-    virtual void setMaxTemp(double Tmax) {
+    void setMaxTemp(double Tmax) override {
         SpeciesThermoInterpType::setMaxTemp(Tmax);
         mnp_high.setMaxTemp(Tmax);
     }
 
-    virtual void setRefPressure(double Pref) {
+    void setRefPressure(double Pref) override {
         SpeciesThermoInterpType::setRefPressure(Pref);
         mnp_low.setRefPressure(Pref);
         mnp_high.setRefPressure(Pref);
     }
 
-    /*!
+    /**
      * @param Tmid  Temperature [K] at the boundary between the low and high
      *              temperature polynomials
      * @param low   Vector of 7 coefficients for the low temperature polynomial
      * @param high  Vector of 7 coefficients for the high temperature polynomial
      */
-    void setParameters(double Tmid, const vector_fp& low, const vector_fp& high);
+    void setParameters(double Tmid, const vector<double>& low, const vector<double>& high);
 
-    virtual int reportType() const {
+    int reportType() const override {
         return NASA2;
     }
 
-    virtual size_t temperaturePolySize() const { return 6; }
+    size_t temperaturePolySize() const override { return 6; }
 
-    virtual void updateTemperaturePoly(double T, double* T_poly) const {
+    void updateTemperaturePoly(double T, double* T_poly) const override {
         mnp_low.updateTemperaturePoly(T, T_poly);
     }
 
     //! @copydoc NasaPoly1::updateProperties
-    void updateProperties(const doublereal* tt,
-                          doublereal* cp_R, doublereal* h_RT, doublereal* s_R) const {
+    void updateProperties(const double* tt,
+                          double* cp_R, double* h_RT, double* s_R) const override {
         if (tt[0] <= m_midT) {
             mnp_low.updateProperties(tt, cp_R, h_RT, s_R);
         } else {
@@ -112,10 +111,8 @@ public:
         }
     }
 
-    void updatePropertiesTemp(const doublereal temp,
-                              doublereal* cp_R,
-                              doublereal* h_RT,
-                              doublereal* s_R) const {
+    void updatePropertiesTemp(const double temp,
+                              double* cp_R, double* h_RT, double* s_R) const override {
         if (temp <= m_midT) {
             mnp_low.updatePropertiesTemp(temp, cp_R, h_RT, s_R);
         } else {
@@ -123,20 +120,18 @@ public:
         }
     }
 
-    size_t nCoeffs() const { return 15; }
+    size_t nCoeffs() const override { return 15; }
 
-    void reportParameters(size_t& n, int& type,
-                          doublereal& tlow, doublereal& thigh,
-                          doublereal& pref,
-                          doublereal* const coeffs) const {
+    void reportParameters(size_t& n, int& type, double& tlow, double& thigh,
+                          double& pref, double* const coeffs) const override {
         mnp_high.reportParameters(n, type, coeffs[0], thigh, pref, coeffs + 1);
         mnp_low.reportParameters(n, type, tlow, coeffs[0], pref, coeffs + 8);
         type = NASA2;
     }
 
-    virtual void getParameters(AnyMap& thermo) const;
+    void getParameters(AnyMap& thermo) const override;
 
-    doublereal reportHf298(doublereal* const h298 = 0) const {
+    double reportHf298(double* const h298=nullptr) const override {
         double h;
         if (298.15 <= m_midT) {
             h = mnp_low.reportHf298(0);
@@ -149,14 +144,14 @@ public:
         return h;
     }
 
-    void resetHf298() {
+    void resetHf298() override {
         mnp_low.resetHf298();
         mnp_high.resetHf298();
     }
 
-    void modifyOneHf298(const size_t k, const doublereal Hf298New) {
-        doublereal h298now = reportHf298(0);
-        doublereal delH = Hf298New - h298now;
+    void modifyOneHf298(const size_t k, const double Hf298New) override {
+        double h298now = reportHf298(0);
+        double delH = Hf298New - h298now;
         double h = mnp_low.reportHf298(0);
         double hnew = h + delH;
         mnp_low.modifyOneHf298(k, hnew);
@@ -165,7 +160,7 @@ public:
         mnp_high.modifyOneHf298(k, hnew);
     }
 
-    void validate(const std::string& name);
+    void validate(const string& name) override;
 
 protected:
     //! Midrange temperature

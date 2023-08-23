@@ -65,7 +65,7 @@ void TransportFactory::deleteFactory()
     s_factory = 0;
 }
 
-Transport* TransportFactory::newTransport(const std::string& transportModel,
+Transport* TransportFactory::newTransport(const string& transportModel,
         ThermoPhase* phase, int log_level)
 {
     if (transportModel != "DustyGas" && canonicalize(transportModel) == "none") {
@@ -77,7 +77,7 @@ Transport* TransportFactory::newTransport(const std::string& transportModel,
             "new '{}' object", transportModel);
     }
 
-    vector_fp state;
+    vector<double> state;
     Transport* tr = 0;
     phase->saveState(state);
 
@@ -98,7 +98,7 @@ Transport* TransportFactory::newTransport(const std::string& transportModel,
 
 Transport* TransportFactory::newTransport(ThermoPhase* phase, int log_level)
 {
-    std::string transportModel = "none";
+    string transportModel = "none";
     AnyMap& input = phase->input();
     if (input.hasKey("transport")) {
         transportModel = input["transport"].asString();
@@ -106,7 +106,7 @@ Transport* TransportFactory::newTransport(ThermoPhase* phase, int log_level)
     return newTransport(transportModel, phase,log_level);
 }
 
-Transport* newTransportMgr(const std::string& model, ThermoPhase* thermo, int log_level)
+Transport* newTransportMgr(const string& model, ThermoPhase* thermo, int log_level)
 {
     warn_deprecated("newTransportMgr",
         "To be removed after Cantera 3.0; superseded by newTransport.");

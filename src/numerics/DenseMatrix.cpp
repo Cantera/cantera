@@ -17,7 +17,7 @@
 namespace Cantera
 {
 
-DenseMatrix::DenseMatrix(size_t n, size_t m, doublereal v) :
+DenseMatrix::DenseMatrix(size_t n, size_t m, double v) :
     Array2D(n, m, v)
 {
     m_ipiv.resize(std::max(n, m));
@@ -57,7 +57,7 @@ DenseMatrix& DenseMatrix::operator=(const DenseMatrix& y)
     return *this;
 }
 
-void DenseMatrix::resize(size_t n, size_t m, doublereal v)
+void DenseMatrix::resize(size_t n, size_t m, double v)
 {
     Array2D::resize(n,m,v);
     m_ipiv.resize(std::max(n,m));
@@ -69,12 +69,12 @@ void DenseMatrix::resize(size_t n, size_t m, doublereal v)
     }
 }
 
-doublereal* const* DenseMatrix::colPts()
+double* const* DenseMatrix::colPts()
 {
     return &m_colPts[0];
 }
 
-const doublereal* const* DenseMatrix::const_colPts() const
+const double* const* DenseMatrix::const_colPts() const
 {
     return &m_colPts[0];
 }
@@ -105,8 +105,8 @@ void DenseMatrix::mult(const DenseMatrix& B, DenseMatrix& prod) const
             "Output matrix has wrong dimensions: {}x{} != {}x{}",
             prod.nRows(), prod.nColumns(), nRows(), B.nColumns());
     }
-    const doublereal* const* bcols = B.const_colPts();
-    doublereal* const* prodcols = prod.colPts();
+    const double* const* bcols = B.const_colPts();
+    double* const* prodcols = prod.colPts();
     for (size_t col=0; col < B.nColumns(); ++col) {
         // Loop over ncols multiplying A*column of B and storing in
         // corresponding prod column
@@ -125,7 +125,7 @@ void DenseMatrix::leftMult(const double* const b, double* const prod) const
     }
 }
 
-vector_int& DenseMatrix::ipiv()
+vector<int>& DenseMatrix::ipiv()
 {
     return m_ipiv;
 }
@@ -240,7 +240,7 @@ int invert(DenseMatrix& A, size_t nn)
             return info;
         }
 
-        vector_fp work(n);
+        vector<double> work(n);
         integer lwork = static_cast<int>(work.size());
         ct_dgetri(n, A.ptrColumn(0), static_cast<int>(A.nRows()),
                   &A.ipiv()[0], &work[0], lwork, info);

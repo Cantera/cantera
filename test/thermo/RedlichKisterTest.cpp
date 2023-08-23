@@ -31,13 +31,13 @@ public:
     }
 
     void set_r(const double r) {
-        vector_fp moleFracs(2);
+        vector<double> moleFracs(2);
         moleFracs[0] = r;
         moleFracs[1] = 1-r;
         test_phase->setMoleFractions(&moleFracs[0]);
     }
 
-    std::shared_ptr<ThermoPhase> test_phase;
+    shared_ptr<ThermoPhase> test_phase;
 };
 
 TEST_F(RedlichKister_Test, chem_potentials)
@@ -49,7 +49,7 @@ TEST_F(RedlichKister_Test, chem_potentials)
     double xmax = 0.9;
     int numSteps = 9;
     double dx = (xmax-xmin)/(numSteps-1);
-    vector_fp chemPotentials(2);
+    vector<double> chemPotentials(2);
     for(int i=0; i < 9; ++i)
     {
         set_r(xmin + i*dx);
@@ -79,7 +79,7 @@ TEST_F(RedlichKister_Test, dlnActivities)
     double xmax = 0.9;
     int numSteps = 9;
     double dx = (xmax-xmin)/(numSteps-1);
-    vector_fp dlnActCoeffdx(2);
+    vector<double> dlnActCoeffdx(2);
     for(int i=0; i < 9; ++i)
     {
         const double r = xmin + i*dx;
@@ -130,7 +130,7 @@ TEST_F(RedlichKister_Test, fromScratch)
     double xmin = 0.6;
     double xmax = 0.9;
     int numSteps = 9;
-    vector_fp chemPotentials(2);
+    vector<double> chemPotentials(2);
     for(int i=0; i < 9; ++i)
     {
         set_r(xmin + i*(xmax-xmin)/(numSteps-1));

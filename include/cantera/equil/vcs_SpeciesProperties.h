@@ -24,7 +24,7 @@ public:
     size_t NumElements;
 
     //! Name of the species
-    std::string SpName;
+    string SpName;
 
     //! Pointer to the thermo structure for this species
     VCS_SPECIES_THERMO* SpeciesThermo = nullptr;
@@ -34,7 +34,7 @@ public:
 
     //! Column of the formula matrix, comprising the
     //! element composition of the species
-    vector_fp FormulaMatrixCol;
+    vector<double> FormulaMatrixCol;
 
     //! Charge state of the species -> This may be duplication of what's in the
     //! FormulaMatrixCol entries. However, it's prudent to separate it out.

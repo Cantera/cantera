@@ -2,8 +2,8 @@
  *  @file VPStandardStateTP.h
  *    Header file for a derived class of ThermoPhase that handles
  *    variable pressure standard state methods for calculating
- *    thermodynamic properties (see \ref thermoprops and
- *    class \link Cantera::VPStandardStateTP VPStandardStateTP\endlink).
+ *    thermodynamic properties (see @ref thermoprops and
+ *    class @link Cantera::VPStandardStateTP VPStandardStateTP@endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -48,16 +48,16 @@ public:
     //! Constructor.
     VPStandardStateTP();
 
-    virtual ~VPStandardStateTP();
+    ~VPStandardStateTP() override;
 
-    virtual bool isCompressible() const {
+    bool isCompressible() const override {
         return false;
     }
 
     //! @name  Utilities (VPStandardStateTP)
     //! @{
 
-    virtual int standardStateConvention() const;
+    int standardStateConvention() const override;
 
     //! @}
     //! @name  Partial Molar Properties of the Solution (VPStandardStateTP)
@@ -65,16 +65,16 @@ public:
 
     //! Get the array of non-dimensional species chemical potentials.
     /*!
-     * These are partial molar Gibbs free energies, \f$ \mu_k / \hat R T \f$.
+     * These are partial molar Gibbs free energies, @f$ \mu_k / \hat R T @f$.
      *
      * We close the loop on this function, here, calling getChemPotentials() and
      * then dividing by RT. No need for child classes to handle.
      *
      * @param mu    Output vector of non-dimensional species chemical potentials
      *              Length: m_kk.
-     * @deprecated To be removed after Cantera 3.0. Use getChemPotentials() instead.
+     * @deprecated To be removed after %Cantera 3.0. Use getChemPotentials() instead.
      */
-    virtual void getChemPotentials_RT(doublereal* mu) const;
+    void getChemPotentials_RT(double* mu) const override;
 
     //! @}
     //! @name  Properties of the Standard State of the Species in the Solution
@@ -85,15 +85,15 @@ public:
     //! recalculated unless the temperature or pressure changes.
     //! @{
 
-    virtual void getStandardChemPotentials(doublereal* mu) const;
-    virtual void getEnthalpy_RT(doublereal* hrt) const;
-    virtual void getEntropy_R(doublereal* sr) const;
-    virtual void getGibbs_RT(doublereal* grt) const;
-    virtual void getPureGibbs(doublereal* gpure) const;
-    virtual void getIntEnergy_RT(doublereal* urt) const;
-    virtual void getCp_R(doublereal* cpr) const;
-    virtual void getStandardVolumes(doublereal* vol) const;
-    virtual const vector_fp& getStandardVolumes() const;
+    void getStandardChemPotentials(double* mu) const override;
+    void getEnthalpy_RT(double* hrt) const override;
+    void getEntropy_R(double* sr) const override;
+    void getGibbs_RT(double* grt) const override;
+    void getPureGibbs(double* gpure) const override;
+    void getIntEnergy_RT(double* urt) const override;
+    void getCp_R(double* cpr) const override;
+    void getStandardVolumes(double* vol) const override;
+    virtual const vector<double>& getStandardVolumes() const;
     //! @}
 
     //! Set the temperature of the phase
@@ -103,7 +103,7 @@ public:
      *
      * @param temp  Temperature (kelvin)
      */
-    virtual void setTemperature(const doublereal temp);
+    void setTemperature(const double temp) override;
 
     //! Set the internally stored pressure (Pa) at constant temperature and
     //! composition
@@ -113,7 +113,7 @@ public:
      *
      *  @param p input Pressure (Pa)
      */
-    virtual void setPressure(doublereal p);
+    void setPressure(double p) override;
 
     //! Set the temperature and pressure at the same time
     /*!
@@ -123,7 +123,7 @@ public:
      *  @param T  temperature (kelvin)
      *  @param pres pressure (pascal)
      */
-    virtual void setState_TP(doublereal T, doublereal pres);
+    void setState_TP(double T, double pres) override;
 
     //! Returns the current pressure of the phase
     /*!
@@ -132,33 +132,28 @@ public:
      *
      * @returns the pressure in pascals.
      */
-    virtual doublereal pressure() const {
+    double pressure() const override {
         return m_Pcurrent;
     }
 
     //! Updates the standard state thermodynamic functions at the current T and P of the solution.
     /*!
-     * If m_useTmpStandardStateStorage is true, this function must be called for
-     * every call to functions in this class. It checks to see whether the
-     * temperature or pressure has changed and thus the ss thermodynamics
-     * functions for all of the species must be recalculated.
+     * This function must be called for every call to functions in this class. It checks
+     * to see whether the temperature or pressure has changed and thus the ss
+     * thermodynamics functions for all of the species must be recalculated.
      *
-     * This function is responsible for updating the following internal members,
-     * when  m_useTmpStandardStateStorage is true.
+     * This function is responsible for updating the following internal members:
      *
-     *  -  m_hss_RT;
-     *  -  m_cpss_R;
-     *  -  m_gss_RT;
-     *  -  m_sss_R;
-     *  -  m_Vss
-     *
-     *  If m_useTmpStandardStateStorage is not true, this function may be
-     *  required to be called by child classes to update internal member data.
+     * - #m_hss_RT;
+     * - #m_cpss_R;
+     * - #m_gss_RT;
+     * - #m_sss_R;
+     * - #m_Vss
      */
     virtual void updateStandardStateThermo() const;
 
-    virtual double minTemp(size_t k=npos) const;
-    virtual double maxTemp(size_t k=npos) const;
+    double minTemp(size_t k=npos) const override;
+    double maxTemp(size_t k=npos) const override;
 
 
 protected:
@@ -168,12 +163,12 @@ protected:
      *
      * The formula for this is
      *
-     * \f[
+     * @f[
      * \rho = \frac{\sum_k{X_k W_k}}{\sum_k{X_k V_k}}
-     * \f]
+     * @f]
      *
-     * where \f$X_k\f$ are the mole fractions, \f$W_k\f$ are the molecular
-     * weights, and \f$V_k\f$ are the pure species molar volumes.
+     * where @f$ X_k @f$ are the mole fractions, @f$ W_k @f$ are the molecular
+     * weights, and @f$ V_k @f$ are the pure species molar volumes.
      *
      * Note, the basis behind this formula is that in an ideal solution the
      * partial molar volumes are equal to the pure species molar volumes. We
@@ -187,22 +182,17 @@ protected:
     //! Updates the standard state thermodynamic functions at the current T and
     //! P of the solution.
     /*!
-     * If m_useTmpStandardStateStorage is true,
-     * this function must be called for every call to functions in this class.
+     * This function must be called for every call to functions in this class. This
+     * function is responsible for updating the following internal members:
      *
-     * This function is responsible for updating the following internal members,
-     * when m_useTmpStandardStateStorage is true.
+     * - #m_hss_RT;
+     * - #m_cpss_R;
+     * - #m_gss_RT;
+     * - #m_sss_R;
+     * - #m_Vss
      *
-     *  -  m_hss_RT;
-     *  -  m_cpss_R;
-     *  -  m_gss_RT;
-     *  -  m_sss_R;
-     *  -  m_Vss
-     *
-     *  This function doesn't check to see if the temperature or pressure
-     *  has changed. It automatically assumes that it has changed.
-     *  If m_useTmpStandardStateStorage is not true, this function may be
-     *  required to be called by child classes to update internal member data..
+     * This function doesn't check to see if the temperature or pressure has changed. It
+     * automatically assumes that it has changed.
      */
     virtual void _updateStandardStateThermo() const;
 
@@ -216,17 +206,17 @@ public:
     //! routine _updateRefStateThermo().
     //! @{
 
-    virtual void getEnthalpy_RT_ref(doublereal* hrt) const;
-    virtual void getGibbs_RT_ref(doublereal* grt) const;
+    void getEnthalpy_RT_ref(double* hrt) const override;
+    void getGibbs_RT_ref(double* grt) const override;
 
 protected:
-    const vector_fp& Gibbs_RT_ref() const;
+    const vector<double>& Gibbs_RT_ref() const;
 
 public:
-    virtual void getGibbs_ref(doublereal* g) const;
-    virtual void getEntropy_R_ref(doublereal* er) const;
-    virtual void getCp_R_ref(doublereal* cprt) const;
-    virtual void getStandardVolumes_ref(doublereal* vol) const;
+    void getGibbs_ref(double* g) const override;
+    void getEntropy_R_ref(double* er) const override;
+    void getCp_R_ref(double* cprt) const override;
+    void getStandardVolumes_ref(double* vol) const override;
 
     //! @}
     //! @name Initialization Methods - For Internal use
@@ -237,22 +227,21 @@ public:
     //! To see how they are used, see importPhase().
     //! @{
 
-    virtual void initThermo();
-    virtual void getSpeciesParameters(const std::string& name,
-                                      AnyMap& speciesNode) const;
+    void initThermo() override;
+    void getSpeciesParameters(const string& name, AnyMap& speciesNode) const override;
 
     using Phase::addSpecies;
-    virtual bool addSpecies(shared_ptr<Species> spec);
+    bool addSpecies(shared_ptr<Species> spec) override;
 
     //! Install a PDSS object for species *k*
-    void installPDSS(size_t k, std::unique_ptr<PDSS>&& pdss);
+    void installPDSS(size_t k, unique_ptr<PDSS>&& pdss);
     //! @}
 
     PDSS* providePDSS(size_t k);
     const PDSS* providePDSS(size_t k) const;
 
 protected:
-    virtual void invalidateCache();
+    void invalidateCache() override;
 
     //! Current value of the pressure - state variable
     /*!
@@ -282,46 +271,46 @@ protected:
      *  Storage is in species index order. VPStandardStateTp owns each of the
      *  objects. Copy operations are deep.
      */
-    std::vector<std::unique_ptr<PDSS>> m_PDSS_storage;
+    vector<unique_ptr<PDSS>> m_PDSS_storage;
 
     //! Vector containing the species reference enthalpies at T = m_tlast
     //! and P = p_ref.
-    mutable vector_fp m_h0_RT;
+    mutable vector<double> m_h0_RT;
 
     //! Vector containing the species reference constant pressure heat
     //! capacities at T = m_tlast and P = p_ref.
-    mutable vector_fp m_cp0_R;
+    mutable vector<double> m_cp0_R;
 
     //! Vector containing the species reference Gibbs functions at T = m_tlast
     //! and P = p_ref.
-    mutable vector_fp m_g0_RT;
+    mutable vector<double> m_g0_RT;
 
     //! Vector containing the species reference entropies at T = m_tlast
     //! and P = p_ref.
-    mutable vector_fp m_s0_R;
+    mutable vector<double> m_s0_R;
 
     //! Vector containing the species reference molar volumes
-    mutable vector_fp m_V0;
+    mutable vector<double> m_V0;
 
     //! Vector containing the species Standard State enthalpies at T = m_tlast
     //! and P = m_plast.
-    mutable vector_fp m_hss_RT;
+    mutable vector<double> m_hss_RT;
 
     //! Vector containing the species Standard State constant pressure heat
     //! capacities at T = m_tlast and P = m_plast.
-    mutable vector_fp m_cpss_R;
+    mutable vector<double> m_cpss_R;
 
     //! Vector containing the species Standard State Gibbs functions at T =
     //! m_tlast and P = m_plast.
-    mutable vector_fp m_gss_RT;
+    mutable vector<double> m_gss_RT;
 
     //! Vector containing the species Standard State entropies at T = m_tlast
     //! and P = m_plast.
-    mutable vector_fp m_sss_R;
+    mutable vector<double> m_sss_R;
 
     //! Vector containing the species standard state volumes at T = m_tlast and
     //! P = m_plast
-    mutable vector_fp m_Vss;
+    mutable vector<double> m_Vss;
 };
 }
 

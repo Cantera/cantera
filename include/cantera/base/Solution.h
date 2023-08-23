@@ -17,8 +17,8 @@ class Kinetics;
 class Transport;
 class ExternalHandle;
 
-//! @defgroup compobj Composite Objects
-//! Composite objects create a high-level interface to Cantera's core objects.
+//! @defgroup solnGroup Objects Representing Phases
+//! High-level interface to %Cantera's core objects.
 
 //! A container class for chemically-reacting solutions.
 /*!
@@ -38,7 +38,7 @@ class ExternalHandle;
  * @code
  *    shared_ptr<Solution> sol = newSolution("gri30.yaml", "gri30");
  * @endcode
- * @ingroup compobj
+ * @ingroup solnGroup
  */
 class Solution : public std::enable_shared_from_this<Solution>
 {
@@ -56,10 +56,10 @@ public:
     }
 
     //! Return the name of this Solution object
-    std::string name() const;
+    string name() const;
 
     //! Set the name of this Solution object
-    void setName(const std::string& name);
+    void setName(const string& name);
 
     //! Set the ThermoPhase object
     virtual void setThermo(shared_ptr<ThermoPhase> thermo);
@@ -72,8 +72,8 @@ public:
 
     //! Set the Transport object by name
     //! @param model  name of transport model; if omitted, the default model is used
-    //! @since New in Cantera 3.0
-    void setTransportModel(const std::string& model="");
+    //! @since New in %Cantera 3.0
+    void setTransportModel(const string& model="");
 
     //! Accessor for the ThermoPhase pointer
     shared_ptr<ThermoPhase> thermo() {
@@ -100,7 +100,7 @@ public:
     }
 
     //! Get the Solution object for an adjacent phase by name
-    shared_ptr<Solution> adjacent(const std::string& name) {
+    shared_ptr<Solution> adjacent(const string& name) {
         return m_adjacentByName.at(name);
     }
 
@@ -116,19 +116,19 @@ public:
     AnyMap& header();
 
     //! Retrieve source used for object creation; usually an input file name
-    const std::string source() const;
+    const string source() const;
 
     //! Overwrite source (only required if object is not created using newSolution)
-    void setSource(const std::string& source);
+    void setSource(const string& source);
 
     //! Store a handle to a wrapper for this Solution object from an external
     //! language interface (for example, a Python Solution object)
-    void holdExternalHandle(const std::string& name, shared_ptr<ExternalHandle> handle);
+    void holdExternalHandle(const string& name, shared_ptr<ExternalHandle> handle);
 
     //! Get the handle for a wrapper for this Solution object from an external
     //! language interface.
     //! Returns a null pointer if the requested handle does not exist.
-    shared_ptr<ExternalHandle> getExternalHandle(const std::string& name) const;
+    shared_ptr<ExternalHandle> getExternalHandle(const string& name) const;
 
     //! Register a function to be called if any of the Solution's thermo, kinetics,
     //! or transport objects is replaced.
@@ -139,11 +139,11 @@ public:
     //!   Solution is replaced.
     //! When the callback becomes invalid (for example, the corresponding object is
     //! being deleted, the removeChangedCallback() method must be invoked.
-    //! @since New in Cantera 3.0
+    //! @since New in %Cantera 3.0
     void registerChangedCallback(void* id, const function<void()>& callback);
 
     //! Remove the callback function associated with the specified object.
-    //! @since New in Cantera 3.0
+    //! @since New in %Cantera 3.0
     void removeChangedCallback(void* id);
 
 protected:
@@ -152,16 +152,16 @@ protected:
     shared_ptr<Transport> m_transport;  //!< Transport manager
 
     //! Adjacent phases, for access by index
-    std::vector<shared_ptr<Solution>> m_adjacent;
+    vector<shared_ptr<Solution>> m_adjacent;
 
     //! Adjacent phases, for access by name
-    std::map<std::string, shared_ptr<Solution>> m_adjacentByName;
+    map<string, shared_ptr<Solution>> m_adjacentByName;
 
     AnyMap m_header;  //!< Additional input fields; usually from a YAML input file
 
     //! Wrappers for this Solution object in extension languages, for evaluation
     //! of user-defined reaction rates
-    std::map<std::string, shared_ptr<ExternalHandle>> m_externalHandles;
+    map<string, shared_ptr<ExternalHandle>> m_externalHandles;
 
     //! Callback functions that are invoked when the therm, kinetics, or transport
     //! members of the Solution are replaced.
@@ -182,10 +182,10 @@ protected:
  *                 phases kinetics. If empty, adjacent phases will be instantiated based
  *                 on the phase definition.
  * @returns an initialized Solution object.
- * @ingroup compobj
+ * @ingroup solnGroup
  */
-shared_ptr<Solution> newSolution(const std::string& infile, const std::string& name,
-    const std::string& transport, const std::vector<std::string>& adjacent);
+shared_ptr<Solution> newSolution(const string& infile, const string& name,
+    const string& transport, const vector<string>& adjacent);
 
 //! Create and initialize a new Solution manager from an input file
 /*!
@@ -199,12 +199,12 @@ shared_ptr<Solution> newSolution(const std::string& infile, const std::string& n
  * @param adjacent vector containing adjacent Solution objects. If empty, adjacent
  *                 phases will be instantiated based on the phase definition.
  * @returns an initialized Solution object.
- * @ingroup compobj
+ * @ingroup solnGroup
  */
-shared_ptr<Solution> newSolution(const std::string& infile,
-                                 const std::string& name="",
-                                 const std::string& transport="",
-                                 const std::vector<shared_ptr<Solution>>& adjacent={});
+shared_ptr<Solution> newSolution(const string& infile,
+                                 const string& name="",
+                                 const string& transport="",
+                                 const vector<shared_ptr<Solution>>& adjacent={});
 
 //! Create and initialize a new Solution manager from AnyMap objects
 /*!
@@ -223,13 +223,13 @@ shared_ptr<Solution> newSolution(const std::string& infile,
  *                 a phase may be adjacent to multiple other phases but should be
  *                 instantiated only once.
  * @returns an initialized Solution object.
- * @ingroup compobj
+ * @ingroup solnGroup
  */
 shared_ptr<Solution> newSolution(
     const AnyMap& phaseNode, const AnyMap& rootNode=AnyMap(),
-    const std::string& transport="",
-    const std::vector<shared_ptr<Solution>>& adjacent={},
-    const std::map<std::string, shared_ptr<Solution>>& related={});
+    const string& transport="",
+    const vector<shared_ptr<Solution>>& adjacent={},
+    const map<string, shared_ptr<Solution>>& related={});
 
 }
 

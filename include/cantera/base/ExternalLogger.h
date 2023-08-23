@@ -9,7 +9,7 @@
 namespace Cantera {
 
 //! Logger that delegates to an external source via a callback to produce log output.
-//! @ingroup textlogs
+//! @ingroup logGroup
 class ExternalLogger : public Logger
 {
 public:
@@ -22,7 +22,7 @@ public:
         m_writer = writer;
     }
 
-    void write(const std::string& msg) override {
+    void write(const string& msg) override {
         m_writeBuffer.append(msg);
 
         if (!m_writeBuffer.empty() && m_writeBuffer.back() == '\n') {
@@ -44,16 +44,16 @@ public:
         m_writeBuffer.erase();
     }
 
-    void warn(const std::string& warning, const std::string& msg) override {
+    void warn(const string& warning, const string& msg) override {
         m_writer(LogLevel::WARN, warning.c_str(), msg.c_str());
     }
 
-    void error(const std::string& msg) override {
+    void error(const string& msg) override {
         m_writer(LogLevel::ERROR, "Error", msg.c_str());
     }
 
 private:
-    std::string m_writeBuffer;
+    string m_writeBuffer;
 
     LogCallback m_writer = nullptr;
 };

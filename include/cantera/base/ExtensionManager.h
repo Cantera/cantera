@@ -29,9 +29,9 @@ public:
     }
 };
 
-//! Base class for managing user-defined Cantera extensions written in other languages
+//! Base class for managing user-defined %Cantera extensions written in other languages
 //!
-//! @since New in Cantera 3.0
+//! @since New in %Cantera 3.0
 class ExtensionManager
 {
 public:
@@ -39,7 +39,7 @@ public:
 
     //! Register ReactionRate defined in a user extension with ReactionRateFactory
     //! @param extensionName
-    virtual void registerRateBuilders(const std::string& extensionName) {
+    virtual void registerRateBuilders(const string& extensionName) {
         throw NotImplementedError("ExtensionManager::registerRateBuilders");
     };
 
@@ -74,8 +74,7 @@ public:
     //! @param rateName  The name of the reaction rate type, which corresponds to the
     //!     name used to register the wrapper generator using registerReactionDataLinker
     //! @param data  The ReactionData object to be wrapped
-    static void wrapReactionData(const std::string& rateName,
-                                 ReactionDataDelegator& data);
+    static void wrapReactionData(const string& rateName, ReactionDataDelegator& data);
 
     //! Create an object in an external language that wraps the specified Solution
     //! object.
@@ -83,7 +82,7 @@ public:
     //! @param wrapperType  A name specifying the wrapper type, which corresponds to
     //!     the name used to register the wrapper generator using registerSolutionLinker
     //! @param soln  The Solution object to be wrapped
-    static shared_ptr<ExternalHandle> wrapSolution(const std::string& wrapperType,
+    static shared_ptr<ExternalHandle> wrapSolution(const string& wrapperType,
                                                    shared_ptr<Solution> soln);
 
     //! Register a function that can be used to create wrappers for ReactionData objects
@@ -99,8 +98,8 @@ public:
 
     //! Register a function that can be used to create wrappers for Solution objects in
     //! an external language and link it to the corresponding C++ objects
-    static void registerSolutionLinker(const std::string& wrapperName,
-        std::function<shared_ptr<ExternalHandle>(shared_ptr<Solution>)> link);
+    static void registerSolutionLinker(const string& wrapperName,
+        function<shared_ptr<ExternalHandle>(shared_ptr<Solution>)> link);
 
     //! Get the Solution wrapper type corresponding to the specified user-defined
     //! reaction rate type.
@@ -108,12 +107,11 @@ public:
 
 protected:
     //! Functions for wrapping and linking ReactionData objects
-    static std::map<std::string,
-        std::function<void(ReactionDataDelegator&)>> s_ReactionData_linkers;
+    static map<string, function<void(ReactionDataDelegator&)>> s_ReactionData_linkers;
 
     //! Functions for wrapping and linking Solution objects
-    static std::map<std::string,
-        std::function<shared_ptr<ExternalHandle>(shared_ptr<Solution>)>> s_Solution_linkers;
+    static map<string,
+        function<shared_ptr<ExternalHandle>(shared_ptr<Solution>)>> s_Solution_linkers;
 
     //! Mapping from user-defined rate types to Solution wrapper types
     static map<string, string> s_userTypeToWrapperType;

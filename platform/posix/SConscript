@@ -18,7 +18,18 @@ pc_libdirs = []
 pc_incdirs = []
 pc_cflags = list(localenv['CXXFLAGS'])
 
-if not localenv["package_build"]:
+if 'Accelerate' in localenv['FRAMEWORKS']:
+    pc_cflags.append('-framework Accelerate')
+
+if '-pthread' in localenv['thread_flags']:
+    pc_cflags.append('-pthread')
+    pc_libs.append('pthread')
+
+flag_excludes = []
+if localenv["package_build"]:
+    flag_excludes.extend(("-isysroot", "-mmacosx", "-march", "-mtune",
+                          "-fdebug-prefix-map", ".*/_build_env/"))
+else:
     pc_incdirs.extend(localenv["extra_inc_dirs"])
     pc_libdirs.extend(localenv["extra_lib_dirs"])
 
@@ -31,29 +42,13 @@ if not localenv["package_build"]:
     if localenv["use_hdf5"]:
         pc_incdirs.append(localenv["hdf_include"])
 
-if 'Accelerate' in localenv['FRAMEWORKS']:
-    pc_cflags.append('-framework Accelerate')
-
-if '-pthread' in localenv['thread_flags']:
-    pc_cflags.append('-pthread')
-    pc_libs.append('pthread')
-
-if localenv["package_build"]:
-    # Remove sysroot flags in templated output files. This only applies to the
-    # conda package for now.
-    # Users should compile against their local SDKs, which should be backwards
-    # compatible with the SDK used for building.
-    excludes = (
-        "-isysroot", "-mmacosx", "-march", "-mtune", "-fdebug-prefix-map")
-    localenv["CCFLAGS"] = compiler_flag_list(localenv["CCFLAGS"], excludes)
-    localenv["CXXFLAGS"] = compiler_flag_list(localenv["CXXFLAGS"], excludes)
+pc_cflags.extend(f"-isystem {dir}" for dir in pc_incdirs if dir)
 
 # Generate cantera.pc for use with pkg-config
 localenv["pc_prefix"] = localenv["prefix"]
-localenv["pc_libdirs"] = " ".join(f"-L{dir}" for dir in pc_libdirs)
+localenv["pc_libdirs"] = " ".join(f"-L{dir}" for dir in pc_libdirs if dir)
 localenv["pc_libs"] = " ".join(f"-l{lib}" for lib in pc_libs)
-localenv["pc_incdirs"] = " ".join(f"-I{dir}" for dir in pc_incdirs)
-localenv["pc_cflags"] = " ".join(pc_cflags)
+localenv["pc_cflags"] = " ".join(compiler_flag_list(pc_cflags, env["CC"], flag_excludes))
 
 pc = build(localenv.SubstFile("cantera.pc", "cantera.pc.in"))
 install("$inst_libdir/pkgconfig", pc)

@@ -20,16 +20,16 @@ using Cantera::npos;
 
 /**
  * This class solves the Blasius boundary value problem on the domain (0,L):
- * \f[
+ * @f[
  *             \frac{d\zeta}{dz} = u.
- * \f]
- * \f[
+ * @f]
+ * @f[
  *             \frac{d^2u}{dz^2} + 0.5\zeta \frac{du}{dz} = 0.
- * \f]
+ * @f]
  * with boundary conditions
- * \f[
+ * @f[
  * \zeta(0) = 0, u(0) = 0, u(L) = 1.
- * \f]
+ * @f]
  * Note that this is formulated as a system of two equations, with maximum
  * order of 2, rather than as a single third-order boundary value problem.
  * For reasons having to do with the band structure of the Jacobian, no
@@ -58,12 +58,9 @@ public:
         setComponent(1, B); // u will be component 1
     }
 
-    // destructor
-    virtual ~Blasius() {}
-
     // specify guesses for the initial values. These can be anything
     // that leads to a converged solution.
-    virtual double initialValue(size_t n, size_t j) {
+    double initialValue(size_t n, size_t j) override {
         switch (n) {
         case 0:
             return 0.1*z(j);
@@ -77,7 +74,7 @@ public:
     // Specify the residual function. This is where the ODE system and boundary
     // conditions are specified. The solver will attempt to find a solution
     // x so that rsd is zero.
-    void eval(size_t jg, double* x, double* rsd, int* diag, double rdt) {
+    void eval(size_t jg, double* x, double* rsd, int* diag, double rdt) override {
         size_t jpt = jg - firstPoint();
         size_t jmin, jmax;
         if (jg == npos) {  // evaluate all points

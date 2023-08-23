@@ -1,11 +1,11 @@
 /**
  *  @file Nasa9PolyMultiTempRegion.h
  *  Header for a single-species standard state object derived
- *  from \link Cantera::SpeciesThermoInterpType
- *  SpeciesThermoInterpType\endlink  based
+ *  from @link Cantera::SpeciesThermoInterpType
+ *  SpeciesThermoInterpType@endlink  based
  *  on the NASA 9 coefficient temperature polynomial form
  *   applied to multiple temperature regions
- *  (see \ref spthermo and class \link Cantera::Nasa9PolyMultiTempRegion Nasa9PolyMultiTempRegion\endlink).
+ *  (see @ref spthermo and class @link Cantera::Nasa9PolyMultiTempRegion Nasa9PolyMultiTempRegion@endlink).
  *
  *  This parameterization has multiple NASA temperature regions.
  */
@@ -49,7 +49,7 @@ public:
      * Note, after the constructor, we will own the underlying Nasa9Poly1
      * objects and be responsible for owning them.
      */
-    Nasa9PolyMultiTempRegion(std::vector<Nasa9Poly1*> &regionPts);
+    Nasa9PolyMultiTempRegion(vector<Nasa9Poly1*> &regionPts);
 
     //! Constructor with all input data
     /*!
@@ -74,23 +74,21 @@ public:
      *                  region and each value is the array of 9 polynomial
      *                  coefficients for that region.
      */
-    void setParameters(const std::map<double, vector_fp>& regions);
+    void setParameters(const map<double, vector<double>>& regions);
 
-    virtual int reportType() const;
+    int reportType() const override;
 
-    virtual size_t temperaturePolySize() const { return 7; }
-    virtual void updateTemperaturePoly(double T, double* T_poly) const;
+    size_t temperaturePolySize() const override { return 7; }
+    void updateTemperaturePoly(double T, double* T_poly) const override;
 
     //! @copydoc Nasa9Poly1::updateProperties
-    virtual void updateProperties(const doublereal* tt,
-                                  doublereal* cp_R, doublereal* h_RT,
-                                  doublereal* s_R) const;
+    void updateProperties(const double* tt, double* cp_R, double* h_RT,
+                          double* s_R) const override;
 
-    virtual void updatePropertiesTemp(const doublereal temp,
-                                      doublereal* cp_R, doublereal* h_RT,
-                                      doublereal* s_R) const;
+    void updatePropertiesTemp(const double temp, double* cp_R, double* h_RT,
+                              double* s_R) const override;
 
-    virtual size_t nCoeffs() const;
+    size_t nCoeffs() const override;
 
     //! This utility function reports back the type of parameterization and all
     //! of the parameters for the species, index.
@@ -111,19 +109,17 @@ public:
      *        coeffs[index+1] = maxTempZone
      *        coeffs[index+2+i] from i =0,9 are the coefficients themselves
      */
-    virtual void reportParameters(size_t& n, int& type,
-                                  doublereal& tlow, doublereal& thigh,
-                                  doublereal& pref,
-                                  doublereal* const coeffs) const;
+    void reportParameters(size_t& n, int& type, double& tlow, double& thigh,
+                          double& pref, double* const coeffs) const override;
 
-    virtual void getParameters(AnyMap& thermo) const;
+    void getParameters(AnyMap& thermo) const override;
 
 protected:
     //! Lower boundaries of each temperature regions
-    vector_fp m_lowerTempBounds;
+    vector<double> m_lowerTempBounds;
 
     //! Individual temperature region objects
-    std::vector<std::unique_ptr<Nasa9Poly1>> m_regionPts;
+    vector<unique_ptr<Nasa9Poly1>> m_regionPts;
 
     //! current region
     mutable int m_currRegion = 0;

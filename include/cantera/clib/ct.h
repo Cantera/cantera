@@ -122,7 +122,7 @@ extern "C" {
     CANTERA_CAPI int thermo_setState_Psat(int n, double p, double x);
     CANTERA_CAPI int thermo_setState_Tsat(int n, double t, double x);
 
-    //! @since Starting in Cantera 3.0, the "phasename" argument should be blank
+    //! @since Starting in %Cantera 3.0, the "phasename" argument should be blank
     CANTERA_CAPI int kin_newFromFile(const char* filename, const char* phasename,
                                      int reactingPhase, int neighbor1, int neighbor2,
                                      int neighbor3, int neighbor4);

@@ -1,6 +1,6 @@
 /**
  *  @file BoundaryValueProblem.h
- *  Simplified interface to the capabilities provided by Cantera to
+ *  Simplified interface to the capabilities provided by %Cantera to
  *  solve boundary value problems.
  */
 
@@ -73,7 +73,7 @@ public:
         m_left(0), m_right(0), m_sim(0)
     {
         // Create the initial uniform grid
-        Cantera::vector_fp z(np);
+        Cantera::vector<double> z(np);
         int iz;
         for (iz = 0; iz < np; iz++) {
             z[iz] = zmin + iz*(zmax - zmin)/(np-1);
@@ -106,7 +106,7 @@ public:
     }
 
     /**
-     *  Set parameters and options for solution component \a n.
+     *  Set parameters and options for solution component @e n.
      *  This method should be invoked for each solution component
      *  before calling 'solve'. The parameter values should first
      *  be set by creating an instance of class Component, and
@@ -185,12 +185,12 @@ public:
     }
 
     /**
-     * Initial value of solution component \a n at initial grid
-     * point \a j. The default is zero for all components at all
+     * Initial value of solution component @e n at initial grid
+     * point @e j. The default is zero for all components at all
      * grid points. Overload in derived classes to specify other
      * choices for initial values.
      */
-    virtual double initialValue(size_t n, size_t j) {
+    double initialValue(size_t n, size_t j) override {
         return 0.0;
     }
 
@@ -263,7 +263,7 @@ protected:
     }
 
     /**
-     * First derivative of component \a n at point \a j. The derivative
+     * First derivative of component @e n at point @e j. The derivative
      * is formed to the right of point j, using values at point j
      * and point j + 1.
      */
@@ -272,7 +272,7 @@ protected:
     }
 
     /**
-     * First derivative of component \a n at point \a j. The derivative
+     * First derivative of component @e n at point @e j. The derivative
      * is formed to the left of point j, using values at point j
      * and point j - 1.
      */

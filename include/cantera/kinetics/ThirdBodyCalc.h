@@ -15,12 +15,13 @@ namespace Cantera
 
 //! Calculate and apply third-body effects on reaction rates, including non-
 //! unity third-body efficiencies.
+//! @ingroup rateEvaluators
 class ThirdBodyCalc
 {
 public:
     //! Install reaction that uses third-body effects in ThirdBodyCalc manager
-    void install(size_t rxnNumber, const std::map<size_t, double>& efficiencies,
-                  double default_efficiency, bool mass_action) {
+    void install(size_t rxnNumber, const map<size_t, double>& efficiencies,
+                 double default_efficiency, bool mass_action) {
         m_reaction_index.push_back(rxnNumber);
         m_default.push_back(default_efficiency);
 
@@ -53,7 +54,7 @@ public:
             m_efficiencyList.begin(), m_efficiencyList.end());
 
         // derivative matrix multipliers
-        std::vector<Eigen::Triplet<double>> triplets;
+        vector<Eigen::Triplet<double>> triplets;
         triplets.reserve(m_reaction_index.size() * nSpc);
         for (size_t i = 0; i < m_default.size(); i++) {
             if (m_default[i] != 0) {
@@ -71,7 +72,7 @@ public:
     }
 
     //! Update third-body concentrations in full vector
-    void update(const vector_fp& conc, double ctot, double* concm) const {
+    void update(const vector<double>& conc, double ctot, double* concm) const {
         for (size_t i = 0; i < m_reaction_index.size(); i++) {
             double sum = 0.0;
             for (size_t j = 0; j < m_species[i].size(); j++) {
@@ -124,28 +125,28 @@ public:
 
 protected:
     //! Indices of reactions that use third-bodies within vector of concentrations
-    std::vector<size_t> m_reaction_index;
+    vector<size_t> m_reaction_index;
 
     //! Indices within m_reaction_index of reactions that consider third-body effects
     //! in the law of mass action
-    std::vector<size_t> m_mass_action_index;
+    vector<size_t> m_mass_action_index;
 
     //! Indices within m_reaction_index of reactions that consider third-body effects
     //! in the rate expression
-    std::vector<size_t> m_no_mass_action_index;
+    vector<size_t> m_no_mass_action_index;
 
     //! m_species[i][j] is the index of the j-th species in reaction i.
-    std::vector<std::vector<size_t> > m_species;
+    vector<vector<size_t>> m_species;
 
     //! m_eff[i][j] is the efficiency of the j-th species in reaction i.
-    std::vector<vector_fp> m_eff;
+    vector<vector<double>> m_eff;
 
     //! The default efficiency for each reaction
-    vector_fp m_default;
+    vector<double> m_default;
 
     //! Sparse efficiency matrix (compensated for defaults)
     //! Each triplet corresponds to (reaction index, species index, efficiency)
-    std::vector<Eigen::Triplet<double>> m_efficiencyList;
+    vector<Eigen::Triplet<double>> m_efficiencyList;
 
     //! Sparse derivative multiplier matrix
     Eigen::SparseMatrix<double> m_multipliers;

@@ -25,8 +25,7 @@ int FuncEval::evalNoThrow(double t, double* y, double* ydot)
         }
         return -1; // unrecoverable error
     } catch (...) {
-        std::string msg = "FuncEval::eval_nothrow: unhandled exception"
-            " of unknown type\n";
+        string msg = "FuncEval::eval_nothrow: unhandled exception of unknown type\n";
         if (suppressErrors()) {
             m_errors.push_back(msg);
         } else {
@@ -58,8 +57,7 @@ int FuncEval::evalDaeNoThrow(double t, double* y, double* ydot, double* r)
         }
         return -1; // unrecoverable error
     } catch (...) {
-        std::string msg = "FuncEval::eval_nothrow: unhandled exception"
-            " of unknown type\n";
+        string msg = "FuncEval::eval_nothrow: unhandled exception of unknown type\n";
         if (suppressErrors()) {
             m_errors.push_back(msg);
         } else {
@@ -70,7 +68,7 @@ int FuncEval::evalDaeNoThrow(double t, double* y, double* ydot, double* r)
     return 0; // successful evaluation
 }
 
-std::string FuncEval::getErrors() const {
+string FuncEval::getErrors() const {
     std::stringstream errs;
     for (const auto& err : m_errors) {
         errs << err;
@@ -100,7 +98,7 @@ int FuncEval::preconditioner_setup_nothrow(double t, double* y, double gamma)
         }
         return -1; // unrecoverable error
     } catch (...) {
-        std::string msg = "FuncEval::preconditioner_setup_nothrow: unhandled exception"
+        string msg = "FuncEval::preconditioner_setup_nothrow: unhandled exception"
             " of unknown type\n";
         if (suppressErrors()) {
             m_errors.push_back(msg);
@@ -133,7 +131,7 @@ int FuncEval::preconditioner_solve_nothrow(double* rhs, double* output)
         }
         return -1; // unrecoverable error
     } catch (...) {
-        std::string msg = "FuncEval::preconditioner_solve_nothrow: unhandled exception"
+        string msg = "FuncEval::preconditioner_solve_nothrow: unhandled exception"
             " of unknown type\n";
         if (suppressErrors()) {
             m_errors.push_back(msg);

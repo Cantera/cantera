@@ -44,7 +44,7 @@ void MoleReactor::initialize(double t0)
 void MoleReactor::updateSurfaceState(double* y)
 {
     size_t loc = 0;
-    vector_fp coverages(m_nv_surf, 0.0);
+    vector<double> coverages(m_nv_surf, 0.0);
     for (auto& S : m_surfaces) {
         auto surf = S->thermo();
         double invArea = 1/S->area();
@@ -144,7 +144,7 @@ void MoleReactor::getMoles(double* y)
 {
     // Use inverse molecular weights to convert to moles
     const double* Y = m_thermo->massFractions();
-    const vector_fp& imw = m_thermo->inverseMolecularWeights();
+    const vector<double>& imw = m_thermo->inverseMolecularWeights();
     for (size_t i = 0; i < m_nsp; i++) {
         y[i] = m_mass * imw[i] * Y[i];
     }
@@ -152,7 +152,7 @@ void MoleReactor::getMoles(double* y)
 
 void MoleReactor::setMassFromMoles(double* y)
 {
-    const vector_fp& mw = m_thermo->molecularWeights();
+    const vector<double>& mw = m_thermo->molecularWeights();
     // calculate mass from moles
     m_mass = 0;
     for (size_t i = 0; i < m_nsp; i++) {
@@ -196,7 +196,7 @@ void MoleReactor::updateState(double* y)
         };
         double T = m_thermo->temperature();
         boost::uintmax_t maxiter = 100;
-        std::pair<double, double> TT;
+        pair<double, double> TT;
         try {
             TT = bmt::bracket_and_solve_root(
                 u_err, T, 1.2, true, bmt::eps_tolerance<double>(48), maxiter);
@@ -233,7 +233,7 @@ void MoleReactor::eval(double time, double* LHS, double* RHS)
 
     evalSurfaces(LHS + m_nsp + m_sidx, RHS + m_nsp + m_sidx, m_sdot.data());
     // inverse molecular weights for conversion
-    const vector_fp& imw = m_thermo->inverseMolecularWeights();
+    const vector<double>& imw = m_thermo->inverseMolecularWeights();
     // volume equation
     RHS[1] = m_vdot;
 
@@ -242,9 +242,9 @@ void MoleReactor::eval(double time, double* LHS, double* RHS)
     }
 
     // Energy equation.
-    // \f[
+    // @f[
     //     \dot U = -P\dot V + A \dot q + \dot m_{in} h_{in} - \dot m_{out} h.
-    // \f]
+    // @f]
     if (m_energy) {
         RHS[0] = - m_thermo->pressure() * m_vdot + m_Qdot;
     } else {
@@ -297,7 +297,7 @@ size_t MoleReactor::componentIndex(const string& nm) const
     }
 }
 
-std::string MoleReactor::componentName(size_t k) {
+string MoleReactor::componentName(size_t k) {
     if (k == 0) {
         return "int_energy";
     } else if (k == 1) {

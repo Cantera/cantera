@@ -3,7 +3,7 @@
  *    Headers for the UnityLewisTransport object, which models transport
  *    properties in ideal gas solutions using the unity Lewis number
  *    approximation
- *    (see \ref tranprops and \link Cantera::UnityLewisTransport UnityLewisTransport \endlink) .
+ *    (see @ref tranprops and @link Cantera::UnityLewisTransport UnityLewisTransport @endlink) .
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -27,7 +27,7 @@ class UnityLewisTransport : public MixTransport
 public:
     UnityLewisTransport() = default;
 
-    virtual std::string transportModel() const {
+    string transportModel() const override {
         return "unity-Lewis-number";
     }
 
@@ -39,21 +39,21 @@ public:
      * with respect to the mass averaged velocity using gradients of the mole
      * fraction.
      *
-     * \f[
+     * @f[
      *     D^\prime_{km} = \frac{\lambda}{\rho c_p}
-     * \f]
+     * @f]
      *
      * In order to obtain the expected behavior from a unity Lewis number model,
      * this formulation requires that the correction velocity be computed as
      *
-     * \f[
+     * @f[
      *     V_c = \sum \frac{W_k}{\overline{W}} D^\prime_{km} \nabla X_k
-     * \f]
+     * @f]
      *
      * @param[out] d  Vector of diffusion coefficients for each species (m^2/s).
      * length m_nsp.
      */
-    virtual void getMixDiffCoeffs(double* const d) {
+    void getMixDiffCoeffs(double* const d) override {
         double Dm = thermalConductivity() / (m_thermo->density() * m_thermo->cp_mass());
         for (size_t k = 0; k < m_nsp; k++) {
             d[k] = Dm;
@@ -61,7 +61,7 @@ public:
     }
 
     //! Not implemented for unity Lewis number approximation
-    virtual void getMixDiffCoeffsMole(double* const d){
+    void getMixDiffCoeffsMole(double* const d) override {
         throw NotImplementedError("UnityLewisTransport::getMixDiffCoeffsMole");
     }
 
@@ -71,14 +71,14 @@ public:
      * These are the coefficients for calculating the diffusive mass fluxes
      * from the species mass fraction gradients, computed as
      *
-     * \f[
+     * @f[
      *     D_{km} = \frac{\lambda}{\rho c_p}
-     * \f]
+     * @f]
      *
      * @param[out] d  Vector of diffusion coefficients for each species (m^2/s).
      * length m_nsp.
      */
-    virtual void getMixDiffCoeffsMass(double* const d){
+    void getMixDiffCoeffsMass(double* const d) override {
         double Dm = thermalConductivity() / (m_thermo->density() * m_thermo->cp_mass());
         for (size_t k = 0; k < m_nsp; k++) {
             d[k] = Dm;

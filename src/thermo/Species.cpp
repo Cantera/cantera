@@ -17,7 +17,7 @@ using namespace std;
 
 namespace Cantera {
 
-Species::Species(const std::string& name_, const compositionMap& comp_,
+Species::Species(const string& name_, const Composition& comp_,
                  double charge_, double size_)
     : name(name_)
     , composition(comp_)
@@ -125,7 +125,7 @@ unique_ptr<Species> newSpecies(const AnyMap& node)
 
     // Store input parameters in the "input" map, unless they are stored in a
     // child object
-    const static std::set<std::string> known_keys{
+    const static set<string> known_keys{
         "thermo", "transport"
     };
     s->input.setUnits(node.units());
@@ -140,9 +140,9 @@ unique_ptr<Species> newSpecies(const AnyMap& node)
     return s;
 }
 
-std::vector<shared_ptr<Species>> getSpecies(const AnyValue& items)
+vector<shared_ptr<Species>> getSpecies(const AnyValue& items)
 {
-    std::vector<shared_ptr<Species> > all_species;
+    vector<shared_ptr<Species>> all_species;
     for (const auto& node : items.asVector<AnyMap>()) {
         all_species.emplace_back(newSpecies(node));
     }

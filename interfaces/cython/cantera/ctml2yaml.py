@@ -250,8 +250,7 @@ def split_species_value_string(node: etree.Element) -> Dict[str, float]:
     values are the number associated with each species. This is useful for things like
     elemental composition, mole fraction mappings, coverage mappings, etc.
 
-    The algorithm is reimplemented from ``compositionMap::parseCompString`` in
-    ``base/stringUtils.cpp``.
+    The algorithm is reimplemented from :ct:`parseCompString`.
     """
     text = clean_node_text(node)
     pairs = FlowMap({})
@@ -2638,7 +2637,7 @@ def convert(
     metadata = BlockMap(
         {
             "generator": "ctml2yaml",
-            "cantera-version": "b1",
+            "cantera-version": "3.0.0",
             "date": formatdate(localtime=True),
         }
     )
@@ -2653,8 +2652,10 @@ def convert(
             emitter.dump(output_reactions, output_file)
 
 
-def main():
-    """Parse command line arguments and pass them to `convert`."""
+def create_argparser():
+    """
+    Create argparse parser
+    """
     parser = argparse.ArgumentParser(
         description="Convert legacy CTML input files to YAML format",
         epilog=(
@@ -2665,6 +2666,13 @@ def main():
     )
     parser.add_argument("input", help="The input CTML filename. Must be specified.")
     parser.add_argument("output", nargs="?", help="The output YAML filename. Optional.")
+
+    return parser
+
+
+def main():
+    """Parse command line arguments and pass them to `convert`."""
+    parser = create_argparser()
     if len(sys.argv) not in [2, 3]:
         if len(sys.argv) > 3:
             print(

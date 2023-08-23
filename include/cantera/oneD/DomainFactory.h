@@ -19,8 +19,6 @@ namespace Cantera
 //! ```cpp
 //!     shared_ptr<Domain1D> d1 = newDomain("Inlet", sol, "reactants");
 //! ```
-//!
-//! @ingroup onedim
 class DomainFactory : public Factory<Domain1D, shared_ptr<Solution>, const string&>
 {
 public:
@@ -31,7 +29,7 @@ public:
      */
     static DomainFactory* factory();
 
-    virtual void deleteFactory();
+    void deleteFactory() override;
 
 private:
     //! Pointer to the single instance of the factory
@@ -50,7 +48,7 @@ private:
 //! @param solution  Solution holding ThermoPhase, Kinetics and Transport objects.
 //! @param id  string identifier describing domain. If omitted, id defaults to the
 //!     domain type identifier.
-//! @ingroup onedim
+//! @ingroup onedGroup
 template <class T=Domain1D>
 shared_ptr<T> newDomain(
     const string& domainType, shared_ptr<Solution> solution, const string& id="")

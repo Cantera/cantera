@@ -14,14 +14,36 @@ for programName, sources in samples:
                 LIBPATH=env['extra_lib_dirs'] + ['#build/lib'])
 
     # Generate SConstruct files to be installed
-    linkflags = ["-g", localenv["thread_flags"]]
+    linkflags = [localenv["thread_flags"]]
+    flag_excludes = [r"\$\(", "/TP", r"\$\)", "/nologo"]
     incdirs = [localenv["ct_incroot"]]
-    libdirs = [localenv["ct_libdir"]] + localenv["extra_lib_dirs"]
-    if not localenv["package_build"]:
+    libdirs = [localenv["ct_libdir"]]
+
+    if env["OS"] == "Darwin" and env["use_rpath_linkage"] and not env.subst("$__RPATH"):
+        # SCons fails to specify RPATH on macOS, so circumvent that behavior by
+        # specifying this directly as part of LINKFLAGS
+        linkflags.extend(env.subst(f'$RPATHPREFIX{d}$RPATHSUFFIX') for d in libdirs)
+
+    if localenv['package_build']:
+        # For package builds, use environment variables or rely on SCons to find the
+        # default compiler
+        localenv['tmpl_cc'] = "env['CC'] = os.environ.get('CC', env['CC'])"
+
+        # Remove flags that are specific to the build host. Users should compile against
+        # their local SDKs, which should be backwards compatible with the SDK used for
+        # building.
+        flag_excludes.extend(["-isysroot", "-mmacosx", "-march", "-mtune",
+                              "-fdebug-prefix-map", ".*/_build_env/"])
+    else:
         linkflags.append(f"-Wl,-rpath,{localenv['ct_shlibdir']}")
         libdirs.extend(localenv["extra_lib_dirs"])
+        # Otherwise, use the same compiler that was used to build Cantera, with the
+        # environment variables optionally overriding
+        localenv['tmpl_cc'] = env.subst("env['CC'] = os.environ.get('CC', '$CC')")
 
-    localenv["tmpl_compiler_flags"] = repr(localenv["CCFLAGS"])
+    linkflags = compiler_flag_list(linkflags, env["CC"], flag_excludes)
+    localenv["tmpl_compiler_flags"] = repr(
+        compiler_flag_list(localenv["CCFLAGS"], env["CC"], flag_excludes))
     localenv['tmpl_cantera_incdirs'] = repr([x for x in incdirs if x])
     localenv['tmpl_cantera_libs'] = repr(localenv['cantera_shared_libs'])
     localenv['tmpl_cantera_libdirs'] = repr([x for x in libdirs if x])

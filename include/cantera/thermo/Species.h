@@ -27,7 +27,7 @@ public:
     Species() = default;
 
     //! Constructor
-    Species(const std::string& name, const compositionMap& comp,
+    Species(const string& name, const Composition& comp,
             double charge=0.0, double size=1.0);
 
     //! Species objects are not copyable or assignable
@@ -38,11 +38,11 @@ public:
     AnyMap parameters(const ThermoPhase* phase=0, bool withInput=true) const;
 
     //! The name of the species
-    std::string name;
+    string name;
 
     //! The elemental composition of the species. Keys are element names; values
     //! are the corresponding atomicities.
-    compositionMap composition;
+    Composition composition;
 
     //! The electrical charge on the species, in units of the elementary charge.
     double charge = 0.0;
@@ -93,7 +93,7 @@ protected:
 unique_ptr<Species> newSpecies(const AnyMap& node);
 
 //! Generate Species objects for each item (an AnyMap) in `items`.
-std::vector<shared_ptr<Species>> getSpecies(const AnyValue& items);
+vector<shared_ptr<Species>> getSpecies(const AnyValue& items);
 
 }
 

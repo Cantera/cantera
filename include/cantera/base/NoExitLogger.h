@@ -10,14 +10,12 @@
 
 namespace Cantera {
 //! Logger that doesn't exit when an error is thrown.
-//! @ingroup textlogs
+//! @ingroup logGroup
 class NoExitLogger : public Logger {
 public:
     NoExitLogger() {}
-    virtual ~NoExitLogger() {}
 
-    virtual void error(const std::string& msg)
-    {
+    void error(const string& msg) override {
        std::cerr << msg << std::endl;
     }
 };

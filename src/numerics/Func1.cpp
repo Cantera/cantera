@@ -52,13 +52,13 @@ string Func1::typeName() const
 }
 
 // Calls method eval to evaluate the function
-doublereal Func1::operator()(doublereal t) const
+double Func1::operator()(double t) const
 {
     return eval(t);
 }
 
 // Evaluate the function.
-doublereal Func1::eval(doublereal t) const
+double Func1::eval(double t) const
 {
     return 0.0;
 }
@@ -103,13 +103,13 @@ bool Func1::isIdentical(Func1& other) const
 }
 
 //! accessor function for the returned constant
-doublereal Func1::c() const
+double Func1::c() const
 {
     return m_c;
 }
 
 // Function to set the stored constant
-void Func1::setC(doublereal c)
+void Func1::setC(double c)
 {
     m_c = c;
 }
@@ -225,7 +225,7 @@ shared_ptr<Func1> Cos1::derivative3() const
     return newTimesConstFunction(s, -m_c);
 }
 
-std::string Cos1::write(const std::string& arg) const
+string Cos1::write(const string& arg) const
 {
     if (m_c == 1.0) {
         return fmt::format("\\cos({})", arg);
@@ -272,7 +272,7 @@ shared_ptr<Func1> Exp1::derivative3() const
     return f;
 }
 
-std::string Exp1::write(const std::string& arg) const
+string Exp1::write(const string& arg) const
 {
     if (m_c == 1.0) {
         return fmt::format("\\exp({})", arg);
@@ -299,7 +299,7 @@ shared_ptr<Func1> Log1::derivative3() const
     return f;
 }
 
-std::string Log1::write(const std::string& arg) const
+string Log1::write(const string& arg) const
 {
     if (m_c == 1.0) {
         return fmt::format("\\log({})", arg);
@@ -427,7 +427,7 @@ Arrhenius1::Arrhenius1(const vector<double>& params)
 }
 
 Tabulated1::Tabulated1(size_t n, const double* tvals, const double* fvals,
-                       const std::string& method)
+                       const string& method)
 {
     m_tvec.resize(n);
     std::copy(tvals, tvals + n, m_tvec.begin());
@@ -515,8 +515,8 @@ Func1& Tabulated1::duplicate() const {
 Func1& Tabulated1::derivative() const {
     warn_deprecated("Tabulated1::derivative",
         "To be changed after Cantera 3.0; for new behavior, see 'derivative3'.");
-    vector_fp tvec;
-    vector_fp dvec;
+    vector<double> tvec;
+    vector<double> dvec;
     size_t siz = m_tvec.size();
     if (m_isLinear) {
         // piece-wise continuous derivative
@@ -541,8 +541,8 @@ Func1& Tabulated1::derivative() const {
 }
 
 shared_ptr<Func1> Tabulated1::derivative3() const {
-    vector_fp tvec;
-    vector_fp dvec;
+    vector<double> tvec;
+    vector<double> dvec;
     size_t siz = m_tvec.size();
     if (m_isLinear) {
         // piece-wise continuous derivative
@@ -615,12 +615,12 @@ Func1& Periodic1::duplicate() const {
     return *((Func1*)np);
 }
 
-string Func1::write(const std::string& arg) const
+string Func1::write(const string& arg) const
 {
     return fmt::format("\\mathrm{{{}}}({})", type(), arg);
 }
 
-string Pow1::write(const std::string& arg) const
+string Pow1::write(const string& arg) const
 {
     if (m_c == 0.5) {
         return "\\sqrt{" + arg + "}";
@@ -635,12 +635,12 @@ string Pow1::write(const std::string& arg) const
     }
 }
 
-string Tabulated1::write(const std::string& arg) const
+string Tabulated1::write(const string& arg) const
 {
     return fmt::format("\\mathrm{{Tabulated}}({})", arg);
 }
 
-string Const1::write(const std::string& arg) const
+string Const1::write(const string& arg) const
 {
     return fmt::format("{}", m_c);
 }
@@ -658,7 +658,7 @@ Func1& Const1::derivative() const {
     return *z;
 }
 
-string Ratio1::write(const std::string& arg) const
+string Ratio1::write(const string& arg) const
 {
     return "\\frac{" + m_f1->write(arg) + "}{"
            + m_f2->write(arg) + "}";
@@ -690,7 +690,7 @@ shared_ptr<Func1> Ratio1::derivative3() const {
     return newRatioFunction(s, p);
 }
 
-string Product1::write(const std::string& arg) const
+string Product1::write(const string& arg) const
 {
     string s = m_f1->write(arg);
     if (m_f1->order() < order()) {
@@ -725,7 +725,7 @@ shared_ptr<Func1> Product1::derivative3() const {
     return newSumFunction(a1, a2);
 }
 
-string Sum1::write(const std::string& arg) const
+string Sum1::write(const string& arg) const
 {
     string s1 = m_f1->write(arg);
     string s2 = m_f2->write(arg);
@@ -752,7 +752,7 @@ Func1& Sum1::derivative() const {
     return newSumFunction(d1, d2);
 }
 
-string Diff1::write(const std::string& arg) const
+string Diff1::write(const string& arg) const
 {
     string s1 = m_f1->write(arg);
     string s2 = m_f2->write(arg);
@@ -777,7 +777,7 @@ Func1& Diff1::derivative() const {
     return newDiffFunction(m_f1->derivative(), m_f2->derivative());
 }
 
-string Composite1::write(const std::string& arg) const
+string Composite1::write(const string& arg) const
 {
     string g = m_f2->write(arg);
     return m_f1->write(g);
@@ -808,7 +808,7 @@ shared_ptr<Func1> Composite1::derivative3() const {
     return newProdFunction(d3, d2);
 }
 
-string TimesConstant1::write(const std::string& arg) const
+string TimesConstant1::write(const string& arg) const
 {
     string s = m_f1->write(arg);
     if (m_f1->order() < order()) {
@@ -843,7 +843,7 @@ Func1& TimesConstant1::derivative() const {
     return *d;
 }
 
-string PlusConstant1::write(const std::string& arg) const
+string PlusConstant1::write(const string& arg) const
 {
     if (m_c == 0.0) {
         return m_f1->write(arg);
@@ -866,14 +866,14 @@ Func1& PlusConstant1::derivative() const {
 }
 
 
-doublereal Func1::isProportional(TimesConstant1& other)
+double Func1::isProportional(TimesConstant1& other)
 {
     if (isIdentical(other.func1())) {
         return other.c();
     }
     return 0.0;
 }
-doublereal Func1::isProportional(Func1& other)
+double Func1::isProportional(Func1& other)
 {
     if (isIdentical(other)) {
         return 1.0;
@@ -986,7 +986,7 @@ Func1& newSumFunction(Func1& f1, Func1& f2)
         delete &f2;
         return f1;
     }
-    doublereal c = f1.isProportional(f2);
+    double c = f1.isProportional(f2);
     if (c != 0) {
         if (c == -1.0) {
             return *(new Const1(0.0));
@@ -1032,7 +1032,7 @@ Func1& newDiffFunction(Func1& f1, Func1& f2)
         delete &f2;
         return *(new Const1(0.0));
     }
-    doublereal c = f1.isProportional(f2);
+    double c = f1.isProportional(f2);
     if (c != 0.0) {
         if (c == 1.0) {
             return *(new Const1(0.0));
@@ -1085,18 +1085,18 @@ Func1& newProdFunction(Func1& f1, Func1& f2)
         return *(new Const1(0.0));
     }
     if (isConstant(f1) && isConstant(f2)) {
-        doublereal c1c2 = f1.c() * f2.c();
+        double c1c2 = f1.c() * f2.c();
         delete &f1;
         delete &f2;
         return *(new Const1(c1c2));
     }
     if (isConstant(f1)) {
-        doublereal c = f1.c();
+        double c = f1.c();
         delete &f1;
         return newTimesConstFunction(f2, c);
     }
     if (isConstant(f2)) {
-        doublereal c = f2.c();
+        double c = f2.c();
         delete &f2;
         return newTimesConstFunction(f1, c);
     }
@@ -1119,7 +1119,7 @@ Func1& newProdFunction(Func1& f1, Func1& f2)
     bool tc2 = isTimesConst(f2);
 
     if (tc1 || tc2) {
-        doublereal c1 = 1.0, c2 = 1.0;
+        double c1 = 1.0, c2 = 1.0;
         Func1* ff1 = 0, *ff2 = 0;
         if (tc1) {
             c1 = f1.c();
@@ -1269,7 +1269,7 @@ Func1& newCompositeFunction(Func1& f1, Func1& f2)
         return *(new Const1(1.0));
     }
     if (isPow(f1) && isPow(f2)) {
-        doublereal c1c2 = f1.c() * f2.c();
+        double c1c2 = f1.c() * f2.c();
         delete &f1;
         delete &f2;
         return *(new Pow1(c1c2));
@@ -1297,9 +1297,9 @@ shared_ptr<Func1> newCompositeFunction(shared_ptr<Func1> f1, shared_ptr<Func1> f
     return make_shared<Composite1>(f1, f2);
 }
 
-Func1& newTimesConstFunction(Func1& f, doublereal c)
+Func1& newTimesConstFunction(Func1& f, double c)
 {
-    warn_deprecated("newTimesConstFunction(Func1&, doublereal)",
+    warn_deprecated("newTimesConstFunction(Func1&, double)",
         "To be removed after Cantera 3.0; replaced by shared pointer version.");
 
     if (c == 0.0) {
@@ -1330,16 +1330,16 @@ shared_ptr<Func1> newTimesConstFunction(shared_ptr<Func1> f, double c)
     return make_shared<TimesConstant1>(f, c);
 }
 
-Func1& newPlusConstFunction(Func1& f, doublereal c)
+Func1& newPlusConstFunction(Func1& f, double c)
 {
-    warn_deprecated("newPlusConstFunction(Func1&, doublereal)",
+    warn_deprecated("newPlusConstFunction(Func1&, double)",
         "To be removed after Cantera 3.0; replaced by shared pointer version.");
 
     if (c == 0.0) {
         return f;
     }
     if (isConstant(f)) {
-        doublereal cc = f.c() + c;
+        double cc = f.c() + c;
         delete &f;
         return *(new Const1(cc));
     }

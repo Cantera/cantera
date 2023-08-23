@@ -266,14 +266,14 @@ class species:
             The parameterization to use to compute the reference-state
             thermodynamic properties. This must be one of the entry types
             described in `Thermodynamic Property Models
-            <https://cantera.org/science/science-species.html#sec-thermo-models>`__.
+            <https://cantera.org/science/species-thermo.html#sec-thermo-models>`__.
             To specify multiple parameterizations, each for a different temperature range,
             group them in parentheses.
         :param transport:
             An entry specifying parameters to compute this species'
             contribution to the transport properties. This must be one of the
             entry types described in `Species Transport Coefficients
-            <https://cantera.org/science/science-species.html#species-transport-coefficients>`__,
+            <https://cantera.org/science/species-thermo.html#species-transport-coefficients>`__,
             and must be consistent with the transport model of the phase into which
             the species is imported. To specify parameters for multiple
             transport models, group the entries in parentheses.
@@ -1661,7 +1661,7 @@ def convert(filename=None, output_name=None, text=None, encoding="latin-1"):
         # information regarding conversion
         metadata = BlockMap([
             ("generator", "cti2yaml"),
-            ("cantera-version", "3.0.0b1"),
+            ("cantera-version", "3.0.0"),
             ("date", formatdate(localtime=True)),
         ])
         if filename != "<string>":
@@ -1720,8 +1720,10 @@ def convert(filename=None, output_name=None, text=None, encoding="latin-1"):
     return len(_species), len(_reactions), surfaces, output_name
 
 
-def main():
-    """Parse command line arguments and pass them to `convert`."""
+def create_argparser():
+    """
+    Create argparse parser
+    """
     parser = argparse.ArgumentParser(
         description=(
             "Convert legacy CTI input files to YAML format, where the first contiguous "
@@ -1743,6 +1745,12 @@ def main():
         "--no-validate", action="store_true", default=False,
         help="Skip validation step.")
 
+    return parser
+
+
+def main():
+    """Parse command line arguments and pass them to `convert`."""
+    parser = create_argparser()
     if len(sys.argv) not in [2, 3, 4, 5]:
         if len(sys.argv) > 5:
             print(

@@ -3,7 +3,7 @@
  *  Definitions for a simple thermodynamics model of a bulk solid phase
  *  derived from ThermoPhase,
  *  assuming an ideal solution model based on a lattice of solid atoms
- *  (see \ref thermoprops and class \link Cantera::LatticeSolidPhase LatticeSolidPhase\endlink).
+ *  (see @ref thermoprops and class @link Cantera::LatticeSolidPhase LatticeSolidPhase@endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -23,7 +23,7 @@ namespace ba = boost::algorithm;
 namespace Cantera
 {
 
-doublereal LatticeSolidPhase::minTemp(size_t k) const
+double LatticeSolidPhase::minTemp(size_t k) const
 {
     if (k != npos) {
         for (size_t n = 0; n < m_lattice.size(); n++) {
@@ -32,15 +32,14 @@ doublereal LatticeSolidPhase::minTemp(size_t k) const
             }
         }
     }
-    doublereal mm = 1.0E300;
-    for (size_t n = 0; n < m_lattice.size(); n++) {
-        double ml = m_lattice[n]->minTemp();
-        mm = std::min(mm, ml);
+    double mm = 0;
+    for (auto& lattice : m_lattice) {
+        mm = std::max(mm, lattice->minTemp());
     }
     return mm;
 }
 
-doublereal LatticeSolidPhase::maxTemp(size_t k) const
+double LatticeSolidPhase::maxTemp(size_t k) const
 {
     if (k != npos) {
         for (size_t n = 0; n < m_lattice.size(); n++) {
@@ -49,63 +48,62 @@ doublereal LatticeSolidPhase::maxTemp(size_t k) const
             }
         }
     }
-    doublereal mm = -1.0E300;
-    for (size_t n = 0; n < m_lattice.size(); n++) {
-        double ml = m_lattice[n]->maxTemp();
-        mm = std::max(mm, ml);
+    double mm = BigNumber;
+    for (auto& lattice : m_lattice) {
+        mm = std::min(mm, lattice->maxTemp());
     }
     return mm;
 }
 
-doublereal LatticeSolidPhase::refPressure() const
+double LatticeSolidPhase::refPressure() const
 {
     return m_lattice[0]->refPressure();
 }
 
-doublereal LatticeSolidPhase::enthalpy_mole() const
+double LatticeSolidPhase::enthalpy_mole() const
 {
     _updateThermo();
-    doublereal sum = 0.0;
+    double sum = 0.0;
     for (size_t n = 0; n < m_lattice.size(); n++) {
         sum += theta_[n] * m_lattice[n]->enthalpy_mole();
     }
     return sum;
 }
 
-doublereal LatticeSolidPhase::intEnergy_mole() const
+double LatticeSolidPhase::intEnergy_mole() const
 {
     _updateThermo();
-    doublereal sum = 0.0;
+    double sum = 0.0;
     for (size_t n = 0; n < m_lattice.size(); n++) {
         sum += theta_[n] * m_lattice[n]->intEnergy_mole();
     }
     return sum;
 }
 
-doublereal LatticeSolidPhase::entropy_mole() const
+double LatticeSolidPhase::entropy_mole() const
 {
     _updateThermo();
-    doublereal sum = 0.0;
+    double sum = 0.0;
     for (size_t n = 0; n < m_lattice.size(); n++) {
         sum += theta_[n] * m_lattice[n]->entropy_mole();
     }
     return sum;
 }
 
-doublereal LatticeSolidPhase::gibbs_mole() const
+double LatticeSolidPhase::gibbs_mole() const
 {
     _updateThermo();
-    doublereal sum = 0.0;
+    double sum = 0.0;
     for (size_t n = 0; n < m_lattice.size(); n++) {
         sum += theta_[n] * m_lattice[n]->gibbs_mole();
     }
     return sum;
 }
 
-doublereal LatticeSolidPhase::cp_mole() const
+double LatticeSolidPhase::cp_mole() const
 {
     _updateThermo();
-    doublereal sum = 0.0;
+    double sum = 0.0;
     for (size_t n = 0; n < m_lattice.size(); n++) {
         sum += theta_[n] * m_lattice[n]->cp_mole();
     }
@@ -117,7 +115,7 @@ Units LatticeSolidPhase::standardConcentrationUnits() const
     return Units(1.0);
 }
 
-void LatticeSolidPhase::getActivityConcentrations(doublereal* c) const
+void LatticeSolidPhase::getActivityConcentrations(double* c) const
 {
     _updateThermo();
     size_t strt = 0;
@@ -127,24 +125,24 @@ void LatticeSolidPhase::getActivityConcentrations(doublereal* c) const
     }
 }
 
-void LatticeSolidPhase::getActivityCoefficients(doublereal* ac) const
+void LatticeSolidPhase::getActivityCoefficients(double* ac) const
 {
     for (size_t k = 0; k < m_kk; k++) {
         ac[k] = 1.0;
     }
 }
 
-doublereal LatticeSolidPhase::standardConcentration(size_t k) const
+double LatticeSolidPhase::standardConcentration(size_t k) const
 {
     return 1.0;
 }
 
-doublereal LatticeSolidPhase::logStandardConc(size_t k) const
+double LatticeSolidPhase::logStandardConc(size_t k) const
 {
     return 0.0;
 }
 
-void LatticeSolidPhase::setPressure(doublereal p)
+void LatticeSolidPhase::setPressure(double p)
 {
     m_press = p;
     for (size_t n = 0; n < m_lattice.size(); n++) {
@@ -153,7 +151,7 @@ void LatticeSolidPhase::setPressure(doublereal p)
     calcDensity();
 }
 
-doublereal LatticeSolidPhase::calcDensity()
+double LatticeSolidPhase::calcDensity()
 {
     double sum = 0.0;
     for (size_t n = 0; n < m_lattice.size(); n++) {
@@ -163,7 +161,7 @@ doublereal LatticeSolidPhase::calcDensity()
     return sum;
 }
 
-void LatticeSolidPhase::setMoleFractions(const doublereal* const x)
+void LatticeSolidPhase::setMoleFractions(const double* const x)
 {
     size_t strt = 0;
     for (size_t n = 0; n < m_lattice.size(); n++) {
@@ -178,7 +176,7 @@ void LatticeSolidPhase::setMoleFractions(const doublereal* const x)
     calcDensity();
 }
 
-void LatticeSolidPhase::getMoleFractions(doublereal* const x) const
+void LatticeSolidPhase::getMoleFractions(double* const x) const
 {
     size_t strt = 0;
     // the ifdef block should be the way we calculate this.!!!!!
@@ -206,7 +204,7 @@ void LatticeSolidPhase::getMoleFractions(doublereal* const x) const
     }
 }
 
-void LatticeSolidPhase::getChemPotentials(doublereal* mu) const
+void LatticeSolidPhase::getChemPotentials(double* mu) const
 {
     _updateThermo();
     size_t strt = 0;
@@ -217,7 +215,7 @@ void LatticeSolidPhase::getChemPotentials(doublereal* mu) const
     }
 }
 
-void LatticeSolidPhase::getPartialMolarEnthalpies(doublereal* hbar) const
+void LatticeSolidPhase::getPartialMolarEnthalpies(double* hbar) const
 {
     _updateThermo();
     size_t strt = 0;
@@ -228,7 +226,7 @@ void LatticeSolidPhase::getPartialMolarEnthalpies(doublereal* hbar) const
     }
 }
 
-void LatticeSolidPhase::getPartialMolarEntropies(doublereal* sbar) const
+void LatticeSolidPhase::getPartialMolarEntropies(double* sbar) const
 {
     _updateThermo();
     size_t strt = 0;
@@ -239,7 +237,7 @@ void LatticeSolidPhase::getPartialMolarEntropies(doublereal* sbar) const
     }
 }
 
-void LatticeSolidPhase::getPartialMolarCp(doublereal* cpbar) const
+void LatticeSolidPhase::getPartialMolarCp(double* cpbar) const
 {
     _updateThermo();
     size_t strt = 0;
@@ -250,7 +248,7 @@ void LatticeSolidPhase::getPartialMolarCp(doublereal* cpbar) const
     }
 }
 
-void LatticeSolidPhase::getPartialMolarVolumes(doublereal* vbar) const
+void LatticeSolidPhase::getPartialMolarVolumes(double* vbar) const
 {
     _updateThermo();
     size_t strt = 0;
@@ -261,7 +259,7 @@ void LatticeSolidPhase::getPartialMolarVolumes(doublereal* vbar) const
     }
 }
 
-void LatticeSolidPhase::getStandardChemPotentials(doublereal* mu0) const
+void LatticeSolidPhase::getStandardChemPotentials(double* mu0) const
 {
     _updateThermo();
     size_t strt = 0;
@@ -271,7 +269,7 @@ void LatticeSolidPhase::getStandardChemPotentials(doublereal* mu0) const
     }
 }
 
-void LatticeSolidPhase::getGibbs_RT_ref(doublereal* grt) const
+void LatticeSolidPhase::getGibbs_RT_ref(double* grt) const
 {
     _updateThermo();
     for (size_t n = 0; n < m_lattice.size(); n++) {
@@ -279,7 +277,7 @@ void LatticeSolidPhase::getGibbs_RT_ref(doublereal* grt) const
     }
 }
 
-void LatticeSolidPhase::getGibbs_ref(doublereal* g) const
+void LatticeSolidPhase::getGibbs_ref(double* g) const
 {
     getGibbs_RT_ref(g);
     for (size_t k = 0; k < m_kk; k++) {
@@ -297,7 +295,7 @@ void LatticeSolidPhase::setParameters(const AnyMap& phaseNode,
 void LatticeSolidPhase::initThermo()
 {
     if (m_input.hasKey("composition")) {
-        compositionMap composition = m_input["composition"].asMap<double>();
+        Composition composition = m_input["composition"].asMap<double>();
         for (auto& [name, stoich] : composition) {
             AnyMap& node = m_rootNode["phases"].getMapWhere("name", name);
             addLattice(newThermo(node, m_rootNode));
@@ -320,8 +318,8 @@ void LatticeSolidPhase::getParameters(AnyMap& phaseNode) const
 
     // Remove fields not used in this model
     phaseNode.erase("species");
-    vector<std::string> elements;
-    for (auto& el : phaseNode["elements"].asVector<std::string>()) {
+    vector<string> elements;
+    for (auto& el : phaseNode["elements"].asVector<string>()) {
         if (!ba::starts_with(el, "LC_")) {
             elements.push_back(el);
         }
@@ -329,7 +327,7 @@ void LatticeSolidPhase::getParameters(AnyMap& phaseNode) const
     phaseNode["elements"] = elements;
 }
 
-void LatticeSolidPhase::getSpeciesParameters(const std::string& name,
+void LatticeSolidPhase::getSpeciesParameters(const string& name,
                                              AnyMap& speciesNode) const
 {
     // Use child lattice phases to determine species parameters so that these
@@ -364,8 +362,8 @@ void LatticeSolidPhase::addLattice(shared_ptr<ThermoPhase> lattice)
 
     for (size_t k = 0; k < lattice->nSpecies(); k++) {
         ThermoPhase::addSpecies(lattice->species(k));
-        vector_fp constArr(lattice->nElements());
-        const vector_fp& aws = lattice->atomicWeights();
+        vector<double> constArr(lattice->nElements());
+        const vector<double>& aws = lattice->atomicWeights();
         for (size_t es = 0; es < lattice->nElements(); es++) {
             addElement(lattice->elementName(es), aws[es], lattice->atomicNumber(es),
                        lattice->entropyElement298(es), lattice->elementType(es));
@@ -375,7 +373,7 @@ void LatticeSolidPhase::addLattice(shared_ptr<ThermoPhase> lattice)
     }
 }
 
-void LatticeSolidPhase::setLatticeStoichiometry(const compositionMap& comp)
+void LatticeSolidPhase::setLatticeStoichiometry(const Composition& comp)
 {
     for (size_t i = 0; i < m_lattice.size(); i++) {
         theta_[i] = getValue(comp, m_lattice[i]->name(), 0.0);
@@ -397,7 +395,7 @@ void LatticeSolidPhase::setLatticeStoichiometry(const compositionMap& comp)
 
 void LatticeSolidPhase::_updateThermo() const
 {
-    doublereal tnow = temperature();
+    double tnow = temperature();
     if (m_tlast != tnow) {
         getMoleFractions(m_x.data());
         size_t strt = 0;
@@ -411,7 +409,7 @@ void LatticeSolidPhase::_updateThermo() const
     }
 }
 
-void LatticeSolidPhase::setLatticeMoleFractionsByName(int nn, const std::string& x)
+void LatticeSolidPhase::setLatticeMoleFractionsByName(int nn, const string& x)
 {
     m_lattice[nn]->setMoleFractionsByName(x);
     size_t loc = 0;
@@ -426,7 +424,7 @@ void LatticeSolidPhase::setLatticeMoleFractionsByName(int nn, const std::string&
     setMoleFractions(m_x.data());
 }
 
-void LatticeSolidPhase::modifyOneHf298SS(const size_t k, const doublereal Hf298New)
+void LatticeSolidPhase::modifyOneHf298SS(const size_t k, const double Hf298New)
 {
     for (size_t n = 0; n < m_lattice.size(); n++) {
         if (lkstart_[n+1] < k) {

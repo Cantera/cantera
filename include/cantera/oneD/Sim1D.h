@@ -16,7 +16,7 @@ namespace Cantera
 /**
  * One-dimensional simulations. Class Sim1D extends class OneDim by storing
  * the solution vector, and by adding a hybrid Newton/time-stepping solver.
- * @ingroup onedim
+ * @ingroup onedGroup
  */
 class Sim1D : public OneDim
 {
@@ -37,9 +37,9 @@ public:
      */
     Sim1D(vector<shared_ptr<Domain1D>>& domains);
 
-    //! @deprecated  To be removed after Cantera 3.0;
+    //! @deprecated To be removed after %Cantera 3.0;
     //!     superseded by Sim1D() using shared_ptr
-    Sim1D(std::vector<Domain1D*>& domains);
+    Sim1D(vector<Domain1D*>& domains);
 
     //! @name Setting initial values
     //!
@@ -54,8 +54,8 @@ public:
      * @param vals A vector of values corresponding to the relative position
      *     locations.
      */
-    void setInitialGuess(const std::string& component, vector_fp& locs,
-                         vector_fp& vals);
+    void setInitialGuess(const string& component, vector<double>& locs,
+                         vector<double>& vals);
 
     /**
      * Set a single value in the solution vector.
@@ -65,7 +65,7 @@ public:
      *     the leftmost grid point in the domain.
      * @param value the value.
      */
-    void setValue(size_t dom, size_t comp, size_t localPoint, doublereal value);
+    void setValue(size_t dom, size_t comp, size_t localPoint, double value);
 
     /**
      * Get one entry in the solution vector.
@@ -74,9 +74,9 @@ public:
      * @param localPoint grid point within the domain, beginning with 0 for
      *     the leftmost grid point in the domain.
      */
-    doublereal value(size_t dom, size_t comp, size_t localPoint) const;
+    double value(size_t dom, size_t comp, size_t localPoint) const;
 
-    doublereal workValue(size_t dom, size_t comp, size_t localPoint) const;
+    double workValue(size_t dom, size_t comp, size_t localPoint) const;
 
     /**
      * Specify a profile for one component of one domain.
@@ -92,11 +92,11 @@ public:
      * the grid points will be linearly interpolated based on the (pos,
      * values) specification.
      */
-    void setProfile(size_t dom, size_t comp, const vector_fp& pos,
-                    const vector_fp& values);
+    void setProfile(size_t dom, size_t comp, const vector<double>& pos,
+                    const vector<double>& values);
 
     //! Set component 'comp' of domain 'dom' to value 'v' at all points.
-    void setFlatProfile(size_t dom, size_t comp, doublereal v);
+    void setFlatProfile(size_t dom, size_t comp, double v);
 
     //! @}
 
@@ -107,26 +107,26 @@ public:
     /**
      * Output information on current solution for all domains to stream.
      * @param s  Output stream
-     * @deprecated To be removed after Cantera 3.0; replaced by show
+     * @deprecated To be removed after %Cantera 3.0; replaced by show()
      */
     void showSolution(std::ostream& s);
 
     /**
      * Show logging information on current solution for all domains.
-     * @deprecated To be removed after Cantera 3.0; replaced by show
+     * @deprecated To be removed after %Cantera 3.0; replaced by show()
      */
     void showSolution();
 
     /**
      * Output information on current solution for all domains to stream.
      * @param s  Output stream
-     * @since  New in Cantera 3.0.
+     * @since New in %Cantera 3.0.
      */
     void show(std::ostream& s);
 
     /**
      * Show logging information on current solution for all domains.
-     * @since  New in Cantera 3.0.
+     * @since New in %Cantera 3.0.
      */
     void show();
 
@@ -136,10 +136,9 @@ public:
      * @param id  Identifier of solution within the container file
      * @param desc  Description of the solution
      * @param loglevel  Level of diagnostic output
-     * @deprecated  To be removed after Cantera 3.0; loglevel is deprecated.
+     * @deprecated To be removed after %Cantera 3.0; loglevel is deprecated.
      */
-    void save(const std::string& fname, const std::string& id,
-              const std::string& desc, int loglevel);
+    void save(const string& fname, const string& id, const string& desc, int loglevel);
 
     /**
      * Save current simulation data to a container file or CSV format.
@@ -155,7 +154,7 @@ public:
      * container files using the restore() method, while individual domains can be
      * loaded using SolutionArray::restore() for further analysis. While CSV do not
      * contain complete information, they can still be used for setting initial states
-     * of individual simulation objects for some Cantera API's.
+     * of individual simulation objects for some %Cantera API's.
      *
      * @param fname  Name of output file (CSV, YAML or HDF)
      * @param name  Identifier of storage location within the container file; this
@@ -168,9 +167,8 @@ public:
      *      if not specified (default=""), the native basis of the underlying
      *      ThermoPhase manager is used - @see nativeState (CSV only)
      */
-    void save(const std::string& fname, const std::string& name,
-              const std::string& desc, bool overwrite=false, int compression=0,
-              const string& basis="");
+    void save(const string& fname, const string& name, const string& desc,
+              bool overwrite=false, int compression=0, const string& basis="");
 
     /**
      * Save the residual of the current solution to a container file.
@@ -178,10 +176,10 @@ public:
      * @param id  Identifier of solution within the container file
      * @param desc  Description of the solution
      * @param loglevel  Level of diagnostic output
-     * @deprecated  To be removed after Cantera 3.0; loglevel is deprecated.
+     * @deprecated To be removed after %Cantera 3.0; loglevel is deprecated.
      */
-    void saveResidual(const std::string& fname, const std::string& id,
-                      const std::string& desc, int loglevel);
+    void saveResidual(const string& fname, const string& id,
+                      const string& desc, int loglevel);
 
     /**
      * Save the residual of the current solution to a container file.
@@ -191,18 +189,18 @@ public:
      * @param overwrite  Force overwrite if name exists; optional (default=false)
      * @param compression  Compression level (optional; HDF only)
      */
-    void saveResidual(const std::string& fname, const std::string& name,
-                      const std::string& desc, bool overwrite=false, int compression=0);
+    void saveResidual(const string& fname, const string& name,
+                      const string& desc, bool overwrite=false, int compression=0);
 
     /**
      * Initialize the solution with a previously-saved solution.
      * @param fname  Name of container file
      * @param id  Identifier of solution within the container file
      * @param loglevel  Level of diagnostic output
-     * @deprecated  To be removed after Cantera 3.0; loglevel is deprecated.
+     * @deprecated To be removed after %Cantera 3.0; loglevel is deprecated.
      * @return  AnyMap containing header information
      */
-    AnyMap restore(const std::string& fname, const std::string& id, int loglevel);
+    AnyMap restore(const string& fname, const string& id, int loglevel);
 
     /**
      * Retrieve data and settings from a previously saved simulation.
@@ -216,12 +214,12 @@ public:
      *      data
      * @return  AnyMap containing header information
      */
-    AnyMap restore(const std::string& fname, const std::string& name);
+    AnyMap restore(const string& fname, const string& name);
 
     //! @}
 
-    // @deprecated  To be removed after Cantera 3.0 (unused)
-    const doublereal* solution() {
+    //! @deprecated To be removed after %Cantera 3.0 (unused)
+    const double* solution() {
         warn_deprecated("Sim1D::solution",
             "This method is unused and will be removed after Cantera 3.0.");
         return m_state->data();
@@ -231,7 +229,7 @@ public:
 
     void solve(int loglevel = 0, bool refine_grid = true);
 
-    void eval(doublereal rdt=-1.0, int count = 1) {
+    void eval(double rdt=-1.0, int count = 1) {
         OneDim::eval(npos, m_state->data(), m_xnew.data(), rdt, count);
     }
 
@@ -266,7 +264,7 @@ public:
      * or equal to zero (that is, the domain must be specified).
      * @see Refiner::getCriteria
      */
-    vector_fp getRefineCriteria(int dom);
+    vector<double> getRefineCriteria(int dom);
 
     /**
      * Set the maximum number of grid points in the domain. If dom >= 0,
@@ -302,40 +300,40 @@ public:
 
     void getInitialSoln();
 
-    // @deprecated  To be removed after Cantera 3.0 (unused)
-    void setSolution(const doublereal* soln) {
+    //! @deprecated To be removed after %Cantera 3.0 (unused)
+    void setSolution(const double* soln) {
         warn_deprecated("Sim1D::setSolution",
             "This method is unused and will be removed after Cantera 3.0.");
         std::copy(soln, soln + m_state->size(), m_state->data());
     }
 
-    // @deprecated  To be removed after Cantera 3.0 (unused)
-    const doublereal* solution() const {
+    //! @deprecated To be removed after %Cantera 3.0 (unused)
+    const double* solution() const {
         warn_deprecated("Sim1D::solution",
             "This method is unused and will be removed after Cantera 3.0.");
         return m_state->data();
     }
 
-    doublereal jacobian(int i, int j);
+    double jacobian(int i, int j);
 
     void evalSSJacobian();
 
-    //! Solve the equation \f$ J^T \lambda = b \f$.
+    //! Solve the equation @f$ J^T \lambda = b @f$.
     /**
-     * Here, \f$ J = \partial f/\partial x \f$ is the Jacobian matrix of the
-     * system of equations \f$ f(x,p)=0 \f$. This can be used to efficiently
-     * solve for the sensitivities of a scalar objective function \f$ g(x,p) \f$
-     * to a vector of parameters \f$ p \f$ by solving:
-     * \f[ J^T \lambda = \left( \frac{\partial g}{\partial x} \right)^T \f]
-     * for \f$ \lambda \f$ and then computing:
-     * \f[
+     * Here, @f$ J = \partial f/\partial x @f$ is the Jacobian matrix of the
+     * system of equations @f$ f(x,p)=0 @f$. This can be used to efficiently
+     * solve for the sensitivities of a scalar objective function @f$ g(x,p) @f$
+     * to a vector of parameters @f$ p @f$ by solving:
+     * @f[ J^T \lambda = \left( \frac{\partial g}{\partial x} \right)^T @f]
+     * for @f$ \lambda @f$ and then computing:
+     * @f[
      *     \left.\frac{dg}{dp}\right|_{f=0} = \frac{\partial g}{\partial p}
      *         - \lambda^T \frac{\partial f}{\partial p}
-     * \f]
+     * @f]
      */
     void solveAdjoint(const double* b, double* lambda);
 
-    virtual void resize();
+    void resize() override;
 
     //! Set a function that will be called after each successful steady-state
     //! solve, before regridding. Intended to be used for observing solver
@@ -346,25 +344,25 @@ public:
 
 protected:
     //! the solution vector after the last successful timestepping
-    vector_fp m_xlast_ts;
+    vector<double> m_xlast_ts;
 
     //! the solution vector after the last successful steady-state solve (stored
     //! before grid refinement)
-    vector_fp m_xlast_ss;
+    vector<double> m_xlast_ss;
 
     //! the grids for each domain after the last successful steady-state solve
     //! (stored before grid refinement)
-    std::vector<vector_fp> m_grid_last_ss;
+    vector<vector<double>> m_grid_last_ss;
 
     //! a work array used to hold the residual or the new solution
-    vector_fp m_xnew;
+    vector<double> m_xnew;
 
     //! timestep
-    doublereal m_tstep;
+    double m_tstep;
 
     //! array of number of steps to take before re-attempting the steady-state
     //! solution
-    vector_int m_steps;
+    vector<int> m_steps;
 
     //! User-supplied function called after a successful steady-state solve.
     Func1* m_steady_callback;

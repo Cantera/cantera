@@ -3,8 +3,8 @@
  * Definition file for a derived class of ThermoPhase that assumes
  * an ideal solution approximation and handles
  * variable pressure standard state methods for calculating
- * thermodynamic properties (see \ref thermoprops and
- * class \link Cantera::IdealSolnGasVPSS IdealSolnGasVPSS\endlink).
+ * thermodynamic properties (see @ref thermoprops and
+ * class @link Cantera::IdealSolnGasVPSS IdealSolnGasVPSS@endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -28,65 +28,49 @@ class IdealSolnGasVPSS : public VPStandardStateTP
 {
 public:
     //! Create an object from an input file
-    explicit IdealSolnGasVPSS(const std::string& infile="", std::string id="");
+    explicit IdealSolnGasVPSS(const string& infile="", string id="");
 
     //! @name  Utilities (IdealSolnGasVPSS)
     //! @{
 
-    virtual std::string type() const {
+    string type() const override {
         return "ideal-solution-VPSS";
     }
 
-    virtual bool isIdeal() const {
+    bool isIdeal() const override {
         return true;
     }
 
     //! Set the standard concentration model
-    /*
+    /**
      * Must be one of 'unity', 'species-molar-volume', or 'solvent-molar-volume'.
      */
-    void setStandardConcentrationModel(const std::string& model);
+    void setStandardConcentrationModel(const string& model);
 
     //! @}
     //! @name Molar Thermodynamic Properties
     //! @{
 
-    virtual doublereal enthalpy_mole() const;
-    virtual doublereal entropy_mole() const;
-    virtual doublereal cp_mole() const;
-    virtual doublereal cv_mole() const;
+    double enthalpy_mole() const override;
+    double entropy_mole() const override;
+    double cp_mole() const override;
+    double cv_mole() const override;
 
     //! @}
     //! @name Mechanical Properties
     //! @{
 
-    void setPressure(doublereal p);
+    void setPressure(double p) override;
 
 protected:
-    /**
-     * Calculate the density of the mixture using the partial molar volumes and
-     * mole fractions as input. The formula for this is
-     *
-     * \f[
-     * \rho = \frac{\sum_k{X_k W_k}}{\sum_k{X_k V_k}}
-     * \f]
-     *
-     * where \f$X_k\f$ are the mole fractions, \f$W_k\f$ are the molecular
-     * weights, and \f$V_k\f$ are the pure species molar volumes.
-     *
-     * Note, the basis behind this formula is that in an ideal solution the
-     * partial molar volumes are equal to the species standard state molar
-     * volumes. The species molar volumes may be functions of temperature and
-     * pressure.
-     */
-    virtual void calcDensity();
+    void calcDensity() override;
     //! @}
 
 public:
-    virtual Units standardConcentrationUnits() const;
-    virtual void getActivityConcentrations(doublereal* c) const;
+    Units standardConcentrationUnits() const override;
+    void getActivityConcentrations(double* c) const override;
 
-    //! Returns the standard concentration \f$ C^0_k \f$, which is used to
+    //! Returns the standard concentration @f$ C^0_k @f$, which is used to
     //! normalize the generalized concentration.
     /*!
      * This is defined as the concentration by which the generalized
@@ -98,27 +82,20 @@ public:
      * @return
      *   Returns the standard Concentration in units of m3 kmol-1.
      */
-    virtual doublereal standardConcentration(size_t k=0) const;
+    double standardConcentration(size_t k=0) const override;
 
-    //! Get the array of non-dimensional activity coefficients at the current
-    //! solution temperature, pressure, and solution concentration.
-    /*!
-     *  For ideal gases, the activity coefficients are all equal to one.
-     *
-     * @param ac Output vector of activity coefficients. Length: m_kk.
-     */
-    virtual void getActivityCoefficients(doublereal* ac) const;
+    void getActivityCoefficients(double* ac) const override;
 
 
     //! @name  Partial Molar Properties of the Solution
     //! @{
 
-    virtual void getChemPotentials(doublereal* mu) const;
-    virtual void getPartialMolarEnthalpies(doublereal* hbar) const;
-    virtual void getPartialMolarEntropies(doublereal* sbar) const;
-    virtual void getPartialMolarIntEnergies(doublereal* ubar) const;
-    virtual void getPartialMolarCp(doublereal* cpbar) const;
-    virtual void getPartialMolarVolumes(doublereal* vbar) const;
+    void getChemPotentials(double* mu) const override;
+    void getPartialMolarEnthalpies(double* hbar) const override;
+    void getPartialMolarEntropies(double* sbar) const override;
+    void getPartialMolarIntEnergies(double* ubar) const override;
+    void getPartialMolarCp(double* cpbar) const override;
+    void getPartialMolarVolumes(double* vbar) const override;
     //! @}
 
 public:
@@ -130,10 +107,10 @@ public:
     //! see importPhase().
     //! @{
 
-    virtual bool addSpecies(shared_ptr<Species> spec);
-    virtual void initThermo();
-    virtual void getParameters(AnyMap& phaseNode) const;
-    virtual void setToEquilState(const doublereal* lambda_RT);
+    bool addSpecies(shared_ptr<Species> spec) override;
+    void initThermo() override;
+    void getParameters(AnyMap& phaseNode) const override;
+    void setToEquilState(const double* lambda_RT) override;
 
     //! @}
 
@@ -147,7 +124,7 @@ protected:
     int m_formGC = 0;
 
     //! Temporary storage - length = m_kk.
-    vector_fp m_pp;
+    vector<double> m_pp;
 };
 }
 

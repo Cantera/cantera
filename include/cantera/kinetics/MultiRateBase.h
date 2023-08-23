@@ -22,6 +22,7 @@ class Kinetics;
  * Because this class has no template parameters, the Kinetics object can store all of
  * these rate coefficient evaluators as a `vector<shared_ptr<MultiRateBase>>`. All of
  * the actual implementation for this capability is done in the MultiRate class.
+ * @ingroup rateEvaluators
  */
 class MultiRateBase
 {
@@ -29,7 +30,7 @@ public:
     virtual ~MultiRateBase() {}
 
     //! Identifier of reaction rate type
-    virtual std::string type() = 0;
+    virtual string type() = 0;
 
     //! Add reaction rate object to the evaluator
     //! @param rxn_index  index of reaction
@@ -102,7 +103,7 @@ public:
     //! @param extra  extra vector parameter (depends on parameterization)
     //! @warning  This method is an experimental part of the %Cantera API and
     //!     may be changed or removed without notice.
-    virtual void update(double T, const vector_fp& extra) = 0;
+    virtual void update(double T, const vector<double>& extra) = 0;
 
     //! Update data common to reaction rates of a specific type.
     //! This update mechanism is used by Kinetics reaction rate evaluators.

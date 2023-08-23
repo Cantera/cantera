@@ -5,7 +5,7 @@
 
 using namespace Cantera;
 
-double polyval(vector_fp& coeffs, double x) {
+double polyval(vector<double>& coeffs, double x) {
     double sum = 0;
     double xn = 1;
     for (size_t i = 0; i < coeffs.size(); i++) {
@@ -17,11 +17,11 @@ double polyval(vector_fp& coeffs, double x) {
 
 TEST(Polyfit, exact_fit)
 {
-    vector_fp x{0, 0.3, 1.0, 1.5, 2.0, 2.5};
-    vector_fp p(6);
-    vector_fp w(6, -1.0);
+    vector<double> x{0, 0.3, 1.0, 1.5, 2.0, 2.5};
+    vector<double> p(6);
+    vector<double> w(6, -1.0);
     for (int i = 0; i < 20; i++) {
-        vector_fp y{-1.1*i, cos(i), pow(-1,i), 3.2/(i+1), 0.1*i*i, sin(i)};
+        vector<double> y{-1.1*i, cos(i), pow(-1,i), 3.2/(i+1), 0.1*i*i, sin(i)};
         polyfit(6, 5, x.data(), y.data(), w.data(), p.data());
         for (size_t j = 0; j < 6; j++) {
             EXPECT_NEAR(polyval(p, x[j]), y[j], 1e-10);
@@ -31,12 +31,12 @@ TEST(Polyfit, exact_fit)
 
 TEST(Polyfit, sequential)
 {
-    vector_fp x{-1.0, 0.0, 0.5, 1.0, 1.5, 2.0, 3.0};
-    vector_fp y{0.6, 1.0, 0.8, 0.4, -0.1, -0.5, -1};
+    vector<double> x{-1.0, 0.0, 0.5, 1.0, 1.5, 2.0, 3.0};
+    vector<double> y{0.6, 1.0, 0.8, 0.4, -0.1, -0.5, -1};
 
     // Coefficients calculated using Numpy's polyfit function for polynomials
     // of degrees 0 - 5.
-    std::vector<vector_fp> PP{
+    vector<vector<double>> PP{
         {0.17142857142857154},
         {0.66190476190476177, -0.49047619047619029},
         {0.73605442176870761, -0.19387755102040838, -0.14829931972789107},
@@ -51,7 +51,7 @@ TEST(Polyfit, sequential)
     double rms_prev = 1e10;
     for (size_t i = 0; i < PP.size(); i++) {
         size_t N = i + 1;
-        vector_fp p(N);
+        vector<double> p(N);
         double rms = polyfit(7, i, x.data(), y.data(), nullptr, p.data());
         EXPECT_LT(rms, rms_prev);
         rms_prev = rms;
@@ -63,13 +63,13 @@ TEST(Polyfit, sequential)
 
 TEST(Polyfit, weighted)
 {
-    vector_fp x{-1.0, 0.0, 0.5, 1.0, 1.5, 2.0, 3.0};
-    vector_fp y{0.6, 1.0, 0.8, 0.4, -0.1, -0.5, -1};
-    vector_fp w{25, 1, 1, 1, 1, 1, 100}; // these are the squares of Numpy's weights
+    vector<double> x{-1.0, 0.0, 0.5, 1.0, 1.5, 2.0, 3.0};
+    vector<double> y{0.6, 1.0, 0.8, 0.4, -0.1, -0.5, -1};
+    vector<double> w{25, 1, 1, 1, 1, 1, 100}; // these are the squares of Numpy's weights
 
     // Coefficients calculated using Numpy's polyfit function for polynomials
     // of degrees 0 - 5.
-    std::vector<vector_fp> PP{
+    vector<vector<double>> PP{
         {-0.64153846153846139},
         {0.24582603619381152, -0.41199065966141246},
         {0.64897277949822718, -0.10796777523450461, -0.14749113594542437},
@@ -84,7 +84,7 @@ TEST(Polyfit, weighted)
     double rms_prev = 1e10;
     for (size_t i = 0; i < PP.size(); i++) {
         size_t N = i + 1;
-        vector_fp p(N);
+        vector<double> p(N);
         double rms = polyfit(7, i, x.data(), y.data(), w.data(), p.data());
         EXPECT_LT(rms, rms_prev);
         rms_prev = rms;

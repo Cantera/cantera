@@ -19,21 +19,19 @@ namespace Cantera
 //! ```cpp
 //!     shared_ptr<WallBase> piston = newWall3("Wall");
 //! ```
-//!
-//! @ingroup ZeroD
 class WallFactory : public Factory<WallBase>
 {
 public:
     static WallFactory* factory();
 
-    virtual void deleteFactory();
+    void deleteFactory() override;
 
     //! Create a new wall by type name.
     /*!
      * @param wallType the type to be created.
-     * @deprecated  To be removed after Cantera 3.0; replaceable by newWall3.
+     * @deprecated To be removed after %Cantera 3.0; replaceable by newWall3.
      */
-    virtual WallBase* newWall(const std::string& wallType);
+    WallBase* newWall(const string& wallType);
 
 private:
     static WallFactory* s_factory;
@@ -41,16 +39,27 @@ private:
     WallFactory();
 };
 
+//! @defgroup wallGroup Walls
+//! Zero-dimensional objects adjacent to reactors.
+//! Wall objects should be instantiated via the newWall3() function, for
+//! example:
+//!
+//! ```cpp
+//!     shared_ptr<WallBase> piston = newWall3("Wall");
+//! ```
+//! @ingroup zerodGroup
+//! @{
+
 //! Create a WallBase object of the specified type
-//! @deprecated  To be changed after Cantera 3.0; for new behavior, see newWall3.
-//! @ingroup ZeroD
+//! @deprecated To be changed after %Cantera 3.0; for new behavior, see newWall3().
 WallBase* newWall(const string& model);
 
 //! Create a WallBase object of the specified type
-//! @ingroup ZeroD
-//! @since New in Cantera 3.0.
-//! @todo Transition back to newWall after Cantera 3.0
+//! @since New in %Cantera 3.0.
+//! @todo Transition back to newWall() after %Cantera 3.0
 shared_ptr<WallBase> newWall3(const string& model);
+
+//! @}
 
 }
 

@@ -17,11 +17,11 @@
 
 using namespace Cantera;
 
-std::map<std::string,double> h, s, T, P, x;
-std::vector<std::string> states;
+map<string,double> h, s, T, P, x;
+vector<string> states;
 
 template<class F>
-void saveState(F& fluid, std::string name)
+void saveState(F& fluid, string name)
 {
     h[name] = fluid.enthalpy_mass();
     s[name] = fluid.entropy_mass();
@@ -35,7 +35,7 @@ void printStates()
 {
     int nStates = states.size();
     for (int n = 0; n < nStates; n++) {
-        std::string name = states[n];
+        string name = states[n];
         writelog(" {:5s} {:10.6g} {:10.6g} {:12.6g} {:12.6g} {:5.2g}\n",
                  name, T[name], P[name], h[name], s[name], x[name]);
     }

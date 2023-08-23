@@ -43,11 +43,11 @@ public:
     void check_rates(int iRef) {
         ASSERT_EQ((size_t) 1, kin.nReactions());
 
-        std::string X = "O:0.02 H2:0.2 O2:0.5 H:0.03 OH:0.05 H2O:0.1 HO2:0.01";
+        string X = "O:0.02 H2:0.2 O2:0.5 H:0.03 OH:0.05 H2O:0.1 HO2:0.01";
         pp->setState_TPX(1200, 5*OneAtm, X);
         pp_ref->setState_TPX(1200, 5*OneAtm, X);
 
-        vector_fp k(1), k_ref(kin_ref->nReactions());
+        vector<double> k(1), k_ref(kin_ref->nReactions());
 
         kin.getFwdRateConstants(&k[0]);
         kin_ref->getFwdRateConstants(&k_ref[0]);
@@ -78,7 +78,7 @@ TEST_F(KineticsFromScratch, add_elementary_reaction2)
     // reaction 0:
     //     equation: O + H2 <=> H + OH  # Reaction 1
     //     rate-constant: {A: 38.7, b: 2.7, Ea: 6260.0}
-    std::string equation = "O + H2 <=> H + OH";
+    string equation = "O + H2 <=> H + OH";
     auto rate = make_shared<ArrheniusRate>(3.87e1, 2.7, 2.619184e+07);
     auto R = make_shared<Reaction>(equation, rate);
 
@@ -102,6 +102,11 @@ TEST_F(KineticsFromScratch, add_three_body_reaction1)
 
     kin.addReaction(R);
     check_rates(1);
+
+    reac = parseCompString("O:2, M:1");
+    prod = parseCompString("O2:1, M:1");
+    ASSERT_THROW(make_shared<Reaction>(reac, prod, rate, tbody), CanteraError);
+
 }
 
 TEST_F(KineticsFromScratch, add_three_body_reaction2)
@@ -111,11 +116,13 @@ TEST_F(KineticsFromScratch, add_three_body_reaction2)
     //     type: three-body
     //     rate-constant: {A: 1.2e+11, b: -1.0, Ea: 0.0}
     //     efficiencies: {AR: 0.83, H2: 2.4, H2O: 15.4}
-    std::string equation = "2 O + M <=> O2 + M";
+    string equation = "2 O + M <=> O2 + M";
     auto rate = make_shared<ArrheniusRate>(1.2e11, -1.0, 0.0);
     auto tbody = make_shared<ThirdBody>();
     tbody->efficiencies = parseCompString("AR:0.83 H2:2.4 H2O:15.4");
     auto R = make_shared<Reaction>(equation, rate, tbody);
+    auto reac = R->reactants;
+    EXPECT_EQ(reac.count("M"), (size_t) 0);
 
     kin.addReaction(R);
     check_rates(1);
@@ -123,7 +130,7 @@ TEST_F(KineticsFromScratch, add_three_body_reaction2)
 
 TEST_F(KineticsFromScratch, add_three_body_reaction3)
 {
-    std::string equation = "2 O + M <=> O2 + M";
+    string equation = "2 O + M <=> O2 + M";
     auto rate = make_shared<ArrheniusRate>(1.2e11, -1.0, 0.0);
     auto R = make_shared<Reaction>(equation, rate);
     EXPECT_TRUE(R->usesThirdBody());
@@ -131,7 +138,7 @@ TEST_F(KineticsFromScratch, add_three_body_reaction3)
 
 TEST_F(KineticsFromScratch, multiple_third_bodies1)
 {
-    std::string equation = "2 H + 2 O2 <=> H2 + 2 O2";
+    string equation = "2 H + 2 O2 <=> H2 + 2 O2";
     auto rate = make_shared<ArrheniusRate>(1.2e11, -1.0, 0.0);
     auto R = make_shared<Reaction>(equation, rate);
     EXPECT_FALSE(R->usesThirdBody());
@@ -139,14 +146,14 @@ TEST_F(KineticsFromScratch, multiple_third_bodies1)
 
 TEST_F(KineticsFromScratch, multiple_third_bodies2)
 {
-    std::string equation = "2 H + 2 M <=> H2 + 2 M";
+    string equation = "2 H + 2 M <=> H2 + 2 M";
     auto rate = make_shared<ArrheniusRate>(1.2e11, -1.0, 0.0);
     ASSERT_THROW(Reaction(equation, rate), CanteraError);
 }
 
 TEST_F(KineticsFromScratch, multiple_third_bodies3)
 {
-    std::string equation = "2 H + O2 + M <=> H2 + O2 + M";
+    string equation = "2 H + O2 + M <=> H2 + O2 + M";
     auto rate = make_shared<ArrheniusRate>(1.2e11, -1.0, 0.0);
     auto R = make_shared<Reaction>(equation, rate);
     EXPECT_TRUE(R->usesThirdBody());
@@ -154,12 +161,15 @@ TEST_F(KineticsFromScratch, multiple_third_bodies3)
 
 TEST_F(KineticsFromScratch, multiple_third_bodies4)
 {
-    std::string equation = "H2 + O2 => H2 + O2";
+    string equation = "H2 + O2 => H2 + O2";
     auto rate = make_shared<ArrheniusRate>(1.2e11, -1.0, 0.0);
     auto tbody = make_shared<ThirdBody>("O2");
     auto R = make_shared<Reaction>(equation, rate, tbody);
     EXPECT_EQ(R->thirdBody()->name(), "O2");
     EXPECT_EQ(R->thirdBody()->default_efficiency, 0.);
+    EXPECT_EQ(R->reactants.count("H2"), (size_t) 1);
+    EXPECT_EQ(R->reactants.count("O2"), (size_t) 0);
+    EXPECT_EQ(R->reactants.count("M"), (size_t) 0);
 
     AnyMap input = R->parameters(false);
     EXPECT_FALSE(input.hasKey("type"));
@@ -172,7 +182,7 @@ TEST_F(KineticsFromScratch, multiple_third_bodies4)
 
 TEST_F(KineticsFromScratch, multiple_third_bodies5)
 {
-    std::string equation = "H2 + O2 => H2 + O2";
+    string equation = "H2 + O2 => H2 + O2";
     auto rate = make_shared<ArrheniusRate>(1.2e11, -1.0, 0.0);
     auto tbody = make_shared<ThirdBody>("AR"); // incompatible third body
     ASSERT_THROW(Reaction(equation, rate, tbody), CanteraError);
@@ -187,6 +197,9 @@ TEST_F(KineticsFromScratch, multiple_third_bodies6)
     auto R = make_shared<Reaction>(reac, prod, rate, tbody);
     EXPECT_EQ(R->thirdBody()->name(), "O2");
     EXPECT_EQ(R->thirdBody()->default_efficiency, 0.);
+    EXPECT_EQ(R->reactants.count("H2"), (size_t) 1);
+    EXPECT_EQ(R->reactants.count("O2"), (size_t) 0);
+    EXPECT_EQ(R->reactants.count("M"), (size_t) 0);
 
     AnyMap input = R->parameters(false);
     EXPECT_FALSE(input.hasKey("type"));
@@ -199,7 +212,7 @@ TEST_F(KineticsFromScratch, multiple_third_bodies6)
 
 TEST_F(KineticsFromScratch, multiple_third_bodies7)
 {
-    std::string equation = "CH2OCH + M <=> CH2CHO + M";
+    string equation = "CH2OCH + M <=> CH2CHO + M";
     auto rate = make_shared<ArrheniusRate>(1.2e11, -1.0, 0.0);
     auto tbody = make_shared<ThirdBody>("O2");
     auto R = make_shared<Reaction>(equation, rate, tbody);
@@ -217,7 +230,7 @@ TEST_F(KineticsFromScratch, multiple_third_bodies7)
 
 TEST_F(KineticsFromScratch, multiple_third_bodies8)
 {
-    std::string equation = "CH2OCH + M <=> CH2CHO + M";
+    string equation = "CH2OCH + M <=> CH2CHO + M";
     auto rate = make_shared<ArrheniusRate>(1.2e11, -1.0, 0.0);
     auto tbody = make_shared<ThirdBody>();
     tbody->efficiencies = parseCompString("O2:1");
@@ -235,9 +248,27 @@ TEST_F(KineticsFromScratch, multiple_third_bodies8)
     EXPECT_EQ(input["default-efficiency"].asDouble(), 0.);
 }
 
+TEST_F(KineticsFromScratch, multiple_third_bodies9)
+{
+    Composition reac = parseCompString("H2:1, O2:1");
+    Composition prod = parseCompString("H2:1, O:2");
+    auto rate = make_shared<ArrheniusRate>(1.2e11, -1.0, 0.0);
+    auto tbody = make_shared<ThirdBody>("O2");
+    auto R = make_shared<Reaction>(reac, prod, rate, tbody);
+    EXPECT_EQ(R->thirdBody()->name(), "O2");
+    EXPECT_EQ(R->thirdBody()->default_efficiency, 0.);
+    EXPECT_EQ(R->reactants.count("H2"), (size_t) 1);
+    EXPECT_EQ(R->reactants.count("O2"), (size_t) 1);
+    EXPECT_EQ(R->reactants.count("M"), (size_t) 0);
+
+    reac = parseCompString("H2:1, O2:1");
+    prod = parseCompString("H2:1, O2:1");
+    ASSERT_THROW(make_shared<Reaction>(reac, prod, rate, tbody), CanteraError);
+}
+
 TEST_F(KineticsFromScratch, add_two_temperature_plasma)
 {
-    std::string equation = "O + H => O + H";
+    string equation = "O + H => O + H";
     auto rate = make_shared<TwoTempPlasmaRate>(17283, -3.1, -5820000, 1081000);
     auto R = make_shared<Reaction>(equation, rate);
     EXPECT_FALSE(R->usesThirdBody());
@@ -269,6 +300,35 @@ TEST_F(KineticsFromScratch, skip_undefined_third_body)
     ASSERT_EQ((size_t) 1, kin.nReactions());
 }
 
+TEST_F(KineticsFromScratch, skip_explicit_third_body)
+{
+    string equation = "2 O + CO2 <=> O2 + CO2";
+    auto rate = make_shared<ArrheniusRate>(1.2e11, -1.0, 0.0);
+    auto R = make_shared<Reaction>(equation, rate);
+    EXPECT_EQ(R->thirdBody()->name(), "CO2");
+
+    ASSERT_THROW(kin.addReaction(R), CanteraError);
+    kin.skipUndeclaredThirdBodies(true);
+    kin.addReaction(R);
+    ASSERT_EQ((size_t) 0, kin.nReactions());
+}
+
+TEST_F(KineticsFromScratch, third_body_composition)
+{
+    string equation = "2 O + H2O <=> O2 + H2O";
+    auto rate = make_shared<ArrheniusRate>(1.2e11, -1.0, 0.0);
+    auto R = make_shared<Reaction>(equation, rate);
+    EXPECT_EQ(R->thirdBody()->name(), "H2O");
+    EXPECT_TRUE(R->thirdBody()->explicit_3rd);
+
+    Composition reac = R->reactants;
+    EXPECT_EQ(reac.count("H2O"), (size_t) 0);
+    EXPECT_EQ(reac.count("M"), (size_t) 0);
+    Composition prod = R->products;
+    EXPECT_EQ(prod.count("H2O"), (size_t) 0);
+    EXPECT_EQ(reac.count("M"), (size_t) 0);
+}
+
 TEST_F(KineticsFromScratch, add_falloff_reaction1)
 {
     // reaction 2:
@@ -283,7 +343,7 @@ TEST_F(KineticsFromScratch, add_falloff_reaction1)
     Composition prod = parseCompString("H2O2:1");
     ArrheniusRate high_rate(7.4e10, -0.37, 0.0);
     ArrheniusRate low_rate(2.3e12, -0.9, -7112800.0);
-    vector_fp falloff_params { 0.7346, 94.0, 1756.0, 5182.0 };
+    vector<double> falloff_params { 0.7346, 94.0, 1756.0, 5182.0 };
     auto rate = make_shared<TroeRate>(low_rate, high_rate, falloff_params);
     auto tbody = make_shared<ThirdBody>();
     tbody->efficiencies = parseCompString("AR:0.7 H2:2.0 H2O:6.0");
@@ -303,10 +363,10 @@ TEST_F(KineticsFromScratch, add_falloff_reaction2)
     //     high-P-rate-constant: {A: 7.4e+10, b: -0.37, Ea: 0.0}
     //     Troe: {A: 0.7346, T3: 94.0, T1: 1756.0, T2: 5182.0}
     //     efficiencies: {AR: 0.7, H2: 2.0, H2O: 6.0}
-    std::string equation = "2 OH (+ M) <=> H2O2 (+ M)";
+    string equation = "2 OH (+ M) <=> H2O2 (+ M)";
     ArrheniusRate high_rate(7.4e10, -0.37, 0.0);
     ArrheniusRate low_rate(2.3e12, -0.9, -7112800.0);
-    vector_fp falloff_params { 0.7346, 94.0, 1756.0, 5182.0 };
+    vector<double> falloff_params { 0.7346, 94.0, 1756.0, 5182.0 };
     auto rate = make_shared<TroeRate>(low_rate, high_rate, falloff_params);
     auto tbody = make_shared<ThirdBody>();
     tbody->efficiencies = parseCompString("AR:0.7 H2:2.0 H2O:6.0");
@@ -318,10 +378,10 @@ TEST_F(KineticsFromScratch, add_falloff_reaction2)
 
 TEST_F(KineticsFromScratch, missing_third_body)
 {
-    std::string equation = "2 OH <=> H2O2";
+    string equation = "2 OH <=> H2O2";
     ArrheniusRate high_rate(7.4e10, -0.37, 0.0);
     ArrheniusRate low_rate(2.3e12, -0.9, -7112800.0);
-    vector_fp falloff_params { 0.7346, 94.0, 1756.0, 5182.0 };
+    vector<double> falloff_params { 0.7346, 94.0, 1756.0, 5182.0 };
     auto rate = make_shared<TroeRate>(low_rate, high_rate, falloff_params);
     ASSERT_THROW(Reaction(equation, rate), CanteraError);
 }
@@ -536,8 +596,8 @@ public:
     void check_rates(int iRef) {
         ASSERT_EQ((size_t) 1, kin.nReactions());
 
-        std::string X = "H2:0.2 O2:0.5 H2O:0.1 N2:0.2";
-        std::string Xs = "H(m):0.1 O(m):0.2 OH(m):0.3 (m):0.4";
+        string X = "H2:0.2 O2:0.5 H2O:0.1 N2:0.2";
+        string Xs = "H(m):0.1 O(m):0.2 OH(m):0.3 (m):0.4";
         gas->setState_TPX(1200, 5*OneAtm, X);
         gas_ref->setState_TPX(1200, 5*OneAtm, X);
         surf->setState_TP(1200, 5*OneAtm);
@@ -545,7 +605,7 @@ public:
         std::dynamic_pointer_cast<SurfPhase>(surf)->setCoveragesByName(Xs);
         std::dynamic_pointer_cast<SurfPhase>(surf_ref)->setCoveragesByName(Xs);
 
-        vector_fp k(1), k_ref(kin_ref->nReactions());
+        vector<double> k(1), k_ref(kin_ref->nReactions());
 
         kin.getFwdRateConstants(&k[0]);
         kin_ref->getFwdRateConstants(&k_ref[0]);
@@ -606,7 +666,7 @@ public:
         kin_ref = newKinetics(th, "../data/kineticsfromscratch.yaml");
         kin.addThermo(p);
 
-        std::vector<shared_ptr<Species>> S = getSpecies(
+        vector<shared_ptr<Species>> S = getSpecies(
             AnyMap::fromYamlFile("h2o2.yaml")["species"]);
         for (auto sp : S) {
             species[sp->name] = sp;
@@ -620,10 +680,10 @@ public:
     shared_ptr<ThermoPhase> pp_ref;
     BulkKinetics kin;
     shared_ptr<Kinetics> kin_ref;
-    std::vector<shared_ptr<Reaction>> reactions;
-    std::map<std::string, shared_ptr<Species>> species;
+    vector<shared_ptr<Reaction>> reactions;
+    map<string, shared_ptr<Species>> species;
 
-    void check_rates(size_t N, const std::string& X) {
+    void check_rates(size_t N, const string& X) {
         for (size_t i = 0; i < kin_ref->nReactions(); i++) {
             if (i >= N) {
                 kin_ref->setMultiplier(i, 0);
@@ -637,8 +697,8 @@ public:
         // need to invalidate cache to force update
         kin_ref->invalidateCache();
 
-        vector_fp k(kin.nReactions()), k_ref(kin_ref->nReactions());
-        vector_fp w(kin.nTotalSpecies()), w_ref(kin_ref->nTotalSpecies());
+        vector<double> k(kin.nReactions()), k_ref(kin_ref->nReactions());
+        vector<double> w(kin.nTotalSpecies()), w_ref(kin_ref->nTotalSpecies());
 
         kin.getFwdRateConstants(k.data());
         kin_ref->getFwdRateConstants(k_ref.data());

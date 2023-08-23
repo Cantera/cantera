@@ -1,8 +1,8 @@
 /**
  *  @file StoichSubstance.cpp
  * Definition file for the StoichSubstance class, which represents a fixed-composition
- * incompressible substance (see \ref thermoprops and
- * class \link Cantera::StoichSubstance StoichSubstance\endlink)
+ * incompressible substance (see @ref thermoprops and
+ * class @link Cantera::StoichSubstance StoichSubstance@endlink)
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -17,29 +17,29 @@ namespace Cantera
 
 // ----  Constructors -------
 
-StoichSubstance::StoichSubstance(const std::string& infile, const std::string& id_)
+StoichSubstance::StoichSubstance(const string& infile, const string& id_)
 {
     initThermoFile(infile, id_);
 }
 
 // ----- Mechanical Equation of State ------
 
-doublereal StoichSubstance::pressure() const
+double StoichSubstance::pressure() const
 {
     return m_press;
 }
 
-void StoichSubstance::setPressure(doublereal p)
+void StoichSubstance::setPressure(double p)
 {
     m_press = p;
 }
 
-doublereal StoichSubstance::isothermalCompressibility() const
+double StoichSubstance::isothermalCompressibility() const
 {
     return 0.0;
 }
 
-doublereal StoichSubstance::thermalExpansionCoeff() const
+double StoichSubstance::thermalExpansionCoeff() const
 {
     return 0.0;
 }
@@ -51,54 +51,54 @@ Units StoichSubstance::standardConcentrationUnits() const
     return Units(1.0);
 }
 
-void StoichSubstance::getActivityConcentrations(doublereal* c) const
+void StoichSubstance::getActivityConcentrations(double* c) const
 {
     c[0] = 1.0;
 }
 
-doublereal StoichSubstance::standardConcentration(size_t k) const
+double StoichSubstance::standardConcentration(size_t k) const
 {
     return 1.0;
 }
 
-doublereal StoichSubstance::logStandardConc(size_t k) const
+double StoichSubstance::logStandardConc(size_t k) const
 {
     return 0.0;
 }
 
 // Properties of the Standard State of the Species in the Solution
 
-void StoichSubstance::getStandardChemPotentials(doublereal* mu0) const
+void StoichSubstance::getStandardChemPotentials(double* mu0) const
 {
     getGibbs_RT(mu0);
     mu0[0] *= RT();
 }
 
-void StoichSubstance::getEnthalpy_RT(doublereal* hrt) const
+void StoichSubstance::getEnthalpy_RT(double* hrt) const
 {
     getEnthalpy_RT_ref(hrt);
-    doublereal presCorrect = (m_press - m_p0) / molarDensity();
+    double presCorrect = (m_press - m_p0) / molarDensity();
     hrt[0] += presCorrect / RT();
 }
 
-void StoichSubstance::getEntropy_R(doublereal* sr) const
+void StoichSubstance::getEntropy_R(double* sr) const
 {
     getEntropy_R_ref(sr);
 }
 
-void StoichSubstance::getGibbs_RT(doublereal* grt) const
+void StoichSubstance::getGibbs_RT(double* grt) const
 {
     getEnthalpy_RT(grt);
     grt[0] -= m_s0_R;
 }
 
-void StoichSubstance::getCp_R(doublereal* cpr) const
+void StoichSubstance::getCp_R(double* cpr) const
 {
     _updateThermo();
     cpr[0] = m_cp0_R;
 }
 
-void StoichSubstance::getIntEnergy_RT(doublereal* urt) const
+void StoichSubstance::getIntEnergy_RT(double* urt) const
 {
     _updateThermo();
     urt[0] = m_h0_RT - m_p0 / molarDensity() / RT();
@@ -106,7 +106,7 @@ void StoichSubstance::getIntEnergy_RT(doublereal* urt) const
 
 // ---- Thermodynamic Values for the Species Reference States ----
 
-void StoichSubstance::getIntEnergy_RT_ref(doublereal* urt) const
+void StoichSubstance::getIntEnergy_RT_ref(double* urt) const
 {
     _updateThermo();
     urt[0] = m_h0_RT - m_p0 / molarDensity() / RT();
@@ -150,7 +150,7 @@ void StoichSubstance::initThermo()
     SingleSpeciesTP::initThermo();
 }
 
-void StoichSubstance::getSpeciesParameters(const std::string& name,
+void StoichSubstance::getSpeciesParameters(const string& name,
                                            AnyMap& speciesNode) const
 {
     SingleSpeciesTP::getSpeciesParameters(name, speciesNode);

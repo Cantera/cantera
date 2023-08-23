@@ -76,7 +76,7 @@ Code of Conduct
 
 .. image:: https://img.shields.io/badge/Contributor%20Covenant-2.0-4baaaa.svg
     :alt: conduct
-    :target: https://www.contributor-covenant.org/version/2/0/code-of-conduct.html
+    :target: https://www.contributor-covenant.org/version/2/0/code_of_conduct/
 
 In order to have a more open and welcoming community, Cantera adheres to a
 `code of conduct <CODE_OF_CONDUCT.md>`_ adapted from the `Contributor Covenant
@@ -94,8 +94,8 @@ possible.
 Development Site
 ================
 
-The current development version is 3.0.0b1. The current stable version is
-2.6.0. The `latest Cantera source code <https://github.com/Cantera/cantera>`_,
+The current development version is 3.0.0. The current stable version is
+3.0.0. The `latest Cantera source code <https://github.com/Cantera/cantera>`_,
 the `issue tracker <https://github.com/Cantera/cantera/issues>`_ for bugs and
 enhancement requests, `downloads of Cantera releases and binary installers
 <https://github.com/Cantera/cantera/releases>`_ , and the `Cantera wiki
@@ -134,8 +134,8 @@ development of Cantera through NumFOCUS.
 .. |ci| image:: https://github.com/Cantera/cantera/workflows/CI/badge.svg
     :target: https://github.com/Cantera/cantera/actions?query=workflow%3ACI+event%3Apush
 
-.. |doi| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.6387882.svg
-   :target: https://doi.org/10.5281/zenodo.6387882
+.. |doi| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.8137090.svg
+   :target: https://doi.org/10.5281/zenodo.8137090
 
 .. |codecov| image:: https://img.shields.io/codecov/c/github/Cantera/cantera/main.svg
    :target: https://codecov.io/gh/Cantera/cantera?branch=main

@@ -1,6 +1,6 @@
 /**
  *  @file speciesThermoTypes.h Contains const definitions for types of species
- *       reference-state thermodynamics managers (see \ref spthermo)
+ *       reference-state thermodynamics managers (see @ref spthermo)
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -34,8 +34,6 @@
 
 //! Constant Cp thermo.
 //! This is implemented in ConstCpPoly in constCpPoly.h for one species.
-//! If the whole phase is constcp, SimpleThermo in SimpleThermo.h
-//! implements this for the whole phase.
 #define SIMPLE 32
 
 //! piecewise interpolation of mu0.

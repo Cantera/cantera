@@ -113,7 +113,7 @@ void runexample()
     double tres;
 
     std::ofstream f("combustor_cxx.csv");
-    std::vector<size_t> k_out {
+    vector<size_t> k_out {
         gas->speciesIndex("CH4"),
         gas->speciesIndex("O2"),
         gas->speciesIndex("CO2"),

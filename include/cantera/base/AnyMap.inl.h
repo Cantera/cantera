@@ -8,7 +8,7 @@
 namespace Cantera
 {
 // re-declared to avoid needing to include global.h here
-std::string demangle(const std::type_info& type);
+string demangle(const std::type_info& type);
 
 // Definitions for AnyValue templated functions
 
@@ -31,12 +31,12 @@ const T &AnyValue::as() const {
                    && m_value.type() == typeid(vector<AnyValue>)) {
             // Implicit conversion of vector<AnyValue> to vector<double>
             auto& asAny = as<vector<AnyValue>>();
-            vector_fp asDouble(asAny.size());
+            vector<double> asDouble(asAny.size());
             for (size_t i = 0; i < asAny.size(); i++) {
                 asDouble[i] = asAny[i].as<double>();
             }
             const_cast<AnyValue*>(this)->m_value = std::move(asDouble);
-            m_equals = eq_comparer<std::vector<double>>;
+            m_equals = eq_comparer<vector<double>>;
         }
         return std::any_cast<const T&>(m_value);
     } catch (std::bad_any_cast&) {
@@ -69,11 +69,11 @@ bool AnyValue::is() const {
     return m_value.type() == typeid(T);
 }
 
-template<> bool AnyValue::is<std::vector<double>>() const;
+template<> bool AnyValue::is<vector<double>>() const;
 
 template<class T>
 bool AnyValue::isVector() const {
-    return m_value.type() == typeid(std::vector<T>);
+    return m_value.type() == typeid(vector<T>);
 }
 
 template<class T>
@@ -99,28 +99,28 @@ bool AnyValue::isMatrix(size_t cols) const {
 }
 
 template<class T>
-AnyValue &AnyValue::operator=(const std::vector<T> &value) {
+AnyValue &AnyValue::operator=(const vector<T> &value) {
     m_value = value;
-    m_equals = eq_comparer<std::vector<T>>;
+    m_equals = eq_comparer<vector<T>>;
     return *this;
 }
 
 template<class T>
-const std::vector<T> &AnyValue::asVector(size_t nMin, size_t nMax) const {
-    const auto& v = as<std::vector<T>>();
+const vector<T> &AnyValue::asVector(size_t nMin, size_t nMax) const {
+    const auto& v = as<vector<T>>();
     checkSize(v, nMin, nMax);
     return v;
 }
 
 template<class T>
-std::vector<T> &AnyValue::asVector(size_t nMin, size_t nMax) {
-    auto& v = as<std::vector<T>>();
+vector<T> &AnyValue::asVector(size_t nMin, size_t nMax) {
+    auto& v = as<vector<T>>();
     checkSize(v, nMin, nMax);
     return v;
 }
 
 template<class T>
-AnyValue& AnyValue::operator=(const std::unordered_map<std::string, T> items) {
+AnyValue& AnyValue::operator=(const std::unordered_map<string, T> items) {
     m_value = AnyMap();
     m_equals = eq_comparer<AnyMap>;
     AnyMap& dest = as<AnyMap>();
@@ -131,7 +131,7 @@ AnyValue& AnyValue::operator=(const std::unordered_map<std::string, T> items) {
 }
 
 template<class T>
-AnyValue& AnyValue::operator=(const std::map<std::string, T> items) {
+AnyValue& AnyValue::operator=(const map<string, T> items) {
     m_value = AnyMap();
     m_equals = eq_comparer<AnyMap>;
     AnyMap& dest = as<AnyMap>();
@@ -159,9 +159,9 @@ inline AnyMap& AnyValue::as<AnyMap>() {
 }
 
 template<class T>
-std::map<std::string, T> AnyValue::asMap() const
+map<string, T> AnyValue::asMap() const
 {
-    std::map<std::string, T> dest;
+    map<string, T> dest;
     for (const auto& item : as<AnyMap>()) {
         dest[item.first] = item.second.as<T>();
     }
@@ -169,7 +169,7 @@ std::map<std::string, T> AnyValue::asMap() const
 }
 
 template<class T>
-void AnyValue::checkSize(const std::vector<T>& v, size_t nMin, size_t nMax) const
+void AnyValue::checkSize(const vector<T>& v, size_t nMin, size_t nMax) const
 {
     if (nMin != npos && nMax == npos && v.size() != nMin) {
         throw InputFileError("AnyValue::checkSize", *this,
@@ -198,8 +198,8 @@ bool AnyValue::vector_eq(const std::any& lhs, const std::any& rhs)
 template<class T, class U>
 bool AnyValue::vector2_eq(const std::any& lhs, const std::any& rhs)
 {
-    const auto& lvec = std::any_cast<std::vector<T>>(lhs);
-    const auto& rvec = std::any_cast<std::vector<U>>(rhs);
+    const auto& lvec = std::any_cast<vector<T>>(lhs);
+    const auto& rvec = std::any_cast<vector<U>>(rhs);
     if (lvec.size() != rvec.size()) {
         return false;
     } else {
@@ -219,7 +219,7 @@ bool AnyValue::eq_comparer(const std::any& lhs, const std::any& rhs)
     typedef vector<double> vd;
     typedef vector<long int> vi;
     typedef vector<AnyValue> va;
-    typedef vector<std::string> vs;
+    typedef vector<string> vs;
 
     auto& ltype = lhs.type();
     auto& rtype = rhs.type();

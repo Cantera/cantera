@@ -1,10 +1,10 @@
 //! @file onedim.h
 
-/*!
- * @defgroup onedim One-Dimensional Reacting Flows
+/**
+ * @defgroup onedGroup One-Dimensional Reacting Flows
  *
- * These classes comprise Cantera's ability to solve steady-state one-
- * dimensional reacting flow problems, such as laminar flames, opposed flow
+ * @details These classes comprise %Cantera's ability to solve steady-state
+ * one-dimensional reacting flow problems, such as laminar flames, opposed flow
  * diffusion flames, and stagnation flow chemical vapor deposition.
  */
 

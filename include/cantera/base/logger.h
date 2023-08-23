@@ -1,7 +1,7 @@
 /**
  * @file logger.h
  * Header for Base class for 'loggers' that write text messages to log files
- * (see \ref textlogs and class \link Cantera::Logger Logger\endlink).
+ * (see @ref logGroup and class @link Cantera::Logger Logger@endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -24,7 +24,7 @@ namespace Cantera
 //! output stream or standard error stream, but classes may be derived from
 //! Logger that implement other output options. This is important when Cantera
 //! is used in applications that do not display the standard output, such as
-//! MATLAB. The Cantera MATLAB interface derives a class from Logger that
+//! MATLAB. The %Cantera MATLAB interface derives a class from Logger that
 //! implements these methods with MATLAB-specific procedures, insuring that the
 //! messages will be passed through to the user. It would also be possible to
 //! derive a class that displayed the messages in a pop-up window, or redirected
@@ -35,7 +35,7 @@ namespace Cantera
 //! See the files Cantera/python/src/pylogger.h and
 //! Cantera/matlab/cantera/private/mllogger.h for examples of
 //! deriving logger classes.
-//! @ingroup textlogs
+//! @ingroup logGroup
 //!
 class Logger
 {
@@ -54,7 +54,7 @@ public:
      *
      * @param msg      String message to be written to cout
      */
-    virtual void write(const std::string& msg) {
+    virtual void write(const string& msg) {
         std::cout << msg;
     }
 
@@ -73,7 +73,7 @@ public:
      * @param warning  String specifying type of warning
      * @param msg      String message to be written to cout
      */
-    virtual void warn(const std::string& warning, const std::string& msg) {
+    virtual void warn(const string& warning, const string& msg) {
         std::clog << warning << "Warning: " << msg << std::endl;
     }
 
@@ -82,13 +82,13 @@ public:
      * The default behavior is to write to the standard error stream, and then
      * call exit(). Note that no end-of-line character is appended to the
      * message, and so if one is desired it must be included in the string. Note
-     * that this default behavior will terminate the application Cantera is
+     * that this default behavior will terminate the application %Cantera is
      * invoked from (MATLAB, Excel, etc.) If this is not desired, then derive a
      * class and reimplement this method.
      *
      * @param msg    Error message to be written to cerr.
      */
-    virtual void error(const std::string& msg) {
+    virtual void error(const string& msg) {
         std::cerr << msg << std::endl;
         exit(EXIT_FAILURE);
     }

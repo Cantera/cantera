@@ -66,7 +66,7 @@ void ReactorFactory::deleteFactory() {
     s_factory = 0;
 }
 
-ReactorBase* ReactorFactory::newReactor(const std::string& reactorType)
+ReactorBase* ReactorFactory::newReactor(const string& reactorType)
 {
     warn_deprecated("ReactorFactory::newReactor",
         "To be removed after Cantera 3.0; for new behavior, see 'newReactor3'.");

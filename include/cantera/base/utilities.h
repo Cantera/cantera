@@ -1,17 +1,19 @@
 /**
  *  @file utilities.h
- *  Various templated functions that carry out common vector
- *  operations (see \ref utils).
+ *  Various templated functions that carry out common vector and polynomial operations
+ *  (see @ref mathTemplates).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
 /**
- * @defgroup utils Templated Utility Functions
+ * @defgroup mathTemplates Templated Array and Polynomial Operations
  *
  * These are templates to perform various simple operations on arrays. Note that
  * the compiler will inline these, so using them carries no performance penalty.
+ *
+ * @ingroup numerics
  */
 
 #ifndef CT_UTILITIES_H
@@ -22,32 +24,35 @@
 
 namespace Cantera
 {
+//! @addtogroup mathTemplates
+//! @{
+
 //! Templated Inner product of two vectors of length 4.
 /*!
- * If either \a x or \a y has length greater than 4, only the first 4 elements
+ * If either @e x or @e y has length greater than 4, only the first 4 elements
  * will be used.
  *
  * @param x   first reference to the templated class V
  * @param y   second reference to the templated class V
- * @return This class returns a hard-coded type, doublereal.
+ * @return This class returns a hard-coded type, double.
  */
 template<class V>
-inline doublereal dot4(const V& x, const V& y)
+inline double dot4(const V& x, const V& y)
 {
     return x[0]*y[0] + x[1]*y[1] + x[2]*y[2] + x[3]*y[3];
 }
 
 //! Templated Inner product of two vectors of length 5
 /*!
- * If either \a x or \a y has length greater than 4, only the first 4 elements
+ * If either @e x or @e y has length greater than 4, only the first 4 elements
  * will be used.
  *
  * @param x   first reference to the templated class V
  * @param y   second reference to the templated class V
- * @return This class returns a hard-coded type, doublereal.
+ * @return This class returns a hard-coded type, double.
  */
 template<class V>
-inline doublereal dot5(const V& x, const V& y)
+inline double dot5(const V& x, const V& y)
 {
     return x[0]*y[0] + x[1]*y[1] + x[2]*y[2] + x[3]*y[3] +
            x[4]*y[4];
@@ -56,13 +61,13 @@ inline doublereal dot5(const V& x, const V& y)
 //! Function that calculates a templated inner product.
 /*!
  * This inner product is templated twice. The output variable is hard coded
- * to return a doublereal.
+ * to return a double.
  *
  * template<class InputIter, class InputIter2>
  *
  * @code
  *     double x[8], y[8];
- *     doublereal dsum = dot<double *,double *>(x, &x+7, y);
+ *     double dsum = dot<double *,double *>(x, &x+7, y);
  * @endcode
  *
  * @param x_begin  Iterator pointing to the beginning, belonging to the
@@ -74,18 +79,17 @@ inline doublereal dot5(const V& x, const V& y)
  * @return The return is hard-coded to return a double.
  */
 template<class InputIter, class InputIter2>
-inline doublereal dot(InputIter x_begin, InputIter x_end,
-                      InputIter2 y_begin)
+inline double dot(InputIter x_begin, InputIter x_end, InputIter2 y_begin)
 {
     return std::inner_product(x_begin, x_end, y_begin, 0.0);
 }
 
 //! Multiply elements of an array by a scale factor.
 /*!
- * \code
- * vector_fp in(8, 1.0), out(8);
+ * @code
+ * vector<double> in(8, 1.0), out(8);
  * scale(in.begin(), in.end(), out.begin(), factor);
- * \endcode
+ * @endcode
  *
  * @param begin  Iterator pointing to the beginning, belonging to the
  *               iterator class InputIter.
@@ -163,6 +167,8 @@ R poly3(D x, R* c)
     return (((c[3]*x + c[2])*x + c[1])*x + c[0]);
 }
 
+//! @}
+
 //! Check to see that a number is finite (not NaN, +Inf or -Inf)
 void checkFinite(const double tmp);
 
@@ -173,20 +179,21 @@ void checkFinite(const double tmp);
  * @param values  Array of *N* values to be checked
  * @param N       Number of elements in *values*
  */
-void checkFinite(const std::string& name, double* values, size_t N);
+void checkFinite(const string& name, double* values, size_t N);
 
-//! Const accessor for a value in a std::map.
+//! Const accessor for a value in a map.
 /*
- * Similar to std::map.at(key), but returns *default_val* if the key is not
+ * Similar to map.at(key), but returns *default_val* if the key is not
  * found instead of throwing an exception.
  */
 template <class T, class U>
-const U& getValue(const std::map<T, U>& m, const T& key, const U& default_val) {
-    typename std::map<T,U>::const_iterator iter = m.find(key);
+const U& getValue(const map<T, U>& m, const T& key, const U& default_val) {
+    typename map<T,U>::const_iterator iter = m.find(key);
     return (iter == m.end()) ? default_val : iter->second;
 }
 
 //! Get the size of a container, cast to a signed integer type
+//! @ingroup mathTemplates
 template <class T, class U=int>
 U len(const T& container) {
     return static_cast<U>(container.size());

@@ -1,7 +1,7 @@
 /**
  *  @file EdgePhase.h Declarations for the EdgePhase ThermoPhase object, which
- *       models the interface between two surfaces (see \ref thermoprops and
- *       \link Cantera::EdgePhase EdgePhase\endlink).
+ *       models the interface between two surfaces (see @ref thermoprops and
+ *       @link Cantera::EdgePhase EdgePhase@endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -36,9 +36,9 @@ public:
      * @param id     name of the phase id in the file.
      *               If this is blank, the first phase in the file is used.
      */
-    explicit EdgePhase(const std::string& infile="", const std::string& id="");
+    explicit EdgePhase(const string& infile="", const string& id="");
 
-    virtual std::string type() const {
+    string type() const override {
         return "edge";
     }
 };

@@ -12,7 +12,7 @@ using namespace std;
 
 std::stringstream ss;
 
-void printValue(const std::string& label, double value)
+void printValue(const string& label, double value)
 {
     ss.str("");
     ss.clear();
@@ -22,7 +22,7 @@ void printValue(const std::string& label, double value)
 
 void printRates(InterfaceKinetics& iKin)
 {
-    vector_fp work(iKin.nReactions(), 0.0);
+    vector<double> work(iKin.nReactions(), 0.0);
     iKin.getNetRatesOfProgress(&work[0]);
     printValue("ROP_net       = ", work[0]);
 
@@ -64,7 +64,7 @@ void testProblem()
 
     size_t igco2 = gasTP->speciesIndex("CO2");
 
-    vector_fp work(gasTP->nSpecies(), 0.0);
+    vector<double> work(gasTP->nSpecies(), 0.0);
 
     cout << "*** StoichSolidKinetics Test ***" << endl;
 

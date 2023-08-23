@@ -55,23 +55,44 @@
 * Avoid introducing trailing whitespace
 * Limit line lengths to 88 characters when possible
 * Write comments to explain non-obvious operations
-* Use whitespaces to improve code readability (examples: after commas; before and
-  after mathematical operators (`+`/`-`/`*`/`/` except `^`), binary operators
-  (`&&`/`||`/...), and comparisons (`<`/`>`/`==`/...); before and after equality
-  signs `=` unless used for the assignment of a default parameter)
+* Use whitespaces to improve code readability. Examples: after commas; before and
+  after binary operators (`&&`/`||`/...), and comparisons (`<`/`>`/`==`/...); before and
+  after equality signs `=` unless used for the assignment of a default parameter. For
+  mathematical operators (`+`/`-`/`*`/`/` except `^`), whitespace should be added around
+  the operators with the lowest priority (examples: `x + y + z`, `x*2 - 1`, or
+  `(a+b) * (a-b)`). For additional guidance, refer to
+  [Python PEP-8](https://peps.python.org/pep-0008/#whitespace-in-expressions-and-statements),
+  where recommendations can be extrapolated to other programming languages
 * Do not go out of your way to change formatting in otherwise unmodified code
 * Write 'for example', 'such as', or 'that is' instead of using the Latin
   abbreviations 'i.e.' and 'e.g.'.
 
 ## C++
 
-* All classes, member variables, and methods should have Doxygen-style comments
-  (for example, comment lines starting with `//!` or comment blocks starting with
-  `/*!`; do not use `///` or `/**` in new code)
-* Doxygen-style groupings should bracket code using `//! @{` and `//! @}`
+### Doxygen Comments
+
+* All classes, member variables, and methods should use
+  [Doxygen-style comments](https://www.doxygen.nl/manual/docblocks.html).
+* Comments should provide brief and/or detailed descriptions. For example, comment
+  blocks starting with `/**` or `//!` use the autobrief feature (comments are split into
+  brief and detailed descriptions at the first dot `'.'`). For short comments, the C++
+  style `//!` is preferred; do not use `///` or `/*!` comment styles in new code.
+* [Doxygen commands](https://www.doxygen.nl/manual/commands.html) should use the `@`
+  prefix instead of `\` in order to better differentiate from LaTeX input.
+* Whenever appropriate, classes and functions should be added to
+  [Doxygen groupings](https://www.doxygen.nl/manual/grouping.html) using the `@ingroup`
+  command. Alternatively, entire code sections can be added using the `@addtogroup`
+  command, where grouped classes and functions are bracketed by `@{` and `@}`.
+* If applicable, new features should reference literature using the `@cite` command,
+  with BibTeX-style entries added to `cantera.bib`. Equations can be added using
+  LaTeX input bracketed by `@f[` and `@f]`. In-line math expressions are enclosed by
+  a pair of `@f$` directives, for example `@f$ \sin(x) @f$`.
 * Indicate the version added for new functions and classes with an annotation like
-  `@since New in Cantera X.Y` where `X.Y` is the next Cantera version. This notation
-  should also be used indicate significant changes in behavior.
+  `@since New in %Cantera X.Y` where `X.Y` is the next Cantera version. This notation
+  should also be used to indicate significant changes in behavior.
+
+### Style Guide
+
 * Avoid defining non-trivial functions in header files
 * Header files should include an 'include guard'
 * Protected and private member variable names are generally prefixed with
@@ -81,9 +102,14 @@
 * Do not indent the contents of namespaces
 * Code should follow the C++17 standard, with minimum required compiler versions
   GCC 7.0, Clang 4.0, MSVC 14.14 (Visual Studio 2017 version 15.7) and Intel 19.0.
+* Cantera moves frequently used C++ standard namespace types and functions into the
+  declarative region, meaning that the `std` scope resolution can be omitted. This
+  applies to the following: `string`, `vector`, `map`, `set`, `pair`, `shared_ptr`,
+  `make_shared`, `unique_ptr`, `make_unique` and `function`. Example: use `string`
+  instead of `std::string`; a `using namespace std;` declaration is not required.
 * Avoid manual memory management (that is, `new` and `delete`), preferring to use
-  standard library containers, as well as `std::unique_ptr` and
-  `std::shared_ptr` when dynamic allocation is required.
+  standard library containers, as well as `unique_ptr` and `shared_ptr` when dynamic
+  allocation is required.
 * Portions of Boost which are "header only" may be used. If possible, include
   Boost header files only within .cpp files rather than other header files to
   avoid unnecessary increases in compilation time. Boost should not be added
@@ -102,13 +128,26 @@
 
 ## Python
 
+### Sphinx comments
+
+* Cantera Python documentation is based on the Python documentation generator
+  [Sphinx](https://www.sphinx-doc.org/en/master/index.html)
+* All classes, member variables, and methods should include
+  [Python docstrings](https://peps.python.org/pep-0257/#what-is-a-docstring)
+* Docstrings should use annotations compatible with
+  [automatic documentation generation from code](https://www.sphinx-doc.org/en/master/tutorial/automatic-doc-generation.html).
+  For guidance, refer to existing Cantera documentation or online tutorials (see
+  [example](https://sphinx-rtd-tutorial.readthedocs.io/en/latest/docstrings.html))
+* Indicate the version added for new functions and classes with an annotation like
+  `.. versionadded:: X.Y` where `X.Y` is the next Cantera version. Significant changes
+  in behavior should be indicated with `.. versionchanged:: X.Y`.
+
+### Style Guide
+
 * Style generally follows PEP8 (https://www.python.org/dev/peps/pep-0008/)
 * Code in `.py` and `.pyx` files needs to be written to work with Python 3
 * The minimum Python version that Cantera supports is Python 3.8, so code should only
   use features added in Python 3.8 or earlier
-* Indicate the version added for new functions and classes with an annotation like
-  `.. versionadded:: X.Y` where `X.Y` is the next Cantera version. Significant changes
-  in behavior should be indicated with `.. versionchanged:: X.Y`.
 * Please use double quotes in all new Python code
 
 ## C#

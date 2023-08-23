@@ -59,7 +59,7 @@ void DustyGasTransport::updateBinaryDiffCoeffs()
 
     // get the gaseous binary diffusion coefficients
     m_gastran->getBinaryDiffCoeffs(m_nsp, m_d.ptrColumn(0));
-    doublereal por2tort = m_porosity / m_tortuosity;
+    double por2tort = m_porosity / m_tortuosity;
     for (size_t n = 0; n < m_nsp; n++) {
         for (size_t m = 0; m < m_nsp; m++) {
             m_d(n,m) *= por2tort;
@@ -73,7 +73,7 @@ void DustyGasTransport::updateKnudsenDiffCoeffs()
     if (m_knudsen_ok) {
         return;
     }
-    doublereal K_g = m_pore_radius * m_porosity / m_tortuosity;
+    double K_g = m_pore_radius * m_porosity / m_tortuosity;
     for (size_t k = 0; k < m_nsp; k++) {
         m_dk[k] = 2.0/3.0 * K_g * sqrt((8.0 * GasConstant * m_temp)/
                                          (Pi * m_mw[k]));
@@ -102,21 +102,21 @@ void DustyGasTransport::eval_H_matrix()
     }
 }
 
-void DustyGasTransport::getMolarFluxes(const doublereal* const state1,
-                                       const doublereal* const state2,
-                                       const doublereal delta,
-                                       doublereal* const fluxes)
+void DustyGasTransport::getMolarFluxes(const double* const state1,
+                                       const double* const state2,
+                                       const double delta,
+                                       double* const fluxes)
 {
     // cbar will be the average concentration between the two points
-    doublereal* const cbar = m_spwork.data();
-    doublereal* const gradc = m_spwork2.data();
-    const doublereal t1 = state1[0];
-    const doublereal t2 = state2[0];
-    const doublereal rho1 = state1[1];
-    const doublereal rho2 = state2[1];
-    const doublereal* const y1 = state1 + 2;
-    const doublereal* const y2 = state2 + 2;
-    doublereal c1sum = 0.0, c2sum = 0.0;
+    double* const cbar = m_spwork.data();
+    double* const gradc = m_spwork2.data();
+    const double t1 = state1[0];
+    const double t2 = state2[0];
+    const double rho1 = state1[1];
+    const double rho2 = state2[1];
+    const double* const y1 = state1 + 2;
+    const double* const y2 = state2 + 2;
+    double c1sum = 0.0, c2sum = 0.0;
 
     for (size_t k = 0; k < m_nsp; k++) {
         double conc1 = rho1 * y1[k] / m_mw[k];
@@ -128,11 +128,11 @@ void DustyGasTransport::getMolarFluxes(const doublereal* const state1,
     }
 
     // Calculate the pressures at p1 p2 and pbar
-    doublereal p1 = c1sum * GasConstant * t1;
-    doublereal p2 = c2sum * GasConstant * t2;
-    doublereal pbar = 0.5*(p1 + p2);
-    doublereal gradp = (p2 - p1)/delta;
-    doublereal tbar = 0.5*(t1 + t2);
+    double p1 = c1sum * GasConstant * t1;
+    double p2 = c2sum * GasConstant * t2;
+    double pbar = 0.5*(p1 + p2);
+    double gradp = (p2 - p1)/delta;
+    double tbar = 0.5*(t1 + t2);
     m_thermo->setState_TPX(tbar, pbar, cbar);
     updateMultiDiffCoeffs();
 
@@ -178,7 +178,7 @@ void DustyGasTransport::updateMultiDiffCoeffs()
     }
 }
 
-void DustyGasTransport::getMultiDiffCoeffs(const size_t ld, doublereal* const d)
+void DustyGasTransport::getMultiDiffCoeffs(const size_t ld, double* const d)
 {
     updateMultiDiffCoeffs();
     for (size_t i = 0; i < m_nsp; i++) {
@@ -211,32 +211,32 @@ void DustyGasTransport::updateTransport_C()
     m_bulk_ok = false;
 }
 
-void DustyGasTransport::setPorosity(doublereal porosity)
+void DustyGasTransport::setPorosity(double porosity)
 {
     m_porosity = porosity;
     m_knudsen_ok = false;
     m_bulk_ok = false;
 }
 
-void DustyGasTransport::setTortuosity(doublereal tort)
+void DustyGasTransport::setTortuosity(double tort)
 {
     m_tortuosity = tort;
     m_knudsen_ok = false;
     m_bulk_ok = false;
 }
 
-void DustyGasTransport::setMeanPoreRadius(doublereal rbar)
+void DustyGasTransport::setMeanPoreRadius(double rbar)
 {
     m_pore_radius = rbar;
     m_knudsen_ok = false;
 }
 
-void DustyGasTransport::setMeanParticleDiameter(doublereal dbar)
+void DustyGasTransport::setMeanParticleDiameter(double dbar)
 {
     m_diam = dbar;
 }
 
-void DustyGasTransport::setPermeability(doublereal B)
+void DustyGasTransport::setPermeability(double B)
 {
     m_perm = B;
 }

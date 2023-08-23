@@ -91,8 +91,8 @@ TEST_F(TransportFromScratch, mixDiffCoeffs)
     trTest.init(test.get());
 
     size_t K = ref->nSpecies();
-    vector_fp Dref(3);
-    vector_fp Dtest(3);
+    vector<double> Dref(3);
+    vector<double> Dtest(3);
     ref->setState_TPX(400, 5e5, "H2:0.5, O2:0.3, H2O:0.2");
     test->setState_TPX(400, 5e5, "H2:0.5, O2:0.3, H2O:0.2");
     trRef->getMixDiffCoeffs(&Dref[0]);

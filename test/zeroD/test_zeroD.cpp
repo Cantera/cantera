@@ -27,12 +27,10 @@ TEST(zerodim, simple)
     network.initialize();
 
     double t = 0.0;
-    int count = 0;
     while (t < 0.1) {
         ASSERT_GE(cppReactor.temperature(), T);
         t = network.time() + 5e-3;
         network.advance(t);
-        count++;
     }
 }
 
@@ -45,9 +43,9 @@ TEST(zerodim, test_individual_reactor_initialization)
     double T0 = 1100.0;
     double P0 = 10 * OneAtm;
     double tol = 1e-7;
-    std::string X0 = "H2:1.0, O2:0.5, AR:8.0";
+    string X0 = "H2:1.0, O2:0.5, AR:8.0";
     // reactor solution, phase, and kinetics objects
-    std::shared_ptr<Solution> sol1 = newSolution("h2o2.yaml");
+    shared_ptr<Solution> sol1 = newSolution("h2o2.yaml");
     sol1->thermo()->setState_TPX(T0, P0, X0);
     // set up reactor object
     Reactor reactor1;
@@ -60,7 +58,7 @@ TEST(zerodim, test_individual_reactor_initialization)
     network.initialize();
     network.advance(1.0);
     // secondary gas for comparison
-    std::shared_ptr<Solution> sol2 = newSolution("h2o2.yaml");
+    shared_ptr<Solution> sol2 = newSolution("h2o2.yaml");
     sol2->thermo()->setState_TPX(T0, P0, X0);
     sol2->thermo()->equilibrate("UV");
     // secondary reactor for comparison
@@ -68,8 +66,8 @@ TEST(zerodim, test_individual_reactor_initialization)
     reactor2.insert(sol2);
     reactor2.initialize(0.0);
     // get state of reactors
-    vector_fp state1(reactor1.neq());
-    vector_fp state2(reactor2.neq());
+    vector<double> state1(reactor1.neq());
+    vector<double> state2(reactor2.neq());
     reactor1.getState(state1.data());
     reactor2.getState(state2.data());
     // compare the reactors.
@@ -90,10 +88,10 @@ TEST(MoleReactorTestSet, test_mole_reactor_get_state)
     reactor.setInitialVolume(0.5);
     reactor.setEnergy(false);
     reactor.initialize();
-    vector_fp state(reactor.neq());
+    vector<double> state(reactor.neq());
     // test get state
     const ThermoPhase& thermo = reactor.contents();
-    const vector_fp& imw = thermo.inverseMolecularWeights();
+    const vector<double>& imw = thermo.inverseMolecularWeights();
     // prescribed state
     double mass = reactor.volume() * thermo.density();
     size_t H2I = reactor.componentIndex("H2")-1;
@@ -133,8 +131,8 @@ TEST(AdaptivePreconditionerTests, test_adaptive_precon_utils)
     identity.setIdentity();
     EXPECT_TRUE(precon.matrix().isApprox(identity));
     // test solve
-    vector_fp output(testSize, 0);
-    vector_fp rhs_vector(testSize, 10);
+    vector<double> output(testSize, 0);
+    vector<double> rhs_vector(testSize, 10);
     precon.solve(testSize, rhs_vector.data(), output.data());
     for (size_t i = 0; i < testSize; i++) {
         EXPECT_NEAR(rhs_vector[i], output[i], tol);
@@ -172,7 +170,7 @@ TEST(AdaptivePreconditionerTests, test_precon_solver_stats)
     ReactorNet network;
     network.addReactor(reactor);
     // setup preconditioner
-    std::shared_ptr<PreconditionerBase> precon_ptr = newPreconditioner("Adaptive");
+    shared_ptr<PreconditionerBase> precon_ptr = newPreconditioner("Adaptive");
     network.setPreconditioner(precon_ptr);
     EXPECT_THROW(network.step(), CanteraError);
     // take a step

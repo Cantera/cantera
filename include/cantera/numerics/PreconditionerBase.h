@@ -46,16 +46,16 @@ public:
     //! preconditioning uses a strictly positive composition when preconditioning which
     //! is handled by this function
     //! @param state a vector containing the state to be updated
-    virtual void stateAdjustment(vector_fp& state) {
+    virtual void stateAdjustment(vector<double>& state) {
         throw NotImplementedError("PreconditionerBase::stateAdjustment");
     }
 
     //! Get preconditioner application side for CVODES
-    std::string preconditionerSide() const {
+    string preconditionerSide() const {
         return m_precon_side;
     }
 
-    virtual void setPreconditionerSide(const std::string& preconSide) {
+    virtual void setPreconditionerSide(const string& preconSide) {
         m_precon_side = preconSide;
     }
 
@@ -125,7 +125,7 @@ protected:
     //! Absolute tolerance of the ODE solver
     double m_atol = 0;
 
-    std::string m_precon_side = "none";
+    string m_precon_side = "none";
 };
 
 }

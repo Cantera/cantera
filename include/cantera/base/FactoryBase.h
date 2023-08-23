@@ -57,7 +57,7 @@ protected:
 
 private:
     //! statically held list of Factories.
-    static std::vector<FactoryBase*> s_vFactoryRegistry;
+    static vector<FactoryBase*> s_vFactoryRegistry;
 };
 
 //! Factory class that supports registering functions to create objects
@@ -72,17 +72,17 @@ public:
 
     //! Create an object using the object construction function corresponding to
     //! "name" and the provided constructor arguments
-    T* create(const std::string& name, Args... args) {
+    T* create(const string& name, Args... args) {
         return m_creators.at(canonicalize(name))(args...);
     }
 
     //! Register a new object construction function
-    void reg(const std::string& name, std::function<T*(Args...)> f) {
+    void reg(const string& name, function<T*(Args...)> f) {
         m_creators[name] = f;
     }
 
     //! Add an alias for an existing registered type
-    void addAlias(const std::string& original, const std::string& alias) {
+    void addAlias(const string& original, const string& alias) {
         if (!m_creators.count(original)) {
             throw CanteraError("Factory::addAlias",
                 "Name '{}' not registered", original);
@@ -91,7 +91,7 @@ public:
     }
 
     //! Get the canonical name registered for a type
-    std::string canonicalize(const std::string& name) {
+    string canonicalize(const string& name) {
         if (m_creators.count(name)) {
             return name;
         } else if (m_synonyms.count(name)) {
@@ -107,14 +107,14 @@ public:
     }
 
     //! Returns true if `name` is registered with this factory
-    bool exists(const std::string& name) const {
+    bool exists(const string& name) const {
         return m_creators.count(name) || m_synonyms.count(name);
     }
 
 protected:
     //! Add a deprecated alias for an existing registered type
-    void addDeprecatedAlias(const std::string& original,
-                            const std::string& alias) {
+    void addDeprecatedAlias(const string& original,
+                            const string& alias) {
         if (!m_creators.count(original)) {
             throw CanteraError("Factory::addDeprecatedAlias",
                 "Name '{}' not registered", original);
@@ -123,14 +123,14 @@ protected:
     }
 
 private:
-    std::unordered_map<std::string, std::function<T*(Args...)>> m_creators;
+    std::unordered_map<string, function<T*(Args...)>> m_creators;
 
     //! Map of synonyms to canonical names
-    std::unordered_map<std::string, std::string> m_synonyms;
+    std::unordered_map<string, string> m_synonyms;
 
     //! Map of deprecated synonyms to canonical names. Use of these names will
     //! show a deprecation warning.
-    std::unordered_map<std::string, std::string> m_deprecated_names;
+    std::unordered_map<string, string> m_deprecated_names;
 };
 
 }

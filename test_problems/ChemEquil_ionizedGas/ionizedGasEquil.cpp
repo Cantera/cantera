@@ -15,7 +15,7 @@ int main(int argc, char** argv)
         auto sol = newSolution("air_below6000K.yaml");
         auto gas = sol->thermo();
 
-        vector_fp IndVar2(6, 0.0);
+        vector<double> IndVar2(6, 0.0);
         IndVar2[0] = 1.5E5;
         IndVar2[1] = 3.0E5;
         IndVar2[2] = 9.0E5;
@@ -23,7 +23,7 @@ int main(int argc, char** argv)
         IndVar2[4] = 6.7E6;
         IndVar2[5] = 1.0E7;
 
-        vector_fp IndVar1(7, 0.0);
+        vector<double> IndVar1(7, 0.0);
         IndVar1[0] = 1.0E-8;
         IndVar1[1] = 1.0E-7;
         IndVar1[2] = 1.0E-6;
@@ -35,8 +35,8 @@ int main(int argc, char** argv)
         int ni = 7;
         FILE* FF = fopen("table.csv","w");
         size_t kk = gas->nSpecies();
-        vector_fp Xmol(kk, 0.0);
-        const std::vector<string> &snames = gas->speciesNames();
+        vector<double> Xmol(kk, 0.0);
+        const vector<string> &snames = gas->speciesNames();
         fprintf(FF,"Temperature,  Pressure,");
         for (size_t k = 0; k < kk; k++) {
             fprintf(FF, "%11s", snames[k].c_str());

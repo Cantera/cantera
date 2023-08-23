@@ -11,11 +11,11 @@
 namespace Cantera
 {
 
-/*!
+/**
  * Multiphase chemical equilibrium solver. Class MultiPhaseEquil is designed
  * to be used to set a mixture containing one or more phases to a state of
  * chemical equilibrium. It implements the VCS algorithm, described in Smith
- * and Missen, "Chemical Reaction Equilibrium."
+ * and Missen @cite smith1982.
  *
  * This class only handles chemical equilibrium at a specified temperature and
  * pressure. To compute equilibrium holding other properties fixed, it is
@@ -27,7 +27,7 @@ namespace Cantera
  * method of class MultiPhase, although there is no reason it cannot be used
  * directly in application programs if desired.
  *
- * @ingroup equil
+ * @ingroup equilGroup
  */
 class MultiPhaseEquil
 {
@@ -51,7 +51,7 @@ public:
         }
     }
 
-    void getStoichVector(size_t rxn, vector_fp& nu) {
+    void getStoichVector(size_t rxn, vector<double>& nu) {
         nu.resize(m_nsp, 0.0);
         if (rxn > nFree()) {
             return;
@@ -65,11 +65,11 @@ public:
         return m_iter;
     }
 
-    doublereal equilibrate(int XY, doublereal err = 1.0e-9,
-                           int maxsteps = 1000, int loglevel=-99);
-    doublereal error();
+    double equilibrate(int XY, double err = 1.0e-9,
+                       int maxsteps = 1000, int loglevel=-99);
+    double error();
 
-    std::string reactionString(size_t j) {
+    string reactionString(size_t j) {
         return "";
     }
     void setInitialMixMoles(int loglevel = 0) {
@@ -81,7 +81,7 @@ public:
         return m_species[m_order[n]];
     }
 
-    void reportCSV(const std::string& reportFile);
+    void reportCSV(const string& reportFile);
 
     double phaseMoles(size_t iph) const;
 
@@ -91,12 +91,12 @@ protected:
     //! In most cases, many different component sets are possible, and
     //! therefore neither the components returned by this method nor the
     //! formation reactions are unique. The algorithm used here is described
-    //! in Smith and Missen, Chemical Reaction Equilibrium Analysis.
+    //! in Smith and Missen @cite smith1982.
     //!
     //! The component species are taken to be the first M species in array
     //! 'species' that have linearly-independent compositions.
     //!
-    //! @param order On entry, vector \a order should contain species index
+    //! @param order On entry, vector @e order should contain species index
     //!     numbers in the order of decreasing desirability as a component.
     //!     For example, if it is desired to choose the components from among
     //!     the major species, this array might list species index numbers in
@@ -104,12 +104,12 @@ protected:
     //!     have length = nSpecies(), then the species will be considered as
     //!     candidates to be components in declaration order, beginning with
     //!     the first phase added.
-    void getComponents(const std::vector<size_t>& order);
+    void getComponents(const vector<size_t>& order);
 
     //! Estimate the initial mole numbers. This is done by running each
     //! reaction as far forward or backward as possible, subject to the
     //! constraint that all mole numbers remain non-negative. Reactions for
-    //! which \f$ \Delta \mu^0 \f$ are positive are run in reverse, and ones
+    //! which @f$ \Delta \mu^0 @f$ are positive are run in reverse, and ones
     //! for which it is negative are run in the forward direction. The end
     //! result is equivalent to solving the linear programming problem of
     //! minimizing the linear Gibbs function subject to the element and non-
@@ -120,16 +120,16 @@ protected:
 
     //! Take one step in composition, given the gradient of G at the starting
     //! point, and a vector of reaction steps dxi.
-    doublereal stepComposition(int loglevel = 0);
+    double stepComposition(int loglevel = 0);
 
     //! Re-arrange a vector of species properties in sorted form
     //! (components first) into unsorted, sequential form.
-    void unsort(vector_fp& x);
+    void unsort(vector<double>& x);
 
-    void step(doublereal omega, vector_fp& deltaN, int loglevel = 0);
+    void step(double omega, vector<double>& deltaN, int loglevel = 0);
 
     //! Compute the change in extent of reaction for each reaction.
-    doublereal computeReactionSteps(vector_fp& dxi);
+    double computeReactionSteps(vector<double>& dxi);
 
     void updateMixMoles();
 
@@ -151,10 +151,10 @@ protected:
     bool isStoichPhase(size_t n) const {
         return (m_dsoln[m_order[n]] == 0);
     }
-    doublereal mu(size_t n) const {
+    double mu(size_t n) const {
         return m_mu[m_species[m_order[n]]];
     }
-    std::string speciesName(size_t n) const {
+    string speciesName(size_t n) const {
         return
             m_mix->speciesName(m_species[m_order[n]]);
     }
@@ -170,23 +170,23 @@ protected:
     size_t m_eloc = 1000;
     int m_iter;
     MultiPhase* m_mix;
-    doublereal m_press, m_temp;
-    std::vector<size_t> m_order;
+    double m_press, m_temp;
+    vector<size_t> m_order;
     DenseMatrix m_N, m_A;
-    vector_fp m_work, m_work2, m_work3;
-    vector_fp m_moles, m_lastmoles, m_dxi;
-    vector_fp m_deltaG_RT, m_mu;
-    std::vector<bool> m_majorsp;
-    std::vector<size_t> m_sortindex;
-    vector_int m_lastsort;
-    vector_int m_dsoln;
-    vector_int m_incl_element, m_incl_species;
+    vector<double> m_work, m_work2, m_work3;
+    vector<double> m_moles, m_lastmoles, m_dxi;
+    vector<double> m_deltaG_RT, m_mu;
+    vector<bool> m_majorsp;
+    vector<size_t> m_sortindex;
+    vector<int> m_lastsort;
+    vector<int> m_dsoln;
+    vector<int> m_incl_element, m_incl_species;
 
     // Vector of indices for species that are included in the calculation.
     // This is used to exclude pure-phase species with invalid thermo data
-    std::vector<size_t> m_species;
-    std::vector<size_t> m_element;
-    std::vector<bool> m_solnrxn;
+    vector<size_t> m_species;
+    vector<size_t> m_element;
+    vector<bool> m_solnrxn;
     bool m_force = true;
 };
 

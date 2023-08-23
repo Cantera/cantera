@@ -17,9 +17,8 @@ namespace Cantera
 //! Class MultiTransport implements multicomponent transport properties for
 //! ideal gas mixtures.
 /*!
- * The implementation generally follows the procedure outlined in: R. J. Kee, M.
- * J. Coltrin, and P. Glarborg, "Chemically Reacting Flow: Theory & Practice",
- * John Wiley & Sons, 2003.
+ * The implementation generally follows the procedure outlined in Kee, et al.
+ * @cite kee2003.
  *
  * @ingroup tranprops
  */
@@ -32,25 +31,25 @@ public:
      */
     MultiTransport(ThermoPhase* thermo=0);
 
-    virtual std::string transportModel() const {
+    string transportModel() const override {
         return (m_mode == CK_Mode) ? "multicomponent-CK" : "multicomponent";
     }
 
     //! Return the thermal diffusion coefficients (kg/m/s)
     /*!
-     * Eqn. (12.126) displays how they are calculated. The reference work is
-     * from Dixon-Lewis.
+     * Eqn. (12.126) of Kee et al. @cite kee2003 displays how they are calculated. The
+     * reference work is from Dixon-Lewis @cite dixon-lewis1968.
      *
-     * Eqns. (12.168) shows how they are used in an expression for the species
-     * flux.
+     * Eqns. (12.168) of Kee et al. @cite kee2003 shows how they are used in an
+     * expression for the species flux.
      *
      * @param dt  Vector of thermal diffusion coefficients. Units = kg/m/s
      */
-    virtual void getThermalDiffCoeffs(doublereal* const dt);
+    void getThermalDiffCoeffs(double* const dt) override;
 
-    virtual doublereal thermalConductivity();
+    double thermalConductivity() override;
 
-    virtual void getMultiDiffCoeffs(const size_t ld, doublereal* const d);
+    void getMultiDiffCoeffs(const size_t ld, double* const d) override;
 
     //! Get the species diffusive mass fluxes wrt to the mass averaged velocity,
     //! given the gradients in mole fraction and temperature
@@ -68,9 +67,9 @@ public:
      * @param fluxes   Output of the diffusive mass fluxes. Flat vector with the
      *                 m_nsp in the inner loop. length = ldx * ndim
      */
-    virtual void getSpeciesFluxes(size_t ndim, const doublereal* const grad_T,
-                                  size_t ldx, const doublereal* const grad_X,
-                                  size_t ldf, doublereal* const fluxes);
+    void getSpeciesFluxes(size_t ndim, const double* const grad_T,
+                          size_t ldx, const double* const grad_X,
+                          size_t ldf, double* const fluxes) override;
 
     //! Get the molar diffusional fluxes [kmol/m^2/s] of the species, given the
     //! thermodynamic state at two nearby points.
@@ -85,10 +84,8 @@ public:
      * @param delta  Distance from state 1 to state 2 (m).
      * @param fluxes Output molar fluxes of the species. (length = m_nsp)
      */
-    virtual void getMolarFluxes(const doublereal* const state1,
-                                const doublereal* const state2,
-                                const doublereal delta,
-                                doublereal* const fluxes);
+    void getMolarFluxes(const double* const state1, const double* const state2,
+                        const double delta, double* const fluxes) override;
 
     //! Get the mass diffusional fluxes [kg/m^2/s] of the species, given the
     //! thermodynamic state at two nearby points.
@@ -103,26 +100,25 @@ public:
      * @param delta  Distance from state 1 to state 2 (m).
      * @param fluxes Output mass fluxes of the species. (length = m_nsp)
      */
-    virtual void getMassFluxes(const doublereal* state1,
-                               const doublereal* state2, doublereal delta,
-                               doublereal* fluxes);
+    void getMassFluxes(const double* state1, const double* state2, double delta,
+                       double* fluxes) override;
 
-    virtual void init(ThermoPhase* thermo, int mode=0, int log_level=0);
+    void init(ThermoPhase* thermo, int mode=0, int log_level=0) override;
 
 protected:
     //! Update basic temperature-dependent quantities if the temperature has
     //! changed.
-    void update_T();
+    void update_T() override;
 
     //! Update basic concentration-dependent quantities if the concentrations
     //! have changed.
-    void update_C();
+    void update_C() override;
 
     //! Update the temperature-dependent terms needed to compute the thermal
     //! conductivity and thermal diffusion coefficients.
     void updateThermal_T();
 
-    doublereal m_thermal_tlast;
+    double m_thermal_tlast;
 
     //! Dense matrix for astar
     DenseMatrix m_astar;
@@ -133,28 +129,26 @@ protected:
     //! Dense matrix for cstar
     DenseMatrix m_cstar;
 
-    vector_fp m_cinternal;
+    vector<double> m_cinternal;
 
-    vector_fp m_sqrt_eps_k;
+    vector<double> m_sqrt_eps_k;
     DenseMatrix m_log_eps_k;
-    vector_fp m_frot_298;
-    vector_fp m_rotrelax;
+    vector<double> m_frot_298;
+    vector<double> m_rotrelax;
 
-    doublereal m_lambda;
+    double m_lambda;
 
     // L matrix quantities
     DenseMatrix m_Lmatrix;
     DenseMatrix m_aa;
-    vector_fp m_a;
-    vector_fp m_b;
+    vector<double> m_a;
+    vector<double> m_b;
 
     // work space
-    vector_fp m_spwork1, m_spwork2, m_spwork3;
+    vector<double> m_spwork1, m_spwork2, m_spwork3;
 
     //! Mole fraction vector from last L-matrix evaluation
-    vector_fp m_molefracs_last;
-
-    void correctBinDiffCoeffs();
+    vector<double> m_molefracs_last;
 
     //! Boolean indicating viscosity is up to date
     bool m_l0000_ok;
@@ -165,23 +159,23 @@ protected:
      *  Evaluate the upper-left block of the L matrix.
      *  @param x vector of species mole fractions
      */
-    void eval_L0000(const doublereal* const x);
+    void eval_L0000(const double* const x);
 
     //! Evaluate the L0010 matrices
     /*!
      *  @param x vector of species mole fractions
      */
-    void eval_L0010(const doublereal* const x);
+    void eval_L0010(const double* const x);
 
     //! Evaluate the L1000 matrices
     void eval_L1000();
 
     void eval_L0100();
     void eval_L0001();
-    void eval_L1010(const doublereal* x);
-    void eval_L1001(const doublereal* x);
+    void eval_L1010(const double* x);
+    void eval_L1001(const double* x);
     void eval_L0110();
-    void eval_L0101(const doublereal* x);
+    void eval_L0101(const double* x);
     bool hasInternalModes(size_t j);
 
     double pressure_ig();

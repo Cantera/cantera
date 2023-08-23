@@ -20,14 +20,14 @@ The fields common to all ``reaction`` entries are:
     A string specifying the type of reaction or rate coefficient
     parameterization. The default is ``elementary``. Reaction types are:
 
-    - :ref:`elementary <sec-yaml-elementary>`
-    - :ref:`three-body <sec-yaml-three-body>`
-    - :ref:`Blowers-Masel <sec-yaml-Blowers-Masel>`
-    - :ref:`two-temperature-plasma <sec-yaml-two-temperature-plasma>`
-    - :ref:`falloff <sec-yaml-falloff>`
-    - :ref:`chemically-activated <sec-yaml-chemically-activated>`
-    - :ref:`pressure-dependent-Arrhenius <sec-yaml-pressure-dependent-Arrhenius>`
-    - :ref:`Chebyshev <sec-yaml-Chebyshev>`
+    - ``elementary`` (:ref:`details <sec-yaml-elementary>`)
+    - ``three-body`` (:ref:`details <sec-yaml-three-body>`)
+    - ``Blowers-Masel`` (:ref:`details <sec-yaml-Blowers-Masel>`)
+    - ``two-temperature-plasma`` (:ref:`details <sec-yaml-two-temperature-plasma>`)
+    - ``falloff`` (:ref:`details <sec-yaml-falloff>`)
+    - ``chemically-activated`` (:ref:`details <sec-yaml-chemically-activated>`)
+    - ``pressure-dependent-Arrhenius`` (:ref:`details <sec-yaml-pressure-dependent-Arrhenius>`)
+    - ``Chebyshev`` (:ref:`details <sec-yaml-Chebyshev>`)
 
     Reactions without a specified ``type`` on surfaces or edges are
     automatically treated as :ref:`interface-Arrhenius <sec-yaml-interface-Arrhenius>`
@@ -209,7 +209,7 @@ Example::
 ``Blowers-Masel``
 -----------------
 
-Includes the fields of an :ref:`elemntary <sec-yaml-elementary>` reaction, except that
+Includes the fields of an :ref:`elementary <sec-yaml-elementary>` reaction, except that
 the ``rate-constant`` field is a
 :ref:`Blowers-Masel-type <sec-yaml-Blowers-Masel-rate>` list or mapping.
 
@@ -488,8 +488,7 @@ Example::
 ``electrochemical``
 -------------------
 
-Interface reactions involving charge transfer between phases,
-as `described here <https://cantera.org/documentation/dev/doxygen/html/d6/ddd/classCantera_1_1ElectrochemicalReaction.html#details>`__.
+Interface reactions involving charge transfer between phases.
 
 Includes the fields of an :ref:`sec-yaml-interface-Arrhenius` reaction, plus:
 

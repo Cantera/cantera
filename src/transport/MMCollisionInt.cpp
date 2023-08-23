@@ -19,7 +19,7 @@ double MMCollisionInt::delta[8] = {0.0, 0.25, 0.50, 0.75, 1.0,
                                    1.5, 2.0, 2.5
                                   };
 
-doublereal quadInterp(doublereal x0, doublereal* x, doublereal* y)
+double quadInterp(double x0, double* x, double* y)
 {
     double dx21 = x[1] - x[0];
     double dx32 = x[2] - x[1];
@@ -213,7 +213,7 @@ double MMCollisionInt::cstar_table[39*8] = {
     0.94444, 0.94444,0.94444,0.94444,0.94444,0.94444,0.94444,0.94444
 };
 
-void MMCollisionInt::init(doublereal tsmin, doublereal tsmax, int log_level)
+void MMCollisionInt::init(double tsmin, double tsmax, int log_level)
 {
     m_loglevel = log_level;
     debuglog("Collision Integral Polynomial Fits\n", m_loglevel > 0);
@@ -237,7 +237,7 @@ void MMCollisionInt::init(doublereal tsmin, doublereal tsmax, int log_level)
         writelogf("T*_max = %g\n", tstar[m_nmax + 1]);
     }
     m_logTemp.resize(37);
-    doublereal e22 = 0.0, ea = 0.0, eb = 0.0, ec = 0.0;
+    double e22 = 0.0, ea = 0.0, eb = 0.0, ec = 0.0;
 
     if (m_loglevel > 0) {
         writelog("Collision integral fits at each tabulated T* vs. delta*.\n"
@@ -251,7 +251,7 @@ void MMCollisionInt::init(doublereal tsmin, doublereal tsmax, int log_level)
 
     for (int i = 0; i < 37; i++) {
         m_logTemp[i] = log(tstar[i+1]);
-        vector_fp c(DeltaDegree+1);
+        vector<double> c(DeltaDegree+1);
 
         double rmserr = fitDelta(0, i, DeltaDegree, c.data());
         if (log_level > 3) {
@@ -292,10 +292,10 @@ void MMCollisionInt::init(doublereal tsmin, doublereal tsmax, int log_level)
     }
 }
 
-doublereal MMCollisionInt::fitDelta(int table, int ntstar, int degree, doublereal* c)
+double MMCollisionInt::fitDelta(int table, int ntstar, int degree, double* c)
 {
-    vector_fp w(8);
-    doublereal* begin = 0;
+    vector<double> w(8);
+    double* begin = 0;
     switch (table) {
     case 0:
         begin = omega22_table + 8*ntstar;
@@ -316,7 +316,7 @@ doublereal MMCollisionInt::fitDelta(int table, int ntstar, int degree, doublerea
     return polyfit(8, degree, delta, begin, w.data(), c);
 }
 
-doublereal MMCollisionInt::omega22(double ts, double deltastar)
+double MMCollisionInt::omega22(double ts, double deltastar)
 {
     int i;
     for (i = 0; i < 37; i++) {
@@ -330,7 +330,7 @@ doublereal MMCollisionInt::omega22(double ts, double deltastar)
         i2 = 36;
         i1 = i2 - 3;
     }
-    vector_fp values(3);
+    vector<double> values(3);
     for (i = i1; i < i2; i++) {
         if (deltastar == 0.0) {
             values[i-i1] = omega22_table[8*i];
@@ -341,7 +341,7 @@ doublereal MMCollisionInt::omega22(double ts, double deltastar)
     return quadInterp(log(ts), &m_logTemp[i1], values.data());
 }
 
-doublereal MMCollisionInt::astar(double ts, double deltastar)
+double MMCollisionInt::astar(double ts, double deltastar)
 {
     int i;
     for (i = 0; i < 37; i++) if (ts < tstar22[i]) {
@@ -353,7 +353,7 @@ doublereal MMCollisionInt::astar(double ts, double deltastar)
         i2 = 36;
         i1 = i2 - 3;
     }
-    vector_fp values(3);
+    vector<double> values(3);
     for (i = i1; i < i2; i++) {
         if (deltastar == 0.0) {
             values[i-i1] = astar_table[8*(i + 1)];
@@ -364,7 +364,7 @@ doublereal MMCollisionInt::astar(double ts, double deltastar)
     return quadInterp(log(ts), &m_logTemp[i1], values.data());
 }
 
-doublereal MMCollisionInt::bstar(double ts, double deltastar)
+double MMCollisionInt::bstar(double ts, double deltastar)
 {
     int i;
     for (i = 0; i < 37; i++) if (ts < tstar22[i]) {
@@ -376,7 +376,7 @@ doublereal MMCollisionInt::bstar(double ts, double deltastar)
         i2 = 36;
         i1 = i2 - 3;
     }
-    vector_fp values(3);
+    vector<double> values(3);
     for (i = i1; i < i2; i++) {
         if (deltastar == 0.0) {
             values[i-i1] = bstar_table[8*(i + 1)];
@@ -387,7 +387,7 @@ doublereal MMCollisionInt::bstar(double ts, double deltastar)
     return quadInterp(log(ts), &m_logTemp[i1], values.data());
 }
 
-doublereal MMCollisionInt::cstar(double ts, double deltastar)
+double MMCollisionInt::cstar(double ts, double deltastar)
 {
     int i;
     for (i = 0; i < 37; i++) if (ts < tstar22[i]) {
@@ -399,7 +399,7 @@ doublereal MMCollisionInt::cstar(double ts, double deltastar)
         i2 = 36;
         i1 = i2 - 3;
     }
-    vector_fp values(3);
+    vector<double> values(3);
     for (i = i1; i < i2; i++) {
         if (deltastar == 0.0) {
             values[i-i1] = cstar_table[8*(i + 1)];
@@ -410,13 +410,12 @@ doublereal MMCollisionInt::cstar(double ts, double deltastar)
     return quadInterp(log(ts), &m_logTemp[i1], values.data());
 }
 
-void MMCollisionInt::fit_omega22(int degree, doublereal deltastar,
-                                 doublereal* o22)
+void MMCollisionInt::fit_omega22(int degree, double deltastar, double* o22)
 {
     int n = m_nmax - m_nmin + 1;
-    vector_fp values(n);
-    vector_fp w(n);
-    doublereal* logT = &m_logTemp[m_nmin];
+    vector<double> values(n);
+    vector<double> w(n);
+    double* logT = &m_logTemp[m_nmin];
     for (int i = 0; i < n; i++) {
         if (deltastar == 0.0) {
             values[i] = omega22_table[8*(i + m_nmin)];
@@ -433,13 +432,12 @@ void MMCollisionInt::fit_omega22(int degree, doublereal deltastar,
     }
 }
 
-void MMCollisionInt::fit(int degree, doublereal deltastar,
-                         doublereal* a, doublereal* b, doublereal* c)
+void MMCollisionInt::fit(int degree, double deltastar, double* a, double* b, double* c)
 {
     int n = m_nmax - m_nmin + 1;
-    vector_fp values(n);
-    vector_fp w(n);
-    doublereal* logT = &m_logTemp[m_nmin];
+    vector<double> values(n);
+    vector<double> w(n);
+    double* logT = &m_logTemp[m_nmin];
     for (int i = 0; i < n; i++) {
         if (deltastar == 0.0) {
             values[i] = astar_table[8*(i + m_nmin + 1)];
@@ -472,19 +470,19 @@ void MMCollisionInt::fit(int degree, doublereal deltastar,
     if (m_loglevel > 2) {
         writelogf("\nT* fit at delta* = %.6g\n", deltastar);
 
-        writelog("astar = [" + vec2str(vector_fp(a, a+degree+1))+ "]\n");
+        writelog("astar = [" + vec2str(vector<double>(a, a+degree+1))+ "]\n");
         if (rmserr > 0.01) {
             warn_user("MMCollisionInt::fit",
                 "RMS error = {:12.6g} for A* fit", rmserr);
         }
 
-        writelog("bstar = [" + vec2str(vector_fp(b, b+degree+1))+ "]\n");
+        writelog("bstar = [" + vec2str(vector<double>(b, b+degree+1))+ "]\n");
         if (rmserr > 0.01) {
             warn_user("MMCollisionInt::fit",
                 "RMS error = {:12.6g} for B* fit", rmserr);
         }
 
-        writelog("cstar = [" + vec2str(vector_fp(c, c+degree+1))+ "]\n");
+        writelog("cstar = [" + vec2str(vector<double>(c, c+degree+1))+ "]\n");
         if (rmserr > 0.01) {
             warn_user("MMCollisionInt::fit",
                 "RMS error = {:12.6g} for C* fit", rmserr);
