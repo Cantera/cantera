@@ -1,7 +1,7 @@
 /**
  * @file clockWC.h
  *    Declarations for a simple class that implements an Ansi C wall clock timer
- *   (see \ref Cantera::clockWC).
+ *   (see @ref Cantera::clockWC).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -13,6 +13,8 @@
 #include <time.h>
 namespace Cantera
 {
+
+//! @defgroup globalUtilFuncs Global Utility Functions
 
 //! The class provides the wall clock timer in seconds
 /*!

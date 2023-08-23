@@ -18,8 +18,8 @@ int main(int argc, char** argv)
     string fName = "DH_graph_1.log";
     fileLog* fl = new fileLog(fName);
     try {
-        std::string phaseName = (argc > 1) ? argv[1] : "NaCl_electrolyte";
-        std::string iFile = (argc > 2) ? argv[2] : "DH_NaCl.yaml";
+        string phaseName = (argc > 1) ? argv[1] : "NaCl_electrolyte";
+        string iFile = (argc > 2) ? argv[2] : "DH_NaCl.yaml";
         setLogger(fl);
 
         DebyeHuckel* DH = new DebyeHuckel(iFile, phaseName);

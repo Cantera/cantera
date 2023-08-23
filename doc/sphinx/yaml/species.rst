@@ -36,6 +36,12 @@ The fields of a ``species`` entry are:
     Mapping containing the species transport model specification and
     parameters. See :ref:`sec-yaml-species-transport`.
 
+``coverage-dependencies``
+    Mapping where keys are the names of other species whose coverages affects
+    thermodynamic properties of this species. The map values are the dependency entries
+    including ``model`` and model-specific parameters as :ref:`described here
+    <sec-yaml-species-coverage>`.
+
 ``sites``
     The number of sites occupied by a surface or edge species. Default is 1.
 
@@ -55,11 +61,11 @@ Fields of a species ``thermo`` entry used by all models are:
     String specifying the model to be used. Required. Supported model strings
     are:
 
-    - :ref:`NASA7 <sec-yaml-nasa7>`
-    - :ref:`NASA9 <sec-yaml-nasa9>`
-    - :ref:`Shomate <sec-yaml-shomate>`
-    - :ref:`constant-cp <sec-yaml-constcp>`
-    - :ref:`piecewise-Gibbs <sec-yaml-piecewise-gibbs>`
+    - ``NASA7`` (:ref:`details <sec-yaml-nasa7>`)
+    - ``NASA9`` (:ref:`details <sec-yaml-nasa9>`)
+    - ``Shomate`` (:ref:`details <sec-yaml-shomate>`)
+    - ``constant-cp`` (:ref:`details <sec-yaml-constcp>`)
+    - ``piecewise-Gibbs`` (:ref:`details <sec-yaml-piecewise-gibbs>`)
 
 ``reference-pressure``
     The reference pressure at which the given thermodynamic properties apply.
@@ -71,7 +77,7 @@ Fields of a species ``thermo`` entry used by all models are:
 NASA 7-coefficient polynomials
 ------------------------------
 
-The polynomial form `described here <https://cantera.org/science/science-species.html#the-nasa-7-coefficient-polynomial-parameterization>`__,
+The polynomial form `described here <https://cantera.org/science/species-thermo.html#the-nasa-7-coefficient-polynomial-parameterization>`__,
 given for one or two temperature regions. Additional fields of a ``NASA7``
 thermo entry are:
 
@@ -104,7 +110,7 @@ Example::
 NASA 9-coefficient polynomials
 ------------------------------
 
-The polynomial form `described here <https://cantera.org/science/science-species.html#the-nasa-9-coefficient-polynomial-parameterization>`__,
+The polynomial form `described here <https://cantera.org/science/species-thermo.html#the-nasa-9-coefficient-polynomial-parameterization>`__,
 given for any number of temperature regions. Additional fields of a ``NASA9``
 thermo entry are:
 
@@ -135,12 +141,13 @@ Example::
          2.486903333E-06, -9.705954110E-11, 1.437538881E-15, 4.938707040E+06,
          -1.672099740E+03]
 
+
 .. _sec-yaml-shomate:
 
 Shomate polynomials
 -------------------
 
-The polynomial form `described here <https://cantera.org/science/science-species.html#the-shomate-parameterization>`__,
+The polynomial form `described here <https://cantera.org/science/species-thermo.html#the-shomate-parameterization>`__,
 given for one or two temperature regions. Additional fields of a ``Shomate``
 thermo entry are:
 
@@ -173,7 +180,7 @@ Example::
 Constant heat capacity
 ----------------------
 
-The constant heat capacity model `described here <https://cantera.org/science/science-species.html#constant-heat-capacity>`__.
+The constant heat capacity model `described here <https://cantera.org/science/species-thermo.html#constant-heat-capacity>`__.
 Additional fields of a ``constant-cp`` thermo entry are:
 
 ``T0``
@@ -205,14 +212,14 @@ Example::
       s0: -3.02 cal/mol/K
       cp0: 5.95 cal/mol/K
 
+
 .. _sec-yaml-piecewise-gibbs:
 
 Piecewise Gibbs
 ---------------
 
 A model based on piecewise interpolation of the Gibbs free energy as
-`described here <https://cantera.org/documentation/dev/doxygen/html/d4/d9e/classCantera_1_1Mu0Poly.html#details>`__
-Additional fields of a ``piecewise-Gibbs`` entry are:
+:ct:`described here <Mu0Poly>`. Additional fields of a ``piecewise-Gibbs`` entry are:
 
 ``h0``
     The molar enthalpy at the reference temperature of 298.15 K. Defaults to
@@ -270,15 +277,15 @@ Species equation of state models
     String specifying the model to be used. Required. Supported model strings
     are:
 
-    - :ref:`constant-volume <sec-yaml-eos-constant-volume>`
-    - :ref:`density-temperature-polynomial <sec-yaml-eos-density-temperature-polynomial>`
-    - :ref:`HKFT <sec-yaml-eos-hkft>`
-    - :ref:`ideal-gas <sec-yaml-eos-ideal-gas>`
-    - :ref:`ions-from-neutral-molecule <sec-yaml-eos-ions-from-neutral>`
-    - :ref:`liquid-water-IAPWS95 <sec-yaml-eos-liquid-water-iapws95>`
-    - :ref:`molar-volume-temperature-polynomial <sec-yaml-eos-molar-volume-temperature-polynomial>`
-    - :ref:`Peng-Robinson <sec-yaml-eos-peng-robinson>`
-    - :ref:`Redlich-Kwong <sec-yaml-eos-redlich-kwong>`
+    - ``constant-volume`` (:ref:`details <sec-yaml-eos-constant-volume>`)
+    - ``density-temperature-polynomial`` (:ref:`details <sec-yaml-eos-density-temperature-polynomial>`)
+    - ``HKFT`` (:ref:`details <sec-yaml-eos-hkft>`)
+    - ``ideal-gas`` (:ref:`details <sec-yaml-eos-ideal-gas>`)
+    - ``ions-from-neutral-molecule`` (:ref:`details <sec-yaml-eos-ions-from-neutral>`)
+    - ``liquid-water-IAPWS95`` (:ref:`details <sec-yaml-eos-liquid-water-iapws95>`)
+    - ``molar-volume-temperature-polynomial`` (:ref:`details <sec-yaml-eos-molar-volume-temperature-polynomial>`)
+    - ``Peng-Robinson`` (:ref:`details <sec-yaml-eos-peng-robinson>`)
+    - ``Redlich-Kwong`` (:ref:`details <sec-yaml-eos-redlich-kwong>`)
 
 
 .. _sec-yaml-eos-constant-volume:
@@ -286,8 +293,7 @@ Species equation of state models
 Constant volume
 ---------------
 
-A constant volume model as
-`described here <https://cantera.org/documentation/dev/doxygen/html/da/d33/classCantera_1_1PDSS__ConstVol.html#details>`__.
+A constant volume model as :ct:`described here <PDSS_ConstVol>`.
 
 Any one of the following may be specified:
 
@@ -313,7 +319,7 @@ Density temperature polynomial
 ------------------------------
 
 A model in which the density varies with temperature as
-`described here <https://cantera.org/documentation/dev/doxygen/html/d0/d2f/classCantera_1_1PDSS__SSVol.html#details>`__.
+:ct:`described here <PDSS_SSVol>`.
 
 Additional fields:
 
@@ -333,8 +339,7 @@ Example::
 HKFT
 ----
 
-The Helgeson-Kirkham-Flowers-Tanger model as
-`described here <https://cantera.org/documentation/dev/doxygen/html/d9/d18/classCantera_1_1PDSS__HKFT.html#details>`__.
+The Helgeson-Kirkham-Flowers-Tanger model as :ct:`described here <PDSS_HKFT>`.
 
 Additional fields:
 
@@ -371,7 +376,7 @@ Ideal gas
 ---------
 
 A species using the ideal gas equation of state, as
-`described here <https://cantera.org/documentation/dev/doxygen/html/df/d31/classCantera_1_1PDSS__IdealGas.html#details>`__.
+:ct:`described here <PDSS_IdealGas>`.
 
 .. deprecated:: 3.0
 
@@ -383,8 +388,7 @@ Ions from neutral molecule
 --------------------------
 
 A species equation of state model used with the ``ions-from-neutral-molecule``
-phase model, as
-`described here <https://cantera.org/documentation/dev/doxygen/html/d5/df4/classCantera_1_1PDSS__IonsFromNeutral.html#details>`__.
+phase model, as :ct:`described here <PDSS_IonsFromNeutral>`.
 
 .. deprecated:: 3.0
 
@@ -411,8 +415,7 @@ Example::
 Liquid Water IAPWS95
 --------------------
 
-A detailed equation of state for liquid water as
-`described here <https://cantera.org/documentation/dev/doxygen/html/de/d64/classCantera_1_1PDSS__Water.html#details>`__.
+A detailed equation of state for liquid water as :ct:`described here <PDSS_Water>`.
 
 
 .. _sec-yaml-eos-molar-volume-temperature-polynomial:
@@ -421,12 +424,13 @@ Molar volume temperature polynomial
 -----------------------------------
 
 A model in which the molar volume varies with temperature as
-`described here <https://cantera.org/documentation/dev/doxygen/html/d0/d2f/classCantera_1_1PDSS__SSVol.html#details>`__.
+:ct:`described here <PDSS_SSVol>`.
 
 Additional fields:
 
 ``data``
     Vector of 4 coefficients for a cubic polynomial in temperature
+
 
 .. _sec-yaml-eos-peng-robinson:
 
@@ -434,7 +438,7 @@ Peng-Robinson
 -------------
 
 A model where species follow the Peng-Robinson equation of state as
-`described here <https://cantera.org/documentation/dev/doxygen/html/d3/ddc/classCantera_1_1PengRobinson.html#details>`__.
+:ct:`described here <PengRobinson>`.
 
 Additional fields:
 
@@ -470,7 +474,7 @@ Redlich-Kwong
 -------------
 
 A model where species follow the Redlich-Kwong equation of state as
-`described here <https://cantera.org/documentation/dev/doxygen/html/d6/d29/classCantera_1_1RedlichKwongMFTP.html#details>`__.
+:ct:`described here <RedlichKwongMFTP>`.
 
 Additional fields:
 
@@ -484,99 +488,6 @@ Additional fields:
 ``binary-a``
     Mapping where the keys are species and the values are the ``a``
     coefficients for binary interactions between the two species.
-
-
-.. _sec-yaml-coverage-dependent-surface-species:
-
-Coverage-dependent Surface
---------------------------
-
-A model where species thermodynamic properties are calculated as a function
-coverage as
-`described here <https://cantera.org/documentation/dev/doxygen/html/db/d25/classCantera_1_1CoverageDependentSurfPhase.html#details>`__.
-
-Additional fields:
-
-``coverage-dependencies``
-    Mapping where keys are the name of species whose coverage affects
-    thermodynamic properties of the node-owner species. The map values are
-    the dependency entries including ``model``, model-specific parameters,
-    ``heat-capacity-a``, and ``heat-capacity-b`` that correspond
-    to an individual dependency between the node-owner species and keyed species.
-
-``model``
-    Dependency model for coverage-dependent enthalpy or entropy. It should be
-    one of the four: ``linear``, ``polynomial``, ``piecewise-linear``
-    or ``interpolative``. The ``model`` and model-specific parameters are grouped
-    as follow.
-
-    ``linear``: ``enthalpy``, ``entropy``
-
-    ``polynomial``: ``enthalpy-coefficients``, ``entropy-coefficients``
-
-    ``piecewise-linear``: ``enthalpy-low``, ``enthalpy-high``, ``enthalpy-change``,
-    ``entropy-low``, ``entropy-high``, ``entropy-change``
-
-    ``interpolative``: ``enthalpy-coverages``, ``enthalpies``, ``entropy-coverages``,
-    ``entropies``
-
-``enthalpy`` or ``entropy``
-    Slope of the coverage-dependent enthalpy or entropy used in the ``linear``
-    model.
-
-``enthalpy-coefficients`` or ``entropy-coefficients``
-    Array of polynomial coefficients in order of 1st, 2nd, 3rd, and 4th-order
-    used in coverage-dependent enthalpy or entropy calculation with the ``polynomial``
-    model.
-
-``enthalpy-low`` or ``entropy-low``
-    Slope of the coverage-dependent enthalpy or entropy for the lower coverage
-    region used in the ``piecewise-linear`` model.
-
-``enthalpy-high`` or ``entropy-high``
-    Slope of the coverage-dependent enthalpy or entropy for the higher coverage
-    region used in the ``piecewise-linear`` model.
-
-``enthalpy-change`` or ``entropy-change``
-    Coverage that separates the lower and higher coverage regions of the
-    coverage-dependent enthalpy or entropy used in the ``piecewise-linear`` model.
-
-``enthalpy-coverages`` or ``entropy-coverages``
-    Array of discrete coverage values used in coverage-dependent enthalpy
-    or entropy used in the ``interpolative`` model.
-
-``enthalpies`` or ``entropies``
-    Array of discrete enthalpy or entropy values corresponding to the coverages
-    in ``enthalpy-coverages`` or ``entropy-coverages``, respectively, used in the
-    ``interpolative`` model.
-
-``heat-capacity-a`` or ``heat-capacity-b``
-    Coefficient :math:`c^{(a)}` or :math:`c^{(b)}` used in the coverage-dependent
-    ``heat capacity`` model.
-
-Example::
-
-    coverage-dependencies:
-      OC_Pt: {model: linear,
-              units: {energy: eV, quantity: molec},
-              enthalpy: 0.48, entropy: -0.031}
-      C_Pt: {model: polynomial,
-             units: {energy: J, quantity: mol},
-             enthalpy-coefficients: [0.0, -3.86e4, 0.0, 4.2e5],
-             entropy-coefficients: [0.8e3, 0.0, -1.26e4, 0.0]}
-      CO2_Pt: {model: piecewise-linear,
-               units: {energy: kJ, quantity: mol},
-               enthalpy-low: 0.5e2, enthalpy-high: 1.0e2,
-               enthalpy-change: 0.4,
-               entropy-low: 0.1e2, entropy-high: -0.2e2,
-               entropy-change: 0.4,
-               heat-capacity-a: 0.02e-1, heat-capacity-b: -0.156e-1}
-      O_Pt: {model: interpolative,
-             units: {energy: kcal, quantity: mol},
-             enthalpy-coverages: [0.0, 0.2, 0.4, 0.7, 0.9, 1.0],
-             enthalpies: [0.0, 0.5, 1.0, 2.7, 3.5, 4.0],
-             entropy-coverages: [0.0, 0.5, 1.0],
-             entropies: [0.0, -0.7, -2.0]}
 
 
 .. _sec-yaml-species-transport:
@@ -636,3 +547,152 @@ Example::
       diameter: 3.458
       polarizability: 1.6
       rotational-relaxation: 3.8
+
+
+.. _sec-yaml-species-coverage:
+
+Species coverage dependencies
+=============================
+
+The coverage-dependent surface species formulation calculates coverage-dependent
+correction factors to the ideal surface phase properties. Used in conjunction with the
+:ref:`coverage-dependent-surface <sec-yaml-coverage-dependent-surface>` phase model.
+Full details are :ct:`described here <CoverageDependentSurfPhase>`.
+
+Fields of a species ``coverage-dependencies`` map entry used by all models are:
+
+``model``
+    String specifying the model to be used. Required. Supported model strings are:
+
+    - ``linear`` (:ref:`details <sec-yaml-species-coverage-linear>`)
+    - ``polynomial`` (:ref:`details <sec-yaml-species-coverage-polynomial>`)
+    - ``piecewise-linear`` (:ref:`details <sec-yaml-species-coverage-piecewise-linear>`)
+    - ``interpolative`` (:ref:`details <sec-yaml-species-coverage-interpolative>`)
+
+
+.. _sec-yaml-species-coverage-linear:
+
+Linear dependency model
+-----------------------
+
+``enthalpy``
+    Slope of the coverage-dependent enthalpy.
+
+``entropy``
+    Slope of the coverage-dependent entropy.
+
+Example::
+
+    coverage-dependencies:
+      O_Pt:
+        model: linear
+        units: {energy: eV, quantity: molec}
+        enthalpy: 0.48
+        entropy: -0.031
+      # + other entries (optional)
+
+
+.. _sec-yaml-species-coverage-polynomial:
+
+Polynomial dependency model
+---------------------------
+
+``enthalpy-coefficients``
+    Array of polynomial coefficients in order of 1st, 2nd, 3rd, and
+    4th-order used in coverage-dependent enthalpy calculation.
+
+``entropy-coefficients``
+    Array of polynomial coefficients in order of 1st, 2nd, 3rd, and
+    4th-order used in coverage-dependent entropy calculation.
+
+Example::
+
+    coverage-dependencies:
+      OC_Pt:
+        model: polynomial
+        units: {energy: J, quantity: mol}
+        enthalpy-coefficients: [0.0, -3.86e4, 0.0, 4.2e5]
+        entropy-coefficients: [0.8e3, 0.0, -1.26e4, 0.0]
+      # + other entries (optional)
+
+
+.. _sec-yaml-species-coverage-piecewise-linear:
+
+Piecewise-linear dependency model
+---------------------------------
+
+``enthalpy-low``
+    Slope of the coverage-dependent enthalpy for the lower coverage region.
+
+``entropy-low``
+    Slope of the coverage-dependent entropy for the lower coverage region.
+
+``enthalpy-high``
+    Slope of the coverage-dependent enthalpy for the higher coverage region.
+
+``entropy-high``
+    Slope of the coverage-dependent entropy for the higher coverage region.
+
+``enthalpy-change``
+    Coverage that separates the lower and higher coverage regions of the
+    coverage-dependent enthalpy.
+
+``entropy-change``
+    Coverage that separates the lower and higher coverage regions of the
+    coverage-dependent entropy.
+
+``heat-capacity-a``
+    Coefficient :math:`c^{(a)}` used in the
+    :ct:`coverage-dependent heat capacity <HeatCapacityDependency>` model.
+
+``heat-capacity-b``
+    Coefficient :math:`c^{(b)}` used in the
+    :ct:`coverage-dependent heat capacity <HeatCapacityDependency>` model.
+
+Example::
+
+    coverage-dependencies:
+      CO2_Pt:
+        model: piecewise-linear
+        units: {energy: kJ, quantity: mol}
+        enthalpy-low: 0.5e2
+        enthalpy-high: 1.0e2
+        enthalpy-change: 0.4
+        entropy-low: 0.1e2
+        entropy-high: -0.2e2
+        entropy-change: 0.4
+        heat-capacity-a: 0.02e-1
+        heat-capacity-b: -0.156e-1
+      # + other entries (optional)
+
+
+.. _sec-yaml-species-coverage-interpolative:
+
+Interpolative dependency model
+------------------------------
+
+``enthalpy-coverages``
+    Array of discrete coverage values used in coverage-dependent enthalpy.
+
+``entropy-coverages``
+    Array of discrete coverage values used in coverage-dependent entropy.
+
+``enthalpies``
+    Array of discrete enthalpy values corresponding to the
+    coverages in ``enthalpy-coverages``.
+
+``entropies``
+    Array of discrete entropy values corresponding to the
+    coverages in ``entropy-coverages``.
+
+Example::
+
+    coverage-dependencies:
+      C_Pt:
+        model: interpolative
+        units: {energy: kcal, quantity: mol}
+        enthalpy-coverages: [0.0, 0.2, 0.4, 0.7, 0.9, 1.0]
+        entropy-coverages: [0.0, 0.5, 1.0]
+        enthalpies: [0.0, 0.5, 1.0, 2.7, 3.5, 4.0]
+        entropies: [0.0, -0.7, -2.0]
+      # + other entries (optional)

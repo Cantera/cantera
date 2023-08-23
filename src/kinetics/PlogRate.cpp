@@ -6,7 +6,7 @@
 #include "cantera/kinetics/PlogRate.h"
 #include "cantera/thermo/ThermoPhase.h"
 
-//! @todo remove after Cantera 3.0 (only used for deprecation)
+// @todo remove after Cantera 3.0 (only used for deprecation)
 #include "cantera/kinetics/Kinetics.h"
 
 namespace Cantera
@@ -78,7 +78,7 @@ void PlogRate::setParameters(const AnyMap& node, const UnitStack& rate_units)
 
 void PlogRate::getParameters(AnyMap& rateNode, const Units& rate_units) const
 {
-    std::vector<AnyMap> rateList;
+    vector<AnyMap> rateList;
     if (!valid()) {
         // object not fully set up
         return;
@@ -125,7 +125,7 @@ void PlogRate::setRates(const std::multimap<double, ArrheniusRate>& rates)
     pressures_.insert({1000.0, pressures_.rbegin()->second});
 }
 
-void PlogRate::validate(const std::string& equation, const Kinetics& kin)
+void PlogRate::validate(const string& equation, const Kinetics& kin)
 {
     if (!valid()) {
         throw InputFileError("PlogRate::validate", m_input,
@@ -133,7 +133,7 @@ void PlogRate::validate(const std::string& equation, const Kinetics& kin)
     }
 
     fmt::memory_buffer err_reactions;
-    double T[] = {200.0, 500.0, 1000.0, 2000.0, 5000.0, 10000.0};
+    double T[] = {300.0, 500.0, 1000.0, 2000.0, 5000.0, 10000.0};
     PlogData data;
 
     for (auto iter = ++pressures_.begin(); iter->first < 1000; iter++) {
@@ -157,7 +157,7 @@ void PlogRate::validate(const std::string& equation, const Kinetics& kin)
     }
 }
 
-void PlogRate::validate(const std::string& equation) {
+void PlogRate::validate(const string& equation) {
     warn_deprecated("PlogRate::validate",
         "To be removed after Cantera 3.0; superseded by two-parameter version.");
     validate(equation, Kinetics());

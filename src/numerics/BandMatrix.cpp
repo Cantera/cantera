@@ -25,9 +25,9 @@ namespace Cantera
 // include Sundials headers in BandMatrix.h
 struct BandMatrix::PivData {
 #if CT_USE_LAPACK
-    vector_int data;
+    vector<int> data;
 #else
-    std::vector<sunindextype> data;
+    vector<sunindextype> data;
 #endif
 };
 
@@ -41,7 +41,7 @@ BandMatrix::~BandMatrix()
     // Needs to be defined here so m_ipiv can be deleted
 }
 
-BandMatrix::BandMatrix(size_t n, size_t kl, size_t ku, doublereal v)   :
+BandMatrix::BandMatrix(size_t n, size_t kl, size_t ku, double v)   :
     m_n(n),
     m_kl(kl),
     m_ku(ku),
@@ -104,7 +104,7 @@ BandMatrix& BandMatrix::operator=(const BandMatrix& y)
     return *this;
 }
 
-void BandMatrix::resize(size_t n, size_t kl, size_t ku, doublereal v)
+void BandMatrix::resize(size_t n, size_t kl, size_t ku, double v)
 {
     m_n = n;
     m_kl = kl;
@@ -123,7 +123,7 @@ void BandMatrix::resize(size_t n, size_t kl, size_t ku, doublereal v)
     m_factored = false;
 }
 
-void BandMatrix::bfill(doublereal v)
+void BandMatrix::bfill(double v)
 {
     std::fill(data.begin(), data.end(), v);
     m_factored = false;
@@ -135,17 +135,17 @@ void BandMatrix::zero()
     m_factored = false;
 }
 
-doublereal& BandMatrix::operator()(size_t i, size_t j)
+double& BandMatrix::operator()(size_t i, size_t j)
 {
     return value(i,j);
 }
 
-doublereal BandMatrix::operator()(size_t i, size_t j) const
+double BandMatrix::operator()(size_t i, size_t j) const
 {
     return value(i,j);
 }
 
-doublereal& BandMatrix::value(size_t i, size_t j)
+double& BandMatrix::value(size_t i, size_t j)
 {
     m_factored = false;
     if (i + m_ku < j || i > j + m_kl) {
@@ -154,7 +154,7 @@ doublereal& BandMatrix::value(size_t i, size_t j)
     return data[index(i,j)];
 }
 
-doublereal BandMatrix::value(size_t i, size_t j) const
+double BandMatrix::value(size_t i, size_t j) const
 {
     if (i + m_ku < j || i > j + m_kl) {
         return 0.0;
@@ -167,7 +167,7 @@ size_t BandMatrix::index(size_t i, size_t j) const
     return (2*m_kl + m_ku)*j + m_kl + m_ku + i;
 }
 
-doublereal BandMatrix::_value(size_t i, size_t j) const
+double BandMatrix::_value(size_t i, size_t j) const
 {
     return data[index(i,j)];
 }
@@ -197,7 +197,7 @@ size_t BandMatrix::ldim() const
     return 2*m_kl + m_ku + 1;
 }
 
-void BandMatrix::mult(const doublereal* b, doublereal* prod) const
+void BandMatrix::mult(const double* b, double* prod) const
 {
     for (size_t m = 0; m < m_n; m++) {
         double sum = 0.0;
@@ -210,7 +210,7 @@ void BandMatrix::mult(const doublereal* b, doublereal* prod) const
     }
 }
 
-void BandMatrix::leftMult(const doublereal* const b, doublereal* const prod) const
+void BandMatrix::leftMult(const double* const b, double* const prod) const
 {
     for (size_t n = 0; n < m_n; n++) {
         double sum = 0.0;
@@ -250,13 +250,13 @@ int BandMatrix::factor()
     return m_info;
 }
 
-int BandMatrix::solve(const doublereal* const b, doublereal* const x)
+int BandMatrix::solve(const double* const b, double* const x)
 {
     copy(b, b + m_n, x);
     return solve(x);
 }
 
-int BandMatrix::solve(doublereal* b, size_t nrhs, size_t ldb)
+int BandMatrix::solve(double* b, size_t nrhs, size_t ldb)
 {
     if (!m_factored) {
         factor();
@@ -290,25 +290,29 @@ int BandMatrix::solve(doublereal* b, size_t nrhs, size_t ldb)
     return m_info;
 }
 
-vector_fp::iterator BandMatrix::begin()
+vector<double>::iterator BandMatrix::begin()
 {
+    warn_deprecated("BandMatrix::begin", "To be removed after Cantera 3.0.");
     m_factored = false;
     return data.begin();
 }
 
-vector_fp::iterator BandMatrix::end()
+vector<double>::iterator BandMatrix::end()
 {
+    warn_deprecated("BandMatrix::end", "To be removed after Cantera 3.0.");
     m_factored = false;
     return data.end();
 }
 
-vector_fp::const_iterator BandMatrix::begin() const
+vector<double>::const_iterator BandMatrix::begin() const
 {
+    warn_deprecated("BandMatrix::begin", "To be removed after Cantera 3.0.");
     return data.begin();
 }
 
-vector_fp::const_iterator BandMatrix::end() const
+vector<double>::const_iterator BandMatrix::end() const
 {
+    warn_deprecated("BandMatrix::end", "To be removed after Cantera 3.0.");
     return data.end();
 }
 
@@ -324,7 +328,7 @@ ostream& operator<<(ostream& s, const BandMatrix& m)
     return s;
 }
 
-doublereal BandMatrix::rcond(doublereal a1norm)
+double BandMatrix::rcond(double a1norm)
 {
     iwork_.resize(m_n);
     work_.resize(3 * m_n);
@@ -352,7 +356,7 @@ int BandMatrix::factorAlgorithm() const
     return 0;
 }
 
-doublereal BandMatrix::oneNorm() const
+double BandMatrix::oneNorm() const
 {
     double value = 0.0;
     for (size_t j = 0; j < m_n; j++) {
@@ -367,7 +371,7 @@ doublereal BandMatrix::oneNorm() const
     return value;
 }
 
-size_t BandMatrix::checkRows(doublereal& valueSmall) const
+size_t BandMatrix::checkRows(double& valueSmall) const
 {
     valueSmall = 1.0E300;
     size_t iSmall = npos;
@@ -389,7 +393,7 @@ size_t BandMatrix::checkRows(doublereal& valueSmall) const
     return iSmall;
 }
 
-size_t BandMatrix::checkColumns(doublereal& valueSmall) const
+size_t BandMatrix::checkColumns(double& valueSmall) const
 {
     valueSmall = 1.0E300;
     size_t jSmall = npos;
@@ -411,12 +415,12 @@ size_t BandMatrix::checkColumns(doublereal& valueSmall) const
     return jSmall;
 }
 
-doublereal* BandMatrix::ptrColumn(size_t j)
+double* BandMatrix::ptrColumn(size_t j)
 {
     return m_colPtrs[j];
 }
 
-doublereal* const* BandMatrix::colPts()
+double* const* BandMatrix::colPts()
 {
     return &m_colPtrs[0];
 }

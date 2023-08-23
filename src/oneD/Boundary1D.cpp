@@ -77,6 +77,11 @@ void Boundary1D::_init(size_t n)
     }
 }
 
+void Boundary1D::fromArray(SolutionArray& arr, double* soln)
+{
+    setMeta(arr.meta());
+}
+
 // ---------------- Inlet1D methods ----------------
 
 Inlet1D::Inlet1D()
@@ -116,7 +121,7 @@ void Inlet1D::show(const double* x)
     writelog("\n");
 }
 
-void Inlet1D::setMoleFractions(const std::string& xin)
+void Inlet1D::setMoleFractions(const string& xin)
 {
     m_xstr = xin;
     if (m_flow) {
@@ -142,14 +147,19 @@ void Inlet1D::init()
     // if a flow domain is present on the left, then this must be a right inlet.
     // Note that an inlet object can only be a terminal object - it cannot have
     // flows on both the left and right
-    if (m_flow_left) {
+    if (m_flow_left && !m_flow_right) {
+        if (!m_flow_left->isStrained()) {
+            throw CanteraError("Inlet1D::init",
+                "Right inlets with right-to-left flow are only supported for "
+                "strained flow configurations.");
+        }
         m_ilr = RightInlet;
         m_flow = m_flow_left;
     } else if (m_flow_right) {
         m_ilr = LeftInlet;
         m_flow = m_flow_right;
     } else {
-        throw CanteraError("Inlet1D::init","no flow!");
+        throw CanteraError("Inlet1D::init", "Inlet1D is not properly connected.");
     }
 
     // components = u, V, T, lambda, + mass fractions
@@ -178,24 +188,29 @@ void Inlet1D::eval(size_t jg, double* xg, double* rg,
         // the inlet, since this is set within the flow domain from the
         // continuity equation.
 
-        // spreading rate. The flow domain sets this to V(0),
-        // so for finite spreading rate subtract m_V0.
-        rb[c_offset_V] -= m_V0;
-
         if (m_flow->doEnergy(0)) {
             // The third flow residual is for T, where it is set to T(0).  Subtract
             // the local temperature to hold the flow T to the inlet T.
             rb[c_offset_T] -= m_temp;
+        } else {
+            rb[c_offset_T] -= m_flow->T_fixed(0);
         }
 
-        if (m_flow->fixed_mdot()) {
-            // The flow domain sets this to -rho*u. Add mdot to specify the mass
-            // flow rate.
-            rb[c_offset_L] += m_mdot;
-        } else {
+        if (m_flow->isFree()) {
             // if the flow is a freely-propagating flame, mdot is not specified.
             // Set mdot equal to rho*u, and also set lambda to zero.
-            m_mdot = m_flow->density(0)*xb[0];
+            m_mdot = m_flow->density(0) * xb[c_offset_U];
+            rb[c_offset_L] = xb[c_offset_L];
+        } else if (m_flow->isStrained()) {
+            // The flow domain sets this to -rho*u. Add mdot to specify the mass
+            // flow rate
+            rb[c_offset_L] += m_mdot;
+
+            // spreading rate. The flow domain sets this to V(0),
+            // so for finite spreading rate subtract m_V0.
+            rb[c_offset_V] -= m_V0;
+        } else {
+            rb[c_offset_U] = m_flow->density(0) * xb[c_offset_U] - m_mdot;
             rb[c_offset_L] = xb[c_offset_L];
         }
 
@@ -207,12 +222,14 @@ void Inlet1D::eval(size_t jg, double* xg, double* rg,
         }
 
     } else {
-        // right inlet
+        // right inlet (should only be used for counter-flow flames)
         // Array elements corresponding to the last point in the flow domain
         double* rb = rg + loc() - m_flow->nComponents();
         rb[c_offset_V] -= m_V0;
         if (m_flow->doEnergy(m_flow->nPoints() - 1)) {
             rb[c_offset_T] -= m_temp; // T
+        } else {
+            rb[c_offset_T] -= m_flow->T_fixed(m_flow->nPoints() - 1);
         }
         rb[c_offset_U] += m_mdot; // u
         for (size_t k = 0; k < m_nsp; k++) {
@@ -233,7 +250,7 @@ shared_ptr<SolutionArray> Inlet1D::asArray(const double* soln) const
     double pressure = m_flow->phase().pressure();
     auto phase = m_solution->thermo();
     phase->setState_TPY(m_temp, pressure, m_yin.data());
-    vector_fp data(phase->stateSize());
+    vector<double> data(phase->stateSize());
     phase->saveState(data);
 
     arr->setState(0, data);
@@ -346,10 +363,13 @@ void Outlet1D::init()
     _init(0);
 
     if (m_flow_right) {
-        m_flow_right->setViscosityFlag(false);
+        throw CanteraError("Outlet1D::init",
+            "Left outlets with right-to-left flow are not supported.");
     }
     if (m_flow_left) {
         m_flow_left->setViscosityFlag(false);
+    } else {
+        throw CanteraError("Outlet1D::init", "Outlet1D is not connected.");
     }
 }
 
@@ -365,39 +385,23 @@ void Outlet1D::eval(size_t jg, double* xg, double* rg, integer* diagg,
     double* r = rg + loc();
     integer* diag = diagg + loc();
 
-    if (m_flow_right) {
-        size_t nc = m_flow_right->nComponents();
-        double* xb = x;
-        double* rb = r;
-        rb[c_offset_U] = xb[c_offset_L];
-        if (m_flow_right->doEnergy(0)) {
-            rb[c_offset_T] = xb[c_offset_T] - xb[c_offset_T + nc];
-        }
-        for (size_t k = c_offset_Y; k < nc; k++) {
-            rb[k] = xb[k] - xb[k + nc];
-        }
+    // flow is left-to-right
+    size_t nc = m_flow_left->nComponents();
+    double* xb = x - nc;
+    double* rb = r - nc;
+    int* db = diag - nc;
+
+    size_t last = m_flow_left->nPoints() - 1;
+    if (m_flow_left->doEnergy(last)) {
+        rb[c_offset_T] = xb[c_offset_T] - xb[c_offset_T - nc]; // zero T gradient
+    } else {
+        rb[c_offset_T] = xb[c_offset_T] - m_flow_left->T_fixed(last);
     }
-
-    if (m_flow_left) {
-        size_t nc = m_flow_left->nComponents();
-        double* xb = x - nc;
-        double* rb = r - nc;
-        int* db = diag - nc;
-
-        // zero Lambda
-        if (m_flow_left->fixed_mdot()) {
-            rb[c_offset_U] = xb[c_offset_L];
-        }
-
-        if (m_flow_left->doEnergy(m_flow_left->nPoints()-1)) {
-            rb[c_offset_T] = xb[c_offset_T] - xb[c_offset_T - nc]; // zero T gradient
-        }
-        size_t kSkip = c_offset_Y + m_flow_left->rightExcessSpecies();
-        for (size_t k = c_offset_Y; k < nc; k++) {
-            if (k != kSkip) {
-                rb[k] = xb[k] - xb[k - nc]; // zero mass fraction gradient
-                db[k] = 0;
-            }
+    size_t kSkip = c_offset_Y + m_flow_left->rightExcessSpecies();
+    for (size_t k = c_offset_Y; k < nc; k++) {
+        if (k != kSkip) {
+            rb[k] = xb[k] - xb[k - nc]; // zero mass fraction gradient
+            db[k] = 0;
         }
     }
 }
@@ -410,7 +414,7 @@ shared_ptr<SolutionArray> Outlet1D::asArray(const double* soln) const
 
 // -------- OutletRes1D --------
 
-void OutletRes1D::setMoleFractions(const std::string& xres)
+void OutletRes1D::setMoleFractions(const string& xres)
 {
     m_xstr = xres;
     if (m_flow) {
@@ -433,12 +437,14 @@ void OutletRes1D::init()
 {
     _init(0);
 
+    if (m_flow_right) {
+        throw CanteraError("OutletRes1D::init",
+            "Left outlets with right-to-left flow are not supported.");
+    }
     if (m_flow_left) {
         m_flow = m_flow_left;
-    } else if (m_flow_right) {
-        m_flow = m_flow_right;
     } else {
-        throw CanteraError("OutletRes1D::init","no flow!");
+        throw CanteraError("OutletRes1D::init", "no flow!");
     }
 
     m_nsp = m_flow->phase().nSpecies();
@@ -462,46 +468,22 @@ void OutletRes1D::eval(size_t jg, double* xg, double* rg,
     double* r = rg + loc();
     integer* diag = diagg + loc();
 
-    if (m_flow_right) {
-        size_t nc = m_flow_right->nComponents();
-        double* xb = x;
-        double* rb = r;
+    size_t nc = m_flow_left->nComponents();
+    double* xb = x - nc;
+    double* rb = r - nc;
+    int* db = diag - nc;
 
-        // this seems wrong...
-        // zero Lambda
-        rb[c_offset_U] = xb[c_offset_L];
-
-        if (m_flow_right->doEnergy(0)) {
-            // zero gradient for T
-            rb[c_offset_T] = xb[c_offset_T] - xb[c_offset_T + nc];
-        }
-
-        // specified mass fractions
-        for (size_t k = c_offset_Y; k < nc; k++) {
-            rb[k] = xb[k] - m_yres[k-c_offset_Y];
-        }
+    size_t last = m_flow_left->nPoints() - 1;
+    if (m_flow_left->doEnergy(last)) {
+        rb[c_offset_T] = xb[c_offset_T] - xb[c_offset_T - nc]; // zero T gradient
+    } else {
+        rb[c_offset_T] = xb[c_offset_T] - m_flow_left->T_fixed(last);
     }
-
-    if (m_flow_left) {
-        size_t nc = m_flow_left->nComponents();
-        double* xb = x - nc;
-        double* rb = r - nc;
-        int* db = diag - nc;
-
-        if (!m_flow_left->fixed_mdot()) {
-            ;
-        } else {
-            rb[c_offset_U] = xb[c_offset_L]; // zero Lambda
-        }
-        if (m_flow_left->doEnergy(m_flow_left->nPoints()-1)) {
-            rb[c_offset_T] = xb[c_offset_T] - m_temp; // zero dT/dz
-        }
-        size_t kSkip = m_flow_left->rightExcessSpecies();
-        for (size_t k = c_offset_Y; k < nc; k++) {
-            if (k != kSkip) {
-                rb[k] = xb[k] - m_yres[k-c_offset_Y]; // fixed Y
-                db[k] = 0;
-            }
+    size_t kSkip = m_flow_left->rightExcessSpecies();
+    for (size_t k = c_offset_Y; k < nc; k++) {
+        if (k != kSkip) {
+            rb[k] = xb[k] - m_yres[k-c_offset_Y]; // fixed Y
+            db[k] = 0;
         }
     }
 }
@@ -516,7 +498,7 @@ shared_ptr<SolutionArray> OutletRes1D::asArray(const double* soln) const
     double pressure = m_flow->phase().pressure();
     auto phase = m_solution->thermo();
     phase->setState_TPY(m_temp, pressure, &m_yres[0]);
-    vector_fp data(phase->stateSize());
+    vector<double> data(phase->stateSize());
     phase->saveState(data);
 
     arr->setState(0, data);
@@ -574,9 +556,10 @@ shared_ptr<SolutionArray> Surf1D::asArray(const double* soln) const
 
 void Surf1D::fromArray(SolutionArray& arr, double* soln)
 {
-    Boundary1D::setMeta(arr.meta());
-    arr.setLoc(0);
-    m_temp = arr.thermo()->temperature();
+    auto meta = arr.meta();
+    m_temp = meta["temperature"].asDouble();
+    meta.erase("temperature");
+    Boundary1D::setMeta(meta);
 }
 
 void Surf1D::show(std::ostream& s, const double* x)
@@ -600,7 +583,7 @@ ReactingSurf1D::ReactingSurf1D()
     m_type = cSurfType;
 }
 
-ReactingSurf1D::ReactingSurf1D(shared_ptr<Solution> solution, const std::string& id)
+ReactingSurf1D::ReactingSurf1D(shared_ptr<Solution> solution, const string& id)
 {
     auto phase = std::dynamic_pointer_cast<SurfPhase>(solution->thermo());
     if (!phase) {
@@ -660,6 +643,7 @@ void ReactingSurf1D::init()
 {
     m_nv = m_nsp;
     _init(m_nsp);
+
     m_fixed_cov.resize(m_nsp, 0.0);
     m_fixed_cov[0] = 1.0;
     m_work.resize(m_kin->nTotalSpecies(), 0.0);
@@ -738,7 +722,7 @@ void ReactingSurf1D::eval(size_t jg, double* xg, double* rg,
     }
     if (m_flow_left) {
         size_t nc = m_flow_left->nComponents();
-        const vector_fp& mwleft = m_phase_left->molecularWeights();
+        const vector<double>& mwleft = m_phase_left->molecularWeights();
         double* rb = r - nc;
         double* xb = x - nc;
         rb[c_offset_T] = xb[c_offset_T] - m_temp; // specified T
@@ -770,7 +754,7 @@ shared_ptr<SolutionArray> ReactingSurf1D::asArray(const double* soln) const
     // set state of surface phase
     m_sphase->setState_TP(m_temp, m_sphase->pressure());
     m_sphase->setCoverages(soln);
-    vector_fp data(m_sphase->stateSize());
+    vector<double> data(m_sphase->stateSize());
     m_sphase->saveState(data.size(), &data[0]);
 
     auto arr = SolutionArray::create(m_solution, 1, meta);

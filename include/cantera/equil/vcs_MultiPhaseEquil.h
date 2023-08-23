@@ -25,7 +25,7 @@ namespace Cantera
  * argument, and the return parameters are contained in underlying ThermoPhase
  * objects.
  *
- * @ingroup equilfunctions
+ * @ingroup equilGroup
  */
 class vcs_MultiPhaseEquil
 {
@@ -81,7 +81,7 @@ public:
      * @param loglevel Determines the amount of printing to the output file.
      */
     int equilibrate(int XY, int estimateEquil = 0,
-                    int printLvl= 0, doublereal err = 1.0e-6,
+                    int printLvl= 0, double err = 1.0e-6,
                     int maxsteps = VCS_MAXSTEPS, int loglevel=-99);
 
     //! Equilibrate the solution using the current element abundances
@@ -105,7 +105,7 @@ public:
      * @param loglevel Determines the amount of printing to the output file.
      */
     int equilibrate_TP(int estimateEquil = 0,
-                       int printLvl= 0, doublereal err = 1.0e-6,
+                       int printLvl= 0, double err = 1.0e-6,
                        int maxsteps = VCS_MAXSTEPS, int loglevel=-99);
 
     //! Equilibrate the solution using the current element abundances
@@ -141,9 +141,9 @@ public:
      * @param maxsteps max steps allowed.
      * @param loglevel Determines the amount of printing to the output file.
      */
-    int equilibrate_HP(doublereal Htarget, int XY, double Tlow, double Thigh,
+    int equilibrate_HP(double Htarget, int XY, double Tlow, double Thigh,
                        int estimateEquil = 0,
-                       int printLvl = 0, doublereal err = 1.0E-6,
+                       int printLvl = 0, double err = 1.0E-6,
                        int maxsteps = VCS_MAXSTEPS, int loglevel=-99);
 
     //! Equilibrate the solution using the current element abundances stored in
@@ -176,9 +176,9 @@ public:
      * @param maxsteps max steps allowed.
      * @param loglevel Determines the amount of printing to the output file.
      */
-    int equilibrate_SP(doublereal Starget, double Tlow, double Thigh,
+    int equilibrate_SP(double Starget, double Tlow, double Thigh,
                        int estimateEquil = 0,
-                       int printLvl = 0, doublereal err = 1.0E-6,
+                       int printLvl = 0, double err = 1.0E-6,
                        int maxsteps = VCS_MAXSTEPS, int loglevel=-99);
 
     //! Equilibrate the solution using the current element abundances stored
@@ -209,9 +209,9 @@ public:
      * @param maxsteps max steps allowed.
      * @param logLevel Determines the amount of printing to the output file.
      */
-    int equilibrate_TV(int XY, doublereal xtarget,
+    int equilibrate_TV(int XY, double xtarget,
                        int estimateEquil = 0,
-                       int printLvl = 0, doublereal err = 1.0E-6,
+                       int printLvl = 0, double err = 1.0E-6,
                        int maxsteps = VCS_MAXSTEPS, int logLevel = -99);
 
     //! Report the equilibrium answer in a comma separated table format
@@ -221,7 +221,7 @@ public:
      * @param reportFile Base name of the file to get the report. File name is
      *     incremented by 1 for each report.
      */
-    void reportCSV(const std::string& reportFile);
+    void reportCSV(const string& reportFile);
 
 protected:
     //! Vector that takes into account of the current sorting of the species
@@ -232,7 +232,7 @@ protected:
      *
      * `m_order[korig] = k_sorted`
      */
-    vector_int m_order;
+    vector<int> m_order;
 
     //! Pointer to the MultiPhase mixture that will be equilibrated.
     /*!
@@ -263,7 +263,7 @@ protected:
 
     //! Vector of indices for species that are included in the calculation. This
     //! is used to exclude pure-phase species with invalid thermo data
-    vector_int m_species;
+    vector<int> m_species;
 
     //! The object that contains the problem statement and does all of the equilibration work
     /*!

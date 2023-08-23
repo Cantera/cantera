@@ -109,7 +109,7 @@ void Reactor::initialize(double t0)
     m_work.resize(maxnt);
 }
 
-size_t Reactor::nSensParams()
+size_t Reactor::nSensParams() const
 {
     size_t ns = m_sensParams.size();
     for (auto& S : m_surfaces) {
@@ -143,7 +143,7 @@ void Reactor::updateState(double* y)
 
         double T = m_thermo->temperature();
         boost::uintmax_t maxiter = 100;
-        std::pair<double, double> TT;
+        pair<double, double> TT;
         try {
             TT = bmt::bracket_and_solve_root(
                 u_err, T, 1.2, true, bmt::eps_tolerance<double>(48), maxiter);
@@ -215,7 +215,7 @@ void Reactor::eval(double time, double* LHS, double* RHS)
 
     evalWalls(time);
     m_thermo->restoreState(m_state);
-    const vector_fp& mw = m_thermo->molecularWeights();
+    const vector<double>& mw = m_thermo->molecularWeights();
     const double* Y = m_thermo->massFractions();
 
     evalSurfaces(LHS + m_nsp + 3, RHS + m_nsp + 3, m_sdot.data());
@@ -239,9 +239,9 @@ void Reactor::eval(double time, double* LHS, double* RHS)
     }
 
     // Energy equation.
-    // \f[
+    // @f[
     //     \dot U = -P\dot V + A \dot q + \dot m_{in} h_{in} - \dot m_{out} h.
-    // \f]
+    // @f]
     if (m_energy) {
         RHS[2] = - m_thermo->pressure() * m_vdot + m_Qdot;
     } else {
@@ -465,7 +465,7 @@ size_t Reactor::componentIndex(const string& nm) const
     }
 }
 
-std::string Reactor::componentName(size_t k) {
+string Reactor::componentName(size_t k) {
     if (k == 0) {
         return "mass";
     } else if (k == 1) {
@@ -549,7 +549,7 @@ void Reactor::setAdvanceLimits(const double *limits)
     }
 }
 
-bool Reactor::getAdvanceLimits(double *limits)
+bool Reactor::getAdvanceLimits(double *limits) const
 {
     bool has_limit = hasAdvanceLimits();
     if (has_limit) {

@@ -27,11 +27,11 @@ namespace HighFive {
 namespace Cantera
 {
 
-/*!
- *  A wrapper class handling storage to HDF; acts as a thin wrapper for HighFive.
+/**
+ *  A wrapper class handling storage to HDF. Acts as a thin wrapper for HighFive.
  *  The class implements methods that are intended to be called from SolutionArray.
  *
- *  @since  New in Cantera 3.0.
+ *  @since New in %Cantera 3.0.
  *  @warning This class is an experimental part of the %Cantera API and may be
  *      changed or removed without notice.
  */
@@ -117,7 +117,7 @@ private:
     //! ensure that HDF group is writeable
     bool checkGroupWrite(const string& id, bool permissive);
 
-    std::unique_ptr<HighFive::File> m_file; //!< HDF container file
+    unique_ptr<HighFive::File> m_file; //!< HDF container file
     bool m_write; //!< HDF access mode
     int m_compressionLevel=0; //!< HDF compression level
 #endif

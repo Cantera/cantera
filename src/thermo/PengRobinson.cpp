@@ -26,8 +26,7 @@ PengRobinson::PengRobinson(const string& infile, const string& id_)
     initThermoFile(infile, id_);
 }
 
-void PengRobinson::setSpeciesCoeffs(const std::string& species, double a, double b,
-                                    double w)
+void PengRobinson::setSpeciesCoeffs(const string& species, double a, double b, double w)
 {
     size_t k = speciesIndex(species);
     if (k == npos) {
@@ -72,8 +71,8 @@ void PengRobinson::setSpeciesCoeffs(const std::string& species, double a, double
     m_b_coeffs[k] = b;
 }
 
-void PengRobinson::setBinaryCoeffs(const std::string& species_i,
-        const std::string& species_j, double a0)
+void PengRobinson::setBinaryCoeffs(const string& species_i,
+        const string& species_j, double a0)
 {
     size_t ki = speciesIndex(species_i);
     if (ki == npos) {
@@ -207,7 +206,7 @@ void PengRobinson::getPartialMolarEnthalpies(double* hbar) const
     // First we get the reference state contributions
     getEnthalpy_RT_ref(hbar);
     scale(hbar, hbar+m_kk, hbar, RT());
-    vector_fp tmp;
+    vector<double> tmp;
     tmp.resize(m_kk,0.0);
 
     // We calculate m_dpdni
@@ -340,7 +339,7 @@ void PengRobinson::initThermo()
 {
     // Contents of 'critical-properties.yaml', loaded later if needed
     AnyMap critPropsDb;
-    std::unordered_map<std::string, AnyMap*> dbSpecies;
+    std::unordered_map<string, AnyMap*> dbSpecies;
 
     for (auto& [name, species] : m_species) {
         auto& data = species->input;
@@ -421,8 +420,7 @@ void PengRobinson::initThermo()
     }
 }
 
-void PengRobinson::getSpeciesParameters(const std::string& name,
-                                        AnyMap& speciesNode) const
+void PengRobinson::getSpeciesParameters(const string& name, AnyMap& speciesNode) const
 {
     MixtureFugacityTP::getSpeciesParameters(name, speciesNode);
     size_t k = speciesIndex(name);

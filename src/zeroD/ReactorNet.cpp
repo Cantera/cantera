@@ -148,7 +148,7 @@ void ReactorNet::reinitialize()
     }
 }
 
-void ReactorNet::setLinearSolverType(const std::string& linSolverType)
+void ReactorNet::setLinearSolverType(const string& linSolverType)
 {
     m_linearSolverType = linSolverType;
     m_integrator_init = false;
@@ -170,7 +170,7 @@ int ReactorNet::maxSteps()
     return integrator().maxSteps();
 }
 
-void ReactorNet::advance(doublereal time)
+void ReactorNet::advance(double time)
 {
     if (!m_init) {
         initialize();
@@ -272,7 +272,7 @@ void ReactorNet::getEstimate(double time, int k, double* yest)
     }
 }
 
-int ReactorNet::lastOrder()
+int ReactorNet::lastOrder() const
 {
     if (m_integ) {
         return m_integ->lastOrder();
@@ -373,8 +373,7 @@ double ReactorNet::sensitivity(size_t k, size_t p)
     return m_integ->sensitivity(k, p) / denom;
 }
 
-void ReactorNet::evalJacobian(doublereal t, doublereal* y,
-                              doublereal* ydot, doublereal* p, Array2D* j)
+void ReactorNet::evalJacobian(double t, double* y, double* ydot, double* p, Array2D* j)
 {
     //evaluate the unperturbed ydot
     eval(t, y, ydot, p);
@@ -396,7 +395,7 @@ void ReactorNet::evalJacobian(doublereal t, doublereal* y,
     }
 }
 
-void ReactorNet::updateState(doublereal* y)
+void ReactorNet::updateState(double* y)
 {
     checkFinite("y", y, m_nv);
     for (size_t n = 0; n < m_reactors.size(); n++) {
@@ -425,7 +424,7 @@ void ReactorNet::setAdvanceLimits(const double *limits)
     }
 }
 
-bool ReactorNet::hasAdvanceLimits()
+bool ReactorNet::hasAdvanceLimits() const
 {
     bool has_limit = false;
     for (size_t n = 0; n < m_reactors.size(); n++) {
@@ -434,7 +433,7 @@ bool ReactorNet::hasAdvanceLimits()
     return has_limit;
 }
 
-bool ReactorNet::getAdvanceLimits(double *limits)
+bool ReactorNet::getAdvanceLimits(double *limits) const
 {
     bool has_limit = false;
     for (size_t n = 0; n < m_reactors.size(); n++) {
@@ -465,7 +464,7 @@ size_t ReactorNet::globalComponentIndex(const string& component, size_t reactor)
     return m_start[reactor] + m_reactors[reactor]->componentIndex(component);
 }
 
-std::string ReactorNet::componentName(size_t i) const
+string ReactorNet::componentName(size_t i) const
 {
     for (auto r : m_reactors) {
         if (i < r->neq()) {
@@ -478,7 +477,7 @@ std::string ReactorNet::componentName(size_t i) const
 }
 
 size_t ReactorNet::registerSensitivityParameter(
-    const std::string& name, double value, double scale)
+    const string& name, double value, double scale)
 {
     if (m_integrator_init) {
         throw CanteraError("ReactorNet::registerSensitivityParameter",
@@ -508,7 +507,7 @@ AnyMap ReactorNet::solverStats() const
     }
 }
 
-std::string ReactorNet::linearSolverType() const
+string ReactorNet::linearSolverType() const
 {
     if (m_integ) {
         return m_integ->linearSolverType();
@@ -537,7 +536,7 @@ void ReactorNet::preconditionerSetup(double t, double* y, double gamma)
     // Set gamma value for M =I - gamma*J
     precon->setGamma(gamma);
     // Make a copy of state to adjust it for preconditioner
-    vector_fp yCopy(m_nv);
+    vector<double> yCopy(m_nv);
     // Get state of reactor
     getState(yCopy.data());
     // transform state based on preconditioner rules
@@ -569,7 +568,7 @@ void ReactorNet::updatePreconditioner(double gamma)
     precon->updatePreconditioner();
 }
 
-void ReactorNet::checkPreconditionerSupported() {
+void ReactorNet::checkPreconditionerSupported() const {
     // check for non-mole-based reactors and throw an error otherwise
     for (auto reactor : m_reactors) {
         if (!reactor->preconditionerSupported()) {

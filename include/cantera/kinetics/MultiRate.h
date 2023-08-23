@@ -16,6 +16,7 @@ namespace Cantera
 {
 
 //! A class template handling ReactionRate specializations.
+//! @ingroup rateEvaluators
 template <class RateType, class DataType>
 class MultiRate final : public MultiRateBase
 {
@@ -25,7 +26,7 @@ class MultiRate final : public MultiRateBase
     CT_DEFINE_HAS_MEMBER(has_ddM, perturbThirdBodies)
 
 public:
-    virtual std::string type() override {
+    string type() override {
         if (!m_rxn_rates.size()) {
             throw CanteraError("MultiRate::type",
                  "Cannot determine type of empty rate handler.");
@@ -33,13 +34,13 @@ public:
         return m_rxn_rates.at(0).second.type();
     }
 
-    virtual void add(size_t rxn_index, ReactionRate& rate) override {
+    void add(size_t rxn_index, ReactionRate& rate) override {
         m_indices[rxn_index] = m_rxn_rates.size();
         m_rxn_rates.emplace_back(rxn_index, dynamic_cast<RateType&>(rate));
         m_shared.invalidateCache();
     }
 
-    virtual bool replace(size_t rxn_index, ReactionRate& rate) override {
+    bool replace(size_t rxn_index, ReactionRate& rate) override {
         if (!m_rxn_rates.size()) {
             throw CanteraError("MultiRate::replace",
                  "Invalid operation: cannot replace rate object "
@@ -59,20 +60,18 @@ public:
         return false;
     }
 
-    virtual void resize(size_t nSpecies, size_t nReactions, size_t nPhases) override {
+    void resize(size_t nSpecies, size_t nReactions, size_t nPhases) override {
         m_shared.resize(nSpecies, nReactions, nPhases);
         m_shared.invalidateCache();
     }
 
-    virtual void getRateConstants(double* kf) override {
+    void getRateConstants(double* kf) override {
         for (auto& [iRxn, rate] : m_rxn_rates) {
             kf[iRxn] = rate.evalFromStruct(m_shared);
         }
     }
 
-    virtual void processRateConstants_ddT(double* rop,
-                                          const double* kf,
-                                          double deltaT) override
+    void processRateConstants_ddT(double* rop, const double* kf, double deltaT) override
     {
         if constexpr (has_ddT<RateType>::value) {
             for (const auto& [iRxn, rate] : m_rxn_rates) {
@@ -98,9 +97,7 @@ public:
         }
     }
 
-    virtual void processRateConstants_ddP(double* rop,
-                                          const double* kf,
-                                          double deltaP) override
+    void processRateConstants_ddP(double* rop, const double* kf, double deltaP) override
     {
         if constexpr (has_ddP<DataType>::value) {
             double dPinv = 1. / (m_shared.pressure * deltaP);
@@ -124,10 +121,8 @@ public:
         }
     }
 
-    virtual void processRateConstants_ddM(double* rop,
-                                          const double* kf,
-                                          double deltaM,
-                                          bool overwrite=true) override
+    void processRateConstants_ddM(double* rop, const double* kf, double deltaM,
+                                  bool overwrite=true) override
     {
         if constexpr (has_ddM<DataType>::value) {
             double dMinv = 1. / deltaM;
@@ -158,22 +153,22 @@ public:
         }
     }
 
-    virtual void update(double T) override {
+    void update(double T) override {
         m_shared.update(T);
         _update();
     }
 
-    virtual void update(double T, double extra) override {
+    void update(double T, double extra) override {
         m_shared.update(T, extra);
         _update();
     }
 
-    virtual void update(double T, const vector_fp& extra) override {
+    void update(double T, const vector<double>& extra) override {
         m_shared.update(T, extra);
         _update();
     }
 
-    virtual bool update(const ThermoPhase& phase, const Kinetics& kin) override {
+    bool update(const ThermoPhase& phase, const Kinetics& kin) override {
         bool changed = m_shared.update(phase, kin);
         if (changed) {
             // call helper function only if needed: implementation depends on whether
@@ -183,7 +178,7 @@ public:
         return changed;
     }
 
-    virtual double evalSingle(ReactionRate& rate) override {
+    double evalSingle(ReactionRate& rate) override {
         RateType& R = static_cast<RateType&>(rate);
         if constexpr (has_update<RateType>::value) {
             R.updateFromStruct(m_shared);
@@ -208,8 +203,8 @@ protected:
     }
 
     //! Vector of pairs of reaction rates indices and reaction rates
-    std::vector<std::pair<size_t, RateType>> m_rxn_rates;
-    std::map<size_t, size_t> m_indices; //! Mapping of indices
+    vector<pair<size_t, RateType>> m_rxn_rates;
+    map<size_t, size_t> m_indices; //! Mapping of indices
     DataType m_shared;
 };
 

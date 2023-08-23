@@ -14,16 +14,17 @@ namespace Cantera
 
 //! A source or sink whose state remains constant regardless of any flows or other
 //! interactions with other Reactor objects.
+//! @ingroup reactorGroup
 class Reservoir : public ReactorBase
 {
 public:
     Reservoir() {}
 
-    virtual std::string type() const {
+    string type() const override {
         return "Reservoir";
     }
 
-    virtual void initialize(doublereal t0 = 0.0) {}
+    void initialize(double t0=0.0) override {}
 
     void insert(ThermoPhase& contents) {
         setThermoMgr(contents);

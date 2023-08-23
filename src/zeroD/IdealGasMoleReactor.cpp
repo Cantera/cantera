@@ -64,7 +64,7 @@ size_t IdealGasMoleReactor::componentIndex(const string& nm) const
     }
 }
 
-std::string IdealGasMoleReactor::componentName(size_t k)
+string IdealGasMoleReactor::componentName(size_t k)
 {
     if (k == 0) {
         return "temperature";
@@ -103,7 +103,7 @@ void IdealGasMoleReactor::eval(double time, double* LHS, double* RHS)
     m_thermo->restoreState(m_state);
 
     m_thermo->getPartialMolarIntEnergies(&m_uk[0]);
-    const vector_fp& imw = m_thermo->inverseMolecularWeights();
+    const vector<double>& imw = m_thermo->inverseMolecularWeights();
 
     if (m_chem) {
         m_kin->getNetProductionRates(&m_wdot[0]); // "omega dot"
@@ -169,7 +169,7 @@ Eigen::SparseMatrix<double> IdealGasMoleReactor::jacobian()
     // map derivatives from the surface chemistry jacobian
     // to the reactor jacobian
     if (!m_surfaces.empty()) {
-        std::vector<Eigen::Triplet<double>> species_trips;
+        vector<Eigen::Triplet<double>> species_trips;
         for (int k = 0; k < dnk_dnj.outerSize(); k++) {
             for (Eigen::SparseMatrix<double>::InnerIterator it(dnk_dnj, k); it; ++it) {
                 species_trips.emplace_back(static_cast<int>(it.row()),
@@ -195,11 +195,11 @@ Eigen::SparseMatrix<double> IdealGasMoleReactor::jacobian()
         double deltaTemp = m_thermo->temperature()
             * std::sqrt(std::numeric_limits<double>::epsilon());
         // finite difference temperature derivatives
-        vector_fp lhsPerturbed(m_nv, 1.0), lhsCurrent(m_nv, 1.0);
-        vector_fp rhsPerturbed(m_nv, 0.0), rhsCurrent(m_nv, 0.0);
-        vector_fp yCurrent(m_nv);
+        vector<double> lhsPerturbed(m_nv, 1.0), lhsCurrent(m_nv, 1.0);
+        vector<double> rhsPerturbed(m_nv, 0.0), rhsCurrent(m_nv, 0.0);
+        vector<double> yCurrent(m_nv);
         getState(yCurrent.data());
-        vector_fp yPerturbed = yCurrent;
+        vector<double> yPerturbed = yCurrent;
         // perturb temperature
         yPerturbed[0] += deltaTemp;
         // getting perturbed state

@@ -1,7 +1,7 @@
 import os
 env = Environment(ENV = os.environ)
 
-env['F90'] = '@F90@'
+@tmpl_f90@
 env.Append(FFLAGS='-g',
            F90PATH=@tmpl_cantera_incdirs@,
            LIBS=@tmpl_cantera_libs@,

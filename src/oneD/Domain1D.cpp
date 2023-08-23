@@ -53,7 +53,7 @@ void Domain1D::resize(size_t nv, size_t np)
     locate();
 }
 
-std::string Domain1D::componentName(size_t n) const
+string Domain1D::componentName(size_t n) const
 {
     if (m_name[n] != "") {
         return m_name[n];
@@ -62,7 +62,7 @@ std::string Domain1D::componentName(size_t n) const
     }
 }
 
-size_t Domain1D::componentIndex(const std::string& name) const
+size_t Domain1D::componentIndex(const string& name) const
 {
     for (size_t n = 0; n < nComponents(); n++) {
         if (name == componentName(n)) {
@@ -73,7 +73,7 @@ size_t Domain1D::componentIndex(const std::string& name) const
                        "no component named "+name);
 }
 
-void Domain1D::setTransientTolerances(doublereal rtol, doublereal atol, size_t n)
+void Domain1D::setTransientTolerances(double rtol, double atol, size_t n)
 {
     if (n == npos) {
         for (n = 0; n < m_nv; n++) {
@@ -86,7 +86,7 @@ void Domain1D::setTransientTolerances(doublereal rtol, doublereal atol, size_t n
     }
 }
 
-void Domain1D::setSteadyTolerances(doublereal rtol, doublereal atol, size_t n)
+void Domain1D::setSteadyTolerances(double rtol, double atol, size_t n)
 {
     if (n == npos) {
         for (n = 0; n < m_nv; n++) {
@@ -109,10 +109,10 @@ void Domain1D::needJacUpdate()
 
 AnyMap Domain1D::getMeta() const
 {
-    auto wrap_tols = [this](const vector_fp& tols) {
+    auto wrap_tols = [this](const vector<double>& tols) {
         // If all tolerances are the same, just store the scalar value.
         // Otherwise, store them by component name
-        std::set<double> unique_tols(tols.begin(), tols.end());
+        set<double> unique_tols(tols.begin(), tols.end());
         if (unique_tols.size() == 1) {
             return AnyValue(tols[0]);
         } else {
@@ -171,7 +171,7 @@ void Domain1D::fromArray(const shared_ptr<SolutionArray>& arr)
 
 void Domain1D::setMeta(const AnyMap& meta)
 {
-    auto set_tols = [&](const AnyValue& tols, const string& which, vector_fp& out)
+    auto set_tols = [&](const AnyValue& tols, const string& which, vector<double>& out)
     {
         if (!tols.hasKey(which)) {
             return;
@@ -181,7 +181,7 @@ void Domain1D::setMeta(const AnyMap& meta)
             out.assign(nComponents(), tol.asDouble());
         } else {
             for (size_t i = 0; i < nComponents(); i++) {
-                std::string name = componentName(i);
+                string name = componentName(i);
                 if (tol.hasKey(name)) {
                     out[i] = tol[name].asDouble();
                 } else {
@@ -230,7 +230,7 @@ void Domain1D::locate()
     }
 }
 
-void Domain1D::setupGrid(size_t n, const doublereal* z)
+void Domain1D::setupGrid(size_t n, const double* z)
 {
     if (n > 1) {
         resize(m_nv, n);
@@ -290,7 +290,7 @@ void Domain1D::show(const double* x)
     writelog("\n");
 }
 
-void Domain1D::setProfile(const std::string& name, double* values, double* soln)
+void Domain1D::setProfile(const string& name, double* values, double* soln)
 {
     for (size_t n = 0; n < m_nv; n++) {
         if (name == componentName(n)) {
@@ -303,7 +303,7 @@ void Domain1D::setProfile(const std::string& name, double* values, double* soln)
     throw CanteraError("Domain1D::setProfile", "unknown component: "+name);
 }
 
-void Domain1D::_getInitialSoln(doublereal* x)
+void Domain1D::_getInitialSoln(double* x)
 {
     for (size_t j = 0; j < m_points; j++) {
         for (size_t n = 0; n < m_nv; n++) {
@@ -312,7 +312,7 @@ void Domain1D::_getInitialSoln(doublereal* x)
     }
 }
 
-doublereal Domain1D::initialValue(size_t n, size_t j)
+double Domain1D::initialValue(size_t n, size_t j)
 {
     throw NotImplementedError("Domain1D::initialValue");
 }

@@ -19,21 +19,19 @@ namespace Cantera
 //! ```cpp
 //!     shared_ptr<ReactorBase> r1 = newReactor3("IdealGasReactor");
 //! ```
-//!
-//! @ingroup ZeroD
 class ReactorFactory : public Factory<ReactorBase>
 {
 public:
     static ReactorFactory* factory();
 
-    virtual void deleteFactory();
+    void deleteFactory() override;
 
     //! Create a new reactor by type name.
     /*!
      * @param reactorType the type to be created.
-     * @deprecated  To be removed after Cantera 3.0; replaceable by newReactor3.
+     * @deprecated To be removed after %Cantera 3.0; replaceable by newReactor3.
      */
-    virtual ReactorBase* newReactor(const std::string& reactorType);
+    ReactorBase* newReactor(const string& reactorType);
 
 private:
     static ReactorFactory* s_factory;
@@ -41,16 +39,27 @@ private:
     ReactorFactory();
 };
 
+//! @defgroup reactorGroup Reactors
+//! Zero-dimensional objects representing stirred reactors.
+//! Reactors simulate time-dependent behavior considering gas-phase chemistry.
+//! Reactor objects should be instantiated via the newReactor3() function, for example:
+//!
+//! ```cpp
+//!     shared_ptr<ReactorBase> r1 = newReactor3("IdealGasReactor");
+//! ```
+//! @ingroup zerodGroup
+//! @{
+
 //! Create a Reactor object of the specified type
-//! @deprecated  To be changed after Cantera 3.0; for new behavior, see newReactor3.
-//! @ingroup ZeroD
+//! @deprecated To be changed after %Cantera 3.0; for new behavior, see newReactor3().
 ReactorBase* newReactor(const string& model);
 
 //! Create a Reactor object of the specified type
-//! @ingroup ZeroD
-//! @since New in Cantera 3.0.
-//! @todo Transition back to newReactor after Cantera 3.0
+//! @since New in %Cantera 3.0.
+//! @todo Transition back to newReactor() after %Cantera 3.0
 shared_ptr<ReactorBase> newReactor3(const string& model);
+
+//! @}
 
 }
 

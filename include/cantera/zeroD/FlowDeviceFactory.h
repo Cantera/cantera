@@ -19,21 +19,19 @@ namespace Cantera
 //! ```cpp
 //!     shared_ptr<FlowDevice> mfc = newFlowDevice3("MassFlowController");
 //! ```
-//!
-//! @ingroup ZeroD
 class FlowDeviceFactory : public Factory<FlowDevice>
 {
 public:
     static FlowDeviceFactory* factory();
 
-    virtual void deleteFactory();
+    void deleteFactory() override;
 
     //! Create a new flow device by type name.
     /*!
      * @param flowDeviceType the type to be created.
-     * @deprecated  To be removed after Cantera 3.0; replaceable by newFlowDevice3.
+     * @deprecated To be removed after %Cantera 3.0; replaceable by newFlowDevice3.
      */
-    virtual FlowDevice* newFlowDevice(const std::string& flowDeviceType);
+    FlowDevice* newFlowDevice(const string& flowDeviceType);
 
 private:
     static FlowDeviceFactory* s_factory;
@@ -41,17 +39,28 @@ private:
     FlowDeviceFactory();
 };
 
+//! @defgroup flowDeviceGroup Flow Devices
+//! Flow device objects connect zero-dimensional reactors.
+//! FlowDevice objects should be instantiated via the newFlowDevice3() function, for
+//! example:
+//!
+//! ```cpp
+//!     shared_ptr<FlowDevice> mfc = newFlowDevice3("MassFlowController");
+//! ```
+//! @ingroup zerodGroup
+//! @{
+
 //! Create a FlowDevice object of the specified type
-//! @deprecated  To be changed after Cantera 3.0; for new behavior, see newFlowDevice3.
-//! @ingroup ZeroD
+//! @deprecated To be changed after %Cantera 3.0; for new behavior, see
+//! newFlowDevice3().
 FlowDevice* newFlowDevice(const string& model);
 
 //! Create a FlowDevice object of the specified type
-//! @ingroup ZeroD
-//! @since New in Cantera 3.0.
-//! @todo Transition back to newFlowDevice after Cantera 3.0
+//! @since New in %Cantera 3.0.
+//! @todo Transition back to newFlowDevice() after %Cantera 3.0
 shared_ptr<FlowDevice> newFlowDevice3(const string& model);
 
+//! @}
 }
 
 #endif

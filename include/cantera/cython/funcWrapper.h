@@ -100,7 +100,7 @@ public:
         Py_XDECREF(m_value);
     }
 
-    std::string getMessage() const {
+    std::string getMessage() const override {
         std::string msg;
 
         PyObject* name = PyObject_GetAttrString(m_type, "__name__");
@@ -130,7 +130,7 @@ public:
         return msg;
     }
 
-    virtual std::string getClass() const {
+    std::string getClass() const override {
         return "Exception";
     }
 
@@ -148,7 +148,7 @@ public:
         m_pyobj(pyobj) {
     }
 
-    double eval(double t) const {
+    double eval(double t) const override {
         void* err[2] = {0, 0};
         double y = m_callback(t, m_pyobj, err);
         if (err[0]) {

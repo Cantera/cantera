@@ -22,7 +22,7 @@
 namespace Cantera
 {
 
-std::string Solution::name() const {
+string Solution::name() const {
     if (m_thermo) {
         return m_thermo->name();
     } else {
@@ -31,7 +31,7 @@ std::string Solution::name() const {
     }
 }
 
-void Solution::setName(const std::string& name) {
+void Solution::setName(const string& name) {
     if (m_thermo) {
         m_thermo->setName(name);
     } else {
@@ -70,7 +70,7 @@ void Solution::setTransport(shared_ptr<Transport> transport) {
     }
 }
 
-void Solution::setTransportModel(const std::string& model) {
+void Solution::setTransportModel(const string& model) {
     if (!m_thermo) {
         throw CanteraError("Solution::setTransportModel",
             "Unable to set Transport model without valid ThermoPhase object.");
@@ -118,6 +118,10 @@ AnyMap Solution::parameters(bool withInput) const
     if (withInput) {
         auto transport = out["transport"];
         AnyMap input = m_thermo->input();
+        if (input.hasKey("reactions")) {
+            // all reactions are listed in the standard 'reactions' section
+            input.erase("reactions");
+        }
         out.update(input);
         if (input.hasKey("transport")) {
             // revert changes / ensure that correct model is referenced
@@ -140,23 +144,23 @@ AnyMap& Solution::header()
     return m_header;
 }
 
-const std::string Solution::source() const {
+const string Solution::source() const {
     AnyValue source = m_header.getMetadata("filename");
     return source.empty() ? "<unknown>" : source.asString();
 }
 
-void Solution::setSource(const std::string& source) {
+void Solution::setSource(const string& source) {
     AnyValue filename(source);
     m_header.setMetadata("filename", filename);
 }
 
-void Solution::holdExternalHandle(const std::string& name,
+void Solution::holdExternalHandle(const string& name,
                                   shared_ptr<ExternalHandle> handle)
 {
     m_externalHandles[name] = handle;
 }
 
-shared_ptr<ExternalHandle> Solution::getExternalHandle(const std::string& name) const
+shared_ptr<ExternalHandle> Solution::getExternalHandle(const string& name) const
 {
     if (m_externalHandles.count(name)) {
         return m_externalHandles.at(name);
@@ -175,14 +179,14 @@ void Solution::removeChangedCallback(void* id)
     m_changeCallbacks.erase(id);
 }
 
-shared_ptr<Solution> newSolution(const std::string &infile,
-                                 const std::string &name,
-                                 const std::string &transport,
-                                 const std::vector<shared_ptr<Solution>> &adjacent)
+shared_ptr<Solution> newSolution(const string &infile,
+                                 const string &name,
+                                 const string &transport,
+                                 const vector<shared_ptr<Solution>> &adjacent)
 {
     // get file extension
     size_t dot = infile.find_last_of(".");
-    std::string extension;
+    string extension;
     if (dot != npos) {
         extension = toLowerCopy(infile.substr(dot+1));
     }
@@ -200,13 +204,13 @@ shared_ptr<Solution> newSolution(const std::string &infile,
     return sol;
 }
 
-shared_ptr<Solution> newSolution(const std::string& infile, const std::string& name,
-    const std::string& transport, const std::vector<std::string>& adjacent)
+shared_ptr<Solution> newSolution(const string& infile, const string& name,
+    const string& transport, const vector<string>& adjacent)
 {
     auto rootNode = AnyMap::fromYamlFile(infile);
     AnyMap& phaseNode = rootNode["phases"].getMapWhere("name", name);
 
-    std::vector<shared_ptr<Solution>> adjPhases;
+    vector<shared_ptr<Solution>> adjPhases;
     // Create explicitly-specified adjacent bulk phases
     for (auto& name : adjacent) {
         auto& adjNode = rootNode["phases"].getMapWhere("name", name);
@@ -217,9 +221,9 @@ shared_ptr<Solution> newSolution(const std::string& infile, const std::string& n
 
 shared_ptr<Solution> newSolution(const AnyMap& phaseNode,
                                  const AnyMap& rootNode,
-                                 const std::string& transport,
-                                 const std::vector<shared_ptr<Solution>>& adjacent,
-                                 const std::map<std::string, shared_ptr<Solution>>& related)
+                                 const string& transport,
+                                 const vector<shared_ptr<Solution>>& adjacent,
+                                 const map<string, shared_ptr<Solution>>& related)
 {
     // thermo phase
     auto thermo = newThermo(phaseNode, rootNode);
@@ -251,7 +255,7 @@ shared_ptr<Solution> newSolution(const AnyMap& phaseNode,
 
         // Helper function for adding individual phases
         auto addPhase = [&](const AnyValue& phases, const AnyMap& root,
-                            const std::string& name)
+                            const string& name)
         {
             if (!all_related.count(name)) {
                 // Create a new phase only if there isn't already one with the same name
@@ -266,23 +270,23 @@ shared_ptr<Solution> newSolution(const AnyMap& phaseNode,
         };
 
         auto& adjPhases = phaseNode["adjacent-phases"];
-        if (adjPhases.is<std::vector<std::string>>()) {
+        if (adjPhases.is<vector<string>>()) {
             // 'adjacent' is a list of bulk phases from the current input file
-            for (auto& phase : adjPhases.as<std::vector<std::string>>()) {
+            for (auto& phase : adjPhases.as<vector<string>>()) {
                 addPhase(rootNode["phases"], rootNode, phase);
             }
-        } else if (adjPhases.is<std::vector<AnyMap>>()) {
+        } else if (adjPhases.is<vector<AnyMap>>()) {
             // Each element of 'adjacent' is a map with one item, where the key is
             // a section in this file or another YAML file, and the value is a list of
             // phase names to read from that section
             for (auto& item : adjPhases.asVector<AnyMap>()) {
-                const std::string& source = item.begin()->first;
-                const auto& names = item.begin()->second.asVector<std::string>();
+                const string& source = item.begin()->first;
+                const auto& names = item.begin()->second.asVector<string>();
                 const auto& slash = boost::ifind_last(source, "/");
                 if (slash) {
                     // source is a different input file
-                    std::string fileName(source.begin(), slash.begin());
-                    std::string node(slash.end(), source.end());
+                    string fileName(source.begin(), slash.begin());
+                    string node(slash.end(), source.end());
                     AnyMap phaseSource = AnyMap::fromYamlFile(fileName,
                         rootNode.getString("__file__", ""));
                     for (auto& phase : names) {

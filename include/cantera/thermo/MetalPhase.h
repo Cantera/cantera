@@ -25,100 +25,100 @@ public:
 
     // Overloaded methods of class ThermoPhase
 
-    virtual std::string type() const {
+    string type() const override {
         return "electron-cloud";
     }
 
-    virtual bool isCompressible() const {
+    bool isCompressible() const override {
         return false;
     }
 
-    virtual doublereal enthalpy_mole() const {
+    double enthalpy_mole() const override {
         return 0.0;
     }
-    virtual doublereal intEnergy_mole() const {
+    double intEnergy_mole() const override {
         return - pressure() * molarVolume();
     }
-    virtual doublereal entropy_mole() const {
+    double entropy_mole() const override {
         return 0.0;
     }
-    virtual doublereal gibbs_mole() const {
+    double gibbs_mole() const override {
         return 0.0;
     }
-    virtual doublereal cp_mole() const {
+    double cp_mole() const override {
         return 0.0;
     }
-    virtual doublereal cv_mole() const {
+    double cv_mole() const override {
         return 0.0;
     }
 
-    virtual void setPressure(doublereal pres) {
+    void setPressure(double pres) override {
         m_press = pres;
     }
-    virtual doublereal pressure() const {
+    double pressure() const override {
         return m_press;
     }
 
-    virtual void getChemPotentials(doublereal* mu) const {
+    void getChemPotentials(double* mu) const override {
         for (size_t n = 0; n < nSpecies(); n++) {
             mu[n] = 0.0;
         }
     }
 
-    virtual void getEnthalpy_RT(doublereal* hrt) const {
+    void getEnthalpy_RT(double* hrt) const override {
         for (size_t n = 0; n < nSpecies(); n++) {
             hrt[n] = 0.0;
         }
     }
 
-    virtual void getEntropy_R(doublereal* sr) const {
+    void getEntropy_R(double* sr) const override {
         for (size_t n = 0; n < nSpecies(); n++) {
             sr[n] = 0.0;
         }
     }
 
-    virtual void getStandardChemPotentials(doublereal* mu0) const {
+    void getStandardChemPotentials(double* mu0) const override {
         for (size_t n = 0; n < nSpecies(); n++) {
             mu0[n] = 0.0;
         }
     }
 
-    virtual void getActivityConcentrations(doublereal* c) const {
+    void getActivityConcentrations(double* c) const override {
         for (size_t n = 0; n < nSpecies(); n++) {
             c[n] = 1.0;
         }
     }
-    virtual void getPartialMolarEnthalpies(doublereal *h) const {
+    void getPartialMolarEnthalpies(double *h) const override {
         for (size_t n = 0; n < nSpecies(); n++) {
             h[n] = 0.0;
         }
     }
 
-    virtual Units standardConcentrationUnits() const {
+    Units standardConcentrationUnits() const override {
         return Units(1.0);
     }
 
-    virtual doublereal standardConcentration(size_t k=0) const {
+    double standardConcentration(size_t k=0) const override {
         return 1.0;
     }
 
-    virtual doublereal logStandardConc(size_t k=0) const {
+    double logStandardConc(size_t k=0) const override {
         return 0.0;
     }
 
-    virtual void initThermo() {
+    void initThermo() override {
         if (m_input.hasKey("density")) {
             assignDensity(m_input.convert("density", "kg/m^3"));
         }
     }
 
-    virtual void getParameters(AnyMap& phaseNode) const {
+    void getParameters(AnyMap& phaseNode) const override {
         ThermoPhase::getParameters(phaseNode);
         phaseNode["density"].setQuantity(density(), "kg/m^3");
     }
 
 private:
-    doublereal m_press;
+    double m_press;
 };
 }
 

@@ -1,8 +1,8 @@
 /**
  *  @file LatticeSolidPhase.h Header for a simple thermodynamics model of a bulk
  *      solid phase derived from ThermoPhase, assuming an ideal solution model
- *      based on a lattice of solid atoms (see \ref thermoprops and class \link
- *      Cantera::LatticeSolidPhase LatticeSolidPhase\endlink).
+ *      based on a lattice of solid atoms (see @ref thermoprops and class @link
+ *      Cantera::LatticeSolidPhase LatticeSolidPhase@endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -52,14 +52,14 @@ namespace Cantera
  * contains a value for the molar density of the entire mixture. This is the
  * same thing as saying that
  *
- * \f[
+ * @f[
  *     L_i = L^{solid}   \theta_i
- * \f]
+ * @f]
  *
- * \f$ L_i \f$ is the molar volume of the ith lattice. \f$ L^{solid} \f$ is the
- * molar volume of the entire solid. \f$  \theta_i \f$ is a fixed weighting
+ * @f$ L_i @f$ is the molar volume of the ith lattice. @f$ L^{solid} @f$ is the
+ * molar volume of the entire solid. @f$  \theta_i @f$ is a fixed weighting
  * factor for the ith lattice representing the lattice stoichiometric
- * coefficient. For this object the \f$ \theta_i \f$ values are fixed.
+ * coefficient. For this object the @f$ \theta_i @f$ values are fixed.
  *
  * Let's take FeS2 as an example, which may be thought of as a combination of
  * two lattices: Fe and S lattice. The Fe sublattice has a molar density of 1
@@ -81,16 +81,16 @@ namespace Cantera
  * The molar volume of the Lattice solid is calculated from the following
  * formula
  *
- *  \f[
+ *  @f[
  *         V = \sum_i{ \theta_i V_i^{lattice}}
- *  \f]
+ *  @f]
  *
- * where \f$ V_i^{lattice} \f$ is the molar volume of the ith sublattice. This
+ * where @f$ V_i^{lattice} @f$ is the molar volume of the ith sublattice. This
  * is calculated from the following standard formula.
  *
- * \f[
+ * @f[
  *     V_i = \sum_k{ X_k V_k}
- * \f]
+ * @f]
  *
  * where k is a species in the ith sublattice.
  *
@@ -107,7 +107,7 @@ public:
     //! Base empty constructor
     LatticeSolidPhase() = default;
 
-    virtual std::string type() const {
+    string type() const override {
         return "compound-lattice";
     }
 
@@ -115,21 +115,21 @@ public:
     /*!
      * `LatticeSolid` phases only represent solids.
      */
-    virtual std::string phaseOfMatter() const {
+    string phaseOfMatter() const override {
         return "solid";
     }
 
-    virtual bool isCompressible() const {
+    bool isCompressible() const override {
         return false;
     }
 
-    std::map<std::string, size_t> nativeState() const {
+    map<string, size_t> nativeState() const override {
         return { {"T", 0}, {"P", 1}, {"X", 2} };
     }
 
-    virtual doublereal minTemp(size_t k = npos) const;
-    virtual doublereal maxTemp(size_t k = npos) const;
-    virtual doublereal refPressure() const;
+    double minTemp(size_t k=npos) const override;
+    double maxTemp(size_t k=npos) const override;
+    double refPressure() const override;
 
     //! This method returns the convention used in specification of the standard
     //! state, of which there are currently two, temperature based, and variable
@@ -137,102 +137,102 @@ public:
     /*!
      *  All of the thermo is determined by slave ThermoPhase routines.
      */
-    virtual int standardStateConvention() const {
+    int standardStateConvention() const override {
         return cSS_CONVENTION_SLAVE;
     }
 
     //! Return the Molar Enthalpy. Units: J/kmol.
     /*!
-     * The molar enthalpy is determined by the following formula, where \f$
-     * \theta_n \f$ is the lattice stoichiometric coefficient of the nth lattice
+     * The molar enthalpy is determined by the following formula, where @f$
+     * \theta_n @f$ is the lattice stoichiometric coefficient of the nth lattice
      *
-     * \f[
+     * @f[
      *   \tilde h(T,P) = {\sum_n \theta_n  \tilde h_n(T,P) }
-     * \f]
+     * @f]
      *
-     * \f$ \tilde h_n(T,P) \f$ is the enthalpy of the nth lattice.
+     * @f$ \tilde h_n(T,P) @f$ is the enthalpy of the nth lattice.
      *
      *  units J/kmol
      */
-    virtual doublereal enthalpy_mole() const;
+    double enthalpy_mole() const override;
 
     //! Return the Molar Internal Energy. Units: J/kmol.
     /*!
-     * The molar enthalpy is determined by the following formula, where \f$
-     * \theta_n \f$ is the lattice stoichiometric coefficient of the nth lattice
+     * The molar enthalpy is determined by the following formula, where @f$
+     * \theta_n @f$ is the lattice stoichiometric coefficient of the nth lattice
      *
-     * \f[
+     * @f[
      *   \tilde u(T,P) = {\sum_n \theta_n \tilde u_n(T,P) }
-     * \f]
+     * @f]
      *
-     * \f$ \tilde u_n(T,P) \f$ is the internal energy of the nth lattice.
+     * @f$ \tilde u_n(T,P) @f$ is the internal energy of the nth lattice.
      *
      *  units J/kmol
      */
-    virtual doublereal intEnergy_mole() const;
+    double intEnergy_mole() const override;
 
     //! Return the Molar Entropy. Units: J/kmol/K.
     /*!
-     * The molar enthalpy is determined by the following formula, where \f$
-     * \theta_n \f$ is the lattice stoichiometric coefficient of the nth lattice
+     * The molar enthalpy is determined by the following formula, where @f$
+     * \theta_n @f$ is the lattice stoichiometric coefficient of the nth lattice
      *
-     * \f[
+     * @f[
      *   \tilde s(T,P) = \sum_n \theta_n \tilde s_n(T,P)
-     * \f]
+     * @f]
      *
-     * \f$ \tilde s_n(T,P) \f$ is the molar entropy of the nth lattice.
+     * @f$ \tilde s_n(T,P) @f$ is the molar entropy of the nth lattice.
      *
      *  units J/kmol/K
      */
-    virtual doublereal entropy_mole() const;
+    double entropy_mole() const override;
 
     //! Return the Molar Gibbs energy. Units: J/kmol.
     /*!
      * The molar Gibbs free energy is determined by the following formula, where
-     * \f$ \theta_n \f$ is the lattice stoichiometric coefficient of the nth
+     * @f$ \theta_n @f$ is the lattice stoichiometric coefficient of the nth
      * lattice
      *
-     * \f[
+     * @f[
      *   \tilde h(T,P) = {\sum_n \theta_n \tilde h_n(T,P) }
-     * \f]
+     * @f]
      *
-     * \f$ \tilde h_n(T,P) \f$ is the enthalpy of the nth lattice.
+     * @f$ \tilde h_n(T,P) @f$ is the enthalpy of the nth lattice.
      *
      *  units J/kmol
      */
-    virtual doublereal gibbs_mole() const;
+    double gibbs_mole() const override;
 
     //! Return the constant pressure heat capacity. Units: J/kmol/K
     /*!
      * The molar constant pressure heat capacity is determined by the following
-     * formula, where \f$ C_n \f$ is the lattice molar density of the nth
-     * lattice, and \f$ C_T \f$ is the molar density of the solid compound.
+     * formula, where @f$ C_n @f$ is the lattice molar density of the nth
+     * lattice, and @f$ C_T @f$ is the molar density of the solid compound.
      *
-     * \f[
+     * @f[
      *   \tilde c_{p,n}(T,P) = \frac{\sum_n C_n \tilde c_{p,n}(T,P) }{C_T},
-     * \f]
+     * @f]
      *
-     * \f$ \tilde c_{p,n}(T,P) \f$ is the heat capacity of the nth lattice.
+     * @f$ \tilde c_{p,n}(T,P) @f$ is the heat capacity of the nth lattice.
      *
      *  units J/kmol/K
      */
-    virtual doublereal cp_mole() const;
+    double cp_mole() const override;
 
     //! Return the constant volume heat capacity. Units: J/kmol/K
     /*!
      * The molar constant volume heat capacity is determined by the following
-     * formula, where \f$ C_n \f$ is the lattice molar density of the nth
-     * lattice, and \f$ C_T \f$ is the molar density of the solid compound.
+     * formula, where @f$ C_n @f$ is the lattice molar density of the nth
+     * lattice, and @f$ C_T @f$ is the molar density of the solid compound.
      *
-     * \f[
+     * @f[
      *   \tilde c_{v,n}(T,P) = \frac{\sum_n C_n \tilde c_{v,n}(T,P) }{C_T},
-     * \f]
+     * @f]
      *
-     * \f$ \tilde c_{v,n}(T,P) \f$ is the heat capacity of the nth lattice.
+     * @f$ \tilde c_{v,n}(T,P) @f$ is the heat capacity of the nth lattice.
      *
      *  units J/kmol/K
      */
-    virtual doublereal cv_mole() const {
+    double cv_mole() const override {
         return cp_mole();
     }
 
@@ -240,7 +240,7 @@ public:
     /*!
      *  This method simply returns the stored pressure value.
      */
-    virtual doublereal pressure() const {
+    double pressure() const override {
         return m_press;
     }
 
@@ -248,19 +248,19 @@ public:
     /*!
      * @param p Pressure (units - Pa)
      */
-    virtual void setPressure(doublereal p);
+    void setPressure(double p) override;
 
     //! Calculate the density of the solid mixture
     /*!
      * The formula for this is
      *
-     * \f[
+     * @f[
      *      \rho = \sum_n{ \rho_n \theta_n }
-     * \f]
+     * @f]
      *
-     * where \f$ \rho_n \f$  is the density of the nth sublattice
+     * where @f$ \rho_n @f$  is the density of the nth sublattice
      */
-    doublereal calcDensity();
+    double calcDensity();
 
     //! Set the mole fractions to the specified values, and then normalize them
     //! so that they sum to 1.0 for each of the subphases
@@ -275,7 +275,7 @@ public:
      *           pass portions of this vector to the sublattices which assume
      *           that the portions individually sum to one. Length is m_kk.
      */
-    virtual void setMoleFractions(const doublereal* const x);
+    void setMoleFractions(const double* const x) override;
 
     //! Get the species mole fraction vector.
     /*!
@@ -284,46 +284,39 @@ public:
      *
      * @param x On return, x contains the mole fractions. Must have a length
      *          greater than or equal to the number of species.
+     *
+     * @todo This method shadows but does not override Phase::getMoleFractions(). The
+     *       LatticeSolidPhase class should be revised to avoid needing to override the
+     *       methods for getting composition. See
+     *       https://github.com/Cantera/cantera/issues/1310 for additional information.
      */
-    virtual void getMoleFractions(doublereal* const x) const;
+    void getMoleFractions(double* const x) const;
 
-    virtual doublereal moleFraction(const int k) const {
-        throw NotImplementedError("LatticeSolidPhase::moleFraction");
-    }
-
-    virtual void getMassFractions(doublereal* const y) const {
-        throw NotImplementedError("LatticeSolidPhase::getMassFractions");
-    }
-
-    virtual doublereal massFraction(const int k) const {
-        throw NotImplementedError("LatticeSolidPhase::massFraction");
-    }
-
-    virtual void setMassFractions(const doublereal* const y) {
+    void setMassFractions(const double* const y) override {
         throw NotImplementedError("LatticeSolidPhase::setMassFractions");
     }
 
-    virtual void setMassFractions_NoNorm(const doublereal* const y) {
+    void setMassFractions_NoNorm(const double* const y) override {
         throw NotImplementedError("LatticeSolidPhase::setMassFractions_NoNorm");
     }
 
-    virtual void getConcentrations(doublereal* const c) const {
+    void getConcentrations(double* const c) const override {
         throw NotImplementedError("LatticeSolidPhase::getConcentrations");
     }
 
-    virtual doublereal concentration(size_t k) const {
+    double concentration(size_t k) const override {
         throw NotImplementedError("LatticeSolidPhase::concentration");
     }
 
-    virtual void setConcentrations(const doublereal* const conc) {
+    void setConcentrations(const double* const conc) override {
         throw NotImplementedError("LatticeSolidPhase::setConcentrations");
     }
 
-    virtual Units standardConcentrationUnits() const;
+    Units standardConcentrationUnits() const override;
 
-    virtual void getActivityConcentrations(doublereal* c) const;
+    void getActivityConcentrations(double* c) const override;
 
-    virtual void getActivityCoefficients(doublereal* ac) const;
+    void getActivityCoefficients(double* ac) const override;
 
     //! Get the species chemical potentials. Units: J/kmol.
     /*!
@@ -337,18 +330,18 @@ public:
      * @param mu  Output vector of species chemical potentials. Length: m_kk.
      *            Units: J/kmol
      */
-    virtual void getChemPotentials(doublereal* mu) const;
+    void getChemPotentials(double* mu) const override;
 
     //! Returns an array of partial molar enthalpies for the species in the
     //! mixture.
     /*!
      * Units (J/kmol). For this phase, the partial molar enthalpies are equal to
      * the pure species enthalpies
-     *  \f[
+     *  @f[
      * \bar h_k(T,P) = \hat h^{ref}_k(T) + (P - P_{ref}) \hat V^0_k
-     * \f]
-     * The reference-state pure-species enthalpies, \f$ \hat h^{ref}_k(T) \f$,
-     * at the reference pressure,\f$ P_{ref} \f$, are computed by the species
+     * @f]
+     * The reference-state pure-species enthalpies, @f$ \hat h^{ref}_k(T) @f$,
+     * at the reference pressure,@f$ P_{ref} @f$, are computed by the species
      * thermodynamic property manager. They are polynomial functions of
      * temperature.
      * @see MultiSpeciesThermo
@@ -356,18 +349,18 @@ public:
      * @param hbar Output vector containing partial molar enthalpies.
      *             Length: m_kk.
      */
-    virtual void getPartialMolarEnthalpies(doublereal* hbar) const;
+    void getPartialMolarEnthalpies(double* hbar) const override;
 
     /**
      * Returns an array of partial molar entropies of the species in the
      * solution. Units: J/kmol/K. For this phase, the partial molar entropies
      * are equal to the pure species entropies plus the ideal solution
      * contribution.
-     *  \f[
-     * \bar s_k(T,P) =  \hat s^0_k(T) - R log(X_k)
-     * \f]
-     * The reference-state pure-species entropies,\f$ \hat s^{ref}_k(T) \f$, at
-     * the reference pressure, \f$ P_{ref} \f$, are computed by the species
+     *  @f[
+     * \bar s_k(T,P) =  \hat s^0_k(T) - R \ln(X_k)
+     * @f]
+     * The reference-state pure-species entropies,@f$ \hat s^{ref}_k(T) @f$, at
+     * the reference pressure, @f$ P_{ref} @f$, are computed by the species
      * thermodynamic property manager. They are polynomial functions of
      * temperature.
      * @see MultiSpeciesThermo
@@ -375,7 +368,7 @@ public:
      * @param sbar Output vector containing partial molar entropies.
      *             Length: m_kk.
      */
-    virtual void getPartialMolarEntropies(doublereal* sbar) const;
+    void getPartialMolarEntropies(double* sbar) const override;
 
     /**
      * Returns an array of partial molar Heat Capacities at constant pressure of
@@ -384,7 +377,7 @@ public:
      *
      * @param cpbar  Output vector of partial heat capacities. Length: m_kk.
      */
-    virtual void getPartialMolarCp(doublereal* cpbar) const;
+    void getPartialMolarCp(double* cpbar) const override;
 
     /**
      * returns an array of partial molar volumes of the species in the solution.
@@ -395,13 +388,13 @@ public:
      *
      * @param vbar  Output vector of partial molar volumes. Length: m_kk.
      */
-    virtual void getPartialMolarVolumes(doublereal* vbar) const;
+    void getPartialMolarVolumes(double* vbar) const override;
 
     //! Get the array of standard state chemical potentials at unit activity for
     //! the species at their standard states at the current *T* and *P* of the
     //! solution.
     /*!
-     * These are the standard state chemical potentials \f$ \mu^0_k(T,P) \f$.
+     * These are the standard state chemical potentials @f$ \mu^0_k(T,P) @f$.
      * The values are evaluated at the current temperature and pressure of the
      * solution.
      *
@@ -411,32 +404,31 @@ public:
      * @param mu0    Output vector of chemical potentials.
      *               Length: m_kk. Units: J/kmol
      */
-    virtual void getStandardChemPotentials(doublereal* mu0) const;
+    void getStandardChemPotentials(double* mu0) const override;
 
-    virtual doublereal standardConcentration(size_t k=0) const;
-    virtual doublereal logStandardConc(size_t k=0) const;
+    double standardConcentration(size_t k=0) const override;
+    double logStandardConc(size_t k=0) const override;
 
     //! @name Thermodynamic Values for the Species Reference States
     //! @{
 
-    virtual void getGibbs_RT_ref(doublereal* grt) const;
-    virtual void getGibbs_ref(doublereal* g) const;
+    void getGibbs_RT_ref(double* grt) const override;
+    void getGibbs_ref(double* g) const override;
     //! @}
 
-    virtual bool addSpecies(shared_ptr<Species> spec);
+    bool addSpecies(shared_ptr<Species> spec) override;
 
     //! Add a lattice to this phase
     void addLattice(shared_ptr<ThermoPhase> lattice);
 
-    //! Set the lattice stoichiometric coefficients, \f$ \theta_i \f$
-    void setLatticeStoichiometry(const compositionMap& comp);
+    //! Set the lattice stoichiometric coefficients, @f$ \theta_i @f$
+    void setLatticeStoichiometry(const Composition& comp);
 
-    virtual void setParameters(const AnyMap& phaseNode,
-                               const AnyMap& rootNode=AnyMap());
-    virtual void initThermo();
-    virtual void getParameters(AnyMap& phaseNode) const;
-    virtual void getSpeciesParameters(const std::string& name,
-                                      AnyMap& speciesNode) const;
+    void setParameters(const AnyMap& phaseNode,
+                       const AnyMap& rootNode=AnyMap()) override;
+    void initThermo() override;
+    void getParameters(AnyMap& phaseNode) const override;
+    void getSpeciesParameters(const string& name, AnyMap& speciesNode) const override;
 
     //! Set the Lattice mole fractions using a string
     /*!
@@ -444,10 +436,10 @@ public:
      * @param x  string containing Name:value pairs that will specify the mole
      *           fractions of species on a particular lattice
      */
-    void setLatticeMoleFractionsByName(int n, const std::string& x);
+    void setLatticeMoleFractionsByName(int n, const string& x);
 
-    virtual void modifyOneHf298SS(const size_t k, const doublereal Hf298New);
-    virtual void resetHf298(const size_t k=npos);
+    void modifyOneHf298SS(const size_t k, const double Hf298New) override;
+    void resetHf298(const size_t k=npos) override;
 
 protected:
     //! Current value of the pressure
@@ -457,22 +449,22 @@ protected:
     double m_molar_density = 0.0;
 
     //! Vector of sublattice ThermoPhase objects
-    std::vector<shared_ptr<ThermoPhase>> m_lattice;
+    vector<shared_ptr<ThermoPhase>> m_lattice;
 
     //! Vector of mole fractions
     /*!
      *  Note these mole fractions sum to one when summed over all phases.
      *  However, this is not what's passed down to the lower m_lattice objects.
      */
-    mutable vector_fp m_x;
+    mutable vector<double> m_x;
 
     //! Lattice stoichiometric coefficients
-    vector_fp theta_;
+    vector<double> theta_;
 
     //! Temporary vector
-    mutable vector_fp tmpV_;
+    mutable vector<double> tmpV_;
 
-    std::vector<size_t> lkstart_;
+    vector<size_t> lkstart_;
 
     //! Root node of the AnyMap which contains this phase definition.
     //! Used to look up the phase definitions for the constituent phases.

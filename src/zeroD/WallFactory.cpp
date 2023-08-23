@@ -31,7 +31,7 @@ void WallFactory::deleteFactory() {
     s_factory = 0;
 }
 
-WallBase* WallFactory::newWall(const std::string& wallType)
+WallBase* WallFactory::newWall(const string& wallType)
 {
     warn_deprecated("WallFactory::newWall",
         "To be removed after Cantera 3.0; for new behavior, see 'newWall3'.");

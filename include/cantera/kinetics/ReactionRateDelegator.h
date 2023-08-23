@@ -15,7 +15,7 @@ namespace Cantera
 
 //! Delegate methods of the ReactionData class to external functions
 //!
-//! @since New in Cantera 3.0
+//! @since New in %Cantera 3.0
 class ReactionDataDelegator : public Delegator, public ReactionData
 {
 public:
@@ -32,7 +32,7 @@ public:
 
     //! Set the type of the ReactionData class. This should match the corresponding
     //! ReactionRate class's type
-    void setType(const std::string& name) {
+    void setType(const string& name) {
         m_rateType = name;
     }
 
@@ -48,7 +48,7 @@ public:
 
 protected:
     //! The reaction rate type
-    std::string m_rateType;
+    string m_rateType;
 
     //! An external language's wrapper for the Solution object where this ReactionData
     //! object is being used
@@ -58,25 +58,26 @@ protected:
     shared_ptr<ExternalHandle> m_wrappedData;
 
     //! Delegated `update` method taking the Solution wrapper as its argument
-    std::function<double(void*)> m_update;
+    function<double(void*)> m_update;
 };
 
 //! Delegate methods of the ReactionRate class to external functions
 //!
-//! @since New in Cantera 3.0
+//! @since New in %Cantera 3.0
+//! @ingroup otherRateGroup
 class ReactionRateDelegator : public Delegator, public ReactionRate
 {
 public:
     ReactionRateDelegator();
 
-    virtual unique_ptr<MultiRateBase> newMultiRate() const override;
+    unique_ptr<MultiRateBase> newMultiRate() const override;
 
     //! Set the reaction type based on the user-provided reaction rate parameterization
-    void setType(const std::string& type) {
+    void setType(const string& type) {
         m_rateType = type;
     }
 
-    virtual const std::string type() const override {
+    const string type() const override {
         return m_rateType;
     }
 

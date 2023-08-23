@@ -1,8 +1,8 @@
 import os
 env = Environment(ENV = os.environ)
 
-env['F77'] = '@F77@'
-env['CC'] = '@CC@'
+@tmpl_cc@
+@tmpl_f77@
 env.Append(FFLAGS='-g',
            CCFLAGS=@tmpl_compiler_flags@,
            CPPPATH=@tmpl_cantera_incdirs@,

@@ -15,9 +15,10 @@ public:
         ck_tran.init(phase.get(), CK_Mode);
     }
 
-    void check_viscosity_poly(const std::string& speciek, const vector_fp& visc_coeff_expected, int cmode) {
+    void check_viscosity_poly(const string& speciek,
+                              const vector<double>& visc_coeff_expected, int cmode) {
         size_t k = phase->speciesIndex(speciek);
-        vector_fp coeffs (cmode == CK_Mode ? 4 : 5);
+        vector<double> coeffs (cmode == CK_Mode ? 4 : 5);
         if (cmode == CK_Mode) {
             ck_tran.getViscosityPolynomial(k, &coeffs[0]);
         } else {
@@ -28,11 +29,12 @@ public:
         }
     }
 
-    void check_cond_poly(const std::string& speciek, const vector_fp& cond_coeff_expected, int cmode) {
+    void check_cond_poly(const string& speciek,
+                         const vector<double>& cond_coeff_expected, int cmode) {
         MixTransport tran;
         tran.init(phase.get(), cmode);
         size_t k = phase->speciesIndex(speciek);
-        vector_fp coeffs (cmode == CK_Mode ? 4 : 5);
+        vector<double> coeffs (cmode == CK_Mode ? 4 : 5);
         if (cmode == CK_Mode) {
             ck_tran.getConductivityPolynomial(k, &coeffs[0]);
         } else {
@@ -43,10 +45,11 @@ public:
         }
     }
 
-    void check_bindiff_poly(const std::string& speciek, const std::string& speciej, const vector_fp& bindiff_coeff_expected, int cmode) {
+    void check_bindiff_poly(const string& speciek, const string& speciej,
+                            const vector<double>& bindiff_coeff_expected, int cmode) {
         size_t k = phase->speciesIndex(speciek);
         size_t j = phase->speciesIndex(speciej);
-        vector_fp coeffs (cmode == CK_Mode ? 4 : 5);
+        vector<double> coeffs (cmode == CK_Mode ? 4 : 5);
         if (cmode == CK_Mode) {
             ck_tran.getBinDiffusivityPolynomial(k, j, &coeffs[0]);
         } else {
@@ -57,7 +60,7 @@ public:
         }
     }
 
-    std::shared_ptr<ThermoPhase> phase;
+    shared_ptr<ThermoPhase> phase;
     MixTransport tran;
     MixTransport ck_tran;
 };
@@ -76,18 +79,18 @@ TEST_F(TransportPolynomialsTest, viscosityPolynomials)
 
 TEST_F(TransportPolynomialsTest, conductivityPolynomials)
 {
-    check_cond_poly("H2", vector_fp({-0.9677034329, 0.574433766, -0.1257371151, 0.01212356977, -0.0004317820758}), 0);
-    check_cond_poly("O2", vector_fp({0.106895521, -0.06376711344, 0.01421775618, -0.001390841153, 5.091744389e-05}), 0);
-    check_cond_poly("H2O", vector_fp({-0.4044895225, 0.2516652858, -0.05823800028, 0.005930903659, -0.0002223375429}), 0);
-    check_cond_poly("H2", vector_fp({0.4732693668, -1.700244996, 0.2987141261, -0.01159868465}), CK_Mode);
-    check_cond_poly("O2", vector_fp({-14.49659725, 3.36457572, -0.3419869392, 0.01504842571}), CK_Mode);
-    check_cond_poly("H2O", vector_fp({11.38787688, -8.755471964, 1.497616012, -0.07437507878}), CK_Mode);
+    check_cond_poly("H2", vector<double>({-0.9677034329, 0.574433766, -0.1257371151, 0.01212356977, -0.0004317820758}), 0);
+    check_cond_poly("O2", vector<double>({0.106895521, -0.06376711344, 0.01421775618, -0.001390841153, 5.091744389e-05}), 0);
+    check_cond_poly("H2O", vector<double>({-0.4044895225, 0.2516652858, -0.05823800028, 0.005930903659, -0.0002223375429}), 0);
+    check_cond_poly("H2", vector<double>({0.4732693668, -1.700244996, 0.2987141261, -0.01159868465}), CK_Mode);
+    check_cond_poly("O2", vector<double>({-14.49659725, 3.36457572, -0.3419869392, 0.01504842571}), CK_Mode);
+    check_cond_poly("H2O", vector<double>({11.38787688, -8.755471964, 1.497616012, -0.07437507878}), CK_Mode);
 }
 
 TEST_F(TransportPolynomialsTest, binDiffusivityPolynomials)
 {
-    check_bindiff_poly("H2", "H2O", vector_fp({-0.009701326278, 0.004014323899, -0.0004679109588, 1.938085266e-05, 9.241023548e-08}), 0);
-    check_bindiff_poly("O2", "O2", vector_fp({-0.003127289937, 0.001633232189, -0.0002902324473, 2.379515419e-05, -7.135754459e-07}), 0);
-    check_bindiff_poly("H2O", "O2",  vector_fp({-18.63036291, 5.475482371, -0.4735550509, 0.01962919378}), CK_Mode);
-    check_bindiff_poly("H2", "O2", vector_fp({-9.272394946, 2.438367828, -0.1040764365, 0.00460028674}), CK_Mode);
+    check_bindiff_poly("H2", "H2O", vector<double>({-0.009701326278, 0.004014323899, -0.0004679109588, 1.938085266e-05, 9.241023548e-08}), 0);
+    check_bindiff_poly("O2", "O2", vector<double>({-0.003127289937, 0.001633232189, -0.0002902324473, 2.379515419e-05, -7.135754459e-07}), 0);
+    check_bindiff_poly("H2O", "O2",  vector<double>({-18.63036291, 5.475482371, -0.4735550509, 0.01962919378}), CK_Mode);
+    check_bindiff_poly("H2", "O2", vector<double>({-9.272394946, 2.438367828, -0.1040764365, 0.00460028674}), CK_Mode);
 }

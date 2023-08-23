@@ -11,7 +11,7 @@
 #include "cantera/base/global.h"
 namespace Cantera
 {
-//! define this Cantera function to replace printf
+//! define this %Cantera function to replace printf
 /*!
  * We can replace this with printf easily
  */
@@ -85,7 +85,7 @@ typedef double(*VCS_FUNC_PTR)(double xval, double Vtarget,
  * @param vec vector of doubles
  * @returns   the l2 norm of the vector
  */
-double vcs_l2norm(const vector_fp& vec);
+double vcs_l2norm(const vector<double>& vec);
 
 //! Returns a const char string representing the type of the species given by
 //! the first argument

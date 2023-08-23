@@ -46,13 +46,13 @@ void IdealGasConstPressureReactor::getState(double* y)
     getSurfaceInitialConditions(y + m_nsp + 2);
 }
 
-void IdealGasConstPressureReactor::initialize(doublereal t0)
+void IdealGasConstPressureReactor::initialize(double t0)
 {
     ConstPressureReactor::initialize(t0);
     m_hk.resize(m_nsp, 0.0);
 }
 
-void IdealGasConstPressureReactor::updateState(doublereal* y)
+void IdealGasConstPressureReactor::updateState(double* y)
 {
     // The components of y are [0] the total mass, [1] the temperature,
     // [2...K+2) are the mass fractions of each species, and [K+2...] are the
@@ -77,7 +77,7 @@ void IdealGasConstPressureReactor::eval(double time, double* LHS, double* RHS)
     evalWalls(time);
 
     m_thermo->restoreState(m_state);
-    const vector_fp& mw = m_thermo->molecularWeights();
+    const vector<double>& mw = m_thermo->molecularWeights();
     const double* Y = m_thermo->massFractions();
 
     evalSurfaces(LHS + m_nsp + 2, RHS + m_nsp + 2, m_sdot.data());
@@ -144,7 +144,7 @@ size_t IdealGasConstPressureReactor::componentIndex(const string& nm) const
     }
 }
 
-std::string IdealGasConstPressureReactor::componentName(size_t k) {
+string IdealGasConstPressureReactor::componentName(size_t k) {
     if (k == 1) {
         return "temperature";
     } else {

@@ -21,6 +21,7 @@ class Kinetics;
 //! Data container holding shared data used for ReactionRate calculation
 /**
  * The base class defines variables and methods used by all specializations.
+ * @ingroup reactionGroup
  */
 struct ReactionData
 {
@@ -58,7 +59,7 @@ struct ReactionData
      * @warning  This method is an experimental part of the %Cantera API and
      *      may be changed or removed without notice.
      */
-    virtual void update(double T, const vector_fp& extra) {
+    virtual void update(double T, const vector<double>& extra) {
         throw NotImplementedError("ReactionData::update",
             "ReactionData type does not use extra vector argument.");
     }

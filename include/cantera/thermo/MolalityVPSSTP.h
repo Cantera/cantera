@@ -2,8 +2,8 @@
  *  @file MolalityVPSSTP.h
  *   Header for intermediate ThermoPhase object for phases which
  *   employ molality based activity coefficient formulations
- *  (see \ref thermoprops
- * and class \link Cantera::MolalityVPSSTP MolalityVPSSTP\endlink).
+ *  (see @ref thermoprops
+ * and class @link Cantera::MolalityVPSSTP MolalityVPSSTP@endlink).
  *
  * Header file for a derived class of ThermoPhase that handles
  * variable pressure standard state methods for calculating
@@ -34,10 +34,10 @@ namespace Cantera
  * Activity coefficients for species k may be altered between scales s1 to s2
  * using the following formula
  *
- * \f[
- *     ln(\gamma_k^{s2}) = ln(\gamma_k^{s1})
- *        + \frac{z_k}{z_j} \left(  ln(\gamma_j^{s2}) - ln(\gamma_j^{s1}) \right)
- * \f]
+ * @f[
+ *     \ln(\gamma_k^{s2}) = \ln(\gamma_k^{s1})
+ *        + \frac{z_k}{z_j} \left( \ln(\gamma_j^{s2}) - \ln(\gamma_j^{s1}) \right)
+ * @f]
  *
  * where j is any one species.
  */
@@ -51,24 +51,24 @@ const int PHSCALE_PITZER = 0;
  * Activity coefficients for species k may be altered between scales s1 to s2
  * using the following formula
  *
- * \f[
- *     ln(\gamma_k^{s2}) = ln(\gamma_k^{s1})
- *        + \frac{z_k}{z_j} \left(  ln(\gamma_j^{s2}) - ln(\gamma_j^{s1}) \right)
- * \f]
+ * @f[
+ *     \ln(\gamma_k^{s2}) = \ln(\gamma_k^{s1})
+ *        + \frac{z_k}{z_j} \left( \ln(\gamma_j^{s2}) - \ln(\gamma_j^{s1}) \right)
+ * @f]
  *
  * where j is any one species. For the NBS scale, j is equal to the Cl- species
  * and
  *
- * \f[
- *     ln(\gamma_{Cl-}^{s2}) = \frac{-A_{\phi} \sqrt{I}}{1.0 + 1.5 \sqrt{I}}
- * \f]
+ * @f[
+ *     \ln(\gamma_{Cl-}^{s2}) = \frac{-A_{\phi} \sqrt{I}}{1.0 + 1.5 \sqrt{I}}
+ * @f]
  *
  * This is the NBS pH scale, which is used in all conventional pH measurements.
  * and is based on the Bates-Guggenheim equations.
  */
 const int PHSCALE_NBS = 1;
 
-/*!
+/**
  * MolalityVPSSTP is a derived class of ThermoPhase that handles variable
  * pressure standard state methods for calculating thermodynamic properties that
  * are further based on molality-scaled activities. This category incorporates
@@ -83,88 +83,88 @@ const int PHSCALE_NBS = 1;
  * MolalityVPSSTP class return `cAC_CONVENTION_MOLALITY` from this member
  * function.
  *
- * The molality of a solute, \f$ m_i \f$, is defined as
+ * The molality of a solute, @f$ m_i @f$, is defined as
  *
- * \f[
+ * @f[
  *     m_i = \frac{n_i}{\tilde{M}_o n_o}
- * \f]
+ * @f]
  * where
- * \f[
+ * @f[
  *     \tilde{M}_o = \frac{M_o}{1000}
- * \f]
+ * @f]
  *
- * where \f$ M_o \f$ is the molecular weight of the solvent. The molality has
+ * where @f$ M_o @f$ is the molecular weight of the solvent. The molality has
  * units of gmol/kg. For the solute, the molality may be considered
  * as the amount of gmol's of solute per kg of solvent, a natural experimental
  * quantity.
  *
  * The formulas for calculating mole fractions if given the molalities of the
- * solutes is stated below. First calculate \f$ L^{sum} \f$, an intermediate
+ * solutes is stated below. First calculate @f$ L^{sum} @f$, an intermediate
  * quantity.
  *
- * \f[
+ * @f[
  *     L^{sum} = \frac{1}{\tilde{M}_o X_o} = \frac{1}{\tilde{M}_o} + \sum_{i\ne o} m_i
- * \f]
+ * @f]
  * Then,
- * \f[
+ * @f[
  *     X_o =   \frac{1}{\tilde{M}_o L^{sum}}
- * \f]
- * \f[
+ * @f]
+ * @f[
  *     X_i =   \frac{m_i}{L^{sum}}
- * \f]
- * where \f$ X_o \f$ is the mole fraction of solvent, and \f$ X_o \f$ is the
+ * @f]
+ * where @f$ X_o @f$ is the mole fraction of solvent, and @f$ X_o @f$ is the
  * mole fraction of solute *i*. Thus, the molality scale and the mole fraction
  * scale offer a one-to-one mapping between each other, except in the limit of a
  * zero solvent mole fraction.
  *
  * The standard states for thermodynamic objects that derive from MolalityVPSSTP
- * are on the unit molality basis. Chemical potentials of the solutes, \f$ \mu_k
- * \f$, and the solvent, \f$ \mu_o \f$, which are based on the molality form,
+ * are on the unit molality basis. Chemical potentials of the solutes, @f$ \mu_k
+ * @f$, and the solvent, @f$ \mu_o @f$, which are based on the molality form,
  * have the following general format:
  *
- * \f[
- *    \mu_k = \mu^{\triangle}_k(T,P) + R T ln(\gamma_k^{\triangle} \frac{m_k}{m^\triangle})
- * \f]
- * \f[
- *    \mu_o = \mu^o_o(T,P) + RT ln(a_o)
- * \f]
+ * @f[
+ *    \mu_k = \mu^{\triangle}_k(T,P) + R T \ln(\gamma_k^{\triangle} \frac{m_k}{m^\triangle})
+ * @f]
+ * @f[
+ *    \mu_o = \mu^o_o(T,P) + RT \ln(a_o)
+ * @f]
  *
- * where \f$ \gamma_k^{\triangle} \f$ is the molality based activity coefficient
- * for species \f$k\f$.
+ * where @f$ \gamma_k^{\triangle} @f$ is the molality based activity coefficient
+ * for species @f$ k @f$.
  *
  * The chemical potential of the solvent is thus expressed in a different format
  * than the chemical potential of the solutes. Additionally, the activity of the
- * solvent, \f$ a_o \f$, is further reexpressed in terms of an osmotic
- * coefficient, \f$ \phi \f$.
- * \f[
- *     \phi = \frac{- ln(a_o)}{\tilde{M}_o \sum_{i \ne o} m_i}
- * \f]
+ * solvent, @f$ a_o @f$, is further reexpressed in terms of an osmotic
+ * coefficient, @f$ \phi @f$.
+ * @f[
+ *     \phi = \frac{- \ln(a_o)}{\tilde{M}_o \sum_{i \ne o} m_i}
+ * @f]
  *
- * MolalityVPSSTP::osmoticCoefficient() returns the value of \f$ \phi \f$. Note
+ * MolalityVPSSTP::osmoticCoefficient() returns the value of @f$ \phi @f$. Note
  * there are a few of definitions of the osmotic coefficient floating around. We
  * use the one defined in (Activity Coefficients in Electrolyte Solutions, K. S.
  * Pitzer CRC Press, Boca Raton, 1991, p. 85, Eqn. 28). This definition is most
  * clearly related to theoretical calculation.
  *
- * The molar-based activity coefficients \f$ \gamma_k \f$ may be calculated from
- * the molality-based activity coefficients, \f$ \gamma_k^\triangle \f$ by the
+ * The molar-based activity coefficients @f$ \gamma_k @f$ may be calculated from
+ * the molality-based activity coefficients, @f$ \gamma_k^\triangle @f$ by the
  * following formula.
- * \f[
+ * @f[
  *     \gamma_k = \frac{\gamma_k^\triangle}{X_o}
- * \f]
+ * @f]
  * For purposes of establishing a convention, the molar activity coefficient of
  * the solvent is set equal to the molality-based activity coefficient of the
  * solvent:
- * \f[
+ * @f[
  *     \gamma_o = \gamma_o^\triangle
- * \f]
+ * @f]
  *
  * The molality-based and molarity-based standard states may be related to one
  * another by the following formula.
  *
- * \f[
+ * @f[
  *   \mu_k^\triangle(T,P) = \mu_k^o(T,P) + R T \ln(\tilde{M}_o m^\triangle)
- * \f]
+ * @f]
  *
  * An important convention is followed in all routines that derive from
  * MolalityVPSSTP. Standard state thermodynamic functions and reference state
@@ -194,17 +194,17 @@ const int PHSCALE_NBS = 1;
  * Activity coefficients for species k may be altered between scales s1 to s2
  * using the following formula
  *
- * \f[
- *     ln(\gamma_k^{s2}) = ln(\gamma_k^{s1})
- *        + \frac{z_k}{z_j} \left(  ln(\gamma_j^{s2}) - ln(\gamma_j^{s1}) \right)
- * \f]
+ * @f[
+ *     \ln(\gamma_k^{s2}) = \ln(\gamma_k^{s1})
+ *        + \frac{z_k}{z_j} \left( \ln(\gamma_j^{s2}) - \ln(\gamma_j^{s1}) \right)
+ * @f]
  *
  * where j is any one species. For the NBS scale, j is equal to the Cl- species
  * and
  *
- * \f[
- *     ln(\gamma_{Cl-}^{s2}) = \frac{-A_{\phi} \sqrt{I}}{1.0 + 1.5 \sqrt{I}}
- * \f]
+ * @f[
+ *     \ln(\gamma_{Cl-}^{s2}) = \frac{-A_{\phi} \sqrt{I}}{1.0 + 1.5 \sqrt{I}}
+ * @f]
  *
  * The Pitzer scale doesn't actually change anything. The pitzer scale is
  * defined as the raw unscaled activity coefficients produced by the underlying
@@ -243,7 +243,7 @@ public:
     /*!
      * All derived phases from `MolalityVPSSTP` always represent liquids.
      */
-    virtual std::string phaseOfMatter() const {
+    string phaseOfMatter() const override {
         return "liquid";
     }
 
@@ -280,24 +280,24 @@ public:
      *
      * @param xmolSolventMIN  Input double containing the minimum mole fraction
      */
-    void setMoleFSolventMin(doublereal xmolSolventMIN);
+    void setMoleFSolventMin(double xmolSolventMIN);
 
     //! Returns the minimum mole fraction in the molality formulation.
-    doublereal moleFSolventMin() const;
+    double moleFSolventMin() const;
 
     //! Calculates the molality of all species and stores the result internally.
     /*!
      * We calculate the vector of molalities of the species in the phase and
      * store the result internally:
-     * \f[
+     * @f[
      *     m_i = \frac{X_i}{1000 * M_o * X_{o,p}}
-     * \f]
+     * @f]
      * where
-     *    - \f$ M_o \f$ is the molecular weight of the solvent
-     *    - \f$ X_o \f$ is the mole fraction of the solvent
-     *    - \f$ X_i \f$ is the mole fraction of the solute.
-     *    - \f$ X_{o,p} = \max (X_{o}^{min}, X_o) \f$
-     *    - \f$ X_{o}^{min} \f$ = minimum mole fraction of solvent allowed
+     *    - @f$ M_o @f$ is the molecular weight of the solvent
+     *    - @f$ X_o @f$ is the mole fraction of the solvent
+     *    - @f$ X_i @f$ is the mole fraction of the solute.
+     *    - @f$ X_{o,p} = \max (X_{o}^{min}, X_o) @f$
+     *    - @f$ X_{o}^{min} @f$ = minimum mole fraction of solvent allowed
      *              in the denominator.
      */
     void calcMolalities() const;
@@ -305,54 +305,54 @@ public:
     //! This function will return the molalities of the species.
     /*!
      * We calculate the vector of molalities of the species in the phase
-     * \f[
+     * @f[
      *     m_i = \frac{X_i}{1000 * M_o * X_{o,p}}
-     * \f]
+     * @f]
      * where
-     *    - \f$ M_o \f$ is the molecular weight of the solvent
-     *    - \f$ X_o \f$ is the mole fraction of the solvent
-     *    - \f$ X_i \f$ is the mole fraction of the solute.
-     *    - \f$ X_{o,p} = \max (X_{o}^{min}, X_o) \f$
-     *    - \f$ X_{o}^{min} \f$ = minimum mole fraction of solvent allowed
+     *    - @f$ M_o @f$ is the molecular weight of the solvent
+     *    - @f$ X_o @f$ is the mole fraction of the solvent
+     *    - @f$ X_i @f$ is the mole fraction of the solute.
+     *    - @f$ X_{o,p} = \max (X_{o}^{min}, X_o) @f$
+     *    - @f$ X_{o}^{min} @f$ = minimum mole fraction of solvent allowed
      *              in the denominator.
      *
      * @param molal       Output vector of molalities. Length: m_kk.
      */
-    void getMolalities(doublereal* const molal) const;
+    void getMolalities(double* const molal) const;
 
     //! Set the molalities of the solutes in a phase
     /*!
      * Note, the entry for the solvent is not used. We are supplied with the
      * molalities of all of the solute species. We then calculate the mole
      * fractions of all species and update the ThermoPhase object.
-     * \f[
+     * @f[
      *     m_i = \frac{X_i}{M_o/1000 * X_{o,p}}
-     * \f]
+     * @f]
      * where
-     *    -  \f$M_o\f$ is the molecular weight of the solvent
-     *    -  \f$X_o\f$ is the mole fraction of the solvent
-     *    -  \f$X_i\f$ is the mole fraction of the solute.
-     *    -  \f$X_{o,p} = \max(X_o^{min}, X_o)\f$
-     *    -  \f$X_o^{min}\f$ = minimum mole fraction of solvent allowed
+     *    -  @f$ M_o @f$ is the molecular weight of the solvent
+     *    -  @f$ X_o @f$ is the mole fraction of the solvent
+     *    -  @f$ X_i @f$ is the mole fraction of the solute.
+     *    -  @f$ X_{o,p} = \max(X_o^{min}, X_o) @f$
+     *    -  @f$ X_o^{min} @f$ = minimum mole fraction of solvent allowed
      *                     in the denominator.
      *
      * The formulas for calculating mole fractions are
-     * \f[
+     * @f[
      *     L^{sum} = \frac{1}{\tilde{M}_o X_o} = \frac{1}{\tilde{M}_o} + \sum_{i\ne o} m_i
-     * \f]
+     * @f]
      * Then,
-     * \f[
+     * @f[
      *     X_o =   \frac{1}{\tilde{M}_o L^{sum}}
-     * \f]
-     * \f[
+     * @f]
+     * @f[
      *     X_i =   \frac{m_i}{L^{sum}}
-     * \f]
+     * @f]
      * It is currently an error if the solvent mole fraction is attempted to be
-     * set to a value lower than \f$ X_o^{min} \f$.
+     * set to a value lower than @f$ X_o^{min} @f$.
      *
      * @param molal   Input vector of molalities. Length: m_kk.
      */
-    void setMolalities(const doublereal* const molal);
+    void setMolalities(const double* const molal);
 
     //! Set the molalities of a phase
     /*!
@@ -361,7 +361,7 @@ public:
      *
      * @param xMap  Composition Map containing the molalities.
      */
-    void setMolalitiesByName(const compositionMap& xMap);
+    void setMolalitiesByName(const Composition& xMap);
 
     //! Set the molalities of a phase
     /*!
@@ -370,24 +370,24 @@ public:
      *
      * @param name  String containing the information for a composition map.
      */
-    void setMolalitiesByName(const std::string& name);
+    void setMolalitiesByName(const string& name);
 
     //! @}
     //! @name Activities, Standard States, and Activity Concentrations
     //!
-    //! The activity \f$a_k\f$ of a species in solution is related to the
-    //! chemical potential by \f[ \mu_k = \mu_k^0(T) + \hat R T \log a_k. \f] The
-    //! quantity \f$\mu_k^0(T,P)\f$ is the chemical potential at unit activity,
+    //! The activity @f$ a_k @f$ of a species in solution is related to the
+    //! chemical potential by @f[ \mu_k = \mu_k^0(T) + \hat R T \ln a_k. @f] The
+    //! quantity @f$ \mu_k^0(T,P) @f$ is the chemical potential at unit activity,
     //! which depends only on temperature and pressure.
     //! @{
 
     /**
      *  We set the convention to molality here.
      */
-    int activityConvention() const;
+    int activityConvention() const override;
 
-    virtual void getActivityConcentrations(doublereal* c) const;
-    virtual doublereal standardConcentration(size_t k=0) const;
+    void getActivityConcentrations(double* c) const override;
+    double standardConcentration(size_t k=0) const override;
 
     //! Get the array of non-dimensional activities (molality based for this
     //! class and classes that derive from it) at the current solution
@@ -397,15 +397,15 @@ public:
      * consistent with the molality scale. Therefore, this function must return
      * molality-based activities.
      *
-     * \f[
+     * @f[
      *     a_i^\triangle = \gamma_k^{\triangle} \frac{m_k}{m^\triangle}
-     * \f]
+     * @f]
      *
      * This function must be implemented in derived classes.
      *
      * @param ac     Output vector of molality-based activities. Length: m_kk.
      */
-    virtual void getActivities(doublereal* ac) const;
+    void getActivities(double* ac) const override;
 
     //! Get the array of non-dimensional activity coefficients at
     //! the current solution temperature, pressure, and solution concentration.
@@ -413,22 +413,22 @@ public:
      * These are mole-fraction based activity coefficients. In this
      * object, their calculation is based on translating the values
      * of the molality-based activity coefficients.
-     *  See Denbigh p. 278 for a thorough discussion.
+     *  See Denbigh p. 278 @cite denbigh1981 for a thorough discussion.
      *
-     * The molar-based activity coefficients \f$ \gamma_k \f$ may be calculated
-     * from the molality-based activity coefficients, \f$ \gamma_k^\triangle \f$
+     * The molar-based activity coefficients @f$ \gamma_k @f$ may be calculated
+     * from the molality-based activity coefficients, @f$ \gamma_k^\triangle @f$
      * by the following formula.
-     * \f[
+     * @f[
      *     \gamma_k = \frac{\gamma_k^\triangle}{X_o}
-     * \f]
+     * @f]
      *
      * For purposes of establishing a convention, the molar activity coefficient of the
      * solvent is set equal to the molality-based activity coefficient of the
      * solvent:
      *
-     * \f[
+     * @f[
      *     \gamma_o = \gamma_o^\triangle
-     * \f]
+     * @f]
      *
      * Derived classes don't need to overload this function. This function is
      * handled at this level.
@@ -436,13 +436,13 @@ public:
      * @param ac  Output vector containing the mole-fraction based activity
      *            coefficients. length: m_kk.
      */
-    virtual void getActivityCoefficients(doublereal* ac) const;
+    void getActivityCoefficients(double* ac) const override;
 
     //! Get the array of non-dimensional molality based activity coefficients at
     //! the current solution temperature, pressure, and solution concentration.
     /*!
-     * See Denbigh p. 278 for a thorough discussion. This class must be
-     * overridden in classes which derive from MolalityVPSSTP. This function
+     * See Denbigh p. 278 @cite denbigh1981 for a thorough discussion. This method must
+     * be overridden in classes which derive from MolalityVPSSTP. This function
      * takes over from the molar-based activity coefficient calculation,
      * getActivityCoefficients(), in derived classes.
      *
@@ -452,28 +452,28 @@ public:
      * Activity coefficients for species k may be altered between scales s1 to
      * s2 using the following formula
      *
-     * \f[
-     *     ln(\gamma_k^{s2}) = ln(\gamma_k^{s1})
-     *        + \frac{z_k}{z_j} \left(  ln(\gamma_j^{s2}) - ln(\gamma_j^{s1}) \right)
-     * \f]
+     * @f[
+     *     \ln(\gamma_k^{s2}) = \ln(\gamma_k^{s1})
+     *        + \frac{z_k}{z_j} \left( \ln(\gamma_j^{s2}) - \ln(\gamma_j^{s1}) \right)
+     * @f]
      *
      * where j is any one species. For the NBS scale, j is equal to the Cl-
      * species and
      *
-     * \f[
-     *     ln(\gamma_{Cl-}^{s2}) = \frac{-A_{\phi} \sqrt{I}}{1.0 + 1.5 \sqrt{I}}
-     * \f]
+     * @f[
+     *     \ln(\gamma_{Cl-}^{s2}) = \frac{-A_{\phi} \sqrt{I}}{1.0 + 1.5 \sqrt{I}}
+     * @f]
      *
      * @param acMolality Output vector containing the molality based activity
      *                   coefficients. length: m_kk.
      */
-    virtual void getMolalityActivityCoefficients(doublereal* acMolality) const;
+    virtual void getMolalityActivityCoefficients(double* acMolality) const;
 
     //! Calculate the osmotic coefficient
     /*!
-     * \f[
-     *     \phi = \frac{- ln(a_o)}{\tilde{M}_o \sum_{i \ne o} m_i}
-     * \f]
+     * @f[
+     *     \phi = \frac{- \ln(a_o)}{\tilde{M}_o \sum_{i \ne o} m_i}
+     * @f]
      *
      * Note there are a few of definitions of the osmotic coefficient floating
      * around. We use the one defined in (Activity Coefficients in Electrolyte
@@ -494,8 +494,8 @@ public:
     //! see importPhase().
     //! @{
 
-    virtual bool addSpecies(shared_ptr<Species> spec);
-    virtual void initThermo();
+    bool addSpecies(shared_ptr<Species> spec) override;
+    void initThermo() override;
 
     //! @}
 
@@ -507,16 +507,15 @@ public:
      * @param molalities  Input vector of molalities of the solutes.
      *                    Length: m_kk.
      */
-    void setState_TPM(doublereal t, doublereal p,
-                      const doublereal* const molalities);
+    void setState_TPM(double t, double p, const double* const molalities);
 
     //! Set the temperature (K), pressure (Pa), and molalities.
     /*!
      * @param t           Temperature (K)
      * @param p           Pressure (Pa)
-     * @param m           compositionMap containing the molalities
+     * @param m           Composition containing the molalities
      */
-    void setState_TPM(doublereal t, doublereal p, const compositionMap& m);
+    void setState_TPM(double t, double p, const Composition& m);
 
     //! Set the temperature (K), pressure (Pa), and molalities.
     /*!
@@ -525,38 +524,37 @@ public:
      * @param m           String which gets translated into a composition
      *                    map for the molalities of the solutes.
      */
-    void setState_TPM(doublereal t, doublereal p, const std::string& m);
+    void setState_TPM(double t, double p, const string& m);
 
     //! @copydoc ThermoPhase::setState
     /*!
      * Additionally uses the keys `molalities` or `M` to set the molalities.
      */
-    virtual void setState(const AnyMap& state);
+    void setState(const AnyMap& state) override;
 
-    virtual void getdlnActCoeffdlnN(const size_t ld, doublereal* const dlnActCoeffdlnN) {
+    void getdlnActCoeffdlnN(const size_t ld, double* const dlnActCoeffdlnN) override {
         getdlnActCoeffdlnN_numderiv(ld, dlnActCoeffdlnN);
     }
 
-    virtual std::string report(bool show_thermo=true,
-                               doublereal threshold=1e-14) const;
+    string report(bool show_thermo=true, double threshold=1e-14) const override;
 
 protected:
-    virtual void getCsvReportData(std::vector<std::string>& names,
-                                  std::vector<vector_fp>& data) const;
+    void getCsvReportData(vector<string>& names,
+                          vector<vector<double>>& data) const override;
 
     //! Get the array of unscaled non-dimensional molality based activity
     //! coefficients at the current solution temperature, pressure, and solution
     //! concentration.
     /*!
-     * See Denbigh p. 278 for a thorough discussion. This class must be
-     * overridden in classes which derive from MolalityVPSSTP. This function
+     * See Denbigh p. 278 @cite denbigh1981 for a thorough discussion. This method must
+     * be overridden in classes which derive from MolalityVPSSTP. This function
      * takes over from the molar-based activity coefficient calculation,
      * getActivityCoefficients(), in derived classes.
      *
      * @param acMolality Output vector containing the molality based activity
      *                   coefficients. length: m_kk.
      */
-    virtual void getUnscaledMolalityActivityCoefficients(doublereal* acMolality) const;
+    virtual void getUnscaledMolalityActivityCoefficients(double* acMolality) const;
 
     //! Apply the current phScale to a set of activity Coefficients or
     //! activities
@@ -566,7 +564,7 @@ protected:
      * @param acMolality input/Output vector containing the molality based
      *                   activity coefficients. length: m_kk.
      */
-    virtual void applyphScale(doublereal* acMolality) const;
+    virtual void applyphScale(double* acMolality) const;
 
 private:
     //! Returns the index of the Cl- species.
@@ -580,7 +578,7 @@ private:
      * Right now we use a restrictive interpretation. The species must be named
      * "Cl-". It must consist of exactly one Cl and one E atom.
      */
-    virtual size_t findCLMIndex() const;
+    size_t findCLMIndex() const;
 
 protected:
     //! Scaling to be used for output of single-ion species activity
@@ -602,7 +600,7 @@ protected:
     //! Molecular weight of the Solvent
     double m_weightSolvent = 18.01528;
 
-    /*!
+    /**
      * In any molality implementation, it makes sense to have a minimum solvent
      * mole fraction requirement, since the implementation becomes singular in
      * the xmolSolvent=0 limit. The default is to set it to 0.01. We then modify
@@ -618,7 +616,7 @@ protected:
 
     //! Current value of the molalities of the species in the phase. Note this
     //! vector is a mutable quantity. units are (kg/kmol)
-    mutable vector_fp m_molalities;
+    mutable vector<double> m_molalities;
 };
 
 }

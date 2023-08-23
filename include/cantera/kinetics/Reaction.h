@@ -20,8 +20,6 @@ class ThirdBody;
 class ArrheniusRate; // @todo  Remove after Cantera 3.0
 class FalloffRate; // @todo  Remove after Cantera 3.0
 
-//! @defgroup reactionGroup Reactions and reaction rates
-
 //! Abstract base class which stores data about a reaction and its rate
 //! parameterization so that it can be added to a Kinetics object.
 //! @ingroup reactionGroup
@@ -31,7 +29,7 @@ public:
     Reaction() {}
     Reaction(const Composition& reactants, const Composition& products,
              shared_ptr<ReactionRate> rate, shared_ptr<ThirdBody> tbody=nullptr);
-    Reaction(const std::string& equation,
+    Reaction(const string& equation,
              shared_ptr<ReactionRate> rate, shared_ptr<ThirdBody> tbody=nullptr);
 
     //! Construct a Reaction and corresponding ReactionRate based on AnyMap (YAML)
@@ -41,20 +39,20 @@ public:
     virtual ~Reaction() {}
 
     //! The reactant side of the chemical equation for this reaction
-    std::string reactantString() const;
+    string reactantString() const;
 
     //! The product side of the chemical equation for this reaction
-    std::string productString() const;
+    string productString() const;
 
     //! The chemical equation for this reaction
-    std::string equation() const;
+    string equation() const;
 
     //! Set the reactants and products based on the reaction equation. If a Kinetics
     //! object is provided, it is used to check that all reactants and products exist.
-    void setEquation(const std::string& equation, const Kinetics* kin=0);
+    void setEquation(const string& equation, const Kinetics* kin=0);
 
     //! The type of reaction, including reaction rate information
-    std::string type() const;
+    string type() const;
 
     //! Calculate the units of the rate constant. These are determined by the units
     //! of the standard concentration of the reactant species' phases and the phase
@@ -62,7 +60,7 @@ public:
     UnitStack calculateRateCoeffUnits(const Kinetics& kin);
 
     //! Calculate the units of the rate constant.
-    //! @deprecated  To be removed after Cantera 3.0. Replaceable by
+    //! @deprecated To be removed after %Cantera 3.0. Replaceable by
     //!              calculateRateCoeffUnits.
     UnitStack calculateRateCoeffUnits3(const Kinetics& kin) {
         warn_deprecated("Reaction::calculateRateCoeffUnits3",
@@ -72,11 +70,11 @@ public:
     }
 
     //! Ensure that the rate constant and other parameters for this reaction are valid.
-    //! @since  New in Cantera 3.0.
+    //! @since New in %Cantera 3.0.
     void check();
 
     //! Ensure that the rate constant and other parameters for this reaction are valid.
-    //! @deprecated  To be removed after Cantera 3.0. Replaceable by check.
+    //! @deprecated To be removed after %Cantera 3.0. Replaceable by check.
     void validate() {
         warn_deprecated("Reaction::validate",
             "Deprecated in Cantera 3.0 and to be removed thereafter; replaceable "
@@ -143,7 +141,7 @@ public:
 
     //! An identification string for the reaction, used in some filtering
     //! operations
-    std::string id;
+    string id;
 
     //! True if the current reaction is reversible. False otherwise
     bool reversible = true;
@@ -180,7 +178,7 @@ public:
     }
 
     //! Check whether reaction involves third body collider
-    //! @since  New in Cantera 3.0.
+    //! @since New in %Cantera 3.0.
     bool usesThirdBody() const {
         return bool(m_third_body);
     }
@@ -210,46 +208,47 @@ protected:
 
 
 //! A class for managing third-body efficiencies, including default values
+//! @ingroup reactionGroup
 class ThirdBody
 {
 public:
     explicit ThirdBody() {};
-    ThirdBody(const std::string& third_body);
+    ThirdBody(const string& third_body);
     ThirdBody(const AnyMap& node);
 
-    //! @deprecated  To be removed after Cantera 3.0; instantiate using string instead
+    //! @deprecated To be removed after %Cantera 3.0; instantiate using string instead
     ThirdBody(double default_efficiency);
 
     //! Name of the third body collider
-    //! @since  New in Cantera 3.0
-    std::string name() const {
+    //! @since New in %Cantera 3.0
+    string name() const {
         return m_name;
     }
 
     //! Set name of the third body collider
-    //! @since  New in Cantera 3.0
-    void setName(const std::string& third_body);
+    //! @since New in %Cantera 3.0
+    void setName(const string& third_body);
 
     //! Set third-body efficiencies from AnyMap *node*
-    //! @deprecated  To be removed after Cantera 3.0; renamed to setParameters
+    //! @deprecated To be removed after %Cantera 3.0; renamed to setParameters
     void setEfficiencies(const AnyMap& node);
 
     //! Set third-body efficiencies from AnyMap *node*
-    //! @since  New in Cantera 3.0
+    //! @since New in %Cantera 3.0
     void setParameters(const AnyMap& node);
 
     //! Get third-body efficiencies from AnyMap *node*
     //! @param node  AnyMap receiving serialized parameters
-    //! @since  New in Cantera 3.0
+    //! @since New in %Cantera 3.0
     void getParameters(AnyMap& node) const;
 
     //! Get the third-body efficiency for species *k*
-    double efficiency(const std::string& k) const;
+    double efficiency(const string& k) const;
 
     //! Suffix representing the third body collider in reaction equation, for example
     //! `+ M` or `(+M)`
-    //! @since  New in Cantera 3.0
-    std::string collider() const;
+    //! @since New in %Cantera 3.0
+    string collider() const;
 
     //! Verify that all species involved in collision efficiencies are defined in the
     //! Kinetics object. The function returns true if all species are found, and raises
@@ -257,7 +256,7 @@ public:
     //! species, in which case false is returned.
     //! @param rxn  Reaction object
     //! @param kin  Kinetics object
-    //! @since  New in Cantera 3.0
+    //! @since New in %Cantera 3.0
     bool checkSpecies(const Reaction& rxn, const Kinetics& kin) const;
 
     //! Map of species to third body efficiency
@@ -275,13 +274,13 @@ public:
 
 protected:
     //! Name of the third body collider
-    std::string m_name = "M";
+    string m_name = "M";
 };
 
 
 //! A reaction with a non-reacting third body "M" that acts to add or remove
 //! energy from the reacting species
-//! @deprecated  To be removed after Cantera 3.0. Merged with Reaction
+//! @deprecated To be removed after %Cantera 3.0. Merged with Reaction
 class ThreeBodyReaction : public Reaction
 {
 public:
@@ -299,7 +298,7 @@ public:
 //! decreases as pressure increases due to collisional stabilization of a reaction
 //! intermediate; in this case, the forward rate constant is written as being
 //! proportional to the low-pressure rate constant.
-//! @deprecated  To be removed after Cantera 3.0. Merged with Reaction
+//! @deprecated To be removed after %Cantera 3.0. Merged with Reaction
 class FalloffReaction : public Reaction
 {
 public:
@@ -315,7 +314,7 @@ public:
 /*!
  * @param type string identifying type of reaction.
  */
-unique_ptr<Reaction> newReaction(const std::string& type);
+unique_ptr<Reaction> newReaction(const string& type);
 
 //! Create a new Reaction object using the specified parameters
 /*!
@@ -328,11 +327,10 @@ unique_ptr<Reaction> newReaction(const AnyMap& rxn_node,
 //! Create Reaction objects for each item (an AnyMap) in `items`. The species
 //! involved in these reactions must exist in the phases associated with the
 //! Kinetics object `kinetics`.
-std::vector<shared_ptr<Reaction>> getReactions(const AnyValue& items,
-                                               Kinetics& kinetics);
+vector<shared_ptr<Reaction>> getReactions(const AnyValue& items, Kinetics& kinetics);
 
 //! Parse reaction equation
-void parseReactionEquation(Reaction& R, const std::string& equation,
+void parseReactionEquation(Reaction& R, const string& equation,
                            const AnyBase& reactionNode, const Kinetics* kin);
 
 using ThreeBodyReaction3 = ThreeBodyReaction; // @todo: remove after Cantera 3.0

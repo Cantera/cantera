@@ -2,7 +2,7 @@
  *  @file ThermoPhase.cpp
  * Definition file for class ThermoPhase, the base class for phases with
  * thermodynamic properties
- * (see class \link Cantera::ThermoPhase ThermoPhase\endlink).
+ * (see class @link Cantera::ThermoPhase ThermoPhase@endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -52,12 +52,12 @@ Units ThermoPhase::standardConcentrationUnits() const
     return Units(1.0, 0, -static_cast<double>(nDim()), 0, 0, 0, 1);
 }
 
-doublereal ThermoPhase::logStandardConc(size_t k) const
+double ThermoPhase::logStandardConc(size_t k) const
 {
     return log(standardConcentration(k));
 }
 
-void ThermoPhase::getActivities(doublereal* a) const
+void ThermoPhase::getActivities(double* a) const
 {
     getActivityConcentrations(a);
     for (size_t k = 0; k < nSpecies(); k++) {
@@ -65,7 +65,7 @@ void ThermoPhase::getActivities(doublereal* a) const
     }
 }
 
-void ThermoPhase::getLnActivityCoefficients(doublereal* lnac) const
+void ThermoPhase::getLnActivityCoefficients(double* lnac) const
 {
     getActivityCoefficients(lnac);
     for (size_t k = 0; k < m_kk; k++) {
@@ -73,7 +73,7 @@ void ThermoPhase::getLnActivityCoefficients(doublereal* lnac) const
     }
 }
 
-void ThermoPhase::getElectrochemPotentials(doublereal* mu) const
+void ThermoPhase::getElectrochemPotentials(double* mu) const
 {
     getChemPotentials(mu);
     double ve = Faraday * electricPotential();
@@ -82,43 +82,43 @@ void ThermoPhase::getElectrochemPotentials(doublereal* mu) const
     }
 }
 
-void ThermoPhase::setState_TPX(doublereal t, doublereal p, const doublereal* x)
+void ThermoPhase::setState_TPX(double t, double p, const double* x)
 {
     setMoleFractions(x);
     setState_TP(t,p);
 }
 
-void ThermoPhase::setState_TPX(doublereal t, doublereal p, const compositionMap& x)
+void ThermoPhase::setState_TPX(double t, double p, const Composition& x)
 {
     setMoleFractionsByName(x);
     setState_TP(t,p);
 }
 
-void ThermoPhase::setState_TPX(doublereal t, doublereal p, const std::string& x)
+void ThermoPhase::setState_TPX(double t, double p, const string& x)
 {
     setMoleFractionsByName(x);
     setState_TP(t,p);
 }
 
-void ThermoPhase::setState_TPY(doublereal t, doublereal p, const doublereal* y)
+void ThermoPhase::setState_TPY(double t, double p, const double* y)
 {
     setMassFractions(y);
     setState_TP(t,p);
 }
 
-void ThermoPhase::setState_TPY(doublereal t, doublereal p, const compositionMap& y)
+void ThermoPhase::setState_TPY(double t, double p, const Composition& y)
 {
     setMassFractionsByName(y);
     setState_TP(t,p);
 }
 
-void ThermoPhase::setState_TPY(doublereal t, doublereal p, const std::string& y)
+void ThermoPhase::setState_TPY(double t, double p, const string& y)
 {
     setMassFractionsByName(y);
     setState_TP(t,p);
 }
 
-void ThermoPhase::setState_TP(doublereal t, doublereal p)
+void ThermoPhase::setState_TP(double t, double p)
 {
     double tsave = temperature();
     double dsave = density();
@@ -131,7 +131,7 @@ void ThermoPhase::setState_TP(doublereal t, doublereal p)
     }
 }
 
-void ThermoPhase::setState_RPX(doublereal rho, doublereal p, const doublereal* x)
+void ThermoPhase::setState_RPX(double rho, double p, const double* x)
 {
     warn_deprecated("ThermoPhase::setState_RPX",
         "To be removed after Cantera 3.0. Replaceable by calls to "
@@ -140,7 +140,7 @@ void ThermoPhase::setState_RPX(doublereal rho, doublereal p, const doublereal* x
     setState_DP(rho, p);
 }
 
-void ThermoPhase::setState_RPX(doublereal rho, doublereal p, const compositionMap& x)
+void ThermoPhase::setState_RPX(double rho, double p, const Composition& x)
 {
     warn_deprecated("ThermoPhase::setState_RPX",
         "To be removed after Cantera 3.0. Replaceable by calls to "
@@ -149,7 +149,7 @@ void ThermoPhase::setState_RPX(doublereal rho, doublereal p, const compositionMa
     setState_DP(rho, p);
 }
 
-void ThermoPhase::setState_RPX(doublereal rho, doublereal p, const std::string& x)
+void ThermoPhase::setState_RPX(double rho, double p, const string& x)
 {
     warn_deprecated("ThermoPhase::setState_RPX",
         "To be removed after Cantera 3.0. Replaceable by calls to "
@@ -158,7 +158,7 @@ void ThermoPhase::setState_RPX(doublereal rho, doublereal p, const std::string& 
     setState_DP(rho, p);
 }
 
-void ThermoPhase::setState_RPY(doublereal rho, doublereal p, const doublereal* y)
+void ThermoPhase::setState_RPY(double rho, double p, const double* y)
 {
     warn_deprecated("ThermoPhase::setState_RPY",
         "To be removed after Cantera 3.0. Replaceable by calls to "
@@ -167,7 +167,7 @@ void ThermoPhase::setState_RPY(doublereal rho, doublereal p, const doublereal* y
     setState_DP(rho, p);
 }
 
-void ThermoPhase::setState_RPY(doublereal rho, doublereal p, const compositionMap& y)
+void ThermoPhase::setState_RPY(double rho, double p, const Composition& y)
 {
     warn_deprecated("ThermoPhase::setState_RPY",
         "To be removed after Cantera 3.0. Replaceable by calls to "
@@ -176,7 +176,7 @@ void ThermoPhase::setState_RPY(doublereal rho, doublereal p, const compositionMa
     setState_DP(rho, p);
 }
 
-void ThermoPhase::setState_RPY(doublereal rho, doublereal p, const std::string& y)
+void ThermoPhase::setState_RPY(double rho, double p, const string& y)
 {
     warn_deprecated("ThermoPhase::setState_RPY",
         "To be removed after Cantera 3.0. Replaceable by calls to "
@@ -185,14 +185,14 @@ void ThermoPhase::setState_RPY(doublereal rho, doublereal p, const std::string& 
     setState_DP(rho, p);
 }
 
-void ThermoPhase::setState_RP(doublereal rho, doublereal p)
+void ThermoPhase::setState_RP(double rho, double p)
 {
     warn_deprecated("ThermoPhase::setState_RP",
         "To be removed after Cantera 3.0. Renamed to setState_DP.");
     setState_DP(rho, p);
 }
 
-void ThermoPhase::setState_PX(doublereal p, doublereal* x)
+void ThermoPhase::setState_PX(double p, double* x)
 {
     warn_deprecated("ThermoPhase::setState_PX", "To be removed after Cantera 3.0. "
         "Call 'setMoleFractions' and 'setPressure' instead.");
@@ -200,7 +200,7 @@ void ThermoPhase::setState_PX(doublereal p, doublereal* x)
     setPressure(p);
 }
 
-void ThermoPhase::setState_PY(doublereal p, doublereal* y)
+void ThermoPhase::setState_PY(double p, double* y)
 {
     warn_deprecated("ThermoPhase::setState_PX", "To be removed after Cantera 3.0. "
         "Call 'setMassFractions' and 'setPressure' instead.");
@@ -328,7 +328,7 @@ void ThermoPhase::setState(const AnyMap& input_state)
     }
 }
 
-void ThermoPhase::setState_conditional_TP(doublereal t, doublereal p, bool set_p)
+void ThermoPhase::setState_conditional_TP(double t, double p, bool set_p)
 {
     setTemperature(t);
     if (set_p) {
@@ -339,12 +339,12 @@ void ThermoPhase::setState_conditional_TP(doublereal t, doublereal p, bool set_p
 void ThermoPhase::setState_HPorUV(double Htarget, double p,
                                   double rtol, bool doUV)
 {
-    doublereal dt;
-    doublereal v = 0.0;
+    double dt;
+    double v = 0.0;
 
     // Assign the specific volume or pressure and make sure it's positive
     if (doUV) {
-        doublereal v = p;
+        double v = p;
         if (v < 1.0E-300) {
             throw CanteraError("ThermoPhase::setState_HPorUV (UV)",
                                "Input specific volume is too small or negative. v = {}", v);
@@ -541,8 +541,8 @@ void ThermoPhase::setState_SV(double Starget, double v, double rtol)
 void ThermoPhase::setState_SPorSV(double Starget, double p,
                                   double rtol, bool doSV)
 {
-    doublereal v = 0.0;
-    doublereal dt;
+    double v = 0.0;
+    double dt;
     if (doSV) {
         v = p;
         if (v < 1.0E-300) {
@@ -756,22 +756,21 @@ double ThermoPhase::o2Present(const double* y) const
     return 0.5 * o2pres / sum;
 }
 
-double ThermoPhase::stoichAirFuelRatio(const compositionMap& fuelComp,
-                                          const compositionMap& oxComp,
-                                          ThermoBasis basis) const
+double ThermoPhase::stoichAirFuelRatio(const Composition& fuelComp,
+                                       const Composition& oxComp,
+                                       ThermoBasis basis) const
 {
-    vector_fp fuel(getCompositionFromMap(fuelComp));
-    vector_fp ox(getCompositionFromMap(oxComp));
+    vector<double> fuel(getCompositionFromMap(fuelComp));
+    vector<double> ox(getCompositionFromMap(oxComp));
     return stoichAirFuelRatio(fuel.data(), ox.data(), basis);
 }
 
-double ThermoPhase::stoichAirFuelRatio(const std::string& fuelComp,
-                                          const std::string& oxComp,
-                                          ThermoBasis basis) const
+double ThermoPhase::stoichAirFuelRatio(const string& fuelComp, const string& oxComp,
+                                       ThermoBasis basis) const
 {
     return stoichAirFuelRatio(
-            parseCompString(fuelComp.find(":") != std::string::npos ? fuelComp : fuelComp+":1.0"),
-            parseCompString(oxComp.find(":") != std::string::npos ? oxComp : oxComp+":1.0"),
+            parseCompString(fuelComp.find(":") != string::npos ? fuelComp : fuelComp+":1.0"),
+            parseCompString(oxComp.find(":") != string::npos ? oxComp : oxComp+":1.0"),
             basis);
 }
 
@@ -779,7 +778,7 @@ double ThermoPhase::stoichAirFuelRatio(const double* fuelComp,
                                           const double* oxComp,
                                           ThermoBasis basis) const
 {
-    vector_fp fuel, ox;
+    vector<double> fuel, ox;
     if (basis == ThermoBasis::molar) { // convert input compositions to mass fractions
         fuel.resize(m_kk);
         ox.resize(m_kk);
@@ -816,7 +815,7 @@ void ThermoPhase::setEquivalenceRatio(double phi, const double* fuelComp,
 
     double p = pressure();
 
-    vector_fp fuel, ox;
+    vector<double> fuel, ox;
     if (basis == ThermoBasis::molar) { // convert input compositions to mass fractions
         fuel.resize(m_kk);
         ox.resize(m_kk);
@@ -831,7 +830,7 @@ void ThermoPhase::setEquivalenceRatio(double phi, const double* fuelComp,
     double sum_f = std::accumulate(fuelComp, fuelComp+m_kk, 0.0);
     double sum_o = std::accumulate(oxComp, oxComp+m_kk, 0.0);
 
-    vector_fp y(m_kk);
+    vector<double> y(m_kk);
     for (size_t k = 0; k != m_kk; ++k) {
         y[k] = phi * fuelComp[k]/sum_f + AFR_st * oxComp[k]/sum_o;
     }
@@ -840,20 +839,20 @@ void ThermoPhase::setEquivalenceRatio(double phi, const double* fuelComp,
     setPressure(p);
 }
 
-void ThermoPhase::setEquivalenceRatio(double phi, const std::string& fuelComp,
-                                        const std::string& oxComp, ThermoBasis basis)
+void ThermoPhase::setEquivalenceRatio(double phi, const string& fuelComp,
+                                        const string& oxComp, ThermoBasis basis)
 {
     setEquivalenceRatio(phi,
-            parseCompString(fuelComp.find(":") != std::string::npos ? fuelComp : fuelComp+":1.0"),
-            parseCompString(oxComp.find(":") != std::string::npos ? oxComp : oxComp+":1.0"),
+            parseCompString(fuelComp.find(":") != string::npos ? fuelComp : fuelComp+":1.0"),
+            parseCompString(oxComp.find(":") != string::npos ? oxComp : oxComp+":1.0"),
             basis);
 }
 
-void ThermoPhase::setEquivalenceRatio(double phi, const compositionMap& fuelComp,
-                                        const compositionMap& oxComp, ThermoBasis basis)
+void ThermoPhase::setEquivalenceRatio(double phi, const Composition& fuelComp,
+                                      const Composition& oxComp, ThermoBasis basis)
 {
-    vector_fp fuel = getCompositionFromMap(fuelComp);
-    vector_fp ox = getCompositionFromMap(oxComp);
+    vector<double> fuel = getCompositionFromMap(fuelComp);
+    vector<double> ox = getCompositionFromMap(oxComp);
     setEquivalenceRatio(phi, fuel.data(), ox.data(), basis);
 }
 
@@ -869,22 +868,21 @@ double ThermoPhase::equivalenceRatio() const
     return o2_required / o2_present;
 }
 
-double ThermoPhase::equivalenceRatio(const compositionMap& fuelComp,
-                                        const compositionMap& oxComp,
-                                        ThermoBasis basis) const
+double ThermoPhase::equivalenceRatio(const Composition& fuelComp,
+                                     const Composition& oxComp,
+                                     ThermoBasis basis) const
 {
-    vector_fp fuel(getCompositionFromMap(fuelComp));
-    vector_fp ox(getCompositionFromMap(oxComp));
+    vector<double> fuel(getCompositionFromMap(fuelComp));
+    vector<double> ox(getCompositionFromMap(oxComp));
     return equivalenceRatio(fuel.data(), ox.data(), basis);
 }
 
-double ThermoPhase::equivalenceRatio(const std::string& fuelComp,
-                                        const std::string& oxComp,
-                                        ThermoBasis basis) const
+double ThermoPhase::equivalenceRatio(const string& fuelComp, const string& oxComp,
+                                     ThermoBasis basis) const
 {
     return equivalenceRatio(
-        parseCompString(fuelComp.find(":") != std::string::npos ? fuelComp : fuelComp+":1.0"),
-        parseCompString(oxComp.find(":") != std::string::npos ? oxComp : oxComp+":1.0"),
+        parseCompString(fuelComp.find(":") != string::npos ? fuelComp : fuelComp+":1.0"),
+        parseCompString(oxComp.find(":") != string::npos ? oxComp : oxComp+":1.0"),
         basis);
 }
 
@@ -902,7 +900,7 @@ double ThermoPhase::equivalenceRatio(const double* fuelComp,
         return std::numeric_limits<double>::infinity(); // pure fuel
     }
 
-    vector_fp fuel, ox;
+    vector<double> fuel, ox;
     if (basis == ThermoBasis::molar) { // convert input compositions to mass fractions
         fuel.resize(m_kk);
         ox.resize(m_kk);
@@ -917,20 +915,20 @@ double ThermoPhase::equivalenceRatio(const double* fuelComp,
     return std::max(Z / (1.0 - Z) * AFR_st, 0.0);
 }
 
-void ThermoPhase::setMixtureFraction(double mixFrac, const compositionMap& fuelComp,
-                                     const compositionMap& oxComp, ThermoBasis basis)
+void ThermoPhase::setMixtureFraction(double mixFrac, const Composition& fuelComp,
+                                     const Composition& oxComp, ThermoBasis basis)
 {
-    vector_fp fuel(getCompositionFromMap(fuelComp));
-    vector_fp ox(getCompositionFromMap(oxComp));
+    vector<double> fuel(getCompositionFromMap(fuelComp));
+    vector<double> ox(getCompositionFromMap(oxComp));
     setMixtureFraction(mixFrac, fuel.data(), ox.data(), basis);
 }
 
-void ThermoPhase::setMixtureFraction(double mixFrac, const std::string& fuelComp,
-                                     const std::string& oxComp, ThermoBasis basis)
+void ThermoPhase::setMixtureFraction(double mixFrac, const string& fuelComp,
+                                     const string& oxComp, ThermoBasis basis)
 {
     setMixtureFraction(mixFrac,
-        parseCompString(fuelComp.find(":") != std::string::npos ? fuelComp : fuelComp+":1.0"),
-        parseCompString(oxComp.find(":") != std::string::npos ? oxComp : oxComp+":1.0"),
+        parseCompString(fuelComp.find(":") != string::npos ? fuelComp : fuelComp+":1.0"),
+        parseCompString(oxComp.find(":") != string::npos ? oxComp : oxComp+":1.0"),
         basis);
 }
 
@@ -942,7 +940,7 @@ void ThermoPhase::setMixtureFraction(double mixFrac, const double* fuelComp,
                            "Mixture fraction must be between 0 and 1");
     }
 
-    vector_fp fuel, ox;
+    vector<double> fuel, ox;
     if (basis == ThermoBasis::molar) { // convert input compositions to mass fractions
         fuel.resize(m_kk);
         ox.resize(m_kk);
@@ -962,7 +960,7 @@ void ThermoPhase::setMixtureFraction(double mixFrac, const double* fuelComp,
 
     double p = pressure();
 
-    vector_fp y(m_kk);
+    vector<double> y(m_kk);
 
     for (size_t k = 0; k != m_kk; ++k) {
         y[k] = mixFrac * fuelComp[k]/sum_yf + (1.0-mixFrac) * oxComp[k]/sum_yo;
@@ -972,33 +970,29 @@ void ThermoPhase::setMixtureFraction(double mixFrac, const double* fuelComp,
     setPressure(p);
 }
 
-double ThermoPhase::mixtureFraction(const compositionMap& fuelComp,
-                                       const compositionMap& oxComp,
-                                       ThermoBasis basis,
-                                       const std::string& element) const
+double ThermoPhase::mixtureFraction(const Composition& fuelComp,
+                                    const Composition& oxComp,
+                                    ThermoBasis basis,
+                                    const string& element) const
 {
-    vector_fp fuel(getCompositionFromMap(fuelComp));
-    vector_fp ox(getCompositionFromMap(oxComp));
+    vector<double> fuel(getCompositionFromMap(fuelComp));
+    vector<double> ox(getCompositionFromMap(oxComp));
     return mixtureFraction(fuel.data(), ox.data(), basis, element);
 }
 
-double ThermoPhase::mixtureFraction(const std::string& fuelComp,
-                                       const std::string& oxComp,
-                                       ThermoBasis basis,
-                                       const std::string& element) const
+double ThermoPhase::mixtureFraction(const string& fuelComp, const string& oxComp,
+                                    ThermoBasis basis, const string& element) const
 {
     return mixtureFraction(
-            parseCompString(fuelComp.find(":") != std::string::npos ? fuelComp : fuelComp+":1.0"),
-            parseCompString(oxComp.find(":") != std::string::npos ? oxComp : oxComp+":1.0"),
+            parseCompString(fuelComp.find(":") != string::npos ? fuelComp : fuelComp+":1.0"),
+            parseCompString(oxComp.find(":") != string::npos ? oxComp : oxComp+":1.0"),
             basis, element);
 }
 
-double ThermoPhase::mixtureFraction(const double* fuelComp,
-                                       const double* oxComp,
-                                       ThermoBasis basis,
-                                       const std::string& element) const
+double ThermoPhase::mixtureFraction(const double* fuelComp, const double* oxComp,
+                                    ThermoBasis basis, const string& element) const
 {
-    vector_fp fuel, ox;
+    vector<double> fuel, ox;
     if (basis == ThermoBasis::molar) { // convert input compositions to mass fractions
         fuel.resize(m_kk);
         ox.resize(m_kk);
@@ -1075,8 +1069,7 @@ const MultiSpeciesThermo& ThermoPhase::speciesThermo(int k) const
 }
 
 
-void ThermoPhase::initThermoFile(const std::string& inputFile,
-                                 const std::string& id)
+void ThermoPhase::initThermoFile(const string& inputFile, const string& id)
 {
     if (inputFile.empty()) {
         // No input file specified - nothing to set up
@@ -1248,12 +1241,12 @@ void ThermoPhase::invalidateCache() {
     m_tlast += 0.1234;
 }
 
-void ThermoPhase::equilibrate(const std::string& XY, const std::string& solver,
+void ThermoPhase::equilibrate(const string& XY, const string& solver,
                               double rtol, int max_steps, int max_iter,
                               int estimate_equil, int log_level)
 {
     if (solver == "auto" || solver == "element_potential") {
-        vector_fp initial_state;
+        vector<double> initial_state;
         saveState(initial_state);
         debuglog("Trying ChemEquil solver\n", log_level);
         try {
@@ -1293,7 +1286,7 @@ void ThermoPhase::equilibrate(const std::string& XY, const std::string& solver,
     }
 }
 
-void ThermoPhase::getdlnActCoeffdlnN(const size_t ld, doublereal* const dlnActCoeffdlnN)
+void ThermoPhase::getdlnActCoeffdlnN(const size_t ld, double* const dlnActCoeffdlnN)
 {
     for (size_t m = 0; m < m_kk; m++) {
         for (size_t k = 0; k < m_kk; k++) {
@@ -1303,20 +1296,21 @@ void ThermoPhase::getdlnActCoeffdlnN(const size_t ld, doublereal* const dlnActCo
     return;
 }
 
-void ThermoPhase::getdlnActCoeffdlnN_numderiv(const size_t ld, doublereal* const dlnActCoeffdlnN)
+void ThermoPhase::getdlnActCoeffdlnN_numderiv(const size_t ld,
+                                              double* const dlnActCoeffdlnN)
 {
     double deltaMoles_j = 0.0;
     double pres = pressure();
 
     // Evaluate the current base activity coefficients if necessary
-    vector_fp ActCoeff_Base(m_kk);
+    vector<double> ActCoeff_Base(m_kk);
     getActivityCoefficients(ActCoeff_Base.data());
-    vector_fp Xmol_Base(m_kk);
+    vector<double> Xmol_Base(m_kk);
     getMoleFractions(Xmol_Base.data());
 
     // Make copies of ActCoeff and Xmol_ for use in taking differences
-    vector_fp ActCoeff(m_kk);
-    vector_fp Xmol(m_kk);
+    vector<double> ActCoeff(m_kk);
+    vector<double> Xmol(m_kk);
     double v_totalMoles = 1.0;
     double TMoles_base = v_totalMoles;
 
@@ -1357,7 +1351,7 @@ void ThermoPhase::getdlnActCoeffdlnN_numderiv(const size_t ld, doublereal* const
     setPressure(pres);
 }
 
-std::string ThermoPhase::report(bool show_thermo, doublereal threshold) const
+string ThermoPhase::report(bool show_thermo, double threshold) const
 {
     if (type() == "none") {
         throw NotImplementedError("ThermoPhase::report",
@@ -1440,9 +1434,9 @@ std::string ThermoPhase::report(bool show_thermo, doublereal threshold) const
             }
         }
 
-        vector_fp x(m_kk);
-        vector_fp y(m_kk);
-        vector_fp mu(m_kk);
+        vector<double> x(m_kk);
+        vector<double> y(m_kk);
+        vector<double> mu(m_kk);
         getMoleFractions(&x[0]);
         getMassFractions(&y[0]);
         getChemPotentials(&mu[0]);
@@ -1496,10 +1490,10 @@ void ThermoPhase::reportCSV(std::ofstream& csvFile) const
     int tabS = 15;
     int tabM = 30;
     csvFile.precision(8);
-    vector_fp X(nSpecies());
+    vector<double> X(nSpecies());
     getMoleFractions(&X[0]);
-    std::vector<std::string> pNames;
-    std::vector<vector_fp> data;
+    vector<string> pNames;
+    vector<vector<double>> data;
     getCsvReportData(pNames, data);
 
     csvFile << setw(tabS) << "Species,";
@@ -1523,12 +1517,12 @@ void ThermoPhase::reportCSV(std::ofstream& csvFile) const
     }
 }
 
-void ThermoPhase::getCsvReportData(std::vector<std::string>& names,
-                                   std::vector<vector_fp>& data) const
+void ThermoPhase::getCsvReportData(vector<string>& names,
+                                   vector<vector<double>>& data) const
 {
     warn_deprecated("ThermoPhase::getCsvReportData", "To be removed after Cantera 3.0.");
     names.clear();
-    data.assign(10, vector_fp(nSpecies()));
+    data.assign(10, vector<double>(nSpecies()));
 
     names.push_back("X");
     getMoleFractions(&data[0][0]);

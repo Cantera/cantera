@@ -1,0 +1,4 @@
+p + div.math {
+    /* Remove post-paragraph space ahead of equation to center vertically */
+    margin-top: -1.15em;
+}

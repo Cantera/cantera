@@ -55,7 +55,7 @@ void ReactorSurface::setCoverages(const Composition& cov)
     m_thermo->getCoverages(m_cov.data());
 }
 
-void ReactorSurface::setCoverages(const std::string& cov)
+void ReactorSurface::setCoverages(const string& cov)
 {
     m_thermo->setCoveragesByName(cov);
     m_thermo->getCoverages(m_cov.data());

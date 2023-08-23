@@ -18,29 +18,30 @@ namespace Cantera
  * pressure regulator, etc. Additional reactors may be connected to the other
  * end of the flow device, allowing construction of arbitrary reactor
  * networks.
+ * @ingroup reactorGroup
  */
 class ConstPressureReactor : public Reactor
 {
 public:
     ConstPressureReactor() {}
 
-    virtual std::string type() const {
+    string type() const override {
         return "ConstPressureReactor";
     }
 
-    virtual void getState(doublereal* y);
+    void getState(double* y) override;
 
-    virtual void initialize(doublereal t0 = 0.0);
-    virtual void eval(double t, double* LHS, double* RHS);
+    void initialize(double t0=0.0) override;
+    void eval(double t, double* LHS, double* RHS) override;
 
-    virtual void updateState(doublereal* y);
+    void updateState(double* y) override;
 
     //! Return the index in the solution vector for this reactor of the
     //! component named *nm*. Possible values for *nm* are "mass", "enthalpy",
     //! the name of a homogeneous phase species, or the name of a surface
     //! species.
-    virtual size_t componentIndex(const std::string& nm) const;
-    std::string componentName(size_t k);
+    size_t componentIndex(const string& nm) const override;
+    string componentName(size_t k) override;
 };
 
 }

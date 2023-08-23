@@ -11,6 +11,7 @@ YAML Input File Reference
    elements
    species
    reactions
-   cti_conversion
-   ctml_conversion
-   ck_conversion
+   ck2yaml
+   cti2yaml
+   ctml2yaml
+   yaml2ck

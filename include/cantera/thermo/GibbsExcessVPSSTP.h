@@ -2,8 +2,8 @@
  *  @file GibbsExcessVPSSTP.h
  *   Header for intermediate ThermoPhase object for phases which
  *   employ Gibbs excess free energy based formulations
- *  (see \ref thermoprops
- * and class \link Cantera::GibbsExcessVPSSTP GibbsExcessVPSSTP\endlink).
+ *  (see @ref thermoprops
+ * and class @link Cantera::GibbsExcessVPSSTP GibbsExcessVPSSTP@endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -18,7 +18,7 @@
 namespace Cantera
 {
 
-/*!
+/**
  * GibbsExcessVPSSTP is a derived class of ThermoPhase that handles variable
  * pressure standard state methods for calculating thermodynamic properties that
  * are further based on expressing the Excess Gibbs free energy as a function of
@@ -43,15 +43,15 @@ namespace Cantera
  * All of the Excess Gibbs free energy formulations in this area employ
  * symmetrical formulations.
  *
- * Chemical potentials of species k, \f$ \mu_o \f$, has the following general
+ * Chemical potentials of species k, @f$ \mu_o @f$, has the following general
  * format:
  *
- * \f[
- *    \mu_k = \mu^o_k(T,P) + R T ln( \gamma_k X_k )
- * \f]
+ * @f[
+ *    \mu_k = \mu^o_k(T,P) + R T \ln( \gamma_k X_k )
+ * @f]
  *
- * where \f$ \gamma_k^{\triangle} \f$ is a molar based activity coefficient for
- * species \f$k\f$.
+ * where @f$ \gamma_k^{\triangle} @f$ is a molar based activity coefficient for
+ * species @f$ k @f$.
  *
  * GibbsExcessVPSSTP contains an internal vector with the current mole fraction
  * vector. That's one of its primary usages. In order to keep the mole fraction
@@ -94,47 +94,26 @@ public:
     //! @{
 
 protected:
-    /**
-     * Calculate the density of the mixture using the partial molar volumes and
-     * mole fractions as input
-     *
-     * The formula for this is
-     *
-     * \f[
-     * \rho = \frac{\sum_k{X_k W_k}}{\sum_k{X_k V_k}}
-     * \f]
-     *
-     * where \f$X_k\f$ are the mole fractions, \f$W_k\f$ are the molecular
-     * weights, and \f$V_k\f$ are the pure species molar volumes.
-     *
-     * Note, the basis behind this formula is that in an ideal solution the
-     * partial molar volumes are equal to the pure species molar volumes. We
-     * have additionally specified in this class that the pure species molar
-     * volumes are independent of temperature and pressure.
-     *
-     * NOTE: This is a non-virtual function, which is not a member of the
-     *       ThermoPhase base class.
-     */
-    void calcDensity();
+    void calcDensity() override;
 
 public:
     //! @}
     //! @name Activities, Standard States, and Activity Concentrations
     //!
-    //! The activity \f$a_k\f$ of a species in solution is related to the
-    //! chemical potential by \f[ \mu_k = \mu_k^0(T) + \hat R T \log a_k. \f] The
-    //! quantity \f$\mu_k^0(T,P)\f$ is the chemical potential at unit activity,
+    //! The activity @f$ a_k @f$ of a species in solution is related to the
+    //! chemical potential by @f[ \mu_k = \mu_k^0(T) + \hat R T \ln a_k. @f] The
+    //! quantity @f$ \mu_k^0(T,P) @f$ is the chemical potential at unit activity,
     //! which depends only on temperature and pressure.
     //! @{
 
-    virtual Units standardConcentrationUnits() const;
-    virtual void getActivityConcentrations(doublereal* c) const;
+    Units standardConcentrationUnits() const override;
+    void getActivityConcentrations(double* c) const override;
 
     /**
-     * The standard concentration \f$ C^0_k \f$ used to normalize the
+     * The standard concentration @f$ C^0_k @f$ used to normalize the
      * generalized concentration. In many cases, this quantity will be the same
      * for all species in a phase - for example, for an ideal gas
-     * \f$ C^0_k = P/\hat R T \f$. For this reason, this method returns a single
+     * @f$ C^0_k = P/\hat R T @f$. For this reason, this method returns a single
      * value, instead of an array.  However, for phases in which the standard
      * concentration is species-specific (for example, surface species of different
      * sizes), this method may be called with an optional parameter indicating
@@ -145,39 +124,38 @@ public:
      *
      * @param k species index. Defaults to zero.
      */
-    virtual doublereal standardConcentration(size_t k=0) const;
-    virtual doublereal logStandardConc(size_t k=0) const;
+    double standardConcentration(size_t k=0) const override;
+    double logStandardConc(size_t k=0) const override;
 
     //! Get the array of non-dimensional activities (molality based for this
     //! class and classes that derive from it) at the current solution
     //! temperature, pressure, and solution concentration.
     /*!
-     * \f[
+     * @f[
      *  a_i^\triangle = \gamma_k^{\triangle} \frac{m_k}{m^\triangle}
-     * \f]
+     * @f]
      *
      * This function must be implemented in derived classes.
      *
      * @param ac     Output vector of molality-based activities. Length: m_kk.
      */
-    virtual void getActivities(doublereal* ac) const;
+    void getActivities(double* ac) const override;
 
-    virtual void getActivityCoefficients(doublereal* ac) const;
+    void getActivityCoefficients(double* ac) const override;
 
     //! Get the array of temperature derivatives of the log activity coefficients
     /*!
-     * This function is virtual, and first appears in GibbsExcessVPSSTP.
      *
      * units = 1/Kelvin
      *
      * @param dlnActCoeffdT    Output vector of temperature derivatives of the
      *                         log Activity Coefficients. length = m_kk
      */
-    virtual void getdlnActCoeffdT(doublereal* dlnActCoeffdT) const {
+    virtual void getdlnActCoeffdT(double* dlnActCoeffdT) const {
         throw NotImplementedError("GibbsExcessVPSSTP::getdlnActCoeffdT");
     }
 
-    virtual void getdlnActCoeffdlnN(const size_t ld, doublereal* const dlnActCoeffdlnN) {
+    void getdlnActCoeffdlnN(const size_t ld, double* const dlnActCoeffdlnN) override {
         throw NotImplementedError("GibbsExcessVPSSTP::getdlnActCoeffdlnN: "
                                   "nonzero and nonimplemented");
     }
@@ -198,7 +176,7 @@ public:
      * @param dlnActCoeffdlnX    Output vector of derivatives of the
      *                         log Activity Coefficients. length = m_kk
      */
-    virtual void getdlnActCoeffdlnX(doublereal* dlnActCoeffdlnX) const {
+    virtual void getdlnActCoeffdlnX(double* dlnActCoeffdlnX) const {
         throw NotImplementedError("GibbsExcessVPSSTP::getdlnActCoeffdlnX");
     }
 
@@ -216,22 +194,22 @@ public:
      *  @param vbar   Output vector of species partial molar volumes.
      *                Length = m_kk. units are m^3/kmol.
      */
-    virtual void getPartialMolarVolumes(doublereal* vbar) const;
-    //! @deprecated Unused. To be removed after Cantera 3.0.
-    virtual const vector_fp& getPartialMolarVolumesVector() const;
+    void getPartialMolarVolumes(double* vbar) const override;
+    //! @deprecated Unused. To be removed after %Cantera 3.0.
+    virtual const vector<double>& getPartialMolarVolumesVector() const;
     //! @}
 
-    virtual bool addSpecies(shared_ptr<Species> spec);
+    bool addSpecies(shared_ptr<Species> spec) override;
 
 protected:
-    virtual void compositionChanged();
+    void compositionChanged() override;
 
     //! utility routine to check mole fraction sum
     /*!
      * @param x   vector of mole fractions.
-     * @deprecated Unused. To be removed after Cantera 3.0.
+     * @deprecated Unused. To be removed after %Cantera 3.0.
      */
-    double checkMFSum(const doublereal* const x) const;
+    double checkMFSum(const double* const x) const;
 
     //! Storage for the current values of the mole fractions of the species
     /*!
@@ -241,29 +219,29 @@ protected:
      * Note in order to do this, the setState functions are redefined to always
      * keep this vector current.
      */
-    mutable vector_fp moleFractions_;
+    mutable vector<double> moleFractions_;
 
     //! Storage for the current values of the activity coefficients of the
     //! species
-    mutable vector_fp lnActCoeff_Scaled_;
+    mutable vector<double> lnActCoeff_Scaled_;
 
     //! Storage for the current derivative values of the gradients with respect
     //! to temperature of the log of the activity coefficients of the species
-    mutable vector_fp dlnActCoeffdT_Scaled_;
+    mutable vector<double> dlnActCoeffdT_Scaled_;
 
     //! Storage for the current derivative values of the gradients with respect
     //! to temperature of the log of the activity coefficients of the species
-    mutable vector_fp d2lnActCoeffdT2_Scaled_;
+    mutable vector<double> d2lnActCoeffdT2_Scaled_;
 
     //! Storage for the current derivative values of the gradients with respect
     //! to logarithm of the mole fraction of the log of the activity
     //! coefficients of the species
-    mutable vector_fp dlnActCoeffdlnN_diag_;
+    mutable vector<double> dlnActCoeffdlnN_diag_;
 
     //! Storage for the current derivative values of the gradients with respect
     //! to logarithm of the mole fraction of the log of the activity
     //! coefficients of the species
-    mutable vector_fp dlnActCoeffdlnX_diag_;
+    mutable vector<double> dlnActCoeffdlnX_diag_;
 
     //! Storage for the current derivative values of the gradients with respect
     //! to logarithm of the species mole number of the log of the activity

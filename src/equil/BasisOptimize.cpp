@@ -16,9 +16,9 @@ int BasisOptimize_print_lvl = 0;
 static const double USEDBEFORE = -1;
 
 size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
-                     std::vector<size_t>& orderVectorSpecies,
-                     std::vector<size_t>& orderVectorElements,
-                     vector_fp& formRxnMatrix)
+                     vector<size_t>& orderVectorSpecies,
+                     vector<size_t>& orderVectorElements,
+                     vector<double>& formRxnMatrix)
 {
     // Get the total number of elements defined in the multiphase object
     size_t ne = mphase->nElements();
@@ -79,19 +79,19 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
     *usedZeroedSpecies = false;
 
     // Create an array of mole numbers
-    vector_fp molNum(nspecies,0.0);
+    vector<double> molNum(nspecies,0.0);
     mphase->getMoles(molNum.data());
 
     // Other workspace
     DenseMatrix sm(ne, ne);
-    vector_fp ss(ne, 0.0);
-    vector_fp sa(ne, 0.0);
+    vector<double> ss(ne, 0.0);
+    vector<double> sa(ne, 0.0);
     if (formRxnMatrix.size() < nspecies*ne) {
         formRxnMatrix.resize(nspecies*ne, 0.0);
     }
 
     // For debugging purposes keep an unmodified copy of the array.
-    vector_fp molNumBase = molNum;
+    vector<double> molNumBase = molNum;
     double molSave = 0.0;
     size_t jr = 0;
 
@@ -289,10 +289,10 @@ size_t BasisOptimize(int* usedZeroedSpecies, bool doFormRxn, MultiPhase* mphase,
 } // basopt()
 
 
-void ElemRearrange(size_t nComponents, const vector_fp& elementAbundances,
+void ElemRearrange(size_t nComponents, const vector<double>& elementAbundances,
                    MultiPhase* mphase,
-                   std::vector<size_t>& orderVectorSpecies,
-                   std::vector<size_t>& orderVectorElements)
+                   vector<size_t>& orderVectorSpecies,
+                   vector<size_t>& orderVectorElements)
 {
     size_t nelements = mphase->nElements();
     // Get the total number of species in the multiphase object
@@ -326,7 +326,7 @@ void ElemRearrange(size_t nComponents, const vector_fp& elementAbundances,
     // If the elementAbundances aren't input, just create a fake one based on
     // summing the column of the stoich matrix. This will force elements with
     // zero species to the end of the element ordering.
-    vector_fp eAbund(nelements,0.0);
+    vector<double> eAbund(nelements,0.0);
     if (elementAbundances.size() != nelements) {
         for (size_t j = 0; j < nelements; j++) {
             eAbund[j] = 0.0;
@@ -339,9 +339,9 @@ void ElemRearrange(size_t nComponents, const vector_fp& elementAbundances,
              eAbund.begin());
     }
 
-    vector_fp sa(nelements,0.0);
-    vector_fp ss(nelements,0.0);
-    vector_fp sm(nelements*nelements,0.0);
+    vector<double> sa(nelements,0.0);
+    vector<double> ss(nelements,0.0);
+    vector<double> sm(nelements*nelements,0.0);
 
     // Top of a loop of some sort based on the index JR. JR is the current
     // number independent elements found.

@@ -93,7 +93,7 @@ TEST(Units, with_defaults2) {
 }
 
 TEST(Units, with_defaults_map) {
-    std::map<std::string, std::string> defaults{
+    map<string, string> defaults{
         {"length", "cm"}, {"mass", "g"}, {"quantity", "mol"},
         {"pressure", "atm"}, {"energy", "J"}
     };
@@ -111,9 +111,9 @@ TEST(Units, with_defaults_map) {
 
 TEST(Units, bad_defaults) {
     UnitSystem U;
-    std::map<std::string, std::string> bad_key{{"length", "m"}, {"joy", "MJ"}};
+    map<string, string> bad_key{{"length", "m"}, {"joy", "MJ"}};
     EXPECT_THROW(U.setDefaults(bad_key), CanteraError);
-    std::map<std::string, std::string> bad_value{{"length", "m"}, {"time", "J"}};
+    map<string, string> bad_value{{"length", "m"}, {"time", "J"}};
     EXPECT_THROW(U.setDefaults(bad_value), CanteraError);
 }
 
@@ -153,7 +153,7 @@ TEST(Units, activation_energies4) {
 
 TEST(Units, activation_energies5) {
     UnitSystem U;
-    std::map<std::string, std::string> defaults{
+    map<string, string> defaults{
         {"quantity", "mol"}, {"energy", "cal"}, {"activation-energy", "K"}
     };
     U.setDefaults(defaults);
@@ -163,7 +163,7 @@ TEST(Units, activation_energies5) {
 
 TEST(Units, activation_energies6) {
     UnitSystem U;
-    std::map<std::string, std::string> defaults{
+    map<string, string> defaults{
         {"activation-energy", "eV"}
     };
     U.setDefaults(defaults);
@@ -242,20 +242,20 @@ TEST(Units, to_anymap) {
 
 TEST(Units, anymap_quantities) {
     AnyMap m;
-    std::vector<AnyValue> values(2);
+    vector<AnyValue> values(2);
     values[0].setQuantity(8, "kg/m^3");
     values[1].setQuantity(12, "mg/cl");
     m["a"] = values;
     values.emplace_back("hello");
     m["b"] = values;
     m.applyUnits();
-    EXPECT_TRUE(m["a"].is<vector_fp>());
+    EXPECT_TRUE(m["a"].is<vector<double>>());
     m.applyUnits();
-    EXPECT_TRUE(m["a"].is<vector_fp>());
+    EXPECT_TRUE(m["a"].is<vector<double>>());
     auto converted = m["a"].asVector<double>();
     EXPECT_DOUBLE_EQ(converted[0], 8.0);
     EXPECT_DOUBLE_EQ(converted[1], 1.2);
-    EXPECT_FALSE(m["b"].is<vector_fp>());
+    EXPECT_FALSE(m["b"].is<vector<double>>());
 }
 
 TEST(Units, to_anymap_nested) {
@@ -265,7 +265,7 @@ TEST(Units, to_anymap_nested) {
         AnyMap m;
         m["A"].setQuantity(90, "kg/m");
         m["nested"]["B"].setQuantity(12, "m^2");
-        auto C = std::vector<AnyMap>(2);
+        auto C = vector<AnyMap>(2);
         C[0]["foo"].setQuantity(17, "m^2");
         C[1]["bar"].setQuantity(19, "kmol");
         m["nested"]["C"] = C;

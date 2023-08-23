@@ -3,7 +3,7 @@
  *    Declarations for the class PDSS_SSVol (pressure dependent standard state)
  *    which handles calculations for a single species with an expression for the standard state molar volume in a phase
  *    given by an enumerated data type
- *    (see class \ref pdssthermo and \link Cantera::PDSS_SSVol PDSS_SSVol\endlink).
+ *    (see class @ref pdssthermo and @link Cantera::PDSS_SSVol PDSS_SSVol@endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -20,21 +20,21 @@ namespace Cantera
 //! volume model of some sort.
 /*!
  * @attention This class currently does not have any test cases or examples. Its
- *     implementation may be incomplete, and future changes to Cantera may
+ *     implementation may be incomplete, and future changes to %Cantera may
  *     unexpectedly cause this class to stop working. If you use this class,
  *     please consider contributing examples or test cases. In the absence of
  *     new tests or examples, this class may be deprecated and removed in a
- *     future version of Cantera. See
+ *     future version of  %Cantera. See
  *     https://github.com/Cantera/cantera/issues/267 for additional information.
  *
  * Class PDSS_SSVol is an implementation class that compute the properties of a
  * single species in a phase at its standard states, for a range of temperatures
  * and pressures. This particular class assumes that the calculation of the
  * thermodynamics functions can be separated into a temperature polynomial
- * representation for thermo functions that can be handled by a SimpleThermo
+ * representation for thermo functions that can be handled by a SpeciesThermoInterpType
  * object and a separate calculation for the standard state volume. The Models
  * include a cubic polynomial in temperature for either the standard state
- * volume or the standard state density. The manager uses a SimpleThermo object
+ * volume or the standard state density. The manager uses a SpeciesThermoInterpType object
  * to handle the calculation of the reference state. This object then adds the
  * pressure dependencies and the volume terms to these thermo functions to
  * complete the representation.
@@ -45,61 +45,61 @@ namespace Cantera
  * - Temperature polynomial for the standard state volume
  *   - This standard state model is invoked with the keyword "temperature_polynomial".
  *     The standard state volume is considered a function of temperature only.
- *     \f[
+ *     @f[
  *       V^o_k(T,P) = a_0 + a_1 T + a_2 T^2 + a_3 T^3
- *     \f]
+ *     @f]
  *
  * - Temperature polynomial for the standard state density
  *   - This standard state model is invoked with the keyword "density_temperature_polynomial".
  *     The standard state density, which is the inverse of the volume,
  *     is considered a function of temperature only.
- *    \f[
+ *     @f[
  *       {\rho}^o_k(T,P) = \frac{M_k}{V^o_k(T,P)} = a_0 + a_1 T + a_2 T^2 + a_3 T^3
- *    \f]
+ *     @f]
  *
  * ## Specification of Species Standard State Properties
  *
  * The standard molar Gibbs free energy for species *k* is determined from
  * the enthalpy and entropy expressions
  *
- *       \f[
+ * @f[
  *            G^o_k(T,P) = H^o_k(T,P) - S^o_k(T,P)
- *       \f]
+ * @f]
  *
  * The enthalpy is calculated mostly from the MultiSpeciesThermo object's enthalpy
  * evaluator. The dependence on pressure originates from the Maxwell relation
  *
- *       \f[
+ * @f[
  *            {\left(\frac{dH^o_k}{dP}\right)}_T = T  {\left(\frac{dS^o_k}{dP}\right)}_T + V^o_k
- *       \f]
+ * @f]
  * which is equal to
  *
- *       \f[
+ * @f[
  *            {\left(\frac{dH^o_k}{dP}\right)}_T =  V^o_k -  T  {\left(\frac{dV^o_k}{dT}\right)}_P
- *       \f]
+ * @f]
  *
  * The entropy is calculated mostly from the MultiSpeciesThermo objects entropy
  * evaluator. The dependence on pressure originates from the Maxwell relation:
  *
- *       \f[
+ * @f[
  *              {\left(\frac{dS^o_k}{dP}\right)}_T =  - {\left(\frac{dV^o_k}{dT}\right)}_P
- *       \f]
+ * @f]
  *
  * The standard state constant-pressure heat capacity expression is obtained
  * from taking the temperature derivative of the Maxwell relation involving the
  * enthalpy given above to yield an expression for the pressure dependence of
  * the heat capacity.
  *
- *       \f[
+ * @f[
  *            {\left(\frac{d{C}^o_{p,k}}{dP}\right)}_T =  - T  {\left(\frac{{d}^2{V}^o_k}{{dT}^2}\right)}_T
- *       \f]
+ * @f]
  *
  * The standard molar Internal Energy for species *k* is determined from the
  * following relation.
  *
- *       \f[
+ * @f[
  *            U^o_k(T,P) = H^o_k(T,P) - p V^o_k
- *       \f]
+ * @f]
  *
  * An example of the specification of a standard state using a temperature dependent
  * standard state volume is given in the
@@ -119,29 +119,29 @@ public:
 
     // See PDSS.h for documentation of functions overridden from Class PDSS
 
-    virtual doublereal intEnergy_mole() const;
-    virtual doublereal cv_mole() const;
+    double intEnergy_mole() const override;
+    double cv_mole() const override;
 
     //! @}
 
     //! @name Mechanical Equation of State Properties
     //! @{
 
-    virtual void setPressure(doublereal pres);
-    virtual void setTemperature(doublereal temp);
-    virtual void setState_TP(doublereal temp, doublereal pres);
+    void setPressure(double pres) override;
+    void setTemperature(double temp) override;
+    void setState_TP(double temp, double pres) override;
 
     //! @}
     //! @name Miscellaneous properties of the standard state
     //! @{
 
-    virtual doublereal satPressure(doublereal t);
+    double satPressure(double t) override;
 
     //! @}
     //! @name Initialization of the Object
     //! @{
 
-    virtual void initThermo();
+    void initThermo() override;
 
     //! Set polynomial coefficients for the standard state molar volume as a
     //! function of temperature. Cubic polynomial (4 coefficients). Leading
@@ -153,7 +153,7 @@ public:
     //! is the constant (temperature-independent) term [kg/m^3].
     void setDensityPolynomial(double* coeffs);
 
-    virtual void getParameters(AnyMap& eosNode) const;
+    void getParameters(AnyMap& eosNode) const override;
 
     //! @}
 
@@ -183,13 +183,13 @@ private:
     SSVolume_Model volumeModel_ = SSVolume_Model::tpoly;
 
     //! coefficients for the temperature representation
-    vector_fp TCoeff_;
+    vector<double> TCoeff_;
 
     //! Derivative of the volume wrt temperature
-    mutable doublereal dVdT_;
+    mutable double dVdT_;
 
     //! 2nd derivative of the volume wrt temperature
-    mutable doublereal d2VdT2_;
+    mutable double d2VdT2_;
 };
 
 }

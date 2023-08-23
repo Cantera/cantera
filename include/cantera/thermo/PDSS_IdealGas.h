@@ -2,7 +2,7 @@
  *  @file PDSS_IdealGas.h
  *   Declarations for the class PDSS_IdealGas (pressure dependent standard state)
  *    which handles calculations for a single ideal gas species in a phase
- *    (see \ref pdssthermo and class \link Cantera::PDSS_IdealGas PDSS_IdealGas\endlink).
+ *    (see @ref pdssthermo and class @link Cantera::PDSS_IdealGas PDSS_IdealGas@endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -20,7 +20,7 @@ namespace Cantera
  * This class is for a single Ideal Gas species.
  *
  * @ingroup pdssthermo
- * @deprecated To be removed after Cantera 3.0.
+ * @deprecated To be removed after %Cantera 3.0.
  */
 class PDSS_IdealGas : public PDSS_Nondimensional
 {
@@ -33,25 +33,25 @@ public:
 
     // See PDSS.h for documentation of functions overridden from Class PDSS
 
-    virtual doublereal intEnergy_mole() const;
-    virtual doublereal cv_mole() const;
+    double intEnergy_mole() const override;
+    double cv_mole() const override;
 
     //! @}
     //! @name Mechanical Equation of State Properties
     //! @{
 
-    virtual doublereal pressure() const;
-    virtual void setPressure(doublereal pres);
-    virtual void setTemperature(doublereal temp);
-    virtual void setState_TP(doublereal temp, doublereal pres);
-    virtual void setState_TR(double temp, double rho);
+    double pressure() const override;
+    void setPressure(double pres) override;
+    void setTemperature(double temp) override;
+    void setState_TP(double temp, double pres) override;
+    void setState_TR(double temp, double rho) override;
 
     //! @}
     //! @name Initialization of the Object
     //! @{
 
-    virtual void initThermo();
-    virtual void getParameters(AnyMap& eosNode) const;
+    void initThermo() override;
+    void getParameters(AnyMap& eosNode) const override;
     //! @}
 };
 }

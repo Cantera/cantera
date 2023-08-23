@@ -7,24 +7,21 @@
 #define CT_WALL_H
 
 #include "cantera/base/ctexceptions.h"
-#include "cantera/zeroD/ReactorSurface.h"
 #include "cantera/zeroD/ReactorBase.h"
 
 namespace Cantera
 {
 
-class Kinetics;
-class SurfPhase;
 class Func1;
 
 /**
  * Base class for 'walls' (walls, pistons, etc.) connecting reactors.
- * @ingroup ZeroD
+ * @ingroup wallGroup
  */
 class WallBase
 {
 public:
-    WallBase();
+    WallBase() = default;
 
     virtual ~WallBase() {}
     WallBase(const WallBase&) = delete;
@@ -32,7 +29,7 @@ public:
 
     //! String indicating the wall model implemented. Usually
     //! corresponds to the name of the derived class.
-    virtual std::string type() const {
+    virtual string type() const {
         return "WallBase";
     }
 
@@ -40,7 +37,7 @@ public:
     /*!
      * This method is called by Reactor::evalWalls(). Base class method
      * does nothing (that is, constant volume), but may be overloaded.
-     * @deprecated To be removed after Cantera 3.0; replaceable by expansionRate.
+     * @deprecated To be removed after %Cantera 3.0; replaceable by expansionRate.
      */
     virtual double vdot(double t) {
         warn_deprecated("WallBase::vdot",
@@ -53,7 +50,7 @@ public:
     /*!
      * This method is called by Reactor::evalWalls(). Base class method
      * does nothing (that is, constant volume), but may be overloaded.
-     * @since New in Cantera 3.0.
+     * @since New in %Cantera 3.0.
      */
     virtual double expansionRate() {
         return 0.0;
@@ -63,7 +60,7 @@ public:
     /*!
      * This method is called by Reactor::evalWalls(). Base class method
      * does nothing (that is, an adiabatic wall), but may be overloaded.
-     * @deprecated To be removed after Cantera 3.0; replaceable by heatRate.
+     * @deprecated To be removed after %Cantera 3.0; replaceable by heatRate.
      */
     virtual double Q(double t) {
         warn_deprecated("WallBase::Q",
@@ -75,7 +72,7 @@ public:
     /*!
      * This method is called by Reactor::evalWalls(). Base class method
      * does nothing (that is, an adiabatic wall), but may be overloaded.
-     * @since New in Cantera 3.0.
+     * @since New in %Cantera 3.0.
      */
     virtual double heatRate() {
         return 0.0;
@@ -112,7 +109,7 @@ public:
 
     //! Set current reactor network time
     /*!
-     * @since New in Cantera 3.0.
+     * @since New in %Cantera 3.0.
      */
     void setSimTime(double time) {
         m_time = time;
@@ -121,8 +118,6 @@ public:
 protected:
     ReactorBase* m_left = nullptr;
     ReactorBase* m_right = nullptr;
-
-    std::vector<ReactorSurface> m_surf;
 
     //! current reactor network time
     double m_time = 0.0;
@@ -134,6 +129,7 @@ protected:
 /*!
  * Walls can move (changing the volume of the adjacent reactors) and allow heat
  * transfer between reactors.
+ * @ingroup wallGroup
  */
 class Wall : public WallBase
 {
@@ -142,15 +138,15 @@ public:
 
     //! String indicating the wall model implemented. Usually
     //! corresponds to the name of the derived class.
-    virtual std::string type() const {
+    string type() const override {
         return "Wall";
     }
 
-    //! Wall velocity \f$ v(t) \f$ at current reactor network time.
-    //! @since New in Cantera 3.0.
+    //! Wall velocity @f$ v(t) @f$ at current reactor network time.
+    //! @since New in %Cantera 3.0.
     double velocity() const;
 
-    //! Set the wall velocity to a specified function of time, \f$ v(t) \f$.
+    //! Set the wall velocity to a specified function of time, @f$ v(t) @f$.
     void setVelocity(Func1* f=0) {
         if (f) {
             m_vf = f;
@@ -160,9 +156,9 @@ public:
     //! Rate of volume change (m^3/s) for the adjacent reactors.
     /*!
      * The volume rate of change is given by
-     * \f[
+     * @f[
      *     \dot V = K A (P_{left} - P_{right}) + F(t)
-     * \f]
+     * @f]
      * where *K* is the specified expansion rate coefficient, *A* is the wall
      * area, and *F(t)* is a specified function of time. Positive values for
      * `vdot` correspond to increases in the volume of reactor on left, and
@@ -170,27 +166,27 @@ public:
      * @deprecated Still used by traditional MATLAB toolbox; replaceable by
      *      expansionRate.
      */
-    virtual double vdot(double t);
+    double vdot(double t) override;
 
     //! Rate of volume change (m^3/s) for the adjacent reactors.
     /*!
      * The volume rate of change is given by
-     * \f[
+     * @f[
      *     \dot V = K A (P_{left} - P_{right}) + F(t)
-     * \f]
+     * @f]
      * where *K* is the specified expansion rate coefficient, *A* is the wall area,
      * and and *F(t)* is a specified function evaluated at the current network time.
      * Positive values for `expansionRate` correspond to increases in the volume of
      * reactor on left, and decreases in the volume of the reactor on the right.
-     * @since New in Cantera 3.0.
+     * @since New in %Cantera 3.0.
      */
-    virtual double expansionRate();
+    double expansionRate() override;
 
-    //! Heat flux function \f$ q_0(t) \f$ evaluated at current reactor network time.
-    //! @since New in Cantera 3.0.
+    //! Heat flux function @f$ q_0(t) @f$ evaluated at current reactor network time.
+    //! @since New in %Cantera 3.0.
     double heatFlux() const;
 
-    //! Specify the heat flux function \f$ q_0(t) \f$.
+    //! Specify the heat flux function @f$ q_0(t) @f$.
     void setHeatFlux(Func1* q) {
         m_qf = q;
     }
@@ -198,28 +194,28 @@ public:
     //! Heat flow rate through the wall (W).
     /*!
      * The heat flux is given by
-     * \f[
+     * @f[
      *     Q = h A (T_{left} - T_{right}) + A G(t)
-     * \f]
+     * @f]
      * where *h* is the heat transfer coefficient, *A* is the wall area, and
      * *G(t)* is a specified function of time. Positive values denote a flux
      * from left to right.
      * @deprecated Still used by traditional MATLAB toolbox; replaceable by heatRate.
      */
-    virtual double Q(double t);
+    double Q(double t) override;
 
     //! Heat flow rate through the wall (W).
     /*!
      * The heat flux is given by
-     * \f[
+     * @f[
      *     Q = h A (T_{left} - T_{right}) + A G(t)
-     * \f]
+     * @f]
      * where *h* is the heat transfer coefficient, *A* is the wall area, and
      * *G(t)* is a specified function of time evaluated at the current network
      * time. Positive values denote a flux from left to right.
-     * @since New in Cantera 3.0.
+     * @since New in %Cantera 3.0.
      */
-    virtual double heatRate();
+    double heatRate() override;
 
     void setThermalResistance(double Rth) {
         m_rrth = 1.0/Rth;

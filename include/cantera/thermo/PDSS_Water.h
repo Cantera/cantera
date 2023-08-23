@@ -2,7 +2,7 @@
  *  @file PDSS_Water.h
  * Implementation of a pressure dependent standard state
  * virtual function for a Pure Water Phase
- * (see \ref pdssthermo and class \link Cantera::PDSS_Water PDSS_Water\endlink).
+ * (see @ref pdssthermo and class @link Cantera::PDSS_Water PDSS_Water@endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -57,14 +57,14 @@ public:
 
     // See PDSS.h for documentation of functions overridden from Class PDSS
 
-    virtual doublereal enthalpy_mole() const;
-    virtual doublereal intEnergy_mole() const;
-    virtual doublereal entropy_mole() const;
-    virtual doublereal gibbs_mole() const;
-    virtual doublereal cp_mole() const;
-    virtual doublereal cv_mole() const;
-    virtual doublereal molarVolume() const;
-    virtual doublereal density() const;
+    double enthalpy_mole() const override;
+    double intEnergy_mole() const override;
+    double entropy_mole() const override;
+    double gibbs_mole() const override;
+    double cp_mole() const override;
+    double cv_mole() const override;
+    double molarVolume() const override;
+    double density() const override;
 
     //! @}
     //! @name Properties of the Reference State of the Species in the Solution
@@ -78,23 +78,23 @@ public:
      *
      * @param temp  Temperature (Kelvin)
      */
-    doublereal pref_safe(doublereal temp) const;
+    double pref_safe(double temp) const;
 
-    virtual doublereal gibbs_RT_ref() const;
-    virtual doublereal enthalpy_RT_ref() const;
-    virtual doublereal entropy_R_ref() const;
-    virtual doublereal cp_R_ref() const;
-    virtual doublereal molarVolume_ref() const;
+    double gibbs_RT_ref() const override;
+    double enthalpy_RT_ref() const override;
+    double entropy_R_ref() const override;
+    double cp_R_ref() const override;
+    double molarVolume_ref() const override;
 
     //! @}
     //! @name Mechanical Equation of State Properties
     //! @{
 
-    virtual doublereal pressure() const;
-    virtual void setPressure(doublereal pres);
-    virtual void setTemperature(doublereal temp);
-    virtual void setState_TP(doublereal temp, doublereal pres);
-    virtual void setState_TR(double temp, double rho);
+    double pressure() const override;
+    void setPressure(double pres) override;
+    void setTemperature(double temp) override;
+    void setState_TP(double temp, double pres) override;
+    void setState_TR(double temp, double rho) override;
 
     //! Set the density of the water phase
     /*!
@@ -102,41 +102,41 @@ public:
      *
      * @param dens Density of the water (kg/m3)
      */
-    void setDensity(doublereal dens);
+    void setDensity(double dens);
 
-    virtual doublereal thermalExpansionCoeff() const;
+    double thermalExpansionCoeff() const override;
 
     //! Return the derivative of the volumetric thermal expansion coefficient.
     //! Units: 1/K2.
     /*!
      * The thermal expansion coefficient is defined as
-     * \f[
+     * @f[
      * \beta = \frac{1}{v}\left(\frac{\partial v}{\partial T}\right)_P
-     * \f]
+     * @f]
      */
-    virtual doublereal dthermalExpansionCoeffdT() const;
+    double dthermalExpansionCoeffdT() const;
 
     //! Returns the isothermal compressibility. Units: 1/Pa.
     /*!
      * The isothermal compressibility is defined as
-     * \f[
+     * @f[
      * \kappa_T = -\frac{1}{v}\left(\frac{\partial v}{\partial P}\right)_T
-     * \f]
+     * @f]
      *  or
-     * \f[
+     * @f[
      * \kappa_T = \frac{1}{\rho}\left(\frac{\partial \rho}{\partial P}\right)_T
-     * \f]
+     * @f]
      */
-    virtual doublereal isothermalCompressibility() const;
+    double isothermalCompressibility() const;
 
     //! @}
     //! @name Miscellaneous properties of the standard state
     //! @{
 
-    virtual doublereal critTemperature() const;
-    virtual doublereal critPressure() const;
-    virtual doublereal critDensity() const;
-    virtual doublereal satPressure(doublereal t);
+    double critTemperature() const override;
+    double critPressure() const override;
+    double critDensity() const override;
+    double satPressure(double t) override;
 
     //! Get a pointer to a changeable WaterPropsIAPWS object
     WaterPropsIAPWS* getWater() {
@@ -148,7 +148,7 @@ public:
         return &m_waterProps;
     }
 
-    virtual void getParameters(AnyMap& eosNode) const;
+    void getParameters(AnyMap& eosNode) const override;
 
     //! @}
 

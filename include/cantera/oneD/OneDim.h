@@ -21,7 +21,7 @@ class AnyMap;
 /**
  * Container class for multiple-domain 1D problems. Each domain is
  * represented by an instance of Domain1D.
- * @ingroup onedim
+ * @ingroup onedGroup
  */
 class OneDim
 {
@@ -31,9 +31,9 @@ public:
     //! Construct a OneDim container for the domains in the list *domains*.
     OneDim(vector<shared_ptr<Domain1D>>& domains);
 
-    //! @deprecated  To be removed after Cantera 3.0;
+    //! @deprecated To be removed after %Cantera 3.0;
     //!     superseded by OneDim() using vector<shared_ptr<Domain1D>>
-    OneDim(std::vector<Domain1D*> domains);
+    OneDim(vector<Domain1D*> domains);
     virtual ~OneDim();
     OneDim(const OneDim&) = delete;
     OneDim& operator=(const OneDim&) = delete;
@@ -41,11 +41,12 @@ public:
     //! Add a domain. Domains are added left-to-right.
     void addDomain(shared_ptr<Domain1D> d);
 
-    //! @deprecated  To be removed after Cantera 3.0;
+    //! @deprecated To be removed after %Cantera 3.0;
     //!     superseded by addDomain() using shared_ptr<Domain1D>
     void addDomain(Domain1D* d);
 
-    //! Return a reference to the Jacobian evaluator.
+    //! Return a reference to the Jacobian evaluator of an OneDim object.
+    //! @ingroup derivGroup
     MultiJac& jacobian();
 
     //! Return a reference to the Newton iterator.
@@ -57,7 +58,7 @@ public:
      * @param x1         Final solution satisfying F(x1) = 0.
      * @param loglevel   Controls amount of diagnostic output.
      */
-    int solve(doublereal* x0, doublereal* x1, int loglevel);
+    int solve(double* x0, double* x1, int loglevel);
 
     //! Number of domains.
     size_t nDomains() const {
@@ -69,7 +70,7 @@ public:
         return *m_dom[i];
     }
 
-    size_t domainIndex(const std::string& name);
+    size_t domainIndex(const string& name);
 
     //! Check that the specified domain index is in range.
     //! Throws an exception if n is greater than nDomains()-1
@@ -129,14 +130,14 @@ public:
 
     //! Return the domain, local point index, and component name for the i-th
     //! component of the global solution vector
-    std::tuple<std::string, size_t, std::string> component(size_t i);
+    std::tuple<string, size_t, string> component(size_t i);
 
     //! Jacobian bandwidth.
     size_t bandwidth() const {
         return m_bw;
     }
 
-    /*!
+    /**
      * Initialize all domains. On the first call, this methods calls the init
      * method of each domain, proceeding from left to right. Subsequent calls
      * do nothing.
@@ -153,15 +154,15 @@ public:
      * solution x. On return, array r contains the steady-state residual
      * values. Used only for diagnostic output.
      */
-    doublereal ssnorm(doublereal* x, doublereal* r);
+    double ssnorm(double* x, double* r);
 
     //! Reciprocal of the time step.
-    doublereal rdt() const {
+    double rdt() const {
         return m_rdt;
     }
 
     //! Prepare for time stepping beginning with solution *x* and timestep *dt*.
-    void initTimeInteg(doublereal dt, doublereal* x);
+    void initTimeInteg(double dt, double* x);
 
     //! True if transient mode.
     bool transient() const {
@@ -173,7 +174,7 @@ public:
         return (m_rdt == 0.0);
     }
 
-    /*!
+    /**
      * Prepare to solve the steady-state problem. After invoking this method,
      * subsequent calls to solve() will solve the steady-state problem. Sets
      * the reciprocal of the time step to zero, and, if it was previously non-
@@ -192,8 +193,7 @@ public:
      *                  the default value is used.
      * @param count   Set to zero to omit this call from the statistics
      */
-    void eval(size_t j, double* x, double* r, doublereal rdt=-1.0,
-              int count = 1);
+    void eval(size_t j, double* x, double* r, double rdt=-1.0, int count = 1);
 
     //! Return a pointer to the domain global point *i* belongs to.
     /*!
@@ -205,11 +205,11 @@ public:
     //! Call after one or more grids has changed size, for example after being refined.
     virtual void resize();
 
-    vector_int& transientMask() {
+    vector<int>& transientMask() {
         return m_mask;
     }
 
-    /*!
+    /**
      * Take time steps using Backward Euler.
      *
      * @param nsteps number of steps
@@ -219,8 +219,7 @@ public:
      * @param loglevel controls amount of printed diagnostics
      * @returns size of last timestep taken
      */
-    double timeStep(int nsteps, double dt, double* x,
-                    double* r, int loglevel);
+    double timeStep(int nsteps, double dt, double* x, double* r, int loglevel);
 
     void resetBadValues(double* x);
 
@@ -233,17 +232,17 @@ public:
      */
     void writeStats(int printTime = 1);
 
-    //! @deprecated  To be removed after Cantera 3.0; unused.
+    //! @deprecated To be removed after %Cantera 3.0; unused.
     AnyMap serialize(const double* soln) const;
 
     // options
-    void setMinTimeStep(doublereal tmin) {
+    void setMinTimeStep(double tmin) {
         m_tmin = tmin;
     }
-    void setMaxTimeStep(doublereal tmax) {
+    void setMaxTimeStep(double tmax) {
         m_tmax = tmax;
     }
-    void setTimeStepFactor(doublereal tfactor) {
+    void setTimeStepFactor(double tfactor) {
         m_tfactor = tfactor;
     }
 
@@ -279,39 +278,39 @@ public:
     void clearStats();
 
     //! Return total grid size in each call to solve()
-    const std::vector<size_t>& gridSizeStats() {
+    const vector<size_t>& gridSizeStats() {
         saveStats();
         return m_gridpts;
     }
 
     //! Return CPU time spent evaluating Jacobians in each call to solve()
-    const vector_fp& jacobianTimeStats() {
+    const vector<double>& jacobianTimeStats() {
         saveStats();
         return m_jacElapsed;
     }
 
     //! Return CPU time spent on non-Jacobian function evaluations in each call
     //! to solve()
-    const vector_fp& evalTimeStats() {
+    const vector<double>& evalTimeStats() {
         saveStats();
         return m_funcElapsed;
     }
 
     //! Return number of Jacobian evaluations made in each call to solve()
-    const vector_int& jacobianCountStats() {
+    const vector<int>& jacobianCountStats() {
         saveStats();
         return m_jacEvals;
     }
 
     //! Return number of non-Jacobian function evaluations made in each call to
     //! solve()
-    const vector_int& evalCountStats() {
+    const vector<int>& evalCountStats() {
         saveStats();
         return m_funcEvals;
     }
 
     //! Return number of time steps taken in each call to solve()
-    const vector_int& timeStepStats() {
+    const vector<int>& timeStepStats() {
         saveStats();
         return m_timeSteps;
     }
@@ -332,7 +331,7 @@ public:
     }
 
 protected:
-    void evalSSJacobian(doublereal* x, doublereal* xnew);
+    void evalSSJacobian(double* x, double* xnew);
 
     double m_tmin = 1e-16; //!< minimum timestep size
     double m_tmax = 1e+08; //!< maximum timestep size
@@ -342,8 +341,8 @@ protected:
 
     shared_ptr<vector<double>> m_state; //!< Solution vector
 
-    std::unique_ptr<MultiJac> m_jac; //!< Jacobian evaluator
-    std::unique_ptr<MultiNewton> m_newt; //!< Newton iterator
+    unique_ptr<MultiJac> m_jac; //!< Jacobian evaluator
+    unique_ptr<MultiNewton> m_newt; //!< Newton iterator
     double m_rdt = 0.0; //!< reciprocal of time step
     bool m_jac_ok = false; //!< if true, Jacobian is current
 
@@ -354,14 +353,14 @@ protected:
     vector<shared_ptr<Domain1D>> m_sharedConnect;
     vector<shared_ptr<Domain1D>> m_sharedBulk;
 
-    vector<Domain1D*> m_dom; //!< @todo remove raw pointers after Cantera 3.0
-    vector<Domain1D*> m_connect; //!< @todo remove raw pointers after Cantera 3.0
-    vector<Domain1D*> m_bulk; //!< @todo remove raw pointers after Cantera 3.0
+    vector<Domain1D*> m_dom; //!< @todo remove raw pointers after %Cantera 3.0
+    vector<Domain1D*> m_connect; //!< @todo remove raw pointers after %Cantera 3.0
+    vector<Domain1D*> m_bulk; //!< @todo remove raw pointers after %Cantera 3.0
 
     bool m_init = false;
-    std::vector<size_t> m_nvars;
-    std::vector<size_t> m_loc;
-    vector_int m_mask;
+    vector<size_t> m_nvars;
+    vector<size_t> m_loc;
+    vector<int> m_mask;
     size_t m_pts = 0;
 
     // options
@@ -384,15 +383,15 @@ private:
     // statistics
     int m_nevals = 0;
     double m_evaltime = 0;
-    std::vector<size_t> m_gridpts;
-    vector_int m_jacEvals;
-    vector_fp m_jacElapsed;
-    vector_int m_funcEvals;
-    vector_fp m_funcElapsed;
+    vector<size_t> m_gridpts;
+    vector<int> m_jacEvals;
+    vector<double> m_jacElapsed;
+    vector<int> m_funcEvals;
+    vector<double> m_funcElapsed;
 
     //! Number of time steps taken in each call to solve() (for example, for each
     //! successive grid refinement)
-    vector_int m_timeSteps;
+    vector<int> m_timeSteps;
 };
 
 }

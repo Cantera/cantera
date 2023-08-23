@@ -1,8 +1,8 @@
 /**
  *  @file ConstCpPoly.cpp
- * Declarations for the \link Cantera::SpeciesThermoInterpType SpeciesThermoInterpType \endlink object that
- * employs a constant heat capacity assumption (see \ref spthermo and
- * \link Cantera::ConstCpPoly ConstCpPoly \endlink).
+ * Declarations for the @link Cantera::SpeciesThermoInterpType SpeciesThermoInterpType @endlink object that
+ * employs a constant heat capacity assumption (see @ref spthermo and
+ * @link Cantera::ConstCpPoly ConstCpPoly @endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -35,35 +35,33 @@ void ConstCpPoly::setParameters(double t0, double h0, double s0, double cp0)
     m_s0_R = s0 / GasConstant;
 }
 
-void ConstCpPoly::updateProperties(const doublereal* tt,
-                                   doublereal* cp_R,
-                                   doublereal* h_RT,
-                                   doublereal* s_R) const
+void ConstCpPoly::updateProperties(const double* tt,
+                                   double* cp_R,
+                                   double* h_RT,
+                                   double* s_R) const
 {
     double t = *tt;
-    doublereal logt = log(t);
-    doublereal rt = 1.0/t;
+    double logt = log(t);
+    double rt = 1.0/t;
     *cp_R = m_cp0_R;
     *h_RT = rt*(m_h0_R + (t - m_t0) * m_cp0_R);
     *s_R = m_s0_R + m_cp0_R * (logt - m_logt0);
 }
 
-void ConstCpPoly::updatePropertiesTemp(const doublereal temp,
-                                       doublereal* cp_R,
-                                       doublereal* h_RT,
-                                       doublereal* s_R) const
+void ConstCpPoly::updatePropertiesTemp(const double temp,
+                                       double* cp_R,
+                                       double* h_RT,
+                                       double* s_R) const
 {
-    doublereal logt = log(temp);
-    doublereal rt = 1.0/temp;
+    double logt = log(temp);
+    double rt = 1.0/temp;
     *cp_R = m_cp0_R;
     *h_RT = rt*(m_h0_R + (temp - m_t0) * m_cp0_R);
     *s_R = m_s0_R + m_cp0_R * (logt - m_logt0);
 }
 
-void ConstCpPoly::reportParameters(size_t& n, int& type,
-                                   doublereal& tlow, doublereal& thigh,
-                                   doublereal& pref,
-                                   doublereal* const coeffs) const
+void ConstCpPoly::reportParameters(size_t& n, int& type, double& tlow, double& thigh,
+                                   double& pref, double* const coeffs) const
 {
     n = 0;
     type = CONSTANT_CP;
@@ -86,20 +84,20 @@ void ConstCpPoly::getParameters(AnyMap& thermo) const
     thermo["cp0"].setQuantity(m_cp0_R * GasConstant, "J/kmol/K");
 }
 
-doublereal ConstCpPoly::reportHf298(doublereal* const h298) const
+double ConstCpPoly::reportHf298(double* const h298) const
 {
     double temp = 298.15;
-    doublereal h = GasConstant * (m_h0_R + (temp - m_t0) * m_cp0_R);
+    double h = GasConstant * (m_h0_R + (temp - m_t0) * m_cp0_R);
     if (h298) {
         *h298 = h;
     }
     return h;
 }
 
-void ConstCpPoly::modifyOneHf298(const size_t k, const doublereal Hf298New)
+void ConstCpPoly::modifyOneHf298(const size_t k, const double Hf298New)
 {
-    doublereal hnow = reportHf298();
-    doublereal delH = Hf298New - hnow;
+    double hnow = reportHf298();
+    double delH = Hf298New - hnow;
     m_h0_R += delH / GasConstant;
 }
 

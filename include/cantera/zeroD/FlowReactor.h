@@ -12,6 +12,7 @@ namespace Cantera
 {
 
 //! Adiabatic flow in a constant-area duct with homogeneous and heterogeneous reactions
+//! @ingroup reactorGroup
 class FlowReactor : public IdealGasReactor
 {
 public:
@@ -61,7 +62,7 @@ public:
         return m_area;
     }
 
-    //! @deprecated To be removed after Cantera 3.0. Access distance through the
+    //! @deprecated To be removed after %Cantera 3.0. Access distance through the
     //!     ReactorNet object
     double distance() const;
 
@@ -152,9 +153,9 @@ protected:
     //! reactor surface area to volume ratio [m^-1]
     double m_sa_to_vol = -1.0;
     //! temporary storage for surface species production rates
-    vector_fp m_sdot_temp;
+    vector<double> m_sdot_temp;
     //! temporary storage for species partial molar enthalpies
-    vector_fp m_hk;
+    vector<double> m_hk;
     //! steady-state relative tolerance, used to determine initial surface coverages
     double m_ss_rtol = 1e-7;
     //! steady-state absolute tolerance, used to determine initial surface coverages

@@ -13,34 +13,18 @@
 #if defined(_WIN32) && !defined(NOMINMAX)
 #define NOMINMAX
 #endif
+
 #if CT_USE_SYSTEM_FMT
-  #include "fmt/format.h"
-  #if defined(FMT_VERSION) && FMT_VERSION >= 40000
-    #include "fmt/printf.h"
-  #endif
-  #include "fmt/ostream.h"
+  #include <fmt/format.h>
+  #include <fmt/printf.h>
+  #include <fmt/ostream.h>
 #else
   #include "cantera/ext/fmt/format.h"
-  #if defined(FMT_VERSION) && FMT_VERSION >= 40000
-    #include "cantera/ext/fmt/printf.h"
-  #endif
+  #include "cantera/ext/fmt/printf.h"
   #include "cantera/ext/fmt/ostream.h"
 #endif
 
-#if !defined(FMT_VERSION) || FMT_VERSION < 50000
-namespace fmt {
-using memory_buffer = MemoryWriter;
-}
-template <typename... Args>
-void format_to(fmt::memory_buffer& b, Args... args) {
-    b.write(args...);
-}
-inline std::string to_string(fmt::memory_buffer& b) {
-    return b.str();
-}
-#endif
-
-#if !defined(FMT_VERSION) ||  FMT_VERSION < 80000
+#if FMT_VERSION < 80000
 template <typename... Args>
 void fmt_append(fmt::memory_buffer& b, Args... args) {
     format_to(b, args...);

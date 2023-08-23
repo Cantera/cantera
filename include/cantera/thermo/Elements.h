@@ -18,7 +18,7 @@ namespace Cantera
 //! @name Types of Element Constraint Equations
 //!
 //! There may be several different types of element constraints handled by the
-//! equilibrium program and by Cantera in other contexts. These defines are used
+//! equilibrium program and by %Cantera in other contexts. These defines are used
 //! to assign each constraint to one category.
 //! @{
 
@@ -86,11 +86,11 @@ namespace Cantera
 
 //! Get a vector of the atomic symbols of the elements defined in Cantera.
 //! @since New in version 3.0
-const std::vector<std::string>& elementSymbols();
+const vector<string>& elementSymbols();
 
 //! Get a vector of the names of the elements defined in Cantera.
 //! @since New in version 3.0
-const std::vector<std::string>& elementNames();
+const vector<string>& elementNames();
 
 //! Get a map with the element and isotope symbols and names as keys and weights as
 //! values.
@@ -100,11 +100,11 @@ const std::vector<std::string>& elementNames();
  *
  * @since New in version 3.0
  */
-const std::map<std::string, double>& elementWeights();
+const map<string, double>& elementWeights();
 
 //! Get the atomic weight of an element.
 /*!
- * Get the atomic weight of an element defined in Cantera by its symbol
+ * Get the atomic weight of an element defined in %Cantera by its symbol
  * or by its name. This includes the named isotopes defined in Cantera.
  *
  * @param ename String, name or symbol of the element
@@ -112,11 +112,11 @@ const std::map<std::string, double>& elementWeights();
  * @exception CanteraError if a match for ename is not found or the
  * element has no stable isotopes, and therefore no standard atomic weight
  */
-double getElementWeight(const std::string& ename);
+double getElementWeight(const string& ename);
 
 //! Get the atomic weight of an element.
 /*!
- * Get the atomic weight of an element defined in Cantera by its atomic
+ * Get the atomic weight of an element defined in %Cantera by its atomic
  * number. The named isotopes cannot be accessed from this function,
  * since the atomic number of the isotopes is the same as the regular
  * element from which they are derived.
@@ -132,18 +132,18 @@ double getElementWeight(int atomicNumber);
 
 //! Get the symbol for an element
 /*!
- * Get the symbol for an element defined in Cantera by its name. This
+ * Get the symbol for an element defined in %Cantera by its name. This
  * includes the named isotopes defined in Cantera.
  *
  * @param ename String, name of the element
  * @return The symbol of the element in a string
  * @exception CanteraError if a match for ename is not found
  */
-std::string getElementSymbol(const std::string& ename);
+string getElementSymbol(const string& ename);
 
 //! Get the symbol for an element
 /*!
- * Get the symbol for an element defined in Cantera by its atomic
+ * Get the symbol for an element defined in %Cantera by its atomic
  * number. The named isotopes cannot be accessed from this function,
  * since the atomic number of the isotopes is the same as the regular
  * element from which they are derived.
@@ -153,22 +153,22 @@ std::string getElementSymbol(const std::string& ename);
  * @exception IndexError if the passed atomic number less than 1 or
  * larger than the number of elements defined
  */
-std::string getElementSymbol(int atomicNumber);
+string getElementSymbol(int atomicNumber);
 
 //! Get the name of an element
 /*!
- * Get the name of an element defined in Cantera by its symbol. This
+ * Get the name of an element defined in %Cantera by its symbol. This
  * includes the named isotopes defined in Cantera.
  *
  * @param ename String, symbol for the element
  * @return The name of the element, in a string
  * @exception CanteraError if a match for ename is not found
  */
-std::string getElementName(const std::string& ename);
+string getElementName(const string& ename);
 
 //! Get the name of an element
 /*!
- * Get the name of an element defined in Cantera by its atomic
+ * Get the name of an element defined in %Cantera by its atomic
  * number. The named isotopes cannot be accessed from this function,
  * since the atomic number of the isotopes is the same as the regular
  * element from which they are derived.
@@ -178,27 +178,27 @@ std::string getElementName(const std::string& ename);
  * @exception CanteraError IndexError if the passed atomic number less than 1 or
  * larger than the number of elements defined
  */
-std::string getElementName(int atomicNumber);
+string getElementName(int atomicNumber);
 
 //! Get the atomic number for an element
 /*!
- * Get the atomic number of an element defined in Cantera by its symbol
+ * Get the atomic number of an element defined in %Cantera by its symbol
  * or name. This includes the named isotopes included in Cantera.
  *
  *  @param ename String, name or symbol of the element
  *  @return The integer atomic number of the element
  *  @exception CanteraError if a match for ename is not found
  */
-int getAtomicNumber(const std::string& ename);
+int getAtomicNumber(const string& ename);
 
 //! Get the number of named elements defined in Cantera.
 //! This array excludes named isotopes
-//! @since Type is `size_t` in Cantera 3.0
+//! @since Type is `size_t` in %Cantera 3.0
 size_t numElementsDefined();
 
 //! Get the number of named isotopes defined in Cantera.
 //! This array excludes the named elements
-//! @since Type is `size_t` in Cantera 3.0
+//! @since Type is `size_t` in %Cantera 3.0
 size_t numIsotopesDefined();
 
 } // namespace

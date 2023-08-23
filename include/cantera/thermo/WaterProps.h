@@ -2,8 +2,8 @@
  *  @file WaterProps.h
  *   Header for a class used to house several approximation
  *   routines for properties of water.
- *  (see \ref thermoprops
- *   and class \link Cantera::WaterProps WaterProps\endlink).
+ *  (see @ref thermoprops
+ *   and class @link Cantera::WaterProps WaterProps@endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -19,82 +19,20 @@ namespace Cantera
 class WaterPropsIAPWS;
 class PDSS_Water;
 
-/**
- * @defgroup relatedProps Electric Properties of Phases
- *
- * Computation of the electric properties of phases
- *
- * ### Treatment of the phase potential and the electrochemical potential of a species
- *
- * The electrochemical potential of species \f$k\f$ in a phase \f$p\f$, \f$ \zeta_k \f$,
- * is related to the chemical potential via the following equation,
- *
- *       \f[
- *            \zeta_{k}(T,P) = \mu_{k}(T,P) + z_k \phi_p
- *       \f]
- *
- * where  \f$ \nu_k \f$ is the charge of species \f$k\f$, and \f$ \phi_p \f$ is
- * the electric potential of phase \f$p\f$.
- *
- * The potential  \f$ \phi_p \f$ is tracked and internally stored within the
- * base ThermoPhase object. It constitutes a specification of the internal state
- * of the phase; it's the third state variable, the first two being temperature
- * and density (or, pressure, for incompressible equations of state). It may be
- * set with the function, ThermoPhase::setElectricPotential(), and may be
- * queried with the function ThermoPhase::electricPotential().
- *
- * Note, the overall electrochemical potential of a phase may not be changed
- * by the potential because many phases enforce charge neutrality:
- *
- *       \f[
- *            0 = \sum_k z_k X_k
- *       \f]
- *
- * Whether charge neutrality is necessary for a phase is also specified within
- * the ThermoPhase object, by the function call
- * ThermoPhase::chargeNeutralityNecessary(). Note, that it is not necessary for
- * the IdealGas phase, currently. However, it is necessary for liquid phases
- * such as DebyeHuckel and HMWSoln for the proper specification of the chemical
- * potentials.
- *
- * This equation, when applied to the \f$ \zeta_k \f$ equation described
- * above, results in a zero net change in the effective Gibbs free energy of
- * the phase. However, specific charged species in the phase may increase or
- * decrease their electrochemical potentials, which will have an effect on
- * interfacial reactions involving charged species, when there is a potential
- * drop between phases. This effect is used within the InterfaceKinetics and
- * EdgeKinetics kinetics objects classes.
- *
- * ### Electrothermochemical Properties of Phases of Matter
- *
- * The following classes are used to compute the electrical and
- * electrothermochemical properties of phases of matter. The main property
- * currently is the dielectric constant, which is an important parameter for
- * electrolyte solutions. The class WaterProps calculate the dielectric
- * constant of water as a function of temperature and pressure.
- *
- * WaterProps also calculate the constant A_debye used in the Debye Huckel and
- * Pitzer activity coefficient calculations.
- *
- * @ingroup phases
- */
-//@{
-
 //! The WaterProps class is used to house several approximation routines for
 //! properties of water.
 /*!
  * This is a helper class for WaterSSTP and PDSS_Water and does not constitute
- * a complete implementation of a thermo phase by itself (see \ref thermoprops
- * and classes \link Cantera::WaterSSTP WaterSSTP\endlink and
- * \link Cantera::PDSS_Water PDSS_Water\endlink).
+ * a complete implementation of a thermo phase by itself (see @ref thermoprops
+ * and classes @link Cantera::WaterSSTP WaterSSTP@endlink and
+ * @link Cantera::PDSS_Water PDSS_Water@endlink).
  *
  * The class is also a wrapper around the WaterPropsIAPWS class which provides
  * the calculations for the equation of state properties for water.
  *
- * In particular, this class house routine for the calculation of the dielectric
- * constant of water
- *
- * Most if not all of the member functions are static.
+ * In particular, this class houses methods for the calculation of the dielectric
+ * constant of water and the constant A_debye used in the Debye-Huckel and
+ * Pitzer activity coefficient calculations.
  */
 class WaterProps
 {
@@ -140,7 +78,7 @@ public:
      *
      * units = returns density in kg m-3.
      */
-    static doublereal density_T(doublereal T, doublereal P, int ifunc);
+    static double density_T(double T, double P, int ifunc);
 
     //! Bradley-Pitzer equation for the dielectric constant
     //! of water as a function of temperature and pressure.
@@ -165,7 +103,7 @@ public:
      *
      * value at 25C and 1 atm, relEps = 78.38
      */
-    doublereal relEpsilon(doublereal T, doublereal P_pascal, int ifunc = 0);
+    double relEpsilon(double T, double P_pascal, int ifunc = 0);
 
     //! ADebye calculates the value of A_Debye as a function of temperature and
     //! pressure according to relations that take into account the temperature
@@ -176,10 +114,10 @@ public:
      * And, therefore, most be recalculated whenever T or P changes. The units
      * returned by this expression are sqrt(kg/gmol).
      *
-     * \f[
+     * @f[
      *   A_{Debye} = \frac{1}{8 \pi} \sqrt{\frac{2 N_{Avog} \rho_w}{1000}}
      *                     {\left(\frac{e^2}{\epsilon k_{boltz} T}\right)}^{\frac{3}{2}}
-     * \f]
+     * @f]
      *
      * Nominal value at 25C and 1atm = 1.172576 sqrt(kg/gmol).
      *
@@ -202,14 +140,14 @@ public:
      * A_Debye computed with this function agrees with the Pitzer table p. 99 to
      * 4 significant digits at 25C. and 20C. (Aphi = ADebye/3)
      */
-    doublereal ADebye(doublereal T, doublereal P, int ifunc);
+    double ADebye(double T, double P, int ifunc);
 
     //! Returns the saturation pressure given the temperature
     /*!
      * @param T temperature (kelvin)
      * @returns the saturation pressure (pascal)
      */
-    doublereal satPressure(doublereal T);
+    double satPressure(double T);
 
     //! Returns the density of water
     /*!
@@ -219,27 +157,27 @@ public:
      * @param T Temperature (kelvin)
      * @param P pressure (pascal)
      */
-    doublereal density_IAPWS(doublereal T, doublereal P);
+    double density_IAPWS(double T, double P);
 
     //! Returns the density of water
     /*!
      * This function uses the internal state of the underlying water object
      */
-    doublereal density_IAPWS() const;
+    double density_IAPWS() const;
 
     //! returns the coefficient of thermal expansion
     /*!
      * @param T Temperature (kelvin)
      * @param P pressure (pascal)
      */
-    doublereal coeffThermalExp_IAPWS(doublereal T, doublereal P);
+    double coeffThermalExp_IAPWS(double T, double P);
 
     //! Returns the isothermal compressibility of water
     /*!
      * @param T  temperature in kelvin
      * @param P  pressure in pascal
      */
-    doublereal isothermalCompressibility_IAPWS(doublereal T, doublereal P);
+    double isothermalCompressibility_IAPWS(double T, double P);
 
 protected:
     //! Pointer to the WaterPropsIAPWS object
@@ -249,7 +187,6 @@ protected:
     bool m_own_sub = false;
 };
 
-//@}
 }
 
 #endif

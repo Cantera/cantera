@@ -1,9 +1,9 @@
 /**
  * @file Nasa9Poly1.h Header for a single-species standard state object derived
- *     from \link Cantera::SpeciesThermoInterpType
- *     SpeciesThermoInterpType\endlink based on the NASA 9 coefficient
- *     temperature polynomial form applied to one temperature region (see \ref
- *     spthermo and class \link Cantera::Nasa9Poly1 Nasa9Poly1\endlink).
+ *     from @link Cantera::SpeciesThermoInterpType
+ *     SpeciesThermoInterpType@endlink based on the NASA 9 coefficient
+ *     temperature polynomial form applied to one temperature region (see @ref
+ *     spthermo and class @link Cantera::Nasa9Poly1 Nasa9Poly1@endlink).
  *
  * This parameterization has one NASA temperature region.
  */
@@ -23,30 +23,27 @@ namespace Cantera
 /*!
  * This parameterization expresses the heat capacity via a 7 coefficient
  * polynomial. Note that this is the form used in the 2002 NASA equilibrium
- * program. A reference to the form is provided below:
+ * program. A reference to the form is provided in McBride, et al.
+ * @cite mcbride2002.
  *
- * "NASA Glenn Coefficients for Calculating Thermodynamic Properties of
- * Individual Species," B. J. McBride, M. J. Zehe, S. Gordon
- * NASA/TP-2002-211556, Sept. 2002
- *
- * Nine coefficients \f$(a_0,\dots,a_8)\f$ are used to represent
- * \f$ C_p^0(T)\f$, \f$ H^0(T)\f$, and \f$ S^0(T) \f$ as
- * polynomials in \f$ T \f$ :
- * \f[
+ * Nine coefficients @f$ (a_0,\dots,a_8) @f$ are used to represent
+ * @f$ C_p^0(T) @f$, @f$ H^0(T) @f$, and @f$ S^0(T) @f$ as
+ * polynomials in @f$ T @f$ :
+ * @f[
  * \frac{C_p^0(T)}{R} = a_0 T^{-2} + a_1 T^{-1} + a_2 + a_3 T
  *                  + a_4 T^2 + a_5 T^3 + a_6 T^4
- * \f]
+ * @f]
  *
- * \f[
+ * @f[
  * \frac{H^0(T)}{RT} = - a_0 T^{-2} + a_1 \frac{\ln T}{T} + a_2
  *     + \frac{a_3}{2} T + \frac{a_4}{3} T^2  + \frac{a_5}{4} T^3 +
  *     \frac{a_6}{5} T^4 + \frac{a_7}{T}
- * \f]
+ * @f]
  *
- * \f[
+ * @f[
  * \frac{s^0(T)}{R} = - \frac{a_0}{2} T^{-2} - a_1 T^{-1} + a_2 \ln T
  *    + a_3 T + \frac{a_4}{2} T^2 + \frac{a_5}{3} T^3  + \frac{a_6}{4} T^4 + a_8
- * \f]
+ * @f]
  *
  * The standard state is assumed to be an ideal gas at the standard pressure of
  * 1 bar, for gases. For condensed species, the standard state is the pure
@@ -75,14 +72,14 @@ public:
     Nasa9Poly1(double tlow, double thigh, double pref, const double* coeffs);
 
     //! Set the array of 9 polynomial coefficients
-    void setParameters(const vector_fp& coeffs);
+    void setParameters(const vector<double>& coeffs);
 
-    virtual int reportType() const;
+    int reportType() const override;
 
-    virtual size_t temperaturePolySize() const { return 7; }
-    virtual void updateTemperaturePoly(double T, double* T_poly) const;
+    size_t temperaturePolySize() const override { return 7; }
+    void updateTemperaturePoly(double T, double* T_poly) const override;
 
-    /*!
+    /**
      * @copydoc SpeciesThermoInterpType::updateProperties
      *
      * Temperature Polynomial:
@@ -94,12 +91,11 @@ public:
      *   - tt[5] = 1.0/(t*t);
      *   - tt[6] = std::log(t);
      */
-    virtual void updateProperties(const doublereal* tt,
-                                  doublereal* cp_R, doublereal* h_RT, doublereal* s_R) const;
+    void updateProperties(const double* tt, double* cp_R, double* h_RT,
+                          double* s_R) const override;
 
-    virtual void updatePropertiesTemp(const doublereal temp,
-                                      doublereal* cp_R, doublereal* h_RT,
-                                      doublereal* s_R) const;
+    void updatePropertiesTemp(const double temp, double* cp_R, double* h_RT,
+                              double* s_R) const override;
 
     //! This utility function reports back the type of parameterization and all
     //! of the parameters for the species
@@ -119,16 +115,14 @@ public:
      *       - coeffs[2] is max temperature
      *       - coeffs[3+i] from i =0,9 are the coefficients themselves
      */
-    virtual void reportParameters(size_t& n, int& type,
-                                  doublereal& tlow, doublereal& thigh,
-                                  doublereal& pref,
-                                  doublereal* const coeffs) const;
+    void reportParameters(size_t& n, int& type, double& tlow, double& thigh,
+                          double& pref, double* const coeffs) const override;
 
-    virtual void getParameters(AnyMap& thermo) const;
+    void getParameters(AnyMap& thermo) const override;
 
 protected:
     //! array of polynomial coefficients
-    vector_fp m_coeff;
+    vector<double> m_coeff;
 };
 
 }

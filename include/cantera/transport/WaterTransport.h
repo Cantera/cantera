@@ -26,12 +26,12 @@ public:
      *  @param ndim     Number of dimensions of the flux expressions.
      *                  Defaults to a value of one.
      *
-     * @deprecated The `thermo` and `ndim` parameters will be removed after Cantera 3.0.
+     * @deprecated The `thermo` and `ndim` parameters will be removed after %Cantera 3.0.
      *     The ThermoPhase object should be specifed when calling the `init` method.
      */
     WaterTransport(ThermoPhase* thermo = 0, int ndim = -1);
 
-    virtual std::string transportModel() const {
+    string transportModel() const override {
         return "Water";
     }
 
@@ -40,18 +40,15 @@ public:
      * This function calculates the value of the viscosity of pure water at the
      * current T and P.
      *
-     * The formulas used are from the paper: J. V. Sengers, J. T. R. Watson,
-     * "Improved International Formulations for the Viscosity and Thermal
-     * Conductivity of Water Substance", J. Phys. Chem. Ref. Data, 15, 1291
-     * (1986).
+     * The formulas used are from Sengers and Watson @cite sengers1986.
      *
      * The formulation is accurate for all temperatures and pressures, for steam
      * and for water, even near the critical point. Pressures above 500 MPa and
      * temperature above 900 C are suspect.
      */
-    virtual doublereal viscosity();
+    double viscosity() override;
 
-    virtual doublereal bulkViscosity() {
+    double bulkViscosity() override {
         return 0.0;
     }
 
@@ -61,18 +58,15 @@ public:
      * This function calculates the value of the thermal conductivity of water
      * at the current T and P.
      *
-     * The formulas used are from the paper: J. V. Sengers, J. T. R. Watson,
-     * "Improved International Formulations for the Viscosity and Thermal
-     * Conductivity of Water Substance", J. Phys. Chem. Ref. Data, 15, 1291
-     * (1986).
+     * The formulas used are from Sengers and Watson @cite sengers1986.
      *
      * The formulation is accurate for all temperatures and pressures, for steam
      * and for water, even near the critical point. Pressures above 500 MPa and
      * temperature above 900 C are suspect.
      */
-    virtual doublereal thermalConductivity();
+    double thermalConductivity() override;
 
-    virtual void init(ThermoPhase* thermo, int mode=0, int log_level=0);
+    void init(ThermoPhase* thermo, int mode=0, int log_level=0) override;
 };
 }
 #endif

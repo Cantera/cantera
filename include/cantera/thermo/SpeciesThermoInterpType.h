@@ -2,8 +2,8 @@
  *  @file SpeciesThermoInterpType.h
  *
  * Pure Virtual Base class for individual species reference state thermodynamic
- * managers and text for the spthermo module (see \ref spthermo and class \link
- * Cantera::SpeciesThermoInterpType SpeciesThermoInterpType \endlink).
+ * managers and text for the spthermo module (see @ref spthermo and class @link
+ * Cantera::SpeciesThermoInterpType SpeciesThermoInterpType @endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -124,7 +124,7 @@ public:
 
     //! Returns the minimum temperature that the thermo parameterization is
     //! valid
-    virtual doublereal minTemp() const {
+    virtual double minTemp() const {
         return m_lowT;
     }
 
@@ -135,7 +135,7 @@ public:
 
     //! Returns the maximum temperature that the thermo parameterization is
     //! valid
-    virtual doublereal maxTemp() const {
+    virtual double maxTemp() const {
         return m_highT;
     }
 
@@ -145,7 +145,7 @@ public:
     }
 
     //! Returns the reference pressure (Pa)
-    virtual doublereal refPressure() const {
+    virtual double refPressure() const {
         return m_Pref;
     }
 
@@ -156,7 +156,7 @@ public:
 
     //! Check for problems with the parameterization, and generate warnings or
     //! throw and exception if any are found.
-    virtual void validate(const std::string& name) {}
+    virtual void validate(const string& name) {}
 
     //! Returns an integer representing the type of parameterization
     virtual int reportType() const { return 0; };
@@ -185,9 +185,8 @@ public:
      * @param h_RT    Vector of Dimensionless enthalpies. (length m_kk).
      * @param s_R     Vector of Dimensionless entropies. (length m_kk).
      */
-    virtual void updateProperties(const doublereal* tt,
-                                  doublereal* cp_R, doublereal* h_RT,
-                                  doublereal* s_R) const;
+    virtual void updateProperties(const double* tt, double* cp_R, double* h_RT,
+                                  double* s_R) const;
 
     //! Compute the reference-state property of one species
     /*!
@@ -200,10 +199,10 @@ public:
      * @param h_RT    Vector of Dimensionless enthalpies. (length m_kk).
      * @param s_R     Vector of Dimensionless entropies. (length m_kk).
      */
-    virtual void updatePropertiesTemp(const doublereal temp,
-                                      doublereal* cp_R,
-                                      doublereal* h_RT,
-                                      doublereal* s_R) const;
+    virtual void updatePropertiesTemp(const double temp,
+                                      double* cp_R,
+                                      double* h_RT,
+                                      double* s_R) const;
 
     //! This utility function returns the number of coefficients
     //! for a given type of species parameterization
@@ -222,10 +221,9 @@ public:
      * @param coeffs    Vector of coefficients used to set the
      *                  parameters for the standard state.
      */
-    virtual void reportParameters(size_t& index, int& type,
-                                  doublereal& minTemp, doublereal& maxTemp,
-                                  doublereal& refPressure,
-                                  doublereal* const coeffs) const;
+    virtual void reportParameters(size_t& index, int& type, double& minTemp,
+                                  double& maxTemp, double& refPressure,
+                                  double* const coeffs) const;
 
     //! Return the parameters of the species thermo object such that an
     //! identical species thermo object could be reconstructed using the
@@ -249,7 +247,7 @@ public:
      * @return the current value of the Heat of Formation at 298K and 1 bar for
      *               species m_speciesIndex.
      */
-    virtual doublereal reportHf298(doublereal* const h298 = 0) const;
+    virtual double reportHf298(double* const h298 = 0) const;
 
     //! Modify the value of the 298 K Heat of Formation of one species in the
     //! phase (J kmol-1)
@@ -262,7 +260,7 @@ public:
      * @param  Hf298New    Specify the new value of the Heat of Formation at
      *                     298K and 1 bar
      */
-    virtual void modifyOneHf298(const size_t k, const doublereal Hf298New);
+    virtual void modifyOneHf298(const size_t k, const double Hf298New);
 
     //! Restore the original heat of formation for this species
     /*!

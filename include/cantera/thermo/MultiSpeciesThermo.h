@@ -1,7 +1,7 @@
 /**
  * @file MultiSpeciesThermo.h
  *  Header for a general species thermodynamic property manager for a phase (see
- * \link Cantera::MultiSpeciesThermo MultiSpeciesThermo\endlink).
+ * @link Cantera::MultiSpeciesThermo MultiSpeciesThermo@endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -38,7 +38,7 @@ namespace Cantera
  * MultiSpeciesThermo object. However, there is no requirement that a
  * MultiSpeciesThermo object handles all of the species in a phase. The member
  * function
- * \link MultiSpeciesThermo::install_STIT() install_STIT()\endlink
+ * @link MultiSpeciesThermo::install_STIT() install_STIT()@endlink
  * is called to install each species into the MultiSpeciesThermo object.
  *
  * @ingroup spthermo
@@ -94,30 +94,29 @@ public:
      * @param h_RT    Vector of Dimensionless enthalpies. (length m_kk).
      * @param s_R     Vector of Dimensionless entropies. (length m_kk).
      */
-    virtual void update(doublereal T, doublereal* cp_R,
-                        doublereal* h_RT, doublereal* s_R) const;
+    virtual void update(double T, double* cp_R, double* h_RT, double* s_R) const;
 
     //! Minimum temperature.
     /*!
      * If no argument is supplied, this method returns the minimum temperature
-     * for which \e all parameterizations are valid. If an integer index k is
+     * for which @e all parameterizations are valid. If an integer index k is
      * supplied, then the value returned is the minimum temperature for
      * species k in the phase.
      *
      * @param k    Species index
      */
-    virtual doublereal minTemp(size_t k=npos) const;
+    virtual double minTemp(size_t k=npos) const;
 
     //! Maximum temperature.
     /*!
      * If no argument is supplied, this method returns the maximum temperature
-     * for which \e all parameterizations are valid. If an integer index k is
+     * for which @e all parameterizations are valid. If an integer index k is
      * supplied, then the value returned is the maximum temperature for
      * parameterization k.
      *
      * @param k  Species Index
      */
-    virtual doublereal maxTemp(size_t k=npos) const;
+    virtual double maxTemp(size_t k=npos) const;
 
     //! The reference-state pressure for species k.
     /*!
@@ -127,9 +126,9 @@ public:
      *
      * @param k Species Index
      * @deprecated The species index parameter is deprecated and will be removed after
-     *     Cantera 3.0. All species in a phase must have the same reference pressure.
+     *     %Cantera 3.0. All species in a phase must have the same reference pressure.
      */
-    virtual doublereal refPressure(size_t k=npos) const;
+    virtual double refPressure(size_t k=npos) const;
 
     //! This utility function reports the type of parameterization used for the
     //! species with index number *index*.
@@ -149,11 +148,8 @@ public:
      * @param maxTemp   output - Maximum temperature
      * @param refPressure output - reference pressure (Pa).
      */
-    virtual void reportParams(size_t index, int& type,
-                              doublereal* const c,
-                              doublereal& minTemp,
-                              doublereal& maxTemp,
-                              doublereal& refPressure) const;
+    virtual void reportParams(size_t index, int& type, double* const c, double& minTemp,
+                              double& maxTemp, double& refPressure) const;
 
     //! Report the 298 K Heat of Formation of the standard state of one species
     //! (J kmol-1)
@@ -165,7 +161,7 @@ public:
      * @param k    species index
      * @returns the current value of the Heat of Formation at 298K and 1 bar
      */
-    virtual doublereal reportOneHf298(const size_t k) const;
+    virtual double reportOneHf298(const size_t k) const;
 
     //! Modify the value of the 298 K Heat of Formation of the standard state of
     //! one species in the phase (J kmol-1)
@@ -178,7 +174,7 @@ public:
      * @param  Hf298New    Specify the new value of the Heat of Formation at
      *                     298K and 1 bar. units = J/kmol.
      */
-    virtual void modifyOneHf298(const size_t k, const doublereal Hf298New);
+    virtual void modifyOneHf298(const size_t k, const double Hf298New);
 
     //! Restore the original heat of formation of one or more species
     /*!
@@ -203,9 +199,9 @@ protected:
     //! Mark species *k* as having its thermodynamic data installed
     void markInstalled(size_t k);
 
-    typedef std::pair<size_t, shared_ptr<SpeciesThermoInterpType> > index_STIT;
-    typedef std::map<int, std::vector<index_STIT> > STIT_map;
-    typedef std::map<int, vector_fp> tpoly_map;
+    typedef pair<size_t, shared_ptr<SpeciesThermoInterpType>> index_STIT;
+    typedef map<int, vector<index_STIT>> STIT_map;
+    typedef map<int, vector<double>> tpoly_map;
 
     //! This is the main data structure, which contains the
     //! SpeciesThermoInterpType objects, sorted by the parameterization type.
@@ -219,7 +215,7 @@ protected:
     //! Map from species index to location within #m_sp, such that
     //! `m_sp[m_speciesLoc[k].first][m_speciesLoc[k].second]` is the
     //! SpeciesThermoInterpType object for species `k`.
-    std::map<size_t, std::pair<int, size_t> > m_speciesLoc;
+    map<size_t, pair<int, size_t>> m_speciesLoc;
 
     //! Maximum value of the lowest temperature
     double m_tlow_max = 0.0;
@@ -231,7 +227,7 @@ protected:
     double m_p0 = 0.0;
 
     //! indicates if data for species has been installed
-    std::vector<bool> m_installed;
+    vector<bool> m_installed;
 };
 
 }

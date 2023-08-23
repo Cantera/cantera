@@ -32,10 +32,14 @@ enum offset
 
 class Transport;
 
+//! @defgroup flowGroup Flow Domains
+//! One-dimensional flow domains.
+//! @ingroup onedGroup
+
 /**
  *  This class represents 1D flow domains that satisfy the one-dimensional
  *  similarity solution for chemically-reacting, axisymmetric flows.
- *  @ingroup onedim
+ *  @ingroup flowGroup
  */
 class StFlow : public Domain1D
 {
@@ -59,18 +63,18 @@ public:
     //!     transport properties
     //! @param id  name of flow domain
     //! @param points  initial number of grid points
-    StFlow(shared_ptr<Solution> sol, const std::string& id="", size_t points=1);
+    StFlow(shared_ptr<Solution> sol, const string& id="", size_t points=1);
 
     ~StFlow();
 
-    virtual string type() const;
+    string type() const override;
 
     //! @name Problem Specification
     //! @{
 
-    virtual void setupGrid(size_t n, const doublereal* z);
+    void setupGrid(size_t n, const double* z) override;
 
-    virtual void resetBadValues(double* xg);
+    void resetBadValues(double* xg) override;
 
     ThermoPhase& phase() {
         return *m_thermo;
@@ -83,29 +87,31 @@ public:
     /**
      * Set the thermo manager.
      *
-     * @deprecated  To be removed after Cantera 3.0 (unused)
+     * @deprecated To be removed after %Cantera 3.0 (unused)
      */
     void setThermo(ThermoPhase& th);
 
-    virtual void setKinetics(shared_ptr<Kinetics> kin);
+    void setKinetics(shared_ptr<Kinetics> kin) override;
 
     //! Set the kinetics manager.
-    //! @deprecated  To be removed after Cantera 3.0; replaced by Domain1D::setKinetics
+    //! @deprecated To be removed after %Cantera 3.0;
+    //!     replaced by Domain1D::setKinetics()
     void setKinetics(Kinetics& kin);
 
-    virtual void setTransport(shared_ptr<Transport> trans);
+    void setTransport(shared_ptr<Transport> trans) override;
 
     //! Set transport model to existing instance
-    //! @deprecated  To be removed after Cantera 3.0; replaced by Domain1D::setKinetics
+    //! @deprecated To be removed after %Cantera 3.0;
+    //!     replaced by Domain1D::setKinetics()
     void setTransport(Transport& trans);
 
     //! Set the transport model
-    //! @since  New in Cantera 3.0.
-    void setTransportModel(const std::string& trans);
+    //! @since New in %Cantera 3.0.
+    void setTransportModel(const string& trans);
 
     //! Retrieve transport model
-    //! @since  New in Cantera 3.0.
-    std::string transportModel() const;
+    //! @since New in %Cantera 3.0.
+    string transportModel() const;
 
     //! Enable thermal diffusion, also known as Soret diffusion.
     //! Requires that multicomponent transport properties be
@@ -119,56 +125,56 @@ public:
 
     //! Set the pressure. Since the flow equations are for the limit of small
     //! Mach number, the pressure is very nearly constant throughout the flow.
-    void setPressure(doublereal p) {
+    void setPressure(double p) {
         m_press = p;
     }
 
     //! The current pressure [Pa].
-    doublereal pressure() const {
+    double pressure() const {
         return m_press;
     }
 
     //! Write the initial solution estimate into array x.
-    virtual void _getInitialSoln(double* x);
+    void _getInitialSoln(double* x) override;
 
-    virtual void _finalize(const doublereal* x);
+    void _finalize(const double* x) override;
 
     //! Sometimes it is desired to carry out the simulation using a specified
     //! temperature profile, rather than computing it by solving the energy
     //! equation. This method specifies this profile.
-    void setFixedTempProfile(vector_fp& zfixed, vector_fp& tfixed) {
+    void setFixedTempProfile(vector<double>& zfixed, vector<double>& tfixed) {
         m_zfix = zfixed;
         m_tfix = tfixed;
     }
 
-    /*!
+    /**
      * Set the temperature fixed point at grid point j, and disable the energy
      * equation so that the solution will be held to this value.
      */
-    void setTemperature(size_t j, doublereal t) {
+    void setTemperature(size_t j, double t) {
         m_fixedtemp[j] = t;
         m_do_energy[j] = false;
     }
 
     //! The fixed temperature value at point j.
-    doublereal T_fixed(size_t j) const {
+    double T_fixed(size_t j) const {
         return m_fixedtemp[j];
     }
 
     //! @}
 
-    virtual std::string componentName(size_t n) const;
+    string componentName(size_t n) const override;
 
-    virtual size_t componentIndex(const std::string& name) const;
+    size_t componentIndex(const string& name) const override;
 
     //! Returns true if the specified component is an active part of the solver state
     virtual bool componentActive(size_t n) const;
 
     //! Print the solution.
-    virtual void show(const double* x);
+    void show(const double* x) override;
 
-    virtual shared_ptr<SolutionArray> asArray(const double* soln) const;
-    virtual void fromArray(SolutionArray& arr, double* soln);
+    shared_ptr<SolutionArray> asArray(const double* soln) const override;
+    void fromArray(SolutionArray& arr, double* soln) override;
 
     //! Set flow configuration for freely-propagating flames, using an internal point
     //! with a fixed temperature as the condition to determine the inlet mass flux.
@@ -200,18 +206,18 @@ public:
     //! Return the type of flow domain being represented, either "Free Flame" or
     //! "Axisymmetric Stagnation".
     //! @see setFreeFlow setAxisymmetricFlow
-    //! @deprecated  To be removed after Cantera 3.0; replaced by type.
+    //! @deprecated To be removed after %Cantera 3.0; replaced by type().
     virtual string flowType() const;
 
     void solveEnergyEqn(size_t j=npos);
 
     //! Get the solving stage (used by IonFlow specialization)
-    //! @since New in Cantera 3.0
+    //! @since New in %Cantera 3.0
     virtual size_t getSolvingStage() const;
 
     //! Solving stage mode for handling ionized species (used by IonFlow specialization)
-    //! - \c stage=1: the fluxes of charged species are set to zero
-    //! - \c stage=2: the electric field equation is solved, and the drift flux for
+    //! - @c stage=1: the fluxes of charged species are set to zero
+    //! - @c stage=2: the electric field equation is solved, and the drift flux for
     //!     ionized species is evaluated
     virtual void setSolvingStage(const size_t stage);
 
@@ -227,10 +233,16 @@ public:
 
     //! Turn radiation on / off.
     /*!
-     *  The simple radiation model used was established by Y. Liu and B. Rogg
-     *  [Y. Liu and B. Rogg, Modelling of thermally radiating diffusion flames
-     *  with detailed chemistry and transport, EUROTHERM Seminars, 17:114-127,
-     *  1991]. This model considers the radiation of CO2 and H2O.
+     * The simple radiation model used was established by Liu and Rogg
+     * @cite liu1991. This model considers the radiation of CO2 and H2O.
+     *
+     * This model uses the optically thin limit and the gray-gas approximation to
+     * simply calculate a volume specified heat flux out of the Planck absorption
+     * coefficients, the boundary emissivities and the temperature. Polynomial lines
+     * calculate the species Planck coefficients for H2O and CO2. The data for the
+     * lines are taken from the RADCAL program @cite RADCAL.
+     * The coefficients for the polynomials are taken from
+     * [TNF Workshop](https://tnfworkshop.org/radiation/) material.
      */
     void enableRadiation(bool doRadiation) {
         m_do_radiation = doRadiation;
@@ -267,43 +279,62 @@ public:
     }
 
     //! Change the grid size. Called after grid refinement.
-    virtual void resize(size_t components, size_t points);
+    void resize(size_t components, size_t points) override;
 
     //! Set the gas object state to be consistent with the solution at point j.
-    void setGas(const doublereal* x, size_t j);
+    void setGas(const double* x, size_t j);
 
     //! Set the gas state to be consistent with the solution at the midpoint
     //! between j and j + 1.
-    void setGasAtMidpoint(const doublereal* x, size_t j);
+    void setGasAtMidpoint(const double* x, size_t j);
 
-    doublereal density(size_t j) const {
+    double density(size_t j) const {
         return m_rho[j];
     }
 
+    //! @deprecated To be removed after %Cantera 3.0. Superseded by isFree()
     virtual bool fixed_mdot();
+
+    /**
+     * Retrieve flag indicating whether flow is freely propagating.
+     * The flow is unstrained and the axial mass flow rate is not specified.
+     * For free flame propagation, the axial velocity is determined by the solver.
+     * @since New in %Cantera 3.0
+     */
+    bool isFree() const {
+        return m_isFree;
+    }
+
+    /**
+     * Retrieve flag indicating whether flow uses radial momentum.
+     * If `true`, radial momentum equation for @f$ V @f$ as well as
+     * @f$ d\Lambda/dz = 0 @f$ are solved; if `false`, @f$ \Lambda(z) = 0 @f$ and
+     * @f$ V(z) = 0 @f$ by definition.
+     * @since New in %Cantera 3.0
+     */
+    bool isStrained() const {
+        return m_usesLambda;
+    }
 
     void setViscosityFlag(bool dovisc) {
         m_dovisc = dovisc;
     }
 
-    /*!
+    /**
      *  Evaluate the residual function for axisymmetric stagnation flow. If
      *  j == npos, the residual function is evaluated at all grid points.
      *  Otherwise, the residual function is only evaluated at grid points
      *  j-1, j, and j+1. This option is used to efficiently evaluate the
      *  Jacobian numerically.
      */
-    virtual void eval(size_t j, doublereal* x, doublereal* r,
-                      integer* mask, doublereal rdt);
+    void eval(size_t j, double* x, double* r, integer* mask, double rdt) override;
 
     //! Evaluate all residual components at the right boundary.
-    virtual void evalRightBoundary(double* x, double* res, int* diag,
-                                   double rdt);
+    virtual void evalRightBoundary(double* x, double* res, int* diag, double rdt);
 
     //! Evaluate the residual corresponding to the continuity equation at all
     //! interior grid points.
-    virtual void evalContinuity(size_t j, double* x, double* r,
-                                int* diag, double rdt);
+    virtual void evalContinuity(size_t j, double* x, double* r, int* diag, double rdt);
 
     //! Index of the species on the left boundary with the largest mass fraction
     size_t leftExcessSpecies() const {
@@ -316,15 +347,15 @@ public:
     }
 
 protected:
-    virtual AnyMap getMeta() const;
-    virtual void setMeta(const AnyMap& state);
+    AnyMap getMeta() const override;
+    void setMeta(const AnyMap& state) override;
 
-    doublereal wdot(size_t k, size_t j) const {
+    double wdot(size_t k, size_t j) const {
         return m_wdot(k,j);
     }
 
     //! Write the net production rates at point `j` into array `m_wdot`
-    void getWdot(doublereal* x, size_t j) {
+    void getWdot(double* x, size_t j) {
         setGas(x,j);
         m_kin->getNetProductionRates(&m_wdot(0,j));
     }
@@ -343,7 +374,7 @@ protected:
      * Update the thermodynamic properties from point j0 to point j1
      * (inclusive), based on solution x.
      */
-    void updateThermo(const doublereal* x, size_t j0, size_t j1) {
+    void updateThermo(const double* x, size_t j0, size_t j1) {
         for (size_t j = j0; j <= j1; j++) {
             setGas(x,j);
             m_rho[j] = m_thermo->density();
@@ -356,52 +387,52 @@ protected:
     //! @name Solution components
     //! @{
 
-    doublereal T(const doublereal* x, size_t j) const {
+    double T(const double* x, size_t j) const {
         return x[index(c_offset_T, j)];
     }
-    doublereal& T(doublereal* x, size_t j) {
+    double& T(double* x, size_t j) {
         return x[index(c_offset_T, j)];
     }
-    doublereal T_prev(size_t j) const {
+    double T_prev(size_t j) const {
         return prevSoln(c_offset_T, j);
     }
 
-    doublereal rho_u(const doublereal* x, size_t j) const {
+    double rho_u(const double* x, size_t j) const {
         return m_rho[j]*x[index(c_offset_U, j)];
     }
 
-    doublereal u(const doublereal* x, size_t j) const {
+    double u(const double* x, size_t j) const {
         return x[index(c_offset_U, j)];
     }
 
-    doublereal V(const doublereal* x, size_t j) const {
+    double V(const double* x, size_t j) const {
         return x[index(c_offset_V, j)];
     }
-    doublereal V_prev(size_t j) const {
+    double V_prev(size_t j) const {
         return prevSoln(c_offset_V, j);
     }
 
-    doublereal lambda(const doublereal* x, size_t j) const {
+    double lambda(const double* x, size_t j) const {
         return x[index(c_offset_L, j)];
     }
 
-    doublereal Y(const doublereal* x, size_t k, size_t j) const {
+    double Y(const double* x, size_t k, size_t j) const {
         return x[index(c_offset_Y + k, j)];
     }
 
-    doublereal& Y(doublereal* x, size_t k, size_t j) {
+    double& Y(double* x, size_t k, size_t j) {
         return x[index(c_offset_Y + k, j)];
     }
 
-    doublereal Y_prev(size_t k, size_t j) const {
+    double Y_prev(size_t k, size_t j) const {
         return prevSoln(c_offset_Y + k, j);
     }
 
-    doublereal X(const doublereal* x, size_t k, size_t j) const {
+    double X(const double* x, size_t k, size_t j) const {
         return m_wtm[j]*Y(x,k,j)/m_wt[k];
     }
 
-    doublereal flux(size_t k, size_t j) const {
+    double flux(size_t k, size_t j) const {
         return m_flux(k, j);
     }
     //! @}
@@ -410,31 +441,31 @@ protected:
     //!
     //! These use upwind differencing, assuming u(z) is negative
     //! @{
-    doublereal dVdz(const doublereal* x, size_t j) const {
+    double dVdz(const double* x, size_t j) const {
         size_t jloc = (u(x,j) > 0.0 ? j : j + 1);
         return (V(x,jloc) - V(x,jloc-1))/m_dz[jloc-1];
     }
 
-    doublereal dYdz(const doublereal* x, size_t k, size_t j) const {
+    double dYdz(const double* x, size_t k, size_t j) const {
         size_t jloc = (u(x,j) > 0.0 ? j : j + 1);
         return (Y(x,k,jloc) - Y(x,k,jloc-1))/m_dz[jloc-1];
     }
 
-    doublereal dTdz(const doublereal* x, size_t j) const {
+    double dTdz(const double* x, size_t j) const {
         size_t jloc = (u(x,j) > 0.0 ? j : j + 1);
         return (T(x,jloc) - T(x,jloc-1))/m_dz[jloc-1];
     }
     //! @}
 
-    doublereal shear(const doublereal* x, size_t j) const {
-        doublereal c1 = m_visc[j-1]*(V(x,j) - V(x,j-1));
-        doublereal c2 = m_visc[j]*(V(x,j+1) - V(x,j));
+    double shear(const double* x, size_t j) const {
+        double c1 = m_visc[j-1]*(V(x,j) - V(x,j-1));
+        double c2 = m_visc[j]*(V(x,j+1) - V(x,j));
         return 2.0*(c2/(z(j+1) - z(j)) - c1/(z(j) - z(j-1)))/(z(j+1) - z(j-1));
     }
 
-    doublereal divHeatFlux(const doublereal* x, size_t j) const {
-        doublereal c1 = m_tcon[j-1]*(T(x,j) - T(x,j-1));
-        doublereal c2 = m_tcon[j]*(T(x,j+1) - T(x,j));
+    double divHeatFlux(const double* x, size_t j) const {
+        double c1 = m_tcon[j-1]*(T(x,j) - T(x,j-1));
+        double c2 = m_tcon[j]*(T(x,j+1) - T(x,j));
         return -2.0*(c2/(z(j+1) - z(j)) - c1/(z(j) - z(j-1)))/(z(j+1) - z(j-1));
     }
 
@@ -443,7 +474,7 @@ protected:
     }
 
     //! Update the diffusive mass fluxes.
-    virtual void updateDiffFluxes(const doublereal* x, size_t j0, size_t j1);
+    virtual void updateDiffFluxes(const double* x, size_t j0, size_t j1);
 
     //! Get the gradient of species specific molar enthalpies
     virtual void grad_hk(const double* x, size_t j);
@@ -455,34 +486,34 @@ protected:
     double m_press = -1.0; // pressure
 
     // grid parameters
-    vector_fp m_dz;
+    vector<double> m_dz;
 
     // mixture thermo properties
-    vector_fp m_rho;
-    vector_fp m_wtm;
+    vector<double> m_rho;
+    vector<double> m_wtm;
 
     // species thermo properties
-    vector_fp m_wt;
-    vector_fp m_cp;
+    vector<double> m_wt;
+    vector<double> m_cp;
 
     // transport properties
-    vector_fp m_visc;
-    vector_fp m_tcon;
-    vector_fp m_diff;
-    vector_fp m_multidiff;
+    vector<double> m_visc;
+    vector<double> m_tcon;
+    vector<double> m_diff;
+    vector<double> m_multidiff;
     Array2D m_dthermal;
     Array2D m_flux;
 
     //! Array of size #m_nsp by #m_points for saving molar enthalpies
     Array2D m_hk;
 
-    //! Array of size #m_nsp by #m_points -1 for saving enthalpy fluxes
+    //! Array of size #m_nsp by #m_points-1 for saving enthalpy fluxes
     Array2D m_dhk_dz;
 
     // production rates
     Array2D m_wdot;
 
-    size_t m_nsp;
+    size_t m_nsp; //!< Number of species in the mechanism
 
     ThermoPhase* m_thermo = nullptr;
     Kinetics* m_kin = nullptr;
@@ -494,24 +525,24 @@ protected:
 
     //! Indices within the ThermoPhase of the radiating species. First index is
     //! for CO2, second is for H2O.
-    std::vector<size_t> m_kRadiating;
+    vector<size_t> m_kRadiating;
 
     // flags
-    std::vector<bool> m_do_energy;
+    vector<bool> m_do_energy;
     bool m_do_soret = false;
-    std::vector<bool> m_do_species;
+    vector<bool> m_do_species;
     bool m_do_multicomponent = false;
 
     //! flag for the radiative heat loss
     bool m_do_radiation = false;
 
     //! radiative heat loss vector
-    vector_fp m_qdotRadiation;
+    vector<double> m_qdotRadiation;
 
     // fixed T and Y values
-    vector_fp m_fixedtemp;
-    vector_fp m_zfix;
-    vector_fp m_tfix;
+    vector<double> m_fixedtemp;
+    vector<double> m_zfix;
+    vector<double> m_tfix;
 
     //! Index of species with a large mass fraction at each boundary, for which
     //! the mass fraction may be calculated as 1 minus the sum of the other mass
@@ -525,7 +556,7 @@ protected:
 
     //! Update the transport properties at grid points in the range from `j0`
     //! to `j1`, based on solution `x`.
-    virtual void updateTransport(doublereal* x, size_t j0, size_t j1);
+    virtual void updateTransport(double* x, size_t j0, size_t j1);
 
 public:
     //! Location of the point where temperature is fixed
@@ -535,7 +566,7 @@ public:
     double m_tfixed = -1.0;
 
 private:
-    vector_fp m_ybar;
+    vector<double> m_ybar;
 };
 
 }

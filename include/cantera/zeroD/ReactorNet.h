@@ -24,13 +24,13 @@ class PreconditionerBase;
  *  means, for example Wall, MassFlowController, Valve, or PressureController; or
  *  reactors dependent on a single spatial variable (FlowReactor).
  *
- * @ingroup ZeroD
+ * @ingroup zerodGroup
  */
 class ReactorNet : public FuncEval
 {
 public:
     ReactorNet();
-    virtual ~ReactorNet();
+    ~ReactorNet() override;
     ReactorNet(const ReactorNet&) = delete;
     ReactorNet& operator=(const ReactorNet&) = delete;
 
@@ -40,7 +40,7 @@ public:
     //! Set the type of linear solver used in the integration.
     //! @param linSolverType type of linear solver. Default type: "DENSE"
     //! Other options include: "DIAG", "DENSE", "GMRES", "BAND"
-    void setLinearSolverType(const std::string& linSolverType="DENSE");
+    void setLinearSolverType(const string& linSolverType="DENSE");
 
     //! Set preconditioner used by the linear solver
     //! @param preconditioner preconditioner object used for the linear solver
@@ -53,14 +53,14 @@ public:
 
     //! Get the initial value of the independent variable (typically time).
     /*!
-     * @since New in Cantera 3.0.
+     * @since New in %Cantera 3.0.
      */
     double getInitialTime() const {
         return m_initial_time;
     }
 
     //! Get the maximum integrator step.
-    double maxTimeStep() {
+    double maxTimeStep() const {
         return m_maxstep;
     }
 
@@ -107,7 +107,7 @@ public:
     }
 
     //! Problem type of integrator
-    std::string linearSolverType() const;
+    string linearSolverType() const;
 
     //! Returns the maximum number of internal integration steps the
     //! integrator will take before reaching the next output point
@@ -168,10 +168,10 @@ public:
     //! Return the sensitivity of the *k*-th solution component with respect to
     //! the *p*-th sensitivity parameter.
     /*!
-     *  The sensitivity coefficient \f$ S_{ki} \f$ of solution variable \f$ y_k
-     *  \f$ with respect to sensitivity parameter \f$ p_i \f$ is defined as:
+     *  The sensitivity coefficient @f$ S_{ki} @f$ of solution variable @f$ y_k
+     *  @f$ with respect to sensitivity parameter @f$ p_i @f$ is defined as:
      *
-     *  \f[ S_{ki} = \frac{1}{y_k} \frac{\partial y_k}{\partial p_i} \f]
+     *  @f[ S_{ki} = \frac{1}{y_k} \frac{\partial y_k}{\partial p_i} @f]
      *
      *  For reaction sensitivities, the parameter is a multiplier on the forward
      *  rate constant (and implicitly on the reverse rate constant for
@@ -187,7 +187,7 @@ public:
     //! Return the sensitivity of the component named *component* with respect to
     //! the *p*-th sensitivity parameter.
     //! @copydetails ReactorNet::sensitivity(size_t, size_t)
-    double sensitivity(const std::string& component, size_t p, int reactor=0) {
+    double sensitivity(const string& component, size_t p, int reactor=0) {
         size_t k = globalComponentIndex(component, reactor);
         return sensitivity(k, p);
     }
@@ -205,41 +205,41 @@ public:
                       double* ydot, double* p, Array2D* j);
 
     // overloaded methods of class FuncEval
-    virtual size_t neq() {
+    size_t neq() const override {
         return m_nv;
     }
 
-    size_t nReactors() {
+    size_t nReactors() const {
         return m_reactors.size();
     }
 
-    virtual void eval(double t, double* y, double* ydot, double* p);
+    void eval(double t, double* y, double* ydot, double* p) override;
 
     //! eval coupling for IDA / DAEs
-    virtual void evalDae(double t, double* y, double* ydot, double* p,
-                         double* residaul);
+    void evalDae(double t, double* y, double* ydot, double* p,
+                 double* residual) override;
 
-    virtual void getState(double* y);
-    virtual void getStateDae(double* y, double* ydot);
+    void getState(double* y) override;
+    void getStateDae(double* y, double* ydot) override;
 
     //! Return k-th derivative at the current state of the system
     virtual void getDerivative(int k, double* dky);
 
-    virtual void getConstraints(double* constraints);
+    void getConstraints(double* constraints) override;
 
-    virtual size_t nparams() {
+    size_t nparams() const override {
         return m_sens_params.size();
     }
 
     //! Return the index corresponding to the component named *component* in the
     //! reactor with index *reactor* in the global state vector for the
     //! reactor network.
-    size_t globalComponentIndex(const std::string& component, size_t reactor=0);
+    size_t globalComponentIndex(const string& component, size_t reactor=0);
 
     //! Return the name of the i-th component of the global state vector. The
     //! name returned includes both the name of the reactor and the specific
     //! component, for example `'reactor1: CH4'`.
-    std::string componentName(size_t i) const;
+    string componentName(size_t i) const;
 
     //! Used by Reactor and Wall objects to register the addition of
     //! sensitivity parameters so that the ReactorNet can keep track of the
@@ -250,11 +250,10 @@ public:
     //!     coefficient
     //! @returns the index of this parameter in the vector of sensitivity
     //!     parameters (global across all reactors)
-    size_t registerSensitivityParameter(const std::string& name, double value,
-                                        double scale);
+    size_t registerSensitivityParameter(const string& name, double value, double scale);
 
     //! The name of the p-th sensitivity parameter added to this ReactorNet.
-    const std::string& sensitivityParameterName(size_t p) {
+    const string& sensitivityParameterName(size_t p) const {
         return m_paramNames.at(p);
     }
 
@@ -284,14 +283,14 @@ public:
     void setAdvanceLimits(const double* limits);
 
     //! Check whether ReactorNet object uses advance limits
-    bool hasAdvanceLimits();
+    bool hasAdvanceLimits() const;
 
     //! Retrieve absolute step size limits during advance
-    bool getAdvanceLimits(double* limits);
+    bool getAdvanceLimits(double* limits) const;
 
-    virtual void preconditionerSetup(double t, double* y, double gamma);
+    void preconditionerSetup(double t, double* y, double gamma) override;
 
-    virtual void preconditionerSolve(double* rhs, double* output);
+    void preconditionerSolve(double* rhs, double* output) override;
 
     //! Get solver stats from integrator
     AnyMap solverStats() const;
@@ -302,10 +301,9 @@ public:
 
 protected:
     //! Check that preconditioning is supported by all reactors in the network
-    virtual void checkPreconditionerSupported();
+    virtual void checkPreconditionerSupported() const;
 
-    //! Update the preconditioner based on the already computed jacobian values
-    virtual void updatePreconditioner(double gamma);
+    void updatePreconditioner(double gamma) override;
 
     //! Estimate a future state based on current derivatives.
     //! The function is intended for internal use by ReactorNet::advance
@@ -315,10 +313,10 @@ protected:
     //! Returns the order used for last solution step of the ODE integrator
     //! The function is intended for internal use by ReactorNet::advance
     //! and deliberately not exposed in external interfaces.
-    virtual int lastOrder();
+    virtual int lastOrder() const;
 
-    std::vector<Reactor*> m_reactors;
-    std::unique_ptr<Integrator> m_integ;
+    vector<Reactor*> m_reactors;
+    unique_ptr<Integrator> m_integ;
 
     //! The independent variable in the system. May be either time or space depending
     //! on the type of reactors in the network.
@@ -332,9 +330,9 @@ protected:
     size_t m_nv = 0;
 
     //! m_start[n] is the starting point in the state vector for reactor n
-    std::vector<size_t> m_start;
+    vector<size_t> m_start;
 
-    vector_fp m_atol;
+    vector<double> m_atol;
     double m_rtol = 1.0e-9;
     double m_rtolsens = 1.0e-4;
     double m_atols = 1.0e-15;
@@ -351,15 +349,15 @@ protected:
     bool m_timeIsIndependent = true;
 
     //! Names corresponding to each sensitivity parameter
-    std::vector<std::string> m_paramNames;
+    vector<string> m_paramNames;
 
-    vector_fp m_ydot;
-    vector_fp m_yest;
-    vector_fp m_advancelimits;
+    vector<double> m_ydot;
+    vector<double> m_yest;
+    vector<double> m_advancelimits;
     //! m_LHS is a vector representing the coefficients on the
     //! "left hand side" of each governing equation
-    vector_fp m_LHS;
-    vector_fp m_RHS;
+    vector<double> m_LHS;
+    vector<double> m_RHS;
 };
 }
 

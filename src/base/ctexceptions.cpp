@@ -17,7 +17,7 @@ namespace Cantera
 static const char* stars = ("*****************************************"
                             "**************************************\n");
 
-CanteraError::CanteraError(const std::string& procedure) :
+CanteraError::CanteraError(const string& procedure) :
     procedure_(procedure)
 {
 }
@@ -42,23 +42,23 @@ const char* CanteraError::what() const throw()
     return formattedMessage_.c_str();
 }
 
-std::string CanteraError::getMessage() const
+string CanteraError::getMessage() const
 {
     return msg_;
 }
 
-std::string CanteraError::getMethod() const
+string CanteraError::getMethod() const
 {
     return procedure_;
 }
 
-std::string ArraySizeError::getMessage() const
+string ArraySizeError::getMessage() const
 {
     return fmt::format("Array size ({}) too small. Must be at least {}.",
                        sz_, reqd_);
 }
 
-std::string IndexError::getMessage() const
+string IndexError::getMessage() const
 {
     return fmt::format("IndexError: {}[{}] outside valid range of 0 to {}.",
                        arrayName_, m_, mmax_);

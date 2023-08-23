@@ -1,5 +1,5 @@
-//! @file Sub.cpp
-/*
+/**
+ * @file Sub.cpp
  * The Substance class
  * D. Goodwin, Caltech Nov. 1996
  */
@@ -15,7 +15,7 @@ using namespace Cantera;
 
 namespace {
 // these correspond to ordering withing propertyFlag::type
-std::string propertySymbols[] = {"H", "S", "U", "V", "P", "T"};
+string propertySymbols[] = {"H", "S", "U", "V", "P", "T"};
 }
 
 namespace tpx
@@ -708,7 +708,7 @@ void Substance::set_xy(propertyFlag::type ifx, propertyFlag::type ify,
         Set(PropertyPair::TV, t_here, v_here);
         LoopCount++;
         if (LoopCount > 200) {
-            std::string msg = fmt::format("No convergence. {} = {}, {} = {}",
+            string msg = fmt::format("No convergence. {} = {}, {} = {}",
                 propertySymbols[ifx], X, propertySymbols[ify], Y);
             if (t_here == Tmin()) {
                 msg += fmt::format("\nAt temperature limit (Tmin = {})", Tmin());

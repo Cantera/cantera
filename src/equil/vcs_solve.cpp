@@ -23,7 +23,8 @@ namespace Cantera
 
 namespace {
 
-void printProgress(const vector<string>& spName, const vector_fp& soln, const vector_fp& ff)
+void printProgress(const vector<string>& spName, const vector<double>& soln,
+                   const vector<double>& ff)
 {
     double sum = 0.0;
     plogf(" --- Summary of current progress:\n");
@@ -152,7 +153,7 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
         size_t nelem = tPhase->nElements();
 
         // Query Cantera for the equation of state type of the current phase.
-        std::string eos = tPhase->type();
+        string eos = tPhase->type();
         bool gasPhase = (eos == "ideal-gas");
 
         // Find out the number of species in the phase
@@ -398,7 +399,7 @@ VCS_SOLVE::VCS_SOLVE(MultiPhase* mphase, int printLvl) :
 
     // Fill in the species to phase mapping. Check for bad values at the same
     // time.
-    std::vector<size_t> numPhSp(m_numPhases, 0);
+    vector<size_t> numPhSp(m_numPhases, 0);
     for (size_t kspec = 0; kspec < m_nsp; kspec++) {
         size_t iph = m_phaseID[kspec];
         if (iph >= m_numPhases) {
@@ -613,7 +614,7 @@ bool VCS_SOLVE::vcs_popPhasePossible(const size_t iphasePop) const
     return false;
 }
 
-size_t VCS_SOLVE::vcs_popPhaseID(std::vector<size_t> & phasePopPhaseIDs)
+size_t VCS_SOLVE::vcs_popPhaseID(vector<size_t> & phasePopPhaseIDs)
 {
     size_t iphasePop = npos;
     double FephaseMax = -1.0E30;
@@ -711,7 +712,7 @@ int VCS_SOLVE::vcs_popPhaseRxnStepSizes(const size_t iphasePop)
     size_t kspec = Vphase->spGlobalIndexVCS(0);
     // Identify the formation reaction for that species
     size_t irxn = kspec - m_numComponents;
-    std::vector<size_t> creationGlobalRxnNumbers;
+    vector<size_t> creationGlobalRxnNumbers;
 
     // Calculate the initial moles of the phase being born.
     //   Here we set it to 10x of the value which would cause the phase to be
@@ -768,8 +769,8 @@ int VCS_SOLVE::vcs_popPhaseRxnStepSizes(const size_t iphasePop)
             m_deltaMolNumSpecies[kspec] = -m_molNumSpecies_old[kspec];
         }
     } else {
-        vector_fp fracDelta(Vphase->nSpecies());
-        vector_fp X_est(Vphase->nSpecies());
+        vector<double> fracDelta(Vphase->nSpecies());
+        vector<double> X_est(Vphase->nSpecies());
         fracDelta = Vphase->creationMoleNumbers(creationGlobalRxnNumbers);
 
         double sumFrac = 0.0;
@@ -857,7 +858,7 @@ size_t VCS_SOLVE::vcs_RxnStepSizes(int& forceComponentCalc, size_t& kSpecial)
 {
     size_t iphDel = npos;
     size_t k = 0;
-    std::string ANOTE;
+    string ANOTE;
     if (m_debug_print_lvl >= 2) {
         plogf("   ");
         for (int j = 0; j < 82; j++) {
@@ -1145,23 +1146,23 @@ double VCS_SOLVE::vcs_phaseStabilityTest(const size_t iph)
     // We will do a full Newton calculation later, but for now, ...
     bool doSuccessiveSubstitution = true;
     double funcPhaseStability;
-    vector_fp X_est(nsp, 0.0);
-    vector_fp delFrac(nsp, 0.0);
-    vector_fp E_phi(nsp, 0.0);
-    vector_fp fracDelta_old(nsp, 0.0);
-    vector_fp fracDelta_raw(nsp, 0.0);
+    vector<double> X_est(nsp, 0.0);
+    vector<double> delFrac(nsp, 0.0);
+    vector<double> E_phi(nsp, 0.0);
+    vector<double> fracDelta_old(nsp, 0.0);
+    vector<double> fracDelta_raw(nsp, 0.0);
     vector<size_t> creationGlobalRxnNumbers(nsp, npos);
     m_deltaGRxn_Deficient = m_deltaGRxn_old;
-    vector_fp feSpecies_Deficient = m_feSpecies_old;
+    vector<double> feSpecies_Deficient = m_feSpecies_old;
 
     // get the activity coefficients
     Vphase->sendToVCS_ActCoeff(VCS_STATECALC_OLD, &m_actCoeffSpecies_new[0]);
 
     // Get the stored estimate for the composition of the phase if
     // it gets created
-    vector_fp fracDelta_new = Vphase->creationMoleNumbers(creationGlobalRxnNumbers);
+    vector<double> fracDelta_new = Vphase->creationMoleNumbers(creationGlobalRxnNumbers);
 
-    std::vector<size_t> componentList;
+    vector<size_t> componentList;
     for (size_t k = 0; k < nsp; k++) {
         size_t kspec = Vphase->spGlobalIndexVCS(k);
         if (kspec < m_numComponents) {
@@ -1547,7 +1548,7 @@ int VCS_SOLVE::vcs_prep(int printLvl)
 
     // NC = number of components is in the vcs.h common block. This call to
     // BASOPT doesn't calculate the stoichiometric reaction matrix.
-    vector_fp awSpace(m_nsp + (m_nelem + 2)*(m_nelem), 0.0);
+    vector<double> awSpace(m_nsp + (m_nelem + 2)*(m_nelem), 0.0);
     double* aw = &awSpace[0];
     if (aw == NULL) {
         plogf("vcs_prep_oneTime: failed to get memory: global bailout\n");
@@ -1843,7 +1844,7 @@ int VCS_SOLVE::vcs_report(int iconv)
     bool inertYes = false;
 
     // SORT DEPENDENT SPECIES IN DECREASING ORDER OF MOLES
-    std::vector<std::pair<double, size_t>> x_order;
+    vector<pair<double, size_t>> x_order;
     for (size_t i = 0; i < m_nsp; i++) {
         x_order.push_back({-m_molNumSpecies_old[i], i});
     }
@@ -1973,8 +1974,8 @@ int VCS_SOLVE::vcs_report(int iconv)
     plogf("\n");
 
     // TABLE OF PHASE INFORMATION
-    vector_fp gaPhase(m_nelem, 0.0);
-    vector_fp gaTPhase(m_nelem, 0.0);
+    vector<double> gaPhase(m_nelem, 0.0);
+    vector<double> gaTPhase(m_nelem, 0.0);
     double totalMoles = 0.0;
     double gibbsPhase = 0.0;
     double gibbsTotal = 0.0;
@@ -2208,7 +2209,7 @@ int VCS_SOLVE::vcs_elcorr(double aa[], double x[])
 {
     int retn = 0;
 
-    vector_fp ga_save(m_elemAbundances);
+    vector<double> ga_save(m_elemAbundances);
     if (m_debug_print_lvl >= 2) {
         plogf("   --- vcsc_elcorr: Element abundances correction routine");
         if (m_nelem != m_numComponents) {
@@ -2569,10 +2570,10 @@ int VCS_SOLVE::vcs_inest_TP()
     }
 
     // temporary space for usage in this routine and in subroutines
-    vector_fp sm(m_nelem*m_nelem, 0.0);
-    vector_fp ss(m_nelem, 0.0);
-    vector_fp sa(m_nelem, 0.0);
-    vector_fp aw(m_nsp + m_nelem, 0.0);
+    vector<double> sm(m_nelem*m_nelem, 0.0);
+    vector<double> ss(m_nelem, 0.0);
+    vector<double> sa(m_nelem, 0.0);
+    vector<double> aw(m_nsp + m_nelem, 0.0);
 
     // Go get the estimate of the solution
     if (m_debug_print_lvl >= 2) {
@@ -2656,11 +2657,11 @@ int VCS_SOLVE::vcs_setMolesLinProg()
     int iter = 0;
     bool abundancesOK = true;
     bool usedZeroedSpecies;
-    vector_fp sm(m_nelem * m_nelem, 0.0);
-    vector_fp ss(m_nelem, 0.0);
-    vector_fp sa(m_nelem, 0.0);
-    vector_fp wx(m_nelem, 0.0);
-    vector_fp aw(m_nsp, 0.0);
+    vector<double> sm(m_nelem * m_nelem, 0.0);
+    vector<double> ss(m_nelem, 0.0);
+    vector<double> sa(m_nelem, 0.0);
+    vector<double> wx(m_nelem, 0.0);
+    vector<double> aw(m_nsp, 0.0);
 
     for (size_t ik = 0; ik < m_nsp; ik++) {
         if (m_speciesUnknownType[ik] != VCS_SPECIES_INTERFACIALVOLTAGE) {
@@ -3042,8 +3043,8 @@ void VCS_SOLVE::vcs_inest(double* const aw, double* const sa, double* const sm,
     }
 
     // ESTIMATE REACTION ADJUSTMENTS
-    vector_fp& xtphMax = m_TmpPhase;
-    vector_fp& xtphMin = m_TmpPhase2;
+    vector<double>& xtphMax = m_TmpPhase;
+    vector<double>& xtphMin = m_TmpPhase2;
     m_deltaPhaseMoles.assign(m_deltaPhaseMoles.size(), 0.0);
     for (size_t iph = 0; iph < m_numPhases; iph++) {
         xtphMax[iph] = log(m_tPhaseMoles_new[iph] * 1.0E32);
@@ -3193,7 +3194,7 @@ void VCS_SOLVE::vcs_inest(double* const aw, double* const sa, double* const sm,
 
 void VCS_SOLVE::vcs_SSPhase()
 {
-    vector_int numPhSpecies(m_numPhases, 0);
+    vector<int> numPhSpecies(m_numPhases, 0);
     for (size_t kspec = 0; kspec < m_nsp; ++kspec) {
         numPhSpecies[m_phaseID[kspec]]++;
     }
@@ -3384,12 +3385,12 @@ void VCS_SOLVE::addPhaseElements(vcs_VolPhase* volPhase)
     // Loop through the elements in the vol phase object
     for (size_t eVP = 0; eVP < neVP; eVP++) {
         size_t foundPos = npos;
-        std::string enVP = volPhase->elementName(eVP);
+        string enVP = volPhase->elementName(eVP);
 
         // Search for matches with the existing elements. If found, then fill in
         // the entry in the global mapping array.
         for (size_t e = 0; e < m_nelem; e++) {
-            std::string en = m_elementName[e];
+            string en = m_elementName[e];
             if (!strcmp(enVP.c_str(), en.c_str())) {
                 volPhase->setElemGlobalIndex(eVP, e);
                 foundPos = e;

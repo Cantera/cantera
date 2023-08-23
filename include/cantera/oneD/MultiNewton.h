@@ -11,10 +11,14 @@
 namespace Cantera
 {
 
+//! @defgroup onedUtilsGroup Utilities
+//! Utility classes and functions for one-dimensional problems.
+//! @ingroup onedGroup
+
 /**
  * Newton iterator for multi-domain, one-dimensional problems.
  * Used by class OneDim.
- * @ingroup onedim
+ * @ingroup onedUtilsGroup
  */
 class MultiNewton
 {
@@ -30,16 +34,15 @@ public:
 
     //! Compute the undamped Newton step.  The residual function is evaluated
     //! at `x`, but the Jacobian is not recomputed.
-    void step(doublereal* x, doublereal* step,
-              OneDim& r, MultiJac& jac, int loglevel);
+    void step(double* x, double* step, OneDim& r, MultiJac& jac, int loglevel);
 
     /**
      * Return the factor by which the undamped Newton step 'step0'
      * must be multiplied in order to keep all solution components in
      * all domains between their specified lower and upper bounds.
      */
-    doublereal boundStep(const doublereal* x0, const doublereal* step0,
-                         const OneDim& r, int loglevel);
+    double boundStep(const double* x0, const double* step0,
+                     const OneDim& r, int loglevel);
 
     /**
      * On entry, step0 must contain an undamped Newton step for the solution x0.
@@ -48,21 +51,18 @@ public:
      * successful, the new solution after taking the damped step is returned in
      * x1, and the undamped step at x1 is returned in step1.
      */
-    int dampStep(const doublereal* x0, const doublereal* step0,
-                 doublereal* x1, doublereal* step1, doublereal& s1,
-                 OneDim& r, MultiJac& jac, int loglevel, bool writetitle);
+    int dampStep(const double* x0, const double* step0, double* x1, double* step1,
+                 double& s1, OneDim& r, MultiJac& jac, int loglevel, bool writetitle);
 
     //! Compute the weighted 2-norm of `step`.
-    doublereal norm2(const doublereal* x, const doublereal* step,
-                     OneDim& r) const;
+    double norm2(const double* x, const double* step, OneDim& r) const;
 
     /**
      * Find the solution to F(X) = 0 by damped Newton iteration. On entry, x0
      * contains an initial estimate of the solution. On successful return, x1
      * contains the converged solution.
      */
-    int solve(doublereal* x0, doublereal* x1, OneDim& r, MultiJac& jac,
-              int loglevel);
+    int solve(double* x0, double* x1, OneDim& r, MultiJac& jac, int loglevel);
 
     //! Set options.
     void setOptions(int maxJacAge = 5) {
@@ -74,7 +74,7 @@ public:
 
 protected:
     //! Work arrays of size #m_n used in solve().
-    vector_fp m_x, m_stp, m_stp1;
+    vector<double> m_x, m_stp, m_stp1;
 
     int m_maxAge = 5;
 

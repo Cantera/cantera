@@ -85,7 +85,7 @@ int main(int argc, char** argv)
         auto hmw = make_shared<HMWSoln>(inputFile, "NaCl_electrolyte_complex_shomate");
         hmw->setName("NaCl_electrolyte");
         size_t kk = hmw->nSpecies();
-        vector_fp Xmol(kk, 0.0);
+        vector<double> Xmol(kk, 0.0);
         size_t iH2OL = hmw->speciesIndex("H2O(L)");
         Xmol[iH2OL] = 1.0;
         hmw->setState_TPX(T, pres, Xmol.data());

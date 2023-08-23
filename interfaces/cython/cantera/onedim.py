@@ -184,7 +184,7 @@ class FlameBase(Sim1D):
             arr.TP = T + left.T - T[0], self.P
 
             # adjust velocities
-            if self.flame.domain_type.startswith("axisymmetric"):
+            if not self.flame.domain_type.startswith("free"):
                 self.gas.TPY = left.T, self.P, left.Y
                 u0 = left.mdot / self.gas.density
                 arr.velocity = u0 * arr.velocity / arr.velocity[0]

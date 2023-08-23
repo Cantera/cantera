@@ -473,7 +473,7 @@ extern "C" {
                                    size_t m, const double* temp)
     {
         try {
-            vector_fp vpos(n), vtemp(n);
+            vector<double> vpos(n), vtemp(n);
             for (size_t j = 0; j < n; j++) {
                 vpos[j] = pos[j];
                 vtemp[j] = temp[j];
@@ -541,7 +541,7 @@ extern "C" {
             Sim1D& sim = SimCabinet::item(i);
             sim.checkDomainIndex(dom);
             sim.domain(dom).checkComponentIndex(comp);
-            vector_fp vv, pv;
+            vector<double> vv, pv;
             for (size_t n = 0; n < np; n++) {
                 vv.push_back(v[n]);
                 pv.push_back(pos[n]);

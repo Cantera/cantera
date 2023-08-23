@@ -1,6 +1,6 @@
 /**
  *  @file Kinetics.cpp Declarations for the base class for kinetics managers
- *      (see \ref  kineticsmgr and class \link Cantera::Kinetics  Kinetics \endlink).
+ *      (see @ref  kineticsmgr and class @link Cantera::Kinetics  Kinetics @endlink).
  *
  *  Kinetics managers calculate rates of progress of species due to
  *  homogeneous or heterogeneous kinetics.
@@ -104,11 +104,11 @@ void Kinetics::checkSpeciesArraySize(size_t kk) const
     }
 }
 
-std::pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err) const
+pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err) const
 {
     //! Map of (key indicating participating species) to reaction numbers
-    std::map<size_t, std::vector<size_t> > participants;
-    std::vector<std::map<int, double> > net_stoich;
+    map<size_t, vector<size_t>> participants;
+    vector<map<int, double>> net_stoich;
     std::unordered_set<size_t> unmatched_duplicates;
     for (size_t i = 0; i < m_reactions.size(); i++) {
         if (m_reactions[i]->duplicate) {
@@ -121,7 +121,7 @@ std::pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err) const
         unsigned long int key = 0;
         Reaction& R = *m_reactions[i];
         net_stoich.emplace_back();
-        std::map<int, double>& net = net_stoich.back();
+        map<int, double>& net = net_stoich.back();
         for (const auto& [name, stoich] : R.reactants) {
             int k = static_cast<int>(kineticsSpeciesIndex(name));
             key += k*(k+1);
@@ -149,7 +149,7 @@ std::pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err) const
             {
                 continue; // different rate parameterizations
             }
-            doublereal c = checkDuplicateStoich(net_stoich[i], net_stoich[m]);
+            double c = checkDuplicateStoich(net_stoich[i], net_stoich[m]);
             if (c == 0) {
                 continue; // stoichiometries differ (not by a multiple)
             } else if (c < 0.0 && !R.reversible && !other.reversible) {
@@ -197,8 +197,7 @@ std::pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err) const
     return {npos, npos};
 }
 
-double Kinetics::checkDuplicateStoich(std::map<int, double>& r1,
-                                      std::map<int, double>& r2) const
+double Kinetics::checkDuplicateStoich(map<int, double>& r1, map<int, double>& r2) const
 {
     std::unordered_set<int> keys; // species keys (k+1 or -k-1)
     for (auto& [speciesKey, stoich] : r1) {
@@ -209,7 +208,7 @@ double Kinetics::checkDuplicateStoich(std::map<int, double>& r1,
     }
     int k1 = r1.begin()->first;
     // check for duplicate written in the same direction
-    doublereal ratio = 0.0;
+    double ratio = 0.0;
     if (r1[k1] && r2[k1]) {
         ratio = r2[k1]/r1[k1];
         bool different = false;
@@ -266,7 +265,7 @@ string Kinetics::kineticsSpeciesName(size_t k) const
     return "<unknown>";
 }
 
-size_t Kinetics::kineticsSpeciesIndex(const std::string& nm) const
+size_t Kinetics::kineticsSpeciesIndex(const string& nm) const
 {
     for (size_t n = 0; n < m_thermo.size(); n++) {
         // Check the ThermoPhase object for a match
@@ -278,8 +277,7 @@ size_t Kinetics::kineticsSpeciesIndex(const std::string& nm) const
     return npos;
 }
 
-size_t Kinetics::kineticsSpeciesIndex(const std::string& nm,
-                                      const std::string& ph) const
+size_t Kinetics::kineticsSpeciesIndex(const string& nm, const string& ph) const
 {
     warn_deprecated("Kinetics::kineticsSpeciesIndex(species_name, phase_name)",
         "To be removed after Cantera 3.0. Use kineticsSpeciesIndex(species_name).\n"
@@ -301,7 +299,7 @@ size_t Kinetics::kineticsSpeciesIndex(const std::string& nm,
     return npos;
 }
 
-ThermoPhase& Kinetics::speciesPhase(const std::string& nm)
+ThermoPhase& Kinetics::speciesPhase(const string& nm)
 {
     for (size_t n = 0; n < m_thermo.size(); n++) {
         size_t k = thermo(n).speciesIndex(nm);
@@ -312,7 +310,7 @@ ThermoPhase& Kinetics::speciesPhase(const std::string& nm)
     throw CanteraError("Kinetics::speciesPhase", "unknown species '{}'", nm);
 }
 
-const ThermoPhase& Kinetics::speciesPhase(const std::string& nm) const
+const ThermoPhase& Kinetics::speciesPhase(const string& nm) const
 {
     for (const auto thermo : m_thermo) {
         if (thermo->speciesIndex(nm) != npos) {
@@ -343,49 +341,49 @@ double Kinetics::productStoichCoeff(size_t kSpec, size_t irxn) const
     return m_productStoich.stoichCoeffs().coeff(kSpec, irxn);
 }
 
-std::string Kinetics::reactionType(size_t i) const {
+string Kinetics::reactionType(size_t i) const {
     warn_deprecated("Kinetics::reactionType", "To be removed after Cantera 3.0.");
     return m_reactions[i]->type();
 }
 
-std::string Kinetics::reactionTypeStr(size_t i) const {
+string Kinetics::reactionTypeStr(size_t i) const {
     warn_deprecated("Kinetics::reactionTypeStr", "To be removed after Cantera 3.0.");
     return reactionType(i);
 }
 
-std::string Kinetics::reactionString(size_t i) const
+string Kinetics::reactionString(size_t i) const
 {
     warn_deprecated("Kinetics::reactionString", "To be removed after Cantera 3.0.");
     return m_reactions[i]->equation();
 }
 
 //! Returns a string containing the reactants side of the reaction equation.
-std::string Kinetics::reactantString(size_t i) const
+string Kinetics::reactantString(size_t i) const
 {
     warn_deprecated("Kinetics::reactantString", "To be removed after Cantera 3.0.");
     return m_reactions[i]->reactantString();
 }
 
 //! Returns a string containing the products side of the reaction equation.
-std::string Kinetics::productString(size_t i) const
+string Kinetics::productString(size_t i) const
 {
     warn_deprecated("Kinetics::productString", "To be removed after Cantera 3.0.");
     return m_reactions[i]->productString();
 }
 
-void Kinetics::getFwdRatesOfProgress(doublereal* fwdROP)
+void Kinetics::getFwdRatesOfProgress(double* fwdROP)
 {
     updateROP();
     std::copy(m_ropf.begin(), m_ropf.end(), fwdROP);
 }
 
-void Kinetics::getRevRatesOfProgress(doublereal* revROP)
+void Kinetics::getRevRatesOfProgress(double* revROP)
 {
     updateROP();
     std::copy(m_ropr.begin(), m_ropr.end(), revROP);
 }
 
-void Kinetics::getNetRatesOfProgress(doublereal* netROP)
+void Kinetics::getNetRatesOfProgress(double* netROP)
 {
     updateROP();
     std::copy(m_ropnet.begin(), m_ropnet.end(), netROP);
@@ -423,7 +421,7 @@ void Kinetics::getCreationRates(double* cdot)
     m_reactantStoich.incrementSpecies(m_ropr.data(), cdot);
 }
 
-void Kinetics::getDestructionRates(doublereal* ddot)
+void Kinetics::getDestructionRates(double* ddot)
 {
     updateROP();
 
@@ -434,7 +432,7 @@ void Kinetics::getDestructionRates(doublereal* ddot)
     m_reactantStoich.incrementSpecies(m_ropf.data(), ddot);
 }
 
-void Kinetics::getNetProductionRates(doublereal* net)
+void Kinetics::getNetProductionRates(double* net)
 {
     updateROP();
 
@@ -645,6 +643,9 @@ AnyMap Kinetics::parameters()
         if (nReactions() == 0) {
             out["reactions"] = "none";
         }
+        if (m_hasUndeclaredThirdBodies) {
+            out["skip-undeclared-third-bodies"] = true;
+        }
     }
     return out;
 }
@@ -686,11 +687,11 @@ bool Kinetics::addReaction(shared_ptr<Reaction> r, bool resize)
     size_t irxn = nReactions(); // index of the new reaction
 
     // indices of reactant and product species within this Kinetics object
-    std::vector<size_t> rk, pk;
+    vector<size_t> rk, pk;
 
     // Reactant and product stoichiometric coefficients, such that rstoich[i] is
     // the coefficient for species rk[i]
-    vector_fp rstoich, pstoich;
+    vector<double> rstoich, pstoich;
 
     for (const auto& [name, stoich] : r->reactants) {
         rk.push_back(kineticsSpeciesIndex(name));
@@ -705,7 +706,7 @@ bool Kinetics::addReaction(shared_ptr<Reaction> r, bool resize)
     // The default order for each reactant is its stoichiometric coefficient,
     // which can be overridden by entries in the Reaction.orders map. rorder[i]
     // is the order for species rk[i].
-    vector_fp rorder = rstoich;
+    vector<double> rorder = rstoich;
     for (const auto& [name, order] : r->orders) {
         size_t k = kineticsSpeciesIndex(name);
         // Find the index of species k within rk
@@ -795,7 +796,7 @@ shared_ptr<const Reaction> Kinetics::reaction(size_t i) const
 double Kinetics::reactionEnthalpy(const Composition& reactants, const Composition& products)
 {
     warn_deprecated("Kinetics::reactionEnthalpy", "To be removed after Cantera 3.0");
-    vector_fp hk(nTotalSpecies());
+    vector<double> hk(nTotalSpecies());
     for (size_t n = 0; n < nPhases(); n++) {
         thermo(n).getPartialMolarEnthalpies(&hk[m_start[n]]);
     }

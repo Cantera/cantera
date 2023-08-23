@@ -1,7 +1,7 @@
 /**
  *  @file ThermoFactory.cpp
  *     Definitions for the factory class that can create known ThermoPhase objects
- *     (see \ref thermoprops and class \link Cantera::ThermoFactory ThermoFactory\endlink).
+ *     (see @ref thermoprops and class @link Cantera::ThermoFactory ThermoFactory@endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -124,7 +124,7 @@ void ThermoFactory::deleteFactory()
     s_factory = 0;
 }
 
-ThermoPhase* ThermoFactory::newThermoPhase(const std::string& model)
+ThermoPhase* ThermoFactory::newThermoPhase(const string& model)
 {
     warn_deprecated("newThermoPhase",
         "To be removed after Cantera 3.0; superseded by newThermoModel.");
@@ -197,12 +197,32 @@ unique_ptr<ThermoPhase> newPhase(const AnyMap& phaseNode, const AnyMap& rootNode
     return t;
 }
 
-ThermoPhase* newPhase(const std::string& infile, std::string id)
+ThermoPhase* newPhase(const string& infile, string id)
 {
     warn_deprecated("newPhase",
         "To be removed after Cantera 3.0; superseded by\n"
-        "newThermo(const std::string&, const std::string&).");
-    return newThermo(infile, id).get();
+        "newThermo(const string&, const string&).");
+    size_t dot = infile.find_last_of(".");
+    if (dot == npos) {
+        newThermoModel(infile);
+    }
+    string extension;
+    extension = toLowerCopy(infile.substr(dot+1));
+    string id_ = id;
+    if (id == "-") {
+        id_ = "";
+    }
+    if (extension == "cti" || extension == "xml") {
+        throw CanteraError("newPhase",
+                           "The CTI and XML formats are no longer supported.");
+    }
+
+    AnyMap root = AnyMap::fromYamlFile(infile);
+    AnyMap& phase = root["phases"].getMapWhere("name", id_);
+    string model = phase["thermo"].asString();
+    unique_ptr<ThermoPhase> t(ThermoFactory::factory()->create(model));
+    setupPhase(*t, phase, root);
+    return t.release();
 }
 
 void addDefaultElements(ThermoPhase& thermo, const vector<string>& element_names) {
@@ -292,8 +312,8 @@ void setupPhase(ThermoPhase& thermo, const AnyMap& phaseNode, const AnyMap& root
                 const auto& names = elemNode.begin()->second.asVector<string>();
                 const auto& slash = boost::ifind_last(source, "/");
                 if (slash) {
-                    std::string fileName(source.begin(), slash.begin());
-                    std::string node(slash.end(), source.end());
+                    string fileName(source.begin(), slash.begin());
+                    string node(slash.end(), source.end());
                     const AnyMap elements = AnyMap::fromYamlFile(fileName,
                         rootNode.getString("__file__", ""));
                     addElements(thermo, names, elements.at(node), false);
@@ -337,8 +357,8 @@ void setupPhase(ThermoPhase& thermo, const AnyMap& phaseNode, const AnyMap& root
                 const auto& slash = boost::ifind_last(source, "/");
                 if (slash) {
                     // source is a different input file
-                    std::string fileName(source.begin(), slash.begin());
-                    std::string node(slash.end(), source.end());
+                    string fileName(source.begin(), slash.begin());
+                    string node(slash.end(), source.end());
                     AnyMap species = AnyMap::fromYamlFile(fileName,
                         rootNode.getString("__file__", ""));
                     addSpecies(thermo, names, species[node]);

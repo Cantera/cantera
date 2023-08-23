@@ -11,30 +11,32 @@
 namespace Cantera
 {
 
-/*!
+/**
  * MoleReactor is meant to serve the same purpose as the reactor class but with a state
  * vector composed of moles. It also serves as the base class for other mole reactors.
+ * @since New in %Cantera 3.0
+ * @ingroup reactorGroup
  */
 class MoleReactor : public Reactor
 {
 public:
     MoleReactor() {}
 
-    virtual std::string type() const {
+    string type() const override {
         return "MoleReactor";
     }
 
-    virtual void initialize(double t0 = 0.0);
+    void initialize(double t0=0.0) override;
 
-    virtual void getState(double* y);
+    void getState(double* y) override;
 
-    virtual void updateState(double* y);
+    void updateState(double* y) override;
 
-    virtual void eval(double t, double* LHS, double* RHS);
+    void eval(double t, double* LHS, double* RHS) override;
 
-    size_t componentIndex(const std::string& nm) const;
+    size_t componentIndex(const string& nm) const override;
 
-    std::string componentName(size_t k);
+    string componentName(size_t k) override;
 
 protected:
     //! For each surface in the reactor, update vector of triplets with all relevant
@@ -44,17 +46,17 @@ protected:
 
     //! Get moles of the system from mass fractions stored by thermo object
     //! @param y vector for moles to be put into
-    virtual void getMoles(double* y);
+    void getMoles(double* y);
 
     //! Set internal mass variable based on moles given
     //! @param y vector of moles of the system
-    virtual void setMassFromMoles(double* y);
+    void setMassFromMoles(double* y);
 
-    virtual void evalSurfaces(double* LHS, double* RHS, double* sdot);
+    void evalSurfaces(double* LHS, double* RHS, double* sdot) override;
 
-    virtual void updateSurfaceState(double* y);
+    void updateSurfaceState(double* y) override;
 
-    virtual void getSurfaceInitialConditions(double* y);
+    void getSurfaceInitialConditions(double* y) override;
 
     //! const value for the species start index
     const size_t m_sidx = 2;

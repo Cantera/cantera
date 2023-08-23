@@ -32,7 +32,7 @@ int flamespeed(double phi, bool refine_grid, int loglevel)
         double uin = 0.3; //m/sec
 
         size_t nsp = gas->nSpecies();
-        vector_fp x(nsp, 0.0);
+        vector<double> x(nsp, 0.0);
 
         gas->setEquivalenceRatio(phi, "CH4", "O2:0.21,N2:0.79");
         gas->setState_TP(temp, pressure);
@@ -40,11 +40,11 @@ int flamespeed(double phi, bool refine_grid, int loglevel)
 
         double rho_in = gas->density();
 
-        vector_fp yin(nsp);
+        vector<double> yin(nsp);
         gas->getMassFractions(&yin[0]);
 
         gas->equilibrate("HP");
-        vector_fp yout(nsp);
+        vector<double> yout(nsp);
         gas->getMassFractions(&yout[0]);
         double rho_out = gas->density();
         double Tad = gas->temperature();
@@ -60,7 +60,7 @@ int flamespeed(double phi, bool refine_grid, int loglevel)
         // create an initial grid
         int nz = 6;
         double lz = 0.1;
-        vector_fp z(nz);
+        vector<double> z(nz);
         double dz = lz/((double)(nz-1));
         for (int iz = 0; iz < nz; iz++) {
             z[iz] = ((double)iz)*dz;
@@ -88,8 +88,8 @@ int flamespeed(double phi, bool refine_grid, int loglevel)
 
         //----------- Supply initial guess----------------------
 
-        vector_fp locs{0.0, 0.3, 0.7, 1.0};
-        vector_fp value;
+        vector<double> locs{0.0, 0.3, 0.7, 1.0};
+        vector<double> value;
 
         double uout = inlet->mdot()/rho_out;
         value = {uin, uin, uout, uout};
@@ -118,7 +118,7 @@ int flamespeed(double phi, bool refine_grid, int loglevel)
         // Save initial guess to container file
 
         // Solution is saved in HDF5 or YAML file format
-        std::string fileName;
+        string fileName;
         if (usesHDF5()) {
             // Cantera is compiled with native HDF5 support
             fileName = "flamespeed.h5";
@@ -159,7 +159,7 @@ int flamespeed(double phi, bool refine_grid, int loglevel)
         flame.save(fileName, "soret",
                    "Solution with mixture-averaged transport and Soret", true);
 
-        vector_fp zvec,Tvec,COvec,CO2vec,Uvec;
+        vector<double> zvec,Tvec,COvec,CO2vec,Uvec;
 
         print("\n{:9s}\t{:8s}\t{:5s}\t{:7s}\n",
               "z (m)", "T (K)", "U (m/s)", "Y(CO)");

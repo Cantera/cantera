@@ -18,7 +18,12 @@ class ThermoPhase;
 class Kinetics;
 class Transport;
 
+//! @defgroup serializeGroup Serialization
+//! Classes and functions related to serialization of %Cantera objects
+//! @ingroup ioGroup
+
 //! A class for generating full YAML input files from multiple data sources
+//! @ingroup serializeGroup
 class YamlWriter
 {
 public:
@@ -37,11 +42,11 @@ public:
 
     //! Return a YAML string that contains the definitions for the added phases,
     //! species, and reactions
-    std::string toYamlString() const;
+    string toYamlString() const;
 
     //! Write the definitions for the added phases, species and reactions to
     //! the specified file.
-    void toYamlFile(const std::string& filename) const;
+    void toYamlFile(const string& filename) const;
 
     //! For output floating point values, set the maximum number of digits to
     //! the right of the decimal point. The default is 15 digits.
@@ -61,7 +66,7 @@ public:
     //! @param units  A map where keys are dimensions (mass, length, time,
     //!     quantity, pressure, energy, activation-energy) and the values are
     //!     corresponding units supported by the UnitSystem class.
-    void setUnits(const std::map<std::string, std::string>& units={});
+    void setUnits(const map<string, string>& units={});
 
     //! Set the units to be used in the output file. Dimensions not specified
     //! will use Cantera's defaults.
@@ -73,7 +78,7 @@ protected:
     //! Top-level information used in YAML header block
     AnyMap m_header;
 
-    std::vector<shared_ptr<Solution>> m_phases;
+    vector<shared_ptr<Solution>> m_phases;
 
     //! See setPrecision()
     long int m_float_precision = 15;

@@ -2,8 +2,8 @@
  *  @file VPStandardStateTP.cpp
  * Definition file for a derived class of ThermoPhase that handles
  * variable pressure standard state methods for calculating
- * thermodynamic properties (see \ref thermoprops and
- * class \link Cantera::VPStandardStateTP VPStandardStateTP\endlink).
+ * thermodynamic properties (see @ref thermoprops and
+ * class @link Cantera::VPStandardStateTP VPStandardStateTP@endlink).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -33,7 +33,7 @@ int VPStandardStateTP::standardStateConvention() const
     return cSS_CONVENTION_VPSS;
 }
 
-void VPStandardStateTP::getChemPotentials_RT(doublereal* muRT) const
+void VPStandardStateTP::getChemPotentials_RT(double* muRT) const
 {
     warn_deprecated("VPStandardStateTP::getChemPotentials_RT",
                     "To be removed after Cantera 3.0. Use getChemPotentials instead.");
@@ -45,7 +45,7 @@ void VPStandardStateTP::getChemPotentials_RT(doublereal* muRT) const
 
 // ----- Thermodynamic Values for the Species Standard States States ----
 
-void VPStandardStateTP::getStandardChemPotentials(doublereal* g) const
+void VPStandardStateTP::getStandardChemPotentials(double* g) const
 {
     getGibbs_RT(g);
     for (size_t k = 0; k < m_kk; k++) {
@@ -53,32 +53,32 @@ void VPStandardStateTP::getStandardChemPotentials(doublereal* g) const
     }
 }
 
-void VPStandardStateTP::getEnthalpy_RT(doublereal* hrt) const
+void VPStandardStateTP::getEnthalpy_RT(double* hrt) const
 {
     updateStandardStateThermo();
     std::copy(m_hss_RT.begin(), m_hss_RT.end(), hrt);
 }
 
-void VPStandardStateTP::getEntropy_R(doublereal* sr) const
+void VPStandardStateTP::getEntropy_R(double* sr) const
 {
     updateStandardStateThermo();
     std::copy(m_sss_R.begin(), m_sss_R.end(), sr);
 }
 
-void VPStandardStateTP::getGibbs_RT(doublereal* grt) const
+void VPStandardStateTP::getGibbs_RT(double* grt) const
 {
     updateStandardStateThermo();
     std::copy(m_gss_RT.begin(), m_gss_RT.end(), grt);
 }
 
-void VPStandardStateTP::getPureGibbs(doublereal* g) const
+void VPStandardStateTP::getPureGibbs(double* g) const
 {
     updateStandardStateThermo();
     std::copy(m_gss_RT.begin(), m_gss_RT.end(), g);
     scale(g, g+m_kk, g, RT());
 }
 
-void VPStandardStateTP::getIntEnergy_RT(doublereal* urt) const
+void VPStandardStateTP::getIntEnergy_RT(double* urt) const
 {
     updateStandardStateThermo();
     std::copy(m_hss_RT.begin(), m_hss_RT.end(), urt);
@@ -87,18 +87,18 @@ void VPStandardStateTP::getIntEnergy_RT(doublereal* urt) const
     }
 }
 
-void VPStandardStateTP::getCp_R(doublereal* cpr) const
+void VPStandardStateTP::getCp_R(double* cpr) const
 {
     updateStandardStateThermo();
     std::copy(m_cpss_R.begin(), m_cpss_R.end(), cpr);
 }
 
-void VPStandardStateTP::getStandardVolumes(doublereal* vol) const
+void VPStandardStateTP::getStandardVolumes(double* vol) const
 {
     updateStandardStateThermo();
     std::copy(m_Vss.begin(), m_Vss.end(), vol);
 }
-const vector_fp& VPStandardStateTP::getStandardVolumes() const
+const vector<double>& VPStandardStateTP::getStandardVolumes() const
 {
     updateStandardStateThermo();
     return m_Vss;
@@ -106,44 +106,44 @@ const vector_fp& VPStandardStateTP::getStandardVolumes() const
 
 // ----- Thermodynamic Values for the Species Reference States ----
 
-void VPStandardStateTP::getEnthalpy_RT_ref(doublereal* hrt) const
+void VPStandardStateTP::getEnthalpy_RT_ref(double* hrt) const
 {
     updateStandardStateThermo();
     std::copy(m_h0_RT.begin(), m_h0_RT.end(), hrt);
 }
 
-void VPStandardStateTP::getGibbs_RT_ref(doublereal* grt) const
+void VPStandardStateTP::getGibbs_RT_ref(double* grt) const
 {
     updateStandardStateThermo();
     std::copy(m_g0_RT.begin(), m_g0_RT.end(), grt);
 }
 
-void VPStandardStateTP::getGibbs_ref(doublereal* g) const
+void VPStandardStateTP::getGibbs_ref(double* g) const
 {
     updateStandardStateThermo();
     std::copy(m_g0_RT.begin(), m_g0_RT.end(), g);
     scale(g, g+m_kk, g, RT());
 }
 
-const vector_fp& VPStandardStateTP::Gibbs_RT_ref() const
+const vector<double>& VPStandardStateTP::Gibbs_RT_ref() const
 {
     updateStandardStateThermo();
     return m_g0_RT;
 }
 
-void VPStandardStateTP::getEntropy_R_ref(doublereal* sr) const
+void VPStandardStateTP::getEntropy_R_ref(double* sr) const
 {
     updateStandardStateThermo();
     std::copy(m_s0_R.begin(), m_s0_R.end(), sr);
 }
 
-void VPStandardStateTP::getCp_R_ref(doublereal* cpr) const
+void VPStandardStateTP::getCp_R_ref(double* cpr) const
 {
     updateStandardStateThermo();
     std::copy(m_cp0_R.begin(), m_cp0_R.end(), cpr);
 }
 
-void VPStandardStateTP::getStandardVolumes_ref(doublereal* vol) const
+void VPStandardStateTP::getStandardVolumes_ref(double* vol) const
 {
     updateStandardStateThermo();
     std::copy(m_Vss.begin(), m_Vss.end(), vol);
@@ -162,7 +162,7 @@ void VPStandardStateTP::initThermo()
     }
 }
 
-void VPStandardStateTP::getSpeciesParameters(const std::string& name,
+void VPStandardStateTP::getSpeciesParameters(const string& name,
                                              AnyMap& speciesNode) const
 {
     AnyMap eos;
@@ -195,13 +195,13 @@ bool VPStandardStateTP::addSpecies(shared_ptr<Species> spec)
     return true;
 }
 
-void VPStandardStateTP::setTemperature(const doublereal temp)
+void VPStandardStateTP::setTemperature(const double temp)
 {
     setState_TP(temp, m_Pcurrent);
     updateStandardStateThermo();
 }
 
-void VPStandardStateTP::setPressure(doublereal p)
+void VPStandardStateTP::setPressure(double p)
 {
     setState_TP(temperature(), p);
     updateStandardStateThermo();
@@ -212,7 +212,7 @@ void VPStandardStateTP::calcDensity()
     throw NotImplementedError("VPStandardStateTP::calcDensity");
 }
 
-void VPStandardStateTP::setState_TP(doublereal t, doublereal pres)
+void VPStandardStateTP::setState_TP(double t, double pres)
 {
     // A pretty tricky algorithm is needed here, due to problems involving
     // standard states of real fluids. For those cases you need to combine the T

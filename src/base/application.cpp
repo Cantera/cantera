@@ -42,7 +42,7 @@ Application::Messages::Messages()
     logwriter = make_unique<Logger>();
 }
 
-void Application::Messages::addError(const std::string& r, const std::string& msg)
+void Application::Messages::addError(const string& r, const string& msg)
 {
     if (msg.size() != 0) {
         errorMessage.push_back(
@@ -66,7 +66,7 @@ void Application::Messages::setLogger(Logger* _logwriter)
     logwriter.reset(_logwriter);
 }
 
-void Application::Messages::writelog(const std::string& msg)
+void Application::Messages::writelog(const string& msg)
 {
     logwriter->write(msg);
 }
@@ -76,7 +76,7 @@ void Application::Messages::writelogendl()
     logwriter->writeendl();
 }
 
-void Application::Messages::warnlog(const std::string& warning, const std::string& msg)
+void Application::Messages::warnlog(const string& warning, const string& msg)
 {
     logwriter->warn(warning, msg);
 }
@@ -132,8 +132,7 @@ void Application::ApplicationDestroy()
     }
 }
 
-void Application::warn_deprecated(const std::string& method,
-                                  const std::string& extra)
+void Application::warn_deprecated(const string& method, const string& extra)
 {
     if (m_fatal_deprecation_warnings) {
         throw CanteraError(method, "Deprecated: " + extra);
@@ -144,9 +143,7 @@ void Application::warn_deprecated(const std::string& method,
     warnlog("Deprecation", fmt::format("{}: {}", method, extra));
 }
 
-void Application::warn(const std::string& warning,
-                       const std::string& method,
-                       const std::string& extra)
+void Application::warn(const string& warning, const string& method, const string& extra)
 {
     if (m_fatal_warnings) {
         throw CanteraError(method, extra);
@@ -162,8 +159,8 @@ void Application::thread_complete()
 }
 
 #ifdef _WIN32
-long int Application::readStringRegistryKey(const std::string& keyName, const std::string& valueName,
-        std::string& value, const std::string& defaultValue)
+long int Application::readStringRegistryKey(const string& keyName, const string& valueName,
+        string& value, const string& defaultValue)
 {
     HKEY key;
     long open_error = RegOpenKeyEx(HKEY_LOCAL_MACHINE, keyName.c_str(), 0, KEY_READ, &key);
@@ -190,7 +187,7 @@ void Application::Messages::popError()
     }
 }
 
-std::string Application::Messages::lastErrorMessage()
+string Application::Messages::lastErrorMessage()
 {
     if (!errorMessage.empty()) {
         return errorMessage.back();
@@ -226,13 +223,15 @@ void Application::setDefaultDirectories()
     // the OS-dependent path separator (in the same manner as the PATH
     // environment variable).
 #ifdef _WIN32
-    std::string pathsep = ";";
+    string pathsep = ";";
+    string dirsep = "\\";
 #else
-    std::string pathsep = ":";
+    string pathsep = ":";
+    string dirsep = "/";
 #endif
 
-    if (getenv("CANTERA_DATA") != 0) {
-        string s = string(getenv("CANTERA_DATA"));
+    if (getenv("CANTERA_DATA") != nullptr) {
+        string s(getenv("CANTERA_DATA"));
         size_t start = 0;
         size_t end = s.find(pathsep);
         while (end != npos) {
@@ -243,11 +242,18 @@ void Application::setDefaultDirectories()
         inputDirs.push_back(s.substr(start,end));
     }
 
+    // If a conda environment is active, add the location of the Cantera data directory
+    // that may exist in that environment.
+    if (getenv("CONDA_PREFIX") != nullptr) {
+        string s(getenv("CONDA_PREFIX"));
+        inputDirs.push_back(s + dirsep + "share" + dirsep + "cantera" + dirsep + "data");
+    }
+
 #ifdef _WIN32
     // Under Windows, the Cantera setup utility records the installation
     // directory in the registry. Data files are stored in the 'data'
     // subdirectory of the main installation directory.
-    std::string installDir;
+    string installDir;
     readStringRegistryKey("SOFTWARE\\Cantera\\Cantera " CANTERA_SHORT_VERSION,
                           "InstallDir", installDir, "");
     if (installDir != "") {
@@ -256,7 +262,7 @@ void Application::setDefaultDirectories()
         // Scripts for converting mechanisms to YAML are installed in
         // the 'bin' subdirectory. Add that directory to the PYTHONPATH.
         const char* old_pythonpath = getenv("PYTHONPATH");
-        std::string pythonpath = "PYTHONPATH=" + installDir + "\\bin";
+        string pythonpath = "PYTHONPATH=" + installDir + "\\bin";
         if (old_pythonpath) {
             pythonpath += ";";
             pythonpath.append(old_pythonpath);
@@ -275,7 +281,7 @@ void Application::setDefaultDirectories()
 #endif
 }
 
-void Application::addDataDirectory(const std::string& dir)
+void Application::addDataDirectory(const string& dir)
 {
     std::unique_lock<std::mutex> dirLock(dir_mutex);
     if (inputDirs.empty()) {
@@ -304,13 +310,13 @@ void Application::addDataDirectory(const std::string& dir)
     inputDirs.insert(inputDirs.begin(), d);
 }
 
-std::string Application::findInputFile(const std::string& name)
+string Application::findInputFile(const string& name)
 {
     std::unique_lock<std::mutex> dirLock(dir_mutex);
     string::size_type islash = name.find('/');
     string::size_type ibslash = name.find('\\');
     string::size_type icolon = name.find(':');
-    std::vector<string>& dirs = inputDirs;
+    vector<string>& dirs = inputDirs;
 
     // Expand "~/" to user's home directory, if possible
     if (name.find("~/") == 0 || name.find("~\\") == 0) {
@@ -388,7 +394,7 @@ void Application::loadExtension(const string& extType, const string& name)
 
         // Only one Python module can be loaded at a time, and a handle needs to be held
         // to prevent it from being unloaded.
-        static std::function<loader_t> loader;
+        static function<loader_t> loader;
         bool loaded = false;
 
         for (const auto& py_ver : m_pythonSearchVersions) {

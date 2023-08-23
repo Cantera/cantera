@@ -2,7 +2,7 @@
  * @file ctexceptions.h
  *   Definitions for the classes that are
  *   thrown when %Cantera experiences an error condition
- *   (also contains errorhandling module text - see \ref errorhandling).
+ *   (also contains errorhandling module text - see @ref errGroup).
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -18,11 +18,14 @@
 namespace Cantera
 {
 
-/*!
- * @defgroup errorhandling Error Handling
+/**
+ * @defgroup debugGroup Errors and Diagnostics
+*/
+
+/**
+ * @defgroup errGroup Errors
  *
- * \brief These classes and related functions are used to handle errors and
- *        unknown events within Cantera.
+ * @brief Handling of errors and unknown events within %Cantera.
  *
  * The general idea is that exceptions are thrown using the common base class
  * called CanteraError. Derived types of CanteraError characterize what type of
@@ -47,16 +50,17 @@ namespace Cantera
  * is thrown, with descriptive information indicating where the error occurred.
  * The Assert* checks are skipped if the NDEBUG preprocessor symbol is defined,
  * for example with the compiler option -DNDEBUG.
+ * @ingroup debugGroup
  */
 
 
-//! Base class for exceptions thrown by Cantera classes.
+//! Base class for exceptions thrown by %Cantera classes.
 /*!
  * This class is the base class for exceptions thrown by Cantera. It inherits
  * from std::exception so that normal error handling operations from
  * applications may automatically handle the errors in their own way.
  *
- * @ingroup errorhandling
+ * @ingroup errGroup
  */
 class CanteraError : public std::exception
 {
@@ -76,8 +80,7 @@ public:
      * @param args Arguments which will be used to interpolate the format string
      */
     template <typename... Args>
-    CanteraError(const std::string& procedure, const std::string& msg,
-                 const Args&... args)
+    CanteraError(const string& procedure, const string& msg, const Args&... args)
         : procedure_(procedure)
     {
         if (sizeof...(args) == 0) {
@@ -91,16 +94,16 @@ public:
     virtual ~CanteraError() throw() {};
 
     //! Get a description of the error
-    const char* what() const throw();
+    const char* what() const throw() override;
 
     //! Method overridden by derived classes to format the error message
-    virtual std::string getMessage() const;
+    virtual string getMessage() const;
 
     //! Get the name of the method that threw the exception
-    virtual std::string getMethod() const;
+    virtual string getMethod() const;
 
     //! Method overridden by derived classes to indicate their type
-    virtual std::string getClass() const {
+    virtual string getClass() const {
         return "CanteraError";
     }
 
@@ -110,23 +113,23 @@ protected:
     CanteraError() {};
 
     //! Constructor used by derived classes that override getMessage()
-    explicit CanteraError(const std::string& procedure);
+    explicit CanteraError(const string& procedure);
 
     //! The name of the procedure where the exception occurred
-    std::string procedure_;
-    mutable std::string formattedMessage_; //!< Formatted message returned by what()
+    string procedure_;
+    mutable string formattedMessage_; //!< Formatted message returned by what()
 
 private:
-    std::string msg_; //!< Message associated with the exception
+    string msg_; //!< Message associated with the exception
 };
 
 
 //! Array size error.
 /*!
- * This error is thrown if a supplied length to a vector supplied to Cantera is
+ * This error is thrown if a supplied length to a vector supplied to %Cantera is
  * too small.
  *
- * @ingroup errorhandling
+ * @ingroup errGroup
  */
 class ArraySizeError : public CanteraError
 {
@@ -141,11 +144,11 @@ public:
      * @param sz   This is the length supplied to Cantera.
      * @param reqd This is the required length needed by Cantera
      */
-    ArraySizeError(const std::string& procedure, size_t sz, size_t reqd) :
+    ArraySizeError(const string& procedure, size_t sz, size_t reqd) :
         CanteraError(procedure), sz_(sz), reqd_(reqd) {}
 
-    virtual std::string getMessage() const;
-    virtual std::string getClass() const {
+    string getMessage() const override;
+    string getClass() const override {
         return "ArraySizeError";
     }
 
@@ -156,7 +159,7 @@ private:
 
 //! An array index is out of range.
 /*!
- *  @ingroup errorhandling
+ *  @ingroup errGroup
  */
 class IndexError : public CanteraError
 {
@@ -172,36 +175,36 @@ public:
      * @param mmax This is the maximum allowed value of the index. The
      *             minimum allowed value is assumed to be 0.
      */
-    IndexError(const std::string& func, const std::string& arrayName, size_t m, size_t mmax) :
+    IndexError(const string& func, const string& arrayName, size_t m, size_t mmax) :
         CanteraError(func), arrayName_(arrayName), m_(m), mmax_(mmax) {}
 
-    virtual ~IndexError() throw() {};
-    virtual std::string getMessage() const;
-    virtual std::string getClass() const {
+    ~IndexError() throw() override {};
+    string getMessage() const override;
+    string getClass() const override {
         return "IndexError";
     }
 
 private:
-    std::string arrayName_;
+    string arrayName_;
     size_t m_, mmax_;
 };
 
 //! An error indicating that an unimplemented function has been called
+//! @ingroup errGroup
 class NotImplementedError : public CanteraError
 {
 public:
     //! @param func Name of the unimplemented function, such as
     //!     `ClassName::functionName`
-    NotImplementedError(const std::string& func) :
+    NotImplementedError(const string& func) :
         CanteraError(func, "Not implemented.") {}
 
     //! Alternative constructor taking same arguments as CanteraError
     template <typename... Args>
-    NotImplementedError(const std::string& func, const std::string& msg,
-                        const Args&... args) :
+    NotImplementedError(const string& func, const string& msg, const Args&... args) :
         CanteraError(func, msg, args...) {}
 
-    virtual std::string getClass() const {
+    string getClass() const override {
         return "NotImplementedError";
     }
 };
@@ -212,11 +215,11 @@ public:
 //! Provides a line number
 #define STR_TRACE_LINE(s) #s
 
-//! Provides a std::string variable containing the file and line number
+//! Provides a string variable containing the file and line number
 /*!
  * This is a std:string containing the file name and the line number
  */
-#define STR_TRACE (std::string(__FILE__) + ":" + XSTR_TRACE_LINE(__LINE__))
+#define STR_TRACE (string(__FILE__) + ":" + XSTR_TRACE_LINE(__LINE__))
 
 #ifdef NDEBUG
 #ifndef AssertTrace
@@ -238,10 +241,10 @@ public:
  *
  * @param expr  Boolean expression that must be true
  *
- * @ingroup errorhandling
+ * @ingroup errGroup
  */
 #ifndef AssertTrace
-#  define AssertTrace(expr)  ((expr) ? (void) 0 : throw CanteraError(STR_TRACE, std::string("failed assert: ") + #expr))
+#  define AssertTrace(expr)  ((expr) ? (void) 0 : throw CanteraError(STR_TRACE, string("failed assert: ") + #expr))
 #endif
 
 //! Assertion must be true or an error is thrown
@@ -252,10 +255,10 @@ public:
  * @param expr  Boolean expression that must be true
  * @param procedure  Character string or std:string expression indicating the
  *     procedure where the assertion failed
- * @ingroup errorhandling
+ * @ingroup errGroup
  */
 #ifndef AssertThrow
-#  define AssertThrow(expr, procedure)   ((expr) ? (void) 0 : throw CanteraError(procedure, std::string("failed assert: ") + #expr))
+#  define AssertThrow(expr, procedure)   ((expr) ? (void) 0 : throw CanteraError(procedure, string("failed assert: ") + #expr))
 #endif
 
 //! Assertion must be true or an error is thrown
@@ -269,15 +272,16 @@ public:
  * Additional arguments are passed on to the constructor for CanteraError to
  * generate a formatted error message.
  *
- * @ingroup errorhandling
+ * @ingroup errGroup
  */
 #ifndef AssertThrowMsg
-#  define AssertThrowMsg(expr, procedure, ...)  ((expr) ? (void) 0 : throw CanteraError(procedure + std::string(":\nfailed assert: \"") + std::string(#expr) + std::string("\""), __VA_ARGS__))
+#  define AssertThrowMsg(expr, procedure, ...)  ((expr) ? (void) 0 : throw CanteraError(procedure + string(":\nfailed assert: \"") + string(#expr) + string("\""), __VA_ARGS__))
 #endif
 
 #endif
 
 //! Throw an exception if the specified exception is not a finite number.
+//! @ingroup errGroup
 #ifndef AssertFinite
 #  define AssertFinite(expr, procedure, ...) AssertThrowMsg(expr < BigNumber && expr > -BigNumber, procedure, __VA_ARGS__)
 #endif

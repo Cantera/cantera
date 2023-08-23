@@ -84,7 +84,7 @@ FalloffRate::FalloffRate(const AnyMap& node, const UnitStack& rate_units)
     setParameters(node, rate_units);
 }
 
-void FalloffRate::init(const vector_fp& c)
+void FalloffRate::init(const vector<double>& c)
 {
     warn_deprecated("FalloffRate::init",
         "To be removed after Cantera 3.0; superseded by setFalloffCoeffs.");
@@ -117,7 +117,7 @@ void FalloffRate::setHighRate(const ArrheniusRate& high)
     m_highRate = std::move(_high);
 }
 
-void FalloffRate::setFalloffCoeffs(const vector_fp& c)
+void FalloffRate::setFalloffCoeffs(const vector<double>& c)
 {
     if (c.size() != 0) {
         throw InputFileError("FalloffRate::setFalloffCoeffs", m_input,
@@ -127,7 +127,7 @@ void FalloffRate::setFalloffCoeffs(const vector_fp& c)
     m_valid = true;
 }
 
-void FalloffRate::getFalloffCoeffs(vector_fp& c) const
+void FalloffRate::getFalloffCoeffs(vector<double>& c) const
 {
     c.clear();
 }
@@ -182,7 +182,7 @@ void FalloffRate::getParameters(AnyMap& node) const
     }
 }
 
-void FalloffRate::check(const std::string& equation)
+void FalloffRate::check(const string& equation)
 {
     m_lowRate.check(equation);
     m_highRate.check(equation);
@@ -197,7 +197,7 @@ void FalloffRate::check(const std::string& equation)
     }
 }
 
-void FalloffRate::validate(const std::string& equation, const Kinetics& kin)
+void FalloffRate::validate(const string& equation, const Kinetics& kin)
 {
     try {
         m_lowRate.validate(equation, kin);
@@ -214,7 +214,7 @@ LindemannRate::LindemannRate(const AnyMap& node, const UnitStack& rate_units)
 }
 
 LindemannRate::LindemannRate(const ArrheniusRate& low, const ArrheniusRate& high,
-                             const vector_fp& c)
+                             const vector<double>& c)
     : LindemannRate()
 {
     m_lowRate = low;
@@ -229,7 +229,7 @@ TroeRate::TroeRate(const AnyMap& node, const UnitStack& rate_units)
 }
 
 TroeRate::TroeRate(const ArrheniusRate& low, const ArrheniusRate& high,
-                   const vector_fp& c)
+                   const vector<double>& c)
     : TroeRate()
 {
     m_lowRate = low;
@@ -237,7 +237,7 @@ TroeRate::TroeRate(const ArrheniusRate& low, const ArrheniusRate& high,
     setFalloffCoeffs(c);
 }
 
-void TroeRate::setFalloffCoeffs(const vector_fp& c)
+void TroeRate::setFalloffCoeffs(const vector<double>& c)
 {
     if (c.size() != 3 && c.size() != 4) {
         throw InputFileError("TroeRate::setFalloffCoeffs", m_input,
@@ -274,7 +274,7 @@ void TroeRate::setFalloffCoeffs(const vector_fp& c)
     m_valid = true;
 }
 
-void TroeRate::getFalloffCoeffs(vector_fp& c) const
+void TroeRate::getFalloffCoeffs(vector<double>& c) const
 {
     if (std::abs(m_t2) < SmallNumber) {
         c.resize(3);
@@ -317,7 +317,7 @@ void TroeRate::setParameters(const AnyMap& node, const UnitStack& rate_units)
     if (f.empty()) {
         return;
     }
-    vector_fp params{
+    vector<double> params{
         f["A"].asDouble(),
         f["T3"].asDouble(),
         f["T1"].asDouble()
@@ -360,7 +360,7 @@ SriRate::SriRate(const AnyMap& node, const UnitStack& rate_units)
     setParameters(node, rate_units);
 }
 
-void SriRate::setFalloffCoeffs(const vector_fp& c)
+void SriRate::setFalloffCoeffs(const vector<double>& c)
 {
     if (c.size() != 3 && c.size() != 5) {
         throw InputFileError("SriRate::setFalloffCoeffs", m_input,
@@ -390,7 +390,7 @@ void SriRate::setFalloffCoeffs(const vector_fp& c)
     m_valid = true;
 }
 
-void SriRate::getFalloffCoeffs(vector_fp& c) const
+void SriRate::getFalloffCoeffs(vector<double>& c) const
 {
     if (m_e < SmallNumber && std::abs(m_e - 1.) < SmallNumber) {
         c.resize(3);
@@ -431,7 +431,7 @@ void SriRate::setParameters(const AnyMap& node, const UnitStack& rate_units)
     if (f.empty()) {
         return;
     }
-    vector_fp params{
+    vector<double> params{
         f["A"].asDouble(),
         f["B"].asDouble(),
         f["C"].asDouble()
@@ -480,7 +480,7 @@ TsangRate::TsangRate(const AnyMap& node, const UnitStack& rate_units)
     setParameters(node, rate_units);
 }
 
-void TsangRate::setFalloffCoeffs(const vector_fp& c)
+void TsangRate::setFalloffCoeffs(const vector<double>& c)
 {
     if (c.size() != 1 && c.size() != 2) {
         throw InputFileError("TsangRate::init", m_input,
@@ -498,7 +498,7 @@ void TsangRate::setFalloffCoeffs(const vector_fp& c)
     m_valid = true;
 }
 
-void TsangRate::getFalloffCoeffs(vector_fp& c) const
+void TsangRate::getFalloffCoeffs(vector<double>& c) const
 {
     if (std::abs(m_b) < SmallNumber) {
         c.resize(1);
@@ -536,7 +536,7 @@ void TsangRate::setParameters(const AnyMap& node, const UnitStack& rate_units)
     if (f.empty()) {
         return;
     }
-    vector_fp params{
+    vector<double> params{
         f["A"].asDouble(),
         f["B"].asDouble()
     };

@@ -20,7 +20,7 @@ void InterfaceData::update(double T)
         "Missing state information: 'InterfaceData' requires species coverages.");
 }
 
-void InterfaceData::update(double T, const vector_fp& values)
+void InterfaceData::update(double T, const vector<double>& values)
 {
     warn_user("InterfaceData::update",
         "This method does not update the site density.");
@@ -144,7 +144,7 @@ void InterfaceRateBase::setCoverageDependencies(const AnyMap& dependencies,
     m_lindep.clear();
     for (const auto& [species, coeffs] : dependencies) {
         double a, m;
-        vector_fp E(5, 0.0);
+        vector<double> E(5, 0.0);
         if (coeffs.is<AnyMap>()) {
             auto& cov_map = coeffs.as<AnyMap>();
             a = cov_map["a"].asDouble();
@@ -186,7 +186,7 @@ void InterfaceRateBase::getCoverageDependencies(AnyMap& dependencies,
             // this preserves the previous 'coverage_deps' units
             warn_deprecated("InterfaceRateBase::getCoverageDependencies",
                 "To be changed after Cantera 3.0: second argument will be removed.");
-            vector_fp dep(3);
+            vector<double> dep(3);
             if (m_lindep[k]) {
                 dep[2] = m_ec[k][1];
             } else {
@@ -214,9 +214,8 @@ void InterfaceRateBase::getCoverageDependencies(AnyMap& dependencies,
     }
 }
 
-void InterfaceRateBase::addCoverageDependence(const string& sp,
-                                              double a, double m,
-                                              const vector_fp& e)
+void InterfaceRateBase::addCoverageDependence(const string& sp, double a, double m,
+                                              const vector<double>& e)
 {
     if (std::find(m_cov.begin(), m_cov.end(), sp) == m_cov.end()) {
         m_cov.push_back(sp);

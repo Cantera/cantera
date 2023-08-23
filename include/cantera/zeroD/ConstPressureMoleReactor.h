@@ -11,31 +11,32 @@
 namespace Cantera
 {
 
-/*!
+/**
  * ConstPressureMoleReactor is a class for constant-pressure reactors
  * which use a state of moles.
- * @since New in Cantera 3.0
+ * @since New in %Cantera 3.0
+ * @ingroup reactorGroup
  */
 class ConstPressureMoleReactor : public MoleReactor
 {
 public:
     ConstPressureMoleReactor() {}
 
-    virtual std::string type() const {
+    string type() const override {
         return "ConstPressureMoleReactor";
     };
 
-    virtual size_t componentIndex(const std::string& nm) const;
+    size_t componentIndex(const string& nm) const override;
 
-    virtual std::string componentName(size_t k);
+    string componentName(size_t k) override;
 
-    virtual void getState(double* y);
+    void getState(double* y) override;
 
-    virtual void initialize(double t0 = 0.0);
+    void initialize(double t0=0.0) override;
 
-    virtual void eval(double t, double* LHS, double* RHS);
+    void eval(double t, double* LHS, double* RHS) override;
 
-    virtual void updateState(double* y);
+    void updateState(double* y) override;
 
 protected:
     const size_t m_sidx = 1;

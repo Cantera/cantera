@@ -68,7 +68,7 @@ void ChebyshevRate::setParameters(const AnyMap& node, const UnitStack& rate_unit
     if (node.hasKey("data")) {
         const auto& T_range = node["temperature-range"].asVector<AnyValue>(2);
         const auto& P_range = node["pressure-range"].asVector<AnyValue>(2);
-        auto& vcoeffs = node["data"].asVector<vector_fp>();
+        auto& vcoeffs = node["data"].asVector<vector<double>>();
         coeffs = Array2D(vcoeffs.size(), vcoeffs[0].size());
         for (size_t i = 0; i < coeffs.nRows(); i++) {
             if (vcoeffs[i].size() != vcoeffs[0].size()) {
@@ -133,7 +133,7 @@ void ChebyshevRate::getParameters(AnyMap& rateNode) const
     rateNode["pressure-range"].setQuantity({Pmin(), Pmax()}, "Pa");
     size_t nT = m_coeffs.nRows();
     size_t nP = m_coeffs.nColumns();
-    std::vector<vector_fp> coeffs2d(nT, vector_fp(nP));
+    vector<vector<double>> coeffs2d(nT, vector<double>(nP));
     for (size_t i = 0; i < nT; i++) {
         for (size_t j = 0; j < nP; j++) {
             coeffs2d[i][j] = m_coeffs(i, j);
@@ -144,7 +144,7 @@ void ChebyshevRate::getParameters(AnyMap& rateNode) const
     Units rate_units2 = conversionUnits();
     auto converter = [rate_units2](AnyValue& coeffs, const UnitSystem& units) {
         if (rate_units2.factor() != 0.0) {
-            coeffs.asVector<vector_fp>()[0][0] += \
+            coeffs.asVector<vector<double>>()[0][0] += \
                 std::log10(units.convertFrom(1.0, rate_units2));
         } else if (units.getDelta(UnitSystem()).size()) {
             throw CanteraError("ChebyshevRate::getParameters lambda",
@@ -157,7 +157,7 @@ void ChebyshevRate::getParameters(AnyMap& rateNode) const
     rateNode["data"].setQuantity(coeffs, converter);
 }
 
-void ChebyshevRate::validate(const std::string& equation, const Kinetics& kin)
+void ChebyshevRate::validate(const string& equation, const Kinetics& kin)
 {
     if (!valid()) {
         throw InputFileError("ChebyshevRate::validate", m_input,

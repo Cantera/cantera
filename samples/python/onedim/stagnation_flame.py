@@ -85,6 +85,6 @@ for m, md in enumerate(mdot):
     sim.save(output, name=f"mdot-{m}", description=f"mdot = {md} kg/m2/s")
 
     # write the velocity, temperature, and mole fractions to a CSV file
-    sim.save(output_path / f"stagnation_flame_{m}.csv", basis="mole")
+    sim.save(output_path / f"stagnation_flame_{m}.csv", basis="mole", overwrite=True)
 
 sim.show_stats()

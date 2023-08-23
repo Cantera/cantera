@@ -24,46 +24,29 @@ namespace Cantera
  * distribution with isotropic-velocity model. The generalized electron
  * energy distribution for isotropic-velocity distribution can be
  * expressed as [1,2],
- *   \f[
+ *   @f[
  *          f(\epsilon) = c_1 \frac{\sqrt{\epsilon}}{\epsilon_m^{3/2}}
  *          \exp(-c_2 (\frac{\epsilon}{\epsilon_m})^x),
- *   \f]
- * where \f$ x = 1 \f$ and \f$ x = 2 \f$ correspond to the Maxwellian and
+ *   @f]
+ * where @f$ x = 1 @f$ and @f$ x = 2 @f$ correspond to the Maxwellian and
  * Druyvesteyn (default) electron energy distribution, respectively.
- * \f$ \epsilon_m = 3/2 T_e \f$ [eV] (mean electron energy). The second
+ * @f$ \epsilon_m = 3/2 T_e @f$ [eV] (mean electron energy). The second
  * method uses setDiscretizedElectronEnergyDist() to manually set electron
  * energy distribution and calculate electron temperature from mean electron
  * energy, which is calculated as [3],
- *   \f[
+ *   @f[
  *          \epsilon_m = \int_0^{\infty} \epsilon^{3/2} f(\epsilon) d\epsilon,
- *   \f]
+ *   @f]
  * which can be calculated using trapezoidal rule,
- *   \f[
+ *   @f[
  *          \epsilon_m = \sum_i (\epsilon^{5/2}_{i+1} - \epsilon^{5/2}_i)
  *                       (f(\epsilon_{i+1}) + f(\epsilon_i)) / 2,
- *   \f]
- * where \f$ i \f$ is the index of energy levels.
+ *   @f]
+ * where @f$ i @f$ is the index of energy levels.
  *
- * References:
- *
- * [1] J. T. Gudmundsson. On the effect of the electron energy distribution on the
- * plasma parameters of an argon discharge: a global (volume-averaged) model study.
- * Plasma Sources Science and Technology, 10.1 (2001): 76.
- * doi: https://doi.org/10.1088/0963-0252/10/1/310
- *
- * [2] H. Khalilpour and G. Foroutan. The effects of electron energy distribution
- * function on the plasma sheath structure in the presence of charged nanoparticles
- * Journal of Plasma Physics 86.2 (2020).
- * doi: https://doi.org/10.1017/S0022377820000161
- *
- * [3] G. J. M. Hagelaar and L. C. Pitchford
- * "Solving the Boltzmann equation to obtain electron transport
- * coefficients and rate coefficients for fluid models."
- * Plasma Sources Science and Technology 14.4 (2005): 722.
- * doi: https://doi.org/10.1088/0963-0252/14/4/011
- *
- * [4] A. Luque, "BOLOS: An open source solver for the Boltzmann equation,"
- * https://github.com/aluque/bolos.
+ * For references, see Gudmundsson @cite gudmundsson2001; Khalilpour and Foroutan
+ * @cite khalilpour2020; Hagelaar and Pitchford @cite hagelaar2005, and BOLOS
+ * @cite BOLOS.
  *
  * @warning  This class is an experimental part of %Cantera and may be
  *           changed or removed without notice.
@@ -86,19 +69,18 @@ public:
      * @param  id        ID of the phase in the input file. Defaults to the
      *                   empty string.
      */
-    explicit PlasmaPhase(const std::string& inputFile="",
-                         const std::string& id="");
+    explicit PlasmaPhase(const string& inputFile="", const string& id="");
 
-    virtual std::string type() const {
+    string type() const override {
         return "plasma";
     }
 
-    virtual void initThermo();
+    void initThermo() override;
 
     //! Set electron energy levels.
     //! @param  levels The vector of electron energy levels (eV).
     //!                Length: #m_nPoints.
-    //! @param  length The length of the \p levels.
+    //! @param  length The length of the @c levels.
     void setElectronEnergyLevels(const double* levels, size_t length);
 
     //! Get electron energy levels.
@@ -125,7 +107,7 @@ public:
     }
 
     //! Set the shape factor of isotropic electron energy distribution.
-    //! Note that \f$ x = 1 \f$ and \f$ x = 2 \f$ correspond to the
+    //! Note that @f$ x = 1 @f$ and @f$ x = 2 @f$ correspond to the
     //! Maxwellian and Druyvesteyn distribution, respectively.
     //! @param  x The shape factor
     void setIsotropicShapeFactor(double x);
@@ -137,28 +119,28 @@ public:
 
     //! Set the internally stored electron temperature of the phase (K).
     //! @param  Te Electron temperature in Kelvin
-    virtual void setElectronTemperature(double Te);
+    void setElectronTemperature(double Te) override;
 
     //! Set mean electron energy [eV]. This method also sets electron temperature
     //! accordingly.
     void setMeanElectronEnergy(double energy);
 
     //! Get electron energy distribution type
-    std::string electronEnergyDistributionType() const {
+    string electronEnergyDistributionType() const {
         return m_distributionType;
     }
 
     //! Set electron energy distribution type
-    void setElectronEnergyDistributionType(const std::string& type);
+    void setElectronEnergyDistributionType(const string& type);
 
     //! Numerical quadrature method. Method: #m_quadratureMethod
-    std::string quadratureMethod() const {
+    string quadratureMethod() const {
         return m_quadratureMethod;
     }
 
-    //! Set numerical quadrature method for intergating electron
+    //! Set numerical quadrature method for integrating electron
     //! energy distribution function. Method: #m_quadratureMethod
-    void setQuadratureMethod(const std::string& method) {
+    void setQuadratureMethod(const string& method) {
         m_quadratureMethod = method;
     }
 
@@ -179,11 +161,11 @@ public:
         return m_do_normalizeElectronEnergyDist;
     }
 
-    virtual bool addSpecies(shared_ptr<Species> spec);
+    bool addSpecies(shared_ptr<Species> spec) override;
 
     //! Electron Temperature (K)
     //!     @return The electron temperature of the phase
-    virtual double electronTemperature() const {
+    double electronTemperature() const override {
         return m_electronTemp;
     }
 
@@ -197,7 +179,7 @@ public:
 
     /**
      * Electron pressure. Units: Pa.
-     * \f[P = n_{k_e} R T_e\f]
+     * @f[P = n_{k_e} R T_e @f]
      */
     virtual double electronPressure() const {
         return GasConstant * concentration(m_electronSpeciesIndex) *
@@ -217,58 +199,58 @@ public:
     //! Return the Molar enthalpy. Units: J/kmol.
     /*!
      * For an ideal gas mixture with additional electron,
-     * \f[
+     * @f[
      * \hat h(T) = \sum_{k \neq k_e} X_k \hat h^0_k(T) + X_{k_e} \hat h^0_{k_e}(T_e),
-     * \f]
+     * @f]
      * and is a function only of temperature. The standard-state pure-species
-     * enthalpies \f$ \hat h^0_k(T) \f$ are computed by the species
+     * enthalpies @f$ \hat h^0_k(T) @f$ are computed by the species
      * thermodynamic property manager.
      *
      * \see MultiSpeciesThermo
      */
-    virtual double enthalpy_mole() const;
+    double enthalpy_mole() const override;
 
-    virtual double cp_mole() const {
+    double cp_mole() const override {
         throw NotImplementedError("PlasmaPhase::cp_mole");
     }
 
-    virtual double entropy_mole() const {
+    double entropy_mole() const override {
         throw NotImplementedError("PlasmaPhase::entropy_mole");
     }
 
-    virtual double gibbs_mole() const {
+    double gibbs_mole() const override {
         throw NotImplementedError("PlasmaPhase::gibbs_mole");
     }
 
-    virtual double intEnergy_mole() const {
+    double intEnergy_mole() const override {
         throw NotImplementedError("PlasmaPhase::intEnergy_mole");
     }
 
-    virtual void getEntropy_R(double* sr) const;
+    void getEntropy_R(double* sr) const override;
 
-    virtual void getGibbs_RT(double* grt) const;
+    void getGibbs_RT(double* grt) const override;
 
-    virtual void getGibbs_ref(double* g) const;
+    void getGibbs_ref(double* g) const override;
 
-    virtual void getStandardVolumes_ref(double* vol) const;
+    void getStandardVolumes_ref(double* vol) const override;
 
-    virtual void getChemPotentials(double* mu) const;
+    void getChemPotentials(double* mu) const override;
 
-    virtual void getStandardChemPotentials(double* muStar) const;
+    void getStandardChemPotentials(double* muStar) const override;
 
-    virtual void getPartialMolarEnthalpies(double* hbar) const;
+    void getPartialMolarEnthalpies(double* hbar) const override;
 
-    virtual void getPartialMolarEntropies(double* sbar) const;
+    void getPartialMolarEntropies(double* sbar) const override;
 
-    virtual void getPartialMolarIntEnergies(double* ubar) const;
+    void getPartialMolarIntEnergies(double* ubar) const override;
 
-    virtual void getParameters(AnyMap& phaseNode) const;
+    void getParameters(AnyMap& phaseNode) const override;
 
-    virtual void setParameters(const AnyMap& phaseNode,
-                               const AnyMap& rootNode=AnyMap());
+    void setParameters(const AnyMap& phaseNode,
+                       const AnyMap& rootNode=AnyMap()) override;
 
 protected:
-    virtual void updateThermo() const;
+    void updateThermo() const override;
 
     //! Check the electron energy levels
     /*!

@@ -4,12 +4,14 @@ from typing import Optional, Tuple, Dict
 import sys
 
 import pytest
+pytest.importorskip("pint", "0.17.0")
 import cantera.with_units as ctu
 import cantera as ct
 try:
     from pint.testing import assert_allclose
 except ModuleNotFoundError:
     # pint.testing was introduced in pint 0.20
+    # assert_quantity_almost_equal was introduced in pint 0.17.
     from pint.testsuite.helpers import assert_quantity_almost_equal as assert_allclose
 
 

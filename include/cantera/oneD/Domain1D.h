@@ -35,7 +35,7 @@ class SolutionArray;
 
 /**
  * Base class for one-dimensional domains.
- * @ingroup onedim
+ * @ingroup flowGroup
  */
 class Domain1D
 {
@@ -53,12 +53,12 @@ public:
     Domain1D& operator=(const Domain1D&) = delete;
 
     //! Domain type flag.
-    //! @deprecated  To be changed after Cantera 3.0; for new behavior, see type.
+    //! @deprecated To be changed after %Cantera 3.0; for new behavior, see type.
     int domainType();
 
     //! String indicating the domain implemented.
-    //! @since New in Cantera 3.0.
-    //! @todo Transition back to domainType after Cantera 3.0
+    //! @since New in %Cantera 3.0.
+    //! @todo Transition back to domainType after %Cantera 3.0
     virtual string type() const {
         return "domain";
     }
@@ -74,19 +74,19 @@ public:
     }
 
     //! Set the solution manager.
-    //! @since  New in Cantera 3.0.
+    //! @since New in %Cantera 3.0.
     void setSolution(shared_ptr<Solution> sol) {
         m_solution = sol;
     }
 
     //! Set the kinetics manager.
-    //! @since  New in Cantera 3.0.
+    //! @since New in %Cantera 3.0.
     virtual void setKinetics(shared_ptr<Kinetics> kin) {
         throw NotImplementedError("Domain1D::setKinetics");
     }
 
     //! Set transport model to existing instance
-    //! @since  New in Cantera 3.0.
+    //! @since New in %Cantera 3.0.
     virtual void setTransport(shared_ptr<Transport> trans) {
         throw NotImplementedError("Domain1D::setTransport");
     }
@@ -127,24 +127,24 @@ public:
         return m_bw;
     }
 
-    /*!
+    /**
      * Initialize. This method is called by OneDim::init() for each domain once
      * at the beginning of a simulation. Base class method does nothing, but may
      * be overloaded.
      */
     virtual void init() {  }
 
-    virtual void setInitialState(doublereal* xlocal = 0) {}
-    virtual void setState(size_t point, const doublereal* state, doublereal* x) {}
+    virtual void setInitialState(double* xlocal = 0) {}
+    virtual void setState(size_t point, const double* state, double* x) {}
 
-    /*!
+    /**
      * When called, this function should reset "bad" values in the state vector
      * such as negative species concentrations. This function may be called
      * after a failed solution attempt.
      */
     virtual void resetBadValues(double* xg) {}
 
-    /*!
+    /**
      * Resize the domain to have nv components and np grid points. This method
      * is virtual so that subclasses can perform other actions required to
      * resize the domain.
@@ -201,16 +201,16 @@ public:
     }
 
     //! Name of the nth component. May be overloaded.
-    virtual std::string componentName(size_t n) const;
+    virtual string componentName(size_t n) const;
 
-    void setComponentName(size_t n, const std::string& name) {
+    void setComponentName(size_t n, const string& name) {
         m_name[n] = name;
     }
 
-    //! index of component with name \a name.
-    virtual size_t componentIndex(const std::string& name) const;
+    //! index of component with name @e name.
+    virtual size_t componentIndex(const string& name) const;
 
-    void setBounds(size_t n, doublereal lower, doublereal upper) {
+    void setBounds(size_t n, double lower, double upper) {
         m_min[n] = lower;
         m_max[n] = upper;
     }
@@ -223,7 +223,7 @@ public:
      *      default), these tolerances will be applied to all solution
      *      components.
      */
-    void setTransientTolerances(doublereal rtol, doublereal atol, size_t n=npos);
+    void setTransientTolerances(double rtol, double atol, size_t n=npos);
 
     //! Set tolerances for steady-state mode
     /*!
@@ -233,15 +233,15 @@ public:
      *     default), these tolerances will be applied to all solution
      *     components.
      */
-    void setSteadyTolerances(doublereal rtol, doublereal atol, size_t n=npos);
+    void setSteadyTolerances(double rtol, double atol, size_t n=npos);
 
     //! Relative tolerance of the nth component.
-    doublereal rtol(size_t n) {
+    double rtol(size_t n) {
         return (m_rdt == 0.0 ? m_rtol_ss[n] : m_rtol_ts[n]);
     }
 
     //! Absolute tolerance of the nth component.
-    doublereal atol(size_t n) {
+    double atol(size_t n) {
         return (m_rdt == 0.0 ? m_atol_ss[n] : m_atol_ts[n]);
     }
 
@@ -266,12 +266,12 @@ public:
     }
 
     //! Upper bound on the nth component.
-    doublereal upperBound(size_t n) const {
+    double upperBound(size_t n) const {
         return m_max[n];
     }
 
     //! Lower bound on the nth component
-    doublereal lowerBound(size_t n) const {
+    double lowerBound(size_t n) const {
         return m_min[n];
     }
 
@@ -279,7 +279,7 @@ public:
     /*!
      * Copy the internally-stored solution at the last time step to array x0.
      */
-    void initTimeInteg(doublereal dt, const doublereal* x0) {
+    void initTimeInteg(double dt, const double* x0) {
         std::copy(x0 + loc(), x0 + loc() + size(), m_slast.begin());
         m_rdt = 1.0/dt;
     }
@@ -302,7 +302,7 @@ public:
         return (m_rdt != 0.0);
     }
 
-    /*!
+    /**
      * Set this if something has changed in the governing
      * equations (for example, the value of a constant has been changed,
      * so that the last-computed Jacobian is no longer valid.
@@ -322,15 +322,14 @@ public:
      *  @param[in] rdt Reciprocal of the timestep (`rdt=0` implies steady-
      *  state.)
      */
-    virtual void eval(size_t j, doublereal* x, doublereal* r,
-                      integer* mask, doublereal rdt=0.0) {
+    virtual void eval(size_t j, double* x, double* r, integer* mask, double rdt=0.0) {
         throw NotImplementedError("Domain1D::eval");
     }
 
     size_t index(size_t n, size_t j) const {
         return m_nv*j + n;
     }
-    doublereal value(const doublereal* x, size_t n, size_t j) const {
+    double value(const double* x, size_t n, size_t j) const {
         return x[index(n,j)];
     }
 
@@ -340,7 +339,7 @@ public:
     /*!
      * @param soln local solution vector for this domain
      *
-     * @deprecated  To be removed after Cantera 3.0; superseded by asArray.
+     * @deprecated To be removed after %Cantera 3.0; superseded by asArray().
      */
     AnyMap serialize(const double* soln) const;
 
@@ -350,7 +349,7 @@ public:
      * @todo  Despite the method's name, data are copied; the intent is to access data
      *      directly in future revisions, where a non-const version will be implemented.
      *
-     * @since  New in Cantera 3.0.
+     * @since New in %Cantera 3.0.
      */
     virtual shared_ptr<SolutionArray> asArray(const double* soln) const {
         throw NotImplementedError("Domain1D::asArray", "Needs to be overloaded.");
@@ -362,7 +361,7 @@ public:
      * provide direct access to memory.
      * @param normalize If true, normalize concentrations (default=false)
      *
-     * @since  New in Cantera 3.0.
+     * @since New in %Cantera 3.0.
      */
     shared_ptr<SolutionArray> toArray(bool normalize=false) const;
 
@@ -373,7 +372,7 @@ public:
      * @param[in]  loglevel 0 to suppress all output; 1 to show warnings; 2 for
      *      verbose output
      *
-     * @deprecated  To be removed after Cantera 3.0; restore from SolutionArray instead.
+     * @deprecated To be removed after %Cantera 3.0; restore from SolutionArray instead.
      */
     void restore(const AnyMap& state, double* soln, int loglevel);
 
@@ -382,7 +381,7 @@ public:
      * @param[in]  arr SolutionArray defining the state of this domain
      * @param[out] soln Value of the solution vector, local to this domain
      *
-     * @since  New in Cantera 3.0.
+     * @since New in %Cantera 3.0.
      */
     virtual void fromArray(SolutionArray& arr, double* soln) {
         throw NotImplementedError("Domain1D::fromArray", "Needs to be overloaded.");
@@ -392,12 +391,12 @@ public:
     /*!
      * This method serves as an external interface for high-level API's.
      * @param  arr SolutionArray defining the state of this domain
-     * @since  New in Cantera 3.0.
+     * @since New in %Cantera 3.0.
      */
     void fromArray(const shared_ptr<SolutionArray>& arr);
 
     //! Return thermo/kinetics/transport manager used in the domain
-    //! @since  New in Cantera 3.0.
+    //! @since New in %Cantera 3.0.
     shared_ptr<Solution> solution() const {
         return m_solution;
     }
@@ -478,11 +477,11 @@ public:
     }
 
     //! Specify an identifying tag for this domain.
-    void setID(const std::string& s) {
+    void setID(const string& s) {
         m_id = s;
     }
 
-    std::string id() const {
+    string id() const {
         if (m_id != "") {
             return m_id;
         } else {
@@ -490,11 +489,11 @@ public:
         }
     }
 
-    //! @deprecated To be removed after Cantera 3.0; replaced by show
+    //! @deprecated To be removed after %Cantera 3.0; replaced by show()
     virtual void showSolution_s(std::ostream& s, const double* x);
 
     //! Print the solution.
-    //! @deprecated To be removed after Cantera 3.0; replaced by show
+    //! @deprecated To be removed after %Cantera 3.0; replaced by show()
     virtual void showSolution(const double* x);
 
     //! Print the solution.
@@ -503,30 +502,30 @@ public:
     //! Print the solution.
     virtual void show(const double* x);
 
-    doublereal z(size_t jlocal) const {
+    double z(size_t jlocal) const {
         return m_z[jlocal];
     }
-    doublereal zmin() const {
+    double zmin() const {
         return m_z[0];
     }
-    doublereal zmax() const {
+    double zmax() const {
         return m_z[m_points - 1];
     }
 
-    void setProfile(const std::string& name, double* values, double* soln);
+    void setProfile(const string& name, double* values, double* soln);
 
-    vector_fp& grid() {
+    vector<double>& grid() {
         return m_z;
     }
-    const vector_fp& grid() const {
+    const vector<double>& grid() const {
         return m_z;
     }
-    doublereal grid(size_t point) const {
+    double grid(size_t point) const {
         return m_z[point];
     }
 
     //! called to set up initial grid, and after grid refinement
-    virtual void setupGrid(size_t n, const doublereal* z);
+    virtual void setupGrid(size_t n, const double* z);
 
     /**
      * Writes some or all initial solution values into the global solution
@@ -535,10 +534,10 @@ public:
      * been set locally prior to installing this domain into the container to be
      * written to the global solution vector.
      */
-    virtual void _getInitialSoln(doublereal* x);
+    virtual void _getInitialSoln(double* x);
 
-    //! Initial value of solution component \a n at grid point \a j.
-    virtual doublereal initialValue(size_t n, size_t j);
+    //! Initial value of solution component @e n at grid point @e j.
+    virtual double initialValue(size_t n, size_t j);
 
     /**
      * In some cases, a domain may need to set parameters that depend on the
@@ -548,7 +547,7 @@ public:
      * this domain that will be used as the initial guess. If no such parameters
      * need to be set, then method _finalize does not need to be overloaded.
      */
-    virtual void _finalize(const doublereal* x) {}
+    virtual void _finalize(const double* x) {}
 
     /**
      * In some cases, for computational efficiency some properties (such as
@@ -576,16 +575,16 @@ protected:
 
     double m_rdt = 0.0;
     size_t m_nv = 0;
-    size_t m_points;
-    vector_fp m_slast;
-    vector_fp m_max;
-    vector_fp m_min;
-    vector_fp m_rtol_ss, m_rtol_ts;
-    vector_fp m_atol_ss, m_atol_ts;
-    vector_fp m_z;
+    size_t m_points; //!< Number of grid points
+    vector<double> m_slast;
+    vector<double> m_max;
+    vector<double> m_min;
+    vector<double> m_rtol_ss, m_rtol_ts;
+    vector<double> m_atol_ss, m_atol_ts;
+    vector<double> m_z;
     OneDim* m_container = nullptr;
     size_t m_index;
-    int m_type = 0; //!< @deprecated To be removed after Cantera 3.0
+    int m_type = 0; //!< @deprecated To be removed after %Cantera 3.0
 
     //! Starting location within the solution vector for unknowns that
     //! correspond to this domain
@@ -600,9 +599,9 @@ protected:
     Domain1D* m_right = nullptr;
 
     //! Identity tag for the domain
-    std::string m_id;
-    std::unique_ptr<Refiner> m_refiner;
-    std::vector<std::string> m_name;
+    string m_id;
+    unique_ptr<Refiner> m_refiner;
+    vector<string> m_name;
     int m_bw = -1;
     bool m_force_full_update = false;
 

@@ -58,7 +58,7 @@ void GasTransport::update_T()
     m_bindiff_ok = false;
 }
 
-doublereal GasTransport::viscosity()
+double GasTransport::viscosity()
 {
     update_T();
     update_C();
@@ -67,7 +67,7 @@ doublereal GasTransport::viscosity()
         return m_viscmix;
     }
 
-    doublereal vismix = 0.0;
+    double vismix = 0.0;
     // update m_visc and m_phi if necessary
     if (!m_viscwt_ok) {
         updateViscosity_T();
@@ -88,7 +88,7 @@ void GasTransport::updateViscosity_T()
         updateSpeciesViscosities();
     }
 
-    // see Eq. (9-5.15) of Reid, Prausnitz, and Poling
+    // see Eq. (9-5.14) of Poling et al. (2001)
     for (size_t j = 0; j < m_nsp; j++) {
         for (size_t k = j; k < m_nsp; k++) {
             double vratiokj = m_visc[k]/m_visc[j];
@@ -147,7 +147,7 @@ void GasTransport::updateDiff_T()
     m_bindiff_ok = true;
 }
 
-void GasTransport::getBinaryDiffCoeffs(const size_t ld, doublereal* const d)
+void GasTransport::getBinaryDiffCoeffs(const size_t ld, double* const d)
 {
     update_T();
     // if necessary, evaluate the binary diffusion coefficients from the polynomial fits
@@ -157,7 +157,7 @@ void GasTransport::getBinaryDiffCoeffs(const size_t ld, doublereal* const d)
     if (ld < m_nsp) {
         throw CanteraError("GasTransport::getBinaryDiffCoeffs", "ld is too small");
     }
-    doublereal rp = 1.0/m_thermo->pressure();
+    double rp = 1.0/m_thermo->pressure();
     for (size_t i = 0; i < m_nsp; i++) {
         for (size_t j = 0; j < m_nsp; j++) {
             d[ld*j + i] = rp * m_bdiff(i,j);
@@ -165,7 +165,7 @@ void GasTransport::getBinaryDiffCoeffs(const size_t ld, doublereal* const d)
     }
 }
 
-void GasTransport::getMixDiffCoeffs(doublereal* const d)
+void GasTransport::getMixDiffCoeffs(double* const d)
 {
     update_T();
     update_C();
@@ -175,8 +175,8 @@ void GasTransport::getMixDiffCoeffs(doublereal* const d)
         updateDiff_T();
     }
 
-    doublereal mmw = m_thermo->meanMolecularWeight();
-    doublereal p = m_thermo->pressure();
+    double mmw = m_thermo->meanMolecularWeight();
+    double p = m_thermo->pressure();
     if (m_nsp == 1) {
         d[0] = m_bdiff(0,0) / p;
     } else {
@@ -196,7 +196,7 @@ void GasTransport::getMixDiffCoeffs(doublereal* const d)
     }
 }
 
-void GasTransport::getMixDiffCoeffsMole(doublereal* const d)
+void GasTransport::getMixDiffCoeffsMole(double* const d)
 {
     update_T();
     update_C();
@@ -206,7 +206,7 @@ void GasTransport::getMixDiffCoeffsMole(doublereal* const d)
         updateDiff_T();
     }
 
-    doublereal p = m_thermo->pressure();
+    double p = m_thermo->pressure();
     if (m_nsp == 1) {
         d[0] = m_bdiff(0,0) / p;
     } else {
@@ -226,7 +226,7 @@ void GasTransport::getMixDiffCoeffsMole(doublereal* const d)
     }
 }
 
-void GasTransport::getMixDiffCoeffsMass(doublereal* const d)
+void GasTransport::getMixDiffCoeffsMass(double* const d)
 {
     update_T();
     update_C();
@@ -236,8 +236,8 @@ void GasTransport::getMixDiffCoeffsMass(doublereal* const d)
         updateDiff_T();
     }
 
-    doublereal mmw = m_thermo->meanMolecularWeight();
-    doublereal p = m_thermo->pressure();
+    double mmw = m_thermo->meanMolecularWeight();
+    double p = m_thermo->pressure();
 
     if (m_nsp == 1) {
         d[0] = m_bdiff(0,0) / p;
@@ -310,7 +310,7 @@ void GasTransport::setupCollisionParameters()
     m_disp.resize(m_nsp, 0.0);
     m_quad_polar.resize(m_nsp, 0.0);
 
-    const vector_fp& mw = m_thermo->molecularWeights();
+    const vector<double>& mw = m_thermo->molecularWeights();
     getTransportData();
 
     for (size_t i = 0; i < m_nsp; i++) {
@@ -420,7 +420,7 @@ void GasTransport::getTransportData()
 }
 
 void GasTransport::makePolarCorrections(size_t i, size_t j,
-        doublereal& f_eps, doublereal& f_sigma)
+        double& f_eps, double& f_sigma)
 {
     // no correction if both are nonpolar, or both are polar
     if (m_polar[i] == m_polar[j]) {
@@ -456,7 +456,7 @@ void GasTransport::fitCollisionIntegrals(MMCollisionInt& integrals)
             writelog("*** polynomial coefficients not printed (log_level < 3) ***\n");
         }
     }
-    vector_fp fitlist;
+    vector<double> fitlist;
     m_omega22_poly.clear();
     m_astar_poly.clear();
     m_bstar_poly.clear();
@@ -473,8 +473,8 @@ void GasTransport::fitCollisionIntegrals(MMCollisionInt& integrals)
             // 'find' returns a pointer to end() if not found
             auto dptr = find(fitlist.begin(), fitlist.end(), dstar);
             if (dptr == fitlist.end()) {
-                vector_fp ca(degree+1), cb(degree+1), cc(degree+1);
-                vector_fp co22(degree+1);
+                vector<double> ca(degree+1), cb(degree+1), cc(degree+1);
+                vector<double> co22(degree+1);
                 integrals.fit(degree, dstar, ca.data(), cb.data(), cc.data());
                 integrals.fit_omega22(degree, dstar, co22.data());
                 m_omega22_poly.push_back(co22);
@@ -501,8 +501,8 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
     const size_t np = 50;
     int degree = (m_mode == CK_Mode ? 3 : 4);
     double dt = (m_thermo->maxTemp() - m_thermo->minTemp())/(np-1);
-    vector_fp tlog(np), spvisc(np), spcond(np);
-    vector_fp w(np), w2(np);
+    vector<double> tlog(np), spvisc(np), spcond(np);
+    vector<double> w(np), w2(np);
 
     m_visccoeffs.clear();
     m_condcoeffs.clear();
@@ -514,7 +514,7 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
     }
 
     // vector of polynomial coefficients
-    vector_fp c(degree + 1), c2(degree + 1);
+    vector<double> c(degree + 1), c2(degree + 1);
 
     // fit the pure-species viscosity and thermal conductivity for each species
     if (m_log_level && m_log_level < 2) {
@@ -534,7 +534,7 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
     }
 
     double T_save = m_thermo->temperature();
-    const vector_fp& mw = m_thermo->molecularWeights();
+    const vector<double>& mw = m_thermo->molecularWeights();
     for (size_t k = 0; k < m_nsp; k++) {
         double tstar = Boltzmann * 298.0 / m_eps[k];
         // Scaling factor for temperature dependence of z_rot. [Kee2003] Eq.
@@ -545,7 +545,7 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
         for (size_t n = 0; n < np; n++) {
             double t = m_thermo->minTemp() + dt*n;
             m_thermo->setTemperature(t);
-            vector_fp cp_R_all(m_thermo->nSpecies());
+            vector<double> cp_R_all(m_thermo->nSpecies());
             m_thermo->getCp_R_ref(&cp_R_all[0]);
             double cp_R = cp_R_all[k];
             tstar = Boltzmann * t / m_eps[k];
@@ -680,8 +680,8 @@ void GasTransport::fitDiffCoeffs(MMCollisionInt& integrals)
     const size_t np = 50;
     int degree = (m_mode == CK_Mode ? 3 : 4);
     double dt = (m_thermo->maxTemp() - m_thermo->minTemp())/(np-1);
-    vector_fp tlog(np);
-    vector_fp w(np), w2(np);
+    vector<double> tlog(np);
+    vector<double> w(np), w2(np);
 
     // generate array of log(t) values
     for (size_t n = 0; n < np; n++) {
@@ -690,11 +690,11 @@ void GasTransport::fitDiffCoeffs(MMCollisionInt& integrals)
     }
 
     // vector of polynomial coefficients
-    vector_fp c(degree + 1), c2(degree + 1);
+    vector<double> c(degree + 1), c2(degree + 1);
     double err, relerr,
                mxerr = 0.0, mxrelerr = 0.0;
 
-    vector_fp diff(np + 1);
+    vector<double> diff(np + 1);
     m_diffcoeffs.clear();
     for (size_t k = 0; k < m_nsp; k++) {
         for (size_t j = k; j < m_nsp; j++) {
@@ -899,7 +899,7 @@ void GasTransport::setCollisionIntegralPolynomial(size_t i, size_t j,
                                                   double* cstar_coeffs, bool actualT)
 {
     size_t degree = (m_mode == CK_Mode ? 6 : COLL_INT_POLY_DEGREE);
-    vector_fp ca(degree+1), cb(degree+1), cc(degree+1);
+    vector<double> ca(degree+1), cb(degree+1), cc(degree+1);
 
     for (size_t k = 0; k < degree+1; k++) {
         ca[k] = astar_coeffs[k];

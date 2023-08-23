@@ -9,15 +9,16 @@
 #include "cantera/base/global.h"
 #include "cantera/base/ctexceptions.h"
 
-//! Namespace for classes implementing zero-dimensional reactor networks.
 namespace Cantera
 {
 
-//! @defgroup ZeroD Zero-dimensional reactor networks
+//! @defgroup zerodGroup Zero-Dimensional Reactor Networks
 //!
-//! See https://cantera.org/science/reactors.html for a description of the governing
-//! equations for specific reactor types and the methods used for solving networks of
-// interconnected reactors.
+//! @details See the
+//! [Reactor Science](https://cantera.org/science/reactors/reactors.html)
+//! section of the %Cantera website for a description of the governing equations for
+//! specific reactor types and the methods used for solving networks of interconnected
+//! reactors.
 
 class FlowDevice;
 class WallBase;
@@ -43,29 +44,29 @@ struct SensitivityParameter
  * Base class for stirred reactors. Allows using any substance model, with
  * arbitrary inflow, outflow, heat loss/gain, surface chemistry, and volume
  * change.
- * @ingroup ZeroD
+ * @ingroup reactorGroup
  */
 class ReactorBase
 {
 public:
-    explicit ReactorBase(const std::string& name = "(none)");
+    explicit ReactorBase(const string& name = "(none)");
     virtual ~ReactorBase() = default;
     ReactorBase(const ReactorBase&) = delete;
     ReactorBase& operator=(const ReactorBase&) = delete;
 
     //! String indicating the reactor model implemented. Usually
     //! corresponds to the name of the derived class.
-    virtual std::string type() const {
+    virtual string type() const {
         return "ReactorBase";
     }
 
     //! Return the name of this reactor
-    std::string name() const {
+    string name() const {
         return m_name;
     }
 
     //! Set the name of this reactor
-    void setName(const std::string& name) {
+    void setName(const string& name) {
         m_name = name;
     }
 
@@ -73,7 +74,7 @@ public:
     //! @{
 
     //! Set the initial reactor volume. By default, the volume is 1.0 m^3.
-    void setInitialVolume(doublereal vol) {
+    void setInitialVolume(double vol) {
         m_vol = vol;
     }
 
@@ -152,7 +153,7 @@ public:
     /**
      * Initialize the reactor. Called automatically by ReactorNet::initialize.
      */
-    virtual void initialize(doublereal t0 = 0.0) {
+    virtual void initialize(double t0 = 0.0) {
         throw NotImplementedError("ReactorBase::initialize");
     }
 
@@ -186,7 +187,7 @@ public:
 
     //! Return the residence time (s) of the contents of this reactor, based
     //! on the outlet mass flow rates and the mass of the reactor contents.
-    doublereal residenceTime();
+    double residenceTime();
 
     //! @name Solution components
     //!
@@ -195,47 +196,47 @@ public:
     //! @{
 
     //! Returns the current volume (m^3) of the reactor.
-    doublereal volume() const {
+    double volume() const {
         return m_vol;
     }
 
     //! Returns the current density (kg/m^3) of the reactor's contents.
-    doublereal density() const {
+    double density() const {
         return m_state[1];
     }
 
     //! Returns the current temperature (K) of the reactor's contents.
-    doublereal temperature() const {
+    double temperature() const {
         return m_state[0];
     }
 
     //! Returns the current enthalpy (J/kg) of the reactor's contents.
-    doublereal enthalpy_mass() const {
+    double enthalpy_mass() const {
         return m_enthalpy;
     }
 
     //! Returns the current internal energy (J/kg) of the reactor's contents.
-    doublereal intEnergy_mass() const {
+    double intEnergy_mass() const {
         return m_intEnergy;
     }
 
     //! Returns the current pressure (Pa) of the reactor.
-    doublereal pressure() const {
+    double pressure() const {
         return m_pressure;
     }
 
     //! Returns the mass (kg) of the reactor's contents.
-    doublereal mass() const {
+    double mass() const {
         return m_vol * density();
     }
 
     //! Return the vector of species mass fractions.
-    const doublereal* massFractions() const {
+    const double* massFractions() const {
         return m_state.data() + 2;
     }
 
     //! Return the mass fraction of the *k*-th species.
-    doublereal massFraction(size_t k) const {
+    double massFraction(size_t k) const {
         return m_state[k+2];
     }
 
@@ -256,16 +257,16 @@ protected:
     double m_enthalpy = 0.0; //!< Current specific enthalpy of the reactor [J/kg]
     double m_intEnergy = 0.0; //!< Current internal energy of the reactor [J/kg]
     double m_pressure = 0.0; //!< Current pressure in the reactor [Pa]
-    vector_fp m_state;
-    std::vector<FlowDevice*> m_inlet, m_outlet;
+    vector<double> m_state;
+    vector<FlowDevice*> m_inlet, m_outlet;
 
-    std::vector<WallBase*> m_wall;
-    std::vector<ReactorSurface*> m_surfaces;
+    vector<WallBase*> m_wall;
+    vector<ReactorSurface*> m_surfaces;
 
     //! Vector of length nWalls(), indicating whether this reactor is on the left (0)
     //! or right (1) of each wall.
-    vector_int m_lr;
-    std::string m_name;
+    vector<int> m_lr;
+    string m_name;
 
     //! The ReactorNet that this reactor is part of
     ReactorNet* m_net = nullptr;

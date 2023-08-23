@@ -1,6 +1,5 @@
 /**
  * @file BulkKinetics.h
- * @ingroup chemkinetics
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -17,7 +16,7 @@ namespace Cantera
 {
 
 //! Specialization of Kinetics for chemistry in a single bulk phase
-//! @ingroup kinetics
+//! @ingroup kineticsmgr
 class BulkKinetics : public Kinetics
 {
 public:
@@ -25,7 +24,7 @@ public:
     //! @{
     BulkKinetics();
 
-    //! @deprecated  To be removed after Cantera 3.0; code base only uses default.
+    //! @deprecated To be removed after %Cantera 3.0; code base only uses default.
     BulkKinetics(ThermoPhase* thermo);
 
     string kineticsType() const override {
@@ -91,7 +90,7 @@ public:
     void updateROP() override;
 
     void getThirdBodyConcentrations(double* concm) override;
-    const vector_fp& thirdBodyConcentrations() const override {
+    const vector<double>& thirdBodyConcentrations() const override {
         return m_concm;
     }
 
@@ -121,19 +120,19 @@ protected:
     //! Process temperature derivative
     //! @param in  rate expression used for the derivative calculation
     //! @param drop  pointer to output buffer
-    void process_ddT(const vector_fp& in, double* drop);
+    void process_ddT(const vector<double>& in, double* drop);
 
     //! Process pressure derivative
     //! @param in  rate expression used for the derivative calculation
     //! @param drop  pointer to output buffer
-    void process_ddP(const vector_fp& in, double* drop);
+    void process_ddP(const vector<double>& in, double* drop);
 
     //! Process concentration (molar density) derivative
     //! @param stoich  stoichiometry manager
     //! @param in  rate expression used for the derivative calculation
     //! @param drop  pointer to output buffer
     //! @param mass_action  boolean indicating whether law of mass action applies
-    void process_ddC(StoichManagerN& stoich, const vector_fp& in,
+    void process_ddC(StoichManagerN& stoich, const vector<double>& in,
                      double* drop, bool mass_action=true);
 
     //! Process derivatives
@@ -143,7 +142,7 @@ protected:
     //! @return a sparse matrix of derivative contributions for each reaction of
     //! dimensions nTotalReactions by nTotalSpecies
     Eigen::SparseMatrix<double> calculateCompositionDerivatives(
-        StoichManagerN& stoich, const vector_fp& in, bool ddX=true);
+        StoichManagerN& stoich, const vector<double>& in, bool ddX=true);
 
     //! Helper function ensuring that all rate derivatives can be calculated
     //! @param name  method name used for error output
@@ -162,18 +161,18 @@ protected:
     //! Difference between the global reactants order and the global products
     //! order. Of type "double" to account for the fact that we can have real-
     //! valued stoichiometries.
-    vector_fp m_dn;
+    vector<double> m_dn;
 
     ThirdBodyCalc m_multi_concm; //!< used with MultiRate evaluator
 
     //! Third body concentrations
-    vector_fp m_concm;
+    vector<double> m_concm;
 
     //! Activity concentrations, as calculated by ThermoPhase::getActivityConcentrations
-    vector_fp m_act_conc;
+    vector<double> m_act_conc;
 
     //! Physical concentrations, as calculated by ThermoPhase::getConcentrations
-    vector_fp m_phys_conc;
+    vector<double> m_phys_conc;
 
     //! Derivative settings
     bool m_jac_skip_third_bodies;
@@ -183,13 +182,13 @@ protected:
     bool m_ROP_ok = false;
 
     //! Buffers for partial rop results with length nReactions()
-    vector_fp m_rbuf0;
-    vector_fp m_rbuf1;
-    vector_fp m_rbuf2;
-    vector_fp m_kf0; //!< Forward rate constants without perturbation
-    vector_fp m_sbuf0;
-    vector_fp m_state;
-    vector_fp m_grt; //!< Standard chemical potentials for each species
+    vector<double> m_rbuf0;
+    vector<double> m_rbuf1;
+    vector<double> m_rbuf2;
+    vector<double> m_kf0; //!< Forward rate constants without perturbation
+    vector<double> m_sbuf0;
+    vector<double> m_state;
+    vector<double> m_grt; //!< Standard chemical potentials for each species
 };
 
 }

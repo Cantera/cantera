@@ -11,7 +11,7 @@
 namespace tpx
 {
 //! Pure species representation of water. Values and functions are from
-//! "Thermodynamic Properties in SI" by W.C. Reynolds
+//! from Reynolds @cite reynolds1979.
 class water : public Substance
 {
 public:
@@ -20,21 +20,23 @@ public:
         m_formula = "H2O";
     }
 
-    double MolWt();
-    double Tcrit();
-    double Pcrit();
-    double Vcrit();
-    double Tmin();
-    double Tmax();
+    double MolWt() override;
+    double Tcrit() override;
+    double Pcrit() override;
+    double Vcrit() override;
+    double Tmin() override;
+    double Tmax() override;
 
-    double Pp();
-    double up();
-    double sp();
-    double Psat();
+    double Pp() override;
+    double up() override;
+    double sp() override;
+    double Psat() override;
     double dPsatdT();
 
+protected:
+    double ldens() override;
+
 private:
-    double ldens();
     double C(int i);
     double Cprime(int i);
     double I(int i);

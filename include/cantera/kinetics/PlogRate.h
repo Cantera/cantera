@@ -20,15 +20,15 @@ struct PlogData : public ReactionData
 {
     PlogData() = default;
 
-    virtual void update(double T) override;
+    void update(double T) override;
 
-    virtual void update(double T, double P) override {
+    void update(double T, double P) override {
         ReactionData::update(T);
         pressure = P;
         logP = std::log(P);
     }
 
-    virtual bool update(const ThermoPhase& phase, const Kinetics& kin) override;
+    bool update(const ThermoPhase& phase, const Kinetics& kin) override;
 
     using ReactionData::update;
 
@@ -39,9 +39,9 @@ struct PlogData : public ReactionData
      */
     void perturbPressure(double deltaP);
 
-    virtual void restore() override;
+    void restore() override;
 
-    virtual void invalidateCache() override {
+    void invalidateCache() override {
         ReactionData::invalidateCache();
         pressure = NAN;
     }
@@ -59,18 +59,19 @@ protected:
 /*!
  * Given two rate expressions at two specific pressures:
  *
- *   * \f$ P_1: k_1(T) = A_1 T^{b_1} e^{-E_1 / RT} \f$
- *   * \f$ P_2: k_2(T) = A_2 T^{b_2} e^{-E_2 / RT} \f$
+ *   * @f$ P_1: k_1(T) = A_1 T^{b_1} e^{-E_1 / RT} @f$
+ *   * @f$ P_2: k_2(T) = A_2 T^{b_2} e^{-E_2 / RT} @f$
  *
- * The rate at an intermediate pressure \f$ P_1 < P < P_2 \f$ is computed as
- * \f[
- *  \log k(T,P) = \log k_1(T) + \bigl(\log k_2(T) - \log k_1(T)\bigr)
- *      \frac{\log P - \log P_1}{\log P_2 - \log P_1}
- * \f]
+ * The rate at an intermediate pressure @f$ P_1 < P < P_2 @f$ is computed as
+ * @f[
+ *  \ln k(T,P) = \ln k_1(T) + \bigl(\ln k_2(T) - \ln k_1(T)\bigr)
+ *      \frac{\ln P - \ln P_1}{\ln P_2 - \ln P_1}
+ * @f]
  * Multiple rate expressions may be given at the same pressure, in which case
  * the rate used in the interpolation formula is the sum of all the rates given
  * at that pressure. For pressures outside the given range, the rate expression
  * at the nearest pressure is used.
+ * @ingroup otherRateGroup
  */
 class PlogRate final : public ReactionRate
 {
@@ -83,22 +84,22 @@ public:
 
     PlogRate(const AnyMap& node, const UnitStack& rate_units={});
 
-    unique_ptr<MultiRateBase> newMultiRate() const {
+    unique_ptr<MultiRateBase> newMultiRate() const override {
         return make_unique<MultiRate<PlogRate, PlogData>>();
     }
 
     //! Identifier of reaction rate type
-    const std::string type() const { return "pressure-dependent-Arrhenius"; }
+    const string type() const override { return "pressure-dependent-Arrhenius"; }
 
     //! Perform object setup based on AnyMap node information
     /*!
      *  @param node  AnyMap containing rate information
      *  @param rate_units  Unit definitions specific to rate information
      */
-    void setParameters(const AnyMap& node, const UnitStack& rate_units);
+    void setParameters(const AnyMap& node, const UnitStack& rate_units) override;
 
     void getParameters(AnyMap& rateNode, const Units& rate_units) const;
-    void getParameters(AnyMap& rateNode) const {
+    void getParameters(AnyMap& rateNode) const override {
         return getParameters(rateNode, Units(0));
     }
 
@@ -169,11 +170,11 @@ public:
     //! temperatures at each interpolation pressure. This is potentially an
     //! issue when one of the Arrhenius expressions at a particular pressure
     //! has a negative pre-exponential factor.
-    void validate(const std::string& equation, const Kinetics& kin);
+    void validate(const string& equation, const Kinetics& kin) override;
 
-    //! @deprecated  To be removed after Cantera 3.0;
+    //! @deprecated To be removed after %Cantera 3.0;
     //!              superseded by two-parameter version
-    void validate(const std::string& equation);
+    void validate(const string& equation) override;
 
     //! Return the pressures and Arrhenius expressions which comprise this
     //! reaction.
@@ -181,10 +182,10 @@ public:
 
 protected:
     //! log(p) to (index range) in the rates_ vector
-    std::map<double, std::pair<size_t, size_t>> pressures_;
+    map<double, pair<size_t, size_t>> pressures_;
 
     // Rate expressions which are referenced by the indices stored in pressures_
-    std::vector<ArrheniusRate> rates_;
+    vector<ArrheniusRate> rates_;
 
     double logP_ = -1000; //!< log(p) at the current state
     double logP1_ = 1000; //!< log(p) at the lower pressure reference

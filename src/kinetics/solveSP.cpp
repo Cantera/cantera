@@ -1,4 +1,4 @@
-/*
+/**
  * @file: solveSP.cpp Implicit surface site concentration solver
  */
 
@@ -14,8 +14,8 @@ namespace Cantera
 
 // STATIC ROUTINES DEFINED IN THIS FILE
 
-static doublereal calc_damping(doublereal* x, doublereal* dx, size_t dim, int*);
-static doublereal calcWeightedNorm(const doublereal [], const doublereal dx[], size_t);
+static double calc_damping(double* x, double* dx, size_t dim, int*);
+static double calcWeightedNorm(const double [], const double dx[], size_t);
 
 // solveSP Class Definitions
 
@@ -89,23 +89,23 @@ solveSP::solveSP(ImplicitSurfChem* surfChemPtr, int bulkFunc) :
     m_Jac.resize(dim1, dim1, 0.0);
 }
 
-int solveSP::solveSurfProb(int ifunc, doublereal time_scale, doublereal TKelvin,
-                           doublereal PGas, doublereal reltol, doublereal abstol)
+int solveSP::solveSurfProb(int ifunc, double time_scale, double TKelvin,
+                           double PGas, double reltol, double abstol)
 {
-    doublereal EXTRA_ACCURACY = 0.001;
+    double EXTRA_ACCURACY = 0.001;
     if (ifunc == SFLUX_JACOBIAN) {
         EXTRA_ACCURACY *= 0.001;
     }
     int label_t=-1; // Species IDs for time control
     int label_d = -1; // Species IDs for damping control
     int label_t_old=-1;
-    doublereal label_factor = 1.0;
+    double label_factor = 1.0;
     int iter=0; // iteration number on nonlinear solver
     int iter_max=1000; // maximum number of nonlinear iterations
-    doublereal deltaT = 1.0E-10; // Delta time step
-    doublereal damp=1.0;
-    doublereal inv_t = 0.0;
-    doublereal t_real = 0.0, update_norm = 1.0E6;
+    double deltaT = 1.0E-10; // Delta time step
+    double damp=1.0;
+    double inv_t = 0.0;
+    double t_real = 0.0, update_norm = 1.0E6;
     bool do_time = false, not_converged = true;
     m_ioflag = std::min(m_ioflag, 1);
 
@@ -272,9 +272,9 @@ int solveSP::solveSurfProb(int ifunc, doublereal time_scale, doublereal TKelvin,
     return 1;
 }
 
-void solveSP::updateState(const doublereal* CSolnSP)
+void solveSP::updateState(const double* CSolnSP)
 {
-    vector_fp X;
+    vector<double> X;
     size_t loc = 0;
     for (size_t n = 0; n < m_numSurfPhases; n++) {
         X.resize(m_nSpeciesSurfPhase[n]);
@@ -286,7 +286,7 @@ void solveSP::updateState(const doublereal* CSolnSP)
     }
 }
 
-void solveSP::updateMFSolnSP(doublereal* XMolSolnSP)
+void solveSP::updateMFSolnSP(double* XMolSolnSP)
 {
     for (size_t isp = 0; isp < m_numSurfPhases; isp++) {
         size_t keqnStart = m_eqnIndexStartSolnPhase[isp];
@@ -294,7 +294,7 @@ void solveSP::updateMFSolnSP(doublereal* XMolSolnSP)
     }
 }
 
-void solveSP::updateMFKinSpecies(doublereal* XMolKinSpecies, int isp)
+void solveSP::updateMFKinSpecies(double* XMolKinSpecies, int isp)
 {
     InterfaceKinetics* kin = m_objects[isp];
     for (size_t iph = 0; iph < kin->nPhases(); iph++) {
@@ -303,11 +303,11 @@ void solveSP::updateMFKinSpecies(doublereal* XMolKinSpecies, int isp)
     }
 }
 
-void solveSP::evalSurfLarge(const doublereal* CSolnSP)
+void solveSP::evalSurfLarge(const double* CSolnSP)
 {
     size_t kindexSP = 0;
     for (size_t isp = 0; isp < m_numSurfPhases; isp++) {
-        doublereal Clarge = CSolnSP[kindexSP];
+        double Clarge = CSolnSP[kindexSP];
         m_spSurfLarge[isp] = 0;
         kindexSP++;
         for (size_t k = 1; k <  m_nSpeciesSurfPhase[isp]; k++, kindexSP++) {
@@ -319,12 +319,11 @@ void solveSP::evalSurfLarge(const doublereal* CSolnSP)
     }
 }
 
-void solveSP::fun_eval(doublereal* resid, const doublereal* CSoln,
-                       const doublereal* CSolnOld, const bool do_time,
-                       const doublereal deltaT)
+void solveSP::fun_eval(double* resid, const double* CSoln, const double* CSolnOld,
+                       const bool do_time, const double deltaT)
 {
     size_t k;
-    doublereal lenScale = 1.0E-9;
+    double lenScale = 1.0E-9;
     if (m_numSurfPhases > 0) {
         // update the surface concentrations with the input surface
         // concentration vector
@@ -381,7 +380,7 @@ void solveSP::fun_eval(doublereal* resid, const doublereal* CSoln,
         if (m_bulkFunc == BULK_DEPOSITION) {
             size_t kindexSP = m_numTotSurfSpecies;
             for (size_t isp = 0; isp < m_numBulkPhasesSS; isp++) {
-                doublereal* XBlk = m_numEqn1.data();
+                double* XBlk = m_numEqn1.data();
                 size_t nsp = m_nSpeciesSurfPhase[isp];
                 size_t surfPhaseIndex = m_indexKinObjSurfPhase[isp];
                 InterfaceKinetics* kin = m_objects[isp];
@@ -426,10 +425,9 @@ void solveSP::fun_eval(doublereal* resid, const doublereal* CSoln,
     }
 }
 
-void solveSP::resjac_eval(DenseMatrix& jac,
-                          doublereal resid[], doublereal CSoln[],
-                          const doublereal CSolnOld[], const bool do_time,
-                          const doublereal deltaT)
+void solveSP::resjac_eval(DenseMatrix& jac, double resid[], double CSoln[],
+                          const double CSolnOld[], const bool do_time,
+                          const double deltaT)
 {
     size_t kColIndex = 0;
     // Calculate the residual
@@ -470,7 +468,7 @@ void solveSP::resjac_eval(DenseMatrix& jac,
     }
 }
 
-/*!
+/**
  * This function calculates a damping factor for the Newton iteration update
  * vector, dxneg, to insure that all site and bulk fractions, x, remain
  * bounded between zero and one.
@@ -481,11 +479,11 @@ void solveSP::resjac_eval(DenseMatrix& jac,
  * that the step can take.  If the full step would not force any fraction
  * outside of 0-1, then Newton's method is allowed to operate normally.
  */
-static doublereal calc_damping(doublereal x[], doublereal dxneg[], size_t dim, int* label)
+static double calc_damping(double x[], double dxneg[], size_t dim, int* label)
 {
-    const doublereal APPROACH = 0.80;
-    doublereal damp = 1.0;
-    static doublereal damp_old = 1.0; //! @todo this variable breaks thread safety
+    const double APPROACH = 0.80;
+    double damp = 1.0;
+    static double damp_old = 1.0; //! @todo this variable breaks thread safety
     *label = -1;
 
     for (size_t i = 0; i < dim; i++) {
@@ -523,13 +521,13 @@ static doublereal calc_damping(doublereal x[], doublereal dxneg[], size_t dim, i
 
 } /* calc_damping */
 
-/*
+/**
  *    This function calculates the norm of an update, dx[], based on the
  *    weighted values of x.
  */
-static doublereal calcWeightedNorm(const doublereal wtX[], const doublereal dx[], size_t dim)
+static double calcWeightedNorm(const double wtX[], const double dx[], size_t dim)
 {
-    doublereal norm = 0.0;
+    double norm = 0.0;
     if (dim == 0) {
         return 0.0;
     }
@@ -539,9 +537,9 @@ static doublereal calcWeightedNorm(const doublereal wtX[], const doublereal dx[]
     return sqrt(norm/dim);
 }
 
-void solveSP::calcWeights(doublereal wtSpecies[], doublereal wtResid[],
-                          const Array2D& Jac, const doublereal CSoln[],
-                          const doublereal abstol, const doublereal reltol)
+void solveSP::calcWeights(double wtSpecies[], double wtResid[],
+                          const Array2D& Jac, const double CSoln[],
+                          const double abstol, const double reltol)
 {
     // First calculate the weighting factor for the concentrations of the
     // surface species and bulk species.
@@ -572,12 +570,10 @@ void solveSP::calcWeights(doublereal wtSpecies[], doublereal wtResid[],
     }
 }
 
-doublereal solveSP::calc_t(doublereal netProdRateSolnSP[],
-                          doublereal XMolSolnSP[],
-                          int* label, int* label_old,
-                          doublereal* label_factor, int ioflag)
+double solveSP::calc_t(double netProdRateSolnSP[], double XMolSolnSP[], int* label,
+                       int* label_old, double* label_factor, int ioflag)
 {
-    doublereal inv_timeScale = 1.0E-10;
+    double inv_timeScale = 1.0E-10;
     size_t kindexSP = 0;
     *label = 0;
     updateMFSolnSP(XMolSolnSP);
@@ -618,8 +614,8 @@ doublereal solveSP::calc_t(doublereal netProdRateSolnSP[],
     return inv_timeScale / *label_factor;
 } // calc_t
 
-void solveSP::print_header(int ioflag, int ifunc, doublereal time_scale,
-                           int damping, doublereal reltol, doublereal abstol)
+void solveSP::print_header(int ioflag, int ifunc, double time_scale,
+                           int damping, double reltol, double abstol)
 {
     if (ioflag) {
         writelog("\n================================ SOLVESP CALL SETUP "
@@ -667,10 +663,10 @@ void solveSP::print_header(int ioflag, int ifunc, doublereal time_scale,
     }
 }
 
-void solveSP::printIteration(int ioflag, doublereal damp, int label_d,
-                             int label_t, doublereal inv_t, doublereal t_real,
-                             size_t iter, doublereal update_norm,
-                             doublereal resid_norm, bool do_time, bool final)
+void solveSP::printIteration(int ioflag, double damp, int label_d,
+                             int label_t, double inv_t, double t_real,
+                             size_t iter, double update_norm,
+                             double resid_norm, bool do_time, bool final)
 {
     if (ioflag == 1) {
         if (final) {

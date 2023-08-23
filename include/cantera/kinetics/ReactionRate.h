@@ -42,6 +42,9 @@ class Reaction;
 //!     partners, associated `DataType` containers should implement the methods
 //!     `perturbPressure(double deltaP)` and/or `perturbThirdBodies(double deltaM)`,
 //!     which allow for the calculation of numerical derivatives.
+//!  -  For additional information, refer to the @ref kinDerivs "Kinetics Derivatives"
+//!     documentation.
+//! @ingroup reactionGroup
 class ReactionRate
 {
 public:
@@ -85,10 +88,10 @@ public:
     }
 
     //! String identifying reaction rate specialization
-    virtual const std::string type() const = 0;
+    virtual const string type() const = 0;
 
     //! String identifying sub-type of reaction rate specialization
-    virtual const std::string subType() const {
+    virtual const string subType() const {
         return "";
     }
 
@@ -114,7 +117,7 @@ public:
     //!
     //! These units are often the same as the units of the rate expression itself, but
     //! not always; sticking coefficients are a notable exception.
-    //! @since New in Cantera 3.0
+    //! @since New in %Cantera 3.0
     const Units& conversionUnits() const {
         return m_conversion_units;
     }
@@ -125,7 +128,7 @@ public:
     //! reaction rate expression, which often have the same units (for example, the
     //! Arrhenius pre-exponential) but may also be different (for example, sticking
     //! coefficients).
-    //! @since New in Cantera 3.0
+    //! @since New in %Cantera 3.0
     virtual void setRateUnits(const UnitStack& rate_units) {
         if (rate_units.size() > 1) {
             m_conversion_units = rate_units.product();
@@ -135,24 +138,24 @@ public:
     }
 
     //! Check basic syntax and settings of reaction rate expression
-    virtual void check(const std::string& equation) {}
+    virtual void check(const string& equation) {}
 
     //! Check basic syntax and settings of reaction rate expression
-    //! @deprecated  To be removed after Cantera 3.0.
+    //! @deprecated To be removed after %Cantera 3.0.
     //!              Superseded by single-parameter version
-    void check(const std::string& equation, const AnyMap& node) {
+    void check(const string& equation, const AnyMap& node) {
         warn_deprecated("ReactionRate::check",
             "To be removed after Cantera 3.0; superseded by single-parameter version.");
         check(equation);
     }
 
     //! Validate the reaction rate expression
-    virtual void validate(const std::string& equation, const Kinetics& kin) {}
+    virtual void validate(const string& equation, const Kinetics& kin) {}
 
     //! Validate the reaction rate expression (legacy call)
-    //! @deprecated  To be removed after Cantera 3.0.
+    //! @deprecated To be removed after %Cantera 3.0.
     //!              Superseded by two-parameter version
-    virtual void validate(const std::string& equation) {
+    virtual void validate(const string& equation) {
         warn_deprecated("ReactionRate::validate",
             "To be removed after Cantera 3.0; superseded by two-parameter version.");
     }
@@ -208,7 +211,7 @@ public:
     //! Kinetics reaction rate evaluators.
     //! @warning  This method is an experimental part of the %Cantera API and
     //!     may be changed or removed without notice.
-    double eval(double T, const std::vector<double>& extra) {
+    double eval(double T, const vector<double>& extra) {
         _evaluator().update(T, extra);
         return _evaluator().evalSingle(*this);
     }
@@ -219,13 +222,13 @@ public:
     }
 
     //! Boolean indicating whether rate has compositional dependence
-    //! @since New in Cantera 3.0
+    //! @since New in %Cantera 3.0
     bool compositionDependent() {
         return m_composition_dependent_rate;
     }
 
     //! Set rate compositional dependence
-    //! @since New in Cantera 3.0
+    //! @since New in %Cantera 3.0
     void setCompositionDependence(bool comp_dep) {
         m_composition_dependent_rate = comp_dep;
     }

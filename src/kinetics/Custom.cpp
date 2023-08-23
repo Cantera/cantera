@@ -21,7 +21,7 @@ void CustomFunc1Rate::setRateFunction(shared_ptr<Func1> f)
     m_valid = true;
 }
 
-void CustomFunc1Rate::validate(const std::string& equation, const Kinetics& kin)
+void CustomFunc1Rate::validate(const string& equation, const Kinetics& kin)
 {
     if (!m_ratefunc) {
         throw InputFileError("CustomFunc1Rate::validate", m_input,

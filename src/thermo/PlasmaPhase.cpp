@@ -11,7 +11,7 @@
 
 namespace Cantera {
 
-PlasmaPhase::PlasmaPhase(const std::string& inputFile, const std::string& id_)
+PlasmaPhase::PlasmaPhase(const string& inputFile, const string& id_)
 {
     initThermoFile(inputFile, id_);
 
@@ -44,7 +44,7 @@ void PlasmaPhase::normalizeElectronEnergyDistribution() {
     m_electronEnergyDist /= norm;
 }
 
-void PlasmaPhase::setElectronEnergyDistributionType(const std::string& type)
+void PlasmaPhase::setElectronEnergyDistributionType(const string& type)
 {
     if (type == "discretized" ||
         type == "isotropic") {
@@ -154,14 +154,14 @@ void PlasmaPhase::getParameters(AnyMap& phaseNode) const
     IdealGasPhase::getParameters(phaseNode);
     AnyMap eedf;
     eedf["type"] = m_distributionType;
-    vector_fp levels(m_nPoints);
+    vector<double> levels(m_nPoints);
     Eigen::Map<Eigen::ArrayXd>(levels.data(), m_nPoints) = m_electronEnergyLevels;
     eedf["energy-levels"] = levels;
     if (m_distributionType == "isotropic") {
         eedf["shape-factor"] = m_isotropicShapeFactor;
         eedf["mean-electron-energy"].setQuantity(meanElectronEnergy(), "eV");
     } else if (m_distributionType == "discretized") {
-        vector_fp dist(m_nPoints);
+        vector<double> dist(m_nPoints);
         Eigen::Map<Eigen::ArrayXd>(dist.data(), m_nPoints) = m_electronEnergyDist;
         eedf["distribution"] = dist;
         eedf["normalize"] = m_do_normalizeElectronEnergyDist;
@@ -298,7 +298,7 @@ void PlasmaPhase::getPartialMolarEntropies(double* sbar) const
 
 void PlasmaPhase::getPartialMolarIntEnergies(double* ubar) const
 {
-    const vector_fp& _h = enthalpy_RT_ref();
+    const vector<double>& _h = enthalpy_RT_ref();
     for (size_t k = 0; k < m_kk; k++) {
         ubar[k] = RT() * (_h[k] - 1.0);
     }
@@ -324,7 +324,7 @@ void PlasmaPhase::getStandardChemPotentials(double* muStar) const
 
 void PlasmaPhase::getEntropy_R(double* sr) const
 {
-    const vector_fp& _s = entropy_R_ref();
+    const vector<double>& _s = entropy_R_ref();
     copy(_s.begin(), _s.end(), sr);
     double tmp = log(pressure() / refPressure());
     for (size_t k = 0; k < m_kk; k++) {
@@ -338,7 +338,7 @@ void PlasmaPhase::getEntropy_R(double* sr) const
 
 void PlasmaPhase::getGibbs_RT(double* grt) const
 {
-    const vector_fp& gibbsrt = gibbs_RT_ref();
+    const vector<double>& gibbsrt = gibbs_RT_ref();
     copy(gibbsrt.begin(), gibbsrt.end(), grt);
     double tmp = log(pressure() / refPressure());
     for (size_t k = 0; k < m_kk; k++) {

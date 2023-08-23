@@ -1,7 +1,7 @@
 /**
  *  @file TransportFactory.h
  *  Header file defining class TransportFactory
- *     (see \link Cantera::TransportFactory TransportFactory\endlink)
+ *     (see @link Cantera::TransportFactory TransportFactory@endlink)
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -45,7 +45,7 @@ public:
     static TransportFactory* factory();
 
     //! Deletes the statically allocated factory instance.
-    virtual void deleteFactory();
+    void deleteFactory() override;
 
     //! Build a new transport manager using a transport manager
     //! that may not be the same as in the phase description
@@ -55,7 +55,7 @@ public:
      *  @param thermo    ThermoPhase object
      *  @param log_level log level
      */
-    virtual Transport* newTransport(const std::string& model, ThermoPhase* thermo, int log_level=0);
+    Transport* newTransport(const string& model, ThermoPhase* thermo, int log_level=0);
 
     //! Build a new transport manager using the default transport manager
     //! in the phase description and return a base class pointer to it
@@ -63,7 +63,7 @@ public:
      * @param thermo    ThermoPhase object
      * @param log_level log level
      */
-    virtual Transport* newTransport(ThermoPhase* thermo, int log_level=0);
+    Transport* newTransport(ThermoPhase* thermo, int log_level=0);
 
 private:
     //! Static instance of the factor -> This is the only instance of this
@@ -83,12 +83,12 @@ private:
     TransportFactory();
 
     //! Models included in this map are initialized in CK compatibility mode
-    std::map<std::string, bool> m_CK_mode;
+    map<string, bool> m_CK_mode;
 };
 
-//! @copydoc TransportFactory::newTransport(const std::string&, ThermoPhase*, int)
-//! @deprecated  To be removed after Cantera 3.0; superseded by newTransport()
-Transport* newTransportMgr(const std::string& model="", ThermoPhase* thermo=0,
+//! @copydoc TransportFactory::newTransport(const string&, ThermoPhase*, int)
+//! @deprecated To be removed after %Cantera 3.0; superseded by newTransport()
+Transport* newTransportMgr(const string& model="", ThermoPhase* thermo=0,
                            int log_level=0);
 
 //!  Create a new Transport instance.
@@ -103,7 +103,7 @@ shared_ptr<Transport> newTransport(shared_ptr<ThermoPhase> thermo,
                                    const string& model="default");
 
 //! @copydoc newTransport(shared_ptr<ThermoPhase>, const string&)
-//! @deprecated  To be removed after Cantera 3.0; superseded by newTransport()
+//! @deprecated To be removed after %Cantera 3.0; superseded by newTransport()
 shared_ptr<Transport> newTransport(ThermoPhase* thermo, const string& model="default");
 
 //!  Create a new transport manager instance.
@@ -111,7 +111,7 @@ shared_ptr<Transport> newTransport(ThermoPhase* thermo, const string& model="def
  *  @param thermo     ThermoPhase object associated with the phase
  *  @param loglevel   int containing the Loglevel, defaults to zero
  *  @returns a transport manager for the phase
- * @deprecated  To be removed after Cantera 3.0; superseded by newTransport()
+ * @deprecated To be removed after %Cantera 3.0; superseded by newTransport()
  * @ingroup tranprops
  */
 Transport* newDefaultTransportMgr(ThermoPhase* thermo, int loglevel = 0);

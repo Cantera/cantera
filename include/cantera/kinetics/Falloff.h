@@ -12,16 +12,6 @@ namespace Cantera
 
 class AnyMap;
 
-/**
- *  @defgroup falloffGroup  Falloff Parameterizations
- *
- *  This section describes the parameterizations used to describe
- *  the fall-off in reaction rate constants due to intermolecular
- *  energy transfer.
- *  @ingroup chemkinetics
- */
-
-
 //! Data container holding shared data specific to Falloff rates
 /**
  * The data container `FalloffData` holds precalculated data common to
@@ -31,11 +21,11 @@ struct FalloffData : public ReactionData
 {
     FalloffData();
 
-    virtual bool update(const ThermoPhase& phase, const Kinetics& kin) override;
+    bool update(const ThermoPhase& phase, const Kinetics& kin) override;
 
-    virtual void update(double T) override;
+    void update(double T) override;
 
-    virtual void update(double T, double M) override;
+    void update(double T, double M) override;
 
     using ReactionData::update;
 
@@ -46,36 +36,48 @@ struct FalloffData : public ReactionData
      */
     void perturbThirdBodies(double deltaM);
 
-    virtual void restore() override;
+    void restore() override;
 
-    virtual void resize(size_t nSpecies, size_t nReactions, size_t nPhases) override {
+    void resize(size_t nSpecies, size_t nReactions, size_t nPhases) override {
         conc_3b.resize(nReactions, NAN);
         m_conc_3b_buf.resize(nReactions, NAN);
         ready = true;
     }
 
-    virtual void invalidateCache() override {
+    void invalidateCache() override {
         ReactionData::invalidateCache();
         molar_density = NAN;
     }
 
     bool ready = false; //!< boolean indicating whether vectors are accessible
     double molar_density = NAN; //!< used to determine if updates are needed
-    vector_fp conc_3b; //!< vector of effective third-body concentrations
+    vector<double> conc_3b; //!< vector of effective third-body concentrations
 
 protected:
     //! integer that is incremented when composition changes
     int m_state_mf_number = -1;
     //! boolean indicating whether 3-rd body values are perturbed
     bool m_perturbed = false;
-    vector_fp m_conc_3b_buf; //!< buffered third-body concentrations
+    vector<double> m_conc_3b_buf; //!< buffered third-body concentrations
 };
 
 
 /**
- * Base class for falloff rate calculators. Each instance of a subclass of FalloffRate
- * calculates the falloff reaction rate based on specific implementations of the
- * falloff function.
+ * Base class for falloff rate calculators.
+ * Each instance of a subclass of FalloffRate calculates the falloff reaction rate
+ * based on specific implementations of the falloff function.
+ *
+ * The falloff function @f$ F(P_r, T) @f$ is implemented by FalloffRate specializations,
+ * and is defined so that the rate coefficient is
+ * @f[
+ *  k = k_\infty \frac{P_r}{1 + P_r} F(P_r,T)
+ * @f]
+ *
+ * Here @f$ P_r @f$ is the reduced pressure, defined by
+ * @f[
+ *  P_r = \frac{k_0 [M]}{k_\infty}.
+ * @f]
+ * @ingroup falloffGroup
  */
 class FalloffRate : public ReactionRate
 {
@@ -90,9 +92,9 @@ public:
      * @param c Vector of coefficients of the parameterization. The number and
      *     meaning of these coefficients is subclass-dependent.
      *
-     * @deprecated  To be removed after Cantera 3.0; superseded by setFalloffCoeffs()
+     * @deprecated To be removed after %Cantera 3.0; superseded by setFalloffCoeffs()
      */
-    void init(const vector_fp& c);
+    void init(const vector<double>& c);
 
     /**
      * Set coefficients of the falloff parameterization.
@@ -100,7 +102,7 @@ public:
      * @param c Vector of coefficients of the parameterization. The number and
      *     meaning of these coefficients is subclass-dependent.
      */
-    virtual void setFalloffCoeffs(const vector_fp& c);
+    virtual void setFalloffCoeffs(const vector<double>& c);
 
     /**
      * Retrieve coefficients of the falloff parameterization.
@@ -108,7 +110,7 @@ public:
      * @param c Vector of coefficients of the parameterization. The number and
      *     meaning of these coefficients is subclass-dependent.
      */
-    virtual void getFalloffCoeffs(vector_fp& c) const;
+    virtual void getFalloffCoeffs(vector<double>& c) const;
 
     /**
      * Update the temperature-dependent portions of the falloff function, if
@@ -120,21 +122,13 @@ public:
     virtual void updateTemp(double T, double* work) const {}
 
     /**
-     * The falloff function. This is defined so that the rate coefficient is
-     *
-     * \f[  k = F(Pr)\frac{Pr}{1 + Pr}. \f]
-     *
-     * Here \f$ Pr \f$ is the reduced pressure, defined by
-     *
-     * \f[
-     * Pr = \frac{k_0 [M]}{k_\infty}.
-     * \f]
+     * The falloff function.
      *
      * @param pr reduced pressure (dimensionless).
      * @param work array of size workSize() containing cached
      *             temperature-dependent intermediate results from a prior call
      *             to updateTemp.
-     * @returns the value of the falloff function \f$ F \f$ defined above
+     * @returns the value of the falloff function @f$ F @f$ defined above
      */
     virtual double F(double pr, const double* work) const {
         return 1.0;
@@ -153,7 +147,7 @@ public:
 
     //! The size of the work array required.
     /**
-     * @deprecated  To be removed after Cantera 3.0; unused.
+     * @deprecated To be removed after %Cantera 3.0; unused.
      */
     virtual size_t workSize() const {
         warn_deprecated("FalloffRate::workSize",
@@ -161,7 +155,7 @@ public:
         return 0;
     }
 
-    virtual const std::string type() const override {
+    const string type() const override {
         if (m_chemicallyActivated) {
             return "chemically-activated";
         }
@@ -174,20 +168,19 @@ public:
         return 0;
     }
 
-    virtual void setParameters(
-        const AnyMap& node, const UnitStack& rate_units) override;
+    void setParameters(const AnyMap& node, const UnitStack& rate_units) override;
 
     //! Get the values of the parameters for this object. *params* must be an
     //! array of at least nParameters() elements.
     /**
-     * @deprecated  To be removed after Cantera 3.0; superseded by getFalloffCoeffs()
+     * @deprecated To be removed after %Cantera 3.0; superseded by getFalloffCoeffs()
      */
     virtual void getParameters(double* params) const {
         warn_deprecated("FalloffRate::getParameters",
             "To be removed after Cantera 3.0; superseded by getFalloffCoeffs.");
     }
 
-    virtual void getParameters(AnyMap& node) const override;
+    void getParameters(AnyMap& node) const override;
 
     //! Evaluate reaction rate
     //! @param shared_data  data shared by all reactions of a given type
@@ -215,8 +208,8 @@ public:
         return pr * m_rc_high;
     }
 
-    virtual void check(const std::string& equation) override;
-    virtual void validate(const std::string& equation, const Kinetics& kin) override;
+    void check(const string& equation) override;
+    void validate(const string& equation, const Kinetics& kin) override;
 
     //! Get flag indicating whether negative A values are permitted
     bool allowNegativePreExponentialFactor() const {
@@ -265,13 +258,13 @@ protected:
 
     double m_rc_low = NAN; //!< Evaluated reaction rate in the low-pressure limit
     double m_rc_high = NAN; //!< Evaluated reaction rate in the high-pressure limit
-    vector_fp m_work; //!< Work vector
+    vector<double> m_work; //!< Work vector
 };
 
 
 //! The Lindemann falloff parameterization.
 /**
- * This class implements the trivial falloff function F = 1.0.
+ * This class implements the trivial falloff function F = 1.0 @cite lindemann1922.
  *
  * @ingroup falloffGroup
  */
@@ -283,13 +276,13 @@ public:
     LindemannRate(const AnyMap& node, const UnitStack& rate_units={});
 
     LindemannRate(const ArrheniusRate& low, const ArrheniusRate& high,
-                  const vector_fp& c);
+                  const vector<double>& c);
 
     unique_ptr<MultiRateBase> newMultiRate() const override{
         return make_unique<MultiRate<LindemannRate, FalloffData>>();
     }
 
-    virtual const std::string subType() const override {
+    const string subType() const override {
         return "Lindemann";
     }
 };
@@ -297,29 +290,43 @@ public:
 
 //! The 3- or 4-parameter Troe falloff parameterization.
 /*!
- * The falloff function defines the value of \f$ F \f$ in the following
- * rate expression
+ * The falloff function defines the value of @f$ F @f$ in the following
+ * rate expression @cite gilbert1983
  *
- *  \f[ k = k_{\infty} \left( \frac{P_r}{1 + P_r} \right) F \f]
- *  where
- *  \f[ P_r = \frac{k_0 [M]}{k_{\infty}} \f]
+ * @f[
+ *  k = k_{\infty} \left( \frac{P_r}{1 + P_r} \right) F(T, P_r)
+ * @f]
+ * where
+ * @f[
+ *  P_r = \frac{k_0 [M]}{k_{\infty}}
+ * @f]
  *
  * This parameterization is defined by
  *
- * \f[ F = F_{cent}^{1/(1 + f_1^2)} \f]
- *    where
- * \f[ F_{cent} = (1 - A)\exp(-T/T_3) + A \exp(-T/T_1) + \exp(-T_2/T) \f]
+ * @f[
+ *  \log_{10} F(T, P_r) = \frac{\log_{10} F_{cent}(T)}{1 + f_1^2}
+ * @f]
+ * where
+ * @f[
+ *  F_{cent}(T) = (1 - A)\exp\left(\frac{-T}{T_3}\right)
+ *      + A \exp\left(\frac{-T}{T_1}\right) + \exp\left(\frac{-T_2}{T}\right)
+ * @f]
  *
- * \f[ f_1 = (\log_{10} P_r + C) /
- *              \left(N - 0.14 (\log_{10} P_r + C)\right) \f]
+ * @f[
+ *  f_1 = \frac{\log_{10} P_r + C}{N - 0.14 (\log_{10} P_r + C)}
+ * @f]
  *
- * \f[ C = -0.4 - 0.67 \log_{10} F_{cent} \f]
+ * @f[
+ *  C = -0.4 - 0.67 \log_{10} F_{cent}
+ * @f]
  *
- * \f[ N = 0.75 - 1.27 \log_{10} F_{cent} \f]
+ * @f[
+ *  N = 0.75 - 1.27 \log_{10} F_{cent}
+ * @f]
  *
- *  - If \f$ T_3 \f$ is zero, then the corresponding term is set to zero.
- *  - If \f$ T_1 \f$ is zero, then the corresponding term is set to zero.
- *  - If \f$ T_2 \f$ is zero, then the corresponding term is set to zero.
+ *  - If @f$ T_3 @f$ is zero, then the corresponding term is set to zero.
+ *  - If @f$ T_1 @f$ is zero, then the corresponding term is set to zero.
+ *  - If @f$ T_2 @f$ is zero, then the corresponding term is set to zero.
  *
  * @ingroup falloffGroup
  */
@@ -333,7 +340,7 @@ public:
 
     TroeRate(const AnyMap& node, const UnitStack& rate_units={});
     TroeRate(const ArrheniusRate& low, const ArrheniusRate& high,
-             const vector_fp& c);
+             const vector<double>& c);
 
     unique_ptr<MultiRateBase> newMultiRate() const override {
         return make_unique<MultiRate<TroeRate, FalloffData>>();
@@ -344,9 +351,9 @@ public:
      * @param c Vector of three or four doubles: The doubles are the parameters,
      *          a, T_3, T_1, and (optionally) T_2 of the Troe parameterization
      */
-    virtual void setFalloffCoeffs(const vector_fp& c) override;
+    void setFalloffCoeffs(const vector<double>& c) override;
 
-    virtual void getFalloffCoeffs(vector_fp& c) const override;
+    void getFalloffCoeffs(vector<double>& c) const override;
 
     //! Update the temperature parameters in the representation
     /*!
@@ -354,32 +361,31 @@ public:
      *   @param work      Vector of working space, length 1, representing the
      *                    temperature-dependent part of the parameterization.
      */
-    virtual void updateTemp(double T, double* work) const override;
+    void updateTemp(double T, double* work) const override;
 
-    virtual double F(double pr, const double* work) const override;
+    double F(double pr, const double* work) const override;
 
-    virtual size_t workSize() const override {
+    size_t workSize() const override {
         return 1;
     }
 
-    virtual const std::string subType() const override {
+    const string subType() const override {
         return "Troe";
     }
 
-    virtual size_t nParameters() const override {
+    size_t nParameters() const override {
         return 4;
     }
 
-    virtual void setParameters(
-        const AnyMap& node, const UnitStack& rate_units) override;
+    void setParameters(const AnyMap& node, const UnitStack& rate_units) override;
 
-    //! Sets params to contain, in order, \f[ (A, T_3, T_1, T_2) \f]
+    //! Sets params to contain, in order, @f[ (A, T_3, T_1, T_2) @f]
     /**
-     * @deprecated  To be removed after Cantera 3.0; superseded by getFalloffCoeffs()
+     * @deprecated To be removed after %Cantera 3.0; superseded by getFalloffCoeffs()
      */
-    virtual void getParameters(double* params) const override;
+    void getParameters(double* params) const override;
 
-    virtual void getParameters(AnyMap& node) const override;
+    void getParameters(AnyMap& node) const override;
 
 protected:
     //! parameter a in the 4-parameter Troe falloff function. Dimensionless
@@ -397,22 +403,34 @@ protected:
 
 //! The SRI falloff function
 /*!
- * The falloff function defines the value of \f$ F \f$ in the following
+ * This falloff function is based on the one originally due to Stewart et al.
+ * @cite stewart1989, which required three parameters @f$ a @f$, @f$ b @f$, and
+ * @f$ c @f$. Kee et al. @cite kee1989 generalized this slightly by adding two more
+ * parameters @f$ d @f$ and @f$ e @f$. (The original form corresponds to @f$ d = 1 @f$
+ * and @f$ e = 0 @f$.) In keeping with the nomenclature of Kee et al. @cite kee1989,
+ * the rate is referred to as the *SRI falloff function*.
+ *
+ * The falloff function defines the value of @f$ F @f$ in the following
  * rate expression
+ * @f[
+ *  k = k_{\infty} \left( \frac{P_r}{1 + P_r} \right) F
+ * @f]
+ * where
+ * @f[
+ *  P_r = \frac{k_0 [M]}{k_{\infty}}
+ * @f]
  *
- *  \f[ k = k_{\infty} \left( \frac{P_r}{1 + P_r} \right) F \f]
- *  where
- *  \f[ P_r = \frac{k_0 [M]}{k_{\infty}} \f]
+ * @f[
+ *  F(T, P_r) = {\left[ a \; \exp\left(\frac{-b}{T}\right)
+ *      + \exp\left(\frac{-T}{c}\right)\right]}^n \; d \; T^e
+ * @f]
+ * where
+ * @f[
+ *  n = \frac{1.0}{1.0 + (\log_{10} P_r)^2}
+ * @f]
  *
- *  \f[ F = {\left( a \; exp(\frac{-b}{T}) + exp(\frac{-T}{c})\right)}^n
- *              \;  d \; T^e \f]
- *      where
- *  \f[ n = \frac{1.0}{1.0 + (\log_{10} P_r)^2} \f]
- *
- *  \f$ c \f$ s required to greater than or equal to zero. If it is zero, then
- *  the corresponding term is set to zero.
- *
- *  \f$ d \f$ is required to be greater than zero.
+ * @f$ c @f$ is required to be greater than or equal to zero. If it is zero, then the
+ * corresponding term is set to zero. @f$ d @f$ is required to be greater than zero.
  *
  * @ingroup falloffGroup
  */
@@ -426,7 +444,7 @@ public:
 
     SriRate(const AnyMap& node, const UnitStack& rate_units={});
 
-    SriRate(const ArrheniusRate& low, const ArrheniusRate& high, const vector_fp& c)
+    SriRate(const ArrheniusRate& low, const ArrheniusRate& high, const vector<double>& c)
         : SriRate()
     {
         m_lowRate = low;
@@ -444,9 +462,9 @@ public:
      *          a, b, c, d (optional; default 1.0), and e (optional; default
      *          0.0) of the SRI parameterization
      */
-    virtual void setFalloffCoeffs(const vector_fp& c) override;
+    void setFalloffCoeffs(const vector<double>& c) override;
 
-    virtual void getFalloffCoeffs(vector_fp& c) const override;
+    void getFalloffCoeffs(vector<double>& c) const override;
 
     //! Update the temperature parameters in the representation
     /*!
@@ -454,32 +472,31 @@ public:
      *   @param work      Vector of working space, length 2, representing the
      *                    temperature-dependent part of the parameterization.
      */
-    virtual void updateTemp(double T, double* work) const override;
+    void updateTemp(double T, double* work) const override;
 
-    virtual double F(double pr, const double* work) const override;
+    double F(double pr, const double* work) const override;
 
-    virtual size_t workSize() const override {
+    size_t workSize() const override {
         return 2;
     }
 
-    virtual const std::string subType() const override {
+    const string subType() const override {
         return "SRI";
     }
 
-    virtual size_t nParameters() const override {
+    size_t nParameters() const override {
         return 5;
     }
 
-    virtual void setParameters(
-        const AnyMap& node, const UnitStack& rate_units) override;
+    void setParameters(const AnyMap& node, const UnitStack& rate_units) override;
 
-    //! Sets params to contain, in order, \f[ (a, b, c, d, e) \f]
+    //! Sets params to contain, in order, @f[ (a, b, c, d, e) @f]
     /**
-     * @deprecated  To be removed after Cantera 3.0; superseded by getFalloffCoeffs()
+     * @deprecated To be removed after %Cantera 3.0; superseded by getFalloffCoeffs()
      */
-    virtual void getParameters(double* params) const override;
+    void getParameters(double* params) const override;
 
-    virtual void getParameters(AnyMap& node) const override;
+    void getParameters(AnyMap& node) const override;
 
 protected:
     //! parameter a in the 5-parameter SRI falloff function. Dimensionless.
@@ -501,25 +518,24 @@ protected:
 //! The 1- or 2-parameter Tsang falloff parameterization.
 /*!
  *  The Tsang falloff model is adapted from that of Troe.
- *  It provides a constant or linear in temperature value for \f$ F_{cent} \f$:
- *  \f[ F_{cent} = A + B*T \f]
+ *  It provides a constant or linear in temperature value for @f$ F_{cent} @f$:
+ *  @f[ F_{cent} = A + B*T @f]
  *
- *  The value of \f$ F_{cent} \f$ is then applied to Troe's model for the
- *  determination of the value of \f$ F \f$:
- * \f[ F = F_{cent}^{1/(1 + f_1^2)} \f]
- *    where
- * \f[ f_1 = (\log_{10} P_r + C) /
- *              \left(N - 0.14 (\log_{10} P_r + C)\right) \f]
+ *  The value of @f$ F_{cent} @f$ is then applied to Troe's model for the
+ *  determination of the value of @f$ F(T, P_r) @f$:
+ *  @f[ \log_{10} F(T, P_r) = \frac{\log_{10} F_{cent}(T)}{1 + f_1^2} @f]
+ *  where
+ *  @f[ f_1 = \frac{\log_{10} P_r + C}{N - 0.14 (\log_{10} P_r + C)} @f]
  *
- * \f[ C = -0.4 - 0.67 \log_{10} F_{cent} \f]
+ *  @f[ C = -0.4 - 0.67 \log_{10} F_{cent} @f]
  *
- * \f[ N = 0.75 - 1.27 \log_{10} F_{cent} \f]
+ *  @f[ N = 0.75 - 1.27 \log_{10} F_{cent} @f]
  *
  *  References:
- *  Example of reaction database developed by Tsang utilizing this format:
- *      https://doi.org/10.1063/1.555890
- *  Example of Chemkin implementation of Tsang format (supplemental materials):
- *      https://doi.org/10.1016/j.combustflame.2011.02.010
+ *  * Example of reaction database developed by Tsang utilizing this format
+ *      @cite tsang1991
+ *  * Example of Chemkin implementation of Tsang format (supplemental materials)
+ *      @cite lucassen2011
  *
  * @ingroup falloffGroup
  */
@@ -533,7 +549,7 @@ public:
 
     TsangRate(const AnyMap& node, const UnitStack& rate_units={});
 
-    TsangRate(const ArrheniusRate& low, const ArrheniusRate& high, const vector_fp& c)
+    TsangRate(const ArrheniusRate& low, const ArrheniusRate& high, const vector<double>& c)
         : TsangRate()
     {
         m_lowRate = low;
@@ -550,9 +566,9 @@ public:
      * @param c Vector of one or two doubles: The doubles are the parameters,
      *          a and (optionally) b of the Tsang F_cent parameterization
      */
-    virtual void setFalloffCoeffs(const vector_fp& c) override;
+    void setFalloffCoeffs(const vector<double>& c) override;
 
-    virtual void getFalloffCoeffs(vector_fp& c) const override;
+    void getFalloffCoeffs(vector<double>& c) const override;
 
     //! Update the temperature parameters in the representation
     /*!
@@ -560,32 +576,31 @@ public:
      *   @param work      Vector of working space, length 1, representing the
      *                    temperature-dependent part of the parameterization.
      */
-    virtual void updateTemp(double T, double* work) const override;
+    void updateTemp(double T, double* work) const override;
 
-    virtual double F(double pr, const double* work) const override;
+    double F(double pr, const double* work) const override;
 
-    virtual size_t workSize() const override {
+    size_t workSize() const override {
         return 1;
     }
 
-    virtual const std::string subType() const override {
+    const string subType() const override {
         return "Tsang";
     }
 
-    virtual size_t nParameters() const override {
+    size_t nParameters() const override {
         return 2;
     }
 
-    virtual void setParameters(
-        const AnyMap& node, const UnitStack& rate_units) override;
+    void setParameters(const AnyMap& node, const UnitStack& rate_units) override;
 
-    //! Sets params to contain, in order, \f[ (A, B) \f]
+    //! Sets params to contain, in order, @f[ (A, B) @f]
     /**
-     * @deprecated  To be removed after Cantera 3.0; superseded by getFalloffCoeffs()
+     * @deprecated To be removed after %Cantera 3.0; superseded by getFalloffCoeffs()
      */
-    virtual void getParameters(double* params) const override;
+    void getParameters(double* params) const override;
 
-    virtual void getParameters(AnyMap& node) const override;
+    void getParameters(AnyMap& node) const override;
 
 protected:
     //! parameter a in the Tsang F_cent formulation. Dimensionless

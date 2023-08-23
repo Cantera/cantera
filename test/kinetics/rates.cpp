@@ -44,8 +44,8 @@ TEST_F(FracCoeffTest, StoichCoeffs)
 
 TEST_F(FracCoeffTest, RateConstants)
 {
-    vector_fp kf(kin->nReactions(), 0.0);
-    vector_fp kr(kin->nReactions(), 0.0);
+    vector<double> kf(kin->nReactions(), 0.0);
+    vector<double> kr(kin->nReactions(), 0.0);
     kin->getFwdRateConstants(&kf[0]);
     kin->getRevRateConstants(&kr[0]);
 
@@ -63,9 +63,9 @@ TEST_F(FracCoeffTest, RateConstants)
 
 TEST_F(FracCoeffTest, RatesOfProgress)
 {
-    vector_fp kf(kin->nReactions(), 0.0);
-    vector_fp conc(therm->nSpecies(), 0.0);
-    vector_fp ropf(kin->nReactions(), 0.0);
+    vector<double> kf(kin->nReactions(), 0.0);
+    vector<double> conc(therm->nSpecies(), 0.0);
+    vector<double> ropf(kin->nReactions(), 0.0);
     therm->getConcentrations(&conc[0]);
     kin->getFwdRateConstants(&kf[0]);
     kin->getFwdRatesOfProgress(&ropf[0]);
@@ -77,9 +77,9 @@ TEST_F(FracCoeffTest, RatesOfProgress)
 
 TEST_F(FracCoeffTest, CreationDestructionRates)
 {
-    vector_fp ropf(kin->nReactions(), 0.0);
-    vector_fp cdot(therm->nSpecies(), 0.0);
-    vector_fp ddot(therm->nSpecies(), 0.0);
+    vector<double> ropf(kin->nReactions(), 0.0);
+    vector<double> cdot(therm->nSpecies(), 0.0);
+    vector<double> ddot(therm->nSpecies(), 0.0);
     kin->getFwdRatesOfProgress(&ropf[0]);
     kin->getCreationRates(&cdot[0]);
     kin->getDestructionRates(&ddot[0]);
@@ -100,8 +100,8 @@ TEST_F(FracCoeffTest, CreationDestructionRates)
 
 TEST_F(FracCoeffTest, EquilibriumConstants)
 {
-    vector_fp Kc(kin->nReactions(), 0.0);
-    vector_fp mu0(therm->nSpecies(), 0.0);
+    vector<double> Kc(kin->nReactions(), 0.0);
+    vector<double> mu0(therm->nSpecies(), 0.0);
 
     kin->getEquilibriumConstants(&Kc[0]);
     therm->getGibbs_ref(&mu0[0]); // at pRef
@@ -121,7 +121,7 @@ class NegativePreexponentialFactor : public testing::Test
 {
 public:
     NegativePreexponentialFactor() {}
-    void setup(const std::string& infile) {
+    void setup(const string& infile) {
         soln = newSolution(infile);
         soln->thermo()->setState_TPX(2000, OneAtm,
             "H2O:1.0, H:0.2, O2:0.3, NH:0.05, NO:0.05, N2O:0.05");
@@ -133,7 +133,7 @@ public:
         const double wdot_ref[] = {0.44705, -0.0021443, 0, -279.36, 0.0021432, 278.92, 0.4449, -279.36, 279.36, 0, 0, 0};
         ASSERT_EQ(12, (int) nSpec);
         ASSERT_EQ(12, (int) nRxn);
-        vector_fp wdot(nSpec);
+        vector<double> wdot(nSpec);
         soln->kinetics()->getNetProductionRates(&wdot[0]);
         for (size_t i = 0; i < nSpec; i++) {
             EXPECT_NEAR(wdot_ref[i], wdot[i], std::abs(wdot_ref[i])*2e-5 + 1e-9);
@@ -142,8 +142,8 @@ public:
         const double ropf_ref[] = {479.305, -128.202, 0, -0, 0, 0, 0, 0, 0, 0.4449, 0, 0};
         const double ropr_ref[] = {97.94, -26.1964, 0, -0, 1.10334e-06, 0, 0, 0, 6.58592e-06, 0, 0, 0.00214319};
 
-        vector_fp ropf(nRxn);
-        vector_fp ropr(nRxn);
+        vector<double> ropf(nRxn);
+        vector<double> ropr(nRxn);
         soln->kinetics()->getFwdRatesOfProgress(&ropf[0]);
         soln->kinetics()->getRevRatesOfProgress(&ropr[0]);
         for (size_t i = 0; i < nRxn; i++) {
@@ -169,7 +169,7 @@ TEST(InterfaceReaction, CoverageDependency) {
     double T = 500;
     iface->thermo()->setState_TP(T, 101325);
     iface->thermo()->setCoveragesByName("PT(S):0.7, H(S):0.3");
-    vector_fp kf(iface->kinetics()->nReactions());
+    vector<double> kf(iface->kinetics()->nReactions());
     iface->kinetics()->getFwdRateConstants(&kf[0]);
     EXPECT_NEAR(kf[0], 4.4579e7 * pow(T, 0.5), 1e-14*kf[0]);
     // Energies in XML file are converted from J/mol to J/kmol

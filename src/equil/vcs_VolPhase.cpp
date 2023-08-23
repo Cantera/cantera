@@ -192,7 +192,7 @@ void vcs_VolPhase::_updateMoleFractionDependencies()
     }
 }
 
-const vector_fp & vcs_VolPhase::moleFractions() const
+const vector<double> & vcs_VolPhase::moleFractions() const
 {
     return Xmol_;
 }
@@ -495,8 +495,8 @@ void vcs_VolPhase::_updateLnActCoeffJac()
 
     double deltaMoles_j = 0.0;
     // Make copies of ActCoeff and Xmol_ for use in taking differences
-    vector_fp ActCoeff_Base(ActCoeff);
-    vector_fp Xmol_Base(Xmol_);
+    vector<double> ActCoeff_Base(ActCoeff);
+    vector<double> Xmol_Base(Xmol_);
     double TMoles_base = phaseTotalMoles;
 
     // Loop over the columns species to be deltad
@@ -592,7 +592,7 @@ double vcs_VolPhase::molefraction(size_t k) const
 }
 
 void vcs_VolPhase::setCreationMoleNumbers(const double* const n_k,
-        const std::vector<size_t> &creationGlobalRxnNumbers)
+        const vector<size_t> &creationGlobalRxnNumbers)
 {
     creationMoleNumbers_.assign(n_k, n_k+m_numSpecies);
     for (size_t k = 0; k < m_numSpecies; k++) {
@@ -600,7 +600,8 @@ void vcs_VolPhase::setCreationMoleNumbers(const double* const n_k,
     }
 }
 
-const vector_fp& vcs_VolPhase::creationMoleNumbers(std::vector<size_t> &creationGlobalRxnNumbers) const
+const vector<double>& vcs_VolPhase::creationMoleNumbers(
+        vector<size_t> &creationGlobalRxnNumbers) const
 {
     creationGlobalRxnNumbers = creationGlobalRxnNumbers_;
     return creationMoleNumbers_;
@@ -753,7 +754,7 @@ size_t vcs_VolPhase::nElemConstraints() const
     return m_numElemConstraints;
 }
 
-std::string vcs_VolPhase::elementName(const size_t e) const
+string vcs_VolPhase::elementName(const size_t e) const
 {
     return m_elementNames[e];
 }
@@ -831,7 +832,7 @@ size_t vcs_VolPhase::transferElementsFM(const ThermoPhase* const tPhase)
             eFound = ne;
             m_elementType[ne] = VCS_ELEM_TYPE_ELECTRONCHARGE;
             m_elementActive[ne] = 0;
-            std::string ename = "E";
+            string ename = "E";
             m_elementNames[ne] = ename;
             ne++;
             elemResize(ne);
@@ -850,7 +851,7 @@ size_t vcs_VolPhase::transferElementsFM(const ThermoPhase* const tPhase)
     }
 
     if (cne) {
-        std::string pname = tPhase->name();
+        string pname = tPhase->name();
         if (pname == "") {
             pname = fmt::format("phase{}", VP_ID_);
         }
@@ -911,7 +912,7 @@ size_t vcs_VolPhase::nSpecies() const
     return m_numSpecies;
 }
 
-std::string vcs_VolPhase::eos_name() const
+string vcs_VolPhase::eos_name() const
 {
     switch (m_eqnState) {
     case VCS_EOS_CONSTANT:

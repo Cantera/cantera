@@ -1,8 +1,8 @@
 /**
  * @file DustyGasTransport.h Headers for the DustyGasTransport object, which
  *   models transport properties in porous media using the dusty gas
- *   approximation (see \ref tranprops and \link Cantera::DustyGasTransport
- *   DustyGasTransport \endlink) .
+ *   approximation (see @ref tranprops and @link Cantera::DustyGasTransport
+ *   DustyGasTransport @endlink) .
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -26,37 +26,27 @@ namespace Cantera
  * of species due to a pressure gradient that is part of Darcy's law.
  *
  * The dusty gas model expresses the value of the molar flux of species
- * \f$ k \f$, \f$ J_k \f$ by the following formula.
+ * @f$ k @f$, @f$ J_k @f$ by the following formula.
  *
- * \f[
+ * @f[
  *     \sum_{j \ne k}{\frac{X_j J_k - X_k J_j}{D^e_{kj}}} + \frac{J_k}{\mathcal{D}^{e}_{k,knud}} =
  *             - \nabla C_k  - \frac{C_k}{\mathcal{D}^{e}_{k,knud}} \frac{\kappa}{\mu} \nabla p
- * \f]
+ * @f]
  *
- * \f$ j \f$ is a sum over all species in the gas.
+ * @f$ j @f$ is a sum over all species in the gas.
  *
  * The effective Knudsen diffusion coefficients are given by the following form
  *
- * \f[
+ * @f[
  *    \mathcal{D}^e_{k,knud} =  \frac{2}{3} \frac{r_{pore} \phi}{\tau} \left( \frac{8 R T}{\pi W_k}  \right)^{1/2}
- * \f]
+ * @f]
  *
  * The effective knudsen diffusion coefficients take into account the effects of
  * collisions of gas-phase molecules with the wall.
  *
- * References for the Dusty Gas Model
- *
- * 1. H. Zhu, R. J. Kee, "Modeling Electrochemical Impedance Spectra in SOFC
- *    Button Cells with Internal Methane Reforming," J. Electrochem. Soc.,
- *    153(9) A1765-1772 (2006).
- * 2. H. Zhu, R. J. Kee, V. M. Janardhanan, O. Deutschmann, D. G. Goodwin, J.
- *    Electrochem. Soc., 152, A2427 (2005).
- * 3. E. A. Mason, A. P. Malinauskas," Gas Transport in Porous Media: the Dusty-
- *    Gas Model", American Elsevier, New York (1983).
- * 4. J. W. Veldsink, R. M. J. van Damme, G. F. Versteeg, W. P. M. van Swaaij,
- *    "The use of the dusty gas model for the description of mass transport with
- *    chemical reaction in porous media," Chemical Engineering Journal, 57, 115
- *    - 125 (1995).
+ * For references on the Dusty Gas Model, see Zhu and Kee @cite zhu2006; Zhu, et al.
+ * @cite zhu2005; Mason and Malinauskas @cite mason1983; and Veldsink, et al.
+ * @cite veldsink1995.
  * @ingroup tranprops
  */
 class DustyGasTransport : public Transport
@@ -71,19 +61,19 @@ public:
 
     //  overloaded base class methods
 
-    virtual void setThermo(ThermoPhase& thermo);
+    void setThermo(ThermoPhase& thermo) override;
 
-    virtual std::string transportModel() const {
+    string transportModel() const override {
         return "DustyGas";
     }
 
-    virtual void getMultiDiffCoeffs(const size_t ld, doublereal* const d);
+    void getMultiDiffCoeffs(const size_t ld, double* const d) override;
 
     //! Get the molar fluxes [kmol/m^2/s], given the thermodynamic state at two nearby points.
     /*!
-     *   \f[
+     *   @f[
      *       J_k = - \sum_{j = 1, N} \left[D^{multi}_{kj}\right]^{-1} \left( \nabla C_j  + \frac{C_j}{\mathcal{D}^{knud}_j} \frac{\kappa}{\mu} \nabla p \right)
-     *   \f]
+     *   @f]
      *
      * @param  state1  Array of temperature, density, and mass fractions for state 1.
      * @param  state2  Array of temperature, density, and mass fractions for state 2.
@@ -91,9 +81,8 @@ public:
      *
      * @param fluxes   Vector of species molar fluxes due to diffusional driving force
      */
-    virtual void getMolarFluxes(const doublereal* const state1,
-                                const doublereal* const state2, const doublereal delta,
-                                doublereal* const fluxes);
+    void getMolarFluxes(const double* const state1, const double* const state2,
+                        const double delta, double* const fluxes) override;
 
     // new methods added in this class
 
@@ -101,7 +90,7 @@ public:
     /*!
      * @param porosity  Set the value of the porosity
      */
-    void setPorosity(doublereal porosity);
+    void setPorosity(double porosity);
 
     //! Set the tortuosity (dimensionless)
     /*!
@@ -109,19 +98,19 @@ public:
      *
      * @param tort  Value of the tortuosity
      */
-    void setTortuosity(doublereal tort);
+    void setTortuosity(double tort);
 
     //! Set the mean pore radius (m)
     /*!
      * @param rbar  Value of the pore radius ( m)
      */
-    void setMeanPoreRadius(doublereal rbar);
+    void setMeanPoreRadius(double rbar);
 
     //! Set the mean particle diameter
     /*!
      * @param dbar  Set the mean particle diameter (m)
      */
-    void setMeanParticleDiameter(doublereal dbar);
+    void setMeanParticleDiameter(double dbar);
 
     //! Set the permeability of the media
     /*!
@@ -130,13 +119,13 @@ public:
      * The value for close-packed spheres is given below, where p is the
      * porosity, t is the tortuosity, and d is the diameter of the sphere
      *
-     * \f[
+     * @f[
      *     \kappa = \frac{p^3 d^2}{72 t (1 - p)^2}
-     * \f]
+     * @f]
      *
      * @param B  set the permeability of the media (units = m^2)
      */
-    void setPermeability(doublereal B);
+    void setPermeability(double B);
 
     //! Return a reference to the transport manager used to compute the gas
     //! binary diffusion coefficients and the viscosity.
@@ -183,15 +172,15 @@ private:
 
     //! Private routine to update the dusty gas binary diffusion coefficients
     /*!
-     * The dusty gas binary diffusion coefficients \f$  D^{dg}_{i,j} \f$ are
-     * evaluated from the binary gas-phase diffusion coefficients \f$
-     * D^{bin}_{i,j} \f$  using the following formula
+     * The dusty gas binary diffusion coefficients @f$  D^{dg}_{i,j} @f$ are
+     * evaluated from the binary gas-phase diffusion coefficients @f$
+     * D^{bin}_{i,j} @f$  using the following formula
      *
-     * \f[
+     * @f[
      *     D^{dg}_{i,j} =  \frac{\phi}{\tau} D^{bin}_{i,j}
-     * \f]
+     * @f]
      *
-     * where \f$ \phi \f$ is the porosity of the media and \f$ \tau \f$ is the
+     * where @f$ \phi @f$ is the porosity of the media and @f$ \tau @f$ is the
      * tortuosity of the media.
      */
     void updateBinaryDiffCoeffs();
@@ -207,22 +196,22 @@ private:
     /*!
      * The Knudsen diffusion coefficients are given by the following form
      *
-     * \f[
+     * @f[
      *     \mathcal{D}^{knud}_k =  \frac{2}{3} \frac{r_{pore} \phi}{\tau} \left( \frac{8 R T}{\pi W_k}  \right)^{1/2}
-     * \f]
+     * @f]
      */
     void updateKnudsenDiffCoeffs();
 
     //! Calculate the H matrix
     /*!
-     * The multicomponent diffusion H matrix \f$  H_{k,l} \f$ is given by the following form
+     * The multicomponent diffusion H matrix @f$  H_{k,l} @f$ is given by the following form
      *
-     * \f[
+     * @f[
      *    H_{k,l} = - \frac{X_k}{D_{k,l}}
-     * \f]
-     * \f[
+     * @f]
+     * @f[
      *    H_{k,k} = \frac{1}{\mathcal(D)^{knud}_{k}} + \sum_{j \ne k}^N{ \frac{X_j}{D_{k,j}} }
-     * \f]
+     * @f]
      */
     void eval_H_matrix();
 
@@ -231,16 +220,16 @@ private:
      *  units kg /kmol
      *  length = m_nsp;
      */
-    vector_fp m_mw;
+    vector<double> m_mw;
 
     //! binary diffusion coefficients
     DenseMatrix m_d;
 
     //! mole fractions
-    vector_fp m_x;
+    vector<double> m_x;
 
     //! Knudsen diffusion coefficients. @see updateKnudsenDiffCoeffs()
-    vector_fp m_dk;
+    vector<double> m_dk;
 
     //! temperature
     double m_temp = -1.0;
@@ -249,10 +238,10 @@ private:
     DenseMatrix m_multidiff;
 
     //! work space of size m_nsp;
-    vector_fp m_spwork;
+    vector<double> m_spwork;
 
     //! work space of size m_nsp;
-    vector_fp m_spwork2;
+    vector<double> m_spwork2;
 
     //! Pressure Gradient
     double m_gradP = 0.0;
@@ -283,18 +272,18 @@ private:
      * The permeability is the proportionality constant for Darcy's law which
      * relates discharge rate and viscosity to the applied pressure gradient.
      *
-     * Below is Darcy's law, where \f$ \kappa \f$ is the permeability
+     * Below is Darcy's law, where @f$ \kappa @f$ is the permeability
      *
-     * \f[
+     * @f[
      *     v = \frac{\kappa}{\mu} \frac{\delta P}{\delta x}
-     * \f]
+     * @f]
      *
      * units are m2
      */
     double m_perm = -1.0;
 
     //! Pointer to the transport object for the gas phase
-    std::unique_ptr<Transport> m_gastran;
+    unique_ptr<Transport> m_gastran;
 };
 }
 #endif

@@ -17,3 +17,4 @@ Contents:
    constants
    units
    utilities
+   scripts

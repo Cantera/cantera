@@ -102,7 +102,7 @@ TEST(YamlWriter, userDefinedFields)
                                   input1);
 
     // user-defined fields should be in place
-    EXPECT_TRUE(thermo1->input()["custom-field"]["second"].is<vector_fp>());
+    EXPECT_TRUE(thermo1->input()["custom-field"]["second"].is<vector<double>>());
     auto spec1 = thermo1->species("NO");
     EXPECT_EQ(spec1->input["extra-field"], "blue");
     EXPECT_EQ(spec1->thermo->input()["bonus-field"], "green");
@@ -182,7 +182,7 @@ TEST(YamlWriter, reactions)
     auto kin2 = duplicate->kinetics();
 
     ASSERT_EQ(kin1->nReactions(), kin2->nReactions());
-    vector_fp kf1(kin1->nReactions()), kf2(kin1->nReactions());
+    vector<double> kf1(kin1->nReactions()), kf2(kin1->nReactions());
     kin1->getFwdRateConstants(kf1.data());
     kin2->getFwdRateConstants(kf2.data());
     for (size_t i = 0; i < kin1->nReactions(); i++) {
@@ -197,7 +197,7 @@ TEST(YamlWriter, reaction_units_from_Yaml)
     writer.addPhase(original);
     writer.setPrecision(14);
     auto units = UnitSystem();
-    std::map<std::string, std::string> defaults{
+    map<string, string> defaults{
         {"activation-energy", "K"},
         {"quantity", "mol"},
         {"length", "cm"}
@@ -211,7 +211,7 @@ TEST(YamlWriter, reaction_units_from_Yaml)
     auto kin2 = duplicate->kinetics();
 
     ASSERT_EQ(kin1->nReactions(), kin2->nReactions());
-    vector_fp kf1(kin1->nReactions()), kf2(kin1->nReactions());
+    vector<double> kf1(kin1->nReactions()), kf2(kin1->nReactions());
     kin1->getFwdRateConstants(kf1.data());
     kin2->getFwdRateConstants(kf2.data());
     for (size_t i = 0; i < kin1->nReactions(); i++) {
@@ -238,7 +238,7 @@ TEST(YamlWriter, chebyshev_units_from_Yaml)
     auto kin2 = duplicate->kinetics();
 
     ASSERT_EQ(kin1->nReactions(), kin2->nReactions());
-    vector_fp kf1(kin1->nReactions()), kf2(kin1->nReactions());
+    vector<double> kf1(kin1->nReactions()), kf2(kin1->nReactions());
     kin1->getFwdRateConstants(kf1.data());
     kin2->getFwdRateConstants(kf2.data());
     for (size_t i = 0; i < kin1->nReactions(); i++) {
@@ -310,15 +310,15 @@ TEST(YamlWriter, Interface)
                 1e-13 * iface2->siteDensity());
 
     ASSERT_EQ(kin1->nReactions(), kin2->nReactions());
-    vector_fp kf1(kin1->nReactions()), kf2(kin1->nReactions());
+    vector<double> kf1(kin1->nReactions()), kf2(kin1->nReactions());
     kin1->getFwdRateConstants(kf1.data());
     kin2->getFwdRateConstants(kf2.data());
     for (size_t i = 0; i < kin1->nReactions(); i++) {
         EXPECT_NEAR(kf1[i], kf2[i], 1e-13 * kf1[i]) << "for reaction i = " << i;
     }
 
-    vector_fp wdot1(kin1->nTotalSpecies());
-    vector_fp wdot2(kin2->nTotalSpecies());
+    vector<double> wdot1(kin1->nTotalSpecies());
+    vector<double> wdot2(kin2->nTotalSpecies());
     kin1->getNetProductionRates(wdot1.data());
     kin2->getNetProductionRates(wdot2.data());
     for (size_t i = 0; i < kin1->nTotalSpecies(); i++) {
@@ -347,15 +347,15 @@ TEST(YamlWriter, sofc)
     auto ox_kin2 = tpb2->adjacent("oxide_surface")->kinetics();
 
     ASSERT_EQ(tpb_kin1->nReactions(), tpb_kin2->nReactions());
-    vector_fp kf1(tpb_kin1->nReactions()), kf2(tpb_kin1->nReactions());
+    vector<double> kf1(tpb_kin1->nReactions()), kf2(tpb_kin1->nReactions());
     tpb_kin1->getFwdRateConstants(kf1.data());
     tpb_kin2->getFwdRateConstants(kf2.data());
     for (size_t i = 0; i < tpb_kin1->nReactions(); i++) {
         EXPECT_NEAR(kf1[i], kf2[i], 1e-13 * kf1[i]) << "for tpb reaction i = " << i;
     }
 
-    vector_fp wdot1(tpb_kin1->nTotalSpecies());
-    vector_fp wdot2(tpb_kin2->nTotalSpecies());
+    vector<double> wdot1(tpb_kin1->nTotalSpecies());
+    vector<double> wdot2(tpb_kin2->nTotalSpecies());
     tpb_kin1->getNetProductionRates(wdot1.data());
     tpb_kin2->getNetProductionRates(wdot2.data());
     for (size_t i = 0; i < tpb_kin1->nTotalSpecies(); i++) {

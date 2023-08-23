@@ -221,7 +221,7 @@ class TestReactor(utilities.CanteraTest):
         self.net.max_time_step = max_step_size
         self.net.max_steps = max_steps
         with self.assertRaisesRegex(
-                ct.CanteraError, 'mxstep steps taken before reaching tout'):
+                ct.CanteraError, 'Maximum number of timesteps'):
             self.net.advance(1e-04)
         self.assertLessEqual(self.net.time, max_steps * max_step_size)
         self.assertEqual(self.net.max_steps, max_steps)
@@ -347,6 +347,12 @@ class TestReactor(utilities.CanteraTest):
 
         with pytest.raises(ct.CanteraError, match="No component named 'spam'"):
             self.r1.set_advance_limit("spam", 0.1)
+
+    def test_advance_reverse(self):
+        self.make_reactors(n_reactors=1)
+        self.net.advance(0.1)
+        with pytest.raises(ct.CanteraError, match="backwards in time"):
+            self.net.advance(0.09)
 
     def test_heat_transfer2(self):
         # Result should be the same if (m * cp) / (U * A) is held constant
@@ -1370,7 +1376,7 @@ class TestReactorJacobians(utilities.CanteraTest):
         net.derivative_settings = {"skip-coverage-dependence":True}
         net.initialize()
         # check that they two arrays are the same
-        self.assertArrayNear(r1.jacobian, r2.jacobian, 1e-6, 1e-8)
+        self.assertArrayNear(r1.jacobian, r2.jacobian, 2e-6, 1e-8)
 
 # A rate type used for testing integrator error handling
 class FailRateData(ct.ExtensibleRateData):
@@ -1531,6 +1537,15 @@ class TestFlowReactor2(utilities.CanteraTest):
         sim = ct.ReactorNet([r])
         return r, rsurf, sim
 
+    def test_advance_reverse(self):
+        surf, gas = self.import_phases()
+        gas.TPX = 1500, 4000, 'NH3:1.0, SiF4:0.4'
+        r, rsurf, sim = self.make_reactors(gas, surf)
+
+        sim.advance(0.1)
+        with pytest.raises(ct.CanteraError, match="backwards in time"):
+            sim.advance(0.09)
+
     def test_no_mass_flow_rate(self):
         surf, gas = self.import_phases()
         r = ct.FlowReactor(gas)
@@ -1605,7 +1620,7 @@ class TestFlowReactor2(utilities.CanteraTest):
         sim.max_steps = 13
         assert sim.max_steps == 13
 
-        with pytest.raises(ct.CanteraError, match="mxstep steps taken"):
+        with pytest.raises(ct.CanteraError, match="Maximum number of timesteps"):
             sim.advance(0.1)
 
         assert sim.solver_stats['steps'] == 13
@@ -1624,11 +1639,12 @@ class TestFlowReactor2(utilities.CanteraTest):
         surf.TP = gas.TP
         r, rsurf, sim = self.make_reactors(gas, surf)
 
-        sim.max_time_step = 0.2
+        sim.max_time_step = 0.002
         sim.advance(0.01)
+        sim.step()
         x1 = sim.distance
         x2 = sim.step()
-        dx_limit = 0.05 * (x2-x1)
+        dx_limit = 0.1 * (x2-x1)
 
         sim.max_time_step = dx_limit
         assert sim.max_time_step == dx_limit
@@ -1746,7 +1762,7 @@ class TestFlowReactor2(utilities.CanteraTest):
         # With few steps allowed, won't be able to reach steady-state
         r.inlet_surface_max_error_failures = 10
         r.inlet_surface_max_steps = 200
-        with pytest.raises(ct.CanteraError, match="mxstep steps taken"):
+        with pytest.raises(ct.CanteraError, match="Maximum number of timesteps"):
             sim.initialize()
 
         # Relaxing the tolerances will allow the integrator to reach steady-state

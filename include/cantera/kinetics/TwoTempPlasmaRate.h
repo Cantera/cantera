@@ -21,14 +21,14 @@ struct TwoTempPlasmaData : public ReactionData
 {
     TwoTempPlasmaData() = default;
 
-    virtual bool update(const ThermoPhase& phase, const Kinetics& kin) override;
-    virtual void update(double T) override;
-    virtual void update(double T, double Te) override;
+    bool update(const ThermoPhase& phase, const Kinetics& kin) override;
+    void update(double T) override;
+    void update(double T, double Te) override;
     using ReactionData::update;
 
     virtual void updateTe(double Te);
 
-    virtual void invalidateCache() override {
+    void invalidateCache() override {
         ReactionData::invalidateCache();
         electronTemp = NAN;
     }
@@ -47,16 +47,13 @@ struct TwoTempPlasmaData : public ReactionData
  * the electron temperature instead. In addition, the exponential term with
  * activation energy for electron is included.
  *
- *   \f[
+ *   @f[
  *        k_f =  A T_e^b \exp (-E_{a,g}/RT) \exp (E_{a,e} (T_e - T)/(R T T_e))
- *   \f]
+ *   @f]
  *
- * where \f$ T_e \f$ is the electron temperature, \f$ E_{a,g} \f$ is the activation
- * energy for gas, and \f$ E_{a,e} \f$ is the activation energy for electron.
- * Ref.: Kossyi, I. A., Kostinsky, A. Y., Matveyev, A. A., & Silakov, V. P. (1992).
- * Kinetic scheme of the non-equilibrium discharge in nitrogen-oxygen mixtures.
- * Plasma Sources Science and Technology, 1(3), 207.
- * doi: 10.1088/0963-0252/1/3/011
+ * where @f$ T_e @f$ is the electron temperature, @f$ E_{a,g} @f$ is the activation
+ * energy for gas, and @f$ E_{a,e} @f$ is the activation energy for electron, see
+ * Kossyi, et al. @cite kossyi1992.
  *
  * @ingroup arrheniusGroup
  */
@@ -81,11 +78,11 @@ public:
         return make_unique<MultiRate<TwoTempPlasmaRate, TwoTempPlasmaData>>();
     }
 
-    virtual const std::string type() const override {
+    const string type() const override {
         return "two-temperature-plasma";
     }
 
-    virtual void setContext(const Reaction& rxn, const Kinetics& kin) override;
+    void setContext(const Reaction& rxn, const Kinetics& kin) override;
 
     //! Evaluate reaction rate
     /*!

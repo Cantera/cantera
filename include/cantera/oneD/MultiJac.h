@@ -17,7 +17,8 @@ namespace Cantera
  * residual function supplied by an instance of class OneDim. The residual
  * function may consist of several linked 1D domains, with different variables
  * in each domain.
- * @ingroup onedim
+ * @ingroup onedUtilsGroup
+ * @ingroup derivGroup
  */
 class MultiJac : public BandMatrix
 {
@@ -30,10 +31,10 @@ public:
      * reciprocal of the time step. If zero, the steady-state Jacobian is
      * evaluated.
      */
-    void eval(doublereal* x0, doublereal* resid0, double rdt);
+    void eval(double* x0, double* resid0, double rdt);
 
     //! Elapsed CPU time spent computing the Jacobian.
-    doublereal elapsedTime() const {
+    double elapsedTime() const {
         return m_elapsed;
     }
 
@@ -52,18 +53,18 @@ public:
         m_age++;
     }
 
-    void updateTransient(doublereal rdt, integer* mask);
+    void updateTransient(double rdt, integer* mask);
 
     //! Set the Jacobian age.
     void setAge(int age) {
         m_age = age;
     }
 
-    vector_int& transientMask() {
+    vector<int>& transientMask() {
         return m_mask;
     }
 
-    void incrementDiagonal(int j, doublereal d);
+    void incrementDiagonal(int j, double d);
 
 protected:
     //! Residual evaluator for this Jacobian
@@ -73,12 +74,12 @@ protected:
      */
     OneDim* m_resid;
 
-    vector_fp m_r1;
+    vector<double> m_r1;
     double m_rtol = 1e-5;
     double m_atol = sqrt(std::numeric_limits<double>::epsilon());
     double m_elapsed = 0.0;
-    vector_fp m_ssdiag;
-    vector_int m_mask;
+    vector<double> m_ssdiag;
+    vector<int> m_mask;
     int m_nevals = 0;
     int m_age = 100000;
     size_t m_size;

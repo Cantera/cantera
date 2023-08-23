@@ -19,7 +19,7 @@ void AdaptivePreconditioner::setValue(size_t row, size_t col, double value)
     m_jac_trips.emplace_back(static_cast<int>(row), static_cast<int>(col), value);
 }
 
-void AdaptivePreconditioner::stateAdjustment(vector_fp& state) {
+void AdaptivePreconditioner::stateAdjustment(vector<double>& state) {
     // Only keep positive composition based on given tol
     for (size_t i = 0; i < state.size(); i++) {
         state[i] = std::max(state[i], m_atol);

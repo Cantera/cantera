@@ -52,13 +52,14 @@ public:
 };
 
 /**
- * @defgroup equil Chemical Equilibrium
+ * @defgroup equilGroup Chemical Equilibrium
+ * @details Classes and functions used for calculating chemical equilibrium.
  */
 
 /**
  * Class ChemEquil implements a chemical equilibrium solver for single-phase
  * solutions. It is a "non-stoichiometric" solver in the terminology of Smith
- * and Missen, meaning that every intermediate state is a valid chemical
+ * and Missen @cite smith1982, meaning that every intermediate state is a valid chemical
  * equilibrium state, but does not necessarily satisfy the element constraints.
  * In contrast, the solver implemented in class MultiPhaseEquil uses a
  * "stoichiometric" algorithm, in which each intermediate state satisfies the
@@ -72,7 +73,7 @@ public:
  * non-zero mole fractions, precisely stoichiometric compositions (for example,
  * 2 H2 + O2). In general, if speed is important, this solver should be tried first,
  * and if it fails then use MultiPhaseEquil.
- * @ingroup equil
+ * @ingroup equilGroup
  */
 class ChemEquil
 {
@@ -90,7 +91,7 @@ public:
 
     virtual ~ChemEquil() = default;
 
-    /*!
+    /**
      * Equilibrate a phase, holding the elemental composition fixed at the
      * initial value found within the ThermoPhase object *s*.
      *
@@ -100,7 +101,7 @@ public:
      */
     int equilibrate(ThermoPhase& s, const char* XY, int loglevel = 0);
 
-    /*!
+    /**
      * Compute the equilibrium composition for two specified properties and the
      * specified element moles.
      *
@@ -116,7 +117,7 @@ public:
      *     Unsuccessful returns are indicated by a return value of -1 for lack
      *     of convergence or -3 for a singular Jacobian.
      */
-    int equilibrate(ThermoPhase& s, const char* XY, vector_fp& elMoles,
+    int equilibrate(ThermoPhase& s, const char* XY, vector<double>& elMoles,
                     int loglevel = 0);
 
     /**
@@ -135,39 +136,39 @@ protected:
     ThermoPhase* m_phase;
 
     //! number of atoms of element m in species k.
-    doublereal nAtoms(size_t k, size_t m) const {
+    double nAtoms(size_t k, size_t m) const {
         return m_comp[k*m_mm + m];
     }
 
-    /*!
+    /**
      * Prepare for equilibrium calculations.
      * @param s object representing the solution phase.
      */
     void initialize(ThermoPhase& s);
 
-    /*!
+    /**
      * Set mixture to an equilibrium state consistent with specified element
      * potentials and temperature.
      *
      * @param s mixture to be updated
      * @param x vector of non-dimensional element potentials
-     * \f[ \lambda_m/RT \f].
+     * @f[ \lambda_m/RT @f].
      * @param t temperature in K.
      */
     void setToEquilState(ThermoPhase& s,
-                         const vector_fp& x, doublereal t);
+                         const vector<double>& x, double t);
 
     //! Estimate the initial mole numbers. This version borrows from the
     //! MultiPhaseEquil solver.
-    int setInitialMoles(ThermoPhase& s, vector_fp& elMoleGoal, int loglevel = 0);
+    int setInitialMoles(ThermoPhase& s, vector<double>& elMoleGoal, int loglevel = 0);
 
     //! Generate a starting estimate for the element potentials.
-    int estimateElementPotentials(ThermoPhase& s, vector_fp& lambda,
-                                  vector_fp& elMolesGoal, int loglevel = 0);
+    int estimateElementPotentials(ThermoPhase& s, vector<double>& lambda,
+                                  vector<double>& elMolesGoal, int loglevel = 0);
 
-    /*!
+    /**
      * Do a calculation of the element potentials using the Brinkley method,
-     * p. 129 Smith and Missen.
+     * p. 129 Smith and Missen @cite smith1982.
      *
      * We have found that the previous estimate may not be good enough to
      * avoid drastic numerical issues associated with the use of a numerically
@@ -198,7 +199,7 @@ protected:
      *
      * NOTE: update for activity coefficients.
      */
-    int estimateEP_Brinkley(ThermoPhase& s, vector_fp& lambda, vector_fp& elMoles);
+    int estimateEP_Brinkley(ThermoPhase& s, vector<double>& lambda, vector<double>& elMoles);
 
     //! Find an acceptable step size and take it.
     /*!
@@ -213,22 +214,22 @@ protected:
      * limited to a factor of 2 jump in the values from this method. Near
      * convergence, the delta damping gets out of the way.
      */
-    int dampStep(ThermoPhase& s, vector_fp& oldx,
-                 double oldf, vector_fp& grad, vector_fp& step, vector_fp& x,
-                 double& f, vector_fp& elmols, double xval, double yval);
+    int dampStep(ThermoPhase& s, vector<double>& oldx,
+                 double oldf, vector<double>& grad, vector<double>& step, vector<double>& x,
+                 double& f, vector<double>& elmols, double xval, double yval);
 
     /**
      *  Evaluates the residual vector F, of length #m_mm
      */
-    void equilResidual(ThermoPhase& s, const vector_fp& x,
-                       const vector_fp& elmtotal, vector_fp& resid,
+    void equilResidual(ThermoPhase& s, const vector<double>& x,
+                       const vector<double>& elmtotal, vector<double>& resid,
                        double xval, double yval, int loglevel = 0);
 
-    void equilJacobian(ThermoPhase& s, vector_fp& x,
-                       const vector_fp& elmols, DenseMatrix& jac,
+    void equilJacobian(ThermoPhase& s, vector<double>& x,
+                       const vector<double>& elmols, DenseMatrix& jac,
                        double xval, double yval, int loglevel = 0);
 
-    void adjustEloc(ThermoPhase& s, vector_fp& elMolesGoal);
+    void adjustEloc(ThermoPhase& s, vector<double>& elMolesGoal);
 
     //! Update internally stored state information.
     void update(const ThermoPhase& s);
@@ -237,11 +238,14 @@ protected:
      * Given a vector of dimensionless element abundances, this routine
      * calculates the moles of the elements and the moles of the species.
      *
-     * @param[in] x = current dimensionless element potentials..
+     * @param s ThermoPhase object
+     * @param[in] x current dimensionless element potentials
+     * @param[in] Xmol_i_calc Mole fractions of the species
+     * @param[in] pressureConst Pressure
      */
-    double calcEmoles(ThermoPhase& s, vector_fp& x,
-                      const double& n_t, const vector_fp& Xmol_i_calc,
-                      vector_fp& eMolesCalc, vector_fp& n_i_calc,
+    double calcEmoles(ThermoPhase& s, vector<double>& x,
+                      const double& n_t, const vector<double>& Xmol_i_calc,
+                      vector<double>& eMolesCalc, vector<double>& n_i_calc,
                       double pressureConst);
 
     size_t m_mm; //!< number of elements in the phase
@@ -252,10 +256,10 @@ protected:
     //! it is computed. It's initialized to #m_mm.
     size_t m_nComponents;
 
-    std::function<double(ThermoPhase&)> m_p1, m_p2;
+    function<double(ThermoPhase&)> m_p1, m_p2;
 
     //! Current value of the mole fractions in the single phase. length = #m_kk.
-    vector_fp m_molefractions;
+    vector<double> m_molefractions;
 
     //! Current value of the sum of the element abundances given the current
     //! element potentials.
@@ -263,37 +267,37 @@ protected:
 
     //! Current value of the element mole fractions. Note these aren't the goal
     //! element mole fractions.
-    vector_fp m_elementmolefracs;
-    vector_fp m_reswork;
-    vector_fp m_jwork1;
-    vector_fp m_jwork2;
+    vector<double> m_elementmolefracs;
+    vector<double> m_reswork;
+    vector<double> m_jwork1;
+    vector<double> m_jwork2;
 
     //! Storage of the element compositions. natom(k,m) = m_comp[k*m_mm+ m];
-    vector_fp m_comp;
-    doublereal m_temp, m_dens;
+    vector<double> m_comp;
+    double m_temp, m_dens;
     double m_p0 = OneAtm;
 
     //! Index of the element id corresponding to the electric charge of each
     //! species. Equal to -1 if there is no such element id.
     size_t m_eloc = npos;
 
-    vector_fp m_startSoln;
+    vector<double> m_startSoln;
 
-    vector_fp m_grt;
-    vector_fp m_mu_RT;
+    vector<double> m_grt;
+    vector<double> m_mu_RT;
 
     //! Dimensionless values of the Gibbs free energy for the standard state of
     //! each species, at the temperature and pressure of the solution (the star
     //! standard state).
-    vector_fp m_muSS_RT;
-    std::vector<size_t> m_component;
+    vector<double> m_muSS_RT;
+    vector<size_t> m_component;
 
     //! element fractional cutoff, below which the element will be zeroed.
     double m_elemFracCutoff = 1e-100;
     bool m_doResPerturb = false;
 
-    std::vector<size_t> m_orderVectorElements;
-    std::vector<size_t> m_orderVectorSpecies;
+    vector<size_t> m_orderVectorElements;
+    vector<size_t> m_orderVectorSpecies;
 
     //! Verbosity of printed output. No messages when m_loglevel == 0. More
     //! output as level increases.
