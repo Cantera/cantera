@@ -1,3 +1,9 @@
+cantera (3.0.0-1+lunar0) lunar; urgency=medium
+
+  * New Upstream release
+
+ -- Raymond Speth <speth@mit.edu>  Wed, 23 Aug 2023 09:21:44 -0400
+
 cantera (3.0.0~b1-1+lunar0) lunar; urgency=medium
 
   * New upstream pre-release
