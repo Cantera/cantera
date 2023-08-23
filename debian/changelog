@@ -1,3 +1,9 @@
+cantera (3.0.0-1+jammy0) jammy; urgency=medium
+
+  * New upstream release
+
+ -- Raymond Speth <speth@mit.edu>  Tue, 22 Aug 2023 21:56:57 -0400
+
 cantera (3.0.0~b1-1+jammy0) jammy; urgency=medium
 
   * New upstream pre-release
