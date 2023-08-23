@@ -56,6 +56,7 @@ binary: build
 	ln -s libcantera.so.${SO_VERSION} debian/libcantera-dev/usr/lib/${DEB_HOST_MULTIARCH}/libcantera.so
 	ln -s libcantera_fortran.so.${SO_VERSION} debian/libcantera-dev/usr/lib/${DEB_HOST_MULTIARCH}/libcantera_fortran.so
 	mkdir -p debian/libcantera-dev/usr/lib/${DEB_HOST_MULTIARCH}/pkgconfig
+	sed -i 's|\s\+-isystem.*||' stage/usr/lib/pkgconfig/cantera.pc
 	mv stage/usr/lib/pkgconfig/cantera.pc debian/libcantera-dev/usr/lib/${DEB_HOST_MULTIARCH}/pkgconfig/
 	mkdir -p debian/libcantera-dev/usr/include
 	mv stage/usr/include/cantera debian/libcantera-dev/usr/include
