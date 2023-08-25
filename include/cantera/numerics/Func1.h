@@ -16,27 +16,6 @@
 namespace Cantera
 {
 
-// Magic numbers are only used by legacy C API methods
-// Example: traditional MATLAB toolbox
-const int FourierFuncType = 1;
-const int PolyFuncType = 2;
-const int ArrheniusFuncType = 3;
-const int GaussianFuncType = 4;
-const int SumFuncType = 20;
-const int DiffFuncType = 25;
-const int ProdFuncType = 30;
-const int RatioFuncType = 40;
-const int PeriodicFuncType = 50;
-const int CompositeFuncType = 60;
-const int TimesConstantFuncType = 70;
-const int PlusConstantFuncType = 80;
-const int SinFuncType = 100;
-const int CosFuncType = 102;
-const int ExpFuncType = 104;
-const int PowFuncType = 106;
-const int ConstFuncType = 110;
-const int TabulatedFuncType = 120;
-
 class TimesConstant1;
 
 //! @defgroup func1 Functor Objects
@@ -110,22 +89,8 @@ public:
 
     virtual ~Func1() = default;
 
-    //! @deprecated To be removed after %Cantera 3.0. Only used by deprecated methods.
-    Func1(const Func1& right);
-
-    //! @deprecated To be removed after %Cantera 3.0. Only used by deprecated methods.
-    Func1& operator=(const Func1& right);
-
-    //! Duplicate the current function.
-    /*!
-     * This duplicates the current function, returning a reference to the newly
-     * created function.
-     * @deprecated To be removed after %Cantera 3.0. Only used by deprecated methods.
-     */
-    virtual Func1& duplicate() const;
-
-    //! @deprecated To be removed after %Cantera 3.0. Replaced by type.
-    virtual int ID() const;
+    Func1(const Func1& right) = delete;
+    Func1& operator=(const Func1& right) = delete;
 
     //! Returns a string describing the type of the function
     //! @since New in %Cantera 3.0.
@@ -145,19 +110,19 @@ public:
 
     //! Creates a derivative to the current function
     /*!
-     * This will create a new derivative function and return a reference to the
-     * function.
-     * @deprecated To be changed after %Cantera 3.0; for new behavior, see derivative3.
+     * @return  shared pointer to new derivative function.
+     * @since Starting in Cantera 3.1, the return type is a `shared_ptr`.
      */
-    virtual Func1& derivative() const;
+    virtual shared_ptr<Func1> derivative() const;
 
     //! Creates a derivative to the current function
     /*!
      * This will create a new derivative function
      * @return  shared pointer to new derivative function.
      * @since New in %Cantera 3.0.
+     * @deprecated Transitional name for derivative()
      */
-    virtual shared_ptr<Func1> derivative3() const;
+    shared_ptr<Func1> derivative3() const { return derivative(); }
 
     //! Routine to determine if two functions are the same.
     /*!
@@ -176,23 +141,11 @@ public:
     //! Accessor function for the stored constant
     double c() const;
 
-    //! Function to set the stored constant
-    //! @deprecated To be removed after %Cantera 3.0. Only used by deprecated methods.
-    void setC(double c);
-
-    //! accessor function for m_f1
-    //! @deprecated To be removed after %Cantera 3.0; replaced by func1_shared().
-    Func1& func1() const;
-
     //! Accessor function for m_f1_shared
     //! @since New in %Cantera 3.0.
     shared_ptr<Func1> func1_shared() const {
         return m_f1_shared;
     }
-
-    //! accessor function for m_f2
-    //! @deprecated To be removed after %Cantera 3.0. Only used by deprecated methods.
-    Func1& func2() const;
 
     //! Accessor function for m_f2_shared
     //! @since New in %Cantera 3.0.
@@ -203,38 +156,14 @@ public:
     //! Return the order of the function, if it makes sense
     virtual int order() const;
 
-    //! @deprecated To be removed after %Cantera 3.0. Only used by deprecated methods.
-    Func1& func1_dup() const;
-
-    //! @deprecated To be removed after %Cantera 3.0. Only used by deprecated methods.
-    Func1& func2_dup() const;
-
-    //! @deprecated To be removed after %Cantera 3.0. Only used by deprecated methods.
-    Func1* parent() const;
-
-    //! @deprecated To be removed after %Cantera 3.0. Only used by deprecated methods.
-    void setParent(Func1* p);
-
 protected:
     double m_c = 0.0;
     Func1* m_f1 = nullptr;
     Func1* m_f2 = nullptr;
-    Func1* m_parent = nullptr;
 
     shared_ptr<Func1> m_f1_shared;
     shared_ptr<Func1> m_f2_shared;
 };
-
-
-// all functions using references are deprecated
-Func1& newSumFunction(Func1& f1, Func1& f2);
-Func1& newDiffFunction(Func1& f1, Func1& f2);
-Func1& newProdFunction(Func1& f1, Func1& f2);
-Func1& newRatioFunction(Func1& f1, Func1& f2);
-Func1& newCompositeFunction(Func1& f1, Func1& f2);
-Func1& newTimesConstFunction(Func1& f1, double c);
-Func1& newPlusConstFunction(Func1& f1, double c);
-
 
 //! Sum of two functions.
 //! @ingroup func1helper
@@ -281,23 +210,7 @@ public:
     //! Constructor uses single parameter (frequency)
     Sin1(const vector<double>& params);
 
-    Sin1(const Sin1& b) :
-        Func1(b) {
-    }
-
-    Sin1& operator=(const Sin1& right) {
-        if (&right == this) {
-            return *this;
-        }
-        Func1::operator=(right);
-        return *this;
-    }
-
     string write(const string& arg) const override;
-
-    int ID() const override {
-        return SinFuncType;
-    }
 
     string type() const override {
         return "sin";
@@ -307,9 +220,7 @@ public:
         return sin(m_c*t);
     }
 
-    Func1& duplicate() const override;
-    Func1& derivative() const override;
-    shared_ptr<Func1> derivative3() const override;
+    shared_ptr<Func1> derivative() const override;
 };
 
 
@@ -330,23 +241,8 @@ public:
     //! Constructor uses single parameter (frequency)
     Cos1(const vector<double>& params);
 
-    Cos1(const Cos1& b) :
-        Func1(b) {
-    }
-
-    Cos1& operator=(const Cos1& right) {
-        if (&right == this) {
-            return *this;
-        }
-        Func1::operator=(right);
-        return *this;
-    }
-
-    Func1& duplicate() const override;
     string write(const string& arg) const override;
-    int ID() const override {
-        return CosFuncType;
-    }
+
     string type() const override {
         return "cos";
     }
@@ -354,8 +250,7 @@ public:
     double eval(double t) const override {
         return cos(m_c * t);
     }
-    Func1& derivative() const override;
-    shared_ptr<Func1> derivative3() const override;
+    shared_ptr<Func1> derivative() const override;
 };
 
 
@@ -375,20 +270,8 @@ public:
     //! Constructor uses single parameter (exponent factor)
     Exp1(const vector<double>& params);
 
-    Exp1(const Exp1& b) :
-        Func1(b) {
-    }
-    Exp1& operator=(const Exp1& right) {
-        if (&right == this) {
-            return *this;
-        }
-        Func1::operator=(right);
-        return *this;
-    }
     string write(const string& arg) const override;
-    int ID() const override {
-        return ExpFuncType;
-    }
+
     string type() const override {
         return "exp";
     }
@@ -397,9 +280,7 @@ public:
         return exp(m_c*t);
     }
 
-    Func1& duplicate() const override;
-    Func1& derivative() const override;
-    shared_ptr<Func1> derivative3() const override;
+    shared_ptr<Func1> derivative() const override;
 };
 
 
@@ -428,7 +309,7 @@ public:
         return log(m_c * t);
     }
 
-    shared_ptr<Func1> derivative3() const override;
+    shared_ptr<Func1> derivative() const override;
 
     string write(const string& arg) const override;
 };
@@ -449,20 +330,8 @@ public:
     //! Constructor uses single parameter (exponent)
     Pow1(const vector<double>& params);
 
-    Pow1(const Pow1& b) :
-        Func1(b) {
-    }
-    Pow1& operator=(const Pow1& right) {
-        if (&right == this) {
-            return *this;
-        }
-        Func1::operator=(right);
-        return *this;
-    }
     string write(const string& arg) const override;
-    int ID() const override {
-        return PowFuncType;
-    }
+
     string type() const override {
         return "pow";
     }
@@ -470,9 +339,7 @@ public:
     double eval(double t) const override {
         return pow(t, m_c);
     }
-    Func1& duplicate() const override;
-    Func1& derivative() const override;
-    shared_ptr<Func1> derivative3() const override;
+    shared_ptr<Func1> derivative() const override;
 };
 
 //! Implements a tabulated function.
@@ -510,9 +377,7 @@ public:
     void setMethod(const string& method);
 
     string write(const string& arg) const override;
-    int ID() const override {
-        return TabulatedFuncType;
-    }
+
     string type() const override {
         if (m_isLinear) {
             return "tabulated-linear";
@@ -521,9 +386,7 @@ public:
     }
 
     double eval(double t) const override;
-    Func1& duplicate() const override;
-    Func1& derivative() const override;
-    shared_ptr<Func1> derivative3() const override;
+    shared_ptr<Func1> derivative() const override;
 private:
     vector<double> m_tvec; //!< Vector of time values
     vector<double> m_fvec; //!< Vector of function values
@@ -547,22 +410,8 @@ public:
     //! Constructor uses single parameter (constant)
     Const1(const vector<double>& params);
 
-    Const1(const Const1& b) :
-        Func1(b) {
-    }
-
-    Const1& operator=(const Const1& right) {
-        if (&right == this) {
-            return *this;
-        }
-        Func1::operator=(right);
-        return *this;
-    }
-
     string write(const string& arg) const override;
-    int ID() const override {
-        return ConstFuncType;
-    }
+
     string type() const override {
         return "constant";
     }
@@ -570,9 +419,7 @@ public:
     double eval(double t) const override {
         return m_c;
     }
-    Func1& duplicate() const override;
-    Func1& derivative() const override;
-    shared_ptr<Func1> derivative3() const override {
+    shared_ptr<Func1> derivative() const override {
         return make_shared<Const1>(0.0);
     }
 };
@@ -591,8 +438,6 @@ public:
     Sum1(Func1& f1, Func1& f2) {
         m_f1 = &f1;
         m_f2 = &f2;
-        m_f1->setParent(this);
-        m_f2->setParent(this);
     }
 
     Sum1(shared_ptr<Func1> f1, shared_ptr<Func1> f2) : Func1(f1, f2) {}
@@ -606,27 +451,6 @@ public:
         }
     }
 
-    Sum1(const Sum1& b) :
-        Func1(b) {
-        *this = Sum1::operator=(b);
-    }
-
-    Sum1& operator=(const Sum1& right) {
-        if (&right == this) {
-            return *this;
-        }
-        Func1::operator=(right);
-        m_f1 = &m_f1->duplicate();
-        m_f2 = &m_f2->duplicate();
-        m_f1->setParent(this);
-        m_f2->setParent(this);
-        m_parent = 0;
-        return *this;
-    }
-
-    int ID() const override {
-        return SumFuncType;
-    }
     string type() const override {
         return "sum";
     }
@@ -635,11 +459,8 @@ public:
         return m_f1->eval(t) + m_f2->eval(t);
     }
 
-    Func1& duplicate() const override;
-    Func1& derivative() const override;
-
-    shared_ptr<Func1> derivative3() const override {
-        return newSumFunction(m_f1_shared->derivative3(), m_f2_shared->derivative3());
+    shared_ptr<Func1> derivative() const override {
+        return newSumFunction(m_f1_shared->derivative(), m_f2_shared->derivative());
     }
 
     int order() const override {
@@ -662,8 +483,6 @@ public:
     Diff1(Func1& f1, Func1& f2) {
         m_f1 = &f1;
         m_f2 = &f2;
-        m_f1->setParent(this);
-        m_f2->setParent(this);
     }
 
     Diff1(shared_ptr<Func1> f1, shared_ptr<Func1> f2) : Func1(f1, f2) {}
@@ -677,28 +496,6 @@ public:
         }
     }
 
-    Diff1(const Diff1& b) :
-        Func1(b) {
-        *this = Diff1::operator=(b);
-    }
-
-    Diff1& operator=(const Diff1& right) {
-        if (&right == this) {
-            return *this;
-        }
-        Func1::operator=(right);
-        m_f1 = &m_f1->duplicate();
-        m_f2 = &m_f2->duplicate();
-        m_f1->setParent(this);
-        m_f2->setParent(this);
-        m_parent = 0;
-        return *this;
-    }
-
-    int ID() const override {
-        return DiffFuncType;
-    }
-
     string type() const override {
         return "diff";
     }
@@ -707,11 +504,8 @@ public:
         return m_f1->eval(t) - m_f2->eval(t);
     }
 
-    Func1& duplicate() const override;
-    Func1& derivative() const override;
-
-    shared_ptr<Func1> derivative3() const override {
-        return newDiffFunction(m_f1_shared->derivative3(), m_f2_shared->derivative3());
+    shared_ptr<Func1> derivative() const override {
+        return newDiffFunction(m_f1_shared->derivative(), m_f2_shared->derivative());
     }
 
     int order() const override {
@@ -735,8 +529,6 @@ public:
     Product1(Func1& f1, Func1& f2) {
         m_f1 = &f1;
         m_f2 = &f2;
-        m_f1->setParent(this);
-        m_f2->setParent(this);
     }
 
     Product1(shared_ptr<Func1> f1, shared_ptr<Func1> f2) : Func1(f1, f2) {}
@@ -750,28 +542,6 @@ public:
         }
     }
 
-    Product1(const Product1& b) :
-        Func1(b) {
-        *this = Product1::operator=(b);
-    }
-
-    Product1& operator=(const Product1& right) {
-        if (&right == this) {
-            return *this;
-        }
-        Func1::operator=(right);
-        m_f1 = &m_f1->duplicate();
-        m_f2 = &m_f2->duplicate();
-        m_f1->setParent(this);
-        m_f2->setParent(this);
-        m_parent = 0;
-        return *this;
-    }
-
-    int ID() const override {
-        return ProdFuncType;
-    }
-
     string type() const override {
         return "product";
     }
@@ -782,10 +552,7 @@ public:
         return m_f1->eval(t) * m_f2->eval(t);
     }
 
-    Func1& duplicate() const override;
-    Func1& derivative() const override;
-
-    shared_ptr<Func1> derivative3() const override;
+    shared_ptr<Func1> derivative() const override;
 
     int order() const override {
         return 1;
@@ -805,7 +572,6 @@ public:
     TimesConstant1(Func1& f1, double a) {
         m_f1 = &f1;
         m_c = a;
-        m_f1->setParent(this);
     }
 
     TimesConstant1(shared_ptr<Func1> f1, double a) : Func1(f1, a) {}
@@ -816,30 +582,12 @@ public:
         }
     }
 
-    TimesConstant1(const TimesConstant1& b) :
-        Func1(b) {
-        *this = TimesConstant1::operator=(b);
-    }
-
-    TimesConstant1& operator=(const TimesConstant1& right) {
-        if (&right == this) {
-            return *this;
-        }
-        Func1::operator=(right);
-        m_f1 = &m_f1->duplicate();
-        m_f1->setParent(this);
-        m_parent = 0;
-        return *this;
-    }
-    int ID() const override {
-        return TimesConstantFuncType;
-    }
     string type() const override {
         return "times-constant";
     }
 
     double isProportional(TimesConstant1& other) override {
-        if (func1().isIdentical(other.func1())) {
+        if (func1_shared()->isIdentical(*other.func1_shared())) {
             return (other.c()/c());
         } else {
             return 0.0;
@@ -847,7 +595,7 @@ public:
     }
 
     double isProportional(Func1& other) override {
-        if (func1().isIdentical(other)) {
+        if (func1_shared()->isIdentical(other)) {
             return 1.0/c();
         } else {
             return 0.0;
@@ -858,11 +606,8 @@ public:
         return m_f1->eval(t) * m_c;
     }
 
-    Func1& duplicate() const override;
-    Func1& derivative() const override;
-
-    shared_ptr<Func1> derivative3() const override {
-        return newTimesConstFunction(m_f1_shared->derivative3(), m_c);
+    shared_ptr<Func1> derivative() const override {
+        return newTimesConstFunction(m_f1_shared->derivative(), m_c);
     }
 
     string write(const string& arg) const override;
@@ -885,7 +630,6 @@ public:
     PlusConstant1(Func1& f1, double a) {
         m_f1 = &f1;
         m_c = a;
-        m_f1->setParent(this);
     }
 
     PlusConstant1(shared_ptr<Func1> f1, double a) : Func1(f1, a) {}
@@ -896,25 +640,6 @@ public:
         }
     }
 
-    PlusConstant1(const PlusConstant1& b) :
-        Func1(b) {
-        *this = PlusConstant1::operator=(b);
-    }
-
-    PlusConstant1& operator=(const PlusConstant1& right) {
-        if (&right == this) {
-            return *this;
-        }
-        Func1::operator=(right);
-        m_f1 = &m_f1->duplicate();
-        m_f1->setParent(this);
-        m_parent = 0;
-        return *this;
-    }
-
-    int ID() const override {
-        return PlusConstantFuncType;
-    }
     string type() const override {
         return "plus-constant";
     }
@@ -923,11 +648,8 @@ public:
         return m_f1->eval(t) + m_c;
     }
 
-    Func1& duplicate() const override;
-    Func1& derivative() const override;
-
-    shared_ptr<Func1> derivative3() const override {
-        return m_f1_shared->derivative3();
+    shared_ptr<Func1> derivative() const override {
+        return m_f1_shared->derivative();
     }
 
     string write(const string& arg) const override;
@@ -951,8 +673,6 @@ public:
     Ratio1(Func1& f1, Func1& f2) {
         m_f1 = &f1;
         m_f2 = &f2;
-        m_f1->setParent(this);
-        m_f2->setParent(this);
     }
 
     Ratio1(shared_ptr<Func1> f1, shared_ptr<Func1> f2) : Func1(f1, f2) {}
@@ -966,27 +686,6 @@ public:
         }
     }
 
-    Ratio1(const Ratio1& b) :
-        Func1(b) {
-        *this = Ratio1::operator=(b);
-    }
-
-    Ratio1& operator=(const Ratio1& right) {
-        if (&right == this) {
-            return *this;
-        }
-        Func1::operator=(right);
-        m_f1 = &m_f1->duplicate();
-        m_f2 = &m_f2->duplicate();
-        m_f1->setParent(this);
-        m_f2->setParent(this);
-        m_parent = 0;
-        return *this;
-    }
-
-    int ID() const override {
-        return RatioFuncType;
-    }
     string type() const override {
         return "ratio";
     }
@@ -995,10 +694,7 @@ public:
         return m_f1->eval(t) / m_f2->eval(t);
     }
 
-    Func1& duplicate() const override;
-    Func1& derivative() const override;
-
-    shared_ptr<Func1> derivative3() const override;
+    shared_ptr<Func1> derivative() const override;
 
     string write(const string& arg) const override;
 
@@ -1020,8 +716,6 @@ public:
     Composite1(Func1& f1, Func1& f2) {
         m_f1 = &f1;
         m_f2 = &f2;
-        m_f1->setParent(this);
-        m_f2->setParent(this);
     }
 
     Composite1(shared_ptr<Func1> f1, shared_ptr<Func1> f2) : Func1(f1, f2) {}
@@ -1035,27 +729,6 @@ public:
         }
     }
 
-    Composite1(const Composite1& b) :
-        Func1(b) {
-        *this = Composite1::operator=(b);
-    }
-
-    Composite1& operator=(const Composite1& right) {
-        if (&right == this) {
-            return *this;
-        }
-        Func1::operator=(right);
-        m_f1 = &m_f1->duplicate();
-        m_f2 = &m_f2->duplicate();
-        m_f1->setParent(this);
-        m_f2->setParent(this);
-        m_parent = 0;
-        return *this;
-    }
-
-    int ID() const override {
-        return CompositeFuncType;
-    }
     string type() const override {
         return "composite";
     }
@@ -1064,10 +737,7 @@ public:
         return m_f1->eval(m_f2->eval(t));
     }
 
-    Func1& duplicate() const override;
-    Func1& derivative() const override;
-
-    shared_ptr<Func1> derivative3() const override;
+    shared_ptr<Func1> derivative() const override;
 
     string write(const string& arg) const override;
 
@@ -1105,23 +775,6 @@ public:
     //! @f$ [A, t_0, \mathrm{fwhm}] @f$
     Gaussian1(const vector<double>& params);
 
-    Gaussian1(const Gaussian1& b) :
-        Func1(b) {
-        *this = Gaussian1::operator=(b);
-    }
-
-    Gaussian1& operator=(const Gaussian1& right) {
-        if (&right == this) {
-            return *this;
-        }
-        Func1::operator=(right);
-        m_A = right.m_A;
-        m_t0 = right.m_t0;
-        m_tau = right.m_tau;
-        m_parent = 0;
-        return *this;
-    }
-
     string type() const override {
         return "Gaussian";
     }
@@ -1133,28 +786,6 @@ public:
 
 protected:
     double m_A, m_t0, m_tau;
-};
-
-
-/**
- * A Gaussian.
- * @f[
- * f(t) = A e^{-[(t - t_0)/\tau]^2}
- * @f]
- * where @f[ \tau = \frac{fwhm}{2\sqrt{\ln 2}} @f]
- * @param A peak value
- * @param t0 offset
- * @param fwhm full width at half max
- * @ingroup func1advanced
- * @deprecated To be removed after %Cantera 3.0; replaced by Gaussian1.
- */
-class Gaussian : public Gaussian1
-{
-    Gaussian(double A, double t0, double fwhm);
-
-    Gaussian(const Gaussian& b);
-
-    Func1& duplicate() const override;
 };
 
 
@@ -1178,26 +809,9 @@ public:
     //! @f$ [a_n, \dots, a_1, a_0] @f$
     Poly1(const vector<double>& params);
 
-    Poly1(const Poly1& b) :
-        Func1(b) {
-        *this = Poly1::operator=(b);
-    }
-
-    Poly1& operator=(const Poly1& right) {
-        if (&right == this) {
-            return *this;
-        }
-        Func1::operator=(right);
-        m_cpoly = right.m_cpoly;
-        m_parent = 0;
-        return *this;
-    }
-
     string type() const override {
         return "polynomial";
     }
-
-    Func1& duplicate() const override;
 
     double eval(double t) const override {
         double r = m_cpoly[m_cpoly.size()-1];
@@ -1238,29 +852,9 @@ public:
     //! @f$ [a_0, a_1, \dots, a_n, \omega, b_1, \dots, b_n] @f$
     Fourier1(const vector<double>& params);
 
-    Fourier1(const Fourier1& b) :
-        Func1(b) {
-        *this = Fourier1::operator=(b);
-    }
-
-    Fourier1& operator=(const Fourier1& right) {
-        if (&right == this) {
-            return *this;
-        }
-        Func1::operator=(right);
-        m_omega = right.m_omega;
-        m_a0_2 = right.m_a0_2;
-        m_ccos = right.m_ccos;
-        m_csin = right.m_csin;
-        m_parent = 0;
-        return *this;
-    }
-
     string type() const override {
         return "Fourier";
     }
-
-    Func1& duplicate() const override;
 
     double eval(double t) const override {
         size_t n, nn;
@@ -1306,28 +900,9 @@ public:
     //! @f$ [A_1, b_1, E_1, A_2, b_2, E_2, \dots, A_n, b_n, E_n] @f$
     Arrhenius1(const vector<double>& params);
 
-    Arrhenius1(const Arrhenius1& b) :
-        Func1() {
-        *this = Arrhenius1::operator=(b);
-    }
-
-    Arrhenius1& operator=(const Arrhenius1& right) {
-        if (&right == this) {
-            return *this;
-        }
-        Func1::operator=(right);
-        m_A = right.m_A;
-        m_b = right.m_b;
-        m_E = right.m_E;
-        m_parent = 0;
-        return *this;
-    }
-
     string type() const override {
         return "Arrhenius";
     }
-
-    Func1& duplicate() const override;
 
     double eval(double t) const override {
         double sum = 0.0;
@@ -1356,26 +931,11 @@ public:
         m_c = T;
     }
 
-    Periodic1(const Periodic1& b) {
-        *this = Periodic1::operator=(b);
-    }
-
     Periodic1(shared_ptr<Func1> f, double A) : Func1(f, A) {}
-
-    Periodic1& operator=(const Periodic1& right) {
-        if (&right == this) {
-            return *this;
-        }
-        Func1::operator=(right);
-        m_f1 = &right.m_f1->duplicate();
-        return *this;
-    }
 
     string type() const override {
         return "periodic";
     }
-
-    Func1& duplicate() const override;
 
     ~Periodic1() override {
         if (!m_f1_shared) {

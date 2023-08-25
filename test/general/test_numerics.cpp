@@ -131,7 +131,7 @@ TEST(ctfunc, functor)
 {
     auto functor = newFunc1("functor");
     ASSERT_EQ(functor->type(), "functor");
-    ASSERT_THROW(functor->derivative3(), CanteraError);
+    ASSERT_THROW(functor->derivative(), CanteraError);
 }
 
 TEST(ctfunc, invalid)
@@ -150,7 +150,7 @@ TEST(ctfunc, sin)
     EXPECT_DOUBLE_EQ(functor->eval(0.), 0.);
     EXPECT_DOUBLE_EQ(functor->eval(.5), sin(omega * .5));
 
-    auto dfunctor = functor->derivative3();
+    auto dfunctor = functor->derivative();
     EXPECT_DOUBLE_EQ(dfunctor->eval(0.), omega);
     EXPECT_DOUBLE_EQ(dfunctor->eval(.5), omega * cos(omega * .5));
 
@@ -165,7 +165,7 @@ TEST(ctfunc, cos)
     EXPECT_DOUBLE_EQ(functor->eval(0.), 1.);
     EXPECT_DOUBLE_EQ(functor->eval(.5), cos(omega * .5));
 
-    auto dfunctor = functor->derivative3();
+    auto dfunctor = functor->derivative();
     EXPECT_DOUBLE_EQ(dfunctor->eval(0.), 0.);
     EXPECT_DOUBLE_EQ(dfunctor->eval(.5), -omega * sin(omega * .5));
 
@@ -180,7 +180,7 @@ TEST(ctfunc, exp)
     EXPECT_DOUBLE_EQ(functor->eval(0.), 1.);
     EXPECT_DOUBLE_EQ(functor->eval(.5), exp(omega * .5));
 
-    auto dfunctor = functor->derivative3();
+    auto dfunctor = functor->derivative();
     EXPECT_DOUBLE_EQ(dfunctor->eval(0.), omega);
     EXPECT_DOUBLE_EQ(dfunctor->eval(.5), omega * exp(omega * .5));
 
@@ -196,7 +196,7 @@ TEST(ctfunc, log)
     EXPECT_DOUBLE_EQ(functor->eval(1. / omega), 0.);
     EXPECT_DOUBLE_EQ(functor->eval(10.), log(omega * 10.));
 
-    auto dfunctor = functor->derivative3();
+    auto dfunctor = functor->derivative();
     EXPECT_DOUBLE_EQ(dfunctor->eval(.1), omega / .1);
     EXPECT_DOUBLE_EQ(dfunctor->eval(.5), omega / .5);
 
@@ -210,7 +210,7 @@ TEST(ctfunc, pow)
     EXPECT_DOUBLE_EQ(functor->eval(0.), 0.);
     EXPECT_DOUBLE_EQ(functor->eval(.5), pow(.5, exp));
 
-    auto dfunctor = functor->derivative3();
+    auto dfunctor = functor->derivative();
     EXPECT_DOUBLE_EQ(dfunctor->eval(.5), exp * pow(.5, exp - 1));
 
     ASSERT_THROW(newFunc1("pow", vector<double>()), CanteraError);
@@ -224,7 +224,7 @@ TEST(ctfunc, constant)
     EXPECT_DOUBLE_EQ(functor->eval(0.), a);
     EXPECT_DOUBLE_EQ(functor->eval(.5), a);
 
-    auto dfunctor = functor->derivative3();
+    auto dfunctor = functor->derivative();
     EXPECT_DOUBLE_EQ(dfunctor->eval(0.), 0.);
     EXPECT_DOUBLE_EQ(dfunctor->eval(.5), 0.);
 
@@ -243,7 +243,7 @@ TEST(ctfunc, tabulated_linear)
     EXPECT_DOUBLE_EQ(functor->eval(1.2), 0.2);
     EXPECT_DOUBLE_EQ(functor->eval(2.), 1.);
 
-    auto dfunctor = functor->derivative3();
+    auto dfunctor = functor->derivative();
     EXPECT_DOUBLE_EQ(dfunctor->eval(.5), -1.);
     EXPECT_DOUBLE_EQ(dfunctor->eval(1.5), 1.);
 
@@ -265,7 +265,7 @@ TEST(ctfunc, tabulated_previous)
     EXPECT_DOUBLE_EQ(functor->eval(2. - 1.e-12), 0.);
     EXPECT_DOUBLE_EQ(functor->eval(2. + 1.e-12), 1.);
 
-    auto dfunctor = functor->derivative3();
+    auto dfunctor = functor->derivative();
     EXPECT_DOUBLE_EQ(dfunctor->eval(.5), 0.);
     EXPECT_DOUBLE_EQ(dfunctor->eval(1.5), 0.);
 }
@@ -281,7 +281,7 @@ TEST(ctfunc, poly)
     EXPECT_DOUBLE_EQ(functor->eval(0.), a0);
     EXPECT_DOUBLE_EQ(functor->eval(.5), (a2 * .5 + a1) * .5 + a0);
 
-    ASSERT_THROW(functor->derivative3(), CanteraError);
+    ASSERT_THROW(functor->derivative(), CanteraError);
 }
 
 TEST(ctfunc, Fourier)
@@ -297,7 +297,7 @@ TEST(ctfunc, Fourier)
     EXPECT_DOUBLE_EQ(
         functor->eval(.5), .5 * a0 + a1 * cos(omega * .5) + b1 * sin(omega * .5));
 
-    ASSERT_THROW(functor->derivative3(), CanteraError);
+    ASSERT_THROW(functor->derivative(), CanteraError);
 
     params.push_back(1.);
     ASSERT_THROW(newFunc1("Fourier", params), CanteraError);
@@ -318,7 +318,7 @@ TEST(ctfunc, Gaussian)
     x = (.5 - t0) / tau;
     EXPECT_DOUBLE_EQ(functor->eval(.5), A * exp(-x * x));
 
-    ASSERT_THROW(functor->derivative3(), CanteraError);
+    ASSERT_THROW(functor->derivative(), CanteraError);
 
     ASSERT_THROW(newFunc1("Gaussian", vector<double>({1., 2.})), CanteraError);
 }
@@ -333,7 +333,7 @@ TEST(ctfunc, Arrhenius)
     ASSERT_EQ(functor->type(), "Arrhenius");
     EXPECT_DOUBLE_EQ(functor->eval(1000.), A * pow(1000., b) * exp(-E/1000.));
 
-    ASSERT_THROW(functor->derivative3(), CanteraError);
+    ASSERT_THROW(functor->derivative(), CanteraError);
 
     ASSERT_THROW(newFunc1("Arrhenius", vector<double>({1., 2.})), CanteraError);
 }
@@ -356,7 +356,7 @@ TEST(ctmath, sum)
     EXPECT_DOUBLE_EQ(functor->eval(0.), 1.);
     EXPECT_DOUBLE_EQ(functor->eval(.5), sin(omega * .5) + cos(omega * .5));
 
-    auto dfunctor = functor->derivative3();
+    auto dfunctor = functor->derivative();
     EXPECT_DOUBLE_EQ(dfunctor->eval(.5), omega * (cos(omega * .5) - sin(omega * .5)));
 }
 
@@ -370,7 +370,7 @@ TEST(ctmath, diff)
     EXPECT_DOUBLE_EQ(functor->eval(0.), -1.);
     EXPECT_DOUBLE_EQ(functor->eval(.5), sin(omega * .5) - cos(omega * .5));
 
-    auto dfunctor = functor->derivative3();
+    auto dfunctor = functor->derivative();
     EXPECT_DOUBLE_EQ(dfunctor->eval(.5), omega * (cos(omega * .5) + sin(omega * .5)));
 }
 
@@ -384,7 +384,7 @@ TEST(ctmath, prod)
     EXPECT_DOUBLE_EQ(functor->eval(0.), 0);
     EXPECT_DOUBLE_EQ(functor->eval(0.5), sin(omega * 0.5) * cos(omega * 0.5));
 
-    auto dfunctor = functor->derivative3();
+    auto dfunctor = functor->derivative();
     EXPECT_DOUBLE_EQ(dfunctor->eval(0.5),
         omega * (pow(cos(omega * 0.5), 2) - pow(sin(omega * 0.5), 2)));
 }
@@ -399,7 +399,7 @@ TEST(ctmath, ratio)
     EXPECT_DOUBLE_EQ(functor->eval(0.), 0.);
     EXPECT_DOUBLE_EQ(functor->eval(0.5), sin(omega * 0.5) / cos(omega * 0.5));
 
-    auto dfunctor = functor->derivative3();
+    auto dfunctor = functor->derivative();
     EXPECT_DOUBLE_EQ(dfunctor->eval(0.5), omega / pow(cos(omega * 0.5), 2));
 }
 
@@ -413,7 +413,7 @@ TEST(ctmath, composite)
     EXPECT_DOUBLE_EQ(functor->eval(0.), sin(omega));
     EXPECT_DOUBLE_EQ(functor->eval(0.5), sin(omega * cos(omega * 0.5)));
 
-    auto dfunctor = functor->derivative3();
+    auto dfunctor = functor->derivative();
     EXPECT_DOUBLE_EQ(dfunctor->eval(0.5),
         - omega * omega * sin(omega * 0.5) * cos(omega * cos(omega * 0.5)));
 }
@@ -428,7 +428,7 @@ TEST(ctmath, times_constant)
     EXPECT_DOUBLE_EQ(functor->eval(0.), 0.);
     EXPECT_DOUBLE_EQ(functor->eval(0.5), sin(omega * 0.5) * A);
 
-    auto dfunctor = functor->derivative3();
+    auto dfunctor = functor->derivative();
     EXPECT_DOUBLE_EQ(dfunctor->eval(0.5), A * omega * cos(omega * 0.5));
 }
 
@@ -442,7 +442,7 @@ TEST(ctmath, plus_constant)
     EXPECT_DOUBLE_EQ(functor->eval(0.), A);
     EXPECT_DOUBLE_EQ(functor->eval(0.5), sin(omega * 0.5) + A);
 
-    auto dfunctor = functor->derivative3();
+    auto dfunctor = functor->derivative();
     EXPECT_DOUBLE_EQ(dfunctor->eval(0.5), omega * cos(omega * 0.5));
 }
 
@@ -456,5 +456,5 @@ TEST(ctmath, periodic)
     EXPECT_DOUBLE_EQ(functor->eval(0.), functor->eval(A));
     EXPECT_DOUBLE_EQ(functor->eval(0.5), functor->eval(0.5 + A));
 
-    ASSERT_THROW(functor->derivative3(), CanteraError);
+    ASSERT_THROW(functor->derivative(), CanteraError);
 }
