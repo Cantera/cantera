@@ -14,10 +14,10 @@ namespace Cantera
 
 //! Factory class to create reactor objects
 //!
-//! This class is mainly used via the newReactor3() function, for example:
+//! This class is mainly used via the newReactor() function, for example:
 //!
 //! ```cpp
-//!     shared_ptr<ReactorBase> r1 = newReactor3("IdealGasReactor");
+//!     shared_ptr<ReactorBase> r1 = newReactor("IdealGasReactor");
 //! ```
 class ReactorFactory : public Factory<ReactorBase>
 {
@@ -25,13 +25,6 @@ public:
     static ReactorFactory* factory();
 
     void deleteFactory() override;
-
-    //! Create a new reactor by type name.
-    /*!
-     * @param reactorType the type to be created.
-     * @deprecated To be removed after %Cantera 3.0; replaceable by newReactor3.
-     */
-    ReactorBase* newReactor(const string& reactorType);
 
 private:
     static ReactorFactory* s_factory;
@@ -42,21 +35,21 @@ private:
 //! @defgroup reactorGroup Reactors
 //! Zero-dimensional objects representing stirred reactors.
 //! Reactors simulate time-dependent behavior considering gas-phase chemistry.
-//! Reactor objects should be instantiated via the newReactor3() function, for example:
+//! Reactor objects should be instantiated via the newReactor() function, for example:
 //!
 //! ```cpp
-//!     shared_ptr<ReactorBase> r1 = newReactor3("IdealGasReactor");
+//!     shared_ptr<ReactorBase> r1 = newReactor("IdealGasReactor");
 //! ```
 //! @ingroup zerodGroup
 //! @{
 
 //! Create a Reactor object of the specified type
-//! @deprecated To be changed after %Cantera 3.0; for new behavior, see newReactor3().
-ReactorBase* newReactor(const string& model);
+//! @since Starting in Cantera 3.1, this method returns a `shared_ptr<ReactorBase>`
+shared_ptr<ReactorBase> newReactor(const string& model);
 
 //! Create a Reactor object of the specified type
 //! @since New in %Cantera 3.0.
-//! @todo Transition back to newReactor() after %Cantera 3.0
+//! @deprecated Transitional method. Use newReactor() instead.
 shared_ptr<ReactorBase> newReactor3(const string& model);
 
 //! @}
