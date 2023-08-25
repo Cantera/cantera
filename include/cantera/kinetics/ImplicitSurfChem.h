@@ -242,9 +242,6 @@ protected:
     //! Vector of number of species in each Surface Phase
     vector<size_t> m_nsp;
 
-    //! index of the surface phase in each InterfaceKinetics object
-    vector<size_t> m_surfindex;
-
     vector<size_t> m_specStartIndex;
 
     //! Total number of surface species in all surface phases

@@ -25,8 +25,7 @@ solveSP::solveSP(ImplicitSurfChem* surfChemPtr, int bulkFunc) :
 {
     for (size_t n = 0; n < m_objects.size(); n++) {
         InterfaceKinetics* kin = m_objects[n];
-        size_t surfPhaseIndex = kin->reactionPhaseIndex();
-        SurfPhase* sp = dynamic_cast<SurfPhase*>(&kin->thermo(surfPhaseIndex));
+        SurfPhase* sp = dynamic_cast<SurfPhase*>(&kin->thermo(0));
         if (sp == nullptr) {
             throw CanteraError("solveSP::solveSP",
                                "InterfaceKinetics object has no surface phase");
@@ -34,7 +33,6 @@ solveSP::solveSP(ImplicitSurfChem* surfChemPtr, int bulkFunc) :
 
         m_numSurfPhases++;
         m_indexKinObjSurfPhase.push_back(n);
-        m_kinObjPhaseIDSurfPhase.push_back(surfPhaseIndex);
 
         m_ptrsSurfPhase.push_back(sp);
         size_t nsp = sp->nSpecies();
@@ -68,8 +66,7 @@ solveSP::solveSP(ImplicitSurfChem* surfChemPtr, int bulkFunc) :
     for (size_t isp = 0; isp < m_numSurfPhases; isp++) {
         size_t iKinObject = m_indexKinObjSurfPhase[isp];
         InterfaceKinetics* kin = m_objects[iKinObject];
-        size_t surfPhaseIndex = m_kinObjPhaseIDSurfPhase[isp];
-        size_t kstart = kin->kineticsSpeciesIndex(0, surfPhaseIndex);
+        size_t kstart = kin->kineticsSpeciesIndex(0, 0);
         size_t nsp = m_nSpeciesSurfPhase[isp];
         m_eqnIndexStartSolnPhase[isp] = kindexSP;
         for (size_t k = 0; k < nsp; k++, kindexSP++) {
@@ -339,14 +336,12 @@ void solveSP::fun_eval(double* resid, const double* CSoln, const double* CSolnOl
             for (size_t isp = 0; isp < m_numSurfPhases; isp++) {
                 size_t nsp = m_nSpeciesSurfPhase[isp];
                 InterfaceKinetics* kinPtr = m_objects[isp];
-                size_t surfIndex = kinPtr->reactionPhaseIndex();
-                size_t kstart = kinPtr->kineticsSpeciesIndex(0, surfIndex);
                 size_t kins = kindexSP;
                 kinPtr->getNetProductionRates(m_netProductionRatesSave.data());
                 for (k = 0; k < nsp; k++, kindexSP++) {
                     resid[kindexSP] =
                         (CSoln[kindexSP] - CSolnOld[kindexSP]) / deltaT
-                        - m_netProductionRatesSave[kstart + k];
+                        - m_netProductionRatesSave[k];
                 }
 
                 size_t kspecial = kins + m_spSurfLarge[isp];
@@ -361,12 +356,10 @@ void solveSP::fun_eval(double* resid, const double* CSoln, const double* CSolnOl
             for (size_t isp = 0; isp < m_numSurfPhases; isp++) {
                 size_t nsp = m_nSpeciesSurfPhase[isp];
                 InterfaceKinetics* kinPtr = m_objects[isp];
-                size_t surfIndex = kinPtr->reactionPhaseIndex();
-                size_t kstart = kinPtr->kineticsSpeciesIndex(0, surfIndex);
                 size_t kins = kindexSP;
                 kinPtr->getNetProductionRates(m_netProductionRatesSave.data());
                 for (k = 0; k < nsp; k++, kindexSP++) {
-                    resid[kindexSP] = - m_netProductionRatesSave[kstart + k];
+                    resid[kindexSP] = - m_netProductionRatesSave[k];
                 }
                 size_t kspecial = kins + m_spSurfLarge[isp];
                 double sd = m_ptrsSurfPhase[isp]->siteDensity();
@@ -382,13 +375,10 @@ void solveSP::fun_eval(double* resid, const double* CSoln, const double* CSolnOl
             for (size_t isp = 0; isp < m_numBulkPhasesSS; isp++) {
                 double* XBlk = m_numEqn1.data();
                 size_t nsp = m_nSpeciesSurfPhase[isp];
-                size_t surfPhaseIndex = m_indexKinObjSurfPhase[isp];
-                InterfaceKinetics* kin = m_objects[isp];
                 double grRate = 0.0;
-                size_t kstart = kin->kineticsSpeciesIndex(0, surfPhaseIndex);
                 for (k = 0; k < nsp; k++) {
-                    if (m_netProductionRatesSave[kstart + k] > 0.0) {
-                        grRate += m_netProductionRatesSave[kstart + k];
+                    if (m_netProductionRatesSave[k] > 0.0) {
+                        grRate += m_netProductionRatesSave[k];
                     }
                 }
                 resid[kindexSP] = m_bulkPhasePtrs[isp]->molarDensity();
@@ -397,9 +387,9 @@ void solveSP::fun_eval(double* resid, const double* CSoln, const double* CSolnOl
                 }
                 if (grRate > 0.0) {
                     for (k = 1; k < nsp; k++) {
-                        if (m_netProductionRatesSave[kstart + k] > 0.0) {
+                        if (m_netProductionRatesSave[k] > 0.0) {
                             resid[kindexSP + k] = XBlk[k] * grRate
-                                                  - m_netProductionRatesSave[kstart + k];
+                                                  - m_netProductionRatesSave[k];
                         } else {
                             resid[kindexSP + k] = XBlk[k] * grRate;
                         }
@@ -407,7 +397,7 @@ void solveSP::fun_eval(double* resid, const double* CSoln, const double* CSolnOl
                 } else {
                     grRate = 1.0E-6;
                     //! @todo the appearance of k in this formula is suspicious
-                    grRate += fabs(m_netProductionRatesSave[kstart + k]);
+                    grRate += fabs(m_netProductionRatesSave[k]);
                     for (k = 1; k < nsp; k++) {
                         resid[kindexSP + k] = grRate * (XBlk[k] - 1.0/nsp);
                     }
@@ -581,15 +571,10 @@ double solveSP::calc_t(double netProdRateSolnSP[], double XMolSolnSP[], int* lab
         // Get the interface kinetics associated with this surface
         InterfaceKinetics* kin = m_objects[isp];
 
-        // Calculate the start of the species index for surfaces within
-        // the InterfaceKinetics object
-        size_t surfIndex = kin->reactionPhaseIndex();
-        size_t kstart = kin->kineticsSpeciesIndex(0, surfIndex);
         kin->getNetProductionRates(m_numEqn1.data());
-        double sden = kin->thermo(surfIndex).molarDensity();
+        double sden = kin->thermo(0).molarDensity();
         for (size_t k = 0; k < m_nSpeciesSurfPhase[isp]; k++, kindexSP++) {
-            size_t kspindex = kstart + k;
-            netProdRateSolnSP[kindexSP] = m_numEqn1[kspindex];
+            netProdRateSolnSP[kindexSP] = m_numEqn1[k];
             double tmp = std::max(XMolSolnSP[kindexSP], 1.0e-10);
             tmp *= sden;
             tmp = fabs(netProdRateSolnSP[kindexSP]/ tmp);

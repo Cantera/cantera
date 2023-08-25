@@ -73,11 +73,11 @@ void Kinetics::checkPhaseArraySize(size_t mm) const
     }
 }
 
-size_t Kinetics::surfacePhaseIndex() const
+size_t Kinetics::reactionPhaseIndex() const
 {
-    warn_deprecated("Kinetics::surfacePhaseIndex",
-                    "To be removed after Cantera 3.0. Use reactionPhaseIndex instead.");
-    return m_surfphase;
+    warn_deprecated("Kinetics::reactionPhaseIndex", "The reacting phase is always "
+        "the first phase. To be removed after Cantera 3.1.");
+    return 0;
 }
 
 shared_ptr<ThermoPhase> Kinetics::reactionPhase() const
@@ -87,7 +87,7 @@ shared_ptr<ThermoPhase> Kinetics::reactionPhase() const
         throw CanteraError("Kinetics::reactionPhase",
             "Cannot access phases that were not added using smart pointers.");
     }
-    return m_sharedThermo[m_rxnphase];
+    return m_sharedThermo[0];
 }
 
 void Kinetics::checkSpeciesIndex(size_t k) const
@@ -595,12 +595,10 @@ void Kinetics::addThermo(shared_ptr<ThermoPhase> thermo)
     // phase/interface at which reactions take place
     if (thermo->nDim() <= m_mindim) {
         if (!m_thermo.empty()) {
-            warn_deprecated("Kinetics::addThermo", "The reacting (lowest dimensional) "
-                "phase should be added first. This warning will become an error after "
-                "Cantera 3.0.");
+            throw CanteraError("Kinetics::addThermo",
+                "The reacting (lowest dimensional) phase must be added first.");
         }
         m_mindim = thermo->nDim();
-        m_rxnphase = nPhases();
     }
 
     // there should only be one surface phase

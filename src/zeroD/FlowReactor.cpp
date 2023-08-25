@@ -54,7 +54,7 @@ void FlowReactor::getStateDae(double* y, double* ydot)
         auto kin = static_cast<InterfaceKinetics*>(m_surf->kinetics());
         kin->advanceCoverages(100.0, m_ss_rtol, m_ss_atol, 0, m_max_ss_steps,
                               m_max_ss_error_fails);
-        auto& surf = dynamic_cast<SurfPhase&>(kin->thermo(kin->reactionPhaseIndex()));
+        auto& surf = dynamic_cast<SurfPhase&>(kin->thermo(0));
         vector<double> cov(surf.nSpecies());
         surf.getCoverages(cov.data());
         m_surf->setCoverages(cov.data());
@@ -321,13 +321,11 @@ void FlowReactor::evalDae(double time, double* y, double* ydot, double* residual
             Kinetics* kin = m_surf->kinetics();
             size_t nk = m_surf->thermo()->nSpecies();
             kin->getNetProductionRates(m_sdot_temp.data());
-            size_t ns = kin->reactionPhaseIndex();
-            size_t surfloc = kin->kineticsSpeciesIndex(0,ns);
             double sum = y[loc];
             for (size_t i = 1; i < nk; ++i) {
                 //! net surface production rate residuals
                 //! Kee.'s Chemically Reacting Flow, Eq. 16.63
-                residual[loc + i] = m_sdot_temp[surfloc + i];
+                residual[loc + i] = m_sdot_temp[i];
                 //! next, evaluate the algebraic constraint to explicitly conserve
                 //! surface site fractions.
                 //! Kee.'s Chemically Reacting Flow, Eq. 16.64

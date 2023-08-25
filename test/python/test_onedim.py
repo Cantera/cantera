@@ -664,6 +664,7 @@ class TestFreeFlame(utilities.CanteraTest):
 
         self.sim.solve(loglevel=0)
 
+    @pytest.mark.filterwarnings("ignore:.*reaction_phase_index.*:DeprecationWarning")
     def test_array_properties(self):
         self.create_sim(ct.one_atm, 300, 'H2:1.1, O2:1, AR:5')
         grid_shape = self.sim.grid.shape

@@ -31,13 +31,11 @@ ImplicitSurfChem::ImplicitSurfChem(
     for (size_t n = 0; n < k.size(); n++) {
         InterfaceKinetics* kinPtr = k[n];
         m_vecKinPtrs.push_back(kinPtr);
-        size_t ns = k[n]->reactionPhaseIndex();
-        SurfPhase* surf = dynamic_cast<SurfPhase*>(&k[n]->thermo(ns));
+        SurfPhase* surf = dynamic_cast<SurfPhase*>(&k[n]->thermo(0));
         if (surf == nullptr) {
             throw CanteraError("ImplicitSurfChem::ImplicitSurfChem",
                                "kinetics manager contains no surface phase");
         }
-        m_surfindex.push_back(ns);
         m_surf.push_back(surf);
         size_t nsp = m_surf.back()->nSpecies();
         m_nsp.push_back(nsp);
@@ -48,20 +46,17 @@ ImplicitSurfChem::ImplicitSurfChem(
         kinSpIndex += nsp;
         size_t nPhases = kinPtr->nPhases();
         vector<int> pLocTmp(nPhases);
+        pLocTmp[0] = -int(n);
         size_t imatch = npos;
-        for (size_t ip = 0; ip < nPhases; ip++) {
-            if (ip != ns) {
-                ThermoPhase* thPtr = & kinPtr->thermo(ip);
-                if ((imatch = checkMatch(m_bulkPhases, thPtr)) == npos) {
-                    m_bulkPhases.push_back(thPtr);
-                    nsp = thPtr->nSpecies();
-                    m_numTotalBulkSpecies += nsp;
-                    imatch = m_bulkPhases.size() - 1;
-                }
-                pLocTmp[ip] = int(imatch);
-            } else {
-                pLocTmp[ip] = -int(n);
+        for (size_t ip = 1; ip < nPhases; ip++) {
+            ThermoPhase* thPtr = & kinPtr->thermo(ip);
+            if ((imatch = checkMatch(m_bulkPhases, thPtr)) == npos) {
+                m_bulkPhases.push_back(thPtr);
+                nsp = thPtr->nSpecies();
+                m_numTotalBulkSpecies += nsp;
+                imatch = m_bulkPhases.size() - 1;
             }
+            pLocTmp[ip] = int(imatch);
         }
         pLocVec.push_back(pLocTmp);
     }
@@ -168,10 +163,9 @@ void ImplicitSurfChem::eval(double time, double* y, double* ydot, double* p)
     for (size_t n = 0; n < m_surf.size(); n++) {
         double rs0 = 1.0/m_surf[n]->siteDensity();
         m_vecKinPtrs[n]->getNetProductionRates(m_work.data());
-        size_t kstart = m_vecKinPtrs[n]->kineticsSpeciesIndex(0,m_surfindex[n]);
         double sum = 0.0;
         for (size_t k = 1; k < m_nsp[n]; k++) {
-            ydot[k + loc] = m_work[kstart + k] * rs0 * m_surf[n]->size(k);
+            ydot[k + loc] = m_work[k] * rs0 * m_surf[n]->size(k);
             sum -= ydot[k];
         }
         ydot[loc] = sum;
@@ -207,7 +201,7 @@ void ImplicitSurfChem::solvePseudoSteadyStateProblem(int ifuncOverride,
     //  2) Temperature and pressure
     getConcSpecies(m_concSpecies.data());
     InterfaceKinetics* ik = m_vecKinPtrs[0];
-    ThermoPhase& tp = ik->thermo(ik->reactionPhaseIndex());
+    ThermoPhase& tp = ik->thermo(0);
     double TKelvin = tp.temperature();
     double PGas = tp.pressure();
 

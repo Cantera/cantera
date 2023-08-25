@@ -140,15 +140,9 @@ unique_ptr<Kinetics> newKinetics(const vector<ThermoPhase*>& phases,
 }
 
 shared_ptr<Kinetics> newKinetics(const vector<shared_ptr<ThermoPhase>>& phases,
-                                 const string& filename,
-                                 const string& phase_name)
+                                 const string& filename)
 {
-    if (phase_name != "") {
-        warn_deprecated("newKinetics", "After Cantera 3.0, the 'phase_name' argument "
-            "will be removed and an exception will be thrown if the reacting phase is "
-            "not the first phase in the 'phases' vector.");
-    }
-    string reaction_phase = (phase_name.empty()) ? phases.at(0)->name() : phase_name;
+    string reaction_phase = phases.at(0)->name();
     AnyMap root = AnyMap::fromYamlFile(filename);
     AnyMap& phaseNode = root["phases"].getMapWhere("name", reaction_phase);
     return newKinetics(phases, phaseNode, root);

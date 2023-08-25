@@ -50,8 +50,7 @@ bool InterfaceData::update(const ThermoPhase& phase, const Kinetics& kin)
 
     double T = phase.temperature();
     bool changed = false;
-    const auto& surf = dynamic_cast<const SurfPhase&>(
-        kin.thermo(kin.reactionPhaseIndex()));
+    const auto& surf = dynamic_cast<const SurfPhase&>(kin.thermo(0));
     double site_density = surf.siteDensity();
     if (density != site_density) {
         density = surf.siteDensity();
@@ -352,15 +351,12 @@ void StickingCoverage::getStickingParameters(AnyMap& node) const
 void StickingCoverage::setContext(const Reaction& rxn, const Kinetics& kin)
 {
     // Ensure that site density is initialized
-    const ThermoPhase& phase = kin.thermo(kin.reactionPhaseIndex());
+    const ThermoPhase& phase = kin.thermo(0);
     const auto& surf = dynamic_cast<const SurfPhase&>(phase);
     m_siteDensity = surf.siteDensity();
     if (!m_explicitMotzWise) {
         m_motzWise = kin.thermo().input().getBool("Motz-Wise", false);
     }
-
-    // Identify the interface phase
-    size_t iInterface = kin.reactionPhaseIndex();
 
     string sticking_species = m_stickingSpecies;
     if (sticking_species == "") {
@@ -369,7 +365,7 @@ void StickingCoverage::setContext(const Reaction& rxn, const Kinetics& kin)
         vector<string> anySpecies;
         for (const auto& [name, stoich] : rxn.reactants) {
             size_t iPhase = kin.speciesPhaseIndex(kin.kineticsSpeciesIndex(name));
-            if (iPhase != iInterface) {
+            if (iPhase != 0) {
                 // Non-interface species. There should be exactly one of these
                 // (either in gas phase or other phase)
                 if (kin.thermo(iPhase).phaseOfMatter() == "gas") {

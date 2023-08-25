@@ -229,12 +229,10 @@ public:
      * of phases. If there is more than one, the index of the first one is
      * returned. For homogeneous mechanisms, the value 0 is returned.
      *
-     * @deprecated Starting in %Cantera 3.0, the reacting phase will always be the
+     * @deprecated Starting in %Cantera 3.0, the reacting phase is always be the
      *     first phase in the InterfaceKinetics object. To be removed after %Cantera 3.1.
      */
-    size_t reactionPhaseIndex() const {
-        return m_rxnphase;
-    }
+    size_t reactionPhaseIndex() const;
 
     /**
      * Return pointer to phase where the reactions occur.
@@ -1324,9 +1322,6 @@ public:
      *
      *  - #m_start -> vector of integers, containing the starting position of
      *    the species for each phase in the kinetics mechanism.
-     *  - #m_rxnphase -> index of the phase where reactions occur, which is the lowest-
-     *    dimensional phase in the system, for example the surface in a surface
-     *    mechanism.
      *  - #m_thermo -> vector of pointers to ThermoPhase phases that
      *    participate in the kinetics mechanism.
      *  - #m_phaseindex -> map containing the string id of each
@@ -1580,17 +1575,6 @@ protected:
      * value, so that missing phases return -1.
      */
     map<string, size_t> m_phaseindex;
-
-    //! Index in the list of phases of the one surface phase.
-    //! @deprecated To be removed after %Cantera 3.0.
-    size_t m_surfphase = npos;
-
-    //! Phase Index where reactions are assumed to be taking place
-    /*!
-     * We calculate this by assuming that the phase with the lowest
-     * dimensionality is the phase where reactions are taking place.
-     */
-    size_t m_rxnphase = npos;
 
     //! number of spatial dimensions of lowest-dimensional phase.
     size_t m_mindim = 4;

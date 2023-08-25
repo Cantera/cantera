@@ -29,7 +29,7 @@ void ReactorSurface::setKinetics(Kinetics* kin) {
         return;
     }
 
-    m_thermo = dynamic_cast<SurfPhase*>(&kin->thermo(kin->reactionPhaseIndex()));
+    m_thermo = dynamic_cast<SurfPhase*>(&kin->thermo(0));
     if (m_thermo == nullptr) {
         throw CanteraError("ReactorSurface::setKinetics",
             "Specified kinetics manager does not represent a surface "
