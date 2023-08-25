@@ -177,39 +177,22 @@ void InterfaceRateBase::setCoverageDependencies(const AnyMap& dependencies,
     }
 }
 
-void InterfaceRateBase::getCoverageDependencies(AnyMap& dependencies,
-                                                bool asVector) const
+void InterfaceRateBase::getCoverageDependencies(AnyMap& dependencies) const
 {
     for (size_t k = 0; k < m_cov.size(); k++) {
-        if (asVector) {
-            // this preserves the previous 'coverage_deps' units
-            warn_deprecated("InterfaceRateBase::getCoverageDependencies",
-                "To be changed after Cantera 3.0: second argument will be removed.");
-            vector<double> dep(3);
-            if (m_lindep[k]) {
-                dep[2] = m_ec[k][1];
-            } else {
-                throw NotImplementedError("InterfaceRateBase::getCoverageDependencies",
-                    "Polynomial dependency not implemented for asVector.");
-            }
-            dep[0] = m_ac[k];
-            dep[1] = m_mc[k];
-            dependencies[m_cov[k]] = std::move(dep);
+        AnyMap dep;
+        dep["a"] = m_ac[k];
+        dep["m"] = m_mc[k];
+        if (m_lindep[k]) {
+            dep["E"].setQuantity(m_ec[k][1], "K", true);
         } else {
-            AnyMap dep;
-            dep["a"] = m_ac[k];
-            dep["m"] = m_mc[k];
-            if (m_lindep[k]) {
-                dep["E"].setQuantity(m_ec[k][1], "K", true);
-            } else {
-                vector<AnyValue> E_temp(4);
-                for (size_t i = 0; i < m_ec[k].size() - 1; i++) {
-                    E_temp[i].setQuantity(m_ec[k][i+1], "K", true);
-                }
-                dep["E"] = E_temp;
+            vector<AnyValue> E_temp(4);
+            for (size_t i = 0; i < m_ec[k].size() - 1; i++) {
+                E_temp[i].setQuantity(m_ec[k][i+1], "K", true);
             }
-            dependencies[m_cov[k]] = std::move(dep);
+            dep["E"] = E_temp;
         }
+        dependencies[m_cov[k]] = std::move(dep);
     }
 }
 
