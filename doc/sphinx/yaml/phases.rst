@@ -102,7 +102,8 @@ and optionally reactions that can take place in that phase. The fields of a
     are:
 
     - ``none``
-    - ``gas`` (:ct:`details <GasKinetics>`)
+    - ``bulk`` (:ct:`details <BulkKinetics>`)
+    - ``gas`` (alias for ``bulk``)
     - ``surface`` (:ct:`details <InterfaceKinetics>`)
     - ``edge`` (:ct:`details <EdgeKinetics>`)
 

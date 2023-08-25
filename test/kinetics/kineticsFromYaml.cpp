@@ -546,7 +546,7 @@ TEST(Reaction, PythonExtensibleRate)
     EXPECT_DOUBLE_EQ(kf[0], 3.14 * 300 * 300);
 }
 
-TEST(Kinetics, GasKineticsFromYaml1)
+TEST(Kinetics, BulkKineticsFromYaml1)
 {
     AnyMap infile = AnyMap::fromYamlFile("ideal-gas.yaml");
     auto& phaseNode = infile["phases"].getMapWhere("name", "simple-kinetics");
@@ -561,7 +561,7 @@ TEST(Kinetics, GasKineticsFromYaml1)
     EXPECT_DOUBLE_EQ(rate->preExponentialFactor(), 2.7e10);
 }
 
-TEST(Kinetics, GasKineticsFromYaml2)
+TEST(Kinetics, BulkKineticsFromYaml2)
 {
     AnyMap infile = AnyMap::fromYamlFile("ideal-gas.yaml");
     auto& phaseNode = infile["phases"].getMapWhere("name", "remote-kinetics");
@@ -682,7 +682,7 @@ TEST(KineticsFromYaml, KineticsModelWithReactionsNone1)
 {
     auto soln = newSolution("phase-reaction-spec1.yaml",
                             "kinetics-reactions-none");
-    EXPECT_EQ(soln->kinetics()->kineticsType(), "gas");
+    EXPECT_EQ(soln->kinetics()->kineticsType(), "bulk");
     EXPECT_EQ(soln->kinetics()->nReactions(), (size_t) 0);
 }
 
@@ -690,7 +690,7 @@ TEST(KineticsFromYaml, KineticsModelWithReactionsNone2)
 {
     auto soln = newSolution("phase-reaction-spec2.yaml",
                             "kinetics-reactions-none");
-    EXPECT_EQ(soln->kinetics()->kineticsType(), "gas");
+    EXPECT_EQ(soln->kinetics()->kineticsType(), "bulk");
     EXPECT_EQ(soln->kinetics()->nReactions(), (size_t) 0);
 }
 
@@ -727,7 +727,7 @@ TEST(KineticsFromYaml, KineticsModelWithoutReactionsField)
 {
     auto soln = newSolution("phase-reaction-spec2.yaml",
                             "kinetics-noreactions");
-    EXPECT_EQ(soln->kinetics()->kineticsType(), "gas");
+    EXPECT_EQ(soln->kinetics()->kineticsType(), "bulk");
     EXPECT_EQ(soln->kinetics()->nReactions(), (size_t) 1);
 }
 

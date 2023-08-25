@@ -435,7 +435,7 @@ cdef class Kinetics(_SolutionBase):
         """
         Property setting behavior of derivative evaluation.
 
-        For ``GasKinetics``, the following keyword/value pairs are supported:
+        For :ct:`BulkKinetics`, the following keyword/value pairs are supported:
 
         -  ``skip-third-bodies`` (boolean) ... if `False` (default), third body
            concentrations are considered for the evaluation of derivatives

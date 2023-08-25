@@ -7,16 +7,12 @@
 
 #include "cantera/kinetics/KineticsFactory.h"
 #include "cantera/kinetics/BulkKinetics.h"
-
-#define CT_SKIP_DEPRECATION_WARNINGS
-#include "cantera/kinetics/GasKinetics.h" // @todo Remove after Cantera 3.0
-
 #include "cantera/kinetics/InterfaceKinetics.h"
 #include "cantera/kinetics/EdgeKinetics.h"
+#include "cantera/kinetics/Reaction.h"
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/Solution.h"
-
 #include <boost/algorithm/string.hpp>
 
 namespace Cantera
@@ -30,10 +26,9 @@ KineticsFactory::KineticsFactory() {
     addDeprecatedAlias("none", "Kinetics");
     addDeprecatedAlias("none", "None");
     reg("bulk", []() { return new BulkKinetics(); });
-    // @todo After Cantera 3.0, "gas" should be an alias for "bulk"
-    reg("gas", []() { return new GasKinetics(); });
-    addDeprecatedAlias("gas", "gaskinetics");
-    addDeprecatedAlias("gas", "Gas");
+    addAlias("bulk", "gas");
+    addDeprecatedAlias("bulk", "gaskinetics");
+    addDeprecatedAlias("bulk", "Gas");
     reg("surface", []() { return new InterfaceKinetics(); });
     addAlias("surface", "interface");
     addDeprecatedAlias("surface", "Surf");

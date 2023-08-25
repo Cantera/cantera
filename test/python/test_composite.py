@@ -1115,7 +1115,7 @@ class TestSolutionSerialization(utilities.CanteraTest):
         data = gas.input_data
         self.assertEqual(data['name'], 'ohmech')
         self.assertEqual(data['thermo'], 'ideal-gas')
-        self.assertEqual(data['kinetics'], 'gas')
+        self.assertEqual(data['kinetics'], 'bulk')
         self.assertEqual(data['transport'], 'mixture-averaged')
 
     def test_input_data_user_modifications(self):
