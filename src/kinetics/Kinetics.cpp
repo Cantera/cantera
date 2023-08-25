@@ -277,28 +277,6 @@ size_t Kinetics::kineticsSpeciesIndex(const string& nm) const
     return npos;
 }
 
-size_t Kinetics::kineticsSpeciesIndex(const string& nm, const string& ph) const
-{
-    warn_deprecated("Kinetics::kineticsSpeciesIndex(species_name, phase_name)",
-        "To be removed after Cantera 3.0. Use kineticsSpeciesIndex(species_name).\n"
-        "Species names should be unique across all phases linked to a Kinetics object.");
-    if (ph == "<any>") {
-        return kineticsSpeciesIndex(nm);
-    }
-
-    for (size_t n = 0; n < m_thermo.size(); n++) {
-        string id = thermo(n).name();
-        if (ph == id) {
-            size_t k = thermo(n).speciesIndex(nm);
-            if (k == npos) {
-                return npos;
-            }
-            return k + m_start[n];
-        }
-    }
-    return npos;
-}
-
 ThermoPhase& Kinetics::speciesPhase(const string& nm)
 {
     for (size_t n = 0; n < m_thermo.size(); n++) {

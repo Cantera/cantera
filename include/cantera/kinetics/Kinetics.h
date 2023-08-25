@@ -311,23 +311,6 @@ public:
     size_t kineticsSpeciesIndex(const string& nm) const;
 
     /**
-     * This routine will look up a species number based on the input
-     * string nm. The lookup of species will occur in the specified
-     * phase of the object, or all phases if ph is "<any>".
-     *
-     *  return
-     *   - If a match is found, the position in the species list is returned.
-     *   - If no match is found, the value npos (-1) is returned.
-     *
-     * @param nm   Input string name of the species
-     * @param ph   Input string name of the phase.
-     * @deprecated To be removed after %Cantera 3.0. Species names should be unique
-     *     across all phases.
-     */
-    size_t kineticsSpeciesIndex(const string& nm,
-                                const string& ph) const;
-
-    /**
      * This function looks up the name of a species and returns a
      * reference to the ThermoPhase object of the phase where the species
      * resides. Will throw an error if the species doesn't match.

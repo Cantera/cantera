@@ -1118,7 +1118,9 @@ extern "C" {
     size_t kin_speciesIndex(int n, const char* nm, const char* ph)
     {
         try {
-            return KineticsCabinet::item(n).kineticsSpeciesIndex(nm, ph);
+            // @todo Introduce a version of this that only takes the 'nm' argument
+            //     and deprecate this one.
+            return KineticsCabinet::item(n).kineticsSpeciesIndex(nm);
         } catch (...) {
             return handleAllExceptions(npos, npos);
         }
