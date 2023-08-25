@@ -726,8 +726,7 @@ extern "C" {
                               ftnlen lennm, ftnlen lenph)
     {
         try {
-            return _fkin(n)->kineticsSpeciesIndex(f2string(nm, lennm),
-                                                  f2string(ph, lenph)) + 1;
+            return _fkin(n)->kineticsSpeciesIndex(f2string(nm, lennm)) + 1;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }

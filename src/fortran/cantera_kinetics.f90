@@ -67,6 +67,8 @@ module cantera_kinetics
       ctkin_kineticsStart = kin_start(self%kin_id, p)
     end function ctkin_kineticsstart
 
+    ! @todo Define a new version of this function that does not require the
+    !     unused 'phase' argument.
     integer function ctkin_kineticsSpeciesIndex(self, name, phase)
       implicit none
       type(phase_t), intent(inout) :: self
