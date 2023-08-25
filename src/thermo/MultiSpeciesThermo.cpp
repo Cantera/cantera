@@ -149,17 +149,8 @@ double MultiSpeciesThermo::maxTemp(size_t k) const
     return m_thigh_min;
 }
 
-double MultiSpeciesThermo::refPressure(size_t k) const
+double MultiSpeciesThermo::refPressure() const
 {
-    if (k != npos) {
-        warn_deprecated("MultiSpeciesThermo::refPressure(size_t k)",
-            "The species index parameter is deprecated and will be removed after"
-            " Cantera 3.0.");
-        const SpeciesThermoInterpType* sp = provideSTIT(k);
-        if (sp) {
-            return sp->refPressure();
-        }
-    }
     return m_p0;
 }
 
