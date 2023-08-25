@@ -120,7 +120,10 @@ cdef class Kinetics(_SolutionBase):
             with the Kinetics object. This method will be removed after Cantera 3.1.
         """
         def __get__(self):
-            return self.kinetics.reactionPhaseIndex()
+            warnings.warn("Kinetics.reaction_phase_index: To be removed after "
+                          "Cantera 3.1; The reacting phase is always index 0.",
+                          DeprecationWarning)
+            return 0
 
     def _check_phase_index(self, n):
         if not 0 <= n < self.n_phases:

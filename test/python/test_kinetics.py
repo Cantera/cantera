@@ -23,11 +23,12 @@ class TestKinetics(utilities.CanteraTest):
         self.phase.X = [0.1, 1e-4, 1e-5, 0.2, 2e-4, 0.3, 1e-6, 5e-5, 0.4, 0]
         self.phase.TP = 800, 2*ct.one_atm
 
+    @pytest.mark.usefixtures("allow_deprecated")
     def test_counts(self):
         self.assertEqual(self.phase.n_reactions, 29)
         self.assertEqual(self.phase.n_total_species, 10)
         self.assertEqual(self.phase.n_phases, 1)
-        self.assertEqual(self.phase.reaction_phase_index, 0)
+        self.assertEqual(self.phase.reaction_phase_index, 0)  # deprecated
 
     def test_is_reversible(self):
         for i in range(self.phase.n_reactions):

@@ -8,6 +8,8 @@ module cantera_kinetics
 
   contains
 
+    ! @todo Define a new version of this function that does not require the
+    !     unused 'phasename' argument.
     subroutine ctkin_newFromFile(phase, filename, id, neighbor1, neighbor2, &
                                  neighbor3, neighbor4)
       implicit none

@@ -89,7 +89,7 @@ Reaction::Reaction(const AnyMap& node, const Kinetics& kin)
     }
 
     setParameters(node, kin);
-    size_t nDim = kin.thermo(kin.reactionPhaseIndex()).nDim();
+    size_t nDim = kin.thermo(0).nDim();
     if (!valid()) {
         // If the reaction isn't valid (for example, contains undefined species),
         // setting up the rate constant won't work
@@ -365,7 +365,7 @@ void Reaction::setEquation(const string& equation, const Kinetics* kin)
         // user override
         m_explicit_type = true;
         return;
-    } else if (kin && kin->thermo(kin->reactionPhaseIndex()).nDim() != 3) {
+    } else if (kin && kin->thermo(0).nDim() != 3) {
         // interface reactions
         return;
     }
@@ -531,8 +531,7 @@ UnitStack Reaction::calculateRateCoeffUnits(const Kinetics& kin)
     }
 
     // Determine the units of the rate coefficient
-    const auto& rxn_phase = kin.thermo(kin.reactionPhaseIndex());
-    UnitStack rate_units(rxn_phase.standardConcentrationUnits());
+    UnitStack rate_units(kin.thermo(0).standardConcentrationUnits());
 
     // Set output units to standardConcentrationUnits per second
     rate_units.join(1.);
@@ -615,14 +614,14 @@ void Reaction::checkBalance(const Kinetics& kin) const
             equation(), msg);
     }
 
-    if (kin.thermo(kin.reactionPhaseIndex()).nDim() == 3) {
+    if (kin.thermo(0).nDim() == 3) {
         return;
     }
 
     // Check that the number of surface sites is balanced
     double reac_sites = 0.0;
     double prod_sites = 0.0;
-    auto& surf = dynamic_cast<const SurfPhase&>(kin.thermo(kin.reactionPhaseIndex()));
+    auto& surf = dynamic_cast<const SurfPhase&>(kin.thermo(0));
     for (const auto& [name, stoich] : reactants) {
         size_t k = surf.speciesIndex(name);
         if (k != npos) {

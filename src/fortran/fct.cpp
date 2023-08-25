@@ -696,8 +696,7 @@ extern "C" {
                     }
                 }
             }
-            auto kin = newKinetics(phases, f2string(filename, nlen),
-                                   f2string(phasename, plen));
+            auto kin = newKinetics(phases, f2string(filename, nlen));
             return KineticsCabinet::add(kin);
         } catch (...) {
             return handleAllExceptions(999, ERR);

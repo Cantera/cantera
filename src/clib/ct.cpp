@@ -1062,6 +1062,8 @@ extern "C" {
 
     //-------------- Kinetics ------------------//
 
+    // @todo Define a new version of this function that does not require the
+    //     unused 'phasename' argument.
     int kin_newFromFile(const char* filename, const char* phasename,
                         int reactingPhase, int neighbor1, int neighbor2,
                         int neighbor3, int neighbor4)
@@ -1081,7 +1083,13 @@ extern "C" {
                     }
                 }
             }
-            shared_ptr<Kinetics> kin = newKinetics(phases, filename, phasename);
+            if (phasename != nullptr) {
+                string phase_str(phasename);
+                if (!phase_str.empty() && phase_str != phases[0]->name()) {
+                    throw CanteraError("kin_newFromFile", "Reacting phase must be first");
+                }
+            }
+            shared_ptr<Kinetics> kin = newKinetics(phases, filename);
             return KineticsCabinet::add(kin);
         } catch (...) {
             return handleAllExceptions(-1, ERR);

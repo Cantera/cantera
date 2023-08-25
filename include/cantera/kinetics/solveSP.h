@@ -371,15 +371,6 @@ private:
      */
     vector<size_t> m_eqnIndexStartSolnPhase;
 
-    //! Phase ID in the InterfaceKinetics object of the surface phase
-    /*!
-     *  For each surface phase, this lists the PhaseId of the
-     *  surface phase in the corresponding InterfaceKinetics object
-     *
-     * Length is equal to m_numSurfPhases
-     */
-    vector<size_t> m_kinObjPhaseIDSurfPhase;
-
     //! Total number of volumetric condensed phases included in the steady state
     //! problem handled by this routine.
     /*!

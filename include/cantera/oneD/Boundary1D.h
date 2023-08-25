@@ -382,7 +382,6 @@ public:
 protected:
     InterfaceKinetics* m_kin = nullptr;
     SurfPhase* m_sphase = nullptr;
-    size_t m_surfindex = 0;
     size_t m_nsp = 0;
     bool m_enabled = false;
     vector<double> m_work;

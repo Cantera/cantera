@@ -69,10 +69,8 @@ void MoleReactor::evalSurfaces(double* LHS, double* RHS, double* sdot)
         size_t nk = surf->nSpecies();
         S->syncState();
         kin->getNetProductionRates(&m_work[0]);
-        size_t ns = kin->reactionPhaseIndex();
-        size_t surfloc = kin->kineticsSpeciesIndex(0,ns);
         for (size_t k = 0; k < nk; k++) {
-            RHS[loc + k] = m_work[surfloc + k] * wallarea / surf->size(k);
+            RHS[loc + k] = m_work[k] * wallarea / surf->size(k);
         }
         loc += nk;
 
@@ -93,7 +91,7 @@ void MoleReactor::addSurfaceJacobian(vector<Eigen::Triplet<double>> &triplets)
         auto kin = S->kinetics();
         size_t nk = S->thermo()->nSpecies();
         // index of gas and surface phases to check if the species is in gas or surface
-        size_t spi = kin->reactionPhaseIndex();
+        size_t spi = 0;
         size_t gpi = kin->speciesPhaseIndex(kin->kineticsSpeciesIndex(
             m_thermo->speciesName(0)));
         // get surface jacobian in concentration units

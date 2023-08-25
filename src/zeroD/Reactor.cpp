@@ -298,10 +298,8 @@ void Reactor::evalSurfaces(double* LHS, double* RHS, double* sdot)
         double sum = 0.0;
         S->syncState();
         kin->getNetProductionRates(&m_work[0]);
-        size_t ns = kin->reactionPhaseIndex();
-        size_t surfloc = kin->kineticsSpeciesIndex(0,ns);
         for (size_t k = 1; k < nk; k++) {
-            RHS[loc + k] = m_work[surfloc + k] * rs0 * surf->size(k);
+            RHS[loc + k] = m_work[k] * rs0 * surf->size(k);
             sum -= RHS[loc + k];
         }
         RHS[loc] = sum;
@@ -382,10 +380,8 @@ void Reactor::evalSurfaces(double* RHS, double* sdot)
         double sum = 0.0;
         S->syncState();
         kin->getNetProductionRates(&m_work[0]);
-        size_t ns = kin->reactionPhaseIndex();
-        size_t surfloc = kin->kineticsSpeciesIndex(0,ns);
         for (size_t k = 1; k < nk; k++) {
-            RHS[loc + k] = m_work[surfloc + k] * rs0 * surf->size(k);
+            RHS[loc + k] = m_work[k] * rs0 * surf->size(k);
             sum -= RHS[loc + k];
         }
         RHS[loc] = sum;
