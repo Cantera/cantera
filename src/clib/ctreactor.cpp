@@ -43,7 +43,7 @@ extern "C" {
     int reactor_new(const char* type)
     {
         try {
-            return ReactorCabinet::add(newReactor3(type));
+            return ReactorCabinet::add(newReactor(type));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -352,7 +352,7 @@ extern "C" {
     int flowdev_new(const char* type)
     {
         try {
-            return FlowDeviceCabinet::add(newFlowDevice3(type));
+            return FlowDeviceCabinet::add(newFlowDevice(type));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -469,7 +469,7 @@ extern "C" {
     int wall_new(const char* type)
     {
         try {
-            return WallCabinet::add(newWall3(type));
+            return WallCabinet::add(newWall(type));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }

@@ -23,7 +23,7 @@ cdef class ReactorBase:
     """
     reactor_type = "none"
     def __cinit__(self, *args, **kwargs):
-        self._reactor = newReactor3(stringify(self.reactor_type))
+        self._reactor = newReactor(stringify(self.reactor_type))
         self.rbase = self._reactor.get()
 
     def __init__(self, ThermoPhase contents=None, name=None, *, volume=None):
@@ -890,7 +890,7 @@ cdef class WallBase:
     """
     wall_type = "none"
     def __cinit__(self, *args, **kwargs):
-        self._wall = newWall3(stringify(self.wall_type))
+        self._wall = newWall(stringify(self.wall_type))
         self.wall = self._wall.get()
 
     def __init__(self, left, right, *, name=None, A=None, K=None, U=None,
@@ -1147,7 +1147,7 @@ cdef class FlowDevice:
     """
     flowdevice_type = "none"
     def __cinit__(self, *args, **kwargs):
-        self._dev = newFlowDevice3(stringify(self.flowdevice_type))
+        self._dev = newFlowDevice(stringify(self.flowdevice_type))
         self.dev = self._dev.get()
 
     def __init__(self, upstream, downstream, *, name=None):
