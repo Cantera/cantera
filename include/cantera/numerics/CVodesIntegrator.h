@@ -71,7 +71,6 @@ public:
         return static_cast<int>(m_np);
     }
     double sensitivity(size_t k, size_t p) override;
-    void setProblemType(int probtype) override;
 
     //! Returns a string listing the weighted error estimates associated
     //! with each solution component.

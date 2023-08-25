@@ -114,25 +114,6 @@ public:
     double entropy_mole() const override;
 
     //! @}
-    //! @name  Partial Molar Properties of the Solution
-    //! @{
-
-    //! Get the array of non-dimensional species chemical potentials
-    //! These are partial molar Gibbs free energies.
-    /*!
-     * @f$ \mu_k / \hat R T @f$.
-     * Units: unitless
-     *
-     * We close the loop on this function, here, calling getChemPotentials() and
-     * then dividing by RT. No need for child classes to handle.
-     *
-     * @param mu    Output vector of non-dimensional species chemical potentials
-     *              Length: m_kk.
-     * @deprecated To be removed after %Cantera 3.0. Use getChemPotentials() instead.
-     */
-    void getChemPotentials_RT(double* mu) const override;
-
-    //! @}
     //! @name  Properties of the Standard State of the Species in the Solution
     //!
     //! Within MixtureFugacityTP, these properties are calculated via a common

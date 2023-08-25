@@ -152,8 +152,6 @@ protected:
     Eigen::SparseMatrix<double> m_multipliers;
 };
 
-using ThirdBodyCalc3 = ThirdBodyCalc; // @todo: remove after Cantera 3.0
-
 }
 
 #endif

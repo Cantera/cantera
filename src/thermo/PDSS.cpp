@@ -100,30 +100,6 @@ double PDSS::molarVolume_ref() const
     throw NotImplementedError("PDSS::molarVolume_ref");
 }
 
-double PDSS::enthalpyDelp_mole() const
-{
-    warn_deprecated("PDSS::enthalpyDelp_mole", "To be removed after Cantera 3.0");
-    return enthalpy_mole() - m_temp * GasConstant * enthalpy_RT_ref();
-}
-
-double PDSS::entropyDelp_mole() const
-{
-    warn_deprecated("PDSS::entropyDelp_mole", "To be removed after Cantera 3.0");
-    return entropy_mole() - GasConstant * entropy_R_ref();
-}
-
-double PDSS::gibbsDelp_mole() const
-{
-    warn_deprecated("PDSS::gibbsDelp_mole", "To be removed after Cantera 3.0");
-    return gibbs_mole() - m_temp * GasConstant * gibbs_RT_ref();
-}
-
-double PDSS::cpDelp_mole() const
-{
-    warn_deprecated("PDSS::cpDelp_mole", "To be removed after Cantera 3.0");
-    return cp_mole() - GasConstant * cp_R_ref();
-}
-
 double PDSS::pressure() const
 {
     return m_pres;
@@ -178,26 +154,9 @@ void PDSS::setState_TP(double temp, double pres)
     throw NotImplementedError("PDSS::setState_TP");
 }
 
-void PDSS::setState_TR(double temp, double rho)
-{
-    throw NotImplementedError("PDSS::setState_TR");
-}
-
 double PDSS::satPressure(double t)
 {
     throw NotImplementedError("PDSS::satPressure");
-}
-
-void PDSS::reportParams(size_t& kindex, int& type, double* const c, double& minTemp_,
-                        double& maxTemp_, double& refPressure_) const
-{
-    warn_deprecated("PDSS:reportParams", "To be removed after Cantera 3.0. "
-                    "Use getParameters(AnyMap&) instead.");
-    kindex = npos;
-    type = 0;
-    minTemp_ = m_minTemp;
-    maxTemp_ = m_maxTemp;
-    refPressure_ = m_p0;
 }
 
 // PDSS_Molar methods

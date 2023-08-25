@@ -291,16 +291,6 @@ extern "C" {
         }
     }
 
-    int thermo_setMolarDensity(int n, double ndens)
-    {
-        try {
-            ThermoCabinet::item(n).setMolarDensity(ndens);
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-        return 0;
-    }
-
     double thermo_meanMolecularWeight(int n)
     {
         try {
@@ -703,16 +693,6 @@ extern "C" {
     {
         try{
             ThermoCabinet::item(n).setState_TD(vals[0], vals[1]);
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int thermo_set_RP(int n, double* vals)
-    {
-        try{
-            ThermoCabinet::item(n).setState_RP(vals[0], vals[1]);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -1542,16 +1522,6 @@ extern "C" {
             Transport& tr = TransportCabinet::item(n);
             tr.checkSpeciesArraySize(ld);
             tr.getMultiDiffCoeffs(ld,d);
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int trans_setParameters(int n, int type, int k, double* d)
-    {
-        try {
-            TransportCabinet::item(n).setParameters(type, k, d);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);

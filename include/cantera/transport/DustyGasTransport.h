@@ -53,15 +53,9 @@ class DustyGasTransport : public Transport
 {
 public:
     //! default constructor
-    /*!
-     *  @param thermo   Pointer to the ThermoPhase object for this phase.
-     *      Defaults to zero.
-     */
-    DustyGasTransport(ThermoPhase* thermo=0);
+    DustyGasTransport() = default;
 
     //  overloaded base class methods
-
-    void setThermo(ThermoPhase& thermo) override;
 
     string transportModel() const override {
         return "DustyGas";

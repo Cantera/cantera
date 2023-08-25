@@ -31,19 +31,12 @@ public:
     //! Construct a OneDim container for the domains in the list *domains*.
     OneDim(vector<shared_ptr<Domain1D>>& domains);
 
-    //! @deprecated To be removed after %Cantera 3.0;
-    //!     superseded by OneDim() using vector<shared_ptr<Domain1D>>
-    OneDim(vector<Domain1D*> domains);
     virtual ~OneDim();
     OneDim(const OneDim&) = delete;
     OneDim& operator=(const OneDim&) = delete;
 
     //! Add a domain. Domains are added left-to-right.
     void addDomain(shared_ptr<Domain1D> d);
-
-    //! @deprecated To be removed after %Cantera 3.0;
-    //!     superseded by addDomain() using shared_ptr<Domain1D>
-    void addDomain(Domain1D* d);
 
     //! Return a reference to the Jacobian evaluator of an OneDim object.
     //! @ingroup derivGroup
@@ -231,9 +224,6 @@ public:
      *                    problems where we don't want to print any times
      */
     void writeStats(int printTime = 1);
-
-    //! @deprecated To be removed after %Cantera 3.0; unused.
-    AnyMap serialize(const double* soln) const;
 
     // options
     void setMinTimeStep(double tmin) {

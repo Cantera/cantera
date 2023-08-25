@@ -320,14 +320,6 @@ public:
 
     virtual void setJac(MultiJac* jac) {}
 
-    //! Save the state of this domain as an AnyMap
-    /*!
-     * @param soln local solution vector for this domain
-     *
-     * @deprecated To be removed after %Cantera 3.0; superseded by asArray().
-     */
-    AnyMap serialize(const double* soln) const;
-
     //! Save the state of this domain as a SolutionArray.
     /*!
      * @param soln local solution vector for this domain
@@ -349,17 +341,6 @@ public:
      * @since New in %Cantera 3.0.
      */
     shared_ptr<SolutionArray> toArray(bool normalize=false) const;
-
-    //! Restore the solution for this domain from an AnyMap
-    /*!
-     * @param[in]  state AnyMap defining the state of this domain
-     * @param[out] soln Value of the solution vector, local to this domain
-     * @param[in]  loglevel 0 to suppress all output; 1 to show warnings; 2 for
-     *      verbose output
-     *
-     * @deprecated To be removed after %Cantera 3.0; restore from SolutionArray instead.
-     */
-    void restore(const AnyMap& state, double* soln, int loglevel);
 
     //! Restore the solution for this domain from a SolutionArray
     /*!
@@ -473,13 +454,6 @@ public:
             return fmt::format("domain {}", m_index);
         }
     }
-
-    //! @deprecated To be removed after %Cantera 3.0; replaced by show()
-    virtual void showSolution_s(std::ostream& s, const double* x);
-
-    //! Print the solution.
-    //! @deprecated To be removed after %Cantera 3.0; replaced by show()
-    virtual void showSolution(const double* x);
 
     //! Print the solution.
     virtual void show(std::ostream& s, const double* x) {}

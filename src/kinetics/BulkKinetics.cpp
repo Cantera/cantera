@@ -12,13 +12,6 @@ BulkKinetics::BulkKinetics() {
     setDerivativeSettings(AnyMap()); // use default settings
 }
 
-BulkKinetics::BulkKinetics(ThermoPhase* thermo) : BulkKinetics()
-{
-    warn_deprecated("BulkKinetics::BulkKinetics(ThermoPhase*)",
-        "To be removed after Cantera 3.0. Use default constructor instead.");
-    addPhase(*thermo);
-}
-
 bool BulkKinetics::isReversible(size_t i) {
     return std::find(m_revindex.begin(), m_revindex.end(), i) < m_revindex.end();
 }

@@ -171,14 +171,6 @@ public:
     /*!
      * @param temperature   temperature (kelvin)
      * @param rho           density  (kg m-3)
-     * @deprecated To be removed after %Cantera 3.0; renamed to setState_TD()
-     */
-    void setState_TR(double temperature, double rho);
-
-    //! Set the internal state of the object wrt temperature and density
-    /*!
-     * @param temperature   temperature (kelvin)
-     * @param rho           density  (kg m-3)
      * @since New in %Cantera 3.0.
      */
     void setState_TD(double temperature, double rho);
@@ -202,52 +194,6 @@ public:
     //! Get the constant pressure heat capacity (J/kg/K) at the current temperature and
     //! density
     double cp_mass() const;
-
-    //! Calculate the Helmholtz free energy in mks units of J kmol-1 K-1,
-    //! using the last temperature and density
-    //! @deprecated To be removed after %Cantera 3.0. This class provides mass-based
-    //!     values only.
-    double helmholtzFE() const;
-
-    //! Calculate the Gibbs free energy in mks units of J kmol-1 K-1.
-    //! using the last temperature and density
-    //! @deprecated To be removed after %Cantera 3.0. This class provides mass-based
-    //!     values only.
-    double Gibbs() const;
-
-    //! Calculate the enthalpy in mks units of J kmol-1
-    //! using the last temperature and density
-    //! @deprecated To be removed after %Cantera 3.0. This class provides mass-based
-    //!     values only.
-    double enthalpy() const;
-
-    //! Calculate the internal energy in mks units of J kmol-1
-    //! @deprecated To be removed after %Cantera 3.0. This class provides mass-based
-    //!     values only.
-    double intEnergy() const;
-
-    //! Calculate the entropy in mks units of J kmol-1 K-1
-    //! @deprecated To be removed after %Cantera 3.0. This class provides mass-based
-    //!     values only.
-    double entropy() const;
-
-    //! Calculate the constant volume heat capacity in mks units of J kmol-1 K-1
-    //! at the last temperature and density
-    //! @deprecated To be removed after %Cantera 3.0. This class provides mass-based
-    //!     values only.
-    double cv() const;
-
-    //! Calculate the constant pressure heat capacity in mks units of J kmol-1 K-1
-    //! at the last temperature and density
-    //! @deprecated To be removed after %Cantera 3.0. This class provides mass-based
-    //!     values only.
-    double cp() const;
-
-    //! Calculate the molar volume (kmol m-3) at the last temperature and
-    //! density
-    //! @deprecated To be removed after %Cantera 3.0. This class provides mass-based
-    //!     values only.
-    double molarVolume() const;
 
     //! Calculates the pressure (Pascals), given the current value of the
     //! temperature and density.

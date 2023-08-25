@@ -383,17 +383,6 @@ extern "C" {
         }
     }
 
-    int flowdev_setMaster(int i, int n)
-    {
-        try {
-            FlowDeviceCabinet::get<PressureController>(i).setMaster(
-                &FlowDeviceCabinet::item(n));
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
     int flowdev_setPrimary(int i, int n)
     {
         try {

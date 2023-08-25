@@ -290,32 +290,6 @@ int BandMatrix::solve(double* b, size_t nrhs, size_t ldb)
     return m_info;
 }
 
-vector<double>::iterator BandMatrix::begin()
-{
-    warn_deprecated("BandMatrix::begin", "To be removed after Cantera 3.0.");
-    m_factored = false;
-    return data.begin();
-}
-
-vector<double>::iterator BandMatrix::end()
-{
-    warn_deprecated("BandMatrix::end", "To be removed after Cantera 3.0.");
-    m_factored = false;
-    return data.end();
-}
-
-vector<double>::const_iterator BandMatrix::begin() const
-{
-    warn_deprecated("BandMatrix::begin", "To be removed after Cantera 3.0.");
-    return data.begin();
-}
-
-vector<double>::const_iterator BandMatrix::end() const
-{
-    warn_deprecated("BandMatrix::end", "To be removed after Cantera 3.0.");
-    return data.end();
-}
-
 ostream& operator<<(ostream& s, const BandMatrix& m)
 {
     for (size_t i = 0; i < m.nRows(); i++) {

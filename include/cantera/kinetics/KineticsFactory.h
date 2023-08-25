@@ -40,12 +40,6 @@ private:
 //! @{
 
 /**
- *  Create a new kinetics manager.
- *  @deprecated To be removed after %Cantera 3.0; superseded by newKinetics().
- */
-Kinetics* newKineticsMgr(const string& model);
-
-/**
  *  Create a new Kinetics instance.
  */
 shared_ptr<Kinetics> newKinetics(const string& model);
@@ -67,14 +61,6 @@ shared_ptr<Kinetics> newKinetics(const vector<shared_ptr<ThermoPhase>>& phases,
                                  const AnyMap& rootNode=AnyMap(),
                                  shared_ptr<Solution> soln={});
 
-//! @brief Create a new kinetics manager, initialize it, and add reactions.
-//! @see newKinetics(const vector<shared_ptr<ThermoPhase>>&, const AnyMap&, const AnyMap&, shared_ptr<Solution>)
-//! @deprecated To be removed after %Cantera 3.0;
-//!     superseded by newKinetics() returning shared_ptr
-unique_ptr<Kinetics> newKinetics(const vector<ThermoPhase*>& phases,
-                                 const AnyMap& phaseNode,
-                                 const AnyMap& rootNode=AnyMap());
-
 //! Create a new kinetics manager, initialize it, and add reactions.
 /*!
  * @param phases      Vector of phases containing species which participate in
@@ -85,13 +71,6 @@ unique_ptr<Kinetics> newKinetics(const vector<ThermoPhase*>& phases,
  */
 shared_ptr<Kinetics> newKinetics(const vector<shared_ptr<ThermoPhase>>& phases,
                                  const string& filename);
-
-//! @copydoc newKinetics(const vector<shared_ptr<ThermoPhase>>&, const string&, const string&)
-//! @deprecated To be removed after %Cantera 3.0;
-//!     superseded by newKinetics() returning shared_ptr
-unique_ptr<Kinetics> newKinetics(const vector<ThermoPhase*>& phases,
-                                 const string& filename,
-                                 const string& phase_name);
 
 /**
  * Add reactions to a Kinetics object.

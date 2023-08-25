@@ -33,13 +33,6 @@ double PDSS_HKFT::enthalpy_mole() const
     return h;
 }
 
-double PDSS_HKFT::enthalpy_mole2() const
-{
-    warn_deprecated("PDSS_HKFT::enthalpy_mole2", "To be removed after Cantera 3.0");
-    double enthTRPR = m_Mu0_tr_pr + 298.15 * m_units.convertTo(m_Entrop_tr_pr, "J/kmol");
-    return deltaH() + enthTRPR;
-}
-
 double PDSS_HKFT::intEnergy_mole() const
 {
     return enthalpy_RT() - molarVolume() * m_pres;
@@ -369,55 +362,6 @@ void PDSS_HKFT::getParameters(AnyMap& eosNode) const
     eosNode["omega"].setQuantity(m_omega_pr_tr, "cal/gmol");
 }
 
-double PDSS_HKFT::deltaH() const
-{
-    warn_deprecated("PDSS_HKFT::deltaH", "To be removed after Cantera 3.0");
-    double pbar = m_pres * 1.0E-5;
-    double c1term = m_c1 * (m_temp - 298.15);
-    double a1term = m_a1 * (pbar - m_presR_bar);
-    double a2term = m_a2 * log((2600. + pbar)/(2600. + m_presR_bar));
-    double c2term = -m_c2 * (1.0/(m_temp - 228.) - 1.0/(298.15 - 228.));
-    double a3tmp = (2.0 * m_temp - 228.)/ (m_temp - 228.) /(m_temp - 228.);
-    double a3term = m_a3 * a3tmp * (pbar - m_presR_bar);
-    double a4term = m_a4 * a3tmp * log((2600. + pbar)/(2600. + m_presR_bar));
-    double omega_j;
-    double domega_jdT;
-    if (m_charge_j == 0.0) {
-        omega_j = m_omega_pr_tr;
-        domega_jdT = 0.0;
-    } else {
-        double nu = 166027;
-        double r_e_j_pr_tr = m_charge_j * m_charge_j / (m_omega_pr_tr/nu + m_charge_j/3.082);
-        double gval = gstar(m_temp, m_pres, 0);
-        double r_e_j = r_e_j_pr_tr + fabs(m_charge_j) * gval;
-        double dgvaldT = gstar(m_temp, m_pres, 1);
-        double dr_e_jdT = fabs(m_charge_j) * dgvaldT;
-        omega_j = nu * (m_charge_j * m_charge_j / r_e_j - m_charge_j / (3.082 + gval));
-        domega_jdT = - nu * (m_charge_j * m_charge_j / (r_e_j * r_e_j) * dr_e_jdT)
-                     + nu * m_charge_j / (3.082 + gval) / (3.082 + gval) * dgvaldT;
-    }
-
-    double relepsilon = m_waterProps->relEpsilon(m_temp, m_pres, 0);
-    double drelepsilondT = m_waterProps->relEpsilon(m_temp, m_pres, 1);
-
-    double Y = drelepsilondT / (relepsilon * relepsilon);
-    double Z = -1.0 / relepsilon;
-
-    double yterm = m_temp * omega_j * Y;
-    double yrterm = - 298.15 * m_omega_pr_tr * m_Y_pr_tr;
-
-    double wterm = - omega_j * (Z + 1.0);
-    double wrterm = + m_omega_pr_tr * (m_Z_pr_tr + 1.0);
-
-    double otterm = m_temp * domega_jdT * (Z + 1.0);
-    double otrterm = - m_temp * m_domega_jdT_prtr * (m_Z_pr_tr + 1.0);
-
-    double deltaH_calgmol = c1term + a1term + a2term + c2term + a3term + a4term
-                                + yterm + yrterm + wterm + wrterm + otterm + otrterm;
-
-    return m_units.convertTo(deltaH_calgmol, "J/kmol");
-}
-
 double PDSS_HKFT::deltaG() const
 {
     double pbar = m_pres * 1.0E-5;
@@ -645,27 +589,6 @@ void PDSS_HKFT::convertDGFormation()
     double dg = m_units.convertTo(m_deltaG_formation_tr_pr, "J/kmol");
     //! Store the result into an internal variable.
     m_Mu0_tr_pr = dg + totalSum;
-}
-
-void PDSS_HKFT::reportParams(size_t& kindex, int& type, double* const c,
-                             double& minTemp_, double& maxTemp_,
-                             double& refPressure_) const
-{
-    // Fill in the first part
-    PDSS::reportParams(kindex, type, c, minTemp_, maxTemp_,
-                       refPressure_);
-
-    c[0] = m_deltaG_formation_tr_pr;
-    c[1] = m_deltaH_formation_tr_pr;
-    c[2] = m_Mu0_tr_pr;
-    c[3] = m_Entrop_tr_pr;
-    c[4] = m_a1;
-    c[5] = m_a2;
-    c[6] = m_a3;
-    c[7] = m_a4;
-    c[8] = m_c1;
-    c[9] = m_c2;
-    c[10] = m_omega_pr_tr;
 }
 
 }

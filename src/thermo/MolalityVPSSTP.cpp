@@ -462,44 +462,4 @@ string MolalityVPSSTP::report(bool show_thermo, double threshold) const
     return to_string(b);
 }
 
-void MolalityVPSSTP::getCsvReportData(vector<string>& names,
-                                      vector<vector<double>>& data) const
-{
-    names.clear();
-    data.assign(10, vector<double>(nSpecies()));
-
-    names.push_back("X");
-    getMoleFractions(&data[0][0]);
-
-    names.push_back("Molal");
-    getMolalities(&data[1][0]);
-
-    names.push_back("Chem. Pot. (J/kmol)");
-    getChemPotentials(&data[2][0]);
-
-    names.push_back("Chem. Pot. SS (J/kmol)");
-    getStandardChemPotentials(&data[3][0]);
-
-    names.push_back("Molal Act. Coeff.");
-    getMolalityActivityCoefficients(&data[4][0]);
-
-    names.push_back("Molal Activity");
-    getActivities(&data[5][0]);
-
-    names.push_back("Part. Mol Enthalpy (J/kmol)");
-    getPartialMolarEnthalpies(&data[5][0]);
-
-    names.push_back("Part. Mol. Entropy (J/K/kmol)");
-    getPartialMolarEntropies(&data[6][0]);
-
-    names.push_back("Part. Mol. Energy (J/kmol)");
-    getPartialMolarIntEnergies(&data[7][0]);
-
-    names.push_back("Part. Mol. Cp (J/K/kmol");
-    getPartialMolarCp(&data[8][0]);
-
-    names.push_back("Part. Mol. Cv (J/K/kmol)");
-    getPartialMolarVolumes(&data[9][0]);
-}
-
 }

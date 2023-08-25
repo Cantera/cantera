@@ -37,10 +37,6 @@ public:
      */
     Sim1D(vector<shared_ptr<Domain1D>>& domains);
 
-    //! @deprecated To be removed after %Cantera 3.0;
-    //!     superseded by Sim1D() using shared_ptr
-    Sim1D(vector<Domain1D*>& domains);
-
     //! @name Setting initial values
     //!
     //! These methods are used to set the initial values of solution components.
@@ -107,19 +103,6 @@ public:
     /**
      * Output information on current solution for all domains to stream.
      * @param s  Output stream
-     * @deprecated To be removed after %Cantera 3.0; replaced by show()
-     */
-    void showSolution(std::ostream& s);
-
-    /**
-     * Show logging information on current solution for all domains.
-     * @deprecated To be removed after %Cantera 3.0; replaced by show()
-     */
-    void showSolution();
-
-    /**
-     * Output information on current solution for all domains to stream.
-     * @param s  Output stream
      * @since New in %Cantera 3.0.
      */
     void show(std::ostream& s);
@@ -129,16 +112,6 @@ public:
      * @since New in %Cantera 3.0.
      */
     void show();
-
-    /**
-     * Save the current solution to a container file.
-     * @param fname  Name of output container file
-     * @param id  Identifier of solution within the container file
-     * @param desc  Description of the solution
-     * @param loglevel  Level of diagnostic output
-     * @deprecated To be removed after %Cantera 3.0; loglevel is deprecated.
-     */
-    void save(const string& fname, const string& id, const string& desc, int loglevel);
 
     /**
      * Save current simulation data to a container file or CSV format.
@@ -173,17 +146,6 @@ public:
     /**
      * Save the residual of the current solution to a container file.
      * @param fname  Name of output container file
-     * @param id  Identifier of solution within the container file
-     * @param desc  Description of the solution
-     * @param loglevel  Level of diagnostic output
-     * @deprecated To be removed after %Cantera 3.0; loglevel is deprecated.
-     */
-    void saveResidual(const string& fname, const string& id,
-                      const string& desc, int loglevel);
-
-    /**
-     * Save the residual of the current solution to a container file.
-     * @param fname  Name of output container file
      * @param name  Identifier of solution within the container file
      * @param desc  Description of the solution
      * @param overwrite  Force overwrite if name exists; optional (default=false)
@@ -191,16 +153,6 @@ public:
      */
     void saveResidual(const string& fname, const string& name,
                       const string& desc, bool overwrite=false, int compression=0);
-
-    /**
-     * Initialize the solution with a previously-saved solution.
-     * @param fname  Name of container file
-     * @param id  Identifier of solution within the container file
-     * @param loglevel  Level of diagnostic output
-     * @deprecated To be removed after %Cantera 3.0; loglevel is deprecated.
-     * @return  AnyMap containing header information
-     */
-    AnyMap restore(const string& fname, const string& id, int loglevel);
 
     /**
      * Retrieve data and settings from a previously saved simulation.
@@ -217,13 +169,6 @@ public:
     AnyMap restore(const string& fname, const string& name);
 
     //! @}
-
-    //! @deprecated To be removed after %Cantera 3.0 (unused)
-    const double* solution() {
-        warn_deprecated("Sim1D::solution",
-            "This method is unused and will be removed after Cantera 3.0.");
-        return m_state->data();
-    }
 
     void setTimeStep(double stepsize, size_t n, const int* tsteps);
 
@@ -299,20 +244,6 @@ public:
     void restoreSteadySolution();
 
     void getInitialSoln();
-
-    //! @deprecated To be removed after %Cantera 3.0 (unused)
-    void setSolution(const double* soln) {
-        warn_deprecated("Sim1D::setSolution",
-            "This method is unused and will be removed after Cantera 3.0.");
-        std::copy(soln, soln + m_state->size(), m_state->data());
-    }
-
-    //! @deprecated To be removed after %Cantera 3.0 (unused)
-    const double* solution() const {
-        warn_deprecated("Sim1D::solution",
-            "This method is unused and will be removed after Cantera 3.0.");
-        return m_state->data();
-    }
 
     double jacobian(int i, int j);
 

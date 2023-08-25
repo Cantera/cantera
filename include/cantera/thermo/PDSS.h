@@ -60,13 +60,6 @@ namespace Cantera
  * The following classes inherit from PDSS. Each of these classes handles just
  * one species.
  *
- * - PDSS_IdealGas
- *   - standardState model = "IdealGas"
- *   - This model assumes that the species in the phase obeys the ideal gas law
- *     for their pressure dependence. The manager uses a SpeciesThermoInterpType object
- *     to handle the calculation of the reference state. This object adds the
- *     pressure dependencies to the thermo functions.
- *
  * - PDSS_ConstVol
  *    - standardState model = "ConstVol" or "constant_incompressible"
  *    - This model assumes that the species in the phase obeys the constant
@@ -245,26 +238,6 @@ public:
      */
     virtual double density() const;
 
-    //! Get the difference in the standard state enthalpy
-    //! between the current pressure and the reference pressure, p0.
-    //! @deprecated To be removed after %Cantera 3.0
-    virtual double enthalpyDelp_mole() const;
-
-    //! Get the difference in the standard state entropy between
-    //! the current pressure and the reference pressure, p0
-    //! @deprecated To be removed after %Cantera 3.0
-    virtual double entropyDelp_mole() const;
-
-    //! Get the difference in the standard state Gibbs free energy
-    //! between the current pressure and the reference pressure, p0.
-    //! @deprecated To be removed after %Cantera 3.0
-    virtual double gibbsDelp_mole() const;
-
-    //! Get the difference in standard state heat capacity
-    //! between the current pressure and the reference pressure, p0.
-    //! @deprecated To be removed after %Cantera 3.0
-    virtual double cpDelp_mole() const;
-
     //! @}
     //! @name Properties of the Reference State of the Species in the Solution
     //! @{
@@ -360,14 +333,6 @@ public:
      */
     virtual void setState_TP(double temp, double pres);
 
-    //! Set the internal temperature and density
-    /*!
-     * @param  temp     Temperature (Kelvin)
-     * @param  rho      Density (kg m-3)
-     * @deprecated To be removed after %Cantera 3.0
-     */
-    virtual void setState_TR(double temp, double rho);
-
     //! critical temperature
     virtual double critTemperature() const;
 
@@ -425,22 +390,6 @@ public:
 
     //! Store the parameters needed to reconstruct a copy of this PDSS object
     virtual void getParameters(AnyMap& eosNode) const {}
-
-    //! This utility function reports back the type of parameterization and
-    //! all of the parameters for the species, index.
-    /*!
-     * @param kindex    Species index (unused)
-     * @param type      Integer type of the standard type (unused)
-     * @param c         Vector of coefficients used to set the
-     *                  parameters for the standard state.
-     * @param minTemp   output - Minimum temperature
-     * @param maxTemp   output - Maximum temperature
-     * @param refPressure output - reference pressure (Pa).
-     * @deprecated To be removed after %Cantera 3.0. Use getParameters() instead.
-     */
-    virtual void reportParams(size_t& kindex, int& type, double* const c,
-                              double& minTemp, double& maxTemp,
-                              double& refPressure) const;
 
     //! @}
 

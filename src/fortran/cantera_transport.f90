@@ -73,13 +73,4 @@ contains
       self%err = trans_getMultiDiffCoeffs(self%tran_id, ld, d)
     end subroutine ctrans_getMultiDiffCoeffs
 
-    subroutine ctrans_setParameters(self, type, k, d)
-      implicit none
-      type(phase_t), intent(inout) :: self
-      integer, intent(in) :: type
-      integer, intent(in) :: k
-      double precision, intent(in) :: d(*)
-      self%err = trans_setParameters(self%tran_id, type, k, d)
-    end subroutine ctrans_setParameters
-
 end module cantera_transport

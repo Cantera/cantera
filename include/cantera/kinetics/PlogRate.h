@@ -172,10 +172,6 @@ public:
     //! has a negative pre-exponential factor.
     void validate(const string& equation, const Kinetics& kin) override;
 
-    //! @deprecated To be removed after %Cantera 3.0;
-    //!              superseded by two-parameter version
-    void validate(const string& equation) override;
-
     //! Return the pressures and Arrhenius expressions which comprise this
     //! reaction.
     std::multimap<double, ArrheniusRate> getRates() const;

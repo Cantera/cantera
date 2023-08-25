@@ -141,18 +141,6 @@ public:
      */
     virtual double operator()(size_t i, size_t j) const = 0;
 
-    //! Return an iterator pointing to the first element
-    /*!
-     * @deprecated Unused. To be removed after %Cantera 3.0.
-     */
-    virtual vector<double>::iterator begin() = 0;
-
-    //! Return a const iterator pointing to the first element
-    /*!
-     * @deprecated Unused. To be removed after %Cantera 3.0.
-     */
-    virtual vector<double>::const_iterator begin() const = 0;
-
     //! Return a vector of const pointers to the columns
     /*!
      * Note the value of the pointers are protected by their being const.

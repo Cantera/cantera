@@ -132,19 +132,6 @@ void IdealSolidSolnPhase::getChemPotentials(double* mu) const
     }
 }
 
-void IdealSolidSolnPhase::getChemPotentials_RT(double* mu) const
-{
-    warn_deprecated("IdealSolidSolnPhase::getChemPotentials_RT",
-                    "To be removed after Cantera 3.0. Use getChemPotentials instead.");
-    double delta_pdRT = (m_Pcurrent - m_Pref) / (temperature() * GasConstant);
-    const vector<double>& g_RT = gibbs_RT_ref();
-    for (size_t k = 0; k < m_kk; k++) {
-        double xx = std::max(SmallNumber, moleFraction(k));
-        mu[k] = (g_RT[k] + log(xx))
-                + delta_pdRT * m_speciesMolarVolume[k];
-    }
-}
-
 // Partial Molar Properties
 
 void IdealSolidSolnPhase::getPartialMolarEnthalpies(double* hbar) const

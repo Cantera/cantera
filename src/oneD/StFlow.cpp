@@ -104,12 +104,9 @@ StFlow::StFlow(shared_ptr<Solution> sol, const string& id, size_t points)
     m_kin = m_solution->kinetics().get();
     m_trans = m_solution->transport().get();
     if (m_trans->transportModel() == "none") {
-        // @deprecated
-        warn_deprecated("StFlow",
+        throw CanteraError("StFlow::StFlow",
             "An appropriate transport model\nshould be set when instantiating the "
-            "Solution ('gas') object.\nImplicit setting of the transport model "
-            "is deprecated and\nwill be removed after Cantera 3.0.");
-        setTransportModel("mixture-averaged");
+            "Solution ('gas') object.");
     }
     m_solution->registerChangedCallback(this, [this]() {
         setKinetics(m_solution->kinetics());
@@ -134,36 +131,14 @@ string StFlow::domainType() const {
     return "unstrained-flow";
 }
 
-void StFlow::setThermo(ThermoPhase& th) {
-    warn_deprecated("StFlow::setThermo", "To be removed after Cantera 3.0.");
-    m_thermo = &th;
-}
-
 void StFlow::setKinetics(shared_ptr<Kinetics> kin)
 {
-    if (!m_solution) {
-        // @todo remove after Cantera 3.0
-        throw CanteraError("StFlow::setKinetics",
-            "Unable to update object that was not constructed from smart pointers.");
-    }
     m_kin = kin.get();
     m_solution->setKinetics(kin);
 }
 
-void StFlow::setKinetics(Kinetics& kin)
-{
-    warn_deprecated("StFlow::setKinetics(Kinetics&)", "To be removed after Cantera 3.0."
-        " Replaced by setKinetics(shared_ptr<Kinetics>).");
-    m_kin = &kin;
-}
-
 void StFlow::setTransport(shared_ptr<Transport> trans)
 {
-    if (!m_solution) {
-        // @todo remove after Cantera 3.0
-        throw CanteraError("StFlow::setTransport",
-            "Unable to update object that was not constructed from smart pointers.");
-    }
     if (!trans) {
         throw CanteraError("StFlow::setTransport", "Unable to set empty transport.");
     }
@@ -235,36 +210,11 @@ void StFlow::resetBadValues(double* xg)
 
 void StFlow::setTransportModel(const string& trans)
 {
-    if (!m_solution) {
-        // @todo remove after Cantera 3.0
-        throw CanteraError("StFlow::setTransportModel",
-            "Unable to set Transport manager by name as object was not initialized\n"
-            "from a Solution manager: set Transport object directly instead.");
-    }
     m_solution->setTransportModel(trans);
 }
 
 string StFlow::transportModel() const {
     return m_trans->transportModel();
-}
-
-void StFlow::setTransport(Transport& trans)
-{
-    warn_deprecated("StFlow::setTransport(Transport&)", "To be removed after"
-        " Cantera 3.0. Replaced by setTransport(shared_ptr<Transport>).");
-    m_trans = &trans;
-    if (m_trans->transportModel() == "none") {
-        throw CanteraError("StFlow::setTransport",
-            "Invalid Transport model 'none'.");
-    }
-    m_do_multicomponent = (m_trans->transportModel() == "multicomponent" ||
-                           m_trans->transportModel() == "multicomponent-CK");
-
-    m_diff.resize(m_nsp*m_points);
-    if (m_do_multicomponent) {
-        m_multidiff.resize(m_nsp*m_nsp*m_points);
-        m_dthermal.resize(m_nsp, m_points, 0.0);
-    }
 }
 
 void StFlow::_getInitialSoln(double* x)
@@ -294,12 +244,6 @@ void StFlow::setGasAtMidpoint(const double* x, size_t j)
     }
     m_thermo->setMassFractions_NoNorm(m_ybar.data());
     m_thermo->setPressure(m_press);
-}
-
-bool StFlow::fixed_mdot() {
-    warn_deprecated("StFlow::fixed_mdot", "To be removed after"
-        " Cantera 3.0. Replaced by isFree().");
-    return !m_isFree;
 }
 
 void StFlow::_finalize(const double* x)
@@ -843,18 +787,6 @@ void StFlow::fromArray(SolutionArray& arr, double* soln)
 
     updateProperties(npos, soln + loc(), 0, m_points - 1);
     setMeta(arr.meta());
-}
-
-string StFlow::flowType() const {
-    warn_deprecated("StFlow::flowType",
-        "To be removed after Cantera 3.0; superseded by 'type'.");
-    if (m_type == cFreeFlow) {
-        return "Free Flame";
-    } else if (m_type == cAxisymmetricStagnationFlow) {
-        return "Axisymmetric Stagnation";
-    } else {
-        throw CanteraError("StFlow::flowType", "Unknown value for 'm_type'");
-    }
 }
 
 void StFlow::setMeta(const AnyMap& state)

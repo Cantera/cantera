@@ -240,21 +240,6 @@ double Kinetics::checkDuplicateStoich(map<int, double>& r1, map<int, double>& r2
     return ratio;
 }
 
-void Kinetics::selectPhase(const double* data, const ThermoPhase* phase,
-                           double* phase_data)
-{
-    warn_deprecated("Kinetics::selectPhase", "To be removed after Cantera 3.0");
-    for (size_t n = 0; n < nPhases(); n++) {
-        if (phase == m_thermo[n]) {
-            size_t nsp = phase->nSpecies();
-            copy(data + m_start[n],
-                 data + m_start[n] + nsp, phase_data);
-            return;
-        }
-    }
-    throw CanteraError("Kinetics::selectPhase", "Phase not found.");
-}
-
 string Kinetics::kineticsSpeciesName(size_t k) const
 {
     for (size_t n = m_start.size()-1; n != npos; n--) {
@@ -317,36 +302,6 @@ double Kinetics::reactantStoichCoeff(size_t kSpec, size_t irxn) const
 double Kinetics::productStoichCoeff(size_t kSpec, size_t irxn) const
 {
     return m_productStoich.stoichCoeffs().coeff(kSpec, irxn);
-}
-
-string Kinetics::reactionType(size_t i) const {
-    warn_deprecated("Kinetics::reactionType", "To be removed after Cantera 3.0.");
-    return m_reactions[i]->type();
-}
-
-string Kinetics::reactionTypeStr(size_t i) const {
-    warn_deprecated("Kinetics::reactionTypeStr", "To be removed after Cantera 3.0.");
-    return reactionType(i);
-}
-
-string Kinetics::reactionString(size_t i) const
-{
-    warn_deprecated("Kinetics::reactionString", "To be removed after Cantera 3.0.");
-    return m_reactions[i]->equation();
-}
-
-//! Returns a string containing the reactants side of the reaction equation.
-string Kinetics::reactantString(size_t i) const
-{
-    warn_deprecated("Kinetics::reactantString", "To be removed after Cantera 3.0.");
-    return m_reactions[i]->reactantString();
-}
-
-//! Returns a string containing the products side of the reaction equation.
-string Kinetics::productString(size_t i) const
-{
-    warn_deprecated("Kinetics::productString", "To be removed after Cantera 3.0.");
-    return m_reactions[i]->productString();
 }
 
 void Kinetics::getFwdRatesOfProgress(double* fwdROP)
@@ -579,33 +534,8 @@ void Kinetics::addThermo(shared_ptr<ThermoPhase> thermo)
         m_mindim = thermo->nDim();
     }
 
-    // there should only be one surface phase
-    if (boost::algorithm::contains(thermo->type(), "surface")) {
-        m_surfphase = nPhases();
-    }
     m_thermo.push_back(thermo.get());
     m_sharedThermo.push_back(thermo);
-    m_phaseindex[m_thermo.back()->name()] = nPhases();
-    resizeSpecies();
-}
-
-void Kinetics::addPhase(ThermoPhase& thermo)
-{
-    warn_deprecated("Kinetics::addPhase",
-        "To be removed after Cantera 3.0. Replaced by addThermo.");
-
-    // the phase with lowest dimensionality is assumed to be the
-    // phase/interface at which reactions take place
-    if (thermo.nDim() <= m_mindim) {
-        m_mindim = thermo.nDim();
-        m_rxnphase = nPhases();
-    }
-
-    // there should only be one surface phase
-    if (thermo.type() == kineticsType()) {
-        m_surfphase = nPhases();
-    }
-    m_thermo.push_back(&thermo);
     m_phaseindex[m_thermo.back()->name()] = nPhases();
     resizeSpecies();
 }
@@ -767,25 +697,6 @@ shared_ptr<const Reaction> Kinetics::reaction(size_t i) const
 {
     checkReactionIndex(i);
     return m_reactions[i];
-}
-
-double Kinetics::reactionEnthalpy(const Composition& reactants, const Composition& products)
-{
-    warn_deprecated("Kinetics::reactionEnthalpy", "To be removed after Cantera 3.0");
-    vector<double> hk(nTotalSpecies());
-    for (size_t n = 0; n < nPhases(); n++) {
-        thermo(n).getPartialMolarEnthalpies(&hk[m_start[n]]);
-    }
-    double rxn_deltaH = 0;
-    for (const auto& [name, stoich] : products) {
-        size_t k = kineticsSpeciesIndex(name);
-        rxn_deltaH += hk[k] * stoich;
-    }
-    for (const auto& [name, stoich] : reactants) {
-            size_t k = kineticsSpeciesIndex(name);
-            rxn_deltaH -= hk[k] * stoich;
-        }
-    return rxn_deltaH;
 }
 
 }

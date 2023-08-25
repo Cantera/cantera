@@ -333,10 +333,6 @@ MODULE CANTERA
      MODULE PROCEDURE ctkin_setMultiplier
   END INTERFACE setMultiplier
 
-  INTERFACE setParameters
-     MODULE PROCEDURE ctrans_setParameters
-  END INTERFACE setParameters
-
   INTERFACE setPressure
      MODULE PROCEDURE ctthermo_setPressure
   END INTERFACE setPressure

@@ -114,21 +114,6 @@ public:
     //! classes don't need to supply entries for these functions.
     //! @{
 
-    //! Get the array of non-dimensional species chemical potentials. These are
-    //! partial molar Gibbs free energies.
-    /*!
-     *  These are the phase, partial molar, and the standard state dimensionless
-     *  chemical potentials.
-     *  @f$ \mu_k / \hat R T @f$.
-     *
-     * Units: unitless
-     *
-     * @param murt  On return, Contains the chemical potential / RT of the
-     *              single species and the phase. Units are unitless. Length = 1
-     * @deprecated To be removed after %Cantera 3.0. Use getChemPotentials() instead.
-     */
-    void getChemPotentials_RT(double* murt) const override;
-
     //! Get the array of chemical potentials
     /*!
      * These are the phase, partial molar, and the standard state chemical

@@ -763,21 +763,6 @@ public:
     //! @name  Partial Molar Properties of the Solution
     //! @{
 
-    /**
-     * Get the array of non-dimensional species chemical potentials
-     * These are partial molar Gibbs free energies.
-     * @f$ \mu_k / \hat R T @f$.
-     * Units: unitless
-     *
-     * @param mu  Output vector of dimensionless chemical potentials.
-     *            Length: m_kk.
-     *
-     * @deprecated To be removed after %Cantera 3.0. Use getChemPotentials() instead.
-     */
-    virtual void getChemPotentials_RT(double* mu) const {
-        throw NotImplementedError("ThermoPhase::getChemPotentials_RT");
-    }
-
     //! Get the species chemical potentials. Units: J/kmol.
     /*!
      * This function returns a vector of chemical potentials of the species in
@@ -1170,31 +1155,6 @@ public:
      */
     virtual void setState_TP(double t, double p);
 
-    //! Set the pressure (Pa) and mole fractions.
-    /*!
-     * Note, the mole fractions are set first before the pressure is set.
-     * Setting the pressure may involve the solution of a nonlinear equation.
-     *
-     * @param p    Pressure (Pa)
-     * @param x    Vector of mole fractions.
-     *             Length is equal to m_kk.
-     * @deprecated To be removed after %Cantera 3.0.
-     */
-    virtual void setState_PX(double p, double* x);
-
-    //! Set the internally stored pressure (Pa) and mass fractions.
-    /*!
-     * Note, the temperature is held constant during this operation. Note, the
-     * mass fractions are set first before the pressure is set. Setting the
-     * pressure may involve the solution of a nonlinear equation.
-     *
-     * @param p    Pressure (Pa)
-     * @param y    Vector of mass fractions.
-     *             Length is equal to m_kk.
-     * @deprecated To be removed after %Cantera 3.0.
-     */
-    virtual void setState_PY(double p, double* y);
-
     //! Set the internally stored specific enthalpy (J/kg) and pressure (Pa) of
     //! the phase.
     /*!
@@ -1370,119 +1330,11 @@ public:
      *
      * @param rho Density (kg/m^3)
      * @param p   Pressure (Pa)
-     * @deprecated To be removed after %Cantera 3.0; renamed to setState_DP()
-     */
-    void setState_RP(double rho, double p);
-
-    //! Set the density (kg/m**3) and pressure (Pa) at constant composition
-    /*!
-     * This method must be reimplemented in derived classes, where it may
-     * involve the solution of a nonlinear equation. Within %Cantera, the
-     * independent variable is the density. Therefore, this function solves for
-     * the temperature that will yield the desired input pressure and density.
-     * The composition is held constant during this process.
-     *
-     * This base class function will print an error, if not overridden.
-     *
-     * @param rho Density (kg/m^3)
-     * @param p   Pressure (Pa)
      * @since New in %Cantera 3.0.
      */
     virtual void setState_DP(double rho, double p) {
         throw NotImplementedError("ThermoPhase::setState_DP");
     }
-
-    //! Set the density (kg/m**3), pressure (Pa) and mole fractions
-    /*!
-     * Note, the mole fractions are set first before the density and pressure
-     * are set. Setting the pressure may involve the solution of a nonlinear
-     * equation.
-     *
-     * @param rho  Density (kg/m^3)
-     * @param p    Pressure (Pa)
-     * @param x    Vector of mole fractions.
-     *             Length is equal to m_kk.
-     * @deprecated To be removed after %Cantera 3.0; replaceable by calls to
-     *              setMoleFractions() and setState_DP().
-     */
-    virtual void setState_RPX(double rho, double p, const double* x);
-
-    //! Set the density (kg/m**3), pressure (Pa) and mole fractions
-    /*!
-     * Note, the mole fractions are set first before the density and pressure
-     * are set. Setting the pressure may involve the solution of a nonlinear
-     * equation.
-     *
-     * @param rho  Density (kg/m^3)
-     * @param p    Pressure (Pa)
-     * @param x    Composition map of mole fractions. Species not in
-     *              the composition map are assumed to have zero mole fraction
-     * @deprecated To be removed after %Cantera 3.0; replaceable by calls to
-     *              setMoleFractionsByName() and setState_DP().
-     */
-    virtual void setState_RPX(double rho, double p, const Composition& x);
-
-    //! Set the density (kg/m**3), pressure (Pa) and mole fractions
-    /*!
-     * Note, the mole fractions are set first before the density and pressure
-     * are set. Setting the pressure may involve the solution of a nonlinear
-     * equation.
-     *
-     * @param rho  Density (kg/m^3)
-     * @param p    Pressure (Pa)
-     * @param x    String containing a composition map of the mole fractions.
-     *              Species not in the composition map are assumed to have zero
-     *              mole fraction
-     * @deprecated To be removed after %Cantera 3.0; replaceable by calls to
-     *              setMoleFractionsByName() and setState_DP().
-     */
-    virtual void setState_RPX(double rho, double p, const string& x);
-
-    //! Set the density (kg/m**3), pressure (Pa) and mass fractions
-    /*!
-     * Note, the mass fractions are set first before the density and pressure
-     * are set. Setting the pressure may involve the solution of a nonlinear
-     * equation.
-     *
-     * @param rho  Density (kg/m^3)
-     * @param p    Pressure (Pa)
-     * @param y    Vector of mole fractions.
-     *              Length is equal to m_kk.
-     * @deprecated To be removed after %Cantera 3.0; replaceable by calls to
-     *              setMassFractions() and setState_DP().
-     */
-    virtual void setState_RPY(double rho, double p, const double* y);
-
-    //! Set the density (kg/m**3), pressure (Pa) and mass fractions
-    /*!
-     * Note, the mass fractions are set first before the density and pressure
-     * are set. Setting the pressure may involve the solution of a nonlinear
-     * equation.
-     *
-     * @param rho Density (kg/m^3)
-     * @param p   Pressure (Pa)
-     * @param y   Composition map of mole fractions. Species not in
-     *             the composition map are assumed to have zero mole fraction
-     * @deprecated To be removed after %Cantera 3.0; replaceable by calls to
-     *              setMassFractionsByName() and setState_DP().
-     */
-    virtual void setState_RPY(double rho, double p, const Composition& y);
-
-    //! Set the density (kg/m**3), pressure (Pa) and mass fractions
-    /*!
-     * Note, the mass fractions are set first before the density and pressure
-     * are set. Setting the pressure may involve the solution of a nonlinear
-     * equation.
-     *
-     * @param rho  Density (kg/m^3)
-     * @param p    Pressure (Pa)
-     * @param y    String containing a composition map of the mole fractions.
-     *              Species not in the composition map are assumed to have zero
-     *              mole fraction
-     * @deprecated To be removed after %Cantera 3.0; replaceable by calls to
-     *              setMassFractionsByName() and setState_DP().
-     */
-    virtual void setState_RPY(double rho, double p, const string& y);
 
     //! Set the state using an AnyMap containing any combination of properties
     //! supported by the thermodynamic model
@@ -2093,16 +1945,6 @@ public:
      */
     virtual string report(bool show_thermo=true, double threshold=-1e-14) const;
 
-    //! returns a summary of the state of the phase to a comma separated file.
-    /*!
-     * To customize the data included in the report, derived classes should
-     * override the getCsvReportData method.
-     *
-     * @param csvFile  ofstream file to print comma separated data for the phase
-     * @deprecated To be removed after %Cantera 3.0.
-     */
-    virtual void reportCSV(std::ofstream& csvFile) const;
-
     //! @}
 
 protected:
@@ -2110,12 +1952,6 @@ protected:
     //! one could be reconstructed using the newThermo(AnyMap&) function. This
     //! does not include user-defined fields available in input().
     virtual void getParameters(AnyMap& phaseNode) const;
-
-    //! Fills `names` and `data` with the column names and species thermo
-    //! properties to be included in the output of the reportCSV method.
-    //! @deprecated To be removed after %Cantera 3.0.
-    virtual void getCsvReportData(vector<string>& names,
-                                  vector<vector<double>>& data) const;
 
     //! Pointer to the calculation manager for species reference-state
     //! thermodynamic properties

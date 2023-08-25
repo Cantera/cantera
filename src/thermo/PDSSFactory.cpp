@@ -4,12 +4,10 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/thermo/PDSSFactory.h"
-#include "cantera/thermo/PDSS_IdealGas.h"
 #include "cantera/thermo/PDSS_Water.h"
 #include "cantera/thermo/PDSS_ConstVol.h"
 #include "cantera/thermo/PDSS_SSVol.h"
 #include "cantera/thermo/PDSS_HKFT.h"
-#include "cantera/thermo/PDSS_IonsFromNeutral.h"
 
 namespace Cantera
 {
@@ -19,7 +17,6 @@ std::mutex PDSSFactory::thermo_mutex;
 
 PDSSFactory::PDSSFactory()
 {
-    reg("ideal-gas", []() { return new PDSS_IdealGas(); });
     reg("constant-volume", []() { return new PDSS_ConstVol(); });
     addDeprecatedAlias("constant-volume", "constant_incompressible");
     addDeprecatedAlias("constant-volume", "constant-incompressible");
@@ -27,9 +24,6 @@ PDSSFactory::PDSSFactory()
     addDeprecatedAlias("liquid-water-IAPWS95", "waterPDSS");
     addDeprecatedAlias("liquid-water-IAPWS95", "waterIAPWS");
     addDeprecatedAlias("liquid-water-IAPWS95", "water");
-    reg("ions-from-neutral-molecule", []() { return new PDSS_IonsFromNeutral(); });
-    addDeprecatedAlias("ions-from-neutral-molecule", "IonFromNeutral");
-    addDeprecatedAlias("ions-from-neutral-molecule", "ions-from-neutral");
     reg("molar-volume-temperature-polynomial", []() { return new PDSS_SSVol(); });
     addDeprecatedAlias("molar-volume-temperature-polynomial", "temperature_polynomial");
     reg("density-temperature-polynomial", []() { return new PDSS_SSVol(); });

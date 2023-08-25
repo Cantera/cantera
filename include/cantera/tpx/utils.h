@@ -6,8 +6,6 @@
 
 namespace tpx
 {
-//! @deprecated To be removed after %Cantera 3.0
-Substance* GetSub(int isub);
 
 //! Create a new Substance object corresponding to the specified name.
 /**

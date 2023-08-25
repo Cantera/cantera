@@ -176,16 +176,6 @@ void RedlichKwongMFTP::getActivityCoefficients(double* ac) const
 
 // ---- Partial Molar Properties of the Solution -----------------
 
-void RedlichKwongMFTP::getChemPotentials_RT(double* muRT) const
-{
-    warn_deprecated("RedlichKwongMFTP::getChemPotentials_RT",
-                    "To be removed after Cantera 3.0. Use getChemPotentials instead.");
-    getChemPotentials(muRT);
-    for (size_t k = 0; k < m_kk; k++) {
-        muRT[k] *= 1.0 / RT();
-    }
-}
-
 void RedlichKwongMFTP::getChemPotentials(double* mu) const
 {
     getGibbs_ref(mu);

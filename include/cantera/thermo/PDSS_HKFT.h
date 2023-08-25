@@ -37,18 +37,6 @@ public:
 
     double enthalpy_mole() const override;
 
-    //! Return the molar enthalpy in units of J kmol-1
-    /*!
-     * Returns the species standard state enthalpy in J kmol-1 at the
-     * current temperature and pressure.
-     *
-     *  Note this is just an extra routine to check the arithmetic
-     *
-     * @returns the species standard state enthalpy in J kmol-1
-     * @deprecated To be removed after %Cantera 3.0
-     */
-    double enthalpy_mole2() const;
-
     double intEnergy_mole() const override;
     double entropy_mole() const override;
     double gibbs_mole() const override;
@@ -106,35 +94,6 @@ public:
     void setOmega(double omega); //!< Set omega [J/kmol]
 
     void getParameters(AnyMap& eosNode) const override;
-
-    //! This utility function reports back the type of parameterization and
-    //! all of the parameters for the species, index.
-    /*!
-     * The following parameters are reported
-     *
-     * -   c[0] = m_deltaG_formation_tr_pr;
-     * -   c[1] = m_deltaH_formation_tr_pr;
-     * -   c[2] = m_Mu0_tr_pr;
-     * -   c[3] = m_Entrop_tr_pr;
-     * -   c[4] =  m_a1;
-     * -   c[5] =  m_a2;
-     * -   c[6] =  m_a3;
-     * -   c[7] =  m_a4;
-     * -   c[8] =  m_c1;
-     * -   c[9] =  m_c2;
-     * -   c[10] = m_omega_pr_tr;
-     * .
-     *
-     * @param kindex    Species index
-     * @param type      Integer type of the standard type
-     * @param c         Vector of coefficients used to set the parameters for
-     *                  the standard state.
-     * @param minTemp   output - Minimum temperature
-     * @param maxTemp   output - Maximum temperature
-     * @param refPressure output - reference pressure (Pa).
-     */
-    void reportParams(size_t& kindex, int& type, double* const c, double& minTemp,
-                      double& maxTemp, double& refPressure) const override;
     //! @}
 
 private:
@@ -155,14 +114,6 @@ private:
      *  be an error in the latter. This is a correction.
      */
     double deltaS() const;
-
-    //! Routine that actually calculates the enthalpy difference
-    //! between the reference state at Tr, Pr and T,P
-    /*!
-     *  This is an extra routine that was added to check the arithmetic
-     * @deprecated To be removed after %Cantera 3.0
-     */
-    double deltaH() const;
 
     //! Internal formula for the calculation of a_g()
     /*!

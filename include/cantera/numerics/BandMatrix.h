@@ -164,34 +164,6 @@ public:
      */
     int solve(double* b, size_t nrhs=1, size_t ldb=0) override;
 
-    //! Returns an iterator for the start of the band storage data
-    /*!
-     * Iterator points to the beginning of the data, and it is changeable.
-     * @deprecated Unused. To be removed after %Cantera 3.0.
-     */
-    vector<double>::iterator begin() override;
-
-    //! Returns an iterator for the end of the band storage data
-    /*!
-     * Iterator points to the end of the data, and it is changeable.
-     * @deprecated Unused. To be removed after %Cantera 3.0.
-     */
-    vector<double>::iterator end();
-
-    //! Returns a const iterator for the start of the band storage data
-    /*!
-     * Iterator points to the beginning of the data, and it is not changeable.
-     * @deprecated Unused. To be removed after %Cantera 3.0.
-     */
-    vector<double>::const_iterator begin() const override;
-
-    //! Returns a const iterator for the end of the band storage data
-    /*!
-     * Iterator points to the end of the data, and it is not changeable.
-     * @deprecated Unused. To be removed after %Cantera 3.0.
-     */
-    vector<double>::const_iterator end() const;
-
     void zero() override;
 
     //! Returns an estimate of the inverse of the condition number for the matrix

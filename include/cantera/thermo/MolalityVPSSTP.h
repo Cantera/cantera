@@ -539,9 +539,6 @@ public:
     string report(bool show_thermo=true, double threshold=1e-14) const override;
 
 protected:
-    void getCsvReportData(vector<string>& names,
-                          vector<vector<double>>& data) const override;
-
     //! Get the array of unscaled non-dimensional molality based activity
     //! coefficients at the current solution temperature, pressure, and solution
     //! concentration.

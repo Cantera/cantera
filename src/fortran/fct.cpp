@@ -1053,16 +1053,6 @@ extern "C" {
         }
     }
 
-    status_t trans_setparameters_(const integer* n, integer* type, integer* k, double* d)
-    {
-        try {
-            _ftrans(n)->setParameters(*type, *k, d);
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
     //-------------------- Functions ---------------------------
 
     status_t ctphase_report_(const integer* nth,

@@ -93,25 +93,6 @@ void GibbsExcessVPSSTP::getPartialMolarVolumes(double* vbar) const
     getStandardVolumes(vbar);
 }
 
-const vector<double>& GibbsExcessVPSSTP::getPartialMolarVolumesVector() const
-{
-    warn_deprecated("GibbsExcessVPSSTP::getPartialMolarVolumesVector",
-                    "Unused. To be removed after Cantera 3.0.");
-    return getStandardVolumes();
-}
-
-double GibbsExcessVPSSTP::checkMFSum(const double* const x) const
-{
-    warn_deprecated("GibbsExcessVPSSTP::checkMFSum",
-                    "Unused. To be removed after Cantera 3.0");
-    double norm = std::accumulate(x, x + m_kk, 0.0);
-    if (fabs(norm - 1.0) > 1.0E-9) {
-        throw CanteraError("GibbsExcessVPSSTP::checkMFSum",
-            "(MF sum - 1) exceeded tolerance of 1.0E-9: {}", norm);
-    }
-    return norm;
-}
-
 bool GibbsExcessVPSSTP::addSpecies(shared_ptr<Species> spec)
 {
     bool added = VPStandardStateTP::addSpecies(spec);

@@ -20,13 +20,11 @@
 
 #include "cantera/base/ct_defs.h"
 #include "cantera/base/ctexceptions.h"
-#include "cantera/base/global.h"
 
 namespace Cantera
 {
 
 class ThermoPhase;
-class Solution;
 class AnyMap;
 
 /**
@@ -37,55 +35,6 @@ class AnyMap;
 const int CK_Mode = 10;
 
 //!   @endcond
-
-//! The diffusion fluxes must be referenced to a particular reference
-//! fluid velocity.
-/*!
- * Most typical is to reference the diffusion fluxes to the mass averaged
- * velocity, but referencing to the mole averaged velocity is suitable for some
- * liquid flows, and referencing to a single species is suitable for solid phase
- * transport within a lattice.  Currently, the identity of the reference
- * velocity is coded into each transport object as a typedef named
- * VelocityBasis, which is equated to an integer. Negative values of this
- * variable refer to mass or mole-averaged velocities.  Zero or positive
- * quantities refers to the reference velocity being referenced to a particular
- * species. Below are the predefined constants for its value.
- *
- * @deprecated To be removed after %Cantera 3.0.
- *
- * - VB_MASSAVG    Diffusion velocities are based on the mass averaged velocity
- * - VB_MOLEAVG    Diffusion velocities are based on the mole averaged velocities
- * - VB_SPECIES_0  Diffusion velocities are based on the relative motion wrt species 0
- * - ...
- * - VB_SPECIES_3  Diffusion velocities are based on the relative motion wrt species 3
- *
- * @ingroup tranprops
- */
-typedef int VelocityBasis;
-
-/**
- * @addtogroup tranprops
- */
-//! @{
-//! Diffusion velocities are based on the mass averaged velocity
-//! @deprecated To be removed after %Cantera 3.0.
-const VelocityBasis VB_MASSAVG = -1;
-//! Diffusion velocities are based on the mole averaged velocities
-//! @deprecated To be removed after %Cantera 3.0.
-const VelocityBasis VB_MOLEAVG = -2;
-//! Diffusion velocities are based on the relative motion wrt species 0
-//! @deprecated To be removed after %Cantera 3.0.
-const VelocityBasis VB_SPECIES_0 = 0;
-//! Diffusion velocities are based on the relative motion wrt species 1
-//! @deprecated To be removed after %Cantera 3.0.
-const VelocityBasis VB_SPECIES_1 = 1;
-//! Diffusion velocities are based on the relative motion wrt species 2
-//! @deprecated To be removed after %Cantera 3.0.
-const VelocityBasis VB_SPECIES_2 = 2;
-//! Diffusion velocities are based on the relative motion wrt species 3
-//! @deprecated To be removed after %Cantera 3.0.
-const VelocityBasis VB_SPECIES_3 = 3;
-//! @}
 
 //! Base class for transport property managers.
 /*!
@@ -150,15 +99,9 @@ public:
      * New transport managers should be created using TransportFactory, not by
      * calling the constructor directly.
      *
-     * @param thermo   Pointer to the ThermoPhase class representing this phase.
-     * @param ndim     Dimension of the flux vector used in the calculation.
-     *
-     * @deprecated The `thermo` and `ndim` parameters will be removed after %Cantera 3.0.
-     *     The ThermoPhase object should be specifed when calling the `init` method.
-     *
      * @see TransportFactory
      */
-    Transport(ThermoPhase* thermo=0, size_t ndim=npos);
+    Transport() = default;
 
     virtual ~Transport() {}
 
@@ -174,15 +117,6 @@ public:
         return "none";
     }
 
-    //! Identifies the Transport object type. Each derived class should override
-    //! this method to return a meaningful identifier.
-    //! @deprecated To be removed after %Cantera 3.0. Replaced by transportModel
-    string transportType() const {
-        warn_deprecated("Transport::transportType",
-            "To be removed after Cantera 3.0. Replaced by transportModel().");
-            return transportModel();
-    }
-
     /**
      * Phase object. Every transport manager is designed to compute properties
      * for a specific phase of a mixture, which might be a liquid solution, a
@@ -191,25 +125,6 @@ public:
      */
     ThermoPhase& thermo() {
         return *m_thermo;
-    }
-
-    /**
-     * Returns true if the transport manager is ready for use.
-     * @deprecated To be removed after %Cantera 3.0.
-     */
-    bool ready();
-
-    //! Set the number of dimensions to be expected in flux expressions
-    /*!
-     *  @param ndim  Number of dimensions in flux expressions
-     *  @deprecated Unused. To be removed after %Cantera 3.0.
-     */
-    void setNDim(const int ndim);
-
-    //! Return the number of dimensions in flux expressions
-    //! @deprecated Unused. To be removed after %Cantera 3.0.
-    size_t nDim() const {
-        return m_nDim;
     }
 
     //! Check that the specified species index is in range. Throws an exception
@@ -254,61 +169,6 @@ public:
             "Not implemented for transport model '{}'.", transportModel());
     }
 
-    //! The ionic conductivity in 1/ohm/m.
-    //! @deprecated To be removed after %Cantera 3.0. Not implemented by any model.
-    virtual double ionConductivity() {
-        throw NotImplementedError("Transport::ionConductivity",
-            "Not implemented for transport model '{}'.", transportModel());
-    }
-
-    //! Returns the pure species ionic conductivity
-    /*!
-     *  The units are 1/ohm/m and the length is the number of species
-     *
-     * @param ionCond   Vector of ionic conductivities
-     *
-     * @deprecated To be removed after %Cantera 3.0. Not implemented by any model.
-     */
-    virtual void getSpeciesIonConductivity(double* const ionCond) {
-        throw NotImplementedError("Transport::getSpeciesIonConductivity",
-            "Not implemented for transport model '{}'.", transportModel());
-    }
-
-    //! Returns the pointer to the mobility ratios of the species in the phase
-    /*!
-     * @param mobRat Returns a matrix of mobility ratios for the current
-     *               problem. The mobility ratio mobRat(i,j) is defined as the
-     *               ratio of the mobility of species i to species j.
-     *
-     *         mobRat(i,j) = mu_i / mu_j
-     *
-     * It is returned in fortran-ordering format. That is, it is returned as
-     * mobRat[k], where
-     *
-     *        k = j * nsp + i
-     *
-     * The size of mobRat must be at least equal to nsp*nsp
-     *
-     * @deprecated To be removed after %Cantera 3.0. Not implemented by any model.
-     */
-    virtual void mobilityRatio(double* mobRat) {
-        throw NotImplementedError("Transport::mobilityRatio",
-            "Not implemented for transport model '{}'.", transportModel());
-    }
-
-    //! Returns the pure species limit of the mobility ratios
-    /*!
-     * The value is dimensionless and the length is the number of species
-     *
-     * @param mobRat   Vector of mobility ratios
-     *
-     * @deprecated To be removed after %Cantera 3.0. Not implemented by any model.
-     */
-    virtual void getSpeciesMobilityRatio(double** mobRat) {
-        throw NotImplementedError("Transport::getSpeciesMobilityRatio",
-            "Not implemented for transport model '{}'.", transportModel());
-    }
-
     //! Returns the mixture thermal conductivity in W/m/K.
     /*!
      * Units are in W / m K  or equivalently kg m / s3 K
@@ -347,81 +207,7 @@ public:
             "Not implemented for transport model '{}'.", transportModel());
     }
 
-    //! Get the fluid mobilities (s kmol/kg).
-    /*!
-     * This function returns the fluid mobilities. Usually, you have to multiply
-     * Faraday's constant into the resulting expression to general a species
-     * flux expression.
-     *
-     * Frequently, but not always, the mobility is calculated from the diffusion
-     * coefficient using the Einstein relation
-     *
-     * @f[
-     *      \mu^f_k = \frac{D_k}{R T}
-     * @f]
-     *
-     * @param mobil_f  Returns the mobilities of the species in array @c mobil.
-     *               The array must be dimensioned at least as large as the
-     *               number of species.
-     *
-     * @deprecated To be removed after %Cantera 3.0. Not implemented by any model.
-     */
-    virtual void getFluidMobilities(double* const mobil_f) {
-        throw NotImplementedError("Transport::getFluidMobilities",
-            "Not implemented for transport model '{}'.", transportModel());
-    }
-
     //! @}
-
-    //! Compute the mixture electrical conductivity (S m-1) at the current
-    //! conditions of the phase (Siemens m-1)
-    /*!
-     * The electrical conductivity, @f$ \sigma @f$, relates the electric current
-     * density, J, to the electric field, E.
-     *
-     * @f[
-     *        \vec{J} = \sigma \vec{E}
-     * @f]
-     *
-     * We assume here that the mixture electrical conductivity is an isotropic
-     * quantity, at this stage. Tensors may be included at a later time.
-     *
-     * The conductivity is the reciprocal of the resistivity.
-     *
-     * The units are Siemens m-1, where 1 S = 1 A / volt = 1 s^3 A^2 /kg /m^2
-     *
-     * @deprecated To be removed after %Cantera 3.0. Replaced by electricalConductivity()
-     */
-    virtual double getElectricConduct() {
-        throw NotImplementedError("Transport::getElectricConduct",
-            "Not implemented for transport model '{}'.", transportModel());
-    }
-
-    //! Compute the electric current density in A/m^2
-    /*!
-     * Calculates the electric current density as a vector, given the gradients
-     * of the field variables.
-     *
-     * @param ndim    The number of spatial dimensions (1, 2, or 3).
-     * @param grad_T  The temperature gradient (ignored in this model).
-     * @param ldx     Leading dimension of the grad_X array.
-     * @param grad_X  The gradient of the mole fraction
-     * @param ldf     Leading dimension of the grad_V and current vectors.
-     * @param grad_V  The electrostatic potential gradient.
-     * @param current The electric current in A/m^2. This is a vector of length ndim
-     *
-     * @deprecated To be removed after %Cantera 3.0. Not implemented by any model.
-     */
-    virtual void getElectricCurrent(int ndim,
-                                    const double* grad_T,
-                                    int ldx,
-                                    const double* grad_X,
-                                    int ldf,
-                                    const double* grad_V,
-                                    double* current) {
-        throw NotImplementedError("Transport::getElectricCurrent",
-            "Not implemented for transport model '{}'.", transportModel());
-    }
 
     //! Get the species diffusive mass fluxes wrt to the specified solution
     //! averaged velocity, given the gradients in mole fraction and temperature
@@ -447,93 +233,6 @@ public:
                                   size_t ldf, double* const fluxes) {
         throw NotImplementedError("Transport::getSpeciesFluxes",
             "Not implemented for transport model '{}'.", transportModel());
-    }
-
-    //! Get the species diffusive mass fluxes wrt to the mass averaged velocity,
-    //! given the gradients in mole fraction, temperature and electrostatic
-    //! potential.
-    /*!
-     * Units for the returned fluxes are kg m-2 s-1.
-     *
-     * @param[in] ndim Number of dimensions in the flux expressions
-     * @param[in] grad_T Gradient of the temperature. (length = ndim)
-     * @param[in] ldx  Leading dimension of the grad_X array (usually equal to
-     *              m_nsp but not always)
-     * @param[in] grad_X Gradients of the mole fraction. Flat vector with the
-     *             m_nsp in the inner loop. length = ldx * ndim.
-     * @param[in] ldf  Leading dimension of the fluxes array (usually equal to
-     *              m_nsp but not always).
-     * @param[in] grad_Phi Gradients of the electrostatic potential (length = ndim)
-     * @param[out] fluxes  The diffusive mass fluxes. Flat vector with the m_nsp
-     *             in the inner loop. length = ldx * ndim.
-     *
-     * @deprecated To be removed after %Cantera 3.0. Not implemented by any model.
-     */
-    virtual void getSpeciesFluxesES(size_t ndim,
-                                    const double* grad_T,
-                                    size_t ldx,
-                                    const double* grad_X,
-                                    size_t ldf,
-                                    const double* grad_Phi,
-                                    double* fluxes) {
-        getSpeciesFluxes(ndim, grad_T, ldx, grad_X, ldf, fluxes);
-    }
-
-    //! Get the species diffusive velocities wrt to the mass averaged velocity,
-    //! given the gradients in mole fraction and temperature
-    /*!
-     * @param[in] ndim Number of dimensions in the flux expressions
-     * @param[in] grad_T Gradient of the temperature (length = ndim)
-     * @param[in] ldx  Leading dimension of the grad_X array (usually equal to
-     *              m_nsp but not always)
-     * @param[in] grad_X Gradients of the mole fraction. Flat vector with the
-     *             m_nsp in the inner loop. length = ldx * ndim
-     * @param[in] ldf  Leading dimension of the fluxes array (usually equal to
-     *              m_nsp but not always)
-     * @param[out] Vdiff  Diffusive velocities wrt the mass- averaged velocity.
-     *               Flat vector with the m_nsp in the inner loop.
-     *               length = ldx * ndim. units are m / s.
-     *
-     * @deprecated To be removed after %Cantera 3.0. Not implemented by any model.
-     */
-    virtual void getSpeciesVdiff(size_t ndim,
-                                 const double* grad_T,
-                                 int ldx,
-                                 const double* grad_X,
-                                 int ldf,
-                                 double* Vdiff) {
-        throw NotImplementedError("Transport::getSpeciesVdiff",
-            "Not implemented for transport model '{}'.", transportModel());
-    }
-
-    //! Get the species diffusive velocities wrt to the mass averaged velocity,
-    //! given the gradients in mole fraction, temperature, and electrostatic
-    //! potential.
-    /*!
-     * @param[in] ndim Number of dimensions in the flux expressions
-     * @param[in] grad_T Gradient of the temperature (length = ndim)
-     * @param[in] ldx  Leading dimension of the grad_X array (usually equal to
-     *              m_nsp but not always)
-     * @param[in] grad_X Gradients of the mole fraction. Flat vector with the
-     *             m_nsp in the inner loop. length = ldx * ndim.
-     * @param[in] ldf  Leading dimension of the fluxes array (usually equal to
-     *              m_nsp but not always)
-     * @param[in] grad_Phi Gradients of the electrostatic potential
-     *                 (length = ndim)
-     * @param[out] Vdiff  Diffusive velocities wrt the mass-averaged velocity.
-     *               Flat vector with the m_nsp in the inner loop. length = ldx
-     *               * ndim. units are m / s.
-     *
-     * @deprecated To be removed after %Cantera 3.0. Not implemented by any model.
-     */
-    virtual void getSpeciesVdiffES(size_t ndim,
-                                   const double* grad_T,
-                                   int ldx,
-                                   const double* grad_X,
-                                   int ldf,
-                                   const double* grad_Phi,
-                                   double* Vdiff) {
-        getSpeciesVdiff(ndim, grad_T, ldx, grad_X, ldf, Vdiff);
     }
 
     //! Get the molar fluxes [kmol/m^2/s], given the thermodynamic state at two
@@ -707,58 +406,11 @@ public:
             "Not implemented for transport model '{}'.", transportModel());
     }
 
-    //! Set model parameters for derived classes
-    /*!
-     * This method may be derived in subclasses to set model-specific
-     * parameters. The primary use of this class is to set parameters while in
-     * the middle of a calculation without actually having to dynamically cast
-     * the base Transport pointer.
-     *
-     * @param type    Specifies the type of parameters to set
-     *                 0 : Diffusion coefficient
-     *                 1 : Thermal Conductivity
-     *                 The rest are currently unused.
-     * @param k       Species index to set the parameters on
-     * @param p       Vector of parameters. The length of the vector varies with
-     *                 the parameterization
-     * @deprecated To be removed after %Cantera 3.0.
-     */
-    virtual void setParameters(const int type, const int k, const double* const p) {
-        throw NotImplementedError("Transport::setParameters",
-            "Not implemented for transport model '{}'.", transportModel());
-    }
-
     //! Return the parameters for a phase definition which are needed to
     //! reconstruct an identical object using the newTransport function. This
     //! excludes the individual species transport properties, which are handled
     //! separately.
     AnyMap parameters() const;
-
-    //! Sets the velocity basis
-    /*!
-     * What the transport object does with this parameter is up to the
-     * individual operator. Currently, this is not functional for most transport
-     * operators including all of the gas-phase operators.
-     *
-     * @param ivb   Species the velocity basis
-     * @deprecated To be removed after %Cantera 3.0.
-     */
-    void setVelocityBasis(VelocityBasis ivb) {
-        m_velocityBasis = ivb;
-    }
-
-    //! Gets the velocity basis
-    /*!
-     * What the transport object does with this parameter is up to the
-     * individual operator. Currently, this is not functional for most transport
-     * operators including all of the gas-phase operators.
-     *
-     * @returns the velocity basis
-     * @deprecated To be removed after %Cantera 3.0.
-     */
-    VelocityBasis getVelocityBasis() const {
-        return m_velocityBasis;
-    }
 
     //! @name Transport manager construction
     //!
@@ -777,27 +429,6 @@ public:
      */
     virtual void init(ThermoPhase* thermo, int mode=0, int log_level=0) {}
 
-    //! Specifies the ThermoPhase object.
-    /*!
-     * We have relaxed this operation so that it will succeed when the
-     * underlying old and new ThermoPhase objects have the same number of
-     * species and the same names of the species in the same order. The idea
-     * here is to allow copy constructors and duplicators to work. In order for
-     * them to work, we need a method to switch the internal pointer within the
-     * Transport object after the duplication takes place.  Also, different
-     * thermodynamic instantiations of the same species should also work.
-     *
-     * @param   thermo  Reference to the ThermoPhase object that the transport
-     *                  object will use
-     * @deprecated To be removed after %Cantera 3.0. The ThermoPhase object should be
-     *     set as part of the call to `init`.
-     */
-    virtual void setThermo(ThermoPhase& thermo);
-
-    //! Set root Solution holding all phase information
-    //! @deprecated Unused. To be removed after %Cantera 3.0.
-    virtual void setRoot(shared_ptr<Solution> root);
-
     //! Boolean indicating the form of the transport properties polynomial fits.
     //! Returns true if the Chemkin form is used.
     virtual bool CKMode() const {
@@ -805,40 +436,14 @@ public:
             "Not implemented for transport model '{}'.", transportModel());
     }
 
-protected:
-    //! Enable the transport object for use.
-    /*!
-     * Once finalize() has been called, the transport manager should be ready to
-     * compute any supported transport property, and no further modifications to
-     * the model parameters should be made.
-     * @deprecated To be removed after %Cantera 3.0.
-     */
-    void finalize();
-
     //! @}
 
+protected:
     //! pointer to the object representing the phase
     ThermoPhase* m_thermo;
 
-    //! true if finalize has been called
-    //! @deprecated To be removed after %Cantera 3.0
-    bool m_ready = false;
-
     //! Number of species
     size_t m_nsp = 0;
-
-    //! Number of dimensions used in flux expressions
-    //! @deprecated To be removed after %Cantera 3.0
-    size_t m_nDim;
-
-    //! Velocity basis from which diffusion velocities are computed.
-    //! Defaults to the mass averaged basis = -2
-    //! @deprecated To be removed after %Cantera 3.0.
-    int m_velocityBasis = VB_MASSAVG;
-
-    //! reference to Solution
-    //! @deprecated To be removed after %Cantera 3.0
-    std::weak_ptr<Solution> m_root;
 };
 
 }

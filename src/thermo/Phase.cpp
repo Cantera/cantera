@@ -107,15 +107,6 @@ double Phase::nAtoms(size_t k, size_t m) const
     return m_speciesComp[m_mm * k + m];
 }
 
-void Phase::getAtoms(size_t k, double* atomArray) const
-{
-    warn_deprecated("Phase::getAtoms", "To be removed after Cantera 3.0. "
-                    "Use 'nAtoms(species_index, element_index)' instead.");
-    for (size_t m = 0; m < m_mm; m++) {
-        atomArray[m] = (double) m_speciesComp[m_mm * k + m];
-    }
-}
-
 size_t Phase::findSpeciesLower(const string& name) const
 {
     string nLower = toLowerCopy(name);
@@ -171,12 +162,6 @@ void Phase::checkSpeciesArraySize(size_t kk) const
     if (m_kk > kk) {
         throw ArraySizeError("Phase::checkSpeciesArraySize", kk, m_kk);
     }
-}
-
-string Phase::speciesSPName(int k) const
-{
-    warn_deprecated("Phase::speciesSPName", "To be removed after Cantera 3.0");
-    return m_name + ":" + speciesName(k);
 }
 
 map<string, size_t> Phase::nativeState() const
@@ -389,93 +374,9 @@ void Phase::setMassFractionsByName(const string& y)
     setMassFractionsByName(parseCompString(y));
 }
 
-void Phase::setState_TRX(double t, double dens, const double* x)
-{
-    warn_deprecated("Phase::setState_TRX",
-        "To be removed after Cantera 3.0. Replaceable by calls to "
-        "setMoleFractions and setState_TD.");
-    setMoleFractions(x);
-    setState_TD(t, dens);
-}
-
-void Phase::setState_TNX(double t, double n, const double* x)
-{
-    warn_deprecated("Phase::setState_TNX", "To be removed after Cantera 3.0. "
-                    "Use 'setMoleFractions' and 'setState_TD' instead.");
-    setMoleFractions(x);
-    setTemperature(t);
-    setMolarDensity(n);
-}
-
-void Phase::setState_TRX(double t, double dens, const Composition& x)
-{
-    warn_deprecated("Phase::setState_TRX",
-        "To be removed after Cantera 3.0. Replaceable by calls to "
-        "setMoleFractionsByName and setState_TD.");
-    setMoleFractionsByName(x);
-    setState_TD(t, dens);
-}
-
-void Phase::setState_TRY(double t, double dens, const double* y)
-{
-    warn_deprecated("Phase::setState_TRY",
-        "To be removed after Cantera 3.0. Replaceable by calls to "
-        "setMassFractions and setState_TD.");
-    setMassFractions(y);
-    setState_TD(t, dens);
-}
-
-void Phase::setState_TRY(double t, double dens, const Composition& y)
-{
-    warn_deprecated("Phase::setState_TRY",
-        "To be removed after Cantera 3.0. Replaceable by calls to "
-        "setMassFractionsByName and setState_TD.");
-    setMassFractionsByName(y);
-    setState_TD(t, dens);
-}
-
-void Phase::setState_TR(double t, double rho)
-{
-    warn_deprecated("Phase::setState_TR",
-        "To be removed after Cantera 3.0. Renamed to setState_TD.");
-    setState_TD(t, rho);
-}
-
 void Phase::setState_TD(double t, double rho)
 {
     setTemperature(t);
-    setDensity(rho);
-}
-
-void Phase::setState_TX(double t, double* x)
-{
-    warn_deprecated("Phase::setState_TX", "To be removed after Cantera 3.0. "
-                    "Use calls to 'setTemperature' and 'setMoleFractions' instead.");
-    setTemperature(t);
-    setMoleFractions(x);
-}
-
-void Phase::setState_TY(double t, double* y)
-{
-    warn_deprecated("Phase::setState_TY", "To be removed after Cantera 3.0. "
-                    "Use calls to 'setTemperature' and 'setMassFractions' instead.");
-    setTemperature(t);
-    setMassFractions(y);
-}
-
-void Phase::setState_RX(double rho, double* x)
-{
-    warn_deprecated("Phase::setState_RX", "To be removed after Cantera 3.0. "
-                    "Use calls to 'setDensity' and 'setMoleFractions' instead.");
-    setMoleFractions(x);
-    setDensity(rho);
-}
-
-void Phase::setState_RY(double rho, double* y)
-{
-    warn_deprecated("Phase::setState_RY", "To be removed after Cantera 3.0. "
-                    "Use calls to 'setDensity' and 'setMassFractions' instead.");
-    setMassFractions(y);
     setDensity(rho);
 }
 
@@ -483,13 +384,6 @@ double Phase::molecularWeight(size_t k) const
 {
     checkSpeciesIndex(k);
     return m_molwts[k];
-}
-
-void Phase::getMolecularWeights(vector<double>& weights) const
-{
-    warn_deprecated("Phase::getMolecularWeights(vector<double>&)", "To be removed after "
-        "Cantera 3.0. Use 'getMolecularWeights(vec.data())' instead.");
-    weights = molecularWeights();
 }
 
 void Phase::getMolecularWeights(double* weights) const
@@ -556,13 +450,6 @@ double Phase::moleFraction(const string& nameSpec) const
     } else {
         return 0.0;
     }
-}
-
-const double* Phase::moleFractdivMMW() const
-{
-    warn_deprecated("Phase::moleFractdivMMW", "To be removed after Cantera 3.0. "
-        "Generally replaceable by 'getMoleFractions' and 'meanMolecularWeight'.");
-    return &m_ym[0];
 }
 
 double Phase::massFraction(size_t k) const
@@ -689,14 +576,6 @@ double Phase::elementalMoleFraction(const size_t m) const
 double Phase::molarDensity() const
 {
     return density()/meanMolecularWeight();
-}
-
-void Phase::setMolarDensity(const double molar_density)
-{
-    warn_deprecated("Phase::setMolarDensity", "To be removed after Cantera 3.0. "
-        "Use 'setDensity(molar_density * meanMolecularWeight())' instead.");
-    assertCompressible("setMolarDensity");
-    m_dens = molar_density*meanMolecularWeight();
 }
 
 double Phase::molarVolume() const

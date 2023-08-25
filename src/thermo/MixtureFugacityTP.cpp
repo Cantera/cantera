@@ -55,18 +55,6 @@ double MixtureFugacityTP::entropy_mole() const
     return s_ideal + s_nonideal;
 }
 
-// ---- Partial Molar Properties of the Solution -----------------
-
-void MixtureFugacityTP::getChemPotentials_RT(double* muRT) const
-{
-    warn_deprecated("MixtureFugacityTP::getChemPotentials_RT",
-                    "To be removed after Cantera 3.0. Use getChemPotentials instead.");
-    getChemPotentials(muRT);
-    for (size_t k = 0; k < m_kk; k++) {
-        muRT[k] *= 1.0 / RT();
-    }
-}
-
 // ----- Thermodynamic Values for the Species Standard States States ----
 
 void MixtureFugacityTP::getStandardChemPotentials(double* g) const

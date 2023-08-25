@@ -84,17 +84,6 @@ void PDSS_ConstVol::setState_TP(double temp, double pres)
     setPressure(pres);
 }
 
-void PDSS_ConstVol::setState_TR(double temp, double rho)
-{
-    warn_deprecated("PDSS_ConstVol::setState_TR", "To be removed after Cantera 3.0");
-    double rhoStored = m_mw / m_constMolarVolume;
-    if (fabs(rhoStored - rho) / (rhoStored + rho) > 1.0E-4) {
-        throw CanteraError("PDSS_ConstVol::setState_TR",
-                           "Inconsistent supplied density.");
-    }
-    setTemperature(temp);
-}
-
 double PDSS_ConstVol::satPressure(double t)
 {
     return 1.0E-200;

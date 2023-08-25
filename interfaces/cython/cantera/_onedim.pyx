@@ -528,21 +528,6 @@ cdef class _FlowBase(Domain1D):
             # ensure that transport remains accessible
             self.gas.transport = self.gas.base.transport().get()
 
-    def set_transport(self, _SolutionBase phase):
-        """
-        Set the `Solution` object used for calculating transport properties.
-
-        .. deprecated:: 3.0
-
-            Method to be removed after Cantera 3.0. Replaceable by `transport_model`
-        """
-        warnings.warn("_FlowBase.set_transport: Method to be removed after Cantera 3.0;"
-                      " use property 'transport_model' instead.", DeprecationWarning)
-        self._weakref_proxy = _WeakrefProxy()
-        self.gas._references[self._weakref_proxy] = True
-        self.gas = phase
-        self.flow.setTransport(deref(self.gas.transport))
-
     def set_default_tolerances(self):
         """
         Set all tolerances to their default values
@@ -724,18 +709,6 @@ cdef class _FlowBase(Domain1D):
         flames, using specified inlet mass fluxes.
         """
         self.flow.setAxisymmetricFlow()
-
-    property flow_type:
-        """
-        Return the type of flow domain being represented, either "Free Flame" or
-        "Axisymmetric Stagnation".
-
-        .. deprecated:: 3.0
-
-            Method to be removed after Cantera 3.0; superseded by `domain_type`.
-        """
-        def __get__(self):
-            return pystr(self.flow.flowType())
 
     @property
     def type(self):

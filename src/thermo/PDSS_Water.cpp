@@ -221,14 +221,6 @@ void PDSS_Water::setState_TP(double temp, double pres)
     setPressure(pres);
 }
 
-void PDSS_Water::setState_TR(double temp, double dens)
-{
-    warn_deprecated("PDSS_Water::setState_TR", "To be removed after Cantera 3.0");
-    m_temp = temp;
-    m_dens = dens;
-    m_sub.setState_TD(m_temp, m_dens);
-}
-
 double PDSS_Water::pref_safe(double temp) const
 {
     if (temp < m_sub.Tcrit()) {

@@ -886,18 +886,6 @@ INSTANTIATE_TEST_SUITE_P(RedlichKister_complex, TestConsistency,
         testing::ValuesIn(getStates("Redlich-Kister-complex")))
 );
 
-INSTANTIATE_TEST_SUITE_P(MaskellSolidSolution, TestConsistency,
-    testing::Combine(
-        testing::Values(getSetup("Maskell-solid-solution")),
-        testing::ValuesIn(getStates("Maskell-solid-solution")))
-);
-
-INSTANTIATE_TEST_SUITE_P(IonsFromNeutralMolecule, TestConsistency,
-    testing::Combine(
-        testing::Values(getSetup("ions-from-neutral-molecule")),
-        testing::ValuesIn(getStates("ions-from-neutral-molecule")))
-);
-
 INSTANTIATE_TEST_SUITE_P(HMWSoln, TestConsistency,
     testing::Combine(
         testing::Values(getSetup("HMW-electrolyte")),

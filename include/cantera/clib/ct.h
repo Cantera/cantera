@@ -42,7 +42,6 @@ extern "C" {
     CANTERA_CAPI double thermo_density(int n);
     CANTERA_CAPI int thermo_setDensity(int n, double rho);
     CANTERA_CAPI double thermo_molarDensity(int n);
-    CANTERA_CAPI int thermo_setMolarDensity(int n, double ndens);
     CANTERA_CAPI double thermo_meanMolecularWeight(int n);
     CANTERA_CAPI double thermo_moleFraction(int n, size_t k);
     CANTERA_CAPI double thermo_massFraction(int n, size_t k);
@@ -96,7 +95,6 @@ extern "C" {
     CANTERA_CAPI int thermo_setElectricPotential(int n, double v);
     CANTERA_CAPI int thermo_set_TP(int n, double* vals);
     CANTERA_CAPI int thermo_set_TD(int n, double* vals);
-    CANTERA_CAPI int thermo_set_RP(int n, double* vals);
     CANTERA_CAPI int thermo_set_DP(int n, double* vals);
     CANTERA_CAPI int thermo_set_HP(int n, double* vals);
     CANTERA_CAPI int thermo_set_UV(int n, double* vals);
@@ -169,7 +167,6 @@ extern "C" {
     CANTERA_CAPI int trans_getMixDiffCoeffs(int n, int ld, double* d);
     CANTERA_CAPI int trans_getBinDiffCoeffs(int n, int ld, double* d);
     CANTERA_CAPI int trans_getMultiDiffCoeffs(int n, int ld, double* d);
-    CANTERA_CAPI int trans_setParameters(int n, int type, int k, double* d);
     CANTERA_CAPI int trans_getMolarFluxes(int n, const double* state1,
                                           const double* state2, double delta, double* fluxes);
     CANTERA_CAPI int trans_getMassFluxes(int n, const double* state1,
