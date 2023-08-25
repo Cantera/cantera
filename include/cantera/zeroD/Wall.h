@@ -37,11 +37,11 @@ public:
     /*!
      * This method is called by Reactor::evalWalls(). Base class method
      * does nothing (that is, constant volume), but may be overloaded.
-     * @deprecated To be removed after %Cantera 3.0; replaceable by expansionRate.
+     * @deprecated Still used by traditional MATLAB toolbox; replaceable by expansionRate.
      */
     virtual double vdot(double t) {
         warn_deprecated("WallBase::vdot",
-            "To be removed after Cantera 3.0; replaceable by 'expansionRate'.");
+            "To be removed; replaceable by 'expansionRate'.");
         return 0.0;
     }
 
@@ -60,11 +60,11 @@ public:
     /*!
      * This method is called by Reactor::evalWalls(). Base class method
      * does nothing (that is, an adiabatic wall), but may be overloaded.
-     * @deprecated To be removed after %Cantera 3.0; replaceable by heatRate.
+     * @deprecated Still used by traditional MATLAB toolbox; replaceable by heatRate.
      */
     virtual double Q(double t) {
         warn_deprecated("WallBase::Q",
-            "To be removed after Cantera 3.0; replaceable by 'heatRate'.");
+            "To be removed; replaceable by 'heatRate'.");
         return 0.0;
     }
 
