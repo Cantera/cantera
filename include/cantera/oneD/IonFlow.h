@@ -37,7 +37,7 @@ public:
     //! @param points  initial number of grid points
     IonFlow(shared_ptr<Solution> sol, const string& id="", size_t points = 1);
 
-    string type() const override;
+    string domainType() const override;
 
     size_t getSolvingStage() const override {
         return m_stage;

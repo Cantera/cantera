@@ -68,15 +68,6 @@ extern "C" {
         }
     }
 
-    int domain_type(int i)
-    {
-        try {
-            return DomainCabinet::item(i).domainType();
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
     int domain_type3(int i, size_t lennm, char* nm)
     {
         try {

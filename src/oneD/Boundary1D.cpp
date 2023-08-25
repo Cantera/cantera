@@ -15,7 +15,6 @@ namespace Cantera
 
 Boundary1D::Boundary1D() : Domain1D(1, 1, 0.0)
 {
-    m_type = cConnectorType;
 }
 
 void Boundary1D::_init(size_t n)
@@ -86,7 +85,6 @@ void Boundary1D::fromArray(SolutionArray& arr, double* soln)
 
 Inlet1D::Inlet1D()
 {
-    m_type = cInletType;
 }
 
 Inlet1D::Inlet1D(shared_ptr<Solution> solution, const string& id)
@@ -348,7 +346,6 @@ shared_ptr<SolutionArray> Symm1D::asArray(const double* soln) const
 
 OutletRes1D::OutletRes1D()
 {
-    m_type = cOutletResType;
 }
 
 OutletRes1D::OutletRes1D(shared_ptr<Solution> solution, const string& id)
@@ -579,7 +576,6 @@ ReactingSurf1D::ReactingSurf1D()
     : m_kin(0)
     , m_nsp(0)
 {
-    m_type = cSurfType;
 }
 
 ReactingSurf1D::ReactingSurf1D(shared_ptr<Solution> solution, const string& id)

@@ -20,7 +20,6 @@ StFlow::StFlow(ThermoPhase* ph, size_t nsp, size_t points) :
     Domain1D(nsp+c_offset_Y, points),
     m_nsp(nsp)
 {
-    m_type = cFlowType;
     m_points = points;
 
     if (ph == 0) {
@@ -125,7 +124,7 @@ StFlow::~StFlow()
     }
 }
 
-string StFlow::type() const {
+string StFlow::domainType() const {
     if (m_isFree) {
         return "free-flow";
     }
