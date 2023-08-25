@@ -116,13 +116,13 @@ int main()
     try {
         // Specify a problem on (0,10), with an initial uniform grid of
         // 6 points.
-        Blasius eqs(6, 10.0);
+        auto eqs = std::make_shared<Blasius>(6, 10.0);
         // Solve the equations, refining the grid as needed
-        eqs.solve(1);
+        eqs->solve(1);
         // write the solution to a CSV file.
-        eqs.writeCSV("blasius.csv");
+        eqs->writeCSV("blasius.csv");
         return 0;
-    } catch (Cantera::CanteraError& err) {
+    } catch (std::exception& err) {
         std::cerr << err.what() << std::endl;
         return -1;
     }
