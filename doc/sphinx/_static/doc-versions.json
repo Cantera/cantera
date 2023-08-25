@@ -1,11 +1,16 @@
 [
     {
-        "name": "3.0 (dev)",
-        "version": "3.0",
+        "name": "3.1 (dev)",
+        "version": "3.1",
         "url": "/documentation/dev/sphinx/html/"
     },
     {
-        "version": "2.6.0 (stable)",
+        "name": "3.0.0 (stable)",
+        "version": "3.0.0",
+        "url": "/documentation/docs-3.0/sphinx/html/"
+    },
+    {
+        "version": "2.6.0",
         "url": "/documentation/docs-2.6/sphinx/html/"
     },
     {
