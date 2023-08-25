@@ -118,17 +118,8 @@ public:
      */
     virtual double maxTemp(size_t k=npos) const;
 
-    //! The reference-state pressure for species k.
-    /*!
-     * Returns the reference state pressure in Pascals for species k. If k is
-     * left out of the argument list, it returns the reference state pressure
-     * for the first species.
-     *
-     * @param k Species Index
-     * @deprecated The species index parameter is deprecated and will be removed after
-     *     %Cantera 3.0. All species in a phase must have the same reference pressure.
-     */
-    virtual double refPressure(size_t k=npos) const;
+    //! The reference-state pressure (Pa) for all species
+    virtual double refPressure() const;
 
     //! This utility function reports the type of parameterization used for the
     //! species with index number *index*.
