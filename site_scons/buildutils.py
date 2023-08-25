@@ -210,7 +210,7 @@ class Option:
             return f"{level1}{title}: {decorate(defaults)}\n"
 
         # First line of default options
-        compilers = {"cl": "MSVC", "gcc": "GCC", "icc": "ICC", "clang": "Clang"}
+        compilers = {"cl": "MSVC", "gcc": "GCC", "clang": "Clang"}
         toolchains = {"mingw", "intel", "msvc"}
         if any(d in compilers for d in defaults):
             comment = "compiler"
@@ -1362,9 +1362,6 @@ def setup_python_env(env):
     # further warnings should be issued.
     if env["HAS_CLANG"] and py_version_short == parse_version("3.8"):
         env.Append(CXXFLAGS='-Wno-deprecated-declarations')
-
-    if "icc" in env["CC"]:
-        env.Append(CPPDEFINES={"CYTHON_FALLTHROUGH": " __attribute__((fallthrough))"})
 
     if env['OS'] == 'Darwin':
         env.Append(LINKFLAGS='-undefined dynamic_lookup')
