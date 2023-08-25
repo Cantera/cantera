@@ -23,13 +23,6 @@ Domain1D::~Domain1D()
 {
 }
 
-int Domain1D::domainType()
-{
-    warn_deprecated("Domain1D::domainType",
-        "To be changed after Cantera 3.0; for new behavior, see 'type'.");
-    return m_type;
-}
-
 void Domain1D::resize(size_t nv, size_t np)
 {
     // if the number of components is being changed, then a

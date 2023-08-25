@@ -74,7 +74,7 @@ IonFlow::IonFlow(shared_ptr<Solution> sol, const string& id, size_t points)
     });
 }
 
-string IonFlow::type() const {
+string IonFlow::domainType() const {
     if (m_isFree) {
         return "free-ion-flow";
     }

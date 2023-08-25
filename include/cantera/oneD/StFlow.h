@@ -67,7 +67,7 @@ public:
 
     ~StFlow();
 
-    string type() const override;
+    string domainType() const override;
 
     //! @name Problem Specification
     //! @{
@@ -179,7 +179,6 @@ public:
     //! Set flow configuration for freely-propagating flames, using an internal point
     //! with a fixed temperature as the condition to determine the inlet mass flux.
     void setFreeFlow() {
-        m_type = cFreeFlow;
         m_dovisc = false;
         m_isFree = true;
         m_usesLambda = false;
@@ -188,7 +187,6 @@ public:
     //! Set flow configuration for axisymmetric counterflow flames, using specified
     //! inlet mass fluxes.
     void setAxisymmetricFlow() {
-        m_type = cAxisymmetricStagnationFlow;
         m_dovisc = true;
         m_isFree = false;
         m_usesLambda = true;
@@ -197,7 +195,6 @@ public:
     //! Set flow configuration for burner-stabilized flames, using specified inlet mass
     //! fluxes.
     void setUnstrainedFlow() {
-        m_type = cAxisymmetricStagnationFlow;
         m_dovisc = false;
         m_isFree = false;
         m_usesLambda = false;
