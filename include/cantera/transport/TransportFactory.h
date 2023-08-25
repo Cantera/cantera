@@ -86,11 +86,6 @@ private:
     map<string, bool> m_CK_mode;
 };
 
-//! @copydoc TransportFactory::newTransport(const string&, ThermoPhase*, int)
-//! @deprecated To be removed after %Cantera 3.0; superseded by newTransport()
-Transport* newTransportMgr(const string& model="", ThermoPhase* thermo=0,
-                           int log_level=0);
-
 //!  Create a new Transport instance.
 /*!
  *  @param thermo   the ThermoPhase object associated with the phase
@@ -101,20 +96,6 @@ Transport* newTransportMgr(const string& model="", ThermoPhase* thermo=0,
  */
 shared_ptr<Transport> newTransport(shared_ptr<ThermoPhase> thermo,
                                    const string& model="default");
-
-//! @copydoc newTransport(shared_ptr<ThermoPhase>, const string&)
-//! @deprecated To be removed after %Cantera 3.0; superseded by newTransport()
-shared_ptr<Transport> newTransport(ThermoPhase* thermo, const string& model="default");
-
-//!  Create a new transport manager instance.
-/*!
- *  @param thermo     ThermoPhase object associated with the phase
- *  @param loglevel   int containing the Loglevel, defaults to zero
- *  @returns a transport manager for the phase
- * @deprecated To be removed after %Cantera 3.0; superseded by newTransport()
- * @ingroup tranprops
- */
-Transport* newDefaultTransportMgr(ThermoPhase* thermo, int loglevel = 0);
 
 } // End of namespace Cantera
 

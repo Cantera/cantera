@@ -83,10 +83,8 @@ TEST_F(NoTransportTest, check_exceptions_scalar)
     auto tr = soln_->transport();
     ASSERT_THROW(tr->viscosity(), CanteraError);
     ASSERT_THROW(tr->bulkViscosity(), CanteraError);
-    ASSERT_THROW(tr->ionConductivity(), CanteraError);
     ASSERT_THROW(tr->thermalConductivity(), CanteraError);
     ASSERT_THROW(tr->electricalConductivity(), CanteraError);
-    ASSERT_THROW(tr->getElectricConduct(), CanteraError);
     ASSERT_THROW(tr->CKMode(), CanteraError);
 }
 
@@ -96,10 +94,7 @@ TEST_F(NoTransportTest, check_exceptions_vector)
     auto tr = soln_->transport();
     vector<double> out(soln_->thermo()->nSpecies());
     ASSERT_THROW(tr->getSpeciesViscosities(out.data()), CanteraError);
-    ASSERT_THROW(tr->getSpeciesIonConductivity(out.data()), CanteraError);
-    ASSERT_THROW(tr->mobilityRatio(out.data()), CanteraError);
     ASSERT_THROW(tr->getMobilities(out.data()), CanteraError);
-    ASSERT_THROW(tr->getFluidMobilities(out.data()), CanteraError);
     ASSERT_THROW(tr->getThermalDiffCoeffs(out.data()), CanteraError);
     ASSERT_THROW(tr->getMixDiffCoeffs(out.data()), CanteraError);
     ASSERT_THROW(tr->getMixDiffCoeffsMole(out.data()), CanteraError);

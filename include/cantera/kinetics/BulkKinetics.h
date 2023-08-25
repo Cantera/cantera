@@ -24,9 +24,6 @@ public:
     //! @{
     BulkKinetics();
 
-    //! @deprecated To be removed after %Cantera 3.0; code base only uses default.
-    BulkKinetics(ThermoPhase* thermo);
-
     string kineticsType() const override {
         return "bulk";
     }

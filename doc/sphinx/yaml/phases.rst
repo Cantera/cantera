@@ -86,11 +86,9 @@ and optionally reactions that can take place in that phase. The fields of a
     - ``ideal-condensed`` (:ref:`details <sec-yaml-ideal-condensed>`)
     - ``ideal-solution-VPSS`` (:ref:`details <sec-yaml-ideal-solution-VPSS>`)
     - ``ideal-surface`` (:ref:`details <sec-yaml-ideal-surface>`)
-    - ``ions-from-neutral-molecule`` (:ref:`details <sec-yaml-ions-from-neutral-molecule>`)
     - ``lattice`` (:ref:`details <sec-yaml-lattice>`)
     - ``liquid-water-IAPWS95`` (:ref:`details <sec-yaml-liquid-water-IAPWS95>`)
     - ``Margules`` (:ref:`details <sec-yaml-Margules>`)
-    - ``Maskell-solid-solution`` (:ref:`details <sec-yaml-Maskell-solid-solution>`)
     - ``Peng-Robinson`` (:ref:`details <sec-yaml-Peng-Robinson>`)
     - ``plasma`` (:ref:`details <sec-yaml-plasma>`)
     - ``pure-fluid`` (:ref:`details <sec-yaml-pure-fluid>`)
@@ -681,37 +679,6 @@ Example::
       site-density: 2.7063e-09
 
 
-.. _sec-yaml-ions-from-neutral-molecule:
-
-``ions-from-neutral-molecule``
-------------------------------
-
-A model that handles the specification of the chemical potentials for ionic
-species, given a specification of the chemical potentials for the same phase
-expressed in terms of combinations of the ionic species that represent neutral
-molecules, as :ct:`described here <IonsFromNeutralVPSSTP>`.
-
-.. deprecated:: 3.0
-
-    This phase model is deprecated and will be removed after Cantera 3.0.
-
-Additional fields:
-
-``neutral-phase``
-    The ``name`` of the phase definition for the phase containing the neutral
-    molecules.
-
-Example::
-
-    - name: KCl-ions
-      thermo: ions-from-neutral-molecule
-      neutral-phase: KCl-neutral
-      species: [K+, Cl-]
-    - name: KCl-neutral
-      species: [KCl(l)]
-      thermo: Margules
-
-
 .. _sec-yaml-lattice:
 
 ``lattice``
@@ -777,33 +744,6 @@ Example::
   - species: [KCl(l), LiCl(l)]
     excess-enthalpy: [-17570, -377]
     excess-entropy: [-7.627, 4.958]
-
-
-.. _sec-yaml-Maskell-solid-solution:
-
-``Maskell-solid-solution``
---------------------------
-
-A condensed phase non-ideal solution with two species, as
-:ct:`described here <MaskellSolidSolnPhase>`.
-
-.. deprecated:: 3.0
-
-    This phase model is deprecated and will be removed after Cantera 3.0.
-
-Additional fields:
-
-``excess-enthalpy``
-    The molar excess enthalpy
-
-``product-species``
-    String specifying the "product" species
-
-Example::
-
-    thermo: Maskell-solid-solution
-    excess-enthalpy: 5 J/mol
-    product-species: H(s)
 
 
 .. _sec-yaml-Peng-Robinson:

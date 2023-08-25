@@ -39,7 +39,6 @@ public:
     void setPressure(double pres) override;
     void setTemperature(double temp) override;
     void setState_TP(double temp, double pres) override;
-    void setState_TR(double temp, double rho) override;
     double satPressure(double t) override;
 
     //! @}

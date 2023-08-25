@@ -34,11 +34,6 @@ double Frot(double tr, double sqtr)
 
 //////////////////// class MultiTransport methods //////////////
 
-MultiTransport::MultiTransport(ThermoPhase* thermo)
-    : GasTransport(thermo)
-{
-}
-
 void MultiTransport::init(ThermoPhase* thermo, int mode, int log_level)
 {
     GasTransport::init(thermo, mode, log_level);

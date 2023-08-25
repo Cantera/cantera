@@ -201,14 +201,6 @@ bool SurfPhase::addSpecies(shared_ptr<Species> spec)
     return added;
 }
 
-void SurfPhase::setMolarDensity(const double vm) {
-    warn_deprecated("SurfPhase::setMolarDensity", "To be removed after Cantera 3.0");
-    if (vm != 0.0) {
-        throw CanteraError("SurfPhase::setMolarDensity",
-                            "The volume of an interface is zero");
-    }
-}
-
 void SurfPhase::setSiteDensity(double n0)
 {
     if (n0 <= 0.0) {

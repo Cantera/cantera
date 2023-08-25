@@ -1269,27 +1269,6 @@ class ctml2yamlTest(utilities.CanteraTest):
             ctmlPhase, yamlPhase = self.checkConversion("debye-huckel-all", name=name)
             self.checkThermo(ctmlPhase, yamlPhase, [300, 500])
 
-    @pytest.mark.usefixtures("allow_deprecated")
-    def test_Maskell_solid_soln(self):
-        self.convert("MaskellSolidSolnPhase_valid")
-        ctmlPhase, yamlPhase = self.checkConversion("MaskellSolidSolnPhase_valid")
-        # Maskell phase doesn't support partial molar properties, so just check density
-        for T in [300, 500, 1300, 2000]:
-            ctmlPhase.TP = T, ct.one_atm
-            yamlPhase.TP = T, ct.one_atm
-            self.assertNear(ctmlPhase.density, yamlPhase.density)
-
-    @pytest.mark.usefixtures("allow_deprecated")
-    def test_mock_ion(self):
-        self.convert("mock_ion")
-        ctmlPhase, yamlPhase = self.checkConversion("mock_ion")
-        # ions-from-neutral-molecule phase doesn't support partial molar properties,
-        # so just check density
-        for T in [300, 500, 1300, 2000]:
-            ctmlPhase.TP = T, ct.one_atm
-            yamlPhase.TP = T, ct.one_atm
-            self.assertNear(ctmlPhase.density, yamlPhase.density)
-
     def test_Redlich_Kister(self):
         self.convert("RedlichKisterVPSSTP_valid")
         ctmlPhase, yamlPhase = self.checkConversion("RedlichKisterVPSSTP_valid")

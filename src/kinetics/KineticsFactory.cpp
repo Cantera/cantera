@@ -56,13 +56,6 @@ Kinetics* KineticsFactory::newKinetics(const string& model)
     return create(toLowerCopy(model));
 }
 
-Kinetics* newKineticsMgr(const string& model)
-{
-    warn_deprecated("newKineticsMgr",
-        "To be removed after Cantera 3.0; superseded by newKinetics.");
-    return KineticsFactory::factory()->newKinetics(model);
-}
-
 shared_ptr<Kinetics> newKinetics(const string& model)
 {
     shared_ptr<Kinetics> kin(KineticsFactory::factory()->newKinetics(model));
@@ -102,55 +95,12 @@ shared_ptr<Kinetics> newKinetics(const vector<shared_ptr<ThermoPhase>>& phases,
     return kin;
 }
 
-unique_ptr<Kinetics> newKinetics(const vector<ThermoPhase*>& phases,
-                                 const AnyMap& phaseNode,
-                                 const AnyMap& rootNode)
-{
-    warn_deprecated("newKinetics(vector<ThermoPhase*>&, AnyMap&, AnyMap&)",
-        "To be removed after Cantera 3.0; superseded by\nnewKinetics"
-        "(const vector<shared_ptr<ThermoPhase>>&, const AnyMap&, const AnyMap&).");
-    string kinType = phaseNode.getString("kinetics", "none");
-    kinType = KineticsFactory::factory()->canonicalize(kinType);
-    if (kinType == "none") {
-        // determine phase with minimum number of dimensions
-        size_t nDim = 3;
-        for (auto& phase : phases) {
-            nDim = std::min(phase->nDim(), nDim);
-        }
-        // change kinetics type as necessary
-        if (nDim == 2) {
-            kinType = "surface";
-        } else if (nDim == 1) {
-            kinType = "edge";
-        }
-    }
-
-    unique_ptr<Kinetics> kin(KineticsFactory::factory()->newKinetics(kinType));
-    for (auto& phase : phases) {
-        kin->addPhase(*phase);
-    }
-    kin->init();
-    addReactions(*kin, phaseNode, rootNode);
-    return kin;
-}
-
 shared_ptr<Kinetics> newKinetics(const vector<shared_ptr<ThermoPhase>>& phases,
                                  const string& filename)
 {
     string reaction_phase = phases.at(0)->name();
     AnyMap root = AnyMap::fromYamlFile(filename);
     AnyMap& phaseNode = root["phases"].getMapWhere("name", reaction_phase);
-    return newKinetics(phases, phaseNode, root);
-}
-
-unique_ptr<Kinetics> newKinetics(const vector<ThermoPhase*>& phases,
-                                 const string& filename, const string& phase_name)
-{
-    warn_deprecated("newKinetics(vector<ThermoPhase*>&, const string&, const string&)",
-        "To be removed after Cantera 3.0; superseded by\nnewKinetics"
-        "(const vector<shared_ptr<ThermoPhase>>&, const string&, const string&).");
-    AnyMap root = AnyMap::fromYamlFile(filename);
-    AnyMap& phaseNode = root["phases"].getMapWhere("name", phase_name);
     return newKinetics(phases, phaseNode, root);
 }
 

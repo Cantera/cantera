@@ -14,14 +14,6 @@
 namespace Cantera
 {
 
-InterfaceKinetics::InterfaceKinetics(ThermoPhase* thermo)
-    : InterfaceKinetics()
-{
-    warn_deprecated("InterfaceKinetics::InterfaceKinetics(ThermoPhase*)",
-        "To be removed after Cantera 3.0. Use default constructor instead.");
-    addPhase(*thermo);
-}
-
 InterfaceKinetics::~InterfaceKinetics()
 {
     delete m_integrator;
@@ -495,13 +487,6 @@ void InterfaceKinetics::setIOFlag(int ioFlag)
 void InterfaceKinetics::addThermo(shared_ptr<ThermoPhase> thermo)
 {
     Kinetics::addThermo(thermo);
-    m_phaseExists.push_back(true);
-    m_phaseIsStable.push_back(true);
-}
-
-void InterfaceKinetics::addPhase(ThermoPhase& thermo)
-{
-    Kinetics::addPhase(thermo);
     m_phaseExists.push_back(true);
     m_phaseIsStable.push_back(true);
 }

@@ -46,7 +46,7 @@ void flowdevicemethods(int nlhs, mxArray* plhs[],
             iok = flowdev_setValveCoeff(i, v);
             break;
         case 7:
-            iok = flowdev_setMaster(i, int(v));
+            iok = flowdev_setPrimary(i, int(v));
             break;
         case 8:
             iok = flowdev_setPressureFunction(i, int(v));

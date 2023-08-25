@@ -38,26 +38,6 @@ Sim1D::Sim1D(vector<shared_ptr<Domain1D>>& domains) :
     m_steps = { 10 };
 }
 
-Sim1D::Sim1D(vector<Domain1D*>& domains) :
-    OneDim(domains),
-    m_steady_callback(0)
-{
-    warn_deprecated("Sim1D::Sim1D(vector<Domain1D*>&)",
-        "To be removed after Cantera 3.0; superseded by "
-        "Sim1D::Sim1D(vector<shared_ptr<Domain1D>>&).");
-
-    // resize the internal solution vector and the work array, and perform
-    // domain-specific initialization of the solution vector.
-    resize();
-    for (size_t n = 0; n < nDomains(); n++) {
-        domain(n)._getInitialSoln(m_state->data() + start(n));
-    }
-
-    // set some defaults
-    m_tstep = 1.0e-5;
-    m_steps = { 10 };
-}
-
 void Sim1D::setInitialGuess(const string& component, vector<double>& locs,
                             vector<double>& vals)
 {
@@ -115,17 +95,6 @@ void Sim1D::setProfile(size_t dom, size_t comp,
     }
 }
 
-void Sim1D::save(const string& fname, const string& id,
-                 const string& desc, int loglevel)
-{
-    warn_deprecated("Sim1D::save",
-        "To be removed after Cantera 3.0; use version without loglevel instead.");
-    save(fname, id, desc, true); // legacy version overwrites data
-    if (loglevel > 0) {
-        writelog("Solution saved to file '{}' as entry '{}'.\n", fname, id);
-    }
-}
-
 void Sim1D::save(const string& fname, const string& name, const string& desc,
                  bool overwrite, int compression, const string& basis)
 {
@@ -173,17 +142,6 @@ void Sim1D::save(const string& fname, const string& name, const string& desc,
         return;
     }
     throw CanteraError("Sim1D::save", "Unsupported file format '{}'.", extension);
-}
-
-void Sim1D::saveResidual(const string& fname, const string& id,
-                         const string& desc, int loglevel)
-{
-    warn_deprecated("Sim1D::saveResidual",
-        "To be removed after Cantera 3.0; use version without loglevel instead.");
-    saveResidual(fname, id, desc, true); // legacy version overwrites data
-    if (loglevel > 0) {
-        writelog("Solution saved to file '{}' as entry '{}'.\n", fname, id);
-    }
 }
 
 void Sim1D::saveResidual(const string& fname, const string& name,
@@ -286,13 +244,6 @@ AnyMap legacyH5(shared_ptr<SolutionArray> arr, const AnyMap& header={})
 
 } // end unnamed namespace
 
-AnyMap Sim1D::restore(const string& fname, const string& id, int loglevel)
-{
-    warn_deprecated("Sim1D::saveResidual",
-        "To be removed after Cantera 3.0; use version without loglevel instead.");
-    return restore(fname, id);
-}
-
 AnyMap Sim1D::restore(const string& fname, const string& name)
 {
     size_t dot = fname.find_last_of(".");
@@ -376,20 +327,6 @@ void Sim1D::setFlatProfile(size_t dom, size_t comp, double v)
     for (size_t n = 0; n < np; n++) {
         setValue(dom, comp, n, v);
     }
-}
-
-void Sim1D::showSolution(ostream& s)
-{
-    warn_deprecated("Sim1D::showSolution",
-        "To be removed after Cantera 3.0; replaced by 'show'.");
-    show(s);
-}
-
-void Sim1D::showSolution()
-{
-    warn_deprecated("Sim1D::showSolution",
-        "To be removed after Cantera 3.0; replaced by 'show'.");
-    show();
 }
 
 void Sim1D::show(ostream& s)

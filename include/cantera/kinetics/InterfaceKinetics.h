@@ -58,17 +58,6 @@ public:
     //! Constructor
     InterfaceKinetics() = default;
 
-    //! Constructor
-    /*!
-     * @param thermo The parameter may be used to initialize the object
-     *               with one ThermoPhase object.
-     *               HKM Note -> Since the interface kinetics object will
-     *               probably require multiple ThermoPhase objects, this is
-     *               probably not a good idea to have this parameter.
-     * @deprecated To be removed after %Cantera 3.0; code base only uses default.
-     */
-    InterfaceKinetics(ThermoPhase* thermo);
-
     ~InterfaceKinetics() override;
 
     void resizeReactions() override;
@@ -134,7 +123,7 @@ public:
      * before any reactions are input. The lowest dimensional phase, where reactions
      * occur, must be added first.
      *
-     * This function calls Kinetics::addPhase(). It also sets the following
+     * This function calls Kinetics::addThermo). It also sets the following
      * fields:
      *
      *        m_phaseExists[]
@@ -142,9 +131,6 @@ public:
      * @param thermo    Reference to the ThermoPhase to be added.
      */
     void addThermo(shared_ptr<ThermoPhase> thermo) override;
-
-    //! @see InterfaceKinetics::addThermo(shared_ptr<ThermoPhase>)
-    void addPhase(ThermoPhase& thermo) override;
 
     void init() override;
     void resizeSpecies() override;

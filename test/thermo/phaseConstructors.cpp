@@ -8,8 +8,6 @@
 #include "cantera/thermo/PureFluidPhase.h"
 #include "cantera/thermo/WaterSSTP.h"
 #include "cantera/thermo/RedlichKwongMFTP.h"
-#include "cantera/thermo/IonsFromNeutralVPSSTP.h"
-#include "cantera/thermo/PDSS_IonsFromNeutral.h"
 #include "cantera/thermo/IdealSolnGasVPSS.h"
 #include "cantera/thermo/IdealMolalSoln.h"
 #include "cantera/thermo/DebyeHuckel.h"
@@ -74,49 +72,6 @@ shared_ptr<Species> make_const_cp_species(const string& name,
     double coeffs[] = {T0, h0, s0, cp};
     species->thermo = make_shared<ConstCpPoly>(200, 3500, 101325, coeffs);
     return species;
-}
-
-TEST(IonsFromNeutralConstructor, fromScratch)
-{
-    suppress_deprecation_warnings();
-    // Compare to the "ions-from-neutral-molecule" phase in "thermo-models.yaml"
-    auto neutral = make_shared<MargulesVPSSTP>();
-    auto sKCl = make_shomate_species("KCl(L)", "K:1 Cl:1", kcl_shomate_coeffs);
-    neutral->addSpecies(sKCl);
-    auto ssKCl = make_unique<PDSS_ConstVol>();
-    ssKCl->setMolarVolume(0.03757);
-    neutral->installPDSS(0, std::move(ssKCl));
-    neutral->initThermo();
-
-    IonsFromNeutralVPSSTP p;
-    p.setNeutralMoleculePhase(neutral);
-
-    auto sKp = make_shared<Species>("K+", parseCompString("K:1"), 1);
-    auto sClm = make_shared<Species>("Cl-", parseCompString("Cl:1"), -1);
-    sClm->input["equation-of-state"]["special-species"] = true;
-    sClm->input["equation-of-state"]["model"] = "ions-from-neutral-molecule";
-    p.addSpecies(sKp);
-    p.addSpecies(sClm);
-    auto ssKp = make_unique<PDSS_IonsFromNeutral>();
-    auto ssClm = make_unique<PDSS_IonsFromNeutral>();
-    ssKp->setNeutralSpeciesMultiplier("KCl(L)", 1.2);
-    ssClm->setNeutralSpeciesMultiplier("KCl(L)", 1.5);
-    ssClm->setSpecialSpecies();
-    p.installPDSS(0, std::move(ssKp));
-    p.installPDSS(1, std::move(ssClm));
-    p.initThermo();
-
-    ASSERT_EQ((int) p.nSpecies(), 2);
-    p.setState_TPX(500, 2e5, "K+:0.1, Cl-:0.1");
-    vector<double> mu(p.nSpecies());
-    p.getChemPotentials(mu.data());
-
-    // Values for regression testing only -- same as ThermoFromYaml test
-    EXPECT_NEAR(p.density(), 1984.2507319669949, 1e-6);
-    EXPECT_NEAR(p.enthalpy_mass(), -14738312.44316336, 1e-6);
-    EXPECT_NEAR(mu[0], -4.66404010e+08, 1e1);
-    EXPECT_NEAR(mu[1], -2.88157316e+06, 1e-1);
-    make_deprecation_warnings_fatal();
 }
 
 class ConstructFromScratch : public testing::Test

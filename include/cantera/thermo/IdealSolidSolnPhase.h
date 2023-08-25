@@ -291,23 +291,6 @@ public:
      */
     void getChemPotentials(double* mu) const override;
 
-    /**
-     * Get the array of non-dimensional species solution
-     * chemical potentials at the current T and P
-     * @f$ \mu_k / \hat R T @f$.
-     * @f[
-     *  \mu^0_k(T,P) = \mu^{ref}_k(T) + (P - P_{ref}) * V_k + RT \ln(X_k)
-     * @f]
-     * where @f$ V_k @f$ is the molar volume of pure species *k*.
-     * @f$ \mu^{ref}_k(T) @f$ is the chemical potential of pure
-     * species *k* at the reference pressure, @f$ P_{ref} @f$.
-     *
-     * @param mu   Output vector of dimensionless chemical potentials.
-     *             Length = m_kk.
-     * @deprecated To be removed after %Cantera 3.0. Use getChemPotentials() instead.
-     */
-    void getChemPotentials_RT(double* mu) const override;
-
     //! @}
     //! @name  Partial Molar Properties of the Solution
     //! @{

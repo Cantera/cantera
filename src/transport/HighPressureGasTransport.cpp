@@ -19,11 +19,6 @@ using namespace std;
 namespace Cantera
 {
 
-HighPressureGasTransport::HighPressureGasTransport(ThermoPhase* thermo)
-: MultiTransport(thermo)
-{
-}
-
 double HighPressureGasTransport::thermalConductivity()
 {
     //  Method of Ely and Hanley:

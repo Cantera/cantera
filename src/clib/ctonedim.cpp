@@ -573,22 +573,6 @@ extern "C" {
         }
     }
 
-    int sim1D_showSolution(int i, const char* fname)
-    {
-        try {
-            string fn = string(fname);
-            if (fn == "-") {
-                SimCabinet::item(i).showSolution();
-            } else {
-                ofstream fout(fname);
-                SimCabinet::item(i).showSolution(fout);
-            }
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
     int sim1D_setTimeStep(int i, double stepsize, size_t ns, const int* nsteps)
     {
         try {

@@ -340,9 +340,6 @@ public:
 
     void setKinetics(shared_ptr<Kinetics> kin) override;
 
-    //! @deprecated To be removed after %Cantera 3.0; replaced by setKinetics()
-    void setKineticsMgr(InterfaceKinetics* kin);
-
     void enableCoverageEquations(bool docov) {
         m_enabled = docov;
     }

@@ -68,7 +68,6 @@ cdef extern from "cantera/oneD/Boundary1D.h":
 cdef extern from "cantera/oneD/StFlow.h":
     cdef cppclass CxxStFlow "Cantera::StFlow" (CxxDomain1D):
         void setTransportModel(const string&) except +translate_exception
-        void setTransport(CxxTransport&) except +translate_exception
         string type()
         string transportModel()
         void setPressure(double)
@@ -92,7 +91,6 @@ cdef extern from "cantera/oneD/StFlow.h":
         cbool withSoret()
         void setFreeFlow()
         void setAxisymmetricFlow()
-        string flowType()
 
 
 cdef extern from "cantera/oneD/Sim1D.h":

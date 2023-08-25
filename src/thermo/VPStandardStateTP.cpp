@@ -33,16 +33,6 @@ int VPStandardStateTP::standardStateConvention() const
     return cSS_CONVENTION_VPSS;
 }
 
-void VPStandardStateTP::getChemPotentials_RT(double* muRT) const
-{
-    warn_deprecated("VPStandardStateTP::getChemPotentials_RT",
-                    "To be removed after Cantera 3.0. Use getChemPotentials instead.");
-    getChemPotentials(muRT);
-    for (size_t k = 0; k < m_kk; k++) {
-        muRT[k] *= 1.0 / RT();
-    }
-}
-
 // ----- Thermodynamic Values for the Species Standard States States ----
 
 void VPStandardStateTP::getStandardChemPotentials(double* g) const

@@ -611,16 +611,6 @@ void ReactingSurf1D::setKinetics(shared_ptr<Kinetics> kin)
     m_enabled = true;
 }
 
-void ReactingSurf1D::setKineticsMgr(InterfaceKinetics* kin)
-{
-    warn_deprecated("ReactingSurf1D::setKineticsMgr",
-        "To be removed after Cantera 3.0. Replaced by Domain1D::setKinetics.");
-    m_kin = kin;
-    m_sphase = (SurfPhase*)&kin->thermo(0);
-    m_nsp = m_sphase->nSpecies();
-    m_enabled = true;
-}
-
 string ReactingSurf1D::componentName(size_t n) const
 {
     if (n < m_nsp) {

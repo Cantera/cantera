@@ -94,7 +94,6 @@ public:
     void setPressure(double pres) override;
     void setTemperature(double temp) override;
     void setState_TP(double temp, double pres) override;
-    void setState_TR(double temp, double rho) override;
 
     //! Set the density of the water phase
     /*!

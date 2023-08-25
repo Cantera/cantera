@@ -78,16 +78,6 @@ phases:
     P: 1 atm
     M: {Na+: 3.0, Cl-: 3.0, H+: 1.0499E-8, OH-: 1.3765E-6, NaCl(aq): 0.98492}
 
-- name: ions-from-neutral-molecule
-  thermo: ions-from-neutral-molecule
-  neutral-phase: KCl-neutral
-  species: [{ions-from-neutral-species: all}]
-  state: {T: 500, P: 2 bar, X: {K+: 0.1, Cl-: 0.1}}
-
-- name: KCl-neutral
-  species: [KCl(l)]
-  thermo: Margules
-
 - name: IdealSolnGas-liquid
   thermo: ideal-solution-VPSS
   standard-concentration-basis: unity
@@ -114,14 +104,6 @@ phases:
   - species: [NaCl(s), LiCl(l)]
     excess-enthalpy: [2.0e+06, -3.0e+06, 1.0e+06, -5.0e+06]
     excess-entropy: [-14000, 5000, -22000, 15000]
-
-
-- name: MaskellSolidSoln
-  thermo: Maskell-solid-solution
-  species: [H(s), He(s)]
-  excess-enthalpy: 5 J/mol
-  state: {T: 298, P: 1 atm, X: {H(s): 0.3, He(s): 0.7}}
-  product-species: H(s)
 
 - name: HMW-NaCl-electrolyte
   species: [{HMW-species: [H2O(L), Cl-, H+, Na+, OH-]}]
@@ -355,23 +337,6 @@ species:
     model: constant-volume
     molar-volume: 0.036 m^3/kmol
 
-- name: H(s)
-  composition: {H: 1, He: 2}
-  thermo:
-    model: constant-cp
-  equation-of-state:
-    model: constant-volume
-    molar-volume: 0.005 m^3/kmol
-
-- name: He(s)
-  composition: {He: 1}
-  thermo:
-    model: constant-cp
-    h0: 1000
-  equation-of-state:
-    model: constant-volume
-    molar-volume: 0.01 m^3/kmol
-
 - name: N2
   composition: {N: 2}
   thermo:
@@ -519,19 +484,6 @@ dh-electrolyte-species:
   Debye-Huckel:
     electrolyte-species-type: weak-acid-associated
     weak-acid-charge: -1.0
-
-ions-from-neutral-species:
-- name: K+
-  composition: {K: 1, E: -1}
-  equation-of-state:
-    model: ions-from-neutral-molecule
-    multipliers: {KCl(l): 1.2}
-- name: Cl-
-  composition: {Cl: 1, E: 1}
-  equation-of-state:
-    special-species: true
-    model: ions-from-neutral-molecule
-    multipliers: {KCl(l): 1.5}
 
 gas-species:
 - name: H2

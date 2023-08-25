@@ -20,8 +20,7 @@ namespace Cantera
 //! except in CK mode, where the degree is 6.
 #define COLL_INT_POLY_DEGREE 8
 
-GasTransport::GasTransport(ThermoPhase* thermo) :
-    Transport(thermo),
+GasTransport::GasTransport() :
     m_polytempvec(5)
 {
 }

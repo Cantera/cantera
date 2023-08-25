@@ -212,15 +212,6 @@ public:
     }
 
     /**
-     * This returns the integer index of the phase which has ThermoPhase type
-     * cSurf. For heterogeneous mechanisms, this identifies the one surface
-     * phase. For homogeneous mechanisms, this returns -1.
-     *
-     * @deprecated To be removed after %Cantera 3.0. Use reactionPhaseIndex instead.
-     */
-    size_t surfacePhaseIndex() const;
-
-    /**
      * Phase where the reactions occur. For heterogeneous mechanisms, one of
      * the phases in the list of phases represents the 2D interface or 1D edge
      * at which the reactions take place. This method returns the index of the
@@ -1208,24 +1199,6 @@ public:
     }
 
     /**
-     * String specifying the type of reaction.
-     *
-     * @param i   reaction index
-     * @since Method returned magic number prior to %Cantera 3.0.
-     * @deprecated To be removed after %Cantera 3.0. Replace with
-     *     `kin->reaction(i)->type()`
-     */
-    virtual string reactionType(size_t i) const;
-
-    /**
-     * String specifying the type of reaction.
-     *
-     * @param i   reaction index
-     * @deprecated To be removed after %Cantera 3.0.
-     */
-    virtual string reactionTypeStr(size_t i) const;
-
-    /**
      * True if reaction i has been declared to be reversible. If isReversible(i)
      * is false, then the reverse rate of progress for reaction i is always
      * zero.
@@ -1235,25 +1208,6 @@ public:
     virtual bool isReversible(size_t i) {
         throw NotImplementedError("Kinetics::isReversible");
     }
-
-    /**
-     * Return a string representing the reaction.
-     *
-     * @param i   reaction index
-     * @deprecated To be removed after %Cantera 3.0. Replace with
-     *     `kin->reaction(i)->equation()`.
-     */
-    string reactionString(size_t i) const;
-
-    //! Returns a string containing the reactants side of the reaction equation.
-    //! @deprecated To be removed after %Cantera 3.0. Replace with
-    //!     `kin->reaction(i)->reactantString()`
-    string reactantString(size_t i) const;
-
-    //! Returns a string containing the products side of the reaction equation.
-    //! @deprecated To be removed after %Cantera 3.0. Replace with
-    //!     `kin->reaction(i)->productString()`
-    string productString(size_t i) const;
 
     /**
      * Return the forward rate constants
@@ -1314,11 +1268,6 @@ public:
      * @since New in %Cantera 3.0. Replaces addPhase.
      */
     virtual void addThermo(shared_ptr<ThermoPhase> thermo);
-
-    //! @see Kinetics::addThermo(shared_ptr<ThermoPhase>)
-    //! @deprecated To be removed after %Cantera 3.0. Replaced by addThermo
-    //!     pointer.
-    virtual void addPhase(ThermoPhase& thermo);
 
     /**
      * Prepare the class for the addition of reactions, after all phases have
@@ -1438,20 +1387,6 @@ public:
      */
     virtual pair<size_t, size_t> checkDuplicates(bool throw_err=true) const;
 
-    /**
-     * Takes as input an array of properties for all species in the mechanism
-     * and copies those values belonging to a particular phase to the output
-     * array.
-     * @param data Input data array.
-     * @param phase Pointer to one of the phase objects participating in this
-     *     reaction mechanism
-     * @param phase_data Output array where the values for the the specified
-     *     phase are to be written.
-     * @deprecated Unused. To be removed after %Cantera 3.0.
-     */
-    void selectPhase(const double* data, const ThermoPhase* phase,
-                     double* phase_data);
-
     //! Set root Solution holding all phase information
     virtual void setRoot(shared_ptr<Solution> root) {
         m_root = root;
@@ -1462,12 +1397,6 @@ public:
     shared_ptr<Solution> root() const {
         return m_root.lock();
     }
-
-    //! Calculate the reaction enthalpy of a reaction which
-    //! has not necessarily been added into the Kinetics object
-    //! @deprecated To be removed after %Cantera 3.0
-    virtual double reactionEnthalpy(const Composition& reactants,
-                                    const Composition& products);
 
 protected:
     //! Cache for saved calculations within each Kinetics object.

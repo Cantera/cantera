@@ -84,26 +84,9 @@ public:
         return *m_kin;
     }
 
-    /**
-     * Set the thermo manager.
-     *
-     * @deprecated To be removed after %Cantera 3.0 (unused)
-     */
-    void setThermo(ThermoPhase& th);
-
     void setKinetics(shared_ptr<Kinetics> kin) override;
 
-    //! Set the kinetics manager.
-    //! @deprecated To be removed after %Cantera 3.0;
-    //!     replaced by Domain1D::setKinetics()
-    void setKinetics(Kinetics& kin);
-
     void setTransport(shared_ptr<Transport> trans) override;
-
-    //! Set transport model to existing instance
-    //! @deprecated To be removed after %Cantera 3.0;
-    //!     replaced by Domain1D::setKinetics()
-    void setTransport(Transport& trans);
 
     //! Set the transport model
     //! @since New in %Cantera 3.0.
@@ -200,12 +183,6 @@ public:
         m_usesLambda = false;
     }
 
-    //! Return the type of flow domain being represented, either "Free Flame" or
-    //! "Axisymmetric Stagnation".
-    //! @see setFreeFlow setAxisymmetricFlow
-    //! @deprecated To be removed after %Cantera 3.0; replaced by type().
-    virtual string flowType() const;
-
     void solveEnergyEqn(size_t j=npos);
 
     //! Get the solving stage (used by IonFlow specialization)
@@ -288,9 +265,6 @@ public:
     double density(size_t j) const {
         return m_rho[j];
     }
-
-    //! @deprecated To be removed after %Cantera 3.0. Superseded by isFree()
-    virtual bool fixed_mdot();
 
     /**
      * Retrieve flag indicating whether flow is freely propagating.

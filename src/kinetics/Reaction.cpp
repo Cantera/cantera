@@ -8,8 +8,6 @@
 #include "cantera/kinetics/Reaction.h"
 #include "cantera/kinetics/ReactionRateFactory.h"
 #include "cantera/kinetics/Kinetics.h"
-#include "cantera/kinetics/Arrhenius.h" // @todo: remove after Cantera 3.0
-#include "cantera/kinetics/Falloff.h" // @todo: remove after Cantera 3.0
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/base/Array.h"
@@ -717,13 +715,6 @@ bool Reaction::usesElectrochemistry(const Kinetics& kin) const
     return false;
 }
 
-ThirdBody::ThirdBody(double default_eff)
-    : default_efficiency(default_eff)
-{
-    warn_deprecated("ThirdBody",
-        "Instantiation with default efficiency is deprecated and will be removed "
-        "after Cantera 3.0. Instantiate with collider name instead.");
-}
 
 ThirdBody::ThirdBody(const string& third_body)
 {
@@ -760,13 +751,6 @@ void ThirdBody::setName(const string& third_body)
 
 ThirdBody::ThirdBody(const AnyMap& node)
 {
-    setParameters(node);
-}
-
-void ThirdBody::setEfficiencies(const AnyMap& node)
-{
-    warn_deprecated("ThirdBody::setEfficiencies", node,
-        "To be removed after Cantera 3.0. Renamed to setParameters");
     setParameters(node);
 }
 
@@ -844,69 +828,6 @@ bool ThirdBody::checkSpecies(const Reaction& rxn, const Kinetics& kin) const
     return true;
 }
 
-ThreeBodyReaction::ThreeBodyReaction()
-{
-    warn_deprecated("ThreeBodyReaction",
-        "To be removed after Cantera 3.0. Replaceable with Reaction.");
-    m_third_body = make_shared<ThirdBody>();
-    setRate(newReactionRate(type()));
-}
-
-ThreeBodyReaction::ThreeBodyReaction(const Composition& reactants,
-                                     const Composition& products,
-                                     const ArrheniusRate& rate,
-                                     const ThirdBody& tbody)
-    : Reaction(reactants,
-               products,
-               make_shared<ArrheniusRate>(rate),
-               make_shared<ThirdBody>(tbody))
-{
-    warn_deprecated("ThreeBodyReaction",
-        "To be removed after Cantera 3.0. Replaceable with Reaction.");
-}
-
-ThreeBodyReaction::ThreeBodyReaction(const AnyMap& node, const Kinetics& kin)
-    : Reaction(node, kin)
-{
-    warn_deprecated("ThreeBodyReaction",
-        "To be removed after Cantera 3.0. Replaceable with Reaction.");
-}
-
-FalloffReaction::FalloffReaction()
-{
-    warn_deprecated("FalloffReaction",
-        "To be removed after Cantera 3.0. Replaceable with Reaction.");
-    m_third_body = make_shared<ThirdBody>();
-    setRate(newReactionRate(type()));
-}
-
-FalloffReaction::FalloffReaction(const Composition& reactants_,
-                                 const Composition& products_,
-                                 const FalloffRate& rate_,
-                                 const ThirdBody& tbody_)
-{
-    warn_deprecated("FalloffReaction",
-        "To be removed after Cantera 3.0. Replaceable with Reaction.");
-    // cannot be delegated as make_shared does not work for FalloffRate
-    reactants = reactants_;
-    products = products_;
-    m_third_body = make_shared<ThirdBody>(tbody_);
-    AnyMap node = rate_.parameters();
-    node.applyUnits();
-    string rate_type = node["type"].asString();
-    setRate(newReactionRate(node));
-}
-
-FalloffReaction::FalloffReaction(const AnyMap& node, const Kinetics& kin)
-    : Reaction(node, kin)
-{
-    warn_deprecated("FalloffReaction",
-        "To be removed after Cantera 3.0. Replaceable with Reaction.");
-    if (node.empty()) {
-        m_third_body = make_shared<ThirdBody>();
-        setRate(newReactionRate(type()));
-    }
-}
 
 unique_ptr<Reaction> newReaction(const string& type)
 {

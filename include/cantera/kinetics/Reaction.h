@@ -17,8 +17,6 @@ namespace Cantera
 
 class Kinetics;
 class ThirdBody;
-class ArrheniusRate; // @todo  Remove after Cantera 3.0
-class FalloffRate; // @todo  Remove after Cantera 3.0
 
 //! Abstract base class which stores data about a reaction and its rate
 //! parameterization so that it can be added to a Kinetics object.
@@ -59,28 +57,9 @@ public:
     //! where the reaction occurs. Sets the value of #rate_units.
     UnitStack calculateRateCoeffUnits(const Kinetics& kin);
 
-    //! Calculate the units of the rate constant.
-    //! @deprecated To be removed after %Cantera 3.0. Replaceable by
-    //!              calculateRateCoeffUnits.
-    UnitStack calculateRateCoeffUnits3(const Kinetics& kin) {
-        warn_deprecated("Reaction::calculateRateCoeffUnits3",
-            "Deprecated in Cantera 3.0 and to be removed thereafter; replaceable "
-            "by calculateRateCoeffUnits.");
-        return calculateRateCoeffUnits(kin);
-    }
-
     //! Ensure that the rate constant and other parameters for this reaction are valid.
     //! @since New in %Cantera 3.0.
     void check();
-
-    //! Ensure that the rate constant and other parameters for this reaction are valid.
-    //! @deprecated To be removed after %Cantera 3.0. Replaceable by check.
-    void validate() {
-        warn_deprecated("Reaction::validate",
-            "Deprecated in Cantera 3.0 and to be removed thereafter; replaceable "
-            "by Reaction::check.");
-        check();
-    }
 
     //! Perform validation checks that need access to a complete Kinetics objects, for
     // example to retrieve information about reactant / product species.
@@ -216,9 +195,6 @@ public:
     ThirdBody(const string& third_body);
     ThirdBody(const AnyMap& node);
 
-    //! @deprecated To be removed after %Cantera 3.0; instantiate using string instead
-    ThirdBody(double default_efficiency);
-
     //! Name of the third body collider
     //! @since New in %Cantera 3.0
     string name() const {
@@ -228,10 +204,6 @@ public:
     //! Set name of the third body collider
     //! @since New in %Cantera 3.0
     void setName(const string& third_body);
-
-    //! Set third-body efficiencies from AnyMap *node*
-    //! @deprecated To be removed after %Cantera 3.0; renamed to setParameters
-    void setEfficiencies(const AnyMap& node);
 
     //! Set third-body efficiencies from AnyMap *node*
     //! @since New in %Cantera 3.0
@@ -278,38 +250,6 @@ protected:
 };
 
 
-//! A reaction with a non-reacting third body "M" that acts to add or remove
-//! energy from the reacting species
-//! @deprecated To be removed after %Cantera 3.0. Merged with Reaction
-class ThreeBodyReaction : public Reaction
-{
-public:
-    ThreeBodyReaction();
-    ThreeBodyReaction(const Composition& reactants, const Composition& products,
-                      const ArrheniusRate& rate, const ThirdBody& tbody);
-
-    ThreeBodyReaction(const AnyMap& node, const Kinetics& kin);
-};
-
-
-//! A falloff reaction that is first-order in [M] at low pressure, like a third-body
-//! reaction, but zeroth-order in [M] as pressure increases.
-//! In addition, the class supports chemically-activated reactions where the rate
-//! decreases as pressure increases due to collisional stabilization of a reaction
-//! intermediate; in this case, the forward rate constant is written as being
-//! proportional to the low-pressure rate constant.
-//! @deprecated To be removed after %Cantera 3.0. Merged with Reaction
-class FalloffReaction : public Reaction
-{
-public:
-    FalloffReaction();
-    FalloffReaction(const Composition& reactants, const Composition& products,
-                    const FalloffRate& rate, const ThirdBody& tbody);
-
-    FalloffReaction(const AnyMap& node, const Kinetics& kin);
-};
-
-
 //! Create a new empty Reaction object
 /*!
  * @param type string identifying type of reaction.
@@ -332,9 +272,6 @@ vector<shared_ptr<Reaction>> getReactions(const AnyValue& items, Kinetics& kinet
 //! Parse reaction equation
 void parseReactionEquation(Reaction& R, const string& equation,
                            const AnyBase& reactionNode, const Kinetics* kin);
-
-using ThreeBodyReaction3 = ThreeBodyReaction; // @todo: remove after Cantera 3.0
-using FalloffReaction3 = FalloffReaction; // @todo: remove after Cantera 3.0
 
 }
 #endif

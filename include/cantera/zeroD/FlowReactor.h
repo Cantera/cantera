@@ -62,10 +62,6 @@ public:
         return m_area;
     }
 
-    //! @deprecated To be removed after %Cantera 3.0. Access distance through the
-    //!     ReactorNet object
-    double distance() const;
-
     //! Sets the area of the reactor [m^2]
     void setArea(double area);
 

@@ -140,25 +140,8 @@ public:
     //! Check basic syntax and settings of reaction rate expression
     virtual void check(const string& equation) {}
 
-    //! Check basic syntax and settings of reaction rate expression
-    //! @deprecated To be removed after %Cantera 3.0.
-    //!              Superseded by single-parameter version
-    void check(const string& equation, const AnyMap& node) {
-        warn_deprecated("ReactionRate::check",
-            "To be removed after Cantera 3.0; superseded by single-parameter version.");
-        check(equation);
-    }
-
     //! Validate the reaction rate expression
     virtual void validate(const string& equation, const Kinetics& kin) {}
-
-    //! Validate the reaction rate expression (legacy call)
-    //! @deprecated To be removed after %Cantera 3.0.
-    //!              Superseded by two-parameter version
-    virtual void validate(const string& equation) {
-        warn_deprecated("ReactionRate::validate",
-            "To be removed after Cantera 3.0; superseded by two-parameter version.");
-    }
 
     //! Reaction rate index within kinetics evaluator
     size_t rateIndex() const {

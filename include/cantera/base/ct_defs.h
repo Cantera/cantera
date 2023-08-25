@@ -172,24 +172,9 @@ const double Undef = -999.1234;
  */
 const double Tiny = 1.e-20;
 
-//! Map connecting a string name with a double.
-/*!
- * This is used mostly to assign concentrations and mole fractions to species.
- * @deprecated To be removed after %Cantera 3.0
- */
-typedef map<string, double> compositionMap [[deprecated("replaceable by Composition")]];
-
 //! Map from string names to doubles. Used for defining species mole/mass
 //! fractions, elemental compositions, and reaction stoichiometries.
 typedef map<string, double> Composition;
-
-//! Turn on the use of stl vectors for the basic array type within cantera
-//! Vector of doubles.
-//! @deprecated To be removed after %Cantera 3.0
-typedef vector<double> vector_fp [[deprecated("replaceable by vector<double>")]];
-//! Vector of ints
-//! @deprecated To be removed after %Cantera 3.0
-typedef vector<int> vector_int [[deprecated("replaceable by vector<int>")]];
 
 //! index returned by functions to indicate "no position"
 const size_t npos = static_cast<size_t>(-1);

@@ -84,13 +84,6 @@ FalloffRate::FalloffRate(const AnyMap& node, const UnitStack& rate_units)
     setParameters(node, rate_units);
 }
 
-void FalloffRate::init(const vector<double>& c)
-{
-    warn_deprecated("FalloffRate::init",
-        "To be removed after Cantera 3.0; superseded by setFalloffCoeffs.");
-    setFalloffCoeffs(c);
-}
-
 void FalloffRate::setLowRate(const ArrheniusRate& low)
 {
     ArrheniusRate _low = low;
@@ -328,15 +321,6 @@ void TroeRate::setParameters(const AnyMap& node, const UnitStack& rate_units)
     setFalloffCoeffs(params);
 }
 
-void TroeRate::getParameters(double* params) const {
-    warn_deprecated("TroeRate::getParameters",
-        "To be removed after Cantera 3.0; superseded by getFalloffCoeffs.");
-    params[0] = m_a;
-    params[1] = 1.0/m_rt3;
-    params[2] = 1.0/m_rt1;
-    params[3] = m_t2;
-}
-
 void TroeRate::getParameters(AnyMap& node) const
 {
     FalloffRate::getParameters(node);
@@ -445,17 +429,6 @@ void SriRate::setParameters(const AnyMap& node, const UnitStack& rate_units)
     setFalloffCoeffs(params);
 }
 
-void SriRate::getParameters(double* params) const
-{
-    warn_deprecated("SriRate::getParameters",
-        "To be removed after Cantera 3.0; superseded by getFalloffCoeffs.");
-    params[0] = m_a;
-    params[1] = m_b;
-    params[2] = m_c;
-    params[3] = m_d;
-    params[4] = m_e;
-}
-
 void SriRate::getParameters(AnyMap& node) const
 {
     FalloffRate::getParameters(node);
@@ -541,13 +514,6 @@ void TsangRate::setParameters(const AnyMap& node, const UnitStack& rate_units)
         f["B"].asDouble()
     };
     setFalloffCoeffs(params);
-}
-
-void TsangRate::getParameters(double* params) const {
-    warn_deprecated("TsangRate::getParameters",
-        "To be removed after Cantera 3.0; superseded by getFalloffCoeffs.");
-    params[0] = m_a;
-    params[1] = m_b;
 }
 
 void TsangRate::getParameters(AnyMap& node) const

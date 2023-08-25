@@ -106,14 +106,6 @@ Transport* TransportFactory::newTransport(ThermoPhase* phase, int log_level)
     return newTransport(transportModel, phase,log_level);
 }
 
-Transport* newTransportMgr(const string& model, ThermoPhase* thermo, int log_level)
-{
-    warn_deprecated("newTransportMgr",
-        "To be removed after Cantera 3.0; superseded by newTransport.");
-    TransportFactory* f = TransportFactory::factory();
-    return f->newTransport(model, thermo, log_level);
-}
-
 shared_ptr<Transport> newTransport(shared_ptr<ThermoPhase> thermo, const string& model)
 {
     Transport* tr;
@@ -123,27 +115,6 @@ shared_ptr<Transport> newTransport(shared_ptr<ThermoPhase> thermo, const string&
         tr = TransportFactory::factory()->newTransport(model, thermo.get(), 0);
     }
     return shared_ptr<Transport>(tr);
-}
-
-shared_ptr<Transport> newTransport(ThermoPhase* thermo, const string& model)
-{
-    warn_deprecated("newTransport",
-        "To be removed after Cantera 3.0; superseded by\n"
-        "newTransport(shared_ptr<ThermoPhase>, const string&).");
-    Transport* tr;
-    if (model == "default") {
-        tr = TransportFactory::factory()->newTransport(thermo, 0);
-    } else {
-        tr = TransportFactory::factory()->newTransport(model, thermo, 0);
-    }
-    return shared_ptr<Transport>(tr);
-}
-
-Transport* newDefaultTransportMgr(ThermoPhase* thermo, int loglevel)
-{
-    warn_deprecated("newDefaultTransportMgr",
-        "To be removed after Cantera 3.0; superseded by newTransport.");
-    return TransportFactory::factory()->newTransport(thermo, loglevel);
 }
 
 }

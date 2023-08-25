@@ -23,19 +23,8 @@ const double T_c = 647.096;
 static const double P_c = 22.064E6;
 //! Value of the Density at the critical point (kg m-3)
 const double Rho_c = 322.;
-//! Molecular Weight of water that is consistent with the paper (kg kmol-1)
-static const double M_water = 18.015268;
 
 static const double R_water = 461.51805; // J/kg/K (Eq. 6.3)
-
-//! Gas constant that is quoted in the paper
-/**
- * Note, this is the Rgas value quoted in the paper. For consistency
- * we have to use that value and not the updated value
- *
- * The Ratio of R/M = 0.46151805 kJ kg-1 K-1 , which is Eqn. (6.3) in the paper.
- */
-static const double Rgas = 8.314371E3; // Joules kmol-1 K-1
 
 void WaterPropsIAPWS::calcDim(double temperature, double rho)
 {
@@ -52,16 +41,6 @@ void WaterPropsIAPWS::calcDim(double temperature, double rho)
             iState = WATER_LIQUID;
         }
     }
-}
-
-double WaterPropsIAPWS::helmholtzFE() const
-{
-    warn_deprecated("WaterPropsIAPWS::helmholtzFE", "To be removed after Cantera 3.0. "
-                    "This class provides mass-based values only.");
-    double retn = m_phi.phi(tau, delta);
-    double temperature = T_c/tau;
-    double RT = Rgas * temperature;
-    return retn * RT;
 }
 
 double WaterPropsIAPWS::pressure() const
@@ -258,15 +237,6 @@ double WaterPropsIAPWS::coeffThermExp() const
     double beta = coeffPresExp();
     double dens = delta * Rho_c;
     return kappa * dens * R_water * beta;
-}
-
-double WaterPropsIAPWS::Gibbs() const
-{
-    warn_deprecated("WaterPropsIAPWS::Gibbs", "To be removed after Cantera 3.0. "
-                    "This class provides mass-based values only.");
-    double gRT = m_phi.gibbs_RT();
-    double temperature = T_c/tau;
-    return gRT * Rgas * temperature;
 }
 
 void WaterPropsIAPWS::corr(double temperature, double pressure,
@@ -575,13 +545,6 @@ double WaterPropsIAPWS::densSpinodalSteam() const
     return dens_new;
 }
 
-void WaterPropsIAPWS::setState_TR(double temperature, double rho)
-{
-    warn_deprecated("WaterPropsIAPWS::setState_TR",
-        "To be removed after Cantera 3.0. Renamed to setState_TD.");
-    setState_TD(temperature, rho);
-}
-
 void WaterPropsIAPWS::setState_TD(double temperature, double rho)
 {
     calcDim(temperature, rho);
@@ -616,56 +579,6 @@ double WaterPropsIAPWS::cv_mass() const
 double WaterPropsIAPWS::cp_mass() const
 {
     return m_phi.cp_R() * R_water;
-}
-
-double WaterPropsIAPWS::enthalpy() const
-{
-    warn_deprecated("WaterPropsIAPWS::enthalpy", "To be removed after Cantera 3.0. "
-                    "This class provides mass-based values only.");
-    double temperature = T_c/tau;
-    double hRT = m_phi.enthalpy_RT();
-    return hRT * Rgas * temperature;
-}
-
-double WaterPropsIAPWS::intEnergy() const
-{
-    warn_deprecated("WaterPropsIAPWS::intEnergy", "To be removed after Cantera 3.0. "
-                    "This class provides mass-based values only.");
-    double temperature = T_c / tau;
-    double uRT = m_phi.intEnergy_RT();
-    return uRT * Rgas * temperature;
-}
-
-double WaterPropsIAPWS::entropy() const
-{
-    warn_deprecated("WaterPropsIAPWS::entropy", "To be removed after Cantera 3.0. "
-                    "This class provides mass-based values only.");
-    double sR = m_phi.entropy_R();
-    return sR * Rgas;
-}
-
-double WaterPropsIAPWS::cv() const
-{
-    warn_deprecated("WaterPropsIAPWS::cv", "To be removed after Cantera 3.0. "
-                    "This class provides mass-based values only.");
-    double cvR = m_phi.cv_R();
-    return cvR * Rgas;
-}
-
-double WaterPropsIAPWS::cp() const
-{
-    warn_deprecated("WaterPropsIAPWS::cp", "To be removed after Cantera 3.0. "
-                    "This class provides mass-based values only.");
-    double cpR = m_phi.cp_R();
-    return cpR * Rgas;
-}
-
-double WaterPropsIAPWS::molarVolume() const
-{
-    warn_deprecated("WaterPropsIAPWS::molarVolume", "To be removed after Cantera 3.0. "
-                    "This class provides mass-based values only.");
-    double rho = delta * Rho_c;
-    return M_water / rho;
 }
 
 }

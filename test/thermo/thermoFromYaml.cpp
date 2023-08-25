@@ -196,46 +196,6 @@ TEST(ThermoFromYaml, DebyeHuckel_beta_ij)
     }
 }
 
-TEST(ThermoFromYaml, IonsFromNeutral)
-{
-    suppress_deprecation_warnings();
-    auto thermo = newThermo("thermo-models.yaml", "ions-from-neutral-molecule");
-    ASSERT_EQ((int) thermo->nSpecies(), 2);
-    vector<double> mu(thermo->nSpecies());
-    thermo->getChemPotentials(mu.data());
-
-    // Values for regression testing only -- same as "fromScratch" test
-    EXPECT_NEAR(thermo->density(), 1984.2507319669949, 1e-6);
-    EXPECT_NEAR(thermo->enthalpy_mass(), -14738312.44316336, 1e-6);
-    EXPECT_NEAR(mu[0], -4.66404010e+08, 1e1);
-    EXPECT_NEAR(mu[1], -2.88157316e+06, 1e-1);
-    make_deprecation_warnings_fatal();
-}
-
-TEST(ThermoFromYaml, IonsFromNeutral_fromString)
-{
-    suppress_deprecation_warnings();
-    // A little different because we can't re-read the input file to get the
-    // phase definition for the neutral phase
-    std::ifstream infile("../data/thermo-models.yaml");
-    std::stringstream buffer;
-    buffer << infile.rdbuf();
-    AnyMap input = AnyMap::fromYamlString(buffer.str());
-    auto thermo = newThermo(
-        input["phases"].getMapWhere("name", "ions-from-neutral-molecule"),
-        input);
-    ASSERT_EQ((int) thermo->nSpecies(), 2);
-    vector<double> mu(thermo->nSpecies());
-    thermo->getChemPotentials(mu.data());
-
-    // Values for regression testing only -- same as "fromScratch" test
-    EXPECT_NEAR(thermo->density(), 1984.2507319669949, 1e-6);
-    EXPECT_NEAR(thermo->enthalpy_mass(), -14738312.44316336, 1e-6);
-    EXPECT_NEAR(mu[0], -4.66404010e+08, 1e1);
-    EXPECT_NEAR(mu[1], -2.88157316e+06, 1e-1);
-    make_deprecation_warnings_fatal();
-}
-
 TEST(ThermoFromYaml, IdealSolnGas_liquid)
 {
     auto thermo = newThermo("thermo-models.yaml", "IdealSolnGas-liquid");
@@ -268,17 +228,6 @@ TEST(ThermoFromYaml, RedlichKister)
     thermo->getdlnActCoeffdlnX_diag(dlnActCoeffdx.data());
     EXPECT_NEAR(chemPotentials[0], -1.179299486233677e+07, 1e-6);
     EXPECT_NEAR(dlnActCoeffdx[0], -0.309379, 1e-6);
-}
-
-TEST(ThermoFromYaml, MaskellSolidSoln)
-{
-    suppress_deprecation_warnings();
-    auto thermo = newThermo("thermo-models.yaml", "MaskellSolidSoln");
-    vector<double> chemPotentials(2);
-    thermo->getChemPotentials(chemPotentials.data());
-    EXPECT_NEAR(chemPotentials[0], -4.989677789060059e6, 1e-6);
-    EXPECT_NEAR(chemPotentials[1], 4.989677789060059e6 + 1000, 1e-6);
-    make_deprecation_warnings_fatal();
 }
 
 TEST(ThermoFromYaml, HMWSoln)

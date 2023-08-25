@@ -16,13 +16,6 @@
 namespace Cantera
 {
 
-const int DIAG = 1;
-const int DENSE = 2;
-const int NOJAC = 4;
-const int JAC = 8;
-const int GMRES = 16;
-const int BAND = 32;
-
 /**
  * Specifies the method used to integrate the system of equations.
  * Not all methods are supported by all integrators.
@@ -85,20 +78,6 @@ public:
      */
     virtual void setSensitivityTolerances(double reltol, double abstol)
     { }
-
-    //! Set the problem type.
-    /*!
-     * @param probtype    Type of the problem
-     *
-     * @deprecated This function is to be removed along with the integer constants used
-     * in conditionals to set the problem type currently. This includes DENSE, JAC,
-     * NOJAC, BAND, and DIAG
-     */
-    virtual void setProblemType(int probtype) {
-        warn_deprecated("Integrator::setProblemType()",
-            "To be removed. Set linear solver type with setLinearSolverType");
-        warn("setProblemType");
-    }
 
     //! Set the linear solver type.
     /*!

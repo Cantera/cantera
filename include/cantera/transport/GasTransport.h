@@ -155,7 +155,7 @@ public:
     }
 
 protected:
-    GasTransport(ThermoPhase* thermo=0);
+    GasTransport();
 
     virtual void update_T();
     virtual void update_C() = 0;

@@ -62,7 +62,7 @@ classdef Sim1D < handle
                 fname = '-';
             end
 
-            ctFunc('sim1D_showSolution', s.stID, fname);
+            ctFunc('sim1D_show', s.stID, fname);
         end
 
         function restore(s, fname, id)

@@ -86,14 +86,6 @@ void SingleSpeciesTP::getChemPotentials(double* mu) const
     getStandardChemPotentials(mu);
 }
 
-void SingleSpeciesTP::getChemPotentials_RT(double* murt) const
-{
-    warn_deprecated("SingleSpeciesTP::getChemPotentials_RT",
-                    "To be removed after Cantera 3.0. Use getChemPotentials instead.");
-    getStandardChemPotentials(murt);
-    murt[0] /= RT();
-}
-
 void SingleSpeciesTP::getPartialMolarEnthalpies(double* hbar) const
 {
     getEnthalpy_RT(hbar);

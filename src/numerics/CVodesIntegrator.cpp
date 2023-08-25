@@ -152,24 +152,6 @@ void CVodesIntegrator::setSensitivityTolerances(double reltol, double abstol)
     m_abstolsens = abstol;
 }
 
-void CVodesIntegrator::setProblemType(int probtype)
-{
-    warn_deprecated("CVodesIntegrator::setProblemType()",
-        "To be removed. Set linear solver type with setLinearSolverType");
-    if (probtype == DIAG)
-    {
-        setLinearSolverType("DIAG");
-    } else if (probtype == DENSE + NOJAC) {
-        setLinearSolverType("DENSE");
-    } else if (probtype == BAND + NOJAC) {
-        setLinearSolverType("BAND");
-    } else if (probtype == GMRES) {
-        setLinearSolverType("GMRES");
-    } else {
-        setLinearSolverType("Invalid Option");
-    }
-}
-
 void CVodesIntegrator::setMethod(MethodType t)
 {
     if (t == BDF_Method) {

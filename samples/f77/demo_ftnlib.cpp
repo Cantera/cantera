@@ -146,15 +146,6 @@ extern "C" {
         }
     }
 
-    void setstate_try_(double* T, double* rho, double* Y)
-    {
-        try {
-            _gas->setState_TRY(*T, *rho, Y);
-        } catch (CanteraError& err) {
-            handleError(err);
-        }
-    }
-
     void setstate_tpy_(double* T, double* p, double* Y)
     {
         try {

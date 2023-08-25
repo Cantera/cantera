@@ -6,9 +6,6 @@
 #include "cantera/kinetics/PlogRate.h"
 #include "cantera/thermo/ThermoPhase.h"
 
-// @todo remove after Cantera 3.0 (only used for deprecation)
-#include "cantera/kinetics/Kinetics.h"
-
 namespace Cantera
 {
 
@@ -155,12 +152,6 @@ void PlogRate::validate(const string& equation, const Kinetics& kin)
             "\nInvalid rate coefficient for reaction '{}'\n{}",
             equation, to_string(err_reactions));
     }
-}
-
-void PlogRate::validate(const string& equation) {
-    warn_deprecated("PlogRate::validate",
-        "To be removed after Cantera 3.0; superseded by two-parameter version.");
-    validate(equation, Kinetics());
 }
 
 std::multimap<double, ArrheniusRate> PlogRate::getRates() const

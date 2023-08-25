@@ -36,15 +36,6 @@ public:
     //! delete the static instance of this factory
     void deleteFactory() override;
 
-    //! Create a new thermodynamic property manager.
-    /*!
-     * @param model  The name of the thermo model
-     * @returns a pointer to a new ThermoPhase object of the type specified. Throws a
-     *     CanteraError if the named model isn't registered with ThermoFactory.
-     * @deprecated To be removed after %Cantera 3.0; superseded by newThermo()
-     */
-    ThermoPhase* newThermoPhase(const string& model);
-
 private:
     //! static member of a single instance
     static ThermoFactory* s_factory;
@@ -55,10 +46,6 @@ private:
     //! Decl for locking mutex for thermo factory singleton
     static std::mutex thermo_mutex;
 };
-
-//! @copydoc newThermoModel(const string&)
-//! @deprecated To be removed after %Cantera 3.0; superseded by newThermoModel()
-ThermoPhase* newThermoPhase(const string& model);
 
 //! Create a new ThermoPhase instance.
  /*!
@@ -95,15 +82,6 @@ shared_ptr<ThermoPhase> newThermo(const AnyMap& phaseNode,
  *      argument specifying the thermo model, which is now deprecated.
  */
 shared_ptr<ThermoPhase> newThermo(const string& infile, const string& id="");
-
-//! @copydoc newThermo(const AnyMap&, const AnyMap&)
-//! @deprecated To be removed after %Cantera 3.0; superseded by newThermo()
-unique_ptr<ThermoPhase> newPhase(const AnyMap& phaseNode,
-                                 const AnyMap& rootNode=AnyMap());
-
-//! @copydoc newThermo(const string&, const string&)
-//! @deprecated To be removed after %Cantera 3.0; superseded by newThermo()
-ThermoPhase* newPhase(const string& infile, string id="");
 
 //! Initialize a ThermoPhase object
 /*!

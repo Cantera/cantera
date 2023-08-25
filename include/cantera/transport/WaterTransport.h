@@ -20,16 +20,7 @@ class WaterTransport : public Transport
 {
 public:
     //! default constructor
-    /*!
-     *  @param thermo   ThermoPhase object that represents the phase.
-     *                  Defaults to zero
-     *  @param ndim     Number of dimensions of the flux expressions.
-     *                  Defaults to a value of one.
-     *
-     * @deprecated The `thermo` and `ndim` parameters will be removed after %Cantera 3.0.
-     *     The ThermoPhase object should be specifed when calling the `init` method.
-     */
-    WaterTransport(ThermoPhase* thermo = 0, int ndim = -1);
+    WaterTransport() = default;
 
     string transportModel() const override {
         return "Water";

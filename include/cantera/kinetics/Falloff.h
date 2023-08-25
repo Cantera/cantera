@@ -87,16 +87,6 @@ public:
     FalloffRate(const AnyMap& node, const UnitStack& rate_units={});
 
     /**
-     * Initialize. Must be called before any other method is invoked.
-     *
-     * @param c Vector of coefficients of the parameterization. The number and
-     *     meaning of these coefficients is subclass-dependent.
-     *
-     * @deprecated To be removed after %Cantera 3.0; superseded by setFalloffCoeffs()
-     */
-    void init(const vector<double>& c);
-
-    /**
      * Set coefficients of the falloff parameterization.
      *
      * @param c Vector of coefficients of the parameterization. The number and
@@ -145,16 +135,6 @@ public:
         return F(pr, m_work.data());
     }
 
-    //! The size of the work array required.
-    /**
-     * @deprecated To be removed after %Cantera 3.0; unused.
-     */
-    virtual size_t workSize() const {
-        warn_deprecated("FalloffRate::workSize",
-            "To be removed after Cantera 3.0; unused.");
-        return 0;
-    }
-
     const string type() const override {
         if (m_chemicallyActivated) {
             return "chemically-activated";
@@ -169,16 +149,6 @@ public:
     }
 
     void setParameters(const AnyMap& node, const UnitStack& rate_units) override;
-
-    //! Get the values of the parameters for this object. *params* must be an
-    //! array of at least nParameters() elements.
-    /**
-     * @deprecated To be removed after %Cantera 3.0; superseded by getFalloffCoeffs()
-     */
-    virtual void getParameters(double* params) const {
-        warn_deprecated("FalloffRate::getParameters",
-            "To be removed after Cantera 3.0; superseded by getFalloffCoeffs.");
-    }
 
     void getParameters(AnyMap& node) const override;
 
@@ -365,10 +335,6 @@ public:
 
     double F(double pr, const double* work) const override;
 
-    size_t workSize() const override {
-        return 1;
-    }
-
     const string subType() const override {
         return "Troe";
     }
@@ -378,12 +344,6 @@ public:
     }
 
     void setParameters(const AnyMap& node, const UnitStack& rate_units) override;
-
-    //! Sets params to contain, in order, @f[ (A, T_3, T_1, T_2) @f]
-    /**
-     * @deprecated To be removed after %Cantera 3.0; superseded by getFalloffCoeffs()
-     */
-    void getParameters(double* params) const override;
 
     void getParameters(AnyMap& node) const override;
 
@@ -476,10 +436,6 @@ public:
 
     double F(double pr, const double* work) const override;
 
-    size_t workSize() const override {
-        return 2;
-    }
-
     const string subType() const override {
         return "SRI";
     }
@@ -489,13 +445,6 @@ public:
     }
 
     void setParameters(const AnyMap& node, const UnitStack& rate_units) override;
-
-    //! Sets params to contain, in order, @f[ (a, b, c, d, e) @f]
-    /**
-     * @deprecated To be removed after %Cantera 3.0; superseded by getFalloffCoeffs()
-     */
-    void getParameters(double* params) const override;
-
     void getParameters(AnyMap& node) const override;
 
 protected:
@@ -580,10 +529,6 @@ public:
 
     double F(double pr, const double* work) const override;
 
-    size_t workSize() const override {
-        return 1;
-    }
-
     const string subType() const override {
         return "Tsang";
     }
@@ -593,12 +538,6 @@ public:
     }
 
     void setParameters(const AnyMap& node, const UnitStack& rate_units) override;
-
-    //! Sets params to contain, in order, @f[ (A, B) @f]
-    /**
-     * @deprecated To be removed after %Cantera 3.0; superseded by getFalloffCoeffs()
-     */
-    void getParameters(double* params) const override;
 
     void getParameters(AnyMap& node) const override;
 

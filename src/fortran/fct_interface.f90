@@ -458,13 +458,6 @@ interface
         double precision, intent(out) :: d(*)
     end function trans_getMultiDiffCoeffs
 
-    integer function trans_setParameters(n, type, k, d)
-        integer, intent(in) :: n
-        integer, intent(in) :: type
-        integer, intent(in) :: k
-        double precision, intent(in) :: d(*)
-    end function trans_setParameters
-
     integer function ctphase_report(nth, buf, show_thermo)
         integer, intent(in) :: nth
         character*(*), intent(out) :: buf

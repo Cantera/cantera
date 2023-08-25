@@ -23,8 +23,7 @@ The fields of a ``species`` entry are:
     A mapping or list of mappings. Each mapping contains an equation of state
     model specification for the species, any parameters for that model, and any
     parameters for interactions with other species. See
-    :ref:`sec-yaml-species-eos`. If this field is absent and a model is
-    required, the ``ideal-gas`` model is assumed.
+    :ref:`sec-yaml-species-eos`.
 
 ``critical-parameters``
     Mapping containing parameters related to the critical state of a species. Used in
@@ -280,8 +279,6 @@ Species equation of state models
     - ``constant-volume`` (:ref:`details <sec-yaml-eos-constant-volume>`)
     - ``density-temperature-polynomial`` (:ref:`details <sec-yaml-eos-density-temperature-polynomial>`)
     - ``HKFT`` (:ref:`details <sec-yaml-eos-hkft>`)
-    - ``ideal-gas`` (:ref:`details <sec-yaml-eos-ideal-gas>`)
-    - ``ions-from-neutral-molecule`` (:ref:`details <sec-yaml-eos-ions-from-neutral>`)
     - ``liquid-water-IAPWS95`` (:ref:`details <sec-yaml-eos-liquid-water-iapws95>`)
     - ``molar-volume-temperature-polynomial`` (:ref:`details <sec-yaml-eos-molar-volume-temperature-polynomial>`)
     - ``Peng-Robinson`` (:ref:`details <sec-yaml-eos-peng-robinson>`)
@@ -368,46 +365,6 @@ Example::
          3.256 cal*K/gmol/bar, -27260. cal*K/gmol]
       c: [18.18 cal/gmol/K, -29810. cal*K/gmol]
       omega: 33060 cal/gmol
-
-
-.. _sec-yaml-eos-ideal-gas:
-
-Ideal gas
----------
-
-A species using the ideal gas equation of state, as
-:ct:`described here <PDSS_IdealGas>`.
-
-.. deprecated:: 3.0
-
-    This species thermo model is deprecated and will be removed after Cantera 3.0.
-
-.. _sec-yaml-eos-ions-from-neutral:
-
-Ions from neutral molecule
---------------------------
-
-A species equation of state model used with the ``ions-from-neutral-molecule``
-phase model, as :ct:`described here <PDSS_IonsFromNeutral>`.
-
-.. deprecated:: 3.0
-
-    This species thermo model is deprecated and will be removed after Cantera 3.0.
-
-Additional fields:
-
-``special-species``
-    Boolean indicating whether the species is the "special species" in the
-    phase. Default is ``false``.
-
-``multipliers``
-    A dictionary mapping species to neutral species multiplier values.
-
-Example::
-
-    equation-of-state:
-      model: ions-from-neutral-molecule
-      multipliers: {KCl(l): 1.2}
 
 
 .. _sec-yaml-eos-liquid-water-iapws95:

@@ -172,19 +172,6 @@ TEST_F(ThermoToYaml, CoverageDependentSurface)
         .asDouble(), us.convertFrom(0.07e-3, "eV/molec"));
 }
 
-TEST_F(ThermoToYaml, IonsFromNeutral)
-{
-    suppress_deprecation_warnings();
-    setup("thermo-models.yaml", "ions-from-neutral-molecule");
-    EXPECT_EQ(data["neutral-phase"], "KCl-neutral");
-    EXPECT_FALSE(eosData[0].hasKey("special-species"));
-    EXPECT_TRUE(eosData[1]["special-species"].asBool());
-    auto multipliers = eosData[1]["multipliers"].asMap<double>();
-    EXPECT_EQ(multipliers.size(), (size_t) 1);
-    EXPECT_DOUBLE_EQ(multipliers["KCl(l)"], 1.5);
-    make_deprecation_warnings_fatal();
-}
-
 TEST_F(ThermoToYaml, Margules)
 {
     setup("thermo-models.yaml", "molten-salt-Margules");
@@ -202,15 +189,6 @@ TEST_F(ThermoToYaml, RedlichKister)
     auto& I = interactions[0];
     EXPECT_EQ(I["excess-enthalpy"].asVector<double>().size(), (size_t) 15);
     EXPECT_EQ(I["excess-entropy"].asVector<double>().size(), (size_t) 1);
-}
-
-TEST_F(ThermoToYaml, MaskellSolidSolution)
-{
-    suppress_deprecation_warnings();
-    setup("thermo-models.yaml", "MaskellSolidSoln");
-    EXPECT_EQ(data["product-species"], "H(s)");
-    EXPECT_DOUBLE_EQ(data["excess-enthalpy"].asDouble(), 5e3);
-    make_deprecation_warnings_fatal();
 }
 
 TEST_F(ThermoToYaml, DebyeHuckel_B_dot_ak)
@@ -508,16 +486,6 @@ TEST_F(ThermoYamlRoundTrip, IdealSolutionVpss)
 {
     roundtrip("thermo-models.yaml", "IdealSolnGas-liquid");
     compareThermo(320, 1.5e5, "Li(l):1.0");
-}
-
-TEST_F(ThermoYamlRoundTrip, IonsFromNeutral)
-{
-    suppress_deprecation_warnings();
-    roundtrip("thermo-models.yaml", "ions-from-neutral-molecule",
-              {"KCl-neutral"});
-    skip_cp = true; // Not implemented for IonsFromNeutral
-    compareThermo(500, 3e5);
-    make_deprecation_warnings_fatal();
 }
 
 TEST_F(ThermoYamlRoundTrip, LatticeSolid)

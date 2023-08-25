@@ -13,19 +13,10 @@
 
 namespace Cantera
 {
-DustyGasTransport::DustyGasTransport(ThermoPhase* thermo) :
-    Transport(thermo)
-{
-}
-
-void DustyGasTransport::setThermo(ThermoPhase& thermo)
-{
-    Transport::setThermo(thermo);
-    m_gastran->setThermo(thermo);
-}
 
 void DustyGasTransport::initialize(ThermoPhase* phase, Transport* gastr)
 {
+    Transport::init(phase);
     // constant mixture attributes
     m_thermo = phase;
     m_nsp = m_thermo->nSpecies();

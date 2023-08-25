@@ -31,22 +31,6 @@ namespace Cantera
 class Array2D
 {
 public:
-    //! Type definition for the iterator class that is can be used by Array2D
-    //! types.
-    /*!
-     * This is just equal to vector<double>::iterator.
-     * @deprecated Unused. To be removed after %Cantera 3.0.
-     */
-    typedef vector<double>::iterator iterator;
-
-    //! Type definition for the const_iterator class that is can be used by
-    //! Array2D types.
-    /*!
-     * This is just equal to vector<double>::const_iterator.
-     * @deprecated Unused. To be removed after %Cantera 3.0.
-     */
-    typedef vector<double>::const_iterator const_iterator;
-
     /**
      * Default constructor. Create an empty array.
      */
@@ -197,22 +181,6 @@ public:
     size_t nColumns() const {
         return m_ncols;
     }
-
-    //! Return an iterator pointing to the first element
-    //! @deprecated Unused. To be removed after %Cantera 3.0.
-    iterator begin();
-
-    //! Return an iterator pointing past the last element
-    //! @deprecated Unused. To be removed after %Cantera 3.0.
-    iterator end();
-
-    //! Return a const iterator pointing to the first element
-    //! @deprecated Unused. To be removed after %Cantera 3.0.
-    const_iterator begin() const;
-
-    //! Return a const iterator pointing to past the last element
-    //! @deprecated Unused. To be removed after %Cantera 3.0.
-    const_iterator end() const;
 
     //! Return a reference to the data vector
     vector<double>& data() {

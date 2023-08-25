@@ -83,9 +83,6 @@ public:
         m_primary = primary;
     }
 
-    //! @deprecated To be removed after %Cantera 3.0; replaced by setPrimary().
-    void setMaster(FlowDevice* master);
-
     void setTimeFunction(Func1* g) override {
         throw NotImplementedError("PressureController::setTimeFunction");
     }

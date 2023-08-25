@@ -124,13 +124,6 @@ public:
 
     void getParameters(AnyMap& rateNode) const override;
 
-    //! @deprecated To be removed after %Cantera 3.0.
-    void getParameters(AnyMap& rateNode, const Units& rate_units) const {
-        warn_deprecated("ChebyshevRate:getParameters",
-            "To be removed after Cantera 3.0. Second argument is no longer needed.");
-        return getParameters(rateNode);
-    }
-
     void validate(const string& equation, const Kinetics& kin) override;
 
     //! Update information specific to reaction

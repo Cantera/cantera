@@ -43,30 +43,4 @@ Substance* newSubstance(const std::string& name)
     }
 }
 
-Substance* GetSub(int isub)
-{
-    Cantera::warn_deprecated("tpx::GetSub", "To be removed after Cantera 3.0. "
-                             "Use tpx::newSubstance(string) instead.");
-    if (isub == 0) {
-        return new water;
-    } else if (isub == 1) {
-        return new nitrogen;
-    } else if (isub == 2) {
-        return new methane;
-    } else if (isub == 3) {
-        return new hydrogen;
-    } else if (isub == 4) {
-        return new oxygen;
-    } else if (isub == 5) {
-        return new HFC134a;
-    } else if (isub == 7) {
-        return new CarbonDioxide;
-    } else if (isub == 8) {
-        return new Heptane;
-    } else {
-        throw Cantera::CanteraError("tpx::GetSub", "No substance definition "
-            "known for id '{}'.", isub);
-    }
-}
-
 }

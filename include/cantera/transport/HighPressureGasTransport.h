@@ -41,10 +41,7 @@ class HighPressureGasTransport : public MultiTransport
 {
 protected:
     //! default constructor
-    /*!
-     *   @param thermo  Optional parameter for the pointer to the ThermoPhase object
-     */
-    HighPressureGasTransport(ThermoPhase* thermo=0);
+    HighPressureGasTransport() = default;
 
 public:
     string transportModel() const override {

@@ -195,21 +195,12 @@ public:
      *                Length = m_kk. units are m^3/kmol.
      */
     void getPartialMolarVolumes(double* vbar) const override;
-    //! @deprecated Unused. To be removed after %Cantera 3.0.
-    virtual const vector<double>& getPartialMolarVolumesVector() const;
     //! @}
 
     bool addSpecies(shared_ptr<Species> spec) override;
 
 protected:
     void compositionChanged() override;
-
-    //! utility routine to check mole fraction sum
-    /*!
-     * @param x   vector of mole fractions.
-     * @deprecated Unused. To be removed after %Cantera 3.0.
-     */
-    double checkMFSum(const double* const x) const;
 
     //! Storage for the current values of the mole fractions of the species
     /*!

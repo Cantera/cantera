@@ -209,11 +209,6 @@ public:
         return 0.0;
     }
 
-    //! Since interface phases have no volume, setting this to a value other than 0.0
-    //! raises an exception.
-    //! @deprecated Unused. To be removed after %Cantera 3.0
-    void setMolarDensity(const double vm) override;
-
     //! Returns the site density
     /*!
      * Site density kmol m-2
