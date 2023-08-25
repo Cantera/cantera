@@ -36,8 +36,7 @@ double Wall::velocity() const {
 
 double Wall::vdot(double t)
 {
-    warn_deprecated("Wall::vdot",
-        "To be removed after Cantera 3.0; replaceable by 'expansionRate'.");
+    warn_deprecated("Wall::vdot", "To be removed; replaceable by 'expansionRate'.");
     double rate = m_k * m_area * (m_left->pressure() - m_right->pressure());
 
     if (m_vf) {
@@ -65,8 +64,7 @@ double Wall::heatFlux() const {
 
 double Wall::Q(double t)
 {
-    warn_deprecated("Wall::Q",
-        "To be removed after Cantera 3.0; replaceable by 'heatRate'.");
+    warn_deprecated("Wall::Q", "To be removed; replaceable by 'heatRate'.");
     double q1 = (m_area * m_rrth) *
                 (m_left->temperature() - m_right->temperature());
     if (m_emiss > 0.0) {
