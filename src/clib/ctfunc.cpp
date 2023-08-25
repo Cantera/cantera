@@ -155,7 +155,7 @@ extern "C" {
     int func_derivative(int i)
     {
         try {
-            return FuncCabinet::add(FuncCabinet::at(i)->derivative3());
+            return FuncCabinet::add(FuncCabinet::at(i)->derivative());
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }

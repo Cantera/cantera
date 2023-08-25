@@ -13,39 +13,6 @@ using namespace std;
 namespace Cantera
 {
 
-Func1::Func1(const Func1& right) :
-    m_c(right.m_c),
-    m_f1(right.m_f1),
-    m_f2(right.m_f2),
-    m_parent(right.m_parent)
-{
-}
-
-Func1& Func1::operator=(const Func1& right)
-{
-    if (&right == this) {
-        return *this;
-    }
-    m_c = right.m_c;
-    m_f1 = right.m_f1;
-    m_f2 = right.m_f2;
-    m_parent = right.m_parent;
-    return *this;
-}
-
-Func1& Func1::duplicate() const
-{
-    warn_deprecated("Func1::duplicate",
-        "To be removed after Cantera 3.0. No longer needed.");
-    Func1* nfunc = new Func1(*this);
-    return *nfunc;
-}
-
-int Func1::ID() const
-{
-    return 0;
-}
-
 string Func1::typeName() const
 {
     return demangle(typeid(*this));
@@ -63,24 +30,15 @@ double Func1::eval(double t) const
     return 0.0;
 }
 
-Func1& Func1::derivative() const
+shared_ptr<Func1> Func1::derivative() const
 {
-    warn_deprecated("Func1::derivative",
-        "To be changed after Cantera 3.0; for new behavior, see 'derivative3'.");
-    cout << "derivative error... ERR: ID = " << ID() << endl;
-    cout << write("x") << endl;
-    return *(new Func1);
-}
-
-shared_ptr<Func1> Func1::derivative3() const
-{
-    throw CanteraError("Func1::derivative3",
+    throw CanteraError("Func1::derivative",
         "Needs to be overloaded by Func1 specialization.");
 }
 
 bool Func1::isIdentical(Func1& other) const
 {
-    if (ID() != other.ID() || m_c != other.m_c) {
+    if (type() != other.type() || m_c != other.m_c) {
         return false;
     }
     if (m_f1) {
@@ -108,46 +66,9 @@ double Func1::c() const
     return m_c;
 }
 
-// Function to set the stored constant
-void Func1::setC(double c)
-{
-    m_c = c;
-}
-
-//! accessor function for m_f1
-Func1& Func1::func1() const
-{
-    return *m_f1;
-}
-
-Func1& Func1::func2() const
-{
-    return *m_f2;
-}
-
 int Func1::order() const
 {
     return 3;
-}
-
-Func1& Func1::func1_dup() const
-{
-    return m_f1->duplicate();
-}
-
-Func1& Func1::func2_dup() const
-{
-    return m_f2->duplicate();
-}
-
-Func1* Func1::parent() const
-{
-    return m_parent;
-}
-
-void Func1::setParent(Func1* p)
-{
-    m_parent = p;
 }
 
 /*****************************************************************************/
@@ -170,23 +91,7 @@ string Sin1::write(const string& arg) const
     }
 }
 
-Func1& Sin1::duplicate() const {
-    warn_deprecated("Sin1::duplicate",
-        "To be removed after Cantera 3.0; no longer needed.");
-    Sin1* nfunc = new Sin1(*this);
-    return (Func1&) *nfunc;
-}
-
-Func1& Sin1::derivative() const
-{
-    warn_deprecated("Sin1::derivative",
-        "To be changed after Cantera 3.0; for new behavior, see 'derivative3'.");
-    Func1* c = new Cos1(m_c);
-    Func1* r = &newTimesConstFunction(*c, m_c);
-    return *r;
-}
-
-shared_ptr<Func1> Sin1::derivative3() const
+shared_ptr<Func1> Sin1::derivative() const
 {
     auto c = make_shared<Cos1>(m_c);
     return newTimesConstFunction(c, m_c);
@@ -203,23 +108,7 @@ Cos1::Cos1(const vector<double>& params)
     m_c = params[0];
 }
 
-Func1& Cos1::duplicate() const {
-    warn_deprecated("Cos1::duplicate",
-        "To be removed after Cantera 3.0; no longer needed.");
-    Cos1* nfunc = new Cos1(*this);
-    return (Func1&) *nfunc;
-}
-
-Func1& Cos1::derivative() const
-{
-    warn_deprecated("Cos1::derivative",
-        "To be changed after Cantera 3.0; for new behavior, see 'derivative3'.");
-    Func1* s = new Sin1(m_c);
-    Func1* r = &newTimesConstFunction(*s, -m_c);
-    return *r;
-}
-
-shared_ptr<Func1> Cos1::derivative3() const
+shared_ptr<Func1> Cos1::derivative() const
 {
     auto s = make_shared<Sin1>(m_c);
     return newTimesConstFunction(s, -m_c);
@@ -245,25 +134,7 @@ Exp1::Exp1(const vector<double>& params)
     m_c = params[0];
 }
 
-Func1& Exp1::duplicate() const {
-    warn_deprecated("Exp1::duplicate",
-        "To be removed after Cantera 3.0; no longer needed.");
-    return *(new Exp1(m_c));
-}
-
-Func1& Exp1::derivative() const
-{
-    warn_deprecated("Exp1::derivative",
-        "To be changed after Cantera 3.0; for new behavior, see 'derivative3'.");
-    Func1* f = new Exp1(m_c);
-    if (m_c != 1.0) {
-        return newTimesConstFunction(*f, m_c);
-    } else {
-        return *f;
-    }
-}
-
-shared_ptr<Func1> Exp1::derivative3() const
+shared_ptr<Func1> Exp1::derivative() const
 {
     auto f = make_shared<Exp1>(m_c);
     if (m_c != 1.0) {
@@ -290,7 +161,7 @@ Log1::Log1(const vector<double>& params)
     m_c = params[0];
 }
 
-shared_ptr<Func1> Log1::derivative3() const
+shared_ptr<Func1> Log1::derivative() const
 {
     auto f = make_shared<Pow1>(-1.);
     if (m_c != 1.0) {
@@ -318,29 +189,7 @@ Pow1::Pow1(const vector<double>& params)
     m_c = params[0];
 }
 
-Func1& Pow1::duplicate() const {
-    warn_deprecated("Pow1::duplicate",
-        "To be removed after Cantera 3.0; no longer needed.");
-    return *(new Pow1(m_c));
-}
-
-Func1& Pow1::derivative() const
-{
-    warn_deprecated("Pow1::derivative",
-        "To be changed after Cantera 3.0; for new behavior, see 'derivative3'.");
-    Func1* r;
-    if (m_c == 0.0) {
-        r = new Const1(0.0);
-    } else if (m_c == 1.0) {
-        r = new Const1(1.0);
-    } else {
-        Func1* f = new Pow1(m_c - 1.0);
-        r = &newTimesConstFunction(*f, m_c);
-    }
-    return *r;
-}
-
-shared_ptr<Func1> Pow1::derivative3() const
+shared_ptr<Func1> Pow1::derivative() const
 {
     if (m_c == 0.0) {
         return make_shared<Const1>(0.0);
@@ -500,47 +349,7 @@ double Tabulated1::eval(double t) const {
     }
 }
 
-Func1& Tabulated1::duplicate() const {
-    warn_deprecated("Tabulated1::duplicate",
-        "To be removed after Cantera 3.0; no longer needed.");
-    if (m_isLinear) {
-        return *(new Tabulated1(m_tvec.size(), &m_tvec[0], &m_fvec[0],
-                                "linear"));
-    } else {
-        return *(new Tabulated1(m_tvec.size(), &m_tvec[0], &m_fvec[0],
-                                "previous"));
-    }
-}
-
-Func1& Tabulated1::derivative() const {
-    warn_deprecated("Tabulated1::derivative",
-        "To be changed after Cantera 3.0; for new behavior, see 'derivative3'.");
-    vector<double> tvec;
-    vector<double> dvec;
-    size_t siz = m_tvec.size();
-    if (m_isLinear) {
-        // piece-wise continuous derivative
-        if (siz>1) {
-            for (size_t i=1; i<siz; i++) {
-                double d = (m_fvec[i] - m_fvec[i-1]) /
-                  (m_tvec[i] - m_tvec[i-1]);
-                tvec.push_back(m_tvec[i-1]);
-                dvec.push_back(d);
-            }
-        }
-        tvec.push_back(m_tvec[siz-1]);
-        dvec.push_back(0.);
-    } else {
-        // derivative is zero (ignoring discontinuities)
-        tvec.push_back(m_tvec[0]);
-        tvec.push_back(m_tvec[siz-1]);
-        dvec.push_back(0.);
-        dvec.push_back(0.);
-    }
-    return *(new Tabulated1(tvec.size(), &tvec[0], &dvec[0], "previous"));
-}
-
-shared_ptr<Func1> Tabulated1::derivative3() const {
+shared_ptr<Func1> Tabulated1::derivative() const {
     vector<double> tvec;
     vector<double> dvec;
     size_t siz = m_tvec.size();
@@ -567,53 +376,6 @@ shared_ptr<Func1> Tabulated1::derivative3() const {
 }
 
 /******************************************************************************/
-
-Gaussian::Gaussian(double A, double t0, double fwhm) : Gaussian1(A, t0, fwhm)
-{
-    warn_deprecated("Gaussian::Gaussian", "To be removed after Cantera 3.0. "
-        "Replaced by 'Gaussian1'.");
-}
-
-Gaussian::Gaussian(const Gaussian& b) : Gaussian1(b)
-{
-    warn_deprecated("Gaussian::Gaussian", "To be removed after Cantera 3.0. "
-        "Replaced by 'Gaussian1'.");
-}
-
-Func1& Gaussian::duplicate() const {
-    warn_deprecated("Gaussian::duplicate",
-        "To be removed after Cantera 3.0; no longer needed.");
-    Gaussian* np = new Gaussian(*this);
-    return *((Func1*)np);
-}
-
-Func1& Poly1::duplicate() const {
-    warn_deprecated("Poly1::duplicate",
-        "To be removed after Cantera 3.0; no longer needed.");
-    Poly1* np = new Poly1(*this);
-    return *((Func1*)np);
-}
-
-Func1& Fourier1::duplicate() const {
-    warn_deprecated("Fourier1::duplicate",
-        "To be removed after Cantera 3.0; no longer needed.");
-    Fourier1* np = new Fourier1(*this);
-    return *((Func1*)np);
-}
-
-Func1& Arrhenius1::duplicate() const {
-    warn_deprecated("Arrhenius1::duplicate",
-        "To be removed after Cantera 3.0; no longer needed.");
-    Arrhenius1* np = new Arrhenius1(*this);
-    return *((Func1*)np);
-}
-
-Func1& Periodic1::duplicate() const {
-    warn_deprecated("Periodic1::duplicate",
-        "To be removed after Cantera 3.0; no longer needed.");
-    Periodic1* np = new Periodic1(*this);
-    return *((Func1*)np);
-}
 
 string Func1::write(const string& arg) const
 {
@@ -645,46 +407,15 @@ string Const1::write(const string& arg) const
     return fmt::format("{}", m_c);
 }
 
-Func1& Const1::duplicate() const {
-    warn_deprecated("Const1::duplicate",
-        "To be removed after Cantera 3.0; no longer needed.");
-    return *(new Const1(m_c));
-}
-
-Func1& Const1::derivative() const {
-    warn_deprecated("Const1::derivative",
-        "To be changed after Cantera 3.0; for new behavior, see 'derivative3'.");
-    Func1* z = new Const1(0.0);
-    return *z;
-}
-
 string Ratio1::write(const string& arg) const
 {
     return "\\frac{" + m_f1->write(arg) + "}{"
            + m_f2->write(arg) + "}";
 }
 
-Func1& Ratio1::duplicate() const {
-    warn_deprecated("Ratio1::duplicate",
-        "To be removed after Cantera 3.0; no longer needed.");
-    Func1& f1d = m_f1->duplicate();
-    Func1& f2d = m_f2->duplicate();
-    return newRatioFunction(f1d, f2d);
-}
-
-Func1& Ratio1::derivative() const {
-    warn_deprecated("Ratio1::derivative",
-        "To be changed after Cantera 3.0; for new behavior, see 'derivative3'.");
-    Func1& a1 = newProdFunction(m_f1->derivative(), m_f2->duplicate());
-    Func1& a2 = newProdFunction(m_f1->duplicate(), m_f2->derivative());
-    Func1& s = newDiffFunction(a1, a2);
-    Func1& p = newProdFunction(m_f2->duplicate(), m_f2->duplicate());
-    return newRatioFunction(s, p);
-}
-
-shared_ptr<Func1> Ratio1::derivative3() const {
-    auto a1 = newProdFunction(m_f1_shared->derivative3(), m_f2_shared);
-    auto a2 = newProdFunction(m_f1_shared, m_f2_shared->derivative3());
+shared_ptr<Func1> Ratio1::derivative() const {
+    auto a1 = newProdFunction(m_f1_shared->derivative(), m_f2_shared);
+    auto a2 = newProdFunction(m_f1_shared, m_f2_shared->derivative());
     auto s = newDiffFunction(a1, a2);
     auto p = newProdFunction(m_f2_shared, m_f2_shared);
     return newRatioFunction(s, p);
@@ -703,25 +434,9 @@ string Product1::write(const string& arg) const
     return s + " " + s2;
 }
 
-Func1& Product1::duplicate() const {
-    warn_deprecated("Product1::duplicate",
-        "To be removed after Cantera 3.0; no longer needed.");
-    Func1& f1d = m_f1->duplicate();
-    Func1& f2d = m_f2->duplicate();
-    return newProdFunction(f1d, f2d);
-}
-
-Func1& Product1::derivative() const {
-    warn_deprecated("Product1::derivative",
-        "To be changed after Cantera 3.0; for new behavior, see 'derivative3'.");
-    Func1& a1 = newProdFunction(m_f1->duplicate(), m_f2->derivative());
-    Func1& a2 = newProdFunction(m_f2->duplicate(), m_f1->derivative());
-    return newSumFunction(a1, a2);
-}
-
-shared_ptr<Func1> Product1::derivative3() const {
-    auto a1 = newProdFunction(m_f1_shared, m_f2_shared->derivative3());
-    auto a2 = newProdFunction(m_f2_shared, m_f1_shared->derivative3());
+shared_ptr<Func1> Product1::derivative() const {
+    auto a1 = newProdFunction(m_f1_shared, m_f2_shared->derivative());
+    auto a2 = newProdFunction(m_f2_shared, m_f1_shared->derivative());
     return newSumFunction(a1, a2);
 }
 
@@ -736,22 +451,6 @@ string Sum1::write(const string& arg) const
     }
 }
 
-Func1& Sum1::duplicate() const {
-    warn_deprecated("Sum1::duplicate",
-        "To be removed after Cantera 3.0; no longer needed.");
-    Func1& f1d = m_f1->duplicate();
-    Func1& f2d = m_f2->duplicate();
-    return newSumFunction(f1d, f2d);
-}
-
-Func1& Sum1::derivative() const {
-    warn_deprecated("Sum1::derivative",
-        "To be changed after Cantera 3.0; for new behavior, see 'derivative3'.");
-    Func1& d1 = m_f1->derivative();
-    Func1& d2 = m_f2->derivative();
-    return newSumFunction(d1, d2);
-}
-
 string Diff1::write(const string& arg) const
 {
     string s1 = m_f1->write(arg);
@@ -763,47 +462,15 @@ string Diff1::write(const string& arg) const
     }
 }
 
-Func1& Diff1::duplicate() const {
-    warn_deprecated("Diff1::duplicate",
-        "To be removed after Cantera 3.0; no longer needed.");
-    Func1& f1d = m_f1->duplicate();
-    Func1& f2d = m_f2->duplicate();
-    return newDiffFunction(f1d, f2d);
-}
-
-Func1& Diff1::derivative() const {
-    warn_deprecated("Diff1::derivative",
-        "To be changed after Cantera 3.0; for new behavior, see 'derivative3'.");
-    return newDiffFunction(m_f1->derivative(), m_f2->derivative());
-}
-
 string Composite1::write(const string& arg) const
 {
     string g = m_f2->write(arg);
     return m_f1->write(g);
 }
 
-Func1& Composite1::duplicate() const {
-    warn_deprecated("Composite1::duplicate",
-        "To be removed after Cantera 3.0; no longer needed.");
-    Func1& f1d = m_f1->duplicate();
-    Func1& f2d = m_f2->duplicate();
-    return newCompositeFunction(f1d, f2d);
-}
-
-Func1& Composite1::derivative() const {
-    warn_deprecated("Composite1::derivative",
-        "To be changed after Cantera 3.0; for new behavior, see 'derivative3'.");
-    Func1* d1 = &m_f1->derivative();
-    Func1* d3 = &newCompositeFunction(*d1, m_f2->duplicate());
-    Func1* d2 = &m_f2->derivative();
-    Func1* p = &newProdFunction(*d3, *d2);
-    return *p;
-}
-
-shared_ptr<Func1> Composite1::derivative3() const {
-    auto d1 = m_f1_shared->derivative3();
-    auto d2 = m_f2_shared->derivative3();
+shared_ptr<Func1> Composite1::derivative() const {
+    auto d1 = m_f1_shared->derivative();
+    auto d2 = m_f2_shared->derivative();
     auto d3 = newCompositeFunction(d1, m_f2_shared);
     return newProdFunction(d3, d2);
 }
@@ -827,22 +494,6 @@ string TimesConstant1::write(const string& arg) const
     return fmt::format("{}{}", m_c, s);
 }
 
-Func1& TimesConstant1::duplicate() const {
-    warn_deprecated("TimesConstant1::duplicate",
-        "To be removed after Cantera 3.0; no longer needed.");
-    Func1& f1 = m_f1->duplicate();
-    Func1* dup = new TimesConstant1(f1, m_c);
-    return *dup;
-}
-
-Func1& TimesConstant1::derivative() const {
-    warn_deprecated("TimesConstant1::derivative",
-        "To be changed after Cantera 3.0; for new behavior, see 'derivative3'.");
-    Func1& f1d = m_f1->derivative();
-    Func1* d = &newTimesConstFunction(f1d, m_c);
-    return *d;
-}
-
 string PlusConstant1::write(const string& arg) const
 {
     if (m_c == 0.0) {
@@ -851,24 +502,10 @@ string PlusConstant1::write(const string& arg) const
     return fmt::format("{} + {}", m_f1->write(arg), m_c);
 }
 
-Func1& PlusConstant1::duplicate() const {
-    warn_deprecated("PlusConstant1::duplicate",
-        "To be removed after Cantera 3.0; no longer needed.");
-    Func1& f1 = m_f1->duplicate();
-    Func1* dup = new PlusConstant1(f1, m_c);
-    return *dup;
-}
-
-Func1& PlusConstant1::derivative() const {
-    warn_deprecated("PlusConstant1::derivative",
-        "To be changed after Cantera 3.0; for new behavior, see 'derivative3'.");
-    return m_f1->derivative();
-}
-
 
 double Func1::isProportional(TimesConstant1& other)
 {
-    if (isIdentical(other.func1())) {
+    if (isIdentical(*other.func1_shared())) {
         return other.c();
     }
     return 0.0;
@@ -884,27 +521,9 @@ double Func1::isProportional(Func1& other)
 
 namespace { // restrict scope of helper functions to local translation unit
 
-static bool isConstant(Func1& f)
-{
-    if (f.type() == "constant") {
-        return true;
-    } else {
-        return false;
-    }
-}
-
 bool isConstant(const shared_ptr<Func1>& f)
 {
     return f->type() == "constant";
-}
-
-static bool isZero(Func1& f)
-{
-    if (f.type() == "constant" && f.c() == 0.0) {
-        return true;
-    } else {
-        return false;
-    }
 }
 
 bool isZero(const shared_ptr<Func1>& f)
@@ -912,27 +531,9 @@ bool isZero(const shared_ptr<Func1>& f)
     return f->type() == "constant" && f->c() == 0.0;
 }
 
-static bool isOne(Func1& f)
-{
-    if (f.type() == "constant" && f.c() == 1.0) {
-        return true;
-    } else {
-        return false;
-    }
-}
-
 bool isOne(const shared_ptr<Func1>& f)
 {
     return f->type() == "constant" && f->c() == 1.0;
-}
-
-static bool isTimesConst(Func1& f)
-{
-    if (f.type() == "times-constant") {
-        return true;
-    } else {
-        return false;
-    }
 }
 
 bool isTimesConst(const shared_ptr<Func1>& f)
@@ -940,27 +541,9 @@ bool isTimesConst(const shared_ptr<Func1>& f)
     return f->type() == "times-constant";
 }
 
-static bool isExp(Func1& f)
-{
-    if (f.type() == "exp") {
-        return true;
-    } else {
-        return false;
-    }
-}
-
 bool isExp(const shared_ptr<Func1>& f)
 {
     return f->type() == "exp";
-}
-
-static bool isPow(Func1& f)
-{
-    if (f.type() == "pow") {
-        return true;
-    } else {
-        return false;
-    }
 }
 
 bool isPow(const shared_ptr<Func1>& f)
@@ -969,33 +552,6 @@ bool isPow(const shared_ptr<Func1>& f)
 }
 
 } // end unnamed namespace
-
-Func1& newSumFunction(Func1& f1, Func1& f2)
-{
-    warn_deprecated("newSumFunction(Func1&, Func1&)",
-        "To be removed after Cantera 3.0; replaced by shared pointer version.");
-
-    if (f1.isIdentical(f2)) {
-        return newTimesConstFunction(f1, 2.0);
-    }
-    if (isZero(f1)) {
-        delete &f1;
-        return f2;
-    }
-    if (isZero(f2)) {
-        delete &f2;
-        return f1;
-    }
-    double c = f1.isProportional(f2);
-    if (c != 0) {
-        if (c == -1.0) {
-            return *(new Const1(0.0));
-        } else {
-            return newTimesConstFunction(f1, c + 1.0);
-        }
-    }
-    return *(new Sum1(f1, f2));
-}
 
 shared_ptr<Func1> newSumFunction(shared_ptr<Func1> f1, shared_ptr<Func1> f2)
 {
@@ -1016,31 +572,6 @@ shared_ptr<Func1> newSumFunction(shared_ptr<Func1> f1, shared_ptr<Func1> f2)
         return newTimesConstFunction(f1, c + 1.);
     }
     return make_shared<Sum1>(f1, f2);
-}
-
-Func1& newDiffFunction(Func1& f1, Func1& f2)
-{
-    warn_deprecated("newDiffFunction(Func1&, Func1&)",
-        "To be removed after Cantera 3.0; replaced by shared pointer version.");
-
-    if (isZero(f2)) {
-        delete &f2;
-        return f1;
-    }
-    if (f1.isIdentical(f2)) {
-        delete &f1;
-        delete &f2;
-        return *(new Const1(0.0));
-    }
-    double c = f1.isProportional(f2);
-    if (c != 0.0) {
-        if (c == 1.0) {
-            return *(new Const1(0.0));
-        } else {
-            return newTimesConstFunction(f1, 1.0 - c);
-        }
-    }
-    return *(new Diff1(f1, f2));
 }
 
 shared_ptr<Func1> newDiffFunction(shared_ptr<Func1> f1, shared_ptr<Func1> f2)
@@ -1064,87 +595,6 @@ shared_ptr<Func1> newDiffFunction(shared_ptr<Func1> f1, shared_ptr<Func1> f2)
         }
     }
     return make_shared<Diff1>(f1, f2);
-}
-
-Func1& newProdFunction(Func1& f1, Func1& f2)
-{
-    warn_deprecated("newProdFunction(Func1&, Func1&)",
-        "To be removed after Cantera 3.0; replaced by shared pointer version.");
-
-    if (isOne(f1)) {
-        delete &f1;
-        return f2;
-    }
-    if (isOne(f2)) {
-        delete &f2;
-        return f1;
-    }
-    if (isZero(f1) || isZero(f2)) {
-        delete &f1;
-        delete &f2;
-        return *(new Const1(0.0));
-    }
-    if (isConstant(f1) && isConstant(f2)) {
-        double c1c2 = f1.c() * f2.c();
-        delete &f1;
-        delete &f2;
-        return *(new Const1(c1c2));
-    }
-    if (isConstant(f1)) {
-        double c = f1.c();
-        delete &f1;
-        return newTimesConstFunction(f2, c);
-    }
-    if (isConstant(f2)) {
-        double c = f2.c();
-        delete &f2;
-        return newTimesConstFunction(f1, c);
-    }
-
-    if (isPow(f1) && isPow(f2)) {
-        Func1& p = *(new Pow1(f1.c() + f2.c()));
-        delete &f1;
-        delete &f2;
-        return p;
-    }
-
-    if (isExp(f1) && isExp(f2)) {
-        Func1& p = *(new Exp1(f1.c() + f2.c()));
-        delete &f1;
-        delete &f2;
-        return p;
-    }
-
-    bool tc1 = isTimesConst(f1);
-    bool tc2 = isTimesConst(f2);
-
-    if (tc1 || tc2) {
-        double c1 = 1.0, c2 = 1.0;
-        Func1* ff1 = 0, *ff2 = 0;
-        if (tc1) {
-            c1 = f1.c();
-            ff1 = &f1.func1_dup();
-            delete &f1;
-        } else {
-            ff1 = &f1;
-        }
-        if (tc2) {
-            c2 = f2.c();
-            ff2 = &f2.func1_dup();
-            delete &f2;
-        } else {
-            ff2 = &f2;
-        }
-        Func1& p = newProdFunction(*ff1, *ff2);
-
-        if (c1* c2 != 1.0) {
-            return newTimesConstFunction(p, c1*c2);
-        } else {
-            return p;
-        }
-    } else {
-        return *(new Product1(f1, f2));
-    }
 }
 
 shared_ptr<Func1> newProdFunction(shared_ptr<Func1> f1, shared_ptr<Func1> f2)
@@ -1200,31 +650,6 @@ shared_ptr<Func1> newProdFunction(shared_ptr<Func1> f1, shared_ptr<Func1> f2)
     return make_shared<Product1>(f1, f2);
 }
 
-Func1& newRatioFunction(Func1& f1, Func1& f2)
-{
-    warn_deprecated("newRatioFunction(Func1&, Func1&)",
-        "To be removed after Cantera 3.0; replaced by shared pointer version.");
-
-    if (isOne(f2)) {
-        return f1;
-    }
-    if (isZero(f1)) {
-        return *(new Const1(0.0));
-    }
-    if (f1.isIdentical(f2)) {
-        delete &f1;
-        delete &f2;
-        return *(new Const1(1.0));
-    }
-    if (f1.ID() == PowFuncType && f2.ID() == PowFuncType) {
-        return *(new Pow1(f1.c() - f2.c()));
-    }
-    if (f1.ID() == ExpFuncType && f2.ID() == ExpFuncType) {
-        return *(new Exp1(f1.c() - f2.c()));
-    }
-    return *(new Ratio1(f1, f2));
-}
-
 shared_ptr<Func1> newRatioFunction(shared_ptr<Func1> f1, shared_ptr<Func1> f2)
 {
     if (isOne(f2)) {
@@ -1243,38 +668,6 @@ shared_ptr<Func1> newRatioFunction(shared_ptr<Func1> f1, shared_ptr<Func1> f2)
         return make_shared<Exp1>(f1->c() - f2->c());
     }
     return make_shared<Ratio1>(f1, f2);
-}
-
-Func1& newCompositeFunction(Func1& f1, Func1& f2)
-{
-    warn_deprecated("newCompositeFunction(Func1&, Func1&)",
-        "To be removed after Cantera 3.0; replaced by shared pointer version.");
-
-    if (isZero(f1)) {
-        delete &f1;
-        delete &f2;
-        return *(new Const1(0.0));
-    }
-    if (isConstant(f1)) {
-        delete &f2;
-        return f1;
-    }
-    if (isPow(f1) && f1.c() == 1.0) {
-        delete &f1;
-        return f2;
-    }
-    if (isPow(f1) && f1.c() == 0.0) {
-        delete &f1;
-        delete &f2;
-        return *(new Const1(1.0));
-    }
-    if (isPow(f1) && isPow(f2)) {
-        double c1c2 = f1.c() * f2.c();
-        delete &f1;
-        delete &f2;
-        return *(new Pow1(c1c2));
-    }
-    return *(new Composite1(f1, f2));
 }
 
 shared_ptr<Func1> newCompositeFunction(shared_ptr<Func1> f1, shared_ptr<Func1> f2)
@@ -1297,25 +690,6 @@ shared_ptr<Func1> newCompositeFunction(shared_ptr<Func1> f1, shared_ptr<Func1> f
     return make_shared<Composite1>(f1, f2);
 }
 
-Func1& newTimesConstFunction(Func1& f, double c)
-{
-    warn_deprecated("newTimesConstFunction(Func1&, double)",
-        "To be removed after Cantera 3.0; replaced by shared pointer version.");
-
-    if (c == 0.0) {
-        delete &f;
-        return *(new Const1(0.0));
-    }
-    if (c == 1.0) {
-        return f;
-    }
-    if (f.type() == "times-constant") {
-        f.setC(f.c() * c);
-        return f;
-    }
-    return *(new TimesConstant1(f, c));
-}
-
 shared_ptr<Func1> newTimesConstFunction(shared_ptr<Func1> f, double c)
 {
     if (c == 0.0) {
@@ -1328,26 +702,6 @@ shared_ptr<Func1> newTimesConstFunction(shared_ptr<Func1> f, double c)
         return make_shared<TimesConstant1>(f->func1_shared(), f->c() * c);
     }
     return make_shared<TimesConstant1>(f, c);
-}
-
-Func1& newPlusConstFunction(Func1& f, double c)
-{
-    warn_deprecated("newPlusConstFunction(Func1&, double)",
-        "To be removed after Cantera 3.0; replaced by shared pointer version.");
-
-    if (c == 0.0) {
-        return f;
-    }
-    if (isConstant(f)) {
-        double cc = f.c() + c;
-        delete &f;
-        return *(new Const1(cc));
-    }
-    if (f.type() == "plus-constant") {
-        f.setC(f.c() + c);
-        return f;
-    }
-    return *(new PlusConstant1(f, c));
 }
 
 shared_ptr<Func1> newPlusConstFunction(shared_ptr<Func1> f, double c)
