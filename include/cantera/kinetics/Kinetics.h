@@ -77,12 +77,11 @@ class AnyMap;
 //! class overloads the virtual methods of Kinetics to implement a particular
 //! kinetics model.
 //!
-//! For example, class GasKinetics implements reaction rate expressions
-//! appropriate for homogeneous reactions in ideal gas mixtures, and class
-//! InterfaceKinetics implements expressions appropriate for heterogeneous
-//! mechanisms at interfaces, including how to handle reactions involving
-//! charged species of phases with different electric potentials --- something
-//! that class GasKinetics doesn't deal with at all.
+//! For example, class BulkKinetics implements reaction rate expressions appropriate for
+//! homogeneous reactions, and class InterfaceKinetics implements expressions
+//! appropriate for heterogeneous mechanisms at interfaces, including how to handle
+//! reactions involving charged species of phases with different electric potentials ---
+//! something that class BulkKinetics doesn't deal with at all.
 //!
 //! Many of the methods of class Kinetics write into arrays the values of some
 //! quantity for each species, for example the net production rate. These
