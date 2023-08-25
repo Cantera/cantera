@@ -478,7 +478,7 @@ config_options = [
     BoolOption(
         "use_pch",
         "Use a precompiled-header to speed up compilation",
-        {"icc": False, "default": True}),
+        True),
     Option(
         "pch_flags",
         "Compiler flags when using precompiled-header.",
@@ -504,7 +504,6 @@ config_options = [
         "Additional compiler flags passed to the C/C++ compiler when 'optimize=yes'.",
         {
             "cl": "/O2",
-            "icc": "-O3 -fp-model precise",
             "icx": "-O3 -fp-model precise", # cannot assume finite math
             "gcc": "-O3 -Wno-inline",
             "default": "-O3",
@@ -570,12 +569,6 @@ config_options = [
            to 'stage_dir/prefix/...'.""",
         "",
         PathVariable.PathAccept),
-    BoolOption(
-        "VERBOSE",
-        """Create verbose output about what SCons is doing. Deprecated in Cantera 3.0
-           and to be removed thereafter; replaceable by 'logging=debug'.
-           """,
-        False),
     EnumOption(
         "logging",
         """Select logging level for SCons output. By default, logging messages use
@@ -615,7 +608,6 @@ config_options = [
            scripts).""",
         {
             "cl": "/openmp",
-            "icc": "-qopenmp",
             "icx": "-qopenmp",
             "apple-clang": "-Xpreprocessor -fopenmp",
             "default": "-fopenmp",
@@ -869,10 +861,7 @@ elif env["CC"] == "cl": # Visual Studio
     config.select("cl")
 
 elif "icc" in env.subst("$CC"):
-    logger.warning("Support for the deprecated Intel compiler suite (icc/icpc) "
-                   "will be removed after Cantera 3.0.\nConsider using the new "
-                   "LLVM-based Intel oneAPI compilers (icx/icpx) instead.")
-    config.select("icc")
+    logger.error("The deprecated Intel compiler suite (icc/icpc) is no longer supported")
 
 elif "icx" in env.subst("$CC"):
     config.select("icx")
@@ -995,11 +984,6 @@ logger.info(textwrap.indent(cantera_conf, "    "), print_level=False)
 loglevel = env["logging"]
 if loglevel != "default":
     logger.logger.setLevel(loglevel.upper())
-
-if env["VERBOSE"]:
-    # @todo: Remove after Cantera 3.0
-    logger.warning("Option 'VERBOSE' is deprecated: replaceable by 'logging=debug'")
-    logger.logger.setLevel("DEBUG")
 
 # Copy in external environment variables
 if env['env_vars'] == 'all':

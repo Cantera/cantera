@@ -688,52 +688,6 @@ jobs:
       run: |
         python3 `which scons` test show_long_tests=yes verbose_tests=yes --debug=time
 
-  linux-intel-oneapi-classic:
-    name: intel-oneAPI classic on Ubuntu, Python 3.8
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
-    env:
-      INTEL_REPO: https://apt.repos.intel.com
-      INTEL_KEY: GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB
-    steps:
-    - name: Intel Apt repository
-      timeout-minutes: 1
-      run: |
-        wget ${INTEL_REPO}/intel-gpg-keys/${INTEL_KEY}
-        sudo apt-key add ${INTEL_KEY}
-        rm ${INTEL_KEY}
-        echo "deb ${INTEL_REPO}/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list
-        sudo apt-get update
-    - name: Install Intel oneAPI
-      timeout-minutes: 15
-      run: |
-        sudo apt-get install intel-oneapi-compiler-fortran intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic \
-        intel-oneapi-mpi intel-oneapi-mpi-devel intel-oneapi-mkl ninja-build libboost-dev
-    - uses: actions/checkout@v3
-      name: Checkout the repository
-      with:
-        submodules: recursive
-    - name: Setup Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: 3.8
-        architecture: x64
-    - name: Upgrade pip
-      run: python3 -m pip install -U pip setuptools wheel
-    - name: Install Python dependencies
-      run: python3 -m pip install ruamel.yaml scons numpy cython h5py pandas pytest
-        pytest-github-actions-annotate-failures pint
-    - name: Setup Intel oneAPI environment
-      run: |
-        source /opt/intel/oneapi/setvars.sh
-        printenv >> $GITHUB_ENV
-    - name: Build Cantera
-      run: python3 `which scons` build env_vars=all CC=icc CXX=icpc -j2 debug=n
-        --debug=time f90_interface=n # FORTRAN=ifort
-    - name: Test Cantera
-      run:
-        python3 `which scons` test show_long_tests=yes verbose_tests=yes --debug=time
-
   windows-mingw:
     name: mingw on Windows, Python 3.10
     runs-on: windows-2022
