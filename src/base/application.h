@@ -434,7 +434,7 @@ protected:
     vector<string> inputDirs;
 
     //! Versions of Python to consider when attempting to load user extensions
-    vector<string> m_pythonSearchVersions = {"3.11", "3.10", "3.9", "3.8"};
+    vector<string> m_pythonSearchVersions = {"3.12", "3.11", "3.10", "3.9", "3.8"};
 
     //! Set of deprecation warnings that have been emitted (to suppress duplicates)
     set<string> warnings;
