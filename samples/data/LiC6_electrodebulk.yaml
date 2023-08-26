@@ -26,6 +26,9 @@ species:
     h0: -11.65 kJ/mol
     s0: 0.0 J/mol/K
     cp0: 0.0 J/mol/K
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 0.036 m^3/kmol
 - name: V(C6)
   composition: {C: 6.0}
   thermo:
@@ -34,3 +37,6 @@ species:
     h0: 0.0 kJ/mol
     s0: 0.0 J/mol/K
     cp0: 0.0 J/mol/K
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 0.036 m^3/kmol
