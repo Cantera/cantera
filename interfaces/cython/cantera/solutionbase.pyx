@@ -54,26 +54,6 @@ cdef class _SolutionBase:
 
     def _cinit(self, infile="", name="", adjacent=(), origin=None, yaml=None,
                thermo=None, species=(), kinetics=None, reactions=(), **kwargs):
-
-        if 'phaseid' in kwargs:
-            if name is not '':
-                raise AttributeError('duplicate specification of phase name')
-
-            warnings.warn(
-                "_SolutionBase: Support for keyword 'phaseid' to be removed after "
-                "Cantera 3.0. Replaceable by keyword 'name'.", DeprecationWarning)
-            name = kwargs['phaseid']
-
-        if 'phases' in kwargs:
-            if len(adjacent)>0:
-                raise AttributeError(
-                    'duplicate specification of adjacent phases')
-
-            warnings.warn(
-                "_SolutionBase: Support for keyword 'phases' to be removed after "
-                "Cantera 3.0. Replaceable by keyword 'adjacent'.", DeprecationWarning)
-            adjacent = kwargs['phases']
-
         # Shallow copy of an existing Solution (for slicing support)
         cdef _SolutionBase other
         if origin is not None:

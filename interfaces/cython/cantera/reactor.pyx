@@ -646,25 +646,6 @@ cdef class ExtensibleReactor(Reactor):
         def __set__(self, n):
             self.accessor.setNEq(n)
 
-    property vdot:
-        """
-        Get/Set the net rate of volume change (for example, from moving walls) [m^3/s]
-
-        .. deprecated:: 3.0
-
-            To be removed in Cantera 3.0; renamed to `expansion_rate`.
-        """
-        def __get__(self):
-            warnings.warn(
-                "ExtensibleReactor.vdot: To be removed in Cantera 3.0; "
-                "renamed to 'expansion_rate'.", DeprecationWarning)
-            return self.accessor.expansionRate()
-        def __set__(self, vdot):
-            warnings.warn(
-                "ExtensibleReactor.vdot: To be removed in Cantera 3.0; "
-                "renamed to 'expansion_rate'.", DeprecationWarning)
-            self.accessor.setExpansionRate(vdot)
-
     @property
     def expansion_rate(self):
         """
@@ -677,25 +658,6 @@ cdef class ExtensibleReactor(Reactor):
     @expansion_rate.setter
     def expansion_rate(self, vdot):
         self.accessor.setExpansionRate(vdot)
-
-    property qdot:
-        """
-        Get/Set the net heat transfer rate (for example, through walls) [W]
-
-        .. deprecated:: 3.0
-
-            To be removed in Cantera 3.0; renamed to `heat_rate`.
-        """
-        def __get__(self):
-            warnings.warn(
-                "ExtensibleReactor.qdot: To be removed in Cantera 3.0; "
-                "renamed to 'heat_rate'.", DeprecationWarning)
-            return self.accessor.heatRate()
-        def __set__(self, qdot):
-            warnings.warn(
-                "ExtensibleReactor.qdot: To be removed in Cantera 3.0; "
-                "renamed to 'heat_rate'.", DeprecationWarning)
-            self.accessor.setHeatRate(qdot)
 
     @property
     def heat_rate(self):
@@ -963,18 +925,6 @@ cdef class WallBase:
         """
         return self.wall.expansionRate()
 
-    def vdot(self, double t):
-        """
-        The rate of volumetric change [m^3/s] associated with the wall
-        at time ``t``. A positive value corresponds to the left-hand reactor
-        volume increasing, and the right-hand reactor volume decreasing.
-
-        .. deprecated:: 3.0
-
-            To be removed after Cantera 3.0; replaceable by ``expansion_rate``.
-        """
-        return self.wall.vdot(t)
-
     @property
     def heat_rate(self):
         """
@@ -985,18 +935,6 @@ cdef class WallBase:
         .. versionadded:: 3.0
         """
         return self.wall.heatRate()
-
-    def qdot(self, double t):
-        """
-        Total heat flux [W] through the wall at time ``t``. A positive value
-        corresponds to heat flowing from the left-hand reactor to the
-        right-hand one.
-
-        .. deprecated:: 3.0
-
-            To be removed after Cantera 3.0; replaceable by ``heat_rate``.
-        """
-        return self.wall.Q(t)
 
 
 cdef class Wall(WallBase):
@@ -1073,20 +1011,6 @@ cdef class Wall(WallBase):
         self._velocity_func = f
         (<CxxWall*>(self.wall)).setVelocity(f.func)
 
-    def set_velocity(self, v):
-        """
-        The wall velocity [m/s]. May be either a constant or an arbitrary
-        function of time. See `Func1`.
-
-        .. deprecated:: 3.0
-
-            Replaced by the ``velocity`` property.
-        """
-        warnings.warn(
-            "Wall.set_velocity: To be removed after Cantera 3.0; replaced by property "
-            "'velocity'.", DeprecationWarning)
-        self.velocity = v
-
     @property
     def heat_flux(self):
         """
@@ -1107,20 +1031,6 @@ cdef class Wall(WallBase):
 
         self._heat_flux_func = f
         (<CxxWall*>self.wall).setHeatFlux(f.func)
-
-    def set_heat_flux(self, q):
-        """
-        Heat flux [W/m^2] across the wall. May be either a constant or
-        an arbitrary function of time. See `Func1`.
-
-        .. deprecated:: 3.0
-
-            Replaced by the ``heat_flux`` property.
-        """
-        warnings.warn(
-            "Wall.set_heat_flux: To be removed after Cantera 3.0; replaced by property "
-            "'heat_flux'.", DeprecationWarning)
-        self.heat_flux = q
 
 
 cdef class FlowDevice:
@@ -1205,26 +1115,6 @@ cdef class FlowDevice:
         self._rate_func = f
         self.dev.setPressureFunction(f.func)
 
-    def set_pressure_function(self, k):
-        r"""
-        Set the relationship between mass flow rate and the pressure drop across a
-        flow device. The mass flow rate [kg/s] is calculated given the pressure
-        drop [Pa] and a coefficient set by a flow device specific function.
-        The calculation of mass flow rate depends to the flow device.
-
-        >>> F = FlowDevice(res1, reactor1)
-        >>> F.set_pressure_function(lambda dP: dP**2)
-
-        where FlowDevice is either a Valve or PressureController object.
-
-        .. deprecated:: 3.0
-            To be removed after Cantera 3.0. Use property ``pressure_function`` instead.
-        """
-        warnings.warn(
-            "FlowDevice.set_pressure_function: To be removed after Cantera 3.0; "
-            "replaced by 'pressure_function'.", DeprecationWarning)
-        self.pressure_function = k
-
     @property
     def time_function(self):
         r"""
@@ -1251,25 +1141,6 @@ cdef class FlowDevice:
             g = Func1(k)
         self._time_func = g
         self.dev.setTimeFunction(g.func)
-
-    def set_time_function(self, k):
-        r"""
-        Set the time dependence of a flow device. The mass flow rate [kg/s] is
-        calculated for a flow device, and multiplied by a function of time.
-        The calculation of mass flow rate depends to the flow device.
-
-        >>> F = FlowDevice(res1, reactor1)
-        >>> F.set_time_function(lambda t: exp(-10 * (t - 0.5)**2))
-
-        where FlowDevice is either a Valve or MassFlowController object.
-
-        .. deprecated:: 3.0
-            To be removed after Cantera 3.0. Use property ``time_function`` instead.
-        """
-        warnings.warn(
-            "FlowDevice.set_time_function: To be removed after Cantera 3.0; "
-            "replaced by 'time_function'.", DeprecationWarning)
-        self.time_function = k
 
 
 cdef class MassFlowController(FlowDevice):
@@ -1452,20 +1323,6 @@ cdef class PressureController(FlowDevice):
     def primary(self, FlowDevice d):
         (<CxxPressureController*>self.dev).setPrimary(d.dev)
 
-    def set_master(self, FlowDevice d):
-        """
-        Set the "master" `FlowDevice` used to compute this device's mass flow
-        rate.
-
-        .. deprecated:: 3.0
-
-            To be removed after Cantera 3.0; replaced by property ``primary``.
-        """
-        warnings.warn(
-            "PressureController.set_master: To be removed after Cantera 3.0; "
-            "replaced by 'primary'.", DeprecationWarning)
-        self.primary = d
-
 
 cdef class ReactorNet:
     """
@@ -1555,19 +1412,6 @@ cdef class ReactorNet:
     @initial_time.setter
     def initial_time(self, double t):
         self.net.setInitialTime(t)
-
-    def set_initial_time(self, double t):
-        """
-        Set the initial time. Restarts integration from this time using the
-        current state as the initial condition. Default: 0.0 s.
-
-        .. deprecated:: 3.0
-            To be removed after Cantera 3.0. Use property ``initial_time`` instead.
-        """
-        warnings.warn(
-            "ReactorNet.set_initial_time: To be removed after Cantera 3.0. "
-            "Use property 'initial_time' instead.", DeprecationWarning)
-        self.initial_time = t
 
     property max_time_step:
         """

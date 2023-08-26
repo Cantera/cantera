@@ -13,12 +13,7 @@ try:
 except ImportError:
     pass
 
-try:
-    ct.composite._import_h5py()
-except ImportError:
-    pass
-
-from cantera.composite import _pandas, _h5py
+from cantera.composite import _pandas
 from . import utilities
 
 
@@ -476,58 +471,6 @@ class TestSolutionArrayIO(utilities.CanteraTest):
             for key, value in a.meta.items():
                 assert b.meta[key] == value
 
-    @pytest.mark.usefixtures("allow_deprecated")
-    def test_write_csv_legacy(self):
-        states = ct.SolutionArray(self.gas, 7)
-        states.TPX = np.linspace(300, 1000, 7), 2e5, 'H2:0.5, O2:0.4'
-        states.equilibrate('HP')
-
-        outfile = self.test_work_path / "solutionarray.csv"
-        states.write_csv(outfile)
-
-        data = np.genfromtxt(outfile, names=True, delimiter=',')
-        self.assertEqual(len(data), 7)
-        self.assertEqual(len(data.dtype), self.gas.n_species + 2)
-        self.assertIn('Y_H2', data.dtype.fields)
-
-        b = ct.SolutionArray(self.gas)
-        b.read_csv(outfile)
-        self.check_arrays(states, b)
-
-    @pytest.mark.usefixtures("allow_deprecated")
-    def test_write_csv_single_row(self):
-        gas = ct.Solution("gri30.yaml")
-        states = ct.SolutionArray(gas)
-        states.append(T=300., P=ct.one_atm, X="CH4:0.5, O2:0.4")
-        states.equilibrate("HP")
-
-        outfile = self.test_work_path / "solutionarray.csv"
-        states.write_csv(outfile)
-
-        b = ct.SolutionArray(gas)
-        b.read_csv(outfile)
-        self.check_arrays(states, b)
-
-    @pytest.mark.usefixtures("allow_deprecated")
-    def test_write_csv_str_column(self):
-        states = ct.SolutionArray(self.gas, 3, extra={'spam': 'eggs'})
-
-        outfile = self.test_work_path / "solutionarray.csv"
-        states.write_csv(outfile)
-
-        b = ct.SolutionArray(self.gas, extra={'spam'})
-        b.read_csv(outfile)
-        self.assertEqual(list(states.spam), list(b.spam))
-        self.check_arrays(states, b)
-
-    @pytest.mark.usefixtures("allow_deprecated")
-    def test_write_csv_multidim_column(self):
-        states = ct.SolutionArray(self.gas, 3, extra={'spam': np.zeros((3, 5,))})
-
-        outfile = self.test_work_path / "solutionarray.csv"
-        with self.assertRaisesRegex(NotImplementedError, 'not supported'):
-            states.write_csv(outfile)
-
     def test_write_csv(self):
         outfile = self.test_work_path / "solutionarray_new.csv"
         outfile.unlink(missing_ok=True)
@@ -718,12 +661,6 @@ class TestLegacyHDF(utilities.CanteraTest):
     def setUp(self):
         self.gas = ct.Solution('h2o2.yaml', transport_model=None)
 
-    @pytest.mark.usefixtures("allow_deprecated")
-    @pytest.mark.skipif("h5py" not in ct.hdf_support(), reason="h5py is not installed")
-    def test_legacy_hdf_str_column_h5py(self):
-        self.run_read_legacy_hdf_str_column(legacy=True)
-
-
     @pytest.mark.xfail(reason="Unable to read fixed length strings from HDF")
     @pytest.mark.skipif("native" not in ct.hdf_support(),
                         reason="Cantera compiled without HDF support")
@@ -747,60 +684,17 @@ class TestLegacyHDF(utilities.CanteraTest):
             b.restore(infile, "group0")
         assert all(arr.spam == b.spam)
 
-    @pytest.mark.usefixtures("allow_deprecated")
-    @pytest.mark.skipif("h5py" not in ct.hdf_support(), reason="h5py is not installed")
-    def test_legacy_hdf_multidim_h5py(self):
-        self.run_read_legacy_hdf_multidim(legacy=True)
-
     @pytest.mark.skipif("native" not in ct.hdf_support(),
                         reason="Cantera compiled without HDF support")
     @pytest.mark.filterwarnings("ignore:.*legacy HDF.*:UserWarning")
     def test_legacy_hdf_multidim(self):
-        self.run_read_legacy_hdf_multidim()
-
-    def run_read_legacy_hdf_multidim(self, legacy=False):
         # recreate states used to create legacy HDF file
         arr = ct.SolutionArray(self.gas, 3, extra={'spam': [[1, 2], [3, 4], [5, 6]]})
         b = ct.SolutionArray(self.gas, extra={'spam'})
         infile = self.test_data_path / f"solutionarray_multi_legacy.h5"
 
-        if legacy:
-            b.read_hdf(infile)
-        else:
-            b.restore(infile, "group0")
+        b.restore(infile, "group0")
         self.assertArrayNear(arr.spam, b.spam)
-
-    @pytest.mark.usefixtures("allow_deprecated")
-    @pytest.mark.skipif(ct.hdf_support() != {"native", "h5py"},
-                        reason="Both HDF support modes needed")
-    def test_deprecated_write_read_hdf(self):
-        # recreate states used to create legacy HDF file
-        arr = ct.SolutionArray(self.gas, 3, extra={'spam': [[1, 2], [3, 4], [5, 6]]})
-        outfile = self.test_work_path / "solutionarray_deprecated.h5"
-        outfile.unlink(missing_ok=True)
-
-        with pytest.raises(KeyError, match="Missing required parameter 'group'"):
-            arr.write_hdf(outfile, "group0")
-
-        with pytest.warns(DeprecationWarning, match="use 'save' instead"):
-            # New HDF format is written regardless via 'save'
-            arr.write_hdf(outfile, group="group0")
-
-        b = ct.SolutionArray(self.gas)
-        with pytest.raises(IOError, match="use 'restore' instead"):
-            # New HDF format should not be read with 'read_hdf'
-            with pytest.warns(DeprecationWarning, match="use 'restore' instead"):
-                # DeprecationWarning is triggered before IOError is raised
-                b.read_hdf(outfile, group="group0")
-
-        meta = b.restore(outfile, "group0")
-        assert meta["generator"] == "Cantera SolutionArray"
-        self.assertArrayNear(arr.spam, b.spam)
-
-    @pytest.mark.usefixtures("allow_deprecated")
-    @pytest.mark.skipif("h5py" not in ct.hdf_support(), reason="h5py is not installed")
-    def test_legacy_hdf_h5py(self):
-        self.run_legacy_hdf(legacy=True)
 
     @pytest.mark.skipif("native" not in ct.hdf_support(),
                         reason="Cantera compiled without HDF support")
@@ -818,10 +712,7 @@ class TestLegacyHDF(utilities.CanteraTest):
 
         infile = self.test_data_path / f"solutionarray_fancy_legacy.h5"
         b = ct.SolutionArray(self.gas)
-        if legacy:
-            attr = b.read_hdf(infile)
-        else:
-            attr = b.restore(infile, "group0")
+        attr = b.restore(infile, "group0")
         self.assertArrayNear(states.T, b.T)
         self.assertArrayNear(states.P, b.P)
         self.assertArrayNear(states.X, b.X)
@@ -830,11 +721,6 @@ class TestLegacyHDF(utilities.CanteraTest):
         self.assertEqual(b.meta['spam'], 'eggs')
         self.assertEqual(b.meta['hello'], 'world')
         self.assertEqual(attr['foobar'], 'spam and eggs')
-
-    @pytest.mark.usefixtures("allow_deprecated")
-    @pytest.mark.skipif("h5py" not in ct.hdf_support(), reason="h5py is not installed")
-    def test_read_legacy_hdf_no_norm_h5py(self):
-        self.run_read_legacy_hdf_no_norm(legacy=True)
 
     @pytest.mark.skipif("native" not in ct.hdf_support(),
                         reason="Cantera compiled without HDF support")
@@ -858,18 +744,10 @@ class TestLegacyHDF(utilities.CanteraTest):
         self.assertArrayNear(states.P, b.P, rtol=1e-7)
         self.assertArrayNear(states.X, b.X, rtol=1e-7)
 
-    @pytest.mark.usefixtures("allow_deprecated")
-    @pytest.mark.skipif("h5py" not in ct.hdf_support(), reason="h5py is not installed")
-    def test_import_no_norm_water_h5py(self):
-        self.run_import_no_norm_water(legacy=True)
-
     @pytest.mark.skipif("native" not in ct.hdf_support(),
                         reason="Cantera compiled without HDF support")
     @pytest.mark.filterwarnings("ignore:.*legacy HDF.*:UserWarning")
     def test_import_no_norm_water(self):
-        self.run_import_no_norm_water()
-
-    def run_import_no_norm_water(self, legacy=False):
         # recreate states used to create legacy HDF file
         w = ct.Water()
         w.TQ = 300, 0.5
@@ -878,27 +756,10 @@ class TestLegacyHDF(utilities.CanteraTest):
         w_new = ct.Water()
         infile = self.test_data_path / "solutionarray_water_legacy.h5"
         c = ct.SolutionArray(w_new)
-        if legacy:
-            c.read_hdf(infile, normalize=False)
-        else:
-            c.restore(infile, "group0")
+        c.restore(infile, "group0")
         self.assertArrayNear(states.T, c.T, rtol=1e-7)
         self.assertArrayNear(states.P, c.P, rtol=1e-7)
         self.assertArrayNear(states.Q, c.Q, rtol=1e-7)
-
-    @pytest.mark.usefixtures("allow_deprecated")
-    @pytest.mark.skipif(ct.hdf_support() != {"native", "h5py"},
-                        reason="Both HDF support modes needed")
-    def test_new_hdf_h5py_exception(self):
-        outfile = self.test_work_path / f"solutionarray_new.h5"
-        outfile.unlink(missing_ok=True)
-
-        states = ct.SolutionArray(self.gas, 3, extra={'spam': [[1, 2], [3, 4], [5, 6]]})
-        states.save(outfile, "arr")
-
-        b = ct.SolutionArray(self.gas, extra={'spam'})
-        with pytest.raises(IOError, match="Cantera 3.0 HDF format"):
-            b.read_hdf(outfile, "arr") # h5py file should not read new format
 
 
 class TestRestoreIdealGas(utilities.CanteraTest):

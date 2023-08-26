@@ -469,24 +469,6 @@ cdef class ReactingSurface1D(Boundary1D):
         def __get__(self):
             return self.surface
 
-    def set_kinetics(self, Kinetics kin):
-        """Set the kinetics manager (surface reaction mechanism object).
-
-        .. deprecated:: 3.0
-
-            Method to be removed after Cantera 3.0; set `Kinetics` when instantiating
-            `ReactingSurface1D` instead.
-        """
-        warnings.warn("ReactingSurface1D.set_kinetics: Method to be removed after "
-            "Cantera 3.0; set 'Kinetics' when instantiating 'ReactingSurface1D' "
-            "instead.", DeprecationWarning)
-        if pystr(kin.kinetics.kineticsType()) not in ("surface", "edge"):
-            raise TypeError('Kinetics object must be derived from '
-                            'InterfaceKinetics.')
-        self.surf.setKinetics(kin.base.kinetics())
-        self.surface = kin
-        self.surface._references[self._weakref_proxy] = True
-
     property coverage_enabled:
         """Controls whether or not to solve the surface coverage equations."""
         def __set__(self, value):
@@ -738,82 +720,6 @@ cdef class AxisymmetricFlow(_FlowBase):
     _domain_type = "axisymmetric-flow"
 
 
-cdef class IdealGasFlow(_FlowBase):
-    """
-    An ideal gas flow domain. Functions `set_free_flow` and
-    `set_axisymmetric_flow` can be used to set different type of flow.
-
-    For the type of axisymmetric flow, the equations solved are the similarity
-    equations for the flow in a finite-height gap of infinite radial extent.
-    The solution variables are:
-
-    *velocity*
-        axial velocity
-    *spread_rate*
-        radial velocity divided by radius
-    *T*
-        temperature
-    *lambda*
-        (1/r)(dP/dr)
-    *Y_k*
-        species mass fractions
-
-    It may be shown that if the boundary conditions on these variables are
-    independent of radius, then a similarity solution to the exact governing
-    equations exists in which these variables are all independent of radius.
-    This solution holds only in in low-Mach-number limit, in which case
-    (dP/dz) = 0, and lambda is a constant. (Lambda is treated as a spatially-
-    varying solution variable for numerical reasons, but in the final solution
-    it is always independent of z.) As implemented here, the governing
-    equations assume an ideal gas mixture.  Arbitrary chemistry is allowed, as
-    well as arbitrary variation of the transport properties.
-
-    .. deprecated:: 3.0
-
-        Class to be removed after Cantera 3.0; replaced by `FreeFlow`,
-        `AxisymmetricFlow` and `UnstrainedFlow`.
-    """
-    _domain_type = "gas-flow"
-
-    def __init__(self, *args, **kwargs):
-        warnings.warn("Class 'IdealGasFlow' to be removed after Cantera 3.0; use "
-                      "'FreeFlow', 'AxisymmetricFlow' or 'UnstrainedFlow' instead.",
-                      DeprecationWarning)
-        super().__init__(*args, **kwargs)
-
-
-cdef class IonFlow(_FlowBase):
-    """
-    An ion flow domain.
-
-    In an ion flow domain, the electric drift is added to the diffusion flux
-
-    .. deprecated:: 3.0
-
-        Class to be removed after Cantera 3.0; replaced by `FreeFlow`,
-        `AxisymmetricFlow` and `UnstrainedFlow`.
-    """
-    _domain_type = "ion-flow"
-
-    def __init__(self, *args, **kwargs):
-        warnings.warn("Class 'IonFlow' to be removed after Cantera 3.0; use 'FreeFlow',"
-                      " 'AxisymmetricFlow' or 'UnstrainedFlow' instead.",
-                      DeprecationWarning)
-        super().__init__(*args, **kwargs)
-
-    def set_solving_stage(self, stage):
-        """
-        Set the mode for handling ionized species:
-
-        - ``stage == 1``: the fluxes of charged species are set to zero
-        - ``stage == 2``: the electric field equation is solved, and the drift flux for
-          ionized species is evaluated
-        """
-        warnings.warn("IonFlow.set_solving_stage: Method to be removed after Cantera "
-                      "3.0; use 'solving_stage' property instead.", DeprecationWarning)
-        self.solving_stage = stage
-
-
 cdef class Sim1D:
     """
     Class Sim1D is a container for one-dimensional domains. It also holds the
@@ -1057,88 +963,11 @@ cdef class Sim1D:
         dom, comp = self._get_indices(domain, component)
         self.sim.setFlatProfile(dom, comp, value)
 
-    def restore_data(self, domain, states, other_cols, meta):
-        """
-        Restore a ``domain`` from underlying data. This method is used as
-        a service function for import via `FlameBase.from_solution_array`.
-
-        Derived classes set default values for ``domain`` and ``other``, where
-        defaults describe flow domain and essential non-thermodynamic solution
-        components of the configuration, respectively. An alternative ``domain``
-        (such as inlet, outlet, etc.), can be specified either by name or the
-        corresponding Domain1D object itself.
-
-        .. deprecated:: 3.0
-
-            Method to be removed after Cantera 3.0. Unused after moving `SolutionArray`
-            interface to the C++ core, except for `FlameBase.from_solution_array`,
-            which itself is deprecated due to a pending removal of ``h5py`` support.
-        """
-        warnings.warn("Sim1D.restore_data: Method to be removed after Cantera 3.0.",
-                      DeprecationWarning)
-        idom = self.domain_index(domain)
-        dom = self.domains[idom]
-        T, P, Y = states
-        if isinstance(P, np.ndarray) and P.size:
-            P = P[0]
-
-        if isinstance(dom, _FlowBase):
-            grid = other_cols['grid']
-            dom.grid = grid
-            xi = (grid - grid[0]) / (grid[-1] - grid[0])
-            self._get_initial_solution()
-
-            # restore temperature and 'other' profiles
-            self.set_profile('T', xi, T)
-            for key, val in other_cols.items():
-                if key in ['grid', 'qdot']:
-                    pass
-                elif key in dom.component_names:
-                    self.set_profile(key, xi, val)
-
-            # restore species profiles
-            for i, spc in enumerate(self.gas.species_names):
-                self.set_profile(spc, xi, Y[:, i])
-
-            # restore pressure
-            self.P = P
-
-            # restore settings
-            dom.settings = meta
-
-        elif isinstance(dom, Inlet1D):
-            self.gas.TPY = T, P, Y
-            dom.T = T
-            self.P = P
-            dom.Y = Y
-            dom.mdot = other_cols['velocity'] * self.gas.density
-
-        elif isinstance(dom, (Outlet1D, OutletReservoir1D,
-                              SymmetryPlane1D, Surface1D)):
-            pass
-
-        elif isinstance(dom, ReactingSurface1D):
-            dom.surface.TPY = T, P, Y
-
-        else:
-            msg = ("Import of '{}' is not implemented")
-            raise NotImplementedError(msg.format(type(self).__name__))
-
     def show(self):
         """ print the current solution. """
         if not self._initialized:
             self.set_initial_guess()
         self.sim.show()
-
-    def show_solution(self):
-        """
-        print the current solution.
-
-        .. deprecated:: 3.0
-
-            Method to be removed after Cantera 3.0; replaced by `show`.
-        """
-        self.show()
 
     def set_time_step(self, stepsize, n_steps):
         """Set the sequence of time steps to try when Newton fails.

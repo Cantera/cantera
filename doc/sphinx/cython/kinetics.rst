@@ -20,32 +20,12 @@ InterfaceKinetics
 Reactions
 ---------
 
-These classes contain the definition of a single reaction, independent of a specific
+This class contains the definition of a single reaction, independent of a specific
 `Kinetics` object. Reaction rate evaluation is handled by `ReactionRate` objects.
 
 Reaction
 ^^^^^^^^
 .. autoclass:: Reaction
-   :no-undoc-members:
-
-ThreeBodyReaction
-^^^^^^^^^^^^^^^^^
-.. autoclass:: ThreeBodyReaction
-   :no-undoc-members:
-
-FalloffReaction
-^^^^^^^^^^^^^^^
-.. autoclass:: FalloffReaction
-   :no-undoc-members:
-
-ChemicallyActivatedReaction
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-.. autoclass:: ChemicallyActivatedReaction
-   :no-undoc-members:
-
-CustomReaction
-^^^^^^^^^^^^^^
-.. autoclass:: CustomReaction
    :no-undoc-members:
 
 

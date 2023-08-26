@@ -1322,12 +1322,7 @@ cdef class Reaction:
     """
 
     def __cinit__(self, reactants=None, products=None, rate=None, *,
-                  equation=None, init=True, efficiencies=None,
-                  Kinetics kinetics=None, third_body=None):
-        if kinetics:
-            warnings.warn("Reaction: Parameter 'kinetics' is no longer used and will "
-                          "be removed after Cantera 3.0.", DeprecationWarning)
-
+                  equation=None, init=True, third_body=None):
         if not init:
             return
 
@@ -1364,13 +1359,6 @@ cdef class Reaction:
             _third_body = third_body
         elif isinstance(third_body, str):
             _third_body = ThirdBody(third_body)
-        elif efficiencies:
-            warnings.warn(
-                "Reaction: Argument 'efficiencies' is deprecated and will be removed "
-                "after Cantera 3.0. Use ThirdBody instead.", DeprecationWarning)
-            third_body = "M"
-            _third_body = ThirdBody(third_body)
-            _third_body.efficiencies = efficiencies
 
         if reactants and products:
             # create from reactant and product compositions
@@ -1521,19 +1509,10 @@ cdef class Reaction:
         ``{'CH4':1, 'OH':1}``, or as a composition string, for example
         ``'CH4:1, OH:1'``.
 
-        .. deprecated:: 3.0
-
-            Setter for reactants is deprecated and will be removed after Cantera 3.0.
-            Use constructor instead.
+        .. versionchanged:: 3.1  This is a read-only property
         """
         def __get__(self):
             return comp_map_to_dict(self.reaction.reactants)
-        def __set__(self, reactants):
-            warnings.warn(
-                "'Reaction.reactants' setter is deprecated and will be removed after "
-                "Cantera 3.0.\nInstantiate using constructor instead.",
-                DeprecationWarning)
-            self.reaction.reactants = comp_map(reactants)
 
     property products:
         """
@@ -1542,19 +1521,10 @@ cdef class Reaction:
         ``{'CH3':1, 'H2O':1}``, or as a composition string, for example
         ``'CH3:1, H2O:1'``.
 
-        .. deprecated:: 3.0
-
-            Setter for products is deprecated and will be removed after Cantera 3.0.
-            Use constructor instead.
+        .. versionchanged:: 3.1  This is a read-only property
         """
         def __get__(self):
             return comp_map_to_dict(self.reaction.products)
-        def __set__(self, products):
-            warnings.warn(
-                "'Reaction.products' setter is deprecated and will be removed after "
-                "Cantera 3.0.\nInstantiate using constructor instead.",
-                DeprecationWarning)
-            self.reaction.products = comp_map(products)
 
     def __contains__(self, species):
         return species in self.reactants or species in self.products
@@ -1703,73 +1673,6 @@ cdef class Reaction:
             return ThirdBody.wrap(self.reaction.thirdBody()).name
         return None
 
-    property efficiencies:
-        """
-        Get/Set a `dict` defining non-default third-body efficiencies for this reaction,
-        where the keys are the species names and the values are the efficiencies.
-
-        .. deprecated:: 3.0
-
-            To be removed after Cantera 3.0. Access via `third_body` property and
-            `ThirdBody` object instead.
-        """
-        def __get__(self):
-            warnings.warn(
-                "Reaction.efficiencies: Property is deprecated and will be removed "
-                "after Cantera 3.0. Access via ThirdBody instead.", DeprecationWarning)
-            if self.third_body is None:
-                raise ValueError("Reaction does not involve third body collider")
-            return self.third_body.efficiencies
-        def __set__(self, eff):
-            warnings.warn(
-                "Reaction.efficiencies: Property is deprecated and will be removed "
-                "after Cantera 3.0. Access via ThirdBody instead.", DeprecationWarning)
-            if self.third_body is None:
-                raise ValueError("Reaction does not involve third body collider")
-            self.third_body.efficiencies = comp_map(eff)
-
-    property default_efficiency:
-        """
-        Get/Set the default third-body efficiency for this reaction, used for species
-        not in `efficiencies`.
-
-        .. deprecated:: 3.0
-
-            To be removed after Cantera 3.0. Access via `third_body` property and
-            `ThirdBody` object instead.
-        """
-        def __get__(self):
-            warnings.warn(
-                "Reaction.default_efficiency: Property is deprecated and will be "
-                "removed after Cantera 3.0. Use ThirdBody instead.", DeprecationWarning)
-            if self.third_body is None:
-                raise ValueError("Reaction does not involve third body collider")
-            return self.third_body.default_efficiency
-        def __set__(self, default_eff):
-            warnings.warn(
-                "Reaction.default_efficiency: Property is deprecated and will be "
-                "removed after Cantera 3.0. Use ThirdBody instead.", DeprecationWarning)
-            if self.third_body is None:
-                raise ValueError("Reaction does not involve third body collider")
-            self.third_body.default_efficiency = default_eff
-
-    def efficiency(self, species):
-        """
-        Get the efficiency of the third body named ``species`` considering both
-        the default efficiency and species-specific efficiencies.
-
-        .. deprecated:: 3.0
-
-            To be removed after Cantera 3.0. Access via `third_body` property and
-            `ThirdBody` object instead.
-        """
-        warnings.warn(
-            "Reaction.efficiency: Method is deprecated and will be removed after "
-            "Cantera 3.0. Use ThirdBody instead.", DeprecationWarning)
-        if self.third_body is None:
-            raise ValueError("Reaction does not involve third body collider")
-        return self.third_body.efficiency(stringify(species))
-
 
 cdef class Arrhenius:
     r"""
@@ -1837,99 +1740,3 @@ cdef copyArrhenius(CxxArrheniusRate* rate):
     r = Arrhenius(rate.preExponentialFactor(), rate.temperatureExponent(),
                   rate.activationEnergy())
     return r
-
-
-cdef class ThreeBodyReaction(Reaction):
-    """
-    A reaction with a non-reacting third body "M" that acts to add or remove
-    energy from the reacting species.
-
-    An example for the definition of an `ThreeBodyReaction` object is given as::
-
-        rxn = ThreeBodyReaction(
-            equation="2 O + M <=> O2 + M",
-            rate={"A": 1.2e+17, "b": -1.0, "Ea": 0.0},
-            efficiencies={"H2": 2.4, "H2O": 15.4, "AR": 0.83},
-            kinetics=gas)
-
-    The YAML description corresponding to this reaction is::
-
-        equation: 2 O + M <=> O2 + M
-        type: three-body
-        rate-constant: {A: 1.2e+17 cm^6/mol^2/s, b: -1.0, Ea: 0.0 cal/mol}
-        efficiencies: {H2: 2.4, H2O: 15.4, AR: 0.83}
-
-    .. deprecated:: 3.0
-
-        Class to be removed after Cantera 3.0. Absorbed by `Reaction`.
-    """
-
-    def __init__(self, *args, **kwargs):
-        warnings.warn("ThreeBodyReaction: Class to be removed after Cantera 3.0; "
-                      "no specialization necessary.", DeprecationWarning)
-
-
-cdef class FalloffReaction(Reaction):
-    """
-    A reaction that is first-order in [M] at low pressure, like a third-body
-    reaction, but zeroth-order in [M] as pressure increases.
-
-    An example for the definition of a `FalloffReaction` object is given as::
-
-        rxn = FalloffReaction(
-            equation="2 OH (+ M) <=> H2O2 (+ M)",
-            rate=ct.TroeRate(low=ct.Arrhenius(2.3e+12, -0.9, -7112800.0),
-                             high=ct.Arrhenius(7.4e+10, -0.37, 0),
-                             falloff_coeffs=[0.7346, 94.0, 1756.0, 5182.0]),
-            efficiencies={"AR": 0.7, "H2": 2.0, "H2O": 6.0},
-            kinetics=gas)
-
-    The YAML description corresponding to this reaction is::
-
-        equation: 2 OH (+ M) <=> H2O2 (+ M)  # Reaction 3
-        type: falloff
-        low-P-rate-constant: {A: 2.3e+12, b: -0.9, Ea: -1700.0 cal/mol}
-        high-P-rate-constant: {A: 7.4e+10, b: -0.37, Ea: 0.0 cal/mol}
-        Troe: {A: 0.7346, T3: 94.0, T1: 1756.0, T2: 5182.0}
-        efficiencies: {AR: 0.7, H2: 2.0, H2O: 6.0}
-
-    .. deprecated:: 3.0
-
-        Class to be removed after Cantera 3.0. Absorbed by `Reaction`.
-    """
-
-    def __init__(self, *args, **kwargs):
-        warnings.warn("FalloffReaction: Class to be removed after Cantera 3.0; "
-                      "no specialization necessary.", DeprecationWarning)
-
-cdef class ChemicallyActivatedReaction(FalloffReaction):
-    """
-    A reaction where the rate decreases as pressure increases due to collisional
-    stabilization of a reaction intermediate. Like a `FalloffReaction`, except
-    that the forward rate constant is written as being proportional to the low-
-    pressure rate constant.
-    """
-
-    def __init__(self, *args, **kwargs):
-        warnings.warn("ChemicallyActivatedReaction: Class to be removed after Cantera "
-                      "3.0; no specialization necessary.", DeprecationWarning)
-
-cdef class CustomReaction(Reaction):
-    """
-    A reaction which follows mass-action kinetics with a custom reaction rate.
-
-    An example for the definition of a `CustomReaction` object is given as::
-
-        rxn = CustomReaction(
-            equation="H2 + O <=> H + OH",
-            rate=lambda T: 38.7 * T**2.7 * exp(-3150.15428/T),
-            kinetics=gas)
-
-    .. deprecated:: 3.0
-
-        Class to be removed after Cantera 3.0. Absorbed by `Reaction`.
-    """
-
-    def __init__(self, *args, **kwargs):
-        warnings.warn("CustomReaction: Class to be removed after Cantera 3.0; no "
-                      "specialization necessary.", DeprecationWarning)

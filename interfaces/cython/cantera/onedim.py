@@ -14,8 +14,6 @@ from . import __version__, __git_commit__, hdf_support
 class FlameBase(Sim1D):
     """ Base class for flames with a single flow domain """
     __slots__ = ('gas',)
-    #: deprecated and to be removed after Cantera 3.0 here and elsewhere (unused)
-    _other = ()
 
     def __init__(self, domains, gas, grid=None):
         """
@@ -32,41 +30,6 @@ class FlameBase(Sim1D):
         #: The `Solution` object representing the species and reactions in the flame
         self.gas = gas
         self.flame.P = gas.P
-
-    def other_components(self, domain=None):
-        """
-        The method returns simulation components that are specific to a class
-        derived from `FlameBase` or a specific ``domain`` within the `FlameBase`
-        simulation object. Entries may include:
-
-        * ``grid``: grid point positions along the flame [m]
-        * ``velocity``: normal velocity [m/s]
-        * ``spread_rate``: tangential velocity gradient [1/s]
-        * ``lambda``: radial pressure gradient [N/m^4]
-        * ``eField``: electric field strength
-
-        :param domain:
-            Index of a specific domain within the `Sim1D.domains`
-            list. The default is to return other columns of the `Sim1D` object.
-
-        .. deprecated:: 3.0
-
-            Method to be removed after Cantera 3.0. After moving SolutionArray HDF
-            export to the C++ core, this method is unused.
-        """
-        warnings.warn("FlameBase.other_components: Method to be removed after "
-                      "Cantera 3.0 (unused).", DeprecationWarning, stacklevel=2)
-        if domain is None:
-            return self._other
-
-        dom = self.domains[self.domain_index(domain)]
-        if isinstance(dom, Inlet1D):
-            return tuple([e for e in self._other
-                          if e not in {'grid', 'lambda', 'eField'}])
-        elif isinstance(dom, (FreeFlow, AxisymmetricFlow, IdealGasFlow)):
-            return self._other
-        else:
-            return ()
 
     def set_refine_criteria(self, ratio=10.0, slope=0.8, curve=0.8, prune=0.0):
         """
@@ -373,25 +336,6 @@ class FlameBase(Sim1D):
             vals[i] = self.gas.elemental_mole_fraction(m)
         return vals
 
-    def solution(self, component, point=None):
-        """
-        Get the solution at one point or for the full flame domain (if
-        ``point=None``) for the specified ``component``. The ``component`` can be
-        specified by name or index.
-
-        .. deprecated:: 3.0
-
-            To be removed after Cantera 3.0 to avoid conflation with `Solution`.
-            Replaceable by `profile` or `value`.
-        """
-        warnings.warn("FlameBase.solution: To be removed after Cantera 3.0. "
-                      "Replaceable by 'profile' or 'value'.", DeprecationWarning,
-                      stacklevel=2)
-        if point is None:
-            return self.profile(self.flame, component)
-        else:
-            return self.value(self.flame, component, point)
-
     def set_gas_state(self, point):
         """
         Set the state of the the `Solution` object used for calculations
@@ -403,34 +347,6 @@ class FlameBase(Sim1D):
              for k in range(k0, k0 + self.gas.n_species)]
         self.gas.set_unnormalized_mass_fractions(Y)
         self.gas.TP = self.value(self.flame, 'T', point), self.P
-
-    def write_csv(self, filename, species='X', quiet=True, normalize=True):
-        """
-        Write the velocity, temperature, density, and species profiles
-        to a CSV file.
-
-        :param filename:
-            Output file name
-        :param species:
-            Attribute to use obtaining species profiles, for example ``X`` for
-            mole fractions or ``Y`` for mass fractions.
-        :param normalize:
-            Boolean flag to indicate whether the mole/mass fractions should
-            be normalized.
-
-        .. deprecated:: 3.0
-
-            Method to be removed after Cantera 3.0; superseded by `save`.
-        """
-        warnings.warn("FlameBase.write_csv: Superseded by 'save'. To be removed "
-                      "after Cantera 3.0.", DeprecationWarning, stacklevel=2)
-
-        # save data
-        cols = ('extra', 'T', 'D', species)
-        self.to_array(normalize=normalize).write_csv(filename, cols=cols)
-
-        if not quiet:
-            print("Solution saved to '{0}'.".format(filename))
 
     def to_array(self, domain=None, normalize=False):
         """
@@ -452,24 +368,6 @@ class FlameBase(Sim1D):
         dest.shape = dest._api_shape()
         return dest
 
-    def to_solution_array(self, domain=None, normalize=True):
-        """
-        Return the solution vector as a `SolutionArray` object.
-
-        Derived classes define default values for *other*.
-
-        By default, the mass or mole fractions will be normalized i.e they
-        sum up to 1.0. If this is not desired, the ``normalize`` argument
-        can be set to ``False``.
-
-        .. deprecated:: 3.0
-
-            Method to be removed after Cantera 3.0; superseded by `to_array`.
-        """
-        warnings.warn("FlameBase.to_solution_array: To be removed after Cantera 3.0. "
-                      "Replaceable by 'to_array'.", DeprecationWarning, stacklevel=2)
-        return self.to_array(domain, normalize)
-
     def from_array(self, arr, domain=None):
         """
         Restore the solution vector from a `SolutionArray` object.
@@ -486,30 +384,6 @@ class FlameBase(Sim1D):
         else:
             domain = self.domains[self.domain_index(domain)]
         domain._from_array(arr)
-
-    def from_solution_array(self, arr, domain=None):
-        """
-        Restore the solution vector from a `SolutionArray` object.
-
-        Derived classes define default values for *other*.
-
-        .. deprecated:: 3.0
-
-            Method to be removed after Cantera 3.0; replaced by `from_array`.
-        """
-        warnings.warn("FlameBase.from_solution_array: To be removed after Cantera 3.0. "
-                      "Replaced by 'from_array'.", DeprecationWarning, stacklevel=2)
-        if domain is None:
-            domain = self.flame
-        else:
-            domain = self.domains[self.domain_index(domain)]
-        other = self.other_components(domain)
-
-        states = arr.TPY
-        other_cols = {e: getattr(arr, e) for e in other
-                      if e in arr.extra}
-        meta = arr.meta
-        super().restore_data(domain, states, other_cols, meta)
 
     def to_pandas(self, species='X', normalize=True):
         """
@@ -528,203 +402,6 @@ class FlameBase(Sim1D):
         """
         cols = ('extra', 'T', 'D', species)
         return self.to_array(normalize=normalize).to_pandas(cols=cols)
-
-    def from_pandas(self, df, restore_boundaries=True, settings=None):
-        """
-        Restore the solution vector from a `pandas.DataFrame`; currently disabled
-        (`save`/`restore` should be used as an alternative).
-
-        :param df:
-            `pandas.DataFrame` containing data to be restored
-        :param restore_boundaries:
-            Boolean flag to indicate whether boundaries should be restored
-            (default is ``True``)
-        :param settings:
-            dictionary containing simulation settings
-            (see `FlameBase.settings`)
-
-        This method is intended for loading of data that were previously
-        exported by `to_pandas`. The method uses `from_array` and
-        requires a working *pandas* installation. The package ``pandas`` can be
-        installed using pip or conda.
-
-        .. deprecated:: 3.0
-
-            Method to be removed after Cantera 3.0; not implemented.
-        """
-        # @todo: Discuss implementation that allows for restoration of boundaries
-        raise NotImplementedError("Use 'save'/'restore' as alternatives; "
-            "method to be removed after Cantera 3.0.")
-
-    def write_hdf(self, filename, *args, group=None, species='X', mode='a',
-                  description=None, compression=None, compression_opts=0,
-                  quiet=True, normalize=True, **kwargs):
-        """
-        Write the solution vector to a HDF container file.
-
-        The `write_hdf` method preserves the structure of a `FlameBase`-derived
-        object (such as `FreeFlame`). Each simulation is saved as a *group*,
-        whereas individual domains are saved as subgroups. In addition to
-        datasets, information on `Sim1D.settings` and `Domain1D.settings` is
-        saved in form of HDF attributes. The internal HDF file structure is
-        illustrated for a `FreeFlame` output as:::
-
-            /                                Group
-            /group0                          Group
-            /group0/Sim1D_type               Attribute
-            ...
-            /group0/flame                    Group
-            /group0/flame/Domain1D_type      Attribute
-            ...
-            /group0/flame/T                  Dataset
-            ...
-            /group0/flame/phase              Group
-            /group0/products                 Group
-            /group0/products/Domain1D_type   Attribute
-            ...
-            /group0/products/T               Dataset
-            ...
-            /group0/products/phase           Group
-            /group0/reactants                Group
-            /group0/reactants/Domain1D_type  Attribute
-            ...
-            /group0/reactants/T              Dataset
-            ...
-            /group0/reactants/phase          Group
-
-        where ``group0`` is the default name for the top level HDF entry, and
-        ``reactants``, ``flame`` and ``products`` correspond to domain names.
-        Note that it is possible to save multiple solutions to a single HDF
-        container file.
-
-        :param filename:
-            HDF container file containing data to be restored
-        :param group:
-            Identifier for the group in the container file. A group may contain
-            multiple `SolutionArray` objects.
-        :param species:
-            Attribute to use obtaining species profiles, for example ``X`` for
-            mole fractions or ``Y`` for mass fractions.
-        :param mode:
-            Mode *h5py* uses to open the output file {'a' to read/write if file
-            exists, create otherwise (default); 'w' to create file, truncate if
-            exists; 'r+' to read/write, file must exist}.
-        :param description:
-            Custom comment describing the dataset to be stored.
-        :param compression:
-            Pre-defined *h5py* compression filters {None, 'gzip', 'lzf', 'szip'}
-            used for data compression.
-        :param compression_opts:
-            Options for the *h5py* compression filter; for 'gzip', this
-            corresponds to the compression level {None, 0-9}.
-        :param quiet:
-            Suppress message confirming successful file output.
-        :param normalize:
-            Boolean flag to indicate whether the mole/mass fractions should
-            be normalized (default is ``True``)
-
-        Additional arguments (that is, ``*args`` and ``**kwargs``) are passed on to
-        `SolutionArray.collect_data`. The method exports data using
-        `SolutionArray.write_hdf` via `to_solution_array` and requires a working
-        installation of *h5py* (``h5py`` can be installed using pip or conda).
-
-        .. deprecated:: 3.0
-
-            Method to be removed after Cantera 3.0; use `save` instead. Note that
-            the call is redirected to `save` in order to prevent the creation of a file
-            with deprecated HDF format.
-        """
-        warnings.warn("FlameBase.write_hdf: To be removed after Cantera 3.0; use "
-            "'save' instead.\nNote that the call is redirected to 'save' in order to "
-            "prevent the creation of a file with deprecated HDF format.",
-            DeprecationWarning, stacklevel=2)
-
-        self.save(filename, name=group, description=description,
-                  compression=compression_opts)
-
-    def read_hdf(self, filename, group=None, restore_boundaries=True, normalize=True):
-        """
-        Restore the solution vector from a HDF container file.
-
-        :param filename:
-            HDF container file containing data to be restored
-        :param group:
-            String identifying the HDF group containing the data
-        :param restore_boundaries:
-            Boolean flag to indicate whether boundaries should be restored
-            (default is ``True``)
-        :param normalize:
-            Boolean flag to indicate whether the mole/mass fractions should
-            be normalized (default is ``True``)
-
-        The method imports data using `SolutionArray.read_hdf` via
-        `from_array` and requires a working installation of *h5py*
-        (``h5py`` can be installed using pip or conda).
-
-        .. deprecated:: 3.0
-
-            Method to be removed after Cantera 3.0; superseded by `restore`.
-        """
-        warnings.warn("FlameBase.read_hdf: To be removed after Cantera 3.0; use "
-                      "'restore' instead.", DeprecationWarning, stacklevel=2)
-
-        if restore_boundaries:
-            domains = range(3)
-        else:
-            domains = [1]
-
-        for d in domains:
-            arr = SolutionArray(self.phase(d), extra=self.other_components(d))
-            meta = arr.read_hdf(filename, group=group,
-                                subgroup=self.domains[d].name, normalize=normalize)
-            self.from_solution_array(arr, domain=d)
-
-        self.settings = meta
-
-        return meta
-
-    @property
-    def settings(self):
-        """
-        Return a dictionary listing simulation settings
-
-        .. deprecated:: 3.0
-
-            To be removed after Cantera 3.0. The getter is replaceable by
-            `Domain1D.settings`; for the setter, use setters for individual settings.
-        """
-        warnings.warn("FlameBase.settings: to be removed after Cantera 3.0. Access "
-            "settings from domains instead.", DeprecationWarning, stacklevel=2)
-        out = {'Sim1D_type': type(self).__name__}
-        out['transport_model'] = self.transport_model
-        out['energy_enabled'] = self.energy_enabled
-        out['soret_enabled'] = self.soret_enabled
-        out['radiation_enabled'] = self.radiation_enabled
-        out['fixed_temperature'] = self.fixed_temperature
-        out.update(self.get_refine_criteria())
-        out['max_time_step_count'] = self.max_time_step_count
-        out['max_grid_points'] = self.get_max_grid_points(self.flame)
-
-        return out
-
-    @settings.setter
-    def settings(self, s):
-        warnings.warn("FlameBase.settings: To be removed after Cantera 3.0. Use "
-            "individual setters instead.", DeprecationWarning, stacklevel=2)
-        # simple setters
-        attr = {'transport_model',
-                'energy_enabled', 'soret_enabled', 'radiation_enabled',
-                'fixed_temperature',
-                'max_time_step_count', 'max_grid_points'}
-        attr = attr & set(s.keys())
-        for key in attr:
-            setattr(self, key, s[key])
-
-        # refine criteria
-        refine = {k: v for k, v in s.items()
-                  if k in ['ratio', 'slope', 'curve', 'prune']}
-        if refine:
-            self.set_refine_criteria(**refine)
 
     @property
     def electric_field_enabled(self):
@@ -842,7 +519,6 @@ for _attr in ['forward_rates_of_progress', 'reverse_rates_of_progress', 'net_rat
 class FreeFlame(FlameBase):
     """A freely-propagating flat flame."""
     __slots__ = ('inlet', 'flame', 'outlet')
-    _other = ('grid', 'velocity')
 
     def __init__(self, gas, grid=None, width=None):
         """
@@ -1033,27 +709,9 @@ class FreeFlame(FlameBase):
         return self.solve_adjoint(perturb, self.gas.n_reactions, dgdx) / Su0
 
 
-class IonFreeFlame(FreeFlame):
-    """A freely-propagating flame with ionized gas.
-
-    .. deprecated:: 3.0
-
-        Class to be removed after Cantera 3.0; absorbed by `FreeFlame`.
-    """
-    __slots__ = ('inlet', 'flame', 'outlet')
-    _other = ('grid', 'velocity', 'eField') # only used by deprecated methods
-
-    def __init__(self, gas, grid=None, width=None):
-        warnings.warn(
-            "'IonFreeFlame' is deprecated and will be removed after Cantera 3.0;",
-            "replaceable by 'FreeFlame'.", DeprecationWarning, stacklevel=2)
-        super().__init__(gas, grid, width)
-
-
 class BurnerFlame(FlameBase):
     """A burner-stabilized flat flame."""
     __slots__ = ('burner', 'flame', 'outlet')
-    _other = ('grid', 'velocity')
 
     def __init__(self, gas, grid=None, width=None):
         """
@@ -1187,27 +845,9 @@ class BurnerFlame(FlameBase):
         self.set_steady_callback(original_callback)
 
 
-class IonBurnerFlame(BurnerFlame):
-    """A burner-stabilized flat flame with ionized gas.
-
-    .. deprecated:: 3.0
-
-        Class to be removed after Cantera 3.0; absorbed by `BurnerFlame`.
-    """
-    __slots__ = ('burner', 'flame', 'outlet')
-    _other = ('grid', 'velocity', 'eField') # only used by deprecated methods
-
-    def __init__(self, gas, grid=None, width=None):
-        warnings.warn(
-            "'IonBurnerFlame' is deprecated and will be removed after Cantera 3.0; ",
-            "replaceable by 'BurnerFlame'.", DeprecationWarning, stacklevel=2)
-        super().__init__(gas, grid, width)
-
-
 class CounterflowDiffusionFlame(FlameBase):
     """ A counterflow diffusion flame """
     __slots__ = ('fuel_inlet', 'flame', 'oxidizer_inlet')
-    _other = ('grid', 'velocity', 'spread_rate', 'lambda')
 
     def __init__(self, gas, grid=None, width=None):
         """
@@ -1536,7 +1176,6 @@ class CounterflowDiffusionFlame(FlameBase):
 class ImpingingJet(FlameBase):
     """An axisymmetric flow impinging on a surface at normal incidence."""
     __slots__ = ('inlet', 'flame', 'surface')
-    _other = ('grid', 'velocity', 'spread_rate', 'lambda')
 
     def __init__(self, gas, grid=None, width=None, surface=None):
         """
@@ -1625,7 +1264,6 @@ class ImpingingJet(FlameBase):
 class CounterflowPremixedFlame(FlameBase):
     """ A premixed counterflow flame """
     __slots__ = ('reactants', 'flame', 'products')
-    _other = ('grid', 'velocity', 'spread_rate', 'lambda')
 
     def __init__(self, gas, grid=None, width=None):
         """
@@ -1727,7 +1365,6 @@ class CounterflowTwinPremixedFlame(FlameBase):
     shooting into each other.
     """
     __slots__ = ('reactants', 'flame', 'products')
-    _other = ('grid', 'velocity', 'spread_rate', 'lambda')
 
     def __init__(self, gas, grid=None, width=None):
         """
