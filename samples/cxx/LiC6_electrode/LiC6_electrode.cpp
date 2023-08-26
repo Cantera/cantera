@@ -83,6 +83,6 @@ int main(int argc, char** argv)
         return 0;
     } catch (CanteraError& err) {
         std::cout << err.what() << std::endl;
-        return 0;
+        return -1;
     }
 }
