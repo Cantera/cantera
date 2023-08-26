@@ -313,26 +313,28 @@ void setupPhase(ThermoPhase& thermo, const AnyMap& phaseNode, const AnyMap& root
     if (vpssThermo) {
         for (size_t k = 0; k < thermo.nSpecies(); k++) {
             unique_ptr<PDSS> pdss;
-            if (thermo.species(k)->input.hasKey("equation-of-state")) {
-                // Use the first node which specifies a valid PDSS model
-                auto& eos = thermo.species(k)->input["equation-of-state"];
-                bool found = false;
-                for (auto& node : eos.asVector<AnyMap>()) {
-                    string model = node["model"].asString();
-                    if (PDSSFactory::factory()->exists(model)) {
-                        pdss.reset(newPDSS(model));
-                        pdss->setParameters(node);
-                        found = true;
-                        break;
-                    }
+            if (!thermo.species(k)->input.hasKey("equation-of-state")) {
+                throw InputFileError("setupPhase", thermo.species(k)->input,
+                    "Species '{}' in use by a ThermoPhase model of type '{}'\n"
+                    "must define an 'equation-of-state' field.",
+                    thermo.speciesName(k), thermo.type());
+            }
+            // Use the first node which specifies a valid PDSS model
+            auto& eos = thermo.species(k)->input["equation-of-state"];
+            bool found = false;
+            for (auto& node : eos.asVector<AnyMap>()) {
+                string model = node["model"].asString();
+                if (PDSSFactory::factory()->exists(model)) {
+                    pdss.reset(newPDSS(model));
+                    pdss->setParameters(node);
+                    found = true;
+                    break;
                 }
-                if (!found) {
-                    throw InputFileError("setupPhase", eos,
-                        "Could not find an equation-of-state specification "
-                        "which defines a known PDSS model.");
-                }
-            } else {
-                pdss.reset(newPDSS("ideal-gas"));
+            }
+            if (!found) {
+                throw InputFileError("setupPhase", eos,
+                    "Could not find an equation-of-state specification "
+                    "which defines a known PDSS model.");
             }
             vpssThermo->installPDSS(k, std::move(pdss));
         }
