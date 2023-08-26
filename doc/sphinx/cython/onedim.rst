@@ -35,29 +35,9 @@ ImpingingJet
 ^^^^^^^^^^^^
 .. autoclass:: ImpingingJet
 
-IonFreeFlame
-^^^^^^^^^^^^
-.. autoclass:: IonFreeFlame
-
-   .. autoattribute:: E
-   .. autoattribute:: electric_field_enabled
-   .. automethod:: solve
-
-IonBurnerFlame
-^^^^^^^^^^^^^^
-.. autoclass:: IonBurnerFlame
-
-   .. autoattribute:: E
-   .. autoattribute:: electric_field_enabled
-   .. automethod:: solve
 
 Flow Domains
 ------------
-
-IdealGasFlow
-^^^^^^^^^^^^
-.. autoclass:: IdealGasFlow(thermo)
-    :inherited-members:
 
 FreeFlow
 ^^^^^^^^
@@ -67,9 +47,6 @@ AxisymmetricFlow
 ^^^^^^^^^^^^^^^^
 .. autoclass:: AxisymmetricFlow(thermo)
 
-IonFlow
-^^^^^^^
-.. autoclass:: IonFlow(thermo)
 
 Boundaries
 ----------

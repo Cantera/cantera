@@ -84,8 +84,6 @@ class TestOnedim(utilities.CanteraTest):
             ct.ReactingSurface1D(gas, foo="bar")
         interface = ct.Solution("diamond.yaml", "diamond_100")
         surf = ct.ReactingSurface1D(interface)
-        with pytest.warns(DeprecationWarning, match="Method to be removed"):
-            surf.set_kinetics(interface)
 
     def test_invalid_property(self):
         gas1 = ct.Solution("h2o2.yaml")
@@ -293,8 +291,6 @@ class TestFreeFlame(utilities.CanteraTest):
         flow = self.sim.to_array(normalize=True)
         self.assertArrayNear(self.sim.grid, flow.grid)
         self.assertArrayNear(self.sim.T, flow.T)
-        for k in flow.extra:
-            self.assertIn(k, self.sim._other)
 
         f2 = ct.FreeFlame(self.gas)
         f2.from_array(flow)
@@ -640,8 +636,8 @@ class TestFreeFlame(utilities.CanteraTest):
             # Skipped because they are constant, irrelevant, or otherwise not desired
             "P", "Te", "atomic_weights", "charges", "electric_potential", "max_temp",
             "min_temp", "molecular_weights", "product_stoich_coeffs",
-            "product_stoich_coeffs3", "product_stoich_coeffs_reversible",
-            "reactant_stoich_coeffs", "reactant_stoich_coeffs3", "reference_pressure",
+            "product_stoich_coeffs", "product_stoich_coeffs_reversible",
+            "reactant_stoich_coeffs", "reactant_stoich_coeffs", "reference_pressure",
             "state", "u", "v",
             # Skipped because they are 2D (conversion not implemented)
             "binary_diff_coeffs", "creation_rates_ddX", "destruction_rates_ddX",
@@ -732,22 +728,6 @@ class TestFreeFlame(utilities.CanteraTest):
             k1 = gas1.species_index(species)
             self.assertArrayNear(Y1[k1], Y2[k2])
 
-    @pytest.mark.usefixtures("allow_deprecated")
-    def test_write_csv_legacy(self):
-        filename = self.test_work_path / "onedim-write_csv.csv"
-        # In Python >= 3.8, this can be replaced by the missing_ok argument
-        if filename.is_file():
-            filename.unlink()
-
-        self.create_sim(2e5, 350, 'H2:1.0, O2:2.0', mech="h2o2.yaml")
-        self.sim.write_csv(filename)
-        data = ct.SolutionArray(self.gas)
-        data.read_csv(filename)
-        self.assertArrayNear(data.grid, self.sim.grid)
-        self.assertArrayNear(data.T, self.sim.T)
-        k = self.gas.species_index('H2')
-        self.assertArrayNear(data.X[:, k], self.sim.X[k, :])
-
     def test_write_csv(self):
         filename = self.test_work_path / "onedim-save.csv"
         filename.unlink(missing_ok=True)
@@ -762,19 +742,10 @@ class TestFreeFlame(utilities.CanteraTest):
         self.assertArrayNear(data.X[:, k], self.sim.X[k, :])
 
     @pytest.mark.usefixtures("allow_deprecated")
-    @utilities.unittest.skipIf("h5py" not in ct.hdf_support(), "h5py not installed")
-    def test_restore_legacy_hdf_h5py(self):
-        self.run_restore_legacy_hdf(True)
-
-    @pytest.mark.usefixtures("allow_deprecated")
     @pytest.mark.filterwarnings("ignore:.*legacy HDF.*:UserWarning")
     @pytest.mark.skipif("native" not in ct.hdf_support(),
                         reason="Cantera compiled without HDF support")
     def test_restore_legacy_hdf(self):
-        self.run_restore_legacy_hdf()
-
-    @pytest.mark.usefixtures("allow_deprecated")
-    def run_restore_legacy_hdf(self, legacy=False):
         # Legacy input file was created using the Cantera 2.6 Python test suite:
         # - restore_legacy.h5 -> test_onedim.py::TestFreeFlame::test_write_hdf
         filename = self.test_data_path / f"freeflame_legacy.h5"
@@ -783,10 +754,7 @@ class TestFreeFlame(utilities.CanteraTest):
         desc = 'mixture-averaged simulation'
 
         f = ct.FreeFlame(self.gas)
-        if legacy:
-            meta = f.read_hdf(filename)
-        else:
-            meta = f.restore(filename, "group0")
+        meta = f.restore(filename, "group0")
         assert meta['description'] == desc
         assert meta['cantera_version'] == "2.6.0"
 
@@ -795,12 +763,10 @@ class TestFreeFlame(utilities.CanteraTest):
 
     @pytest.mark.skipif("native" not in ct.hdf_support(),
                         reason="Cantera compiled without HDF support")
-    @pytest.mark.filterwarnings("ignore:.*_FlowBase.settings.*Cantera 3.0.*:DeprecationWarning")
     def test_save_restore_hdf(self):
         # save and restore with native format (HighFive only)
         self.run_save_restore("h5")
 
-    @pytest.mark.filterwarnings("ignore:.*_FlowBase.settings.*Cantera 3.0.*:DeprecationWarning")
     def test_save_restore_yaml(self):
         self.run_save_restore("yaml")
 
@@ -815,33 +781,6 @@ class TestFreeFlame(utilities.CanteraTest):
         f = ct.FreeFlame(self.gas)
         meta = f.restore(filename, "group0")
         assert meta['description'] == desc
-        assert meta['cantera-version'] == ct.__version__
-        assert meta['git-commit'] == f"'{ct.__git_commit__}'"
-
-        self.check_save_restore(f)
-
-    @pytest.mark.usefixtures("allow_deprecated")
-    @pytest.mark.skipif(ct.hdf_support() != {"native", "h5py"},
-                        reason="Both HDF support modes needed")
-    def test_deprecated_write_read_hdf(self):
-        filename = self.test_work_path / f"freeflame_deprecated.h5"
-        filename.unlink(missing_ok=True)
-
-        self.run_mix(phi=1.1, T=350, width=2.0, p=2.0, refine=False)
-        desc = 'mixture-averaged simulation'
-        with pytest.warns(DeprecationWarning, match="use 'save' instead"):
-            self.sim.write_hdf(filename, group="group0", description=desc, loglevel=0)
-
-        f = ct.FreeFlame(self.gas)
-        with pytest.raises(IOError, match="use 'restore' instead"):
-            # New HDF format should not be read with 'read_hdf'
-            with pytest.warns(DeprecationWarning, match="use 'restore' instead"):
-                # DeprecationWarning is triggered before IOError is raised
-                f.read_hdf(filename, group="group0")
-
-        meta = f.restore(filename, "group0")
-        assert meta['description'] == desc
-        assert meta['generator'] == "Cantera SolutionArray"
         assert meta['cantera-version'] == ct.__version__
         assert meta['git-commit'] == f"'{ct.__git_commit__}'"
 
@@ -1598,16 +1537,6 @@ class TestImpingingJet(utilities.CanteraTest):
     @utilities.slow_test
     def test_reacting_surface_case3(self):
         self.run_reacting_surface(xch4=0.2, tsurf=800.0, mdot=0.1, width=0.2)
-
-    @pytest.mark.usefixtures("allow_deprecated")
-    @utilities.unittest.skipIf("h5py" not in ct.hdf_support(), "h5py not installed")
-    def test_restore_legacy_hdf_h5py(self):
-        filename = self.test_data_path / f"impingingjet_legacy.h5"
-        jet = ct.ImpingingJet(gas=self.gas, surface=self.surf_phase)
-        with pytest.raises(IOError, match="Unable to load surface phase"):
-            # legacy HDF format uses TDX state information, which is incomplete for
-            # surfaces
-            jet.read_hdf(filename)
 
     @pytest.mark.usefixtures("allow_deprecated")
     @pytest.mark.skipif("native" not in ct.hdf_support(),

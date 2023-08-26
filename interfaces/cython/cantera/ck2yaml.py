@@ -2184,7 +2184,7 @@ def main(argv):
 
     longOptions = ['input=', 'thermo=', 'transport=', 'surface=', 'name=',
                    'extra=', 'output=', 'permissive', 'help', 'debug',
-                   'single-intermediate-temperature', 'quiet', 'no-validate', 'id=']
+                   'single-intermediate-temperature', 'quiet', 'no-validate']
 
     try:
         optlist, args = getopt.getopt(argv, 'dh', longOptions)
@@ -2213,14 +2213,7 @@ def main(argv):
     quiet = '--quiet' in options
     transport_file = options.get('--transport')
     surface_file = options.get('--surface')
-
-    if '--id' in options:
-        phase_name = options.get('--id', 'gas')
-        logger.warning("\nDeprecationWarning: "
-                       "Option '--id=...' is replaced by '--name=...' and will be "
-                       "removed after Cantera 3.0.\n")
-    else:
-        phase_name = options.get('--name', 'gas')
+    phase_name = options.get('--name', 'gas')
 
     if not input_file and not thermo_file:
         logger.error('At least one of the arguments "--input=..." or "--thermo=..."'

@@ -288,25 +288,6 @@ cdef class Kinetics(_SolutionBase):
             return get_from_sparse(self.kinetics.reactantStoichCoeffs(),
                                    self.n_total_species, self.n_reactions)
 
-    property reactant_stoich_coeffs3:
-        """
-        The array of reactant stoichiometric coefficients. Element ``[k,i]`` of
-        this array is the reactant stoichiometric coefficient of species ``k`` in
-        reaction ``i``.
-
-        For sparse output, set ``ct.use_sparse(True)``.
-
-        .. deprecated:: 3.0
-
-            Method to be removed after Cantera 3.0. Replaceable by
-            `Kinetics.reactant_stoich_coeffs`
-        """
-        def __get__(self):
-            warnings.warn("Kinetics.reactant_stoich_coeffs3: To be removed after "
-                          "Cantera 3.0; use property 'reactant_stoich_coeffs' instead.",
-                          DeprecationWarning)
-            return self.reactant_stoich_coeffs
-
     property product_stoich_coeffs:
         """
         The array of product stoichiometric coefficients. Element ``[k,i]`` of
@@ -322,25 +303,6 @@ cdef class Kinetics(_SolutionBase):
         def __get__(self):
             return get_from_sparse(self.kinetics.productStoichCoeffs(),
                                    self.n_total_species, self.n_reactions)
-
-    property product_stoich_coeffs3:
-        """
-        The array of product stoichiometric coefficients. Element ``[k,i]`` of
-        this array is the product stoichiometric coefficient of species ``k`` in
-        reaction ``i``.
-
-        For sparse output, set ``ct.use_sparse(True)``.
-
-        .. deprecated:: 3.0
-
-            Method to be removed after Cantera 3.0. Replaceable by
-            `Kinetics.product_stoich_coeffs`
-        """
-        def __get__(self):
-            warnings.warn("Kinetics.product_stoich_coeffs3: Method to be removed after "
-                          "Cantera 3.0; use property 'product_stoich_coeffs' instead.",
-                          DeprecationWarning)
-            return self.product_stoich_coeffs
 
     property product_stoich_coeffs_reversible:
         """

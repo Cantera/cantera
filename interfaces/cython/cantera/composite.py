@@ -8,25 +8,6 @@ import csv as _csv
 import importlib.metadata
 import warnings
 
-_h5py = None
-def _import_h5py():
-    """
-    .. deprecated:: 3.0
-
-        Function to be removed after Cantera 3.0, as ``h5py`` support will be removed.
-    """
-    # defer h5py import
-    global _h5py
-    if _h5py is not None:
-        return
-
-    try:
-        importlib.metadata.version('h5py')
-    except importlib.metadata.PackageNotFoundError:
-        raise ImportError('Method requires a working h5py installation.')
-    else:
-        import h5py as _h5py
-
 
 _pandas = None
 def _import_pandas():
@@ -588,10 +569,9 @@ class SolutionArray(SolutionArrayBase):
         # From Kinetics
         'n_total_species', 'n_reactions', 'n_phases', 'reaction_phase_index',
         'kinetics_species_index', 'reaction', 'reactions', 'modify_reaction',
-        'multiplier', 'set_multiplier', 'reaction_equations',
-        'reactant_stoich_coeff', 'product_stoich_coeff',
-        'reactant_stoich_coeffs', 'product_stoich_coeffs', 'product_stoich_coeffs3',
-        'reactant_stoich_coeffs3', 'product_stoich_coeffs_reversible',
+        'multiplier', 'set_multiplier', 'reaction_equations', 'reactant_stoich_coeff',
+        'product_stoich_coeff', 'reactant_stoich_coeffs', 'product_stoich_coeffs',
+        'product_stoich_coeffs_reversible',
         # from Transport
         'transport_model',
     ]
@@ -1189,30 +1169,6 @@ class SolutionArray(SolutionArrayBase):
 
         return dict(data)
 
-    def write_csv(self, filename, cols=None, *args, **kwargs):
-        """
-        Write a CSV file named ``filename`` containing the data specified by
-        ``cols``. The first row of the CSV file will contain column labels.
-
-        Additional arguments are passed on to `collect_data`. This method works
-        only with 1D `SolutionArray` objects.
-
-        .. deprecated:: 3.0
-
-            Method to be removed after Cantera 3.0; superseded by `save`. Note that
-            `write_csv` does not support escaping of commas within string entries.
-        """
-        warnings.warn("SolutionArray.write_csv: Superseded by 'save' and will be removed "
-                      "after Cantera 3.0.", DeprecationWarning, stacklevel=2)
-        data_dict = self.collect_data(*args, cols=cols, tabular=True, **kwargs)
-        data = np.hstack([d[:, np.newaxis] for d in data_dict.values()])
-        labels = list(data_dict.keys())
-        with open(filename, 'w', newline='') as outfile:
-            writer = _csv.writer(outfile)
-            writer.writerow(labels)
-            for row in data:
-                writer.writerow(row)
-
     def read_csv(self, filename, normalize=True):
         """
         Read a CSV file named ``filename`` and restore data to the `SolutionArray`
@@ -1355,219 +1311,6 @@ class SolutionArray(SolutionArrayBase):
         # ensure self._indices and self._output_dummy are set
         self.shape = self._api_shape()
         return meta
-
-    def write_hdf(self, filename, *args, cols=None, group=None, subgroup=None,
-                  attrs={}, mode='a', append=False,
-                  compression=None, compression_opts=None, **kwargs):
-        """
-        Write data specified by ``cols`` to an HDF container file named ``filename``.
-        Note that it is possible to write multiple data entries to a single HDF
-        container file, where ``group`` is used to differentiate data.
-
-        An example for the default HDF file structure is:::
-
-            /                        Group
-            /group0                  Group
-            /group0/some_attr        Attribute
-            ...
-            /group0/T                Dataset
-            ...
-            /group0/phase            Group
-            /group0/phase/name       Attribute
-            /group0/phase/source     Attribute
-
-        where ``group0`` is the default name for the top level HDF entry. In
-        addition to datasets, information stored in `SolutionArray.meta` is
-        saved in the form of HDF attributes. An additional intermediate layer may
-        be created using the ``subgroup`` argument.
-
-        :param filename:
-            Name of the HDF container file; typical file extensions are
-            ``.hdf``, ``.hdf5`` or ``.h5``.
-        :param cols:
-            A list of any properties of the solution being exported.
-        :param group:
-            Identifier for the group in the container file. If no subgroup is
-            specified, a group represents a `SolutionArray`. If 'None', group
-            names default to 'groupN', with N being the number of pre-existing
-            groups within the HDF container file.
-        :param subgroup:
-            Name identifier for an optional subgroup, with subgroups
-            representing individual `SolutionArray` objects. If 'None', no
-            subgroup is created.
-        :param attrs:
-            Dictionary of user-defined attributes added at the group level
-            (typically used in conjunction with a subgroup argument).
-        :param mode:
-            Mode *h5py* uses to open the output file {'a' to read/write if file
-            exists, create otherwise (default); 'w' to create file, truncate if
-            exists; 'r+' to read/write, file must exist}.
-        :param append:
-            If False, the content of a pre-existing group is deleted before
-            writing the `SolutionArray` in the first position. If True, the
-            current `SolutionArray` objects is appended to the group.
-        :param compression:
-            Pre-defined *h5py* compression filters {None, 'gzip', 'lzf', 'szip'}
-            used for data compression.
-        :param compression_opts:
-            Options for the *h5py* compression filter; for 'gzip', this
-            corresponds to the compression level {None, 0-9}.
-        :return:
-            Group identifier used for storing HDF data.
-
-        Arguments ``compression`` and ``compression_opts`` are mapped to parameters
-        for `h5py.create_dataset`; in both cases, the choices of ``None`` results
-        in default values set by *h5py*.
-
-        Additional arguments (that is, ``*args`` and ``**kwargs``) are passed on to
-        `collect_data`; see `collect_data` for further information. This method
-        requires a working installation of *h5py* (``h5py`` can be installed using
-        pip or conda).
-
-        .. deprecated:: 3.0
-
-            Method to be removed after Cantera 3.0; use `save` instead. Note that
-            the call is redirected to `save` in order to prevent the creation of a file
-            with legacy HDF format.
-        """
-        warnings.warn("SolutionArray.write_hdf: To be removed after Cantera 3.0; use "
-            "'save' instead.\n Note that the call is redirected to 'save' in order to "
-            "prevent the creation of a file with legacy HDF format;\nas a consequence, "
-            "some options are no longer supported.", DeprecationWarning, stacklevel=2)
-
-        if group is None:
-            raise KeyError("Missing required parameter 'group'.")
-        self.save(filename, name=group, sub=subgroup)
-        return group
-
-    def read_hdf(self, filename, group=None, subgroup=None, force=False, normalize=True):
-        """
-        Read a dataset from a HDF container file and restore data to the
-        `SolutionArray` object. This method allows for recreation of data
-        previously exported by `write_hdf`.
-
-        :param filename: name of the HDF container file; typical file extensions
-            are ``.hdf``, ``.hdf5`` or ``.h5``.
-        :param group: Identifier for the group in the container file. A group
-            may contain a `SolutionArray` object or additional subgroups.
-        :param subgroup:
-            Optional name identifier for a subgroup representing a `SolutionArray`
-            object to be read. If 'None', no subgroup is assumed to exist.
-        :param force: If False, matching `SolutionArray` source identifiers are
-            enforced (for example, the input file used for the creation of the
-            underlying `Solution` object), with an error being raised if the current
-            source does not match the original source. If True, the error is
-            suppressed.
-        :param normalize: Passed on to `restore_data`. If True, mole or mass
-            fractions are normalized so that they sum up to 1.0. If False, mole
-            or mass fractions are not normalized.
-        :return: User-defined attributes provided to describe the group holding
-            the `SolutionArray` information.
-
-        The method imports data using `restore_data` and requires a working
-        installation of *h5py* (``h5py`` can be installed using pip or conda).
-
-        .. deprecated:: 3.0
-
-            Method to be removed after Cantera 3.0; use `restore` instead. After
-            Cantera 3.0, HDF import using ``h5py`` will be replaced by native
-            support based on C++ ``HighFive`` and ``HDF5`` libraries.
-        """
-        if _h5py is None:
-            _import_h5py()
-
-        warnings.warn("SolutionArray.read_hdf: Method to be removed after Cantera 3.0; "
-                      "use 'restore' instead.", DeprecationWarning, stacklevel=2)
-
-        with _h5py.File(filename, 'r') as hdf:
-
-            groups = list(hdf.keys())
-            if not len(groups):
-                group = ''
-            elif group is None:
-                group = groups[0]
-
-            if not (group in hdf.keys()):
-                msg = ("HDF file does not contain group '{}'; "
-                       "available groups are: {}")
-                raise IOError(msg.format(group, list(hdf.keys())))
-
-            # load root and attributes
-            root = hdf[group]
-
-            # identify subgroup
-            if subgroup is not None:
-                sub_names = [key for key, value in root.items()
-                             if isinstance(value, _h5py.Group)]
-                if not len(sub_names):
-                    msg = "HDF group '{}' does not contain valid data"
-                    raise IOError(msg.format(group))
-
-                if subgroup not in sub_names:
-                    msg = ("HDF file does not contain data set '{}' within "
-                           "group '{}'; available data sets are: {}")
-                    raise IOError(msg.format(subgroup, group, sub_names))
-                dgroup = root[subgroup]
-            else:
-                dgroup = root
-
-            root_attrs = dict(root.attrs.items())
-
-            def strip_ext(source):
-                """Strip extension if source identifies a file name"""
-                out = source
-                for ext in ('.yml', '.yaml'):
-                    if source.endswith(ext):
-                        out = '.'.join(source.split('.')[:-1])
-                        break
-                return out
-
-            # load metadata
-            meta = dict(dgroup.attrs.items())
-            for name, value in dgroup.items():
-                # support one level of recursion
-                if isinstance(value, _h5py.Group):
-                    meta[name] = dict(value.attrs.items())
-
-            if "generator" in root_attrs or "generator" in meta:
-                raise IOError("Unable to read Cantera 3.0 HDF format with deprecated "
-                              "'read_hdf' method; use 'restore' instead.")
-
-            # ensure that mechanisms are matching
-            if "phase" in dgroup:
-                sol_source = strip_ext(dgroup['phase'].attrs['source']).split("/")[-1]
-                source = strip_ext(self.source)
-                if sol_source != source and not force:
-                    msg = ("Sources of thermodynamic phases do not match: '{}' vs "
-                        "'{}'; use option 'force' to override this error.")
-                    raise IOError(msg.format(sol_source, source))
-
-            self.meta = meta
-
-            # load data
-            data = {}
-            for name, value in dgroup.items():
-                if isinstance(value, _h5py.Group):
-                    continue
-                elif value.dtype.type == np.bytes_:
-                    data[name] = np.array(value).astype('U')
-                else:
-                    data[name] = np.array(value)
-
-        try:
-            self.restore_data(data, normalize)
-        except ValueError as error:
-            if "surface" in self._phase.thermo_model:
-                # legacy HDF format uses TDX state information, which is incomplete
-                # for surfaces phases (should be TPX or TPY as density is constant)
-                raise IOError(
-                    f"Unable to load surface phase '{subgroup}' from legacy HDF "
-                    "format (incomplete phase definition); use 'restore' instead."
-                ) from None
-            else:
-                raise error
-
-        return root_attrs
 
     def __reduce__(self):
         raise NotImplementedError('SolutionArray object is not picklable')
