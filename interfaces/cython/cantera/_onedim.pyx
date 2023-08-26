@@ -309,7 +309,7 @@ cdef class Boundary1D(Domain1D):
         The (gas) phase corresponding to the adjacent flow domain
     """
     def __cinit__(self, _SolutionBase phase, *args, name="", **kwargs):
-        if self._domain_type in {"None", "reacting-surface"}:
+        if self._domain_type in {"None"}:
             self.boundary = NULL
         else:
             self._domain = CxxNewDomain1D(
@@ -422,45 +422,21 @@ cdef class ReactingSurface1D(Boundary1D):
         gas phase.
     """
     _domain_type = "reacting-surface"
-    def __cinit__(self, _SolutionBase phase, *args, name="", **kwargs):
-        # once legacy path is removed, the parent __cinit__ is sufficient
-        self.legacy = phase.phase_of_matter == "gas"
-        if self.legacy:
-            # legacy pathway - deprecation is handled in __init__
-            self.surf = new CxxReactingSurf1D()
-            self.domain = <CxxDomain1D*>(self.surf)
-        else:
-            self._domain = CxxNewDomain1D(stringify(self._domain_type), phase._base, stringify(name))
-            self.domain = self._domain.get()
-            self.surf = <CxxReactingSurf1D*>self.domain
-        self.boundary = <CxxBoundary1D*>(self.surf)
 
     def __init__(self, _SolutionBase phase, name=None):
         self._weakref_proxy = _WeakrefProxy()
-        if phase.phase_of_matter == "gas":
-            warnings.warn("ReactingSurface1D: Starting in Cantera 3.0, parameter 'phase'"
-                " should reference surface instead of gas phase.", DeprecationWarning)
-            super().__init__(phase)
-            if name is not None:
-                self.name = name
-        else:
-            sol = phase
-            gas = None
-            for val in sol._adjacent.values():
-                if val.phase_of_matter == "gas":
-                    gas = val
-                    break
-            if gas is None:
-                raise CanteraError("ReactingSurface1D needs an adjacent gas phase")
-            super().__init__(gas, name=name)
+        gas = None
+        for val in phase._adjacent.values():
+            if val.phase_of_matter == "gas":
+                gas = val
+                break
+        if gas is None:
+            raise CanteraError("ReactingSurface1D needs an adjacent gas phase")
+        super().__init__(gas, name=name)
 
         self.surface = phase
         # Block species from being added to the phase as long as this object exists
         self.surface._references[self._weakref_proxy] = True
-
-    def __dealloc__(self):
-        if self.legacy:
-            del self.surf
 
     property phase:
         """
@@ -472,9 +448,9 @@ cdef class ReactingSurface1D(Boundary1D):
     property coverage_enabled:
         """Controls whether or not to solve the surface coverage equations."""
         def __set__(self, value):
-            self.surf.enableCoverageEquations(<cbool>value)
+            (<CxxReactingSurf1D*>self.domain).enableCoverageEquations(<cbool>value)
         def __get__(self):
-            return self.surf.coverageEnabled()
+            return (<CxxReactingSurf1D*>self.domain).coverageEnabled()
 
 
 cdef class _FlowBase(Domain1D):
