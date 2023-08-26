@@ -82,12 +82,7 @@ size_t Kinetics::reactionPhaseIndex() const
 
 shared_ptr<ThermoPhase> Kinetics::reactionPhase() const
 {
-    if (!m_sharedThermo.size()) {
-        // @todo remove after Cantera 3.0
-        throw CanteraError("Kinetics::reactionPhase",
-            "Cannot access phases that were not added using smart pointers.");
-    }
-    return m_sharedThermo[0];
+    return m_thermo[0];
 }
 
 void Kinetics::checkSpeciesIndex(size_t k) const
@@ -275,7 +270,7 @@ ThermoPhase& Kinetics::speciesPhase(const string& nm)
 
 const ThermoPhase& Kinetics::speciesPhase(const string& nm) const
 {
-    for (const auto thermo : m_thermo) {
+    for (const auto& thermo : m_thermo) {
         if (thermo->speciesIndex(nm) != npos) {
             return *thermo;
         }
@@ -534,8 +529,7 @@ void Kinetics::addThermo(shared_ptr<ThermoPhase> thermo)
         m_mindim = thermo->nDim();
     }
 
-    m_thermo.push_back(thermo.get());
-    m_sharedThermo.push_back(thermo);
+    m_thermo.push_back(thermo);
     m_phaseindex[m_thermo.back()->name()] = nPhases();
     resizeSpecies();
 }

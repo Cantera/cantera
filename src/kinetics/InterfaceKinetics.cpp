@@ -92,7 +92,7 @@ void InterfaceKinetics::_update_rates_phi()
 void InterfaceKinetics::_update_rates_C()
 {
     for (size_t n = 0; n < nPhases(); n++) {
-        const ThermoPhase* tp = m_thermo[n];
+        const auto& tp = thermo(n);
         /*
          * We call the getActivityConcentrations function of each ThermoPhase
          * class that makes up this kinetics object to obtain the generalized
@@ -100,10 +100,10 @@ void InterfaceKinetics::_update_rates_C()
          * the vector m_conc. m_start[] are integer indices for that vector
          * denoting the start of the species for each phase.
          */
-        tp->getActivityConcentrations(m_actConc.data() + m_start[n]);
+        tp.getActivityConcentrations(m_actConc.data() + m_start[n]);
 
         // Get regular concentrations too
-        tp->getConcentrations(m_conc.data() + m_start[n]);
+        tp.getConcentrations(m_conc.data() + m_start[n]);
     }
     m_ROP_ok = false;
 }
