@@ -743,7 +743,7 @@ def regression_test(target: "LFSNode", source: "LFSNode", env: "SCEnvironment"):
 
     for blessed, output in comparisons:
         if not dir.joinpath(output).is_file():
-            logger.info(f"Output file '{output}' not found", print_level=False)
+            logger.error(f"Output file '{output}' not found", print_level=False)
             logger.error("FAILED", print_level=False)
             diff |= TestResult.FAIL
             continue
@@ -755,7 +755,7 @@ def regression_test(target: "LFSNode", source: "LFSNode", env: "SCEnvironment"):
 
     for blessed, output in env["test_profiles"]:
         if not dir.joinpath(output).is_file():
-            logger.info(f"Output file '{output}' not found", print_level=False)
+            logger.error(f"Output file '{output}' not found", print_level=False)
             logger.error("FAILED", print_level=False)
             diff |= TestResult.FAIL
             continue
