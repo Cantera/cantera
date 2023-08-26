@@ -186,12 +186,11 @@ cdef class Kinetics(_SolutionBase):
 
     def modify_reaction(self, int irxn, Reaction rxn):
         """
-        Modify the `Reaction` with index ``irxn`` to have the same rate
-        parameters as ``rxn``. ``rxn`` must have the same reactants and products
-        and be of the same type (for example, `ElementaryReaction`, `FalloffReaction`,
-        `PlogReaction`, etc.) as the existing reaction. This method does not
-        modify the third-body efficiencies, reaction orders, or reversibility of
-        the reaction.
+        Modify the `Reaction` with index ``irxn`` to have the same rate parameters as
+        ``rxn``. ``rxn`` must have the same reactants and products and use the same rate
+        parameterization (for example, `ArrheniusRate`, `FalloffRate`, `PlogRate`, etc.)
+        as the existing reaction. This method does not modify the third-body
+        efficiencies, reaction orders, or reversibility of the reaction.
         """
         self.kinetics.modifyReaction(irxn, rxn._reaction)
 

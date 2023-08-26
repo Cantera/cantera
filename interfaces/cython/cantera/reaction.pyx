@@ -373,7 +373,8 @@ cdef class TwoTempPlasmaRate(ArrheniusRateBase):
 cdef class FalloffRate(ReactionRate):
     """
     Base class for parameterizations used to describe the fall-off in reaction rates
-    due to intermolecular energy transfer. These objects are used by `FalloffReaction`.
+    due to intermolecular energy transfer.
+
     Note that `FalloffRate` is a base class for specialized fall-off parameterizations
     and cannot be instantiated by itself.
     """

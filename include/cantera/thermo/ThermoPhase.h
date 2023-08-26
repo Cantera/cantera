@@ -117,7 +117,7 @@ namespace Cantera
  *
  * Instances of subclasses of ThermoPhase should be created using the factory methods
  * newThermo(const string&, const string&), newThermo(const AnyMap&, const AnyMap&), or
- * newThermoPhase(). This allows new classes to be used with the various %Cantera
+ * newThermoModel(). This allows new classes to be used with the various %Cantera
  * language interfaces.
  *
  * ## Defining new thermodynamic models

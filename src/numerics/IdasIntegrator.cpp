@@ -33,16 +33,9 @@ extern "C" {
 * IDA allows passing in a void* pointer to access external data. Instead of requiring
 * the user to provide a residual function directly to IDA (which would require using the
 * Sundials data types N_Vector, etc.), we define this function as the single function
-* that IDA always calls. The real evaluation of the residual is done by an instance of a
-* subclass of ResidEval, passed in to this function as a pointer in the parameters.
-*
-* FROM IDA WRITEUP -> What the IDA solver expects as a return flag from its
-* residual routines:
-*
-* A IDAResFn res should return a value of 0 if successful, a positive value if a
-* recoverable error occurred (e.g. yy has an illegal value), or a negative value if a
-* nonrecoverable error occurred. In the latter case, the program halts. If a recoverable
-* error occurred, the integrator will attempt to correct and retry.
+* that IDA always calls. The real evaluation of the residual is done by the
+* FuncEval::evalDae() method of an instance of a subclass of FuncEval that is passed
+* into this function as the `f_data` parameter.
 */
 static int ida_rhs(realtype t, N_Vector y, N_Vector ydot, N_Vector r, void* f_data)
 {
