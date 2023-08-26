@@ -108,16 +108,12 @@ valid_commands = ("build", "clean", "install", "uninstall",
 if GetOption("silent"):
     logger.logger.setLevel("ERROR")
 else:
-    logger.logger.setLevel("WARNING")
+    logger.logger.setLevel("INFO")
 
 for command in COMMAND_LINE_TARGETS:
     if command not in valid_commands and not command.startswith('test'):
         logger.error(f"Unrecognized command line target: {command!r}")
         sys.exit(1)
-
-    # update default logging level
-    if command in ["build", "dump"] and not GetOption("silent"):
-        logger.logger.setLevel("INFO")
 
 if "clean" in COMMAND_LINE_TARGETS:
     remove_directory("build")
