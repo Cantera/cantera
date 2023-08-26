@@ -59,8 +59,7 @@ cdef extern from "cantera/oneD/Boundary1D.h":
         void setSpreadRate(double)
 
     cdef cppclass CxxReactingSurf1D "Cantera::ReactingSurf1D" (CxxBoundary1D):
-        CxxReactingSurf1D() # deprecated in Python API (Cantera 3.0)
-        void setKinetics(shared_ptr[CxxKinetics]) except +translate_exception
+        CxxReactingSurf1D()
         void enableCoverageEquations(cbool) except +translate_exception
         cbool coverageEnabled()
 
@@ -159,7 +158,6 @@ cdef class Boundary1D(Domain1D):
     cdef CxxBoundary1D* boundary
 
 cdef class ReactingSurface1D(Boundary1D):
-    cdef cbool legacy
     cdef CxxReactingSurf1D* surf
     cdef public Kinetics surface
 

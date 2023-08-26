@@ -78,11 +78,11 @@ class TestOnedim(utilities.CanteraTest):
         with pytest.raises(TypeError, match="Argument 'phase' has incorrect type"):
             ct.Inlet1D(None)
         gas = ct.Solution("h2o2.yaml")
-        with pytest.warns(DeprecationWarning, match="should reference surface"):
+        with pytest.raises(ct.CanteraError, match="incompatible ThermoPhase type"):
             ct.ReactingSurface1D(gas)
-        with pytest.raises(TypeError, match="unexpected keyword"):
-            ct.ReactingSurface1D(gas, foo="bar")
         interface = ct.Solution("diamond.yaml", "diamond_100")
+        with pytest.raises(TypeError, match="unexpected keyword"):
+            ct.ReactingSurface1D(interface, foo="bar")
         surf = ct.ReactingSurface1D(interface)
 
     def test_invalid_property(self):
