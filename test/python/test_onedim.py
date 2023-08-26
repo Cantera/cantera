@@ -3,7 +3,7 @@ from . import utilities
 import numpy as np
 from .utilities import allow_deprecated
 import pytest
-
+from pytest import approx
 
 class TestOnedim(utilities.CanteraTest):
     def test_instantiate(self):
@@ -349,75 +349,42 @@ class TestFreeFlame(utilities.CanteraTest):
         for rhou_j in self.sim.density * self.sim.velocity:
             self.assertNear(rhou_j, rhou, 1e-4)
 
-    @pytest.mark.filterwarnings("ignore:.*_FlowBase.settings.*Cantera 3.0.*:DeprecationWarning")
-    @pytest.mark.filterwarnings("ignore:.*FlameBase.settings.*Cantera 3.0.*:DeprecationWarning")
     def test_settings(self):
         self.create_sim(p=ct.one_atm, Tin=400, reactants='H2:0.8, O2:0.5', width=0.1)
         self.sim.set_initial_guess()
         sim = self.sim
-
-        # FlowBase specific settings (legacy implementation)
-        flame_settings = sim.flame.settings
-        keys = ['Domain1D_type',
-                'emissivity_left', 'emissivity_right',
-                'steady_abstol', 'steady_reltol',
-                'transient_abstol', 'transient_reltol']
-        for k in keys:
-            self.assertIn(k, flame_settings)
 
         # new implementation
         new_keys = {
             "type", "points", "tolerances", "transport-model", "phase",
             "radiation-enabled", "energy-enabled", "Soret-enabled", "species-enabled",
             "refine-criteria", "fixed-point"}
-        new_settings = sim.flame.get_settings3()
+        settings = sim.flame.settings
         for k in new_keys:
-            assert k in new_settings
+            assert k in settings
 
-        changed = {'emissivity_left': .12,
-                   'emissivity_right': .21,
-                   'steady_abstol': 2.53e-9,
-                   'steady_reltol_H2': 1.3e-8}
-        flame_settings.update(changed)
+        assert settings["radiation-enabled"] == False
 
-        sim.flame.settings = flame_settings
-        changed_settings = sim.flame.settings
-        for key, val in changed.items():
-            self.assertEqual(changed_settings[key], val)
+        # Apply settings using individual setters
+        sim.flame.boundary_emissivities = 0.12, 0.34
+        sim.flame.radiation_enabled = True
+        sim.flame.set_steady_tolerances(default=(3e-4, 7e-9))
+        sim.transport_model = 'unity-Lewis-number'
 
-        # new implementation
-        tolerances = sim.flame.get_settings3()["tolerances"]
-        assert tolerances["steady-abstol"] == pytest.approx(2.53e-9)
-        assert tolerances["steady-reltol"]["H2"] == pytest.approx(1.3e-8)
+        # Check that the aggregated settings reflect the changes
+        new_settings = sim.flame.settings
 
-        # Sim1D specific settings (legacy implementation)
-        settings = sim.settings
-
-        keys = ['Sim1D_type', 'transport_model',
-                'energy_enabled', 'soret_enabled', 'radiation_enabled',
-                'fixed_temperature',
-                'ratio', 'slope', 'curve', 'prune',
-                'max_time_step_count', 'max_grid_points']
-        for k in keys:
-            self.assertIn(k, settings)
-
-        changed2 = {'fixed_temperature': 900,
-                    'max_time_step_count': 100,
-                    'energy_enabled': False,
-                    'radiation_enabled': True,
-                    'transport_model': 'multicomponent'}
-        settings.update(changed2)
-
-        sim.settings = settings
-        for key, val in changed2.items():
-            self.assertEqual(getattr(sim, key), val)
-
-        # new implementation
-        new_settings = sim.flame.get_settings3()
-        assert new_settings["energy-enabled"] == False
         assert new_settings["radiation-enabled"] == True
-        assert new_settings["emissivity-left"] == changed["emissivity_left"]
-        assert new_settings["emissivity-right"] == changed["emissivity_right"]
+        assert new_settings["emissivity-left"] == 0.12
+        assert new_settings["emissivity-right"] == 0.34
+        assert new_settings["transport-model"] == "unity-Lewis-number"
+
+        tolerances = new_settings["tolerances"]
+        assert tolerances["steady-reltol"] == approx(3e-4)
+        assert tolerances["steady-abstol"] == approx(7e-9)
+
+        assert "fixed-point" in new_settings
+        assert "location" in new_settings["fixed-point"]
 
     def test_mixture_averaged_case1(self):
         self.run_mix(phi=0.65, T=300, width=0.03, p=1.0, refine=True)
@@ -904,7 +871,6 @@ class TestFreeFlame(utilities.CanteraTest):
                     assert two[k] == v
 
         check_settings(self.sim.flame.settings, f.flame.settings)
-        check_settings(self.sim.flame.get_settings3(), f.flame.get_settings3())
 
         f.solve(loglevel=0)
 
@@ -1568,8 +1534,8 @@ class TestStagnationFlame(utilities.CanteraTest):
         k = self.sim.gas.species_index('H2')
         assert list(jet.X[k, :]) == pytest.approx(list(self.sim.X[k, :]), 1e-4)
 
-        settings = self.sim.flame.get_settings3()
-        for k, v in jet.flame.get_settings3().items():
+        settings = self.sim.flame.settings
+        for k, v in jet.flame.settings.items():
             assert k in settings
             if k == "fixed_temperature":
                 # fixed temperature is NaN
@@ -1686,8 +1652,8 @@ class TestImpingingJet(utilities.CanteraTest):
         k = self.sim.gas.species_index('H2')
         assert list(jet.X[k, :]) == pytest.approx(list(self.sim.X[k, :]), 1e-4)
 
-        settings = self.sim.flame.get_settings3()
-        for k, v in jet.flame.get_settings3().items():
+        settings = self.sim.flame.settings
+        for k, v in jet.flame.settings.items():
             assert k in settings
             if k == "fixed_temperature":
                 # fixed temperature is NaN
