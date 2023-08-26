@@ -1463,15 +1463,8 @@ protected:
      * bulk phases. The order that the objects are listed determines the order
      * in which the species comprising each phase are listed in the source term
      * vector, originating from the reaction mechanism.
-     *
-     * Note that this kinetics object doesn't own these ThermoPhase objects
-     * and is not responsible for creating or deleting them.
      */
-    vector<ThermoPhase*> m_thermo;
-
-    //! vector of shared pointers, @see m_thermo
-    //! @todo replace m_thermo with shared version after %Cantera 3.0
-    vector<shared_ptr<ThermoPhase>> m_sharedThermo;
+    vector<shared_ptr<ThermoPhase>> m_thermo;
 
     /**
      * m_start is a vector of integers specifying the beginning position for the

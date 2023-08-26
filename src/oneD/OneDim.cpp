@@ -72,16 +72,13 @@ void OneDim::addDomain(shared_ptr<Domain1D> d)
 
     // every other domain is a connector
     if (n % 2 == 0) {
-        m_sharedConnect.push_back(d);
-        m_connect.push_back(d.get());
+        m_connect.push_back(d);
     } else {
-        m_sharedBulk.push_back(d);
-        m_bulk.push_back(d.get());
+        m_bulk.push_back(d);
     }
 
     // add it also to the global domain list, and set its container and position
-    m_sharedDom.push_back(d);
-    m_dom.push_back(d.get());
+    m_dom.push_back(d);
     d->setData(m_state);
     d->setContainer(this, m_dom.size()-1);
     resize();
@@ -165,7 +162,7 @@ void OneDim::resize()
     saveStats();
     m_pts = 0;
     for (size_t i = 0; i < nDomains(); i++) {
-        Domain1D* d = m_dom[i];
+        const auto& d = m_dom[i];
 
         size_t np = d->nPoints();
         size_t nv = d->nComponents();
