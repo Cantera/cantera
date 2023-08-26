@@ -721,11 +721,23 @@ def regression_test(target: "LFSNode", source: "LFSNode", env: "SCEnvironment"):
     else:
         output_name = Path("test_output.txt")
 
+    dir = Path(target[0].dir.abspath)
+
+    comparisons = env["test_comparisons"]
+    if blessed_name is not None:
+        comparisons.append((Path(blessed_name), output_name))
+
+    # Remove pre-existing output files to prevent tests passing based on outdated
+    # output files
+    for _, output in comparisons:
+        outpath = dir.joinpath(output)
+        if outpath.exists():
+            outpath.unlink()
+
     # command line options
     clopts = env["test_command_options"].split()
 
     # Run the test program
-    dir = Path(target[0].dir.abspath)
     ret = subprocess.run(
         [program.abspath] + clopts + clargs,
         stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
@@ -736,11 +748,8 @@ def regression_test(target: "LFSNode", source: "LFSNode", env: "SCEnvironment"):
     dir.joinpath(output_name).write_text(ret.stdout)
 
     diff = 0
-    # Compare output files
-    comparisons = env["test_comparisons"]
-    if blessed_name is not None:
-        comparisons.append((Path(blessed_name), output_name))
 
+    # Compare output files
     for blessed, output in comparisons:
         if not dir.joinpath(output).is_file():
             logger.error(f"Output file '{output}' not found", print_level=False)
