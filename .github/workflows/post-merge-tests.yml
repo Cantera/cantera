@@ -47,3 +47,49 @@ jobs:
     - name: Test Cantera
       run:
         python3 `which scons` test show_long_tests=yes verbose_tests=yes --debug=time
+
+  ubuntu-docker:
+    name: Docker 'ubuntu:${{ matrix.image }}' image
+    strategy:
+      matrix:
+        image: [devel, rolling]
+      fail-fast: false
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    container:
+      image: ubuntu:${{ matrix.image }}
+    env:
+      HDF5_LIBDIR: /usr/lib/x86_64-linux-gnu/hdf5/serial
+      HDF5_INCLUDEDIR: /usr/include/hdf5/serial
+    steps:
+    - name: Install git on ubuntu:${{ matrix.image }}
+      run: |
+        apt update -y
+        apt install -y git
+        git config --global init.defaultBranch main
+        git config --global --add safe.directory /__w/cantera/cantera
+    - uses: actions/checkout@v3
+      name: Checkout the repository
+      with:
+        submodules: recursive
+    - name: Install Apt dependencies
+      # Use packages from ubuntu image when possible
+      run: |
+        apt install -y python3 python3-pip pipenv scons build-essential \
+        libboost-dev gfortran libopenmpi-dev libpython3-dev \
+        libblas-dev liblapack-dev libhdf5-dev libfmt-dev libyaml-cpp-dev \
+        libgtest-dev libgmock-dev libeigen3-dev libsundials-dev \
+        cython3 python3-numpy python3-pandas python3-pint \
+        python3-ruamel.yaml python3-setuptools python3-wheel python3-pytest
+        gcc --version
+    - name: Install Python dependencies
+      run: |
+        pipenv install pytest-github-actions-annotate-failures
+    - name: Build Cantera
+      run: |
+        scons build env_vars=all -j2 debug=n --debug=time \
+        hdf_libdir=$HDF5_LIBDIR hdf_include=$HDF5_INCLUDEDIR \
+        cc_flags=-D_GLIBCXX_ASSERTIONS f90_interface=y
+    - name: Test Cantera
+      run:
+        scons test verbose_tests=yes --debug=time
