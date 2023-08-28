@@ -37,7 +37,7 @@ jobs:
       run: python3 -m pip install -U pip setuptools wheel
     - name: Install Python dependencies
       run: |
-        python3 -m pip install ruamel.yaml scons numpy pandas h5py pytest pint \
+        python3 -m pip install ruamel.yaml scons numpy pandas pytest pint \
           pytest-github-actions-annotate-failures
         python3 -m pip install --pre cython
     - name: Build Cantera
