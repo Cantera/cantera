@@ -79,9 +79,9 @@ class FlameBase(Sim1D):
             result. Restart data may be specified using a `SolutionArray`,
             `pandas.DataFrame`, or previously saved CSV, YAML or HDF container files.
             Note that restart data do not overwrite boundary conditions.
-            DataFrame input requires a working installation of *pandas*, whereas
-            HDF input requires an installation of *h5py*. These packages can be
-            installed using pip or conda (``pandas`` and ``h5py``, respectively).
+            HDF input requires Cantera compiled with HDF support. DataFrame input
+            requires a working installation of *pandas*, which can be installed using
+            pip or conda (package: ``pandas``).
         :param group:
             Group identifier within a HDF container file (only used in
             combination with HDF restart data).
