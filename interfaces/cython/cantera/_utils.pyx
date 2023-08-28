@@ -130,18 +130,11 @@ def use_legacy_rate_constants(pybool legacy):
 def hdf_support():
     """
     Returns list of libraries that include HDF support:
-    - 'h5py': HDF support by Python package 'h5py'.
     - 'native': if Cantera was compiled with C++ HighFive HDF5 support.
 
     .. versionadded:: 3.0
     """
     out = []
-    try:
-        importlib.metadata.version("h5py")
-    except importlib.metadata.PackageNotFoundError:
-        pass
-    else:
-        out.append("h5py")
     if CxxUsesHDF5():
         out.append("native")
     return set(out)
