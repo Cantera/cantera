@@ -93,3 +93,39 @@ jobs:
     - name: Test Cantera
       run:
         scons test verbose_tests=yes --debug=time
+
+  fedora-docker:
+    name: Docker 'fedora:${{ matrix.image }}' image
+    strategy:
+      matrix:
+        image: [rawhide, latest]
+      fail-fast: false
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    container:
+      image: fedora:${{ matrix.image }}
+    steps:
+    - name: Install git on fedora:${{ matrix.image }}
+      run: |
+        dnf install -y git
+        git config --global init.defaultBranch main
+        git config --global --add safe.directory /__w/cantera/cantera
+    - uses: actions/checkout@v3
+      name: Checkout the repository
+    - name: Install dependencies
+      # Use packages from Fedora
+      run: |
+        dnf install -y boost-devel eigen3-devel fmt-devel gcc gcc-c++ \
+        gcc-fortran gmock-devel gtest-devel python3 python3-cython \
+        python3-devel python3-numpy python3-pandas python3-pint python3-pip \
+        python3-pytest python3-ruamel-yaml python3-scipy python3-scons \
+        python3-wheel sundials-devel yaml-cpp-devel
+    - name: Build Cantera
+      run: |
+        scons build -j2 debug=n --debug=time \
+        extra_inc_dirs=/usr/include/eigen3 f90_interface=y \
+        libdirname=/usr/lib64 python_package=full system_eigen=y system_fmt=y \
+        system_sundials=y system_yamlcpp=y system_blas_lapack=y
+    - name: Test Cantera
+      run:
+        scons test verbose_tests=yes --debug=time
