@@ -1621,7 +1621,7 @@ if env["use_hdf5"] and env["system_highfive"] in ("n", "default"):
         h5_version = Path(cmake_lists).read_text()
         h5_version = [line for line in h5_version.split("\n")
                       if line.startswith("project(HighFive")]
-        return re.search('[0-9]+\.[0-9]+\.[0-9]+', h5_version[0]).group(0)
+        return re.search(r'[0-9]+\.[0-9]+\.[0-9]+', h5_version[0]).group(0)
 
     env["HIGHFIVE_VERSION"] = highfive_version("ext/HighFive/CMakeLists.txt")
     highfive_include = '"../ext/HighFive/include/highfive/H5DataType.hpp"'

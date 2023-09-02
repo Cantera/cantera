@@ -179,7 +179,7 @@ class Option:
         if len(asterisks) == 1:
             # catch unbalanced '*', for example in '*nix'
             found = f"*{asterisks[0]}"
-            replacement = f"\{found}"
+            replacement = fr"\{found}"
             description = description.replace(found, replacement)
 
         return f"{'':<{indent}}{description}\n"
