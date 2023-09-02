@@ -89,7 +89,9 @@ jobs:
       run: |
         scons build env_vars=all -j2 debug=n --debug=time \
         hdf_libdir=$HDF5_LIBDIR hdf_include=$HDF5_INCLUDEDIR \
-        cc_flags=-D_GLIBCXX_ASSERTIONS f90_interface=y
+        system_eigen=y system_fmt=y system_sundials=y system_yamlcpp=y \
+        system_blas_lapack=y hdf_support=y f90_interface=y \
+        cc_flags=-D_GLIBCXX_ASSERTIONS
     - name: Test Cantera
       run:
         scons test verbose_tests=yes --debug=time
@@ -119,13 +121,57 @@ jobs:
         gcc-fortran gmock-devel gtest-devel python3 python3-cython \
         python3-devel python3-numpy python3-pandas python3-pint python3-pip \
         python3-pytest python3-ruamel-yaml python3-scipy python3-scons \
-        python3-wheel sundials-devel yaml-cpp-devel
+        python3-wheel sundials-devel yaml-cpp-devel hdf5-devel highfive-devel
     - name: Build Cantera
       run: |
         scons build -j2 debug=n --debug=time \
         extra_inc_dirs=/usr/include/eigen3 f90_interface=y \
         libdirname=/usr/lib64 python_package=full system_eigen=y system_fmt=y \
-        system_sundials=y system_yamlcpp=y system_blas_lapack=y
+        system_sundials=y system_yamlcpp=y system_blas_lapack=y hdf_support=y
     - name: Test Cantera
       run:
         scons test verbose_tests=yes --debug=time
+
+  ubuntu-python-prerelease:
+    name: ${{ matrix.os }} with Python ${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    strategy:
+      matrix:
+        python-version: ['3.12']
+        os: ['ubuntu-20.04', 'ubuntu-22.04']
+      fail-fast: false
+    env:
+      HDF5_LIBDIR: /usr/lib/x86_64-linux-gnu/hdf5/serial
+      HDF5_INCLUDEDIR: /usr/include/hdf5/serial
+    steps:
+    - uses: actions/checkout@v3
+      name: Checkout the repository
+      with:
+        submodules: recursive
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+        architecture: x64
+        allow-prereleases: true
+    - name: Install Apt dependencies
+      run: |
+        sudo apt update
+        sudo apt install libboost-dev gfortran libopenmpi-dev libpython3-dev \
+        libblas-dev liblapack-dev libhdf5-dev libfmt-dev
+        gcc --version
+    - name: Upgrade pip
+      run: python3 -m pip install -U pip setuptools wheel
+    - name: Install Python dependencies
+      run: |
+        python3 -m pip install ruamel.yaml scons==3.1.2 numpy cython pandas pytest \
+        pytest-github-actions-annotate-failures pint
+    - name: Build Cantera
+      run: |
+        python3 `which scons` build env_vars=all -j2 debug=n --debug=time \
+        system_fmt=y hdf_libdir=$HDF5_LIBDIR hdf_include=$HDF5_INCLUDEDIR \
+        cc_flags=-D_GLIBCXX_ASSERTIONS
+    - name: Test Cantera
+      run:
+        python3 `which scons` test show_long_tests=yes verbose_tests=yes --debug=time
