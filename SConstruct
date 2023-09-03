@@ -1565,15 +1565,16 @@ if env["use_hdf5"] and env["system_highfive"] in ("y", "default"):
                         f"System HighFive version {h5_lib_version} is not "
                         "supported; version 2.5 or higher is required.")
                 logger.info(
-                    f"System HighFive version {h5_lib_version} is not supported.")
+                    f"System HighFive version {h5_lib_version} is not supported. "
+                    "Using private installation instead.")
             else:
                 env["system_highfive"] = True
+                logger.info("Using system installation of HighFive library.")
             env["HIGHFIVE_VERSION"] = h5_lib_version.strip()
         else:
             config_error("Detected invalid HighFive configuration.")
 
         highfive_include = "<highfive/H5DataType.hpp>"
-        logger.info("Using system installation of HighFive library.")
 
     elif env["system_highfive"] == "y":
         config_error(
