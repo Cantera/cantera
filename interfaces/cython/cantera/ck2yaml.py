@@ -2180,7 +2180,9 @@ def convert_mech(input_file, thermo_file=None, transport_file=None,
     return surface_names
 
 
-def main(argv):
+def main(argv=None):
+    if argv is None:
+        argv = sys.argv[1:]
 
     longOptions = ['input=', 'thermo=', 'transport=', 'surface=', 'name=',
                    'extra=', 'output=', 'permissive', 'help', 'debug',
@@ -2266,8 +2268,5 @@ def main(argv):
         sys.exit(1)
 
 
-def script_entry_point():
-    main(sys.argv[1:])
-
 if __name__ == '__main__':
-    main(sys.argv[1:])
+    main()
