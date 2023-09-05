@@ -757,6 +757,29 @@ class yaml2ckTest(utilities.CanteraTest):
         self.check_kinetics(ck_phase, yaml_phase, [900, 1800], [2e5, 20e5], tol=2e-7)
         self.check_transport(ck_phase, yaml_phase, [298, 1001, 2400])
 
+    def test_write_chemkin(self):
+        # test alternative converter
+        yaml_phase = ct.Solution('h2o2.yaml')
+        ck_file = self.test_work_path / 'test.ck'
+        ck_file.unlink(missing_ok=True)
+        yaml_phase.write_chemkin(ck_file, quiet=True)
+        yaml_phase.write_chemkin(
+            ck_file, sort_species='alphabetical', overwrite=True, quiet=True)
+        assert ck_file.exists()
+
+        yaml_file = self.test_work_path / 'test.yaml'
+        yaml_file.unlink(missing_ok=True)
+        ck2yaml.convert(ck_file, out_name=yaml_file, quiet=True)
+        assert yaml_file.exists()
+        ck_phase = ct.Solution(yaml_file)
+
+        X = {'O2': 0.3, 'H': 0.1, 'H2': 0.2, 'AR': 0.4}
+        ck_phase.X = X
+        yaml_phase.X = X
+        self.check_thermo(ck_phase, yaml_phase, [300, 500, 1300, 2000])
+        self.check_kinetics(ck_phase, yaml_phase, [900, 1800], [2e5, 20e5], tol=2e-7)
+        self.check_transport(ck_phase, yaml_phase, [298, 1001, 2400])
+
 
 class cti2yamlTest(utilities.CanteraTest):
     def convert(self, basename, src_dir=None, encoding=None):
