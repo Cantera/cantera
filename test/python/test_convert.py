@@ -31,7 +31,7 @@ class ck2yamlTest(utilities.CanteraTest):
         # In Python >= 3.8, this can be replaced by the missing_ok argument
         if output.is_file():
             output.unlink()
-        ck2yaml.convert_mech(inputFile, thermo_file=thermo,
+        ck2yaml.convert(inputFile, thermo_file=thermo,
             transport_file=transport, surface_file=surface, out_name=output,
             extra_file=extra, quiet=True, **kwargs)
         return output
@@ -591,7 +591,7 @@ class yaml2ckTest(utilities.CanteraTest):
             mech, thermo, transport = self._convert_to_ck(input_file, phase_name)
 
         output = self.test_work_path / (Path(input_file).stem + self.ext)
-        ck2yaml.convert_mech(
+        ck2yaml.convert(
             mech,
             thermo_file=thermo,
             transport_file=transport,

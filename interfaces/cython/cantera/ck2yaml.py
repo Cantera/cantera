@@ -6,7 +6,7 @@
 
 """Convert Chemkin-format mechanism files to YAML.
 
-There are two main entry points to this script, `main` and `Parser.convert_mech`. The former is
+There are two main entry points to this script, `main` and `convert`. The former is
 used from the command line interface and parses the arguments passed. The latter uses
 arguments that correspond to options of the command line interface.
 """
@@ -16,6 +16,7 @@ import os.path
 import sys
 import numpy as np
 import re
+import warnings
 import argparse
 import textwrap
 from email.utils import formatdate
@@ -2133,10 +2134,27 @@ class Parser:
               'the kinetics input file.'.format(equation, lines[0], lines[1]))
 
 
+def convert(input_file, thermo_file=None, transport_file=None,
+            surface_file=None, phase_name='gas', extra_file=None,
+            out_name=None, single_intermediate_temperature=False, quiet=False,
+            permissive=None):
+    _, surface_names = Parser.convert_mech(
+        input_file, thermo_file, transport_file, surface_file, phase_name,
+        extra_file, out_name, single_intermediate_temperature, quiet, permissive)
+    return surface_names
+
+
 def convert_mech(input_file, thermo_file=None, transport_file=None,
                  surface_file=None, phase_name='gas', extra_file=None,
                  out_name=None, single_intermediate_temperature=False, quiet=False,
                  permissive=None):
+    """
+    .. deprecated:: 3.0
+
+        To be removed after Cantera 3.1; renamed to :func:`convert`.
+    """
+    warnings.warn(
+        "To be removed after Cantera 3.1; renamed to 'convert'")
     _, surface_names = Parser.convert_mech(
         input_file, thermo_file, transport_file, surface_file, phase_name,
         extra_file, out_name, single_intermediate_temperature, quiet, permissive)
