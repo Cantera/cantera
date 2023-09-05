@@ -5,7 +5,7 @@
 
 """Convert legacy CTML input to YAML format.
 
-There are two main entry points to this script, `main` and `convert`. The former is
+There are two main entry points to this script, ``main`` and ``convert``. The former is
 used from the command line interface and parses the arguments passed. The latter
 accepts either the name of the CTML input file or a string containing the CTML
 content.

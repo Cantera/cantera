@@ -6,7 +6,7 @@
 
 """Convert Chemkin-format mechanism files to YAML.
 
-There are two main entry points to this script, `main` and `convert`. The former is
+There are two main entry points to this script, ``main`` and ``convert``. The former is
 used from the command line interface and parses the arguments passed. The latter uses
 arguments that correspond to options of the command line interface.
 """
@@ -2228,75 +2228,78 @@ def create_argparser():
             "Convert Chemkin-format mechanisms to Cantera YAML input files"),
         epilog=textwrap.dedent(
             """
-            example:
+            Example::
+
                 ck2yaml --input=chem.inp --thermo=therm.dat --transport=tran.dat
 
-            The equal sign in the options above is optional.
+            If the **ck2yaml** script is not on your path but the Cantera Python module is,
+            **ck2yaml** can also be invoked by running::
+
+                python -m cantera.ck2yaml --input=chem.inp --thermo=therm.dat --transport=tran.dat
+
+            In both cases, the equal signs in the options are optional.
             """),
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument(
         "-p", "--permissive", action="store_true", default=False,
-        help=("ignore recoverable parsing errors, such as duplicate thermo or "
-              "transport data"))
-        # The '--permissive' option allows certain recoverable parsing errors (such as
-        # duplicate transport data) to be ignored.
+        help=("This option allows certain recoverable parsing errors (for example, "
+              "duplicate thermo or transport data) to be ignored."))
     parser.add_argument(
         "-q", "--quiet", action="store_true", default=False,
-        help="do not produce logging output")
+        help="Suppresses warning messages, such as those about duplicate thermo data.")
     parser.add_argument(
         "-d", "--debug", action="store_true", default=False,
-        help="use debugging mode")
+        help=("Enables additional debugging output that may be helpful in identifying "
+              "problems in the input files or **ck2yaml** itself."))
     parser.add_argument(
         "--input", default="",
-        help=("Chemkin-format mechanism file; if omitted, THERMO data are "
-              "converted to a YAML file containing only species definitions"))
-        # An input file containing only species definitions (which can be referenced
-        # from phase definitions in other input files) can be created by specifying
-        # only a thermo file.
+        help=("Chemkin-format chemistry input file, containing a list of all the "
+              "element names that are used, a list of all the species names, and a "
+              "list of all the reactions to be considered between the species. This "
+              "file can also optionally contain species THERMO and TRANSPORT data."))
     parser.add_argument(
         "--thermo", default="",
-        help=("Chemkin-format thermo data file; if omitted, thermo data must be "
-              "included in INPUT file"))
+        help=("If the INPUT file does not contain THERMO data, a separate file "
+              "containing thermodynamic information must be specified. If no INPUT "
+              "file is provided, THERMO data are converted to a YAML file containing "
+              "only species definitions (which can be referenced from phase "
+              "definitions in other input files)."))
     parser.add_argument(
         "--transport", default="",
-        help=("Chemkin-format transport data file; if omitted and transport data are "
-              "not included in INPUT file, transport models will not be supported"))
+        help=("If the INPUT file does not contain TRANSPORT data, a separate file "
+              "containing transport information may be specified. Transport data are "
+              "required for Cantera capabilities that use transport properties such "
+              "as one-dimensional flame calculations; they are usually not required "
+              "for zero-dimensional reactor simulations."))
     parser.add_argument(
         "--surface", default="",
-        help=("Chemkin-format surface mechanism file; if provided, a corresponding "
-              "gas phase mechanism should be specified as INPUT"))
-        # For the case of a surface mechanism, the gas phase input file should be
-        # specified as 'input' and the surface phase input file should be specified as
-        # 'surface'.
+        help=("For surface mechanisms, the SURFACE file defines surface species "
+              "and reactions occurring on the surface. Gas phase species and reactions "
+              "should be defined in the INPUT file."))
     parser.add_argument(
         "--extra", default="",
-        help=("YAML file with auxiliary data to be included in output, such as "
-              "file description or custom fields"))
-        # The '--extra=<filename>' option takes a YAML file as input. This option can
-        # be used to add to the file description, or to define custom fields that are
-        # included in the YAML output.
+        help=("This option specifies a YAML file which can be used to add to the "
+              "**description** field or to define custom fields that are included in "
+              "the YAML output."))
     parser.add_argument(
         "--name", default="gas",
-        help=("name of phase used for YAML output; default is 'gas'"))
-        # The '--name=<name>' option is used
-        # to override default phase names (that is, 'gas').
+        help=("This specifies the name of the phase in the resulting YAML file. The "
+              "default is **gas**."))
     parser.add_argument(
         "--single-intermediate-temperature", action="store_true", default=False,
-        help=("thermo data with single break temperature; last value in first line "
-              "of each species thermo entry is the molecular weight"))
-        # The '--single-intermediate-temperature' option should be used with thermo
-        # data where only a single break temperature is used and the last value in the
-        # first line of each species thermo entry is the molecular weight instead.
+        help=("This option should be used with thermo data where only a single break "
+              "temperature is used and the last value in the first line of each "
+              "species thermo entry is the molecular weight instead."))
     parser.add_argument(
         "--no-validate", action="store_true", default=False,
-        help="skip validation step")
+        help=("Disables the validation step, where the YAML mechanism is imported in "
+              "Cantera to check for errors such as unlabeled duplicate reactions and "
+              "discontinuous thermodynamic data."))
     parser.add_argument(
         "--output", default="",
-        help=("YAML output file name; if not specified, the output file name is based "
-              "on the input file, with the extension changed to '.yaml'"))
-        # If the output file name is not given, an output file with the same name as
-        # the input file, with the extension changed to '.yaml'.
+        help=("Specifies the OUTPUT file name. By default, the output file name is the "
+              "input file name with the extension changed to **.yaml**."))
 
     return parser
 
