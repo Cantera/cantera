@@ -780,6 +780,25 @@ class yaml2ckTest(utilities.CanteraTest):
         self.check_kinetics(ck_phase, yaml_phase, [900, 1800], [2e5, 20e5], tol=2e-7)
         self.check_transport(ck_phase, yaml_phase, [298, 1001, 2400])
 
+    def test_write_notes(self):
+        input_file = self.test_data_path / 'species-names.yaml'
+        yaml_phase = ct.Solution(input_file)
+        assert yaml_phase.species("eq=uals").input_data["thermo"]["note"] == 120521
+        assert yaml_phase.species("plus").input_data["thermo"]["note"] == 12.05
+
+        ck_file = self.test_work_path / 'species-names.ck'
+        ck_file.unlink(missing_ok=True)
+        yaml_phase.write_chemkin(ck_file, quiet=True)
+
+        yaml_file = self.test_work_path / 'species-names.yaml'
+        yaml_file.unlink(missing_ok=True)
+        ck2yaml.convert(ck_file, out_name=yaml_file, quiet=True)
+        assert yaml_file.exists()
+
+        ck_phase = ct.Solution(yaml_file)
+        assert ck_phase.species("eq=uals").input_data["thermo"]["note"] == "120521"
+        assert ck_phase.species("plus").input_data["thermo"]["note"] == "12.05"
+
 
 class cti2yamlTest(utilities.CanteraTest):
     def convert(self, basename, src_dir=None, encoding=None):
