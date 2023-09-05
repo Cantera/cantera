@@ -76,6 +76,7 @@ species:
       -1.02466476e+04, -4.64130376]
     - [0.074851495, 0.0133909467, -5.73285809e-06, 1.22292535e-09, -1.0181523e-13,
       -9468.34459, 18.437318]
+    note: 120521 # string incidentally serialized as integer
 - name: plus
   composition: {C: 1, H: 4}
   thermo:
@@ -86,6 +87,7 @@ species:
       -1.02466476e+04, -4.64130376]
     - [0.074851495, 0.0133909467, -5.73285809e-06, 1.22292535e-09, -1.0181523e-13,
       -9468.34459, 18.437318]
+    note: 12.05 # string incidentally serialized as float
 - name: trans_butene
   composition: {C: 1, H: 4}
   thermo:
