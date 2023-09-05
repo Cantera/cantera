@@ -170,7 +170,7 @@ def build_species_text(species: Iterable[ct.Species], max_width=80) -> str:
 
     .. versionadded:: 3.0
     """
-    species_names = {s.name: s.input_data.get("note", "") for s in species}
+    species_names = {s.name: str(s.input_data.get('note', '')) for s in species}
 
     # Notes shorter than 7 characters are probably related to thermo entries
     # and will be included with the thermo entry.
@@ -287,7 +287,7 @@ def build_thermodynamics_text(
         if spec.thermo.max_temp > max_temp:
             max_temp = spec.thermo.max_temp
 
-        note = input_data["thermo"].get("note", "")
+        note = str(input_data['thermo'].get('note', ''))
         if len(note) <= 6:
             comment = ""
             fmt_data["note"] = note
