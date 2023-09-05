@@ -826,7 +826,7 @@ def main():
             print("Validating mechanism...", end="")
             with tempfile.TemporaryDirectory() as td:
                 out_name = Path(td) / "test_mech.yaml"
-                ck2yaml.convert_mech(
+                ck2yaml.convert(
                     *ck_paths,
                     phase_name="gas",
                     out_name=out_name,
