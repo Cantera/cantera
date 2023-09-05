@@ -4,48 +4,11 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
-"""
-ck2yaml.py: Convert Chemkin-format mechanisms to Cantera YAML input files
+"""Convert Chemkin-format mechanism files to YAML.
 
-Usage:
-    ck2yaml [--input=<filename>]
-            [--thermo=<filename>]
-            [--transport=<filename>]
-            [--surface=<filename>]
-            [--name=<name>]
-            [--extra=<filename>]
-            [--output=<filename>]
-            [--single-intermediate-temperature]
-            [--permissive]
-            [--quiet]
-            [--no-validate]
-            [-d | --debug]
-
-Example:
-    ck2yaml --input=chem.inp --thermo=therm.dat --transport=tran.dat
-
-If the output file name is not given, an output file with the same name as the
-input file, with the extension changed to '.yaml'.
-
-An input file containing only species definitions (which can be referenced from
-phase definitions in other input files) can be created by specifying only a
-thermo file.
-
-For the case of a surface mechanism, the gas phase input file should be
-specified as 'input' and the surface phase input file should be specified as
-'surface'.
-
-The '--single-intermediate-temperature' option should be used with thermo data where
-only a single break temperature is used and the last value in the first line of each
-species thermo entry is the molecular weight instead.
-
-The '--permissive' option allows certain recoverable parsing errors (such as
-duplicate transport data) to be ignored. The '--name=<name>' option
-is used to override default phase names (that is, 'gas').
-
-The '--extra=<filename>' option takes a YAML file as input. This option can be
-used to add to the file description, or to define custom fields that are
-included in the YAML output.
+There are two main entry points to this script, `main` and `Parser.convert_mech`. The former is
+used from the command line interface and parses the arguments passed. The latter uses
+arguments that correspond to options of the command line interface.
 """
 
 import logging
@@ -53,7 +16,7 @@ import os.path
 import sys
 import numpy as np
 import re
-import getopt
+import argparse
 import textwrap
 from email.utils import formatdate
 
@@ -2181,75 +2144,48 @@ def convert_mech(input_file, thermo_file=None, transport_file=None,
 
 
 def main(argv=None):
-    if argv is None:
-        argv = sys.argv[1:]
-
-    longOptions = ['input=', 'thermo=', 'transport=', 'surface=', 'name=',
-                   'extra=', 'output=', 'permissive', 'help', 'debug',
-                   'single-intermediate-temperature', 'quiet', 'no-validate']
-
-    try:
-        optlist, args = getopt.getopt(argv, 'dh', longOptions)
-        options = dict()
-        for o,a in optlist:
-            options[o] = a
-
-        if args:
-            raise getopt.GetoptError('Unexpected command line option: ' +
-                                     repr(' '.join(args)))
-
-    except getopt.GetoptError as e:
-        logger.error('ck2yaml.py: Error parsing arguments:')
-        logger.error(e)
-        logger.error('Run "ck2yaml.py --help" to see usage help.')
+    """Parse command line arguments and pass them to `Parser.convert_mech`."""
+    parser = create_argparser()
+    if argv is None and len(sys.argv) < 2:
+        parser.print_help(sys.stderr)
         sys.exit(1)
+    args = parser.parse_args(argv)
 
-    if not options or '-h' in options or '--help' in options:
-        logger.info(__doc__)
-        sys.exit(0)
-
-    input_file = options.get('--input')
-    thermo_file = options.get('--thermo')
-    single_intermediate_temperature = '--single-intermediate-temperature' in options
-    permissive = '--permissive' in options
-    quiet = '--quiet' in options
-    transport_file = options.get('--transport')
-    surface_file = options.get('--surface')
-    phase_name = options.get('--name', 'gas')
+    input_file = args.input
+    thermo_file = args.thermo
+    out_name = args.output
 
     if not input_file and not thermo_file:
-        logger.error('At least one of the arguments "--input=..." or "--thermo=..."'
-                     ' must be provided.\nRun "ck2yaml.py --help" to see usage help.')
+        logger.error('At least one of the arguments "--input" or "--thermo" '
+                     'must be provided.\nRun with option "--help" to see usage help.')
         sys.exit(1)
 
-    extra_file = options.get('--extra')
-
-    if '--output' in options:
-        out_name = options['--output']
-        if not out_name.endswith('.yaml') and not out_name.endswith('.yml'):
-            out_name += '.yaml'
+    if out_name.endswith('.yaml') or out_name.endswith('.yml'):
+        pass
+    elif out_name:
+        out_name += '.yaml'
     elif input_file:
         out_name = os.path.splitext(input_file)[0] + '.yaml'
     else:
         out_name = os.path.splitext(thermo_file)[0] + '.yaml'
 
     parser, surfaces = Parser.convert_mech(input_file, thermo_file,
-            transport_file, surface_file, phase_name, extra_file, out_name,
-            single_intermediate_temperature, quiet, permissive)
+            args.transport, args.surface, args.name, args.extra, out_name,
+            args.single_intermediate_temperature, args.quiet, args.permissive)
 
-    # Do full validation by importing the resulting mechanism
     if not input_file:
         # Can't validate input files that don't define a phase
         return
 
-    if '--no-validate' in options:
+    if args.no_validate:
         return
 
+    # do full validation by importing the resulting mechanism
     try:
         from cantera import Solution, Interface
     except ImportError:
         logger.warning('WARNING: Unable to import Cantera Python module. '
-                        'Output mechanism has not been validated')
+                       'Output mechanism has not been validated')
         sys.exit(0)
 
     try:
@@ -2267,6 +2203,84 @@ def main(argv=None):
             logger.warning(e)
         sys.exit(1)
 
+
+def create_argparser():
+    parser = argparse.ArgumentParser(
+        description=(
+            "Convert Chemkin-format mechanisms to Cantera YAML input files"),
+        epilog=textwrap.dedent(
+            """
+            example:
+                ck2yaml --input=chem.inp --thermo=therm.dat --transport=tran.dat
+
+            The equal sign in the options above is optional.
+            """),
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    parser.add_argument(
+        "-p", "--permissive", action="store_true", default=False,
+        help=("ignore recoverable parsing errors, such as duplicate thermo or "
+              "transport data"))
+        # The '--permissive' option allows certain recoverable parsing errors (such as
+        # duplicate transport data) to be ignored.
+    parser.add_argument(
+        "-q", "--quiet", action="store_true", default=False,
+        help="do not produce logging output")
+    parser.add_argument(
+        "-d", "--debug", action="store_true", default=False,
+        help="use debugging mode")
+    parser.add_argument(
+        "--input", default="",
+        help=("Chemkin-format mechanism file; if omitted, THERMO data are "
+              "converted to a YAML file containing only species definitions"))
+        # An input file containing only species definitions (which can be referenced
+        # from phase definitions in other input files) can be created by specifying
+        # only a thermo file.
+    parser.add_argument(
+        "--thermo", default="",
+        help=("Chemkin-format thermo data file; if omitted, thermo data must be "
+              "included in INPUT file"))
+    parser.add_argument(
+        "--transport", default="",
+        help=("Chemkin-format transport data file; if omitted and transport data are "
+              "not included in INPUT file, transport models will not be supported"))
+    parser.add_argument(
+        "--surface", default="",
+        help=("Chemkin-format surface mechanism file; if provided, a corresponding "
+              "gas phase mechanism should be specified as INPUT"))
+        # For the case of a surface mechanism, the gas phase input file should be
+        # specified as 'input' and the surface phase input file should be specified as
+        # 'surface'.
+    parser.add_argument(
+        "--extra", default="",
+        help=("YAML file with auxiliary data to be included in output, such as "
+              "file description or custom fields"))
+        # The '--extra=<filename>' option takes a YAML file as input. This option can
+        # be used to add to the file description, or to define custom fields that are
+        # included in the YAML output.
+    parser.add_argument(
+        "--name", default="gas",
+        help=("name of phase used for YAML output; default is 'gas'"))
+        # The '--name=<name>' option is used
+        # to override default phase names (that is, 'gas').
+    parser.add_argument(
+        "--single-intermediate-temperature", action="store_true", default=False,
+        help=("thermo data with single break temperature; last value in first line "
+              "of each species thermo entry is the molecular weight"))
+        # The '--single-intermediate-temperature' option should be used with thermo
+        # data where only a single break temperature is used and the last value in the
+        # first line of each species thermo entry is the molecular weight instead.
+    parser.add_argument(
+        "--no-validate", action="store_true", default=False,
+        help="skip validation step")
+    parser.add_argument(
+        "--output", default="",
+        help=("YAML output file name; if not specified, the output file name is based "
+              "on the input file, with the extension changed to '.yaml'"))
+        # If the output file name is not given, an output file with the same name as
+        # the input file, with the extension changed to '.yaml'.
+
+    return parser
 
 if __name__ == '__main__':
     main()
