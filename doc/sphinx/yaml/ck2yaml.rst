@@ -3,5 +3,10 @@ Chemkin to YAML conversion
 **************************
 
 .. note::
-    For documentation and tutorial, refer to the `Converting Chemkin-format files
+    For a tutorial, refer to the `Converting Chemkin-format files
     <https://cantera.org/tutorials/ck2yaml-tutorial.html>`_ pages.
+
+.. argparse::
+   :module: cantera.ck2yaml
+   :func: create_argparser
+   :prog: ck2yaml
