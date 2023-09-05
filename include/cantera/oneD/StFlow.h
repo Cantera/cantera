@@ -322,12 +322,6 @@ protected:
         return m_wdot(k,j);
     }
 
-    //! Write the net production rates at point `j` into array `m_wdot`
-    void getWdot(double* x, size_t j) {
-        setGas(x,j);
-        m_kin->getNetProductionRates(&m_wdot(0,j));
-    }
-
     //! Update the properties (thermo, transport, and diffusion flux).
     //! This function is called in eval after the points which need
     //! to be updated are defined.
