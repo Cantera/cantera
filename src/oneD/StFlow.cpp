@@ -431,17 +431,10 @@ void StFlow::updateDiffFluxes(const double* x, size_t j0, size_t j1)
     }
 }
 
+//! Evaluate the continuity equation residual.
 void StFlow::evalContinuity(double* x, double* rsd, int* diag,
-                          double rdt, size_t jmin, size_t jmax)
+                            double rdt, size_t jmin, size_t jmax)
 {
-    //----------------------------------------------
-    //    Continuity equation
-    //
-    //    d(\rho u)/dz + 2\rho V = 0
-    //----------------------------------------------
-    // This propagates information right-to-left, since rho_u at point 0 is dependent
-    // on rho_u at point 1, but not on mdot from the inlet.
-    // The default value for continuity is zero u at the boundary.
     for (size_t j = jmin; j <= jmax; j++) {
         if (j == 0) { // left boundary
             rsd[index(c_offset_U,0)] =
@@ -486,16 +479,11 @@ void StFlow::evalContinuity(double* x, double* rsd, int* diag,
     }
 }
 
+
+//! Evaluate the momentum equation residual.
 void StFlow::evalMomentum(double* x, double* rsd, int* diag,
                           double rdt, size_t jmin, size_t jmax)
 {
-    //------------------------------------------------
-    //    Radial momentum equation
-    //
-    //    \rho dV/dt + \rho u dV/dz + \rho V^2
-    //       = d(\mu dV/dz)/dz - lambda
-    //-------------------------------------------------
-    // The default boundary condition is zero V.
     for (size_t j = jmin; j <= jmax; j++) {
         if (j == 0) { // left boundary
             rsd[index(c_offset_V,0)] = V(x,0);
@@ -517,19 +505,11 @@ void StFlow::evalMomentum(double* x, double* rsd, int* diag,
     }
 }
 
+
+//! Evaluate the energy equation residual.
 void StFlow::evalEnergy(double* x, double* rsd, int* diag,
                         double rdt, size_t jmin, size_t jmax)
 {
-    //-----------------------------------------------
-    //    Energy equation
-    //
-    //    \rho c_p dT/dt + \rho c_p u dT/dz
-    //    = d(k dT/dz)/dz
-    //      - sum_k(\omega_k h_k_ref)
-    //      - sum_k(J_k c_p_k / M_k) dT/dz
-    //-----------------------------------------------
-    // The default boundary condition for energy is a zero T.
-
     // Calculation of qdotRadiation (see docstring of enableRadiation)
     if (m_do_radiation) {
         computeRadiation(x, jmin, jmax);
@@ -567,16 +547,11 @@ void StFlow::evalEnergy(double* x, double* rsd, int* diag,
     }
 }
 
+
+//! Evaluate the species equations' residuals.
 void StFlow::evalSpecies(double* x, double* rsd, int* diag,
                         double rdt, size_t jmin, size_t jmax)
 {
-    //-------------------------------------------------
-    //    Species equations
-    //
-    //   \rho dY_k/dt + \rho u dY_k/dz + dJ_k/dz
-    //   = M_k\omega_k
-    //-------------------------------------------------
-    // The default boundary condition for species is zero flux.
     for (size_t j = jmin; j <= jmax; j++) {
         if (j == 0) { // left boundary
             double sum = 0.0;
@@ -609,12 +584,10 @@ void StFlow::evalSpecies(double* x, double* rsd, int* diag,
     }
 }
 
+//! Evaluate the residual function for the lambda equation.
 void StFlow::evalLambda(double* x, double* rsd, int* diag,
                         double rdt, size_t jmin, size_t jmax)
 {
-    //-------------------------------------------------
-    //    Lambda equation
-    //-------------------------------------------------
     for (size_t j = jmin; j <= jmax; j++) {
         if (j == 0) { // left boundary
             if (m_usesLambda) {
@@ -637,18 +610,10 @@ void StFlow::evalLambda(double* x, double* rsd, int* diag,
     }
 }
 
+//! Evaluate the residual function for the lambda equation.
 void StFlow::evalElectricField(double* x, double* rsd, int* diag,
                                double rdt, size_t jmin, size_t jmax)
 {
-    //-----------------------------------------------
-    //    Electric field (by Gauss's law)
-    //
-    //    dE/dz = 0
-    //
-    //    E = -dV/dz
-    //-----------------------------------------------
-    // The default value for E at the boundary is zero, and E is zero
-    // in the domain as well.
     for (size_t j = jmin; j <= jmax; j++) {
         if (j == 0) { // left boundary
             rsd[index(c_offset_E, 0)] = x[index(c_offset_E, j)];

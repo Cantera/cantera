@@ -199,16 +199,10 @@ void IonFlow::setSolvingStage(const size_t stage)
     }
 }
 
+//! Evaluate the electric field equation residual
 void IonFlow::evalElectricField(double* x, double* rsd, int* diag,
                                 double rdt, size_t jmin, size_t jmax)
 {
-    //-----------------------------------------------
-    //    Electric field by Gauss's law
-    //
-    //    dE/dz = e/eps_0 * sum(q_k*n_k)
-    //
-    //    E = -dV/dz
-    //-----------------------------------------------
     StFlow::evalElectricField(x, rsd, diag, rdt, jmin, jmax);
     if (m_stage != 2) {
         return;
