@@ -295,7 +295,7 @@ void StFlow::_finalize(const double* x)
 
 void StFlow::eval(size_t jg, double* xg, double* rg, integer* diagg, double rdt)
 {
-    // if evaluating a Jacobian, and the global point is outside the domain of
+    // If evaluating a Jacobian, and the global point is outside the domain of
     // influence for this domain, then skip evaluating the residual
     if (jg != npos && (jg + 1 < firstPoint() || jg > lastPoint() + 1)) {
         return;
@@ -318,15 +318,6 @@ void StFlow::eval(size_t jg, double* xg, double* rg, integer* diagg, double rdt)
 
     updateProperties(jg, x, jmin, jmax);
 
-    //----------------------------------------------------
-    // Evaluate the residual equations at all required
-    // grid points.
-    // These residuals may be modified by a boundary object.
-    // The boundary object connected will modify
-    // these equations by subtracting its values for V, T, mdot, etc.
-    // As a result, these residual equations will force the solution
-    // variables to the values for the boundary object.
-    //----------------------------------------------------
     evalContinuity(x, rsd, diag, rdt, jmin, jmax);
     evalMomentum(x, rsd, diag, rdt, jmin, jmax);
     evalEnergy(x, rsd, diag, rdt, jmin, jmax);
@@ -431,7 +422,6 @@ void StFlow::updateDiffFluxes(const double* x, size_t j0, size_t j1)
     }
 }
 
-//! Evaluate the continuity equation residual.
 void StFlow::evalContinuity(double* x, double* rsd, int* diag,
                             double rdt, size_t jmin, size_t jmax)
 {
@@ -479,8 +469,6 @@ void StFlow::evalContinuity(double* x, double* rsd, int* diag,
     }
 }
 
-
-//! Evaluate the momentum equation residual.
 void StFlow::evalMomentum(double* x, double* rsd, int* diag,
                           double rdt, size_t jmin, size_t jmax)
 {
@@ -505,8 +493,6 @@ void StFlow::evalMomentum(double* x, double* rsd, int* diag,
     }
 }
 
-
-//! Evaluate the energy equation residual.
 void StFlow::evalEnergy(double* x, double* rsd, int* diag,
                         double rdt, size_t jmin, size_t jmax)
 {
@@ -547,10 +533,8 @@ void StFlow::evalEnergy(double* x, double* rsd, int* diag,
     }
 }
 
-
-//! Evaluate the species equations' residuals.
 void StFlow::evalSpecies(double* x, double* rsd, int* diag,
-                        double rdt, size_t jmin, size_t jmax)
+                         double rdt, size_t jmin, size_t jmax)
 {
     for (size_t j = jmin; j <= jmax; j++) {
         if (j == 0) { // left boundary
@@ -584,7 +568,6 @@ void StFlow::evalSpecies(double* x, double* rsd, int* diag,
     }
 }
 
-//! Evaluate the residual function for the lambda equation.
 void StFlow::evalLambda(double* x, double* rsd, int* diag,
                         double rdt, size_t jmin, size_t jmax)
 {
@@ -610,7 +593,6 @@ void StFlow::evalLambda(double* x, double* rsd, int* diag,
     }
 }
 
-//! Evaluate the residual function for the lambda equation.
 void StFlow::evalElectricField(double* x, double* rsd, int* diag,
                                double rdt, size_t jmin, size_t jmax)
 {
