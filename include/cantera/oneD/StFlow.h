@@ -343,9 +343,9 @@ protected:
      * @f]
      *
      * The continuity equation propagates information from right-to-left.
-     * The \f$ \rho u \f$ at point 0 is dependent on \f$ \rho u \f$ at point 1 but not
-     * on \f$ \dot{m} \f$ from the inlet. The default value for the continuity equation
-     * is zero velocity (\f$ u \f$) at the left and right boundary.
+     * The @f$ \rho u @f$ at point 0 is dependent on @f$ \rho u @f$ at point 1 but not
+     * on @f$ \dot{m} @f$ from the inlet. The default value for the continuity equation
+     * is zero velocity (@f$ u @f$) at the left and right boundary.
      */
     virtual void evalContinuity(double* x, double* rsd, int* diag,
                                 double rdt, size_t jmin, size_t jmax);
@@ -360,8 +360,8 @@ protected:
      * @f]
      *
      * The radial momentum equation incorporates terms for temporal and spatial
-     * variations of radial velocity (\f$ V \f$). The default boundary condition is zero
-     * radial velocity (\f$ V \f$) at the left and right boundary.
+     * variations of radial velocity (@f$ V @f$). The default boundary condition is zero
+     * radial velocity (@f$ V @f$) at the left and right boundary.
      */
     virtual void evalMomentum(double* x, double* rsd, int* diag,
                               double rdt, size_t jmin, size_t jmax);
@@ -377,7 +377,7 @@ protected:
      * The lambda equation serves as an eigenvalue that allows the momentum
      * equation and continuity equations to be simultaneously satisfied. The lambda
      * equation propgates information from left-to-right. The default
-     * boundary condition is zero (\f$ \lambda \f$) at the left and zero flux at
+     * boundary condition is zero (@f$ \lambda @f$) at the left and zero flux at
      * the right boundary.
      */
     virtual void evalLambda(double* x, double* rsd, int* diag,
@@ -394,8 +394,8 @@ protected:
      * @f]
      *
      * The energy equation includes terms for temporal and spatial
-     * variations of temperature (\f$ T \f$). It includes contributions from
-     * chemical reactions and diffusion. Default is zero temperature (\f$ T \f$)
+     * variations of temperature (@f$ T @f$). It includes contributions from
+     * chemical reactions and diffusion. Default is zero temperature (@f$ T @f$)
      * at the left and right.
      */
     virtual void evalEnergy(double* x, double* rsd, int* diag,
@@ -410,7 +410,7 @@ protected:
      * @f]
      *
      * The species equations include terms for temporal and spatial variations
-     * of species mass fractions (\f$ Y_k \f$). The default boundary condition is zero
+     * of species mass fractions (@f$ Y_k @f$). The default boundary condition is zero
      * flux for species at the left and right boundary.
      */
     virtual void evalSpecies(double* x, double* rsd, int* diag,
@@ -420,8 +420,8 @@ protected:
      * Evaluate the electric field equation residual to be zero everywhere.
      *
      * The electric field equation is implemnted in the IonFlow class. The default
-     * boundary condition is zero electric field (\f$ E \f$) at the boundary,
-     * and \f$ E \f$ is zero within the domain.
+     * boundary condition is zero electric field (@f$ E @f$) at the boundary,
+     * and @f$ E @f$ is zero within the domain.
      */
     virtual void evalElectricField(double* x, double* rsd, int* diag,
                                    double rdt, size_t jmin, size_t jmax);
