@@ -225,9 +225,6 @@ void IonFlow::evalElectricField(double* x, double* rsd, int* diag,
 void IonFlow::evalSpecies(double* x, double* rsd, int* diag,
                           double rdt, size_t jmin, size_t jmax)
 {
-    //-----------------------------------------------
-    //    Species equations
-    //-----------------------------------------------
     StFlow::evalSpecies(x, rsd, diag, rdt, jmin, jmax);
     if (m_stage != 2) {
         return;
@@ -246,7 +243,6 @@ void IonFlow::evalSpecies(double* x, double* rsd, int* diag,
         }
     }
 }
-
 
 void IonFlow::solveElectricField(size_t j)
 {

@@ -206,18 +206,6 @@ public:
     virtual bool doElectricField(size_t j) const;
 
     //! Turn radiation on / off.
-    /*!
-     * The simple radiation model used was established by Liu and Rogg
-     * @cite liu1991. This model considers the radiation of CO2 and H2O.
-     *
-     * This model uses the optically thin limit and the gray-gas approximation to
-     * simply calculate a volume specified heat flux out of the Planck absorption
-     * coefficients, the boundary emissivities and the temperature. Polynomial lines
-     * calculate the species Planck coefficients for H2O and CO2. The data for the
-     * lines are taken from the RADCAL program @cite RADCAL.
-     * The coefficients for the polynomials are taken from
-     * [TNF Workshop](https://tnfworkshop.org/radiation/) material.
-     */
     void enableRadiation(bool doRadiation) {
         m_do_radiation = doRadiation;
     }
@@ -231,10 +219,6 @@ public:
     double radiativeHeatLoss(size_t j) const {
         return m_qdotRadiation[j];
     }
-
-    //! Computes the radiative heat loss vector over points jmin to jmax and stores
-    //! the data in the qdotRadiation variable.
-    void computeRadiation(double* x, size_t jmin, size_t jmax);
 
     //! Set the emissivities for the boundary values
     /*!
@@ -296,11 +280,17 @@ public:
     }
 
     /**
-     *  Evaluate the residual function for axisymmetric stagnation flow. If
-     *  j == npos, the residual function is evaluated at all grid points.
-     *  Otherwise, the residual function is only evaluated at grid points
-     *  j-1, j, and j+1. This option is used to efficiently evaluate the
-     *  Jacobian numerically.
+     * Evaluate the residual functions for axisymmetric stagnation flow. If j == npos,
+     * the residual function is evaluated at all grid points. Otherwise, the residual
+     * function is only evaluated at grid points j-1, j, and j+1. This option is used
+     * to efficiently evaluate the Jacobian numerically.
+     *
+     * These residuals at all the boundary grid points are evaluated using a default
+     * boundary condition that may be modified by a boundary object that is attached
+     * to the domain.The boundary object connected will modify these equations by
+     * subtracting the boundary object's values for V, T, mdot, etc. As a result,
+     * these residual equations will force the solution variables to the values of
+     * the connected boundary object.
      */
     void eval(size_t j, double* x, double* r, integer* mask, double rdt) override;
 
@@ -328,103 +318,111 @@ protected:
     virtual void updateProperties(size_t jg, double* x, size_t jmin, size_t jmax);
 
     /**
-    * @brief Evaluate the continuity equation residual.
-    *
-    * This function calculates the residual of the continuity equation
-    * @f[
-    *     \frac{d(\rho u)}{dz} + 2\rho V = 0
-    * @f]
-    *
-    * @details The continuity equation propagates information from right-to-left.
-    * The \f$ \rho u \f$ at point 0 is dependent on \f$ \rho u \f$ at point 1 but not
-    * on \f$ \dot{m} \f$ from the inlet. The default value for the continuity equation
-    * is zero velocity (\f$ u \f$) at the left and right boundary.
-    */
+     * Computes the radiative heat loss vector over points jmin to jmax and stores
+     * the data in the qdotRadiation variable.
+     *
+     * The simple radiation model used was established by Liu and Rogg
+     * @cite liu1991. This model considers the radiation of CO2 and H2O.
+     *
+     * This model uses the optically thin limit and the gray-gas approximation to
+     * simply calculate a volume specified heat flux out of the Planck absorption
+     * coefficients, the boundary emissivities and the temperature. Polynomial lines
+     * calculate the species Planck coefficients for H2O and CO2. The data for the
+     * lines are taken from the RADCAL program @cite RADCAL.
+     * The coefficients for the polynomials are taken from
+     * [TNF Workshop](https://tnfworkshop.org/radiation/) material.
+     */
+    void computeRadiation(double* x, size_t jmin, size_t jmax);
+
+    /**
+     * Evaluate the continuity equation residual.
+     *
+     * This function calculates the residual of the continuity equation
+     * @f[
+     *     \frac{d(\rho u)}{dz} + 2\rho V = 0
+     * @f]
+     *
+     * The continuity equation propagates information from right-to-left.
+     * The \f$ \rho u \f$ at point 0 is dependent on \f$ \rho u \f$ at point 1 but not
+     * on \f$ \dot{m} \f$ from the inlet. The default value for the continuity equation
+     * is zero velocity (\f$ u \f$) at the left and right boundary.
+     */
     virtual void evalContinuity(double* x, double* rsd, int* diag,
                                 double rdt, size_t jmin, size_t jmax);
 
     /**
-    * @brief Evaluate the momentum equation residual.
-    *
-    * The function calculates the radial momentum equation defined as
-    * \f[
-    *    \rho \frac{dV}{dt} + \rho u \frac{dV}{dz} + \rho V^2 =
-    *    \frac{d(\mu \frac{dV}{dz})}{dz} - \lambda
-    * \f]
-    *
-    * @details The radial momentum equation incorporates terms for temporal and spatial
-    * variations of radial velocity (\f$ V \f$). The default boundary condition is zero
-    * radial velocity (\f$ V \f$) at the left and right boundary.
-    */
+     * Evaluate the momentum equation residual.
+     *
+     * The function calculates the radial momentum equation defined as
+     * @f[
+     *    \rho \frac{dV}{dt} + \rho u \frac{dV}{dz} + \rho V^2 =
+     *    \frac{d(\mu \frac{dV}{dz})}{dz} - \lambda
+     * @f]
+     *
+     * The radial momentum equation incorporates terms for temporal and spatial
+     * variations of radial velocity (\f$ V \f$). The default boundary condition is zero
+     * radial velocity (\f$ V \f$) at the left and right boundary.
+     */
     virtual void evalMomentum(double* x, double* rsd, int* diag,
                               double rdt, size_t jmin, size_t jmax);
 
     /**
-    * @brief Evaluate the energy equation residual.
-    *
-    * The function calculates the energy equation:
-    * \f[
-    *    \rho c_p \frac{dT}{dt} + \rho c_p u \frac{dT}{dz} =
-    *    \frac{d(k \frac{dT}{dz})}{dz} - \sum_k (\omega_k h_{k_{\text{ref}}}) -
-    *    \sum_k \left( \frac{J_k c_{p_k}}{M_k} \frac{dT}{dz} \right)
-    * \f]
-    *
-    * @details The energy equation includes terms for temporal and spatial
-    * variations of temperature (\f$ T \f$). It includes contributions from
-    * chemical reactions and diffusion. Default is zero temperature (\f$ T \f$)
-    * at the left and right.
-    */
+     * Evaluate the energy equation residual.
+     *
+     * The function calculates the energy equation:
+     * @f[
+     *    \rho c_p \frac{dT}{dt} + \rho c_p u \frac{dT}{dz} =
+     *    \frac{d(k \frac{dT}{dz})}{dz} - \sum_k (\omega_k h_{k_{\text{ref}}}) -
+     *    \sum_k \left( \frac{J_k c_{p_k}}{M_k} \frac{dT}{dz} \right)
+     * @f]
+     *
+     * The energy equation includes terms for temporal and spatial
+     * variations of temperature (\f$ T \f$). It includes contributions from
+     * chemical reactions and diffusion. Default is zero temperature (\f$ T \f$)
+     * at the left and right.
+     */
     virtual void evalEnergy(double* x, double* rsd, int* diag,
                             double rdt, size_t jmin, size_t jmax);
 
     /**
-    * @brief Evaluate the species equations' residuals.
-    *
-    * The function calculates the species equations as
-    * \f[
-    *    \rho \frac{dY_k}{dt} + \rho u \frac{dY_k}{dz} + \frac{dJ_k}{dz} = M_k\omega_k
-    * \f]
-    *
-    * @details The species equations include terms for temporal and spatial variations
-    * of species mass fractions (\f$ Y_k \f$). The default boundary condition is zero
-    * flux for species at the left and right boundary.
-    */
+     * Evaluate the species equations' residuals.
+     *
+     * The function calculates the species equations as
+     * @f[
+     *    \rho \frac{dY_k}{dt} + \rho u \frac{dY_k}{dz} + \frac{dJ_k}{dz} = M_k\omega_k
+     * @f]
+     *
+     * The species equations include terms for temporal and spatial variations
+     * of species mass fractions (\f$ Y_k \f$). The default boundary condition is zero
+     * flux for species at the left and right boundary.
+     */
     virtual void evalSpecies(double* x, double* rsd, int* diag,
                              double rdt, size_t jmin, size_t jmax);
 
     /**
-    * @brief Evaluate the lambda equation residual.
-    *
-    * The function calculates the lambda equation as
-    * \f[
-    *    \frac{d\lambda}{dz} = 0
-    * \f]
-    *
-    * @details The lambda equation serves as an eigenvalue that allows the momentum
-    * equation and continuity equations to be simultaneously satisfied. The lambda
-    * equation propgates information from left-to-right. The default
-    * boundary condition is zero (\f$ \lambda \f$) at the left and zero flux at
-    * the right boundary.
-    */
+     * Evaluate the lambda equation residual.
+     *
+     * The function calculates the lambda equation as
+     * @f[
+     *    \frac{d\lambda}{dz} = 0
+     * @f]
+     *
+     * The lambda equation serves as an eigenvalue that allows the momentum
+     * equation and continuity equations to be simultaneously satisfied. The lambda
+     * equation propgates information from left-to-right. The default
+     * boundary condition is zero (\f$ \lambda \f$) at the left and zero flux at
+     * the right boundary.
+     */
     virtual void evalLambda(double* x, double* rsd, int* diag,
                             double rdt, size_t jmin, size_t jmax);
 
     /**
-    * @brief Evaluate the electric field equation residual using Gauss's law.
-    *
-    * The function calculates the electric field equation as:
-    * \f[
-    *    \frac{dE}{dz} = 0
-    * \f]
-    * and
-    * \f[
-    *    E = -\frac{dV}{dz}
-    * \f]
-    *
-    * @details The electric field equation is based on Gauss's law. The default
-    * boundary condition is zero electric field (\f$ E \f$) at the boundary,
-    * and \f$ E \f$ is zero within the domain.
-    */
+     * Evaluate the electric field equation residual to be zero everywhere.
+     *
+     * The electric field equation is implemnted in the IonFlow class. The default
+     * boundary condition is zero electric field (\f$ E \f$) at the boundary,
+     * and \f$ E \f$ is zero within the domain.
+     */
     virtual void evalElectricField(double* x, double* rsd, int* diag,
                                    double rdt, size_t jmin, size_t jmax);
 
