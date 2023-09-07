@@ -293,30 +293,31 @@ void StFlow::_finalize(const double* x)
     }
 }
 
-void StFlow::eval(size_t j_global, double* x_global, double* rsd_global, integer* diag_global, double rdt)
+void StFlow::eval(size_t jGlobal, double* xGlobal, double* rsdGlobal,
+                  integer* diagGlobal, double rdt)
 {
     // If evaluating a Jacobian, and the global point is outside the domain of
     // influence for this domain, then skip evaluating the residual
-    if (j_global != npos && (j_global + 1 < firstPoint() || j_global > lastPoint() + 1)) {
+    if (jGlobal != npos && (jGlobal + 1 < firstPoint() || jGlobal > lastPoint() + 1)) {
         return;
     }
 
     // start of local part of global arrays
-    double* x = x_global + loc();
-    double* rsd = rsd_global + loc();
-    integer* diag = diag_global + loc();
+    double* x = xGlobal + loc();
+    double* rsd = rsdGlobal + loc();
+    integer* diag = diagGlobal + loc();
 
     size_t jmin, jmax;
-    if (j_global == npos) { // evaluate all points
+    if (jGlobal == npos) { // evaluate all points
         jmin = 0;
         jmax = m_points - 1;
     } else { // evaluate points for Jacobian
-        size_t jpt = (j_global == 0) ? 0 : j_global - firstPoint();
+        size_t jpt = (jGlobal == 0) ? 0 : jGlobal - firstPoint();
         jmin = std::max<size_t>(jpt, 1) - 1;
         jmax = std::min(jpt+1,m_points-1);
     }
 
-    updateProperties(j_global, x, jmin, jmax);
+    updateProperties(jGlobal, x, jmin, jmax);
 
     if (m_do_radiation) { // Calculation of qdotRadiation
         computeRadiation(x, jmin, jmax);
