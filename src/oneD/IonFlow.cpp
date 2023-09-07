@@ -208,14 +208,19 @@ void IonFlow::evalElectricField(double* x, double* rsd, int* diag,
         return;
     }
 
-    for (size_t j = jmin; j <= jmax; j++) {
-        if (j == 0) {
-            rsd[index(c_offset_E, j)] = E(x,0);
-        } else if (j == m_points - 1) {
-            rsd[index(c_offset_E, j)] = dEdz(x,j) - rho_e(x,j) / epsilon_0;
-        } else {
-            rsd[index(c_offset_E, j)] = dEdz(x,j) - rho_e(x,j) / epsilon_0;
-        }
+    if (jmin == 0) { // left boundary
+        rsd[index(c_offset_E, jmin)] = E(x,jmin);
+    }
+
+    if (jmax == m_points - 1) { // right boundary
+        rsd[index(c_offset_E, jmax)] = dEdz(x,jmax) - rho_e(x,jmax) / epsilon_0;
+    }
+
+    // j0 and j1 are constrained to only interior points
+    size_t j0 = std::max<size_t>(jmin, 1);
+    size_t j1 = std::min(jmax, m_points - 2);
+    for (size_t j = j0; j <= j1; j++) {
+        rsd[index(c_offset_E, j)] = dEdz(x,j) - rho_e(x,j) / epsilon_0;
         diag[index(c_offset_E, j)] = 0;
     }
 }
@@ -228,14 +233,12 @@ void IonFlow::evalSpecies(double* x, double* rsd, int* diag,
         return;
     }
 
-    for (size_t j = jmin; j <= jmax; j++) {
-        if (j == 0) { // left boundary
-            // enforcing the flux for charged species is difficult
-            // since charged species are also affected by electric
-            // force, so Neumann boundary condition is used.
-            for (size_t k : m_kCharge) {
-                rsd[index(c_offset_Y + k, 0)] = Y(x,k,0) - Y(x,k,1);
-            }
+    if (jmin == 0) { // left boundary
+        // enforcing the flux for charged species is difficult
+        // since charged species are also affected by electric
+        // force, so Neumann boundary condition is used.
+        for (size_t k : m_kCharge) {
+            rsd[index(c_offset_Y + k, jmin)] = Y(x,k,jmin) - Y(x,k,jmin + 1);
         }
     }
 }
