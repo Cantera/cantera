@@ -80,7 +80,7 @@ protected:
      *
      * @f[
      *    E = -\frac{dV}{dz}
-     * @cite]
+     * @f]
      *
      * The electric field equation is based on Gauss's law,
      * accounting for charge density and permittivity of free space
