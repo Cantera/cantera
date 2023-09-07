@@ -280,10 +280,10 @@ public:
     }
 
     /**
-     * Evaluate the residual functions for axisymmetric stagnation flow. If j == npos,
-     * the residual function is evaluated at all grid points. Otherwise, the residual
-     * function is only evaluated at grid points j-1, j, and j+1. This option is used
-     * to efficiently evaluate the Jacobian numerically.
+     * Evaluate the residual functions for axisymmetric stagnation flow.
+     * If jGlobal == npos, the residual function is evaluated at all grid points.
+     * Otherwise, the residual function is only evaluated at grid points j-1, j,
+     * and j+1. This option is used to efficiently evaluate the Jacobian numerically.
      *
      * These residuals at all the boundary grid points are evaluated using a default
      * boundary condition that may be modified by a boundary object that is attached
@@ -291,8 +291,17 @@ public:
      * subtracting the boundary object's values for V, T, mdot, etc. As a result,
      * these residual equations will force the solution variables to the values of
      * the connected boundary object.
+     *
+     *  @param jGlobal  Global grid point at which to update the residual
+     *  @param[in] xGlobal  Global state vector
+     *  @param[out] rsdGlobal  Global residual vector
+     *  @param[out] diagGlobal  Global boolean mask indicating whether each solution
+     *      component has a time derivative (1) or not (0).
+     *  @param[in] rdt Reciprocal of the timestep (`rdt=0` implies steady-
+     *  state.)
      */
-    void eval(size_t j, double* x, double* r, integer* mask, double rdt) override;
+    void eval(size_t jGlobal, double* xGlobal, double* rsdGlobal,
+              integer* diagGlobal, double rdt) override;
 
     //! Index of the species on the left boundary with the largest mass fraction
     size_t leftExcessSpecies() const {
@@ -351,11 +360,19 @@ protected:
      *  The continuity equation propagates information away from a fixed temperature
      *  point that is set in the domain.
      *
-     * Unstrained flame: specified mass flux; the main example being
-     *   burner-stabilized flames.
+     * Unstrained flame:
+     *  A specified mass flux; the main example being burner-stabilized flames.
      *
      * The default boundary condition for the continuity equation is zero velocity
      * (@f$ u @f$) at the left and right boundary.
+     *
+     * @param [in] x State vector, which includes variables like temperature, density, etc.
+     * @param [out] rsd Residual vector where the continuity equation residuals are stored.
+     * @param [out] diag Diagonal matrix that controls whether an entry has a
+     *                   time-derivative (used by the solver).
+     * @param [in] rdt Reciprocal of the timestep.
+     * @param [in] jmin The index for the starting point in the grid.
+     * @param [in] jmax The index for the ending point in the grid.
      */
     virtual void evalContinuity(double* x, double* rsd, int* diag,
                                 double rdt, size_t jmin, size_t jmax);
@@ -366,7 +383,7 @@ protected:
      * The function calculates the radial momentum equation defined as
      * @f[
      *    \rho u \frac{dV}{dz} + \rho V^2 =
-     *    \frac{d(\mu \frac{dV}{dz})}{dz} - \Lambda
+     *    \frac{d}{dz}\left( \mu \frac{dV}{dz} \right) - \Lambda
      * @f]
      *
      * The radial momentum equation is used for axisymmetric flows, and incorporates
@@ -387,8 +404,8 @@ protected:
      *
      * The lambda equation serves as an eigenvalue that allows the momentum
      * equation and continuity equations to be simultaneously satisfied in
-     * axisymmetric flows. The lambda equation propgates information from
-     * left-to-right. The default boundary condition is zero (@f$ \Lambda @f$)
+     * axisymmetric flows. The lambda equation propagates information from
+     * left-to-right. The default boundary condition is @f$ \Lambda = 0 @f$
      * at the left and zero flux at the right boundary.
      */
     virtual void evalLambda(double* x, double* rsd, int* diag,
@@ -399,9 +416,10 @@ protected:
      *
      * The function calculates the energy equation:
      * @f[
-     *    \rho c_p u \frac{dT}{dz} =
-     *    \frac{d(k \frac{dT}{dz})}{dz} - \sum_k (\omega_k h_{k_{\text{ref}}}) -
-     *    \sum_k \left( \frac{J_k c_{p_k}}{M_k} \frac{dT}{dz} \right)
+     *   \rho c_p u \frac{dT}{dz} =
+     *   \frac{d}{dz}\left( \lambda \frac{dT}{dz} \right)
+     *   - \sum_k h_kW_k\dot{\omega}_k
+     *   - \sum_k  j_k \frac{dh_k}{dz}
      * @f]
      *
      * The energy equation includes contributions from
@@ -417,7 +435,7 @@ protected:
      *
      * The function calculates the species equations as
      * @f[
-     *    \rho u \frac{dY_k}{dz} + \frac{dJ_k}{dz} = M_k\omega_k
+     *    \rho u \frac{dY_k}{dz} + \frac{dj_k}{dz} = W_k\dot{\omega}_k
      * @f]
      *
      * The species equations include terms for temporal and spatial variations
@@ -430,7 +448,7 @@ protected:
     /**
      * Evaluate the electric field equation residual to be zero everywhere.
      *
-     * The electric field equation is implemnted in the IonFlow class. The default
+     * The electric field equation is implemented in the IonFlow class. The default
      * boundary condition is zero electric field (@f$ E @f$) at the boundary,
      * and @f$ E @f$ is zero within the domain.
      */
@@ -440,6 +458,16 @@ protected:
     /**
      * Update the thermodynamic properties from point j0 to point j1
      * (inclusive), based on solution x.
+     *
+     * The gas state is set to be consistent with the solution at the
+     * points from j0 to j1.
+     *
+     * Properties that are computed and cached are:
+     * * #m_rho (density)
+     * * #m_wtm (mean molecular weight)
+     * * #m_cp (specific heat capacity)
+     * * #m_hk (species specific enthalpies)
+     * * #m_wdot (species production rates)
      */
     void updateThermo(const double* x, size_t j0, size_t j1) {
         for (size_t j = j0; j <= j1; j++) {
