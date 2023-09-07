@@ -318,6 +318,10 @@ void StFlow::eval(size_t jg, double* xg, double* rg, integer* diagg, double rdt)
 
     updateProperties(jg, x, jmin, jmax);
 
+    if (m_do_radiation) { // Calculation of qdotRadiation
+        computeRadiation(x, jmin, jmax);
+    }
+
     evalContinuity(x, rsd, diag, rdt, jmin, jmax);
     evalMomentum(x, rsd, diag, rdt, jmin, jmax);
     evalEnergy(x, rsd, diag, rdt, jmin, jmax);
@@ -493,14 +497,34 @@ void StFlow::evalMomentum(double* x, double* rsd, int* diag,
     }
 }
 
+void StFlow::evalLambda(double* x, double* rsd, int* diag,
+                        double rdt, size_t jmin, size_t jmax)
+{
+    for (size_t j = jmin; j <= jmax; j++) {
+        if (j == 0) { // left boundary
+            if (m_usesLambda) {
+                rsd[index(c_offset_L, 0)] = -rho_u(x, 0);
+            } else {
+                rsd[index(c_offset_L, 0)] = lambda(x, 0);
+                diag[index(c_offset_L, 0)] = 0;
+            }
+        } else if (j == m_points - 1) { // right boundary
+            rsd[index(c_offset_L, j)] = lambda(x, j) - lambda(x, j-1);
+            diag[index(c_offset_L, j)] = 0;
+        } else { // interior points
+            if (m_usesLambda) {
+                rsd[index(c_offset_L, j)] = lambda(x, j) - lambda(x, j - 1);
+            } else {
+                rsd[index(c_offset_L, j)] = lambda(x, j);
+            }
+            diag[index(c_offset_L, j)] = 0;
+        }
+    }
+}
+
 void StFlow::evalEnergy(double* x, double* rsd, int* diag,
                         double rdt, size_t jmin, size_t jmax)
 {
-    // Calculation of qdotRadiation (see docstring of enableRadiation)
-    if (m_do_radiation) {
-        computeRadiation(x, jmin, jmax);
-    }
-
     for (size_t j = jmin; j <= jmax; j++) {
         if (j == 0) { // left boundary
             rsd[index(c_offset_T,0)] = T(x,0);
@@ -568,42 +592,12 @@ void StFlow::evalSpecies(double* x, double* rsd, int* diag,
     }
 }
 
-void StFlow::evalLambda(double* x, double* rsd, int* diag,
-                        double rdt, size_t jmin, size_t jmax)
-{
-    for (size_t j = jmin; j <= jmax; j++) {
-        if (j == 0) { // left boundary
-            if (m_usesLambda) {
-                rsd[index(c_offset_L, 0)] = -rho_u(x, 0);
-            } else {
-                rsd[index(c_offset_L, 0)] = lambda(x, 0);
-                diag[index(c_offset_L, 0)] = 0;
-            }
-        } else if (j == m_points - 1) { // right boundary
-            rsd[index(c_offset_L, j)] = lambda(x, j) - lambda(x, j-1);
-            diag[index(c_offset_L, j)] = 0;
-        } else { // interior points
-            if (m_usesLambda) {
-                rsd[index(c_offset_L, j)] = lambda(x, j) - lambda(x, j - 1);
-            } else {
-                rsd[index(c_offset_L, j)] = lambda(x, j);
-            }
-            diag[index(c_offset_L, j)] = 0;
-        }
-    }
-}
-
 void StFlow::evalElectricField(double* x, double* rsd, int* diag,
                                double rdt, size_t jmin, size_t jmax)
 {
     for (size_t j = jmin; j <= jmax; j++) {
-        if (j == 0) { // left boundary
-            rsd[index(c_offset_E, 0)] = x[index(c_offset_E, j)];
-        } else if (j == m_points - 1) { // right boundary
-            rsd[index(c_offset_E, j)] = x[index(c_offset_E, j)];
-        } else { // interior points
-            rsd[index(c_offset_E, j)] = x[index(c_offset_E, j)];
-        }
+        // The same value is used for left/right/interior points
+        rsd[index(c_offset_E, j)] = x[index(c_offset_E, j)];
     }
 }
 
@@ -652,18 +646,6 @@ void StFlow::computeRadiation(double* x, size_t jmin, size_t jmax)
 
         // set the radiative heat loss vector
         m_qdotRadiation[j] = radiative_heat_loss;
-    }
-}
-
-void StFlow::grad_hk(const double* x, size_t j)
-{
-    for(size_t k = 0; k < m_nsp; k++) {
-        if (u(x, j) > 0.0) {
-            m_dhk_dz(k,j) = (m_hk(k,j) - m_hk(k,j-1)) / m_dz[j - 1];
-        }
-        else {
-            m_dhk_dz(k,j) = (m_hk(k,j+1) - m_hk(k,j)) / m_dz[j];
-        }
     }
 }
 
@@ -1001,6 +983,18 @@ void StFlow::fixTemperature(size_t j)
     m_refiner->setActive(c_offset_T, false);
     if (changed) {
         needJacUpdate();
+    }
+}
+
+void StFlow::grad_hk(const double* x, size_t j)
+{
+    for(size_t k = 0; k < m_nsp; k++) {
+        if (u(x, j) > 0.0) {
+            m_dhk_dz(k,j) = (m_hk(k,j) - m_hk(k,j-1)) / m_dz[j - 1];
+        }
+        else {
+            m_dhk_dz(k,j) = (m_hk(k,j+1) - m_hk(k,j)) / m_dz[j];
+        }
     }
 }
 

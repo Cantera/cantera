@@ -367,6 +367,23 @@ protected:
                               double rdt, size_t jmin, size_t jmax);
 
     /**
+     * Evaluate the lambda equation residual.
+     *
+     * The function calculates the lambda equation as
+     * @f[
+     *    \frac{d\lambda}{dz} = 0
+     * @f]
+     *
+     * The lambda equation serves as an eigenvalue that allows the momentum
+     * equation and continuity equations to be simultaneously satisfied. The lambda
+     * equation propgates information from left-to-right. The default
+     * boundary condition is zero (\f$ \lambda \f$) at the left and zero flux at
+     * the right boundary.
+     */
+    virtual void evalLambda(double* x, double* rsd, int* diag,
+                            double rdt, size_t jmin, size_t jmax);
+
+    /**
      * Evaluate the energy equation residual.
      *
      * The function calculates the energy equation:
@@ -398,23 +415,6 @@ protected:
      */
     virtual void evalSpecies(double* x, double* rsd, int* diag,
                              double rdt, size_t jmin, size_t jmax);
-
-    /**
-     * Evaluate the lambda equation residual.
-     *
-     * The function calculates the lambda equation as
-     * @f[
-     *    \frac{d\lambda}{dz} = 0
-     * @f]
-     *
-     * The lambda equation serves as an eigenvalue that allows the momentum
-     * equation and continuity equations to be simultaneously satisfied. The lambda
-     * equation propgates information from left-to-right. The default
-     * boundary condition is zero (\f$ \lambda \f$) at the left and zero flux at
-     * the right boundary.
-     */
-    virtual void evalLambda(double* x, double* rsd, int* diag,
-                            double rdt, size_t jmin, size_t jmax);
 
     /**
      * Evaluate the electric field equation residual to be zero everywhere.

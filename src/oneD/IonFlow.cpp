@@ -211,14 +211,12 @@ void IonFlow::evalElectricField(double* x, double* rsd, int* diag,
     for (size_t j = jmin; j <= jmax; j++) {
         if (j == 0) {
             rsd[index(c_offset_E, j)] = E(x,0);
-            diag[index(c_offset_E, j)] = 0;
         } else if (j == m_points - 1) {
             rsd[index(c_offset_E, j)] = dEdz(x,j) - rho_e(x,j) / epsilon_0;
-            diag[index(c_offset_E, j)] = 0;
         } else {
             rsd[index(c_offset_E, j)] = dEdz(x,j) - rho_e(x,j) / epsilon_0;
-            diag[index(c_offset_E, j)] = 0;
         }
+        diag[index(c_offset_E, j)] = 0;
     }
 }
 
@@ -238,8 +236,6 @@ void IonFlow::evalSpecies(double* x, double* rsd, int* diag,
             for (size_t k : m_kCharge) {
                 rsd[index(c_offset_Y + k, 0)] = Y(x,k,0) - Y(x,k,1);
             }
-        } else if (j == m_points - 1) { // right boundary
-        } else { // interior points
         }
     }
 }
