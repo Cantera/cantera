@@ -130,6 +130,7 @@ class SolidProperties:
 # Temperature-dependent fits from measurements:
 # SiC: Thermal conductivity in hot-pressed silicon carbide, D.-K. Liu, B.-W. Lin,
 #      Ceramics International, 22(5), pp. 407-414 (1996)
+# Note that in this simple model, 0.84 is the porosity of the SiC foams
 def effectiveConductivitySiC(Ts):  # for silicon carbide
     return (1 - 0.84) * 1857.0 * Ts**(-0.5332)
 
@@ -313,7 +314,7 @@ class PMReactor(ct.ExtensibleIdealGasConstPressureReactor):
         # convective transport
         RHS[Tindex] += self.A * mdot * (h_in - enthalpy_loss)
         # chemical contribution
-        RHS[Tindex] += hrr * self.V
+        RHS[Tindex] += hrr * self.V * porosity
 
     def before_component_index(self, name):
         if name == "Ts":
