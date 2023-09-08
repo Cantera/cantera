@@ -287,7 +287,7 @@ public:
      *
      * These residuals at all the boundary grid points are evaluated using a default
      * boundary condition that may be modified by a boundary object that is attached
-     * to the domain.The boundary object connected will modify these equations by
+     * to the domain. The boundary object connected will modify these equations by
      * subtracting the boundary object's values for V, T, mdot, etc. As a result,
      * these residual equations will force the solution variables to the values of
      * the connected boundary object.
@@ -342,10 +342,20 @@ protected:
      *     \frac{d(\rho u)}{dz} + 2\rho V = 0
      * @f]
      *
-     * The continuity equation propagates information from right-to-left.
-     * The @f$ \rho u @f$ at point 0 is dependent on @f$ \rho u @f$ at point 1 but not
-     * on @f$ \dot{m} @f$ from the inlet. The default value for the continuity equation
-     * is zero velocity (@f$ u @f$) at the left and right boundary.
+     * Axisymmetric flame:
+     *  The continuity equation propagates information from right-to-left.
+     *  The @f$ \rho u @f$ at point 0 is dependent on @f$ \rho u @f$ at point 1 but not
+     *  on @f$ \dot{m} @f$ from the inlet.
+     *
+     * Freely-propagating flame:
+     *  The continuity equation propagates information away from a fixed temperature
+     *  point that is set in the domain.
+     *
+     * Unstrained flame: specified mass flux; the main example being
+     *   burner-stabilized flames.
+     *
+     * The default boundary condition for the continuity equation is zero velocity
+     * (@f$ u @f$) at the left and right boundary.
      */
     virtual void evalContinuity(double* x, double* rsd, int* diag,
                                 double rdt, size_t jmin, size_t jmax);
@@ -355,13 +365,14 @@ protected:
      *
      * The function calculates the radial momentum equation defined as
      * @f[
-     *    \rho \frac{dV}{dt} + \rho u \frac{dV}{dz} + \rho V^2 =
-     *    \frac{d(\mu \frac{dV}{dz})}{dz} - \lambda
+     *    \rho u \frac{dV}{dz} + \rho V^2 =
+     *    \frac{d(\mu \frac{dV}{dz})}{dz} - \Lambda
      * @f]
      *
-     * The radial momentum equation incorporates terms for temporal and spatial
-     * variations of radial velocity (@f$ V @f$). The default boundary condition is zero
-     * radial velocity (@f$ V @f$) at the left and right boundary.
+     * The radial momentum equation is used for axisymmetric flows, and incorporates
+     * terms for time and spatial variations of radial velocity (@f$ V @f$). The
+     * default boundary condition is zero radial velocity (@f$ V @f$) at the left
+     * and right boundary.
      */
     virtual void evalMomentum(double* x, double* rsd, int* diag,
                               double rdt, size_t jmin, size_t jmax);
@@ -371,14 +382,14 @@ protected:
      *
      * The function calculates the lambda equation as
      * @f[
-     *    \frac{d\lambda}{dz} = 0
+     *    \frac{d\Lambda}{dz} = 0
      * @f]
      *
      * The lambda equation serves as an eigenvalue that allows the momentum
-     * equation and continuity equations to be simultaneously satisfied. The lambda
-     * equation propgates information from left-to-right. The default
-     * boundary condition is zero (@f$ \lambda @f$) at the left and zero flux at
-     * the right boundary.
+     * equation and continuity equations to be simultaneously satisfied in
+     * axisymmetric flows. The lambda equation propgates information from
+     * left-to-right. The default boundary condition is zero (@f$ \Lambda @f$)
+     * at the left and zero flux at the right boundary.
      */
     virtual void evalLambda(double* x, double* rsd, int* diag,
                             double rdt, size_t jmin, size_t jmax);
@@ -388,15 +399,15 @@ protected:
      *
      * The function calculates the energy equation:
      * @f[
-     *    \rho c_p \frac{dT}{dt} + \rho c_p u \frac{dT}{dz} =
+     *    \rho c_p u \frac{dT}{dz} =
      *    \frac{d(k \frac{dT}{dz})}{dz} - \sum_k (\omega_k h_{k_{\text{ref}}}) -
      *    \sum_k \left( \frac{J_k c_{p_k}}{M_k} \frac{dT}{dz} \right)
      * @f]
      *
-     * The energy equation includes terms for temporal and spatial
-     * variations of temperature (@f$ T @f$). It includes contributions from
+     * The energy equation includes contributions from
      * chemical reactions and diffusion. Default is zero temperature (@f$ T @f$)
-     * at the left and right.
+     * at the left and right boundaries. These boundary values are updated by the
+     * specific boundary object connected to the domain.
      */
     virtual void evalEnergy(double* x, double* rsd, int* diag,
                             double rdt, size_t jmin, size_t jmax);
@@ -406,7 +417,7 @@ protected:
      *
      * The function calculates the species equations as
      * @f[
-     *    \rho \frac{dY_k}{dt} + \rho u \frac{dY_k}{dz} + \frac{dJ_k}{dz} = M_k\omega_k
+     *    \rho u \frac{dY_k}{dz} + \frac{dJ_k}{dz} = M_k\omega_k
      * @f]
      *
      * The species equations include terms for temporal and spatial variations
