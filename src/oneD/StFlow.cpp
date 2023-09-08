@@ -410,25 +410,32 @@ void StFlow::evalContinuity(double* x, double* rsd, int* diag,
         rsd[index(c_offset_U,jmin)] = -(rho_u(x,jmin + 1) - rho_u(x,jmin))/m_dz[jmin]
                                       -(density(jmin + 1)*V(x,jmin + 1)
                                       + density(jmin)*V(x,jmin));
+        diag[index(c_offset_U,jmin)] = 0; // Algebraic constraint
     }
 
-    if (jmax == m_points - 1) { // right boundary (same for unstrained/free-flow)
-        rsd[index(c_offset_U, jmax)] = rho_u(x, jmax) - rho_u(x, jmax - 1);
+    if (jmax == m_points - 1 ) { // right boundary
+        if (m_usesLambda == true) { // axisymmetric flow
+            rsd[index(c_offset_U, jmax)] = rho_u(x, jmax);
+        } else { // right boundary (same for unstrained/free-flow)
+            rsd[index(c_offset_U, jmax)] = rho_u(x, jmax) - rho_u(x, jmax - 1);
+        }
+        diag[index(c_offset_U, jmax)] = 0; // Algebraic constraint
     }
 
     // j0 and j1 are constrained to only interior points
     size_t j0 = std::max<size_t>(jmin, 1);
     size_t j1 = std::min(jmax, m_points - 2);
-    for (size_t j = j0; j <= j1; j++) {
-        rsd[index(c_offset_U, j)] = rho_u(x, j) - rho_u(x, j - 1);
-        diag[index(c_offset_U, j)] = 0;
-    }
-
-    if (m_usesLambda == false && m_isFree == false) { //unstrained flow
-        return;
-    }
-
-    if (m_isFree == true) { // free flow
+    if (m_usesLambda == true) { // "axisymmetric-flow"
+        for (size_t j = j0; j <= j1; j++) { // interior points
+            // For "axisymmetric-flow", the continuity equation  propagates the
+            // mass flow rate information to the left (j+1 -> j) from the value
+            // specified at the right boundary. The lambda information propagates
+            // in the opposite direction.
+            rsd[index(c_offset_U,j)] = -(rho_u(x,j+1) - rho_u(x,j))/m_dz[j]
+                                    -(density(j+1)*V(x,j+1) + density(j)*V(x,j));
+            diag[index(c_offset_U, j)] = 0; // Algebraic constraint
+        }
+    } else if (m_isFree) { // "free-flow"
         for (size_t j = j0; j <= j1; j++) {
             // terms involving V are zero as V=0 by definition
             if (grid(j) > m_zfixed) {
@@ -439,27 +446,17 @@ void StFlow::evalContinuity(double* x, double* rsd, int* diag,
                 } else {
                     rsd[index(c_offset_U,j)] = (rho_u(x,j) - m_rho[0]*0.3); // why 0.3?
                 }
-            } else if (grid(j) < m_zfixed) {
+            } else { // grid(j < m_zfixed
                 rsd[index(c_offset_U,j)] = -(rho_u(x,j+1) - rho_u(x,j))/m_dz[j];
             }
+            diag[index(c_offset_U, j)] = 0; // Algebraic constraint
         }
-        return;
+    } else { // "unstrained-flow" (fixed mass flow rate)
+        for (size_t j = j0; j <= j1; j++) {
+            rsd[index(c_offset_U, j)] = rho_u(x, j) - rho_u(x, j - 1);
+            diag[index(c_offset_U, j)] = 0; // Algebraic constraint
+        }
     }
-
-    // axisymmetric flow
-    for (size_t j = j0; j <= j1; j++) { // interior points
-        // Note that this propagates the mass flow rate information to the left
-        // (j+1 -> j) from the value specified at the right boundary. The
-        // lambda information propagates in the opposite direction.
-        rsd[index(c_offset_U,j)] = -(rho_u(x,j+1) - rho_u(x,j))/m_dz[j]
-                                   -(density(j+1)*V(x,j+1) + density(j)*V(x,j));
-        diag[index(c_offset_U, j)] = 0; // Algebraic constraint
-    }
-
-    if (jmax == m_points - 1) { // right boundary
-        rsd[index(c_offset_U, jmax)] = rho_u(x, jmax);
-    }
-
 }
 
 void StFlow::evalMomentum(double* x, double* rsd, int* diag,
@@ -497,7 +494,7 @@ void StFlow::evalMomentum(double* x, double* rsd, int* diag,
 void StFlow::evalLambda(double* x, double* rsd, int* diag,
                         double rdt, size_t jmin, size_t jmax)
 {
-    if (m_usesLambda == false) { //disable this equation
+    if (m_usesLambda == false) { // disable this equation
         for (size_t j = jmin; j <= jmax; j++) {
             rsd[index(c_offset_L, j)] = lambda(x, j);
             diag[index(c_offset_L, j)] = 0;
