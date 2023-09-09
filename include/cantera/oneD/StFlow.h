@@ -366,8 +366,8 @@ protected:
      * The default boundary condition for the continuity equation is zero velocity
      * (@f$ u @f$) at the left and right boundary.
      *
-     * @param [in] x State vector, which includes variables like temperature, density, etc.
-     * @param [out] rsd Residual vector where the continuity equation residuals are stored.
+     * @param [in] x State vector, includes variables like temperature, density, etc.
+     * @param [out] rsd Residual vector that stores the continuity equation residuals.
      * @param [out] diag Diagonal matrix that controls whether an entry has a
      *                   time-derivative (used by the solver).
      * @param [in] rdt Reciprocal of the timestep.

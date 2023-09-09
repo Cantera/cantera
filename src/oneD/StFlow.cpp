@@ -394,9 +394,8 @@ void StFlow::computeRadiation(double* x, size_t jmin, size_t jmax)
         }
 
         // Calculation of the radiative heat loss term
-        double radiative_heat_loss = 0;
-        radiative_heat_loss = 2 * k_P *(2 * StefanBoltz * pow(T(x, j), 4)
-                              - boundary_Rad_left - boundary_Rad_right);
+        double radiative_heat_loss = 2 * k_P *(2 * StefanBoltz * pow(T(x, j), 4)
+                                     - boundary_Rad_left - boundary_Rad_right);
 
         // set the radiative heat loss vector
         m_qdotRadiation[j] = radiative_heat_loss;
@@ -414,8 +413,8 @@ void StFlow::evalContinuity(double* x, double* rsd, int* diag,
         diag[index(c_offset_U,jmin)] = 0; // Algebraic constraint
     }
 
-    if (jmax == m_points - 1 ) { // right boundary
-        if (m_usesLambda == true) { // axisymmetric flow
+    if (jmax == m_points - 1) { // right boundary
+        if (m_usesLambda) { // axisymmetric flow
             rsd[index(c_offset_U, jmax)] = rho_u(x, jmax);
         } else { // right boundary (same for unstrained/free-flow)
             rsd[index(c_offset_U, jmax)] = rho_u(x, jmax) - rho_u(x, jmax - 1);
@@ -426,14 +425,14 @@ void StFlow::evalContinuity(double* x, double* rsd, int* diag,
     // j0 and j1 are constrained to only interior points
     size_t j0 = std::max<size_t>(jmin, 1);
     size_t j1 = std::min(jmax, m_points - 2);
-    if (m_usesLambda == true) { // "axisymmetric-flow"
+    if (m_usesLambda) { // "axisymmetric-flow"
         for (size_t j = j0; j <= j1; j++) { // interior points
             // For "axisymmetric-flow", the continuity equation  propagates the
             // mass flow rate information to the left (j+1 -> j) from the value
             // specified at the right boundary. The lambda information propagates
             // in the opposite direction.
             rsd[index(c_offset_U,j)] = -(rho_u(x,j+1) - rho_u(x,j))/m_dz[j]
-                                    -(density(j+1)*V(x,j+1) + density(j)*V(x,j));
+                                       -(density(j+1)*V(x,j+1) + density(j)*V(x,j));
             diag[index(c_offset_U, j)] = 0; // Algebraic constraint
         }
     } else if (m_isFree) { // "free-flow"
@@ -463,7 +462,7 @@ void StFlow::evalContinuity(double* x, double* rsd, int* diag,
 void StFlow::evalMomentum(double* x, double* rsd, int* diag,
                           double rdt, size_t jmin, size_t jmax)
 {
-    if (m_usesLambda == false) { //disable this equation
+    if (!m_usesLambda) { //disable this equation
         for (size_t j = jmin; j <= jmax; j++) {
             rsd[index(c_offset_V, j)] = V(x, j);
             diag[index(c_offset_V, j)] = 0;
@@ -485,8 +484,8 @@ void StFlow::evalMomentum(double* x, double* rsd, int* diag,
     size_t j1 = std::min(jmax, m_points - 2);
     for (size_t j = j0; j <= j1; j++) { // interior points
         rsd[index(c_offset_V,j)] = (shear(x, j) - lambda(x, j)
-                                   - rho_u(x, j) * dVdz(x, j)
-                                   - m_rho[j] * V(x, j) * V(x, j)) / m_rho[j]
+                                    - rho_u(x, j) * dVdz(x, j)
+                                    - m_rho[j] * V(x, j) * V(x, j)) / m_rho[j]
                                    - rdt * (V(x, j) - V_prev(j));
         diag[index(c_offset_V, j)] = 1;
     }
@@ -495,7 +494,7 @@ void StFlow::evalMomentum(double* x, double* rsd, int* diag,
 void StFlow::evalLambda(double* x, double* rsd, int* diag,
                         double rdt, size_t jmin, size_t jmax)
 {
-    if (m_usesLambda == false) { // disable this equation
+    if (!m_usesLambda) { // disable this equation
         for (size_t j = jmin; j <= jmax; j++) {
             rsd[index(c_offset_L, j)] = lambda(x, j);
             diag[index(c_offset_L, j)] = 0;
@@ -523,7 +522,6 @@ void StFlow::evalLambda(double* x, double* rsd, int* diag,
 void StFlow::evalEnergy(double* x, double* rsd, int* diag,
                         double rdt, size_t jmin, size_t jmax)
 {
-
     if (jmin == 0) { // left boundary
         rsd[index(c_offset_T,jmin)] = T(x,jmin);
     }
@@ -537,17 +535,15 @@ void StFlow::evalEnergy(double* x, double* rsd, int* diag,
     size_t j1 = std::min(jmax, m_points - 2);
     for (size_t j = j0; j <= j1; j++) {
         if (m_do_energy[j]) {
-            double dtdzj = dTdz(x,j);
-            double sum = 0.0;
-
             grad_hk(x, j);
+            double sum = 0.0;
             for (size_t k = 0; k < m_nsp; k++) {
                 double flxk = 0.5*(m_flux(k,j-1) + m_flux(k,j));
                 sum += wdot(k,j)*m_hk(k,j);
                 sum += flxk * m_dhk_dz(k,j) / m_wt[k];
             }
 
-            rsd[index(c_offset_T, j)] = - m_cp[j]*rho_u(x,j)*dtdzj
+            rsd[index(c_offset_T, j)] = - m_cp[j]*rho_u(x,j)*dTdz(x,j)
                                         - divHeatFlux(x,j) - sum;
             rsd[index(c_offset_T, j)] /= (m_rho[j]*m_cp[j]);
             rsd[index(c_offset_T, j)] -= rdt*(T(x,j) - T_prev(j));
@@ -568,8 +564,8 @@ void StFlow::evalSpecies(double* x, double* rsd, int* diag,
         double sum = 0.0;
         for (size_t k = 0; k < m_nsp; k++) {
             sum += Y(x,k,jmin);
-            rsd[index(c_offset_Y + k, jmin)] =
-                -(m_flux(k,jmin) + rho_u(x,jmin)* Y(x,k,jmin));
+            rsd[index(c_offset_Y + k, jmin)] = -(m_flux(k,jmin) +
+                                                rho_u(x,jmin) * Y(x,k,jmin));
         }
         rsd[index(c_offset_Y + leftExcessSpecies(), jmin)] = 1.0 - sum;
     }
@@ -578,7 +574,8 @@ void StFlow::evalSpecies(double* x, double* rsd, int* diag,
         double sum = 0.0;
         for (size_t k = 0; k < m_nsp; k++) {
             sum += Y(x,k,jmax);
-            rsd[index(k+c_offset_Y,jmax)] = m_flux(k,jmax-1) + rho_u(x,jmax)*Y(x,k,jmax);
+            rsd[index(k+c_offset_Y,jmax)] = m_flux(k,jmax-1) +
+                                            rho_u(x,jmax)*Y(x,k,jmax);
         }
         rsd[index(c_offset_Y + rightExcessSpecies(), jmax)] = 1.0 - sum;
         diag[index(c_offset_Y + rightExcessSpecies(), jmax)] = 0;
@@ -592,7 +589,7 @@ void StFlow::evalSpecies(double* x, double* rsd, int* diag,
             double convec = rho_u(x,j)*dYdz(x,k,j);
             double diffus = 2.0*(m_flux(k,j) - m_flux(k,j-1)) / (z(j+1) - z(j-1));
             rsd[index(c_offset_Y + k, j)] = (m_wt[k]*(wdot(k,j))
-                                            - convec - diffus)/m_rho[j]
+                                             - convec - diffus)/m_rho[j]
                                             - rdt*(Y(x,k,j) - Y_prev(k,j));
             diag[index(c_offset_Y + k, j)] = 1;
         }
