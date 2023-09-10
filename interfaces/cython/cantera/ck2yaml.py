@@ -6,7 +6,7 @@
 
 """Convert Chemkin-format mechanism files to YAML.
 
-There are two main entry points to this script, ``main`` and ``convert``. The former is
+There are two main entry points to this script, `main` and `convert`. The former is
 used from the command line interface and parses the arguments passed. The latter uses
 arguments that correspond to options of the command line interface.
 """
