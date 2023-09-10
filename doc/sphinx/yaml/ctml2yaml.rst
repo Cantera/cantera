@@ -4,7 +4,7 @@
 CTML to YAML conversion
 ***********************
 
-.. note::
+.. seealso::
     For a tutorial, refer to the `Converting CTI and XML input files to YAML
     <https://cantera.org/tutorials/legacy2yaml.html>`_ pages.
 
