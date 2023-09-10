@@ -1,8 +1,10 @@
+.. _sec-ck2yaml:
+
 **************************
 Chemkin to YAML conversion
 **************************
 
-.. note::
+.. seealso::
     For a tutorial, refer to the `Converting Chemkin-format files
     <https://cantera.org/tutorials/ck2yaml-tutorial.html>`_ pages.
 

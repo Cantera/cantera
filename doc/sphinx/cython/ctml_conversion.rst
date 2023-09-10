@@ -2,9 +2,10 @@
 CTML to YAML conversion
 ***********************
 
-For documentation of the command line interface, see the :ref:`cml2yaml <sec-ctml2yaml>`
-section. For a tutorial, refer to the `Converting CTI and XML input files to YAML
-<https://cantera.org/tutorials/legacy2yaml.html>`_ pages.
+.. seealso::
+   For documentation of the command line interface, see the :ref:`ctml2yaml
+   <sec-ctml2yaml>` section. For a tutorial, refer to the `Converting CTI and XML input
+   files to YAML <https://cantera.org/tutorials/legacy2yaml.html>`_ pages.
 
 
 Module-level documentation
