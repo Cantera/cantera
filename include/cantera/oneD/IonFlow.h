@@ -87,6 +87,8 @@ protected:
      * (@f$ \varepsilon_0 @f$).
      * The zero electric field is first evaluated and if the solution state is 2,
      * then the alternative form the electric field equation is evaluated.
+     *
+     * For argument explanation, see evalContinuity() base class.
      */
     void evalElectricField(double* x, double* rsd, int* diag,
                            double rdt, size_t jmin, size_t jmax) override;
@@ -98,6 +100,8 @@ protected:
      * A Neumann boundary for the charged species at the
      * left boundary is added, and the default boundary condition from the overloaded
      * method is left the same for the right boundary.
+     *
+     * For argument explanation, see evalContinuity() base class.
      */
     void evalSpecies(double* x, double* rsd, int* diag,
                      double rdt, size_t jmin, size_t jmax) override;

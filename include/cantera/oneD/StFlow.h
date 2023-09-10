@@ -297,8 +297,7 @@ public:
      *  @param[out] rsdGlobal  Global residual vector
      *  @param[out] diagGlobal  Global boolean mask indicating whether each solution
      *      component has a time derivative (1) or not (0).
-     *  @param[in] rdt Reciprocal of the timestep (`rdt=0` implies steady-
-     *  state.)
+     *  @param[in] rdt Reciprocal of the timestep (`rdt=0` implies steady-state.)
      */
     void eval(size_t jGlobal, double* xGlobal, double* rsdGlobal,
               integer* diagGlobal, double rdt) override;
@@ -353,8 +352,8 @@ protected:
      *
      * Axisymmetric flame:
      *  The continuity equation propagates information from right-to-left.
-     *  The @f$ \rho u @f$ at point 0 is dependent on @f$ \rho u @f$ at point 1 but not
-     *  on @f$ \dot{m} @f$ from the inlet.
+     *  The @f$ \rho u @f$ at point 0 is dependent on @f$ \rho u @f$ at point 1,
+     *  but not on @f$ \dot{m} @f$ from the inlet.
      *
      * Freely-propagating flame:
      *  The continuity equation propagates information away from a fixed temperature
@@ -363,16 +362,18 @@ protected:
      * Unstrained flame:
      *  A specified mass flux; the main example being burner-stabilized flames.
      *
-     * The default boundary condition for the continuity equation is zero velocity
-     * (@f$ u @f$) at the left and right boundary.
+     * The default boundary condition for the continuity equation is
+     * (@f$ u = 0 @f$) at the left and right boundary.
      *
-     * @param [in] x State vector, includes variables like temperature, density, etc.
-     * @param [out] rsd Residual vector that stores the continuity equation residuals.
-     * @param [out] diag Diagonal matrix that controls whether an entry has a
-     *                   time-derivative (used by the solver).
-     * @param [in] rdt Reciprocal of the timestep.
-     * @param [in] jmin The index for the starting point in the grid.
-     * @param [in] jmax The index for the ending point in the grid.
+     * @param[in] x Local domain state vector, includes variables like temperature,
+     *               density, etc.
+     * @param[out] rsd Local domain residual vector that stores the continuity
+     *                  equation residuals.
+     * @param[out] diag Local domain diagonal matrix that controls whether an entry
+     *                   has a time-derivative (used by the solver).
+     * @param[in] rdt Reciprocal of the timestep.
+     * @param[in] jmin The index for the starting point in the local domain grid.
+     * @param[in] jmax The index for the ending point in the local domain grid.
      */
     virtual void evalContinuity(double* x, double* rsd, int* diag,
                                 double rdt, size_t jmin, size_t jmax);
@@ -390,6 +391,8 @@ protected:
      * terms for time and spatial variations of radial velocity (@f$ V @f$). The
      * default boundary condition is zero radial velocity (@f$ V @f$) at the left
      * and right boundary.
+     *
+     * For argument explanation, see evalContinuity().
      */
     virtual void evalMomentum(double* x, double* rsd, int* diag,
                               double rdt, size_t jmin, size_t jmax);
@@ -407,6 +410,8 @@ protected:
      * axisymmetric flows. The lambda equation propagates information from
      * left-to-right. The default boundary condition is @f$ \Lambda = 0 @f$
      * at the left and zero flux at the right boundary.
+     *
+     * For argument explanation, see evalContinuity().
      */
     virtual void evalLambda(double* x, double* rsd, int* diag,
                             double rdt, size_t jmin, size_t jmax);
@@ -426,6 +431,8 @@ protected:
      * chemical reactions and diffusion. Default is zero temperature (@f$ T @f$)
      * at the left and right boundaries. These boundary values are updated by the
      * specific boundary object connected to the domain.
+     *
+     * For argument explanation, see evalContinuity().
      */
     virtual void evalEnergy(double* x, double* rsd, int* diag,
                             double rdt, size_t jmin, size_t jmax);
@@ -441,6 +448,8 @@ protected:
      * The species equations include terms for temporal and spatial variations
      * of species mass fractions (@f$ Y_k @f$). The default boundary condition is zero
      * flux for species at the left and right boundary.
+     *
+     * For argument explanation, see evalContinuity().
      */
     virtual void evalSpecies(double* x, double* rsd, int* diag,
                              double rdt, size_t jmin, size_t jmax);
@@ -451,6 +460,8 @@ protected:
      * The electric field equation is implemented in the IonFlow class. The default
      * boundary condition is zero electric field (@f$ E @f$) at the boundary,
      * and @f$ E @f$ is zero within the domain.
+     *
+     * For argument explanation, see evalContinuity().
      */
     virtual void evalElectricField(double* x, double* rsd, int* diag,
                                    double rdt, size_t jmin, size_t jmax);
