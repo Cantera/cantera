@@ -5,7 +5,7 @@
 
 """Convert legacy CTI input files to YAML.
 
-There are two main entry points to this script, ``main`` and ``convert``. The former is
+There are two main entry points to this script, `main` and `convert`. The former is
 used from the command line interface and parses the arguments passed. The latter
 accepts either the name of the CTI input file or a string containing the CTI
 content.
