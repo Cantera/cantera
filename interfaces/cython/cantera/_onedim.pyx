@@ -459,7 +459,7 @@ cdef class _FlowBase(Domain1D):
         self._domain = CxxNewDomain1D(
             stringify(self._domain_type), phase._base, stringify(name))
         self.domain = self._domain.get()
-        self.flow = <CxxStFlow*>self.domain
+        self.flow = <CxxFlow1D*>self.domain
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

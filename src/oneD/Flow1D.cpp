@@ -1,10 +1,10 @@
-//! @file StFlow.cpp
+//! @file Flow1D.cpp
 
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/base/SolutionArray.h"
-#include "cantera/oneD/StFlow.h"
+#include "cantera/oneD/Flow1D.h"
 #include "cantera/oneD/refine.h"
 #include "cantera/transport/Transport.h"
 #include "cantera/transport/TransportFactory.h"
@@ -16,7 +16,7 @@ using namespace std;
 namespace Cantera
 {
 
-StFlow::StFlow(ThermoPhase* ph, size_t nsp, size_t points) :
+Flow1D::Flow1D(ThermoPhase* ph, size_t nsp, size_t points) :
     Domain1D(nsp+c_offset_Y, points),
     m_nsp(nsp)
 {
@@ -89,22 +89,22 @@ StFlow::StFlow(ThermoPhase* ph, size_t nsp, size_t points) :
     m_kRadiating[1] = m_thermo->speciesIndex("H2O");
 }
 
-StFlow::StFlow(shared_ptr<ThermoPhase> th, size_t nsp, size_t points)
-    : StFlow(th.get(), nsp, points)
+Flow1D::Flow1D(shared_ptr<ThermoPhase> th, size_t nsp, size_t points)
+    : Flow1D(th.get(), nsp, points)
 {
     m_solution = Solution::create();
     m_solution->setThermo(th);
 }
 
-StFlow::StFlow(shared_ptr<Solution> sol, const string& id, size_t points)
-    : StFlow(sol->thermo().get(), sol->thermo()->nSpecies(), points)
+Flow1D::Flow1D(shared_ptr<Solution> sol, const string& id, size_t points)
+    : Flow1D(sol->thermo().get(), sol->thermo()->nSpecies(), points)
 {
     m_solution = sol;
     m_id = id;
     m_kin = m_solution->kinetics().get();
     m_trans = m_solution->transport().get();
     if (m_trans->transportModel() == "none") {
-        throw CanteraError("StFlow::StFlow",
+        throw CanteraError("Flow1D::Flow1D",
             "An appropriate transport model\nshould be set when instantiating the "
             "Solution ('gas') object.");
     }
@@ -114,14 +114,14 @@ StFlow::StFlow(shared_ptr<Solution> sol, const string& id, size_t points)
     });
 }
 
-StFlow::~StFlow()
+Flow1D::~Flow1D()
 {
     if (m_solution) {
         m_solution->removeChangedCallback(this);
     }
 }
 
-string StFlow::domainType() const {
+string Flow1D::domainType() const {
     if (m_isFree) {
         return "free-flow";
     }
@@ -131,20 +131,20 @@ string StFlow::domainType() const {
     return "unstrained-flow";
 }
 
-void StFlow::setKinetics(shared_ptr<Kinetics> kin)
+void Flow1D::setKinetics(shared_ptr<Kinetics> kin)
 {
     m_kin = kin.get();
     m_solution->setKinetics(kin);
 }
 
-void StFlow::setTransport(shared_ptr<Transport> trans)
+void Flow1D::setTransport(shared_ptr<Transport> trans)
 {
     if (!trans) {
-        throw CanteraError("StFlow::setTransport", "Unable to set empty transport.");
+        throw CanteraError("Flow1D::setTransport", "Unable to set empty transport.");
     }
     m_trans = trans.get();
     if (m_trans->transportModel() == "none") {
-        throw CanteraError("StFlow::setTransport", "Invalid Transport model 'none'.");
+        throw CanteraError("Flow1D::setTransport", "Invalid Transport model 'none'.");
     }
     m_do_multicomponent = (m_trans->transportModel() == "multicomponent" ||
         m_trans->transportModel() == "multicomponent-CK");
@@ -157,7 +157,7 @@ void StFlow::setTransport(shared_ptr<Transport> trans)
     m_solution->setTransport(trans);
 }
 
-void StFlow::resize(size_t ncomponents, size_t points)
+void Flow1D::resize(size_t ncomponents, size_t points)
 {
     Domain1D::resize(ncomponents, points);
     m_rho.resize(m_points, 0.0);
@@ -183,14 +183,14 @@ void StFlow::resize(size_t ncomponents, size_t points)
     m_z.resize(m_points);
 }
 
-void StFlow::setupGrid(size_t n, const double* z)
+void Flow1D::setupGrid(size_t n, const double* z)
 {
     resize(m_nv, n);
 
     m_z[0] = z[0];
     for (size_t j = 1; j < m_points; j++) {
         if (z[j] <= z[j-1]) {
-            throw CanteraError("StFlow::setupGrid",
+            throw CanteraError("Flow1D::setupGrid",
                                "grid points must be monotonically increasing");
         }
         m_z[j] = z[j];
@@ -198,7 +198,7 @@ void StFlow::setupGrid(size_t n, const double* z)
     }
 }
 
-void StFlow::resetBadValues(double* xg)
+void Flow1D::resetBadValues(double* xg)
 {
     double* x = xg + loc();
     for (size_t j = 0; j < m_points; j++) {
@@ -208,16 +208,16 @@ void StFlow::resetBadValues(double* xg)
     }
 }
 
-void StFlow::setTransportModel(const string& trans)
+void Flow1D::setTransportModel(const string& trans)
 {
     m_solution->setTransportModel(trans);
 }
 
-string StFlow::transportModel() const {
+string Flow1D::transportModel() const {
     return m_trans->transportModel();
 }
 
-void StFlow::_getInitialSoln(double* x)
+void Flow1D::_getInitialSoln(double* x)
 {
     for (size_t j = 0; j < m_points; j++) {
         T(x,j) = m_thermo->temperature();
@@ -226,7 +226,7 @@ void StFlow::_getInitialSoln(double* x)
     }
 }
 
-void StFlow::setGas(const double* x, size_t j)
+void Flow1D::setGas(const double* x, size_t j)
 {
     m_thermo->setTemperature(T(x,j));
     const double* yy = x + m_nv*j + c_offset_Y;
@@ -234,7 +234,7 @@ void StFlow::setGas(const double* x, size_t j)
     m_thermo->setPressure(m_press);
 }
 
-void StFlow::setGasAtMidpoint(const double* x, size_t j)
+void Flow1D::setGasAtMidpoint(const double* x, size_t j)
 {
     m_thermo->setTemperature(0.5*(T(x,j)+T(x,j+1)));
     const double* yyj = x + m_nv*j + c_offset_Y;
@@ -246,10 +246,10 @@ void StFlow::setGasAtMidpoint(const double* x, size_t j)
     m_thermo->setPressure(m_press);
 }
 
-void StFlow::_finalize(const double* x)
+void Flow1D::_finalize(const double* x)
 {
     if (!m_do_multicomponent && m_do_soret) {
-        throw CanteraError("StFlow::_finalize",
+        throw CanteraError("Flow1D::_finalize",
             "Thermal diffusion (the Soret effect) is enabled, and requires "
             "using a multicomponent transport model.");
     }
@@ -293,7 +293,7 @@ void StFlow::_finalize(const double* x)
     }
 }
 
-void StFlow::eval(size_t jGlobal, double* xGlobal, double* rsdGlobal,
+void Flow1D::eval(size_t jGlobal, double* xGlobal, double* rsdGlobal,
                   integer* diagGlobal, double rdt)
 {
     // If evaluating a Jacobian, and the global point is outside the domain of
@@ -331,7 +331,7 @@ void StFlow::eval(size_t jGlobal, double* xGlobal, double* rsdGlobal,
     evalSpecies(x, rsd, diag, rdt, jmin, jmax);
 }
 
-void StFlow::updateProperties(size_t jg, double* x, size_t jmin, size_t jmax)
+void Flow1D::updateProperties(size_t jg, double* x, size_t jmin, size_t jmax)
 {
     // properties are computed for grid points from j0 to j1
     size_t j0 = std::max<size_t>(jmin, 1) - 1;
@@ -355,7 +355,7 @@ void StFlow::updateProperties(size_t jg, double* x, size_t jmin, size_t jmax)
     updateDiffFluxes(x, j0, j1);
 }
 
-void StFlow::computeRadiation(double* x, size_t jmin, size_t jmax)
+void Flow1D::computeRadiation(double* x, size_t jmin, size_t jmax)
 {
     // Variable definitions for the Planck absorption coefficient and the
     // radiation calculation:
@@ -402,7 +402,7 @@ void StFlow::computeRadiation(double* x, size_t jmin, size_t jmax)
     }
 }
 
-void StFlow::evalContinuity(double* x, double* rsd, int* diag,
+void Flow1D::evalContinuity(double* x, double* rsd, int* diag,
                             double rdt, size_t jmin, size_t jmax)
 {
     // The left boundary has the same form for all cases.
@@ -459,7 +459,7 @@ void StFlow::evalContinuity(double* x, double* rsd, int* diag,
     }
 }
 
-void StFlow::evalMomentum(double* x, double* rsd, int* diag,
+void Flow1D::evalMomentum(double* x, double* rsd, int* diag,
                           double rdt, size_t jmin, size_t jmax)
 {
     if (!m_usesLambda) { //disable this equation
@@ -491,7 +491,7 @@ void StFlow::evalMomentum(double* x, double* rsd, int* diag,
     }
 }
 
-void StFlow::evalLambda(double* x, double* rsd, int* diag,
+void Flow1D::evalLambda(double* x, double* rsd, int* diag,
                         double rdt, size_t jmin, size_t jmax)
 {
     if (!m_usesLambda) { // disable this equation
@@ -519,7 +519,7 @@ void StFlow::evalLambda(double* x, double* rsd, int* diag,
     }
 }
 
-void StFlow::evalEnergy(double* x, double* rsd, int* diag,
+void Flow1D::evalEnergy(double* x, double* rsd, int* diag,
                         double rdt, size_t jmin, size_t jmax)
 {
     if (jmin == 0) { // left boundary
@@ -557,7 +557,7 @@ void StFlow::evalEnergy(double* x, double* rsd, int* diag,
     }
 }
 
-void StFlow::evalSpecies(double* x, double* rsd, int* diag,
+void Flow1D::evalSpecies(double* x, double* rsd, int* diag,
                          double rdt, size_t jmin, size_t jmax)
 {
     if (jmin == 0) { // left boundary
@@ -596,7 +596,7 @@ void StFlow::evalSpecies(double* x, double* rsd, int* diag,
     }
 }
 
-void StFlow::evalElectricField(double* x, double* rsd, int* diag,
+void Flow1D::evalElectricField(double* x, double* rsd, int* diag,
                                double rdt, size_t jmin, size_t jmax)
 {
     for (size_t j = jmin; j <= jmax; j++) {
@@ -605,7 +605,7 @@ void StFlow::evalElectricField(double* x, double* rsd, int* diag,
     }
 }
 
-void StFlow::updateTransport(double* x, size_t j0, size_t j1)
+void Flow1D::updateTransport(double* x, size_t j0, size_t j1)
 {
      if (m_do_multicomponent) {
         for (size_t j = j0; j < j1; j++) {
@@ -635,7 +635,7 @@ void StFlow::updateTransport(double* x, size_t j0, size_t j1)
     }
 }
 
-void StFlow::show(const double* x)
+void Flow1D::show(const double* x)
 {
     writelog("    Pressure:  {:10.4g} Pa\n", m_press);
 
@@ -652,7 +652,7 @@ void StFlow::show(const double* x)
     }
 }
 
-void StFlow::updateDiffFluxes(const double* x, size_t j0, size_t j1)
+void Flow1D::updateDiffFluxes(const double* x, size_t j0, size_t j1)
 {
     if (m_do_multicomponent) {
         for (size_t j = j0; j < j1; j++) {
@@ -694,7 +694,7 @@ void StFlow::updateDiffFluxes(const double* x, size_t j0, size_t j1)
     }
 }
 
-string StFlow::componentName(size_t n) const
+string Flow1D::componentName(size_t n) const
 {
     switch (n) {
     case c_offset_U:
@@ -716,7 +716,7 @@ string StFlow::componentName(size_t n) const
     }
 }
 
-size_t StFlow::componentIndex(const string& name) const
+size_t Flow1D::componentIndex(const string& name) const
 {
     if (name=="velocity") {
         return c_offset_U;
@@ -734,12 +734,12 @@ size_t StFlow::componentIndex(const string& name) const
                 return n;
             }
         }
-        throw CanteraError("StFlow1D::componentIndex",
+        throw CanteraError("FlowDomain1D::componentIndex",
                            "no component named " + name);
     }
 }
 
-bool StFlow::componentActive(size_t n) const
+bool Flow1D::componentActive(size_t n) const
 {
     switch (n) {
     case c_offset_V: // spread_rate
@@ -753,7 +753,7 @@ bool StFlow::componentActive(size_t n) const
     }
 }
 
-AnyMap StFlow::getMeta() const
+AnyMap Flow1D::getMeta() const
 {
     AnyMap state = Domain1D::getMeta();
     state["transport-model"] = m_trans->transportModel();
@@ -802,7 +802,7 @@ AnyMap StFlow::getMeta() const
     return state;
 }
 
-shared_ptr<SolutionArray> StFlow::asArray(const double* soln) const
+shared_ptr<SolutionArray> Flow1D::asArray(const double* soln) const
 {
     auto arr = SolutionArray::create(
         m_solution, static_cast<int>(nPoints()), getMeta());
@@ -836,7 +836,7 @@ shared_ptr<SolutionArray> StFlow::asArray(const double* soln) const
     return arr;
 }
 
-void StFlow::fromArray(SolutionArray& arr, double* soln)
+void Flow1D::fromArray(SolutionArray& arr, double* soln)
 {
     Domain1D::setMeta(arr.meta());
     arr.setLoc(0);
@@ -857,7 +857,7 @@ void StFlow::fromArray(SolutionArray& arr, double* soln)
                 soln[index(i,j)] = data[j];
             }
         } else {
-            warn_user("StFlow::fromArray", "Saved state does not contain values for "
+            warn_user("Flow1D::fromArray", "Saved state does not contain values for "
                 "component '{}' in domain '{}'.", name, id());
         }
     }
@@ -866,7 +866,7 @@ void StFlow::fromArray(SolutionArray& arr, double* soln)
     setMeta(arr.meta());
 }
 
-void StFlow::setMeta(const AnyMap& state)
+void Flow1D::setMeta(const AnyMap& state)
 {
     if (state.hasKey("energy-enabled")) {
         const AnyValue& ee = state["energy-enabled"];
@@ -922,7 +922,7 @@ void StFlow::setMeta(const AnyMap& state)
     }
 }
 
-void StFlow::solveEnergyEqn(size_t j)
+void Flow1D::solveEnergyEqn(size_t j)
 {
     bool changed = false;
     if (j == npos) {
@@ -946,43 +946,43 @@ void StFlow::solveEnergyEqn(size_t j)
     }
 }
 
-size_t StFlow::getSolvingStage() const
+size_t Flow1D::getSolvingStage() const
 {
-    throw NotImplementedError("StFlow::getSolvingStage",
+    throw NotImplementedError("Flow1D::getSolvingStage",
         "Not used by '{}' objects.", type());
 }
 
-void StFlow::setSolvingStage(const size_t stage)
+void Flow1D::setSolvingStage(const size_t stage)
 {
-    throw NotImplementedError("StFlow::setSolvingStage",
+    throw NotImplementedError("Flow1D::setSolvingStage",
         "Not used by '{}' objects.", type());
 }
 
-void StFlow::solveElectricField(size_t j)
+void Flow1D::solveElectricField(size_t j)
 {
-    throw NotImplementedError("StFlow::solveElectricField",
+    throw NotImplementedError("Flow1D::solveElectricField",
         "Not used by '{}' objects.", type());
 }
 
-void StFlow::fixElectricField(size_t j)
+void Flow1D::fixElectricField(size_t j)
 {
-    throw NotImplementedError("StFlow::fixElectricField",
+    throw NotImplementedError("Flow1D::fixElectricField",
         "Not used by '{}' objects.", type());
 }
 
-bool StFlow::doElectricField(size_t j) const
+bool Flow1D::doElectricField(size_t j) const
 {
-    throw NotImplementedError("StFlow::doElectricField",
+    throw NotImplementedError("Flow1D::doElectricField",
         "Not used by '{}' objects.", type());
 }
 
-void StFlow::setBoundaryEmissivities(double e_left, double e_right)
+void Flow1D::setBoundaryEmissivities(double e_left, double e_right)
 {
     if (e_left < 0 || e_left > 1) {
-        throw CanteraError("StFlow::setBoundaryEmissivities",
+        throw CanteraError("Flow1D::setBoundaryEmissivities",
             "The left boundary emissivity must be between 0.0 and 1.0!");
     } else if (e_right < 0 || e_right > 1) {
-        throw CanteraError("StFlow::setBoundaryEmissivities",
+        throw CanteraError("Flow1D::setBoundaryEmissivities",
             "The right boundary emissivity must be between 0.0 and 1.0!");
     } else {
         m_epsilon_left = e_left;
@@ -990,7 +990,7 @@ void StFlow::setBoundaryEmissivities(double e_left, double e_right)
     }
 }
 
-void StFlow::fixTemperature(size_t j)
+void Flow1D::fixTemperature(size_t j)
 {
     bool changed = false;
     if (j == npos) {
@@ -1014,7 +1014,7 @@ void StFlow::fixTemperature(size_t j)
     }
 }
 
-void StFlow::grad_hk(const double* x, size_t j)
+void Flow1D::grad_hk(const double* x, size_t j)
 {
     for(size_t k = 0; k < m_nsp; k++) {
         if (u(x, j) > 0.0) {

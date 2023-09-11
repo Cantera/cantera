@@ -35,7 +35,7 @@ TEST(onedim, freeflame)
     double Tad = gas->temperature();
 
     // flow
-    auto flow = newDomain<StFlow>("free-flow", sol, "flow");
+    auto flow = newDomain<Flow1D>("free-flow", sol, "flow");
 
     // grid
     int nz = 21;
@@ -106,11 +106,11 @@ TEST(onedim, flame_types)
 {
     auto sol = newSolution("h2o2.yaml", "ohmech", "mixture-averaged");
 
-    auto free = newDomain<StFlow>("free-flow", sol, "flow");
+    auto free = newDomain<Flow1D>("free-flow", sol, "flow");
     ASSERT_EQ(free->type(), "free-flow");
-    auto symm = newDomain<StFlow>("axisymmetric-flow", sol, "flow");
+    auto symm = newDomain<Flow1D>("axisymmetric-flow", sol, "flow");
     ASSERT_EQ(symm->type(), "axisymmetric-flow");
-    auto burner = newDomain<StFlow>("unstrained-flow", sol, "flow");
+    auto burner = newDomain<Flow1D>("unstrained-flow", sol, "flow");
     ASSERT_EQ(burner->type(), "unstrained-flow");
 }
 

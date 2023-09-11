@@ -6,7 +6,7 @@
 #ifndef CT_IONFLOW_H
 #define CT_IONFLOW_H
 
-#include "cantera/oneD/StFlow.h"
+#include "cantera/oneD/Flow1D.h"
 
 namespace Cantera
 {
@@ -25,7 +25,7 @@ namespace Cantera
  *
  * @ingroup flowGroup
  */
-class IonFlow : public StFlow
+class IonFlow : public Flow1D
 {
 public:
     IonFlow(ThermoPhase* ph = 0, size_t nsp = 1, size_t points = 1);
