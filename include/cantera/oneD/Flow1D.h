@@ -396,10 +396,6 @@ protected:
     AnyMap getMeta() const override;
     void setMeta(const AnyMap& state) override;
 
-    double wdot(size_t k, size_t j) const {
-        return m_wdot(k,j);
-    }
-
     //! Update the properties (thermo, transport, and diffusion flux).
     //! This function is called in eval after the points which need
     //! to be updated are defined.

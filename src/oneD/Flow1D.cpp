@@ -569,7 +569,7 @@ void Flow1D::evalEnergy(double* x, double* rsd, int* diag,
             double sum = 0.0;
             for (size_t k = 0; k < m_nsp; k++) {
                 double flxk = 0.5*(m_flux(k,j-1) + m_flux(k,j));
-                sum += wdot(k,j)*m_hk(k,j);
+                sum += m_wdot(k,j)*m_hk(k,j);
                 sum += flxk * m_dhk_dz(k,j) / m_wt[k];
             }
 
@@ -660,7 +660,7 @@ void Flow1D::evalSpecies(double* x, double* rsd, int* diag,
         for (size_t k = 0; k < m_nsp; k++) {
             double convec = rho_u(x,j)*dYdz(x,k,j);
             double diffus = 2.0*(m_flux(k,j) - m_flux(k,j-1)) / (z(j+1) - z(j-1));
-            rsd[index(c_offset_Y + k, j)] = (m_wt[k]*(wdot(k,j))
+            rsd[index(c_offset_Y + k, j)] = (m_wt[k]*m_wdot(k,j)
                                              - convec - diffus)/m_rho[j]
                                             - rdt*(Y(x,k,j) - Y_prev(k,j));
             diag[index(c_offset_Y + k, j)] = 1;
