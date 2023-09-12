@@ -43,9 +43,7 @@ public:
     //! Evaluate all residual components at the right boundary.
     virtual void evalRightBoundary(double* x, double* res, int* diag, double rdt);
 
-    //! Evaluate the residual corresponding to the continuity equation at all
-    //! interior grid points.
-    virtual void evalContinuity(size_t j, double* x, double* r, int* diag, double rdt);
+    void evalContinuity(size_t j, double* x, double* r, int* diag, double rdt) override;
 
 protected:
     double wdot(size_t k, size_t j) const {

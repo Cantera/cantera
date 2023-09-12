@@ -462,6 +462,12 @@ protected:
     virtual void evalElectricField(double* x, double* rsd, int* diag,
                                    double rdt, size_t jmin, size_t jmax);
 
+    //! Alternate version of evalContinuity with legacy signature.
+    //! Implemented by StFlow; included here to prevent compiler warnings about shadowed
+    //! virtual functions.
+    //! @deprecated To be removed after Cantera 3.0.
+    virtual void evalContinuity(size_t j, double* x, double* r, int* diag, double rdt);
+
     /**
      * Update the thermodynamic properties from point j0 to point j1
      * (inclusive), based on solution x.
