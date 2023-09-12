@@ -338,6 +338,10 @@ protected:
      */
     void computeRadiation(double* x, size_t jmin, size_t jmax);
 
+    //! @name Governing Equations
+    //! Methods are used to evaluate residuals for each of the governing equations.
+    //! @{
+
     /**
      * Evaluate the continuity equation residual.
      *
@@ -462,6 +466,8 @@ protected:
     virtual void evalElectricField(double* x, double* rsd, int* diag,
                                    double rdt, size_t jmin, size_t jmax);
 
+    //! @} End of Governing Equations
+
     //! Alternate version of evalContinuity with legacy signature.
     //! Implemented by StFlow; included here to prevent compiler warnings about shadowed
     //! virtual functions.
@@ -546,7 +552,7 @@ protected:
     }
     //! @}
 
-    //! @name convective spatial derivatives.
+    //! @name Convective spatial derivatives
     //!
     //! These use upwind differencing, assuming u(z) is negative
     //! @{
@@ -598,12 +604,12 @@ protected:
     vector<double> m_dz;
 
     // mixture thermo properties
-    vector<double> m_rho;
-    vector<double> m_wtm;
+    vector<double> m_rho;  //!< Vector of size #m_nsp to cache densities
+    vector<double> m_wtm;  //!< Vector of size #m_nsp to cache mean molecular weights
 
     // species thermo properties
     vector<double> m_wt;
-    vector<double> m_cp;
+    vector<double> m_cp;  //!< Vector of size #m_nsp to cache specific heat capacities
 
     // transport properties
     vector<double> m_visc;
@@ -619,7 +625,7 @@ protected:
     //! Array of size #m_nsp by #m_points-1 for saving enthalpy fluxes
     Array2D m_dhk_dz;
 
-    // production rates
+    //! Array of size #m_nsp by #m_points for saving species production rates
     Array2D m_wdot;
 
     size_t m_nsp; //!< Number of species in the mechanism
