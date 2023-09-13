@@ -97,7 +97,7 @@ def get_function_name(function_string):
         return sig
 
 if localenv['doxygen_docs']:
-    docs = build(localenv.Command('#build/docs/doxygen/html/index.html',
+    docs = build(localenv.Command('#build/doc/doxygen/html/index.html',
                                   'doxygen/Doxyfile', 'doxygen $SOURCE'))
     env.Depends(docs, env.Glob('#doc/doxygen/*') +
                       multi_glob(env, '#include/cantera', 'h') +
@@ -106,20 +106,26 @@ if localenv['doxygen_docs']:
 
     env.Alias('doxygen', docs)
     install(localenv.RecursiveInstall, '$inst_docdir/doxygen/html',
-            '#/build/docs/doxygen/html', exclude=['\\.map', '\\.md5'])
+            '#/build/doc/doxygen/html', exclude=['\\.map', '\\.md5'])
 
 if localenv['sphinx_docs']:
     def build_sphinx(target, source, env):
         cmd = [env['sphinx_cmd']] + env['sphinx_options'].split()
-        cmd += ('-b', 'html', '-d', 'build/docs/sphinx/doctrees', 'doc/sphinx',
-                'build/docs/sphinx/html')
+        cmd += ('-b', 'html', '-d', 'build/doc/sphinx/doctrees', 'build/doc/sphinx',
+                'build/doc/sphinx/html')
         code = subprocess.call(cmd, env=env['ENV'])
         if code:
             raise Errors.BuildError(target, action=env['sphinx_cmd'])
 
-    sphinxdocs = build(localenv.Command('#build/doc/sphinx/html/index.html',
+    # RecursiveInstall knows to copy modified files, unlike Copy
+    copy_sphinx = localenv.RecursiveInstall("#build/doc/sphinx", "sphinx")
+    copy_samples = localenv.RecursiveInstall("#build/doc/samples", "#samples")
+
+    sphinxdocs = build(localenv.Command('build/doc/sphinx/html/index.html',
         'sphinx/conf.py', build_sphinx))
     env.Alias('sphinx', sphinxdocs)
+    env.Depends(sphinxdocs, copy_sphinx)
+    env.Depends(sphinxdocs, copy_samples)
     env.Depends(sphinxdocs, env['python_module'])
 
     # Create a list of MATLAB classes to document. This uses the NamedTuple
@@ -208,7 +214,7 @@ if localenv['sphinx_docs']:
         # every time the source is changed, we don't want to have to commit the
         # change in the rst file as well as the source - too much code churn. So
         # we use a template and a SubstFile directive.
-        c = tempenv.SubstFile('#doc/sphinx/matlab/%s.rst' % page.name,
+        c = tempenv.SubstFile('#build/doc/sphinx/matlab/%s.rst' % page.name,
                               '#doc/sphinx/matlab/matlab-template.rst.in')
         build(c)
         localenv.Depends(sphinxdocs, c)
@@ -217,4 +223,4 @@ if localenv['sphinx_docs']:
     if localenv['doxygen_docs']:
         localenv.Depends(sphinxdocs, docs)
     install(localenv.RecursiveInstall, '$inst_docdir/sphinx/html',
-            '#/build/docs/sphinx/html')
+            '#build/doc/sphinx/html')
