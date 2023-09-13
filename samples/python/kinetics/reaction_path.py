@@ -1,5 +1,6 @@
 """
-Viewing a reaction path diagram.
+Viewing a reaction path diagram
+===============================
 
 This script uses Graphviz to generate an image. You must have Graphviz installed
 and the program 'dot' must be on your path for this example to work.

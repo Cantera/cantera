@@ -1,4 +1,7 @@
 """
+Blowers-Masel reaction rates
+============================
+
 A simple example to demonstrate the difference between Blowers-Masel
 reaction and elementary reaction.
 
