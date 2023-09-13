@@ -17,7 +17,7 @@ from pathlib import Path
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-sys.path.insert(0, os.path.abspath('../../build/python'))
+sys.path.insert(0, os.path.abspath('../../python'))
 
 sys.path.append(os.path.abspath('.'))
 sys.path.append(os.path.abspath('./exts'))
@@ -49,10 +49,10 @@ sphinx_gallery_conf = {
     'filename_pattern': '\.py',
     'image_srcset': ["2x"],
     'examples_dirs': [
-       '../../samples/python/',
+       '../samples/python/',
     ],
     'gallery_dirs': [
-       'examples/examples',
+       'examples/python',
     ],
 }
 
@@ -99,7 +99,7 @@ def setup(app):
 autoclass_content = 'both'
 
 doxylink = {
-    'ct': (os.path.abspath('../../build/docs/Cantera.tag'),
+    'ct': (os.path.abspath('../../doc/Cantera.tag'),
             '../../doxygen/html/')
 }
 
@@ -134,7 +134,7 @@ copyright = "2001-2023, Cantera Developers"
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 
-configh = Path('../../include/cantera/base/config.h').read_text()
+configh = Path('../../../include/cantera/base/config.h').read_text()
 # The short X.Y version.
 version = re.search('CANTERA_SHORT_VERSION "(.*?)"', configh).group(1)
 # The full version, including alpha/beta/rc tags.
