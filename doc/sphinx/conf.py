@@ -42,7 +42,19 @@ extensions = [
               'sphinxarg.ext',
               'sphinxcontrib.doxylink',
               'sphinx.ext.intersphinx',
+              'sphinx_gallery.gen_gallery',
               ]
+
+sphinx_gallery_conf = {
+    'filename_pattern': '\.py',
+    'image_srcset': ["2x"],
+    'examples_dirs': [
+       '../../samples/python/',
+    ],
+    'gallery_dirs': [
+       'examples/examples',
+    ],
+}
 
 autodoc_default_options = {
     'members': True,

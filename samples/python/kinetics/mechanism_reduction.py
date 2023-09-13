@@ -1,4 +1,7 @@
 """
+Mechanism reduction
+===================
+
 A simplistic approach to mechanism reduction which demonstrates Cantera's
 features for dynamically manipulating chemical mechanisms.
 

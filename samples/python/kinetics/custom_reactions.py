@@ -1,4 +1,7 @@
 """
+Custom reaction rates
+=====================
+
 An example demonstrating how to use custom reaction objects.
 
 For benchmark purposes, an ignition test is run to compare simulation times.

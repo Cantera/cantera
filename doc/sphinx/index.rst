@@ -14,3 +14,5 @@ format.
    yaml/index
    cython/index
    matlab/index
+
+   examples/python/index

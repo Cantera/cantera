@@ -1,4 +1,7 @@
 """
+Extracting a sub-mechanism
+==========================
+
 An example demonstrating how to use Species and Reaction objects to
 programmatically extract a reaction submechanism. In this example, the CO/H2
 oxidation reactions are extracted from the GRI 3.0 mechanism.
