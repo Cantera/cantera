@@ -43,6 +43,8 @@ extensions = [
               'sphinxcontrib.doxylink',
               'sphinx.ext.intersphinx',
               'sphinx_gallery.gen_gallery',
+              'sphinx_tags',
+              'sphinx_design',
               ]
 
 sphinx_gallery_conf = {
@@ -54,6 +56,16 @@ sphinx_gallery_conf = {
     'gallery_dirs': [
        'examples/python',
     ],
+}
+
+# Options for sphinx_tags extension
+tags_create_tags = True
+tags_create_badges = True
+tags_overview_title = "Index of example tags"
+tags_page_title = "Tag"
+tags_page_header = "Examples with this tag:"
+tags_badge_colors = {
+    "Python": "secondary",
 }
 
 autodoc_default_options = {

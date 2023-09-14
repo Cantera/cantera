@@ -16,3 +16,5 @@ format.
    matlab/index
 
    examples/python/index
+
+   _tags/tagsindex
