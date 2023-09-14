@@ -2,3 +2,9 @@ p + div.math {
     /* Remove post-paragraph space ahead of equation to center vertically */
     margin-top: -1.15em;
 }
+
+.sphx-glr-download-link-note {
+    /* Hide top-of-page note about download link at bottom */
+    display: none;
+    visibility: hidden;
+}
