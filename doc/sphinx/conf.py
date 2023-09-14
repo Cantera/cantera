@@ -56,6 +56,9 @@ sphinx_gallery_conf = {
     'gallery_dirs': [
        'examples/python',
     ],
+    'reference_url': {
+        'cantera': None,  # 'None' means the locally-documented module
+    }
 }
 
 # Options for sphinx_tags extension
