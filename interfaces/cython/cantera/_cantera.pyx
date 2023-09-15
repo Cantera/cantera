@@ -23,11 +23,8 @@ class CythonPackageMetaPathFinder(importlib.abc.MetaPathFinder):
             return importlib.util.spec_from_loader(fullname, loader)
 
 
-# injecting custom finder/loaders into sys.meta_path:
-def bootstrap_cython_submodules():
-    sys.meta_path.append(CythonPackageMetaPathFinder("cantera."))
-
-bootstrap_cython_submodules()
+# Inject custom finder/loaders into sys.meta_path:
+sys.meta_path.append(CythonPackageMetaPathFinder("cantera."))
 
 # Import the contents of the individual .pyx files
 from ._utils import *
@@ -47,3 +44,6 @@ from .units import *
 from .yamlwriter import *
 from .constants import *
 from .preconditioners import *
+
+# Custom finder/loader no longer needed, so remove it
+sys.meta_path.pop()
