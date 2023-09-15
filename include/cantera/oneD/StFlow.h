@@ -26,7 +26,8 @@ enum offset
     , c_offset_V //! strain rate
     , c_offset_T //! temperature
     , c_offset_L //! (1/r)dP/dr
-    , c_offset_E //! electric field equation
+    , c_offset_E //! electric field
+    , c_offset_Uo //! oxidizer axial velocity
     , c_offset_Y //! mass fractions
 };
 
@@ -253,6 +254,50 @@ public:
     double rightEmissivity() const { return m_epsilon_right; }
 
     void fixTemperature(size_t j=npos);
+
+    //! ------- Two-Point control method
+    //! In this method there are control points that are designated in a domain, and
+    //! the value of the solution at these points is fixed. The values of the control
+    //! points are dictated and thus serve as a boundary condition that affects the
+    //! solution of the goerning equations in the 1D domain. The imposition of fixed
+    //! points in the domain means that the original set of governign equations' boundary 
+    //! conditions would over-specify the problem. Thus, the boundary conditions are changed
+    //! to reflect the fact that the control points are serving as internal boundary conditions.
+    
+    //! The current left control point temperature
+    double leftControlPointTemperature() const {
+        if (m_twoPointControl && (m_zLeft != Undef))
+            return m_tLeft;
+    }
+
+    //! Set the temperature of the left control point
+    void setLeftControlPointTemperature(double temperature) {
+        if (m_twoPointControl && (m_zLeft != Undef))
+            m_tLeft = temperature;
+    }
+
+    //! The current right control point temperature
+    double rightControlPointTemperature() const {
+        if (m_twoPointControl && (m_zRight != Undef))
+            return m_tRight;
+    }
+
+    //! Set the temperature of the right control point
+    void setRightControlPointTemperature(double temperature) {
+        if (m_twoPointControl && (m_zRight != Undef))
+            m_tRight = temperature;
+    }
+
+    //! Set the status of the two-point control
+    void enableTwoPointControl(bool twoPointControl) {
+        m_twoPointControl = twoPointControl;
+    }
+
+    //! get the status of the two-point control
+    bool twoPointControlEnabled() const {
+        return m_twoPointControl;
+    }
+    //! -------------------
 
     bool doEnergy(size_t j) {
         return m_do_energy[j];
@@ -485,6 +530,25 @@ protected:
                                    double rdt, size_t jmin, size_t jmax);
 
     /**
+     * Evaluate the oxidizer axial velocity equation residual.
+     *
+     * The function calculates the oxidizer axial velocity equation as
+     * @f[
+     *    \frac{d\U_{o}}{dz} = 0
+     * @f]
+     *
+     * This equation serves as a dummy equation that is used only in the context
+     * of two-point flame control, and serves as the way for two interior control
+     * points to be specified while maintaining block tridiagonal structure. The
+     * default boundary condition is @f$ \U_o = 0 @f$
+     * at the right and zero flux at the left boundary.
+     *
+     * For argument explanation, see evalContinuity().
+     */
+    virtual void evalUo(double* x, double* rsd, int* diag,
+                        double rdt, size_t jmin, size_t jmax);
+
+    /**
      * Update the thermodynamic properties from point j0 to point j1
      * (inclusive), based on solution x.
      *
@@ -539,6 +603,10 @@ protected:
 
     double lambda(const double* x, size_t j) const {
         return x[index(c_offset_L, j)];
+    }
+
+    double Uo(const double* x, size_t j) const {
+        return x[index(c_offset_Uo, j)];
     }
 
     double Y(const double* x, size_t k, size_t j) const {
@@ -686,6 +754,9 @@ protected:
     //! to `j1`, based on solution `x`.
     virtual void updateTransport(double* x, size_t j0, size_t j1);
 
+    //! Flags for two-point flame control
+    bool m_twoPointControl = false;
+
 public:
     //! Location of the point where temperature is fixed
     double m_zfixed = Undef;
@@ -693,6 +764,22 @@ public:
     //! Temperature at the point used to fix the flame location
     double m_tfixed = -1.0;
 
+    //! --- One and two-point flame control values
+    //! Location of the left control point
+    double m_zLeft = Undef;
+
+    //! Temperature of the left control point
+    double m_tLeft = Undef;
+
+    //! Location of the right control point
+    double m_zRight = Undef;
+
+    //! Temperature of the right control point
+    double m_tRight = Undef;
+
+    //! -------------
+
+    
 private:
     vector<double> m_ybar;
 };

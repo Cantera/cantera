@@ -195,6 +195,16 @@ public:
     //! Return location of the point where temperature is fixed
     double fixedTemperatureLocation();
 
+    //! ------ One and Two-Point flame control methods
+    //! Set the left control point location. This is used for one or two 
+    //! point flame control.
+    void setLeftControlPoint(double temperature);
+
+    //! Set the right  control point location. This is used for one or two 
+    //! point flame control.
+    void setRightControlPoint(double temperature);
+    //! -------------------
+
     /**
      * Set grid refinement criteria. If dom >= 0, then the settings
      * apply only to the specified domain.  If dom < 0, the settings
