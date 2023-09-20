@@ -1,13 +1,17 @@
-c     Fortran 77 Demo
+c     Fortran 77 demo
+c     ===============
 c
-c     This program uses functions defined in demo_ftnlib.cpp to create
-c     an ideal gas mixture and print some of its properties.
+c     This program uses functions defined in :doc:`demo_ftnlib.cpp
+c     <demo_ftnlib>` to create an ideal gas mixture and print some of
+c     its properties.
 c
-c     For a C++ version of this program, see ../cxx/demo.cpp.
+c     For a C++ version of this program, see :doc:`demo.cpp
+c     <../cxx/demo>`.
 c
 c     Replace this sample main program with your program
 c
-c     Keywords: tutorial, thermodynamics, kinetics, transport
+c     .. tags:: Fortran 77, tutorial, thermodynamics, kinetics,
+c               transport
 
 c     This file is part of Cantera. See License.txt in the top-level directory or
 c     at https://cantera.org/license.txt for license and copyright information.
@@ -34,8 +38,11 @@ c
       write(*,10) temperature(), pressure(), density(),
      $     enthalpy_mole(), entropy_mole(), cp_mole()
 
-c     compute the equilibrium state holding the specific
-c     enthalpy and pressure constant
+c     %%
+c     Compute the equilibrium state
+c     -----------------------------
+c
+c     Hold the specific enthalpy and pressure constant.
       call equilibrate('HP')
 
       write(*,*) 'Equilibrium state properties:'
@@ -50,8 +57,9 @@ c     enthalpy and pressure constant
      $         'Molar cp:      ',g14.5,' J/kmol-K'//)
 
 
-c
+c     %%
 c     Reaction information
+c     --------------------
 c
       irxns = nReactions()
 
@@ -70,9 +78,9 @@ c     for each reaction, print the equation and the rates of progress
  20      format(a27,3e14.5,' kmol/m3/s')
       end do
 
-c
+c     %%
 c     Transport properties
-c
+c     --------------------
       dnu = viscosity()
       dlam = thermalConductivity()
       call getMixDiffCoeffs(diff)

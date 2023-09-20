@@ -6,7 +6,7 @@ localenv = env.Clone()
 
 # (program name, [source files])
 samples = [("ctlib", ["ctlib.f"]),
-           ("demo", ["demo.f"]),
+           ("demo", ["f77_demo.f"]),
            ("isentropic", ["isentropic.f"])]
 
 ftn_demo = localenv.SharedObject('demo_ftnlib.cpp',

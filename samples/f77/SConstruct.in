@@ -16,7 +16,7 @@ ftnlib = env.SharedObject('demo_ftnlib.cpp')
 
 ctlib = env.Program('ctlib', [ftnlib, 'ctlib.f'],
                     LINK='@FORTRAN_LINK@')
-demo = env.Program('demo', [ftnlib, 'demo.f'],
+demo = env.Program('demo', [ftnlib, 'f77_demo.f'],
                    LINK='@FORTRAN_LINK@')
 isentropic = env.Program('isentropic', [ftnlib, 'isentropic.f'],
                          LINK='@FORTRAN_LINK@')

@@ -1,5 +1,6 @@
-/*!
- * demo_ftnlib.cpp
+/*
+ * Fortran 77 wrapper library
+ * ==========================
  *
  * This file is an example of how to write an interface to use Cantera
  * in Fortran 77 programs. The basic idea is to store pointers to
@@ -8,7 +9,7 @@
  *
  * This particular example defines functions that return thermodynamic
  * properties, transport properties, and kinetic rates for reacting
- * ideal gas mixtures. Only a single pointer to an IdealGasPhase object is
+ * ideal gas mixtures. Only a single pointer to an :ct:`IdealGasPhase` object is
  * stored, so only one reaction mechanism may be used at any one time in
  * the application.  Of course, it is a simple modification to store
  * multiple objects if it is desired to use multiple reaction
