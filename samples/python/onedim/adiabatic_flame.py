@@ -1,9 +1,13 @@
 """
+Laminar flame speed calculation
+===============================
+
 A freely-propagating, premixed hydrogen flat flame with multicomponent
 transport properties.
 
 Requires: cantera >= 3.0
-Keywords: combustion, 1D flow, premixed flame, multicomponent transport,
+
+.. tags:: Python, combustion, 1D flow, premixed flame, multicomponent transport,
           saving output
 """
 

@@ -1,12 +1,15 @@
 """
-This example solves a plug flow reactor problem with surface chemistry. The specific
-problem simulated is the partial oxidation of methane over a platinum catalyst in a
-packed bed reactor. This example solves the DAE system directly, using the FlowReactor
+Plug flow reactor with surface chemistry
+========================================
+
+This example simulates the partial oxidation of methane over a platinum catalyst in a
+packed bed reactor. This example solves the DAE system directly, using the `FlowReactor`
 class and the SUNDIALS IDA solver, in contrast to the approximation as a chain of
-steady-state WSRs used in surf_pfr_chain.py.
+steady-state WSRs used in :doc:`surf_pfr_chain.py <surf_pfr_chain>`.
 
 Requires: cantera >= 3.0.0
-Keywords: catalysis, reactor network, surface chemistry, plug flow reactor,
+
+.. tags:: Python, catalysis, reactor network, surface chemistry, plug flow reactor,
           packed bed reactor
 """
 

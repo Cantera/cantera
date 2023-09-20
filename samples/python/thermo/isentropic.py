@@ -1,8 +1,12 @@
 """
-Isentropic, adiabatic flow example - calculate area ratio vs. Mach number curve
+Isentropic, adiabatic flow
+==========================
+
+Calculate area ratio vs. Mach number curve
 
 Requires: cantera >= 2.5.0, matplotlib >= 2.0
-Keywords: thermodynamics, compressible flow, plotting
+
+.. tags:: Python, thermodynamics, compressible flow, plotting
 """
 
 import cantera as ct
@@ -56,7 +60,6 @@ def isentropic(gas=None):
     data[:, 0] /= amin
 
     return data
-
 
 if __name__ == "__main__":
     print(__doc__)

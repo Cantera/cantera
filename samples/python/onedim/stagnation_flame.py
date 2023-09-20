@@ -1,5 +1,6 @@
 """
-A detached flat flame stabilized at a stagnation point
+Detached flat flame stabilized at a stagnation point
+====================================================
 
 This script simulates a lean hydrogen-oxygen flame stabilized in a strained
 flowfield at an axisymmetric stagnation point on a non-reacting surface. The
@@ -15,7 +16,8 @@ points would be concentrated upstream of the flame, where the flamefront had
 been previously. (To see this, try setting prune to zero.)
 
 Requires: cantera >= 3.0
-Keywords: combustion, 1D flow, premixed flame, strained flame
+
+.. tags:: Python, combustion, 1D flow, premixed flame, strained flame
 """
 
 from pathlib import Path

@@ -1,13 +1,17 @@
 """
+Soot precursor formation with time-varying mass flow rate
+=========================================================
+
 Simulation of fuel injection into a vitiated air mixture to show formation of
 soot precursors.
 
 Demonstrates the use of a user-supplied function for the mass flow rate through
-a MassFlowController, and the use of the SolutionArray class to store results
+a `MassFlowController`, and the use of the `SolutionArray` class to store results
 during reactor network integration and use these results to generate plots.
 
 Requires: cantera >= 2.5.0, matplotlib >= 2.0
-Keywords: combustion, reactor network, kinetics, pollutant formation, plotting
+
+.. tags:: Python, combustion, reactor network, kinetics, pollutant formation, plotting
 """
 
 import numpy as np

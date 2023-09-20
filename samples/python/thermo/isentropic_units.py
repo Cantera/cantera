@@ -1,10 +1,13 @@
 """
-Isentropic, adiabatic flow example - calculate area ratio vs. Mach number curve.
-Uses the pint library to include customized units in the calculation.
+Isentropic, adiabatic flow (with units)
+=======================================
 
+Isentropic, adiabatic flow example - calculate area ratio vs. Mach number curve.
+Uses the ``pint`` library to include customized units in the calculation.
 
 Requires: Cantera >= 3.0.0, pint
-Keywords: thermodynamics, compressible flow, units
+
+.. tags:: Python, thermodynamics, compressible flow, units
 """
 
 import cantera.with_units as ctu

@@ -1,9 +1,14 @@
 """
+Reactors separated by a moving piston
+=====================================
+
 Two reactors separated by a piston that moves with a speed proportional to the pressure
 difference between the reactors.
 
-Gas 1: a stoichiometric H2/O2/Ar mixture
-Gas 2: a wet CO/O2 mixture
+- Gas 1: a stoichiometric H2/O2/Ar mixture
+- Gas 2: a wet CO/O2 mixture
+
+.. code:: none
 
     -------------------------------------
     |          ||                       |
@@ -13,13 +18,15 @@ Gas 2: a wet CO/O2 mixture
     |          ||                       |
     -------------------------------------
 
+
 The two volumes are connected by an adiabatic free piston. The piston speed is
 proportional to the pressure difference between the two chambers.
 
 Note that each side uses a *different* reaction mechanism
 
 Requires: cantera >= 2.5.0, matplotlib >= 2.0
-Keywords: combustion, reactor network, plotting
+
+.. tags:: Python, combustion, reactor network, plotting
 """
 
 import sys

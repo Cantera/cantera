@@ -1,10 +1,13 @@
-# -*- coding: utf-8 -*-
 """
+Acceleration of reactor integration using a sparse preconditioned solver
+========================================================================
+
 Ideal gas, constant-pressure, adiabatic kinetics simulation that compares preconditioned
 and non-preconditioned integration of nDodecane.
 
 Requires: cantera >= 3.0.0, matplotlib >= 2.0
-Keywords: combustion, reactor network, preconditioner
+
+.. tags:: Python, combustion, reactor network, preconditioner
 """
 import cantera as ct
 import numpy as np

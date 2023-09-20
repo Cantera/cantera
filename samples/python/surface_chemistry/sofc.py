@@ -1,4 +1,7 @@
 """
+Solid oxide fuel cell using elementary kinetics
+===============================================
+
 A simple model of a solid oxide fuel cell.
 
 Unlike most SOFC models, this model does not use semi-empirical Butler-Volmer
@@ -8,17 +11,19 @@ transfer. As this script will demonstrate, this approach allows computing the
 OCV (it does not need to be separately specified), as well as polarization
 curves.
 
-NOTE: The parameters here, and in the input file sofc.yaml, are not to be
-relied upon for a real SOFC simulation! They are meant to illustrate only how
-to do such a calculation in Cantera. While some of the parameters may be close
-to real values, others are simply set arbitrarily to give reasonable-looking
-results.
+.. caution::
 
-It is recommended that you read input file sofc.yaml before reading or running
-this script!
+    The parameters here, and in the input file ``sofc.yaml``, are not to be relied upon
+    for a real SOFC simulation! They are meant to illustrate only how to do such a
+    calculation in Cantera. While some of the parameters may be close to real values,
+    others are simply set arbitrarily to give reasonable-looking results.
+
+    It is recommended that you read input file ``sofc.yaml`` before reading or running
+    this script.
 
 Requires: cantera >= 2.6.0
-Keywords: kinetics, electrochemistry, surface chemistry, fuel cell
+
+.. tags:: Python, kinetics, electrochemistry, surface chemistry, fuel cell
 """
 
 import cantera as ct

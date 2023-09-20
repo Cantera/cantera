@@ -1,9 +1,13 @@
 """
+Rankine cycle (with units)
+==========================
+
 Calculate the efficiency of a Rankine vapor power cycle using a pure fluid model
 for water. Includes the units of quantities in the calculations.
 
 Requires: Cantera >= 3.0.0, pint
-Keywords: thermodynamics, thermodynamic cycle, non-ideal fluid, units
+
+.. tags:: Python, thermodynamics, thermodynamic cycle, non-ideal fluid, units
 """
 
 import cantera.with_units as ctu

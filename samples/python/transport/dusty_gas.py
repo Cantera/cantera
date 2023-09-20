@@ -1,13 +1,15 @@
 """
-Calculate transport properties in a porous medium using the dusty gas transport model.
+Porous media transport using the dusty gas model
+================================================
 
-The Dusty Gas model is a multicomponent transport model for gas transport
-through the pores of a stationary porous medium. This example shows how to
-create a transport manager that implements the Dusty Gas model and use it to
-compute the multicomponent diffusion coefficients and thermal conductivity.
+The dusty gas model is a multicomponent transport model for gas transport through the
+pores of a stationary porous medium. This example shows how to create a
+:ct:`DustyGasTransport` transport manager and use it to compute the multicomponent
+diffusion coefficients and thermal conductivity.
 
 Requires:  cantera >= 2.6.0
-Keywords: transport, multicomponent transport
+
+.. tags:: Python, transport, multicomponent transport
 """
 
 import cantera as ct

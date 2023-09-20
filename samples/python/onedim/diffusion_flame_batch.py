@@ -2,6 +2,9 @@
 # at https://cantera.org/license.txt for license and copyright information.
 
 """
+Scaling of diffusion flames with pressure and strain rate
+=========================================================
+
 This example creates two batches of counterflow diffusion flame simulations.
 The first batch computes counterflow flames at increasing pressure, the second
 at increasing strain rates.
@@ -14,7 +17,8 @@ This example can, for example, be used to iterate to a counterflow diffusion fla
 awkward pressure and strain rate, or to create the basis for a flamelet table.
 
 Requires: cantera >= 3.0, matplotlib >= 2.0
-Keywords: combustion, 1D flow, extinction, diffusion flame, strained flame,
+
+.. tags:: Python, combustion, 1D flow, extinction, diffusion flame, strained flame,
           saving output, plotting
 """
 

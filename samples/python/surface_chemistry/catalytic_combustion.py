@@ -1,5 +1,6 @@
 """
 Catalytic combustion of methane on platinum
+===========================================
 
 This script solves a catalytic combustion problem. A stagnation flow is set
 up, with a gas inlet 10 cm from a platinum surface at 900 K. The lean,
@@ -11,7 +12,8 @@ The catalytic combustion mechanism is from Deutschmann et al., 26th
 Symp. (Intl.) on Combustion,1996 pp. 1747-1754
 
 Requires: cantera >= 3.0
-Keywords: catalysis, combustion, 1D flow, surface chemistry
+
+.. tags:: Python, catalysis, combustion, 1D flow, surface chemistry
 """
 
 import numpy as np
