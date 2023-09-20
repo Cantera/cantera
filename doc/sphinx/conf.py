@@ -49,17 +49,19 @@ extensions = [
 
 sphinx_gallery_conf = {
     'filename_pattern': '\.py',
-    'example_extensions': {'.py', '.cpp', '.h', '.f', '.f90'},
+    'example_extensions': {'.py', '.cpp', '.h', '.c', '.f', '.f90'},
     "filetype_parsers": {'.h': 'C++'},
     'image_srcset': ["2x"],
     'examples_dirs': [
        '../samples/python/',
        '../samples/cxx/',
+       '../samples/clib/',
        '../samples/fortran/',
     ],
     'gallery_dirs': [
        'examples/python',
        'examples/cxx',
+       'examples/clib',
        'examples/fortran',
     ],
     'reference_url': {
@@ -122,6 +124,7 @@ tags_page_header = "Examples with this tag:"
 tags_badge_colors = {
     "Python": "secondary",
     "C++": "secondary",
+    "C": "secondary",
     "Fortran 77": "secondary",
     "Fortran 90": "secondary",
 }

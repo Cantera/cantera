@@ -17,6 +17,7 @@ format.
 
    examples/python/index
    examples/cxx/index
+   examples/clib/index
    examples/fortran/index
 
    _tags/tagsindex

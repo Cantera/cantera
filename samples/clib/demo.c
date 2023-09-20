@@ -1,11 +1,13 @@
-/**
+/*
  * CLib Demo
+ * =========
  *
  * This program illustrates using Cantera's C-library interface to compute
  * thermodynamic, kinetic, and transport properties of a gas mixture. In addition,
  * a simple reactor network simulation is illustrated.
  *
- * Keywords: tutorial, equilibrium, thermodynamics, kinetics, transport, reactor network
+ * .. tags:: C, tutorial, equilibrium, thermodynamics, kinetics, transport,
+ *           reactor network
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -16,6 +18,7 @@
 
 #include <stdio.h>
 
+// sphinx_gallery_start_ignore
 // The following header files are not used by this example, but are nevertheless added
 // here to ensure C-compatibility of Cantera's clib includes in continuous testing.
 #include "cantera/clib/ctfunc.h"
@@ -23,6 +26,7 @@
 #include "cantera/clib/ctonedim.h"
 #include "cantera/clib/ctrpath.h"
 #include "cantera/clib/ctsurf.h"
+// sphinx_gallery_end_ignore
 
 void exit_with_error()
 {
