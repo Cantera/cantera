@@ -1,12 +1,11 @@
-/*!
- * @file kinetics1.cpp
- *
- * Zero-dimensional kinetics
+/*
+ * Autoignition in a homogeneous reactor
+ * =====================================
  *
  * This example simulates autoignition of hydrogen in a constant pressure
  * reactor and saves the time history to files that can be used for plotting.
  *
- * Keywords: combustion, reactor network, ignition delay, saving output
+ * .. tags:: C++, combustion, reactor network, ignition delay, saving output
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or

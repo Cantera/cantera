@@ -1,13 +1,12 @@
-/*!
- * @file LiC6_electrode.cpp
- *
- * LiC6 Electrode
+/*
+ * LiC6 electrode
+ * ==============
  *
  * Calculate the open-circuit potential of an LiC6 electrode and activity
  * coefficients of each species as a function of the mole fraction of
  * intercalated lithium.
  *
- * Keywords: thermodynamics, electrochemistry, battery
+ * .. tags:: C++, thermodynamics, electrochemistry, battery
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or

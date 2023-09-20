@@ -49,12 +49,16 @@ extensions = [
 
 sphinx_gallery_conf = {
     'filename_pattern': '\.py',
+    'example_extensions': {'.py', '.cpp', '.h'},
+    "filetype_parsers": {'.h': 'C++'},
     'image_srcset': ["2x"],
     'examples_dirs': [
        '../samples/python/',
+       '../samples/cxx/',
     ],
     'gallery_dirs': [
        'examples/python',
+       'examples/cxx',
     ],
     'reference_url': {
         'cantera': None,  # 'None' means the locally-documented module
@@ -115,6 +119,7 @@ tags_page_title = "Tag"
 tags_page_header = "Examples with this tag:"
 tags_badge_colors = {
     "Python": "secondary",
+    "C++": "secondary",
 }
 
 autodoc_default_options = {

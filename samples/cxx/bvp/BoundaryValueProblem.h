@@ -1,7 +1,11 @@
-/**
- *  @file BoundaryValueProblem.h
- *  Simplified interface to the capabilities provided by %Cantera to
- *  solve boundary value problems.
+/*
+ * Class `BoundaryValueProblem`
+ * ============================
+ *
+ * Simplified interface to the capabilities provided by Cantera to solve boundary value
+ * problems. See :doc:`blasius.cpp <blasius>` for an example using this class.
+ *
+ * .. tags:: C++, user-defined model
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or

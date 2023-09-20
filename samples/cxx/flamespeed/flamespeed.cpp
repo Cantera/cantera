@@ -1,14 +1,16 @@
-/*!
- * @file flamespeed.cpp
- *
+/*
  * Freely-propagating flame
+ * ========================
  *
  * C++ demo program to compute flame speeds using GRI-Mech.
  *
- * Usage: flamespeed [equivalence_ratio] [refine_grid] [loglevel]
+ * Usage:
+ *
+ *     flamespeed [equivalence_ratio] [refine_grid] [loglevel]
  *
  * Requires: cantera >= 3.0
- * Keywords: combustion, 1D flow, premixed flame, flame speed, saving output
+ *
+ * .. tags:: C++, combustion, 1D flow, premixed flame, flame speed, saving output
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or

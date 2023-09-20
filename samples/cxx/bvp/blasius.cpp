@@ -1,14 +1,13 @@
-/*!
- * @file blasius.cpp
+/*
+ * Blasius BVP solver
+ * ==================
  *
- * Blasius BVP Solver
+ * This example solves the Blasius boundary value problem for the velocity profile of a
+ * laminar boundary layer over a flat plate. It uses class ``BoundaryValueProblem``,
+ * defined in :doc:`BoundaryValueProblem.h <BoundaryValueProblem>`, which provides a
+ * simplified interface to the boundary value problem capabilities of Cantera.
  *
- * This example solves the Blasius boundary value problem for the velocity
- * profile of a laminar boundary layer over a flat plate. It defines class
- * BoundaryValueProblem, which provides a simplified interface to the boundary
- * value problem capabilities of Cantera.
- *
- * Keywords: user-defined model
+ * .. tags:: C++, user-defined model
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -18,18 +17,22 @@
 
 using Cantera::npos;
 
-/**
+/* %%
  * This class solves the Blasius boundary value problem on the domain (0,L):
- * @f[
- *             \frac{d\zeta}{dz} = u.
- * @f]
- * @f[
- *             \frac{d^2u}{dz^2} + 0.5\zeta \frac{du}{dz} = 0.
- * @f]
+ *
+ * .. math::
+ *             \frac{d\zeta}{dz} = u
+ *
+ *             \frac{d^2u}{dz^2} + 0.5\zeta \frac{du}{dz} = 0
+ *
  * with boundary conditions
- * @f[
- * \zeta(0) = 0, u(0) = 0, u(L) = 1.
- * @f]
+ *
+ * .. math::
+ *
+ *     \zeta(0) & = 0 \\
+ *         u(0) & = 0 \\
+ *         u(L) & = 1
+ *
  * Note that this is formulated as a system of two equations, with maximum
  * order of 2, rather than as a single third-order boundary value problem.
  * For reasons having to do with the band structure of the Jacobian, no

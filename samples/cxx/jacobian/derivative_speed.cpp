@@ -1,13 +1,12 @@
-/*!
- * @file derivative_speed.cpp
- *
+/*
  * Benchmark derivative evaluations
+ * ================================
  *
  * Calculate derivatives of reaction rates of progress and species production and
  * destruction rates with respect to temperature, pressure, molar concentration,
  * and mole fractions. Time evaluation for different chemical mechanisms.
  *
- * Keywords: kinetics, benchmarking
+ * .. tags:: C++, kinetics, benchmarking
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or

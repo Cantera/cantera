@@ -1,13 +1,12 @@
-/*!
- * @file custom.cpp
- *
- * Custom Reactor
+/*
+ * Custom reactor
+ * ==============
  *
  * Solve a closed-system constant pressure ignition problem where the governing
  * equations are custom-implemented, using Cantera's interface to CVODES to
  * integrate the equations.
  *
- * Keywords: combustion, reactor network, user-defined model, ignition delay
+ * .. tags:: C++, combustion, reactor network, user-defined model, ignition delay
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
@@ -53,14 +52,21 @@ public:
         m_nEqs = m_nSpecies + 1;
     }
 
-    /**
-     * Evaluate the ODE right-hand-side function, ydot = f(t,y).
-     *   - overridden from FuncEval, called by the integrator during simulation.
-     * @param[in] t time.
-     * @param[in] y solution vector, length neq()
-     * @param[out] ydot rate of change of solution vector, length neq()
-     * @param[in] p sensitivity parameter vector, length nparams()
-     *   - note: sensitivity analysis isn't implemented in this example
+    /* %%
+     * Evaluate the ODE right-hand-side function, :math:`\dot{y} = f(t,y)`.
+     *
+     * Overridden from :ct:`FuncEval`, called by the integrator during simulation.
+     *
+     * :param t:
+     *     time
+     * :param y:
+     *     solution vector, length neq()
+     * :param ydot:
+     *     rate of change of solution vector, length neq()
+     * :param p:
+     *     sensitivity parameter vector, length nparams()
+     *
+     * note: sensitivity analysis isn't implemented in this example
      */
     void eval(double t, double* y, double* ydot, double* p) override {
         // the solution vector *y* is [T, Y_1, Y_2, ... Y_K], where T is the
