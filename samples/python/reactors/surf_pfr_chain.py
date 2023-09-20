@@ -1,12 +1,16 @@
 """
-This example solves a plug flow reactor problem, where the chemistry is
-surface chemistry. The specific problem simulated is the partial oxidation of
-methane over a platinum catalyst in a packed bed reactor. To avoid needing to solve a
-DAE system, the PFR is approximated as a chain of successive WSRs. See surf_pfr.py
-for a more advanced implementation that solves the DAE system directly.
+Plug flow reactor modeled as a chain of well stirred reactors
+=============================================================
+
+This example solves a plug flow reactor problem, where the chemistry is surface
+chemistry. The specific problem simulated is the partial oxidation of methane over a
+platinum catalyst in a packed bed reactor. To avoid needing to solve a DAE system, the
+PFR is approximated as a chain of successive WSRs. See :doc:`surf_pfr.py <surf_pfr>` for
+a more advanced implementation that solves the DAE system directly.
 
 Requires: cantera >= 3.0
-Keywords: catalysis, reactor network, surface chemistry, plug flow reactor,
+
+.. tags:: Python, catalysis, reactor network, surface chemistry, plug flow reactor,
           packed bed reactor
 """
 

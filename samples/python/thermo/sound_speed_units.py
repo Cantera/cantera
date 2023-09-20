@@ -1,9 +1,13 @@
 """
-Compute the "equilibrium" and "frozen" sound speeds for a gas. Uses the pint library to
-include customized units in the calculation.
+Sound speeds (with units)
+=========================
+
+Compute the "equilibrium" and "frozen" sound speeds for a gas. Uses the ``pint`` library
+to include customized units in the calculation.
 
 Requires: Cantera >= 3.0.0, pint
-Keywords: thermodynamics, equilibrium, units
+
+.. tags:: Python, thermodynamics, equilibrium, units
 """
 
 import cantera.with_units as ctu

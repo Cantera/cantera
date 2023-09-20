@@ -61,6 +61,42 @@ sphinx_gallery_conf = {
     }
 }
 
+# Override sphinx-gallery's method for determining which examples should be executed.
+# There's really no way to achieve this with the `filename_pattern` option, and
+# `ignore_pattern` excludes the example entirely.
+skip_run = {
+    # multiprocessing can't see functions defined in __main__ when run by
+    # sphinx-gallery, at least on macOS.
+    "multiprocessing_viscosity.py",
+    # __file__ deliberately not available when run by sphinx-gallery
+    "flame_fixed_T.py",
+}
+
+def executable_script(src_file, gallery_conf):
+    """Validate if script has to be run according to gallery configuration.
+
+    Parameters
+    ----------
+    src_file : str
+        path to python script
+
+    gallery_conf : dict
+        Contains the configuration of Sphinx-Gallery
+
+    Returns
+    -------
+    bool
+        True if script has to be executed
+    """
+    filename = Path(src_file).name
+    if filename in skip_run:
+        return False
+    filename_pattern = gallery_conf["filename_pattern"]
+    execute = re.search(filename_pattern, src_file) and gallery_conf["plot_gallery"]
+    return execute
+
+import sphinx_gallery.gen_rst
+sphinx_gallery.gen_rst.executable_script = executable_script
 
 header_prefix = """
 :html_theme.sidebar_secondary.remove:
@@ -69,7 +105,6 @@ header_prefix = """
 
 """
 
-import sphinx_gallery.gen_rst
 sphinx_gallery.gen_rst.EXAMPLE_HEADER = header_prefix + sphinx_gallery.gen_rst.EXAMPLE_HEADER
 
 # Options for sphinx_tags extension

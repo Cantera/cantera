@@ -1,8 +1,12 @@
 """
+Freely-propagating flame with charged species
+=============================================
+
 A freely-propagating, premixed methane-air flat flame with charged species.
 
 Requires: cantera >= 3.0
-Keywords: combustion, 1D flow, burner-stabilized flame, plasma, premixed flame
+
+.. tags:: Python, combustion, 1D flow, burner-stabilized flame, plasma, premixed flame
 """
 
 from pathlib import Path

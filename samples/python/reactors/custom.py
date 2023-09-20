@@ -1,4 +1,7 @@
 """
+Integrating constant pressure ignition using SciPy
+==================================================
+
 Solve a constant pressure ignition problem where the governing equations are
 implemented in Python.
 
@@ -10,7 +13,8 @@ case, the SciPy wrapper for VODE is used, which uses the same variable-order BDF
 methods as the Sundials CVODES solver used by Cantera.
 
 Requires: cantera >= 2.5.0, scipy >= 0.19, matplotlib >= 2.0
-Keywords: combustion, reactor network, ignition delay, user-defined model, plotting
+
+.. tags:: Python, combustion, reactor network, ignition delay, user-defined model, plotting
 """
 
 import cantera as ct

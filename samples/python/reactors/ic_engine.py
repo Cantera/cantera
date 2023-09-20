@@ -1,12 +1,14 @@
 """
-Simulation of a (gaseous) Diesel-type internal combustion engine.
+Diesel-type internal combustion engine simulation with gaseous fuel
+===================================================================
 
 The simulation uses n-Dodecane as fuel, which is injected close to top dead
 center. Note that this example uses numerous simplifying assumptions and
 thus serves for illustration purposes only.
 
 Requires: cantera >= 3.0, scipy >= 0.19, matplotlib >= 2.0
-Keywords: combustion, thermodynamics, internal combustion engine,
+
+.. tags:: Python, combustion, thermodynamics, internal combustion engine,
           thermodynamic cycle, reactor network, plotting, pollutant formation
 """
 

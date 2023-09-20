@@ -1,5 +1,6 @@
 """
-Mixing two streams.
+Mixing two streams
+==================
 
 Since reactors can have multiple inlets and outlets, they can be used to
 implement mixers, splitters, etc. In this example, air and methane are mixed
@@ -13,10 +14,11 @@ ignored. In general, reaction mechanisms for downstream reactors should
 contain all species that might be present in any upstream reactor.
 
 Compare this approach for the transient problem to the method used for the
-steady-state problem in thermo/mixing.py.
+steady-state problem in :doc:`mixing.py <../thermo/mixing>`.
 
 Requires: cantera >= 2.5.0
-Keywords: thermodynamics, reactor network, mixture
+
+.. tags:: Python, thermodynamics, reactor network, mixture
 """
 
 import cantera as ct

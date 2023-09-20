@@ -1,10 +1,14 @@
 """
+Vapor Dome
+==========
+
 This example generates a saturated steam table and plots the vapor dome. The
 steam table corresponds to data typically found in thermodynamic text books
 and uses the same customary units.
 
 Requires: Cantera >= 2.5.0, matplotlib >= 2.0, pandas >= 1.1.0, numpy >= 1.12
-Keywords: thermodynamics, non-ideal fluid, plotting
+
+.. tags:: Python, thermodynamics, non-ideal fluid, plotting
 """
 
 import cantera as ct
@@ -21,6 +25,7 @@ columns = ['T', 'P',
            'hf', 'hfg', 'hg',
            'sf', 'sfg', 'sg']
 
+# %%
 # temperatures correspond to Engineering Thermodynamics, Moran et al. (9th ed),
 # Table A-2; additional data points are added close to the critical point;
 # w.min_temp is equal to the triple point temperature
@@ -71,18 +76,21 @@ df.hf -= hf0 - pv0
 df.sg -= sf0
 df.sf -= sf0
 
+# %%
 # print and write saturated steam table to csv file
 print(df)
 df.to_csv('saturated_steam_T.csv', index=False)
 
+# %%
 # illustrate the vapor dome in a P-v diagram
 plt.semilogx(df.vf.values, df.P.values, label='Saturated liquid')
 plt.semilogx(df.vg.values, df.P.values, label='Saturated vapor')
 plt.semilogx(df.vg.values[-1], df.P.values[-1], 'o', label='Critical point')
 plt.xlabel(r'Specific volume - $v$ ($\mathrm{m^3/kg}$)')
 plt.ylabel(r'Presssure - $P$ (bar)')
-plt.legend()
+plt.legend();
 
+# %%
 # illustrate the vapor dome in a T-s diagram
 plt.figure()
 plt.plot(df.sf.values, df['T'].values, label='Saturated liquid')

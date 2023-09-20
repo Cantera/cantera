@@ -2,6 +2,9 @@
 # at https://cantera.org/license.txt for license and copyright information.
 
 """
+Diffusion flame extinction strain rate
+======================================
+
 This example computes the extinction point of a counterflow diffusion flame.
 A hydrogen-oxygen diffusion flame at 1 bar is studied.
 
@@ -10,7 +13,8 @@ The tutorial makes use of the scaling rules derived by Fiala and Sattelmayer
 explanation. Also, please don't forget to cite it if you make use of it.
 
 Requires: cantera >= 3.0, matplotlib >= 2.0
-Keywords: combustion, 1D flow, diffusion flame, strained flame, extinction,
+
+.. tags:: Python, combustion, 1D flow, diffusion flame, strained flame, extinction,
           saving output, plotting
 """
 

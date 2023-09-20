@@ -1,6 +1,9 @@
 """
-This example demonstrates (1). the four different dependency models available
-for coverage-dependent enthalpy and entropy calculations and (2). capability
+Surface with coverage-dependent thermo
+======================================
+
+This example demonstrates (1) the four different dependency models available
+for coverage-dependent enthalpy and entropy calculations and (2) capability
 of including self-interaction but also cross-interaction among different
 surface species.
 
@@ -17,7 +20,8 @@ interaction. The CO* enthalpy is plotted as a function of CO* and O*
 coverages.
 
 Requires: cantera >= 3.0.0, matplotlib >= 2.0
-Keywords: thermodynamics, surface chemistry, catalysis
+
+.. tags:: Python, thermodynamics, surface chemistry, catalysis
 """
 
 import cantera as ct

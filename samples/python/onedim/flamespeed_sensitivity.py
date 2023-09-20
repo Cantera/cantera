@@ -1,10 +1,14 @@
 """
+Laminar flame speed sensitivity analysis
+========================================
+
 Sensitivity analysis for a freely-propagating, premixed methane-air
 flame. Computes the sensitivity of the laminar flame speed with respect
 to each reaction rate constant.
 
 Requires: cantera >= 2.5.0
-Keywords: combustion, 1D flow, flame speed, premixed flame, sensitivity analysis
+
+.. tags:: Python, combustion, 1D flow, flame speed, premixed flame, sensitivity analysis
 """
 
 import cantera as ct

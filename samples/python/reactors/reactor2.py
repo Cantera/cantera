@@ -1,4 +1,7 @@
-"""
+r"""
+Reactors with walls and heat transfer
+=====================================
+
 Two reactors connected with a piston, with heat loss to the environment
 
 This script simulates the following situation. A closed cylinder with volume 2
@@ -6,8 +9,8 @@ m^3 is divided into two equal parts by a massless piston that moves with speed
 proportional to the pressure difference between the two sides. It is
 initially held in place in the middle. One side is filled with 1000 K argon at
 20 atm, and the other with a combustible 500 K methane/air mixture at 0.1 atm
-(phi = 1.1). At t = 0 the piston is released and begins to move due to the
-large pressure difference, compressing and heating the methane/air mixture,
+(:math:`\phi = 1.1`). At :math:`t = 0`, the piston is released and begins to move due
+to the large pressure difference, compressing and heating the methane/air mixture,
 which eventually explodes. At the same time, the argon cools as it expands.
 The piston allows heat transfer between the reactors and some heat is lost
 through the outer cylinder walls to the environment.
@@ -16,7 +19,8 @@ Note that this simulation, being zero-dimensional, takes no account of shock
 wave propagation. It is somewhat artificial, but nevertheless instructive.
 
 Requires: cantera >= 2.5.0, matplotlib >= 2.0
-Keywords: combustion, reactor network, plotting
+
+.. tags:: combustion, reactor network, plotting
 """
 
 import sys

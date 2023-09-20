@@ -1,9 +1,13 @@
 """
+Burner-stabilized flame with imposed temperature profile
+========================================================
+
 A burner-stabilized, premixed methane/air flat flame with multicomponent
 transport properties and a specified temperature profile.
 
 Requires: cantera >= 3.0
-Keywords: combustion, 1D flow, burner-stabilized flame, premixed flame, plotting,
+
+.. tags:: Python, combustion, 1D flow, burner-stabilized flame, premixed flame, plotting,
           saving output
 """
 
@@ -12,7 +16,7 @@ import numpy as np
 import cantera as ct
 
 
-################################################################
+# %%
 # parameter values
 p = ct.one_atm  # pressure
 tburner = 373.7  # burner temperature
@@ -25,10 +29,9 @@ width = 0.01  # m
 loglevel = 1  # amount of diagnostic output (0 to 5)
 refine_grid = True  # 'True' to enable refinement
 
-################ create the gas object ########################
-#
-# This object will be used to evaluate all thermodynamic, kinetic, and
-# transport properties
+# %%
+# Create the gas object. This object will be used to evaluate all thermodynamic,
+# kinetic, and transport properties
 gas = ct.Solution('gri30.yaml')
 
 # set its state to that of the unburned gas at the burner
@@ -40,7 +43,8 @@ f = ct.BurnerFlame(gas=gas, width=width)
 # set the mass flow rate at the burner
 f.burner.mdot = mdot
 
-# read temperature vs. position data from a file.
+# %%
+# Read temperature vs. position data from a file.
 # The file is assumed to have one z, T pair per line, separated by a comma.
 # The data file must be stored in the same folder as this script.
 data_file = Path(__file__).parent.joinpath('tdata.dat')
@@ -50,6 +54,7 @@ zloc /= max(zloc)
 # set the temperature profile to the values read in
 f.flame.set_fixed_temp_profile(zloc, tvalues)
 
+# %%
 # show the initial estimate for the solution
 f.show()
 

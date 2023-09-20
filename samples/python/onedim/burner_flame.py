@@ -1,8 +1,12 @@
 """
+Burner-stabilized flame
+=======================
+
 A burner-stabilized lean premixed hydrogen-oxygen flame at low pressure.
 
 Requires: cantera >= 3.0
-Keywords: combustion, 1D flow, premixed flame, saving output,
+
+.. tags:: Python, combustion, 1D flow, premixed flame, saving output,
           multicomponent transport
 """
 

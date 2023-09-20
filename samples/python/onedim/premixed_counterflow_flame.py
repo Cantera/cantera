@@ -1,11 +1,13 @@
 """
-An opposed-flow premixed strained flame
+Opposed-flow premixed strained flame
+====================================
 
 This script simulates a lean hydrogen-oxygen flame stabilized in a strained
 flowfield, with an opposed flow consisting of equilibrium products.
 
 Requires: cantera >= 3.0
-Keywords: combustion, 1D flow, premixed flame, strained flame
+
+.. tags:: Python, combustion, 1D flow, premixed flame, strained flame
 """
 
 from pathlib import Path

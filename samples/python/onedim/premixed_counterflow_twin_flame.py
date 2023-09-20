@@ -1,10 +1,15 @@
 """
-Simulate two counter-flow jets of reactants shooting into each other. This
-simulation differs from the similar premixed_counterflow_flame.py example as the
-latter simulates a jet of reactants shooting into products.
+Symmetric premixed twin flame
+=============================
+
+Simulate two counter-flow jets of reactants shooting into each other. This simulation
+differs from the similar :doc:`premixed_counterflow_flame.py
+<premixed_counterflow_flame>` example as the latter simulates a jet of reactants
+shooting into products.
 
 Requires: cantera >= 3.0
-Keywords: combustion, 1D flow, premixed flame, strained flame, plotting
+
+.. tags:: Python, combustion, 1D flow, premixed flame, strained flame, plotting
 """
 
 import sys

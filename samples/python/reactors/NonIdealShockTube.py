@@ -1,5 +1,7 @@
-# coding: utf-8
 """
+Ignition delay time using the Redlich-Kwong real gas model
+==========================================================
+
 Ignition delay time computations in a high-pressure reflected shock tube
 reactor, comparing ideal gas and Redlich-Kwong real gas models.
 
@@ -17,7 +19,8 @@ Other than the typical Cantera dependencies, plotting functions require that
 you have matplotlib (https://matplotlib.org/) installed.
 
 Requires: cantera >= 2.5.0, matplotlib >= 2.0
-Keywords: combustion, reactor network, non-ideal fluid, ignition delay, plotting
+
+.. tags:: Python, combustion, reactor network, non-ideal fluid, ignition delay, plotting
 """
 
 # Dependencies: numpy, and matplotlib

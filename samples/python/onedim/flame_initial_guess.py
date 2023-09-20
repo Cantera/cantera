@@ -1,10 +1,14 @@
 """
+Saving, loading, and restarting 1D calculations
+===============================================
+
 A freely-propagating, premixed methane-air flame.
 Examples of saving and loading a flame and restarting
 with different initial guesses.
 
 Requires: cantera >= 3.0
-Keywords: combustion, 1D flow, flame speed, premixed flame, saving output
+
+.. tags:: Python, combustion, 1D flow, flame speed, premixed flame, saving output
 """
 import sys
 from pathlib import Path

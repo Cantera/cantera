@@ -1,11 +1,9 @@
 """
-Short description: reactor cascade model for reactive flows in inert porous media
-based on extensible reactors. Showcases adding a temperature equation for a
-solid-phase and custom heat transfer/radiation models.
+Reactor cascade model for reactive flows in inert porous media
+==============================================================
 
-Code by Thorsten Zirwes and Guillaume Vignat
-Stanford University & Karlsruhe Institute of Technology (KIT)
-2023
+Showcases the use of `ExtensibleReactor` to add a temperature equation for a solid-phase
+and custom heat transfer/radiation models.
 
 This code implements a reactor cascade model for the simulation of reactive
 flows in porous media. The gas mixture with fuel and oxidizer flows through
@@ -23,9 +21,6 @@ so that mass controllers and pressure valves are not required. The code is writt
 a general way to support an arbitrary number of reactors and an arbitrary number of
 burner sections with different physical properties.
 
-The implemented equations make use of Cantera's extensible reactor models.
-Therefore, Cantera version 2.6.0 or higher is required.
-
 The porous media burner considered in this example is a cylindrical tube filled
 three different porous materials: a porous ceramic made from a Yttria-stabilized
 Zirconia Alumina (YZA) section with length of 2 inches and pore density of 40 pores per
@@ -35,14 +30,15 @@ hydrogen dilution in the measurements. Next, a one inch section with a porous ce
 made from silicon carbide (SiC) with 3 PPI is used and finally a 1 inch section of SiC
 with 10 PPI. A flame stabilizes at the interface between the YZA and 3 PPI SiC.
 
+.. code:: none
 
-          |--- two inches --- | --- one inch ---| --- one inch --- |
-          __________________________________________________________
-fuel
- +   =>      YZA 40 PPI       |     SiC 3 PPI   |   SiC 10 PPI       => burnt
-air       __________________________________________________________    gas
+             |--- two inches --- | --- one inch ---| --- one inch --- |
+             __________________________________________________________
+   fuel
+    +   =>      YZA 40 PPI       |     SiC 3 PPI   |   SiC 10 PPI       => burnt
+   air       __________________________________________________________    gas
 
-                inert            flame location   heat recirculation
+                   inert            flame location   heat recirculation
 
 This example simplifies the complex interaction between heat transport in the gas-phase
 and solid-phase by using a reactor cascade. While key trends from the measurements can
@@ -52,8 +48,9 @@ modeling of internal heat recirculation through heat transfer, conduction and
 radiation. For more realistic and quantitative predictions, running 1D simulations with
 full radiation transport is required.
 
-More details about the governing equations, submodels and physical setup and
-corresponding experiments can be found in
+Initial code by Thorsten Zirwes and Guillaume Vignat, Stanford University & Karlsruhe
+Institute of Technology (KIT). More details about the governing equations, submodels and
+physical setup and corresponding experiments can be found in
 
     Experimental and numerical investigation of flame stabilization and
     pollutant formation in matrix stabilized ammonia-hydrogen combustion,
@@ -62,8 +59,9 @@ corresponding experiments can be found in
     Combustion and Flame, 250 (https://doi.org/10.1016/j.combustflame.2023.112642)
 
 Requires: cantera >= 2.6.0, matplotlib >= 2.0
-Keywords: user-defined model, reactor network, combustion, porous media, heat transfer,
-          radiative heat transfer
+
+.. tags:: Python, user-defined model, reactor network, combustion, porous media,
+          heat transfer, radiative heat transfer
 """
 
 import matplotlib.pyplot as plt

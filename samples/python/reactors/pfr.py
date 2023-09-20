@@ -1,10 +1,14 @@
 """
+Plug flow reactor modeling approaches
+=====================================
+
 This example solves a plug-flow reactor problem of hydrogen-oxygen combustion.
 The PFR is computed by two approaches: The simulation of a Lagrangian fluid
 particle, and the simulation of a chain of reactors.
 
 Requires: cantera >= 3.0, matplotlib >= 2.0
-Keywords: combustion, reactor network, plug flow reactor
+
+.. tags:: Python, combustion, reactor network, plug flow reactor
 """
 
 import cantera as ct

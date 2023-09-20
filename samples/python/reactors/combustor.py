@@ -1,4 +1,7 @@
 """
+Combustor residence time
+========================
+
 Calculate steady-state solutions for a combustor, modeled as a single well-stirred
 reactor, for different residence times.
 
@@ -6,13 +9,14 @@ We are interested in the steady-state burning solution. This example explores
 the effect of changing the residence time on completeness of reaction (through
 the burned gas temperature) and on the total heat release rate.
 
-Demonstrates the use of a MassFlowController where the mass flow rate function
+Demonstrates the use of a `MassFlowController` where the mass flow rate function
 depends on variables other than time by capturing these variables from the
-enclosing scope. Also shows the use of a PressureController to create a constant
+enclosing scope. Also shows the use of a `PressureController` to create a constant
 pressure reactor with a fixed volume.
 
 Requires: cantera >= 3.0, matplotlib >= 2.0
-Keywords: combustion, reactor network, well-stirred reactor, plotting
+
+.. tags:: Python, combustion, reactor network, well-stirred reactor, plotting
 """
 
 import numpy as np

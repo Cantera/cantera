@@ -1,14 +1,16 @@
 """
-Mixing two streams using `Quantity` objects.
+Mixing using `Quantity` objects
+===============================
 
-In this example, air and methane are mixed in stoichiometric proportions. This
-is a simpler, steady-state version of the example ``reactors/mix1.py``.
+In this example, air and methane are mixed in stoichiometric proportions. This is a
+simpler, steady-state version of the example :doc:`mix1.py <../reactors/mix1>`.
 
 Since the goal is to simulate a continuous flow system, the mixing takes place
 at constant enthalpy and pressure.
 
 Requires: cantera >= 2.5.0
-Keywords: thermodynamics, mixture
+
+.. tags:: Python, thermodynamics, mixture
 """
 
 import cantera as ct

@@ -1,4 +1,7 @@
 """
+Plug flow reactor: silicon nitride deposition
+=============================================
+
 A 1-D steady state plug-flow reactor demonstrating silicon nitride (Si3N4) deposition
 from ammonia (NH3) and silicon tetrafluoride (SiF4).
 
@@ -7,15 +10,16 @@ Assumes a constant temperature, frictionless, cylindrical reactor.
 Based off the Jupyter notebook created by Yuanjie Jiang, which corresponds to the
 original example from:
 
-R.S. Larson. "PLUG: A FORTRAN program for the analysis of PLUG flow reactors with
-gas-phase and surface chemistry", Sandia Report SAND-96-8211, 1996.
-https://doi.org/10.2172/204257
+    R.S. Larson. "PLUG: A FORTRAN program for the analysis of PLUG flow reactors with
+    gas-phase and surface chemistry", Sandia Report SAND-96-8211, 1996.
+    https://doi.org/10.2172/204257
 
 The results are somewhat different from those in the Larson report in part due to the
 fact that this example does not include the frictional pressure drop.
 
 Requires: cantera >= 3.0, matplotlib >= 2.0
-Keywords: catalysis, plug flow reactor, reactor network, surface chemistry
+
+.. tags:: Python, catalysis, plug flow reactor, reactor network, surface chemistry
 """
 
 import numpy as np
