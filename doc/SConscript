@@ -119,14 +119,24 @@ if localenv['sphinx_docs']:
 
     # RecursiveInstall knows to copy modified files, unlike Copy
     copy_sphinx = localenv.RecursiveInstall("#build/doc/sphinx", "sphinx")
-    copy_samples = localenv.RecursiveInstall("#build/doc/samples", "#samples")
+    copy_python_samples = localenv.RecursiveInstall("#build/doc/samples/python",
+                                                    "#samples/python")
 
     sphinxdocs = build(localenv.Command('build/doc/sphinx/html/index.html',
         'sphinx/conf.py', build_sphinx))
     env.Alias('sphinx', sphinxdocs)
     env.Depends(sphinxdocs, copy_sphinx)
-    env.Depends(sphinxdocs, copy_samples)
+    env.Depends(sphinxdocs, copy_python_samples)
     env.Depends(sphinxdocs, env['python_module'])
+
+    # Gather all C++ samples into a single directory so they can be presented a single
+    # sub-gallery by sphinx-gallery
+    cxxfiles = (Glob("#samples/cxx/*/*.cpp") + Glob("#samples/cxx/*/*.h")
+                + Glob("#samples/cxx/*.rst"))
+    for cxxfile in cxxfiles:
+        env.Depends(sphinxdocs,
+                    localenv.Command(f"#build/doc/samples/cxx/{cxxfile.name}", cxxfile,
+                                     Copy("$TARGET", "$SOURCE")))
 
     # Create a list of MATLAB classes to document. This uses the NamedTuple
     # structure defined at the top of the file. The @Data and @Utilities

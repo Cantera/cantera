@@ -1,12 +1,11 @@
-/*!
- * @file rankine.cpp
- *
- * Open Rankine Cycle
+/*
+ * Open Rankine cycle
+ * ==================
  *
  * Calculate the thermodynamic states and efficiency of an open Rankine cycle
  * using a pure substance model for water.
  *
- * Keywords: thermodynamics, thermodynamic cycle, non-ideal fluid
+ * .. tags:: C++, thermodynamics, thermodynamic cycle, non-ideal fluid
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or

@@ -1,16 +1,15 @@
-/*!
- * @file combustor.cpp
+/*
+ * Adiabatic combustor
+ * ===================
  *
- * Adiabatic Combustor
- *
- * Two separate stream - one pure methane and the other air, both at 300 K
+ * Two separate streams - one pure methane and the other air, both at 300 K
  * and 1 atm flow into an adiabatic combustor where they mix. We are interested
  * in the steady-state burning solution. Since at 300 K no reaction will occur
  * between methane and air, we need to use an 'igniter' to initiate the
  * chemistry. A simple igniter is a pulsed flow of atomic hydrogen. After the
  * igniter is turned off, the system approaches the steady burning solution.
  *
- * Keywords: combustion, reactor network, well-stirred reactor
+ * .. tags:: C++, combustion, reactor network, well-stirred reactor
  */
 
 // This file is part of Cantera. See License.txt in the top-level directory or
