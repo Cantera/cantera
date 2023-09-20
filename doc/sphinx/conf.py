@@ -61,6 +61,15 @@ sphinx_gallery_conf = {
     }
 }
 
+
+header_prefix = """
+.. py:currentmodule:: cantera
+
+"""
+
+import sphinx_gallery.gen_rst
+sphinx_gallery.gen_rst.EXAMPLE_HEADER = header_prefix + sphinx_gallery.gen_rst.EXAMPLE_HEADER
+
 # Options for sphinx_tags extension
 tags_create_tags = True
 tags_create_badges = True
