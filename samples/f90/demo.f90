@@ -1,9 +1,10 @@
-! Fortran 90 Demo
+! Fortran 90 demo
+! ===============
 !
 ! This program illustrates using Cantera in Fortran 90 to compute
 ! thermodynamic, kinetic, and transport properties of a gas mixture.
 !
-! Keywords: tutorial, equilibrium, thermodynamics, kinetics, transport
+! .. tags:: Fortran 90, tutorial, equilibrium, thermodynamics, kinetics, transport
 
 ! This file is part of Cantera. See License.txt in the top-level directory or
 ! at https://cantera.org/license.txt for license and copyright information.

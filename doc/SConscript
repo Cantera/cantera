@@ -138,6 +138,14 @@ if localenv['sphinx_docs']:
                     localenv.Command(f"#build/doc/samples/cxx/{cxxfile.name}", cxxfile,
                                      Copy("$TARGET", "$SOURCE")))
 
+    # Gather all Fortran (F77 and F90) samples into a single directory
+    fort_files = (Glob("#samples/f77/*.f") + Glob("#samples/f77/*.cpp")
+                  + Glob("#samples/f90/*.f90") + Glob("#samples/f90/README.rst"))
+    for fort_file in fort_files:
+        env.Depends(sphinxdocs,
+                    localenv.Command(f"#build/doc/samples/fortran/{fort_file.name}",
+                                     fort_file, Copy("$TARGET", "$SOURCE")))
+
     # Create a list of MATLAB classes to document. This uses the NamedTuple
     # structure defined at the top of the file. The @Data and @Utilities
     # classes are fake classes for the purposes of documentation only. Each

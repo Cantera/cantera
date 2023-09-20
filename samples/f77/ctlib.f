@@ -1,27 +1,31 @@
 c
 c     CKLIB emulation
+c     ===============
 c
 c     This example shows how to implement subroutines that emulate those
-c     of the Chemkin CKLIB library. This may be useful to port an
-c     existing Chemkin-based application to Cantera. As shown here, the
-c     subroutine names begin with 'ct' instead of 'ck', so that Cantera
-c     and CKLIB subroutines can be both used in an application, if
-c     desired. It is also possible to rename these subroutines with the
-c     'ck' prefix if the application is not linked to the Chemkin CKLIB
-c     library. In this case, application programs do not need to be
-c     modified or recompiled - they only need to be relinked.
+c     of the Chemkin CKLIB library.
 c
-c     Relies on the wrapper functions defined in demo_ftnlib.cpp to call the
-c     Cantera C++ interface.
+c     This may be useful to port an existing Chemkin-based application
+c     to Cantera. As shown here, the subroutine names begin with ``ct``
+c     instead of ``ck``, so that Cantera and CKLIB subroutines can be
+c     both used in an application, if desired. It is also possible to
+c     rename these subroutines with the ``ck`` prefix if the application
+c     is not linked to the Chemkin CKLIB library. In this case,
+c     application programs do not need to be modified or recompiled -
+c     they only need to be relinked.
+c
+c     Relies on the wrapper functions defined in :doc:`demo_ftnlib.cpp
+c     <demo_ftnlib>` to call the Cantera C++ interface.
 c
 c     Only a few subroutines are implemented here, but the same idea can
 c     be applied to create Cantera-based versions of any other
 c     subroutines in the CKLIB library.
 c
-c     Keywords: tutorial, kinetics
+c     .. tags:: Fortran 77, tutorial, kinetics
 
-c     This file is part of Cantera. See License.txt in the top-level directory or
-c     at https://cantera.org/license.txt for license and copyright information.
+c     This file is part of Cantera. See License.txt in the top-level
+c     directory or at https://cantera.org/license.txt for license and
+c     copyright information.
 
 c-----------------------------------------------------------------------
 c     example driver program
