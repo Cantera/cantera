@@ -63,6 +63,8 @@ sphinx_gallery_conf = {
 
 
 header_prefix = """
+:html_theme.sidebar_secondary.remove:
+
 .. py:currentmodule:: cantera
 
 """
