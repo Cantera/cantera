@@ -303,6 +303,32 @@ class FlameBase(Sim1D):
                 "Electric field is only defined for transport model 'ionized_gas'.")
         return self.profile(self.flame, 'eField')
 
+    @property
+    def Uo(self):
+        """
+        Array containing the oxidizer velocity (right boundary velocity) [m/s] at
+        each point. Note: This value is only defined when using two-point control. 
+        """
+        return self.profile(self.flame, 'Uo')
+
+    @property
+    def tLeft(self):
+        """ Get/Set the left control point temperature [K] """
+        return self.flame.tLeft
+
+    @tLeft.setter
+    def tLeft(self, T):
+        self.flame.tLeft = T
+
+    @property
+    def tRight(self):
+        """ Get/Set the right control point temperature [K] """
+        return self.flame.tRight
+
+    @tRight.setter
+    def tRight(self, T):
+        self.flame.tRight = T
+
     def elemental_mass_fraction(self, m):
         r"""
         Get the elemental mass fraction :math:`Z_{\mathrm{mass},m}` of element
@@ -425,6 +451,17 @@ class FlameBase(Sim1D):
     @electric_field_enabled.setter
     def electric_field_enabled(self, enable):
         self.flame.electric_field_enabled = enable
+
+    @property
+    def two_point_control_enabled(self):
+        """
+        Get/Set whether or not to active two point flame control.
+        """
+        return self.flame.two_point_control_enabled
+
+    @two_point_control_enabled.setter
+    def two_point_control_enabled(self, enable):
+        self.flame.two_point_control_enabled = enable
 
 
 def _trim(docstring):
