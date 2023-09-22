@@ -1,4 +1,4 @@
-%% Plug_Flow_Reactor (PFR) - to solve PFR equations for reactors
+%% Nozzle with compressible flow
 %
 % This code snippet is to model a constant area and varying area
 % (converging and diverging) nozzle as Plug Flow Reactor with given
@@ -8,19 +8,20 @@
 %
 % The reactor assumes that the flow follows the Ideal Gas Law.
 %
-% The governing equations used in this code can be referenced at:
-% *S.R Turns, An Introduction to Combustion - Concepts and Applications,
-% McGraw Hill Education, India, 2012, 206-210.*
+% The governing equations used in this code (see :doc:`PFR_solver.m
+% <PFR_solver>`) can be referenced at:
+%
+%     *S.R Turns, An Introduction to Combustion - Concepts and Applications,
+%     McGraw Hill Education, India, 2012, 206-210.*
 %
 % The current example is written for methane combustion, but can be readily
 % adapted for other chemistries.
 %
-% Developed by Ashwin Kumar/Dr.Joseph Meadows (mgak@vt.edu/jwm84@vt.edu) on 3-June-2020
-% Research Assistant/Assistant Professor
-% Advanced Propulsion and Power Laboratory
-% Virginia Tech
+% Example originally developed by Ashwin Kumar (Research Assistant, mgak@vt.edu) and
+% Dr. Joseph Meadows (Assistant Professor, jwm84@vt.edu), Advanced Propulsion and Power
+% Laboratory, Virginia Tech.
 %
-% Keywords: combustion, user-defined model, compressible flow, plotting
+% .. tags:: Matlab, combustion, user-defined model, compressible flow, plotting
 
 %% Initialization
 

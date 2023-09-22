@@ -1,9 +1,9 @@
-%% FLAME1 - A burner-stabilized flat flame
+%% Burner-stabilized flat flame
 %
 % This script simulates a burner-stablized lean hydrogen-oxygen flame
 % at low pressure.
 %
-% Keywords: combustion, 1D flow, burner-stabilized flame, plotting
+% .. tags:: Matlab, combustion, 1D flow, burner-stabilized flame, plotting
 
 %% Initialization
 
@@ -57,7 +57,7 @@ f.setTransientTolerances('default', tol_ts{:});
 
 %% Create the burner
 %
-%  The burner is an Inlet object. The temperature, mass flux,
+%  The burner is an ``Inlet`` object. The temperature, mass flux,
 %  and composition (relative molar) may be specified.
 burner = Inlet(gas, 'burner');
 burner.T = tburner;
@@ -67,7 +67,7 @@ burner.setMoleFractions(comp);
 %% Create the outlet
 %
 %  The type of flame is determined by the object that terminates
-%  the domain. An Outlet object imposes zero gradient boundary
+%  the domain. An ``Outlet`` object imposes zero gradient boundary
 %  conditions for the temperature and mass fractions, and zero
 %  radial velocity and radial pressure gradient.
 
@@ -76,14 +76,15 @@ s = Outlet(gas, 'out');
 %% Create the flame object
 %
 % Once the component parts have been created, they can be assembled
-% to create the flame object.
-%
+% to create the flame object (see :doc:`flame.m <flame>`).
 fl = flame(gas, burner, f, s);
 fl.setMaxJacAge(max_jacobian_age(1), max_jacobian_age(2));
 
+%%
 % if the starting solution is to be read from a previously-saved
 % solution, uncomment this line and edit the file name and solution id.
-%restore(fl,'h2flame2.xml', 'energy')
+
+%restore(fl,'h2flame2.yaml', 'energy')
 
 fl.solve(loglevel, refine_grid);
 

@@ -1,10 +1,10 @@
 function prandtl2(g)
-    %% PRANDTL2 - Prandtl number for an equilibrium H/O gas mixture.
+    %% Prandtl number for an equilibrium H/O gas mixture
     %
-    % This example does the same thing as prandtl1, but using the
+    % This example does the same thing as :doc:`prandtl1.m <prandtl1>`, but using the
     % multicomponent expression for the thermal conductivity.
     %
-    % Keywords: transport, equilibrium, multicomponent transport, plotting
+    % .. tags:: Matlab, transport, equilibrium, multicomponent transport, plotting
 
     clear all
     close all

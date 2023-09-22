@@ -1,6 +1,9 @@
-% RANKINE - This example computes the efficiency of a simple vapor power cycle.
+%% Rankine cycle
 %
-% Keywords: thermodynamics, thermodynamic cycle, non-ideal fluid
+% Calculate the efficiency of a Rankine vapor power cycle using a pure fluid model
+% for water.
+%
+% .. tags:: Matlab, thermodynamics, thermodynamic cycle, non-ideal fluid
 
 clear all
 close all

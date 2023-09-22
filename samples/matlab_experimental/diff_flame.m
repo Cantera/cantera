@@ -1,10 +1,11 @@
-%% DIFF_FLAME - An opposed-flow diffusion flame.
+%% Opposed-flow diffusion flame
 %
-% This example uses the CounterFlowDiffusionFlame function to solve an
+% This example uses the ``CounterFlowDiffusionFlame`` function to solve an
 % opposed-flow diffusion flame for Ethane in Air. This example is the same
-% as the diffusion_flame.py example without radiation.
+% as the :doc:`diffusion_flame.py <../python/onedim/diffusion_flame>`
+% example without radiation.
 %
-% Keywords: combustion, 1D flow, diffusion flame, plotting
+% .. tags:: Matlab, combustion, 1D flow, diffusion flame, plotting
 
 %% Initialization
 
@@ -49,7 +50,7 @@ ox.TPX = {tin, p, oxcomp};
 
 %% Set-up the flow object
 %
-% For this problem, the AxisymmetricFlow model is needed. Set the state of
+% For this problem, the ``AxisymmetricFlow`` model is needed. Set the state of
 % the flow as the fuel gas object. This is arbitrary and is only used to
 % initialize the flow object. Set the grid to the initial grid defined
 % prior, same for the tolerances.
@@ -76,11 +77,11 @@ inlet_f.T = tin;
 inlet_f.massFlux = mdot_f;
 inlet_f.setMoleFractions(fuelcomp);
 
-%% Create the flame object.
+%% Create the flame object
 %
 % Once the inlets have been created, they can be assembled
-% to create the flame object. Function CounterFlorDiffusionFlame
-% (in Cantera/1D) sets up the initial guess for the solution using a
+% to create the flame object. Function ``CounterFlorDiffusionFlame``
+% (in ``Cantera/1D``) sets up the initial guess for the solution using a
 % Burke-Schumann flame. The input parameters are: fuel inlet object, flow
 % object, oxidizer inlet object, fuel gas object, oxidizer gas object, and
 % the name of the oxidizer species as in character format.
@@ -94,28 +95,28 @@ fl = CounterFlowDiffusionFlame(inlet_f, f, inlet_o, fuel, ox, 'O2');
 
 fl.solve(loglevel, 0);
 
-%% Enable the energy equation.
+%% Enable the energy equation
 %
 % The energy equation will now be solved to compute the temperature profile.
 % We also tighten the grid refinement criteria to get an accurate final
-% solution. The explanation of the setRefineCriteria function is located
+% solution. The explanation of the ``setRefineCriteria`` function is located
 % on cantera.org in the Matlab User's Guide and can be accessed by
-% help setRefineCriteria
+% ``help setRefineCriteria``.
 
 f.energyEnabled = true;
 fl.setRefineCriteria(2, 200.0, 0.1, 0.2);
 fl.solve(loglevel, refine_grid);
 
-%% Show statistics of solution and elapsed time.
+%% Show statistics of solution and elapsed time
 
 fl.writeStats;
 elapsed = cputime - runtime;
 e = sprintf('Elapsed CPU time: %10.4g', elapsed);
 disp(e);
 
+%% Plot results
 % Make a single plot showing temperature and mass fraction of select
 % species along axial distance from fuel inlet to air inlet.
-%
 
 z = fl.grid('flow'); % Get grid points of flow
 spec = fuel.speciesNames; % Get species names in gas

@@ -1,9 +1,9 @@
 function dydt = conuv(t, y, gas, mw)
-    % CONUV ODE system for a constant-volume, adiabatic reactor.
+    %% ODE system for a constant-volume, adiabatic reactor
     %
-    % Function CONUV evaluates the system of ordinary differential
+    % Function ``CONUV`` evaluates the system of ordinary differential
     % equations for an adiabatic, constant-volume, zero-dimensional reactor.
-    % It assumes that the 'gas' object represents a reacting ideal gas mixture.
+    % It assumes that the ``gas`` object represents a reacting ideal gas mixture.
 
     % Set the state of the gas, based on the current solution vector.
     gas.Y = y(2:end);

@@ -1,25 +1,26 @@
-%% LITHIUM_ION_BATTERY
+%% Lithium-ion battery
 %
 % This example file calculates the cell voltage of a lithium-ion battery
 % at given temperature, pressure, current, and range of state of charge (SOC).
 %
 % The thermodynamics are based on a graphite anode and a LiCoO2 cathode,
-% modeled using the 'BinarySolutionTabulatedThermo' class.
+% modeled using the :ct:`BinarySolutionTabulatedThermo` class.
 % Further required cell parameters are the electrolyte ionic resistance,
 % the stoichiometry ranges of the active materials (electrode balancing),
 % and the surface area of the active materials.
 %
 % The functionality of this example is presented in greater detail in the
 % reference (which also describes the derivation of the
-% BinarySolutionTabulatedThermo class):
+% :ct:`BinarySolutionTabulatedThermo` class).
 %
 % Reference:
-% M. Mayur, S. C. DeCaluwe, B. L. Kee, W. G. Bessler, “Modeling and simulation
-% of the thermodynamics of lithium-ion battery intercalation materials in the
-% open-source software Cantera,” Electrochim. Acta 323, 134797 (2019),
-% https://doi.org/10.1016/j.electacta.2019.134797
 %
-% Keywords: surface chemistry, kinetics, electrochemistry, battery, plotting
+%     M. Mayur, S. C. DeCaluwe, B. L. Kee, W. G. Bessler, “Modeling and simulation
+%     of the thermodynamics of lithium-ion battery intercalation materials in the
+%     open-source software Cantera,” Electrochim. Acta 323, 134797 (2019),
+%     https://doi.org/10.1016/j.electacta.2019.134797
+%
+% .. tags:: Matlab, surface chemistry, kinetics, electrochemistry, battery, plotting
 
 %% Initialization
 
@@ -43,6 +44,7 @@ R_elyt = 0.0384; % [Ohm] Electrolyte resistance
 S_ca = 1.1167; % [m^2] Cathode total active material surface area
 S_an = 0.7824; % [m^2] Anode total active material surface area
 
+%%
 % Electrode balancing: The "balancing" of the electrodes relates the chemical
 % composition (lithium mole fraction in the active materials) to the macroscopic
 % cell-level state of charge.

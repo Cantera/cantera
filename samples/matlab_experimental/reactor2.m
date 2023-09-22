@@ -1,11 +1,11 @@
 function reactor2(g)
-    %% REACTOR2 - Zero-dimensional kinetics: adiabatic, constant volume.
+    %% Adiabatic, constant volume reactor
     %
-    % This example illustrates how to use class 'Reactor' for zero-dimensional
+    % This example illustrates how to use class ``Reactor`` for zero-dimensional
     % kinetics simulations. Here the parameters are set so that the reactor is
     % adiabatic and constant volume.
     %
-    % Keywords: combustion, reactor network, ignition delay, plotting
+    % .. tags:: Matlab, combustion, reactor network, ignition delay, plotting
 
     clear all
     close all

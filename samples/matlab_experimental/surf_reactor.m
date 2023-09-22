@@ -1,9 +1,9 @@
-%% SURFREACTOR - Zero-dimensional reactor with surface chemistry
+%% Zero-dimensional reactor with surface chemistry
 %
-% This example illustrates how to use class 'Reactor' for zero-dimensional
+% This example illustrates how to use class ``Reactor`` for zero-dimensional
 % simulations including both homogeneous and heterogeneous chemistry.
 %
-% Keywords: catalysis, combustion, reactor network, plotting
+% .. tags:: Matlab, catalysis, combustion, reactor network, plotting
 
 %% Initialization
 
