@@ -92,6 +92,12 @@ cdef extern from "cantera/oneD/StFlow.h":
         ThermoBasis fluxGradientBasis()
         void setFreeFlow()
         void setAxisymmetricFlow()
+        void enableTwoPointControl(cbool)
+        cbool twoPointControlEnabled()
+        double leftControlPointTemperature()
+        void setLeftControlPointTemperature(double)
+        double rightControlPointTemperature()
+        void setRightControlPointTemperature(double)
 
 
 cdef extern from "cantera/oneD/Sim1D.h":
@@ -143,6 +149,8 @@ cdef extern from "cantera/oneD/Sim1D.h":
         void setInterrupt(CxxFunc1*) except +translate_exception
         void setTimeStepCallback(CxxFunc1*)
         void setSteadyCallback(CxxFunc1*)
+        void setLeftControlPoint(double) except +translate_exception
+        void setRightControlPoint(double) except +translate_exception
 
 
 cdef extern from "cantera/thermo/IdealGasPhase.h":

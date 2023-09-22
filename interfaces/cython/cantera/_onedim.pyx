@@ -649,6 +649,27 @@ cdef class FlowBase(Domain1D):
         else:
             self.flow.fixElectricField()
 
+    property tLeft:
+        """ Left control point temperature [K] """
+        def __get__(self):
+            return self.flow.leftControlPointTemperature()
+        def __set__(self, T):
+            self.flow.setLeftControlPointTemperature(T)
+
+    property tRight:
+        """ Right control point temperature [K] """
+        def __get__(self):
+            return self.flow.rightControlPointTemperature()
+        def __set__(self, T):
+            self.flow.setRightControlPointTemperature(T)
+    
+    property two_point_control_enabled:
+        """ Determines whether or not to enable two point flame control"""
+        def __get__(self):
+            return self.flow.twoPointControlEnabled()
+        def __set__(self, enable):
+            self.flow.enableTwoPointControl(<cbool>enable)
+
 
 cdef class FreeFlow(FlowBase):
     r"""A free flow domain. The equations solved are standard equations for adiabatic
@@ -1304,6 +1325,22 @@ cdef class Sim1D:
         """
         def __get__(self):
             return self.sim.fixedTemperatureLocation()
+
+    def set_left_control_point(self, T):
+        """
+        Set the left control point using a specified temperature. This user-provided
+        temperature will be used to locate the closest grid point to that temperature,
+        which will serve to locate the left control point's coordinate.
+        """
+        self.sim.setLeftControlPoint(T)
+
+    def set_right_control_point(self, T):
+        """
+        Set the right control point using a specified temperature. This user-provided
+        temperature will be used to locate the closest grid point to that temperature,
+        which will serve to locate the right control point's coordinate.
+        """
+        self.sim.setRightControlPoint(T)
 
     def save(self, filename='soln.yaml', name='solution', description=None,
              loglevel=None, *, overwrite=False, compression=0, basis=None):
