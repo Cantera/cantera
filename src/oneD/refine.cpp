@@ -184,6 +184,12 @@ int Refiner::analyze(size_t n, const double* z, const double* x)
         if (fflame && fflame->isFree() && z[j] == fflame->m_zfixed) {
             m_keep[j] = 1;
         }
+
+        // Keep the point if it is a control point used for two-point flame control
+        if (fflame && fflame->twoPointControlEnabled() && (z[j] == fflame->m_zLeft || z[j] == fflame->m_zRight)) {
+            m_keep[j] = 1;
+        }
+
     }
 
     // Don't allow pruning to remove multiple adjacent grid points
