@@ -1,11 +1,12 @@
 function plotdata = ignite(g)
-    %% IGNITE Zero-dimensional kinetics: adiabatic, constant pressure.
+    %% Adiabatic, constant pressure reactor
     %
-    %    This example solves the same problem as 'reactor1', but does
-    %    it using one of MATLAB's ODE integrators, rather than using the
-    %    Cantera Reactor class.
+    % This example solves the same problem as :doc:`reactor1.m <reactor1>`, but does it
+    % using one of MATLAB's ODE integrators, rather than using the Cantera Reactor
+    % class. See :doc:`reactor_ode.m <reactor_ode>` for the implementation of the
+    % governing equations.
     %
-    % Keywords: combustion, reactor network, ignition delay, plotting
+    % .. tags:: Matlab, combustion, reactor network, ignition delay, plotting
 
     clear all
     close all
@@ -37,36 +38,38 @@ function plotdata = ignite(g)
 
     plotdata = output(out, gas);
 
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % the functions below may be defined arbitrarily to set the reactor
+    %% Time-varying boundary conditions
+    %
+    % The functions below may be defined arbitrarily to set the reactor
     % boundary conditions - the rate of change of volume, the heat
     % flux, and the area.
-
+    %
     % Rate of change of volume. Any arbitrary function may be implemented.
+    %
     % Input arguments:
-    %   t      time
-    %   vol    volume
-    %   gas    ideal gas object
-
+    %    :t:      time
+    %    :vol:    volume
+    %    :gas:    ideal gas object
     function v = vdot(t, vol, gas)
         %v = 0.0;                                 %uncomment for constant volume
         v = 1.e11 * (gas.P - 101325.0); % holds pressure very
         % close to 1 atm
     end
 
+    %%
     % heat flux (W/m^2).
     function q = heatflux(t, gas)
         q = 0.0; % adiabatic
     end
 
+    %%
     % surface area (m^2). Used only to compute heat transfer.
     function a = area(t, vol)
         a = 1.0;
     end
 
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-    % Since the solution variables used by the 'reactor' function are
+    %%
+    % Since the solution variables used by the ``reactor`` function are
     % not necessarily those desired for output, this function is called
     % after the integration is complete to generate the desired
     % outputs.

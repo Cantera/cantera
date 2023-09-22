@@ -1,11 +1,11 @@
 function prandtl1(g)
-    %% PRANDTL1 - Prandtl number for an equilibrium H/O gas mixture.
+    %% Prandtl number for an equilibrium H/O gas mixture
     %
     % This example computes and plots the Prandtl number for a hydrogen / oxygen
     % mixture in chemical equilibrium for P = 1 atm and a range of temperatures
     % and elemental O/(O+H) ratios.
     %
-    % Keywords: equilibrium, transport, plotting
+    % .. tags:: Matlab, equilibrium, transport, plotting
 
     clear all
     close all

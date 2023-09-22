@@ -1,6 +1,8 @@
 function f = flame(gas, left, flow, right)
-    % FLAME - create a flame object.
+    %% Utility for flame setup
     %
+    % Used by the :doc:`flame1.m <flame1>` and :doc:`flame2.m <flame2>` examples.
+
     % Check input parameters
     if nargin ~= 4
         error('wrong number of input arguments.');

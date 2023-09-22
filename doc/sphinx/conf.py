@@ -49,20 +49,23 @@ extensions = [
 
 sphinx_gallery_conf = {
     'filename_pattern': '\.py',
-    'example_extensions': {'.py', '.cpp', '.h', '.c', '.f', '.f90'},
-    "filetype_parsers": {'.h': 'C++'},
+    'example_extensions': {'.py', '.cpp', '.h', '.c', '.f', '.f90', '.m'},
+    "filetype_parsers": {'.h': 'C++', '.m': 'Matlab'},
+    'ignore_pattern': r'(__.*__\.py|test_examples\.m)',
     'image_srcset': ["2x"],
     'examples_dirs': [
        '../samples/python/',
        '../samples/cxx/',
        '../samples/clib/',
        '../samples/fortran/',
+       '../samples/matlab_experimental/',
     ],
     'gallery_dirs': [
        'examples/python',
        'examples/cxx',
        'examples/clib',
        'examples/fortran',
+       'examples/matlab_experimental',
     ],
     'reference_url': {
         'cantera': None,  # 'None' means the locally-documented module
@@ -125,6 +128,7 @@ tags_badge_colors = {
     "Python": "secondary",
     "C++": "secondary",
     "C": "secondary",
+    "Matlab": "secondary",
     "Fortran 77": "secondary",
     "Fortran 90": "secondary",
 }

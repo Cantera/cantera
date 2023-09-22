@@ -1,10 +1,10 @@
 function isentropic(g)
-    %% ISENTROPIC - isentropic, adiabatic flow example
+    %% Isentropic, adiabatic flow
     %
     % In this example, the area ratio vs. Mach number curve is computed for a
     % hydrogen/nitrogen gas mixture.
     %
-    % Keywords: thermodynamics, compressible flow, plotting
+    % .. tags:: Matlab, thermodynamics, compressible flow, plotting
 
     clear all
     close all

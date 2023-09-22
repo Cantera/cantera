@@ -1,8 +1,8 @@
-%% FLAME2 - An axisymmetric stagnation-point non-premixed flame
+%% Axisymmetric stagnation-point non-premixed flame
 %
 % This script simulates a stagnation-point ethane-air flame.
 %
-% Keywords: combustion, 1D flow, strained flame, diffusion flame, plotting
+% .. tags:: Matlab, combustion, 1D flow, strained flame, diffusion flame, plotting
 
 %% Initialization
 
@@ -27,8 +27,7 @@ comp2 = 'C2H6:1'; % fuel composition
 
 initial_grid = 0.02 * [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]; % m
 
-tol_ss = {1.0e-5, 1.0e-13}; % {rtol atol} for steady-state
-% problem
+tol_ss = {1.0e-5, 1.0e-13}; % {rtol atol} for steady-state problem
 tol_ts = {1.0e-4, 1.0e-13}; % {rtol atol} for time stepping
 
 loglevel = 1; % amount of diagnostic output (0 to 5)
@@ -55,8 +54,8 @@ f.setTransientTolerances('default', tol_ts{:});
 
 %% Create the air inlet
 %
-%  The temperature, mass flux, and composition (relative molar) may be
-%  specified.
+% The temperature, mass flux, and composition (relative molar) may be
+% specified.
 
 inlet_o = Inlet(gas, 'air_inlet');
 inlet_o.T = tin;
@@ -77,18 +76,19 @@ inlet_f.setMoleFractions(comp2);
 
 fl = flame(gas, inlet_o, f, inlet_f);
 
+%%
 % if the starting solution is to be read from a previously-saved
 % solution, uncomment this line and edit the file name and solution id.
-%restore(fl,'h2flame2.xml', 'energy')
 
-% solve with fixed temperature profile first
+%restore(fl,'h2flame2.yaml', 'energy')
+
+% Solve with fixed temperature profile first
 fl.solve(loglevel, refine_grid);
 
 %% Enable the energy equation
 %
-%  The energy equation will now be solved to compute the
-%  temperature profile. We also tighten the grid refinement
-%  criteria to get an accurate final solution.
+% The energy equation will now be solved to compute the temperature profile. We also
+% tighten the grid refinement criteria to get an accurate final solution.
 
 f.energyEnabled = true;
 fl.setRefineCriteria(2, 200.0, 0.1, 0.1);

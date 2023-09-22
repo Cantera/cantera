@@ -1,8 +1,10 @@
 function ignite_uv(gas)
-    %  IGNITE_UV  Solves the same ignition problem as 'ignite2', except
-    %  function conuv is used instead of reactor.
+    %% Constant volume ignition with user-specified equations
     %
-    % Keywords: combustion, user-defined model, ignition delay, plotting
+    % Solves the same ignition problem as :doc:`reactor2.m <reactor2>`, except using
+    % function :doc:`conuv.m <conuv>` to implement the governing equations.
+    %
+    % .. tags:: Matlab, combustion, user-defined model, ignition delay, plotting
 
     clear all
     close all

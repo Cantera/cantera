@@ -1,15 +1,14 @@
 function plotSolution(s, domain, component)
-    % Plot a specified solution component. ::
+    %% Utility for plotting a specific solution component
     %
     %     >> plotSolution(s, domain, component)
     %
-    % :param s:
+    % :s:
     %    Instance of class :mat:class:`Sim1D`.
-    % :param domain:
-    %    Name of domain from which the component should be
-    %    retrieved.
-    % :param component:
-    %    Name of the component to be plotted.
+    % :domain:
+    %    Name of domain from which the component should be retrieved.
+    % :component:
+    %    Name of the component to be plotted
 
     n = s.stackIndex(domain);
     d = s.domains{n};

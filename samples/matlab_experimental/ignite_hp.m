@@ -1,8 +1,10 @@
 function ignite_hp(gas)
-    %  IGNITE_HP  Solves the same ignition problem as 'ignite', but uses
-    %  function conhp instead of reactor.
+    %% Constant pressure ignition with user-specified equations
     %
-    % Keywords: combustion, user-defined model, ignition delay, plotting
+    % Solves the same ignition problem as :doc:`reactor1.m <reactor1>`, but uses
+    % function :doc:`conhp.m <conhp>` to implement the governing equations.
+    %
+    % .. tags:: Matlab, combustion, user-defined model, ignition delay, plotting
 
     clear all
     close all

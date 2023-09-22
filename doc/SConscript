@@ -121,12 +121,14 @@ if localenv['sphinx_docs']:
     copy_sphinx = localenv.RecursiveInstall("#build/doc/sphinx", "sphinx")
     copy_python_samples = localenv.RecursiveInstall("#build/doc/samples/python",
                                                     "#samples/python")
+    copy_matlab_ex_samples = localenv.RecursiveInstall(
+        "#build/doc/samples/matlab_experimental", "#samples/matlab_experimental")
 
     sphinxdocs = build(localenv.Command('build/doc/sphinx/html/index.html',
         'sphinx/conf.py', build_sphinx))
     env.Alias('sphinx', sphinxdocs)
     env.Depends(sphinxdocs, copy_sphinx)
-    env.Depends(sphinxdocs, copy_python_samples)
+    env.Depends(sphinxdocs, [copy_python_samples, copy_matlab_ex_samples])
     env.Depends(sphinxdocs, env['python_module'])
 
     # Gather all C++ samples into a single directory so they can be presented a single
