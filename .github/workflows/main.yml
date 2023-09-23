@@ -317,16 +317,22 @@ jobs:
       - name: Install Apt dependencies
         run: |
           sudo apt update
-          sudo apt install libboost-dev doxygen graphviz texlive-bibtex-extra
+          sudo apt install libboost-dev doxygen graphviz texlive-bibtex-extra \
+            libblas-dev liblapack-dev libhdf5-dev libfmt-dev libsundials-dev
       - name: Upgrade pip
         run: python3 -m pip install -U pip setuptools wheel
       - name: Install Python dependencies
         run: |
-          python3 -m pip install ruamel.yaml scons numpy cython sphinx==5.1.1 \
-          sphinxcontrib-matlabdomain sphinxcontrib-doxylink pint \
-          pydata-sphinx-theme==0.13.3 sphinx-argparse
-      - name: Build Cantera with documentation
-        run: python3 `which scons` build -j2 doxygen_docs=y sphinx_docs=y debug=n optimize=n use_pch=n
+          python3 -m pip install ruamel.yaml scons numpy cython sphinx==6.2.1 \
+            sphinxcontrib-matlabdomain sphinxcontrib-doxylink pint \
+            pydata-sphinx-theme==0.13.3 sphinx-argparse sphinx_design matplotlib \
+            pandas scipy
+          python3 -m pip install "git+https://github.com/sphinx-gallery/sphinx-gallery.git@master"
+          python3 -m pip install "git+https://github.com/Cantera/sphinx-tags.git@main"
+      - name: Build Cantera
+        run: python3 `which scons` build -j2 debug=n optimize=y use_pch=n
+      - name: Build documentation
+        run: python3 `which scons` sphinx doxygen
       - name: Ensure 'scons help' options work
         run: |
           python3 `which scons` help --options
@@ -335,12 +341,12 @@ jobs:
       - name: Parse configuration options from SConstruct as reST
         run: |
           python3 `which scons` help --restructured-text --dev --output=config-options-dev.rst
-          mkdir build/docs/scons
-          mv config-options-dev.rst build/docs/scons/
+          mkdir build/doc/scons
+          mv config-options-dev.rst build/doc/scons/
       - name: Create archive for docs output
         run: |
           cd build
-          tar -czf docs.tar.gz docs
+          tar -czf docs.tar.gz doc
       - name: Store archive of docs output
         uses: actions/upload-artifact@v3
         with:
@@ -362,7 +368,7 @@ jobs:
           RSYNC_USER: "ctdeploy"
           RSYNC_SERVER: "cantera.org"
           RSYNC_DEST: "cantera/documentation/dev"
-          DOCS_OUTPUT_DIR: "./build/docs/"
+          DOCS_OUTPUT_DIR: "./build/doc/"
         run: |
           rsync -avzP --checksum --exclude='*.map' --exclude='*.md5' \
           --exclude='/doxygen/xml' --delete --delete-excluded \
