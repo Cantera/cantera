@@ -347,12 +347,14 @@ jobs:
         run: |
           cd build
           tar -czf docs.tar.gz doc
+        if: failure() || success()
       - name: Store archive of docs output
         uses: actions/upload-artifact@v3
         with:
           path: build/docs.tar.gz
           name: docs
-          retention-days: 2
+          retention-days: 14
+        if: failure() || success()
       # The known_hosts key is generated with `ssh-keygen -F cantera.org` from a
       # machine that has previously logged in to cantera.org and trusts
       # that it logged in to the right machine
