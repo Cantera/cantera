@@ -118,6 +118,27 @@ header_prefix = """
 
 sphinx_gallery.gen_rst.EXAMPLE_HEADER = header_prefix + sphinx_gallery.gen_rst.EXAMPLE_HEADER
 
+# Provide options to examples that only generate plots if an option is specified
+class ResetArgv:
+    wants_plot = {
+        "adiabatic.py",
+        "premixed_counterflow_twin_flame.py",
+        "piston.py",
+        "reactor1.py",
+        "reactor2.py",
+        "sensitivity1.py",
+    }
+    def __repr__(self):
+        return 'ResetArgv'
+
+    def __call__(self, sphinx_gallery_conf, script_vars):
+        if Path(script_vars['src_file']).name in self.wants_plot:
+            return ['--plot']
+        else:
+            return []
+
+sphinx_gallery_conf["reset_argv"] = ResetArgv()
+
 # Options for sphinx_tags extension
 tags_create_tags = True
 tags_create_badges = True
