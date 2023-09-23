@@ -13,6 +13,7 @@
 
 import sys, os, re
 from pathlib import Path
+from sphinx_gallery.sorting import ExplicitOrder
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -67,6 +68,15 @@ sphinx_gallery_conf = {
        'examples/fortran',
        'examples/matlab_experimental',
     ],
+    'subsection_order': ExplicitOrder([
+        '../samples/python/thermo',
+        '../samples/python/kinetics',
+        '../samples/python/transport',
+        '../samples/python/reactors',
+        '../samples/python/onedim',
+        '../samples/python/surface_chemistry',
+        '../samples/python/multiphase',
+    ]),
     'reference_url': {
         'cantera': None,  # 'None' means the locally-documented module
     }
