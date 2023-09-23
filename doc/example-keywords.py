@@ -3,7 +3,7 @@
 """
 example-keywords.py
 
-Parse Cantera examples for "Keywords" declarations to ensure that all examples have
+Parse Cantera examples for keyword (tag) declarations to ensure that all examples have
 keyword definitions and to help maintain consistency in the keywords chosen.
 
 Usage:
@@ -42,7 +42,7 @@ def get_python_keywords(filename):
         return False
     docstring = match.group(2) + "\n\n"
 
-    match = re.search(r"\s*Keywords:(.*?)\n\n", docstring, re.DOTALL | re.MULTILINE)
+    match = re.search(r"\s*\.\. tags::(.*?)\n\n", docstring, re.DOTALL | re.MULTILINE)
     if not match:
         EXIT_CODE = 1
         logging.warning(f"No keywords found in {filename}")
@@ -59,7 +59,7 @@ def get_matlab_keywords(filename):
     comma separated.
     """
     text = Path(filename).read_text()
-    match = re.search(r"(?:%.*?\n)+", text, re.DOTALL | re.MULTILINE)
+    match = re.search(r"(?:\s*%.*?\n)+", text, re.DOTALL | re.MULTILINE)
     global EXIT_CODE
     if not match:
         EXIT_CODE = 1
@@ -68,7 +68,7 @@ def get_matlab_keywords(filename):
     docstring = match.group(0) + "\n\n"
     docstring = "\n".join(line.lstrip("% ") for line in docstring.splitlines())
 
-    match = re.search(r"\s*Keywords:(.*?)\n\n", docstring, re.DOTALL | re.MULTILINE)
+    match = re.search(r"\s*\.\. tags::(.*?)\n\n", docstring, re.DOTALL | re.MULTILINE)
     if not match:
         EXIT_CODE = 1
         logging.warning(f"No keywords found in {filename}")
@@ -79,7 +79,7 @@ def get_matlab_keywords(filename):
 
 def get_cxx_keywords(filename):
     text = Path(filename).read_text()
-    match = re.search(r"\/\*[!\*](.*?)\*\/", text, re.DOTALL | re.MULTILINE)
+    match = re.search(r"\/\*(.*?)\*\/", text, re.DOTALL | re.MULTILINE)
     global EXIT_CODE
     if not match:
         EXIT_CODE = 1
@@ -87,7 +87,7 @@ def get_cxx_keywords(filename):
         return False
     docstring = match.group(1) + "\n\n"
     docstring = "\n".join(line.lstrip("* ") for line in docstring.splitlines())
-    match = re.search(r"\s*Keywords:(.*?)\n\n", docstring, re.DOTALL | re.MULTILINE)
+    match = re.search(r"\s*\.\. tags::(.*?)\n\n", docstring, re.DOTALL | re.MULTILINE)
     if not match:
         EXIT_CODE = 1
         logging.warning(f"No keywords found in {filename}")
@@ -109,7 +109,7 @@ def get_fortran_keywords(filename, comment_char):
     docstring = "\n".join(line.lstrip(f"{comment_char} ")
                           for line in docstring.splitlines())
 
-    match = re.search(r"\s*Keywords:(.*?)\n\n", docstring, re.DOTALL | re.MULTILINE)
+    match = re.search(r"\s*\.\. tags::(.*?)\n\n", docstring, re.DOTALL | re.MULTILINE)
     if not match:
         EXIT_CODE = 1
         logging.warning(f"No keywords found in {filename}")
@@ -137,7 +137,7 @@ def get_all_keywords():
                 if kw:
                     all_keywords.update(kw)
 
-    for f in (cantera_root / "samples/matlab").glob("*.m"):
+    for f in (cantera_root / "samples/matlab_experimental").glob("*.m"):
         if f.name in skip:
             continue
         kw = get_matlab_keywords(f)
@@ -149,7 +149,8 @@ def get_all_keywords():
             continue
         if d.is_dir():
             for f in d.glob("*.cpp"):
-                all_keywords.update(get_cxx_keywords(f))
+                if kw := get_cxx_keywords(f):
+                    all_keywords.update(kw)
 
     for f in (cantera_root / "samples/f77").glob("*.f"):
         if f.name in skip:
@@ -187,7 +188,7 @@ def save_keywords():
     Save an updated version of the known keywords list based on keywords appearing in
     any of the examples.
     """
-    found_kw = "\n".join(sorted(get_all_keywords()) + [""])
+    found_kw = "\n".join(sorted(get_all_keywords(), key=lambda kw: kw.lower()) + [""])
     (Path(__file__).parent / "example-keywords.txt").write_text(found_kw)
 
 
