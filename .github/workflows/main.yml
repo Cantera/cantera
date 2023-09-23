@@ -332,7 +332,7 @@ jobs:
       - name: Build Cantera
         run: python3 `which scons` build -j2 debug=n optimize=y use_pch=n
       - name: Build documentation
-        run: python3 `which scons` sphinx doxygen
+        run: python3 `which scons` sphinx doxygen logging=debug
       - name: Ensure 'scons help' options work
         run: |
           python3 `which scons` help --options
