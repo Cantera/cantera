@@ -111,6 +111,8 @@ if localenv['doxygen_docs']:
 if localenv['sphinx_docs']:
     def build_sphinx(target, source, env):
         cmd = [env['sphinx_cmd']] + env['sphinx_options'].split()
+        if env['logging'] == 'debug':
+            cmd.append('-v')
         cmd += ('-b', 'html', '-d', 'build/doc/sphinx/doctrees', 'build/doc/sphinx',
                 'build/doc/sphinx/html')
         code = subprocess.call(cmd, env=env['ENV'])
