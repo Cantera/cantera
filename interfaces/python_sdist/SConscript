@@ -5,7 +5,7 @@ import shutil
 from textwrap import dedent
 
 from build import ProjectBuilder
-from build.env import IsolatedEnvBuilder
+from build.env import DefaultIsolatedEnv
 
 from buildutils import logger
 
@@ -151,10 +151,10 @@ sdist(localenv.Command("README.rst", "#README.rst", Copy("$TARGET", "$SOURCE")))
 
 def build_sdist(target, source, env):
     build_dir = Path(source[0].abspath).parent
-    builder = ProjectBuilder(str(build_dir))
-    with IsolatedEnvBuilder() as build_env:
-        builder.python_executable = build_env.executable
-        builder.scripts_dir = build_env.scripts_dir
+    with DefaultIsolatedEnv() as build_env:
+        builder = ProjectBuilder(str(build_dir),
+                                 python_executable=build_env.python_executable)
+
         # first install the build dependencies
         build_env.install(builder.build_system_requires)
         # then get the extra required dependencies from the backend
