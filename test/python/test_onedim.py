@@ -271,8 +271,8 @@ class TestFreeFlame(utilities.CanteraTest):
         self.assertLess(abs(T3-Tad), abs(T2-Tad))
 
         for k in range(self.gas.n_species):
-            self.assertLess(abs(X2[k]-Xad[k]), abs(X1[k]-Xad[k]))
-            self.assertLess(abs(X3[k]-Xad[k]), abs(X2[k]-Xad[k]))
+            self.assertLessEqual(abs(X2[k]-Xad[k]), abs(X1[k]-Xad[k]))
+            self.assertLessEqual(abs(X3[k]-Xad[k]), abs(X2[k]-Xad[k]))
 
     def run_mix(self, phi, T, width, p, refine):
         reactants = {'H2': phi, 'O2': 0.5, 'AR': 2}
@@ -1686,7 +1686,7 @@ class TestIonFreeFlame(utilities.CanteraTest):
         self.sim.solve(loglevel=0, stage=2)
 
         # Regression test
-        self.assertNear(max(self.sim.E), 142.666221, 1e-3)
+        self.assertNear(max(self.sim.E), 149.63179056676853, 1e-3)
 
 
 class TestIonBurnerFlame(utilities.CanteraTest):

@@ -606,6 +606,8 @@ protected:
     // transport properties
     vector<double> m_visc;
     vector<double> m_tcon;
+    //! Array of size #m_nsp by #m_points for saving density times diffusion
+    //! coefficient times species molar mass divided by mean molecular weight
     vector<double> m_diff;
     vector<double> m_multidiff;
     Array2D m_dthermal;

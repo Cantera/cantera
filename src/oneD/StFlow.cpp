@@ -630,6 +630,11 @@ void StFlow::updateTransport(double* x, size_t j0, size_t j1)
             setGasAtMidpoint(x,j);
             m_visc[j] = (m_dovisc ? m_trans->viscosity() : 0.0);
             m_trans->getMixDiffCoeffs(&m_diff[j*m_nsp]);
+            double rho = m_thermo->density();
+            double wtm = m_thermo->meanMolecularWeight();
+            for (size_t k=0; k < m_nsp; k++) {
+                m_diff[k+j*m_nsp] *= m_wt[k] * rho / wtm;
+            }
             m_tcon[j] = m_trans->thermalConductivity();
         }
     }
@@ -668,11 +673,9 @@ void StFlow::updateDiffFluxes(const double* x, size_t j0, size_t j1)
     } else {
         for (size_t j = j0; j < j1; j++) {
             double sum = 0.0;
-            double wtm = m_wtm[j];
-            double rho = density(j);
             double dz = z(j+1) - z(j);
             for (size_t k = 0; k < m_nsp; k++) {
-                m_flux(k,j) = m_wt[k]*(rho*m_diff[k+m_nsp*j]/wtm);
+                m_flux(k,j) = m_diff[k+m_nsp*j];
                 m_flux(k,j) *= (X(x,k,j) - X(x,k,j+1))/dz;
                 sum -= m_flux(k,j);
             }
