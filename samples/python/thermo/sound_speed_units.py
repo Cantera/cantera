@@ -11,7 +11,7 @@ import numpy as np
 
 # This sets the default output format of the units to have 2 significant digits
 # and the units are printed with a Unicode font. See:
-# https://pint.readthedocs.io/en/stable/formatting.html#unit-format-types
+# https://pint.readthedocs.io/en/stable/user/formatting.html#unit-format-types
 ctu.units.default_format = ".2F~P"
 
 def equilibrium_sound_speeds(gas, rtol=1.0e-6, max_iter=5000):
