@@ -759,7 +759,7 @@ class TestFreeFlame(utilities.CanteraTest):
         assert meta['cantera_version'] == "2.6.0"
 
         # check with reduced tolerance to account for machine dependent differences
-        self.check_save_restore(f)
+        self.check_save_restore(f, tol_T=1e-3, tol_X=1e-1)
 
     @pytest.mark.skipif("native" not in ct.hdf_support(),
                         reason="Cantera compiled without HDF support")
@@ -786,13 +786,13 @@ class TestFreeFlame(utilities.CanteraTest):
 
         self.check_save_restore(f)
 
-    def check_save_restore(self, f):
+    def check_save_restore(self, f, tol_T=1e-4, tol_X=1e-4):
         # pytest.approx is used as equality for floats cannot be guaranteed for loaded
         # HDF5 files if they were created on a different OS and/or architecture
         assert list(f.grid) == pytest.approx(list(self.sim.grid))
-        assert list(f.T) == pytest.approx(list(self.sim.T), rel=1e-4)
+        assert list(f.T) == pytest.approx(list(self.sim.T), rel=tol_T)
         k = self.gas.species_index('H2')
-        assert list(f.X[k, :]) == pytest.approx(list(self.sim.X[k, :]), rel=1e-4)
+        assert list(f.X[k, :]) == pytest.approx(list(self.sim.X[k, :]), rel=tol_X)
         assert list(f.inlet.X) == pytest.approx(list(self.sim.inlet.X))
 
         def check_settings(one, two):
@@ -1550,7 +1550,7 @@ class TestImpingingJet(utilities.CanteraTest):
         self.run_reacting_surface(xch4=0.095, tsurf=900.0, mdot=0.06, width=0.1)
         jet = ct.ImpingingJet(gas=self.gas, surface=self.surf_phase)
         jet.restore(filename, "group0")
-        self.check_save_restore(jet)
+        self.check_save_restore(jet, tol_T=1e-3, tol_X=1e-1)
 
     @pytest.mark.skipif("native" not in ct.hdf_support(),
                         reason="Cantera compiled without HDF support")
@@ -1573,13 +1573,13 @@ class TestImpingingJet(utilities.CanteraTest):
 
         self.check_save_restore(jet)
 
-    def check_save_restore(self, jet):
+    def check_save_restore(self, jet, tol_T=1e-3, tol_X=1e-4):
         # pytest.approx is used as equality for floats cannot be guaranteed for loaded
         # HDF5 files if they were created on a different OS and/or architecture
         assert list(jet.grid) == pytest.approx(list(self.sim.grid))
-        assert list(jet.T) == pytest.approx(list(self.sim.T), 1e-3)
+        assert list(jet.T) == pytest.approx(list(self.sim.T), tol_T)
         k = self.sim.gas.species_index('H2')
-        assert list(jet.X[k, :]) == pytest.approx(list(self.sim.X[k, :]), 1e-4)
+        assert list(jet.X[k, :]) == pytest.approx(list(self.sim.X[k, :]), tol_X)
 
         settings = self.sim.flame.settings
         for k, v in jet.flame.settings.items():
@@ -1601,7 +1601,7 @@ class TestImpingingJet(utilities.CanteraTest):
         assert list(jet.surface.surface.X) == pytest.approx(list(self.sim.surface.surface.X))
         for i in range(self.sim.surface.n_components):
             assert self.sim.value("surface", i, 0) == \
-                pytest.approx(jet.value("surface", i, 0), 1e-4)
+                pytest.approx(jet.value("surface", i, 0), tol_X)
 
         jet.solve(loglevel=0)
 
