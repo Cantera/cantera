@@ -303,7 +303,12 @@ extern "C" {
     size_t thermo_elementIndex(int n, const char* nm)
     {
         try {
-            return ThermoCabinet::item(n).elementIndex(nm);
+             size_t k = ThermoCabinet::item(n).elementIndex(nm);
+             if (k == npos) {
+                throw CanteraError("thermo_elementIndex",
+                                   "No such element {}.", nm);
+             }
+             return k;
         } catch (...) {
             return handleAllExceptions(npos, npos);
         }
@@ -312,7 +317,12 @@ extern "C" {
     size_t thermo_speciesIndex(int n, const char* nm)
     {
         try {
-            return ThermoCabinet::item(n).speciesIndex(nm);
+             size_t k = ThermoCabinet::item(n).speciesIndex(nm);
+             if (k == npos) {
+                throw CanteraError("thermo_speciesIndex",
+                                   "No such species {}.", nm);
+             }
+             return k;
         } catch (...) {
             return handleAllExceptions(npos, npos);
         }
@@ -1138,7 +1148,12 @@ extern "C" {
     size_t kin_phaseIndex(int n, const char* ph)
     {
         try {
-            return KineticsCabinet::item(n).phaseIndex(ph);
+            size_t k = KineticsCabinet::item(n).phaseIndex(ph);
+            if (k == npos) {
+                throw CanteraError("kin_phaseIndex",
+                                   "No such phase {}.", ph);
+            }
+            return k;
         } catch (...) {
             return handleAllExceptions(npos, npos);
         }
