@@ -217,9 +217,6 @@ classdef ctTestThermo < matlab.unittest.TestCase
         end
 
         function testNAtoms(self)
-            self.assumeFail(['Fails because error messages for nAtoms', ...
-                            ' are incorrect']);
-
             data = {{1, 'O', 'O'}, {2, 'O', 'O2'}, {1, 'H', 'OH'},...
                     {2, 'H', 'H2O'}, {2, 'O', 'H2O2'}, {1, 'Ar', 'AR'},...
                     {0, 'O', 'H'}, {0, 'H', 'AR'}, {0, 'Ar', 'HO2'}};
@@ -236,14 +233,11 @@ classdef ctTestThermo < matlab.unittest.TestCase
                 self.verifyEqual(n2, n);
             end
 
-            self.getInvalidValue('nAtoms', {'C', 'H2'}, 'no such species');
-            self.getInvalidValue('nAtoms', {'H', 'CH4'}, 'no such element');
+            self.getInvalidValue('nAtoms', {'C', 'H2'}, 'outside valid range');
+            self.getInvalidValue('nAtoms', {'H', 'CH4'}, 'outside valid range');
         end
 
         function testElementalMassFraction(self)
-            self.assumeFail(['Fails because error messages for', ...
-                             ' elementalMassFraction are incorrect']);
-
             self.phase.Y = 'H2O:0.5, O2:0.5';
             Zo = self.phase.elementalMassFraction('O');
             Zh = self.phase.elementalMassFraction('H');
@@ -257,8 +251,8 @@ classdef ctTestThermo < matlab.unittest.TestCase
             self.verifyEqual(Zh, exp2, 'AbsTol', self.atol);
             self.verifyEqual(Zar, exp3, 'AbsTol', self.atol);
 
-            self.getInvalidValue('elementalMassFraction', {'C'}, 'No such element');
-            self.getInvalidValue('elementalMassFraction', {5}, 'No such element');
+            self.getInvalidValue('elementalMassFraction', {'C'}, 'outside valid range');
+            self.getInvalidValue('elementalMassFraction', {5}, 'Wrong type');
         end
 
         function testWeights(self)

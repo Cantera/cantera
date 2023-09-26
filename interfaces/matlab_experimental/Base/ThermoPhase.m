@@ -614,7 +614,7 @@ classdef ThermoPhase < handle
             end
 
             if ~ischar(element)
-                error('Element name must be of format character.');
+                error('Wrong type for element name: must be character.');
             end
 
             n = tp.nSpecies;
