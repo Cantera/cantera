@@ -10,6 +10,7 @@ from .thermo cimport *
 from ._utils cimport pystr, stringify, comp_map, py_to_anymap, anymap_to_py
 from ._utils import *
 from .delegator cimport *
+from .drawnetwork import draw_reactor, draw_reactor_net, draw_connections
 
 _reactor_counts = _defaultdict(int)
 
@@ -167,6 +168,35 @@ cdef class ReactorBase:
         garbage collected.
         """
         self._walls.append(wall)
+
+    def draw(self, dot=None, print_state=False, species=None, **kwargs):
+        """
+        Draw as ``graphviz`` ``dot`` node.
+        The node is added to an existing ``dot`` graph if provided.
+        Optionally include current reactor state in the node.
+
+        :param dot:
+            ``graphviz.graphs.BaseGraph`` object to which the reactor is added.
+            If not provided, a new ``DiGraph`` is created. Defaults to ``None``.
+        :param print_state:
+            Whether state information of the reactor is printed into the node.
+            Defaults to ``False``
+        :param species:
+            If ``print_state`` is ``True``, define how species are to be printed.
+            Options are ``'X'`` and ``'Y'`` for mole and mass fractions of all
+            species, respectively, or an iterable that contains the desired species
+            names as strings. Defaults to ``None``
+        :param **kwargs:
+            Keyword options can contain ``graph_attr`` and general ``node_attr`` to
+            be passed on to the ``graphviz`` functions to control the appearance of
+            the graph and reactor node. ``node_attr`` defined in the reactor object
+            itself have priority.
+        :return:
+            ``graphviz.graphs.BaseGraph`` object with reactor
+
+        """
+        return draw_reactor(self, dot=dot, print_state=print_state,
+                            species=species, **kwargs)
 
     def __reduce__(self):
         raise NotImplementedError('Reactor object is not picklable')
@@ -979,6 +1009,27 @@ cdef class WallBase:
         return self.wall.heatRate()
 
 
+    def draw(self, dot=None, **kwargs):
+        """
+        Draw as connection between left and right reactor or reservoir using
+        ``graphviz``.
+
+        :param dot:
+            ``graphviz.graphs.BaseGraph`` object to which the connection is added.
+            If not provided, a new ``DiGraph`` is created. Defaults to ``None``
+        :param **kwargs:
+            Keyword options can contain ``graph_attr`` and general ``node_attr``,
+            ``edge_attr``, ``heat_flow_attr``, and ``mass_flow_attr`` to be passed
+            on to the ``graphviz`` functions to control the appearance of the
+            graph, reactor nodes, and connection edges. ``node_attr`` and
+            ``edge_attr`` defined in the objects themselves have priority
+        :return:
+            A ``graphviz.graphs.BaseGraph`` object depicting the connection.
+
+        """
+        return draw_connections([self], dot=dot, **kwargs)
+
+
 cdef class Wall(WallBase):
     r"""
     A Wall separates two reactors, or a reactor and a reservoir. A wall has a
@@ -1211,6 +1262,27 @@ cdef class FlowDevice:
             g = Func1(k)
         self._time_func = g
         self.dev.setTimeFunction(g.func)
+
+
+    def draw(self, dot=None, **kwargs):
+        """
+        Draw as connection between upstream and downstream reactor or reservoir
+        using ``graphviz``.
+
+        :param dot:
+            ``graphviz.graphs.BaseGraph`` object to which the connection is added.
+            If not provided, a new ``DiGraph`` is created. Defaults to ``None``
+        :param **kwargs:
+            Keyword options can contain ``graph_attr`` and general ``node_attr``,
+            ``edge_attr``, ``heat_flow_attr``, and ``mass_flow_attr`` to be passed
+            on to the ``graphviz`` functions to control the appearance of the
+            graph, reactor nodes, and connection edges. ``node_attr`` and
+            ``edge_attr`` defined in the objects themselves have priority
+        :return:
+            A ``graphviz.graphs.BaseGraph`` object depicting the connection.
+
+        """
+        return draw_connections([self], dot=dot, **kwargs)
 
 
 cdef class MassFlowController(FlowDevice):
@@ -1873,3 +1945,20 @@ cdef class ReactorNet:
         """
         def __set__(self, settings):
             self.net.setDerivativeSettings(py_to_anymap(settings))
+
+    def draw(self, **kwargs):
+        """
+        Draw as ``graphviz.graphs.DiGraph``. Connecting flow controllers and
+        walls are depicted as arrows.
+
+        :param **kwargs:
+            Keyword options can contain ``graph_attr`` and general ``node_attr``,
+            ``edge_attr``, ``heat_flow_attr``, and ``mass_flow_attr`` to be passed
+            on to the ``graphviz`` functions to control the appearance of the
+            graph, reactor nodes, and connection edges. ``node_attr`` and
+            ``edge_attr`` defined in the objects themselves have priority.
+        :return:
+            ``graphviz.graphs.BaseGraph`` object with reactor net.
+
+        """
+        return draw_reactor_net(self, **kwargs)
