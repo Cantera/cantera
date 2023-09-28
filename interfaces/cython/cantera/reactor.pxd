@@ -224,6 +224,7 @@ cdef class ReactorBase:
     cdef list _walls
     cdef list _surfaces
     cdef object _weakref_proxy
+    cdef dict _node_attr
 
 cdef class Reactor(ReactorBase):
     cdef CxxReactor* reactor
@@ -266,6 +267,7 @@ cdef class WallBase:
     cdef ReactorBase _left_reactor
     cdef ReactorBase _right_reactor
     cdef str name
+    cdef dict _edge_attr
 
 cdef class Wall(WallBase):
     pass
@@ -278,6 +280,7 @@ cdef class FlowDevice:
     cdef str name
     cdef ReactorBase _upstream
     cdef ReactorBase _downstream
+    cdef dict _edge_attr
 
 cdef class MassFlowController(FlowDevice):
     pass
