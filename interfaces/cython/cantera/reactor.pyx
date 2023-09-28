@@ -26,7 +26,9 @@ cdef class ReactorBase:
         self._reactor = newReactor(stringify(self.reactor_type))
         self.rbase = self._reactor.get()
 
-    def __init__(self, ThermoPhase contents=None, name=None, *, volume=None):
+    def __init__(self, ThermoPhase contents=None, name=None, *, volume=None,
+                 node_attr=None):
+
         self._weakref_proxy = _WeakrefProxy()
         self._inlets = []
         self._outlets = []
@@ -44,6 +46,11 @@ cdef class ReactorBase:
 
         if volume is not None:
             self.volume = volume
+
+        if node_attr is not None:
+            self._node_attr = node_attr
+        else:
+            self._node_attr = {}
 
     def insert(self, _SolutionBase solution):
         """
@@ -67,6 +74,15 @@ cdef class ReactorBase:
 
         def __set__(self, name):
             self.rbase.setName(stringify(name))
+
+    @property
+    def node_attr(self):
+        """Atrributes like ``style`` when drawn as node by graphviz dot."""
+        return self._node_attr
+
+    @node_attr.setter
+    def node_attr(self, attr):
+        self._node_attr = attr
 
     def syncState(self):
         """
@@ -845,7 +861,7 @@ cdef class WallBase:
         self.wall = self._wall.get()
 
     def __init__(self, left, right, *, name=None, A=None, K=None, U=None,
-                 Q=None, velocity=None):
+                 Q=None, velocity=None, edge_attr=None):
         """
         :param left:
             Reactor or reservoir on the left. Required.
@@ -867,6 +883,9 @@ cdef class WallBase:
         :param velocity:
             Wall velocity function :math:`v_0(t)` [m/s].
             Default: :math:`v_0(t) = 0.0`.
+        :param edge_attr:
+            Attributes like ``style`` when drawn as a connecting edge using
+            graphviz's dot language. Default is ``{}``.
         """
         self._velocity_func = None
         self._heat_flux_func = None
@@ -889,6 +908,10 @@ cdef class WallBase:
             self.heat_flux = Q
         if velocity is not None:
             self.velocity = velocity
+        if edge_attr is not None:
+            self._edge_attr = edge_attr
+        else:
+            self._edge_attr = {}
 
     def _install(self, ReactorBase left, ReactorBase right):
         """
@@ -913,6 +936,15 @@ cdef class WallBase:
             return self.wall.area()
         def __set__(self, double value):
             self.wall.setArea(value)
+
+    @property
+    def edge_attr(self):
+        """Style options when drawn as an edge by graphviz dot."""
+        return self._edge_attr
+
+    @edge_attr.setter
+    def edge_attr(self, attr):
+        self._edge_attr = attr
 
     @property
     def left_reactor(self):
@@ -1059,7 +1091,7 @@ cdef class FlowDevice:
         self._dev = newFlowDevice(stringify(self.flowdevice_type))
         self.dev = self._dev.get()
 
-    def __init__(self, upstream, downstream, *, name=None):
+    def __init__(self, upstream, downstream, *, name=None, edge_attr=None):
         assert self.dev != NULL
         self._rate_func = None
 
@@ -1069,6 +1101,11 @@ cdef class FlowDevice:
             _reactor_counts[self.__class__.__name__] += 1
             n = _reactor_counts[self.__class__.__name__]
             self.name = '{0}_{1}'.format(self.__class__.__name__, n)
+
+        if edge_attr is not None:
+            self._edge_attr = edge_attr
+        else:
+            self._edge_attr = {}
 
         self._install(upstream, downstream)
 
@@ -1110,6 +1147,15 @@ cdef class FlowDevice:
         """
         def __get__(self):
             return self.dev.massFlowRate()
+
+    @property
+    def edge_attr(self):
+        """Style options when drawn as an edge by graphviz dot."""
+        return self._edge_attr
+
+    @edge_attr.setter
+    def edge_attr(self, attr):
+        self._edge_attr = attr
 
     @property
     def pressure_function(self):
@@ -1191,8 +1237,8 @@ cdef class MassFlowController(FlowDevice):
     """
     flowdevice_type = "MassFlowController"
 
-    def __init__(self, upstream, downstream, *, name=None, mdot=1.):
-        super().__init__(upstream, downstream, name=name)
+    def __init__(self, upstream, downstream, *, name=None, mdot=1., **kwargs):
+        super().__init__(upstream, downstream, name=name, **kwargs)
         self.mass_flow_rate = mdot
 
     property mass_flow_coeff:
@@ -1265,8 +1311,8 @@ cdef class Valve(FlowDevice):
     """
     flowdevice_type = "Valve"
 
-    def __init__(self, upstream, downstream, *, name=None, K=1.):
-        super().__init__(upstream, downstream, name=name)
+    def __init__(self, upstream, downstream, *, name=None, K=1., **kwargs):
+        super().__init__(upstream, downstream, name=name, **kwargs)
         if isinstance(K, _numbers.Real):
             self.valve_coeff = K
         else:
@@ -1315,7 +1361,7 @@ cdef class PressureController(FlowDevice):
                 "PressureController: The 'master' keyword argument is deprecated; "
                 "use 'primary' instead.", DeprecationWarning)
             primary = kwargs["master"]
-        super().__init__(upstream, downstream, name=name)
+        super().__init__(upstream, downstream, name=name, **kwargs)
         if primary is not None:
             self.primary = primary
         if isinstance(K, _numbers.Real):
