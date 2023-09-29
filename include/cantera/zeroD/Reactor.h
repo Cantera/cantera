@@ -38,6 +38,9 @@ class AnyMap;
  *  - surface heat loss rate (W)
  *  - species surface production rates (kmol/s)
  *
+ * See the [Science Reference](../reference/science/reactors/controlreactor.html) for
+ * the governing equations of class Reactor.
+ *
  * @ingroup reactorGroup
  */
 class Reactor : public ReactorBase
