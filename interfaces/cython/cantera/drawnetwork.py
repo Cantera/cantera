@@ -189,8 +189,13 @@ def draw_connections(connections, dot=None, **kwargs):
     """
     if not dot:
         dot = _graphviz.Digraph(graph_attr=kwargs.get("graph_attr"))
-    # set default style for all connections and nodes if provided
-    dot.edge_attr.update(kwargs.get("edge_attr", {}))
+    if len(connections) > 1:
+        # set default style for all connections and nodes if provided
+        dot.edge_attr.update(kwargs.get("edge_attr", {}))
+        edge_attr_overwrite = {}
+    else:
+        # assume overwrite if single connection is drawn
+        edge_attr_overwrite = kwargs.get("edge_attr", {})
     dot.node_attr.update(kwargs.get("node_attr", {}))
 
     # retrieve default attributes for all mass flow and heat connections
@@ -211,13 +216,13 @@ def draw_connections(connections, dot=None, **kwargs):
             inflow, outflow = "upstream", "downstream"
             r_in, r_out = getattr(c, inflow), getattr(c, outflow)
             rate_attr = "mass_flow_rate"
-            edge_attr = dict(mass_flow_attr, **c.edge_attr)
+            edge_attr = dict(mass_flow_attr, **c.edge_attr, **edge_attr_overwrite)
         except AttributeError:
             inflow, outflow = "left_reactor", "right_reactor"
             r_in, r_out = getattr(c, inflow), getattr(c, outflow)
             rate_attr = "heat_rate"
             edge_attr = {"color": "red", "style": "dashed",
-                         **heat_flow_attr, **c.edge_attr}
+                         **heat_flow_attr, **c.edge_attr, **edge_attr_overwrite}
 
         # find "duplicate" connections of the same kind that connect the same
         # two objects to eventually draw them as a single connection
