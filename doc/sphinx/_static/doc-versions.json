@@ -2,7 +2,7 @@
     {
         "name": "3.1 (dev)",
         "version": "3.1",
-        "url": "/documentation/dev/sphinx/html/"
+        "url": "/dev/"
     },
     {
         "name": "3.0.0 (stable)",

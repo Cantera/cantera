@@ -345,13 +345,13 @@ jobs:
           mv config-options-dev.rst build/doc/scons/
       - name: Create archive for docs output
         run: |
-          cd build
-          tar -czf docs.tar.gz doc
+          cd build/doc
+          tar --exclude="*.map" --exclude="*.md5" -czf docs.tar.gz html
         if: failure() || success()
       - name: Store archive of docs output
         uses: actions/upload-artifact@v3
         with:
-          path: build/docs.tar.gz
+          path: build/doc/docs.tar.gz
           name: docs
           retention-days: 14
         if: failure() || success()
@@ -369,12 +369,12 @@ jobs:
         env:
           RSYNC_USER: "ctdeploy"
           RSYNC_SERVER: "cantera.org"
-          RSYNC_DEST: "cantera/documentation/dev"
-          DOCS_OUTPUT_DIR: "./build/doc/"
+          RSYNC_DEST: "cantera/dev"
+          DOCS_OUTPUT_DIR: "./build/doc/html/"
         run: |
           rsync -avzP --checksum --exclude='*.map' --exclude='*.md5' \
-          --exclude='/doxygen/xml' --delete --delete-excluded \
-          "${DOCS_OUTPUT_DIR}" ${RSYNC_USER}@${RSYNC_SERVER}:${RSYNC_DEST}
+            --delete --delete-excluded \
+            "${DOCS_OUTPUT_DIR}" ${RSYNC_USER}@${RSYNC_SERVER}:${RSYNC_DEST}
 
   run-examples:
     name: Run Python ${{ matrix.python-version }} examples on ${{ matrix.os }}

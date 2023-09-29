@@ -31,7 +31,7 @@ mechanism files.
 ```
 
 ```{grid-item-card} C++ API Reference
-:link: ../../doxygen/html/index.html
+:link: cxx/index.html
 :text-align: center
 ```
 
