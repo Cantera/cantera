@@ -217,7 +217,7 @@ intersphinx_mapping = {
     'pint': ('https://pint.readthedocs.io/en/stable/', None),
 }
 
-myst_enable_extensions = ["dollarmath", "amsmath"]
+myst_enable_extensions = ["dollarmath", "amsmath", "deflist"]
 
 # Ensure that the primary domain is the Python domain, since we've added the
 # MATLAB domain with sphinxcontrib.matlab
