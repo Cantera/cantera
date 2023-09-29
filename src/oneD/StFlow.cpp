@@ -423,6 +423,7 @@ void StFlow::evalContinuity(double* x, double* rsd, int* diag,
         rsd[index(c_offset_U,jmin)] = -(rho_u(x,jmin + 1) - rho_u(x,jmin))/m_dz[jmin]
                                       -(density(jmin + 1)*V(x,jmin + 1)
                                       + density(jmin)*V(x,jmin));
+        
         diag[index(c_offset_U,jmin)] = 0; // Algebraic constraint
     }
 
@@ -446,6 +447,7 @@ void StFlow::evalContinuity(double* x, double* rsd, int* diag,
             // in the opposite direction.
             rsd[index(c_offset_U,j)] = -(rho_u(x,j+1) - rho_u(x,j))/m_dz[j]
                                        -(density(j+1)*V(x,j+1) + density(j)*V(x,j));
+            
             diag[index(c_offset_U, j)] = 0; // Algebraic constraint
         }
     } else if (m_isFree) { // "free-flow"
@@ -517,7 +519,7 @@ void StFlow::evalLambda(double* x, double* rsd, int* diag,
  
     if (jmin == 0) { // left boundary
         if (m_twoPointControl) {
-            rsd[index(c_offset_L, jmin)] = lambda(x,1) - lambda(x,0);
+            rsd[index(c_offset_L, jmin)] = lambda(x,jmin+1) - lambda(x,jmin);
         } else {
             rsd[index(c_offset_L, jmin)] = -rho_u(x, jmin);
         }
@@ -597,6 +599,9 @@ void StFlow::evalUo(double* x, double* rsd, int* diag,
     }
 
     if (jmin == 0) { // left boundary
+        // Because the Uo equation is used for two-point control, the boundary
+        // for Uo is located in the domain interior at the right control point,
+        // thus at the boundary, the 
         rsd[index(c_offset_Uo,jmin)] = Uo(x,jmin+1) - Uo(x,jmin);
     }
 
@@ -899,14 +904,14 @@ AnyMap StFlow::getMeta() const
         state["fixed-point"]["temperature"] = m_tfixed;
     }
 
-    // // One and two-point control meta data
-    // if (m_twoPointControl) {
-    //     state["point-control"]["type"] = "two-point";
-    //     state["point-control"]["left-location"] = m_zLeft;
-    //     state["point-control"]["right-location"] = m_zRight;
-    //     state["point-control"]["left-temperature"] = m_tLeft;
-    //     state["point-control"]["right-temperature"] = m_tRight;
-    // }
+    // Two-point control meta data
+    if (m_twoPointControl) {
+        state["point-control"]["type"] = "two-point";
+        state["point-control"]["left-location"] = m_zLeft;
+        state["point-control"]["right-location"] = m_zRight;
+        state["point-control"]["left-temperature"] = m_tLeft;
+        state["point-control"]["right-temperature"] = m_tRight;
+    }
 
     return state;
 }
@@ -1035,7 +1040,7 @@ void StFlow::setMeta(const AnyMap& state)
         m_tfixed = state["fixed-point"]["temperature"].asDouble();
     }
 
-    /* // Two-point control meta data
+    // Two-point control meta data
     if (state.hasKey("point-control")) {
         const AnyMap& pc = state["point-control"].as<AnyMap>();
         if (pc["type"] == "two-point") {
@@ -1045,7 +1050,7 @@ void StFlow::setMeta(const AnyMap& state)
             m_tLeft = pc["left-temperature"].asDouble();
             m_tRight = pc["right-temperature"].asDouble();
         }
-    } */
+    }
 }
 
 void StFlow::solveEnergyEqn(size_t j)
