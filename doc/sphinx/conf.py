@@ -206,8 +206,8 @@ def setup(app):
 autoclass_content = 'both'
 
 doxylink = {
-    'ct': (os.path.abspath('../../doc/Cantera.tag'),
-            '../../doxygen/html/')
+    'ct': (os.path.abspath('../Cantera.tag'),
+           'cxx/')
 }
 
 intersphinx_mapping = {
@@ -305,7 +305,7 @@ html_theme_options = {
     },
     "primary_sidebar_end": ["numfocus"],
     "switcher": {
-        "json_url": "/documentation/dev/sphinx/html/_static/doc-versions.json",
+        "json_url": "/dev/_static/doc-versions.json",
         # "json_url": "https://cantera.org/doc-versions.json",
         "version_match": version,
     },

@@ -96,17 +96,21 @@ def get_function_name(function_string):
     else:
         return sig
 
-if localenv['doxygen_docs']:
-    docs = build(localenv.Command('#build/doc/doxygen/html/index.html',
-                                  'doxygen/Doxyfile', 'doxygen $SOURCE'))
+if localenv['doxygen_docs'] or localenv['sphinx_docs']:
+    docs = build(localenv.Command(
+        '#build/doc/html/cxx/index.html', 'doxygen/Doxyfile',
+        [
+            Delete("build/doc/html/cxx"),
+            'doxygen $SOURCE',
+            Copy("build/doc/html/cxx", "build/doc/doxygen/html")
+        ]
+    ))
     env.Depends(docs, env.Glob('#doc/doxygen/*') +
                       multi_glob(env, '#include/cantera', 'h') +
                       multi_glob(env, '#include/cantera/*', 'h') +
                       multi_glob(env, '#src/cantera/*', 'h', 'cpp'))
 
     env.Alias('doxygen', docs)
-    install(localenv.RecursiveInstall, '$inst_docdir/doxygen/html',
-            '#/build/doc/doxygen/html', exclude=['\\.map', '\\.md5'])
 
 if localenv['sphinx_docs']:
     def build_sphinx(target, source, env):
@@ -114,7 +118,7 @@ if localenv['sphinx_docs']:
         if env['logging'] == 'debug':
             cmd.append('-v')
         cmd += ('-b', 'html', '-d', 'build/doc/sphinx/doctrees', 'build/doc/sphinx',
-                'build/doc/sphinx/html')
+                'build/doc/html')
         code = subprocess.call(cmd, env=env['ENV'])
         if code:
             raise Errors.BuildError(target, action=env['sphinx_cmd'])
@@ -251,5 +255,5 @@ if localenv['sphinx_docs']:
     localenv.AlwaysBuild(sphinxdocs)
     if localenv['doxygen_docs']:
         localenv.Depends(sphinxdocs, docs)
-    install(localenv.RecursiveInstall, '$inst_docdir/sphinx/html',
-            '#build/doc/sphinx/html')
+    install(localenv.RecursiveInstall, '$inst_docdir/html',
+            '#build/doc/html', exclude=['\\.map', '\\.md5'])
