@@ -43,6 +43,7 @@ extensions = [
               'sphinxarg.ext',
               'sphinxcontrib.doxylink',
               'sphinx.ext.intersphinx',
+              'myst_parser',
               'sphinx_gallery.gen_gallery',
               'sphinx_tags',
               'sphinx_design',
@@ -216,6 +217,8 @@ intersphinx_mapping = {
     'pint': ('https://pint.readthedocs.io/en/stable/', None),
 }
 
+myst_enable_extensions = ["dollarmath", "amsmath"]
+
 # Ensure that the primary domain is the Python domain, since we've added the
 # MATLAB domain with sphinxcontrib.matlab
 primary_domain = 'py'
@@ -224,7 +227,7 @@ primary_domain = 'py'
 templates_path = ['_templates']
 
 # The suffix of source filenames.
-source_suffix = '.rst'
+source_suffix = ['.rst', '.md']
 
 # The encoding of source files.
 #source_encoding = 'utf-8-sig'
