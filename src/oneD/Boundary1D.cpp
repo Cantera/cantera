@@ -219,7 +219,7 @@ void Inlet1D::eval(size_t jg, double* xg, double* rg,
             // spreading rate. The flow domain sets this to V(0),
             // so for finite spreading rate subtract m_V0.
             rb[c_offset_V] -= m_V0;
-        } else {
+        } else { //unstrained flow
             rb[c_offset_U] = m_flow->density(0) * xb[c_offset_U] - m_mdot;
         }
 
@@ -244,10 +244,12 @@ void Inlet1D::eval(size_t jg, double* xg, double* rg,
             rb[c_offset_T] -= m_flow->T_fixed(m_flow->nPoints() - 1);
         }
 
-        // For point control adjustments
-        if (m_flow->twoPointControlEnabled()) {
+        
+        if (m_flow->twoPointControlEnabled()) {// For point control adjustments
+            // At the right boundary, the mdot is dictated by the velocity at the
+            // right boundary, which comes from the Uo variable. 
             m_mdot = -(m_flow->density(last_index) * xb[c_offset_Uo]);
-            rb[c_offset_U] += m_mdot; // u
+            rb[c_offset_U] += m_mdot; 
         } else {
             rb[c_offset_U] += m_mdot;
             rb[c_offset_Uo] += m_mdot/m_flow->density(last_index);
