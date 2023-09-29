@@ -298,6 +298,7 @@ html_theme_options = {
     "show_toc_level": 2,
     "navbar_center": ["cantera-org-links", "navbar-nav"],
     "navbar_end": ["version-switcher", "theme-switcher", "navbar-icon-links"],
+    "show_prev_next": False,
     "logo": {
         "link": "/index.html",
         "alt_text": "Cantera",
