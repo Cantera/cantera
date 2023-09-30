@@ -370,6 +370,67 @@ cdef class TwoTempPlasmaRate(ArrheniusRateBase):
             return self.cxx_object().activationElectronEnergy()
 
 
+cdef class ElectronCollisionPlasmaRate(ReactionRate):
+    r"""
+    A reaction rate coefficient which depends on electron collision cross section
+    and electron energy distribution
+
+    """
+    _reaction_rate_type = "electron-collision-plasma"
+
+    def __cinit__(self, energy_levels=None, cross_sections=None,
+                  input_data=None, init=True):
+        if init:
+            if isinstance(input_data, dict):
+                self._from_dict(input_data)
+            elif energy_levels is not None and cross_sections is not None:
+                self._from_parameters(energy_levels, cross_sections)
+            elif input_data is None:
+                self._from_dict({})
+            else:
+                raise TypeError("Invalid input parameters")
+            self.set_cxx_object()
+
+    def _from_dict(self, dict input_data):
+        self._rate.reset(
+            new CxxElectronCollisionPlasmaRate(py_to_anymap(input_data, hyphenize=True))
+        )
+
+    def _from_parameters(self, energy_levels, cross_sections):
+        # check length
+        if len(energy_levels) != len(cross_sections):
+            raise ValueError('Length of energy levels and '
+                             'cross sections are different')
+        cdef np.ndarray[np.double_t, ndim=1] data_energy_levels = \
+            np.ascontiguousarray(energy_levels, dtype=np.double)
+        cdef np.ndarray[np.double_t, ndim=1] data_cross_sections = \
+            np.ascontiguousarray(cross_sections, dtype=np.double)
+        input_data = {'type': 'electron-collision-plasma',
+                      'energy-levels': data_energy_levels,
+                      'cross-sections': data_cross_sections}
+        self._from_dict(input_data)
+
+    cdef set_cxx_object(self):
+        self.rate = self._rate.get()
+        self.base = <CxxElectronCollisionPlasmaRate*>self.rate
+
+    property energy_levels:
+        """
+        The energy levels [eV]. Each level corresponds to a cross section
+        of `cross_sections`.
+        """
+        def __get__(self):
+            return np.fromiter(self.base.energyLevels(), np.double)
+
+    property cross_sections:
+        """
+        The cross sections [m2]. Each cross section corresponds to a energy
+        level of `energy_levels`.
+        """
+        def __get__(self):
+            return np.fromiter(self.base.crossSections(), np.double)
+
+
 cdef class FalloffRate(ReactionRate):
     """
     Base class for parameterizations used to describe the fall-off in reaction rates
@@ -1463,7 +1524,7 @@ cdef class Reaction:
         Directories on Cantera's input file path will be searched for the
         specified file.
         """
-        root = AnyMapFromYamlFile(stringify(filename))
+        root = AnyMapFromYamlFile(stringify(str(filename)))
         cxx_reactions = CxxGetReactions(root[stringify(section)],
                                         deref(kinetics.kinetics))
         return [Reaction.wrap(r) for r in cxx_reactions]

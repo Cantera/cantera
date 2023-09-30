@@ -249,6 +249,11 @@ public:
     void setParameters(const AnyMap& phaseNode,
                        const AnyMap& rootNode=AnyMap()) override;
 
+    //! Electron species name
+    string electronSpeciesName() const {
+        return speciesName(m_electronSpeciesIndex);
+    }
+
 protected:
     void updateThermo() const override;
 
