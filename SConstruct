@@ -2503,7 +2503,7 @@ if any(target.startswith('test') for target in COMMAND_LINE_TARGETS):
         test_py_int = env.Command('#build/python_local/cantera/__init__.py',
                                   '#interfaces/python_minimal/cantera/__init__.py',
                                   Copy('$TARGET', '$SOURCE'))
-        for script in ["ck2yaml", "ctml2yaml", "cti2yaml"]:
+        for script in ["ck2yaml", "ctml2yaml", "cti2yaml", "lxcat2yaml"]:
             s = env.Command('#build/python_local/cantera/{}.py'.format(script),
                             '#interfaces/cython/cantera/{}.py'.format(script),
                             Copy('$TARGET', '$SOURCE'))
