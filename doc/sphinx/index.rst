@@ -4,5 +4,8 @@ Table of Contents
 .. toctree::
    :maxdepth: 1
 
-   reference
+   install
+   userguide
    examples
+   reference
+   develop
