@@ -1006,8 +1006,7 @@ cdef class ThermoPhase(_SolutionBase):
         and :math:`Z_{\mathrm{mass},\mathrm{fuel}}` are the elemental mass fractions of
         the oxidizer and fuel, or from the Bilger mixture fraction
         (``element="Bilger"``), which considers the elements C, S, H and O
-        (R. W. Bilger, "Turbulent jet diffusion flames," Prog. Energy Combust. Sci.,
-        109-131 (1979)). The Bilger mixture fraction is computed by default:
+        :cite:p:`bilger1979`. The Bilger mixture fraction is computed by default:
 
         .. math:: Z_m = Z_{\mathrm{Bilger}} = \frac{\beta-\beta_{\mathrm{ox}}}
             {\beta_{\mathrm{fuel}}-\beta_{\mathrm{ox}}}

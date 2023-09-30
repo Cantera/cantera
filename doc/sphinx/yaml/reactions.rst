@@ -396,8 +396,7 @@ Includes the fields of an :ref:`sec-yaml-elementary` reaction plus:
 
     Note that parameters ``a``, ``m`` and ``E`` correspond to parameters
     :math:`\eta_{ki}`, :math:`\mu_{ki}` and :math:`\epsilon_{ki}` in Eq 11.113 of
-    [Kee, R. J., Coltrin, M. E., & Glarborg, P.(2003). Chemically reacting flow:
-    theory and practice. John Wiley & Sons], respectively.
+    :cite:t:`kee2003`, respectively.
 
 Examples::
 

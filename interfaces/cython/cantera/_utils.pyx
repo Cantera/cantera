@@ -120,10 +120,10 @@ def use_legacy_rate_constants(pybool legacy):
     Set definition used for rate constant calculation.
 
     If set to `False` (default value), rate constants of three-body reactions are
-    consistent with conventional definitions (for example Eq. 9.75 in Kee, Coltrin
-    and Glarborg, 'Chemically Reacting Flow', Wiley Interscience, 2003). If set to
-    `True`, output for rate constants of three-body reactions is multiplied by
-    third-body concentrations, consistent with Cantera's behavior prior to version 3.0.
+    consistent with conventional definitions (for example Eq. 9.75 in
+    :cite:t:`kee2003`). If set to `True`, output for rate constants of three-body
+    reactions is multiplied by third-body concentrations, consistent with Cantera's
+    behavior prior to version 3.0.
     """
     Cxx_use_legacy_rate_constants(legacy)
 
