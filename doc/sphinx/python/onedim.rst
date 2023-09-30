@@ -1,6 +1,6 @@
 .. py:currentmodule:: cantera
 
-.. _sec-cython-onedim:
+.. _sec-python-onedim:
 
 One-dimensional Reacting Flows
 ==============================

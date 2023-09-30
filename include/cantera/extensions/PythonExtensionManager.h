@@ -17,8 +17,7 @@ namespace Cantera
 //!
 //! Imports a user-specified module, which must be on the Python path and registers
 //! user-defined classes that are marked with the `@extension` decorator. See the
-//! documentation for
-//! <a href="../../sphinx/html/cython/utilities.html#cantera.extension">`@extension`</a>
+//! documentation for [\@extension](../python/utilities.html#cantera.extension)
 //! in the Python documentation for more information.
 //!
 //! @since New in %Cantera 3.0

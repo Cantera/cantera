@@ -1,4 +1,4 @@
-.. _sec-cython-documentation:
+.. _sec-python-documentation:
 
 Python Module Documentation
 ===========================

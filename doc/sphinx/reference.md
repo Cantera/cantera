@@ -19,7 +19,7 @@ mechanism files.
 ```
 
 ```{grid-item-card} Python API Reference
-:link: cython/index
+:link: python/index
 :link-type: doc
 :text-align: center
 ```
@@ -43,7 +43,7 @@ mechanism files.
 :caption: API Reference
 
 yaml/index
-cython/index
+python/index
 matlab/index
 ```
 

@@ -1,6 +1,6 @@
 .. py:currentmodule:: cantera
 
-.. _sec-cython-zerodim:
+.. _sec-python-zerodim:
 
 Zero-Dimensional Reactor Networks
 =================================
