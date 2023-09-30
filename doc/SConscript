@@ -113,6 +113,7 @@ if localenv['doxygen_docs'] or localenv['sphinx_docs']:
     env.Alias('doxygen', docs)
 
 if localenv['sphinx_docs']:
+    localenv.PrependENVPath('PYTHONPATH', Dir('#build/python').abspath)
     def build_sphinx(target, source, env):
         cmd = [env['sphinx_cmd']] + env['sphinx_options'].split()
         if env['logging'] == 'debug':

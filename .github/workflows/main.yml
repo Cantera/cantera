@@ -323,10 +323,10 @@ jobs:
         run: python3 -m pip install -U pip setuptools wheel
       - name: Install Python dependencies
         run: |
-          python3 -m pip install ruamel.yaml scons numpy cython sphinx==6.2.1 \
-            sphinxcontrib-matlabdomain sphinxcontrib-doxylink pint \
-            pydata-sphinx-theme==0.13.3 sphinx-argparse sphinx_design matplotlib \
-            pandas scipy
+          python3 -m pip install ruamel.yaml scons numpy cython 'sphinx>=5.3.0' \
+            sphinxcontrib-matlabdomain sphinxcontrib-doxylink sphinxcontrib-bibtex \
+            pydata-sphinx-theme==0.13.3 sphinx-argparse sphinx_design myst-nb \
+            matplotlib pandas scipy pint
           python3 -m pip install "git+https://github.com/sphinx-gallery/sphinx-gallery.git@master"
           python3 -m pip install "git+https://github.com/Cantera/sphinx-tags.git@main"
       - name: Build Cantera
