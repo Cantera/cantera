@@ -1865,7 +1865,7 @@ cdef class ThermoPhase(_SolutionBase):
         def __set__(self, distribution_type):
             if not self._enable_plasma:
                 raise ThermoModelMethodError(self.thermo_model)
-            self.plasma.setElectronEnergyDistributionType(distribution_type)
+            self.plasma.setElectronEnergyDistributionType(stringify(distribution_type))
 
     property mean_electron_energy:
         """ Mean electron energy [eV] """
@@ -1899,6 +1899,13 @@ cdef class ThermoPhase(_SolutionBase):
             if not self._enable_plasma:
                 raise ThermoModelMethodError(self.thermo_model)
             self.plasma.enableNormalizeElectronEnergyDist(enable)
+
+    property electron_species_name:
+        """ Electron species name """
+        def __get__(self):
+            if not self._enable_plasma:
+                raise ThermoModelMethodError(self.thermo_model)
+            return pystr(self.plasma.electronSpeciesName())
 
 
 cdef class InterfacePhase(ThermoPhase):
