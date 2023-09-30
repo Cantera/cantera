@@ -1017,6 +1017,14 @@ class ReactionTests:
         else:
             sol2 = ct.Solution(thermo=self.soln.thermo_model, kinetics=self.soln.kinetics_model,
                                species=self.species, reactions=[rxn])
+            # need to setup electron energy distribution for plasma
+            if self.soln.thermo_model == 'plasma':
+                sol2.electron_energy_distribution_type = 'discretized'
+                sol2.normalize_electron_energy_distribution_enabled = False
+                sol2.set_discretized_electron_energy_distribution(
+                    self.soln.electron_energy_levels,
+                    self.soln.electron_energy_distribution
+                )
             sol2.TPX = self.soln.TPX
         self.check_solution(sol2)
 
@@ -1068,6 +1076,14 @@ class ReactionTests:
             sol2 = ct.Solution(thermo=self.soln.thermo_model, kinetics=self.soln.kinetics_model,
                                species=self.species, reactions=[])
             sol2.TPX = self.soln.TPX
+            # need to setup electron energy distribution for plasma
+            if self.soln.thermo_model == 'plasma':
+                sol2.electron_energy_distribution_type = 'discretized'
+                sol2.normalize_electron_energy_distribution_enabled = False
+                sol2.set_discretized_electron_energy_distribution(
+                    self.soln.electron_energy_levels,
+                    self.soln.electron_energy_distribution
+                )
         sol2.add_reaction(rxn)
         self.check_solution(sol2)
 
@@ -2083,3 +2099,75 @@ class TestBlowersMaselStickReaction(StickReactionTests, utilities.CanteraTest):
         """
     _rc_units = ct.Units("m^3 / kmol / s")
     _value = 195563866595.97
+
+
+class TestElectronCollisionPlasmaReaction(ReactionTests, utilities.CanteraTest):
+    # This test only test the data input and output but not evaluating the reaction
+    # rate. The rate evaluation is tested in kineticsFromYaml.cpp because plasma
+    # reaction rate is much complicated and depends on electron energy distribution
+    # function.
+    _rate_cls = ct.ElectronCollisionPlasmaRate
+    _equation = "O2 + E => E + O2"
+    _rate = {
+        "equation": "O2 + E => E + O2",
+        "type": "electron-collision-plasma",
+        "energy-levels": [0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0],
+        "cross-sections": [0.0, 5.97e-20, 6.45e-20, 6.74e-20, 6.93e-20, 7.2e-20,
+                          7.52e-20, 7.86e-20, 8.21e-20, 8.49e-20, 8.8e-20]
+        }
+    _index = 1
+    _rate_type = "electron-collision-plasma"
+    _yaml = """
+        equation: O2 + E => E + O2
+        type: electron-collision-plasma
+        energy-levels: [0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
+        cross-sections: [0.0, 5.97e-20, 6.45e-20, 6.74e-20, 6.93e-20, 7.2e-20,
+                        7.52e-20, 7.86e-20, 8.21e-20, 8.49e-20, 8.8e-20]
+        """
+    _phase_def = """
+    phases:
+    - name: gas
+      thermo: plasma
+      species: [{oxygen-plasma.yaml/species: [E]},
+                {nasa_gas.yaml/species: [O2, O2-]}]
+      kinetics: gas
+      reactions: none
+      electron-energy-distribution:
+        type: discretized
+        energy-levels: [0.0, 0.1, 1.0, 10.0]
+        distribution: [0.0, 0.2, 0.7, 0.01]
+        normalize: False
+    """
+    _rc_units = ct.Units("m^3 / kmol / s")
+
+    @classmethod
+    def setUpClass(cls):
+        utilities.CanteraTest.setUpClass()
+        cls.soln = ct.Solution("oxygen-plasma.yaml",
+                               "discretized-electron-energy-plasma",
+                               transport_model=None)
+        cls.species = cls.soln.species()
+
+    def setUp(self):
+        self.soln.X = "O2:1.0, E:1e-10"
+        self.soln.TP = 300, ct.one_atm
+        self.adj = []
+        self._rate_obj = ct.ReactionRate.from_dict(self._rate)
+
+    def eval_rate(self, rate):
+        gas = ct.Solution(yaml=self._phase_def)
+        gas.TDY = self.soln.TDY
+        gas.add_reaction(ct.Reaction(equation=self._equation, rate=rate))
+        return gas.forward_rate_constants[0]
+
+    @pytest.mark.skip("No rate is not supported")
+    def test_no_rate(self):
+        pass
+
+    def test_roundtrip(self):
+        # check round-trip instantiation via input_data
+        rxn = self.from_rate(self._rate_obj)
+        rate_input_data = dict(rxn.rate.input_data)
+        rate_obj = rxn.rate.__class__(input_data=rate_input_data)
+        rxn2 = self.from_rate(rate_obj)
+        self.check_rxn(rxn2)
