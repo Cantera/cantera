@@ -15,3 +15,4 @@ YAML Input File Reference
    cti2yaml
    ctml2yaml
    yaml2ck
+   lxcat2yaml

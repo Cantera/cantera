@@ -12,3 +12,4 @@ Contents:
    cti_conversion
    ctml_conversion
    yaml_conversion
+   lxcat_conversion
