@@ -8,6 +8,7 @@
 #include "cantera/kinetics/Arrhenius.h"
 #include "cantera/kinetics/ChebyshevRate.h"
 #include "cantera/kinetics/Custom.h"
+#include "cantera/kinetics/ElectronCollisionPlasmaRate.h"
 #include "cantera/kinetics/Falloff.h"
 #include "cantera/kinetics/InterfaceRate.h"
 #include "cantera/kinetics/PlogRate.h"
@@ -529,6 +530,30 @@ TEST(Reaction, TwoTempPlasmaFromYaml)
     EXPECT_DOUBLE_EQ(rate->temperatureExponent(), -1.0);
     EXPECT_DOUBLE_EQ(rate->activationEnergy(), -100 * GasConstant);
     EXPECT_DOUBLE_EQ(rate->activationElectronEnergy(), 700 * GasConstant);
+}
+
+TEST(Reaction, ElectronCollisionPlasmaFromYaml)
+{
+    auto sol = newSolution("oxygen-plasma.yaml", "", "none");
+    AnyMap rxn = AnyMap::fromYamlString(
+        "{equation: O2 + E => E + O2,"
+        " type: electron-collision-plasma,"
+        " energy-levels: [0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0],"
+        " cross-sections: [0.0, 5.97e-20, 6.45e-20, 6.74e-20, 6.93e-20, 7.2e-20, "
+        " 7.52e-20, 7.86e-20, 8.21e-20, 8.49e-20, 8.8e-20]}");
+
+    auto R = newReaction(rxn, *(sol->kinetics()));
+    EXPECT_EQ(R->reactants.at("O2"), 1);
+    EXPECT_EQ(R->reactants.at("E"), 1);
+    EXPECT_EQ(R->products.at("O2"), 1);
+    EXPECT_EQ(R->products.at("E"), 1);
+
+    const auto rate = std::dynamic_pointer_cast<ElectronCollisionPlasmaRate>(R->rate());
+
+    for (size_t k = 0; k < rate->energyLevels().size(); k++) {
+        EXPECT_DOUBLE_EQ(rate->energyLevels()[k], rxn["energy-levels"].asVector<double>()[k]);
+        EXPECT_DOUBLE_EQ(rate->crossSections()[k], rxn["cross-sections"].asVector<double>()[k]);
+    }
 }
 
 TEST(Reaction, PythonExtensibleRate)
