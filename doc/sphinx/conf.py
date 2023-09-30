@@ -42,6 +42,7 @@ extensions = [
               'sphinx.ext.autosummary',
               'sphinxarg.ext',
               'sphinxcontrib.doxylink',
+              'sphinxcontrib.bibtex',
               'sphinx.ext.intersphinx',
               'myst_parser',
               'sphinx_gallery.gen_gallery',
@@ -168,6 +169,10 @@ autodoc_default_options = {
     'show-inheritance': True,
     'undoc-members': True,
 }
+
+bibtex_bibfiles = ["../../../doc/doxygen/cantera.bib"]
+bibtex_reference_style = 'author_year'
+bibtex_default_style = 'alpha'
 
 
 def setup(app):

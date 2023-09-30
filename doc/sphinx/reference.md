@@ -61,6 +61,12 @@ methods implemented by Cantera
 :text-align: center
 ```
 
+```{grid-item-card} Bibliography
+:link: reference/bibliography
+:link-type: doc
+:text-align: center
+```
+
 ````
 
 ```{toctree}
@@ -69,4 +75,5 @@ methods implemented by Cantera
 :caption: Science Reference
 
 reference/science/reactors/index
+reference/bibliography
 ```
