@@ -76,3 +76,4 @@ console_scripts =
     cti2yaml = cantera.cti2yaml:main
     ctml2yaml = cantera.ctml2yaml:main
     yaml2ck = cantera.yaml2ck:main
+    lxcat2yaml = cantera.lxcat2yaml:main
