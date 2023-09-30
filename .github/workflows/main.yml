@@ -373,7 +373,7 @@ jobs:
           DOCS_OUTPUT_DIR: "./build/doc/html/"
         run: |
           rsync -avzP --checksum --exclude='*.map' --exclude='*.md5' \
-            --delete --delete-excluded \
+            --delete --delete-excluded --filter='P .htaccess' \
             "${DOCS_OUTPUT_DIR}" ${RSYNC_USER}@${RSYNC_SERVER}:${RSYNC_DEST}
 
   run-examples:
