@@ -1,0 +1,74 @@
+description: |-
+  This file is for testing purpose. We use constant Cp for electron with no Tmax.
+
+units: {length: cm, quantity: molec, activation-energy: K}
+
+phases:
+- name: isotropic-electron-energy-plasma
+  thermo: plasma
+  elements: [O, E]
+  species:
+  - species: [E, O2(Total-Ionization)+]
+  - nasa_gas.yaml/species: [O2, O2-]
+
+  kinetics: gas
+  reactions:
+  - reactions: all
+
+  transport: Ion
+  electron-energy-distribution:
+    type: isotropic
+    shape-factor: 2.0
+    mean-electron-energy: 1.0 eV
+    energy-levels: [0.0, 0.1, 1.0, 10.0]
+
+- name: discretized-electron-energy-plasma
+  thermo: plasma
+  elements: [O, E]
+  species:
+  - species: [E]
+  - nasa_gas.yaml/species: [O2, O2-]
+
+  kinetics: gas
+  reactions:
+  - reactions: all
+
+  transport: Ion
+  electron-energy-distribution:
+    type: discretized
+    energy-levels: [0.0, 0.1, 1.0, 10.0]
+    distribution: [0.0, 0.2, 0.7, 0.01]
+    normalize: False
+
+species:
+- name: E
+  composition: {E: 1}
+  thermo:
+    model: constant-cp
+    T0: 200 K
+    h0: -2.04 kJ/mol
+    s0: 12.679 J/mol/K
+    cp0: 20.786 J/mol/K
+
+- name: O2(Total-Ionization)+
+  composition: {O: 2, E: -1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [298.15, 1000.0, 6000.0]
+    data:
+    - [4.61017167, -6.35951952e-03, 1.42425624e-05, -1.20997923e-08, 3.70956878e-12,
+      1.39742229e+05, -0.201326874]
+    - [3.31675922, 1.11522244e-03, -3.83492556e-07, 5.72784687e-11, -2.77648381e-15,
+      1.39876823e+05, 5.44726476]
+    note: TPIS89
+
+reactions:
+- equation: E + O2 + O2 => O2- + O2
+  type: two-temperature-plasma
+  rate-constant: {A: 4.2e-27, b: -1.0, Ea-gas: 600, Ea-electron: 700}
+
+- equation: O2 + E => E + O2
+  type: electron-collision-plasma
+  energy-levels: [0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
+  cross-sections: [0.0, 5.97e-20, 6.45e-20, 6.74e-20, 6.93e-20, 7.2e-20,
+                  7.52e-20, 7.86e-20, 8.21e-20, 8.49e-20, 8.8e-20]
