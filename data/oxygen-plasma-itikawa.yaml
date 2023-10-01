@@ -1,0 +1,96 @@
+description: |-
+  This file is for demonstrating using electron-collision reactions for plasma simulations.
+  We use constant Cp for electron with no Tmax because of higher electron temperature.
+  The cross section data is from [1]. The other plasma reactions are from [2].
+
+  Reference:
+  [1] Itikawa, Y. (2009). Cross sections for electron collisions with oxygen molecules.
+  Journal of Physical and Chemical Reference Data, 38(1), 1-20.
+  doi: 10.1063/1.3025886
+  [2] Kossyi, I. A., Kostinsky, A. Y., Matveyev, A. A., & Silakov, V. P. (1992).
+  Kinetic scheme of the non-equilibrium discharge in nitrogen-oxygen mixtures.
+  Plasma Sources Science and Technology, 1(3), 207.
+  doi: 10.1088/0963-0252/1/3/011
+
+units: {length: cm, quantity: molec, activation-energy: K}
+
+phases:
+- name: isotropic-electron-energy-plasma
+  thermo: plasma
+  elements: [O, E]
+  species:
+  - species: [e]
+  - nasa_gas.yaml/species: [O, O2, O2-, O-, O2+]
+
+  kinetics: gas
+  reactions:
+  - reactions: all
+  - collisions: all
+  transport: Ion
+  state: {T: 300.0, P: 0.01 atm}
+  electron-energy-distribution:
+    type: isotropic
+    shape-factor: 2.0
+    mean-electron-energy: 5.0 eV
+    energy-levels: [0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0,
+                    10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0,
+                    18.0, 19.0, 20.0, 21.0, 22.0, 23.0, 24.0]
+
+species:
+- name: e
+  composition: {E: 1}
+  thermo:
+    model: constant-cp
+    T0: 200 K
+    h0: -2.04 kJ/mol
+    s0: 12.679 J/mol/K
+    cp0: 20.786 J/mol/K
+
+reactions:
+- equation: O2+ + e => O + O  # Kossyi(40)
+  type: two-temperature-plasma
+  rate-constant: {A: 6.0e-5, b: -1.0, Ea-gas: 0.0, Ea-electron: 0.0}
+- equation: E + O2 + O2 => O2- + O2  # Kossyi(45)
+  type: two-temperature-plasma
+  rate-constant: {A: 4.2e-27, b: -1.0, Ea-gas: 600, Ea-electron: 700}
+- equation: O- + O => O2 + e  # Kossyi(68)
+  rate-constant: {A: 5.0e-10, b: 0.0, Ea: 0.0}
+- equation: O2- + O2 => O2 + e + O2  # Kossyi(57)
+  rate-constant: {A: 1.559e-11, b: 0.5, Ea: 5590}
+- equation: O2- + O => O2 + O-  # Kossyi(237)
+  rate-constant: {A: 3.3e-10, b: 0.0, Ea: 0.0}
+
+#  Kossyi 2.7 Recombination of positive and negative ions
+- equation: O2- + O2+ => O2 + O2  # (type 1)
+  rate-constant: {A: 3.464e-06, b: -0.5, Ea: 0.0}
+- equation: O- + O2+ => O + O2  # (type 1)
+  rate-constant: {A: 3.464e-06, b: -0.5, Ea: 0.0}
+- equation: O2- + O2+ => O2 + O + O  # (type 2 & 3)
+  rate-constant: {A: 1.0e-07, b: 0.0, Ea: 0.0}
+- equation: O2- + O2+ + M => O2 + O2 + M  # (type 5)
+  type: three-body
+  rate-constant: {A: 3.118e-19, b: -2.5, Ea: 0.0}
+  efficiencies: {O2: 1.0, O: 1.0}
+
+collisions:
+- equation: O2 + e => O- + O
+  type: electron-collision-plasma
+  energy-levels: [4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 4.8, 4.9, 5.0, 5.1, 5.2,
+    5.3, 5.4, 5.5, 5.6, 5.7, 5.8, 5.9, 6.0, 6.1, 6.2, 6.3, 6.5, 6.6, 6.7, 6.8, 6.9,
+    7.0, 7.1, 7.2, 7.3, 7.4, 7.5, 7.6, 7.7, 7.8, 7.9, 8.0, 8.1, 8.2, 8.3, 8.4, 8.5,
+    8.6, 8.7, 8.8, 8.9, 9.0, 9.1, 9.2, 9.3, 9.4, 9.5, 9.6, 9.8, 9.9]
+  cross-sections: [0.0, 8.8e-25, 2.64e-24, 4.4e-24, 7.04e-24, 9.68e-24, 1.32e-23,
+    1.76e-23, 2.2e-23, 2.9e-23, 3.61e-23, 4.49e-23, 5.37e-23, 6.33e-23, 7.48e-23,
+    8.53e-23, 9.59e-23, 1.05e-22, 1.14e-22, 1.23e-22, 1.31e-22, 1.36e-22, 1.41e-22,
+    1.4e-22, 1.37e-22, 1.34e-22, 1.28e-22, 1.22e-22, 1.14e-22, 1.06e-22, 9.85e-23,
+    8.97e-23, 8.18e-23, 7.39e-23, 6.42e-23, 5.72e-23, 5.01e-23, 4.49e-23, 3.87e-23,
+    3.34e-23, 2.82e-23, 2.38e-23, 2.02e-23, 1.67e-23, 1.41e-23, 1.23e-23, 1.06e-23,
+    8.8e-24, 7.04e-24, 7.04e-24, 6.16e-24, 5.28e-24, 4.4e-24, 4.4e-24, 3.52e-24, 3.52e-24]
+- equation: O2 + e => e + e + O2+
+  type: electron-collision-plasma
+  energy-levels: [13.0, 15.5, 18, 23]
+  cross-sections: [1.17e-22, 7.3e-22, 1.64e-21, 3.66e-21]
+- equation: O2 + e => e + O + O
+  type: electron-collision-plasma
+  energy-levels: [13.5, 18.5, 21.0, 23.5]
+  cross-sections: [2.2e-21, 5.29e-21, 5.65e-21, 5.25e-21]
