@@ -1,0 +1,68 @@
+<!-- This file is for testing only. The format is simplified of https://nl.lxcat.net/data/xml/lxcat_xml.zip -->
+<zcross>
+  <database id="test">
+    <groups>
+      <group id="CO2">
+        <processes>
+          <!-- The electron energy starts from a value larger than the threshold-->
+          <process collisionType="inelastic" inelasticType="ionization">
+            <reactants>
+              <electron/>
+              <molecule>CO2</molecule>
+            </reactants>
+            <products>
+              <electron/>
+              <electron/>
+              <molecule charge="1" state="Total Ionization">CO2</molecule>
+            </products>
+            <parameters>
+              <parameter name="E" units="eV">15.0</parameter>
+            </parameters>
+            <data_x type="energy" units="eV">20.0</data_x>
+            <data_y type="cross_section" units="m2">5.5e-22</data_y>
+          </process>
+        </processes>
+      </group>
+      <group id="O2">
+        <processes>
+          <!-- The electron energy starts from the threshold in this process-->
+          <process collisionType="inelastic" inelasticType="ionization">
+            <reactants>
+              <electron/>
+              <molecule>O2</molecule>
+            </reactants>
+            <products>
+              <electron/>
+              <electron/>
+              <molecule charge="1" state="Total Ionization">O2</molecule>
+            </products>
+            <parameters>
+              <parameter name="E" units="eV">15.0</parameter>
+            </parameters>
+            <data_x type="energy" units="eV">15.0 20.0</data_x>
+            <data_y type="cross_section" units="m2">0.0 5.5e-22</data_y>
+          </process>
+        </processes>
+      </group>
+      <group id="O2">
+        <processes>
+          <!-- The electron energy starts from the threshold in this process-->
+          <process collisionType="inelastic" inelasticType="attachment">
+            <reactants>
+              <electron/>
+              <molecule>O2</molecule>
+            </reactants>
+            <products>
+              <molecule charge="-1">O2</molecule>
+            </products>
+            <parameters>
+              <parameter name="E" units="eV">0.0</parameter>
+            </parameters>
+            <data_x type="energy" units="eV">0.0 1.0</data_x>
+            <data_y type="cross_section" units="m2">0.0 1.0e-22</data_y>
+          </process>
+        </processes>
+      </group>
+    </groups>
+  </database>
+</zcross>
