@@ -758,7 +758,8 @@ class TestFreeFlame(utilities.CanteraTest):
         assert meta['description'] == desc
         assert meta['cantera_version'] == "2.6.0"
 
-        # check with reduced tolerance to account for machine dependent differences
+        # check with relaxed tolerances to account for differences between
+        # Cantera 2.6 and Cantera 3.1
         self.check_save_restore(f, tol_T=1e-3, tol_X=1e-1)
 
     @pytest.mark.skipif("native" not in ct.hdf_support(),
@@ -786,7 +787,7 @@ class TestFreeFlame(utilities.CanteraTest):
 
         self.check_save_restore(f)
 
-    def check_save_restore(self, f, tol_T=1e-4, tol_X=1e-4):
+    def check_save_restore(self, f, tol_T=None, tol_X=None):
         # pytest.approx is used as equality for floats cannot be guaranteed for loaded
         # HDF5 files if they were created on a different OS and/or architecture
         assert list(f.grid) == pytest.approx(list(self.sim.grid))
@@ -1550,6 +1551,9 @@ class TestImpingingJet(utilities.CanteraTest):
         self.run_reacting_surface(xch4=0.095, tsurf=900.0, mdot=0.06, width=0.1)
         jet = ct.ImpingingJet(gas=self.gas, surface=self.surf_phase)
         jet.restore(filename, "group0")
+
+        # check with relaxed tolerances to account for differences between
+        # Cantera 2.6 and Cantera 3.1
         self.check_save_restore(jet, tol_T=1e-3, tol_X=1e-1)
 
     @pytest.mark.skipif("native" not in ct.hdf_support(),
@@ -1573,7 +1577,7 @@ class TestImpingingJet(utilities.CanteraTest):
 
         self.check_save_restore(jet)
 
-    def check_save_restore(self, jet, tol_T=1e-3, tol_X=1e-4):
+    def check_save_restore(self, jet, tol_T=None, tol_X=None):
         # pytest.approx is used as equality for floats cannot be guaranteed for loaded
         # HDF5 files if they were created on a different OS and/or architecture
         assert list(jet.grid) == pytest.approx(list(self.sim.grid))
