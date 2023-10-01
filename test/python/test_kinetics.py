@@ -3,6 +3,7 @@ import re
 import itertools
 import importlib.metadata
 import pytest
+from pytest import approx
 
 import cantera as ct
 from . import utilities
@@ -1870,3 +1871,21 @@ class TestReaction(utilities.CanteraTest):
 
         # M&W toggled on (locally) for reaction 4
         self.assertNear(k1[4], k2[4]) # sticking coefficient = 1.0
+
+    def test_electron_collision_plasma(self):
+        gas1 = ct.Solution('oxygen-plasma.yaml',
+                           'isotropic-electron-energy-plasma',
+                           transport_model=None)
+        gas1.TPX = 300, ct.one_atm, {"O2": 1.0, "E": 1.0}
+        electron_energy_levels = gas1.electron_energy_levels
+        electron_energy_dist = gas1.electron_energy_distribution
+        k1 = gas1.forward_rate_constants[1]
+
+        gas2 = ct.Solution('oxygen-plasma.yaml',
+                           'discretized-electron-energy-plasma',
+                           transport_model=None)
+        gas2.TPX = 300, ct.one_atm, {"O2": 1.0, "E": 1.0}
+        gas2.set_discretized_electron_energy_distribution(electron_energy_levels,
+                                                          electron_energy_dist)
+        k2 = gas2.forward_rate_constants[1]
+        assert k1 == approx(k2)
