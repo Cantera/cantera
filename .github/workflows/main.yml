@@ -142,9 +142,9 @@ jobs:
         python3 -m pip install ruamel.yaml scons numpy cython pandas h5py pytest pytest-github-actions-annotate-failures pint
     - name: Build Cantera
       run: python3 `which scons` build env_vars=all
-        CXX=clang++-12 CC=clang-12 f90_interface=n extra_lib_dirs=/usr/lib/llvm/lib
+        CXX=clang++-14 CC=clang-14 f90_interface=n extra_lib_dirs=/usr/lib/llvm/lib
         -j2 debug=n --debug=time hdf_libdir=$HDF5_LIBDIR hdf_include=$HDF5_INCLUDEDIR
-        warning_flags='-Wall -Werror -Wsuggest-override'
+        logging=debug warning_flags='-Wall -Werror -Wsuggest-override'
     - name: Test Cantera
       run:
         python3 `which scons` test show_long_tests=yes verbose_tests=yes --debug=time
