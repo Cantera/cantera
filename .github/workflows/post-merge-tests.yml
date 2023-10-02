@@ -42,8 +42,9 @@ jobs:
         python3 -m pip install --pre cython
     - name: Build Cantera
       run: python3 `which scons` build env_vars=all
-        CXX=clang++-12 CC=clang-12 f90_interface=n extra_lib_dirs=/usr/lib/llvm/lib
+        CXX=clang++-14 CC=clang-14 f90_interface=n extra_lib_dirs=/usr/lib/llvm/lib
         -j2 debug=n --debug=time hdf_libdir=$HDF5_LIBDIR hdf_include=$HDF5_INCLUDEDIR
+        logging=debug
     - name: Test Cantera
       run:
         python3 `which scons` test show_long_tests=yes verbose_tests=yes --debug=time
