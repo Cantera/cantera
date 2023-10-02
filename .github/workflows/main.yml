@@ -724,6 +724,7 @@ jobs:
       with:
         platform: x64
         static: false
+        version: 12.2
     - name: Install Boost Headers
       if: steps.cache-boost.outputs.cache-hit != 'true'
       run: |
