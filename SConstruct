@@ -866,8 +866,10 @@ elif "clang" in env.subst("$CC"):
     config.select("clang")
 
 else:
-    logger.error(f"Unrecognized C compiler {env['CC']!r}")
-    sys.exit(1)
+    # Assume a GCC compatible compiler if nothing else
+    logger.warning(f"Unrecognized C compiler {env['CC']!r}")
+    config.select("gcc")
+
 
 if env["OS"] == "Windows":
     config.select("Windows")
