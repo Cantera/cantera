@@ -1,11 +1,11 @@
 /* Colors to match pydata-sphinx-theme */
 html {
-    --primary-color: rgb(69, 157, 185);
+    --primary-color: rgb(10, 125, 145);
     --pst-color-text-muted: rgb(100, 100, 100);
 }
 
 html.dark-mode {
-    --primary-color: rgb(69, 157, 185);
+    --primary-color: rgb(63, 177, 197);
     --pst-color-text-muted: rgb(164, 164, 164);
 }
 

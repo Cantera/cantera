@@ -8,3 +8,8 @@ p + div.math {
     display: none;
     visibility: hidden;
 }
+
+.bd-header .navbar-header-items__center {
+    /* Reduce gap between Sphinx sections and ones added via cantera-org-links.html */
+    column-gap: normal;
+}
