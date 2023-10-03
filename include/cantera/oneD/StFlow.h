@@ -22,12 +22,12 @@ namespace Cantera
 //! Offsets of solution components in the 1D solution array.
 enum offset
 {
-    c_offset_U   //! axial velocity
+    c_offset_U   //! axial velocity [m/s]
     , c_offset_V //! strain rate
-    , c_offset_T //! temperature
+    , c_offset_T //! temperature [Kelvin]
     , c_offset_L //! (1/r)dP/dr
     , c_offset_E //! electric field
-    , c_offset_Uo //! oxidizer axial velocity
+    , c_offset_Uo //! oxidizer axial velocity [m/s]
     , c_offset_Y //! mass fractions
 };
 
@@ -259,33 +259,55 @@ public:
     //! In this method there are control points that are designated in a domain, and
     //! the value of the solution at these points is fixed. The values of the control
     //! points are dictated and thus serve as a boundary condition that affects the
-    //! solution of the goerning equations in the 1D domain. The imposition of fixed
-    //! points in the domain means that the original set of governign equations' boundary 
+    //! solution of the governing equations in the 1D domain. The imposition of fixed
+    //! points in the domain means that the original set of governing equations' boundary 
     //! conditions would over-specify the problem. Thus, the boundary conditions are changed
     //! to reflect the fact that the control points are serving as internal boundary conditions.
+    //!
+    //! This method is based on the work of M. Nishioka, C.K. Law, and T. Takeno (1996) titled
+    //! "A Flame-Controlling Continuation Method for Generating S-Curve Responses with 
+    //! Detailed Chemistry"
     
     //! The current left control point temperature
     double leftControlPointTemperature() const {
-        if (m_twoPointControl && (m_zLeft != Undef))
+        if (m_twoPointControl && (m_zLeft != Undef)) {
             return m_tLeft;
+        }
+    }
+
+     //! The current left control point spatial coordinate
+    double leftControlPointCoordinate() const {
+        if (m_twoPointControl && (m_zLeft != Undef)) {
+            return m_zLeft;
+        }
     }
 
     //! Set the temperature of the left control point
     void setLeftControlPointTemperature(double temperature) {
-        if (m_twoPointControl && (m_zLeft != Undef))
+        if (m_twoPointControl && (m_zLeft != Undef)) {
             m_tLeft = temperature;
+        }
     }
 
     //! The current right control point temperature
     double rightControlPointTemperature() const {
-        if (m_twoPointControl && (m_zRight != Undef))
+        if (m_twoPointControl && (m_zRight != Undef)) {
             return m_tRight;
+        }
+    }
+
+    //! The current right control point spatial coordinate
+    double rightControlPointCoordinate() const {
+        if (m_twoPointControl && (m_zRight != Undef)) {
+            return m_zRight;
+        }
     }
 
     //! Set the temperature of the right control point
     void setRightControlPointTemperature(double temperature) {
-        if (m_twoPointControl && (m_zRight != Undef))
+        if (m_twoPointControl && (m_zRight != Undef)) {
             m_tRight = temperature;
+        }
     }
 
     //! Set the status of the two-point control

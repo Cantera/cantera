@@ -95,8 +95,10 @@ cdef extern from "cantera/oneD/StFlow.h":
         void enableTwoPointControl(cbool)
         cbool twoPointControlEnabled()
         double leftControlPointTemperature()
+        double leftControlPointCoordinate()
         void setLeftControlPointTemperature(double)
         double rightControlPointTemperature()
+        double rightControlPointCoordinate()
         void setRightControlPointTemperature(double)
 
 
