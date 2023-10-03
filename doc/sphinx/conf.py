@@ -89,8 +89,6 @@ skip_run = {
     # multiprocessing can't see functions defined in __main__ when run by
     # sphinx-gallery, at least on macOS.
     "multiprocessing_viscosity.py",
-    # __file__ deliberately not available when run by sphinx-gallery
-    "flame_fixed_T.py",
 }
 
 def executable_script(src_file, gallery_conf):
