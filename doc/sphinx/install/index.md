@@ -11,3 +11,8 @@ see <a href="/install/index.html">this page</a>.
 conda
 pip
 ```
+
+```{seealso}
+Check the [FAQ](sec-faq-installation) for solutions to some common installation
+problems.
+```
