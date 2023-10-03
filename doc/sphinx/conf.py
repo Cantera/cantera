@@ -350,9 +350,8 @@ html_short_title = "Cantera"
 html_logo = '_static/images/cantera-logo.png'
 
 # The name of an image file (within the static path) to use as favicon of the
-# docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
-# pixels large.
-# html_favicon = "_static/favicon.ico"
+# docs.  This file should be square image.
+html_favicon = "_static/images/favicon.png"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
