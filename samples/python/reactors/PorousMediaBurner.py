@@ -48,9 +48,8 @@ modeling of internal heat recirculation through heat transfer, conduction and
 radiation. For more realistic and quantitative predictions, running 1D simulations with
 full radiation transport is required.
 
-Initial code by Thorsten Zirwes and Guillaume Vignat, Stanford University & Karlsruhe
-Institute of Technology (KIT). More details about the governing equations, submodels and
-physical setup and corresponding experiments can be found in
+More details about the governing equations, submodels and physical setup and
+corresponding experiments can be found in
 
     Experimental and numerical investigation of flame stabilization and
     pollutant formation in matrix stabilized ammonia-hydrogen combustion,
