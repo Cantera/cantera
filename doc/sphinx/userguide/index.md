@@ -2,12 +2,12 @@
 
 ## Introductory Tutorials
 
-{doc}`Getting Started with Python <userguide/python-tutorial>`
+{doc}`Getting Started with Python <python-tutorial>`
 
 * Task/goal-oriented guides
 
 ```{toctree}
 :hidden:
 
-userguide/python-tutorial
+python-tutorial
 ```

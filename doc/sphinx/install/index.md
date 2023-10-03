@@ -3,6 +3,6 @@
 ```{toctree}
 :maxdepth: 1
 
-install/conda
-install/pip
+conda
+pip
 ```

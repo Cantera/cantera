@@ -13,7 +13,7 @@ kernelspec:
 
 ```{seealso}
 If you haven't already installed Cantera, we have instructions for
-many platforms in our [Installation section](/install).
+many platforms in our [Installation section](/install/index).
 ```
 
 Start by opening an interactive Python session, for example by running
@@ -447,5 +447,5 @@ Or about 16% of the total heat release rate.
 
 Congratulations! You have finished the Cantera Python tutorial. You should now be ready
 to begin using Cantera on your own. Please see additional sections of the [Cantera User
-Guide ](../userguide) for assistance with intermediate and advanced Cantera
+Guide](/userguide/index) for assistance with intermediate and advanced Cantera
 functionality. Good luck!

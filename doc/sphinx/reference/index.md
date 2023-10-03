@@ -13,25 +13,25 @@ mechanism files.
 :gutter: 3
 
 ```{grid-item-card} YAML Format Reference
-:link: yaml/index
+:link: /yaml/index
 :link-type: doc
 :text-align: center
 ```
 
 ```{grid-item-card} Python API Reference
-:link: python/index
+:link: /python/index
 :link-type: doc
 :text-align: center
 ```
 
 ```{grid-item-card} Matlab API Reference
-:link: matlab/index
+:link: /matlab/index
 :link-type: doc
 :text-align: center
 ```
 
 ```{grid-item-card} C++ API Reference
-:link: cxx/index.html
+:link: ../cxx/index.html
 :text-align: center
 ```
 
@@ -42,9 +42,9 @@ mechanism files.
 :maxdepth: 1
 :caption: API Reference
 
-yaml/index
-python/index
-matlab/index
+/yaml/index
+/python/index
+/matlab/index
 ```
 
 ## Science Reference
@@ -56,13 +56,13 @@ methods implemented by Cantera
 :gutter: 3
 
 ```{grid-item-card} Reactors
-:link: reference/science/reactors/index
+:link: science/reactors/index
 :link-type: doc
 :text-align: center
 ```
 
 ```{grid-item-card} Bibliography
-:link: reference/bibliography
+:link: bibliography
 :link-type: doc
 :text-align: center
 ```
@@ -74,6 +74,6 @@ methods implemented by Cantera
 :maxdepth: 1
 :caption: Science Reference
 
-reference/science/reactors/index
-reference/bibliography
+science/reactors/index
+bibliography
 ```
