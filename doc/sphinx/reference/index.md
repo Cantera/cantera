@@ -19,12 +19,6 @@ mechanism files.
 ````{grid} 2
 :gutter: 3
 
-```{grid-item-card} YAML Format Reference
-:link: /yaml/index
-:link-type: doc
-:text-align: center
-```
-
 ```{grid-item-card} Python API Reference
 :link: /python/index
 :link-type: doc
@@ -42,6 +36,18 @@ mechanism files.
 :text-align: center
 ```
 
+```{grid-item-card} YAML Format Reference
+:link: /yaml/index
+:link-type: doc
+:text-align: center
+```
+
+```{grid-item-card} Release Notes
+:link: releasenotes/index
+:link-type: doc
+:text-align: center
+```
+
 ````
 
 ```{toctree}
@@ -49,9 +55,10 @@ mechanism files.
 :maxdepth: 1
 :caption: API Reference
 
-/yaml/index
 /python/index
 /matlab/index
+/yaml/index
+releasenotes/index
 ```
 
 ## Science Reference
@@ -74,6 +81,12 @@ methods implemented by Cantera
 :text-align: center
 ```
 
+```{grid-item-card} Glossary
+:link: glossary
+:link-type: doc
+:text-align: center
+```
+
 ````
 
 ```{toctree}
@@ -83,4 +96,5 @@ methods implemented by Cantera
 
 science/reactors/index
 bibliography
+glossary
 ```
