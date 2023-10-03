@@ -662,7 +662,17 @@ cdef class FlowBase(Domain1D):
             return self.flow.rightControlPointTemperature()
         def __set__(self, T):
             self.flow.setRightControlPointTemperature(T)
-    
+
+    property zLeft:
+        """ Left control point temperature [K] """
+        def __get__(self):
+            return self.flow.leftControlPointCoordinate()
+
+    property zRight:
+        """ Right control point temperature [K] """
+        def __get__(self):
+            return self.flow.rightControlPointCoordinate()
+        
     property two_point_control_enabled:
         """ Determines whether or not to enable two point flame control"""
         def __get__(self):
