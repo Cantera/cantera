@@ -34,7 +34,7 @@ classdef ThermoPhase < handle
         %     String. Can be 'mole'/'molar'/'Molar'/'Mole' or 'mass'/'Mass'.
         basis
 
-        phaseName % Name of the phase. 
+        phaseName % Name of the phase.
 
         electricPotential % Electric potential. Units: V.
 
@@ -176,8 +176,8 @@ classdef ThermoPhase < handle
 
         refPressure % Reference pressure for standard-state. Units: Pa.
 
-        % Generate a report describing the thermodynamic state of this phase. 
-        % To print the report to the terminal, simply call the phase object. 
+        % Generate a report describing the thermodynamic state of this phase.
+        % To print the report to the terminal, simply call the phase object.
         % The following two statements are equivalent ::
         %
         %     >> phase
@@ -997,7 +997,7 @@ classdef ThermoPhase < handle
             aa = char(ones(1, buflen));
             ptr = libpointer('cstring', aa);
             [iok, bb] = calllib(ctLib, 'thermo_report', tp.tpID, buflen, ptr, 1);
-                                
+
             if iok < 0
                 error(ctGetErr);
             end
@@ -1400,6 +1400,9 @@ classdef ThermoPhase < handle
         function set.HP(tp, input)
             h = input{1};
             p = input{2};
+            if strcmp(tp.basis, 'molar')
+                h = h/tp.meanMolecularWeight;
+            end
             ctFunc('thermo_set_HP', tp.tpID, [h, p]);
         end
 
@@ -1438,6 +1441,10 @@ classdef ThermoPhase < handle
         function set.SH(tp, input)
             s = input{1};
             h = input{2};
+            if strcmp(tp.basis, 'molar')
+                s = s/tp.meanMolecularWeight;
+                h = h/tp.meanMolecularWeight;
+            end
             ctFunc('thermo_set_SH', tp.tpID, [s, h]);
         end
 
@@ -1454,6 +1461,9 @@ classdef ThermoPhase < handle
         function set.SP(tp, input)
             s = input{1};
             p = input{2};
+            if strcmp(tp.basis, 'molar')
+                s = s/tp.meanMolecularWeight;
+            end
             ctFunc('thermo_set_SP', tp.tpID, [s, p]);
         end
 
@@ -1470,6 +1480,9 @@ classdef ThermoPhase < handle
         function set.ST(tp, input)
             s = input{1};
             t = input{2};
+            if strcmp(tp.basis, 'molar')
+                s = s/tp.meanMolecularWeight;
+            end
             ctFunc('thermo_set_ST', tp.tpID, [s, t]);
         end
 
@@ -1486,6 +1499,9 @@ classdef ThermoPhase < handle
         function set.SV(tp, input)
             s = input{1};
             v = input{2};
+            if strcmp(tp.basis, 'molar')
+                s = s/tp.meanMolecularWeight;
+            end
             ctFunc('thermo_set_SV', tp.tpID, [s, v]);
         end
 
@@ -1496,7 +1512,7 @@ classdef ThermoPhase < handle
 
         function set.SVY(tp, input)
             tp.Y = input{3};
-            tp.SP = input(1:2);
+            tp.SV = input(1:2);
         end
 
         function set.TD(tp, input)
@@ -1518,6 +1534,9 @@ classdef ThermoPhase < handle
         function set.TH(tp, input)
             t = input{1};
             h = input{2};
+            if strcmp(tp.basis, 'molar')
+                h = h/tp.meanMolecularWeight;
+            end
             ctFunc('thermo_set_TH', tp.tpID, [t, h]);
         end
 
@@ -1572,6 +1591,9 @@ classdef ThermoPhase < handle
         function set.UP(tp, input)
             u = input{1};
             p = input{2};
+            if strcmp(tp.basis, 'molar')
+                u = u/tp.meanMolecularWeight;
+            end
             ctFunc('thermo_set_UP', tp.tpID, [u, p]);
         end
 
@@ -1588,6 +1610,9 @@ classdef ThermoPhase < handle
         function set.UV(tp, input)
             u = input{1};
             v = input{2};
+            if strcmp(tp.basis, 'molar')
+                u = u/tp.meanMolecularWeight;
+            end
             ctFunc('thermo_set_UV', tp.tpID, [u, v]);
         end
 
@@ -1604,6 +1629,9 @@ classdef ThermoPhase < handle
         function set.VH(tp, input)
             v = input{1};
             h = input{2};
+            if strcmp(tp.basis, 'molar')
+                h = h/tp.meanMolecularWeight;
+            end
             ctFunc('thermo_set_VH', tp.tpID, [v, h]);
         end
 

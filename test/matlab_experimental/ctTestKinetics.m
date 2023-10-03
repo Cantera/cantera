@@ -57,7 +57,7 @@ classdef ctTestKinetics < matlab.unittest.TestCase
             for i = 1:self.phase.nReactions
                 self.verifyTrue(self.phase.isReversible(i));
             end
-            
+
             diamond = Solution('diamond.yaml', 'diamond_100', 'none');
             self.verifyFalse(diamond.isReversible(20));
             clear diamond
