@@ -1,5 +1,10 @@
 # Reactors and Reactor Networks
 
+```{caution}
+This page is a work in progress. For more complete documentation of the current Cantera
+release (Cantera 3.0), please see <a href="/science/reactors/reactors.html">this page</a>.
+```
+
 ## Reactors
 
 A Cantera *reactor* represents the simplest form of a chemically reacting system. It
