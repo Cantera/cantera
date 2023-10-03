@@ -109,7 +109,7 @@ classdef Kinetics < handle
 
         reactionEquations % All reaction equations within the Kinetics object.
 
-        reactionPhaseIndex % The index of the phase where the reactions occur. 
+        reactionPhaseIndex % The index of the phase where the reactions occur.
     end
 
     methods
@@ -342,7 +342,7 @@ classdef Kinetics < handle
             for k = krange
 
                 for i = irange
-                    
+
                     if iscell(k)
                         kk = kin.kineticsSpeciesIndex(k{:});
                     else
@@ -363,7 +363,7 @@ classdef Kinetics < handle
                 n = nonzeros(temp);
             elseif nnz(temp) == 0
                 n = 0;
-            else 
+            else
                 n = temp;
             end
         end
