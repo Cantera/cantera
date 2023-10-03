@@ -321,6 +321,11 @@ class FlameBase(Sim1D):
         self.flame.tLeft = T
 
     @property
+    def zLeft(self):
+        """ Get the left control point coordinate [m] """
+        return self.flame.zLeft
+
+    @property
     def tRight(self):
         """ Get/Set the right control point temperature [K] """
         return self.flame.tRight
@@ -328,6 +333,11 @@ class FlameBase(Sim1D):
     @tRight.setter
     def tRight(self, T):
         self.flame.tRight = T
+
+    @property
+    def zRight(self):
+        """ Get the right control point coordinate [m] """
+        return self.flame.zRight
 
     def elemental_mass_fraction(self, m):
         r"""

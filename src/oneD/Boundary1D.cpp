@@ -207,7 +207,7 @@ void Inlet1D::eval(size_t jg, double* xg, double* rg,
             // if the flow is a freely-propagating flame, mdot is not specified.
             // Set mdot equal to rho*u, and also set lambda to zero.
             m_mdot = m_flow->density(0) * xb[c_offset_U];
-        } else if (m_flow->isStrained()) {
+        } else if (m_flow->isStrained()) { //axisymmetric flow
             if (m_flow->twoPointControlEnabled()) {
                 m_mdot = m_flow->density(0)*xb[c_offset_U];
             } else {
@@ -244,7 +244,6 @@ void Inlet1D::eval(size_t jg, double* xg, double* rg,
             rb[c_offset_T] -= m_flow->T_fixed(m_flow->nPoints() - 1);
         }
 
-        
         if (m_flow->twoPointControlEnabled()) {// For point control adjustments
             // At the right boundary, the mdot is dictated by the velocity at the
             // right boundary, which comes from the Uo variable. 
