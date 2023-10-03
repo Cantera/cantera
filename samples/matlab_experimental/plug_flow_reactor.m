@@ -8,18 +8,18 @@
 %
 % The reactor assumes that the flow follows the Ideal Gas Law.
 %
-% The governing equations used in this code (see :doc:`PFR_solver.m
-% <PFR_solver>`) can be referenced at:
+% The governing equations used in this code (see :doc:`PFR_solver.m <PFR_solver>`) can
+% be found in:
 %
-%     *S.R Turns, An Introduction to Combustion - Concepts and Applications,
-%     McGraw Hill Education, India, 2012, 206-210.*
+%     S.R. Turns. An Introduction to Combustion - Concepts and Applications,
+%     McGraw Hill Education, India, 2012, pp. 206-210.
 %
 % The current example is written for methane combustion, but can be readily
-% adapted for other chemistries.
+% adapted for other chemistries. For additional details, see:
 %
-% Example originally developed by Ashwin Kumar (Research Assistant, mgak@vt.edu) and
-% Dr. Joseph Meadows (Assistant Professor, jwm84@vt.edu), Advanced Propulsion and Power
-% Laboratory, Virginia Tech.
+%    A. Kumar, B. Hugger, and J.W. Meadows. Modelling of High-Pressure Combustion Rig
+%    with After-Burner and Supersonic Nozzle using Plug Flow Reactor Network Model. AIAA
+%    Propulsion and Energy 2020 Forum. https://doi.org/10.2514/6.2020-3893
 %
 % .. tags:: Matlab, combustion, user-defined model, compressible flow, plotting
 
