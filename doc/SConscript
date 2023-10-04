@@ -1,6 +1,7 @@
 
 from collections import namedtuple
 from os.path import join as pjoin
+from pathlib import Path
 import os
 import subprocess
 from buildutils import *
@@ -161,6 +162,16 @@ if localenv['sphinx_docs']:
         env.Depends(sphinxdocs,
                     localenv.Command(f"#build/doc/samples/clib/{clib_file.name}",
                                      clib_file, Copy("$TARGET", "$SOURCE")))
+
+    # Generate documentation for SCons configuration options
+    def save_config(target, source, env):
+        Path(str(target[0])).parent.mkdir(parents=True, exist_ok=True)
+        with open(str(target[0]), "w") as outfile:
+            outfile.write(env["config"].to_rest())
+    scons_opts = localenv.Command(
+        "#build/doc/sphinx/develop/compiling/scons-config-options.rst.inc",
+        "#SConstruct", save_config)
+    env.Depends(sphinxdocs, scons_opts)
 
     # Create a list of MATLAB classes to document. This uses the NamedTuple
     # structure defined at the top of the file. The @Data and @Utilities
