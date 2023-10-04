@@ -338,11 +338,6 @@ jobs:
           python3 `which scons` help --options
           python3 `which scons` help --list-options
           python3 `which scons` help --option=prefix
-      - name: Parse configuration options from SConstruct as reST
-        run: |
-          python3 `which scons` help --restructured-text --dev --output=config-options-dev.rst
-          mkdir build/doc/scons
-          mv config-options-dev.rst build/doc/scons/
       - name: Create archive for docs output
         run: |
           cd build/doc

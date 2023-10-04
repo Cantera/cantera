@@ -248,7 +248,7 @@ class Option:
     def to_rest(self, dev: bool = False, indent: int = 3) -> str:
         """Convert description of option to restructured text (reST)"""
         # assemble output
-        tag = self.name.replace("_", "-").lower()
+        tag = "sconsopt-" + self.name.replace("_", "-").lower()
         if dev:
             tag += "-dev"
         out = f".. _{tag}:\n\n"

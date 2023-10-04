@@ -937,6 +937,11 @@ for arg in ARGUMENTS:
         logger.error(f"Encountered unexpected command line option: {arg!r}")
         sys.exit(1)
 
+# Store full config for doc build
+if env['sphinx_docs']:
+    config.add(windows_options)
+    env['config'] = config
+
 env["cantera_version"] = "3.1.0a1"
 # For use where pre-release tags are not permitted (MSI, sonames)
 env['cantera_pure_version'] = re.match(r'(\d+\.\d+\.\d+)', env['cantera_version']).group(0)
