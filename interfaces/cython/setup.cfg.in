@@ -63,6 +63,7 @@ cantera.examples = *.txt
 [options.extras_require]
 pandas = pandas
 units = pint
+graphviz = python-graphviz
 
 [options.entry_points]
 console_scripts =
