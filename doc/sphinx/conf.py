@@ -311,7 +311,11 @@ html_theme = 'pydata_sphinx_theme'
 
 html_theme_options = {
     "show_toc_level": 2,
-    "navbar_center": ["navbar-nav", "cantera-org-links"],
+    "navbar_center": ["navbar-nav"],
+    "external_links": [
+      {"name": "Community", "url": "/community.html"},
+    ],
+    "header_links_before_dropdown": 6,
     "navbar_align": "left",
     "navbar_end": ["version-switcher", "theme-switcher", "navbar-icon-links"],
     "show_prev_next": False,

@@ -1,3 +1,7 @@
+html {
+    --pst-icon-external-link: "";
+}
+
 p + div.math {
     /* Remove post-paragraph space ahead of equation to center vertically */
     margin-top: -1.15em;
@@ -7,9 +11,4 @@ p + div.math {
     /* Hide top-of-page note about download link at bottom */
     display: none;
     visibility: hidden;
-}
-
-.bd-header .navbar-header-items__center {
-    /* Reduce gap between Sphinx sections and ones added via cantera-org-links.html */
-    column-gap: normal;
 }
