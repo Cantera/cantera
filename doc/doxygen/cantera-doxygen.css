@@ -24,6 +24,7 @@ div#top {
 .sm-dox a {
     color: var(--pst-color-text-muted) !important;
     font-size: 16px;
+    padding: 0 8px;
 }
 
 .sm-dox a#selected {

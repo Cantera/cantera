@@ -12,3 +12,23 @@ p + div.math {
     display: none;
     visibility: hidden;
 }
+
+/* Make extra room for header section links when page isn't wide enough */
+@media(max-width: 1199.88px) {
+    /* Collapse search field to just a button */
+    button.search-button-field .search-button__default-text {
+        display: none;
+        visibility: hidden;
+    }
+    .search-button-field > :not(svg) {
+        display: none;
+        visibility: hidden;
+    }
+
+    /* Hide text portion of the Cantera logo */
+    .navbar-brand img {
+        width: 36px;
+        object-fit: cover;
+        object-position: left
+    }
+}
