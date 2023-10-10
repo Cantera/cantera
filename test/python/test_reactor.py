@@ -3357,6 +3357,86 @@ class TestExtensibleReactor:
         assert r1.phase["H2"].Y[0] == approx(0.13765976, rel=1e-6)
         assert r2.phase["O2"].Y[0] == approx(0.94617029, rel=1e-6)
 
+    def test_after_jacobian(self):
+        class AfterJacobianReactor(ct.ExtensibleIdealGasMoleReactor):
+            def __init__(self, *args, neighbor, **kwargs):
+                super().__init__(*args, **kwargs)
+                self.v_wall = 0
+                self.k_wall = 1e-5
+                self.neighbor = neighbor
+
+            def after_initialize(self, t0):
+                self.n_vars += 1
+                self.i_wall = self.n_vars - 1
+
+            def after_get_state(self, y):
+                y[self.i_wall] = self.v_wall
+
+            def after_update_state(self, y):
+                self.v_wall = y[self.i_wall]
+                self.walls[0].velocity = self.v_wall
+
+            def after_eval(self, t, LHS, RHS):
+                # Extra equation is d(v_wall)/dt = k * delta P
+                a = self.k_wall * (self.phase.P - self.neighbor.phase.P)
+                RHS[self.i_wall] = a
+
+            def before_component_index(self, name):
+                if name == 'v_wall':
+                    return self.i_wall
+
+            def before_component_name(self, i):
+                if i == self.i_wall:
+                    return 'v_wall'
+
+            def after_build_jacobian(self, jac_vector):
+                jac_vector.append((self.i_wall, self.i_wall, 1e20))
+
+        self.gas.TP = 300, ct.one_atm
+        res = ct.Reservoir(self.gas)
+        self.gas.TP = 300, 2 * ct.one_atm
+        r = AfterJacobianReactor(self.gas, neighbor=res)
+        w = ct.Wall(r, res)
+        net = ct.ReactorNet([r])
+        precon = ct.AdaptivePreconditioner()
+        net.preconditioner = precon
+        net.step()
+        # test that jacobian wall element is hard coded value
+        jac = r.jacobian
+        assert jac[r.i_wall, r.i_wall] == 1e20
+        pmat = precon.matrix
+        assert pmat[r.i_wall, r.i_wall] == (1 - precon.gamma * 1e20)
+
+    def test_before_jacobian(self):
+        class BeforeJacobianReactor(ct.ExtensibleIdealGasMoleReactor):
+
+            def before_build_jacobian(self, jac_vector):
+                jac_vector.append((0, 0, 1e10))
+
+        self.gas.TP = 300, ct.one_atm
+        r = BeforeJacobianReactor(self.gas)
+        net = ct.ReactorNet([r])
+        net.preconditioner = ct.AdaptivePreconditioner()
+        net.step()
+        # test that jacobian wall element is hard coded value
+        jac = r.jacobian
+        assert jac[0, 0] == 1e10
+
+    def test_replace_jacobian(self):
+        class ReplaceJacobianReactor(ct.ExtensibleIdealGasMoleReactor):
+
+            def replace_build_jacobian(self, jac_vector):
+                jac_vector.append((0, 0, 0))
+
+        self.gas.TP = 300, ct.one_atm
+        r = ReplaceJacobianReactor(self.gas)
+        net = ct.ReactorNet([r])
+        net.preconditioner = ct.AdaptivePreconditioner()
+        net.step()
+        # test that jacobian wall element is hard coded value
+        jac = r.jacobian
+        assert np.sum(jac) == 0
+
 
 class TestSteadySolver:
     @pytest.mark.parametrize("reactor_class",

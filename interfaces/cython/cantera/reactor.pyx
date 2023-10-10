@@ -645,7 +645,8 @@ cdef class ExtensibleReactor(Reactor):
         'eval_surfaces': ('evalSurfaces', 'void(double*,double*,double*)'),
         'component_name': ('componentName', 'string(size_t)'),
         'component_index': ('componentIndex', 'size_t(string)'),
-        'species_index': ('speciesIndex', 'size_t(string)')
+        'species_index': ('speciesIndex', 'size_t(string)'),
+        'build_jacobian': ('buildJacobian', 'void(vector[CxxEigenTriplet]&)')
     }
 
     def __cinit__(self, *args, **kwargs):

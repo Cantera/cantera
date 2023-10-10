@@ -5,6 +5,7 @@
 #distutils: language = c++
 
 from .ctcxx cimport *
+from .delegator cimport CxxEigenTriplet
 from .kinetics cimport *
 from .func1 cimport *
 from .jacobians cimport *
@@ -58,6 +59,7 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         void getState(double*) except +translate_exception
         CxxSparseMatrix jacobian() except +translate_exception
         CxxSparseMatrix finiteDifferenceJacobian() except +translate_exception
+        void buildJacobian(vector[CxxEigenTriplet]&) except +translate_exception
         void setAdvanceLimit(string&, double) except +translate_exception
         void addSensitivitySpeciesEnthalpy(size_t) except +translate_exception
 

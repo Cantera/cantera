@@ -769,18 +769,25 @@ void ReactorNet::preconditionerSetup(double t, double* y, double gamma)
     vector<double> yCopy(m_nv);
     // Get state of reactor
     getState(yCopy.data());
-    // transform state based on preconditioner rules
+    // Transform state based on preconditioner rules
     precon->stateAdjustment(yCopy);
-    // update network with adjusted state
+    // Update network with adjusted state
     updateState(yCopy.data());
+    // Create jacobian triplet vector
+    vector<Eigen::Triplet<double>> jac_vector;
+    vector<size_t> jstarts;
     // Get jacobians and give elements to preconditioners
+    jstarts.push_back(jac_vector.size());
     for (size_t i = 0; i < m_reactors.size(); i++) {
-        Eigen::SparseMatrix<double> rJac = m_reactors[i]->jacobian();
-        for (int k=0; k<rJac.outerSize(); ++k) {
-            for (Eigen::SparseMatrix<double>::InnerIterator it(rJac, k); it; ++it) {
-                precon->setValue(it.row() + m_start[i], it.col() + m_start[i],
-                    it.value());
-            }
+        m_reactors[i]->buildJacobian(jac_vector);
+        jstarts.push_back(jac_vector.size());
+    }
+    // Add to preconditioner with offset
+    for (size_t i=0; i < m_reactors.size(); i++) {
+        for (size_t j = jstarts[i]; j < jstarts[i+1]; j++) {
+            auto it = jac_vector[j];
+            precon->setValue(it.row() + m_start[i], it.col() + m_start[i],
+            it.value());
         }
     }
     // post reactor setup operations

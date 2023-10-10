@@ -12,6 +12,8 @@ cdef extern from "cantera/numerics/SystemJacobian.h" namespace "Cantera":
         CxxSystemJacobian()
         string preconditionerSide()
         string type()
+        double gamma()
+        void setGamma(double) except +translate_exception
         void setPreconditionerSide(string) except +translate_exception
 
 cdef extern from "cantera/numerics/EigenSparseJacobian.h" namespace "Cantera":

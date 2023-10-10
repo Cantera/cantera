@@ -10,6 +10,7 @@
 #include "cantera/base/Delegator.h"
 #include "cantera/zeroD/ReactorSurface.h"
 #include "cantera/thermo/SurfPhase.h"
+#include "cantera/numerics/eigen_sparse.h"
 
 namespace Cantera
 {
@@ -94,6 +95,8 @@ public:
             [this](const string& nm) { return R::componentIndex(nm); });
         install("speciesIndex", m_speciesIndex,
             [this](const string& nm) { return R::speciesIndex(nm); });
+        install("buildJacobian", m_build_jacobian,
+            [this](vector<Eigen::Triplet<double>>& jv) { R::buildJacobian(jv); });
     }
 
     // Overrides of Reactor methods
@@ -160,6 +163,10 @@ public:
         return m_speciesIndex(nm);
     }
 
+    void buildJacobian(vector<Eigen::Triplet<double>>& jacVector) override {
+        m_build_jacobian(jacVector);
+    }
+
     // Public access to protected Reactor variables needed by derived classes
 
     void setNEq(size_t n) override {
@@ -204,6 +211,7 @@ private:
     function<string(size_t)> m_componentName;
     function<size_t(const string&)> m_componentIndex;
     function<size_t(const string&)> m_speciesIndex;
+    function<void(vector<Eigen::Triplet<double>>&)> m_build_jacobian;
 };
 
 }
