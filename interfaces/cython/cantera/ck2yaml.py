@@ -132,7 +132,7 @@ class InputError(Exception):
     the exceptional behavior.
     """
     def __init__(self, message, *args, **kwargs):
-        message += ("\nPlease check https://cantera.org/tutorials/"
+        message += ("\nPlease check https://cantera.org/stable/userguide/"
                    "ck2yaml-tutorial.html#debugging-common-errors-in-ck-files"
                    "\nfor the correct Chemkin syntax.")
         if args or kwargs:

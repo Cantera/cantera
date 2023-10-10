@@ -26,10 +26,12 @@ The tutorials in this section are designed to help you accomplish a specific tas
 using Cantera, such as evaluating the ignition delay time for a fuel under different
 conditions, or calculating the voltage of a Lithium-ion battery as it is discharged.
 
+{doc}`ck2yaml-tutorial`
 
 ```{toctree}
 :hidden:
 
 python-tutorial
 faq
+ck2yaml-tutorial
 ```
