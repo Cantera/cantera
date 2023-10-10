@@ -8,6 +8,7 @@ from libcpp.unordered_map cimport unordered_map
 
 from .ctcxx cimport *
 from .units cimport UnitSystem, CxxUnits
+from .delegator cimport CxxEigenTriplet
 
 cdef extern from "cantera/base/AnyMap.h" namespace "Cantera":
     cdef cppclass CxxAnyValue "Cantera::AnyValue"
@@ -108,3 +109,6 @@ cdef anymap_to_py(CxxAnyMap& m)
 
 cdef CxxAnyValue python_to_anyvalue(item, name=*) except *
 cdef anyvalue_to_python(string name, CxxAnyValue& v)
+
+cdef vector[CxxEigenTriplet] python_to_triplets(triplets) except *
+cdef triplets_to_python(vector[CxxEigenTriplet]& triplets)

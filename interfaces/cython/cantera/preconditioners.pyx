@@ -26,6 +26,16 @@ cdef class PreconditionerBase:
         def __set__(self, side):
             self.pbase.get().setPreconditionerSide(stringify(side))
 
+    property gamma:
+        """ Get/Set the value of gamma used in the expression P = (I - gamma * J).
+        """
+        def __get__(self):
+            return self.pbase.get().gamma()
+
+        def __set__(self, value):
+            self.pbase.get().setGamma(value)
+
+
 cdef class AdaptivePreconditioner(PreconditionerBase):
     precon_type = "Adaptive"
     precon_linear_solver_type = "GMRES"
