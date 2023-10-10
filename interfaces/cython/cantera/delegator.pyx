@@ -9,7 +9,7 @@ from libc.stdlib cimport malloc
 from libc.string cimport strcpy
 
 from ._utils import CanteraError
-from ._utils cimport stringify, pystr, anymap_to_py, py_to_anymap
+from ._utils cimport stringify, pystr, anymap_to_py, py_to_anymap, triplets_to_python, python_to_triplets
 from .units cimport Units, UnitStack
 # from .reaction import ExtensibleRate, ExtensibleRateData
 from .reaction cimport (ExtensibleRate, ExtensibleRateData, CxxReaction,
@@ -244,6 +244,18 @@ cdef void callback_v_d_dp_dp(PyFuncInfo& funcInfo, size_array2 sizes, double arg
         funcInfo.setExceptionType(<PyObject*>exc_type)
         funcInfo.setExceptionValue(<PyObject*>exc_value)
 
+# Wrapper for void(vector<Eigen::Triplet>&)
+cdef void callback_v_vet(PyFuncInfo& funcInfo, vector[CxxEigenTriplet]& jac_vector) noexcept:
+    try:
+        python_trips = triplets_to_python(jac_vector)
+        # convert vector to python object
+        (<object>funcInfo.func())(python_trips)
+        jac_vector = python_to_triplets(python_trips)
+    except BaseException as e:
+        exc_type, exc_value = sys.exc_info()[:2]
+        funcInfo.setExceptionType(<PyObject*>exc_type)
+        funcInfo.setExceptionValue(<PyObject*>exc_value)
+
 cdef int assign_delegates(obj, CxxDelegator* delegator) except -1:
     """
     Use methods defined in the Python class ``obj`` as delegates for the C++
@@ -305,7 +317,6 @@ cdef int assign_delegates(obj, CxxDelegator* delegator) except -1:
 
         if when is None:
             continue
-
         cxx_name = stringify(options[0])
         callback = options[1].replace(' ', '')
 
@@ -366,6 +377,8 @@ cdef int assign_delegates(obj, CxxDelegator* delegator) except -1:
         elif callback == 'void(double,double*,double*)':
             delegator.setDelegate(cxx_name,
                 pyOverride(<PyObject*>method, callback_v_d_dp_dp), cxx_when)
+        elif callback == 'void(vector[CxxEigenTriplet]&)':
+            delegator.setDelegate(cxx_name, pyOverride(<PyObject*>method, callback_v_vet), cxx_when)
         else:
             raise ValueError("Don't know how to set delegates for functions "
                 f"with signature '{callback}'")
