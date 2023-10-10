@@ -183,14 +183,12 @@ void IdealGasMoleReactor::eval(double time, double* LHS, double* RHS)
     }
 }
 
-Eigen::SparseMatrix<double> IdealGasMoleReactor::jacobian()
+void IdealGasMoleReactor::buildJacobian(vector<Eigen::Triplet<double>>& jacVector)
 {
     if (m_nv == 0) {
         throw CanteraError("IdealGasMoleReactor::jacobian",
                            "Reactor must be initialized first.");
     }
-    // clear former jacobian elements
-    m_jac_trips.clear();
     // dnk_dnj represents d(dot(n_k)) / d (n_j) but is first assigned as
     // d (dot(omega)) / d c_j, it is later transformed appropriately.
     Eigen::SparseMatrix<double> dnk_dnj = m_kin->netProductionRates_ddCi();
@@ -215,7 +213,7 @@ Eigen::SparseMatrix<double> IdealGasMoleReactor::jacobian()
     // as it substantially reduces matrix sparsity
     for (int k = 0; k < dnk_dnj.outerSize(); k++) {
         for (Eigen::SparseMatrix<double>::InnerIterator it(dnk_dnj, k); it; ++it) {
-            m_jac_trips.emplace_back(static_cast<int>(it.row() + m_sidx),
+            jacVector.emplace_back(static_cast<int>(it.row() + m_sidx),
                 static_cast<int>(it.col() + m_sidx), it.value());
         }
     }
@@ -243,7 +241,7 @@ Eigen::SparseMatrix<double> IdealGasMoleReactor::jacobian()
         for (size_t j = 0; j < m_nv; j++) {
             double ydotPerturbed = rhsPerturbed[j] / lhsPerturbed[j];
             double ydotCurrent = rhsCurrent[j] / lhsCurrent[j];
-            m_jac_trips.emplace_back(static_cast<int>(j), 0,
+            jacVector.emplace_back(static_cast<int>(j), 0,
                                      (ydotPerturbed - ydotCurrent) / deltaTemp);
         }
         // d T_dot/dnj
@@ -272,14 +270,10 @@ Eigen::SparseMatrix<double> IdealGasMoleReactor::jacobian()
         Eigen::VectorXd uk_dnkdnj_sums = dnk_dnj.transpose() * internal_energy;
         // add derivatives to jacobian
         for (size_t j = 0; j < ssize; j++) {
-            m_jac_trips.emplace_back(0, static_cast<int>(j + m_sidx),
+            jacVector.emplace_back(0, static_cast<int>(j + m_sidx),
                 (specificHeat[j] * qdot - NCv * uk_dnkdnj_sums[j]) * denom);
         }
     }
-    // convert triplets to sparse matrix
-    Eigen::SparseMatrix<double> jac(m_nv, m_nv);
-    jac.setFromTriplets(m_jac_trips.begin(), m_jac_trips.end());
-    return jac;
 }
 
 }
