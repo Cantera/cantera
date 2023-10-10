@@ -63,6 +63,15 @@ cdef class SystemJacobian:
         def __set__(self, side):
             self._base.get().setPreconditionerSide(stringify(side))
 
+    property gamma:
+        """ Get/Set the value of gamma used in the expression P = (I - gamma * J).
+        """
+        def __get__(self):
+            return self.pbase.get().gamma()
+
+        def __set__(self, value):
+            self.pbase.get().setGamma(value)
+
 
 cdef class EigenSparseJacobian(SystemJacobian):
     """
