@@ -7,6 +7,14 @@ from pytest import approx
 from .utilities import unittest
 
 import cantera as ct
+
+try:
+    ct.drawnetwork._import_graphviz()
+except ImportError:
+    pass
+
+from cantera.drawnetwork import _graphviz
+
 from . import utilities
 
 class TestReactor(utilities.CanteraTest):
@@ -856,6 +864,127 @@ class TestReactor(utilities.CanteraTest):
         # reactors do not support preconditioning
         with self.assertRaises(ct.CanteraError):
             self.net.initialize()
+
+    @utilities.unittest.skipIf(_graphviz is None, "graphviz is not installed")
+    def test_draw_reactor(self):
+        self.make_reactors()
+        T1, P1, X1 = 300, 101325, 'O2:1.0'
+        self.gas1.TPX = T1, P1, X1
+        r1 = self.reactorClass(self.gas1, node_attr={'fillcolor': 'red'})
+        r1.name = "Name"
+        r1.node_attr = {'style': 'filled', 'fillcolor': 'green'}
+        dot = r1.draw()
+        expected = ['\tName [fillcolor=green style=filled]\n']
+        self.assertEqual(dot.body, expected)
+
+        r1.node_attr = {"style": "filled"}
+        expected = [('\tName [label="{T (K)\\n300.00|P (bar)\\n1.013}|" '
+                     'color=blue shape=Mrecord style=filled xlabel=Name]\n')]
+        dot = r1.draw(print_state=True, node_attr={"style": "",
+                                                   "color": "blue"})
+        self.assertEqual(dot.body, expected)
+
+        r1.node_attr = {}
+        expected = [('\tName [label="{T (K)\\n300.00|P (bar)\\n1.013}|X (%)'
+                     '\\nO2: 100.00" shape=Mrecord xlabel=Name]\n')]
+        dot = r1.draw(print_state=True, species="X")
+        self.assertEqual(dot.body, expected)
+
+        expected = [('\tName [label="{T (K)\\n300.00|P (bar)\\n1.013}|Y (%)'
+                     '\\nO2: 100.00" shape=Mrecord xlabel=Name]\n')]
+        dot = r1.draw(print_state=True, species="Y")
+        self.assertEqual(dot.body, expected)
+
+        expected = [('\tName [label="{T (K)\\n300.00|P (bar)\\n1.013}|X (%)'
+                     '\\nH2: 0.00" shape=Mrecord xlabel=Name]\n')]
+        dot = r1.draw(print_state=True, species=["H2"])
+        self.assertEqual(dot.body, expected)
+
+        dot = _graphviz.Digraph()
+        r1.draw(dot)
+        expected = ['\tName\n']
+        self.assertEqual(dot.body, expected)
+
+    @utilities.unittest.skipIf(_graphviz is None, "graphviz is not installed")
+    def test_draw_wall(self):
+        T1, P1, X1 = 300, 101325, 'O2:1.0'
+        T2, P2, X2 = 600, 101325, 'O2:1.0'
+        self.make_reactors(T1=T1, P1=P1, X1=X1, T2=T2, P2=P2, X2=X2)
+        self.r1.name = "Name 1"
+        self.r2.name = "Name 2"
+        w = ct.Wall(self.r1, self.r2, U=0.1, edge_attr={'style': 'dotted'})
+        w.edge_attr = {'color': 'blue'}
+        dot = w.draw(node_attr={'style': 'filled'},
+                     edge_attr={'style': 'dashed'})
+        expected = [('\t"Name 2" -> "Name 1" [label="q = 30 W" '
+                     'color=blue style=dashed]\n')]
+        self.assertEqual(dot.body, expected)
+
+    @utilities.unittest.skipIf(_graphviz is None, "graphviz is not installed")
+    def test_draw_flow_controller(self):
+        self.make_reactors(n_reactors=1)
+        self.r1.name = "Reactor"
+        gas2 = ct.Solution('h2o2.yaml', transport_model=None)
+        gas2.TPX = 300, 10*101325, 'H2:1.0'
+        inlet_reservoir = ct.Reservoir(gas2, name='Inlet')
+        gas2.TPX = 300, 101325, 'H2:1.0'
+        outlet_reservoir = ct.Reservoir(gas2, name='Outlet')
+        mfc = ct.MassFlowController(inlet_reservoir, self.r1, mdot=2,
+                                    edge_attr={'xlabel': 'MFC'})
+        pfc = ct.PressureController(self.r1, outlet_reservoir, primary=mfc)
+        pfc.edge_attr = {'color': 'purple'}
+        self.net.advance_to_steady_state()
+        dot = mfc.draw(node_attr={'style': 'filled'},
+                       edge_attr={'style': 'dotted'})
+        expected = [('\tInlet -> Reactor [label="m = 2 kg/s" '
+                     'style=dotted xlabel=MFC]\n')]
+        self.assertEqual(dot.body, expected)
+
+    @utilities.unittest.skipIf(_graphviz is None, "graphviz is not installed")
+    def test_draw_network(self):
+        self.make_reactors()
+        self.r1.name = "Hot reactor"
+        self.r2.name = "Cold reactor"
+        self.add_wall(U=10)
+        gas2 = ct.Solution('h2o2.yaml', transport_model=None)
+        gas2.TPX = 600, 101325, 'O2:1.0'
+        hot_inlet = ct.Reservoir(gas2, name='Hot inlet')
+        gas2.TPX = 200, 101325, 'O2:1.0'
+        cold_inlet = ct.Reservoir(gas2, name='Cold inlet')
+        outlet = ct.Reservoir(gas2, name='Outlet')
+        mfc_hot1 = ct.MassFlowController(hot_inlet, self.r1, mdot=2)
+        mfc_hot2 = ct.MassFlowController(hot_inlet, self.r1, mdot=1)
+        mfc_cold = ct.MassFlowController(cold_inlet, self.r2, mdot=2)
+        pfc_hot1 = ct.PressureController(self.r1, outlet, primary=mfc_hot1)
+        pfc_hot2 = ct.PressureController(self.r1, outlet, primary=mfc_hot2)
+        pfc_cold = ct.PressureController(self.r2, outlet, primary=mfc_cold)
+        self.net.advance_to_steady_state()
+        dot = self.net.draw(mass_flow_attr={'color': 'green'},
+                            heat_flow_attr={'color': 'orange'},
+                            print_state=True)
+        expected = [('\t"Cold reactor" [label="{T (K)\\n202.18|P (bar)'
+                     '\\n1.013}|" shape=Mrecord xlabel="Cold reactor"]\n'),
+                    ('\t"Hot reactor" [label="{T (K)\\n598.68|P (bar)'
+                     '\\n1.013}|" shape=Mrecord xlabel="Hot reactor"]\n'),
+                    ('\t"Hot inlet" [label="{T (K)\\n600.00|P (bar)'
+                     '\\n1.013}|" shape=Mrecord xlabel="Hot inlet"]\n'),
+                    ('\t"Cold inlet" [label="{T (K)\\n200.00|P (bar)'
+                     '\\n1.013}|" shape=Mrecord xlabel="Cold inlet"]\n'),
+                    ('\tOutlet [label="{T (K)\\n200.00|P (bar)'
+                     '\\n1.013}|" shape=Mrecord xlabel=Outlet]\n'),
+                    ('\t"Cold inlet" -> "Cold reactor" [label="m = 2 kg/s" '
+                     'color=green]\n'),
+                    ('\t"Hot reactor" -> Outlet [label="m = 3 kg/s" '
+                     'color=green]\n'),
+                    ('\t"Cold reactor" -> Outlet [label="m = 2 kg/s" '
+                     'color=green]\n'),
+                    ('\t"Hot reactor" -> "Cold reactor" [label="q = 4e+03 W" '
+                     'color=orange style=dashed]\n'),
+                    ('\t"Hot inlet" -> "Hot reactor" [label="m = 3 kg/s" '
+                     'color=green]\n')]
+        # use sets because order can be random
+        self.assertSetEqual(set(dot.body), set(expected))
+
 
 class TestMoleReactor(TestReactor):
     reactorClass = ct.MoleReactor
