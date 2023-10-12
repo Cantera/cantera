@@ -815,13 +815,17 @@ cdef class ReactorSurface:
     def __dealloc__(self):
         del self.surface
 
-    def __init__(self, kin=None, Reactor r=None, *, A=None):
+    def __init__(self, kin=None, Reactor r=None, *, A=None, node_attr=None):
         if kin is not None:
             self.kinetics = kin
         if r is not None:
             self.install(r)
         if A is not None:
             self.area = A
+        if node_attr is not None:
+            self.node_attr = node_attr
+        else:
+            self.node_attr = {'shape': 'underline'}
 
     def install(self, Reactor r):
         """
@@ -829,6 +833,7 @@ cdef class ReactorSurface:
         """
         r._surfaces.append(self)
         r.reactor.addSurface(self.surface)
+        self._reactor = r
 
     property area:
         """ Area on which reactions can occur [m^2] """
@@ -871,6 +876,43 @@ cdef class ReactorSurface:
             cdef np.ndarray[np.double_t, ndim=1] data = \
                     np.ascontiguousarray(coverages, dtype=np.double)
             self.surface.setCoverages(&data[0])
+
+    @property
+    def reactor(self):
+        """Return the `Reactor` object the surface is connected to."""
+        return self._reactor
+
+    def draw(self, dot=None, print_state=False, species=None, **kwargs):
+        """
+        Draw the surface as a ``graphviz`` ``dot`` node connected to its
+        reactor.
+        The node is added to an existing ``dot`` graph if provided.
+        Optionally include current reactor state in the reactor node.
+
+        :param dot:
+            ``graphviz.graphs.BaseGraph`` object to which the reactor is added.
+            If not provided, a new ``DiGraph`` is created. Defaults to ``None``.
+        :param print_state:
+            Whether state information of the reactor is printed into its node.
+            Defaults to ``False``
+        :param species:
+            If ``print_state`` is ``True``, define how species are to be printed.
+            Options are ``'X'`` and ``'Y'`` for mole and mass fractions of all
+            species, respectively, or an iterable that contains the desired species
+            names as strings. Defaults to ``None``
+        :param **kwargs:
+            Keyword options can contain ``graph_attr`` and general ``node_attr``
+            and ``edge_attr`` to be passed on to the ``graphviz`` functions to
+            control the appearance of the graph, the surface node and its
+            connection to the reactor. ``node_attr`` defined in the surface
+            or reactor objects themselve have priority.
+        :return:
+            ``graphviz.graphs.BaseGraph`` object with surface and connected
+            reactor.
+
+        """
+        return draw_surface(self, dot=dot, print_state=print_state,
+                            species=species, **kwargs)
 
     def add_sensitivity_reaction(self, int m):
         """

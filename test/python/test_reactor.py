@@ -1996,6 +1996,20 @@ class TestSurfaceKinetics(utilities.CanteraTest):
                                         rtol=1e-5, atol=1e-9, xtol=1e-12)
         self.assertFalse(bool(bad), bad)
 
+    @utilities.unittest.skipIf(_graphviz is None, "graphviz is not installed")
+    def test_draw_ReactorSurface(self):
+        self.make_reactors()
+        surf = ct.ReactorSurface(self.interface, self.r1)
+        self.r1.name = "Reactor"
+
+        dot = surf.draw(node_attr={'style': 'filled'},
+                        edge_attr={'color': 'red'})
+        expected = ['\tReactor [style=filled]\n',
+                    '\t"Reactor surface" [shape=underline style=filled]\n',
+                    ('\tReactor -> "Reactor surface" '
+                     '[arrowhead=none color=red style=dotted]\n')]
+        self.assertEqual(dot.body, expected)
+
 
 class TestReactorSensitivities(utilities.CanteraTest):
     def test_sensitivities1(self):

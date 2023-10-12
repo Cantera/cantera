@@ -258,6 +258,7 @@ cdef class ExtensibleReactor(Reactor):
 cdef class ReactorSurface:
     cdef CxxReactorSurface* surface
     cdef Kinetics _kinetics
+    cdef ReactorBase _reactor
 
 cdef class WallBase:
     cdef shared_ptr[CxxWallBase] _wall
