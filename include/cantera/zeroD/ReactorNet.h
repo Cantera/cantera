@@ -299,7 +299,45 @@ public:
     //! @param settings the settings map propagated to all reactors and kinetics objects
     virtual void setDerivativeSettings(AnyMap& settings);
 
+    //! Calculate the system Jacobian using a finite difference method.
+    //!
+    //! This method is used only for informational purposes. Jacobian calculations
+    //! for the full reactor system are handled internally by CVODES.
+    //!
+    //! @warning  This method is an experimental part of the %Cantera
+    //! API and may be changed or removed without notice.
+    virtual Eigen::SparseMatrix<double> finiteDifferenceJacobian();
+
+    //! A wrapper method to calculate the system jacobian as Eigen::SparseMatrix<double>
+    //! @warning Depending on the particular implementation, this may return an
+    //! approximate Jacobian intended only for use in forming a preconditioner for
+    //! iterative solvers.
+    //!
+    //! @warning  This method is an experimental part of the %Cantera
+    //! API and may be changed or removed without notice.
+    virtual Eigen::SparseMatrix<double> jacobian() {
+        vector<Eigen::Triplet<double>> jac_trips;
+        // Add before, during, after evals
+        buildJacobian(jac_trips);
+        // construct jacobian from vector
+        Eigen::SparseMatrix<double> jac(m_nv, m_nv);
+        jac.setFromTriplets(jac_trips.begin(), jac_trips.end());
+        return jac;
+    }
+
 protected:
+    //! Calculate the Jacobian of the entire reactor network.
+    //! @param jac_vector vector where jacobian triplets are added
+    //! @param offset offset added to the row and col indices of the elements
+    //! @warning Depending on the particular implementation, this may return an
+    //! approximate Jacobian intended only for use in forming a preconditioner for
+    //! iterative solvers.
+    //! @ingroup derivGroup
+    //!
+    //! @warning  This method is an experimental part of the %Cantera
+    //! API and may be changed or removed without notice.
+    virtual void buildJacobian(vector<Eigen::Triplet<double>>& jacVector);
+
     //! Check that preconditioning is supported by all reactors in the network
     virtual void checkPreconditionerSupported() const;
 
