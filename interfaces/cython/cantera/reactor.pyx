@@ -10,7 +10,7 @@ from .thermo cimport *
 from ._utils cimport pystr, stringify, comp_map, py_to_anymap, anymap_to_py
 from ._utils import *
 from .delegator cimport *
-from .drawnetwork import draw_reactor, draw_reactor_net, draw_connections
+from .drawnetwork import *
 
 _reactor_counts = _defaultdict(int)
 
