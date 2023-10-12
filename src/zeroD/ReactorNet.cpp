@@ -775,20 +775,10 @@ void ReactorNet::preconditionerSetup(double t, double* y, double gamma)
     updateState(yCopy.data());
     // Create jacobian triplet vector
     vector<Eigen::Triplet<double>> jac_vector;
-    vector<size_t> jstarts;
-    // Get jacobians and give elements to preconditioners
-    jstarts.push_back(jac_vector.size());
-    for (size_t i = 0; i < m_reactors.size(); i++) {
-        m_reactors[i]->buildJacobian(jac_vector);
-        jstarts.push_back(jac_vector.size());
-    }
+    buildJacobian(jac_vector);
     // Add to preconditioner with offset
-    for (size_t i=0; i < m_reactors.size(); i++) {
-        for (size_t j = jstarts[i]; j < jstarts[i+1]; j++) {
-            auto it = jac_vector[j];
-            precon->setValue(it.row() + m_start[i], it.col() + m_start[i],
-            it.value());
-        }
+    for (auto it : jac_vector) {
+        precon->setValue(it.row(), it.col(), it.value());
     }
     // post reactor setup operations
     precon->updatePreconditioner();
@@ -816,6 +806,74 @@ void ReactorNet::checkPreconditionerSupported() const {
         }
     }
 }
+
+void ReactorNet::buildJacobian(vector<Eigen::Triplet<double>>& jacVector)
+{
+    // network must be initialized for the jacobian
+    if (! m_init) {
+        initialize();
+    }
+    // Create jacobian triplet vector
+    vector<size_t> jstarts;
+    // Get jacobians and give elements to preconditioners
+    jstarts.push_back(jacVector.size());
+    for (size_t i = 0; i < m_reactors.size(); i++) {
+        m_reactors[i]->buildJacobian(jacVector);
+        jstarts.push_back(jacVector.size());
+    }
+    // Add to preconditioner with offset
+    for (size_t i=0; i < m_reactors.size(); i++) {
+        for (size_t j = jstarts[i]; j < jstarts[i+1]; j++) {
+            auto it = jacVector[j];
+            auto newTrip = Eigen::Triplet<double>(it.row() + m_start[i], it.col()
+                + m_start[i], it.value());
+            jacVector[j] = newTrip;
+        }
+    }
+}
+
+Eigen::SparseMatrix<double> ReactorNet::finiteDifferenceJacobian()
+{
+    // network must be initialized for the jacobian
+    if (! m_init) {
+        initialize();
+    }
+
+    // clear former jacobian elements
+    vector<Eigen::Triplet<double>> jac_trips;
+
+    // Get the current state
+    Eigen::ArrayXd yCurrent(m_nv);
+    getState(yCurrent.data());
+
+    Eigen::ArrayXd yPerturbed = yCurrent;
+    Eigen::ArrayXd ydotCurrent(m_nv), ydotPerturbed(m_nv);
+
+    eval(m_time, yCurrent.data(), ydotCurrent.data(), m_sens_params.data());
+    double rel_perturb = std::sqrt(std::numeric_limits<double>::epsilon());
+
+    for (size_t j = 0; j < m_nv; j++) {
+        yPerturbed = yCurrent;
+        double delta_y = std::max(std::abs(yCurrent[j]), 1000 * m_atols) * rel_perturb;
+        yPerturbed[j] += delta_y;
+        ydotPerturbed = 0;
+        eval(m_time, yPerturbed.data(), ydotPerturbed.data(), m_sens_params.data());
+        // d ydot_i/dy_j
+        for (size_t i = 0; i < m_nv; i++) {
+            if (ydotCurrent[i] != ydotPerturbed[i]) {
+                jac_trips.emplace_back(
+                    static_cast<int>(i), static_cast<int>(j),
+                    (ydotPerturbed[i] - ydotCurrent[i]) / delta_y);
+            }
+        }
+    }
+    updateState(yCurrent.data());
+
+    Eigen::SparseMatrix<double> jac(m_nv, m_nv);
+    jac.setFromTriplets(jac_trips.begin(), jac_trips.end());
+    return jac;
+}
+
 
 SteadyReactorSolver::SteadyReactorSolver(ReactorNet* net, double* x0)
     : m_net(net)

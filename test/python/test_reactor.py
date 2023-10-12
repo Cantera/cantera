@@ -1543,6 +1543,17 @@ class TestIdealGasMoleReactor(TestMoleReactor):
     reactorClass = ct.IdealGasMoleReactor
     test_preconditioner_unsupported = None
 
+    @pytest.mark.diagnose
+    def test_heat_transfer_network(self):
+        # Result should be the same if (m * cp) / (U * A) is held constant
+        self.make_reactors(T1=300, T2=1000)
+        self.add_wall(U=200, A=1.0)
+        self.net.preconditioner = ct.AdaptivePreconditioner()
+        print(self.net.finite_difference_jacobian)
+        # self.net.advance(1.0)
+        # T1a = self.r1.T
+        # T2a = self.r2.T
+
     def test_adaptive_precon_integration(self):
         # Network one with non-mole reactor
         T0 = 900
