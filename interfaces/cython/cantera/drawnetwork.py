@@ -126,6 +126,8 @@ def draw_reactor_net(n, **kwargs):
     for r in reactors:
         draw_reactor(r, dot, **kwargs)
         connections.update(r.walls + r.inlets + r.outlets)
+        for surface in r.surfaces:
+            draw_surface(surface, dot, **kwargs)
 
     # some Reactors or Reservoirs only exist as connecting nodes
     connected_reactors = get_connected_reactors(connections)
@@ -165,7 +167,37 @@ def get_connected_reactors(connections):
     return connected_reactors
 
 
-@needs_graphviz
+def draw_surface(surface, dot=None, **kwargs):
+    """
+    Draw `ReactorSurface` object with its connected reactor.
+
+    :param surface:
+        `ReactorSurface` object.
+    :param dot:
+        ``graphviz.graphs.BaseGraph`` object to which the connection is added.
+        If not provided, a new ``DiGraph`` is created. Defaults to ``None``.
+    :param **kwargs:
+        Keyword options can contain ``graph_attr`` and general ``node_attr``
+        and ``edge_attr`` to be passed on to the ``graphviz`` functions to
+        control the appearance of the graph, reactor nodes, and connection
+        edges. ``node_attr`` and ``edge_attr`` defined in the objects
+        themselves have priority.
+    :return:
+        A ``graphviz.graphs.BaseGraph`` object depicting the surface and its
+        reactor.
+
+    """
+    r = surface.reactor
+    dot = draw_reactor(r, dot, **kwargs)
+    name = f"{r.name} surface"
+    edge_attr = {"style": "dotted", "arrowhead": "none",
+                 **kwargs.get("edge_attr", {})}
+
+    node_attr = dict(kwargs.get("node_attr", {}), **surface.node_attr)
+    dot.node(name, **node_attr)
+    dot.edge(r.name, name, **edge_attr)
+
+    return dot
 def draw_connections(connections, dot=None, **kwargs):
     """
     Draw connections between reactors and reservoirs. This includes flow
