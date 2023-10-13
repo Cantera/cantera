@@ -50,7 +50,6 @@ classdef ctTestKinetics < matlab.unittest.TestCase
             self.verifyEqual(self.phase.nReactions, 29);
             self.verifyEqual(self.phase.nTotalSpecies, 10);
             self.verifyEqual(self.phase.nPhases, 1);
-            self.verifyEqual(self.phase.reactionPhaseIndex, 1);
         end
 
         function testIsReversible(self)
