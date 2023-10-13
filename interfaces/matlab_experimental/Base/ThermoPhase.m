@@ -34,7 +34,7 @@ classdef ThermoPhase < handle
         %     String. Can be 'mole'/'molar'/'Molar'/'Mole' or 'mass'/'Mass'.
         basis
 
-        phaseName % Name of the phase.
+        name % Name of the phase.
 
         electricPotential % Electric potential. Units: V.
 
@@ -78,7 +78,7 @@ classdef ThermoPhase < handle
 
         P % Pressure. Units: Pa.
 
-        D % Density. Units: kg/m^3.
+        D % Density depending on the basis. Units: kmol/m^3 (molar) kg/m^3 (mass)
 
         H % Enthalpy depending on the basis. Units: J/kmol (molar) J/kg (mass).
 
@@ -251,7 +251,7 @@ classdef ThermoPhase < handle
 
     properties (Dependent = true)
 
-        V % Get Specific volume. Units: m^3/kg.
+        V % Basis-dependent specific volume. Units: m^3/kmol (molar) m^3/kg (mass).
 
         % Get/Set density [kg/m^3 or kmol/m^3] and pressure [Pa].
         DP
@@ -459,7 +459,7 @@ classdef ThermoPhase < handle
         %% ThermoPhase Utility Methods
 
         function display(tp)
-            ctFunc('thermo_print', tp.tpID, 1, 1);
+            disp(tp.report);
         end
 
         function tp = equilibrate(tp, xy, solver, rtol, maxsteps, maxiter, loglevel)
@@ -988,7 +988,7 @@ classdef ThermoPhase < handle
 
         end
 
-        function s = get.phaseName(tp)
+        function s = get.name(tp)
             s = ctString('thermo_getName', tp.tpID);
         end
 
@@ -1026,7 +1026,11 @@ classdef ThermoPhase < handle
         end
 
         function density = get.D(tp)
-            density = ctFunc('thermo_density', tp.tpID);
+            if strcmp(tp.basis, 'mass')
+                density = ctFunc('thermo_density', tp.tpID);
+            else
+                density = tp.molarDensity;
+            end
         end
 
         function volume = get.V(tp)
@@ -1314,7 +1318,7 @@ classdef ThermoPhase < handle
 
         end
 
-        function set.phaseName(tp, str)
+        function set.name(tp, str)
             ctFunc('thermo_setName', tp.tpID, str);
         end
 
@@ -1384,6 +1388,9 @@ classdef ThermoPhase < handle
         function set.DP(tp, input)
             d = input{1};
             p = input{2};
+            if strcmp(tp.basis, 'molar')
+                d = d*tp.meanMolecularWeight;
+            end
             ctFunc('thermo_set_DP', tp.tpID, [d, p]);
         end
 
@@ -1419,6 +1426,9 @@ classdef ThermoPhase < handle
         function set.PV(tp, input)
             p = input{1};
             v = input{2};
+            if strcmp(tp.basis, 'molar')
+                v = v/tp.meanMolecularWeight;
+            end
             ctFunc('thermo_set_PV', tp.tpID, [p, v]);
         end
 
@@ -1501,6 +1511,7 @@ classdef ThermoPhase < handle
             v = input{2};
             if strcmp(tp.basis, 'molar')
                 s = s/tp.meanMolecularWeight;
+                v = v/tp.meanMolecularWeight;
             end
             ctFunc('thermo_set_SV', tp.tpID, [s, v]);
         end
@@ -1518,6 +1529,9 @@ classdef ThermoPhase < handle
         function set.TD(tp, input)
             t = input{1};
             d = input{2};
+            if strcmp(tp.basis, 'molar')
+                d = d*tp.meanMolecularWeight;
+            end
             ctFunc('thermo_set_TD', tp.tpID, [t, d]);
         end
 
@@ -1575,6 +1589,9 @@ classdef ThermoPhase < handle
         function set.TV(tp, input)
             t = input{1};
             v = input{2};
+            if strcmp(tp.basis, 'molar')
+                v = v/tp.meanMolecularWeight;
+            end
             ctFunc('thermo_set_TV', tp.tpID, [t, v]);
         end
 
@@ -1612,6 +1629,7 @@ classdef ThermoPhase < handle
             v = input{2};
             if strcmp(tp.basis, 'molar')
                 u = u/tp.meanMolecularWeight;
+                v = v/tp.meanMolecularWeight;
             end
             ctFunc('thermo_set_UV', tp.tpID, [u, v]);
         end
@@ -1630,6 +1648,7 @@ classdef ThermoPhase < handle
             v = input{1};
             h = input{2};
             if strcmp(tp.basis, 'molar')
+                v = v/tp.meanMolecularWeight;
                 h = h/tp.meanMolecularWeight;
             end
             ctFunc('thermo_set_VH', tp.tpID, [v, h]);

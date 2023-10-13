@@ -188,9 +188,9 @@ classdef ctTestThermo < matlab.unittest.TestCase
             self.phase.basis = 'mass';
             self.verifyMatches(self.phase.basis, 'mass');
 
-            self.verifyInstanceOf(self.phase.phaseName, 'char');
-            self.phase.phaseName = 'spam';
-            self.verifyMatches(self.phase.phaseName, 'spam');
+            self.verifyInstanceOf(self.phase.name, 'char');
+            self.phase.name = 'spam';
+            self.verifyMatches(self.phase.name, 'spam');
         end
 
         function testPhases(self)
@@ -293,7 +293,7 @@ classdef ctTestThermo < matlab.unittest.TestCase
         function testReport(self)
             str = self.phase.report;
 
-            self.verifySubstring(str, self.phase.phaseName);
+            self.verifySubstring(str, self.phase.name);
             self.verifySubstring(str, 'temperature');
 
             for i = 1:self.phase.nSpecies
@@ -316,6 +316,8 @@ classdef ctTestThermo < matlab.unittest.TestCase
             val = self.phase.P;
             exp = OneAtm;
             self.verifyEqual(val, exp, 'RelTol', self.rtol);
+
+            self.phase.basis = 'mass';
 
             val = self.phase.D;
             exp = self.phase.P * self.phase.meanMolecularWeight / ...
@@ -341,12 +343,12 @@ classdef ctTestThermo < matlab.unittest.TestCase
             val1 = [self.phase.H, self.phase.S, ...
                     self.phase.U, self.phase.G, ...
                     self.phase.cp, self.phase.cv];
-            self.phase.basis = 'mass';
+            self.phase.basis = 'molar';
             val2 = [self.phase.H, self.phase.S, ...
                     self.phase.U, self.phase.G, ...
                     self.phase.cp, self.phase.cv];
-            exp = val2.*self.phase.meanMolecularWeight;
-            tol = ones(1, 9).*self.rtol;
+            exp = val2./self.phase.meanMolecularWeight;
+            tol = ones(1, 6).*self.rtol;
             self.verifyEqual(val1, exp, 'RelTol', tol);
 
             val = self.phase.isothermalCompressibility;
