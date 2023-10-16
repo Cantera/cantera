@@ -199,6 +199,7 @@ def draw_surface(surface, dot=None, **kwargs):
 
     return dot
 def draw_connections(connections, dot=None, **kwargs):
+def draw_connections(connections, dot=None, show_wall_velocity=True, **kwargs):
     """
     Draw connections between reactors and reservoirs. This includes flow
     controllers and walls.
@@ -272,6 +273,27 @@ def draw_connections(connections, dot=None, **kwargs):
         # remove duplicates from the set of the connections still to be drawn
         connections.difference_update(duplicates | inv_duplicates)
 
+        # id to ensure that wall velocity and heat flow arrows align
+        samehead = sametail = r_in.name + "-" + r_out.name
+        # display wall velocity as arrow indicating the wall's movement
+        try:
+            if c.velocity != 0 and show_wall_velocity:
+                if c.velocity > 0:
+                    v = c.velocity
+                    inflow_name, outflow_name = r_in.name, r_out.name
+                else:
+                    v = -c.velocity
+                    inflow_name, outflow_name = r_out_name, r_in_name
+
+                dot.edge(inflow_name, outflow_name,
+                         **{"arrowtail": "teecrow", "dir": "back",
+                            "arrowsize": "1.5", "penwidth": "0", "weight": "2",
+                            "samehead": samehead, "sametail": sametail,
+                            "taillabel": f"wall velocity = {v:.2g} m/s",
+                            **kwargs.get("wall_edge_attr", {})})
+        except AttributeError:
+            pass
+
         # sum up heat rate/mass flow rate while considering the direction
         rate = (getattr(c, rate_attr)
                 + sum(getattr(c, rate_attr) for c in duplicates)
@@ -289,6 +311,8 @@ def draw_connections(connections, dot=None, **kwargs):
         elif rate_attr == "heat_rate":
             label = f"q = {rate:.2g} W"
 
-        dot.edge(inflow_name, outflow_name, **{"label": label, **edge_attr})
+        dot.edge(inflow_name, outflow_name,
+                 **{"label": label, "samehead": samehead, "sametail": sametail,
+                    **edge_attr})
 
     return dot

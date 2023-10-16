@@ -917,7 +917,26 @@ class TestReactor(utilities.CanteraTest):
         dot = w.draw(node_attr={'style': 'filled'},
                      edge_attr={'style': 'dashed'})
         expected = [('\t"Name 2" -> "Name 1" [label="q = 30 W" '
-                     'color=blue style=dashed]\n')]
+                     'color=blue samehead="Name 1-Name 2" '
+                     'sametail="Name 1-Name 2" style=dashed]\n')]
+        self.assertEqual(dot.body, expected)
+
+    @utilities.unittest.skipIf(_graphviz is None, "graphviz is not installed")
+    def test_draw_moving_wall(self):
+        T1, P1, X1 = 300, 101325, 'O2:1.0'
+        T2, P2, X2 = 600, 101325, 'O2:1.0'
+        self.make_reactors(T1=T1, P1=P1, X1=X1, T2=T2, P2=P2, X2=X2)
+        self.r1.name = "Name 1"
+        self.r2.name = "Name 2"
+        w = ct.Wall(self.r1, self.r2, U=0.1, velocity=1)
+        dot = w.draw()
+        expected = [('\t"Name 1" -> "Name 2" [arrowsize=1.5 arrowtail=teecrow '
+                     'dir=back penwidth=0 samehead="Name 1-Name 2" '
+                     'sametail="Name 1-Name 2" '
+                     'taillabel="wall velocity = 1 m/s" weight=2]\n'),
+                    ('\t"Name 2" -> "Name 1" [label="q = 30 W" '
+                     'color=red samehead="Name 1-Name 2" '
+                     'sametail="Name 1-Name 2" style=dashed]\n')]
         self.assertEqual(dot.body, expected)
 
     @utilities.unittest.skipIf(_graphviz is None, "graphviz is not installed")
@@ -937,6 +956,7 @@ class TestReactor(utilities.CanteraTest):
         dot = mfc.draw(node_attr={'style': 'filled'},
                        edge_attr={'style': 'dotted'})
         expected = [('\tInlet -> Reactor [label="m = 2 kg/s" '
+                     'samehead="Inlet-Reactor" sametail="Inlet-Reactor" '
                      'style=dotted xlabel=MFC]\n')]
         self.assertEqual(dot.body, expected)
 
@@ -973,15 +993,20 @@ class TestReactor(utilities.CanteraTest):
                     ('\tOutlet [label="{T (K)\\n200.00|P (bar)'
                      '\\n1.013}|" shape=Mrecord xlabel=Outlet]\n'),
                     ('\t"Cold inlet" -> "Cold reactor" [label="m = 2 kg/s" '
-                     'color=green]\n'),
+                     'color=green samehead="Cold inlet-Cold reactor" '
+                     'sametail="Cold inlet-Cold reactor"]\n'),
                     ('\t"Hot reactor" -> Outlet [label="m = 3 kg/s" '
-                     'color=green]\n'),
+                     'color=green samehead="Hot reactor-Outlet" '
+                     'sametail="Hot reactor-Outlet"]\n'),
                     ('\t"Cold reactor" -> Outlet [label="m = 2 kg/s" '
-                     'color=green]\n'),
+                     'color=green samehead="Cold reactor-Outlet" '
+                     'sametail="Cold reactor-Outlet"]\n'),
                     ('\t"Hot reactor" -> "Cold reactor" [label="q = 4e+03 W" '
-                     'color=orange style=dashed]\n'),
+                     'color=orange samehead="Hot reactor-Cold reactor" '
+                     'sametail="Hot reactor-Cold reactor" style=dashed]\n'),
                     ('\t"Hot inlet" -> "Hot reactor" [label="m = 3 kg/s" '
-                     'color=green]\n')]
+                     'color=green samehead="Hot inlet-Hot reactor" '
+                     'sametail="Hot inlet-Hot reactor"]\n')]
         # use sets because order can be random
         self.assertSetEqual(set(dot.body), set(expected))
 
