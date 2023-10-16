@@ -163,6 +163,28 @@ def draw_reactor_net(n, **kwargs):
     # collect elements as set to avoid duplicates
     reactors = set(n.reactors)
     connections = set()
+    drawn_reactors = set()
+
+    reactor_groups = {}
+    for r in reactors:
+        if r.groupname not in reactor_groups:
+            reactor_groups[r.groupname] = set()
+        reactor_groups[r.groupname].add(r)
+
+    reactor_groups.pop("", None)
+    if reactor_groups:
+        for name, group in reactor_groups.items():
+            sub = _graphviz.Digraph(name=f"cluster_{name}",
+                                    graph_attr=kwargs.get("graph_attr"))
+            for r in group:
+                _draw_reactor(r, sub, **kwargs)
+                drawn_reactors.add(r)
+                connections.update(r.walls + r.inlets + r.outlets)
+                for surface in r.surfaces:
+                    _draw_surface(surface, sub, **kwargs)
+            sub.attr(label=name)
+            dot.subgraph(sub)
+    reactors.difference_update(drawn_reactors)
 
     for r in reactors:
         _draw_reactor(r, dot, **kwargs)
@@ -174,7 +196,7 @@ def draw_reactor_net(n, **kwargs):
     connected_reactors = _get_connected_reactors(connections)
 
     # remove already drawn reactors and draw new reactors
-    connected_reactors.difference_update(reactors)
+    connected_reactors.difference_update(drawn_reactors)
     for r in connected_reactors:
         _draw_reactor(r, dot, **kwargs)
 

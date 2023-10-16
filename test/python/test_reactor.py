@@ -918,6 +918,24 @@ class TestReactor(utilities.CanteraTest):
         self.assertEqual(dot.body, expected)
 
     @utilities.unittest.skipIf(_graphviz is None, "graphviz is not installed")
+    def test_draw_grouped_reactors(self):
+        self.make_reactors()
+        self.r1.name = "Reactor 1"
+        self.r2.name = "Reactor 2"
+        self.r1.groupname = "Group 1"
+        self.r2.groupname = "Group 2"
+        dot = self.net.draw()
+        expected = ['\tsubgraph "cluster_Group 1" {\n',
+                    '\t\t"Reactor 1"\n',
+                    '\t\tlabel="Group 1"\n',
+                    '\t}\n',
+                    '\tsubgraph "cluster_Group 2" {\n',
+                    '\t\t"Reactor 2"\n',
+                    '\t\tlabel="Group 2"\n',
+                    '\t}\n']
+        self.assertSetEqual(set(dot.body), set(expected))
+
+    @utilities.unittest.skipIf(_graphviz is None, "graphviz is not installed")
     def test_draw_wall(self):
         T1, P1, X1 = 300, 101325, 'O2:1.0'
         T2, P2, X2 = 600, 101325, 'O2:1.0'

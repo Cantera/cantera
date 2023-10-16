@@ -229,6 +229,7 @@ cdef class ReactorBase:
 cdef class Reactor(ReactorBase):
     cdef CxxReactor* reactor
     cdef object _kinetics
+    cdef public str groupname
 
 cdef class MoleReactor(Reactor):
     pass
