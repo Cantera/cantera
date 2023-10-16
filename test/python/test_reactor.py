@@ -906,6 +906,18 @@ class TestReactor(utilities.CanteraTest):
         self.assertEqual(dot.body, expected)
 
     @utilities.unittest.skipIf(_graphviz is None, "graphviz is not installed")
+    def test_draw_reactors_same_name(self):
+        self.make_reactors()
+        self.r1.name = 'Reactor'
+        self.r2.name = 'Reactor'
+        dot = self.net.draw()
+        expected = ['\tReactor\n', '\tReactor_1\n']
+        self.assertEqual(dot.body, expected)
+        # ensure reactor_names dict has been cleared
+        dot = self.net.draw()
+        self.assertEqual(dot.body, expected)
+
+    @utilities.unittest.skipIf(_graphviz is None, "graphviz is not installed")
     def test_draw_wall(self):
         T1, P1, X1 = 300, 101325, 'O2:1.0'
         T2, P2, X2 = 600, 101325, 'O2:1.0'
