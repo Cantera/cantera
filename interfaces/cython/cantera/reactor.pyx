@@ -208,7 +208,8 @@ cdef class Reactor(ReactorBase):
     def __cinit__(self, *args, **kwargs):
         self.reactor = <CxxReactor*>(self.rbase)
 
-    def __init__(self, contents=None, *, name=None, energy='on', **kwargs):
+    def __init__(self, contents=None, *, name=None, energy='on',
+                 groupname=None, **kwargs):
         """
         :param contents:
             Reactor contents. If not specified, the reactor is initially empty.
@@ -220,7 +221,9 @@ cdef class Reactor(ReactorBase):
         :param energy:
             Set to ``'on'`` or ``'off'``. If set to ``'off'``, the energy
             equation is not solved, and the temperature is held at its
-            initial value..
+            initial value.
+        :param groupname:
+            Group reactors of the same ``groupname`` when drawn using graphviz.
 
         Some examples showing how to create :class:`Reactor` objects are
         shown below.
@@ -246,6 +249,11 @@ cdef class Reactor(ReactorBase):
             self.energy_enabled = False
         elif energy != 'on':
             raise ValueError("'energy' must be either 'on' or 'off'")
+
+        if groupname is not None:
+            self.groupname = groupname
+        else:
+            self.groupname = ""
 
     def insert(self, _SolutionBase solution):
         """
