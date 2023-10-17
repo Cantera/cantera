@@ -12,11 +12,11 @@ with Cantera's basic functionality and capabilities, give some examples of how t
 Cantera within your preferred interface language, and demonstrate some basic
 troubleshooting.
 
-{doc}`Getting Started with Python <python-tutorial>`
+- [Getting Started with Python](python-tutorial)
 
 ## Frequently asked questions
 
-See the {doc}`FAQ <faq>` for answers to some common issues that arise when using
+See the [FAQ](faq) for answers to some common issues that arise when using
 Cantera. If your question isn't answered here, consider asking us on the
 <a href="https://cantera.org/community.html#the-cantera-users-group">Cantera Users' Group</a>.
 
@@ -26,7 +26,8 @@ The tutorials in this section are designed to help you accomplish a specific tas
 using Cantera, such as evaluating the ignition delay time for a fuel under different
 conditions, or calculating the voltage of a Lithium-ion battery as it is discharged.
 
-{doc}`ck2yaml-tutorial`
+- [](ck2yaml-tutorial)
+- [](thermobuild)
 
 ```{toctree}
 :hidden:
@@ -34,4 +35,5 @@ conditions, or calculating the voltage of a Lithium-ion battery as it is dischar
 python-tutorial
 faq
 ck2yaml-tutorial
+thermobuild
 ```
