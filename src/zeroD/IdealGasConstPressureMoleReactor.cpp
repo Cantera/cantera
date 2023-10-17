@@ -203,6 +203,7 @@ void IdealGasConstPressureMoleReactor::buildJacobian(
             jacVector.emplace_back(static_cast<int>(j), 0,
                                      (ydotPerturbed - ydotCurrent) / deltaTemp);
         }
+
         // d T_dot/dnj
         // allocate vectors for whole system
         Eigen::VectorXd enthalpy = Eigen::VectorXd::Zero(ssize);
@@ -228,7 +229,13 @@ void IdealGasConstPressureMoleReactor::buildJacobian(
             jacVector.emplace_back(0, static_cast<int>(j + m_sidx),
                 (specificHeat[j] * qdot - NCp * hk_dnkdnj_sums[j]) * denom);
         }
+
+        // build wall jacobian
+        buildWallJacobian(jacVector);
     }
+
+    // build flow jacobian
+    buildFlowJacobian(jacVector);
 }
 
 size_t IdealGasConstPressureMoleReactor::componentIndex(const string& nm) const
@@ -264,6 +271,25 @@ string IdealGasConstPressureMoleReactor::componentName(size_t k) {
     }
     throw CanteraError("IdealGasConstPressureMoleReactor::componentName",
                        "Index is out of bounds.");
+}
+
+double IdealGasConstPressureMoleReactor::moleDerivative(size_t index)
+{
+    // derivative of temperature transformed by ideal gas law
+    vector<double> moles(m_nsp);
+    getMoles(moles.data());
+    double dTdni = pressure() * m_vol / GasConstant / std::accumulate(moles.begin(), moles.end(), 0.0);
+    return dTdni;
+}
+
+double IdealGasConstPressureMoleReactor::moleRadiationDerivative(size_t index)
+{
+    // derivative of temperature transformed by ideal gas law
+    vector<double> moles(m_nsp);
+    getMoles(moles.data());
+    double dT4dni = std::pow(pressure() * m_vol / GasConstant, 4);
+    dT4dni *= std::pow(1 / std::accumulate(moles.begin(), moles.end(), 0.0), 5);
+    return dT4dni;
 }
 
 }
