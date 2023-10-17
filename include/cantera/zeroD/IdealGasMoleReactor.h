@@ -43,6 +43,18 @@ public:
 
     bool preconditionerSupported() const override {return true;};
 
+    double temperatureDerivative() override { return 1; };
+
+    double temperatureRadiationDerivative() override {
+        return 4 * std::pow(temperature(), 3);
+    }
+
+    double moleDerivative(size_t index) override;
+
+    double moleRadiationDerivative(size_t index) override;
+
+    size_t speciesOffset() const override { return m_sidx; };
+
 protected:
     void setThermo(ThermoPhase& thermo) override;
 
