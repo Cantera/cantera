@@ -6,6 +6,8 @@
 #include "cantera/base/stringUtils.h"
 #include "cantera/numerics/Func1.h"
 #include "cantera/zeroD/Wall.h"
+#include "cantera/thermo/ThermoPhase.h"
+#include "cantera/zeroD/ReactorNet.h"
 
 namespace Cantera
 {
@@ -73,6 +75,68 @@ double Wall::heatRate()
         q1 += m_area * m_qf->eval(m_time);
     }
     return q1;
+}
+
+
+void Wall::buildReactorJacobian(ReactorBase* r, vector<Eigen::Triplet<double>>& jacVector)
+{
+    // get derivative of heat transfer for both reactors
+    vector<Eigen::Triplet<double>> network;
+    size_t nsp = r->phase()->thermo()->nSpecies();
+    size_t sidx = r->speciesOffset();
+    size_t eidx = r->energyIndex();
+    // define a scalar for direction based on left and right
+    double scalar = (r == m_left) ? 1.0 : -1.0;
+    // elements within the current reactor
+    // find dQdni for the current reactor w.r.t current reactor
+    for (size_t i = sidx; i < nsp + sidx; i++) {
+        double dQdni = m_rrth * m_area * scalar * r->moleDerivative(i);
+        dQdni += m_emiss * m_area * scalar * r->moleRadiationDerivative(i);
+        jacVector.emplace_back(eidx, i, dQdni);
+    }
+}
+
+void Wall::buildNetworkJacobian(vector<Eigen::Triplet<double>>& jacVector)
+{
+    // No interdependent terms for reservoirs
+    if (m_right->type() == "Reservoir" || m_left->type() == "Reservoir") {
+        return;
+    }
+    // return if the jacobian has been calculated
+    if (m_jac_calculated) {
+        return;
+    }
+    // get derivatives for inter-dependent reactor terms
+    //variables for the right side
+    vector<Eigen::Triplet<double>> network;
+    size_t r_nsp = m_right->phase()->thermo()->nSpecies();
+    size_t r_sidx = m_right->speciesOffset();
+    size_t r_net = m_right->network().globalStartIndex((Reactor* ) m_right);
+    size_t r_eidx = m_right->energyIndex();
+
+    // variables for the left side
+    size_t l_nsp = m_left->phase()->thermo()->nSpecies();
+    size_t l_sidx = m_left->speciesOffset();
+    size_t l_net = m_left->network().globalStartIndex((Reactor* ) m_left);
+    size_t l_eidx = m_left->energyIndex();
+
+    if (((Reactor* ) m_right)->energyEnabled()) {
+        // find dQdni for the right reactor w.r.t left reactor
+        for (size_t i = l_sidx; i < l_sidx + l_nsp; i++) {
+            double dQdni = m_rrth * m_area * m_left->moleDerivative(i);
+            dQdni += m_emiss * m_area * m_left->moleRadiationDerivative(i);
+            jacVector.emplace_back(r_eidx + r_net, i + l_net, dQdni);
+        }
+    }
+
+    if (((Reactor* ) m_left)->energyEnabled()) {
+        // find dQdni for the left reactor w.r.t right reactor
+        for (size_t i = r_sidx; i < r_sidx + r_nsp; i++) {
+            double dQdni = - m_rrth * m_area * m_right->moleDerivative(i);
+            dQdni -= m_emiss * m_area * m_right->moleRadiationDerivative(i);
+            jacVector.emplace_back(l_eidx + l_net, i + r_net, dQdni);
+        }
+    }
 }
 
 }

@@ -1538,21 +1538,67 @@ class TestIdealGasConstPressureMoleReactor(TestConstPressureMoleReactor):
         self.net2.initialize()
         assert self.net2.linear_solver_type == "GMRES"
 
+    def test_heat_transfer_network(self):
+        # create first reactor
+        gas1 = ct.Solution("h2o2.yaml", "ohmech")
+        gas1.TPX = 600, ct.one_atm, "O2:1.0"
+        r1 = self.reactorClass(gas1)
+        r1.chemistry_enabled = False
+
+        # create second reactor
+        gas2 = ct.Solution("h2o2.yaml", "ohmech")
+        gas2.TPX = 300, ct.one_atm, "O2:1.0"
+        r2 = self.reactorClass(gas2)
+        r2.chemistry_enabled = False
+
+        # create wall
+        U = 2.0
+        A = 3.0
+        w = ct.Wall(r1, r2, U=U, A=A)
+        net = ct.ReactorNet([r1, r2])
+        jac = net.jacobian
+
+        # check for values
+        for i in range(gas1.n_species):
+            assert np.isclose(jac[0, i + 1 + r1.n_vars], - U * A * gas2.T)
+            assert np.isclose(jac[r1.n_vars, i + 1], U * A * gas1.T)
+            if (i + 1 != 2):
+                assert np.isclose(jac[0, i + 1], U * A * gas1.T, rtol=1e-2)
+                assert np.isclose(jac[r1.n_vars, i + 1 + r1.n_vars], - U * A * gas2.T, rtol=1e-2)
+
 
 class TestIdealGasMoleReactor(TestMoleReactor):
     reactorClass = ct.IdealGasMoleReactor
     test_preconditioner_unsupported = None
 
-    @pytest.mark.diagnose
     def test_heat_transfer_network(self):
-        # Result should be the same if (m * cp) / (U * A) is held constant
-        self.make_reactors(T1=300, T2=1000)
-        self.add_wall(U=200, A=1.0)
-        self.net.preconditioner = ct.AdaptivePreconditioner()
-        print(self.net.finite_difference_jacobian)
-        # self.net.advance(1.0)
-        # T1a = self.r1.T
-        # T2a = self.r2.T
+        # create first reactor
+        gas1 = ct.Solution("h2o2.yaml", "ohmech")
+        gas1.TPX = 600, ct.one_atm, "O2:1.0"
+        r1 = self.reactorClass(gas1)
+        r1.chemistry_enabled = False
+
+        # create second reactor
+        gas2 = ct.Solution("h2o2.yaml", "ohmech")
+        gas2.TPX = 300, ct.one_atm, "O2:1.0"
+        r2 = self.reactorClass(gas2)
+        r2.chemistry_enabled = False
+
+        # create wall
+        U = 2.0
+        A = 3.0
+        w = ct.Wall(r1, r2, U=U, A=A)
+        net = ct.ReactorNet([r1, r2])
+        jac = net.jacobian
+
+        # check for values
+        for i in range(gas1.n_species):
+            assert np.isclose(jac[0, i + 2 + r1.n_vars], - U * A * gas2.T)
+            assert np.isclose(jac[r1.n_vars, i + 2], U * A * gas1.T)
+            if (i + 2 != 3):
+                assert np.isclose(jac[0, i + 2], U * A * gas1.T, rtol=1e-2)
+                assert np.isclose(jac[r1.n_vars, i + 2 + r1.n_vars], - U * A * gas2.T, rtol=1e-2)
+
 
     def test_adaptive_precon_integration(self):
         # Network one with non-mole reactor

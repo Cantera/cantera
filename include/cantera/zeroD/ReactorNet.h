@@ -281,6 +281,20 @@ public:
     //! reactor network.
     size_t globalComponentIndex(const string& component, size_t reactor=0);
 
+    //! Return the index corresponding to the start of the reactor specific state
+    //! vector in the reactor with index *reactor* in the global state vector for the
+    //! reactor network.
+    size_t globalStartIndex(Reactor* curr_reactor) {
+        for (size_t i = 0; i < m_reactors.size(); i++) {
+            if (curr_reactor == m_reactors[i]) {
+                return m_start[i];
+            }
+        }
+        throw CanteraError("ReactorNet::globalStartIndex: ",
+                curr_reactor->name(), " not found in network.");
+        return npos;
+    }
+
     //! Return the name of the i-th component of the global state vector. The
     //! name returned includes both the name of the reactor and the specific
     //! component, for example `'reactor1: CH4'`.
@@ -481,6 +495,10 @@ protected:
     //! "left hand side" of each governing equation
     vector<double> m_LHS;
     vector<double> m_RHS;
+
+    //! derivative settings
+    bool m_jac_skip_walls = false;
+    bool m_jac_skip_flow_devices = false;
 };
 
 

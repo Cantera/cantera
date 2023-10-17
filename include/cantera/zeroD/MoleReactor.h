@@ -7,6 +7,7 @@
 #define CT_MOLEREACTOR_H
 
 #include "Reactor.h"
+#include "cantera/zeroD/Wall.h"
 
 namespace Cantera
 {
@@ -40,6 +41,8 @@ public:
     double lowerBound(size_t k) const override;
     void resetBadValues(double* y) override;
 
+    size_t energyIndex() const override { return m_eidx; };
+
 protected:
     //! For each surface in the reactor, update vector of triplets with all relevant
     //! surface jacobian derivatives of species with respect to species
@@ -62,6 +65,9 @@ protected:
 
     //! const value for the species start index
     const size_t m_sidx = 2;
+
+    //! index of state variable associated with energy
+    const size_t m_eidx = 0;
 };
 
 }

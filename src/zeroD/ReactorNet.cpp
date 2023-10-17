@@ -726,6 +726,16 @@ void ReactorNet::setDerivativeSettings(AnyMap& settings)
     for (size_t i = 0; i < m_reactors.size(); i++) {
         m_reactors[i]->setDerivativeSettings(settings);
     }
+    // set network settings
+    bool force = settings.empty();
+    if (force || settings.hasKey("skip-walls")) {
+        m_jac_skip_walls = settings.getBool("skip-walls",
+            false);
+    }
+    if (force || settings.hasKey("skip-flow-devices")) {
+        m_jac_skip_flow_devices = settings.getBool("skip-flow-devices",
+            false);
+    }
 }
 
 AnyMap ReactorNet::solverStats() const
@@ -813,6 +823,26 @@ void ReactorNet::buildJacobian(vector<Eigen::Triplet<double>>& jacVector)
     if (! m_init) {
         initialize();
     }
+    // loop through and set connectors not found
+    for (auto r : m_reactors) {
+        // walls
+        if (!m_jac_skip_walls) {
+            for (size_t i = 0; i < r->nWalls(); i++) {
+                r->wall(i).jacobianNotCalculated();
+            }
+        }
+        // flow devices
+        if (!m_jac_skip_flow_devices) {
+            // outlets
+            for (size_t i = 0; i < r->nOutlets(); i++) {
+                r->outlet(i).jacobianNotCalculated();
+            }
+            // inlets
+            for (size_t i = 0; i < r->nInlets(); i++) {
+                r->inlet(i).jacobianNotCalculated();
+            }
+        }
+    }
     // Create jacobian triplet vector
     vector<size_t> jstarts;
     // Get jacobians and give elements to preconditioners
@@ -828,6 +858,31 @@ void ReactorNet::buildJacobian(vector<Eigen::Triplet<double>>& jacVector)
             auto newTrip = Eigen::Triplet<double>(it.row() + m_start[i], it.col()
                 + m_start[i], it.value());
             jacVector[j] = newTrip;
+        }
+    }
+
+    // loop through all connections and then set them found so calculations are not
+    // repeated
+    for (auto r : m_reactors) {
+        // walls
+        if (!m_jac_skip_walls) {
+            for (size_t i = 0; i < r->nWalls(); i++) {
+                r->wall(i).buildNetworkJacobian(jacVector);
+                r->wall(i).jacobianCalculated();
+            }
+        }
+        // flow devices
+        if (m_jac_skip_flow_devices) {
+            // outlets
+            for (size_t i = 0; i < r->nOutlets(); i++) {
+                r->outlet(i).buildNetworkJacobian(jacVector);
+                r->outlet(i).jacobianCalculated();
+            }
+            // inlets
+            for (size_t i = 0; i < r->nInlets(); i++) {
+                r->inlet(i).buildNetworkJacobian(jacVector);
+                r->inlet(i).jacobianCalculated();
+            }
         }
     }
 }

@@ -42,6 +42,17 @@ void Reactor::setDerivativeSettings(AnyMap& settings)
     for (auto S : m_surfaces) {
         S->kinetics()->setDerivativeSettings(settings);
     }
+
+    // set reactor settings
+    bool force = settings.empty();
+    if (force || settings.hasKey("skip-walls")) {
+        m_jac_skip_walls = settings.getBool("skip-walls",
+            false);
+    }
+    if (force || settings.hasKey("skip-flow-devices")) {
+        m_jac_skip_flow_devices = settings.getBool("skip-flow-devices",
+            false);
+    }
 }
 
 void Reactor::getState(double* y)
@@ -628,6 +639,28 @@ void Reactor::setAdvanceLimit(const string& nm, const double limit)
     if (std::none_of(m_advancelimits.begin(), m_advancelimits.end(),
                      [](double val){return val>0;})) {
         m_advancelimits.resize(0);
+    }
+}
+
+void Reactor:: buildWallJacobian(vector<Eigen::Triplet<double>>& jacVector)
+{
+    if (!m_jac_skip_walls) {
+        for (size_t i = 0; i < m_wall.size(); i++) {
+            m_wall[i]->buildReactorJacobian(this, jacVector);
+        }
+    }
+}
+
+void Reactor::buildFlowJacobian(vector<Eigen::Triplet<double>>& jacVector)
+{
+    if (!m_jac_skip_flow_devices) {
+        for (size_t i = 0; i < m_outlet.size(); i++) {
+            m_outlet[i]->buildReactorJacobian(this, jacVector);
+        }
+
+        for (size_t i = 0; i <m_outlet.size(); i++) {
+            m_inlet[i]->buildReactorJacobian(this, jacVector);
+        }
     }
 }
 

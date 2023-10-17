@@ -231,7 +231,27 @@ public:
         throw NotImplementedError(type() + "::buildJacobian");
     }
 
-    // virtual void jacobian()
+    //! Calculate the Jacobian of a Reactor specialization for wall contributions.
+    //! @param jacVector vector where jacobian triplets are added
+    //! @warning Depending on the particular implementation, this may return an
+    //! approximate Jacobian intended only for use in forming a preconditioner for
+    //! iterative solvers.
+    //! @ingroup derivGroup
+    //!
+    //! @warning  This method is an experimental part of the %Cantera
+    //! API and may be changed or removed without notice.
+    virtual void buildWallJacobian(vector<Eigen::Triplet<double>>& jacVector);
+
+    //! Calculate flow contributions to the Jacobian of a Reactor specialization.
+    //! @param jac_vector vector where jacobian triplets are added
+    //! @warning Depending on the particular implementation, this may return an
+    //! approximate Jacobian intended only for use in forming a preconditioner for
+    //! iterative solvers.
+    //! @ingroup derivGroup
+    //!
+    //! @warning  This method is an experimental part of the %Cantera
+    //! API and may be changed or removed without notice.
+    virtual void buildFlowJacobian(vector<Eigen::Triplet<double>>& jacVector);
 
     //! Calculate the reactor-specific Jacobian using a finite difference method.
     //!
@@ -320,6 +340,10 @@ protected:
 
     //! Vector of triplets representing the jacobian
     vector<Eigen::Triplet<double>> m_jac_trips;
+    //! Boolean to skip walls in jacobian
+    bool m_jac_skip_walls = false;
+    //! Boolean to skip flow devices in jacobian
+    bool m_jac_skip_flow_devices = false;
 };
 }
 
