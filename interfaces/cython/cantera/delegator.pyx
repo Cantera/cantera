@@ -9,7 +9,7 @@ from libc.stdlib cimport malloc
 from libc.string cimport strcpy
 
 from ._utils import CanteraError
-from ._utils cimport stringify, pystr, anymap_to_py, py_to_anymap, triplets_to_python, python_to_triplets
+from ._utils cimport stringify, pystr, anymap_to_py, py_to_anymap, triplets_to_python, python_to_triplets, get_triplet
 from .units cimport Units, UnitStack
 # from .reaction import ExtensibleRate, ExtensibleRateData
 from .reaction cimport (ExtensibleRate, ExtensibleRateData, CxxReaction,
@@ -247,12 +247,14 @@ cdef void callback_v_d_dp_dp(PyFuncInfo& funcInfo, size_array2 sizes, double arg
 # Wrapper for void(vector<Eigen::Triplet>&)
 cdef void callback_v_vet(PyFuncInfo& funcInfo, vector[CxxEigenTriplet]& jac_vector) noexcept:
     try:
-        python_trips = triplets_to_python(jac_vector)
+        python_trips = []
         # convert vector to python object
         (<object>funcInfo.func())(python_trips)
-        jac_vector = python_to_triplets(python_trips)
+        # add the triplets to the jacobian vector
+        for r, c, v in python_trips:
+            jac_vector.push_back(get_triplet(r, c, v))
     except BaseException as e:
-        exc_type, exc_value = sys.exc_info()[:2]
+        exc_type, exc_value = _sys.exc_info()[:2]
         funcInfo.setExceptionType(<PyObject*>exc_type)
         funcInfo.setExceptionValue(<PyObject*>exc_value)
 
