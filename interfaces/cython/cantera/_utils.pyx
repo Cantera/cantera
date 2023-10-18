@@ -547,6 +547,10 @@ cdef vector[CxxEigenTriplet] python_to_triplets(triplets):
         trips.push_back(dereference(trip_ptr))
     return trips
 
+cdef CxxEigenTriplet get_triplet(row, col, val):
+    cdef CxxEigenTriplet* trip_ptr = new CxxEigenTriplet(row, col, val)
+    return dereference(trip_ptr)
+
 cdef triplets_to_python(vector[CxxEigenTriplet]& triplets):
     values = []
     cdef size_t row

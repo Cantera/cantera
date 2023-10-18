@@ -122,3 +122,5 @@ cdef anyvalue_to_python(string name, CxxAnyValue& v)
 
 cdef vector[CxxEigenTriplet] python_to_triplets(triplets) except *
 cdef triplets_to_python(vector[CxxEigenTriplet]& triplets)
+
+cdef CxxEigenTriplet get_triplet(row, col, val) except *
