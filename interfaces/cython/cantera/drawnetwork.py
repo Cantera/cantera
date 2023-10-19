@@ -65,7 +65,7 @@ def _clear_reactor_names(func):
 
 
 @_clear_reactor_names
-def draw_reactor(r, dot=None, *, print_state=False, species=None,
+def draw_reactor(r, dot=None, *, print_state=False, species=None, species_units="percent",
                  graph_attr=None, node_attr=None):
     """
     Draw `ReactorBase` object as ``graphviz`` ``dot`` node.
@@ -85,6 +85,9 @@ def draw_reactor(r, dot=None, *, print_state=False, species=None,
         Options are ``'X'`` and ``'Y'`` for mole and mass fractions of all
         species, respectively, or an iterable that contains the desired species
         names as strings. Defaults to ``None``.
+    :param species_units:
+        Defines the units the species are displayed in as either `"percent"` or
+        `"ppm"`. Defaults to `"percent"`.
     :param graph_attr:
         Attributes to be passed to the ``graphviz.Digraph`` function that
         control the general appearance of the drawn network.
@@ -104,7 +107,8 @@ def draw_reactor(r, dot=None, *, print_state=False, species=None,
 
 
 @_needs_graphviz
-def _draw_reactor(r, dot=None, print_state=False, species=None, **kwargs):
+def _draw_reactor(r, dot=None, print_state=False, species=None, species_units="percent",
+                  **kwargs):
     if not dot:
         dot = _graphviz.Digraph(name=r.name,
                                 graph_attr=kwargs.get("graph_attr"))
@@ -116,22 +120,32 @@ def _draw_reactor(r, dot=None, print_state=False, species=None, **kwargs):
     if print_state:
         T_label = f"T (K)\\n{r.T:.2f}"
         P_label = f"P (bar)\\n{r.thermo.P*1e-5:.3f}"
-        s_label = ""
 
-        if species == "X":
-            X = r.thermo.mole_fraction_dict(1e-4)
-            s_percents = "\\n".join([f"{s}: {v*100:.2f}" for s, v in X.items()])
-            s_label += "X (%)\\n" + s_percents
+        if species == True or species == "X":
+            s_dict = r.thermo.mole_fraction_dict(1e-4)
+            species_list = s_dict.keys()
+            s_label = "X"
         elif species == "Y":
-            Y = r.thermo.mass_fraction_dict(1e-4)
-            s_percents = "\\n".join([f"{s}: {v*100:.2f}" for s, v in Y.items()])
-            s_label += "Y (%)\\n" + s_percents
+            s_dict = r.thermo.mass_fraction_dict(1e-4)
+            species_list = s_dict.keys()
+            s_label = "Y"
+        # If individual species are provided as iterable of strings
+        elif species:
+            s_dict = r.thermo.mole_fraction_dict(threshold=-1)
+            species_list = species
+            s_label = "X"
         else:
-            # If individual species are provided as iterable of strings
-            if species:
-                X = r.thermo.mole_fraction_dict(threshold=-1)
-                s_percents = "\\n".join([f"{s}: {X[s]*100:.2f}" for s in species])
-                s_label += "X (%)\\n" + s_percents
+            s_dict = {}
+            species_list = []
+            s_label = ""
+        s_percents = "\\n".join([f"{s}: {s_dict[s]*100:.2f}" for s in species_list])
+        s_ppm = "\\n".join([f"{s}: {s_dict[s]*1e6:.1f}" for s in species_list])
+
+        if s_label:
+            if species_units == "percent":
+                s_label += " (%)\\n" + s_percents
+            else:
+                s_label += " (ppm)\\n" + s_ppm
 
         # For full state output, shape must be 'Mrecord'
         node_attr.pop("shape", None)
@@ -148,9 +162,9 @@ def _draw_reactor(r, dot=None, print_state=False, species=None, **kwargs):
 
 @_clear_reactor_names
 @_needs_graphviz
-def draw_reactor_net(n, *, print_state=False, species=None, graph_attr=None,
+def draw_reactor_net(n, *, print_state=False, graph_attr=None,
                      node_attr=None, edge_attr=None, heat_flow_attr=None,
-                     mass_flow_attr=None):
+                     mass_flow_attr=None, **kwargs):
     """
     Draw `ReactorNet` object as ``graphviz.graphs.DiGraph``. Connecting flow
     controllers and walls are depicted as arrows.
@@ -158,13 +172,9 @@ def draw_reactor_net(n, *, print_state=False, species=None, graph_attr=None,
     :param n:
         `ReactorNet` object
     :param print_state:
-        Whether state information of the reactors is printed into each node.
-        Defaults to ``False``.
-    :param species:
-        If ``print_state`` is ``True``, define how species are to be printed.
-        Options are ``'X'`` and ``'Y'`` for mole and mass fractions of all
-        species, respectively, or an iterable that contains the desired species
-        names as strings. Defaults to ``None``.
+        Whether state information of each reactor is printed into the
+        respective node. See `draw_reactor` for additional keywords to
+        control this output. Defaults to ``False``.
     :param graph_attr:
         Attributes to be passed to the ``graphviz.Digraph`` function that
         control the general appearance of the drawn network.
@@ -187,6 +197,9 @@ def draw_reactor_net(n, *, print_state=False, species=None, graph_attr=None,
     :param mass_flow_attr:
         Same as `edge_attr` but only applied to edges representing
         `FlowDevice` objects.
+    :param kwargs:
+        Additional keywords are passed on to each call of `draw_reactor`,
+        `draw_surface` and `draw_connections`.
     :return:
         ``graphviz.graphs.BaseGraph`` object with reactor net.
 
@@ -267,7 +280,7 @@ def _get_connected_reactors(connections):
 
 @_clear_reactor_names
 def draw_surface(surface, dot=None, *, print_state=False, species=None,
-                 graph_attr=None, node_attr=None, edge_attr=None):
+                 graph_attr=None, node_attr=None, edge_attr=None, **kwargs):
     """
     Draw `ReactorSurface` object with its connected reactor.
 
@@ -278,12 +291,8 @@ def draw_surface(surface, dot=None, *, print_state=False, species=None,
         If not provided, a new ``DiGraph`` is created. Defaults to ``None``.
     :param print_state:
         Whether state information of the reactor is printed into the node.
+        See `draw_reactor` for additional keywords to control this output.
         Defaults to ``False``.
-    :param species:
-        If ``print_state`` is ``True``, define how species are to be printed.
-        Options are ``'X'`` and ``'Y'`` for mole and mass fractions of all
-        species, respectively, or an iterable that contains the desired species
-        names as strings. Defaults to ``None``.
     :param graph_attr:
         Attributes to be passed to the ``graphviz.Digraph`` function that
         control the general appearance of the drawn network.
@@ -301,6 +310,8 @@ def draw_surface(surface, dot=None, *, print_state=False, species=None,
         (subclasses of `FlowDevice` or walls) themselve have priority.
         See https://graphviz.org/docs/edges/ for a list of all usable
         attributes.
+    :param kwargs:
+        Additional keywords are passed on to `draw_reactor`.
     :return:
         A ``graphviz.graphs.BaseGraph`` object depicting the surface and its
         reactor.
