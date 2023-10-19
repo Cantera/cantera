@@ -9,6 +9,7 @@
 #define CT_SIM1D_H
 
 #include "OneDim.h"
+#include "cantera/base/Array.h"
 
 namespace Cantera
 {
@@ -332,6 +333,8 @@ public:
      * @f]
      */
     void solveAdjoint(const double* b, double* lambda);
+    
+    void solveAdjoint_all(const Array2D* b_all, Array2D* lambda_all);
 
     void resize() override;
 

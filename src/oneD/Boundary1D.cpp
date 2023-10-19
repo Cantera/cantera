@@ -784,4 +784,123 @@ void ReactingSurf1D::show(const double* x)
     }
     writelog("\n");
 }
+
+// ---------------- Inlet1D_liquid methods ----------------
+
+    void Inlet1D_new::setMoleFractions(const std::string& xin)
+    {
+        m_xstr = xin;
+        if (m_flow) {
+            m_flow->phase().setMoleFractionsByName(xin);
+            m_flow->phase().getMassFractions(m_yin.data());
+            needJacUpdate();
+        }
+    }
+
+    void Inlet1D_new::setMoleFractions(const double* xin)
+    {
+        if (m_flow) {
+            m_flow->phase().setMoleFractions(xin);
+            m_flow->phase().getMassFractions(m_yin.data());
+            needJacUpdate();
+        }
+    }
+
+    void Inlet1D_new::init()
+    {
+        _init(0);
+        // if a flow domain is present on the left, then this must be a right inlet.
+        // Note that an inlet object can only be a terminal object - it cannot have
+        // flows on both the left and right
+        if (m_flow_left) {
+            m_ilr = RightInlet;
+            m_flow = m_flow_left;
+        } else if (m_flow_right) {
+            m_ilr = LeftInlet;
+            m_flow = m_flow_right;
+        } else {
+            throw CanteraError("Inlet1D::init","no flow!");
+        }
+
+        // components = u, V, T, lambda, + mass fractions
+        m_nsp = m_flow->phase().nSpecies();
+        m_yin.resize(m_nsp, 0.0);
+        if (m_xstr != "") {
+            setMoleFractions(m_xstr);
+        } else {
+            m_yin[0] = 1.0;
+        }
+    }
+
+    void Inlet1D_new::eval(size_t jg, double* xg, double* rg,
+                       integer* diagg, double rdt)
+    {
+        if (jg != npos && (jg + 2 < firstPoint() || jg > lastPoint() + 2)) {
+            return;
+        }
+        if (m_ilr == LeftInlet) {
+            // Array elements corresponding to the first point of the flow domain
+            double* xb = xg + m_flow->loc();
+            double* rb = rg + m_flow->loc();
+
+            // The first flow residual is for u. This, however, is not modified by
+            // the inlet, since this is set within the flow domain from the
+            // continuity equation.
+
+            // spreading rate. The flow domain sets this to V(0),
+            // so for finite spreading rate subtract m_V0.
+            rb[c_offset_V] -= m_V0;
+            //温度满足enthalpy equation: mass_flux*(H-H0)-heat_conductivity[1]*(T[2]-T[1])/deltax=0
+
+            double heat_cond=m_flow->heat_conductivity()[0];//W/m-K
+            double dT_dx=(-xb[c_offset_T]+xb[c_offset_T+m_flow->nComponents()])/m_flow->grid_dz()[0];//Unit K/m
+            double delta_H=pool->Delta_H_mass(xb,m_flow);
+            double Y_eth_inlet=pool->MassFraction_inlet("C2H5OH");
+            double Y_hep_inlet=pool->MassFraction_inlet("NC7H16");
+
+            if (m_flow->doEnergy(0)) {
+                // The third flow residual is for T, where it is set to T(0).  Subtract
+                // the local temperature to hold the flow T to the inlet T.
+
+                rb[c_offset_T]-= pool->Temperature_interface(xb, m_flow);
+            }
+                
+            if (m_flow->fixed_mdot()) {
+                // The flow domain sets this to -rho*u. Add mdot to specify the mass flow rate.
+                rb[c_offset_L]+=heat_cond*dT_dx/(delta_H);// Used heat flux to calculated mass flow rate
+
+            } else {
+                // if the flow is a freely-propagating flame, mdot is not specified.
+                // Set mdot equal to rho*u, and also set lambda to zero.
+                m_mdot = m_flow->density(0)*xb[0];
+                rb[c_offset_L] = xb[c_offset_L];
+            }
+
+            // add the convective term to the species residual equations
+            for (size_t k = 0; k < m_nsp; k++) {
+            if(k != m_flow_right->leftExcessSpecies()){
+                    if (m_flow->componentName(c_offset_Y+k)=="NC7H16"){
+                        rb[c_offset_Y+k]+= heat_cond*dT_dx/(delta_H)*Y_hep_inlet;//set for mass flux boundary condition
+                    }
+                    if (m_flow->componentName(c_offset_Y+k)=="C2H5OH"){
+                        rb[c_offset_Y+k]+=heat_cond*dT_dx/(delta_H)*Y_eth_inlet;
+
+                    }}
+            }
+        } else {
+            // right inlet
+            // Array elements corresponding to the last point in the flow domain
+            double* rb = rg + loc() - m_flow->nComponents();
+            rb[c_offset_V] -= m_V0;
+            if (m_flow->doEnergy(m_flow->nPoints() - 1)) {
+                rb[c_offset_T] -= m_temp; // T
+            }
+            rb[c_offset_U] += m_mdot; // u
+            for (size_t k = 0; k < m_nsp; k++) {
+                if (k != m_flow_left->rightExcessSpecies()) {
+                    rb[c_offset_Y+k] += m_mdot * m_yin[k];
+                }
+            }
+        }
+    }
 }

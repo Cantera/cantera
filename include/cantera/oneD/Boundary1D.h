@@ -14,6 +14,7 @@
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
 #include "StFlow.h"
+#include "Phase_liquid.h"
 
 namespace Cantera
 {
@@ -388,6 +389,43 @@ protected:
     vector<double> m_work;
     vector<double> m_fixed_cov;
 };
+
+/**
+ * This is a boundary condition from inlet 1D
+ * I want to change from gas boundary to liquid pool boundary:
+ * (Temperature, mass_fraction, lambda)
+ */
+
+class Inlet1D_new : public Inlet1D{
+public:
+
+    void addLiquidBcs(Phase_liquid &m){
+        pool=&m;
+    }
+
+    void setMdot(double mdot) {
+        m_mdot = mdot;
+    }
+    void showMdot() {
+        std::cout<<"Mass flow rate is "<<m_mdot<<std::endl;
+    }
+
+    void setMoleFractions(const std::string& xin);
+    void setMoleFractions(const double* xin);
+
+    double massFraction(size_t k) {
+        return m_yin[k];
+    }
+
+    void init();
+    void eval(size_t jg, double* xg, double* rg,
+                      integer* diagg, double rdt);
+
+    Phase_liquid* Pool(){return pool;}
+protected:
+    Phase_liquid* pool;
+};
+
 
 //! @} End of bdryGroup
 
