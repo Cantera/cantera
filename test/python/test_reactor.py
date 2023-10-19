@@ -900,6 +900,11 @@ class TestReactor(utilities.CanteraTest):
         dot = r1.draw(print_state=True, species=["H2"])
         self.assertEqual(dot.body, expected)
 
+        expected = [('\tName [label="{T (K)\\n300.00|P (bar)\\n1.013}|X (ppm)'
+                     '\\nO2: 1000000.0" shape=Mrecord xlabel=Name]\n')]
+        dot = r1.draw(print_state=True, species=["O2"], species_units="ppm")
+        self.assertEqual(dot.body, expected)
+
         dot = _graphviz.Digraph()
         r1.draw(dot)
         expected = ['\tName\n']

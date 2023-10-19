@@ -160,8 +160,8 @@ cdef class ReactorBase:
         """
         self._walls.append(wall)
 
-    def draw(self, dot=None, *, print_state=False, species=None, graph_attr=None,
-             node_attr=None):
+    def draw(self, dot=None, *, print_state=False, species=None,
+             species_units="percent", graph_attr=None, node_attr=None):
         """
         Draw as ``graphviz`` ``dot`` node.
         The node is added to an existing ``dot`` graph if provided.
@@ -178,6 +178,9 @@ cdef class ReactorBase:
            Options are ``'X'`` and ``'Y'`` for mole and mass fractions of all
            species, respectively, or an iterable that contains the desired species
            names as strings. Defaults to ``None``.
+       :param species_units:
+           Defines the units the species are displayed in as either `"percent"` or
+           `"ppm"`. Defaults to `"percent"`.
        :param graph_attr:
            Attributes to be passed to the ``graphviz.Digraph`` function that
            control the general appearance of the drawn network.
@@ -890,7 +893,7 @@ cdef class ReactorSurface:
         return self._reactor
 
     def draw(self, dot=None, *, print_state=False, species=None,
-             graph_attr=None, node_attr=None, edge_attr=None):
+             graph_attr=None, node_attr=None, edge_attr=None, **kwargs):
         """
         Draw the surface as a ``graphviz`` ``dot`` node connected to its
         reactor.
@@ -903,11 +906,6 @@ cdef class ReactorSurface:
         :param print_state:
             Whether state information of the reactor is printed into its node.
             Defaults to ``False``
-        :param species:
-            If ``print_state`` is ``True``, define how species are to be printed.
-            Options are ``'X'`` and ``'Y'`` for mole and mass fractions of all
-            species, respectively, or an iterable that contains the desired species
-            names as strings. Defaults to ``None``
         :param graph_attr:
             Attributes to be passed to the ``graphviz.Digraph`` function that
             control the general appearance of the drawn network.
@@ -925,6 +923,9 @@ cdef class ReactorSurface:
             (subclasses of `FlowDevice` or walls) themselve have priority.
             See https://graphviz.org/docs/edges/ for a list of all usable
             attributes.
+        :param kwargs:
+            Additional keywords are passed on to each call of `draw_reactor`,
+            `draw_surface` and `draw_connections`.
         :return:
             ``graphviz.graphs.BaseGraph`` object with surface and connected
             reactor.
@@ -2025,7 +2026,7 @@ cdef class ReactorNet:
 
     def draw(self, *, print_state=False, species=None, graph_attr=None,
              node_attr=None, edge_attr=None, heat_flow_attr=None,
-             mass_flow_attr=None):
+             mass_flow_attr=None, **kwargs):
         """
         Draw as ``graphviz.graphs.DiGraph``. Connecting flow controllers and
         walls are depicted as arrows.
@@ -2033,11 +2034,6 @@ cdef class ReactorNet:
         :param print_state:
             Whether state information of the reactors is printed into each node.
             Defaults to ``False``.
-        :param species:
-            If ``print_state`` is ``True``, define how species are to be printed.
-            Options are ``'X'`` and ``'Y'`` for mole and mass fractions of all
-            species, respectively, or an iterable that contains the desired species
-            names as strings. Defaults to ``None``.
         :param graph_attr:
             Attributes to be passed to the ``graphviz.Digraph`` function that
             control the general appearance of the drawn network.
@@ -2060,6 +2056,9 @@ cdef class ReactorNet:
         :param mass_flow_attr:
             Same as `edge_attr` but only applied to edges representing
             `FlowDevice` objects.
+        :param kwargs:
+            Additional keywords are passed on to each call of `draw_reactor`,
+            `draw_surface` and `draw_connections`.
         :return:
             ``graphviz.graphs.BaseGraph`` object with reactor net.
 
