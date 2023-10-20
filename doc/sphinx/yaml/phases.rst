@@ -95,6 +95,8 @@ and optionally reactions that can take place in that phase. The fields of a
     - ``Redlich-Kister`` (:ref:`details <sec-yaml-Redlich-Kister>`)
     - ``Redlich-Kwong`` (:ref:`details <sec-yaml-Redlich-Kwong>`)
 
+.. _sec-yaml-phase-kinetics:
+
 ``kinetics``
     String specifying the kinetics model to be used. Supported model strings
     are:
@@ -133,20 +135,30 @@ and optionally reactions that can take place in that phase. The fields of a
     ``false``. The value set at the phase level may be overridden on individual
     reactions.
 
+.. _sec-yaml-phase-transport:
+
 ``transport``
     String specifying the transport model to be used. Supported model strings
     are:
 
     - ``none``
-    - ``high-pressure`` (:ct:`details <HighPressureGasTransport>`)
-    - ``ionized-gas`` (:ct:`details <IonGasTransport>`)
-    - ``mixture-averaged`` (:ct:`details <MixTransport>`)
-    - ``mixture-averaged-CK`` (:ct:`details <MixTransport>`)
-    - ``multicomponent`` (:ct:`details <MultiTransport>`)
-    - ``multicomponent-CK`` (:ct:`details <MultiTransport>`)
-    - ``unity-Lewis-number`` (:ct:`details <UnityLewisTransport>`)
-    - ``water`` (:ct:`details <WaterTransport>`)
-
+    - ``high-pressure``: A model for high-pressure gas transport properties based on a
+      method of corresponding states (:ct:`details <HighPressureGasTransport>`)
+    - ``ionized-gas``: A model implementing the Stockmayer-(n,6,4) model for transport
+      of ions in a gas (:ct:`details <IonGasTransport>`)
+    - ``mixture-averaged``: The mixture-averaged transport model for ideal gases
+      (:ct:`details <MixTransport>`)
+    - ``mixture-averaged-CK``: The mixture-averaged transport model for ideal gases,
+      using polynomial fits corresponding to Chemkin-II (:ct:`details <MixTransport>`)
+    - ``multicomponent``: The multicomponent transport model for ideal gases
+      (:ct:`details <MultiTransport>`)
+    - ``multicomponent-CK``: The multicomponent transport model for ideal gases, using
+      polynomial fits corresponding to Chemkin-II (:ct:`details <MultiTransport>`)
+    - ``unity-Lewis-number``: A transport model for ideal gases, where diffusion
+      coefficients for all species are set so that the Lewis number is 1
+      (:ct:`details <UnityLewisTransport>`)
+    - ``water``: A transport model for pure water applicable in both liquid and vapor
+      phases (:ct:`details <WaterTransport>`)
 
 .. _sec-yaml-setting-state:
 
@@ -205,8 +217,9 @@ Phase thermodynamic models
 ``binary-solution-tabulated``
 -----------------------------
 
-A phase implementing tabulated standard state thermodynamics for one species in
-a binary solution, as :ct:`described here <BinarySolutionTabulatedThermo>`.
+A phase representing a binary solution where the excess enthalpy and entropy are
+interpolated between tabulated values as a function of mole fraction, as
+:ct:`described here <BinarySolutionTabulatedThermo>`.
 
 Includes the fields of :ref:`sec-yaml-ideal-condensed`, plus:
 
@@ -295,10 +308,9 @@ Example::
 ``Debye-Huckel``
 ----------------
 
-The Debye-Hückel model as :ct:`described here <DebyeHuckel>`.
-
-Additional parameters for this model are contained in the ``activity-data``
-field:
+A dilute liquid electrolyte which obeys the Debye-Hückel formulation for nonideality as
+:ct:`described here <DebyeHuckel>`. Additional parameters for this model are contained
+in the ``activity-data`` field:
 
 ``activity-data``
     The activity data field contains the following fields:
@@ -423,7 +435,7 @@ Additional fields:
 ``fixed-stoichiometry``
 -----------------------
 
-A phase with fixed composition, as :ct:`described here <StoichSubstance>`.
+An incompressible phase with fixed composition, as :ct:`described here <StoichSubstance>`.
 
 
 .. _sec-yaml-HMW-electrolyte:
@@ -555,7 +567,7 @@ Example::
 ``ideal-gas``
 -------------
 
-The ideal gas model as :ct:`described here <IdealGasPhase>`.
+A mixture which obeys the ideal gas law, as :ct:`described here <IdealGasPhase>`.
 
 Example::
 
@@ -573,7 +585,7 @@ Example::
 ``ideal-molal-solution``
 ------------------------
 
-A phase based on the mixing-rule assumption that all molality-based activity
+An ideal solution based on the mixing-rule assumption that all molality-based activity
 coefficients are equal to one, as :ct:`described here <IdealMolalSoln>`.
 
 Additional fields:
@@ -627,7 +639,7 @@ Example::
 ``ideal-condensed``
 -------------------
 
-A condensed phase ideal solution as :ct:`described here <IdealSolidSolnPhase>`.
+An ideal liquid or solid solution as :ct:`described here <IdealSolidSolnPhase>`.
 
 Additional fields:
 
@@ -656,7 +668,7 @@ Additional fields:
 ``ideal-surface``
 -----------------
 
-An ideal surface phase, as :ct:`described here <SurfPhase>`.
+An ideal surface between two bulk phases, as :ct:`described here <SurfPhase>`.
 
 Additional fields:
 
@@ -684,8 +696,8 @@ Example::
 ``lattice``
 -----------
 
-A simple thermodynamic model for a bulk phase, assuming a lattice of solid
-atoms, as :ct:`described here <LatticePhase>`.
+A simple thermodynamic model for a bulk phase, assuming an incompressible lattice of
+solid atoms, as :ct:`described here <LatticePhase>`.
 
 Additional fields:
 
@@ -698,7 +710,8 @@ Additional fields:
 ``liquid-water-IAPWS95``
 ------------------------
 
-An equation of state for liquid water, as :ct:`described here <WaterSSTP>`.
+An implementation of the IAPWS95 equation of state for water :cite:p:`wagner2002`, for
+the liquid region only as :ct:`described here <WaterSSTP>`.
 
 
 .. _sec-yaml-Margules:
@@ -751,7 +764,8 @@ Example::
 ``Peng-Robinson``
 -----------------
 
-A multi-species Peng-Robinson phase as :ct:`described here <PengRobinson>`.
+A multi-species real gas following the Peng-Robinson equation of state, as
+:ct:`described here <PengRobinson>`.
 
 The parameters for each species are contained in the corresponding species
 entries. See :ref:`Peng-Robinson species equation of state <sec-yaml-eos-peng-robinson>`.
@@ -834,8 +848,9 @@ Example::
 ``pure-fluid``
 --------------
 
-A phase representing a pure fluid equation of state for one of several species,
-as :ct:`described here <PureFluidPhase>`.
+A phase representing a pure fluid equation of state for one of several pure substances
+including liquid, vapor, two-phase, and supercritical regions, as
+:ct:`described here <PureFluidPhase>`.
 
 Additional fields:
 
