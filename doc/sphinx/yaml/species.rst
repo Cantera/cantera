@@ -336,7 +336,8 @@ Example::
 HKFT
 ----
 
-The Helgeson-Kirkham-Flowers-Tanger model as :ct:`described here <PDSS_HKFT>`.
+The Helgeson-Kirkham-Flowers-Tanger model for aqueous species as
+:ct:`described here <PDSS_HKFT>`.
 
 Additional fields:
 
@@ -394,7 +395,7 @@ Additional fields:
 Peng-Robinson
 -------------
 
-A model where species follow the Peng-Robinson equation of state as
+A model where species follow the Peng-Robinson real gas equation of state as
 :ct:`described here <PengRobinson>`.
 
 Additional fields:
@@ -430,7 +431,7 @@ Example::
 Redlich-Kwong
 -------------
 
-A model where species follow the Redlich-Kwong equation of state as
+A model where species follow the Redlich-Kwong real gas equation of state as
 :ct:`described here <RedlichKwongMFTP>`.
 
 Additional fields:

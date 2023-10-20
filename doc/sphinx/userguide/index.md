@@ -27,6 +27,7 @@ using Cantera, such as evaluating the ignition delay time for a fuel under diffe
 conditions, or calculating the voltage of a Lithium-ion battery as it is discharged.
 
 - [](ck2yaml-tutorial)
+- [](creating-mechanisms)
 - [](thermobuild)
 
 ```{toctree}
@@ -35,5 +36,6 @@ conditions, or calculating the voltage of a Lithium-ion battery as it is dischar
 python-tutorial
 faq
 ck2yaml-tutorial
+creating-mechanisms
 thermobuild
 ```
