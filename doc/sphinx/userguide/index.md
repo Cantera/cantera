@@ -31,6 +31,7 @@ conditions, or calculating the voltage of a Lithium-ion battery as it is dischar
 - [](creating-mechanisms)
 - [](thermobuild)
 - [](input-errors)
+- [](legacy2yaml-tutorial)
 
 ```{toctree}
 :hidden:
@@ -42,4 +43,5 @@ ck2yaml-tutorial
 creating-mechanisms
 thermobuild
 input-errors
+legacy2yaml-tutorial
 ```
