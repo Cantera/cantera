@@ -42,21 +42,41 @@ struct ElectronCollisionPlasmaData : public ReactionData
 /*!
  * The electron collision plasma reaction rate uses the electron collision
  * data and the electron energy distribution to calculate the reaction rate.
+ * Hagelaar and Pitchford @cite hagelaar2005 define the reaction rate
+ * coefficient (Eqn.63) as,
  *
  *   @f[
- *        k_f =  \gamma \int_0^{\infty} \epsilon \sigma F_0 d\epsilon
+ *        k =  \gamma \int_0^{\infty} \epsilon \sigma F_0 d\epsilon,
  *   @f]
  *
- * where @f$ \gamma = (2e/m)^{1/2} @f$ is a constant, @f$ \epsilon @f$ is
- * the electron energy, @f$ \sigma @f$ is the reaction collision cross
- * section, and @f$ F_0 @f$ is the normalized electron energy distribution
- * function.
+ * where @f$ \gamma = \sqrt{2/m_e} @f$ (Eqn.4 in @cite hagelaar2015),
+ * @f$ m_e @f$ [kg] is the electron mass, @f$ \epsilon @f$ [J] is the electron
+ * energy, @f$ \sigma @f$ [m2] is the reaction collision cross section,
+ * @f$ F_0 @f$ [J^(-3/2)] is the normalized electron energy distribution function,
+ * and @f$ k @f$ has the unit of [m3/s]. The collision process is treated as a
+ * bimolecule reaction and should have units of [m3/kmol/s]. Therefore the
+ * forward reaction coefficient becomes,
  *
- * References:
+ *   @f[
+ *        k_f = \gamma N_A \int_0^{\infty} \epsilon \sigma F_0 d\epsilon,
+ *   @f]
  *
- * [1] Hagelaar and Pitchford @cite hagelaar2005.
+ * where @f$ N_A @f$ [kmol] is the Avogadro number. Since the unit of the
+ * electron energy downloaded from https://nl.lxcat.net/data/xml/lxcat_xml.zip
+ * is in [V], the forward reaction coefficient can be written as,
  *
- * @ingroup plasma
+ *   @f[
+ *        k_f = \sqrt{\frac{2e}{m_e}} N_A \int_0^{\infty} \epsilon \sigma F_0 d\epsilon.
+ *   @f]
+ *
+ * For the convience of calculation, the final form becomes,
+ *
+ *   @f[
+ *        k_f = 0.5 \sqrt{\frac{2e}{m_e}} N_A \int_0^{\infty} \sigma F_0 d{\epsilon^2}.
+ *   @f]
+ *
+ * @ingroup otherRateGroup
+ * @since New in %Cantera 3.1.
  */
 class ElectronCollisionPlasmaRate : public ReactionRate
 {
