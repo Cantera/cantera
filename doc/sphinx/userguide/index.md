@@ -13,6 +13,7 @@ Cantera within your preferred interface language, and demonstrate some basic
 troubleshooting.
 
 - [Getting Started with Python](python-tutorial)
+- [](input-tutorial)
 
 ## Frequently asked questions
 
@@ -34,6 +35,7 @@ conditions, or calculating the voltage of a Lithium-ion battery as it is dischar
 :hidden:
 
 python-tutorial
+input-tutorial
 faq
 ck2yaml-tutorial
 creating-mechanisms
