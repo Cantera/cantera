@@ -13,7 +13,7 @@ re-used for other simulations. This guide describes how to write such files to d
 phases and interfaces for use in Cantera simulations.
 
 ```{seealso}
-See the [](yaml-tutorial) for an introduction to the YAML syntax used by Cantera and
+See the [](input-tutorial) for an introduction to the YAML syntax used by Cantera and
 a description of how dimensional values are handled.
 ```
 
