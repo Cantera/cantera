@@ -1991,13 +1991,14 @@ class Parser:
 
             # Write the individual species data
             all_species = list(self.species_list)
+            for surf in self.surfaces:
+                all_species.extend(surf.species_list)
+
             for species in all_species:
                 if species.composition is None:
                     raise InputError('No thermo data found for '
-                                     'species {!r}'.format(species.label))
+                                     f'species {species.label!r}')
 
-            for surf in self.surfaces:
-                all_species.extend(surf.species_list)
             speciesMap = BlockMap([('species', all_species)])
             speciesMap.yaml_set_comment_before_after_key('species', before='\n')
             emitter.dump(speciesMap, dest)
@@ -2043,6 +2044,19 @@ class Parser:
         else:
             phase_name = None
 
+        if surface_file:
+            parser.files.append(surface_file)
+            surface_file = os.path.expanduser(surface_file)
+            if not os.path.exists(surface_file):
+                raise IOError('Missing input file: {0!r}'.format(surface_file))
+            try:
+                # Read input mechanism files
+                parser.load_chemkin_file(surface_file, surface=True)
+            except Exception as err:
+                logger.warning("\nERROR: Unable to parse '{0}' near line {1}:\n{2}\n".format(
+                               surface_file, parser.line_number, err))
+                raise
+
         if thermo_file:
             parser.files.append(thermo_file)
             thermo_file = os.path.expanduser(thermo_file)
@@ -2069,19 +2083,6 @@ class Parser:
             for s in parser.species_list:
                 if s.transport is None:
                     raise InputError("No transport data for species '{}'.", s)
-
-        if surface_file:
-            parser.files.append(surface_file)
-            surface_file = os.path.expanduser(surface_file)
-            if not os.path.exists(surface_file):
-                raise IOError('Missing input file: {0!r}'.format(surface_file))
-            try:
-                # Read input mechanism files
-                parser.load_chemkin_file(surface_file, surface=True)
-            except Exception as err:
-                logger.warning("\nERROR: Unable to parse '{0}' near line {1}:\n{2}\n".format(
-                               surface_file, parser.line_number, err))
-                raise
 
         if extra_file:
             parser.files.append(extra_file)

@@ -440,6 +440,18 @@ class ck2yamlTest(utilities.CanteraTest):
         self.assertEqual(covdeps["OH_Pt"]["m"], 1.0)
         self.assertNear(covdeps["H_Pt"]["E"], -6e6)
 
+    def test_surface_mech3(self):
+        # This tests the case where the thermo data for both the gas and surface are
+        # combined in a file separate from the gas and surface definitions.
+
+        output = self.convert('surface2-gas.inp', thermo='surface2-thermo.dat',
+                              surface='surface2.inp', output='surface2')
+        surf = ct.Interface(output, 'PT_SURFACE')
+
+        assert surf.n_species == 6
+        assert surf.n_reactions ==  15
+        assert surf.reaction(4).duplicate is True
+
     def test_third_body_plus_falloff_reactions(self):
         output = self.convert("third_body_plus_falloff_reaction.inp")
         gas = ct.Solution(output)
