@@ -2105,10 +2105,14 @@ class Parser:
         # Write output file
         surface_names = parser.write_yaml(name=phase_name, out_name=out_name)
         if not quiet:
-            nReactions = len(parser.reactions) + sum(len(surf.reactions) for surf in parser.surfaces)
-            logger.info('Wrote YAML mechanism file to {0!r}.'.format(out_name))
-            logger.info('Mechanism contains {0} species and {1} reactions.'.format(
-                        len(parser.species_list), nReactions))
+            nSpecies = len(parser.species_list)
+            nReactions = len(parser.reactions)
+            for surf in parser.surfaces:
+                nSpecies += len(surf.species_list)
+                nReactions += len(surf.reactions)
+            logger.info(f'Wrote YAML mechanism file to {out_name!r}.')
+            logger.info(f'Mechanism contains {nSpecies} species and {nReactions} '
+                        'reactions.')
         return parser, surface_names
 
     def show_duplicate_reactions(self, error_message):
