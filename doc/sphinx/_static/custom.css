@@ -32,3 +32,18 @@ p + div.math {
         object-position: left
     }
 }
+
+/* Make "tip" background color different from "versionadded" */
+.admonition.tip,
+div.admonition.tip {
+  border-color:var(--pst-color-info)
+}
+.admonition.tip>.admonition-title:before,
+div.admonition.tip>.admonition-title:before {
+  background-color:var(--pst-color-info-bg);
+}
+.admonition.tip>.admonition-title:after,
+div.admonition.tip>.admonition-title:after {
+  color:var(--pst-color-info);
+  content:var(--pst-icon-admonition-tip)
+}
