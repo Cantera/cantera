@@ -75,6 +75,12 @@ methods implemented by Cantera
 :text-align: center
 ```
 
+```{grid-item-card} 1D Flames
+:link: science/onedim/index
+:link-type: doc
+:text-align: center
+```
+
 ```{grid-item-card} Bibliography
 :link: bibliography
 :link-type: doc
@@ -95,6 +101,7 @@ methods implemented by Cantera
 :caption: Science Reference
 
 science/reactors/index
+science/onedim/index
 bibliography
 glossary
 ```
