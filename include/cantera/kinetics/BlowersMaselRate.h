@@ -40,7 +40,7 @@ protected:
 
 //! Blowers Masel reaction rate type depends on the enthalpy of reaction
 /**
- * The Blowers Masel approximation @cite blowers2004 adjusts the activation energy
+ * The Blowers Masel approximation @cite blowers2000 adjusts the activation energy
  * based on enthalpy change of a reaction:
  *
  *   @f{eqnarray*}{

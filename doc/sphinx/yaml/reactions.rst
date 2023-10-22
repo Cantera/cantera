@@ -47,9 +47,8 @@ The fields common to all ``reaction`` entries are:
 ``orders``
     An optional mapping of species to explicit reaction orders to use. Reaction
     orders for reactant species not explicitly mentioned are taken to be their
-    respective stoichiometric coefficients. See
-    `Reaction orders <https://cantera.org/science/kinetics.html#reaction-orders>`__
-    for additional information.
+    respective stoichiometric coefficients. See :ref:`sec-reaction-orders` for
+    additional information.
 
 ``negative-orders``
     Boolean indicating whether negative reaction orders are allowed. The
@@ -92,9 +91,8 @@ Blowers-Masel
 -------------
 
 Blowers-Masel rate expressions calculate the rate constant based on the Blowers Masel
-approximation as
-`described here <https://cantera.org/science/kinetics.html#sec-blowers-masel>`__.
-The rate parameters are specified as a mapping with fields:
+approximation as :ref:`described here <sec-blowers-masel>`. The rate parameters are
+specified as a mapping with fields:
 
 ``A``
     The pre-exponential factor :math:`A`
@@ -119,7 +117,7 @@ Two-Temperature Plasma
 
 Two-temperature plasma reactions involve an electron as one of the reactants, where the
 electron temperature may differ from the gas temperature as
-`described here <https://cantera.org/science/kinetics.html#two-temperature-plasma-reactions>`__.
+:ref:`described here <sec-two-temperature-plasma-rate>`.
 The rate parameters are specified as a mapping with fields:
 
 ``A``
@@ -163,9 +161,8 @@ Reaction types
 ``elementary``
 --------------
 
-A homogeneous reaction with a pressure-independent rate coefficient and mass
-action kinetics, as
-`described here <https://cantera.org/science/kinetics.html#reactions-with-a-pressure-independent-rate>`__.
+A homogeneous reaction with a pressure-independent rate coefficient and mass action
+kinetics, as :ref:`described here <sec-arrhenius-rate>`.
 
 Additional fields are:
 
@@ -188,8 +185,7 @@ Example::
 ``three-body``
 --------------
 
-A three body reaction as
-`described here <https://cantera.org/science/kinetics.html#three-body-reactions>`__.
+A three body reaction as :ref:`described here <sec-three-body-reaction>`.
 
 The reaction equation should include the third body collision partner ``M``.
 
@@ -203,6 +199,29 @@ Example::
     rate-constant: [1.20000E+17 cm^6/mol^2/s, -1, 0]
     efficiencies: {AR: 0.83, H2O: 5}
 
+*Changed in Cantera 3.0*: The ``type`` field of the YAML entry may be omitted. Reactions
+containing the generic third body M are automatically identified as three-body
+reactions. Reactions are also identified as three-body reactions if all of the following
+conditions are met:
+
+- There is exactly one species appearing as both a reactant and product
+- All reactants and products have integral stoichiometric coefficients
+- The sum of the stoichiometric coefficients for either the reactants or products is 3.
+
+Examples::
+
+    - equation: H + O2 + M <=> HO2 + M  # Reaction 33
+      rate-constant: {A: 2.8e+18, b: -0.86, Ea: 0.0}
+      efficiencies: {O2: 0.0, H2O: 0.0, CO: 0.75, CO2: 1.5, C2H6: 1.5, N2: 0.0,
+        AR: 0.0}
+    - equation: H + 2 O2 <=> HO2 + O2  # Reaction 34
+      rate-constant: {A: 2.08e+19, b: -1.24, Ea: 0.0}
+    - equation: H + O2 + N2 <=> HO2 + N2  # Reaction 36
+      rate-constant: {A: 2.6e+19, b: -1.24, Ea: 0.0}
+
+.. caution::
+    If the third body efficiency of O2 and N2 in Reaction 33 was not set to zero, these
+    would be considered duplicate reactions and would be required to be marked as such.
 
 .. _sec-yaml-Blowers-Masel:
 
@@ -227,7 +246,7 @@ Example::
 
 Includes the fields of an :ref:`elementary <sec-yaml-elementary>` reaction, except that
 the ``rate-constant`` field is a
-:ref:`Two-temperature-plasma-type <sec-yaml-two-temperature-plasma-rate>` list or
+:ref:`Two-temperature-plasma <sec-yaml-two-temperature-plasma-rate>` list or
 mapping.
 
 Example::
@@ -242,16 +261,14 @@ Example::
 ``falloff``
 -----------
 
-A falloff reaction as
-`described here <https://cantera.org/science/kinetics.html#falloff-reactions>`__.
+A falloff reaction as :ref:`described here <sec-falloff-rate>`.
 
 The reaction equation should include the pressure-dependent third body collision
 partner ``(+M)`` or ``(+name)`` where ``name`` is the name of a species. The
 latter case is equivalent to setting the efficiency for ``name`` to 1 and the
 efficiency for all other species to 0.
 
-Includes field for specifying :ref:`efficiencies <sec-yaml-efficiencies>` as well
-as:
+Includes field for specifying :ref:`efficiencies <sec-yaml-efficiencies>` as well as:
 
 ``high-P-rate-constant``
     An :ref:`sec-yaml-Arrhenius-rate` expression for the high-pressure limit
@@ -260,23 +277,18 @@ as:
     An :ref:`sec-yaml-Arrhenius-rate` expression for the low-pressure limit
 
 ``Troe``
-    Parameters for the
-    `Troe <https://cantera.org/science/kinetics.html#the-troe-falloff-function>`__
-    falloff function. A mapping containing the keys ``A``, ``T3``, ``T1`` and
-    optionally ``T2``. The default value for ``T2`` is 0.
+    Parameters for the :ref:`Troe <sec-troe-falloff>` falloff function. A mapping
+    containing the keys ``A``, ``T3``, ``T1`` and optionally ``T2``. The default value
+    for ``T2`` is 0.
 
 ``SRI``
-    Parameters for the
-    `SRI <https://cantera.org/science/kinetics.html#the-sri-falloff-function>`__
-    falloff function. A mapping containing the keys ``A``, ``B``, ``C``, and
-    optionally ``D`` and ``E``. The default values for ``D`` and ``E`` are 1.0
-    and 0.0, respectively.
+    Parameters for the :ref:`SRI <sec-sri-falloff>` falloff function. A mapping
+    containing the keys ``A``, ``B``, ``C``, and optionally ``D`` and ``E``. The default
+    values for ``D`` and ``E`` are 1.0 and 0.0, respectively.
 
 ``Tsang``
-    Parameters for the
-    `Tsang <https://cantera.org/science/kinetics.html#tsang-s-approximation-to-f-cent>`__
-    falloff function. A mapping containing the keys ``A`` and ``B``. The default value
-    for ``B`` is 0.0.
+    Parameters for the :ref:`Tsang <sec-tsang-falloff>` falloff function. A mapping
+    containing the keys ``A`` and ``B``. The default value for ``B`` is 0.0.
 
 Example::
 
@@ -293,7 +305,7 @@ Example::
 ------------------------
 
 A chemically activated reaction as
-`described here <https://cantera.org/science/kinetics.html#chemically-activated-reactions>`__.
+:ref:`described here <sec-chemically-activated-rate>`.
 
 The parameters are the same as for :ref:`sec-yaml-falloff` reactions.
 
@@ -311,7 +323,7 @@ Example::
 --------------------------------
 
 A pressure-dependent reaction using multiple Arrhenius expressions as
-`described here <https://cantera.org/science/kinetics.html#pressure-dependent-arrhenius-rate-expressions-p-log>`__.
+:ref:`described here <sec-plog-rate>`.
 
 The only additional field in this reaction type is:
 
@@ -336,7 +348,7 @@ Example::
 -------------
 
 A reaction parameterized as a bivariate Chebyshev polynomial as
-`described here <https://cantera.org/science/kinetics.html#chebyshev-reaction-rate-expressions>`__.
+:ref:`described here <sec-chebyshev-rate>`.
 
 Additional fields are:
 
@@ -370,9 +382,8 @@ Example::
 ``interface-Arrhenius``
 -----------------------
 
-A reaction occurring on a surface between two bulk phases, or along an edge
-at the intersection of two surfaces, as
-`described here <https://cantera.org/science/kinetics.html#sec-surface>`__.
+A reaction occurring on a surface between two bulk phases, or along an edge at the
+intersection of two surfaces, as :ref:`described here <sec-surface-rate>`.
 
 Includes the fields of an :ref:`sec-yaml-elementary` reaction plus:
 
@@ -443,7 +454,7 @@ Example::
 ----------------------
 
 A sticking reaction occurring on a surface adjacent to a bulk phase, as
-`described here <https://cantera.org/science/kinetics.html#sec-sticking>`__.
+:ref:`described here <sec-sticking-rate>`.
 
 Includes the fields of an :ref:`sec-yaml-interface-Arrhenius` reaction plus:
 

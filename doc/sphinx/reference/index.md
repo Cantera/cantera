@@ -69,6 +69,12 @@ methods implemented by Cantera
 ````{grid} 2
 :gutter: 3
 
+```{grid-item-card} Chemical Reactions
+:link: science/kinetics/index
+:link-type: doc
+:text-align: center
+```
+
 ```{grid-item-card} Reactors
 :link: science/reactors/index
 :link-type: doc
@@ -100,6 +106,7 @@ methods implemented by Cantera
 :maxdepth: 1
 :caption: Science Reference
 
+science/kinetics/index
 science/reactors/index
 science/onedim/index
 bibliography
