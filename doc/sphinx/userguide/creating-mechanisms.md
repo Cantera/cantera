@@ -422,8 +422,12 @@ case the species is composed of nothing, and represents an empty surface site. T
 also be done to represent vacancies in solids. A charged vacancy can be defined to be
 composed solely of electrons.
 
-The number of atoms of an element must be non-negative, except for the special "element"
-`E` that represents an electron.
+The special "element" `E` is used in representing charged species, where it specifies
+the net number of electrons compared to the number needed to form a neutral species.
+That is, negatively charged ions will have `E` > 0, while positively charged ions will
+have `E` \< 0.
+
+The number of atoms of an element must be non-negative, except for electrons.
 
 Examples:
 
@@ -659,9 +663,11 @@ case, the `nonreactant-orders` field must be added to the reaction entry:
 (sec-yaml-guide-elements)=
 ## Elements
 
-Cantera provides built-in definitions for the chemical elements, including values for
-their atomic weights taken from IUPAC / CIAAW. These elements can be used by specifying
-the corresponding atomic symbols when specifying the composition of species.
+In Cantera, an *element* may refer to a chemical element or an isotope. Cantera provides
+built-in definitions for the chemical elements, including values for their atomic
+weights taken from IUPAC / CIAAW. These elements can be used by specifying the
+corresponding atomic symbols when specifying the composition of species. Explicit
+element definitions are usually only needed for isotopes.
 
 In order to give a name to a particular isotope or a virtual element representing a
 surface site, a custom `element` entry can be used. The default location for `element`
