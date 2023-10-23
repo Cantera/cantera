@@ -64,31 +64,35 @@ releasenotes/index
 ## Science Reference
 
 These sections document the scientific theories, mathematical models, and numerical
-methods implemented by Cantera.
+methods implemented by Cantera. This starts with some of the fundamental scientific
+theory underpinning the ways that Cantera models phases of matter, which involves
+calculations for thermodynamic and transport properties and chemical reaction rates.
+Cantera then builds on top of these models to provide means of representing and solving
+a number of zero- and one-dimensional systems.
 
 ````{grid} 2
 :gutter: 3
 
 ```{grid-item-card} Thermodynamics
-:link: science/thermo/index
+:link: thermo/index
 :link-type: doc
 :text-align: center
 ```
 
 ```{grid-item-card} Chemical Reactions
-:link: science/kinetics/index
+:link: kinetics/index
 :link-type: doc
 :text-align: center
 ```
 
 ```{grid-item-card} Reactors
-:link: science/reactors/index
+:link: reactors/index
 :link-type: doc
 :text-align: center
 ```
 
 ```{grid-item-card} 1D Flames
-:link: science/onedim/index
+:link: onedim/index
 :link-type: doc
 :text-align: center
 ```
@@ -112,10 +116,10 @@ methods implemented by Cantera.
 :maxdepth: 1
 :caption: Science Reference
 
-science/thermo/index
-science/kinetics/index
-science/reactors/index
-science/onedim/index
+thermo/index
+kinetics/index
+reactors/index
+onedim/index
 bibliography
 glossary
 ```
