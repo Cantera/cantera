@@ -64,10 +64,16 @@ releasenotes/index
 ## Science Reference
 
 These sections document the scientific theories, mathematical models, and numerical
-methods implemented by Cantera
+methods implemented by Cantera.
 
 ````{grid} 2
 :gutter: 3
+
+```{grid-item-card} Thermodynamics
+:link: science/thermo/index
+:link-type: doc
+:text-align: center
+```
 
 ```{grid-item-card} Chemical Reactions
 :link: science/kinetics/index
@@ -106,6 +112,7 @@ methods implemented by Cantera
 :maxdepth: 1
 :caption: Science Reference
 
+science/thermo/index
 science/kinetics/index
 science/reactors/index
 science/onedim/index
