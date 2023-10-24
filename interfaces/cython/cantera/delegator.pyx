@@ -9,7 +9,7 @@ from libc.stdlib cimport malloc
 from libc.string cimport strcpy
 
 from ._utils import CanteraError
-from ._utils cimport stringify, pystr, anymap_to_py, py_to_anymap, triplets_to_python, python_to_triplets, get_triplet
+from ._utils cimport stringify, pystr, anymap_to_py, py_to_anymap, get_triplet
 from .units cimport Units, UnitStack
 # from .reaction import ExtensibleRate, ExtensibleRateData
 from .reaction cimport (ExtensibleRate, ExtensibleRateData, CxxReaction,

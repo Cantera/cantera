@@ -658,7 +658,7 @@ void Reactor::buildFlowJacobian(vector<Eigen::Triplet<double>>& jacVector)
             m_outlet[i]->buildReactorJacobian(this, jacVector);
         }
 
-        for (size_t i = 0; i <m_outlet.size(); i++) {
+        for (size_t i = 0; i <m_inlet.size(); i++) {
             m_inlet[i]->buildReactorJacobian(this, jacVector);
         }
     }

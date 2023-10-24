@@ -166,7 +166,9 @@ public:
     //! @since New in %Cantera 3.0.
     //!
     virtual void buildNetworkJacobian(vector<Eigen::Triplet<double>>& jacVector) {
-        throw NotImplementedError(type() + "::buildNetworkJacobian");
+        if (!m_jac_calculated) {
+            throw NotImplementedError(type() + "::buildNetworkJacobian");
+        }
     }
 
     //! Specify the jacobian terms have been calculated and should not be recalculated.

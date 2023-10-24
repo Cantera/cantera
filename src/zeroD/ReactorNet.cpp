@@ -872,7 +872,7 @@ void ReactorNet::buildJacobian(vector<Eigen::Triplet<double>>& jacVector)
             }
         }
         // flow devices
-        if (m_jac_skip_flow_devices) {
+        if (!m_jac_skip_flow_devices) {
             // outlets
             for (size_t i = 0; i < r->nOutlets(); i++) {
                 r->outlet(i).buildNetworkJacobian(jacVector);

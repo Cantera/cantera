@@ -170,6 +170,61 @@ class TestReactor:
             if name in constant:
                 assert all(J[i, species_start:] == 0), (i, name)
 
+    def test_network_finite_difference_jacobian(self):
+        self.make_reactors(T1=900, P1=101325, X1="H2:0.4, O2:0.4, N2:0.2")
+        k1H2 = self.gas1.species_index("H2")
+        k2H2 = self.gas1.species_index("H2")
+        while self.r1.phase.X[k1H2] > 0.3 or self.r2.phase.X[k2H2] > 0.3:
+            self.net.step()
+
+        J = self.net.finite_difference_jacobian
+        assert J.shape == (self.net.n_vars, self.net.n_vars)
+
+        # state variables that should be constant, depending on reactor type
+        constant = {"mass", "volume", "int_energy", "enthalpy", "pressure"}
+        variable = {"temperature"}
+        for i in range(3):
+            name = self.r1.component_name(i)
+            if name in constant:
+                assert all(J[i,:] == 0), (i, name)
+            elif name in variable:
+                assert any(J[i,:] != 0)
+            # check in second reactor
+            name = self.r2.component_name(i)
+            if name in constant:
+                assert all(J[i + self.r1.n_vars,:] == 0), (i, name)
+            elif name in variable:
+                assert any(J[i + self.r1.n_vars,:] != 0)
+
+        # Disabling energy equation should zero these terms
+        self.r1.energy_enabled = False
+        self.r2.energy_enabled = False
+        J = self.net.finite_difference_jacobian
+        for i in range(3):
+            name = self.r1.component_name(i)
+            if name == "temperature":
+                assert all(J[i,:] == 0)
+            name = self.r2.component_name(i)
+            if name == "temperature":
+                assert all(J[i + self.r1.n_vars,:] == 0)
+
+        # Disabling species equations should zero these terms
+        self.r1.energy_enabled = True
+        self.r1.chemistry_enabled = False
+        self.r2.energy_enabled = True
+        self.r2.chemistry_enabled = False
+        J = self.net.finite_difference_jacobian
+        constant = set(self.r1.phase.species_names + self.r2.phase.species_names)
+        r1_species_start = self.r1.component_index(self.r1.phase.species_name(0))
+        r2_species_start = self.r2.component_index(self.r2.phase.species_name(0))
+        for i in range(self.r1.n_vars):
+            name = self.r1.component_name(i)
+            if name in constant:
+                assert all(J[i, r1_species_start:] == 0), (i, name)
+            name = self.r2.component_name(i)
+            if name in constant:
+                assert all(J[i + self.r1.n_vars, (r2_species_start + self.r1.n_vars):] == 0), (i, name)
+
     def test_timestepping(self):
         self.make_reactors()
 
@@ -1530,13 +1585,25 @@ class TestIdealGasConstPressureMoleReactor(TestConstPressureMoleReactor):
         self.precon = ct.AdaptivePreconditioner()
         self.net2.preconditioner = self.precon
         self.net2.derivative_settings = {"skip-third-bodies":True, "skip-falloff":True,
-            "skip-coverage-dependence":True}
+            "skip-coverage-dependence":True, "skip-flow-devices": True}
 
     def test_get_solver_type(self):
         self.create_reactors()
         assert self.precon.side == "right"
         self.net2.initialize()
         assert self.net2.linear_solver_type == "GMRES"
+
+    def test_mass_flow_jacobian(self):
+        self.create_reactors(add_mdot=True)
+        # reset derivative settings
+        self.net2.derivative_settings = {"skip-third-bodies":True, "skip-falloff":True,
+            "skip-coverage-dependence":True, "skip-flow-devices": False}
+
+        with pytest.raises(NotImplementedError, match="MassFlowController::buildReactorJacobian"):
+            J = self.net2.jacobian
+
+        with pytest.raises(NotImplementedError, match="MassFlowController::buildReactorJacobian"):
+            J = self.r2.jacobian
 
     def test_heat_transfer_network(self):
         # create first reactor

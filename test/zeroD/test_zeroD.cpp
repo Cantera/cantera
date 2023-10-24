@@ -357,6 +357,12 @@ TEST(JacobianTests, test_wall_jacobian_build)
             EXPECT_LT(it.col(), reactor2.neq());
         }
     }
+    // check that switch works
+    wallJac.clear();
+    w.jacobianCalculated();
+    w.buildNetworkJacobian(wallJac);
+    EXPECT_EQ(wallJac.size(), 0);
+    w.jacobianNotCalculated();
     // build jac for network terms
     wallJac.clear();
     w.buildNetworkJacobian(wallJac);
@@ -379,6 +385,37 @@ TEST(JacobianTests, test_wall_jacobian_build)
             }
         }
     }
+}
+
+TEST(JacobianTests, test_flow_jacobian_build)
+{
+    // create reservoir reactor
+    auto sol = newSolution("h2o2.yaml");
+    sol->thermo()->setState_TPY(1000.0, OneAtm, "O2:1.0");
+    Reservoir res;
+    res.insert(sol);
+    // create reactor
+    IdealGasConstPressureMoleReactor reactor;
+    reactor.insert(sol);
+    reactor.setInitialVolume(1.0);
+    // create the flow device
+    MassFlowController mfc;
+    mfc.install(res, reactor);
+    mfc.setMassFlowCoeff(1.0);
+    // setup reactor network and integrate
+    ReactorNet network;
+    network.addReactor(reactor);
+    network.initialize();
+    // manually get wall jacobian elements
+    vector<Eigen::Triplet<double>>  flowJac;
+    // expect errors from building jacobians
+    EXPECT_THROW(mfc.buildReactorJacobian(&reactor, flowJac), NotImplementedError);
+    // check the jacobian calculated flag and throw/catch errors accordingly
+    mfc.jacobianCalculated();
+    mfc.buildNetworkJacobian(flowJac);
+    EXPECT_EQ(flowJac.size(), 0);
+    mfc.jacobianNotCalculated();
+    EXPECT_THROW(mfc.buildNetworkJacobian(flowJac), NotImplementedError);
 }
 
 int main(int argc, char** argv)
