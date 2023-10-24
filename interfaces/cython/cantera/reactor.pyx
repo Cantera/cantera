@@ -2092,4 +2092,3 @@ cdef class ReactorNet:
         def __get__(self):
             return get_from_sparse(self.net.finiteDifferenceJacobian(),
                                    self.n_vars, self.n_vars)
-
