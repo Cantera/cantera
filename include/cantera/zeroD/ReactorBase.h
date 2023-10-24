@@ -302,48 +302,50 @@ public:
         return m_sensParams.size();
     }
 
-    /*! Calculate the derivative of temperature with respect to the temperature in the
-     * heat transfer equation based on the reactor specific equation of state.
-     * This function should also transform the state of the derivative to that
-     * appropriate for the jacobian's state/
-     * @warning This function is an experimental part of the %Cantera API and may be changed
-     * or removed without notice.
-     * @since New in %Cantera 3.0.
-     */
+    //! Calculate the derivative of temperature with respect to the temperature in the
+    //! heat transfer equation based on the reactor specific equation of state.
+    //! This function should also transform the state of the derivative to that
+    //! appropriate for the jacobian's state/
+    //! @warning This function is an experimental part of the %Cantera API and may be changed
+    //! or removed without notice.
+    //! @since New in %Cantera 3.0.
+    //!
     virtual double temperatureDerivative() {
         throw NotImplementedError("Reactor::temperatureDerivative");
     }
 
-    /*! Calculate the derivative of temperature with respect to the temperature in the
-     * heat transfer radiation equation based on the reactor specific equation of state.
-     * This function should also transform the state of the derivative to that
-     * appropriate for the jacobian's state/
-     * @warning This function is an experimental part of the %Cantera API and may be changed
-     * or removed without notice.
-     * @since New in %Cantera 3.0.
-     */
+    //! Calculate the derivative of temperature with respect to the temperature in the
+    //! heat transfer radiation equation based on the reactor specific equation of
+    //! state.
+    //! This function should also transform the state of the derivative to that
+    //! appropriate for the jacobian's state/
+    //! @warning This function is an experimental part of the %Cantera API and may be
+    //! changed
+    //! or removed without notice.
+    //! @since New in %Cantera 3.0.
+    //!
     virtual double temperatureRadiationDerivative() {
         throw NotImplementedError("Reactor::temperatureRadiationDerivative");
     }
 
-    /*! Calculate the derivative of T with respect to the ith species in the heat
-     * transfer equation based on the reactor specific equation of state.
-     * @param index index of the species the derivative is with respect too
-     * @warning This function is an experimental part of the %Cantera API and may be changed
-     * or removed without notice.
-     * @since New in %Cantera 3.0.
-     */
+    //! Calculate the derivative of T with respect to the ith species in the heat
+    //! transfer equation based on the reactor specific equation of state.
+    //! @param index index of the species the derivative is with respect too
+    //! @warning This function is an experimental part of the %Cantera API and may be changed
+    //! or removed without notice.
+    //! @since New in %Cantera 3.0.
+    //!
     virtual double moleDerivative(size_t index) {
         throw NotImplementedError("Reactor::moleDerivative");
     }
 
-    /*! Calculate the derivative of T with respect to the ith species in the heat
-     * transfer radiation equation based on the reactor specific equation of state.
-     * @param index index of the species the derivative is with respect too
-     * @warning This function is an experimental part of the %Cantera API and may be changed
-     * or removed without notice.
-     * @since New in %Cantera 3.0.
-     */
+    //! Calculate the derivative of T with respect to the ith species in the heat
+    //! transfer radiation equation based on the reactor specific equation of state.
+    //! @param index index of the species the derivative is with respect too
+    //! @warning This function is an experimental part of the %Cantera API and may be changed
+    //! or removed without notice.
+    //! @since New in %Cantera 3.0.
+    //!
     virtual double moleRadiationDerivative(size_t index) {
         throw NotImplementedError("Reactor::moleRadiationDerivative");
     }

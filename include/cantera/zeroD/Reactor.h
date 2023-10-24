@@ -218,8 +218,7 @@ public:
     }
 
     //! Calculate the Jacobian of a specific Reactor specialization.
-    //! @param jac_vector vector where jacobian triplets are added
-    //! @param offset offset added to the row and col indices of the elements
+    //! @param jacVector vector where jacobian triplets are added
     //! @warning Depending on the particular implementation, this may return an
     //! approximate Jacobian intended only for use in forming a preconditioner for
     //! iterative solvers.
@@ -243,7 +242,7 @@ public:
     virtual void buildWallJacobian(vector<Eigen::Triplet<double>>& jacVector);
 
     //! Calculate flow contributions to the Jacobian of a Reactor specialization.
-    //! @param jac_vector vector where jacobian triplets are added
+    //! @param jacVector vector where jacobian triplets are added
     //! @warning Depending on the particular implementation, this may return an
     //! approximate Jacobian intended only for use in forming a preconditioner for
     //! iterative solvers.

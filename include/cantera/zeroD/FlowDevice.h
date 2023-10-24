@@ -141,40 +141,47 @@ public:
         m_time = time;
     }
 
-    /*! Build the Jacobian terms specific to the flow device for the given connected reactor.
-     * @param r a pointer to the calling reactor
-     * @param jacVector a vector of triplets to be added to the jacobian for the reactor
-     * @warning This function is an experimental part of the %Cantera API and may be changed
-     * or removed without notice.
-     * @since New in %Cantera 3.0.
-     */
+    //! Build the Jacobian terms specific to the flow device for the given connected
+    //! reactor.
+    //! @param r a pointer to the calling reactor
+    //! @param jacVector a vector of triplets to be added to the jacobian for the
+    //! reactor
+    //! @warning This function is an experimental part of the %Cantera API and may be
+    //! changed
+    //! or removed without notice.
+    //! @since New in %Cantera 3.0.
+    //!
     virtual void buildReactorJacobian(ReactorBase* r, vector<Eigen::Triplet<double>>& jacVector) {
         throw NotImplementedError(type() + "::buildReactorJacobian");
     }
 
-    /*! Build the Jacobian terms specific to the flow device for the network. These terms
-     * will be adjusted to the networks indexing system outside of the reactor.
-     * @param jacVector a vector of triplets to be added to the jacobian for the reactor
-     * @warning This function is an experimental part of the %Cantera API and may be changed
-     * or removed without notice.
-     * @since New in %Cantera 3.0.
-     */
+    //! Build the Jacobian terms specific to the flow device for the network. These
+    //! terms
+    //! will be adjusted to the networks indexing system outside of the reactor.
+    //! @param jacVector a vector of triplets to be added to the jacobian for the
+    //! reactor
+    //! @warning This function is an experimental part of the %Cantera API and may be
+    //! changed
+    //! or removed without notice.
+    //! @since New in %Cantera 3.0.
+    //!
     virtual void buildNetworkJacobian(vector<Eigen::Triplet<double>>& jacVector) {
         throw NotImplementedError(type() + "::buildNetworkJacobian");
     }
 
-    /*! Specify the jacobian terms have been calculated and should not be recalculated.
-     * @warning This function is an experimental part of the %Cantera API and may be changed
-     * or removed without notice.
-     * @since New in %Cantera 3.0.
-     */
+    //! Specify the jacobian terms have been calculated and should not be recalculated.
+    //! @warning This function is an experimental part of the %Cantera API and may be
+    //! changed
+    //! or removed without notice.
+    //! @since New in %Cantera 3.0.
+    //!
     void jacobianCalculated() { m_jac_calculated = true; };
 
-    /*! Specify that jacobian terms have not been calculated and should be recalculated.
-     * @warning This function is an experimental part of the %Cantera API and may be changed
-     * or removed without notice.
-     * @since New in %Cantera 3.0.
-     */
+    //! Specify that jacobian terms have not been calculated and should be recalculated.
+    //! @warning This function is an experimental part of the %Cantera API and may be changed
+    //! or removed without notice.
+    //! @since New in %Cantera 3.0.
+    //!
     void jacobianNotCalculated() { m_jac_calculated = false; };
 
 protected:

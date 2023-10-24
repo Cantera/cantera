@@ -414,8 +414,7 @@ protected:
     void addReactor(shared_ptr<ReactorBase> reactor);
 
     //! Calculate the Jacobian of the entire reactor network.
-    //! @param jac_vector vector where jacobian triplets are added
-    //! @param offset offset added to the row and col indices of the elements
+    //! @param jacVector vector where jacobian triplets are added
     //! @warning Depending on the particular implementation, this may return an
     //! approximate Jacobian intended only for use in forming a preconditioner for
     //! iterative solvers.

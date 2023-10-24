@@ -784,10 +784,10 @@ void ReactorNet::preconditionerSetup(double t, double* y, double gamma)
     // Update network with adjusted state
     updateState(yCopy.data());
     // Create jacobian triplet vector
-    vector<Eigen::Triplet<double>> jac_vector;
-    buildJacobian(jac_vector);
+    vector<Eigen::Triplet<double>> jacVector;
+    buildJacobian(jacVector);
     // Add to preconditioner with offset
-    for (auto it : jac_vector) {
+    for (auto it : jacVector) {
         precon->setValue(it.row(), it.col(), it.value());
     }
     // post reactor setup operations
