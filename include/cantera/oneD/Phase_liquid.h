@@ -114,10 +114,10 @@ protected:
     vector<double> liquid_enthalpy,delta_H_sp;//[J/kmol]
     std::vector<size_t> Loc_sp;//location of activated species in pool
 
-    std::vector<std::string> name{"C2H5OH", "NC7H16"};//"H2O"
-    vector<double> H_formation{-276*1e6,-224*1e6,-285.83*1e6};//J/kmol
-    vector<double> Cp{112*1e3,224.64*1e3,75.37*1e3};//J/kmol/K}
-    vector<double> molecular_weight{46.07,100.21,18.015};//kg/kmol
+    std::vector<std::string> name{"C2H5OH", "NC7H16", "C7H16", "H2O"};
+    vector<double>    H_formation{-276*1e6, -224*1e6, -224*1e6, -285.83*1e6};//J/kmol
+    vector<double>             Cp{112*1e3, 224.64*1e3, 224.64*1e3, 75.37*1e3};//J/kmol/K}
+    vector<double> molecular_weight{46.07, 100.21, 100.21, 18.015};//kg/kmol
 
     //!map of species names to indices
     std::map<std::string, size_t> m_speciesIndices;

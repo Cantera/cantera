@@ -136,7 +136,7 @@ namespace Cantera
 
     double Phase_liquid::Vap_enthpy(std::string name, double temperature){
         double C, n, Tcr;
-        if(name=="NC7H16"){
+        if(name=="NC7H16" || name=="C7H16"){
             C=49.73;
             n=0.386;
             Tcr=540.26;}//https://app.knovel.com/kn/resources/kt002UT9T2/kpYHTPPCC4/eptble/itable?b-toc-cid=kpYHTPPCC4&b-toc-title=Yaws%27+Handbook+of+Thermodynamic+and+Physical+Properties+of+Chemical+Compounds&b-toc-url-slug=enthalpy-vaporization&columns=6%2C1%2C3%2C4%2C5%2C7%2C8%2C9%2C10%2C11%2C13%2C14&q=heptane
@@ -162,7 +162,7 @@ namespace Cantera
             c_4=3.7448E-11;
             c_5=2.7361E-07;
         }
-        else if (name=="NC7H16") {
+        else if (name=="NC7H16" || name=="C7H16") {
             if (temperature > 540 || temperature < 182) {std::cout << temperature << "K is out of Heptane range" << std::endl; }
             c_1 = 65.026;
             c_2 = -3818.8;
