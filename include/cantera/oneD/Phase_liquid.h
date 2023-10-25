@@ -127,7 +127,7 @@ protected:
     double sum_mole_weight_inlet, sum_mole_weight_outlet, sum_liquid_ethalpy,temperature_inlet, temperature_outlet, temperature_interface_gas;
     double delta_H_sum;
 
-    size_t nsp_liquid;//number of liquid species activated
+    size_t nsp_liquid ;//number of liquid species activated
 };
 }
 #endif //BCS_PHASE_LIQUID_H

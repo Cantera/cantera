@@ -9,14 +9,14 @@
 namespace Cantera
 {
     //constructor
-    Phase_liquid::Phase_liquid():sum_mole_weight_inlet(0), sum_mole_weight_outlet(0), nsp_liquid(0), temperature_inlet(298.15), temperature_outlet(298.15)
+    Phase_liquid::Phase_liquid(): sum_mole_weight_inlet(0), sum_mole_weight_outlet(0), temperature_inlet(298.15), temperature_outlet(298.15), nsp_liquid(0)
     {   //mole_fraction_inlet(100,0),mole_fraction_outlet(100,0),liquid_enthalpy(100,0),delta_H_sp(100)
         mole_fraction_inlet.resize(name.size(),0);
         mole_fraction_outlet.resize(name.size(),0);
         mole_fraction_gas.resize(name.size(),0);
         liquid_enthalpy.resize(name.size(),0);
         delta_H_sp.resize(name.size(),0);
-        for (int n=0; n<name.size();n++){m_speciesIndices[name[n]]=n;m_speciesName[n]=name[n];}
+        for (size_t n=0; n<name.size();n++){m_speciesIndices[name[n]]=n;m_speciesName[n]=name[n];}
     }
 
     void Phase_liquid::setMoleFraction(std::string name, const double mole)//initialization phase by molarfraction
@@ -45,8 +45,8 @@ namespace Cantera
     }
 
     void Phase_liquid::Build_interface(double *xb, StFlow *m_flow ){
-        //copy molar fractions of corresponding species in gas phase
-        for (int i = 0; i < name.size(); i++) {mole_fraction_gas[i] = m_flow->molar_fraction(xb, m_flow->componentIndex(name[i]) - 5, 0);}
+        //copy molar fractions of corresponding activated species in gas phase
+        for (size_t i = 0; i < nsp_liquid; i++) {mole_fraction_gas[Loc_sp[i]] = m_flow->molar_fraction(xb, m_flow->componentIndex(name[Loc_sp[i]]) - 5, 0);}
 
         if (nsp_liquid==1) {
             size_t loc=Loc_sp[0];
@@ -78,13 +78,13 @@ namespace Cantera
         sum_mole_weight_outlet=0;
         sum_liquid_ethalpy=0;
         //std::cout<<"before sum_mole_weight="<<sum_mole_weight<<std::endl;
-        for(size_t n=0;n<name.size();n++){//update for temperature change
-            liquid_enthalpy[n]=H_formation[n]+Cp[n]*(temperature_outlet-298.15);}
+        for(size_t n=0; n < nsp_liquid; n++){//update for temperature change
+            liquid_enthalpy[Loc_sp[n]] = H_formation[Loc_sp[n]] + Cp[Loc_sp[n]] * (temperature_outlet-298.15);}
         //update for adding species
-        for(size_t n=0;n<name.size();n++){//std::cout<<n<<" sum_mole_weight="<<sum_mole_weight;
-            sum_mole_weight_inlet+=mole_fraction_inlet[n]*molecular_weight[n];
-            sum_mole_weight_outlet+=mole_fraction_outlet[n]*molecular_weight[n];
-            sum_liquid_ethalpy+=mole_fraction_inlet[n]*liquid_enthalpy[n];}
+        for(size_t n=0;n < nsp_liquid; n++){//std::cout<<n<<" sum_mole_weight="<<sum_mole_weight;
+            sum_mole_weight_inlet += mole_fraction_inlet[Loc_sp[n]] * molecular_weight[Loc_sp[n]];
+            sum_mole_weight_outlet += mole_fraction_outlet[Loc_sp[n]] * molecular_weight[Loc_sp[n]];
+            sum_liquid_ethalpy += mole_fraction_inlet[Loc_sp[n]] * liquid_enthalpy[Loc_sp[n]];}
         //std::cout<<std::endl<<"after sum_mole_weight="<<sum_mole_weight<<mole_fraction[0]*molecular_weight[0]<<std::endl;
     }
 
@@ -104,9 +104,9 @@ namespace Cantera
         setTemperature_outlet(xb[c_offset_T]);
         Build_interface(xb, m_flow);
         delta_H_sum=0;
-        for (size_t n=0;n<name.size();n++){
-        delta_H_sum+=mole_fraction_outlet[n]*Vap_enthpy(name[n],temperature_outlet);//use vaporization enthalpy directly
-        //std::cout<<name[n]<<" "<<mole_fraction_inlet[n]<<" "<<mole_fraction_outlet[n]<<" "<<mole_fraction_gas[n]<<" "<<temperature_interface_gas<<std::endl;
+        for (size_t n=0;n < nsp_liquid; n++){
+        delta_H_sum += mole_fraction_outlet[Loc_sp[n]] * Vap_enthpy(name[Loc_sp[n]],temperature_outlet);//use vaporization enthalpy directly
+        //std::cout<<name[Loc_sp[n]]<<" "<<mole_fraction_inlet[Loc_sp[n]]<<" "<<mole_fraction_outlet[Loc_sp[n]]<<" "<<mole_fraction_gas[Loc_sp[n]]<<" "<<temperature_interface_gas<<std::endl;
         }
         return delta_H_sum;
     }
@@ -114,8 +114,8 @@ namespace Cantera
     double Phase_liquid::Delta_H_mole(double t){
         setTemperature_outlet(t);
         delta_H_sum=0;
-        for (size_t n=0;n<name.size();n++){
-        delta_H_sum+=mole_fraction_outlet[n]*Vap_enthpy(name[n],temperature_outlet);//use vaporization enthalpy directly
+        for (size_t n=0;n < nsp_liquid; n++){
+        delta_H_sum+=mole_fraction_outlet[Loc_sp[n]]*Vap_enthpy(name[Loc_sp[n]],temperature_outlet);//use vaporization enthalpy directly
         }
         return delta_H_sum;
     }
@@ -127,19 +127,21 @@ namespace Cantera
     //*[K] calculate temperature based on average Tsat of each specie
     /*double Phase_liquid::Temperature_interface(double *xb, StFlow *m_flow){
         temperature_interface_gas=0;
-        for (int i = 0; i < name.size(); i++) {mole_fraction_gas[i] = m_flow->molar_fraction(xb, m_flow->componentIndex(name[i]) - 5, 0);}
-        for(int i=0;i<nsp_liquid;i++){
+        for (size_t i = 0; i < name.size(); i++) {mole_fraction_gas[i] = m_flow->molar_fraction(xb, m_flow->componentIndex(name[i]) - 5, 0);}
+        for(size_t i=0;i<nsp_liquid;i++){
         temperature_interface_gas+= 0.5*SatTemperature(name[i],m_flow->pressure()*mole_fraction_gas[i]/mole_fraction_outlet[i]);
         }
         //std::cout<<"Temperature"<<temperature_interface_gas<<std::endl;
          return temperature_interface_gas;}*/
+         
+//https://app.knovel.com/kn/resources/kt002UT9T2/kpYHTPPCC4/eptble/itable?b-toc-cid=kpYHTPPCC4&b-toc-title=Yaws%27+Handbook+of+Thermodynamic+and+Physical+Properties+of+Chemical+Compounds&b-toc-url-slug=enthalpy-vaporization&columns=6%2C1%2C3%2C4%2C5%2C7%2C8%2C9%2C10%2C11%2C13%2C14&q=heptane
 
     double Phase_liquid::Vap_enthpy(std::string name, double temperature){
         double C, n, Tcr;
         if(name=="NC7H16" || name=="C7H16"){
             C=49.73;
             n=0.386;
-            Tcr=540.26;}//https://app.knovel.com/kn/resources/kt002UT9T2/kpYHTPPCC4/eptble/itable?b-toc-cid=kpYHTPPCC4&b-toc-title=Yaws%27+Handbook+of+Thermodynamic+and+Physical+Properties+of+Chemical+Compounds&b-toc-url-slug=enthalpy-vaporization&columns=6%2C1%2C3%2C4%2C5%2C7%2C8%2C9%2C10%2C11%2C13%2C14&q=heptane
+            Tcr=540.26;}
         else if(name=="C2H5OH"){
             C=43.122;
             n=0.079;
@@ -152,7 +154,7 @@ namespace Cantera
 
     double Phase_liquid::SatPressure(std::string name, double temperature) {//http://ddbonline.ddbst.com/AntoineCalculation/AntoineCalculationCGI.exe?component=Ethanol
         double Tc = temperature - 273.15; //converted from Kelvin to C
-        doublereal c_0, c_1, c_2, c_3, c_4, c_5;
+        doublereal c_1, c_2, c_3, c_4, c_5;
         double P_Hg, P_pa;
         if (name == "C2H5OH") {
             if (temperature>516 || temperature<159){ std::cout << temperature << "K is out of Ethanol range" << std::endl;abort(); }
