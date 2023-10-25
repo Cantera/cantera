@@ -915,12 +915,7 @@ class TestReactor(utilities.CanteraTest):
         self.make_reactors()
         self.r1.name = 'Reactor'
         self.r2.name = 'Reactor'
-        dot = self.net.draw()
-        expected = ['\tReactor\n', '\tReactor_1\n']
-        self.assertEqual(dot.body, expected)
-        # ensure reactor_names dict has been cleared
-        dot = self.net.draw()
-        self.assertEqual(dot.body, expected)
+        self.assertRaises(AssertionError, self.net.draw)
 
     @utilities.unittest.skipIf(_graphviz is None, "graphviz is not installed")
     def test_draw_grouped_reactors(self):
@@ -2063,8 +2058,9 @@ class TestSurfaceKinetics(utilities.CanteraTest):
         self.r1.name = "Reactor"
 
         dot = surf.draw(node_attr={'style': 'filled'},
-                        edge_attr={'color': 'red'})
-        expected = ['\tReactor [style=filled]\n',
+                        surface_edge_attr={'color': 'red'}, print_state=True)
+        expected = [('\tReactor [label="{T (K)\\n1200.00|P (bar)\\n0.010}|" shape=Mrecord '
+                     'style=filled xlabel=Reactor]\n'),
                     '\t"Reactor surface" [shape=underline style=filled]\n',
                     ('\tReactor -> "Reactor surface" '
                      '[arrowhead=none color=red style=dotted]\n')]
