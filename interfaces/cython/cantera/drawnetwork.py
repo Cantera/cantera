@@ -3,7 +3,6 @@
 
 import importlib.metadata as _metadata
 from functools import wraps as _wraps
-from collections import defaultdict as _defaultdict
 
 _graphviz = None
 def _import_graphviz():
@@ -31,42 +30,9 @@ def _needs_graphviz(func):
     return inner
 
 
-reactor_names = _defaultdict(lambda: _defaultdict(int))
-
-
-def _unique_name(r):
-    """
-    Generate a unique name for `ReactorBase` ``r``. In practice,
-    this means appending "_i" to its name in case the same name
-    is used several times, with "i" being a consistant while
-    drawing the network.
-
-    """
-    reactor_names[r.name][r] += 1
-    idx = list(reactor_names[r.name]).index(r)
-    if idx == 0:
-        return r.name
-    else:
-        new_name = r.name + f"_{idx}"
-        print(f'Reactor named "{r.name}" already drawn.\n'
-              f'Changing name of reactor {r} to "{new_name}". '
-              "Consider giving unique names to all reactors.")
-        return new_name
-
-
-def _clear_reactor_names(func):
-    # decorator function to clear reactor_names dict after drawing
-    @_wraps(func)
-    def inner(*args, **kwargs):
-        dot = func(*args, **kwargs)
-        reactor_names.clear()
-        return dot
-    return inner
-
-
-@_clear_reactor_names
-def draw_reactor(r, dot=None, *, print_state=False, species=None, species_units="percent",
-                 graph_attr=None, node_attr=None):
+@_needs_graphviz
+def draw_reactor(r, dot=None, graph_attr=None, node_attr=None, print_state=False, species=None,
+                 species_units="percent", **kwargs):
     """
     Draw `ReactorBase` object as ``graphviz`` ``dot`` node.
     The node is added to an existing ``dot`` graph if provided.
@@ -103,18 +69,12 @@ def draw_reactor(r, dot=None, *, print_state=False, species=None, species_units=
         ``graphviz.graphs.BaseGraph`` object with reactor
 
     """
-    return _draw_reactor(**locals())
 
-
-@_needs_graphviz
-def _draw_reactor(r, dot=None, print_state=False, species=None, species_units="percent",
-                  **kwargs):
     if not dot:
-        dot = _graphviz.Digraph(name=r.name,
-                                graph_attr=kwargs.get("graph_attr"))
+        dot = _graphviz.Digraph(name=r.name, graph_attr=graph_attr)
 
     # attributes defined in Reactor.node_attr overwrite default attributes
-    node_attr = dict(kwargs.get("node_attr") or {}, **r.node_attr)
+    node_attr = dict(node_attr or {}, **r.node_attr)
 
     # include full reactor state in representation if desired
     if print_state:
@@ -149,32 +109,26 @@ def _draw_reactor(r, dot=None, print_state=False, species=None, species_units="p
 
         # For full state output, shape must be 'Mrecord'
         node_attr.pop("shape", None)
-        dot.node(_unique_name(r), shape="Mrecord",
+        dot.node(r.name, shape="Mrecord",
                  label=f"{{{T_label}|{P_label}}}|{s_label}",
                  xlabel=r.name,
                  **node_attr)
 
     else:
-        dot.node(_unique_name(r), **node_attr)
+        dot.node(r.name, **node_attr)
 
     return dot
 
 
-@_clear_reactor_names
 @_needs_graphviz
-def draw_reactor_net(n, *, print_state=False, graph_attr=None,
-                     node_attr=None, edge_attr=None, heat_flow_attr=None,
-                     mass_flow_attr=None, **kwargs):
+def draw_reactor_net(n, graph_attr=None, node_attr=None, edge_attr=None, heat_flow_attr=None,
+                     mass_flow_attr=None, print_state=False, **kwargs):
     """
     Draw `ReactorNet` object as ``graphviz.graphs.DiGraph``. Connecting flow
     controllers and walls are depicted as arrows.
 
     :param n:
         `ReactorNet` object
-    :param print_state:
-        Whether state information of each reactor is printed into the
-        respective node. See `draw_reactor` for additional keywords to
-        control this output. Defaults to ``False``.
     :param graph_attr:
         Attributes to be passed to the ``graphviz.Digraph`` function that
         control the general appearance of the drawn network.
@@ -197,6 +151,10 @@ def draw_reactor_net(n, *, print_state=False, graph_attr=None,
     :param mass_flow_attr:
         Same as `edge_attr` but only applied to edges representing
         `FlowDevice` objects.
+    :param print_state:
+        Whether state information of each reactor is printed into the
+        respective node. See `draw_reactor` for additional keywords to
+        control this output. Defaults to ``False``.
     :param kwargs:
         Additional keywords are passed on to each call of `draw_reactor`,
         `draw_surface` and `draw_connections`.
@@ -204,8 +162,7 @@ def draw_reactor_net(n, *, print_state=False, graph_attr=None,
         ``graphviz.graphs.BaseGraph`` object with reactor net.
 
     """
-    kwargs = locals()
-    kwargs.pop('n',)
+
     dot = _graphviz.Digraph(graph_attr=graph_attr)
 
     # collect elements as set to avoid duplicates
@@ -225,30 +182,36 @@ def draw_reactor_net(n, *, print_state=False, graph_attr=None,
             sub = _graphviz.Digraph(name=f"cluster_{name}",
                                     graph_attr=graph_attr)
             for r in group:
-                _draw_reactor(r, sub, **kwargs)
+                draw_reactor(r, sub, graph_attr, node_attr, print_state, **kwargs)
                 drawn_reactors.add(r)
                 connections.update(r.walls + r.inlets + r.outlets)
                 for surface in r.surfaces:
-                    _draw_surface(surface, sub, **kwargs)
+                    draw_surface(surface, sub, graph_attr, node_attr, print_state, **kwargs)
             sub.attr(label=name)
             dot.subgraph(sub)
     reactors.difference_update(drawn_reactors)
 
     for r in reactors:
-        _draw_reactor(r, dot, **kwargs)
+        draw_reactor(r, dot, graph_attr, node_attr, print_state, **kwargs)
         connections.update(r.walls + r.inlets + r.outlets)
         for surface in r.surfaces:
-            _draw_surface(surface, dot, **kwargs)
+            draw_surface(surface, dot, graph_attr, node_attr, print_state, **kwargs)
 
     # some Reactors or Reservoirs only exist as connecting nodes
     connected_reactors = _get_connected_reactors(connections)
 
+    # ensure that all names are unique
+    all_reactors = reactors | connected_reactors
+    names = set([r.name for r in all_reactors])
+    assert len(names) == len(all_reactors), "All reactors must have unique names when drawn."
+
     # remove already drawn reactors and draw new reactors
     connected_reactors.difference_update(drawn_reactors)
     for r in connected_reactors:
-        _draw_reactor(r, dot, **kwargs)
+        draw_reactor(r, dot, graph_attr, node_attr, print_state, **kwargs)
 
-    _draw_connections(connections, dot, **kwargs)
+    draw_connections(connections, dot, graph_attr, node_attr, edge_attr, heat_flow_attr,
+                     mass_flow_attr, **kwargs)
 
     return dot
 
@@ -278,9 +241,8 @@ def _get_connected_reactors(connections):
     return connected_reactors
 
 
-@_clear_reactor_names
-def draw_surface(surface, dot=None, *, print_state=False, species=None,
-                 graph_attr=None, node_attr=None, edge_attr=None, **kwargs):
+def draw_surface(surface, dot=None, graph_attr=None, node_attr=None, surface_edge_attr=None,
+                 print_state=False, **kwargs):
     """
     Draw `ReactorSurface` object with its connected reactor.
 
@@ -289,10 +251,6 @@ def draw_surface(surface, dot=None, *, print_state=False, species=None,
     :param dot:
         ``graphviz.graphs.BaseGraph`` object to which the connection is added.
         If not provided, a new ``DiGraph`` is created. Defaults to ``None``.
-    :param print_state:
-        Whether state information of the reactor is printed into the node.
-        See `draw_reactor` for additional keywords to control this output.
-        Defaults to ``False``.
     :param graph_attr:
         Attributes to be passed to the ``graphviz.Digraph`` function that
         control the general appearance of the drawn network.
@@ -300,16 +258,20 @@ def draw_surface(surface, dot=None, *, print_state=False, species=None,
         attributes.
     :param node_attr:
         Attributes to be passed to the ``node`` method invoked to draw the
-        reactor. ``node_attr`` defined in the reactor object itself have
-        priority.
+        reactor. ``node_attr`` defined in the `ReactorSurface` object itself
+        have priority.
         See https://graphviz.org/docs/nodes/ for a list of all usable
         attributes.
-    :param edge_attr:
+    :param surface_edge_attr:
         Attributes to be passed to the ``edge`` method invoked to draw
-        reactor connections. ``edge_attr`` defined in the connection objects
-        (subclasses of `FlowDevice` or walls) themselve have priority.
+        the connection between the surface and its reactor.
         See https://graphviz.org/docs/edges/ for a list of all usable
         attributes.
+        Default is `{"style": "dotted", "arrowhead": "none"}`.
+    :param print_state:
+        Whether state information of the reactor is printed into the node.
+        See `draw_reactor` for additional keywords to control this output.
+        Defaults to ``False``.
     :param kwargs:
         Additional keywords are passed on to `draw_reactor`.
     :return:
@@ -317,28 +279,23 @@ def draw_surface(surface, dot=None, *, print_state=False, species=None,
         reactor.
 
     """
-    return _draw_surface(**locals())
 
-
-def _draw_surface(surface, dot=None, **kwargs):
     r = surface.reactor
-    dot = _draw_reactor(r, dot, **kwargs)
+    dot = draw_reactor(r, dot, graph_attr, node_attr, print_state, **kwargs)
     name = f"{r.name} surface"
     edge_attr = {"style": "dotted", "arrowhead": "none",
-                 **(kwargs.get("edge_attr") or {})}
+                 **(surface_edge_attr or {})}
 
-    node_attr = dict(kwargs.get("node_attr") or {}, **surface.node_attr)
-    dot.node(name, **node_attr)
+    dot.node(name, **dict(node_attr or {}, **surface.node_attr))
     dot.edge(r.name, name, **edge_attr)
 
     return dot
 
 
-@_clear_reactor_names
-def draw_connections(connections, dot=None, *, show_wall_velocity=True,
-                     graph_attr=None, node_attr=None, edge_attr=None,
-                     heat_flow_attr=None, mass_flow_attr=None,
-                     wall_edge_attr=None):
+@_needs_graphviz
+def draw_connections(connections, dot=None, graph_attr=None, node_attr=None, edge_attr=None,
+                     heat_flow_attr=None, mass_flow_attr=None, wall_edge_attr=None,
+                     show_wall_velocity=True, **kwargs):
     """
     Draw connections between reactors and reservoirs. This includes flow
     controllers and walls.
@@ -349,9 +306,6 @@ def draw_connections(connections, dot=None, *, show_wall_velocity=True,
     :param dot:
         ``graphviz.graphs.BaseGraph`` object to which the connection is added.
         If not provided, a new ``DiGraph`` is created. Defaults to ``None``.
-    :param show_wall_velocity:
-        If ``True``, wall movement will be indicated by additional arrows with
-        the corresponding wall velocity as a label.
     :param graph_attr:
         Attributes to be passed to the ``graphviz.Digraph`` function that
         control the general appearance of the drawn network.
@@ -377,29 +331,28 @@ def draw_connections(connections, dot=None, *, show_wall_velocity=True,
     :param wall_edge_attr:
         Same as `edge_attr` but only applied to edges representing wall
         movement.
+    :param show_wall_velocity:
+        If ``True``, wall movement will be indicated by additional arrows with
+        the corresponding wall velocity as a label.
     :return:
         A ``graphviz.graphs.BaseGraph`` object depicting the connections.
 
     """
-    return _draw_connections(**locals())
 
-
-@_needs_graphviz
-def _draw_connections(connections, dot=None, show_wall_velocity=True, **kwargs):
     if not dot:
-        dot = _graphviz.Digraph(graph_attr=kwargs.get("graph_attr"))
+        dot = _graphviz.Digraph(graph_attr=graph_attr)
     if len(connections) > 1:
         # set default style for all connections and nodes if provided
-        dot.edge_attr.update(kwargs.get("edge_attr") or {})
+        dot.edge_attr.update(edge_attr or {})
         edge_attr_overwrite = {}
     else:
         # assume overwrite if single connection is drawn
-        edge_attr_overwrite = kwargs.get("edge_attr") or {}
-    dot.node_attr.update(kwargs.get("node_attr") or {})
+        edge_attr_overwrite = edge_attr or {}
+    dot.node_attr.update(node_attr or {})
 
     # retrieve default attributes for all mass flow and heat connections
-    mass_flow_attr = kwargs.get("mass_flow_attr") or {}
-    heat_flow_attr = kwargs.get("heat_flow_attr") or {}
+    mass_flow_attr = mass_flow_attr or {}
+    heat_flow_attr = heat_flow_attr or {}
 
     # using a while loop instead of iterating over all connections allows to
     # remove duplicate connections once they have been detected.
@@ -439,7 +392,8 @@ def _draw_connections(connections, dot=None, show_wall_velocity=True, **kwargs):
         # remove duplicates from the set of the connections still to be drawn
         connections.difference_update(duplicates | inv_duplicates)
 
-        r_in_name, r_out_name = _unique_name(r_in), _unique_name(r_out)
+        assert r_in.name != r_out.name, "All reactors must have unique names when drawn."
+        r_in_name, r_out_name = r_in.name, r_out.name
         # id to ensure that wall velocity and heat flow arrows align
         samehead = sametail = r_in_name + "-" + r_out_name
         # display wall velocity as arrow indicating the wall's movement
@@ -457,7 +411,7 @@ def _draw_connections(connections, dot=None, show_wall_velocity=True, **kwargs):
                             "arrowsize": "1.5", "penwidth": "0", "weight": "2",
                             "samehead": samehead, "sametail": sametail,
                             "taillabel": f"wall velocity = {v:.2g} m/s",
-                            **(kwargs.get("wall_edge_attr") or {})})
+                            **(wall_edge_attr or {})})
         except AttributeError:
             pass
 
