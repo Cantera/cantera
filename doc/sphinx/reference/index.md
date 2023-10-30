@@ -85,6 +85,12 @@ a number of zero- and one-dimensional systems.
 :text-align: center
 ```
 
+```{grid-item-card} Transport Properties
+:link: transport/index
+:link-type: doc
+:text-align: center
+```
+
 ```{grid-item-card} Reactors
 :link: reactors/index
 :link-type: doc
@@ -118,6 +124,7 @@ a number of zero- and one-dimensional systems.
 
 thermo/index
 kinetics/index
+transport/index
 reactors/index
 onedim/index
 bibliography
