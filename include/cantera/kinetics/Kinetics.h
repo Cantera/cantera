@@ -1202,8 +1202,8 @@ public:
      *
      * @param i   reaction index
      */
-    virtual bool isReversible(size_t i) {
-        throw NotImplementedError("Kinetics::isReversible");
+    bool isReversible(size_t i) const {
+        return std::find(m_revindex.begin(), m_revindex.end(), i) < m_revindex.end();
     }
 
     /**
@@ -1526,6 +1526,9 @@ protected:
 
     //! Net rate-of-progress for each reaction
     vector<double> m_ropnet;
+
+    vector<size_t> m_revindex; //!< Indices of reversible reactions
+    vector<size_t> m_irrev; //!< Indices of irreversible reactions
 
     //! The enthalpy change for each reaction to calculate Blowers-Masel rates
     vector<double> m_dH;

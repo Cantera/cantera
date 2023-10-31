@@ -389,12 +389,6 @@ bool InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base, bool resize)
         return false;
     }
 
-    if (r_base->reversible) {
-        m_revindex.push_back(i);
-    } else {
-        m_irrev.push_back(i);
-    }
-
     m_rxnPhaseIsReactant.emplace_back(nPhases(), false);
     m_rxnPhaseIsProduct.emplace_back(nPhases(), false);
 
