@@ -27,7 +27,7 @@ void InterfaceKinetics::resizeReactions()
     m_rbuf0.resize(nReactions());
     m_rbuf1.resize(nReactions());
 
-    for (auto& rates : m_interfaceRates) {
+    for (auto& rates : m_rateHandlers) {
         rates->resize(nTotalSpecies(), nReactions(), nPhases());
         // @todo ensure that ReactionData are updated; calling rates->update
         //      blocks correct behavior in InterfaceKinetics::_update_rates_T
@@ -64,7 +64,7 @@ void InterfaceKinetics::_update_rates_T()
     }
 
     // loop over interface MultiRate evaluators for each reaction type
-    for (auto& rates : m_interfaceRates) {
+    for (auto& rates : m_rateHandlers) {
         bool changed = rates->update(thermo(0), *this);
         if (changed) {
             rates->getRateConstants(m_rfn.data());
@@ -414,15 +414,15 @@ bool InterfaceKinetics::addReaction(shared_ptr<Reaction> r_base, bool resize)
     }
 
     // If necessary, add new interface MultiRate evaluator
-    if (m_interfaceTypes.find(rtype) == m_interfaceTypes.end()) {
-        m_interfaceTypes[rtype] = m_interfaceRates.size();
-        m_interfaceRates.push_back(rate->newMultiRate());
-        m_interfaceRates.back()->resize(m_kk, nReactions(), nPhases());
+    if (m_rateTypes.find(rtype) == m_rateTypes.end()) {
+        m_rateTypes[rtype] = m_rateHandlers.size();
+        m_rateHandlers.push_back(rate->newMultiRate());
+        m_rateHandlers.back()->resize(m_kk, nReactions(), nPhases());
     }
 
     // Add reaction rate to evaluator
-    size_t index = m_interfaceTypes[rtype];
-    m_interfaceRates[index]->add(nReactions() - 1, *rate);
+    size_t index = m_rateTypes[rtype];
+    m_rateHandlers[index]->add(nReactions() - 1, *rate);
 
     // Set flag for coverage dependence to true
     if (rate->compositionDependent()) {
@@ -451,13 +451,13 @@ void InterfaceKinetics::modifyReaction(size_t i, shared_ptr<Reaction> r_base)
     }
 
     // Ensure that interface MultiRate evaluator is available
-    if (!m_interfaceTypes.count(rtype)) {
+    if (!m_rateTypes.count(rtype)) {
         throw CanteraError("InterfaceKinetics::modifyReaction",
             "Interface evaluator not available for type '{}'.", rtype);
     }
     // Replace reaction rate evaluator
-    size_t index = m_interfaceTypes[rate->type()];
-    m_interfaceRates[index]->replace(i, *rate);
+    size_t index = m_rateTypes[rate->type()];
+    m_rateHandlers[index]->replace(i, *rate);
 
     // Invalidate cached data
     m_redo_rates = true;

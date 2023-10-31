@@ -9,7 +9,6 @@
 #define CT_IFACEKINETICS_H
 
 #include "Kinetics.h"
-#include "MultiRate.h"
 
 namespace Cantera
 {
@@ -319,10 +318,6 @@ protected:
     vector<double> m_grt;
 
     bool m_redo_rates = false;
-
-    //! Vector of rate handlers for interface reactions
-    vector<unique_ptr<MultiRateBase>> m_interfaceRates;
-    map<string, size_t> m_interfaceTypes; //!< Rate handler mapping
 
     //! Array of concentrations for each species in the kinetics mechanism
     /*!
