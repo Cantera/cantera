@@ -12,10 +12,6 @@ BulkKinetics::BulkKinetics() {
     setDerivativeSettings(AnyMap()); // use default settings
 }
 
-bool BulkKinetics::isReversible(size_t i) {
-    return std::find(m_revindex.begin(), m_revindex.end(), i) < m_revindex.end();
-}
-
 bool BulkKinetics::addReaction(shared_ptr<Reaction> r, bool resize)
 {
     bool added = Kinetics::addReaction(r, resize);
@@ -32,12 +28,6 @@ bool BulkKinetics::addReaction(shared_ptr<Reaction> r, bool resize)
     }
 
     m_dn.push_back(dn);
-
-    if (r->reversible) {
-        m_revindex.push_back(nReactions()-1);
-    } else {
-        m_irrev.push_back(nReactions()-1);
-    }
 
     shared_ptr<ReactionRate> rate = r->rate();
     string rtype = rate->subType();
