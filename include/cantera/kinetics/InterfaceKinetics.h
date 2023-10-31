@@ -100,16 +100,6 @@ public:
     //! @{
 
     void getActivityConcentrations(double* const conc) override;
-
-    bool isReversible(size_t i) override {
-        if (std::find(m_revindex.begin(), m_revindex.end(), i)
-                < m_revindex.end()) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
     void getFwdRateConstants(double* kfwd) override;
     void getRevRateConstants(double* krev, bool doIrreversible=false) override;
 
@@ -328,24 +318,11 @@ protected:
     //! Temporary work vector of length m_kk
     vector<double> m_grt;
 
-    //! List of reactions numbers which are reversible reactions
-    /*!
-     *  This is a vector of reaction numbers. Each reaction in the list is
-     *  reversible. Length = number of reversible reactions
-     */
-    vector<size_t> m_revindex;
-
     bool m_redo_rates = false;
 
     //! Vector of rate handlers for interface reactions
     vector<unique_ptr<MultiRateBase>> m_interfaceRates;
     map<string, size_t> m_interfaceTypes; //!< Rate handler mapping
-
-    //! Vector of irreversible reaction numbers
-    /*!
-     * vector containing the reaction numbers of irreversible reactions.
-     */
-    vector<size_t> m_irrev;
 
     //! Array of concentrations for each species in the kinetics mechanism
     /*!

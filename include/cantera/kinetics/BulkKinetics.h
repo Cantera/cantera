@@ -28,7 +28,6 @@ public:
         return "bulk";
     }
 
-    bool isReversible(size_t i) override;
     //! @}
 
     //! @name Reaction Mechanism Setup Routines
@@ -151,9 +150,6 @@ protected:
     //! Vector of rate handlers
     vector<unique_ptr<MultiRateBase>> m_bulk_rates;
     map<string, size_t> m_bulk_types; //!< Mapping of rate handlers
-
-    vector<size_t> m_revindex; //!< Indices of reversible reactions
-    vector<size_t> m_irrev; //!< Indices of irreversible reactions
 
     //! Difference between the global reactants order and the global products
     //! order. Of type "double" to account for the fact that we can have real-
