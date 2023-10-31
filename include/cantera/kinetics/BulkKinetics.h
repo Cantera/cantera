@@ -9,7 +9,6 @@
 #define CT_BULKKINETICS_H
 
 #include "Kinetics.h"
-#include "MultiRate.h"
 #include "ThirdBodyCalc.h"
 
 namespace Cantera
@@ -146,10 +145,6 @@ protected:
     void assertDerivativesValid(const string& name);
 
     //! @}
-
-    //! Vector of rate handlers
-    vector<unique_ptr<MultiRateBase>> m_bulk_rates;
-    map<string, size_t> m_bulk_types; //!< Mapping of rate handlers
 
     //! Difference between the global reactants order and the global products
     //! order. Of type "double" to account for the fact that we can have real-

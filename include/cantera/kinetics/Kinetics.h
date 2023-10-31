@@ -13,6 +13,7 @@
 
 #include "StoichManager.h"
 #include "cantera/base/ValueCache.h"
+#include "MultiRate.h"
 
 namespace Cantera
 {
@@ -1445,6 +1446,10 @@ protected:
      *    Otherwise, it returns the ratio of the stoichiometric coefficients.
      */
     double checkDuplicateStoich(map<int, double>& r1, map<int, double>& r2) const;
+
+    //! Vector of rate handlers
+    vector<unique_ptr<MultiRateBase>> m_rateHandlers;
+    map<string, size_t> m_rateTypes; //!< Mapping of rate handlers
 
     //! @name Stoichiometry management
     //!
