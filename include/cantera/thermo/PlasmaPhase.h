@@ -99,6 +99,13 @@ public:
                                           const double* distrb,
                                           size_t length);
 
+    //! Set discretized electron energy distribution.
+    //! @param  distrb The vector of electron energy distribution.
+    //!                Length: #m_nPoints.
+    //! @param  length The length of the vectors, which equals #m_nPoints.
+    void setDiscretizedElectronEnergyDist(const double* distrb,
+                                          size_t length);
+
     //! Get electron energy distribution.
     //! @param  distrb The vector of electron energy distribution.
     //!                Length: #m_nPoints.
@@ -254,8 +261,28 @@ public:
         return speciesName(m_electronSpeciesIndex);
     }
 
+    //! Return the distribution Number #m_distNum
+    int distributionNumber() const {
+        return m_distNum;
+    }
+
+    //! Return the electron energy level Number #m_levelNum
+    int levelNumber() const {
+        return m_levelNum;
+    }
+
 protected:
     void updateThermo() const override;
+
+    //! When electron energy distribution changed, plasma properties such as
+    //! electron-collision reaction rates need to be re-evaluated.
+    void electronEnergyDistributionChanged();
+
+    //! When electron energy level changed, plasma properties such as
+    //! electron-collision reaction rates need to be re-evaluate.
+    //! In addition, the cross-sections need to be interpolated at
+    //! the new level.
+    void electronEnergyLevelChanged();
 
     //! Check the electron energy levels
     /*!
@@ -317,6 +344,15 @@ protected:
 
     //! Flag of normalizing electron energy distribution
     bool m_do_normalizeElectronEnergyDist = true;
+
+private:
+    //! Electron energy distribution change variable. Whenever
+    //! #m_electronEnergyDist changes, this int is incremented.
+    int m_distNum = -1;
+
+    //! Electron energy level change variable. Whenever
+    //! #m_electronEnergyLevels changes, this int is incremented.
+    int m_levelNum = -1;
 };
 
 }

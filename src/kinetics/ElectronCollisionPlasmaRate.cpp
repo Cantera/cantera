@@ -17,30 +17,33 @@ ElectronCollisionPlasmaData::ElectronCollisionPlasmaData()
     distribution.assign(1, 0.0);
 }
 
-bool ElectronCollisionPlasmaData::update(const ThermoPhase& phase,
-                                         const Kinetics& kin)
+bool ElectronCollisionPlasmaData::update(const ThermoPhase& phase, const Kinetics& kin)
 {
     const PlasmaPhase& pp = dynamic_cast<const PlasmaPhase&>(phase);
 
-    vector<double> levels(pp.nElectronEnergyLevels());
-    pp.getElectronEnergyLevels(levels.data());
-
-    vector<double> dist(pp.nElectronEnergyLevels());
-    pp.getElectronEnergyDistribution(dist.data());
-
-    bool changed = false;
-
-    if (levels != energyLevels) {
-        energyLevels = std::move(levels);
-        changed = true;
+    // The distribution number dictates whether the rate should be updated.
+    // Three scenarios involving changes of the distribution number:
+    // 1. Change of the electron energy levels
+    // 2. Change of the electron energy distribution
+    // 3. Combined changes of one and two
+    if (pp.distributionNumber() == m_dist_number) {
+        return false;
     }
 
-    if (dist != distribution) {
-        distribution = std::move(dist);
-        changed = true;
+    // Update distribution
+    m_dist_number = pp.distributionNumber();
+    distribution.resize(pp.nElectronEnergyLevels());
+    pp.getElectronEnergyDistribution(distribution.data());
+
+    // Update energy levels
+    levelChanged = pp.levelNumber() != m_level_number;
+    if (levelChanged) {
+        m_level_number = pp.levelNumber();
+        energyLevels.resize(pp.nElectronEnergyLevels());
+        pp.getElectronEnergyLevels(energyLevels.data());
     }
 
-    return changed;
+    return true;
 }
 
 void ElectronCollisionPlasmaRate::setParameters(const AnyMap& node, const UnitStack& rate_units)
@@ -67,19 +70,22 @@ void ElectronCollisionPlasmaRate::getParameters(AnyMap& node) const {
     node["cross-sections"] = m_crossSections;
 }
 
-double ElectronCollisionPlasmaRate::evalFromStruct(const ElectronCollisionPlasmaData& shared_data) const
+double ElectronCollisionPlasmaRate::evalFromStruct(
+    const ElectronCollisionPlasmaData& shared_data)
 {
     // Interpolate cross-sections data to the energy levels of
     // the electron energy distribution function
-    vector<double> cross_sections;
-    for (auto i = 0; i < shared_data.energyLevels.size(); i ++ ) {
-        cross_sections.push_back(linearInterp(shared_data.energyLevels[i],
-                                        m_energyLevels, m_crossSections));
+    if (shared_data.levelChanged) {
+        m_crossSectionsInterpolated.resize(0);
+        for (double level : shared_data.energyLevels) {
+            m_crossSectionsInterpolated.push_back(linearInterp(level,
+                                                  m_energyLevels, m_crossSections));
+        }
     }
 
     // Map cross sections to Eigen::ArrayXd
     auto cs_array = Eigen::Map<const Eigen::ArrayXd>(
-        cross_sections.data(), cross_sections.size()
+        m_crossSectionsInterpolated.data(), m_crossSectionsInterpolated.size()
     );
 
     // Map energyLevels in Eigen::ArrayXd
