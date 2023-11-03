@@ -35,6 +35,14 @@ struct ElectronCollisionPlasmaData : public ReactionData
 
     vector<double> energyLevels; //!< electron energy levels
     vector<double> distribution; //!< electron energy distribution
+    bool levelChanged;
+
+protected:
+    //! integer that is incremented when electron energy distribution changes
+    int m_dist_number = -1;
+
+    //! integer that is incremented when electron energy level changes
+    int m_level_number = -1;
 };
 
 
@@ -85,7 +93,6 @@ public:
 
     ElectronCollisionPlasmaRate(const AnyMap& node,
                                 const UnitStack& rate_units={})
-        : ElectronCollisionPlasmaRate()
     {
         setParameters(node, rate_units);
     }
@@ -109,7 +116,7 @@ public:
     /*!
      *  @param shared_data  data shared by all reactions of a given type
      */
-    double evalFromStruct(const ElectronCollisionPlasmaData& shared_data) const;
+    double evalFromStruct(const ElectronCollisionPlasmaData& shared_data);
 
     //! Evaluate derivative of reaction rate with respect to temperature
     //! divided by reaction rate
@@ -134,6 +141,9 @@ private:
 
     //! collision cross sections [m2] at #m_energyLevels
     vector<double> m_crossSections;
+
+    //! collision cross sections [m2] after intepolation
+    vector<double> m_crossSectionsInterpolated;
 };
 
 }
