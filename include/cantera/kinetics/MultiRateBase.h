@@ -52,6 +52,19 @@ public:
     //! @param kf  array of rate constants
     virtual void getRateConstants(double* kf) = 0;
 
+    //! For certain reaction types that do not follow mass action kinetics (for example,
+    //! Butler-Volmer), calculate modifications to the forward and reverse rate
+    //! constants.
+    //! @param[in, out] kf  On input, contains the rate constants as computed by
+    //!     getRateConstants(). The output value is updated by the reactant
+    //!     StoichManagerN to determine the forward rates of progress.
+    //! @param[in, out] kr  On input, contains the reverse rate constants computed from
+    //!     the forward rate constants and the equilibrium constants. The output value
+    //!     is updated by the product StoichManagerN to determine the reverse rates of
+    //!     progress.
+    //! @since New in %Cantera 3.2
+    virtual void modifyRateConstants(double* kf, double* kr) = 0;
+
     //! Evaluate all rate constant temperature derivatives handled by the evaluator;
     //! which are multiplied with the array of rate-of-progress variables.
     //! Depending on the implementation of a rate object, either an exact derivative or
