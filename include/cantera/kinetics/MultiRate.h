@@ -21,6 +21,7 @@ template <class RateType, class DataType>
 class MultiRate final : public MultiRateBase
 {
     CT_DEFINE_HAS_MEMBER(has_update, updateFromStruct)
+    CT_DEFINE_HAS_MEMBER(has_modifyRateConstants, modifyRateConstants)
     CT_DEFINE_HAS_MEMBER(has_ddT, ddTScaledFromStruct)
     CT_DEFINE_HAS_MEMBER(has_ddP, perturbPressure)
     CT_DEFINE_HAS_MEMBER(has_ddM, perturbThirdBodies)
@@ -68,6 +69,14 @@ public:
     void getRateConstants(double* kf) override {
         for (auto& [iRxn, rate] : m_rxn_rates) {
             kf[iRxn] = rate.evalFromStruct(m_shared);
+        }
+    }
+
+    void modifyRateConstants(double* kf, double* kr) override {
+        if constexpr (has_modifyRateConstants<RateType>::value) {
+            for (auto& [iRxn, rate] : m_rxn_rates) {
+                rate.modifyRateConstants(m_shared, kf[iRxn], kr[iRxn]);
+            }
         }
     }
 

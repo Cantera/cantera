@@ -218,6 +218,10 @@ void InterfaceKinetics::updateROP()
         m_ropr[i] = m_ropf[i] * m_rkcn[i];
     }
 
+    for (auto& rates : m_rateHandlers) {
+        rates->modifyRateConstants(m_ropf.data(), m_ropr.data());
+    }
+
     // multiply ropf by the activity concentration reaction orders to obtain
     // the forward rates of progress.
     m_reactantStoich.multiply(m_actConc.data(), m_ropf.data());

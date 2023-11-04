@@ -508,12 +508,17 @@ void BulkKinetics::updateROP()
     processThirdBodies(m_ropf.data());
     copy(m_ropf.begin(), m_ropf.end(), m_ropr.begin());
 
-    // multiply ropf by concentration products
-    m_reactantStoich.multiply(m_act_conc.data(), m_ropf.data());
-
     // for reversible reactions, multiply ropr by concentration products
     applyEquilibriumConstants(m_ropr.data());
+
+    for (auto& rates : m_rateHandlers) {
+        rates->modifyRateConstants(m_ropf.data(), m_ropr.data());
+    }
+
+    // multiply ropf and ropr by concentration products
+    m_reactantStoich.multiply(m_act_conc.data(), m_ropf.data());
     m_revProductStoich.multiply(m_act_conc.data(), m_ropr.data());
+
     for (size_t j = 0; j != nReactions(); ++j) {
         m_ropnet[j] = m_ropf[j] - m_ropr[j];
     }
