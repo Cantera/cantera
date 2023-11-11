@@ -1215,7 +1215,7 @@ cdef class Valve(FlowDevice):
 
     .. math:: \dot m = K_v*(P_1 - P_2)
 
-    where :math:`K_v` is a constant set by the `set_valve_coeff` method.
+    where :math:`K_v` is a constant set using the `valve_coeff` property.
     Note that :math:`P_1` must be greater than :math:`P_2`; otherwise,
     :math:`\dot m = 0`. However, an arbitrary function can also be specified,
     such that
