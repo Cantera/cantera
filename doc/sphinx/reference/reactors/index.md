@@ -57,23 +57,6 @@ the state variables representing the composition.
 : A reactor where the pressure is held constant, specialized for ideal gas mixtures and
   with the composition stored in moles.
 
-```{toctree}
-:hidden:
-:caption: Reactor models
-:maxdepth: 1
-
-controlreactor
-constant-pressure-reactor
-ideal-gas-reactor
-ideal-gas-constant-pressure-reactor
-mole-reactor
-constant-pressure-mole-reactor
-ideal-gas-mole-reactor
-ideal-gas-constant-pressure-mole-reactor
-
-interactions
-```
-
 (sec-reactor-interactions)=
 ## Reactor Interactions
 
@@ -108,7 +91,42 @@ the following models:
   and the fluid.
 
 ```{seealso}
-Cantera comes with a broad variety of well-commented example scrips for reactor
+Cantera comes with a broad variety of well-commented example scripts for reactor
 networks. Please see the [Cantera Examples](/examples/python/reactors/index) for further
 information.
+```
+
+## Plug Flow Reactor
+
+A *plug flow reactor* (PFR) represents a steady-state flow in a channel. The fluid is
+considered to be homogeneous perpendicular to the flow direction, while the state of the
+gas is allowed to change in the axial direction. However, all diffusion processes are
+neglected.
+
+These assumptions result in a system of equations that is similar to those used to model
+homogeneous reactors, with the time variable replaced by the axial coordinate. Because
+of this mathematical similarity, PFRs are also solved by Cantera's reactor network
+model. However, they can only be simulated alone, and not part of a network containing
+time-dependent reactors.
+
+[Plug Flow Reactor](pfr)
+: A reactor modeling one-dimensional steady-state flow in a channel that may contain
+  catalytically active surfaces where heterogeneous reactions occur.
+
+```{toctree}
+:hidden:
+:caption: Reactor models
+:maxdepth: 1
+
+controlreactor
+constant-pressure-reactor
+ideal-gas-reactor
+ideal-gas-constant-pressure-reactor
+mole-reactor
+constant-pressure-mole-reactor
+ideal-gas-mole-reactor
+ideal-gas-constant-pressure-mole-reactor
+
+interactions
+pfr
 ```
