@@ -960,10 +960,9 @@ class TestReactor(utilities.CanteraTest):
         self.r2.name = "Name 2"
         w = ct.Wall(self.r1, self.r2, U=0.1, velocity=1)
         dot = w.draw()
-        expected = [('\t"Name 1" -> "Name 2" [arrowsize=1.5 arrowtail=teecrow '
-                     'dir=back penwidth=0 samehead="Name 1-Name 2" '
-                     'sametail="Name 1-Name 2" '
-                     'taillabel="wall velocity = 1 m/s" weight=2]\n'),
+        expected = [('\t"Name 1" -> "Name 2" [label="wall vel. = 1 m/s" '
+                     'arrowhead=icurveteecurve arrowtail=icurveteecurve '
+                     'dir=both style=dotted]\n'),
                     ('\t"Name 2" -> "Name 1" [label="q = 30 W" '
                      'color=red samehead="Name 1-Name 2" '
                      'sametail="Name 1-Name 2" style=dashed]\n')]
