@@ -397,6 +397,7 @@ def draw_connections(connections, dot=None, graph_attr=None, node_attr=None, edg
         # id to ensure that wall velocity and heat flow arrows align
         samehead = sametail = r_in_name + "-" + r_out_name
         # display wall velocity as arrow indicating the wall's movement
+        v = 0
         try:
             if c.velocity != 0 and show_wall_velocity:
                 if c.velocity > 0:
@@ -407,10 +408,8 @@ def draw_connections(connections, dot=None, graph_attr=None, node_attr=None, edg
                     inflow_name, outflow_name = r_out_name, r_in_name
 
                 dot.edge(inflow_name, outflow_name,
-                         **{"arrowtail": "teecrow", "dir": "back",
-                            "arrowsize": "1.5", "penwidth": "0", "weight": "2",
-                            "samehead": samehead, "sametail": sametail,
-                            "taillabel": f"wall velocity = {v:.2g} m/s",
+                         **{"arrowtail": "icurveteecurve", "dir": "both", "style": "dotted",
+                            "arrowhead": "icurveteecurve", "label": f"wall vel. = {v:.2g} m/s",
                             **(wall_edge_attr or {})})
         except AttributeError:
             pass
@@ -421,11 +420,13 @@ def draw_connections(connections, dot=None, graph_attr=None, node_attr=None, edg
                 - sum(getattr(c, rate_attr) for c in inv_duplicates))
 
         # ensure arrow always indicates a positive flow
-        if rate >= 0:
+        if rate > 0:
             inflow_name, outflow_name = r_in_name, r_out_name
-        else:
+        elif rate < 0:
             inflow_name, outflow_name = r_out_name, r_in_name
             rate *= -1
+        elif v > 0:
+            return dot
 
         if rate_attr == "mass_flow_rate":
             label = f"m = {rate:.2g} kg/s"
