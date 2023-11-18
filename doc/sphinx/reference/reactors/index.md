@@ -57,6 +57,16 @@ the state variables representing the composition.
 : A reactor where the pressure is held constant, specialized for ideal gas mixtures and
   with the composition stored in moles.
 
+```{seealso}
+In some cases, Cantera's built-in reactor types are insufficient to model a problem.
+In this situation, the {py:class}`ExtensibleReactor` family of classes can be used to
+implement modified governing equations, starting from one of the built-in reactor types
+described above.
+
+The [Guide to Extending Reactor Models](/userguide/extensible-reactor) can help you get
+started with implementing your own customized reactor models.
+```
+
 (sec-reactor-interactions)=
 ## Reactor Interactions
 
