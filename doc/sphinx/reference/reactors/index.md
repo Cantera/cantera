@@ -123,6 +123,30 @@ time-dependent reactors.
 : A reactor modeling one-dimensional steady-state flow in a channel that may contain
   catalytically active surfaces where heterogeneous reactions occur.
 
+## Reactor Networks
+
+While reactors by themselves define the governing equations, the time integration is
+performed by assembling reactors into a reactor network. A reactor network is therefore
+necessary even if only a single reactor is considered.
+
+Cantera uses the CVODES and IDAS solvers from the
+[SUNDIALS](https://computing.llnl.gov/projects/sundials) package to integrate the
+governing equations for the reactor network, which are a system of stiff ODEs or DAEs.
+
+### Preconditioning
+
+Some of Cantera's reactor formulations (specifically, the
+[Ideal Gas Control Volume Mole Reactor](ideal-gas-mole-reactor) and the
+[Ideal Gas Constant Pressure Mole Reactor](ideal-gas-constant-pressure-mole-reactor))
+provide implementations of a sparse, approximate Jacobian matrix, which can be used by
+{ct}`ReactorNet` to generate a preconditioner and use a sparse, iterative linear solver
+within CVODES. This sparse, preconditioned method can significantly accelerate
+integration for reactors containing many species. A derivation of the derivative terms
+and benchmarks demonstrating the achievable performance gains can be found in
+{cite:t}`walker2023`. An example demonstrating the use of this feature can be found in
+[`preconditioned_integration.py`](/examples/python/reactors/preconditioned_integration).
+
+
 ```{toctree}
 :hidden:
 :caption: Reactor models

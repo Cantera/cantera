@@ -35,4 +35,14 @@ compiling/special-cases
 
 ## How Cantera Works
 
+- [](reactor-integration)
+
+```{toctree}
+:caption: How Cantera Works
+:hidden:
+:maxdepth: 1
+
+reactor-integration
+```
+
 ## Adding New Models to Cantera
