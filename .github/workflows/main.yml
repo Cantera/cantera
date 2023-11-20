@@ -312,7 +312,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.8'
+          python-version: '3.11'
           architecture: x64
       - name: Install Apt dependencies
         run: |
@@ -323,7 +323,7 @@ jobs:
         run: python3 -m pip install -U pip setuptools wheel
       - name: Install Python dependencies
         run: |
-          python3 -m pip install ruamel.yaml scons numpy cython 'sphinx>=5.3.0' \
+          python3 -m pip install ruamel.yaml scons numpy cython 'sphinx>=7.2,<8' \
             sphinxcontrib-matlabdomain sphinxcontrib-doxylink sphinxcontrib-bibtex \
             pydata-sphinx-theme==0.14.1 sphinx-argparse sphinx_design myst-nb \
             sphinx-copybutton matplotlib pandas scipy pint
