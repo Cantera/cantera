@@ -23,7 +23,8 @@ def generate_source(lang: str, out_dir: str):
     config = {}
     if config_path.exists():
         with config_path.open() as config_file:
-            config = ruamel.yaml.safe_load(config_file)
+            reader = ruamel.yaml.YAML(typ="safe")
+            config = reader.load(config_file)
 
     ignore_files: List[str] = config.get("ignore_files", [])
     ignore_funcs: Dict[str, List[str]] = config.get("ignore_funcs", {})
