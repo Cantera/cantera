@@ -68,6 +68,7 @@ def draw_reactor(r, dot=None, graph_attr=None, node_attr=None, print_state=False
     :return:
         ``graphviz.graphs.BaseGraph`` object with reactor
 
+    .. versionadded:: 3.1
     """
 
     if not dot:
@@ -161,6 +162,7 @@ def draw_reactor_net(n, graph_attr=None, node_attr=None, edge_attr=None, heat_fl
     :return:
         ``graphviz.graphs.BaseGraph`` object with reactor net.
 
+    .. versionadded:: 3.1
     """
 
     dot = _graphviz.Digraph(graph_attr=graph_attr)
@@ -278,6 +280,7 @@ def draw_surface(surface, dot=None, graph_attr=None, node_attr=None, surface_edg
         A ``graphviz.graphs.BaseGraph`` object depicting the surface and its
         reactor.
 
+    .. versionadded:: 3.1
     """
 
     r = surface.reactor
@@ -337,6 +340,7 @@ def draw_connections(connections, dot=None, graph_attr=None, node_attr=None, edg
     :return:
         A ``graphviz.graphs.BaseGraph`` object depicting the connections.
 
+    .. versionadded:: 3.1
     """
 
     if not dot:

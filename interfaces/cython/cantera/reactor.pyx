@@ -195,6 +195,7 @@ cdef class ReactorBase:
          :return:
              ``graphviz.graphs.BaseGraph`` object with reactor
 
+        .. versionadded:: 3.1
         """
         return draw_reactor(self, dot, graph_attr, node_attr, print_state, species,
                             species_units)
@@ -888,7 +889,10 @@ cdef class ReactorSurface:
 
     @property
     def reactor(self):
-        """Return the `Reactor` object the surface is connected to."""
+        """
+        Return the `Reactor` object the surface is connected to.
+        .. versionadded:: 3.1
+        """
         return self._reactor
 
     def draw(self, dot=None, *, graph_attr=None, node_attr=None, surface_edge_attr=None,
@@ -927,6 +931,7 @@ cdef class ReactorSurface:
             ``graphviz.graphs.BaseGraph`` object with surface and connected
             reactor.
 
+        .. versionadded:: 3.1
         """
         return draw_surface(self, dot, graph_attr, node_attr, surface_edge_attr, print_state,
                             **kwargs)
@@ -1028,12 +1033,18 @@ cdef class WallBase:
 
     @property
     def left_reactor(self):
-        """Return the `Reactor` or `Reservoir` object left of the wall."""
+        """
+        Return the `Reactor` or `Reservoir` object left of the wall.
+        .. versionadded:: 3.1
+        """
         return self._left_reactor
 
     @property
     def right_reactor(self):
-        """Return the `Reactor` or `Reservoir` object right of the wall."""
+        """
+        Return the `Reactor` or `Reservoir` object right of the wall.
+        .. versionadded:: 3.1
+        """
         return self._right_reactor
 
     @property
@@ -1094,6 +1105,7 @@ cdef class WallBase:
         :return:
             A ``graphviz.graphs.BaseGraph`` object depicting the connection.
 
+        .. versionadded:: 3.1
         """
         return draw_connections([self], dot, graph_attr, node_attr, edge_attr, wall_edge_attr,
                                 show_wall_velocity)
@@ -1250,6 +1262,7 @@ cdef class FlowDevice:
     def upstream(self):
         """
         Return the `Reactor` or `Reservoir` object upstream of the flow device.
+        .. versionadded:: 3.1
         """
         return self._upstream
 
@@ -1257,6 +1270,7 @@ cdef class FlowDevice:
     def downstream(self):
         """
         Return the `Reactor` or `Reservoir` object downstream of the flow device.
+        .. versionadded:: 3.1
         """
         return self._downstream
 
@@ -1352,6 +1366,7 @@ cdef class FlowDevice:
         :return:
             A ``graphviz.graphs.BaseGraph`` object depicting the connection.
 
+        .. versionadded:: 3.1
         """
         return draw_connections([self], dot, graph_attr, node_attr, edge_attr)
 
@@ -1601,6 +1616,7 @@ cdef class ReactorNet:
     def reactors(self):
         """
         List of all reactors that are part of the reactor network.
+        .. versionadded:: 3.1
         """
         return self._reactors
 
@@ -2057,6 +2073,7 @@ cdef class ReactorNet:
         :return:
             ``graphviz.graphs.BaseGraph`` object with reactor net.
 
+        .. versionadded:: 3.1
         """
         return draw_reactor_net(self, graph_attr, node_attr, edge_attr, heat_flow_attr,
                  mass_flow_attr, print_state, **kwargs)
