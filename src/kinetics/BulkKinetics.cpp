@@ -491,15 +491,16 @@ void BulkKinetics::updateROP()
 
         // Third-body objects interacting with MultiRate evaluator
         m_multi_concm.update(m_phys_conc, ctot, m_concm.data());
-
-        // loop over MultiRate evaluators for each reaction type
-        for (auto& rates : m_bulk_rates) {
-            bool changed = rates->update(thermo(), *this);
-            if (changed) {
-                rates->getRateConstants(m_kf0.data());
-            }
-        }
         m_ROP_ok = false;
+    }
+
+    // loop over MultiRate evaluators for each reaction type
+    for (auto& rates : m_bulk_rates) {
+        bool changed = rates->update(thermo(), *this);
+        if (changed) {
+            rates->getRateConstants(m_kf0.data());
+            m_ROP_ok = false;
+        }
     }
 
     if (m_ROP_ok) {
