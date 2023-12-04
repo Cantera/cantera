@@ -1732,7 +1732,7 @@ env['python_cmd_esc'] = quoted(env['python_cmd'])
 # Python Package Settings
 python_min_version = parse_version("3.8")
 # Newest Python version not supported/tested by Cantera
-python_max_p1_version = parse_version("3.12")
+python_max_p1_version = parse_version("3.13")
 # The string is used to set python_requires in setup.cfg.in
 env["py_requires_ver_str"] = f">={python_min_version}"
 if env["python_sdist"] or env["package_build"]:
