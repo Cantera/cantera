@@ -233,7 +233,7 @@ cdef class ReactorBase:
 cdef class Reactor(ReactorBase):
     cdef CxxReactor* reactor
     cdef object _kinetics
-    cdef public str groupname
+    cdef public str group_name
     """
     Optional name of a grouping of reactors that will be drawn as a cluster in the graphical
     representation using graphviz. See https://graphviz.org/Gallery/directed/cluster.html.

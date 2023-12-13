@@ -922,8 +922,8 @@ class TestReactor(utilities.CanteraTest):
         self.make_reactors()
         self.r1.name = "Reactor 1"
         self.r2.name = "Reactor 2"
-        self.r1.groupname = "Group 1"
-        self.r2.groupname = "Group 2"
+        self.r1.group_name = "Group 1"
+        self.r2.group_name = "Group 2"
         dot = self.net.draw()
         expected = ['\tsubgraph "cluster_Group 1" {\n',
                     '\t\t"Reactor 1"\n',

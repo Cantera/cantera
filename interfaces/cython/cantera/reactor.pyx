@@ -160,14 +160,14 @@ cdef class ReactorBase:
         """
         self._walls.append(wall)
 
-    def draw(self, dot=None, *, graph_attr=None, node_attr=None, print_state=False,
+    def draw(self, graph=None, *, graph_attr=None, node_attr=None, print_state=False,
              species=None, species_units="percent"):
         """
         Draw as ``graphviz`` ``dot`` node.
-        The node is added to an existing ``dot`` graph if provided.
+        The node is added to an existing ``graph`` if provided.
         Optionally include current reactor state in the node.
 
-       :param dot:
+        :param graph:
            ``graphviz.graphs.BaseGraph`` object to which the reactor is added.
            If not provided, a new ``DiGraph`` is created. Defaults to ``None``.
        :param graph_attr:
@@ -197,7 +197,7 @@ cdef class ReactorBase:
 
         .. versionadded:: 3.1
         """
-        return draw_reactor(self, dot, graph_attr, node_attr, print_state, species,
+        return draw_reactor(self, graph, graph_attr, node_attr, print_state, species,
                             species_units)
 
     def __reduce__(self):
@@ -219,8 +219,7 @@ cdef class Reactor(ReactorBase):
     def __cinit__(self, *args, **kwargs):
         self.reactor = <CxxReactor*>(self.rbase)
 
-    def __init__(self, contents=None, *, name=None, energy='on',
-                 groupname=None, **kwargs):
+    def __init__(self, contents=None, *, name=None, energy='on', group_name="", **kwargs):
         """
         :param contents:
             Reactor contents. If not specified, the reactor is initially empty.
@@ -233,8 +232,8 @@ cdef class Reactor(ReactorBase):
             Set to ``'on'`` or ``'off'``. If set to ``'off'``, the energy
             equation is not solved, and the temperature is held at its
             initial value.
-        :param groupname:
-            Group reactors of the same ``groupname`` when drawn using graphviz.
+        :param group_name:
+            Group reactors of the same ``group_name`` when drawn using graphviz.
 
         Some examples showing how to create :class:`Reactor` objects are
         shown below.
@@ -261,10 +260,7 @@ cdef class Reactor(ReactorBase):
         elif energy != 'on':
             raise ValueError("'energy' must be either 'on' or 'off'")
 
-        if groupname is not None:
-            self.groupname = groupname
-        else:
-            self.groupname = ""
+        self.group_name = group_name
 
     def insert(self, _SolutionBase solution):
         """
@@ -895,15 +891,15 @@ cdef class ReactorSurface:
         """
         return self._reactor
 
-    def draw(self, dot=None, *, graph_attr=None, node_attr=None, surface_edge_attr=None,
+    def draw(self, graph=None, *, graph_attr=None, node_attr=None, surface_edge_attr=None,
              print_state=False, **kwargs):
         """
-        Draw the surface as a ``graphviz`` ``dot`` node connected to its
-        reactor.
+        Draw the surface as a ``graphviz`` ``dot`` node connected to its reactor.
+        The node is added to an existing ``graph`` if provided.
         The node is added to an existing ``dot`` graph if provided.
         Optionally include current reactor state in the reactor node.
 
-        :param dot:
+        :param graph:
             ``graphviz.graphs.BaseGraph`` object to which the reactor is added.
             If not provided, a new ``DiGraph`` is created. Defaults to ``None``.
         :param graph_attr:
@@ -933,8 +929,8 @@ cdef class ReactorSurface:
 
         .. versionadded:: 3.1
         """
-        return draw_surface(self, dot, graph_attr, node_attr, surface_edge_attr, print_state,
-                            **kwargs)
+        return draw_surface(self, graph, graph_attr, node_attr, surface_edge_attr,
+                            print_state, **kwargs)
 
     def add_sensitivity_reaction(self, int m):
         """
@@ -1070,13 +1066,13 @@ cdef class WallBase:
         return self.wall.heatRate()
 
 
-    def draw(self, dot=None, *, graph_attr=None, node_attr=None, edge_attr=None,
-             wall_edge_attr=None, show_wall_velocity=True):
+    def draw(self, graph=None, *, graph_attr=None, node_attr=None, edge_attr=None,
+             moving_wall_edge_attr=None, show_wall_velocity=True):
         """
         Draw as connection between left and right reactor or reservoir using
         ``graphviz``.
 
-        :param dot:
+        :param graph:
             ``graphviz.graphs.BaseGraph`` object to which the connection is added.
             If not provided, a new ``DiGraph`` is created. Defaults to ``None``
         :param graph_attr:
@@ -1107,8 +1103,8 @@ cdef class WallBase:
 
         .. versionadded:: 3.1
         """
-        return draw_connections([self], dot, graph_attr, node_attr, edge_attr, wall_edge_attr,
-                                show_wall_velocity)
+        return draw_walls([self], graph, graph_attr, node_attr, edge_attr,
+                                moving_wall_edge_attr, show_wall_velocity)
 
 
 cdef class Wall(WallBase):
@@ -1338,12 +1334,12 @@ cdef class FlowDevice:
         self.dev.setTimeFunction(g.func)
 
 
-    def draw(self, dot=None, *, graph_attr=None, node_attr=None, edge_attr=None):
+    def draw(self, graph=None, *, graph_attr=None, node_attr=None, edge_attr=None):
         """
         Draw as connection between upstream and downstream reactor or reservoir
         using ``graphviz``.
 
-        :param dot:
+        :param graph:
             ``graphviz.graphs.BaseGraph`` object to which the connection is added.
             If not provided, a new ``DiGraph`` is created. Defaults to ``None``
         :param graph_attr:
@@ -1368,7 +1364,7 @@ cdef class FlowDevice:
 
         .. versionadded:: 3.1
         """
-        return draw_connections([self], dot, graph_attr, node_attr, edge_attr)
+        return draw_flow_controllers([self], graph, graph_attr, node_attr, edge_attr)
 
 
 cdef class MassFlowController(FlowDevice):
