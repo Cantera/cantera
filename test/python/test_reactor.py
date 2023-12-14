@@ -870,45 +870,51 @@ class TestReactor(utilities.CanteraTest):
         self.make_reactors()
         T1, P1, X1 = 300, 101325, 'O2:1.0'
         self.gas1.TPX = T1, P1, X1
+        # set attributes during creation
         r1 = self.reactorClass(self.gas1, node_attr={'fillcolor': 'red'})
         r1.name = "Name"
+        # overwrite fillcolor in object attributes
         r1.node_attr = {'style': 'filled', 'fillcolor': 'green'}
-        dot = r1.draw()
+        graph = r1.draw()
         expected = ['\tName [fillcolor=green style=filled]\n']
-        self.assertEqual(dot.body, expected)
+        self.assertEqual(graph.body, expected)
 
-        r1.node_attr = {"style": "filled"}
-        expected = [('\tName [label="{T (K)\\n300.00|P (bar)\\n1.013}|" '
-                     'color=blue shape=Mrecord style=filled xlabel=Name]\n')]
-        dot = r1.draw(print_state=True, node_attr={"style": "",
-                                                   "color": "blue"})
-        self.assertEqual(dot.body, expected)
+        # overwrite style during call to draw
+        expected = [('\tName [label="{T (K)\\n300.00|P (bar)\\n1.013}|" color=blue '
+                     'fillcolor=green shape=Mrecord style="" xlabel=Name]\n')]
+        graph = r1.draw(print_state=True, node_attr={"style": "", "color": "blue"})
+        self.assertEqual(graph.body, expected)
 
+        # print state with mole fractions
         r1.node_attr = {}
         expected = [('\tName [label="{T (K)\\n300.00|P (bar)\\n1.013}|X (%)'
                      '\\nO2: 100.00" shape=Mrecord xlabel=Name]\n')]
-        dot = r1.draw(print_state=True, species="X")
-        self.assertEqual(dot.body, expected)
+        graph = r1.draw(print_state=True, species="X")
+        self.assertEqual(graph.body, expected)
 
+        # print state with mass fractions
         expected = [('\tName [label="{T (K)\\n300.00|P (bar)\\n1.013}|Y (%)'
                      '\\nO2: 100.00" shape=Mrecord xlabel=Name]\n')]
-        dot = r1.draw(print_state=True, species="Y")
-        self.assertEqual(dot.body, expected)
+        graph = r1.draw(print_state=True, species="Y")
+        self.assertEqual(graph.body, expected)
 
+        # print state with specified species
         expected = [('\tName [label="{T (K)\\n300.00|P (bar)\\n1.013}|X (%)'
                      '\\nH2: 0.00" shape=Mrecord xlabel=Name]\n')]
-        dot = r1.draw(print_state=True, species=["H2"])
-        self.assertEqual(dot.body, expected)
+        graph = r1.draw(print_state=True, species=["H2"])
+        self.assertEqual(graph.body, expected)
 
+        # print state with specified species and specified unit
         expected = [('\tName [label="{T (K)\\n300.00|P (bar)\\n1.013}|X (ppm)'
                      '\\nO2: 1000000.0" shape=Mrecord xlabel=Name]\n')]
-        dot = r1.draw(print_state=True, species=["O2"], species_units="ppm")
-        self.assertEqual(dot.body, expected)
+        graph = r1.draw(print_state=True, species=["O2"], species_units="ppm")
+        self.assertEqual(graph.body, expected)
 
-        dot = _graphviz.Digraph()
-        r1.draw(dot)
+        # add reactor to existiing graph
+        graph = _graphviz.Digraph()
+        r1.draw(graph)
         expected = ['\tName\n']
-        self.assertEqual(dot.body, expected)
+        self.assertEqual(graph.body, expected)
 
     @utilities.unittest.skipIf(_graphviz is None, "graphviz is not installed")
     def test_draw_reactors_same_name(self):
@@ -924,7 +930,7 @@ class TestReactor(utilities.CanteraTest):
         self.r2.name = "Reactor 2"
         self.r1.group_name = "Group 1"
         self.r2.group_name = "Group 2"
-        dot = self.net.draw()
+        graph = self.net.draw()
         expected = ['\tsubgraph "cluster_Group 1" {\n',
                     '\t\t"Reactor 1"\n',
                     '\t\tlabel="Group 1"\n',
@@ -933,7 +939,7 @@ class TestReactor(utilities.CanteraTest):
                     '\t\t"Reactor 2"\n',
                     '\t\tlabel="Group 2"\n',
                     '\t}\n']
-        self.assertSetEqual(set(dot.body), set(expected))
+        self.assertSetEqual(set(graph.body), set(expected))
 
     @utilities.unittest.skipIf(_graphviz is None, "graphviz is not installed")
     def test_draw_wall(self):
@@ -943,13 +949,12 @@ class TestReactor(utilities.CanteraTest):
         self.r1.name = "Name 1"
         self.r2.name = "Name 2"
         w = ct.Wall(self.r1, self.r2, U=0.1, edge_attr={'style': 'dotted'})
-        w.edge_attr = {'color': 'blue'}
-        dot = w.draw(node_attr={'style': 'filled'},
-                     edge_attr={'style': 'dashed'})
+        w.edge_attr = {'color': 'green'}
+        graph = w.draw(node_attr={'style': 'filled'},
+                       edge_attr={'style': 'dashed', 'color': 'blue'})
         expected = [('\t"Name 2" -> "Name 1" [label="q = 30 W" '
-                     'color=blue samehead="Name 1-Name 2" '
-                     'sametail="Name 1-Name 2" style=dashed]\n')]
-        self.assertEqual(dot.body, expected)
+                     'color=blue style=dashed]\n')]
+        self.assertEqual(graph.body, expected)
 
     @utilities.unittest.skipIf(_graphviz is None, "graphviz is not installed")
     def test_draw_moving_wall(self):
@@ -959,14 +964,22 @@ class TestReactor(utilities.CanteraTest):
         self.r1.name = "Name 1"
         self.r2.name = "Name 2"
         w = ct.Wall(self.r1, self.r2, U=0.1, velocity=1)
-        dot = w.draw()
+        graph = w.draw()
         expected = [('\t"Name 1" -> "Name 2" [label="wall vel. = 1 m/s" '
                      'arrowhead=icurveteecurve arrowtail=icurveteecurve '
                      'dir=both style=dotted]\n'),
                     ('\t"Name 2" -> "Name 1" [label="q = 30 W" '
-                     'color=red samehead="Name 1-Name 2" '
-                     'sametail="Name 1-Name 2" style=dashed]\n')]
-        self.assertEqual(dot.body, expected)
+                     'color=red style=dashed]\n')]
+        self.assertEqual(graph.body, expected)
+
+        # omit heat flow if zero
+        w.heat_transfer_coeff = 0
+        graph = w.draw()
+        expected = [('\t"Name 1" -> "Name 2" [label="wall vel. = 1 m/s" '
+                     'arrowhead=icurveteecurve arrowtail=icurveteecurve '
+                     'dir=both style=dotted]\n')]
+        self.assertEqual(graph.body, expected)
+
 
     @utilities.unittest.skipIf(_graphviz is None, "graphviz is not installed")
     def test_draw_flow_controller(self):
@@ -980,14 +993,13 @@ class TestReactor(utilities.CanteraTest):
         mfc = ct.MassFlowController(inlet_reservoir, self.r1, mdot=2,
                                     edge_attr={'xlabel': 'MFC'})
         pfc = ct.PressureController(self.r1, outlet_reservoir, primary=mfc)
-        pfc.edge_attr = {'color': 'purple'}
+        mfc.edge_attr.update({'color': 'purple'})
         self.net.advance_to_steady_state()
-        dot = mfc.draw(node_attr={'style': 'filled'},
-                       edge_attr={'style': 'dotted'})
-        expected = [('\tInlet -> Reactor [label="m = 2 kg/s" '
-                     'samehead="Inlet-Reactor" sametail="Inlet-Reactor" '
+        graph = mfc.draw(node_attr={'style': 'filled'},
+                         edge_attr={'style': 'dotted', 'color': 'blue'})
+        expected = [('\tInlet -> Reactor [label="m = 2 kg/s" color=blue '
                      'style=dotted xlabel=MFC]\n')]
-        self.assertEqual(dot.body, expected)
+        self.assertEqual(graph.body, expected)
 
     @utilities.unittest.skipIf(_graphviz is None, "graphviz is not installed")
     def test_draw_network(self):
@@ -1008,9 +1020,9 @@ class TestReactor(utilities.CanteraTest):
         pfc_hot2 = ct.PressureController(self.r1, outlet, primary=mfc_hot2)
         pfc_cold = ct.PressureController(self.r2, outlet, primary=mfc_cold)
         self.net.advance_to_steady_state()
-        dot = self.net.draw(mass_flow_attr={'color': 'green'},
-                            heat_flow_attr={'color': 'orange'},
-                            print_state=True)
+        graph = self.net.draw(mass_flow_attr={'color': 'green'},
+                              heat_flow_attr={'color': 'orange'},
+                              print_state=True)
         expected = [('\t"Cold reactor" [label="{T (K)\\n202.18|P (bar)'
                      '\\n1.013}|" shape=Mrecord xlabel="Cold reactor"]\n'),
                     ('\t"Hot reactor" [label="{T (K)\\n598.68|P (bar)'
@@ -1022,22 +1034,15 @@ class TestReactor(utilities.CanteraTest):
                     ('\tOutlet [label="{T (K)\\n200.00|P (bar)'
                      '\\n1.013}|" shape=Mrecord xlabel=Outlet]\n'),
                     ('\t"Cold inlet" -> "Cold reactor" [label="m = 2 kg/s" '
-                     'color=green samehead="Cold inlet-Cold reactor" '
-                     'sametail="Cold inlet-Cold reactor"]\n'),
-                    ('\t"Hot reactor" -> Outlet [label="m = 3 kg/s" '
-                     'color=green samehead="Hot reactor-Outlet" '
-                     'sametail="Hot reactor-Outlet"]\n'),
-                    ('\t"Cold reactor" -> Outlet [label="m = 2 kg/s" '
-                     'color=green samehead="Cold reactor-Outlet" '
-                     'sametail="Cold reactor-Outlet"]\n'),
+                     'color=green]\n'),
+                    '\t"Hot reactor" -> Outlet [label="m = 3 kg/s" color=green]\n',
+                    '\t"Cold reactor" -> Outlet [label="m = 2 kg/s" color=green]\n',
                     ('\t"Hot reactor" -> "Cold reactor" [label="q = 4e+03 W" '
-                     'color=orange samehead="Hot reactor-Cold reactor" '
-                     'sametail="Hot reactor-Cold reactor" style=dashed]\n'),
+                     'color=orange style=dashed]\n'),
                     ('\t"Hot inlet" -> "Hot reactor" [label="m = 3 kg/s" '
-                     'color=green samehead="Hot inlet-Hot reactor" '
-                     'sametail="Hot inlet-Hot reactor"]\n')]
+                     'color=green]\n')]
         # use sets because order can be random
-        self.assertSetEqual(set(dot.body), set(expected))
+        self.assertSetEqual(set(graph.body), set(expected))
 
 
 class TestMoleReactor(TestReactor):
@@ -2056,14 +2061,14 @@ class TestSurfaceKinetics(utilities.CanteraTest):
         surf = ct.ReactorSurface(self.interface, self.r1)
         self.r1.name = "Reactor"
 
-        dot = surf.draw(node_attr={'style': 'filled'},
-                        surface_edge_attr={'color': 'red'}, print_state=True)
+        graph = surf.draw(node_attr={'style': 'filled'},
+                          surface_edge_attr={'color': 'red'}, print_state=True)
         expected = [('\tReactor [label="{T (K)\\n1200.00|P (bar)\\n0.010}|" shape=Mrecord '
                      'style=filled xlabel=Reactor]\n'),
                     '\t"Reactor surface" [shape=underline style=filled]\n',
                     ('\tReactor -> "Reactor surface" '
                      '[arrowhead=none color=red style=dotted]\n')]
-        self.assertEqual(dot.body, expected)
+        self.assertEqual(graph.body, expected)
 
 
 class TestReactorSensitivities(utilities.CanteraTest):
