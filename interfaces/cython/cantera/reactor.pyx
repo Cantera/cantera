@@ -48,10 +48,7 @@ cdef class ReactorBase:
         if volume is not None:
             self.volume = volume
 
-        if node_attr is not None:
-            self.node_attr = node_attr
-        else:
-            self.node_attr = {}
+        self.node_attr = node_attr or {}
 
     def insert(self, _SolutionBase solution):
         """
@@ -985,10 +982,7 @@ cdef class WallBase:
             self.heat_flux = Q
         if velocity is not None:
             self.velocity = velocity
-        if edge_attr is not None:
-            self.edge_attr = edge_attr
-        else:
-            self.edge_attr = {}
+        self.edge_attr = edge_attr or {}
 
     def _install(self, ReactorBase left, ReactorBase right):
         """
@@ -1216,10 +1210,7 @@ cdef class FlowDevice:
             n = _reactor_counts[self.__class__.__name__]
             self.name = '{0}_{1}'.format(self.__class__.__name__, n)
 
-        if edge_attr is not None:
-            self.edge_attr = edge_attr
-        else:
-            self.edge_attr = {}
+        self.edge_attr = edge_attr or {}
 
         self._install(upstream, downstream)
 
