@@ -303,6 +303,13 @@ cdef class ThermoPhase(_SolutionBase):
 
         >>> phase()
         >>> print(phase.report())
+
+        :param show_thermo:
+            A Boolean argument specifying whether to show phase thermodynamic
+            information in the ouptut.
+        :param threshold:
+            The threshold used to clip data in the output. Values below the threshold
+            are not displayed.
         """
         return pystr(self.thermo.report(bool(show_thermo), threshold))
 

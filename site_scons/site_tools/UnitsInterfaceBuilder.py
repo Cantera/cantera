@@ -188,8 +188,9 @@ def UnitsInterfaceBuilder(env, target, source):
             else:
                 setattr(self._phase, name, value)
 
-        def report(self, show_thermo=True, threshold=1e-14):
-            return self._phase.report(bool(show_thermo), threshold)
+        @copy_doc
+        def report(self, *args, **kwargs):
+            return self._phase.report(*args, **kwargs)
 
         def __call__(self, *args, **kwargs):
             print(self.report(*args, **kwargs))
