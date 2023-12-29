@@ -130,6 +130,12 @@ StFlow::StFlow(shared_ptr<Solution> sol, const string& id, size_t nsoot, size_t 
     m_id = id;
     m_kin = m_solution->kinetics().get();
     m_trans = m_solution->transport().get();
+    
+    m_solution->registerChangedCallback(this, [this]() {
+        setKinetics(m_solution->kinetics());
+        setTransport(m_solution->transport());
+    });
+    
     if (m_trans->transportModel() == "none") {
         // @deprecated
         warn_deprecated("StFlow",
@@ -138,10 +144,7 @@ StFlow::StFlow(shared_ptr<Solution> sol, const string& id, size_t nsoot, size_t 
             "is deprecated and\nwill be removed after Cantera 3.0.");
         setTransportModel("mixture-averaged");
     }
-    m_solution->registerChangedCallback(this, [this]() {
-        setKinetics(m_solution->kinetics());
-        setTransport(m_solution->transport());
-    });
+
 }
 
 StFlow::~StFlow()
