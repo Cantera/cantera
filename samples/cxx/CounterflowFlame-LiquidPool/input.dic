@@ -1,0 +1,29 @@
+#include <string>
+#include <iostream>
+
+struct Parameters{
+
+    //choose mode 
+    std::string mode="Calculation";//"Analysis"
+    
+    //setup for input mechanism
+    std::string mech="/home/liang/Desktop/Cantera_Results/HT+LT/Polimi2003_TOT_HT_LT/Polimi2003_TOT_HT_LT/CRECK_2003_TOT_HT_LT.yaml";
+    
+    //setup for initial conditions
+    double InitialTemperature= 800.000000;//K
+    std::string backup_id="";
+    double  delta_T=10;
+    
+    //setup for liquid pool counterflow flame
+    double pressure = 1.0 * Cantera::OneAtm; //atm
+    double distance = 0.0105;//separation distance 14.5mm//change from 14.5mm to 10.5mm
+    double u_ox = -0.5;//50cm/s
+    std::string pool_molar_fraction = "C2H5OH:0.0,NC7H16:1.0";
+    
+    //setup for solver
+    bool refine_grid = true; 
+
+    //setup for output options
+    bool save_sol=true, save_eqn=true, sens_output=false; 
+};
+
