@@ -3561,6 +3561,29 @@ class TestExtensibleReactor:
         jac = r.jacobian
         assert np.sum(jac) == 0
 
+    def test_replace_with_default_eval(self):
+        class ReplaceEvalReactor(ct.ExtensibleIdealGasConstPressureMoleReactor):
+
+            def replace_eval(self, t, LHS, RHS):
+                self.default_eval(t, LHS, RHS)
+
+        # setup thermo object
+        gas = ct.Solution("h2o2.yaml", "ohmech")
+        gas.set_equivalence_ratio(0.5, "H2:1.0", "O2:1.0")
+        gas.equilibrate("HP")
+        # replacement reactor
+        r = ReplaceEvalReactor(gas)
+        r.volume = 1.0
+        # default reactor
+        rstd = ct.IdealGasConstPressureMoleReactor(gas)
+        rstd.volume = r.volume
+        # network of both reactors
+        net = ct.ReactorNet([r, rstd])
+        net.preconditioner = ct.AdaptivePreconditioner()
+        net.advance_to_steady_state()
+        # reactors should have the same solution because the default is used
+        self.assertArrayNear(r.get_state(), rstd.get_state())
+
 
 class TestSteadySolver:
     @pytest.mark.parametrize("reactor_class",

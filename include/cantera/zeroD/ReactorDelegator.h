@@ -52,6 +52,10 @@ public:
     //! Set the state of the thermo object for surface *n* to correspond to the
     //! state of that surface
     virtual void restoreSurfaceState(size_t n) = 0;
+
+    //! Public access to the default evaluation function so it can be used in
+    //! replace functions
+    virtual void defaultEval(double t, double* LHS, double* RHS) = 0;
 };
 
 //! Delegate methods of the Reactor class to external functions
@@ -165,6 +169,10 @@ public:
 
     void buildJacobian(vector<Eigen::Triplet<double>>& jacVector) override {
         m_build_jacobian(jacVector);
+    }
+
+    void defaultEval(double t, double* LHS, double* RHS) override {
+        R::eval(t, LHS, RHS);
     }
 
     // Public access to protected Reactor variables needed by derived classes

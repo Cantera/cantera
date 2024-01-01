@@ -2,6 +2,8 @@
 # at https://cantera.org/license.txt for license and copyright information.
 
 import warnings
+import numpy as np
+from collections import defaultdict as _defaultdict
 import numbers as _numbers
 from cython.operator cimport dereference as deref
 import numpy as np
@@ -704,6 +706,16 @@ cdef class ExtensibleReactor(Reactor):
         state of that surface
         """
         self.accessor.restoreSurfaceState(n)
+
+    def default_eval(self, time, LHS, RHS):
+        """
+        Evaluation of the base reactors `eval` function to be used in `replace`
+        functions and maintain original functionality.
+        """
+        assert len(LHS) == self.n_vars and len(RHS) == self.n_vars
+        cdef np.ndarray[np.double_t, ndim=1, mode="c"] rhs = np.frombuffer(RHS)
+        cdef np.ndarray[np.double_t, ndim=1, mode="c"] lhs = np.frombuffer(LHS)
+        self.accessor.defaultEval(time, &lhs[0], &rhs[0])
 
 
 cdef class ExtensibleIdealGasReactor(ExtensibleReactor):

@@ -220,6 +220,7 @@ cdef extern from "cantera/zeroD/ReactorDelegator.h" namespace "Cantera":
         void setHeatRate(double)
         void restoreThermoState() except +translate_exception
         void restoreSurfaceState(size_t) except +translate_exception
+        void defaultEval(double time, double* LHS, double* RHS)
 
 
 ctypedef CxxReactorAccessor* CxxReactorAccessorPtr
