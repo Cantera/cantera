@@ -195,7 +195,18 @@ void PhotolysisBase::setParameters(AnyMap const& node, UnitStack const& rate_uni
   m_ntemp = temperature.size();
   m_nwave = wavelength.size();
   m_temp_wave_grid.resize(m_ntemp + m_nwave);
+
+  for (size_t i = 0; i < m_ntemp; i++) {
+    m_temp_wave_grid[i] = temperature[i];
+  }
+
+  for (size_t i = 0; i < m_nwave; i++) {
+    m_temp_wave_grid[m_ntemp + i] = wavelength[i];
+  }
+
+  // only works for one temperature range
   m_crossSection = xsection;
+  m_crossSection.insert(m_crossSection.end(), xsection.begin(), xsection.end());
 
   if (node.hasKey("rate-constant")) {
     setRateParameters(node["rate-constant"], branches);
