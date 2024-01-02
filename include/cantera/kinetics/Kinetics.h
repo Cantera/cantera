@@ -1398,6 +1398,33 @@ public:
         return m_root.lock();
     }
 
+    //! @name Photolysis calculation methods
+    //! @{
+   
+    size_t nWavelengths() const {
+        return m_wavelength.size();
+    }
+
+    void setWavelength(double const* wavelength, size_t n) {
+        m_wavelength.assign(wavelength, wavelength + n);
+        m_actinicFlux.resize(n);
+        std::fill(m_actinicFlux.begin(), m_actinicFlux.end(), 0.0);
+    }
+
+    void getWavelength(double* wavelength) const {
+        std::copy(m_wavelength.begin(), m_wavelength.end(), wavelength);
+    }
+
+    virtual void updateActinicFlux(void *rt_solver) {
+        throw NotImplementedError("Kinetics::updateActinicFlux");
+    }
+
+    void getActinicFlux(double *actinic_flux) const {
+        std::copy(m_actinicFlux.begin(), m_actinicFlux.end(), actinic_flux);
+    }
+
+    //! @}
+
 protected:
     //! Cache for saved calculations within each Kinetics object.
     ValueCache m_cache;
@@ -1518,6 +1545,12 @@ protected:
 
     //! reference to Solution
     std::weak_ptr<Solution> m_root;
+
+    //! Photon wavelengths
+    vector<double> m_wavelength;
+
+    //! Photon actinic fluxes
+    vector<double> m_actinicFlux;
 };
 
 }

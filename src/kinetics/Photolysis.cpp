@@ -22,11 +22,6 @@ bool PhotolysisData::update(const ThermoPhase& thermo, const Kinetics& kin)
 bool PhotolysisData::check() const
 {
     // Check that the wavelength grid is valid
-    if (wavelength.empty()) {
-        throw CanteraError("PhotolysisData::update",
-                           "Wavelength grid is empty.");
-    }
-
     if (wavelength.size() < 2) {
         throw CanteraError("PhotolysisData::update",
                            "Wavelength grid must have at least two points.");

@@ -92,7 +92,14 @@ public:
     }
 
     //! @}
+    
+    //! @name Photolysis methods
+    //! @{
 
+    void updateActinicFlux(void *rt_solver) override;
+
+    //! @}
+    
 protected:
     //! @name Internal service methods
     //!
