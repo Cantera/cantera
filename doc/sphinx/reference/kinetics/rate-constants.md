@@ -25,22 +25,22 @@ field.
 ## Falloff Reactions
 
 A falloff reaction is one that has a rate that is first-order in the total concentration
-of third-body colliders $\def\MM{[\mathrm{M}]} \MM$ at low pressure, like a
-[three-body reaction](sec-three-body-reaction), but becomes zero-order in $\MM$ as $\MM$
-increases. Dissociation/association reactions of polyatomic molecules often exhibit this
-behavior.
+of third-body colliders $[\t{M}]$ at low pressure, like a
+[three-body reaction](sec-three-body-reaction), but becomes zero-order in $[\t{M}]$ as
+$[\t{M}]$ increases. Dissociation/association reactions of polyatomic molecules often
+exhibit this behavior.
 
 The simplest expression for the rate coefficient for a falloff reaction is the Lindemann
 form {cite:p}`lindemann1922`:
 
-$$  k_f(T, \MM) = \frac{k_0 \MM}{1 + \frac{k_0 \MM}{k_\infty}}  $$
+$$  k_f(T, [\t{M}]) = \frac{k_0 [\t{M}]}{1 + \frac{k_0 [\t{M}]}{k_\infty}}  $$
 
-In the low-pressure limit, this approaches $k_0 \MM$, and in the high-pressure limit it
-approaches $k_\infty$.
+In the low-pressure limit, this approaches $k_0 [\t{M}]$, and in the high-pressure limit
+it approaches $k_\infty$.
 
 Defining the non-dimensional reduced pressure:
 
-$$  P_r = \frac{k_0 \MM}{k_\infty}  $$
+$$  P_r = \frac{k_0 [\t{M}]}{k_\infty}  $$
 
 The rate constant may be written as
 
@@ -67,15 +67,15 @@ A falloff reaction may be defined in the YAML format using the
 A widely-used falloff function is the one proposed by {cite:t}`gilbert1983`:
 
 \begin{gather*}
-\log_{10} F(T, P_r) = \frac{\log_{10} F_{cent}(T)}{1 + f_1^2} \\
+\log_{10} F(T, P_r) = \frac{\log_{10} F_\t{cent}(T)}{1 + f_1^2} \\
 
-F_{cent}(T) = (1-A) \exp(-T/T_3) + A \exp (-T/T_1) + \exp(-T_2/T) \\
+F_\t{cent}(T) = (1-A) \exp(-T/T_3) + A \exp (-T/T_1) + \exp(-T_2/T) \\
 
 f_1 = (\log_{10} P_r + C) / (N - 0.14 (\log_{10} P_r + C)) \\
 
-C = -0.4 - 0.67\; \log_{10} F_{cent} \\
+C = -0.4 - 0.67\; \log_{10} F_\t{cent} \\
 
-N = 0.75 - 1.27\; \log_{10} F_{cent}
+N = 0.75 - 1.27\; \log_{10} F_\t{cent}
 \end{gather*}
 
 ```{admonition} YAML Usage
@@ -87,13 +87,13 @@ term of the falloff function is not used.
 ```
 
 (sec-tsang-falloff)=
-### Tsang's Approximation to $F_{cent}$
+### Tsang's Approximation to $F_\t{cent}$
 
-Wing Tsang presented approximations for the value of $F_{cent}$ for Troe falloff in
+Wing Tsang presented approximations for the value of $F_\t{cent}$ for Troe falloff in
 databases of reactions, for example, {cite:t}`tsang1991`. Tsang's approximations are
 linear in temperature:
 
-$$  F_{cent} = A + BT  $$
+$$  F_\t{cent} = A + BT  $$
 
 where $A$ and $B$ are constants. The remaining equations for $C$, $N$, $f_1$, and $F$
 from the [Troe](sec-troe-falloff) falloff function are not affected.
@@ -132,11 +132,11 @@ An SRI falloff function may be specified in the YAML format using the
 For these reactions, the rate falls off as the pressure increases, due to collisional
 stabilization of a reaction intermediate. Example:
 
-$$  \mathrm{Si + SiH_4 (+M) \leftrightarrow Si_2H_2 + H_2 (+M)}  $$
+$$  \t{Si + SiH_4 (+M) \leftrightarrow Si_2H_2 + H_2 (+M)}  $$
 
 which competes with:
 
-$$  \mathrm{Si + SiH_4 (+M) \leftrightarrow Si_2H_4 (+M)}  $$
+$$  \t{Si + SiH_4 (+M) \leftrightarrow Si_2H_4 (+M)}  $$
 
 Like falloff reactions, chemically-activated reactions are described by blending between
 a low-pressure and a high-pressure rate expression. The difference is that the forward
@@ -210,15 +210,15 @@ defining the rate, $\phi_n(x)$ is the Chebyshev polynomial of the first kind of 
 $n$ evaluated at $x$, and
 
 $$
-\tilde{T} \equiv \frac{2T^{-1} - T_\mathrm{min}^{-1} - T_\mathrm{max}^{-1}}
-                       {T_\mathrm{max}^{-1} - T_\mathrm{min}^{-1}}
+\tilde{T} \equiv \frac{2T^{-1} - T_\t{min}^{-1} - T_\t{max}^{-1}}
+                       {T_\t{max}^{-1} - T_\t{min}^{-1}}
 
-\tilde{P} \equiv \frac{2 \log P - \log P_\mathrm{min} - \log P_\mathrm{max}}
-                       {\log P_\mathrm{max} - \log P_\mathrm{min}}
+\tilde{P} \equiv \frac{2 \log P - \log P_\t{min} - \log P_\t{max}}
+                       {\log P_\t{max} - \log P_\t{min}}
 $$
 
-are reduced temperatures and reduced pressures which map the ranges $(T_\mathrm{min},
-T_\mathrm{max})$ and $(P_\mathrm{min}, P_\mathrm{max})$ to $(-1, 1)$.
+are reduced temperatures and reduced pressures which map the ranges $(T_\t{min},
+T_\t{max})$ and $(P_\t{min}, P_\t{max})$ to $(-1, 1)$.
 
 A Chebyshev rate expression is specified in terms of the coefficient matrix $\alpha$ and
 the temperature and pressure ranges.
@@ -284,7 +284,7 @@ Blowers Masel reactions can be defined in the YAML format using the
 
 Heterogeneous reactions on surfaces are represented by an extended Arrhenius- like rate
 expression, which combines the modified Arrhenius rate expression with further
-corrections dependent on the fractional surface coverages $\theta_{k}$ of one or more
+corrections dependent on the fractional surface coverages $\theta_k$ of one or more
 surface species. The forward rate constant for a reaction of this type is:
 
 $$
@@ -329,9 +329,9 @@ for all temperatures.
 
 The sticking coefficient is related to the forward rate constant by the formula:
 
-$$  k_f = \frac{\gamma}{\Gamma_\mathrm{tot}^m} \sqrt{\frac{RT}{2 \pi W}}  $$
+$$  k_f = \frac{\gamma}{\Gamma_\t{tot}^m} \sqrt{\frac{RT}{2 \pi W}}  $$
 
-where $\Gamma_\mathrm{tot}$ is the total molar site density, $m$ is the sum of all the
+where $\Gamma_\t{tot}$ is the total molar site density, $m$ is the sum of all the
 surface reactant stoichiometric coefficients, and $W$ is the molecular weight of the gas
 phase species.
 

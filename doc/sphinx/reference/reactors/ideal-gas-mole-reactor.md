@@ -35,8 +35,8 @@ species $k$ is generated through homogeneous phase reactions is $V \dot{\omega}_
 the total rate at which moles of species $k$ changes is:
 
 $$
-\frac{dn_k}{dt} = V \dot{\omega}_k + \sum_{in} \dot{n}_{k, in}
-                  - \sum_{out} \dot{n}_{k, out} + \dot{n}_{k, wall}
+\frac{dn_k}{dt} = V \dot{\omega}_k + \sum_\t{in} \dot{n}_{k, \t{in}}
+                  - \sum_\t{out} \dot{n}_{k, \t{out}} + \dot{n}_{k, \t{wall}}
 $$ (ig-mole-reactor-species)
 
 ## Energy Equation

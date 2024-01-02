@@ -9,11 +9,11 @@ types.
 The basic reaction type is a homogeneous reaction with a pressure-independent
 rate coefficient and mass action kinetics. For example:
 
-$$  \mathrm{A + B \rightleftharpoons C + D}  $$
+$$  \t{A + B \rightleftharpoons C + D}  $$
 
 The forward reaction rate is then calculated as:
 
-$$  R_f = [\mathrm{A}] [\mathrm{B}] k_f  $$
+$$  R_f = [\t{A}] [\t{B}] k_f  $$
 
 where $k_f$ is the forward rate constant, calculated using one of the available rate
 parameterizations such as the [modified Arrhenius](sec-arrhenius-rate) form.
@@ -32,30 +32,30 @@ reaction type is [`three-body`](sec-yaml-three-body).
 
 A three-body reaction is a gas-phase reaction of the form:
 
-$$  \mathrm{A + B + M \rightleftharpoons AB + M}  $$
+$$  \t{A + B + M \rightleftharpoons AB + M}  $$
 
-Here $\mathrm{M}$ is an unspecified collision partner that carries away excess energy to
-stabilize the $\mathrm{AB}$ molecule (forward direction) or supplies energy to break the
-$\mathrm{AB}$ bond (reverse direction). In addition to the generic collision partner
-$\mathrm{M}$, it is also possible to explicitly specify a colliding species. In both
+Here $\t{M}$ is an unspecified collision partner that carries away excess energy to
+stabilize the $\t{AB}$ molecule (forward direction) or supplies energy to break the
+$\t{AB}$ bond (reverse direction). In addition to the generic collision partner
+$\t{M}$, it is also possible to explicitly specify a colliding species. In both
 cases, the reaction type can be automatically inferred by Cantera and does not need to
 be explicitly specified by the user.
 
 Different species may be more or less effective in acting as the collision partner. A
-species that is much lighter than $\mathrm{A}$ and $\mathrm{B}$ may not be able to
+species that is much lighter than $\t{A}$ and $\t{B}$ may not be able to
 transfer much of its kinetic energy, and so would be inefficient as a collision partner.
 On the other hand, a species with a transition from its ground state that is nearly
-resonant with one in the $\mathrm{AB^*}$ activated complex may be much more effective at
+resonant with one in the $\t{AB^*}$ activated complex may be much more effective at
 exchanging energy than would otherwise be expected.
 
 These effects can be accounted for by defining a collision efficiency $\epsilon$ for
 each species, defined such that the forward reaction rate is
 
-$$  R_f = [\mathrm{A}][\mathrm{B}][\mathrm{M}]k_f(T)  $$
+$$  R_f = [\t{A}][\t{B}][\t{M}] k_f(T)  $$
 
 where
 
-$$  [\mathrm{M}] = \sum_{k} \epsilon_k C_k  $$
+$$  [\t{M}] = \sum_{k} \epsilon_k C_k  $$
 
 where $C_k$ is the concentration of species $k$. Since any constant collision efficiency
 can be absorbed into the rate coefficient $k_f(T)$, the default collision efficiency is
@@ -70,9 +70,9 @@ Sometimes, accounting for a particular third body's collision efficiency may req
 alternate set of rate parameters entirely. In this case, two reactions are written:
 
 $$
-\mathrm{A + B + M \rightleftharpoons AB + M \quad (R1)}
+\t{A + B + M \rightleftharpoons AB + M \quad (R1)}
 
-\mathrm{A + B + C \rightleftharpoons AB + C \quad (R2)}
+\t{A + B + C \rightleftharpoons AB + C \quad (R2)}
 $$
 
 where the third-body efficiency for C in the first reaction should be explicitly set to
@@ -105,14 +105,14 @@ Explicit reaction orders different from the stoichiometric coefficients are some
 used for non-elementary reactions. For example, consider the global reaction:
 
 $$
-\mathrm{C_8H_{18} + 12.5 O_2 \rightarrow 8 CO_2 + 9 H_2O}
+\t{C_8H_{18} + 12.5 O_2 \rightarrow 8 CO_2 + 9 H_2O}
 $$
 
 the forward rate constant might be given as {cite:p}`westbrook1981`:
 
 $$
-k_f = 4.6 \times 10^{11} [\mathrm{C_8H_{18}}]^{0.25} [\mathrm{O_2}]^{1.5}
-       \exp\left(\frac{30.0\,\mathrm{kcal/mol}}{RT}\right)
+k_f = 4.6 \times 10^{11} [\t{C_8H_{18}}]^{0.25} [\t{O_2}]^{1.5}
+       \exp\left(\frac{30.0\,\t{kcal/mol}}{RT}\right)
 $$
 
 Special care is required in this case since the units of the pre-exponential factor

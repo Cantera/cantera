@@ -39,17 +39,18 @@ As shown in the derivations of the governing equations, the equations implemente
 the {ct}`IdealGasConstPressureReactor` class are:
 
 $$
-\frac{dm}{dt} = \sum_{in} \dot{m}_{in} - \sum_{out} \dot{m}_{out} + \dot{m}_{wall}
+\frac{dm}{dt} = \sum_\t{in} \dot{m}_\t{in} - \sum_\t{out} \dot{m}_\t{out}
+    + \dot{m}_\t{wall}
 $$
 
 $$
-m c_p \frac{dT}{dt} = \dot{Q} - \sum_k h_k \dot{m}_{k,gen}
-     + \sum_{in} \dot{m}_{in} \left(h_{in} - \sum_k h_k Y_{k,in} \right)
+m c_p \frac{dT}{dt} = \dot{Q} - \sum_k h_k \dot{m}_{k,\t{gen}}
+     + \sum_\t{in} \dot{m}_\t{in} \left(h_\t{in} - \sum_k h_k Y_{k,\t{in}} \right)
 $$
 
 $$
-\frac{d(mY_k)}{dt} = \sum_{in} \dot{m}_{in} Y_{k,in} - \sum_{out} \dot{m}_{out} Y_k
-                     + \dot{m}_{k,gen}
+\frac{d(mY_k)}{dt} = \sum_\t{in} \dot{m}_\t{in} Y_{k,\t{in}}
+                     - \sum_\t{out} \dot{m}_\t{out} Y_k + \dot{m}_{k,gen}
 $$
 
 Each of these equations is written with an expression on the left-hand side (LHS)
@@ -63,13 +64,13 @@ For example, to add a term for a large mass, say a rock, inside the reactor that
 the thermal mass, the energy equation would become:
 
 $$
-\left(m c_p + m_{rock} c_{p,rock}\right) \frac{dT}{dt} = \dot{Q}
-    - \sum_k h_k \dot{m}_{k,gen}
-    + \sum_{in} \dot{m}_{in} \left(h_{in} - \sum_k h_k Y_{k,in} \right)
+\left(m c_p + m_\t{rock} c_{p,\t{rock}}\right) \frac{dT}{dt} = \dot{Q}
+    - \sum_k h_k \dot{m}_{k,\t{gen}}
+    + \sum_\t{in} \dot{m}_\t{in} \left(h_\t{in} - \sum_k h_k Y_{k,\t{in}} \right)
 $$
 
 Here, the LHS coefficient has changed from $m c_p$ to
-$m c_p + m_{\mathrm{rock}} c_{p,\mathrm{rock}}$. Since the rock does not change the
+$m c_p + m_{\t{rock}} c_{p,\t{rock}}$. Since the rock does not change the
 composition of the species in the reactor and does not change the mass flow rate of any
 inlets or outlets, the other governing equations defining the ideal gas constant
 pressure reactor can be left unmodified. To implement this change, we define a new class

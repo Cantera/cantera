@@ -35,8 +35,8 @@ species $k$ is generated through homogeneous phase reactions is $V \dot{\omega}_
 the total rate at which moles of species $k$ changes is:
 
 $$
-\frac{dn_k}{dt} = V \dot{\omega}_k + \sum_{in} \dot{n}_{k, in}
-                  - \sum_{out} \dot{n}_{k, out} + \dot{n}_{k, wall}
+\frac{dn_k}{dt} = V \dot{\omega}_k + \sum_\t{in} \dot{n}_{k, \t{in}}
+                  - \sum_\t{out} \dot{n}_{k, \t{out}} + \dot{n}_{k, \t{wall}}
 $$ (molereactor-species)
 
 where the subscripts *in* and *out* refer to the sum of the corresponding property over
@@ -48,8 +48,8 @@ The equation for the total internal energy is found by writing the first law for
 system:
 
 $$
-\frac{dU}{dt} = - p \frac{dV}{dt} + \dot{Q} + \sum_{in} \dot{n}_{in} \hat{h}_{in}
-                - \hat{h} \sum_{out} \dot{n}_{out}
+\frac{dU}{dt} = - p \frac{dV}{dt} + \dot{Q} + \sum_\t{in} \dot{n}_\t{in} \hat{h}_\t{in}
+                - \hat{h} \sum_\t{out} \dot{n}_\t{out}
 $$ (molereactor-energy)
 
 where $\dot{Q}$ is the net rate of heat addition to the system and $\hat{h}$ is the
