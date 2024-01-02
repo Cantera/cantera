@@ -11,7 +11,7 @@ predefined and never change from their initial values. Typically, it represents 
 to define temperature and composition of a stream of mass flowing into a reactor, or the
 ambient fluid surrounding the reactor network. In addition, the fluid flow exiting a
 reactor network has to flow into a reservoir. In the latter case, the state of the
-reservoir (except pressure) is irrelevant.
+reservoir, except for its pressure, is irrelevant.
 
 :::{admonition} Python Usage
 :class: tip
@@ -39,16 +39,16 @@ across it. The mass flow rate is computed as:
 $$  \dot m = K_v g(t) f(P_1 - P_2)  $$
 
 with $K_v$ being a proportionality constant in kg/s/Pa and $f$ and $g$ being scalar
-functions that can be defined by the user. By default, $g(t) = 1$ and $f(\Delta P) =
-\Delta P$ such that the mass flow rate defaults to:
+functions that can be defined by the user. By default, $g(t) = 1$ and $f(P_1 - P_2) =
+P_1 - P_2$ such that the mass flow rate defaults to:
 
 $$  \dot m = K_v (P_1 - P_2)  $$
 
 corresponding to a linear dependence of the mass flow rate on the pressure difference.
 The pressure difference between the upstream (1) and downstream (2) reactor is defined
 as $P_1 - P_2$. The flow is not allowed to reverse and go from the downstream to the
-upstream reactor/reservoir, which means that the flow rate is set to zero if $P_1 <
-P_2$.
+upstream reactor/reservoir, which means that the flow rate is set to zero if the
+computed value of $\dot m$ is negative, for example if $P_1 < P_2$.
 
 Valves are often used between an upstream reactor and a downstream reactor or reservoir
 to maintain them both at nearly the same pressure. By setting the constant $K_v$ to a
@@ -60,7 +60,7 @@ of $K_v$ may slow down the integrator or cause it to fail.
 :class: tip
 
 In Python, a valve is implemented by class {py:class}`Valve`; $K_v$ is set using the
-{py:attr}`Valve.valve_coeff` property; $f(\Delta P)$ is set using the
+{py:attr}`Valve.valve_coeff` property; $f(P_1 - P_2)$ is set using the
 {py:attr}`Valve.time_function` property; and $g(t)$ is set using the
 {py:attr}`Valve.pressure_function` property.
 :::
@@ -95,7 +95,7 @@ property can be used to set $g(t)$.
 (sec-pressure-controller)=
 ### Pressure Controllers
 
-A pressure controller is designed to be used in conjunction with another "primary" flow
+A pressure controller is designed to be used in conjunction with a primary flow
 controller, typically a mass flow controller. The primary flow controller is installed
 on the inlet of the reactor, and the corresponding pressure controller is installed on
 on outlet of the reactor. The mass flow rate of the pressure controller is equal to that
@@ -105,7 +105,7 @@ difference:
 $$  \dot m = \dot m_{\text{primary}} + K_v f(P_1 - P_2)  $$
 
 where $K_v$ is a proportionality constant and $f$ is a function of the pressure drop
-that defaults to $f(\Delta P) = \Delta P$. If $\dot m < 0$, the mass flow rate will be
+that defaults to $f(P_1 - P_2) = P_1 - P_2$. If $\dot m < 0$, the mass flow rate will be
 set to zero, since a reversal of the flow direction is not allowed.
 
 :::{admonition} Python Usage
@@ -114,7 +114,7 @@ set to zero, since a reversal of the flow direction is not allowed.
 Pressure controllers can be defined in Python using the {py:class}`PressureController`
 class. The primary flow controller can be set using the
 {py:attr}`PressureController.primary` property; $K_v$ can be set using the
-{py:attr}`PressureController.pressure_coeff` property; and $f(\Delta P)$ can be set
+{py:attr}`PressureController.pressure_coeff` property; and $f(P_1 - P_2)$ can be set
 using the {py:attr}`PressureController.pressure_function`.
 :::
 
@@ -126,9 +126,9 @@ finite area, may conduct or radiate heat between the two reactors on either side
 may move like a piston.
 
 Walls are stateless objects in Cantera, meaning that no differential equation is
-integrated to determine any wall property. Since it is the wall (piston) velocity that
-enters the energy equation, this means that it is the velocity, not the acceleration or
-displacement, that is specified. The wall velocity is computed from
+integrated to determine any wall property. Since it is the wall, or piston, velocity
+that enters the energy equation, this means that it is the velocity, not the
+acceleration or displacement, that is specified. The wall velocity is computed from
 
 $$  v = K(P_{\mathrm{left}} - P_{\mathrm{right}}) + v_0(t)  $$
 
@@ -141,7 +141,7 @@ $$  \dot{Q} = \sum_w f_w \dot{Q}_w  $$
 
 where $f_w = \pm 1$ indicates the facing of the wall (-1 for the reactor on the left, +1
 for the reactor on the right). The heat flux $\dot{Q}_w$ through a wall $w$ connecting
-reactors "left" and "right" is computed as:
+reactors *left* and *right* is computed as:
 
 $$
 \dot{Q}_w = U A (T_{\mathrm{left}} - T_{\mathrm{right}})
@@ -164,30 +164,44 @@ In Python, walls are defined using the {py:class}`Wall` class.
 (sec-reactor-surface)=
 ## Reacting Surfaces
 
-In case of surface reactions, there can be a net generation (or destruction) of
-homogeneous (gas) phase species at the wall. The molar rate of production for each
-homogeneous phase species $k$ on wall $w$ is $\dot{s}_{k,w}$ (in kmol/s/m{sup}`2`). The
-total (mass) production rate for homogeneous phase species $k$ on all walls is:
+In case of surface reactions, there can be a net generation or destruction of
+homogeneous, gas phase species. The molar rate of production for each homogeneous phase
+species $k$ on surface $w$ is $\dot{s}_{k,w}$ (in kmol/s/m{sup}`2`).
 
-$$  \dot{m}_{k,wall} = W_k \sum_w A_w \dot{s}_{k,w}  $$
+### Mass fraction-based reactors
 
-where $W_k$ is the molecular weight of species $k$ and $A_w$ is the area of each wall.
-The net mass flux from all walls is then:
+The total mass production rate for homogeneous phase species $k$ on all surfaces is:
 
-$$  \dot{m}_{wall} = \sum_k \dot{m}_{k,wall}  $$
+$$  \dot{m}_{k,surf} = W_k \sum_w A_w \dot{s}_{k,w}  $$
+
+where $W_k$ is the molecular weight of species $k$ and $A_w$ is the area of each
+surface. The net mass flux from all reacting surfaces is then:
+
+$$  \dot{m}_{surf} = \sum_k \dot{m}_{k,surf}  $$
 
 For each surface species $i$, the rate of change of the site fraction $\theta_{i,w}$ on
-each wall $w$ is integrated with time:
+each surface $w$ is integrated with time:
 
 $$  \frac{d\theta_{i,w}}{dt} = \frac{\dot{s}_{i,w} \sigma_i}{\Gamma_w}  $$
 
-where $\Gamma_w$ is the total surface site density on wall $w$ and $\sigma_i$ is the
-number of surface sites occupied by a molecule of species $i$ (sometimes referred to
-within Cantera as the molecule's "size").
+where $\Gamma_w$ is the total surface site density on surface $w$ and $\sigma_i$ is the
+number of surface sites occupied by a molecule of species $i$ and is sometimes referred
+to within Cantera as the molecule's *size*. The equations for $d\theta_{i,w}/dt$ are
+additional ODEs appended to the state vector for the corresponding reactor.
 
-In the case of mole based reactors, $\dot{n}_{wall}$ is needed which is calculated as:
+### Mole-based reactors
 
-$$  \dot{n}_{k, wall} = A_{w}\sum_{w}\dot{s}_{w, k}  $$
+In the case of mole based reactors, $\dot{n}_{surf}$ is used instead, and is calculated
+as:
+
+$$  \dot{n}_{k,surf} = A_{w}\sum_{w}\dot{s}_{w, k}  $$
+
+and the conservation equation for each surface species $i$ is
+
+$$  \frac{d n_{i,w}}{dt} = \dot{s}_{i,w} A_w  $$
+
+These equations for $dn_{i,w}/dt$ are additional ODEs appended to the state
+vector for the corresponding reactor.
 
 :::{admonition} Python Usage
 :class: tip

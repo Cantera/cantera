@@ -8,7 +8,7 @@ class {ct}`Reactor` and available in Python as the {py:class}`Reactor` class. A 
 volume reactor is defined by the state variables:
 
 - $m$, the mass of the reactor's contents (in kg)
-- $V$, the reactor volume (in m$^3$)
+- $V$, the reactor volume (in m{sup}`3`)
 - $U$, the total internal energy of the reactors contents (in J)
 - $Y_k$, the mass fractions for each species (dimensionless)
 

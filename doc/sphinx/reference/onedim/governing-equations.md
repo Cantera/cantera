@@ -39,6 +39,8 @@ $$
 
 where the following variables are used:
 
+- $z$ is the axial coordinate
+- $r$ is the radial coordinate
 - $\rho$ is the density
 - $u$ is the axial velocity
 - $v$ is the radial velocity
@@ -57,13 +59,21 @@ where the following variables are used:
 
 The tangential velocity $w$ has been assumed to be zero. The model is applicable to both
 ideal and non-ideal fluids, which follow ideal-gas or real-gas (Redlich-Kwong and
-Peng-Robinson) equations of state. The real-gas support for the flame models has been
-newly implemented as a part of Cantera 3.0.
+Peng-Robinson) equations of state.
 
-To help in the solution of the discretized problem, it is convenient to write a
+```{versionadded} 3.0
+Support for real gases in the flame models was introduced in Cantera 3.0.
+```
+
+To help in the solution of the discretized problem, it is useful to write a
 differential equation for the scalar $\Lambda$:
 
 $$  \frac{d\Lambda}{dz} = 0  $$
+
+When discretized, the Jacobian terms introduced by this equation match the block
+diagonal structure produced by the other governing equations, rather than creating a
+column of entries that would cause fill-in when factorizing as part of the Newton
+solver.
 
 ## Diffusive Fluxes
 
@@ -92,7 +102,10 @@ j_k = \frac{\rho W_k}{\overline{W}^2} \sum_i W_i D_{ki} \frac{\partial X_i}{\par
 $$
 
 where $D_{ki}$ is the multicomponent diffusion coefficient and $D_k^T$ is the Soret
-diffusion coefficient (used only if calculation of this term is specifically enabled).
+diffusion coefficient. Inclusion of the Soret calculation must be explicitly enabled
+when setting up the simulation, on top of specifying a multicomponent transport model,
+for example by using the {ct}`StFlow::enableSoret` method (C++) or setting the
+{py:attr}`~cantera.FlameBase.soret_enabled` property (Python).
 
 ## Boundary Conditions
 
@@ -100,8 +113,10 @@ diffusion coefficient (used only if calculation of this term is specifically ena
 
 For a boundary located at a point $z_0$ where there is an inflow, values are supplied
 for the temperature $T_0$, the species mass fractions $Y_{k,0}$ the scaled radial
-velocity $V_0$, and the mass flow rate $\dot{m}_0$ (except in the case of the
-freely-propagating flame).
+velocity $V_0$, and the mass flow rate $\dot{m}_0$. In the case of the
+freely-propagating flame, the mass flow rate is not an input but is determined
+indirectly by holding the temperature fixed at an intermediate location within the
+domain; see [](discretization) for details.
 
 The following equations are solved at the point $z = z_0$:
 

@@ -16,7 +16,7 @@ The forward reaction rate is then calculated as:
 $$  R_f = [\mathrm{A}] [\mathrm{B}] k_f  $$
 
 where $k_f$ is the forward rate constant, calculated using one of the available rate
-parameterizations such as [modified Arrhenius](sec-arrhenius-rate) form.
+parameterizations such as the [modified Arrhenius](sec-arrhenius-rate) form.
 
 ```{admonition} YAML Usage
 :class: tip
@@ -37,8 +37,9 @@ $$  \mathrm{A + B + M \rightleftharpoons AB + M}  $$
 Here $\mathrm{M}$ is an unspecified collision partner that carries away excess energy to
 stabilize the $\mathrm{AB}$ molecule (forward direction) or supplies energy to break the
 $\mathrm{AB}$ bond (reverse direction). In addition to the generic collision partner
-$\mathrm{M}$, it is also possible to explicitly specify a colliding species. In this
-case, the reaction type is automatically inferred by Cantera.
+$\mathrm{M}$, it is also possible to explicitly specify a colliding species. In both
+cases, the reaction type can be automatically inferred by Cantera and does not need to
+be explicitly specified by the user.
 
 Different species may be more or less effective in acting as the collision partner. A
 species that is much lighter than $\mathrm{A}$ and $\mathrm{B}$ may not be able to
@@ -74,13 +75,14 @@ $$
 \mathrm{A + B + C \rightleftharpoons AB + C \quad (R2)}
 $$
 
-where the third-body efficiency for C in the first reaction is set to zero.
+where the third-body efficiency for C in the first reaction should be explicitly set to
+zero.
 
 ```{admonition} YAML Usage
 :class: tip
 A three-body reaction may be defined in the YAML format using the
-[`three-body`](sec-yaml-three-body) reaction `type`, or identified automatically if no
-`type` is specified by the presence of the generic third body M or a specific
+[`three-body`](sec-yaml-three-body) reaction `type` or, if no `type` is specified,
+identified automatically by the presence of the generic third body M or a specific
 non-reactive species (for example, C in R2 above).
 ```
 
@@ -121,3 +123,15 @@ Note that you can change reaction orders only for irreversible reactions.
 Normally, reaction orders are required to be positive. However, in some cases negative
 reaction orders are found to be better fits for experimental data. In these cases, the
 default behavior may be overridden in the input file.
+
+````{admonition} YAML Usage
+:class: tip
+To include explicit orders for the reaction above, it can be written in the YAML format as:
+
+```yaml
+- equation: C8H18 + 12.5 O2 => 8 CO2 + 9 H2O
+  units: {length: cm, quantity: mol, activation-energy: kcal/mol}
+  rate-constant: {A: 4.5e+11, b: 0.0, Ea: 30.0}
+  orders: {C8H18: 0.25, O2: 1.5}
+```
+````

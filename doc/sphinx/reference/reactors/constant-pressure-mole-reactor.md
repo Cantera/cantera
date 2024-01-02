@@ -16,10 +16,11 @@ reactor.
 ## Species Equations
 
 The moles of each species in the reactor changes as a result of flow through the
-reactor's [inlets and outlets](sec-flow-device), and production of homogeneous gas phase
-species and reactions on the reactor [surfaces](sec-reactor-surface). The rate at which
-species $k$ is generated through homogeneous phase reactions is $V \dot{\omega}_k$, and
-the total rate at which moles of species $k$ changes is:
+reactor's [inlets and outlets](sec-flow-device) and production of gas phase species
+through homogeneous reactions and reactions on the reactor
+[surfaces](sec-reactor-surface). The rate at which species $k$ is generated through
+homogeneous phase reactions is $V \dot{\omega}_k$, and the total rate at which moles of
+species $k$ changes is:
 
 $$
 \frac{dn_k}{dt} = V \dot{\omega}_k + \sum_{in} \dot{n}_{k, in}
@@ -31,21 +32,24 @@ all inlets and outlets respectively. A dot above a variable signifies a time der
 
 ## Energy Equation
 
-Taking the definition of the total enthalpy and differentiating with respect to time
+Writing the first law for an open system gives:
+
+$$
+\frac{dU}{dt} = - p \frac{dV}{dt} + \dot{Q} +
+                \sum_{in} \dot{n}_{in} \hat{h}_{in} - \hat{h} \sum_{out} \dot{n}_{out}
+$$
+
+where positive $\dot{Q}$ represents heat addition to the system and $h$ is the specific
+enthalpy of the reactor's contents.
+
+Differentiating the definition of the total enthalpy, $H = U + pV$, with respect to time
 gives:
 
-$$
-H &= U + pV
+$$  \frac{dH}{dt} = \frac{dU}{dt} + p \frac{dV}{dt} + V \frac{dp}{dt}  $$
 
-\frac{dH}{dt} &= \frac{d U}{d t} + p \frac{dV}{dt} + V \frac{dp}{dt}
-$$
-
-Noting that $dp/dt = 0$ and substituting into the control volume mole reactor energy
-equation {eq}`molereactor-energy` yields:
+Noting that $dp/dt = 0$ and substituting into the energy equation yields:
 
 $$
 \frac{dH}{dt} = \dot{Q} + \sum_{in} \dot{n}_{in} \hat{h}_{in}
                 - \hat{h} \sum_{out} \dot{n}_{out}
 $$ (const-pressure-mole-reactor-energy)
-
-where positive $\dot{Q}$ represents heat addition to the system.

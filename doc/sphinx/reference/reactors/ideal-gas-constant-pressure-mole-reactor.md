@@ -32,6 +32,28 @@ all inlets and outlets respectively. A dot above a variable signifies a time der
 
 ## Energy Equation
 
+Writing the first law for an open system gives:
+
+$$
+\frac{dU}{dt} = - p \frac{dV}{dt} + \dot{Q} +
+                \sum_{in} \dot{n}_{in} \hat{h}_{in} - \hat{h} \sum_{out} \dot{n}_{out}
+$$
+
+where positive $\dot{Q}$ represents heat addition to the system and $h$ is the specific
+enthalpy of the reactor's contents.
+
+Differentiating the definition of the total enthalpy, $H = U + pV$, with respect to time
+gives:
+
+$$  \frac{dH}{dt} = \frac{dU}{dt} + p \frac{dV}{dt} + V \frac{dp}{dt}  $$
+
+Noting that $dp/dt = 0$ and substituting into the energy equation yields:
+
+$$
+\frac{dH}{dt} = \dot{Q} + \sum_{in} \dot{n}_{in} \hat{h}_{in}
+                - \hat{h} \sum_{out} \dot{n}_{out}
+$$
+
 As for the [ideal gas mole reactor](ideal-gas-mole-reactor), we replace the total
 enthalpy as a state variable with the temperature by writing the total enthalpy in terms
 of the species moles and temperature:
@@ -42,8 +64,7 @@ and differentiating with respect to time:
 
 $$  \frac{dH}{dt} = \frac{dT}{dt}\sum_k n_k \hat{c}_{p,k} + \sum \hat{h}_k \dot{n}_k  $$
 
-Substituting this into the energy equation for the constant pressure mole reactor
-{eq}`const-pressure-mole-reactor-energy` yields an equation for the temperature:
+Making this substitution and rearranging yields an equation for the temperature:
 
 $$
 \sum_k n_k \hat{c}_{p,k} \frac{dT}{dt} = \dot{Q} - \sum \hat{h}_k \dot{n}_k

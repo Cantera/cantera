@@ -52,14 +52,14 @@ $$
                      + \dot{m}_{k,gen}
 $$
 
-Each of these equations is written with an expression on the left hand side (LHS)
+Each of these equations is written with an expression on the left-hand side (LHS)
 multiplied by the time derivative of a state variable which equals an expression on the
-right hand side (RHS). The interface of the reactor network model is defined so that the
+right-hand side (RHS). The interface of the reactor network model is defined so that the
 reactor governing equations are evaluated by calculating these LHS and RHS expressions
 for each governing equation. The extensible reactor model then allows calculation of
 these LHS and RHS terms to be replaced or augmented by user-provided methods.
 
-For example, to add a term for a large mass (say a rock) inside the reactor that affects
+For example, to add a term for a large mass, say a rock, inside the reactor that affects
 the thermal mass, the energy equation would become:
 
 $$
@@ -68,21 +68,23 @@ $$
     + \sum_{in} \dot{m}_{in} \left(h_{in} - \sum_k h_k Y_{k,in} \right)
 $$
 
-Here, the LHS coefficient has changed from $m c_p$ to $m c_p + m_{rock} c_{p,rock}$. The
-other governing equations defining the ideal gas constant pressure reactor can be left
-unmodified. To implement this change, we define a new class derived from
-{py:class}`ExtensibleIdealGasConstPressureReactor`. In this new class, we then define an
-implementation for the `after_eval` method which has the signature
+Here, the LHS coefficient has changed from $m c_p$ to
+$m c_p + m_{\mathrm{rock}} c_{p,\mathrm{rock}}$. Since the rock does not change the
+composition of the species in the reactor and does not change the mass flow rate of any
+inlets or outlets, the other governing equations defining the ideal gas constant
+pressure reactor can be left unmodified. To implement this change, we define a new class
+derived from {py:class}`ExtensibleIdealGasConstPressureReactor`. In this new class, we
+then define an implementation for the `after_eval` method which has the signature
 
 ```py
 def after_eval(self, t, LHS, RHS) -> None
 ```
 
 where `t` is the current simulation time and `LHS` and `RHS` are arrays with one element
-for each state variable (in this case, two plus the number of species).
+for each state variable. In this case, the length of each array is two plus the number of species.
 
 Optional user-defined methods for the `ExtensibleReactor` class start with the prefix
-`before_`, `after_`, or `replace_`, indicating whether the this method should be called
+`before_`, `after_`, or `replace_`, indicating whether the this method will called
 before, after, or instead of the corresponding method from the base class. In this case,
 our method will be called after the `eval` method of {ct}`IdealGasConstPressureReactor`,
 with the values of `LHS` and `RHS` already set based on the original governing
@@ -93,14 +95,16 @@ we would have needed to calculate values for all elements of `RHS` and `LHS` ins
 just modifying a single value.
 
 To obtain the above modification to the governing equations, the implementation of
-`after_eval` inside a new reactor class is then simply:
+`after_eval` inside a new reactor class is then:
 
 ```{code-cell} python
 import cantera as ct
 
 class RockReactor(ct.ExtensibleIdealGasConstPressureReactor):
-    mass_rock = 3  # kg
-    cp_rock = 790  # J/kg/K
+    def __init__(self, *args, mass_rock, cp_rock, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.mass_rock = mass_rock
+        self.cp_rock = cp_rock
 
     def after_eval(self, t, LHS, RHS):
         # The index 1 corresponds to the governing equation for the second
@@ -114,14 +118,16 @@ can define a reactor network with an imposed heat transfer rate.
 
 
 ```{code-cell} python
+cp_rock = 790  # J/kg/K
+
 for mass_rock in [0.0, 1.0, 3.0]:
     # Define objects, properties, and initial conditions.
     gas = ct.Solution('h2o2.yaml')
     gas.TPX = 300, ct.one_atm, {'O2': 1, 'N2': 3.76}
+    T0 = gas.T
 
-    r1 = RockReactor(gas)
+    r1 = RockReactor(gas, mass_rock=mass_rock, cp_rock=cp_rock)
     r1.volume = 2.0  # volume (not including 'rock')
-    r1.mass_rock = mass_rock
 
     env = ct.Reservoir(gas)
     wall = ct.Wall(env, r1, Q=1e4, A=1.0)  # Heat transfer of 10 kW
@@ -130,7 +136,7 @@ for mass_rock in [0.0, 1.0, 3.0]:
     # Integrate for 10 seconds
     net.advance(10)
 
-    print(f'mass_rock = {mass_rock}; T = {r1.thermo.T:.2f}')
+    print(f'mass_rock = {mass_rock} kg; ΔT = {r1.thermo.T - T0:.2f} K')
 ```
 
 As expected, we see that the temperature rise decreases as the thermal mass of the

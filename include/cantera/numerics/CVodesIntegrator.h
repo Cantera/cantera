@@ -94,7 +94,7 @@ private:
     void checkError(long flag, const string& ctMethod, const string& cvodesMethod) const;
 
     size_t m_neq = 0;
-    void* m_cvode_mem = nullptr;
+    void* m_cvode_mem = nullptr; //!< CVODES internal memory object
     SundialsContext m_sundials_ctx; //!< SUNContext object for Sundials>=6.0
     void* m_linsol = nullptr; //!< Sundials linear solver object
     void* m_linsol_matrix = nullptr; //!< matrix used by Sundials
