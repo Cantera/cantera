@@ -1,0 +1,87 @@
+description: |-
+  Sample CH4 photolysis reactions
+
+units:
+  # wavelength: nm
+  length: cm
+  time: s
+
+phases:
+- name: gas
+  thermo: ideal-gas
+  elements: [C, H, N]
+  species: [CH4, CH3, (1)CH2, (3)CH2, CH, H2, H, N2]
+  kinetics: gas
+
+species:
+- name: CH4
+  composition: {C: 1, H: 4}
+  thermo:
+    model: constant-cp
+
+- name: CH3
+  composition: {C: 1, H: 3}
+  thermo:
+    model: constant-cp
+
+- name: (1)CH2
+  composition: {C: 1, H: 2}
+  thermo:
+    model: constant-cp
+
+- name: (3)CH2
+  composition: {C: 1, H: 2}
+  thermo:
+    model: constant-cp
+
+- name: CH
+  composition: {C: 1, H: 1}
+  thermo:
+    model: constant-cp
+
+- name: H2
+  composition: {H: 2}
+  thermo:
+    model: constant-cp
+
+- name: H
+  composition: {H: 1}
+  thermo:
+    model: constant-cp
+
+- name: N2
+  composition: {N: 2}
+  thermo:
+    model: constant-cp
+
+reactions:
+- equation: CH4 => 0.2 CH4 + 0.2 CH3 + 0.2 (1)CH2 + 0.2 (3)CH2 + 0.2 CH + 0.4 H2 + 0.8 H 
+  type: photolysis
+  branches:
+    - name: b1  # 0.2
+      product: "CH4:1"
+    - name: b2  # 0.2
+      product: "CH3:1 H:1"
+    - name: b3  # 0.2
+      product: "(1)CH2:1 H2:1"
+    - name: b4  # 0.2
+      product: "(3)CH2:1 H:2"
+    - name: b5  # 0.2
+      product: "CH:1 H2:1 H:1"
+  cross-section:
+    - format: VULCAN
+      temperature-range: [0., 300.]
+      filenames: [CH4_cross.csv, CH4_branch.csv]
+  rate-constants:
+    resolution: 0.1
+    scale:
+      b1: 1
+
+- equation: N2 => N2
+  type: photolysis
+  cross-section:
+    - format: YAML
+      temperature-range: [0., 300.]
+      data:
+        - [0., 1.e-18]
+        - [100., 2.e-18]

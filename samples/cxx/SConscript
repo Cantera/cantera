@@ -40,7 +40,7 @@ set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}
         localenv.Append(
             LINKFLAGS=env.subst("${RPATHPREFIX}${ct_libdir}${RPATHSUFFIX}"))
 
-    localenv.Append(LIBS=env['cantera_shared_libs'])
+    localenv.Append(LIBS=env['cantera_shared_libs'] + ['stdc++fs'])
     localenv.Prepend(CPPPATH=['#include'])
 
     if openmp and not env['HAS_OPENMP']:

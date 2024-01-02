@@ -54,7 +54,7 @@ class Test(object):
         if source_files:
             self.program = localenv.Program(
                 pjoin(self.subdir, self.programName), source_files,
-                LIBS=localenv['cantera_shared_libs'])
+                LIBS=localenv['cantera_shared_libs'] + ['stdc++fs'])
         else:
             if isinstance(self.programName, str):
                 self.programName += '$PROGSUFFIX'

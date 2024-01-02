@@ -16,6 +16,7 @@
 #include "cantera/kinetics/InterfaceRate.h"
 #include "cantera/kinetics/PlogRate.h"
 #include "cantera/kinetics/TwoTempPlasmaRate.h"
+#include "cantera/kinetics/Photolysis.h"
 
 namespace Cantera
 {
@@ -97,6 +98,11 @@ ReactionRateFactory::ReactionRateFactory()
     // StickingBlowersMaselRate evaluator
     reg("sticking-Blowers-Masel", [](const AnyMap& node, const UnitStack& rate_units) {
         return new StickingBlowersMaselRate(node, rate_units);
+    });
+
+    // PhotolysisRate evaluator
+    reg("photolysis", [](const AnyMap& node, const UnitStack& rate_units) {
+        return new PhotolysisRate(node, rate_units);
     });
 }
 

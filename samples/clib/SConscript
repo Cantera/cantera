@@ -10,7 +10,7 @@ samples = [('demo', ['demo.c'])]
 for programName, sources in samples:
     buildSample(localenv.Program, programName, sources,
                 CPPPATH=['#include'],
-                LIBS=env['cantera_shared_libs'],
+                LIBS=env['cantera_shared_libs'] + ['stdc++', 'stdc++fs'],
                 LIBPATH=env['extra_lib_dirs'] + ['#build/lib'])
 
     # Generate SConstruct files to be installed
