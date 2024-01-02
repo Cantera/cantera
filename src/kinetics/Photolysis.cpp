@@ -1,5 +1,6 @@
 //! @file Photolysis.cpp
 
+#include "cantera/kinetics/Kinetics.h"
 #include "cantera/kinetics/Photolysis.h"
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/base/stringUtils.h"
@@ -13,6 +14,20 @@ bool PhotolysisData::update(const ThermoPhase& thermo, const Kinetics& kin)
   double T = thermo.temperature();
   if (T != temperature) {
     update(T);
+    changed = true;
+  }
+
+  if (wavelength.empty()) {
+    size_t nwave = kin.nWavelengths();
+
+    wavelength.resize(nwave);
+    actinicFlux.resize(nwave);
+
+    kin.getWavelength(wavelength.data());
+    kin.getActinicFlux(actinicFlux.data());
+    changed = true;
+  } else if (kin.hasNewActinicFlux()) {
+    kin.getActinicFlux(actinicFlux.data());
     changed = true;
   }
 

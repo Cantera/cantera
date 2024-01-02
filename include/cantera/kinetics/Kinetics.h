@@ -1419,6 +1419,10 @@ public:
         throw NotImplementedError("Kinetics::updateActinicFlux");
     }
 
+    bool hasNewActinicFlux() const {
+        return m_hasNewActinicFlux;
+    }
+
     void getActinicFlux(double *actinic_flux) const {
         std::copy(m_actinicFlux.begin(), m_actinicFlux.end(), actinic_flux);
     }
@@ -1551,6 +1555,9 @@ protected:
 
     //! Photon actinic fluxes
     vector<double> m_actinicFlux;
+
+    //! Flag indicating whether the actinic fluxes have been updated
+    bool m_hasNewActinicFlux = false;
 };
 
 }
