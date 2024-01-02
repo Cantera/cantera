@@ -1405,27 +1405,52 @@ public:
         return m_wavelength.size();
     }
 
+    /**
+     * Set the wavelengths at which the actinic flux is calculated.
+     */
     void setWavelength(double const* wavelength, size_t n) {
         m_wavelength.assign(wavelength, wavelength + n);
         m_actinicFlux.resize(n);
         std::fill(m_actinicFlux.begin(), m_actinicFlux.end(), 0.0);
     }
 
+    /**
+     * Get the wavelengths at which the actinic flux is calculated.
+     */
     void getWavelength(double* wavelength) const {
         std::copy(m_wavelength.begin(), m_wavelength.end(), wavelength);
     }
 
+    /**
+     * Update the actinic flux for each wavelength.
+     */
     virtual void updateActinicFlux(void *rt_solver) {
         throw NotImplementedError("Kinetics::updateActinicFlux");
     }
 
+    /**
+     * Check whether the actinic flux has been updated since the last call to
+     * #updateActinicFlux.
+     */
     bool hasNewActinicFlux() const {
         return m_hasNewActinicFlux;
     }
 
+    /**
+     * Get the actinic flux for each wavelength. The actinic flux is the
+     * integral of the photon flux over all wavelengths, and is used to
+     * calculate the photolysis rates of reactions.
+     */
     void getActinicFlux(double *actinic_flux) const {
         std::copy(m_actinicFlux.begin(), m_actinicFlux.end(), actinic_flux);
     }
+
+    /**
+     * Modify the stoichiometric coefficient of the product in a reaction.
+     * The set of products must not be changed.
+     * Only the stoichiometric coefficient is changed.
+     */
+    virtual void modifyProductStoichiometry(size_t i, Composition const& comp);
 
     //! @}
 

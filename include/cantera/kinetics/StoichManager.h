@@ -690,6 +690,7 @@ public:
         }
         if (frac || k.size() > 3) {
             m_cn_list.emplace_back(rxn, k, order, stoich);
+            m_rxn_in_cnlist[rxn] = m_cn_list.size() - 1;
         } else {
             // Try to express the reaction with unity stoichiometric
             // coefficients (by repeating species when necessary) so that the
@@ -714,6 +715,7 @@ public:
                 break;
             default:
                 m_cn_list.emplace_back(rxn, k, order, stoich);
+                m_rxn_in_cnlist[rxn] = m_cn_list.size() - 1;
             }
         }
         m_ready = false;
@@ -800,6 +802,25 @@ public:
         _scale(m_cn_list.begin(), m_cn_list.end(), in, out, factor);
     }
 
+    /** 
+     * Modify reaction stoichiometry coefficients
+     * This method is limited to reactions in #m_cn_list (fractional stoichiometry)
+     */
+    void modify(size_t rxn, const vector<size_t>& k, const vector<double>& order,
+             const vector<double>& stoich)
+    {
+        auto it = m_rxn_in_cnlist.find(rxn);
+        if (it == m_rxn_in_cnlist.end()) {
+            throw CanteraError("StoichManagerN::modify", "Reaction index {} "
+                "is not in the list of reactions with fractional stoichiometry.",
+                rxn);
+        }
+        m_cn_list[it->second] = C_AnyN(rxn, k, order, stoich);
+
+        for (size_t n = 0; n < stoich.size(); n++)
+            m_stoichCoeffs.coeffRef(k[n], rxn) = stoich[n];
+    }
+
 private:
     bool m_ready; //!< Boolean flag indicating whether object is fully configured
 
@@ -816,6 +837,9 @@ private:
     vector<int> m_outerIndices;
     vector<int> m_innerIndices;
     vector<double> m_values;
+
+    //! Map of reaction indices to indices in #m_cn_list
+    map<int, int> m_rxn_in_cnlist;
 };
 
 }

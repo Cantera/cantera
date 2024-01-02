@@ -693,4 +693,25 @@ shared_ptr<const Reaction> Kinetics::reaction(size_t i) const
     return m_reactions[i];
 }
 
+void Kinetics::modifyProductStoichiometry(size_t irxn, Composition const& comp)
+{
+    checkReactionIndex(irxn);
+
+    vector<size_t> pk;
+    vector<double> pstoich;
+
+    for (const auto& [name, stoich] : comp) {
+        pk.push_back(kineticsSpeciesIndex(name));
+        pstoich.push_back(stoich);
+    }
+
+    m_reactions[irxn]->products = comp;
+    m_productStoich.modify(irxn, pk, pstoich, pstoich);
+
+    m_stoichMatrix = m_productStoich.stoichCoeffs();
+    m_stoichMatrix -= m_reactantStoich.stoichCoeffs();
+
+    invalidateCache();
+}
+
 }
