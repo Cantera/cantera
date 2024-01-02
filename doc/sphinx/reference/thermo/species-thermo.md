@@ -17,14 +17,15 @@ volume, or through parameters that are specific to the equation of state.
 Many of Cantera's phase thermodynamic models are formulated to make use of the
 [standard state](https://goldbook.iupac.org/terms/view/S05925) thermodynamic properties
 for individual species, defined at a standard pressure $p^\circ$ and for the composition
-specified by the phase model (for example, a pure gas in the case of the ideal gas
-model, or an ion at infinite dilution in water in the case of aqueous solutions).
+specified by the phase model. For example, this could include a pure gas in the case of
+the ideal gas model, or an ion at infinite dilution in water in the case of aqueous
+solutions.
 
 ```{caution}
 In some parts of the Cantera documentation, properties calculated at the standard
-pressure $p^\circ$ are referred to as "reference-state" thermodynamic properties, while
+pressure $p^\circ$ are referred to as *reference-state* thermodynamic properties, while
 properties calculated using the composition defining the standard state but at any
-pressure are referred to as "standard state" properties. This nomenclature is fairly
+pressure are referred to as *standard state* properties. This nomenclature is fairly
 unique to Cantera, based on the desire to distinguish these different steps in the
 calculation of the full thermodynamic properties, and is not often seen in other
 descriptions of solution thermodynamics.
@@ -49,10 +50,10 @@ and
 $$  \hat{s}^\circ(T) = \hat{s}^\circ(T_\mathrm{ref}) +
                        \int_{T_\mathrm{ref}}^T  \frac{\hat{c}^\circ_p(T)}{T} \; dT $$
 
-respectively. This means that a parameterization (functional form) of
-$\hat{c}_p^\circ(T)$ plus the constants $\hat{h}^\circ(T_\mathrm{ref})$ and
-$\hat{s}^\circ(T_\mathrm{ref})$ at a reference temperature $T_\mathrm{ref}$ is
-sufficient to define the standard state properties for a species.
+respectively. This means that a parameterization of $\hat{c}_p^\circ(T)$ plus the
+constants $\hat{h}^\circ(T_\mathrm{ref})$ and $\hat{s}^\circ(T_\mathrm{ref})$ at a
+reference temperature $T_\mathrm{ref}$ is sufficient to define the standard state
+properties for a species.
 
 The models described in this section can be used to provide standard state thermodynamic
 data for each species in a phase. They are implemented by classes deriving from
@@ -87,24 +88,26 @@ $$
 This model is implemented by the C++ classes {ct}`NasaPoly1` and {ct}`NasaPoly2`.
 
 :::{note}
-This is the "old" NASA polynomial form, used in the original NASA equilibrium program
-and in Chemkin, which uses 7 coefficients in each of two temperature regions. It is not compatible with the form used in more recent versions of the NASA equilibrium program,
-which uses 9 coefficients for each temperature region.
+This is sometimes referred to as the *NASA7 polynomial* within Cantera. It was used in
+the original NASA equilibrium program and in Chemkin, which uses 7 coefficients in each
+of two temperature regions. It is not compatible with the form used in more recent
+versions of the NASA equilibrium program, which uses 9 coefficients for each temperature
+region.
 :::
 
 :::{admonition} YAML Usage
 :class: tip
-A NASA-7 parameterization can be defined in the YAML format by specifying
+A NASA7 parameterization can be defined in the YAML format by specifying
 [`NASA7`](sec-yaml-nasa7) as the `model` in the species `thermo` field.
 :::
 
 (sec-thermo-nasa9)=
 ### The NASA 9-Coefficient Polynomial Parameterization
 
-The NASA 9-coefficient polynomial parameterization {cite:p}`mcbride2002` ("NASA9" for
-short) is an extension of the NASA 7-coefficient polynomial parameterization which
-includes two additional terms in each temperature region, as well as supporting an
-arbitrary number of temperature regions.
+The NASA 9-coefficient polynomial parameterization {cite:p}`mcbride2002`, often called
+*NASA9* within Cantera for short, is an extension of the NASA 7-coefficient polynomial
+parameterization that includes two additional terms in each temperature region and
+supports an arbitrary number of temperature regions.
 
 The NASA9 parameterization represents the species thermodynamic properties with the
 following equations:
@@ -201,10 +204,10 @@ A piecewise Gibbs parameterization can be defined in the YAML format by specifyi
 ## Models for Species Contributions to the Equation of State
 
 Besides enthalpy, entropy, and heat capacity data, some phase models require additional
-parameters that describe how each species affects the equation of state. These models
-are used in combination with one of the above parameterizations for the standard state
-enthalpy, entropy, and heat capacity. This applies to most models that represent
-condensed phases.
+parameters that describe how each species affects the mechanical equation of state.
+These models are used in combination with one of the above parameterizations for the
+standard state enthalpy, entropy, and heat capacity. This applies to most models that
+represent condensed phases.
 
 ### Constant Volume Model
 

@@ -19,8 +19,8 @@ within a 1D flow domain, with the differences between the models being represent
 differences in the boundary conditions applied.
 
 [](governing-equations)
-: Here we describe the governing equations and the various boundary conditions which can be
-  applied.
+: This page describes the governing equations and the various boundary conditions that
+  can be applied.
 
 [](discretization)
 : This page describes the finite difference schemes used to discretize the 1D governing

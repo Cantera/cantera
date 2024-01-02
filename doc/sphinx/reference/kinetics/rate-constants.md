@@ -6,7 +6,8 @@ calculating the forward rate constant $k_f$ for a reaction.
 (sec-arrhenius-rate)=
 ## Arrhenius Rate Expressions
 
-An Arrhenius rate is described by the modified Arrhenius function:
+An Arrhenius rate is described by the
+[modified Arrhenius function](https://en.wikipedia.org/wiki/Arrhenius_equation#Modified_Arrhenius_equation):
 
 $$  k_f = A T^b e^{-E_a / RT}  $$
 
@@ -23,24 +24,23 @@ field.
 (sec-falloff-rate)=
 ## Falloff Reactions
 
-A falloff reaction is one that has a rate that is first-order in $[\mathrm{M}]$ at low
-pressure, like a [three-body reaction](sec-three-body-reaction), but becomes zero-order
-in $[\mathrm{M}]$ as $[\mathrm{M}]$ increases. Dissociation/association reactions of
-polyatomic molecules often exhibit this behavior.
+A falloff reaction is one that has a rate that is first-order in the total concentration
+of third-body colliders $\def\MM{[\mathrm{M}]} \MM$ at low pressure, like a
+[three-body reaction](sec-three-body-reaction), but becomes zero-order in $\MM$ as $\MM$
+increases. Dissociation/association reactions of polyatomic molecules often exhibit this
+behavior.
 
 The simplest expression for the rate coefficient for a falloff reaction is the Lindemann
 form {cite:p}`lindemann1922`:
 
-$$
-k_f(T, [{\mathrm{M}}]) = \frac{k_0[{ \mathrm{M}}]}{1 + \frac{k_0{ [\mathrm{M}]}}{k_\infty}}
-$$
+$$  k_f(T, \MM) = \frac{k_0 \MM}{1 + \frac{k_0 \MM}{k_\infty}}  $$
 
-In the low-pressure limit, this approaches $k_0{[\mathrm{M}]}$, and in the high-pressure
-limit it approaches $k_\infty$.
+In the low-pressure limit, this approaches $k_0 \MM$, and in the high-pressure limit it
+approaches $k_\infty$.
 
 Defining the non-dimensional reduced pressure:
 
-$$  P_r = \frac{k_0 [\mathrm{M}]}{k_\infty}  $$
+$$  P_r = \frac{k_0 \MM}{k_\infty}  $$
 
 The rate constant may be written as
 
@@ -112,8 +112,8 @@ A Tsang falloff function may be specified in the YAML format using the
 
 This falloff function is based on the one originally due to {cite:t}`stewart1989`, which
 required three parameters $a$, $b$, and $c$. {cite:t}`kee1989` generalized this function
-slightly by adding two more parameters $d$ and $e$. (The original form corresponds to $d
-= 1$ and $e = 0$.) Cantera supports the extended 5-parameter form, given by:
+slightly by adding two more parameters $d$ and $e$. The original form corresponds to
+$d = 1$ and $e = 0$. Cantera supports the extended 5-parameter form, given by:
 
 $$  F(T, P_r) = d \bigl[a \exp(-b/T) + \exp(-T/c)\bigr]^{1/(1+\log_{10}^2 P_r )} T^e  $$
 
@@ -204,8 +204,10 @@ $$
                          \phi_t(\tilde{T}) \phi_p(\tilde{P})
 $$
 
-where $\alpha_{tp}$ are the constants defining the rate, $\phi_n(x)$ is the Chebyshev
-polynomial of the first kind of degree $n$ evaluated at $x$, and
+where $N_T$ is the order of the polynomial in the temperature dimension, $N_P$ is the
+order of the polynomial in the pressure dimension, $\alpha_{tp}$ are the constants
+defining the rate, $\phi_n(x)$ is the Chebyshev polynomial of the first kind of degree
+$n$ evaluated at $x$, and
 
 $$
 \tilde{T} \equiv \frac{2T^{-1} - T_\mathrm{min}^{-1} - T_\mathrm{max}^{-1}}
@@ -268,13 +270,13 @@ Arrhenius expression
 
 $$  k_f = A T^b e^{-E_a / RT}.  $$
 
+```{versionadded} 2.6
+```
+
 ```{admonition} YAML Usage
 :class: tip
 Blowers Masel reactions can be defined in the YAML format using the
 [Blowers-Masel](sec-yaml-Blowers-Masel-rate) reaction `type`.
-```
-
-```{versionadded} 2.6
 ```
 
 (sec-surface-rate)=
@@ -367,6 +369,9 @@ temperature, $b$ is the electron temperature exponent, $E_{a,g}$ is the activati
 energy for gas, $E_{a,e}$ is the activation energy for electron and $R$ is the gas
 constant.
 
+```{versionadded} 2.6
+```
+
 :::{admonition} YAML Usage
 :class: tip
 
@@ -374,6 +379,3 @@ Two-temperature plasma reactions can be defined in the YAML format by specifying
 [`two-temperature-plasma`](sec-yaml-two-temperature-plasma) as the reaction `type` and
 providing the two activation energies as part of the `rate-constant`.
 :::
-
-```{versionadded} 2.6
-```

@@ -14,7 +14,7 @@ devices representing mass flow, heat transfer, and moving walls. The system is g
 unsteady -- that is, all states are functions of time. In particular, transient state
 changes due to chemical reactions are possible.
 
-## Reactor Types and Governing Equations
+## Homogeneous Reactor Types and Governing Equations
 
 A Cantera *reactor* represents the simplest form of a chemically reacting system. It
 corresponds to an extensive thermodynamic control volume $V$, in which all state
@@ -67,6 +67,23 @@ The [Guide to Extending Reactor Models](/userguide/extensible-reactor) can help 
 started with implementing your own customized reactor models.
 ```
 
+## Plug Flow Reactors
+
+A *plug flow reactor* (PFR) represents a steady-state flow in a channel. The fluid is
+considered to be homogeneous perpendicular to the flow direction, while the state of the
+gas is allowed to change in the axial direction. However, all diffusion processes are
+neglected.
+
+These assumptions result in a system of equations that is similar to those used to model
+homogeneous reactors, with the time variable replaced by the axial coordinate. Because
+of this mathematical similarity, PFRs are also solved by Cantera's reactor network
+model. However, they can only be simulated alone, and not part of a network containing
+time-dependent reactors.
+
+[Plug Flow Reactor](pfr)
+: A reactor modeling one-dimensional steady-state flow in a channel that may contain
+  catalytically active surfaces where heterogeneous reactions occur.
+
 (sec-reactor-interactions)=
 ## Reactor Interactions
 
@@ -106,23 +123,6 @@ networks. Please see the [Cantera Examples](/examples/python/reactors/index) for
 information.
 ```
 
-## Plug Flow Reactor
-
-A *plug flow reactor* (PFR) represents a steady-state flow in a channel. The fluid is
-considered to be homogeneous perpendicular to the flow direction, while the state of the
-gas is allowed to change in the axial direction. However, all diffusion processes are
-neglected.
-
-These assumptions result in a system of equations that is similar to those used to model
-homogeneous reactors, with the time variable replaced by the axial coordinate. Because
-of this mathematical similarity, PFRs are also solved by Cantera's reactor network
-model. However, they can only be simulated alone, and not part of a network containing
-time-dependent reactors.
-
-[Plug Flow Reactor](pfr)
-: A reactor modeling one-dimensional steady-state flow in a channel that may contain
-  catalytically active surfaces where heterogeneous reactions occur.
-
 ## Reactor Networks
 
 While reactors by themselves define the governing equations, the time integration is
@@ -161,6 +161,6 @@ constant-pressure-mole-reactor
 ideal-gas-mole-reactor
 ideal-gas-constant-pressure-mole-reactor
 
-interactions
 pfr
+interactions
 ```

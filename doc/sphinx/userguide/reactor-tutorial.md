@@ -16,14 +16,16 @@ a transient reactor network problem.
 
 First, let's take a look at a basic example to see how we might utilize Cantera's time
 integration functionality. We'll simulate an isolated reactor in Python that is filled
-with a homogeneous gas mixture (the gas state used in this example is arbitrary, but
-interesting because it's explosive).
+with a homogeneous gas mixture. The gas state used in this example is arbitrary, but
+interesting because it's explosive.
 
 ```{code-cell} python
 # import the Cantera Python module
 import cantera as ct
 
-# create a gas mixture using the GRI-Mech 3.0 mechanism
+# Create a gas mixture using the GRI-Mech 3.0 mechanism.
+# This mechanism is included with Cantera for use in examples, but is not
+# recommended for research use.
 gas = ct.Solution("gri30.yaml")
 
 # set gas to an interesting state
@@ -39,8 +41,11 @@ sim = ct.ReactorNet([reac])
 reac.thermo()
 ```
 
-Now, let's advance the simulation in time to an (arbitrary) absolute time of 1 second,
-and examine how the state of the gas has changed
+Now, let's advance the simulation in time to an absolute time of 1 second, and examine
+how the state of the gas has changed. There isn't anything special about choosing 1
+second as the end time for the integration; any end time can be chosen. We are choosing
+1 second here because after that amount of time, the mixture will have almost certainly
+ignited for a wide range of initial conditions.
 
 ```{code-cell} python
 # advance the simulation to the specified absolute time, t = 1 sec
@@ -100,10 +105,15 @@ sizes in the output data are no longer guaranteed to be uniform.
 Even though Cantera comes pre-defined with reasonable default values for tolerances and
 the maximum internal time step, the solver may not be correctly configured for the
 specific system. In this case SUNDIALS may stop with an error. To solve this problem,
-three parameters can be tuned: The absolute tolerances, the relative tolerances, and the
-maximum time step. A reduction of the latter value is particularly useful when dealing
-with abrupt changes in the boundary conditions (for example, opening/closing valves; see
-also the [IC engine example](/examples/python/reactors/ic_engine)).
+three parameters can be tuned:
+
+1. the absolute tolerances
+2. the relative tolerances
+3. the maximum time step size
+
+Reducing the third value is particularly useful when dealing with abrupt changes in the
+boundary conditions. One example of this is opening or closing valves; see also the
+[IC engine example](/examples/python/reactors/ic_engine).
 
 ## Adding Inlets and Outlets
 
@@ -129,12 +139,15 @@ Additional examples can be found in the
 
 ## Accelerating Integration with Preconditioned Sparse Iterative Methods
 
-Some reactor models (specifically, the [](/reference/reactors/ideal-gas-mole-reactor)
-and the [](/reference/reactors/ideal-gas-constant-pressure-mole-reactor)) are able to be
+The [](/reference/reactors/ideal-gas-mole-reactor) and the
+[](/reference/reactors/ideal-gas-constant-pressure-mole-reactor) are able to be
 solved using preconditioned sparse iterative methods, instead of the normal direct
-linear methods. To enable the use of this solver, a preconditioner object needs to be
-created and specified for use by the reactor network. The previous example can be
-modified as follows:
+linear methods. Using these solvers can greatly speed up integration for systems with
+hundreds or thousands of species {cite:p}`walker2023`.
+
+To enable the use of this solver, a preconditioner object needs to be created and
+specified for use by the reactor network. The previous example can be modified as
+follows:
 
 ```{code-cell} python
 import cantera as ct
@@ -146,28 +159,34 @@ precon = ct.AdaptivePreconditioner()  # Create the preconditioner
 sim.preconditioner = precon  # Add it to the network
 ```
 
-The results of time time integration are the same as before:
+The results of the time integration are the same as before:
 ```{code-cell} python
 sim.advance(1)
 reac.thermo()
 ```
 
+The approximate Jacobian matrices used to construct the preconditioners do not currently
+account for terms that link multiple reactors in the same network. For networks of this
+type, the iterative solver may exhibit convergence errors for systems where the default
+direct solver does not. If the solver converges, the solution will satisfy the error
+tolerances, even though the Jacobian matrix is not exact.
+
 ## Common Reactor Types and their Implementation in Cantera
 
 ### Batch Reactor at Constant Volume or at Constant Pressure
 
-If you are interested in how a homogeneous chemical composition changes in time when it
-is left to its own devices, a simple batch reactor can be used. Two versions are
-commonly considered: A rigid vessel with fixed volume but variable pressure, or a system
+If you are interested in how a homogeneous chemical mixture changes state in time when
+isolated from the surroundings, a simple batch reactor can be used. Two versions are
+commonly considered: a rigid vessel with fixed volume but variable pressure, or a system
 idealized at constant pressure but varying volume.
 
-In Cantera, such a simulation can be performed very easily. The initial state of the
-solution can be specified by composition and a set of thermodynamic parameters (like
-temperature and pressure) as a standard Cantera {py:class}`Solution` object. From this
-base, a {py:class}`Reactor` or a {py:class}`ConstPressureReactor` can be created,
-depending on if a constant volume or constant pressure batch reactor should be
-considered, respectively. The behavior of the solution in time can be simulated as a
-very simple {py:class}`ReactorNet` containing only the single created reactor.
+The initial state of the solution can be specified by composition and a set of intensive
+thermodynamic parameters, like temperature and pressure, as a standard Cantera
+{py:class}`Solution` object. From this base, a {py:class}`Reactor` or a
+{py:class}`ConstPressureReactor` can be created, depending on if a constant volume or
+constant pressure batch reactor should be considered, respectively. The behavior of the
+solution in time can be simulated as a {py:class}`ReactorNet` containing only the single
+reactor.
 
 An example for such a batch reactor is given in
 [`reactor1.py`](/examples/python/reactors/reactor1).
@@ -176,13 +195,12 @@ An example for such a batch reactor is given in
 
 A Continuously Stirred Tank Reactor (CSTR), also often referred to as Well-Stirred
 Reactor (WSR), Perfectly Stirred Reactor (PSR), or Longwell Reactor, is essentially a
-single Cantera reactor with an inlet, an outlet, and constant volume. Therefore, the
-governing equations for single reactors defined above apply accordingly.
+single Cantera reactor with an inlet, an outlet, and constant volume.
 
 Steady state solutions to CSTRs are often of interest. In this case, the mass flow rate
-$\dot{m}$ is constant and equal at inlet and outlet. The mass contained in the
-confinement $m$ divided by $\dot{m}$ defines the mean residence time of the fluid in the
-confinement.
+$\dot{m}$ is constant and equal at inlet and outlet. The mass contained in the control
+volume, $m$, divided by $\dot{m}$ defines the mean residence time of the fluid in the
+control volume.
 
 While Cantera always solves a transient problem, if you are interested in steady-state
 conditions, you can run your simulation for a long time until the states are converged.
@@ -196,5 +214,6 @@ simulation can result in the trivial solution that inflow and outflow states are
 identical. To solve this problem, the reactor can be initialized with a high temperature
 and/or radical concentration. A good approach is to use the equilibrium composition of
 the reactants (which can be computed using Cantera's {py:meth}`ThermoPhase.equilibrate`
-function) as an initial guess.
+function) as an initial guess. This method is demonstrated in the
+[`combustor.py`](/examples/python/reactors/combustor) example.
 :::

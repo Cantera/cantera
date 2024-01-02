@@ -4,14 +4,13 @@ In this section, we describe how Cantera uses species and phase information to c
 thermodynamic properties.
 
 Thermodynamic properties typically depend on information at both the species and phase
-levels. Generally, the the species thermodynamic model and accompanying coefficient data
-specifies how the reference enthalpy and entropy values for each species are calculated,
+levels. Generally, the species thermodynamic model and accompanying coefficient data
+specifies how the reference enthalpy and entropy values for each species are calculated
 as a function of temperature. The phase model then describes how the species interact
 with one another to determine phase properties and species specific properties for a
-given thermodynamic state. This includes general $p$-$\hat{v}$-$T$ behavior (for
-example, calculate the pressure for a given molar volume, temperature, and chemical
-composition), as well as how species-specific properties, such as internal energy,
-entropy, and others depend on the state variables.
+given thermodynamic state. This includes both the mechanical equation of state
+($p$-$\hat{v}$-$T$ relationship) as well as how species-specific properties, such as
+internal energy, entropy, and others, depend on the state variables.
 
 The user must specify the thermodynamic models and provide input data to be used for
 both levels, and these selections must be compatible with one another. For instance: one
