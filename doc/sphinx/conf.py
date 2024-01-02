@@ -225,6 +225,15 @@ intersphinx_mapping = {
 
 myst_enable_extensions = ["dollarmath", "amsmath", "deflist", "colon_fence"]
 
+mathjax3_config = {
+    'tex': {
+        'macros': {
+            't': ['\\mathrm{#1}', 1],
+            'pxpy': ['\\frac{\\partial #1}{\\partial #2}', 2]
+        }
+    }
+}
+
 # Ensure that the primary domain is the Python domain, since we've added the
 # MATLAB domain with sphinxcontrib.matlab
 primary_domain = 'py'

@@ -42,18 +42,18 @@ While each of these functions is implemented explicitly in Cantera for computati
 efficiency, $\hat{h}^\circ(T)$ and $\hat{s}^\circ(T)$ can be expressed in terms of
 $\hat{c}^\circ_p(T)$ using the relations
 
-$$  \hat{h}^\circ(T) = \hat{h}^\circ(T_\mathrm{ref}) +
-                       \int_{T_\mathrm{ref}}^T  \hat{c}^\circ_p(T) \; dT $$
+$$  \hat{h}^\circ(T) = \hat{h}^\circ(T_\t{ref}) +
+                       \int_{T_\t{ref}}^T  \hat{c}^\circ_p(T) \; dT $$
 
 and
 
-$$  \hat{s}^\circ(T) = \hat{s}^\circ(T_\mathrm{ref}) +
-                       \int_{T_\mathrm{ref}}^T  \frac{\hat{c}^\circ_p(T)}{T} \; dT $$
+$$  \hat{s}^\circ(T) = \hat{s}^\circ(T_\t{ref}) +
+                       \int_{T_\t{ref}}^T  \frac{\hat{c}^\circ_p(T)}{T} \; dT $$
 
 respectively. This means that a parameterization of $\hat{c}_p^\circ(T)$ plus the
-constants $\hat{h}^\circ(T_\mathrm{ref})$ and $\hat{s}^\circ(T_\mathrm{ref})$ at a
-reference temperature $T_\mathrm{ref}$ is sufficient to define the standard state
-properties for a species.
+constants $\hat{h}^\circ(T_\t{ref})$ and $\hat{s}^\circ(T_\t{ref})$ at a reference
+temperature $T_\t{ref}$ is sufficient to define the standard state properties for a
+species.
 
 The models described in this section can be used to provide standard state thermodynamic
 data for each species in a phase. They are implemented by classes deriving from
@@ -169,16 +169,16 @@ narrow temperature range. In such cases, the heat capacity can be approximated a
 constant, and simple expressions can be used for the thermodynamic properties:
 
 $$
-\hat{c}_p^\circ(T) &= \hat{c}_p^\circ(T_\mathrm{ref})
+\hat{c}_p^\circ(T) &= \hat{c}_p^\circ(T_\t{ref})
 
-\hat{h}^\circ(T) &= \hat{h}^\circ\left(T_\mathrm{ref}\right) + \hat{c}_p^\circ \left(T-T_\mathrm{ref}\right)
+\hat{h}^\circ(T) &= \hat{h}^\circ\left(T_\t{ref}\right) + \hat{c}_p^\circ \left(T-T_\t{ref}\right)
 
-\hat{s}^\circ(T) &= \hat{s}^\circ(T_\mathrm{ref}) + \hat{c}_p^\circ \ln{\left(\frac{T}{T_\mathrm{ref}}\right)}
+\hat{s}^\circ(T) &= \hat{s}^\circ(T_\t{ref}) + \hat{c}_p^\circ \ln{\left(\frac{T}{T_\t{ref}}\right)}
 $$
 
-The parameterization uses four constants: $T_\mathrm{ref}$,
-$\hat{c}_p^\circ(T_\mathrm{ref})$, $\hat{h}^\circ(T_\mathrm{ref})$, and
-$\hat{s}^\circ(T)$. The default value of $T_\mathrm{ref}$ is 298.15 K; the default value
+The parameterization uses four constants: $T_\t{ref}$,
+$\hat{c}_p^\circ(T_\t{ref})$, $\hat{h}^\circ(T_\t{ref})$, and
+$\hat{s}^\circ(T)$. The default value of $T_\t{ref}$ is 298.15 K; the default value
 for the other parameters is 0.0. This model is implemented by the C++ class
 {ct}`ConstCpPoly`.
 

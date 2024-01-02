@@ -23,8 +23,8 @@ species $k$ is generated through homogeneous phase reactions is $V \dot{\omega}_
 the total rate at which moles of species $k$ changes is:
 
 $$
-\frac{dn_k}{dt} = V \dot{\omega}_k + \sum_{in} \dot{n}_{k, in}
-                  - \sum_{out} \dot{n}_{k, out} + \dot{n}_{k, wall}
+\frac{dn_k}{dt} = V \dot{\omega}_k + \sum_\t{in} \dot{n}_{k, \t{in}}
+                  - \sum_\t{out} \dot{n}_{k, \t{out}} + \dot{n}_{k, \t{wall}}
 $$ (ig-const-pressure-mole-reactor-species)
 
 Where the subscripts *in* and *out* refer to the sum of the corresponding property over
@@ -35,8 +35,8 @@ all inlets and outlets respectively. A dot above a variable signifies a time der
 Writing the first law for an open system gives:
 
 $$
-\frac{dU}{dt} = - p \frac{dV}{dt} + \dot{Q} +
-                \sum_{in} \dot{n}_{in} \hat{h}_{in} - \hat{h} \sum_{out} \dot{n}_{out}
+\frac{dU}{dt} = - p \frac{dV}{dt} + \dot{Q} + \sum_\t{in} \dot{n}_\t{in} \hat{h}_\t{in}
+              - \hat{h} \sum_\t{out} \dot{n}_\t{out}
 $$
 
 where positive $\dot{Q}$ represents heat addition to the system and $h$ is the specific
@@ -50,8 +50,8 @@ $$  \frac{dH}{dt} = \frac{dU}{dt} + p \frac{dV}{dt} + V \frac{dp}{dt}  $$
 Noting that $dp/dt = 0$ and substituting into the energy equation yields:
 
 $$
-\frac{dH}{dt} = \dot{Q} + \sum_{in} \dot{n}_{in} \hat{h}_{in}
-                - \hat{h} \sum_{out} \dot{n}_{out}
+\frac{dH}{dt} = \dot{Q} + \sum_\t{in} \dot{n}_\t{in} \hat{h}_\t{in}
+                - \hat{h} \sum_\t{out} \dot{n}_\t{out}
 $$
 
 As for the [ideal gas mole reactor](ideal-gas-mole-reactor), we replace the total

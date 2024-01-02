@@ -165,7 +165,7 @@ example, using the {py:class}`ExtensibleReactor` class, the governing equations 
 reactor are written in the form:
 
 $$
-\mathrm{LHS}_i \frac{dy_i}{dt} = \mathrm{RHS}_i
+\t{LHS}_i \frac{dy_i}{dt} = \t{RHS}_i
 $$
 
 where the {ct}`Reactor::eval` method or the `eval()` method of any class derived from

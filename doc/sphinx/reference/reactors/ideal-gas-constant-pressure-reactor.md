@@ -21,7 +21,8 @@ reactor's [inlets and outlets](sec-flow-device), and production of homogeneous p
 species on [surfaces](sec-reactor-surface):
 
 $$
-\frac{dm}{dt} = \sum_{in} \dot{m}_{in} - \sum_{out} \dot{m}_{out} + \dot{m}_{wall}
+\frac{dm}{dt} = \sum_\t{in} \dot{m}_\t{in} - \sum_\t{out} \dot{m}_\t{out}
+              + \dot{m}_\t{wall}
 $$ (igcpr-mass)
 
 Where the subscripts *in* and *out* refer to the sum of the corresponding property over
@@ -32,21 +33,21 @@ all inlets and outlets respectively. A dot above a variable signifies a time der
 The rate at which species $k$ is generated through homogeneous phase reactions is
 $V \dot{\omega}_k W_k$, and the total rate at which species $k$ is generated is:
 
-$$  \dot{m}_{k,gen} = V \dot{\omega}_k W_k + \dot{m}_{k,wall}  $$
+$$  \dot{m}_{k,\t{gen}} = V \dot{\omega}_k W_k + \dot{m}_{k,\t{wall}}  $$
 
 The rate of change in the mass of each species is:
 
 $$
-\frac{d(mY_k)}{dt} = \sum_{in} \dot{m}_{in} Y_{k,in} - \sum_{out} \dot{m}_{out} Y_k
-                     + \dot{m}_{k,gen}
+\frac{d(mY_k)}{dt} = \sum_\t{in} \dot{m}_\t{in} Y_{k,\t{in}}
+                   - \sum_\t{out} \dot{m}_\t{out} Y_k + \dot{m}_{k,gen}
 $$
 
 Expanding the derivative on the left hand side and substituting the equation
 for $dm/dt$, the equation for each homogeneous phase species is:
 
 $$
-m \frac{dY_k}{dt} = \sum_{in} \dot{m}_{in} (Y_{k,in} - Y_k) + \dot{m}_{k,gen}
-                    - Y_k \dot{m}_{wall}
+m \frac{dY_k}{dt} = \sum_\t{in} \dot{m}_\t{in} (Y_{k,\t{in}} - Y_k)
+                  + \dot{m}_{k,\t{gen}} - Y_k \dot{m}_\t{wall}
 $$ (igcpr-species)
 
 ## Energy Equation
@@ -66,6 +67,6 @@ Substituting the corresponding derivatives into the constant pressure reactor en
 equation {eq}`constpressurereactor-energy` yields an equation for the temperature:
 
 $$
-m c_p \frac{dT}{dt} = \dot{Q} - \sum_k h_k \dot{m}_{k,gen}
-     + \sum_{in} \dot{m}_{in} \left(h_{in} - \sum_k h_k Y_{k,in} \right)
+m c_p \frac{dT}{dt} = \dot{Q} - \sum_k h_k \dot{m}_{k,\t{gen}}
+     + \sum_\t{in} \dot{m}_\t{in} \left(h_\t{in} - \sum_k h_k Y_{k,\t{in}} \right)
 $$ (igcpr-energy)

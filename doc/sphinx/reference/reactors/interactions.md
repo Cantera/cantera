@@ -102,7 +102,7 @@ on outlet of the reactor. The mass flow rate of the pressure controller is equal
 of the primary mass flow rate, plus a small correction dependent on the pressure
 difference:
 
-$$  \dot m = \dot m_{\text{primary}} + K_v f(P_1 - P_2)  $$
+$$  \dot m = \dot m_\t{primary} + K_v f(P_1 - P_2)  $$
 
 where $K_v$ is a proportionality constant and $f$ is a function of the pressure drop
 that defaults to $f(P_1 - P_2) = P_1 - P_2$. If $\dot m < 0$, the mass flow rate will be
@@ -130,7 +130,7 @@ integrated to determine any wall property. Since it is the wall, or piston, velo
 that enters the energy equation, this means that it is the velocity, not the
 acceleration or displacement, that is specified. The wall velocity is computed from
 
-$$  v = K(P_{\mathrm{left}} - P_{\mathrm{right}}) + v_0(t)  $$
+$$  v = K(P_\t{left} - P_\t{right}) + v_0(t)  $$
 
 where $K$ is a non-negative constant, and $v_0(t)$ is a specified function of time. The
 velocity is positive if the wall is moving to the right.
@@ -144,8 +144,8 @@ for the reactor on the right). The heat flux $\dot{Q}_w$ through a wall $w$ conn
 reactors *left* and *right* is computed as:
 
 $$
-\dot{Q}_w = U A (T_{\mathrm{left}} - T_{\mathrm{right}})
-          + \epsilon\sigma A (T_{\mathrm{left}}^4 - T_{\mathrm{right}}^4) + A q_0(t)
+\dot{Q}_w = U A (T_\t{left} - T_\t{right})
+          + \epsilon\sigma A (T_\t{left}^4 - T_\t{right}^4) + A q_0(t)
 $$
 
 where $U$ is a user-specified heat transfer coefficient (W/m{sup}`2`-K), $A$ is the wall
@@ -172,12 +172,12 @@ species $k$ on surface $w$ is $\dot{s}_{k,w}$ (in kmol/s/m{sup}`2`).
 
 The total mass production rate for homogeneous phase species $k$ on all surfaces is:
 
-$$  \dot{m}_{k,surf} = W_k \sum_w A_w \dot{s}_{k,w}  $$
+$$  \dot{m}_{k,\t{surf}} = W_k \sum_w A_w \dot{s}_{k,w}  $$
 
 where $W_k$ is the molecular weight of species $k$ and $A_w$ is the area of each
 surface. The net mass flux from all reacting surfaces is then:
 
-$$  \dot{m}_{surf} = \sum_k \dot{m}_{k,surf}  $$
+$$  \dot{m}_\t{surf} = \sum_k \dot{m}_{k,\t{surf}}  $$
 
 For each surface species $i$, the rate of change of the site fraction $\theta_{i,w}$ on
 each surface $w$ is integrated with time:
@@ -191,10 +191,10 @@ additional ODEs appended to the state vector for the corresponding reactor.
 
 ### Mole-based reactors
 
-In the case of mole based reactors, $\dot{n}_{surf}$ is used instead, and is calculated
-as:
+In the case of mole based reactors, $\dot{n}_\t{surf}$ is used instead, and is
+calculated as:
 
-$$  \dot{n}_{k,surf} = A_{w}\sum_{w}\dot{s}_{w, k}  $$
+$$  \dot{n}_{k,\t{surf}} = A_{w}\sum_{w}\dot{s}_{w, k}  $$
 
 and the conservation equation for each surface species $i$ is
 

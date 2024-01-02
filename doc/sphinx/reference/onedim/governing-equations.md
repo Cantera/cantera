@@ -11,30 +11,25 @@ in Section 7.2 of {cite:t}`kee2017` and are implemented by class {ct}`StFlow`.
 
 *Continuity*:
 
-$$  \frac{\partial\rho u}{\partial z} + 2 \rho V = 0  $$
+$$  \pxpy{u}{z} + 2 \rho V = 0  $$
 
 *Radial momentum*:
 
 $$
-\rho u \frac{\partial V}{\partial z} + \rho V^2 =
-    - \Lambda
-    + \frac{\partial}{\partial z}\left(\mu \frac{\partial V}{\partial z}\right)
+\rho u \pxpy{V}{z} + \rho V^2 = - \Lambda + \pxpy{}{z}\left(\mu \pxpy{V}{z}\right)
 $$
 
 *Energy*:
 
 $$
-\rho c_p u \frac{\partial T}{\partial z} =
-    \frac{\partial}{\partial z}\left(\lambda \frac{\partial T}{\partial z}\right)
-    - \sum_k j_k \frac{\partial h_k}{\partial z}
-    - \sum_k h_k W_k \dot{\omega}_k
+\rho c_p u \pxpy{T}{z} = \pxpy{}{z}\left(\lambda \pxpy{T}{z}\right)
+    - \sum_k j_k \pxpy{h_k}{z} - \sum_k h_k W_k \dot{\omega}_k
 $$
 
 *Species*:
 
 $$
-\rho u \frac{\partial Y_k}{\partial z} = - \frac{\partial j_k}{\partial z}
-    + W_k \dot{\omega}_k
+\rho u \pxpy{Y_k}{z} = - \pxpy{j_k}{z} + W_k \dot{\omega}_k
 $$
 
 where the following variables are used:
@@ -82,7 +77,7 @@ mixture-averaged or multicomponent formulation. If the mixture-averaged formulat
 used, the calculation performed is:
 
 $$
-j_k^* = - \rho \frac{W_k}{\overline{W}} D_{km}^\prime \frac{\partial X_k}{\partial z}
+j_k^* = - \rho \frac{W_k}{\overline{W}} D_{km}^\prime \pxpy{X_k}{z}
 
 j_k = j_k^* - Y_k \sum_i j_i^*
 $$
@@ -97,8 +92,8 @@ guaranteed by the mixture-averaged formulation.
 When using the multicomponent formulation, the mass fluxes are computed according to:
 
 $$
-j_k = \frac{\rho W_k}{\overline{W}^2} \sum_i W_i D_{ki} \frac{\partial X_i}{\partial z}
-      - \frac{D_k^T}{T} \frac{\partial T}{\partial z}
+j_k = \frac{\rho W_k}{\overline{W}^2} \sum_i W_i D_{ki} \pxpy{X_i}{z}
+      - \frac{D_k^T}{T} \pxpy{T}{z}
 $$
 
 where $D_{ki}$ is the multicomponent diffusion coefficient and $D_k^T$ is the Soret
@@ -118,74 +113,73 @@ freely-propagating flame, the mass flow rate is not an input but is determined
 indirectly by holding the temperature fixed at an intermediate location within the
 domain; see [](discretization) for details.
 
-The following equations are solved at the point $z = z_0$:
+The following equations are solved at the point $z = z_\t{in}$:
 
 $$
-T(z_0) &= T_0
+T(z_\t{in}) &= T_0
 
-V(z_0) &= V_0
+V(z_\t{in}) &= V_0
 
-\dot{m}_0 Y_{k,0} - j_k(z_0) - \rho(z_0) u(z_0) Y_k(z_0) &= 0
+\dot{m}_0 Y_{k,\t{in}} - j_k(z_\t{in}) - \rho(z_\t{in}) u(z_\t{in}) Y_k(z_\t{in}) &= 0
 $$
 
 If the mass flow rate is specified, we also solve:
 
 $$
-\rho(z_0) u(z_0) = \dot{m}_0
+\rho(z_\t{in}) u(z_\t{in}) = \dot{m}_0
 $$
 
 Otherwise, we solve:
 
-$$  \Lambda(z_0) = 0  $$
+$$  \Lambda(z_\t{in}) = 0  $$
 
 These equations are implemented by class {ct}`Inlet1D`.
 
 ### Outlet boundary
 
-For a boundary located at a point $z_0$ where there is an outflow, we
-solve:
+For a boundary located at a point $z_\t{out}$ where there is an outflow, we solve:
 
 $$
-\Lambda(z_0) = 0
+\Lambda(z_\t{out}) = 0
 
-\left.\frac{\partial T}{\partial z}\right|_{z_0} = 0
+\left.\pxpy{T}{z}\right|_{z_\t{out}} = 0
 
-\left.\frac{\partial Y_k}{\partial z}\right|_{z_0} = 0
+\left.\pxpy{Y_k}{z}\right|_{z_\t{out}} = 0
 
-V(z_0) = 0
+V(z_\t{out}) = 0
 $$
 
 These equations are implemented by class {ct}`Outlet1D`.
 
 ### Symmetry boundary
 
-For a symmetry boundary located at a point $z_0$, we solve:
+For a symmetry boundary located at a point $z_\t{symm}$, we solve:
 
 $$
-\rho(z_0) u(z_0) = 0
+\rho(z_\t{symm}) u(z_\t{symm}) = 0
 
-\left.\frac{\partial V}{\partial z}\right|_{z_0} = 0
+\left.\pxpy{V}{z}\right|_{z_\t{symm}} = 0
 
-\left.\frac{\partial T}{\partial z}\right|_{z_0} = 0
+\left.\pxpy{T}{z}\right|_{z_\t{symm}} = 0
 
-j_k(z_0) = 0
+j_k(z_\t{symm}) = 0
 $$
 
 These equations are implemented by class {ct}`Symm1D`.
 
 ### Reacting surface
 
-For a surface boundary located at a point $z_0$ on which reactions may occur, the
-temperature $T_0$ is specified. We solve:
+For a surface boundary located at a point $z_\t{surf}$ on which reactions may
+occur, the temperature $T_\t{surf}$ is specified. We solve:
 
 $$
-\rho(z_0) u(z_0) &= 0
+\rho(z_\t{surf}) u(z_\t{surf}) &= 0
 
-V(z_0) &= 0
+V(z_\t{surf}) &= 0
 
-T(z_0) &= T_0
+T(z_\t{surf}) &= T_\t{surf}
 
-j_k(z_0) + \dot{s}_k W_k &= 0
+j_k(z_\t{surf}) + \dot{s}_k W_k &= 0
 $$
 
 where $\dot{s}_k$ is the molar production rate of the gas-phase species $k$ on the
@@ -201,8 +195,7 @@ drift term to the diffusive fluxes of the mixture-average formulation according 
 {cite:t}`pedersen1993`,
 
 $$
-j_k^* = \rho \frac{W_k}{\overline{W}} D_{km}^\prime \frac{\partial X_k}{\partial z} +
-        s_k \mu_k E Y_k,
+j_k^* = \rho \frac{W_k}{\overline{W}} D_{km}^\prime \pxpy{X_k}{z} + s_k \mu_k E Y_k,
 $$
 
 where $s_k$ is the sign of charge (1,-1, and 0 respectively for positive, negative, and
@@ -219,7 +212,7 @@ $$
 In addition, Gauss's law is solved simultaneously with the species and energy equations,
 
 $$
-\frac{\partial E}{\partial z} &= \frac{e}{\epsilon_0}\sum_k Z_k n_k ,
+\pxpy{E}{z} &= \frac{e}{\epsilon_0}\sum_k Z_k n_k ,
 
 n_k &= N_a \rho Y_k / W_k,
 

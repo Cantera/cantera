@@ -562,10 +562,10 @@ it is usually best not to specify units for $A$, in which case they will be comp
 taking all of these factors into account.
 
 ```{note}
-If $b \ne 0$, then the term $T^b$ should have units of $\mathrm{K}^b$, which would
+If $b \ne 0$, then the term $T^b$ should have units of $\t{K}^b$, which would
 change the units of $A$. This is not done, however, so the units associated with $A$
 are really the units for $k_f$. One way to formally express this is to replace $T^b$
-by the non-dimensional quantity $[T/(1\;\mathrm{K})]^b$.
+by the non-dimensional quantity $[T/(1\;\t{K})]^b$.
 ```
 
 The key `E` is used to specify $E_a$.
@@ -611,13 +611,13 @@ negative-A: true
 Explicit reaction orders different from the stoichiometric coefficients are sometimes
 used for non-elementary reactions. For example, consider the global reaction:
 
-$$  \mathrm{C_8H_{18} + 12.5 O_2 \rightarrow 8 CO_2 + 9 H_2O}  $$
+$$  \t{C_8H_{18} + 12.5 O_2 \rightarrow 8 CO_2 + 9 H_2O}  $$
 
 the forward rate constant might be given as {cite:p}`westbrook1981`:
 
 $$
-k_f = 4.6 \times 10^{11} [\mathrm{C_8H_{18}}]^{0.25} [\mathrm{O_2}]^{1.5}
-      \exp\left(\frac{30.0\,\mathrm{kcal/mol}}{RT}\right)
+k_f = 4.6 \times 10^{11} [\t{C_8H_{18}}]^{0.25} [\t{O_2}]^{1.5}
+      \exp\left(\frac{30.0\,\t{kcal/mol}}{RT}\right)
 $$
 
 This reaction could be defined as:

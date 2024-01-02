@@ -65,18 +65,17 @@ three methods:
   determines the step size by estimating the local error, which must satisfy tolerance
   conditions. The step is redone with reduced step size whenever that error test fails.
   SUNDIALS also periodically checks if the maximum step size is being used. The time
-  step must not be larger than a predefined maximum time step $\Delta t_{\mathrm{max}}$.
-  The new time $t_{\mathrm{new}}$ at the end of the single step is returned by this
-  function. This method produces the highest time resolution in the output data of the
-  methods implemented in Cantera.
+  step must not be larger than a predefined maximum time step $\Delta t_\t{max}$. The
+  new time $t_\t{new}$ at the end of the single step is returned by this function. This
+  method produces the highest time resolution in the output data of the methods
+  implemented in Cantera.
 
 - `advance(t_new)`: This method computes the state of the system at the user-provided
-  time $t_{\mathrm{new}}$. $t_{\mathrm{new}}$ is the absolute time from the initial time
-  of the system. Although the user specifies the time when integration should stop,
-  SUNDIALS chooses the time step size as the network is integrated. Many internal
-  SUNDIALS time steps are usually required to reach $t_{\mathrm{new}}$. As such,
-  `advance(t_new)` preserves the accuracy of using `step()` but allows consistent
-  spacing in the output data.
+  time $t_\t{new}$. $t_\t{new}$ is the absolute time from the initial time of the
+  system. Although the user specifies the time when integration should stop, SUNDIALS
+  chooses the time step size as the network is integrated. Many internal SUNDIALS time
+  steps are usually required to reach $t_\t{new}$. As such, `advance(t_new)` preserves
+  the accuracy of using `step()` but allows consistent spacing in the output data.
 
 - `advance_to_steady_state(max_steps, residual_threshold, atol, write_residuals)`
   *Python interface only*: If the steady state solution of a reactor network is of
