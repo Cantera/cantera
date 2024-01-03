@@ -9,16 +9,12 @@
 #include "ReactionRate.h"
 #include "MultiRate.h"
 
-inline int locate(double const *xx, double x, int n) {
-  return 0;
-}
-
-inline void interpn(double *val, double const *coor, double const *data,
-             double const *axis, size_t const *len, int ndim, int nval) {
-}
-
 namespace Cantera
 {
+
+int locate(double const *xx, double x, int n);
+void interpn(double *val, double const *coor, double const *data,
+             double const *axis, size_t const *len, int ndim, int nval);
 
 class ThermoPhase;
 class Kinetics;
@@ -130,8 +126,24 @@ class PhotolysisRate : public PhotolysisBase {
   }
 
   double evalFromStruct(PhotolysisData const& data) {
+    if (m_crossSection.empty()) {
+      return 0.;
+    }
+
     double wmin = m_temp_wave_grid[m_ntemp];
     double wmax = m_temp_wave_grid.back();
+
+    if (wmin > data.wavelength.front()) {
+      throw CanteraError("PhotolysisRate::evalFromStruct",
+                         "Wavelength out of range: {} nm < {} nm",
+                         wmin, data.wavelength.front());
+    }
+
+    if (wmax < data.wavelength.back()) {
+      throw CanteraError("PhotolysisRate::evalFromStruct",
+                         "Wavelength out of range: {} nm > {} nm",
+                         wmax, data.wavelength.back());
+    }
 
     int iwmin = locate(data.wavelength.data(), wmin, data.wavelength.size());
     int iwmax = locate(data.wavelength.data(), wmax, data.wavelength.size());
@@ -150,7 +162,7 @@ class PhotolysisRate : public PhotolysisBase {
       stoich = 0.0;
 
     for (int i = iwmin; i < iwmax; i++) {
-      coord[1] = data.actinicFlux[i+1];
+      coord[1] = data.wavelength[i+1];
       interpn(cross2, coord, m_crossSection.data(), m_temp_wave_grid.data(),
           len, 2, m_branch.size());
 

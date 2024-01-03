@@ -83,5 +83,6 @@ reactions:
     - format: YAML
       temperature-range: [0., 300.]
       data:
-        - [0., 1.e-18]
-        - [100., 2.e-18]
+        - [200., 1.e-4]
+        - [250., 2.e-4]
+        - [300., 3.e-4]
