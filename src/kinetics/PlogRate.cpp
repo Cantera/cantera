@@ -149,7 +149,10 @@ void PlogRate::validate(const string& equation, const Kinetics& kin)
     }
     if (err_reactions.size()) {
         throw InputFileError("PlogRate::validate", m_input,
-            "\nInvalid rate coefficient for reaction '{}'\n{}",
+            "\nInvalid rate coefficient for reaction '{}'\n{}\n"
+            "To fix this error, remove this reaction or contact the author of the\n"
+            "reaction/mechanism in question, because the rate expression is\n"
+            "mathematically unsound at the temperatures and pressures noted above.\n",
             equation, to_string(err_reactions));
     }
 }

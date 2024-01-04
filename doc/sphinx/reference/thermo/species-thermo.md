@@ -5,7 +5,7 @@ the thermodynamic properties appropriate for the type of phase or interface they
 represent. Although each one may use different expressions to compute the properties,
 they all require thermodynamic property information for the individual species.
 
-Generally, the phase models require a parameterization of the standard state heat
+Generally, the phase models require a parameterization of the _standard state_ heat
 capacity, enthalpy, and entropy for each species at a fixed pressure $p^\circ$ as a
 function of $T$. In addition, phase models may require information describing how each
 species affects the equation of state, either in terms of the species standard molar
@@ -19,16 +19,21 @@ Many of Cantera's phase thermodynamic models are formulated to make use of the
 for individual species, defined at a standard pressure $p^\circ$ and for the composition
 specified by the phase model. For example, this could include a pure gas in the case of
 the ideal gas model, or an ion at infinite dilution in water in the case of aqueous
-solutions.
+solutions. The value of $p^\circ$ is not fixed by Cantera, and may vary among different
+sources of thermodynamic data.
 
 ```{caution}
-In some parts of the Cantera documentation, properties calculated at the standard
-pressure $p^\circ$ are referred to as *reference-state* thermodynamic properties, while
-properties calculated using the composition defining the standard state but at any
-pressure are referred to as *standard state* properties. This nomenclature is fairly
-unique to Cantera, based on the desire to distinguish these different steps in the
-calculation of the full thermodynamic properties, and is not often seen in other
-descriptions of solution thermodynamics.
+In some parts of the Cantera documentation, properties calculated at the user-specified
+standard pressure $p^\circ$ are referred to as *reference-state* thermodynamic
+properties, as they represent a well-known reference state and properties for all other
+states are calculated according to their departure from this known reference condition.
+In these same parts of the documentation, the term _standard-state properties_ refers to
+properties calculated using the composition defining the standard state but at the
+mixture's current pressure.
+
+This nomenclature is fairly unique to Cantera, based on the desire to distinguish these
+different steps in the calculation of the full thermodynamic properties, and is not
+often seen in other descriptions of solution thermodynamics.
 ```
 
 The necessary properties are:
