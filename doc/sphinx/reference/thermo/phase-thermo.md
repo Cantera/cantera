@@ -15,13 +15,13 @@ Ideal Gas Mixture
   Implemented by class {ct}`IdealGasPhase`.
 
 (sec-Redlich-Kwong-phase)=
-Redlich-Kwong Real Gas
+Redlich-Kwong Real Gas Mixture
 : A multi-species real gas following the Redlich-Kwong equation of state. Defined in the
   YAML format by specifying [`Redlich-Kwong`](sec-yaml-Redlich-Kwong) in the `thermo`
   field of the phase definition. Implemented by class {ct}`RedlichKwongMFTP`.
 
 (sec-Peng-Robinson-phase)=
-Peng-Robinson Real Gas
+Peng-Robinson Real Gas Mixture
 : A multi-species real gas following the Peng-Robinson equation of state. Defined in the
   YAML format by specifying [`Peng-Robinson`](sec-yaml-Peng-Robinson) in the `thermo`
   field of the phase definition. Implemented by class {ct}`PengRobinson`.
@@ -99,9 +99,10 @@ Ideal Molal Solution
 
 (sec-ideal-condensed-phase)=
 Ideal Condensed Phase
-: An ideal liquid or solid solution. Defined in the YAML format by specifying
-  [`ideal-condensed`](sec-yaml-ideal-condensed) in the `thermo` field of the
-  phase definition. Implemented by class {ct}`IdealSolidSolnPhase`.
+: An ideal liquid or solid solution based on the mixing-rule assumption that all molar
+  concentration-based activity coefficients are equal to one. Defined in the YAML format
+  by specifying [`ideal-condensed`](sec-yaml-ideal-condensed) in the `thermo` field of
+  the phase definition. Implemented by class {ct}`IdealSolidSolnPhase`.
 
 (sec-ideal-solution-VPSS-phase)=
 Ideal Condensed Phase with VPSS Species

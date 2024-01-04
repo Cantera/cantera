@@ -88,9 +88,9 @@ function are:
 - `tout` is the desired integrator output time. CVODES will not necessarily reach this
   time when operating in "one step" mode, but it is used in the selection of the initial
   step size.
-- After execution, {ct}`CVodesIntegrator::m_y` will contain the computed solution
-  vector, and will later be used to update the {ct}`ReactorNet` to its time-integrated
-  state.
+- After execution, {ct}`CVodesIntegrator::m_y` will contain the computed system state
+  at the time reached by the integrator, and will later be used to update the
+  {ct}`ReactorNet` to its time-integrated state.
 - After execution, {ct}`CVodesIntegrator::m_tInteg` will contain the time reached by the
   integrator.
 - The `CV_ONE_STEP` option tells the solver to take a single internal step.

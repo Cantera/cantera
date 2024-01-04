@@ -12,7 +12,7 @@ An Arrhenius rate is described by the
 $$  k_f = A T^b e^{-E_a / RT}  $$
 
 where $A$ is the pre-exponential factor, $T$ is the temperature, $b$ is the temperature
-exponent, $E_a$ is the activation energy, and $R$ is the gas constant.
+exponent, $E_a$ is the activation energy, and $R$ is the universal gas constant.
 
 :::{admonition} YAML Usage
 :class: tip
@@ -140,11 +140,11 @@ $$  \t{Si + SiH_4 (+M) \leftrightarrow Si_2H_4 (+M)}  $$
 
 Like falloff reactions, chemically-activated reactions are described by blending between
 a low-pressure and a high-pressure rate expression. The difference is that the forward
-rate constant is written as being proportional to the *low-pressure* rate constant:
+rate constant is written as proportional to the *low-pressure* rate constant:
 
 $$  k_f(T, P_r) = k_0 \left(\frac{1}{1 + P_r}\right) F(T, P_r)  $$
 
-and the optional blending function $F$ may described by any of the parameterizations
+and the optional blending function $F$ may be described by any of the parameterizations
 allowed for falloff reactions.
 
 ```{admonition} YAML Usage
@@ -242,10 +242,11 @@ In some circumstances like thermodynamic sensitivity analysis, or modeling heter
 reactions from one catalyst surface to another, the enthalpy change of a reaction
 ($\Delta H$) can be modified. Due to the change in $\Delta H$, the activation energy of
 the reaction must be adjusted accordingly to provide accurate simulation results. To
-adjust the activation energy due to changes in the reaction enthalpy, the Blowers-Masel
+adjust the activation energy  due to changes in the reaction enthalpy, the Blowers-Masel
 rate expression is available. This approximation was proposed by {cite:t}`blowers2000`
 to automatically scale activation energy as the reaction enthalpy is changed. The
-activation energy estimation can be written as:
+_intrinsic activation energy_ $E_a^0$ is defined as the activation energy when
+$\Delta H = 0$. The activation energy can then be written as a function of $\Delta H$:
 
 $$
 E_a = \begin{cases}
@@ -260,10 +261,9 @@ where
 
 $$  V_P = 2 w \frac{w + E_a^0}{w - E_a^0},  $$
 
-$w$ is the average of the bond dissociation energy of the bond breaking and that being
-formed, $E_a^0$ is the intrinsic activation energy, and $\Delta H$ is the enthalpy
-change of the reaction. Note that the expression is insensitive to $w$ as long as $w \ge
-2 E_a^0$, so we can use an arbitrarily high value of $w = 1000\text{ kJ/mol}$.
+and $w$ is the average of the bond dissociation energy of the bond breaking and that
+being formed. Note that the expression is insensitive to $w$ as long as $w \ge 2 E_a^0$,
+so we can use an arbitrarily high value of $w = 1000\text{ kJ/mol}$.
 
 After $E_a$ is evaluated, the reaction rate can be calculated using the modified
 Arrhenius expression

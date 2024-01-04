@@ -9,11 +9,14 @@ types.
 The basic reaction type is a homogeneous reaction with a pressure-independent
 rate coefficient and mass action kinetics. For example:
 
-$$  \t{A + B \rightleftharpoons C + D}  $$
+$$  a\t{A} + b\t{B} \rightleftharpoons c\t{C} + d\t{D}  $$
+
+where A and B are reactant species, C and D are product species, and $a, b, c, $ and $d$
+are stoichiometric coefficients.
 
 The forward reaction rate is then calculated as:
 
-$$  R_f = [\t{A}] [\t{B}] k_f  $$
+$$  R_f = [\t{A}]^a [\t{B}]^b k_f  $$
 
 where $k_f$ is the forward rate constant, calculated using one of the available rate
 parameterizations such as the [modified Arrhenius](sec-arrhenius-rate) form.
