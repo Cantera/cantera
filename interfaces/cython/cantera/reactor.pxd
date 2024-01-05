@@ -226,8 +226,11 @@ cdef class ReactorBase:
     cdef object _weakref_proxy
     cdef public dict node_attr
     """
-    A dictionary containing draw attributes for the representation of the reactor as a graphviz
-    node. See https://graphviz.org/docs/nodes/ for a list of all usable attributes.
+    A dictionary containing draw attributes for the representation of the reactor as a
+    graphviz node. See https://graphviz.org/docs/nodes/ for a list of all usable
+    attributes.
+
+    .. versionadded:: 3.1
     """
 
 cdef class Reactor(ReactorBase):
@@ -235,8 +238,11 @@ cdef class Reactor(ReactorBase):
     cdef object _kinetics
     cdef public str group_name
     """
-    Optional name of a grouping of reactors that will be drawn as a cluster in the graphical
-    representation using graphviz. See https://graphviz.org/Gallery/directed/cluster.html.
+    Optional name of a grouping of reactors that will be drawn as a cluster in the
+    graphical representation using graphviz. See
+    https://graphviz.org/Gallery/directed/cluster.html.
+
+    .. versionadded:: 3.1
     """
 
 cdef class MoleReactor(Reactor):
@@ -270,8 +276,11 @@ cdef class ReactorSurface:
     cdef ReactorBase _reactor
     cdef public dict node_attr
     """
-    A dictionary containing draw attributes for the representation of the reactor surface as a
-    graphviz node. See https://graphviz.org/docs/nodes/ for a list of all usable attributes.
+    A dictionary containing draw attributes for the representation of the reactor
+    surface as a graphviz node. See https://graphviz.org/docs/nodes/ for a list of all
+    usable attributes.
+
+    .. versionadded:: 3.1
     """
 
 cdef class WallBase:
@@ -284,8 +293,11 @@ cdef class WallBase:
     cdef str name
     cdef public dict edge_attr
     """
-    A dictionary containing draw attributes for the representation of the `WallBase` as a
-    graphviz edge.See https://graphviz.org/docs/edges/ for a list of all usable attributes.
+    A dictionary containing draw attributes for the representation of the `WallBase` as
+    a graphviz edge.See https://graphviz.org/docs/edges/ for a list of all usable
+    attributes.
+
+    .. versionadded:: 3.1
     """
 
 cdef class Wall(WallBase):
@@ -301,8 +313,11 @@ cdef class FlowDevice:
     cdef ReactorBase _downstream
     cdef public dict edge_attr
     """
-    A dictionary containing draw attributes for the representation of the `FlowDevice` as a
-    graphviz edge.See https://graphviz.org/docs/edges/ for a list of all usable attributes.
+    A dictionary containing draw attributes for the representation of the `FlowDevice`
+    as a graphviz edge.See https://graphviz.org/docs/edges/ for a list of all usable
+    attributes.
+
+    .. versionadded:: 3.1
     """
 
 cdef class MassFlowController(FlowDevice):
