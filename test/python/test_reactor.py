@@ -865,7 +865,7 @@ class TestReactor(utilities.CanteraTest):
         with self.assertRaises(ct.CanteraError):
             self.net.initialize()
 
-    @utilities.unittest.skipIf(_graphviz is None, "graphviz is not installed")
+    @pytest.mark.skipif(_graphviz is None, reason="graphviz is not installed")
     def test_draw_reactor(self):
         self.make_reactors()
         T1, P1, X1 = 300, 101325, 'O2:1.0'
@@ -877,53 +877,54 @@ class TestReactor(utilities.CanteraTest):
         r1.node_attr = {'style': 'filled', 'fillcolor': 'green'}
         graph = r1.draw()
         expected = ['\tName [fillcolor=green style=filled]\n']
-        self.assertEqual(graph.body, expected)
+        assert graph.body == expected
 
         # overwrite style during call to draw
         expected = [('\tName [label="{T (K)\\n300.00|P (bar)\\n1.013}|" color=blue '
                      'fillcolor=green shape=Mrecord style="" xlabel=Name]\n')]
         graph = r1.draw(print_state=True, node_attr={"style": "", "color": "blue"})
-        self.assertEqual(graph.body, expected)
+        assert graph.body == expected
 
         # print state with mole fractions
         r1.node_attr = {}
         expected = [('\tName [label="{T (K)\\n300.00|P (bar)\\n1.013}|X (%)'
                      '\\nO2: 100.00" shape=Mrecord xlabel=Name]\n')]
         graph = r1.draw(print_state=True, species="X")
-        self.assertEqual(graph.body, expected)
+        assert graph.body == expected
 
         # print state with mass fractions
         expected = [('\tName [label="{T (K)\\n300.00|P (bar)\\n1.013}|Y (%)'
                      '\\nO2: 100.00" shape=Mrecord xlabel=Name]\n')]
         graph = r1.draw(print_state=True, species="Y")
-        self.assertEqual(graph.body, expected)
+        assert graph.body == expected
 
         # print state with specified species
         expected = [('\tName [label="{T (K)\\n300.00|P (bar)\\n1.013}|X (%)'
                      '\\nH2: 0.00" shape=Mrecord xlabel=Name]\n')]
         graph = r1.draw(print_state=True, species=["H2"])
-        self.assertEqual(graph.body, expected)
+        assert graph.body == expected
 
         # print state with specified species and specified unit
         expected = [('\tName [label="{T (K)\\n300.00|P (bar)\\n1.013}|X (ppm)'
                      '\\nO2: 1000000.0" shape=Mrecord xlabel=Name]\n')]
         graph = r1.draw(print_state=True, species=["O2"], species_units="ppm")
-        self.assertEqual(graph.body, expected)
+        assert graph.body == expected
 
         # add reactor to existiing graph
         graph = _graphviz.Digraph()
         r1.draw(graph)
         expected = ['\tName\n']
-        self.assertEqual(graph.body, expected)
+        assert graph.body == expected
 
-    @utilities.unittest.skipIf(_graphviz is None, "graphviz is not installed")
+    @pytest.mark.skipif(_graphviz is None, reason="graphviz is not installed")
     def test_draw_reactors_same_name(self):
         self.make_reactors()
         self.r1.name = 'Reactor'
         self.r2.name = 'Reactor'
-        self.assertRaises(AssertionError, self.net.draw)
+        with pytest.raises(AssertionError, match="unique names"):
+            self.net.draw()
 
-    @utilities.unittest.skipIf(_graphviz is None, "graphviz is not installed")
+    @pytest.mark.skipif(_graphviz is None, reason="graphviz is not installed")
     def test_draw_grouped_reactors(self):
         self.make_reactors()
         self.r1.name = "Reactor 1"
@@ -939,9 +940,9 @@ class TestReactor(utilities.CanteraTest):
                     '\t\t"Reactor 2"\n',
                     '\t\tlabel="Group 2"\n',
                     '\t}\n']
-        self.assertSetEqual(set(graph.body), set(expected))
+        assert set(graph.body) == set(expected)
 
-    @utilities.unittest.skipIf(_graphviz is None, "graphviz is not installed")
+    @pytest.mark.skipif(_graphviz is None, reason="graphviz is not installed")
     def test_draw_wall(self):
         T1, P1, X1 = 300, 101325, 'O2:1.0'
         T2, P2, X2 = 600, 101325, 'O2:1.0'
@@ -954,9 +955,9 @@ class TestReactor(utilities.CanteraTest):
                        edge_attr={'style': 'dashed', 'color': 'blue'})
         expected = [('\t"Name 2" -> "Name 1" [label="q = 30 W" '
                      'color=blue style=dashed]\n')]
-        self.assertEqual(graph.body, expected)
+        assert graph.body == expected
 
-    @utilities.unittest.skipIf(_graphviz is None, "graphviz is not installed")
+    @pytest.mark.skipif(_graphviz is None, reason="graphviz is not installed")
     def test_draw_moving_wall(self):
         T1, P1, X1 = 300, 101325, 'O2:1.0'
         T2, P2, X2 = 600, 101325, 'O2:1.0'
@@ -970,7 +971,7 @@ class TestReactor(utilities.CanteraTest):
                      'dir=both style=dotted]\n'),
                     ('\t"Name 2" -> "Name 1" [label="q = 30 W" '
                      'color=red style=dashed]\n')]
-        self.assertEqual(graph.body, expected)
+        assert graph.body == expected
 
         # omit heat flow if zero
         w.heat_transfer_coeff = 0
@@ -978,10 +979,9 @@ class TestReactor(utilities.CanteraTest):
         expected = [('\t"Name 1" -> "Name 2" [label="wall vel. = 1 m/s" '
                      'arrowhead=icurveteecurve arrowtail=icurveteecurve '
                      'dir=both style=dotted]\n')]
-        self.assertEqual(graph.body, expected)
+        assert graph.body == expected
 
-
-    @utilities.unittest.skipIf(_graphviz is None, "graphviz is not installed")
+    @pytest.mark.skipif(_graphviz is None, reason="graphviz is not installed")
     def test_draw_flow_controller(self):
         self.make_reactors(n_reactors=1)
         self.r1.name = "Reactor"
@@ -999,9 +999,9 @@ class TestReactor(utilities.CanteraTest):
                          edge_attr={'style': 'dotted', 'color': 'blue'})
         expected = [('\tInlet -> Reactor [label="m = 2 kg/s" color=blue '
                      'style=dotted xlabel=MFC]\n')]
-        self.assertEqual(graph.body, expected)
+        assert graph.body == expected
 
-    @utilities.unittest.skipIf(_graphviz is None, "graphviz is not installed")
+    @pytest.mark.skipif(_graphviz is None, reason="graphviz is not installed")
     def test_draw_network(self):
         self.make_reactors()
         self.r1.name = "Hot reactor"
@@ -1042,7 +1042,7 @@ class TestReactor(utilities.CanteraTest):
                     ('\t"Hot inlet" -> "Hot reactor" [label="m = 3 kg/s" '
                      'color=green]\n')]
         # use sets because order can be random
-        self.assertSetEqual(set(graph.body), set(expected))
+        assert set(graph.body) == set(expected)
 
 
 class TestMoleReactor(TestReactor):
