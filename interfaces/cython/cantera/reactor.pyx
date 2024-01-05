@@ -183,8 +183,8 @@ cdef class ReactorBase:
             respectively, or an iterable that contains the desired species names as
             strings. Defaults to ``None``.
         :param species_units:
-            Defines the units the species are displayed in as either `"percent"` or
-            `"ppm"`. Defaults to `"percent"`.
+            Defines the units the species are displayed in as either ``"percent"`` or
+            ``"ppm"``. Defaults to ``"percent"``.
         :return:
             ``graphviz.graphs.BaseGraph`` object with reactor
 
@@ -225,8 +225,14 @@ cdef class Reactor(ReactorBase):
             Set to ``'on'`` or ``'off'``. If set to ``'off'``, the energy
             equation is not solved, and the temperature is held at its
             initial value.
+        :param node_attr:
+            Attributes to be passed to the ``node`` method invoked to draw this reactor.
+            See https://graphviz.org/docs/nodes/ for a list of all usable attributes.
         :param group_name:
             Group reactors of the same ``group_name`` when drawn using graphviz.
+
+        .. versionadded:: 3.1
+           Added the ``node_attr`` and ``group_name`` parameters.
 
         Some examples showing how to create :class:`Reactor` objects are
         shown below.
@@ -807,6 +813,12 @@ cdef class ReactorSurface:
         The `Reactor` into which this surface should be installed.
     :param A:
         The area of the reacting surface [m^2]
+    :param node_attr:
+        Attributes to be passed to the ``node`` method invoked to draw this surface.
+        See https://graphviz.org/docs/nodes/ for a list of all usable attributes.
+
+    .. versionadded:: 3.1
+       Added the ``node_attr`` parameter.
     """
     def __cinit__(self):
         self.surface = new CxxReactorSurface()
@@ -877,6 +889,7 @@ cdef class ReactorSurface:
     def reactor(self):
         """
         Return the `Reactor` object the surface is connected to.
+
         .. versionadded:: 3.1
         """
         return self._reactor
@@ -906,7 +919,7 @@ cdef class ReactorSurface:
             Whether state information of the reactor is printed into its node.
             Defaults to ``False``
         :param kwargs:
-            Additional keywords are passed on to `draw_reactor`.
+            Additional keywords are passed on to ``~.drawnetwork.draw_reactor``.
         :return:
             ``graphviz.graphs.BaseGraph`` object with surface and connected
             reactor.
@@ -960,6 +973,10 @@ cdef class WallBase:
         :param edge_attr:
             Attributes like ``style`` when drawn as a connecting edge using
             graphviz's dot language. Default is ``{}``.
+
+        .. versionadded:: 3.1
+           Added the ``edge_attr`` parameter.
+
         """
         self._velocity_func = None
         self._heat_flux_func = None
@@ -1012,6 +1029,7 @@ cdef class WallBase:
     def left_reactor(self):
         """
         Return the `Reactor` or `Reservoir` object left of the wall.
+
         .. versionadded:: 3.1
         """
         return self._left_reactor
@@ -1020,6 +1038,7 @@ cdef class WallBase:
     def right_reactor(self):
         """
         Return the `Reactor` or `Reservoir` object right of the wall.
+
         .. versionadded:: 3.1
         """
         return self._right_reactor
@@ -1059,22 +1078,22 @@ cdef class WallBase:
         :param graph_attr:
             Attributes to be passed to the ``graphviz.Digraph`` function that control
             the general appearance of the drawn network.
-            Has no effect if existing `graph` is provided.
+            Has no effect if existing ``graph`` is provided.
             See https://graphviz.org/docs/graph/ for a list of all usable attributes.
         :param node_attr:
             Attributes to be passed to the ``graphviz.Digraph`` function that control
             the default appearance of any ``node`` (reactors, reservoirs).
-            Has no effect if existing `graph` is provided.
+            Has no effect if existing ``graph`` is provided.
             See https://graphviz.org/docs/nodes/ for a list of all usable attributes.
         :param edge_attr:
             Attributes to be passed to the ``edge`` method invoked to draw this wall
             connection.
-            Default is {"color": "red", "style": "dashed"}.
+            Default is ``{"color": "red", "style": "dashed"}``.
             See https://graphviz.org/docs/edges/ for a list of all usable attributes.
         :param moving_wall_edge_attr:
-            Same as `edge_attr` but only applied to edges representing wall movement.
-            Default is {"arrowtail": "icurveteecurve", "dir": "both", "style": "dotted",
-            "arrowhead": "icurveteecurve"}.
+            Same as ``edge_attr`` but only applied to edges representing wall movement.
+            Default is ``{"arrowtail": "icurveteecurve", "dir": "both",
+            "style": "dotted", "arrowhead": "icurveteecurve"}``.
         :param show_wall_velocity:
             If ``True``, wall movement will be indicated by additional arrows with the
             corresponding wall velocity as a label.
@@ -1235,6 +1254,7 @@ cdef class FlowDevice:
     def upstream(self):
         """
         Return the `Reactor` or `Reservoir` object upstream of the flow device.
+
         .. versionadded:: 3.1
         """
         return self._upstream
@@ -1243,6 +1263,7 @@ cdef class FlowDevice:
     def downstream(self):
         """
         Return the `Reactor` or `Reservoir` object downstream of the flow device.
+
         .. versionadded:: 3.1
         """
         return self._downstream
@@ -1322,12 +1343,12 @@ cdef class FlowDevice:
         :param graph_attr:
             Attributes to be passed to the ``graphviz.Digraph`` function that control
             the general appearance of the drawn network.
-            Has no effect if existing `graph` is provided.
+            Has no effect if existing ``graph`` is provided.
             See https://graphviz.org/docs/graph/ for a list of all usable attributes.
         :param node_attr:
             Attributes to be passed to the ``graphviz.Digraph`` function that control
             the default appearance of any ``node`` (reactors, reservoirs).
-            Has no effect if existing `graph` is provided.
+            Has no effect if existing ``graph`` is provided.
             See https://graphviz.org/docs/nodes/ for a list of all usable attributes.
         :param edge_attr:
             Attributes to be passed to the ``edge`` method invoked to draw this flow
@@ -1586,6 +1607,7 @@ cdef class ReactorNet:
     def reactors(self):
         """
         List of all reactors that are part of the reactor network.
+
         .. versionadded:: 3.1
         """
         return self._reactors
@@ -2027,23 +2049,24 @@ cdef class ReactorNet:
             or walls) themselves have priority.
             See https://graphviz.org/docs/edges/ for a list of all usable attributes.
         :param heat_flow_attr:
-            Same as `edge_attr` but only applied to edges representing walls.
-            Default is {"color": "red", "style": "dashed"}.
+            Same as ``edge_attr`` but only applied to edges representing walls.
+            Default is ``{"color": "red", "style": "dashed"}``.
         :param mass_flow_attr:
-            Same as `edge_attr` but only applied to edges representing `FlowDevice`
+            Same as ``edge_attr`` but only applied to edges representing `FlowDevice`
             objects.
         :param moving_wall_edge_attr:
-            Same as `edge_attr` but only applied to edges representing wall movement.
+            Same as ``edge_attr`` but only applied to edges representing wall movement.
         :param surface_edge_attr:
-            Same as `edge_attr` but only applied to edges representing connections
+            Same as ``edge_attr`` but only applied to edges representing connections
             between `ReactorSurface` objects and reactors.
-            Default is `{"style": "dotted", "arrowhead": "none"}`.
+            Default is ``{"style": "dotted", "arrowhead": "none"}``.
         :param print_state:
             Whether state information of the reactors is printed into each node.
             Defaults to ``False``.
         :param kwargs:
-            Additional keywords are passed on to each call of `draw_reactor`,
-            `draw_surface`, `draw_flow_controllers`, and `draw_walls`.
+            Additional keywords are passed on to each call of
+            `~.drawnetwork.draw_reactor`, `~.drawnetwork.draw_surface`,
+            `~.drawnetwork.draw_flow_controllers`, and `~.drawnetwork.draw_walls`.
         :return:
             ``graphviz.graphs.BaseGraph`` object with reactor net.
 
