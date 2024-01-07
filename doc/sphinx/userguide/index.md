@@ -15,6 +15,7 @@ troubleshooting.
 - [Getting Started with Python](python-tutorial)
 - [](input-tutorial)
 - [](reactor-tutorial)
+- [](compiling-cxx)
 
 ## Frequently asked questions
 
@@ -46,6 +47,7 @@ conditions, or calculating the voltage of a Lithium-ion battery as it is dischar
 python-tutorial
 input-tutorial
 reactor-tutorial
+compiling-cxx
 
 faq
 
