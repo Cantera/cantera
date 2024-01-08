@@ -5,6 +5,7 @@ This page is a work in progress. For compilation instructions for Cantera 3.0, p
 see <a href="/install/compiling-install.html">this page</a>.
 ```
 
+(sec-compiling)=
 ## Compiling Cantera from Source
 
 If you're interested in contributing new features to Cantera, or you want to try the
