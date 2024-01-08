@@ -10,6 +10,13 @@ see <a href="/install/index.html">this page</a>.
 
 conda
 pip
+ubuntu
+fedora-rhel
+opensuse
+gentoo
+freebsd
+macos
+windows
 ```
 
 ```{seealso}
