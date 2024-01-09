@@ -5,6 +5,12 @@ links to the documentation for their YAML input parameters and the documentation
 the C++ classes which implement these models. This API documentation may also provide
 references or a mathematical description of the model.
 
+Cantera has a wide variety of models for bulk phases. Special attention has been paid to
+the performance of the ideal gas phase implementation, which is widely used in
+combustion applications. Non-ideal liquid phase thermodynamic models are provided for
+use in electrochemical and battery applications. These models include a Pitzer
+implementation for brine solutions and a Margules excess Gibbs free energy
+implementation for molten salts.
 
 ## Models for Gaseous Mixtures
 
