@@ -25,9 +25,10 @@ parameterizations such as the [modified Arrhenius](sec-arrhenius-rate) form.
 :class: tip
 An elementary reaction with an Arrhenius reaction rate can be defined in the YAML format
 using the [`elementary`](sec-yaml-elementary) reaction `type`, or by omitting the
-reaction `type` entry, as it represents the default. In case the `type` entry is omitted
-and a species occurs on both sides of the reaction equation, Cantera infers that the
-reaction type is [`three-body`](sec-yaml-three-body).
+reaction `type` entry, as it represents the default. An exception to this default is
+when the same species occurs on both sides of the reaction equation, in which case the
+reaction is treated as a
+[three-body reaction for a specific collider](sec-three-body-specific-collider).
 ```
 
 (sec-three-body-reaction)=
@@ -69,6 +70,9 @@ The rate coefficient $k_f(T)$ may be implemented using any rate parameterization
 supported by Cantera, not just the modified Arrhenius form.
 :::
 
+(sec-three-body-specific-collider)=
+### Collider-specific rate parameterizations
+
 Sometimes, accounting for a particular third body's collision efficiency may require an
 alternate set of rate parameters entirely. In this case, two reactions are written:
 
@@ -79,7 +83,8 @@ $$
 $$
 
 where the third-body efficiency for C in the first reaction should be explicitly set to
-zero.
+zero. For the second reaction, the efficiencies will automatically be set to one for C
+and zero for all other colliders.
 
 ```{admonition} YAML Usage
 :class: tip
