@@ -172,6 +172,8 @@ enum class ThermoBasis
  * distinction is that the methods declared in ThermoPhase require knowing the
  * particular equation of state of the phase of interest, while those of class
  * Phase do not, since they only involve data values stored within the object.
+ * These methods are then implemented by the classes derived from ThermoPhase to
+ * represent a phase with a specific equation of state.
  *
  * ## Calculating and accessing thermodynamic properties
  *
