@@ -3,11 +3,6 @@
 
 # Reactors and Reactor Networks
 
-```{caution}
-This page is a work in progress. For more complete documentation of the current Cantera
-release (Cantera 3.0), please see <a href="/science/reactors/reactors.html">this page</a>.
-```
-
 In Cantera, a *reactor network* represents a set of one or more homogeneous reactors and
 reacting surfaces that may be connected to each other and to the environment through
 devices representing mass flow, heat transfer, and moving walls. The system is generally

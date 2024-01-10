@@ -199,9 +199,8 @@ Cantera search path:
 ct.add_directory('~/cantera/my_data_files')
 ```
 
-% TODO: Add link to input file guide
 Cantera input files are plain text files, and can be created with any text editor. See
-the document `Working With Input Files` for more information.
+the page [](input-tutorial) for more information.
 
 A Cantera input file may contain more than one phase specification, or may contain
 specifications of interfaces (surfaces). Here we import definitions of two bulk phases
@@ -220,9 +219,8 @@ passed as arguments to {py:class}`Interface`.
 
 ## Converting CK-format files
 
-% TODO: Add link to the ck2yaml guide
-`Converting CK-format Files` documentation for information on how to convert from
-CK-format to Cantera's YAML format.
+See the page [](ck2yaml-tutorial) for information on how to convert from CK-format to
+Cantera's YAML format.
 
 ## Getting Help
 
