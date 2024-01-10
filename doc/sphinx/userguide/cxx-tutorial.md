@@ -4,7 +4,7 @@ One of the main reasons to use the Cantera C++ interface directly is to be able 
 couple it with a higher-level simulation code, where Cantera is used to calculate
 thermodynamic properties, reaction rates, and transport properties for the host code.
 This tutorial demonstrates how to initialize Cantera objects from
-[YAML input files](/userguide/input-tutorial.html) and use those objects to calculate
+[YAML input files](/userguide/input-tutorial) and use those objects to calculate
 properties for mixtures with different thermodynamic states.
 
 ## A very simple C++ program

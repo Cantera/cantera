@@ -42,6 +42,18 @@ conditions, or calculating the voltage of a Lithium-ion battery as it is dischar
 
 - [](extensible-reactor)
 
+## Advanced Resources
+
+- For intermediate and advanced users, the [](/reference/index) section is an
+  easily-searchable repository that describes the scientific models implemented by
+  Cantera and documents the classes and functions used to access these models.
+- The [](/examples/index) section provides demonstrations of how many Cantera features
+  can be used to solve a range of different problems and often provide a good starting
+  point for writing your own code.
+- Finally, if you have trouble using Cantera and can't find an answer here in the
+  documentation, please visit the
+  <a href="https://cantera.org/community.html#the-cantera-users-group">Cantera Users' Group</a>.
+
 ```{toctree}
 :hidden:
 
