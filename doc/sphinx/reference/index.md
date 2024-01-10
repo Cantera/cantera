@@ -3,13 +3,6 @@
 
 This pages provide detailed reference documentation for Cantera.
 
-```{caution}
-This page is a work in progress. For more complete documentation of the current Cantera
-release (Cantera 3.0), please see the
-<a href="/documentation/index.html">documentation index</a> and the
-<a href="science/index.html">Science & Theory Manual</a>.
-```
-
 ## Programming Reference
 
 These sections document the classes and functions that define the Cantera interface for

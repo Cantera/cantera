@@ -1,11 +1,11 @@
 (sec-thermobuild)=
 # Converting Data from NASA ThermoBuild
 
-% TODO: Link to NASA9 Science docs
-
 Thermodynamic data for a range of species can be obtained from the
 [NASA ThermoBuild](https://cearun.grc.nasa.gov/ThermoBuild/index_ds.html) tool.
-This thermodynamic data is described using the 9-coefficient NASA polynomial parameterization, which is implemented by Cantera.
+This thermodynamic data is described using the
+[9-coefficient NASA polynomial](sec-thermo-nasa9) parameterization, which is implemented
+by Cantera.
 
 To generate an input file containing thermodynamic data, use the ThermoBuild web
 interface to select the elements you want to include, and click *process*. Then, select

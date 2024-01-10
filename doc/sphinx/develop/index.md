@@ -1,10 +1,5 @@
 # Develop
 
-```{caution}
-This page is a work in progress. For compilation instructions for Cantera 3.0, please
-see <a href="/install/compiling-install.html">this page</a>.
-```
-
 (sec-compiling)=
 ## Compiling Cantera from Source
 
@@ -36,6 +31,10 @@ compiling/special-cases
 
 ## How Cantera Works
 
+```{caution}
+This section is a work in progress.
+```
+
 - [](reactor-integration)
 
 ```{toctree}
@@ -47,3 +46,7 @@ reactor-integration
 ```
 
 ## Adding New Models to Cantera
+
+```{caution}
+This section is a work in progress.
+```

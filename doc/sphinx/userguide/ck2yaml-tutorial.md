@@ -195,10 +195,9 @@ Column 79 is blank; and finally, the row is ended in column 80 with the integer 
 
 #### Lines 2--4
 
-% TODO: Link to NASA polynomials section in Science docs
-
 The next three lines of the thermodynamic entry have a similar format. They contain the
-coefficients of the 7-coefficient polynomial formulation in two temperature regions.
+coefficients of the [7-coefficient polynomial formulation](sec-thermo-nasa7) in two
+temperature regions.
 
 The second row of the thermo entry (the first after the information row) contains the
 first five coefficients that apply to the temperature range between the midpoint and the
