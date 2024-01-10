@@ -223,7 +223,13 @@ intersphinx_mapping = {
     'pint': ('https://pint.readthedocs.io/en/stable/', None),
 }
 
-myst_enable_extensions = ["dollarmath", "amsmath", "deflist", "colon_fence"]
+myst_enable_extensions = [
+    "dollarmath",
+    "amsmath",
+    "deflist",
+    "colon_fence",
+    "attrs_block",
+]
 
 mathjax3_config = {
     'tex': {

@@ -33,9 +33,9 @@ species-thermo
 phase-thermo
 ```
 
-### The Intensive Thermodynamic State
+## The Intensive Thermodynamic State
 
-Cantera's phase thermodynamic model, implemenented by the C++ {ct}`ThermoPhase` class
+Cantera's phase thermodynamic model, implemented by the C++ {ct}`ThermoPhase` class
 and classes derived from it, works only with the intensive thermodynamic state. That is,
 all extensive properties (enthalpy, entropy, internal energy, volume, etc.) are computed
 for a unit quantity (on a mass or mole basis). For example, there is a method

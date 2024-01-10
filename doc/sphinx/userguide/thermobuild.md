@@ -14,8 +14,9 @@ content on the resulting page starting with the line that says `thermo`, and end
 the line that says `END REACTANTS` and save it to a file.
 
 Next, we need to make a few modifications to this file so it contains all of the
-information needed to be processed by Cantera's CK file parser. For this example, let's
-suppose you have selected just the species `CO` and `CO2` from ThermoBuild.
+information needed to be processed by Cantera's {term}`CK` file parser. For this
+example, let's suppose you have selected just the species `CO` and `CO2` from
+ThermoBuild.
 
 - Modify the first line of the file so that it reads `thermo nasa9`. This is done to
   distinguish this input format from the one used for the 7-coefficient NASA

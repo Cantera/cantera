@@ -324,7 +324,7 @@ class {ct}`PDSS_HKFT`.
 
 :::{admonition} YAML Usage
 :class: tip
-An HKFT parameterization can be defined in the YAML format by specifying
+An {term}`HKFT` parameterization can be defined in the YAML format by specifying
 [`HKFT`](sec-yaml-eos-hkft) as the `model` in the species `equation-of-state` field.
 :::
 

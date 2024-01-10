@@ -1,8 +1,8 @@
 # Converting Chemkin Format Files
 
-Many existing reaction mechanism files are in **CK format**, by which we mean the input
-file format developed for use with the Chemkin-II software package (and subsequent
-releases) as specified in the report describing the Chemkin software
+Many existing reaction mechanism files are in **{term}`CK` format**, by which we mean
+the input file format developed for use with the Chemkin-II software package (and
+subsequent releases) as specified in the report describing the Chemkin software
 {cite:p}`kee1989`. Cantera comes with a converter utility program `ck2yaml` (or
 `ck2yaml.py`) that converts CK format into Cantera's YAML format. If you want to convert
 a Chemkin-format file to YAML format, or you're having errors when you try to do so,
