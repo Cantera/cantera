@@ -119,7 +119,7 @@ compiler is required only if you plan to build the Fortran module.
 
 - [Ruamel.yaml](https://pypi.org/project/ruamel.yaml/) (Python)
 
-  - Required to convert input files from Chemkin, CTI, and XML to the YAML
+  - Required to convert input files from Chemkin, {term}`CTI`, and XML to the YAML
     format
   - Known to work with versions 0.15.42, 0.15.87, and 0.16.5
   - Expected to work with versions >= 0.15.0

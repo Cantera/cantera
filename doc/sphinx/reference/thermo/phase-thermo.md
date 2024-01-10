@@ -88,10 +88,10 @@ Pure Fluid Phases
 
 (sec-liquid-water-IAPWS95-phase)=
 Liquid Water using the IAPWS95 Equation of State
-: An implementation of the IAPWS95 equation of state for water {cite:p}`wagner2002`, for
-  the liquid region only. Defined in the YAML format by specifying
-  [`liquid-water-IAPWS95`](sec-yaml-liquid-water-IAPWS95) in the `thermo` field of the
-  phase definition. Implemented by class {ct}`WaterSSTP`.
+: An implementation of the {term}`IAPWS`95 equation of state for water
+  {cite:p}`wagner2002`, for the liquid region only. Defined in the YAML format by
+  specifying [`liquid-water-IAPWS95`](sec-yaml-liquid-water-IAPWS95) in the `thermo`
+  field of the phase definition. Implemented by class {ct}`WaterSSTP`.
 
 
 ## Ideal Solid and Liquid Solutions
@@ -111,7 +111,7 @@ Ideal Condensed Phase
   the phase definition. Implemented by class {ct}`IdealSolidSolnPhase`.
 
 (sec-ideal-solution-VPSS-phase)=
-Ideal Condensed Phase with VPSS Species
+Ideal Condensed Phase with {term}`VPSS` Species
 : An ideal solution model using variable pressure standard state methods. This allows
   the standard state molar volume of species to be specified as a function of
   temperature. Defined in the YAML format by specifying
