@@ -45,8 +45,17 @@ This section is a work in progress.
 reactor-integration
 ```
 
-## Adding New Models to Cantera
+## Adding New Features to Cantera
 
 ```{caution}
 This section is a work in progress.
+```
+
+- [](doc-formatting)
+
+```{toctree}
+:caption: Adding New Features to Cantera
+:hidden:
+
+doc-formatting
 ```
