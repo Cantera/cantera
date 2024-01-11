@@ -185,7 +185,8 @@ cdef class Transport(_SolutionBase):
 
     property transport_model:
         """
-        Get/Set the transport model associated with this transport model.
+        Get/Set the string specifying the transport model, such as `multicomponent`, 
+        `mixture-averaged`, or `unity-Lewis-number`.
 
         Setting a new transport model deletes the underlying C++ Transport
         object and replaces it with a new one implementing the specified model.
