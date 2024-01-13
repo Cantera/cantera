@@ -1,6 +1,6 @@
 # %Cantera C++ Reference
 
-Use sidebar to view detailed documentation of the C++ code, or use the following
+Use the sidebar to view detailed documentation of the C++ code, or use the following
 shortcuts:
 
 * Overview of [**Cantera C++ Modules**](modules.html)
@@ -16,8 +16,8 @@ A topical overview is provided as follows:
 * @ref onedGroup (flames, flow domains, boundaries, ...)
 * @ref physConstants (universal constants, built into %Cantera for convenience)
 
-For fundamental scientific theory used for the implementation of %Cantera, refer to the
-[Cantera Science Section](../reference/index.html#science-reference)
-of the [Cantera Website](https://cantera.org).
+Details on the fundamental scientific theories used in the implementation of %Cantera
+are located in the
+[Science Reference Section](../reference/index.html#science-reference).
 
 The %Cantera source code is hosted on [GitHub](https://github.com/Cantera/cantera).

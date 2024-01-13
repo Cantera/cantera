@@ -8,7 +8,7 @@ to install the Cantera Python module from [PyPI](https://pypi.org/project/Canter
 There are a few important limitations to note when Cantera is installed from PyPI:
 
 - These packages are compiled without native HDF5 support. The new options for saving
-  and restoring `SolutionArray` and flame objects to/from HDF5 files is not available.
+  and restoring `SolutionArray` and flame objects to/from HDF5 files are not available.
 - These packages are compiled using single-threaded implementations of LAPACK functions,
   and cannot make use of multiple cores to speed up reactor network or flame
   simulations.

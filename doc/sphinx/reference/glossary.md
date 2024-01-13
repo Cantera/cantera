@@ -41,7 +41,7 @@ PDSS
 
 {.glossary}
 RT
-: Product of the gas constant (R) and the temperature
+: Product of the universal gas constant (R) and the temperature
 
 {.glossary}
 SHE

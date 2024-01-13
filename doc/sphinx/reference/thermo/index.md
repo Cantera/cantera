@@ -21,7 +21,7 @@ sections describe the species and phase thermodynamic models available in Canter
 : The theory behind some of Cantera's phase models, such as the ideal gas law.
 
 The user must specify the thermodynamic models and provide input data to be used for
-both levels, and these selections must be compatible with one another. For instance: one
+both levels, and these selections must be compatible with one another. For instance, one
 cannot pair certain non-ideal species thermodynamic models with an ideal phase model.
 
 ```{toctree}
