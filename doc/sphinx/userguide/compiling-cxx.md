@@ -19,10 +19,10 @@ build systems, namely CMake and SCons.
 
 ### CMake
 
-CMake is a multi-platform build system that uses a high-level project description to
-generate platform-specific build scripts (for example, on Linux, CMake will generate
-Makefiles, and on Windows, it can generate Visual Studio `.sln` files). The
-configuration file for a CMake project is called `CMakeLists.txt`. A typical
+[CMake](https://cmake.org/) is a multi-platform build system that uses a high-level
+project description to generate platform-specific build scripts (for example, on Linux,
+CMake will generate Makefiles, and on Windows, it can generate Visual Studio `.sln`
+files). The configuration file for a CMake project is called `CMakeLists.txt`. A typical
 `CMakeLists.txt` file for compiling a program that uses Cantera might look like this:
 
 ```cmake
@@ -72,10 +72,11 @@ This will create an executable named `sample.exe` in the `build\Release` directo
 
 ### SCons
 
-SCons is a multi-platform, Python-based build system. It is the build system used to
-compile Cantera. The description of how to build a project is contained in a file named
-`SConstruct`. The `SConstruct` file is actually a Python script, which makes it very
-straightforward to add functionality to a SCons-based build system.
+[SCons](https://scons.org/) is a multi-platform, Python-based build system. It is the
+build system used to compile Cantera. The description of how to build a project is
+contained in a file named `SConstruct`. The `SConstruct` file is actually a Python
+script, which makes it very straightforward to add functionality to a SCons-based build
+system.
 
 A typical `SConstruct` file for compiling a program that uses Cantera might look like
 this:
