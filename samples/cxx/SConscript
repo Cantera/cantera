@@ -1,27 +1,45 @@
 from os.path import join as pjoin
 import os
 from buildutils import *
+from collections import namedtuple
 
 Import('env', 'build', 'install', 'buildSample')
 
-# (subdir, program name, [source extensions], openmp_flag)
+Sample = namedtuple(
+    'Sample',
+    ('name', 'srcdir', 'dest_dir', 'file_patterns', 'openmp', 'install'),
+    defaults=(None, ['cpp'], False, True)
+)
+
 samples = [
-    ('combustor', 'combustor', ['cpp'], False),
-    ('custom', 'custom', ['cpp'], False),
-    ('demo', 'demo', ['cpp'], False),
-    ('flamespeed', 'flamespeed', ['cpp'], False),
-    ('kinetics1', 'kinetics1', ['cpp'], False),
-    ('jacobian', 'derivative_speed', ['cpp'], False),
-    ('gas_transport', 'gas_transport', ['cpp'], False),
-    ('rankine', 'rankine', ['cpp'], False),
-    ('LiC6_electrode', 'LiC6_electrode', ['cpp'], False),
-    ('openmp_ignition', 'openmp_ignition', ['cpp'], True),
-    ('bvp', 'blasius', ['cpp'], False)
+    Sample('combustor', 'combustor'),
+    Sample('custom', 'custom'),
+    Sample('demo', 'demo'),
+    Sample('flamespeed', 'flamespeed'),
+    Sample('kinetics1', 'kinetics1'),
+    Sample('derivative_speed', 'jacobian'),
+    Sample('gas_transport', 'gas_transport'),
+    Sample('rankine', 'rankine'),
+    Sample('LiC6_electrode', 'LiC6_electrode'),
+    Sample('openmp_ignition', 'openmp_ignition', openmp=True),
+    Sample('blasius', 'bvp'),
+    Sample('demo1a', '#doc/sphinx/userguide',
+           dest_dir='#build/samples/userguide',
+           file_patterns=['^demo1a.cpp'], install=False),
+    Sample('thermodemo', '#doc/sphinx/userguide',
+           dest_dir='#build/samples/userguide',
+           file_patterns=['^thermodemo.cpp'], install=False),
+    Sample('demoequil', '#doc/sphinx/userguide',
+           dest_dir='#build/samples/userguide',
+           file_patterns=['^demoequil.cpp'], install=False),
+    Sample('kinetics_transport', '#doc/sphinx/userguide',
+           dest_dir='#build/samples/userguide',
+           file_patterns=['^kinetics_transport.cpp'], install=False),
 ]
 
-for subdir, name, extensions, openmp in samples:
+for sample in samples:
     localenv = env.Clone()
-    if openmp:
+    if sample.openmp:
         localenv.Append(CXXFLAGS=env['openmp_flag'], LINKFLAGS=env['openmp_flag'])
         if env['using_apple_clang']:
             localenv.Append(LIBS=['omp'])
@@ -43,11 +61,15 @@ set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}
     localenv.Append(LIBS=env['cantera_shared_libs'])
     localenv.Prepend(CPPPATH=['#include'])
 
-    if openmp and not env['HAS_OPENMP']:
-        logger.info(f"Skipping sample {name!r} because 'omp.h' was not found.")
+    dest_dir = sample.dest_dir or sample.srcdir
+    if sample.openmp and not env['HAS_OPENMP']:
+        logger.info(f"Skipping sample {sample.name!r} because 'omp.h' was not found.")
     else:
-        buildSample(localenv.Program, pjoin(subdir, name),
-                    multi_glob(localenv, subdir, *extensions))
+        buildSample(localenv.Program, pjoin(dest_dir, sample.name),
+                    multi_glob(localenv, sample.srcdir, *sample.file_patterns))
+
+    if not sample.install:
+        continue
 
     # Note: These CMakeLists.txt and SConstruct files are automatically installed
     # by the "RecursiveInstall" that grabs everything in the cxx directory.
@@ -92,8 +114,8 @@ set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}
     localenv['tmpl_cantera_libdirs'] = repr([x for x in libdirs if x])
     localenv['cmake_cantera_libdirs'] = ' '.join(quoted(x) for x in libdirs if x)
     localenv['tmpl_cantera_linkflags'] = repr(link_flags)
-    localenv['tmpl_progname'] = name
-    localenv['tmpl_sourcename'] = name + '.cpp'
+    localenv['tmpl_progname'] = sample.name
+    localenv['tmpl_sourcename'] = sample.name + '.cpp'
     env_args = []
 
     ## Generate SConstruct files to be installed
@@ -112,9 +134,9 @@ set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}
         # environment variables optionally overriding
         localenv['tmpl_cxx'] = env.subst("env['CXX'] = os.environ.get('CXX', '$CXX')")
 
-    sconstruct = localenv.SubstFile(pjoin(subdir, 'SConstruct'), 'SConstruct.in')
-    install(pjoin('$inst_sampledir', 'cxx', subdir), sconstruct)
+    sconstruct = localenv.SubstFile(pjoin(dest_dir, 'SConstruct'), 'SConstruct.in')
+    install(pjoin('$inst_sampledir', 'cxx', dest_dir), sconstruct)
 
     ## Generate CMakeList.txt files to be installed
-    cmakelists = localenv.SubstFile(pjoin(subdir, 'CMakeLists.txt'), 'CMakeLists.txt.in')
-    install(pjoin('$inst_sampledir', 'cxx', subdir), cmakelists)
+    cmakelists = localenv.SubstFile(pjoin(dest_dir, 'CMakeLists.txt'), 'CMakeLists.txt.in')
+    install(pjoin('$inst_sampledir', 'cxx', dest_dir), cmakelists)
