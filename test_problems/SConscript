@@ -243,6 +243,17 @@ Test('cxx-rankine', 'cxx_samples', '#build/samples/cxx/rankine/rankine',
 
 Test('clib-demo', 'clib', '#build/samples/clib/demo', 'clib_demo_blessed.txt')
 
+# C++ programs from User Guide
+Test('cxx-guide-demo1a', 'cxx_userguide', '#build/samples/userguide/demo1a',
+     blessedName='demo1a_blessed.txt')
+Test('cxx-guide-thermodemo', 'cxx_userguide', '#build/samples/userguide/thermodemo',
+     blessedName='thermodemo_blessed.txt')
+Test('cxx-guide-demoequil', 'cxx_userguide', '#build/samples/userguide/demoequil',
+     blessedName='demoequil_blessed.txt')
+Test('cxx-guide-kinetics_transport', 'cxx_userguide',
+     '#build/samples/userguide/kinetics_transport',
+     blessedName='kinetics_transport_blessed.txt')
+
 if env['f90_interface'] == 'y':
     Test('f90-demo', 'fortran', '#build/samples/f90/demo', 'f90_demo_blessed.txt',
          threshold=1e-10)

@@ -35,36 +35,8 @@ and flexible methods of compiling programs that use the Cantera C++ library, see
 
 Running this program produces the output below:
 
-```none
- ohmech:
-
-      temperature   500 K
-         pressure   2.0265e+05 Pa
-          density   0.36118 kg/m^3
- mean mol. weight   7.4093 kg/kmol
-  phase of matter   gas
-
-                         1 kg             1 kmol
-                    ---------------   ---------------
-         enthalpy       -2.4772e+06       -1.8354e+07  J
-  internal energy       -3.0382e+06       -2.2511e+07  J
-          entropy             20699        1.5337e+05  J/K
-   Gibbs function       -1.2827e+07       -9.5038e+07  J
-heat capacity c_p            3919.1             29038  J/K
-heat capacity c_v              2797             20724  J/K
-
-                     mass frac. Y      mole frac. X     chem. pot. / RT
-                    ---------------   ---------------   ---------------
-               H2           0.21767               0.8           -15.644
-                H                 0                 0
-                O                 0                 0
-               O2                 0                 0
-               OH                 0                 0
-              H2O           0.24314               0.1           -82.953
-              HO2                 0                 0
-             H2O2                 0                 0
-               AR           0.53919               0.1           -20.503
-               N2                 0                 0
+```{literalinclude} ../../../../test_problems/cxx_userguide/demo1a_blessed.txt
+:language: none
 ```
 
 As C++ programs go, this one is quite short. It is the Cantera equivalent of the "Hello,
@@ -174,36 +146,8 @@ to a state of chemical equilibrium, holding the temperature and pressure fixed.
 
 The program output is:
 
-```none
- ohmech:
-
-      temperature   1500 K
-         pressure   2.0265e+05 Pa
-          density   0.31683 kg/m^3
- mean mol. weight   19.499 kg/kmol
-  phase of matter   gas
-
-                         1 kg             1 kmol
-                    ---------------   ---------------
-         enthalpy       -4.1789e+06       -8.1485e+07  J
-  internal energy       -4.8186e+06       -9.3957e+07  J
-          entropy             11283        2.2001e+05  J/K
-   Gibbs function       -2.1104e+07        -4.115e+08  J
-heat capacity c_p              1893             36912  J/K
-heat capacity c_v            1466.6             28597  J/K
-
-                     mass frac. Y      mole frac. X     chem. pot. / RT
-                    ---------------   ---------------   ---------------
-               H2          0.025847              0.25           -19.295
-                H        3.2181e-07        6.2252e-06           -9.6477
-                O        6.2927e-12        7.6693e-12           -26.377
-               O2        1.1747e-11        7.1586e-12           -52.753
-               OH        3.0994e-07        3.5535e-07           -36.024
-              H2O           0.46195               0.5           -45.672
-              HO2        1.2362e-14        7.3034e-15           -62.401
-             H2O2         6.904e-13        3.9578e-13           -72.049
-               AR           0.51221              0.25           -21.339
-               N2                 0                 0
+```{literalinclude} ../../../../test_problems/cxx_userguide/demoequil_blessed.txt
+:language: none
 ```
 
 How can we tell that this is really a state of chemical equilibrium? Well, by applying
@@ -239,34 +183,8 @@ types from a {ct}`Solution` object:
 
 This program produces the output below:
 
-```none
-Net reaction rates for reactions involving CO2
- 11  CO + O (+M) <=> CO2 (+M)         3.54150687e-08
- 13  HCO + O <=> CO2 + H              1.95679990e-11
- 29  CH2CO + O <=> CH2 + CO2          3.45366954e-17
- 30  CO + O2 <=> CO2 + O              2.70102741e-13
- 98  CO + OH <=> CO2 + H              6.46935827e-03
-119  CO + HO2 <=> CO2 + OH            1.86807592e-10
-131  CH + CO2 <=> CO + HCO            9.41365868e-14
-151  CH2(S) + CO2 <=> CH2 + CO2       3.11161343e-12
-152  CH2(S) + CO2 <=> CH2O + CO       2.85339294e-11
-225  NCO + O2 <=> CO2 + NO            3.74127381e-19
-228  NCO + NO <=> CO2 + N2            6.25672710e-14
-261  HNCO + O <=> CO2 + NH            6.84524918e-13
-267  HNCO + OH <=> CO2 + NH2          7.78871222e-10
-279  CO2 + NH <=> CO + HNO           -3.30333709e-09
-281  NCO + NO2 <=> CO2 + N2O          2.14286657e-20
-282  CO2 + N <=> CO + NO              6.42658345e-10
-289  CH2 + O2 => CO2 + 2 H            1.51032305e-18
-304  CH2CHO + O => CH2 + CO2 + H      1.00331721e-19
-
-T        viscosity     thermal conductivity
-------   -----------   --------------------
-300.0    1.6701e-05    4.2143e-02
-400.0    2.0896e-05    5.2797e-02
-500.0    2.4704e-05    6.2827e-02
-600.0    2.8230e-05    7.2625e-02
-700.0    3.1536e-05    8.2311e-02
+```{literalinclude} ../../../../test_problems/cxx_userguide/kinetics_transport_blessed.txt
+:language: none
 ```
 
 ## Examples of additional C++ functionality
