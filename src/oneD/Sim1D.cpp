@@ -448,22 +448,22 @@ void Sim1D::solve(int loglevel, bool refine_grid)
 
                 if (loglevel > 6) {
                     save("debug_sim1d.yaml", "debug",
-                         "After successful Newton solve");
+                         "After successful Newton solve", true);
                 }
                 if (loglevel > 7) {
                     saveResidual("debug_sim1d.yaml", "residual",
-                                 "After successful Newton solve");
+                                 "After successful Newton solve", true);
                 }
                 ok = true;
             } else {
                 debuglog("    failure. \n", loglevel);
                 if (loglevel > 6) {
                     save("debug_sim1d.yaml", "debug",
-                         "After unsuccessful Newton solve");
+                         "After unsuccessful Newton solve", true);
                 }
                 if (loglevel > 7) {
                     saveResidual("debug_sim1d.yaml", "residual",
-                                 "After unsuccessful Newton solve");
+                                 "After unsuccessful Newton solve", true);
                 }
                 if (loglevel > 0) {
                     writelog("Take {} timesteps   ", nsteps);
@@ -471,11 +471,11 @@ void Sim1D::solve(int loglevel, bool refine_grid)
                 dt = timeStep(nsteps, dt, m_state->data(), m_xnew.data(), loglevel-1);
                 m_xlast_ts = *m_state;
                 if (loglevel > 6) {
-                    save("debug_sim1d.yaml", "debug", "After timestepping");
+                    save("debug_sim1d.yaml", "debug", "After timestepping", true);
                 }
                 if (loglevel > 7) {
                     saveResidual("debug_sim1d.yaml", "residual",
-                                 "After timestepping");
+                                 "After timestepping", true);
                 }
 
                 if (loglevel == 1) {
@@ -506,11 +506,11 @@ void Sim1D::solve(int loglevel, bool refine_grid)
                 dt = m_tstep;
             }
             if (new_points && loglevel > 6) {
-                save("debug_sim1d.yaml", "debug", "After regridding");
+                save("debug_sim1d.yaml", "debug", "After regridding", true);
             }
             if (new_points && loglevel > 7) {
                 saveResidual("debug_sim1d.yaml", "residual",
-                             "After regridding");
+                             "After regridding", true);
             }
         } else {
             debuglog("grid refinement disabled.\n", loglevel);
