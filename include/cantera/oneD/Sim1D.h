@@ -196,11 +196,11 @@ public:
     double fixedTemperatureLocation();
 
     //! ------ One and Two-Point flame control methods
-    //! Set the left control point location. This is used for one or two 
+    //! Set the left control point location. This is used for two
     //! point flame control.
     void setLeftControlPoint(double temperature);
 
-    //! Set the right  control point location. This is used for one or two 
+    //! Set the right  control point location. This is used for two
     //! point flame control.
     void setRightControlPoint(double temperature);
     //! -------------------

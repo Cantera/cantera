@@ -260,14 +260,21 @@ public:
     //! the value of the solution at these points is fixed. The values of the control
     //! points are dictated and thus serve as a boundary condition that affects the
     //! solution of the governing equations in the 1D domain. The imposition of fixed
-    //! points in the domain means that the original set of governing equations' boundary 
+    //! points in the domain means that the original set of governing equations' boundary
     //! conditions would over-specify the problem. Thus, the boundary conditions are changed
     //! to reflect the fact that the control points are serving as internal boundary conditions.
     //!
+    //! In this method, the imposition of the two internal boundary conditions requires that two other
+    //! boundary conditions be changed. The first is the boundary condition for the continuity equation
+    //! at the left boundary, which is changed to be a value that is derived from the solution at the
+    //! left boundary. The second is the continuity boundary condition at the right boundary, which is
+    //! also determined from the flow solution by using the oxidizer axial velocity equation variable to
+    //! compute the mass flux at the right boundary.
+    //!
     //! This method is based on the work of M. Nishioka, C.K. Law, and T. Takeno (1996) titled
-    //! "A Flame-Controlling Continuation Method for Generating S-Curve Responses with 
+    //! "A Flame-Controlling Continuation Method for Generating S-Curve Responses with
     //! Detailed Chemistry"
-    
+
     //! The current left control point temperature
     double leftControlPointTemperature() const {
         if (m_twoPointControl && (m_zLeft != Undef)) {
@@ -801,7 +808,7 @@ public:
 
     //! -------------
 
-    
+
 private:
     vector<double> m_ybar;
 };
