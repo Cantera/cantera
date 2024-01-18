@@ -423,7 +423,7 @@ void StFlow::evalContinuity(double* x, double* rsd, int* diag,
         rsd[index(c_offset_U,jmin)] = -(rho_u(x,jmin + 1) - rho_u(x,jmin))/m_dz[jmin]
                                       -(density(jmin + 1)*V(x,jmin + 1)
                                       + density(jmin)*V(x,jmin));
-        
+
         diag[index(c_offset_U,jmin)] = 0; // Algebraic constraint
     }
 
@@ -447,7 +447,7 @@ void StFlow::evalContinuity(double* x, double* rsd, int* diag,
             // in the opposite direction.
             rsd[index(c_offset_U,j)] = -(rho_u(x,j+1) - rho_u(x,j))/m_dz[j]
                                        -(density(j+1)*V(x,j+1) + density(j)*V(x,j));
-            
+
             diag[index(c_offset_U, j)] = 0; // Algebraic constraint
         }
     } else if (m_isFree) { // "free-flow"
@@ -516,7 +516,7 @@ void StFlow::evalLambda(double* x, double* rsd, int* diag,
         }
         return;
     }
- 
+
     if (jmin == 0) { // left boundary
         if (m_twoPointControl) {
             rsd[index(c_offset_L, jmin)] = lambda(x,jmin+1) - lambda(x,jmin);
@@ -533,7 +533,7 @@ void StFlow::evalLambda(double* x, double* rsd, int* diag,
     // j0 and j1 are constrained to only interior points
     size_t j0 = std::max<size_t>(jmin, 1);
     size_t j1 = std::min(jmax, m_points - 2);
-    double epsilon = 1e-5; // Precision threshold for being 'equal' to a coordinate
+    double epsilon = 1e-8; // Precision threshold for being 'equal' to a coordinate
     for (size_t j = j0; j <= j1; j++) { // interior points
         if (m_twoPointControl) {
             if (std::abs(grid(j) - m_zLeft) < epsilon ) {
@@ -601,15 +601,13 @@ void StFlow::evalUo(double* x, double* rsd, int* diag,
     if (jmin == 0) { // left boundary
         // Because the Uo equation is used for two-point control, the boundary
         // for Uo is located in the domain interior at the right control point,
-        // thus at the boundary, the 
+        // thus at the boundary, the
         rsd[index(c_offset_Uo,jmin)] = Uo(x,jmin+1) - Uo(x,jmin);
     }
 
     if (jmax == m_points - 1) { // right boundary
         if(m_twoPointControl) {
             rsd[index(c_offset_Uo, jmax)] = Uo(x,jmax) - Uo(x,jmax-1);
-        } else {
-            rsd[index(c_offset_Uo, jmax)] = Uo(x,jmax);
         }
         diag[index(c_offset_Uo, jmax)] = 0;
     }
@@ -617,7 +615,7 @@ void StFlow::evalUo(double* x, double* rsd, int* diag,
     // j0 and j1 are constrained to only interior points
     size_t j0 = std::max<size_t>(jmin, 1);
     size_t j1 = std::min(jmax, m_points - 2);
-    double epsilon = 1e-5; // Precision threshold for being 'equal' to a coordinate
+    double epsilon = 1e-8; // Precision threshold for being 'equal' to a coordinate
     for (size_t j = j0; j <= j1; j++) { // interior points
         if (m_twoPointControl) {
             if (std::abs(grid(j) - m_zRight) < epsilon) {
