@@ -209,6 +209,11 @@ void Inlet1D::eval(size_t jg, double* xg, double* rg,
             m_mdot = m_flow->density(0) * xb[c_offset_U];
         } else if (m_flow->isStrained()) { //axisymmetric flow
             if (m_flow->twoPointControlEnabled()) {
+                // When using two-point control, the mass flow rate at the left inlet is not
+                // specified. Instead, the mass flow rate is dictated by the velocity at the
+                // left inlet, which comes from the U variable. The default boundary condition specified
+                // in the StFlow.cpp file already handles this case. We only need to update the stored
+                // value of m_mdot so that other equations that use the quantity are consistent.
                 m_mdot = m_flow->density(0)*xb[c_offset_U];
             } else {
                 // The flow domain sets this to -rho*u. Add mdot to specify the mass
@@ -246,12 +251,13 @@ void Inlet1D::eval(size_t jg, double* xg, double* rg,
 
         if (m_flow->twoPointControlEnabled()) {// For point control adjustments
             // At the right boundary, the mdot is dictated by the velocity at the
-            // right boundary, which comes from the Uo variable. 
+            // right boundary, which comes from the Uo variable. The variable Uo is
+            // the left-moving velocity and has a negative value, so the mass flow has
+            // to be negated to give a positive value when using Uo.
             m_mdot = -(m_flow->density(last_index) * xb[c_offset_Uo]);
-            rb[c_offset_U] += m_mdot; 
+            rb[c_offset_U] += m_mdot;
         } else {
             rb[c_offset_U] += m_mdot;
-            rb[c_offset_Uo] += m_mdot/m_flow->density(last_index);
         }
 
         for (size_t k = 0; k < m_nsp; k++) {
