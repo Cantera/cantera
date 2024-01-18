@@ -447,7 +447,7 @@ void Sim1D::solve(int loglevel, bool refine_grid)
                 }
 
                 if (loglevel > 6) {
-                    save("debug_sim1d.yaml", "debug",
+                    save("debug_sim1d.yaml", "solution",
                          "After successful Newton solve", true);
                 }
                 if (loglevel > 7) {
@@ -458,7 +458,7 @@ void Sim1D::solve(int loglevel, bool refine_grid)
             } else {
                 debuglog("    failure. \n", loglevel);
                 if (loglevel > 6) {
-                    save("debug_sim1d.yaml", "debug",
+                    save("debug_sim1d.yaml", "solution",
                          "After unsuccessful Newton solve", true);
                 }
                 if (loglevel > 7) {
@@ -471,7 +471,7 @@ void Sim1D::solve(int loglevel, bool refine_grid)
                 dt = timeStep(nsteps, dt, m_state->data(), m_xnew.data(), loglevel-1);
                 m_xlast_ts = *m_state;
                 if (loglevel > 6) {
-                    save("debug_sim1d.yaml", "debug", "After timestepping", true);
+                    save("debug_sim1d.yaml", "solution", "After timestepping", true);
                 }
                 if (loglevel > 7) {
                     saveResidual("debug_sim1d.yaml", "residual",
@@ -506,7 +506,7 @@ void Sim1D::solve(int loglevel, bool refine_grid)
                 dt = m_tstep;
             }
             if (new_points && loglevel > 6) {
-                save("debug_sim1d.yaml", "debug", "After regridding", true);
+                save("debug_sim1d.yaml", "solution", "After regridding", true);
             }
             if (new_points && loglevel > 7) {
                 saveResidual("debug_sim1d.yaml", "residual",
