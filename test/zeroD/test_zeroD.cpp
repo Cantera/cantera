@@ -34,6 +34,32 @@ TEST(zerodim, simple)
     }
 }
 
+// Test guards preventing segfaults for uninitialized zerodim objects
+TEST(zerodim, test_guards)
+{
+    // Reactor with no contents
+    Reactor reactor;
+    EXPECT_THROW(reactor.temperature(), CanteraError);
+    EXPECT_THROW(reactor.density(), CanteraError);
+    EXPECT_THROW(reactor.massFractions(), CanteraError);
+    EXPECT_THROW(reactor.massFraction(0), CanteraError);
+
+    // Wall with no adjacent reactors
+    Wall wall;
+    EXPECT_THROW(wall.heatRate(), CanteraError);
+    EXPECT_THROW(wall.expansionRate(), CanteraError);
+    suppress_deprecation_warnings();
+    EXPECT_THROW(wall.Q(0.), CanteraError);
+    EXPECT_THROW(wall.vdot(0.), CanteraError);
+    make_deprecation_warnings_fatal();
+
+    // FlowDevice with no adjacent reactors
+    EXPECT_THROW(FlowDevice().massFlowRate(), CanteraError);
+    EXPECT_THROW(MassFlowController().updateMassFlowRate(0.), CanteraError);
+    EXPECT_THROW(PressureController().updateMassFlowRate(0.), CanteraError);
+    EXPECT_THROW(Valve().updateMassFlowRate(0.), CanteraError);
+}
+
 // This test ensures that prior reactor initialization of a reactor does
 // not affect later integration within a network. This example was
 // adapted from test_reactor.py::test_equilibrium_HP.
