@@ -46,7 +46,7 @@ class AnyMap;
 class Reactor : public ReactorBase
 {
 public:
-    Reactor() = default;
+    using ReactorBase::ReactorBase; // inherit constructors
 
     string type() const override {
         return "Reactor";

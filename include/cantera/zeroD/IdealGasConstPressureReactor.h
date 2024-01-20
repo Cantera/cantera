@@ -22,7 +22,7 @@ namespace Cantera
 class IdealGasConstPressureReactor : public ConstPressureReactor
 {
 public:
-    IdealGasConstPressureReactor() {}
+    using ConstPressureReactor::ConstPressureReactor; // inherit constructors
 
     string type() const override {
         return "IdealGasConstPressureReactor";

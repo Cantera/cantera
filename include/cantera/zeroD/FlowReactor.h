@@ -16,7 +16,7 @@ namespace Cantera
 class FlowReactor : public IdealGasReactor
 {
 public:
-    FlowReactor() = default;
+    using IdealGasReactor::IdealGasReactor; // inherit constructors
 
     string type() const override {
         return "FlowReactor";
