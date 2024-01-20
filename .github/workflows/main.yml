@@ -302,6 +302,9 @@ jobs:
     name: Build docs
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    defaults:
+      run:
+        shell: bash -l {0}
     env:
       DEPLOY: ${{ github.event_name == 'push' && github.repository_owner == 'Cantera' && endsWith(github.ref, 'main') }}
     steps:
@@ -309,35 +312,41 @@ jobs:
         name: Checkout the repository
         with:
           submodules: recursive
-      - name: Setup Python
-        uses: actions/setup-python@v4
+      - name: Set up conda
+        uses: conda-incubator/setup-miniconda@v3
         with:
-          python-version: '3.11'
-          architecture: x64
+          auto-update-conda: true
+          python-version: "3.11"
+          miniforge-variant: Mambaforge
+          miniforge-version: latest
+          activate-environment: test
       - name: Install Apt dependencies
         run: |
           sudo apt update
-          sudo apt install libboost-dev doxygen graphviz texlive-bibtex-extra \
+          sudo apt install libboost-dev graphviz texlive-bibtex-extra \
             libblas-dev liblapack-dev libhdf5-dev libfmt-dev libsundials-dev
+      - name: Install conda dependencies
+        run: |
+          mamba install -q doxygen=1.9 scons pip
       - name: Upgrade pip
-        run: python3 -m pip install -U pip setuptools wheel
+        run: pip install -U pip setuptools wheel
       - name: Install Python dependencies
         run: |
-          python3 -m pip install ruamel.yaml scons numpy cython 'sphinx>=7.2,<8' \
+          pip install ruamel.yaml scons numpy cython 'sphinx>=7.2,<8' \
             sphinxcontrib-matlabdomain sphinxcontrib-doxylink sphinxcontrib-bibtex \
             pydata-sphinx-theme==0.14.1 sphinx-argparse sphinx_design myst-nb \
             sphinx-copybutton matplotlib pandas scipy pint
-          python3 -m pip install "git+https://github.com/sphinx-gallery/sphinx-gallery.git@master"
-          python3 -m pip install "git+https://github.com/Cantera/sphinx-tags.git@main"
+          pip install "git+https://github.com/sphinx-gallery/sphinx-gallery.git@master"
+          pip install "git+https://github.com/Cantera/sphinx-tags.git@main"
       - name: Build Cantera
-        run: python3 `which scons` build -j2 debug=n optimize=y use_pch=n
+        run: scons build -j2 debug=n optimize=y use_pch=n
       - name: Build documentation
-        run: python3 `which scons` sphinx doxygen logging=debug
+        run: scons sphinx doxygen logging=debug
       - name: Ensure 'scons help' options work
         run: |
-          python3 `which scons` help --options
-          python3 `which scons` help --list-options
-          python3 `which scons` help --option=prefix
+          scons help --options
+          scons help --list-options
+          scons help --option=prefix
       - name: Create archive for docs output
         run: |
           cd build/doc
