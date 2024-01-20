@@ -412,7 +412,7 @@ jobs:
         run: python3 -m pip install -U pip setuptools wheel
       - name: Install Python dependencies
         run: |
-            python3 -m pip install numpy ruamel.yaml pandas matplotlib scipy pint graphviz
+            python3 -m pip install numpy ruamel.yaml pandas pyarrow matplotlib scipy pint graphviz
             python3 -m pip install --pre --no-index --find-links dist cantera
       - name: Run the examples
         # See https://unix.stackexchange.com/a/392973 for an explanation of the -exec part
