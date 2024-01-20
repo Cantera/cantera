@@ -37,6 +37,10 @@ double Wall::velocity() const {
 double Wall::vdot(double t)
 {
     warn_deprecated("Wall::vdot", "To be removed; replaceable by 'expansionRate'.");
+    if (!ready()) {
+        throw CanteraError("Wall::vdot",
+                           "Wall is not ready; some parameters have not been set.");
+    }
     double rate = m_k * m_area * (m_left->pressure() - m_right->pressure());
 
     if (m_vf) {
@@ -47,6 +51,10 @@ double Wall::vdot(double t)
 
 double Wall::expansionRate()
 {
+    if (!ready()) {
+        throw CanteraError("Wall::expansionRate",
+                           "Wall is not ready; some parameters have not been set.");
+    }
     double rate = m_k * m_area * (m_left->pressure() - m_right->pressure());
 
     if (m_vf) {
@@ -65,6 +73,10 @@ double Wall::heatFlux() const {
 double Wall::Q(double t)
 {
     warn_deprecated("Wall::Q", "To be removed; replaceable by 'heatRate'.");
+    if (!ready()) {
+        throw CanteraError("Wall::Q",
+                           "Wall is not ready; some parameters have not been set.");
+    }
     double q1 = (m_area * m_rrth) *
                 (m_left->temperature() - m_right->temperature());
     if (m_emiss > 0.0) {
@@ -81,6 +93,10 @@ double Wall::Q(double t)
 
 double Wall::heatRate()
 {
+    if (!ready()) {
+        throw CanteraError("Wall::heatRate",
+                           "Wall is not ready; some parameters have not been set.");
+    }
     double q1 = (m_area * m_rrth) *
                 (m_left->temperature() - m_right->temperature());
     if (m_emiss > 0.0) {
