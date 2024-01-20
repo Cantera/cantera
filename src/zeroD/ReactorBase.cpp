@@ -7,6 +7,7 @@
 #include "cantera/zeroD/FlowDevice.h"
 #include "cantera/zeroD/ReactorNet.h"
 #include "cantera/zeroD/ReactorSurface.h"
+#include "cantera/base/Solution.h"
 #include "cantera/thermo/ThermoPhase.h"
 
 namespace Cantera
@@ -15,6 +16,22 @@ namespace Cantera
 ReactorBase::ReactorBase(const string& name)
 {
     m_name = name;
+}
+
+ReactorBase::ReactorBase(shared_ptr<Solution> sol, const string& name)
+{
+    m_name = name;
+    setSolution(sol);
+}
+
+void ReactorBase::setSolution(shared_ptr<Solution> sol) {
+    m_solution = sol;
+    setThermoMgr(*sol->thermo());
+    try {
+        setKineticsMgr(*sol->kinetics());
+    } catch (NotImplementedError&) {
+        // kinetics not used (example: Reservoir)
+    }
 }
 
 void ReactorBase::setThermoMgr(ThermoPhase& thermo)

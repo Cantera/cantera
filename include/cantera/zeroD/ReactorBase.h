@@ -26,6 +26,7 @@ class ReactorNet;
 class ReactorSurface;
 class Kinetics;
 class ThermoPhase;
+class Solution;
 
 enum class SensParameterType {
     reaction,
@@ -50,6 +51,11 @@ class ReactorBase
 {
 public:
     explicit ReactorBase(const string& name = "(none)");
+    //! Instantiate a ReactorBase object with Solution contents.
+    //! @param sol  Solution object to be set.
+    //! @param name  Name of the reactor.
+    //! @since New in %Cantera 3.1.
+    ReactorBase(shared_ptr<Solution> sol, const string& name = "(none)");
     virtual ~ReactorBase() = default;
     ReactorBase(const ReactorBase&) = delete;
     ReactorBase& operator=(const ReactorBase&) = delete;
@@ -70,6 +76,11 @@ public:
         m_name = name;
     }
 
+    //! Set the Solution specifying the ReactorBase content.
+    //! @param sol  Solution object to be set.
+    //! @since New in %Cantera 3.1.
+    void setSolution(shared_ptr<Solution> sol);
+
     //! @name Methods to set up a simulation
     //! @{
 
@@ -81,9 +92,11 @@ public:
     //! Specify the mixture contained in the reactor. Note that a pointer to
     //! this substance is stored, and as the integration proceeds, the state of
     //! the substance is modified.
+    //! @todo: make protected (should only be used internally)
     virtual void setThermoMgr(ThermoPhase& thermo);
 
     //! Specify chemical kinetics governing the reactor.
+    //! @todo: make protected (should only be used internally)
     virtual void setKineticsMgr(Kinetics& kin) {
         throw NotImplementedError("ReactorBase::setKineticsMgr");
     }
@@ -286,6 +299,9 @@ protected:
 
     //! The ReactorNet that this reactor is part of
     ReactorNet* m_net = nullptr;
+
+    //! Composite thermo/kinetics/transport handler
+    shared_ptr<Solution> m_solution;
 };
 }
 
