@@ -202,11 +202,19 @@ public:
 
     //! Returns the current density (kg/m^3) of the reactor's contents.
     double density() const {
+        if (m_state.empty()) {
+            throw CanteraError("ReactorBase::density",
+                               "Reactor state empty and/or contents not defined.");
+        }
         return m_state[1];
     }
 
     //! Returns the current temperature (K) of the reactor's contents.
     double temperature() const {
+        if (m_state.empty()) {
+            throw CanteraError("ReactorBase::temperature",
+                               "Reactor state empty and/or contents not defined.");
+        }
         return m_state[0];
     }
 
@@ -232,11 +240,19 @@ public:
 
     //! Return the vector of species mass fractions.
     const double* massFractions() const {
+        if (m_state.empty()) {
+            throw CanteraError("ReactorBase::massFractions",
+                               "Reactor state empty and/or contents not defined.");
+        }
         return m_state.data() + 2;
     }
 
     //! Return the mass fraction of the *k*-th species.
     double massFraction(size_t k) const {
+        if (m_state.empty()) {
+            throw CanteraError("ReactorBase::massFraction",
+                               "Reactor state empty and/or contents not defined.");
+        }
         return m_state[k+2];
     }
 
