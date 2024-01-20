@@ -7,6 +7,7 @@
 **%Cantera Developer API** versions:
 
 * [dev/latest](https://cantera.org/documentation/dev/doxygen/html/index.html) (unstable)
+* [v3.0.0](https://cantera.org/documentation/docs-3.0/doxygen/html/index.html)
 * [v2.6.0](https://cantera.org/documentation/docs-2.6/doxygen/html/modules.html)
 * [v2.5.1](https://cantera.org/documentation/docs-2.5/doxygen/html/modules.html)
 * [v2.4.0](https://cantera.org/documentation/docs-2.4/doxygen/html/modules.html)
