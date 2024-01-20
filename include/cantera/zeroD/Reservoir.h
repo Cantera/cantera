@@ -18,7 +18,7 @@ namespace Cantera
 class Reservoir : public ReactorBase
 {
 public:
-    Reservoir() {}
+    using ReactorBase::ReactorBase; // inherit constructors
 
     string type() const override {
         return "Reservoir";

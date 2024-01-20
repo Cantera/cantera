@@ -20,7 +20,7 @@ namespace Cantera
 class ConstPressureMoleReactor : public MoleReactor
 {
 public:
-    ConstPressureMoleReactor() {}
+    using MoleReactor::MoleReactor; // inherit constructors
 
     string type() const override {
         return "ConstPressureMoleReactor";
