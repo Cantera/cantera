@@ -36,9 +36,8 @@ void run()
     for (int i = 0; i < nThreads; i++) {
         auto sol = newSolution("gri30.yaml", "gri30", "none");
         sols.emplace_back(sol);
-        reactors.emplace_back(new IdealGasConstPressureReactor());
+        reactors.emplace_back(new IdealGasConstPressureReactor(sol));
         nets.emplace_back(new ReactorNet());
-        reactors.back()->insert(sol);
         nets.back()->addReactor(*reactors.back());
     }
 
