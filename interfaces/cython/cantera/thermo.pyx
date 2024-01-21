@@ -1172,6 +1172,10 @@ cdef class ThermoPhase(_SolutionBase):
         X = self.thermo.getMoleFractionsByName(threshold)
         return {pystr(item.first):item.second for item in X}
 
+    def compute_extra_method(self, name):
+        cdef CxxAnyValue value = self.thermo.compute_extra_method(stringify(name))
+        return anyvalue_to_python(name, value)
+
     ######## Read-only thermodynamic properties ########
 
     property P:
