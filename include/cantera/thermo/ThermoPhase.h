@@ -1556,6 +1556,16 @@ public:
             const Composition& oxComp, ThermoBasis basis=ThermoBasis::molar) const;
     //! @}
 
+    //! Compute additional method based on name
+    /*!
+     * @param name The name of the quantity to compute
+     * @return Computed value wrapped in AnyValue type
+     */
+    virtual AnyValue compute_extra_method(const std::string& name)
+    {
+        throw NotImplementedError("ThermoPhase::compute_extra_method");
+    }
+
 private:
 
     //! Carry out work in HP and UV calculations.

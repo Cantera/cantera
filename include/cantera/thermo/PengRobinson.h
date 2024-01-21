@@ -173,6 +173,14 @@ public:
     void setBinaryCoeffs(const string& species_i, const string& species_j, double a);
     //! @}
 
+    //! Compute additional method based on name
+    /*!
+     * @param name The name of the quantity to compute
+     * @return Computed value wrapped in AnyValue type for Peng-Robinson phase
+     *         quantities
+     */
+    AnyValue compute_extra_method(const std::string& name) override;
+
 protected:
     // Special functions inherited from MixtureFugacityTP
     double sresid() const override;
