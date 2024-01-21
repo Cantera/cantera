@@ -53,7 +53,8 @@ class TestReactor(utilities.CanteraTest):
         self.assertTrue(self.net.verbose)
 
     def test_insert(self):
-        R = self.reactorClass()
+        with pytest.warns(DeprecationWarning, match="must not be empty"):
+            R = self.reactorClass()
         with self.assertRaisesRegex(ct.CanteraError, 'No phase'):
             R.T
         with self.assertRaisesRegex(ct.CanteraError, 'No phase'):
@@ -67,7 +68,8 @@ class TestReactor(utilities.CanteraTest):
         self.assertEqual(len(R.kinetics.net_production_rates), g.n_species)
 
     def test_volume(self):
-        R = self.reactorClass(volume=11)
+        with pytest.warns(DeprecationWarning, match="must not be empty"):
+            R = self.reactorClass(volume=11)
         self.assertEqual(R.volume, 11)
 
         R.volume = 9
@@ -853,7 +855,8 @@ class TestReactor(utilities.CanteraTest):
                 x.foobar
 
     def test_bad_kwarg(self):
-        self.reactorClass(name='ok')
+        with pytest.warns(DeprecationWarning, match="must not be empty"):
+            self.reactorClass(name='ok')
         with self.assertRaises(TypeError):
             r1 = self.reactorClass(foobar=3.14)
 
