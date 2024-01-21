@@ -26,6 +26,37 @@ vector<double> T_ctreactor = {
     1052.370, 1053.216, 1054.372, 1056.007, 1058.448, 1062.431, 1070.141, 1094.331,
     2894.921, 2894.921, 2894.921, 2894.921, 2894.921};
 
+TEST(ctreactor, reactor_simple)
+{
+    double T = 1050;
+    double P = 5 * 101325;
+    string X = "CH4:1.0, O2:2.0, N2:7.52";
+
+    int sol = soln_newSolution("gri30.yaml", "gri30", "none");
+    int thermo = soln_thermo(sol);
+    thermo_setMoleFractionsByName(thermo, X.c_str());
+    thermo_setTemperature(thermo, T);
+    thermo_setPressure(thermo, P);
+
+    int reactor = reactor_new("IdealGasReactor");
+    int ret = reactor_setSolution(reactor, sol);
+    ASSERT_EQ(ret, 0);
+    int net = reactornet_new();
+    ret = reactornet_addreactor(net, reactor);
+    ASSERT_EQ(ret, 0);
+
+    double t = 0.0;
+    int count = 0;
+    while (t < 0.1) {
+        double Tref = T_ctreactor[count];
+        ASSERT_NEAR(reactor_temperature(reactor), Tref, 1e-2);
+        t = reactornet_time(net) + 5e-3;
+        ret = reactornet_advance(net, t);
+        ASSERT_EQ(ret, 0);
+        count++;
+    }
+}
+
 TEST(ctreactor, reactor_insert)
 {
     double T = 1050;
@@ -39,7 +70,9 @@ TEST(ctreactor, reactor_insert)
     thermo_setPressure(thermo, P);
 
     int reactor = reactor_new("IdealGasReactor");
+    suppress_deprecation_warnings();
     int ret = reactor_insert(reactor, sol);
+    make_deprecation_warnings_fatal();
     ASSERT_EQ(ret, 0);
     int net = reactornet_new();
     ret = reactornet_addreactor(net, reactor);
