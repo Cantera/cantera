@@ -130,11 +130,7 @@ classdef Reactor < handle
                     error('Wrong object type');
                 end
 
-                ctFunc('reactor_setThermoMgr', r.id, content.tpID);
-
-                if ~strcmp(r.type, 'Reservoir')
-                    ctFunc('reactor_setKineticsMgr', r.id, content.kinID);
-                end
+                ctFunc('reactor_setSolution', r.id, content.phaseID);
 
             elseif ~(isa(content, 'double') && content == 0)
                 error('Reactor contents must be an object of type "Solution"');
