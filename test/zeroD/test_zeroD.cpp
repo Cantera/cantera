@@ -19,8 +19,8 @@ TEST(zerodim, simple)
 
     auto sol = newSolution("gri30.yaml", "gri30", "none");
     sol->thermo()->setState_TPX(T, P, X);
-    IdealGasReactor cppReactor;
-    cppReactor.insert(sol);
+    IdealGasReactor cppReactor(sol, "simple");
+    ASSERT_EQ(cppReactor.name(), "simple");
     cppReactor.initialize();
     ReactorNet network;
     network.addReactor(cppReactor);
@@ -74,8 +74,7 @@ TEST(zerodim, test_individual_reactor_initialization)
     shared_ptr<Solution> sol1 = newSolution("h2o2.yaml");
     sol1->thermo()->setState_TPX(T0, P0, X0);
     // set up reactor object
-    Reactor reactor1;
-    reactor1.insert(sol1);
+    Reactor reactor1(sol1);
     // initialize reactor prior to integration to ensure no impact
     reactor1.initialize();
     // setup reactor network and integrate
@@ -88,8 +87,7 @@ TEST(zerodim, test_individual_reactor_initialization)
     sol2->thermo()->setState_TPX(T0, P0, X0);
     sol2->thermo()->equilibrate("UV");
     // secondary reactor for comparison
-    Reactor reactor2;
-    reactor2.insert(sol2);
+    Reactor reactor2(sol2);
     reactor2.initialize(0.0);
     // get state of reactors
     vector<double> state1(reactor1.neq());
@@ -109,8 +107,7 @@ TEST(MoleReactorTestSet, test_mole_reactor_get_state)
     double tol = 1e-8;
     auto sol = newSolution("h2o2.yaml");
     sol->thermo()->setState_TPY(1000.0, OneAtm, "H2:0.5, O2:0.5");
-    IdealGasConstPressureMoleReactor reactor;
-    reactor.insert(sol);
+    IdealGasConstPressureMoleReactor reactor(sol);
     reactor.setInitialVolume(0.5);
     reactor.setEnergy(false);
     reactor.initialize();
@@ -189,8 +186,7 @@ TEST(AdaptivePreconditionerTests, test_precon_solver_stats)
     // setting up solution object and thermo/kinetics pointers
     auto sol = newSolution("h2o2.yaml");
     sol->thermo()->setState_TPY(1000.0, OneAtm, "H2:0.5, O2:0.5");
-    IdealGasMoleReactor reactor;
-    reactor.insert(sol);
+    IdealGasMoleReactor reactor(sol);
     reactor.setInitialVolume(0.5);
     // setup reactor network and integrate
     ReactorNet network;

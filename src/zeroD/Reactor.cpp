@@ -22,6 +22,14 @@ namespace bmt = boost::math::tools;
 namespace Cantera
 {
 
+Reactor::Reactor(shared_ptr<Solution> sol, const string& name)
+{
+    m_solution = sol;
+    m_name = name;
+    setThermoMgr(*sol->thermo());
+    setKineticsMgr(*sol->kinetics());
+}
+
 void Reactor::setDerivativeSettings(AnyMap& settings)
 {
     m_kin->setDerivativeSettings(settings);
