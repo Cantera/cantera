@@ -26,13 +26,14 @@ public:
 
     void initialize(double t0=0.0) override {}
 
+    //! @deprecated Unused; to be removed after %Cantera 3.1.
     void insert(ThermoPhase& contents) {
+        warn_deprecated("Reservoir::insert",
+            "Unused; to be removed after Cantera 3.1.");
         setThermoMgr(contents);
     }
 
-    void insert(shared_ptr<Solution> sol) {
-        setThermoMgr(*sol->thermo());
-    }
+    using ReactorBase::insert;
 };
 
 }

@@ -34,6 +34,13 @@ void ReactorBase::setSolution(shared_ptr<Solution> sol) {
     }
 }
 
+void ReactorBase::insert(shared_ptr<Solution> sol)
+{
+    // warn_deprecated("ReactorBase::insert",
+    //     "To be removed after Cantera 3.1. Superseded by 'setSolution'.");
+    setSolution(sol);
+}
+
 void ReactorBase::setThermoMgr(ThermoPhase& thermo)
 {
     m_thermo = &thermo;
