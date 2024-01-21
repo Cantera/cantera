@@ -15,7 +15,6 @@ Requires: cantera >= 3.0, scipy >= 0.19, matplotlib >= 2.0
 import cantera as ct
 import numpy as np
 
-from scipy.integrate import trapz
 import matplotlib.pyplot as plt
 
 #########################################################################
@@ -253,13 +252,13 @@ plt.show()
 ######################################################################
 
 # heat release
-Q = trapz(states.heat_release_rate * states.V, t)
+Q = np.trapz(states.heat_release_rate * states.V, t)
 output_str = '{:45s}{:>4.1f} {}'
 print(output_str.format('Heat release rate per cylinder (estimate):',
                         Q / t[-1] / 1000., 'kW'))
 
 # expansion power
-W = trapz(states.dWv_dt, t)
+W = np.trapz(states.dWv_dt, t)
 print(output_str.format('Expansion power per cylinder (estimate):',
                         W / t[-1] / 1000., 'kW'))
 
@@ -269,6 +268,6 @@ print(output_str.format('Efficiency (estimate):', eta * 100., '%'))
 
 # CO emissions
 MW = states.mean_molecular_weight
-CO_emission = trapz(MW * states.mdot_out * states('CO').X[:, 0], t)
-CO_emission /= trapz(MW * states.mdot_out, t)
+CO_emission = np.trapz(MW * states.mdot_out * states('CO').X[:, 0], t)
+CO_emission /= np.trapz(MW * states.mdot_out, t)
 print(output_str.format('CO emission (estimate):', CO_emission * 1.e6, 'ppm'))
