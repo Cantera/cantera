@@ -27,7 +27,7 @@ cdef class ReactorBase:
         self._reactor = newReactor(stringify(self.reactor_type))
         self.rbase = self._reactor.get()
 
-    def __init__(self, ThermoPhase contents=None, name=None, *, volume=None,
+    def __init__(self, _SolutionBase contents=None, name=None, *, volume=None,
                  node_attr=None):
 
         self._weakref_proxy = _WeakrefProxy()
@@ -35,8 +35,12 @@ cdef class ReactorBase:
         self._outlets = []
         self._walls = []
         self._surfaces = []
-        if isinstance(contents, ThermoPhase):
+        if isinstance(contents, _SolutionBase):
             self.insert(contents)
+        else:
+            warnings.warn(
+                "Starting in Cantera 3.1, the reactor contents must not be empty.",
+                DeprecationWarning)
 
         if name is not None:
             self.name = name
@@ -239,11 +243,6 @@ cdef class Reactor(ReactorBase):
 
         >>> gas = Solution('gri30.yaml')
         >>> r1 = Reactor(gas)
-
-        This is equivalent to:
-
-        >>> r1 = Reactor()
-        >>> r1.insert(gas)
 
         Arguments may be specified using keywords in any order:
 
