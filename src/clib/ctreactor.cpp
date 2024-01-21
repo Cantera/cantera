@@ -89,6 +89,16 @@ extern "C" {
         }
     }
 
+    int reactor_setSolution(int i, int n)
+    {
+        try {
+            ReactorCabinet::get<Reactor>(i).setSolution(SolutionCabinet::at(n));
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
     int reactor_insert(int i, int n)
     {
         try {
