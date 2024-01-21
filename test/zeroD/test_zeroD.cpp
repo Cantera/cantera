@@ -9,8 +9,8 @@
 
 using namespace Cantera;
 
-// This test is an exact equivalent of a clib test
-// (clib::test_ctreactor.cpp::ctreactor::reactor_insert)
+// This test is an (almost) exact equivalent of a clib test
+// (clib::test_ctreactor.cpp::ctreactor::reactor_simple)
 TEST(zerodim, simple)
 {
     double T = 1050;
