@@ -19,16 +19,17 @@ TEST(zerodim, simple)
 
     auto sol = newSolution("gri30.yaml", "gri30", "none");
     sol->thermo()->setState_TPX(T, P, X);
-    IdealGasReactor cppReactor(sol, "simple");
-    ASSERT_EQ(cppReactor.name(), "simple");
-    cppReactor.initialize();
+    auto cppReactor = newReactor("IdealGasReactor", sol, "simple");
+    // IdealGasReactor cppReactor(sol, "simple");
+    ASSERT_EQ(cppReactor->name(), "simple");
+    cppReactor->initialize();
     ReactorNet network;
-    network.addReactor(cppReactor);
+    network.addReactor(dynamic_cast<IdealGasReactor&>(*cppReactor));
     network.initialize();
 
     double t = 0.0;
     while (t < 0.1) {
-        ASSERT_GE(cppReactor.temperature(), T);
+        ASSERT_GE(cppReactor->temperature(), T);
         t = network.time() + 5e-3;
         network.advance(t);
     }
