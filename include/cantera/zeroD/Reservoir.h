@@ -18,6 +18,11 @@ namespace Cantera
 class Reservoir : public ReactorBase
 {
 public:
+    Reservoir(shared_ptr<Solution> sol, const string& name = "(none)") {
+        m_solution = sol;
+        m_name = name;
+        setThermoMgr(*sol->thermo());
+    }
     using ReactorBase::ReactorBase; // inherit constructors
 
     string type() const override {
