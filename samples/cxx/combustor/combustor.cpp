@@ -27,37 +27,32 @@ void runexample()
     auto gas = sol->thermo();
 
     // create a reservoir for the fuel inlet, and set to pure methane.
-    Reservoir fuel_in;
     gas->setState_TPX(300.0, OneAtm, "CH4:1.0");
-    fuel_in.insert(sol);
+    Reservoir fuel_in(sol);
     double fuel_mw = gas->meanMolecularWeight();
 
     auto air = newSolution("air.yaml", "air", "none");
     double air_mw = air->thermo()->meanMolecularWeight();
 
     // create a reservoir for the air inlet
-    Reservoir air_in;
-    air_in.insert(air);
+    Reservoir air_in(air);
 
     // to ignite the fuel/air mixture, we'll introduce a pulse of radicals.
     // The steady-state behavior is independent of how we do this, so we'll
     // just use a stream of pure atomic hydrogen.
     gas->setState_TPX(300.0, OneAtm, "H:1.0");
-    Reservoir igniter;
-    igniter.insert(sol);
+    Reservoir igniter(sol);
 
 
     // create the combustor, and fill it in initially with N2
     gas->setState_TPX(300.0, OneAtm, "N2:1.0");
-    Reactor combustor;
-    combustor.insert(sol);
+    Reactor combustor(sol);
     combustor.setInitialVolume(1.0);
 
 
     // create a reservoir for the exhaust. The initial composition
     // doesn't matter.
-    Reservoir exhaust;
-    exhaust.insert(sol);
+    Reservoir exhaust(sol);
 
 
     // lean combustion, phi = 0.5
