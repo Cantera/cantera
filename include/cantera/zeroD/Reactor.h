@@ -68,14 +68,16 @@ public:
     /**
      * Insert something into the reactor. The 'something' must belong to a class
      * that is a subclass of both ThermoPhase and Kinetics.
+     * @deprecated Unused; to be removed after %Cantera 3.1.
      */
     template<class G>
     void insert(G& contents) {
+        warn_deprecated("Reactor::insert", "Unused; to be removed after Cantera 3.1.");
         setThermoMgr(contents);
         setKineticsMgr(contents);
     }
 
-    void insert(shared_ptr<Solution> sol);
+    using ReactorBase::insert;
 
     void setKineticsMgr(Kinetics& kin) override;
 
