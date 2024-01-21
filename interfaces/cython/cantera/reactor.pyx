@@ -58,7 +58,7 @@ cdef class ReactorBase:
         self._thermo = solution
         # Block species from being added to the phase as long as this object exists
         self._thermo._references[self._weakref_proxy] = True
-        self.rbase.setThermoMgr(deref(solution.thermo))
+        self.rbase.setSolution(solution._base)
 
     property type:
         """The type of the reactor."""
@@ -268,8 +268,6 @@ cdef class Reactor(ReactorBase):
         """
         ReactorBase.insert(self, solution)
         self._kinetics = solution
-        if solution.kinetics != NULL:
-            self.reactor.setKineticsMgr(deref(solution.kinetics))
 
     property kinetics:
         """

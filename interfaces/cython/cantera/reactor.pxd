@@ -38,7 +38,7 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
     cdef cppclass CxxReactorBase "Cantera::ReactorBase":
         CxxReactorBase()
         string type()
-        void setThermoMgr(CxxThermoPhase&) except +translate_exception
+        void setSolution(shared_ptr[CxxSolution]) except +translate_exception
         void restoreState() except +translate_exception
         void syncState() except +translate_exception
         double volume()
@@ -48,7 +48,6 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
 
     cdef cppclass CxxReactor "Cantera::Reactor" (CxxReactorBase):
         CxxReactor()
-        void setKineticsMgr(CxxKinetics&)
         void setChemistry(cbool)
         cbool chemistryEnabled()
         void setEnergy(int)
