@@ -327,7 +327,7 @@ jobs:
             libblas-dev liblapack-dev libhdf5-dev libfmt-dev libsundials-dev
       - name: Install conda dependencies
         run: |
-          mamba install -q doxygen=1.9 scons pip
+          mamba install -q doxygen=1.9.7 scons pip
       - name: Upgrade pip
         run: pip install -U pip setuptools wheel
       - name: Install Python dependencies
