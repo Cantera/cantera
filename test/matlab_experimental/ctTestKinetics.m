@@ -150,6 +150,63 @@ classdef ctTestKinetics < matlab.unittest.TestCase
 
         end
 
+        function testRatesOfProgress(self)
+            forROP = self.phase.forwardRatesOfProgress;
+            revROP = self.phase.reverseRatesOfProgress;
+            netROP = self.phase.netRatesOfProgress;
+
+            l = length(netROP);
+            tol = ones(1, l) .* self.atol;
+
+            self.verifyEqual(l, self.phase.nReactions);
+            self.verifyEqual(forROP - revROP, netROP, 'AbsTol', tol);
+        end
+
+        function testRateConstants(self)
+            kf = self.phase.forwardRateConstants;
+            kr = self.phase.reverseRateConstants;
+            Keq = self.phase.equilibriumConstants;
+
+            l = length(kf);
+            self.verifyEqual(l, self.phase.nReactions);
+
+            ix = find(kr ~= 0);
+            tol = ones(1, l) .* self.rtol;
+            self.verifyEqual(kf ./ kr, Keq, 'RelTol', tol);
+        end
+
+        function testSpeciesRates(self)
+            nu_p = self.phase.productStoichCoeffs;
+            nu_r = self.phase.reactantStoichCoeffs;
+            forROP = self.phase.forwardRatesOfProgress;
+            revROP = self.phase.reverseRatesOfProgress;
+            cr = full(sum(nu_p .* forROP, 2) + sum(nu_r .* revROP, 2))';
+            de = full(sum(nu_r .* forROP, 2) + sum(nu_p .* revROP, 2))';
+
+            l = length(self.phase.nSpecies);
+            tol = ones(1, l) .* self.rtol;
+
+            self.verifyEqual(self.phase.creationRates, cr, 'RelTol', tol);
+            self.verifyEqual(self.phase.destructionRates, de, 'RelTol', tol);
+            self.verifyEqual(self.phase.netProdRates, cr - de, 'RelTol', tol);
+        end
+
+        function testReactionDeltas(self)
+            H = self.phase.deltaEnthalpy;
+            S = self.phase.deltaEntropy;
+            G = self.phase.deltaGibbs;
+            Hs = self.phase.deltaStandardEnthalpy;
+            Ss = self.phase.deltaStandardEntropy;
+            Gs = self.phase.deltaStandardGibbs;
+            T = self.phase.T;
+
+            l = length(H);
+            tol = ones(1, l) .* self.rtol;
+
+            self.verifyEqual(H - S .* T, G, 'RelTol', tol);
+            self.verifyEqual(Hs - Ss .* T, Gs, 'RelTol', tol);
+        end
+
     end
 
 end
