@@ -780,18 +780,17 @@ int PengRobinson::solveCubic(double T, double pres, double a, double b, double a
                                          an, bn, cn, dn, tc, vc);
 }
 
-AnyValue PengRobinson::compute_extra_method(const std::string& name)
+AnyMap PengRobinson::getEosParameters()
 {
-    if(name == "aAlpha_mix") {
-        return AnyValue(m_aAlpha_mix);
-    } else if(name == "b_mix") {
-        return AnyValue(m_b);
-    } else if(name == "daAlpha_dT") {
-        return AnyValue(daAlpha_dT());
-    } else if(name == "d2aAlpha_dT2") {
-        return AnyValue(d2aAlpha_dT2());
-    }
-    throw CanteraError("PengRobinson::compute_extra_method", "Unknown method: {}", name);
+    AnyMap parameters;
+
+    // Add each parameter to the map.
+    parameters["aAlpha_mix"] = AnyValue(m_aAlpha_mix);
+    parameters["b_mix"] = AnyValue(m_b);
+    parameters["daAlpha_dT"] = AnyValue(daAlpha_dT());
+    parameters["d2aAlpha_dT2"] = AnyValue(d2aAlpha_dT2());
+
+    return parameters;
 }
 
 }
