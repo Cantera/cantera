@@ -175,7 +175,7 @@ cdef extern from "cantera/thermo/ThermoPhase.h" namespace "Cantera":
         double equivalenceRatio() except +translate_exception
         double stoichAirFuelRatio(const double* fuelComp, const double* oxComp, ThermoBasis basis) except +translate_exception
 
-        CxxAnyValue compute_extra_method(string) except +translate_exception
+        CxxAnyMap getEosParameters() except +translate_exception
 
 
 cdef extern from "cantera/thermo/SurfPhase.h":

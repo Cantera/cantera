@@ -1556,14 +1556,11 @@ public:
             const Composition& oxComp, ThermoBasis basis=ThermoBasis::molar) const;
     //! @}
 
-    //! Compute additional method based on name
-    /*!
-     * @param name The name of the quantity to compute
-     * @return Computed value wrapped in AnyValue type
-     */
-    virtual AnyValue compute_extra_method(const std::string& name)
+    //! Return common parameters used by an equation of state that a user may
+    //! want to access.
+    virtual AnyMap getEosParameters()
     {
-        throw NotImplementedError("ThermoPhase::compute_extra_method");
+        throw NotImplementedError("ThermoPhase::getEosParameters");
     }
 
 private:

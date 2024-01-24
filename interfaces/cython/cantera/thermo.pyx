@@ -1172,9 +1172,12 @@ cdef class ThermoPhase(_SolutionBase):
         X = self.thermo.getMoleFractionsByName(threshold)
         return {pystr(item.first):item.second for item in X}
 
-    def compute_extra_method(self, name):
-        cdef CxxAnyValue value = self.thermo.compute_extra_method(stringify(name))
-        return anyvalue_to_python(name, value)
+    def get_eos_parameters(self):
+        """
+        Return a dictionary giving common eos parameters.
+        """
+        cdef CxxAnyMap values = self.thermo.getEosParameters()
+        return anymap_to_py(values)
 
     ######## Read-only thermodynamic properties ########
 
