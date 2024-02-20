@@ -2045,6 +2045,10 @@ class Parser:
             phase_name = None
 
         if surface_file:
+            if phase_name is None:
+                msg = "Cannot specify a surface mechanism without a gas phase"
+                logger.warning(f"\nERROR: {msg}\n")
+                raise InputError(msg)
             parser.files.append(surface_file)
             surface_file = os.path.expanduser(surface_file)
             if not os.path.exists(surface_file):
