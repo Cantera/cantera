@@ -220,7 +220,8 @@ cdef class Reactor(ReactorBase):
         """
         :param contents:
             Reactor contents. If not specified, the reactor is initially empty.
-            In this case, call `insert` to specify the contents.
+            In this case, call `insert` to specify the contents. Providing valid
+            contents will become mandatory after Cantera 3.1.
         :param name:
             Used only to identify this reactor in output. If not specified,
             defaults to ``'Reactor_n'``, where *n* is an integer assigned in
