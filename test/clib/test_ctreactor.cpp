@@ -38,11 +38,9 @@ TEST(ctreactor, reactor_simple)
     thermo_setTemperature(thermo, T);
     thermo_setPressure(thermo, P);
 
-    int reactor = reactor_new("IdealGasReactor");
-    int ret = reactor_setSolution(reactor, sol);
-    ASSERT_EQ(ret, 0);
+    int reactor = reactor_new3("IdealGasReactor", sol, "test");
     int net = reactornet_new();
-    ret = reactornet_addreactor(net, reactor);
+    int ret = reactornet_addreactor(net, reactor);
     ASSERT_EQ(ret, 0);
 
     double t = 0.0;

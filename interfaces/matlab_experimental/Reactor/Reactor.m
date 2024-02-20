@@ -86,17 +86,17 @@ classdef Reactor < handle
     methods
         %% Reactor Class Constructor
 
-        function r = Reactor(content, typ)
+        function r = Reactor(content, typ, name)
             % Reactor Class ::
             %
-            %     >> r = Reactor(content, typ)
+            %     >> r = Reactor(content, typ, name)
             %
             % A :mat:class:`Reactor` object simulates a perfectly-stirred reactor.
             % It has a time-dependent state, and may be coupled to other
             % reactors through flow lines or through walls that may expand
             % or contract and/or conduct heat.
             %
-            % :param contents:
+            % :param content:
             %    Instance of :mat:class:`Solution` representing the contents of
             %    the reactor.
             % :param typ:
@@ -107,34 +107,31 @@ classdef Reactor < handle
             %      - `ConstPressureReactor`
             %      - `IdealGasReactor`
             %      - `IdealGasConstPressureReactor`
+            % :param name:
+            %    Reactor name (optional; default is ``(none)``).
             % :return:
             %    Instance of :mat:class:`Reactor`.
 
             ctIsLoaded;
 
             if nargin == 0
-                content = 0;
-                typ = 'Reactor';
+                error('Reactor contents must be specified')
             elseif nargin == 1
                 typ = 'Reactor'
-            elseif nargin > 2
+                name = '(none)'
+            elseif nargin == 2
+                name = '(none)'
+            elseif nargin > 3
                 error('too many arguments');
             end
 
-            r.type = char(typ);
-            r.id = ctFunc('reactor_new', typ);
-
-            if isa(content, 'Solution')
-                r.contents = content;
-                if ~isa(content, 'ThermoPhase')
-                    error('Wrong object type');
-                end
-
-                ctFunc('reactor_setSolution', r.id, content.phaseID);
-
-            elseif ~(isa(content, 'double') && content == 0)
+            if ~isa(content, 'Solution')
                 error('Reactor contents must be an object of type "Solution"');
             end
+
+            r.type = char(typ);
+            r.id = ctFunc('reactor_new3', typ, content.phaseID, name);
+
 
         end
 

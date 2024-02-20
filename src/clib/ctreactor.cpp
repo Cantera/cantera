@@ -49,6 +49,15 @@ extern "C" {
         }
     }
 
+    int reactor_new3(const char* type, int n, const char* name)
+    {
+        try {
+            return ReactorCabinet::add(newReactor(type, SolutionCabinet::at(n)));
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
     int reactor_del(int i)
     {
         try {
@@ -83,16 +92,6 @@ extern "C" {
     {
         try {
             ReactorCabinet::item(i).setKineticsMgr(KineticsCabinet::item(n));
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int reactor_setSolution(int i, int n)
-    {
-        try {
-            ReactorCabinet::get<Reactor>(i).setSolution(SolutionCabinet::at(n));
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
