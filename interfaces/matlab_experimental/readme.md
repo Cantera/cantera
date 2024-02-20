@@ -23,7 +23,7 @@ function calling from Cantera Clib.
 5. In the Matlab command window, run
    `cd([pwd, '/interfaces/matlab_experimental/Utility'])` to navigate to the Utility
    folder.
-6. Open the file named 'cantera_root.m', in the second line, edit `output=` to
+6. Open the file named 'ctRoot.m', in the second line, edit `output=` to
    `output='/path/to/conda/environment'`, then save the file. This sets the search path
    for the `ctLoad` command to find the shared library file for Cantera.
 7. Make sure the current (old) Matlab Toolbox for
