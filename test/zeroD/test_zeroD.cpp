@@ -20,7 +20,6 @@ TEST(zerodim, simple)
     auto sol = newSolution("gri30.yaml", "gri30", "none");
     sol->thermo()->setState_TPX(T, P, X);
     auto cppReactor = newReactor("IdealGasReactor", sol, "simple");
-    // IdealGasReactor cppReactor(sol, "simple");
     ASSERT_EQ(cppReactor->name(), "simple");
     cppReactor->initialize();
     ReactorNet network;

@@ -95,11 +95,14 @@ public:
     //! Specify the mixture contained in the reactor. Note that a pointer to
     //! this substance is stored, and as the integration proceeds, the state of
     //! the substance is modified.
-    //! @todo: make protected (should only be used internally)
+    //! @since After %Cantera 3.1, this method will be become a 'protected' method for
+    //! internal use only.
+    //! @todo make protected
     virtual void setThermoMgr(ThermoPhase& thermo);
 
-    //! Specify chemical kinetics governing the reactor.
-    //! @todo: make protected (should only be used internally)
+    //! @since After %Cantera 3.1, this method will be become a 'protected' method for
+    //! internal use only.
+    //! @todo make protected
     virtual void setKineticsMgr(Kinetics& kin) {
         throw NotImplementedError("ReactorBase::setKineticsMgr");
     }

@@ -68,8 +68,8 @@ class TestReactor(utilities.CanteraTest):
         self.assertEqual(len(R.kinetics.net_production_rates), g.n_species)
 
     def test_volume(self):
-        with pytest.warns(DeprecationWarning, match="must not be empty"):
-            R = self.reactorClass(volume=11)
+        g = ct.Solution('h2o2.yaml', transport_model=None)
+        R = self.reactorClass(g, volume=11)
         self.assertEqual(R.volume, 11)
 
         R.volume = 9
@@ -855,8 +855,8 @@ class TestReactor(utilities.CanteraTest):
                 x.foobar
 
     def test_bad_kwarg(self):
-        with pytest.warns(DeprecationWarning, match="must not be empty"):
-            self.reactorClass(name='ok')
+        g = ct.Solution('h2o2.yaml', transport_model=None)
+        self.reactorClass(g, name='ok')
         with self.assertRaises(TypeError):
             r1 = self.reactorClass(foobar=3.14)
 
