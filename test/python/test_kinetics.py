@@ -346,8 +346,9 @@ class KineticsFromReactions(utilities.CanteraTest):
         assert gas.n_reactions == len(reactions)
         assert gas.n_species == len(h2o2.species_names)
 
-        gas.write_yaml("reduced.yaml")
-        restored = ct.Solution("reduced.yaml")
+        yaml_file = self.test_work_path / "reduced.yaml"
+        gas.write_yaml(yaml_file)
+        restored = ct.Solution(yaml_file)
         assert gas.species_names == restored.species_names
         assert gas.reaction_equations() == restored.reaction_equations()
 
