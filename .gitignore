@@ -14,8 +14,6 @@ include/cantera/base/config.h
 include/cantera/base/config.h.build
 include/cantera/base/system.h.gch
 include/cantera/ext/
-interfaces/matlab/ctpath.m
-interfaces/matlab/Contents.m
 interfaces/matlab_experimental/Utility/ctRoot.m
 src/extensions/delegator.h
 stage/
