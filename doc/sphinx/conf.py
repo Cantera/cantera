@@ -31,12 +31,7 @@ needs_sphinx = '2.0'
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 
-# sphinxcontrib.matlab has been added to add the MATLAB domain for the
-# documentation of the MATLAB functions. It is a new requirement to build the
-# documentation in 2.2. It should be loaded before sphinx.ext.autodoc because
-# loading it after gives errors when autodocumenting the Python interface.
 extensions = [
-              'sphinxcontrib.matlab',
               'sphinx.ext.autodoc',
               'sphinx.ext.todo',
               'sphinx.ext.autosummary',
@@ -240,8 +235,7 @@ mathjax3_config = {
     }
 }
 
-# Ensure that the primary domain is the Python domain, since we've added the
-# MATLAB domain with sphinxcontrib.matlab
+# Ensure that the primary domain is the Python domain
 primary_domain = 'py'
 
 # Add any paths that contain templates here, relative to this directory.
