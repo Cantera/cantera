@@ -130,22 +130,12 @@ class WxsGenerator(object):
                                     Display='expand',
                                     AllowAdvertise='no'))
 
-        if self.includeMatlab:
-            matlab = et.SubElement(product, 'Feature',
-                                   dict(Id='Matlab', Level='1',
-                                        Title='Matlab Toolbox',
-                                        Description='Cantera Matlab toolbox',
-                                        Display='expand',
-                                        AllowAdvertise='no'))
-
         # Files
         includes = self.addDirectoryContents('include', instdir, devel)
         binaries = self.addDirectoryContents('bin', instdir, core)
         lib_dir = self.addDirectoryContents('lib', instdir, devel)
         data_dir = self.addDirectoryContents('data', instdir, core)
         sample_dir = self.addDirectoryContents('samples', instdir, samples)
-        if self.includeMatlab:
-            matlab_dir = self.addDirectoryContents('matlab', instdir, matlab)
 
         # Registry entries
         reg_options = dict(ForceCreateOnInstall="yes", ForceDeleteOnUninstall="yes",
