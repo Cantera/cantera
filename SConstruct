@@ -127,21 +127,11 @@ if "clean" in COMMAND_LINE_TARGETS:
     remove_file("src/pch/system.h.gch")
     remove_directory("include/cantera/ext")
     remove_file("config.log")
-    remove_directory("doc/sphinx/matlab/examples")
-    remove_file("doc/sphinx/matlab/examples.rst")
-    for name in Path("doc/sphinx/matlab/").glob("**/*.rst"):
-        if name.name != "index.rst":
-            remove_file(name)
     remove_directory("doc/sphinx/cython/examples")
     remove_file("doc/sphinx/cython/examples.rst")
     for name in Path(".").glob("*.msi"):
         remove_file(name)
     for name in Path("site_scons").glob("**/*.pyc"):
-        remove_file(name)
-    remove_file("interfaces/matlab/toolbox/cantera_shared.dll")
-    remove_file("interfaces/matlab/Contents.m")
-    remove_file("interfaces/matlab/ctpath.m")
-    for name in Path("interfaces/matlab/toolbox").glob("ctmethods.*"):
         remove_file(name)
 
     logger.status("Done removing output files.", print_level=False)
@@ -257,7 +247,7 @@ config_options = [
         "python_package",
         """If you plan to work in Python, then you need the 'full' Cantera Python
            package. If, on the other hand, you will only use Cantera from some
-           other language (for example, MATLAB or Fortran 90/95) and only need Python
+           other language (for example, C or Fortran 90/95) and only need Python
            to process YAML files, then you only need a 'minimal' subset of the
            package and Cython and NumPy are not necessary. The 'none' option
            doesn't install any components of the Python interface. The default
@@ -288,21 +278,6 @@ config_options = [
            'python_prefix=USER'.""",
         {"default": ""},
         PathVariable.PathAccept),
-    EnumOption(
-        "matlab_toolbox",
-        """This variable controls whether the MATLAB toolbox will be built. If
-           set to 'y', you will also need to set the value of the 'matlab_path'
-           variable. If set to 'default', the MATLAB toolbox will be built if
-           'matlab_path' is set.""",
-        "default", ("y", "n", "default")),
-    PathOption(
-        "matlab_path",
-        """Path to the MATLAB install directory. This should be the directory
-           containing the 'extern', 'bin', etc. subdirectories. Typical values
-           are: "C:\\Program Files\\MATLAB\\R2021a" on Windows,
-           "/Applications/MATLAB_R2021a.app" on macOS, or
-           "/opt/MATLAB/R2021a" on Linux.""",
-        "", PathVariable.PathAccept),
     EnumOption(
         "f90_interface",
         """This variable controls whether the Fortran 90/95 interface will be
@@ -423,9 +398,8 @@ config_options = [
         """Select whether to use BLAS/LAPACK from a system installation ('y'), use
            Eigen linear algebra support ('n'), or to decide automatically based on
            libraries detected on the system ('default'). Specifying 'blas_lapack_libs'
-           or 'blas_lapack_dir' changes the default to 'y', whereas installing the
-           Matlab toolbox changes the default to 'n'. On macOS, the 'default' option
-           uses the Accelerate framework, whereas on other operating systems the
+           or 'blas_lapack_dir' changes the default to 'y'. On macOS, the 'default'
+           option uses the Accelerate framework, whereas on other operating systems the
            preferred option depends on the CPU manufacturer. In general, OpenBLAS
            ('openblas') is prioritized over standard libraries ('lapack,blas'), with
            Eigen being used if no suitable BLAS/LAPACK libraries are detected. On Intel
@@ -815,10 +789,6 @@ if "cygwin" in env["OS"].lower():
 
 if "FRAMEWORKS" not in env:
     env["FRAMEWORKS"] = []
-
-# Needed for Matlab to source ~/.matlab7rc.sh
-if "HOME" in os.environ:
-    env["ENV"]["HOME"] = os.environ["HOME"]
 
 if os.name == "nt":
     env["INSTALL_MANPAGES"] = False
@@ -1378,11 +1348,6 @@ elif env["blas_lapack_libs"] or env["blas_lapack_dir"]:
     for lib in env["blas_lapack_libs"]:
         if not conf.CheckLib(lib, autoadd=False):
             config_error(f"Library {lib!r} could not be found.")
-
-elif env["matlab_path"] != "" and env["matlab_toolbox"] in {"default", "y"}:
-    # MATLAB provides the mwlapack and mwblas libraries in matlabroot/extern/lib.
-    if env["system_blas_lapack"] == "default":
-        env["system_blas_lapack"] = "n"
 
 elif env["system_blas_lapack"] == "default":
     # auto-detect versions
@@ -1960,43 +1925,6 @@ if env["python_package"] == "full" and env["OS"] == "Darwin":
     env["ENV"]["MACOSX_DEPLOYMENT_TARGET"] = mac_target
     logger.info(f"MACOSX_DEPLOYMENT_TARGET = {mac_target}")
 
-# Matlab Toolbox settings
-if env["matlab_path"] != "" and env["matlab_toolbox"] == "default":
-    env["matlab_toolbox"] = "y"
-
-if env["matlab_toolbox"] == "y":
-    matlab_path = env["matlab_path"]
-    if matlab_path == "":
-        logger.error(
-            "Unable to build the Matlab toolbox because 'matlab_path' "
-            "has not been set.")
-        sys.exit(1)
-
-    if env["blas_lapack_libs"] or env["system_blas_lapack"] == "y":
-        logger.error(
-            "The Matlab toolbox is incompatible with external BLAS and LAPACK "
-            "libraries. Unset 'blas_lapack_libs' (for example, 'scons build "
-            "blas_lapack_libs=') and/or 'system_blas_lapack' in order to build the "
-            "Matlab toolbox, or set 'matlab_toolbox=n' to use the specified BLAS/"
-            "LAPACK libraries and skip building the Matlab toolbox.")
-        sys.exit(1)
-
-    if env["system_sundials"] == "y":
-        logger.error(
-            "The Matlab toolbox is incompatible with external SUNDIALS "
-            "libraries. Set system_sundials to no (for example, 'scons build "
-            "system_sundials=n') in order to build the Matlab "
-            "toolbox, or set 'matlab_toolbox=n' to use the specified "
-            "SUNDIALS libraries and skip building the Matlab toolbox.")
-        sys.exit(1)
-
-    matlab_path = Path(matlab_path)
-    env["matlab_path"] = matlab_path.as_posix()
-    if not matlab_path.is_dir() and (matlab_path / "extern").is_dir():
-        logger.error(
-            f"Path set for 'matlab_path' is not correct. Path was {matlab_path!r}")
-        sys.exit(1)
-
 
 # **********************************************
 # *** Set additional configuration variables ***
@@ -2076,18 +2004,11 @@ if env["layout"] == "compact":
     env["ct_sampledir"] = (prefix / "samples").as_posix()
     env["ct_docdir"] = (prefix / "doc").as_posix()
     env["ct_mandir"] = (prefix / "man1").as_posix()
-    env["ct_matlab_dir"] = (prefix / "matlab" / "toolbox").as_posix()
 else:
     env["ct_datadir"] = (prefix / "share" / "cantera" / "data").as_posix()
     env["ct_sampledir"] = (prefix  / "share" / "cantera" / "samples").as_posix()
     env["ct_docdir"] = (prefix / "share" / "cantera" / "doc").as_posix()
     env["ct_mandir"] = (prefix / "share" / "man" / "man1").as_posix()
-    if env["layout"] == "conda":
-        env["ct_matlab_dir"] = (
-            prefix / "share" / "cantera" / "matlab" / "toolbox").as_posix()
-    else:
-        env["ct_matlab_dir"] = (
-            prefix / env["libdirname"] / "cantera" / "matlab" / "toolbox").as_posix()
 
 
 addInstallActions = ('install' in COMMAND_LINE_TARGETS or
@@ -2112,7 +2033,7 @@ if os.path.abspath(instRoot) == Dir('.').abspath:
 
 env["inst_root"] = instRoot
 locations = ["libdir", "shlibdir", "bindir", "python_bindir", "incdir", "incroot",
-    "matlab_dir", "datadir", "sampledir", "docdir", "mandir"]
+    "datadir", "sampledir", "docdir", "mandir"]
 for loc in locations:
     if env["prefix"] == ".":
         env[f"inst_{loc}"] = (Path(instRoot) / env[f"ct_{loc}"]).as_posix()
@@ -2309,9 +2230,6 @@ if env['CC'] != 'cl':
     VariantDir('build/platform', 'platform/posix', duplicate=0)
     SConscript('build/platform/SConscript')
 
-if env['matlab_toolbox'] == 'y':
-    SConscript('build/src/matlab/SConscript')
-
 if env['doxygen_docs'] or env['sphinx_docs']:
     SConscript('doc/SConscript')
 
@@ -2397,21 +2315,6 @@ def postInstallMessage(target, source, env):
             name="Python examples", location=env_dict["python_example_loc"]
         ))
 
-    if env["matlab_toolbox"] == "y":
-        env["matlab_sample_loc"] = (Path(env["ct_sampledir"]) / "matlab").as_posix()
-        env["matlab_ctpath_loc"] = (Path(env["ct_matlab_dir"]) / "ctpath.m").as_posix()
-        install_message.append(locations_message.format(
-            name="Matlab toolbox", location=env_dict["ct_matlab_dir"]
-        ))
-        install_message.append(locations_message.format(
-            name="Matlab samples", location=env_dict["matlab_sample_loc"]
-        ))
-        install_message.append(textwrap.dedent("""
-            An m-file to set the correct matlab path for Cantera is at:
-
-              {matlab_ctpath_loc!s}
-        """.format(**env_dict)))
-
     status = f" Cantera {env['cantera_version']} has been successfully installed "
     install_message = [
         f"\n{status:*^80}\n",
@@ -2479,8 +2382,7 @@ if 'msi' in COMMAND_LINE_TARGETS:
         wxs = wxsgen.WxsGenerator(env['stage_dir'],
                                   short_version=env['cantera_short_version'],
                                   full_version=env['cantera_pure_version'],
-                                  x64=env['TARGET_ARCH']=='amd64',
-                                  includeMatlab=env['matlab_toolbox']=='y')
+                                  x64=env['TARGET_ARCH']=='amd64')
         wxs.make_wxs(str(target[0]))
 
     wxs_target = env.Command('build/wix/cantera.wxs', [], build_wxs)
@@ -2518,8 +2420,7 @@ if any(target.startswith('test') for target in COMMAND_LINE_TARGETS):
 
     env['ENV']['PYTHON_CMD'] = env.subst('$python_cmd')
 
-    # Tests written using the gtest framework, the Python unittest module,
-    # or the Matlab xunit package.
+    # Tests written using the gtest framework or the Python unittest module
     VariantDir('build/test', 'test', duplicate=0)
     SConscript('build/test/SConscript')
 
