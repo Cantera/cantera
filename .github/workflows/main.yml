@@ -609,7 +609,7 @@ jobs:
       - name: Install Python dependencies
         run: |
           python -m pip install -U pip setuptools wheel
-          python -m pip install '"scons<4.4.0"' pypiwin32 numpy ruamel.yaml cython pandas pytest pytest-github-actions-annotate-failures
+          python -m pip install 'scons<4.4.0' pypiwin32 numpy ruamel.yaml cython pandas graphviz pytest pytest-github-actions-annotate-failures
       - name: Restore Boost cache
         uses: actions/cache@v3
         id: cache-boost
