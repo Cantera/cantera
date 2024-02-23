@@ -1172,12 +1172,6 @@ cdef class ThermoPhase(_SolutionBase):
         X = self.thermo.getMoleFractionsByName(threshold)
         return {pystr(item.first):item.second for item in X}
 
-    def get_eos_parameters(self):
-        """
-        Return a dictionary giving common eos parameters.
-        """
-        cdef CxxAnyMap values = self.thermo.getEosParameters()
-        return anymap_to_py(values)
 
     ######## Read-only thermodynamic properties ########
 
@@ -1341,6 +1335,15 @@ cdef class ThermoPhase(_SolutionBase):
         """Saturation temperature [K] at the current pressure."""
         def __get__(self):
             return self.thermo.satTemperature(self.P)
+
+    property auxiliary_data:
+        """
+        Intermediate or model-specific parameters used by particular
+        derived classes.
+        """
+        def __get__(self):
+            cdef CxxAnyMap values = self.thermo.getAuxiliaryData()
+            return anymap_to_py(values)
 
     ######## Methods to get/set the complete thermodynamic state ########
 

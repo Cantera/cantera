@@ -1556,11 +1556,12 @@ public:
             const Composition& oxComp, ThermoBasis basis=ThermoBasis::molar) const;
     //! @}
 
-    //! Return common parameters used by an equation of state that a user may
-    //! want to access.
-    virtual AnyMap getEosParameters()
+    //! Return intermediate or model-specific parameters used by particular
+    //! derived classes. Specific parameters are described in overidden
+    //! methods of classes that derive from the base class.
+    virtual AnyMap getAuxiliaryData()
     {
-        throw NotImplementedError("ThermoPhase::getEosParameters");
+        return AnyMap();
     }
 
 private:
