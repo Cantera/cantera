@@ -780,15 +780,14 @@ int PengRobinson::solveCubic(double T, double pres, double a, double b, double a
                                          an, bn, cn, dn, tc, vc);
 }
 
-AnyMap PengRobinson::getEosParameters()
+AnyMap PengRobinson::getAuxiliaryData()
 {
-    AnyMap parameters;
+    AnyMap parameters = ThermoPhase::getAuxiliaryData();
 
-    // Add each parameter to the map.
-    parameters["aAlpha_mix"] = AnyValue(m_aAlpha_mix);
-    parameters["b_mix"] = AnyValue(m_b);
-    parameters["daAlpha_dT"] = AnyValue(daAlpha_dT());
-    parameters["d2aAlpha_dT2"] = AnyValue(d2aAlpha_dT2());
+    parameters["aAlpha_mix"] = m_aAlpha_mix;
+    parameters["b_mix"] = m_b;
+    parameters["daAlpha_dT"] = daAlpha_dT();
+    parameters["d2aAlpha_dT2"] = d2aAlpha_dT2();
 
     return parameters;
 }

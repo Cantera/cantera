@@ -173,8 +173,16 @@ public:
     void setBinaryCoeffs(const string& species_i, const string& species_j, double a);
     //! @}
 
-    //! Return common parameters used by the Peng-Robinson equation of state
-    AnyMap getEosParameters() override;
+    //! Return parameters used by the Peng-Robinson equation of state.
+    /*!
+     * @return
+     *   Returns an AnyMap containing the following key names and values:
+     *   - "aAlpha_mix": The value of m_aAlpha_mix
+     *   - "b_mix": The value of the m_b
+     *   - "daAlpha_dT": The value returned by the daAlpha_dT() method
+     *   - "d2aAlpha_dT2": The value returned by the d2aAlpha_dT2() method
+     */
+    AnyMap getAuxiliaryData() override;
 
 protected:
     // Special functions inherited from MixtureFugacityTP
