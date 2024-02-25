@@ -44,7 +44,7 @@ extern "C" {
 * nonrecoverable error occurred. In the latter case, the program halts. If a recoverable
 * error occurred, the integrator will attempt to correct and retry.
 */
-static int ida_rhs(realtype t, N_Vector y, N_Vector ydot, N_Vector r, void* f_data)
+static int ida_rhs(sunrealtype t, N_Vector y, N_Vector ydot, N_Vector r, void* f_data)
 {
     FuncEval* f = (FuncEval*) f_data;
     return f->evalDaeNoThrow(t, NV_DATA_S(y), NV_DATA_S(ydot), NV_DATA_S(r));
@@ -60,6 +60,20 @@ static void ida_err(int error_code, const char* module,
     integrator->m_error_message = msg;
     integrator->m_error_message += "\n";
 }
+
+//! Function called by CVodes when an error is encountered instead of
+//! writing to stdout. Here, save the error message provided by CVodes so
+//! that it can be included in the subsequently raised CanteraError. Used by
+//! SUNDIALS 7.0 and newer.
+#if CT_SUNDIALS_VERSION >= 70
+    static void sundials_err(int line, const char *func, const char *file,
+                            const char *msg, SUNErrCode err_code,
+                            void *err_user_data, SUNContext sunctx)
+    {
+        IdasIntegrator* integrator = (IdasIntegrator*) err_user_data;
+        integrator->m_error_message = fmt::format("{}: {}\n", func, msg);
+    }
+#endif
 
 }
 
@@ -286,7 +300,11 @@ void IdasIntegrator::initialize(double t0, FuncEval& func)
         }
     }
 
-    flag = IDASetErrHandlerFn(m_ida_mem, &ida_err, this);
+    #if CT_SUNDIALS_VERSION >= 70
+        flag = SUNContext_PushErrHandler(m_sundials_ctx.get(), &sundials_err, this);
+    #else
+        flag = IDASetErrHandlerFn(m_ida_mem, &ida_err, this);
+    #endif
 
     // set constraints
     flag = IDASetId(m_ida_mem, m_constraints);
@@ -368,7 +386,7 @@ void IdasIntegrator::applyOptions()
         #endif
     } else if (m_type == "GMRES") {
         #if CT_SUNDIALS_VERSION >= 60
-            m_linsol = SUNLinSol_SPGMR(m_y, PREC_NONE, 0, m_sundials_ctx.get());
+            m_linsol = SUNLinSol_SPGMR(m_y, SUN_PREC_NONE, 0, m_sundials_ctx.get());
             IDASetLinearSolver(m_ida_mem, (SUNLinearSolver) m_linsol, nullptr);
         #elif CT_SUNDIALS_VERSION >= 40
             m_linsol = SUNLinSol_SPGMR(m_y, PREC_NONE, 0);

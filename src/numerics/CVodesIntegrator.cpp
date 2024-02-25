@@ -36,7 +36,7 @@ extern "C" {
      * evaluates the desired equations.
      * @ingroup odeGroup
      */
-    static int cvodes_rhs(realtype t, N_Vector y, N_Vector ydot, void* f_data)
+    static int cvodes_rhs(sunrealtype t, N_Vector y, N_Vector ydot, void* f_data)
     {
         FuncEval* f = (FuncEval*) f_data;
         return f->evalNoThrow(t, NV_DATA_S(y), NV_DATA_S(ydot));
@@ -44,7 +44,8 @@ extern "C" {
 
     //! Function called by CVodes when an error is encountered instead of
     //! writing to stdout. Here, save the error message provided by CVodes so
-    //! that it can be included in the subsequently raised CanteraError.
+    //! that it can be included in the subsequently raised CanteraError. Used by
+    //! SUNDIALS 6.x and older.
     static void cvodes_err(int error_code, const char* module,
                            const char* function, char* msg, void* eh_data)
     {
@@ -53,8 +54,23 @@ extern "C" {
         integrator->m_error_message += "\n";
     }
 
-    static int cvodes_prec_setup(realtype t, N_Vector y, N_Vector ydot, booleantype jok,
-                                 booleantype *jcurPtr, realtype gamma, void *f_data)
+    //! Function called by CVodes when an error is encountered instead of
+    //! writing to stdout. Here, save the error message provided by CVodes so
+    //! that it can be included in the subsequently raised CanteraError. Used by
+    //! SUNDIALS 7.0 and newer.
+    #if CT_SUNDIALS_VERSION >= 70
+        static void sundials_err(int line, const char *func, const char *file,
+                                const char *msg, SUNErrCode err_code,
+                                void *err_user_data, SUNContext sunctx)
+        {
+            CVodesIntegrator* integrator = (CVodesIntegrator*) err_user_data;
+            integrator->m_error_message = fmt::format("{}: {}\n", func, msg);
+        }
+    #endif
+
+    static int cvodes_prec_setup(sunrealtype t, N_Vector y, N_Vector ydot,
+                                 sunbooleantype jok, sunbooleantype *jcurPtr,
+                                 sunrealtype gamma, void *f_data)
     {
         FuncEval* f = (FuncEval*) f_data;
         if (!jok) {
@@ -67,9 +83,9 @@ extern "C" {
         }
     }
 
-    static int cvodes_prec_solve(realtype t, N_Vector y, N_Vector ydot, N_Vector r,
-                                 N_Vector z, realtype gamma, realtype delta, int lr,
-                                 void* f_data)
+    static int cvodes_prec_solve(sunrealtype t, N_Vector y, N_Vector ydot, N_Vector r,
+                                 N_Vector z, sunrealtype gamma, sunrealtype delta,
+                                 int lr, void* f_data)
     {
         FuncEval* f = (FuncEval*) f_data;
         return f->preconditioner_solve_nothrow(NV_DATA_S(r),NV_DATA_S(z));
@@ -310,7 +326,11 @@ void CVodesIntegrator::initialize(double t0, FuncEval& func)
                                "CVodeInit failed.");
         }
     }
-    flag = CVodeSetErrHandlerFn(m_cvode_mem, &cvodes_err, this);
+    #if CT_SUNDIALS_VERSION >= 70
+        flag = SUNContext_PushErrHandler(m_sundials_ctx.get(), &sundials_err, this);
+    #else
+        flag = CVodeSetErrHandlerFn(m_cvode_mem, &cvodes_err, this);
+    #endif
 
     if (m_itol == CV_SV) {
         flag = CVodeSVtolerances(m_cvode_mem, m_reltol, m_abstol);
@@ -407,7 +427,7 @@ void CVodesIntegrator::applyOptions()
         }
     } else if (m_type == "GMRES") {
         #if CT_SUNDIALS_VERSION >= 60
-            m_linsol = SUNLinSol_SPGMR(m_y, PREC_NONE, 0, m_sundials_ctx.get());
+            m_linsol = SUNLinSol_SPGMR(m_y, SUN_PREC_NONE, 0, m_sundials_ctx.get());
             CVodeSetLinearSolver(m_cvode_mem, (SUNLinearSolver) m_linsol, nullptr);
         #elif CT_SUNDIALS_VERSION >= 40
             m_linsol = SUNLinSol_SPGMR(m_y, PREC_NONE, 0);
