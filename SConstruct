@@ -1403,13 +1403,14 @@ import SCons.Conftest, SCons.SConf
 context = SCons.SConf.CheckContext(conf)
 
 cvode_checks = [
-    "CVodeCreate(CV_BDF, CV_NEWTON);",  # Sundials <= 3.2
-    "CVodeCreate(CV_BDF);",  # Sundials>=4.0,<6.0
-    "SUNContext ctx; SUNContext_Create(0, &ctx);"  # Sundials>=6.0
+    ("CVodeCreate(CV_BDF, CV_NEWTON);", ["sundials_cvodes"]),  # Sundials <= 3.2
+    ("CVodeCreate(CV_BDF);", ["sundials_cvodes"]),  # Sundials>=4.0,<6.0
+    ("SUNContext ctx; SUNContext_Create(0, &ctx);", ["sundials_cvodes"]),  # Sundials>=6.0,<7.0
+    ("SUNContext ctx; SUNContext_Create(SUN_COMM_NULL, &ctx);",
+     ["sundials_cvodes", "sundials_core"])  # Sundials>=7.0
 ]
-for cvode_call in cvode_checks:
-    ret = SCons.Conftest.CheckLib(context,
-                                  ['sundials_cvodes'],
+for cvode_call, libs in cvode_checks:
+    ret = SCons.Conftest.CheckLib(context, libs,
                                   header='#include "cvodes/cvodes.h"',
                                   language='C++',
                                   call=cvode_call,
@@ -1465,10 +1466,10 @@ if env['system_sundials'] == 'y':
     # Ignore the minor version, for example 2.4.x -> 2.4
     env['sundials_version'] = '.'.join(sundials_version.split('.')[:2])
     sundials_ver = parse_version(env['sundials_version'])
-    if sundials_ver < parse_version("3.0") or sundials_ver >= parse_version("7.0"):
+    if sundials_ver < parse_version("3.0") or sundials_ver >= parse_version("8.0"):
         logger.error(f"Sundials version {env['sundials_version']!r} is not supported.")
         sys.exit(1)
-    elif sundials_ver > parse_version("6.6.0"):
+    elif sundials_ver > parse_version("7.0.0"):
         logger.warning(f"Sundials version {env['sundials_version']!r} has not been tested.")
 
     logger.info(f"Using system installation of Sundials version {sundials_version!r}.")
@@ -2163,6 +2164,8 @@ if addInstallActions:
 
 if env['system_sundials'] == 'y':
     env['sundials_libs'] = ['sundials_cvodes', 'sundials_idas', 'sundials_nvecserial']
+    if sundials_ver >= parse_version("7.0.0"):
+        env['sundials_libs'].append('sundials_core')
     if env['use_lapack']:
         if env.get('has_sundials_lapack'):
             env['sundials_libs'].extend(('sundials_sunlinsollapackdense',

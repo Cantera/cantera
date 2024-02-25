@@ -16,11 +16,19 @@
     #include "sunlinsol/sunlinsol_band.h"
 #endif
 #include "sunlinsol/sunlinsol_spgmr.h"
-#include "cvodes/cvodes_direct.h"
 #include "cvodes/cvodes_diag.h"
-#include "cvodes/cvodes_spils.h"
-#include "idas/idas_direct.h"
-#include "idas/idas_spils.h"
+
+#if CT_SUNDIALS_VERSION < 70
+    #include "cvodes/cvodes_direct.h"
+    #include "idas/idas_direct.h"
+    #include "idas/idas_spils.h"
+    #include "cvodes/cvodes_spils.h"
+#endif
+
+#if CT_SUNDIALS_VERSION < 60
+    typedef realtype sunrealtype;
+    typedef booleantype sunbooleantype;
+#endif
 
 #define CV_SS 1
 #define IDA_SS 1
