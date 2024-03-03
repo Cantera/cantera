@@ -74,7 +74,8 @@ public:
         install("updateState", m_updateState,
             [this](std::array<size_t, 1> sizes, double* y) { R::updateState(y); });
         install("updateSurfaceState", m_updateSurfaceState,
-            [this](std::array<size_t, 1> sizes, double* y) { R::updateSurfaceState(y); });
+            [this](std::array<size_t, 1> sizes, double* y)
+            { R::updateSurfaceState(y); });
         install("getSurfaceInitialConditions", m_getSurfaceInitialConditions,
             [this](std::array<size_t, 1> sizes, double* y) {
                 R::getSurfaceInitialConditions(y);
@@ -89,8 +90,8 @@ public:
         );
         install("evalWalls", m_evalWalls, [this](double t) { R::evalWalls(t); });
         install("evalSurfaces", m_evalSurfaces,
-            [this](std::array<size_t, 3> sizes, double* LHS, double* RHS, double* sdot) {
-                R::evalSurfaces(LHS, RHS, sdot);
+            [this](std::array<size_t, 3> sizes, double* LHS, double* RHS, double* sd) {
+                R::evalSurfaces(LHS, RHS, sd);
             }
         );
         install("componentName", m_componentName,
