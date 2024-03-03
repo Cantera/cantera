@@ -218,13 +218,13 @@ TEST(JacobianTests, test_wall_jacobian_build)
     auto sol1 = newSolution("h2o2.yaml");
     sol1->thermo()->setState_TPY(1000.0, OneAtm, " O2:1.0");
     IdealGasMoleReactor reactor1;
-    reactor1.insert(sol1);
+    reactor1.setSolution(sol1);
     reactor1.setInitialVolume(1.0);
     // create second reactor
     auto sol2 = newSolution("h2o2.yaml");
     sol2->thermo()->setState_TPY(900.0, OneAtm, " O2:1.0");
     IdealGasConstPressureMoleReactor reactor2;
-    reactor2.insert(sol2);
+    reactor2.setSolution(sol2);
     reactor2.setInitialVolume(1.0);
     // create the wall
     Wall w;
@@ -305,10 +305,10 @@ TEST(JacobianTests, test_flow_jacobian_build)
     auto sol = newSolution("h2o2.yaml");
     sol->thermo()->setState_TPY(1000.0, OneAtm, "O2:1.0");
     Reservoir res;
-    res.insert(sol);
+    res.setSolution(sol);
     // create reactor
     IdealGasConstPressureMoleReactor reactor;
-    reactor.insert(sol);
+    reactor.setSolution(sol);
     reactor.setInitialVolume(1.0);
     // create the flow device
     MassFlowController mfc;
