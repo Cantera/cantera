@@ -289,23 +289,11 @@ double IdealGasConstPressureMoleReactor::lowerBound(size_t k) const {
     }
 }
 
-double IdealGasConstPressureMoleReactor::moleDerivative(size_t index)
+double IdealGasConstPressureMoleReactor::temperature_ddni(size_t index)
 {
     // derivative of temperature transformed by ideal gas law
-    vector<double> moles(m_nsp);
-    getMoles(moles.data());
-    double dTdni = pressure() * m_vol / GasConstant / std::accumulate(moles.begin(), moles.end(), 0.0);
-    return dTdni;
-}
-
-double IdealGasConstPressureMoleReactor::moleRadiationDerivative(size_t index)
-{
-    // derivative of temperature transformed by ideal gas law
-    vector<double> moles(m_nsp);
-    getMoles(moles.data());
-    double dT4dni = std::pow(pressure() * m_vol / GasConstant, 4);
-    dT4dni *= std::pow(1 / std::accumulate(moles.begin(), moles.end(), 0.0), 5);
-    return dT4dni;
+    double n_total = m_mass / m_thermo->meanMolecularWeight();
+    return pressure() * m_vol / GasConstant / n_total;
 }
 
 }
