@@ -84,23 +84,12 @@ public:
         m_chem = cflag;
     }
 
-    //! Returns `true` if changes in the reactor composition due to chemical reactions
-    //! are enabled.
-    bool chemistryEnabled() const {
-        return m_chem;
-    }
-
     void setEnergy(int eflag=1) override {
         if (eflag > 0) {
             m_energy = true;
         } else {
             m_energy = false;
         }
-    }
-
-    //! Returns `true` if solution of the energy equation is enabled.
-    bool energyEnabled() const {
-        return m_energy;
     }
 
     //! Number of equations (state variables) for this reactor
@@ -209,15 +198,7 @@ public:
     //!
     //! @warning  This method is an experimental part of the %Cantera
     //! API and may be changed or removed without notice.
-    virtual Eigen::SparseMatrix<double> jacobian() {
-        m_jac_trips.clear();
-        // Add before, during, after evals
-        buildJacobian(m_jac_trips);
-        // construct jacobian from vector
-        Eigen::SparseMatrix<double> jac(m_nv, m_nv);
-        jac.setFromTriplets(m_jac_trips.begin(), m_jac_trips.end());
-        return jac;
-    }
+    virtual Eigen::SparseMatrix<double> jacobian();
 
     //! Calculate the Jacobian of a specific Reactor specialization.
     //! @param jacVector vector where jacobian triplets are added
@@ -335,8 +316,6 @@ protected:
 
     vector<double> m_wdot; //!< Species net molar production rates
     vector<double> m_uk; //!< Species molar internal energies
-    bool m_chem = false;
-    bool m_energy = true;
     size_t m_nv = 0;
     size_t m_nv_surf; //!!< Number of variables associated with reactor surfaces
 

@@ -123,9 +123,10 @@ public:
     //! @warning This function is an experimental part of the %Cantera API and may be
     //! changed
     //! or removed without notice.
-    //! @since New in %Cantera 3.0.
+    //! @since New in %Cantera 3.1.
     //!
-    virtual void buildReactorJacobian(ReactorBase* r, vector<Eigen::Triplet<double>>& jacVector) {
+    virtual void buildReactorJacobian(ReactorBase* r,
+        vector<Eigen::Triplet<double>>& jacVector) {
         throw NotImplementedError(type() + "::buildReactorJacobian");
     }
 
@@ -137,34 +138,13 @@ public:
     //! @warning This function is an experimental part of the %Cantera API and may be
     //! changed
     //! or removed without notice.
-    //! @since New in %Cantera 3.0.
+    //! @since New in %Cantera 3.1.
     //!
     virtual void buildNetworkJacobian(vector<Eigen::Triplet<double>>& jacVector) {
-        if (!m_jac_calculated) {
-            throw NotImplementedError(type() + "::buildNetworkJacobian");
-        }
+        throw NotImplementedError(type() + "::buildNetworkJacobian");
     }
 
-    //! Specify the jacobian terms have been calculated and should not be recalculated.
-    //! @warning This function is an experimental part of the %Cantera API and may be
-    //! changed
-    //! or removed without notice.
-    //! @since New in %Cantera 3.0.
-    //!
-    void jacobianCalculated() { m_jac_calculated = true; };
-
-    //! Specify that jacobian terms have not been calculated and should be recalculated.
-    //! @warning This function is an experimental part of the %Cantera API and may be changed
-    //! or removed without notice.
-    //! @since New in %Cantera 3.0.
-    //!
-    void jacobianNotCalculated() { m_jac_calculated = false; };
-
 protected:
-    //! a variable to switch on and off so calculations are not doubled by the calling
-    //! reactor or network
-    bool m_jac_calculated = false;
-
     double m_mdot = Undef;
 
     //! Function set by setPressureFunction; used by updateMassFlowRate
