@@ -51,7 +51,7 @@ protected:
  * The electron collision plasma reaction rate uses the electron collision
  * data and the electron energy distribution to calculate the reaction rate.
  * Hagelaar and Pitchford @cite hagelaar2005 define the reaction rate
- * coefficient (Eqn.63) as,
+ * coefficient (Eqn. 63) as,
  *
  *   @f[
  *        k =  \gamma \int_0^{\infty} \epsilon \sigma F_0 d\epsilon,
@@ -62,25 +62,25 @@ protected:
  * energy, @f$ \sigma @f$ [m2] is the reaction collision cross section,
  * @f$ F_0 @f$ [J^(-3/2)] is the normalized electron energy distribution function,
  * and @f$ k @f$ has the unit of [m3/s]. The collision process is treated as a
- * bimolecule reaction and should have units of [m3/kmol/s]. Therefore the
+ * bimolecular reaction and should have units of [m3/kmol/s]. Therefore the
  * forward reaction coefficient becomes,
  *
  *   @f[
  *        k_f = \gamma N_A \int_0^{\infty} \epsilon \sigma F_0 d\epsilon,
  *   @f]
  *
- * where @f$ N_A @f$ [kmol] is the Avogadro number. Since the unit of the
- * electron energy downloaded from https://nl.lxcat.net/data/xml/lxcat_xml.zip
- * is in [V], the forward reaction coefficient can be written as,
+ * where @f$ N_A @f$ [1/kmol] is the Avogadro's number. Since the unit of the
+ * electron energy downloaded from LXCat is in [V], the forward reaction
+ * coefficient can be written as,
  *
  *   @f[
- *        k_f = \sqrt{\frac{2e}{m_e}} N_A \int_0^{\infty} \epsilon \sigma F_0 d\epsilon.
+ *        k_f = \sqrt{\frac{2e}{m_e}} N_A \int_0^{\infty} \epsilon_V \sigma F_0 d\epsilon_V.
  *   @f]
  *
  * For the convience of calculation, the final form becomes,
  *
  *   @f[
- *        k_f = 0.5 \sqrt{\frac{2e}{m_e}} N_A \int_0^{\infty} \sigma F_0 d{\epsilon^2}.
+ *        k_f = 0.5 \sqrt{\frac{2e}{m_e}} N_A \int_0^{\infty} \sigma F_0 d{{\epsilon_V}^2}.
  *   @f]
  *
  * @ingroup otherRateGroup
@@ -142,7 +142,7 @@ private:
     //! collision cross sections [m2] at #m_energyLevels
     vector<double> m_crossSections;
 
-    //! collision cross sections [m2] after intepolation
+    //! collision cross sections [m2] after interpolation
     vector<double> m_crossSectionsInterpolated;
 };
 
