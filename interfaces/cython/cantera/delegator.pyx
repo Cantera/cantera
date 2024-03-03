@@ -319,6 +319,7 @@ cdef int assign_delegates(obj, CxxDelegator* delegator) except -1:
 
         if when is None:
             continue
+
         cxx_name = stringify(options[0])
         callback = options[1].replace(' ', '')
 
