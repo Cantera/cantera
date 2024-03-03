@@ -159,7 +159,26 @@ void ReactorNet::initialize()
                 " when creating the Reactor or ReactorSurface objects.", shared);
         }
     }
-
+    // Create walls and flow devices sets
+    for (auto r : m_reactors) {
+        // walls
+        if (!m_jac_skip_walls) {
+            for (size_t i = 0; i < r->nWalls(); i++) {
+                m_walls.insert(&(r->wall(i)));
+            }
+        }
+        // flow devices
+        if (!m_jac_skip_flow_devices) {
+            // outlets
+            for (size_t i = 0; i < r->nOutlets(); i++) {
+                m_flow_devices.insert(&(r->outlet(i)));
+            }
+            // inlets
+            for (size_t i = 0; i < r->nInlets(); i++) {
+                m_flow_devices.insert(&(r->inlet(i)));
+            }
+        }
+    }
     m_ydot.resize(m_nv,0.0);
     m_yest.resize(m_nv,0.0);
     m_advancelimits.resize(m_nv,-1.0);
@@ -720,6 +739,16 @@ size_t ReactorNet::registerSensitivityParameter(
     return m_sens_params.size() - 1;
 }
 
+size_t ReactorNet::globalStartIndex(ReactorBase* curr_reactor) {
+        for (size_t i = 0; i < m_reactors.size(); i++) {
+            if (curr_reactor == m_reactors[i]) {
+                return m_start[i];
+            }
+        }
+        throw CanteraError("ReactorNet::globalStartIndex: ",
+                curr_reactor->name(), " not found in network.");
+    }
+
 void ReactorNet::setDerivativeSettings(AnyMap& settings)
 {
     // Apply given settings to all reactors
@@ -820,28 +849,8 @@ void ReactorNet::checkPreconditionerSupported() const {
 void ReactorNet::buildJacobian(vector<Eigen::Triplet<double>>& jacVector)
 {
     // network must be initialized for the jacobian
-    if (! m_init) {
+    if (!m_init) {
         initialize();
-    }
-    // loop through and set connectors not found
-    for (auto r : m_reactors) {
-        // walls
-        if (!m_jac_skip_walls) {
-            for (size_t i = 0; i < r->nWalls(); i++) {
-                r->wall(i).jacobianNotCalculated();
-            }
-        }
-        // flow devices
-        if (!m_jac_skip_flow_devices) {
-            // outlets
-            for (size_t i = 0; i < r->nOutlets(); i++) {
-                r->outlet(i).jacobianNotCalculated();
-            }
-            // inlets
-            for (size_t i = 0; i < r->nInlets(); i++) {
-                r->inlet(i).jacobianNotCalculated();
-            }
-        }
     }
     // Create jacobian triplet vector
     vector<size_t> jstarts;
@@ -865,24 +874,12 @@ void ReactorNet::buildJacobian(vector<Eigen::Triplet<double>>& jacVector)
     // repeated
     for (auto r : m_reactors) {
         // walls
-        if (!m_jac_skip_walls) {
-            for (size_t i = 0; i < r->nWalls(); i++) {
-                r->wall(i).buildNetworkJacobian(jacVector);
-                r->wall(i).jacobianCalculated();
-            }
+        for (const auto& wall : m_walls) {
+            wall->buildNetworkJacobian(jacVector);
         }
         // flow devices
-        if (!m_jac_skip_flow_devices) {
-            // outlets
-            for (size_t i = 0; i < r->nOutlets(); i++) {
-                r->outlet(i).buildNetworkJacobian(jacVector);
-                r->outlet(i).jacobianCalculated();
-            }
-            // inlets
-            for (size_t i = 0; i < r->nInlets(); i++) {
-                r->inlet(i).buildNetworkJacobian(jacVector);
-                r->inlet(i).jacobianCalculated();
-            }
+        for (const auto& flow_device : m_flow_devices) {
+            flow_device->buildNetworkJacobian(jacVector);
         }
     }
 }
@@ -894,7 +891,7 @@ Eigen::SparseMatrix<double> ReactorNet::finiteDifferenceJacobian()
         initialize();
     }
 
-    // clear former jacobian elements
+    // allocate jacobian triplet vector
     vector<Eigen::Triplet<double>> jac_trips;
 
     // Get the current state

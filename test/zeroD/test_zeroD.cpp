@@ -306,13 +306,13 @@ TEST(JacobianTests, test_wall_jacobian_build)
     auto sol1 = newSolution("h2o2.yaml");
     sol1->thermo()->setState_TPY(1000.0, OneAtm, " O2:1.0");
     IdealGasMoleReactor reactor1;
-    reactor1.insert(sol1);
+    reactor1.setSolution(sol1);
     reactor1.setInitialVolume(1.0);
     // create second reactor
     auto sol2 = newSolution("h2o2.yaml");
     sol2->thermo()->setState_TPY(900.0, OneAtm, " O2:1.0");
     IdealGasConstPressureMoleReactor reactor2;
-    reactor2.insert(sol2);
+    reactor2.setSolution(sol2);
     reactor2.setInitialVolume(1.0);
     // create the wall
     Wall w;
@@ -332,11 +332,11 @@ TEST(JacobianTests, test_wall_jacobian_build)
     // build jac for reactor 1 wall only
     w.buildReactorJacobian(&reactor1, wallJac);
     wallJacMat.setFromTriplets(wallJac.begin(), wallJac.end());
-    // check appropriate values
-    // double tol = 1e-8;
+    // check that wall jacobian forms correct value
+    double v1 = sol1->thermo()->temperature() * w.area() * w.getHeatTransferCoeff();
     for (int k = 0; k < wallJacMat.outerSize(); k++) {
         for (Eigen::SparseMatrix<double>::InnerIterator it(wallJacMat, k); it; ++it) {
-            EXPECT_DOUBLE_EQ(it.value(), 6000.0);
+            EXPECT_DOUBLE_EQ(it.value(), v1);
             EXPECT_EQ(it.row(), 0); // check that it is the first row
             EXPECT_GE(it.col(), reactor1.speciesOffset());
             EXPECT_LT(it.col(), reactor1.neq());
@@ -347,22 +347,16 @@ TEST(JacobianTests, test_wall_jacobian_build)
     w.buildReactorJacobian(&reactor2, wallJac);
     wallJacMat.setZero();
     wallJacMat.setFromTriplets(wallJac.begin(), wallJac.end());
-    // check appropriate values
-    // double tol = 1e-8;
+    // check that wall jacobian forms correct value
+    double v2 = sol2->thermo()->temperature() * w.area() * w.getHeatTransferCoeff();
     for (int k = 0; k < wallJacMat.outerSize(); k++) {
         for (Eigen::SparseMatrix<double>::InnerIterator it(wallJacMat, k); it; ++it) {
-            EXPECT_DOUBLE_EQ(it.value(), -5400.0);
+            EXPECT_DOUBLE_EQ(it.value(), -v2);
             EXPECT_EQ(it.row(), 0); // check that it is the first row
             EXPECT_GE(it.col(), reactor2.speciesOffset());
             EXPECT_LT(it.col(), reactor2.neq());
         }
     }
-    // check that switch works
-    wallJac.clear();
-    w.jacobianCalculated();
-    w.buildNetworkJacobian(wallJac);
-    EXPECT_EQ(wallJac.size(), 0);
-    w.jacobianNotCalculated();
     // build jac for network terms
     wallJac.clear();
     w.buildNetworkJacobian(wallJac);
@@ -387,16 +381,16 @@ TEST(JacobianTests, test_wall_jacobian_build)
     }
 }
 
-TEST(JacobianTests, test_flow_jacobian_build)
+TEST(JacobianTests, test_flow_jacobian_not_implemented)
 {
     // create reservoir reactor
     auto sol = newSolution("h2o2.yaml");
     sol->thermo()->setState_TPY(1000.0, OneAtm, "O2:1.0");
     Reservoir res;
-    res.insert(sol);
+    res.setSolution(sol);
     // create reactor
     IdealGasConstPressureMoleReactor reactor;
-    reactor.insert(sol);
+    reactor.setSolution(sol);
     reactor.setInitialVolume(1.0);
     // create the flow device
     MassFlowController mfc;
@@ -411,10 +405,6 @@ TEST(JacobianTests, test_flow_jacobian_build)
     // expect errors from building jacobians
     EXPECT_THROW(mfc.buildReactorJacobian(&reactor, flowJac), NotImplementedError);
     // check the jacobian calculated flag and throw/catch errors accordingly
-    mfc.jacobianCalculated();
-    mfc.buildNetworkJacobian(flowJac);
-    EXPECT_EQ(flowJac.size(), 0);
-    mfc.jacobianNotCalculated();
     EXPECT_THROW(mfc.buildNetworkJacobian(flowJac), NotImplementedError);
 }
 

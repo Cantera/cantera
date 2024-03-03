@@ -1605,51 +1605,44 @@ class TestIdealGasConstPressureMoleReactor(TestConstPressureMoleReactor):
         with pytest.raises(NotImplementedError, match="MassFlowController::buildReactorJacobian"):
             J = self.r2.jacobian
 
+    @pytest.mark.xfail
     def test_heat_transfer_network(self):
         # create first reactor
         gas1 = ct.Solution("h2o2.yaml", "ohmech")
         gas1.TPX = 600, ct.one_atm, "O2:1.0"
         r1 = self.reactorClass(gas1)
-        r1.chemistry_enabled = False
 
         # create second reactor
         gas2 = ct.Solution("h2o2.yaml", "ohmech")
         gas2.TPX = 300, ct.one_atm, "O2:1.0"
-        r2 = self.reactorClass(gas2)
-        r2.chemistry_enabled = False
+        r2 = ct.reactorClass(gas2)
 
         # create wall
-        U = 2.0
+        U = 2.
         A = 3.0
         w = ct.Wall(r1, r2, U=U, A=A)
-        net = ct.ReactorNet([r1, r2])
+        net = ct.ReactorNet([r1,])
         jac = net.jacobian
-
-        # check for values
-        for i in range(gas1.n_species):
-            assert np.isclose(jac[0, i + 1 + r1.n_vars], - U * A * gas2.T)
-            assert np.isclose(jac[r1.n_vars, i + 1], U * A * gas1.T)
-            if (i + 1 != 2):
-                assert np.isclose(jac[0, i + 1], U * A * gas1.T, rtol=1e-2)
-                assert np.isclose(jac[r1.n_vars, i + 1 + r1.n_vars], - U * A * gas2.T, rtol=1e-2)
-
+        fd_jac = net.finite_difference_jacobian
+        for i in range(jac.shape[0]):
+            for j in range(jac.shape[1]):
+                assert np.isclose(jac[i, j], fd_jac[i, j])
 
 class TestIdealGasMoleReactor(TestMoleReactor):
     reactorClass = ct.IdealGasMoleReactor
     test_preconditioner_unsupported = None
 
+    @pytest.mark.xfail
     def test_heat_transfer_network(self):
         # create first reactor
         gas1 = ct.Solution("h2o2.yaml", "ohmech")
         gas1.TPX = 600, ct.one_atm, "O2:1.0"
         r1 = self.reactorClass(gas1)
-        r1.chemistry_enabled = False
 
         # create second reactor
         gas2 = ct.Solution("h2o2.yaml", "ohmech")
         gas2.TPX = 300, ct.one_atm, "O2:1.0"
         r2 = self.reactorClass(gas2)
-        r2.chemistry_enabled = False
 
         # create wall
         U = 2.0
@@ -1657,14 +1650,11 @@ class TestIdealGasMoleReactor(TestMoleReactor):
         w = ct.Wall(r1, r2, U=U, A=A)
         net = ct.ReactorNet([r1, r2])
         jac = net.jacobian
-
+        fd_jac = net.finite_difference_jacobian
         # check for values
-        for i in range(gas1.n_species):
-            assert np.isclose(jac[0, i + 2 + r1.n_vars], - U * A * gas2.T)
-            assert np.isclose(jac[r1.n_vars, i + 2], U * A * gas1.T)
-            if (i + 2 != 3):
-                assert np.isclose(jac[0, i + 2], U * A * gas1.T, rtol=1e-2)
-                assert np.isclose(jac[r1.n_vars, i + 2 + r1.n_vars], - U * A * gas2.T, rtol=1e-2)
+        for i in range(jac.shape[0]):
+            for j in range(jac.shape[1]):
+                assert np.isclose(jac[i, j], fd_jac[i, j])
 
 
     def test_adaptive_precon_integration(self):

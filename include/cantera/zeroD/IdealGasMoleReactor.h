@@ -45,9 +45,7 @@ public:
 
     bool preconditionerSupported() const override {return true;};
 
-    double moleDerivative(size_t index) override;
-
-    double moleRadiationDerivative(size_t index) override;
+    double temperature_ddni(size_t index) override;
 
     size_t speciesOffset() const override { return m_sidx; };
 

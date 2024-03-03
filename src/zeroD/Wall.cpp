@@ -78,7 +78,8 @@ double Wall::heatRate()
 }
 
 
-void Wall::buildReactorJacobian(ReactorBase* r, vector<Eigen::Triplet<double>>& jacVector)
+void Wall::buildReactorJacobian(ReactorBase* r,
+    vector<Eigen::Triplet<double>>& jacVector)
 {
     // get derivative of heat transfer for both reactors
     vector<Eigen::Triplet<double>> network;
@@ -86,12 +87,13 @@ void Wall::buildReactorJacobian(ReactorBase* r, vector<Eigen::Triplet<double>>& 
     size_t sidx = r->speciesOffset();
     size_t eidx = r->energyIndex();
     // define a scalar for direction based on left and right
-    double scalar = (r == m_left) ? 1.0 : -1.0;
+    double direction = (r == m_left) ? 1.0 : -1.0;
     // elements within the current reactor
     // find dQdni for the current reactor w.r.t current reactor
     for (size_t i = sidx; i < nsp + sidx; i++) {
-        double dQdni = m_rrth * m_area * scalar * r->moleDerivative(i);
-        dQdni += m_emiss * m_area * scalar * r->moleRadiationDerivative(i);
+        double dQdni = m_rrth * m_area * direction * r->temperature_ddni(i);
+        dQdni += m_emiss * m_area * direction * r->temperature_ddni(i) * 4
+                 * pow(r->temperature(), 3);
         jacVector.emplace_back(eidx, i, dQdni);
     }
 }
@@ -102,38 +104,36 @@ void Wall::buildNetworkJacobian(vector<Eigen::Triplet<double>>& jacVector)
     if (m_right->type() == "Reservoir" || m_left->type() == "Reservoir") {
         return;
     }
-    // return if the jacobian has been calculated
-    if (m_jac_calculated) {
-        return;
-    }
     // get derivatives for inter-dependent reactor terms
     //variables for the right side
     vector<Eigen::Triplet<double>> network;
     size_t r_nsp = m_right->phase()->thermo()->nSpecies();
     size_t r_sidx = m_right->speciesOffset();
-    size_t r_net = m_right->network().globalStartIndex((Reactor* ) m_right);
+    size_t r_net = m_right->network().globalStartIndex(m_right);
     size_t r_eidx = m_right->energyIndex();
 
     // variables for the left side
     size_t l_nsp = m_left->phase()->thermo()->nSpecies();
     size_t l_sidx = m_left->speciesOffset();
-    size_t l_net = m_left->network().globalStartIndex((Reactor* ) m_left);
+    size_t l_net = m_left->network().globalStartIndex(m_left);
     size_t l_eidx = m_left->energyIndex();
 
-    if (((Reactor* ) m_right)->energyEnabled()) {
+    if (m_right->energyEnabled()) {
         // find dQdni for the right reactor w.r.t left reactor
         for (size_t i = l_sidx; i < l_sidx + l_nsp; i++) {
-            double dQdni = m_rrth * m_area * m_left->moleDerivative(i);
-            dQdni += m_emiss * m_area * m_left->moleRadiationDerivative(i);
+            double dQdni = m_rrth * m_area * m_left->temperature_ddni(i);
+            dQdni += m_emiss * m_area * m_left->temperature_ddni(i) * 4
+                 * pow(m_left->temperature(), 3);
             jacVector.emplace_back(r_eidx + r_net, i + l_net, dQdni);
         }
     }
 
-    if (((Reactor* ) m_left)->energyEnabled()) {
+    if (m_left->energyEnabled()) {
         // find dQdni for the left reactor w.r.t right reactor
         for (size_t i = r_sidx; i < r_sidx + r_nsp; i++) {
-            double dQdni = - m_rrth * m_area * m_right->moleDerivative(i);
-            dQdni -= m_emiss * m_area * m_right->moleRadiationDerivative(i);
+            double dQdni = - m_rrth * m_area * m_right->temperature_ddni(i);
+            dQdni -= m_emiss * m_area * m_right->temperature_ddni(i) * 4
+                 * pow(m_right->temperature(), 3);
             jacVector.emplace_back(l_eidx + l_net, i + r_net, dQdni);
         }
     }

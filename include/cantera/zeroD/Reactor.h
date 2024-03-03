@@ -207,15 +207,7 @@ public:
     //!
     //! @warning  This method is an experimental part of the %Cantera
     //! API and may be changed or removed without notice.
-    virtual Eigen::SparseMatrix<double> jacobian() {
-        m_jac_trips.clear();
-        // Add before, during, after evals
-        buildJacobian(m_jac_trips);
-        // construct jacobian from vector
-        Eigen::SparseMatrix<double> jac(m_nv, m_nv);
-        jac.setFromTriplets(m_jac_trips.begin(), m_jac_trips.end());
-        return jac;
-    }
+    virtual Eigen::SparseMatrix<double> jacobian();
 
     //! Calculate the Jacobian of a specific Reactor specialization.
     //! @param jacVector vector where jacobian triplets are added

@@ -7,6 +7,8 @@
 #define CT_REACTORNET_H
 
 #include "Reactor.h"
+#include "Wall.h"
+#include "FlowDevice.h"
 #include "cantera/numerics/FuncEval.h"
 #include "cantera/numerics/SteadyStateSystem.h"
 
@@ -284,16 +286,7 @@ public:
     //! Return the index corresponding to the start of the reactor specific state
     //! vector in the reactor with index *reactor* in the global state vector for the
     //! reactor network.
-    size_t globalStartIndex(Reactor* curr_reactor) {
-        for (size_t i = 0; i < m_reactors.size(); i++) {
-            if (curr_reactor == m_reactors[i]) {
-                return m_start[i];
-            }
-        }
-        throw CanteraError("ReactorNet::globalStartIndex: ",
-                curr_reactor->name(), " not found in network.");
-        return npos;
-    }
+    size_t globalStartIndex(ReactorBase* curr_reactor);
 
     //! Return the name of the i-th component of the global state vector. The
     //! name returned includes both the name of the reactor and the specific
@@ -498,6 +491,10 @@ protected:
     //! derivative settings
     bool m_jac_skip_walls = false;
     bool m_jac_skip_flow_devices = false;
+    //! set to store walls for Jacobian calculation
+    set<WallBase*> m_walls;
+    //! set to store flow devices for Jacobian calculation
+    set<FlowDevice*> m_flow_devices;
 };
 
 

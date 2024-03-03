@@ -642,7 +642,7 @@ void Reactor::setAdvanceLimit(const string& nm, const double limit)
     }
 }
 
-void Reactor:: buildWallJacobian(vector<Eigen::Triplet<double>>& jacVector)
+void Reactor::buildWallJacobian(vector<Eigen::Triplet<double>>& jacVector)
 {
     if (!m_jac_skip_walls) {
         for (size_t i = 0; i < m_wall.size(); i++) {
@@ -664,4 +664,13 @@ void Reactor::buildFlowJacobian(vector<Eigen::Triplet<double>>& jacVector)
     }
 }
 
+Eigen::SparseMatrix<double> Reactor::jacobian() {
+        m_jac_trips.clear();
+        // Add before, during, after evals
+        buildJacobian(m_jac_trips);
+        // construct jacobian from vector
+        Eigen::SparseMatrix<double> jac(m_nv, m_nv);
+        jac.setFromTriplets(m_jac_trips.begin(), m_jac_trips.end());
+        return jac;
+    }
 }
