@@ -970,6 +970,16 @@ class TestThermoPhase(utilities.CanteraTest):
             self.phase.add_species(species)
 
 
+    def test_auxiliary_data(self):
+        """
+        Should get back a dictionary with 4 keys present when calling the auxiliary_data
+        property for the Peng-Robinson thermo phase.
+        """
+        gas = ct.Solution('co2_PR_example.yaml', 'CO2-PR')
+        gas.TPX = 300, 101325, 'H2:1.0'
+        params = gas.auxiliary_data
+        self.assertEqual(len(params), 4)
+
 class TestThermo(utilities.CanteraTest):
     def setUp(self):
         self.gas = ct.ThermoPhase("h2o2.yaml")
