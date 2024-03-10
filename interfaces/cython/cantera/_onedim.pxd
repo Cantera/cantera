@@ -88,6 +88,8 @@ cdef extern from "cantera/oneD/StFlow.h":
         cbool doEnergy(size_t)
         void enableSoret(cbool) except +translate_exception
         cbool withSoret()
+        void setFluxGradientBasis(ThermoBasis) except +translate_exception
+        ThermoBasis fluxGradientBasis()
         void setFreeFlow()
         void setAxisymmetricFlow()
 

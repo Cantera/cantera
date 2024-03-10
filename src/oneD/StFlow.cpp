@@ -217,6 +217,16 @@ string StFlow::transportModel() const {
     return m_trans->transportModel();
 }
 
+void StFlow::setFluxGradientBasis(ThermoBasis fluxGradientBasis) {
+    m_fluxGradientBasis = fluxGradientBasis;
+    if (transportModel() != "mixture-averaged-CK" &&
+        transportModel() != "mixture-averaged") {
+        warn_user("StFlow::setFluxGradientBasis",
+                  "Setting fluxGradientBasis only affects "
+                  "the mixture-averaged diffusion model.");
+    }
+}
+
 void StFlow::_getInitialSoln(double* x)
 {
     for (size_t j = 0; j < m_points; j++) {
@@ -629,11 +639,24 @@ void StFlow::updateTransport(double* x, size_t j0, size_t j1)
         for (size_t j = j0; j < j1; j++) {
             setGasAtMidpoint(x,j);
             m_visc[j] = (m_dovisc ? m_trans->viscosity() : 0.0);
-            m_trans->getMixDiffCoeffs(&m_diff[j*m_nsp]);
+
+            if (m_fluxGradientBasis == ThermoBasis::molar) {
+                m_trans->getMixDiffCoeffs(&m_diff[j*m_nsp]);
+            } else {
+                m_trans->getMixDiffCoeffsMass(&m_diff[j*m_nsp]);
+            }
+
             double rho = m_thermo->density();
-            double wtm = m_thermo->meanMolecularWeight();
-            for (size_t k=0; k < m_nsp; k++) {
-                m_diff[k+j*m_nsp] *= m_wt[k] * rho / wtm;
+
+            if (m_fluxGradientBasis == ThermoBasis::molar) {
+                double wtm = m_thermo->meanMolecularWeight();
+                for (size_t k=0; k < m_nsp; k++) {
+                    m_diff[k+j*m_nsp] *= m_wt[k] * rho / wtm;
+                }
+            } else {
+                for (size_t k=0; k < m_nsp; k++) {
+                    m_diff[k+j*m_nsp] *= rho;
+                }
             }
             m_tcon[j] = m_trans->thermalConductivity();
         }
@@ -674,10 +697,16 @@ void StFlow::updateDiffFluxes(const double* x, size_t j0, size_t j1)
         for (size_t j = j0; j < j1; j++) {
             double sum = 0.0;
             double dz = z(j+1) - z(j);
-            for (size_t k = 0; k < m_nsp; k++) {
-                m_flux(k,j) = m_diff[k+m_nsp*j];
-                m_flux(k,j) *= (X(x,k,j) - X(x,k,j+1))/dz;
-                sum -= m_flux(k,j);
+            if (m_fluxGradientBasis == ThermoBasis::molar) {
+                for (size_t k = 0; k < m_nsp; k++) {
+                    m_flux(k,j) = m_diff[k+m_nsp*j] * (X(x,k,j) - X(x,k,j+1))/dz;
+                    sum -= m_flux(k,j);
+                }
+            } else {
+                for (size_t k = 0; k < m_nsp; k++) {
+                    m_flux(k,j) = m_diff[k+m_nsp*j] * (Y(x,k,j) - Y(x,k,j+1))/dz;
+                    sum -= m_flux(k,j);
+                }
             }
             // correction flux to insure that \sum_k Y_k V_k = 0.
             for (size_t k = 0; k < m_nsp; k++) {
@@ -779,6 +808,8 @@ AnyMap StFlow::getMeta() const
     }
 
     state["Soret-enabled"] = m_do_soret;
+
+    state["flux-gradient-basis"] = static_cast<long int>(m_fluxGradientBasis);
 
     set<bool> species_flags(m_do_species.begin(), m_do_species.end());
     if (species_flags.size() == 1) {
@@ -884,6 +915,11 @@ void StFlow::setMeta(const AnyMap& state)
 
     if (state.hasKey("Soret-enabled")) {
         m_do_soret = state["Soret-enabled"].asBool();
+    }
+
+    if (state.hasKey("flux-gradient-basis")) {
+        m_fluxGradientBasis = static_cast<ThermoBasis>(
+                state["flux-gradient-basis"].asInt());
     }
 
     if (state.hasKey("species-enabled")) {

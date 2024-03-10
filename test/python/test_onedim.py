@@ -480,6 +480,22 @@ class TestFreeFlame(utilities.CanteraTest):
         # towards zero as grid is refined)
         self.assertLess(dh_unity_lewis, 0.1 * dh_mix)
 
+    def test_flux_gradient_mass(self):
+        self.create_sim(ct.one_atm, 300, 'H2:1.1, O2:1, AR:5.3')
+        self.sim.transport_model = 'mixture-averaged'
+        self.sim.set_refine_criteria(ratio=3.0, slope=0.08, curve=0.12)
+        assert self.sim.flux_gradient_basis == 'molar'
+        self.sim.solve(loglevel=0, auto=True)
+        sl_mole = self.sim.velocity[0]
+        self.sim.flux_gradient_basis = 'mass'
+        assert self.sim.flux_gradient_basis == 'mass'
+        self.sim.solve(loglevel=0)
+        sl_mass = self.sim.velocity[0]
+        # flame speeds should not be exactly equal
+        assert sl_mole != sl_mass
+        # but they should be close
+        assert sl_mole == approx(sl_mass, rel=0.1)
+
     def test_soret_with_mix(self):
         # Test that enabling Soret diffusion without
         # multicomponent transport results in an error
