@@ -515,6 +515,27 @@ cdef class _FlowBase(Domain1D):
         def __set__(self, enable):
             self.flow.enableSoret(<cbool>enable)
 
+    property flux_gradient_basis:
+        """
+        Get/Set whether or not species diffusive fluxes are computed with
+        respect to their mass fraction gradients ('mass')
+        or mole fraction gradients ('molar', default) when
+        using the mixture-averaged transport model.
+        """
+        def __get__(self):
+            if self.flow.fluxGradientBasis() == ThermoBasis.molar:
+                return 'molar'
+            else:
+                return 'mass'
+        def __set__(self, basis):
+            if basis == 'molar':
+                self.flow.setFluxGradientBasis(ThermoBasis.molar)
+            elif basis == 'mass':
+                self.flow.setFluxGradientBasis(ThermoBasis.mass)
+            else:
+                raise ValueError("Valid choices are 'mass' or 'molar'."
+                                 " Got {!r}.".format(basis))
+
     property energy_enabled:
         """ Determines whether or not to solve the energy equation."""
         def __get__(self):

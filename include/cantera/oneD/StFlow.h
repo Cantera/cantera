@@ -106,6 +106,24 @@ public:
         return m_do_soret;
     }
 
+    //! Compute species diffusive fluxes with respect to
+    //! their mass fraction gradients (fluxGradientBasis = ThermoBasis::mass)
+    //! or mole fraction gradients (fluxGradientBasis = ThermoBasis::molar, default)
+    //! when using the mixture-averaged transport model.
+    //! @param fluxGradientBasis set flux computation to mass or mole basis
+    //! @since New in %Cantera 3.1.
+    void setFluxGradientBasis(ThermoBasis fluxGradientBasis);
+
+    //! Compute species diffusive fluxes with respect to
+    //! their mass fraction gradients (fluxGradientBasis = ThermoBasis::mass)
+    //! or mole fraction gradients (fluxGradientBasis = ThermoBasis::molar, default)
+    //! when using the mixture-averaged transport model.
+    //! @return the basis used for flux computation (mass or mole fraction gradients)
+    //! @since New in %Cantera 3.1.
+    ThermoBasis fluxGradientBasis() const {
+        return m_fluxGradientBasis;
+    }
+
     //! Set the pressure. Since the flow equations are for the limit of small
     //! Mach number, the pressure is very nearly constant throughout the flow.
     void setPressure(double p) {
@@ -639,6 +657,7 @@ protected:
     // flags
     vector<bool> m_do_energy;
     bool m_do_soret = false;
+    ThermoBasis m_fluxGradientBasis = ThermoBasis::molar;
     vector<bool> m_do_species;
     bool m_do_multicomponent = false;
 

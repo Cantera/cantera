@@ -216,6 +216,20 @@ class FlameBase(Sim1D):
         self.flame.soret_enabled = enable
 
     @property
+    def flux_gradient_basis(self):
+        """
+        Get/Set whether or not species diffusive fluxes are computed with
+        respect to their mass fraction gradients ('mass')
+        or mole fraction gradients ('molar', default) when
+        using the mixture-averaged transport model.
+        """
+        return self.flame.flux_gradient_basis
+
+    @flux_gradient_basis.setter
+    def flux_gradient_basis(self, basis):
+        self.flame.flux_gradient_basis = basis
+
+    @property
     def radiation_enabled(self):
         """
         Get/Set whether or not to include radiative heat transfer
