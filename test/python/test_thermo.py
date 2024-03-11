@@ -969,16 +969,29 @@ class TestThermoPhase(utilities.CanteraTest):
         with self.assertRaisesRegex(ct.CanteraError, 'already contains'):
             self.phase.add_species(species)
 
-
     def test_auxiliary_data(self):
         """
-        Should get back a dictionary with 4 keys present when calling the auxiliary_data
-        property for the Peng-Robinson thermo phase.
+        This test checks that the values of `aAlpha_mix` and `b_mix` should, when
+        used in the Peng-Robinson equation of state expression, yield the same
+        pressure as the pressure that was set for the thermodynamic state.
         """
         gas = ct.Solution('co2_PR_example.yaml', 'CO2-PR')
         gas.TPX = 300, 101325, 'H2:1.0'
         params = gas.auxiliary_data
-        self.assertEqual(len(params), 4)
+
+        # Get the Peng-Robinson equation of state parameters
+        aAlpha_mix = params['aAlpha_mix']
+        b_mix = params['b_mix']
+
+        molar_volume = 1.0 / gas.density_mole
+        # Evaluate the pressure using the Peng-Robinson equation of state
+        # parameters
+        evaluated_pressure = (
+            ct.gas_constant * gas.T / (molar_volume - b_mix) -
+            aAlpha_mix / (molar_volume ** 2 + 2 * b_mix * molar_volume - b_mix ** 2)
+        )
+
+        assert abs(gas.P - evaluated_pressure) < 1e-6
 
 class TestThermo(utilities.CanteraTest):
     def setUp(self):
