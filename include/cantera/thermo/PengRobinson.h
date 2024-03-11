@@ -177,10 +177,10 @@ public:
     /*!
      * @return
      *   Returns an AnyMap containing the following key names and values:
-     *   - "aAlpha_mix": The value of m_aAlpha_mix
-     *   - "b_mix": The value of the m_b
-     *   - "daAlpha_dT": The value returned by the daAlpha_dT() method
-     *   - "d2aAlpha_dT2": The value returned by the d2aAlpha_dT2() method
+     *   - `aAlpha_mix`: The value of #m_aAlpha_mix
+     *   - `b_mix`: The value of the #m_b
+     *   - `daAlpha_dT`: The value returned by the daAlpha_dT() method
+     *   - `d2aAlpha_dT2`: The value returned by the d2aAlpha_dT2() method
      */
     AnyMap getAuxiliaryData() override;
 
