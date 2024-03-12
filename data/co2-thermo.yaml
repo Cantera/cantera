@@ -1,0 +1,36 @@
+description: |-
+  CO2 phases based on the equation of state
+
+units: {length: cm, time: s, quantity: mol, activation-energy: cal/mol}
+
+phases:
+- name: CO2-Ideal
+  thermo: ideal-gas
+  elements: [O, C]
+  species: [CO2]
+  kinetics: none
+  state: {T: 300.0, P: 1 atm}
+
+- name: CO2-RK
+  thermo: Redlich-Kwong
+  elements: [O, C]
+  species: [CO2]
+  kinetics: none
+  state: {T: 300.0, P: 1 atm}
+
+species:
+- name: CO2
+  composition: {C: 1, O: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 3500.0]
+    data:
+    - [2.35677352, 0.00898459677, -7.12356269e-06, 2.45919022e-09, -1.43699548e-13,
+      -48371.9697, 9.90105222]
+    - [3.85746029, 0.00441437026, -2.21481404e-06, 5.23490188e-10, -4.72084164e-14,
+      -48759.166, 2.27163806]
+  equation-of-state:
+    model: Redlich-Kwong
+    units: {length: cm, pressure: bar, quantity: mol}
+    a: [7.54e7, -4.13e4]
+    b: 27.80
