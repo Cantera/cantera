@@ -52,6 +52,7 @@ sphinx_gallery_conf = {
     "filetype_parsers": {'.h': 'C++', '.m': 'Matlab'},
     'ignore_pattern': r'(__.*__\.py|test_examples\.m)',
     'image_srcset': ["2x"],
+    'remove_config_comments': True,
     'examples_dirs': [
        '../samples/python/',
        '../samples/cxx/',
