@@ -12,6 +12,13 @@ Installing Cantera using Conda can provide the Cantera
 applications written in C++, C, or Fortran 90. There are some exceptions to the
 availability of each interface depending on the operating system and Conda channel used.
 
+:::{attention}
+The *legacy* Matlab Cantera interface is discontinued and removed in Cantera 3.1. Users
+requiring support of legacy Matlab Cantera code should continue using Cantera 3.0
+packages, or migrate their code base to the experimental Matlab toolbox that is
+currently under development.
+:::
+
 Both the Anaconda and Miniconda distributions are available for Linux, macOS (Intel and
 ARM/Apple Silicon), and Windows. On Windows, users should install a 64-bit version of
 Anaconda or Miniconda, since the Cantera Conda packages are only available for 64-bit

@@ -4,6 +4,13 @@
 Windows installers are provided for stable versions of Cantera. These installers
 provide header/library files that can be used to compile C++ applications.
 
+:::{attention}
+The *legacy* Matlab Cantera interface is discontinued and removed in Cantera 3.1. Users
+requiring support of legacy Matlab Cantera code should continue using Cantera 3.0
+packages, or migrate their code base to the experimental Matlab toolbox that is
+currently under development.
+:::
+
 :::{seealso}
 To install the Cantera Python package, see the [pip](pip) or [conda](conda)
 installation instructions. The Python package is required if:
