@@ -4,12 +4,6 @@
 A community-maintained FreeBSD port ``science/cantera`` and package are available. This
 port provides the Octave interface when the OCTAVE option is turned on.
 
-:::{attention}
-The Matlab interface is not available from this port; to install the Matlab interface on
-FreeBSD, you must install it using [conda](sec-conda-matlab-interface) or
-[compile the source code](sec-compiling).
-:::
-
 The package can be installed by running
 
 ```shell
