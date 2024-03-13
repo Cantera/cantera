@@ -25,15 +25,6 @@ We highly recommend that all new users install the Python interface using
 - If you want to use the current development version, or add features of your own, you
   should [compile Cantera from source](sec-compiling).
 
-## Installing the Cantera Matlab Toolbox
-
-- The Cantera Matlab toolbox can be installed on all operating systems using
-  [Conda](sec-conda-matlab-interface).
-- Windows users can use [MSI installer packages](sec-install-windows).
-- macOS users can also install using a [.pkg installer](sec-install-macos).
-- If you want to use the current development version, or add features of your own, you
-  should [compile Cantera from source](sec-compiling).
-
 ## Installing the Cantera C++ Interface & Fortran 90 Module
 
 - The Cantera development interface can be installed on all operating systems using
@@ -60,7 +51,6 @@ opensuse
 gentoo
 freebsd
 windows
-macos
 ```
 
 ```{seealso}

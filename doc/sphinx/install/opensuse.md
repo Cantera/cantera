@@ -11,9 +11,3 @@ $ zypper addrepo https://download.opensuse.org/repositories/home:fuller/openSUSE
 $ zypper refresh
 $ zypper install cantera
 ```
-
-:::{attention}
-The Matlab interface is not available from this archive. To install the Matlab interface
-on openSUSE, you must install it using [conda](sec-conda-matlab-interface) or
-[compile the source code](sec-compiling).
-:::
