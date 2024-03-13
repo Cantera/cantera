@@ -151,7 +151,7 @@ jobs:
   #     run:
   #       python3 `which scons` test show_long_tests=yes verbose_tests=yes --debug=time
 
-  macos-multiple-pythons:
+  multiple-macos:
     name: ${{ matrix.macos-version }} with Python ${{ matrix.python-version }}
     runs-on: ${{ matrix.macos-version }}
     timeout-minutes: 90
@@ -160,60 +160,103 @@ jobs:
         macos-version: ["macos-12", "macos-14"]
         python-version: ['3.8', '3.10', '3.11', '3.12']
       fail-fast: false
-    env:
-      PYTHON_CMD: "python${{ matrix.python-version }}"
     steps:
-    # Attempt to fix intermittent cloning errors. The error message says something like
-    # error: RPC failed; curl 18 transfer closed with outstanding read data remaining
-    # The clone is already being done with --depth=1, so the next recommended fix is to
-    # increase the buffer size. See also:
-    # https://github.com/actions/virtual-environments/issues/2198
-    # https://stackoverflow.com/q/38618885
-    - name: Configure git
-      if: matrix.macos-version == 'macos-12'
-      run: /usr/local/bin/git config --global http.postBuffer 1048576000
-    - name: Configure git
-      if: matrix.macos-version == 'macos-14'
-      run: /usr/bin/git config --global http.postBuffer 1048576000
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       name: Checkout the repository
       with:
         submodules: recursive
-    - name: Setup GH Python
-      uses: actions/setup-python@v4
+    - name: Set up conda (x64)
+      uses: conda-incubator/setup-miniconda@v3
       with:
-        python-version: 3.11
-      if: matrix.python-version == '3.11'
-    - name: Install Brew dependencies
-      run: brew install --display-times boost libomp hdf5
-    - name: Setup Homebrew Python
-      # This path should work for future Python versions as well
-      if: matrix.python-version != '3.11'
+        auto-update-conda: true
+        python-version: ${{ matrix.python-version }}
+        miniforge-version: latest
+        activate-environment: test
+      if: matrix.macos-version != 'macos-14'
+    - name: Set up conda (arm64)
+      uses: ./
+      id: setup-miniconda
+      continue-on-error: true
+      with:
+        python-version: ${{ matrix.python-version }}
+        miniconda-version: latest
+        activate-environment: test
+      if: matrix.macos-version == 'macos-14'
+    - name: Install conda dependencies
+      # See https://github.com/conda-forge/boost-cpp-feedstock/issues/41 for why we
+      # use boost-cpp rather than boost from conda-forge
+      # Install SCons >=4.4.0 to make sure that MSVC_TOOLSET_VERSION variable is present
       run: |
-        brew install --display-times python@${{ matrix.python-version }}
-        brew link --force --overwrite python@${{ matrix.python-version }}
-        brew install --display-times scons
-    - name: Upgrade pip
-      run: $PYTHON_CMD -m pip install -U pip setuptools wheel
-    - name: Install Python dependencies
-      run: |
-        $PYTHON_CMD -m pip install ruamel.yaml numpy cython pandas pytest pytest-github-actions-annotate-failures pint graphviz
-    - name: Install Python dependencies for GH Python
-      if: matrix.python-version == '3.11'
-      run:
-        $PYTHON_CMD -m pip install scons
+        conda install -q scons numpy cython ruamel.yaml boost-cpp eigen yaml-cpp pandas pytest highfive pint python-graphviz fmt
     - name: Build Cantera
-      run: scons build env_vars=all -j3 python_cmd=$PYTHON_CMD debug=n --debug=time
-    - name: Upload shared library
-      uses: actions/upload-artifact@v3
-      if: matrix.python-version == '3.10'
-      with:
-        path: build/lib/libcantera_shared.dylib
-        name: libcantera_shared.dylib
-        retention-days: 2
+      run: scons build system_eigen=y system_yamlcpp=y system_highfive=y logging=debug
+        f90_interface=n debug=n --debug=time -j3
     - name: Test Cantera
-      run:
-        scons test show_long_tests=yes verbose_tests=yes --debug=time
+      run: scons test show_long_tests=yes verbose_tests=yes --debug=time
+
+  # macos-multiple-pythons:
+  #   name: ${{ matrix.macos-version }} with Python ${{ matrix.python-version }}
+  #   runs-on: ${{ matrix.macos-version }}
+  #   timeout-minutes: 90
+  #   strategy:
+  #     matrix:
+  #       macos-version: ["macos-12", "macos-14"]
+  #       python-version: ['3.8', '3.10', '3.11', '3.12']
+  #     fail-fast: false
+  #   env:
+  #     PYTHON_CMD: "python${{ matrix.python-version }}"
+  #   steps:
+  #   # Attempt to fix intermittent cloning errors. The error message says something like
+  #   # error: RPC failed; curl 18 transfer closed with outstanding read data remaining
+  #   # The clone is already being done with --depth=1, so the next recommended fix is to
+  #   # increase the buffer size. See also:
+  #   # https://github.com/actions/virtual-environments/issues/2198
+  #   # https://stackoverflow.com/q/38618885
+  #   - name: Configure git
+  #     if: matrix.macos-version == 'macos-12'
+  #     run: /usr/local/bin/git config --global http.postBuffer 1048576000
+  #   - name: Configure git
+  #     if: matrix.macos-version == 'macos-14'
+  #     run: /usr/bin/git config --global http.postBuffer 1048576000
+  #   - uses: actions/checkout@v3
+  #     name: Checkout the repository
+  #     with:
+  #       submodules: recursive
+  #   - name: Setup GH Python
+  #     uses: actions/setup-python@v4
+  #     with:
+  #       python-version: 3.11
+  #     if: matrix.python-version == '3.11'
+  #   - name: Install Brew dependencies
+  #     run: brew install --display-times boost libomp hdf5
+  #   - name: Setup Homebrew Python
+  #     # This path should work for future Python versions as well
+  #     if: matrix.python-version != '3.11'
+  #     run: |
+  #       brew install --display-times python@${{ matrix.python-version }}
+  #       brew link --force --overwrite python@${{ matrix.python-version }}
+  #       brew install --display-times scons
+  #   - name: Upgrade pip
+  #     run: $PYTHON_CMD -m pip install -U pip setuptools wheel
+  #   - name: Install Python dependencies
+  #     run: |
+  #       $PYTHON_CMD -m pip install ruamel.yaml numpy cython pandas pytest pytest-github-actions-annotate-failures pint graphviz
+  #   - name: Install Python dependencies for GH Python
+  #     if: matrix.python-version == '3.11'
+  #     run:
+  #       $PYTHON_CMD -m pip install scons
+  #   - name: Build Cantera
+  #     run: scons build env_vars=all -j3 python_cmd=$PYTHON_CMD debug=n --debug=time
+  #   - name: Upload shared library
+  #     uses: actions/upload-artifact@v3
+  #     if: matrix.python-version == '3.10'
+  #     with:
+  #       path: build/lib/libcantera_shared.dylib
+  #       name: libcantera_shared.dylib
+  #       retention-days: 2
+  #   - name: Test Cantera
+  #     run:
+  #       scons test show_long_tests=yes verbose_tests=yes --debug=time
 
   # # Coverage is its own job because macOS builds of the samples
   # # use Homebrew gfortran which is not compatible for coverage
