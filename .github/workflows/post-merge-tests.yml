@@ -179,3 +179,32 @@ jobs:
     - name: Test Cantera
       run:
         python3 `which scons` test show_long_tests=yes verbose_tests=yes --debug=time
+
+  macos-homebrew:
+    runs-on: macos-14
+    name: Install Latest Python with Homebrew
+    timeout-minutes: 90
+    steps:
+    - uses: actions/checkout@v4
+      name: Checkout the repository
+      with:
+        submodules: recursive
+    # NumPy is installed here for the Python custom rate tests
+    - name: Install Brew dependencies
+      run: brew install --display-times boost libomp hdf5 python python-setuptools scons numpy
+    - name: Set Include folder
+      run: |
+        echo "BOOST_INC_DIR=$(brew --prefix)/include" >> $GITHUB_ENV
+    # This is necessary because of PEP 668 https://peps.python.org/pep-0668/
+    # PEP 668 prohibits installation to system Python packages via pip
+    - name: Create a virtualenv for dependencies
+      run: |
+        $(brew --prefix)/bin/python3.12 -m venv .venv
+    - name: Install Python dependencies
+      run: |
+        ./.venv/bin/python -m pip install -U pip setuptools wheel build
+        ./.venv/bin/python -m pip install ruamel.yaml numpy cython pandas pytest pytest-github-actions-annotate-failures pint graphviz
+    - name: Build Cantera
+      run: $(brew --prefix)/bin/scons build env_vars=all python_cmd="$(pwd)/.venv/bin/python" -j3 debug=n --debug=time boost_inc_dir=${BOOST_INC_DIR}
+    - name: Test Cantera
+      run: $(brew --prefix)/bin/scons test show_long_tests=yes verbose_tests=yes --debug=time
