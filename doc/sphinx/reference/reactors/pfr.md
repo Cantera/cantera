@@ -97,7 +97,7 @@ To satisfy the constraint that the total surface coverage is 1, the conservation
 equation for the first surface species on each surface is replaced by this constraint:
 
 $$
-\dot{s}_{0,j} = 1 - \sum_{i\ne 0} \theta_{i,j}
+\sum_{i} \theta_{i,j} = 1
 $$ (pfr-surf-species-0)
 
 Without this constraint, the solver could find the trivial, non-physical solution
