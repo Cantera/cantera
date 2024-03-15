@@ -33,6 +33,9 @@ conditions, or calculating the voltage of a Lithium-ion battery as it is dischar
 - [](input-errors)
 - [](legacy2yaml-tutorial)
 
+### Combustion Calculations
+- [](flame-temperature)
+
 ### Implementing Custom Models
 
 - [](extensible-reactor)
@@ -65,6 +68,8 @@ creating-mechanisms
 thermobuild
 input-errors
 legacy2yaml-tutorial
+
+flame-temperature
 
 extensible-reactor
 ```
