@@ -35,6 +35,7 @@ conditions, or calculating the voltage of a Lithium-ion battery as it is dischar
 
 ### Combustion Calculations
 - [](flame-temperature)
+- [](heating-value)
 
 ### Implementing Custom Models
 
@@ -70,6 +71,7 @@ input-errors
 legacy2yaml-tutorial
 
 flame-temperature
+heating-value
 
 extensible-reactor
 ```
