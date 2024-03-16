@@ -21,7 +21,12 @@ class SundialsContext
 #if CT_SUNDIALS_VERSION >= 60
 public:
     SundialsContext() {
-        SUNContext_Create(nullptr, &m_context);
+        #if CT_SUNDIALS_VERSION >= 70
+            SUNContext_Create(SUN_COMM_NULL, &m_context);
+
+        #else
+            SUNContext_Create(nullptr, &m_context);
+        #endif
     }
     ~SundialsContext() {
         SUNContext_Free(&m_context);
