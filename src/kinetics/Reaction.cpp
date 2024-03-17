@@ -366,6 +366,9 @@ void Reaction::setEquation(const string& equation, const Kinetics* kin)
     } else if (kin && kin->thermo(0).nDim() != 3) {
         // interface reactions
         return;
+    } else if (rate_type == "electron-collision-plasma") {
+        // does not support third body
+        return;
     }
 
     string third_body;
