@@ -122,37 +122,15 @@ void ElectronCollisionPlasmaRate::setContext(const Reaction& rxn, const Kinetics
                            "ElectronCollisionPlasmaRate requires plasma phase");
     }
 
-    // Check rxn.reactantString (rxn.reactants gives reduced reactants)
-    std::istringstream iss(rxn.reactantString());
-    string token;
-    int nElectron = 0;
-    int nReactants = 0;
-
-    // Count number of electron and reactants
-    // Since the reactants are one electron and one molecule,
-    // no token can be a number.
-    while (iss >> token) {
-        if (isdigit(token[0])) {
-            throw InputFileError("ElectronCollisionPlasmaRate::setContext", rxn.input,
-                "ElectronCollisionPlasmaRate requires one electron and one molecule as reactants");
-        }
-        if (token == electronName) {
-            nElectron++;
-        }
-        if (token != "+") {
-            nReactants++;
-        }
-    }
-
     // Number of reactants needs to be two
-    if (nReactants != 2) {
+    if (rxn.reactants.size() != 2) {
         throw InputFileError("ElectronCollisionPlasmaRate::setContext", rxn.input,
             "ElectronCollisionPlasmaRate requires exactly two reactants");
     }
 
     // Must have only one electron
     // @todo add electron-electron collision rate
-    if (nElectron != 1) {
+    if (rxn.reactants.at(electronName) != 1) {
         throw InputFileError("ElectronCollisionPlasmaRate::setContext", rxn.input,
             "ElectronCollisionPlasmaRate requires one and only one electron");
     }
