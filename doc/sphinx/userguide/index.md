@@ -37,6 +37,9 @@ conditions, or calculating the voltage of a Lithium-ion battery as it is dischar
 - [](flame-temperature)
 - [](heating-value)
 
+### Electrochemistry Calculations
+- [](/examples/python/surface_chemistry/lithium_ion_battery)
+
 ### Implementing Custom Models
 
 - [](extensible-reactor)
@@ -72,6 +75,8 @@ legacy2yaml-tutorial
 
 flame-temperature
 heating-value
+
+/examples/python/surface_chemistry/lithium_ion_battery
 
 extensible-reactor
 ```
