@@ -40,14 +40,16 @@ public:
 
     void updateState(double* y) override;
 
-    //! Calculate an approximate Jacobian to accelerate preconditioned solvers
-
-    //! Neglects derivatives with respect to mole fractions that would generate a
-    //! fully-dense Jacobian. Currently, also neglects terms related to interactions
-    //! between reactors, for example via inlets and outlets.
-    Eigen::SparseMatrix<double> jacobian() override;
+    //! Calculate the Jacobian to accelerate preconditioned solvers
+    void buildJacobian(vector<Eigen::Triplet<double>>& jacVector) override;
 
     bool preconditionerSupported() const override {return true;};
+
+    double moleDerivative(size_t index) override;
+
+    double moleRadiationDerivative(size_t index) override;
+
+    size_t speciesOffset() const override { return m_sidx; };
 
 protected:
     vector<double> m_uk; //!< Species molar internal energies

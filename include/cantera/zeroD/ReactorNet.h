@@ -236,6 +236,20 @@ public:
     //! reactor network.
     size_t globalComponentIndex(const string& component, size_t reactor=0);
 
+    //! Return the index corresponding to the start of the reactor specific state
+    //! vector in the reactor with index *reactor* in the global state vector for the
+    //! reactor network.
+    size_t globalStartIndex(Reactor* curr_reactor) {
+        for (size_t i = 0; i < m_reactors.size(); i++) {
+            if (curr_reactor == m_reactors[i]) {
+                return m_start[i];
+            }
+        }
+        throw CanteraError("ReactorNet::globalStartIndex: ",
+                curr_reactor->name(), " not found in network.");
+        return npos;
+    }
+
     //! Return the name of the i-th component of the global state vector. The
     //! name returned includes both the name of the reactor and the specific
     //! component, for example `'reactor1: CH4'`.
@@ -299,7 +313,44 @@ public:
     //! @param settings the settings map propagated to all reactors and kinetics objects
     virtual void setDerivativeSettings(AnyMap& settings);
 
+    //! Calculate the system Jacobian using a finite difference method.
+    //!
+    //! This method is used only for informational purposes. Jacobian calculations
+    //! for the full reactor system are handled internally by CVODES.
+    //!
+    //! @warning  This method is an experimental part of the %Cantera
+    //! API and may be changed or removed without notice.
+    virtual Eigen::SparseMatrix<double> finiteDifferenceJacobian();
+
+    //! A wrapper method to calculate the system jacobian as Eigen::SparseMatrix<double>
+    //! @warning Depending on the particular implementation, this may return an
+    //! approximate Jacobian intended only for use in forming a preconditioner for
+    //! iterative solvers.
+    //!
+    //! @warning  This method is an experimental part of the %Cantera
+    //! API and may be changed or removed without notice.
+    virtual Eigen::SparseMatrix<double> jacobian() {
+        vector<Eigen::Triplet<double>> jac_trips;
+        // Add before, during, after evals
+        buildJacobian(jac_trips);
+        // construct jacobian from vector
+        Eigen::SparseMatrix<double> jac(m_nv, m_nv);
+        jac.setFromTriplets(jac_trips.begin(), jac_trips.end());
+        return jac;
+    }
+
 protected:
+    //! Calculate the Jacobian of the entire reactor network.
+    //! @param jacVector vector where jacobian triplets are added
+    //! @warning Depending on the particular implementation, this may return an
+    //! approximate Jacobian intended only for use in forming a preconditioner for
+    //! iterative solvers.
+    //! @ingroup derivGroup
+    //!
+    //! @warning  This method is an experimental part of the %Cantera
+    //! API and may be changed or removed without notice.
+    virtual void buildJacobian(vector<Eigen::Triplet<double>>& jacVector);
+
     //! Check that preconditioning is supported by all reactors in the network
     virtual void checkPreconditionerSupported() const;
 
@@ -358,6 +409,10 @@ protected:
     //! "left hand side" of each governing equation
     vector<double> m_LHS;
     vector<double> m_RHS;
+
+    //! derivative settings
+    bool m_jac_skip_walls = false;
+    bool m_jac_skip_flow_devices = false;
 };
 }
 
