@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 393.66 169.33">
+  <defs>
+    <style>
+      .cls-1 {
+        font-size: 20px;
+      }
+
+      .cls-1, .cls-2 {
+        fill: #000;
+      }
+
+      .cls-1, .cls-3 {
+        font-family: SegoeUI, 'Segoe UI';
+      }
+
+      .cls-4 {
+        stroke-width: 2px;
+      }
+
+      .cls-4, .cls-5, .cls-6 {
+        fill: none;
+      }
+
+      .cls-4, .cls-5, .cls-6, .cls-7 {
+        stroke-miterlimit: 10;
+      }
+
+      .cls-4, .cls-7 {
+        stroke: #000;
+      }
+
+      .cls-8 {
+        fill: url(#linear-gradient);
+      }
+
+      .cls-8, .cls-2, .cls-9, .cls-10 {
+        stroke-width: 0px;
+      }
+
+      .cls-5 {
+        stroke: #b31515;
+      }
+
+      .cls-5, .cls-6, .cls-7 {
+        stroke-width: 3px;
+      }
+
+      .cls-6 {
+        stroke: #1da2f4;
+      }
+
+      .cls-7 {
+        fill: #fff;
+      }
+
+      .cls-11, .cls-9, .cls-12 {
+        fill: #b31515;
+      }
+
+      .cls-13, .cls-14, .cls-10 {
+        fill: #1da2f4;
+      }
+
+      .cls-3 {
+        font-size: 22px;
+      }
+
+      .cls-12, .cls-15, .cls-14 {
+        font-family: Cambria-Italic, Cambria;
+        font-size: 24px;
+        font-style: italic;
+      }
+
+      .cls-16 {
+        letter-spacing: -.03em;
+      }
+    </style>
+    <linearGradient id="linear-gradient" x1="159.65" y1="63.5" x2="179.65" y2="63.5" gradientTransform="translate(0 127) scale(1 -1)" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fff"/>
+      <stop offset=".08" stop-color="#ecf7fc"/>
+      <stop offset=".24" stop-color="#bce4f6"/>
+      <stop offset=".47" stop-color="#70c5ec"/>
+      <stop offset=".62" stop-color="#3aafe6"/>
+      <stop offset=".87" stop-color="#0075be"/>
+      <stop offset=".99" stop-color="#fff"/>
+    </linearGradient>
+  </defs>
+  <rect class="cls-8" x="159.65" y="1.5" width="20" height="124" transform="translate(339.31 127) rotate(180)"/>
+  <path class="cls-7" d="M2.65,1.5h391.01"/>
+  <path class="cls-7" d="M0,125.23h391.01"/>
+  <text class="cls-13" transform="translate(18.51 25.31)"><tspan class="cls-3"><tspan class="cls-16" x="0" y="0">R</tspan><tspan x="12.51" y="0">eactants</tspan></tspan><tspan class="cls-15"><tspan x="36.58" y="28.8">ρ</tspan></tspan></text>
+  <text class="cls-14" transform="translate(67.71 62.11) scale(.58)"><tspan x="0" y="0">u</tspan></text>
+  <text class="cls-14" transform="translate(54.51 82.91)"><tspan x="0" y="0">T</tspan></text>
+  <text class="cls-14" transform="translate(68.28 87.91) scale(.58)"><tspan x="0" y="0">u</tspan></text>
+  <text class="cls-14" transform="translate(55.62 111.71)"><tspan x="0" y="0">S</tspan></text>
+  <text class="cls-14" transform="translate(67.17 116.71) scale(.58)"><tspan x="0" y="0">u</tspan></text>
+  <text class="cls-11" transform="translate(221.53 25.31)"><tspan class="cls-3"><tspan x="0" y="0">Products</tspan></tspan><tspan class="cls-15"><tspan x="32.65" y="28.8">ρ</tspan></tspan></text>
+  <text class="cls-12" transform="translate(266.8 62.11) scale(.58)"><tspan x="0" y="0">b</tspan></text>
+  <text class="cls-12" transform="translate(253.61 82.91)"><tspan x="0" y="0">T</tspan></text>
+  <text class="cls-12" transform="translate(267.38 87.91) scale(.58)"><tspan x="0" y="0">b</tspan></text>
+  <text class="cls-12" transform="translate(254.72 111.71)"><tspan x="0" y="0">S</tspan></text>
+  <text class="cls-12" transform="translate(266.27 116.71) scale(.58)"><tspan x="0" y="0">b</tspan></text>
+  <g>
+    <path class="cls-6" d="M87.15,106h30.46"/>
+    <polygon class="cls-10" points="116.09 111.24 125.15 106 116.09 100.76 116.09 111.24"/>
+  </g>
+  <g>
+    <path class="cls-5" d="M283.53,105.55h65.09"/>
+    <polygon class="cls-9" points="347.09 110.78 356.15 105.55 347.09 100.31 347.09 110.78"/>
+  </g>
+  <g>
+    <path class="cls-10" d="M139.65,150.5c8.33-7.67,16.67-15.33,25-23"/>
+    <g>
+      <path class="cls-4" d="M139.65,150.5c6.6-6.07,13.2-12.15,19.8-18.22"/>
+      <polygon class="cls-2" points="164.65 127.5 160.08 137.23 159.07 132.64 154.58 131.25 164.65 127.5"/>
+    </g>
+  </g>
+  <text class="cls-1" transform="translate(80.69 161.11)"><tspan x="0" y="0">Flame</tspan></text>
+</svg>
