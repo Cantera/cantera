@@ -253,7 +253,7 @@ ax.text(430, 318, "p = 97 bar", color=color[5], rotation=-12)
 ax.text(960, 320, "p = 600 bar", color=color[9], rotation=-68)
 ax.set_xlabel("Density [kg/m$^3$]")
 ax.set_ylabel("Temperature [K]")
-_ = ax.legend(handles=[ideal_line[0], RK_line[0], CP_line[0]])
+ax.legend(handles=[ideal_line[0], RK_line[0], CP_line[0]])
 
 #%%
 # The figure compares :math:`T-\rho` plots for ideal, R-K, and Helmholtz EoS at

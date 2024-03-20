@@ -53,6 +53,7 @@ sphinx_gallery_conf = {
     'ignore_pattern': r'(__.*__\.py|test_examples\.m)',
     'image_srcset': ["2x"],
     'remove_config_comments': True,
+    'ignore_repr_types': r'matplotlib\.(text|axes|legend)',
     'examples_dirs': [
        '../samples/python/',
        '../samples/cxx/',
