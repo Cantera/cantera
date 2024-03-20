@@ -81,7 +81,8 @@ profile = flame.to_array()
 fig, ax = plt.subplots()
 
 ax.plot(profile.grid * 100, profile.T, ".-")
-_ = ax.set(xlabel="Distance [cm]", ylabel="Temperature [K]")
+ax.set_xlabel("Distance [cm]")
+ax.set_ylabel("Temperature [K]")
 
 # %%
 
@@ -93,8 +94,8 @@ ax.plot(profile.grid * 100, profile("CO2").X, "--", label="CO$_2$")
 ax.plot(profile.grid * 100, profile("H2O").X, label="H$_2$O")
 
 ax.legend(loc="best")
-plt.xlabel("Distance (cm)")
-_ = ax.set(xlabel="Distance [cm]", ylabel="Mole fraction [-]")
+ax.set_xlabel("Distance [cm]")
+ax.set_ylabel("Mole fraction [-]")
 
 # %%
 # Sensitivity Analysis
