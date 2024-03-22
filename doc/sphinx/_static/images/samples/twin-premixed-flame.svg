@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 545.03 207.63">
+  <defs>
+    <style>
+      .cls-1, .cls-2, .cls-3, .cls-4 {
+        fill: none;
+      }
+
+      .cls-1, .cls-2, .cls-3, .cls-4, .cls-5 {
+        stroke-miterlimit: 10;
+      }
+
+      .cls-1, .cls-2, .cls-4 {
+        stroke-width: 1.25px;
+      }
+
+      .cls-1, .cls-4 {
+        stroke: #999;
+      }
+
+      .cls-6, .cls-7, .cls-8, .cls-9, .cls-10 {
+        stroke-width: 0px;
+      }
+
+      .cls-6, .cls-11 {
+        fill: #231f20;
+      }
+
+      .cls-7 {
+        fill: #999;
+      }
+
+      .cls-8 {
+        fill: url(#Fading_Sky);
+      }
+
+      .cls-2 {
+        stroke: #f49e58;
+      }
+
+      .cls-9 {
+        fill: #f49e58;
+      }
+
+      .cls-10 {
+        fill: url(#Fading_Sky-2);
+      }
+
+      .cls-3 {
+        stroke-width: .75px;
+      }
+
+      .cls-3, .cls-5 {
+        stroke: #231f20;
+      }
+
+      .cls-4 {
+        stroke-dasharray: 0 0 2.95 1.96;
+      }
+
+      .cls-5 {
+        fill: #fff;
+        stroke-width: 2px;
+      }
+
+      .cls-11 {
+        font-family: SegoeUI, 'Segoe UI';
+        font-size: 14px;
+      }
+    </style>
+    <linearGradient id="Fading_Sky" data-name="Fading Sky" x1="233.83" y1="95" x2="242.12" y2="95" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#2484c6"/>
+      <stop offset="1" stop-color="#2484c6" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="Fading_Sky-2" data-name="Fading Sky" x1="299.1" x2="307.38" gradientTransform="translate(0 190) scale(1 -1)" xlink:href="#Fading_Sky"/>
+  </defs>
+  <ellipse class="cls-5" cx="139.04" cy="87.07" rx="13.29" ry="58.55"/>
+  <ellipse class="cls-5" cx="404.07" cy="84.64" rx="12.78" ry="57.84"/>
+  <path class="cls-5" d="M404.07,26.8c17.73,1.61,41.99,1.98,70.1-3.11,29.32-5.31,52.72-14.73,69.06-22.79"/>
+  <path class="cls-5" d="M404.07,142.48c20.79-.14,47.21,1.58,77.01,8.29,25.23,5.68,46.57,13.51,63.54,21.06"/>
+  <path class="cls-5" d="M1.77,1.93c16.24,7.54,37.76,15.71,63.88,21.06,28.99,5.95,54.31,6.51,73.38,5.53"/>
+  <path class="cls-5" d="M.39,171.49c18.29-7.76,42.28-15.98,71.14-21.06,25.97-4.58,49-5.4,67.51-4.81"/>
+  <g>
+    <g>
+      <path class="cls-1" d="M157.86,68.93c.23,0,.74.02,1.5.02"/>
+      <path class="cls-4" d="M161.31,68.93c15.35-.21,75.4-3.6,93.92-42.83,2.21-4.68,4.11-10.47,4.94-17.55"/>
+      <path class="cls-1" d="M260.29,7.57c.05-.49.09-.99.13-1.5"/>
+    </g>
+    <polygon class="cls-7" points="210.42 66.54 210.46 61.51 206.87 57.99 218.78 58.07 210.42 66.54"/>
+  </g>
+  <g>
+    <g>
+      <path class="cls-1" d="M377.14,68.93c-.23,0-.74.02-1.5.02"/>
+      <path class="cls-4" d="M373.68,68.93c-15.35-.21-75.4-3.6-93.92-42.83-2.21-4.68-4.11-10.47-4.94-17.55"/>
+      <path class="cls-1" d="M274.71,7.57c-.05-.49-.09-.99-.13-1.5"/>
+    </g>
+    <polygon class="cls-7" points="328.12 57.99 324.54 61.51 324.58 66.54 316.22 58.07 328.12 57.99"/>
+  </g>
+  <g>
+    <g>
+      <path class="cls-1" d="M377.14,101.04c-.23,0-.74-.02-1.5-.02"/>
+      <path class="cls-4" d="M373.68,101.03c-15.35.21-75.4,3.6-93.92,42.83-2.21,4.68-4.11,10.47-4.94,17.55"/>
+      <path class="cls-1" d="M274.71,162.39c-.05.49-.09.99-.13,1.5"/>
+    </g>
+    <polygon class="cls-7" points="324.58 103.42 324.54 108.45 328.12 111.97 316.22 111.9 324.58 103.42"/>
+  </g>
+  <g>
+    <g>
+      <path class="cls-1" d="M157.86,101.04c.23,0,.74-.02,1.5-.02"/>
+      <path class="cls-4" d="M161.31,101.03c15.35.21,75.4,3.6,93.92,42.83,2.21,4.68,4.11,10.47,4.94,17.55"/>
+      <path class="cls-1" d="M260.29,162.39c.05.49.09.99.13,1.5"/>
+    </g>
+    <polygon class="cls-7" points="206.87 111.97 210.46 108.45 210.42 103.42 218.78 111.9 206.87 111.97"/>
+  </g>
+  <rect class="cls-8" x="233.83" y="1.93" width="8.29" height="186.13"/>
+  <rect class="cls-10" x="299.1" y="1.93" width="8.29" height="186.13" transform="translate(606.48 190) rotate(180)"/>
+  <g>
+    <path class="cls-2" d="M531.84,60.64c-32.74-.42-65.48-.84-98.23-1.27"/>
+    <polygon class="cls-9" points="424.79 59.26 437.29 54.34 434.28 59.38 437.16 64.5 424.79 59.26"/>
+  </g>
+  <g>
+    <path class="cls-2" d="M531.84,87.76c-32.74-.42-65.48-.84-98.23-1.27"/>
+    <polygon class="cls-9" points="424.79 86.38 437.29 81.46 434.28 86.5 437.16 91.62 424.79 86.38"/>
+  </g>
+  <g>
+    <path class="cls-2" d="M531.84,115.81c-32.74-.42-65.48-.84-98.23-1.27"/>
+    <polygon class="cls-9" points="424.79 114.42 437.29 109.5 434.28 114.55 437.16 119.67 424.79 114.42"/>
+  </g>
+  <g>
+    <path class="cls-2" d="M8.68,60.87c32.74-.42,65.48-.84,98.23-1.27"/>
+    <polygon class="cls-9" points="115.73 59.48 103.36 64.73 106.24 59.61 103.23 54.56 115.73 59.48"/>
+  </g>
+  <g>
+    <path class="cls-2" d="M8.68,87.99c32.74-.42,65.48-.84,98.23-1.27"/>
+    <polygon class="cls-9" points="115.73 86.61 103.36 91.85 106.24 86.73 103.23 81.69 115.73 86.61"/>
+  </g>
+  <g>
+    <path class="cls-2" d="M8.68,116.03c32.74-.42,65.48-.84,98.23-1.27"/>
+    <polygon class="cls-9" points="115.73 114.65 103.36 119.89 106.24 114.77 103.23 109.73 115.73 114.65"/>
+  </g>
+  <g>
+    <path class="cls-3" d="M226.44,168.08c-11.29,9.19-22.58,18.38-33.87,27.57"/>
+    <polygon class="cls-6" points="223.91 167.33 231.59 163.89 226.66 170.71 223.91 167.33"/>
+  </g>
+  <g>
+    <path class="cls-3" d="M295.48,165.74c-34.3,9.97-68.6,19.94-102.91,29.91"/>
+    <polygon class="cls-6" points="293.44 164.06 301.86 163.89 294.66 168.25 293.44 164.06"/>
+  </g>
+  <text class="cls-11" transform="translate(144.55 201.87)"><tspan x="0" y="0">Flames</tspan></text>
+  <text class="cls-11" transform="translate(272.82 111.9) rotate(-90)"><tspan x="0" y="0">Products</tspan></text>
+  <text class="cls-11" transform="translate(458.34 80.68)"><tspan x="0" y="0">reactants</tspan><tspan x="-20.32" y="22">(fuel + oxidizer)</tspan></text>
+  <text class="cls-11" transform="translate(30.78 82.55)"><tspan x="0" y="0">reactants</tspan><tspan x="-20.32" y="22">(fuel + oxidizer)</tspan></text>
+</svg>
