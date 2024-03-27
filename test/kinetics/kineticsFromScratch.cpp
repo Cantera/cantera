@@ -486,10 +486,7 @@ TEST_F(KineticsFromScratch, negative_A_error)
     Composition reac = parseCompString("O:1 H2:1");
     Composition prod = parseCompString("H:1 OH:1");
     auto rate = make_shared<ArrheniusRate>(-3.87e1, 2.7, 6260.0 / GasConst_cal_mol_K);
-    auto R = make_shared<Reaction>(reac, prod, rate);
-
-    ASSERT_THROW(kin.addReaction(R), CanteraError);
-    ASSERT_EQ((size_t) 0, kin.nReactions());
+    ASSERT_THROW(make_shared<Reaction>(reac, prod, rate), CanteraError);
 }
 
 TEST_F(KineticsFromScratch, allow_negative_A)
@@ -497,9 +494,8 @@ TEST_F(KineticsFromScratch, allow_negative_A)
     Composition reac = parseCompString("O:1 H2:1");
     Composition prod = parseCompString("H:1 OH:1");
     auto rate = make_shared<ArrheniusRate>(-3.87e1, 2.7, 6260.0 / GasConst_cal_mol_K);
+    rate->setAllowNegativePreExponentialFactor(true);
     auto R = make_shared<Reaction>(reac, prod, rate);
-    auto rr = std::dynamic_pointer_cast<ArrheniusRate>(R->rate());
-    rr->setAllowNegativePreExponentialFactor(true);
 
     kin.addReaction(R);
     ASSERT_EQ((size_t) 1, kin.nReactions());

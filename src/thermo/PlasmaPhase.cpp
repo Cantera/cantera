@@ -30,6 +30,7 @@ void PlasmaPhase::updateElectronEnergyDistribution()
     } else if (m_distributionType == "isotropic") {
         setIsotropicElectronEnergyDistribution();
     }
+    electronEnergyDistributionChanged();
 }
 
 void PlasmaPhase::normalizeElectronEnergyDistribution() {
@@ -86,7 +87,18 @@ void PlasmaPhase::setElectronEnergyLevels(const double* levels, size_t length)
     m_nPoints = length;
     m_electronEnergyLevels = Eigen::Map<const Eigen::ArrayXd>(levels, length);
     checkElectronEnergyLevels();
+    electronEnergyLevelChanged();
     updateElectronEnergyDistribution();
+}
+
+void PlasmaPhase::electronEnergyDistributionChanged()
+{
+    m_distNum++;
+}
+
+void PlasmaPhase::electronEnergyLevelChanged()
+{
+    m_levelNum++;
 }
 
 void PlasmaPhase::checkElectronEnergyLevels() const
@@ -133,6 +145,24 @@ void PlasmaPhase::setDiscretizedElectronEnergyDist(const double* levels,
     }
     checkElectronEnergyDistribution();
     updateElectronTemperatureFromEnergyDist();
+    electronEnergyLevelChanged();
+    electronEnergyDistributionChanged();
+}
+
+void PlasmaPhase::setDiscretizedElectronEnergyDist(const double* dist,
+                                                   size_t length)
+{
+    m_distributionType = "discretized";
+    m_nPoints = length;
+    m_electronEnergyDist =
+        Eigen::Map<const Eigen::ArrayXd>(dist, length);
+    checkElectronEnergyLevels();
+    if (m_do_normalizeElectronEnergyDist) {
+        normalizeElectronEnergyDistribution();
+    }
+    checkElectronEnergyDistribution();
+    updateElectronTemperatureFromEnergyDist();
+    electronEnergyDistributionChanged();
 }
 
 void PlasmaPhase::updateElectronTemperatureFromEnergyDist()

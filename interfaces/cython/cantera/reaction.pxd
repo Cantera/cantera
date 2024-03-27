@@ -73,6 +73,11 @@ cdef extern from "cantera/kinetics/TwoTempPlasmaRate.h" namespace "Cantera":
         CxxTwoTempPlasmaRate(double, double, double, double)
         double activationElectronEnergy()
 
+cdef extern from "cantera/kinetics/ElectronCollisionPlasmaRate.h" namespace "Cantera":
+    cdef cppclass CxxElectronCollisionPlasmaRate "Cantera::ElectronCollisionPlasmaRate" (CxxReactionRate):
+        CxxElectronCollisionPlasmaRate(CxxAnyMap) except +translate_exception
+        vector[double]& energyLevels()
+        vector[double]& crossSections()
 
 cdef extern from "cantera/base/Array.h" namespace "Cantera":
     cdef cppclass CxxArray2D "Cantera::Array2D":
@@ -250,6 +255,10 @@ cdef class ReactionRate:
 
 cdef class ArrheniusRateBase(ReactionRate):
     cdef CxxArrheniusBase* base
+
+cdef class ElectronCollisionPlasmaRate(ReactionRate):
+    cdef CxxElectronCollisionPlasmaRate* base
+    cdef set_cxx_object(self)
 
 cdef class FalloffRate(ReactionRate):
     cdef CxxFalloffRate* falloff

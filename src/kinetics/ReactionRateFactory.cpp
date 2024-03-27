@@ -12,6 +12,7 @@
 #include "cantera/kinetics/Arrhenius.h"
 #include "cantera/kinetics/ChebyshevRate.h"
 #include "cantera/kinetics/Custom.h"
+#include "cantera/kinetics/ElectronCollisionPlasmaRate.h"
 #include "cantera/kinetics/Falloff.h"
 #include "cantera/kinetics/InterfaceRate.h"
 #include "cantera/kinetics/PlogRate.h"
@@ -36,6 +37,11 @@ ReactionRateFactory::ReactionRateFactory()
     // TwoTempPlasmaRate evaluator
     reg("two-temperature-plasma", [](const AnyMap& node, const UnitStack& rate_units) {
         return new TwoTempPlasmaRate(node, rate_units);
+    });
+
+    // ElectronCollisionPlasmaRate evaluator
+    reg("electron-collision-plasma", [](const AnyMap& node, const UnitStack& rate_units) {
+        return new ElectronCollisionPlasmaRate(node, rate_units);
     });
 
     // BlowersMaselRate evaluator
