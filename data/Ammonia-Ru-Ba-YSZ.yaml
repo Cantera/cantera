@@ -1,0 +1,177 @@
+description: |-
+  Ru-Ba/YSZ mechanism. Used for 1D_packed_bed.py example.
+
+generator: ck2yaml
+input-files: [chem.inp, therm.dat, tran.dat, surf.inp]
+cantera-version: 2.6.0
+date: Wed, 03 Aug 2022 14:22:42 -0400
+
+units: {length: cm, time: s, quantity: mol, activation-energy: kJ/mol}
+
+phases:
+- name: gas
+  thermo: ideal-gas
+  elements: [H, N, Ru, Ar]
+  species: [H2, NH3, N2, AR]
+  transport: mixture-averaged
+  state: {T: 300.0, P: 1 atm}
+- name: Ru_surface
+  thermo: ideal-surface
+  adjacent-phases: [gas]
+  elements: [H, N, Ru, Ar]
+  species: [Ru(s), N(s), H(s), NH(s), NH2(s), NH3(s)]
+  site-density: 2.6079e-09
+  Motz-Wise: false
+  kinetics: surface
+  state: {T: 300.0, P: 1 atm}
+
+species:
+- name: H2
+  composition: {H: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 5000.0]
+    data:
+    - [3.298124, 8.249441e-04, -8.143015e-07, -9.475434e-11, 4.134872e-13,
+      -1012.5209, -3.294094]
+    - [2.991423, 7.000644e-04, -5.633828e-08, -9.231578e-12, 1.5827519e-15,
+      -835.034, -1.3551101]
+    note: '121286'
+  transport:
+    model: gas
+    geometry: linear
+    well-depth: 38.0
+    diameter: 2.92
+    polarizability: 0.79
+    rotational-relaxation: 280.0
+- name: NH3
+  composition: {N: 1, H: 3}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 5000.0]
+    data:
+    - [2.204351, 0.010114765, -1.4652648e-05, 1.447235e-08, -5.328509e-12,
+      -6525.488, 8.127138]
+    - [2.461904, 6.059166e-03, -2.004976e-06, 3.136003e-10, -1.938317e-14,
+      -6493.269, 7.472097]
+    note: '121386'
+  transport:
+    model: gas
+    geometry: nonlinear
+    well-depth: 481.0
+    diameter: 2.92
+    dipole: 1.47
+    rotational-relaxation: 10.0
+- name: N2
+  composition: {N: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1000.0, 5000.0]
+    data:
+    - [3.298677, 1.40824e-03, -3.963222e-06, 5.641515e-09, -2.444855e-12,
+      -1020.9, 3.950372]
+    - [2.92664, 1.487977e-03, -5.684761e-07, 1.009704e-10, -6.753351e-15,
+      -922.7977, 5.980528]
+    note: '121286'
+  transport:
+    model: gas
+    geometry: linear
+    well-depth: 97.53
+    diameter: 3.621
+    polarizability: 1.76
+    rotational-relaxation: 4.0
+- name: AR
+  composition: {Ar: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 5000.0]
+    data:
+    - [2.5, 0.0, 0.0, 0.0, 0.0, -745.375, 4.366]
+    note: |-
+      120186
+       FROM GRI MECHANISM
+  transport:
+    model: gas
+    geometry: atom
+    well-depth: 136.5
+    diameter: 3.33
+- name: Ru(s)
+  composition: {Ru: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 5000.0]
+    data:
+    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+- name: N(s)
+  composition: {N: 1, Ru: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 5000.0]
+    data:
+    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+- name: H(s)
+  composition: {H: 1, Ru: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 5000.0]
+    data:
+    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+- name: NH(s)
+  composition: {N: 1, H: 1, Ru: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 5000.0]
+    data:
+    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+- name: NH2(s)
+  composition: {H: 2, N: 1, Ru: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 5000.0]
+    data:
+    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+- name: NH3(s)
+  composition: {H: 3, N: 1, Ru: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 5000.0]
+    data:
+    - [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+
+reactions:
+- equation: N2 + Ru(s) + Ru(s) => N(s) + N(s)  # Reaction 1
+  sticking-coefficient: {A: 2.892e-06, b: 0.0, Ea: 38.949}
+- equation: N(s) + N(s) => Ru(s) + Ru(s) + N2  # Reaction 2
+  rate-constant: {A: 2.015e+17, b: -0.279, Ea: 148.027}
+  coverage-dependencies:
+    N(s): [0.0, 0.0, -14.0]
+- equation: H2 + Ru(s) + Ru(s) => H(s) + H(s)  # Reaction 3
+  sticking-coefficient: {A: 4.007e-03, b: 0.0, Ea: 0.0}
+- equation: H(s) + H(s) => Ru(s) + Ru(s) + H2  # Reaction 4
+  rate-constant: {A: 3.6e+20, b: 0.658, Ea: 91.948}
+  coverage-dependencies:
+    H(s): [0.0, 0.0, -2.0]
+- equation: NH3 + Ru(s) => NH3(s)  # Reaction 5
+  sticking-coefficient: {A: 1.247e-05, b: 0.0, Ea: 0.0}
+- equation: NH3(s) => Ru(s) + NH3  # Reaction 6
+  rate-constant: {A: 2.235e+11, b: 0.083, Ea: 83.536}
+- equation: H(s) + N(s) => NH(s) + Ru(s)  # Reaction 7
+  rate-constant: {A: 8.424e+20, b: 0.0, Ea: 83.62}
+  coverage-dependencies:
+    N(s): [0.0, 0.0, -7.0]
+- equation: NH(s) + Ru(s) => H(s) + N(s)  # Reaction 8
+  rate-constant: {A: 6.813e+19, b: 0.207, Ea: 30.972}
+  coverage-dependencies:
+    H(s): [0.0, 0.0, 1.0]
+- equation: NH(s) + H(s) => NH2(s) + Ru(s)  # Reaction 9
+  rate-constant: {A: 4.949e+19, b: 0.083, Ea: 75.236}
+- equation: NH2(s) + Ru(s) => NH(s) + H(s)  # Reaction 10
+  rate-constant: {A: 8.321e+19, b: -0.083, Ea: 15.767}
+  coverage-dependencies:
+    H(s): [0.0, 0.0, 1.0]
+- equation: NH2(s) + H(s) => NH3(s) + Ru(s)  # Reaction 11
+  rate-constant: {A: 3.886e+19, b: 0.083, Ea: 17.036}
+- equation: NH3(s) + Ru(s) => NH2(s) + H(s)  # Reaction 12
+  rate-constant: {A: 1.478e+20, b: 0.0, Ea: 64.98}
+  coverage-dependencies:
+    H(s): [0.0, 0.0, 1.0]
