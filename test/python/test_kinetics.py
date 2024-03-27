@@ -1283,16 +1283,14 @@ class TestReaction(utilities.CanteraTest):
 
     def test_negative_A(self):
         species = ct.Species.list_from_file("gri30.yaml")
-        r = ct.Reaction("NH:1, NO:1", "N2O:1, H:1",
-                        ct.ArrheniusRate(-2.16e13, -0.23, 0))
-
-        self.assertFalse(r.rate.allow_negative_pre_exponential_factor)
+        rate = ct.ArrheniusRate(-2.16e13, -0.23, 0)
+        assert rate.allow_negative_pre_exponential_factor is False
 
         with self.assertRaisesRegex(ct.CanteraError, 'negative pre-exponential'):
-            gas = ct.Solution(thermo='ideal-gas', kinetics='gas',
-                              species=species, reactions=[r])
+            r = ct.Reaction("NH:1, NO:1", "N2O:1, H:1", rate)
 
-        r.rate.allow_negative_pre_exponential_factor = True
+        rate.allow_negative_pre_exponential_factor = True
+        r = ct.Reaction("NH:1, NO:1", "N2O:1, H:1", rate)
         gas = ct.Solution(thermo='ideal-gas', kinetics='gas',
                           species=species, reactions=[r])
 
@@ -1501,16 +1499,13 @@ class TestReaction(utilities.CanteraTest):
 
     def test_negative_A_blowersmasel(self):
         species = ct.Solution("blowers-masel.yaml").species()
-        r = ct.Reaction({'O':1, 'H2':1}, {'H':1, 'OH':1},
-                        ct.BlowersMaselRate(-3.87e1, 2.7, 6260*1000*4.184, 1e9))
-
-        self.assertFalse(r.rate.allow_negative_pre_exponential_factor)
-
+        rate = ct.BlowersMaselRate(-3.87e1, 2.7, 6260*1000*4.184, 1e9)
+        assert rate.allow_negative_pre_exponential_factor is False
         with self.assertRaisesRegex(ct.CanteraError, 'negative pre-exponential'):
-            gas = ct.Solution(thermo='ideal-gas', kinetics='gas',
-                              species=species, reactions=[r])
+            r = ct.Reaction({'O':1, 'H2':1}, {'H':1, 'OH':1}, rate)
 
-        r.rate.allow_negative_pre_exponential_factor = True
+        rate.allow_negative_pre_exponential_factor = True
+        r = ct.Reaction({'O':1, 'H2':1}, {'H':1, 'OH':1}, rate)
         gas = ct.Solution(thermo='ideal-gas', kinetics='gas',
                           species=species, reactions=[r])
 

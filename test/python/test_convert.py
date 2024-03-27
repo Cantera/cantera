@@ -1465,8 +1465,8 @@ class lxcat2yamlTest(utilities.CanteraTest):
 
         # verify the data
         assert len(rxn_list) == 2
-        assert rxn_list[0].equation == "O2 + e => O2(Total-Ionization)+ + e + e"
-        assert rxn_list[0].reaction_type == "three-body-electron-collision-plasma"
+        assert rxn_list[0].equation == "O2 + e => O2(Total-Ionization)+ + 2 e"
+        assert rxn_list[0].reaction_type == "electron-collision-plasma"
         assert rxn_list[0].rate.energy_levels == approx([15., 20.])
         assert rxn_list[0].rate.cross_sections == approx([0.0, 5.5e-22])
 
