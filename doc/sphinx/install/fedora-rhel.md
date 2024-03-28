@@ -5,12 +5,6 @@ RPM packages are provided for supported versions of Fedora Linux. Stable builds 
 available in the official repositories and development builds are in a Community
 Projects (COPR) repository.
 
-:::{attention}
-The Matlab interface is not available from this archive. To install the Matlab interface
-on Fedora, you must install it using [conda](sec-conda-matlab-interface) or
-[compile the source code](sec-compiling).
-:::
-
 As of Cantera 3.0.0, packages are available for currently supported releases of Fedora
 Linux and Fedora Rawhide as well as Enterprise Linux 8.
 

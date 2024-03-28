@@ -8,13 +8,10 @@
 # - Interfaces: LCO/electrolyte and LiC6/electrolyte
 # - Charge-transfer reactions at the two interfaces
 #
-# A MATLAB example using this file for simulating a discharge curve is
-# samples/matlab/lithium_ion_battery.m
-#
 # Reference:
-# M. Mayur, S. C. DeCaluwe, B. L. Kee, W. G. Bessler, “Modeling and simulation 
-# of the thermodynamics of lithium-ion battery intercalation materials in the 
-# open-source software Cantera,” Electrochim. Acta 323, 134797 (2019), 
+# M. Mayur, S. C. DeCaluwe, B. L. Kee, W. G. Bessler, “Modeling and simulation
+# of the thermodynamics of lithium-ion battery intercalation materials in the
+# open-source software Cantera,” Electrochim. Acta 323, 134797 (2019),
 # https://doi.org/10.1016/j.electacta.2019.134797
 
 #==============================================================================
@@ -292,4 +289,3 @@ edge_reaction("Li+[elyt] + V[anode] + electron <=> Li[anode]", [2.028e4, 0.0, (2
 
 # LCO/electrolyte interface
 edge_reaction("Li+[elyt] + V[cathode] + electron <=> Li[cathode]", [5.629e11, 0.0, (58, 'kJ/mol')], rate_coeff_type = "exchangecurrentdensity", beta = 0.5,id="cathode_reaction")
-

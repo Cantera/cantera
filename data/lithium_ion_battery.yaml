@@ -12,8 +12,8 @@ description: |-
   to `true`. The preexponential factors and activation energies are converted
   from Guo et al., J. Electrochem. Soc. 158, A122 (2011)
 
-  A MATLAB example using this file for simulating a discharge curve is
-  samples/matlab/lithium_ion_battery.m
+  A Python example using this file for simulating a discharge curve is
+  samples/python/surface_chemistry/lithium_ion_battery.py
 
   Reference:
   M. Mayur, S. C. DeCaluwe, B. L. Kee, W. G. Bessler, “Modeling and simulation

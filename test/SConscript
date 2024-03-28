@@ -204,85 +204,6 @@ def addPythonTest(testname, subset):
     return run_program
 
 
-def addMatlabTest(script, testName, dependencies=None, env_vars=()):
-    def matlabRunner(target, source, env):
-        passedFile = target[0]
-        del test_results.tests[passedFile.name]
-        workDir = Dir('#test/work').abspath
-        if not os.path.isdir(workDir):
-            os.mkdir(workDir)
-        outfile = pjoin(workDir, 'matlab-results.txt')
-        runCommand = "%s('%s'); exit" % (source[0].name[:-2], outfile)
-        if os.name == 'nt':
-            matlabOptions = ['-nojvm','-nosplash','-wait']
-        else:
-            matlabOptions = ['-nojvm','-nodisplay']
-        if os.path.exists(outfile):
-            os.remove(outfile)
-
-        environ = dict(os.environ)
-        environ.update(env['ENV'])
-        environ.update(env_vars)
-        code = subprocess.call([pjoin(env['matlab_path'], 'bin', 'matlab')] +
-                               matlabOptions + ['-r', runCommand],
-                               env=environ, cwd=Dir('#test/matlab').abspath)
-        if code and env["fast_fail_tests"]:
-            sys.exit(1)
-        try:
-            with open(outfile, "r") as output_file:
-                results = output_file.read()
-        except EnvironmentError: # TODO: replace with 'FileNotFoundError' after end of Python 2.7 support
-            test_results.failed['Matlab' +
-                ' ***no results for entire test suite***'] = 100
-            return
-
-        matlab_test_message = [
-            f"{' Matlab test results ':-^88}",
-            results,
-            f"{' end Matlab test results ':-^88}",
-        ]
-        logger.info("\n".join(matlab_test_message))
-
-        passed = True
-        for line in results.split('\n'):
-            line = line.strip()
-            if not line:
-                continue
-            label = line.split()[0]
-            if 'seconds' not in line: # Headers for test suite sections
-                section = line
-            elif 'test' in line and 'matlab' in line: # skip overall summary line
-                continue
-            elif label == section: # skip summary line for each section
-                continue
-            elif 'FAILED' in line:
-                test_results.failed['.'.join(['Matlab', section, label])] = 1
-                passed = False
-            elif 'passed' in line:
-                test_results.passed['.'.join(['Matlab', section, label])] = 1
-
-        if passed:
-            open(target[0].path, 'w').write(time.asctime()+'\n')
-
-    testenv = localenv.Clone()
-    passedFile = File('matlab/%s.passed' % (script))
-    PASSED_FILES[testName] = str(passedFile)
-    test_results.tests[passedFile.name] = True
-    run_program = testenv.Command(passedFile, pjoin('matlab', script), matlabRunner)
-
-    dependencies = (dependencies or []) + localenv['matlab_extension']
-    for dep in dependencies:
-        if isinstance(dep, str):
-            dep = File(pjoin('matlab', dep))
-        testenv.Depends(run_program, dep)
-
-    testenv.Depends(testenv['test_results'], run_program)
-    if os.path.exists(passedFile.abspath):
-        Alias('test-reset', testenv.Command('reset-%s%s' % ('matlab', script),
-                                            [], [Delete(passedFile.abspath)]))
-
-    return run_program
-
 # Instantiate tests
 addTestProgram('clib', 'clib')
 addTestProgram('equil', 'equil')
@@ -309,12 +230,6 @@ if localenv['python_package'] == 'full':
         pyTest = addPythonTest(name, subset=subset)
         localenv.Alias('test-' + name, pyTest)
         env['testNames'].append(name)
-
-if localenv['matlab_toolbox'] == 'y':
-    matlabTest = addMatlabTest('runCanteraTests.m', 'matlab',
-                               dependencies=multi_glob(localenv, 'matlab', 'm'))
-    localenv.Alias('test-matlab', matlabTest)
-    env['testNames'].append('matlab')
 
 # Force explicitly-named tests to run even if SCons thinks they're up to date
 for command in COMMAND_LINE_TARGETS:

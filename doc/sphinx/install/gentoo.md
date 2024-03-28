@@ -7,12 +7,6 @@ package is provided using a main portage tree. Additionally the
 package is provided for offline Documentation API reference for Cantera package
 libraries.
 
-:::{attention}
-The Matlab interface is not available from this archive. To install the Matlab interface
-on Gentoo, you must install it using [conda](sec-conda-matlab-interface) or
-[compile the source code](sec-compiling).
-:::
-
 The following interfaces and tools are installed by default:
 
 - C++ Libraries and header files for compiling your own programs that use Cantera.

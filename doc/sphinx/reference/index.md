@@ -18,12 +18,6 @@ mechanism files.
 :text-align: center
 ```
 
-```{grid-item-card} Matlab API Reference
-:link: /matlab/index
-:link-type: doc
-:text-align: center
-```
-
 ```{grid-item-card} C++ API Reference
 :link: ../cxx/index.html
 :text-align: center
@@ -49,7 +43,6 @@ mechanism files.
 :caption: API Reference
 
 /python/index
-/matlab/index
 /yaml/index
 releasenotes/index
 ```

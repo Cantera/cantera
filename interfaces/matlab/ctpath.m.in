@@ -1,4 +1,0 @@
-path('@ct_matlab_dir@', path)
-path('@ct_matlab_dir@/1D', path)
-setenv('PYTHON_CMD', '@python_cmd@')
-setenv('PYTHONPATH', [getenv('PYTHONPATH'), ':@python_module_loc_sc@'])

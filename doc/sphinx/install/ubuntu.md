@@ -21,12 +21,6 @@ The available packages are:
 - `cantera` - A metapackage that will install everything except for the development
   files.
 
-:::{attention}
-The Matlab packages are not available from this archive; to install the Matlab packages
-on Ubuntu, you must install it using [conda](sec-conda-matlab-interface) or
-[compile the source code](sec-compiling).
-:::
-
 ## Installing
 
 To add the Cantera PPA:

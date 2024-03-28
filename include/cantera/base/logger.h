@@ -24,16 +24,15 @@ namespace Cantera
 //! output stream or standard error stream, but classes may be derived from
 //! Logger that implement other output options. This is important when Cantera
 //! is used in applications that do not display the standard output, such as
-//! MATLAB. The %Cantera MATLAB interface derives a class from Logger that
-//! implements these methods with MATLAB-specific procedures, insuring that the
+//! Python. The %Cantera Python interface derives a class from Logger that
+//! implements these methods with Python-specific procedures, insuring that the
 //! messages will be passed through to the user. It would also be possible to
 //! derive a class that displayed the messages in a pop-up window, or redirected
 //! them to a file, etc.
 //!
 //! To install a logger, call function setLogger (global.h / misc.cpp).
 //!
-//! See the files Cantera/python/src/pylogger.h and
-//! Cantera/matlab/cantera/private/mllogger.h for examples of
+//! See the file Cantera/python/src/pylogger.h for examples of
 //! deriving logger classes.
 //! @ingroup logGroup
 //!

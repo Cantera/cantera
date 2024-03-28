@@ -123,15 +123,6 @@ you can use forward slashes (`/`) in paths.
 
 - [`toolchain`](sconsopt-toolchain)
 
-### MATLAB Toolbox Options
-
-Building the MATLAB toolbox requires an installed copy of MATLAB, and the path
-to the directory where MATLAB is installed must be specified using the following
-option:
-
-- [`matlab_toolbox`](sconsopt-matlab-toolbox)
-- [`matlab_path`](sconsopt-matlab-path)
-
 ### Fortran Module Options
 
 Building the Fortran module requires a compatible Fortran compiler. SCons will

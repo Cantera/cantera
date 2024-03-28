@@ -83,7 +83,7 @@ def replace_git_hash(target, source, env):
 sdist(localenv.RecursiveInstall(
     "src",
     "#src",
-    exclude=["fortran", "matlab", "clib", r"global\.cpp", "SCons.*", r"canteraStatic\.cpp"],
+    exclude=["fortran", "clib", r"global\.cpp", "SCons.*", r"canteraStatic\.cpp"],
 ))
 
 sdist(localenv.Command("src/base/global.cpp", "#src/base/global.cpp",

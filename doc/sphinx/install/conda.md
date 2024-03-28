@@ -8,10 +8,16 @@ distributions that include the ``conda`` package manager, which can be used to i
 Cantera.
 
 Installing Cantera using Conda can provide the Cantera
-[Python module](sec-conda-python-interface) and
-[MATLAB toolbox](sec-conda-matlab-interface), as well as libraries for linking to
+[Python module](sec-conda-python-interface) as well as libraries for linking to
 applications written in C++, C, or Fortran 90. There are some exceptions to the
 availability of each interface depending on the operating system and Conda channel used.
+
+:::{attention}
+The *legacy* Matlab Cantera interface is discontinued and removed in Cantera 3.1. Users
+requiring support of legacy Matlab Cantera code should continue using Cantera 3.0
+packages, or migrate their code base to the experimental Matlab toolbox that is
+currently under development.
+:::
 
 Both the Anaconda and Miniconda distributions are available for Linux, macOS (Intel and
 ARM/Apple Silicon), and Windows. On Windows, users should install a 64-bit version of
@@ -161,38 +167,6 @@ conda update --channel cantera cantera
 This assumes you are using Python from the default conda channel. If you installed
 Python and Cantera from the `conda-forge` channel, you should specify the option
 `--channel conda-forge`.
-
-(sec-conda-matlab-interface)=
-
-## MATLAB interface
-
-Cantera's MATLAB interface can be installed from the `cantera` channel. In this example,
-the command will create a new conda environment named `ct-env`. From the command line
-(or the Anaconda Prompt on Windows), run:
-
-```shell
-conda create --name ct-env --channel cantera cantera cantera-matlab
-```
-
-This will create an environment named `ct-env` with Cantera's Python and MATLAB
-interfaces. Even if you plan to use Cantera via MATLAB, the Python interface is required
-to convert input files. In this case, Cantera must be installed from the `cantera`
-channel, so we add `--channel cantera` and to tell Conda to look at the `cantera`
-channel in addition to the default channels.
-
-To install the a development version of Cantera, specify `cantera/label/dev` as the
-channel.
-
-### Upgrading from an earlier Cantera version
-
-If you already have the Cantera MATLAB interface installed in a conda environment
-(named, for example, `ct-env`), you can upgrade it to the latest version available by
-running the commands:
-
-```shell
-conda activate ct-env
-conda update --channel cantera cantera cantera-matlab
-```
 
 (sec-conda-development-interface)=
 

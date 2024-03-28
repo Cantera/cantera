@@ -4,7 +4,7 @@ function plotSolution(s, domain, component)
     %     >> plotSolution(s, domain, component)
     %
     % :s:
-    %    Instance of class :mat:class:`Sim1D`.
+    %    Instance of class Matlab class `Sim1D`.
     % :domain:
     %    Name of domain from which the component should be retrieved.
     % :component:
