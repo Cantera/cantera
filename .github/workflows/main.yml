@@ -315,7 +315,7 @@ jobs:
             libblas-dev liblapack-dev libhdf5-dev libfmt-dev libsundials-dev
       - name: Install conda dependencies
         run: |
-          mamba install -q doxygen=1.9.7 scons pip
+          mamba install -q doxygen=1.9.7 scons pip scikits.odes
       - name: Upgrade pip
         run: pip install -U pip setuptools wheel
       - name: Install Python dependencies
@@ -323,7 +323,7 @@ jobs:
           pip install ruamel.yaml scons numpy cython 'sphinx>=7.2,<8' \
             sphinxcontrib-matlabdomain sphinxcontrib-doxylink sphinxcontrib-bibtex \
             pydata-sphinx-theme==0.14.1 sphinx-argparse sphinx_design myst-nb \
-            sphinx-copybutton matplotlib pandas scipy pint
+            sphinx-copybutton matplotlib pandas scipy pint coolprop graphviz
           pip install "git+https://github.com/sphinx-gallery/sphinx-gallery.git@master"
           pip install "git+https://github.com/Cantera/sphinx-tags.git@main"
       - name: Build Cantera
@@ -409,12 +409,15 @@ jobs:
         run: python3 -m pip install -U pip setuptools wheel
       - name: Install Python dependencies
         run: |
-            python3 -m pip install numpy ruamel.yaml pandas pyarrow matplotlib scipy pint graphviz
+            python3 -m pip install numpy ruamel.yaml pandas pyarrow matplotlib scipy \
+              pint graphviz CoolProp
             python3 -m pip install --pre --no-index --find-links dist cantera
       - name: Run the examples
-        # See https://unix.stackexchange.com/a/392973 for an explanation of the -exec part
+        # See https://unix.stackexchange.com/a/392973 for an explanation of the -exec part.
+        # Skip 1D_packed_bed.py due to difficulty installing scikits.odes.
         run: |
           ln -s libcantera_shared.so build/lib/libcantera_shared.so.3
+          rm samples/python/reactors/1D_packed_bed.py
           export LD_LIBRARY_PATH=build/lib
           find samples/python -type f -iname "*.py" \
           -exec sh -c 'for n; do echo "$n" | tee -a results.txt && python3 "$n" >> results.txt || exit 1; done' sh {} +
