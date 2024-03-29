@@ -784,7 +784,9 @@ jobs:
       run: brew install --display-times hdf5
       if: matrix.os == 'macos-11'
     - name: Install Apt dependencies (Ubuntu)
-      run: sudo apt install libhdf5-dev libfmt-dev
+      run: |
+        sudo apt update
+        sudo apt install libhdf5-dev libfmt-dev
       if: matrix.os == 'ubuntu-22.04'
     - name: Setup .NET Core SDK
       uses: actions/setup-dotnet@v2
