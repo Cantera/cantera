@@ -454,6 +454,8 @@ jobs:
           fmt-ver: 10
         - sundials-ver: 6.6
           fmt-ver: 10
+        - sundials-ver: 7.0
+          fmt-ver: 10
       fail-fast: false
     steps:
       - uses: actions/checkout@v3
