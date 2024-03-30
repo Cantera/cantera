@@ -68,7 +68,9 @@ void ReactorFactory::deleteFactory() {
 
 shared_ptr<ReactorBase> newReactor(const string& model)
 {
-    // deprecation warning is handled in Python API
+    warn_deprecated("newReactor",
+        "Creation of empty reactor objects is deprecated in Cantera 3.1 and will be \n"
+        "removed thereafter; reactor contents should be provided in the constructor.");
     return shared_ptr<ReactorBase>(ReactorFactory::factory()->create(model));
 }
 
