@@ -30,8 +30,6 @@ public:
 
     string componentName(size_t k) override;
 
-    void setThermoMgr(ThermoPhase& thermo) override;
-
     void getState(double* y) override;
 
     void initialize(double t0=0.0) override;
@@ -50,6 +48,8 @@ public:
     bool preconditionerSupported() const override { return true; };
 
 protected:
+    void setThermo(ThermoPhase& thermo) override;
+
     vector<double> m_hk; //!< Species molar enthalpies
 };
 

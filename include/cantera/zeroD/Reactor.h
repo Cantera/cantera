@@ -74,13 +74,11 @@ public:
     template<class G>
     void insert(G& contents) {
         warn_deprecated("Reactor::insert", "Unused; to be removed after Cantera 3.1.");
-        setThermoMgr(contents);
-        setKineticsMgr(contents);
+        setThermo(contents);
+        setKinetics(contents);
     }
 
     using ReactorBase::insert;
-
-    void setKineticsMgr(Kinetics& kin) override;
 
     void setChemistry(bool cflag=true) override {
         m_chem = cflag;
@@ -244,6 +242,8 @@ public:
     virtual bool preconditionerSupported() const {return false;};
 
 protected:
+    void setKinetics(Kinetics& kin) override;
+
     //! Return the index in the solution vector for this reactor of the species
     //! named *nm*, in either the homogeneous phase or a surface phase, relative
     //! to the start of the species terms. Used to implement componentIndex for

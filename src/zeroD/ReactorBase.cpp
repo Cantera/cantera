@@ -26,9 +26,9 @@ ReactorBase::ReactorBase(shared_ptr<Solution> sol, const string& name)
 
 void ReactorBase::setSolution(shared_ptr<Solution> sol) {
     m_solution = sol;
-    setThermoMgr(*sol->thermo());
+    setThermo(*sol->thermo());
     try {
-        setKineticsMgr(*sol->kinetics());
+        setKinetics(*sol->kinetics());
     } catch (NotImplementedError&) {
         // kinetics not used (example: Reservoir)
     }
@@ -41,7 +41,7 @@ void ReactorBase::insert(shared_ptr<Solution> sol)
     setSolution(sol);
 }
 
-void ReactorBase::setThermoMgr(ThermoPhase& thermo)
+void ReactorBase::setThermo(ThermoPhase& thermo)
 {
     m_thermo = &thermo;
     m_nsp = m_thermo->nSpecies();
@@ -49,6 +49,20 @@ void ReactorBase::setThermoMgr(ThermoPhase& thermo)
     m_enthalpy = m_thermo->enthalpy_mass();
     m_intEnergy = m_thermo->intEnergy_mass();
     m_pressure = m_thermo->pressure();
+}
+
+void ReactorBase::setThermoMgr(ThermoPhase& thermo)
+{
+    warn_deprecated("ReactorBase::setThermoMgr",
+        "To be removed after Cantera 3.1. Superseded by 'setSolution'.");
+    setThermo(thermo);
+}
+
+void ReactorBase::setKineticsMgr(Kinetics& kin)
+{
+    warn_deprecated("ReactorBase::setKineticsMgr",
+        "To be removed after Cantera 3.1. Superseded by 'setSolution'.");
+    setKinetics(kin);
 }
 
 void ReactorBase::syncState()

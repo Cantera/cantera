@@ -87,10 +87,8 @@ int main(int argc, char** argv)
     thermo_print(thermo, 1, 1e-6);
 
     printf("\ntime       Temperature\n");
-    int reactor = reactor_new("IdealGasReactor");
+    int reactor = reactor_new3("IdealGasReactor", soln, "test");
     int net = reactornet_new();
-    reactor_setThermoMgr(reactor, thermo);
-    reactor_setKineticsMgr(reactor, kin);
     reactornet_addreactor(net, reactor);
 
     double t = 0.0;

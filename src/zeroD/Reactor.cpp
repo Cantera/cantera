@@ -26,8 +26,8 @@ Reactor::Reactor(shared_ptr<Solution> sol, const string& name)
 {
     m_solution = sol;
     m_name = name;
-    setThermoMgr(*sol->thermo());
-    setKineticsMgr(*sol->kinetics());
+    setThermo(*sol->thermo());
+    setKinetics(*sol->kinetics());
 }
 
 void Reactor::setDerivativeSettings(AnyMap& settings)
@@ -39,7 +39,7 @@ void Reactor::setDerivativeSettings(AnyMap& settings)
     }
 }
 
-void Reactor::setKineticsMgr(Kinetics& kin)
+void Reactor::setKinetics(Kinetics& kin)
 {
     m_kin = &kin;
     if (m_kin->nReactions() == 0) {

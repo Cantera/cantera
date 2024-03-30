@@ -14,14 +14,14 @@
 extern "C" {
 #endif
 
-    CANTERA_CAPI int reactor_new(const char* type);  //! @deprecated: remove after 3.1
+    CANTERA_CAPI int reactor_new(const char* type);  //!< @deprecated: remove after 3.1
     CANTERA_CAPI int reactor_new3(const char* type, int n, const char* name);
     CANTERA_CAPI int reactor_del(int i);
     CANTERA_CAPI int reactor_setInitialVolume(int i, double v);
     CANTERA_CAPI int reactor_setChemistry(int i, int cflag);
     CANTERA_CAPI int reactor_setEnergy(int i, int eflag);
-    CANTERA_CAPI int reactor_setThermoMgr(int i, int n);
-    CANTERA_CAPI int reactor_setKineticsMgr(int i, int n);
+    CANTERA_CAPI int reactor_setThermoMgr(int i, int n);  //!< @deprecated: remove after 3.1
+    CANTERA_CAPI int reactor_setKineticsMgr(int i, int n);  //!< @deprecated: remove after 3.1
     CANTERA_CAPI int reactor_insert(int i, int n);
     CANTERA_CAPI double reactor_mass(int i);
     CANTERA_CAPI double reactor_volume(int i);

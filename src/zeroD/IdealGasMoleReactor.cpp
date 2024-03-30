@@ -17,13 +17,13 @@
 namespace Cantera
 {
 
-void IdealGasMoleReactor::setThermoMgr(ThermoPhase& thermo)
+void IdealGasMoleReactor::setThermo(ThermoPhase& thermo)
 {
     if (thermo.type() != "ideal-gas") {
-        throw CanteraError("IdealGasMoleReactor::setThermoMgr",
+        throw CanteraError("IdealGasMoleReactor::setThermo",
                            "Incompatible phase type provided");
     }
-    MoleReactor::setThermoMgr(thermo);
+    MoleReactor::setThermo(thermo);
 }
 
 void IdealGasMoleReactor::getState(double* y)
