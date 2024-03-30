@@ -494,28 +494,10 @@ extern "C" {
         }
     }
 
-    double wall_vdot(int i, double t)
-    {
-        try {
-            return WallCabinet::item(i).vdot(t);
-        } catch (...) {
-            return handleAllExceptions(DERR, DERR);
-        }
-    }
-
     double wall_expansionRate(int i)
     {
         try {
             return WallCabinet::item(i).expansionRate();
-        } catch (...) {
-            return handleAllExceptions(DERR, DERR);
-        }
-    }
-
-    double wall_Q(int i, double t)
-    {
-        try {
-            return WallCabinet::item(i).Q(t);
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
