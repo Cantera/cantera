@@ -4,7 +4,7 @@ import re
 import numpy as np
 import pytest
 from pytest import approx
-from .utilities import unittest
+from .utilities import unittest, allow_deprecated
 
 import cantera as ct
 
@@ -52,9 +52,9 @@ class TestReactor(utilities.CanteraTest):
         self.net.verbose = True
         self.assertTrue(self.net.verbose)
 
+    @pytest.mark.usefixtures("allow_deprecated")
     def test_insert(self):
-        with pytest.warns(DeprecationWarning, match="must not be empty"):
-            R = self.reactorClass()
+        R = self.reactorClass()  # warning raised from C++ code
         with self.assertRaisesRegex(ct.CanteraError, 'No phase'):
             R.T
         with self.assertRaisesRegex(ct.CanteraError, 'No phase'):
@@ -692,9 +692,10 @@ class TestReactor(utilities.CanteraTest):
         assert valve.pressure_function == approx(delta_p())
         assert valve.mass_flow_rate == approx(mdot())
 
+    @pytest.mark.usefixtures("allow_deprecated")
     def test_valve_errors(self):
         self.make_reactors()
-        res = ct.Reservoir()
+        res = ct.Reservoir()  # warning raised from C++ code
 
         with self.assertRaisesRegex(ct.CanteraError, 'contents not defined'):
             # Must assign contents of both reactors before creating Valve
@@ -857,8 +858,8 @@ class TestReactor(utilities.CanteraTest):
     def test_bad_kwarg(self):
         g = ct.Solution('h2o2.yaml', transport_model=None)
         self.reactorClass(g, name='ok')
-        with self.assertRaises(TypeError):
-            r1 = self.reactorClass(foobar=3.14)
+        with self.assertRaises(ct.CanteraError):
+            self.reactorClass(foobar=3.14)
 
     def test_preconditioner_unsupported(self):
         self.make_reactors()

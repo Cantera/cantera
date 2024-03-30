@@ -20,9 +20,9 @@ TEST(ctreactor, reactor_objects)
     int thermo = thermo_newFromFile("gri30.yaml", "gri30");
     int kin = kin_newFromFile("gri30.yaml", "", thermo, -1, -1, -1, -1);
 
+    suppress_deprecation_warnings();
     int reactor = reactor_new("IdealGasReactor");
     ASSERT_GE(reactor, 0);
-    suppress_deprecation_warnings();
     int ret = reactor_setThermoMgr(reactor, thermo);
     ASSERT_EQ(ret, 0);
     ret = reactor_setKineticsMgr(reactor, kin);
@@ -76,8 +76,8 @@ TEST(ctreactor, reactor_insert)
     thermo_setTemperature(thermo, T);
     thermo_setPressure(thermo, P);
 
-    int reactor = reactor_new("IdealGasReactor");
     suppress_deprecation_warnings();
+    int reactor = reactor_new("IdealGasReactor");
     int ret = reactor_insert(reactor, sol);
     make_deprecation_warnings_fatal();
     ASSERT_EQ(ret, 0);
@@ -109,8 +109,8 @@ TEST(ctreactor, reactor_from_parts)
     thermo_setTemperature(thermo, T);
     thermo_setPressure(thermo, P);
 
-    int reactor = reactor_new("IdealGasReactor");
     suppress_deprecation_warnings();
+    int reactor = reactor_new("IdealGasReactor");
     reactor_setThermoMgr(reactor, thermo);
     reactor_setKineticsMgr(reactor, kin);
     make_deprecation_warnings_fatal();

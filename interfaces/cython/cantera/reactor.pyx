@@ -23,8 +23,20 @@ cdef class ReactorBase:
     Common base class for reactors and reservoirs.
     """
     reactor_type = "none"
-    def __cinit__(self, *args, **kwargs):
-        self._reactor = newReactor(stringify(self.reactor_type))
+    def __cinit__(self, _SolutionBase contents=None, name=None, *, **kwargs):
+        def reactor_name(name):
+            if name is not None:
+                return name
+            _reactor_counts[self.reactor_type] += 1
+            return f"{self.reactor_type}_{_reactor_counts[self.reactor_type]}"
+
+        if isinstance(contents, _SolutionBase):
+            self._reactor = newReactor(stringify(self.reactor_type),
+                                       contents._base, stringify(reactor_name(name)))
+        else:
+            # deprecated: will raise warnings in C++ layer
+            self._reactor = newReactor(stringify(self.reactor_type))
+            self._reactor.get().setName(stringify(reactor_name(name)))
         self.rbase = self._reactor.get()
 
     def __init__(self, _SolutionBase contents=None, name=None, *, volume=None,
@@ -36,18 +48,7 @@ cdef class ReactorBase:
         self._walls = []
         self._surfaces = []
         if isinstance(contents, _SolutionBase):
-            self.insert(contents)
-        else:
-            warnings.warn(
-                "Starting in Cantera 3.1, the reactor contents must not be empty.",
-                DeprecationWarning)
-
-        if name is not None:
-            self.name = name
-        else:
-            _reactor_counts[self.reactor_type] += 1
-            n = _reactor_counts[self.reactor_type]
-            self.name = '{0}_{1}'.format(self.reactor_type, n)
+            self.insert(contents)  # leave insert for the time being
 
         if volume is not None:
             self.volume = volume
