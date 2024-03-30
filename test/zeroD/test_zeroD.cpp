@@ -48,10 +48,6 @@ TEST(zerodim, test_guards)
     Wall wall;
     EXPECT_THROW(wall.heatRate(), CanteraError);
     EXPECT_THROW(wall.expansionRate(), CanteraError);
-    suppress_deprecation_warnings();
-    EXPECT_THROW(wall.Q(0.), CanteraError);
-    EXPECT_THROW(wall.vdot(0.), CanteraError);
-    make_deprecation_warnings_fatal();
 
     // FlowDevice with no adjacent reactors
     EXPECT_THROW(FlowDevice().massFlowRate(), CanteraError);

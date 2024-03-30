@@ -63,11 +63,7 @@ extern "C" {
     CANTERA_CAPI int wall_new(const char* type);
     CANTERA_CAPI int wall_del(int i);
     CANTERA_CAPI int wall_install(int i, int n, int m);
-    //! @deprecated Only used by traditional MATLAB toolbox
-    CANTERA_CAPI double wall_vdot(int i, double t);
     CANTERA_CAPI double wall_expansionRate(int i);
-    //! @deprecated Only used by traditional MATLAB toolbox
-    CANTERA_CAPI double wall_Q(int i, double t);
     CANTERA_CAPI double wall_heatRate(int i);
     CANTERA_CAPI double wall_area(int i);
     CANTERA_CAPI int wall_setArea(int i, double v);

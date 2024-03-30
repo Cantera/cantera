@@ -33,18 +33,6 @@ public:
         return "WallBase";
     }
 
-    //! Rate of volume change (m^3/s) for the adjacent reactors.
-    /*!
-     * This method is called by Reactor::evalWalls(). Base class method
-     * does nothing (that is, constant volume), but may be overloaded.
-     * @deprecated Still used by traditional MATLAB toolbox; replaceable by expansionRate.
-     */
-    virtual double vdot(double t) {
-        warn_deprecated("WallBase::vdot",
-            "To be removed; replaceable by 'expansionRate'.");
-        return 0.0;
-    }
-
     //! Rate of volume change (m^3/s) for the adjacent reactors at current reactor
     //! network time.
     /*!
@@ -53,18 +41,6 @@ public:
      * @since New in %Cantera 3.0.
      */
     virtual double expansionRate() {
-        return 0.0;
-    }
-
-    //! Heat flow rate through the wall (W).
-    /*!
-     * This method is called by Reactor::evalWalls(). Base class method
-     * does nothing (that is, an adiabatic wall), but may be overloaded.
-     * @deprecated Still used by traditional MATLAB toolbox; replaceable by heatRate.
-     */
-    virtual double Q(double t) {
-        warn_deprecated("WallBase::Q",
-            "To be removed; replaceable by 'heatRate'.");
         return 0.0;
     }
 
@@ -159,21 +135,6 @@ public:
      * @f[
      *     \dot V = K A (P_{left} - P_{right}) + F(t)
      * @f]
-     * where *K* is the specified expansion rate coefficient, *A* is the wall
-     * area, and *F(t)* is a specified function of time. Positive values for
-     * `vdot` correspond to increases in the volume of reactor on left, and
-     * decreases in the volume of the reactor on the right.
-     * @deprecated Still used by traditional MATLAB toolbox; replaceable by
-     *      expansionRate.
-     */
-    double vdot(double t) override;
-
-    //! Rate of volume change (m^3/s) for the adjacent reactors.
-    /*!
-     * The volume rate of change is given by
-     * @f[
-     *     \dot V = K A (P_{left} - P_{right}) + F(t)
-     * @f]
      * where *K* is the specified expansion rate coefficient, *A* is the wall area,
      * and and *F(t)* is a specified function evaluated at the current network time.
      * Positive values for `expansionRate` correspond to increases in the volume of
@@ -190,19 +151,6 @@ public:
     void setHeatFlux(Func1* q) {
         m_qf = q;
     }
-
-    //! Heat flow rate through the wall (W).
-    /*!
-     * The heat flux is given by
-     * @f[
-     *     Q = h A (T_{left} - T_{right}) + A G(t)
-     * @f]
-     * where *h* is the heat transfer coefficient, *A* is the wall area, and
-     * *G(t)* is a specified function of time. Positive values denote a flux
-     * from left to right.
-     * @deprecated Still used by traditional MATLAB toolbox; replaceable by heatRate.
-     */
-    double Q(double t) override;
 
     //! Heat flow rate through the wall (W).
     /*!
