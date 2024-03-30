@@ -52,7 +52,7 @@ extern "C" {
     int reactor_new3(const char* type, int n, const char* name)
     {
         try {
-            return ReactorCabinet::add(newReactor(type, SolutionCabinet::at(n)));
+            return ReactorCabinet::add(newReactor(type, SolutionCabinet::at(n), name));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }

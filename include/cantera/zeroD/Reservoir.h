@@ -30,7 +30,7 @@ public:
     void insert(ThermoPhase& contents) {
         warn_deprecated("Reservoir::insert",
             "Unused; to be removed after Cantera 3.1.");
-        setThermoMgr(contents);
+        setThermo(contents);
     }
 
     using ReactorBase::insert;

@@ -28,8 +28,6 @@ public:
         return "IdealGasConstPressureReactor";
     }
 
-    void setThermoMgr(ThermoPhase& thermo) override;
-
     void getState(double* y) override;
 
     void initialize(double t0=0.0) override;
@@ -45,6 +43,8 @@ public:
     string componentName(size_t k) override;
 
 protected:
+    void setThermo(ThermoPhase& thermo) override;
+
     vector<double> m_hk; //!< Species molar enthalpies
 };
 }

@@ -13,15 +13,15 @@
 namespace Cantera
 {
 
-void IdealGasConstPressureReactor::setThermoMgr(ThermoPhase& thermo)
+void IdealGasConstPressureReactor::setThermo(ThermoPhase& thermo)
 {
     //! @todo: Add a method to ThermoPhase that indicates whether a given
     //! subclass is compatible with this reactor model
     if (thermo.type() != "ideal-gas") {
-        throw CanteraError("IdealGasConstPressureReactor::setThermoMgr",
+        throw CanteraError("IdealGasConstPressureReactor::setThermo",
                            "Incompatible phase type provided");
     }
-    Reactor::setThermoMgr(thermo);
+    Reactor::setThermo(thermo);
 }
 
 void IdealGasConstPressureReactor::getState(double* y)

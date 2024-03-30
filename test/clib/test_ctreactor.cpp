@@ -8,6 +8,13 @@
 
 using namespace Cantera;
 
+TEST(ctreactor, reactor_soln)
+{
+    int sol = soln_newSolution("gri30.yaml", "gri30", "none");
+    int reactor = reactor_new3("IdealGasReactor", sol, "test");
+    ASSERT_EQ(reactor, 0);
+}
+
 TEST(ctreactor, reactor_objects)
 {
     int thermo = thermo_newFromFile("gri30.yaml", "gri30");
@@ -15,10 +22,12 @@ TEST(ctreactor, reactor_objects)
 
     int reactor = reactor_new("IdealGasReactor");
     ASSERT_GE(reactor, 0);
+    suppress_deprecation_warnings();
     int ret = reactor_setThermoMgr(reactor, thermo);
     ASSERT_EQ(ret, 0);
     ret = reactor_setKineticsMgr(reactor, kin);
     ASSERT_EQ(ret, 0);
+    make_deprecation_warnings_fatal();
 }
 
 vector<double> T_ctreactor = {
@@ -101,8 +110,10 @@ TEST(ctreactor, reactor_from_parts)
     thermo_setPressure(thermo, P);
 
     int reactor = reactor_new("IdealGasReactor");
+    suppress_deprecation_warnings();
     reactor_setThermoMgr(reactor, thermo);
     reactor_setKineticsMgr(reactor, kin);
+    make_deprecation_warnings_fatal();
     int net = reactornet_new();
     int ret = reactornet_addreactor(net, reactor);
     ASSERT_EQ(ret, 0);

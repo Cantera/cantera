@@ -95,17 +95,11 @@ public:
     //! Specify the mixture contained in the reactor. Note that a pointer to
     //! this substance is stored, and as the integration proceeds, the state of
     //! the substance is modified.
-    //! @since After %Cantera 3.1, this method will be become a 'protected' method for
-    //! internal use only.
-    //! @todo make protected
-    virtual void setThermoMgr(ThermoPhase& thermo);
+    //! @deprecated To be removed after %Cantera 3.1. Superseded by setSolution.
+    void setThermoMgr(ThermoPhase& thermo);
 
-    //! @since After %Cantera 3.1, this method will be become a 'protected' method for
-    //! internal use only.
-    //! @todo make protected
-    virtual void setKineticsMgr(Kinetics& kin) {
-        throw NotImplementedError("ReactorBase::setKineticsMgr");
-    }
+    //! @deprecated To be removed after %Cantera 3.1. Superseded by setSolution.
+    void setKineticsMgr(Kinetics& kin);
 
     //! Enable or disable changes in reactor composition due to chemical reactions.
     virtual void setChemistry(bool cflag = true) {
@@ -284,6 +278,18 @@ public:
     void setNetwork(ReactorNet* net);
 
 protected:
+    //! Specify the mixture contained in the reactor. Note that a pointer to
+    //! this substance is stored, and as the integration proceeds, the state of
+    //! the substance is modified.
+    //! @since New in %Cantera 3.1.
+    virtual void setThermo(ThermoPhase& thermo);
+
+    //! Specify the kinetics manager for the reactor. Called by setSolution().
+    //! @since New in %Cantera 3.1.
+    virtual void setKinetics(Kinetics& kin) {
+        throw NotImplementedError("ReactorBase::setKinetics");
+    }
+
     //! Number of homogeneous species in the mixture
     size_t m_nsp = 0;
 
