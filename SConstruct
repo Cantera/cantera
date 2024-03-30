@@ -2150,16 +2150,13 @@ elif env['OS'] == 'Darwin':
 else:
     env.PrependENVPath('LD_LIBRARY_PATH', Dir('#build/lib').abspath)
 
-for yaml in multi_glob(env, "data", "yaml"):
-    dest = Path() / "build" / "data" / yaml.name
-    build(env.Command(str(dest), yaml.path, Copy("$TARGET", "$SOURCE")))
-
 if addInstallActions:
     # Put headers in place
     install(env.RecursiveInstall, '$inst_incdir', 'include/cantera')
 
     # Data files
-    install(env.RecursiveInstall, '$inst_datadir', 'build/data')
+    for yaml in multi_glob(env, "data", "yaml"):
+        install("$inst_datadir", yaml)
 
 
 if env['system_sundials'] == 'y':

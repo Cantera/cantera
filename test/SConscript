@@ -31,7 +31,7 @@ for optimize_flag in ('-O3', '-O2', '/O2'):
         ccflags.remove(optimize_flag)
 localenv['CCFLAGS'] = ccflags
 
-localenv['ENV']['CANTERA_DATA'] = (Dir('#build/data').abspath + os.pathsep +
+localenv['ENV']['CANTERA_DATA'] = (Dir('#data').abspath + os.pathsep +
                                    Dir('#samples/data').abspath + os.pathsep +
                                    Dir('#test/data').abspath)
 
