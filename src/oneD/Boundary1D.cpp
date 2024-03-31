@@ -90,7 +90,7 @@ Inlet1D::Inlet1D()
 Inlet1D::Inlet1D(shared_ptr<Solution> solution, const string& id)
     : Inlet1D()
 {
-    m_solution = solution;
+    setSolution(solution);
     m_id = id;
 }
 
@@ -351,7 +351,7 @@ OutletRes1D::OutletRes1D()
 OutletRes1D::OutletRes1D(shared_ptr<Solution> solution, const string& id)
     : OutletRes1D()
 {
-    m_solution = solution;
+    setSolution(solution);
     m_id = id;
 }
 
@@ -591,7 +591,7 @@ ReactingSurf1D::ReactingSurf1D(shared_ptr<Solution> solution, const string& id)
             "Detected incompatible kinetics type '{}'",
             solution->kinetics()->kineticsType());
     }
-    m_solution = solution;
+    setSolution(solution);
     m_id = id;
     m_kin = kin.get();
     m_sphase = phase.get();
@@ -601,10 +601,11 @@ ReactingSurf1D::ReactingSurf1D(shared_ptr<Solution> solution, const string& id)
 
 void ReactingSurf1D::setKinetics(shared_ptr<Kinetics> kin)
 {
-    m_solution = Solution::create();
-    m_solution->setThermo(kin->reactionPhase());
-    m_solution->setKinetics(kin);
-    m_solution->setTransportModel("none");
+    auto sol = Solution::create();
+    sol->setThermo(kin->reactionPhase());
+    sol->setKinetics(kin);
+    sol->setTransportModel("none");
+    setSolution(sol);
     m_kin = dynamic_pointer_cast<InterfaceKinetics>(kin).get();
     m_sphase = dynamic_pointer_cast<SurfPhase>(kin->reactionPhase()).get();
     m_nsp = m_sphase->nSpecies();

@@ -60,9 +60,7 @@ public:
 
     //! Set the solution manager.
     //! @since New in %Cantera 3.0.
-    void setSolution(shared_ptr<Solution> sol) {
-        m_solution = sol;
-    }
+    void setSolution(shared_ptr<Solution> sol);
 
     //! Set the kinetics manager.
     //! @since New in %Cantera 3.0.
@@ -408,7 +406,7 @@ public:
     void linkLeft(Domain1D* left) {
         m_left = left;
         if (!m_solution && left && left->solution()) {
-            m_solution = left->solution();
+            setSolution(left->solution());
         }
         locate();
     }
@@ -417,7 +415,7 @@ public:
     void linkRight(Domain1D* right) {
         m_right = right;
         if (!m_solution && right && right->solution()) {
-            m_solution = right->solution();
+            setSolution(right->solution());
         }
     }
 

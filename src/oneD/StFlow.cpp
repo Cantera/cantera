@@ -92,14 +92,15 @@ StFlow::StFlow(ThermoPhase* ph, size_t nsp, size_t points) :
 StFlow::StFlow(shared_ptr<ThermoPhase> th, size_t nsp, size_t points)
     : StFlow(th.get(), nsp, points)
 {
-    m_solution = Solution::create();
-    m_solution->setThermo(th);
+    auto sol = Solution::create();
+    sol->setThermo(th);
+    setSolution(sol);
 }
 
 StFlow::StFlow(shared_ptr<Solution> sol, const string& id, size_t points)
     : StFlow(sol->thermo().get(), sol->thermo()->nSpecies(), points)
 {
-    m_solution = sol;
+    setSolution(sol);
     m_id = id;
     m_kin = m_solution->kinetics().get();
     m_trans = m_solution->transport().get();
