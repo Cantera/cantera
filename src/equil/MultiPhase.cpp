@@ -20,6 +20,13 @@ using namespace std;
 namespace Cantera
 {
 
+MultiPhase::~MultiPhase()
+{
+    for (size_t i = 0; i < m_phase.size(); i++) {
+        m_phase[i]->removeSpeciesLock();
+    }
+}
+
 void MultiPhase::addPhases(MultiPhase& mix)
 {
     for (size_t n = 0; n < mix.nPhases(); n++) {
@@ -101,6 +108,9 @@ void MultiPhase::addPhase(ThermoPhase* p, double moles)
         m_Tmin = std::max(p->minTemp(), m_Tmin);
         m_Tmax = std::min(p->maxTemp(), m_Tmax);
     }
+
+    // lock species list
+    p->addSpeciesLock();
 }
 
 void MultiPhase::init()
