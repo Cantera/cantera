@@ -713,6 +713,18 @@ public:
     //!     @param alias alternate name
     void addSpeciesAlias(const string& name, const string& alias);
 
+    //! Lock species list to prevent addition of new species.
+    //! Increments a reference counter used to track whether the Phase is being used by
+    //! a Reactor, Domain1D, or MultiPhase object, which require the number of species
+    //! to remain constant. Should be called in C++ by the object owning the reference.
+    void addSpeciesLock() {
+        m_nSpeciesLocks++;
+    }
+
+    //! Decrement species lock counter.
+    //! Should only be called in C++ by the object owning the reference.
+    void removeSpeciesLock();
+
     //! Return a vector with isomers names matching a given composition map
     //!     @param compMap Composition of the species.
     //!     @return A vector of species names for matching species.
@@ -852,7 +864,9 @@ protected:
 
     vector<double> m_speciesCharge; //!< Vector of species charges. length m_kk.
 
-    map<string, shared_ptr<Species>> m_species;
+    map<string, shared_ptr<Species>> m_species; //!< Map of Species objects
+
+    size_t m_nSpeciesLocks = 0; //!< Reference counter preventing species addition
 
     //! Flag determining behavior when adding species with an undefined element
     UndefElement::behavior m_undefinedElementBehavior = UndefElement::add;

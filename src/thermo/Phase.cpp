@@ -698,7 +698,15 @@ size_t Phase::addElement(const string& symbol, double weight, int atomic_number,
     return m_mm-1;
 }
 
-bool Phase::addSpecies(shared_ptr<Species> spec) {
+bool Phase::addSpecies(shared_ptr<Species> spec)
+{
+    if (m_nSpeciesLocks) {
+        throw CanteraError("Phase::addSpecies",
+                "Cannot add species to ThermoPhase '{}' because it is being "
+                "used by another object,\nsuch as a Reactor, Domain1D (flame), "
+                "SolutionArray, or MultiPhase (Mixture) object.", m_name);
+    }
+
     if (m_species.find(spec->name) != m_species.end()) {
         throw CanteraError("Phase::addSpecies",
             "Phase '{}' already contains a species named '{}'.",
@@ -833,6 +841,15 @@ void Phase::addSpeciesAlias(const string& name, const string& alias)
             "Unable to add alias '{}' "
             "(original species '{}' not found).", alias, name);
     }
+}
+
+void Phase::removeSpeciesLock()
+{
+    if (!m_nSpeciesLocks) {
+        throw CanteraError("Phase::removeSpeciesLock",
+                "ThermoPhase '{}' has no current species locks.", m_name);
+    }
+    m_nSpeciesLocks--;
 }
 
 vector<string> Phase::findIsomers(const Composition& compMap) const
