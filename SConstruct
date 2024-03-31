@@ -1172,18 +1172,7 @@ if env['system_fmt'] in ('y', 'default'):
 
 if env['system_fmt'] in ('n', 'default'):
     if not os.path.exists('ext/fmt/include/fmt/ostream.h'):
-        if not os.path.exists('.git'):
-            config_error('fmt is missing. Install source in ext/fmt.')
-
-        try:
-            code = subprocess.call(['git','submodule','update','--init',
-                                    '--recursive','ext/fmt'])
-        except Exception:
-            code = -1
-        if code:
-            config_error('fmt submodule checkout failed.\n'
-                         'Try manually checking out the submodule with:\n\n'
-                         '    git submodule update --init --recursive ext/fmt\n')
+        checkout_submodule("fmt", "ext/fmt")
 
     fmt_version_source = get_expression_value(
         ['"../ext/fmt/include/fmt/format.h"'], 'FMT_VERSION', ['FMT_HEADER_ONLY'])
@@ -1217,18 +1206,7 @@ if env['system_yamlcpp'] in ('n', 'default'):
     env['system_yamlcpp'] = False
     logger.info("Using private installation of yaml-cpp library.")
     if not os.path.exists('ext/yaml-cpp/include/yaml-cpp/yaml.h'):
-        if not os.path.exists('.git'):
-            config_error('yaml-cpp is missing. Install source in ext/yaml-cpp.')
-
-        try:
-            code = subprocess.call(['git', 'submodule', 'update', '--init',
-                                    '--recursive', 'ext/yaml-cpp'])
-        except Exception:
-            code = -1
-        if code:
-            config_error('yaml-cpp submodule checkout failed.\n'
-                         'Try manually checking out the submodule with:\n\n'
-                         '    git submodule update --init --recursive ext/yaml-cpp\n')
+        checkout_submodule("yaml-cpp", "ext/yaml-cpp")
 
 # Check for googletest and checkout submodule if needed
 if env['googletest'] in ('system', 'default'):
@@ -1246,22 +1224,10 @@ if env['googletest'] in ('submodule', 'default'):
     has_gtest = os.path.exists('ext/googletest/googletest/include/gtest/gtest.h')
     has_gmock = os.path.exists('ext/googletest/googlemock/include/gmock/gmock.h')
     if not (has_gtest and has_gmock):
-        if not os.path.exists('.git'):
-            config_error('Googletest is missing. Install source in ext/googletest.')
-
-        try:
-            code = subprocess.call(['git','submodule','update','--init',
-                                    '--recursive','ext/googletest'])
-        except Exception:
-            code = -1
-        if code:
-            config_error('Googletest not found and submodule checkout failed.\n'
-                         'Try manually checking out the submodule with:\n\n'
-                         '    git submodule update --init --recursive ext/googletest\n')
-    logger.info("Using Googletest from Git submodule")
+        checkout_submodule("Googletest", "ext/googletest")
 
 if env['googletest'] == 'none':
-    logger.info("Not using Googletest -- unable to run complete test suite")
+    logger.info("Not using GoogleTest -- unable to run complete test suite")
 
 # Check for Eigen and checkout submodule if needed
 if env["system_eigen"] in ("y", "default"):
@@ -1283,18 +1249,7 @@ if env["system_eigen"] in ("n", "default"):
     env["system_eigen"] = False
     logger.info("Using private installation of Eigen.")
     if not os.path.exists("ext/eigen/Eigen/Dense"):
-        if not os.path.exists(".git"):
-            config_error("Eigen is missing. Install Eigen in ext/eigen.")
-
-        try:
-            code = subprocess.call(["git","submodule","update","--init",
-                                    "--recursive","ext/eigen"])
-        except Exception:
-            code = -1
-        if code:
-            config_error("Eigen not found and submodule checkout failed.\n"
-                         "Try manually checking out the submodule with:\n\n"
-                         "    git submodule update --init --recursive ext/eigen\n")
+        checkout_submodule("Eigen", "ext/eigen")
     eigen_include = '"../ext/eigen/Eigen/Core"'
 
 eigen_versions = 'QUOTE(EIGEN_WORLD_VERSION) "." QUOTE(EIGEN_MAJOR_VERSION) "." QUOTE(EIGEN_MINOR_VERSION)'
@@ -1433,18 +1388,7 @@ else:
 # Checkout Sundials submodule if needed
 if (env['system_sundials'] == 'n' and
     not os.path.exists('ext/sundials/include/cvodes/cvodes.h')):
-    if not os.path.exists('.git'):
-        config_error('Sundials is missing. Install source in ext/sundials.')
-
-    try:
-        code = subprocess.call(['git','submodule','update','--init',
-                                '--recursive','ext/sundials'])
-    except Exception:
-        code = -1
-    if code:
-        config_error('Sundials not found and submodule checkout failed.\n'
-                     'Try manually checking out the submodule with:\n\n'
-                     '    git submodule update --init --recursive ext/sundials\n')
+    checkout_submodule("Sundials", "ext/sundials")
 
 env['NEED_LIBM'] = not conf.CheckLibWithHeader(None, 'math.h', 'C',
                                                'double x; log(x);', False)
@@ -1557,18 +1501,7 @@ if env["use_hdf5"] and env["system_highfive"] in ("y", "default"):
 if env["use_hdf5"] and env["system_highfive"] in ("n", "default"):
     env["system_highfive"] = False
     if not Path("ext/HighFive/include").is_dir():
-        if not os.path.exists(".git"):
-            config_error("HighFive is missing. Install HighFive in ext/HighFive.")
-
-        try:
-            code = subprocess.call(["git", "submodule", "update", "--init",
-                                    "--recursive", "ext/HighFive"])
-        except Exception:
-            code = -1
-        if code:
-            config_error("HighFive not found and submodule checkout failed.\n"
-                        "Try manually checking out the submodule with:\n\n"
-                        "    git submodule update --init --recursive ext/HighFive\n")
+        checkout_submodule("HighFive", "ext/HighFive")
 
     def highfive_version(cmake_lists):
         """Read highfive version from CMakeLists.txt"""

@@ -29,7 +29,8 @@ __all__ = ("Option", "PathOption", "BoolOption", "EnumOption", "Configuration",
            "logger", "remove_directory", "remove_file", "test_results",
            "add_RegressionTest", "get_command_output", "listify", "which",
            "ConfigBuilder", "multi_glob", "get_spawn", "quoted", "add_system_include",
-           "get_pip_install_location", "compiler_flag_list", "setup_python_env")
+           "get_pip_install_location", "compiler_flag_list", "setup_python_env",
+           "checkout_submodule")
 
 if TYPE_CHECKING:
     from typing import Iterable, TypeVar, Union, List, Dict, Tuple, Optional, \
@@ -1427,3 +1428,20 @@ def get_pip_install_location(
         print(json.dumps(scheme))
     """)
     return json.loads(get_command_output(python_cmd, "-c", install_script))
+
+
+def checkout_submodule(name: str, submodule_path: str):
+    if not os.path.exists(".git"):
+        logger.error(f"{name} is missing. Extract package in {submodule_path}.")
+        sys.exit(1)
+
+    try:
+        code = subprocess.call(["git", "submodule", "update", "--init",
+                                "--recursive", submodule_path])
+    except Exception:
+        code = -1
+    if code:
+        logger.error(f"{name} submodule checkout failed.\n"
+                      "Try manually checking out the submodule by running:\n\n"
+                     f"    git submodule update --init --recursive {submodule_path}\n")
+        sys.exit(1)
