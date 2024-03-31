@@ -47,6 +47,7 @@ python_requires @py_requires_ver_str@
 packages =
     cantera
     cantera.data
+    cantera.data.example_data
     cantera.test
     cantera.examples
     cantera.with_units
@@ -57,6 +58,7 @@ packages =
 # we have to treat the module as package data.
 cantera = *.pxd, *.dll, *@py_module_ext@
 cantera.data = *.*
+cantera.data.example_data = *.*
 cantera.test = *.txt
 cantera.examples = *.txt
 
