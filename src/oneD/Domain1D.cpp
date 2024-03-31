@@ -9,7 +9,9 @@
 #include "cantera/oneD/MultiJac.h"
 #include "cantera/oneD/refine.h"
 #include "cantera/base/AnyMap.h"
+#include "cantera/base/Solution.h"
 #include "cantera/base/SolutionArray.h"
+#include "cantera/thermo/ThermoPhase.h"
 
 namespace Cantera
 {
@@ -21,6 +23,22 @@ Domain1D::Domain1D(size_t nv, size_t points, double time)
 
 Domain1D::~Domain1D()
 {
+    if (m_solution) {
+        m_solution->thermo()->removeSpeciesLock();
+    }
+}
+
+void Domain1D::setSolution(shared_ptr<Solution> sol)
+{
+    if (!sol || !(sol->thermo())) {
+        throw CanteraError("Domain1D::setSolution",
+            "Missing or incomplete Solution object.");
+    }
+    if (m_solution) {
+        m_solution->thermo()->removeSpeciesLock();
+    }
+    m_solution = sol;
+    m_solution->thermo()->addSpeciesLock();
 }
 
 void Domain1D::resize(size_t nv, size_t np)

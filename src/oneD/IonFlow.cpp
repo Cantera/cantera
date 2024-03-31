@@ -56,7 +56,7 @@ IonFlow::IonFlow(ThermoPhase* ph, size_t nsp, size_t points) :
 IonFlow::IonFlow(shared_ptr<Solution> sol, const string& id, size_t points)
     : IonFlow(sol->thermo().get(), sol->thermo()->nSpecies(), points)
 {
-    m_solution = sol;
+    setSolution(sol);
     m_id = id;
     m_kin = m_solution->kinetics().get();
     m_trans = m_solution->transport().get();

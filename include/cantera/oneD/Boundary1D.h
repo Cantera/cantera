@@ -186,7 +186,7 @@ public:
     Empty1D() = default;
 
     Empty1D(shared_ptr<Solution> solution, const string& id="") : Empty1D() {
-        m_solution = solution;
+        setSolution(solution);
         m_id = id;
     }
 
@@ -213,7 +213,7 @@ public:
     Symm1D() = default;
 
     Symm1D(shared_ptr<Solution> solution, const string& id="") : Symm1D() {
-        m_solution = solution;
+        setSolution(solution);
         m_id = id;
     }
 
@@ -239,7 +239,7 @@ public:
     Outlet1D() = default;
 
     Outlet1D(shared_ptr<Solution> solution, const string& id="") : Outlet1D() {
-        m_solution = solution;
+        setSolution(solution);
         m_id = id;
     }
 
@@ -305,7 +305,7 @@ public:
     Surf1D() = default;
 
     Surf1D(shared_ptr<Solution> solution, const string& id="") : Surf1D() {
-        m_solution = solution;
+        setSolution(solution);
         m_id = id;
     }
 
