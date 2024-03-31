@@ -8,10 +8,6 @@ from .solutionbase cimport *
 from .thermo cimport *
 from ._utils cimport *
 
-# Need a pure-python class to store weakrefs to
-class _WeakrefProxy:
-    pass
-
 cdef class Mixture:
     """
 
@@ -44,7 +40,6 @@ cdef class Mixture:
     def __cinit__(self, phases):
         self.mix = new CxxMultiPhase()
         self._phases = []
-        self._weakref_proxy = _WeakrefProxy()
 
         cdef _SolutionBase phase
         if isinstance(phases[0], _SolutionBase):
@@ -53,7 +48,6 @@ cdef class Mixture:
 
         for phase,moles in phases:
             # Block species from being added to the phase as long as this object exists
-            phase._references[self._weakref_proxy] = True
             self.mix.addPhase(phase.thermo, moles)
             self._phases.append(phase)
 

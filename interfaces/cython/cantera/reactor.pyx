@@ -14,10 +14,6 @@ from .drawnetwork import *
 
 _reactor_counts = _defaultdict(int)
 
-# Need a pure-python class to store weakrefs to
-class _WeakrefProxy:
-    pass
-
 cdef class ReactorBase:
     """
     Common base class for reactors and reservoirs.
@@ -41,8 +37,6 @@ cdef class ReactorBase:
 
     def __init__(self, _SolutionBase contents=None, name=None, *, volume=None,
                  node_attr=None):
-
-        self._weakref_proxy = _WeakrefProxy()
         self._inlets = []
         self._outlets = []
         self._walls = []
@@ -61,8 +55,6 @@ cdef class ReactorBase:
         properties and kinetic rates for this reactor.
         """
         self._thermo = solution
-        # Block species from being added to the phase as long as this object exists
-        self._thermo._references[self._weakref_proxy] = True
         self.rbase.setSolution(solution._base)
 
     property type:

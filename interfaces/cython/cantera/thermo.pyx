@@ -270,10 +270,9 @@ cdef class ThermoPhase(_SolutionBase):
         # In composite objects, the ThermoPhase constructor needs to be called first
         # to prevent instantiation of stand-alone 'Kinetics' or 'Transport' objects.
         # The following is used as a sentinel. After initialization, the _references
-        # object is used to track whether the ThermoPhase is being used by a `Reactor`,
-        # `Domain1D`, or `Mixture` object and to prevent species from being added to the
-        # ThermoPhase if so, since these objects require the number of species to remain
-        # constant.
+        # object is used to track whether the ThermoPhase is being used by other
+        # objects that require the number of species to remain constant and do not
+        # have C++ implementations (e.g. Quantity objects).
         self._references = weakref.WeakKeyDictionary()
         # validate plasma phase
         self._enable_plasma = False
@@ -583,8 +582,7 @@ cdef class ThermoPhase(_SolutionBase):
         """
         if self._references:
             raise CanteraError('Cannot add species to ThermoPhase object because it'
-                ' is being used by another object,\nsuch as a Reactor, Domain1D (flame),'
-                ' SolutionArray, Quantity, or Mixture object.')
+                ' is being used by a Quantity object.')
         self.thermo.addUndefinedElements()
         self.thermo.addSpecies(species._species)
         species._phase = self

@@ -153,7 +153,6 @@ cdef class Domain1D:
     cdef shared_ptr[CxxDomain1D] _domain
     cdef CxxDomain1D* domain
     cdef _SolutionBase gas
-    cdef object _weakref_proxy
     cdef public pybool have_user_tolerances
 
 cdef class Boundary1D(Domain1D):
