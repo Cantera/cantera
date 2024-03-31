@@ -65,7 +65,7 @@ public:
 
     //! Destructor. Does nothing. Class MultiPhase does not take "ownership"
     //! (that is, responsibility for destroying) the phase objects.
-    virtual ~MultiPhase() = default;
+    virtual ~MultiPhase();
 
     //! Add a vector of phases to the mixture
     /*!
