@@ -9,23 +9,16 @@ from ._utils cimport stringify, pystr, anymap_to_py
 from ._utils import CanteraError
 from cython.operator import dereference as deref
 
-# Need a pure-python class to store weakrefs to
-class _WeakrefProxy:
-    pass
-
 cdef class Domain1D:
     _domain_type = "none"
     def __cinit__(self, _SolutionBase phase not None, *args, **kwargs):
         self.domain = NULL
 
     def __init__(self, phase, *args, **kwargs):
-        self._weakref_proxy = _WeakrefProxy()
         if self.domain is NULL:
             raise TypeError("Can't instantiate abstract class Domain1D.")
 
         self.gas = phase
-        # Block species from being added to the phase as long as this object exists
-        self.gas._references[self._weakref_proxy] = True
         self.set_default_tolerances()
 
     property phase:
@@ -424,7 +417,6 @@ cdef class ReactingSurface1D(Boundary1D):
     _domain_type = "reacting-surface"
 
     def __init__(self, _SolutionBase phase, name=None):
-        self._weakref_proxy = _WeakrefProxy()
         gas = None
         for val in phase._adjacent.values():
             if val.phase_of_matter == "gas":
@@ -435,8 +427,6 @@ cdef class ReactingSurface1D(Boundary1D):
         super().__init__(gas, name=name)
 
         self.surface = phase
-        # Block species from being added to the phase as long as this object exists
-        self.surface._references[self._weakref_proxy] = True
 
     property phase:
         """

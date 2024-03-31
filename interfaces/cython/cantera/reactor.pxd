@@ -222,7 +222,6 @@ cdef class ReactorBase:
     cdef list _outlets
     cdef list _walls
     cdef list _surfaces
-    cdef object _weakref_proxy
     cdef public dict node_attr
     """
     A dictionary containing draw attributes for the representation of the reactor as a

@@ -142,6 +142,11 @@ class DustyGas(DustyGasTransport, Kinetics, ThermoPhase):
     __slots__ = ()
 
 
+# A pure-Python class to store weakrefs to
+class _WeakrefProxy:
+    pass
+
+
 class Quantity:
     """
     A class representing a specific quantity of a `Solution`. In addition to the
@@ -382,11 +387,6 @@ for _attr in dir(Solution):
             setattr(Quantity, _attr, _prop(_attr))
 
 
-# A pure-Python class to store weakrefs to
-class _WeakrefProxy:
-    pass
-
-
 class SolutionArray(SolutionArrayBase):
     """
     A class providing a convenient interface for representing many thermodynamic
@@ -583,8 +583,6 @@ class SolutionArray(SolutionArrayBase):
 
     def __init__(self, phase, shape=(0,), states=None, extra=None, meta={}, init=True):
         self._phase = phase
-        self._weakref_proxy = _WeakrefProxy()
-        phase._references[self._weakref_proxy] = True
         if not init:
             return
 
