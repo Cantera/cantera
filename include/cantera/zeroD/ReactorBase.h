@@ -56,7 +56,7 @@ public:
     //! @param name  Name of the reactor.
     //! @since New in %Cantera 3.1.
     ReactorBase(shared_ptr<Solution> sol, const string& name = "(none)");
-    virtual ~ReactorBase() = default;
+    virtual ~ReactorBase();
     ReactorBase(const ReactorBase&) = delete;
     ReactorBase& operator=(const ReactorBase&) = delete;
 

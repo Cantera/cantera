@@ -24,7 +24,21 @@ ReactorBase::ReactorBase(shared_ptr<Solution> sol, const string& name)
     setSolution(sol);
 }
 
+ReactorBase::~ReactorBase()
+{
+    if (m_solution) {
+        m_solution->thermo()->removeSpeciesLock();
+    }
+}
+
 void ReactorBase::setSolution(shared_ptr<Solution> sol) {
+    if (!sol || !(sol->thermo())) {
+        throw CanteraError("ReactorBase::setSolution",
+            "Missing or incomplete Solution object.");
+    }
+    if (m_solution) {
+        m_solution->thermo()->removeSpeciesLock();
+    }
     m_solution = sol;
     setThermoMgr(*sol->thermo());
     try {
@@ -32,6 +46,7 @@ void ReactorBase::setSolution(shared_ptr<Solution> sol) {
     } catch (NotImplementedError&) {
         // kinetics not used (example: Reservoir)
     }
+    m_solution->thermo()->addSpeciesLock();
 }
 
 void ReactorBase::insert(shared_ptr<Solution> sol)
