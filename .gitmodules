@@ -19,3 +19,7 @@
 [submodule "ext/doxygen-awesome-css"]
 	path = ext/doxygen-awesome-css
 	url = https://github.com/jothepro/doxygen-awesome-css.git
+[submodule "data/example-data"]
+	path = data/example_data
+	url = https://github.com/cantera/cantera-example-data
+	shallow = true

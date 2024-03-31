@@ -317,6 +317,12 @@ config_options = [
         """Options passed to the 'sphinx_cmd' command line. Separate multiple
            options with spaces, for example, "-W --keep-going".""",
         "-W --keep-going"),
+    BoolOption(
+        "example_data",
+        """Install data files used in examples. These files will be accessible on the
+           Cantera data path using a prefix, such as 'example_data/mech.yaml'""",
+        True,
+    ),
     EnumOption(
         "system_eigen",
         """Select whether to use Eigen from a system installation ('y'), from a
@@ -2083,6 +2089,13 @@ elif env['OS'] == 'Darwin':
 else:
     env.PrependENVPath('LD_LIBRARY_PATH', Dir('#build/lib').abspath)
 
+
+if (env["example_data"]
+    and not list(Path("data/example_data").glob("*.yaml"))
+):
+    checkout_submodule("cantera-example-data", "data/example_data")
+
+
 if addInstallActions:
     # Put headers in place
     install(env.RecursiveInstall, '$inst_incdir', 'include/cantera')
@@ -2090,6 +2103,10 @@ if addInstallActions:
     # Data files
     for yaml in multi_glob(env, "data", "yaml"):
         install("$inst_datadir", yaml)
+
+    if env["example_data"]:
+        for yaml in multi_glob(env, "data/example_data", "yaml"):
+            install("$inst_datadir/example_data", yaml)
 
 
 if env['system_sundials'] == 'y':
