@@ -24,7 +24,7 @@ namespace Cantera
 
 Reactor::Reactor(shared_ptr<Solution> sol, const string& name)
 {
-    m_solution = sol;
+    setSolution(sol);
     m_name = name;
     setThermo(*sol->thermo());
     setKinetics(*sol->kinetics());
