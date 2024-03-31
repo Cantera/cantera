@@ -44,11 +44,12 @@ SolutionArray::SolutionArray(const shared_ptr<Solution>& sol,
     , m_dataSize(size)
     , m_meta(meta)
 {
-    if (!m_sol) {
+    if (!m_sol || !m_sol->thermo()) {
         throw CanteraError("SolutionArray::SolutionArray",
             "Unable to create SolutionArray from invalid Solution object.");
     }
     m_stride = m_sol->thermo()->stateSize();
+    m_sol->thermo()->addSpeciesLock();
     m_data = make_shared<vector<double>>(m_dataSize * m_stride, 0.);
     m_extra = make_shared<map<string, AnyValue>>();
     m_order = make_shared<map<int, string>>();
@@ -72,6 +73,7 @@ SolutionArray::SolutionArray(const SolutionArray& other,
     , m_shared(true)
     , m_active(selected)
 {
+    m_sol->thermo()->addSpeciesLock();
     for (auto loc : m_active) {
         if (loc < 0 || loc >= (int)m_dataSize) {
             IndexError("SolutionArray::SolutionArray", "indices", loc, m_dataSize);
@@ -81,6 +83,11 @@ SolutionArray::SolutionArray(const SolutionArray& other,
     if (unique.size() < selected.size()) {
         throw CanteraError("SolutionArray::SolutionArray", "Indices must be unique.");
     }
+}
+
+SolutionArray::~SolutionArray()
+{
+    m_sol->thermo()->removeSpeciesLock();
 }
 
 namespace { // restrict scope of helper functions to local translation unit

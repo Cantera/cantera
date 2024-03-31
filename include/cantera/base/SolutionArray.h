@@ -39,7 +39,7 @@ private:
     SolutionArray(const SolutionArray& arr, const vector<int>& indices);
 
 public:
-    virtual ~SolutionArray() {}
+    virtual ~SolutionArray();
 
     /**
      *  Instantiate a new SolutionArray reference.
