@@ -38,7 +38,7 @@ class ReactorOde:
         return np.hstack(dYdt)
 
 
-plasma = ct.Solution('oxygen-plasma-itikawa.yaml',
+plasma = ct.Solution('example_data/oxygen-plasma-itikawa.yaml',
                      'isotropic-electron-energy-plasma',
                       transport_model=None)
 
