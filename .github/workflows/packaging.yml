@@ -71,10 +71,3 @@ jobs:
           -f incoming_ref=${{ env.REF }}
         env:
           GITHUB_TOKEN: ${{ secrets.WINDOWS_MSI_PAT }}
-      - name: Trigger macOS Package Builds
-        run: >
-          gh workflow run -R cantera/cantera-macos-pkg
-          main.yml
-          -f incoming_ref=${{ env.REF }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.MACOS_PKG_PAT }}
