@@ -57,7 +57,7 @@ corresponding experiments can be found in
     L. Simitz, D. Trimis, M. Ihme
     Combustion and Flame, 250 (https://doi.org/10.1016/j.combustflame.2023.112642)
 
-Requires: cantera >= 2.6.0, matplotlib >= 2.0
+Requires: cantera >= 3.1.0, matplotlib >= 2.0
 
 .. tags:: Python, user-defined model, reactor network, combustion, porous media,
           heat transfer, radiative heat transfer
@@ -145,21 +145,21 @@ YZA40PPI = SolidProperties(porosity=0.82,
                            pore_diameter=0.00025,
                            heat_conductivity=effectiveConductivityYZA,
                            specific_area=2373.,
-                           solid_phase=ct.Solution("YZA.yaml"),
+                           solid_phase=ct.Solution("example_data/YZA.yaml"),
                            emissivity=0.85)
 
 SiC3PPI = SolidProperties(porosity=0.84,
                           pore_diameter=0.0085,
                           heat_conductivity=effectiveConductivitySiC,
                           specific_area=246.075,
-                          solid_phase=ct.Solution("silicon_carbide.yaml"),
+                          solid_phase=ct.Solution("example_data/silicon_carbide.yaml"),
                           emissivity=0.85)
 
 SiC10PPI = SolidProperties(porosity=0.84,
                            pore_diameter=0.00134,
                            heat_conductivity=effectiveConductivitySiC,
                            specific_area=978.,
-                           solid_phase=ct.Solution("silicon_carbide.yaml"),
+                           solid_phase=ct.Solution("example_data/silicon_carbide.yaml"),
                            emissivity=0.85)
 
 
