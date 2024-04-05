@@ -47,6 +47,14 @@ jobs:
       - name: Whitespace errors
         if: success() || failure()
         run: |
+          # These are files that should be ignored for whitespace checks
+          echo ".gitmodules -diff" >> .gitattributes
+          echo "*.sln -diff" >> .gitattributes
+          echo "test/data/*.inp -diff" >> .gitattributes
+          echo "test/data/*.xml -diff" >> .gitattributes
+          echo "test/data/*.cti -diff" >> .gitattributes
+          echo "test_problems/**/*blessed* -diff" >> .gitattributes
+
           git config --global core.autocrlf false
           git config --global core.whitespace \
             -cr-at-eol,tab-in-indent,blank-at-eol,blank-at-eof
