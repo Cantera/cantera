@@ -19,7 +19,7 @@ coverage. That is, it encompasses CO*-CO* interaction as well as CO*-O*
 interaction. The CO* enthalpy is plotted as a function of CO* and O*
 coverages.
 
-Requires: cantera >= 3.0.0, matplotlib >= 2.0
+Requires: cantera >= 3.1.0, matplotlib >= 2.0
 
 .. tags:: Python, thermodynamics, surface chemistry, catalysis
 """
@@ -56,7 +56,7 @@ i_CO = 1
 for model in models_dict:
     # dependency parameters are provided in covdepsurf.yaml
     # import a phase from covdepsurf.yaml and set temperature and pressure
-    phase = ct.Interface('covdepsurf.yaml',
+    phase = ct.Interface('example_data/covdepsurf.yaml',
                          models_dict[model]['phase_name'])
     phase.TP = 300, ct.one_atm
     # under the current model, create empty lists to store enthalpy and
@@ -100,7 +100,7 @@ plt.clf()
 # second demonstration: coverage dependence from self- and cross-interaction
 
 # import a phase with both types of lateral interactions
-phase = ct.Interface('covdepsurf.yaml', 'covdep_cross')
+phase = ct.Interface('example_data/covdepsurf.yaml', 'covdep_cross')
 phase.TP = 300, ct.one_atm
 
 # create an array of coverages
