@@ -1,3 +1,4 @@
+from pathlib import Path
 import numpy as np
 import pytest
 from pytest import approx
@@ -322,3 +323,8 @@ class TestAnyMap(utilities.CanteraTest):
         outer.set_activation_energy('cheese', 12, 'V/m')
         with pytest.raises(ct.CanteraError):
             _py_to_anymap_to_py(outer)
+
+def test_list_data_files():
+    data_files = ct.list_data_files()
+    assert "gri30.yaml" in data_files
+    assert str(Path("example_data/oxygen-plasma-itikawa.yaml")) in data_files
