@@ -7,19 +7,19 @@ from ._utils import get_data_directories, add_directory
 
 def list_data_files(ext=".yaml"):
     """
-    Lists input data files.
+    Lists input data files. Includes files in subdirectories, except for subdirectories
+    of the current working directory.
 
     :param ext:
         Extension of files to be displayed.
     :return:
         List of input data files.
     """
-    data_files = []
+    data_files = set()
     for folder in get_data_directories():
         here = Path(folder)
-        if here.is_dir():
-            files = [x.name for x in here.iterdir() if x.name.endswith(ext)]
-        data_files.extend(files)
-    data_files = list(set(data_files))
-    data_files.sort()
-    return data_files
+        if folder == ".":
+            data_files.update(f.name for f in here.glob(f"*{ext}"))
+        elif here.is_dir():
+            data_files.update(str(f.relative_to(here)) for f in here.glob(f"**/*{ext}"))
+    return sorted(data_files)
