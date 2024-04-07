@@ -123,7 +123,7 @@ public:
     //! @warning This function is an experimental part of the %Cantera API and may be
     //! changed
     //! or removed without notice.
-    //! @since New in %Cantera 3.0.
+    //! @since New in %Cantera 3.1.
     //!
     virtual void buildReactorJacobian(ReactorBase* r, vector<Eigen::Triplet<double>>& jacVector) {
         throw NotImplementedError(type() + "::buildReactorJacobian");
@@ -137,7 +137,7 @@ public:
     //! @warning This function is an experimental part of the %Cantera API and may be
     //! changed
     //! or removed without notice.
-    //! @since New in %Cantera 3.0.
+    //! @since New in %Cantera 3.1.
     //!
     virtual void buildNetworkJacobian(vector<Eigen::Triplet<double>>& jacVector) {
         if (!m_jac_calculated) {
@@ -149,16 +149,16 @@ public:
     //! @warning This function is an experimental part of the %Cantera API and may be
     //! changed
     //! or removed without notice.
-    //! @since New in %Cantera 3.0.
+    //! @since New in %Cantera 3.1.
     //!
-    void jacobianCalculated() { m_jac_calculated = true; };
+    void calculatedJacobian() { m_jac_calculated = true; };
 
     //! Specify that jacobian terms have not been calculated and should be recalculated.
     //! @warning This function is an experimental part of the %Cantera API and may be changed
     //! or removed without notice.
-    //! @since New in %Cantera 3.0.
+    //! @since New in %Cantera 3.1.
     //!
-    void jacobianNotCalculated() { m_jac_calculated = false; };
+    void notCalculatedJacobian() { m_jac_calculated = false; };
 
 protected:
     //! a variable to switch on and off so calculations are not doubled by the calling

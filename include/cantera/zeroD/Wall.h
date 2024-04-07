@@ -95,12 +95,11 @@ public:
     //! Build the Jacobian terms specific to the flow device for the given connected
     //! reactor.
     //! @param r a pointer to the calling reactor
-    //! @param jacVector a vector of triplets to be added to the jacobian for the
+    //! @param jacVector a vector of triplets to be added to the Jacobian for the
     //! reactor
     //! @warning This function is an experimental part of the %Cantera API and may be
-    //! changed
-    //! or removed without notice.
-    //! @since New in %Cantera 3.0.
+    //! changed or removed without notice.
+    //! @since New in %Cantera 3.1.
     //!
     virtual void buildReactorJacobian(ReactorBase* r, vector<Eigen::Triplet<double>>& jacVector) {
         throw NotImplementedError("WallBase::buildReactorJacobian");
@@ -109,32 +108,29 @@ public:
     //! Build the Jacobian terms specific to the flow device for the network. These
     //! terms
     //! will be adjusted to the networks indexing system outside of the reactor.
-    //! @param jacVector a vector of triplets to be added to the jacobian for the
+    //! @param jacVector a vector of triplets to be added to the Jacobian for the
     //! reactor
     //! @warning This function is an experimental part of the %Cantera API and may be
-    //! changed
-    //! or removed without notice.
-    //! @since New in %Cantera 3.0.
+    //! changed or removed without notice.
+    //! @since New in %Cantera 3.1.
     //!
     virtual void buildNetworkJacobian(vector<Eigen::Triplet<double>>& jacVector) {
         throw NotImplementedError("WallBase::buildNetworkJacobian");
     }
 
-    //! Specify the jacobian terms have been calculated and should not be recalculated.
+    //! Specify the Jacobian terms have been calculated and should not be recalculated.
     //! @warning This function is an experimental part of the %Cantera API and may be
-    //! changed
-    //! or removed without notice.
-    //! @since New in %Cantera 3.0.
+    //! changed or removed without notice.
+    //! @since New in %Cantera 3.1.
     //!
-    void jacobianCalculated() { m_jac_calculated = true; };
+    void calculatedJacobian() { m_jac_calculated = true; };
 
-    //! Specify that jacobian terms have not been calculated and should be recalculated.
+    //! Specify that Jacobian terms have not been calculated and should be recalculated.
     //! @warning This function is an experimental part of the %Cantera API and may be
-    //! changed
-    //! or removed without notice.
-    //! @since New in %Cantera 3.0.
+    //! changed or removed without notice.
+    //! @since New in %Cantera 3.1.
     //!
-    void jacobianNotCalculated() { m_jac_calculated = false; };
+    void notCalculatedJacobian() { m_jac_calculated = false; };
 
 protected:
     ReactorBase* m_left = nullptr;

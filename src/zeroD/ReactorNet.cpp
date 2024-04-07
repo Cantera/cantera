@@ -590,7 +590,7 @@ void ReactorNet::checkPreconditionerSupported() const {
 void ReactorNet::buildJacobian(vector<Eigen::Triplet<double>>& jacVector)
 {
     // network must be initialized for the jacobian
-    if (! m_init) {
+    if (!m_init) {
         initialize();
     }
     // loop through and set connectors not found
@@ -598,18 +598,18 @@ void ReactorNet::buildJacobian(vector<Eigen::Triplet<double>>& jacVector)
         // walls
         if (!m_jac_skip_walls) {
             for (size_t i = 0; i < r->nWalls(); i++) {
-                r->wall(i).jacobianNotCalculated();
+                r->wall(i).notCalculatedJacobian();
             }
         }
         // flow devices
         if (!m_jac_skip_flow_devices) {
             // outlets
             for (size_t i = 0; i < r->nOutlets(); i++) {
-                r->outlet(i).jacobianNotCalculated();
+                r->outlet(i).notCalculatedJacobian();
             }
             // inlets
             for (size_t i = 0; i < r->nInlets(); i++) {
-                r->inlet(i).jacobianNotCalculated();
+                r->inlet(i).notCalculatedJacobian();
             }
         }
     }
@@ -638,7 +638,7 @@ void ReactorNet::buildJacobian(vector<Eigen::Triplet<double>>& jacVector)
         if (!m_jac_skip_walls) {
             for (size_t i = 0; i < r->nWalls(); i++) {
                 r->wall(i).buildNetworkJacobian(jacVector);
-                r->wall(i).jacobianCalculated();
+                r->wall(i).calculatedJacobian();
             }
         }
         // flow devices
@@ -646,12 +646,12 @@ void ReactorNet::buildJacobian(vector<Eigen::Triplet<double>>& jacVector)
             // outlets
             for (size_t i = 0; i < r->nOutlets(); i++) {
                 r->outlet(i).buildNetworkJacobian(jacVector);
-                r->outlet(i).jacobianCalculated();
+                r->outlet(i).calculatedJacobian();
             }
             // inlets
             for (size_t i = 0; i < r->nInlets(); i++) {
                 r->inlet(i).buildNetworkJacobian(jacVector);
-                r->inlet(i).jacobianCalculated();
+                r->inlet(i).calculatedJacobian();
             }
         }
     }
@@ -664,7 +664,7 @@ Eigen::SparseMatrix<double> ReactorNet::finiteDifferenceJacobian()
         initialize();
     }
 
-    // clear former jacobian elements
+    // allocate jacobian triplet vector
     vector<Eigen::Triplet<double>> jac_trips;
 
     // Get the current state

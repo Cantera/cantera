@@ -277,26 +277,15 @@ public:
     //! Set the ReactorNet that this reactor belongs to.
     void setNetwork(ReactorNet* net);
 
-    //! Calculate the derivative of T with respect to the ith species in the heat
-    //! transfer equation based on the reactor specific equation of state.
+    //! Calculate the derivative of T with respect to the ith species in the energy
+    //! conservation equation based on the reactor specific equation of state.
     //! @param index index of the species the derivative is with respect too
     //! @warning This function is an experimental part of the %Cantera API and may be changed
     //! or removed without notice.
-    //! @since New in %Cantera 3.0.
+    //! @since New in %Cantera 3.1.
     //!
-    virtual double moleDerivative(size_t index) {
-        throw NotImplementedError("Reactor::moleDerivative");
-    }
-
-    //! Calculate the derivative of T with respect to the ith species in the heat
-    //! transfer radiation equation based on the reactor specific equation of state.
-    //! @param index index of the species the derivative is with respect too
-    //! @warning This function is an experimental part of the %Cantera API and may be changed
-    //! or removed without notice.
-    //! @since New in %Cantera 3.0.
-    //!
-    virtual double moleRadiationDerivative(size_t index) {
-        throw NotImplementedError("Reactor::moleRadiationDerivative");
+    virtual double temperature_ddni(size_t index) {
+        throw NotImplementedError("Reactor::temperature_ddni");
     }
 
     //! Return the index associated with energy of the system
@@ -304,6 +293,17 @@ public:
 
     //! Return the offset between species and state variables
     virtual size_t speciesOffset() const { return m_sidx; };
+
+    //! Returns `true` if solution of the energy equation is enabled.
+    virtual bool energyEnabled() const {
+        return m_energy;
+    }
+
+    //! Returns `true` if changes in the reactor composition due to chemical reactions
+    //! are enabled.
+    bool chemistryEnabled() const {
+        return m_chem;
+    }
 
 protected:
     //! Specify the mixture contained in the reactor. Note that a pointer to
@@ -348,6 +348,12 @@ protected:
 
     //! Composite thermo/kinetics/transport handler
     shared_ptr<Solution> m_solution;
+
+    //! A bool that enables the energy equation
+    bool m_energy = true;
+
+    //! A bool that enables the chemical kinetics equations
+    bool m_chem = false;
 };
 }
 

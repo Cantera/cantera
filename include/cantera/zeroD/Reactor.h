@@ -84,23 +84,12 @@ public:
         m_chem = cflag;
     }
 
-    //! Returns `true` if changes in the reactor composition due to chemical reactions
-    //! are enabled.
-    bool chemistryEnabled() const {
-        return m_chem;
-    }
-
     void setEnergy(int eflag=1) override {
         if (eflag > 0) {
             m_energy = true;
         } else {
             m_energy = false;
         }
-    }
-
-    //! Returns `true` if solution of the energy equation is enabled.
-    bool energyEnabled() const {
-        return m_energy;
     }
 
     //! Number of equations (state variables) for this reactor
@@ -335,8 +324,6 @@ protected:
 
     vector<double> m_wdot; //!< Species net molar production rates
     vector<double> m_uk; //!< Species molar internal energies
-    bool m_chem = false;
-    bool m_energy = true;
     size_t m_nv = 0;
     size_t m_nv_surf; //!!< Number of variables associated with reactor surfaces
 

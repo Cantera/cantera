@@ -267,10 +267,10 @@ TEST(JacobianTests, test_wall_jacobian_build)
     }
     // check that switch works
     wallJac.clear();
-    w.jacobianCalculated();
+    w.calculatedJacobian();
     w.buildNetworkJacobian(wallJac);
     EXPECT_EQ(wallJac.size(), 0);
-    w.jacobianNotCalculated();
+    w.notCalculatedJacobian();
     // build jac for network terms
     wallJac.clear();
     w.buildNetworkJacobian(wallJac);
@@ -319,10 +319,10 @@ TEST(JacobianTests, test_flow_jacobian_build)
     // expect errors from building jacobians
     EXPECT_THROW(mfc.buildReactorJacobian(&reactor, flowJac), NotImplementedError);
     // check the jacobian calculated flag and throw/catch errors accordingly
-    mfc.jacobianCalculated();
+    mfc.calculatedJacobian();
     mfc.buildNetworkJacobian(flowJac);
     EXPECT_EQ(flowJac.size(), 0);
-    mfc.jacobianNotCalculated();
+    mfc.notCalculatedJacobian();
     EXPECT_THROW(mfc.buildNetworkJacobian(flowJac), NotImplementedError);
 }
 

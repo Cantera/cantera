@@ -603,7 +603,7 @@ void Reactor::setAdvanceLimit(const string& nm, const double limit)
     }
 }
 
-void Reactor:: buildWallJacobian(vector<Eigen::Triplet<double>>& jacVector)
+void Reactor::buildWallJacobian(vector<Eigen::Triplet<double>>& jacVector)
 {
     if (!m_jac_skip_walls) {
         for (size_t i = 0; i < m_wall.size(); i++) {

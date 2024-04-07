@@ -239,7 +239,7 @@ public:
     //! Return the index corresponding to the start of the reactor specific state
     //! vector in the reactor with index *reactor* in the global state vector for the
     //! reactor network.
-    size_t globalStartIndex(Reactor* curr_reactor) {
+    size_t globalStartIndex(ReactorBase* curr_reactor) {
         for (size_t i = 0; i < m_reactors.size(); i++) {
             if (curr_reactor == m_reactors[i]) {
                 return m_start[i];
