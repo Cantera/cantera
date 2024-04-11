@@ -155,7 +155,6 @@ class TestOnedim(utilities.CanteraTest):
             with pytest.raises(ValueError, match="mutually exclusive"):
                 sim = cls(gas, grid=[0, 0.1, 0.2], width=0.4)
 
-
 class TestFreeFlame(utilities.CanteraTest):
     tol_ss = [1.0e-5, 1.0e-14]  # [rtol atol] for steady-state problem
     tol_ts = [1.0e-4, 1.0e-11]  # [rtol atol] for time stepping
@@ -1172,6 +1171,51 @@ class TestDiffusionFlame(utilities.CanteraTest):
         sim.fuel_inlet.X = "H2: 1.0"
         sim.set_initial_guess()
 
+
+    def test_two_point_control(self):
+        """
+        Computes a solution using a standard counterflow diffusion flame, and then
+        recomputes the solution with two-point control enabled. No temperature decrement is
+        used for the two-point control, so the solutions should be the same.
+        """
+        p = ct.one_atm
+        fuel='H2:1.0, AR:1.0'
+        T_fuel=300
+        mdot_fuel=0.05
+        oxidizer='O2:0.21, AR:0.78'
+        T_ox=300
+        mdot_ox=0.1
+        width=0.05
+
+        # Solution object used to compute mixture properties
+        gas = ct.Solution("h2o2.yaml")
+        gas.TP = T_fuel, p
+
+        # Flame object
+        sim = ct.CounterflowDiffusionFlame(gas, width=width)
+
+        # Set properties of the fuel and oxidizer mixtures
+        sim.fuel_inlet.mdot = mdot_fuel
+        sim.fuel_inlet.X = fuel
+        sim.fuel_inlet.T = T_fuel
+
+        sim.oxidizer_inlet.mdot = mdot_ox
+        sim.oxidizer_inlet.X = oxidizer
+        sim.oxidizer_inlet.T = T_ox
+
+        sim.solve(loglevel=2)
+        temperature_1 = sim.T
+
+        sim.two_point_control_enabled = True
+        spacing = 0.95
+        control_temperature = np.min(sim.T) + spacing * (np.max(sim.T) - np.min(sim.T))
+        sim.set_left_control_point(control_temperature)
+        sim.set_right_control_point(control_temperature)
+        sim.solve(loglevel=2)
+        temperature_2 = sim.T
+
+        # Check difference between the two solutions
+        self.assertArrayNear(temperature_1, temperature_2, rtol=1e-4, atol=1e-6)
 
 class TestCounterflowPremixedFlame(utilities.CanteraTest):
     # Note: to re-create the reference file:
