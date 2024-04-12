@@ -255,78 +255,78 @@ public:
 
     void fixTemperature(size_t j=npos);
 
-    //! ------- Two-Point control method
-    //! In this method there are control points that are designated in a domain, and
-    //! the value of the solution at these points is fixed. The values of the control
-    //! points are dictated and thus serve as a boundary condition that affects the
-    //! solution of the governing equations in the 1D domain. The imposition of fixed
-    //! points in the domain means that the original set of governing equations' boundary
-    //! conditions would over-specify the problem. Thus, the boundary conditions are changed
-    //! to reflect the fact that the control points are serving as internal boundary conditions.
-    //!
-    //! In this method, the imposition of the two internal boundary conditions requires that two other
-    //! boundary conditions be changed. The first is the boundary condition for the continuity equation
-    //! at the left boundary, which is changed to be a value that is derived from the solution at the
-    //! left boundary. The second is the continuity boundary condition at the right boundary, which is
-    //! also determined from the flow solution by using the oxidizer axial velocity equation variable to
-    //! compute the mass flux at the right boundary.
-    //!
-    //! This method is based on the work of M. Nishioka, C.K. Law, and T. Takeno (1996) titled
-    //! "A Flame-Controlling Continuation Method for Generating S-Curve Responses with
-    //! Detailed Chemistry"
+    /** Two-Point control method(approach)
+     * In this method two control points are designated in the 1D domain, and
+     * the value of the temperature at these points is fixed. The values of the control
+     * points are imposed and thus serve as a boundary condition that affects the
+     * solution of the governing equations in the 1D domain. The imposition of fixed
+     * points in the domain means that the original set of governing equations' boundary
+     * conditions would over-determine the problem. Thus, the boundary conditions are changed
+     * to reflect the fact that the control points are serving as internal boundary conditions.
+     *
+     * The imposition of the two internal boundary conditions requires that two other
+     * boundary conditions be changed. The first is the boundary condition for the continuity equation
+     * at the left boundary, which is changed to be a value that is derived from the solution at the
+     * left boundary. The second is the continuity boundary condition at the right boundary, which is
+     * also determined from the flow solution by using the oxidizer axial velocity equation variable to
+     * compute the mass flux at the right boundary.
+     *
+     * This method is based on the work of M. Nishioka, C.K. Law, and T. Takeno (1996) titled
+     * "A Flame-Controlling Continuation Method for Generating S-Curve Responses with
+     * Detailed Chemistry"
+     **/
 
-    //! The current left control point temperature
+    //! Returns the temperature at the left control point
     double leftControlPointTemperature() const {
         if (m_twoPointControl && (m_zLeft != Undef)) {
             return m_tLeft;
         }
     }
 
-     //! The current left control point spatial coordinate
+    //! Returns the z-coordinate of the left control point
     double leftControlPointCoordinate() const {
         if (m_twoPointControl && (m_zLeft != Undef)) {
             return m_zLeft;
         }
     }
 
-    //! Set the temperature of the left control point
+    //! Sets the temperature of the left control point
     void setLeftControlPointTemperature(double temperature) {
         if (m_twoPointControl && (m_zLeft != Undef)) {
             m_tLeft = temperature;
         }
     }
 
-    //! The current right control point temperature
+    //! Returns the temperature at the right control point
     double rightControlPointTemperature() const {
         if (m_twoPointControl && (m_zRight != Undef)) {
             return m_tRight;
         }
     }
 
-    //! The current right control point spatial coordinate
+    //! Returns the z-coordinate of the right control point
     double rightControlPointCoordinate() const {
         if (m_twoPointControl && (m_zRight != Undef)) {
             return m_zRight;
         }
     }
 
-    //! Set the temperature of the right control point
+    //! Sets the temperature of the right control point
     void setRightControlPointTemperature(double temperature) {
         if (m_twoPointControl && (m_zRight != Undef)) {
             m_tRight = temperature;
         }
     }
 
-    //! Set the status of the two-point control
+    //! Sets the status of the two-point control
     void enableTwoPointControl(bool twoPointControl) {
         m_twoPointControl = twoPointControl;
     }
 
-    //! get the status of the two-point control
+    //! Returns the status of the two-point control
     bool twoPointControlEnabled() const {
         return m_twoPointControl;
     }
-    //! -------------------
 
     bool doEnergy(size_t j) {
         return m_do_energy[j];
@@ -783,7 +783,7 @@ protected:
     //! to `j1`, based on solution `x`.
     virtual void updateTransport(double* x, size_t j0, size_t j1);
 
-    //! Flags for two-point flame control
+    //! Flag for activating two-point flame control
     bool m_twoPointControl = false;
 
 public:
@@ -793,19 +793,17 @@ public:
     //! Temperature at the point used to fix the flame location
     double m_tfixed = -1.0;
 
-    //! --- One and two-point flame control values
-    //! Location of the left control point
+    //! Two-point control: Location of the left control point
     double m_zLeft = Undef;
 
-    //! Temperature of the left control point
+    //! Two-point control: Temperature of the left control point
     double m_tLeft = Undef;
 
-    //! Location of the right control point
+    //! Two-point control: Location of the right control point
     double m_zRight = Undef;
 
-    //! Temperature of the right control point
+    //! Two-point control: Temperature of the right control point
     double m_tRight = Undef;
-
     //! -------------
 
 
