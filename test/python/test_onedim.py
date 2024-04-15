@@ -1285,7 +1285,7 @@ class TestCounterflowPremixedFlame(utilities.CanteraTest):
         sim = ct.CounterflowPremixedFlame(gas=gas, width=width)
         sim.reactants.mdot = 10 * gas.density
         sim.products.mdot = 5 * gas.density
-        sim.set_refine_criteria(ratio=6, slope=0.7, curve=0.8, prune=0.1)
+        sim.set_refine_criteria(ratio=6, slope=0.7, curve=0.8, prune=0.2)
         sim.solve(loglevel=0, auto=True)
         self.assertTrue(all(sim.T >= T - 1e-3))
         self.assertTrue(all(sim.spread_rate >= -1e-9))
@@ -1403,7 +1403,7 @@ class TestCounterflowPremixedFlameNonIdeal(utilities.CanteraTest):
         sim = ct.CounterflowPremixedFlame(gas=gas, width=width)
         sim.reactants.mdot = 10 * gas.density
         sim.products.mdot = 5 * gas.density
-        sim.set_refine_criteria(ratio=6, slope=0.7, curve=0.8, prune=0.1)
+        sim.set_refine_criteria(ratio=6, slope=0.7, curve=0.8, prune=0.2)
         sim.solve(loglevel=0, auto=True)
         self.assertTrue(all(sim.T >= T - 1e-3))
         self.assertTrue(all(sim.spread_rate >= -1e-9))
@@ -1724,7 +1724,7 @@ class TestTwinFlame(utilities.CanteraTest):
         gas.TP = T, ct.one_atm
         gas.set_equivalence_ratio(phi, 'H2', 'O2:1.0, AR:4.0')
         sim = ct.CounterflowTwinPremixedFlame(gas=gas, width=width)
-        sim.set_refine_criteria(ratio=5, slope=0.8, curve=1.0, prune=0.1)
+        sim.set_refine_criteria(ratio=5, slope=0.8, curve=1.0, prune=0.2)
         axial_velocity = 2.0
         sim.reactants.mdot = gas.density * axial_velocity
         sim.solve(loglevel=0, auto=True)
