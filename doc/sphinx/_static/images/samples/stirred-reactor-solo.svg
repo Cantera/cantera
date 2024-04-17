@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 571.47 323.48">
+  <defs>
+    <style>
+      .cls-1 {
+        stroke: #363;
+      }
+
+      .cls-1, .cls-2, .cls-3, .cls-4, .cls-5, .cls-6 {
+        stroke-miterlimit: 10;
+      }
+
+      .cls-1, .cls-7 {
+        fill: #fff1cc;
+      }
+
+      .cls-1, .cls-6 {
+        stroke-width: 3px;
+      }
+
+      .cls-8, .cls-9, .cls-10, .cls-11 {
+        fill: #000;
+      }
+
+      .cls-8, .cls-7 {
+        stroke-width: 0px;
+      }
+
+      .cls-2 {
+        stroke-dasharray: 0 0 2.01 3.01;
+      }
+
+      .cls-2, .cls-3, .cls-4, .cls-5, .cls-6 {
+        fill: none;
+      }
+
+      .cls-2, .cls-3, .cls-5 {
+        stroke: #8c681a;
+        stroke-width: 1.5px;
+      }
+
+      .cls-12 {
+        letter-spacing: -.13em;
+      }
+
+      .cls-3 {
+        stroke-dasharray: 0 0 2 3;
+      }
+
+      .cls-13, .cls-9 {
+        font-family: Cambria-Italic, Cambria;
+        font-style: italic;
+      }
+
+      .cls-9, .cls-10, .cls-11 {
+        font-size: 23px;
+      }
+
+      .cls-14 {
+        letter-spacing: -.1em;
+      }
+
+      .cls-15 {
+        letter-spacing: -.11em;
+      }
+
+      .cls-4 {
+        stroke: #39c;
+        stroke-width: 2px;
+      }
+
+      .cls-10 {
+        font-family: SegoeUI, 'Segoe UI';
+      }
+
+      .cls-16 {
+        font-family: Cambria, Cambria;
+      }
+
+      .cls-6 {
+        stroke: #000;
+      }
+    </style>
+  </defs>
+  <polyline class="cls-4" points="89.81 123 173.72 123 173.72 75.69 401.63 75.69 401.63 227.29 485.2 227.29"/>
+  <polyline class="cls-4" points="89.81 152.8 173.41 152.8 173.41 299.22 402.01 299.22 402.01 256.74 485.2 256.74"/>
+  <g>
+    <rect class="cls-7" x="182.18" y="84.43" width="210.65" height="205.12"/>
+    <g>
+      <polyline class="cls-5" points="182.18 85.43 182.18 84.43 183.18 84.43"/>
+      <line class="cls-2" x1="186.19" y1="84.43" x2="390.32" y2="84.43"/>
+      <polyline class="cls-5" points="391.83 84.43 392.83 84.43 392.83 85.43"/>
+      <line class="cls-3" x1="392.83" y1="88.43" x2="392.83" y2="287.05"/>
+      <polyline class="cls-5" points="392.83 288.55 392.83 289.55 391.83 289.55"/>
+      <line class="cls-2" x1="388.82" y1="289.55" x2="184.68" y2="289.55"/>
+      <polyline class="cls-5" points="183.18 289.55 182.18 289.55 182.18 288.55"/>
+      <line class="cls-3" x1="182.18" y1="285.55" x2="182.18" y2="86.93"/>
+    </g>
+  </g>
+  <text class="cls-11" transform="translate(6.73 163.64)"><tspan class="cls-13" x="0" y="0">ṁ</tspan><tspan class="cls-16" x="18.37" y="0">(</tspan><tspan class="cls-13" x="27.16" y="0">t</tspan><tspan class="cls-16" x="35.1" y="0">)</tspan></text>
+  <text class="cls-11" transform="translate(504.86 266.81)"><tspan class="cls-13" x="0" y="0">ṁ</tspan><tspan class="cls-16" x="18.37" y="0">(</tspan><tspan class="cls-13" x="27.16" y="0">t</tspan><tspan class="cls-16" x="35.1" y="0">)</tspan></text>
+  <text class="cls-10" transform="translate(104.63 115.8)"><tspan x="0" y="0">Inlet</tspan></text>
+  <text class="cls-10" transform="translate(428.11 213.22)"><tspan x="0" y="0">Outlet</tspan></text>
+  <g>
+    <polyline class="cls-1" points="245.01 1.5 286.33 1.5 327.37 1.5"/>
+    <line class="cls-1" x1="287.5" y1="201.85" x2="287.5" y2="1.5"/>
+  </g>
+  <ellipse class="cls-1" cx="243.98" cy="201.85" rx="43.52" ry="11.14"/>
+  <ellipse class="cls-1" cx="331.03" cy="201.6" rx="43.52" ry="11.14"/>
+  <g>
+    <path class="cls-6" d="M325.55,106.13c-18.57,0-33.85,1.27-45.06,2.59-4.08.48-14.17,1.73-26.16,6.47-15.99,6.33-18.45,12.17-19.17,14.5-.19.62-1.53,5.26.52,10.1,2.43,5.74,8.19,8.37,14.24,10.62,17.59,6.54,32.63,8.03,32.63,8.03,6.56.65,14.5,1.24,23.61,1.51"/>
+    <polygon class="cls-8" points="301.97 165.95 324.78 160 302.05 153.75 301.97 165.95"/>
+  </g>
+  <path class="cls-1" d="M287.5,91.37v38.07"/>
+  <text class="cls-9" transform="translate(200.46 276.5)"><tspan class="cls-12" x="0" y="0">P</tspan><tspan x="9.85" y="0">, </tspan><tspan class="cls-14" x="19.5" y="0">V</tspan><tspan x="30.37" y="0">, </tspan><tspan class="cls-15" x="40.01" y="0">T</tspan><tspan x="50.63" y="0">, Yᵢ</tspan></text>
+  <g>
+    <line class="cls-6" y1="136.44" x2="61.33" y2="136.44"/>
+    <polygon class="cls-8" points="58.27 146.91 76.4 136.44 58.27 125.96 58.27 146.91"/>
+  </g>
+  <g>
+    <line class="cls-6" x1="495.06" y1="239.64" x2="556.4" y2="239.64"/>
+    <polygon class="cls-8" points="553.33 250.12 571.47 239.64 553.33 229.17 553.33 250.12"/>
+  </g>
+</svg>
