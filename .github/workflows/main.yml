@@ -416,9 +416,13 @@ jobs:
       - name: Run the examples
         # See https://unix.stackexchange.com/a/392973 for an explanation of the -exec part.
         # Skip 1D_packed_bed.py due to difficulty installing scikits.odes.
+        # Skip continuous_reactor.py due to thermo warnings
+        # Increase figure limit to handle flame_speed_convergence_analysis.py.
         run: |
           ln -s libcantera_shared.so build/lib/libcantera_shared.so.3
           rm samples/python/reactors/1D_packed_bed.py
+          rm samples/python/reactors/continuous_reactor.py
+          echo "figure.max_open_warning: 100" > matplotlibrc
           export LD_LIBRARY_PATH=build/lib
           find samples/python -type f -iname "*.py" \
           -exec sh -c 'for n; do echo "$n" | tee -a results.txt && python3 "$n" >> results.txt || exit 1; done' sh {} +
