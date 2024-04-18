@@ -119,6 +119,8 @@ sphinx_gallery_conf = {
     }
 }
 
+suppress_warnings = ["config.cache"]  # Triggered by objects in sphinx_gallery_conf
+
 # Override sphinx-gallery's method for determining which examples should be executed.
 # There's really no way to achieve this with the `filename_pattern` option, and
 # `ignore_pattern` excludes the example entirely.
