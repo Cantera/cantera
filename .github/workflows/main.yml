@@ -330,7 +330,13 @@ jobs:
       - name: Build Cantera
         run: scons build -j2 debug=n optimize=y use_pch=n
       - name: Build documentation
-        run: scons sphinx doxygen logging=debug
+        run: |
+          scons sphinx doxygen logging=debug \
+            sphinx_options="-W --keep-going --warning-file=sphinx-warnings.txt"
+      - name: Show Sphinx warnings
+        run: |
+          cat sphinx-warnings.txt
+        if: failure()
       - name: Ensure 'scons help' options work
         run: |
           scons help --options
