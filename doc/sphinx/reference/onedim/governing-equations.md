@@ -221,3 +221,26 @@ $$
 
 where $Z_k$ is the charge number, $n_k$ is the number density, and $N_a$ is the Avogadro
 number.
+
+## Counterflow Two-Point Flame Control
+
+A two-point temperature control feature is available for counterflow diffusion flames. This
+feature allows users to set a control points on both sides of a flame and incrementally lower
+the flame temperature. This allows for the simulation of the stable burning branch as well
+as the unstable burning branch of the standard flamelet "S-curve". The implementation is based
+on the method discussed in {cite:t}`nishioka1996` and {cite:t}`huo2014`. The diagram below shows
+the general concept of the two-point flame control method, with control points located on either
+side of the peak flame temperature. An initial flame solution is used as a starting point, and
+the temperatures at the control points are lowered to produce a new flame solution that satisfies
+the governing equations and passes through the new temperatures at the control points.
+
+.. image:: /_static/images/two_point_control_diagram.svg
+   :width: 50%
+   :alt: Two-Point Flame Control Diagram
+   :align: center
+
+For the two-point control method, one governing equation was modified ($\Lambda$), and a new
+governing equation for the axial oxidizer velocity was added ($U_o$). The fuel and oxidizer boundary
+conditions are modified when the two-point control is active. These equations allow
+for the temperature reduction to be performed in a numerically consistent manner (preventing
+any issues of over-defining the system of governing equations).
