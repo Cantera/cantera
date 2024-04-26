@@ -321,11 +321,10 @@ jobs:
         run: pip install -U pip setuptools wheel
       - name: Install Python dependencies
         run: |
-          pip install ruamel.yaml scons numpy cython 'sphinx>=7.2,<8' \
+          pip install ruamel.yaml scons numpy cython 'sphinx>=7.2,<8' sphinx-gallery \
             sphinxcontrib-matlabdomain sphinxcontrib-doxylink sphinxcontrib-bibtex \
             pydata-sphinx-theme==0.14.1 sphinx-argparse sphinx_design myst-nb \
             sphinx-copybutton matplotlib pandas scipy pint coolprop graphviz
-          pip install "git+https://github.com/sphinx-gallery/sphinx-gallery.git@master"
           pip install "git+https://github.com/Cantera/sphinx-tags.git@main"
       - name: Build Cantera
         run: scons build -j2 debug=n optimize=y use_pch=n
