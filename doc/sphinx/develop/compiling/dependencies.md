@@ -162,13 +162,38 @@ compiler is required only if you plan to build the Fortran module.
 
 - Packages required for building Sphinx documentation
 
-  - [Sphinx](http://www.sphinx-doc.org/en/stable/)
-  - [PyData Sphinx theme](https://pydata-sphinx-theme.readthedocs.io/en/stable/)
-  - [Pygments](http://pygments.org/)
-  - [pyparsing](https://sourceforge.net/projects/pyparsing/)
-  - [sphinx-argparse](https://sphinx-argparse.readthedocs.io/en/latest/)
-  - [doxylink](https://pythonhosted.org/sphinxcontrib-doxylink/)
-  - [matlabdomain](https://pypi.org/project/sphinxcontrib-matlabdomain)
+  - [Sphinx](https://www.sphinx-doc.org/en/stable/), version 7.0.0 or newer
+  - [PyData Sphinx theme](https://pydata-sphinx-theme.readthedocs.io/en/stable/),
+    version 0.14.1 or newer
+  - [MyST Parser](https://myst-parser.readthedocs.io/en/latest/), version 2.0.0 or newer
+  - [MyST-NB](https://myst-nb.readthedocs.io/en/latest/), version 1.0.0 or newer
+  - [Sphinx Gallery](https://sphinx-gallery.github.io/stable/index.html), version 0.15.0
+    or newer
+  - [Sphinx-copybutton](https://sphinx-copybutton.readthedocs.io/en/latest/), version
+    0.5.2 or newer
+  - [sphinx-design](https://sphinx-design.readthedocs.io/en/latest/), version 0.5.0 or
+    newer
+  - [sphinxcontrib-bibtex](https://sphinxcontrib-bibtex.readthedocs.io/en/latest/),
+    version 2.6.2 or newer
+  - [sphinx-tags](https://github.com/Cantera/sphinx-tags)
+    - Install forked version from Cantera organization on GitHub by running
+      `pip install "git+https://github.com/Cantera/sphinx-tags.git@main"`
+  - [Pygments](https://pygments.org/), version 2.17.2 or newer
+  - [pyparsing](https://github.com/pyparsing/pyparsing/), version 3.1.2 or newer
+  - [sphinx-argparse](https://sphinx-argparse.readthedocs.io/en/latest/), version 0.4.0
+    or newer
+  - [doxylink](https://pythonhosted.org/sphinxcontrib-doxylink/), version 1.12.3 or
+    newer
+  - [matlabdomain](https://pypi.org/project/sphinxcontrib-matlabdomain), version 0.21.5
+    or newer
+  - A working LaTeX installation (The conda `texlive-core` package will suffice)
+  - Packages needed to run the examples for the example gallery:
+    - [SciPy](https://scipy.org/)
+    - [pandas](https://pandas.pydata.org/)
+    - [CoolProp](http://www.coolprop.org/)
+    - [Pint](https://pint.readthedocs.io/en/stable/)
+    - [Matplotlib](https://matplotlib.org/)
+    - [(python-)graphviz](https://graphviz.readthedocs.io/en/stable/)
 
 - [Doxygen](http://doxygen.nl/)
 
