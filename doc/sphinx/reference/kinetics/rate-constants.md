@@ -157,8 +157,8 @@ Chemically-activated reactions can be defined in the YAML format using the
 ## Pressure-Dependent Arrhenius Rate Expressions (P-Log)
 
 This parameterization represents pressure-dependent reaction rates by logarithmically
-interpolating between Arrhenius rate expressions at various pressures. Given two rate
-expressions at two specific pressures:
+interpolating between Arrhenius rate expressions at various pressures {cite:p}`gou2011`.
+Given two rate expressions at two specific pressures:
 
 $$
 P_1: k_1(T) = A_1 T^{b_1} e^{-E_1 / RT}
