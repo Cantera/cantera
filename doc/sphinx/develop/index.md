@@ -51,11 +51,13 @@ reactor-integration
 This section is a work in progress.
 ```
 
+- [](style-guidelines)
 - [](doc-formatting)
 
 ```{toctree}
 :caption: Adding New Features to Cantera
 :hidden:
 
+style-guidelines
 doc-formatting
 ```

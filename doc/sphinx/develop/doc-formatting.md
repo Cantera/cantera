@@ -55,3 +55,8 @@ This page provides some notes on useful syntax for writing in these various form
 
 ## Useful Doxygen syntax
 - Linking to a Sphinx page: `[link text](../reference/science/phasethermo/lattice.html)`
+- Citations: `@cite authorYYYY` will generate a numbered citation like `[8]`, assuming
+  `authorYYYY` is a key in `doc/doxygen/cantera.bib`.
+- Equations can be added using LaTeX input bracketed by `@f[` and `@f]`.
+- In-line math expressions are enclosed by a pair of `@f$` directives, for example
+  `@f$ \sin(x) @f$`.
