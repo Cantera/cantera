@@ -105,6 +105,13 @@ it easier for others to understand your code in the context of Cantera as a whol
 * Indicate the version added for new functions and classes with an annotation like
   `.. versionadded:: X.Y` where `X.Y` is the next Cantera version. Significant changes
   in behavior should be indicated with `.. versionchanged:: X.Y`.
+* To document an attribute of a Cython class, include a docstring *below* the member
+  declaration (in the `.pxd` file). For example:
+  ```cython
+  cdef class ReactorBase:
+      cdef public dict node_attr
+      """ Attributes of a node """
+  ```
 
 ## C#
 
