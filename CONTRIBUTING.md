@@ -15,18 +15,32 @@
   license](https://github.com/Cantera/cantera/blob/main/License.txt) which
   allows others to freely modify the code, and if your changes are accepted,
   then that code will be release under this license as well. The copyright for
-  Cantera is held collectively by the contributors. If you have made a
-  significant contribution, please add your name to the `AUTHORS` file.
+  Cantera is held collectively by the contributors.
 * You can find additional information about how Cantera is structured and tips for
   developing and debugging Cantera in the [Develop](https://cantera.org/dev/develop/)
   section of the Cantera website.
+
+## Getting Credit for your Contributions
+* Configure Git with your name and e-mail address before making any commits
+  * From a terminal, run:
+    ```shell
+    git config --global user.name "Your Name"
+    git config --global user.email "you@somewhere.org"
+    ```
+  * Make sure the e-mail you specify is linked to your GitHub account. You can view
+    these settings on GitHub by clicking on your profile image in the upper right corner
+    and selecting "Settings". Then, select the "Emails" section from the list on the
+    left of the page.
+* If you have made a significant contribution (more than just fixing a typo), please add
+  your name, GitHub handle, and institutional affiliation (if desired) to the `AUTHORS`
+  file as part of your pull request.
+* Do not add any author acknowledgements to individual files.
 
 ## Git Workflow
 
 * Fork the `Cantera/cantera` repository on Github
 * Clone your new repository or add it as a remote to an existing repository
 * Check out the existing `main` branch, then start a new feature branch for your work
-* Configure Git with your name and e-mail address before making any commits
 * As you make changes, commit them to your feature branch
   * Use descriptive commit messages (summary line of no more than 72 characters,
     followed by a blank line and a more detailed summary, if any)
