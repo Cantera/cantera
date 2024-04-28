@@ -8,7 +8,9 @@
 * When making changes, write code that is consistent with the surrounding code
   (see the [Cantera style guidelines](https://cantera.org/dev/develop/style-guidelines.html))
 * Add tests for any new features that you are implementing to either the
-  GoogleTest-based test suite or the Python test suite.
+  GoogleTest-based test suite or the Python test suite. See
+  [Writing Tests](https://cantera.org/dev/develop/writing-tests.html) for more
+  information.
 * Add examples that highlight new capabilities, or update existing examples to make use
   of new features.
 * Cantera is licensed under a [BSD
