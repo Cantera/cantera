@@ -51,6 +51,7 @@ reactor-integration
 This section is a work in progress.
 ```
 
+- [](CONTRIBUTING)
 - [](style-guidelines)
 - [](doc-formatting)
 
@@ -58,6 +59,7 @@ This section is a work in progress.
 :caption: Adding New Features to Cantera
 :hidden:
 
+CONTRIBUTING
 style-guidelines
 doc-formatting
 ```
