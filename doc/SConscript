@@ -48,16 +48,19 @@ if localenv['sphinx_docs']:
                                                     "#samples/python")
     copy_matlab_ex_samples = localenv.RecursiveInstall(
         "#build/doc/samples/matlab_experimental", "#samples/matlab_experimental")
+    copy_contrib = localenv.Command("#build/doc/sphinx/develop/CONTRIBUTING.md",
+                                    "#CONTRIBUTING.md",
+                                    Copy("$TARGET", "$SOURCE"))
 
-    sphinxdocs = build(localenv.Command('build/doc/sphinx/html/index.html',
+    sphinxdocs = build(localenv.Command('#build/doc/html/index.html',
         'sphinx/conf.py', build_sphinx))
     env.Alias('sphinx', sphinxdocs)
-    env.Depends(sphinxdocs, copy_sphinx)
+    env.Depends(sphinxdocs, [copy_sphinx, copy_contrib])
     env.Depends(sphinxdocs, [copy_python_samples, copy_matlab_ex_samples])
     env.Depends(sphinxdocs, env['python_module'])
 
-    # Gather all C++ samples into a single directory so they can be presented a single
-    # sub-gallery by sphinx-gallery
+    # Gather all C++ samples into a single directory so they can be presented as a
+    # single sub-gallery by sphinx-gallery
     cxxfiles = (Glob("#samples/cxx/*/*.cpp") + Glob("#samples/cxx/*/*.h")
                 + Glob("#samples/cxx/*.rst"))
     for cxxfile in cxxfiles:
