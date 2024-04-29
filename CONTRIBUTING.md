@@ -21,6 +21,9 @@
 * You can find additional information about how Cantera is structured and tips for
   developing and debugging Cantera in the [Develop](https://cantera.org/dev/develop/)
   section of the Cantera website.
+* Keep the eventual code review process in mind while you work. This article on
+  [The (written) unwritten guide to pull requests](https://www.atlassian.com/blog/git/written-unwritten-guide-pull-requests) provides some good suggestions on how to
+  prepare your contribution in a way that makes it efficient to review.
 
 ## Getting Credit for your Contributions
 * Configure Git with your name and e-mail address before making any commits
@@ -42,18 +45,24 @@
 
 * Fork the `Cantera/cantera` repository on Github
 * Clone your new repository or add it as a remote to an existing repository
-* Check out the existing `main` branch, then start a new feature branch for your work
+* Check out the existing `main` branch, then start a new feature branch for your work.
+  * Starting from the latest commit on the `main` branch, which is always the current
+    development version, will minimize the likelihood of conflicts when merging your
+    pull request.
+  * Do not make commits directly to your `main` branch, or open a pull request from your
+    `main` branch.
 * As you make changes, commit them to your feature branch
   * Use descriptive commit messages (summary line of no more than 72 characters,
     followed by a blank line and a more detailed summary, if any)
   * Make related changes in a single commit, and unrelated changes in separate commits
   * Make sure that your commits do not include any undesired files, such as files
     produced as part of the build process or other temporary files.
-  * Use Git's history-rewriting features (such as `git rebase -i`; see
-    <https://help.github.com/articles/about-git-rebase/>) to organize your commits
-    and squash "fixup" commits and reversions.
-  * Do not merge your branch with `main`. If needed, you should rebase your branch
-    onto the most recent `HEAD` commit of `main`.
+  * Organize your commits and squash small "fixup" commits and reversions using Git's
+    history-rewriting features such as `git rebase -i`; see
+    <https://help.github.com/articles/about-git-rebase/>
+  * *Do not merge your branch with `main`*. If your branch gets behind Cantera's `main`
+    branch, you should *rebase* your branch onto the most recent `HEAD` commit of
+    `main`. This allows us to keep a simple, linear project history.
   * Periodically run the test suite (`scons test`) to make sure that your
     changes are not causing any test failures.
 * Push the changes on your new feature branch to your forked copy of the
@@ -61,7 +70,10 @@
 * Submit a Pull Request on Github, from your forked copy. Check the results
   of the continuous-integration tests run using GitHub Actions and resolve
   any issues that arise.
+* When responding to review comments on your pull request, please do not use the "accept
+  suggestion" option, as this creates a very noisy version history.
 
-Additional discussion of good Git & Github workflow is provided at
-<http://matplotlib.org/devel/gitwash/development_workflow.html> and
-<https://docs.scipy.org/doc/numpy-1.15.0/dev/gitwash/development_workflow.html>
+The following pages describe the Git development workflows for some other projects. You
+may also find some helpful advice from these projects:
+* [Matplotlib](https://matplotlib.org/devdocs/devel/development_workflow.html)
+* [SciPy](https://docs.scipy.org/doc/scipy/dev/contributor/development_workflow.html)
