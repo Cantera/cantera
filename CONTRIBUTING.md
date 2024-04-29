@@ -1,10 +1,24 @@
 # Contributing to Cantera
 
-* For significant changes, please create an issue on the
+As an open source project, Cantera relies on contributions from its users. We welcome
+your participation in the project in any capacity that you are able to contribute,
+whether that be through writing code, updating documentation, submitting bug reports, or
+answering questions on the Users' Group. The following guidelines are intended to
+provide a starting point for contributing code to Cantera.
+
+* If you have an idea for significant change you'd like to implement, please create an
+  issue on the
   [Cantera/enhancements](https://github.com/Cantera/enhancements/issues/new/choose)
-  repository on GitHub or start a discussion on the Cantera Users' Group to plan your
+  repository on GitHub or start a discussion on the
+  [Cantera Users' Group](https://groups.google.com/g/cantera-users) to plan your
   modifications so that they can be implemented efficiently and in a way that doesn't
   conflict with any other planned future development
+* If you are interested in contributing but don't have a particular goal in mind, there
+  are a few ways to get started:
+  * Look over the [Enhancements](https://github.com/Cantera/enhancements/issues) that are listed as "feature requests"
+  * Look over the list of open [Issues](https://github.com/Cantera/cantera/issues)
+  * Reach out to the [core developers](mailto:developers@cantera.org) to discuss areas
+    where you could contribute effectively
 * When making changes, write code that is consistent with the surrounding code
   (see the [Cantera style guidelines](https://cantera.org/dev/develop/style-guidelines.html))
 * Add tests for any new features that you are implementing to either the
