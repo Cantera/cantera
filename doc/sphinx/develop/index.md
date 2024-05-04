@@ -54,6 +54,7 @@ This section is a work in progress.
 - [](CONTRIBUTING)
 - [](style-guidelines)
 - [](writing-tests)
+- [](writing-examples)
 - [](doc-formatting)
 
 ```{toctree}
@@ -63,5 +64,6 @@ This section is a work in progress.
 CONTRIBUTING
 style-guidelines
 writing-tests
+writing-examples
 doc-formatting
 ```
