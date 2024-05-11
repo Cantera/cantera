@@ -20,6 +20,8 @@ thermodynamic, chemical kinetic, and (optionally) transport properties.
 
 .. autoclass:: DustyGas(infile, name='')
 
+.. _sec-python-purefluid:
+
 Pure Fluid Phases
 -----------------
 

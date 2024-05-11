@@ -36,6 +36,8 @@ ImpingingJet
 .. autoclass:: ImpingingJet
 
 
+.. _sec-python-flow-domains:
+
 Flow Domains
 ------------
 
@@ -47,6 +49,7 @@ AxisymmetricFlow
 ^^^^^^^^^^^^^^^^
 .. autoclass:: AxisymmetricFlow(thermo)
 
+.. _sec-python-boundary-domains:
 
 Boundaries
 ----------
