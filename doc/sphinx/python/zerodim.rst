@@ -31,6 +31,8 @@ Reactor Networks
 
 .. autoclass:: ReactorNet
 
+.. _sec-python-reactors:
+
 Reactors
 --------
 

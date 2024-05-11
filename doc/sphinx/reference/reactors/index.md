@@ -9,6 +9,7 @@ devices representing mass flow, heat transfer, and moving walls. The system is g
 unsteady -- that is, all states are functions of time. In particular, transient state
 changes due to chemical reactions are possible.
 
+(sec-homogenous-reactor-types)=
 ## Homogeneous Reactor Types and Governing Equations
 
 A Cantera *reactor* represents the simplest form of a chemically reacting system. It
@@ -128,6 +129,7 @@ Cantera uses the CVODES and IDAS solvers from the
 [SUNDIALS](https://computing.llnl.gov/projects/sundials) package to integrate the
 governing equations for the reactor network, which are a system of stiff ODEs or DAEs.
 
+(sec-reactor-preconditioning)=
 ### Preconditioning
 
 Some of Cantera's reactor formulations (specifically, the

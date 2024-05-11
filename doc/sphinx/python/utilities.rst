@@ -31,6 +31,7 @@ Units
 .. autoclass:: Units
    :no-undoc-members:
 
+.. _sec-python-global-funcs:
 
 Global Functions
 ----------------
