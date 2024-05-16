@@ -336,7 +336,7 @@ def build_thermodynamics_text(
     )
 
 
-def build_reactions_text(reactions: Iterable[ct.Reaction]):
+def build_reactions_text(reactions: Iterable[ct.Reaction], species: Iterable[ct.Species]):
     """
     Create the reaction definition section of this file.
 
@@ -345,6 +345,8 @@ def build_reactions_text(reactions: Iterable[ct.Reaction]):
 
     .. versionadded:: 3.0
     """
+
+    species_names = [spec.name for spec in species]
 
     # Note: Cantera converts explicit reverse rate coefficients given by the ``REV``
     # keyword into two independent irreversible reactions. Therefore, there's no need to
@@ -478,6 +480,7 @@ def build_reactions_text(reactions: Iterable[ct.Reaction]):
                 " ".join(
                     f"{spec}/{value:.3E}/"
                     for spec, value in reac.third_body.efficiencies.items()
+                    if spec in species_names
                 )
             )
 
@@ -701,7 +704,7 @@ def convert(
 
     # TODO: Handle phases without reactions
     all_reactions = solution.reactions()
-    mechanism_text.append(build_reactions_text(all_reactions))
+    mechanism_text.append(build_reactions_text(all_reactions, all_species))
 
     if transport_path is None and transport_exists:
         mechanism_text.append(build_transport_text(all_species, separate_file=False))
