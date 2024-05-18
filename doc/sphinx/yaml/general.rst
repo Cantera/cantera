@@ -4,6 +4,8 @@
 General Structure
 *****************
 
+.. _sec-yaml-sections:
+
 Sections
 --------
 

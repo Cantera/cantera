@@ -152,6 +152,7 @@ are supported:
     The efficiency for use for species not included in the ``efficiencies``
     mapping. Defaults to 1.0.
 
+.. _sec-yaml-rate-types:
 
 Reaction types
 ==============
