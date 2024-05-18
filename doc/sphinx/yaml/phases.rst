@@ -27,6 +27,8 @@ and optionally reactions that can take place in that phase. The fields of a
       searched first, followed by the Cantera data path. Standard elements can
       be included by referencing the fictitious section ``default``.
 
+.. _sec-yaml-phase-species:
+
 ``species``
     Specification for the species present in the phase. This can be:
 
@@ -68,6 +70,8 @@ and optionally reactions that can take place in that phase. The fields of a
       file if written as ``file-path/section-name``. If a relative path is specified,
       the directory containing the current file is searched first, followed by the
       Cantera data path.
+
+.. _sec-yaml-phase-thermo:
 
 ``thermo``
     String specifying the phase thermodynamic model to be used. Supported model
