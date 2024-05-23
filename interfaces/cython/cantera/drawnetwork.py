@@ -282,6 +282,52 @@ def draw_surface(surface, graph=None, graph_attr=None, node_attr=None,
 
     return graph
 
+"""
+def draw_edge(edge, graph=None, graph_attr=None, node_attr=None,
+                 surface_edge_attr=None, print_state=False, **kwargs):
+    
+    Draw `~cantera.ReactorEdge` object with its connected reactor.
+
+    :param surface:
+        `~cantera.ReactorEdge` object.
+    :param graph:
+        ``graphviz.graphs.BaseGraph`` object to which the connection is added.
+        If not provided, a new ``DiGraph`` is created. Defaults to ``None``.
+    :param graph_attr:
+        Attributes to be passed to the ``graphviz.Digraph`` function that control the
+        general appearance of the drawn network.
+        Has no effect if existing ``graph`` is provided.
+        See https://graphviz.org/docs/graph/ for a list of all usable attributes.
+    :param node_attr:
+        Attributes to be passed to the ``node`` method invoked to draw the reactor.
+        See https://graphviz.org/docs/nodes/ for a list of all usable attributes.
+    :param surface_edge_attr:
+        Attributes to be passed to the ``edge`` method invoked to draw the connection
+        between the surface and its reactor.
+        See https://graphviz.org/docs/edges/ for a list of all usable attributes.
+        Default is ``{"style": "dotted", "arrowhead": "none"}``.
+    :param print_state:
+        Whether state information of the reactor is printed into the node.
+        See ``draw_reactor`` for additional keywords to control this output.
+        Defaults to ``False``.
+    :param kwargs:
+        Additional keywords are passed on to `draw_reactor`.
+    :return:
+        A ``graphviz.graphs.BaseGraph`` object depicting the surface and its reactor.
+
+    .. versionadded:: 3.1????
+    
+    r = edge.reactor
+    graph = draw_reactor(r, graph, graph_attr, node_attr, print_state, **kwargs)
+    name = f"{r.name} edge"
+    edge_attr = {"style": "dotted", "arrowhead": "none",
+                 **(surface_edge_attr or {})}
+
+    graph.node(name, **dict(node_attr or {}, **edge.node_attr))
+    graph.edge(r.name, name, **edge_attr)
+
+    return graph
+"""
 
 @_needs_graphviz
 def draw_flow_controllers(flow_controllers, graph=None, graph_attr=None, node_attr=None,

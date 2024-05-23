@@ -41,6 +41,7 @@ cdef class ReactorBase:
         self._outlets = []
         self._walls = []
         self._surfaces = []
+        self._edges = []
         if isinstance(contents, _SolutionBase):
             self.insert(contents)  # leave insert for the time being
 
@@ -132,6 +133,11 @@ cdef class ReactorBase:
         """List of reacting surfaces installed on this reactor"""
         def __get__(self):
             return self._surfaces
+
+    property edges:
+        """List of reacting edges installed on this reactor"""
+        def __get__(self):
+            return self._edges
 
     def _add_inlet(self, inlet):
         """
@@ -928,6 +934,112 @@ cdef class ReactorSurface:
         """
         self.surface.addSensitivityReaction(m)
 
+cdef class ReactorEdge:
+    """
+    Represents an edge in contact with the contents of a reactor.
+
+    :param kin:
+        The `Kinetics` or `Interface` object representing reactions on this
+        surface.
+    :param r:
+        The `Reactor` into which this surface should be installed.
+    :param L:
+        The length of the reacting edge [m]
+    :param node_attr:
+        Attributes to be passed to the ``node`` method invoked to draw this surface.
+        See https://graphviz.org/docs/nodes/ for a list of all usable attributes.
+
+    .. versionadded:: 3.1????
+       Added the ``node_attr`` parameter.
+    """
+
+    def __cinit__(self):
+        self.edge = new CxxReactorEdge()
+
+    def __dealloc__(self):
+        del self.edge
+
+    def __init__(self, kin=None, Reactor r=None, *, L=None):
+        if kin is not None:
+            self.kinetics = kin
+        if r is not None:
+            self.install(r)
+        if L is not None:
+            self.length = L
+        #self.node_attr = node_attr or {'shape': 'underline'}
+
+    def install(self, Reactor r):
+        """
+        Add this `ReactorEdge` to the specified `Reactor`
+        """
+        r._edges.append(self)
+        r.reactor.addEdge(self.edge)
+        self._reactor = r
+
+    property length:
+        """ Length on which reactions can occur [m] """
+        def __get__(self):
+            return self.edge.length()
+        def __set__(self, L):
+            self.edge.setLength(L)
+
+    property kinetics:
+        """
+        The `InterfaceKinetics` object used for calculating reaction rates on
+        this edge.
+        """
+        def __get__(self):
+            self.edge.syncState()
+            return self._kinetics
+        def __set__(self, Kinetics k):
+            self._kinetics = k
+            self.edge.setKinetics(self._kinetics.kinetics)
+
+    @property
+    def reactor(self):
+        """
+        Return the `Reactor` object the edge is connected to.
+
+        .. versionadded:: 3.1???
+        """
+        return self._reactor
+
+"""
+    def draw(self, graph=None, *, graph_attr=None, node_attr=None, surface_edge_attr=None,
+             print_state=False, **kwargs):
+        
+        Draw the edge as a ``graphviz`` ``dot`` node connected to its reactor.
+        The node is added to an existing ``graph`` if provided.
+        Optionally include current reactor state in the reactor node.
+
+        :param graph:
+            ``graphviz.graphs.BaseGraph`` object to which the reactor is added.
+            If not provided, a new ``DiGraph`` is created. Defaults to ``None``.
+        :param graph_attr:
+            Attributes to be passed to the ``graphviz.Digraph`` function that control
+            the general appearance of the drawn network.
+            See https://graphviz.org/docs/graph/ for a list of all usable attributes.
+        :param node_attr:
+            Attributes to be passed to the ``node`` method invoked to draw the reactor.
+            See https://graphviz.org/docs/nodes/ for a list of all usable attributes.
+        :param surface_edge_attr:
+            Attributes to be passed to the ``edge`` method invoked to draw the
+            connection between the surface and its reactor.
+            See https://graphviz.org/docs/edges/ for a list of all usable attributes.
+        :param print_state:
+            Whether state information of the reactor is printed into its node.
+            Defaults to ``False``
+        :param kwargs:
+            Additional keywords are passed on to ``~.drawnetwork.draw_reactor``.
+        :return:
+            ``graphviz.graphs.BaseGraph`` object with edge and connected
+            reactor.
+
+        .. versionadded:: 3.1
+        
+        return draw_edge(self, graph, graph_attr, node_attr, surface_edge_attr,
+                            print_state, **kwargs)    
+"""
 
 cdef class WallBase:
     """

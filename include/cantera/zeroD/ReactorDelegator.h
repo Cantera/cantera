@@ -9,6 +9,7 @@
 #include "Reactor.h"
 #include "cantera/base/Delegator.h"
 #include "cantera/zeroD/ReactorSurface.h"
+#include "cantera/zeroD/ReactorEdge.h"
 #include "cantera/thermo/SurfPhase.h"
 
 namespace Cantera

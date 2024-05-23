@@ -27,6 +27,7 @@ cdef extern from "cantera/numerics/Integrator.h" namespace "Cantera":
 cdef extern from "cantera/zerodim.h" namespace "Cantera":
     cdef cppclass CxxWall "Cantera::Wall"
     cdef cppclass CxxReactorSurface "Cantera::ReactorSurface"
+    cdef cppclass CxxReactorEdge "Cantera::ReactorEdge"
     cdef cppclass CxxFlowDevice "Cantera::FlowDevice"
 
     # factories
@@ -60,6 +61,7 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         CxxSparseMatrix jacobian() except +translate_exception
         CxxSparseMatrix finiteDifferenceJacobian() except +translate_exception
         void addSurface(CxxReactorSurface*)
+        void addEdge(CxxReactorEdge*)
         void setAdvanceLimit(string&, double) except +translate_exception
         void addSensitivityReaction(size_t) except +translate_exception
         void addSensitivitySpeciesEnthalpy(size_t) except +translate_exception
@@ -126,6 +128,15 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         void syncState()
         void addSensitivityReaction(size_t) except +translate_exception
         size_t nSensParams()
+
+    # reactor edge
+
+    cdef cppclass CxxReactorEdge "Cantera::ReactorEdge":
+        CxxReactorEdge()
+        double length()
+        void setLength(double)
+        void setKinetics(CxxKinetics*)
+        void syncState()
 
     # flow devices
 
@@ -223,6 +234,7 @@ cdef class ReactorBase:
     cdef list _outlets
     cdef list _walls
     cdef list _surfaces
+    cdef list _edges
     cdef public dict node_attr
     """
     A dictionary containing draw attributes for the representation of the reactor as a
@@ -280,6 +292,19 @@ cdef class ReactorSurface:
     usable attributes.
 
     .. versionadded:: 3.1
+    """
+
+cdef class ReactorEdge:
+    cdef CxxReactorEdge* edge
+    cdef Kinetics _kinetics
+    cdef ReactorBase _reactor
+    cdef public dict node_attr
+    """
+    A dictionary containing draw attributes for the representation of the reactor
+    edge as a graphviz node. See https://graphviz.org/docs/nodes/ for a list of all
+    usable attributes.
+
+    .. versionadded:: 3.1???
     """
 
 cdef class WallBase:
