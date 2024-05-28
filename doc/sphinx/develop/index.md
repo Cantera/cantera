@@ -54,6 +54,7 @@ This section is a work in progress.
 - [](CONTRIBUTING)
 - [](style-guidelines)
 - [](writing-tests)
+- [](running-tests)
 - [](writing-examples)
 - [](doc-formatting)
 
@@ -64,6 +65,7 @@ This section is a work in progress.
 CONTRIBUTING
 style-guidelines
 writing-tests
+running-tests
 writing-examples
 doc-formatting
 ```
