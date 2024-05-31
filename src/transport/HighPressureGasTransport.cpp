@@ -128,16 +128,14 @@ void HighPressureGasTransport::getBinaryDiffCoeffs(const size_t ld, double* cons
     m_thermo->getMoleFractions(&molefracs[0]);
 
     update_T();
-    // Evaluate the binary diffusion coefficients from the polynomial fits.
-    // This should perhaps be preceded by a check to see whether any of T, P, or
-    //   C have changed.
-    //if (!m_bindiff_ok) {
-    updateDiff_T();
-    //}
-    if (ld < nsp) {
-        throw CanteraError("HighPressureGasTransport::getBinaryDiffCoeffs",
-                           "ld is too small");
+    // if necessary, evaluate the binary diffusion coefficients from the polynomial fits
+    if (!m_bindiff_ok) {
+        updateDiff_T();
     }
+    if (ld < m_nsp) {
+        throw CanteraError("HighPressureGasTransport::getBinaryDiffCoeffs", "ld is too small");
+    }
+
     double rp = 1.0/m_thermo->pressure();
     for (size_t i = 0; i < nsp; i++) {
         for (size_t j = 0; j < nsp; j++) {
@@ -155,21 +153,15 @@ void HighPressureGasTransport::getBinaryDiffCoeffs(const size_t ld, double* cons
             double Pr_ij = m_thermo->pressure()/(x_i*Pcrit_i(i) + x_j*Pcrit_i(j));
 
             double P_corr_ij;
-            if (Pr_ij < 0.1) {
-                // If pressure is low enough, no correction is needed:
-                P_corr_ij = 1;
-            }else {
-                // Otherwise, calculate the parameters for Takahashi correlation
-                // by interpolating on Pr_ij:
-                P_corr_ij = setPcorr(Pr_ij, Tr_ij);
 
-                // If the reduced temperature is too low, the correction factor
-                // P_corr_ij will be < 0:
-                if (P_corr_ij<0) {
-                    P_corr_ij = Tiny;
-                }
+            // Calculate the parameters for Takahashi correlation
+            P_corr_ij = compute_correction_factor(Pr_ij, Tr_ij);
+
+            // If the reduced temperature is too low, the correction factor
+            // P_corr_ij will be < 0:
+            if (P_corr_ij<0) {
+                P_corr_ij = Tiny;
             }
-
             // Multiply the standard low-pressure binary diffusion coefficient
             // (m_bdiff) by the Takahashi correction factor P_corr_ij:
             d[ld*j + i] = P_corr_ij*rp * m_bdiff(i,j);
@@ -221,7 +213,7 @@ void HighPressureGasTransport::getMultiDiffCoeffs(const size_t ld, double* const
             if (Pr_ij < 0.1) {
                 P_corr_ij = 1;
             }else {
-                P_corr_ij = setPcorr(Pr_ij, Tr_ij);
+                P_corr_ij = compute_correction_factor(Pr_ij, Tr_ij);
                 if (P_corr_ij<0) {
                     P_corr_ij = Tiny;
                 }
@@ -377,10 +369,14 @@ double HighPressureGasTransport::viscosity()
 // Pure species critical properties - Tc, Pc, Vc, Zc:
 double HighPressureGasTransport::Tcrit_i(size_t i)
 {
-    // Store current molefracs and set temp molefrac of species i to 1.0:
-    vector<double> molefracs = store(i, m_thermo->nSpecies());
+     vector<double> molefracs(m_thermo->nSpecies());
+    m_thermo->getMoleFractions(&molefracs[0]);
+    vector<double> mf_temp(m_thermo->nSpecies(), 0.0);
+    mf_temp[i] = 1;
+    m_thermo->setMoleFractions(&mf_temp[0]);
 
     double tc = m_thermo->critTemperature();
+
     // Restore actual molefracs:
     m_thermo->setMoleFractions(&molefracs[0]);
     return tc;
@@ -388,10 +384,14 @@ double HighPressureGasTransport::Tcrit_i(size_t i)
 
 double HighPressureGasTransport::Pcrit_i(size_t i)
 {
-    // Store current molefracs and set temp molefrac of species i to 1.0:
-    vector<double> molefracs = store(i, m_thermo->nSpecies());
+    vector<double> molefracs(m_thermo->nSpecies());
+    m_thermo->getMoleFractions(&molefracs[0]);
+    vector<double> mf_temp(m_thermo->nSpecies(), 0.0);
+    mf_temp[i] = 1;
+    m_thermo->setMoleFractions(&mf_temp[0]);
 
     double pc = m_thermo->critPressure();
+
     // Restore actual molefracs:
     m_thermo->setMoleFractions(&molefracs[0]);
     return pc;
@@ -399,10 +399,14 @@ double HighPressureGasTransport::Pcrit_i(size_t i)
 
 double HighPressureGasTransport::Vcrit_i(size_t i)
 {
-    // Store current molefracs and set temp molefrac of species i to 1.0:
-    vector<double> molefracs = store(i, m_thermo->nSpecies());
+    vector<double> molefracs(m_thermo->nSpecies());
+    m_thermo->getMoleFractions(&molefracs[0]);
+    vector<double> mf_temp(m_thermo->nSpecies(), 0.0);
+    mf_temp[i] = 1;
+    m_thermo->setMoleFractions(&mf_temp[0]);
 
     double vc = m_thermo->critVolume();
+
     // Restore actual molefracs:
     m_thermo->setMoleFractions(&molefracs[0]);
     return vc;
@@ -410,37 +414,125 @@ double HighPressureGasTransport::Vcrit_i(size_t i)
 
 double HighPressureGasTransport::Zcrit_i(size_t i)
 {
-    // Store current molefracs and set temp molefrac of species i to 1.0:
-    vector<double> molefracs = store(i, m_thermo->nSpecies());
+    vector<double> molefracs(m_thermo->nSpecies());
+    m_thermo->getMoleFractions(&molefracs[0]);
+    vector<double> mf_temp(m_thermo->nSpecies(), 0.0);
+    mf_temp[i] = 1;
+    m_thermo->setMoleFractions(&mf_temp[0]);
 
     double zc = m_thermo->critCompressibility();
+
     // Restore actual molefracs:
     m_thermo->setMoleFractions(&molefracs[0]);
     return zc;
 }
 
-vector<double> HighPressureGasTransport::store(size_t i, size_t nsp)
-{
-    vector<double> molefracs(nsp);
-    m_thermo->getMoleFractions(&molefracs[0]);
-    vector<double> mf_temp(nsp, 0.0);
-    mf_temp[i] = 1;
-    m_thermo->setMoleFractions(&mf_temp[0]);
-    return molefracs;
+// The low-pressure nondimensional viscosity equation 9-4.16 in Poling et al. (2001).
+// This relation is used for pure species and mixtures at low pressure. The only
+// difference is the the values that are passed to the function.
+double HighPressureGasTransport::low_pressure_nondimensional_viscosity(double Tr, double FP, double FQ) {
+    double first_term = 0.807*pow(Tr,0.618) - 0.357*exp(-0.449*Tr);
+    double second_term = 0.340*exp(-4.058*Tr) + 0.018;
+    return (first_term + second_term)*FP*FQ;
 }
 
-// Calculates quantum correction term for a species based on Tr and MW, used in
-//   viscosity calculation:
+
+double HighPressureGasTransport::high_pressure_nondimensional_viscosity(double Tr, double Pr, double FP_low, double FQ_low, double P_vap, double P_crit){
+
+    double Z_1 = low_pressure_nondimensional_viscosity(Tr, FP_low, FQ_low); // This is η_0*ξ
+
+    double Z_2;
+    if (Tr <= 1.0) {
+        if (Pr < P_vap/P_crit) {
+            double alpha = 3.262 + 14.98*pow(Pr, 5.508);
+            double beta = 1.390 + 5.746*Pr;
+            Z_2 = 0.600 + 0.760*pow(Pr, alpha) + (0.6990*pow(Pr, beta) - 0.60) * (1-Tr);
+        } else {
+            throw CanteraError("HighPressureGasTransport::viscosity",
+                               "State is outside the limits of the Lucas model, Tr <= 1");
+        }
+    } else if ((Tr > 1.0) && (Tr < 40.0)) {
+        if ((Pr > 0.0) && (Pr <= 100.0)) {
+            // The following expressions are given in page 9.36 of Poling et al. (2001)
+            // and correspond to parameters in equation 9-6.8.
+            double a_1 = 1.245e-3;
+            double a_2 = 5.1726;
+            double gamma = -0.3286;
+            double a = a_1*exp(a_2*pow(Tr,gamma))/Tr;
+
+            double b_1 = 1.6553;
+            double b_2 = 1.2723;
+            double b = a*(b_1*Tr - b_2);
+
+            double c_1 = 0.4489;
+            double c_2 = 3.0578;
+            double delta = -37.7332;
+            double c = c_1*exp(c_2*pow(Tr, delta))/Tr;
+
+            double d_1 = 1.7368;
+            double d_2 = 2.2310;
+            double epsilon = -7.6351;
+            double d = d_1*exp(d_2*pow(Tr, epsilon))/Tr;
+
+            double e = 1.3088;
+
+            double f_1 = 0.9425;
+            double f_2 = -0.1853;
+            double zeta = 0.4489;
+            double f = f_1*exp(f_2*pow(Tr, zeta));
+
+            Z_2 = Z_1*(1 + (a*pow(Pr,e)) / (b*pow(Pr,f) + pow(1+c*pow(Pr,d),-1)));
+        } else {
+            throw CanteraError("HighPressureGasTransport::viscosity",
+                           "State is outside the limits of the Lucas model, 1.0 < Tr < 40");
+        }
+    } else {
+        throw CanteraError("HighPressureGasTransport::viscosity",
+                           "State is outside the limits of the Lucas model, Tr > 40");
+    }
+
+    double Y = Z_2 / Z_1;
+    double FP = (1 + (FP_low - 1)*pow(Y,-3.0)) / FP_low;
+    double FQ = (1 + (FQ_low - 1)*(1.0/Y - 0.007*pow(log(Y),4.0))) / FQ_low;
+
+    // Return the non-dimensional viscosity η*ξ
+    return Z_2 * FP * FQ;
+}
+
+// Calculates quantum correction term of the Lucas method for a species based
+// on Tr and MW, used in viscosity calculation from equation 9-4.19 in
+// Poling et al. (2001):
 double HighPressureGasTransport::FQ_i(double Q, double Tr, double MW)
 {
-    return 1.22*pow(Q,0.15)*(1 + 0.00385*pow(pow(Tr - 12.,2.),1./MW)
-                             *fabs(Tr-12)/(Tr-12));
+    return 1.22*pow(Q,0.15)*(1 + 0.00385*pow(pow(Tr - 12.0, 2.0), 1.0/MW)
+                             *sign(Tr - 12.0));
 }
 
-// Set value of parameter values for Takahashi correlation, by interpolating
-//   table of constants vs. Pr:
-double HighPressureGasTransport::setPcorr(double Pr, double Tr)
+// Sign function for use in the quantum correction term calculation.
+template<typename T>
+int sign(T val) {
+    if (val > 0) return 1;
+    if (val < 0) return -1;
+    return 0;
+}
+
+// Calculates the pressure correction factor for the Lucas method that
+// is used to calculate high pressure pure fluid viscosity. This is equation
+// 9-4.18 in Poling et al. (2001):
+double HighPressureGasTransport::FP_i(double mu_r, double Tr, double Z_crit)
 {
+    if (mu_r < 0.022) {
+        return 1;
+    } else if (mu_r < 0.075) {
+        return 1 + 30.55*pow(0.292 - Z_crit, 1.72);
+    } else {
+        return 1 + 30.55*pow(0.292 - Z_crit, 1.72)*fabs(0.96 + 0.1*(Tr - 0.7));
+    }
+}
+
+double HighPressureGasTransport::compute_correction_factor(double Pr, double Tr)
+{
+    // Data from Table 2 of Takahashi 1975 paper:
     const static double Pr_lookup[17] = {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.8, 1.0,
         1.2, 1.4, 1.6, 1.8, 2.0, 2.5, 3.0, 4.0, 5.0};
     const static double DP_Rt_lookup[17] = {1.01, 1.01, 1.01, 1.01, 1.01, 1.01,
@@ -456,11 +548,13 @@ double HighPressureGasTransport::setPcorr(double Pr, double Tr)
     const static double E_ij_lookup[17] = {1., 1., 1., 1., 1., 1., 1., 13.45454,
         14., 10.00900, 8.57519, 10.37483, 11.21674, 1., 6.19043, 1., 1.};
 
-    // Interpolate Pr vs. those used in Takahashi table:
+    // Interpolate to obtain the value of the constants (DP)_R, A, B, C, E at
+    // the provided value of the reduced pressure (Pr):
     int Pr_i = 0;
-    double frac = 0.;
+    double frac = 0.0;
+    double A, B, C,E, DP_Rt;
 
-    if (Pr < 0.1) {
+    if (Pr < 0.1) { // In the low pressure limit, no correction is needed:
         frac = (Pr - Pr_lookup[0])/(Pr_lookup[1] - Pr_lookup[0]);
     } else {
         for (int j = 1; j < 17; j++) {
@@ -470,20 +564,19 @@ double HighPressureGasTransport::setPcorr(double Pr, double Tr)
             }
             Pr_i++;
         }
-    }
-    // If Pr is greater than the greatest value used by Takahashi (5.0), use the
-    //   final table value.  Should eventually add in an extrapolation:
-    if (Pr_i == 17) {
+        // If this loop completes without finding a bounding value of Pr, use
+        // the final table value.
         frac = 1.0;
     }
 
-    double P_corr_1 = DP_Rt_lookup[Pr_i]*(1.0 - A_ij_lookup[Pr_i]
-        *pow(Tr,-B_ij_lookup[Pr_i]))*(1-C_ij_lookup[Pr_i]
-        *pow(Tr,-E_ij_lookup[Pr_i]));
-    double P_corr_2 = DP_Rt_lookup[Pr_i+1]*(1.0 - A_ij_lookup[Pr_i+1]
-        *pow(Tr,-B_ij_lookup[Pr_i+1]))*(1-C_ij_lookup[Pr_i+1]
-        *pow(Tr,-E_ij_lookup[Pr_i+1]));
-    return P_corr_1*(1.0-frac) + P_corr_2*frac;
+    DP_Rt = DP_Rt_lookup[Pr_i]*(1.0 - frac) + DP_Rt_lookup[Pr_i+1]*frac;
+    A = A_ij_lookup[Pr_i]*(1.0 - frac) + A_ij_lookup[Pr_i+1]*frac;
+    B = B_ij_lookup[Pr_i]*(1.0 - frac) + B_ij_lookup[Pr_i+1]*frac;
+    C = C_ij_lookup[Pr_i]*(1.0 - frac) + C_ij_lookup[Pr_i+1]*frac;
+    E = E_ij_lookup[Pr_i]*(1.0 - frac) + E_ij_lookup[Pr_i+1]*frac;
+
+    double DP_R = DP_Rt*(1.0 - A*pow(Tr,-B))*(1.0 - C*pow(Tr,-E));
+    return DP_R;
 }
 
 }

@@ -19,6 +19,17 @@ namespace Cantera
  * This class provides functions that interpolate the tabulated collision
  * integrals in Monchick and Mason @cite monchick1961.
  *
+ * The collision integrals computed by Monchick and Mason use the Stockmayer
+ * potential, which models a polar molecule as a spherical potential with a
+ * point dipole at the center).
+ *
+ * @f[
+ *    \phi(r) = 4\epsilon \left[ \left(\frac{\sigma}{r}\right)^{12} - \left(\frac{\sigma}{r}\right)^6 + \delta \left(\frac{\sigma}{r}\right)^3 \right]
+ * @f]
+ *
+ * The tabulated data comes from the averaged collision integrals in tables
+ * V through VIII of Monchick and Mason @cite monchick1961.
+ *
  * @ingroup tranprops
  */
 class MMCollisionInt
@@ -46,6 +57,7 @@ public:
 
 private:
     double fitDelta(int table, int ntstar, int degree, double* c);
+    double quadInterp(double x0, double* x, double* y);
 
     vector<vector<double>> m_o22poly;
     vector<vector<double>> m_apoly;
@@ -55,25 +67,30 @@ private:
     static double delta[8];
     static double tstar22[37];
 
-    //! Table of omega22 values from MM
+    //! Table of omega22 values
     static double omega22_table[37*8];
 
-    //! table of tstar values
+    //! T* values (reduced temperature)
     static double tstar[39];
 
-    //! astar table from MM
+    //! astar table
     static double astar_table[39*8];
 
-    //! bstar table from MM
+    //! bstar table
     static double bstar_table[39*8];
 
-    //! cstar table from MM
+    //! cstar table
     static double cstar_table[39*8];
 
     //! Log temp
     vector<double> m_logTemp;
 
+    //! Index of the tstar array that encompasses the minimum temperature
+    //! fitting range value of tsmin.
     int m_nmin;
+
+    //! Index of the tstar array that encompasses the maximum temperature
+    //! fitting range value of tsmax.
     int m_nmax;
 };
 
