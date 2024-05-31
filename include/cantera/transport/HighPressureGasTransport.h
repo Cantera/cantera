@@ -74,18 +74,35 @@ public:
 
 protected:
     double Tcrit_i(size_t i);
-
     double Pcrit_i(size_t i);
-
     double Vcrit_i(size_t i);
-
     double Zcrit_i(size_t i);
 
-    vector<double> store(size_t i, size_t nsp);
+    double low_pressure_nondimensional_viscosity(double Tr, double FP, double FQ);
+    double high_pressure_nondimensional_viscosity(double Tr, double Pr, double FP_low, double FQ_low, double P_vap, double P_crit)
 
+    /**
+     * @brief  Returns the quantum correction term for a species based on Tr
+     * and MW, used in viscosity calculation:
+     *
+     * @param Q
+     * @param Tr // Reduced temperature
+     * @param MW // Molecular weight
+     * @return double
+     */
     double FQ_i(double Q, double Tr, double MW);
 
-    double setPcorr(double Pr, double Tr);
+    double FP_i(double mu_r, double Tr, double Z_c);
+
+    /**
+     * @brief Returns interpolated value of (D*P)_R obtained from the data
+     * in Table 2 of the Takahashi 1975 paper, given a value of the reduced
+     * pressure (Pr) and reduced temperature (Tr).
+     *
+     * @param Pr  Reduced pressure
+     * @param Tr  Reduced temperature
+\    */
+    double compute_correction_factor(double Pr, double Tr);
 };
 }
 #endif
