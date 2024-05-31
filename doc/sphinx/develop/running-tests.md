@@ -105,13 +105,226 @@ pytest -raP --verbose test/python -k 'add_rxn'
 
 To have the test runner activate a PDB shell after a failed assertion:
 ```sh
-pytest -raP --verbose --pdb test/python```
+pytest -raP --verbose --pdb test/python
 ```
 
 ```{important}
 Remember to run `scons build` after any code change before running tests directly with
 `pytest`.
 ```
+
+## Debugging C++ Tests Using VS Code
+
+To allow running the C++ unit tests through the [VS Code interactive
+debugger](https://code.visualstudio.com/docs/editor/debugging), edit or create the file
+`.vscode/launch.json` with contents based on the following template. Some substitutions
+are needed for paths specific to your computer.
+
+::::{tab-set}
+:::{tab-item} Linux
+:sync: linux
+```json
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "(gdb) Launch test/thermo",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/test/thermo/thermo",
+            "cwd": "${workspaceFolder}/test/work",
+            "environment": [
+                {
+                    "name": "LD_LIBRARY_PATH",
+                    "value": "${workspaceFolder}/build/lib"
+                },
+                {
+                    "name": "CANTERA_DATA",
+                    "value": "${workspaceFolder}/data:${workspaceFolder}/test/data"
+                },
+                {
+                    "name": "PYTHONPATH",
+                    "value": "${workspaceFolder}/test/python:${workspaceFolder}/build/python:CONDAROOT/lib/python3.11/site-packages"
+                }
+            ],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "(gdb) Launch test/kinetics",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/test/kinetics/kinetics",
+            // Optional configuration to run a specific test or subset of tests
+            "args": [
+                // "--gtest_filter=KineticsFromScratch.add_falloff_reaction"
+            ],
+            "cwd": "${workspaceFolder}/test/work",
+            "environment": [
+                {
+                    "name": "LD_LIBRARY_PATH",
+                    "value": "${workspaceFolder}/build/lib"
+                },
+                {
+                    "name": "CANTERA_DATA",
+                    "value": "${workspaceFolder}/data:${workspaceFolder}/test/data"
+                },
+                {
+                    "name": "PYTHONPATH",
+                    "value": "${workspaceFolder}/test/python:${workspaceFolder}/build/python:CONDAROOT/lib/python3.11/site-packages"
+                }
+            ],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        }
+    ]
+}
+```
+:::
+
+:::{tab-item} macOS
+:sync: macos
+Install the [CodeLLDB](https://marketplace.visualstudio.com/items?itemName=vadimcn.vscode-lldb)
+extension for VS Code.
+
+```json
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Thermo GTest",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/test/thermo/thermo",
+            "cwd": "${workspaceFolder}/test/work",
+            "env": {
+                "DYLD_LIBRARY_PATH": "${workspaceFolder}/build/lib",
+                "CANTERA_DATA": "${workspaceFolder}/data:${workspaceFolder}/test/data",
+                "PYTHONPATH": "${workspaceFolder}/test/python:${workspaceFolder}/build/python:CONDAROOT/lib/python3.11/site-packages"
+            },
+        },
+        {
+            "name": "Kinetics GTest",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/test/kinetics/kinetics",
+            // Optional configuration to run a specific test or subset of tests
+            "args": [
+                // "--gtest_filter=KineticsFromScratch.add_falloff_reaction"
+            ],
+            "cwd": "${workspaceFolder}/test/work",
+            "env": {
+                "DYLD_LIBRARY_PATH": "${workspaceFolder}/build/lib",
+                "CANTERA_DATA": "${workspaceFolder}/data:${workspaceFolder}/test/data",
+                "PYTHONPATH": "${workspaceFolder}/test/python:${workspaceFolder}/build/python:CONDAROOT/lib/python3.11/site-packages"
+            },
+        }
+    ]
+}
+```
+:::
+
+:::{tab-item} Windows
+:sync: windows
+```json
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "cppvsdbg",
+            "request": "launch",
+            "name": "Thermo GTest",
+            "program": "${workspaceFolder}/build/test/thermo/thermo.exe",
+            "cwd": "${workspaceFolder}/test/work",
+            "environment": [
+                {
+                    "name": "Path",
+                    "value": "${env:Path};${workspaceFolder}/build/lib;CONDAROOT;CONDAROOT/Library/bin"
+                },
+                {
+                    "name": "CANTERA_DATA",
+                    "value": "${workspaceFolder}/data;${workspaceFolder}/test/data"
+                },
+                {
+                    "name": "PYTHONPATH",
+                    "value": "${workspaceFolder}/build/python;${workspaceFolder}/test/python"
+                }
+            ]
+        },
+        {
+            "type": "cppvsdbg",
+            "request": "launch",
+            "name": "Kinetics GTest",
+            "program": "${workspaceFolder}/build/test/kinetics/kinetics.exe",
+            "cwd": "${workspaceFolder}/test/work",
+            // Optional configuration to run a specific test or subset of tests
+            "args": [
+                // "--gtest_filter=KineticsFromScratch.add_falloff_reaction"
+            ],
+            "environment": [
+                {
+                    "name": "Path",
+                    "value": "${env:Path};${workspaceFolder}/build/lib;CONDAROOT;CONDAROOT/Library/bin"
+                },
+                {
+                    "name": "CANTERA_DATA",
+                    "value": "${workspaceFolder}/data;${workspaceFolder}/test/data"
+                },
+                {
+                    "name": "PYTHONPATH",
+                    "value": "${workspaceFolder}/build/python;${workspaceFolder}/test/python"
+                }
+            ]
+        }
+    ]
+}
+
+```
+:::
+::::
+
+In the above, replace `CONDAROOT` with your Conda environment's root directory. To
+determine this path, run `conda env list`. For example, if you see output like
+```
+conda env list
+# conda environments:
+#
+base                     C:\Users\speth\mambaforge
+ctdev                 *  C:\Users\speth\mambaforge\envs\ctdev
+```
+then use `C:/Users/speth/mambaforge/envs/ctdev` as `CONDAROOT`, replacing forward
+slashes with backslashes since the backslash is used as an escape character in JSON.
+
+You will also need to replace any instances of `python3.11` in the above to refer to
+the version of Python in your Conda environment.
+
+You can create additional configurations for any of the test executables that are part
+of the GTest test suite by changing the `program` name above.
+
+:::{note}
+Before running any of the GTest programs through VS Code, you will first need to
+use SCons to compile the corresponding test program, for example by running
+```sh
+scons test-thermo
+```
+
+If you make any changes to the test program or the Cantera library code, re-run this
+command before starting the debugger again to ensure that the changes take effect.
+:::
 
 ## Running tests through GDB
 
@@ -134,8 +347,8 @@ goal of debugging the `PlogLowPressure` test.
 scons test-kinetics
 ```
 
-Next, we need to set some environment variables that specify where the test program
-can find files needed to run the tests. Normally, these are handled by SCons:
+Next, you need to set some environment variables that specify where the test program can
+find files needed to run the tests. Normally, setting these would be handled by SCons.
 ```sh
 export CANTERA_DATA=test/data:data
 export PYTHONPATH=test/python:$PYTHONPATH
@@ -151,4 +364,3 @@ Then at the `(gdb)` prompt, type `run` and press Enter.
 After the debugger reaches the error, the most useful command is the `where` command,
 which will print a stack trace. The `up` command will move up the stack each time it is
 called and print the corresponding line of the source code.
-
