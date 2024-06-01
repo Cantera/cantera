@@ -83,7 +83,7 @@ New-Item -Type Junction -Target ((Get-Location).Path + '\build\python\cantera') 
 ::::
 
 Setting up the paths this way can be useful if you're using an IDE such as VS Code that
-is aware of Conda environments and may allow you to run tests within the IDE.
+is aware of Conda environments and will help with running tests within the IDE.
 
 ## Running Individual Python Tests and Test Subsets
 
@@ -112,6 +112,24 @@ pytest -raP --verbose --pdb test/python
 Remember to run `scons build` after any code change before running tests directly with
 `pytest`.
 ```
+
+## Running Python Tests Using VS Code
+
+To allow running the Python unit tests through VS Code, add the following options
+to `.vscode/settings.json`:
+```json
+      "python.testing.unittestEnabled": false,
+      "python.testing.pytestEnabled": true,
+      "python.testing.cwd": "test/python",
+      "python.testing.unittestArgs": [
+        "-v",
+        "-s",
+        "-p"
+      ],
+```
+
+Once you have done this, you should be able to run and debug individual Python tests
+directly from VS Code using the controls in the gutter to the left of the editor window.
 
 ## Debugging C++ Tests Using VS Code
 
