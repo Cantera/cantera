@@ -113,6 +113,7 @@ Remember to run `scons build` after any code change before running tests directl
 `pytest`.
 ```
 
+(sec-pytest-vscode)=
 ## Running Python Tests Using VS Code
 
 To allow running the Python unit tests through VS Code, add the following options
@@ -131,6 +132,7 @@ to `.vscode/settings.json`:
 Once you have done this, you should be able to run and debug individual Python tests
 directly from VS Code using the controls in the gutter to the left of the editor window.
 
+(sec-gtest-vscode)=
 ## Debugging C++ Tests Using VS Code
 
 To allow running the C++ unit tests through the [VS Code interactive
