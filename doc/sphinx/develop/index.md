@@ -47,12 +47,9 @@ reactor-integration
 
 ## Adding New Features to Cantera
 
-```{caution}
-This section is a work in progress.
-```
-
 - [](CONTRIBUTING)
 - [](style-guidelines)
+- [](vscode-tips)
 - [](writing-tests)
 - [](running-tests)
 - [](writing-examples)
@@ -64,6 +61,7 @@ This section is a work in progress.
 
 CONTRIBUTING
 style-guidelines
+vscode-tips
 writing-tests
 running-tests
 writing-examples
