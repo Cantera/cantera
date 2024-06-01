@@ -515,8 +515,8 @@ jobs:
     strategy:
       matrix:
         os: ["windows-2022"]
-        vs-toolset: ["14.1", "14.3"]
-        python-version: ["3.8", "3.10", "3.11"]
+        vs-toolset: ["14.3"]
+        python-version: ["3.8", "3.10", "3.11", "3.12"]
         include:
         - python-version: 3.8
           fmt-ver: 10
