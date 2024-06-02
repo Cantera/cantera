@@ -72,10 +72,8 @@ classdef Kinetics < handle
         %     >> k = kin.equilibriumConstants
         %
         % :return:
-        %    A column vector of the equilibrium constants for all
-        %    reactions. The vector has an entry for every reaction,
-        %    whether reversible or not, but non-zero values occur only
-        %    for the reversible reactions.
+        %    A column vector of the equilibrium constants in concentration units for all
+        %    reactions, calculated from the standard Gibbs free energy of reaction.
         equilibriumConstants
 
         forwardRateConstants % Forward reaction rate constants for all reactions.
