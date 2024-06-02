@@ -542,7 +542,7 @@ classdef Kinetics < handle
             nr = kin.nReactions;
             xx = zeros(1, nr);
             pt = libpointer('doublePtr', xx);
-            ctFunc('kin_getRevRateConstants', kin.kinID, 1, nr, pt);
+            ctFunc('kin_getRevRateConstants', kin.kinID, 0, nr, pt);
             k = pt.Value;
         end
 
