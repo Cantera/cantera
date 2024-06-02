@@ -280,6 +280,8 @@ public:
     double leftControlPointTemperature() const {
         if (m_twoPointControl && (m_zLeft != Undef)) {
             return m_tLeft;
+        } else {
+            return NAN;
         }
     }
 
@@ -287,6 +289,8 @@ public:
     double leftControlPointCoordinate() const {
         if (m_twoPointControl && (m_zLeft != Undef)) {
             return m_zLeft;
+        } else {
+            return NAN;
         }
     }
 
@@ -301,6 +305,8 @@ public:
     double rightControlPointTemperature() const {
         if (m_twoPointControl && (m_zRight != Undef)) {
             return m_tRight;
+        } else {
+            return NAN;
         }
     }
 
@@ -308,6 +314,8 @@ public:
     double rightControlPointCoordinate() const {
         if (m_twoPointControl && (m_zRight != Undef)) {
             return m_zRight;
+        } else {
+            return NAN;
         }
     }
 
