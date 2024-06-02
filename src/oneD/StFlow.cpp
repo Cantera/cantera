@@ -849,6 +849,8 @@ bool StFlow::componentActive(size_t n) const
         return m_usesLambda;
     case c_offset_E: // eField
         return false;
+    case c_offset_Uo: // oxidizer velocity for two-point control
+        return twoPointControlEnabled();
     default:
         return true;
     }
