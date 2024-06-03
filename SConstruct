@@ -308,6 +308,12 @@ config_options = [
         "sphinx_docs",
         "Build HTML documentation for Cantera using Sphinx.",
         False),
+    BoolOption(
+        "run_examples",
+        """Run examples to generate plots and outputs for Sphinx Gallery. Disable to
+           speed up doc builds when not working on the examples or if dependencies of
+           the examples are not available.""",
+        True),
     PathOption(
         "sphinx_cmd",
         "Command to use for building the Sphinx documentation.",

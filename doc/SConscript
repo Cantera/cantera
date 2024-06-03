@@ -34,6 +34,8 @@ if localenv['sphinx_docs']:
     localenv.PrependENVPath('PYTHONPATH', Dir('#build/python').abspath)
     def build_sphinx(target, source, env):
         cmd = [env['sphinx_cmd']] + env['sphinx_options'].split()
+        if not env['run_examples']:
+            cmd.extend(('-D', 'plot_gallery=0'))
         if env['logging'] == 'debug':
             cmd.append('-v')
         cmd += ('-b', 'html', '-d', 'build/doc/sphinx/doctrees', 'build/doc/sphinx',
