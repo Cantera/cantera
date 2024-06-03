@@ -43,11 +43,15 @@ Flow Domains
 
 FreeFlow
 ^^^^^^^^
-.. autoclass:: FreeFlow(thermo)
+.. autoclass:: FreeFlow(phase: Solution)
+
+UnstrainedFlow
+^^^^^^^^^^^^^^
+.. autoclass:: UnstrainedFlow(phase: Solution)
 
 AxisymmetricFlow
 ^^^^^^^^^^^^^^^^
-.. autoclass:: AxisymmetricFlow(thermo)
+.. autoclass:: AxisymmetricFlow(phase: Solution)
 
 .. _sec-python-boundary-domains:
 

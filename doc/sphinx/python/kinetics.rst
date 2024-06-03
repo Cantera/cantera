@@ -56,6 +56,10 @@ TwoTempPlasmaRate
 .. autoclass:: TwoTempPlasmaRate(A, b, Ea_gas, Ea_electron)
    :no-undoc-members:
 
+ElectronCollisionPlasmaRate
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. autoclass:: ElectronCollisionPlasmaRate(energy_levels=None, cross_sections=None, input_data=None)
+
 FalloffRate
 ^^^^^^^^^^^
 .. autoclass:: FalloffRate()
