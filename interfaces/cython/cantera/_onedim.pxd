@@ -162,7 +162,7 @@ cdef class ReactingSurface1D(Boundary1D):
     cdef CxxReactingSurf1D* surf
     cdef public Kinetics surface
 
-cdef class _FlowBase(Domain1D):
+cdef class FlowBase(Domain1D):
     cdef CxxStFlow* flow
 
 cdef class Sim1D:

@@ -443,7 +443,7 @@ cdef class ReactingSurface1D(Boundary1D):
             return (<CxxReactingSurf1D*>self.domain).coverageEnabled()
 
 
-cdef class _FlowBase(Domain1D):
+cdef class FlowBase(Domain1D):
     """ Base class for 1D flow domains """
     def __cinit__(self, _SolutionBase phase, *args, name="", **kwargs):
         self._domain = CxxNewDomain1D(
@@ -650,7 +650,7 @@ cdef class _FlowBase(Domain1D):
             self.flow.fixElectricField()
 
 
-cdef class FreeFlow(_FlowBase):
+cdef class FreeFlow(FlowBase):
     r"""A free flow domain. The equations solved are standard equations for adiabatic
     one-dimensional flow. The solution variables are:
 
@@ -664,7 +664,7 @@ cdef class FreeFlow(_FlowBase):
     _domain_type = "free-flow"
 
 
-cdef class UnstrainedFlow(_FlowBase):
+cdef class UnstrainedFlow(FlowBase):
     r"""An unstrained flow domain. The equations solved are standard equations for
     adiabatic one-dimensional flow. The solution variables are:
 
@@ -678,7 +678,7 @@ cdef class UnstrainedFlow(_FlowBase):
     _domain_type = "unstrained-flow"
 
 
-cdef class AxisymmetricFlow(_FlowBase):
+cdef class AxisymmetricFlow(FlowBase):
     r"""
     An axisymmetric flow domain. The equations solved are the similarity equations for
     the flow in a finite-height gap of infinite radial extent. The solution variables
@@ -1032,7 +1032,7 @@ cdef class Sim1D:
 
         def set_transport(multi):
             for dom in self.domains:
-                if isinstance(dom, _FlowBase):
+                if isinstance(dom, FlowBase):
                     dom.transport_model = multi
 
         # Do initial solution steps with default tolerances
@@ -1074,7 +1074,7 @@ cdef class Sim1D:
             if loglevel:
                 print('\n{:*^78s}'.format(' ' + msg.format(*args) + ' '))
 
-        flow_domains = [D for D in self.domains if isinstance(D, _FlowBase)]
+        flow_domains = [D for D in self.domains if isinstance(D, FlowBase)]
         zmin = [D.grid[0] for D in flow_domains]
         zmax = [D.grid[-1] for D in flow_domains]
 

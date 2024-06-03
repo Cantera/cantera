@@ -96,3 +96,7 @@ Sim1D
 FlameBase
 ^^^^^^^^^
 .. autoclass:: FlameBase
+
+FlowBase
+^^^^^^^^
+.. autoclass:: FlowBase()
