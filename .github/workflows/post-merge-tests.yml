@@ -45,6 +45,8 @@ jobs:
         CXX=clang++-14 CC=clang-14 f90_interface=n extra_lib_dirs=/usr/lib/llvm/lib
         -j4 debug=n --debug=time hdf_libdir=$HDF5_LIBDIR hdf_include=$HDF5_INCLUDEDIR
         logging=debug
+    - name: Build Tests
+      run: python3 `which scons` -j4 build-tests
     - name: Test Cantera
       run:
         python3 `which scons` test show_long_tests=yes verbose_tests=yes --debug=time
@@ -93,6 +95,8 @@ jobs:
         system_eigen=y system_fmt=y system_sundials=y system_yamlcpp=y \
         system_blas_lapack=y hdf_support=y f90_interface=y \
         cc_flags=-D_GLIBCXX_ASSERTIONS
+    - name: Build Tests
+      run: scons -j4 build-tests
     - name: Test Cantera
       run:
         scons test verbose_tests=yes --debug=time
@@ -132,6 +136,8 @@ jobs:
         system_yamlcpp=y system_blas_lapack=y hdf_support=y
       # note: 'system_highfive=y' is omitted as the current packaged version is too old;
       # once newer version is available in 'latest', this should be tested as well
+    - name: Build Tests
+      run: scons -j4 build-tests
     - name: Test Cantera
       run:
         scons test verbose_tests=yes --debug=time
@@ -176,6 +182,8 @@ jobs:
         python3 `which scons` build env_vars=all -j4 debug=n --debug=time \
         system_fmt=y hdf_libdir=$HDF5_LIBDIR hdf_include=$HDF5_INCLUDEDIR \
         system_blas_lapack=y hdf_support=y cc_flags=-D_GLIBCXX_ASSERTIONS
+    - name: Build Tests
+      run: python3 `which scons` -j4 build-tests
     - name: Test Cantera
       run:
         python3 `which scons` test show_long_tests=yes verbose_tests=yes --debug=time
@@ -206,5 +214,7 @@ jobs:
         ./.venv/bin/python -m pip install ruamel.yaml numpy cython pandas pytest pytest-github-actions-annotate-failures pint graphviz
     - name: Build Cantera
       run: $(brew --prefix)/bin/scons build env_vars=all python_cmd="$(pwd)/.venv/bin/python" -j3 debug=n --debug=time boost_inc_dir=${BOOST_INC_DIR}
+    - name: Build Tests
+      run: $(brew --prefix)/bin/scons -j3 build-tests
     - name: Test Cantera
       run: $(brew --prefix)/bin/scons test show_long_tests=yes verbose_tests=yes --debug=time
