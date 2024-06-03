@@ -1,0 +1,13 @@
+phases:
+- name: test
+  thermo: ideal-gas
+  elements: [O, H, C, Ar]
+  species:
+  - gri30.yaml/species: all
+  kinetics: gas
+  skip-undeclared-elements: true
+  skip-undeclared-third-bodies: true
+  reactions:
+  - gri30.yaml/reactions: declared-species
+  transport: mixture-averaged
+  state: {T: 300.0, P: 1 atm}
