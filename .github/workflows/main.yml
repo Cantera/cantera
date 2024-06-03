@@ -104,6 +104,9 @@ jobs:
         path: build/lib/libcantera_shared.so
         name: libcantera_shared-${{ matrix.os }}.so
         retention-days: 2
+    - name: Build Tests
+      run:
+        python3 `which scons` -j4 build-tests
     - name: Test Cantera
       run:
         python3 `which scons` test show_long_tests=yes verbose_tests=yes --debug=time
@@ -146,6 +149,9 @@ jobs:
         CXX=clang++-14 CC=clang-14 f90_interface=n extra_lib_dirs=/usr/lib/llvm/lib
         -j4 debug=n --debug=time hdf_libdir=$HDF5_LIBDIR hdf_include=$HDF5_INCLUDEDIR
         logging=debug warning_flags='-Wall -Werror -Wsuggest-override'
+    - name: Build Tests
+      run:
+        python3 `which scons` -j4 build-tests
     - name: Test Cantera
       run:
         python3 `which scons` test show_long_tests=yes verbose_tests=yes --debug=time
@@ -194,6 +200,9 @@ jobs:
         path: build/lib/libcantera_shared.dylib
         name: libcantera_shared.dylib
         retention-days: 2
+    - name: Build Tests
+      run:
+        scons -j3 build-tests
     - name: Test Cantera
       run:
         scons test show_long_tests=yes verbose_tests=yes --debug=time
@@ -240,6 +249,9 @@ jobs:
         optimize=n skip_slow_tests=y no_optimize_flags='-DNDEBUG -O0' \
         FORTRANFLAGS='-O0' env_vars=all -j4 --debug=time \
         hdf_libdir=$HDF5_LIBDIR hdf_include=$HDF5_INCLUDEDIR
+    - name: Build Tests
+      run:
+        python3 `which scons` -j4 build-tests
     - name: Test Cantera
       run:
         python3 `which scons` test show_long_tests=yes verbose_tests=yes --debug=time
@@ -572,6 +584,8 @@ jobs:
         path: build/lib/cantera_shared.dll
         name: cantera_shared.dll
         retention-days: 2
+    - name: Build Tests
+      run: scons -j4 build-tests
     - name: Test Cantera
       run: scons test show_long_tests=yes verbose_tests=yes --debug=time
       shell: pwsh
@@ -647,6 +661,8 @@ jobs:
           python_package=full env_vars=USERPROFILE,GITHUB_ACTIONS
           msvc_version=${{ matrix.vs-toolset }} f90_interface=n --debug=time
         shell: cmd
+      - name: Build Tests
+        run: scons -j4 build-tests
       - name: Test Cantera
         run: scons test show_long_tests=yes verbose_tests=yes --debug=time
 
@@ -697,6 +713,9 @@ jobs:
       run: python3 `which scons` build env_vars=all CC=icx CXX=icpx -j4 debug=n
         hdf_libdir=$HDF5_LIBDIR hdf_include=$HDF5_INCLUDEDIR
         --debug=time f90_interface=n # FORTRAN=ifx
+    - name: Build Tests
+      run:
+        python3 `which scons` -j4 build-tests
     - name: Test Cantera
       run: |
         python3 `which scons` test show_long_tests=yes verbose_tests=yes --debug=time
@@ -755,6 +774,8 @@ jobs:
         path: build\python\dist\Cantera*.whl
         name: Cantera-win_amd64.whl
         retention-days: 2
+    - name: Build Tests
+      run: scons -j4 build-tests
     - name: Test Cantera
       run: scons test show_long_tests=yes verbose_tests=yes --debug=time
     - name: Upload Test binaries
