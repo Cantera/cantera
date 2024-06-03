@@ -11,25 +11,25 @@ Zero-Dimensional Reactor Networks
 Defining Functions
 ------------------
 
-.. autoclass:: Func1
+.. autoclass:: Func1(callable)
 
-.. autoclass:: Tabulated1
+.. autoclass:: Tabulated1(time, fval, method='linear')
 
 Base Classes
 ------------
 
 ReactorBase
 ^^^^^^^^^^^
-.. autoclass:: ReactorBase
+.. autoclass:: ReactorBase()
 
 FlowDevice
 ^^^^^^^^^^
-.. autoclass:: FlowDevice
+.. autoclass:: FlowDevice()
 
 Reactor Networks
 ----------------
 
-.. autoclass:: ReactorNet
+.. autoclass:: ReactorNet(reactors=())
 
 .. _sec-python-reactors:
 
@@ -128,17 +128,17 @@ Flow Controllers
 
 MassFlowController
 ^^^^^^^^^^^^^^^^^^
-.. autoclass:: MassFlowController
+.. autoclass:: MassFlowController(upstream, downstream, *, name=None, mdot=1.0, edge_attr=None)
    :inherited-members:
 
 Valve
 ^^^^^
-.. autoclass:: Valve
+.. autoclass:: Valve(upstream, downstream, *, name=None, K=1.0, edge_attr=None)
    :inherited-members:
 
 PressureController
 ^^^^^^^^^^^^^^^^^^
-.. autoclass:: PressureController
+.. autoclass:: PressureController(upstream, downstream, *, name=None, primary=None, K=1.0, edge_attr=None)
    :inherited-members:
 
 Preconditioners
@@ -146,7 +146,7 @@ Preconditioners
 
 AdaptivePreconditioner
 ^^^^^^^^^^^^^^^^^^^^^^
-.. autoclass:: AdaptivePreconditioner
+.. autoclass:: AdaptivePreconditioner()
 
 Drawing Reactor Networks
 ------------------------

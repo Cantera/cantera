@@ -11,11 +11,11 @@ Kinetics Managers
 
 Kinetics
 ^^^^^^^^
-.. autoclass:: Kinetics
+.. autoclass:: Kinetics()
 
 InterfaceKinetics
 ^^^^^^^^^^^^^^^^^
-.. autoclass:: InterfaceKinetics
+.. autoclass:: InterfaceKinetics()
 
 Reactions
 ---------
@@ -25,7 +25,7 @@ This class contains the definition of a single reaction, independent of a specif
 
 Reaction
 ^^^^^^^^
-.. autoclass:: Reaction
+.. autoclass:: Reaction(reactants=None, products=None, rate=None, *, equation=None, init=True, third_body=None)
    :no-undoc-members:
 
 
@@ -103,7 +103,7 @@ ExtensibleRate
 
 InterfaceRateBase
 ^^^^^^^^^^^^^^^^^
-.. autoclass:: InterfaceRateBase
+.. autoclass:: InterfaceRateBase()
    :no-undoc-members:
 
 InterfaceArrheniusRate
@@ -118,7 +118,7 @@ InterfaceBlowersMaselRate
 
 StickRateBase
 ^^^^^^^^^^^^^
-.. autoclass:: StickRateBase
+.. autoclass:: StickRateBase()
    :no-undoc-members:
 
 StickingArrheniusRate
@@ -136,12 +136,12 @@ Auxiliary Reaction Data
 
 ExtensibleRateData
 ^^^^^^^^^^^^^^^^^^
-.. autoclass:: ExtensibleRateData
+.. autoclass:: ExtensibleRateData()
    :no-undoc-members:
 
 ThirdBody
 ^^^^^^^^^
-.. autoclass:: ThirdBody
+.. autoclass:: ThirdBody(collider="M", *, efficiencies=None, default_efficiency=None)
    :no-undoc-members:
 
 Arrhenius
@@ -153,4 +153,4 @@ Reaction Path Analysis
 
 ReactionPathDiagram
 ^^^^^^^^^^^^^^^^^^^
-.. autoclass:: ReactionPathDiagram(Kinetics kin, str element)
+.. autoclass:: ReactionPathDiagram(kin: Kinetics, element: str)

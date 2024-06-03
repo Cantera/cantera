@@ -32,7 +32,7 @@ Mixture
 Species
 -------
 
-.. autoclass:: Species
+.. autoclass:: Species(name=None, composition=None, charge=None, size=None, init=True)
 
 Species Thermodynamic Properties
 --------------------------------
@@ -72,7 +72,7 @@ ShomatePoly2
 Element
 -------
 
-.. autoclass:: Element
+.. autoclass:: Element(name_or_symbol_or_atomic_number)
     :no-undoc-members:
 
     .. autoattribute:: num_elements_defined
