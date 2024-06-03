@@ -12,23 +12,23 @@ YAML Input/Output
 AnyMap
 ^^^^^^
 
-.. autoclass:: AnyMap
+.. autoclass:: AnyMap()
 
 YamlWriter
 ^^^^^^^^^^
-.. autoclass:: YamlWriter
+.. autoclass:: YamlWriter()
 
 Unit Conversions
 ----------------
 
 UnitSystem
 ^^^^^^^^^^
-.. autoclass:: UnitSystem
+.. autoclass:: UnitSystem(units)
    :no-undoc-members:
 
 Units
 ^^^^^
-.. autoclass:: Units
+.. autoclass:: Units(name)
    :no-undoc-members:
 
 .. _sec-python-global-funcs:
