@@ -320,10 +320,12 @@ jobs:
       - name: Upgrade pip
         run: pip install -U pip setuptools wheel
       - name: Install Python dependencies
+        # Pinned sphinx and pydata-sphinx-theme versions are for the Cantera 3.1.x
+        # series. These versions can be relaxed on main branch afterwards.
         run: |
-          pip install ruamel.yaml scons numpy cython 'sphinx>=7.2,<8' sphinx-gallery \
+          pip install ruamel.yaml scons numpy cython 'sphinx>=7.3.7,<7.4' sphinx-gallery \
             sphinxcontrib-matlabdomain sphinxcontrib-doxylink sphinxcontrib-bibtex \
-            pydata-sphinx-theme==0.14.1 sphinx-argparse sphinx_design myst-nb \
+            'pydata-sphinx-theme>=0.15.3,<0.16' sphinx-argparse sphinx_design myst-nb \
             sphinx-copybutton matplotlib pandas scipy pint coolprop graphviz
           pip install "git+https://github.com/Cantera/sphinx-tags.git@main"
       - name: Build Cantera
