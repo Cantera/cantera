@@ -104,7 +104,9 @@ def addTestProgram(subdir, progName, env_vars={}):
         run_program = testenv.Command(passedFile, program, gtestRunner)
         env.Depends(run_program, env['build_targets'])
         env.Depends(env['test_results'], run_program)
-        Alias('test-%s' % progName, run_program)
+        Alias(f'test-{progName}', run_program)
+        Alias(f'build-{progName}', program)
+        Alias('build-tests', program)
         env['testNames'].append(progName)
     else:
         test_results.failed['test-%s (googletest disabled)' % progName] = 1
