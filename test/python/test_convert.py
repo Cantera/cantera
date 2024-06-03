@@ -736,6 +736,19 @@ class yaml2ckTest(utilities.CanteraTest):
             ck_phase, yaml_phase, [300, 800, 1450, 2800], [5e3, 1e5, 2e6]
         )
 
+    def test_undeclared_third_body(self):
+        input_file = self.test_data_path / "undeclared-third-body.yaml"
+        mech = self.convert(input_file)
+        with open(mech) as fid:
+            lines = fid.readlines()
+        for i, line in enumerate(lines):
+            if line.startswith("H + O2 + M <=> HO2 + M"):
+                next = lines[i + 1]
+                assert "N2" not in next
+                assert all(sp in next for sp in ["AR", "C2H6", "CO", "CO2", "H2O", "O2"])
+        ck_phase, yaml_phase = self.check_conversion(input_file)
+        self.check_kinetics(ck_phase, yaml_phase, [900, 1800], [2e5, 20e5])
+
     def test_pdep(self):
         input_file = self.test_data_path / "pdep-test.yaml"
         self.convert(input_file)

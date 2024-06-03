@@ -342,11 +342,13 @@ def build_reactions_text(reactions: Iterable[ct.Reaction], species: Iterable[ct.
 
     :param reactions:
         An iterable of `cantera.Reaction` instances to be included.
+    :param species:
+        An iterable of `cantera.Species` definitions for this file.
 
     .. versionadded:: 3.0
     """
 
-    species_names = [spec.name for spec in species]
+    species_names = {spec.name for spec in species}
 
     # Note: Cantera converts explicit reverse rate coefficients given by the ``REV``
     # keyword into two independent irreversible reactions. Therefore, there's no need to
