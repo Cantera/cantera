@@ -71,7 +71,9 @@ class Test(object):
         localenv.Depends(env['test_results'], run)
         localenv.Depends(run, env['build_targets'])
         localenv.Alias('test-clean', self.clean(localenv))
-        localenv.Alias('test-%s' % self.testName, run)
+        localenv.Alias(f'test-{self.testName}', run)
+        localenv.Alias(f'build-{self.testName}', self.program)
+        localenv.Alias('build-tests', self.program)
         env['testNames'].append(self.testName)
 
         # reset: just delete the ".passed" file so that this test will be re-run

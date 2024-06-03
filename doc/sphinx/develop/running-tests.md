@@ -339,7 +339,7 @@ of the GTest test suite by changing the `program` name above.
 Before running any of the GTest programs through VS Code, you will first need to
 use SCons to compile the corresponding test program, for example by running
 ```sh
-scons test-thermo
+scons build-thermo
 ```
 
 If you make any changes to the test program or the Cantera library code, re-run this
@@ -360,11 +360,11 @@ help with running either the C++ or Python tests through GDB on Linux.
 
 ### Running C++ (GoogleTest) Tests
 
-First, run the target test through SCons to make sure the Cantera library and the test
+First, build the target test through SCons to make sure the Cantera library and the test
 executable are up to date. We'll use the `kinetics` test subset as an example, with the
 goal of debugging the `PlogLowPressure` test.
 ```sh
-scons test-kinetics
+scons build-kinetics
 ```
 
 Next, you need to set some environment variables that specify where the test program can

@@ -25,6 +25,10 @@ Basic usage:
 
     'scons test-NAME' - Run the test named "NAME".
 
+    'scons build-NAME' - Build the program for the test named "NAME".
+
+    'scons build-tests' - Build the programs for all tests.
+
     'scons samples' - Compile the C++ and Fortran samples.
 
     'scons msi' - Build a Windows installer (.msi) for Cantera.
@@ -111,7 +115,7 @@ else:
     logger.logger.setLevel("INFO")
 
 for command in COMMAND_LINE_TARGETS:
-    if command not in valid_commands and not command.startswith('test'):
+    if command not in valid_commands and not command.startswith(('test', 'build-')):
         logger.error(f"Unrecognized command line target: {command!r}")
         sys.exit(1)
 
@@ -2351,7 +2355,7 @@ if 'msi' in COMMAND_LINE_TARGETS:
     build_msi = Alias('msi', msi_target)
 
 ### Tests ###
-if any(target.startswith('test') for target in COMMAND_LINE_TARGETS):
+if any(target.startswith(('test', 'build-')) for target in COMMAND_LINE_TARGETS):
     env['testNames'] = []
     env['test_results'] = env.Command('test_results', [], test_results.print_report)
 
