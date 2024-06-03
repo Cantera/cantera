@@ -91,7 +91,7 @@ jobs:
     - name: Install Python dependencies
       run: |
         python3 -m pip install ruamel.yaml scons==3.1.2 numpy cython pandas pytest \
-        pytest-github-actions-annotate-failures pint graphviz
+        pytest-github-actions-annotate-failures pytest-xdist pint graphviz
     - name: Build Cantera
       run: |
         python3 `which scons` build env_vars=all -j4 debug=n --debug=time \
@@ -106,10 +106,13 @@ jobs:
         retention-days: 2
     - name: Build Tests
       run:
-        python3 `which scons` -j4 build-tests
-    - name: Test Cantera
-      run:
-        python3 `which scons` test show_long_tests=yes verbose_tests=yes --debug=time
+        python3 `which scons` -j4 build-tests --debug=time
+    - name: Run compiled tests
+      run: python3 `which scons` test-gtest test-legacy --debug=time
+    - name: Run Python tests
+      run: |
+        LD_LIBRARY_PATH=build/lib
+        python3 -m pytest -raP -v -n auto --durations=50 test/python
     - name: Save the wheel file to install Cantera
       uses: actions/upload-artifact@v3
       with:
@@ -142,8 +145,8 @@ jobs:
     - name: Upgrade pip
       run: python3 -m pip install -U pip setuptools wheel
     - name: Install Python dependencies
-      run: |
-        python3 -m pip install ruamel.yaml scons numpy cython pandas pytest pytest-github-actions-annotate-failures pint graphviz
+      run: python3 -m pip install ruamel.yaml scons numpy cython pandas pytest
+        pytest-xdist pytest-github-actions-annotate-failures pint graphviz
     - name: Build Cantera
       run: python3 `which scons` build env_vars=all
         CXX=clang++-14 CC=clang-14 f90_interface=n extra_lib_dirs=/usr/lib/llvm/lib
@@ -151,10 +154,13 @@ jobs:
         logging=debug warning_flags='-Wall -Werror -Wsuggest-override'
     - name: Build Tests
       run:
-        python3 `which scons` -j4 build-tests
-    - name: Test Cantera
-      run:
-        python3 `which scons` test show_long_tests=yes verbose_tests=yes --debug=time
+        python3 `which scons` -j4 build-tests --debug=time
+    - name: Run compiled tests
+      run: python3 `which scons` test-gtest test-legacy --debug=time
+    - name: Run Python tests
+      run: |
+        LD_LIBRARY_PATH=build/lib
+        python3 -m pytest -raP -v -n auto --durations=50 test/python
 
   macos-multiple-pythons:
     name: ${{ matrix.macos-version }} with Python ${{ matrix.python-version }}
@@ -175,7 +181,7 @@ jobs:
         submodules: recursive
     - name: Write dependencies to a file for caching
       run: |
-        echo "scons ruamel.yaml numpy cython pandas pytest pytest-github-actions-annotate-failures pint graphviz" | tr " " "\n" > requirements.txt
+        echo "scons ruamel.yaml numpy cython pandas pytest pytest-xdist pytest-github-actions-annotate-failures pint graphviz" | tr " " "\n" > requirements.txt
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
@@ -201,11 +207,13 @@ jobs:
         name: libcantera_shared.dylib
         retention-days: 2
     - name: Build Tests
-      run:
-        scons -j3 build-tests
-    - name: Test Cantera
-      run:
-        scons test show_long_tests=yes verbose_tests=yes --debug=time
+      run: scons -j3 build-tests --debug=time
+    - name: Run compiled tests
+      run: scons test-gtest test-legacy --debug=time
+    - name: Run Python tests
+      run: |
+        export DYLD_LIBRARY_PATH=build/lib
+        python3 -m pytest -raP -v -n auto --durations=50 test/python
 
   # Coverage is its own job because macOS builds of the samples
   # use Homebrew gfortran which is not compatible for coverage
@@ -250,11 +258,11 @@ jobs:
         FORTRANFLAGS='-O0' env_vars=all -j4 --debug=time \
         hdf_libdir=$HDF5_LIBDIR hdf_include=$HDF5_INCLUDEDIR
     - name: Build Tests
-      run:
-        python3 `which scons` -j4 build-tests
-    - name: Test Cantera
-      run:
-        python3 `which scons` test show_long_tests=yes verbose_tests=yes --debug=time
+      run: python3 `which scons` -j4 build-tests --debug=time
+    - name: Run compiled tests
+      run: python3 `which scons` test-gtest test-legacy --debug=time
+    - name: Run Python tests
+      run: python3 `which scons` test-python show_long_tests=yes verbose_tests=yes
     - name: Build the .NET interface
       run: dotnet build
       working-directory: interfaces/dotnet
@@ -502,7 +510,7 @@ jobs:
         run: |
           conda install -q sundials=${{ matrix.sundials-ver }} scons numpy ruamel.yaml \
           cython boost-cpp fmt=${{ matrix.fmt-ver }} eigen yaml-cpp pandas \
-          libgomp openblas pytest highfive python-graphviz
+          libgomp openblas pytest pytest-xdist highfive python-graphviz
       - name: Build Cantera
         run: |
           scons build system_fmt=y system_eigen=y system_yamlcpp=y system_sundials=y \
@@ -571,7 +579,7 @@ jobs:
       # use boost-cpp rather than boost from conda-forge
       # Install SCons >=4.4.0 to make sure that MSVC_TOOLSET_VERSION variable is present
       run: |
-        mamba install -q '"scons>=4.4.0"' numpy cython ruamel.yaml boost-cpp eigen yaml-cpp pandas pytest highfive pint python-graphviz fmt=${{ matrix.fmt-ver }}
+        mamba install -q '"scons>=4.4.0"' numpy cython ruamel.yaml boost-cpp eigen yaml-cpp pandas pytest pytest-xdist highfive pint python-graphviz fmt=${{ matrix.fmt-ver }}
       shell: pwsh
     - name: Build Cantera
       run: scons build system_eigen=y system_yamlcpp=y system_highfive=y logging=debug
@@ -585,9 +593,12 @@ jobs:
         name: cantera_shared.dll
         retention-days: 2
     - name: Build Tests
-      run: scons -j4 build-tests
-    - name: Test Cantera
-      run: scons test show_long_tests=yes verbose_tests=yes --debug=time
+      run: scons -j4 build-tests --debug=time
+    - name: Run compiled tests
+      run: scons test-gtest test-legacy --debug=time
+    - name: Run Python tests
+      run: |
+        pytest -raP -v -n auto --durations=50 test/python
       shell: pwsh
     - name: Test Install
       # spot-check installation locations
@@ -638,7 +649,7 @@ jobs:
       - name: Install Python dependencies
         run: |
           python -m pip install -U pip setuptools wheel
-          python -m pip install 'scons<4.4.0' pypiwin32 numpy ruamel.yaml cython pandas graphviz pytest pytest-github-actions-annotate-failures
+          python -m pip install 'scons<4.4.0' pypiwin32 numpy ruamel.yaml cython pandas graphviz pytest pytest-xdist pytest-github-actions-annotate-failures
       - name: Restore Boost cache
         uses: actions/cache@v3
         id: cache-boost
@@ -662,9 +673,11 @@ jobs:
           msvc_version=${{ matrix.vs-toolset }} f90_interface=n --debug=time
         shell: cmd
       - name: Build Tests
-        run: scons -j4 build-tests
-      - name: Test Cantera
-        run: scons test show_long_tests=yes verbose_tests=yes --debug=time
+        run: scons -j4 build-tests --debug=time
+      - name: Run compiled tests
+        run: scons test-gtest test-legacy --debug=time
+      - name: Run Python tests
+        run: python -m pytest -raP -v -n auto --durations=50 test/python
 
   # Adapted from https://www.scivision.dev/intel-oneapi-github-actions/
   linux-intel-oneapi:
@@ -704,7 +717,7 @@ jobs:
     - name: Install Python dependencies
       run: |
         python3 -m pip install ruamel.yaml scons numpy cython pandas pytest \
-        pytest-github-actions-annotate-failures pint graphviz
+        pytest-xdist pytest-github-actions-annotate-failures pint graphviz
     - name: Setup Intel oneAPI environment
       run: |
         source /opt/intel/oneapi/setvars.sh
@@ -714,11 +727,13 @@ jobs:
         hdf_libdir=$HDF5_LIBDIR hdf_include=$HDF5_INCLUDEDIR
         --debug=time f90_interface=n # FORTRAN=ifx
     - name: Build Tests
-      run:
-        python3 `which scons` -j4 build-tests
-    - name: Test Cantera
+      run: python3 `which scons` -j4 build-tests --debug=time
+    - name: Run compiled tests
+      run: python3 `which scons` test-gtest test-legacy --debug=time
+    - name: Run Python tests
       run: |
-        python3 `which scons` test show_long_tests=yes verbose_tests=yes --debug=time
+        LD_LIBRARY_PATH=$LD_LIBRARY_PATH:build/lib
+        python3 -m pytest -raP -v -n auto --durations=50 test/python
 
   windows-mingw:
     name: mingw on Windows, Python 3.10
@@ -740,7 +755,7 @@ jobs:
     - name: Install Python dependencies
       run: |
         python -m pip install -U pip setuptools wheel
-        python -m pip install scons pypiwin32 numpy ruamel.yaml cython h5py pandas pytest pytest-github-actions-annotate-failures pint graphviz
+        python -m pip install scons pypiwin32 numpy ruamel.yaml cython h5py pandas pytest pytest-xdist pytest-github-actions-annotate-failures pint graphviz
     - name: Restore Boost cache
       uses: actions/cache@v3
       id: cache-boost
@@ -775,9 +790,11 @@ jobs:
         name: Cantera-win_amd64.whl
         retention-days: 2
     - name: Build Tests
-      run: scons -j4 build-tests
-    - name: Test Cantera
-      run: scons test show_long_tests=yes verbose_tests=yes --debug=time
+      run: scons -j4 build-tests --debug=time
+    - name: Run compiled tests
+      run: scons test-gtest test-legacy --debug=time
+    - name: Run Python tests
+      run: python -m pytest -raP -v -n auto --durations=50 test/python
     - name: Upload Test binaries
       if: always()
       uses: actions/upload-artifact@v3
