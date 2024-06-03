@@ -98,6 +98,11 @@ it easier for others to understand your code in the context of Cantera as a whol
   [Sphinx](https://www.sphinx-doc.org/en/master/index.html)
 * All classes, member variables, and methods should include
   [Python docstrings](https://peps.python.org/pep-0257/#what-is-a-docstring)
+* New classes and global functions need to be added to one of the pages in
+  `doc/sphinx/python` so they will appear in the API reference. For a Cython class
+  defined in `.pyx` file, the argument list needs to be repeated as part of the
+  `.. autoclass::` declaration; for a function or pure Python class, the signature is
+  automatically read by Sphinx.
 * Docstrings should use annotations compatible with
   [autodoc](https://www.sphinx-doc.org/en/master/tutorial/automatic-doc-generation.html).
   For guidance, refer to existing Cantera documentation or online tutorials (see
