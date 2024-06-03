@@ -49,7 +49,7 @@ jobs:
           python3 -m pip install ruamel.yaml scons==3.1.2
       - name: Build Cantera
         run: |
-          python3 `which scons` build env_vars=all -j2 debug=n --debug=time \
+          python3 `which scons` build env_vars=all -j4 debug=n --debug=time \
           cc_flags=-D_GLIBCXX_ASSERTIONS
       - name: Set up MATLAB
         uses: matlab-actions/setup-matlab@v1
@@ -94,7 +94,7 @@ jobs:
         pytest-github-actions-annotate-failures pint graphviz
     - name: Build Cantera
       run: |
-        python3 `which scons` build env_vars=all -j2 debug=n --debug=time \
+        python3 `which scons` build env_vars=all -j4 debug=n --debug=time \
         system_fmt=y hdf_libdir=$HDF5_LIBDIR hdf_include=$HDF5_INCLUDEDIR \
         cc_flags=-D_GLIBCXX_ASSERTIONS
     - name: Upload shared library
@@ -144,7 +144,7 @@ jobs:
     - name: Build Cantera
       run: python3 `which scons` build env_vars=all
         CXX=clang++-14 CC=clang-14 f90_interface=n extra_lib_dirs=/usr/lib/llvm/lib
-        -j2 debug=n --debug=time hdf_libdir=$HDF5_LIBDIR hdf_include=$HDF5_INCLUDEDIR
+        -j4 debug=n --debug=time hdf_libdir=$HDF5_LIBDIR hdf_include=$HDF5_INCLUDEDIR
         logging=debug warning_flags='-Wall -Werror -Wsuggest-override'
     - name: Test Cantera
       run:
@@ -238,7 +238,7 @@ jobs:
       run: |
         python3 `which scons` build blas_lapack_libs=lapack,blas coverage=y \
         optimize=n skip_slow_tests=y no_optimize_flags='-DNDEBUG -O0' \
-        FORTRANFLAGS='-O0' env_vars=all -j2 --debug=time \
+        FORTRANFLAGS='-O0' env_vars=all -j4 --debug=time \
         hdf_libdir=$HDF5_LIBDIR hdf_include=$HDF5_INCLUDEDIR
     - name: Test Cantera
       run:
@@ -329,7 +329,7 @@ jobs:
             sphinx-copybutton matplotlib pandas scipy pint coolprop graphviz
           pip install "git+https://github.com/Cantera/sphinx-tags.git@main"
       - name: Build Cantera
-        run: scons build -j2 debug=n optimize=y use_pch=n
+        run: scons build -j4 debug=n optimize=y use_pch=n
       - name: Build documentation
         run: |
           scons sphinx doxygen logging=debug \
@@ -494,7 +494,7 @@ jobs:
       - name: Build Cantera
         run: |
           scons build system_fmt=y system_eigen=y system_yamlcpp=y system_sundials=y \
-          system_highfive=y blas_lapack_libs='lapack,blas' -j2 logging=debug debug=n \
+          system_highfive=y blas_lapack_libs='lapack,blas' -j4 logging=debug debug=n \
           optimize_flags='-O3 -ffast-math -fno-finite-math-only'
       - name: Test Cantera
         run: scons test-zeroD test-python-reactor show_long_tests=yes verbose_tests=yes
@@ -563,7 +563,7 @@ jobs:
       shell: pwsh
     - name: Build Cantera
       run: scons build system_eigen=y system_yamlcpp=y system_highfive=y logging=debug
-        msvc_toolset_version=${{ matrix.vs-toolset }} f90_interface=n debug=n --debug=time -j2
+        msvc_toolset_version=${{ matrix.vs-toolset }} f90_interface=n debug=n --debug=time -j4
       shell: pwsh
     - name: Upload shared library
       uses: actions/upload-artifact@v3
@@ -643,7 +643,7 @@ jobs:
           rm $BOOST_ROOT/download.7z
         shell: bash
       - name: Build Cantera
-        run: scons build -j2 boost_inc_dir=%BOOST_ROOT% debug=n logging=debug
+        run: scons build -j4 boost_inc_dir=%BOOST_ROOT% debug=n logging=debug
           python_package=full env_vars=USERPROFILE,GITHUB_ACTIONS
           msvc_version=${{ matrix.vs-toolset }} f90_interface=n --debug=time
         shell: cmd
@@ -694,7 +694,7 @@ jobs:
         source /opt/intel/oneapi/setvars.sh
         printenv >> $GITHUB_ENV
     - name: Build Cantera
-      run: python3 `which scons` build env_vars=all CC=icx CXX=icpx -j2 debug=n
+      run: python3 `which scons` build env_vars=all CC=icx CXX=icpx -j4 debug=n
         hdf_libdir=$HDF5_LIBDIR hdf_include=$HDF5_INCLUDEDIR
         --debug=time f90_interface=n # FORTRAN=ifx
     - name: Test Cantera
@@ -745,7 +745,7 @@ jobs:
         rm $BOOST_ROOT/download.7z
       shell: bash
     - name: Build Cantera
-      run: scons build -j2 boost_inc_dir=%BOOST_ROOT% debug=n logging=debug
+      run: scons build -j4 boost_inc_dir=%BOOST_ROOT% debug=n logging=debug
         python_package=full env_vars=USERPROFILE,PYTHONPATH,GITHUB_ACTIONS
         toolchain=mingw f90_interface=n --debug=time
       shell: cmd
