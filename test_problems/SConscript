@@ -71,6 +71,7 @@ class Test(object):
         localenv.Depends(env['test_results'], run)
         localenv.Depends(run, env['build_targets'])
         localenv.Alias('test-clean', self.clean(localenv))
+        localenv.Alias('test-legacy', run)
         localenv.Alias(f'test-{self.testName}', run)
         localenv.Alias(f'build-{self.testName}', self.program)
         localenv.Alias('build-tests', self.program)

@@ -23,6 +23,9 @@ Basic usage:
 
     'scons test-help' - List available tests.
 
+    'scons test-{python,gtest,legacy}' - Run all Python, GTest, or legacy
+                                         (test_problems) test cases, respectively.
+
     'scons test-NAME' - Run the test named "NAME".
 
     'scons build-NAME' - Build the program for the test named "NAME".
