@@ -20,12 +20,12 @@ jobs:
       HDF5_LIBDIR: /usr/lib/x86_64-linux-gnu/hdf5/serial
       HDF5_INCLUDEDIR: /usr/include/hdf5/serial
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       name: Checkout the repository
       with:
         submodules: recursive
     - name: Setup Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: 3.11
         architecture: x64
@@ -74,7 +74,7 @@ jobs:
         apt install -y git
         git config --global init.defaultBranch main
         git config --global --add safe.directory /__w/cantera/cantera
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       name: Checkout the repository
       with:
         submodules: recursive
@@ -124,7 +124,7 @@ jobs:
         dnf install -y git
         git config --global init.defaultBranch main
         git config --global --add safe.directory /__w/cantera/cantera
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       name: Checkout the repository
     - name: Install dependencies
       # Use packages from Fedora
@@ -165,12 +165,12 @@ jobs:
       HDF5_LIBDIR: /usr/lib/x86_64-linux-gnu/hdf5/serial
       HDF5_INCLUDEDIR: /usr/include/hdf5/serial
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       name: Checkout the repository
       with:
         submodules: recursive
     - name: Setup Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
         architecture: x64

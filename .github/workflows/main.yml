@@ -27,12 +27,12 @@ jobs:
       CANTERA_ROOT: /home/runner/work/cantera/cantera
       CANTERA_DATA: /home/runner/work/cantera/cantera/data
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         name: Checkout the repository
         with:
           submodules: recursive
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.10'
           architecture: x64
@@ -52,9 +52,9 @@ jobs:
           python3 `which scons` build env_vars=all -j4 debug=n --debug=time \
           cc_flags=-D_GLIBCXX_ASSERTIONS
       - name: Set up MATLAB
-        uses: matlab-actions/setup-matlab@v1
+        uses: matlab-actions/setup-matlab@v2
       - name: Run tests
-        uses: matlab-actions/run-tests@v1
+        uses: matlab-actions/run-tests@v2
         with:
           select-by-folder: /home/runner/work/cantera/cantera/test/matlab_experimental
 
@@ -71,12 +71,12 @@ jobs:
       HDF5_LIBDIR: /usr/lib/x86_64-linux-gnu/hdf5/serial
       HDF5_INCLUDEDIR: /usr/include/hdf5/serial
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       name: Checkout the repository
       with:
         submodules: recursive
     - name: Setup Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
         architecture: x64
@@ -98,7 +98,7 @@ jobs:
         system_fmt=y hdf_libdir=$HDF5_LIBDIR hdf_include=$HDF5_INCLUDEDIR \
         cc_flags=-D_GLIBCXX_ASSERTIONS
     - name: Upload shared library
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: matrix.python-version == '3.11'
       with:
         path: build/lib/libcantera_shared.so
@@ -114,7 +114,7 @@ jobs:
         LD_LIBRARY_PATH=build/lib
         python3 -m pytest -raP -v -n auto --durations=50 test/python
     - name: Save the wheel file to install Cantera
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         path: build/python/dist/Cantera*.whl
         retention-days: 2
@@ -129,12 +129,12 @@ jobs:
       HDF5_LIBDIR: /usr/lib/x86_64-linux-gnu/hdf5/serial
       HDF5_INCLUDEDIR: /usr/include/hdf5/serial
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       name: Checkout the repository
       with:
         submodules: recursive
     - name: Setup Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: 3.8
         architecture: x64
@@ -200,8 +200,8 @@ jobs:
     - name: Build Cantera
       run: scons build env_vars=all -j3 debug=n --debug=time boost_inc_dir=${BOOST_INC_DIR}
     - name: Upload shared library
-      uses: actions/upload-artifact@v3
-      if: matrix.python-version == '3.11'
+      uses: actions/upload-artifact@v4
+      if: matrix.python-version == '3.11' && matrix.macos-version == 'macos-12'
       with:
         path: build/lib/libcantera_shared.dylib
         name: libcantera_shared.dylib
@@ -227,12 +227,12 @@ jobs:
       HDF5_LIBDIR: /usr/lib/x86_64-linux-gnu/hdf5/serial
       HDF5_INCLUDEDIR: /usr/include/hdf5/serial
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       name: Checkout the repository
       with:
         submodules: recursive
     - name: Setup python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: '3.11'
         architecture: x64
@@ -248,7 +248,7 @@ jobs:
         python3 -m pip install ruamel.yaml scons numpy cython pandas scipy pytest \
         pytest-github-actions-annotate-failures pytest-cov gcovr!=7.0.0 pint graphviz
     - name: Setup .NET Core SDK
-      uses: actions/setup-dotnet@v2
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '6.x'
     - name: Build Cantera
@@ -282,19 +282,19 @@ jobs:
         --exclude '.*ext.*' --exclude '(.+/)?_cantera\.cpp$' --exclude '^test.*' \
         --xml coverage.xml --html-details htmlcoverage.html --txt
     - name: Archive C++ coverage results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: cxx-coverage-report
         path: htmlcoverage*
         retention-days: 5
     - name: Archive Python coverage results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: python-coverage-report
         path: build/python-coverage*
         retention-days: 5
     - name: Archive .NET coverage results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: dotnet-coverage-report
         path: interfaces/dotnet/coveragereport*
@@ -317,7 +317,7 @@ jobs:
     env:
       DEPLOY: ${{ github.event_name == 'push' && github.repository_owner == 'Cantera' && endsWith(github.ref, 'main') }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         name: Checkout the repository
         with:
           submodules: recursive
@@ -369,7 +369,7 @@ jobs:
           tar --exclude="*.map" --exclude="*.md5" -czf docs.tar.gz html
         if: failure() || success()
       - name: Store archive of docs output
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           path: build/doc/docs.tar.gz
           name: docs
@@ -412,10 +412,10 @@ jobs:
     steps:
       # We're not building Cantera here, we only need the checkout for the samples
       # folder, so no need to do a recursive checkout
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         name: Checkout the repository
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
@@ -424,12 +424,12 @@ jobs:
           sudo apt update
           sudo apt install graphviz libhdf5-103 libfmt-dev
       - name: Download the wheel artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: cantera-wheel-${{ matrix.python-version }}-${{ matrix.os }}
           path: dist
       - name: Download the Cantera shared library (.so)
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: libcantera_shared-${{ matrix.os }}.so
           path: build/lib
@@ -458,11 +458,11 @@ jobs:
           PYTHONWARNINGS: "error,ignore:warn_name_set_on_empty_Forward::pyparsing,ignore:datetime.datetime.utcfromtimestamp:DeprecationWarning:"
           MPLBACKEND: Agg
       - name: Save the results file for inspection
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           path: results.txt
           retention-days: 2
-          name: example-results
+          name: example-results-${{ matrix.python-version }}-${{ matrix.os }}
         # Run this step if the job was successful or failed, but not if it was cancelled
         # Using always() would run this step if the job was cancelled as well.
         if: failure() || success()
@@ -493,11 +493,11 @@ jobs:
           fmt-ver: 10
       fail-fast: false
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         name: Checkout the repository
         with:
           submodules: recursive
-      - uses: conda-incubator/setup-miniconda@v2
+      - uses: conda-incubator/setup-miniconda@v3
         with:
           auto-update-conda: true
           python-version: ${{ env.PYTHON_VERSION }}
@@ -561,12 +561,12 @@ jobs:
           fmt-ver: 7.1
       fail-fast: false
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       name: Checkout the repository
       with:
         submodules: recursive
     - name: Set up conda
-      uses: conda-incubator/setup-miniconda@v2
+      uses: conda-incubator/setup-miniconda@v3
       with:
         auto-update-conda: true
         python-version: ${{ matrix.python-version }}
@@ -586,7 +586,7 @@ jobs:
         msvc_toolset_version=${{ matrix.vs-toolset }} f90_interface=n debug=n --debug=time -j4
       shell: pwsh
     - name: Upload shared library
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: matrix.python-version == '3.11' && matrix.vs-toolset == '14.3'
       with:
         path: build/lib/cantera_shared.dll
@@ -637,12 +637,12 @@ jobs:
         python-version: ["3.8", "3.10", "3.11", "3.12"]
       fail-fast: false
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         name: Checkout the repository
         with:
           submodules: recursive
       - name: Set Up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
@@ -651,7 +651,7 @@ jobs:
           python -m pip install -U pip setuptools wheel
           python -m pip install 'scons<4.4.0' pypiwin32 numpy ruamel.yaml cython pandas graphviz pytest pytest-xdist pytest-github-actions-annotate-failures
       - name: Restore Boost cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         id: cache-boost
         with:
           path: ${{env.BOOST_ROOT}}
@@ -703,12 +703,12 @@ jobs:
       run: |
         sudo apt-get install intel-oneapi-compiler-fortran intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic \
         intel-oneapi-mpi intel-oneapi-mpi-devel intel-oneapi-mkl ninja-build libboost-dev libhdf5-dev
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       name: Checkout the repository
       with:
         submodules: recursive
     - name: Setup Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: 3.8
         architecture: x64
@@ -743,12 +743,12 @@ jobs:
       BOOST_ROOT: ${{github.workspace}}/3rdparty/boost
       BOOST_URL: https://boostorg.jfrog.io/artifactory/main/release/1.78.0/source/boost_1_78_0.7z
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       name: Checkout the repository
       with:
         submodules: recursive
     - name: Set Up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: "3.10"
         architecture: x64
@@ -757,7 +757,7 @@ jobs:
         python -m pip install -U pip setuptools wheel
         python -m pip install scons pypiwin32 numpy ruamel.yaml cython h5py pandas pytest pytest-xdist pytest-github-actions-annotate-failures pint graphviz
     - name: Restore Boost cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       id: cache-boost
       with:
         path: ${{env.BOOST_ROOT}}
@@ -784,7 +784,7 @@ jobs:
         toolchain=mingw f90_interface=n --debug=time
       shell: cmd
     - name: Upload Wheel
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         path: build\python\dist\Cantera*.whl
         name: Cantera-win_amd64.whl
@@ -797,7 +797,7 @@ jobs:
       run: python -m pytest -raP -v -n auto --durations=50 test/python
     - name: Upload Test binaries
       if: always()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         path: |
           build/test/**/*.exe
@@ -815,10 +815,10 @@ jobs:
     needs: [ubuntu-multiple-pythons, macos-multiple-pythons, windows-2022]
     timeout-minutes: 60
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       name: Checkout the repository
     - name: Set up conda
-      uses: conda-incubator/setup-miniconda@v2
+      uses: conda-incubator/setup-miniconda@v3
       with:
         auto-update-conda: true
         python-version: "3.11"
@@ -842,21 +842,21 @@ jobs:
         sudo apt install libhdf5-dev libfmt-dev
       if: matrix.os == 'ubuntu-22.04'
     - name: Setup .NET Core SDK
-      uses: actions/setup-dotnet@v2
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '6.x'
     - name: Download the Cantera shared library (.so)
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: libcantera_shared-ubuntu-22.04.so
         path: build/lib
     - name: Download the Cantera shared library (.dylib)
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: libcantera_shared.dylib
         path: build/lib
     - name: Download the Cantera shared library (.dll)
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: cantera_shared.dll
         path: build/lib
