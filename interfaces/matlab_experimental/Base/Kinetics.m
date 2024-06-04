@@ -429,7 +429,7 @@ classdef Kinetics < handle
             % :return:
             %    True if reaction number i is reversible. false if irreversible.
 
-            n = boolean(ctFunc('kin_isReversible', kin.kinID, i - 1));
+            n = ctFunc('kin_isReversible', kin.kinID, i - 1) == 1;
         end
 
         function wdot = get.netProdRates(kin)
