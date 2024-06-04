@@ -809,7 +809,7 @@ jobs:
     name: .NET on ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-22.04, windows-2022, macos-11]
+        os: [ubuntu-22.04, windows-2022, macos-13]
       fail-fast: false
     runs-on: ${{ matrix.os }}
     needs: [ubuntu-multiple-pythons, macos-multiple-pythons, windows-2022]
@@ -835,7 +835,7 @@ jobs:
       if: matrix.os == 'windows-2022'
     - name: Install Brew dependencies (macOS)
       run: brew install --display-times hdf5
-      if: matrix.os == 'macos-11'
+      if: matrix.os == 'macos-13'
     - name: Install Apt dependencies (Ubuntu)
       run: |
         sudo apt update
