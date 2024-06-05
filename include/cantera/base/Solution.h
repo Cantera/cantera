@@ -73,7 +73,7 @@ public:
     //! Set the Transport object by name
     //! @param model  name of transport model; if omitted, the default model is used
     //! @since New in %Cantera 3.0
-    void setTransportModel(const string& model="");
+    void setTransportModel(const string& model="default");
 
     //! Accessor for the ThermoPhase pointer
     shared_ptr<ThermoPhase> thermo() {
@@ -203,7 +203,7 @@ shared_ptr<Solution> newSolution(const string& infile, const string& name,
  */
 shared_ptr<Solution> newSolution(const string& infile,
                                  const string& name="",
-                                 const string& transport="",
+                                 const string& transport="default",
                                  const vector<shared_ptr<Solution>>& adjacent={});
 
 //! Create and initialize a new Solution manager from AnyMap objects
@@ -227,7 +227,7 @@ shared_ptr<Solution> newSolution(const string& infile,
  */
 shared_ptr<Solution> newSolution(
     const AnyMap& phaseNode, const AnyMap& rootNode=AnyMap(),
-    const string& transport="",
+    const string& transport="default",
     const vector<shared_ptr<Solution>>& adjacent={},
     const map<string, shared_ptr<Solution>>& related={});
 

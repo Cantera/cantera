@@ -116,7 +116,7 @@ TEST(onedim, flame_types)
 
 TEST(onedim, ion_flame_types)
 {
-    auto sol = newSolution("ch4_ion.yaml", "", "");
+    auto sol = newSolution("ch4_ion.yaml");
     ASSERT_EQ(sol->transport()->transportModel(), "ionized-gas");
 
     auto free = newDomain<IonFlow>("free-flow", sol, "flow");
