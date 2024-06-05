@@ -176,7 +176,20 @@ class TestTransport:
         assert gas1.thermal_conductivity == approx(gas2.thermal_conductivity)
         assert gas1.multi_diff_coeffs == approx(gas2.multi_diff_coeffs)
 
-    def test_species_viscosities(self, phase):
+    def test_high_pressure_chung_viscosity(self):
+        state = 520, 6e7, 'NH3:1.0'
+
+        gas1 = ct.Solution('gri30.yaml')
+        gas1.transport_model = 'high-pressure-chung'
+        gas1.TPX = state
+
+        # Values from Poling et al. (2001), example 9-12 for ammonia
+        experimental_viscosity = 466e-7 # 466 micropoise = 466e-7 Pa s
+
+        error = abs(gas1.viscosity - experimental_viscosity) / experimental_viscosity
+        assert error <= 0.05  # Error should be less than 5%
+
+    def test_species_visosities(self, phase):
         for species_name in phase.species_names:
             # check that species viscosity matches overall for single-species
             # state
