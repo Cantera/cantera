@@ -109,26 +109,14 @@ double HighPressureGasTransport::thermalConductivity()
     return Lprime_m + Lstar_m;
 }
 
-void HighPressureGasTransport::getThermalDiffCoeffs(double* const dt)
-{
-    // Method for MultiTransport class:
-    // solveLMatrixEquation();
-    // const double c = 1.6/GasConstant;
-    // for (size_t k = 0; k < m_nsp; k++) {
-    // dt[k] = c * m_mw[k] * m_molefracs[k] * m_a[k];
-    // }
-    throw NotImplementedError("HighPressureGasTransport::getThermalDiffCoeffs");
-}
-
 void HighPressureGasTransport::getBinaryDiffCoeffs(const size_t ld, double* const d)
 {
-    vector<double> PcP(5);
     size_t nsp = m_thermo->nSpecies();
     vector<double> molefracs(nsp);
     m_thermo->getMoleFractions(&molefracs[0]);
 
     update_T();
-    // if necessary, evaluate the binary diffusion coefficients from the polynomial fits
+    // If necessary, evaluate the binary diffusion coefficients from the polynomial fits
     if (!m_bindiff_ok) {
         updateDiff_T();
     }
@@ -140,133 +128,66 @@ void HighPressureGasTransport::getBinaryDiffCoeffs(const size_t ld, double* cons
     for (size_t i = 0; i < nsp; i++) {
         for (size_t j = 0; j < nsp; j++) {
             // Add an offset to avoid a condition where x_i and x_j both equal
-            // zero (this would lead to Pr_ij = Inf):
+            // zero (this would lead to Pr_ij = Inf).
             double x_i = std::max(Tiny, molefracs[i]);
             double x_j = std::max(Tiny, molefracs[j]);
 
-            // Weight mole fractions of i and j so that X_i + X_j = 1.0:
+            // Weight mole fractions of i and j so that X_i + X_j = 1.0.
             x_i = x_i/(x_i + x_j);
             x_j = x_j/(x_i + x_j);
 
-            //Calculate Tr and Pr based on mole-fraction-weighted crit constants:
+            // Calculate Tr and Pr based on mole-fraction-weighted critical constants.
             double Tr_ij = m_temp/(x_i*Tcrit_i(i) + x_j*Tcrit_i(j));
             double Pr_ij = m_thermo->pressure()/(x_i*Pcrit_i(i) + x_j*Pcrit_i(j));
 
-            double P_corr_ij;
-
             // Calculate the parameters for Takahashi correlation
+            double P_corr_ij;
             P_corr_ij = compute_correction_factor(Pr_ij, Tr_ij);
 
             // If the reduced temperature is too low, the correction factor
-            // P_corr_ij will be < 0:
+            // P_corr_ij will be < 0.
             if (P_corr_ij<0) {
                 P_corr_ij = Tiny;
             }
             // Multiply the standard low-pressure binary diffusion coefficient
-            // (m_bdiff) by the Takahashi correction factor P_corr_ij:
-            d[ld*j + i] = P_corr_ij*rp * m_bdiff(i,j);
+            // (m_bdiff) by the Takahashi correction factor P_corr_ij.
+            d[ld*j + i] = P_corr_ij*(rp * m_bdiff(i,j));
         }
     }
 }
 
-void HighPressureGasTransport::getMultiDiffCoeffs(const size_t ld, double* const d)
-{
-    // Not currently implemented.  m_Lmatrix inversion returns NaN.  Needs to be
-    //   fixed.  --SCD - 2-28-2014
-    throw NotImplementedError("HighPressureGasTransport:getMultiDiffCoeffs");
-    // Calculate the multi-component Stefan-Maxwell diffusion coefficients,
-    // based on the Takahashi-correlation-corrected binary diffusion coefficients.
 
-    // update the mole fractions
-    update_C();
-
-    // update the binary diffusion coefficients
-    update_T();
-    updateThermal_T();
-
-    // Correct the binary diffusion coefficients for high-pressure effects; this
-    // is basically the same routine used in 'getBinaryDiffCoeffs,' above:
-    size_t nsp = m_thermo->nSpecies();
-    vector<double> molefracs(nsp);
-    m_thermo->getMoleFractions(&molefracs[0]);
-    update_T();
-    // Evaluate the binary diffusion coefficients from the polynomial fits -
-    // this should perhaps be preceded by a check for changes in T, P, or C.
-    updateDiff_T();
-
-    if (ld < m_nsp) {
-        throw CanteraError("HighPressureGasTransport::getMultiDiffCoeffs",
-                           "ld is too small");
-    }
-    for (size_t i = 0; i < m_nsp; i++) {
-        for (size_t j = 0; j < m_nsp; j++) {
-            // Add an offset to avoid a condition where x_i and x_j both equal
-            //   zero (this would lead to Pr_ij = Inf):
-            double x_i = std::max(Tiny, molefracs[i]);
-            double x_j = std::max(Tiny, molefracs[j]);
-            x_i = x_i/(x_i+x_j);
-            x_j = x_j/(x_i+x_j);
-            double Tr_ij = m_temp/(x_i*Tcrit_i(i) + x_j*Tcrit_i(j));
-            double Pr_ij = m_thermo->pressure()/(x_i*Pcrit_i(i) + x_j*Pcrit_i(j));
-
-            double P_corr_ij;
-            if (Pr_ij < 0.1) {
-                P_corr_ij = 1;
-            }else {
-                P_corr_ij = compute_correction_factor(Pr_ij, Tr_ij);
-                if (P_corr_ij<0) {
-                    P_corr_ij = Tiny;
-                }
-            }
-
-            m_bdiff(i,j) *= P_corr_ij;
-        }
-    }
-    m_bindiff_ok = false; // m_bdiff is overwritten by the above routine.
-
-    // Having corrected m_bdiff for pressure and concentration effects, the
-    //    routine now proceeds the same as in the low-pressure case:
-
-    // evaluate L0000 if the temperature or concentrations have
-    // changed since it was last evaluated.
-    if (!m_l0000_ok) {
-        eval_L0000(molefracs.data());
-    }
-
-    // invert L00,00
-    invert(m_Lmatrix, m_nsp);
-    m_l0000_ok = false; // matrix is overwritten by inverse
-    m_lmatrix_soln_ok = false;
-
-    double prefactor = 16.0 * m_temp
-        *m_thermo->meanMolecularWeight()/(25.0*m_thermo->pressure());
-
-    for (size_t i = 0; i < m_nsp; i++) {
-        for (size_t j = 0; j < m_nsp; j++) {
-            double c = prefactor/m_mw[j];
-            d[ld*j + i] = c*molefracs[i]*(m_Lmatrix(i,j) - m_Lmatrix(i,i));
-        }
-    }
-}
-
+// Calculate the high-pressure mixture viscosity, based on the Lucas method
+// described in chapter 9-7 of Poling et al. (2001).
+//
+// The mixture pseudo-critical temperature and pressure are calculated using
+// equation 9-5.18 and 9-5.19 in Poling et al. (2001).
+//
+// The mixture molecular weight is computed using equation 9-5.20 in Poling et al. (2001).
+//
+// The mixture values of the low-pressure polarity and quantum correction factors are
+// computed using equations 9-5.21 and 9-5.22 in Poling et al. (2001).
 double HighPressureGasTransport::viscosity()
 {
-    // Calculate the high-pressure mixture viscosity, based on the Lucas method.
-    double Tc_mix = 0.;
-    double Pc_mix_n = 0.;
-    double Pc_mix_d = 0.;
+    // Most of this function consists of computing mixture values of various critical
+    // properties and other parameters that are used in the viscosity calculation.
+    double Tc_mix = 0.0;
+    double Pc_mix_n = 0.0; // Numerator in equation 9-5.18 in Poling et al. (2001)
+    double Pc_mix_d = 0.0; // Denominator in equation 9-5.18 in Poling et al. (2001)
     double MW_mix = m_thermo->meanMolecularWeight();
-    double MW_H = m_mw[0];
-    double MW_L = m_mw[0];
-    double FP_mix_o = 0;
-    double FQ_mix_o = 0;
+
+    double FP_mix_o = 0; // The mole-fraction-weighted mixture average of the low-pressure polarity correction factor
+    double FQ_mix_o = 0; // The mole-fraction-weighted mixture average of the low-pressure quantum correction factor
+    double MW_H = m_mw[0]; // Holds the molecular weight of the heaviest species
+    double MW_L = m_mw[0]; // Holds the molecular weight of the lightest species
+
     double tKelvin = m_thermo->temperature();
-    double Pvp_mix = m_thermo->satPressure(tKelvin);
+    double P_vap_mix = m_thermo->satPressure(tKelvin);
     size_t nsp = m_thermo->nSpecies();
     vector<double> molefracs(nsp);
     m_thermo->getMoleFractions(&molefracs[0]);
 
-    double x_H = molefracs[0];
+    double x_H = molefracs[0]; // Holds the mole fraction of the heaviest species
     for (size_t i = 0; i < m_nsp; i++) {
         // Calculate pure-species critical constants and add their contribution
         // to the mole-fraction-weighted mixture averages:
@@ -277,36 +198,33 @@ double HighPressureGasTransport::viscosity()
         Pc_mix_n += molefracs[i]*Zc; //numerator
         Pc_mix_d += molefracs[i]*Vcrit_i(i); //denominator
 
-        // Need to calculate ratio of heaviest to lightest species:
+        // Calculate ratio of heaviest to lightest species
         if (m_mw[i] > MW_H) {
             MW_H = m_mw[i];
             x_H = molefracs[i];
         } else if (m_mw[i] < MW_L) {
-            MW_L = m_mw[i];        }
-
-        // Calculate reduced dipole moment for polar correction term:
-        double mu_ri = 52.46*100000*m_dipole(i,i)*m_dipole(i,i)
-            *Pcrit_i(i)/(Tc*Tc);
-        if (mu_ri < 0.022) {
-            FP_mix_o += molefracs[i];
-        } else if (mu_ri < 0.075) {
-            FP_mix_o += molefracs[i]*(1. + 30.55*pow(0.292 - Zc, 1.72));
-        } else { FP_mix_o += molefracs[i]*(1. + 30.55*pow(0.292 - Zc, 1.72)
-                                    *fabs(0.96 + 0.1*(Tr - 0.7)));
+            MW_L = m_mw[i];
         }
 
+        // Calculate pure-species reduced dipole moment for pure-species
+        // polar correction term.
+        // Equation 9-4.17 in Poling et al. (2001) requires the pressure
+        // to be in units of bar, so we convert from Pa to bar.
+        double pascals_to_bar = 1e-5;
+        double mu_ri = 52.46*m_dipole(i,i)*m_dipole(i,i)*(Pcrit_i(i)*pascals_to_bar)/(Tc*Tc);
+        FP_mix_o += molefracs[i] * FP_i(mu_ri, Tr, Zc); // mole-fraction weighting of pure-species polar correction term
+
+
         // Calculate contribution to quantum correction term.
-        // SCD Note:  This assumes the species of interest (He, H2, and D2) have
-        //   been named in this specific way.  They are perhaps the most obvious
-        //   names, but it would of course be preferred to have a more general
-        //   approach, here.
+        // Note:  This assumes the species of interest (He, H2, and D2) have
+        //        been named in this specific way.
         vector<string> spnames = m_thermo->speciesNames();
         if (spnames[i] == "He") {
-            FQ_mix_o += molefracs[i]*FQ_i(1.38,Tr,m_mw[i]);
+            FQ_mix_o += molefracs[i]*FQ_i(1.38, Tr, m_mw[i]);
         } else if (spnames[i] == "H2") {
-            FQ_mix_o += molefracs[i]*(FQ_i(0.76,Tr,m_mw[i]));
+            FQ_mix_o += molefracs[i]*(FQ_i(0.76, Tr, m_mw[i]));
         } else if (spnames[i] == "D2") {
-            FQ_mix_o += molefracs[i]*(FQ_i(0.52,Tr,m_mw[i]));
+            FQ_mix_o += molefracs[i]*(FQ_i(0.52, Tr, m_mw[i]));
         } else {
             FQ_mix_o += molefracs[i];
         }
@@ -315,61 +233,32 @@ double HighPressureGasTransport::viscosity()
     double Tr_mix = tKelvin/Tc_mix;
     double Pc_mix = GasConstant*Tc_mix*Pc_mix_n/Pc_mix_d;
     double Pr_mix = m_thermo->pressure()/Pc_mix;
+
+    // Compute the mixture value of the low-pressure quantum correction factor
     double ratio = MW_H/MW_L;
-    double ksi = pow(GasConstant*Tc_mix*3.6277*pow(10.0,53.0)/(pow(MW_mix,3)
-                        *pow(Pc_mix,4)),1.0/6.0);
-
+    double A = 1.0;
     if (ratio > 9 && x_H > 0.05 && x_H < 0.7) {
-        FQ_mix_o *= 1 - 0.01*pow(ratio,0.87);
+        A = 1 - 0.01*pow(ratio,0.87);
     }
+    FQ_mix_o *= A;
 
-    // Calculate Z1m
-    double Z1m = (0.807*pow(Tr_mix,0.618) - 0.357*exp(-0.449*Tr_mix)
-                 + 0.340*exp(-4.058*Tr_mix)+0.018)*FP_mix_o*FQ_mix_o;
 
-    // Calculate Z2m:
-    double Z2m;
-    if (Tr_mix <= 1.0) {
-        if (Pr_mix < Pvp_mix/Pc_mix) {
-            double alpha = 3.262 + 14.98*pow(Pr_mix,5.508);
-            double beta = 1.390 + 5.746*Pr_mix;
-            Z2m = 0.600 + 0.760*pow(Pr_mix,alpha) + (0.6990*pow(Pr_mix,beta) -
-                0.60)*(1- Tr_mix);
-        } else {
-            throw CanteraError("HighPressureGasTransport::viscosity",
-                               "State is outside the limits of the Lucas model, Tr <= 1");
-        }
-    } else if ((Tr_mix > 1.0) && (Tr_mix < 40.0)) {
-        if ((Pr_mix > 0.0) && (Pr_mix <= 100.0)) {
-            double a_fac = 0.001245*exp(5.1726*pow(Tr_mix,-0.3286))/Tr_mix;
-            double b_fac = a_fac*(1.6553*Tr_mix - 1.2723);
-            double c_fac = 0.4489*exp(3.0578*pow(Tr_mix,-37.7332))/Tr_mix;
-            double d_fac = 1.7368*exp(2.2310*pow(Tr_mix,-7.6351))/Tr_mix;
-            double f_fac = 0.9425*exp(-0.1853*pow(Tr_mix,0.4489));
+    // This is η*ξ
+    double nondimensional_viscosity = high_pressure_nondimensional_viscosity(Tr_mix, Pr_mix, FP_mix_o, FQ_mix_o, P_vap_mix, Pc_mix);
 
-            Z2m = Z1m*(1 + a_fac*pow(Pr_mix,1.3088)/(b_fac*pow(Pr_mix,f_fac)
-                        + pow(1+c_fac*pow(Pr_mix,d_fac),-1)));
-        } else {
-            throw CanteraError("HighPressureGasTransport::viscosity",
-                           "State is outside the limits of the Lucas model, 1.0 < Tr < 40");
-        }
-    } else {
-        throw CanteraError("HighPressureGasTransport::viscosity",
-                           "State is outside the limits of the Lucas model, Tr > 40");
-    }
+    // Using equation 9-4.14 in Poling et al. (2001), with units of 1/(Pa*s)
+    double numerator = GasConstant*Tc_mix*pow(Avogadro,2.0);
+    double denominator = pow(MW_mix,3.0)*pow(Pc_mix,4.0);
+    double ksi = pow(numerator / denominator, 1.0/6.0);
 
-    // Calculate Y:
-    double Y = Z2m/Z1m;
-
-    // Return the viscosity:
-    return Z2m*(1 + (FP_mix_o - 1)*pow(Y,-3))*(1 + (FQ_mix_o - 1)
-            *(1/Y - 0.007*pow(log(Y),4)))/(ksi*FP_mix_o*FQ_mix_o);
+    // Return the viscosity in kg/m/s
+    return nondimensional_viscosity / ksi;
 }
 
 // Pure species critical properties - Tc, Pc, Vc, Zc:
 double HighPressureGasTransport::Tcrit_i(size_t i)
 {
-     vector<double> molefracs(m_thermo->nSpecies());
+    vector<double> molefracs(m_thermo->nSpecies());
     m_thermo->getMoleFractions(&molefracs[0]);
     vector<double> mf_temp(m_thermo->nSpecies(), 0.0);
     mf_temp[i] = 1;
@@ -429,14 +318,18 @@ double HighPressureGasTransport::Zcrit_i(size_t i)
 
 // The low-pressure nondimensional viscosity equation 9-4.16 in Poling et al. (2001).
 // This relation is used for pure species and mixtures at low pressure. The only
-// difference is the the values that are passed to the function.
+// difference is the the values that are passed to the function (pure values versus mixture values).
 double HighPressureGasTransport::low_pressure_nondimensional_viscosity(double Tr, double FP, double FQ) {
     double first_term = 0.807*pow(Tr,0.618) - 0.357*exp(-0.449*Tr);
     double second_term = 0.340*exp(-4.058*Tr) + 0.018;
     return (first_term + second_term)*FP*FQ;
 }
 
-
+// The high-pressure nondimensional viscosity equation 9-6.12 in Poling et al. (2001).
+// This relation is used for pure species and mixtures at high pressure. The only
+// difference is the the values that are passed to the function (pure values versus mixture values).
+// This returns the value of η*ξ (by multiplying both sides of 9-6.12 by ξ and simply returning the RHS of the
+// resulting equation)
 double HighPressureGasTransport::high_pressure_nondimensional_viscosity(double Tr, double Pr, double FP_low, double FQ_low, double P_vap, double P_crit){
 
     double Z_1 = low_pressure_nondimensional_viscosity(Tr, FP_low, FQ_low); // This is η_0*ξ
@@ -578,5 +471,195 @@ double HighPressureGasTransport::compute_correction_factor(double Pr, double Tr)
     double DP_R = DP_Rt*(1.0 - A*pow(Tr,-B))*(1.0 - C*pow(Tr,-E));
     return DP_R;
 }
+
+}
+
+
+namespace Cantera
+{
+
+
+double ChungHighPressureGasTransport::viscosity()
+{
+
+    // Vc needs to be in units of cm^3/mol
+    // Starting on page 9-7 in the "Method of Chung, et. al. (1984, 1988)" section
+    double epsilon_over_k = Tc / 1.2593;
+
+    // Equation 9-4.1
+    double T_star = T / epsilon_over_k;
+
+}
+
+
+
+// Implementation of equation the mixing rules defined on page 9.25 of Poling et al. (2001)
+// for the Chung method's composition dependent parameters.
+void ChungHighPressureGasTransport::compute_mixture_parameters(ChungMixtureParameters& params)
+{
+
+    size_t nsp = m_thermo->nSpecies();
+    vector<double> molefracs(nsp);
+    m_thermo->getMoleFractions(&molefracs[0]);
+
+
+    // First fill the species-specific values that will then later be used in the combining
+    // rules for the Chung method.
+    vector<double> sigma_i(nsp), epsilon_over_k_i(nsp), acentric_factor_i(nsp), MW_i(nsp), kappa_i(nsp);
+    for (size_t i = 0; i < m_nsp; i++) {
+        // From equation 9-5.32 in Poling et al. (2001)
+        sigma_i[i] = 0.809*pow(Vcrit_i(i), 1.0/3.0);
+
+        // From equation 9-5.34 in Poling et al. (2001)
+        epsilon_over_k_i[i] = Tcrit_i(i)/1.2593;
+
+        // NOTE: The association parameter is assumed to be zero for all species, but
+        // is left here for completeness or future revision.
+        kappa_i[i] = 0.0;
+
+        // These values are available from the base class
+        acentric_factor_i[i] = m_w_ac[i];
+        MW_i[i] = m_mw[i];
+    }
+
+    // Here we use the combining rules defined on page 9.25 of Poling et al. (2001)
+    // We have ASSUMED that the binary interaction parameters are unity for all species
+    // as was done in the Chung method.
+    //
+    // The sigma & kappa relations can be fully computed in the loop. The other ones require a final
+    // division by the final mixture values, and so the quantities in the loop are only the
+    // numerators of the equations that are referenced in the comments. After the loop, the
+    // final mixture values are computed and stored.
+    for (size_t i = 0; i < m_nsp; i++) {
+        for (size_t j = 0; j <m_nsp; j++){
+            double sigma_ij = sqrt(sigma_i[i]*sigma_i[j]); // Equation 9-5.33
+            params.sigma_mix += molefracs[i]*molefracs[j]*pow(sigma_ij,3.0); // Equation 9-5.25
+
+            double epsilon_over_k_ij = sqrt(epsilon_over_k_i[i]*epsilon_over_k_i[j]); // Equation 9-5.35
+            params.epsilon_over_k_mix += molefracs[i]*molefracs[j]*epsilon_over_k_ij*pow(sigma_ij,3.0); // Equation 9-5.27 (numerator only)
+
+            // This equation is raised to the power 2, so what we do here is first store only the
+            // double summation into this variable, and then later square the result.
+            double MW_ij =  (2*MW_i[i]*MW_i[j]) / (MW_i[i] + MW_i[j]); // Equation 9-5.40
+            params.MW_mix += molefracs[i]*molefracs[j]*epsilon_over_k_ij*pow(sigma_ij,2.0)*sqrt(MW_ij); // Equation 9-5.28 (double summation only)
+
+            double acentric_factor_ij = 0.5*(acentric_factor_i[i] + acentric_factor_i[j]); // Equation 9-5.36
+            params.acentric_factor_mix += molefracs[i]*molefracs[j]*acentric_factor_ij*pow(sigma_ij,3.0); // Equation 9-5.29
+
+            // Using the base class' dipole moment values
+            params.mu_mix += molefracs[i]*molefracs[j]*pow(m_dipole(i,i),2.0)*pow(m_dipole(j,j),2.0)/pow(sigma_ij,3.0); // Equation 9-5.30
+
+            // Using equation 9-5.31
+            double kappa_ij = sqrt(kappa_i[i]*kappa_i[j]); // Equation 9-5.38
+            params.kappa_mix += molefracs[i]*molefracs[j]*kappa_ij; // Equation 9-5.31
+        }
+    }
+
+    // Finalize the expressions for the mixture values of the parameters
+    params.sigma_mix = pow(params.sigma_mix, 1.0/3.0); // Equation 9-5.25 computed the cube of sigma_mix
+    params.epsilon_over_k_mix /= pow(params.sigma_mix,3.0);
+
+    // The MW_mix was only the numerator inside the brackets of equation 9-5.28
+    params.MW_mix = pow(params.MW_mix/(params.epsilon_over_k_mix*pow(params.sigma_mix,2.0)), 2.0);
+
+    params.acentric_factor_mix /= pow(params.sigma_mix,3.0);
+
+    params.mu_mix = pow(pow(params.sigma_mix,3.0)*params.mu_mix, 1.0/4.0); // Equation 9-5.30 computed the 4th power of mu_mix
+
+    // Tc_mix is computed using equation 9-5.44 in Poling et al. (2001)
+    params.Tc_mix = 1.2593*params.epsilon_over_k_mix;
+
+    // Vc_mix is computed using equation 9-5.43 in Poling et al. (2001)
+    params.Vc_mix = pow(params.acentric_factor_mix/0.809, 3.0);
+
+    // mu_r_mix is computed using equation 9-5.42 in Poling et al. (2001)
+    params.mu_r_mix = 131.3*params.mu_mix/sqrt(params.Vc_mix*params.Tc_mix);
+
+}
+
+// This function is structured such that it can be used for pure species or mixtures, with the
+// only difference being the values that are passed to the function (pure values versus mixture values).
+double ChungHighPressureGasTransport::low_pressure_viscosity(double T, double T_star, double MW, double acentric_factor, double mu_r, double sigma, double kappa)
+{
+    // Equation 9-4.3 in Poling et al. (2001)
+    double omega = neufeld_collision_integral(T_star);
+
+    // Molecular shapes and polarities factor, equation 9-4.11
+    double Fc = 1 -0.2756*acentric_factor + 0.059035*pow(mu_r, 4.0) + kappa;
+
+    // Equation 9-3.9 in Poling et al. (2001), multiplied by the Chung factor, Fc
+    // (another way of writing 9-4.10 that avoids explicit use of the critical volume in this method)
+    double viscosity = Fc* (26.69*sqrt(MW*T)/(sigma*sigma*omega));
+
+    return viscosity;
+}
+
+// Implementation of equation 9-4.3 in Poling et al. (2001).
+// Applicable over the range of 0.3 <= T_star <= 100.
+double neufeld_collision_integral(double T_star)
+{
+    double A = 1.16145;
+    double B = 0.14874;
+    double C = 0.52487;
+    double D = 0.77320;
+    double E = 2.16178;
+    double F = 2.43787;
+
+    double omega = A / pow(T_star, B) + C / exp(D*T_star) + E / exp(F*T_star);
+
+    return omega;
+}
+
+
+// Computes the high-pressure viscosity using the Chung method (Equation 9-6.18).
+// This function is structured such that it can be used for pure species or mixtures, with the
+// only difference being the values that are passed to the function (pure values versus mixture values).
+//
+// Renamed eta_star and eta_star_star from the Poling description to eta_1 and eta_2 for
+// naming simplicity.
+double ChungHighPressureGasTransport::high_pressure_viscosity(double T_star, double MW, double rho, double Vc, double Tc, double acentric_factor, double mu_r, double kappa)
+{
+    // Definition of tabulated coefficients for the Chung method, as shown in Table 9-6 on page 9.40 of Poling et al. (2001)
+    vector<double> a = {6.324, 1.210e-3, 5.283, 6.623, 19.745, -1.900, 24.275, 0.7972, -0.2382, 0.06863};
+    vector<double> b = {50.412, -1.154e-3, 254.209, 38.096, 7.630, -12.537, 3.450, 1.117, 0.06770, 0.3479};
+    vector<double> c = {-51.680, -6.257e-3, -168.48, -8.464, -14.354, 4.958, -11.291, 0.01235, -0.8163, 0.5926};
+    vector<double> d ={1189.0, 0.03728, 3898.0, 31.42, 31.53, -18.15, 69.35, -4.117, 4.025, -0.727};
+
+    // This is slightly pedantic, but this is done to have the naming convention in the
+    // equations used match the variable names in the code.
+    double E_1, E_2, E_3, E_4, E_5, E_6, E_7, E_8, E_9, E_10;
+    E_1 = a[0] + b[0]*acentric_factor + c[0]*pow(mu_r, 4.0) + d[0]*kappa;
+    E_2 = a[1] + b[1]*acentric_factor + c[1]*pow(mu_r, 4.0) + d[1]*kappa;
+    E_3 = a[2] + b[2]*acentric_factor + c[2]*pow(mu_r, 4.0) + d[2]*kappa;
+    E_4 = a[3] + b[3]*acentric_factor + c[3]*pow(mu_r, 4.0) + d[3]*kappa;
+    E_5 = a[4] + b[4]*acentric_factor + c[4]*pow(mu_r, 4.0) + d[4]*kappa;
+    E_6 = a[5] + b[5]*acentric_factor + c[5]*pow(mu_r, 4.0) + d[5]*kappa;
+    E_7 = a[6] + b[6]*acentric_factor + c[6]*pow(mu_r, 4.0) + d[6]*kappa;
+    E_8 = a[7] + b[7]*acentric_factor + c[7]*pow(mu_r, 4.0) + d[7]*kappa;
+    E_9 = a[8] + b[8]*acentric_factor + c[8]*pow(mu_r, 4.0) + d[8]*kappa;
+    E_10 = a[9] + b[9]*acentric_factor + c[9]*pow(mu_r, 4.0) + d[9]*kappa;
+
+    double y = rho*Vc/6.0; // Equation 9-6.20
+
+    double G_1 = (1.0 - 0.5*y)/(pow(1.0-y, 3.0)); // Equation 9-6.21
+
+    // Equation 9-6.22
+    double G_2 = (E_1*((1.0-exp(-E_4*y)) / y) + E_2*G_1*exp(E_5*y) + E_3*G_1)/ (E_1*E_4 + E_2 + E_3);
+
+    double eta_2 = E_7*y*y*G_2*exp(E_8 + E_9/T_star + E_10/(T_star*T_star)); // Equation 9-6.23
+
+    // Equation 9-4.3 in Poling et al. (2001)
+    double omega = neufeld_collision_integral(T_star);
+
+    // Molecular shapes and polarities factor, equation 9-4.11
+    double Fc = 1 -0.2756*acentric_factor + 0.059035*pow(mu_r, 4.0) + kappa;
+
+    double eta_1 = (sqrt(T_star)/omega) * (Fc*(1.0/G_2 + E_6*y)) + eta_2; // Equation 9-6.19
+
+    double eta = eta_1 * 36.344 * sqrt(MW*Tc) / pow(Vc, 2.0/3.0); // Equation 9-6.18
+
+    return eta
+}
+
 
 }
