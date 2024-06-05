@@ -7,7 +7,6 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/transport/HighPressureGasTransport.h"
-#include "cantera/numerics/ctlapack.h"
 #include "cantera/base/utilities.h"
 #include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/transport/TransportFactory.h"
@@ -401,14 +400,6 @@ double HighPressureGasTransport::FQ_i(double Q, double Tr, double MW)
                              *sign(Tr - 12.0));
 }
 
-// Sign function for use in the quantum correction term calculation.
-template<typename T>
-int sign(T val) {
-    if (val > 0) return 1;
-    if (val < 0) return -1;
-    return 0;
-}
-
 // Calculates the pressure correction factor for the Lucas method that
 // is used to calculate high pressure pure fluid viscosity. This is equation
 // 9-4.18 in Poling et al. (2001):
@@ -425,6 +416,12 @@ double HighPressureGasTransport::FP_i(double mu_r, double Tr, double Z_crit)
 
 double HighPressureGasTransport::compute_correction_factor(double Pr, double Tr)
 {
+    // In the low pressure limit, no correction is needed. Interpolate
+    // the value towards 1 as pressure drops below the 0.1 threshold.
+    if (Pr < 0.1) {
+        return 1.0;
+    }
+
     // Data from Table 2 of Takahashi 1975 paper:
     const static double Pr_lookup[17] = {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.8, 1.0,
         1.2, 1.4, 1.6, 1.8, 2.0, 2.5, 3.0, 4.0, 5.0};
@@ -442,25 +439,22 @@ double HighPressureGasTransport::compute_correction_factor(double Pr, double Tr)
         14., 10.00900, 8.57519, 10.37483, 11.21674, 1., 6.19043, 1., 1.};
 
     // Interpolate to obtain the value of the constants (DP)_R, A, B, C, E at
-    // the provided value of the reduced pressure (Pr):
+    // the provided value of the reduced pressure (Pr).
     int Pr_i = 0;
     double frac = 0.0;
     double A, B, C,E, DP_Rt;
 
-    if (Pr < 0.1) { // In the low pressure limit, no correction is needed:
-        frac = (Pr - Pr_lookup[0])/(Pr_lookup[1] - Pr_lookup[0]);
-    } else {
-        for (int j = 1; j < 17; j++) {
-            if (Pr_lookup[j] > Pr) {
-                frac = (Pr - Pr_lookup[j-1])/(Pr_lookup[j] - Pr_lookup[j-1]);
-                break;
-            }
-            Pr_i++;
+    for (int j = 1; j < 17; j++){
+        if (Pr_lookup[j] > Pr) {
+            frac = (Pr - Pr_lookup[j-1])/(Pr_lookup[j] - Pr_lookup[j-1]);
+            break;
         }
-        // If this loop completes without finding a bounding value of Pr, use
-        // the final table value.
-        frac = 1.0;
+        Pr_i++;
     }
+    // If this loop completes without finding a bounding value of Pr, use
+    // the final table value.
+    frac = 1.0;
+
 
     DP_Rt = DP_Rt_lookup[Pr_i]*(1.0 - frac) + DP_Rt_lookup[Pr_i+1]*frac;
     A = A_ij_lookup[Pr_i]*(1.0 - frac) + A_ij_lookup[Pr_i+1]*frac;
@@ -478,16 +472,25 @@ double HighPressureGasTransport::compute_correction_factor(double Pr, double Tr)
 namespace Cantera
 {
 
-
+// This implements the high-pressure gas mixture viscosity model of Chung
+// described in chapter 9-7 of Poling et al. (2001).
 double ChungHighPressureGasTransport::viscosity()
 {
+    ChungMixtureParameters params;
+    compute_mixture_parameters(params);
 
-    // Vc needs to be in units of cm^3/mol
-    // Starting on page 9-7 in the "Method of Chung, et. al. (1984, 1988)" section
-    double epsilon_over_k = Tc / 1.2593;
+    // Compute T_star using equation 9-5.26, using the mixture parameters
+    double tKelvin = m_thermo->temperature();
+    double T_star = tKelvin / params.epsilon_over_k_mix;
 
-    // Equation 9-4.1
-    double T_star = T / epsilon_over_k;
+    double density = m_thermo->density(); // The density is required for high-pressure gases
+
+    // This result is in units of micropoise
+    double viscosity = high_pressure_viscosity(T_star, params.MW_mix, density, params.Vc_mix, params.Tc_mix, params.acentric_factor_mix, params.mu_r_mix, params.kappa_mix);
+
+    double micropoise_to_pascals_second = 1e-7;
+
+    return viscosity*micropoise_to_pascals_second;
 
 }
 
@@ -577,23 +580,6 @@ void ChungHighPressureGasTransport::compute_mixture_parameters(ChungMixtureParam
 
 }
 
-// This function is structured such that it can be used for pure species or mixtures, with the
-// only difference being the values that are passed to the function (pure values versus mixture values).
-double ChungHighPressureGasTransport::low_pressure_viscosity(double T, double T_star, double MW, double acentric_factor, double mu_r, double sigma, double kappa)
-{
-    // Equation 9-4.3 in Poling et al. (2001)
-    double omega = neufeld_collision_integral(T_star);
-
-    // Molecular shapes and polarities factor, equation 9-4.11
-    double Fc = 1 -0.2756*acentric_factor + 0.059035*pow(mu_r, 4.0) + kappa;
-
-    // Equation 9-3.9 in Poling et al. (2001), multiplied by the Chung factor, Fc
-    // (another way of writing 9-4.10 that avoids explicit use of the critical volume in this method)
-    double viscosity = Fc* (26.69*sqrt(MW*T)/(sigma*sigma*omega));
-
-    return viscosity;
-}
-
 // Implementation of equation 9-4.3 in Poling et al. (2001).
 // Applicable over the range of 0.3 <= T_star <= 100.
 double neufeld_collision_integral(double T_star)
@@ -610,6 +596,22 @@ double neufeld_collision_integral(double T_star)
     return omega;
 }
 
+// This function is structured such that it can be used for pure species or mixtures, with the
+// only difference being the values that are passed to the function (pure values versus mixture values).
+double ChungHighPressureGasTransport::low_pressure_viscosity(double T, double T_star, double MW, double acentric_factor, double mu_r, double sigma, double kappa)
+{
+    // Equation 9-4.3 in Poling et al. (2001)
+    double omega = neufeld_collision_integral(T_star);
+
+    // Molecular shapes and polarities factor, equation 9-4.11
+    double Fc = 1 -0.2756*acentric_factor + 0.059035*pow(mu_r, 4.0) + kappa;
+
+    // Equation 9-3.9 in Poling et al. (2001), multiplied by the Chung factor, Fc
+    // (another way of writing 9-4.10 that avoids explicit use of the critical volume in this method)
+    double viscosity = Fc* (26.69*sqrt(MW*T)/(sigma*sigma*omega));
+
+    return viscosity;
+}
 
 // Computes the high-pressure viscosity using the Chung method (Equation 9-6.18).
 // This function is structured such that it can be used for pure species or mixtures, with the
@@ -658,7 +660,7 @@ double ChungHighPressureGasTransport::high_pressure_viscosity(double T_star, dou
 
     double eta = eta_1 * 36.344 * sqrt(MW*Tc) / pow(Vc, 2.0/3.0); // Equation 9-6.18
 
-    return eta
+    return eta;
 }
 
 
