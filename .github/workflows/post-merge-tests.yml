@@ -104,9 +104,9 @@ jobs:
     - name: Run compiled tests
       run: scons test-gtest test-legacy --debug=time
     - name: Run Python tests
-      run: |
-        LD_LIBRARY_PATH=build/lib
-        python3 -m pytest -raP -v -n auto --durations=50 test/python
+      run: python3 -m pytest -raP -v -n auto --durations=50 test/python
+      env:
+        LD_LIBRARY_PATH: build/lib
 
   fedora-docker:
     name: Docker 'fedora:${{ matrix.image }}' image
@@ -148,9 +148,9 @@ jobs:
     - name: Run compiled tests
       run: scons test-gtest test-legacy --debug=time
     - name: Run Python tests
-      run: |
-        LD_LIBRARY_PATH=build/lib
-        python3 -m pytest -raP -v -n auto --durations=50 test/python
+      run: python3 -m pytest -raP -v -n auto --durations=50 test/python
+      env:
+        LD_LIBRARY_PATH: build/lib
 
   ubuntu-python-prerelease:
     name: ${{ matrix.os }} with Python ${{ matrix.python-version }}
