@@ -12,7 +12,7 @@ TEST(ctonedim, freeflow)
 {
     ct_resetStorage();
 
-    int sol = soln_newSolution("h2o2.yaml", "ohmech", "");
+    int sol = soln_newSolution("h2o2.yaml", "ohmech", "default");
     int ph = soln_thermo(sol);
     ASSERT_GE(ph, 0);
 
@@ -40,7 +40,7 @@ TEST(ctonedim, freeflow_from_parts)
 {
     ct_resetStorage();
 
-    int sol = soln_newSolution("h2o2.yaml", "ohmech", "");
+    int sol = soln_newSolution("h2o2.yaml", "ohmech", "default");
     int ph = soln_thermo(sol);
     ASSERT_GE(ph, 0);
     int kin = soln_kinetics(sol);
@@ -111,7 +111,7 @@ TEST(ctonedim, reacting_surface_from_parts)
 
 TEST(ctonedim, catcomb_stack)
 {
-    int sol = soln_newSolution("ptcombust.yaml", "gas", "");
+    int sol = soln_newSolution("ptcombust.yaml", "gas", "default");
     int gas = soln_thermo(sol);
     int gas_kin = soln_kinetics(sol);
     int trans = soln_transport(sol);
@@ -145,7 +145,7 @@ TEST(ctonedim, freeflame_from_parts)
     ct_resetStorage();
     auto gas = newThermo("h2o2.yaml", "ohmech");
 
-    int sol = soln_newSolution("h2o2.yaml", "ohmech", "");
+    int sol = soln_newSolution("h2o2.yaml", "ohmech", "default");
     int ph = soln_thermo(sol);
     int kin = soln_kinetics(sol);
     int tr = soln_transport(sol);

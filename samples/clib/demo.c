@@ -42,7 +42,7 @@ void exit_with_error()
 
 int main(int argc, char** argv)
 {
-    int soln = soln_newSolution("gri30.yaml", "gri30", "");
+    int soln = soln_newSolution("gri30.yaml", "gri30", "default");
     // In principle, one ought to check for errors after every Cantera call. But this
     // is the only one likely to occur in part of this example, due to the input file
     // not being found.

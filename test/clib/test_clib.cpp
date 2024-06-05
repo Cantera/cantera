@@ -22,7 +22,7 @@ string reportError()
 
 TEST(ct, cabinet_exceptions)
 {
-    soln_newSolution("h2o2.yaml", "ohmech", "");
+    soln_newSolution("h2o2.yaml", "ohmech", "default");
     soln_name(999, 0, 0);
 
     string err = reportError();
@@ -43,7 +43,7 @@ TEST(ct, cabinet_exceptions)
 TEST(ct, new_solution)
 {
     string name = "ohmech";
-    int ref = soln_newSolution("h2o2.yaml", name.c_str(), "");
+    int ref = soln_newSolution("h2o2.yaml", name.c_str(), "default");
 
     int buflen = soln_name(ref, 0, 0) + 1; // include \0
     ASSERT_EQ(buflen, int(name.size() + 1));
@@ -63,7 +63,7 @@ TEST(ct, soln_objects)
 
     int ref = soln_newSolution("gri30.yaml", "gri30", "none");
     ASSERT_EQ(ref, 0);
-    int ref2 = soln_newSolution("h2o2.yaml", "ohmech", "");
+    int ref2 = soln_newSolution("h2o2.yaml", "ohmech", "default");
     ASSERT_EQ(ref2, 1);
 
     int thermo = soln_thermo(ref2);
@@ -106,7 +106,7 @@ TEST(ct, new_interface)
 {
     ct_resetStorage();
 
-    int sol = soln_newSolution("ptcombust.yaml", "gas", "");
+    int sol = soln_newSolution("ptcombust.yaml", "gas", "none");
     ASSERT_EQ(sol, 0);
 
     vector<int> adj{sol};

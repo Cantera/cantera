@@ -75,11 +75,7 @@ void Solution::setTransportModel(const string& model) {
         throw CanteraError("Solution::setTransportModel",
             "Unable to set Transport model without valid ThermoPhase object.");
     }
-    if (model == "") {
-        setTransport(newTransport(m_thermo, "default"));
-    } else {
-        setTransport(newTransport(m_thermo, model));
-    }
+    setTransport(newTransport(m_thermo, model));
 }
 
 void Solution::addAdjacent(shared_ptr<Solution> adjacent) {
@@ -260,7 +256,7 @@ shared_ptr<Solution> newSolution(const AnyMap& phaseNode,
             if (!all_related.count(name)) {
                 // Create a new phase only if there isn't already one with the same name
                 auto adj = newSolution(phases.getMapWhere("name", name), root,
-                                    "", {}, all_related);
+                                       "default", {}, all_related);
                 all_related[name] = adj;
                 for (size_t i = 0; i < adj->nAdjacent(); i++) {
                     all_related[adj->adjacent(i)->name()] = adj->adjacent(i);

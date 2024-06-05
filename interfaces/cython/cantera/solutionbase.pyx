@@ -68,7 +68,7 @@ cdef class _SolutionBase:
             infile = str(infile)
 
         # Transport model: "" is a sentinel value to use the default model
-        transport = kwargs.get("transport_model", "")
+        transport = kwargs.get("transport_model", "default")
 
         if infile or yaml:
             # Parse YAML input
