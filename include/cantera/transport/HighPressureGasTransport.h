@@ -11,7 +11,6 @@
 
 // Cantera includes
 #include "GasTransport.h"
-#include "cantera/numerics/DenseMatrix.h"
 #include "cantera/transport/MixTransport.h"
 
 namespace Cantera
@@ -45,7 +44,7 @@ protected:
 
 public:
     string transportModel() const override {
-        return "HighPressureGas";
+        return "high-pressure";
     }
 
     double thermalConductivity() override;
@@ -148,7 +147,7 @@ protected:
 
 public:
     string transportModel() const override {
-        return "ChungHighPressureGas";
+        return "high-pressure-chung";
     }
 
     double viscosity() override;
