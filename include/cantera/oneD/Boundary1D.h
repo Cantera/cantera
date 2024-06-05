@@ -152,6 +152,8 @@ public:
         return m_V0;
     }
 
+    void setTemperature(double T) override;
+
     void show(const double* x) override;
 
     size_t nSpecies() override {

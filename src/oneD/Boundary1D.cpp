@@ -102,6 +102,14 @@ void Inlet1D::setSpreadRate(double V0)
     needJacUpdate();
 }
 
+void Inlet1D::setTemperature(double T)
+{
+    Boundary1D::setTemperature(T);
+    // Adjust flow domain temperature bounds based on inlet temperature
+    if (m_flow != nullptr && m_flow->lowerBound(c_offset_T) >= m_temp) {
+        m_flow->setBounds(c_offset_T, m_temp - 5.0, m_flow->upperBound(c_offset_T));
+    }
+}
 
 void Inlet1D::show(const double* x)
 {
@@ -168,6 +176,7 @@ void Inlet1D::init()
     } else {
         m_yin[0] = 1.0;
     }
+
 }
 
 void Inlet1D::eval(size_t jg, double* xg, double* rg,

@@ -413,6 +413,10 @@ class TestFreeFlame(utilities.CanteraTest):
     def test_mixture_averaged_case8(self):
         self.run_mix(phi=2.0, T=400, width=2.0, p=5.0, refine=False)
 
+    def test_mixture_averaged_case9(self):
+        self.run_mix(phi=0.8, T=180, width=0.05, p=1.0, refine=False)
+        assert self.sim.flame.bounds('T')[0] < 190
+
     def test_adjoint_sensitivities(self):
         self.run_mix(phi=0.5, T=300, width=0.1, p=1.0, refine=True)
         self.sim.flame.set_steady_tolerances(default=(1e-10, 1e-15))
