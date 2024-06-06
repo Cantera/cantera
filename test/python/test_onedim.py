@@ -1152,6 +1152,27 @@ class TestDiffusionFlame(utilities.CanteraTest):
         assert phi[0] == np.inf
         assert np.isclose(phi[-1], 0.0)
 
+    def test_bad_boundary_conditions(self):
+        gas = ct.Solution("h2o2.yaml")
+        gas.TP = 300, ct.one_atm
+        sim = ct.CounterflowDiffusionFlame(gas, width=0.2)
+        sim.fuel_inlet.X = "H2: 1.0"
+
+        sim.oxidizer_inlet.X = "H2: 1.0, O2: 1.0"
+        sim.fuel_inlet.X = "O2: 1.0, N2: 3.76"
+        with pytest.raises(ct.CanteraError, match="Mass flow for fuel"):
+            sim.set_initial_guess()
+
+        sim.fuel_inlet.mdot = 1.0
+        sim.oxidizer_inlet.mdot = 1.0
+        with pytest.raises(ct.CanteraError, match="too much oxygen"):
+            sim.set_initial_guess()
+
+        sim.oxidizer_inlet.X = "O2: 1.0, N2: 3.76"
+        sim.fuel_inlet.X = "H2: 1.0"
+        sim.set_initial_guess()
+
+
 class TestCounterflowPremixedFlame(utilities.CanteraTest):
     # Note: to re-create the reference file:
     # (1) set PYTHONPATH to build/python.
@@ -1261,6 +1282,14 @@ class TestCounterflowPremixedFlame(utilities.CanteraTest):
         mdot = sim.density * sim.velocity
         self.assertNear(mdot[0], sim.reactants.mdot, 1e-4)
         self.assertNear(mdot[-1], -sim.products.mdot, 1e-4)
+
+    def test_bad_boundary_conditions(self):
+        gas = ct.Solution("h2o2.yaml")
+        gas.TPX = 300, 0.05 * ct.one_atm, "H2:1.6, O2:1, AR:7"
+        sim = ct.CounterflowPremixedFlame(gas=gas, width=0.2)
+        with pytest.raises(ct.CanteraError, match="must be positive"):
+            sim.solve(loglevel=0)
+
 
 class TestCounterflowPremixedFlameNonIdeal(utilities.CanteraTest):
     # Note: to re-create the reference file:
@@ -1700,6 +1729,12 @@ class TestTwinFlame(utilities.CanteraTest):
 
         sim2.solve(loglevel=0)
 
+    def test_bad_boundary_conditions(self):
+        gas = ct.Solution("h2o2.yaml")
+        gas.TPX = 300, 0.05 * ct.one_atm, "H2:1.6, O2:1, AR:7"
+        sim = ct.CounterflowTwinPremixedFlame(gas=gas, width=0.2)
+        with pytest.raises(ct.CanteraError, match="must be positive"):
+            sim.solve(loglevel=0)
 
 class TestIonFreeFlame(utilities.CanteraTest):
     @utilities.slow_test

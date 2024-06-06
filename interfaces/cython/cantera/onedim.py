@@ -929,6 +929,10 @@ class CounterflowDiffusionFlame(FlameBase):
         u0o = mdoto / rho0o
         T0o = self.oxidizer_inlet.T
 
+        if mdoto == mdotf == 0.0:
+            raise CanteraError("Mass flow for fuel and/or oxidizer "
+                               "must be positive")
+
         zst = 1 / (1 + self.gas.stoich_air_fuel_ratio(Yin_f, Yin_o, 'mass'))
         Yst = zst * Yin_f + (1.0 - zst) * Yin_o
 
@@ -1348,6 +1352,10 @@ class CounterflowPremixedFlame(FlameBase):
         rhob = self.gas.density
         ub = self.products.mdot / rhob
 
+        if uu == ub == 0.0:
+            raise CanteraError("Mass flow for reactants and/or products "
+                               "must be positive")
+
         locs = np.array([0.0, 0.4, 0.6, 1.0])
         self.set_profile('T', locs, [Tu, Tu, Teq, Tb])
         for k in range(self.gas.n_species):
@@ -1421,6 +1429,9 @@ class CounterflowTwinPremixedFlame(FlameBase):
         super().set_initial_guess(data=data, group=group)
         if data:
             return
+
+        if self.reactants.mdot == 0:
+            raise CanteraError("Reactants velocity must be positive")
 
         Yu = self.reactants.Y
         Tu = self.reactants.T
