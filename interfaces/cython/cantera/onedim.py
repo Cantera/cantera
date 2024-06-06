@@ -561,6 +561,8 @@ class FreeFlame(FlameBase):
             self.flame = FreeFlow(gas, name='flame')
 
         if width is not None:
+            if grid is not None:
+                raise ValueError("'grid' and 'width' arguments are mutually exclusive")
             grid = np.array([0.0, 0.2, 0.3, 0.4, 0.5, 0.6, 0.8, 1.0]) * width
 
         super().__init__((self.inlet, self.flame, self.outlet), gas, grid)
@@ -757,6 +759,8 @@ class BurnerFlame(FlameBase):
             self.flame = UnstrainedFlow(gas, name='flame')
 
         if width is not None:
+            if grid is not None:
+                raise ValueError("'grid' and 'width' arguments are mutually exclusive")
             grid = np.array([0.0, 0.1, 0.2, 0.3, 0.5, 0.7, 1.0]) * width
 
         super().__init__((self.burner, self.flame, self.outlet), gas, grid)
@@ -893,6 +897,8 @@ class CounterflowDiffusionFlame(FlameBase):
         self.flame = AxisymmetricFlow(gas, name='flame')
 
         if width is not None:
+            if grid is not None:
+                raise ValueError("'grid' and 'width' arguments are mutually exclusive")
             grid = np.array([0.0, 0.2, 0.4, 0.6, 0.8, 1.0]) * width
 
         super().__init__((self.fuel_inlet, self.flame, self.oxidizer_inlet), gas, grid)
@@ -1219,6 +1225,8 @@ class ImpingingJet(FlameBase):
         self.flame.set_axisymmetric_flow()
 
         if width is not None:
+            if grid is not None:
+                raise ValueError("'grid' and 'width' arguments are mutually exclusive")
             grid = np.array([0.0, 0.2, 0.4, 0.6, 0.8, 1.0]) * width
 
         if surface is None:
@@ -1308,6 +1316,8 @@ class CounterflowPremixedFlame(FlameBase):
         self.flame = AxisymmetricFlow(gas, name='flame')
 
         if width is not None:
+            if grid is not None:
+                raise ValueError("'grid' and 'width' arguments are mutually exclusive")
             # Create grid points aligned with initial guess profile
             grid = np.array([0.0, 0.3, 0.5, 0.7, 1.0]) * width
 
@@ -1406,6 +1416,8 @@ class CounterflowTwinPremixedFlame(FlameBase):
         self.products = SymmetryPlane1D(name='products', phase=gas)
 
         if width is not None:
+            if grid is not None:
+                raise ValueError("'grid' and 'width' arguments are mutually exclusive")
             # Create grid points aligned with initial guess profile
             grid = np.array([0.0, 0.2, 0.4, 0.5, 0.6, 0.8, 1.0]) * width
 

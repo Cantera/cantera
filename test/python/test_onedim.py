@@ -149,6 +149,12 @@ class TestOnedim(utilities.CanteraTest):
         with pytest.raises(ct.CanteraError, match="Invalid Transport model"):
             gas.transport_model = 'none'
 
+    def test_width_grid(self):
+        gas = ct.Solution('h2o2.yaml')
+        for cls in ct.FlameBase.__subclasses__():
+            with pytest.raises(ValueError, match="mutually exclusive"):
+                sim = cls(gas, grid=[0, 0.1, 0.2], width=0.4)
+
 
 class TestFreeFlame(utilities.CanteraTest):
     tol_ss = [1.0e-5, 1.0e-14]  # [rtol atol] for steady-state problem
