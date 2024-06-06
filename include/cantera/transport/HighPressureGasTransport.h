@@ -93,15 +93,6 @@ protected:
      */
     double FP_i(double mu_r, double Tr, double Z_c);
 
-    /**
-     * @brief Returns interpolated value of (DP)_R obtained from the data
-     * in Table 2 of the Takahashi 1975 paper, given a value of the reduced
-     * pressure (Pr) and reduced temperature (Tr).
-     *
-     * @param Pr  Reduced pressure
-     * @param Tr  Reduced temperature
-\    */
-    double compute_correction_factor(double Pr, double Tr);
 };
 
 
@@ -186,7 +177,9 @@ protected:
     // Computes and store composition-dependent values of the parameters needed for the Chung viscosity model.
     void compute_mixture_parameters(ChungMixtureParameters& params);
 
-
+    // Computes the thermal conductivity using the Chung method (Equation 10-5.5).
+    // Gives thermal conductivity in units of W/m/K
+    double high_pressure_thermal_conductivity(double T, double T_star, double MW, double rho, double Cv, double Vc, double Tc, double sigma, double acentric_factor, double mu_r, double kappa);
 
     /**
      * @brief Returns interpolated value of (DP)_R obtained from the data
