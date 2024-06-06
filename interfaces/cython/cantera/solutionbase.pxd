@@ -43,11 +43,11 @@ cdef extern from "cantera/base/Solution.h" namespace "Cantera":
         void setSource(string)
         CxxAnyMap& header() except +translate_exception
         shared_ptr[CxxThermoPhase] thermo()
-        void setThermo(shared_ptr[CxxThermoPhase])
+        void setThermo(shared_ptr[CxxThermoPhase]) except +translate_exception
         shared_ptr[CxxKinetics] kinetics()
-        void setKinetics(shared_ptr[CxxKinetics])
+        void setKinetics(shared_ptr[CxxKinetics]) except +translate_exception
         shared_ptr[CxxTransport] transport()
-        void setTransport(shared_ptr[CxxTransport])
+        void setTransport(shared_ptr[CxxTransport]) except +translate_exception
         void setTransportModel(const string&) except +translate_exception
         CxxAnyMap parameters(cbool) except +translate_exception
         size_t nAdjacent()

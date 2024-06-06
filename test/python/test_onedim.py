@@ -142,6 +142,13 @@ class TestOnedim(utilities.CanteraTest):
         gas.transport_model = 'multicomponent'
         assert flame.transport_model == 'multicomponent'
 
+        with pytest.raises(ct.CanteraError, match="Invalid Transport model"):
+            flame.transport_model = 'none'
+
+        gas.transport_model = 'unity-Lewis-number'
+        with pytest.raises(ct.CanteraError, match="Invalid Transport model"):
+            gas.transport_model = 'none'
+
 
 class TestFreeFlame(utilities.CanteraTest):
     tol_ss = [1.0e-5, 1.0e-14]  # [rtol atol] for steady-state problem
