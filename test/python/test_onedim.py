@@ -922,8 +922,6 @@ class TestDiffusionFlame(utilities.CanteraTest):
         self.sim.oxidizer_inlet.X = oxidizer
         self.sim.oxidizer_inlet.T = T_ox
 
-        self.sim.set_initial_guess()
-
     def solve_fixed_T(self):
         # Solve with the energy equation disabled
         self.sim.energy_enabled = False
@@ -945,6 +943,7 @@ class TestDiffusionFlame(utilities.CanteraTest):
     def test_mixture_averaged(self, saveReference=False):
         referenceFile = "DiffusionFlameTest-h2-mix.csv"
         self.create_sim(p=ct.one_atm)
+        self.sim.set_initial_guess()
 
         nPoints = len(self.sim.grid)
         Tfixed = self.sim.T
@@ -1059,6 +1058,7 @@ class TestDiffusionFlame(utilities.CanteraTest):
     def test_mixture_averaged_rad(self, saveReference=False):
         referenceFile = "DiffusionFlameTest-h2-mix-rad.csv"
         self.create_sim(p=ct.one_atm)
+        self.sim.set_initial_guess()
 
         nPoints = len(self.sim.grid)
         Tfixed = self.sim.T
@@ -1127,6 +1127,7 @@ class TestDiffusionFlame(utilities.CanteraTest):
 
     def test_mixture_fraction(self):
         self.create_sim(p=ct.one_atm)
+        self.sim.set_initial_guess()
         Z = self.sim.mixture_fraction('H')
         self.assertNear(Z[0], 1.0)
         self.assertNear(Z[-1], 0.0)
@@ -1140,6 +1141,7 @@ class TestDiffusionFlame(utilities.CanteraTest):
 
     def test_equivalence_ratio(self):
         self.create_sim(p=ct.one_atm)
+        self.sim.set_initial_guess()
         phi = self.sim.equivalence_ratio
         assert phi[0] == np.inf
         assert np.isclose(phi[-1], 0.0)
