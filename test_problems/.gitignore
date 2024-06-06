@@ -27,6 +27,7 @@ cathermo/testWaterTP/WaterSSTP
 cathermo/VPissp/ISSPTester2
 clib_test/clib_test
 cxx_samples/flamespeed.h5
+cxx_samples/flamespeed.yaml
 diamondSurf/diamondSurf
 diamondSurf/runDiamond_output.out
 dustyGasTransport/dustyGasTransport
