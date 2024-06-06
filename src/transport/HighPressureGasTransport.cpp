@@ -18,6 +18,68 @@ using namespace std;
 namespace Cantera
 {
 
+/**
+ * @brief Returns interpolated value of (DP)_R obtained from the data
+ * in Table 2 of the Takahashi 1975 paper, given a value of the reduced
+ * pressure (Pr) and reduced temperature (Tr).
+ *
+ * @param Pr  Reduced pressure
+ * @param Tr  Reduced temperature
+ */
+double takahashi_correction_factor(double Pr, double Tr)
+{
+    // In the low pressure limit, no correction is needed. Interpolate
+    // the value towards 1 as pressure drops below the 0.1 threshold.
+    if (Pr < 0.1) {
+        return 1.0;
+    }
+
+    // Data from Table 2 of Takahashi 1975 paper:
+    const static double Pr_lookup[17] = {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.8, 1.0,
+        1.2, 1.4, 1.6, 1.8, 2.0, 2.5, 3.0, 4.0, 5.0};
+    const static double DP_Rt_lookup[17] = {1.01, 1.01, 1.01, 1.01, 1.01, 1.01,
+        1.01, 1.02, 1.02, 1.02, 1.02, 1.03, 1.03, 1.04, 1.05, 1.06, 1.07};
+    const static double A_ij_lookup[17] = {0.038042, 0.067433, 0.098317,
+        0.137610, 0.175081, 0.216376, 0.314051, 0.385736, 0.514553, 0.599184,
+        0.557725, 0.593007, 0.696001, 0.790770, 0.502100, 0.837452, 0.890390};
+    const static double B_ij_lookup[17] = {1.52267, 2.16794, 2.42910, 2.77605,
+        2.98256, 3.11384, 3.50264, 3.07773, 3.54744, 3.61216, 3.41882, 3.18415,
+        3.37660, 3.27984, 3.39031, 3.23513, 3.13001};
+    const static double C_ij_lookup[17] = {0., 0., 0., 0., 0., 0., 0., 0.141211,
+        0.278407, 0.372683, 0.504894, 0.678469, 0.665702, 0., 0.602907, 0., 0.};
+    const static double E_ij_lookup[17] = {1., 1., 1., 1., 1., 1., 1., 13.45454,
+        14., 10.00900, 8.57519, 10.37483, 11.21674, 1., 6.19043, 1., 1.};
+
+    // Interpolate to obtain the value of the constants (DP)_R, A, B, C, E at
+    // the provided value of the reduced pressure (Pr).
+    int Pr_i = 0;
+    double frac = 0.0;
+    double A, B, C,E, DP_Rt;
+
+    for (int j = 1; j < 17; j++){
+        if (Pr_lookup[j] > Pr) {
+            frac = (Pr - Pr_lookup[j-1])/(Pr_lookup[j] - Pr_lookup[j-1]);
+            break;
+        }
+        Pr_i++;
+    }
+    // If this loop completes without finding a bounding value of Pr, use
+    // the final table value.
+    frac = 1.0;
+
+
+    DP_Rt = DP_Rt_lookup[Pr_i]*(1.0 - frac) + DP_Rt_lookup[Pr_i+1]*frac;
+    A = A_ij_lookup[Pr_i]*(1.0 - frac) + A_ij_lookup[Pr_i+1]*frac;
+    B = B_ij_lookup[Pr_i]*(1.0 - frac) + B_ij_lookup[Pr_i+1]*frac;
+    C = C_ij_lookup[Pr_i]*(1.0 - frac) + C_ij_lookup[Pr_i+1]*frac;
+    E = E_ij_lookup[Pr_i]*(1.0 - frac) + E_ij_lookup[Pr_i+1]*frac;
+
+    double DP_R = DP_Rt*(1.0 - A*pow(Tr,-B))*(1.0 - C*pow(Tr,-E));
+    return DP_R;
+}
+
+
+
 double HighPressureGasTransport::thermalConductivity()
 {
     //  Method of Ely and Hanley:
@@ -141,7 +203,7 @@ void HighPressureGasTransport::getBinaryDiffCoeffs(const size_t ld, double* cons
 
             // Calculate the parameters for Takahashi correlation
             double P_corr_ij;
-            P_corr_ij = compute_correction_factor(Pr_ij, Tr_ij);
+            P_corr_ij = takahashi_correction_factor(Pr_ij, Tr_ij);
 
             // If the reduced temperature is too low, the correction factor
             // P_corr_ij will be < 0.
@@ -195,7 +257,7 @@ double HighPressureGasTransport::viscosity()
         double Zc = Zcrit_i(i);
         Tc_mix += Tc*molefracs[i];
         Pc_mix_n += molefracs[i]*Zc; //numerator
-        Pc_mix_d += molefracs[i]*Vcrit_i(i); //denominator
+        Pc_mix_d += molefracs[i]*Vcrit_i(i); //denominator (Units of Vcrit_i are m^3/kmol, which are fine because they cancel out with the Cantera gas constant's units used later)
 
         // Calculate ratio of heaviest to lightest species
         if (m_mw[i] > MW_H) {
@@ -209,8 +271,12 @@ double HighPressureGasTransport::viscosity()
         // polar correction term.
         // Equation 9-4.17 in Poling et al. (2001) requires the pressure
         // to be in units of bar, so we convert from Pa to bar.
+        // The dipole moment is stored in SI units, and it needs to be in
+        // units of Debye for the Lucas method.
         double pascals_to_bar = 1e-5;
-        double mu_ri = 52.46*m_dipole(i,i)*m_dipole(i,i)*(Pcrit_i(i)*pascals_to_bar)/(Tc*Tc);
+        double SI_to_Debye = 1.0 / 3.335e-30; // Conversion factor from C*m to Debye
+        double dipole_ii = m_dipole(i,i)*SI_to_Debye;
+        double mu_ri = 52.46*dipole_ii*dipole_ii*(Pcrit_i(i)*pascals_to_bar)/(Tc*Tc);
         FP_mix_o += molefracs[i] * FP_i(mu_ri, Tr, Zc); // mole-fraction weighting of pure-species polar correction term
 
 
@@ -331,6 +397,14 @@ double HighPressureGasTransport::low_pressure_nondimensional_viscosity(double Tr
 // resulting equation)
 double HighPressureGasTransport::high_pressure_nondimensional_viscosity(double Tr, double Pr, double FP_low, double FQ_low, double P_vap, double P_crit){
 
+    //cout << "Input values are:" << endl;
+    //cout << "Tr: " << Tr << endl;
+    //cout << "Pr: " << Pr << endl;
+    //cout << "FP_low: " << FP_low << endl;
+    //cout << "FQ_low: " << FQ_low << endl;
+    //cout << "P_vap: " << P_vap << endl;
+    //cout << "P_crit: " << P_crit << endl;
+
     double Z_1 = low_pressure_nondimensional_viscosity(Tr, FP_low, FQ_low); // This is η_0*ξ
 
     double Z_2;
@@ -393,7 +467,7 @@ double HighPressureGasTransport::high_pressure_nondimensional_viscosity(double T
 
 // Calculates quantum correction term of the Lucas method for a species based
 // on Tr and MW, used in viscosity calculation from equation 9-4.19 in
-// Poling et al. (2001):
+// Poling et al. (2001)
 double HighPressureGasTransport::FQ_i(double Q, double Tr, double MW)
 {
     return 1.22*pow(Q,0.15)*(1 + 0.00385*pow(pow(Tr - 12.0, 2.0), 1.0/MW)
@@ -402,75 +476,185 @@ double HighPressureGasTransport::FQ_i(double Q, double Tr, double MW)
 
 // Calculates the pressure correction factor for the Lucas method that
 // is used to calculate high pressure pure fluid viscosity. This is equation
-// 9-4.18 in Poling et al. (2001):
+// 9-4.18 in Poling et al. (2001).
+//
+// NOTE: The original description in the book neglects to mention what happens
+// when the quantity raised to the 1.72 power goes negative. That is an undefined
+// operation that generates real+imaginary numbers. For now, I simply am
+// taking the absolute value of the argument and raising it to the power.
 double HighPressureGasTransport::FP_i(double mu_r, double Tr, double Z_crit)
 {
+    //cout << "HighPressureGasTransport::FP_i Inputs:" << endl;
+    //cout << "mu_r: " << mu_r << endl;
+    //cout << "Tr: " << Tr << endl;
+    //cout << "Z_crit: " << Z_crit << endl;
+
     if (mu_r < 0.022) {
         return 1;
     } else if (mu_r < 0.075) {
-        return 1 + 30.55*pow(0.292 - Z_crit, 1.72);
+        return 1 + 30.55*pow(fabs(0.292 - Z_crit), 1.72);
     } else {
-        return 1 + 30.55*pow(0.292 - Z_crit, 1.72)*fabs(0.96 + 0.1*(Tr - 0.7));
+        return 1 + 30.55*pow(fabs(0.292 - Z_crit), 1.72)*fabs(0.96 + 0.1*(Tr - 0.7));
     }
-}
-
-double HighPressureGasTransport::compute_correction_factor(double Pr, double Tr)
-{
-    // In the low pressure limit, no correction is needed. Interpolate
-    // the value towards 1 as pressure drops below the 0.1 threshold.
-    if (Pr < 0.1) {
-        return 1.0;
-    }
-
-    // Data from Table 2 of Takahashi 1975 paper:
-    const static double Pr_lookup[17] = {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.8, 1.0,
-        1.2, 1.4, 1.6, 1.8, 2.0, 2.5, 3.0, 4.0, 5.0};
-    const static double DP_Rt_lookup[17] = {1.01, 1.01, 1.01, 1.01, 1.01, 1.01,
-        1.01, 1.02, 1.02, 1.02, 1.02, 1.03, 1.03, 1.04, 1.05, 1.06, 1.07};
-    const static double A_ij_lookup[17] = {0.038042, 0.067433, 0.098317,
-        0.137610, 0.175081, 0.216376, 0.314051, 0.385736, 0.514553, 0.599184,
-        0.557725, 0.593007, 0.696001, 0.790770, 0.502100, 0.837452, 0.890390};
-    const static double B_ij_lookup[17] = {1.52267, 2.16794, 2.42910, 2.77605,
-        2.98256, 3.11384, 3.50264, 3.07773, 3.54744, 3.61216, 3.41882, 3.18415,
-        3.37660, 3.27984, 3.39031, 3.23513, 3.13001};
-    const static double C_ij_lookup[17] = {0., 0., 0., 0., 0., 0., 0., 0.141211,
-        0.278407, 0.372683, 0.504894, 0.678469, 0.665702, 0., 0.602907, 0., 0.};
-    const static double E_ij_lookup[17] = {1., 1., 1., 1., 1., 1., 1., 13.45454,
-        14., 10.00900, 8.57519, 10.37483, 11.21674, 1., 6.19043, 1., 1.};
-
-    // Interpolate to obtain the value of the constants (DP)_R, A, B, C, E at
-    // the provided value of the reduced pressure (Pr).
-    int Pr_i = 0;
-    double frac = 0.0;
-    double A, B, C,E, DP_Rt;
-
-    for (int j = 1; j < 17; j++){
-        if (Pr_lookup[j] > Pr) {
-            frac = (Pr - Pr_lookup[j-1])/(Pr_lookup[j] - Pr_lookup[j-1]);
-            break;
-        }
-        Pr_i++;
-    }
-    // If this loop completes without finding a bounding value of Pr, use
-    // the final table value.
-    frac = 1.0;
-
-
-    DP_Rt = DP_Rt_lookup[Pr_i]*(1.0 - frac) + DP_Rt_lookup[Pr_i+1]*frac;
-    A = A_ij_lookup[Pr_i]*(1.0 - frac) + A_ij_lookup[Pr_i+1]*frac;
-    B = B_ij_lookup[Pr_i]*(1.0 - frac) + B_ij_lookup[Pr_i+1]*frac;
-    C = C_ij_lookup[Pr_i]*(1.0 - frac) + C_ij_lookup[Pr_i+1]*frac;
-    E = E_ij_lookup[Pr_i]*(1.0 - frac) + E_ij_lookup[Pr_i+1]*frac;
-
-    double DP_R = DP_Rt*(1.0 - A*pow(Tr,-B))*(1.0 - C*pow(Tr,-E));
-    return DP_R;
 }
 
 }
 
-
+//Chung Implementation
 namespace Cantera
 {
+
+void ChungHighPressureGasTransport::getBinaryDiffCoeffs(const size_t ld, double* const d)
+{
+    size_t nsp = m_thermo->nSpecies();
+    vector<double> molefracs(nsp);
+    m_thermo->getMoleFractions(&molefracs[0]);
+
+    update_T();
+    // If necessary, evaluate the binary diffusion coefficients from the polynomial fits
+    if (!m_bindiff_ok) {
+        updateDiff_T();
+    }
+    if (ld < m_nsp) {
+        throw CanteraError("ChungHighPressureGasTransport::getBinaryDiffCoeffs", "ld is too small");
+    }
+
+    double rp = 1.0/m_thermo->pressure();
+    for (size_t i = 0; i < nsp; i++) {
+        for (size_t j = 0; j < nsp; j++) {
+            // Add an offset to avoid a condition where x_i and x_j both equal
+            // zero (this would lead to Pr_ij = Inf).
+            double x_i = std::max(Tiny, molefracs[i]);
+            double x_j = std::max(Tiny, molefracs[j]);
+
+            // Weight mole fractions of i and j so that X_i + X_j = 1.0.
+            x_i = x_i/(x_i + x_j);
+            x_j = x_j/(x_i + x_j);
+
+            // Calculate Tr and Pr based on mole-fraction-weighted critical constants.
+            double Tr_ij = m_temp/(x_i*Tcrit_i(i) + x_j*Tcrit_i(j));
+            double Pr_ij = m_thermo->pressure()/(x_i*Pcrit_i(i) + x_j*Pcrit_i(j));
+
+            // Calculate the parameters for Takahashi correlation
+            double P_corr_ij;
+            P_corr_ij = takahashi_correction_factor(Pr_ij, Tr_ij);
+
+            // If the reduced temperature is too low, the correction factor
+            // P_corr_ij will be < 0.
+            if (P_corr_ij<0) {
+                P_corr_ij = Tiny;
+            }
+            // Multiply the standard low-pressure binary diffusion coefficient
+            // (m_bdiff) by the Takahashi correction factor P_corr_ij.
+            d[ld*j + i] = P_corr_ij*(rp * m_bdiff(i,j));
+        }
+    }
+}
+
+// Calculate the high-pressure mixture thermal conductivity, based on the Chung method
+// described in on page 10.23 of Poling et al. (2001).
+//
+// The mixture pseudo-critical temperature and pressure are calculated using
+// the equations defined on page 9.25 of Poling et al. (2001).
+//
+// The mixture value of the specific heat is computed using equation 10-6.6.
+double ChungHighPressureGasTransport::thermalConductivity()
+{
+    ChungMixtureParameters params;
+    compute_mixture_parameters(params);
+
+    // Compute T_star using equation 9-5.26, using the mixture parameters
+    double tKelvin = m_thermo->temperature();
+    double T_star = tKelvin / params.epsilon_over_k_mix;
+
+    // The density is required for high-pressure gases.
+    // The Chung method requires density to be units of mol/cm^3
+    // We use the mixture molecular weight (units of kg/kmol) here.
+    double kg_per_m3_to_mol_per_cm3 = (1.0 / params.MW_mix)*1e-3; // 1 kmol/m^3 = 1e-3 mol/cm^3
+    double density = m_thermo->density()*kg_per_m3_to_mol_per_cm3;
+
+    // The value of Cv is already a mole-weighted average of the pure species values
+    double Cv_mix = m_thermo->cv_mole(); // Specific heat at constant volume, units are J/kmol/K
+
+    // This result is in units of W/m/K
+    double thermal_conductivity = high_pressure_thermal_conductivity(tKelvin, T_star, params.MW_mix, density, Cv_mix, params.Vc_mix, params.Tc_mix, params.sigma_mix, params.acentric_factor_mix, params.mu_r_mix, params.kappa_mix);
+
+    // Return the thermal conductivity in W/m/K
+    return thermal_conductivity;
+}
+
+
+
+// Computes the high-pressure thermal conductivity using the Chung method (Equation 10-5.5).
+// This function is structured such that it can be used for pure species or mixtures, with the
+// only difference being the values that are passed to the function (pure values versus mixture values).
+//
+// This method utilizes the low-pressure Chung viscosity as that is a required parameter in the model, and
+// thus makes a call to the low pressure viscosity implementation.
+//
+// M_prime (M' in the model) has units of kg/mol, and is just the molecular weight (kg/kmol) divided by 1000.
+double ChungHighPressureGasTransport::high_pressure_thermal_conductivity(double T, double T_star, double MW, double rho, double Cv, double Vc, double Tc, double sigma, double acentric_factor, double mu_r, double kappa)
+{
+    // Calculate the low-pressure viscosity using the Chung method
+    // This method returns viscosity in micropoise, but the thermal
+    // conductivity model needs the low-pressure viscosity to be in units of Pa*s
+    double micropoise_to_pascals_second = 1e-7;
+    double viscosity = low_pressure_viscosity(T, T_star, MW, acentric_factor, mu_r, sigma, kappa)*micropoise_to_pascals_second;
+    //cout << "Low-pressure viscosity: " << viscosity << " Pa*s" << endl;
+
+    double M_prime = MW / 1000.0; // Converting to kg/mol
+
+    // Definition of tabulated coefficients for the Chung method, as shown in Table 10-3 on page 10.23 of Poling et al. (2001)
+    vector<double> a = {2.44166, -5.0924e-1, 6.6107, 1.4543e1, 7.9274e-1, -5.8634, 9.1089e1};
+    vector<double> b = {7.4824e-1, -1.5094, 5.6207, -8.9139, 8.2019e-1, 1.2801e1, 1.2811e2};
+    vector<double> c = {-9.1858e-1, -4.9991e1, 6.4760e1, -5.6379, -6.9369e-1, 9.5893, -5.4217e1};
+    vector<double> d ={1.2172e2, 6.9983e1, 2.7039e1, 7.4344e1, 6.3173, 6.5529e1, 5.2381e2};
+
+    // This is slightly pedantic, but this is done to have the naming convention in the
+    // equations used match the variable names in the code.
+    double B_1, B_2, B_3, B_4, B_5, B_6, B_7;
+    B_1 = a[0] + b[0]*acentric_factor + c[0]*pow(mu_r, 4.0) + d[0]*kappa;
+    B_2 = a[1] + b[1]*acentric_factor + c[1]*pow(mu_r, 4.0) + d[1]*kappa;
+    B_3 = a[2] + b[2]*acentric_factor + c[2]*pow(mu_r, 4.0) + d[2]*kappa;
+    B_4 = a[3] + b[3]*acentric_factor + c[3]*pow(mu_r, 4.0) + d[3]*kappa;
+    B_5 = a[4] + b[4]*acentric_factor + c[4]*pow(mu_r, 4.0) + d[4]*kappa;
+    B_6 = a[5] + b[5]*acentric_factor + c[5]*pow(mu_r, 4.0) + d[5]*kappa;
+    B_7 = a[6] + b[6]*acentric_factor + c[6]*pow(mu_r, 4.0) + d[6]*kappa;
+
+    double y = rho*Vc/6.0; // Equation 10-5.6 (with rho = 1/V)
+
+    double G_1 = (1.0 - 0.5*y)/(pow(1.0-y, 3.0)); // Equation  10-5.7
+
+    // Equation 10-5.8
+    double G_2 = (B_1*((1.0-exp(-B_4*y)) / y) + B_2*G_1*exp(B_5*y) + B_3*G_1)/ (B_1*B_4 + B_2 + B_3);
+
+    double q = 3.586e-3*sqrt(Tc/M_prime) / pow(Vc, 2.0/3.0); // Shown below equation 10-5.5
+
+    double Tr = T/Tc; // Reduced temperature
+    double alpha = (Cv / GasConstant) - 3.0/2.0; // Shown below equation 10-3.14, using Cantera's R (J/kmol/K )
+    double beta = 0.7862 - 0.7109*acentric_factor + 1.3168*acentric_factor*acentric_factor; // Shown below Equation 10-3.14
+    double Z = 2.0 + 10.5*Tr*Tr; // Shown below Equation 10-3.14
+    double psi = 1.0 + alpha*((0.215 + 0.28288*alpha - 1.061*beta + 0.26665*Z) / (0.6366 + beta*Z + 1.061*alpha*beta)); // Shown below Equation 10-3.14
+
+    //cout << "Parameters: " << endl;
+    //cout << "y: " << y << endl;
+    //cout << "G_1: " << G_1 << endl;
+    //cout << "G_2: " << G_2 << endl;
+    //cout << "q: " << q << endl;
+    //cout << "Tr: " << Tr << endl;
+    //cout << "alpha: " << alpha << endl;
+    //cout << "beta: " << beta << endl;
+    //cout << "Z: " << Z << endl;
+    //cout << "psi: " << psi << endl;
+
+    double lambda = (31.2*viscosity*psi/M_prime)*(1.0/G_2 + B_6*y) + q*B_7*y*y*sqrt(Tr)*G_2; // Equation 10-5.5
+
+    // Units are W/m/K
+    return lambda;
+}
+
+
+
 
 // This implements the high-pressure gas mixture viscosity model of Chung
 // described in chapter 9-7 of Poling et al. (2001).
@@ -483,13 +667,16 @@ double ChungHighPressureGasTransport::viscosity()
     double tKelvin = m_thermo->temperature();
     double T_star = tKelvin / params.epsilon_over_k_mix;
 
-    double density = m_thermo->density(); // The density is required for high-pressure gases
+    // The density is required for high-pressure gases.
+    // The Chung method requires density to be units of mol/cm^3
+    // We use the mixture molecular weight (units of kg/kmol) here.
+    double kg_per_m3_to_mol_per_cm3 = (1.0 / params.MW_mix)*1e-3; // 1 kmol/m^3 = 1e-3 mol/cm^3
+    double density = m_thermo->density()*kg_per_m3_to_mol_per_cm3;
 
     // This result is in units of micropoise
     double viscosity = high_pressure_viscosity(T_star, params.MW_mix, density, params.Vc_mix, params.Tc_mix, params.acentric_factor_mix, params.mu_r_mix, params.kappa_mix);
 
     double micropoise_to_pascals_second = 1e-7;
-
     return viscosity*micropoise_to_pascals_second;
 
 }
@@ -500,18 +687,18 @@ double ChungHighPressureGasTransport::viscosity()
 // for the Chung method's composition dependent parameters.
 void ChungHighPressureGasTransport::compute_mixture_parameters(ChungMixtureParameters& params)
 {
-
     size_t nsp = m_thermo->nSpecies();
     vector<double> molefracs(nsp);
     m_thermo->getMoleFractions(&molefracs[0]);
-
 
     // First fill the species-specific values that will then later be used in the combining
     // rules for the Chung method.
     vector<double> sigma_i(nsp), epsilon_over_k_i(nsp), acentric_factor_i(nsp), MW_i(nsp), kappa_i(nsp);
     for (size_t i = 0; i < m_nsp; i++) {
         // From equation 9-5.32 in Poling et al. (2001)
-        sigma_i[i] = 0.809*pow(Vcrit_i(i), 1.0/3.0);
+        double m3_per_kmol_to_cm3_per_mol = 1e3; // Convert from m^3/kmol to cm^3/mol
+        double Vc = Vcrit_i(i) * m3_per_kmol_to_cm3_per_mol;
+        sigma_i[i] = 0.809*pow(Vc, 1.0/3.0);
 
         // From equation 9-5.34 in Poling et al. (2001)
         epsilon_over_k_i[i] = Tcrit_i(i)/1.2593;
@@ -549,8 +736,12 @@ void ChungHighPressureGasTransport::compute_mixture_parameters(ChungMixtureParam
             double acentric_factor_ij = 0.5*(acentric_factor_i[i] + acentric_factor_i[j]); // Equation 9-5.36
             params.acentric_factor_mix += molefracs[i]*molefracs[j]*acentric_factor_ij*pow(sigma_ij,3.0); // Equation 9-5.29
 
-            // Using the base class' dipole moment values
-            params.mu_mix += molefracs[i]*molefracs[j]*pow(m_dipole(i,i),2.0)*pow(m_dipole(j,j),2.0)/pow(sigma_ij,3.0); // Equation 9-5.30
+            // Using the base class' dipole moment values. These are in the SI units, so we need to convert to
+            // Debye units.
+            double SI_to_Debye = 1.0 / 3.335e-30; // Conversion factor from C*m to Debye
+            double dipole_ii = m_dipole(i,i)*SI_to_Debye;
+            double dipole_jj = m_dipole(j,j)*SI_to_Debye;
+            params.mu_mix += molefracs[i]*molefracs[j]*pow(dipole_ii,2.0)*pow(dipole_jj,2.0)/pow(sigma_ij,3.0); // Equation 9-5.30
 
             // Using equation 9-5.31
             double kappa_ij = sqrt(kappa_i[i]*kappa_i[j]); // Equation 9-5.38
@@ -573,10 +764,21 @@ void ChungHighPressureGasTransport::compute_mixture_parameters(ChungMixtureParam
     params.Tc_mix = 1.2593*params.epsilon_over_k_mix;
 
     // Vc_mix is computed using equation 9-5.43 in Poling et al. (2001)
-    params.Vc_mix = pow(params.acentric_factor_mix/0.809, 3.0);
+    params.Vc_mix = pow(params.sigma_mix/0.809, 3.0);
 
     // mu_r_mix is computed using equation 9-5.42 in Poling et al. (2001)
     params.mu_r_mix = 131.3*params.mu_mix/sqrt(params.Vc_mix*params.Tc_mix);
+
+    //cout << "Mixture parameters are:" << endl;
+    //cout << "sigma_mix: " << params.sigma_mix << endl;
+    //cout << "epsilon_over_k_mix: " << params.epsilon_over_k_mix << endl;
+    //cout << "MW_mix: " << params.MW_mix << endl;
+    //cout << "acentric_factor_mix: " << params.acentric_factor_mix << endl;
+    //cout << "mu_mix: " << params.mu_mix << endl;
+    //cout << "Tc_mix: " << params.Tc_mix << endl;
+    //cout << "Vc_mix: " << params.Vc_mix << endl;
+    //cout << "mu_r_mix: " << params.mu_r_mix << endl;
+    //cout << "kappa_mix: " << params.kappa_mix << endl;
 
 }
 
@@ -592,7 +794,6 @@ double neufeld_collision_integral(double T_star)
     double F = 2.43787;
 
     double omega = A / pow(T_star, B) + C / exp(D*T_star) + E / exp(F*T_star);
-
     return omega;
 }
 
@@ -600,11 +801,21 @@ double neufeld_collision_integral(double T_star)
 // only difference being the values that are passed to the function (pure values versus mixture values).
 double ChungHighPressureGasTransport::low_pressure_viscosity(double T, double T_star, double MW, double acentric_factor, double mu_r, double sigma, double kappa)
 {
+    //cout << "Input values are:" << endl;
+    //cout << "T: " << T << endl;
+    //cout << "T_star: " << T_star << endl;
+    //cout << "MW: " << MW << endl;
+    //cout << "acentric_factor: " << acentric_factor << endl;
+    //cout << "mu_r: " << mu_r << endl;
+    //cout << "sigma: " << sigma << endl;
+    //cout << "kappa: " << kappa << endl;
+
     // Equation 9-4.3 in Poling et al. (2001)
     double omega = neufeld_collision_integral(T_star);
 
     // Molecular shapes and polarities factor, equation 9-4.11
     double Fc = 1 -0.2756*acentric_factor + 0.059035*pow(mu_r, 4.0) + kappa;
+    //cout << "Fc: " << Fc << ", Omega: " << omega << endl;
 
     // Equation 9-3.9 in Poling et al. (2001), multiplied by the Chung factor, Fc
     // (another way of writing 9-4.10 that avoids explicit use of the critical volume in this method)
@@ -621,6 +832,16 @@ double ChungHighPressureGasTransport::low_pressure_viscosity(double T, double T_
 // naming simplicity.
 double ChungHighPressureGasTransport::high_pressure_viscosity(double T_star, double MW, double rho, double Vc, double Tc, double acentric_factor, double mu_r, double kappa)
 {
+    //cout << "Input values are:" << endl;
+    //cout << "T_star: " << T_star << endl;
+    //cout << "MW: " << MW << endl;
+    //cout << "rho: " << rho << endl;
+    //cout << "Vc: " << Vc << endl;
+    //cout << "Tc: " << Tc << endl;
+    //cout << "acentric_factor: " << acentric_factor << endl;
+    //cout << "mu_r: " << mu_r << endl;
+    //cout << "kappa: " << kappa << endl;
+
     // Definition of tabulated coefficients for the Chung method, as shown in Table 9-6 on page 9.40 of Poling et al. (2001)
     vector<double> a = {6.324, 1.210e-3, 5.283, 6.623, 19.745, -1.900, 24.275, 0.7972, -0.2382, 0.06863};
     vector<double> b = {50.412, -1.154e-3, 254.209, 38.096, 7.630, -12.537, 3.450, 1.117, 0.06770, 0.3479};
@@ -661,6 +882,68 @@ double ChungHighPressureGasTransport::high_pressure_viscosity(double T_star, dou
     double eta = eta_1 * 36.344 * sqrt(MW*Tc) / pow(Vc, 2.0/3.0); // Equation 9-6.18
 
     return eta;
+}
+
+
+// Pure species critical properties - Tc, Pc, Vc, Zc:
+double ChungHighPressureGasTransport::Tcrit_i(size_t i)
+{
+    vector<double> molefracs(m_thermo->nSpecies());
+    m_thermo->getMoleFractions(&molefracs[0]);
+    vector<double> mf_temp(m_thermo->nSpecies(), 0.0);
+    mf_temp[i] = 1;
+    m_thermo->setMoleFractions(&mf_temp[0]);
+
+    double tc = m_thermo->critTemperature();
+
+    // Restore actual molefracs:
+    m_thermo->setMoleFractions(&molefracs[0]);
+    return tc;
+}
+
+double ChungHighPressureGasTransport::Pcrit_i(size_t i)
+{
+    vector<double> molefracs(m_thermo->nSpecies());
+    m_thermo->getMoleFractions(&molefracs[0]);
+    vector<double> mf_temp(m_thermo->nSpecies(), 0.0);
+    mf_temp[i] = 1;
+    m_thermo->setMoleFractions(&mf_temp[0]);
+
+    double pc = m_thermo->critPressure();
+
+    // Restore actual molefracs:
+    m_thermo->setMoleFractions(&molefracs[0]);
+    return pc;
+}
+
+double ChungHighPressureGasTransport::Vcrit_i(size_t i)
+{
+    vector<double> molefracs(m_thermo->nSpecies());
+    m_thermo->getMoleFractions(&molefracs[0]);
+    vector<double> mf_temp(m_thermo->nSpecies(), 0.0);
+    mf_temp[i] = 1;
+    m_thermo->setMoleFractions(&mf_temp[0]);
+
+    double vc = m_thermo->critVolume();
+
+    // Restore actual molefracs:
+    m_thermo->setMoleFractions(&molefracs[0]);
+    return vc;
+}
+
+double ChungHighPressureGasTransport::Zcrit_i(size_t i)
+{
+    vector<double> molefracs(m_thermo->nSpecies());
+    m_thermo->getMoleFractions(&molefracs[0]);
+    vector<double> mf_temp(m_thermo->nSpecies(), 0.0);
+    mf_temp[i] = 1;
+    m_thermo->setMoleFractions(&mf_temp[0]);
+
+    double zc = m_thermo->critCompressibility();
+
+    // Restore actual molefracs:
+    m_thermo->setMoleFractions(&molefracs[0]);
+    return zc;
 }
 
 
