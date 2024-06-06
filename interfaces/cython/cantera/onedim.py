@@ -123,7 +123,7 @@ class FlameBase(Sim1D):
 
         if isinstance(left, Inlet1D) and isinstance(right, Inlet1D):
             # find stagnation plane
-            i = np.flatnonzero(self.velocity > 0)[-1]
+            i = np.flatnonzero(arr.velocity > 0)[-1]
 
             # adjust temperatures
             grid = arr.grid
