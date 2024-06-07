@@ -336,7 +336,7 @@ jobs:
             libblas-dev liblapack-dev libhdf5-dev libfmt-dev libsundials-dev
       - name: Install conda dependencies
         run: |
-          mamba install -q doxygen=1.9.7 scons pip scikits.odes
+          mamba install doxygen=1.9.7 scons pip scikits.odes
       - name: Upgrade pip
         run: pip install -U pip setuptools wheel
       - name: Install Python dependencies
@@ -579,7 +579,7 @@ jobs:
       # use boost-cpp rather than boost from conda-forge
       # Install SCons >=4.4.0 to make sure that MSVC_TOOLSET_VERSION variable is present
       run: |
-        mamba install -q '"scons>=4.4.0"' numpy cython ruamel.yaml boost-cpp eigen yaml-cpp pandas pytest pytest-xdist highfive pint python-graphviz fmt=${{ matrix.fmt-ver }}
+        mamba install '"scons>=4.4.0"' numpy cython ruamel.yaml boost-cpp eigen yaml-cpp pandas pytest pytest-xdist highfive pint python-graphviz fmt=${{ matrix.fmt-ver }}
       shell: pwsh
     - name: Build Cantera
       run: scons build system_eigen=y system_yamlcpp=y system_highfive=y logging=debug
@@ -830,7 +830,7 @@ jobs:
     - name: Install library dependencies with Conda (Windows)
       # fmt needs to match the version of the windows-2022 runner selected to upload
       # the cantera_shared.dll artifact
-      run: mamba install -q yaml-cpp mkl highfive fmt=8.1
+      run: mamba install yaml-cpp mkl highfive fmt=8.1
       shell: pwsh
       if: matrix.os == 'windows-2022'
     - name: Install Brew dependencies (macOS)
