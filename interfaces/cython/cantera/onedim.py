@@ -914,9 +914,6 @@ class CounterflowDiffusionFlame(FlameBase):
         if data:
             return
 
-        moles = lambda el: (self.gas.elemental_mass_fraction(el) /
-                            self.gas.atomic_weight(el))
-
         # Compute stoichiometric mixture composition
         Yin_f = self.fuel_inlet.Y
         self.gas.TPY = self.fuel_inlet.T, self.P, Yin_f
@@ -925,12 +922,6 @@ class CounterflowDiffusionFlame(FlameBase):
         u0f = mdotf / rho0f
         T0f = self.fuel_inlet.T
 
-        sFuel = moles('O')
-        if 'C' in self.gas.element_names:
-            sFuel -= 2 * moles('C')
-        if 'H' in self.gas.element_names:
-            sFuel -= 0.5 * moles('H')
-
         Yin_o = self.oxidizer_inlet.Y
         self.gas.TPY = self.oxidizer_inlet.T, self.P, Yin_o
         mdoto = self.oxidizer_inlet.mdot
@@ -938,13 +929,7 @@ class CounterflowDiffusionFlame(FlameBase):
         u0o = mdoto / rho0o
         T0o = self.oxidizer_inlet.T
 
-        sOx = moles('O')
-        if 'C' in self.gas.element_names:
-            sOx -= 2 * moles('C')
-        if 'H' in self.gas.element_names:
-            sOx -= 0.5 * moles('H')
-
-        zst = 1.0 / (1 - sFuel / sOx)
+        zst = 1 / (1 + self.gas.stoich_air_fuel_ratio(Yin_f, Yin_o, 'mass'))
         Yst = zst * Yin_f + (1.0 - zst) * Yin_o
 
         # get adiabatic flame temperature and composition
