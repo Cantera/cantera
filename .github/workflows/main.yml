@@ -506,24 +506,23 @@ jobs:
           test -f h2o2-test.ck
 
   windows-2022:
-    name: ${{ matrix.os }}, MSVC ${{ matrix.vs-toolset }}, Python ${{ matrix.python-version }}, fmt ${{ matrix.fmt-ver }}
-    runs-on: ${{ matrix.os }}
+    name: Windows 2022, Python ${{ matrix.python-version }}, fmt ${{ matrix.fmt-ver }}
+    runs-on: windows-2022
     timeout-minutes: 60
     defaults:
       run:
         shell: bash -l {0}
     strategy:
       matrix:
-        os: ["windows-2022"]
-        vs-toolset: ["14.3"]
-        python-version: ["3.8", "3.10", "3.11", "3.12"]
         include:
-        - python-version: 3.8
-          fmt-ver: 10
-        - python-version: 3.10
-          fmt-ver: 8.1
-        - python-version: 3.11
-          fmt-ver: 7.1
+        - python-version: '3.8'
+          fmt-ver: '10'
+        - python-version: '3.10'
+          fmt-ver: '8.1'
+        - python-version: '3.11'
+          fmt-ver: '9.1'
+        - python-version: '3.12'
+          fmt-ver: '7.1'
       fail-fast: false
     steps:
     - uses: actions/checkout@v3
@@ -544,15 +543,15 @@ jobs:
       # use boost-cpp rather than boost from conda-forge
       # Install SCons >=4.4.0 to make sure that MSVC_TOOLSET_VERSION variable is present
       run: |
-        mamba install -q '"scons>=4.4.0"' numpy cython ruamel.yaml boost-cpp eigen yaml-cpp h5py pandas pytest highfive pint fmt=${{ matrix.fmt-ver }}
+        mamba install scons numpy cython ruamel.yaml boost-cpp eigen yaml-cpp pandas pytest pytest-xdist highfive pint python-graphviz fmt=${{ matrix.fmt-ver }}
       shell: pwsh
     - name: Build Cantera
       run: scons build system_eigen=y system_yamlcpp=y system_highfive=y logging=debug
-        msvc_toolset_version=${{ matrix.vs-toolset }} f90_interface=n debug=n --debug=time -j2
+        toolchain=msvc f90_interface=n debug=n --debug=time -j4
       shell: pwsh
     - name: Upload shared library
-      uses: actions/upload-artifact@v3
-      if: matrix.python-version == '3.10' && matrix.vs-toolset == '14.3'
+      uses: actions/upload-artifact@v4
+      if: matrix.python-version == '3.11'
       with:
         path: build/lib/cantera_shared.dll
         name: cantera_shared.dll
@@ -822,7 +821,7 @@ jobs:
     - name: Install library dependencies with Conda (Windows)
       # fmt needs to match the version of the windows-2022 runner selected to upload
       # the cantera_shared.dll artifact
-      run: mamba install -q yaml-cpp mkl highfive fmt=8.1
+      run: mamba install yaml-cpp mkl highfive fmt=9.1
       shell: pwsh
       if: matrix.os == 'windows-2022'
     - name: Install Brew dependencies (macOS)
