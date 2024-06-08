@@ -305,10 +305,10 @@ def analyze_errors(grids, speeds, true_speed):
     and compare these with our estimated errors.
     This will show if our estimates are reasonable, or conservative, or too optimistic.
     """
-    true_speed_estimates = np.full_like(speeds, np.NaN)
-    total_percent_error_estimates = np.full_like(speeds, np.NaN)
-    actual_extrapolated_percent_errors = np.full_like(speeds, np.NaN)
-    actual_raw_percent_errors = np.full_like(speeds, np.NaN)
+    true_speed_estimates = np.full_like(speeds, np.nan)
+    total_percent_error_estimates = np.full_like(speeds, np.nan)
+    actual_extrapolated_percent_errors = np.full_like(speeds, np.nan)
+    actual_raw_percent_errors = np.full_like(speeds, np.nan)
     for i in range(3, len(grids)):
         print(grids[: i + 1])
         true_speed_estimate, total_percent_error_estimate = extrapolate_uncertainty(

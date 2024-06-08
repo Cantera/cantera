@@ -1851,7 +1851,7 @@ class TestExtensible3(utilities.CanteraTest):
 class InterfaceReactionTests(ReactionTests):
     # test suite for surface reaction expressions
 
-    _value = np.NAN # reference value
+    _value = np.nan # reference value
     _coverage_deps = None
 
     @classmethod

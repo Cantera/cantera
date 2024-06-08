@@ -2383,7 +2383,9 @@ class TestReactorSensitivities(utilities.CanteraTest):
         return dtdp
 
     # See https://github.com/Cantera/enhancements/issues/55
+    # @todo: replace np.trapz with np.trapezoid when dropping support for NumPy 1.x
     @unittest.skip("Integration of sensitivity ODEs is unreliable")
+    @pytest.mark.filterwarnings("ignore:`trapz` is deprecated")
     def test_ignition_delay_sensitivity(self):
         species = ('H2', 'H', 'O2', 'H2O2', 'H2O', 'OH', 'HO2')
         dtigdh_cvodes = self.calc_dtdh(species)
