@@ -1208,6 +1208,8 @@ class TestPlasmaPhase(utilities.CanteraTest):
                                (ct.avogadro * ct.electron_charge))
         self.assertNear(mean_electron_energy, self.phase.mean_electron_energy)
 
+    # @todo: replace np.trapz with np.trapezoid when dropping support for NumPy 1.x
+    @pytest.mark.filterwarnings("ignore:`trapz` is deprecated")
     def test_discretized_electron_energy_distribution(self):
         levels = np.array([0.0, 1.0, 10.0])
         dist = np.array([0.0, 0.9, 0.01])

@@ -487,11 +487,11 @@ class TestFreeFlame(utilities.CanteraTest):
         self.sim.transport_model = 'unity-Lewis-number'
         self.sim.set_refine_criteria(ratio=3.0, slope=0.08, curve=0.12)
         self.sim.solve(loglevel=0, auto=True)
-        dh_unity_lewis = self.sim.enthalpy_mass.ptp()
+        dh_unity_lewis = np.ptp(self.sim.enthalpy_mass)
 
         self.sim.transport_model = 'mixture-averaged'
         self.sim.solve(loglevel=0)
-        dh_mix = self.sim.enthalpy_mass.ptp()
+        dh_mix = np.ptp(self.sim.enthalpy_mass)
 
         # deviation of enthalpy should be much lower for unity Le model (tends
         # towards zero as grid is refined)
