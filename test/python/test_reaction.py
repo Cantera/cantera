@@ -1978,9 +1978,16 @@ class StickReactionTests(InterfaceReactionTests):
     _sticking_species = None
     _sticking_order = None
 
+    def setUp(self):
+        weight = self.gas[self._sticking_species].molecular_weights[0]
+        self._rate_obj.sticking_species = self._sticking_species
+        self._rate_obj.sticking_order = self._sticking_order
+        self._rate_obj.sticking_weight = weight
+        self._rate_obj.motz_wise_correction = "Motz-Wise" in self._yaml
+
     def finalize(self, rxn):
         rxn = super().finalize(rxn)
-        weight = self.gas.molecular_weights[self.gas.species_index(self._sticking_species)]
+        weight = self.gas[self._sticking_species].molecular_weights[0]
         rxn.rate.sticking_species = self._sticking_species
         rxn.rate.sticking_order = self._sticking_order
         rxn.rate.sticking_weight = weight
