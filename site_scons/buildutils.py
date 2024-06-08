@@ -962,9 +962,9 @@ def compare_profiles(
         "pos. err"
     ))
     header.append(f"{10*'-'}  -----  {14*'-'}  {14*'-'}  {9*'-'}  {9*'-'}  {9*'-'}")
-    ref_ptp = reference.ptp(axis=1)
+    ref_ptp = np.ptp(reference, axis=1)
     ref_max = np.abs(reference).max(axis=1)
-    sample_ptp = sample.ptp(axis=1)
+    sample_ptp = np.ptp(sample, axis=1)
     sample_max = np.abs(sample).max(axis=1)
     scale = np.maximum(
         np.maximum(ref_ptp[1:], ref_max[1:]),

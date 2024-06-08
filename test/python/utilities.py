@@ -181,10 +181,10 @@ def compareProfiles(reference, sample, rtol=1e-5, atol=1e-12, xtol=1e-5):
     bad = []
     template = '{0:9.4e}  {1: 3d}   {2:14.7e}  {3:14.7e}  {4:9.3e}  {5:9.3e}  {6:9.3e}'
     for i in range(1, nVars):
-        scale = max(max(abs(reference[i])), reference[i].ptp(),
-                    max(abs(sample[i])), sample[i].ptp())
+        scale = max(max(abs(reference[i])), np.ptp(reference[i]),
+                    max(abs(sample[i])), np.ptp(sample[i]))
         slope = np.zeros(nTimes)
-        slope[1:] = np.diff(reference[i]) / np.diff(reference[0]) * reference[0].ptp()
+        slope[1:] = np.diff(reference[i]) / np.diff(reference[0]) * np.ptp(reference[0])
 
         comp = np.interp(reference[0], sample[0], sample[i])
         for j in range(nTimes):
