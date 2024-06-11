@@ -75,6 +75,11 @@ ReactionRateFactory::ReactionRateFactory()
         return new PlogRate(node, rate_units);
     });
 
+    // LmrRate evaluator
+    reg("LMR_R", [](const AnyMap& node, const UnitStack& rate_units) {
+        return new LmrRate(node, rate_units);
+    });
+
     // ChebyshevRate evaluator
     reg("Chebyshev", [](const AnyMap& node, const UnitStack& rate_units) {
         return new ChebyshevRate(node, rate_units);
