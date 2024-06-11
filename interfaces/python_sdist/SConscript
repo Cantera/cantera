@@ -134,7 +134,13 @@ sdist(localenv.RecursiveInstall("cantera",
                                 "#interfaces/cython/cantera",
                                 exclude=["__pycache__"]))
 sdist(localenv.RecursiveInstall("cantera/data",
-                                "#build/data"))
+                                "#data"))
+
+if localenv["example_data"]:
+    # Add example_data directory to setup.cfg
+    localenv["cfg_example_data"] = "cantera.data.example_data"
+else:
+    localenv["cfg_example_data"] = ""
 
 # Copy the minimal Sundials configuration template into the sdist so that
 # it can be filled in at compile time on the user's machine

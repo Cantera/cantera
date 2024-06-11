@@ -51,6 +51,7 @@ packages =
     cantera.examples
     cantera.test
     cantera.with_units
+    @cfg_example_data@
 
 # These options include data in the sdist and wheel if the files are also listed in
 # MANIFEST.in. Note that only files that are inside the "cantera" packages will be
