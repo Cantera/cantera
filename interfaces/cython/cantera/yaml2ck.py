@@ -318,6 +318,7 @@ def build_thermodynamics_text(
         fmt_data["coeff_11_14"] = four_coeff_line.format(*low_coeffs[3:])
         text = fmt.format(**fmt_data)
         if comment:
+            comment = comment.replace("\n", "\n!")
             text = f"!{comment}\n" + text
         thermo_data[spec.name] = text
 
