@@ -3,6 +3,8 @@ coverage:
 
   ignore:
   - ext/.*
+  - test/.*
+  - test_problems/.*
 
 comment:
   behavior: once
