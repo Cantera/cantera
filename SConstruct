@@ -270,10 +270,6 @@ config_options = [
            Cython) are installed. Note: 'y' is a synonym for 'full' and 'n'
            is a synonym for 'none'.""",
         "default", ("full", "minimal", "none", "n", "y", "default")),
-    BoolOption(
-        "python_sdist",
-        """Setting this option to True builds the Python sdist.""",
-        False),
     PathOption(
         "python_cmd",
         """Cantera needs to know where to find the Python interpreter. If
@@ -926,15 +922,14 @@ if 'doxygen' in COMMAND_LINE_TARGETS:
     env['doxygen_docs'] = True
 if 'sphinx' in COMMAND_LINE_TARGETS:
     env['sphinx_docs'] = True
-if "sdist" in COMMAND_LINE_TARGETS:
-    env["python_sdist"] = True
 
-    if env["python_package"] == "default":
-        logger.info("'sdist' target was specified. Setting 'python_package' to none.")
-        env["python_package"] = "none"
-    elif env["python_package"] in ("full", "y"):
-        logger.error("'sdist' target was specified. Cannot also build Python package.")
+if "sdist" in COMMAND_LINE_TARGETS:
+    if len(COMMAND_LINE_TARGETS) > 1:
+        logger.error("'sdist' target cannot be built simultaneously with other targets.")
         sys.exit(1)
+
+    env["python_sdist"] = True
+    env["python_package"] = "none"
     for ext_dependency in ("sundials", "fmt", "yamlcpp", "eigen", "highfive"):
         if env[f"system_{ext_dependency}"] == "y":
             logger.error(f"'sdist' target was specified. Cannot use 'system_{ext_dependency}'.")
@@ -944,6 +939,8 @@ if "sdist" in COMMAND_LINE_TARGETS:
 
     logger.info("'sdist' target was specified. Setting 'use_pch' to False.")
     env["use_pch"] = False
+else:
+    env["python_sdist"] = False
 
 for arg in ARGUMENTS:
     if arg not in config:
