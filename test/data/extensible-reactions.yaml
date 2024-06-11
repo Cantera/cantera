@@ -8,8 +8,21 @@ phases:
   species: [{h2o2.yaml/species: all}]
   kinetics: gas
   state: {T: 300.0, P: 1 atm}
+- name: surface
+  thermo: ideal-surface
+  adjacent-phases: [gas]
+  species: [{ptcombust.yaml/species: all}]
+  kinetics: surface
+  reactions: [surface-reactions]
 
 reactions:
 - equation: H + O2 = HO2
   type: square-rate
   A: 3.14
+
+surface-reactions:
+- equation: H(S) + OH(S) <=> H2O(S) + PT(S)
+  type: foo-rate
+  rate-constant: {}
+  A: 1.3e+14
+  E: 71.3
