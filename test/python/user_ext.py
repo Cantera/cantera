@@ -47,7 +47,7 @@ class FooRateData(ct.ExtensibleRateData):
         return True
 
 
-@ct.extension(name="interface-foo-rate", data=FooRateData)
+@ct.extension(name="foo-rate", data=FooRateData)
 class FooRate(ct.ExtensibleRate):
     __slots__ = ("A", "E")
 

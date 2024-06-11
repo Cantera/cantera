@@ -23,6 +23,5 @@ reactions:
 surface-reactions:
 - equation: H(S) + OH(S) <=> H2O(S) + PT(S)
   type: foo-rate
-  rate-constant: {}
   A: 1.3e+14
   E: 71.3
