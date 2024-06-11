@@ -1716,6 +1716,13 @@ class TestExtensible2(utilities.CanteraTest):
         assert user_ext.SquareRate.use_count[0] == initialRate
         assert user_ext.SquareRateData.use_count[0] == initialData
 
+    def test_interface_rate(self):
+        surf = ct.Interface("extensible-reactions.yaml", "surface")
+        assert surf.n_reactions == 1
+        T = 432.0
+        surf.adjacent["gas"].TP = T, ct.one_atm
+        assert surf.forward_rate_constants[0] == approx(1.3e14 * np.exp(-71.3 / T))
+
 
 @ct.extension(name="user-rate-2", data=UserRate1Data)
 class UserRate2(ct.ExtensibleRate):
