@@ -321,22 +321,18 @@ jobs:
         name: Checkout the repository
         with:
           submodules: recursive
-      - name: Set up conda
-        uses: conda-incubator/setup-miniconda@v3
+      - name: Set up micromamba
+        uses: mamba-org/setup-micromamba@v1
         with:
-          auto-update-conda: true
-          python-version: "3.11"
-          miniforge-variant: Mambaforge
-          miniforge-version: latest
-          activate-environment: test
+          environment-name: test-env
+          create-args: >-
+            python=3.11 doxygen=1.9.7 scons pip scikits.odes
+          post-cleanup: none
       - name: Install Apt dependencies
         run: |
           sudo apt update
           sudo apt install libboost-dev graphviz texlive-bibtex-extra \
             libblas-dev liblapack-dev libhdf5-dev libfmt-dev libsundials-dev
-      - name: Install conda dependencies
-        run: |
-          mamba install doxygen=1.9.7 scons pip scikits.odes
       - name: Upgrade pip
         run: pip install -U pip setuptools wheel
       - name: Install Python dependencies
@@ -497,20 +493,17 @@ jobs:
         name: Checkout the repository
         with:
           submodules: recursive
-      - uses: conda-incubator/setup-miniconda@v3
+      - name: Set up micromamba
+        uses: mamba-org/setup-micromamba@v1
         with:
-          auto-update-conda: true
-          python-version: ${{ env.PYTHON_VERSION }}
-          miniforge-version: latest
-          activate-environment: test
-        name: Set up conda
-      - name: Install conda dependencies
-        # See https://github.com/conda-forge/boost-cpp-feedstock/issues/41 for why we
-        # use boost-cpp rather than boost from conda-forge
-        run: |
-          conda install -q sundials=${{ matrix.sundials-ver }} scons numpy ruamel.yaml \
-          cython boost-cpp fmt=${{ matrix.fmt-ver }} eigen yaml-cpp pandas \
-          libgomp openblas pytest pytest-xdist highfive python-graphviz
+          environment-name: test-env
+          # See https://github.com/conda-forge/boost-cpp-feedstock/issues/41 for why we
+          # use boost-cpp rather than boost from conda-forge
+          create-args: >-
+            python=${{ env.PYTHON_VERSION }} sundials=${{ matrix.sundials-ver }} scons
+            numpy ruamel.yaml cython boost-cpp fmt=${{ matrix.fmt-ver }} eigen yaml-cpp
+            pandas libgomp openblas pytest pytest-xdist highfive python-graphviz
+          post-cleanup: none
       - name: Build Cantera
         run: |
           scons build system_fmt=y system_eigen=y system_yamlcpp=y system_sundials=y \
@@ -564,22 +557,19 @@ jobs:
       name: Checkout the repository
       with:
         submodules: recursive
-    - name: Set up conda
-      uses: conda-incubator/setup-miniconda@v3
+    - name: Set up micromamba
+      uses: mamba-org/setup-micromamba@v1
       with:
-        auto-update-conda: true
-        python-version: ${{ matrix.python-version }}
-        miniforge-variant: Mambaforge
-        miniforge-version: latest
-        activate-environment: test
-        run-post: false
-    - name: Install conda dependencies
-      # See https://github.com/conda-forge/boost-cpp-feedstock/issues/41 for why we
-      # use boost-cpp rather than boost from conda-forge
-      # Install SCons >=4.4.0 to make sure that MSVC_TOOLSET_VERSION variable is present
-      run: |
-        mamba install scons numpy cython ruamel.yaml boost-cpp eigen yaml-cpp pandas pytest pytest-xdist highfive pint python-graphviz fmt=${{ matrix.fmt-ver }}
-      shell: pwsh
+        environment-name: test-env
+        # See https://github.com/conda-forge/boost-cpp-feedstock/issues/41 for why we
+        # use boost-cpp rather than boost from conda-forge
+        # Install SCons >=4.4.0 to make sure that MSVC_TOOLSET_VERSION variable is present
+        create-args: >-
+          python=${{ matrix.python-version }} scons numpy cython ruamel.yaml boost-cpp
+          eigen yaml-cpp pandas pytest pytest-xdist highfive pint python-graphviz
+          fmt=${{ matrix.fmt-ver }}
+        init-shell: powershell bash
+        post-cleanup: none
     - name: Build Cantera
       run: scons build system_eigen=y system_yamlcpp=y system_highfive=y logging=debug
         toolchain=msvc f90_interface=n debug=n --debug=time -j4
@@ -816,21 +806,19 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       name: Checkout the repository
-    - name: Set up conda
-      uses: conda-incubator/setup-miniconda@v3
-      with:
-        auto-update-conda: true
-        python-version: "3.11"
-        miniforge-variant: Mambaforge
-        miniforge-version: latest
-        activate-environment: test
     - name: Install Python dependencies
+      # Install for the default system Python 3, which is used by 'dotnet build'
       run: python3 -m pip install ruamel.yaml
-    - name: Install library dependencies with Conda (Windows)
-      # fmt needs to match the version of the windows-2022 runner selected to upload
-      # the cantera_shared.dll artifact
-      run: mamba install yaml-cpp mkl highfive fmt=9.1
-      shell: pwsh
+    - name: Install library dependencies with micromamba (Windows)
+      uses: mamba-org/setup-micromamba@v1
+      with:
+        environment-name: test-env
+        # fmt needs to match the version of the windows-2022 runner selected to upload
+        # the cantera_shared.dll artifact
+        create-args: >-
+          yaml-cpp mkl highfive fmt=9.1
+        init-shell: bash powershell
+        post-cleanup: none
       if: matrix.os == 'windows-2022'
     - name: Install Brew dependencies (macOS)
       run: brew install --display-times hdf5
