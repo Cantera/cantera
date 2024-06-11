@@ -113,7 +113,7 @@ Reaction::Reaction(const AnyMap& node, const Kinetics& kin)
             if (!ba::starts_with(rate_type, "sticking-")) {
                 rateNode["type"] = "sticking-" + rate_type;
             }
-        } else {
+        } else if (rate_type == "Arrhenius") { // no explicitly-specified type
             throw InputFileError("Reaction::Reaction", input,
                 "Unable to infer interface reaction type.");
         }

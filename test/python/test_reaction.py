@@ -1722,6 +1722,9 @@ class TestExtensible2(utilities.CanteraTest):
         T = 432.0
         surf.adjacent["gas"].TP = T, ct.one_atm
         assert surf.forward_rate_constants[0] == approx(1.3e14 * np.exp(-71.3 / T))
+        input_data = surf.reaction(0).input_data
+        assert input_data["type"] == "foo-rate"
+        assert "rate-constant" not in input_data
 
 
 @ct.extension(name="user-rate-2", data=UserRate1Data)
