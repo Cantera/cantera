@@ -704,9 +704,9 @@ def convert(
         ]
         thermo_path.write_text("\n".join(thermo_text))
 
-    # TODO: Handle phases without reactions
     all_reactions = solution.reactions()
-    mechanism_text.append(build_reactions_text(all_reactions, all_species))
+    if all_reactions:
+        mechanism_text.append(build_reactions_text(all_reactions, all_species))
 
     if transport_path is None and transport_exists:
         mechanism_text.append(build_transport_text(all_species, separate_file=False))
