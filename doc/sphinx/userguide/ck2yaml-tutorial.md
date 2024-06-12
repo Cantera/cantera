@@ -58,6 +58,7 @@ thermo file. For example:
 ck2yaml --thermo=therm.dat
 ```
 
+(sec-debugging-chemkin)=
 ## Debugging common errors in CK files
 
 When `ck2yaml` encounters an error, it attempts to print the surrounding information to

@@ -33,6 +33,8 @@ This page provides some notes on useful syntax for writing in these various form
   - `[](/absolute-subdir/docname)` (automatically get the text from `docname`'s title)
   - `[link text](relative-subdir/docname)` (explicitly specified link text)
   - source file extension is optional
+- Linking to examples:
+  - ``` [`example_name.py`](/examples/python/subdir/example_name) ```
 - Linking to a labeled section:
   - `[Build Commands](sec-build-commands)`
 - Labeling a section: Above the heading, write:
