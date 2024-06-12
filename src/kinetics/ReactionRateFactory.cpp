@@ -14,6 +14,7 @@
 #include "cantera/kinetics/Custom.h"
 #include "cantera/kinetics/ElectronCollisionPlasmaRate.h"
 #include "cantera/kinetics/Falloff.h"
+#include "cantera/kinetics/LmrRate.h"
 #include "cantera/kinetics/InterfaceRate.h"
 #include "cantera/kinetics/PlogRate.h"
 #include "cantera/kinetics/TwoTempPlasmaRate.h"
