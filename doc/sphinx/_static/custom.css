@@ -47,3 +47,10 @@ div.admonition.tip>.admonition-title:after {
   color:var(--pst-color-info);
   content:var(--pst-icon-admonition-tip)
 }
+
+div.highlight pre {
+    /* Reduced padding around code blocks from default of 1 rem */
+    padding: .5rem;
+    /* Slight reduction in font size so 80 characters fit on most display sizes */
+    font-size: 0.78rem;
+}
