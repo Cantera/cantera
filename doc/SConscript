@@ -54,10 +54,14 @@ if localenv['sphinx_docs']:
                                     "#CONTRIBUTING.md",
                                     Copy("$TARGET", "$SOURCE"))
 
+    copy_switcher = localenv.Command("#build/doc/html/dev/_static/doc-versions.json",
+                                     "sphinx/_static/doc-versions.json",
+                                     Copy("$TARGET", "$SOURCE"))
+
     sphinxdocs = build(localenv.Command('#build/doc/html/index.html',
         'sphinx/conf.py', build_sphinx))
     env.Alias('sphinx', sphinxdocs)
-    env.Depends(sphinxdocs, [copy_sphinx, copy_contrib])
+    env.Depends(sphinxdocs, [copy_sphinx, copy_contrib, copy_switcher])
     env.Depends(sphinxdocs, [copy_python_samples, copy_matlab_ex_samples])
     env.Depends(sphinxdocs, env['python_module'])
 

@@ -325,7 +325,6 @@ html_theme_options = {
     "primary_sidebar_end": ["numfocus"],
     "switcher": {
         "json_url": "/dev/_static/doc-versions.json",
-        # "json_url": "https://cantera.org/doc-versions.json",
         "version_match": version,
     },
     "check_switcher": False,
