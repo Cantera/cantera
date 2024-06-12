@@ -5,6 +5,7 @@
 #ifndef CT_LMRRATE_H
 #define CT_LMRRATE_H
 #include "cantera/kinetics/Arrhenius.h"
+#include <boost/variant.hpp>
 #include "cantera/kinetics/Falloff.h"
 #include "cantera/kinetics/ChebyshevRate.h"
 #include "cantera/kinetics/PlogRate.h"
@@ -44,7 +45,7 @@ struct LmrData : public ReactionData{
     vector<double> moleFractions;
     int mfNumber; 
     vector<string> allSpecies; //list of all yaml species (not just those for which LMRR data exists)  
-    
+
 // protected:
     double m_pressure_buf = -1.0; //!< buffered pressure
 };
@@ -63,7 +64,17 @@ public:
     const string type() const override { return "LMR_R"; } //! Identifier of reaction rate type
 
     // map<string, pair<const AnyMap&,const UnitStack&>> colliderInfo;
+    // map<string, AnyMap> colliderInfo;
     map<string, AnyMap> colliderInfo;
+    using RateTypes = boost::variant<PlogRate, TroeRate, ChebyshevRate>;
+    vector<RateTypes> rateObjs;
+    using DataTypes = boost::variant<PlogData, FalloffData, ChebyshevData>;
+    vector<DataTypes> dataObjs;
+    //     vector<std::any> rateObjs;
+    // vector<std::any> dataObjs;
+    vector<AnyMap> colliderNodes;
+    vector<ArrheniusRate> eigObjs;
+
     
     void setParameters(const AnyMap& node, const UnitStack& rate_units) override;
     void getParameters(AnyMap& rateNode, const Units& rate_units) const;
@@ -76,9 +87,9 @@ public:
     // void syncChebData(const LmrData& shared_data, ChebyshevData cheb_data);
 
     // void syncPlogData(const LmrData& shared_data, PlogData);
-    double evalPlogRate(map<string,AnyMap>::iterator it);
-    double evalTroeRate(map<string,AnyMap>::iterator it);
-    double evalChebyshevRate(map<string,AnyMap>::iterator it);
+    // double evalPlogRate(map<string,AnyMap>::iterator it);
+    // double evalTroeRate(map<string,AnyMap>::iterator it);
+    // double evalChebyshevRate(map<string,AnyMap>::iterator it);
 
     double evalFromStruct(const LmrData& shared_data);
     void validate(const string& equation, const Kinetics& kin) override; //removed from cpp, but re-insert later
@@ -111,7 +122,7 @@ public:
     // vector<string> speciesList_;
 
     double logPeff_;
-    double eig0_mix_=0.0;
+    // double eig0_mix_=0.0;
     double k_LMR_;
 
 protected:
