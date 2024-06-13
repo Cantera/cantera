@@ -178,7 +178,7 @@ public:
         OneDim::eval(npos, m_state->data(), m_xnew.data(), rdt, count);
     }
 
-    // Evaluate the governing equations and return the vector of residuals
+    //! Evaluate the governing equations and return the vector of residuals
     void getResidual(double rdt, double* resid) {
         OneDim::eval(npos, m_state->data(), resid, rdt, 0);
     }
@@ -195,14 +195,12 @@ public:
     //! Return location of the point where temperature is fixed
     double fixedTemperatureLocation();
 
-    //! Two-Point flame control method
-    //! Sets the left control point location. This is used when
-    //! two-point flame control is active.
+    //! Set the left control point location.
+    //! This is used when two-point flame control is active.
     void setLeftControlPoint(double temperature);
 
-    //! Two-Point flame control method
-    //! Sets the right  control point location. This is used when
-    //! two-point flame control is active.
+    //! Sets the right  control point location.
+    //! This is used when two-point flame control is active.
     void setRightControlPoint(double temperature);
 
     /**
