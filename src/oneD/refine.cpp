@@ -186,7 +186,8 @@ int Refiner::analyze(size_t n, const double* z, const double* x)
         }
 
         // Keep the point if it is a control point used for two-point flame control
-        if (fflame && fflame->twoPointControlEnabled() && (z[j] == fflame->m_zLeft || z[j] == fflame->m_zRight)) {
+        if (fflame && fflame->twoPointControlEnabled() &&
+            (z[j] == fflame->leftControlPointCoordinate() || z[j] == fflame->rightControlPointCoordinate())) {
             m_keep[j] = 1;
         }
 

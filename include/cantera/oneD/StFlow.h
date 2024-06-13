@@ -255,7 +255,9 @@ public:
 
     void fixTemperature(size_t j=npos);
 
-    /** Two-Point control method
+    /**
+     * @name Two-Point control method
+     *
      * In this method two control points are designated in the 1D domain, and
      * the value of the temperature at these points is fixed. The values of the control
      * points are imposed and thus serve as a boundary condition that affects the
@@ -271,8 +273,9 @@ public:
      * also determined from the flow solution by using the oxidizer axial velocity equation variable to
      * compute the mass flux at the right boundary.
      *
-     * This method is based on the work of Nishioka et al. @cite nishioka1996
-     **/
+     * This method is based on the work of Nishioka et al. @cite nishioka1996 .
+     */
+    //! @{
 
     //! Returns the temperature at the left control point
     double leftControlPointTemperature() const {
@@ -315,6 +318,16 @@ public:
             }
         } else {
             throw CanteraError("StFlow::setLeftControlPointTemperature",
+                 "Invalid operation: two-point control is not enabled.");
+        }
+    }
+
+    //! Sets the coordinate of the left control point
+    void setLeftControlPointCoordinate(double z_left) {
+        if (m_twoPointControl) {
+                m_zLeft = z_left;
+        } else {
+            throw CanteraError("StFlow::setLeftControlPointCoordinate",
                  "Invalid operation: two-point control is not enabled.");
         }
     }
@@ -364,15 +377,31 @@ public:
         }
     }
 
+    //! Sets the coordinate of the right control point
+    void setRightControlPointCoordinate(double z_right) {
+        if (m_twoPointControl) {
+                m_zRight = z_right;
+        } else {
+            throw CanteraError("StFlow::setRightControlPointCoordinate",
+                 "Invalid operation: two-point control is not enabled.");
+        }
+    }
+
     //! Sets the status of the two-point control
     void enableTwoPointControl(bool twoPointControl) {
-        m_twoPointControl = twoPointControl;
+        if (m_usesLambda){
+            m_twoPointControl = twoPointControl;
+        } else {
+            throw CanteraError("StFlow::enableTwoPointControl",
+                "Invalid operation: two-point control can only be used with axisymmetric flames.");
+        }
     }
 
     //! Returns the status of the two-point control
     bool twoPointControlEnabled() const {
         return m_twoPointControl;
     }
+    //! @}
 
     bool doEnergy(size_t j) {
         return m_do_energy[j];
@@ -609,13 +638,13 @@ protected:
      *
      * The function calculates the oxidizer axial velocity equation as
      * @f[
-     *    \frac{d\U_{o}}{dz} = 0
+     *    \frac{dU_{o}}{dz} = 0
      * @f]
      *
      * This equation serves as a dummy equation that is used only in the context
      * of two-point flame control, and serves as the way for two interior control
      * points to be specified while maintaining block tridiagonal structure. The
-     * default boundary condition is @f$ \U_o = 0 @f$
+     * default boundary condition is @f$ U_o = 0 @f$
      * at the right and zero flux at the left boundary.
      *
      * For argument explanation, see evalContinuity().
@@ -680,6 +709,7 @@ protected:
         return x[index(c_offset_L, j)];
     }
 
+    //! Solution component for oxidizer velocity, @see evalUo
     double Uo(const double* x, size_t j) const {
         return x[index(c_offset_Uo, j)];
     }
@@ -832,26 +862,24 @@ protected:
     //! Flag for activating two-point flame control
     bool m_twoPointControl = false;
 
+    //! Location of the left control point when two-point control is enabled
+    double m_zLeft = Undef;
+
+    //! Temperature of the left control point when two-point control is enabled
+    double m_tLeft = Undef;
+
+    //! Location of the right control point when two-point control is enabled
+    double m_zRight = Undef;
+
+    //! Temperature of the right control point when two-point control is enabled
+    double m_tRight = Undef;
+
 public:
     //! Location of the point where temperature is fixed
     double m_zfixed = Undef;
 
     //! Temperature at the point used to fix the flame location
     double m_tfixed = -1.0;
-
-    //! Two-point control: Location of the left control point
-    double m_zLeft = Undef;
-
-    //! Two-point control: Temperature of the left control point
-    double m_tLeft = Undef;
-
-    //! Two-point control: Location of the right control point
-    double m_zRight = Undef;
-
-    //! Two-point control: Temperature of the right control point
-    double m_tRight = Undef;
-    //! -------------
-
 
 private:
     vector<double> m_ybar;

@@ -1174,18 +1174,27 @@ class TestDiffusionFlame(utilities.CanteraTest):
 
     def test_two_point_control(self):
         """
-        Computes a solution using a standard counterflow diffusion flame, and then
-        recomputes the solution with two-point control enabled. No temperature decrement is
-        used for the two-point control, so the solutions should be the same.
+        Computes a solution using a standard counterflow diffusion flame as a
+        starting solution. The tests then do the following:
+          1.) Recomputes the solution with two-point control enabled with no
+              temperature decrement is used for the two-point control. Solutions
+              should be the same.
+
+          2.) Recomputes the solution with two-point control enabled with a fixed
+              temperature decrement, then undoes the temperature decrement. Solutions
+              should be the same.
+
+          3.) Saves and restores the flame object to ensure that the two-point control
+              settings are saved and restored correctly.
         """
         p = ct.one_atm
-        fuel='H2:1.0, AR:1.0'
-        T_fuel=300
-        mdot_fuel=0.05
-        oxidizer='O2:0.21, AR:0.78'
-        T_ox=300
-        mdot_ox=0.1
-        width=0.05
+        fuel = 'H2:1.0, AR:1.0'
+        T_fuel = 300
+        mdot_fuel = 0.05
+        oxidizer = 'O2:0.21, AR:0.78'
+        T_ox = 300
+        mdot_ox = 0.1
+        width = 0.05
 
         # Solution object used to compute mixture properties
         gas = ct.Solution("h2o2.yaml")
@@ -1203,7 +1212,8 @@ class TestDiffusionFlame(utilities.CanteraTest):
         sim.oxidizer_inlet.X = oxidizer
         sim.oxidizer_inlet.T = T_ox
 
-        sim.solve(loglevel=2)
+        sim.flame.set_steady_tolerances(default=[1.0e-5, 1.0e-11])
+        sim.solve(loglevel=0)
         temperature_1 = sim.T
 
         sim.two_point_control_enabled = True
@@ -1211,11 +1221,43 @@ class TestDiffusionFlame(utilities.CanteraTest):
         control_temperature = np.min(sim.T) + spacing * (np.max(sim.T) - np.min(sim.T))
         sim.set_left_control_point(control_temperature)
         sim.set_right_control_point(control_temperature)
-        sim.solve(loglevel=2)
+        sim.solve(loglevel=0, refine_grid=False)
         temperature_2 = sim.T
 
         # Check difference between the two solutions
         self.assertArrayNear(temperature_1, temperature_2, rtol=1e-4, atol=1e-6)
+
+
+        # Test 2
+        temperature_decrement = 5
+        sim.right_control_point_temperature -= temperature_decrement
+        sim.left_control_point_temperature -= temperature_decrement
+        sim.solve(loglevel=0, refine_grid=False)
+
+        sim.right_control_point_temperature += temperature_decrement
+        sim.left_control_point_temperature += temperature_decrement
+        sim.solve(loglevel=0, refine_grid=False)
+        temperature_4 = sim.T
+
+        # Check the difference between the un-perturbed two-point solution and the
+        # round-trip solution.
+        self.assertArrayNear(temperature_2, temperature_4, rtol=1e-4, atol=1e-6)
+
+        # Test 3
+        filename = self.test_work_path / "two_point_control.yaml"
+
+        original_settings = sim.flame.settings
+        sim.save(filename)
+        sim.restore(filename)
+        filename.unlink()
+
+        restored_settings = sim.flame.settings
+        assert 'continuation-method' in restored_settings
+        assert restored_settings['continuation-method']['type'] == original_settings['continuation-method']['type']
+        assert restored_settings['continuation-method']['left-location'] == original_settings['continuation-method']['left-location']
+        assert restored_settings['continuation-method']['right-location'] == original_settings['continuation-method']['right-location']
+        assert restored_settings['continuation-method']['left-temperature'] == original_settings['continuation-method']['left-temperature']
+        assert restored_settings['continuation-method']['right-temperature'] == original_settings['continuation-method']['right-temperature']
 
 class TestCounterflowPremixedFlame(utilities.CanteraTest):
     # Note: to re-create the reference file:

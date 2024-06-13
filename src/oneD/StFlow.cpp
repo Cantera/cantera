@@ -533,10 +533,9 @@ void StFlow::evalLambda(double* x, double* rsd, int* diag,
     // j0 and j1 are constrained to only interior points
     size_t j0 = std::max<size_t>(jmin, 1);
     size_t j1 = std::min(jmax, m_points - 2);
-    double epsilon = 1e-8; // Precision threshold for being 'equal' to a coordinate
     for (size_t j = j0; j <= j1; j++) { // interior points
         if (m_twoPointControl) {
-            if (std::abs(grid(j) - m_zLeft) < epsilon ) {
+            if (grid(j) == m_zLeft) {
                 rsd[index(c_offset_L, j)] = T(x,j) - m_tLeft;
             } else if (grid(j) > m_zLeft) {
                 rsd[index(c_offset_L, j)] = lambda(x,j) - lambda(x,j-1);
@@ -599,9 +598,6 @@ void StFlow::evalUo(double* x, double* rsd, int* diag,
     }
 
     if (jmin == 0) { // left boundary
-        // Because the Uo equation is used for two-point control, the boundary
-        // for Uo is located in the domain interior at the right control point,
-        // thus at the boundary, the
         rsd[index(c_offset_Uo,jmin)] = Uo(x,jmin+1) - Uo(x,jmin);
     }
 
@@ -615,10 +611,9 @@ void StFlow::evalUo(double* x, double* rsd, int* diag,
     // j0 and j1 are constrained to only interior points
     size_t j0 = std::max<size_t>(jmin, 1);
     size_t j1 = std::min(jmax, m_points - 2);
-    double epsilon = 1e-8; // Precision threshold for being 'equal' to a coordinate
     for (size_t j = j0; j <= j1; j++) { // interior points
         if (m_twoPointControl) {
-            if (std::abs(grid(j) - m_zRight) < epsilon) {
+            if (grid(j) == m_zRight) {
                 rsd[index(c_offset_Uo, j)] = T(x,j) - m_tRight;
             } else if (grid(j) > m_zRight) {
                 rsd[index(c_offset_Uo, j)] = Uo(x,j) - Uo(x,j-1);
@@ -906,11 +901,11 @@ AnyMap StFlow::getMeta() const
 
     // Two-point control meta data
     if (m_twoPointControl) {
-        state["point-control"]["type"] = "two-point";
-        state["point-control"]["left-location"] = m_zLeft;
-        state["point-control"]["right-location"] = m_zRight;
-        state["point-control"]["left-temperature"] = m_tLeft;
-        state["point-control"]["right-temperature"] = m_tRight;
+        state["continuation-method"]["type"] = "two-point";
+        state["continuation-method"]["left-location"] = m_zLeft;
+        state["continuation-method"]["right-location"] = m_zRight;
+        state["continuation-method"]["left-temperature"] = m_tLeft;
+        state["continuation-method"]["right-temperature"] = m_tRight;
     }
 
     return state;
@@ -1041,14 +1036,17 @@ void StFlow::setMeta(const AnyMap& state)
     }
 
     // Two-point control meta data
-    if (state.hasKey("point-control")) {
-        const AnyMap& pc = state["point-control"].as<AnyMap>();
-        if (pc["type"] == "two-point") {
+    if (state.hasKey("continuation-method")) {
+        const AnyMap& cm = state["continuation-method"].as<AnyMap>();
+        if (cm["type"] == "two-point") {
             m_twoPointControl = true;
-            m_zLeft = pc["left-location"].asDouble();
-            m_zRight = pc["right-location"].asDouble();
-            m_tLeft = pc["left-temperature"].asDouble();
-            m_tRight = pc["right-temperature"].asDouble();
+            m_zLeft = cm["left-location"].asDouble();
+            m_zRight = cm["right-location"].asDouble();
+            m_tLeft = cm["left-temperature"].asDouble();
+            m_tRight = cm["right-temperature"].asDouble();
+        } else{
+            warn_user("StFlow::setMeta", "Unknown continuation method '{}'.",
+                cm["type"].asString());
         }
     }
 }
