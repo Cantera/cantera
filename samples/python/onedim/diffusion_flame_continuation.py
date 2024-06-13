@@ -209,8 +209,8 @@ for i in range(500):
     f.set_left_control_point(control_temperature)
     f.set_right_control_point(control_temperature)
 
-    f.tLeft -= temperature_increment
-    f.tRight -= temperature_increment
+    f.left_control_point_temperature -= temperature_increment
+    f.right_control_point_temperature -= temperature_increment
 
     try:
         f.solve(loglevel=0)

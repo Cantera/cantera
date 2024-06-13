@@ -649,32 +649,32 @@ cdef class FlowBase(Domain1D):
         else:
             self.flow.fixElectricField()
 
-    property tLeft:
-        """ Left control point temperature [K] """
+    property left_control_point_temperature:
+        """ Get/Set the left control point temperature [K] """
         def __get__(self):
             return self.flow.leftControlPointTemperature()
         def __set__(self, T):
             self.flow.setLeftControlPointTemperature(T)
 
-    property tRight:
-        """ Right control point temperature [K] """
+    property right_control_point_temperature:
+        """ Get/Set the right control point temperature [K] """
         def __get__(self):
             return self.flow.rightControlPointTemperature()
         def __set__(self, T):
             self.flow.setRightControlPointTemperature(T)
 
-    property zLeft:
-        """ Left control point temperature [K] """
+    property left_control_point_coordinate:
+        """ Get the left control point coordinate [m] """
         def __get__(self):
             return self.flow.leftControlPointCoordinate()
 
-    property zRight:
-        """ Right control point temperature [K] """
+    property right_control_point_coordinate:
+        """ Get the right control point coordinate [m] """
         def __get__(self):
             return self.flow.rightControlPointCoordinate()
-        
+
     property two_point_control_enabled:
-        """ Determines whether or not to enable two point flame control"""
+        """ Get/Set the state of the two-point flame control """
         def __get__(self):
             return self.flow.twoPointControlEnabled()
         def __set__(self, enable):
@@ -1338,9 +1338,11 @@ cdef class Sim1D:
 
     def set_left_control_point(self, T):
         """
-        Set the left control point using a specified temperature. This user-provided
+        Set the left control point using the specified temperature. This user-provided
         temperature will be used to locate the closest grid point to that temperature,
-        which will serve to locate the left control point's coordinate.
+        which will serve to locate the left control point's coordinate. Starting from
+        the left boundary, the first grid point that is equal to or exceeds the specified
+        temperature will be used to locate the left control point's coordinate.
         """
         self.sim.setLeftControlPoint(T)
 
@@ -1348,7 +1350,9 @@ cdef class Sim1D:
         """
         Set the right control point using a specified temperature. This user-provided
         temperature will be used to locate the closest grid point to that temperature,
-        which will serve to locate the right control point's coordinate.
+        which will serve to locate the right control point's coordinate.Starting from
+        the right boundary, the first grid point that is equal to or exceeds the specified
+        temperature will be used to locate the right control point's coordinate.
         """
         self.sim.setRightControlPoint(T)
 

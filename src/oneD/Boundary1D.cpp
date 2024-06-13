@@ -254,11 +254,9 @@ void Inlet1D::eval(size_t jg, double* xg, double* rg,
             // right boundary, which comes from the Uo variable. The variable Uo is
             // the left-moving velocity and has a negative value, so the mass flow has
             // to be negated to give a positive value when using Uo.
-            m_mdot = -(m_flow->density(last_index) * xb[c_offset_Uo]);
-            rb[c_offset_U] += m_mdot;
-        } else {
-            rb[c_offset_U] += m_mdot;
+            m_mdot = -m_flow->density(last_index) * xb[c_offset_Uo];
         }
+        rb[c_offset_U] += m_mdot;
 
         for (size_t k = 0; k < m_nsp; k++) {
             if (k != m_flow_left->rightExcessSpecies()) {

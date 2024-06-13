@@ -307,37 +307,37 @@ class FlameBase(Sim1D):
     def Uo(self):
         """
         Array containing the oxidizer velocity (right boundary velocity) [m/s] at
-        each point. Note: This value is only defined when using two-point control. 
+        each point. Note: This value is only defined when using two-point control.
         """
         return self.profile(self.flame, 'Uo')
 
     @property
-    def tLeft(self):
+    def left_control_point_temperature(self):
         """ Get/Set the left control point temperature [K] """
-        return self.flame.tLeft
+        return self.flame.left_control_point_temperature
 
-    @tLeft.setter
-    def tLeft(self, T):
-        self.flame.tLeft = T
+    @left_control_point_temperature.setter
+    def left_control_point_temperature(self, T):
+        self.flame.left_control_point_temperature = T
 
     @property
-    def zLeft(self):
+    def left_control_point_coordinate(self):
         """ Get the left control point coordinate [m] """
-        return self.flame.zLeft
+        return self.flame.left_control_point_coordinate
 
     @property
-    def tRight(self):
+    def right_control_point_temperature(self):
         """ Get/Set the right control point temperature [K] """
-        return self.flame.tRight
+        return self.flame.right_control_point_temperature
 
-    @tRight.setter
-    def tRight(self, T):
-        self.flame.tRight = T
+    @right_control_point_temperature.setter
+    def right_control_point_temperature(self, T):
+        self.flame.right_control_point_temperature = T
 
     @property
-    def zRight(self):
+    def right_control_point_coordinate(self):
         """ Get the right control point coordinate [m] """
-        return self.flame.zRight
+        return self.flame.right_control_point_coordinate
 
     def elemental_mass_fraction(self, m):
         r"""
