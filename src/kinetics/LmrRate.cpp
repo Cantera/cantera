@@ -116,8 +116,8 @@ void LmrRate::setParameters(const AnyMap& node, const UnitStack& rate_units){
 
 void LmrRate::setContext(const Reaction& rxn, const Kinetics& kin){   
     for (int i=1; i<names.size();i++){ //Starts at 1, because names[0] == "M"
-        // colliderIncides.push_back(kin.kineticsSpeciesIndex(names[i]));
-        colliderIncides.push_back(1);
+        colliderIncides.push_back(kin.kineticsSpeciesIndex(names[i]));
+        // colliderIncides.push_back(1);
     }
     nSpecies = kin.nTotalSpecies();
 }
