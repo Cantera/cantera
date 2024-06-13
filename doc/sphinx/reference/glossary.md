@@ -8,6 +8,10 @@ CK
 : Chemkin
 
 {.glossary}
+CSTR
+: [Continuous stirred tank reactor](/examples/python/reactors/continuous_reactor)
+
+{.glossary}
 CT
 : Cantera
 
@@ -18,6 +22,14 @@ CTI
 {.glossary}
 CTML
 : Cantera Markup Language *(Removed in Cantera 3.0)*
+
+{.glossary}
+DAE
+: Differential algebraic equation
+
+{.glossary}
+EOS / EoS
+: Equation of state
 
 {.glossary}
 HKFT
@@ -32,12 +44,32 @@ IAPWS
 : International Association for the Properties of Water and Steam
 
 {.glossary}
+IDT
+: Ignition delay time
+
+{.glossary}
 MFTP
 : Mixture Fugacity ThermoPhase
 
 {.glossary}
+NTC
+: Negative temperature coefficient
+
+{.glossary}
+ODE
+: Ordinary differential equation
+
+{.glossary}
 PDSS
 : Pressure-dependent standard state
+
+{.glossary}
+PFR
+: [Plug flow reactor](./reactors/pfr)
+
+{.glossary}
+PSR
+: [Perfectly stirred reactor](/examples/python/reactors/continuous_reactor)
 
 {.glossary}
 RT
@@ -78,3 +110,7 @@ VPSSTP
 {.glossary}
 wrt
 : with respect to
+
+{.glossary}
+WSR
+: [Well-stirred reactor](/examples/python/reactors/continuous_reactor)
