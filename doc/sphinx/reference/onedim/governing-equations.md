@@ -234,13 +234,63 @@ side of the peak flame temperature. An initial flame solution is used as a start
 the temperatures at the control points are lowered to produce a new flame solution that satisfies
 the governing equations and passes through the new temperatures at the control points.
 
-.. image:: /_static/images/two_point_control_diagram.svg
-   :width: 50%
-   :alt: Two-Point Flame Control Diagram
-   :align: center
+```{image} /_static/images/two_point_control_diagram.svg
+:width: 50%
+:alt: Two-Point Flame Control Diagram
+:align: center
+```
 
 For the two-point control method, one governing equation was modified ($\Lambda$), and a new
-governing equation for the axial oxidizer velocity was added ($U_o$). The fuel and oxidizer boundary
+governing equation for the axial oxidizer velocity was added ($U_o$). The fuel and oxidizer velocity boundary
 conditions are modified when the two-point control is active. These equations allow
 for the temperature reduction to be performed in a numerically consistent manner (preventing
-any issues of over-defining the system of governing equations).
+any issues of over-defining the system of governing equations). The two equations that are activated
+when two-point control is turned on are:
+
+$$
+\frac{d\Lambda}{dz} = 0
+$$
+
+and
+
+$$
+\frac{dU_o}{dz} = 0
+$$
+
+These equations are zero everywhere, except at their respective control points. At the left control point
+the residual for the $\Lambda$ equation is:
+
+$$
+residual = T(z=Z_L) - T_{L, control}
+$$
+
+At the left control point the residual for the $U_o$ equation is:
+
+$$
+residual = T(z=Z_R) - T_{R, control}
+$$
+
+Where T(z=Z_L) is the temperature of the flowfield at the left control point, T(z=Z_R) is the temperature of
+the flowfield at the right control point, T_{L, control} is the left control point desired temperature, and
+T_{R, control} is the right control point desired temperature.
+
+
+The values of $\Lambda$ and $U_o$ are influenced by the left and right control points, respectively.
+A residual error is induced because of the difference between the flow's temperature at that point and
+the desired control point temperature.
+In order to drive this error to zero, the solver adjusts the flow rates at the boundaries, which changes
+the temperature distribution, which in turn affects the values of $\Lambda$ and $U_o$.
+
+At the right boundary, the boundary condition for the continuity equation is imposed by using
+the solution from the oxidizer velocity equation. At the left boundary, the boundary condition for
+the continuity equation is imposed by using the value of the axial velocity at the left boundary.
+
+$$
+mdot(z=0) = rho(z=0)*U(z=0)
+$$
+
+$$
+mdot(z=L) = rho(z=L)*U_0(z=L)
+$$
+
+
