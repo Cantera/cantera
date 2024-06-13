@@ -115,12 +115,23 @@ void LmrRate::setParameters(const AnyMap& node, const UnitStack& rate_units){
 }
 
 void LmrRate::setContext(const Reaction& rxn, const Kinetics& kin){   
-    for (int i=1; i<names.size();i++){ //Starts at 1, because names[0] == "M"
-        colliderIncides.push_back(kin.kineticsSpeciesIndex(names[i]));
+    for (size_t i=1; i<names.size();i++){ //Starts at 1, because names[0] == "M"
+        colliderIndices.push_back(kin.kineticsSpeciesIndex(names[i]));
         // colliderIncides.push_back(1);
     }
     nSpecies = kin.nTotalSpecies();
 }
+
+// void BlowersMaselRate::setContext(const Reaction& rxn, const Kinetics& kin)
+// {
+//     m_stoich_coeffs.clear();
+//     for (const auto& [name, stoich] : rxn.reactants) {
+//         m_stoich_coeffs.emplace_back(kin.kineticsSpeciesIndex(name), -stoich);
+//     }
+//     for (const auto& [name, stoich] : rxn.products) {
+//         m_stoich_coeffs.emplace_back(kin.kineticsSpeciesIndex(name), stoich);
+//     }
+// }
 
 void LmrRate::validate(const string& equation, const Kinetics& kin){}
 
@@ -167,9 +178,9 @@ double LmrRate::evalFromStruct(const LmrData& shared_data){
 
     double eig0_mix=0;
     double sigmaX_M=0.0;
-    for (int i=0; i<nSpecies; i++){ //testing each species listed at the top of yaml file
-        for (int j=0; j<colliderIndices.size(); j++){
-            if (i==colliderIncides[j]){ // Species is in collider list
+    for (size_t i=0; i<nSpecies; i++){ //testing each species listed at the top of yaml file
+        for (size_t j=0; j<colliderIndices.size(); j++){
+            if (i==colliderIndices[j]){ // Species is in collider list
                 eig0_mix += moleFractions_[i]*eigObjs[j].evalRate(logT_, recipT_);
             } else { // Species not in collider list so treat as "M"
                 sigmaX_M += moleFractions_[i];
@@ -180,10 +191,10 @@ double LmrRate::evalFromStruct(const LmrData& shared_data){
 
     k_LMR_=0;
     sigmaX_M=0.0;
-    for (int i=0; i<nSpecies; i++){ //testing each species listed at the top of yaml file
+    for (size_t i=0; i<nSpecies; i++){ //testing each species listed at the top of yaml file
         // double Xi=moleFractions_[i];
-        for (int j=0; j<colliderIndices.size(); j++){
-            if (i==colliderIncides[j]){ // Species is in collider list
+        for (size_t j=0; j<colliderIndices.size(); j++){
+            if (i==colliderIndices[j]){ // Species is in collider list
                 double eig0 = eigObjs[j].evalRate(logT_, recipT_);
                 if (rateObjs.at(j).which()==0){ // 0 means PlogRate 
                     logP_= logP_+log(eig0_mix)-log(eig0); //replaces logP with log of the effective pressure w.r.t. eig0_M

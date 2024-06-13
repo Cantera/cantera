@@ -49,7 +49,7 @@ class LmrRate final : public ReactionRate
 {
 public:
     LmrRate() = default;//! Default constructor.
-    vector<double> colliderIncides;
+    vector<size_t> colliderIndices;
     map<string, AnyMap> colliderInfo;
     using RateTypes = boost::variant<PlogRate, TroeRate, ChebyshevRate>;
     using DataTypes = boost::variant<PlogData, FalloffData, ChebyshevData>;
