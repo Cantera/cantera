@@ -255,7 +255,7 @@ public:
 
     void fixTemperature(size_t j=npos);
 
-    /** Two-Point control method(approach)
+    /** Two-Point control method
      * In this method two control points are designated in the 1D domain, and
      * the value of the temperature at these points is fixed. The values of the control
      * points are imposed and thus serve as a boundary condition that affects the
@@ -271,58 +271,96 @@ public:
      * also determined from the flow solution by using the oxidizer axial velocity equation variable to
      * compute the mass flux at the right boundary.
      *
-     * This method is based on the work of M. Nishioka, C.K. Law, and T. Takeno (1996) titled
-     * "A Flame-Controlling Continuation Method for Generating S-Curve Responses with
-     * Detailed Chemistry"
+     * This method is based on the work of Nishioka et al. @cite nishioka1996
      **/
 
     //! Returns the temperature at the left control point
     double leftControlPointTemperature() const {
-        if (m_twoPointControl && (m_zLeft != Undef)) {
-            return m_tLeft;
+        if (m_twoPointControl) {
+            if (m_zLeft != Undef){
+                return m_tLeft;
+            } else {
+                throw CanteraError("StFlow::leftControlPointTemperature",
+                    "Invalid operation: left control point location is not set");
+            }
         } else {
-            return NAN;
+            throw CanteraError("StFlow::leftControlPointTemperature",
+                 "Invalid operation: two-point control is not enabled.");
         }
     }
 
     //! Returns the z-coordinate of the left control point
     double leftControlPointCoordinate() const {
-        if (m_twoPointControl && (m_zLeft != Undef)) {
-            return m_zLeft;
+        if (m_twoPointControl) {
+            if (m_zLeft != Undef)
+                return m_zLeft;
+            else {
+                throw CanteraError("StFlow::leftControlPointCoordinate",
+                    "Invalid operation: left control point location is not set");
+            }
         } else {
-            return NAN;
+            throw CanteraError("StFlow::leftControlPointCoordinate",
+                 "Invalid operation: two-point control is not enabled.");
         }
     }
 
     //! Sets the temperature of the left control point
     void setLeftControlPointTemperature(double temperature) {
-        if (m_twoPointControl && (m_zLeft != Undef)) {
-            m_tLeft = temperature;
+        if (m_twoPointControl) {
+            if (m_zLeft != Undef){
+                m_tLeft = temperature;
+            } else {
+                throw CanteraError("StFlow::setLeftControlPointTemperature",
+                    "Invalid operation: left control point location is not set");
+            }
+        } else {
+            throw CanteraError("StFlow::setLeftControlPointTemperature",
+                 "Invalid operation: two-point control is not enabled.");
         }
     }
 
     //! Returns the temperature at the right control point
     double rightControlPointTemperature() const {
-        if (m_twoPointControl && (m_zRight != Undef)) {
-            return m_tRight;
+        if (m_twoPointControl) {
+            if (m_zRight != Undef) {
+                return m_tRight;
+            } else {
+                throw CanteraError("StFlow::rightControlPointTemperature",
+                    "Invalid operation: right control point location is not set");
+            }
         } else {
-            return NAN;
+            throw CanteraError("StFlow::rightControlPointTemperature",
+                 "Invalid operation: two-point control is not enabled.");
         }
     }
 
     //! Returns the z-coordinate of the right control point
     double rightControlPointCoordinate() const {
-        if (m_twoPointControl && (m_zRight != Undef)) {
-            return m_zRight;
+        if (m_twoPointControl) {
+            if (m_zRight != Undef){
+                return m_zRight;
+            } else {
+                throw CanteraError("StFlow::rightControlPointCoordinate",
+                    "Invalid operation: right control point location is not set");
+            }
         } else {
-            return NAN;
+            throw CanteraError("StFlow::rightControlPointCoordinate",
+                 "Invalid operation: two-point control is not enabled.");
         }
     }
 
     //! Sets the temperature of the right control point
     void setRightControlPointTemperature(double temperature) {
-        if (m_twoPointControl && (m_zRight != Undef)) {
-            m_tRight = temperature;
+        if (m_twoPointControl) {
+            if (m_zRight != Undef){
+                m_tRight = temperature;
+            } else {
+                throw CanteraError("StFlow::setRightControlPointTemperature",
+                    "Invalid operation: right control point location is not set");
+            }
+        } else {
+            throw CanteraError("StFlow::setRightControlPointTemperature",
+                 "Invalid operation: two-point control is not enabled.");
         }
     }
 
