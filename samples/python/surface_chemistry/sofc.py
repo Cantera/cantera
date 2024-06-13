@@ -21,7 +21,7 @@ curves.
     It is recommended that you read input file ``sofc.yaml`` before reading or running
     this script.
 
-Requires: cantera >= 2.6.0
+Requires: cantera >= 2.6.0, scipy
 
 .. tags:: Python, kinetics, electrochemistry, surface chemistry, fuel cell
 """
@@ -29,6 +29,7 @@ Requires: cantera >= 2.6.0
 import cantera as ct
 import math
 import csv
+from scipy.optimize import newton
 
 ct.add_module_directory()
 
@@ -63,34 +64,6 @@ def equil_OCV(gas1, gas2):
             math.log(gas1['O2'].X[0] / gas2['O2'].X[0]) / (4.0 * ct.faraday))
 
 
-def NewtonSolver(f, xstart, C=0.0):
-    """
-    Solve f(x) = C by Newton iteration.
-    - xstart    starting point for Newton iteration
-    - C         constant
-    """
-    f0 = f(xstart) - C
-    x0 = xstart
-    dx = 1.0e-6
-    n = 0
-    while n < 200:
-        ff = f(x0 + dx) - C
-        dfdx = (ff - f0)/dx
-        step = - f0/dfdx
-
-        # avoid taking steps too large
-        if abs(step) > 0.1:
-            step = 0.1*step/abs(step)
-
-        x0 += step
-        emax = 0.00001  # 0.01 mV tolerance
-        if abs(f0) < emax and n > 8:
-            return x0
-        f0 = f(x0) - C
-        n += 1
-    raise Exception('no root!')
-
-
 #####################################################################
 # Anode-side phases
 #####################################################################
@@ -106,8 +79,8 @@ gas_a = oxide_surf_a.adjacent["gas"]
 anode_surf.name = 'anode surface'
 oxide_surf_a.name = 'anode-side oxide surface'
 
-# this function is defined to use with NewtonSolver to invert the current-
-# voltage function. NewtonSolver requires a function of one variable, so the
+# this function is defined to use with a Newton solver to invert the current-
+# voltage function. The Newton solver requires a function of one variable, so the
 # other objects are accessed through the global namespace.
 def anode_curr(E):
     """
@@ -204,8 +177,8 @@ for s in [anode_surf, oxide_surf_a, cathode_surf, oxide_surf_c]:
 
 # find open circuit potentials by solving for the E values that give
 # zero current.
-Ea0 = NewtonSolver(anode_curr, xstart=-0.51)
-Ec0 = NewtonSolver(cathode_curr, xstart=0.51)
+Ea0 = newton(anode_curr, x0=-0.51)
+Ec0 = newton(cathode_curr, x0=0.51)
 
 print('\nocv from zero current is: ', Ec0 - Ea0)
 print('OCV from thermo equil is: ', equil_OCV(gas_a, gas_c))
@@ -218,6 +191,7 @@ print()
 # (cathodic) to +250 mV (anodic)
 Ea_min = Ea0 - 0.25
 Ea_max = Ea0 + 0.25
+Ec = 1.0  # initial guess for Newton solver
 
 output_data = []
 
@@ -248,7 +222,7 @@ for n in range(100):
     # Find the value of the cathode potential relative to the cathode-side
     # electrolyte that yields the same current density as the anode current
     # density
-    Ec = NewtonSolver(cathode_curr, xstart=Ec0+0.1, C=curr)
+    Ec = newton(lambda E: cathode_curr(E) - curr, x0=Ec)
 
     cathode_bulk.electric_potential = phi_oxide_c + Ec
 
