@@ -7,6 +7,11 @@ and multiple condensed phases.
 
 Requires: cantera >= 2.5.0, matplotlib >= 2.0
 
+.. warning::
+   The results of this example are incorrect due to known issues with the multiphase
+   equilibrium solver. See GitHub Issue
+   `#270 <https://github.com/Cantera/cantera/issues/270>`_.
+
 .. tags:: Python, equilibrium, multiphase, plasma, saving output
 """
 
