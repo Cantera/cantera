@@ -21,14 +21,16 @@ curves.
     It is recommended that you read input file ``sofc.yaml`` before reading or running
     this script.
 
-Requires: cantera >= 2.6.0, scipy
+Requires: cantera >= 2.6.0, scipy, pandas
 
 .. tags:: Python, kinetics, electrochemistry, surface chemistry, fuel cell
 """
 
 import cantera as ct
 import math
-import csv
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
 from scipy.optimize import newton
 
 ct.add_module_directory()
@@ -63,10 +65,9 @@ def equil_OCV(gas1, gas2):
     return (-ct.gas_constant * gas1.T *
             math.log(gas1['O2'].X[0] / gas2['O2'].X[0]) / (4.0 * ct.faraday))
 
-
-#####################################################################
+# %%
 # Anode-side phases
-#####################################################################
+# -----------------
 
 # import the anode-side triple phase boundary and adjacent phases
 tpb_a = ct.Interface("sofc.yaml", "tpb")
@@ -107,10 +108,10 @@ def anode_curr(E):
     return ct.faraday * w[electron_index] * TPB_length_per_area
 
 
-#####################################################################
+# %%
 # Cathode-side phases
-#####################################################################
-
+# -------------------
+#
 # Here for simplicity we are using the same phase and interface models for the
 # cathode as we used for the anode. In a more realistic simulation, separate
 # models would be used for the cathode, with a different reaction mechanism.
@@ -151,8 +152,9 @@ def cathode_curr(E):
     # being drawn from the cathode (that is, negative production rate).
     return -ct.faraday * w[electron_index] * TPB_length_per_area
 
-
-# initialization
+# %%
+# Initialization
+# --------------
 # set the gas compositions, and temperatures of all phases
 
 gas_a.TPX = T, P, anode_gas_X
@@ -166,6 +168,7 @@ phases = [anode_bulk, anode_surf, oxide_surf_a, oxide_a, cathode_bulk,
 for p in phases:
     p.TP = T, P
 
+# %%
 # now bring the surface coverages into steady state with these gas
 # compositions. Note that the coverages are held fixed at these values - we do
 # NOT consider the change in coverages due to TPB reactions. For that, a more
@@ -175,8 +178,8 @@ for s in [anode_surf, oxide_surf_a, cathode_surf, oxide_surf_c]:
     s.advance_coverages(tss)
     show_coverages(s)
 
-# find open circuit potentials by solving for the E values that give
-# zero current.
+# %%
+# Find open circuit potentials by solving for the E values that give zero current.
 Ea0 = newton(anode_curr, x0=-0.51)
 Ec0 = newton(cathode_curr, x0=0.51)
 
@@ -185,20 +188,20 @@ print('OCV from thermo equil is: ', equil_OCV(gas_a, gas_c))
 
 print('Ea0 = ', Ea0)
 print('Ec0 = ', Ec0)
-print()
 
-# do polarization curve for anode overpotentials from -250 mV
-# (cathodic) to +250 mV (anodic)
+# %%
+# Polarization curve
+# ------------------
+#
+# Vary the anode overpotentials from -250 mV (cathodic) to +250 mV (anodic)
+
 Ea_min = Ea0 - 0.25
 Ea_max = Ea0 + 0.25
 Ec = 1.0  # initial guess for Newton solver
 
 output_data = []
 
-# vary the anode overpotential, from cathodic to anodic polarization
-for n in range(100):
-    Ea = Ea_min + 0.005*n
-
+for Ea in np.linspace(Ea_min, Ea_max, 100):
     # set the electrode potential. Note that the anode-side electrolyte is
     # held fixed at 0 V.
     anode_bulk.electric_potential = Ea
@@ -232,9 +235,26 @@ for n in range(100):
                         cathode_bulk.electric_potential -
                         anode_bulk.electric_potential])
 
-with open("sofc.csv", "w", newline="") as csvfile:
-    writer = csv.writer(csvfile)
-    writer.writerow(['i (mA/cm2)', 'eta_a', 'eta_c', 'eta_ohmic', 'Eload'])
-    writer.writerows(output_data)
+# %%
+# Collect data and save as CSV
+# ----------------------------
 
+df = pd.DataFrame.from_records(
+    output_data,
+    index='i (mA/cm2)',
+    columns=['i (mA/cm2)', 'eta_a', 'eta_c', 'eta_ohmic', 'Eload']
+)
+df.to_csv("sofc.csv")
 print('polarization curve data written to file sofc.csv')
+
+# %%
+# Plot results
+# ------------
+
+fig, ax = plt.subplots()
+ax.plot(df.index, df.eta_a, label=r'$\eta_{anode}$')
+ax.plot(df.index, df.eta_c, label=r'$\eta_{cathode}$')
+ax.plot(df.index, df.eta_ohmic, label=r'$\eta_{ohmic}$')
+ax.plot(df.index, df.Eload, label=r'$E_{load}$')
+ax.set(xlabel='current [mA/cm²]', ylabel='Voltage [V]')
+ax.legend()
