@@ -10,7 +10,6 @@ from ._utils cimport *
 
 cdef class Mixture:
     """
-
     Class Mixture represents mixtures of one or more phases of matter.  To
     construct a mixture, supply a list of phases to the constructor, each
     paired with the number of moles for that phase::
@@ -29,6 +28,17 @@ cdef class Mixture:
     state of the phase -- they do not store any information on the amount of
     this phase. Mixture objects, on the other hand, represent the full
     extensive state.
+
+    .. caution::
+       The Mixture class exists mainly for the purpose of providing input for multiphase
+       equilibrium calculations. Its functionality for modifying the state of the
+       mixture and computing properties is quite limited. Mixture objects cannot be used
+       in conjunction with reactor networks.
+
+       Furthermore, the multiphase equilibrium solvers currently have a number of
+       problems that lead to solver failures or incorrect results for some inputs. See
+       the `list of issues on GitHub <https://github.com/Cantera/cantera/issues?q=is%3Aopen+is%3Aissue+label%3AEquilibrium>`_
+       for more information.
 
     Mixture objects are 'lightweight' in the sense that they do not store
     parameters needed to compute thermodynamic or kinetic properties of the

@@ -157,6 +157,10 @@ class TestKOH_Equil(utilities.CanteraTest):
 
             data[i,1:] = self.mix.species_moles
 
+        # The reference values for this test are all completely non-physical, due to the
+        # VCS solver extrapolating thermo polynomials outside of their valid range. See
+        # https://github.com/Cantera/cantera/issues/270. The results show ice at
+        # temperatures of over 1000 K, and liquid water for temperatures of 2000-5000 K.
         self.compare(data, self.test_data_path / "koh-equil-TP.csv")
 
     @utilities.slow_test

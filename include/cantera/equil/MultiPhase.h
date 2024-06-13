@@ -28,6 +28,11 @@ class ThermoPhase;
  * thermodynamic object, in contrast to the ThermoPhase object, which is an
  * "intrinsic" thermodynamic object.
  *
+ * @warning The multiphase equilibrium solvers currently have a number of problems that
+ *     lead to solver failures or incorrect results for some inputs. See the
+ *     [list of issues on GitHub](https://github.com/Cantera/cantera/issues?q=is%3Aopen+is%3Aissue+label%3AEquilibrium)
+ *     for more information.
+ *
  * MultiPhase may be considered to be "upstream" of the ThermoPhase objects in
  * the sense that setting a property within MultiPhase, such as temperature,
  * pressure, or species mole number, affects the underlying ThermoPhase
