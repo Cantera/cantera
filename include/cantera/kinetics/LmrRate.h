@@ -61,7 +61,7 @@ public:
     vector<string> names;
     RateTypes rateObj_M;
     DataTypes dataObj_M;
-    ArrheniusRate eig0_M;
+    ArrheniusRate eigObj_M;
     AnyMap node_M;
     size_t nSpecies;
     UnitStack rate_units_;
