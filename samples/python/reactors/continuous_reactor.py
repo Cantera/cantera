@@ -230,15 +230,20 @@ for reactor_temperature in T:
         mdot=stirred_reactor.mass / residence_time,
     )
     pressure_regulator = ct.PressureController(
-        upstream=stirred_reactor, downstream=exhaust, primary=mass_flow_controller
+        upstream=stirred_reactor, downstream=exhaust, primary=mass_flow_controller,
+        K=1e-3,
     )
     reactor_network = ct.ReactorNet([stirred_reactor])
 
     # Re-run the isothermal simulations
     tic = time.time()
-    reactor_network.advance(max_simulation_time)
+    counter = 0
+    while reactor_network.time < max_simulation_time:
+        reactor_network.step()
+        counter += 1
     toc = time.time()
-    print(f"Simulation at T={reactor_temperature}K took {toc-tic:3.2f}s to compute")
+    print(f"Simulation at T={reactor_temperature} K took {toc-tic:3.2f} s to compute "
+          f"with {counter} steps")
 
     concentrations = stirred_reactor.thermo.X
     temp_dependence.append(stirred_reactor.thermo.state)
