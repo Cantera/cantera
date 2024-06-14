@@ -41,9 +41,9 @@ class GraphvizScraper():
         # a path to a file name that adheres to Sphinx-Gallery naming convention.
         image_path_iterator = block_vars['image_path_iterator']
 
-        # Define a list of our already-created figure objects.
+        graph_types = (graphviz.Source, graphviz.graphs.Digraph, graphviz.graphs.Graph)
         for obj in block_vars["example_globals"].values():
-            if isinstance(obj, graphviz.Source) and id(obj) not in self.processed:
+            if isinstance(obj, graph_types) and id(obj) not in self.processed:
                 self.processed.add(id(obj))
                 image_path = Path(next(image_path_iterator)).with_suffix(".svg")
                 obj.format = "svg"
