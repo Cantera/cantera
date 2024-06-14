@@ -40,18 +40,6 @@ from the {ref}`list of example tags <tagoverview>`.
 :text-align: center
 ```
 
-```{grid-item-card} Surface chemistry
-:link: python/surface_chemistry/index
-:link-type: doc
-:text-align: center
-```
-
-```{grid-item-card} Multiphase
-:link: python/multiphase/index
-:link-type: doc
-:text-align: center
-```
-
 ````
 
 ## Examples in Other Languages

@@ -79,8 +79,6 @@ sphinx_gallery_conf = {
         '../samples/python/transport',
         '../samples/python/reactors',
         '../samples/python/onedim',
-        '../samples/python/surface_chemistry',
-        '../samples/python/multiphase',
     ]),
     'reference_url': {
         'cantera': None,  # 'None' means the locally-documented module
