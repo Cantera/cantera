@@ -389,7 +389,7 @@ public:
 
     //! Sets the status of the two-point control
     void enableTwoPointControl(bool twoPointControl) {
-        if (m_usesLambda){
+        if (isStrained()){
             m_twoPointControl = twoPointControl;
         } else {
             throw CanteraError("StFlow::enableTwoPointControl",
