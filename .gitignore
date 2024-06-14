@@ -50,4 +50,8 @@ environment.y*
 coverage/
 coverage.info
 .coverage
+
+#Burke Lab
 burkelab_SimScripts/
+burkelab_gitcommands.sh
+testlog.txt
