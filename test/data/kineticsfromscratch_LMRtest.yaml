@@ -1,0 +1,202 @@
+description: |-
+  Sample reactions used for testing of kinetics from scratch.
+  Some reaction rate definitions use arbitrary parameters.
+
+generator: cti2yaml
+cantera-version: 2.6.0a2
+date: Thu, 29 Apr 2021 13:12:07 -0400
+input-files: [kineticsfromscratch.cti]
+
+units: {activation-energy: cal/mol}
+
+phases:
+- name: ohmech
+  thermo: ideal-gas
+  elements: [O, H, Ar]
+  species:
+  - h2o2.yaml/species: [AR, O, H2, H, OH, O2, H2O, H2O2, HO2] #ar weak, O weak, H2 weak, H weak, OH unknown, O2 neutral, h2o strong, h2o2 unknown, ho2 unknown
+  kinetics: gas
+  reactions: [reactions]
+  state:
+    T: 300.0
+    P: 1.01325e+05
+# - name: Pt_surf
+#   thermo: ideal-surface
+#   adjacent-phases: [ohmech]
+#   elements: [Pt, H, O]
+#   species:
+#   - ptcombust.yaml/species: [PT(S), H(S), H2O(S), OH(S), O(S)]
+#   kinetics: surface
+#   reactions: [surface]
+#   state:
+#     T: 900.0
+#     coverages: {PT(S): 0.35, H(S): 0.35, H2O(S): .1, OH(S): 0.1, O(S): 0.1}
+#   site-density: 2.7063e-09
+
+reactions:
+- equation: H + O2 (+M) <=> HO2 (+M)  # Reaction 13 (modified by Patrick Singal)
+# - equation: HO2 (+M) <=> H + O2 (+M)  # Reaction 13 (modified by Patrick Singal)
+  type: LMR_R
+  collider-list: 
+  - collider: "M" # Data is actually for Ar
+    eig0: {A: 8.1101557392e-33, b: 0, Ea: 0}
+    rate-constants:
+      - {P: 1e-6 atm, A: 5.95184e-20, b: 0, Ea: 0}
+      - {P: 1e-5 atm, A: 5.95183e-19, b: 0, Ea: 0}
+      - {P: 1e-4 atm, A: 5.95176e-18, b: 0, Ea: 0}
+      - {P: 0.001 atm, A: 5.95102e-17, b: 0, Ea: 0}
+      - {P: 0.01 atm, A: 5.9437e-16, b: 0, Ea: 0}
+      - {P: 0.1 atm, A: 5.8789e-15, b: 0, Ea: 0}
+      - {P: 1 atm, A: 5.53562e-14, b: 0, Ea: 0}
+      - {P: 10 atm, A: 4.66593e-13, b: 0, Ea: 0}
+      - {P: 100 atm, A: 3.28089e-12, b: 0, Ea: 0}
+      - {P: 1000 atm, A: 1.71881e-11, b: 0, Ea: 0}
+      - {P: 1e+4 atm, A: 5.65797e-11, b: 0, Ea: 0}
+      - {P: 1e+5 atm, A: 1.04517e-10, b: 0, Ea: 0}
+      - {P: 1e+6 atm, A: 1.24594e-10, b: 0, Ea: 0}
+      - {P: 1e+7 atm, A: 1.27873e-10, b: 0, Ea: 0}
+      - {P: 1e+8 atm, A: 1.28229e-10, b: 0, Ea: 0}
+  - collider: "H2O"
+    eig0: {A: 1.6200035544e-31, b: 0, Ea: 0}
+    rate-constants:
+      - {P: 1e-6 atm, A: 1.18888e-18, b: 0, Ea: 0}
+      - {P: 1e-5 atm, A: 1.18888e-17, b: 0, Ea: 0}
+      - {P: 1e-4 atm, A: 1.18885e-16, b: 0, Ea: 0}
+      - {P: 0.001 atm, A: 1.18856e-15, b: 0, Ea: 0}
+      - {P: 0.01 atm, A: 1.18572e-14, b: 0, Ea: 0}
+      - {P: 0.1 atm, A: 1.16086e-13, b: 0, Ea: 0}
+      - {P: 1 atm, A: 1.03278e-12, b: 0, Ea: 0}
+      - {P: 10 atm, A: 7.26186e-12, b: 0, Ea: 0}
+      - {P: 100 atm, A: 3.36165e-11, b: 0, Ea: 0}
+      - {P: 1000 atm, A: 8.46654e-11, b: 0, Ea: 0}
+      - {P: 1e+4 atm, A: 1.19266e-10, b: 0, Ea: 0}
+      - {P: 1e+5 atm, A: 1.27205e-10, b: 0, Ea: 0}
+      - {P: 1e+6 atm, A: 1.28161e-10, b: 0, Ea: 0}
+      - {P: 1e+7 atm, A: 1.28259e-10, b: 0, Ea: 0}
+      - {P: 1e+8 atm, A: 1.28268e-10, b: 0, Ea: 0}
+
+    #   - name: M #weaker collider #Ar, O, H2, H, OH, O2, H2O2, HO2
+    #   low-P-rate-constant: {A: 8.1101557392e-33, b: 0, Ea: 0} #eig0
+    #   rate-constants:
+    #   - {P: 1e-6 atm, A: 5.95184e-20, b: 0, Ea: 0}
+    #   - {P: 1e-5 atm, A: 5.95183e-19, b: 0, Ea: 0}
+    #   - {P: 1e-4 atm, A: 5.95176e-18, b: 0, Ea: 0}
+    #   - {P: 0.001 atm, A: 5.95102e-17, b: 0, Ea: 0}
+    #   - {P: 0.01 atm, A: 5.9437e-16, b: 0, Ea: 0}
+    #   - {P: 0.1 atm, A: 5.8789e-15, b: 0, Ea: 0}
+    #   - {P: 1 atm, A: 5.53562e-14, b: 0, Ea: 0}
+    #   - {P: 10 atm, A: 4.66593e-13, b: 0, Ea: 0}
+    #   - {P: 100 atm, A: 3.28089e-12, b: 0, Ea: 0}
+    #   - {P: 1000 atm, A: 1.71881e-11, b: 0, Ea: 0}
+    #   - {P: 1e+4 atm, A: 5.65797e-11, b: 0, Ea: 0}
+    #   - {P: 1e+5 atm, A: 1.04517e-10, b: 0, Ea: 0}
+    #   - {P: 1e+6 atm, A: 1.24594e-10, b: 0, Ea: 0}
+    #   - {P: 1e+7 atm, A: 1.27873e-10, b: 0, Ea: 0}
+    #   - {P: 1e+8 atm, A: 1.28229e-10, b: 0, Ea: 0}
+    # - name: H2O #stronger collider
+    #   low-P-rate-constant: {A: 1.6200035544e-31, b: 0, Ea: 0}
+    #   rate-constants:
+    #   - {P: 1e-6 atm, A: 1.18888e-18, b: 0, Ea: 0}
+    #   - {P: 1e-5 atm, A: 1.18888e-17, b: 0, Ea: 0}
+    #   - {P: 1e-4 atm, A: 1.18885e-16, b: 0, Ea: 0}
+    #   - {P: 0.001 atm, A: 1.18856e-15, b: 0, Ea: 0}
+    #   - {P: 0.01 atm, A: 1.18572e-14, b: 0, Ea: 0}
+    #   - {P: 0.1 atm, A: 1.16086e-13, b: 0, Ea: 0}
+    #   - {P: 1 atm, A: 1.03278e-12, b: 0, Ea: 0}
+    #   - {P: 10 atm, A: 7.26186e-12, b: 0, Ea: 0}
+    #   - {P: 100 atm, A: 3.36165e-11, b: 0, Ea: 0}
+    #   - {P: 1000 atm, A: 8.46654e-11, b: 0, Ea: 0}
+    #   - {P: 1e+4 atm, A: 1.19266e-10, b: 0, Ea: 0}
+    #   - {P: 1e+5 atm, A: 1.27205e-10, b: 0, Ea: 0}
+    #   - {P: 1e+6 atm, A: 1.28161e-10, b: 0, Ea: 0}
+    #   - {P: 1e+7 atm, A: 1.28259e-10, b: 0, Ea: 0}
+    #   - {P: 1e+8 atm, A: 1.28268e-10, b: 0, Ea: 0}
+
+
+# - equation: O + H2 <=> H + OH  # Reaction 1
+#   rate-constant: {A: 38.7, b: 2.7, Ea: 6260.0}
+# - equation: 2 O + M <=> O2 + M  # Reaction 2
+#   type: three-body
+#   rate-constant: {A: 1.2e+11, b: -1.0, Ea: 0.0}
+#   efficiencies: {AR: 0.83, H2: 2.4, H2O: 15.4}
+# - equation: 2 OH (+ M) <=> H2O2 (+ M)  # Reaction 3
+#   duplicate: true
+#   type: falloff
+#   low-P-rate-constant: {A: 2.3e+12, b: -0.9, Ea: -1700.0}
+#   high-P-rate-constant: {A: 7.4e+10, b: -0.37, Ea: 0.0}
+#   Troe: {A: 0.7346, T3: 94.0, T1: 1756.0, T2: 5182.0}
+#   efficiencies: {AR: 0.7, H2: 2.0, H2O: 6.0}
+# - equation: H + O2 <=> HO2  # Reaction 4 (changed from H2+O2 to match Burke's spreadsheet)
+#   type: LMR_R
+#   collider-list: 
+#   - collider: "M" # Data is actually for Ar
+#     eig0: {A: 1, b: 0, Ea: 0}
+#     rate-constants:
+#     - {P: 1.316e-02, A: 1.13662e+35, b: -4.96606e-01, Ea: 3.35590e+01}
+#     - {P: 1.316e-01, A: 1.20365e+35, b: -5.03779e-01, Ea: 5.65622e+01}
+#     - {P: 3.947e-01, A: 1.19725e+35, b: -5.02971e-01, Ea: 7.25245e+01}
+#     - {P: 1.000e+00, A: 1.17596e+35, b: -5.00284e-01, Ea: 9.27103e+01}
+#     - {P: 3.000e+00, A: 1.13056e+35, b: -4.95365e-01, Ea: 1.21181e+02}
+#     - {P: 1.000e+01, A: 1.09320e+35, b: -4.91679e-01, Ea: 1.68286e+02}
+#     - {P: 3.000e+01, A: 9.72855e+34, b: -4.77838e-01, Ea: 2.11753e+02}
+#     - {P: 1.000e+02, A: 8.66276e+34, b: -4.64944e-01, Ea: 2.89233e+02}
+#   - collider: "HE"
+#     eig0: {A: 6.43747e+16, b: -4.73947e+00, Ea: 1.55302e+04}
+#   - collider: "N2"
+#     eig0: {A: 1.55845e+06, b: -2.03532e+00, Ea: 1.95097e+03}
+#   - collider: "H2"
+#     eig0: {A: 1.75756e+05, b: -1.62009e+00, Ea: 1.53171e+03}
+#   - collider: "CO2"
+#     eig0: {A: 1.17749e+05, b: -1.47748e+00, Ea: 1.36321e+03}
+#   - collider: "NH3"
+#     eig0: {A: 1.86229e+00, b: 5.63940e-02, Ea: -9.55618e+01}
+#   - collider: "H2O"
+#     eig0: {A: 3.66010e+00, b: -2.32621e-02, Ea: 1.06680e+01}
+
+# - equation: HO2 <=> OH + O  # Reaction 5
+#   type: Chebyshev
+#   temperature-range: [290.0, 3000.0]
+#   pressure-range: [9.869232667160128e-03 atm, 98.69232667160128 atm]
+#   data:
+#   - [8.2883, -1.1397, -0.12059, 0.016034]
+#   - [1.9764, 1.0037, 7.2865e-03, -0.030432]
+#   - [0.3177, 0.26889, 0.094806, -7.6385e-03]
+# - equation: H + 2 O2 <=> HO2 + O2 # Reaction 6
+#   rate-constant: {A: 2.08e+19, b: -1.24, Ea: 0.0}
+# - equation: O + H2 <=> H + OH  # Reaction 7
+#   type: Blowers-Masel
+#   rate-constant: {A: 38700, b: 2.7, Ea0: 2.619184e4, w: 4.184e9}
+# - equation: 2 OH (+ M) <=> H2O2 (+ M)  # Reaction 8
+#   duplicate: true
+#   type: falloff
+#   low-P-rate-constant: {A: 2.3e+12, b: -0.9, Ea: -1700.0}
+#   high-P-rate-constant: {A: 7.4e+10, b: -0.37, Ea: 0.0}
+#   efficiencies: {AR: 0.7, H2: 2.0, H2O: 6.0}
+# - equation: H + HO2 (+ M) <=> H2 + O2 (+ M)  # Reaction 9
+#   duplicate: true
+#   type: falloff
+#   high-P-rate-constant: {A: 4.0e+15, b: -0.5, Ea: 100.0 cal/mol}
+#   low-P-rate-constant: {A: 7.0e+20, b: -1.0, Ea: 0.0 cal/mol}
+#   efficiencies: {AR: 0.7, H2: 2.0, H2O: 6.0}
+#   SRI: {A: 1.1, B: 700.0, C: 1234.0, D: 56.0, E: 0.7}
+# - equation: H + HO2 (+ M) <=> H2 + O2 (+ M)  # Reaction 10
+#   duplicate: true
+#   type: falloff
+#   high-P-rate-constant: {A: 4.0e+15, b: -0.5, Ea: 100.0 cal/mol}
+#   low-P-rate-constant: {A: 7.0e+20, b: -1.0, Ea: 0.0 cal/mol}
+#   efficiencies: {AR: 0.7, H2: 2.0, H2O: 6.0}
+#   Tsang: {A: 0.95, B: -1.0e-04}
+# - equation: H2O + OH (+M) <=> HO2 + H2 (+M)  # Reaction 11
+#   units: {length: cm, quantity: mol}
+#   type: chemically-activated
+#   high-P-rate-constant: [5.88E-14, 6.721, -3022.227]
+#   low-P-rate-constant: [282320.078, 1.46878, -3270.56495]
+# - equation: O + H => O + H  # Reaction 12
+#   type: two-temperature-plasma
+#   rate-constant: {A: 17283, b: -3.1, Ea-gas: -5820 J/mol, Ea-electron: 1081 J/mol}
+# - equation: O + OH => O + OH  # Reaction 13
+#   type: two-temperature-plasma
+#   rate-constant: {A: 17283, b: -3.1}
+# - equation: O + H2 + M <=> H2O + M  # Reaction 14
+#   type: Blowers-Masel
+#   rate-constant: {A: 38700, b: 2.7, Ea0: 2.619184e4, w: 4.184e9}
