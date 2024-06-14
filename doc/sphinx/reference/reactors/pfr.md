@@ -124,4 +124,4 @@ $du/dz$, $dp/dz$, $dT/dz$, and $dY_k/dz$ at $z=0$.
 
 - [Partial oxidation of methane over a platinum catalyst](/examples/python/reactors/surf_pfr)
 - [silicon nitride (Si3N4) deposition from ammonia (NH3) and silicon tetrafluoride
-  (SiF4)](/examples/python/surface_chemistry/1D_pfr_surfchem)
+  (SiF4)](/examples/python/reactors/1D_pfr_surfchem)
