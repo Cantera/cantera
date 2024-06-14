@@ -206,6 +206,9 @@ double LmrRate::evalFromStruct(const LmrData& shared_data){
             }
         }
     }
+    if (eig0_mix==0){
+        throw InputFileError("LmrRate::evalFromStruct", m_input,"eig0_mix==0 for some reason");
+    }
     double eig0_M = eigObj_M.evalRate(logT_, recipT_);
     eig0_mix += sigmaX_M*eig0_M; // add all M colliders to eig0_mix in a single step
     writelog("evalFromStruct::6"); writeMsg(" eig0_mix = ",eig0_mix);
@@ -221,23 +224,26 @@ double LmrRate::evalFromStruct(const LmrData& shared_data){
                     throw InputFileError("LmrRate::evalFromStruct", m_input,"eig0 is 0 for some reason");
                 }
                 writelog("evalFromStruct::9"); writeMsg(" eig0 = ",eig0);
-                if (rateObjs.at(j).which()==0){ // 0 means PlogRate     
-                    logP_= shared_data.logP+log(eig0_mix)-log(eig0); //replaces logP with log of the effective pressure w.r.t. eig0
-                    PlogData& data = boost::get<PlogData>(dataObjs.at(j));
-                    PlogRate& rate = boost::get<PlogRate>(rateObjs.at(j));
+                if (rateObjs[j].which()==0){ // 0 means PlogRate     
+                    // logP_= shared_data.logP+log(eig0_mix)-log(eig0); //replaces logP with log of the effective pressure w.r.t. eig0
+                    // PlogData& data = boost::get<PlogData>(dataObjs.at(j));
+                    // PlogRate& rate = boost::get<PlogRate>(rateObjs.at(j));
+                    PlogData& data = boost::get<PlogData>(dataObjs[j]);
+                    PlogRate& rate = boost::get<PlogRate>(rateObjs[j]);
                     k_LMR_ += evalPlogRate(rate,data,colliderNodes[j])*eig0*moleFractions_[i]/eig0_mix;
-                    logP_ = shared_data.logP; //return to the "normal" logP value to avoid messing up other calcs
+                    evalPlogRate(boost::get<PlogRate>(rateObj_M),boost::get<PlogData>(dataObj_M),node_M)*eig0_M*sigmaX_M/eig0_mix;
+                    // logP_ = shared_data.logP; //return to the "normal" logP value to avoid messing up other calcs
                     writelog("evalFromStruct::10"); writeMsg(" k_i_plog = ",evalPlogRate(rate,data,colliderNodes[j]));
                 }
-                else if (rateObjs.at(i).which()==1){ // 1 means TroeRate  
-                    FalloffData& data = boost::get<FalloffData>(dataObjs.at(i));
-                    TroeRate& rate = boost::get<TroeRate>(rateObjs.at(i));
+                else if (rateObjs[j].which()==1){ // 1 means TroeRate  
+                    FalloffData& data = boost::get<FalloffData>(dataObjs[j]);
+                    TroeRate& rate = boost::get<TroeRate>(rateObjs[j]);
                     k_LMR_ += evalTroeRate(rate,data,colliderNodes[j])*eig0*moleFractions_[i]/eig0_mix;
                     writelog("evalFromStruct::11"); writeMsg(" k_i_troe = ",evalTroeRate(rate,data,colliderNodes[j]));
                 }
-                else if (rateObjs.at(i).which()==2){ // 2 means ChebyshevRate  
-                    ChebyshevData& data = boost::get<ChebyshevData>(dataObjs.at(i));
-                    ChebyshevRate& rate = boost::get<ChebyshevRate>(rateObjs.at(i));
+                else if (rateObjs[j].which()==2){ // 2 means ChebyshevRate  
+                    ChebyshevData& data = boost::get<ChebyshevData>(dataObjs[j]);
+                    ChebyshevRate& rate = boost::get<ChebyshevRate>(rateObjs[j]);
                     k_LMR_ += evalChebyshevRate(rate,data,colliderNodes[j])*eig0*moleFractions_[i]/eig0_mix;
                     writelog("evalFromStruct::12"); writeMsg(" k_i_cheb = ",evalChebyshevRate(rate,data,colliderNodes[j]));
                 }
@@ -253,9 +259,9 @@ double LmrRate::evalFromStruct(const LmrData& shared_data){
     }
     writelog("evalFromStruct::14"); writelog("\n");
     if (rateObj_M.which()==0){ // 0 means PlogRate
-        logP_= shared_data.logP+log(eig0_mix)-log(eig0_M); //replaces logP with log of the effective pressure w.r.t. eig0_M
+        // logP_= shared_data.logP+log(eig0_mix)-log(eig0_M); //replaces logP with log of the effective pressure w.r.t. eig0_M
         k_LMR_ += evalPlogRate(boost::get<PlogRate>(rateObj_M),boost::get<PlogData>(dataObj_M),node_M)*eig0_M*sigmaX_M/eig0_mix;
-        logP_ = shared_data.logP; //return to the "normal" logP value to avoid messing up other calcs
+        // logP_ = shared_data.logP; //return to the "normal" logP value to avoid messing up other calcs
         writelog("evalFromStruct::15"); writeMsg(" k_M_plog = ",evalPlogRate(boost::get<PlogRate>(rateObj_M),boost::get<PlogData>(dataObj_M),node_M));
     }
     else if (rateObj_M.which()==1){ // 1 means TroeRate  
