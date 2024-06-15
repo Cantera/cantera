@@ -96,6 +96,13 @@ skip_run = {
     "multiprocessing_viscosity.py",
 }
 
+# Installing scikits.odes is challenging on lots of systems (such as Apple Silicon), so
+# just skip running this example if it's not present.
+try:
+    import scikits.odes
+except ImportError:
+    skip_run.add("1D_packed_bed.py")
+
 def executable_script(src_file, gallery_conf):
     """Validate if script has to be run according to gallery configuration.
 
