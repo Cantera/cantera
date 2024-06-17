@@ -5,6 +5,13 @@ particular programming language, select the corresponding category below. Or, to
 all examples covering a particular topic, regardless of programming language, select
 from the {ref}`list of example tags <tagoverview>`.
 
+```{seealso}
+If you're just getting started with Cantera, see our [](/userguide/python-tutorial) for
+an introduction to the Cantera Python interface, or the
+[C++ Tutorial](/userguide/cxx-tutorial) for some guidance on using Cantera's C++
+interface.
+```
+
 ## Python Examples
 
 ````{grid} 2 2 2 3
