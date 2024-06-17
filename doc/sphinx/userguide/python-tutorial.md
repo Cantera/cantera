@@ -440,4 +440,15 @@ Or about 16% of the total heat release rate.
 Congratulations! You have finished the Cantera Python tutorial. You should now be ready
 to begin using Cantera on your own. Please see additional sections of the [Cantera User
 Guide](/userguide/index) for assistance with intermediate and advanced Cantera
-functionality. Good luck!
+functionality. You can also take a look at our [Example Gallery](/examples/python/index)
+for ideas on how you can use Cantera. Here are a few examples that may be of particular
+interest:
+
+* [](/userguide/flame-temperature)
+* [](/userguide/heating-value)
+* [](/examples/python/thermo/equations_of_state)
+* [](/examples/python/kinetics/lithium_ion_battery)
+* [](/examples/python/reactors/continuous_reactor)
+* [](/examples/python/reactors/NonIdealShockTube)
+* [](/examples/python/onedim/flamespeed_sensitivity)
+* [](/examples/python/onedim/premixed_counterflow_twin_flame)
