@@ -65,6 +65,7 @@ public:
     AnyMap node_M;
     size_t nSpecies;
     UnitStack rate_units_;
+    AnyMap node_;
     double logP_;
     double logT_;
     double pressure_;
@@ -86,9 +87,9 @@ public:
     void getParameters(AnyMap& rateNode) const override {
         return getParameters(rateNode, Units(0));
     }
-    double evalPlogRate(PlogRate& rate, PlogData& data, AnyMap node);
-    double evalTroeRate(TroeRate& rate, FalloffData& data, AnyMap node);
-    double evalChebyshevRate(ChebyshevRate& rate, ChebyshevData& data, AnyMap node);
+    double evalPlogRate(PlogRate& rate, PlogData& data);
+    double evalTroeRate(TroeRate& rate, FalloffData& data);
+    double evalChebyshevRate(ChebyshevRate& rate, ChebyshevData& data);
 
     void setContext(const Reaction& rxn, const Kinetics& kin) override;
 
