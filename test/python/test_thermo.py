@@ -1114,10 +1114,7 @@ class TestThermo(utilities.CanteraTest):
 
 class TestInterfacePhase(utilities.CanteraTest):
     def setUp(self):
-        self.gas = ct.Solution("diamond.yaml", "gas")
-        self.solid = ct.Solution("diamond.yaml", "diamond")
-        self.interface = ct.Interface("diamond.yaml", "diamond_100",
-                                      (self.gas, self.solid))
+        self.interface = ct.Interface("diamond.yaml", "diamond_100")
 
     def test_properties(self):
         self.interface.site_density = 100

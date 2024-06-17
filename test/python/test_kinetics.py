@@ -220,8 +220,8 @@ class KineticsFromReactions(utilities.CanteraTest):
                              gas2.net_production_rates)
 
     def test_surface(self):
-        gas = ct.Solution("ptcombust.yaml", "gas")
-        surf1 = ct.Interface("ptcombust.yaml", "Pt_surf", [gas])
+        surf1 = ct.Interface("ptcombust.yaml", "Pt_surf")
+        gas = surf1.adjacent["gas"]
         surf_species = ct.Species.list_from_file("ptcombust.yaml")
         reactions = ct.Reaction.list_from_file("ptcombust.yaml", surf1)
 
@@ -295,8 +295,7 @@ class KineticsFromReactions(utilities.CanteraTest):
                              gas2.net_production_rates)
 
     def test_coverage_dependence_flags(self):
-        gas = ct.Solution("ptcombust.yaml", "gas")
-        surf = ct.Interface("ptcombust.yaml", "Pt_surf", [gas])
+        surf = ct.Interface("ptcombust.yaml", "Pt_surf")
         surf.TP = 900, ct.one_atm
         surf.coverages = {"PT(S)":1}
         with self.assertRaises(NotImplementedError):
@@ -306,11 +305,7 @@ class KineticsFromReactions(utilities.CanteraTest):
         surf.net_rates_of_progress_ddCi
 
     def test_electrochemistry_flags(self):
-        # Phases
-        mech = "lithium_ion_battery.yaml"
-        anode, cathode, metal, electrolyte = ct.import_phases(
-            mech, ["anode", "cathode", "electron", "electrolyte"])
-        anode_int = ct.Interface(mech, "edge_anode_electrolyte", adjacent=[anode, metal, electrolyte])
+        anode_int = ct.Interface("lithium_ion_battery.yaml", "edge_anode_electrolyte")
         with self.assertRaises(NotImplementedError):
             anode_int.net_rates_of_progress_ddCi
         # set skip and try to get jacobian again
@@ -537,8 +532,7 @@ class KineticsRepeatability(utilities.CanteraTest):
 
         for err in err_msg:
             with pytest.warns(UserWarning, match=err):
-                gas = ct.Solution("sticking_coeff_check.yaml")
-                ct.Interface("sticking_coeff_check.yaml", "Pt_surf", [gas])
+                ct.Interface("sticking_coeff_check.yaml", "Pt_surf")
 
 
 def check_raises(yaml, err_msg, line):
@@ -958,19 +952,20 @@ class TestSofcKinetics(utilities.CanteraTest):
                     return x0
 
         # Anode-side phases
-        gas_a, anode_bulk, oxide_a = ct.import_phases(mech,
-                                                      ['gas', 'metal', 'oxide_bulk',])
-        anode_surf = ct.Interface(mech, 'metal_surface', [gas_a])
-        oxide_surf_a = ct.Interface(mech, 'oxide_surface', [gas_a, oxide_a])
-        tpb_a = ct.Interface(mech, 'tpb', [anode_bulk, anode_surf, oxide_surf_a])
+        tpb_a = ct.Interface(mech, "tpb")
+        anode_surf = tpb_a.adjacent["metal_surface"]
+        gas_a = anode_surf.adjacent["gas"]
+        oxide_surf_a = tpb_a.adjacent["oxide_surface"]
+        oxide_a = oxide_surf_a.adjacent["oxide_bulk"]
+        anode_bulk = tpb_a.adjacent["metal"]
 
         # Cathode-side phases
-        gas_c, cathode_bulk, oxide_c = ct.import_phases(mech,
-                                                        ['gas', 'metal', 'oxide_bulk'])
-        cathode_surf = ct.Interface(mech, 'metal_surface', [gas_c])
-        oxide_surf_c = ct.Interface(mech, 'oxide_surface', [gas_c, oxide_c])
-        tpb_c = ct.Interface(mech, 'tpb', [cathode_bulk, cathode_surf,
-                                                 oxide_surf_c])
+        tpb_c = ct.Interface(mech, "tpb")
+        cathode_surf = tpb_c.adjacent["metal_surface"]
+        gas_c = cathode_surf.adjacent["gas"]
+        oxide_surf_c = tpb_c.adjacent["oxide_surface"]
+        oxide_c = oxide_surf_c.adjacent["oxide_bulk"]
+        cathode_bulk = tpb_c.adjacent["metal"]
 
         kElectron_a = tpb_a.kinetics_species_index("electron")
         def anode_curr(E):
@@ -1127,13 +1122,10 @@ class TestLithiumIonBatteryKinetics(utilities.CanteraTest):
         assert np.allclose(data, ref, rtol=1e-7)
 
     def test_interface_current(self):
-        file = "lithium_ion_battery.yaml"
-
-        # The 'elde' electrode phase is needed as a source/sink for electrons:
-        anode = ct.Solution(file, "anode")
-        elect = ct.Solution(file, "electron")
-        elyte = ct.Solution(file, "electrolyte")
-        anode_int = ct.Interface(file, "edge_anode_electrolyte", [anode, elect, elyte])
+        anode_int = ct.Interface("lithium_ion_battery.yaml", "edge_anode_electrolyte")
+        anode = anode_int.adjacent["anode"]
+        elect = anode_int.adjacent["electron"]
+        elyte = anode_int.adjacent["electrolyte"]
 
         anode.X = [0.9, 0.1]
         elyte.X = [0.4, 0.3, 0.15, 0.15]
@@ -1554,8 +1546,8 @@ class TestReaction(utilities.CanteraTest):
 
     def test_interface(self):
         surf_species = ct.Species.list_from_file("ptcombust.yaml")
-        gas = ct.Solution("ptcombust.yaml", "gas")
-        surf1 = ct.Interface("ptcombust.yaml", "Pt_surf", [gas])
+        surf1 = ct.Interface("ptcombust.yaml", "Pt_surf")
+        gas = surf1.adjacent["gas"]
 
         rate = ct.InterfaceArrheniusRate(3.7e20, 0, 67.4e6)
         rate.coverage_dependencies = {'H(S)': (0, 0, -6e6)}
@@ -1733,10 +1725,8 @@ class TestReaction(utilities.CanteraTest):
         self.assertNear(A2 * T**b2 * np.exp(-Ta2 / T), gas.forward_rate_constants[0])
 
     def test_modify_interface(self):
-        gas = ct.Solution("ptcombust.yaml", "gas")
-        surf = ct.Interface("ptcombust.yaml", "Pt_surf", [gas])
+        surf = ct.Interface("ptcombust.yaml", "Pt_surf")
         surf.coverages = 'O(S):0.1, PT(S):0.5, H(S):0.4'
-        gas.TP = surf.TP
 
         R = surf.reaction(1)
         R.rate.coverage_dependencies = {'O(S)': (0.0, 0.0, -3e6)}
@@ -1762,10 +1752,8 @@ class TestReaction(utilities.CanteraTest):
             surf.add_reaction(rxn)
 
     def test_modify_sticking(self):
-        gas = ct.Solution("ptcombust.yaml", "gas")
-        surf = ct.Interface("ptcombust.yaml", "Pt_surf", [gas])
+        surf = ct.Interface("ptcombust.yaml", "Pt_surf")
         surf.coverages = "O(S):0.1, PT(S):0.5, H(S):0.4"
-        gas.TP = surf.TP
 
         R = surf.reaction(2)
         R.rate = ct.StickingArrheniusRate(0.25, 0, 0) # original sticking coefficient = 1.0
@@ -1777,14 +1765,11 @@ class TestReaction(utilities.CanteraTest):
 
     def test_motz_wise(self):
         # Motz & Wise off for all reactions
-        gas1 = ct.Solution("ptcombust.yaml", "gas")
-        surf1 = ct.Interface("ptcombust.yaml", "Pt_surf", [gas1])
+        surf1 = ct.Interface("ptcombust.yaml", "Pt_surf")
         surf1.coverages = 'O(S):0.1, PT(S):0.5, H(S):0.4'
-        gas1.TP = surf1.TP
 
         # Motz & Wise correction on for some reactions
-        gas2 = ct.Solution("ptcombust-motzwise.yaml", "gas")
-        surf2 = ct.Interface("ptcombust-motzwise.yaml", "Pt_surf", [gas2])
+        surf2 = ct.Interface("ptcombust-motzwise.yaml", "Pt_surf")
         surf2.TPY = surf1.TPY
 
         k1 = surf1.forward_rate_constants
@@ -1843,15 +1828,11 @@ class TestReaction(utilities.CanteraTest):
 
     def test_BMmotz_wise(self):
         # Motz & Wise off for all reactions
-        gas1 = ct.Solution("blowers-masel.yaml", "gas", transport_model=None)
-        gas1.TPX = 300, ct.one_atm, {"CH4": 0.095, "O2": 0.21, "AR": 0.79}
-        surf1 = ct.Interface("blowers-masel.yaml", "Pt_surf", [gas1])
+        surf1 = ct.Interface("blowers-masel.yaml", "Pt_surf")
         surf1.coverages = 'O(S):0.1, PT(S):0.5, H(S):0.4'
-        gas1.TP = surf1.TP
 
         # Motz & Wise correction on for some reactions
-        gas2 = ct.Solution("blowers-masel.yaml", "gas")
-        surf2 = ct.Interface("blowers-masel.yaml", "Pt_motz_wise", [gas2])
+        surf2 = ct.Interface("blowers-masel.yaml", "Pt_motz_wise")
         surf2.TPY = surf1.TPY
 
         k1 = surf1.forward_rate_constants

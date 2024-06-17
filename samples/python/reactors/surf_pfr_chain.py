@@ -46,13 +46,11 @@ dt = 1.0
 
 t = tc + 273.15  # convert to Kelvin
 
-# import the gas model and set the initial conditions
-gas = ct.Solution(yaml_file, 'gas')
-gas.TPX = t, ct.one_atm, 'CH4:1, O2:1.5, AR:0.1'
-
-# import the surface model
-surf = ct.Interface(yaml_file, 'Pt_surf', [gas])
+# import the phase models and set the initial conditions
+surf = ct.Interface(yaml_file, 'Pt_surf')
 surf.TP = t, ct.one_atm
+gas = surf.adjacent['gas']
+gas.TPX = t, ct.one_atm, 'CH4:1, O2:1.5, AR:0.1'
 
 rlen = length/(NReactors-1)
 rvol = area * rlen * porosity

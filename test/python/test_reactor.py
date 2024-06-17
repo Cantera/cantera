@@ -1965,10 +1965,8 @@ class TestSurfaceKinetics(utilities.CanteraTest):
     def make_reactors(self):
         self.net = ct.ReactorNet()
 
-        self.gas = ct.Solution('diamond.yaml', 'gas')
-        self.solid = ct.Solution('diamond.yaml', 'diamond')
-        self.interface = ct.Interface('diamond.yaml', 'diamond_100',
-                                      (self.gas, self.solid))
+        self.interface = ct.Interface('diamond.yaml', 'diamond_100')
+        self.gas = self.interface.adjacent['gas']
         self.gas.TPX = None, 1.0e3, 'H:0.002, H2:1, CH4:0.01, CH3:0.0002'
         self.r1 = ct.IdealGasReactor(self.gas)
         self.r1.volume = 0.01
@@ -2094,9 +2092,8 @@ class TestReactorSensitivities(utilities.CanteraTest):
     def test_sensitivities2(self):
         net = ct.ReactorNet()
 
-        gas1 = ct.Solution("diamond.yaml", "gas")
-        solid = ct.Solution("diamond.yaml", "diamond")
-        interface = ct.Interface("diamond.yaml", "diamond_100", (gas1, solid))
+        interface = ct.Interface("diamond.yaml", "diamond_100")
+        gas1 = interface.adjacent["gas"]
         r1 = ct.IdealGasReactor(gas1)
         net.add_reactor(r1)
         net.atol_sensitivity = 1e-10
@@ -2256,9 +2253,8 @@ class TestReactorSensitivities(utilities.CanteraTest):
     @utilities.slow_test
     def test_parameter_order3(self):
         # Test including reacting surfaces
-        gas1 = ct.Solution("diamond.yaml", "gas")
-        solid = ct.Solution("diamond.yaml", "diamond")
-        interface = ct.Interface("diamond.yaml", "diamond_100", (gas1, solid))
+        interface = ct.Interface("diamond.yaml", "diamond_100")
+        gas1 = interface.adjacent["gas"]
 
         gas2 = ct.Solution('h2o2.yaml', transport_model=None)
 
@@ -2659,8 +2655,8 @@ class PureFluidReactorTest(utilities.CanteraTest):
 class AdvanceCoveragesTest(utilities.CanteraTest):
     def setup(self, model="ptcombust.yaml", gas_phase="gas", interface_phase="Pt_surf"):
         # create gas and interface
-        self.gas = ct.Solution(model, gas_phase)
-        self.surf = ct.Interface(model, interface_phase, [self.gas])
+        self.surf = ct.Interface(model, interface_phase)
+        self.gas = self.surf.adjacent["gas"]
 
     def test_advance_coverages_parameters(self):
         # create gas and interface
