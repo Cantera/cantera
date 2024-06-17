@@ -202,20 +202,14 @@ ct.add_directory('~/cantera/my_data_files')
 Cantera input files are plain text files, and can be created with any text editor. See
 the page [](input-tutorial) for more information.
 
-A Cantera input file may contain more than one phase specification, or may contain
-specifications of interfaces (surfaces). Here we import definitions of two bulk phases
-and the interface between them from file `diamond.yaml`:
+A Cantera input file may contain more than one phase specification, and may contain
+specifications of interfaces (surfaces and edges). Here we import a surface phase and
+the two adjacent bulk phases from the file `diamond.yaml`:
 
-% TODO: Demonstrate the syntax that starts with creating the Interface
 ```{code-cell} python
-gas2 = ct.Solution('diamond.yaml', 'gas')
-diamond = ct.Solution('diamond.yaml', 'diamond')
-diamond_surf = ct.Interface('diamond.yaml' , 'diamond_100',
-                            [gas2, diamond])
+diamond_surf = ct.Interface('diamond.yaml' , 'diamond_100')
+diamond_surf.adjacent
 ```
-
-Note that the bulk (3D) phases that participate in the surface reactions must also be
-passed as arguments to {py:class}`Interface`.
 
 ## Converting CK-format files
 

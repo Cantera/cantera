@@ -1713,8 +1713,8 @@ class TestStagnationFlame(utilities.CanteraTest):
 
 class TestImpingingJet(utilities.CanteraTest):
     def setUp(self):
-        self.gas = ct.Solution("ptcombust-simple.yaml", "gas")
-        self.surf_phase = ct.Interface("ptcombust-simple.yaml", "Pt_surf", [self.gas])
+        self.surf_phase = ct.Interface("ptcombust-simple.yaml", "Pt_surf")
+        self.gas = self.surf_phase.adjacent["gas"]
 
     def create_reacting_surface(self, comp, tsurf, tinlet, width):
         self.gas.TPX = tinlet, ct.one_atm, comp

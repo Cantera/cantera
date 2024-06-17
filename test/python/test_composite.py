@@ -157,9 +157,7 @@ class TestPickle(utilities.CanteraTest):
         self.assertEqual(gas2.transport_model, "multicomponent")
 
     def test_pickle_interface(self):
-        gas = ct.Solution("diamond.yaml", "gas")
-        solid = ct.Solution("diamond.yaml", "diamond")
-        interface = ct.Interface("diamond.yaml", "diamond_100", (gas, solid))
+        interface = ct.Interface("diamond.yaml", "diamond_100")
 
         with self.assertRaises(NotImplementedError):
             with open(self.test_work_path / "interface.pkl", "wb") as pkl:

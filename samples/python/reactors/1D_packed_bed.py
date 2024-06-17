@@ -140,10 +140,9 @@ import matplotlib.pyplot as plt
 
 # Import the reaction mechanism for Ammonia synthesis/decomposition on Ru-Ba/YSZ catalyst
 mechfile = "example_data/ammonia-Ru-Ba-YSZ-CSM-2019.yaml"
-# Import the models for gas-phase
-gas = ct.Solution(mechfile, "gas")
-# Import the model for surface-phase
-surf = ct.Interface(mechfile, "Ru_surface", [gas])
+# Import the models for surface-phase and gas
+surf = ct.Interface(mechfile, "Ru_surface")
+gas = surf.adjacent["gas"]
 
 # Other parameters
 n_gas = gas.n_species  # number of gas species
