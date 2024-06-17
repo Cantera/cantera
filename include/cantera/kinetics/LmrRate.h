@@ -58,7 +58,7 @@ public:
     vector<AnyMap> colliderNodes;
     
     vector<ArrheniusRate> eigObjs;
-    vector<string> names;
+    vector<string> colliderNames;
     RateTypes rateObj_M;
     DataTypes dataObj_M;
     ArrheniusRate eigObj_M;
