@@ -65,9 +65,19 @@ LmrRate::LmrRate(const AnyMap& node, const UnitStack& rate_units){
 }
 
 void LmrRate::setParameters(const AnyMap& node, const UnitStack& rate_units){
+    std::string rxn = node["equation"].as<std::string>();
     // writelog("setParameters::1"); writelog("\n");
     ReactionRate::setParameters(node, rate_units);
     rate_units_=rate_units;
+    for (int i = 0; i < rxn.length(); i++) {
+        if (i==0 && rxn[i]=='2' && rxn[i+1]==' ') {
+            rate_units_.join(1);
+            break;
+        } else if (rxn[i]=='<'){
+            break;
+        }
+    } 
+
     if(!node.hasKey("collider-list")){
         throw InputFileError("LmrRate::setParameters", m_input,"Yaml input for LMR-R does not follow the necessary structure.");
     }
@@ -129,7 +139,7 @@ void LmrRate::validate(const string& equation, const Kinetics& kin){
 }
 
 void LmrRate::setContext(const Reaction& rxn, const Kinetics& kin){   
-
+    rate_units_=Reaction::calculateRateCoeffUnits(kin);
     // m_stoichCoeffs.clear();
     // for (const auto& [name, stoich] : rxn.reactants) {
     //     m_stoichCoeffs.emplace_back(kin.kineticsSpeciesIndex(name), -stoich);
@@ -234,7 +244,7 @@ double LmrRate::evalFromStruct(const LmrData& shared_data){
     }
     double eig0_M = eigObj_M.evalRate(logT_, recipT_);
     // writelog(" eig0_M = " + std::to_string(eig0_M*1e33) + "\n"); 
-    // writelog(" eig0_M = " + std::to_string(eig0_M) + "\n"); 
+    writelog(" eig0_M = " + std::to_string(eig0_M) + "\n"); 
     // double eig0_M = 10;
     eig0_mix += sigmaX_M*eig0_M; // add all M colliders to eig0_mix in a single step
     // writelog("evalFromStruct::6"); writelog(" eig0_mix = " + std::to_string(eig0_mix) + "\n"); 
@@ -265,7 +275,7 @@ double LmrRate::evalFromStruct(const LmrData& shared_data){
                     // evalPlogRate(boost::get<PlogRate>(rateObj_M),boost::get<PlogData>(dataObj_M),node_M)*eig0_M*sigmaX_M/eig0_mix;
                     logP_ = shared_data.logP; //return to the "normal" logP value to avoid messing up other calcs
                     // writelog("evalFromStruct::10"); writelog(" k_i_plog = " + std::to_string(evalPlogRate(rate,data,colliderNodes[j])*1e13) + "\n"); 
-                    // writelog("evalFromStruct::10"); writelog(" k_i_plog = " + std::to_string(evalPlogRate(rate,data,colliderNodes[j])) + "\n"); 
+                    writelog("evalFromStruct::10"); writelog(" k_i_plog = " + std::to_string(evalPlogRate(rate,data,colliderNodes[j])) + "\n"); 
                 }
                 else if (rateObjs[j].which()==1){ // 1 means TroeRate  
                     FalloffData& data = boost::get<FalloffData>(dataObjs[j]);
@@ -297,7 +307,7 @@ double LmrRate::evalFromStruct(const LmrData& shared_data){
         k_LMR_ += evalPlogRate(boost::get<PlogRate>(rateObj_M),boost::get<PlogData>(dataObj_M),node_M)*eig0_M*sigmaX_M/eig0_mix;
         logP_ = shared_data.logP; //return to the "normal" logP value to avoid messing up other calcs
         // writelog("evalFromStruct::15"); writelog(" k_M_plog = " + std::to_string(evalPlogRate(boost::get<PlogRate>(rateObj_M),boost::get<PlogData>(dataObj_M),node_M)*1e13) + "\n"); 
-        // writelog("evalFromStruct::15"); writelog(" k_M_plog = " + std::to_string(evalPlogRate(boost::get<PlogRate>(rateObj_M),boost::get<PlogData>(dataObj_M),node_M)) + "\n"); 
+        writelog("evalFromStruct::15"); writelog(" k_M_plog = " + std::to_string(evalPlogRate(boost::get<PlogRate>(rateObj_M),boost::get<PlogData>(dataObj_M),node_M)) + "\n"); 
     }
     else if (rateObj_M.which()==1){ // 1 means TroeRate  
         // writelog("evalFromStruct::16"); writelog(" k_M_troe = " + std::to_string(evalTroeRate(boost::get<TroeRate>(rateObj_M),boost::get<FalloffData>(dataObj_M),node_M)*1e13) + "\n"); 
@@ -312,7 +322,7 @@ double LmrRate::evalFromStruct(const LmrData& shared_data){
     // writelog("evalFromStruct::18");writelog("\n T = "+std::to_string(shared_data.temperature)+"\n");writelog("\n P = "+std::to_string(shared_data.pressure)+"\n"); writelog("\n\n\nNEW REACTION\n");
     // writemsg("k_LMR = ",k_LMR_);
     // writelog("NEW REACTION\n");
-    writelog("T = "+std::to_string(shared_data.temperature)+"\n");
+    // writelog("T = "+std::to_string(shared_data.temperature)+"\n");
     return k_LMR_;
 }
 
