@@ -94,12 +94,12 @@ cdef extern from "cantera/oneD/StFlow.h":
         void setAxisymmetricFlow()
         void enableTwoPointControl(cbool)
         cbool twoPointControlEnabled()
-        double leftControlPointTemperature()
-        double leftControlPointCoordinate()
-        void setLeftControlPointTemperature(double)
-        double rightControlPointTemperature()
-        double rightControlPointCoordinate()
-        void setRightControlPointTemperature(double)
+        double leftControlPointTemperature() except +translate_exception
+        double leftControlPointCoordinate() except +translate_exception
+        void setLeftControlPointTemperature(double) except +translate_exception
+        double rightControlPointTemperature() except +translate_exception
+        double rightControlPointCoordinate() except +translate_exception
+        void setRightControlPointTemperature(double) except +translate_exception
 
 
 cdef extern from "cantera/oneD/Sim1D.h":

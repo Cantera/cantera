@@ -195,12 +195,28 @@ public:
     //! Return location of the point where temperature is fixed
     double fixedTemperatureLocation();
 
-    //! Set the left control point location.
-    //! This is used when two-point flame control is active.
+    /**
+     * Set the left control point location using the specified temperature.
+     * This is used when two-point flame control is active.
+     *
+     * The provided temperature will be used to locate the closest grid point to
+     * that temperature, which will serve to locate the left control point's
+     * coordinate. Starting from the left boundary, the first grid point that is
+     * equal to or exceeds the specified temperature will be used to locate the
+     * left control point's coordinate.
+     */
     void setLeftControlPoint(double temperature);
 
-    //! Sets the right  control point location.
-    //! This is used when two-point flame control is active.
+    /**
+     * Set the right control point location using the specified temperature.
+     * This is used when two-point flame control is active.
+     *
+     * The provided temperature will be used to locate the closest grid point to
+     * that temperature, which will serve to locate the right control point's
+     * coordinate. Starting from the right boundary, the first grid point that is
+     * equal to or exceeds the specified temperature will be used to locate the
+     * right control point's coordinate.
+     */
     void setRightControlPoint(double temperature);
 
     /**
