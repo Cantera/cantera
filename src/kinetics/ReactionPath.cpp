@@ -662,6 +662,8 @@ string reactionLabel(size_t i, size_t kr, size_t nr,
         label += " + M ";
     } else if (ba::starts_with(s.reaction(i)->type(), "falloff")) {
         label += " (+ M)";
+    } else if (ba::starts_with(s.reaction(i)->type(), "LMR_R")) {
+        label += " (+ M)";
     }
     return label;
 }
@@ -716,6 +718,8 @@ int ReactionPathBuilder::build(Kinetics& s, const string& element,
                     if (ba::starts_with(s.reaction(i)->type(), "three-body")) {
                         revlabel += " + M ";
                     } else if (ba::starts_with(s.reaction(i)->type(), "falloff")) {
+                        revlabel += " (+ M)";
+                    } else if (ba::starts_with(s.reaction(i)->type(), "LMR_R")) {
                         revlabel += " (+ M)";
                     }
 
