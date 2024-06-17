@@ -43,6 +43,9 @@ struct LmrData : public ReactionData{
     vector<string> allSpecies; //list of all yaml species (not just those for which LMRR data exists)  
 // protected:
     double m_pressure_buf = -1.0; //!< buffered pressure
+    PlogData plog_data;
+    FalloffData troe_data;
+    ChebyshevData cheb_data;
 };
 
 class LmrRate final : public ReactionRate
@@ -96,8 +99,6 @@ public:
     double evalFromStruct(const LmrData& shared_data);
     void validate(const string& equation, const Kinetics& kin) override; //removed from cpp, but re-insert later
     void writeMsg(string str, double dbl){writelog(str); writelog(std::to_string(dbl)); writelog("\n");}
-    
-
 
 protected:
     // double logP_ = -1000;
