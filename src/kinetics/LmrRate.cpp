@@ -195,13 +195,11 @@ double LmrRate::evalFromStruct(const LmrData& shared_data){
     // temperature_=shared_data.temperature;
     // ready_=shared_data.ready;
     moleFractions_=shared_data.moleFractions;
-
-    eig0_mix=0;
     double sigmaX_M=0.0;
     for (size_t i=0; i<nSpecies; i++){ //testing each species listed at the top of yaml file
         sigmaX_M += moleFractions_[i] //total sum will be essentially 1, but perhaps not exactly due to Cantera's rounding conventions
     }
-
+    eig0_mix=0.0;
     for (size_t i=0; i<nSpecies; i++){ //testing each species listed at the top of yaml file
         // writelog("evalFromStruct::2"); writelog("\n");
         for (size_t j=0; j<colliderIndices.size(); j++){
@@ -209,7 +207,7 @@ double LmrRate::evalFromStruct(const LmrData& shared_data){
             if (i==colliderIndices[j]){ // Species is in collider list
                 // writelog("evalFromStruct::4"); writelog("\n");
                 eig0_mix += moleFractions_[i]*eigObjs[j].evalRate(logT_, recipT_);
-                sigmaX_M -= moleFractions_[i]
+                sigmaX_M -= moleFractions_[i];
             }
         }
     }
@@ -223,7 +221,6 @@ double LmrRate::evalFromStruct(const LmrData& shared_data){
         throw InputFileError("LmrRate::evalFromStruct", m_input,"eig0_mix==0 for some reason");
     }
     k_LMR_=0;
-    sigmaX_M=0.0;
     for (size_t i=0; i<nSpecies; i++){ //testing each species listed at the top of yaml file
         // writelog("evalFromStruct::7"); writelog("\n");
         for (size_t j=0; j<colliderIndices.size(); j++){
@@ -265,10 +262,6 @@ double LmrRate::evalFromStruct(const LmrData& shared_data){
                 else {
                     throw InputFileError("LmrRate::evalFromStruct", m_input,"Something went wrong...");
                 }
-            }
-            else {
-                // writelog("evalFromStruct::13"); writelog("\n");
-                sigmaX_M += moleFractions_[i];
             }
         }
     }
