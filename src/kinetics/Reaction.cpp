@@ -161,7 +161,7 @@ void Reaction::check()
 
     string rate_type = m_rate->type();
     if (m_third_body) {
-        if (rate_type == "falloff" || rate_type == "chemically-activated" || rate_type == "LMR_R") {
+        if (rate_type == "falloff" || rate_type == "chemically-activated") {
             if (m_third_body->mass_action && !m_from_composition) {
                 throw InputFileError("Reaction::setRate", input,
                     "Third-body collider does not use '(+{})' notation.",
@@ -182,7 +182,7 @@ void Reaction::check()
             }
         }
     } else {
-        if (rate_type == "falloff" || rate_type == "chemically-activated" || rate_type == "LMR_R") {
+        if (rate_type == "falloff" || rate_type == "chemically-activated") {
             if (!m_from_composition) {
                 throw InputFileError("Reaction::setRate", input,
                     "Reaction equation for falloff reaction '{}'\n does not "
