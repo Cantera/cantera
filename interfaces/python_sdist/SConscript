@@ -158,8 +158,8 @@ sdist(localenv.Command("README.rst", "#README.rst", Copy("$TARGET", "$SOURCE")))
 def build_sdist(target, source, env):
     build_dir = Path(source[0].abspath).parent
     with DefaultIsolatedEnv() as build_env:
-        builder = ProjectBuilder(str(build_dir),
-                                 python_executable=build_env.python_executable)
+        builder = ProjectBuilder.from_isolated_env(env=build_env,
+                                                   source_dir=str(build_dir))
 
         # first install the build dependencies
         build_env.install(builder.build_system_requires)
