@@ -34,36 +34,7 @@ def _needs_graphviz(func):
 def draw_reactor(r, graph=None, graph_attr=None, node_attr=None, print_state=False,
                  species=None, species_units="percent"):
     """
-    Draw `~cantera.ReactorBase` object as ``graphviz`` ``dot`` node.
-    The node is added to an existing ``graph`` if provided.
-    Optionally include current reactor state in the node.
-
-    :param r:
-        `~cantera.ReactorBase` object or subclass.
-    :param graph:
-        ``graphviz.graphs.BaseGraph`` object to which the reactor is added.
-        If not provided, a new ``DiGraph`` is created. Defaults to ``None``.
-    :param graph_attr:
-        Attributes to be passed to the ``graphviz.Digraph`` function that control the
-        general appearance of the drawn network.
-        Has no effect if existing ``graph`` is provided.
-        See https://graphviz.org/docs/graph/ for a list of all usable attributes.
-    :param node_attr:
-        Attributes to be passed to the ``node`` method invoked to draw the reactor.
-        See https://graphviz.org/docs/nodes/ for a list of all usable attributes.
-    :param print_state:
-        Whether state information of the reactor is printed into the node.
-        Defaults to ``False``.
-    :param species:
-        If ``print_state`` is ``True``, define how species are to be printed.
-        Options are ``'X'`` and ``'Y'`` for mole and mass fractions of all species,
-        respectively, or an iterable that contains the desired species names as strings.
-        Defaults to ``None``.
-    :param species_units:
-        Defines the units the species are displayed in as either ``"percent"`` or
-        ``"ppm"``. Defaults to ``"percent"``.
-    :return:
-        ``graphviz.graphs.BaseGraph`` object with reactor
+    See `.ReactorBase.draw`.
 
     .. versionadded:: 3.1
     """
@@ -123,50 +94,7 @@ def draw_reactor_net(n, graph_attr=None, node_attr=None, edge_attr=None,
                      moving_wall_edge_attr=None, surface_edge_attr=None,
                      print_state=False, show_wall_velocity=True, **kwargs):
     """
-    Draw `~cantera.ReactorNet` object as ``graphviz.graphs.DiGraph``. Connecting flow
-    controllers and walls are depicted as arrows.
-
-    :param n:
-        `~cantera.ReactorNet` object
-    :param graph_attr:
-        Attributes to be passed to the ``graphviz.Digraph`` function that control the
-        general appearance of the drawn network.
-        See https://graphviz.org/docs/graph/ for a list of all usable attributes.
-    :param node_attr:
-        Attributes to be passed to the ``graphviz.Digraph`` function that control the
-        default appearance of any ``node`` (reactors, reservoirs).
-        ``node_attr`` defined in the reactor object itself have priority.
-        See https://graphviz.org/docs/nodes/ for a list of all usable attributes.
-    :param edge_attr:
-        Attributes to be passed to the ``graphviz.Digraph`` function that control the
-        default appearance of any ``edge`` (flow controllers, walls).
-        ``edge_attr`` defined in the connection objects (subclasses of
-        `~cantera.FlowDevice` or walls) themselves have priority.
-        See https://graphviz.org/docs/edges/ for a list of all usable attributes.
-    :param heat_flow_attr:
-        Same as ``edge_attr`` but only applied to edges representing walls.
-        Default is ``{"color": "red", "style": "dashed"}``.
-    :param mass_flow_attr:
-        Same as ``edge_attr`` but only applied to edges representing
-        `~cantera.FlowDevice` objects.
-    :param moving_wall_edge_attr:
-        Same as ``edge_attr`` but only applied to edges representing wall movement.
-    :param surface_edge_attr:
-        Same as ``edge_attr`` but only applied to edges representing connections between
-        a surface and its reactor.
-        Default is ``{"style": "dotted", "arrowhead": "none"}``.
-    :param print_state:
-        Whether state information of each reactor is printed into the respective node.
-        See `draw_reactor` for additional keywords to control this output.
-        Defaults to ``False``.
-    :param show_wall_velocity:
-        If ``True``, wall movement will be indicated by additional arrows with the
-        corresponding wall velocity as a label.
-    :param kwargs:
-        Additional keywords are passed on to each call of `draw_reactor`,
-        `draw_surface`, `draw_flow_controllers`, and `draw_walls`.
-    :return:
-        ``graphviz.graphs.BaseGraph`` object with reactor net.
+    See `.ReactorNet.draw`.
 
     .. versionadded:: 3.1
     """
@@ -239,34 +167,7 @@ def draw_reactor_net(n, graph_attr=None, node_attr=None, edge_attr=None,
 def draw_surface(surface, graph=None, graph_attr=None, node_attr=None,
                  surface_edge_attr=None, print_state=False, **kwargs):
     """
-    Draw `~cantera.ReactorSurface` object with its connected reactor.
-
-    :param surface:
-        `~cantera.ReactorSurface` object.
-    :param graph:
-        ``graphviz.graphs.BaseGraph`` object to which the connection is added.
-        If not provided, a new ``DiGraph`` is created. Defaults to ``None``.
-    :param graph_attr:
-        Attributes to be passed to the ``graphviz.Digraph`` function that control the
-        general appearance of the drawn network.
-        Has no effect if existing ``graph`` is provided.
-        See https://graphviz.org/docs/graph/ for a list of all usable attributes.
-    :param node_attr:
-        Attributes to be passed to the ``node`` method invoked to draw the reactor.
-        See https://graphviz.org/docs/nodes/ for a list of all usable attributes.
-    :param surface_edge_attr:
-        Attributes to be passed to the ``edge`` method invoked to draw the connection
-        between the surface and its reactor.
-        See https://graphviz.org/docs/edges/ for a list of all usable attributes.
-        Default is ``{"style": "dotted", "arrowhead": "none"}``.
-    :param print_state:
-        Whether state information of the reactor is printed into the node.
-        See ``draw_reactor`` for additional keywords to control this output.
-        Defaults to ``False``.
-    :param kwargs:
-        Additional keywords are passed on to `draw_reactor`.
-    :return:
-        A ``graphviz.graphs.BaseGraph`` object depicting the surface and its reactor.
+    See `.ReactorSurface.draw`.
 
     .. versionadded:: 3.1
     """
@@ -287,29 +188,10 @@ def draw_surface(surface, graph=None, graph_attr=None, node_attr=None,
 def draw_flow_controllers(flow_controllers, graph=None, graph_attr=None, node_attr=None,
                           edge_attr=None):
     """
-    Draw flow controller connections between reactors and reservoirs.
+    See `.FlowDevice.draw`.
 
     :param flow_controllers:
         Iterable of subtypes of `~cantera.FlowDevice`.
-    :param graph:
-        ``graphviz.graphs.BaseGraph`` object to which the connection is added.
-        If not provided, a new ``DiGraph`` is created. Defaults to ``None``.
-    :param graph_attr:
-        Attributes to be passed to the ``graphviz.Digraph`` function that control the
-        general appearance of the drawn network.
-        Has no effect if existing ``graph`` is provided.
-        See https://graphviz.org/docs/graph/ for a list of all usable attributes.
-    :param node_attr:
-        Attributes to be passed to the ``graphviz.Digraph`` function that control the
-        default appearance of any ``node`` (reactors, reservoirs).
-        Has no effect if existing ``graph`` is provided.
-        See https://graphviz.org/docs/nodes/ for a list of all usable attributes.
-    :param edge_attr:
-        Attributes to be passed to the ``edge`` method invoked to draw reactor
-        connections.
-        See https://graphviz.org/docs/edges/ for a list of all usable attributes.
-    :return:
-        A ``graphviz.graphs.BaseGraph`` object depicting the connections.
 
     .. versionadded:: 3.1
     """
@@ -361,38 +243,10 @@ def draw_flow_controllers(flow_controllers, graph=None, graph_attr=None, node_at
 def draw_walls(walls, graph=None, graph_attr=None, node_attr=None, edge_attr=None,
                moving_wall_edge_attr=None, show_wall_velocity=True):
     """
-    Draw wall connections between reactors and reservoirs.
+    See `.Wall.draw`.
 
     :param walls:
-        Iterable of subtypes of `~cantera.WallBase` that connect reactors and
-        reservoirs.
-    :param graph:
-        ``graphviz.graphs.BaseGraph`` object to which the connection is added.
-        If not provided, a new ``DiGraph`` is created. Defaults to ``None``.
-    :param graph_attr:
-        Attributes to be passed to the ``graphviz.Digraph`` function that control the
-        general appearance of the drawn network.
-        Has no effect if existing ``graph`` is provided.
-        See https://graphviz.org/docs/graph/ for a list of all usable attributes.
-    :param node_attr:
-        Attributes to be passed to the ``graphviz.Digraph`` function that control the
-        default appearance of any ``node`` (reactors, reservoirs).
-        Has no effect if existing ``graph`` is provided.
-        See https://graphviz.org/docs/nodes/ for a list of all usable attributes.
-    :param edge_attr:
-        Attributes to be passed to the ``edge`` method invoked to draw reactor
-        connections.
-        Default is ``{"color": "red", "style": "dashed"}``.
-        See https://graphviz.org/docs/edges/ for a list of all usable attributes.
-    :param moving_wall_edge_attr:
-        Same as ``edge_attr`` but only applied to edges representing wall movement.
-        Default is ``{"arrowtail": "icurveteecurve", "dir": "both", "style": "dotted",
-        "arrowhead": "icurveteecurve"}``.
-    :param show_wall_velocity:
-        If ``True``, wall movement will be indicated by additional arrows with the
-        corresponding wall velocity as a label.
-    :return:
-        A ``graphviz.graphs.BaseGraph`` object depicting the connections.
+        Iterable of subtypes of `~cantera.Wall` that connect reactors and reservoirs.
 
     .. versionadded:: 3.1
     """
