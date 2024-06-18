@@ -68,9 +68,23 @@ LmrRate::LmrRate(const AnyMap& node, const UnitStack& rate_units){
 
 void LmrRate::setParameters(const AnyMap& node, const UnitStack& rate_units){
     string rxn = node["equation"].as<string>();
+    rate_units_ = rate_units;
+    for (int i = 0; i < rxn.length(); i++) {
+        if (i==0 && rxn[i]=='2' && rxn[i+1]==' ') {
+            rate_units_.join(1);
+            break;
+        } 
+        else if (i>0 && rxn[i-1]==' ' && rxn[i]=='+' && rxn[i+1]==' ') {
+            rate_units_.join(1);
+            break;
+        }
+        else if (rxn[i]=='<'){
+            break;
+        }
+    } 
+
     // writelog("setParameters::1"); writelog("\n");
-    ReactionRate::setParameters(node, rate_units);
-    rate_units_=rate_units;
+    ReactionRate::setParameters(node, rate_units_);
     if(!node.hasKey("collider-list")){
         throw InputFileError("LmrRate::setParameters", m_input,"Yaml input for LMR-R does not follow the necessary structure.");
     }
@@ -83,15 +97,15 @@ void LmrRate::setParameters(const AnyMap& node, const UnitStack& rate_units){
     eigObj_M=ArrheniusRate(AnyValue(colliders[0]["eig0"]),colliders[0].units(), rate_units_);
     if (colliders[0].hasKey("rate-constants")){
         // writelog("setParameters::2"); writelog("\n");
-        rateObj_M = PlogRate(colliders[0], rate_units);
+        rateObj_M = PlogRate(colliders[0], rate_units_);
         dataObj_M = PlogData();
     } else if (colliders[0].hasKey("Troe")){
         // writelog("setParameters::3"); writelog("\n");
-        rateObj_M = TroeRate(colliders[0], rate_units);
+        rateObj_M = TroeRate(colliders[0], rate_units_);
         dataObj_M = FalloffData(); 
     } else if (colliders[0].hasKey("pressure-range")){
         // writelog("setParameters::4"); writelog("\n");
-        rateObj_M = ChebyshevRate(colliders[0], rate_units);
+        rateObj_M = ChebyshevRate(colliders[0], rate_units_);
         dataObj_M = ChebyshevData();
     } else {
         throw InputFileError("LmrRate::setParameters", m_input,"The M-collider must be specified in a PLOG, Troe, or Chebyshev format.");    
@@ -107,15 +121,15 @@ void LmrRate::setParameters(const AnyMap& node, const UnitStack& rate_units){
         eigObjs.push_back(ArrheniusRate(AnyValue(colliders[i]["eig0"]),colliders[i].units(), rate_units_));
         if (colliders[i].hasKey("rate-constants")){
             // writelog("setParameters::5"); writelog("\n");
-            rateObjs.push_back(PlogRate(colliders[i], rate_units));
+            rateObjs.push_back(PlogRate(colliders[i], rate_units_));
             dataObjs.push_back(PlogData());
         } else if (colliders[i].hasKey("Troe")){
             // writelog("setParameters::6"); writelog("\n");
-            rateObjs.push_back(TroeRate(colliders[i], rate_units));
+            rateObjs.push_back(TroeRate(colliders[i], rate_units_));
             dataObjs.push_back(FalloffData());
         } else if (colliders[i].hasKey("pressure-range")){
             // writelog("setParameters::7"); writelog("\n");
-            rateObjs.push_back(ChebyshevRate(colliders[i], rate_units));
+            rateObjs.push_back(ChebyshevRate(colliders[i], rate_units_));
             dataObjs.push_back(ChebyshevData());
         } else { //Collider has an eig0 specified, but no other info is provided. Assign it the same rate and data objects as "M"
             // writelog("setParameters::8"); writelog("\n");
