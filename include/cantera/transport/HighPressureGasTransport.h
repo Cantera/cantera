@@ -126,6 +126,8 @@ struct ChungMixtureParameters
  * @cite poling2001 (viscosity in Ch. 9, thermal conductivity in Ch. 10, and diffusion
  * coefficients in Ch. 11).
  *
+ * @note: All equations that are cited in this implementation are from the 5th edition
+ * of the book "The Properties of Gases and Liquids" by Poling, Prausnitz, and O'Connell.
  *
  *
  * @ingroup tranprops
@@ -142,10 +144,51 @@ public:
     }
 
     double viscosity() override;
+
+    /**
+    * Calculates the high-pressure mixture thermal conductivity using the Chung method.
+    *
+    * The Chung method is described in on page 10.23.
+    *
+    * @f[
+    *    \lambda = \frac{31.2 \eta^0 \Psi}{M'} \left( G_1^{-1} + B_6 y \right) + q B_7 y^2 T_r^{1/2} G_2
+    * @f]
+    ** where:
+    *
+    * @f[
+    *   \begin{align*}
+    *       \lambda &= \text{thermal conductivity, W/(m·K)} \\
+    *       \eta^0 &= \text{low-pressure gas viscosity, N·s/m}^2 \\
+    *       M' &= \text{molecular weight, kg/mol} \\
+    *       \Psi &= f(C_v, \omega, T_r) \text{ [as defined under Eq. (10-3.14)]} \\
+    *       q &= 3.586 \times 10^{-3} \left( \frac{T_c}{M'} \right)^{1/2} V_c^{2/3} \\
+    *       T &= \text{temperature, K} \\
+    *       T_c &= \text{critical temperature, K} \\
+    *       T_r &= \text{reduced temperature, } \frac{T}{T_c} \\
+    *       V_c &= \text{critical volume, cm}^3/\text{mol} \\
+    *       \gamma &= \frac{V_c}{6V}
+    *   \end{align*}
+    * @f]
+    *
+    * The details about the parameters and constants used in the expression are
+    * found in the Poling book.
+    *
+    * The mixture values of the pseudo-critical temperature and other model parameters
+    * are calculated using the Chung mixing rules defined on page 9.25.
+    *
+    * The mixture value of the specific heat is computed using equation 10-6.6, which
+    * is the mole fraction weighted sum of the pure species specific heats.
+    *
+    * @f[
+    *   C_{v,m} = \sum_i y_i C_{v,i}
+    * #f]
+    *
+    */
     double thermalConductivity() override;
 
     /**
-     * Returns the matrix of binary diffusion coefficients
+     * Returns the matrix of binary diffusion coefficients, augmented by the
+     * Takahashi correction factor.
      *
      *      d[ld*j +  i] = rp*m_bdiff(i,j)*(DP)_R;
      *
@@ -162,23 +205,50 @@ protected:
     double Vcrit_i(size_t i);
     double Zcrit_i(size_t i);
 
-    // Uses the low-pressure Chung viscosity model to calculate the viscosity
-    // Defined by equation 9-4.10 in Poling et al.
-    // Gives viscosity in units of micropoise
-    // T must be units of K
-    // MW must be units of kg/kmol
-    // sigma must be units of Angstroms
-    double low_pressure_viscosity(double T, double T_star, double MW, double acentric_factor, double mu_r, double sigma, double kappa);
+    /**
+    * Returns the low-pressure mixture viscosity using the Chung method in micropoise.
+    *
+    * Defined by equation 9-4.10.
+    *
+    * @f[
+    *   \eta = 26.69 F_c \frac{(M*T)^(\frac{1}{2})}{\sigma^2 \Omega}
+    * @f]
+    *
+    * T must be in units of K, MW must be units of kg/kmol, and sigma must be units of Angstroms
+    *
+    * This function is structured such that it can be used for pure species or mixtures, with the
+    * only difference being the values that are passed to the function (pure values versus mixture values).
+    */
+    double low_pressure_viscosity(double T, double T_star, double MW, double acentric_factor,
+                                 double mu_r, double sigma, double kappa);
 
     // Computes the high-pressure viscosity using the Chung method (Equation 9-6.18).
     // Gives viscosity in units of micropoise
-    double high_pressure_viscosity(double T_star, double MW, double rho, double Vc, double Tc, double acentric_factor, double mu_r, double kappa);
+    double high_pressure_viscosity(double T_star, double MW, double rho, double Vc, double Tc,
+                                   double acentric_factor, double mu_r, double kappa);
 
-    // Computes and store composition-dependent values of the parameters needed for the Chung viscosity model.
+    /**
+    * Returns the composition-dependent values of the parameters needed for the Chung viscosity model.
+    *
+    * The equations for the mixing rules defined on page 9.25 for the Chung method's
+    * composition dependent parameters.
+    */
     void compute_mixture_parameters(ChungMixtureParameters& params);
 
-    // Computes the thermal conductivity using the Chung method (Equation 10-5.5).
-    // Gives thermal conductivity in units of W/m/K
+    /**
+    * Computes the high-pressure thermal conductivity using the Chung method (Equation 10-5.5).
+    *
+    * Gives thermal conductivity in units of W/m/K.
+    *
+    * This function is structured such that it can be used for pure species or mixtures, with the
+    * only difference being the values that are passed to the function (pure values versus mixture values).
+    *
+    * This method utilizes the low-pressure Chung viscosity as that is a required parameter in the model, and
+    * thus makes a call to the low pressure viscosity implementation. This is why it requires parameters
+    * typically associated with the viscosity calculation.
+    *
+    * M_prime (M' in the model) has units of kg/mol, and is just the molecular weight (kg/kmol) divided by 1000.
+    */
     double high_pressure_thermal_conductivity(double T, double T_star, double MW, double rho, double Cv, double Vc, double Tc, double sigma, double acentric_factor, double mu_r, double kappa);
 
     /**
