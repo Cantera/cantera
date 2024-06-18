@@ -1,6 +1,7 @@
 import sys
 import os
 import re
+from Cython.Build import cythonize
 from setuptools import setup, Extension
 from setuptools.command.install import install
 from setuptools.command.develop import develop
@@ -14,8 +15,6 @@ EXT_SRC = Path("ext")
 CT_INCLUDE = Path("include")
 BOOST_INCLUDE = None
 FORCE_CYTHON_COMPILE = False
-
-CYTHON_BUILT_FILES = [pth.with_suffix(".cpp") for pth in PY_SRC.glob("*.pyx")]
 
 
 class CanteraOptionsMixin:
@@ -59,28 +58,15 @@ class DevelopCommand(CanteraOptionsMixin, develop):
     )
 
 
-if (
-    not all(p.exists() for p in CYTHON_BUILT_FILES)
-    or "sdist" in sys.argv
-    or FORCE_CYTHON_COMPILE
-    or os.environ.get("FORCE_CYTHON_COMPILE", False)
-):
-    from Cython.Build import cythonize
-
-    CYTHON_EXT = ".pyx"
-    for p in CYTHON_BUILT_FILES:
-        if p.exists():
-            p.unlink()
-else:
-    CYTHON_EXT = ".cpp"
-
-    def cythonize(extensions, **kwargs):
-        """Define a no-op for when we're not using Cython."""
-        return extensions
-
+pyx_sources = list(map(str, PY_SRC.glob("*.pyx")))
+cythonize(
+    pyx_sources,
+    compiler_directives={"binding": True},
+    force=FORCE_CYTHON_COMPILE,
+)
 
 ct_sources = list(map(str, CT_SRC.glob("**/*.cpp")))
-py_sources = list(map(str, PY_SRC.glob(f"*{CYTHON_EXT}")))
+cpp_sources = list(map(str, PY_SRC.glob("*.cpp")))
 sundials_sources = list(map(str, EXT_SRC.glob("sundials/**/*.c")))
 yaml_cpp_sources = list(map(str, EXT_SRC.glob("yaml-cpp/**/*.cpp")))
 fmt_sources = list(map(str, EXT_SRC.glob("fmt/*.cc")))
@@ -187,18 +173,15 @@ libraries = [
     ("fmtlib", lib_def(fmt_sources, extra_compile_flags, include_dirs, [])),
 ]
 
-extensions = cythonize(
-    [
-        Extension(
-            name=f"cantera._cantera",
-            sources=py_sources + ct_sources,
-            include_dirs=include_dirs,
-            extra_compile_args=extra_compile_flags,
-            language="c++",
-        )
-    ],
-    compiler_directives={"binding": True, "language_level": 3},
-)
+extensions = [
+    Extension(
+        name="cantera._cantera",
+        sources=cpp_sources + ct_sources,
+        include_dirs=include_dirs,
+        extra_compile_args=extra_compile_flags,
+        define_macros=[("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")],
+    ),
+]
 
 setup(
     ext_modules=extensions,
