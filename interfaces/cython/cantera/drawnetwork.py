@@ -92,7 +92,8 @@ def draw_reactor(r, graph=None, graph_attr=None, node_attr=None, print_state=Fal
 def draw_reactor_net(n, graph_attr=None, node_attr=None, edge_attr=None,
                      heat_flow_attr=None, mass_flow_attr=None,
                      moving_wall_edge_attr=None, surface_edge_attr=None,
-                     print_state=False, show_wall_velocity=True, **kwargs):
+                     show_wall_velocity=True, print_state=False, species=None,
+                     species_units="percent"):
     """
     See `.ReactorNet.draw`.
 
@@ -119,22 +120,26 @@ def draw_reactor_net(n, graph_attr=None, node_attr=None, edge_attr=None,
         for name, group in reactor_groups.items():
             sub = _graphviz.Digraph(name=f"cluster_{name}", graph_attr=graph_attr)
             for r in group:
-                draw_reactor(r, sub, print_state=print_state, **kwargs)
+                draw_reactor(r, sub, print_state=print_state, species=species,
+                             species_units=species_units)
                 drawn_reactors.add(r)
                 flow_controllers.update(r.inlets + r.outlets)
                 walls.update(r.walls)
                 for surface in r.surfaces:
-                    draw_surface(surface, sub, print_state=print_state, **kwargs)
+                    draw_surface(surface, sub, print_state=print_state, species=species,
+                                 species_units=species_units)
             sub.attr(label=name)
             graph.subgraph(sub)
     reactors -= drawn_reactors
 
     for r in reactors:
-        draw_reactor(r, graph, print_state=print_state, **kwargs)
+        draw_reactor(r, graph, print_state=print_state, species=species,
+                     species_units=species_units)
         flow_controllers.update(r.inlets + r.outlets)
         walls.update(r.walls)
         for surface in r.surfaces:
-            draw_surface(surface, graph, print_state=print_state, **kwargs)
+            draw_surface(surface, graph, print_state=print_state, species=species,
+                         species_units=species_units)
 
     # some Reactors or Reservoirs only exist as connecting nodes
     connected_reactors = set()
@@ -151,21 +156,23 @@ def draw_reactor_net(n, graph_attr=None, node_attr=None, edge_attr=None,
     # remove already drawn reactors and draw new reactors
     connected_reactors -= drawn_reactors
     for r in connected_reactors:
-        draw_reactor(r, graph, print_state=print_state, **kwargs)
+        draw_reactor(r, graph, print_state=print_state, species=species,
+                     species_units=species_units)
 
     fc_edge_attr = {**(edge_attr or {}), **(mass_flow_attr or {})}
-    draw_flow_controllers(flow_controllers, graph, edge_attr=fc_edge_attr, **kwargs)
+    draw_flow_controllers(flow_controllers, graph, edge_attr=fc_edge_attr)
     w_edge_attr = {**(edge_attr or {}), "color": "red", "style": "dashed",
                    **(heat_flow_attr or {})}
     draw_walls(walls, graph, edge_attr=w_edge_attr,
                moving_wall_edge_attr=moving_wall_edge_attr,
-               show_wall_velocity=show_wall_velocity, **kwargs)
+               show_wall_velocity=show_wall_velocity)
 
     return graph
 
 
 def draw_surface(surface, graph=None, graph_attr=None, node_attr=None,
-                 surface_edge_attr=None, print_state=False, **kwargs):
+                 surface_edge_attr=None, print_state=False, species=None,
+                 species_units="percent"):
     """
     See `.ReactorSurface.draw`.
 
@@ -173,7 +180,8 @@ def draw_surface(surface, graph=None, graph_attr=None, node_attr=None,
     """
 
     r = surface.reactor
-    graph = draw_reactor(r, graph, graph_attr, node_attr, print_state, **kwargs)
+    graph = draw_reactor(r, graph, graph_attr, node_attr, print_state, species=species,
+                         species_units=species_units)
     name = f"{r.name} surface"
     edge_attr = {"style": "dotted", "arrowhead": "none",
                  **(surface_edge_attr or {})}

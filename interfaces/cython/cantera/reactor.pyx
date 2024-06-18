@@ -884,8 +884,9 @@ cdef class ReactorSurface:
         """
         return self._reactor
 
-    def draw(self, graph=None, *, graph_attr=None, node_attr=None, surface_edge_attr=None,
-             print_state=False, **kwargs):
+    def draw(self, graph=None, *, graph_attr=None, node_attr=None,
+             surface_edge_attr=None,  print_state=False, species=None,
+             species_units="percent"):
         """
         Draw the surface as a ``graphviz`` ``dot`` node connected to its reactor.
         The node is added to an existing ``graph`` if provided.
@@ -908,8 +909,14 @@ cdef class ReactorSurface:
         :param print_state:
             Whether state information of the reactor is printed into its node.
             Defaults to ``False``
-        :param kwargs:
-            Additional keywords are passed on to ``~.drawnetwork.draw_reactor``.
+        :param species:
+            If ``print_state`` is ``True``, define how species are to be printed.
+            Options are ``'X'`` and ``'Y'`` for mole and mass fractions of all species,
+            respectively, or an iterable that contains the desired species names as
+            strings. Defaults to ``None``.
+        :param species_units:
+            Defines the units the species are displayed in as either ``"percent"`` or
+            ``"ppm"``. Defaults to ``"percent"``.
         :return:
             ``graphviz.graphs.BaseGraph`` object with surface and connected
             reactor.
@@ -917,7 +924,7 @@ cdef class ReactorSurface:
         .. versionadded:: 3.1
         """
         return draw_surface(self, graph, graph_attr, node_attr, surface_edge_attr,
-                            print_state, **kwargs)
+                            print_state, species, species_units)
 
     def add_sensitivity_reaction(self, int m):
         """
@@ -2017,8 +2024,8 @@ cdef class ReactorNet:
 
     def draw(self, *, graph_attr=None, node_attr=None, edge_attr=None,
              heat_flow_attr=None, mass_flow_attr=None, moving_wall_edge_attr=None,
-             surface_edge_attr=None, print_state=False, show_wall_velocity=True,
-             **kwargs):
+             surface_edge_attr=None, show_wall_velocity=True, print_state=False,
+             species=None, species_units="percent"):
         """
         Draw as ``graphviz.graphs.DiGraph``. Connecting flow controllers and
         walls are depicted as arrows.
@@ -2050,18 +2057,25 @@ cdef class ReactorNet:
             Same as ``edge_attr`` but only applied to edges representing connections
             between `ReactorSurface` objects and reactors.
             Default is ``{"style": "dotted", "arrowhead": "none"}``.
+        :param show_wall_velocity:
+            If ``True``, wall movement will be indicated by additional arrows with the
+            corresponding wall velocity as a label.
         :param print_state:
             Whether state information of the reactors is printed into each node.
             Defaults to ``False``.
-        :param kwargs:
-            Additional keywords are passed on to each call of
-            `~.drawnetwork.draw_reactor`, `~.drawnetwork.draw_surface`,
-            `~.drawnetwork.draw_flow_controllers`, and `~.drawnetwork.draw_walls`.
+        :param species:
+            If ``print_state`` is ``True``, define how species are to be printed.
+            Options are ``'X'`` and ``'Y'`` for mole and mass fractions of all species,
+            respectively, or an iterable that contains the desired species names as
+            strings. Defaults to ``None``.
+        :param species_units:
+            Defines the units the species are displayed in as either ``"percent"`` or
+            ``"ppm"``. Defaults to ``"percent"``.
         :return:
             ``graphviz.graphs.BaseGraph`` object with reactor net.
 
         .. versionadded:: 3.1
         """
         return draw_reactor_net(self, graph_attr, node_attr, edge_attr, heat_flow_attr,
-                 mass_flow_attr, moving_wall_edge_attr, surface_edge_attr, print_state,
-                 **kwargs)
+                 mass_flow_attr, moving_wall_edge_attr, surface_edge_attr,
+                 show_wall_velocity, print_state, species, species_units)
