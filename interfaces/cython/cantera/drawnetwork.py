@@ -78,9 +78,14 @@ def draw_reactor(r, graph=None, graph_attr=None, node_attr=None, print_state=Fal
 
         # For full state output, shape must be 'Mrecord'
         node_attr.pop("shape", None)
-        graph.node(r.name, shape="Mrecord",
-                   label=f"{{{T_label}|{P_label}}}|{s_label}",
-                   xlabel=r.name, **node_attr)
+        if s_label:
+            graph.node(r.name, shape="Mrecord",
+                    label=f"{{{r.name}|{{{{{T_label}|{P_label}}}|{s_label}}}}}",
+                    **node_attr)
+        else:
+            graph.node(r.name, shape="Mrecord",
+                    label=f"{{{r.name}|{{{T_label}|{P_label}}}}}",
+                    **node_attr)
 
     else:
         graph.node(r.name, **node_attr)
@@ -241,7 +246,7 @@ def draw_flow_controllers(flow_controllers, graph=None, graph_attr=None, node_at
             rate *= -1
 
         graph.edge(inflow_name, outflow_name,
-                   **{"label": f"m = {rate:.2g} kg/s", **edge_attr, **fc.edge_attr,
+                   **{"label": f"ṁ = {rate:.2g} kg/s", **edge_attr, **fc.edge_attr,
                       **edge_attr_overwrite})
 
     return graph
