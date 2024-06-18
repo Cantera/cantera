@@ -61,6 +61,7 @@ cantera = *.pxd
 cantera.data = *.*
 cantera.examples = *.txt
 cantera.test = *.txt
+@cfg_example_data_options@
 
 # These options exclude data from the wheel file but not from the sdist
 [options.exclude_package_data]
