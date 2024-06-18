@@ -884,37 +884,37 @@ class TestReactor(utilities.CanteraTest):
         assert graph.body == expected
 
         # overwrite style during call to draw
-        expected = [('\tName [label="{T (K)\\n300.00|P (bar)\\n1.013}|" color=blue '
-                     'fillcolor=green shape=Mrecord style="" xlabel=Name]\n')]
+        expected = [('\tName [label="{Name|{T (K)\\n300.00|P (bar)\\n1.013}}" '
+                     'color=blue fillcolor=green shape=Mrecord style=""]\n')]
         graph = r1.draw(print_state=True, node_attr={"style": "", "color": "blue"})
         assert graph.body == expected
 
         # print state with mole fractions
         r1.node_attr = {}
-        expected = [('\tName [label="{T (K)\\n300.00|P (bar)\\n1.013}|X (%)'
-                     '\\nO2: 100.00" shape=Mrecord xlabel=Name]\n')]
+        expected = [('\tName [label="{Name|{{T (K)\\n300.00|P (bar)\\n1.013}|X (%)'
+                     '\\nO2: 100.00}}" shape=Mrecord]\n')]
         graph = r1.draw(print_state=True, species="X")
         assert graph.body == expected
 
         # print state with mass fractions
-        expected = [('\tName [label="{T (K)\\n300.00|P (bar)\\n1.013}|Y (%)'
-                     '\\nO2: 100.00" shape=Mrecord xlabel=Name]\n')]
+        expected = [('\tName [label="{Name|{{T (K)\\n300.00|P (bar)\\n1.013}|Y (%)'
+                     '\\nO2: 100.00}}" shape=Mrecord]\n')]
         graph = r1.draw(print_state=True, species="Y")
         assert graph.body == expected
 
         # print state with specified species
-        expected = [('\tName [label="{T (K)\\n300.00|P (bar)\\n1.013}|X (%)'
-                     '\\nH2: 0.00" shape=Mrecord xlabel=Name]\n')]
+        expected = [('\tName [label="{Name|{{T (K)\\n300.00|P (bar)\\n1.013}|X (%)'
+                     '\\nH2: 0.00}}" shape=Mrecord]\n')]
         graph = r1.draw(print_state=True, species=["H2"])
         assert graph.body == expected
 
         # print state with specified species and specified unit
-        expected = [('\tName [label="{T (K)\\n300.00|P (bar)\\n1.013}|X (ppm)'
-                     '\\nO2: 1000000.0" shape=Mrecord xlabel=Name]\n')]
+        expected = [('\tName [label="{Name|{{T (K)\\n300.00|P (bar)\\n1.013}|X (ppm)'
+                     '\\nO2: 1000000.0}}" shape=Mrecord]\n')]
         graph = r1.draw(print_state=True, species=["O2"], species_units="ppm")
         assert graph.body == expected
 
-        # add reactor to existiing graph
+        # add reactor to existing graph
         graph = _graphviz.Digraph()
         r1.draw(graph)
         expected = ['\tName\n']
@@ -1001,22 +1001,22 @@ class TestReactor(utilities.CanteraTest):
         self.net.advance_to_steady_state()
         graph = mfc.draw(node_attr={'style': 'filled'},
                          edge_attr={'style': 'dotted', 'color': 'blue'})
-        expected = [('\tInlet -> Reactor [label="m = 2 kg/s" color=blue '
+        expected = [('\tInlet -> Reactor [label="ṁ = 2 kg/s" color=blue '
                      'style=dotted xlabel=MFC]\n')]
         assert graph.body == expected
 
     @pytest.mark.skipif(_graphviz is None, reason="graphviz is not installed")
     def test_draw_network(self):
         self.make_reactors()
-        self.r1.name = "Hot reactor"
-        self.r2.name = "Cold reactor"
+        self.r1.name = "RH"
+        self.r2.name = "RC"
         self.add_wall(U=10)
         gas2 = ct.Solution('h2o2.yaml', transport_model=None)
         gas2.TPX = 600, 101325, 'O2:1.0'
-        hot_inlet = ct.Reservoir(gas2, name='Hot inlet')
+        hot_inlet = ct.Reservoir(gas2, name='InH')
         gas2.TPX = 200, 101325, 'O2:1.0'
-        cold_inlet = ct.Reservoir(gas2, name='Cold inlet')
-        outlet = ct.Reservoir(gas2, name='Outlet')
+        cold_inlet = ct.Reservoir(gas2, name='InC')
+        outlet = ct.Reservoir(gas2, name='Out')
         mfc_hot1 = ct.MassFlowController(hot_inlet, self.r1, mdot=2)
         mfc_hot2 = ct.MassFlowController(hot_inlet, self.r1, mdot=1)
         mfc_cold = ct.MassFlowController(cold_inlet, self.r2, mdot=2)
@@ -1027,26 +1027,22 @@ class TestReactor(utilities.CanteraTest):
         graph = self.net.draw(mass_flow_attr={'color': 'green'},
                               heat_flow_attr={'color': 'orange'},
                               print_state=True)
-        expected = [('\t"Cold reactor" [label="{T (K)\\n202.18|P (bar)'
-                     '\\n1.013}|" shape=Mrecord xlabel="Cold reactor"]\n'),
-                    ('\t"Hot reactor" [label="{T (K)\\n598.68|P (bar)'
-                     '\\n1.013}|" shape=Mrecord xlabel="Hot reactor"]\n'),
-                    ('\t"Hot inlet" [label="{T (K)\\n600.00|P (bar)'
-                     '\\n1.013}|" shape=Mrecord xlabel="Hot inlet"]\n'),
-                    ('\t"Cold inlet" [label="{T (K)\\n200.00|P (bar)'
-                     '\\n1.013}|" shape=Mrecord xlabel="Cold inlet"]\n'),
-                    ('\tOutlet [label="{T (K)\\n200.00|P (bar)'
-                     '\\n1.013}|" shape=Mrecord xlabel=Outlet]\n'),
-                    ('\t"Cold inlet" -> "Cold reactor" [label="m = 2 kg/s" '
-                     'color=green]\n'),
-                    '\t"Hot reactor" -> Outlet [label="m = 3 kg/s" color=green]\n',
-                    '\t"Cold reactor" -> Outlet [label="m = 2 kg/s" color=green]\n',
-                    ('\t"Hot reactor" -> "Cold reactor" [label="q = 4e+03 W" '
-                     'color=orange style=dashed]\n'),
-                    ('\t"Hot inlet" -> "Hot reactor" [label="m = 3 kg/s" '
-                     'color=green]\n')]
+        expected = {
+            '\tRC [label="{RC|{T (K)\\n202.18|P (bar)\\n1.013}}" shape=Mrecord]\n',
+            '\tRH [label="{RH|{T (K)\\n598.68|P (bar)\\n1.013}}" shape=Mrecord]\n',
+            '\tOut [label="{Out|{T (K)\\n200.00|P (bar)\\n1.013}}" shape=Mrecord]\n',
+            '\tRC [label="{RC|{T (K)\\n202.18|P (bar)\\n1.013}}" shape=Mrecord]\n',
+            '\tInH [label="{InH|{T (K)\\n600.00|P (bar)\\n1.013}}" shape=Mrecord]\n',
+            '\tInC [label="{InC|{T (K)\\n200.00|P (bar)\\n1.013}}" shape=Mrecord]\n',
+            '\tRH [label="{RH|{T (K)\\n598.68|P (bar)\\n1.013}}" shape=Mrecord]\n',
+            '\tInH -> RH [label="ṁ = 3 kg/s" color=green]\n',
+            '\tRH -> Out [label="ṁ = 3 kg/s" color=green]\n',
+            '\tRC -> Out [label="ṁ = 2 kg/s" color=green]\n',
+            '\tInC -> RC [label="ṁ = 2 kg/s" color=green]\n',
+            '\tRH -> RC [label="q = 4e+03 W" color=orange style=dashed]\n'
+        }
         # use sets because order can be random
-        assert set(graph.body) == set(expected)
+        assert set(graph.body) == expected
 
 
 class TestMoleReactor(TestReactor):
@@ -2067,8 +2063,8 @@ class TestSurfaceKinetics(utilities.CanteraTest):
 
         graph = surf.draw(node_attr={'style': 'filled'},
                           surface_edge_attr={'color': 'red'}, print_state=True)
-        expected = [('\tReactor [label="{T (K)\\n1200.00|P (bar)\\n0.010}|" shape=Mrecord '
-                     'style=filled xlabel=Reactor]\n'),
+        expected = [('\tReactor [label="{Reactor|{T (K)\\n1200.00|P (bar)\\n0.010}}" '
+                     'shape=Mrecord style=filled]\n'),
                     '\t"Reactor surface" [shape=underline style=filled]\n',
                     ('\tReactor -> "Reactor surface" '
                      '[arrowhead=none color=red style=dotted]\n')]
