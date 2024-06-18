@@ -43,9 +43,6 @@ struct LmrData : public ReactionData{
     vector<string> allSpecies; //list of all yaml species (not just those for which LMRR data exists)  
 // protected:
     double m_pressure_buf = -1.0; //!< buffered pressure
-    PlogData plog_data;
-    FalloffData troe_data;
-    ChebyshevData cheb_data;
 };
 
 class LmrRate final : public ReactionRate
@@ -58,7 +55,7 @@ public:
     using DataTypes = boost::variant<PlogData, FalloffData, ChebyshevData>;
     vector<RateTypes> rateObjs;
     vector<DataTypes> dataObjs;
-    vector<AnyMap> colliderNodes;
+    // vector<AnyMap> colliderNodes;
     
     vector<ArrheniusRate> eigObjs;
     vector<string> colliderNames;
@@ -78,6 +75,11 @@ public:
     vector<double> moleFractions_;
     // double logPeff_;
     double k_LMR_;
+    double eig0_mix;
+
+    // PlogData plog_data;
+    // FalloffData troe_data;
+    // ChebyshevData cheb_data;
 
     explicit LmrRate(const std::multimap<double, ArrheniusRate>& rates);
     LmrRate(const AnyMap& node, const UnitStack& rate_units={});
@@ -90,9 +92,13 @@ public:
     void getParameters(AnyMap& rateNode) const override {
         return getParameters(rateNode, Units(0));
     }
-    double evalPlogRate(PlogRate& rate, PlogData& data);
-    double evalTroeRate(TroeRate& rate, FalloffData& data);
-    double evalChebyshevRate(ChebyshevRate& rate, ChebyshevData& data);
+    // double evalPlogRate(PlogRate& rate, PlogData& data);
+    // double evalTroeRate(TroeRate& rate, FalloffData& data);
+    // double evalChebyshevRate(ChebyshevRate& rate, ChebyshevData& data);
+
+    void updatePlogData(const LmrData& shared_data, PlogData& dataObj, double& eig0);
+    void updateTroeData(const LmrData& shared_data, FalloffData& dataObj);
+    void updateChebyshevData(const LmrData& shared_data, ChebyshevData& dataObj);
 
     void setContext(const Reaction& rxn, const Kinetics& kin) override;
 

@@ -35,27 +35,11 @@ bool LmrData::update(const ThermoPhase& phase, const Kinetics& kin){
     if (P != pressure || T != temperature || X != mfNumber) {
         ReactionData::update(T);
         pressure = P;
-        logP = std::log(P);
+        logP = log(P);
         mfNumber=X;
         phase.getMoleFractions(moleFractions.data());
         return true;
     }
-    plog_data.logP = logP; //replaces logP with log of the effective pressure w.r.t. eig0_M
-    plog_data.logT = logT;
-    plog_data.pressure = pressure;
-    plog_data.recipT = recipT;
-    plog_data.temperature = temperature;
-    troe_data.conc_3b = moleFractions;
-    troe_data.logT = logT;
-    // troe_data.molar_density = pressure_; //
-    troe_data.ready = ready;
-    troe_data.recipT = recipT;
-    troe_data.temperature = temperature;
-    cheb_data.log10P=logP; //THIS IS INCORRECT. logP_ is natural log, not base 10!!!
-    cheb_data.logT=logT;
-    cheb_data.pressure=pressure;
-    cheb_data.recipT=recipT;
-    cheb_data.temperature=temperature;
     return false;
 }
 
@@ -83,7 +67,7 @@ LmrRate::LmrRate(const AnyMap& node, const UnitStack& rate_units){
 }
 
 void LmrRate::setParameters(const AnyMap& node, const UnitStack& rate_units){
-    std::string rxn = node["equation"].as<std::string>();
+    string rxn = node["equation"].as<string>();
     // writelog("setParameters::1"); writelog("\n");
     ReactionRate::setParameters(node, rate_units);
     rate_units_=rate_units;
@@ -91,7 +75,7 @@ void LmrRate::setParameters(const AnyMap& node, const UnitStack& rate_units){
         throw InputFileError("LmrRate::setParameters", m_input,"Yaml input for LMR-R does not follow the necessary structure.");
     }
     auto& colliders = node["collider-list"].asVector<AnyMap>();
-    if (colliders[0]["collider"].as<std::string>() != "M"){
+    if (colliders[0]["collider"].as<string>() != "M"){
         throw InputFileError("LmrRate::setParameters", m_input,"The first species defined in yaml input must be 'M'.");
     }
     // rate_units_.join(1);
@@ -118,8 +102,8 @@ void LmrRate::setParameters(const AnyMap& node, const UnitStack& rate_units){
         } else if (!colliders[i].hasKey("eig0")) {
             throw InputFileError("LmrRate::setParameters", m_input,"An eig0 value must be provided for all explicitly declared colliders in LMRR yaml entry.");
         }
-        colliderInfo.insert({colliders[i]["collider"].as<std::string>(), colliders[i]}); //Legacy parameter, used b.c. getParameters would have to be rewritten otherwise
-        colliderNames.push_back(colliders[i]["collider"].as<std::string>());
+        colliderInfo.insert({colliders[i]["collider"].as<string>(), colliders[i]}); //Legacy parameter, used b.c. getParameters would have to be rewritten otherwise
+        colliderNames.push_back(colliders[i]["collider"].as<string>());
         eigObjs.push_back(ArrheniusRate(AnyValue(colliders[i]["eig0"]),colliders[i].units(), rate_units_));
         if (colliders[i].hasKey("rate-constants")){
             // writelog("setParameters::5"); writelog("\n");
@@ -194,16 +178,42 @@ void LmrRate::setContext(const Reaction& rxn, const Kinetics& kin){
 //     return rate.evalFromStruct(data);
 // }
 
+    // if (isnan(plog_data.pressure)){ // Only update the data objects once, even though evalFromStruct will be rerun for as many times as there are LMRR reactions in yaml
+    void LmrRate::updatePlogData(const LmrData& shared_data, PlogData& dataObj, double& eig0){
+        dataObj.logP = shared_data.logP+log(eig0_mix)-log(eig0); //replaces logP with log of the effective pressure w.r.t. eig0
+        dataObj.logT = shared_data.logT;
+        dataObj.pressure = shared_data.pressure;
+        dataObj.recipT = shared_data.recipT;
+        dataObj.temperature = shared_data.temperature;
+    }
+
+    void LmrRate::updateTroeData(const LmrData& shared_data, FalloffData& dataObj){
+        dataObj.conc_3b = shared_data.moleFractions;
+        dataObj.logT = shared_data.logT;
+        // dataObj.molar_density = shared_data.pressure; //
+        dataObj.ready = shared_data.ready;
+        dataObj.recipT = shared_data.recipT;
+        dataObj.temperature = shared_data.temperature;
+    }
+
+    void LmrRate::updateChebyshevData(const LmrData& shared_data, ChebyshevData& dataObj){
+        dataObj.log10P=log10(exp(shared_data.logP));
+        dataObj.pressure=shared_data.pressure;
+        dataObj.recipT=shared_data.recipT;
+        dataObj.temperature=shared_data.temperature;
+    }
+
 double LmrRate::evalFromStruct(const LmrData& shared_data){
     // writelog("evalFromStruct::1"); writelog("\n");
-    logP_=shared_data.logP;
+    // logP_=shared_data.logP;
     logT_=shared_data.logT;
-    pressure_=shared_data.pressure;
+    // pressure_=shared_data.pressure;
     recipT_=shared_data.recipT;
-    temperature_=shared_data.temperature;
-    ready_=shared_data.ready;
+    // temperature_=shared_data.temperature;
+    // ready_=shared_data.ready;
     moleFractions_=shared_data.moleFractions;
-    double eig0_mix=0;
+
+    eig0_mix=0;
     double sigmaX_M=0.0;
     for (size_t i=0; i<nSpecies; i++){ //testing each species listed at the top of yaml file
         // writelog("evalFromStruct::2"); writelog("\n");
@@ -242,27 +252,28 @@ double LmrRate::evalFromStruct(const LmrData& shared_data){
                 // // writelog("evalFromStruct::9"); writeMsg(" eig0 = ",eig0*1e33);
                 // writelog("evalFromStruct::9"); writeMsg(" eig0 = ",eig0);
                 if (rateObjs[j].which()==0){ // 0 means PlogRate     
-                    logP_= shared_data.logP+log(eig0_mix)-log(eig0); //replaces logP with log of the effective pressure w.r.t. eig0
-                    // PlogData& data = boost::get<PlogData>(dataObjs[j]);
+                    PlogData& data = boost::get<PlogData>(dataObjs[j]);
                     PlogRate& rate = boost::get<PlogRate>(rateObjs[j]);
-                    rate.updateFromStruct(shared_data.plog_data);
-                    k_LMR_ += rate.evalFromStruct(shared_data.plog_data)*eig0*moleFractions_[i]/eig0_mix;
-                    logP_ = shared_data.logP; //return to the "normal" logP value to avoid messing up other calcs
+                    updatePlogData(shared_data,data,eig0);
+                    rate.updateFromStruct(data);
+                    k_LMR_ += rate.evalFromStruct(data)*eig0*moleFractions_[i]/eig0_mix;
                     // writelog("evalFromStruct::10"); writelog(" k_i_plog = " + std::to_string(evalPlogRate(rate,data,colliderNodes[j])) + "\n"); 
-                    writelog("evalFromStruct::10"); writelog(" k_i_plog = " + std::to_string(rate.evalFromStruct(shared_data.plog_data)) + "\n"); 
+                    writelog("evalFromStruct::10"); writelog(" k_i_plog = " + std::to_string(rate.evalFromStruct(data)) + "\n"); 
                 }
                 else if (rateObjs[j].which()==1){ // 1 means TroeRate  
-                    // FalloffData& data = boost::get<FalloffData>(dataObjs[j]);
+                    FalloffData& data = boost::get<FalloffData>(dataObjs[j]);
                     TroeRate& rate = boost::get<TroeRate>(rateObjs[j]);
-                    k_LMR_ += rate.evalFromStruct(shared_data.troe_data)*eig0*moleFractions_[i]/eig0_mix;
+                    updateTroeData(shared_data,data);
+                    k_LMR_ += rate.evalFromStruct(data)*eig0*moleFractions_[i]/eig0_mix;
                     // k_LMR_ += evalTroeRate(rate,data)*eig0*moleFractions_[i]/eig0_mix;
                     // writelog("evalFromStruct::11"); writelog(" k_i_troe = " + std::to_string(evalTroeRate(rate,data,colliderNodes[j])) + "\n");
                 }
                 else if (rateObjs[j].which()==2){ // 2 means ChebyshevRate  
-                    // ChebyshevData& data = boost::get<ChebyshevData>(dataObjs[j]);
+                    ChebyshevData& data = boost::get<ChebyshevData>(dataObjs[j]);
                     ChebyshevRate& rate = boost::get<ChebyshevRate>(rateObjs[j]);
-                    rate.updateFromStruct(shared_data.cheb_data);
-                    k_LMR_ += rate.evalFromStruct(shared_data.cheb_data)*eig0*moleFractions_[i]/eig0_mix;
+                    updateChebyshevData(shared_data,data);
+                    rate.updateFromStruct(data);
+                    k_LMR_ += rate.evalFromStruct(data)*eig0*moleFractions_[i]/eig0_mix;
                     // k_LMR_ += evalChebyshevRate(rate,data)*eig0*moleFractions_[i]/eig0_mix;
                     // writelog("evalFromStruct::12"); writelog(" k_i_cheb = " + std::to_string(evalChebyshevRate(rate,data,colliderNodes[j])) + "\n");
                 }
@@ -278,23 +289,30 @@ double LmrRate::evalFromStruct(const LmrData& shared_data){
     }
     // writelog("evalFromStruct::14"); writelog("\n");
     if (rateObj_M.which()==0){ // 0 means PlogRate
-        // logP_= shared_data.logP+log(eig0_mix)-log(eig0_M); //replaces logP with log of the effective pressure w.r.t. eig0_M
-        boost::get<PlogRate>(rateObj_M).updateFromStruct(shared_data.plog_data);
-        k_LMR_ += boost::get<PlogRate>(rateObj_M).evalFromStruct(shared_data.plog_data)*eig0_M*sigmaX_M/eig0_mix;
-        // logP_ = shared_data.logP; //return to the "normal" logP value to avoid messing up other calcs
+        PlogData& data = boost::get<PlogData>(dataObj_M);
+        PlogRate& rate = boost::get<PlogRate>(rateObj_M);
+        updatePlogData(shared_data,data,eig0_M);
+        rate.updateFromStruct(data);
+        k_LMR_ += rate.evalFromStruct(data)*eig0_M*sigmaX_M/eig0_mix;
         // writelog("evalFromStruct::15"); writelog(" k_M_plog = " + std::to_string(evalPlogRate(boost::get<PlogRate>(rateObj_M),boost::get<PlogData>(dataObj_M),node_M)*1e13) + "\n"); 
-        writelog("evalFromStruct::15"); writelog(" k_M_plog = " + std::to_string(boost::get<PlogRate>(rateObj_M).evalFromStruct(shared_data.plog_data)) + "\n"); 
+        writelog("evalFromStruct::15"); writelog(" k_M_plog = " + std::to_string(rate.evalFromStruct(data)) + "\n");
     }
     else if (rateObj_M.which()==1){ // 1 means TroeRate  
         // writelog("evalFromStruct::16"); writelog(" k_M_troe = " + std::to_string(evalTroeRate(boost::get<TroeRate>(rateObj_M),boost::get<FalloffData>(dataObj_M),node_M)*1e13) + "\n"); 
         // writelog("evalFromStruct::16"); writelog(" k_M_troe = " + std::to_string(evalTroeRate(boost::get<TroeRate>(rateObj_M),boost::get<FalloffData>(dataObj_M),node_M)) + "\n"); 
-        k_LMR_ += boost::get<TroeRate>(rateObj_M).evalFromStruct(shared_data.troe_data)*eig0_M*sigmaX_M/eig0_mix;
+        FalloffData& data = boost::get<FalloffData>(dataObj_M);
+        TroeRate& rate = boost::get<TroeRate>(rateObj_M);
+        updateTroeData(shared_data,data);
+        k_LMR_ += rate.evalFromStruct(data)*eig0_M*sigmaX_M/eig0_mix;
     }
     else if (rateObj_M.which()==2){ // 2 means ChebyshevRate
+        ChebyshevData& data = boost::get<ChebyshevData>(dataObj_M);
+        ChebyshevRate& rate = boost::get<ChebyshevRate>(rateObj_M);
         // writelog("evalFromStruct::17"); writelog(" k_M_cheb = " + std::to_string(evalChebyshevRate(boost::get<ChebyshevRate>(rateObj_M),boost::get<ChebyshevData>(dataObj_M),node_M)*1e13) + "\n"); 
         // writelog("evalFromStruct::17"); writelog(" k_M_cheb = " + std::to_string(evalChebyshevRate(boost::get<ChebyshevRate>(rateObj_M),boost::get<ChebyshevData>(dataObj_M),node_M)) + "\n"); 
-        boost::get<ChebyshevRate>(rateObj_M).updateFromStruct(shared_data.cheb_data);
-        k_LMR_ += boost::get<ChebyshevRate>(rateObj_M).evalFromStruct(shared_data.cheb_data)*eig0_M*sigmaX_M/eig0_mix;
+        updateChebyshevData(shared_data,data);
+        rate.updateFromStruct(data);
+        k_LMR_ += rate.evalFromStruct(data)*eig0_M*sigmaX_M/eig0_mix;
         // k_LMR_ += evalChebyshevRate(boost::get<ChebyshevRate>(rateObj_M),boost::get<ChebyshevData>(dataObj_M))*eig0_M*sigmaX_M/eig0_mix;
     }
     // writelog("evalFromStruct::18");writelog("\n T = "+std::to_string(shared_data.temperature)+"\n");writelog("\n P = "+std::to_string(shared_data.pressure)+"\n"); writelog("\n\n\nNEW REACTION\n");
