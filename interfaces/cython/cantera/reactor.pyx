@@ -157,9 +157,8 @@ cdef class ReactorBase:
     def draw(self, graph=None, *, graph_attr=None, node_attr=None, print_state=False,
              species=None, species_units="percent"):
         """
-        Draw as ``graphviz`` ``dot`` node.
-        The node is added to an existing ``graph`` if provided.
-        Optionally include current reactor state in the node.
+        Draw as ``graphviz`` ``dot`` node. The node is added to an existing ``graph`` if
+        provided. Optionally include current reactor state in the node.
 
         :param graph:
             ``graphviz.graphs.BaseGraph`` object to which the reactor is added.
