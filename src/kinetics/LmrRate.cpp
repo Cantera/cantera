@@ -67,21 +67,23 @@ LmrRate::LmrRate(const AnyMap& node, const UnitStack& rate_units){
 }
 
 void LmrRate::setParameters(const AnyMap& node, const UnitStack& rate_units){
-    string rxn = node["equation"].as<string>();
+    // string rxn = node["equation"].as<string>();
     rate_units_ = rate_units;
-    for (int i = 0; i < rxn.length(); i++) {
-        if (i==0 && rxn[i]=='2' && rxn[i+1]==' ') {
-            rate_units_.join(1);
-            break;
-        } 
-        else if (i>0 && rxn[i-1]==' ' && rxn[i]=='+' && rxn[i+1]==' ') {
-            rate_units_.join(1);
-            break;
-        }
-        else if (rxn[i]=='<'){
-            break;
-        }
-    } 
+    // for (int i = 0; i < rxn.length(); i++) {
+    //     if (i==0 && rxn[i]=='2' && rxn[i+1]==' ') {
+    //         rate_units_.join(1);
+    //         break;
+    //     } 
+    //     else if (i>0 && rxn[i-1]==' ' && rxn[i]=='+' && rxn[i+1]==' ') {
+    //         rate_units_.join(1);
+    //         break;
+    //     }
+    //     else if (rxn[i]=='<'){
+    //         break;
+    //     }
+    // } 
+
+    UnitStack eig0_units{{Units(1.0), 1.0}};
 
     // writelog("setParameters::1"); writelog("\n");
     ReactionRate::setParameters(node, rate_units_);
@@ -93,8 +95,8 @@ void LmrRate::setParameters(const AnyMap& node, const UnitStack& rate_units){
         throw InputFileError("LmrRate::setParameters", m_input,"The first species defined in yaml input must be 'M'.");
     }
     // rate_units_.join(1);
-    setRateUnits(rate_units_);
-    eigObj_M=ArrheniusRate(AnyValue(colliders[0]["eig0"]),colliders[0].units(), rate_units_);
+    // setRateUnits(rate_units_);
+    eigObj_M=ArrheniusRate(AnyValue(colliders[0]["eig0"]),colliders[0].units(),eig0_units);
     if (colliders[0].hasKey("rate-constants")){
         // writelog("setParameters::2"); writelog("\n");
         rateObj_M = PlogRate(colliders[0], rate_units_);
@@ -118,7 +120,7 @@ void LmrRate::setParameters(const AnyMap& node, const UnitStack& rate_units){
         }
         colliderInfo.insert({colliders[i]["collider"].as<string>(), colliders[i]}); //Legacy parameter, used b.c. getParameters would have to be rewritten otherwise
         colliderNames.push_back(colliders[i]["collider"].as<string>());
-        eigObjs.push_back(ArrheniusRate(AnyValue(colliders[i]["eig0"]),colliders[i].units(), rate_units_));
+        eigObjs.push_back(ArrheniusRate(AnyValue(colliders[i]["eig0"]),colliders[i].units(),eig0_units));
         if (colliders[i].hasKey("rate-constants")){
             // writelog("setParameters::5"); writelog("\n");
             rateObjs.push_back(PlogRate(colliders[i], rate_units_));
@@ -155,67 +157,34 @@ void LmrRate::setContext(const Reaction& rxn, const Kinetics& kin){
     //     writelog("colliderIndices["+std::to_string(i)+"] = " + std::to_string(colliderIndices[i]) + "\n");
     // }
     // writelog("nSpecies = " + std::to_string(nSpecies) + "\n");
-    if (colliderIndices.empty()){
-        throw InputFileError("LmrRate::setContext", m_input,"collidersIndices is empty for some reason");
-    }
+    // if (colliderIndices.empty()){
+    //     throw InputFileError("LmrRate::setContext", m_input,"collidersIndices is empty for some reason");
+    // }
 }
 
-// double LmrRate::evalPlogRate(PlogRate& rate, PlogData& data){
-//     // writelog("evalPlogRate::1"); writelog("\n");
-//     data.logP = logP_; //replaces logP with log of the effective pressure w.r.t. eig0_M
-//     data.logT = logT_;
-//     data.pressure = pressure_;
-//     data.recipT = recipT_;
-//     data.temperature = temperature_;
-//     rate.updateFromStruct(data);
-//     return rate.evalFromStruct(data);
-// }
-// double LmrRate::evalTroeRate(TroeRate& rate, FalloffData& data){
-//     // writelog("evalTroeRate::1"); writelog("\n");
-//     data.conc_3b = moleFractions_;
-//     data.logT = logT_;
-//     // data.molar_density = pressure_; //
-//     data.ready = ready_;
-//     data.recipT = recipT_;
-//     data.temperature = temperature_;
-//     return rate.evalFromStruct(data);
-// }
+void LmrRate::updatePlogData(const LmrData& shared_data, PlogData& dataObj, double& eig0){
+    dataObj.logP = shared_data.logP+log(eig0_mix)-log(eig0); //replaces logP with log of the effective pressure w.r.t. eig0
+    dataObj.logT = shared_data.logT;
+    dataObj.pressure = shared_data.pressure;
+    dataObj.recipT = shared_data.recipT;
+    dataObj.temperature = shared_data.temperature;
+}
 
-// double LmrRate::evalChebyshevRate(ChebyshevRate& rate, ChebyshevData& data){
-//     // writelog("evalChebyshevRate::1"); writelog("\n");
-//     data.log10P=logP_; //THIS IS INCORRECT. logP_ is natural log, not base 10!!!
-//     data.logT=logT_;
-//     data.pressure=pressure_;
-//     data.recipT=recipT_;
-//     data.temperature=temperature_;
-//     rate.updateFromStruct(data);
-//     return rate.evalFromStruct(data);
-// }
+void LmrRate::updateTroeData(const LmrData& shared_data, FalloffData& dataObj){
+    dataObj.conc_3b = shared_data.moleFractions;
+    dataObj.logT = shared_data.logT;
+    // dataObj.molar_density = shared_data.pressure; //
+    dataObj.ready = shared_data.ready;
+    dataObj.recipT = shared_data.recipT;
+    dataObj.temperature = shared_data.temperature;
+}
 
-    // if (isnan(plog_data.pressure)){ // Only update the data objects once, even though evalFromStruct will be rerun for as many times as there are LMRR reactions in yaml
-    void LmrRate::updatePlogData(const LmrData& shared_data, PlogData& dataObj, double& eig0){
-        dataObj.logP = shared_data.logP+log(eig0_mix)-log(eig0); //replaces logP with log of the effective pressure w.r.t. eig0
-        dataObj.logT = shared_data.logT;
-        dataObj.pressure = shared_data.pressure;
-        dataObj.recipT = shared_data.recipT;
-        dataObj.temperature = shared_data.temperature;
-    }
-
-    void LmrRate::updateTroeData(const LmrData& shared_data, FalloffData& dataObj){
-        dataObj.conc_3b = shared_data.moleFractions;
-        dataObj.logT = shared_data.logT;
-        // dataObj.molar_density = shared_data.pressure; //
-        dataObj.ready = shared_data.ready;
-        dataObj.recipT = shared_data.recipT;
-        dataObj.temperature = shared_data.temperature;
-    }
-
-    void LmrRate::updateChebyshevData(const LmrData& shared_data, ChebyshevData& dataObj){
-        dataObj.log10P=log10(exp(shared_data.logP));
-        dataObj.pressure=shared_data.pressure;
-        dataObj.recipT=shared_data.recipT;
-        dataObj.temperature=shared_data.temperature;
-    }
+void LmrRate::updateChebyshevData(const LmrData& shared_data, ChebyshevData& dataObj){
+    dataObj.log10P=log10(exp(shared_data.logP));
+    dataObj.pressure=shared_data.pressure;
+    dataObj.recipT=shared_data.recipT;
+    dataObj.temperature=shared_data.temperature;
+}
 
 double LmrRate::evalFromStruct(const LmrData& shared_data){
     // writelog("evalFromStruct::1"); writelog("\n");
@@ -230,15 +199,17 @@ double LmrRate::evalFromStruct(const LmrData& shared_data){
     eig0_mix=0;
     double sigmaX_M=0.0;
     for (size_t i=0; i<nSpecies; i++){ //testing each species listed at the top of yaml file
+        sigmaX_M += moleFractions_[i] //total sum will be essentially 1, but perhaps not exactly due to Cantera's rounding conventions
+    }
+
+    for (size_t i=0; i<nSpecies; i++){ //testing each species listed at the top of yaml file
         // writelog("evalFromStruct::2"); writelog("\n");
         for (size_t j=0; j<colliderIndices.size(); j++){
             // writelog("evalFromStruct::3"); writelog("\n");
             if (i==colliderIndices[j]){ // Species is in collider list
                 // writelog("evalFromStruct::4"); writelog("\n");
                 eig0_mix += moleFractions_[i]*eigObjs[j].evalRate(logT_, recipT_);
-            } else { // Species not in collider list so treat as "M"
-                // writelog("evalFromStruct::5"); writelog("\n");
-                sigmaX_M += moleFractions_[i];
+                sigmaX_M -= moleFractions_[i]
             }
         }
     }
