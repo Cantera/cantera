@@ -29,6 +29,12 @@ template <typename... Args>
 void fmt_append(fmt::memory_buffer& b, const std::string& tmpl, Args... args) {
     format_to(b, tmpl, args...);
 }
+namespace fmt {
+template <typename T>
+T runtime(T arg) {
+    return arg;
+}
+}
 #else
 template <typename... Args>
 void fmt_append(fmt::memory_buffer& b, const std::string& tmpl, Args... args) {
