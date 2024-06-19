@@ -18,14 +18,6 @@ using namespace std;
 namespace Cantera
 {
 
-/**
- * @brief Returns interpolated value of (DP)_R obtained from the data
- * in Table 2 of the Takahashi 1975 paper, given a value of the reduced
- * pressure (Pr) and reduced temperature (Tr).
- *
- * @param Pr  Reduced pressure
- * @param Tr  Reduced temperature
- */
 double takahashi_correction_factor(double Pr, double Tr)
 {
     // In the low pressure limit, no correction is needed. Interpolate
@@ -67,7 +59,6 @@ double takahashi_correction_factor(double Pr, double Tr)
     // the final table value.
     frac = 1.0;
 
-
     DP_Rt = DP_Rt_lookup[Pr_i]*(1.0 - frac) + DP_Rt_lookup[Pr_i+1]*frac;
     A = A_ij_lookup[Pr_i]*(1.0 - frac) + A_ij_lookup[Pr_i+1]*frac;
     B = B_ij_lookup[Pr_i]*(1.0 - frac) + B_ij_lookup[Pr_i+1]*frac;
@@ -77,8 +68,6 @@ double takahashi_correction_factor(double Pr, double Tr)
     double DP_R = DP_Rt*(1.0 - A*pow(Tr,-B))*(1.0 - C*pow(Tr,-E));
     return DP_R;
 }
-
-
 
 double HighPressureGasTransport::thermalConductivity()
 {
@@ -217,25 +206,36 @@ void HighPressureGasTransport::getBinaryDiffCoeffs(const size_t ld, double* cons
     }
 }
 
-
-// Calculate the high-pressure mixture viscosity, based on the Lucas method
-// described in chapter 9-7 of Poling et al. (2001).
-//
-// The mixture pseudo-critical temperature and pressure are calculated using
-// equation 9-5.18 and 9-5.19 in Poling et al. (2001).
-//
-// The mixture molecular weight is computed using equation 9-5.20 in Poling et al. (2001).
-//
-// The mixture values of the low-pressure polarity and quantum correction factors are
-// computed using equations 9-5.21 and 9-5.22 in Poling et al. (2001).
 double HighPressureGasTransport::viscosity()
 {
-    // Most of this function consists of computing mixture values of various critical
-    // properties and other parameters that are used in the viscosity calculation.
+    LucasMixtureParameters params;
+    compute_mixture_parameters(params);
+
+    // This is η*ξ
+    double nondimensional_viscosity = high_pressure_nondimensional_viscosity(params.Tr_mix,
+                                                                             params.Pr_mix,
+                                                                             params.FP_mix_o,
+                                                                             params.FQ_mix_o,
+                                                                             params.P_vap_mix,
+                                                                             params.Pc_mix);
+
+    // Using equation 9-4.14, with units of 1/(Pa*s)
+    double numerator = GasConstant*params.Tc_mix*pow(Avogadro,2.0);
+    double denominator = pow(params.MW_mix,3.0)*pow(params.Pc_mix,4.0);
+    double ksi = pow(numerator / denominator, 1.0/6.0);
+
+    // Return the viscosity in kg/m/s
+    return nondimensional_viscosity / ksi;
+}
+
+
+void HighPressureGasTransport::compute_mixture_parameters(LucasMixtureParameters& params)
+{
+
     double Tc_mix = 0.0;
-    double Pc_mix_n = 0.0; // Numerator in equation 9-5.18 in Poling et al. (2001)
-    double Pc_mix_d = 0.0; // Denominator in equation 9-5.18 in Poling et al. (2001)
-    double MW_mix = m_thermo->meanMolecularWeight();
+    double Pc_mix_n = 0.0; // Numerator in equation 9-5.19
+    double Pc_mix_d = 0.0; // Denominator in equation 9-5.19
+    double MW_mix = m_thermo->meanMolecularWeight(); // Equation 9.5.20, Cantera already mole-weights the molecular weights
 
     double FP_mix_o = 0; // The mole-fraction-weighted mixture average of the low-pressure polarity correction factor
     double FQ_mix_o = 0; // The mole-fraction-weighted mixture average of the low-pressure quantum correction factor
@@ -255,11 +255,16 @@ double HighPressureGasTransport::viscosity()
         double Tc = Tcrit_i(i);
         double Tr = tKelvin/Tc;
         double Zc = Zcrit_i(i);
-        Tc_mix += Tc*molefracs[i];
-        Pc_mix_n += molefracs[i]*Zc; //numerator
-        Pc_mix_d += molefracs[i]*Vcrit_i(i); //denominator (Units of Vcrit_i are m^3/kmol, which are fine because they cancel out with the Cantera gas constant's units used later)
 
-        // Calculate ratio of heaviest to lightest species
+        Tc_mix += Tc*molefracs[i]; // Equation 9-5.18
+
+        Pc_mix_n += molefracs[i]*Zc; // Numerator of 9-5.19
+        // (Units of Vcrit_i are m^3/kmol, which are fine because they cancel out
+        // with the Cantera gas constant's units used later)
+        Pc_mix_d += molefracs[i]*Vcrit_i(i); // Denominator of 9-5.19
+
+        // Calculate ratio of heaviest to lightest species, used in
+        // Equation 9-5.23.
         if (m_mw[i] > MW_H) {
             MW_H = m_mw[i];
             x_H = molefracs[i];
@@ -269,7 +274,7 @@ double HighPressureGasTransport::viscosity()
 
         // Calculate pure-species reduced dipole moment for pure-species
         // polar correction term.
-        // Equation 9-4.17 in Poling et al. (2001) requires the pressure
+        // Equation 9-4.17 requires the pressure
         // to be in units of bar, so we convert from Pa to bar.
         // The dipole moment is stored in SI units, and it needs to be in
         // units of Debye for the Lucas method.
@@ -278,7 +283,6 @@ double HighPressureGasTransport::viscosity()
         double dipole_ii = m_dipole(i,i)*SI_to_Debye;
         double mu_ri = 52.46*dipole_ii*dipole_ii*(Pcrit_i(i)*pascals_to_bar)/(Tc*Tc);
         FP_mix_o += molefracs[i] * FP_i(mu_ri, Tr, Zc); // mole-fraction weighting of pure-species polar correction term
-
 
         // Calculate contribution to quantum correction term.
         // Note:  This assumes the species of interest (He, H2, and D2) have
@@ -300,6 +304,7 @@ double HighPressureGasTransport::viscosity()
     double Pr_mix = m_thermo->pressure()/Pc_mix;
 
     // Compute the mixture value of the low-pressure quantum correction factor
+    // Equation 9-5.23.
     double ratio = MW_H/MW_L;
     double A = 1.0;
     if (ratio > 9 && x_H > 0.05 && x_H < 0.7) {
@@ -308,16 +313,15 @@ double HighPressureGasTransport::viscosity()
     FQ_mix_o *= A;
 
 
-    // This is η*ξ
-    double nondimensional_viscosity = high_pressure_nondimensional_viscosity(Tr_mix, Pr_mix, FP_mix_o, FQ_mix_o, P_vap_mix, Pc_mix);
+    params.FQ_mix_o = FQ_mix_o;
+    params.FP_mix_o = FP_mix_o;
+    params.Tc_mix = Tc_mix;
+    params.Tr_mix = Tr_mix;
+    params.Pc_mix = Pc_mix;
+    params.Pr_mix = Pr_mix;
+    params.MW_mix = MW_mix;
+    params.P_vap_mix = P_vap_mix;
 
-    // Using equation 9-4.14 in Poling et al. (2001), with units of 1/(Pa*s)
-    double numerator = GasConstant*Tc_mix*pow(Avogadro,2.0);
-    double denominator = pow(MW_mix,3.0)*pow(Pc_mix,4.0);
-    double ksi = pow(numerator / denominator, 1.0/6.0);
-
-    // Return the viscosity in kg/m/s
-    return nondimensional_viscosity / ksi;
 }
 
 // Pure species critical properties - Tc, Pc, Vc, Zc:
@@ -381,29 +385,21 @@ double HighPressureGasTransport::Zcrit_i(size_t i)
     return zc;
 }
 
-// The low-pressure nondimensional viscosity equation 9-4.16 in Poling et al. (2001).
-// This relation is used for pure species and mixtures at low pressure. The only
-// difference is the the values that are passed to the function (pure values versus mixture values).
-double HighPressureGasTransport::low_pressure_nondimensional_viscosity(double Tr, double FP, double FQ) {
+double HighPressureGasTransport::low_pressure_nondimensional_viscosity(double Tr,
+                                                                       double FP,
+                                                                       double FQ) {
     double first_term = 0.807*pow(Tr,0.618) - 0.357*exp(-0.449*Tr);
     double second_term = 0.340*exp(-4.058*Tr) + 0.018;
     return (first_term + second_term)*FP*FQ;
 }
 
-// The high-pressure nondimensional viscosity equation 9-6.12 in Poling et al. (2001).
-// This relation is used for pure species and mixtures at high pressure. The only
-// difference is the the values that are passed to the function (pure values versus mixture values).
-// This returns the value of η*ξ (by multiplying both sides of 9-6.12 by ξ and simply returning the RHS of the
-// resulting equation)
-double HighPressureGasTransport::high_pressure_nondimensional_viscosity(double Tr, double Pr, double FP_low, double FQ_low, double P_vap, double P_crit){
-
-    //cout << "Input values are:" << endl;
-    //cout << "Tr: " << Tr << endl;
-    //cout << "Pr: " << Pr << endl;
-    //cout << "FP_low: " << FP_low << endl;
-    //cout << "FQ_low: " << FQ_low << endl;
-    //cout << "P_vap: " << P_vap << endl;
-    //cout << "P_crit: " << P_crit << endl;
+double HighPressureGasTransport::high_pressure_nondimensional_viscosity(double Tr,
+                                                                        double Pr,
+                                                                        double FP_low,
+                                                                        double FQ_low,
+                                                                        double P_vap,
+                                                                        double P_crit)
+{
 
     double Z_1 = low_pressure_nondimensional_viscosity(Tr, FP_low, FQ_low); // This is η_0*ξ
 
@@ -465,23 +461,12 @@ double HighPressureGasTransport::high_pressure_nondimensional_viscosity(double T
     return Z_2 * FP * FQ;
 }
 
-// Calculates quantum correction term of the Lucas method for a species based
-// on Tr and MW, used in viscosity calculation from equation 9-4.19 in
-// Poling et al. (2001)
 double HighPressureGasTransport::FQ_i(double Q, double Tr, double MW)
 {
     return 1.22*pow(Q,0.15)*(1 + 0.00385*pow(pow(Tr - 12.0, 2.0), 1.0/MW)
                              *sign(Tr - 12.0));
 }
 
-// Calculates the pressure correction factor for the Lucas method that
-// is used to calculate high pressure pure fluid viscosity. This is equation
-// 9-4.18 in Poling et al. (2001).
-//
-// NOTE: The original description in the book neglects to mention what happens
-// when the quantity raised to the 1.72 power goes negative. That is an undefined
-// operation that generates real+imaginary numbers. For now, I simply am
-// taking the absolute value of the argument and raising it to the power.
 double HighPressureGasTransport::FP_i(double mu_r, double Tr, double Z_crit)
 {
     //cout << "HighPressureGasTransport::FP_i Inputs:" << endl;
@@ -498,12 +483,9 @@ double HighPressureGasTransport::FP_i(double mu_r, double Tr, double Z_crit)
     }
 }
 
-}
 
-//Chung Implementation
-namespace Cantera
-{
-
+// Chung Implementation
+// --------------------
 void ChungHighPressureGasTransport::getBinaryDiffCoeffs(const size_t ld, double* const d)
 {
     size_t nsp = m_thermo->nSpecies();
@@ -595,7 +577,6 @@ double ChungHighPressureGasTransport::high_pressure_thermal_conductivity(double 
     double viscosity = micropoise_to_pascals_second*low_pressure_viscosity(T, T_star, MW,
                                                                            acentric_factor, mu_r,
                                                                            sigma, kappa);
-    //cout << "Low-pressure viscosity: " << viscosity << " Pa*s" << endl;
 
     double M_prime = MW / 1000.0; // Convert kg/kmol to kg/mol
 
@@ -632,23 +613,11 @@ double ChungHighPressureGasTransport::high_pressure_thermal_conductivity(double 
     double Z = 2.0 + 10.5*Tr*Tr; // Shown below Equation 10-3.14
     double psi = 1.0 + alpha*((0.215 + 0.28288*alpha - 1.061*beta + 0.26665*Z) / (0.6366 + beta*Z + 1.061*alpha*beta)); // Shown below Equation 10-3.14
 
-    //cout << "Parameters: " << endl;
-    //cout << "y: " << y << endl;
-    //cout << "G_1: " << G_1 << endl;
-    //cout << "G_2: " << G_2 << endl;
-    //cout << "q: " << q << endl;
-    //cout << "Tr: " << Tr << endl;
-    //cout << "alpha: " << alpha << endl;
-    //cout << "beta: " << beta << endl;
-    //cout << "Z: " << Z << endl;
-    //cout << "psi: " << psi << endl;
-
     double lambda = (31.2*viscosity*psi/M_prime)*(1.0/G_2 + B_6*y) + q*B_7*y*y*sqrt(Tr)*G_2; // Equation 10-5.5
 
     // Units are W/m/K
     return lambda;
 }
-
 
 // This implements the high-pressure gas mixture viscosity model of Chung
 // described in chapter 9-7 of Poling et al. (2001).
@@ -761,23 +730,8 @@ void ChungHighPressureGasTransport::compute_mixture_parameters(ChungMixtureParam
 
     // mu_r_mix is computed using equation 9-5.42.
     params.mu_r_mix = 131.3*params.mu_mix/sqrt(params.Vc_mix*params.Tc_mix);
-
-    //cout << "Mixture parameters are:" << endl;
-    //cout << "sigma_mix: " << params.sigma_mix << endl;
-    //cout << "epsilon_over_k_mix: " << params.epsilon_over_k_mix << endl;
-    //cout << "MW_mix: " << params.MW_mix << endl;
-    //cout << "acentric_factor_mix: " << params.acentric_factor_mix << endl;
-    //cout << "mu_mix: " << params.mu_mix << endl;
-    //cout << "Tc_mix: " << params.Tc_mix << endl;
-    //cout << "Vc_mix: " << params.Vc_mix << endl;
-    //cout << "mu_r_mix: " << params.mu_r_mix << endl;
-    //cout << "kappa_mix: " << params.kappa_mix << endl;
-
 }
 
-//! Returns the value of the Neufeld collision integral for a given dimensionless temperature.
-//! Implementation of equation 9-4.3.
-//! Applicable over the range of 0.3 <= T_star <= 100.
 double neufeld_collision_integral(double T_star)
 {
     double A = 1.16145;
@@ -795,15 +749,6 @@ double ChungHighPressureGasTransport::low_pressure_viscosity(double T, double T_
                                                             double acentric_factor, double mu_r,
                                                             double sigma, double kappa)
 {
-    //cout << "Input values are:" << endl;
-    //cout << "T: " << T << endl;
-    //cout << "T_star: " << T_star << endl;
-    //cout << "MW: " << MW << endl;
-    //cout << "acentric_factor: " << acentric_factor << endl;
-    //cout << "mu_r: " << mu_r << endl;
-    //cout << "sigma: " << sigma << endl;
-    //cout << "kappa: " << kappa << endl;
-
     // Equation 9-4.3.
     double omega = neufeld_collision_integral(T_star);
 
@@ -828,16 +773,6 @@ double ChungHighPressureGasTransport::high_pressure_viscosity(double T_star, dou
                                                               double Vc, double Tc, double acentric_factor,
                                                               double mu_r, double kappa)
 {
-    //cout << "Input values are:" << endl;
-    //cout << "T_star: " << T_star << endl;
-    //cout << "MW: " << MW << endl;
-    //cout << "rho: " << rho << endl;
-    //cout << "Vc: " << Vc << endl;
-    //cout << "Tc: " << Tc << endl;
-    //cout << "acentric_factor: " << acentric_factor << endl;
-    //cout << "mu_r: " << mu_r << endl;
-    //cout << "kappa: " << kappa << endl;
-
     // Definition of tabulated coefficients for the Chung method, as shown in Table 9-6 on page 9.40 of Poling et al. (2001)
     vector<double> a = {6.324, 1.210e-3, 5.283, 6.623, 19.745, -1.900, 24.275, 0.7972, -0.2382, 0.06863};
     vector<double> b = {50.412, -1.154e-3, 254.209, 38.096, 7.630, -12.537, 3.450, 1.117, 0.06770, 0.3479};
