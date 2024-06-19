@@ -742,19 +742,24 @@ void Sim1D::setLeftControlPoint(double temperature)
         if (!d_axis.twoPointControlEnabled()) {
             continue;
         }
-        two_point_domain_found = true; // At least one domain with two-point control enabled was found
+        two_point_domain_found = true;
 
+        double current_val, next_val;
         for (size_t m = 0; m < np-1; m++) {
-            if ((value(n,c_offset_T,m) - temperature) * (value(n,c_offset_T,m+1) - temperature) < 0.0) {
-                // Pick the coordinate of the point with the temperature closest to the desired temperature
-                int closest_index = 0;
-                if (std::abs(value(n,c_offset_T,m) - temperature) < std::abs(value(n,c_offset_T,m+1) - temperature)) {
-                    closest_index = m;
+            current_val = value(n,c_offset_T,m);
+            next_val = value(n,c_offset_T,m+1);
+            if ((current_val - temperature) * (next_val - temperature) < 0.0) {
+                // Pick the coordinate of the point with the temperature closest
+                // to the desired temperature
+                int index = 0;
+                if (std::abs(current_val - temperature) <
+                    std::abs(next_val - temperature)) {
+                    index = m;
                 } else {
-                    closest_index = m+1;
+                    index = m+1;
                 }
-                d_axis.setLeftControlPointCoordinate(d_axis.grid(closest_index));
-                d_axis.setLeftControlPointTemperature(value(n,c_offset_T,closest_index));
+                d_axis.setLeftControlPointCoordinate(d_axis.grid(index));
+                d_axis.setLeftControlPointTemperature(value(n,c_offset_T,index));
                 return;
             }
         }
@@ -765,7 +770,8 @@ void Sim1D::setLeftControlPoint(double temperature)
             "No domain with two-point control enabled was found.");
     } else {
         throw CanteraError("Sim1D::setLeftControlPoint",
-            "No control point with temperature {} was able to be found in the flame's temperature range.", temperature);
+            "No control point with temperature {} was able to be found in the"
+            "flame's temperature range.", temperature);
     }
 
 }
@@ -788,20 +794,24 @@ void Sim1D::setRightControlPoint(double temperature)
         if (!d_axis.twoPointControlEnabled()) {
             continue;
         }
-        two_point_domain_found = true; // At least one domain with two-point control enabled was found
+        two_point_domain_found = true;
 
-
+        double current_val, next_val;
         for (size_t m = np-1; m > 0; m--) {
-            if ((value(n,c_offset_T,m) - temperature) * (value(n,c_offset_T,m-1) - temperature) < 0.0) {
-                // Pick the coordinate of the point with the temperature closest to the desired temperature
-                int closest_index = 0;
-                if (std::abs(value(n,c_offset_T,m) - temperature) < std::abs(value(n,c_offset_T,m-1) - temperature)) {
-                    closest_index = m;
+            current_val = value(n,c_offset_T,m);
+            next_val = value(n,c_offset_T,m-1);
+            if ((current_val - temperature) * (next_val - temperature) < 0.0) {
+                // Pick the coordinate of the point with the temperature closest
+                // to the desired temperature
+                int index = 0;
+                if (std::abs(current_val - temperature) <
+                    std::abs(next_val - temperature)) {
+                    index = m;
                 } else {
-                    closest_index = m-1;
+                    index = m-1;
                 }
-                d_axis.setRightControlPointCoordinate(d_axis.grid(closest_index));
-                d_axis.setRightControlPointTemperature(value(n,c_offset_T,closest_index));
+                d_axis.setRightControlPointCoordinate(d_axis.grid(index));
+                d_axis.setRightControlPointTemperature(value(n,c_offset_T,index));
                 return;
             }
         }
@@ -812,7 +822,8 @@ void Sim1D::setRightControlPoint(double temperature)
             "No domain with two-point control enabled was found.");
     } else {
         throw CanteraError("Sim1D::setRightControlPoint",
-            "No control point with temperature {} was able to be found in the flame's temperature range.", temperature);
+            "No control point with temperature {} was able to be found in the"
+            "flame's temperature range.", temperature);
     }
 
 }

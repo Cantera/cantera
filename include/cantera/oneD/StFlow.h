@@ -248,10 +248,14 @@ public:
     void setBoundaryEmissivities(double e_left, double e_right);
 
     //! Return emissivity at left boundary
-    double leftEmissivity() const { return m_epsilon_left; }
+    double leftEmissivity() const {
+        return m_epsilon_left;
+    }
 
     //! Return emissivity at right boundary
-    double rightEmissivity() const { return m_epsilon_right; }
+    double rightEmissivity() const {
+        return m_epsilon_right;
+    }
 
     void fixTemperature(size_t j=npos);
 
@@ -278,124 +282,31 @@ public:
     //! @{
 
     //! Returns the temperature at the left control point
-    double leftControlPointTemperature() const {
-        if (m_twoPointControl) {
-            if (m_zLeft != Undef){
-                return m_tLeft;
-            } else {
-                throw CanteraError("StFlow::leftControlPointTemperature",
-                    "Invalid operation: left control point location is not set");
-            }
-        } else {
-            throw CanteraError("StFlow::leftControlPointTemperature",
-                 "Invalid operation: two-point control is not enabled.");
-        }
-    }
+    double leftControlPointTemperature() const;
 
     //! Returns the z-coordinate of the left control point
-    double leftControlPointCoordinate() const {
-        if (m_twoPointControl) {
-            if (m_zLeft != Undef)
-                return m_zLeft;
-            else {
-                throw CanteraError("StFlow::leftControlPointCoordinate",
-                    "Invalid operation: left control point location is not set");
-            }
-        } else {
-            throw CanteraError("StFlow::leftControlPointCoordinate",
-                 "Invalid operation: two-point control is not enabled.");
-        }
-    }
+    double leftControlPointCoordinate() const;
 
     //! Sets the temperature of the left control point
-    void setLeftControlPointTemperature(double temperature) {
-        if (m_twoPointControl) {
-            if (m_zLeft != Undef){
-                m_tLeft = temperature;
-            } else {
-                throw CanteraError("StFlow::setLeftControlPointTemperature",
-                    "Invalid operation: left control point location is not set");
-            }
-        } else {
-            throw CanteraError("StFlow::setLeftControlPointTemperature",
-                 "Invalid operation: two-point control is not enabled.");
-        }
-    }
+    void setLeftControlPointTemperature(double temperature);
 
     //! Sets the coordinate of the left control point
-    void setLeftControlPointCoordinate(double z_left) {
-        if (m_twoPointControl) {
-                m_zLeft = z_left;
-        } else {
-            throw CanteraError("StFlow::setLeftControlPointCoordinate",
-                 "Invalid operation: two-point control is not enabled.");
-        }
-    }
+    void setLeftControlPointCoordinate(double z_left);
 
     //! Returns the temperature at the right control point
-    double rightControlPointTemperature() const {
-        if (m_twoPointControl) {
-            if (m_zRight != Undef) {
-                return m_tRight;
-            } else {
-                throw CanteraError("StFlow::rightControlPointTemperature",
-                    "Invalid operation: right control point location is not set");
-            }
-        } else {
-            throw CanteraError("StFlow::rightControlPointTemperature",
-                 "Invalid operation: two-point control is not enabled.");
-        }
-    }
+    double rightControlPointTemperature() const;
 
     //! Returns the z-coordinate of the right control point
-    double rightControlPointCoordinate() const {
-        if (m_twoPointControl) {
-            if (m_zRight != Undef){
-                return m_zRight;
-            } else {
-                throw CanteraError("StFlow::rightControlPointCoordinate",
-                    "Invalid operation: right control point location is not set");
-            }
-        } else {
-            throw CanteraError("StFlow::rightControlPointCoordinate",
-                 "Invalid operation: two-point control is not enabled.");
-        }
-    }
+    double rightControlPointCoordinate() const;
 
     //! Sets the temperature of the right control point
-    void setRightControlPointTemperature(double temperature) {
-        if (m_twoPointControl) {
-            if (m_zRight != Undef){
-                m_tRight = temperature;
-            } else {
-                throw CanteraError("StFlow::setRightControlPointTemperature",
-                    "Invalid operation: right control point location is not set");
-            }
-        } else {
-            throw CanteraError("StFlow::setRightControlPointTemperature",
-                 "Invalid operation: two-point control is not enabled.");
-        }
-    }
+    void setRightControlPointTemperature(double temperature);
 
     //! Sets the coordinate of the right control point
-    void setRightControlPointCoordinate(double z_right) {
-        if (m_twoPointControl) {
-                m_zRight = z_right;
-        } else {
-            throw CanteraError("StFlow::setRightControlPointCoordinate",
-                 "Invalid operation: two-point control is not enabled.");
-        }
-    }
+    void setRightControlPointCoordinate(double z_right);
 
     //! Sets the status of the two-point control
-    void enableTwoPointControl(bool twoPointControl) {
-        if (isStrained()){
-            m_twoPointControl = twoPointControl;
-        } else {
-            throw CanteraError("StFlow::enableTwoPointControl",
-                "Invalid operation: two-point control can only be used with axisymmetric flames.");
-        }
-    }
+    void enableTwoPointControl(bool twoPointControl);
 
     //! Returns the status of the two-point control
     bool twoPointControlEnabled() const {

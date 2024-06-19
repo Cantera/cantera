@@ -224,15 +224,17 @@ number.
 
 ## Counterflow Two-Point Flame Control
 
-A two-point temperature control feature is available for counterflow diffusion flames. This
-feature allows users to set a control points on both sides of a flame and incrementally lower
-the flame temperature. This allows for the simulation of the stable burning branch as well
-as the unstable burning branch of the standard flamelet "S-curve". The implementation is based
-on the method discussed in {cite:t}`nishioka1996` and {cite:t}`huo2014`. The diagram below shows
-the general concept of the two-point flame control method, with control points located on either
-side of the peak flame temperature. An initial flame solution is used as a starting point, and
-the temperatures at the control points are lowered to produce a new flame solution that satisfies
-the governing equations and passes through the new temperatures at the control points.
+A two-point temperature control feature is available for counterflow diffusion flames.
+This feature allows users to set a control point on each side of a flame and
+incrementally lower the flame temperature. This allows for the simulation of the stable
+burning branch as well as the unstable burning branch of the standard flamelet
+"S-curve". The implementation is based on the method discussed in
+{cite:t}`nishioka1996` and {cite:t}`huo2014`. The diagram below shows the general
+concept of the two-point flame control method, with control points located on either
+side of the peak flame temperature. An initial flame solution is used as a starting
+point, and the temperatures at the control points are lowered to produce a new flame
+solution that satisfies the governing equations and passes through the new temperatures
+at the control points.
 
 ```{image} /_static/images/two_point_control_diagram.svg
 :width: 50%
@@ -240,12 +242,13 @@ the governing equations and passes through the new temperatures at the control p
 :align: center
 ```
 
-For the two-point control method, one governing equation was modified ($\Lambda$), and a new
-governing equation for the axial oxidizer velocity was added ($U_o$). The fuel and oxidizer velocity boundary
-conditions are modified when the two-point control is active. These equations allow
-for the temperature reduction to be performed in a numerically consistent manner (preventing
-any issues of over-defining the system of governing equations). The two equations that are activated
-when two-point control is turned on are:
+For the two-point control method, one governing equation is modified ($\Lambda$), and
+a new governing equation for the axial oxidizer velocity is added ($U_o$). The fuel
+and oxidizer velocity boundary conditions are modified when the two-point control is
+active. These equations allow for the temperature reduction to be performed in a
+numerically consistent manner (preventing any issues of over-defining the system of
+governing equations). The two equations that are activated when two-point control is
+turned on are:
 
 $$
 \frac{d\Lambda}{dz} = 0
@@ -257,40 +260,41 @@ $$
 \frac{dU_o}{dz} = 0
 $$
 
-These equations are zero everywhere, except at their respective control points. At the left control point
-the residual for the $\Lambda$ equation is:
+At the left control point the residual for the $\Lambda$ equation is:
 
 $$
-residual = T(z=Z_L) - T_{L, control}
+T(z=Z_L) - T_{L, \t{control}}
 $$
 
 At the left control point the residual for the $U_o$ equation is:
 
 $$
-residual = T(z=Z_R) - T_{R, control}
+T(z=Z_R) - T_{R, \t{control}}
 $$
 
-Where T(z=Z_L) is the temperature of the flowfield at the left control point, T(z=Z_R) is the temperature of
-the flowfield at the right control point, T_{L, control} is the left control point desired temperature, and
-T_{R, control} is the right control point desired temperature.
+Where $T(z=Z_L)$ is the temperature of the flowfield at the left control point,
+$T(z=Z_R)$ is the temperature of the flowfield at the right control point,
+$T_{L, \t{control}}$ is the left control point desired temperature, and
+$T_{R, \t{control}}$ is the right control point desired temperature.
 
 
-The values of $\Lambda$ and $U_o$ are influenced by the left and right control points, respectively.
-A residual error is induced because of the difference between the flow's temperature at that point and
-the desired control point temperature.
-In order to drive this error to zero, the solver adjusts the flow rates at the boundaries, which changes
+The values of $\Lambda$ and $U_o$ are influenced by the left and right control points,
+respectively. A residual error is induced because of the difference between the flow's
+temperature at that point and the desired control point temperature. In order to drive
+this error to zero, the solver adjusts the flow rates at the boundaries, which changes
 the temperature distribution, which in turn affects the values of $\Lambda$ and $U_o$.
 
-At the right boundary, the boundary condition for the continuity equation is imposed by using
-the solution from the oxidizer velocity equation. At the left boundary, the boundary condition for
-the continuity equation is imposed by using the value of the axial velocity at the left boundary.
+At the right boundary, the boundary condition for the continuity equation is imposed
+by using the solution from the oxidizer velocity equation. At the left boundary, the
+boundary condition for the continuity equation is imposed by using the value of the
+axial velocity at the left boundary.
 
 $$
-mdot(z=0) = rho(z=0)*U(z=0)
+\dot{m}_\t{in,left} = \rho(z_{\t{in,left}}) U(z_{\t{in,left}})
 $$
 
 $$
-mdot(z=L) = rho(z=L)*U_0(z=L)
+\dot{m}_\t{in,right} = \rho(z_{\t{in,right}}) U_0(z_{\t{in,right}})
 $$
 
 

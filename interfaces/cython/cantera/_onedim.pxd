@@ -92,7 +92,7 @@ cdef extern from "cantera/oneD/StFlow.h":
         ThermoBasis fluxGradientBasis()
         void setFreeFlow()
         void setAxisymmetricFlow()
-        void enableTwoPointControl(cbool)
+        void enableTwoPointControl(cbool) except +translate_exception
         cbool twoPointControlEnabled()
         double leftControlPointTemperature() except +translate_exception
         double leftControlPointCoordinate() except +translate_exception

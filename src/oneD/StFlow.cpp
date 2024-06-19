@@ -1044,7 +1044,7 @@ void StFlow::setMeta(const AnyMap& state)
             m_zRight = cm["right-location"].asDouble();
             m_tLeft = cm["left-temperature"].asDouble();
             m_tRight = cm["right-temperature"].asDouble();
-        } else{
+        } else {
             warn_user("StFlow::setMeta", "Unknown continuation method '{}'.",
                 cm["type"].asString());
         }
@@ -1152,6 +1152,119 @@ void StFlow::grad_hk(const double* x, size_t j)
         else {
             m_dhk_dz(k,j) = (m_hk(k,j+1) - m_hk(k,j)) / m_dz[j];
         }
+    }
+}
+
+// Two-point control functions
+double StFlow::leftControlPointTemperature() const {
+    if (m_twoPointControl) {
+        if (m_zLeft != Undef){
+            return m_tLeft;
+        } else {
+            throw CanteraError("StFlow::leftControlPointTemperature",
+                "Invalid operation: left control point location is not set");
+        }
+    } else {
+        throw CanteraError("StFlow::leftControlPointTemperature",
+                "Invalid operation: two-point control is not enabled.");
+    }
+}
+
+double StFlow::leftControlPointCoordinate() const {
+    if (m_twoPointControl) {
+        if (m_zLeft != Undef)
+            return m_zLeft;
+        else {
+            throw CanteraError("StFlow::leftControlPointCoordinate",
+                "Invalid operation: left control point location is not set");
+        }
+    } else {
+        throw CanteraError("StFlow::leftControlPointCoordinate",
+                "Invalid operation: two-point control is not enabled.");
+    }
+}
+
+void StFlow::setLeftControlPointTemperature(double temperature) {
+    if (m_twoPointControl) {
+        if (m_zLeft != Undef){
+            m_tLeft = temperature;
+        } else {
+            throw CanteraError("StFlow::setLeftControlPointTemperature",
+                "Invalid operation: left control point location is not set");
+        }
+    } else {
+        throw CanteraError("StFlow::setLeftControlPointTemperature",
+                "Invalid operation: two-point control is not enabled.");
+    }
+}
+
+void StFlow::setLeftControlPointCoordinate(double z_left) {
+    if (m_twoPointControl) {
+            m_zLeft = z_left;
+    } else {
+        throw CanteraError("StFlow::setLeftControlPointCoordinate",
+                "Invalid operation: two-point control is not enabled.");
+    }
+}
+
+double StFlow::rightControlPointTemperature() const {
+    if (m_twoPointControl) {
+        if (m_zRight != Undef) {
+            return m_tRight;
+        } else {
+            throw CanteraError("StFlow::rightControlPointTemperature",
+                "Invalid operation: right control point location is not set");
+        }
+    } else {
+        throw CanteraError("StFlow::rightControlPointTemperature",
+                "Invalid operation: two-point control is not enabled.");
+    }
+}
+
+double StFlow::rightControlPointCoordinate() const {
+    if (m_twoPointControl) {
+        if (m_zRight != Undef){
+            return m_zRight;
+        } else {
+            throw CanteraError("StFlow::rightControlPointCoordinate",
+                "Invalid operation: right control point location is not set");
+        }
+    } else {
+        throw CanteraError("StFlow::rightControlPointCoordinate",
+                "Invalid operation: two-point control is not enabled.");
+    }
+}
+
+void StFlow::setRightControlPointTemperature(double temperature) {
+    if (m_twoPointControl) {
+        if (m_zRight != Undef){
+            m_tRight = temperature;
+        } else {
+            throw CanteraError("StFlow::setRightControlPointTemperature",
+                "Invalid operation: right control point location is not set");
+        }
+    } else {
+        throw CanteraError("StFlow::setRightControlPointTemperature",
+                "Invalid operation: two-point control is not enabled.");
+    }
+}
+
+void StFlow::setRightControlPointCoordinate(double z_right) {
+    if (m_twoPointControl) {
+            m_zRight = z_right;
+    } else {
+        throw CanteraError("StFlow::setRightControlPointCoordinate",
+                "Invalid operation: two-point control is not enabled.");
+    }
+}
+
+void StFlow::enableTwoPointControl(bool twoPointControl) {
+    if (isStrained()){
+        m_twoPointControl = twoPointControl;
+    } else {
+        throw CanteraError("StFlow::enableTwoPointControl",
+            "Invalid operation: two-point control can only be used"
+            "with axisymmetric flames.");
     }
 }
 

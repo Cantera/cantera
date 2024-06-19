@@ -155,6 +155,7 @@ class TestOnedim(utilities.CanteraTest):
             with pytest.raises(ValueError, match="mutually exclusive"):
                 sim = cls(gas, grid=[0, 0.1, 0.2], width=0.4)
 
+
 class TestFreeFlame(utilities.CanteraTest):
     tol_ss = [1.0e-5, 1.0e-14]  # [rtol atol] for steady-state problem
     tol_ts = [1.0e-4, 1.0e-11]  # [rtol atol] for time stepping
@@ -1314,11 +1315,6 @@ class TestDiffusionFlame(utilities.CanteraTest):
 
         with pytest.raises(ct.CanteraError, match="right control point location is not set"):
             sim.right_control_point_temperature
-
-
-
-
-
 
 class TestCounterflowPremixedFlame(utilities.CanteraTest):
     # Note: to re-create the reference file:
