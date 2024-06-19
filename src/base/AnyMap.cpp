@@ -164,7 +164,7 @@ string formatDouble(double x, long int precision)
     size_t last;
     string s0;
     if (useExp) {
-        s0 = fmt::format(fmt::format("{:.{}e}", x, precision));
+        s0 = fmt::format(fmt::runtime(fmt::format("{:.{}e}", x, precision)));
         // last digit of significand
         last = s0.size() - 5;
         if (s0[last + 1] == 'e') {
@@ -195,7 +195,7 @@ string formatDouble(double x, long int precision)
     if (s0[last - 1] == '0') {
         s1 = s0; // Recycle original string
     } else if (useExp) {
-        s1 = fmt::format(fmt::format("{:.{}e}", x, precision - 2));
+        s1 = fmt::format(fmt::runtime(fmt::format("{:.{}e}", x, precision - 2)));
     } else {
         s1 = fmt::format("{:.{}f}", x, precision - log10x - 2);
     }

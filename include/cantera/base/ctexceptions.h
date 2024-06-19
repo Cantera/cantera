@@ -86,7 +86,7 @@ public:
         if (sizeof...(args) == 0) {
             msg_ = msg;
         } else {
-            msg_ = fmt::format(msg, args...);
+            msg_ = fmt::format(fmt::runtime(msg), args...);
         }
     }
 

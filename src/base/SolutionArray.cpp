@@ -215,17 +215,19 @@ vector<string> doubleColumn(string name, const vector<double>& comp,
     if (csize <= rows) {
         for (const auto& val : comp) {
             data.push_back(val);
-            raw.push_back(boost::trim_copy(fmt::format(notation, val)));
+            raw.push_back(boost::trim_copy(fmt::format(fmt::runtime(notation), val)));
         }
     } else {
         dots = (rows + 1) / 2;
         for (int row = 0; row < dots; row++) {
             data.push_back(comp[row]);
-            raw.push_back(boost::trim_copy(fmt::format(notation, comp[row])));
+            raw.push_back(boost::trim_copy(
+                fmt::format(fmt::runtime(notation), comp[row])));
         }
         for (int row = csize - rows / 2; row < csize; row++) {
             data.push_back(comp[row]);
-            raw.push_back(boost::trim_copy(fmt::format(notation, comp[row])));
+            raw.push_back(boost::trim_copy(
+                fmt::format(fmt::runtime(notation), comp[row])));
         }
     }
 
@@ -275,17 +277,17 @@ vector<string> doubleColumn(string name, const vector<double>& comp,
         // all entries are integers
         notation = fmt::format(" {{:>{}.0f}}", over + maxLen);
     }
-    maxLen = fmt::format(notation, 0.).size();
+    maxLen = fmt::format(fmt::runtime(notation), 0.).size();
 
     // assemble output
     string section = fmt::format("{{:>{}}}", maxLen);
-    vector<string> col = {fmt::format(section, name)};
+    vector<string> col = {fmt::format(fmt::runtime(section), name)};
     int count = 0;
     for (const auto& val : data) {
-        col.push_back(fmt::format(notation, val));
+        col.push_back(fmt::format(fmt::runtime(notation), val));
         count++;
         if (count == dots) {
-            col.push_back(fmt::format(section, "..."));
+            col.push_back(fmt::format(fmt::runtime(section), "..."));
         }
     }
     return col;
@@ -303,7 +305,8 @@ vector<string> integerColumn(string name, const vector<long int>& comp,
     if (csize <= rows) {
         for (const auto& val : comp) {
             data.push_back(val);
-            string formatted = boost::trim_copy(fmt::format(notation, val));
+            string formatted = boost::trim_copy(
+                fmt::format(fmt::runtime(notation), val));
             if (formatted[0] == '-') {
                 formatted = formatted.substr(1);
             }
@@ -313,7 +316,8 @@ vector<string> integerColumn(string name, const vector<long int>& comp,
         dots = (rows + 1) / 2;
         for (int row = 0; row < dots; row++) {
             data.push_back(comp[row]);
-            string formatted = boost::trim_copy(fmt::format(notation, comp[row]));
+            string formatted = boost::trim_copy(
+                fmt::format(fmt::runtime(notation), comp[row]));
             if (formatted[0] == '-') {
                 formatted = formatted.substr(1);
             }
@@ -321,7 +325,8 @@ vector<string> integerColumn(string name, const vector<long int>& comp,
         }
         for (int row = csize - rows / 2; row < csize; row++) {
             data.push_back(comp[row]);
-            string formatted = boost::trim_copy(fmt::format(notation, comp[row]));
+            string formatted = boost::trim_copy(
+                fmt::format(fmt::runtime(notation), comp[row]));
             if (formatted[0] == '-') {
                 formatted = formatted.substr(1);
             }
@@ -339,13 +344,13 @@ vector<string> integerColumn(string name, const vector<long int>& comp,
     }
 
     // assemble output
-    vector<string> col = {fmt::format(notation, name)};
+    vector<string> col = {fmt::format(fmt::runtime(notation), name)};
     int count = 0;
     for (const auto& val : data) {
-        col.push_back(fmt::format(notation, val));
+        col.push_back(fmt::format(fmt::runtime(notation), val));
         count++;
         if (count == dots) {
-            col.push_back(fmt::format(notation, ".."));
+            col.push_back(fmt::format(fmt::runtime(notation), ".."));
         }
     }
     return col;
@@ -364,31 +369,33 @@ vector<string> stringColumn(string name, const vector<string>& comp,
         for (const auto& val : comp) {
             data.push_back(val);
             maxLen = std::max(maxLen,
-                boost::trim_copy(fmt::format(notation, val)).size());
+                boost::trim_copy(fmt::format(fmt::runtime(notation), val)).size());
         }
     } else {
         dots = (rows + 1) / 2;
         for (int row = 0; row < dots; row++) {
             data.push_back(comp[row]);
             maxLen = std::max(maxLen,
-                boost::trim_copy(fmt::format(notation, comp[row])).size());
+                boost::trim_copy(
+                    fmt::format(fmt::runtime(notation), comp[row])).size());
         }
         for (int row = csize - rows / 2; row < csize; row++) {
             data.push_back(comp[row]);
             maxLen = std::max(maxLen,
-                boost::trim_copy(fmt::format(notation, comp[row])).size());
+                boost::trim_copy(
+                    fmt::format(fmt::runtime(notation), comp[row])).size());
         }
     }
 
     // assemble output
     notation = fmt::format("  {{:>{}}}", maxLen);
-    vector<string> col = {fmt::format(notation, name)};
+    vector<string> col = {fmt::format(fmt::runtime(notation), name)};
     int count = 0;
     for (const auto& val : data) {
-        col.push_back(fmt::format(notation, val));
+        col.push_back(fmt::format(fmt::runtime(notation), val));
         count++;
         if (count == dots) {
-            col.push_back(fmt::format(notation, "..."));
+            col.push_back(fmt::format(fmt::runtime(notation), "..."));
         }
     }
     return col;
@@ -426,8 +433,8 @@ vector<string> formatColumn(string name, const AnyValue& comp, int rows, int wid
 
     // assemble output
     string notation = fmt::format("  {{:>{}}}", maxLen);
-    repr = fmt::format(notation, repr);
-    vector<string> col = {fmt::format(notation, name)};
+    repr = fmt::format(fmt::runtime(notation), repr);
+    vector<string> col = {fmt::format(fmt::runtime(notation), name)};
     if (size <= rows) {
         for (int row = 0; row < size; row++) {
             col.push_back(repr);
@@ -437,7 +444,7 @@ vector<string> formatColumn(string name, const AnyValue& comp, int rows, int wid
         for (int row = 0; row < dots; row++) {
             col.push_back(repr);
         }
-        col.push_back(fmt::format(notation, "..."));
+        col.push_back(fmt::format(fmt::runtime(notation), "..."));
         for (int row = size - rows / 2; row < size; row++) {
             col.push_back(repr);
         }
