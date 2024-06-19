@@ -1291,7 +1291,7 @@ string ThermoPhase::report(bool show_thermo, double threshold) const
 
     string one_property = fmt::format("{{:>{}}}   {{:<.5g}} {{}}\n", name_width);
 
-    string two_prop_header = "{}   {:^15}   {:^15}\n";
+    constexpr auto two_prop_header = "{}   {:^15}   {:^15}\n";
     string kg_kmol_header = fmt::format(
         two_prop_header, blank_leader, "1 kg", "1 kmol"
     );

@@ -746,7 +746,8 @@ public:
         : CanteraError(
             procedure,
             formatError(
-                (sizeof...(args) == 0) ? message : fmt::format(message, args...),
+                (sizeof...(args) == 0) ? message
+                                       : fmt::format(fmt::runtime(message), args...),
                 node.m_line, node.m_column, node.m_metadata))
         {
         }
@@ -761,7 +762,8 @@ public:
         : CanteraError(
             procedure,
             formatError2(
-                (sizeof...(args) == 0) ? message : fmt::format(message, args...),
+                (sizeof...(args) == 0) ? message
+                                       : fmt::format(fmt::runtime(message), args...),
                 node1.m_line, node1.m_column, node1.m_metadata,
                 node2.m_line, node2.m_column, node2.m_metadata))
         {

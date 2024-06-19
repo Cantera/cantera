@@ -26,13 +26,13 @@
 
 #if FMT_VERSION < 80000
 template <typename... Args>
-void fmt_append(fmt::memory_buffer& b, Args... args) {
-    format_to(b, args...);
+void fmt_append(fmt::memory_buffer& b, const std::string& tmpl, Args... args) {
+    format_to(b, tmpl, args...);
 }
 #else
 template <typename... Args>
-void fmt_append(fmt::memory_buffer& b, Args... args) {
-    format_to(fmt::appender(b), args...);
+void fmt_append(fmt::memory_buffer& b, const std::string& tmpl, Args... args) {
+    format_to(fmt::appender(b), fmt::runtime(tmpl), args...);
 }
 #endif
 

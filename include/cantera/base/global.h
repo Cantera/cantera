@@ -176,7 +176,7 @@ void writelog(const string& fmt, const Args&... args) {
     if (sizeof...(args) == 0) {
         writelog_direct(fmt);
     } else {
-        writelog_direct(fmt::format(fmt, args...));
+        writelog_direct(fmt::format(fmt::runtime(fmt), args...));
     }
 }
 
@@ -228,7 +228,7 @@ void warn_deprecated(const string& method, const string& msg, const Args&... arg
     if (sizeof...(args) == 0) {
         _warn_deprecated(method, msg);
     } else {
-        _warn_deprecated(method, fmt::format(msg, args...));
+        _warn_deprecated(method, fmt::format(fmt::runtime(msg), args...));
     }
 }
 
@@ -253,7 +253,7 @@ void warn(const string& warning, const string& method,
     if (sizeof...(args) == 0) {
         _warn(warning, method, msg);
     } else {
-        _warn(warning, method, fmt::format(msg, args...));
+        _warn(warning, method, fmt::format(fmt::runtime(msg), args...));
     }
 }
 
@@ -268,7 +268,7 @@ void warn_user(const string& method, const string& msg, const Args&... args) {
     if (sizeof...(args) == 0) {
         _warn("Cantera", method, msg);
     } else {
-        _warn("Cantera", method, fmt::format(msg, args...));
+        _warn("Cantera", method, fmt::format(fmt::runtime(msg), args...));
     }
 }
 
