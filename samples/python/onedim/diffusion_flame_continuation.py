@@ -94,7 +94,3 @@ plt.plot(range(len(maximum_temperature)), maximum_temperature)
 plt.xlabel('Number of Continuation Steps')
 plt.ylabel('Maximum Temperature [K]')
 plt.savefig(output_path / "figure_max_temperature_iterations.png")
-
-
-
-
