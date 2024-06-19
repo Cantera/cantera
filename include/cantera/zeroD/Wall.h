@@ -8,6 +8,7 @@
 
 #include "cantera/base/ctexceptions.h"
 #include "cantera/zeroD/ReactorBase.h"
+#include "cantera/numerics/eigen_sparse.h"
 
 namespace Cantera
 {
@@ -91,6 +92,46 @@ public:
         m_time = time;
     }
 
+    //! Build the Jacobian terms specific to the flow device for the given connected
+    //! reactor.
+    //! @param r a pointer to the calling reactor
+    //! @param jacVector a vector of triplets to be added to the Jacobian for the
+    //! reactor
+    //! @warning This function is an experimental part of the %Cantera API and may be
+    //! changed or removed without notice.
+    //! @since New in %Cantera 3.1.
+    //!
+    virtual void buildReactorJacobian(ReactorBase* r, vector<Eigen::Triplet<double>>& jacVector) {
+        throw NotImplementedError("WallBase::buildReactorJacobian");
+    }
+
+    //! Build the Jacobian terms specific to the flow device for the network. These
+    //! terms
+    //! will be adjusted to the networks indexing system outside of the reactor.
+    //! @param jacVector a vector of triplets to be added to the Jacobian for the
+    //! reactor
+    //! @warning This function is an experimental part of the %Cantera API and may be
+    //! changed or removed without notice.
+    //! @since New in %Cantera 3.1.
+    //!
+    virtual void buildNetworkJacobian(vector<Eigen::Triplet<double>>& jacVector) {
+        throw NotImplementedError("WallBase::buildNetworkJacobian");
+    }
+
+    //! Specify the Jacobian terms have been calculated and should not be recalculated.
+    //! @warning This function is an experimental part of the %Cantera API and may be
+    //! changed or removed without notice.
+    //! @since New in %Cantera 3.1.
+    //!
+    void calculatedJacobian() { m_jac_calculated = true; };
+
+    //! Specify that Jacobian terms have not been calculated and should be recalculated.
+    //! @warning This function is an experimental part of the %Cantera API and may be
+    //! changed or removed without notice.
+    //! @since New in %Cantera 3.1.
+    //!
+    void notCalculatedJacobian() { m_jac_calculated = false; };
+
 protected:
     ReactorBase* m_left = nullptr;
     ReactorBase* m_right = nullptr;
@@ -99,6 +140,10 @@ protected:
     double m_time = 0.0;
 
     double m_area = 1.0;
+
+    //! a variable to switch on and off so calculations are not doubled by the calling
+    //! reactor or network
+    bool m_jac_calculated = false;
 };
 
 //! Represents a wall between between two ReactorBase objects.
@@ -202,6 +247,10 @@ public:
     double getExpansionRateCoeff() const {
         return m_k;
     }
+
+    virtual void buildReactorJacobian(ReactorBase* r, vector<Eigen::Triplet<double>>& jacVector) override;
+
+    virtual void buildNetworkJacobian(vector<Eigen::Triplet<double>>& jacVector) override;
 
 protected:
 
