@@ -16,6 +16,16 @@
 namespace Cantera
 {
 
+/**
+ * @brief Returns interpolated value of (DP)_R obtained from the data
+ * in Table 2 of the Takahashi 1975 paper, given a value of the reduced
+ * pressure (Pr) and reduced temperature (Tr).
+ *
+ * @param Pr  Reduced pressure
+ * @param Tr  Reduced temperature
+ */
+double takahashi_correction_factor(double Pr, double Tr);
+
 //! Class MultiTransport implements transport properties for
 //! high pressure gas mixtures.
 /*!
@@ -28,9 +38,9 @@ namespace Cantera
  *     https://github.com/Cantera/cantera/issues/267 for additional information.
  *
  * The implementation employs a method of corresponding states, using the Takahashi
- * @cite takahashi1975 approach for binary diffusion coefficients (using multicomponent
- * averaging rules for the mixture properties), and the Lucas method for the viscosity
- * of a high-pressure gas mixture. All methods are described in Poling et al.
+ * @cite takahashi1975 approach for binary diffusion coefficients (using mixture
+ * averaging rules for the mixture properties), the Lucas method for the viscosity, and
+ * a method from Ely and Hanley. All methods are described in Poling et al.
  * @cite poling2001 (viscosity in Ch. 9, thermal conductivity in Ch. 10, and diffusion
  * coefficients in Ch. 11).
  *
@@ -47,11 +57,29 @@ public:
         return "high-pressure";
     }
 
+    /**
+     * Returns the mixture high-pressure thermal conductivity in W/m/K
+     * a method by Ely and Hanley.
+     *
+     */
     double thermalConductivity() override;
+
+     /**
+     * Returns the mixture high-pressure viscosity in Pa*s using the Lucas method.
+     *
+     * This uses the approach described in chapter 9-7.
+     *
+     * The mixture pseudo-critical temperature and pressure are calculated using
+     * Equations 9-5.18 and 9-5.19. The mixture molecular weight is computed using
+     * Equation 9-5.20. The mixture values of the low-pressure polarity and quantum
+     * correction factors are computed using Equations 9-5.21 and 9-5.22.
+     *
+     */
     double viscosity() override;
 
     /**
-     * Returns the matrix of binary diffusion coefficients
+     * Returns the matrix of binary diffusion coefficients using the Takahashi
+     * correction factor.
      *
      *      d[ld*j +  i] = rp*m_bdiff(i,j)*(DP)_R;
      *
@@ -68,7 +96,27 @@ protected:
     double Vcrit_i(size_t i);
     double Zcrit_i(size_t i);
 
+
+    /**
+     * Returns the non-dimensional low-pressure mixture viscosity in using the Lucas method.
+     *
+     * Defined by equation 9-4.16.
+     *
+     * @f[
+     *   \eta \xi = [0.807 T_r^{0.618} - 0.357 e^{-0.449 T_r} + 0.340e^{-4.058 T_r} + 0.018] F_P^{\t{o}} F_Q^{\t{o}}
+     * @f]
+     *
+     * This function is structured such that it can be used for pure species or mixtures, with the
+     * only difference being the values that are passed to the function (pure values versus mixture values).
+     *
+     * @param Tr // Reduced temperature [unitless]
+     * @param FP // Polarity correction factor [unitless]
+     * @param FQ // Quantum correction factor [unitless]
+     * @return double
+     */
     double low_pressure_nondimensional_viscosity(double Tr, double FP, double FQ);
+
+
     double high_pressure_nondimensional_viscosity(double Tr, double Pr, double FP_low, double FQ_low, double P_vap, double P_crit);
 
     /**
@@ -96,7 +144,6 @@ protected:
 };
 
 
-
 //These are the parameters that are needed to calculate the viscosity using the Chung method.
 struct ChungMixtureParameters
 {
@@ -122,13 +169,12 @@ struct ChungMixtureParameters
  * The implementation employs a method of corresponding states, using the Takahashi
  * @cite takahashi1975 approach for binary diffusion coefficients (using mixture
  * averaging rules for the mixture properties), and the Chung method for the viscosity
- *  and thermal conductivity of a high-pressure gas mixture. All methods are described in Poling et al.
- * @cite poling2001 (viscosity in Ch. 9, thermal conductivity in Ch. 10, and diffusion
- * coefficients in Ch. 11).
+ * and thermal conductivity of a high-pressure gas mixture. All methods are described
+ * in Poling et al. @cite poling2001 (viscosity in Ch. 9, thermal conductivity in
+ * Ch. 10, and diffusion coefficients in Ch. 11).
  *
  * @note: All equations that are cited in this implementation are from the 5th edition
  * of the book "The Properties of Gases and Liquids" by Poling, Prausnitz, and O'Connell.
- *
  *
  * @ingroup tranprops
  */
@@ -200,56 +246,153 @@ public:
     friend class TransportFactory;
 
 protected:
+    /**
+     * @brief  Returns the estimate of the critical temperature that is given
+     * from the thermo object for species i.
+     *
+     * This method sets the species composition vector to unity for
+     * species i and zero for all other species, and then queries the
+     * thermo object for the critical temperature. It then resets the
+     * composition vector to the original state.
+     *
+     * @param i // Species index
+     * @return double
+     */
     double Tcrit_i(size_t i);
+
+    /**
+     * @brief  Returns the estimate of the critical pressure that is given
+     * from the thermo object for species i.
+     *
+     * This method sets the species composition vector to unity for
+     * species i and zero for all other species, and then queries the
+     * thermo object for the critical temperature. It then resets the
+     * composition vector to the original state.
+     *
+     * @param i // Species index
+     * @return double
+     */
     double Pcrit_i(size_t i);
+
+    /**
+     * @brief  Returns the estimate of the critical volume that is given
+     * from the thermo object for species i.
+     *
+     * This method sets the species composition vector to unity for
+     * species i and zero for all other species, and then queries the
+     * thermo object for the critical temperature. It then resets the
+     * composition vector to the original state.
+     *
+     * @param i // Species index
+     * @return double
+     */
     double Vcrit_i(size_t i);
+
+    /**
+     * @brief  Returns the estimate of the critical compressibility that is given
+     * from the thermo object for species i.
+     *
+     * This method sets the species composition vector to unity for
+     * species i and zero for all other species, and then queries the
+     * thermo object for the critical temperature. It then resets the
+     * composition vector to the original state.
+     *
+     * @param i // Species index
+     * @return double
+     */
     double Zcrit_i(size_t i);
 
     /**
-    * Returns the low-pressure mixture viscosity using the Chung method in micropoise.
-    *
-    * Defined by equation 9-4.10.
-    *
-    * @f[
-    *   \eta = 26.69 F_c \frac{(M*T)^(\frac{1}{2})}{\sigma^2 \Omega}
-    * @f]
-    *
-    * T must be in units of K, MW must be units of kg/kmol, and sigma must be units of Angstroms
-    *
-    * This function is structured such that it can be used for pure species or mixtures, with the
-    * only difference being the values that are passed to the function (pure values versus mixture values).
-    */
+     * Returns the composition-dependent values of the parameters needed for the Chung viscosity model.
+     *
+     * The equations for the mixing rules defined on page 9.25 for the Chung method's
+     * composition dependent parameters.
+     */
+    void compute_mixture_parameters(ChungMixtureParameters& params);
+
+    /**
+     * Returns the low-pressure mixture viscosity in micropoise using the Chung method.
+     *
+     * Defined by equation 9-4.10.
+     *
+     * @f[
+     *   \eta = 26.69 F_c \frac{(M*T)^(\frac{1}{2})}{\sigma^2 \Omega}
+     * @f]
+     *
+     * T must be in units of K, MW must be units of kg/kmol, and sigma must be units of Angstroms
+     *
+     * This function is structured such that it can be used for pure species or mixtures, with the
+     * only difference being the values that are passed to the function (pure values versus mixture values).
+     *
+     * @param T // Temperature [K]
+     * @param T_star // Reduced temperature [unitless]
+     * @param MW // Molecular weight [kg/kmol]
+     * @param acentric_factor // Acentric factor [unitless]
+     * @param mu_r // Dipole moment [Debye]
+     * @param sigma // Lennard-Jones collision diameter [Angstroms]
+     * @param kappa // Polar correction factor [unitless]
+     * @return double
+     */
     double low_pressure_viscosity(double T, double T_star, double MW, double acentric_factor,
                                  double mu_r, double sigma, double kappa);
 
-    // Computes the high-pressure viscosity using the Chung method (Equation 9-6.18).
-    // Gives viscosity in units of micropoise
+    /**
+     * Returns the high-pressure mixture viscosity in micropoise using the Chung method.
+     *
+     * Defined by equation 9-6.18.
+     *
+     * @f[
+     *   \eta = \eta^* \frac{36.344 (M*T_c)^(\frac{1}{2})}{V^{\frac{2}{3}}}
+     * @f]
+     *
+     * $T_c$ must be in units of K, MW must be units of kg/kmol, and sigma must be units of Angstroms
+     *
+     * This function is structured such that it can be used for pure species or mixtures, with the
+     * only difference being the values that are passed to the function (pure values versus mixture values).
+     *
+     * @param T_star // Reduced temperature [unitless]
+     * @param MW // Molecular weight [kg/kmol]
+     * @param rho // Density [mol/cm^3]
+     * @param Vc // Critical volume [cm^3/mol]
+     * @param Tc // Critical temperature [K]
+     * @param acentric_factor // Acentric factor [unitless]
+     * @param mu_r // Dipole moment [Debye]
+     * @param kappa // Polar correction factor [unitless]
+     * @return double
+     */
     double high_pressure_viscosity(double T_star, double MW, double rho, double Vc, double Tc,
                                    double acentric_factor, double mu_r, double kappa);
 
     /**
-    * Returns the composition-dependent values of the parameters needed for the Chung viscosity model.
-    *
-    * The equations for the mixing rules defined on page 9.25 for the Chung method's
-    * composition dependent parameters.
-    */
-    void compute_mixture_parameters(ChungMixtureParameters& params);
-
-    /**
-    * Computes the high-pressure thermal conductivity using the Chung method (Equation 10-5.5).
-    *
-    * Gives thermal conductivity in units of W/m/K.
-    *
-    * This function is structured such that it can be used for pure species or mixtures, with the
-    * only difference being the values that are passed to the function (pure values versus mixture values).
-    *
-    * This method utilizes the low-pressure Chung viscosity as that is a required parameter in the model, and
-    * thus makes a call to the low pressure viscosity implementation. This is why it requires parameters
-    * typically associated with the viscosity calculation.
-    *
-    * M_prime (M' in the model) has units of kg/mol, and is just the molecular weight (kg/kmol) divided by 1000.
-    */
-    double high_pressure_thermal_conductivity(double T, double T_star, double MW, double rho, double Cv, double Vc, double Tc, double sigma, double acentric_factor, double mu_r, double kappa);
+     * Computes the high-pressure thermal conductivity using the Chung method (Equation 10-5.5).
+     *
+     * Gives thermal conductivity in units of W/m/K.
+     *
+     * This function is structured such that it can be used for pure species or mixtures, with the
+     * only difference being the values that are passed to the function (pure values versus mixture values).
+     *
+     * This method utilizes the low-pressure Chung viscosity as that is a required parameter in the model, and
+     * thus makes a call to the low pressure viscosity implementation. This is why it requires parameters
+     * typically associated with the viscosity calculation.
+     *
+     * M_prime (M' in the model) has units of kg/mol, and is just the molecular weight (kg/kmol) divided by 1000.
+     *
+     * @param T // Temperature [K]
+     * @param T_star // Reduced temperature [unitless]
+     * @param MW // Molecular weight [kg/kmol]
+     * @param rho // Density [mol/cm^3]
+     * @param Vc // Critical volume [cm^3/mol]
+     * @param Tc // Critical temperature [K]
+     * @param acentric_factor // Acentric factor [unitless]
+     * @param mu_r // Dipole moment [Debye]
+     * @param kappa // Polar correction factor [unitless]
+     * @return double
+     */
+    double high_pressure_thermal_conductivity(double T, double T_star, double MW,
+                                              double rho, double Cv, double Vc,
+                                              double Tc, double sigma,
+                                              double acentric_factor, double mu_r,
+                                              double kappa);
 
     /**
      * @brief Returns interpolated value of (DP)_R obtained from the data
@@ -258,14 +401,8 @@ protected:
      *
      * @param Pr  Reduced pressure
      * @param Tr  Reduced temperature
-\    */
-    double compute_correction_factor(double Pr, double Tr);
+     */
 };
-
-
-
-
-
 
 }
 #endif
