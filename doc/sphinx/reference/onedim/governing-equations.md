@@ -296,5 +296,3 @@ $$
 $$
 \dot{m}_\t{in,right} = \rho(z_{\t{in,right}}) U_0(z_{\t{in,right}})
 $$
-
-
