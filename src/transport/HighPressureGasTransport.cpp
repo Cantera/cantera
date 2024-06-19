@@ -18,14 +18,6 @@ using namespace std;
 namespace Cantera
 {
 
-/**
- * @brief Returns interpolated value of (DP)_R obtained from the data
- * in Table 2 of the Takahashi 1975 paper, given a value of the reduced
- * pressure (Pr) and reduced temperature (Tr).
- *
- * @param Pr  Reduced pressure
- * @param Tr  Reduced temperature
- */
 double takahashi_correction_factor(double Pr, double Tr)
 {
     // In the low pressure limit, no correction is needed. Interpolate
@@ -67,7 +59,6 @@ double takahashi_correction_factor(double Pr, double Tr)
     // the final table value.
     frac = 1.0;
 
-
     DP_Rt = DP_Rt_lookup[Pr_i]*(1.0 - frac) + DP_Rt_lookup[Pr_i+1]*frac;
     A = A_ij_lookup[Pr_i]*(1.0 - frac) + A_ij_lookup[Pr_i+1]*frac;
     B = B_ij_lookup[Pr_i]*(1.0 - frac) + B_ij_lookup[Pr_i+1]*frac;
@@ -77,8 +68,6 @@ double takahashi_correction_factor(double Pr, double Tr)
     double DP_R = DP_Rt*(1.0 - A*pow(Tr,-B))*(1.0 - C*pow(Tr,-E));
     return DP_R;
 }
-
-
 
 double HighPressureGasTransport::thermalConductivity()
 {
@@ -217,17 +206,6 @@ void HighPressureGasTransport::getBinaryDiffCoeffs(const size_t ld, double* cons
     }
 }
 
-
-// Calculate the high-pressure mixture viscosity, based on the Lucas method
-// described in chapter 9-7 of Poling et al. (2001).
-//
-// The mixture pseudo-critical temperature and pressure are calculated using
-// equation 9-5.18 and 9-5.19 in Poling et al. (2001).
-//
-// The mixture molecular weight is computed using equation 9-5.20 in Poling et al. (2001).
-//
-// The mixture values of the low-pressure polarity and quantum correction factors are
-// computed using equations 9-5.21 and 9-5.22 in Poling et al. (2001).
 double HighPressureGasTransport::viscosity()
 {
     // Most of this function consists of computing mixture values of various critical
@@ -498,12 +476,9 @@ double HighPressureGasTransport::FP_i(double mu_r, double Tr, double Z_crit)
     }
 }
 
-}
 
-//Chung Implementation
-namespace Cantera
-{
-
+// Chung Implementation
+// --------------------
 void ChungHighPressureGasTransport::getBinaryDiffCoeffs(const size_t ld, double* const d)
 {
     size_t nsp = m_thermo->nSpecies();
