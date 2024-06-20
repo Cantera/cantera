@@ -1382,7 +1382,7 @@ def setup_python_env(env):
             if env['OS_BITS'] == 64:
                 env.Append(CPPDEFINES='MS_WIN64')
 
-    if "numpy_1_7_API" in env:
+    if not env.get("require_numpy_1_7_API", True):
         env.Append(CPPDEFINES="NPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION")
 
 
