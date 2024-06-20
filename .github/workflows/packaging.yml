@@ -10,10 +10,6 @@ on:
         description: "Try to upload wheels and sdist to PyPI after building"
         required: false
         default: "false"
-      upload_to_anaconda:
-        description: "Try to upload package to Anaconda after building"
-        required: false
-        default: "false"
   push:
     # Run on tags that look like releases
     tags:
@@ -25,7 +21,7 @@ on:
 jobs:
   build-packages:
     name: Trigger building packages from external repos
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Set up the job
         run: |
@@ -41,13 +37,6 @@ jobs:
           else
             echo "UPLOAD_TO_PYPI=false" >> $GITHUB_ENV
           fi
-          if [ -n "${{ github.event.inputs.upload_to_anaconda }}" ]; then
-            echo "UPLOAD_TO_ANACONDA=${{ github.event.inputs.upload_to_anaconda }}" >> $GITHUB_ENV
-          elif [[ "${{ github.ref }}" == refs/tags* ]]; then
-            echo "UPLOAD_TO_ANACONDA=true" >> $GITHUB_ENV
-          else
-            echo "UPLOAD_TO_ANACONDA=false" >> $GITHUB_ENV
-          fi
       - name: Trigger PyPI/Wheel builds
         run: >
           gh workflow run -R cantera/pypi-packages
@@ -56,18 +45,3 @@ jobs:
           -f upload=${{ env.UPLOAD_TO_PYPI }}
         env:
           GITHUB_TOKEN: ${{ secrets.PYPI_PACKAGE_PAT }}
-      - name: Trigger Conda builds
-        run: >
-          gh workflow run -R cantera/conda-recipes
-          main.yml
-          -f incoming_ref=${{ env.REF }}
-          -f upload=${{ env.UPLOAD_TO_ANACONDA }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.CONDA_PACKAGE_PAT }}
-      - name: Trigger Windows MSI Builds
-        run: >
-          gh workflow run -R cantera/cantera-windows-binaries
-          main.yaml
-          -f incoming_ref=${{ env.REF }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.WINDOWS_MSI_PAT }}
