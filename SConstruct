@@ -1914,10 +1914,12 @@ if env['python_package'] != 'none':
             warn_no_full_package = True
         elif cython_version < parse_version("3.0.0"):
             logger.info(
-                f"Using Cython version {cython_version} (uses legacy NumPy API)")
-            env["numpy_1_7_API"] = True
+                f"Using Cython version {cython_version} (uses legacy NumPy API)"
+            )
+            env["require_numpy_1_7_API"] = True
         else:
             logger.info(f"Using Cython version {cython_version}")
+            env["require_numpy_1_7_API"] = False
 
         pytest_version = versions.get("pytest")
         if not check_for_pytest:
