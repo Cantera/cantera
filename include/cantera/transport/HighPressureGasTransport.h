@@ -26,6 +26,21 @@ namespace Cantera
  */
 double takahashi_correction_factor(double Pr, double Tr);
 
+
+
+//These are the parameters that are needed to calculate the viscosity using the Lucas method.
+struct LucasMixtureParameters
+{
+    double FQ_mix_o;
+    double FP_mix_o;
+    double Tr_mix;
+    double Pr_mix;
+    double Pc_mix;
+    double Tc_mix;
+    double MW_mix;
+    double P_vap_mix;
+};
+
 //! Class MultiTransport implements transport properties for
 //! high pressure gas mixtures.
 /*!
@@ -98,6 +113,55 @@ protected:
 
 
     /**
+     * Returns the composition-dependent values of the parameters needed for
+     * the Lucas viscosity model.
+     *
+     * The equations for the mixing rules defined on page 9.23 for the Lucas method's
+     * composition dependent parameters. The primary mixing rules are defined below,
+     * and the reduced properties are just the properties divided by the pseudo-critical
+     * mixture properties defined below.
+     *
+     * @f[
+     *  T_{\t{c,m}} = \sum_i y_i T_{\t{c,i}}
+     * @f]
+     *
+     * @f[
+     *  P_{\t{c,m}} = R T_{\t{c,m}} \frac{\sum_i y_i Z_{\t{c,i}}}{\sum_i y_i V_{\t{c,i}}}
+     * @f]
+     *
+     * @f[
+     *  M_m = \sum y_i M_i
+     * @f]
+     *
+     * @f[
+     *  F_{P,m}^{\t{o}} = \sum y_i F_{P,i}^{\t{o}}
+     * @f]
+     *
+     * @f[
+     *   F_{Q,m}^{\t{o}} = \left ( \sum y_i F_{Q,i}^{\t{o}} \right ) A
+     * @f]
+     *
+     * @f[
+     *   A = 1 - 0.01 \left ( \frac{M_H}{M_L} \right )^{0.87}
+     * @f]
+     *
+     * For $\frac{M_H}{M_L} > 9$ and $ 0.05 < y_H < 0.7$, otherwise A = 1. In the
+     * above equation, $M_H$ and $M_L$ are the molecular weights of the heaviest
+     * and lightest components in the mixture, and $y_H$ is the mole fraction of
+     * the heaviest component.
+     *
+     * While it isn't returned as a parameter, the species-specific reduced dipole
+     * moment is used to compute the mixture polarity correction factor. It is
+     * defined as:
+     *
+     * @f[
+     *   \mu_r = 52.46 \frac{\mu^2 P_{\t{c,i}}}{T_{\t{c,i}}
+     * @f]
+     *
+     */
+    void compute_mixture_parameters(LucasMixtureParameters& params);
+
+    /**
      * Returns the non-dimensional low-pressure mixture viscosity in using the Lucas method.
      *
      * Defined by equation 9-4.16.
@@ -116,14 +180,45 @@ protected:
      */
     double low_pressure_nondimensional_viscosity(double Tr, double FP, double FQ);
 
-
-    double high_pressure_nondimensional_viscosity(double Tr, double Pr, double FP_low, double FQ_low, double P_vap, double P_crit);
+    /**
+     * Returns the non-dimensional high-pressure mixture viscosity in using the Lucas method.
+     *
+     * Defined by equation 9-6.12.
+     *
+     * @f[
+     *   \eta \xi = Z_2 F_P F_Q
+     * @f]
+     *
+     * This returns the value of η*ξ (by multiplying both sides of 9-6.12 by ξ and
+     * simply returning the right-side of the resulting equation).
+     *
+     * This function is structured such that it can be used for pure species or mixtures, with the
+     * only difference being the values that are passed to the function (pure values versus mixture values).
+     *
+     * @param Tr // Reduced temperature [unitless]
+     * @param Pr // Reduced pressure [unitless]
+     * @param FP_low // Low-pressure polarity correction factor [unitless]
+     * @param FQ_low // Low-pressure quantum correction factor [unitless]
+     * @param P_vap // Vapor pressure [Pa]
+     * @param P_crit // Critical pressure [Pa]
+     * @return double
+     */
+    double high_pressure_nondimensional_viscosity(double Tr, double Pr, double FP_low,
+                                                 double FQ_low, double P_vap, double P_crit);
 
     /**
      * @brief  Returns the quantum correction term for a species based on Tr
      * and MW, used in viscosity calculation.
      *
-     * @param Q
+     * Calculates quantum correction term of the Lucas method for a species based
+     * on the reduced temperature(Tr) and molecular weight(MW), used in viscosity
+     * calculation from equation 9-4.19.
+     *
+     * @f[
+     *    F_{Q}^{\text{o}} = 1.22 Q^{0.15} \left( 1 + 0.00385 \left ( \left ( T_r - 12 \right ) ^2 \right ) ^{\frac{1}{MW}} sign(T_r - 12 \right ) \right )
+     * @f]
+     *
+     * @param Q // Species-specific constant
      * @param Tr // Reduced temperature
      * @param MW // Molecular weight
      * @return double
@@ -131,12 +226,32 @@ protected:
     double FQ_i(double Q, double Tr, double MW);
 
     /**
-     * @brief  Returns the polarity correction term for a species based on Tr
-     * and MW, used in viscosity calculation.
+     * @brief  Returns the polarity correction term for a species based on reduced
+     * temperature, reduced dipole moment, and critical compressibility. Used in
+     * the viscosity calculation.
      *
-     * @param Q
+     * Calculates polarity correction term of the Lucas method for a species based
+     * on the reduced temperature(Tr) and molecular weight(MW). Equation 9.4.18.
+     *
+     * @f[
+     *  \begin{equation}
+     *   F_P^0 =
+     *   \begin{cases}
+     *       1 & 0 \leq \mu_r < 0.022 \\
+     *      1 + 30.55(0.292 - Z_c)^{1.72} & 0.022 \leq \mu_r < 0.075 \\
+     *      1 + 30.55(0.292 - Z_c)^{1.72} \times 0.96 + 0.1(T_r - 0.7) & 0.075 \leq \mu_r
+     *   \end{cases}
+     *  \end{equation}
+     *
+
+     * @note The original description in Poling(2001) neglects to mention what happens
+     * when the quantity raised to the 1.72 power goes negative. That is an undefined
+     * operation that generates real+imaginary numbers. For now, we
+     * take the absolute value of the argument.
+     *
+     * @param mu_r // Species Reduced dipole moment
      * @param Tr // Reduced temperature
-     * @param MW // Molecular weight
+     * @param Z_c // Species Critical compressibility
      * @return double
      */
     double FP_i(double mu_r, double Tr, double Z_c);
@@ -246,6 +361,7 @@ public:
     friend class TransportFactory;
 
 protected:
+
     /**
      * @brief  Returns the estimate of the critical temperature that is given
      * from the thermo object for species i.
@@ -303,10 +419,49 @@ protected:
     double Zcrit_i(size_t i);
 
     /**
-     * Returns the composition-dependent values of the parameters needed for the Chung viscosity model.
+     * Returns the composition-dependent values of the parameters needed for
+     * the Chung viscosity model.
      *
      * The equations for the mixing rules defined on page 9.25 for the Chung method's
-     * composition dependent parameters.
+     * composition dependent parameters. The primary mixing rules are defined below.
+     *
+     * @f[
+     *  T_{\t{c,m}} = \sum_i y_i T_{\t{c,i}}
+     * @f]
+     *
+     * @f[
+     *  P_{\t{c,m}} = R T_{\t{c,m}} \frac{\sum_i y_i Z_{\t{c,i}}}{\sum_i y_i V_{\t{c,i}}}
+     * @f]
+     *
+     * @f[
+     *  M_m = \sum y_i M_i
+     * @f]
+     *
+     * @f[
+     *  F_{P,m}^{\t{o}} = \sum y_i F_{P,i}^{\t{o}}
+     * @f]
+     *
+     * @f[
+     *   F_{Q,m}^{\t{o}} = \left ( \sum y_i F_{Q,i}^{\t{o}} \right ) A
+     * @f]
+     *
+     * @f[
+     *   A = 1 - 0.01 \left ( \frac{M_H}{M_L} \right )^{0.87}
+     * @f]
+     *
+     * For $\frac{M_H}{M_L} > 9$ and $ 0.05 < y_H < 0.7$, otherwise A = 1. In the
+     * above equation, $M_H$ and $M_L$ are the molecular weights of the heaviest
+     * and lightest components in the mixture, and $y_H$ is the mole fraction of
+     * the heaviest component.
+     *
+     * While it isn't returned as a parameter, the species-specific reduced dipole
+     * moment is used to compute the mixture polarity correction factor. It is
+     * defined as:
+     *
+     * @f[
+     *   \mu_r = 52.46 \frac{\mu^2 P_{\t{c,i}}}{T_{\t{c,i}}
+     * @f]
+     *
      */
     void compute_mixture_parameters(ChungMixtureParameters& params);
 
