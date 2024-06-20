@@ -27,6 +27,15 @@ namespace Cantera
 double takahashi_correction_factor(double Pr, double Tr);
 
 
+/**
+ * @brief Returns the value of the Neufeld collision integral for a given
+ * dimensionless temperature. Implementation of equation 9-4.3.
+ * Applicable over the range of 0.3 <= T_star <= 100.
+ *
+ * @param T_star  Dimensionless temperature (Defined in Equation 9-4.1)
+ */
+double neufeld_collision_integral(double T_star);
+
 
 //These are the parameters that are needed to calculate the viscosity using the Lucas method.
 struct LucasMixtureParameters
@@ -173,9 +182,9 @@ protected:
      * This function is structured such that it can be used for pure species or mixtures, with the
      * only difference being the values that are passed to the function (pure values versus mixture values).
      *
-     * @param Tr // Reduced temperature [unitless]
-     * @param FP // Polarity correction factor [unitless]
-     * @param FQ // Quantum correction factor [unitless]
+     * @param Tr Reduced temperature [unitless]
+     * @param FP Polarity correction factor [unitless]
+     * @param FQ Quantum correction factor [unitless]
      * @return double
      */
     double low_pressure_nondimensional_viscosity(double Tr, double FP, double FQ);
@@ -195,12 +204,12 @@ protected:
      * This function is structured such that it can be used for pure species or mixtures, with the
      * only difference being the values that are passed to the function (pure values versus mixture values).
      *
-     * @param Tr // Reduced temperature [unitless]
-     * @param Pr // Reduced pressure [unitless]
-     * @param FP_low // Low-pressure polarity correction factor [unitless]
-     * @param FQ_low // Low-pressure quantum correction factor [unitless]
-     * @param P_vap // Vapor pressure [Pa]
-     * @param P_crit // Critical pressure [Pa]
+     * @param Tr Reduced temperature [unitless]
+     * @param Pr Reduced pressure [unitless]
+     * @param FP_low Low-pressure polarity correction factor [unitless]
+     * @param FQ_low Low-pressure quantum correction factor [unitless]
+     * @param P_vap Vapor pressure [Pa]
+     * @param P_crit Critical pressure [Pa]
      * @return double
      */
     double high_pressure_nondimensional_viscosity(double Tr, double Pr, double FP_low,
@@ -218,9 +227,9 @@ protected:
      *    F_{Q}^{\text{o}} = 1.22 Q^{0.15} \left( 1 + 0.00385 \left ( \left ( T_r - 12 \right ) ^2 \right ) ^{\frac{1}{MW}} sign(T_r - 12 \right ) \right )
      * @f]
      *
-     * @param Q // Species-specific constant
-     * @param Tr // Reduced temperature
-     * @param MW // Molecular weight
+     * @param Q  Species-specific constant
+     * @param Tr  Reduced temperature
+     * @param MW  Molecular weight
      * @return double
      */
     double FQ_i(double Q, double Tr, double MW);
@@ -249,9 +258,9 @@ protected:
      * operation that generates real+imaginary numbers. For now, we
      * take the absolute value of the argument.
      *
-     * @param mu_r // Species Reduced dipole moment
-     * @param Tr // Reduced temperature
-     * @param Z_c // Species Critical compressibility
+     * @param mu_r  Species Reduced dipole moment
+     * @param Tr  Reduced temperature
+     * @param Z_c  Species Critical compressibility
      * @return double
      */
     double FP_i(double mu_r, double Tr, double Z_c);
@@ -371,7 +380,7 @@ protected:
      * thermo object for the critical temperature. It then resets the
      * composition vector to the original state.
      *
-     * @param i // Species index
+     * @param i  Species index
      * @return double
      */
     double Tcrit_i(size_t i);
@@ -385,7 +394,7 @@ protected:
      * thermo object for the critical temperature. It then resets the
      * composition vector to the original state.
      *
-     * @param i // Species index
+     * @param i  Species index
      * @return double
      */
     double Pcrit_i(size_t i);
@@ -399,7 +408,7 @@ protected:
      * thermo object for the critical temperature. It then resets the
      * composition vector to the original state.
      *
-     * @param i // Species index
+     * @param i  Species index
      * @return double
      */
     double Vcrit_i(size_t i);
@@ -413,7 +422,7 @@ protected:
      * thermo object for the critical temperature. It then resets the
      * composition vector to the original state.
      *
-     * @param i // Species index
+     * @param i  Species index
      * @return double
      */
     double Zcrit_i(size_t i);
@@ -426,41 +435,88 @@ protected:
      * composition dependent parameters. The primary mixing rules are defined below.
      *
      * @f[
-     *  T_{\t{c,m}} = \sum_i y_i T_{\t{c,i}}
+     *  \sigma_m^3 = \sum_{i} \sum_{j} y_i y_j \sigma_{ij}^3
      * @f]
      *
      * @f[
-     *  P_{\t{c,m}} = R T_{\t{c,m}} \frac{\sum_i y_i Z_{\t{c,i}}}{\sum_i y_i V_{\t{c,i}}}
+     *  T_m^* = \frac{T}{\left( \frac{\epsilon}{k} \right )_m}
      * @f]
      *
      * @f[
-     *  M_m = \sum y_i M_i
+     *  \left ( \frac{\epsilon}{k} \right )_m =  \frac{\sum_{i} \sum_{j} y_i y_j \left ( \frac{\epsilon_{ij}}{k} \right ) \sigma_{ij}^3}{\sigma_m^3}
      * @f]
      *
      * @f[
-     *  F_{P,m}^{\t{o}} = \sum y_i F_{P,i}^{\t{o}}
+     *  MW_m = \left [ \frac{\sum_{i} \sum_{j} y_i y_j \left ( \frac{\epsilon_{ij}}{k} \right ) \sigma_{ij}^2 MW_{ij}^{\frac{1}{2}}}{\left ( \frac{\epsilon}{k} \right )_m \sigma_m^2} \right ]^2
      * @f]
      *
      * @f[
-     *   F_{Q,m}^{\t{o}} = \left ( \sum y_i F_{Q,i}^{\t{o}} \right ) A
+     *   \omega_m = \frac{\sum_{i} \sum_{j} y_i y_j \omega_{ij} \sigma+{ij}^3}{\sigma_m^3}
      * @f]
      *
      * @f[
-     *   A = 1 - 0.01 \left ( \frac{M_H}{M_L} \right )^{0.87}
+     *   \mu_m^4 = \sigma_m^3 \sum_{i} \sum_{j} \left( \frac{y_i y_j \mu_i^2 \mu_j^2}{\sigma_{ij}^3} \right)
      * @f]
-     *
-     * For $\frac{M_H}{M_L} > 9$ and $ 0.05 < y_H < 0.7$, otherwise A = 1. In the
-     * above equation, $M_H$ and $M_L$ are the molecular weights of the heaviest
-     * and lightest components in the mixture, and $y_H$ is the mole fraction of
-     * the heaviest component.
-     *
-     * While it isn't returned as a parameter, the species-specific reduced dipole
-     * moment is used to compute the mixture polarity correction factor. It is
-     * defined as:
      *
      * @f[
-     *   \mu_r = 52.46 \frac{\mu^2 P_{\t{c,i}}}{T_{\t{c,i}}
+     *  \kappa_m = \sum_{i} \sum_{j} y_i y_j \kappa_{ij}
      * @f]
+     *
+     * The combining rules are defined as:
+     *
+     * @f[
+     *   \sigma_{i} = 0.809 V_{c,i}^{1/3}
+     * @f]
+     *
+     * @f[
+     *  \sigma_{ij} =  \xi_{ij} \left( \sigma_{i} \sigma_{j} \right)^{1/2}
+     * @f]
+     *
+     * @f[
+     *  \left( \frac{\epsilon_i}{k} \right) = \frac{T_{c,i}}{1.2593}
+     * @f]
+     *
+     * @f[
+     *  \left( \frac{\epsilon_{ij}}{k} \right) = \zeta_{ij} \left( \right) ^{\frac{1}{2}}
+     * @f]
+     *
+     * @f[
+     *  \omega_{ij} = \frac{\omega_i + \omega_j}{2}
+     * @f]
+     *
+     * @f[
+     *  \kappa_{ij} = \left( \kappa_i \kappa_j \right)^{1/2}
+     * @f]
+     *
+     * @f[
+     *  MW_{ij} = \frac{2 MW_i MW_j}{MW_i + MW_j}
+     * @f]
+     *
+     * $\xi and \zeta$ are the binary interaction parameters, and are assumed to be unity
+     * in this implementation, in keeping with the Chung method.
+     *
+     * The Chung viscosity correction factor is defined as:
+     *
+     * @f[
+     *  F_{c,m} = 1 - 0.275 \omega_m + 0.059035 \mu_{r,m}^4 + \kappa_m
+     * @f]
+     *
+     * The reduced dipole moment computed using:
+     *
+     * @f[
+     * \mu_{r,m} = \frac{131.3 \mu_m}{\left( V_{c,m} T_{c,m}\right)^{\frac{1}{2}}}
+     * @f]
+     *
+     * @f[
+     *  V_{c,m} = \left( \frac{\sigma_m}{0.809} \right)
+     * @f]
+     *
+     * @f[
+     * T_{c,m} = 1.2593 \left( \frac{\epsilon}{k} \right)_m
+     * @f]
+     *
+     * In the equations, $T_c$ must be in units of K, $V_c$ must be in units of cm^3/mol,
+     * and $\mu$ must be in units of Debye.
      *
      */
     void compute_mixture_parameters(ChungMixtureParameters& params);
@@ -479,13 +535,13 @@ protected:
      * This function is structured such that it can be used for pure species or mixtures, with the
      * only difference being the values that are passed to the function (pure values versus mixture values).
      *
-     * @param T // Temperature [K]
-     * @param T_star // Reduced temperature [unitless]
-     * @param MW // Molecular weight [kg/kmol]
-     * @param acentric_factor // Acentric factor [unitless]
-     * @param mu_r // Dipole moment [Debye]
-     * @param sigma // Lennard-Jones collision diameter [Angstroms]
-     * @param kappa // Polar correction factor [unitless]
+     * @param T  Temperature [K]
+     * @param T_star  Reduced temperature [unitless]
+     * @param MW  Molecular weight [kg/kmol]
+     * @param acentric_factor  Acentric factor [unitless]
+     * @param mu_r  Dipole moment [Debye]
+     * @param sigma  Lennard-Jones collision diameter [Angstroms]
+     * @param kappa  Polar correction factor [unitless]
      * @return double
      */
     double low_pressure_viscosity(double T, double T_star, double MW, double acentric_factor,
@@ -505,14 +561,14 @@ protected:
      * This function is structured such that it can be used for pure species or mixtures, with the
      * only difference being the values that are passed to the function (pure values versus mixture values).
      *
-     * @param T_star // Reduced temperature [unitless]
-     * @param MW // Molecular weight [kg/kmol]
-     * @param rho // Density [mol/cm^3]
-     * @param Vc // Critical volume [cm^3/mol]
-     * @param Tc // Critical temperature [K]
-     * @param acentric_factor // Acentric factor [unitless]
-     * @param mu_r // Dipole moment [Debye]
-     * @param kappa // Polar correction factor [unitless]
+     * @param T_star  Reduced temperature [unitless]
+     * @param MW  Molecular weight [kg/kmol]
+     * @param rho  Density [mol/cm^3]
+     * @param Vc  Critical volume [cm^3/mol]
+     * @param Tc  Critical temperature [K]
+     * @param acentric_factor  Acentric factor [unitless]
+     * @param mu_r  Dipole moment [Debye]
+     * @param kappa  Polar correction factor [unitless]
      * @return double
      */
     double high_pressure_viscosity(double T_star, double MW, double rho, double Vc, double Tc,
@@ -532,15 +588,15 @@ protected:
      *
      * M_prime (M' in the model) has units of kg/mol, and is just the molecular weight (kg/kmol) divided by 1000.
      *
-     * @param T // Temperature [K]
-     * @param T_star // Reduced temperature [unitless]
-     * @param MW // Molecular weight [kg/kmol]
-     * @param rho // Density [mol/cm^3]
-     * @param Vc // Critical volume [cm^3/mol]
-     * @param Tc // Critical temperature [K]
-     * @param acentric_factor // Acentric factor [unitless]
-     * @param mu_r // Dipole moment [Debye]
-     * @param kappa // Polar correction factor [unitless]
+     * @param T  Temperature [K]
+     * @param T_star  Reduced temperature [unitless]
+     * @param MW  Molecular weight [kg/kmol]
+     * @param rho  Density [mol/cm^3]
+     * @param Vc  Critical volume [cm^3/mol]
+     * @param Tc  Critical temperature [K]
+     * @param acentric_factor  Acentric factor [unitless]
+     * @param mu_r  Dipole moment [Debye]
+     * @param kappa  Polar correction factor [unitless]
      * @return double
      */
     double high_pressure_thermal_conductivity(double T, double T_star, double MW,

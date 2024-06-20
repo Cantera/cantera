@@ -577,7 +577,6 @@ double ChungHighPressureGasTransport::high_pressure_thermal_conductivity(double 
     double viscosity = micropoise_to_pascals_second*low_pressure_viscosity(T, T_star, MW,
                                                                            acentric_factor, mu_r,
                                                                            sigma, kappa);
-    //cout << "Low-pressure viscosity: " << viscosity << " Pa*s" << endl;
 
     double M_prime = MW / 1000.0; // Convert kg/kmol to kg/mol
 
@@ -614,23 +613,11 @@ double ChungHighPressureGasTransport::high_pressure_thermal_conductivity(double 
     double Z = 2.0 + 10.5*Tr*Tr; // Shown below Equation 10-3.14
     double psi = 1.0 + alpha*((0.215 + 0.28288*alpha - 1.061*beta + 0.26665*Z) / (0.6366 + beta*Z + 1.061*alpha*beta)); // Shown below Equation 10-3.14
 
-    //cout << "Parameters: " << endl;
-    //cout << "y: " << y << endl;
-    //cout << "G_1: " << G_1 << endl;
-    //cout << "G_2: " << G_2 << endl;
-    //cout << "q: " << q << endl;
-    //cout << "Tr: " << Tr << endl;
-    //cout << "alpha: " << alpha << endl;
-    //cout << "beta: " << beta << endl;
-    //cout << "Z: " << Z << endl;
-    //cout << "psi: " << psi << endl;
-
     double lambda = (31.2*viscosity*psi/M_prime)*(1.0/G_2 + B_6*y) + q*B_7*y*y*sqrt(Tr)*G_2; // Equation 10-5.5
 
     // Units are W/m/K
     return lambda;
 }
-
 
 // This implements the high-pressure gas mixture viscosity model of Chung
 // described in chapter 9-7 of Poling et al. (2001).
@@ -743,23 +730,8 @@ void ChungHighPressureGasTransport::compute_mixture_parameters(ChungMixtureParam
 
     // mu_r_mix is computed using equation 9-5.42.
     params.mu_r_mix = 131.3*params.mu_mix/sqrt(params.Vc_mix*params.Tc_mix);
-
-    //cout << "Mixture parameters are:" << endl;
-    //cout << "sigma_mix: " << params.sigma_mix << endl;
-    //cout << "epsilon_over_k_mix: " << params.epsilon_over_k_mix << endl;
-    //cout << "MW_mix: " << params.MW_mix << endl;
-    //cout << "acentric_factor_mix: " << params.acentric_factor_mix << endl;
-    //cout << "mu_mix: " << params.mu_mix << endl;
-    //cout << "Tc_mix: " << params.Tc_mix << endl;
-    //cout << "Vc_mix: " << params.Vc_mix << endl;
-    //cout << "mu_r_mix: " << params.mu_r_mix << endl;
-    //cout << "kappa_mix: " << params.kappa_mix << endl;
-
 }
 
-//! Returns the value of the Neufeld collision integral for a given dimensionless temperature.
-//! Implementation of equation 9-4.3.
-//! Applicable over the range of 0.3 <= T_star <= 100.
 double neufeld_collision_integral(double T_star)
 {
     double A = 1.16145;
@@ -777,15 +749,6 @@ double ChungHighPressureGasTransport::low_pressure_viscosity(double T, double T_
                                                             double acentric_factor, double mu_r,
                                                             double sigma, double kappa)
 {
-    //cout << "Input values are:" << endl;
-    //cout << "T: " << T << endl;
-    //cout << "T_star: " << T_star << endl;
-    //cout << "MW: " << MW << endl;
-    //cout << "acentric_factor: " << acentric_factor << endl;
-    //cout << "mu_r: " << mu_r << endl;
-    //cout << "sigma: " << sigma << endl;
-    //cout << "kappa: " << kappa << endl;
-
     // Equation 9-4.3.
     double omega = neufeld_collision_integral(T_star);
 
@@ -810,16 +773,6 @@ double ChungHighPressureGasTransport::high_pressure_viscosity(double T_star, dou
                                                               double Vc, double Tc, double acentric_factor,
                                                               double mu_r, double kappa)
 {
-    //cout << "Input values are:" << endl;
-    //cout << "T_star: " << T_star << endl;
-    //cout << "MW: " << MW << endl;
-    //cout << "rho: " << rho << endl;
-    //cout << "Vc: " << Vc << endl;
-    //cout << "Tc: " << Tc << endl;
-    //cout << "acentric_factor: " << acentric_factor << endl;
-    //cout << "mu_r: " << mu_r << endl;
-    //cout << "kappa: " << kappa << endl;
-
     // Definition of tabulated coefficients for the Chung method, as shown in Table 9-6 on page 9.40 of Poling et al. (2001)
     vector<double> a = {6.324, 1.210e-3, 5.283, 6.623, 19.745, -1.900, 24.275, 0.7972, -0.2382, 0.06863};
     vector<double> b = {50.412, -1.154e-3, 254.209, 38.096, 7.630, -12.537, 3.450, 1.117, 0.06770, 0.3479};
