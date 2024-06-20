@@ -150,7 +150,7 @@ void LmrRate::setContext(const Reaction& rxn, const Kinetics& kin){
     // }
 }
 
-void LmrRate::updatePlogData(const LmrData& shared_data, PlogData& dataObj, double& eig0){
+void LmrRate::updatePlogData(const LmrData& shared_data, PlogData& dataObj, double eig0){
     dataObj.logP = shared_data.logP+log(eig0_mix)-log(eig0); //replaces logP with log of the effective pressure w.r.t. eig0
     dataObj.logT = shared_data.logT;
     dataObj.pressure = shared_data.pressure;
@@ -205,6 +205,7 @@ double LmrRate::evalFromStruct(const LmrData& shared_data){
     // writelog("eig0_M = " + std::to_string(eig0_M) + "\n"); 
     // double eig0_M = 10;
     eig0_mix += sigmaX_M*eig0_M; // add all M colliders to eig0_mix in a single step
+    
     // writelog("eig0_mix = " + std::to_string(eig0_mix) + "\n"); 
     if (eig0_mix==0){
         throw InputFileError("LmrRate::evalFromStruct", m_input,"eig0_mix==0 for some reason");
@@ -224,10 +225,25 @@ double LmrRate::evalFromStruct(const LmrData& shared_data){
                 // writelog("evalFromStruct::9"); writeMsg(" eig0 = ",eig0);
                 if (rateObjs[j].which()==0){ // 0 means PlogRate     
                     PlogData& data = boost::get<PlogData>(dataObjs[j]);
+                    writelog("data.logP (1) = " + std::to_string(data.logP) + "\n"); 
+                    writelog("data.logT (1) = " + std::to_string(data.logT) + "\n"); 
+                    writelog("data.pressure (1) = " + std::to_string(data.pressure) + "\n"); 
+                    writelog("data.temperature (1) = " + std::to_string(data.temperature) + "\n"); 
                     PlogRate& rate = boost::get<PlogRate>(rateObjs[j]);
                     updatePlogData(shared_data,data,eig0);
+                    writelog("data.logP (2) = " + std::to_string(data.logP) + "\n"); 
+                    writelog("data.logT (2) = " + std::to_string(data.logT) + "\n"); 
+                    writelog("data.pressure (2) = " + std::to_string(data.pressure) + "\n"); 
+                    writelog("data.temperature (2) = " + std::to_string(data.temperature) + "\n"); 
+                    writelog("logP (2) = " + std::to_string(shared_data.logP) + "\n"); 
+                    writelog("logT (2) = " + std::to_string(shared_data.logT) + "\n"); 
+                    writelog("pressure (2) = " + std::to_string(shared_data.pressure) + "\n"); 
+                    writelog("temperature (2) = " + std::to_string(shared_data.temperature) + "\n"); 
                     rate.updateFromStruct(data);
                     k_LMR_ += rate.evalFromStruct(data)*eig0*moleFractions_[i]/eig0_mix;
+                    writelog(" eig0 = " + std::to_string(eig0) + "\n"); 
+                    writelog(" eig0_mix = " + std::to_string(eig0_mix) + "\n"); 
+                    writelog(" molefractions_[i] = " + std::to_string(moleFractions_[i]) + "\n"); 
                     // writelog("evalFromStruct::10"); writelog(" k_i_plog = " + std::to_string(evalPlogRate(rate,data,colliderNodes[j])) + "\n"); 
                     // writelog("evalFromStruct::10"); writelog(" k_i_plog = " + std::to_string(rate.evalFromStruct(data)) + "\n"); 
                 }

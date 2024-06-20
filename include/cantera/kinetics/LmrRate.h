@@ -96,7 +96,7 @@ public:
     // double evalTroeRate(TroeRate& rate, FalloffData& data);
     // double evalChebyshevRate(ChebyshevRate& rate, ChebyshevData& data);
 
-    void updatePlogData(const LmrData& shared_data, PlogData& dataObj, double& eig0);
+    void updatePlogData(const LmrData& shared_data, PlogData& dataObj, double eig0);
     void updateTroeData(const LmrData& shared_data, FalloffData& dataObj);
     void updateChebyshevData(const LmrData& shared_data, ChebyshevData& dataObj);
 
