@@ -115,9 +115,60 @@ public:
     friend class TransportFactory;
 
 protected:
+    /**
+     * @brief  Returns the estimate of the critical temperature that is given
+     * from the thermo object for species i.
+     *
+     * This method sets the species composition vector to unity for
+     * species i and zero for all other species, and then queries the
+     * thermo object for the critical temperature. It then resets the
+     * composition vector to the original state.
+     *
+     * @param i  Species index
+     * @return double
+     */
     double Tcrit_i(size_t i);
+
+    /**
+     * @brief  Returns the estimate of the critical pressure that is given
+     * from the thermo object for species i.
+     *
+     * This method sets the species composition vector to unity for
+     * species i and zero for all other species, and then queries the
+     * thermo object for the critical pressure. It then resets the
+     * composition vector to the original state.
+     *
+     * @param i  Species index
+     * @return double
+     */
     double Pcrit_i(size_t i);
+
+    /**
+     * @brief  Returns the estimate of the critical volume that is given
+     * from the thermo object for species i.
+     *
+     * This method sets the species composition vector to unity for
+     * species i and zero for all other species, and then queries the
+     * thermo object for the critical volume. It then resets the
+     * composition vector to the original state.
+     *
+     * @param i  Species index
+     * @return double
+     */
     double Vcrit_i(size_t i);
+
+    /**
+     * @brief  Returns the estimate of the critical compressibility that is given
+     * from the thermo object for species i.
+     *
+     * This method sets the species composition vector to unity for
+     * species i and zero for all other species, and then queries the
+     * thermo object for the critical compressibility. It then resets the
+     * composition vector to the original state.
+     *
+     * @param i  Species index
+     * @return double
+     */
     double Zcrit_i(size_t i);
 
 
@@ -604,15 +655,6 @@ protected:
                                               double Tc, double sigma,
                                               double acentric_factor, double mu_r,
                                               double kappa);
-
-    /**
-     * @brief Returns interpolated value of (DP)_R obtained from the data
-     * in Table 2 of the Takahashi 1975 paper, given a value of the reduced
-     * pressure (Pr) and reduced temperature (Tr).
-     *
-     * @param Pr  Reduced pressure
-     * @param Tr  Reduced temperature
-     */
 };
 
 }

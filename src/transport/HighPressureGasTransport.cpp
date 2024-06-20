@@ -42,31 +42,52 @@ double takahashi_correction_factor(double Pr, double Tr)
     const static double E_ij_lookup[17] = {1., 1., 1., 1., 1., 1., 1., 13.45454,
         14., 10.00900, 8.57519, 10.37483, 11.21674, 1., 6.19043, 1., 1.};
 
-    // Interpolate to obtain the value of the constants (DP)_R, A, B, C, E at
+    // Interpolate to obtain the value of (DP)_R at
     // the provided value of the reduced pressure (Pr).
-    int Pr_i = 0;
+    int Pr_lower = 0; // Index of the lower bounding value of Pr
+    int Pr_upper = 0; // Index of the upper bounding value of Pr
     double frac = 0.0;
-    double A, B, C,E, DP_Rt;
 
+
+    bool found = false;
     for (int j = 1; j < 17; j++){
         if (Pr_lookup[j] > Pr) {
             frac = (Pr - Pr_lookup[j-1])/(Pr_lookup[j] - Pr_lookup[j-1]);
+            found = true;
+            Pr_lower = j-1;
+            Pr_upper = j;
             break;
         }
-        Pr_i++;
     }
     // If this loop completes without finding a bounding value of Pr, use
     // the final table value.
-    frac = 1.0;
+    if (!found) {
+        Pr_lower = 16;
+        Pr_upper = 16;
+        frac = 1.0;
+    }
 
-    DP_Rt = DP_Rt_lookup[Pr_i]*(1.0 - frac) + DP_Rt_lookup[Pr_i+1]*frac;
-    A = A_ij_lookup[Pr_i]*(1.0 - frac) + A_ij_lookup[Pr_i+1]*frac;
-    B = B_ij_lookup[Pr_i]*(1.0 - frac) + B_ij_lookup[Pr_i+1]*frac;
-    C = C_ij_lookup[Pr_i]*(1.0 - frac) + C_ij_lookup[Pr_i+1]*frac;
-    E = E_ij_lookup[Pr_i]*(1.0 - frac) + E_ij_lookup[Pr_i+1]*frac;
+    // Compute the value of (DP)_R at the given Pr value by interpolating the
+    // bounding values of (DP)_R.
+    double A, B, C, E, DP_Rt, DP_R_lower, DP_R_upper;
+    DP_Rt = DP_Rt_lookup[Pr_lower];
+    A = A_ij_lookup[Pr_lower];
+    B = B_ij_lookup[Pr_lower];
+    C = C_ij_lookup[Pr_lower];
+    E = E_ij_lookup[Pr_lower];
 
-    double DP_R = DP_Rt*(1.0 - A*pow(Tr,-B))*(1.0 - C*pow(Tr,-E));
-    return DP_R;
+    DP_R_lower = DP_Rt*(1.0 - A*pow(Tr,-B))*(1.0 - C*pow(Tr,-E));
+
+    DP_Rt = DP_Rt_lookup[Pr_upper];
+    A = A_ij_lookup[Pr_upper];
+    B = B_ij_lookup[Pr_upper];
+    C = C_ij_lookup[Pr_upper];
+    E = E_ij_lookup[Pr_upper];
+
+    DP_R_upper = DP_Rt*(1.0 - A*pow(Tr,-B))*(1.0 - C*pow(Tr,-E));
+
+    // Linear interpolation of the two bounding values of (DP)_R.
+    return DP_R_lower*(1.0 - frac) + DP_R_upper*frac;
 }
 
 double HighPressureGasTransport::thermalConductivity()
