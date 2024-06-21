@@ -545,6 +545,7 @@ void StFlow::evalLambda(double* x, double* rsd, int* diag,
         } else {
             rsd[index(c_offset_L, j)] = lambda(x,j) - lambda(x,j-1);
         }
+        diag[index(c_offset_L, j)] = 0;
     }
 }
 
@@ -598,7 +599,8 @@ void StFlow::evalUo(double* x, double* rsd, int* diag,
     }
 
     if (jmin == 0) { // left boundary
-        rsd[index(c_offset_Uo,jmin)] = Uo(x,jmin+1) - Uo(x,jmin);
+        rsd[index(c_offset_Uo, jmin)] = Uo(x,jmin+1) - Uo(x,jmin);
+        diag[index(c_offset_Uo, jmin)] = 0;
     }
 
     if (jmax == m_points - 1) { // right boundary
