@@ -31,6 +31,9 @@
 // surface
 #include "cantera/zeroD/ReactorSurface.h"
 
+// edge
+#include "cantera/zeroD/ReactorEdge.h"
+
 // factories
 #include "cantera/zeroD/ReactorFactory.h"
 #include "cantera/zeroD/FlowDeviceFactory.h"

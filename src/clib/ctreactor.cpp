@@ -25,12 +25,14 @@ typedef SharedCabinet<ThermoPhase> ThermoCabinet;
 typedef SharedCabinet<Kinetics> KineticsCabinet;
 typedef SharedCabinet<Solution> SolutionCabinet;
 typedef SharedCabinet<ReactorSurface> ReactorSurfaceCabinet;
+typedef SharedCabinet<ReactorEdge> ReactorEdgeCabinet;
 
 template<> ReactorCabinet* ReactorCabinet::s_storage = 0;
 template<> NetworkCabinet* NetworkCabinet::s_storage = 0;
 template<> FlowDeviceCabinet* FlowDeviceCabinet::s_storage = 0;
 template<> WallCabinet* WallCabinet::s_storage = 0;
 template<> ReactorSurfaceCabinet* ReactorSurfaceCabinet::s_storage = 0;
+template<> ReactorEdgeCabinet* ReactorEdgeCabinet::s_storage = 0;
 template<> FuncCabinet* FuncCabinet::s_storage; // defined in ctfunc.cpp
 template<> ThermoCabinet* ThermoCabinet::s_storage; // defined in ct.cpp
 template<> KineticsCabinet* KineticsCabinet::s_storage; // defined in ct.cpp
@@ -670,6 +672,66 @@ extern "C" {
         }
     }
 
+    // ReactorEdge
+
+    int reactoredge_new(int type)
+    {
+        try {
+            return ReactorEdgeCabinet::add(make_shared<ReactorEdge>());
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int reactoredge_del(int i)
+    {
+        try {
+            ReactorEdgeCabinet::del(i);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int reactoredge_install(int i, int n)
+    {
+        try {
+            ReactorCabinet::item(n).addEdge(&ReactorEdgeCabinet::item(i));
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int reactoredge_setkinetics(int i, int n)
+    {
+        try {
+            ReactorEdgeCabinet::item(i).setKinetics(&KineticsCabinet::item(n));
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    double reactoredge_length(int i)
+    {
+        try {
+            return ReactorEdgeCabinet::item(i).length();
+        } catch (...) {
+            return handleAllExceptions(DERR, DERR);
+        }
+    }
+
+    int reactoredge_setLength(int i, double v)
+    {
+        try {
+            ReactorEdgeCabinet::item(i).setLength(v);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
     int ct_clearReactors()
     {
         try {
@@ -678,6 +740,7 @@ extern "C" {
             FlowDeviceCabinet::clear();
             WallCabinet::clear();
             ReactorSurfaceCabinet::clear();
+            ReactorEdgeCabinet::clear();
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);

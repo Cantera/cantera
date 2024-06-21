@@ -7,6 +7,7 @@
 #include "cantera/zeroD/FlowDevice.h"
 #include "cantera/zeroD/ReactorNet.h"
 #include "cantera/zeroD/ReactorSurface.h"
+#include "cantera/zeroD/ReactorEdge.h"
 #include "cantera/base/Solution.h"
 #include "cantera/thermo/ThermoPhase.h"
 
@@ -124,9 +125,22 @@ void ReactorBase::addSurface(ReactorSurface* surf)
     }
 }
 
+void ReactorBase::addEdge(ReactorEdge* edge)
+{
+    if (find(m_edges.begin(), m_edges.end(), edge) == m_edges.end()) {
+        m_edges.push_back(edge);
+        edge->setReactor(this);
+    }
+}
+
 ReactorSurface* ReactorBase::surface(size_t n)
 {
     return m_surfaces[n];
+}
+
+ReactorEdge* ReactorBase::edge(size_t n)
+{
+    return m_edges[n];
 }
 
 void ReactorBase::restoreState() {
