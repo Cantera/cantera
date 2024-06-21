@@ -73,7 +73,7 @@ for i in range(5000):
     try:
         f.solve(loglevel=0)
     except ct.CanteraError as e:
-        print('Error: Did not converge')
+        print('Solver did not converge. Stopping.')
         break
 
     maximum_temperature.append(np.max(f.T))

@@ -207,13 +207,14 @@ void Inlet1D::eval(size_t jg, double* xg, double* rg,
             // if the flow is a freely-propagating flame, mdot is not specified.
             // Set mdot equal to rho*u, and also set lambda to zero.
             m_mdot = m_flow->density(0) * xb[c_offset_U];
-        } else if (m_flow->isStrained()) { //axisymmetric flow
+        } else if (m_flow->isStrained()) { // axisymmetric flow
             if (m_flow->twoPointControlEnabled()) {
-                // When using two-point control, the mass flow rate at the left inlet is not
-                // specified. Instead, the mass flow rate is dictated by the velocity at the
-                // left inlet, which comes from the U variable. The default boundary condition specified
-                // in the StFlow.cpp file already handles this case. We only need to update the stored
-                // value of m_mdot so that other equations that use the quantity are consistent.
+                // When using two-point control, the mass flow rate at the left inlet is
+                // not specified. Instead, the mass flow rate is dictated by the
+                // velocity at the left inlet, which comes from the U variable. The
+                // default boundary condition specified in the StFlow.cpp file already
+                // handles this case. We only need to update the stored value of m_mdot
+                // so that other equations that use the quantity are consistent.
                 m_mdot = m_flow->density(0)*xb[c_offset_U];
             } else {
                 // The flow domain sets this to -rho*u. Add mdot to specify the mass
@@ -224,7 +225,7 @@ void Inlet1D::eval(size_t jg, double* xg, double* rg,
             // spreading rate. The flow domain sets this to V(0),
             // so for finite spreading rate subtract m_V0.
             rb[c_offset_V] -= m_V0;
-        } else { //unstrained flow
+        } else { // unstrained flow
             rb[c_offset_U] = m_flow->density(0) * xb[c_offset_U] - m_mdot;
         }
 
@@ -249,11 +250,11 @@ void Inlet1D::eval(size_t jg, double* xg, double* rg,
             rb[c_offset_T] -= m_flow->T_fixed(m_flow->nPoints() - 1);
         }
 
-        if (m_flow->twoPointControlEnabled()) {// For point control adjustments
-            // At the right boundary, the mdot is dictated by the velocity at the
-            // right boundary, which comes from the Uo variable. The variable Uo is
-            // the left-moving velocity and has a negative value, so the mass flow has
-            // to be negated to give a positive value when using Uo.
+        if (m_flow->twoPointControlEnabled()) { // For point control adjustments
+            // At the right boundary, the mdot is dictated by the velocity at the right
+            // boundary, which comes from the Uo variable. The variable Uo is the
+            // left-moving velocity and has a negative value, so the mass flow has to be
+            // negated to give a positive value when using Uo.
             m_mdot = -m_flow->density(last_index) * xb[c_offset_Uo];
         }
         rb[c_offset_U] += m_mdot;

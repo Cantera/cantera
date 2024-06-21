@@ -24,7 +24,7 @@ enum offset
 {
     c_offset_U   //! axial velocity [m/s]
     , c_offset_V //! strain rate
-    , c_offset_T //! temperature [Kelvin]
+    , c_offset_T //! temperature [kelvin]
     , c_offset_L //! (1/r)dP/dr
     , c_offset_E //! electric field
     , c_offset_Uo //! oxidizer axial velocity [m/s]
@@ -262,20 +262,22 @@ public:
     /**
      * @name Two-Point control method
      *
-     * In this method two control points are designated in the 1D domain, and
-     * the value of the temperature at these points is fixed. The values of the control
-     * points are imposed and thus serve as a boundary condition that affects the
-     * solution of the governing equations in the 1D domain. The imposition of fixed
-     * points in the domain means that the original set of governing equations' boundary
-     * conditions would over-determine the problem. Thus, the boundary conditions are changed
-     * to reflect the fact that the control points are serving as internal boundary conditions.
+     * In this method two control points are designated in the 1D domain, and the value
+     * of the temperature at these points is fixed. The values of the control points are
+     * imposed and thus serve as a boundary condition that affects the solution of the
+     * governing equations in the 1D domain. The imposition of fixed points in the
+     * domain means that the original set of governing equations' boundary conditions
+     * would over-determine the problem. Thus, the boundary conditions are changed to
+     * reflect the fact that the control points are serving as internal boundary
+     * conditions.
      *
      * The imposition of the two internal boundary conditions requires that two other
-     * boundary conditions be changed. The first is the boundary condition for the continuity equation
-     * at the left boundary, which is changed to be a value that is derived from the solution at the
-     * left boundary. The second is the continuity boundary condition at the right boundary, which is
-     * also determined from the flow solution by using the oxidizer axial velocity equation variable to
-     * compute the mass flux at the right boundary.
+     * boundary conditions be changed. The first is the boundary condition for the
+     * continuity equation at the left boundary, which is changed to be a value that is
+     * derived from the solution at the left boundary. The second is the continuity
+     * boundary condition at the right boundary, which is also determined from the flow
+     * solution by using the oxidizer axial velocity equation variable to compute the
+     * mass flux at the right boundary.
      *
      * This method is based on the work of Nishioka et al. @cite nishioka1996 .
      */
@@ -552,11 +554,10 @@ protected:
      *    \frac{dU_{o}}{dz} = 0
      * @f]
      *
-     * This equation serves as a dummy equation that is used only in the context
-     * of two-point flame control, and serves as the way for two interior control
-     * points to be specified while maintaining block tridiagonal structure. The
-     * default boundary condition is @f$ U_o = 0 @f$
-     * at the right and zero flux at the left boundary.
+     * This equation serves as a dummy equation that is used only in the context of
+     * two-point flame control, and serves as the way for two interior control points to
+     * be specified while maintaining block tridiagonal structure. The default boundary
+     * condition is @f$ U_o = 0 @f$ at the right and zero flux at the left boundary.
      *
      * For argument explanation, see evalContinuity().
      */

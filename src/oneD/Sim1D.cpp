@@ -765,7 +765,7 @@ void Sim1D::setLeftControlPoint(double temperature)
         }
     }
 
-    if (!two_point_domain_found){
+    if (!two_point_domain_found) {
         throw CanteraError("Sim1D::setLeftControlPoint",
             "No domain with two-point control enabled was found.");
     } else {
@@ -773,7 +773,6 @@ void Sim1D::setLeftControlPoint(double temperature)
             "No control point with temperature {} was able to be found in the"
             "flame's temperature range.", temperature);
     }
-
 }
 
 void Sim1D::setRightControlPoint(double temperature)
@@ -817,7 +816,7 @@ void Sim1D::setRightControlPoint(double temperature)
         }
     }
 
-    if (!two_point_domain_found){
+    if (!two_point_domain_found) {
         throw CanteraError("Sim1D::setRightControlPoint",
             "No domain with two-point control enabled was found.");
     } else {
