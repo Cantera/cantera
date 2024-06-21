@@ -1231,7 +1231,8 @@ class TestDiffusionFlame(utilities.CanteraTest):
         self.assertArrayNear(temperature_1, temperature_2, rtol=1e-4, atol=1e-6)
 
 
-        # Test - See if the solution is the same when the temperature is decremented and incremented
+        # Test - See if the solution is the same when the temperature is decremented and
+        # incremented
         temperature_decrement = 5
         sim.right_control_point_temperature -= temperature_decrement
         sim.left_control_point_temperature -= temperature_decrement
@@ -1260,27 +1261,29 @@ class TestDiffusionFlame(utilities.CanteraTest):
         # Test - Check if the parameters are saved and restored correctly
         filename = self.test_work_path / "two_point_control.yaml"
 
-        original_settings = sim.flame.settings
+        original_settings = sim.flame.settings['continuation-method']
         sim.save(filename)
+
+        sim = ct.CounterflowDiffusionFlame(gas, width=width)
         sim.restore(filename)
         filename.unlink()
 
-        restored_settings = sim.flame.settings
-        assert 'continuation-method' in restored_settings
+        assert 'continuation-method' in sim.flame.settings
+        restored_settings = sim.flame.settings['continuation-method']
 
-        assert restored_settings['continuation-method']['type'] == original_settings['continuation-method']['type']
+        assert restored_settings['type'] == original_settings['type']
 
-        assert restored_settings['continuation-method']['left-location'] == pytest.approx(
-            original_settings['continuation-method']['left-location'],1e-4)
+        assert (sim.left_control_point_coordinate
+                == approx(original_settings['left-location'], 1e-4))
 
-        assert restored_settings['continuation-method']['right-location'] == pytest.approx(
-            original_settings['continuation-method']['right-location'],1e-4)
+        assert (sim.right_control_point_coordinate
+                == approx(original_settings['right-location'], 1e-4))
 
-        assert restored_settings['continuation-method']['left-temperature'] == pytest.approx(
-            original_settings['continuation-method']['left-temperature'],1e-4)
+        assert (sim.left_control_point_temperature
+                == approx(original_settings['left-temperature'], 1e-4))
 
-        assert restored_settings['continuation-method']['right-temperature'] == pytest.approx(
-            original_settings['continuation-method']['right-temperature'],1e-4)
+        assert (sim.right_control_point_temperature
+                == approx(original_settings['right-temperature'], 1e-4))
 
 
         # Test - Check error conditions
@@ -1297,24 +1300,31 @@ class TestDiffusionFlame(utilities.CanteraTest):
         with pytest.raises(ct.CanteraError, match="two-point control is not enabled"):
             sim.left_control_point_temperature
 
-        with pytest.raises(ct.CanteraError, match="No domain with two-point control enabled was found"):
+        with pytest.raises(ct.CanteraError,
+                           match="No domain with two-point control enabled was found"):
             sim.set_left_control_point(1)
 
-        with pytest.raises(ct.CanteraError, match="No domain with two-point control enabled was found"):
+        with pytest.raises(ct.CanteraError,
+                           match="No domain with two-point control enabled was found"):
             sim.set_right_control_point(1)
 
         sim.two_point_control_enabled = True
-        with pytest.raises(ct.CanteraError, match="left control point location is not set"):
+        with pytest.raises(ct.CanteraError,
+                           match="left control point location is not set"):
             sim.left_control_point_coordinate
 
-        with pytest.raises(ct.CanteraError, match="left control point location is not set"):
+        with pytest.raises(ct.CanteraError,
+                           match="left control point location is not set"):
             sim.left_control_point_temperature
 
-        with pytest.raises(ct.CanteraError, match="right control point location is not set"):
+        with pytest.raises(ct.CanteraError,
+                           match="right control point location is not set"):
             sim.right_control_point_coordinate
 
-        with pytest.raises(ct.CanteraError, match="right control point location is not set"):
+        with pytest.raises(ct.CanteraError,
+                           match="right control point location is not set"):
             sim.right_control_point_temperature
+
 
 class TestCounterflowPremixedFlame(utilities.CanteraTest):
     # Note: to re-create the reference file:

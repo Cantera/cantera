@@ -263,17 +263,17 @@ $$
 At the left control point the residual for the $\Lambda$ equation is:
 
 $$
-T(z=Z_L) - T_{L, \t{control}}
+T(z=z_L) - T_{L, \t{control}}
 $$
 
 At the left control point the residual for the $U_o$ equation is:
 
 $$
-T(z=Z_R) - T_{R, \t{control}}
+T(z=z_R) - T_{R, \t{control}}
 $$
 
-Where $T(z=Z_L)$ is the temperature of the flowfield at the left control point,
-$T(z=Z_R)$ is the temperature of the flowfield at the right control point,
+Where $T(z=z_L)$ is the temperature of the flowfield at the left control point,
+$T(z=z_R)$ is the temperature of the flowfield at the right control point,
 $T_{L, \t{control}}$ is the left control point desired temperature, and
 $T_{R, \t{control}}$ is the right control point desired temperature.
 
@@ -284,15 +284,15 @@ temperature at that point and the desired control point temperature. In order to
 this error to zero, the solver adjusts the flow rates at the boundaries, which changes
 the temperature distribution, which in turn affects the values of $\Lambda$ and $U_o$.
 
-At the right boundary, the boundary condition for the continuity equation is imposed
-by using the solution from the oxidizer velocity equation. At the left boundary, the
-boundary condition for the continuity equation is imposed by using the value of the
-axial velocity at the left boundary.
+At the left boundary, the boundary condition for the continuity equation is imposed by
+using the value of the axial velocity at the left boundary. At the right boundary, the
+boundary condition for the continuity equation is imposed by using the solution from the
+oxidizer velocity equation.
 
 $$
 \dot{m}_\t{in,left} = \rho(z_{\t{in,left}}) U(z_{\t{in,left}})
 $$
 
 $$
-\dot{m}_\t{in,right} = \rho(z_{\t{in,right}}) U_0(z_{\t{in,right}})
+\dot{m}_\t{in,right} = - \rho(z_{\t{in,right}}) U_o(z_{\t{in,right}})
 $$

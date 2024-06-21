@@ -1341,8 +1341,9 @@ cdef class Sim1D:
         Set the left control point using the specified temperature. This user-provided
         temperature will be used to locate the closest grid point to that temperature,
         which will serve to locate the left control point's coordinate. Starting from
-        the left boundary, the first grid point that is equal to or exceeds the specified
-        temperature will be used to locate the left control point's coordinate.
+        the left boundary, the first grid point that is equal to or exceeds the
+        specified temperature will be used to locate the left control point's
+        coordinate.
         """
         self.sim.setLeftControlPoint(T)
 
@@ -1351,8 +1352,9 @@ cdef class Sim1D:
         Set the right control point using a specified temperature. This user-provided
         temperature will be used to locate the closest grid point to that temperature,
         which will serve to locate the right control point's coordinate.Starting from
-        the right boundary, the first grid point that is equal to or exceeds the specified
-        temperature will be used to locate the right control point's coordinate.
+        the right boundary, the first grid point that is equal to or exceeds the
+        specified temperature will be used to locate the right control point's
+        coordinate.
         """
         self.sim.setRightControlPoint(T)
 

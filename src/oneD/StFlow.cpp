@@ -1158,9 +1158,10 @@ void StFlow::grad_hk(const double* x, size_t j)
 }
 
 // Two-point control functions
-double StFlow::leftControlPointTemperature() const {
+double StFlow::leftControlPointTemperature() const
+{
     if (m_twoPointControl) {
-        if (m_zLeft != Undef){
+        if (m_zLeft != Undef) {
             return m_tLeft;
         } else {
             throw CanteraError("StFlow::leftControlPointTemperature",
@@ -1172,11 +1173,12 @@ double StFlow::leftControlPointTemperature() const {
     }
 }
 
-double StFlow::leftControlPointCoordinate() const {
+double StFlow::leftControlPointCoordinate() const
+{
     if (m_twoPointControl) {
-        if (m_zLeft != Undef)
+        if (m_zLeft != Undef) {
             return m_zLeft;
-        else {
+        } else {
             throw CanteraError("StFlow::leftControlPointCoordinate",
                 "Invalid operation: left control point location is not set");
         }
@@ -1186,9 +1188,10 @@ double StFlow::leftControlPointCoordinate() const {
     }
 }
 
-void StFlow::setLeftControlPointTemperature(double temperature) {
+void StFlow::setLeftControlPointTemperature(double temperature)
+{
     if (m_twoPointControl) {
-        if (m_zLeft != Undef){
+        if (m_zLeft != Undef) {
             m_tLeft = temperature;
         } else {
             throw CanteraError("StFlow::setLeftControlPointTemperature",
@@ -1200,7 +1203,8 @@ void StFlow::setLeftControlPointTemperature(double temperature) {
     }
 }
 
-void StFlow::setLeftControlPointCoordinate(double z_left) {
+void StFlow::setLeftControlPointCoordinate(double z_left)
+{
     if (m_twoPointControl) {
             m_zLeft = z_left;
     } else {
@@ -1209,7 +1213,8 @@ void StFlow::setLeftControlPointCoordinate(double z_left) {
     }
 }
 
-double StFlow::rightControlPointTemperature() const {
+double StFlow::rightControlPointTemperature() const
+{
     if (m_twoPointControl) {
         if (m_zRight != Undef) {
             return m_tRight;
@@ -1223,9 +1228,10 @@ double StFlow::rightControlPointTemperature() const {
     }
 }
 
-double StFlow::rightControlPointCoordinate() const {
+double StFlow::rightControlPointCoordinate() const
+{
     if (m_twoPointControl) {
-        if (m_zRight != Undef){
+        if (m_zRight != Undef) {
             return m_zRight;
         } else {
             throw CanteraError("StFlow::rightControlPointCoordinate",
@@ -1237,9 +1243,10 @@ double StFlow::rightControlPointCoordinate() const {
     }
 }
 
-void StFlow::setRightControlPointTemperature(double temperature) {
+void StFlow::setRightControlPointTemperature(double temperature)
+{
     if (m_twoPointControl) {
-        if (m_zRight != Undef){
+        if (m_zRight != Undef) {
             m_tRight = temperature;
         } else {
             throw CanteraError("StFlow::setRightControlPointTemperature",
@@ -1251,7 +1258,8 @@ void StFlow::setRightControlPointTemperature(double temperature) {
     }
 }
 
-void StFlow::setRightControlPointCoordinate(double z_right) {
+void StFlow::setRightControlPointCoordinate(double z_right)
+{
     if (m_twoPointControl) {
             m_zRight = z_right;
     } else {
@@ -1260,8 +1268,9 @@ void StFlow::setRightControlPointCoordinate(double z_right) {
     }
 }
 
-void StFlow::enableTwoPointControl(bool twoPointControl) {
-    if (isStrained()){
+void StFlow::enableTwoPointControl(bool twoPointControl)
+{
+    if (isStrained()) {
         m_twoPointControl = twoPointControl;
     } else {
         throw CanteraError("StFlow::enableTwoPointControl",
