@@ -1726,7 +1726,7 @@ FORMULA_FONTSIZE       = 10
 # to create new LaTeX commands to be used in formulas as building blocks. See
 # the section "Including formulas" for details.
 
-FORMULA_MACROFILE      =
+FORMULA_MACROFILE      = doc/doxygen/macros.tex
 
 # Enable the USE_MATHJAX option to render LaTeX formulas using MathJax (see
 # https://www.mathjax.org) which uses client side JavaScript for the rendering

@@ -220,6 +220,7 @@ myst_enable_extensions = [
     "attrs_block",
 ]
 
+# For Doxygen pages, these macros are also defined in doc/doxygen/macros.tex
 mathjax3_config = {
     'tex': {
         'macros': {
