@@ -400,11 +400,11 @@ extern "C" {
 
     //------------------ stagnation flow domains --------------------
 
-    int stflow_new(int iph, int ikin, int itr, int itype)
+    int flow1D_new(int iph, int ikin, int itr, int itype)
     {
         try {
             auto ph = ThermoCabinet::at(iph);
-            auto x = make_shared<StFlow>(ph, ph->nSpecies(), 2);
+            auto x = make_shared<Flow1D>(ph, ph->nSpecies(), 2);
             if (itype == 1) {
                 x->setAxisymmetricFlow();
             } else if (itype == 2) {
@@ -420,47 +420,47 @@ extern "C" {
         }
     }
 
-    int stflow_setTransport(int i, int itr)
+    int flow1D_setTransport(int i, int itr)
     {
         try {
-            DomainCabinet::get<StFlow>(i).setTransport(TransportCabinet::at(itr));
+            DomainCabinet::get<Flow1D>(i).setTransport(TransportCabinet::at(itr));
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
     }
 
-    int stflow_enableSoret(int i, int iSoret)
+    int flow1D_enableSoret(int i, int iSoret)
     {
         try {
             bool withSoret = (iSoret > 0);
-            DomainCabinet::get<StFlow>(i).enableSoret(withSoret);
+            DomainCabinet::get<Flow1D>(i).enableSoret(withSoret);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
     }
 
-    int stflow_setPressure(int i, double p)
+    int flow1D_setPressure(int i, double p)
     {
         try {
-            DomainCabinet::get<StFlow>(i).setPressure(p);
+            DomainCabinet::get<Flow1D>(i).setPressure(p);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
     }
 
-    double stflow_pressure(int i)
+    double flow1D_pressure(int i)
     {
         try {
-            return DomainCabinet::get<StFlow>(i).pressure();
+            return DomainCabinet::get<Flow1D>(i).pressure();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
     }
 
-    int stflow_setFixedTempProfile(int i, size_t n, const double* pos,
+    int flow1D_setFixedTempProfile(int i, size_t n, const double* pos,
                                    size_t m, const double* temp)
     {
         try {
@@ -469,20 +469,20 @@ extern "C" {
                 vpos[j] = pos[j];
                 vtemp[j] = temp[j];
             }
-            DomainCabinet::get<StFlow>(i).setFixedTempProfile(vpos, vtemp);
+            DomainCabinet::get<Flow1D>(i).setFixedTempProfile(vpos, vtemp);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
     }
 
-    int stflow_solveEnergyEqn(int i, int flag)
+    int flow1D_solveEnergyEqn(int i, int flag)
     {
         try {
             if (flag > 0) {
-                DomainCabinet::get<StFlow>(i).solveEnergyEqn(npos);
+                DomainCabinet::get<Flow1D>(i).solveEnergyEqn(npos);
             } else {
-                DomainCabinet::get<StFlow>(i).fixTemperature(npos);
+                DomainCabinet::get<Flow1D>(i).fixTemperature(npos);
             }
             return 0;
         } catch (...) {

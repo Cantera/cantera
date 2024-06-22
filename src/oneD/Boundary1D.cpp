@@ -6,7 +6,7 @@
 #include "cantera/base/SolutionArray.h"
 #include "cantera/oneD/Boundary1D.h"
 #include "cantera/oneD/OneDim.h"
-#include "cantera/oneD/StFlow.h"
+#include "cantera/oneD/Flow1D.h"
 
 using namespace std;
 
@@ -42,7 +42,7 @@ void Boundary1D::_init(size_t n)
             }
             m_left_loc = container().start(m_index-1);
             m_left_points = r.nPoints();
-            m_flow_left = dynamic_cast<StFlow*>(&r);
+            m_flow_left = dynamic_cast<Flow1D*>(&r);
             if (m_flow_left != nullptr) {
                 m_phase_left = &m_flow_left->phase();
             }
@@ -64,7 +64,7 @@ void Boundary1D::_init(size_t n)
                 m_right_nsp = 0;
             }
             m_right_loc = container().start(m_index+1);
-            m_flow_right = dynamic_cast<StFlow*>(&r);
+            m_flow_right = dynamic_cast<Flow1D*>(&r);
             if (m_flow_right != nullptr) {
                 m_phase_right = &m_flow_right->phase();
             }
@@ -212,7 +212,7 @@ void Inlet1D::eval(size_t jg, double* xg, double* rg,
                 // When using two-point control, the mass flow rate at the left inlet is
                 // not specified. Instead, the mass flow rate is dictated by the
                 // velocity at the left inlet, which comes from the U variable. The
-                // default boundary condition specified in the StFlow.cpp file already
+                // default boundary condition specified in the Flow1D.cpp file already
                 // handles this case. We only need to update the stored value of m_mdot
                 // so that other equations that use the quantity are consistent.
                 m_mdot = m_flow->density(0)*xb[c_offset_U];

@@ -4,7 +4,7 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/oneD/IonFlow.h"
-#include "cantera/oneD/StFlow.h"
+#include "cantera/oneD/Flow1D.h"
 #include "cantera/oneD/refine.h"
 #include "cantera/transport/Transport.h"
 #include "cantera/numerics/funcs.h"
@@ -16,7 +16,7 @@ namespace Cantera
 {
 
 IonFlow::IonFlow(ThermoPhase* ph, size_t nsp, size_t points) :
-    StFlow(ph, nsp, points)
+    Flow1D(ph, nsp, points)
 {
     // make a local copy of species charge
     for (size_t k = 0; k < m_nsp; k++) {
@@ -82,7 +82,7 @@ string IonFlow::domainType() const {
 }
 
 void IonFlow::resize(size_t components, size_t points){
-    StFlow::resize(components, points);
+    Flow1D::resize(components, points);
     m_mobility.resize(m_nsp*m_points);
     m_do_species.resize(m_nsp,true);
     m_do_electric_field.resize(m_points,false);
@@ -93,13 +93,13 @@ bool IonFlow::componentActive(size_t n) const
     if (n == c_offset_E) {
         return true;
     } else {
-        return StFlow::componentActive(n);
+        return Flow1D::componentActive(n);
     }
 }
 
 void IonFlow::updateTransport(double* x, size_t j0, size_t j1)
 {
-    StFlow::updateTransport(x,j0,j1);
+    Flow1D::updateTransport(x,j0,j1);
     for (size_t j = j0; j < j1; j++) {
         setGasAtMidpoint(x,j);
         m_trans->getMobilities(&m_mobility[j*m_nsp]);
@@ -202,7 +202,7 @@ void IonFlow::setSolvingStage(const size_t stage)
 void IonFlow::evalElectricField(double* x, double* rsd, int* diag,
                                 double rdt, size_t jmin, size_t jmax)
 {
-    StFlow::evalElectricField(x, rsd, diag, rdt, jmin, jmax);
+    Flow1D::evalElectricField(x, rsd, diag, rdt, jmin, jmax);
     if (m_stage != 2) {
         return;
     }
@@ -227,7 +227,7 @@ void IonFlow::evalElectricField(double* x, double* rsd, int* diag,
 void IonFlow::evalSpecies(double* x, double* rsd, int* diag,
                           double rdt, size_t jmin, size_t jmax)
 {
-    StFlow::evalSpecies(x, rsd, diag, rdt, jmin, jmax);
+    Flow1D::evalSpecies(x, rsd, diag, rdt, jmin, jmax);
     if (m_stage != 2) {
         return;
     }
@@ -311,7 +311,7 @@ void IonFlow::setElectronTransport(vector<double>& tfix, vector<double>& diff_e,
 
 void IonFlow::_finalize(const double* x)
 {
-    StFlow::_finalize(x);
+    Flow1D::_finalize(x);
 
     bool p = m_do_electric_field[0];
     if (p) {

@@ -13,7 +13,7 @@
 #include "Domain1D.h"
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/kinetics/InterfaceKinetics.h"
-#include "StFlow.h"
+#include "Flow1D.h"
 
 namespace Cantera
 {
@@ -109,8 +109,8 @@ public:
 protected:
     void _init(size_t n);
 
-    StFlow* m_flow_left = nullptr;
-    StFlow* m_flow_right = nullptr;
+    Flow1D* m_flow_left = nullptr;
+    Flow1D* m_flow_right = nullptr;
     size_t m_ilr = 0;
     size_t m_left_nv = 0;
     size_t m_right_nv = 0;
@@ -176,7 +176,7 @@ protected:
     size_t m_nsp = 0;
     vector<double> m_yin;
     string m_xstr;
-    StFlow* m_flow = nullptr;
+    Flow1D* m_flow = nullptr;
 };
 
 /**
@@ -293,7 +293,7 @@ protected:
     size_t m_nsp = 0;
     vector<double> m_yres;
     string m_xstr;
-    StFlow* m_flow = nullptr;
+    Flow1D* m_flow = nullptr;
 };
 
 /**

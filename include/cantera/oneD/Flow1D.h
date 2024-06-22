@@ -1,10 +1,10 @@
-//! @file StFlow.h
+//! @file Flow1D.h
 
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
-#ifndef CT_STFLOW_H
-#define CT_STFLOW_H
+#ifndef CT_FLOW1D_H
+#define CT_FLOW1D_H
 
 #include "Domain1D.h"
 #include "cantera/base/Array.h"
@@ -42,7 +42,7 @@ class Transport;
  *  similarity solution for chemically-reacting, axisymmetric flows.
  *  @ingroup flowGroup
  */
-class StFlow : public Domain1D
+class Flow1D : public Domain1D
 {
 public:
     //--------------------------------
@@ -54,19 +54,19 @@ public:
     //!     to evaluate all thermodynamic, kinetic, and transport properties.
     //! @param nsp Number of species.
     //! @param points Initial number of grid points
-    StFlow(ThermoPhase* ph = 0, size_t nsp = 1, size_t points = 1);
+    Flow1D(ThermoPhase* ph = 0, size_t nsp = 1, size_t points = 1);
 
     //! Delegating constructor
-    StFlow(shared_ptr<ThermoPhase> th, size_t nsp = 1, size_t points = 1);
+    Flow1D(shared_ptr<ThermoPhase> th, size_t nsp = 1, size_t points = 1);
 
     //! Create a new flow domain.
     //! @param sol  Solution object used to evaluate all thermodynamic, kinetic, and
     //!     transport properties
     //! @param id  name of flow domain
     //! @param points  initial number of grid points
-    StFlow(shared_ptr<Solution> sol, const string& id="", size_t points=1);
+    Flow1D(shared_ptr<Solution> sol, const string& id="", size_t points=1);
 
-    ~StFlow();
+    ~Flow1D();
 
     string domainType() const override;
 

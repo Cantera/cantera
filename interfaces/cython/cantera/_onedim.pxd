@@ -64,8 +64,8 @@ cdef extern from "cantera/oneD/Boundary1D.h":
         cbool coverageEnabled()
 
 
-cdef extern from "cantera/oneD/StFlow.h":
-    cdef cppclass CxxStFlow "Cantera::StFlow" (CxxDomain1D):
+cdef extern from "cantera/oneD/Flow1D.h":
+    cdef cppclass CxxFlow1D "Cantera::Flow1D" (CxxDomain1D):
         void setTransportModel(const string&) except +translate_exception
         string type()
         string transportModel()
@@ -173,7 +173,7 @@ cdef class ReactingSurface1D(Boundary1D):
     cdef public Kinetics surface
 
 cdef class FlowBase(Domain1D):
-    cdef CxxStFlow* flow
+    cdef CxxFlow1D* flow
 
 cdef class Sim1D:
     cdef CxxSim1D* sim

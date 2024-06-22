@@ -108,12 +108,12 @@ classdef Domain1D < handle
 
         function set.energyEnabled(d, flag)
             d.energyEnabled = flag;
-            ctFunc('stflow_solveEnergyEqn', d.domainID, int8(flag));
+            ctFunc('flow1D_solveEnergyEqn', d.domainID, int8(flag));
         end
 
         function set.soretEnabled(d, flag)
             d.soretEnabled = flag;
-            ctFunc('stflow_enableSoret', d.domainID, int8(flag));
+            ctFunc('flow1D_enableSoret', d.domainID, int8(flag));
         end
 
         %% Domain Get Methods
@@ -359,7 +359,7 @@ classdef Domain1D < handle
         end
 
         function set.transport(d, itr)
-            ctFunc('stflow_setTransport', d.domainID, itr);
+            ctFunc('flow1D_setTransport', d.domainID, itr);
         end
 
         function setupGrid(d, grid)
