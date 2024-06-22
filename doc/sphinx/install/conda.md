@@ -2,15 +2,13 @@
 
 (sec-install-conda)=
 
-[Anaconda](https://www.anaconda.com/download#Downloads) and
-[Miniconda](https://docs.conda.io/projects/miniconda/en/latest/) are Python
-distributions that include the ``conda`` package manager, which can be used to install
-Cantera.
+Conda is a package manager built by the Anaconda company. There are several
+distributions of Python that include `conda`, including [Anaconda][anaconda] and
+[miniforge][miniforge]. If you do not have conda installed, we highly recommend using
+[miniforge][miniforge].
 
-Installing Cantera using Conda can provide the Cantera
-[Python module](sec-conda-python-interface) as well as libraries for linking to
-applications written in C++, C, or Fortran 90. There are some exceptions to the
-availability of each interface depending on the operating system and Conda channel used.
+[anaconda]: https://www.anaconda.com/download#Downloads
+[miniforge]: https://github.com/conda-forge/miniforge?tab=readme-ov-file#install
 
 :::{attention}
 The *legacy* Matlab Cantera interface is discontinued and removed in Cantera 3.1. Users
@@ -19,48 +17,34 @@ packages, or migrate their code base to the experimental Matlab toolbox that is
 currently under development.
 :::
 
-Both the Anaconda and Miniconda distributions are available for Linux, macOS (Intel and
-ARM/Apple Silicon), and Windows. On Windows, users should install a 64-bit version of
-Anaconda or Miniconda, since the Cantera Conda packages are only available for 64-bit
-installations.
-
-Both Anaconda and Miniconda include the `conda` package manager; the difference is that
-Anaconda includes a large number of Python packages that are widely used in scientific
-applications, while Miniconda is a minimal distribution that only includes Python and
-Conda, although all of the packages available in Anaconda can be installed in Miniconda.
+Both Anaconda and miniforge include the `conda` package manager. The main difference is
+that miniforge configures `conda-forge` as the default channel. The `conda-forge`
+channel includes many more, up-to-date, packages than the default channel in Anaconda.
 For more details on how to use conda, see the
 [conda documentation](https://docs.conda.io/projects/conda/en/latest/user-guide/index.html).
 
-Conda can install a large set of packages by default and it is possible to install
-packages such as Cantera that are maintained independently. These additional channels
-from which packages may be obtained are specified by adding the `--channel` option in
-the `install` or `create` commands.
-
 For instructions on upgrading an existing conda-based installation of Cantera, see
 [Upgrading from an earlier Cantera version](sec-conda-python-upgrade).
+
+:::{tip}
+To dramatically improve install speed, we recommend using the `libmamba` dependency
+solver. To configure the `libmamba` solver, you can run:
+
+```shell
+conda config --set solver libmamba
+```
+:::
 
 (sec-conda-python-interface)=
 
 ## Python interface
 
-Cantera's Python interface is available from two channels:
+Cantera's Python interface can be installed from the popular `conda-forge` channel.
+Packages are available for the following platforms:
 
-1. The `cantera` channel. This channel should be used if you installed Python from the
-   default channel in conda. This channel also has pre-release versions of Cantera for
-   testing. Cantera packages are available in this channel for the following platforms:
-
-   - Windows (64-bit Intel)
-   - Linux (64-bit Intel)
-   - macOS (64-bit Intel and 64-bit ARM (Apple Silicon))
-
-2. The `conda-forge` channel. This channel should be used if you installed Python from
-   the `conda-forge` channel or if your OS/processor combination is not supported by the
-   `cantera` channel. Cantera packages are available in this channel for the following
-   platforms:
-
-   - Windows (64-bit Intel)
-   - Linux (64-bit Intel, 64-bit ARM, and 64-bit PPCLE)
-   - macOS (64-bit Intel and 64-bit ARM (Apple Silicon))
+- Windows (64-bit Intel)
+- Linux (64-bit Intel, 64-bit ARM, and 64-bit PPCLE)
+- macOS (64-bit Intel and 64-bit ARM (Apple Silicon))
 
 ### Option 1: Create a new environment for Cantera
 
@@ -69,16 +53,11 @@ from Python. For this example, the environment is named `ct-env`. From the comma
 line (or the Anaconda Prompt on Windows), run:
 
 ```shell
-conda create --name ct-env --channel cantera cantera ipython matplotlib jupyter
+conda create --name ct-env cantera ipython matplotlib jupyter
 ```
 
 This will create an environment named `ct-env` with Cantera, IPython, Matplotlib, and
-all their dependencies installed. In this case, we want to install Cantera from the
-`cantera` channel, so we add `--channel cantera` and to tell Conda to look at the
-`cantera` channel in addition to the default channels.
-
-If you want to use the `conda-forge` channel, replace `--channel cantera` with
-`--channel conda-forge`.
+all their dependencies installed.
 
 To use the scripts and modules installed in the `ct-env` environment, including Jupyter,
 you must activate it it by running:
@@ -97,8 +76,7 @@ remember that location.
 ```yaml
 name: ct-env
 channels:
-- cantera  # or use cantera/label/dev for alpha/beta packages
-- defaults
+- conda-forge
 dependencies:
 - python  # Cantera supports Python 3.8 and up
 - cantera
@@ -132,12 +110,12 @@ conda activate ct-env
 ### Option 3: Install the development version of Cantera
 
 To install a recent development snapshot (that is, an alpha or beta version) of Cantera,
-use the `cantera/label/dev` channel. Assuming you have an environment named `ct-dev`,
+use the `conda-forge/label/cantera_dev` channel. Assuming you have an environment named `ct-dev`,
 you can type:
 
 ```shell
 conda activate ct-dev
-conda install --channel cantera/label/dev cantera
+conda install --channel conda-forge/label/cantera_dev cantera
 ```
 
 If you later want to revert back to the stable version in that environment, first remove
@@ -146,7 +124,7 @@ and then reinstall Cantera:
 ```shell
 conda activate ct-dev
 conda remove cantera
-conda install --channel cantera cantera
+conda install cantera
 ```
 
 Alternatively, you can remove the `ct-dev` environment and follow Options 1 or 2 above
@@ -161,12 +139,8 @@ If you already have Cantera installed in a conda environment (named, for example
 
 ```shell
 conda activate ct-dev
-conda update --channel cantera cantera
+conda update cantera
 ```
-
-This assumes you are using Python from the default conda channel. If you installed
-Python and Cantera from the `conda-forge` channel, you should specify the option
-`--channel conda-forge`.
 
 (sec-conda-development-interface)=
 
@@ -176,18 +150,12 @@ The Cantera development interface provides header files and libraries needed to 
 your own C++, C, or Fortran applications that link to Cantera. It also provides several
 sample programs and build scripts that you can adapt for your own applications.
 
-In the following example, Cantera's development interface is installed from the
-`cantera/label/dev` channel. From the command line (or the Anaconda Prompt on Windows),
-create a new conda environment named `ct-dev` using:
+From the command line (or the Anaconda Prompt on Windows), create a new conda
+environment named `ct-dev` using:
 
 ```shell
-conda create --name ct-dev --channel cantera/label/dev libcantera-devel
+conda create --name ct-dev libcantera-devel
 ```
-
-This will create an environment named `ct-dev` with Cantera's development interface. In
-this case, the addition of `--channel cantera/label/dev` ensures that the package is
-pulled from the most recent available Cantera version. Note that `label/dev` refers to
-the experimental development *channel* of Cantera, and not the development *interface*.
 
 C++ header and libraries are installed within the `ct-dev` environment folder, which
 itself depends on the type of `conda` installation, and is abbreviated as
@@ -199,12 +167,12 @@ recommendations for a given operating system.
 Installation folders are:
 
 ```shell
-library files               path/to/conda/envs/ct-dev/lib
-pkg-config                  path/to/conda/envs/ct-dev/lib/pkgconfig
-C++ headers                 path/to/conda/envs/ct-dev/include
-Fortran module files        path/to/conda/envs/ct-dev/include/cantera
-samples                     path/to/conda/envs/ct-dev/share/cantera/samples
-data files                  path/to/conda/envs/ct-dev/share/cantera/data
+library files         path/to/conda/envs/ct-dev/lib
+pkg-config            path/to/conda/envs/ct-dev/lib/pkgconfig
+C++ headers           path/to/conda/envs/ct-dev/include
+Fortran module files  path/to/conda/envs/ct-dev/include/cantera
+samples               path/to/conda/envs/ct-dev/share/cantera/samples
+data files            path/to/conda/envs/ct-dev/share/cantera/data
 ```
 
 In addition to `libcantera-devel`, installation of additional packages is recommended:
@@ -214,10 +182,10 @@ $ conda activate ct-dev
 $ conda install cmake scons pkg-config
 ```
 
-C++ programs can be compiled according to instructions outlined in the
-[C++ Guide](/userguide/compiling-cxx). Sample folders for C, C++ and Fortran include
-preconfigured instruction files to facilitate compilation using the build tools
-`SCons` and `CMake`, for example:
+C++ programs can be compiled according to instructions outlined in the [C++
+Guide](/userguide/compiling-cxx). Sample folders for C, C++ and Fortran include
+pre-configured instruction files to facilitate compilation using the build tools `SCons`
+and `CMake`, for example:
 
 ```shell
 $ cd /path/to/conda/envs/ct-dev/share/cantera/samples/cxx/demo
@@ -270,5 +238,5 @@ running the commands:
 
 ```shell
 conda activate ct-dev
-conda update --channel cantera/label/dev libcantera-devel
+conda update libcantera-devel
 ```
