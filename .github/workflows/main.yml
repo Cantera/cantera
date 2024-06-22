@@ -2,17 +2,13 @@ name: CI
 
 on:
   push:
-    # Build on tags that look like releases
-    tags:
-      - v*
     # Build when main or testing is pushed to
     branches:
-      - main
-      - testing
+      - "3.0"
   pull_request:
     # Build when a pull request targets main
     branches:
-      - main
+      - "3.0"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
