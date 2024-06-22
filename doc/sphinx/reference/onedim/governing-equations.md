@@ -7,7 +7,7 @@ solution to reduce the three-dimensional governing equations to a single dimensi
 ## Axisymmetric Stagnation Flow
 
 The governing equations for a steady axisymmetric stagnation flow follow those derived
-in Section 7.2 of {cite:t}`kee2017` and are implemented by class {ct}`StFlow`.
+in Section 7.2 of {cite:t}`kee2017` and are implemented by class {ct}`Flow1D`.
 
 *Continuity*:
 
@@ -99,7 +99,7 @@ $$
 where $D_{ki}$ is the multicomponent diffusion coefficient and $D_k^T$ is the Soret
 diffusion coefficient. Inclusion of the Soret calculation must be explicitly enabled
 when setting up the simulation, on top of specifying a multicomponent transport model,
-for example by using the {ct}`StFlow::enableSoret` method (C++) or setting the
+for example by using the {ct}`Flow1D::enableSoret` method (C++) or setting the
 {py:attr}`~cantera.FlameBase.soret_enabled` property (Python).
 
 ## Boundary Conditions

@@ -26,7 +26,7 @@ TEST(ctonedim, freeflow)
     int flow = domain_new("free-flow", sol, "flow");
     ASSERT_GE(flow, 0);
     domain_setID(flow, "flow");
-    ASSERT_NEAR(stflow_pressure(flow), P, 1e-5);
+    ASSERT_NEAR(flow1D_pressure(flow), P, 1e-5);
 
     int buflen = domain_type3(flow, 0, 0);
     char* buf = new char[buflen];
@@ -56,10 +56,10 @@ TEST(ctonedim, freeflow_from_parts)
     thermo_setPressure(ph, P);
 
     int itype = 2; // free flow
-    int flow = stflow_new(ph, kin, tr, itype);
+    int flow = flow1D_new(ph, kin, tr, itype);
     ASSERT_GE(flow, 0);
     domain_setID(flow, "flow");
-    ASSERT_NEAR(stflow_pressure(flow), P, 1e-5);
+    ASSERT_NEAR(flow1D_pressure(flow), P, 1e-5);
 
     int buflen = domain_type3(flow, 0, 0);
     char* buf = new char[buflen];
@@ -124,7 +124,7 @@ TEST(ctonedim, catcomb_stack)
 
     // flow
     int itype = 1; // free flow
-    int flow = stflow_new(gas, gas_kin, trans, itype);
+    int flow = flow1D_new(gas, gas_kin, trans, itype);
     domain_setID(flow, "flow");
 
     // reacting surface
@@ -173,7 +173,7 @@ TEST(ctonedim, freeflame_from_parts)
 
     // flow
     int itype = 2; // free flow
-    int flow = stflow_new(ph, kin, tr, itype);
+    int flow = flow1D_new(ph, kin, tr, itype);
     domain_setID(flow, "flow");
 
     // grid
@@ -232,7 +232,7 @@ TEST(ctonedim, freeflame_from_parts)
     sim1D_setFixedTemperature(flame, 0.85 * T + .15 * Tad);
 
     // solve and save
-    stflow_solveEnergyEqn(flow, 1);
+    flow1D_solveEnergyEqn(flow, 1);
     bool refine_grid = false;
     int loglevel = 0;
     sim1D_solve(flame, loglevel, refine_grid);

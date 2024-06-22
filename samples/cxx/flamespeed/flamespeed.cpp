@@ -8,7 +8,7 @@
  *
  *     flamespeed [equivalence_ratio] [refine_grid] [loglevel]
  *
- * Requires: cantera >= 3.0
+ * Requires: cantera >= 3.1
  *
  * .. tags:: C++, combustion, 1D flow, premixed flame, flame speed, saving output
  */
@@ -56,7 +56,7 @@ int flamespeed(double phi, bool refine_grid, int loglevel)
 
         //-------- step 1: create the flow -------------
 
-        auto flow = newDomain<StFlow>("gas-flow", sol, "flow");
+        auto flow = newDomain<Flow1D>("gas-flow", sol, "flow");
         flow->setFreeFlow();
 
         // create an initial grid
