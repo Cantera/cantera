@@ -74,9 +74,6 @@ jobs:
           numpy: "'<2.0'"
 
       fail-fast: false
-    env:
-      HDF5_LIBDIR: /usr/lib/x86_64-linux-gnu/hdf5/serial
-      HDF5_INCLUDEDIR: /usr/include/hdf5/serial
     steps:
     - uses: actions/checkout@v4
       name: Checkout the repository
@@ -103,8 +100,7 @@ jobs:
     - name: Build Cantera
       run: |
         python3 `which scons` build env_vars=all -j4 debug=n --debug=time \
-        system_fmt=y hdf_libdir=$HDF5_LIBDIR hdf_include=$HDF5_INCLUDEDIR \
-        cc_flags=-D_GLIBCXX_ASSERTIONS
+        system_fmt=y cc_flags=-D_GLIBCXX_ASSERTIONS
     - name: Upload shared library
       uses: actions/upload-artifact@v4
       if: matrix.python-version == '3.11'
@@ -133,9 +129,6 @@ jobs:
     name: LLVM/Clang with Python 3.8
     runs-on: ubuntu-22.04
     timeout-minutes: 60
-    env:
-      HDF5_LIBDIR: /usr/lib/x86_64-linux-gnu/hdf5/serial
-      HDF5_INCLUDEDIR: /usr/include/hdf5/serial
     steps:
     - uses: actions/checkout@v4
       name: Checkout the repository
@@ -158,8 +151,8 @@ jobs:
     - name: Build Cantera
       run: python3 `which scons` build env_vars=all
         CXX=clang++-14 CC=clang-14 f90_interface=n extra_lib_dirs=/usr/lib/llvm/lib
-        -j4 debug=n --debug=time hdf_libdir=$HDF5_LIBDIR hdf_include=$HDF5_INCLUDEDIR
-        logging=debug warning_flags='-Wall -Werror -Wsuggest-override'
+        -j4 debug=n --debug=time logging=debug
+        warning_flags='-Wall -Werror -Wsuggest-override'
     - name: Build Tests
       run:
         python3 `which scons` -j4 build-tests --debug=time
@@ -231,9 +224,6 @@ jobs:
     name: Coverage
     runs-on: ubuntu-latest
     timeout-minutes: 90
-    env:
-      HDF5_LIBDIR: /usr/lib/x86_64-linux-gnu/hdf5/serial
-      HDF5_INCLUDEDIR: /usr/include/hdf5/serial
     steps:
     - uses: actions/checkout@v4
       name: Checkout the repository
@@ -263,8 +253,7 @@ jobs:
       run: |
         python3 `which scons` build blas_lapack_libs=lapack,blas coverage=y \
         optimize=n skip_slow_tests=y no_optimize_flags='-DNDEBUG -O0' \
-        FORTRANFLAGS='-O0' env_vars=all -j4 --debug=time \
-        hdf_libdir=$HDF5_LIBDIR hdf_include=$HDF5_INCLUDEDIR
+        FORTRANFLAGS='-O0' env_vars=all -j4 --debug=time
     - name: Build Tests
       run: python3 `which scons` -j4 build-tests --debug=time
     - name: Run compiled tests
@@ -434,9 +423,6 @@ jobs:
           python-version: "3.12"
           numpy: ""
       fail-fast: false
-    env:
-      HDF5_LIBDIR: /usr/lib/x86_64-linux-gnu/hdf5/serial
-      HDF5_INCLUDEDIR: /usr/include/hdf5/serial
     steps:
       # We're not building Cantera here, we only need the checkout for the samples
       # folder, so no need to do a recursive checkout
@@ -710,8 +696,6 @@ jobs:
     env:
       INTEL_REPO: https://apt.repos.intel.com
       INTEL_KEY: GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB
-      HDF5_LIBDIR: /usr/lib/x86_64-linux-gnu/hdf5/serial
-      HDF5_INCLUDEDIR: /usr/include/hdf5/serial
     steps:
     - name: Intel Apt repository
       timeout-minutes: 1
@@ -747,7 +731,6 @@ jobs:
         printenv >> $GITHUB_ENV
     - name: Build Cantera
       run: python3 `which scons` build env_vars=all CC=icx CXX=icpx -j4 debug=n
-        hdf_libdir=$HDF5_LIBDIR hdf_include=$HDF5_INCLUDEDIR
         --debug=time f90_interface=n # FORTRAN=ifx
     - name: Build Tests
       run: python3 `which scons` -j4 build-tests --debug=time
