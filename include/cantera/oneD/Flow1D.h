@@ -172,7 +172,6 @@ public:
     //! Returns true if the specified component is an active part of the solver state
     virtual bool componentActive(size_t n) const;
 
-    //! Print the solution.
     void show(const double* x) override;
 
     shared_ptr<SolutionArray> asArray(const double* soln) const override;
@@ -396,6 +395,43 @@ protected:
     AnyMap getMeta() const override;
     void setMeta(const AnyMap& state) override;
 
+    //! @name Updates of cached properties
+    //! These methods are called by eval() to update cached properties and data that are
+    //! used for the evaluation of the governing equations.
+    //! @{
+
+    /**
+     * Update the thermodynamic properties from point j0 to point j1
+     * (inclusive), based on solution x.
+     *
+     * The gas state is set to be consistent with the solution at the
+     * points from j0 to j1.
+     *
+     * Properties that are computed and cached are:
+     * * #m_rho (density)
+     * * #m_wtm (mean molecular weight)
+     * * #m_cp (specific heat capacity)
+     * * #m_hk (species specific enthalpies)
+     * * #m_wdot (species production rates)
+     */
+    void updateThermo(const double* x, size_t j0, size_t j1) {
+        for (size_t j = j0; j <= j1; j++) {
+            setGas(x,j);
+            m_rho[j] = m_thermo->density();
+            m_wtm[j] = m_thermo->meanMolecularWeight();
+            m_cp[j] = m_thermo->cp_mass();
+            m_thermo->getPartialMolarEnthalpies(&m_hk(0, j));
+            m_kin->getNetProductionRates(&m_wdot(0, j));
+        }
+    }
+
+    //! Update the transport properties at grid points in the range from `j0`
+    //! to `j1`, based on solution `x`.
+    virtual void updateTransport(double* x, size_t j0, size_t j1);
+
+    //! Update the diffusive mass fluxes.
+    virtual void updateDiffFluxes(const double* x, size_t j0, size_t j1);
+
     //! Update the properties (thermo, transport, and diffusion flux).
     //! This function is called in eval after the points which need
     //! to be updated are defined.
@@ -418,9 +454,11 @@ protected:
      */
     void computeRadiation(double* x, size_t jmin, size_t jmax);
 
+    //! @}
+
     //! @name Governing Equations
-    //! Methods are used to evaluate residuals for each of the governing equations.
-    //! @{
+    //! Methods called by eval() to calculate residuals for individual governing
+    //! equations.
 
     /**
      * Evaluate the continuity equation residual.
@@ -572,31 +610,6 @@ protected:
     virtual void evalUo(double* x, double* rsd, int* diag,
                         double rdt, size_t jmin, size_t jmax);
 
-    /**
-     * Update the thermodynamic properties from point j0 to point j1
-     * (inclusive), based on solution x.
-     *
-     * The gas state is set to be consistent with the solution at the
-     * points from j0 to j1.
-     *
-     * Properties that are computed and cached are:
-     * * #m_rho (density)
-     * * #m_wtm (mean molecular weight)
-     * * #m_cp (specific heat capacity)
-     * * #m_hk (species specific enthalpies)
-     * * #m_wdot (species production rates)
-     */
-    void updateThermo(const double* x, size_t j0, size_t j1) {
-        for (size_t j = j0; j <= j1; j++) {
-            setGas(x,j);
-            m_rho[j] = m_thermo->density();
-            m_wtm[j] = m_thermo->meanMolecularWeight();
-            m_cp[j] = m_thermo->cp_mass();
-            m_thermo->getPartialMolarEnthalpies(&m_hk(0, j));
-            m_kin->getNetProductionRates(&m_wdot(0, j));
-        }
-    }
-
     //! @name Solution components
     //! @{
 
@@ -691,9 +704,6 @@ protected:
         return m*m_nsp*m_nsp + m_nsp*j + k;
     }
 
-    //! Update the diffusive mass fluxes.
-    virtual void updateDiffFluxes(const double* x, size_t j0, size_t j1);
-
     //! Get the gradient of species specific molar enthalpies
     virtual void grad_hk(const double* x, size_t j);
 
@@ -774,10 +784,6 @@ protected:
     bool m_dovisc;
     bool m_isFree;
     bool m_usesLambda;
-
-    //! Update the transport properties at grid points in the range from `j0`
-    //! to `j1`, based on solution `x`.
-    virtual void updateTransport(double* x, size_t j0, size_t j1);
 
     //! Flag for activating two-point flame control
     bool m_twoPointControl = false;

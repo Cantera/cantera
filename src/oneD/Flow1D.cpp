@@ -368,6 +368,100 @@ void Flow1D::updateProperties(size_t jg, double* x, size_t jmin, size_t jmax)
     updateDiffFluxes(x, j0, j1);
 }
 
+void Flow1D::updateTransport(double* x, size_t j0, size_t j1)
+{
+     if (m_do_multicomponent) {
+        for (size_t j = j0; j < j1; j++) {
+            setGasAtMidpoint(x,j);
+            double wtm = m_thermo->meanMolecularWeight();
+            double rho = m_thermo->density();
+            m_visc[j] = (m_dovisc ? m_trans->viscosity() : 0.0);
+            m_trans->getMultiDiffCoeffs(m_nsp, &m_multidiff[mindex(0,0,j)]);
+
+            // Use m_diff as storage for the factor outside the summation
+            for (size_t k = 0; k < m_nsp; k++) {
+                m_diff[k+j*m_nsp] = m_wt[k] * rho / (wtm*wtm);
+            }
+
+            m_tcon[j] = m_trans->thermalConductivity();
+            if (m_do_soret) {
+                m_trans->getThermalDiffCoeffs(m_dthermal.ptrColumn(0) + j*m_nsp);
+            }
+        }
+    } else { // mixture averaged transport
+        for (size_t j = j0; j < j1; j++) {
+            setGasAtMidpoint(x,j);
+            m_visc[j] = (m_dovisc ? m_trans->viscosity() : 0.0);
+
+            if (m_fluxGradientBasis == ThermoBasis::molar) {
+                m_trans->getMixDiffCoeffs(&m_diff[j*m_nsp]);
+            } else {
+                m_trans->getMixDiffCoeffsMass(&m_diff[j*m_nsp]);
+            }
+
+            double rho = m_thermo->density();
+
+            if (m_fluxGradientBasis == ThermoBasis::molar) {
+                double wtm = m_thermo->meanMolecularWeight();
+                for (size_t k=0; k < m_nsp; k++) {
+                    m_diff[k+j*m_nsp] *= m_wt[k] * rho / wtm;
+                }
+            } else {
+                for (size_t k=0; k < m_nsp; k++) {
+                    m_diff[k+j*m_nsp] *= rho;
+                }
+            }
+            m_tcon[j] = m_trans->thermalConductivity();
+        }
+    }
+}
+
+void Flow1D::updateDiffFluxes(const double* x, size_t j0, size_t j1)
+{
+    if (m_do_multicomponent) {
+        for (size_t j = j0; j < j1; j++) {
+            double dz = z(j+1) - z(j);
+            for (size_t k = 0; k < m_nsp; k++) {
+                double sum = 0.0;
+                for (size_t m = 0; m < m_nsp; m++) {
+                    sum += m_wt[m] * m_multidiff[mindex(k,m,j)] * (X(x,m,j+1)-X(x,m,j));
+                }
+                m_flux(k,j) = sum * m_diff[k+j*m_nsp] / dz;
+            }
+        }
+    } else {
+        for (size_t j = j0; j < j1; j++) {
+            double sum = 0.0;
+            double dz = z(j+1) - z(j);
+            if (m_fluxGradientBasis == ThermoBasis::molar) {
+                for (size_t k = 0; k < m_nsp; k++) {
+                    m_flux(k,j) = m_diff[k+m_nsp*j] * (X(x,k,j) - X(x,k,j+1))/dz;
+                    sum -= m_flux(k,j);
+                }
+            } else {
+                for (size_t k = 0; k < m_nsp; k++) {
+                    m_flux(k,j) = m_diff[k+m_nsp*j] * (Y(x,k,j) - Y(x,k,j+1))/dz;
+                    sum -= m_flux(k,j);
+                }
+            }
+            // correction flux to insure that \sum_k Y_k V_k = 0.
+            for (size_t k = 0; k < m_nsp; k++) {
+                m_flux(k,j) += sum*Y(x,k,j);
+            }
+        }
+    }
+
+    if (m_do_soret) {
+        for (size_t m = j0; m < j1; m++) {
+            double gradlogT = 2.0 * (T(x,m+1) - T(x,m)) /
+                              ((T(x,m+1) + T(x,m)) * (z(m+1) - z(m)));
+            for (size_t k = 0; k < m_nsp; k++) {
+                m_flux(k,m) -= m_dthermal(k,m)*gradlogT;
+            }
+        }
+    }
+}
+
 void Flow1D::computeRadiation(double* x, size_t jmin, size_t jmax)
 {
     // Variable definitions for the Planck absorption coefficient and the
@@ -683,54 +777,6 @@ void Flow1D::evalContinuity(size_t j, double* x, double* rsd, int* diag, double 
         "Overloaded by StFlow; to be removed after Cantera 3.1");
 }
 
-void Flow1D::updateTransport(double* x, size_t j0, size_t j1)
-{
-     if (m_do_multicomponent) {
-        for (size_t j = j0; j < j1; j++) {
-            setGasAtMidpoint(x,j);
-            double wtm = m_thermo->meanMolecularWeight();
-            double rho = m_thermo->density();
-            m_visc[j] = (m_dovisc ? m_trans->viscosity() : 0.0);
-            m_trans->getMultiDiffCoeffs(m_nsp, &m_multidiff[mindex(0,0,j)]);
-
-            // Use m_diff as storage for the factor outside the summation
-            for (size_t k = 0; k < m_nsp; k++) {
-                m_diff[k+j*m_nsp] = m_wt[k] * rho / (wtm*wtm);
-            }
-
-            m_tcon[j] = m_trans->thermalConductivity();
-            if (m_do_soret) {
-                m_trans->getThermalDiffCoeffs(m_dthermal.ptrColumn(0) + j*m_nsp);
-            }
-        }
-    } else { // mixture averaged transport
-        for (size_t j = j0; j < j1; j++) {
-            setGasAtMidpoint(x,j);
-            m_visc[j] = (m_dovisc ? m_trans->viscosity() : 0.0);
-
-            if (m_fluxGradientBasis == ThermoBasis::molar) {
-                m_trans->getMixDiffCoeffs(&m_diff[j*m_nsp]);
-            } else {
-                m_trans->getMixDiffCoeffsMass(&m_diff[j*m_nsp]);
-            }
-
-            double rho = m_thermo->density();
-
-            if (m_fluxGradientBasis == ThermoBasis::molar) {
-                double wtm = m_thermo->meanMolecularWeight();
-                for (size_t k=0; k < m_nsp; k++) {
-                    m_diff[k+j*m_nsp] *= m_wt[k] * rho / wtm;
-                }
-            } else {
-                for (size_t k=0; k < m_nsp; k++) {
-                    m_diff[k+j*m_nsp] *= rho;
-                }
-            }
-            m_tcon[j] = m_trans->thermalConductivity();
-        }
-    }
-}
-
 void Flow1D::show(const double* x)
 {
     writelog("    Pressure:  {:10.4g} Pa\n", m_press);
@@ -745,52 +791,6 @@ void Flow1D::show(const double* x)
             writelog("\n {:10.4g}        {:10.4g}", m_z[j], m_qdotRadiation[j]);
         }
         writelog("\n");
-    }
-}
-
-void Flow1D::updateDiffFluxes(const double* x, size_t j0, size_t j1)
-{
-    if (m_do_multicomponent) {
-        for (size_t j = j0; j < j1; j++) {
-            double dz = z(j+1) - z(j);
-            for (size_t k = 0; k < m_nsp; k++) {
-                double sum = 0.0;
-                for (size_t m = 0; m < m_nsp; m++) {
-                    sum += m_wt[m] * m_multidiff[mindex(k,m,j)] * (X(x,m,j+1)-X(x,m,j));
-                }
-                m_flux(k,j) = sum * m_diff[k+j*m_nsp] / dz;
-            }
-        }
-    } else {
-        for (size_t j = j0; j < j1; j++) {
-            double sum = 0.0;
-            double dz = z(j+1) - z(j);
-            if (m_fluxGradientBasis == ThermoBasis::molar) {
-                for (size_t k = 0; k < m_nsp; k++) {
-                    m_flux(k,j) = m_diff[k+m_nsp*j] * (X(x,k,j) - X(x,k,j+1))/dz;
-                    sum -= m_flux(k,j);
-                }
-            } else {
-                for (size_t k = 0; k < m_nsp; k++) {
-                    m_flux(k,j) = m_diff[k+m_nsp*j] * (Y(x,k,j) - Y(x,k,j+1))/dz;
-                    sum -= m_flux(k,j);
-                }
-            }
-            // correction flux to insure that \sum_k Y_k V_k = 0.
-            for (size_t k = 0; k < m_nsp; k++) {
-                m_flux(k,j) += sum*Y(x,k,j);
-            }
-        }
-    }
-
-    if (m_do_soret) {
-        for (size_t m = j0; m < j1; m++) {
-            double gradlogT = 2.0 * (T(x,m+1) - T(x,m)) /
-                              ((T(x,m+1) + T(x,m)) * (z(m+1) - z(m)));
-            for (size_t k = 0; k < m_nsp; k++) {
-                m_flux(k,m) -= m_dthermal(k,m)*gradlogT;
-            }
-        }
     }
 }
 
