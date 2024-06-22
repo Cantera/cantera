@@ -1464,11 +1464,11 @@ else: # env['system_sundials'] == 'n'
     env['sundials_version'] = '5.3'
     env['has_sundials_lapack'] = int(env['use_lapack'])
 
-if env["hdf_include"]:
+if env["hdf_include"] and env["hdf_support"] in ("y", "default"):
     env["hdf_include"] = Path(env["hdf_include"]).as_posix()
     add_system_include(env, env["hdf_include"])
     env["hdf_support"] = "y"
-if env["hdf_libdir"]:
+if env["hdf_libdir"] and env["hdf_support"] in ("y", "default"):
     env["hdf_libdir"] = Path(env["hdf_libdir"]).as_posix()
     env.Append(LIBPATH=[env["hdf_libdir"]])
     env["hdf_support"] = "y"
@@ -1478,12 +1478,21 @@ if env["hdf_libdir"]:
 if env["hdf_support"] == "n":
     env["use_hdf5"] = False
 else:
-    env["use_hdf5"] = conf.CheckLib("hdf5", autoadd=False)
+    libhdf_exists = conf.CheckLib("hdf5", autoadd=False)
+    libhdf_serial_exists = conf.CheckLib("hdf5_serial", autoadd=False)
+    env["use_hdf5"] = False
+    if libhdf_exists:
+        env["use_hdf5"] = True
+        env["hdf5_lib"] = "hdf5"
+    elif libhdf_serial_exists:
+        env["use_hdf5"] = True
+        env["hdf5_lib"] = "hdf5_serial"
+        if not env["hdf_include"]:
+            add_system_include(env, "/usr/include/hdf5/serial/")
     if not env["use_hdf5"] and env["hdf_support"] == "y":
         config_error("HDF5 support has been specified but libraries were not found.")
 
 if env["use_hdf5"] and env["system_highfive"] in ("y", "default"):
-
     if conf.CheckLibWithHeader(
             "hdf5", "highfive/H5File.hpp", language="C++", autoadd=False):
 
@@ -2147,7 +2156,7 @@ if env["OS"] == "Linux":
     env["external_libs"].append("dl")
 
 if env["use_hdf5"]:
-    env["external_libs"].append("hdf5")
+    env["external_libs"].append(env["hdf5_lib"])
 
 if env["system_fmt"]:
     env["external_libs"].append("fmt")
