@@ -97,7 +97,7 @@ jobs:
         system_fmt=y hdf_libdir=$HDF5_LIBDIR hdf_include=$HDF5_INCLUDEDIR \
         cc_flags=-D_GLIBCXX_ASSERTIONS
     - name: Upload shared library
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: matrix.python-version == '3.10'
       with:
         path: build/lib/libcantera_shared.so
@@ -200,7 +200,7 @@ jobs:
     - name: Build Cantera
       run: scons build env_vars=all -j3 python_cmd=$PYTHON_CMD debug=n --debug=time
     - name: Upload shared library
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: matrix.python-version == '3.10'
       with:
         path: build/lib/libcantera_shared.dylib
@@ -401,7 +401,7 @@ jobs:
           name: cantera-wheel-${{ matrix.python-version }}-${{ matrix.os }}
           path: dist
       - name: Download the Cantera shared library (.so)
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: libcantera_shared-${{ matrix.os }}.so
           path: build/lib
@@ -835,17 +835,17 @@ jobs:
       with:
         dotnet-version: '6.x'
     - name: Download the Cantera shared library (.so)
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: libcantera_shared-ubuntu-22.04.so
         path: build/lib
     - name: Download the Cantera shared library (.dylib)
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: libcantera_shared.dylib
         path: build/lib
     - name: Download the Cantera shared library (.dll)
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: cantera_shared.dll
         path: build/lib
