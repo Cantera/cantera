@@ -291,7 +291,7 @@ def draw_walls(walls, graph=None, graph_attr=None, node_attr=None, edge_attr=Non
         assert r_in.name != r_out.name, "All reactors must have unique names when drawn."
 
         # display wall velocity as arrow indicating the wall's movement
-        v = w.velocity
+        v = w.expansion_rate / w.area
         if v != 0 and show_wall_velocity:
             if v > 0:
                 inflow_name, outflow_name = r_in.name, r_out.name
