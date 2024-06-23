@@ -108,6 +108,8 @@ void addReactions(Kinetics& kin, const AnyMap& phaseNode, const AnyMap& rootNode
 {
     kin.skipUndeclaredThirdBodies(
         phaseNode.getBool("skip-undeclared-third-bodies", false));
+    kin.setExplicitThirdBodyDuplicateHandling(
+        phaseNode.getString("explicit-third-body-duplicates", "warn"));
 
     loadExtensions(rootNode);
 

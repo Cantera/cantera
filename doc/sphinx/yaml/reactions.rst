@@ -188,7 +188,8 @@ Example::
 
 A three body reaction as :ref:`described here <sec-three-body-reaction>`.
 
-The reaction equation should include the third body collision partner ``M``.
+The reaction equation must include a third body collision partner, which may be either
+a specific species or the generic third body ``M``.
 
 Includes the fields of an ``elementary`` reaction, plus the fields for
 specifying :ref:`efficiencies <sec-yaml-efficiencies>`.
@@ -200,10 +201,9 @@ Example::
     rate-constant: [1.20000E+17 cm^6/mol^2/s, -1, 0]
     efficiencies: {AR: 0.83, H2O: 5}
 
-*Changed in Cantera 3.0*: The ``type`` field of the YAML entry may be omitted. Reactions
-containing the generic third body M are automatically identified as three-body
-reactions. Reactions are also identified as three-body reactions if all of the following
-conditions are met:
+The ``type`` field of the YAML entry may be omitted. Reactions containing the generic
+third body M are automatically identified as three-body reactions. Reactions are also
+identified as three-body reactions if all of the following conditions are met:
 
 - There is exactly one species appearing as both a reactant and product
 - All reactants and products have integral stoichiometric coefficients
@@ -211,18 +211,37 @@ conditions are met:
 
 Examples::
 
-    - equation: H + O2 + M <=> HO2 + M  # Reaction 33
-      rate-constant: {A: 2.8e+18, b: -0.86, Ea: 0.0}
-      efficiencies: {O2: 0.0, H2O: 0.0, CO: 0.75, CO2: 1.5, C2H6: 1.5, N2: 0.0,
-        AR: 0.0}
     - equation: H + 2 O2 <=> HO2 + O2  # Reaction 34
       rate-constant: {A: 2.08e+19, b: -1.24, Ea: 0.0}
     - equation: H + O2 + N2 <=> HO2 + N2  # Reaction 36
       rate-constant: {A: 2.6e+19, b: -1.24, Ea: 0.0}
 
 .. caution::
-    If the third body efficiency of O2 and N2 in Reaction 33 was not set to zero, these
-    would be considered duplicate reactions and would be required to be marked as such.
+    If a corresponding reaction with the generic third body M also appears in the
+    mechanism, such as::
+
+        - equation: H + O2 + M <=> HO2 + M  # Reaction 33
+          rate-constant: {A: 2.8e+18, b: -0.86, Ea: 0.0}
+          efficiencies: {O2: 0.0, H2O: 0.0, CO: 0.75, CO2: 1.5, C2H6: 1.5, N2: 0.0, AR: 0.0}
+
+    then the third body efficiency for any third bodies that are given in the explicit
+    form of Reaction 34 or Reaction 35 above must be set to zero, as shown here for
+    O2 and N2, or the reactions must be marked as duplicate.
+
+.. versionchanged:: 3.0
+
+    Three body reactions are detected automatically and the the ``type`` field may be
+    omitted. Reactions with explicit third bodies are required to be marked as
+    duplicates of reactions with the generic third body if the corresponding efficiency
+    is not zero.
+
+.. versionadded:: 3.1
+
+    Reactions with explicit third bodies and the corresponding reaction with "M" issue
+    warnings instead of raising errors by default. The
+    :ref:`sec-yaml-phase-explicit-third-body-duplicates` field of the phase entry can be
+    used to control how these reactions are handled.
+
 
 .. _sec-yaml-Blowers-Masel:
 
