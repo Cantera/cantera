@@ -14,8 +14,12 @@ import cantera as ct
 from cantera import ck2yaml, cti2yaml, ctml2yaml, yaml2ck, lxcat2yaml
 
 class ck2yamlTest(utilities.CanteraTest):
+    @pytest.fixture(autouse=True)
+    def inject_fixtures(self, caplog):
+        self._caplog = caplog
+
     def convert(self, inputFile, thermo=None, transport=None,
-                surface=None, output=None, extra=None, **kwargs):
+                surface=None, output=None, quiet=True, extra=None, **kwargs):
         if output is None:
             output = Path(inputFile).stem  # strip '.inp'
         if inputFile is not None:
@@ -34,7 +38,7 @@ class ck2yamlTest(utilities.CanteraTest):
             output.unlink()
         ck2yaml.convert(inputFile, thermo_file=thermo,
             transport_file=transport, surface_file=surface, out_name=output,
-            extra_file=extra, quiet=True, **kwargs)
+            extra_file=extra, quiet=quiet, **kwargs)
         return output
 
     def checkConversion(self, refFile, testFile):
@@ -346,21 +350,30 @@ class ck2yamlTest(utilities.CanteraTest):
                 output='h2o2_transport_character_geometry')
 
     def test_transport_float_geometry(self):
-        with self.assertRaisesRegex(ck2yaml.InputError, 'Incorrect geometry flag syntax'):
-            self.convert('h2o2.inp',
-                transport='h2o2-float-geometry-tran.dat',
-                output='h2o2_transport_float_geometry')
+        # @todo: Figure out how to prevent the captured log / stdout output from
+        # also being printed at the end of the pytest summary.
 
+        # Runs but issues a log message
+        self.convert('h2o2.inp',
+            transport='h2o2-float-geometry-tran.dat',
+            output='h2o2_transport_float_geometry', quiet=False)
+
+        assert "Incorrect geometry flag" in self._caplog.text
+        assert "automatically converted" in self._caplog.text
+        self._caplog.clear()
+
+        # Runs with no logging message
         output = self.convert('h2o2.inp',
             transport='h2o2-float-geometry-tran.dat',
-            output='h2o2_transport_float_geometry', permissive=True)
+            output='h2o2_transport_float_geometry', permissive=True, quiet=False)
+        assert "Incorrect geometry flag" not in self._caplog.text
 
         gas = ct.Solution(output)
-        self.assertTrue(gas.species("H").transport.geometry == 'atom')
-        self.assertTrue(gas.species("H2").transport.geometry == 'linear')
-        self.assertTrue(gas.species("H2O").transport.geometry == 'nonlinear')
+        assert gas.species("H").transport.geometry == 'atom'
+        assert gas.species("H2").transport.geometry == 'linear'
+        assert gas.species("H2O").transport.geometry == 'nonlinear'
 
-        with self.assertRaisesRegex(ck2yaml.InputError, 'Invalid float geometry flag'):
+        with pytest.raises(ck2yaml.InputError, match='Invalid float geometry flag'):
             self.convert('h2o2.inp',
                 transport='h2o2-float-arithmetic-error-geometry-tran.dat',
                 output='h2o2_transport_float_geometry', permissive=True)

@@ -664,9 +664,11 @@ class TransportData:
                     "Flag should be an integer.", geometry, label) from None
             if geometry == int(geometry):
                 geometry = int(geometry)
-                parser.warn("Incorrect geometry flag syntax for species {0}. "
-                            "If --permissive was given, the flag was automatically "
-                            "converted to an integer.".format(label))
+                # This is a minor issue, so even at the default level it's just a
+                # warning, and in permissive mode we won't even mention it.
+                if parser.warning_as_error:
+                    logger.info(f"Incorrect geometry flag syntax for species {label}. "
+                                "The flag was automatically converted to an integer.")
             else:
                 raise InputError(
                     "Invalid float geometry flag '{}' for species '{}'. "
