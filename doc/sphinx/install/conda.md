@@ -239,5 +239,5 @@ running the commands:
 
 ```shell
 conda activate ct-dev
-conda update --conda-forge libcantera-devel
+conda update --channel conda-forge libcantera-devel
 ```
