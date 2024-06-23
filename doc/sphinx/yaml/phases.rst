@@ -56,6 +56,24 @@ and optionally reactions that can take place in that phase. The fields of a
    defined in the phase. The default is ``false``, where the presence of
    such third body specifications is considered an error.
 
+.. _sec-yaml-phase-explicit-third-body-duplicates:
+
+``explicit-third-body-duplicates``
+  Specifies how to handle three body reactions with an explicit collider that are
+  duplicates of a three body reaction with the default collider ``M``. This can be:
+
+  - ``warn``: Issue a warning about such reactions. This is the default.
+  - ``error``: Raise an exception if such reactions are found.
+  - ``mark-duplicate``: Mark the reactions as duplicates. Species production and
+    consumption rates will reflect the sum of the rates. This option may correspond to
+    the behavior of software packages that do not check for this kind of duplicate
+    reaction.
+  - ``modify-efficiency``: Set the efficiency of the explicit third body to zero for the
+    reaction that gives the rate for the default collider. This option is the most
+    self-consistent but may not correspond to the intent of the mechanism's authors.
+
+    .. versionadded:: 3.1
+
 ``state``
     A mapping specifying the thermodynamic state. See
     :ref:`sec-yaml-setting-state`.

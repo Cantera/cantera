@@ -1342,6 +1342,15 @@ public:
         return m_skipUndeclaredThirdBodies;
     }
 
+    //! Specify how to handle duplicate third body reactions where one reaction
+    //! has an explicit third body and the other has the generic third body with a
+    //! non-zero efficiency for the former third body. Options are "warn" (default),
+    //! "error", "mark-duplicate", and "modify-efficiency".
+    void setExplicitThirdBodyDuplicateHandling(const string& flag);
+    string explicitThirdBodyDuplicateHandling() const {
+        return m_explicit_third_body_duplicates;
+    }
+
     //! @}
     //! @name Altering Reaction Rates
     //!
@@ -1515,6 +1524,9 @@ protected:
 
     //! Flag indicating whether reactions include undeclared third bodies
     bool m_hasUndeclaredThirdBodies = false;
+
+
+    string m_explicit_third_body_duplicates = "warn";
 
     //! reference to Solution
     std::weak_ptr<Solution> m_root;

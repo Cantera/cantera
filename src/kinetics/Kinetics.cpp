@@ -99,6 +99,18 @@ void Kinetics::checkSpeciesArraySize(size_t kk) const
     }
 }
 
+void Kinetics::setExplicitThirdBodyDuplicateHandling(const string& flag)
+{
+    if (flag == "warn" || flag == "error" || flag == "mark-duplicate"
+        || flag == "modify-efficiency")
+    {
+        m_explicit_third_body_duplicates = flag;
+    } else {
+        throw CanteraError("Kinetics::setExplicitThirdBodyDuplicateHandling",
+            "Invalid flag '{}'", flag);
+    }
+}
+
 pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err) const
 {
     //! Map of (key indicating participating species) to reaction numbers
@@ -165,6 +177,33 @@ pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err) const
                 }
                 if (thirdBodyOk) {
                     continue; // No overlap in third body efficiencies
+                } else if ((tb1.name() == "M") != (tb2.name() == "M")) {
+                    // Exactly one of the reactions uses M as the third body
+                    if (m_explicit_third_body_duplicates == "mark-duplicate") {
+                        R.duplicate = true;
+                        other.duplicate = true;
+                        continue;
+                    } else if (m_explicit_third_body_duplicates == "modify-efficiency") {
+                        if (tb1.name() == "M") {
+                            tb1.efficiencies[tb2.name()] = 0.0;
+                        } else {
+                            tb2.efficiencies[tb1.name()] = 0.0;
+                        }
+                        continue;
+                    } else if (m_explicit_third_body_duplicates == "warn") {
+                        InputFileError msg("Kinetics::checkDuplicates",
+                            R.input, other.input,
+                            "Undeclared duplicate third body reactions with a common "
+                            "third body detected.\nAdd the field "
+                            "'explicit-third-body-duplicates: mark-duplicate' or\n"
+                            "'explicit-third-body-duplicates: modify-efficiency' to "
+                            "the YAML phase entry\nto choose how these reactions "
+                            "should be handled and suppress this warning.\n"
+                            "Reaction {}: {}\nReaction {}: {}\n",
+                            m+1, R.equation(), i+1, other.equation());
+                        warn_user("Kinetics::checkDuplicates", msg.what());
+                        continue;
+                    } // else m_explicit_third_body_duplicates == "error"
                 }
             }
             if (throw_err) {
@@ -172,7 +211,7 @@ pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err) const
                         R.input, other.input,
                         "Undeclared duplicate reactions detected:\n"
                         "Reaction {}: {}\nReaction {}: {}\n",
-                        i+1, other.equation(), m+1, R.equation());
+                        m+1, R.equation(), i+1, other.equation());
             } else {
                 return {i,m};
             }
@@ -556,6 +595,12 @@ AnyMap Kinetics::parameters()
         }
         if (m_hasUndeclaredThirdBodies) {
             out["skip-undeclared-third-bodies"] = true;
+        }
+        if (m_explicit_third_body_duplicates == "error") {
+            // "warn" is the default, and does not need to be added. "mark-duplicate"
+            // and "modify-efficiency" do not need to be propagated here as their
+            // effects are already applied to the corresponding reactions.
+            out["explicit-third-body-duplicates"] = "error";
         }
     }
     return out;

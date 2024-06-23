@@ -42,41 +42,80 @@ class TestImplicitThirdBody(utilities.CanteraTest):
         self.assertEqual(rxn1.third_body.default_efficiency, rxn2.third_body.default_efficiency)
 
     def test_duplicate(self):
-        # @todo simplify this test
-        #     duplicates are currently only checked for import from file
-        gas1 = ct.Solution(thermo="ideal-gas", kinetics="gas",
-                           species=self.gas.species(), reactions=[])
+        yaml = """
+        phases:
+        - name: gas
+          thermo: ideal-gas
+          kinetics: bulk
+          {duplicate_handling}
+          species: [{{gri30.yaml/species: all}}]
 
-        yaml1 = """
-            equation: H + O2 + H2O <=> HO2 + H2O
-            rate-constant: {A: 1.126e+19, b: -0.76, Ea: 0.0}
-            """
-        rxn1 = ct.Reaction.from_yaml(yaml1, gas1)
+        reactions:
+        - equation: H + O2 + H2O <=> HO2 + H2O
+          rate-constant: {{A: 1.126e+19, b: -0.76, Ea: 0.0}}
+        - equation: H + O2 + M <=> HO2 + M
+          rate-constant: {{A: 1.126e+19, b: -0.76, Ea: 0.0}}
+          default-efficiency: 0
+          efficiencies: {{H2O: 1}}
+        """
 
-        yaml2 = """
-            equation: H + O2 + M <=> HO2 + M
-            rate-constant: {A: 1.126e+19, b: -0.76, Ea: 0.0}
-            default-efficiency: 0
-            efficiencies: {H2O: 1}
-            """
-        rxn2 = ct.Reaction.from_yaml(yaml2, gas1)
+        # Default behavior is to warn
+        with pytest.warns(UserWarning, match="Undeclared duplicate third body"):
+            gas = ct.Solution(yaml=yaml.format(duplicate_handling=""))
 
-        self.assertEqual(rxn1.reaction_type, rxn2.reaction_type)
-        self.assertEqual(rxn1.reactants, rxn2.reactants)
-        self.assertEqual(rxn1.products, rxn2.products)
-        self.assertEqual(rxn1.third_body.efficiencies, rxn2.third_body.efficiencies)
-        self.assertEqual(rxn1.third_body.default_efficiency, rxn2.third_body.default_efficiency)
+        assert gas.n_reactions == 2
+        R1, R2 = gas.reactions()
+        assert R1.reaction_type == R2.reaction_type
+        assert not R1.duplicate
+        assert not R2.duplicate
+        assert R1.reactants == R2.reactants
+        assert R1.products == R2.products
+        assert R1.third_body.efficiencies == R2.third_body.efficiencies
+        assert R1.third_body.default_efficiency == R2.third_body.default_efficiency
+        assert ('explicit-third-body-duplicates'
+                not in gas.write_yaml(skip_user_defined=True))
 
-        gas1.add_reaction(rxn1)
-        gas1.add_reaction(rxn2)
+        # Invalid flag value
+        with pytest.raises(ct.CanteraError, match="Invalid flag"):
+            yaml_error = yaml.format(
+                duplicate_handling="explicit-third-body-duplicates: eggs")
+            gas = ct.Solution(yaml=yaml_error)
 
-        fname = "duplicate.yaml"
-        gas1.write_yaml(fname)
+        # Warning can be converted to an error:
+        with pytest.raises(ct.CanteraError, match="Undeclared duplicate reactions"):
+            yaml_error = yaml.format(
+                duplicate_handling="explicit-third-body-duplicates: error")
+            gas = ct.Solution(yaml=yaml_error)
 
-        with self.assertRaisesRegex(Exception, "Undeclared duplicate reactions"):
-            ct.Solution(fname)
+        # Reactions can be automatically marked as duplicates
+        yaml_dup = yaml.format(
+            duplicate_handling="explicit-third-body-duplicates: mark-duplicate")
+        gas = ct.Solution(yaml=yaml_dup)
+        assert gas.reaction(0).duplicate
+        assert gas.reaction(1).duplicate
+        assert ('explicit-third-body-duplicates'
+                not in gas.write_yaml(skip_user_defined=True))
 
-        Path(fname).unlink()
+        # The third-body efficiency for the explicit third body can be automatically
+        # modified to eliminate the conflict
+        yaml_dup = yaml.format(
+            duplicate_handling="explicit-third-body-duplicates: modify-efficiency")
+        gas = ct.Solution(yaml=yaml_dup)
+        assert gas.reaction(1).third_body.efficiencies["H2O"] == 0
+
+    def test_handling_as_error(self):
+        yaml = """
+        phases:
+        - name: gas
+          thermo: ideal-gas
+          kinetics: bulk
+          explicit-third-body-duplicates: error
+          species: [{h2o2.yaml/species: all}]
+          reactions: [{h2o2.yaml/reactions: all}]
+        """
+        gas = ct.Solution(yaml=yaml)
+        assert ("explicit-third-body-duplicates: error"
+                in gas.write_yaml(skip_user_defined=True))
 
     def test_short_serialization(self):
         # check that serialized output is compact

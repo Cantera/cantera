@@ -499,7 +499,7 @@ class ck2yamlTest(utilities.CanteraTest):
         handler.setFormatter(logformatter)
         logger.addHandler(handler)
 
-        with  pytest.raises(SystemExit):
+        with pytest.raises(SystemExit):
             ck2yaml.main([
                 f"--input={self.test_data_path}/undeclared-duplicate-reactions.inp",
                 f"--thermo={self.test_data_path}/dummy-thermo.dat",
