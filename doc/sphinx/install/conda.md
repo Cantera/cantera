@@ -33,6 +33,7 @@ solver. To configure the `libmamba` solver, you can run:
 ```shell
 conda config --set solver libmamba
 ```
+
 :::
 
 (sec-conda-python-interface)=
@@ -53,7 +54,7 @@ from Python. For this example, the environment is named `ct-env`. From the comma
 line (or the Anaconda Prompt on Windows), run:
 
 ```shell
-conda create --name ct-env cantera ipython matplotlib jupyter
+conda create --name ct-env --channel conda-forge cantera ipython matplotlib jupyter
 ```
 
 This will create an environment named `ct-env` with Cantera, IPython, Matplotlib, and
@@ -110,8 +111,8 @@ conda activate ct-env
 ### Option 3: Install the development version of Cantera
 
 To install a recent development snapshot (that is, an alpha or beta version) of Cantera,
-use the `conda-forge/label/cantera_dev` channel. Assuming you have an environment named `ct-dev`,
-you can type:
+use the `conda-forge/label/cantera_dev` channel. Assuming you have an environment named
+`ct-dev`, you can type:
 
 ```shell
 conda activate ct-dev
@@ -124,7 +125,7 @@ and then reinstall Cantera:
 ```shell
 conda activate ct-dev
 conda remove cantera
-conda install cantera
+conda install --channel conda-forge cantera
 ```
 
 Alternatively, you can remove the `ct-dev` environment and follow Options 1 or 2 above
@@ -139,7 +140,7 @@ If you already have Cantera installed in a conda environment (named, for example
 
 ```shell
 conda activate ct-dev
-conda update cantera
+conda update --channel conda-forge cantera
 ```
 
 (sec-conda-development-interface)=
@@ -154,7 +155,7 @@ From the command line (or the Anaconda Prompt on Windows), create a new conda
 environment named `ct-dev` using:
 
 ```shell
-conda create --name ct-dev libcantera-devel
+conda create --name ct-dev --channel conda-forge libcantera-devel
 ```
 
 C++ header and libraries are installed within the `ct-dev` environment folder, which
@@ -178,8 +179,8 @@ data files            path/to/conda/envs/ct-dev/share/cantera/data
 In addition to `libcantera-devel`, installation of additional packages is recommended:
 
 ```shell
-$ conda activate ct-dev
-$ conda install cmake scons pkg-config
+conda activate ct-dev
+conda install --channel conda-forge cmake scons pkg-config
 ```
 
 C++ programs can be compiled according to instructions outlined in the [C++
@@ -188,22 +189,22 @@ pre-configured instruction files to facilitate compilation using the build tools
 and `CMake`, for example:
 
 ```shell
-$ cd /path/to/conda/envs/ct-dev/share/cantera/samples/cxx/demo
-$ scons  # uses SConstruct; or
-$ cmake . && cmake --build .  # uses CMakeLists.txt
+cd /path/to/conda/envs/ct-dev/share/cantera/samples/cxx/demo
+scons  # uses SConstruct; or
+cmake . && cmake --build .  # uses CMakeLists.txt
 ```
 
 In addition, individual C++ Cantera sample programs can also be compiled using the
 `pkg-config` build system:
 
 ```shell
-$ g++ demo.cpp -o demo $(pkg-config --cflags --libs cantera)
+g++ demo.cpp -o demo $(pkg-config --cflags --libs cantera)
 ```
 
 In all cases, the build process yields the executable `demo`, which is run as:
 
 ```shell
-$ ./demo
+./demo
 ```
 
 ### Windows Systems
@@ -222,10 +223,10 @@ C++ programs can be compiled according to instructions outlined in the
 preconfigured instruction files to facilitate compilation using the build tools `SCons`
 and `CMake`, for example:
 
-```shell
-$ cd path\to\conda\envs\ct-dev\share\cantera\samples\cxx\demo
-$ scons  # uses SConstruct; or
-$ cmake . && cmake --build . --config Release  # uses CMakeLists.txt
+```pwsh
+cd path\to\conda\envs\ct-dev\share\cantera\samples\cxx\demo
+scons  # uses SConstruct; or
+cmake . && cmake --build . --config Release  # uses CMakeLists.txt
 ```
 
 Fortran 90 support is not provided for Windows.
@@ -238,5 +239,5 @@ running the commands:
 
 ```shell
 conda activate ct-dev
-conda update libcantera-devel
+conda update --conda-forge libcantera-devel
 ```
