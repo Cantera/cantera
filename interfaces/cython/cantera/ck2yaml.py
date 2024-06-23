@@ -1608,7 +1608,7 @@ class Parser:
                             entry = []
                             if label not in self.species_dict:
                                 if skip_undeclared_species:
-                                    logger.info('Skipping unexpected species "{0}" while reading thermodynamics entry.'.format(label))
+                                    logger.debug('Skipping unexpected species "{0}" while reading thermodynamics entry.'.format(label))
                                     continue
                                 else:
                                     # Add a new species entry
@@ -1666,7 +1666,7 @@ class Parser:
 
                                 if label not in self.species_dict:
                                     if skip_undeclared_species:
-                                        logger.info(
+                                        logger.debug(
                                             'Skipping unexpected species "{0}" while'
                                             ' reading thermodynamics entry.'.format(label))
                                         thermo = []
@@ -2017,12 +2017,14 @@ class Parser:
     def convert_mech(input_file, thermo_file=None, transport_file=None,
                      surface_file=None, phase_name='gas', extra_file=None,
                      out_name=None, single_intermediate_temperature=False, quiet=False,
-                     permissive=None):
+                     permissive=None, verbose=False):
 
         parser = Parser()
         parser.single_intermediate_temperature = single_intermediate_temperature
         if quiet:
             logger.setLevel(level=logging.ERROR)
+        elif verbose:
+            logger.setLevel(level=logging.DEBUG)
         else:
             logger.setLevel(level=logging.INFO)
 
@@ -2146,17 +2148,17 @@ class Parser:
 def convert(input_file, thermo_file=None, transport_file=None,
             surface_file=None, phase_name='gas', extra_file=None,
             out_name=None, single_intermediate_temperature=False, quiet=False,
-            permissive=None):
+            permissive=None, verbose=False):
     _, surface_names = Parser.convert_mech(
-        input_file, thermo_file, transport_file, surface_file, phase_name,
-        extra_file, out_name, single_intermediate_temperature, quiet, permissive)
+        input_file, thermo_file, transport_file, surface_file, phase_name, extra_file,
+        out_name, single_intermediate_temperature, quiet, permissive, verbose)
     return surface_names
 
 
 def convert_mech(input_file, thermo_file=None, transport_file=None,
                  surface_file=None, phase_name='gas', extra_file=None,
                  out_name=None, single_intermediate_temperature=False, quiet=False,
-                 permissive=None):
+                 permissive=None, verbose=False):
     """
     .. deprecated:: 3.0
 
@@ -2165,8 +2167,8 @@ def convert_mech(input_file, thermo_file=None, transport_file=None,
     warnings.warn(
         "To be removed after Cantera 3.1; renamed to 'convert'")
     _, surface_names = Parser.convert_mech(
-        input_file, thermo_file, transport_file, surface_file, phase_name,
-        extra_file, out_name, single_intermediate_temperature, quiet, permissive)
+        input_file, thermo_file, transport_file, surface_file, phase_name, extra_file,
+        out_name, single_intermediate_temperature, quiet, permissive, verbose)
     return surface_names
 
 
@@ -2198,7 +2200,8 @@ def main(argv=None):
 
     parser, surfaces = Parser.convert_mech(input_file, thermo_file,
             args.transport, args.surface, args.name, args.extra, out_name,
-            args.single_intermediate_temperature, args.quiet, args.permissive)
+            args.single_intermediate_temperature, args.quiet, args.permissive,
+            args.verbose)
 
     if not input_file:
         # Can't validate input files that don't define a phase
@@ -2257,6 +2260,9 @@ def create_argparser():
     parser.add_argument(
         "-q", "--quiet", action="store_true", default=False,
         help="Suppresses warning messages, such as those about duplicate thermo data.")
+    parser.add_argument(
+        "-v", "--verbose", action="store_true", default=False,
+        help="Show additional logging output, such as messages about unused species")
     parser.add_argument(
         "-d", "--debug", action="store_true", default=False,
         help=("Enables additional debugging output that may be helpful in identifying "
