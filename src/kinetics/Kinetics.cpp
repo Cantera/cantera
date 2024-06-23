@@ -111,6 +111,7 @@ pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err) const
         }
     }
 
+    vector<InputFileError> errs;
     for (size_t i = 0; i < m_reactions.size(); i++) {
         // Get data about this reaction
         unsigned long int key = 0;
@@ -167,7 +168,7 @@ pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err) const
                 }
             }
             if (throw_err) {
-                throw InputFileError("Kinetics::checkDuplicates",
+                errs.emplace_back("Kinetics::checkDuplicates",
                         R.input, other.input,
                         "Undeclared duplicate reactions detected:\n"
                         "Reaction {}: {}\nReaction {}: {}\n",
@@ -181,7 +182,7 @@ pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err) const
     if (unmatched_duplicates.size()) {
         size_t i = *unmatched_duplicates.begin();
         if (throw_err) {
-            throw InputFileError("Kinetics::checkDuplicates",
+            errs.emplace_back("Kinetics::checkDuplicates",
                 m_reactions[i]->input,
                 "No duplicate found for declared duplicate reaction number {}"
                 " ({})", i, m_reactions[i]->equation());
@@ -189,7 +190,17 @@ pair<size_t, size_t> Kinetics::checkDuplicates(bool throw_err) const
             return {i, i};
         }
     }
-    return {npos, npos};
+    if (errs.empty()) {
+        return {npos, npos};
+    } else if (errs.size() == 1) {
+        throw errs[0];
+    } else {
+        fmt::memory_buffer msg;
+        for (const auto& err : errs) {
+            fmt_append(msg, "\n{}\n", err.getMessage());
+        }
+        throw CanteraError("Kinetics::checkDuplicates", to_string(msg));
+    }
 }
 
 double Kinetics::checkDuplicateStoich(map<int, double>& r1, map<int, double>& r2) const

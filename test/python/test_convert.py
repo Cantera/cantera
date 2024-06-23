@@ -499,7 +499,7 @@ class ck2yamlTest(utilities.CanteraTest):
         handler.setFormatter(logformatter)
         logger.addHandler(handler)
 
-        with self.assertRaises(SystemExit):
+        with  pytest.raises(SystemExit):
             ck2yaml.main([
                 f"--input={self.test_data_path}/undeclared-duplicate-reactions.inp",
                 f"--thermo={self.test_data_path}/dummy-thermo.dat",
@@ -510,8 +510,33 @@ class ck2yamlTest(utilities.CanteraTest):
         logger.addHandler(original_handler)
 
         message = log_stream.getvalue()
-        for token in ('FAILED', 'lines 12 and 14', 'R1A', 'R1B'):
-            self.assertIn(token, message)
+        for token in ('FAILED', 'Line 12', 'Line 14', 'R1A', 'R1B'):
+            assert token in message
+
+    def test_multiple_duplicate_reactions(self):
+        # Replace the ck2yaml logger with our own in order to capture the output
+        log_stream = io.StringIO()
+        logger = logging.getLogger('cantera.ck2yaml')
+        original_handler = logger.handlers.pop()
+        logformatter = logging.Formatter('%(message)s')
+        handler = logging.StreamHandler(log_stream)
+        handler.setFormatter(logformatter)
+        logger.addHandler(handler)
+
+        with pytest.raises(SystemExit):
+            ck2yaml.main([
+                f"--input={self.test_data_path}/undeclared-duplicate-reactions2.inp",
+                f"--thermo={self.test_data_path}/dummy-thermo.dat",
+                f"--output={self.test_work_path}/undeclared-duplicate-reactions2.yaml"])
+
+        # Put the original logger back in place
+        logger.handlers.clear()
+        logger.addHandler(original_handler)
+
+        message = log_stream.getvalue()
+        for token in ('FAILED', 'Line 12', 'Line 14', 'Line 11', 'Line 15',
+                      'R1A + R1B', 'R3 + H'):
+            assert token in message
 
     def test_single_Tint(self):
         output = self.convert(None, thermo="thermo_single_Tint.dat",
