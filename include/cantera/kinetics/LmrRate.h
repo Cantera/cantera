@@ -67,12 +67,12 @@ public:
     UnitStack rate_units_;
     // AnyMap node_;
     // double logP_;
-    double logT_;
+    // double logT_;
     // double pressure_;
-    double recipT_;
+    // double recipT_;
     // double temperature_;
     // bool ready_;
-    vector<double> moleFractions_;
+    // vector<double> moleFractions_;
     // double logPeff_;
     double k_LMR_;
     double eig0_mix;
@@ -92,13 +92,9 @@ public:
     void getParameters(AnyMap& rateNode) const override {
         return getParameters(rateNode, Units(0));
     }
-    // double evalPlogRate(PlogRate& rate, PlogData& data);
-    // double evalTroeRate(TroeRate& rate, FalloffData& data);
-    // double evalChebyshevRate(ChebyshevRate& rate, ChebyshevData& data);
-
-    void updatePlogData(const LmrData& shared_data, PlogData& dataObj, double eig0);
-    void updateTroeData(const LmrData& shared_data, FalloffData& dataObj);
-    void updateChebyshevData(const LmrData& shared_data, ChebyshevData& dataObj);
+    double evalPlogRate(const LmrData& shared_data, DataTypes& dataObj, RateTypes& rateObj, double& eig0);
+    double evalTroeRate(const LmrData& shared_data, DataTypes& dataObj, RateTypes& rateObj);
+    double evalChebyshevRate(const LmrData& shared_data, DataTypes& dataObj, RateTypes& rateObj, double& eig0);
 
     void setContext(const Reaction& rxn, const Kinetics& kin) override;
 
