@@ -74,7 +74,7 @@ public:
     // bool ready_;
     // vector<double> moleFractions_;
     // double logPeff_;
-    double k_LMR_;
+    // double k_LMR_;
     double eig0_mix;
 
     // PlogData plog_data;
