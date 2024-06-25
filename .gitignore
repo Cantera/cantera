@@ -69,3 +69,4 @@ test/data/alzuetamechanism_epsNH3_T=2000K.yaml
 test/data/alzuetamechanism_LMRR_allAR.yaml
 test/data/alzuetamechanism_LMRR_allH2O.yaml
 test/data/kineticsfromscratch_LMRtest.yaml
+rayTest.py

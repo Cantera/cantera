@@ -64,7 +64,7 @@ public:
     ArrheniusRate eigObj_M;
     // AnyMap node_M;
     size_t nSpecies;
-    UnitStack rate_units_;
+    // UnitStack rate_units_;
     // AnyMap node_;
     // double logP_;
     // double logT_;
@@ -80,6 +80,7 @@ public:
     // PlogData plog_data;
     // FalloffData troe_data;
     // ChebyshevData cheb_data;
+    // vector<double> conc_3b;
 
     explicit LmrRate(const std::multimap<double, ArrheniusRate>& rates);
     LmrRate(const AnyMap& node, const UnitStack& rate_units={});
