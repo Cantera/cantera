@@ -901,6 +901,8 @@ if 'sphinx' in COMMAND_LINE_TARGETS:
     env['sphinx_docs'] = True
 
 if "sdist" in COMMAND_LINE_TARGETS:
+    if "clean" in COMMAND_LINE_TARGETS:
+        COMMAND_LINE_TARGETS.remove("clean")
     if len(COMMAND_LINE_TARGETS) > 1:
         logger.error("'sdist' target cannot be built simultaneously with other targets.")
         sys.exit(1)
