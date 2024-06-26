@@ -233,6 +233,24 @@ class TestSolutionArray(utilities.CanteraTest):
         arr = ct.SolutionArray(self.gas, states=states)
         assert arr.shape == (3, 5) # shape is based on numpy conversion
 
+    def test_slice_twice(self):
+        T_list = np.linspace(300, 1000, 8)
+        self.gas.TPX = T_list[0], ct.one_atm, {"H2": 1.}
+        arr = ct.SolutionArray(self.gas)
+        for T in T_list[1:]:
+            self.gas.TPX = T, ct.one_atm, {"H2": 1.}
+            arr.append(self.gas.state)
+        ix = 4
+        arr_trunc = arr[ix:]
+        assert arr_trunc.T[0] == arr.T[ix]
+        assert arr_trunc[0].T == arr.T[ix]
+        assert arr_trunc.T[-1] == arr.T[-1]
+        assert arr_trunc[-1].T == arr.T[-1]
+        assert (arr_trunc.T[:2] == arr.T[ix:ix+2]).all()
+        assert (arr_trunc[:2].T == arr.T[ix:ix+2]).all()
+        with self.assertRaises(IndexError):
+            arr_trunc[10]
+
     def test_from_state_numpy(self):
         states = np.array([[list(self.gas.state)] * 5] * 3)
         arr = ct.SolutionArray(self.gas, states=states)
