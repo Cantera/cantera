@@ -71,9 +71,19 @@ SolutionArray::SolutionArray(const SolutionArray& other,
     , m_extra(other.m_extra)
     , m_order(other.m_order)
     , m_shared(true)
-    , m_active(selected)
 {
     m_sol->thermo()->addSpeciesLock();
+    if (!other.m_shared) {
+        // direct slicing is possible
+        m_active = selected;
+    } else {
+        // slicing a previously sliced SolutionArray
+        m_active.clear();
+        m_active.reserve(selected.size());
+        for (auto loc : selected) {
+            m_active.push_back(other.m_active.at(loc));
+        }
+    }
     for (auto loc : m_active) {
         if (loc < 0 || loc >= (int)m_dataSize) {
             IndexError("SolutionArray::SolutionArray", "indices", loc, m_dataSize);
