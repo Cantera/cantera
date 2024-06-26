@@ -96,9 +96,9 @@ def plotPoints(filename,mkr='none',mkrw='none',mkrsz='none',line='none',fill='no
     ax.plot(dataset.iloc[:,0],dataset.iloc[:,1]*100,mkr,linewidth=0.7,fillstyle=fill,linestyle=line,color=colour,label=pltLabel,markersize=mkrsz,markeredgewidth=mkrw)
 
 
-# plotXvsTime("test/data/alzuetamechanism.yaml","Alzueta","xkcd:grey")
-# plotXvsTime("test/data/alzuetamechanism_LMRR_allAR.yaml","Ar","r")
-# plotXvsTime("test/data/alzuetamechanism_LMRR_allH2O.yaml",r'$\rm H_2O$',"b")
+plotXvsTime("test/data/alzuetamechanism.yaml","Alzueta","xkcd:grey")
+plotXvsTime("test/data/alzuetamechanism_LMRR_allAR.yaml","Ar","r")
+plotXvsTime("test/data/alzuetamechanism_LMRR_allH2O.yaml",r'$\rm H_2O$',"b")
 plotXvsTime("test/data/alzuetamechanism_LMRR.yaml","LMR-R","xkcd:purple")
 # plotPoints(path+'\\7 SP H2O X vs t (Shock Tube) (Shao)\\expData.csv',pltLabel='Shao et al.',line=':',colour='k')
 plotPoints(path+'\\7 SP H2O X vs t (Shock Tube) (Shao)\\expData.csv',mkr='o',mkrsz=msz,pltLabel='Shao et al.',mkrw=mw)

@@ -965,69 +965,27 @@ reactions:
 - equation: O + O + M <=> O2 + M  # Reaction 12
   type: three-body
   rate-constant: {A: 1.9e+13, b: 0.0, Ea: -1788.0}
-  efficiencies: {H2: 2.5, H2O: 12.0, AR: 1.0, CO: 1.9, CO2: 3.8}
-- equation: H + OH (+M) <=> H2O (+M)  # Reaction 13
-  type: LMR_R
-  units: {length: m, quantity: kmol, activation-energy: cal/mol}
-  collider-list: 
-  - collider: "M" # N2 is reference collider
-    eig0: {A: 1, b: 0, Ea: 0}
-    rate-constants:
-    - {P: 1.000e-04 atm, A: 5.30514e+12, b: -2.80725e+00, Ea: 4.99267e+02}
-    - {P: 1.000e-03 atm, A: 5.25581e+13, b: -2.80630e+00, Ea: 4.99946e+02}
-    - {P: 1.000e-02 atm, A: 5.18795e+14, b: -2.80495e+00, Ea: 5.01765e+02}
-    - {P: 1.000e-01 atm, A: 5.13043e+15, b: -2.80388e+00, Ea: 5.08801e+02}
-    - {P: 1.000e+00 atm, A: 5.47458e+16, b: -2.81214e+00, Ea: 5.50629e+02}
-    - {P: 1.000e+01 atm, A: 1.04665e+18, b: -2.89077e+00, Ea: 8.27164e+02}
-    - {P: 1.000e+02 atm, A: 6.24786e+18, b: -2.80241e+00, Ea: 1.43320e+03}
-    - {P: 1.000e+03 atm, A: 4.28006e+15, b: -1.57172e+00, Ea: 9.80056e+02}
-    - {P: 1.000e+04 atm, A: 6.79586e+12, b: -5.77830e-01, Ea: 4.56911e+02}
-# # June 25th corrected version below
-#     - {P: 1.000e-04 atm, A: 5.30514e+15, b: -2.80725e+00, Ea: 4.99267e+02}
-#     - {P: 1.000e-03 atm, A: 5.25581e+16, b: -2.80630e+00, Ea: 4.99946e+02}
-#     - {P: 1.000e-02 atm, A: 5.18795e+17, b: -2.80495e+00, Ea: 5.01765e+02}
-#     - {P: 1.000e-01 atm, A: 5.13043e+18, b: -2.80388e+00, Ea: 5.08801e+02}
-#     - {P: 1.000e+00 atm, A: 5.47458e+19, b: -2.81214e+00, Ea: 5.50629e+02}
-#     - {P: 1.000e+01 atm, A: 1.04665e+21, b: -2.89077e+00, Ea: 8.27164e+02}
-#     - {P: 1.000e+02 atm, A: 6.24786e+21, b: -2.80241e+00, Ea: 1.43320e+03}
-#     - {P: 1.000e+03 atm, A: 4.28006e+18, b: -1.57172e+00, Ea: 9.80056e+02}
-#     - {P: 1.000e+04 atm, A: 6.79585e+15, b: -5.77829e-01, Ea: 4.56911e+02}
-  - collider: "AR"
-    eig0: {A: 2.20621e-02, b: 4.74036e-01, Ea: -1.13148e+02}
-  - collider: "H2O"
-    eig0: {A: 1.04529e-01, b: 5.50787e-01, Ea: -2.32675e+02}
+  efficiencies: {H2: 2.5, H2O: 12.0, AR: 0.0, CO: 1.9, CO2: 3.8}
+- equation: H2O + M <=> H + OH + M  # Reaction 13
+  type: three-body
+  rate-constant: {A: 6.1e+27, b: -3.322, Ea: 1.2079e+05}
+  efficiencies: {H2: 3.0, H2O: 0.0, N2: 2.0, CO: 1.9, CO2: 3.8, O2: 0.0}
+# - equation: H + OH (+M) <=> H2O (+M)
+#   type: falloff
+#   low-P-rate-constant: {A: 4.5300E+21, b: -1.8100E+00, Ea: 4.9870E+02}
+#   high-P-rate-constant: {A: 2.5100E+13, b: 0.234, Ea: -114.2}
+#   Troe: {A: 7.3000E-01, T3: 1.0000E-30, T1: 1.0000E+30, T2: 1.0000E+30} #SUBBED IN FROM STAGNI ET ALL
 - equation: H2O + O2 <=> H + OH + O2  # Reaction 14
   duplicate: true
   rate-constant: {A: 9.15e+27, b: -3.322, Ea: 1.2079e+05}
 - equation: H2O + H2O <=> H + OH + H2O  # Reaction 15
   rate-constant: {A: 1.0e+26, b: -2.44, Ea: 1.2018e+05}
 - equation: H + O2 (+M) <=> HO2 (+M)  # Reaction 16
-  # units: {length: m, quantity: kmol, activation-energy: cal/mol}
-  type: LMR_R
-  collider-list: 
-  - collider: "M" # Ar is reference collider
-    eig0: {A: 1, b: 0, Ea: 0}
-    rate-constants:
-    - {P: 1.316e-02 atm, A: 9.39968e+14, b: -2.14348e+00, Ea: 7.72730e+01}
-    - {P: 1.316e-01 atm, A: 1.07254e+16, b: -2.15999e+00, Ea: 1.30239e+02}
-    - {P: 3.947e-01 atm, A: 3.17830e+16, b: -2.15813e+00, Ea: 1.66994e+02}
-    - {P: 1.000e+00 atm, A: 7.72584e+16, b: -2.15195e+00, Ea: 2.13473e+02}
-    - {P: 3.000e+00 atm, A: 2.11688e+17, b: -2.14062e+00, Ea: 2.79031e+02}
-    - {P: 1.000e+01 atm, A: 6.53093e+17, b: -2.13213e+00, Ea: 3.87493e+02}
-    - {P: 3.000e+01 atm, A: 1.49784e+18, b: -2.10026e+00, Ea: 4.87579e+02}
-    - {P: 1.000e+02 atm, A: 3.82218e+18, b: -2.07057e+00, Ea: 6.65984e+02}
-  - collider: "HE"
-    eig0: {A: 3.37601e-01, b: 1.82568e-01, Ea: 3.62408e+01}
-  - collider: "N2"
-    eig0: {A: 1.24932e+02, b: -5.93263e-01, Ea: 5.40921e+02}
-  - collider: "H2"
-    eig0: {A: 3.13717e+04, b: -1.25419e+00, Ea: 1.12924e+03}
-  - collider: "CO2"
-    eig0: {A: 1.62413e+08, b: -2.27622e+00, Ea: 1.97023e+03}
-  - collider: "NH3"
-    eig0: {A: 4.97750e+00, b: 1.64855e-01, Ea: -2.80351e+02}
-  - collider: "H2O"
-    eig0: {A: 3.69146e+01, b: -7.12902e-02, Ea: 3.19087e+01}
+  type: falloff
+  low-P-rate-constant: {A: 6.366e+20, b: -1.72, Ea: 524.8}
+  high-P-rate-constant: {A: 4.7e+12, b: 0.44, Ea: 0.0}
+  Troe: {A: 0.5, T3: 1.0e-30, T1: 1.0e+30}
+  efficiencies: {H2: 2.0, H2O: 14.0, O2: 0.78, CO: 1.9, CO2: 3.8, AR: 0.67}
 - equation: HO2 + H <=> H2 + O2  # Reaction 17
   rate-constant: {A: 2.8e+06, b: 2.09, Ea: -1451.0}
 - equation: HO2 + H <=> OH + OH  # Reaction 18
@@ -1047,29 +1005,12 @@ reactions:
 - equation: HO2 + HO2 <=> O2 + OH + OH  # Reaction 24
   rate-constant: {A: 6.4e+17, b: -1.54, Ea: 8540.0}
 - equation: H2O2 (+M) <=> OH + OH (+M)  # Reaction 25
-  type: LMR_R
-  # units: {length: m, quantity: kmol, activation-energy: cal/mol}
-  collider-list: 
-  - collider: "M" # Ar is reference collider
-    eig0: {A: 1, b: 0, Ea: 0}
-    rate-constants:
-    - {P: 1.000e-04 atm, A: 2.71622e+18, b: -3.29277e+00, Ea: 4.87751e+04}
-    - {P: 1.000e-03 atm, A: 2.81583e+19, b: -3.29786e+00, Ea: 4.88063e+04}
-    - {P: 1.000e-02 atm, A: 3.51720e+20, b: -3.32633e+00, Ea: 4.88987e+04}
-    - {P: 1.000e-01 atm, A: 1.11349e+22, b: -3.47124e+00, Ea: 4.92510e+04}
-    - {P: 1.000e+00 atm, A: 1.37798e+24, b: -3.78062e+00, Ea: 5.01239e+04}
-    - {P: 1.000e+01 atm, A: 4.19865e+24, b: -3.60088e+00, Ea: 5.07633e+04}
-    - {P: 1.000e+02 atm, A: 2.56115e+22, b: -2.63168e+00, Ea: 5.06995e+04}
-    - {P: 1.000e+03 atm, A: 1.21632e+19, b: -1.40247e+00, Ea: 5.02104e+04}
-    - {P: 1.000e+04 atm, A: 2.12510e+16, b: -4.29000e-01, Ea: 4.97239e+04}
-  - collider: "N2"
-    eig0: {A: 1.14813e+00, b: 4.60090e-02, Ea: -2.92413e+00}
-  - collider: "CO2"
-    eig0: {A: 8.98839e+01, b: -4.27974e-01, Ea: 2.41392e+02}
-  - collider: "H2O2"
-    eig0: {A: 6.45295e-01, b: 4.26266e-01, Ea: 4.28932e+01}
-  - collider: "H2O"
-    eig0: {A: 1.36377e+00, b: 3.06592e-01, Ea: 2.10079e+02}
+  type: falloff
+  low-P-rate-constant: {A: 2.5e+24, b: -2.3, Ea: 4.8749e+04}
+  high-P-rate-constant: {A: 2.0e+12, b: 0.9, Ea: 4.8749e+04}
+  Troe: {A: 0.43, T3: 1.0e-30, T1: 1.0e+30}
+  efficiencies: {AR: 1.0, H2O: 7.5, CO2: 1.6, N2: 1.5, O2: 1.2, H2O2: 7.7,
+    H2: 3.7, CO: 2.8}
 - equation: H2O2 + H <=> H2O + OH  # Reaction 26
   rate-constant: {A: 2.4e+13, b: 0.0, Ea: 3970.0}
 - equation: H2O2 + H <=> HO2 + H2  # Reaction 27
@@ -1215,27 +1156,12 @@ reactions:
   rate-constant: {A: 3.0e+13, b: 0.0, Ea: 0.0}
 - equation: HCO + HCO <=> CO + CH2O  # Reaction 71
   rate-constant: {A: 2.7e+13, b: 0.0, Ea: 0.0}
-- equation: NH3 (+M) <=> H + NH2 (+M)  # Reaction 72
-  type: LMR_R                          # Rxn direction is reversed
-  # units: {length: m, quantity: kmol, activation-energy: cal/mol}
-  collider-list: 
-  - collider: "M" # Ar is reference collider
-    eig0: {A: 1, b: 0, Ea: 0}
-    rate-constants:
-    - {P: 0.1 atm, A: 7.23e+29, b: -5.316, Ea: 110862.4}
-    - {P: 1 atm, A: 3.497e+30, b: -5.224, Ea: 111163.3}
-    - {P: 10 atm, A: 1.975e+31, b: -5.155, Ea: 111887.8}
-    - {P: 100 atm, A: 2.689e+31, b: -4.920, Ea: 112778.7}
-  - collider: "N2"
-    eig0: {A: 4.49281e+00, b: -9.46265e-02, Ea: -1.10071e+02}
-  - collider: "O2"
-    eig0: {A: 1.15210e-01, b: 3.41234e-01, Ea: -3.89210e+02}
-  - collider: "CO2"
-    eig0: {A: 9.19583e+00, b: 6.10696e-02, Ea: 9.01088e+01}
-  - collider: "NH3"
-    eig0: {A: 1.49004e+01, b: 6.06535e-02, Ea: 2.47652e+02}
-  - collider: "H2O"
-    eig0: {A: 1.14560e+01, b: 1.27501e-01, Ea: 3.13959e+02}
+- equation: NH2 + H (+M) <=> NH3 (+M)  # Reaction 72
+  type: falloff
+  low-P-rate-constant: {A: 2.6e+23, b: -2.083, Ea: 0.0}
+  high-P-rate-constant: {A: 1.5e+14, b: 0.167, Ea: 0.0}
+  Troe: {A: 0.5, T3: 1.0e-30, T1: 1.0e+30, T2: 1.0e+30}
+  efficiencies: {N2: 2.5, AR: 1.0}
 - equation: NH3 + H <=> NH2 + H2  # Reaction 73
   rate-constant: {A: 5.4e+05, b: 2.4, Ea: 9916.0}
 - equation: NH3 + O <=> NH2 + OH  # Reaction 74
@@ -1275,40 +1201,11 @@ reactions:
   rate-constant: {A: 0.029, b: 3.764, Ea: 1.8185e+04}
 - equation: NH2 + NH2 <=> NH3 + NH  # Reaction 89
   rate-constant: {A: 5.6, b: 3.53, Ea: 552.0}
-- equation: 2 NH2 (+M) <=> N2H4 (+M)  # Reaction 90
-  type: LMR_R
-  units: {length: m, quantity: kmol, activation-energy: cal/mol}
-  collider-list: 
-  - collider: "M" # Ar is reference collider
-    eig0: {A: 1, b: 0, Ea: 0}
-    rate-constants:
-    - {P: 1.000e-04 atm, A: 1.20024e+25, b: -6.43982e+00, Ea: 2.05356e+03}
-    - {P: 1.000e-03 atm, A: 1.19856e+26, b: -6.43893e+00, Ea: 2.16055e+03}
-    - {P: 1.000e-02 atm, A: 1.80223e+27, b: -6.48573e+00, Ea: 2.49649e+03}
-    - {P: 1.000e-01 atm, A: 1.07660e+28, b: -6.40257e+00, Ea: 3.01349e+03}
-    - {P: 1.000e+00 atm, A: 3.65176e+26, b: -5.65302e+00, Ea: 2.95891e+03}
-    - {P: 1.000e+01 atm, A: 4.51325e+23, b: -4.50139e+00, Ea: 2.58051e+03}
-    - {P: 1.000e+02 atm, A: 2.56240e+20, b: -3.31075e+00, Ea: 2.07400e+03}
-    - {P: 1.000e+03 atm, A: 8.99670e+16, b: -2.12230e+00, Ea: 1.37012e+03}
-    - {P: 1.000e+04 atm, A: 5.28067e+13, b: -1.06166e+00, Ea: 5.64223e+02}
-# # June 25 version below
-#     - {P: 1.000e-04 atm, A: 1.20024e+28, b: -6.43982e+00, Ea: 2.05356e+03}
-#     - {P: 1.000e-03 atm, A: 1.19856e+29, b: -6.43893e+00, Ea: 2.16055e+03}
-#     - {P: 1.000e-02 atm, A: 1.80223e+30, b: -6.48573e+00, Ea: 2.49649e+03}
-#     - {P: 1.000e-01 atm, A: 1.07660e+31, b: -6.40257e+00, Ea: 3.01349e+03}
-#     - {P: 1.000e+00 atm, A: 3.65176e+29, b: -5.65302e+00, Ea: 2.95891e+03}
-#     - {P: 1.000e+01 atm, A: 4.51325e+26, b: -4.50139e+00, Ea: 2.58051e+03}
-#     - {P: 1.000e+02 atm, A: 2.56240e+23, b: -3.31075e+00, Ea: 2.07400e+03}
-#     - {P: 1.000e+03 atm, A: 8.99669e+19, b: -2.12230e+00, Ea: 1.37012e+03}
-#     - {P: 1.000e+04 atm, A: 5.28068e+16, b: -1.06166e+00, Ea: 5.64223e+02}
-  - collider: "N2"
-    eig0: {A: 1.46848e+01, b: -3.00962e-01, Ea: 1.65146e+02}
-  - collider: "O2"
-    eig0: {A: 1.53608e+00, b: -3.90857e-02, Ea: 4.43752e+00}
-  - collider: "NH3"
-    eig0: {A: 1.64196e+01, b: -7.29636e-02, Ea: 3.66099e+02}
-  - collider: "H2O"
-    eig0: {A: 2.17658e+01, b: -1.14715e-01, Ea: 4.19216e+02}
+- equation: NH2 + NH2 (+M) <=> N2H4 (+M)  # Reaction 90
+  type: falloff
+  low-P-rate-constant: {A: 1.6e+34, b: -5.49, Ea: 1987.0}
+  high-P-rate-constant: {A: 5.6e+14, b: -0.414, Ea: 66.0}
+  Troe: {A: 0.31, T3: 1.0e-30, T1: 1.0e+30, T2: 1.0e+30}
 - equation: NH2 + NH2 <=> tHNNH + H2  # Reaction 91
   rate-constant: {A: 1.7e+08, b: 1.02, Ea: 1.1783e+04}
 - equation: NH2 + NH2 <=> H2NN + H2  # Reaction 92
@@ -1479,22 +1376,12 @@ reactions:
   rate-constant: {A: 1.8e+06, b: 1.94, Ea: -1152.0}
 - equation: HNOH + NO2 <=> HONO + HNO  # Reaction 166
   rate-constant: {A: 8.0e+11, b: 0.0, Ea: 6000.0}
-- equation: HNO (+M) <=> H + NO (+M)  # Reaction 167
-  type: LMR_R                         # Rxn direction has been reversed
-  # units: {length: m, quantity: kmol, activation-energy: cal/mol}
-  collider-list: 
-  - collider: "M" # Ar is reference collider
-    eig0: {A: 1, b: 0, Ea: 0}
-    rate-constants:
-    - {P: 0.1 atm, A: 2.0121e+19, b: -3.021, Ea: 47792.0}
-    - {P: 1 atm, A: 1.8259e+20, b: -3.008, Ea: 47880.0}
-    - {P: 10 atm, A: 1.2762e+21, b: -2.959, Ea: 48100.0}
-    - {P: 100 atm, A: 5.6445e+21, b: -2.855, Ea: 48459.0}
-    - {P: 1000 atm, A: 9.7111e+21, b: -2.642, Ea: 48940.0}
-  - collider: "N2"
-    eig0: {A: 7.56771e+00, b: -1.96878e-01, Ea: 2.53168e+02}
-  - collider: "H2O"
-    eig0: {A: 3.35451e+00, b: 1.33352e-01, Ea: 6.64633e+01}
+- equation: NO + H (+M) <=> HNO (+M)  # Reaction 167
+  type: falloff
+  low-P-rate-constant: {A: 2.4e+14, b: 0.206, Ea: -1550.0}
+  high-P-rate-constant: {A: 1.5e+15, b: -0.41, Ea: 0.0}
+  Troe: {A: 0.82, T3: 1.0e-30, T1: 1.0e+30, T2: 1.0e+30}
+  efficiencies: {N2: 1.6}
 - equation: HNO + H <=> NO + H2  # Reaction 168
   rate-constant: {A: 6.6e+10, b: 0.94, Ea: 495.0}
 - equation: HNO + O <=> NO + OH  # Reaction 169

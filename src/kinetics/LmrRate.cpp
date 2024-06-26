@@ -67,72 +67,7 @@ LmrRate::LmrRate(const AnyMap& node, const UnitStack& rate_units){
 }
 
 void LmrRate::setParameters(const AnyMap& node, const UnitStack& rate_units){
-    // std::string rxn = node["equation"].as<std::string>();
-    // rate_units_ = rate_units;
-    // join(1) for H + O2 (+M) <=> HO2 (+M) has major positive effect
-    // join(1) for H + OH (+M) <=> H2O (+M)" and 2 NH2 (+M) <=> N2H4 (+M) has no effect
-    // join(-1) for H + OH (+M) <=> H2O (+M)" and 2 NH2 (+M) <=> N2H4 (+M) has no effect
-
-    // if (rxn=="H + O2 (+M) <=> HO2 (+M)"){
-    //     rate_units_.join(1);
-    // }
-    // if (rxn=="H + OH (+M) <=> H2O (+M)" || rxn=="2 NH2 (+M) <=> N2H4 (+M)"){
-    //     rate_units_.join(1);
-    // }
-    // if (rxn=="H + O2 (+M) <=> HO2 (+M)" || rxn=="H + OH (+M) <=> H2O (+M)" || rxn=="2 NH2 (+M) <=> N2H4 (+M)"){
-    //     rate_units_.join(1);
-    // }
-    // if (rxn=="H + O2 (+M) <=> HO2 (+M)" || rxn=="H + OH (+M) <=> H2O (+M)" || rxn=="2 NH2 (+M) <=> N2H4 (+M)"){
-    //     rate_units_.join(1);
-    // }
-    // if (rxn=="H + OH (+M) <=> H2O (+M)" || rxn=="2 NH2 (+M) <=> N2H4 (+M)"){
-    //     rate_units_.join(-1);
-    // }
-    // size_t countSpaces = 0;
-    // for (int i = 0; i < rxn.length(); i++) {
-    //     if (rxn[i]=='(' && rxn[i+1]=='+'){
-    //         // if (countSpaces == 1){
-    //         //     rate_units_.join(0);
-    //         // }
-    //         // else 
-    //         if (countSpaces > 2){ //changing the units of H + OH (+M) type has major effect, changing units of 2 NH2 (+M) type has no effect
-    //             rate_units_.join(1);
-    //         }
-    //         break;
-    //     }
-    //     else {
-    //         if (i>0 && rxn[i] == ' '){ // && rxn[i-1] != '2'){
-    //             countSpaces+=1;
-    //         }
-    //     }
-    // } 
-    
     UnitStack eig0_units{{Units(1.0), 1.0}};
-    // UnitStack rate_units_;
-    // if (node.hasKey("units")){
-    //     rate_units_=UnitStack{
-    //         {1.0,node["units"]["length"].asString()},
-    //         {1.0,node["units"]["time"].asString()},
-    //         {1.0,node["units"]["quantity"].asString()},
-    //         {1.0,node["units"]["activation-energy"].asString()}
-    //     };
-    
-    // if (node.hasKey("units")) {
-    //     Cantera::Units length_unit(1.0, node["units"]["length"].asString());
-    //     Cantera::Units time_unit(1.0, node["units"]["time"].asString());
-    //     Cantera::Units quantity_unit(1.0, node["units"]["quantity"].asString());
-    //     Cantera::Units activation_energy_unit(1.0, node["units"]["activation-energy"].asString());
-
-    //     rate_units_ = Cantera::UnitStack{
-    //         {length_unit, 1.0},
-    //         {time_unit, 1.0},
-    //         {quantity_unit, 1.0},
-    //         {activation_energy_unit, 1.0}
-    //     };
-    // }
-    // else{
-    //     rate_units_=rate_units;
-    // }
     ReactionRate::setParameters(node, rate_units);
     if(!node.hasKey("collider-list")){
         throw InputFileError("LmrRate::setParameters", m_input,"Yaml input for LMR-R does not follow the necessary structure.");
@@ -141,10 +76,7 @@ void LmrRate::setParameters(const AnyMap& node, const UnitStack& rate_units){
     if (colliders[0]["collider"].as<std::string>() != "M"){
         throw InputFileError("LmrRate::setParameters", m_input,"The first species defined in yaml input must be 'M'.");
     }
-    // rate_units_.join(1);
-    // setRateUnits(rate_units_);
     eigObj_M=ArrheniusRate(AnyValue(colliders[0]["eig0"]),colliders[0].units(),eig0_units);
-    // eigObj_M=ArrheniusRate(AnyValue(colliders[0]["eig0"]),Units(1.0));
     if (colliders[0].hasKey("rate-constants")){
         rateObj_M = PlogRate(colliders[0], rate_units);
         dataObj_M = PlogData();
@@ -200,7 +132,6 @@ void LmrRate::setContext(const Reaction& rxn, const Kinetics& kin){
         // // writelog("coll idx = ",val); writelog("\n");
         // writelog("coll idx = " + std::to_string(kin.kineticsSpeciesIndex(colliderNames[i])) + "\n");
     }
-    // conc_3b = kin.thirdBodyConcentrations();
     nSpecies = kin.nTotalSpecies();
     for (size_t i=0; i<colliderIndices.size();i++){
         // writelog("colliderIndices["+std::to_string(i)+"] = " + std::to_string(colliderIndices[i]) + "\n");
@@ -221,7 +152,7 @@ double LmrRate::evalPlogRate(const LmrData& shared_data, DataTypes& dataObj, Rat
     // dataObj.temperature = shared_data.temperature;
     // rate.convert("P", "Pa");
     rate.updateFromStruct(data);
-    return rate.evalFromStruct(data);//*conc_3b[0];  
+    return rate.evalFromStruct(data);
 }
 
 double LmrRate::evalTroeRate(const LmrData& shared_data, DataTypes& dataObj, RateTypes& rateObj){
@@ -248,15 +179,6 @@ double LmrRate::evalChebyshevRate(const LmrData& shared_data, DataTypes& dataObj
 }
 
 double LmrRate::evalFromStruct(const LmrData& shared_data){
-    // writelog("logT (0) = " + std::to_string(shared_data.logT)+"\n");
-    // logP_=shared_data.logP;
-    // logT_=shared_data.logT;
-    // pressure_=shared_data.pressure;
-    // recipT_=shared_data.recipT;
-    // temperature_=shared_data.temperature;
-    // ready_=shared_data.ready;
-    // vector<double> moleFractions_=shared_data.moleFractions;
-    
     double sigmaX_M=0.0;
     for (size_t i=0; i<nSpecies; i++){ //testing each species listed at the top of yaml file
         sigmaX_M += shared_data.moleFractions[i]; //total sum will be essentially 1, but perhaps not exactly due to Cantera's rounding conventions
