@@ -270,6 +270,23 @@ class TestSolutionArray(utilities.CanteraTest):
         gas.add_species(species_x)
         assert gas.n_species == N + 1
 
+    def test_selected_species(self):
+        gas = ct.Solution("h2o2.yaml", transport_model=None)
+        gas.TPX = 300, ct.one_atm, {"H2": .5, "O2": .5}
+        gas.equilibrate("HP")
+        gas.TP = 1500, ct.one_atm
+        siz = 10
+        arr = ct.SolutionArray(gas, shape=siz)
+        for spc in gas.species_names:
+            assert arr(spc).Y.shape == (siz, 1)
+            assert arr(spc).Y[0] == gas[spc].Y[0]
+            wi_dot = arr(spc).net_production_rates
+            assert wi_dot.shape == (siz, 1)
+            assert wi_dot[0] == gas[spc].net_production_rates[0]
+        spc = ["H2", "O2"]
+        assert arr(*spc).Y.shape == (siz, 2)
+        assert arr(*spc).net_production_rates.shape == (siz, 2)
+
 
 class TestSolutionArrayInfo(utilities.CanteraTest):
     """ Test SolutionArray summary output """

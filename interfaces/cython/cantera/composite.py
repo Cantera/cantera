@@ -1417,11 +1417,13 @@ def _make_functions():
         return np.empty(self.shape + (self._phase.n_selected_species,))
 
     def empty_total_species(self):
-        return np.empty(self.shape + (self._phase.n_total_species,))
+        n_tot = self._phase.n_total_species
+        # account for deselected species
+        n_tot -= self._phase.n_species - self._phase.n_selected_species
+        return np.empty(self.shape + (n_tot,))
 
     def empty_species2(self):
-        return np.empty(self.shape + (self._phase.n_species,
-                                       self._phase.n_species))
+        return np.empty(self.shape + (self._phase.n_species, self._phase.n_species))
 
     def empty_reactions(self):
         return np.empty(self.shape + (self._phase.n_reactions,))
