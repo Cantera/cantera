@@ -21,52 +21,6 @@ def sdist(targets):
     return targets
 
 
-def copy_ext_src(target, source, env):
-    target_ext = Path(target[0].abspath)
-    source_ext = Path(source[0].abspath)
-    if target_ext.is_dir():
-        shutil.rmtree(target_ext)
-
-    error_message = ("Please run 'git submodule update --init --recursive' to clone "
-                     "these files.")
-
-    # fmt library
-    FMT_ROOT = target_ext / "fmt"
-    FMT_ROOT.mkdir(parents=True)  # Needed to be able to use copy2
-    FMT_SOURCE = source_ext / "fmt"
-    if not FMT_SOURCE.is_dir():
-        raise ValueError("Missing fmt submodule. " + error_message)
-    for cc_file in (FMT_SOURCE / "src").glob("*.cc"):
-        if cc_file.name == "fmt.cc":
-            continue
-        shutil.copy2(cc_file, FMT_ROOT)
-    shutil.copytree(FMT_SOURCE / "include" / "fmt", FMT_ROOT / "fmt")
-
-    # yaml-cpp library
-    YAML_ROOT = target_ext / "yaml-cpp"
-    YAML_SOURCE = source_ext / "yaml-cpp"
-    if not YAML_SOURCE.is_dir():
-        raise ValueError("Missing yaml-cpp submodule. " + error_message)
-    shutil.copytree(YAML_SOURCE / "src", YAML_ROOT)
-    shutil.copytree(YAML_SOURCE / "include" / "yaml-cpp", YAML_ROOT / "yaml-cpp")
-
-    # SUNDIALS library
-    SUNDIALS_ROOT = target_ext / "sundials"
-    SUNDIALS_SOURCE = source_ext / "sundials"
-    if not SUNDIALS_SOURCE.is_dir():
-        raise ValueError("Missing sundials submodule. " + error_message)
-    subdirs = ["sundials", "nvector/serial", "cvodes", "idas", "sunmatrix/band",
-               "sunmatrix/dense", "sunmatrix/sparse", "sunlinsol/dense",
-               "sunlinsol/band", "sunlinsol/spgmr", "sunnonlinsol/newton"]
-    ignores = shutil.ignore_patterns("fsun*", "CMake*", "fmod", "fcmix")
-    for subdir in subdirs:
-        shutil.copytree(
-            SUNDIALS_SOURCE / "src" / subdir,
-            SUNDIALS_ROOT / subdir,
-            ignore=ignores,
-        )
-
-
 def replace_git_hash(target, source, env):
     # Avoid having to set a C preprocessor define at compile time, since
     # the git commit is unknown from the sdist
@@ -83,7 +37,7 @@ def replace_git_hash(target, source, env):
 sdist(localenv.RecursiveInstall(
     "src",
     "#src",
-    exclude=["fortran", "clib", r"global\.cpp", "SCons.*", r"canteraStatic\.cpp"],
+    exclude=["fortran", "clib", "pch", r"global\.cpp", "SCons.*", r"canteraStatic\.cpp"],
 ))
 
 sdist(localenv.Command("src/base/global.cpp", "#src/base/global.cpp",
@@ -99,30 +53,18 @@ clib_defs_target = sdist(localenv.Command(
 ))
 
 # The clib is handled by clib_defs_target. The include/cantera/ext folder is handled by
-# ext_include_target. config.h needs to be filled on the user's machine by setup.py and
-# the template file is handled by config_h_in_target.
+# ext_include_target. config.h needs to be filled on the user's machine by CMake.
 include_target = sdist(localenv.RecursiveInstall(
     "include",
     "#include",
     exclude=[
         "clib$",
         "ext$",
-        r"config\.h\.in",
+        r"config\.h$",
         r"utils_utils\.h",
     ],
 ))
 localenv.Depends(clib_defs_target, include_target)
-localenv.Depends(include_target, env["config_h_target"])
-
-ext_include_target = sdist(localenv.Command(
-    "include/cantera/ext",
-    "#include/cantera/ext",
-    Copy("$TARGET", "$SOURCE"),
-))
-localenv.Depends(ext_include_target, env["ext_include_copies_target"])
-localenv.Depends(ext_include_target, include_target)
-
-ext_target = sdist(localenv.Command("ext", "#ext", copy_ext_src))
 
 sdist(localenv.UnitsInterfaceBuilder(
     "cantera/with_units/solution.py",
@@ -149,14 +91,20 @@ else:
 
 # Copy the minimal Sundials configuration template into the sdist so that
 # it can be filled in at compile time on the user's machine
-sdist(localenv.Command("sundials_config.h.in", "#ext/sundials_config.h.in",
-                       Copy("$TARGET", "$SOURCE")))
+# sdist(localenv.Command("sundials_config.h.in", "#ext/sundials_config.h.in",
+#                        Copy("$TARGET", "$SOURCE")))
 
+# TODO: We're no longer distributing any of the ext code, so we don't need their
+# license, maybe? I guess since we statically link we might need it?
 license = sdist(localenv.Command("LICENSE.txt", "#build/ext/LICENSE.txt",
                                  Copy("$TARGET", "$SOURCE")))
 localenv.Depends(license, localenv["license_target"])
 
-sdist(localenv.SubstFile("setup.cfg", "setup.cfg.in"))
+sdist(localenv.SubstFile("pyproject.toml", "pyproject.toml.in"))
+sdist(localenv.SubstFile("src/configure.py", "src/configure.py.in"))
+for cmakelist in ("", "cantera", "src"):
+    location = "/".join((cmakelist, "CMakeLists.txt")).removeprefix("/")
+    sdist(localenv.Command(location, f"#interfaces/python_sdist/{location}", Copy("$TARGET", "$SOURCE")))
 sdist(localenv.Command("README.rst", "#README.rst", Copy("$TARGET", "$SOURCE")))
 
 
@@ -186,8 +134,7 @@ def finish_sdist_message(target, source, env):
 
 
 sdist_target = f"dist/Cantera-{env['cantera_version']}.tar.gz"
-sdist_sources = ("setup.py", "pyproject.toml", "MANIFEST.in")
-built_sdist_target = localenv.Command(sdist_target, sdist_sources, build_sdist)
+built_sdist_target = localenv.Command(sdist_target, ("pyproject.toml",), build_sdist)
 finish_sdist = localenv.Command("finish_sdist", sdist_target, finish_sdist_message)
 localenv.Depends(built_sdist_target, sdist_targets)
 env.Alias("sdist", finish_sdist)

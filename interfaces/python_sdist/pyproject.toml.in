@@ -1,0 +1,75 @@
+[build-system]
+requires = ["scikit-build-core", "cython", "numpy>=2.0; python_version > '3.9'"]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "cantera"
+version = "@cantera_version@"
+description = "Cantera is an open-source suite of tools for problems involving chemical kinetics, thermodynamics, and transport processes."
+authors = [{name = "Cantera Developers", email = "developers@cantera.org"}]
+keywords = ["chemistry physics"]
+license = {text = "BSD 3-Clause License"}
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: MacOS :: MacOS X",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: C",
+    "Programming Language :: C++",
+    "Programming Language :: Cython",
+    "Programming Language :: Fortran",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Topic :: Scientific/Engineering :: Chemistry",
+    "Topic :: Scientific/Engineering :: Physics",
+]
+requires-python = "@py_requires_ver_str@"
+dependencies = [
+    "numpy >= 1.12.0,<3",
+    "ruamel.yaml >= 0.15.34",
+]
+
+[project.readme]
+file = "README.rst"
+content-type = "text/x-rst"
+
+[project.urls]
+Homepage = "https://cantera.org"
+Documentation = "https://cantera.org/documentation"
+Funding = "https://numfocus.org/donate-to-cantera"
+Source = "https://github.com/Cantera/cantera"
+Tracker = "https://github.com/Cantera/cantera/issues"
+
+[project.optional-dependencies]
+pandas = ["pandas"]
+units = ["pint"]
+graphviz = ["graphviz"]
+
+[project.scripts]
+ck2yaml = "cantera.ck2yaml:main"
+cti2yaml = "cantera.cti2yaml:main"
+ctml2yaml = "cantera.ctml2yaml:main"
+yaml2ck = "cantera.yaml2ck:main"
+lxcat2yaml = "cantera.lxcat2yaml:main"
+
+# [tool.scikit-build]
+# logging.level = "DEBUG"
+# build-dir = "build/{wheel_tag}"
+
+[tool.scikit-build.cmake]
+version = ">=3.20"
+verbose = true
+
+[tool.scikit-build.cmake.define]
+CMAKE_POSITION_INDEPENDENT_CODE = "ON"
+
+[tool.scikit-build.sdist]
+exclude = ["pyproject.toml.in", "cantera/with_units/solution.py.in"]
