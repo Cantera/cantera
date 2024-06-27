@@ -1429,8 +1429,13 @@ def _make_functions():
         return np.empty(self.shape + (self._phase.n_reactions,))
 
     # Factory for creating read-only properties
-    def make_prop(name, get_container, doc_source):
+    def make_prop(name, get_container, doc_source, block_interface=False):
         def getter(self):
+            if block_interface and isinstance(self._phase, Interface):
+                # used to block Interface methods that require synchronized updates of
+                # linked phases
+                raise NotImplementedError(
+                    "Method not implemented for SolutionArray containing Interface.")
             v = get_container(self)
             for loc, index in enumerate(self._indices):
                 self._set_loc(loc)
@@ -1455,13 +1460,13 @@ def _make_functions():
 
     for name in SolutionArray._n_total_species:
         setattr(SolutionArray, name,
-                make_prop(name, empty_total_species, Solution))
+                make_prop(name, empty_total_species, Solution, True))
 
     for name in SolutionArray._n_species2:
-        setattr(SolutionArray, name, make_prop(name, empty_species2, Solution))
+        setattr(SolutionArray, name, make_prop(name, empty_species2, Solution, True))
 
     for name in SolutionArray._n_reactions:
-        setattr(SolutionArray, name, make_prop(name, empty_reactions, Solution))
+        setattr(SolutionArray, name, make_prop(name, empty_reactions, Solution, True))
 
     # Factory for creating wrappers for functions which return a value
     def caller(name, get_container):

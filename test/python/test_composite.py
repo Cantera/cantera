@@ -305,6 +305,15 @@ class TestSolutionArray(utilities.CanteraTest):
         assert arr(*spc).Y.shape == (siz, 2)
         assert arr(*spc).net_production_rates.shape == (siz, 2)
 
+    def test_interface_wdot(self):
+        gas = ct.Solution("ptcombust.yaml", "gas", transport_model=None)
+        surf = ct.Interface("ptcombust.yaml", "Pt_surf", [gas])
+        arr = ct.SolutionArray(surf, shape=1)
+        with self.assertRaisesRegex(NotImplementedError, "containing Interface"):
+            arr.net_production_rates
+        arr = ct.SolutionArray(gas, shape=1)
+        assert arr.net_production_rates.size == gas.n_species
+
 
 class TestSolutionArrayInfo(utilities.CanteraTest):
     """ Test SolutionArray summary output """
