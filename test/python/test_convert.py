@@ -236,6 +236,10 @@ class ck2yamlTest(utilities.CanteraTest):
                                         output)
         self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6, 1e7])
 
+    def test_falloff_no_rate(self):
+        with pytest.raises(ck2yaml.InputError, match="implies pressure dependence"):
+            self.convert("falloff-error.inp", thermo="dummy-thermo.dat")
+
     def test_explicit_third_bodies(self):
         output = self.convert("explicit-third-bodies.inp", thermo="dummy-thermo.dat")
         ref, gas = self.checkConversion("explicit-third-bodies.yaml", output)
