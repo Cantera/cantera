@@ -1299,18 +1299,19 @@ else:
     env["HAS_OPENMP"] = False
     logger.info("Not checking for OpenMP support due to using XCode compiler.")
 
-boost_version_source = get_expression_value(['<boost/version.hpp>'], 'BOOST_LIB_VERSION')
-retcode, boost_lib_version = conf.TryRun(boost_version_source, '.cpp')
-env['BOOST_LIB_VERSION'] = '.'.join(boost_lib_version.strip().split('_'))
-if not env['BOOST_LIB_VERSION']:
-    config_error("Boost could not be found. Install Boost headers or set"
-                 " 'boost_inc_dir' to point to the boost headers.")
-else:
-    logger.info(f"Found Boost version {env['BOOST_LIB_VERSION']}")
-if parse_version(env['BOOST_LIB_VERSION']) < parse_version("1.70"):
-    # Boost.DLL with std::filesystem (making it header-only) is available in Boost 1.70
-    # or newer
-    config_error("Cantera requires Boost version 1.70 or newer.")
+if not env["python_sdist"]:
+    boost_version_source = get_expression_value(['<boost/version.hpp>'], 'BOOST_LIB_VERSION')
+    retcode, boost_lib_version = conf.TryRun(boost_version_source, '.cpp')
+    env['BOOST_LIB_VERSION'] = '.'.join(boost_lib_version.strip().split('_'))
+    if not env['BOOST_LIB_VERSION']:
+        config_error("Boost could not be found. Install Boost headers or set"
+                    " 'boost_inc_dir' to point to the boost headers.")
+    else:
+        logger.info(f"Found Boost version {env['BOOST_LIB_VERSION']}")
+    if parse_version(env['BOOST_LIB_VERSION']) < parse_version("1.70"):
+        # Boost.DLL with std::filesystem (making it header-only) is available in Boost 1.70
+        # or newer
+        config_error("Cantera requires Boost version 1.70 or newer.")
 
 # check BLAS/LAPACK installations
 if env["system_blas_lapack"] == "n":

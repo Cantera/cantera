@@ -1,0 +1,23 @@
+import sys
+from pathlib import Path
+
+vars = {
+    "CANTERA_VERSION": '#define CANTERA_VERSION "@cantera_version@"',
+    "CANTERA_SHORT_VERSION": '#define CANTERA_SHORT_VERSION "@cantera_short_version@"',
+    "CT_SUNDIALS_VERSION": "#define CT_SUNDIALS_VERSION 70",
+    "FTN_TRAILING_UNDERSCORE": "#define FTN_TRAILING_UNDERSCORE 1",
+    "LAPACK_FTN_STRING_LEN_AT_END": "#define LAPACK_FTN_STRING_LEN_AT_END 1",
+    "LAPACK_FTN_TRAILING_UNDERSCORE": "#define LAPACK_FTN_TRAILING_UNDERSCORE 1",
+    "CT_USE_LAPACK": "#define CT_USE_LAPACK 0",
+    "CT_USE_SYSTEM_EIGEN": "#define CT_USE_SYSTEM_EIGEN 1",
+    "CT_USE_SYSTEM_EIGEN_PREFIXED": "/* #undef CT_USE_SYSTEM_EIGEN_PREFIXED */",
+    "CT_USE_SYSTEM_FMT": "#define CT_USE_SYSTEM_FMT 1",
+    "CT_USE_SYSTEM_YAMLCPP": "#define CT_USE_SYSTEM_YAMLCPP 1",
+    "CT_SUNDIALS_USE_LAPACK": "#define CT_SUNDIALS_USE_LAPACK 0",
+    "CT_USE_HDF5": "#define CT_USE_HDF5 1",
+    "CT_USE_SYSTEM_HIGHFIVE": "#define CT_USE_SYSTEM_HIGHFIVE 1",
+    "CT_USE_HIGHFIVE_BOOLEAN": "#define CT_USE_HIGHFIVE_BOOLEAN 1",
+}
+in_file = Path(sys.argv[1])
+out_file = in_file.with_suffix("")
+out_file.write_text(in_file.read_text().format_map(vars))
