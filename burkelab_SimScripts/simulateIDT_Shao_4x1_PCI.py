@@ -83,9 +83,9 @@ path=os.getcwd()
 # colors = ['r','b',"xkcd:grey",'xkcd:purple']
 colors = ['r','b','xkcd:purple']
 models = {
-        #   'Ar':"test/data/alzuetamechanism_LMRR_allAR.yaml",
-        #   r'H$_2$O':"test/data/alzuetamechanism_LMRR_allH2O.yaml",
-        # #   'Alzueta':"test/data/alzuetamechanism.yaml",
+          'Ar':"test/data/alzuetamechanism_LMRR_allAR.yaml",
+          r'H$_2$O':"test/data/alzuetamechanism_LMRR_allH2O.yaml",
+        #   'Alzueta':"test/data/alzuetamechanism.yaml",
           'LMR-R':"test/data/alzuetamechanism_LMRR.yaml",              
           }
 

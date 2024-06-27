@@ -145,6 +145,7 @@ void LmrRate::setContext(const Reaction& rxn, const Kinetics& kin){
 double LmrRate::evalPlogRate(const LmrData& shared_data, DataTypes& dataObj, RateTypes& rateObj, double& eig0){
     PlogData& data = boost::get<PlogData>(dataObj);
     PlogRate& rate = boost::get<PlogRate>(rateObj);
+    //writelog("eig0 (3) = "+std::to_string(eig0)+"\n");
     data.logP = shared_data.logP+log(eig0_mix)-log(eig0); //replaces logP with log of the effective pressure w.r.t. eig0
     data.logT = shared_data.logT;
     // dataObj.pressure = shared_data.pressure; // THIS IS NOT CORRECT
@@ -152,6 +153,7 @@ double LmrRate::evalPlogRate(const LmrData& shared_data, DataTypes& dataObj, Rat
     // dataObj.temperature = shared_data.temperature;
     // rate.convert("P", "Pa");
     rate.updateFromStruct(data);
+    //writelog("eig0 (4) = "+std::to_string(eig0)+"\n");
     return rate.evalFromStruct(data);
 }
 
@@ -206,6 +208,7 @@ double LmrRate::evalFromStruct(const LmrData& shared_data){
     // writelog("eig0_mix (0) = " + std::to_string(eig0_mix) + "\n"); 
     // writelog("sigmaX_M (2) = " + std::to_string(sigmaX_M) + "\n"); 
     double eig0_M = eigObj_M.evalRate(shared_data.logT, shared_data.recipT);
+    //writelog("eig0_M (1) = "+std::to_string(eig0_M)+"\n");
     // writelog("eig0_M = " + std::to_string(eig0_M) + "\n"); 
     eig0_mix += sigmaX_M*eig0_M; // add all M colliders to eig0_mix in a single step
     // writelog("eig0_mix (1) = " + std::to_string(eig0_mix) + "\n"); 
@@ -214,11 +217,12 @@ double LmrRate::evalFromStruct(const LmrData& shared_data){
     }
 
     double k_LMR_=0.0;
-    writelog("k_LMR (1) = " + std::to_string(k_LMR_) + "\n"); 
+    // writelog("k_LMR (1) = " + std::to_string(k_LMR_) + "\n"); 
     counter=0;
     for (size_t i=0; i<nSpecies; i++){ //testing each species listed at the top of yaml file
         // writelog("i = " + std::to_string(i) + ", X_i = " + std::to_string(shared_data.moleFractions[i]) + "\n"); 
         for (size_t j=0; j<colliderIndices.size(); j++){
+            //writelog("colliderIndices[" + std::to_string(j) + "] = " + std::to_string(colliderIndices[j]) + "\n"); 
             // writelog("j = " + std::to_string(j) + "\n"); 
             if (i==colliderIndices[j]){ // Species is in collider list
                 // writelog("i = colliderIndices[j] = " + std::to_string(colliderIndices[j]) + ", X_i = " + std::to_string(shared_data.moleFractions[i]) + "\n");
@@ -228,8 +232,11 @@ double LmrRate::evalFromStruct(const LmrData& shared_data){
                 //     throw InputFileError("LmrRate::evalFromStruct", m_input,"eig0 is 0 for some reason");
                 // }
                 double eig0 = eigObjs[j].evalRate(shared_data.logT, shared_data.recipT); 
+                //writelog("eig0 (1) = "+std::to_string(eig0)+"\n");
                 if (rateObjs[j].which()==0){ // 0 means PlogRate    
-                    k_LMR_ += evalPlogRate(shared_data,dataObjs[j],rateObjs[j],eig0)*eig0*shared_data.moleFractions[i]/eig0_mix;
+                    //writelog("eig0 (2) = "+std::to_string(eig0)+"\n");
+                    k_LMR_ += evalPlogRate(shared_data,dataObjs[j],rateObjs[j],eig0_M)*eig0*shared_data.moleFractions[i]/eig0_mix;
+                    //writelog("eig0 (5) = "+std::to_string(eig0)+"\n");
                     counter+=1;
                     break; //breaks after collider has been located to prevent unnecessary iterations
                 }
@@ -250,10 +257,13 @@ double LmrRate::evalFromStruct(const LmrData& shared_data){
             break; //breaks after all colliders have been located to prevent unnecessary iterations
         }
     }
-    writelog("k_LMR (2) = " + std::to_string(k_LMR_) + "\n"); 
+    // writelog("eig0 (6) = "+std::to_string(eig0)+"\n");
+    // writelog("k_LMR (2) = " + std::to_string(k_LMR_) + "\n"); 
 
     if (rateObj_M.which()==0){ // 0 means PlogRate
+        //writelog("eig0_M (2) = "+std::to_string(eig0_M)+"\n");
         k_LMR_ += evalPlogRate(shared_data,dataObj_M,rateObj_M,eig0_M)*eig0_M*sigmaX_M/eig0_mix;
+        //writelog("eig0_M (3) = "+std::to_string(eig0_M)+"\n");
         // writelog("k_M = " + std::to_string(rate.evalFromStruct(data)) + "\n"); 
     }
     else if (rateObj_M.which()==1){ // 1 means TroeRate 
@@ -263,10 +273,11 @@ double LmrRate::evalFromStruct(const LmrData& shared_data){
         k_LMR_ += evalChebyshevRate(shared_data,dataObj_M,rateObj_M,eig0_M)*eig0_M*sigmaX_M/eig0_mix;
     }
 
-    writelog("k_LMR (3) = " + std::to_string(k_LMR_) + "\n\n\n"); 
+    // writelog("k_LMR (3) = " + std::to_string(k_LMR_) + "\n\n\n"); 
     // writelog("k_LMR = "+std::to_string(k_LMR_)+"\n");
     // writelog("T = "+std::to_string(shared_data.temperature)+"\n");
     // writelog("\n\n\nNEW REACTION\n");
+    //writelog("\n\n\n");
     return k_LMR_;
 }
 

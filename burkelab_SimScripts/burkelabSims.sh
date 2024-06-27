@@ -12,25 +12,25 @@ lgdfsz=7
 # --figwidth 6.5 --figheight 2.5 --fsz $fszaxlab --fszxtick $fszxtick --fszytick $fszytick --fszaxlab $fszaxlab \
 # --lw $lw --mw $mw --msz $msz --lgdw $lgdw --lgdfsz 6 --gridsz 9 &
 
-# python burkelab_SimScripts/simulateIDT_Shao_4x1_PCI.py \
-# --figwidth 2.5 --figheight 6.66667 --fsz $fszaxlab --fszxtick $fszxtick --fszytick $fszytick --fszaxlab $fszaxlab \
-# --lw $lw --mw $mw --msz $msz --lgdw $lgdw --lgdfsz 7 --gridsz 9 &
+python burkelab_SimScripts/simulateIDT_Shao_4x1_PCI.py \
+--figwidth 2.5 --figheight 6.66667 --fsz $fszaxlab --fszxtick $fszxtick --fszytick $fszytick --fszaxlab $fszaxlab \
+--lw $lw --mw $mw --msz $msz --lgdw $lgdw --lgdfsz 7 --gridsz 9 &
 
-# # python burkelab_SimScripts/simulateJSR_H2O_1x3_ESSCI.py \
-# # --figwidth 6.5 --figheight 2.5 --fsz $fsz --fszxtick $fszxtick --fszytick $fszytick --fszaxlab $fszaxlab \
-# # --lw $lw --mw $mw --msz $msz --lgdw $lgdw --lgdfsz 6 --gridsz 50 &
+# python burkelab_SimScripts/simulateJSR_H2O_1x3_ESSCI.py \
+# --figwidth 6.5 --figheight 2.5 --fsz $fsz --fszxtick $fszxtick --fszytick $fszytick --fszaxlab $fszaxlab \
+# --lw $lw --mw $mw --msz $msz --lgdw $lgdw --lgdfsz 6 --gridsz 50 &
 
-# python burkelab_SimScripts/simulateJSR_H2O_3x1_PCI.py \
-# --figwidth 2.5 --figheight 5 --fsz $fszxtick --fszxtick $fszxtick --fszytick $fszytick --fszaxlab $fszaxlab \
-# --lw $lw --mw $mw --msz $msz --lgdw $lgdw --lgdfsz 7 --gridsz 50 &
+python burkelab_SimScripts/simulateJSR_H2O_3x1_PCI.py \
+--figwidth 2.5 --figheight 5 --fsz $fszxtick --fszxtick $fszxtick --fszytick $fszytick --fszaxlab $fszaxlab \
+--lw $lw --mw $mw --msz $msz --lgdw $lgdw --lgdfsz 7 --gridsz 50 &
 
-# # python burkelab_SimScripts/simulateJSR_NH3_1x3_ESSCI.py \
-# # --figwidth 6.5 --figheight 2.5 --fsz $fsz --fszxtick $fszxtick --fszytick $fszytick --fszaxlab $fszaxlab \
-# # --lw $lw --mw $mw --msz $msz --lgdw $lgdw --lgdfsz $lgdfsz --gridsz 50 &
+# python burkelab_SimScripts/simulateJSR_NH3_1x3_ESSCI.py \
+# --figwidth 6.5 --figheight 2.5 --fsz $fsz --fszxtick $fszxtick --fszytick $fszytick --fszaxlab $fszaxlab \
+# --lw $lw --mw $mw --msz $msz --lgdw $lgdw --lgdfsz $lgdfsz --gridsz 50 &
 
-# python burkelab_SimScripts/simulateJSR_NH3_3x1_PCI.py \
-# --figwidth 2.5 --figheight 5 --fsz $fsz --fszxtick $fszxtick --fszytick $fszytick --fszaxlab $fszaxlab \
-# --lw $lw --mw $mw --msz $msz --lgdw $lgdw --lgdfsz 7 --gridsz 50 &
+python burkelab_SimScripts/simulateJSR_NH3_3x1_PCI.py \
+--figwidth 2.5 --figheight 5 --fsz $fsz --fszxtick $fszxtick --fszytick $fszytick --fszaxlab $fszaxlab \
+--lw $lw --mw $mw --msz $msz --lgdw $lgdw --lgdfsz 7 --gridsz 50 &
 
 # python burkelab_SimScripts/simulateshocktubeShao_1x1_ESSCI.py \
 # --figwidth 5.5 --figheight 2.5 --fsz $fsz --fszxtick $fszxtick --fszytick $fszytick --fszaxlab $fszaxlab \

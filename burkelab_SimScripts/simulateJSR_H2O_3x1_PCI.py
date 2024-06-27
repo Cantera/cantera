@@ -104,8 +104,8 @@ name = 'JSR_H2O'
 # colors = ['r','b',"xkcd:grey",'xkcd:purple']
 colors = ['r','b','xkcd:purple']
 models = {
-        #   'Ar':"test/data/alzuetamechanism_LMRR_allAR.yaml",
-        #   r'H$_2$O':"test/data/alzuetamechanism_LMRR_allH2O.yaml",
+          'Ar':"test/data/alzuetamechanism_LMRR_allAR.yaml",
+          r'H$_2$O':"test/data/alzuetamechanism_LMRR_allH2O.yaml",
           'LMR-R':"test/data/alzuetamechanism_LMRR.yaml",              
           }
 
