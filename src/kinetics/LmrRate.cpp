@@ -93,7 +93,6 @@ void LmrRate::setParameters(const AnyMap& node, const UnitStack& rate_units){
     } else {
         throw InputFileError("LmrRate::setParameters", m_input,"The M-collider must be specified in a PLOG, Troe, or Chebyshev format.");    
     }
-
     if (!colliders[0].hasKey("eig0") && !colliders[0].hasKey("eps")){
         throw InputFileError("LmrRate::setParameters", m_input,"A third-body efficiency (eps) or ME eigenvalue (eig0) must be provided for collider M. Please review implementation guide.");
     }
@@ -112,13 +111,11 @@ void LmrRate::setParameters(const AnyMap& node, const UnitStack& rate_units){
     else{
         throw InputFileError("LmrRate::setParameters", m_input,"Cannot have both eig0 and eps provided for M. Only one is allowed, and the same choice must be maintained across any additional colliders. Please review implementation guide.");
     }
-
     AnyMap params;
     params["A"]=1.0;
     params["b"]=0.0;
     params["Ea"]=0.0;
     epsObj_M=ArrheniusRate(AnyValue(params),colliders[0].units(),eps_units);
-
     for (size_t i = 1; i < colliders.size(); i++){ //Starts at 1 because idx 0 is for "M"
         if(!colliders[i].hasKey("collider")){
                 throw InputFileError("LmrRate::setParameters", m_input,"Incorrect YAML input for LMR-R reaction. Please review implementation guide.");
@@ -128,10 +125,8 @@ void LmrRate::setParameters(const AnyMap& node, const UnitStack& rate_units){
         }
         colliderInfo.insert({colliders[i]["collider"].as<std::string>(), colliders[i]}); //Legacy parameter, used b.c. getParameters would have to be rewritten otherwise
         colliderNames.push_back(colliders[i]["collider"].as<std::string>());
-
         ArrheniusRate epsObj_i;
         // note: eig0 and eps are ONLY interchangeable here due to the requirement that eps_M has parameters {A: 1, b: 0, Ea: 0}
-        // AnyMap params;
         params["A"]=colliders[i][eig_eps_key]["A"].asDouble() / colliders[0][eig_eps_key]["A"].asDouble();
         params["b"]=colliders[i][eig_eps_key]["b"].asDouble() - colliders[0][eig_eps_key]["b"].asDouble();
         params["Ea"]=colliders[i][eig_eps_key]["Ea"].asDouble() - colliders[0][eig_eps_key]["Ea"].asDouble();
