@@ -70,13 +70,56 @@ void LmrRate::setParameters(const AnyMap& node, const UnitStack& rate_units){
     UnitStack eps_units{{Units(1.0), 1.0}};
     ReactionRate::setParameters(node, rate_units);
     if(!node.hasKey("collider-list")){
-        throw InputFileError("LmrRate::setParameters", m_input,"Yaml input for LMR-R does not follow the necessary structure.");
+        throw InputFileError("LmrRate::setParameters", m_input,"Incorrect YAML input for LMR-R reaction. Please review implementation guide.");
     }
     const auto& colliders = node["collider-list"].asVector<AnyMap>();
-    if (colliders[0]["collider"].as<std::string>() != "M"){
-        throw InputFileError("LmrRate::setParameters", m_input,"The first species defined in yaml input must be 'M'.");
+    if(!colliders[0].hasKey("collider")){
+        throw InputFileError("LmrRate::setParameters", m_input,"Incorrect YAML input for LMR-R reaction. Please review implementation guide.");
     }
-    epsObj_M=ArrheniusRate(AnyValue(colliders[0]["eps"]),colliders[0].units(),eps_units);
+    if (colliders[0]["collider"].as<std::string>() != "M"){
+        throw InputFileError("LmrRate::setParameters", m_input,"The first species defined in LMR-R YAML input must be 'M'. Please review implementation guide.");
+    }
+    
+    //Determine whether collider strength is represented by ME eigenvalues (eig0), or third-body efficiency relative to M (eps) 
+    if (colliders[0].hasKey("eig0")){
+        AnyMap params;
+        params["A"]=1.0;
+        params["b"]=0.0;
+        params["Ea"]=0.0;
+        epsObj_M=ArrheniusRate(AnyValue(params),colliders[0].units(),eps_units);
+        for (size_t i = 1; i < colliders.size(); i++){
+            if(!colliders[i].hasKey("collider")){
+                throw InputFileError("LmrRate::setParameters", m_input,"Incorrect YAML input for LMR-R reaction. Please review implementation guide.");
+            }
+            if (!colliders[i].hasKey("eig0")){
+                throw InputFileError("LmrRate::setParameters",m_input,"All collider strengths must be defined uniformly as either eig0 or eps. No mixing and matching is allowed.");
+            } 
+            AnyMap params;
+            params["A"]=colliders[i]["eig0"]["A"].asDouble() / colliders[0]["eig0"]["A"].asDouble();
+            params["b"]=colliders[i]["eig0"]["b"].asDouble() - colliders[0]["eig0"]["b"].asDouble();
+            params["Ea"]=colliders[i]["eig0"]["Ea"].asDouble() - colliders[0]["eig0"]["Ea"].asDouble();
+            // AnyMap params = {{"A", colliders[i]["eig0"]["A"].asDouble() / colliders[0]["eig0"]["A"].asDouble()},
+            //                  {"b", colliders[i]["eig0"]["b"].asDouble() - colliders[0]["eig0"]["b"].asDouble()},
+            //                  {"Ea", colliders[i]["eig0"]["Ea"].asDouble() - colliders[0]["eig0"]["Ea"].asDouble()}};
+            epsObjs.push_back(ArrheniusRate(AnyValue(params),colliders[i].units(),eps_units));
+        }
+    }
+    else if (colliders[0].hasKey("eps") && colliders[0].hasKey("collider")){ //Already in relative terms, no need to convert
+        epsObj_M=ArrheniusRate(AnyValue(colliders[0]["eps"]),colliders[0].units(),eps_units);
+        for (size_t i = 1; i < colliders.size(); i++){
+            if(!colliders[i].hasKey("collider")){
+                throw InputFileError("LmrRate::setParameters", m_input,"Incorrect YAML input for LMR-R reaction. Please review implementation guide.");
+            }
+            if (!colliders[i].hasKey("eps")){
+                throw InputFileError("LmrRate::setParameters",m_input,"All collider strengths must be defined uniformly as either eig0 or eps. No mixing and matching is allowed.");
+            }
+            epsObjs.push_back(ArrheniusRate(AnyValue(colliders[i]["eps"]),colliders[i].units(),eps_units));
+        }
+    }
+    else {
+        throw InputFileError("LmrRate::setParameters", m_input,"A third-body efficiency (eps) or ME eigenvalue (eig0) must be provided for all explicitly declared colliders in LMRR yaml entry. Please review implementation guide.");
+    }
+
     if (colliders[0].hasKey("rate-constants")){
         rateObj_M = PlogRate(colliders[0], rate_units);
         dataObj_M = PlogData();
@@ -92,28 +135,18 @@ void LmrRate::setParameters(const AnyMap& node, const UnitStack& rate_units){
         throw InputFileError("LmrRate::setParameters", m_input,"The M-collider must be specified in a PLOG, Troe, or Chebyshev format.");    
     }
     for (size_t i = 1; i < colliders.size(); i++){ //Starts at 1 because idx 0 is for "M"
-        if (!colliders[i].hasKey("collider")) {
-            throw InputFileError("LmrRate::setParameters", m_input,"Yaml input for LMR-R does not follow the necessary structure.");
-        } else if (!colliders[i].hasKey("eps")) {
-            throw InputFileError("LmrRate::setParameters", m_input,"A third-body efficiency (eps) or ME eigenvalue (eig0) must be provided for all explicitly declared colliders in LMRR yaml entry.");
-        }
         colliderInfo.insert({colliders[i]["collider"].as<std::string>(), colliders[i]}); //Legacy parameter, used b.c. getParameters would have to be rewritten otherwise
         colliderNames.push_back(colliders[i]["collider"].as<std::string>());
-        epsObjs.push_back(ArrheniusRate(AnyValue(colliders[i]["eps"]),colliders[i].units(),eps_units));
         if (colliders[i].hasKey("rate-constants")){
-            // writelog("setParameters::5"); writelog("\n");
             rateObjs.push_back(PlogRate(colliders[i], rate_units));
             dataObjs.push_back(PlogData());
         } else if (colliders[i].hasKey("Troe")){
-            // writelog("setParameters::6"); writelog("\n");
             rateObjs.push_back(TroeRate(colliders[i], rate_units));
             dataObjs.push_back(FalloffData());
         } else if (colliders[i].hasKey("pressure-range")){
-            // writelog("setParameters::7"); writelog("\n");
             rateObjs.push_back(ChebyshevRate(colliders[i], rate_units));
             dataObjs.push_back(ChebyshevData());
         } else { //Collider has an eps specified, but no other info is provided. Assign it the same rate and data objects as "M"
-            // writelog("setParameters::8"); writelog("\n");
             rateObjs.push_back(rateObj_M);
             dataObjs.push_back(dataObj_M);
         }
