@@ -67,7 +67,7 @@ LmrRate::LmrRate(const AnyMap& node, const UnitStack& rate_units){
 }
 
 void LmrRate::setParameters(const AnyMap& node, const UnitStack& rate_units){
-    UnitStack eig0_units{{Units(1.0), 1.0}};
+    UnitStack eps_units{{Units(1.0), 1.0}};
     ReactionRate::setParameters(node, rate_units);
     if(!node.hasKey("collider-list")){
         throw InputFileError("LmrRate::setParameters", m_input,"Yaml input for LMR-R does not follow the necessary structure.");
@@ -76,7 +76,7 @@ void LmrRate::setParameters(const AnyMap& node, const UnitStack& rate_units){
     if (colliders[0]["collider"].as<std::string>() != "M"){
         throw InputFileError("LmrRate::setParameters", m_input,"The first species defined in yaml input must be 'M'.");
     }
-    eigObj_M=ArrheniusRate(AnyValue(colliders[0]["eig0"]),colliders[0].units(),eig0_units);
+    epsObj_M=ArrheniusRate(AnyValue(colliders[0]["eps"]),colliders[0].units(),eps_units);
     if (colliders[0].hasKey("rate-constants")){
         rateObj_M = PlogRate(colliders[0], rate_units);
         dataObj_M = PlogData();
@@ -94,12 +94,12 @@ void LmrRate::setParameters(const AnyMap& node, const UnitStack& rate_units){
     for (size_t i = 1; i < colliders.size(); i++){ //Starts at 1 because idx 0 is for "M"
         if (!colliders[i].hasKey("collider")) {
             throw InputFileError("LmrRate::setParameters", m_input,"Yaml input for LMR-R does not follow the necessary structure.");
-        } else if (!colliders[i].hasKey("eig0")) {
-            throw InputFileError("LmrRate::setParameters", m_input,"An eig0 value must be provided for all explicitly declared colliders in LMRR yaml entry.");
+        } else if (!colliders[i].hasKey("eps")) {
+            throw InputFileError("LmrRate::setParameters", m_input,"A third-body efficiency (eps) or ME eigenvalue (eig0) must be provided for all explicitly declared colliders in LMRR yaml entry.");
         }
         colliderInfo.insert({colliders[i]["collider"].as<std::string>(), colliders[i]}); //Legacy parameter, used b.c. getParameters would have to be rewritten otherwise
         colliderNames.push_back(colliders[i]["collider"].as<std::string>());
-        eigObjs.push_back(ArrheniusRate(AnyValue(colliders[i]["eig0"]),colliders[i].units(),eig0_units));
+        epsObjs.push_back(ArrheniusRate(AnyValue(colliders[i]["eps"]),colliders[i].units(),eps_units));
         if (colliders[i].hasKey("rate-constants")){
             // writelog("setParameters::5"); writelog("\n");
             rateObjs.push_back(PlogRate(colliders[i], rate_units));
@@ -112,7 +112,7 @@ void LmrRate::setParameters(const AnyMap& node, const UnitStack& rate_units){
             // writelog("setParameters::7"); writelog("\n");
             rateObjs.push_back(ChebyshevRate(colliders[i], rate_units));
             dataObjs.push_back(ChebyshevData());
-        } else { //Collider has an eig0 specified, but no other info is provided. Assign it the same rate and data objects as "M"
+        } else { //Collider has an eps specified, but no other info is provided. Assign it the same rate and data objects as "M"
             // writelog("setParameters::8"); writelog("\n");
             rateObjs.push_back(rateObj_M);
             dataObjs.push_back(dataObj_M);
@@ -142,18 +142,18 @@ void LmrRate::setContext(const Reaction& rxn, const Kinetics& kin){
     // }
 }
 
-double LmrRate::evalPlogRate(const LmrData& shared_data, DataTypes& dataObj, RateTypes& rateObj, double& eig0){
+double LmrRate::evalPlogRate(const LmrData& shared_data, DataTypes& dataObj, RateTypes& rateObj, double& eps){
     PlogData& data = boost::get<PlogData>(dataObj);
     PlogRate& rate = boost::get<PlogRate>(rateObj);
-    //writelog("eig0 (3) = "+std::to_string(eig0)+"\n");
-    data.logP = shared_data.logP+log(eig0_mix)-log(eig0); //replaces logP with log of the effective pressure w.r.t. eig0
+    //writelog("eps (3) = "+std::to_string(eps)+"\n");
+    data.logP = shared_data.logP+log(eps_mix)-log(eps); //replaces logP with log of the effective pressure w.r.t. eps
     data.logT = shared_data.logT;
     // dataObj.pressure = shared_data.pressure; // THIS IS NOT CORRECT
     data.recipT = shared_data.recipT;
     // dataObj.temperature = shared_data.temperature;
     // rate.convert("P", "Pa");
     rate.updateFromStruct(data);
-    //writelog("eig0 (4) = "+std::to_string(eig0)+"\n");
+    //writelog("eps (4) = "+std::to_string(eps)+"\n");
     return rate.evalFromStruct(data);
 }
 
@@ -169,10 +169,10 @@ double LmrRate::evalTroeRate(const LmrData& shared_data, DataTypes& dataObj, Rat
     return rate.evalFromStruct(data);
 }
 
-double LmrRate::evalChebyshevRate(const LmrData& shared_data, DataTypes& dataObj, RateTypes& rateObj, double& eig0){
+double LmrRate::evalChebyshevRate(const LmrData& shared_data, DataTypes& dataObj, RateTypes& rateObj, double& eps){
     ChebyshevData& data = boost::get<ChebyshevData>(dataObj);
     ChebyshevRate& rate = boost::get<ChebyshevRate>(rateObj);
-    data.log10P=log10(exp(shared_data.logP+log(eig0_mix)-log(eig0)));
+    data.log10P=log10(exp(shared_data.logP+log(eps_mix)-log(eps)));
     // data.pressure=shared_data.pressure;
     data.recipT=shared_data.recipT;
     // data.temperature=shared_data.temperature;
@@ -187,13 +187,13 @@ double LmrRate::evalFromStruct(const LmrData& shared_data){
     }
     // writelog("sigmaX_M (0) = " + std::to_string(sigmaX_M) + "\n"); 
     
-    eig0_mix=0.0;
+    eps_mix=0.0;
     size_t counter=0;
     for (size_t i=0; i<nSpecies; i++){ //testing each species listed at the top of yaml file
         for (size_t j=0; j<colliderIndices.size(); j++){
             if (i==colliderIndices[j]){ // Species is in collider list
-                eig0_mix += shared_data.moleFractions[i]*eigObjs[j].evalRate(shared_data.logT, shared_data.recipT);
-                // writelog("eig[j] = " + std::to_string(eigObjs[j].evalRate(logT_, recipT_)) + " logT = " + std::to_string(logT_) + " recipT = " + std::to_string(recipT_) + "\n"); 
+                eps_mix += shared_data.moleFractions[i]*epsObjs[j].evalRate(shared_data.logT, shared_data.recipT);
+                // writelog("eps[j] = " + std::to_string(epsObjs[j].evalRate(logT_, recipT_)) + " logT = " + std::to_string(logT_) + " recipT = " + std::to_string(recipT_) + "\n"); 
                 sigmaX_M -= shared_data.moleFractions[i];
                 // writelog("sigmaX_M (1) = " + std::to_string(sigmaX_M) + "\n"); 
                 counter+=1;
@@ -205,15 +205,15 @@ double LmrRate::evalFromStruct(const LmrData& shared_data){
         }
     }
 
-    // writelog("eig0_mix (0) = " + std::to_string(eig0_mix) + "\n"); 
+    // writelog("eps_mix (0) = " + std::to_string(eps_mix) + "\n"); 
     // writelog("sigmaX_M (2) = " + std::to_string(sigmaX_M) + "\n"); 
-    double eig0_M = eigObj_M.evalRate(shared_data.logT, shared_data.recipT);
-    //writelog("eig0_M (1) = "+std::to_string(eig0_M)+"\n");
-    // writelog("eig0_M = " + std::to_string(eig0_M) + "\n"); 
-    eig0_mix += sigmaX_M*eig0_M; // add all M colliders to eig0_mix in a single step
-    // writelog("eig0_mix (1) = " + std::to_string(eig0_mix) + "\n"); 
-    if (eig0_mix==0){
-        throw InputFileError("LmrRate::evalFromStruct", m_input,"eig0_mix==0 for some reason");
+    double eps_M = epsObj_M.evalRate(shared_data.logT, shared_data.recipT);
+    //writelog("eps_M (1) = "+std::to_string(eps_M)+"\n");
+    // writelog("eps_M = " + std::to_string(eps_M) + "\n"); 
+    eps_mix += sigmaX_M*eps_M; // add all M colliders to eps_mix in a single step
+    // writelog("eps_mix (1) = " + std::to_string(eps_mix) + "\n"); 
+    if (eps_mix==0){
+        throw InputFileError("LmrRate::evalFromStruct", m_input,"eps_mix==0 for some reason");
     }
 
     double k_LMR_=0.0;
@@ -227,26 +227,26 @@ double LmrRate::evalFromStruct(const LmrData& shared_data){
             if (i==colliderIndices[j]){ // Species is in collider list
                 // writelog("i = colliderIndices[j] = " + std::to_string(colliderIndices[j]) + ", X_i = " + std::to_string(shared_data.moleFractions[i]) + "\n");
                 
-                // writelog("eig0_i = " + std::to_string(eigObjs[j].evalRate(logT_, recipT_))+"\n");
-                // if (eig0==0){
-                //     throw InputFileError("LmrRate::evalFromStruct", m_input,"eig0 is 0 for some reason");
+                // writelog("eps_i = " + std::to_string(epsObjs[j].evalRate(logT_, recipT_))+"\n");
+                // if (eps==0){
+                //     throw InputFileError("LmrRate::evalFromStruct", m_input,"eps is 0 for some reason");
                 // }
-                double eig0 = eigObjs[j].evalRate(shared_data.logT, shared_data.recipT); 
-                //writelog("eig0 (1) = "+std::to_string(eig0)+"\n");
+                double eps = epsObjs[j].evalRate(shared_data.logT, shared_data.recipT); 
+                //writelog("eps (1) = "+std::to_string(eps)+"\n");
                 if (rateObjs[j].which()==0){ // 0 means PlogRate    
-                    //writelog("eig0 (2) = "+std::to_string(eig0)+"\n");
-                    k_LMR_ += evalPlogRate(shared_data,dataObjs[j],rateObjs[j],eig0_M)*eig0*shared_data.moleFractions[i]/eig0_mix;
-                    //writelog("eig0 (5) = "+std::to_string(eig0)+"\n");
+                    //writelog("eps (2) = "+std::to_string(eps)+"\n");
+                    k_LMR_ += evalPlogRate(shared_data,dataObjs[j],rateObjs[j],eps_M)*eps*shared_data.moleFractions[i]/eps_mix;
+                    //writelog("eps (5) = "+std::to_string(eps)+"\n");
                     counter+=1;
                     break; //breaks after collider has been located to prevent unnecessary iterations
                 }
                 else if (rateObjs[j].which()==1){ // 1 means TroeRate  
-                    double eig0 = eigObjs[j].evalRate(shared_data.logT, shared_data.recipT);
-                    k_LMR_ += evalTroeRate(shared_data,dataObjs[j],rateObjs[j])*eig0*shared_data.moleFractions[i]/eig0_mix;
+                    double eps = epsObjs[j].evalRate(shared_data.logT, shared_data.recipT);
+                    k_LMR_ += evalTroeRate(shared_data,dataObjs[j],rateObjs[j])*eps*shared_data.moleFractions[i]/eps_mix;
                 }
                 else if (rateObjs[j].which()==2){ // 2 means ChebyshevRate  
-                    double eig0 = eigObjs[j].evalRate(shared_data.logT, shared_data.recipT);
-                    k_LMR_ += evalChebyshevRate(shared_data,dataObjs[j],rateObjs[j],eig0)*eig0*shared_data.moleFractions[i]/eig0_mix;
+                    double eps = epsObjs[j].evalRate(shared_data.logT, shared_data.recipT);
+                    k_LMR_ += evalChebyshevRate(shared_data,dataObjs[j],rateObjs[j],eps)*eps*shared_data.moleFractions[i]/eps_mix;
                 }
                 else {
                     throw InputFileError("LmrRate::evalFromStruct", m_input,"Something went wrong...");
@@ -257,20 +257,20 @@ double LmrRate::evalFromStruct(const LmrData& shared_data){
             break; //breaks after all colliders have been located to prevent unnecessary iterations
         }
     }
-    // writelog("eig0 (6) = "+std::to_string(eig0)+"\n");
+    // writelog("eps (6) = "+std::to_string(eps)+"\n");
     // writelog("k_LMR (2) = " + std::to_string(k_LMR_) + "\n"); 
 
     if (rateObj_M.which()==0){ // 0 means PlogRate
-        //writelog("eig0_M (2) = "+std::to_string(eig0_M)+"\n");
-        k_LMR_ += evalPlogRate(shared_data,dataObj_M,rateObj_M,eig0_M)*eig0_M*sigmaX_M/eig0_mix;
-        //writelog("eig0_M (3) = "+std::to_string(eig0_M)+"\n");
+        //writelog("eps_M (2) = "+std::to_string(eps_M)+"\n");
+        k_LMR_ += evalPlogRate(shared_data,dataObj_M,rateObj_M,eps_M)*eps_M*sigmaX_M/eps_mix;
+        //writelog("eps_M (3) = "+std::to_string(eps_M)+"\n");
         // writelog("k_M = " + std::to_string(rate.evalFromStruct(data)) + "\n"); 
     }
     else if (rateObj_M.which()==1){ // 1 means TroeRate 
-        k_LMR_ += evalTroeRate(shared_data,dataObj_M,rateObj_M)*eig0_M*sigmaX_M/eig0_mix;
+        k_LMR_ += evalTroeRate(shared_data,dataObj_M,rateObj_M)*eps_M*sigmaX_M/eps_mix;
     }
     else if (rateObj_M.which()==2){ // 2 means ChebyshevRate
-        k_LMR_ += evalChebyshevRate(shared_data,dataObj_M,rateObj_M,eig0_M)*eig0_M*sigmaX_M/eig0_mix;
+        k_LMR_ += evalChebyshevRate(shared_data,dataObj_M,rateObj_M,eps_M)*eps_M*sigmaX_M/eps_mix;
     }
 
     // writelog("k_LMR (3) = " + std::to_string(k_LMR_) + "\n\n\n"); 
@@ -289,26 +289,26 @@ void LmrRate::getParameters(AnyMap& rateNode, const Units& rate_units) const{ //
         AnyMap colliderNode;
         if(colliders_i.hasKey("rate-constants")){
             colliderNode["collider"]=name;
-            colliderNode["eig0"]=colliders_i["eig0"];
+            colliderNode["eps"]=colliders_i["eps"];
             colliderNode["rate-constants"]=colliders_i["rate-constants"];
         } 
         else if(colliders_i.hasKey("Troe")){
             colliderNode["collider"]=name;
-            colliderNode["eig0"]=colliders_i["eig0"];
+            colliderNode["eps"]=colliders_i["eps"];
             colliderNode["low-P-rate-constant"]=colliders_i["low-P-rate-constant"];
             colliderNode["high-P-rate-constant"]=colliders_i["high-P-rate-constant"];
             colliderNode["Troe"]=colliders_i["Troe"];
         } 
         else if(colliders_i.hasKey("data")&&colliders_i.hasKey("pressure-range")&&colliders_i.hasKey("temperature-range")){ //"M" is of Chebyshev type
             colliderNode["collider"]=name;
-            colliderNode["eig0"]=colliders_i["eig0"];
+            colliderNode["eps"]=colliders_i["eps"];
             colliderNode["temperature-range"]=colliders_i["temperature-range"];
             colliderNode["pressure-range"]=colliders_i["pressure-range"];
             colliderNode["data"]=colliders_i["data"];
         } 
         else {
             colliderNode["collider"]=name;
-            colliderNode["eig0"]=colliders_i["eig0"];
+            colliderNode["eps"]=colliders_i["eps"];
         }
         topLevelList.push_back(std::move(colliderNode));
     }

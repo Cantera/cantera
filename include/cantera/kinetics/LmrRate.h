@@ -57,11 +57,11 @@ public:
     vector<DataTypes> dataObjs;
     // vector<AnyMap> colliderNodes;
     
-    vector<ArrheniusRate> eigObjs;
+    vector<ArrheniusRate> epsObjs; //third-body collision efficiency objects (eig0_i/eig0_M)
     vector<string> colliderNames;
     RateTypes rateObj_M;
     DataTypes dataObj_M;
-    ArrheniusRate eigObj_M;
+    ArrheniusRate epsObj_M; //third-body collision efficiency object for M (eig0_M/eig0_M = 1)
     // AnyMap node_M;
     size_t nSpecies;
     // UnitStack rate_units_;
@@ -75,7 +75,7 @@ public:
     // vector<double> moleFractions_;
     // double logPeff_;
     // double k_LMR_;
-    double eig0_mix;
+    double eps_mix;
 
     // PlogData plog_data;
     // FalloffData troe_data;
@@ -93,9 +93,9 @@ public:
     void getParameters(AnyMap& rateNode) const override {
         return getParameters(rateNode, Units(0));
     }
-    double evalPlogRate(const LmrData& shared_data, DataTypes& dataObj, RateTypes& rateObj, double& eig0);
+    double evalPlogRate(const LmrData& shared_data, DataTypes& dataObj, RateTypes& rateObj, double& eps);
     double evalTroeRate(const LmrData& shared_data, DataTypes& dataObj, RateTypes& rateObj);
-    double evalChebyshevRate(const LmrData& shared_data, DataTypes& dataObj, RateTypes& rateObj, double& eig0);
+    double evalChebyshevRate(const LmrData& shared_data, DataTypes& dataObj, RateTypes& rateObj, double& eps);
 
     void setContext(const Reaction& rxn, const Kinetics& kin) override;
 
