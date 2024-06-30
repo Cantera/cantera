@@ -21,7 +21,7 @@ class ck2yamlTest(utilities.CanteraTest):
     def convert(self, inputFile, thermo=None, transport=None,
                 surface=None, output=None, quiet=True, extra=None, **kwargs):
         if output is None:
-            output = Path(inputFile).stem  # strip '.inp'
+            output = Path(inputFile or thermo).stem  # strip '.inp'
         if inputFile is not None:
             inputFile = self.test_data_path / inputFile
         if thermo is not None:
@@ -130,6 +130,26 @@ class ck2yamlTest(utilities.CanteraTest):
         gas = ct.Solution(output)
         self.assertEqual(gas.n_species, 3)
         self.assertEqual(gas.n_reactions, 2)
+
+    def test_bad_elemental_composition(self):
+        with pytest.raises(ck2yaml.InputError,
+                           match="Error parsing elemental composition"):
+            self.convert(None, thermo='bad-nasa7-composition.dat')
+
+    def test_bad_nasa7_temperature_ranges(self):
+        with pytest.raises(ck2yaml.InputError,
+                           match="Only one temperature range defined"):
+            self.convert(None, thermo='bad-nasa7-Trange.dat')
+
+    def test_bad_nasa9_temperature_ranges(self):
+        with pytest.raises(ValueError,
+                           match="non-adjacent temperature ranges"):
+            self.convert(None, thermo='bad-nasa9-Trange.dat')
+
+    def test_bad_nasa9_coeffs(self):
+        with pytest.raises(ck2yaml.InputError,
+                           match="Error while reading thermo entry for species ALCL3"):
+            self.convert(None, thermo='bad-nasa9-coeffs.dat')
 
     def test_duplicate_species(self):
         with self.assertRaisesRegex(ck2yaml.InputError, 'additional declaration'):
