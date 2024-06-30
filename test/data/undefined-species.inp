@@ -1,0 +1,11 @@
+ELEM  H  C END
+
+SPECIES
+R1A R1B
+END
+
+REACTIONS
+R1A<=>R1A                       1.0E18   -2.0   1000
+R1A+R1B+XYZ+M<=>R1A+R1B+M       1.0E18   -2.0   1000
+R1A=R1B                       1.0E18   -2.0   1000
+END

@@ -308,6 +308,10 @@ class ck2yamlTest(utilities.CanteraTest):
         with self.assertRaisesRegex(ck2yaml.InputError, 'Unparsable'):
             self.convert('invalid-equation.inp', thermo='dummy-thermo.dat')
 
+    def test_mismatched_third_body(self):
+        with pytest.raises(ck2yaml.InputError, match="Third bodies do not match"):
+            self.convert("mismatched-third-body.inp")
+
     @utilities.slow_test
     def test_reaction_units(self):
         out_def = self.convert('units-default.inp', thermo='dummy-thermo.dat')
@@ -327,12 +331,34 @@ class ck2yamlTest(utilities.CanteraTest):
         self.assertArrayNear(R[:,1], [1, 0, 0, 1])
         self.assertArrayNear(P[:,1], [0, 0.33, 1.67, 0])
 
+    def test_unparsable_reaction(self):
+        with pytest.raises(ck2yaml.InputError, match="Unparsable line"):
+            self.convert("unparsable-reaction.inp", thermo="dummy-thermo.dat")
+
+    def test_undefined_species(self):
+        with pytest.raises(ck2yaml.InputError, match="Unexpected token"):
+            self.convert("undefined-species.inp", thermo="dummmy-thermo.dat")
+
+    def test_bad_parameters_multiple_types(self):
+        with pytest.raises(ck2yaml.InputError,
+                           match="contains parameters for more than one reaction type"):
+            self.convert("bad-reaction-params.inp", thermo="dummy-thermo.dat")
+
     def test_photon(self):
+        with pytest.raises(ck2yaml.InputError,
+                           match="reversible reaction containing a product photon"):
+            self.convert("photo-reaction.inp", thermo="dummy-thermo.dat")
+
         output = self.convert('photo-reaction.inp', thermo='dummy-thermo.dat',
                               permissive=True)
 
         ref, gas = self.checkConversion("photo-reaction.yaml", output)
         self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6])
+
+    def test_photon_reactant_error(self):
+        with pytest.raises(ck2yaml.InputError,
+                           match="Reactant photon not supported"):
+            self.convert("bad-photo-reaction.inp", thermo="dummy-thermo.dat")
 
     def test_transport_normal(self):
         output = self.convert('h2o2.inp', transport='gri30_tran.dat',

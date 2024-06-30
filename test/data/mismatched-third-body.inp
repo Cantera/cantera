@@ -1,0 +1,14 @@
+ELEMENTS
+O  H  AR
+END
+SPECIES
+H       O       O2      OH      H2O     H2O2
+AR
+END
+REACTIONS
+H+O2<=>O+OH                              2.650E+16    -.6707  17041.00
+2OH(+M)<=>H2O2(+AR)                      7.400E+13    -.370        .00
+     LOW  /  2.300E+18    -.900  -1700.00/
+     TROE/   .7346   94.00  1756.00  5182.00 /
+2OH<=>O+H2O                              3.570E+04    2.400   -2110.00
+END
