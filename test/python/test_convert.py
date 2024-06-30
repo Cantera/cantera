@@ -259,6 +259,15 @@ class ck2yamlTest(utilities.CanteraTest):
         ref, gas = self.checkConversion("negative-order.yaml", output)
         self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6])
 
+    def test_nonreactant_order(self):
+        with pytest.raises(ck2yaml.InputError, match="Non-reactant order for reaction"):
+            self.convert("nonreactant-order.inp", thermo="dummy-thermo.dat")
+
+        output = self.convert("nonreactant-order.inp", thermo="dummy-thermo.dat",
+                              permissive=True)
+        ref, gas = self.checkConversion("nonreactant-order.yaml", output)
+        self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6])
+
     def test_negative_A_factor(self):
         output = self.convert('negative-rate.inp', thermo='dummy-thermo.dat')
         gas = ct.Solution(output)  # Validate the mechanism
