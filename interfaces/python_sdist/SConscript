@@ -42,29 +42,6 @@ def copy_ext_src(target, source, env):
         shutil.copy2(cc_file, FMT_ROOT)
     shutil.copytree(FMT_SOURCE / "include" / "fmt", FMT_ROOT / "fmt")
 
-    # yaml-cpp library
-    YAML_ROOT = target_ext / "yaml-cpp"
-    YAML_SOURCE = source_ext / "yaml-cpp"
-    if not YAML_SOURCE.is_dir():
-        raise ValueError("Missing yaml-cpp submodule. " + error_message)
-    shutil.copytree(YAML_SOURCE / "src", YAML_ROOT)
-    shutil.copytree(YAML_SOURCE / "include" / "yaml-cpp", YAML_ROOT / "yaml-cpp")
-
-    # SUNDIALS library
-    SUNDIALS_ROOT = target_ext / "sundials"
-    SUNDIALS_SOURCE = source_ext / "sundials"
-    if not SUNDIALS_SOURCE.is_dir():
-        raise ValueError("Missing sundials submodule. " + error_message)
-    subdirs = ["sundials", "nvector/serial", "cvodes", "idas", "sunmatrix/band",
-               "sunmatrix/dense", "sunmatrix/sparse", "sunlinsol/dense",
-               "sunlinsol/band", "sunlinsol/spgmr", "sunnonlinsol/newton"]
-    ignores = shutil.ignore_patterns("fsun*", "CMake*", "fmod", "fcmix")
-    for subdir in subdirs:
-        shutil.copytree(
-            SUNDIALS_SOURCE / "src" / subdir,
-            SUNDIALS_ROOT / subdir,
-            ignore=ignores,
-        )
 
 
 def replace_git_hash(target, source, env):
@@ -99,28 +76,34 @@ clib_defs_target = sdist(localenv.Command(
 ))
 
 # The clib is handled by clib_defs_target. The include/cantera/ext folder is handled by
-# ext_include_target. config.h needs to be filled on the user's machine by setup.py and
-# the template file is handled by config_h_in_target.
+# ext_include_target. config.h needs to be filled on the user's machine by CMake.
 include_target = sdist(localenv.RecursiveInstall(
     "include",
     "#include",
     exclude=[
         "clib$",
         "ext$",
-        r"config\.h\.in",
+        r"config\.h$",
         r"utils_utils\.h",
     ],
 ))
 localenv.Depends(clib_defs_target, include_target)
 localenv.Depends(include_target, env["config_h_target"])
 
-ext_include_target = sdist(localenv.Command(
-    "include/cantera/ext",
-    "#include/cantera/ext",
+Eigen_include_target = sdist(localenv.Command(
+    "include/cantera/ext/Eigen",
+    "#include/cantera/ext/Eigen",
     Copy("$TARGET", "$SOURCE"),
 ))
-localenv.Depends(ext_include_target, env["ext_include_copies_target"])
-localenv.Depends(ext_include_target, include_target)
+fmt_include_target = sdist(localenv.Command(
+    "include/cantera/ext/fmt",
+    "#include/cantera/ext/fmt",
+    Copy("$TARGET", "$SOURCE"),
+))
+localenv.Depends(Eigen_include_target, env["ext_include_copies_target"])
+localenv.Depends(fmt_include_target, env["ext_include_copies_target"])
+localenv.Depends(Eigen_include_target, include_target)
+localenv.Depends(fmt_include_target, include_target)
 
 ext_target = sdist(localenv.Command("ext", "#ext", copy_ext_src))
 
@@ -149,14 +132,17 @@ else:
 
 # Copy the minimal Sundials configuration template into the sdist so that
 # it can be filled in at compile time on the user's machine
-sdist(localenv.Command("sundials_config.h.in", "#ext/sundials_config.h.in",
-                       Copy("$TARGET", "$SOURCE")))
+# sdist(localenv.Command("sundials_config.h.in", "#ext/sundials_config.h.in",
+#                        Copy("$TARGET", "$SOURCE")))
 
 license = sdist(localenv.Command("LICENSE.txt", "#build/ext/LICENSE.txt",
                                  Copy("$TARGET", "$SOURCE")))
 localenv.Depends(license, localenv["license_target"])
 
-sdist(localenv.SubstFile("setup.cfg", "setup.cfg.in"))
+sdist(localenv.SubstFile("pyproject.toml", "pyproject.toml.in"))
+for cmakelist in ("", "cantera", "src"):
+    location = "/".join(cmakelist, "CMakeLists.txt").removeprefix("/")
+    sdist(localenv.Command(location, f"#interfaces/python_sdist/{location}", Copy("$TARGET", "$SOURCE")))
 sdist(localenv.Command("README.rst", "#README.rst", Copy("$TARGET", "$SOURCE")))
 
 
@@ -186,8 +172,7 @@ def finish_sdist_message(target, source, env):
 
 
 sdist_target = f"dist/Cantera-{env['cantera_version']}.tar.gz"
-sdist_sources = ("setup.py", "pyproject.toml", "MANIFEST.in")
-built_sdist_target = localenv.Command(sdist_target, sdist_sources, build_sdist)
+built_sdist_target = localenv.Command(sdist_target, ("pyproject.toml",), build_sdist)
 finish_sdist = localenv.Command("finish_sdist", sdist_target, finish_sdist_message)
 localenv.Depends(built_sdist_target, sdist_targets)
 env.Alias("sdist", finish_sdist)

@@ -1,0 +1,17 @@
+cmake_minimum_required(VERSION 3.17...3.26)
+project(${SKBUILD_PROJECT_NAME} LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
+
+find_package(
+  Python
+  COMPONENTS Interpreter Development.Module NumPy
+  REQUIRED)
+
+
+# add_subdirectory("ext")
+add_subdirectory("src")
+add_subdirectory("cantera")
+
+install(TARGETS cantera DESTINATION .)
