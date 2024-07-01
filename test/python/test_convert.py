@@ -535,18 +535,25 @@ class ck2yamlTest(utilities.CanteraTest):
         gas = ct.Solution(output)
         self.assertEqual(gas.n_reactions, 1)
 
-    @utilities.slow_test
     def test_extra(self):
-        output = self.convert("gri30.inp", thermo="gri30_thermo.dat",
-                              transport="gri30_tran.dat", output="gri30_extra",
-                              extra="extra.yaml")
-
+        output = self.convert("h2o2.inp", output="h2o2_extra", extra="extra.yaml")
         yml = utilities.load_yaml(output)
 
         desc = yml['description'].split('\n')[-1]
         self.assertEqual(desc, 'This is an alternative description.')
         for key in ['foo', 'bar']:
             self.assertIn(key, yml.keys())
+
+    def test_extra_reserved(self):
+        with pytest.raises(ck2yaml.InputError,
+                           match="must not redefine reserved field.+'species'"):
+            self.convert("h2o2.inp", output="h2o2_extra1", extra="extra-reserved.yaml")
+
+    def test_extra_description_str(self):
+        with pytest.raises(ck2yaml.InputError,
+                           match="alternate description .+ needs to be a string"):
+            self.convert("h2o2.inp", output="h2o2_extra1",
+                         extra="extra-bad-description.yaml")
 
     def test_sri_zero(self):
         # This test tests it can convert the SRI parameters when D or E equal to 0

@@ -1,0 +1,11 @@
+description: |-
+  This is an alternative description.
+
+foo:
+- spam
+- eggs
+
+species: [H2, O2]
+
+bar:
+  spam: eggs
