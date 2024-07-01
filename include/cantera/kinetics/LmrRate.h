@@ -89,7 +89,9 @@ public:
     unique_ptr<MultiRateBase> newMultiRate() const override {
         return make_unique<MultiRate<LmrRate, LmrData>>();
     }
-    const string type() const override { return "LMR_R"; } //! Identifier of reaction rate type
+    const string type() const override { //! Identifier of reaction rate type 
+        return "LMR_R"; 
+    } 
     void setParameters(const AnyMap& node, const UnitStack& rate_units) override;
     void getParameters(AnyMap& rateNode, const Units& rate_units) const;
     void getParameters(AnyMap& rateNode) const override {

@@ -133,7 +133,7 @@ void FalloffRate::setParameters(const AnyMap& node, const UnitStack& rate_units)
     }
 
     m_negativeA_ok = node.getBool("negative-A", false);
-    if (node["type"] == "chemically-activated") {
+    if (node.hasKey("type") && node["type"] == "chemically-activated") {
         m_chemicallyActivated = true;
     }
 

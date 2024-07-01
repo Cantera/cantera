@@ -19,6 +19,8 @@ namespace Cantera{
 
 LmrData::LmrData(){ //THIS METHOD WAS ADAPTED SOMEWHAT BLINDLY FROM FALLOFF.CPP, PLEASE VERIFY IF CORRECT
     moleFractions.resize(1, NAN);
+    conc_3b.resize(1, NAN); // TROE PARAMETER
+    m_conc_3b_buf.resize(1, NAN); // TROE PARAMETER
 }
 
 bool LmrData::update(const ThermoPhase& phase, const Kinetics& kin){
@@ -38,6 +40,7 @@ bool LmrData::update(const ThermoPhase& phase, const Kinetics& kin){
         logP = std::log(P);
         mfNumber=X;
         phase.getMoleFractions(moleFractions.data());
+        conc_3b = kin.thirdBodyConcentrations(); // TROE PARAMETER
         return true;
     }
     return false;
@@ -72,7 +75,7 @@ void LmrRate::setParameters(const AnyMap& node, const UnitStack& rate_units){
     if(!node.hasKey("collider-list")){
         throw InputFileError("LmrRate::setParameters", m_input,"Incorrect YAML input for LMR-R reaction. Please review implementation guide.");
     }
-    const auto& colliders = node["collider-list"].asVector<AnyMap>();
+    auto colliders = node["collider-list"].asVector<AnyMap>();
     if(!colliders[0].hasKey("collider")){
         throw InputFileError("LmrRate::setParameters", m_input,"Incorrect YAML input for LMR-R reaction. Please review implementation guide.");
     }
@@ -83,9 +86,9 @@ void LmrRate::setParameters(const AnyMap& node, const UnitStack& rate_units){
         rateObj_M = PlogRate(colliders[0], rate_units);
         dataObj_M = PlogData();
     } else if (colliders[0].hasKey("Troe")){
-        // writelog("setParameters::3"); writelog("\n");
+        // colliders[0]["type"]; //value is unimportant. Just needed to make falloff.cpp run
         rateObj_M = TroeRate(colliders[0], rate_units);
-        dataObj_M = FalloffData(); 
+        dataObj_M = FalloffData();
     } else if (colliders[0].hasKey("pressure-range")){
         // writelog("setParameters::4"); writelog("\n");
         rateObj_M = ChebyshevRate(colliders[0], rate_units);
@@ -138,10 +141,12 @@ void LmrRate::setParameters(const AnyMap& node, const UnitStack& rate_units){
             epsObjs2.push_back(epsObj_i);
         } 
         else if (colliders[i].hasKey("Troe")){
+            // colliders[i]["type"]; //value is unimportant. Just needed to make falloff.cpp run
             rateObjs.push_back(TroeRate(colliders[i], rate_units));
             dataObjs.push_back(FalloffData());
             epsObjs1.push_back(epsObj_i);
             epsObjs2.push_back(epsObj_i);
+            // colliders[i].erase("type");
         } 
         else if (colliders[i].hasKey("pressure-range")){
             rateObjs.push_back(ChebyshevRate(colliders[i], rate_units));
