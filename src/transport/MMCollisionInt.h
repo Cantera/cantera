@@ -15,17 +15,41 @@ namespace Cantera
 {
 
 //! Calculation of Collision integrals
-/*!
- * This class provides functions that interpolate the tabulated collision
- * integrals in Monchick and Mason @cite monchick1961.
+/**
+ * This class provides functions that interpolate the tabulated collision integrals in
+ * Monchick and Mason @cite monchick1961.
  *
- * The collision integrals computed by Monchick and Mason use the Stockmayer
- * potential, which models a polar molecule as a spherical potential with a
- * point dipole at the center).
+ * The collision integrals computed by Monchick and Mason use the Stockmayer potential,
+ * which models a polar molecule as a spherical potential with a point dipole at the
+ * center). Equation 16 of Monchick and Mason @cite monchick1961 gives the potential
+ * as:
  *
  * @f[
- *    \phi(r) = 4\epsilon \left[ \left(\frac{\sigma}{r}\right)^{12} - \left(\frac{\sigma}{r}\right)^6 + \delta \left(\frac{\sigma}{r}\right)^3 \right]
+ *  \phi(r) = 4 \epsilon_0 \left[ \left(\frac{\sigma_0}{r}\right)^{12} - \left(\frac{\sigma_0}{r}\right)^6 + \delta \left(\frac{\sigma_0}{r}\right)^3 \right]
  * @f]
+ *
+ * Where @f$ \epsilon_0 @f$ is the depth of the potential well, @f$ \sigma_0 @f$ is the
+ * distance at which the potential between the two molecules is zero, @f$ \delta @f$ is
+ * defined as:
+ *
+ * @f[
+ *  \delta = \frac{1}{4} (\mu^*)^2 \zeta \left( \theta_1, \theta_2, \phi \right)
+ * @f]
+ *
+ * @f$ \mu^* @f$ is the reduced dipole moment. @f$ \theta_1 @f$ , @f$ \theta_2 @f$ ,
+ * and @f$ \phi @f$ are angles related to trajectories of colliding molecules. In the
+ * work of Monchick and Mason, these details are not what is presented in the tables.
+ * Instead, the tables are presented as being functions of the reduced temperature,
+ * @f$ T^* @f$, and the @f$ \delta @f$ parameter. The reduced dipole moment,
+ * @f$ \mu^* @f$ is defined as:
+ *
+ * @f[
+ *  \mu^* = \frac{\mu}{\sqrt{\epsilon_0 \sigma_0^3}}
+ * @f]
+ *
+ * Where @f$ \mu @f$ is the dipole moment of the molecule and the other parameters
+ * have been defined earlier. This work considers only the collisions of like
+ * molecules, so only a single value is needed.
  *
  * The tabulated data comes from the averaged collision integrals in tables
  * V through VIII of Monchick and Mason @cite monchick1961.
