@@ -84,6 +84,7 @@ public:
     // bool ready_;
     // vector<double> moleFractions_;
     double logPeff_;
+    vector<double> conc3b_eff_;
     // double k_LMR_;
     double eps_mix;
 
@@ -105,6 +106,7 @@ public:
     void getParameters(AnyMap& rateNode) const override {
         return getParameters(rateNode, Units(0));
     }
+    vector<double> conc3b_eff(const LmrData& shared_data, double eps);
     double evalPlogRate(const LmrData& shared_data, DataTypes& dataObj, RateTypes& rateObj);
     double evalTroeRate(const LmrData& shared_data, DataTypes& dataObj, RateTypes& rateObj);
     double evalChebyshevRate(const LmrData& shared_data, DataTypes& dataObj, RateTypes& rateObj);

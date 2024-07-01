@@ -97,20 +97,6 @@ void LmrRate::setParameters(const AnyMap& node, const UnitStack& rate_units){
     if (colliders[0]["collider"].as<std::string>() != "M"){
         throw InputFileError("LmrRate::setParameters", m_input,"The first species defined in LMR-R YAML input must be 'M'. Please review implementation guide.");
     }
-    if (colliders[0].hasKey("rate-constants")){
-        rateObj_M = PlogRate(colliders[0], rate_units);
-        dataObj_M = PlogData();
-    } else if (colliders[0].hasKey("Troe")){
-        // colliders[0]["type"]; //value is unimportant. Just needed to make falloff.cpp run
-        rateObj_M = TroeRate(colliders[0], rate_units);
-        dataObj_M = FalloffData();
-    } else if (colliders[0].hasKey("pressure-range")){
-        // writelog("setParameters::4"); writelog("\n");
-        rateObj_M = ChebyshevRate(colliders[0], rate_units);
-        dataObj_M = ChebyshevData();
-    } else {
-        throw InputFileError("LmrRate::setParameters", m_input,"The M-collider must be specified in a PLOG, Troe, or Chebyshev format.");    
-    }
     if (!colliders[0].hasKey("eig0") && !colliders[0].hasKey("eps")){
         throw InputFileError("LmrRate::setParameters", m_input,"A third-body efficiency (eps) or ME eigenvalue (eig0) must be provided for collider M. Please review implementation guide.");
     }
@@ -119,6 +105,20 @@ void LmrRate::setParameters(const AnyMap& node, const UnitStack& rate_units){
             throw InputFileError("LmrRate::setParameters", m_input,"The third-body efficiency (eps) must be entered for M as 'eps: {A: 1, b: 0, Ea: 0}'. Please review implementation guide.");
         }
     }
+
+    if (colliders[0].hasKey("type") && colliders[0]["type"]=="pressure-dependent-Arrhenius"){
+        rateObj_M = PlogRate(colliders[0], rate_units);
+        dataObj_M = PlogData();
+    } else if (colliders[0].hasKey("type") && colliders[0]["type"]=="falloff" && colliders[0].hasKey("Troe")){
+        rateObj_M = TroeRate(colliders[0], rate_units);
+        dataObj_M = FalloffData();
+    } else if (colliders[0].hasKey("type") && colliders[0]["type"]=="Chebyshev"){
+        rateObj_M = ChebyshevRate(colliders[0], rate_units);
+        dataObj_M = ChebyshevData();
+    } else {
+        throw InputFileError("LmrRate::setParameters", m_input,"The M-collider must be specified in a pressure-dependent-Arrhenius (PLOG), falloff (Troe form), or Chebyshev format.");    
+    }
+
     string eig_eps_key;
     if (colliders[0].hasKey("eig0") && !colliders[0].hasKey("eps")){
         eig_eps_key="eig0";
@@ -149,13 +149,13 @@ void LmrRate::setParameters(const AnyMap& node, const UnitStack& rate_units){
         params["b"]=colliders[i][eig_eps_key]["b"].asDouble() - colliders[0][eig_eps_key]["b"].asDouble();
         params["Ea"]=colliders[i][eig_eps_key]["Ea"].asDouble() - colliders[0][eig_eps_key]["Ea"].asDouble();
         epsObj_i = ArrheniusRate(AnyValue(params),colliders[i].units(),eps_units);
-        if (colliders[i].hasKey("rate-constants")){
+        if (colliders[i].hasKey("type") && colliders[i]["type"]=="pressure-dependent-Arrhenius"){
             rateObjs.push_back(PlogRate(colliders[i], rate_units));
             dataObjs.push_back(PlogData());
             epsObjs1.push_back(epsObj_i);
             epsObjs2.push_back(epsObj_i);
         } 
-        else if (colliders[i].hasKey("Troe")){
+        else if (colliders[0].hasKey("type") && colliders[0]["type"]=="falloff" && colliders[0].hasKey("Troe")){
             // colliders[i]["type"]; //value is unimportant. Just needed to make falloff.cpp run
             rateObjs.push_back(TroeRate(colliders[i], rate_units));
             dataObjs.push_back(FalloffData());
@@ -163,7 +163,7 @@ void LmrRate::setParameters(const AnyMap& node, const UnitStack& rate_units){
             epsObjs2.push_back(epsObj_i);
             // colliders[i].erase("type");
         } 
-        else if (colliders[i].hasKey("pressure-range")){
+        else if (colliders[0].hasKey("type") && colliders[0]["type"]=="Chebyshev"){
             rateObjs.push_back(ChebyshevRate(colliders[i], rate_units));
             dataObjs.push_back(ChebyshevData());
             epsObjs1.push_back(epsObj_i);
@@ -219,7 +219,7 @@ double LmrRate::evalTroeRate(const LmrData& shared_data, DataTypes& dataObj, Rat
     FalloffData& data = boost::get<FalloffData>(dataObj);
     TroeRate& rate = boost::get<TroeRate>(rateObj);
     // data.conc_3b = shared_data.moleFractions; //incorrect
-    data.conc_3b = shared_data.conc_3b;
+    data.conc_3b = conc3b_eff_;
     data.logT = shared_data.logT;
     // dataObj.molar_density = shared_data.pressure; //
     data.molar_density = shared_data.molar_density;
@@ -238,6 +238,14 @@ double LmrRate::evalChebyshevRate(const LmrData& shared_data, DataTypes& dataObj
     // data.temperature=shared_data.temperature;
     rate.updateFromStruct(data);
     return rate.evalFromStruct(data);  
+}
+
+vector<double> LmrRate::conc3b_eff(const LmrData& shared_data, double eps){
+    vector<double> conc3b_eff;
+    for (size_t i=0; i<nSpecies; i++){
+        conc3b_eff.push_back(shared_data.conc_3b[i]*eps_mix/eps);
+    }
+    return conc3b_eff;
 }
 
 double LmrRate::evalFromStruct(const LmrData& shared_data){
@@ -273,6 +281,7 @@ double LmrRate::evalFromStruct(const LmrData& shared_data){
                     double eps1 = epsObjs1[j].evalRate(shared_data.logT, shared_data.recipT); 
                     double eps2 = epsObjs2[j].evalRate(shared_data.logT, shared_data.recipT); 
                     logPeff_ = shared_data.logP+log(eps_mix)-log(eps2); //NOTE: eps2 equals either eps_M or eps_i, depending on the scenario
+                    conc3b_eff_ = conc3b_eff(shared_data, eps2);
                     if (rateObjs[j].which()==0){ // 0 means PlogRate    
                         k_LMR_ += evalPlogRate(shared_data,dataObjs[j],rateObjs[j])*eps1*shared_data.moleFractions[i]/eps_mix;
                         counter+=1;
@@ -296,6 +305,7 @@ double LmrRate::evalFromStruct(const LmrData& shared_data){
         }
     }
     logPeff_ = shared_data.logP+log(eps_mix)-log(eps_M);
+    conc3b_eff_ = conc3b_eff(shared_data, eps_M);
     if (rateObj_M.which()==0){ // 0 means PlogRate
         k_LMR_ += evalPlogRate(shared_data,dataObj_M,rateObj_M)*eps_M*sigmaX_M/eps_mix;
     }
