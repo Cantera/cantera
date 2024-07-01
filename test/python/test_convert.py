@@ -525,6 +525,10 @@ class ck2yamlTest(utilities.CanteraTest):
         assert surf.n_reactions ==  15
         assert surf.reaction(4).duplicate is True
 
+    def test_missing_site_density(self):
+        with pytest.raises(ck2yaml.InputError, match="no site density"):
+            self.convert("surface1-gas.inp", surface="missing-site-density.inp")
+
     def test_third_body_plus_falloff_reactions(self):
         output = self.convert("third_body_plus_falloff_reaction.inp")
         gas = ct.Solution(output)
