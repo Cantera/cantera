@@ -24,6 +24,7 @@ struct LmrData : public ReactionData{
         logP = std::log(P);
     }
     bool update(const ThermoPhase& phase, const Kinetics& kin) override;
+    // void update(double T, double M) override;
     using ReactionData::update;
     void perturbPressure(double deltaP);
     void perturbThirdBodies(double deltaM); // TROE FUNCTION
@@ -43,14 +44,16 @@ struct LmrData : public ReactionData{
     double logP = 0.0; //!< logarithm of pressure
     bool ready = false; //!< boolean indicating whether vectors are accessible
     vector<double> moleFractions;
-    int mfNumber; 
-    vector<string> allSpecies; //list of all yaml species (not just those for which LMRR data exists)  
-    vector<double> conc_3b; //!< vector of effective third-body concentrations //TROE PARAMETER
+    // int mfNumber; 
+    // vector<string> allSpecies; //list of all yaml species (not just those for which LMRR data exists)  
+    
 // protected:
+    int m_state_mf_number = -1;
     double m_pressure_buf = -1.0; //!< buffered pressure
     vector<double> m_conc_3b_buf; //!< buffered third-body concentrations //TROE PARAMETER
     bool m_perturbed = false; //TROE PARAMETER
     double molar_density = NAN; //!< used to determine if updates are needed //TROE PARAMETER
+    vector<double> conc_3b; //!< vector of effective third-body concentrations //TROE PARAMETER
 };
 
 class LmrRate final : public ReactionRate
@@ -84,7 +87,7 @@ public:
     // bool ready_;
     // vector<double> moleFractions_;
     double logPeff_;
-    vector<double> conc3b_eff_;
+    double conc3b_eff_;
     // double k_LMR_;
     double eps_mix;
 
@@ -106,7 +109,7 @@ public:
     void getParameters(AnyMap& rateNode) const override {
         return getParameters(rateNode, Units(0));
     }
-    vector<double> conc3b_eff(const LmrData& shared_data, double eps);
+    // vector<double> conc3b_eff(const LmrData& shared_data, double eps);
     double evalPlogRate(const LmrData& shared_data, DataTypes& dataObj, RateTypes& rateObj);
     double evalTroeRate(const LmrData& shared_data, DataTypes& dataObj, RateTypes& rateObj);
     double evalChebyshevRate(const LmrData& shared_data, DataTypes& dataObj, RateTypes& rateObj);

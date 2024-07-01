@@ -24,30 +24,38 @@ LmrData::LmrData(){ //THIS METHOD WAS ADAPTED SOMEWHAT BLINDLY FROM FALLOFF.CPP,
 }
 
 bool LmrData::update(const ThermoPhase& phase, const Kinetics& kin){
-    // writelog("update::1"); writelog("\n");
     double rho_m = phase.molarDensity(); //TROE PARAMETER
+    int mf = phase.stateMFNumber();
     double T = phase.temperature();
     double P = phase.pressure();
-    int X = phase.stateMFNumber();
-    if (allSpecies.empty()){
-        allSpecies = phase.speciesNames(); //Get the list of all species in yaml (not just the ones for which LMRR data exists)
-    }
-    if (moleFractions.empty()){
-        moleFractions.resize(allSpecies.size());
-    }
-    if (P != pressure || T != temperature || X != mfNumber || rho_m != molar_density) {
+    bool changed = false;
+    // if (allSpecies.empty()){
+    //     allSpecies = phase.speciesNames(); //Get the list of all species in yaml (not just the ones for which LMRR data exists)
+    // }
+    // if (moleFractions.empty()){
+    //     moleFractions.resize(kin.nTotalSpecies());
+    // }
+    if (P != pressure || T != temperature) {
         ReactionData::update(T);
         pressure = P;
         logP = std::log(P);
-        mfNumber=X;
-        phase.getMoleFractions(moleFractions.data());
-        molar_density = rho_m; // TROE PARAMETER
-        conc_3b = kin.thirdBodyConcentrations(); // TROE PARAMETER
-        return true;
+        changed = true;
     }
-    return false;
+    if (rho_m != molar_density || mf != m_state_mf_number) {
+        molar_density = rho_m;
+        m_state_mf_number=mf;
+        conc_3b = kin.thirdBodyConcentrations(); // TROE PARAMETER
+        phase.getMoleFractions(moleFractions.data());
+        changed = true;
+    }
+    return changed;
 }
 
+// void LmrData::update(double T, double M)
+// {
+//     ReactionData::update(T);
+//     conc_3b[0] = M;
+// }
 
 void LmrData::perturbPressure(double deltaP){
     if (m_pressure_buf > 0.) {
@@ -219,7 +227,8 @@ double LmrRate::evalTroeRate(const LmrData& shared_data, DataTypes& dataObj, Rat
     FalloffData& data = boost::get<FalloffData>(dataObj);
     TroeRate& rate = boost::get<TroeRate>(rateObj);
     // data.conc_3b = shared_data.moleFractions; //incorrect
-    data.conc_3b = conc3b_eff_;
+    data.conc_3b.clear();
+    data.conc_3b.push_back(conc3b_eff_);
     data.logT = shared_data.logT;
     // dataObj.molar_density = shared_data.pressure; //
     data.molar_density = shared_data.molar_density;
@@ -240,18 +249,20 @@ double LmrRate::evalChebyshevRate(const LmrData& shared_data, DataTypes& dataObj
     return rate.evalFromStruct(data);  
 }
 
-vector<double> LmrRate::conc3b_eff(const LmrData& shared_data, double eps){
-    vector<double> conc3b_eff;
-    for (size_t i=0; i<nSpecies; i++){
-        conc3b_eff.push_back(shared_data.conc_3b[i]*eps_mix/eps);
-    }
-    return conc3b_eff;
-}
+// vector<double> LmrRate::conc3b_eff(const LmrData& shared_data, double eps){
+//     vector<double> conc3b_eff;
+//     for (size_t i=0; i<nSpecies; i++){
+//         conc3b_eff.push_back(shared_data.conc_3b[i]*eps_mix/eps);
+//     }
+//     return conc3b_eff;
+// }
 
 double LmrRate::evalFromStruct(const LmrData& shared_data){
     double sigmaX_M=0.0;
+    double sigma_conc3b=0.0;
     for (size_t i=0; i<nSpecies; i++){ //testing each species listed at the top of yaml file
         sigmaX_M += shared_data.moleFractions[i]; //total sum will be essentially 1, but perhaps not exactly due to Cantera's rounding conventions
+        sigma_conc3b+=shared_data.conc_3b[i];
     }
     eps_mix=0.0;
     size_t counter=0;
@@ -261,6 +272,7 @@ double LmrRate::evalFromStruct(const LmrData& shared_data){
                 if (i==colliderIndices[j]){ // Species is in collider list
                     eps_mix += shared_data.moleFractions[i]*epsObjs1[j].evalRate(shared_data.logT, shared_data.recipT);
                     sigmaX_M -= shared_data.moleFractions[i];
+                    sigma_conc3b-=shared_data.conc_3b[i];
                     counter+=1;
                     break; //breaks after collider has been located to prevent unnecessary iterations
                 }
@@ -273,6 +285,7 @@ double LmrRate::evalFromStruct(const LmrData& shared_data){
         throw InputFileError("LmrRate::evalFromStruct", m_input,"eps_mix==0 for some reason");
     }
     double k_LMR_=0.0;
+    
     counter=0;
     while(counter<colliderIndices.size()){//breaks after all colliders have been located to prevent unnecessary iterations
         for (size_t i=0; i<nSpecies; i++){ //testing each species listed at the top of yaml file
@@ -281,7 +294,9 @@ double LmrRate::evalFromStruct(const LmrData& shared_data){
                     double eps1 = epsObjs1[j].evalRate(shared_data.logT, shared_data.recipT); 
                     double eps2 = epsObjs2[j].evalRate(shared_data.logT, shared_data.recipT); 
                     logPeff_ = shared_data.logP+log(eps_mix)-log(eps2); //NOTE: eps2 equals either eps_M or eps_i, depending on the scenario
-                    conc3b_eff_ = conc3b_eff(shared_data, eps2);
+                    // conc3b_eff_ = conc3b_eff(shared_data, eps2);
+                    conc3b_eff_ = shared_data.conc_3b[i]*eps_mix/eps2;
+                    writelog("conc3b_eff_ (i) = "+std::to_string(conc3b_eff_)+"\n\n");
                     if (rateObjs[j].which()==0){ // 0 means PlogRate    
                         k_LMR_ += evalPlogRate(shared_data,dataObjs[j],rateObjs[j])*eps1*shared_data.moleFractions[i]/eps_mix;
                         counter+=1;
@@ -305,7 +320,12 @@ double LmrRate::evalFromStruct(const LmrData& shared_data){
         }
     }
     logPeff_ = shared_data.logP+log(eps_mix)-log(eps_M);
-    conc3b_eff_ = conc3b_eff(shared_data, eps_M);
+    // conc3b_eff_ = conc3b_eff(shared_data, eps_M);
+    conc3b_eff_ = sigma_conc3b*eps_mix/eps_M;
+    // writelog("conc_3b = "+std::to_string(shared_data.conc_3b)+"\n");
+    writelog("sigma_conc3b = "+std::to_string(sigma_conc3b)+"\n");
+    writelog("conc3b_eff_ (M) = "+std::to_string(conc3b_eff_)+"\n\n");
+    
     if (rateObj_M.which()==0){ // 0 means PlogRate
         k_LMR_ += evalPlogRate(shared_data,dataObj_M,rateObj_M)*eps_M*sigmaX_M/eps_mix;
     }
