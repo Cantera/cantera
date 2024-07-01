@@ -44,6 +44,7 @@ struct LmrData : public ReactionData{
     double logP = 0.0; //!< logarithm of pressure
     bool ready = false; //!< boolean indicating whether vectors are accessible
     vector<double> moleFractions;
+    vector<double> concentrations;
     // int mfNumber; 
     // vector<string> allSpecies; //list of all yaml species (not just those for which LMRR data exists)  
     
@@ -95,6 +96,7 @@ public:
     // FalloffData troe_data;
     // ChebyshevData cheb_data;
     // vector<double> conc_3b;
+    size_t rate_idx;
 
     explicit LmrRate(const std::multimap<double, ArrheniusRate>& rates);
     LmrRate(const AnyMap& node, const UnitStack& rate_units={});
@@ -122,6 +124,7 @@ public:
 
 protected:
     // double logP_ = -1000;
+    vector<double> m_work; //!< Work vector
 
 
 };
