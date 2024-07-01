@@ -155,7 +155,7 @@ void LmrRate::setParameters(const AnyMap& node, const UnitStack& rate_units){
             epsObjs1.push_back(epsObj_i);
             epsObjs2.push_back(epsObj_i);
         } 
-        else if (colliders[0].hasKey("type") && colliders[0]["type"]=="falloff" && colliders[0].hasKey("Troe")){
+        else if (colliders[i].hasKey("type") && colliders[i]["type"]=="falloff" && colliders[i].hasKey("Troe")){
             // colliders[i]["type"]; //value is unimportant. Just needed to make falloff.cpp run
             rateObjs.push_back(TroeRate(colliders[i], rate_units));
             dataObjs.push_back(FalloffData());
@@ -163,7 +163,7 @@ void LmrRate::setParameters(const AnyMap& node, const UnitStack& rate_units){
             epsObjs2.push_back(epsObj_i);
             // colliders[i].erase("type");
         } 
-        else if (colliders[0].hasKey("type") && colliders[0]["type"]=="Chebyshev"){
+        else if (colliders[i].hasKey("type") && colliders[i]["type"]=="Chebyshev"){
             rateObjs.push_back(ChebyshevRate(colliders[i], rate_units));
             dataObjs.push_back(ChebyshevData());
             epsObjs1.push_back(epsObj_i);
