@@ -1398,9 +1398,9 @@ class Parser:
                     'units', 'phases', 'species', 'reactions'}
         reserved &= set(yml.keys())
         if reserved:
-            raise InputError("The YAML file '{}' provided as '--extra' input "
-                "must not redefine reserved field name: "
-                "'{}'".format(path, reserved))
+            raise InputError(f"The YAML file '{path}' provided as '--extra' input\n"
+                "must not redefine reserved field name(s): "
+                + ", ".join(f'{item!r}' for item in reserved))
 
         # replace header lines
         if 'description' in yml:
