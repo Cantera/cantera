@@ -25,6 +25,7 @@ LmrData::LmrData(){ //THIS METHOD WAS ADAPTED SOMEWHAT BLINDLY FROM FALLOFF.CPP,
 
 bool LmrData::update(const ThermoPhase& phase, const Kinetics& kin){
     // writelog("update::1"); writelog("\n");
+    double rho_m = phase.molarDensity(); //TROE PARAMETER
     double T = phase.temperature();
     double P = phase.pressure();
     int X = phase.stateMFNumber();
@@ -34,12 +35,13 @@ bool LmrData::update(const ThermoPhase& phase, const Kinetics& kin){
     if (moleFractions.empty()){
         moleFractions.resize(allSpecies.size());
     }
-    if (P != pressure || T != temperature || X != mfNumber) {
+    if (P != pressure || T != temperature || X != mfNumber || rho_m != molar_density) {
         ReactionData::update(T);
         pressure = P;
         logP = std::log(P);
         mfNumber=X;
         phase.getMoleFractions(moleFractions.data());
+        molar_density = rho_m; // TROE PARAMETER
         conc_3b = kin.thirdBodyConcentrations(); // TROE PARAMETER
         return true;
     }
@@ -54,6 +56,19 @@ void LmrData::perturbPressure(double deltaP){
     }
     m_pressure_buf = pressure;
     update(temperature,pressure*(1. + deltaP));
+}
+
+void LmrData::perturbThirdBodies(double deltaM)
+{
+    if (m_perturbed) {
+        throw CanteraError("LmrData::perturbThirdBodies",
+            "Cannot apply another perturbation as state is already perturbed.");
+    }
+    m_conc_3b_buf = conc_3b;
+    for (auto& c3b : conc_3b) {
+        c3b *= 1. + deltaM;
+    }
+    m_perturbed = true;
 }
 
 void LmrData::restore(){
@@ -203,9 +218,11 @@ double LmrRate::evalPlogRate(const LmrData& shared_data, DataTypes& dataObj, Rat
 double LmrRate::evalTroeRate(const LmrData& shared_data, DataTypes& dataObj, RateTypes& rateObj){
     FalloffData& data = boost::get<FalloffData>(dataObj);
     TroeRate& rate = boost::get<TroeRate>(rateObj);
-    data.conc_3b = shared_data.moleFractions;
+    // data.conc_3b = shared_data.moleFractions; //incorrect
+    data.conc_3b = shared_data.conc_3b;
     data.logT = shared_data.logT;
     // dataObj.molar_density = shared_data.pressure; //
+    data.molar_density = shared_data.molar_density;
     data.ready = shared_data.ready;
     data.recipT = shared_data.recipT;
     data.temperature = shared_data.temperature;

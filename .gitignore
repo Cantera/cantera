@@ -52,7 +52,6 @@ coverage.info
 .coverage
 
 #Burke Lab
-# burkelab_SimScripts/
 burkelab_gitcommands.sh
 testlog.txt
 output_modified.txt
@@ -62,11 +61,12 @@ output4.txt
 output5.txt
 output6.txt
 species-indices.txt
-# test/data/alzuetamechanism.yaml
+test/data/alzuetamechanism.yaml
 test/data/alzuetamechanism_epsNH3_T=300K.yaml
 test/data/alzuetamechanism_epsNH3_T=2000K.yaml
-# test/data/alzuetamechanism_LMRR.yaml
-# test/data/alzuetamechanism_LMRR_allAR.yaml
-# test/data/alzuetamechanism_LMRR_allH2O.yaml
+test/data/alzuetamechanism_LMRR.yaml
+test/data/alzuetamechanism_LMRR_allAR.yaml
+test/data/alzuetamechanism_LMRR_allH2O.yaml
 test/data/kineticsfromscratch_LMRtest.yaml
 rayTest.py
+burkelab_SimScripts/

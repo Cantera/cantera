@@ -26,14 +26,18 @@ struct LmrData : public ReactionData{
     bool update(const ThermoPhase& phase, const Kinetics& kin) override;
     using ReactionData::update;
     void perturbPressure(double deltaP);
+    void perturbThirdBodies(double deltaM); // TROE FUNCTION
     void restore() override;
     virtual void resize(size_t nSpecies, size_t nReactions, size_t nPhases) override {
+        conc_3b.resize(nReactions, NAN); //TROE PARAMETER
+        m_conc_3b_buf.resize(nReactions, NAN); //TROE PARAMETER
         moleFractions.resize(nSpecies, NAN);
         ready = true;
     }
     void invalidateCache() override {
         ReactionData::invalidateCache();
         pressure = NAN;
+        molar_density = NAN; //TROE PARAMETER
     }
     double pressure = NAN; //!< pressure
     double logP = 0.0; //!< logarithm of pressure
@@ -41,8 +45,12 @@ struct LmrData : public ReactionData{
     vector<double> moleFractions;
     int mfNumber; 
     vector<string> allSpecies; //list of all yaml species (not just those for which LMRR data exists)  
+    vector<double> conc_3b; //!< vector of effective third-body concentrations //TROE PARAMETER
 // protected:
     double m_pressure_buf = -1.0; //!< buffered pressure
+    vector<double> m_conc_3b_buf; //!< buffered third-body concentrations //TROE PARAMETER
+    bool m_perturbed = false; //TROE PARAMETER
+    double molar_density = NAN; //!< used to determine if updates are needed //TROE PARAMETER
 };
 
 class LmrRate final : public ReactionRate
