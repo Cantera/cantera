@@ -40,7 +40,7 @@ struct LmrData : public ReactionData{
     vector<double> moleFractions;
     
 // protected:
-    int m_state_mf_number = -1;
+    int mf_number;
     double m_pressure_buf = -1.0;
 };
 
@@ -75,7 +75,6 @@ public:
     // bool ready_;
     // vector<double> moleFractions_;
     double logPeff_;
-    double conc3b_eff_;
     // double k_LMR_;
     double eps_mix;
 
