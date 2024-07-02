@@ -192,12 +192,14 @@ void HighPressureGasTransport::getBinaryDiffCoeffs(const size_t ld, double* cons
 {
     update_C();
     update_T();
-    // If necessary, evaluate the binary diffusion coefficients from the polynomial fits
+    // If necessary, evaluate the binary diffusion coefficients from the polynomial
+    // fits
     if (!m_bindiff_ok) {
         updateDiff_T();
     }
     if (ld < m_nsp) {
-        throw CanteraError("HighPressureGasTransport::getBinaryDiffCoeffs", "ld is too small");
+        throw CanteraError("HighPressureGasTransport::getBinaryDiffCoeffs",
+                           "ld is too small");
     }
 
     double rp = 1.0/m_thermo->pressure();
@@ -251,18 +253,25 @@ double HighPressureGasTransport::viscosity()
     return nondimensional_viscosity / xi;
 }
 
-
 void HighPressureGasTransport::computeMixtureParameters(LucasMixtureParameters& params)
 {
     double Tc_mix = 0.0;
     double Pc_mix_n = 0.0; // Numerator in equation 9-5.19
     double Pc_mix_d = 0.0; // Denominator in equation 9-5.19
-    double MW_mix = m_thermo->meanMolecularWeight(); // Equation 9.5.20, Cantera already mole-weights the molecular weights
 
-    double FP_mix_o = 0; // The mole-fraction-weighted mixture average of the low-pressure polarity correction factor
-    double FQ_mix_o = 0; // The mole-fraction-weighted mixture average of the low-pressure quantum correction factor
-    double MW_H = m_mw[0]; // Holds the molecular weight of the heaviest species
-    double MW_L = m_mw[0]; // Holds the molecular weight of the lightest species
+    // Equation 9.5.20, Cantera already mole-weights the molecular weights
+    double MW_mix = m_thermo->meanMolecularWeight();
+
+    // Mole-fraction-weighted mixture average of the low-pressure polarity correction
+    // factor
+    double FP_mix_o = 0;
+
+    // Mole-fraction-weighted mixture average of the low-pressure quantum correction
+    // factor
+    double FQ_mix_o = 0;
+
+    double MW_H = m_mw[0]; // Molecular weight of the heaviest species
+    double MW_L = m_mw[0]; // Molecular weight of the lightest species
 
     double tKelvin = m_thermo->temperature();
     double P_vap_mix = m_thermo->satPressure(tKelvin);
@@ -304,7 +313,9 @@ void HighPressureGasTransport::computeMixtureParameters(LucasMixtureParameters& 
         double SI_to_Debye = 1.0 / 3.335e-30; // Conversion factor from C*m to Debye
         double dipole_ii = m_dipole(i,i)*SI_to_Debye;
         double mu_ri = 52.46*dipole_ii*dipole_ii*(Pcrit_i(i)*pascals_to_bar)/(Tc*Tc);
-        FP_mix_o += molefracs[i] * polarityCorrectionFactor(mu_ri, Tr, Zc); // mole-fraction weighting of pure-species polar correction term
+
+        // mole-fraction weighting of pure-species polar correction term
+        FP_mix_o += molefracs[i] * polarityCorrectionFactor(mu_ri, Tr, Zc);
 
         // Calculate contribution to quantum correction term.
         // Note:  This assumes the species of interest (He, H2, and D2) have
@@ -333,7 +344,6 @@ void HighPressureGasTransport::computeMixtureParameters(LucasMixtureParameters& 
         A = 1 - 0.01*pow(ratio,0.87);
     }
     FQ_mix_o *= A;
-
 
     params.FQ_mix_o = FQ_mix_o;
     params.FP_mix_o = FP_mix_o;
@@ -432,8 +442,8 @@ double HighPressureGasTransport::highPressureNondimensionalViscosity(
         }
     } else if (Tr > 1.0 && Tr < 40.0) {
         if (Pr > 0.0 && Pr <= 100.0) {
-            // The following expressions are given in page 9.36 of Poling et al. (2001)
-            // and correspond to parameters in equation 9-6.8.
+            // The following expressions are given in page 9.36 of Poling and
+            // correspond to parameters in equation 9-6.8.
             double a_1 = 1.245e-3;
             double a_2 = 5.1726;
             double gamma = -0.3286;
@@ -578,6 +588,7 @@ double ChungHighPressureGasTransport::highPressureThermalConductivity(
     double viscosity = lowPressureViscosity(T, T_star, MW, acentric_factor, mu_r,
                                               sigma, kappa);
 
+
     double M_prime = MW / 1000.0; // Convert kg/kmol to kg/mol
 
     // Definition of tabulated coefficients for the Chung method, as shown in
@@ -602,17 +613,23 @@ double ChungHighPressureGasTransport::highPressureThermalConductivity(
     double G_1 = (1.0 - 0.5*y)/(pow(1.0-y, 3.0)); // Equation  10-5.7
 
     // Equation 10-5.8
-    double G_2 = (B_1*((1.0-exp(-B_4*y)) / y) + B_2*G_1*exp(B_5*y) + B_3*G_1)/ (B_1*B_4 + B_2 + B_3);
+    double G_2 = (B_1*((1.0-exp(-B_4*y)) / y) + B_2*G_1*exp(B_5*y) + B_3*G_1)
+                 / (B_1*B_4 + B_2 + B_3);
 
-    double q = 3.586e-3*sqrt(Tc/M_prime) / pow(Vc, 2.0/3.0); // Shown below equation 10-5.5
+    double q = 3.586e-3*sqrt(Tc/M_prime) / pow(Vc, 2.0/3.0); // Below equation 10-5.5
 
     double Tr = T/Tc; // Reduced temperature
-    double alpha = (Cv / GasConstant) - 3.0/2.0; // Shown below equation 10-3.14, using R(J/kmol/K )
-    double beta = 0.7862 - 0.7109*acentric_factor + 1.3168*acentric_factor*acentric_factor; // Shown below Equation 10-3.14
-    double Z = 2.0 + 10.5*Tr*Tr; // Shown below Equation 10-3.14
-    double psi = 1.0 + alpha*((0.215 + 0.28288*alpha - 1.061*beta + 0.26665*Z) / (0.6366 + beta*Z + 1.061*alpha*beta)); // Shown below Equation 10-3.14
+    // The following 4 equations are defined below Equation 10-3.14
+    double alpha = (Cv / GasConstant) - 3.0/2.0; // GasConstant(R) has units (J/kmol/K)
+    double beta = 0.7862 - 0.7109*acentric_factor
+                  + 1.3168*acentric_factor*acentric_factor;
+    double Z = 2.0 + 10.5*Tr*Tr;
+    double psi = 1.0 + alpha*((0.215 + 0.28288*alpha - 1.061*beta + 0.26665*Z)
+                              / (0.6366 + beta*Z + 1.061*alpha*beta));
 
-    double lambda = (31.2*viscosity*psi/M_prime)*(1.0/G_2 + B_6*y) + q*B_7*y*y*sqrt(Tr)*G_2; // Equation 10-5.5
+    // Equation 10-5.5
+    double lambda = (31.2*viscosity*psi/M_prime)*(1.0/G_2 + B_6*y)
+                    + q*B_7*y*y*sqrt(Tr)*G_2;
 
     // Units are W/m/K
     return lambda;
@@ -631,10 +648,10 @@ double ChungHighPressureGasTransport::viscosity()
     // The Chung method requires density to be units of mol/cm^3
     // We use the mixture molecular weight (units of kg/kmol) here.
     double kg_per_m3_to_mol_per_cm3 = (1.0 / params.MW_mix)*1e-3; // 1 kmol/m^3 = 1e-3 mol/cm^3
-    double density = m_thermo->density()*kg_per_m3_to_mol_per_cm3;
+    double molar_density = m_thermo->density()*kg_per_m3_to_mol_per_cm3;
 
     // This result is in units of micropoise
-    double viscosity = highPressureViscosity(T_star, params.MW_mix, density,
+    double viscosity = highPressureViscosity(T_star, params.MW_mix, molar_density,
                                              params.Vc_mix, params.Tc_mix,
                                              params.acentric_factor_mix,
                                              params.mu_r_mix, params.kappa_mix);
@@ -650,8 +667,8 @@ void ChungHighPressureGasTransport::computeMixtureParameters(ChungMixtureParamet
     vector<double> molefracs(nsp);
     m_thermo->getMoleFractions(&molefracs[0]);
 
-    // First fill the species-specific values that will then later be used in the combining
-    // rules for the Chung method.
+    // First fill the species-specific values that will then later be used in the
+    // combining rules for the Chung method.
     vector<double> sigma_i(nsp), epsilon_over_k_i(nsp), acentric_factor_i(nsp), MW_i(nsp), kappa_i(nsp);
     for (size_t i = 0; i < m_nsp; i++) {
         // From equation 9-5.32.
@@ -675,10 +692,10 @@ void ChungHighPressureGasTransport::computeMixtureParameters(ChungMixtureParamet
     // We have ASSUMED that the binary interaction parameters are unity for all species
     // as was done in the Chung method.
     //
-    // The sigma & kappa relations can be fully computed in the loop. The other ones require a final
-    // division by the final mixture values, and so the quantities in the loop are only the
-    // numerators of the equations that are referenced in the comments. After the loop, the
-    // final mixture values are computed and stored.
+    // The sigma & kappa relations can be fully computed in the loop. The other ones
+    // require a final division by the final mixture values, and so the quantities in
+    // the loop are only the numerators of the equations that are referenced in the
+    // comments. After the loop, the final mixture values are computed and stored.
     for (size_t i = 0; i < m_nsp; i++) {
         for (size_t j = 0; j <m_nsp; j++){
             double sigma_ij = sqrt(sigma_i[i]*sigma_i[j]); // Equation 9-5.33
@@ -687,16 +704,17 @@ void ChungHighPressureGasTransport::computeMixtureParameters(ChungMixtureParamet
             double epsilon_over_k_ij = sqrt(epsilon_over_k_i[i]*epsilon_over_k_i[j]); // Equation 9-5.35
             params.epsilon_over_k_mix += molefracs[i]*molefracs[j]*epsilon_over_k_ij*pow(sigma_ij,3.0); // Equation 9-5.27 (numerator only)
 
-            // This equation is raised to the power 2, so what we do here is first store only the
-            // double summation into this variable, and then later square the result.
+            // This equation is raised to the power 2, so what we do here is first
+            // store only the double summation into this variable, and then later
+            // square the result.
             double MW_ij =  (2*MW_i[i]*MW_i[j]) / (MW_i[i] + MW_i[j]); // Equation 9-5.40
             params.MW_mix += molefracs[i]*molefracs[j]*epsilon_over_k_ij*pow(sigma_ij,2.0)*sqrt(MW_ij); // Equation 9-5.28 (double summation only)
 
             double acentric_factor_ij = 0.5*(acentric_factor_i[i] + acentric_factor_i[j]); // Equation 9-5.36
             params.acentric_factor_mix += molefracs[i]*molefracs[j]*acentric_factor_ij*pow(sigma_ij,3.0); // Equation 9-5.29
 
-            // The base class' dipole moment values are in the SI units, so we need to convert to
-            // Debye units.
+            // The base class' dipole moment values are in the SI units, so we need to
+            // convert to Debye units.
             double SI_to_Debye = lightSpeed; // Conversion factor from C*m to Debye
             double dipole_ii = m_dipole(i,i)*SI_to_Debye;
             double dipole_jj = m_dipole(j,j)*SI_to_Debye;
@@ -730,13 +748,13 @@ void ChungHighPressureGasTransport::computeMixtureParameters(ChungMixtureParamet
 }
 
 /**
- * Returns the value of the Neufeld collision integral for a given
- * dimensionless temperature. Implementation of equation 9-4.3.
+ * Returns the value of the Neufeld collision integral for a given dimensionless
+ * temperature. Implementation of equation 9-4.3.
  * Applicable over the range of 0.3 <= T_star <= 100.
  *
  * @param T_star  Dimensionless temperature (Defined in Equation 9-4.1)
  */
-double neufeld_collision_integral(double T_star)
+double neufeldCollisionIntegral(double T_star)
 {
     double A = 1.16145;
     double B = 0.14874;
@@ -748,35 +766,30 @@ double neufeld_collision_integral(double T_star)
     return A / pow(T_star, B) + C / exp(D*T_star) + E / exp(F*T_star);
 }
 
-double ChungHighPressureGasTransport::lowPressureViscosity(double T, double T_star, double MW,
-                                                            double acentric_factor, double mu_r,
-                                                            double sigma, double kappa)
+double ChungHighPressureGasTransport::lowPressureViscosity(double T, double T_star,
+    double MW, double acentric_factor, double mu_r, double sigma, double kappa)
 {
-    double omega = neufeld_collision_integral(T_star); // Equation 9-4.3.
+    double omega = neufeldCollisionIntegral(T_star); // Equation 9-4.3.
 
     // Molecular shapes and polarities factor, Equation 9-4.11
     double Fc = 1 -0.2756*acentric_factor + 0.059035*pow(mu_r, 4.0) + kappa;
 
     // Equation 9-3.9, multiplied by the Chung factor, Fc
-    // (another way of writing 9-4.10 that avoids explicit use of the critical volume in this method)
+    // (another way of writing 9-4.10 that avoids explicit use of the critical volume
+    // in this method)
     double viscosity = Fc* (26.69*sqrt(MW*T)/(sigma*sigma*omega));
 
-    double micropoise_to_pascals_second = 1e-7; // Conversion factor from micropoise to Pa*s
+    double micropoise_to_pascals_second = 1e-7;
 
     return micropoise_to_pascals_second*viscosity;
 }
 
-// Computes the high-pressure viscosity using the Chung method (Equation 9-6.18).
-// This function is structured such that it can be used for pure species or mixtures, with the
-// only difference being the values that are passed to the function (pure values versus mixture values).
-//
-// Renamed eta_star and eta_star_star from the Poling description to eta_1 and eta_2 for
-// naming simplicity.
-double ChungHighPressureGasTransport::highPressureViscosity(double T_star, double MW, double rho,
-                                                            double Vc, double Tc, double acentric_factor,
-                                                            double mu_r, double kappa)
+double ChungHighPressureGasTransport::highPressureViscosity(double T_star, double MW,
+    double rho, double Vc, double Tc, double acentric_factor, double mu_r,
+    double kappa)
 {
-    // Definition of tabulated coefficients for the Chung method, as shown in Table 9-6 on page 9.40 of Poling et al. (2001)
+    // Definition of tabulated coefficients for the Chung method, as shown in Table 9-6
+    // on page 9.40 of Poling.
     static const vector<double> a = {6.324, 1.210e-3, 5.283, 6.623, 19.745, -1.900, 24.275, 0.7972, -0.2382, 0.06863};
     static const vector<double> b = {50.412, -1.154e-3, 254.209, 38.096, 7.630, -12.537, 3.450, 1.117, 0.06770, 0.3479};
     static const vector<double> c = {-51.680, -6.257e-3, -168.48, -8.464, -14.354, 4.958, -11.291, 0.01235, -0.8163, 0.5926};
@@ -805,11 +818,13 @@ double ChungHighPressureGasTransport::highPressureViscosity(double T_star, doubl
     double eta_2 = E_7*y*y*G_2*exp(E_8 + E_9/T_star + E_10/(T_star*T_star)); // Equation 9-6.23
 
 
-    double omega = neufeld_collision_integral(T_star); // Equation 9-4.3
+    double omega = neufeldCollisionIntegral(T_star); // Equation 9-4.3
 
     // Molecular shapes and polarities factor, Equation 9-4.11
     double Fc = 1 -0.2756*acentric_factor + 0.059035*pow(mu_r, 4.0) + kappa;
 
+    // Renamed eta_star and eta_star_star from the Poling description to eta_1 and
+    // eta_2 for naming simplicity.
     double eta_1 = (sqrt(T_star)/omega) * (Fc*(1.0/G_2 + E_6*y)) + eta_2; // Equation 9-6.19
 
     double eta = eta_1 * 36.344 * sqrt(MW*Tc) / pow(Vc, 2.0/3.0); // Equation 9-6.18
