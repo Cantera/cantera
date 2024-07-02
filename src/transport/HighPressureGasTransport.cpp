@@ -432,8 +432,8 @@ double HighPressureGasTransport::highPressureNondimensionalViscosity(
         }
     } else if (Tr > 1.0 && Tr < 40.0) {
         if (Pr > 0.0 && Pr <= 100.0) {
-            // The following expressions are given in page 9.36 of Poling et al. (2001)
-            // and correspond to parameters in equation 9-6.8.
+            // The following expressions are given in page 9.36 of Poling and
+            // correspond to parameters in equation 9-6.8.
             double a_1 = 1.245e-3;
             double a_2 = 5.1726;
             double gamma = -0.3286;
@@ -736,7 +736,7 @@ void ChungHighPressureGasTransport::computeMixtureParameters(ChungMixtureParamet
  *
  * @param T_star  Dimensionless temperature (Defined in Equation 9-4.1)
  */
-double neufeld_collision_integral(double T_star)
+double neufeldCollisionIntegral(double T_star)
 {
     double A = 1.16145;
     double B = 0.14874;
@@ -752,7 +752,7 @@ double ChungHighPressureGasTransport::lowPressureViscosity(double T, double T_st
                                                             double acentric_factor, double mu_r,
                                                             double sigma, double kappa)
 {
-    double omega = neufeld_collision_integral(T_star); // Equation 9-4.3.
+    double omega = neufeldCollisionIntegral(T_star); // Equation 9-4.3.
 
     // Molecular shapes and polarities factor, Equation 9-4.11
     double Fc = 1 -0.2756*acentric_factor + 0.059035*pow(mu_r, 4.0) + kappa;
@@ -805,7 +805,7 @@ double ChungHighPressureGasTransport::highPressureViscosity(double T_star, doubl
     double eta_2 = E_7*y*y*G_2*exp(E_8 + E_9/T_star + E_10/(T_star*T_star)); // Equation 9-6.23
 
 
-    double omega = neufeld_collision_integral(T_star); // Equation 9-4.3
+    double omega = neufeldCollisionIntegral(T_star); // Equation 9-4.3
 
     // Molecular shapes and polarities factor, Equation 9-4.11
     double Fc = 1 -0.2756*acentric_factor + 0.059035*pow(mu_r, 4.0) + kappa;
