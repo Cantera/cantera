@@ -767,19 +767,19 @@ bool operator!=(const string& lhs, const AnyValue& rhs)
 // Specialization for "Quantity"
 
 void AnyValue::setQuantity(double value, const string& units, bool is_act_energy) {
-    m_value = Quantity{AnyValue(value), Units(units), is_act_energy};
+    m_value = Quantity{AnyValue(value), Units(units), is_act_energy, {}};
     m_equals = eq_comparer<Quantity>;
 }
 
 void AnyValue::setQuantity(double value, const Units& units) {
-    m_value = Quantity{AnyValue(value), units, false};
+    m_value = Quantity{AnyValue(value), units, false, {}};
     m_equals = eq_comparer<Quantity>;
 }
 
 void AnyValue::setQuantity(const vector<double>& values, const string& units) {
     AnyValue v;
     v = values;
-    m_value = Quantity{v, Units(units), false};
+    m_value = Quantity{v, Units(units), false, {}};
     m_equals = eq_comparer<Quantity>;
 }
 
