@@ -27,6 +27,8 @@ struct ReactionData
 {
     ReactionData() = default;
 
+    virtual ~ReactionData() = default;
+
     //! Update data container based on temperature *T*
     /**
      * Only used in conjunction with MultiRateBase::evalSingle / ReactionRate::eval.

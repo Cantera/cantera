@@ -94,6 +94,8 @@ class InterfaceRateBase
 public:
     InterfaceRateBase();
 
+    virtual ~InterfaceRateBase() = default;
+
     //! Perform object setup based on AnyMap node information
     //! @param node  AnyMap object containing reaction rate specification
     void setParameters(const AnyMap& node);
