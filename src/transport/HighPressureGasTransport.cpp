@@ -98,6 +98,41 @@ double takahashiCorrectionFactor(double Pr, double Tr)
     return DP_R_lower*(1.0 - frac) + DP_R_upper*frac;
 }
 
+void HighPressureGasTransport::init(ThermoPhase* thermo, int mode, int log_level)
+{
+    MixTransport::init(thermo, mode, log_level);
+    initializeCriticalProperties();
+}
+
+void HighPressureGasTransport::initializeCriticalProperties()
+{
+    size_t nSpecies = m_thermo->nSpecies();
+    m_Tcrit.resize(nSpecies);
+    m_Pcrit.resize(nSpecies);
+    m_Vcrit.resize(nSpecies);
+    m_Zcrit.resize(nSpecies);
+
+    std::vector<double> molefracs(nSpecies);
+    m_thermo->getMoleFractions(&molefracs[0]);
+
+    std::vector<double> mf_temp(nSpecies, 0.0);
+
+    for (size_t i = 0; i < nSpecies; ++i) {
+        mf_temp[i] = 1.0;
+        m_thermo->setMoleFractions(&mf_temp[0]);
+
+        m_Tcrit[i] = m_thermo->critTemperature();
+        m_Pcrit[i] = m_thermo->critPressure();
+        m_Vcrit[i] = m_thermo->critVolume();
+        m_Zcrit[i] = m_thermo->critCompressibility();
+
+        mf_temp[i] = 0.0;  // Reset for the next iteration
+    }
+
+    // Restore actual mole fractions
+    m_thermo->setMoleFractions(&molefracs[0]);
+}
+
 double HighPressureGasTransport::thermalConductivity()
 {
     //  Method of Ely and Hanley:
@@ -358,62 +393,22 @@ void HighPressureGasTransport::computeMixtureParameters(LucasMixtureParameters& 
 // Pure species critical properties - Tc, Pc, Vc, Zc:
 double HighPressureGasTransport::Tcrit_i(size_t i)
 {
-    vector<double> molefracs(m_thermo->nSpecies());
-    m_thermo->getMoleFractions(&molefracs[0]);
-    vector<double> mf_temp(m_thermo->nSpecies(), 0.0);
-    mf_temp[i] = 1;
-    m_thermo->setMoleFractions(&mf_temp[0]);
-
-    double tc = m_thermo->critTemperature();
-
-    // Restore actual molefracs:
-    m_thermo->setMoleFractions(&molefracs[0]);
-    return tc;
+    return m_Tcrit[i];
 }
 
 double HighPressureGasTransport::Pcrit_i(size_t i)
 {
-    vector<double> molefracs(m_thermo->nSpecies());
-    m_thermo->getMoleFractions(&molefracs[0]);
-    vector<double> mf_temp(m_thermo->nSpecies(), 0.0);
-    mf_temp[i] = 1;
-    m_thermo->setMoleFractions(&mf_temp[0]);
-
-    double pc = m_thermo->critPressure();
-
-    // Restore actual molefracs:
-    m_thermo->setMoleFractions(&molefracs[0]);
-    return pc;
+    return m_Pcrit[i];
 }
 
 double HighPressureGasTransport::Vcrit_i(size_t i)
 {
-    vector<double> molefracs(m_thermo->nSpecies());
-    m_thermo->getMoleFractions(&molefracs[0]);
-    vector<double> mf_temp(m_thermo->nSpecies(), 0.0);
-    mf_temp[i] = 1;
-    m_thermo->setMoleFractions(&mf_temp[0]);
-
-    double vc = m_thermo->critVolume();
-
-    // Restore actual molefracs:
-    m_thermo->setMoleFractions(&molefracs[0]);
-    return vc;
+    return m_Vcrit[i];
 }
 
 double HighPressureGasTransport::Zcrit_i(size_t i)
 {
-    vector<double> molefracs(m_thermo->nSpecies());
-    m_thermo->getMoleFractions(&molefracs[0]);
-    vector<double> mf_temp(m_thermo->nSpecies(), 0.0);
-    mf_temp[i] = 1;
-    m_thermo->setMoleFractions(&mf_temp[0]);
-
-    double zc = m_thermo->critCompressibility();
-
-    // Restore actual molefracs:
-    m_thermo->setMoleFractions(&molefracs[0]);
-    return zc;
+    return m_Zcrit[i];
 }
 
 double HighPressureGasTransport::lowPressureNondimensionalViscosity(
@@ -435,10 +430,11 @@ double HighPressureGasTransport::highPressureNondimensionalViscosity(
         if (Pr < P_vap/P_crit) {
             double alpha = 3.262 + 14.98*pow(Pr, 5.508);
             double beta = 1.390 + 5.746*Pr;
-            Z_2 = 0.600 + 0.760*pow(Pr, alpha) + (0.6990*pow(Pr, beta) - 0.60) * (1-Tr);
+            Z_2 = 0.600 + 0.760*pow(Pr,alpha) + (0.6990*pow(Pr,beta) - 0.60) * (1-Tr);
         } else {
             throw CanteraError("HighPressureGasTransport::highPressureNondimensionalViscosity",
-                               "State is outside the limits of the Lucas model, Pr >= P_vap / P_crit when Tr <= 1.0");
+                               "State is outside the limits of the Lucas model, Pr ({}) >= "
+                               "P_vap / P_crit ({}) when Tr ({}) <= 1.0", Pr, P_vap / P_crit, Tr);
         }
     } else if (Tr > 1.0 && Tr < 40.0) {
         if (Pr > 0.0 && Pr <= 100.0) {
@@ -473,11 +469,13 @@ double HighPressureGasTransport::highPressureNondimensionalViscosity(
             Z_2 = Z_1*(1 + (a*pow(Pr,e)) / (b*pow(Pr,f) + pow(1+c*pow(Pr,d),-1)));
         } else {
             throw CanteraError("HighPressureGasTransport::highPressureNondimensionalViscosity",
-                           "State is outside the limits of the Lucas model, valid values of Pr are: 0.0 < Pr <= 100");
+                           "The value of Pr ({}) is outside the limits of the Lucas model, "
+                           "valid values of Pr are: 0.0 < Pr <= 100", Pr);
         }
     } else {
         throw CanteraError("HighPressureGasTransport::highPressureNondimensionalViscosity",
-                           "State is outside the limits of the Lucas model, valid values of Tr are: 1.0 < Tr < 40");
+                           "The value of Tr is outside the limits of the Lucas model, "
+                           "valid  values of Tr are: 1.0 < Tr < 40", Tr);
     }
 
     double Y = Z_2 / Z_1;
@@ -508,6 +506,69 @@ double HighPressureGasTransport::polarityCorrectionFactor(double mu_r, double Tr
 
 // Chung Implementation
 // --------------------
+void ChungHighPressureGasTransport::init(ThermoPhase* thermo, int mode, int log_level)
+{
+    MixTransport::init(thermo, mode, log_level);
+    initializeCriticalProperties();
+    initializePureFluidProperties();
+}
+
+void ChungHighPressureGasTransport::initializeCriticalProperties()
+{
+    m_Tcrit.resize(m_nsp);
+    m_Pcrit.resize(m_nsp);
+    m_Vcrit.resize(m_nsp);
+    m_Zcrit.resize(m_nsp);
+
+    std::vector<double> molefracs(m_nsp);
+    m_thermo->getMoleFractions(&molefracs[0]);
+
+    std::vector<double> mf_temp(m_nsp, 0.0);
+
+    for (size_t i = 0; i < m_nsp; ++i) {
+        mf_temp[i] = 1.0;
+        m_thermo->setMoleFractions(&mf_temp[0]);
+
+        m_Tcrit[i] = m_thermo->critTemperature();
+        m_Pcrit[i] = m_thermo->critPressure();
+        m_Vcrit[i] = m_thermo->critVolume();
+        m_Zcrit[i] = m_thermo->critCompressibility();
+
+        mf_temp[i] = 0.0;  // Reset for the next iteration
+    }
+
+    // Restore actual mole fractions
+    m_thermo->setMoleFractions(&molefracs[0]);
+}
+
+void ChungHighPressureGasTransport::initializePureFluidProperties()
+{
+    // First fill the species-specific values that will then be used in the
+    // combining rules for the Chung method.
+    sigma_i.resize(m_nsp);
+    epsilon_over_k_i.resize(m_nsp);
+    acentric_factor_i.resize(m_nsp);
+    MW_i.resize(m_nsp);
+    kappa_i.resize(m_nsp);
+    for (size_t i = 0; i < m_nsp; i++) {
+        // From equation 9-5.32.
+        double m3_per_kmol_to_cm3_per_mol = 1e3; // Convert from m^3/kmol to cm^3/mol
+        double Vc = Vcrit_i(i) * m3_per_kmol_to_cm3_per_mol;
+        sigma_i[i] = 0.809*pow(Vc, 1.0/3.0);
+
+        // From equation 9-5.34.
+        epsilon_over_k_i[i] = Tcrit_i(i)/1.2593;
+
+        // NOTE: The association parameter is assumed to be zero for all species, but
+        // is left here for completeness or future revision.
+        kappa_i[i] = 0.0;
+
+        // These values are available from the base class
+        acentric_factor_i[i] = m_w_ac[i];
+        MW_i[i] = m_mw[i];
+    }
+}
+
 void ChungHighPressureGasTransport::getBinaryDiffCoeffs(const size_t ld, double* const d)
 {
     update_C();
@@ -663,31 +724,6 @@ double ChungHighPressureGasTransport::viscosity()
 
 void ChungHighPressureGasTransport::computeMixtureParameters(ChungMixtureParameters& params)
 {
-    size_t nsp = m_thermo->nSpecies();
-    vector<double> molefracs(nsp);
-    m_thermo->getMoleFractions(&molefracs[0]);
-
-    // First fill the species-specific values that will then later be used in the
-    // combining rules for the Chung method.
-    vector<double> sigma_i(nsp), epsilon_over_k_i(nsp), acentric_factor_i(nsp), MW_i(nsp), kappa_i(nsp);
-    for (size_t i = 0; i < m_nsp; i++) {
-        // From equation 9-5.32.
-        double m3_per_kmol_to_cm3_per_mol = 1e3; // Convert from m^3/kmol to cm^3/mol
-        double Vc = Vcrit_i(i) * m3_per_kmol_to_cm3_per_mol;
-        sigma_i[i] = 0.809*pow(Vc, 1.0/3.0);
-
-        // From equation 9-5.34.
-        epsilon_over_k_i[i] = Tcrit_i(i)/1.2593;
-
-        // NOTE: The association parameter is assumed to be zero for all species, but
-        // is left here for completeness or future revision.
-        kappa_i[i] = 0.0;
-
-        // These values are available from the base class
-        acentric_factor_i[i] = m_w_ac[i];
-        MW_i[i] = m_mw[i];
-    }
-
     // Here we use the combining rules defined on page 9.25.
     // We have ASSUMED that the binary interaction parameters are unity for all species
     // as was done in the Chung method.
@@ -696,6 +732,8 @@ void ChungHighPressureGasTransport::computeMixtureParameters(ChungMixtureParamet
     // require a final division by the final mixture values, and so the quantities in
     // the loop are only the numerators of the equations that are referenced in the
     // comments. After the loop, the final mixture values are computed and stored.
+    vector<double> molefracs(m_nsp);
+    m_thermo->getMoleFractions(&molefracs[0]);
     for (size_t i = 0; i < m_nsp; i++) {
         for (size_t j = 0; j <m_nsp; j++){
             double sigma_ij = sqrt(sigma_i[i]*sigma_i[j]); // Equation 9-5.33
@@ -835,62 +873,22 @@ double ChungHighPressureGasTransport::highPressureViscosity(double T_star, doubl
 // Pure species critical properties - Tc, Pc, Vc, Zc:
 double ChungHighPressureGasTransport::Tcrit_i(size_t i)
 {
-    vector<double> molefracs(m_thermo->nSpecies());
-    m_thermo->getMoleFractions(&molefracs[0]);
-    vector<double> mf_temp(m_thermo->nSpecies(), 0.0);
-    mf_temp[i] = 1;
-    m_thermo->setMoleFractions(&mf_temp[0]);
-
-    double tc = m_thermo->critTemperature();
-
-    // Restore actual molefracs:
-    m_thermo->setMoleFractions(&molefracs[0]);
-    return tc;
+    return m_Tcrit[i];
 }
 
 double ChungHighPressureGasTransport::Pcrit_i(size_t i)
 {
-    vector<double> molefracs(m_thermo->nSpecies());
-    m_thermo->getMoleFractions(&molefracs[0]);
-    vector<double> mf_temp(m_thermo->nSpecies(), 0.0);
-    mf_temp[i] = 1;
-    m_thermo->setMoleFractions(&mf_temp[0]);
-
-    double pc = m_thermo->critPressure();
-
-    // Restore actual molefracs:
-    m_thermo->setMoleFractions(&molefracs[0]);
-    return pc;
+    return m_Pcrit[i];
 }
 
 double ChungHighPressureGasTransport::Vcrit_i(size_t i)
 {
-    vector<double> molefracs(m_thermo->nSpecies());
-    m_thermo->getMoleFractions(&molefracs[0]);
-    vector<double> mf_temp(m_thermo->nSpecies(), 0.0);
-    mf_temp[i] = 1;
-    m_thermo->setMoleFractions(&mf_temp[0]);
-
-    double vc = m_thermo->critVolume();
-
-    // Restore actual molefracs:
-    m_thermo->setMoleFractions(&molefracs[0]);
-    return vc;
+    return m_Vcrit[i];
 }
 
 double ChungHighPressureGasTransport::Zcrit_i(size_t i)
 {
-    vector<double> molefracs(m_thermo->nSpecies());
-    m_thermo->getMoleFractions(&molefracs[0]);
-    vector<double> mf_temp(m_thermo->nSpecies(), 0.0);
-    mf_temp[i] = 1;
-    m_thermo->setMoleFractions(&mf_temp[0]);
-
-    double zc = m_thermo->critCompressibility();
-
-    // Restore actual molefracs:
-    m_thermo->setMoleFractions(&molefracs[0]);
-    return zc;
+    return m_Zcrit[i];
 }
 
 
