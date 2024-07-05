@@ -316,6 +316,7 @@ int main(int argc, char** argv)
     testing::InitGoogleTest(&argc, argv);
     make_deprecation_warnings_fatal();
     printStackTraceOnSegfault();
+    Cantera::CanteraError::setStackTraceDepth(20);
     int result = RUN_ALL_TESTS();
     appdelete();
     return result;

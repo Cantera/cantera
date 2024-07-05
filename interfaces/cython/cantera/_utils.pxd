@@ -84,6 +84,13 @@ cdef extern from "cantera/base/global.h" namespace "Cantera":
     cdef void CxxPrintStackTraceOnSegfault "Cantera::printStackTraceOnSegfault" ()
 
 
+cdef extern from "cantera/base/ctexceptions.h" namespace "Cantera":
+    cdef cppclass CxxCanteraError "Cantera::CanteraError":
+        CxxCanteraError()
+        @staticmethod
+        void setStackTraceDepth(int)
+
+
 cdef extern from "cantera/cython/utils_utils.h":
     cdef string get_cantera_version_py()
     cdef string get_cantera_git_commit_py()

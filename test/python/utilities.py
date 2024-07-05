@@ -21,6 +21,7 @@ CANTERA_DATA_PATH = Path(cantera.__file__).parent / "data"
 cantera.add_directory(TEST_DATA_PATH)
 cantera.add_directory(CANTERA_DATA_PATH)
 cantera.print_stack_trace_on_segfault()
+cantera.CanteraError.set_stack_trace_depth(20)
 
 @pytest.fixture
 def allow_deprecated():

@@ -231,6 +231,7 @@ int main(int argc, char** argv)
     testing::InitGoogleTest(&argc, argv);
     make_deprecation_warnings_fatal();
     printStackTraceOnSegfault();
+    Cantera::CanteraError::setStackTraceDepth(20);
     vector<string> fileNames = {"gtest-freeflame.yaml", "gtest-freeflame.h5"};
     for (const auto& fileName : fileNames) {
         if (std::ifstream(fileName).good()) {
