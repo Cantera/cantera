@@ -81,7 +81,7 @@ public:
      */
     template <typename... Args>
     CanteraError(const string& procedure, const string& msg, const Args&... args)
-        : procedure_(procedure)
+        : CanteraError(procedure)
     {
         if (sizeof...(args) == 0) {
             msg_ = msg;
@@ -107,6 +107,10 @@ public:
         return "CanteraError";
     }
 
+    //! Set the number of stack frames to include when a CanteraError is displayed. By
+    //! default, or if the depth is set to 0, no stack information will be shown.
+    static void setStackTraceDepth(int depth);
+
 protected:
     //! Protected default constructor discourages throwing errors containing no
     //! information.
@@ -121,6 +125,9 @@ protected:
 
 private:
     string msg_; //!< Message associated with the exception
+
+    string traceback_; //!< Stack trace to location where exception was thrown
+    static int traceDepth_; //!< Number of stack frames to show. 0 to disable.
 };
 
 

@@ -897,6 +897,7 @@ int main(int argc, char** argv)
     printf("Running main() from consistency.cpp\n");
     testing::InitGoogleTest(&argc, argv);
     Cantera::make_deprecation_warnings_fatal();
+    Cantera::CanteraError::setStackTraceDepth(20);
     int result = RUN_ALL_TESTS();
     Cantera::appdelete();
     return result;

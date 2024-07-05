@@ -153,7 +153,13 @@ cdef comp_map_to_dict(Composition m):
     return {pystr(species):value for species,value in (<object>m).items()}
 
 class CanteraError(RuntimeError):
-    pass
+    @staticmethod
+    def set_stack_trace_depth(depth):
+        """
+        Set the number of stack frames to include when a `CanteraError` is displayed. By
+        default, or if the depth is set to 0, no stack information will be shown.
+        """
+        CxxCanteraError.setStackTraceDepth(depth)
 
 _DimensionalValue = namedtuple('_DimensionalValue',
                               ('value', 'units', 'activation_energy'),
