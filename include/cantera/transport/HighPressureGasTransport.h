@@ -43,13 +43,14 @@ class HighPressureGasTransport : public MixTransport
 {
 protected:
     //! default constructor
-    HighPressureGasTransport() = default;
+    HighPressureGasTransport()=default;
 
 public:
     string transportModel() const override {
         return "high-pressure";
     }
 
+    void init(ThermoPhase* thermo, int mode=0, int log_level=0) override;
     /**
      * Returns the mixture high-pressure thermal conductivity in W/m/K
      * using a method by Ely and Hanley.
@@ -88,49 +89,42 @@ public:
     friend class TransportFactory;
 
 protected:
+
     /**
-     * Returns the estimate of the critical temperature that is given from the thermo
-     * object for species i.
+     * Computes and stores the estimate of the critical properties for each species.
      *
      * This method sets the species composition vector to unity for species i and zero
      * for all other species, and then queries the thermo object for the critical
-     * temperature. It then resets the composition vector to the original state.
+     * properties and stores them. It then resets the composition vector to the original
+     * state. This method only needs to be called once, as the critical properties for
+     * the pure species do not change.
+     *
+     */
+    void initializeCriticalProperties();
+
+    /**
+     * Returns the stored value of the critical temperature.
      *
      * @param i  Species index
      */
     double Tcrit_i(size_t i);
 
     /**
-     * Returns the estimate of the critical pressure that is given from the thermo
-     * object for species i.
-     *
-     * This method sets the species composition vector to unity for species i and zero
-     * for all other species, and then queries the thermo object for the critical
-     * pressure. It then resets the composition vector to the original state.
+     * Returns the stored value of the critical pressure.
      *
      * @param i  Species index
      */
     double Pcrit_i(size_t i);
 
     /**
-     * Returns the estimate of the critical volume that is given from the thermo
-     * object for species i.
-     *
-     * This method sets the species composition vector to unity for species i and zero
-     * for all other species, and then queries the thermo object for the critical
-     * volume. It then resets the composition vector to the original state.
+     * Returns the stored value of the critical volume.
      *
      * @param i  Species index
      */
     double Vcrit_i(size_t i);
 
     /**
-     * Returns the estimate of the critical compressibility that is given from the
-     * thermo object for species i.
-     *
-     * This method sets the species composition vector to unity for species i and zero
-     * for all other species, and then queries the thermo object for the critical
-     * compressibility. It then resets the composition vector to the original state.
+     * Returns the stored value of the critical compressibility.
      *
      * @param i  Species index
      */
@@ -164,7 +158,6 @@ protected:
      *
      * Where @f$ Z_{\text{c,i}} @f$ is the critical compressibility of species i, and
      * @f$ V_{\text{c,i}} @f$ is the critical volume of species i.
-     *
      *
      * @f[
      *  M_m = \sum X_i M_i
@@ -317,6 +310,15 @@ protected:
      * @param Z_c  Species Critical compressibility
      */
     double polarityCorrectionFactor(double mu_r, double Tr, double Z_c);
+
+
+    private:
+    //! Critical properties of each species.
+    std::vector<double> m_Tcrit;
+    std::vector<double> m_Pcrit;
+    std::vector<double> m_Vcrit;
+    std::vector<double> m_Zcrit;
+
 };
 
 
@@ -359,13 +361,14 @@ class ChungHighPressureGasTransport : public MixTransport
 {
 protected:
     //! default constructor
-    ChungHighPressureGasTransport() = default;
+    ChungHighPressureGasTransport()=default;
 
 public:
     string transportModel() const override {
         return "high-pressure-chung";
     }
 
+    void init(ThermoPhase* thermo, int mode=0, int log_level=0) override;
 
     /**
      * Returns the high-pressure mixture viscosity in Pa*s using the Chung method.
@@ -426,48 +429,47 @@ public:
 protected:
 
     /**
-     * Returns the estimate of the critical temperature that is given from the thermo
-     * object for species i.
+     * Computes and stores the estimate of the critical properties for each species.
      *
      * This method sets the species composition vector to unity for species i and zero
      * for all other species, and then queries the thermo object for the critical
-     * temperature. It then resets the composition vector to the original state.
+     * properties and stores them. It then resets the composition vector to the original
+     * state. This method only needs to be called once, as the critical properties for
+     * the pure species do not change.
+     *
+     */
+    void initializeCriticalProperties();
+
+     /**
+     * Computes and stores pure-fluid specific properties each species.
+     *
+     *
+     */
+    void initializePureFluidProperties();
+
+    /**
+     * Returns the stored value of the critical temperature.
      *
      * @param i  Species index
      */
     double Tcrit_i(size_t i);
 
     /**
-     * Returns the estimate of the critical pressure that is given from the thermo
-     * object for species i.
-     *
-     * This method sets the species composition vector to unity for species i and zero
-     * for all other species, and then queries the thermo object for the critical
-     * pressure. It then resets the composition vector to the original state.
+     * Returns the stored value of the critical pressure.
      *
      * @param i  Species index
      */
     double Pcrit_i(size_t i);
 
     /**
-     * Returns the estimate of the critical volume that is given from the thermo
-     * object for species i.
-     *
-     * This method sets the species composition vector to unity for species i and zero
-     * for all other species, and then queries the thermo object for the critical
-     * volume. It then resets the composition vector to the original state.
+     * Returns the stored value of the critical volume.
      *
      * @param i  Species index
      */
     double Vcrit_i(size_t i);
 
     /**
-     * Returns the estimate of the critical compressibility that is given from the
-     * thermo object for species i.
-     *
-     * This method sets the species composition vector to unity for species i and zero
-     * for all other species, and then queries the thermo object for the critical
-     * compressibility. It then resets the composition vector to the original state.
+     * Returns the stored value of the critical compressibility.
      *
      * @param i  Species index
      */
@@ -845,6 +847,21 @@ protected:
     double highPressureThermalConductivity(double T, double T_star, double MW,
         double rho, double Cv, double Vc, double Tc, double sigma,
         double acentric_factor, double mu_r, double kappa);
+
+    private:
+    //! Critical properties of each species.
+    std::vector<double> m_Tcrit;
+    std::vector<double> m_Pcrit;
+    std::vector<double> m_Vcrit;
+    std::vector<double> m_Zcrit;
+
+    //! Pure fluid properties of each species.
+    std::vector<double> sigma_i;
+    std::vector<double> epsilon_over_k_i;
+    std::vector<double> MW_i;
+    std::vector<double> acentric_factor_i;
+    std::vector<double> kappa_i;
+
 };
 
 }
