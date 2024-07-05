@@ -146,19 +146,6 @@ class TestTransport(utilities.CanteraTest):
         self.assertNear(gas1.thermal_conductivity, gas2.thermal_conductivity)
         self.assertArrayNear(gas1.multi_diff_coeffs, gas2.multi_diff_coeffs)
 
-    def test_high_pressure_chung_viscosity(self):
-        state = 520, 6e7, 'NH3:1.0'
-
-        gas1 = ct.Solution('gri30.yaml')
-        gas1.transport_model = 'high-pressure-chung'
-        gas1.TPX = state
-
-        # Values from Poling et al. (2001), example 9-12 for ammonia
-        experimental_viscosity = 466e-7 # 466 micropoise = 466e-7 Pa s
-
-        error = abs(gas1.viscosity - experimental_viscosity) / experimental_viscosity
-        self.assertTrue(error <= 0.05) # Error should be less than 5%
-
     def test_species_viscosities(self):
         for species_name in self.phase.species_names:
             # check that species viscosity matches overall for single-species
@@ -506,3 +493,18 @@ class TestIonGasTransportData(utilities.CanteraTest):
         tr2 = self.gas.species('N2').transport
         self.assertNear(tr1.dispersion_coefficient, tr2.dispersion_coefficient)
         self.assertNear(tr1.quadrupole_polarizability, tr2.quadrupole_polarizability)
+
+class TestHighPressureGasTransport(utilities.CanteraTest):
+    def test_high_pressure_chung_viscosity(self):
+        state = 520, 6e7, 'NH3:1.0'
+
+        gas1 = ct.Solution('gri30.yaml')
+        gas1.transport_model = 'high-pressure-chung'
+        gas1.TPX = state
+
+        # Values from Poling et al. (2001), example 9-12 for ammonia
+        experimental_viscosity = 466e-7 # 466 micropoise = 466e-7 Pa s
+
+        assert gas1.viscosity == pytest.approx(experimental_viscosity, 0.05)
+
+
