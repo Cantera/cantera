@@ -20,6 +20,7 @@ import warnings
 import argparse
 import textwrap
 from email.utils import formatdate
+from pathlib import Path
 
 try:
     from ruamel import yaml
@@ -43,10 +44,17 @@ if yaml_version < yaml_min_version:
 
 BlockMap = yaml.comments.CommentedMap
 
+class ErrorFormatter(logging.Formatter):
+    def format(self, record: logging.LogRecord):
+        message = super().format(record)
+        if record.levelno >= logging.ERROR:
+            return '*' * 79 + '\n' + message
+        else:
+            return message
+
 logger = logging.getLogger(__name__)
 loghandler = logging.StreamHandler(sys.stdout)
-logformatter = logging.Formatter('%(message)s')
-loghandler.setFormatter(logformatter)
+loghandler.setFormatter(ErrorFormatter())
 logger.handlers.clear()
 logger.addHandler(loghandler)
 logger.setLevel(logging.INFO)
@@ -139,6 +147,15 @@ class InputError(Exception):
             super().__init__(message.format(*args, **kwargs))
         else:
             super().__init__(message)
+
+
+class ParserLogger(logging.Handler):
+    def __init__(self, parser):
+        self.parser = parser
+        super().__init__()
+
+    def emit(self, record: logging.LogRecord):
+        self.parser.max_loglevel = max(self.parser.max_loglevel, record.levelno)
 
 
 class Species:
@@ -742,6 +759,9 @@ class Surface:
 
 class Parser:
     def __init__(self):
+        self.max_loglevel = logging.NOTSET
+        self.handler = ParserLogger(self)
+        logger.addHandler(self.handler)
         self.processed_units = False
         self.energy_units = 'cal/mol'  # for the current REACTIONS section
         self.output_energy_units = 'cal/mol'  # for the output file
@@ -761,11 +781,21 @@ class Parser:
         self.extra = {}  # for extra entries
         self.files = []  # input file names
 
+    def __del__(self):
+        logger.removeHandler(self.handler)
+
     def warn(self, message):
         if self.warning_as_error:
             raise InputError(message)
         else:
             logger.warning(message)
+
+    def entry(self, entry_type="entry"):
+        error_line = self.line_number - len(self.current_entry) + 1
+        error_entry = ''.join(self.current_entry).rstrip()
+        current_file = Path(self.files[-1]).name
+        return (f'Error while reading {entry_type} in {current_file} starting on '
+                f'line {error_line}:\n"""\n{error_entry}\n"""\n')
 
     @staticmethod
     def parse_composition(elements, nElements, width):
@@ -871,8 +901,9 @@ class Parser:
             composition.update(composition2)
 
         if not composition:
-            raise InputError("Error parsing elemental composition for "
-                             "species '{}'.", species)
+            logger.error(self.entry('thermo entry') + "Error parsing elemental "
+                         f"composition for species '{species}'.")
+            return species, None, {}
 
         for symbol in composition.keys():
             # Some CHEMKIN input files may have quantities of elements with
@@ -880,10 +911,10 @@ class Parser:
             # standard, so the entry cannot be read and we need to raise a
             # more useful error message.
             if any(map(str.isdigit, symbol)) and symbol not in self.elements:
-                raise InputError("Error parsing elemental composition for "
-                                 "species thermo entry:\n{}\nElement amounts "
-                                 "can have no more than 3 digits.",
-                                 "".join(lines))
+                logger.error(self.entry('thermo entry') +
+                             "Error parsing elemental composition for species thermo "
+                             "entry. Element amounts\ncan have no more than 3 digits.")
+                return species, None, {}
 
         # Extract the NASA polynomial coefficients
         # Remember that the high-T polynomial comes first!
@@ -923,10 +954,11 @@ class Parser:
                 # If the coefficients are duplicated, that's fine too
                 coeffs = low_coeffs
             else:
-                raise InputError(
-                    "Only one temperature range defined but two distinct sets of "
-                    "coefficients given for species thermo entry:\n{}\n",
-                    "".join(lines))
+                logger.error(self.entry("thermo entry") +
+                    "Only one temperature range defined but two distinct "
+                    "sets of coefficients given\nin species thermo entry.")
+                return species, None, {}
+
             thermo = Nasa7(Tmin=Tmin, Tmax=Tmax, Tmid=None, low_coeffs=coeffs,
                            high_coeffs=None, note=note)
         else:
@@ -1636,7 +1668,7 @@ class Parser:
                     if line is not None and get_index(line, 'END') is None:
                         TintDefault = float(line.split()[1])
                     thermo = []
-                    current = []
+                    self.current_entry = []
                     # Gather comments on lines preceding and within this entry
                     comments = [comment]
                     while line is not None and get_index(line, 'END') != 0:
@@ -1650,22 +1682,13 @@ class Parser:
                             break
 
                         if comment:
-                            current.append('!'.join((line, comment)))
+                            self.current_entry.append('!'.join((line, comment)))
                         else:
-                            current.append(line)
+                            self.current_entry.append(line)
                         if len(line) >= 80 and line[79] in ['1', '2', '3', '4']:
                             thermo.append(line)
                             if line[79] == '4':
-                                try:
-                                    label, thermo, comp = self.read_NASA7_entry(thermo, TintDefault, comments)
-                                except Exception as e:
-                                    error_line_number = self.line_number - len(current) + 1
-                                    error_entry = ''.join(current).rstrip()
-                                    logger.info(
-                                        'Error while reading thermo entry starting on line {0}:\n'
-                                        '"""\n{1}\n"""'.format(error_line_number, error_entry)
-                                    )
-                                    raise
+                                label, thermo, comp = self.read_NASA7_entry(thermo, TintDefault, comments)
 
                                 if label not in self.species_dict:
                                     if skip_undeclared_species:
@@ -1674,7 +1697,7 @@ class Parser:
                                             ' reading thermodynamics entry.'.format(label))
                                         thermo = []
                                         line, comment = readline()
-                                        current = []
+                                        self.current_entry = []
                                         comments = [comment]
                                         continue
                                     else:
@@ -1688,13 +1711,13 @@ class Parser:
                                 # use the first set of thermo data found
                                 if species.thermo is not None:
                                     self.warn('Found additional thermo entry for species {0}. '
-                                              'If --permissive was given, the first entry is used.'.format(label))
+                                            'If --permissive was given, the first entry is used.'.format(label))
                                 else:
                                     species.thermo = thermo
                                     species.composition = comp
 
                                 thermo = []
-                                current = []
+                                self.current_entry = []
                                 comments = []
                         elif thermo and thermo[-1].rstrip().endswith('&'):
                             # Include Chemkin-style extended elemental composition
@@ -2020,7 +2043,7 @@ class Parser:
     def convert_mech(input_file, thermo_file=None, transport_file=None,
                      surface_file=None, phase_name='gas', extra_file=None,
                      out_name=None, single_intermediate_temperature=False, quiet=False,
-                     permissive=None, verbose=False):
+                     permissive=None, verbose=False, exit_on_error=False):
 
         parser = Parser()
         parser.single_intermediate_temperature = single_intermediate_temperature
@@ -2110,6 +2133,16 @@ class Parser:
             out_name = os.path.expanduser(out_name)
         else:
             out_name = os.path.splitext(input_file)[0] + '.yaml'
+
+        if parser.max_loglevel >= logging.ERROR:
+            logger.error("Unable to convert mechanism due to errors. Please check\n"
+                "https://cantera.org/stable/userguide/"
+                "ck2yaml-tutorial.html#debugging-common-errors-in-ck-files"
+                "\nfor the correct Chemkin syntax.")
+            if exit_on_error:
+                sys.exit(1)
+            else:
+                raise InputError("Error converting mechanism")
 
         # Write output file
         surface_names = parser.write_yaml(name=phase_name, out_name=out_name)
@@ -2210,7 +2243,7 @@ def main(argv=None):
     parser, surfaces = Parser.convert_mech(input_file, thermo_file,
             args.transport, args.surface, args.name, args.extra, out_name,
             args.single_intermediate_temperature, args.quiet, args.permissive,
-            args.verbose)
+            args.verbose, True)
 
     if not input_file:
         # Can't validate input files that don't define a phase

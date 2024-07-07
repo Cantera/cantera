@@ -132,14 +132,16 @@ class ck2yamlTest(utilities.CanteraTest):
         self.assertEqual(gas.n_reactions, 2)
 
     def test_bad_elemental_composition(self):
-        with pytest.raises(ck2yaml.InputError,
-                           match="Error parsing elemental composition"):
+        with pytest.raises(ck2yaml.InputError):
             self.convert(None, thermo='bad-nasa7-composition.dat')
 
+        assert "Error parsing elemental composition" in self._caplog.text
+
     def test_bad_nasa7_temperature_ranges(self):
-        with pytest.raises(ck2yaml.InputError,
-                           match="Only one temperature range defined"):
+        with pytest.raises(ck2yaml.InputError):
             self.convert(None, thermo='bad-nasa7-Trange.dat')
+
+        assert "Only one temperature range defined" in self._caplog.text
 
     def test_bad_nasa9_temperature_ranges(self):
         with pytest.raises(ValueError,
@@ -652,9 +654,10 @@ class ck2yamlTest(utilities.CanteraTest):
         assert thermo["data"][0][0] == 15.096679
 
     def test_error_for_big_element_number(self):
-        with self.assertRaisesRegex(ck2yaml.InputError,
-                                    'Element amounts can have no more than 3 digits.'):
+        with pytest.raises(ck2yaml.InputError):
             self.convert('big_element_num_err.inp')
+
+        assert "no more than 3 digits." in self._caplog.text
 
 
 class yaml2ckTest(utilities.CanteraTest):
