@@ -1,3 +1,6 @@
+```{py:currentmodule} cantera
+```
+
 # Running Tests and Debugging
 
 ## Using Cantera from the Build Directory
@@ -384,3 +387,15 @@ Then at the `(gdb)` prompt, type `run` and press Enter.
 After the debugger reaches the error, the most useful command is the `where` command,
 which will print a stack trace. The `up` command will move up the stack each time it is
 called and print the corresponding line of the source code.
+
+## Accessing Stack Traces
+
+Before resorting to running in the debugger, it can sometimes be helpful to get the
+stack trace associated with an error from within a normal workflow. To enable printing
+a stacktrace after an unhandled exception or segmentation fault, you can call the C++
+function {ct}`printStackTraceOnSegfault` or the Python function
+{py:func}`print_stack_trace_on_segfault`. To add stack trace information to the error
+message printed by any `CanteraError` exceptions, you can call the C++ method
+{ct}`CanteraError::setStackTraceDepth` with a depth of 20 to print the top 20 frames of
+the call stack, or similarly the Python method
+{py:meth}`CanteraError.set_stack_trace_depth`.

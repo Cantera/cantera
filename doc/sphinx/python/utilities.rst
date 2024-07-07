@@ -47,6 +47,7 @@ Global Functions
 .. autofunction:: suppress_thermo_warnings
 .. autofunction:: use_legacy_rate_constants
 .. autofunction:: debug_mode_enabled
+.. autofunction:: print_stack_trace_on_segfault
 .. autofunction:: add_module_directory
 
 .. autofunction:: extension(name: str)
