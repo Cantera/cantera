@@ -408,6 +408,7 @@ void CVodesIntegrator::applyOptions()
                 "Preconditioning is not available with the specified problem type.");
         }
     } else if (m_type == "GMRES") {
+        SUNLinSolFree((SUNLinearSolver) m_linsol);
         #if CT_SUNDIALS_VERSION >= 60
             m_linsol = SUNLinSol_SPGMR(m_y, SUN_PREC_NONE, 0, m_sundials_ctx.get());
             CVodeSetLinearSolver(m_cvode_mem, (SUNLinearSolver) m_linsol, nullptr);
