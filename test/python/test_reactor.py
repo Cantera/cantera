@@ -2810,6 +2810,7 @@ class ExtensibleReactorTest(utilities.CanteraTest):
 
         r = DummyReactor(self.gas)
         net = ct.ReactorNet([r])
+        net.max_steps = 10
 
         # Because the TestException is raised inside code called by CVODES, the actual
         # error raised will be a CanteraError
