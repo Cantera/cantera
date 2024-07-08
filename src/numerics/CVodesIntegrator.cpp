@@ -507,10 +507,14 @@ void CVodesIntegrator::integrate(double tout)
     int nsteps = 0;
     while (m_tInteg < tout) {
         if (nsteps >= m_maxsteps) {
+            string f_errs = m_func->getErrors();
+            if (!f_errs.empty()) {
+                f_errs = "\nExceptions caught during RHS evaluation:\n" + f_errs;
+            }
             throw CanteraError("CVodesIntegrator::integrate",
                 "Maximum number of timesteps ({}) taken without reaching output "
-                "time ({}).\nCurrent integrator time: {}",
-                nsteps, tout, m_tInteg);
+                "time ({}).\nCurrent integrator time: {}{}",
+                nsteps, tout, m_tInteg, f_errs);
         }
         int flag = CVode(m_cvode_mem, tout, m_y, &m_tInteg, CV_ONE_STEP);
         if (flag != CV_SUCCESS) {

@@ -2802,7 +2802,7 @@ class ExtensibleReactorTest(utilities.CanteraTest):
         class DummyReactor(ct.ExtensibleConstPressureReactor):
             def before_eval(self, t, LHS, RHS):
                 if t > 0.1:
-                    raise TestException()
+                    raise TestException("spam")
 
             def before_component_index(self, name):
                 if name == "fail":
@@ -2814,11 +2814,11 @@ class ExtensibleReactorTest(utilities.CanteraTest):
 
         # Because the TestException is raised inside code called by CVODES, the actual
         # error raised will be a CanteraError
-        with self.assertRaises(ct.CanteraError):
+        with pytest.raises(ct.CanteraError, match="TestException: spam"):
             net.advance(0.2)
 
-        self.assertEqual(r.component_index("enthalpy"), 1)
-        with self.assertRaises(TestException):
+        assert r.component_index("enthalpy") == 1
+        with pytest.raises(TestException):
             r.component_index("fail")
 
     def test_misc(self):
