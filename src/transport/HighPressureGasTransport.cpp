@@ -148,17 +148,13 @@ void HighPressureGasTransport::initializeCriticalProperties()
  */
 double HighPressureGasTransport::thermalConductivity()
 {
-    //  Method of Ely and Hanley.
     update_T();
-    double Lprime_m = 0.0;
-    const double c1 = 1./16.04; // Reciprocal of methane's molecular weight
-    size_t nsp = m_thermo->nSpecies();
-    vector<double> molefracs(nsp);
+    vector<double> molefracs(m_nsp);
     m_thermo->getMoleFractions(&molefracs[0]);
-    vector<double> cp_0_R(nsp);
+    vector<double> cp_0_R(m_nsp);
     m_thermo->getCp_R_ref(&cp_0_R[0]);
 
-    // Reference fluid properties
+    // Reference fluid properties, for methane (used by the method)
     const double ref_MW = 16.04; // kg/kmol
     const double ref_Tc = 190.4; // K
     const double ref_Vc = 0.0986; // m^3/kmol
@@ -170,14 +166,12 @@ double HighPressureGasTransport::thermalConductivity()
     // below Equation 1 in @cite ely-hanley1981 .
     const double f_int = 1.32;
 
-    vector<double> L_i(nsp);
-    vector<double> f_i(nsp);
-    vector<double> h_i(nsp);
-    vector<double> V_k(nsp);
+    vector<double> L_i(m_nsp);
+    vector<double> f_i(m_nsp);
+    vector<double> h_i(m_nsp);
+    vector<double> V_k(m_nsp);
 
     m_thermo -> getPartialMolarVolumes(&V_k[0]);
-    double L_i_min = BigNumber;
-
     for (size_t i = 0; i < m_nsp; i++) {
         double Tc_i = Tcrit_i(i);
         double Vc_i = Vcrit_i(i);
@@ -186,26 +180,24 @@ double HighPressureGasTransport::thermalConductivity()
         double T_p = std::min(T_r,2.0);
         double V_p = std::max(0.5,std::min(V_r,2.0));
 
-        // Calculate variables for density-independent component:
-        double theta_p = 1.0 + (m_w_ac[i] - ref_acentric_factor)*(0.56553
-                         - 0.86276*log(T_p) - 0.69852/T_p);
-        double phi_p = (1.0 + (m_w_ac[i] - 0.011)*(0.38560
-                       - 1.1617*log(T_p)))*ref_Zc/Zcrit_i(i);
+        // Calculate variables for density-independent component, Equation 1.
+        // This equation requires the pure-species viscosity estimate from
+        // Ely and Hanley.
+        double theta_p = 1 + (m_w_ac[i] - ref_acentric_factor)*(0.09057 - 0.86276*log(T_p)
+            + (0.31664 - 0.46568/T_p)*(V_p - 0.5)); // Equation 11 @cite ely-hanley1981
+        double phi_p = (1 + (m_w_ac[i] - ref_acentric_factor)*(0.39490*(V_p - 1.02355)
+            - 0.93281*(V_p - 0.75464)*log(T_p)))*(ref_Zc/Zcrit_i(i));
         double f_fac = (Tc_i / ref_Tc)*theta_p;
         double h_fac = (Vc_i / ref_MW)*phi_p;
         double T_0 = m_temp/f_fac;
 
         // Reference fluid viscosity correlation, from Table III in @cite ely-hanley1981
-        double mu_0 = 1e-7*(2.90774e6/T_0 - 3.31287e6*pow(T_0,-2./3.)
-            + 1.60810e6*pow(T_0,-1./3.) - 4.33190e5 + 7.06248e4*pow(T_0,1./3.)
-            - 7.11662e3*pow(T_0,2./3.) + 4.32517e2*T_0 - 1.44591e1*pow(T_0,4./3.)
-            + 2.03712e-1*pow(T_0,5./3.));
+        double mu_0 = elyHanleyDiluteViscosity(T_0);
         double H = sqrt(f_fac*(ref_MW/m_mw[i]))*pow(h_fac,-2.0/3.0); // Equation 2, @cite ely-hanley1981
         double mu_i = mu_0*H*(m_mw[i] / ref_MW);
         // This is the internal contribution to the thermal conductivity of component
         // i, from Equation 1 in @cite ely-hanley1981
         L_i[i] = (mu_i / m_mw[i])*f_int*GasConstant*(cp_0_R[i] - 2.5);
-        L_i_min = min(L_i_min,L_i[i]);
 
         // Calculate variables for density-dependent component:
         double theta_s = 1 + (m_w_ac[i] - ref_acentric_factor)*(0.09057 - 0.86276*log(T_p)
@@ -219,6 +211,7 @@ double HighPressureGasTransport::thermalConductivity()
     double h_m = 0;
     double f_m = 0;
     double mw_m = 0;
+    double Lprime_m = 0.0;
     for (size_t i = 0; i < m_nsp; i++) {
         for (size_t j = 0; j < m_nsp; j++) {
             // Density-independent component:
@@ -249,21 +242,14 @@ double HighPressureGasTransport::thermalConductivity()
     double T_0 = m_temp/f_m; // Equation 7, @cite ely-hanley1983
 
     // This is the reference gas, dilute gas viscosity (eta_0 in Table III of @cite ely-hanley1981)
-    // Although the paper doesn't seem to explicitly mention the units of the empirical curve fit
-    // for the viscosity, a plot of the correlation compared to known values of viscosity suggests
-    // that the correlation returns viscosity in a somewhat strange unit of 1e-7 Pa*s.
-    double const correlation_viscosity_conversion = 1e-7; // Conversion factor from the correlation to Pa*s
-    double mu_0 = correlation_viscosity_conversion*(2.90774e6/T_0 - 3.31287e6*pow(T_0,-2./3.)
-                + 1.60810e6*pow(T_0,-1./3.) - 4.33190e5 + 7.06248e4
-                *pow(T_0,1./3.) - 7.11662e3*pow(T_0,2./3.) + 4.32517e2*T_0
-                - 1.44591e1*pow(T_0,4./3.) + 2.03712e-1*pow(T_0,5./3.));
+    double mu_0 = elyHanleyDiluteViscosity(T_0);
 
-    // Computing the individual terms of Equation 16, @cite ely-hanley1983 . THis is an
+    // Computing the individual terms of Equation 18, @cite ely-hanley1983 . THis is an
     // evaluation of the expressions shown in Table I of @cite ely-hanley1983 . The
     // correlation seems to return values of thermal conductivity multiplied by 1000
     // so this must be converted to W/m/K.
     const double correlation_conductivity_conversion = 1e-3; // Conversion factor from the correlation to W/m/K
-    double L_1m = (15*GasConstant / (4*ref_MW))*mu_0; // Third term in Equation 16
+    double L_1m = (15*GasConstant / (4*ref_MW))*mu_0; // First term in Equation 18
     double L_2m = (-2.52762920e-1 + 3.34328590e-1*pow(1.12 - log(T_0/1.680e2),2))*rho_0;
     double L_3m = exp(-7.19771 + 85.67822/T_0)*(exp((12.47183
                 - 984.6252*pow(T_0,-1.5))*pow(rho_0,0.1) + (rho_0/0.1617 - 1)
@@ -272,6 +258,33 @@ double HighPressureGasTransport::thermalConductivity()
     double H_m = sqrt(f_m*ref_MW/mw_m)*pow(h_m,-2.0/3.0); // Equation 6, @cite ely-hanley1983
     double Lstar_m = H_m*reference_fluid_translational_conductivity; // Equation 5, @cite ely-hanley1983
     return Lprime_m + Lstar_m;
+}
+
+/**
+ * Returns the viscosity of for the reference fluid of methane for low pressures.
+ * Units are Pa*s
+ *
+ * Computes the temperature dependent (referred to as the dilute viscosity in the
+ * reference) component only (eta_0) from the expression in Table III in
+ * @cite ely-hanley1981
+ *
+ * @param T0
+ */
+double HighPressureGasTransport::elyHanleyDiluteViscosity(double T_0)
+{
+    // Conversion factor from the correlation to Pa*s because the correlation returns
+    // the viscosity multiplied by 1e7.
+    double const correlation_viscosity_conversion = 1e-7;
+
+    // Coefficients for the correlation from Table III of @cite ely-hanley1981
+    const std::vector<double> c = {2.907741307e6, -3.312874033e6, 1.608101838e6,
+        -4.331904871e5, 7.062481330e4, -7.116620750e3, 4.325174400e2, -1.445911210e1, 2.037119479e-1};
+
+    double mu_0 = 0.0;
+    for (size_t i = 0; i < 9; i++) {
+        mu_0 += c[i]*pow(T_0,(i+1.0-4.0)/3.0);
+    }
+    return correlation_viscosity_conversion*mu_0;
 }
 
 void HighPressureGasTransport::getBinaryDiffCoeffs(const size_t ld, double* const d)
