@@ -131,6 +131,30 @@ protected:
     double Zcrit_i(size_t i);
 
     /**
+     * Returns the viscosity of for the reference fluid of methane for low pressures.
+     * Units are Pa*s
+     *
+     * Computes the temperature dependent (referred to as the dilute viscosity in the
+     * reference) component only (eta_0) from the expression in Table III in
+     * @cite ely-hanley1981
+     *
+     * @param T0
+     */
+    double elyHanleyDiluteViscosity(double T0);
+
+    /**
+     * Returns the thermal conductivity of for the reference fluid of methane
+     * in units of W/m/K.
+     *
+     * Computes the temperature and density dependent reference fluid thermal conductivity
+     * from the expression in Table I in @cite ely-hanley1983 .
+     *
+     * @param rho0
+     * @param T0
+     */
+    double elyHanleyReferenceThermalConductivity(double rho0, double T0);
+
+    /**
      * Returns the composition-dependent values of parameters that are needed for the
      * Lucas viscosity model.
      *
@@ -318,6 +342,15 @@ protected:
     std::vector<double> m_Pcrit;
     std::vector<double> m_Vcrit;
     std::vector<double> m_Zcrit;
+
+    // Reference fluid properties, for methane (used by the thermalConductivity()
+    // method)
+    const double ref_MW = 16.04; // kg/kmol
+    const double ref_Tc = 190.4; // K
+    const double ref_Vc = 0.0986; // m^3/kmol
+    const double ref_Zc = 0.288; // unitless
+    const double ref_rhoc = 0.1628; // g/cm^3
+    const double ref_acentric_factor = 0.011; // unitless
 
 };
 
