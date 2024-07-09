@@ -2,8 +2,6 @@ from __future__ import annotations
 
 import itertools
 from pathlib import Path
-import logging
-import io
 import pytest
 from pytest import approx
 
@@ -15,8 +13,8 @@ from cantera import ck2yaml, cti2yaml, ctml2yaml, yaml2ck, lxcat2yaml
 
 class ck2yamlTest(utilities.CanteraTest):
     @pytest.fixture(autouse=True)
-    def inject_fixtures(self, caplog):
-        self._caplog = caplog
+    def inject_fixtures(self, capsys):
+        self._capsys = capsys
 
     def convert(self, inputFile, thermo=None, transport=None,
                 surface=None, output=None, quiet=True, extra=None, **kwargs):
@@ -132,16 +130,19 @@ class ck2yamlTest(utilities.CanteraTest):
         self.assertEqual(gas.n_reactions, 2)
 
     def test_bad_elemental_composition(self):
-        with pytest.raises(ck2yaml.InputError):
+        with pytest.raises(ck2yaml.InputError,
+                           match="Error parsing elemental composition"):
             self.convert(None, thermo='bad-nasa7-composition.dat')
 
-        assert "Error parsing elemental composition" in self._caplog.text
+        captured = self._capsys.readouterr()
+        assert "Error parsing elemental composition" in captured.out
 
     def test_bad_nasa7_temperature_ranges(self):
         with pytest.raises(ck2yaml.InputError):
             self.convert(None, thermo='bad-nasa7-Trange.dat')
 
-        assert "Only one temperature range defined" in self._caplog.text
+        captured = self._capsys.readouterr()
+        assert "Only one temperature range defined" in captured.out
 
     def test_bad_nasa9_temperature_ranges(self):
         with pytest.raises(ValueError,
@@ -411,23 +412,21 @@ class ck2yamlTest(utilities.CanteraTest):
                 output='h2o2_transport_character_geometry')
 
     def test_transport_float_geometry(self):
-        # @todo: Figure out how to prevent the captured log / stdout output from
-        # also being printed at the end of the pytest summary.
-
         # Runs but issues a log message
         self.convert('h2o2.inp',
             transport='h2o2-float-geometry-tran.dat',
             output='h2o2_transport_float_geometry', quiet=False)
 
-        assert "Incorrect geometry flag" in self._caplog.text
-        assert "automatically converted" in self._caplog.text
-        self._caplog.clear()
+        captured = self._capsys.readouterr()
+        assert "Incorrect geometry flag" in captured.out
+        assert "automatically converted" in captured.out
 
         # Runs with no logging message
         output = self.convert('h2o2.inp',
             transport='h2o2-float-geometry-tran.dat',
             output='h2o2_transport_float_geometry', permissive=True, quiet=False)
-        assert "Incorrect geometry flag" not in self._caplog.text
+        captured = self._capsys.readouterr()
+        assert "Incorrect geometry flag" not in captured.out
 
         gas = ct.Solution(output)
         assert gas.species("H").transport.geometry == 'atom'
@@ -575,53 +574,27 @@ class ck2yamlTest(utilities.CanteraTest):
         # tests the behavior of the ck2yaml.main function and the mechanism
         # validation step.
 
-        # Replace the ck2yaml logger with our own in order to capture the output
-        log_stream = io.StringIO()
-        logger = logging.getLogger('cantera.ck2yaml')
-        original_handler = logger.handlers.pop()
-        logformatter = logging.Formatter('%(message)s')
-        handler = logging.StreamHandler(log_stream)
-        handler.setFormatter(logformatter)
-        logger.addHandler(handler)
-
         with pytest.raises(SystemExit):
             ck2yaml.main([
                 f"--input={self.test_data_path}/undeclared-duplicate-reactions.inp",
                 f"--thermo={self.test_data_path}/dummy-thermo.dat",
                 f"--output={self.test_work_path}/undeclared-duplicate-reactions.yaml"])
 
-        # Put the original logger back in place
-        logger.handlers.clear()
-        logger.addHandler(original_handler)
-
-        message = log_stream.getvalue()
+        captured = self._capsys.readouterr()
         for token in ('FAILED', 'Line 12', 'Line 14', 'R1A', 'R1B'):
-            assert token in message
+            assert token in captured.out
 
     def test_multiple_duplicate_reactions(self):
-        # Replace the ck2yaml logger with our own in order to capture the output
-        log_stream = io.StringIO()
-        logger = logging.getLogger('cantera.ck2yaml')
-        original_handler = logger.handlers.pop()
-        logformatter = logging.Formatter('%(message)s')
-        handler = logging.StreamHandler(log_stream)
-        handler.setFormatter(logformatter)
-        logger.addHandler(handler)
-
         with pytest.raises(SystemExit):
             ck2yaml.main([
                 f"--input={self.test_data_path}/undeclared-duplicate-reactions2.inp",
                 f"--thermo={self.test_data_path}/dummy-thermo.dat",
                 f"--output={self.test_work_path}/undeclared-duplicate-reactions2.yaml"])
 
-        # Put the original logger back in place
-        logger.handlers.clear()
-        logger.addHandler(original_handler)
-
-        message = log_stream.getvalue()
+        captured = self._capsys.readouterr()
         for token in ('FAILED', 'Line 12', 'Line 14', 'Line 11', 'Line 15',
-                      'R1A + R1B', 'R3 + H'):
-            assert token in message
+                    'R1A + R1B', 'R3 + H'):
+            assert token in captured.out
 
     def test_single_Tint(self):
         output = self.convert(None, thermo="thermo_single_Tint.dat",
@@ -657,7 +630,8 @@ class ck2yamlTest(utilities.CanteraTest):
         with pytest.raises(ck2yaml.InputError):
             self.convert('big_element_num_err.inp')
 
-        assert "no more than 3 digits." in self._caplog.text
+        captured = self._capsys.readouterr()
+        assert "no more than 3 digits." in captured.out
 
 
 class yaml2ckTest(utilities.CanteraTest):
