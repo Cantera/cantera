@@ -133,17 +133,42 @@ void HighPressureGasTransport::initializeCriticalProperties()
     m_thermo->setMoleFractions(&molefracs[0]);
 }
 
+/**
+ * @This implementation uses the method of Ely and Hanley to compute the thermal
+ * conductivity.
+ *
+ * The method is detailed in @cite ely-hanley1981 and @cite ely-hanley1983 .
+ *
+ * This method uses a reference fluid of methane.
+ *
+ * The Leach and Leland shape factors @f$ \theta_{\alpha,0} @f$ and @f$ \phi_{\alpha,0} @f$ are
+ * defined as:
+ *
+ *
+ */
 double HighPressureGasTransport::thermalConductivity()
 {
-    //  Method of Ely and Hanley:
+    //  Method of Ely and Hanley.
     update_T();
     double Lprime_m = 0.0;
-    const double c1 = 1./16.04;
+    const double c1 = 1./16.04; // Reciprocal of methane's molecular weight
     size_t nsp = m_thermo->nSpecies();
     vector<double> molefracs(nsp);
     m_thermo->getMoleFractions(&molefracs[0]);
     vector<double> cp_0_R(nsp);
     m_thermo->getCp_R_ref(&cp_0_R[0]);
+
+    // Reference fluid properties
+    const double ref_MW = 16.04; // kg/kmol
+    const double ref_Tc = 190.4; // K
+    const double ref_Vc = 0.0986; // m^3/kmol
+    const double ref_Zc = 0.288; // unitless
+    const double ref_acentric_factor = 0.011; // unitless
+
+    // Model constants
+    // A model constant from the Euken correlation for polyatomic gases, described
+    // below Equation 1 in @cite ely-hanley1981 .
+    const double f_int = 1.32;
 
     vector<double> L_i(nsp);
     vector<double> f_i(nsp);
@@ -162,28 +187,33 @@ double HighPressureGasTransport::thermalConductivity()
         double V_p = std::max(0.5,std::min(V_r,2.0));
 
         // Calculate variables for density-independent component:
-        double theta_p = 1.0 + (m_w_ac[i] - 0.011)*(0.56553
-            - 0.86276*log(T_p) - 0.69852/T_p);
+        double theta_p = 1.0 + (m_w_ac[i] - ref_acentric_factor)*(0.56553
+                         - 0.86276*log(T_p) - 0.69852/T_p);
         double phi_p = (1.0 + (m_w_ac[i] - 0.011)*(0.38560
-            - 1.1617*log(T_p)))*0.288/Zcrit_i(i);
-        double f_fac = Tc_i*theta_p/190.4;
-        double h_fac = 1000*Vc_i*phi_p/99.2;
+                       - 1.1617*log(T_p)))*ref_Zc/Zcrit_i(i);
+        double f_fac = (Tc_i / ref_Tc)*theta_p;
+        double h_fac = (Vc_i / ref_MW)*phi_p;
         double T_0 = m_temp/f_fac;
+
+        // Reference fluid viscosity correlation, from Table III in @cite ely-hanley1981
         double mu_0 = 1e-7*(2.90774e6/T_0 - 3.31287e6*pow(T_0,-2./3.)
             + 1.60810e6*pow(T_0,-1./3.) - 4.33190e5 + 7.06248e4*pow(T_0,1./3.)
             - 7.11662e3*pow(T_0,2./3.) + 4.32517e2*T_0 - 1.44591e1*pow(T_0,4./3.)
             + 2.03712e-1*pow(T_0,5./3.));
-        double H = sqrt(f_fac*16.04/m_mw[i])*pow(h_fac,-2./3.);
-        double mu_i = mu_0*H*m_mw[i]*c1;
-        L_i[i] = mu_i*1.32*GasConstant*(cp_0_R[i] - 2.5)/m_mw[i];
+        double H = sqrt(f_fac*(ref_MW/m_mw[i]))*pow(h_fac,-2.0/3.0); // Equation 2, @cite ely-hanley1981
+        double mu_i = mu_0*H*(m_mw[i] / ref_MW);
+        // This is the internal contribution to the thermal conductivity of component
+        // i, from Equation 1 in @cite ely-hanley1981
+        L_i[i] = (mu_i / m_mw[i])*f_int*GasConstant*(cp_0_R[i] - 2.5);
         L_i_min = min(L_i_min,L_i[i]);
+
         // Calculate variables for density-dependent component:
-        double theta_s = 1 + (m_w_ac[i] - 0.011)*(0.09057 - 0.86276*log(T_p)
-            + (0.31664 - 0.46568/T_p)*(V_p - 0.5));
-        double phi_s = (1 + (m_w_ac[i] - 0.011)*(0.39490*(V_p - 1.02355)
-            - 0.93281*(V_p - 0.75464)*log(T_p)))*0.288/Zcrit_i(i);
-        f_i[i] = Tc_i*theta_s/190.4;
-        h_i[i] = 1000*Vc_i*phi_s/99.2;
+        double theta_s = 1 + (m_w_ac[i] - ref_acentric_factor)*(0.09057 - 0.86276*log(T_p)
+            + (0.31664 - 0.46568/T_p)*(V_p - 0.5)); // Equation 11 @cite ely-hanley1981
+        double phi_s = (1 + (m_w_ac[i] - ref_acentric_factor)*(0.39490*(V_p - 1.02355)
+            - 0.93281*(V_p - 0.75464)*log(T_p)))*(ref_Zc/Zcrit_i(i));
+        f_i[i] = (Tc_i / ref_Tc)*theta_s; // Equation 7 @cite ely-hanley1981
+        h_i[i] = (Vc_i / ref_Vc)*phi_s; // Equation 8 @cite ely-hanley1981
     }
 
     double h_m = 0;
@@ -192,34 +222,55 @@ double HighPressureGasTransport::thermalConductivity()
     for (size_t i = 0; i < m_nsp; i++) {
         for (size_t j = 0; j < m_nsp; j++) {
             // Density-independent component:
-            double L_ij = 2*L_i[i]*L_i[j]/(L_i[i] + L_i[j] + Tiny);
-            Lprime_m += molefracs[i]*molefracs[j]*L_ij;
+            double L_ij = 2*L_i[i]*L_i[j]/(L_i[i] + L_i[j] + Tiny); // Equation 3 @cite ely-hanley1983
+            Lprime_m += molefracs[i]*molefracs[j]*L_ij; // Equation 2, @cite ely-hanley1983
+
             // Additional variables for density-dependent component:
-            double f_ij = sqrt(f_i[i]*f_i[j]);
-            double h_ij = 0.125*pow(pow(h_i[i],1./3.) + pow(h_i[j],1./3.),3.);
-            double mw_ij_inv = (m_mw[i] + m_mw[j])/(2*m_mw[i]*m_mw[j]);
-            f_m += molefracs[i]*molefracs[j]*f_ij*h_ij;
-            h_m += molefracs[i]*molefracs[j]*h_ij;
-            mw_m += molefracs[i]*molefracs[j]*sqrt(mw_ij_inv*f_ij)*pow(h_ij,-4./3.);
+            double f_ij = sqrt(f_i[i]*f_i[j]); // Equation 10, @cite ely-hanley1983
+            double h_ij = 0.125*pow(pow(h_i[i],1./3.) + pow(h_i[j],1./3.),3.); // Equation 11, @cite ely-hanley1983
+            double mw_ij_inv = (m_mw[i] + m_mw[j])/(2*m_mw[i]*m_mw[j]); // Equation 15, @cite ely-hanley1983
+            f_m += molefracs[i]*molefracs[j]*f_ij*h_ij; // Equation 8, @cite ely-hanley1983
+            h_m += molefracs[i]*molefracs[j]*h_ij; // Equation 9, @cite ely-hanley1983
+            mw_m += molefracs[i]*molefracs[j]*sqrt(mw_ij_inv*f_ij)*pow(h_ij,-4.0/3.0); // Equation, 14 @cite ely-hanley1983
         }
     }
 
+    // These two equations are the final steps for Equations 8 and 14 in @cite ely-hanley1983 . The
+    // previous calculations done in the loop above were for quantities that were multiplied by the
+    // quantity named by the variable. So this step actually generates the value from the model that
+    // is named by the variable.
     f_m = f_m/h_m;
-    mw_m = pow(mw_m,-2.)*f_m*pow(h_m,-8./3.);
+    mw_m = pow(mw_m,-2.0)*f_m*pow(h_m,-8.0/3.0);
 
-    double rho_0 = 16.04*h_m/(1000*m_thermo->molarVolume());
-    double T_0 = m_temp/f_m;
-    double mu_0 = 1e-7*(2.90774e6/T_0 - 3.31287e6*pow(T_0,-2./3.)
+    // Equation 7, @cite ely-hanley1983 . This must be in units of g/cm^3 for use with
+    // the empirical equation.
+    const double kg_m3_to_g_cm3 = 1e-3; // Conversion factor from kg/m^3 to g/cm^3
+    double rho_0 = m_thermo->density()*h_m*kg_m3_to_g_cm3;
+    double T_0 = m_temp/f_m; // Equation 7, @cite ely-hanley1983
+
+    // This is the reference gas, dilute gas viscosity (eta_0 in Table III of @cite ely-hanley1981)
+    // Although the paper doesn't seem to explicitly mention the units of the empirical curve fit
+    // for the viscosity, a plot of the correlation compared to known values of viscosity suggests
+    // that the correlation returns viscosity in a somewhat strange unit of 1e-7 Pa*s.
+    double const correlation_viscosity_conversion = 1e-7; // Conversion factor from the correlation to Pa*s
+    double mu_0 = correlation_viscosity_conversion*(2.90774e6/T_0 - 3.31287e6*pow(T_0,-2./3.)
                 + 1.60810e6*pow(T_0,-1./3.) - 4.33190e5 + 7.06248e4
                 *pow(T_0,1./3.) - 7.11662e3*pow(T_0,2./3.) + 4.32517e2*T_0
                 - 1.44591e1*pow(T_0,4./3.) + 2.03712e-1*pow(T_0,5./3.));
-    double L_1m = 1944*mu_0;
-    double L_2m = (-2.5276e-4 + 3.3433e-4*pow(1.12 - log(T_0/1.680e2),2))*rho_0;
+
+    // Computing the individual terms of Equation 16, @cite ely-hanley1983 . THis is an
+    // evaluation of the expressions shown in Table I of @cite ely-hanley1983 . The
+    // correlation seems to return values of thermal conductivity multiplied by 1000
+    // so this must be converted to W/m/K.
+    const double correlation_conductivity_conversion = 1e-3; // Conversion factor from the correlation to W/m/K
+    double L_1m = (15*GasConstant / (4*ref_MW))*mu_0; // Third term in Equation 16
+    double L_2m = (-2.52762920e-1 + 3.34328590e-1*pow(1.12 - log(T_0/1.680e2),2))*rho_0;
     double L_3m = exp(-7.19771 + 85.67822/T_0)*(exp((12.47183
                 - 984.6252*pow(T_0,-1.5))*pow(rho_0,0.1) + (rho_0/0.1617 - 1)
-                *sqrt(rho_0)*(0.3594685 + 69.79841/T_0 - 872.8833*pow(T_0,-2))) - 1.)*1e-3;
-    double H_m = sqrt(f_m*16.04/mw_m)*pow(h_m,-2./3.);
-    double Lstar_m = H_m*(L_1m + L_2m + L_3m);
+                *sqrt(rho_0)*(0.3594685 + 69.79841/T_0 - 872.8833*pow(T_0,-2))) - 1.0);
+    double reference_fluid_translational_conductivity = correlation_conductivity_conversion*(L_1m + L_2m + L_3m);
+    double H_m = sqrt(f_m*ref_MW/mw_m)*pow(h_m,-2.0/3.0); // Equation 6, @cite ely-hanley1983
+    double Lstar_m = H_m*reference_fluid_translational_conductivity; // Equation 5, @cite ely-hanley1983
     return Lprime_m + Lstar_m;
 }
 
