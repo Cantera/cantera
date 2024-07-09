@@ -53,11 +53,6 @@ class ErrorFormatter(logging.Formatter):
             return message
 
 logger = logging.getLogger(__name__)
-loghandler = logging.StreamHandler(sys.stdout)
-loghandler.setFormatter(ErrorFormatter())
-logger.handlers.clear()
-logger.addHandler(loghandler)
-logger.setLevel(logging.INFO)
 
 def FlowMap(*args, **kwargs):
     m = yaml.comments.CommentedMap(*args, **kwargs)
@@ -152,10 +147,12 @@ class InputError(Exception):
 class ParserLogger(logging.Handler):
     def __init__(self, parser):
         self.parser = parser
+        self.errors = []
         super().__init__()
 
     def emit(self, record: logging.LogRecord):
         self.parser.max_loglevel = max(self.parser.max_loglevel, record.levelno)
+        self.errors.append(self.format(record))
 
 
 class Species:
@@ -2045,6 +2042,14 @@ class Parser:
                      out_name=None, single_intermediate_temperature=False, quiet=False,
                      permissive=None, verbose=False, exit_on_error=False):
 
+        # Direct log messages to the console
+        loghandler = logging.StreamHandler(sys.stdout)
+        loghandler.setFormatter(ErrorFormatter())
+        logger.handlers.clear()
+        logger.addHandler(loghandler)
+        logger.setLevel(logging.INFO)
+        logger.propagate = False
+
         parser = Parser()
         parser.single_intermediate_temperature = single_intermediate_temperature
         if quiet:
@@ -2135,14 +2140,14 @@ class Parser:
             out_name = os.path.splitext(input_file)[0] + '.yaml'
 
         if parser.max_loglevel >= logging.ERROR:
-            logger.error("Unable to convert mechanism due to errors. Please check\n"
-                "https://cantera.org/stable/userguide/"
-                "ck2yaml-tutorial.html#debugging-common-errors-in-ck-files"
-                "\nfor the correct Chemkin syntax.")
             if exit_on_error:
+                logger.error("Unable to convert mechanism due to errors. Please check\n"
+                    "https://cantera.org/stable/userguide/"
+                    "ck2yaml-tutorial.html#debugging-common-errors-in-ck-files"
+                    "\nfor the correct Chemkin syntax.")
                 sys.exit(1)
             else:
-                raise InputError("Error converting mechanism")
+                raise InputError('\n'.join(parser.handler.errors))
 
         # Write output file
         surface_names = parser.write_yaml(name=phase_name, out_name=out_name)
