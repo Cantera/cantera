@@ -130,6 +130,10 @@ protected:
      */
     double Zcrit_i(size_t i);
 
+
+    double elyHanleyDiluteViscosity(double T0);
+
+
     /**
      * Returns the composition-dependent values of parameters that are needed for the
      * Lucas viscosity model.
