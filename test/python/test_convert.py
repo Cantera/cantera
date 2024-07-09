@@ -783,6 +783,16 @@ class yaml2ckTest(utilities.CanteraTest):
         self.check_kinetics(ck_phase, yaml_phase, [900, 1800], [2e5, 20e5], tol=2e-7)
         self.check_transport(ck_phase, yaml_phase, [298, 1001, 2400])
 
+    def test_phase_no_reactions(self):
+        input_file = self.test_data_path / "yaml-ck-reactions.yaml"
+        yaml_phase = ct.Solution(input_file, name="no-reactions")
+        assert yaml_phase.n_reactions == 0
+
+        ck_file = self.test_work_path / 'no-reactions.ck'
+        ck_file.unlink(missing_ok=True)
+        yaml_phase.write_chemkin(ck_file, quiet=True)
+        assert ck_file.exists()
+
     def test_write_chemkin(self):
         # test alternative converter
         yaml_phase = ct.Solution('h2o2.yaml')

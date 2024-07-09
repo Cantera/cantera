@@ -16,6 +16,15 @@ phases:
   state:
     T: 300.0
     P: 1.01325e+05
+- name: no-reactions
+  thermo: ideal-gas
+  elements: [O, H, Ar]
+  kinetics: gas
+  transport: mixture-averaged
+  reactions: none
+  state:
+    T: 300.0
+    P: 1.01325e+05
     
 species:
 - name: AR
