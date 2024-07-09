@@ -825,6 +825,23 @@ class yaml2ckTest(utilities.CanteraTest):
         assert ck_phase.species("eq=uals").input_data["thermo"]["note"] == "120521"
         assert ck_phase.species("plus").input_data["thermo"]["note"] == "12.05"
 
+    def test_multi_line_notes(self):
+        input_file = self.test_data_path / 'multi-line-notes.yaml'
+        yaml_phase = ct.Solution(input_file)
+        assert yaml_phase.species("H2").input_data["thermo"]["note"] == "Line 1\nLine 2"
+
+        ck_file = self.test_work_path / 'multi-line-notes.ck'
+        ck_file.unlink(missing_ok=True)
+        yaml_phase.write_chemkin(ck_file, quiet=True)
+
+        yaml_file = self.test_work_path / 'multi-line-notes.yaml'
+        yaml_file.unlink(missing_ok=True)
+        ck2yaml.convert(ck_file, out_name=yaml_file, quiet=True)
+        assert yaml_file.exists()
+
+        ck_phase = ct.Solution(yaml_file)
+        assert ck_phase.species("H2").input_data["thermo"]["note"] == "Line 1\nLine 2"
+
 
 class cti2yamlTest(utilities.CanteraTest):
     def convert(self, basename, src_dir=None, encoding=None):
