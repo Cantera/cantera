@@ -51,10 +51,312 @@ public:
     }
 
     void init(ThermoPhase* thermo, int mode=0, int log_level=0) override;
+
     /**
      * Returns the mixture high-pressure thermal conductivity in W/m/K
-     * using a method by Ely and Hanley.
+     * using a method of corresponding states by Ely and Hanley.
      *
+     * This method for computing the thermal conductivity is described in
+     * @cite ely-hanley1983 . There are references to earlier work in
+     * @cite ely-hanley1981 in the description of the model for thermal conductivity.
+     * The equations referenced in this description primarily are from
+     * @cite ely-hanley1983 , and equations that come from @cite ely-hanley1981 are
+     * marked as such. The equations referenced here are the same as the ones from
+     * the papers from Ely and Hanley.
+     *
+     * The thermal conductivity is assumed to have two components: a translational/collisional
+     * part and an internal part that is related to the transfer of energy to internal degrees
+     * of freedom.
+     *
+     * @f[
+     *   \lambda_{mix}(\rho, T) = \lambda^{''}_{mix}(T) + \lambda^{'}_{mix}(\rho, T)
+     * @f]
+     *
+     * The first term on the right-hand side is the internal part and the second term is the
+     * translational part. The internal part is only a function of temperature, and the
+     * translational part is a function of both temperature and density.
+     *
+     * For the internal component of the thermal conductivity the following equations are
+     * used.
+     *
+     * @f[
+     *  \lambda^{''}_{mix}(T) = \sum_i \sum_j X_i X_j \lambda^{''}_{ij}(T)
+     *
+     *  \quad \text{(Equation 2)}
+     * @f]
+     *
+     * The mixing rule for combining pure-species internal thermal conductivity components
+     * is given by:
+     *
+     * @f[
+     *  (\lambda^{''}_{ij})^{-1} = 2[(\lambda^{''}_{i})^{-1} + (\lambda^{''}_{j})^{-1}]
+     *
+     *  \quad \text{(Equation 3)}
+     * @f]
+     *
+     * The pure species internal thermal conductivity is given by:
+     *
+     * @f[
+     *  \lambda^{''}_{i} = \frac{\eta_i^*}{MW_i}f_{int} \left(C_{p,i}^0 - 2.5R \right)
+     *
+     *  \quad \text{(Equation 1)}
+     * @f]
+     *
+     * Where @f$ \eta_i^* @f$ is the referred to as the dilute gas viscosity and is the
+     * component that is temperature dependent described in @cite ely-hanley1981. @f$ MW_i @f$
+     * is the molecular weight of species i, @f$ f_int @f$ is a constant and is 1.32, @f$ C_{p,i}^0 @f$
+     * is the ideal gas heat capacity of species i, and R is the gas constant.
+     *
+     * For the translational component of the thermal conductivity the following equations are
+     * used.
+     *
+     * @f[
+     *   \lambda^{'}_{mix}(\rho, T) = \lambda^{'}_{0}(\rho_0, T_0) F_{\lambda}
+     *
+     *   \quad \text{(Equation 5)}
+     * @f]
+     *
+     * Where @f$ \lambda^{'}_{0}(\rho_0, T_0) @f$ is the internal component of the thermal
+     * conductivity of a reference fluid that is at a reference temperature and density,
+     * @f$ T_0 @f$ and @f$ \rho_0 @f$. These reference conditions are not the same as the
+     * conditions that the mixture is at (@f$ T @f$ and @f$ \rho @f$). The subscript 0 refers
+     * to the reference fluid.
+     *
+     * @f[
+     *  F_{\lambda} = \left( \frac{MW_0}{MW_m} \right)^{1/2} f_{m,0}^{1/2} h_{m,0}^{-2/3}
+     *
+     *  \quad \text{(Equation 6)}
+     * @f]
+     *
+     * Where @f$ MW_0 @f$ is the molecular weight of the reference fluid, @f$ MW_m @f$ is the
+     * molecular weight of the mixture, @f$ f_{m,0} @f$ and @f$ h_{m,0} @f$ are called
+     * reducing ratios. The @f$ h_{m,0} @f$ quantity is defined as:
+     *
+     * @f[
+     *   h_{m,0} = \sum_i \sum_j X_i X_j h_{ij}
+     *
+     *   \quad \text{(Equation 9)}
+     * @f]
+     *
+     * with,
+     *
+     * @f[
+     *   h_{ij} = \frac{1}{8} (h_i^{1/3} + h_j^{1/3})^3 (1 - l_{ij})
+     *
+     *   \quad \text{(Equation 11)}
+     * @f]
+     *
+     * The variable @f$ l_{ij} @f$ is a binary interaction parameter and is assumed to
+     * be zero as is done by Ely and Hanley.
+     *
+     * @f[
+     *   h_i = \frac{V_c^i}{V_c^0} \phi_i(T_R^i, V_R^i, \omega_i)
+     *
+     *   \quad \text{(Equation 13)}
+     * @f]
+     *
+     * Where @f$ \phi_i @f$ is a shape factor of Leach and Leland, @f$ T_R^i @f$ is
+     * the reduced temperature of species i, @f$ V_R^i @f$ is the reduced volume of
+     * species i, and @f$ \omega_i @f$ is the acentric factor of species i The shape
+     * factor @f$ \phi_i @f$ is defined in @cite ely-hanley1981 as follows:
+     *
+     * @f[
+     *   \phi_i(T_R^i, V_R^i, \omega_i) = \frac{Z_0^c}{Z_i^c} [1 + (\omega_i - \omega_0)G(T_R^i, V_R^i)]
+     *
+     *   \quad \text{(Equation 12 of @cite ely-hanley1981)}
+     * @f]
+     *
+     * Where @f$ Z_0^c @f$ is the critical compressibility of the reference fluid, @f$ Z_i^c @f$
+     * is the critical compressibility of species i, @f$ \omega_0 @f$ is the acentric factor of
+     * the reference fluid, and @f$ G(T_R^i, V_R^i) @f$ is a function of the reduced temperature
+     * and reduced volume of species i. The function @f$ G(T_R^i, V_R^i) @f$ is defined as:
+     *
+     * @f[
+     *   G(T_R^i, V_R^i) = a_2(V_i^+ + b_2) + c_2(V_i^+ + d_2)ln(T_R^i)
+     *
+     *   \quad \text{(Equation 14 of @cite ely-hanley1981)}
+     * @f]
+     *
+     * Where @f$ T_i^+ @f$ and @f$ V_i^+ @f$ are limited values of the reduced temperature
+     * and pressure and are defined as:
+     *
+     * @f[
+     *   T_i^+ = min(2, max(T_R^i, 0.5))
+     *
+     *   \quad \text{(Equation 15 of @cite ely-hanley1981)}
+     * @f]
+     *
+     * and
+     *
+     * @f[
+     *  V_i^+ = min(2, max(V_R^i, 0.5))
+     *
+     *  \quad \text{(Equation 16 of @cite ely-hanley1981)}
+     * @f]
+     *
+     * The values of @f$ a_2 @f$, @f$ b_2 @f$, @f$ c_2 @f$, and @f$ d_2 @f$ are
+     * given in Table II of @cite ely-hanley1981. They are:
+     *
+     * @f[
+     *   a_2 = 0.394901, b_2 = -1.023545, c_2 = -0.932813, d_2 = -0.754639
+     * @f]
+     *
+     * With the definitions above, the value of @f$ h_{m,0} @f$ can be computed. This
+     * leaves the other reducing ratio, @f$ f_{m,0} @f$, to be defined. The value of
+     * that reducing ratio is defined by the following equation.
+     *
+     * @f[
+     *   f_{m,0} = \frac{1}{h_{m,0}} \sum_i \sum_j X_i X_j f_{ij} h_{ij}
+     *
+     *   \quad \text{(Equation 8)}
+     * @f]
+     *
+     *
+     * The value of @f$ h_{ij} @f$ is the same as the one defined earlier. The combining
+     * rule for @f$ f_{ij} @f$ is given by:
+     *
+     * @f[
+     *   f_{ij} = (f_i f_j)^{1/2} (1-\kappa_{ij})
+     *
+     *   \quad \text{(Equation 10)}
+     * @f]
+     *
+     * @f$ \kappa_{ij} @f$ is binary interaction parameters and is assumed to be zero
+     * as was done in the work of Ely and Hanley. The species-specific value of @f$ f_i @f$
+     * is defined as:
+     *
+     * @f[
+     *   f_i = \frac{T_c^i}{T_c^0} \theta_i(T_R^i, V_R^i, \omega_i)
+     *
+     *   \quad \text{(Equation 12 @cite ely-hanley1981)}
+     * @f]
+     *
+     * Where @f$ \theta_i @f$ is a shape factor of Leach and Leland, @f$ T_c^i @f$ is the
+     * critical temperature of species i, and @f$ T_c^0 @f$ is the critical temperature of
+     * the reference fluid. The shape factor @f$ \theta_i @f$ is defined in @cite ely-hanley1981
+     * as:
+     *
+     * @f[
+     *   \theta_i(T_R^i, V_R^i, \omega_i) = 1 + (\omega_i - \omega_0)F(T_R^i, V_R^i)]
+     *
+     *   \quad \text{(Equation 11 of @cite ely-hanley1981)}
+     * @f]
+     *
+     * Where @f$ Z_0^c @f$ is the critical compressibility of the reference fluid, @f$ Z_i^c @f$
+     * is the critical compressibility of species i, @f$ \omega_0 @f$ is the acentric factor of
+     * the reference fluid, and @f$ G(T_R^i, V_R^i) @f$ is a function of the reduced temperature
+     * and reduced volume of species i. The function @f$ G(T_R^i, V_R^i) @f$ is defined as:
+     *
+     * @f[
+     *   F(T_R^i, V_R^i) = a_1 + b_1 ln(T_R^i) + (c_1 + d_1/T_R^i) (V_R^i - 0.5)
+     *
+     *   \quad \text{(Equation 13 of @cite ely-hanley1981)}
+     * @f]
+     *
+     * Where @f$ T_i^+ @f$ and @f$ V_i^+ @f$ are limited values of the reduced temperature
+     * and pressure and have the same definition as was shown earlier.
+     *
+     * The values of @f$ a_1 @f$, @f$ b_1 @f$, @f$ c_1 @f$, and @f$ d_1 @f$ are
+     * given in Table II of @cite ely-hanley1981. They are:
+     *
+     * @f[
+     *   a_1 = 0.090569, b_1 = -0.862762, c_1 = 0.316636, d_1 = -0.465684
+     * @f]
+     *
+     * With the definitions above, the value of @f$ h_{m,0} @f$ can be computed from the
+     * equation that defined the value of @f$ f_{m,0} h_{m,0} @f$. The value of @f$ h_{m,0} @f$
+     * must be computed first and then the value of @f$ f_{m,0} @f$ can be computed.
+     *
+     * The value of @f$ MW_m @f$ is the molecular weight of the mixture and is computed using
+     * the following equation. This expression is somewhat complex, but the method to obtain the
+     * value of @f$ MW_m @f$ is to compute the right-hand-side first with the definitions of
+     * @f$ MW_{ij} @f$, @f$ f_{ij} @f$, and @f$ h_{ij} @f$ . Then once the right-hand-side is
+     * known, along with the previously computed values of @f$ f_{m,0} @f$ and @f$ h_{m,0} @f$,
+     * we can use simple algebra to isolate @f$ MW_m @f$.
+     *
+     * @f[
+     *   MW_m^{1/2} f_{m,0}^{1/2} h_{m,0}^{-4/3} = \sum_i \sum_j X_i X_j MW_{ij}^{-1/2} f_{ij}^{1/2} h_{ij}^{-4/3}
+     *
+     *   \quad \text{(Equation 14)}
+     * @f]
+     *
+     * where,
+     *
+     * @f[
+     *   MW_{ij} = \frac{1}{2} (MW_i^{-1} + MW_j^{-1})
+     *
+     *   \quad \text{(Equation 15)}
+     * @f]
+     *
+     * For clarity, if we assume the right-hand-side of the molecular weight mixture equation is A, then
+     * the mixture molecular weight is given by:
+     *
+     * @f[
+     *   MW_m = A^{-2} f_{m,0} h_{m,0}^{-8/3}
+     * @f]
+     *
+     * All of the above descriptions allow for the calculation of @f$ F_{\lambda} @f$ in the expression for
+     * the mixture value of the translational component of the thermal conductivity. The reference fluid
+     * value of the translational component of the thermal conductivity is still needed. The first thing
+     * that needs to be done is the obtain the temperature and density of the reference fluid. The following
+     * relations are used to compute the reference fluid temperature and density.
+     *
+     * @f[
+     *   \rho_0 = \rho h_{m,0}
+     *
+     *   \quad \text{(Equation 7)}
+     * @f]
+     *
+     * and
+     *
+     * @f[
+     *   T_0 = \frac{T}{f_{m,0}}
+     *   \quad \text{(Equation 7)}
+     * @f]
+     *
+     * The reference fluid translational component of thermal conductivity can now be
+     * computed using the following equation.
+     *
+     * @f[
+     *   \lambda^{'}_{0}(\rho_0, T_0) = \frac{15R}{4MW_0} \eta_0^* + \lambda_0^{(1)}\rho_0 + \Delta\lambda_0(\rho_0, T_0)
+     *
+     *   \quad \text{(Equation 18)}
+     * @f]
+     *
+     * Where @f$ \eta_0^* @f$ is the dilute gas viscosity, @f$ \lambda_0^{(1)} @f$ is the first density
+     * correction to the thermal conductivity, and @f$ \Delta\lambda_0 @f$ is the high-density contribution.
+     * Ely and Hanley provide a correlation equation to solve for this quantity for the methane reference
+     * fluid. The details of the correlation and the parameters are shown in Table I of @cite ely-hanley1983.
+     *
+     * For completeness, the relations are reproduced here.
+     *
+     * @f[
+     *   \lambda_0^*(T_0) = \frac{15R}{4MW_0} \eta_0^*
+     * @f]
+     *
+     * @f[
+     *   \eta_0^* = \sum_{n=1}^{9} C_n T_0^{(n-4)/3}
+     * @f]
+     *
+     * @f[
+     *   \lambda_0^{(1)} = b_1 + b_2[b_3 - ln(T_0 / b_4)]^2
+     * @f]
+     *
+     * @f[
+     *  \Delta\lambda_0 = exp[a_1 + a_2/T_0] (exp[(a_3 + a_4/T_0^{3/4})\rho_0^{0.1}
+     *                    + (\rho_0 / \rho_0,c - 1)\rho_0^{0.5}
+     *                      (a_5 + a_6/T_0 + a_7/T_0^2) ] - 1)
+     * @f]
+     *
+     * The constants a, b, and C are not related to any ones used in the previous
+     * equations, their values are defined in Table I of @cite ely-hanley1983.
+     *
+     * @note The correlations for the reference fluid viscosity return a value of
+     *       micro-grams/cm/s and the parts of the thermal conductivity that utilize
+     *       the correlation fit parameters give values in units of mW/m/K. Appropriate
+     *       conversions were made in the relevant functions.
+     *       @see elyHanleyDiluteViscosity()
+     *       @see elyHanleyReferenceThermalConductivity()
      */
     double thermalConductivity() override;
 
