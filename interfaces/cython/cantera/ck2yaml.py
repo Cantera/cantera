@@ -225,13 +225,14 @@ class Nasa9:
         [(T_low, T_high), [a_0, a_1, ..., a_8]]
         ```
     """
-    def __init__(self, *, data, note=''):
+    def __init__(self, *, parser, data, note=''):
         self.note = note
         self.data = list(sorted(data))
         self.Tranges = [self.data[0][0][0]]
         for i in range(1, len(data)):
             if abs(self.data[i-1][0][1] - self.data[i][0][0]) > 0.01:
-                raise ValueError('NASA9 polynomials contain non-adjacent temperature ranges')
+                logger.error(parser.entry('thermo entry') +
+                    'NASA9 polynomials contain non-adjacent temperature ranges')
             self.Tranges.append(self.data[i][0][0])
         self.Tranges.append(self.data[-1][0][1])
 
@@ -989,6 +990,7 @@ class Parser:
             note = comments
 
         composition = self.parse_composition(entry[1][10:50], 5, 8)
+        self.current_entry = entry
 
         polys = []
         try:
@@ -1002,10 +1004,9 @@ class Parser:
                           fortFloat(C[64:80])]
                 polys.append((Trange, coeffs))
         except (IndexError, ValueError) as err:
-            raise InputError('Error while reading thermo entry for species {}:\n{}.',
-                             species, err)
+            logger.error(self.entry("thermo entry") + str(err))
 
-        thermo = Nasa9(data=polys, note=note)
+        thermo = Nasa9(data=polys, note=note, parser=self)
 
         return species, thermo, composition
 
