@@ -133,19 +133,6 @@ void HighPressureGasTransport::initializeCriticalProperties()
     m_thermo->setMoleFractions(&molefracs[0]);
 }
 
-/**
- * @This implementation uses the method of Ely and Hanley to compute the thermal
- * conductivity.
- *
- * The method is detailed in @cite ely-hanley1981 and @cite ely-hanley1983 .
- *
- * This method uses a reference fluid of methane.
- *
- * The Leach and Leland shape factors @f$ \theta_{\alpha,0} @f$ and @f$ \phi_{\alpha,0} @f$ are
- * defined as:
- *
- *
- */
 double HighPressureGasTransport::thermalConductivity()
 {
     update_T();
