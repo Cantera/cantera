@@ -145,14 +145,17 @@ class ck2yamlTest(utilities.CanteraTest):
         assert "Only one temperature range defined" in captured.out
 
     def test_bad_nasa9_temperature_ranges(self):
-        with pytest.raises(ValueError,
+        with pytest.raises(ck2yaml.InputError,
                            match="non-adjacent temperature ranges"):
             self.convert(None, thermo='bad-nasa9-Trange.dat')
 
     def test_bad_nasa9_coeffs(self):
-        with pytest.raises(ck2yaml.InputError,
-                           match="Error while reading thermo entry for species ALCL3"):
+        with pytest.raises(ck2yaml.InputError) as info:
             self.convert(None, thermo='bad-nasa9-coeffs.dat')
+        err_text = str(info.value)
+        assert "Error while reading thermo entry" in err_text
+        assert "\nALCL3" in err_text
+        assert "could not convert string to float" in err_text
 
     def test_duplicate_species(self):
         with self.assertRaisesRegex(ck2yaml.InputError, 'additional declaration'):
