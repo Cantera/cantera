@@ -160,6 +160,61 @@ logger.info(
     f"SCons {SCons.__version__} is using the following Python interpreter:\n"
     f"    {sys.executable} (Python {python_version})", print_level=False)
 
+cantera_version = "3.1.0a2"
+# For use where pre-release tags are not permitted (MSI, sonames)
+cantera_pure_version = re.match(r'(\d+\.\d+\.\d+)', cantera_version).group(0)
+cantera_short_version = re.match(r'(\d+\.\d+)', cantera_version).group(0)
+
+try:
+    cantera_git_commit = get_command_output("git", "rev-parse", "--short", "HEAD")
+    logger.info(f"Building Cantera from git commit {cantera_git_commit!r}")
+except (subprocess.CalledProcessError, FileNotFoundError):
+    cantera_git_commit = "unknown"
+
+# Python Package Settings
+python_min_version = parse_version("3.8")
+# Newest Python version not supported/tested by Cantera
+python_max_p1_version = parse_version("3.13")
+# The string is used to set python_requires in setup.cfg.in
+py_requires_ver_str = f">={python_min_version}"
+
+if "sdist" in COMMAND_LINE_TARGETS:
+    if "clean" in COMMAND_LINE_TARGETS:
+        COMMAND_LINE_TARGETS.remove("clean")
+    if len(COMMAND_LINE_TARGETS) > 1:
+        logger.error("'sdist' target cannot be built simultaneously with other targets.")
+        sys.exit(1)
+    logger.info("Copying files for sdist...")
+    subprocess.run(
+        [
+            sys.executable,
+            "interfaces/python_sdist/build_sdist.py",
+            os.getcwd(),
+            "/".join((os.getcwd(), "build", "python_sdist")),
+            cantera_git_commit,
+            py_requires_ver_str + f",<{python_max_p1_version}",
+            cantera_version,
+            cantera_short_version,
+        ],
+    )
+    subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "build",
+            "--sdist",
+            "/".join((os.getcwd(), "build", "python_sdist")),
+        ],
+    )
+    message = textwrap.dedent(f"""
+        ****************************************************************
+        Python sdist 'Cantera-{cantera_version}.tar.gz' created successfully.
+        The sdist file is in the 'build/python_sdist/dist' directory.
+        ****************************************************************
+    """)
+    logger.info(message, print_level=False)
+    sys.exit(0)
+
 # ******************************************
 # *** Specify defaults for SCons options ***
 # ******************************************
@@ -797,6 +852,15 @@ env = Environment(tools=toolchain+["textfile", "subst", "recursiveInstall", "Uni
                   toolchain=toolchain,
                   **extraEnvArgs)
 
+# Copy variables we defined earlier into the construction environment.
+# We needed them earlier to support building the sdist without doing
+# any other unnecessary config
+
+env["cantera_version"] = cantera_version
+env["cantera_pure_version"] = cantera_pure_version
+env["cantera_short_version"] = cantera_short_version
+env["git_commit"] = cantera_git_commit
+
 env["OS"] = platform.system()
 env["OS_BITS"] = int(platform.architecture()[0][:2])
 if "cygwin" in env["OS"].lower():
@@ -899,28 +963,6 @@ if 'doxygen' in COMMAND_LINE_TARGETS:
     env['doxygen_docs'] = True
 if 'sphinx' in COMMAND_LINE_TARGETS:
     env['sphinx_docs'] = True
-
-if "sdist" in COMMAND_LINE_TARGETS:
-    if "clean" in COMMAND_LINE_TARGETS:
-        COMMAND_LINE_TARGETS.remove("clean")
-    if len(COMMAND_LINE_TARGETS) > 1:
-        logger.error("'sdist' target cannot be built simultaneously with other targets.")
-        sys.exit(1)
-
-    env["python_sdist"] = True
-    env["python_package"] = "none"
-    for ext_dependency in ("sundials", "fmt", "yamlcpp", "eigen", "highfive"):
-        if env[f"system_{ext_dependency}"] == "y":
-            logger.error(f"'sdist' target was specified. Cannot use 'system_{ext_dependency}'.")
-            sys.exit(1)
-        else:
-            env[f"system_{ext_dependency}"] = "n"
-
-    logger.info("'sdist' target was specified. Setting 'use_pch' to False.")
-    env["use_pch"] = False
-else:
-    env["python_sdist"] = False
-
 for arg in ARGUMENTS:
     if arg not in config:
         logger.error(f"Encountered unexpected command line option: {arg!r}")
@@ -930,12 +972,6 @@ for arg in ARGUMENTS:
 if env['sphinx_docs']:
     config.add(windows_options)
     env['config'] = config
-
-env["cantera_version"] = "3.1.0a2"
-# For use where pre-release tags are not permitted (MSI, sonames)
-env['cantera_pure_version'] = re.match(r'(\d+\.\d+\.\d+)', env['cantera_version']).group(0)
-env['cantera_short_version'] = re.match(r'(\d+\.\d+)', env['cantera_version']).group(0)
-
 def get_processor_name():
     """Check processor name"""
     # adapted from:
@@ -956,12 +992,6 @@ def get_processor_name():
 
 env["CPU"] = get_processor_name()
 logger.info(f"Compiling on {env['CPU']!r}")
-
-try:
-    env["git_commit"] = get_command_output("git", "rev-parse", "--short", "HEAD")
-    logger.info(f"Building Cantera from git commit {env['git_commit']!r}")
-except (subprocess.CalledProcessError, FileNotFoundError):
-    env["git_commit"] = "unknown"
 
 # Print values of all build options:
 # the (updated) "cantera.conf" combines all options that were specified by the user
@@ -1299,19 +1329,18 @@ else:
     env["HAS_OPENMP"] = False
     logger.info("Not checking for OpenMP support due to using XCode compiler.")
 
-if not env["python_sdist"]:
-    boost_version_source = get_expression_value(['<boost/version.hpp>'], 'BOOST_LIB_VERSION')
-    retcode, boost_lib_version = conf.TryRun(boost_version_source, '.cpp')
-    env['BOOST_LIB_VERSION'] = '.'.join(boost_lib_version.strip().split('_'))
-    if not env['BOOST_LIB_VERSION']:
-        config_error("Boost could not be found. Install Boost headers or set"
-                    " 'boost_inc_dir' to point to the boost headers.")
-    else:
-        logger.info(f"Found Boost version {env['BOOST_LIB_VERSION']}")
-    if parse_version(env['BOOST_LIB_VERSION']) < parse_version("1.70"):
-        # Boost.DLL with std::filesystem (making it header-only) is available in Boost 1.70
-        # or newer
-        config_error("Cantera requires Boost version 1.70 or newer.")
+boost_version_source = get_expression_value(['<boost/version.hpp>'], 'BOOST_LIB_VERSION')
+retcode, boost_lib_version = conf.TryRun(boost_version_source, '.cpp')
+env['BOOST_LIB_VERSION'] = '.'.join(boost_lib_version.strip().split('_'))
+if not env['BOOST_LIB_VERSION']:
+    config_error("Boost could not be found. Install Boost headers or set"
+                 " 'boost_inc_dir' to point to the boost headers.")
+else:
+    logger.info(f"Found Boost version {env['BOOST_LIB_VERSION']}")
+if parse_version(env['BOOST_LIB_VERSION']) < parse_version("1.70"):
+    # Boost.DLL with std::filesystem (making it header-only) is available in Boost 1.70
+    # or newer
+    config_error("Cantera requires Boost version 1.70 or newer.")
 
 # check BLAS/LAPACK installations
 if env["system_blas_lapack"] == "n":
@@ -1645,13 +1674,8 @@ logger.debug("\n".join(debug_message), print_level=False)
 
 env['python_cmd_esc'] = quoted(env['python_cmd'])
 
-# Python Package Settings
-python_min_version = parse_version("3.8")
-# Newest Python version not supported/tested by Cantera
-python_max_p1_version = parse_version("3.13")
-# The string is used to set python_requires in setup.cfg.in
-env["py_requires_ver_str"] = f">={python_min_version}"
-if env["python_sdist"] or env["package_build"]:
+env["py_requires_ver_str"] = py_requires_ver_str
+if env["package_build"]:
     env["py_requires_ver_str"] += f",<{python_max_p1_version}"
 cython_min_version = parse_version("0.29.31")
 numpy_min_version = parse_version('1.12.0')
@@ -1786,7 +1810,7 @@ if env['python_package'] != 'none':
             sys.exit(1)
     elif python_version >= python_max_p1_version:
         if env["python_package"] in ("minimal", "full", "default"):
-            if env["python_sdist"] or env["package_build"]:
+            if env["package_build"]:
                 # An error is triggered as the pip wheel cannot be built for
                 # 'scons build' due to safeguards in setup.cfg(.in) files.
                 logger.error(
@@ -2207,10 +2231,6 @@ if env['CC'] != 'cl':
 
 if env['doxygen_docs'] or env['sphinx_docs']:
     SConscript('doc/SConscript')
-
-if env["python_sdist"]:
-    VariantDir("build/python_sdist", "interfaces/python_sdist", duplicate=1)
-    SConscript("interfaces/python_sdist/SConscript", variant_dir="build/python_sdist")
 
 # Sample programs (also used from test_problems/SConscript)
 VariantDir('build/samples', 'samples', duplicate=0)

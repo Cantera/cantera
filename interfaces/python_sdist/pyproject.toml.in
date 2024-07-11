@@ -8,7 +8,7 @@ version = "@cantera_version@"
 description = "Cantera is an open-source suite of tools for problems involving chemical kinetics, thermodynamics, and transport processes."
 authors = [{name = "Cantera Developers", email = "developers@cantera.org"}]
 keywords = ["chemistry physics"]
-license = {text = "BSD 3-Clause License"}
+license = { file = "License.txt" }
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Education",
@@ -73,3 +73,6 @@ CMAKE_POSITION_INDEPENDENT_CODE = "ON"
 
 [tool.scikit-build.sdist]
 exclude = ["pyproject.toml.in", "cantera/with_units/solution.py.in"]
+
+[tool.scikit-build.wheel]
+exclude = ["include", "lib", "share", "**.pyx", "cantera/CMakeLists.txt"]

@@ -1,18 +1,9 @@
 from textwrap import dedent, indent
 from string import Template
 
-def UnitsInterfaceBuilder(env, target, source):
-    """This builder creates the cantera.with_units interface for the Python package.
 
-    This builder is meant to be called like
-    ``env.UnitsInterfaceBuilder(target_file, template_source_file)``
-
-    The builder will create string templates for all the ``ThermoPhase`` methods and
-    fill them in with the appropriate SI + kmol units to be converted with pint.
-
-    The return value is an item of type ``env.SubstFile`` which can be put into a
-    ``Depends`` call, so that this builder will be called for a particular module.
-    """
+def get_property_definition_strings():
+    """This function is here to be imported by the sdist builder."""
     UNITS = {
         "cp_mass": '"J/kg/K"', "cp_mole": '"J/kmol/K"', "cv_mass": '"J/kg/K"',
         "cv_mole": '"J/kmol/K"', "density_mass": '"kg/m**3"', "density_mole": '"kmol/m**3"',
@@ -240,6 +231,22 @@ def UnitsInterfaceBuilder(env, target, source):
             self._phase.Y = Y
     """)
 
+    return common_properties, thermophase_properties, purefluid_properties
+
+
+def UnitsInterfaceBuilder(env, target, source):
+    """This builder creates the cantera.with_units interface for the Python package.
+
+    This builder is meant to be called like
+    ``env.UnitsInterfaceBuilder(target_file, template_source_file)``
+
+    The builder will create string templates for all the ``ThermoPhase`` methods and
+    fill them in with the appropriate SI + kmol units to be converted with pint.
+
+    The return value is an item of type ``env.SubstFile`` which can be put into a
+    ``Depends`` call, so that this builder will be called for a particular module.
+    """
+    common_properties, thermophase_properties, purefluid_properties = get_property_definition_strings()
     env["common_properties"] = indent(common_properties.strip(), " "*4)
     env["thermophase_properties"] = indent(thermophase_properties.strip(), " "*4)
     env["purefluid_properties"] = indent(purefluid_properties.strip(), " "*4)
