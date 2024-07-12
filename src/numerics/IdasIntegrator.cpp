@@ -378,6 +378,7 @@ void IdasIntegrator::applyOptions()
                                   (SUNMatrix) m_linsol_matrix);
         #endif
     } else if (m_type == "GMRES") {
+        SUNLinSolFree((SUNLinearSolver) m_linsol);
         #if CT_SUNDIALS_VERSION >= 60
             m_linsol = SUNLinSol_SPGMR(m_y, SUN_PREC_NONE, 0, m_sundials_ctx.get());
             IDASetLinearSolver(m_ida_mem, (SUNLinearSolver) m_linsol, nullptr);
