@@ -134,14 +134,11 @@ class InputError(Exception):
     mechanism files. Pass a string describing the circumstances that caused
     the exceptional behavior.
     """
-    def __init__(self, message, *args, **kwargs):
+    def __init__(self, message):
         message += ("\nPlease check https://cantera.org/stable/userguide/"
                    "ck2yaml-tutorial.html#debugging-common-errors-in-ck-files"
                    "\nfor the correct Chemkin syntax.")
-        if args or kwargs:
-            super().__init__(message.format(*args, **kwargs))
-        else:
-            super().__init__(message)
+        super().__init__(message)
 
 
 class ParserLogger(logging.Handler):
@@ -1448,9 +1445,10 @@ class Parser:
                     'units', 'phases', 'species', 'reactions'}
         reserved &= set(yml.keys())
         if reserved:
-            raise InputError(f"The YAML file '{path}' provided as '--extra' input\n"
-                "must not redefine reserved field name(s): "
-                + ", ".join(f'{item!r}' for item in reserved))
+            logger.error(f"The YAML file '{Path(path).name}' provided as '--extra' "
+                         "input\nmust not redefine reserved field name(s): "
+                         + ", ".join(f'{item!r}' for item in reserved))
+            return
 
         # replace header lines
         if 'description' in yml:
@@ -1459,8 +1457,8 @@ class Parser:
                     self.header_lines += ['']
                 self.header_lines += yml.pop('description').split('\n')
             else:
-                raise InputError("The alternate description provided in "
-                    "'{}' needs to be a string".format(path))
+                logger.error("The alternate description provided in "
+                             f"'{Path(path).name}'\nneeds to be a string.")
 
         # remainder
         self.extra = yml
@@ -1577,6 +1575,14 @@ class Parser:
                             self.species_list.append(species)
 
                 elif tokens[0].upper().startswith('SITE'):
+                    self.current_entry = [line]
+                    if not surface:
+                        logger.error(self.entry("section") +
+                            "Surface phase input file must be specified using the "
+                            "'--surface' option\nwith the bulk (gas) phase input "
+                            "specified using the '--input' option.")
+                        break
+
                     # List of species identifiers for surface species
                     if '/' in tokens[0]:
                         surf_name = tokens[0].split('/')[1]
@@ -1590,7 +1596,8 @@ class Parser:
                             tokens.remove(token)
 
                     if site_density is None:
-                        raise InputError('SITE section defined with no site density')
+                        logger.error(self.entry("SITE section") +
+                                     "SITE section defined with no site density")
                     self.surfaces.append(Surface(name=surf_name,
                                                  site_density=site_density))
                     surf = self.surfaces[-1]
@@ -1911,8 +1918,10 @@ class Parser:
                         line, comment = readline()
 
                 elif line.strip():
-                    raise InputError('Section starts with unrecognized keyword'
-                        '\n"""\n{}\n"""', line.rstrip())
+                    self.current_entry = [line]
+                    logger.error(self.entry() +
+                        f"Section starts with unrecognized keyword '{line.rstrip()}'")
+                    break
 
                 if advance:
                     line, comment = readline()
@@ -2086,16 +2095,7 @@ class Parser:
                 emitter.dump(elementsMap, dest)
 
             # Write the individual species data
-            all_species = list(self.species_list)
-            for surf in self.surfaces:
-                all_species.extend(surf.species_list)
-
-            for species in all_species:
-                if species.composition is None:
-                    raise InputError('No thermo data found for '
-                                     f'species {species.label!r}')
-
-            speciesMap = BlockMap([('species', all_species)])
+            speciesMap = BlockMap([('species', self.all_species)])
             speciesMap.yaml_set_comment_before_after_key('species', before='\n')
             emitter.dump(speciesMap, dest)
 
@@ -2139,7 +2139,11 @@ class Parser:
             parser.set_current_file(input_file)
             input_file = os.path.expanduser(input_file)
             if not os.path.exists(input_file):
-                raise IOError('Missing input file: {0!r}'.format(input_file))
+                if exit_on_error:
+                    logger.error(f"Missing input file: {input_file!r}")
+                    sys.exit(1)
+                else:
+                    raise IOError(f"Missing input file: {input_file!r}")
             try:
                 # Read input mechanism files
                 parser.load_chemkin_file(input_file)
@@ -2153,12 +2157,19 @@ class Parser:
         if surface_file:
             if phase_name is None:
                 msg = "Cannot specify a surface mechanism without a gas phase"
-                logger.warning(f"\nERROR: {msg}\n")
-                raise InputError(msg)
+                if exit_on_error:
+                    logger.warning(f"\nERROR: {msg}\n")
+                    sys.exit(1)
+                else:
+                    raise InputError(msg)
             parser.set_current_file(surface_file)
             surface_file = os.path.expanduser(surface_file)
             if not os.path.exists(surface_file):
-                raise IOError('Missing input file: {0!r}'.format(surface_file))
+                if exit_on_error:
+                    logger.error(f"Missing input file: {surface_file!r}")
+                    sys.exit(1)
+                else:
+                    raise IOError(f"Missing input file: {surface_file!r}")
             try:
                 # Read input mechanism files
                 parser.load_chemkin_file(surface_file, surface=True)
@@ -2171,7 +2182,11 @@ class Parser:
             parser.set_current_file(thermo_file)
             thermo_file = os.path.expanduser(thermo_file)
             if not os.path.exists(thermo_file):
-                raise IOError('Missing thermo file: {0!r}'.format(thermo_file))
+                if exit_on_error:
+                    logger.error(f"Missing thermo file: {thermo_file!r}")
+                    sys.exit(1)
+                else:
+                    raise IOError(f"Missing thermo file: {thermo_file!r}")
             try:
                 parser.load_chemkin_file(thermo_file,
                                        skip_undeclared_species=bool(input_file))
@@ -2180,11 +2195,23 @@ class Parser:
                                thermo_file, parser.line_number))
                 raise
 
+        parser.all_species = list(parser.species_list)
+        for surf in parser.surfaces:
+            parser.all_species.extend(surf.species_list)
+
+        for species in parser.all_species:
+            if species.composition is None:
+                logger.error(f'No thermo data found for species {species.label!r}')
+
         if transport_file:
             parser.set_current_file(transport_file)
             transport_file = os.path.expanduser(transport_file)
             if not os.path.exists(transport_file):
-                raise IOError('Missing transport file: {0!r}'.format(transport_file))
+                if exit_on_error:
+                    logger.error(f"Missing transport file: {transport_file!r}")
+                    sys.exit(1)
+                else:
+                    raise IOError(f"Missing transport file: {transport_file!r}")
             with open(transport_file, 'r', errors='ignore') as f:
                 lines = [strip_nonascii(line) for line in f]
             parser.parse_transport_data(lines, transport_file, 1)
@@ -2192,13 +2219,17 @@ class Parser:
             # Transport validation: make sure all species have transport data
             for s in parser.species_list:
                 if s.transport is None:
-                    raise InputError("No transport data for species '{}'.", s)
+                    logger.error(f"No transport data for species '{s}'.")
 
         if extra_file:
             parser.set_current_file(extra_file)
             extra_file = os.path.expanduser(extra_file)
             if not os.path.exists(extra_file):
-                raise IOError('Missing input file: {0!r}'.format(extra_file))
+                if exit_on_error:
+                    logger.error(f"Missing input file: {extra_file!r}")
+                    sys.exit(1)
+                else:
+                    raise IOError(f"Missing input file: {extra_file!r}")
             try:
                 # Read input mechanism files
                 parser.load_extra_file(extra_file)
