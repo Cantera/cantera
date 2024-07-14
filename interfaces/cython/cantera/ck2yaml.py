@@ -794,7 +794,7 @@ class Parser:
         return self.line_number - len(self.current_entry) + 1
 
     def entry(self, where="entry", kind="Error"):
-        error_entry = ''.join(self.current_entry).rstrip()
+        error_entry = '\n'.join(line.rstrip() for line in self.current_entry).rstrip()
         return (f'{kind} while reading {where} in {self.files[-1]} starting on '
                 f'line {self.entry_line}:\n"""\n{error_entry}\n"""\n')
 
@@ -1036,8 +1036,6 @@ class Parser:
         reaction and its associated kinetics.
         """
 
-        self.current_entry = entry.split('\n')
-
         # Handle non-default units which apply to this entry
         energy_units = self.energy_units
         quantity_units = self.quantity_units
@@ -1098,8 +1096,12 @@ class Parser:
                 try:
                     locs[j] = float(token), 'coeff'
                 except ValueError:
-                    raise InputError('Unexpected token "{}" in reaction expression "{}".',
-                                     token, original_reaction)
+                    probable_species = re.sub(r'\+?(.+?)(\+\d*)?', r'\1', token)
+                    logger.error(self.entry("reaction") +
+                        f"Unexpected token '{token}' in reaction expression "
+                        f"'{original_reaction.strip()}'.\nMay be due to undeclared "
+                        f"species '{probable_species}'.")
+                    return Reaction(), None
 
         reactants = []
         products = []
@@ -1119,7 +1121,9 @@ class Parser:
                 stoichiometry = 1
 
         if lhs:
-            raise InputError("Failed to find reactant/product delimiter in reaction string.")
+            logger.error(self.entry("reaction") +
+                "Failed to find reactant/product delimiter in reaction expression "
+                f"'{original_reaction.strip()}'.")
 
         # Create a new Reaction object for this reaction
         reaction = Reaction(reactants=[], products=[], reversible=reversible)
@@ -1147,12 +1151,12 @@ class Parser:
         third_body_name_p, third_body, photon_p = parse_expression(products, reaction.products)
 
         if third_body_name_r != third_body_name_p:
-            raise InputError('Third bodies do not match: "{}" and "{}" in'
-                ' reaction entry:\n\n{}', third_body_name_r, third_body_name_p, entry)
+            logger.error(self.entry("reaction") +
+                f"Third bodies do not match: '{third_body_name_r}' and "
+                f"'{third_body_name_p}'.")
 
         if photon_r:
-            raise InputError('Reactant photon not supported. '
-                             'Found in reaction:\n{}', entry.strip())
+            logger.error(self.entry("reaction") + "Reactant photon not supported.")
         if photon_p and reversible:
             if self.permissive:
                 logger.warning(self.entry("reaction", "Issue") +
@@ -1172,7 +1176,8 @@ class Parser:
         # This assumes elementary kinetics for all reactions
         rStoich = sum(r[0] for r in reaction.reactants) + (1 if third_body else 0)
         if rStoich < 1:
-            raise InputError('No reactant species for reaction {}.', reaction)
+            logger.error(self.entry("reaction") +
+                         "No reactant species found in reaction equation.")
 
         length_dim = 3 * (rStoich - 1)
         quantity_dim = rStoich - 1
@@ -1355,25 +1360,32 @@ class Parser:
                     efficiencies[collider.strip()] = float(efficiency.strip())
 
             if not parsed:
-                raise InputError('Unparsable line:\n"""\n{}\n"""', line)
+                logger.error(self.entry("reaction") + f"Unparsable line: '{line}'.")
 
         # Decide which kinetics to keep and store them on the reaction object.
         # At most one of the special cases should be true
         tests = [cheb_coeffs, pdep_arrhenius, low_rate, high_rate, third_body,
                  surface]
         if sum(bool(t) for t in tests) > 1:
-            raise InputError('Reaction {} contains parameters for more than '
-                             'one reaction type.', original_reaction)
+            logger.error(self.entry("reaction") +
+                "Reaction contains parameters for more than one reaction type.")
+            return reaction, revReaction
 
         if cheb_coeffs:
             if Tmin is None or Tmax is None:
-                raise InputError('Missing TCHEB line for reaction {}', reaction)
+                logger.error(self.entry("reaction") +
+                             "Missing TCHEB entry for Chebyshev reaction")
+                return reaction, revReaction
             if Pmin is None or Pmax is None:
-                raise InputError('Missing PCHEB line for reaction {}', reaction)
+                logger.error(self.entry("reaction") +
+                             "Missing PCHEB entry for Chebyshev reaction")
+                return reaction, revReaction
             if len(cheb_coeffs) != degreeT * degreeP:
-                raise InputError('Incorrect number of Chebyshev coefficients. '
-                    'Expected {}*{} = {} but got {}', degreeT, degreeP,
-                    degreeT * degreeP, len(cheb_coeffs))
+                logger.error(self.entry("reaction") +
+                    "Incorrect number of Chebyshev coefficients. Expected "
+                    f"{degreeT}*{degreeP} = {degreeP*degreeT} but got "
+                    f"{len(cheb_coeffs)}.")
+                return reaction, revReaction
             if quantity_units == self.quantity_units:
                 quantity_units = None
             reaction.kinetics = Chebyshev(
@@ -1400,10 +1412,9 @@ class Parser:
             reaction.kinetics = ThreeBody(high_rate=arrhenius,
                                           efficiencies=efficiencies)
         elif reaction.third_body:
-            reaction.kinetics = Falloff()  # Set correct reaction equation in error
-            raise InputError('Reaction equation implies pressure '
-                'dependence but no alternate rate parameters (such as HIGH or '
-                'LOW) were given for reaction {}.', reaction)
+            logger.error(self.entry("reaction") +
+                "Reaction equation implies pressure dependence but no alternate rate\n"
+                "parameters (such as HIGH or LOW) were given.")
         elif surface:
             reaction.kinetics = SurfaceRate(rate=arrhenius,
                                             coverages=coverages,
@@ -1771,6 +1782,7 @@ class Parser:
                         comments.append(comment)
 
                 elif tokens[0].upper().startswith('REAC'):
+                    self.current_entry = [line]
                     # Reactions section
                     inHeader = False
                     for token in tokens[1:]:
@@ -1788,7 +1800,8 @@ class Parser:
                         elif token == 'MWOFF':
                             self.motz_wise = False
                         else:
-                            raise InputError("Unrecognized token on REACTIONS line, {0!r}", token)
+                            logger.error(self.entry("section") +
+                                f"Unrecognized token {token!r} on REACTIONS line")
 
                     self.processed_units = True
 
@@ -1857,14 +1870,13 @@ class Parser:
 
                     self.setup_kinetics()
                     for kinetics, comment, line_number in zip(kineticsList, commentsList, startLines):
+                        self.current_entry = kinetics.split('\n')
+                        self.line_number = line_number + len(self.current_entry) - 1
                         try:
                             reaction, revReaction = self.read_kinetics_entry(kinetics, surface)
                         except Exception as e:
-                            self.line_number = line_number
-                            logger.info('Error reading reaction starting on '
-                                'line {0}:\n"""\n{1}\n"""'.format(
-                                    line_number, kinetics.rstrip()))
-                            raise
+                            logger.error(self.entry("reaction") + str(e))
+                            reaction, revReaction = Reaction(), None
                         reaction.line_number = line_number
                         reaction.comment = comment
                         reactions.append(reaction)

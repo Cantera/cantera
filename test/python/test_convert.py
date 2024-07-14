@@ -314,19 +314,25 @@ class ck2yamlTest(utilities.CanteraTest):
         self.assertLess(gas.forward_rate_constants[5], 0)
 
     def test_bad_troe_value(self):
-        with self.assertRaises(ValueError):
+        with pytest.raises(ck2yaml.InputError):
             self.convert('bad-troe.inp', thermo='dummy-thermo.dat')
         captured = self._capsys.readouterr()
+        assert "Error while reading reaction in bad-troe.inp" in captured.out
+        assert "on line 10" in captured.out
+        assert "R1A+R1B(+M) <=> H+P1(+M)" in captured.out
+        assert "could not convert string to float" in captured.out
 
     def test_invalid_reaction_equation(self):
-        with self.assertRaisesRegex(ck2yaml.InputError, 'Unparsable'):
+        with pytest.raises(ck2yaml.InputError):
             self.convert('invalid-equation.inp', thermo='dummy-thermo.dat')
         captured = self._capsys.readouterr()
+        assert "Unparsable line: 'R1A <-> R1B" in captured.out
 
     def test_mismatched_third_body(self):
         with pytest.raises(ck2yaml.InputError, match="Third bodies do not match"):
-            self.convert("mismatched-third-body.inp")
+            self.convert("mismatched-third-body.inp", thermo="gri30_thermo.dat")
         captured = self._capsys.readouterr()
+        assert "Third bodies do not match: 'M' and 'AR'" in captured.out
 
     @utilities.slow_test
     def test_reaction_units(self):
@@ -352,10 +358,25 @@ class ck2yamlTest(utilities.CanteraTest):
             self.convert("unparsable-reaction.inp", thermo="dummy-thermo.dat")
         captured = self._capsys.readouterr()
 
+    def test_reaction_no_reactants(self):
+        with pytest.raises(ck2yaml.InputError):
+            self.convert("reaction-no-reactants.inp", thermo="dummy-thermo.dat")
+        captured = self._capsys.readouterr()
+        assert "No reactant species found in reaction equation" in captured.out
+
     def test_undefined_species(self):
         with pytest.raises(ck2yaml.InputError, match="Unexpected token"):
-            self.convert("undefined-species.inp", thermo="dummmy-thermo.dat")
+            self.convert("undefined-species.inp", thermo="dummy-thermo.dat")
         captured = self._capsys.readouterr()
+        assert "May be due to undeclared species 'XYZ'" in captured.out
+
+    def test_bad_chebyshev_params(self):
+        with pytest.raises(ck2yaml.InputError):
+            self.convert("bad-chebyshev-params.inp", thermo="dummy-thermo.dat")
+        captured = self._capsys.readouterr()
+        assert "Missing TCHEB entry for Chebyshev reaction" in captured.out
+        assert "Missing PCHEB entry for Chebyshev reaction" in captured.out
+        assert "Expected 3*5 = 15 but got 16." in captured.out
 
     def test_bad_parameters_multiple_types(self):
         with pytest.raises(ck2yaml.InputError,
@@ -561,6 +582,12 @@ class ck2yamlTest(utilities.CanteraTest):
         with pytest.raises(ck2yaml.InputError, match="no site density"):
             self.convert("surface1-gas.inp", surface="missing-site-density.inp")
         captured = self._capsys.readouterr()
+
+    def test_bad_reaction_option(self):
+        with pytest.raises(ck2yaml.InputError):
+            self.convert("surface1-gas.inp", surface="surface1-bad-option.inp")
+        captured = self._capsys.readouterr()
+        assert "Unrecognized token 'XYZ' on REACTIONS line" in captured.out
 
     def test_third_body_plus_falloff_reactions(self):
         output = self.convert("third_body_plus_falloff_reaction.inp")
