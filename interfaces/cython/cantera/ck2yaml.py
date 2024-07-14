@@ -672,23 +672,28 @@ class TransportData:
             try:
                 geometry = float(geometry)
             except ValueError:
-                raise InputError(
-                    "Invalid geometry flag '{}' for species '{}'. "
-                    "Flag should be an integer.", geometry, label) from None
+                logger.error(parser.entry("transport data") +
+                    f"Invalid geometry flag '{geometry}' for species '{label}'. "
+                    "Flag must be an integer.")
+                return
             if geometry == int(geometry):
-                geometry = int(geometry)
                 # This is a minor issue, so even at the default level it's just a
                 # warning, and in permissive mode we won't even mention it.
                 if not parser.permissive:
-                    logger.info(f"Incorrect geometry flag syntax for species {label}. "
-                                "The flag was automatically converted to an integer.")
+                    logger.info(f"Incorrect geometry flag syntax '{geometry}' for "
+                        f"species '{label}'. The flag was automatically converted to "
+                        "an integer.")
+                geometry = int(geometry)
             else:
-                raise InputError(
-                    "Invalid float geometry flag '{}' for species '{}'. "
-                    "Flag should be an integer.", geometry, label) from None
+                logger.error(parser.entry("transport data") +
+                    f"Invalid float geometry flag '{geometry}' for species '{label}'. "
+                    "Flag must be an integer.")
+                return
         if geometry not in (0, 1, 2):
-            raise InputError("Invalid geometry flag value '{}' for species '{}'. "
-                             "Flag value should be 0, 1, or 2.", geometry, label)
+            logger.error(parser.entry("transport data") +
+                f"Invalid geometry flag value '{geometry}' for species '{label}'. "
+                "Flag value must be 0, 1, or 2.")
+            return
 
         self.geometry = self.geometry_flags[int(geometry)]
         self.well_depth = float(well_depth)
@@ -1934,9 +1939,10 @@ class Parser:
             speciesName = data[0]
             if speciesName in self.species_dict:
                 if len(data) != 7:
-                    raise InputError('Unable to parse line {} of {}:\n"""\n{}"""\n'
-                        '6 transport parameters expected, but found {}.',
-                            line_offset + i, filename, original_line, len(data)-1)
+                    logger.error(self.entry("transport data") + "6 transport "
+                        f"parameters were expected, but found {len(data)-1}.")
+                    self.species_dict[speciesName].transport = False
+                    continue
 
                 if self.species_dict[speciesName].transport is None:
                     self.species_dict[speciesName].transport = TransportData(self, *data, note=comment)
