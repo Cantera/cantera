@@ -312,11 +312,11 @@ class Reaction:
             if any((float(x) < 0 for x in node.forward_orders.values())):
                 out['negative-orders'] = True
                 logger.info("Negative reaction order for reaction "
-                            f"{self.index} ({self!s}).")
+                            f"{node.index} ({node!s}).")
             reactant_names = {r[1].label for r in node.reactants}
             if any((species not in reactant_names for species in node.forward_orders)):
                 out['nonreactant-orders'] = True
-                logger.info(f"Non-reactant order for reaction {self.index} ({self!s}).")
+                logger.info(f"Non-reactant order for reaction {node.index} ({node!s}).")
         if node.comment:
             comment = textwrap.dedent(node.comment.rstrip())
             if '\n' in comment:
@@ -679,7 +679,7 @@ class TransportData:
                 geometry = int(geometry)
                 # This is a minor issue, so even at the default level it's just a
                 # warning, and in permissive mode we won't even mention it.
-                if parser.warning_as_error:
+                if not parser.permissive:
                     logger.info(f"Incorrect geometry flag syntax for species {label}. "
                                 "The flag was automatically converted to an integer.")
             else:
@@ -765,7 +765,7 @@ class Parser:
         self.output_quantity_units = 'mol'  # for the output file
         self.motz_wise = None
         self.single_intermediate_temperature = False
-        self.warning_as_error = True
+        self.permissive = False
 
         self.elements = []
         self.element_weights = {}  # for custom elements only
@@ -776,22 +776,22 @@ class Parser:
         self.header_lines = []
         self.extra = {}  # for extra entries
         self.files = []  # input file names
+        self.current_entry = []  # lines in current input entry; used for error messages
 
     def __del__(self):
         logger.removeHandler(self.handler)
 
-    def warn(self, message):
-        if self.warning_as_error:
-            raise InputError(message)
-        else:
-            logger.warning(message)
+    def set_current_file(self, file_name):
+        self.files.append(Path(file_name).name)
 
-    def entry(self, entry_type="entry"):
-        error_line = self.line_number - len(self.current_entry) + 1
+    @property
+    def entry_line(self):
+        return self.line_number - len(self.current_entry) + 1
+
+    def entry(self, where="entry", kind="Error"):
         error_entry = ''.join(self.current_entry).rstrip()
-        current_file = Path(self.files[-1]).name
-        return (f'Error while reading {entry_type} in {current_file} starting on '
-                f'line {error_line}:\n"""\n{error_entry}\n"""\n')
+        return (f'{kind} while reading {where} in {self.files[-1]} starting on '
+                f'line {self.entry_line}:\n"""\n{error_entry}\n"""\n')
 
     @staticmethod
     def parse_composition(elements, nElements, width):
@@ -1031,6 +1031,8 @@ class Parser:
         reaction and its associated kinetics.
         """
 
+        self.current_entry = entry.split('\n')
+
         # Handle non-default units which apply to this entry
         energy_units = self.energy_units
         quantity_units = self.quantity_units
@@ -1147,10 +1149,16 @@ class Parser:
             raise InputError('Reactant photon not supported. '
                              'Found in reaction:\n{}', entry.strip())
         if photon_p and reversible:
-            self.warn('Found reversible reaction containing a product photon:'
-                '\n{0}\nIf the "--permissive" option was specified, this will '
-                'be converted to an irreversible reaction with the photon '
-                'removed.'.format(entry.strip()))
+            if self.permissive:
+                logger.warning(self.entry("reaction", "Issue") +
+                    "Found a reversible reaction containing a product photon. "
+                    "Converting to an\nirreversible reaction with the photon removed.")
+            else:
+                logger.error(self.entry("reaction") +
+                    "Found a reversible reaction containing a product photon. "
+                    "To automatically\nconvert this reaction to an irreversible "
+                    "reaction with the photon removed,\nrun ck2yaml again with the "
+                    "'--permissive' option.")
             reaction.reversible = False
 
         reaction.third_body = third_body_name_r
@@ -1453,6 +1461,7 @@ class Parser:
             def readline():
                 self.line_number += 1
                 line = strip_nonascii(ck_file.readline())
+                self.current_entry.append(line)
                 if '!' in line:
                     return line.split('!', 1)
                 elif line:
@@ -1482,8 +1491,10 @@ class Parser:
                         # Grudging support for implicit end of section
                         start = line.strip().upper().split()
                         if start and start[0] in ('SPEC', 'SPECIES'):
-                            self.warn('"ELEMENTS" section implicitly ended by start of '
-                                      'next section on line {0}.'.format(self.line_number))
+                            if not self.permissive:
+                                logger.warning('"ELEMENTS" section implicitly ended by '
+                                    f'start of next section on line {self.line_number} '
+                                    f'of {self.files[-1]}.')
                             advance = False
                             tokens.pop()
                             break
@@ -1501,6 +1512,7 @@ class Parser:
                 elif tokens[0].upper().startswith('SPEC'):
                     # List of species identifiers
                     species = tokens[1:]
+                    self.current_entry = [self.current_entry[-1]]
                     inHeader = False
                     comments = {}
                     while line is not None and get_index(line, 'END') is None:
@@ -1508,8 +1520,10 @@ class Parser:
                         start = line.strip().upper().split()
                         if start and start[0] in ('REAC', 'REACTIONS', 'TRAN',
                                                   'TRANSPORT', 'THER', 'THERMO'):
-                            self.warn('"SPECIES" section implicitly ended by start of '
-                                      'next section on line {0}.'.format(self.line_number))
+                            if not self.permissive:
+                                logger.warning('"SPECIES" section implicitly ended by '
+                                    f'start of next section on line {self.line_number} '
+                                    f'of {self.files[-1]}.')
                             advance = False
                             species.pop()
                             # Fix the case where there THERMO ALL or REAC UNITS
@@ -1531,7 +1545,14 @@ class Parser:
                             break
                         if token in self.species_dict:
                             species = self.species_dict[token]
-                            self.warn('Found additional declaration of species {}'.format(species))
+                            if self.permissive:
+                                logger.warning("Ignoring redundant declaration for "
+                                               f"species '{species}'")
+                            else:
+                                logger.error("Found multiple declarations for species "
+                                    f"'{species}'. Run ck2yaml again with the\n"
+                                    "'--permissive' option to ignore the extra "
+                                    "declarations.")
                         else:
                             species = Species(label=token)
                             if token in comments:
@@ -1564,8 +1585,10 @@ class Parser:
                         start = line.strip().upper().split()
                         if start and start[0] in ('REAC', 'REACTIONS', 'THER',
                                                   'THERMO'):
-                            self.warn('"SITE" section implicitly ended by start of '
-                                      'next section on line {}.'.format(self.line_number))
+                            if not self.permissive:
+                                logger.warning('"SITE" section implicitly ended by '
+                                    f'start of next section on line {self.line_number} '
+                                    f'of {self.files[-1]}.')
                             advance = False
                             tokens.pop()
                             # Fix the case where there THERMO ALL or REAC UNITS
@@ -1589,7 +1612,14 @@ class Parser:
                             sites = None
                         if token in self.species_dict:
                             species = self.species_dict[token]
-                            self.warn('Found additional declaration of species {0}'.format(species))
+                            if self.permissive:
+                                logger.warning("Ignoring redundant declaration for "
+                                               f"species '{species}'")
+                            else:
+                                logger.error("Found multiple declarations for species "
+                                    f"'{species}'. Run ck2yaml again with the\n"
+                                    "'--permissive' option to ignore the extra "
+                                    "declarations.")
                         else:
                             species = Species(label=token, sites=sites)
                             self.species_dict[token] = species
@@ -1605,8 +1635,10 @@ class Parser:
                         # Grudging support for implicit end of section
                         start = line.strip().upper().split()
                         if start and start[0] in ('REAC', 'REACTIONS', 'TRAN', 'TRANSPORT'):
-                            self.warn('"THERMO" section implicitly ended by start of '
-                                      'next section on line {0}.'.format(self.line_number))
+                            if not self.permissive:
+                                logger.warning('"THERMO" section implicitly ended by '
+                                    f'start of next section on line {self.line_number} '
+                                    f'of {self.files[-1]}.')
                             advance = False
                             tokens.pop()
                             break
@@ -1649,8 +1681,16 @@ class Parser:
 
                             # use the first set of thermo data found
                             if species.thermo is not None:
-                                self.warn('Found additional thermo entry for species {0}. '
-                                          'If --permissive was given, the first entry is used.'.format(label))
+                                if self.permissive:
+                                    logger.warning("Ignoring redundant thermo data for "
+                                        f"species '{label}' starting on line "
+                                        f"{self.entry_line} of {self.files[-1]}.")
+                                else:
+                                    logger.error(self.entry("thermo entry") +
+                                        "Found additional thermo entry for species "
+                                        f"'{label}'. Run ck2yaml again with the\n"
+                                        "'--permissive' option to ignore this "
+                                        "redundant entry.")
                             else:
                                 species.thermo = thermo
                                 species.composition = comp
@@ -1669,16 +1709,14 @@ class Parser:
                         # Grudging support for implicit end of section
                         start = line.strip().upper().split()
                         if start and start[0] in ('REAC', 'REACTIONS', 'TRAN', 'TRANSPORT'):
-                            self.warn('"THERMO" section implicitly ended by start of '
-                                      'next section on line {0}.'.format(self.line_number))
+                            if not self.permissive:
+                                logger.warning('"THERMO" section implicitly ended by '
+                                    f'start of next section on line {self.line_number} '
+                                    f'of {self.files[-1]}.')
                             advance = False
                             tokens.pop()
                             break
 
-                        if comment:
-                            self.current_entry.append('!'.join((line, comment)))
-                        else:
-                            self.current_entry.append(line)
                         if len(line) >= 80 and line[79] in ['1', '2', '3', '4']:
                             thermo.append(line)
                             if line[79] == '4':
@@ -1704,8 +1742,16 @@ class Parser:
 
                                 # use the first set of thermo data found
                                 if species.thermo is not None:
-                                    self.warn('Found additional thermo entry for species {0}. '
-                                            'If --permissive was given, the first entry is used.'.format(label))
+                                    if self.permissive:
+                                        logger.warning("Ignoring redundant thermo data "
+                                            f"for species '{label}' starting on line "
+                                            f"{self.entry_line} of {self.files[-1]}.")
+                                    else:
+                                        logger.error(self.entry("thermo entry") +
+                                            "Found additional thermo entry for species "
+                                            f"'{label}'. Run ck2yaml again with the\n"
+                                            "'--permissive' option to ignore this "
+                                            "redundant entry.")
                                 else:
                                     species.thermo = thermo
                                     species.composition = comp
@@ -1756,8 +1802,10 @@ class Parser:
                         # Grudging support for implicit end of section
                         start = line.strip().upper().split()
                         if start and start[0] in ('TRAN', 'TRANSPORT'):
-                            self.warn('"REACTIONS" section implicitly ended by start of '
-                                      'next section on line {0}.'.format(self.line_number))
+                            if not self.permissive:
+                                logger.warning('"REACTIONS" section implicitly ended '
+                                    'by start of next section on line '
+                                    f'{self.line_number} of {self.files[-1]}.')
                             advance = False
                             break
 
@@ -1821,6 +1869,7 @@ class Parser:
 
                     for index, reaction in enumerate(reactions):
                         reaction.index = index + 1
+                    self.current_entry = []
 
                 elif tokens[0].upper().startswith('TRAN'):
                     inHeader = False
@@ -1830,8 +1879,10 @@ class Parser:
                         # Grudging support for implicit end of section
                         start = line.strip().upper().split()
                         if start and start[0] in ('REAC', 'REACTIONS'):
-                            self.warn('"TRANSPORT" section implicitly ended by start of '
-                                      'next section on line {0}.'.format(self.line_number))
+                            if not self.permissive:
+                                logger.warning('"TRANSPORT" section implicitly ended '
+                                    'by start of next section on line '
+                                    f'{self.line_number} of {self.files[-1]}.')
                             advance = False
                             tokens.pop()
                             break
@@ -1864,6 +1915,8 @@ class Parser:
         """
 
         for i,line in enumerate(lines):
+            self.current_entry = [line]
+            self.line_number = i + line_offset
             original_line = line
             line = line.strip()
             if not line or line.startswith('!'):
@@ -1888,9 +1941,15 @@ class Parser:
                 if self.species_dict[speciesName].transport is None:
                     self.species_dict[speciesName].transport = TransportData(self, *data, note=comment)
                 else:
-                    self.warn('Ignoring duplicate transport data'
-                         ' for species "{}" on line {} of "{}".'.format(
-                            speciesName, line_offset + i, filename))
+                    if self.permissive:
+                        logger.warning('Ignoring duplicate transport data for species '
+                            f'"{speciesName}" on line {line_offset + i} of '
+                            f'"{self.files[-1]}".')
+                    else:
+                        logger.error(self.entry("transport data") +
+                            f"duplicate transport data for species '{speciesName}'. "
+                            "Run ck2yaml again with the\n'--permissive' option to "
+                            "ignore this redundant entry.")
 
 
     def write_yaml(self, name='gas', out_name='mech.yaml'):
@@ -1926,10 +1985,9 @@ class Parser:
                 emitter.dump({'description': yaml.scalarstring.PreservedScalarString(desc)}, dest)
 
             # Additional information regarding conversion
-            files = [os.path.basename(f) for f in self.files]
             metadata = BlockMap([
                 ("generator", "ck2yaml"),
-                ("input-files", FlowList(files)),
+                ("input-files", FlowList(self.files)),
                 ("cantera-version", "3.1.0a2"),
                 ("date", formatdate(localtime=True)),
             ])
@@ -2050,17 +2108,17 @@ class Parser:
         parser = Parser()
         parser.single_intermediate_temperature = single_intermediate_temperature
         if quiet:
-            logger.setLevel(level=logging.ERROR)
+            logger.setLevel(level=logging.ERROR if permissive else logging.WARNING)
         elif verbose:
             logger.setLevel(level=logging.DEBUG)
         else:
             logger.setLevel(level=logging.INFO)
 
         if permissive is not None:
-            parser.warning_as_error = not permissive
+            parser.permissive = permissive
 
         if input_file:
-            parser.files.append(input_file)
+            parser.set_current_file(input_file)
             input_file = os.path.expanduser(input_file)
             if not os.path.exists(input_file):
                 raise IOError('Missing input file: {0!r}'.format(input_file))
@@ -2079,7 +2137,7 @@ class Parser:
                 msg = "Cannot specify a surface mechanism without a gas phase"
                 logger.warning(f"\nERROR: {msg}\n")
                 raise InputError(msg)
-            parser.files.append(surface_file)
+            parser.set_current_file(surface_file)
             surface_file = os.path.expanduser(surface_file)
             if not os.path.exists(surface_file):
                 raise IOError('Missing input file: {0!r}'.format(surface_file))
@@ -2092,7 +2150,7 @@ class Parser:
                 raise
 
         if thermo_file:
-            parser.files.append(thermo_file)
+            parser.set_current_file(thermo_file)
             thermo_file = os.path.expanduser(thermo_file)
             if not os.path.exists(thermo_file):
                 raise IOError('Missing thermo file: {0!r}'.format(thermo_file))
@@ -2105,7 +2163,7 @@ class Parser:
                 raise
 
         if transport_file:
-            parser.files.append(transport_file)
+            parser.set_current_file(transport_file)
             transport_file = os.path.expanduser(transport_file)
             if not os.path.exists(transport_file):
                 raise IOError('Missing transport file: {0!r}'.format(transport_file))
@@ -2119,7 +2177,7 @@ class Parser:
                     raise InputError("No transport data for species '{}'.", s)
 
         if extra_file:
-            parser.files.append(extra_file)
+            parser.set_current_file(extra_file)
             extra_file = os.path.expanduser(extra_file)
             if not os.path.exists(extra_file):
                 raise IOError('Missing input file: {0!r}'.format(extra_file))

@@ -120,10 +120,11 @@ class ck2yamlTest(utilities.CanteraTest):
             self.convert('h2o2_missingThermo.inp')
 
     def test_duplicate_thermo(self):
-        with self.assertRaisesRegex(ck2yaml.InputError, 'additional thermo'):
+        with pytest.raises(ck2yaml.InputError):
             self.convert('duplicate-thermo.inp')
 
         output = self.convert('duplicate-thermo.inp', permissive=True)
+        captured = self._capsys.readouterr()
 
         gas = ct.Solution(output)
         self.assertEqual(gas.n_species, 3)
@@ -148,23 +149,30 @@ class ck2yamlTest(utilities.CanteraTest):
         with pytest.raises(ck2yaml.InputError,
                            match="non-adjacent temperature ranges"):
             self.convert(None, thermo='bad-nasa9-Trange.dat')
+        self._capsys.readouterr()
 
     def test_bad_nasa9_coeffs(self):
         with pytest.raises(ck2yaml.InputError) as info:
             self.convert(None, thermo='bad-nasa9-coeffs.dat')
         err_text = str(info.value)
-        assert "Error while reading thermo entry" in err_text
-        assert "\nALCL3" in err_text
-        assert "could not convert string to float" in err_text
+        captured = self._capsys.readouterr()
+        for out in err_text, captured.out:
+            assert "Error while reading thermo entry" in out
+            assert "\nALCL3" in out
+            assert "could not convert string to float" in out
 
     def test_duplicate_species(self):
-        with self.assertRaisesRegex(ck2yaml.InputError, 'additional declaration'):
+        with pytest.raises(ck2yaml.InputError):
             self.convert('duplicate-species.inp')
+        captured = self._capsys.readouterr()
+        assert "multiple declarations for species 'bar'" in captured.out
 
-        output = self.convert('duplicate-species.inp', permissive=True)
+        output = self.convert('duplicate-species.inp', permissive=True, quiet=False)
+        captured = self._capsys.readouterr()
+        assert "Ignoring redundant declaration for species 'bar'" in captured.out
 
         gas = ct.Solution(output)
-        self.assertEqual(gas.species_names, ['foo','bar','baz'])
+        assert gas.species_names == ['foo','bar','baz']
 
     def test_pathologicalSpeciesNames(self):
         output = self.convert('species-names.inp')
@@ -199,19 +207,20 @@ class ck2yamlTest(utilities.CanteraTest):
         self.assertEqual(list(nu[:,12]), [0, 0, 0, 0, 1, 0, 0, 0, 0, -1])
 
     def test_unterminatedSections(self):
-        with self.assertRaisesRegex(ck2yaml.InputError, 'implicitly ended'):
-            self.convert('unterminated-sections.inp')
-
-        output = self.convert('unterminated-sections.inp', permissive=True)
+        output = self.convert('unterminated-sections.inp', quiet=False)
+        captured = self._capsys.readouterr()
+        for section in ["ELEMENTS", "SPECIES", "THERMO", "REACTIONS"]:
+            assert f'"{section}" section implicitly ended' in captured.out
         gas = ct.Solution(output)
         self.assertEqual(gas.n_species, 3)
         self.assertEqual(gas.n_reactions, 2)
 
     def test_unterminatedSections2(self):
-        with self.assertRaisesRegex(ck2yaml.InputError, 'implicitly ended'):
-            self.convert('unterminated-sections2.inp')
+        output = self.convert('unterminated-sections2.inp', quiet=False)
+        captured = self._capsys.readouterr()
+        for section in ["ELEMENTS", "SPECIES", "THERMO", "REACTIONS"]:
+            assert f'"{section}" section implicitly ended' in captured.out
 
-        output = self.convert('unterminated-sections2.inp', permissive=True)
         gas = ct.Solution(output)
         self.assertEqual(gas.n_species, 3)
         self.assertEqual(gas.n_reactions, 2)
@@ -245,6 +254,7 @@ class ck2yamlTest(utilities.CanteraTest):
     def test_falloff_no_rate(self):
         with pytest.raises(ck2yaml.InputError, match="implies pressure dependence"):
             self.convert("falloff-error.inp", thermo="dummy-thermo.dat")
+        captured = self._capsys.readouterr()
 
     def test_explicit_third_bodies(self):
         output = self.convert("explicit-third-bodies.inp", thermo="dummy-thermo.dat")
@@ -280,21 +290,18 @@ class ck2yamlTest(utilities.CanteraTest):
         self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6])
 
     def test_negative_order(self):
-        with self.assertRaisesRegex(ck2yaml.InputError, 'Negative reaction order'):
-            self.convert('negative-order.inp', thermo='dummy-thermo.dat')
-
-    def test_negative_order_permissive(self):
         output = self.convert('negative-order.inp', thermo='dummy-thermo.dat',
-                              permissive=True)
+                              quiet=False)
+        captured = self._capsys.readouterr()
+        assert "Negative reaction order" in captured.out
         ref, gas = self.checkConversion("negative-order.yaml", output)
         self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6])
 
     def test_nonreactant_order(self):
-        with pytest.raises(ck2yaml.InputError, match="Non-reactant order for reaction"):
-            self.convert("nonreactant-order.inp", thermo="dummy-thermo.dat")
-
         output = self.convert("nonreactant-order.inp", thermo="dummy-thermo.dat",
-                              permissive=True)
+                              quiet=False)
+        captured = self._capsys.readouterr()
+        assert "Non-reactant order" in captured.out
         ref, gas = self.checkConversion("nonreactant-order.yaml", output)
         self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6])
 
@@ -309,14 +316,17 @@ class ck2yamlTest(utilities.CanteraTest):
     def test_bad_troe_value(self):
         with self.assertRaises(ValueError):
             self.convert('bad-troe.inp', thermo='dummy-thermo.dat')
+        captured = self._capsys.readouterr()
 
     def test_invalid_reaction_equation(self):
         with self.assertRaisesRegex(ck2yaml.InputError, 'Unparsable'):
             self.convert('invalid-equation.inp', thermo='dummy-thermo.dat')
+        captured = self._capsys.readouterr()
 
     def test_mismatched_third_body(self):
         with pytest.raises(ck2yaml.InputError, match="Third bodies do not match"):
             self.convert("mismatched-third-body.inp")
+        captured = self._capsys.readouterr()
 
     @utilities.slow_test
     def test_reaction_units(self):
@@ -340,15 +350,18 @@ class ck2yamlTest(utilities.CanteraTest):
     def test_unparsable_reaction(self):
         with pytest.raises(ck2yaml.InputError, match="Unparsable line"):
             self.convert("unparsable-reaction.inp", thermo="dummy-thermo.dat")
+        captured = self._capsys.readouterr()
 
     def test_undefined_species(self):
         with pytest.raises(ck2yaml.InputError, match="Unexpected token"):
             self.convert("undefined-species.inp", thermo="dummmy-thermo.dat")
+        captured = self._capsys.readouterr()
 
     def test_bad_parameters_multiple_types(self):
         with pytest.raises(ck2yaml.InputError,
                            match="contains parameters for more than one reaction type"):
             self.convert("bad-reaction-params.inp", thermo="dummy-thermo.dat")
+        captured = self._capsys.readouterr()
 
     def test_photon(self):
         with pytest.raises(ck2yaml.InputError,
@@ -357,6 +370,7 @@ class ck2yamlTest(utilities.CanteraTest):
 
         output = self.convert('photo-reaction.inp', thermo='dummy-thermo.dat',
                               permissive=True)
+        captured = self._capsys.readouterr()
 
         ref, gas = self.checkConversion("photo-reaction.yaml", output)
         self.checkKinetics(ref, gas, [300, 800, 1450, 2800], [5e3, 1e5, 2e6])
@@ -365,6 +379,7 @@ class ck2yamlTest(utilities.CanteraTest):
         with pytest.raises(ck2yaml.InputError,
                            match="Reactant photon not supported"):
             self.convert("bad-photo-reaction.inp", thermo="dummy-thermo.dat")
+        captured = self._capsys.readouterr()
 
     def test_transport_normal(self):
         output = self.convert('h2o2.inp', transport='gri30_tran.dat',
@@ -398,6 +413,7 @@ class ck2yamlTest(utilities.CanteraTest):
             self.convert('h2o2.inp',
                 transport='h2o2-duplicate-species-tran.dat',
                 output='h2o2_transport_duplicate_species')
+        captured = self._capsys.readouterr()
 
         self.convert('h2o2.inp',
             transport='h2o2-duplicate-species-tran.dat',
@@ -532,6 +548,7 @@ class ck2yamlTest(utilities.CanteraTest):
     def test_missing_site_density(self):
         with pytest.raises(ck2yaml.InputError, match="no site density"):
             self.convert("surface1-gas.inp", surface="missing-site-density.inp")
+        captured = self._capsys.readouterr()
 
     def test_third_body_plus_falloff_reactions(self):
         output = self.convert("third_body_plus_falloff_reaction.inp")
@@ -556,12 +573,14 @@ class ck2yamlTest(utilities.CanteraTest):
         with pytest.raises(ck2yaml.InputError,
                            match="must not redefine reserved field.+'species'"):
             self.convert("h2o2.inp", output="h2o2_extra1", extra="extra-reserved.yaml")
+        captured = self._capsys.readouterr()
 
     def test_extra_description_str(self):
         with pytest.raises(ck2yaml.InputError,
                            match="alternate description .+ needs to be a string"):
             self.convert("h2o2.inp", output="h2o2_extra1",
                          extra="extra-bad-description.yaml")
+        captured = self._capsys.readouterr()
 
     def test_sri_zero(self):
         # This test tests it can convert the SRI parameters when D or E equal to 0
