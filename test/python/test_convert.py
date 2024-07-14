@@ -115,9 +115,11 @@ class ck2yamlTest(utilities.CanteraTest):
         self.assertEqual(gas.n_species, 3)
         self.assertEqual(gas.n_reactions, 0)
 
-    def test_missingThermo(self):
-        with self.assertRaisesRegex(ck2yaml.InputError, 'No thermo data'):
+    def test_missing_thermo(self):
+        with pytest.raises(ck2yaml.InputError):
             self.convert('h2o2_missingThermo.inp')
+        captured = self._capsys.readouterr()
+        assert "No thermo data found for species 'H2'" in captured.out
 
     def test_duplicate_thermo(self):
         with pytest.raises(ck2yaml.InputError):
@@ -125,6 +127,7 @@ class ck2yamlTest(utilities.CanteraTest):
 
         output = self.convert('duplicate-thermo.inp', permissive=True)
         captured = self._capsys.readouterr()
+        assert "Found additional thermo entry for species 'bar'" in captured.out
 
         gas = ct.Solution(output)
         self.assertEqual(gas.n_species, 3)
@@ -226,9 +229,11 @@ class ck2yamlTest(utilities.CanteraTest):
         self.assertEqual(gas.n_reactions, 2)
 
     def test_unrecognized_section(self):
-        with self.assertRaisesRegex(ck2yaml.InputError, 'SPAM'):
+        with pytest.raises(ck2yaml.InputError):
             self.convert('unrecognized-section.inp', thermo='dummy-thermo.dat',
                          permissive=True)
+        captured = self._capsys.readouterr()
+        assert "unrecognized keyword 'SPAM'" in captured.out
 
     def test_nasa9(self):
         output = self.convert("nasa9-test.inp", thermo="nasa9-test-therm.dat")
@@ -419,9 +424,11 @@ class ck2yamlTest(utilities.CanteraTest):
             self.assertTrue(d > 0.0)
 
     def test_transport_missing_species(self):
-        with self.assertRaisesRegex(ck2yaml.InputError, 'No transport data'):
+        with pytest.raises(ck2yaml.InputError):
             self.convert('h2o2.inp', transport='h2o2-missing-species-tran.dat',
                 output='h2o2_transport_missing_species')
+        captured = self._capsys.readouterr()
+        assert "No transport data for species 'H2O2'" in captured.out
 
     def test_transport_extra_column_entries(self):
         with pytest.raises(ck2yaml.InputError):
@@ -566,6 +573,20 @@ class ck2yamlTest(utilities.CanteraTest):
         self.assertEqual(covdeps["OH_Pt"]["m"], 1.0)
         self.assertNear(covdeps["H_Pt"]["E"], -6e6)
 
+    def test_surf_bad_files(self):
+        with pytest.raises(ck2yaml.InputError):
+            self.convert('surface1.inp')
+
+        captured = self._capsys.readouterr()
+        assert "must be specified using the '--surface' option" in captured.out
+
+        with pytest.raises(SystemExit):
+            ck2yaml.main([
+                f"--surface={self.test_data_path}/surface1.inp",
+                f"--thermo={self.test_data_path}/dummy-thermo.dat"])
+        captured = self._capsys.readouterr()
+        assert "Cannot specify a surface mechanism without a gas phase" in captured.out
+
     def test_surface_mech3(self):
         # This tests the case where the thermo data for both the gas and surface are
         # combined in a file separate from the gas and surface definitions.
@@ -599,6 +620,16 @@ class ck2yamlTest(utilities.CanteraTest):
         gas = ct.Solution(output)
         self.assertEqual(gas.n_reactions, 1)
 
+    def test_missing_input_files(self):
+        with pytest.raises(IOError, match="Missing input file"):
+            self.convert('nonexistent-file-813.inp')
+
+        with pytest.raises(SystemExit):
+            ck2yaml.main([
+                f"--input=nonexistent-file-813.inp"])
+        captured = self._capsys.readouterr()
+        assert "Missing input file: 'nonexistent-file-813.inp'" in captured.out
+
     def test_extra(self):
         output = self.convert("h2o2.inp", output="h2o2_extra", extra="extra.yaml")
         yml = utilities.load_yaml(output)
@@ -615,11 +646,12 @@ class ck2yamlTest(utilities.CanteraTest):
         captured = self._capsys.readouterr()
 
     def test_extra_description_str(self):
-        with pytest.raises(ck2yaml.InputError,
-                           match="alternate description .+ needs to be a string"):
+        with pytest.raises(ck2yaml.InputError):
             self.convert("h2o2.inp", output="h2o2_extra1",
                          extra="extra-bad-description.yaml")
         captured = self._capsys.readouterr()
+        assert "alternate description" in captured.out
+        assert "needs to be a string" in captured.out
 
     def test_sri_zero(self):
         # This test tests it can convert the SRI parameters when D or E equal to 0
