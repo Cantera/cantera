@@ -268,10 +268,9 @@ class Reaction:
         pressure-dependent reaction types (usually "M")
     """
 
-    def __init__(self, parser, index=-1, reactants=None, products=None,
+    def __init__(self, index=-1, reactants=None, products=None,
                  kinetics=None, reversible=True, duplicate=False,
                  forward_orders=None, third_body=None):
-        self.parser = parser
         self.index = index
         self.reactants = reactants  # list of (stoichiometry, species) tuples
         self.products = products  # list of (stoichiometry, species) tuples
@@ -312,13 +311,12 @@ class Reaction:
             out['orders'] = FlowMap(node.forward_orders)
             if any((float(x) < 0 for x in node.forward_orders.values())):
                 out['negative-orders'] = True
-                node.parser.warn('Negative reaction order for reaction {} ({}).'.format(
-                    node.index, str(node)))
+                logger.info("Negative reaction order for reaction "
+                            f"{self.index} ({self!s}).")
             reactant_names = {r[1].label for r in node.reactants}
             if any((species not in reactant_names for species in node.forward_orders)):
                 out['nonreactant-orders'] = True
-                node.parser.warn('Non-reactant order for reaction {} ({}).'.format(
-                    node.index, str(node)))
+                logger.info(f"Non-reactant order for reaction {self.index} ({self!s}).")
         if node.comment:
             comment = textwrap.dedent(node.comment.rstrip())
             if '\n' in comment:
@@ -1117,8 +1115,7 @@ class Parser:
             raise InputError("Failed to find reactant/product delimiter in reaction string.")
 
         # Create a new Reaction object for this reaction
-        reaction = Reaction(reactants=[], products=[], reversible=reversible,
-                            parser=self)
+        reaction = Reaction(reactants=[], products=[], reversible=reversible)
 
         def parse_expression(expression, dest):
             third_body_name = None
@@ -1251,8 +1248,7 @@ class Parser:
                     revReaction = Reaction(reactants=reaction.products,
                                            products=reaction.reactants,
                                            third_body=reaction.third_body,
-                                           reversible=False,
-                                           parser=self)
+                                           reversible=False)
 
                     rev_rate = Arrhenius(
                         A=(float(tokens[0].strip()), klow_units),
