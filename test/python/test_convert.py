@@ -403,32 +403,42 @@ class ck2yamlTest(utilities.CanteraTest):
                 output='h2o2_transport_missing_species')
 
     def test_transport_extra_column_entries(self):
-        with self.assertRaisesRegex(ck2yaml.InputError, '572.400'):
+        with pytest.raises(ck2yaml.InputError):
             self.convert('h2o2.inp',
                 transport='h2o2-extra-column-entries-tran.dat',
                 output='h2o2_extra-column-entries-tran')
+        captured = self._capsys.readouterr()
+        assert "572.400" in captured.out
+        assert "6 transport parameters were expected, but found 7" in captured.out
 
     def test_transport_duplicate_species(self):
-        with self.assertRaisesRegex(ck2yaml.InputError, 'duplicate transport'):
+        with pytest.raises(ck2yaml.InputError):
             self.convert('h2o2.inp',
                 transport='h2o2-duplicate-species-tran.dat',
                 output='h2o2_transport_duplicate_species')
         captured = self._capsys.readouterr()
+        assert "duplicate transport data for species 'H2O'" in captured.out
 
         self.convert('h2o2.inp',
             transport='h2o2-duplicate-species-tran.dat',
             output='h2o2_transport_duplicate_species', permissive=True)
 
     def test_transport_bad_geometry(self):
-        with self.assertRaisesRegex(ck2yaml.InputError, 'Invalid geometry flag value'):
+        with pytest.raises(ck2yaml.InputError):
             self.convert('h2o2.inp',
                 transport='h2o2-bad-geometry-tran.dat',
                 output='h2o2_transport_bad_geometry')
+        captured = self._capsys.readouterr()
+        assert ("Invalid geometry flag value '3' for species 'HO2'. "
+                "Flag value must be 0, 1, or 2.") in captured.out
 
-        with self.assertRaisesRegex(ck2yaml.InputError, 'Invalid geometry flag \''):
+        with pytest.raises(ck2yaml.InputError):
             self.convert('h2o2.inp',
                 transport='h2o2-character-geometry-tran.dat',
                 output='h2o2_transport_character_geometry')
+        captured = self._capsys.readouterr()
+        assert ("Invalid geometry flag 'a' for species 'HO2'. Flag must be an integer."
+                in captured.out)
 
     def test_transport_float_geometry(self):
         # Runs but issues a log message
@@ -456,6 +466,8 @@ class ck2yamlTest(utilities.CanteraTest):
             self.convert('h2o2.inp',
                 transport='h2o2-float-arithmetic-error-geometry-tran.dat',
                 output='h2o2_transport_float_geometry', permissive=True)
+        captured = self._capsys.readouterr()
+        assert "0.999999" in captured.out
 
     def test_empty_reaction_section(self):
         output = self.convert('h2o2_emptyReactions.inp')
