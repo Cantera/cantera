@@ -2415,10 +2415,6 @@ def create_argparser():
         "-v", "--verbose", action="store_true", default=False,
         help="Show additional logging output, such as messages about unused species")
     parser.add_argument(
-        "-d", "--debug", action="store_true", default=False,
-        help=("Enables additional debugging output that may be helpful in identifying "
-              "problems in the input files or **ck2yaml** itself."))
-    parser.add_argument(
         "--input", default="",
         help=("Chemkin-format chemistry input file, containing a list of all the "
               "element names that are used, a list of all the species names, and a "
