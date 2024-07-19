@@ -148,6 +148,24 @@ class ck2yamlTest(utilities.CanteraTest):
         captured = self._capsys.readouterr()
         assert "Only one temperature range defined" in captured.out
 
+    def test_bad_nasa7_formatting(self):
+        with pytest.raises(ck2yaml.InputError):
+            self.convert(None, thermo='bad-nasa7-formatting.dat')
+
+        captured = self._capsys.readouterr()
+        assert "Lines could not be parsed as a NASA7 entry" in captured.out
+        assert "line 7" in captured.out  # bad entry for O2
+        assert "line 15" in captured.out  # bad entry for H2
+        assert "line 24" in captured.out  # bad entry for OH
+
+    def test_bad_nasa7_formatting_warn(self):
+        self.convert(None, thermo='bad-nasa7-formatting.dat', permissive=True)
+        yaml = ("{phases: [{name: gas, species: "
+                "[{bad-nasa7-formatting-from-ck.yaml/species: all}], "
+                "thermo: ideal-gas}]}")
+        gas = ct.Solution(yaml=yaml)
+        assert set(gas.species_names) == {"O", "H", "H2O"}
+
     def test_bad_nasa9_temperature_ranges(self):
         with pytest.raises(ck2yaml.InputError,
                            match="non-adjacent temperature ranges"):
