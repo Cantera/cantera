@@ -5,6 +5,7 @@ SPECIES
 foo bar baz bar
 bar bar
 bar
+foo foo bar
 END
 thermo
     300.000  1000.000  5000.000
