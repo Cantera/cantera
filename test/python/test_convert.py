@@ -124,14 +124,16 @@ class ck2yamlTest(utilities.CanteraTest):
     def test_duplicate_thermo(self):
         with pytest.raises(ck2yaml.InputError):
             self.convert('duplicate-thermo.inp')
-
-        output = self.convert('duplicate-thermo.inp', permissive=True)
         captured = self._capsys.readouterr()
         assert "Found additional thermo entry for species 'bar'" in captured.out
+        assert "2 additional errors about redundant thermo data" in captured.out
 
+        output = self.convert('duplicate-thermo.inp', permissive=True, quiet=False)
+        captured = self._capsys.readouterr()
+        assert "2 additional warnings about redundant thermo data" in captured.out
         gas = ct.Solution(output)
-        self.assertEqual(gas.n_species, 3)
-        self.assertEqual(gas.n_reactions, 2)
+        assert gas.n_species == 4
+        assert gas.n_reactions == 2
 
     def test_bad_elemental_composition(self):
         with pytest.raises(ck2yaml.InputError,
@@ -187,10 +189,12 @@ class ck2yamlTest(utilities.CanteraTest):
             self.convert('duplicate-species.inp')
         captured = self._capsys.readouterr()
         assert "multiple declarations for species 'bar'" in captured.out
+        assert "Suppressed 2 additional errors about redundant species" in captured.out
 
         output = self.convert('duplicate-species.inp', permissive=True, quiet=False)
         captured = self._capsys.readouterr()
         assert "Ignoring redundant declaration for species 'bar'" in captured.out
+        assert "Suppressed 2 additional warnings" in captured.out
 
         gas = ct.Solution(output)
         assert gas.species_names == ['foo','bar','baz']
@@ -463,11 +467,14 @@ class ck2yamlTest(utilities.CanteraTest):
                 transport='h2o2-duplicate-species-tran.dat',
                 output='h2o2_transport_duplicate_species')
         captured = self._capsys.readouterr()
-        assert "duplicate transport data for species 'H2O'" in captured.out
+        assert "Duplicate transport data for species 'H2O'" in captured.out
+        assert "2 additional errors about duplicate transport data" in captured.out
 
         self.convert('h2o2.inp',
             transport='h2o2-duplicate-species-tran.dat',
-            output='h2o2_transport_duplicate_species', permissive=True)
+            output='h2o2_transport_duplicate_species', permissive=True, quiet=False)
+        captured = self._capsys.readouterr()
+        assert "2 additional warnings about duplicate transport data" in captured.out
 
     def test_transport_bad_geometry(self):
         with pytest.raises(ck2yaml.InputError):

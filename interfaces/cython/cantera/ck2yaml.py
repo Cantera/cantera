@@ -771,6 +771,7 @@ class Parser:
         self.single_intermediate_temperature = False
         self.skip_undeclared_species = True
         self.permissive = False
+        self.verbose = False
 
         self.elements = []
         self.element_weights = {}  # for custom elements only
@@ -972,6 +973,7 @@ class Parser:
         marker = '1'
         comments = []
         used = set()
+        redundant_count = 0
         for input_lineno, line, comment in data:
             comments.append(comment)
             if len(line) >= 80 and line[79] == marker == '1':
@@ -995,7 +997,7 @@ class Parser:
                 entry_lines.append(input_lineno)
                 used.update(entry_lines)
                 self.current_entry = entry
-                self.line_number = input_lineno - len(entry)
+                self.line_number = input_lineno
                 name, thermo, comp = self.read_NASA7_entry(entry, TintDefault, comments)
                 if name not in self.species_dict:
                     if self.skip_undeclared_species:
@@ -1014,15 +1016,17 @@ class Parser:
 
                 # use the first set of thermo data found
                 if species.thermo is not None:
-                    if self.permissive:
-                        logger.warning("Ignoring redundant thermo data for species "
-                            f"'{name}' starting on line {input_lineno} of "
-                            f"{self.files[-1]}.")
-                    else:
-                        logger.error(self.entry("thermo entry") +
-                            f"Found additional thermo entry for species '{name}'. "
-                            "Run ck2yaml again with the\n'--permissive' option to "
-                            "ignore this redundant entry.")
+                    redundant_count += 1
+                    if redundant_count <= 5 or self.verbose:
+                        if self.permissive:
+                            logger.warning("Ignoring redundant thermo data for species "
+                                f"'{name}' starting on line {input_lineno} of "
+                                f"{self.files[-1]}.")
+                        else:
+                            logger.error(self.entry("thermo entry") +
+                                f"Found additional thermo entry for species '{name}'. "
+                                "Run ck2yaml again with the\n'--permissive' option to "
+                                "ignore this redundant entry.")
                 else:
                     species.thermo = thermo
                     species.composition = comp
@@ -1032,6 +1036,12 @@ class Parser:
                 marker = '1'
                 comments = []
 
+        if redundant_count > 5 and not self.verbose:
+            kind = "warnings" if self.permissive else "errors"
+            logger.warning(f"Suppressed {redundant_count - 5} additional {kind} "
+                "about redundant thermo data.\nRun ck2yaml again with the "
+                f"'--verbose' option to see all {kind}.")
+
         # Check for blocks of consecutive lines that couldn't be parsed as a valid
         # thermo entry
         unexpected = [row for row in data if row[0] not in used]
@@ -1040,6 +1050,7 @@ class Parser:
 
         blocks = []
         start = 0
+        i = -1
         for i in range(len(unexpected) - 1):
             if unexpected[i+1][0] - unexpected[i][0] > 1:
                 blocks.append((start, i+1))
@@ -1648,11 +1659,15 @@ class Parser:
                             comments[line_species[0]] = comment
                         species.extend(line_species)
 
+                    redundant_count = 0
                     for token in species:
                         if token.upper() == 'END':
                             break
                         if token in self.species_dict:
+                            redundant_count += 1
                             species = self.species_dict[token]
+                            if redundant_count > 5:
+                                continue
                             if self.permissive:
                                 logger.warning("Ignoring redundant declaration for "
                                                f"species '{species}'")
@@ -1667,6 +1682,12 @@ class Parser:
                                 species.note = comments[token]
                             self.species_dict[token] = species
                             self.species_list.append(species)
+
+                    if redundant_count > 5 and not self.verbose:
+                        kind = "warnings" if self.permissive else "errors"
+                        logger.warning(f"Suppressed {redundant_count - 5} additional "
+                            f"{kind} about redundant species declarations.\nRun ck2yaml "
+                            f"again with the '--verbose' option to see all {kind}.")
 
                 elif tokens[0].upper().startswith('SITE'):
                     self.current_entry = [line]
@@ -1745,6 +1766,7 @@ class Parser:
                 elif tokens[0].upper().startswith('THER') and contains(line, 'NASA9'):
                     inHeader = False
                     entryLength = None
+                    redundant_count = 0
                     entry = []
                     # Gather comments on lines preceding and within this entry
                     comments = []
@@ -1798,6 +1820,9 @@ class Parser:
 
                             # use the first set of thermo data found
                             if species.thermo is not None:
+                                redundant_count += 1
+                                if redundant_count > 5:
+                                    continue
                                 if self.permissive:
                                     logger.warning("Ignoring redundant thermo data for "
                                         f"species '{label}' starting on line "
@@ -1811,6 +1836,12 @@ class Parser:
                             else:
                                 species.thermo = thermo
                                 species.composition = comp
+
+                    if redundant_count > 5 and not self.verbose:
+                        kind = "warnings" if self.permissive else "errors"
+                        logger.warning(f"Suppressed {redundant_count - 5} additional "
+                            f"{kind} about redundant thermo data.\nRun ck2yaml again "
+                            f"with the '--verbose' option to see all {kind}.")
 
                 elif tokens[0].upper().startswith('THER'):
                     # List of thermodynamics (hopefully one per species!)
@@ -1989,10 +2020,10 @@ class Parser:
         and add that transport data to the previously-loaded species.
         """
 
+        redundant_count = 0
         for i,line in enumerate(lines):
             self.current_entry = [line]
             self.line_number = i + line_offset
-            original_line = line
             line = line.strip()
             if not line or line.startswith('!'):
                 continue
@@ -2017,15 +2048,24 @@ class Parser:
                 if self.species_dict[speciesName].transport is None:
                     self.species_dict[speciesName].transport = TransportData(self, *data, note=comment)
                 else:
+                    redundant_count += 1
+                    if redundant_count > 5 and not self.verbose:
+                        continue
                     if self.permissive:
                         logger.warning('Ignoring duplicate transport data for species '
                             f'"{speciesName}" on line {line_offset + i} of '
                             f'"{self.files[-1]}".')
                     else:
                         logger.error(self.entry("transport data") +
-                            f"duplicate transport data for species '{speciesName}'. "
+                            f"Duplicate transport data for species '{speciesName}'. "
                             "Run ck2yaml again with the\n'--permissive' option to "
                             "ignore this redundant entry.")
+
+        if redundant_count > 5 and not self.verbose:
+            kind = "warnings" if self.permissive else "errors"
+            logger.warning(f"Suppressed {redundant_count - 5} additional {kind} "
+                "about duplicate transport data.\nRun ck2yaml again with the "
+                f"'--verbose' option to see all {kind}.")
 
 
     def write_yaml(self, name='gas', out_name='mech.yaml'):
@@ -2173,6 +2213,7 @@ class Parser:
         logger.propagate = False
 
         parser = Parser()
+        parser.verbose = verbose
         parser.single_intermediate_temperature = single_intermediate_temperature
         if quiet:
             logger.setLevel(level=logging.ERROR if permissive else logging.WARNING)
