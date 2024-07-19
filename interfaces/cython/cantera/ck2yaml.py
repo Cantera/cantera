@@ -49,6 +49,8 @@ class ErrorFormatter(logging.Formatter):
         message = super().format(record)
         if record.levelno >= logging.ERROR:
             return '*' * 79 + '\n' + message
+        elif '\n' in message and not message.endswith('\n'):
+            return message + '\n'
         else:
             return message
 
@@ -767,6 +769,7 @@ class Parser:
         self.output_quantity_units = 'mol'  # for the output file
         self.motz_wise = None
         self.single_intermediate_temperature = False
+        self.skip_undeclared_species = True
         self.permissive = False
 
         self.elements = []
@@ -964,6 +967,97 @@ class Parser:
                            high_coeffs=high_coeffs, note=note)
 
         return species, thermo, composition
+
+    def read_nasa7_entries(self, data, TintDefault):
+        marker = '1'
+        comments = []
+        used = set()
+        for input_lineno, line, comment in data:
+            comments.append(comment)
+            if len(line) >= 80 and line[79] == marker == '1':
+                entry = [line]
+                entry_lines = [input_lineno]
+                if line.endswith('&'):
+                    marker = None
+                else:
+                    marker = '2'
+            elif marker is None:
+                entry.append(line)
+                entry_lines.append(input_lineno)
+                if not line.endswith('&'):
+                    marker = '2'
+            elif len(line) >= 80 and line[79] == marker and marker in ('2', '3'):
+                    entry.append(line)
+                    entry_lines.append(input_lineno)
+                    marker = chr(ord(marker) + 1)
+            elif len(line) >= 80 and line[79] == marker == '4':
+                entry.append(line)
+                entry_lines.append(input_lineno)
+                used.update(entry_lines)
+                self.current_entry = entry
+                self.line_number = input_lineno - len(entry)
+                name, thermo, comp = self.read_NASA7_entry(entry, TintDefault, comments)
+                if name not in self.species_dict:
+                    if self.skip_undeclared_species:
+                        logger.debug(f"Skipping unexpected species '{name}' while "
+                            "reading thermodynamics entry.")
+                        marker = '1'
+                        comments = []
+                        continue
+                    else:
+                        # Add a new species entry
+                        species = Species(label=name)
+                        self.species_dict[name] = species
+                        self.species_list.append(species)
+                else:
+                    species = self.species_dict[name]
+
+                # use the first set of thermo data found
+                if species.thermo is not None:
+                    if self.permissive:
+                        logger.warning("Ignoring redundant thermo data for species "
+                            f"'{name}' starting on line {input_lineno} of "
+                            f"{self.files[-1]}.")
+                    else:
+                        logger.error(self.entry("thermo entry") +
+                            f"Found additional thermo entry for species '{name}'. "
+                            "Run ck2yaml again with the\n'--permissive' option to "
+                            "ignore this redundant entry.")
+                else:
+                    species.thermo = thermo
+                    species.composition = comp
+                comments = []
+                marker = '1'
+            elif line.strip():
+                marker = '1'
+                comments = []
+
+        # Check for blocks of consecutive lines that couldn't be parsed as a valid
+        # thermo entry
+        unexpected = [row for row in data if row[0] not in used]
+        if not any(row[1] for row in unexpected):
+            return
+
+        blocks = []
+        start = 0
+        for i in range(len(unexpected) - 1):
+            if unexpected[i+1][0] - unexpected[i][0] > 1:
+                blocks.append((start, i+1))
+                start = i+1
+        blocks.append((start, i+2))
+        for block in blocks:
+            entry = unexpected[block[0]:block[1]]
+            self.current_entry = [row[1] for row in entry]
+            if any(self.current_entry):
+                self.line_number = entry[-1][0]
+                if self.permissive:
+                    logger.warning(self.entry("thermo data", "Unparsable lines") +
+                                   "Lines could not be parsed as a NASA7 entry.")
+                else:
+                    logger.error(self.entry("thermo data", "Unparsable lines") +
+                        "Lines could not be parsed as a NASA7 entry. Run ck2yaml again "
+                        "with the\n'--permissive' option to continue without parsing "
+                        "these lines.")
 
     def read_NASA9_entry(self, entry, comments):
         """
@@ -1463,7 +1557,7 @@ class Parser:
         # remainder
         self.extra = yml
 
-    def load_chemkin_file(self, path, skip_undeclared_species=True, surface=False):
+    def load_chemkin_file(self, path, surface=False):
         """
         Load a Chemkin-format input file from ``path`` on disk.
         """
@@ -1654,7 +1748,7 @@ class Parser:
                     entry = []
                     # Gather comments on lines preceding and within this entry
                     comments = []
-                    while line is not None and get_index(line, 'END') != 0:
+                    while line is not None and get_index(line, 'END') is None:
                         # Grudging support for implicit end of section
                         start = line.strip().upper().split()
                         if start and start[0] in ('REAC', 'REACTIONS', 'TRAN', 'TRANSPORT'):
@@ -1691,7 +1785,7 @@ class Parser:
                             comments = []
                             entry = []
                             if label not in self.species_dict:
-                                if skip_undeclared_species:
+                                if self.skip_undeclared_species:
                                     logger.debug('Skipping unexpected species "{0}" while reading thermodynamics entry.'.format(label))
                                     continue
                                 else:
@@ -1724,10 +1818,10 @@ class Parser:
                     line, comment = readline()
                     if line is not None and get_index(line, 'END') is None:
                         TintDefault = float(line.split()[1])
-                    thermo = []
-                    self.current_entry = []
+                        line = "\n"
+
+                    data = []
                     # Gather comments on lines preceding and within this entry
-                    comments = [comment]
                     while line is not None and get_index(line, 'END') != 0:
                         # Grudging support for implicit end of section
                         start = line.strip().upper().split()
@@ -1739,54 +1833,9 @@ class Parser:
                             advance = False
                             tokens.pop()
                             break
-
-                        if len(line) >= 80 and line[79] in ['1', '2', '3', '4']:
-                            thermo.append(line)
-                            if line[79] == '4':
-                                label, thermo, comp = self.read_NASA7_entry(thermo, TintDefault, comments)
-
-                                if label not in self.species_dict:
-                                    if skip_undeclared_species:
-                                        logger.debug(
-                                            'Skipping unexpected species "{0}" while'
-                                            ' reading thermodynamics entry.'.format(label))
-                                        thermo = []
-                                        line, comment = readline()
-                                        self.current_entry = []
-                                        comments = [comment]
-                                        continue
-                                    else:
-                                        # Add a new species entry
-                                        species = Species(label=label)
-                                        self.species_dict[label] = species
-                                        self.species_list.append(species)
-                                else:
-                                    species = self.species_dict[label]
-
-                                # use the first set of thermo data found
-                                if species.thermo is not None:
-                                    if self.permissive:
-                                        logger.warning("Ignoring redundant thermo data "
-                                            f"for species '{label}' starting on line "
-                                            f"{self.entry_line} of {self.files[-1]}.")
-                                    else:
-                                        logger.error(self.entry("thermo entry") +
-                                            "Found additional thermo entry for species "
-                                            f"'{label}'. Run ck2yaml again with the\n"
-                                            "'--permissive' option to ignore this "
-                                            "redundant entry.")
-                                else:
-                                    species.thermo = thermo
-                                    species.composition = comp
-
-                                thermo = []
-                                self.current_entry = []
-                                comments = []
-                        elif thermo and thermo[-1].rstrip().endswith('&'):
-                            # Include Chemkin-style extended elemental composition
-                            thermo.append(line)
+                        data.append((self.line_number, line.rstrip(), comment))
                         line, comment = readline()
-                        comments.append(comment)
+                    self.read_nasa7_entries(data, TintDefault)
 
                 elif tokens[0].upper().startswith('REAC'):
                     self.current_entry = [line]
@@ -2188,8 +2237,8 @@ class Parser:
                 else:
                     raise IOError(f"Missing thermo file: {thermo_file!r}")
             try:
-                parser.load_chemkin_file(thermo_file,
-                                       skip_undeclared_species=bool(input_file))
+                parser.skip_undeclared_species = bool(input_file)
+                parser.load_chemkin_file(thermo_file)
             except Exception:
                 logger.warning("\nERROR: Unable to parse '{0}' near line {1}:\n".format(
                                thermo_file, parser.line_number))
