@@ -168,6 +168,13 @@ class ck2yamlTest(utilities.CanteraTest):
         gas = ct.Solution(yaml=yaml)
         assert set(gas.species_names) == {"O", "H", "H2O"}
 
+    def test_bad_nasa7_float(self):
+        with pytest.raises(ck2yaml.InputError):
+            self.convert(None, thermo='bad-nasa7-float.dat')
+
+        captured = self._capsys.readouterr()
+        assert "could not convert string to float: '-0.35101023e+ 0'" in captured.out
+
     def test_bad_nasa9_temperature_ranges(self):
         with pytest.raises(ck2yaml.InputError,
                            match="non-adjacent temperature ranges"):
