@@ -14,6 +14,7 @@ arguments that correspond to options of the command line interface.
 import logging
 import os.path
 import sys
+from typing import Callable
 import numpy as np
 import re
 import warnings
@@ -770,6 +771,7 @@ class Parser:
         self.motz_wise = None
         self.single_intermediate_temperature = False
         self.skip_undeclared_species = True
+        self.exit_on_error = False
         self.permissive = False
         self.verbose = False
 
@@ -786,9 +788,6 @@ class Parser:
 
     def __del__(self):
         logger.removeHandler(self.handler)
-
-    def set_current_file(self, file_name):
-        self.files.append(Path(file_name).name)
 
     @property
     def entry_line(self):
@@ -1576,6 +1575,25 @@ class Parser:
         # remainder
         self.extra = yml
 
+    def load_data_file(self, path: str, load_method: Callable, kind: str, **kwargs):
+        if not path:
+            return
+
+        self.files.append(Path(path).name)
+        path = os.path.expanduser(path)
+        if not os.path.exists(path):
+            if self.exit_on_error:
+                logger.error(f"Missing input file: {path!r}")
+                sys.exit(1)
+            else:
+                raise IOError(f"Missing input file: {path!r}")
+        try:
+            load_method(path, **kwargs)
+        except Exception as err:
+            logger.warning(f"\nERROR: Unable to parse '{path}' near line "
+                           f"{self.line_number}:\n{err}\n")
+            raise
+
     def load_chemkin_file(self, path, surface=False):
         """
         Load a Chemkin-format input file from ``path`` on disk.
@@ -2020,6 +2038,11 @@ class Parser:
         if transportLines:
             self.parse_transport_data(transportLines, path, transport_start_line)
 
+    def load_transport_file(self, path):
+        with open(path, 'r', errors='ignore') as f:
+            lines = [strip_nonascii(line) for line in f]
+        self.parse_transport_data(lines, path, 1)
+
     def parse_transport_data(self, lines, filename, line_offset):
         """
         Parse the Chemkin-format transport data in ``lines`` (a list of strings)
@@ -2220,6 +2243,7 @@ class Parser:
 
         parser = Parser()
         parser.verbose = verbose
+        parser.exit_on_error = exit_on_error
         parser.single_intermediate_temperature = single_intermediate_temperature
         if quiet:
             logger.setLevel(level=logging.ERROR if permissive else logging.WARNING)
@@ -2231,65 +2255,20 @@ class Parser:
         if permissive is not None:
             parser.permissive = permissive
 
-        if input_file:
-            parser.set_current_file(input_file)
-            input_file = os.path.expanduser(input_file)
-            if not os.path.exists(input_file):
-                if exit_on_error:
-                    logger.error(f"Missing input file: {input_file!r}")
-                    sys.exit(1)
-                else:
-                    raise IOError(f"Missing input file: {input_file!r}")
-            try:
-                # Read input mechanism files
-                parser.load_chemkin_file(input_file)
-            except Exception as err:
-                logger.warning("\nERROR: Unable to parse '{0}' near line {1}:\n{2}\n".format(
-                                input_file, parser.line_number, err))
-                raise
-        else:
-            phase_name = None
+        parser.load_data_file(input_file, parser.load_chemkin_file, "input")
+        if surface_file and not input_file:
+            msg = "Cannot specify a surface mechanism without a gas phase"
+            if exit_on_error:
+                logger.warning(f"\nERROR: {msg}\n")
+                sys.exit(1)
+            else:
+                raise InputError(msg)
 
-        if surface_file:
-            if phase_name is None:
-                msg = "Cannot specify a surface mechanism without a gas phase"
-                if exit_on_error:
-                    logger.warning(f"\nERROR: {msg}\n")
-                    sys.exit(1)
-                else:
-                    raise InputError(msg)
-            parser.set_current_file(surface_file)
-            surface_file = os.path.expanduser(surface_file)
-            if not os.path.exists(surface_file):
-                if exit_on_error:
-                    logger.error(f"Missing input file: {surface_file!r}")
-                    sys.exit(1)
-                else:
-                    raise IOError(f"Missing input file: {surface_file!r}")
-            try:
-                # Read input mechanism files
-                parser.load_chemkin_file(surface_file, surface=True)
-            except Exception as err:
-                logger.warning("\nERROR: Unable to parse '{0}' near line {1}:\n{2}\n".format(
-                               surface_file, parser.line_number, err))
-                raise
+        parser.load_data_file(surface_file, parser.load_chemkin_file,
+                                "surface input", surface=True)
 
-        if thermo_file:
-            parser.set_current_file(thermo_file)
-            thermo_file = os.path.expanduser(thermo_file)
-            if not os.path.exists(thermo_file):
-                if exit_on_error:
-                    logger.error(f"Missing thermo file: {thermo_file!r}")
-                    sys.exit(1)
-                else:
-                    raise IOError(f"Missing thermo file: {thermo_file!r}")
-            try:
-                parser.skip_undeclared_species = bool(input_file)
-                parser.load_chemkin_file(thermo_file)
-            except Exception:
-                logger.warning("\nERROR: Unable to parse '{0}' near line {1}:\n".format(
-                               thermo_file, parser.line_number))
-                raise
+        parser.skip_undeclared_species = bool(input_file)
+        parser.load_data_file(thermo_file, parser.load_chemkin_file, "thermo")
 
         parser.all_species = list(parser.species_list)
         for surf in parser.surfaces:
@@ -2299,45 +2278,14 @@ class Parser:
             if species.composition is None:
                 logger.error(f'No thermo data found for species {species.label!r}')
 
+        parser.load_data_file(transport_file, parser.load_transport_file, "transport")
         if transport_file:
-            parser.set_current_file(transport_file)
-            transport_file = os.path.expanduser(transport_file)
-            if not os.path.exists(transport_file):
-                if exit_on_error:
-                    logger.error(f"Missing transport file: {transport_file!r}")
-                    sys.exit(1)
-                else:
-                    raise IOError(f"Missing transport file: {transport_file!r}")
-            with open(transport_file, 'r', errors='ignore') as f:
-                lines = [strip_nonascii(line) for line in f]
-            parser.parse_transport_data(lines, transport_file, 1)
-
             # Transport validation: make sure all species have transport data
             for s in parser.species_list:
                 if s.transport is None:
                     logger.error(f"No transport data for species '{s}'.")
 
-        if extra_file:
-            parser.set_current_file(extra_file)
-            extra_file = os.path.expanduser(extra_file)
-            if not os.path.exists(extra_file):
-                if exit_on_error:
-                    logger.error(f"Missing input file: {extra_file!r}")
-                    sys.exit(1)
-                else:
-                    raise IOError(f"Missing input file: {extra_file!r}")
-            try:
-                # Read input mechanism files
-                parser.load_extra_file(extra_file)
-            except Exception as err:
-                logger.warning("\nERROR: Unable to parse '{0}':\n{1}\n".format(
-                               extra_file, err))
-                raise
-
-        if out_name:
-            out_name = os.path.expanduser(out_name)
-        else:
-            out_name = os.path.splitext(input_file)[0] + '.yaml'
+        parser.load_data_file(extra_file, parser.load_extra_file, "input")
 
         if parser.max_loglevel >= logging.ERROR:
             if exit_on_error:
@@ -2350,6 +2298,14 @@ class Parser:
                 raise InputError('\n'.join(parser.handler.errors))
 
         # Write output file
+        if out_name:
+            out_name = os.path.expanduser(out_name)
+        else:
+            out_name = os.path.splitext(input_file)[0] + '.yaml'
+
+        if not input_file:
+            phase_name = None
+
         surface_names = parser.write_yaml(name=phase_name, out_name=out_name)
         if not quiet:
             nSpecies = len(parser.species_list)
