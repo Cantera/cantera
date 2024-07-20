@@ -937,8 +937,8 @@ class Parser:
                        for i,j,k in [(1,0,15), (1,15,30), (1,30,45), (1,45,60),
                                      (1,60,75), (2,0,15), (2,15,30)]]
         low_coeffs = [fortFloat(lines[i][j:k])
-                       for i,j,k in [(2,30,45), (2,45,60), (2,60,75), (3,0,15),
-                                     (3,15,30), (3,30,45), (3,45,60)]]
+                      for i,j,k in [(2,30,45), (2,45,60), (2,60,75), (3,0,15),
+                                    (3,15,30), (3,30,45), (3,45,60)]]
 
         # Cases where only one temperature range is needed
         if Tint == Tmin or Tint == Tmax or high_coeffs == low_coeffs:
@@ -998,7 +998,15 @@ class Parser:
                 used.update(entry_lines)
                 self.current_entry = entry
                 self.line_number = input_lineno
-                name, thermo, comp = self.read_NASA7_entry(entry, TintDefault, comments)
+                try:
+                    name, thermo, comp = self.read_NASA7_entry(entry, TintDefault,
+                                                               comments)
+                except ValueError as err:
+                    logger.error(self.entry("thermo entry") + str(err))
+                    comments = []
+                    marker = '1'
+                    continue
+
                 if name not in self.species_dict:
                     if self.skip_undeclared_species:
                         logger.debug(f"Skipping unexpected species '{name}' while "
