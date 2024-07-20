@@ -1,6 +1,6 @@
 SITE/PT_SURFACE/    SDEN/2.72E-9/
 _Pt_ H_Pt O2_Pt/3/ H2O_Pt OH_Pt O_Pt
-END
+
 
  REACTIONS      JOULES/MOLE      MWON
  H2 + 2_Pt_  => 2H_Pt                        4.4579E+10  0.5   0.0

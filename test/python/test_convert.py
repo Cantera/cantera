@@ -274,6 +274,22 @@ class ck2yamlTest(utilities.CanteraTest):
         ref, gas = self.checkConversion("nasa9-test-subset.yaml", output)
         self.checkThermo(ref, gas, [300, 500, 1200, 5000])
 
+    def test_nasa9_embedded(self):
+        with pytest.raises(ck2yaml.InputError):
+            self.convert("nasa9-embedded.inp")
+        captured = self._capsys.readouterr()
+        assert '"SPECIES" section implicitly ended' in captured.out
+        assert '"THERMO" section implicitly ended' in captured.out
+        assert "Found additional thermo entry for species 'AR'" in captured.out
+        assert "Suppressed 2 additional errors" in captured.out
+
+        output = self.convert("nasa9-embedded.inp", quiet=False, permissive=True)
+        captured = self._capsys.readouterr()
+        assert "Suppressed 2 additional warnings" in captured.out
+        ref, gas = self.checkConversion("nasa9-embedded.yaml", output)
+        self.checkThermo(ref, gas, [300, 500, 1200, 5000])
+        self.checkKinetics(ref, gas, [300, 1200, 9000], [5e3, 1e5, 2e6])
+
     def test_sri_falloff(self):
         output = self.convert("sri-falloff.inp", thermo="dummy-thermo.dat")
         ref, gas = self.checkConversion("sri-falloff.yaml", output)
@@ -625,6 +641,8 @@ class ck2yamlTest(utilities.CanteraTest):
 
         output = self.convert('surface2-gas.inp', thermo='surface2-thermo.dat',
                               surface='surface2.inp', output='surface2')
+        captured = self._capsys.readouterr()
+        assert '"SITE" section implicitly ended' in captured.out
         surf = ct.Interface(output, 'PT_SURFACE')
 
         assert surf.n_species == 6
