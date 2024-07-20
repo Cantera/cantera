@@ -1652,12 +1652,11 @@ class Parser:
                                     f'start of next section on line {self.line_number} '
                                     f'of {self.files[-1]}.')
                             advance = False
-                            species.pop()
-                            # Fix the case where there THERMO ALL or REAC UNITS
-                            # ends the species section
-                            if (species[-1].upper().startswith('THER') or
-                                    species[-1].upper().startswith('REAC')):
+                            # Remove optional keywords after the new section keyword
+                            while (species and not species[-1].upper().startswith('THER')
+                                   and not species[-1].upper().startswith('REAC')):
                                 species.pop()
+                            species.pop()  # remove the "THERMO" or "REACTIONS" token
                             break
 
                         line, comment = readline()
@@ -1736,12 +1735,11 @@ class Parser:
                                     f'start of next section on line {self.line_number} '
                                     f'of {self.files[-1]}.')
                             advance = False
-                            tokens.pop()
-                            # Fix the case where there THERMO ALL or REAC UNITS
-                            # ends the species section
-                            if (tokens[-1].upper().startswith('THER') or
-                                    tokens[-1].upper().startswith('REAC')):
+                            # Remove optional keywords after the new section keyword
+                            while (tokens and not tokens[-1].upper().startswith('THER')
+                                   and not tokens[-1].upper().startswith('REAC')):
                                 tokens.pop()
+                            tokens.pop()  # remove the "THERMO" or "REACTIONS" token
                             break
 
                         line, comment = readline()
