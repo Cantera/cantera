@@ -14,5 +14,4 @@ option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
 add_subdirectory("src")
 add_subdirectory("cantera")
 
-# TODO: Disable install of Eigen includes and libsundials
 install(TARGETS _cantera DESTINATION ${SKBUILD_PLATLIB_DIR}/cantera)

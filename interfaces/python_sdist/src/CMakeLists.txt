@@ -92,6 +92,8 @@ execute_process(
 )
 
 file(GLOB_RECURSE CT_LIB_SOURCES "*.cpp")
+# The Python extension handler is built with the rest of the Python library because it
+# needs to be compiled after the Cython step runs.
 list(FILTER CT_LIB_SOURCES EXCLUDE REGEX "extensions/.*")
 list(APPEND CT_LIB_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/extensions/canteraShared.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/extensions/pythonShim.cpp")
 
