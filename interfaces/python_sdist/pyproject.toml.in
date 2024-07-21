@@ -88,11 +88,12 @@ test-command = "pytest -vv --durations=100 ${CANTERA_TEST_DIR}/test/python"
 
 [tool.cibuildwheel.windows]
 before-build = "pip install delvewheel"
-repair-wheel-command = "delvewheel repair --add-path %HDF5_DIR%\\lib;%ZLIB_ROOT%\\bin_release -w {dest_dir} {wheel}"
+repair-wheel-command = "delvewheel repair --add-path %HDF5_LIB_DIR%;%ZLIB_LIB_DIR% -w {dest_dir} {wheel}"
 test-command = "pytest -vv --durations=100 %CANTERA_TEST_DIR%\\test\\python"
 
 [[tool.cibuildwheel.overrides]]
 select = "*_aarch64*"
+# Work around https://github.com/pypa/cibuildwheel/issues/1771
 container-engine = { name = "docker", create-args = ["--platform", "linux/arm64"]}
 
 [tool.cibuildwheel.macos]
