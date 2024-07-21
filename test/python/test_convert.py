@@ -242,7 +242,7 @@ class ck2yamlTest(utilities.CanteraTest):
         output = self.convert('unterminated-sections.inp', quiet=False)
         captured = self._capsys.readouterr()
         for section in ["ELEMENTS", "SPECIES", "THERMO", "REACTIONS"]:
-            assert f'"{section}" section implicitly ended' in captured.out
+            assert f"{section} section implicitly ended" in captured.out
         gas = ct.Solution(output)
         self.assertEqual(gas.n_species, 3)
         self.assertEqual(gas.n_reactions, 2)
@@ -251,7 +251,7 @@ class ck2yamlTest(utilities.CanteraTest):
         output = self.convert('unterminated-sections2.inp', quiet=False)
         captured = self._capsys.readouterr()
         for section in ["ELEMENTS", "SPECIES", "THERMO", "REACTIONS"]:
-            assert f'"{section}" section implicitly ended' in captured.out
+            assert f"{section} section implicitly ended" in captured.out
 
         gas = ct.Solution(output)
         self.assertEqual(gas.n_species, 3)
@@ -278,8 +278,8 @@ class ck2yamlTest(utilities.CanteraTest):
         with pytest.raises(ck2yaml.InputError):
             self.convert("nasa9-embedded.inp")
         captured = self._capsys.readouterr()
-        assert '"SPECIES" section implicitly ended' in captured.out
-        assert '"THERMO" section implicitly ended' in captured.out
+        assert "SPECIES section implicitly ended" in captured.out
+        assert "THERMO NASA9 section implicitly ended" in captured.out
         assert "Found additional thermo entry for species 'AR'" in captured.out
         assert "Suppressed 2 additional errors" in captured.out
 
@@ -642,7 +642,7 @@ class ck2yamlTest(utilities.CanteraTest):
         output = self.convert('surface2-gas.inp', thermo='surface2-thermo.dat',
                               surface='surface2.inp', output='surface2')
         captured = self._capsys.readouterr()
-        assert '"SITE" section implicitly ended' in captured.out
+        assert "SITE section implicitly ended" in captured.out
         surf = ct.Interface(output, 'PT_SURFACE')
 
         assert surf.n_species == 6
