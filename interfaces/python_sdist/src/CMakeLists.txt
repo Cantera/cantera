@@ -58,6 +58,7 @@ message(STATUS "Using Boost at ${Boost_INCLUDE_DIRS}")
 # Common options
 set(BUILD_TESTING OFF)
 set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
+set(CMAKE_BUILD_TYPE "Release")
 
 # HighFive build options
 set(HIGHFIVE_USE_BOOST OFF)
