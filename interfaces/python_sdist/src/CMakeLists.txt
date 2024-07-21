@@ -59,6 +59,8 @@ message(STATUS "Using Boost at ${Boost_INCLUDE_DIRS}")
 set(BUILD_TESTING OFF)
 set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 set(CMAKE_BUILD_TYPE "Release")
+# We don't care about Fortran support here so just disable this check
+set(CMAKE_Fortran_COMPILER NOTFOUND)
 
 # HighFive build options
 set(HIGHFIVE_USE_BOOST OFF)
