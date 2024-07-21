@@ -9,8 +9,6 @@ find_package(
   COMPONENTS Interpreter Development.Module NumPy
   REQUIRED)
 
-option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
-
 add_subdirectory("src")
 add_subdirectory("cantera")
 
