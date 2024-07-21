@@ -64,8 +64,12 @@ lxcat2yaml = "cantera.lxcat2yaml:main"
 logging.level = "DEBUG"
 
 [tool.scikit-build.cmake]
-version = ">=3.20"
+version = ">=3.24"
 verbose = true
+
+[tool.scikit-build.ninja]
+version = ">=1.12"
+make-fallback = false
 
 [tool.scikit-build.cmake.define]
 CMAKE_POSITION_INDEPENDENT_CODE = "ON"
