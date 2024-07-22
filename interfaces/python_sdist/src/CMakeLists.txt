@@ -61,6 +61,9 @@ set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 set(CMAKE_BUILD_TYPE "Release")
 # We don't care about Fortran support here so just disable this check
 set(CMAKE_Fortran_COMPILER NOTFOUND)
+# This is set to OFF to resolve linker errors on Windows and macOS. It doesn't
+# seem to affect Linux builds.
+set(BUILD_SHARED_LIBS OFF)
 
 # HighFive build options
 set(HIGHFIVE_USE_BOOST OFF)
