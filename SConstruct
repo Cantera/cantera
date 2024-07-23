@@ -82,6 +82,7 @@ from pathlib import Path
 import sys
 import os
 import platform
+import atexit
 import subprocess
 import re
 import json
@@ -2405,6 +2406,13 @@ if any(target.startswith(('test', 'build-')) for target in COMMAND_LINE_TARGETS)
         sys.exit(0)
 
     Alias('test', env['test_results'])
+    def set_error_code():
+        # After running all tests, exit with non-zero status if any tests have failed.
+        if test_results.failed:
+            sys.stdout.flush()
+            sys.stderr.flush()
+            os._exit(1)
+    atexit.register(set_error_code)
 
 ### Dump (debugging SCons)
 if 'dump' in COMMAND_LINE_TARGETS:
