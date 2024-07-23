@@ -110,7 +110,7 @@ reactions:
 (sec-electrochemical-reactions)=
 ## Electrochemical Reactions
 
-In an electrochemical reaction (one that moves electrical charge from one phase of matter to another), the electric potential difference $\Delta\phi$ at the phase boundary exerts an additional "force" on the reaction that must be accounted for in the rate expression.  
+In an electrochemical reaction (one that moves electrical charge from one phase of matter to another), the electric potential difference $\Delta\phi$ at the phase boundary exerts an additional "force" on the reaction that must be accounted for in the rate expression.
 
 The free energy of the reaction equals the electrochemical potential change, $\Delta\tilde{\mu}_{\rm rxn}$:
 
@@ -118,11 +118,11 @@ $$\Delta\tilde{\mu}_{\rm rxn} = \Delta\mu_{\rm rxn} + n_{\rm elec}F\Delta\phi$$
 
 where $\mu_{\rm rxn}$ is the chemical potential, $n_{\rm elec}$ is the total electrical charge moved across the phase boundary (e.g. from "phase 1" to "phase 2", where $\Delta\phi = \phi_2 - \phi_1$), and $F$ is Faraday's constant (96,485 Coulombs per mole of charge).
 
-Cantera's charge transfer treatment assumes a reversible reaction with a linear energy profile in the region of the transition state.  From above, for any $\Delta\phi$ the free energy of the reaction changes by $n_{\rm elec}F\Delta\phi$.  The transition state energy, meanwhile, changes by a fraction of this, $\beta n_{\rm elec}F\Delta\phi$, where the "symmetry parameter" $\beta$ is a number between 0 and 1.  
+Cantera's charge transfer treatment assumes a reversible reaction with a linear energy profile in the region of the transition state.  From above, for any $\Delta\phi$ the free energy of the reaction changes by $n_{\rm elec}F\Delta\phi$.  The transition state energy, meanwhile, changes by a fraction of this, $\beta n_{\rm elec}F\Delta\phi$, where the "symmetry parameter" $\beta$ is a number between 0 and 1.
 
 This means that the activation energy for the reaction changes:
 - The barrier height for the forward reaction increases by $\beta n_{\rm elec}F\Delta\phi$.
-- The reverse reaction barrier height decreases by $\left(1-\beta\right) n_{\rm elec}F\Delta\phi$.  
+- The reverse reaction barrier height decreases by $\left(1-\beta\right) n_{\rm elec}F\Delta\phi$.
 
 Note that $n_{\rm elec}$ and $\Delta \phi$ both have a sign, so the terms "increase" and "decrease" are relative; the forward barrier height might increase by a negative amount (i.e. decrease), for instance.
 
@@ -139,13 +139,13 @@ respectively, where $k_f$ and $k_r$ are the normal chemical rate coefficients in
 Note that Cantera's actual software implementation looks quite different from the description above, which is meant solely to give a clearer understanding of the science behind Cantera's calculations.
 ```{admonition} YAML Usage
 :class: tip
-- Electrochemical reactions only occur at phase boundaries and therefore use the standard [``interface``](sec-yaml-interface-Arrhenius) reaction rate implementation. 
+- Electrochemical reactions only occur at phase boundaries and therefore use the standard [``interface``](sec-yaml-interface-Arrhenius) reaction rate implementation.
 - Charge transfer is automatically detected, and $n_{\rm elec}$ automatically calculated.  If no value for `beta` is provided, an [``electrochemical``](sec-yaml-electrochemical-reaction) reaction assumes a default of ``beta = 0.5``.
-``` 
- 
- (sec-butler-volmer)=
+```
+
+(sec-butler-volmer)=
 ### The Butler-Volmer Form
- 
+
 Cantera's electrochemical reaction rate calculation is equivalent to the commonly-used Butler-Volmer rate form. In Butler-Volmer, the net rate of progress, $R_{\rm net} = R_f - R_r$, can be written as:
 
 $$ R_{\rm net} = \frac{i_\circ}{n_{\rm elec}F}\left[\exp\left(-\frac{\beta n_{\rm elec}F\eta}{RT} \right) - \exp\left( \frac{\left(1-\beta\right)n_{\rm elec}F\eta}{RT}\right) \right]$$
