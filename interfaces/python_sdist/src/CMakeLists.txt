@@ -27,7 +27,7 @@ FetchContent_Declare(
   URL_HASH SHA256=d762a7950ef4097fbe9d289f67a8fb717a0b9f90f87ed82170eb5c36c0a07989
   # FIND_PACKAGE_ARGS has to be the last thing in this call because it greedily takes
   # everything after it to pass to `find_package()`
-  FIND_PACKAGE_ARGS NAMES SUNDIALS
+  FIND_PACKAGE_ARGS 7.0.0 EXACT NAMES SUNDIALS
 )
 
 set(FMT_VERSION 10.2.1)
