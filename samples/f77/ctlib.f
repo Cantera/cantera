@@ -40,7 +40,7 @@ c     example driver program
 c     Read in the reaction mechanism. Since this is done differently
 c     than in Chemkin, this function does not correspond to any CKLIB
 c     subroutine.
-      call newIdealGasMix('h2o2.yaml','ohmech','')
+      call newIdealGasMix('h2o2.yaml','ohmech','none')
 
 c     get the number of elements, species, and reactions
       call ctindx(ickwrk, rckwrk, mm, kk, ii)
