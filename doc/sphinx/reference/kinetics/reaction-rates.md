@@ -117,10 +117,10 @@ expression.
 
 The free energy of the reaction equals the electrochemical potential change:
 
-$$\Delta\tilde{\mu}_{\rm rxn} = \Delta\mu_{\rm rxn} + n_{\rm elec}F\Delta\phi$$
+$$  \Delta\tilde{\mu}_{\rm rxn} = \Delta\mu_{\rm rxn} + n_{\rm elec}F\Delta\phi  $$
 
 where $\mu_{\rm rxn}$ is the chemical potential, $n_{\rm elec}$ is the total electrical
-charge moved across the phase boundary (in other words, the chanrge moved from "phase 1"
+charge moved across the phase boundary (in other words, the charge moved from "phase 1"
 to "phase 2", where $\Delta\phi = \phi_2 - \phi_1$), and $F$ is Faraday's constant
 (96,485 Coulombs per mole of charge).
 
@@ -131,10 +131,10 @@ energy, meanwhile, changes by a fraction of this, $\beta n_{\rm elec}F\Delta\phi
 the "symmetry parameter" $\beta$ is a number between 0 and 1.
 
 This means that the activation energy for the reaction changes:
-- The barrier height for the forward reaction increases by 
-$\beta n_{\rm elec}F\Delta\phi$.
+- The barrier height for the forward reaction increases by
+  $\beta n_{\rm elec}F\Delta\phi$.
 - The reverse reaction barrier height decreases by
-$\left(1-\beta\right) n_{\rm elec}F\Delta\phi$.
+  $\left(1-\beta\right) n_{\rm elec}F\Delta\phi$.
 
 Note that $n_{\rm elec}$ and $\Delta \phi$ both have a sign, so the terms "increase" and
 "decrease" are relative; the forward barrier height might increase by a negative amount
@@ -143,17 +143,17 @@ Note that $n_{\rm elec}$ and $\Delta \phi$ both have a sign, so the terms "incre
 From transition state theory, the forward and reverse reaction rates are therefore
 calculated as:
 
-$$ R_f = k_f\exp\left(-\frac{\beta n_{\rm elec}F\Delta\phi}{RT} \right)\prod_k
-C_{{\rm ac},\,k}^{\nu_k^\prime}$$
+$$  R_f = k_f\exp\left(-\frac{\beta n_{\rm elec}F\Delta\phi}{RT} \right)\prod_k
+C_{{\rm ac},\,k}^{\nu_k^\prime}  $$
 
 and
 
-$$ R_r = k_r\exp\left(\frac{\left(1-\beta\right)n_{\rm elec}F\Delta\phi}{RT} \right)
-\prod_k C_{{\rm ac},\,k}^{\nu_k^{\prime\prime}},$$
+$$  R_r = k_r\exp\left(\frac{\left(1-\beta\right)n_{\rm elec}F\Delta\phi}{RT} \right)
+\prod_k C_{{\rm ac},\,k}^{\nu_k^{\prime\prime}},  $$
 
 respectively, where $k_f$ and $k_r$ are the normal chemical rate coefficients in the
 absence of any electric potential difference (such as those calculated using Arrhenius
-coefficients), $C_{{\rm ac},\,k}$ is the 
+coefficients), $C_{{\rm ac},\,k}$ is the
 {ct}`activity concentration <ThermoPhase::getActivityConcentrations>` of species $k$,
 $\nu_k^\prime$ and $\nu_k^{\prime\prime}$ are the reactant and product stoichiometric
 coefficients, respectively, for species $k$ for this reaction, and $R$ and $T$ are the
@@ -162,14 +162,15 @@ universal gas constant and temperature, respectively.
 Note that Cantera's actual software implementation looks quite different from the
 description above, which is meant solely to give a clearer understanding of the science
 behind Cantera's calculations.
+
 ```{admonition} YAML Usage
 :class: tip
 - Electrochemical reactions only occur at phase boundaries and therefore use the
-standard [``interface``](sec-yaml-interface-Arrhenius) reaction rate implementation.
+  standard [``interface``](sec-yaml-interface-Arrhenius) reaction rate implementation.
 - Charge transfer is automatically detected, and $n_{\rm elec}$ automatically
-calculated.  If no value for `beta` is provided, an
-[``electrochemical``](sec-yaml-electrochemical-reaction) reaction assumes a default of
-``beta = 0.5``.
+  calculated.  If no value for `beta` is provided, an
+  [``electrochemical``](sec-yaml-electrochemical-reaction) reaction assumes a default of
+  ``beta = 0.5``.
 ```
 
 (sec-butler-volmer)=
@@ -180,21 +181,21 @@ Butler-Volmer rate form. In Butler-Volmer, the net rate of progress,
 $R_{\rm net} = R_f - R_r$, can be written as:
 
 $$ R_{\rm net} = \frac{i_\circ}{n_{\rm elec}F}\left[\exp\left(-\frac{\beta
-n_{\rm elec}F\eta}{RT} \right) - \exp\left( 
+n_{\rm elec}F\eta}{RT} \right) - \exp\left(
 \frac{\left(1-\beta\right)n_{\rm elec}F\eta}{RT}\right) \right]$$
 
 where the kinetic rate constant $i_\circ$ is known as the "exchange current density" and
 $\eta$ the "overpotential" -- the difference between the actual electric potential
 difference and that which would set the reaction to equilibrium:
 
-$$ \eta = \Delta\phi - \Delta\phi_{\rm equil}$$
+$$  \eta = \Delta\phi - \Delta\phi_{\rm equil}  $$
 
 To convert between the two forms, the exchange current density varies with the chemical
 state and can be calculated as:
 
-$$i_\circ = n_{\rm elec}Fk_f^{\left(1-\beta\right)}k_r^\beta\prod_k
+$$  i_\circ = n_{\rm elec}Fk_f^{\left(1-\beta\right)}k_r^\beta\prod_k
 C_{{\rm ac},\,k}^{\left(1-\beta\right)\nu_k^\prime}
-\prod_k C_{{\rm ac},\,k}^{\beta\nu_k^{\prime\prime}}.$$
+\prod_k C_{{\rm ac},\,k}^{\beta\nu_k^{\prime\prime}}.  $$
 
 
 ````{admonition} YAML Usage

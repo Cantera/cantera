@@ -518,7 +518,8 @@ Example::
 ``electrochemical``
 -------------------
 
-Interface reactions involving charge transfer between phases.
+Interface reactions involving :ref:`charge transfer <sec-electrochemical-reactions>`
+between phases.
 
 Includes the fields of an :ref:`sec-yaml-interface-Arrhenius` reaction, plus:
 
