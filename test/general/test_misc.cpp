@@ -14,6 +14,12 @@ TEST(FatalError, stacktrace) {
 }
 
 TEST(CanteraError, stacktrace) {
+    // MinGW requires an external dependency (libbacktrace) to give meaningful
+    // stacktraces.
+    #ifdef __MINGW32__
+        GTEST_SKIP();
+    #endif
+
     bool raised = false;
     try {
         newSolution("xyz567.yaml");
