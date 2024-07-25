@@ -81,7 +81,7 @@ compiler is required only if you plan to build the Fortran module.
     Cantera source code using Git, fmt will be automatically downloaded and the
     necessary portions will be compiled and installed with Cantera.
   - <https://fmt.dev/latest/index.html>
-  - Known to work with version 9.1.0.
+  - Known to work with versions 6.1.2 through 11.0.
 
 - yaml-cpp
 
