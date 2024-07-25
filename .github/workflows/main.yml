@@ -174,6 +174,9 @@ jobs:
         include:
           - macos-version: 'macos-12'
             python-version: '3.8'
+          - macos-version: 'macos-14'
+            python-version: '3.10'
+            extra-build-args: cxx_flags='-std=c++20'
       fail-fast: false
     steps:
     - uses: actions/checkout@v4
@@ -199,7 +202,8 @@ jobs:
     - name: Install Python dependencies
       run: python -m pip install -r requirements.txt
     - name: Build Cantera
-      run: scons build env_vars=all -j3 debug=n --debug=time boost_inc_dir=${BOOST_INC_DIR}
+      run: scons build env_vars=all -j3 debug=n --debug=time
+        boost_inc_dir=${BOOST_INC_DIR} ${{ matrix.extra-build-args }}
     - name: Upload shared library
       uses: actions/upload-artifact@v4
       if: matrix.python-version == '3.11' && matrix.macos-version == 'macos-12'
@@ -496,7 +500,7 @@ jobs:
       matrix:
         include:
         - sundials-ver: 3
-          fmt-ver: 7.1
+          fmt-ver: 6.1.2
         - sundials-ver: 4
           fmt-ver: 8.1
         - sundials-ver: 5.8
@@ -506,7 +510,8 @@ jobs:
         - sundials-ver: 6.6
           fmt-ver: 10
         - sundials-ver: 7.0
-          fmt-ver: 10
+          fmt-ver: 11
+          extra-build-args: cxx_flags='-std=c++20'
       fail-fast: false
     steps:
       - uses: actions/checkout@v4
@@ -528,7 +533,8 @@ jobs:
         run: |
           scons build system_fmt=y system_eigen=y system_yamlcpp=y system_sundials=y \
           system_highfive=y blas_lapack_libs='lapack,blas' -j4 logging=debug debug=n \
-          optimize_flags='-O3 -ffast-math -fno-finite-math-only'
+          optimize_flags='-O3 -ffast-math -fno-finite-math-only' \
+          ${{ matrix.extra-build-args}}
       - name: Test Cantera
         run: scons test-zeroD test-python-reactor show_long_tests=yes verbose_tests=yes
       - name: Test Install
@@ -571,6 +577,9 @@ jobs:
           fmt-ver: '9.1'
         - python-version: '3.12'
           fmt-ver: '7.1'
+        - python-version: '3.12'
+          fmt-ver: '11.0'
+          extra-build-args: cxx_flags='/EHsc /std:c++20'
       fail-fast: false
     steps:
     - uses: actions/checkout@v4
@@ -592,7 +601,8 @@ jobs:
         post-cleanup: none
     - name: Build Cantera
       run: scons build system_eigen=y system_yamlcpp=y system_highfive=y logging=debug
-        toolchain=msvc f90_interface=n debug=n --debug=time -j4
+        toolchain=msvc f90_interface=n debug=n ${{ matrix.extra-build-args }}
+        --debug=time -j4
       shell: pwsh
     - name: Upload shared library
       uses: actions/upload-artifact@v4
