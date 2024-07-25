@@ -42,4 +42,12 @@ void fmt_append(fmt::memory_buffer& b, const std::string& tmpl, Args... args) {
 }
 #endif
 
+#if FMT_VERSION > 100000
+  #if CT_USE_SYSTEM_FMT
+    #include <fmt/ranges.h>
+  #else
+    #include <fmt/join.h>
+  #endif
+#endif
+
 #endif
