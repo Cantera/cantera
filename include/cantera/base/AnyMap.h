@@ -250,6 +250,9 @@ public:
     template<class T>
     AnyValue& operator=(const map<string, T> items);
 
+    //! @see AnyMap::exclude()
+    static AnyValue exclude();
+
     //! Return the held `AnyMap` as a `map` where all of the values have
     //! the specified type.
     template<class T>
@@ -470,6 +473,10 @@ public:
     //! Add items from `other` to this AnyMap. If keys in `other` also exist in
     //! this AnyMap, the `keepExisting` option determines which item is used.
     void update(const AnyMap& other, bool keepExisting=true);
+
+    //! Mark `key` as excluded from this map. This prevents `key` from being added
+    //! by update(). Explicitly setting a value for `key` overrides this exclusion.
+    void exclude(const string& key);
 
     //! Return a string listing the keys in this AnyMap, for use in error
     //! messages, for example

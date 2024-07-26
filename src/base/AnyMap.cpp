@@ -99,6 +99,10 @@ bool isBool(const string& val) {
     return (val == "true" || val == "True" || val == "false" || val == "False");
 }
 
+bool dunder(const string& s) {
+    return ba::starts_with(s, "__") && ba::ends_with(s, "__");
+}
+
 enum class Type : char {
     Unknown = 0,
     Integer = 1,
@@ -108,6 +112,12 @@ enum class Type : char {
     Map = 16,
     Sequence = 32
 };
+
+// Map items of type `Exclude` are skipped in any iteration / output
+struct Exclude {};
+bool operator==(const Exclude& lhs, const Exclude& rhs) {
+    return true;
+}
 
 Type operator|(Type lhs, Type rhs)
 {
@@ -988,6 +998,13 @@ AnyValue& AnyValue::operator=(AnyMap&& value) {
     return *this;
 }
 
+AnyValue AnyValue::exclude() {
+    AnyValue v;
+    v.m_value = Exclude();
+    v.m_equals = eq_comparer<Exclude>;
+    return v;
+}
+
 std::unordered_map<string, const AnyMap*> AnyValue::asMap(const string& name) const
 {
     std::unordered_map<string, const AnyMap*> mapped;
@@ -1437,7 +1454,8 @@ bool AnyMap::empty() const
 
 bool AnyMap::hasKey(const string& key) const
 {
-    return (m_data.find(key) != m_data.end());
+    auto iter = m_data.find(key);
+    return (iter != m_data.end() && !iter->second.is<Exclude>());
 }
 
 void AnyMap::erase(const string& key)
@@ -1453,10 +1471,15 @@ void AnyMap::clear()
 void AnyMap::update(const AnyMap& other, bool keepExisting)
 {
     for (const auto& [key, value] : other) {
-        if (!keepExisting || !hasKey(key)) {
+        if (!keepExisting || m_data.count(key) == 0) {
             (*this)[key] = value;
         }
     }
+}
+
+void AnyMap::exclude(const string& key)
+{
+    m_data[key] = AnyValue::exclude();
 }
 
 string AnyMap::keys_str() const
@@ -1579,9 +1602,7 @@ AnyMap::Iterator::Iterator(
 {
     m_iter = start;
     m_stop = stop;
-    while (m_iter != m_stop
-           && ba::starts_with(m_iter->first, "__")
-           && ba::ends_with(m_iter->first, "__")) {
+    while (m_iter != m_stop && (dunder(m_iter->first) || m_iter->second.is<Exclude>())) {
         ++m_iter;
     }
 }
@@ -1589,9 +1610,7 @@ AnyMap::Iterator::Iterator(
 AnyMap::Iterator& AnyMap::Iterator::operator++()
 {
     ++m_iter;
-    while (m_iter != m_stop
-           && ba::starts_with(m_iter->first, "__")
-           && ba::ends_with(m_iter->first, "__")) {
+    while (m_iter != m_stop && (dunder(m_iter->first) || m_iter->second.is<Exclude>())) {
         ++m_iter;
     }
     return *this;
@@ -1702,7 +1721,7 @@ bool AnyMap::operator==(const AnyMap& other) const
 
 bool AnyMap::operator!=(const AnyMap& other) const
 {
-    return m_data != other.m_data;
+    return !(*this == other);
 }
 
 void AnyMap::applyUnits()

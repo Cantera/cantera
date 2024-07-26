@@ -224,7 +224,8 @@ bool AnyValue::eq_comparer(const std::any& lhs, const std::any& rhs)
     auto& ltype = lhs.type();
     auto& rtype = rhs.type();
     AssertThrowMsg(ltype == typeid(T),
-        "AnyValue::eq_comparer", "Compare function does not match held type");
+        "AnyValue::eq_comparer", "Compare function ({}) does not match held type ({})",
+        demangle(ltype), demangle(typeid(T)));
 
     if (ltype == rtype) {
         return any_cast<T>(lhs) == any_cast<T>(rhs);

@@ -72,10 +72,16 @@ AnyMap Species::parameters(const ThermoPhase* phase, bool withInput) const
 
     if (charge != 0) {
         speciesNode["charge"] = charge;
+    } else {
+        speciesNode.exclude("charge");
     }
+
     if (size != 1) {
         speciesNode["size"] = size;
+    } else {
+        speciesNode.exclude("size");
     }
+
     if (thermo) {
         AnyMap thermoNode = thermo->parameters(withInput);
         if (thermoNode.size()) {
