@@ -90,12 +90,6 @@ set(YAML_CPP_INSTALL OFF)
 
 FetchContent_MakeAvailable(eigen yaml-cpp sundials fmt HighFive)
 
-execute_process(
-  COMMAND ${Python_EXECUTABLE} src/configure.py "include/cantera/base/config.h.in"
-  ECHO_OUTPUT_VARIABLE
-  COMMAND_ECHO STDOUT
-)
-
 file(GLOB_RECURSE CT_LIB_SOURCES "*.cpp")
 # The Python extension handler is built with the rest of the Python library because it
 # needs to be compiled after the Cython step runs.

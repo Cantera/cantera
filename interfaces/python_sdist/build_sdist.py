@@ -39,13 +39,26 @@ def _substitute_lines(lines: list[str], substitutions: dict[str, str]) -> list[s
 def do_configure_substitution(
     configure_source: Path, cantera_version: str, cantera_short_version: str
 ) -> str:
-    configure_template = configure_source.read_text().splitlines()
+    configure_template = configure_source.read_text()
     configure_subst = {
-        "@cantera_version@": cantera_version,
-        "@cantera_short_version@": cantera_short_version,
+        "CANTERA_VERSION": f'#define CANTERA_VERSION "{cantera_version}"',
+        "CANTERA_SHORT_VERSION": f'#define CANTERA_SHORT_VERSION "{cantera_short_version}"',
+        "CT_SUNDIALS_VERSION": "#define CT_SUNDIALS_VERSION 70",
+        "FTN_TRAILING_UNDERSCORE": "#define FTN_TRAILING_UNDERSCORE 1",
+        "LAPACK_FTN_STRING_LEN_AT_END": "#define LAPACK_FTN_STRING_LEN_AT_END 1",
+        "LAPACK_FTN_TRAILING_UNDERSCORE": "#define LAPACK_FTN_TRAILING_UNDERSCORE 1",
+        "CT_USE_LAPACK": "#define CT_USE_LAPACK 0",
+        "CT_USE_SYSTEM_EIGEN": "#define CT_USE_SYSTEM_EIGEN 1",
+        "CT_USE_SYSTEM_EIGEN_PREFIXED": "/* #undef CT_USE_SYSTEM_EIGEN_PREFIXED */",
+        "CT_USE_SYSTEM_FMT": "#define CT_USE_SYSTEM_FMT 1",
+        "CT_USE_SYSTEM_YAMLCPP": "#define CT_USE_SYSTEM_YAMLCPP 1",
+        "CT_SUNDIALS_USE_LAPACK": "#define CT_SUNDIALS_USE_LAPACK 0",
+        "CT_USE_HDF5": "#define CT_USE_HDF5 1",
+        "CT_USE_SYSTEM_HIGHFIVE": "#define CT_USE_SYSTEM_HIGHFIVE 1",
+        "CT_USE_HIGHFIVE_BOOLEAN": "#define CT_USE_HIGHFIVE_BOOLEAN 1",
     }
-    configure_output = _substitute_lines(configure_template, configure_subst)
-    return "\n".join(configure_output)
+    configure_output = configure_template.format_map(configure_subst)
+    return configure_output
 
 
 def do_pyproject_substitution(
@@ -102,8 +115,8 @@ def main(
 
     include_source = source_directory / "include"
     include_target = target_directory / "include"
-    # config.h needs to be filled on the user's machine by CMake. utils_utils.h is
-    # handled by the replace_git_hash command.
+    # config.h and config.h.in are handled by the substitution a little later in this
+    # file. utils_utils.h is handled by the replace_git_hash command.
     shutil.copytree(
         include_source,
         include_target,
@@ -111,6 +124,7 @@ def main(
             "clib",
             "ext",
             "config.h",
+            "config.h.in",
             "utils_utils.h",
         ),
         dirs_exist_ok=True,
@@ -160,8 +174,9 @@ def main(
         )
     )
 
-    configure_source = HERE / "src" / "configure.py.in"
-    configure_target = target_directory / "src" / "configure.py"
+    config_h_in = Path("include", "cantera", "base", "config.h.in")
+    configure_source = source_directory / config_h_in
+    configure_target = target_directory / config_h_in.with_suffix("")
     configure_target.write_text(
         do_configure_substitution(
             configure_source, cantera_version, cantera_short_version
