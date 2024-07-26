@@ -226,15 +226,23 @@ void Reaction::getParameters(AnyMap& reactionNode) const
 
     if (duplicate) {
         reactionNode["duplicate"] = true;
+    } else {
+        reactionNode.exclude("duplicate");
     }
     if (orders.size()) {
         reactionNode["orders"] = orders;
+    } else {
+        reactionNode.exclude("orders");
     }
     if (allow_negative_orders) {
         reactionNode["negative-orders"] = true;
+    } else {
+        reactionNode.exclude("negative-orders");
     }
     if (allow_nonreactant_orders) {
         reactionNode["nonreactant-orders"] = true;
+    } else {
+        reactionNode.exclude("nonreactant-orders");
     }
 
     reactionNode.update(m_rate->parameters());
@@ -251,7 +259,7 @@ void Reaction::getParameters(AnyMap& reactionNode) const
             reactionNode["type"] = "elementary";
         }
     } else if (ba::ends_with(rtype, "Arrhenius")) {
-        reactionNode.erase("type");
+        reactionNode.exclude("type");
     } else if (m_explicit_type) {
         reactionNode["type"] = type();
     } else if (ba::ends_with(rtype, "Blowers-Masel")) {

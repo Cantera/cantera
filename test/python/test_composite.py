@@ -1254,6 +1254,25 @@ class TestSolutionSerialization(utilities.CanteraTest):
         assert gas2.input_data["extra"]["key1"] == "1.0"
         assert gas2.input_data["extra"]["key2"] == 2.0
 
+    def test_duplicate_reactions(self):
+        gas = ct.Solution('h2o2.yaml', transport_model=None)
+
+        reactions = [gas.reaction(i) for i in range(gas.n_reactions) if i != 25]
+        gas_reduced = ct.Solution(name="gas", thermo="ideal-gas", kinetics="bulk",
+                                  species=gas.species(), reactions=reactions)
+        gas_reduced.write_yaml(self.test_work_path / "h2o2-reduced-duplicates-err.yaml")
+
+        with pytest.raises(ct.CanteraError, match="No duplicate found .+ number 24"):
+            test = ct.Solution(self.test_work_path / "h2o2-reduced-duplicates-err.yaml")
+
+        reactions[24].duplicate = False
+        assert 'duplicate' not in reactions[24].input_data
+        gas_reduced = ct.Solution(name="gas", thermo="ideal-gas", kinetics="bulk",
+                                  species=gas.species(), reactions=reactions)
+        gas_reduced.write_yaml(self.test_work_path / "h2o2-reduced-duplicates-ok.yaml")
+        test = ct.Solution(self.test_work_path / "h2o2-reduced-duplicates-ok.yaml")
+        assert not gas_reduced.reaction(24).duplicate
+
 
 class TestSpeciesSerialization(utilities.CanteraTest):
     def test_species_simple(self):
