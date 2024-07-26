@@ -1219,11 +1219,24 @@ class TestSolutionSerialization(utilities.CanteraTest):
         self.assertTrue(gas2.reaction(5).input_data["baked-beans"])
 
     def test_yaml_strings(self):
-        gas = ct.Solution('h2o2.yaml', transport_model=None)
+        yaml = """
+        phases:
+        - name: ohmech
+          thermo: ideal-gas
+          species: [{h2o2.yaml/species: all}]
+          extra: {key1: '1.0', key2: 2.0}  # string values in a flow mapping
+        """
+        gas = ct.Solution(yaml=yaml)
         desc = "   Line 1\n    Line 2\n  Line 3"
         note = "First\n\nSecond\n  Third"
+        note2 = "123199"  # scalar string
+        note3 = ["77", "888", "9"]  # list with all strings
+        note4 = ["111213", 444, "5.10"]  # mixed types
         gas.update_user_header({"description": desc})
-        gas.species(2).update_user_data({"note": note})
+        gas.species(1).update_user_data({"note": note})
+        gas.species(2).update_user_data({"note": note2})
+        gas.species(3).update_user_data({"note": note3})
+        gas.species(4).update_user_data({"note": note4})
 
         gas.write_yaml(self.test_work_path / "h2o2-generated-user-header.yaml")
         gas2 = ct.Solution(self.test_work_path / "h2o2-generated-user-header.yaml")
@@ -1232,7 +1245,14 @@ class TestSolutionSerialization(utilities.CanteraTest):
         # (element annotated with '|-' instead of just '|') but this doesn't seem to be
         # possible as of yaml-cpp 0.8.0.
         assert gas2.input_header["description"].strip() == desc.strip()
-        assert gas2.species(2).input_data["note"].strip() == note.strip()
+        assert gas2.species(1).input_data["note"].strip() == note.strip()
+
+        # number-like strings should be preserved as strings
+        assert gas2.species(2).input_data["note"] == note2
+        assert gas2.species(3).input_data["note"] == note3
+        assert gas2.species(4).input_data["note"] == note4
+        assert gas2.input_data["extra"]["key1"] == "1.0"
+        assert gas2.input_data["extra"]["key2"] == 2.0
 
 
 class TestSpeciesSerialization(utilities.CanteraTest):

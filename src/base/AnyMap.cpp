@@ -283,10 +283,15 @@ YAML::Emitter& operator<<(YAML::Emitter& out, const AnyMap& rhs)
         for (const auto& [name, value] : rhs.ordered()) {
             string valueStr;
             bool foundType = true;
+            bool needsQuotes = false;
             if (value.is<double>()) {
                 valueStr = formatDouble(value.asDouble(), getPrecision(value));
             } else if (value.is<string>()) {
                 valueStr = value.asString();
+                if (isFloat(valueStr)) {
+                    // Quote strings that look like numbers to preserve their type
+                    needsQuotes = true;
+                }
             } else if (value.is<long int>()) {
                 valueStr = fmt::format("{}", value.asInt());
             } else if (value.is<bool>()) {
@@ -303,6 +308,9 @@ YAML::Emitter& operator<<(YAML::Emitter& out, const AnyMap& rhs)
                     width = 15;
                 }
                 out << name;
+                if (needsQuotes) {
+                    out << YAML::SingleQuoted;
+                }
                 out << valueStr;
                 width += name.size() + valueStr.size() + 4;
             } else {
@@ -327,6 +335,9 @@ YAML::Emitter& operator<<(YAML::Emitter& out, const AnyMap& rhs)
 //! Write YAML strings spanning multiple lines if input includes endline '\n'
 void emitString(YAML::Emitter& out, const string& str0) {
     if (str0.rfind('\n') == string::npos) {
+        if (isFloat(str0)) {
+            out << YAML::SingleQuoted;
+        }
         out << str0;
         return;
     }
@@ -356,6 +367,30 @@ void emitFlowVector(YAML::Emitter& out, const vector<double>& v, long int precis
         }
         out << xstr;
         width += xstr.size() + 2; // Update width including comma and space
+    }
+    out << YAML::EndSeq;
+}
+
+//! Write a vector in YAML "flow" style, wrapping lines to avoid exceeding the
+//! preferred maximum line length (set by `max_line_length`). Specialized for
+//! `vector<string>` to quote strings that look like numeric values
+void emitFlowVector(YAML::Emitter& out, const vector<string>& v)
+{
+    out << YAML::Flow;
+    out << YAML::BeginSeq;
+    size_t width = 15; // wild guess, but no better value is available
+    for (const string& x : v) {
+        // Wrap to the next line if this item would exceed the target line length
+        if (width + x.size() > max_line_length) {
+            out << YAML::Newline;
+            width = 15;
+        }
+        if (isFloat(x)) {
+            out << SingleQuoted;
+            width += 2;
+        }
+        out << x;
+        width += x.size() + 2;
     }
     out << YAML::EndSeq;
 }
