@@ -9,6 +9,11 @@ html.dark-mode {
     --pst-color-text-muted: rgb(164, 164, 164);
 }
 
+.directory td.entry a:focus {
+    /* Fix highlighting of links in lists when using tab navigation */
+    outline: auto !important;
+}
+
 ul#main-menu li a {
     /* Hide Doxygen navigation tabs that are duplicated in the sidebar */
     visibility: hidden;
