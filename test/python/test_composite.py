@@ -1218,6 +1218,22 @@ class TestSolutionSerialization(utilities.CanteraTest):
         self.assertEqual(data2["thermo"]["something"], [False, True])
         self.assertTrue(gas2.reaction(5).input_data["baked-beans"])
 
+    def test_yaml_strings(self):
+        gas = ct.Solution('h2o2.yaml', transport_model=None)
+        desc = "   Line 1\n    Line 2\n  Line 3"
+        note = "First\n\nSecond\n  Third"
+        gas.update_user_header({"description": desc})
+        gas.species(2).update_user_data({"note": note})
+
+        gas.write_yaml(self.test_work_path / "h2o2-generated-user-header.yaml")
+        gas2 = ct.Solution(self.test_work_path / "h2o2-generated-user-header.yaml")
+
+        # Ideally, multi-line YAML emitter would indicate stripping of the final newline
+        # (element annotated with '|-' instead of just '|') but this doesn't seem to be
+        # possible as of yaml-cpp 0.8.0.
+        assert gas2.input_header["description"].strip() == desc.strip()
+        assert gas2.species(2).input_data["note"].strip() == note.strip()
+
 
 class TestSpeciesSerialization(utilities.CanteraTest):
     def test_species_simple(self):

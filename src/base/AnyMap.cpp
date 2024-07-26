@@ -326,35 +326,15 @@ YAML::Emitter& operator<<(YAML::Emitter& out, const AnyMap& rhs)
 
 //! Write YAML strings spanning multiple lines if input includes endline '\n'
 void emitString(YAML::Emitter& out, const string& str0) {
-    size_t endline = str0.rfind('\n');
-    if (endline == string::npos) {
+    if (str0.rfind('\n') == string::npos) {
         out << str0;
         return;
     }
 
-    // Remove trailing line break
-    string str1 = str0;
-    if (endline == str1.size() - 1) {
-        str1.erase(endline, 1);
-        endline = str1.rfind('\n');
-    }
-
-    // Deblank lines (remove whitespace surrounding line breaks)
-    while (endline != string::npos) {
-        size_t len = 1;
-        while (str1[endline + len] == ' ') {
-            len++; // account for whitespace after line break
-        }
-        while (str1[endline - 1] == ' ') {
-            len++; // account for whitespace before line break
-            endline--;
-        }
-        if (len > 1) {
-            // remove surrounding whitespace
-            str1.replace(endline, len, "\n");
-        }
-        endline = str1.rfind('\n', endline - 1);
-    }
+    // Remove leading and trailing whitespace
+    size_t left = str0.find_first_not_of("\n\t ");
+    size_t right = str0.find_last_not_of("\n\t ");
+    string str1 = str0.substr(left, right - left + 1);
     out << YAML::Literal << str1;
 }
 
