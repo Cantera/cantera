@@ -196,6 +196,7 @@ if "sdist" in COMMAND_LINE_TARGETS:
             cantera_version,
             cantera_short_version,
         ],
+        check=True,
     )
     subprocess.run(
         [
