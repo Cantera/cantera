@@ -135,7 +135,10 @@ Type elementTypes(const YAML::Node& node)
             types = types | Type::Sequence;
         } else if (el.IsScalar()) {
             string nodestr = el.as<string>();
-            if (isInt(nodestr)) {
+            if (el.Tag() == "!") {
+                // Prevent implicit conversion of quoted strings to numeric types
+                types = types | Type::String;
+            } else if (isInt(nodestr)) {
                 types = types | Type::Integer;
             } else if (isFloat(nodestr)) {
                 types = types | Type::Double;

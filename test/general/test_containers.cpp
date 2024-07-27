@@ -286,6 +286,17 @@ TEST(AnyMap, conversion_to_anyvalue)
     EXPECT_EQ(n.at("strings").asVector<AnyValue>()[0].asString(), "foo");
 }
 
+TEST(AnyMap, conversion_from_quoted)
+{
+    AnyMap m = AnyMap::fromYamlString(
+        "{top: '99', mixed: [5.1, '122599', '3.140'], uniform: ['99', 100.1']}");
+    EXPECT_TRUE(m["top"].is<string>());
+    EXPECT_FALSE(m["top"].is<int>());
+    EXPECT_THROW(m["mixed"].asVector<double>(), InputFileError);
+    EXPECT_DOUBLE_EQ(m["mixed"].asVector<AnyValue>()[0].asDouble(), 5.1);
+    EXPECT_THROW(m["uniform"].asVector<double>(), InputFileError);
+}
+
 TEST(AnyMap, read_subnormal)
 {
     AnyMap m = AnyMap::fromYamlString(
