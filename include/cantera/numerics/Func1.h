@@ -115,15 +115,6 @@ public:
      */
     virtual shared_ptr<Func1> derivative() const;
 
-    //! Creates a derivative to the current function
-    /*!
-     * This will create a new derivative function
-     * @return  shared pointer to new derivative function.
-     * @since New in %Cantera 3.0.
-     * @deprecated Transitional name for derivative()
-     */
-    shared_ptr<Func1> derivative3() const { return derivative(); }
-
     //! Routine to determine if two functions are the same.
     /*!
      * Two functions are the same if they are the same function. This means
