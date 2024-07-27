@@ -173,8 +173,8 @@ TEST(ctmath, invalid)
 TEST(ctmath, sum)
 {
     double omega = 2.;
-    int fcn0 = func_new(SinFuncType, 0, 1, &omega);
-    int fcn1 = func_new(CosFuncType, 0, 1, &omega);
+    int fcn0 = func_new_basic("sin", omega);
+    int fcn1 = func_new_basic("cos", omega);
     int fcn = func_new_compound("sum", fcn0, fcn1);
     ASSERT_GE(fcn, 0);
     EXPECT_DOUBLE_EQ(func_value(fcn, 0.5), sin(omega * 0.5) + cos(omega * 0.5));
@@ -183,8 +183,8 @@ TEST(ctmath, sum)
 TEST(ctmath, diff)
 {
     double omega = 2.;
-    int fcn0 = func_new(SinFuncType, 0, 1, &omega);
-    int fcn1 = func_new(CosFuncType, 0, 1, &omega);
+    int fcn0 = func_new_basic("sin", omega);
+    int fcn1 = func_new_basic("cos", omega);
     int fcn = func_new_compound("diff", fcn0, fcn1);
     ASSERT_GE(fcn, 0);
     EXPECT_DOUBLE_EQ(func_value(fcn, 0.5), sin(omega * 0.5) - cos(omega * 0.5));
@@ -193,8 +193,8 @@ TEST(ctmath, diff)
 TEST(ctmath, prod)
 {
     double omega = 2.;
-    int fcn0 = func_new(SinFuncType, 0, 1, &omega);
-    int fcn1 = func_new(CosFuncType, 0, 1, &omega);
+    int fcn0 = func_new_basic("sin", omega);
+    int fcn1 = func_new_basic("cos", omega);
     int fcn = func_new_compound("product", fcn0, fcn1);
     ASSERT_GE(fcn, 0);
     EXPECT_DOUBLE_EQ(func_value(fcn, 0.5), sin(omega * 0.5) * cos(omega * 0.5));
@@ -203,8 +203,8 @@ TEST(ctmath, prod)
 TEST(ctmath, ratio)
 {
     double omega = 2.;
-    int fcn0 = func_new(SinFuncType, 0, 1, &omega);
-    int fcn1 = func_new(CosFuncType, 0, 1, &omega);
+    int fcn0 = func_new_basic("sin", omega);
+    int fcn1 = func_new_basic("cos", omega);
     int fcn = func_new_compound("ratio", fcn0, fcn1);
     ASSERT_GE(fcn, 0);
     EXPECT_DOUBLE_EQ(func_value(fcn, 0.5), sin(omega * 0.5) / cos(omega * 0.5));
@@ -213,8 +213,8 @@ TEST(ctmath, ratio)
 TEST(ctmath, composite)
 {
     double omega = 2.;
-    int fcn0 = func_new(SinFuncType, 0, 1, &omega);
-    int fcn1 = func_new(CosFuncType, 0, 1, &omega);
+    int fcn0 = func_new_basic("sin", omega);
+    int fcn1 = func_new_basic("cos", omega);
     int fcn = func_new_compound("composite", fcn0, fcn1);
     ASSERT_GE(fcn, 0);
     EXPECT_DOUBLE_EQ(func_value(fcn, 0.5), sin(omega * cos(omega * 0.5)));
@@ -223,7 +223,7 @@ TEST(ctmath, composite)
 TEST(ctmath, times_constant)
 {
     double omega = 2.;
-    int fcn0 = func_new(SinFuncType, 0, 1, &omega);
+    int fcn0 = func_new_basic("sin", omega);
     double A = 1.234;
     int fcn = func_new_modified("times-constant", fcn0, A);
     ASSERT_GE(fcn, 0);
@@ -233,7 +233,7 @@ TEST(ctmath, times_constant)
 TEST(ctmath, plus_constant)
 {
     double omega = 2.;
-    int fcn0 = func_new(SinFuncType, 0, 1, &omega);
+    int fcn0 = func_new_basic("sin", omega);
     double A = 1.234;
     int fcn = func_new_modified("plus-constant", fcn0, A);
     ASSERT_GE(fcn, 0);
@@ -243,7 +243,7 @@ TEST(ctmath, plus_constant)
 TEST(ctmath, periodic)
 {
     double omega = 2.;
-    int fcn0 = func_new(SinFuncType, 0, 1, &omega);
+    int fcn0 = func_new_basic("sin", omega);
     double A = 1.234;
     int fcn = func_new_modified("periodic", fcn0, A);
     ASSERT_GE(fcn, 0);
