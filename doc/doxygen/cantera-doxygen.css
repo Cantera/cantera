@@ -14,6 +14,13 @@ html.dark-mode {
     outline: auto !important;
 }
 
+.arrow {
+    /* Increase size of dropdown arrows to make them easier to click */
+    font-size: 75%;
+    margin-right: 4px;
+    margin-left: 4px;
+}
+
 ul#main-menu li a {
     /* Hide Doxygen navigation tabs that are duplicated in the sidebar */
     visibility: hidden;
