@@ -117,17 +117,7 @@ extern "C" {
         }
     }
 
-    int func_write(int i, size_t lennm, const char* arg, char* nm)
-    {
-        try {
-            copyString(FuncCabinet::item(i).write(arg), nm, lennm);
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int func_write3(int i, const char* arg, size_t len, char* buf)
+    int func_write(int i, const char* arg, size_t len, char* buf)
     {
         try {
             return static_cast<int>(copyString(FuncCabinet::item(i).write(arg), buf, len));
