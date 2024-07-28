@@ -39,7 +39,7 @@ classdef FlowDevice < handle
         % The mass flow rate through the :mat:class:`FlowDevice` at the current time.
         %
         % The setter method can either take a double value or a function represented by
-        % an instance of :mat:class:`Func`.
+        % an instance of :mat:class:`Func1`.
         massFlowRate
 
         % Valve coefficient in kg/Pa-s.
@@ -123,7 +123,7 @@ classdef FlowDevice < handle
             if strcmp(f.type, 'MassFlowController')
                 if isa(mdot, 'double')
                     k = ctFunc('flowdev_setMassFlowCoeff', f.id, mdot);
-                elseif isa(mdot, 'Func')
+                elseif isa(mdot, 'Func1')
                     k = ctFunc('flowdev_setTimeFunction', f.id, mdot.id);
                 else
                     error('Mass flow rate must either be a value or function.');
@@ -143,7 +143,7 @@ classdef FlowDevice < handle
             % :param f:
             %     Instance of class :mat:class:`MassFlowController`.
             % :param mf:
-            %     Instance of class :mat:class:`Func`.
+            %     Instance of class :mat:class:`Func1`.
 
             if strcmp(f.type, 'PressureController')
                 k = ctFunc('flowdev_setPrimary', f.id, d);
