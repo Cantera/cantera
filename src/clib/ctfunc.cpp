@@ -179,4 +179,13 @@ extern "C" {
             return handleAllExceptions(-1, ERR);
         }
     }
+
+    int func_write3(int i, const char* arg, size_t len, char* buf)
+    {
+        try {
+            return static_cast<int>(copyString(FuncCabinet::item(i).write(arg), buf, len));
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
 }

@@ -25,6 +25,13 @@ TEST(ctfunc, sin)
 
     int dfcn = func_derivative(fcn);
     EXPECT_DOUBLE_EQ(func_value(dfcn, 0.5), omega * cos(omega * 0.5));
+
+    int buflen = func_write3(fcn, "x", 0, 0);
+    char* buf = new char[buflen];
+    func_write3(fcn, "x", buflen, buf);
+    string rep = buf;
+    ASSERT_EQ(rep, "\\sin(2x)");
+    delete[] buf;
 }
 
 TEST(ctfunc, cos)

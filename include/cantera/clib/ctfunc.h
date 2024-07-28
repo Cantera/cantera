@@ -44,6 +44,7 @@ extern "C" {
     CANTERA_CAPI int func_derivative(int i);
     CANTERA_CAPI int func_duplicate(int i);
     CANTERA_CAPI int func_write(int i, size_t lennm, const char* arg, char* nm);
+    CANTERA_CAPI int func_write3(int i, const char* arg, size_t lennm, char* nm);
     CANTERA_CAPI int ct_clearFunc();
 
 #ifdef __cplusplus
