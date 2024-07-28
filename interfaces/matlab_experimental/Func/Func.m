@@ -43,10 +43,12 @@ classdef Func < handle
             %
             %       >> x = Func('tabulated-linear', [0 2 4], [1 3 5])
             %
-            %     * Compounding functors: ``'sum'``, ``'diff'``, ``'ratio'``,
-            %       ``'composite'``. Use two functor parameters, for example
+            %     * Compounding functors: ``'sum'``, ``'diff'``, ``'product'``,
+            %       ``'ratio'``, ``'composite'``. Use two functor parameters or a
+            %       corresponding operator, for example
             %
             %       >> x = Func('sum', Func('sin', 2.), Func('cos', 3.))
+            %       >> x = Func('sin', 2.) + Func('cos', 3.)  % alternative
             %
             %     * Modifying functors: ``'times-constant'``, ``'plus-constant'``,
             %       ``'periodic'``. Use one functor and one scalar, for example
@@ -55,9 +57,6 @@ classdef Func < handle
             %
             % Note: this MATLAB class shadows underlying C++ Cantera classes derived
             % from "Func1". See the Cantera C++ documentation for more details.
-            %
-            % See also: :mat:class:`polynom`, :mat:class:`gaussian`, :mat:class:`fplus`,
-            % :mat:class:`frdivide`, :mat:class:`ftimes`
             %
             % :param typ:
             %     String indicating type of functor to create.
@@ -114,6 +113,40 @@ classdef Func < handle
         end
 
         %% Func Class Utility Methods
+
+        function r = plus(f1,f2)
+            if isa(f1, 'Func') && isa(f2, 'Func')
+                r = Func('sum', f1, f2);
+            elseif isa(f1, 'Func') && isa(f2, 'double') && length(f2) == 1
+                r = Func('plus-constant', f1, f2)
+            else
+                error('Invalid arguments')
+            end
+        end
+
+        function r = minus(f1,f2)
+            if isa(f1, 'Func') && isa(f2, 'Func')
+                r = Func('diff', f1, f2);
+            elseif isa(f1, 'Func') && isa(f2, 'double') && length(f2) == 1
+                r = Func('plus-constant', f1, -f2)
+            else
+                error('Invalid arguments')
+            end
+        end
+
+        function r = mtimes(f1,f2)
+            if isa(f1, 'Func') && isa(f2, 'Func')
+                r = Func('product', f1, f2);
+            elseif isa(f1, 'Func') && isa(f2, 'double') && length(f2) == 1
+                r = Func('times-constant', f1, f2)
+            else
+                error('Invalid arguments')
+            end
+        end
+
+        function r = mrdivide(f1,f2)
+            r = Func('ratio', f1, f2);
+        end
 
         function s = type(f)
             % Return function type.
