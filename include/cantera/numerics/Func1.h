@@ -24,8 +24,8 @@ class TimesConstant1;
 //! the implementation of generic mathematical expressions.
 //! @ingroup numerics
 
-//! @defgroup func1simple Simple Functors
-//! Simple functors implement standard mathematical expressions with a single
+//! @defgroup func1basic Basic Functors
+//! Basic functors implement standard mathematical expressions with a single
 //! parameter.
 //! The following simple functor types are implemented:
 //! - @c "sin" (class Sin1), @c "cos" (class Cos1),
@@ -189,7 +189,7 @@ shared_ptr<Func1> newPlusConstFunction(shared_ptr<Func1> f1, double c);
  * The functor class with type @c "sin" returns @f$ f(x) = \cos(\omega x) @f$,
  * where the argument @f$ x @f$ is in radians.
  * @param omega  Frequency @f$ \omega @f$ (default=1.0)
- * @ingroup func1simple
+ * @ingroup func1basic
  */
 class Sin1 : public Func1
 {
@@ -220,7 +220,7 @@ public:
  * The functor class with type @c "cos" returns @f$ f(x) = \cos(\omega x) @f$,
  * where the argument @f$ x @f$ is in radians.
  * @param omega  Frequency @f$ \omega @f$ (default=1.0)
- * @ingroup func1simple
+ * @ingroup func1basic
  */
 class Cos1 : public Func1
 {
@@ -249,7 +249,7 @@ public:
 /*!
  * The functor class with type @c "exp" returns @f$ f(x) = \exp(a x) @f$.
  * @param a  Factor (default=1.0)
- * @ingroup func1simple
+ * @ingroup func1basic
  */
 class Exp1 : public Func1
 {
@@ -279,7 +279,7 @@ public:
 /*!
  * The functor class with type @c "log" returns @f$ f(x) = \ln(a x) @f$.
  * @param a  Factor (default=1.0)
- * @ingroup func1simple
+ * @ingroup func1basic
  * @since New in %Cantera 3.0
  */
 class Log1 : public Func1
@@ -309,7 +309,7 @@ public:
 /*!
  * The functor class with type @c "pow" returns @f$ f(x) = x^n @f$.
  * @param n  Exponent
- * @ingroup func1simple
+ * @ingroup func1basic
  */
 class Pow1 : public Func1
 {
@@ -389,7 +389,7 @@ private:
 /*!
  * The functor class with type @c "constant" returns @f$ f(x) = a @f$.
  * @param a  Constant
- * @ingroup func1simple
+ * @ingroup func1basic
  */
 class Const1 : public Func1
 {

@@ -137,6 +137,7 @@ TEST(ctfunc, functor)
 TEST(ctfunc, invalid)
 {
     // exceptions return -1
+    ASSERT_EQ(checkFunc1("spam"), "undefined");
     ASSERT_THROW(newFunc1("spam"), CanteraError);
     vector<double> pars = {1., 2.};
     ASSERT_THROW(newFunc1("eggs", pars), CanteraError);
@@ -144,6 +145,7 @@ TEST(ctfunc, invalid)
 
 TEST(ctfunc, sin)
 {
+    ASSERT_EQ(checkFunc1("sin"), "simple");
     double omega = 2.;
     auto functor = newFunc1("sin", omega);
     ASSERT_EQ(functor->type(), "sin");
@@ -272,6 +274,7 @@ TEST(ctfunc, tabulated_previous)
 
 TEST(ctfunc, poly)
 {
+    ASSERT_EQ(checkFunc1("polynomial3"), "simple");
     double a0 = .5;
     double a1 = .25;
     double a2 = .125;
@@ -351,6 +354,7 @@ TEST(ctmath, invalid)
 
 TEST(ctmath, sum)
 {
+    ASSERT_EQ(checkFunc1("sum"), "compound");
     double omega = 2.;
     auto functor0 = newFunc1("sin", omega);
     auto functor1 = newFunc1("cos", omega);
@@ -423,6 +427,7 @@ TEST(ctmath, composite)
 
 TEST(ctmath, times_constant)
 {
+    ASSERT_EQ(checkFunc1("times-constant"), "modified");
     double omega = 2.;
     auto functor0 = newFunc1("sin", omega);
     double A = 1.234;

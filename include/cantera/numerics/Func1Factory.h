@@ -111,10 +111,10 @@ private:
 };
 
 
-//! Create a new simple functor object (see @ref func1simple).
+//! Create a new basic functor object (see @ref func1basic).
 //! @param func1Type  String identifying functor type.
 //! @param coeff  Coefficient; definition depends on functor type.
-//! @ingroup func1simple
+//! @ingroup func1basic
 //! @since New in %Cantera 3.0
 shared_ptr<Func1> newFunc1(const string& func1Type, double coeff=1.);
 
@@ -142,6 +142,17 @@ shared_ptr<Func1> newFunc1(const string& func1Type,
 //! @since New in %Cantera 3.0
 shared_ptr<Func1> newFunc1(const string& func1Type,
                            const shared_ptr<Func1> f, double coeff);
+
+//! Check definition of functor object.
+//! @param func1Type  String identifying functor type.
+//! @return string indicating functor type: @c "undefined" if not defined;
+//!     @c "simple" if @ref func1basic or @ref func1advanced (defined in Func1Factory);
+//!     @c "compound" if @ref func1compound (defined in Math1FactoryA); or
+//!     @c "modified" if @ref func1modified (defined in Math1FactoryB).
+//! @internal Not intended for use in external API's (Python, MATLAB, etc.).
+//! @ingroup func1helper
+//! @since New in %Cantera 3.1
+string checkFunc1(const string& func1Type);
 
 }
 

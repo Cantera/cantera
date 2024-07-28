@@ -168,4 +168,21 @@ shared_ptr<Func1> newFunc1(const string& func1Type,
         Math1FactoryB::factory()->create(func1Type, f, coeff));
 }
 
+string checkFunc1(const string& func1Type)
+{
+    if (Func1Factory::factory()->exists(func1Type)) {
+        // simple functor
+        return "simple";
+    }
+    if (Math1FactoryA::factory()->exists(func1Type)) {
+        // compounding functor
+        return "compound";
+    }
+    if (Math1FactoryB::factory()->exists(func1Type)) {
+        // modifying functor
+        return "modified";
+    }
+    return "undefined";
+}
+
 }
