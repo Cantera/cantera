@@ -70,37 +70,56 @@ classdef Func < handle
             if ~isa(typ, 'char')
                 error('Function type must be a string');
             end
+            func1Type = ctString('func_check', typ);
 
-            if length(varargin) == 0
+            if func1Type == "undefined"
+                error(['Functor ''' typ ''' is not implemented'])
+            end
+
+            if length(varargin) == 0 && func1Type == "simple"
                 % simple functor with no parameter
                 x.id = ctFunc('func_new_basic', typ, 1.);
-            elseif length(varargin) == 1
+            elseif length(varargin) == 1 && func1Type == "simple"
                 coeffs = varargin{1};
                 if length(coeffs) == 1
                     % simple functor with scalar parameter
                     x.id = ctFunc('func_new_basic', typ, coeffs);
-                else
-                    % advanced functor with array and no parameter
+                elseif isa(coeffs, 'double')
+                    % advanced functor with array parameter
                     x.id = ctFunc('func_new_advanced', typ, length(coeffs), coeffs);
+                else
+                    error('Invalid arguments for functor')
                 end
             elseif length(varargin) == 2
                 arg1 = varargin{1};
                 arg2 = varargin{2};
-                if isa(arg1, 'Func') && isa(arg2, 'Func')
-                    % compound functor
+                if func1Type == "compound"
+                    % compounding functor
+                    if isa(arg1, 'double') && length(arg1) == 1
+                        arg1 = Func('constant', arg1);
+                    elseif isa(arg2, 'double') && length(arg2) == 1
+                        arg2 = Func('constant', arg2);
+                    end
+                    if ~isa(arg1, 'Func') || ~isa(arg2, 'Func')
+                        error('Invalid arguments for compounding functor')
+                    end
                     x.id = ctFunc('func_new_compound', typ, arg1.id, arg2.id);
-                elseif isa(arg1, 'Func') && isa(arg2, 'double') && length(arg2) == 1
-                    % modified functor
+                elseif func1Type == "modified"
+                    % modifying functor
+                    if ~isa(arg1, 'Func') || ~isa(arg2, 'double') || length(arg2) > 1
+                        error('Invalid arguments for modifying functor')
+                    end
                     x.id = ctFunc('func_new_modified', typ, arg1.id, arg2);
-                elseif isa(arg1, 'double') && isa(arg2, 'double')
+                else % func1Type == "simple"
                     % tabulating functors
+                    if ~isa(arg1, 'double') || ~isa(arg2, 'double')
+                        error('Invalid arguments for tabulating functor')
+                    end
                     coeffs = [varargin{1}, varargin{2}];
                     x.id = ctFunc('func_new_advanced', typ, length(coeffs), coeffs);
-                else
-                    error('Invalid arguments');
                 end
             else
-                error('Invalid arguments');
+                error('Invalid number of arguments');
             end
         end
 
@@ -115,33 +134,15 @@ classdef Func < handle
         %% Func Class Utility Methods
 
         function r = plus(f1,f2)
-            if isa(f1, 'Func') && isa(f2, 'Func')
-                r = Func('sum', f1, f2);
-            elseif isa(f1, 'Func') && isa(f2, 'double') && length(f2) == 1
-                r = Func('plus-constant', f1, f2)
-            else
-                error('Invalid arguments')
-            end
+            r = Func('sum', f1, f2);
         end
 
         function r = minus(f1,f2)
-            if isa(f1, 'Func') && isa(f2, 'Func')
-                r = Func('diff', f1, f2);
-            elseif isa(f1, 'Func') && isa(f2, 'double') && length(f2) == 1
-                r = Func('plus-constant', f1, -f2)
-            else
-                error('Invalid arguments')
-            end
+            r = Func('diff', f1, f2);
         end
 
         function r = mtimes(f1,f2)
-            if isa(f1, 'Func') && isa(f2, 'Func')
-                r = Func('product', f1, f2);
-            elseif isa(f1, 'Func') && isa(f2, 'double') && length(f2) == 1
-                r = Func('times-constant', f1, f2)
-            else
-                error('Invalid arguments')
-            end
+            r = Func('product', f1, f2);
         end
 
         function r = mrdivide(f1,f2)
