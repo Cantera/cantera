@@ -1,20 +1,16 @@
 classdef Func < handle
 
     properties (SetAccess = immutable)
-        f1
-        f2
-        coeffs
         id
-        typ
     end
 
     methods
         %% Func Class Constructor
 
-        function x = Func(typ, n, p)
+        function x = Func(typ, varargin)
             % Func Class ::
             %
-            %     >> x = Func(typ, n, p)
+            %     >> x = Func(typ, coeff)
             %
             % A functor is an object that behaves like a function. Cantera
             % defines a set of functors to use to create arbitrary functions to
@@ -31,36 +27,42 @@ classdef Func < handle
             %
             % The types of functors you can create in Cantera are these:
             %
-            % 1. A polynomial
-            % 2. A Fourier series
-            % 3. A sum of Arrhenius terms
-            % 4. A Gaussian.
+            %     * Basic functors: ``'sin'``, ``'cos'``, ``'exp'``, ``'log'``,
+            %       ``'pow'``, ``'constant'``. Use no or scalar parameters, for example
             %
-            % You can also create composite functors by adding, multiplying, or
-            % dividing these basic functors, or other composite functors.
+            %       >> x = Func('cos')
+            %       >> x = Func('sin', 2)
             %
-            % Note: this MATLAB class shadows the underlying C++ Cantera class
-            % "Func1". See the Cantera C++ documentation for more details.
+            %     * Advanced functors: ``'polynomial'``, ``'Fourier'``, ``'Gaussian'``,
+            %       ``'Arrhenius'``. Use vector parameter, for example
+            %
+            %       >> x = Func('polynomial', [1 2 3])  % x^2 + 2x + 3
+            %
+            %     * Tabulation functors: ``'tabulated-linear'``,
+            %       ``'tabulated-previous'``. Use pair of vector parameters, for example
+            %
+            %       >> x = Func('tabulated-linear', [0 2 4], [1 3 5])
+            %
+            %     * Compounding functors: ``'sum'``, ``'diff'``, ``'ratio'``,
+            %       ``'composite'``. Use two functor parameters, for example
+            %
+            %       >> x = Func('sum', Func('sin', 2.), Func('cos', 3.))
+            %
+            %     * Modifying functors: ``'times-constant'``, ``'plus-constant'``,
+            %       ``'periodic'``. Use one functor and one scalar, for example
+            %
+            %       >> x = Func('times-constant', Func('sin', 2.), 2.)
+            %
+            % Note: this MATLAB class shadows underlying C++ Cantera classes derived
+            % from "Func1". See the Cantera C++ documentation for more details.
             %
             % See also: :mat:class:`polynom`, :mat:class:`gaussian`, :mat:class:`fplus`,
             % :mat:class:`frdivide`, :mat:class:`ftimes`
             %
             % :param typ:
-            %     String indicating type of functor to create. Possible values are:
-            %
-            %     * ``'polynomial'``
-            %     * ``'Fourier'``
-            %     * ``'Gaussian'``
-            %     * ``'Arrhenius'``
-            %     * ``'sum'``
-            %     * ``'diff'``
-            %     * ``'ratio'``
-            %     * ``'composite'``
-            %     * ``'periodic'``
-            % :param n:
-            %     Number of parameters required for the functor.
-            % :param p:
-            %     Vector of parameters.
+            %     String indicating type of functor to create.
+            % :param varargin:
+            %     Parameters required for the functor; values depend on definition.
             % :return:
             %     Instance of class :mat:class:`Func`.
 
@@ -70,64 +72,37 @@ classdef Func < handle
                 error('Function type must be a string');
             end
 
-            x.f1 = 0;
-            x.f2 = 0;
-            x.coeffs = 0;
-            itype = -1;
-
-            function nn = newFunc(itype, n, p)
-                % helper function to pass the correct parameters to the C library.
-                if itype < 20
-                    [msize, nsize] = size(p);
-                    lenp = msize * nsize;
-                    nn = ctFunc('func_new', itype, n, lenp, p);
-                elseif itype < 45
-                    m = p;
-                    nn = ctFunc('func_new', itype, n, m, 0);
+            if length(varargin) == 0
+                % simple functor with no parameter
+                x.id = ctFunc('func_new_basic', typ, 1.);
+            elseif length(varargin) == 1
+                coeffs = varargin{1};
+                if length(coeffs) == 1
+                    % simple functor with scalar parameter
+                    x.id = ctFunc('func_new_basic', typ, coeffs);
                 else
-                    nn = ctFunc('func_new', itype, n, 0, p);
+                    % advanced functor with array and no parameter
+                    x.id = ctFunc('func_new_advanced', typ, length(coeffs), coeffs);
                 end
-
-            end
-
-            if strcmp(typ, 'polynomial')
-                itype = 2;
-            elseif strcmp(typ, 'Fourier')
-                itype = 1;
-            elseif strcmp(typ, 'Arrhenius')
-                itype = 3;
-            elseif strcmp(typ, 'Gaussian')
-                itype = 4;
-            end
-
-            if itype > 0
-                x.coeffs = p;
-                x.id = newFunc(itype, n, p);
-            elseif strcmp(typ, 'periodic')
-                itype = 50;
-                x.f1 = n;
-                x.coeffs = p;
-                x.id = newFunc(itype, n.id, p);
+            elseif length(varargin) == 2
+                arg1 = varargin{1};
+                arg2 = varargin{2};
+                if isa(arg1, 'Func') && isa(arg2, 'Func')
+                    % compound functor
+                    x.id = ctFunc('func_new_compound', typ, arg1.id, arg2.id);
+                elseif isa(arg1, 'Func') && isa(arg2, 'double') && length(arg2) == 1
+                    % modified functor
+                    x.id = ctFunc('func_new_modified', typ, arg1.id, arg2);
+                elseif isa(arg1, 'double') && isa(arg2, 'double')
+                    % tabulating functors
+                    coeffs = [varargin{1}, varargin{2}];
+                    x.id = ctFunc('func_new_advanced', typ, length(coeffs), coeffs);
+                else
+                    error('Invalid arguments');
+                end
             else
-
-                if strcmp(typ, 'sum')
-                    itype = 20;
-                elseif strcmp(typ, 'diff')
-                    itype = 25;
-                elseif strcmp(typ, 'prod')
-                    itype = 30;
-                elseif strcmp(typ, 'ratio')
-                    itype = 40;
-                elseif strcmp(typ, 'composite')
-                    itype = 60;
-                end
-
-                x.f1 = n;
-                x.f2 = p;
-                x.id = newFunc(itype, n.id, p.id);
+                error('Invalid arguments');
             end
-
-            x.typ = typ;
         end
 
         %% Func Class Destructor
@@ -140,13 +115,18 @@ classdef Func < handle
 
         %% Func Class Utility Methods
 
+        function s = type(f)
+            % Return function type.
+            s = ctString('func_type', f.id);
+        end
+
         function display(f)
             % Display the equation of the input function on the terminal.
 
             disp(' ');
             disp([inputname(1), ' = '])
             disp(' ');
-            disp(['   ' f.char])
+            disp(['   ' f.write])
             disp(' ');
         end
 
@@ -182,122 +162,17 @@ classdef Func < handle
 
         end
 
-        function s = char(f)
+        function s = write(f)
             % Get the formatted string to display the function. ::
             %
-            %     >> s = f.char
+            %     >> s = f.write
             %
             % :param f:
             %     Instance of class :mat:class:`Func`.
             % :return:
-            %     Formatted string displaying the function.
-
-            if strcmp(f.typ, 'sum')
-                s = ['(' (f.f1.char) ') + (' f.f2.char ')'];
-            elseif strcmp(f.typ, 'diff')
-                s = ['(' f.f1.char ') - (' f.f2.char ')'];
-            elseif strcmp(f.typ, 'prod')
-                s = ['(' f.f1.char ') * (' f.f2.char ')'];
-            elseif strcmp(f.typ, 'ratio')
-                s = ['(' f.f1.char ') / (' f.f2.char ')'];
-            elseif all(f.coeffs == 0)
-                s = '0';
-            elseif strcmp(f.typ, 'polynomial')
-                d = length(f.coeffs) - 1;
-                s = [];
-                nn = 0;
-
-                for b = f.coeffs;
-                    cc(d + 1 - nn) = b;
-                    nn = nn + 1;
-                end
-
-                for a = cc;
-
-                    if a ~= 0;
-
-                        if ~isempty(s)
-
-                            if a > 0
-                                s = [s ' + '];
-                            else
-                                s = [s ' - '];
-                                a = -a;
-                            end
-
-                        end
-
-                        if a ~= 1 || d == 0
-                            s = [s num2str(a)];
-
-                            if d > 0
-                                s = [s '*'];
-                            end
-
-                        end
-
-                        if d >= 2
-                            s = [s 'x^' int2str(d)];
-                        elseif d == 1
-                            s = [s 'x'];
-                        end
-
-                    end
-
-                    d = d - 1;
-                end
-            elseif strcmp(f.typ, 'Gaussian')
-                s = ['Gaussian(' num2str(f.coeffs(1)) ',' ...
-                    num2str(f.coeffs(2)) ',' num2str(f.coeffs(3)) ')'];
-            elseif strcmp(f.typ, 'Fourier')
-                c = reshape(f.coeffs, [], 2);
-                Ao = c(1, 1);
-                w = c(1, 2);
-                A = c(2:end, 1);
-                B = c(2:end, 2);
-                N = size(c, 1) - 1;
-
-                if Ao ~= 0
-                    s = num2str(Ao / 2);
-                else
-                    s = '';
-                end
-
-                for n = 1:N
-
-                    if A(n) ~= 0
-
-                        if A(n) < 0
-                            prefix = ' - ';
-                        elseif s
-                            prefix = ' + ';
-                        else
-                            prefix = '';
-                        end
-
-                        s = [s prefix num2str(abs(A(n))), ...
-                            '*cos(' num2str(n * w) '*x)'];
-                    end
-
-                    if B(n) ~= 0
-
-                        if B(n) < 0
-                            prefix = ' - ';
-                        elseif s
-                            prefix = ' + ';
-                        else
-                            prefix = '';
-                        end
-
-                        s = [s prefix num2str(abs(B(n))), ...
-                            '*sin(' num2str(n * w) '*x)'];
-                    end
-
-                end
-            else
-                s = ['*** char not yet implemented for' f.typ ' ***'];
-            end
-
+            %     LaTeX-formatted string displaying the function.
+            arg = 'x';
+            s = ctString('func_write3', f.id, arg);
         end
 
     end
