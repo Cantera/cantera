@@ -124,10 +124,13 @@ cdef class Func1:
         cdef Func1 f1
         cdef string cxx_string = stringify(functor_type)
         cdef vector[double] arr
-        if len(args) == 0:
+        func1_type = pystr(CxxCheckFunc1(cxx_string))
+        if func1_type == "undefined":
+            raise NotImplementedError(f"Functor '{functor_type}' is not implemented.")
+        if len(args) == 0 and func1_type == "simple":
             # simple functor with no parameter
             func = CxxNewFunc1(cxx_string, 1.)
-        elif len(args) == 1:
+        elif len(args) == 1 and func1_type == "simple":
             if hasattr(args[0], "__len__"):
                 # advanced functor with array and no parameter
                 for v in args[0]:
@@ -137,15 +140,37 @@ cdef class Func1:
                 # simple functor with scalar parameter
                 func = CxxNewFunc1(cxx_string, float(args[0]))
         elif len(args) == 2:
-            if isinstance(args[0], Func1) and isinstance(args[1], Func1):
-                # compound functor
-                f0 = args[0]
-                f1 = args[1]
+            if func1_type == "compound":
+                # compounding functor
+                if isinstance(args[0], Func1) and isinstance(args[1], Func1):
+                    f0 = args[0]
+                    f1 = args[1]
+                elif isinstance(args[0], Func1) and not hasattr(args[1], "__len__"):
+                    f0 = args[0]
+                    f1 = Func1(float(args[1]))
+                elif isinstance(args[1], Func1) and not hasattr(args[0], "__len__"):
+                    f0 = Func1(float(args[0]))
+                    f1 = args[1]
+                else:
+                    raise ValueError(f"Invalid arguments for compounding functor.")
                 func = CxxNewFunc1(cxx_string, f0._func, f1._func)
-            elif isinstance(args[0], Func1):
-                # modified functor
-                f0 = args[0]
+            elif func1_type == "modified":
+                # modifying functor
+                if isinstance(args[0], Func1) and isinstance(args[1], (float, int)):
+                    f0 = args[0]
+                else:
+                    raise ValueError(f"Invalid arguments for modifying functor.")
                 func = CxxNewFunc1(cxx_string, f0._func, float(args[1]))
+            elif func1_type == "simple":
+                # tabulating functor
+                if hasattr(args[0], "__len__") and hasattr(args[1], "__len__"):
+                    for v in args[0]:
+                        arr.push_back(v)
+                    for v in args[1]:
+                        arr.push_back(v)
+                else:
+                    raise ValueError(f"Invalid arguments for tabulating functor.")
+                func = CxxNewFunc1(cxx_string, arr)
             else:
                 raise ValueError("Invalid arguments")
         else:
@@ -158,7 +183,7 @@ cdef class Func1:
         out.func = out._func.get()
         return out
 
-    def write(self, name="t"):
+    def write(self, name="x"):
         """
         Write a :math:`LaTeX` expression representing a functor.
 

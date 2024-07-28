@@ -41,6 +41,7 @@ cdef extern from "cantera/numerics/Func1Factory.h":
         string, shared_ptr[CxxFunc1], shared_ptr[CxxFunc1]) except +translate_exception
     cdef shared_ptr[CxxFunc1] CxxNewFunc1 "Cantera::newFunc1" (
         string, shared_ptr[CxxFunc1], double) except +translate_exception
+    cdef string CxxCheckFunc1 "Cantera::checkFunc1" (string) except +translate_exception
 
 
 cdef class Func1:
