@@ -34,8 +34,8 @@ Func1Factory::Func1Factory()
     reg("constant", [](const vector<double>& params) {
         return new Const1(params);
     });
-    reg("polynomial", [](const vector<double>& params) {
-        return new Poly1(params);
+    reg("polynomial3", [](const vector<double>& params) {
+        return new Poly13(params);
     });
     reg("Fourier", [](const vector<double>& params) {
         return new Fourier1(params);

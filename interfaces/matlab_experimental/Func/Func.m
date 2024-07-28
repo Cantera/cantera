@@ -33,10 +33,10 @@ classdef Func < handle
             %       >> x = Func('cos')
             %       >> x = Func('sin', 2)
             %
-            %     * Advanced functors: ``'polynomial'``, ``'Fourier'``, ``'Gaussian'``,
+            %     * Advanced functors: ``'polynomial3'``, ``'Fourier'``, ``'Gaussian'``,
             %       ``'Arrhenius'``. Use vector parameter, for example
             %
-            %       >> x = Func('polynomial', [1 2 3])  % x^2 + 2x + 3
+            %       >> x = Func('polynomial3', [1 2 3])  % x^2 + 2x + 3
             %
             %     * Tabulation functors: ``'tabulated-linear'``,
             %       ``'tabulated-previous'``. Use pair of vector parameters, for example

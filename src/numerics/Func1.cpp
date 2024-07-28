@@ -212,15 +212,50 @@ Const1::Const1(const vector<double>& params)
     m_c = params[0];
 }
 
-Poly1::Poly1(const vector<double>& params)
+Poly13::Poly13(const vector<double>& params)
 {
     if (params.size() == 0) {
-        throw CanteraError("Poly1::Poly1",
+        throw CanteraError("Poly13::Poly13",
             "Constructor needs an array that is not empty.");
     }
     size_t n = params.size() - 1;
     m_cpoly.resize(n + 1);
     copy(params.data(), params.data() + m_cpoly.size(), m_cpoly.begin());
+}
+
+string Poly13::write(const string& arg) const
+{
+    // write terms in reverse order
+    string out = "";
+    if (m_cpoly[m_cpoly.size()-1] != 0.) {
+        out = fmt::format("{}", m_cpoly[m_cpoly.size()-1]);
+    }
+    for (size_t n=1; n<m_cpoly.size(); n++) {
+        if (m_cpoly[m_cpoly.size()-1-n] == 0.) {
+            continue;
+        }
+        string term;
+        if (m_cpoly[m_cpoly.size()-1-n] == 1.) {
+            term = fmt::format("{}", arg);
+        } else if (m_cpoly[m_cpoly.size()-1-n] == -1.) {
+            term = fmt::format("-{}", arg);
+        } else {
+            term = fmt::format("{}{}", m_cpoly[m_cpoly.size()-1-n], arg);
+        }
+        if (n > 9) {
+            term = fmt::format("{}^{{{}}}", term, n);
+        } else if (n > 1) {
+            term = fmt::format("{}^{}", term, n);
+        }
+        if (!out.size()) {
+            out = term;
+        } else if (out[0] == '-') {
+            out = fmt::format("{} - {}", term, out.substr(1));
+        } else {
+            out = fmt::format("{} + {}", term, out);
+        }
+    }
+    return out;
 }
 
 Fourier1::Fourier1(const vector<double>& params)

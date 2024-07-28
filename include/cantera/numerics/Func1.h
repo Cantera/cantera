@@ -38,7 +38,7 @@ class TimesConstant1;
 //! Advanced functors implement expressions that require multiple parameters.
 //! The following advanced functor types are implemented:
 //! - @c "tabulated-linear" and @c "tabulated-previous" (class Tabulated1),
-//! - @c "polynomial" (class Poly1),
+//! - @c "polynomial3" (class Poly13),
 //! - @c "Fourier" (class Fourier1),
 //! - @c "Gaussian" (class Gaussian1),
 //! - @c "Arrhenius" (class Arrhenius1).
@@ -791,36 +791,46 @@ protected:
 
 /**
  * Implements a polynomial of degree @e n.
- * The functor class with type @c "polynomial" returns
+ * The functor class with type @c "polynomial3" returns
  * @f[
  * f(x) = a_n x^n + \dots + a_1 x + a_0
  * @f]
+ * with coefficients provided in the order @f$ [a_n, \dots, a_1, a_0] @f$ (consistent
+ * with MATLAB and NumPy conventions). Note that %Cantera 3.1 reversed the coefficient
+ * order with respect to its earlier definition. A deprecation cycle is skipped as the
+ * functor class is not expected to be widely used; the transitional name Poly13 ensures
+ * that changed behavior does not go unnoticed. The class name will revert to @b Poly1
+ * after %Cantera 3.1.
+ * @since Changed in %Cantera 3.1.
+ * @todo Rename to Poly1 after %Cantera 3.1
  * @ingroup func1advanced
  */
-class Poly1 : public Func1
+class Poly13 : public Func1
 {
 public:
-    Poly1(size_t n, const double* c) {
+    Poly13(size_t n, const double* c) {
         m_cpoly.resize(n+1);
         std::copy(c, c+m_cpoly.size(), m_cpoly.begin());
     }
 
     //! Constructor uses @f$ n + 1 @f$ parameters in the following order:
     //! @f$ [a_n, \dots, a_1, a_0] @f$
-    Poly1(const vector<double>& params);
+    Poly13(const vector<double>& params);
 
     string type() const override {
-        return "polynomial";
+        return "polynomial3";
     }
 
     double eval(double t) const override {
-        double r = m_cpoly[m_cpoly.size()-1];
+        double r = m_cpoly[0];
         for (size_t n = 1; n < m_cpoly.size(); n++) {
             r *= t;
-            r += m_cpoly[m_cpoly.size() - n - 1];
+            r += m_cpoly[n];
         }
         return r;
     }
+
+    string write(const string& arg) const override;
 
 protected:
     vector<double> m_cpoly;
