@@ -78,6 +78,8 @@ class TestFunc1(utilities.CanteraTest):
             copy.copy(f)
 
     def test_simple(self):
+        with pytest.raises(NotImplementedError):
+            ct.Func1.cxx_functor("spam")
         functors = {
             'sin': math.sin,
             'cos': math.cos,
@@ -107,6 +109,17 @@ class TestFunc1(utilities.CanteraTest):
             for val in [.1, 1., 10.]:
                 assert name not in func.write()
                 assert func(val) == pytest.approx(fcn(f1(val), f2(val)))
+        f0 = 3.1415
+        fcn = lambda x, y: x + y
+        func1 = ct.Func1.cxx_functor('sum', f0, f1)
+        func2 = ct.Func1.cxx_functor('sum', f2, f0)
+        for val in [.1, 1., 10.]:
+            assert func1(val) == pytest.approx(fcn(f0, f1(val)))
+            assert func2(val) == pytest.approx(fcn(f2(val), f0))
+        with pytest.raises(ValueError):
+            ct.Func1.cxx_functor('sum', f0, f0)
+        with pytest.raises(ValueError):
+            ct.Func1.cxx_functor('sum', 'spam', 'eggs')
 
     def test_modified(self):
         functors = {
@@ -116,6 +129,8 @@ class TestFunc1(utilities.CanteraTest):
         f1 = ct.Func1.cxx_functor('sin')
         constant = 2.34
         for name, fcn in functors.items():
+            with pytest.raises(ValueError):
+                ct.Func1.cxx_functor(name, constant, f1)
             func = ct.Func1.cxx_functor(name, f1, constant)
             assert func.type == name
             for val in [.1, 1., 10.]:
@@ -127,10 +142,13 @@ class TestFunc1(utilities.CanteraTest):
         arr = np.array([[0, 2], [1, 1], [2, 0]])
         time = arr[:, 0]
         fval = arr[:, 1]
-        fcn = ct.Tabulated1(time, fval)
-        assert fcn.type == "tabulated-linear"
+        fcn0 = ct.Tabulated1(time, fval)
+        fcn1 = ct.Func1.cxx_functor("tabulated-linear", time, fval)
+        assert fcn0.type == "tabulated-linear"
+        assert fcn1.type == "tabulated-linear"
         for t, f in zip(time, fval):
-            self.assertNear(f, fcn(t))
+            assert fcn0(t) == pytest.approx(f)
+            assert fcn1(t) == pytest.approx(f)
 
     def test_tabulated2(self):
         time = [0, 1, 2]
