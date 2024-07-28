@@ -23,6 +23,15 @@ extern "C" {
 
     // functions
 
+    int func_check(const char* type, size_t len, char* buf)
+    {
+        try {
+            return static_cast<int>(copyString(checkFunc1(type), buf, len));
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
     int func_new_basic(const char* type, double c)
     {
         try {

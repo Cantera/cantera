@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 
+    CANTERA_CAPI int func_check(const char* type, size_t len, char* buf); //!< @since New in %Cantera 3.1
     CANTERA_CAPI int func_new_basic(const char* type, double c);
     CANTERA_CAPI int func_new_advanced(const char* type, size_t lenp, const double* p);
     CANTERA_CAPI int func_new_compound(const char* type, int a, int b);
