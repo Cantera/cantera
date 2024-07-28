@@ -205,7 +205,7 @@ classdef Func < handle
             % :return:
             %     LaTeX-formatted string displaying the function.
             arg = 'x';
-            s = ctString('func_write3', f.id, arg);
+            s = ctString('func_write', f.id, arg);
         end
 
     end
