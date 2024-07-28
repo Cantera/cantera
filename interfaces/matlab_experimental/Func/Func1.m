@@ -1,16 +1,16 @@
-classdef Func < handle
+classdef Func1 < handle
 
     properties (SetAccess = immutable)
         id
     end
 
     methods
-        %% Func Class Constructor
+        %% Func1 Class Constructor
 
-        function x = Func(typ, varargin)
-            % Func Class ::
+        function x = Func1(typ, varargin)
+            % Func1 Class ::
             %
-            %     >> x = Func(typ, coeff)
+            %     >> x = Func1(typ, coeff)
             %
             % A functor is an object that behaves like a function. Cantera
             % defines a set of functors to use to create arbitrary functions to
@@ -30,8 +30,8 @@ classdef Func < handle
             %     * Basic functors: ``'sin'``, ``'cos'``, ``'exp'``, ``'log'``,
             %       ``'pow'``, ``'constant'``. Use no or scalar parameters, for example
             %
-            %       >> x = Func('cos')
-            %       >> x = Func('sin', 2)
+            %       >> x = Func1('cos')
+            %       >> x = Func1('sin', 2)
             %
             %     * Advanced functors: ``'polynomial3'``, ``'Fourier'``, ``'Gaussian'``,
             %       ``'Arrhenius'``. Use vector parameter, for example
@@ -41,19 +41,19 @@ classdef Func < handle
             %     * Tabulation functors: ``'tabulated-linear'``,
             %       ``'tabulated-previous'``. Use pair of vector parameters, for example
             %
-            %       >> x = Func('tabulated-linear', [0 2 4], [1 3 5])
+            %       >> x = Func1('tabulated-linear', [0 2 4], [1 3 5])
             %
             %     * Compounding functors: ``'sum'``, ``'diff'``, ``'product'``,
             %       ``'ratio'``, ``'composite'``. Use two functor parameters or a
             %       corresponding operator, for example
             %
-            %       >> x = Func('sum', Func('sin', 2.), Func('cos', 3.))
-            %       >> x = Func('sin', 2.) + Func('cos', 3.)  % alternative
+            %       >> x = Func1('sum', Func1('sin', 2.), Func1('cos', 3.))
+            %       >> x = Func1('sin', 2.) + Func1('cos', 3.)  % alternative
             %
             %     * Modifying functors: ``'times-constant'``, ``'plus-constant'``,
             %       ``'periodic'``. Use one functor and one scalar, for example
             %
-            %       >> x = Func('times-constant', Func('sin', 2.), 2.)
+            %       >> x = Func1('times-constant', Func1('sin', 2.), 2.)
             %
             % Note: this MATLAB class shadows underlying C++ Cantera classes derived
             % from "Func1". See the Cantera C++ documentation for more details.
@@ -63,7 +63,7 @@ classdef Func < handle
             % :param varargin:
             %     Parameters required for the functor; values depend on definition.
             % :return:
-            %     Instance of class :mat:class:`Func`.
+            %     Instance of class :mat:class:`Func1`.
 
             ctIsLoaded;
 
@@ -96,17 +96,17 @@ classdef Func < handle
                 if func1Type == "compound"
                     % compounding functor
                     if isa(arg1, 'double') && length(arg1) == 1
-                        arg1 = Func('constant', arg1);
+                        arg1 = Func1('constant', arg1);
                     elseif isa(arg2, 'double') && length(arg2) == 1
-                        arg2 = Func('constant', arg2);
+                        arg2 = Func1('constant', arg2);
                     end
-                    if ~isa(arg1, 'Func') || ~isa(arg2, 'Func')
+                    if ~isa(arg1, 'Func1') || ~isa(arg2, 'Func1')
                         error('Invalid arguments for compounding functor')
                     end
                     x.id = ctFunc('func_new_compound', typ, arg1.id, arg2.id);
                 elseif func1Type == "modified"
                     % modifying functor
-                    if ~isa(arg1, 'Func') || ~isa(arg2, 'double') || length(arg2) > 1
+                    if ~isa(arg1, 'Func1') || ~isa(arg2, 'double') || length(arg2) > 1
                         error('Invalid arguments for modifying functor')
                     end
                     x.id = ctFunc('func_new_modified', typ, arg1.id, arg2);
@@ -123,30 +123,30 @@ classdef Func < handle
             end
         end
 
-        %% Func Class Destructor
+        %% Func1 Class Destructor
 
         function delete(f)
-            % Delete the :mat:class:`Func` object.
+            % Delete the :mat:class:`Func1` object.
 
             ctFunc('func_del', f.id);
         end
 
-        %% Func Class Utility Methods
+        %% Func1 Class Utility Methods
 
         function r = plus(f1,f2)
-            r = Func('sum', f1, f2);
+            r = Func1('sum', f1, f2);
         end
 
         function r = minus(f1,f2)
-            r = Func('diff', f1, f2);
+            r = Func1('diff', f1, f2);
         end
 
         function r = mtimes(f1,f2)
-            r = Func('product', f1, f2);
+            r = Func1('product', f1, f2);
         end
 
         function r = mrdivide(f1,f2)
-            r = Func('ratio', f1, f2);
+            r = Func1('ratio', f1, f2);
         end
 
         function s = type(f)
@@ -170,7 +170,7 @@ classdef Func < handle
             %     >> b = a.subsref(s)
             %
             % :param a:
-            %     Instance of class :mat:class:`Func`.
+            %     Instance of class :mat:class:`Func1`.
             % :param s:
             %     Value at which the function should be evaluated.
             % :return:
@@ -202,7 +202,7 @@ classdef Func < handle
             %     >> s = f.write
             %
             % :param f:
-            %     Instance of class :mat:class:`Func`.
+            %     Instance of class :mat:class:`Func1`.
             % :return:
             %     LaTeX-formatted string displaying the function.
             arg = 'x';

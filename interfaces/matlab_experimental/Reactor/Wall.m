@@ -69,7 +69,7 @@ classdef Wall < handle
 
         % Heat flux in W/m^2.
         %
-        % Must be set by an instance of :mat:class:`Func`, which allows the
+        % Must be set by an instance of :mat:class:`Func1`, which allows the
         % heat flux to be an arbitrary function of time. It is possible
         % to specify a constant heat flux by using the polynomial
         % functor with only the first term specified.
@@ -77,7 +77,7 @@ classdef Wall < handle
 
         % Velocity in m/s.
         %
-        % Must be set by an instance of :mat:class:`Func`, which allows the
+        % Must be set by an instance of :mat:class:`Func1`, which allows the
         % velocity to be an arbitrary function of time. It is possible
         % to specify a constant velocity by using the polynomial
         % functor with only the first term specified.
