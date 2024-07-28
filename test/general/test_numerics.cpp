@@ -275,13 +275,16 @@ TEST(ctfunc, poly)
     double a0 = .5;
     double a1 = .25;
     double a2 = .125;
-    vector<double> params = {a0, a1, a2};
-    auto functor = newFunc1("polynomial", params);
-    ASSERT_EQ(functor->type(), "polynomial");
-    EXPECT_DOUBLE_EQ(functor->eval(0.), a0);
-    EXPECT_DOUBLE_EQ(functor->eval(.5), (a2 * .5 + a1) * .5 + a0);
+    vector<double> params = {a2, a1, a0};
+    auto functor0 = newFunc1("polynomial3", params);
+    ASSERT_EQ(functor0->type(), "polynomial3");
+    EXPECT_DOUBLE_EQ(functor0->eval(0.), a0);
+    EXPECT_DOUBLE_EQ(functor0->eval(.5), (a2 * .5 + a1) * .5 + a0);
+    ASSERT_THROW(functor0->derivative(), CanteraError);
 
-    ASSERT_THROW(functor->derivative(), CanteraError);
+    params = {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    auto functor1 = newFunc1("polynomial3", params);
+    EXPECT_EQ(functor1->write("x"), "x^{10}");
 }
 
 TEST(ctfunc, Fourier)

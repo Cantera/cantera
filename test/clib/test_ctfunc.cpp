@@ -18,7 +18,7 @@ TEST(ctfunc, invalid)
 
 TEST(ctfunc, sin)
 {
-    double omega = 2.;
+    double omega = 2.1;
     int fcn = func_new_basic("sin", omega);
     ASSERT_GE(fcn, 0);
     EXPECT_DOUBLE_EQ(func_value(fcn, 0.5), sin(omega * 0.5));
@@ -30,7 +30,7 @@ TEST(ctfunc, sin)
     char* buf = new char[buflen];
     func_write3(fcn, "x", buflen, buf);
     string rep = buf;
-    ASSERT_EQ(rep, "\\sin(2x)");
+    ASSERT_EQ(rep, "\\sin(2.1x)");
     delete[] buf;
 }
 
@@ -115,10 +115,19 @@ TEST(ctfunc, poly)
     double a0 = .5;
     double a1 = .25;
     double a2 = .125;
-    vector<double> params = {a0, a1, a2};
-    int fcn = func_new_advanced("polynomial", params.size(), params.data());
+    vector<double> params = {a2, a1, a0};
+    int fcn = func_new_advanced("polynomial3", params.size(), params.data());
     ASSERT_GE(fcn, 0);
     EXPECT_DOUBLE_EQ(func_value(fcn, .5), (a2 * .5 + a1) * .5 + a0);
+
+    params = {1, 0, -2.2, 3.1};
+    fcn = func_new_advanced("polynomial3", params.size(), params.data());
+    int buflen = func_write3(fcn, "x", 0, 0);
+    char* buf = new char[buflen];
+    func_write3(fcn, "x", buflen, buf);
+    string rep = buf;
+    ASSERT_EQ(rep, "x^3 - 2.2x + 3.1");
+    delete[] buf;
 }
 
 TEST(ctfunc, Fourier)
@@ -264,7 +273,7 @@ TEST(ctmath, generic)
     EXPECT_DOUBLE_EQ(func_value(fs2, 0.5), func_s2->eval(0.5));
 
     double one = 1.;
-    int fs1 = func_new_advanced("polynomial", 1, &one); // 1.
+    int fs1 = func_new_advanced("polynomial3", 1, &one); // 1.
     auto func_s1 = newFunc1("constant", 1.);
     EXPECT_DOUBLE_EQ(func_value(fs1, 0.5), func_s1->eval(0.5));
     EXPECT_DOUBLE_EQ(func_value(fs1, 0.5), 1.);
