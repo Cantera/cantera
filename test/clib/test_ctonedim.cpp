@@ -28,9 +28,9 @@ TEST(ctonedim, freeflow)
     domain_setID(flow, "flow");
     ASSERT_NEAR(flow1D_pressure(flow), P, 1e-5);
 
-    int buflen = domain_type3(flow, 0, 0);
+    int buflen = domain_type(flow, 0, 0);
     char* buf = new char[buflen];
-    domain_type3(flow, buflen, buf);
+    domain_type(flow, buflen, buf);
     string domName = buf;
     ASSERT_EQ(domName, "free-flow");
     delete[] buf;
@@ -61,9 +61,9 @@ TEST(ctonedim, freeflow_from_parts)
     domain_setID(flow, "flow");
     ASSERT_NEAR(flow1D_pressure(flow), P, 1e-5);
 
-    int buflen = domain_type3(flow, 0, 0);
+    int buflen = domain_type(flow, 0, 0);
     char* buf = new char[buflen];
-    domain_type3(flow, buflen, buf);
+    domain_type(flow, buflen, buf);
     string domName = buf;
     ASSERT_EQ(domName, "free-flow");
     delete[] buf;
@@ -74,9 +74,9 @@ TEST(ctonedim, inlet)
     int inlet = inlet_new();
     ASSERT_GE(inlet, 0);
 
-    int buflen = domain_type3(inlet, 0, 0);
+    int buflen = domain_type(inlet, 0, 0);
     char* buf = new char[buflen];
-    domain_type3(inlet, buflen, buf);
+    domain_type(inlet, buflen, buf);
     string domName = buf;
     ASSERT_EQ(domName, "inlet");
     delete[] buf;

@@ -17,8 +17,7 @@ extern "C" {
     CANTERA_CAPI int ct_clearOneDim();
     CANTERA_CAPI int domain_new(const char* type, int i, const char* id);
     CANTERA_CAPI int domain_del(int i);
-    // @todo: reintroduce domain_type as synonym for domain_type3
-    CANTERA_CAPI int domain_type3(int i, size_t lennm, char* nm);
+    CANTERA_CAPI int domain_type(int i, size_t lennm, char* nm);
     CANTERA_CAPI size_t domain_index(int i);
     CANTERA_CAPI size_t domain_nComponents(int i);
     CANTERA_CAPI size_t domain_nPoints(int i);

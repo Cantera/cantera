@@ -68,7 +68,7 @@ extern "C" {
         }
     }
 
-    int domain_type3(int i, size_t lennm, char* nm)
+    int domain_type(int i, size_t lennm, char* nm)
     {
         try {
             return static_cast<int>(copyString(DomainCabinet::item(i).type(), nm, lennm));

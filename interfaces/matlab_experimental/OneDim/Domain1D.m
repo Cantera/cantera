@@ -197,7 +197,7 @@ classdef Domain1D < handle
         end
 
         function str = get.domainType(d)
-            str = ctString('domain_type3', d.domainID);
+            str = ctString('domain_type', d.domainID);
         end
 
         function zz = gridPoints(d, n)
