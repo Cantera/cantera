@@ -318,8 +318,11 @@ config_options = [
            Python is running SCons if the required prerequisites (NumPy and
            Cython) are installed. Note: 'y' is a synonym for 'full' and 'n' is a
            synonym for 'none'.""",
-        # TODO: Remove minimal after Cantera 3.1 is released. Leave it here for now
+        # TODO: Remove 'minimal' after Cantera 3.1 is released. Leave it here for now
         # to provide migration information.
+        # TODO: Remove 'none' and 'full' options after Cantera 3.1 is released. Prefer
+        # simpler 'y' and 'n' options, since we don't need to distinguish from the
+        # minimal interface.
         "default", ("full", "none", "n", "y", "default", "minimal")),
     PathOption(
         "python_cmd",
@@ -1686,6 +1689,14 @@ logger.debug("\n".join(debug_message), print_level=False)
 
 env['python_cmd_esc'] = quoted(env['python_cmd'])
 
+# TODO: Remove this check when 'full' and 'none' are removed
+if env['python_package'] == 'full':
+    logger.warning("The 'full' specification is deprecated and should be replaced by 'y'")
+    env['python_package'] = 'y'  # Allow 'full' as a synonym for 'y'
+elif env['python_package'] == 'none':
+    logger.warning("The 'none' specification is deprecated and should be replaced by 'n'")
+    env['python_package'] = 'n'  # Allow 'none' as a synonym for 'n'
+
 env["py_requires_ver_str"] = py_requires_ver_str
 if env["package_build"]:
     env["py_requires_ver_str"] += f",<{python_max_p1_version}"
@@ -1736,7 +1747,7 @@ def check_module(name):
             err += str({name}_err) + "\\n"
     """)
 
-if env['python_package'] != 'none':
+if env['python_package'] != 'n':
     # Test to see if we can import numpy and Cython
     script = textwrap.dedent("""\
         import sys
@@ -1906,7 +1917,7 @@ if env['python_package'] != 'none':
                 f"Building the full Python package for Python {python_version}")
             env["python_package"] = "full"
 
-if env["python_package"] == "full" and env["OS"] == "Darwin":
+if env["python_package"] == "y" and env["OS"] == "Darwin":
     # We need to know the macOS deployment target in advance to be able to determine
     # the name of the wheel file for the Python module. If this is not specified by the
     # MACOSX_DEPLOYMENT_TARGET environment variable, get the value from the Python
@@ -1942,7 +1953,7 @@ if "msi" in COMMAND_LINE_TARGETS:
     env["prefix"] = "."
     selected_options.add("prefix")
     selected_options.add("stage_dir")
-    env["python_package"] = "none"
+    env["python_package"] = "n"
 
 env["default_prefix"] = True
 if "prefix" in selected_options:
@@ -2230,7 +2241,7 @@ if env['f90_interface'] == 'y':
 VariantDir('build/src', 'src', duplicate=0)
 SConscript('build/src/SConscript')
 
-if env["python_package"] == "full":
+if env["python_package"] == "y":
     VariantDir("build/python", "interfaces/cython", duplicate=True)
     SConscript("build/python/SConscript")
 elif env["python_package"] == "minimal":
@@ -2313,7 +2324,7 @@ def postInstallMessage(target, source, env):
             name="HTML documentation", location=env_dict["inst_docdir"]
         ))
 
-    if env["python_package"] == "full":
+    if env["python_package"] == "y":
         env["python_example_loc"] = (Path(env["ct_sampledir"]) / "python").as_posix()
         install_message.append(locations_message.format(
             name="Python package", location=env_dict["python_module_loc"]
@@ -2377,7 +2388,7 @@ def removeDirectories(target, source, env):
 
 uninstall = env.Command("uninstall", None, Delete(allfiles))
 env.AddPostAction(uninstall, Action(removeDirectories))
-if env["python_package"] == "full":
+if env["python_package"] == "n":
     env.AddPostAction(uninstall, Action("$python_cmd_esc -m pip uninstall -y Cantera"))
 elif env["python_package"] == "minimal":
     env.AddPostAction(uninstall, Action("$python_cmd_esc -m pip uninstall -y Cantera_minimal"))
@@ -2406,7 +2417,7 @@ if any(target.startswith(('test', 'build-')) for target in COMMAND_LINE_TARGETS)
     env['testNames'] = []
     env['test_results'] = env.Command('test_results', [], test_results.print_report)
 
-    if env['python_package'] == 'none':
+    if env['python_package'] == 'n':
         # copy scripts from the full Cython module
         # (skipping 'yaml2ck', which depends on the full Python module)
         test_py_int = env.Command('#build/python_local/cantera/__init__.py',

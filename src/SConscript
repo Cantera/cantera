@@ -75,7 +75,7 @@ for subdir, extensions, setup in libs:
     libraryTargets.extend(objects)
 
 # Handling of extensions written in Python
-if env["python_package"] == "full":
+if env["python_package"] == "y":
     pyenv = setup_python_env(localenv.Clone())
     pyenv['PCH'] = ''  # ignore precompiled header here
 
