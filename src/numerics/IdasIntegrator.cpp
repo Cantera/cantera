@@ -7,6 +7,7 @@
 #include "cantera/base/stringUtils.h"
 
 #include "cantera/numerics/sundials_headers.h"
+#include "sundials/sundials_config.h"
 
 using namespace std;
 
@@ -14,7 +15,7 @@ namespace {
 
 N_Vector newNVector(size_t N, Cantera::SundialsContext& context)
 {
-#if CT_SUNDIALS_VERSION >= 60
+#if SUNDIALS_VERSION_MAJOR >= 6
     return N_VNew_Serial(static_cast<sd_size_t>(N), context.get());
 #else
     return N_VNew_Serial(static_cast<sd_size_t>(N));
@@ -58,7 +59,7 @@ static void ida_err(int error_code, const char* module,
 //! writing to stdout. Here, save the error message provided by CVodes so
 //! that it can be included in the subsequently raised CanteraError. Used by
 //! SUNDIALS 7.0 and newer.
-#if CT_SUNDIALS_VERSION >= 70
+#if SUNDIALS_VERSION_MAJOR >= 7
     static void sundials_err(int line, const char *func, const char *file,
                             const char *msg, SUNErrCode err_code,
                             void *err_user_data, SUNContext sunctx)
@@ -271,7 +272,7 @@ void IdasIntegrator::initialize(double t0, FuncEval& func)
     }
 
     //! Create the IDA solver
-    #if CT_SUNDIALS_VERSION >= 60
+    #if SUNDIALS_VERSION_MAJOR >= 6
         m_ida_mem = IDACreate(m_sundials_ctx.get());
     #else
         m_ida_mem = IDACreate();
@@ -293,7 +294,7 @@ void IdasIntegrator::initialize(double t0, FuncEval& func)
         }
     }
 
-    #if CT_SUNDIALS_VERSION >= 70
+    #if SUNDIALS_VERSION_MAJOR >= 7
         flag = SUNContext_PushErrHandler(m_sundials_ctx.get(), &sundials_err, this);
     #else
         flag = IDASetErrHandlerFn(m_ida_mem, &ida_err, this);
@@ -345,32 +346,32 @@ void IdasIntegrator::applyOptions()
         sd_size_t N = static_cast<sd_size_t>(m_neq);
         SUNLinSolFree((SUNLinearSolver) m_linsol);
         SUNMatDestroy((SUNMatrix) m_linsol_matrix);
-        #if CT_SUNDIALS_VERSION >= 60
+        #if SUNDIALS_VERSION_MAJOR >= 6
             m_linsol_matrix = SUNDenseMatrix(N, N, m_sundials_ctx.get());
         #else
             m_linsol_matrix = SUNDenseMatrix(N, N);
         #endif
-        #if CT_SUNDIALS_VERSION >= 60
+        #if SUNDIALS_VERSION_MAJOR >= 6
             m_linsol_matrix = SUNDenseMatrix(N, N, m_sundials_ctx.get());
         #else
             m_linsol_matrix = SUNDenseMatrix(N, N);
         #endif
         #if CT_SUNDIALS_USE_LAPACK
-            #if CT_SUNDIALS_VERSION >= 60
+            #if SUNDIALS_VERSION_MAJOR >= 6
                 m_linsol = SUNLinSol_LapackDense(m_y, (SUNMatrix) m_linsol_matrix,
                                                  m_sundials_ctx.get());
             #else
                 m_linsol = SUNLapackDense(m_y, (SUNMatrix) m_linsol_matrix);
             #endif
         #else
-            #if CT_SUNDIALS_VERSION >= 60
+            #if SUNDIALS_VERSION_MAJOR >= 6
                 m_linsol = SUNLinSol_Dense(m_y, (SUNMatrix) m_linsol_matrix,
                                            m_sundials_ctx.get());
             #else
                 m_linsol = SUNLinSol_Dense(m_y, (SUNMatrix) m_linsol_matrix);
             #endif
         #endif
-        #if CT_SUNDIALS_VERSION >= 60
+        #if SUNDIALS_VERSION_MAJOR >= 6
             IDASetLinearSolver(m_ida_mem, (SUNLinearSolver) m_linsol,
                                (SUNMatrix) m_linsol_matrix);
         #else
@@ -379,10 +380,10 @@ void IdasIntegrator::applyOptions()
         #endif
     } else if (m_type == "GMRES") {
         SUNLinSolFree((SUNLinearSolver) m_linsol);
-        #if CT_SUNDIALS_VERSION >= 60
+        #if SUNDIALS_VERSION_MAJOR >= 6
             m_linsol = SUNLinSol_SPGMR(m_y, SUN_PREC_NONE, 0, m_sundials_ctx.get());
             IDASetLinearSolver(m_ida_mem, (SUNLinearSolver) m_linsol, nullptr);
-        #elif CT_SUNDIALS_VERSION >= 40
+        #elif SUNDIALS_VERSION_MAJOR >= 4
             m_linsol = SUNLinSol_SPGMR(m_y, PREC_NONE, 0);
             IDASpilsSetLinearSolver(m_ida_mem, (SUNLinearSolver) m_linsol);
         #else
@@ -428,7 +429,7 @@ void IdasIntegrator::sensInit(double t0, FuncEval& func)
     m_sens_ok = false;
 
     N_Vector y = newNVector(static_cast<sd_size_t>(func.neq()), m_sundials_ctx);
-    #if CT_SUNDIALS_VERSION >= 60
+    #if SUNDIALS_VERSION_MAJOR >= 6
         m_yS = N_VCloneVectorArray(static_cast<int>(m_np), y);
     #else
         m_yS = N_VCloneVectorArray_Serial(static_cast<int>(m_np), y);
@@ -438,7 +439,7 @@ void IdasIntegrator::sensInit(double t0, FuncEval& func)
     }
     N_VDestroy_Serial(y);
     N_Vector ydot = newNVector(static_cast<sd_size_t>(func.neq()), m_sundials_ctx);
-    #if CT_SUNDIALS_VERSION >= 60
+    #if SUNDIALS_VERSION_MAJOR >= 6
         m_ySdot = N_VCloneVectorArray(static_cast<int>(m_np), ydot);
     #else
         m_ySdot = N_VCloneVectorArray_Serial(static_cast<int>(m_np), ydot);

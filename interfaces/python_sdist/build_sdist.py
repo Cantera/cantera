@@ -43,7 +43,6 @@ def do_configure_substitution(
     configure_subst = {
         "CANTERA_VERSION": f'#define CANTERA_VERSION "{cantera_version}"',
         "CANTERA_SHORT_VERSION": f'#define CANTERA_SHORT_VERSION "{cantera_short_version}"',
-        "CT_SUNDIALS_VERSION": "#define CT_SUNDIALS_VERSION 70",
         "FTN_TRAILING_UNDERSCORE": "#define FTN_TRAILING_UNDERSCORE 1",
         "LAPACK_FTN_STRING_LEN_AT_END": "#define LAPACK_FTN_STRING_LEN_AT_END 1",
         "LAPACK_FTN_TRAILING_UNDERSCORE": "#define LAPACK_FTN_TRAILING_UNDERSCORE 1",

@@ -5,6 +5,7 @@
 
 #include "cantera/numerics/CVodesIntegrator.h"
 #include "cantera/base/stringUtils.h"
+#include "sundials/sundials_config.h"
 
 #include <iostream>
 using namespace std;
@@ -15,7 +16,7 @@ namespace {
 
 N_Vector newNVector(size_t N, Cantera::SundialsContext& context)
 {
-#if CT_SUNDIALS_VERSION >= 60
+#if SUNDIALS_VERSION_MAJOR >= 6
     return N_VNew_Serial(static_cast<sd_size_t>(N), context.get());
 #else
     return N_VNew_Serial(static_cast<sd_size_t>(N));
@@ -58,7 +59,7 @@ extern "C" {
     //! writing to stdout. Here, save the error message provided by CVodes so
     //! that it can be included in the subsequently raised CanteraError. Used by
     //! SUNDIALS 7.0 and newer.
-    #if CT_SUNDIALS_VERSION >= 70
+    #if SUNDIALS_VERSION_MAJOR >= 7
         static void sundials_err(int line, const char *func, const char *file,
                                 const char *msg, SUNErrCode err_code,
                                 void *err_user_data, SUNContext sunctx)
@@ -120,7 +121,7 @@ CVodesIntegrator::~CVodesIntegrator()
         N_VDestroy_Serial(m_dky);
     }
     if (m_yS) {
-        #if CT_SUNDIALS_VERSION >= 60
+        #if SUNDIALS_VERSION_MAJOR >= 6
             N_VDestroyVectorArray(m_yS, static_cast<int>(m_np));
         #else
             N_VDestroyVectorArray_Serial(m_yS, static_cast<int>(m_np));
@@ -222,7 +223,7 @@ void CVodesIntegrator::sensInit(double t0, FuncEval& func)
     m_sens_ok = false;
 
     N_Vector y = newNVector(func.neq(), m_sundials_ctx);
-    #if CT_SUNDIALS_VERSION >= 60
+    #if SUNDIALS_VERSION_MAJOR >= 6
         m_yS = N_VCloneVectorArray(static_cast<int>(m_np), y);
     #else
         m_yS = N_VCloneVectorArray_Serial(static_cast<int>(m_np), y);
@@ -283,9 +284,9 @@ void CVodesIntegrator::initialize(double t0, FuncEval& func)
     //! Specify the method and the iteration type. Cantera Defaults:
     //!        CV_BDF  - Use BDF methods
     //!        CV_NEWTON - use Newton's method
-    #if CT_SUNDIALS_VERSION < 40
+    #if SUNDIALS_VERSION_MAJOR < 4
         m_cvode_mem = CVodeCreate(m_method, CV_NEWTON);
-    #elif CT_SUNDIALS_VERSION < 60
+    #elif SUNDIALS_VERSION_MAJOR < 6
         m_cvode_mem = CVodeCreate(m_method);
     #else
         m_cvode_mem = CVodeCreate(m_method, m_sundials_ctx.get());
@@ -308,7 +309,7 @@ void CVodesIntegrator::initialize(double t0, FuncEval& func)
                                "CVodeInit failed.");
         }
     }
-    #if CT_SUNDIALS_VERSION >= 70
+    #if SUNDIALS_VERSION_MAJOR >= 7
         flag = SUNContext_PushErrHandler(m_sundials_ctx.get(), &sundials_err, this);
     #else
         flag = CVodeSetErrHandlerFn(m_cvode_mem, &cvodes_err, this);
@@ -357,7 +358,7 @@ void CVodesIntegrator::applyOptions()
         sd_size_t N = static_cast<sd_size_t>(m_neq);
         SUNLinSolFree((SUNLinearSolver) m_linsol);
         SUNMatDestroy((SUNMatrix) m_linsol_matrix);
-        #if CT_SUNDIALS_VERSION >= 60
+        #if SUNDIALS_VERSION_MAJOR >= 6
             m_linsol_matrix = SUNDenseMatrix(N, N, m_sundials_ctx.get());
         #else
             m_linsol_matrix = SUNDenseMatrix(N, N);
@@ -367,7 +368,7 @@ void CVodesIntegrator::applyOptions()
                 "Unable to create SUNDenseMatrix of size {0} x {0}", N);
         }
         int flag;
-        #if CT_SUNDIALS_VERSION >= 60
+        #if SUNDIALS_VERSION_MAJOR >= 6
             #if CT_SUNDIALS_USE_LAPACK
                 m_linsol = SUNLinSol_LapackDense(m_y, (SUNMatrix) m_linsol_matrix,
                                                     m_sundials_ctx.get());
@@ -409,10 +410,10 @@ void CVodesIntegrator::applyOptions()
         }
     } else if (m_type == "GMRES") {
         SUNLinSolFree((SUNLinearSolver) m_linsol);
-        #if CT_SUNDIALS_VERSION >= 60
+        #if SUNDIALS_VERSION_MAJOR >= 6
             m_linsol = SUNLinSol_SPGMR(m_y, SUN_PREC_NONE, 0, m_sundials_ctx.get());
             CVodeSetLinearSolver(m_cvode_mem, (SUNLinearSolver) m_linsol, nullptr);
-        #elif CT_SUNDIALS_VERSION >= 40
+        #elif SUNDIALS_VERSION_MAJOR >= 4
             m_linsol = SUNLinSol_SPGMR(m_y, PREC_NONE, 0);
             CVSpilsSetLinearSolver(m_cvode_mem, (SUNLinearSolver) m_linsol);
         # else
@@ -420,7 +421,7 @@ void CVodesIntegrator::applyOptions()
             CVSpilsSetLinearSolver(m_cvode_mem, (SUNLinearSolver) m_linsol);
         #endif
         // set preconditioner if used
-        #if CT_SUNDIALS_VERSION >= 40
+        #if SUNDIALS_VERSION_MAJOR >= 4
             if (m_prec_side != PreconditionerSide::NO_PRECONDITION) {
                 SUNLinSol_SPGMRSetPrecType((SUNLinearSolver) m_linsol,
                     static_cast<int>(m_prec_side));
@@ -441,9 +442,9 @@ void CVodesIntegrator::applyOptions()
         sd_size_t nl = m_mlower;
         SUNLinSolFree((SUNLinearSolver) m_linsol);
         SUNMatDestroy((SUNMatrix) m_linsol_matrix);
-        #if CT_SUNDIALS_VERSION >= 60
+        #if SUNDIALS_VERSION_MAJOR >= 6
             m_linsol_matrix = SUNBandMatrix(N, nu, nl, m_sundials_ctx.get());
-        #elif CT_SUNDIALS_VERSION >= 40
+        #elif SUNDIALS_VERSION_MAJOR >= 4
             m_linsol_matrix = SUNBandMatrix(N, nu, nl);
         #else
             m_linsol_matrix = SUNBandMatrix(N, nu, nl, nu+nl);
@@ -453,7 +454,7 @@ void CVodesIntegrator::applyOptions()
                 "Unable to create SUNBandMatrix of size {} with bandwidths "
                 "{} and {}", N, nu, nl);
         }
-        #if CT_SUNDIALS_VERSION >= 60
+        #if SUNDIALS_VERSION_MAJOR >= 6
             #if CT_SUNDIALS_USE_LAPACK
                 m_linsol = SUNLinSol_LapackBand(m_y, (SUNMatrix) m_linsol_matrix,
                                                 m_sundials_ctx.get());
@@ -590,7 +591,7 @@ AnyMap CVodesIntegrator::solverStats() const
              nonlinConvFails = 0, orderReductions = 0;
     int lastOrder = 0;
 ;
-    #if CT_SUNDIALS_VERSION >= 40
+    #if SUNDIALS_VERSION_MAJOR >= 4
         CVodeGetNumSteps(m_cvode_mem, &steps);
         CVodeGetNumRhsEvals(m_cvode_mem, &rhsEvals);
         CVodeGetNonlinSolvStats(m_cvode_mem, &nonlinIters, &nonlinConvFails);
@@ -611,7 +612,7 @@ AnyMap CVodesIntegrator::solverStats() const
                   "supported with sundials versions less than 4.");
     #endif
 
-    #if CT_SUNDIALS_VERION >= 60
+    #if SUNDIALS_VERSION_MAJOR >= 6
         long int stepSolveFails = 0;
         CVodeGetNumStepSolveFails(m_cvode_mem, &stepSolveFails);
         stats["step_solve_fails"] = stepSolveFails;

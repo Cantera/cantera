@@ -51,7 +51,7 @@ def get_data_directories():
     """ Get a list of the directories Cantera searches for data files. """
     return pystr(CxxGetDataDirectories(stringify(os.pathsep))).split(os.pathsep)
 
-__sundials_version__ = '.'.join(str(get_sundials_version()))
+__sundials_version__ = pystr(get_sundials_version())
 
 __version__ = pystr(CxxVersion())
 

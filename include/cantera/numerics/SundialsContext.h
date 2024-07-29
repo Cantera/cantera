@@ -7,8 +7,9 @@
 #define CT_SUNDIALSCONTEXT_H
 
 #include "cantera/base/ct_defs.h"
+#include "sundials/sundials_config.h"
 
-#if CT_SUNDIALS_VERSION >= 60
+#if SUNDIALS_VERSION_MAJOR >= 6
     #include "sundials/sundials_context.h"
 #endif
 
@@ -18,10 +19,10 @@ namespace Cantera
 //! A wrapper for managing a SUNContext object, need for Sundials >= 6.0
 class SundialsContext
 {
-#if CT_SUNDIALS_VERSION >= 60
+#if SUNDIALS_VERSION_MAJOR >= 6
 public:
     SundialsContext() {
-        #if CT_SUNDIALS_VERSION >= 70
+        #if SUNDIALS_VERSION_MAJOR >= 7
             SUNContext_Create(SUN_COMM_NULL, &m_context);
 
         #else

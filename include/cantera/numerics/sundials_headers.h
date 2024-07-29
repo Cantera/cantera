@@ -1,6 +1,7 @@
 #ifndef CT_SUNDIALS_HEADERS
 #define CT_SUNDIALS_HEADERS
 
+#include "sundials/sundials_config.h"
 #include "sundials/sundials_types.h"
 #include "sundials/sundials_math.h"
 #include "sundials/sundials_nvector.h"
@@ -18,14 +19,14 @@
 #include "sunlinsol/sunlinsol_spgmr.h"
 #include "cvodes/cvodes_diag.h"
 
-#if CT_SUNDIALS_VERSION < 70
+#if SUNDIALS_VERSION_MAJOR < 7
     #include "cvodes/cvodes_direct.h"
     #include "idas/idas_direct.h"
     #include "idas/idas_spils.h"
     #include "cvodes/cvodes_spils.h"
 #endif
 
-#if CT_SUNDIALS_VERSION < 60
+#if SUNDIALS_VERSION_MAJOR < 6
     typedef realtype sunrealtype;
     typedef booleantype sunbooleantype;
 #endif

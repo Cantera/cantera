@@ -94,7 +94,7 @@ cdef extern from "cantera/base/ctexceptions.h" namespace "Cantera":
 cdef extern from "cantera/cython/utils_utils.h":
     cdef string get_cantera_version_py()
     cdef string get_cantera_git_commit_py()
-    cdef int get_sundials_version()
+    cdef string get_sundials_version()
     cdef cppclass CxxPythonLogger "PythonLogger":
         pass
 
