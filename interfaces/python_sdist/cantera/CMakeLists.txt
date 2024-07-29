@@ -21,6 +21,9 @@ foreach(CY_SOURCE IN LISTS CY_SOURCES)
     VERBATIM)
 endforeach()
 
+# The extension manager is compiled here rather than with the rest of the
+# Cantera source code because it needs delegator.h, built by the Cython step
+# above.
 add_library(ext_manager ../src/extensions/PythonExtensionManager.cpp)
 target_include_directories(ext_manager PRIVATE
   "${CMAKE_CURRENT_BINARY_DIR}"
