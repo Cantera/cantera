@@ -86,10 +86,8 @@ import atexit
 import subprocess
 import re
 import textwrap
-try:
-    from packaging.version import parse as parse_version
-except ImportError:
-    from pkg_resources import parse_version
+from packaging.specifiers import SpecifierSet
+from packaging.version import parse as parse_version
 import SCons
 
 # ensure that Python and SCons versions are sufficient for the build process
@@ -173,9 +171,9 @@ except (subprocess.CalledProcessError, FileNotFoundError):
 # Python Package Settings
 python_min_version = parse_version("3.8")
 # Newest Python version not supported/tested by Cantera
-python_max_p1_version = parse_version("3.13")
+python_max_version = parse_version("3.13")
 # The string is used to set python_requires in setup.cfg.in
-py_requires_ver_str = f">={python_min_version}"
+py_requires_ver_str = f">={python_min_version},<{python_max_version}"
 
 if "sdist" in COMMAND_LINE_TARGETS:
     if "clean" in COMMAND_LINE_TARGETS:
@@ -191,7 +189,7 @@ if "sdist" in COMMAND_LINE_TARGETS:
             os.getcwd(),
             "/".join((os.getcwd(), "build", "python_sdist")),
             cantera_git_commit,
-            py_requires_ver_str + f",<{python_max_p1_version}",
+            py_requires_ver_str,
             cantera_version,
             cantera_short_version,
         ],
@@ -1696,225 +1694,32 @@ elif env['python_package'] == 'none':
     logger.warning("The 'none' specification is deprecated and should be replaced by 'n'")
     env['python_package'] = 'n'  # Allow 'none' as a synonym for 'n'
 
+env["python_min_version"] = python_min_version
+env["python_max_version"] = python_max_version
 env["py_requires_ver_str"] = py_requires_ver_str
-if env["package_build"]:
-    env["py_requires_ver_str"] += f",<{python_max_p1_version}"
-cython_min_version = parse_version("0.29.31")
-numpy_min_version = parse_version('1.12.0')
+env["cython_version_spec"] = SpecifierSet(">=0.29.31")
+env["numpy_version_spec"] = SpecifierSet(">=1.12.0,<3")
 
 # We choose ruamel.yaml 0.15.34 as the minimum version
 # since it is the highest version available in the Ubuntu
 # 18.04 repositories and seems to work. Older versions such as
 # 0.13.14 on CentOS7 and 0.10.23 on Ubuntu 16.04 raise an exception
 # that they are missing the RoundTripRepresenter
-ruamel_min_version = parse_version('0.15.34')
+env["ruamel_version_spec"] = SpecifierSet(">=0.15.34")
 
 # Minimum pytest version assumed based on Ubuntu 20.04
-pytest_min_version = parse_version("4.6.9")
-
-# Pytest is required only to test the Python module
-check_for_pytest = False
-if env['python_package'] != 'none':
-    check_for_pytest = "test" in COMMAND_LINE_TARGETS or any(
-        target.startswith("test-python") for target in COMMAND_LINE_TARGETS
-    )
-
-# Check for the minimum ruamel.yaml version, 0.15.34, at install and test
-# time. The check happens at install and test time because ruamel.yaml is
-# only required to run the Python interface, not to build it.
-check_for_ruamel_yaml = check_for_pytest or any(
-    target in COMMAND_LINE_TARGETS
-    for target in ["install", "test"]
-)
-
-if env['python_package'] == 'y':
-    env['python_package'] = 'full'  # Allow 'y' as a synonym for 'full'
-elif env['python_package'] == 'n':
-  env['python_package'] = 'none'  # Allow 'n' as a synonym for 'none'
+env["pytest_version_spec"] = SpecifierSet(">=4.6.9")
 
 env['install_python_action'] = ''
 env['python_module_loc'] = ''
 env["python_module"] = None
 env["ct_pyscriptdir"] = "<not installed>"
 
-def check_module(name):
-    return textwrap.dedent(f"""\
-        try:
-            import {name}
-            versions["{name}"] = {name}.__version__
-        except ImportError as {name}_err:
-            err += str({name}_err) + "\\n"
-    """)
-
 if env['python_package'] != 'n':
-    # Test to see if we can import numpy and Cython
-    script = textwrap.dedent("""\
-        import sys
-        import json
-        versions = {}
-        versions["python"] = "{v.major}.{v.minor}".format(v=sys.version_info)
-        err = ""
-    """)
-    script += check_module("numpy")
-    script += check_module("Cython")
-
-    if check_for_ruamel_yaml:
-        script += textwrap.dedent("""\
-            try:
-                from ruamel import yaml
-                versions["ruamel.yaml"] = yaml.__version__
-            except ImportError as ru_err:
-                try:
-                    import ruamel_yaml as yaml
-                    versions["ruamel.yaml"] = yaml.__version__
-                except ImportError as ru_err_2:
-                    err += str(ru_err) + "\\n"
-                    err += str(ru_err_2) + "\\n"
-        """)
-    if check_for_pytest:
-        script += check_module("pytest")
-
-    script += textwrap.dedent("""\
-        print("versions:", json.dumps(versions))
-        if err:
-            print(err)
-    """)
-
-    try:
-        info = get_command_output(env["python_cmd"], "-c", script).splitlines()
-    except OSError as err:
-        logger.debug(f"Error checking for Python:\n{err}")
-        warn_no_python = True
-    except subprocess.CalledProcessError as err:
-        logger.debug(f"Error checking for Python:\n{err} {err.output}")
-        warn_no_python = True
-    else:
-        warn_no_python = False
-        for line in info:
-            if line.startswith("versions:"):
-                versions = {
-                    k: parse_version(v)
-                    for k, v in json.loads(line.split(maxsplit=1)[1]).items()
-                }
-                break
-
-        if check_for_ruamel_yaml:
-            ruamel_yaml_version = versions.get("ruamel.yaml")
-            if not ruamel_yaml_version:
-                logger.error(
-                    f"ruamel.yaml was not found. {ruamel_min_version} or newer "
-                    "is required.")
-                sys.exit(1)
-            elif ruamel_yaml_version < ruamel_min_version:
-                logger.error(
-                    "ruamel.yaml is an incompatible version: Found "
-                    f"{ruamel_yaml_version}, but {ruamel_min_version} or newer "
-                    "is required.")
-                sys.exit(1)
-
-    python_version = versions["python"]
-    if warn_no_python:
-        if env["python_package"] == "default":
-            logger.warning(
-                "Not building the Python package because the Python interpreter "
-                f"{env['python_cmd']!r} could not be found.")
-            env["python_package"] = "none"
-        else:
-            logger.error(
-                f"Could not execute the Python interpreter {env['python_cmd']!r}")
-            sys.exit(1)
-    elif python_version < python_min_version:
-        if env["python_package"] in ("full", "default"):
-            logger.error(
-                f"Python version is incompatible. Found {python_version} but "
-                f"{python_min_version} or newer is required. In order to install "
-                "Cantera without Python support, specify 'python_package=none'.")
-            sys.exit(1)
-    elif python_version >= python_max_p1_version:
-        if env["python_package"] in ("full", "default"):
-            if env["package_build"]:
-                # An error is triggered as the pip wheel cannot be built for
-                # 'scons build' due to safeguards in setup.cfg(.in) files.
-                logger.error(
-                    f"Python version is incompatible. Found {python_version}, which "
-                    "is not yet supported for package builds.")
-                sys.exit(1)
-            logger.warning(
-                f"Python {python_version} is not supported for Cantera "
-                f"{env['cantera_version']}. Python versions {python_max_p1_version} and "
-                "newer are untested and may result in unexpected behavior. Proceed "
-                "with caution.")
-    elif env["python_package"] == "minimal":
-        # If the minimal package was specified, no further checking needs to be done
-        logger.info(f"Building the minimal Python package for Python {python_version}")
-    else:
-
-        if len(info) > 1:
-            msg = ["Unexpected output while checking Python dependency versions:"]
-            msg.extend(line for line in info if not line.startswith("versions:"))
-            logger.warning("\n| ".join(msg))
-
-        warn_no_full_package = False
-        numpy_version = versions.get("numpy")
-        if not numpy_version:
-            logger.info("NumPy not found.")
-            warn_no_full_package = True
-        elif numpy_version < numpy_min_version:
-            logger.warning(
-                f"NumPy is an incompatible version: Found {numpy_version} but "
-                f"{numpy_min_version} or newer is required.")
-            warn_no_full_package = True
-        else:
-            logger.info(f"Using NumPy version {numpy_version}")
-
-        cython_version = versions.get("Cython")
-        if not cython_version:
-            logger.info("Cython not found.")
-            warn_no_full_package = True
-        elif cython_version < cython_min_version:
-            logger.warning(
-                f"Cython is an incompatible version: Found {cython_version} but "
-                f"{cython_min_version} or newer is required.")
-            warn_no_full_package = True
-        elif cython_version < parse_version("3.0.0"):
-            logger.info(
-                f"Using Cython version {cython_version} (uses legacy NumPy API)"
-            )
-            env["require_numpy_1_7_API"] = True
-        else:
-            logger.info(f"Using Cython version {cython_version}")
-            env["require_numpy_1_7_API"] = False
-
-        pytest_version = versions.get("pytest")
-        if not check_for_pytest:
-            pass
-        elif not pytest_version:
-            logger.error(
-                f"pytest was not found. {pytest_min_version} or newer "
-                "is required.")
-            sys.exit(1)
-        elif pytest_version < pytest_min_version:
-            logger.error(
-                "pytest is an incompatible version: Found "
-                f"{pytest_version}, but {pytest_min_version} or newer "
-                "is required.")
-            sys.exit(1)
-
-        if warn_no_full_package:
-            msg = ("Unable to build the full Python package because compatible "
-                   "versions of Numpy and/or Cython could not be found.")
-            if env["python_package"] == "default":
-                logger.warning(msg)
-                logger.info(
-                    f"Building the minimal Python package for Python {python_version}")
-                env["python_package"] = "minimal"
-            else:
-                logger.error(msg)
-                sys.exit(1)
-        else:
-            logger.info(
-                f"Building the full Python package for Python {python_version}")
-            env["python_package"] = "full"
+    python_config = check_for_python(env, COMMAND_LINE_TARGETS)
+    env["python_package"] = python_config["python_package"]
+    if python_config["python_package"] == "y":
+        env["require_numpy_1_7_API"] = python_config["require_numpy_1_7_API"]
 
 if env["python_package"] == "y" and env["OS"] == "Darwin":
     # We need to know the macOS deployment target in advance to be able to determine
@@ -2243,9 +2048,6 @@ SConscript('build/src/SConscript')
 if env["python_package"] == "y":
     VariantDir("build/python", "interfaces/cython", duplicate=True)
     SConscript("build/python/SConscript")
-elif env["python_package"] == "minimal":
-    VariantDir("build/python_minimal", "interfaces/python_minimal", duplicate=True)
-    SConscript("build/python_minimal/SConscript")
 
 if env['CC'] != 'cl':
     VariantDir('build/platform', 'platform/posix', duplicate=0)
@@ -2389,8 +2191,6 @@ uninstall = env.Command("uninstall", None, Delete(allfiles))
 env.AddPostAction(uninstall, Action(removeDirectories))
 if env["python_package"] == "n":
     env.AddPostAction(uninstall, Action("$python_cmd_esc -m pip uninstall -y Cantera"))
-elif env["python_package"] == "minimal":
-    env.AddPostAction(uninstall, Action("$python_cmd_esc -m pip uninstall -y Cantera_minimal"))
 
 ### Windows MSI Installer ###
 if 'msi' in COMMAND_LINE_TARGETS:
@@ -2416,23 +2216,7 @@ if any(target.startswith(('test', 'build-')) for target in COMMAND_LINE_TARGETS)
     env['testNames'] = []
     env['test_results'] = env.Command('test_results', [], test_results.print_report)
 
-    if env['python_package'] == 'n':
-        # copy scripts from the full Cython module
-        # (skipping 'yaml2ck', which depends on the full Python module)
-        test_py_int = env.Command('#build/python_local/cantera/__init__.py',
-                                  '#interfaces/python_minimal/cantera/__init__.py',
-                                  Copy('$TARGET', '$SOURCE'))
-        for script in ["ck2yaml", "ctml2yaml", "cti2yaml", "lxcat2yaml"]:
-            s = env.Command('#build/python_local/cantera/{}.py'.format(script),
-                            '#interfaces/cython/cantera/{}.py'.format(script),
-                            Copy('$TARGET', '$SOURCE'))
-            env.Depends(test_py_int, s)
-
-        env.Depends(env['test_results'], test_py_int)
-
-        env['python_cmd'] = sys.executable
-        env.PrependENVPath('PYTHONPATH', Dir('build/python_local').abspath)
-    else:
+    if env["python_package"] != "n":
         env.PrependENVPath('PYTHONPATH', Dir('build/python').abspath)
 
     env['ENV']['PYTHON_CMD'] = env.subst('$python_cmd')

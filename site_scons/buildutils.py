@@ -10,10 +10,7 @@ import time
 import shutil
 import enum
 from pathlib import Path
-try:
-    from packaging.version import parse as parse_version
-except ImportError:
-    from pkg_resources import parse_version
+from packaging.version import parse as parse_version
 import logging
 from typing import TYPE_CHECKING
 from collections.abc import Mapping as MappingABC
@@ -30,7 +27,7 @@ __all__ = ("Option", "PathOption", "BoolOption", "EnumOption", "Configuration",
            "add_RegressionTest", "get_command_output", "listify", "which",
            "ConfigBuilder", "multi_glob", "get_spawn", "quoted", "add_system_include",
            "get_pip_install_location", "compiler_flag_list", "setup_python_env",
-           "checkout_submodule")
+           "checkout_submodule", "check_for_python")
 
 if TYPE_CHECKING:
     from typing import Iterable, TypeVar, Union, List, Dict, Tuple, Optional, \
@@ -1445,3 +1442,186 @@ def checkout_submodule(name: str, submodule_path: str):
                       "Try manually checking out the submodule by running:\n\n"
                      f"    git submodule update --init --recursive {submodule_path}\n")
         sys.exit(1)
+
+
+def check_for_python(env: SCEnvironment, command_line_targets: List[str]) -> Dict[str, str]:
+    # Pytest is required only to test the Python module
+    check_for_pytest = "test" in command_line_targets or any(
+        target.startswith(("test-python", "test-help")) for target in command_line_targets
+    )
+
+    # Check for the minimum ruamel.yaml version at install and test
+    # time. The check happens at install and test time because ruamel.yaml is
+    # only required to run the Python interface, not to build it.
+    check_for_ruamel_yaml = check_for_pytest or any(
+        target in command_line_targets
+        for target in ["install", "test"]
+    )
+
+    def check_module(name):
+        return textwrap.dedent(f"""\
+            try:
+                import {name}
+                versions["{name}"] = {name}.__version__
+            except ImportError as {name}_err:
+                err += str({name}_err) + "\\n"
+        """)
+
+    script = textwrap.dedent("""\
+        import sys
+        import json
+        versions = {}
+        versions["python"] = "{v.major}.{v.minor}".format(v=sys.version_info)
+        err = ""
+    """)
+    script += check_module("numpy")
+    script += check_module("Cython")
+
+    if check_for_ruamel_yaml:
+        script += textwrap.dedent("""\
+            try:
+                from ruamel import yaml
+                versions["ruamel.yaml"] = yaml.__version__
+            except ImportError as ru_err:
+                try:
+                    import ruamel_yaml as yaml
+                    versions["ruamel.yaml"] = yaml.__version__
+                except ImportError as ru_err_2:
+                    err += str(ru_err) + "\\n"
+                    err += str(ru_err_2) + "\\n"
+        """)
+    if check_for_pytest:
+        script += check_module("pytest")
+
+    script += textwrap.dedent("""\
+        print("versions:", json.dumps(versions))
+        if err:
+            print(err)
+    """)
+
+    warn_no_python = False
+    try:
+        info = get_command_output(env["python_cmd"], "-c", script).splitlines()
+    except OSError as err:
+        logger.debug(f"Error checking for Python:\n{err}")
+        warn_no_python = True
+    except subprocess.CalledProcessError as err:
+        logger.debug(f"Error checking for Python:\n{err} {err.output}")
+        warn_no_python = True
+
+    if warn_no_python:
+        if env["python_package"] == "default":
+            logger.warning(
+                "Not building the Python package because the Python interpreter "
+                f"{env['python_cmd']!r} could not be found.")
+            return {"python_package": "n"}
+        else:
+            logger.error(
+                f"Could not execute the Python interpreter {env['python_cmd']!r}")
+            sys.exit(1)
+
+    for line in info:
+        if line.startswith("versions:"):
+            versions = {
+                k: parse_version(v)
+                for k, v in json.loads(line.split(maxsplit=1)[1]).items()
+            }
+            break
+
+    if len(info) > 1:
+        msg = ["Unexpected output while checking Python dependency versions:"]
+        msg.extend(line for line in info if not line.startswith("versions:"))
+        logger.warning("\n| ".join(msg))
+
+
+    python_version = versions["python"]
+    if python_version < env["python_min_version"]:
+        logger.error(
+            f"Python version is incompatible. Found {python_version} but "
+            f"{env['python_min_version']} or newer is required. In order to install "
+            "Cantera without Python support, specify 'python_package=n'.")
+        sys.exit(1)
+    elif python_version >= env["python_max_version"]:
+        logger.warning(
+            f"Python {python_version} is not supported for Cantera "
+            f"{env['cantera_version']}. Python versions {env['python_max_version']} and "
+            "newer are untested and may result in unexpected behavior. Proceed "
+            "with caution.")
+
+    if env["python_package"] == "y":
+        logger_method = logger.error
+        exit_on_error = True
+    else:
+        logger_method = logger.warning
+        exit_on_error = False
+    numpy_version = versions.get("numpy")
+    if not numpy_version:
+        logger_method("NumPy not found. Not building the Python package.")
+        if exit_on_error:
+            sys.exit(1)
+        return {"python_package": "n"}
+    elif numpy_version not in env["numpy_version_spec"]:
+        logger_method(
+            f"NumPy is an incompatible version: Found {numpy_version} but "
+            f"{env['numpy_min_version']} or newer is required.")
+        if exit_on_error:
+            sys.exit(1)
+        return {"python_package": "n"}
+    else:
+        logger.info(f"Using NumPy version {numpy_version}")
+
+    cython_version = versions.get("Cython")
+    if not cython_version:
+        logger_method("Cython not found. Not building the Python package.")
+        if exit_on_error:
+            sys.exit(1)
+        return {"python_package": "n"}
+    elif cython_version not in env["cython_version_spec"]:
+        logger_method(
+            f"Cython is an incompatible version: Found {cython_version} but "
+            f"{env['cython_min_version']} or newer is required.")
+        if exit_on_error:
+            sys.exit(1)
+        return {"python_package": "n"}
+    elif cython_version < parse_version("3.0.0"):
+        logger.info(
+            f"Using Cython version {cython_version} (uses legacy NumPy API)"
+        )
+        require_numpy_1_7_API = True
+    else:
+        logger.info(f"Using Cython version {cython_version}")
+        require_numpy_1_7_API = False
+
+    if check_for_ruamel_yaml:
+        ruamel_yaml_version = versions.get("ruamel.yaml")
+        if not ruamel_yaml_version:
+            logger.error(
+                f"ruamel.yaml was not found. {env['ruamel_version_spec']} "
+                "is required.")
+            sys.exit(1)
+        elif ruamel_yaml_version not in env["ruamel_version_spec"]:
+            logger.error(
+                "ruamel.yaml is an incompatible version: Found "
+                f"{ruamel_yaml_version}, but {env['ruamel_version_spec']} "
+                "is required.")
+            sys.exit(1)
+        else:
+            logger.info(f"Using ruamel.yaml version {ruamel_yaml_version}")
+
+    if check_for_pytest:
+        pytest_version = versions.get("pytest")
+        if not pytest_version:
+            logger.error(
+                f"pytest was not found. {env['pytest_version_spec']} "
+                "is required.")
+            sys.exit(1)
+        elif pytest_version not in env["pytest_version_spec"]:
+            logger.error(
+                "pytest is an incompatible version: Found "
+                f"{pytest_version}, but {env['pytest_version_spec']} "
+                "is required.")
+            sys.exit(1)
+        else:
+            logger.info(f"Using pytest version {pytest_version}")
+
+    return {"python_package": "y", "require_numpy_1_7_API": require_numpy_1_7_API}
