@@ -2,6 +2,7 @@ import sys
 
 import numpy as np
 import pickle
+import re
 
 import pytest
 from .utilities import allow_deprecated
@@ -1238,8 +1239,9 @@ class TestSolutionSerialization(utilities.CanteraTest):
         gas.species(3).update_user_data({"note": note3})
         gas.species(4).update_user_data({"note": note4})
 
-        gas.write_yaml(self.test_work_path / "h2o2-generated-user-header.yaml")
-        gas2 = ct.Solution(self.test_work_path / "h2o2-generated-user-header.yaml")
+        generated_file = self.test_work_path / "h2o2-generated-user-header.yaml"
+        gas.write_yaml(generated_file)
+        gas2 = ct.Solution(generated_file)
 
         # Ideally, multi-line YAML emitter would indicate stripping of the final newline
         # (element annotated with '|-' instead of just '|') but this doesn't seem to be
@@ -1253,6 +1255,11 @@ class TestSolutionSerialization(utilities.CanteraTest):
         assert gas2.species(4).input_data["note"] == note4
         assert gas2.input_data["extra"]["key1"] == "1.0"
         assert gas2.input_data["extra"]["key2"] == 2.0
+
+        # User-defined input in flow style should remain in flow style
+        yaml_gen = generated_file.read_text()
+        assert re.search("extra:.*key1.*key2", yaml_gen)
+
 
     def test_duplicate_reactions(self):
         gas = ct.Solution('h2o2.yaml', transport_model=None)

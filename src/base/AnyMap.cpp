@@ -259,6 +259,9 @@ struct convert<Cantera::AnyMap> {
 
     static bool decode(const Node& node, Cantera::AnyMap& target) {
         target.setLoc(node.Mark().line, node.Mark().column);
+        if (node.Style() == YAML::EmitterStyle::Flow) {
+            target.setFlowStyle();
+        }
         if (node.IsSequence()) {
             // Convert a top-level list to a map with the key "items"
             target["items"] = node.as<AnyValue>();
