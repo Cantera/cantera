@@ -39,22 +39,23 @@ samples = [
 
 for sample in samples:
     localenv = env.Clone()
+    cmake_extra = []
     if sample.openmp:
         localenv.Append(CXXFLAGS=env['openmp_flag'], LINKFLAGS=env['openmp_flag'])
         if env['using_apple_clang']:
             localenv.Append(LIBS=['omp'])
 
-        localenv['cmake_extra'] = """
-find_package(OpenMP REQUIRED)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
-"""
-    else:
-        localenv['cmake_extra'] = ''
+        cmake_extra.extend(
+            [
+                "find_package(OpenMP REQUIRED)",
+                'set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")',
+                'set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")',
+            ]
+        )
 
     # TODO: Accelerate is only used if other BLAS/LAPACK are not used
     if env["OS"] == "Darwin":
-        localenv["cmake_extra"] += "find_library(ACCELERATE_FRAMEWORK Accelerate)"
+        cmake_extra.append("find_library(ACCELERATE_FRAMEWORK Accelerate)")
         localenv.Append(
             LINKFLAGS=env.subst("${RPATHPREFIX}${ct_libdir}${RPATHSUFFIX}"))
 
@@ -99,6 +100,10 @@ set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}
         localenv.Append(LINKFLAGS=[env.subst(f'$RPATHPREFIX{d}$RPATHSUFFIX')
                                    for d in libdirs])
 
+    cmake_libs = localenv['cantera_shared_libs'].copy()
+    if "fmt" in cmake_libs:
+        cmake_extra.append("find_package(fmt REQUIRED)")
+        cmake_libs[cmake_libs.index("fmt")] = "fmt::fmt"
     cc_flags = compiler_flag_list(localenv["CCFLAGS"] + localenv["CXXFLAGS"],
                                   env["CC"], flag_excludes)
     link_flags = compiler_flag_list(localenv["LINKFLAGS"], env["CC"], flag_excludes)
@@ -107,7 +112,7 @@ set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}
     localenv['tmpl_cantera_incdirs'] = repr([x for x in incdirs if x])
     localenv['cmake_cantera_incdirs'] = ' '.join(quoted(x) for x in incdirs if x)
     localenv['tmpl_cantera_libs'] = repr(localenv['cantera_shared_libs'])
-    localenv['cmake_cantera_libs'] = ' '.join(localenv['cantera_shared_libs'])
+    localenv['cmake_cantera_libs'] = ' '.join(cmake_libs)
     if env['OS'] == 'Darwin':
         localenv['cmake_cantera_libs'] += ' ${ACCELERATE_FRAMEWORK}'
         localenv['cmake_cantera_incdirs'] += ' "/usr/local/include"'
@@ -116,6 +121,7 @@ set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}
     localenv['tmpl_cantera_linkflags'] = repr(link_flags)
     localenv['tmpl_progname'] = sample.name
     localenv['tmpl_sourcename'] = sample.name + '.cpp'
+    localenv['cmake_extra'] = "\n".join(cmake_extra)
     env_args = []
 
     ## Generate SConstruct files to be installed
