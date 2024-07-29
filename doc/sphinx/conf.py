@@ -48,8 +48,6 @@ extensions = [
               'sphinx_copybutton',
               ]
 
-
-
 sphinx_gallery_conf = {
     'filename_pattern': r'\.py',
     'example_extensions': {'.py', '.cpp', '.h', '.c', '.f', '.f90', '.m'},
@@ -213,6 +211,7 @@ intersphinx_mapping = {
     'pint': ('https://pint.readthedocs.io/en/stable/', None),
 }
 
+myst_heading_anchors = 2
 myst_enable_extensions = [
     "dollarmath",
     "amsmath",

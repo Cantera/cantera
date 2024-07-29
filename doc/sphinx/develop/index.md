@@ -29,25 +29,6 @@ compiling/config-options
 compiling/special-cases
 ```
 
-(sec-distributing)=
-## Distributing Built Cantera Packages
-
-- [](distribution-packages/pypi-sdist-wheel)
-- [](distribution-packages/conda)
-- [](distribution-packages/ubuntu-ppa)
-- [](distribution-packages/windows-and-macos.md)
-
-```{toctree}
-:caption: Distributing Built Cantera Packages
-:hidden:
-:maxdepth: 1
-
-distribution-packages/pypi-sdist-wheel
-distribution-packages/conda
-distribution-packages/ubuntu-ppa
-distribution-packages/windows-and-macos
-```
-
 ## How Cantera Works
 
 ```{caution}
@@ -85,4 +66,23 @@ writing-tests
 running-tests
 writing-examples
 doc-formatting
+```
+
+(sec-distributing)=
+## Distributing Built Cantera Packages
+
+- [](distribution-packages/pypi-sdist-wheel)
+- [](distribution-packages/conda)
+- [](distribution-packages/ubuntu-ppa)
+- [](distribution-packages/windows-and-macos.md)
+
+```{toctree}
+:caption: Distributing Built Cantera Packages
+:hidden:
+:maxdepth: 1
+
+distribution-packages/pypi-sdist-wheel
+distribution-packages/conda
+distribution-packages/ubuntu-ppa
+distribution-packages/windows-and-macos
 ```

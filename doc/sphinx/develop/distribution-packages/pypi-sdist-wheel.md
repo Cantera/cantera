@@ -35,7 +35,7 @@ testing.
    a. `scons clean sdist` can also be used to automatically remove the
    `build` folder prior to building the `sdist.
 1. Building the wheel requires that Boost and libhdf5 are available on the build system.
-   If these are not installed in standard locations, you can set `Boost_ROOT` and
+   If these are not installed in standard locations, you can set `BOOST_ROOT` and
    `HDF5_ROOT` environment variables to point to the correct location.
 1. Change to the `build/python_sdist/dist` folder
 1. Unpack the sdist: `tar xf cantera-3.1.0a2.tar.gz`. Note the version `3.1.0a2` may be
@@ -141,7 +141,7 @@ Steps 3 and 4 are set up in the `interfaces/python_sdist/cantera/CMakeLists.txt`
 
 When a version of Cantera is ready to be published to PyPI, the workflow in the
 [pypi-packages](https://github.com/Cantera/pypi-packages) repository must be executed.
-The workflow essentially conducts the steps in the [TLDR](#tldr) section above.
+The workflow essentially conducts the steps in the [](#tldr) section above.
 
 The one big addition to the GitHub Action workflow is that there are a couple of shell
 scripts in the `pypi-packages` repository to build libhdf5 for macOS and Windows. On
