@@ -137,7 +137,7 @@ jobs:
         highfive-devel python3-graphviz
     - name: Build Cantera
       run: |
-        scons build -j4 debug=n --debug=time python_package=full f90_interface=y \
+        scons build -j4 debug=n --debug=time python_package=y f90_interface=y \
         extra_inc_dirs=/usr/include/eigen3 libdirname=/usr/lib64 \
         system_eigen=y system_fmt=y system_blas_lapack=y system_sundials=y \
         system_yamlcpp=y system_blas_lapack=y hdf_support=y

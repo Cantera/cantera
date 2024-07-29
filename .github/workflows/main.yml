@@ -688,7 +688,7 @@ jobs:
         shell: bash
       - name: Build Cantera
         run: scons build -j4 boost_inc_dir=%BOOST_ROOT% debug=n logging=debug
-          python_package=full env_vars=USERPROFILE,GITHUB_ACTIONS
+          python_package=y env_vars=USERPROFILE,GITHUB_ACTIONS
           msvc_version=${{ matrix.vs-toolset }} f90_interface=n --debug=time
         shell: cmd
       - name: Build Tests
@@ -796,7 +796,7 @@ jobs:
       shell: bash
     - name: Build Cantera
       run: scons build -j4 boost_inc_dir=%BOOST_ROOT% debug=n logging=debug
-        python_package=full env_vars=USERPROFILE,PYTHONPATH,GITHUB_ACTIONS
+        python_package=y env_vars=USERPROFILE,PYTHONPATH,GITHUB_ACTIONS
         toolchain=mingw f90_interface=n --debug=time
       shell: cmd
     - name: Upload Wheel
