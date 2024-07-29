@@ -85,7 +85,6 @@ import platform
 import atexit
 import subprocess
 import re
-import json
 import textwrap
 try:
     from packaging.version import parse as parse_version
