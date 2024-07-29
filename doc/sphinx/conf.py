@@ -51,7 +51,7 @@ extensions = [
 
 
 sphinx_gallery_conf = {
-    'filename_pattern': '\.py',
+    'filename_pattern': r'\.py',
     'example_extensions': {'.py', '.cpp', '.h', '.c', '.f', '.f90', '.m'},
     "filetype_parsers": {'.h': 'C++', '.m': 'Matlab'},
     'ignore_pattern': r'(__.*__\.py|test_examples\.m)',
