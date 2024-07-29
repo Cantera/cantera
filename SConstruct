@@ -1887,7 +1887,6 @@ if env["OS"] == "Darwin" and env["use_rpath_linkage"] and not env.subst("$__RPAT
     env.Append(LINKFLAGS=[env.subst(f'$RPATHPREFIX{x}$RPATHSUFFIX')
                           for x in env['RPATH']])
 
-configh['CT_SUNDIALS_VERSION'] = env['sundials_version'].replace('.','')
 
 if env.get('has_sundials_lapack') and env['use_lapack']:
     configh['CT_SUNDIALS_USE_LAPACK'] = 1

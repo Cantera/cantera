@@ -1335,6 +1335,9 @@ def setup_python_env(env):
     plat = info['plat'].replace('-', '_').replace('.', '_')
     numpy_include = info["numpy_include"]
     env.Prepend(CPPPATH=Dir('#include'))
+    if env["system_sundials"] == "n":
+        env.Prepend(CPPPATH=Dir('#include/cantera/ext'))
+
     add_system_include(env, (inc, numpy_include), 'prepend')
     env.Prepend(LIBS=env['cantera_shared_libs'])
 

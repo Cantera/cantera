@@ -5,6 +5,7 @@
 #define CT_PY_UTILS_UTILS_H
 
 #include "cantera/base/logger.h"
+#include "sundials/sundials_config.h"
 
 #include "Python.h"
 
@@ -42,9 +43,9 @@ inline std::string get_cantera_git_commit_py()
 }
 
 // Wrappers for preprocessor defines
-inline int get_sundials_version()
+inline std::string get_sundials_version()
 {
-    return CT_SUNDIALS_VERSION;
+    return SUNDIALS_VERSION;
 }
 
 class PythonLogger : public Cantera::Logger
