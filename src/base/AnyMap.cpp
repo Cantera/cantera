@@ -1449,7 +1449,11 @@ const AnyValue& AnyMap::at(const string& key) const
 
 bool AnyMap::empty() const
 {
-    return m_data.size() == 0;
+    // Iterate to check for non-hidden, non-excluded elements
+    for ([[maybe_unused]] const auto& item : *this) {
+        return false;
+    }
+    return true;
 }
 
 bool AnyMap::hasKey(const string& key) const
@@ -1699,6 +1703,16 @@ AnyMap::OrderedIterator::OrderedIterator(
 {
     m_iter = start;
     m_stop = stop;
+}
+
+size_t AnyMap::size() const
+{
+    size_t n = 0;
+    // Iterate to count only non-hidden, non-excluded elements
+    for ([[maybe_unused]] const auto& item : *this) {
+        n++;
+    }
+    return n;
 }
 
 bool AnyMap::operator==(const AnyMap& other) const

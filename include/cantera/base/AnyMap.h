@@ -626,9 +626,7 @@ public:
     OrderedProxy ordered() const { return OrderedProxy(*this); }
 
     //! Returns the number of elements in this map
-    size_t size() const {
-        return m_data.size();
-    };
+    size_t size() const;
 
     bool operator==(const AnyMap& other) const;
     bool operator!=(const AnyMap& other) const;

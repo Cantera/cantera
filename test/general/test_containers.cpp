@@ -304,6 +304,7 @@ TEST(AnyMap, iterators)
 {
     AnyMap m = AnyMap::fromYamlString(
         "{a: 1, b: two, c: 3.01, d: {foo: 1, bar: 2}}");
+
     vector<string> keys;
     for (const auto& [key, value] : m) {
         keys.push_back(key);
@@ -334,6 +335,14 @@ TEST(AnyMap, null_values)
         EXPECT_THAT(err.what(),
                     testing::HasSubstr("Key 'b' not found or contains no value"));
     }
+}
+
+TEST(AnyMap, sizes) {
+    AnyMap m = AnyMap::fromYamlString("{__hidden__: 3}");
+    m.exclude("baz");
+    m.setFlowStyle();
+    EXPECT_TRUE(m.empty());
+    EXPECT_EQ(m.size(), 0U);
 }
 
 TEST(AnyMap, loadYaml)
