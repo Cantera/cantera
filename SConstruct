@@ -309,17 +309,18 @@ config_options = [
         "lib", PathVariable.PathAccept),
     EnumOption(
         "python_package",
-        """If you plan to work in Python, then you need the 'full' Cantera Python
-           package. If, on the other hand, you will only use Cantera from some
-           other language (for example, C or Fortran 90/95) and only need Python
-           to process YAML files, then you only need a 'minimal' subset of the
-           package and Cython and NumPy are not necessary. The 'none' option
-           doesn't install any components of the Python interface. The default
+        """Set this to 'y' to build the Python interface, including conversion
+           scripts for CHEMKIN, CTI, and CTML input files. Set this to 'n' to
+           skip building the Python interface. Building the Python interface
+           requires the Python headers, Cython, and NumPy. Testing the Python
+           interface further requires ruamel.yaml and pytest. The default
            behavior is to build the full Python module for whichever version of
            Python is running SCons if the required prerequisites (NumPy and
-           Cython) are installed. Note: 'y' is a synonym for 'full' and 'n'
-           is a synonym for 'none'.""",
-        "default", ("full", "minimal", "none", "n", "y", "default")),
+           Cython) are installed. Note: 'y' is a synonym for 'full' and 'n' is a
+           synonym for 'none'.""",
+        # TODO: Remove minimal after Cantera 3.1 is released. Leave it here for now
+        # to provide migration information.
+        "default", ("full", "none", "n", "y", "default", "minimal")),
     PathOption(
         "python_cmd",
         """Cantera needs to know where to find the Python interpreter. If
@@ -937,6 +938,16 @@ config["python_cmd"].default = sys.executable
 opts.AddVariables(*config.to_scons())
 opts.Update(env)
 opts.Save('cantera.conf', env)
+
+# TODO: Remove after Cantera 3.1, when the minimal option is removed from the
+# configuration.
+if env["python_package"] == "minimal":
+    logger.error(
+        "The 'minimal' option for the Python package was removed in Cantera 3.1. "
+        "Please build the full interface by passing 'python_package=y' or turn off the "
+        "interface with 'python_package=n'"
+    )
+    sys.exit(1)
 
 # Expand ~/ and environment variables used in cantera.conf (variables used on
 # the command line will be expanded by the shell)
@@ -1803,14 +1814,14 @@ if env['python_package'] != 'none':
                 f"Could not execute the Python interpreter {env['python_cmd']!r}")
             sys.exit(1)
     elif python_version < python_min_version:
-        if env["python_package"] in ("minimal", "full", "default"):
+        if env["python_package"] in ("full", "default"):
             logger.error(
                 f"Python version is incompatible. Found {python_version} but "
                 f"{python_min_version} or newer is required. In order to install "
                 "Cantera without Python support, specify 'python_package=none'.")
             sys.exit(1)
     elif python_version >= python_max_p1_version:
-        if env["python_package"] in ("minimal", "full", "default"):
+        if env["python_package"] in ("full", "default"):
             if env["package_build"]:
                 # An error is triggered as the pip wheel cannot be built for
                 # 'scons build' due to safeguards in setup.cfg(.in) files.
