@@ -1466,10 +1466,8 @@ if env['system_sundials'] == 'y':
     retcode, sundials_version = conf.TryRun(sundials_version_source, '.cpp')
     if retcode == 0:
         config_error("Failed to determine Sundials version.")
-    sundials_version = sundials_version.strip(' "\n')
+    env["sundials_version"] = sundials_version.strip(' "\n')
 
-    # Ignore the minor version, for example 2.4.x -> 2.4
-    env['sundials_version'] = '.'.join(sundials_version.split('.')[:2])
     sundials_ver = parse_version(env['sundials_version'])
     if sundials_ver < parse_version("3.0") or sundials_ver >= parse_version("8.0"):
         logger.error(f"Sundials version {env['sundials_version']!r} is not supported.")
@@ -1480,12 +1478,12 @@ if env['system_sundials'] == 'y':
     logger.info(f"Using system installation of Sundials version {sundials_version!r}.")
 
     # Determine whether or not Sundials was built with BLAS/LAPACK
-    if sundials_ver < parse_version('5.5'):
-        # In Sundials 2.6-5.5, SUNDIALS_BLAS_LAPACK is either defined or undefined
+    if sundials_ver <= parse_version("5.4"):
+        # In Sundials 2.6-5.4, SUNDIALS_BLAS_LAPACK is either defined or undefined
         env['has_sundials_lapack'] = conf.CheckDeclaration('SUNDIALS_BLAS_LAPACK',
                 '#include "sundials/sundials_config.h"', 'C++')
-    else:
-        # In Sundials 5.5 and higher, two defines are included specific to the
+    elif sundials_ver <= parse_version("6.6.0"):
+        # In Sundials 5.5-6.6.0, two defines are included specific to the
         # SUNLINSOL packages indicating whether SUNDIALS has been built with LAPACK
         lapackband = conf.CheckDeclaration(
             "SUNDIALS_SUNLINSOL_LAPACKBAND",
@@ -1498,6 +1496,10 @@ if env['system_sundials'] == 'y':
             "C++",
         )
         env["has_sundials_lapack"] = lapackband and lapackdense
+    else:
+        # In Sundials 6.6.1, the SUNDIALS_BLAS_LAPACK_ENABLED macro was introduced
+        env["has_sundials_lapack"] = conf.CheckDeclaration("SUNDIALS_BLAS_LAPACK_ENABLED",
+                '#include "sundials/sundials_config.h"', 'c++')
 
     # In the case where a user is trying to link Cantera to an external BLAS/LAPACK
     # library, but Sundials was configured without this support, print a Warning.
