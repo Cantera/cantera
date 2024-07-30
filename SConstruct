@@ -1511,6 +1511,20 @@ else: # env['system_sundials'] == 'n'
     env['sundials_version'] = '5.3'
     env['has_sundials_lapack'] = int(env['use_lapack'])
 
+if env['system_sundials'] == 'y':
+    env['sundials_libs'] = ['sundials_cvodes', 'sundials_idas', 'sundials_nvecserial']
+    if sundials_ver >= parse_version("7.0.0"):
+        env['sundials_libs'].append('sundials_core')
+    if env['use_lapack']:
+        if env.get('has_sundials_lapack'):
+            env['sundials_libs'].extend(('sundials_sunlinsollapackdense',
+                                         'sundials_sunlinsollapackband'))
+        else:
+            env['sundials_libs'].extend(('sundials_sunlinsoldense',
+                                         'sundials_sunlinsolband'))
+else:
+    env['sundials_libs'] = []
+
 if env["hdf_include"] and env["hdf_support"] in ("y", "default"):
     env["hdf_include"] = Path(env["hdf_include"]).as_posix()
     add_system_include(env, env["hdf_include"])
@@ -1987,21 +2001,6 @@ if addInstallActions:
     if env["example_data"]:
         for yaml in multi_glob(env, "data/example_data", "yaml"):
             install("$inst_datadir/example_data", yaml)
-
-
-if env['system_sundials'] == 'y':
-    env['sundials_libs'] = ['sundials_cvodes', 'sundials_idas', 'sundials_nvecserial']
-    if sundials_ver >= parse_version("7.0.0"):
-        env['sundials_libs'].append('sundials_core')
-    if env['use_lapack']:
-        if env.get('has_sundials_lapack'):
-            env['sundials_libs'].extend(('sundials_sunlinsollapackdense',
-                                         'sundials_sunlinsollapackband'))
-        else:
-            env['sundials_libs'].extend(('sundials_sunlinsoldense',
-                                         'sundials_sunlinsolband'))
-else:
-    env['sundials_libs'] = []
 
 # List of shared libraries needed to link to Cantera
 if env["renamed_shared_libraries"]:
