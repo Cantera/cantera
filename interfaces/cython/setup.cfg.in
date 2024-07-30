@@ -40,9 +40,9 @@ project_urls =
 [options]
 zip_safe = False
 install_requires =
-    numpy @numpy_version_spec!s@
-    ruamel.yaml @ruamel_version_spec!s@
-python_requires @py_requires_ver_str@
+    numpy @numpy_version_spec_str@
+    ruamel.yaml @ruamel_version_spec_str@
+python_requires = @py_requires_ver_str@
 packages =
     cantera
     cantera.data
