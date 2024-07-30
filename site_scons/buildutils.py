@@ -1520,6 +1520,7 @@ def check_for_python(env: SCEnvironment, command_line_targets: List[str]) -> Dic
                 f"Could not execute the Python interpreter {env['python_cmd']!r}")
             sys.exit(1)
 
+    versions = {}
     for line in info:
         if line.startswith("versions:"):
             versions = {
@@ -1533,14 +1534,22 @@ def check_for_python(env: SCEnvironment, command_line_targets: List[str]) -> Dic
         msg.extend(line for line in info if not line.startswith("versions:"))
         logger.warning("\n| ".join(msg))
 
+    if env["python_package"] == "y":
+        logger_method = logger.error
+        exit_on_error = True
+    else:
+        logger_method = logger.warning
+        exit_on_error = False
 
-    python_version = versions["python"]
-    if python_version < env["python_min_version"]:
-        logger.error(
+    python_version = versions.get("python")
+    if not python_version or python_version < env["python_min_version"]:
+        logger_method(
             f"Python version is incompatible. Found {python_version} but "
             f"{env['python_min_version']} or newer is required. In order to install "
             "Cantera without Python support, specify 'python_package=n'.")
-        sys.exit(1)
+        if exit_on_error:
+            sys.exit(1)
+        return {"python_package": "n"}
     elif python_version >= env["python_max_version"]:
         logger.warning(
             f"Python {python_version} is not supported for Cantera "
@@ -1548,12 +1557,6 @@ def check_for_python(env: SCEnvironment, command_line_targets: List[str]) -> Dic
             "newer are untested and may result in unexpected behavior. Proceed "
             "with caution.")
 
-    if env["python_package"] == "y":
-        logger_method = logger.error
-        exit_on_error = True
-    else:
-        logger_method = logger.warning
-        exit_on_error = False
     numpy_version = versions.get("numpy")
     if not numpy_version:
         logger_method("NumPy not found. Not building the Python package.")
@@ -1563,7 +1566,7 @@ def check_for_python(env: SCEnvironment, command_line_targets: List[str]) -> Dic
     elif numpy_version not in env["numpy_version_spec"]:
         logger_method(
             f"NumPy is an incompatible version: Found {numpy_version} but "
-            f"{env['numpy_min_version']} or newer is required.")
+            f"{env['numpy_version_spec']} is required.")
         if exit_on_error:
             sys.exit(1)
         return {"python_package": "n"}
@@ -1579,7 +1582,7 @@ def check_for_python(env: SCEnvironment, command_line_targets: List[str]) -> Dic
     elif cython_version not in env["cython_version_spec"]:
         logger_method(
             f"Cython is an incompatible version: Found {cython_version} but "
-            f"{env['cython_min_version']} or newer is required.")
+            f"{env['cython_version_spec']} is required.")
         if exit_on_error:
             sys.exit(1)
         return {"python_package": "n"}
