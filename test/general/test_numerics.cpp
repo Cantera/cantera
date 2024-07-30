@@ -145,7 +145,7 @@ TEST(ctfunc, invalid)
 
 TEST(ctfunc, sin)
 {
-    ASSERT_EQ(checkFunc1("sin"), "simple");
+    ASSERT_EQ(checkFunc1("sin"), "standard");
     double omega = 2.;
     auto functor = newFunc1("sin", omega);
     ASSERT_EQ(functor->type(), "sin");
@@ -274,7 +274,7 @@ TEST(ctfunc, tabulated_previous)
 
 TEST(ctfunc, poly)
 {
-    ASSERT_EQ(checkFunc1("polynomial3"), "simple");
+    ASSERT_EQ(checkFunc1("polynomial3"), "standard");
     double a0 = .5;
     double a1 = .25;
     double a2 = .125;

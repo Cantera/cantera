@@ -171,8 +171,8 @@ shared_ptr<Func1> newFunc1(const string& func1Type,
 string checkFunc1(const string& func1Type)
 {
     if (Func1Factory::factory()->exists(func1Type)) {
-        // simple functor
-        return "simple";
+        // standard functor
+        return "standard";
     }
     if (Math1FactoryA::factory()->exists(func1Type)) {
         // compounding functor

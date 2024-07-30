@@ -127,17 +127,17 @@ cdef class Func1:
         func1_type = pystr(CxxCheckFunc1(cxx_string))
         if func1_type == "undefined":
             raise NotImplementedError(f"Functor '{functor_type}' is not implemented.")
-        if len(args) == 0 and func1_type == "simple":
-            # simple functor with no parameter
+        if len(args) == 0 and func1_type == "standard":
+            # basic functor with no parameter
             func = CxxNewFunc1(cxx_string, 1.)
-        elif len(args) == 1 and func1_type == "simple":
+        elif len(args) == 1 and func1_type == "standard":
             if hasattr(args[0], "__len__"):
                 # advanced functor with array and no parameter
                 for v in args[0]:
                     arr.push_back(v)
                 func = CxxNewFunc1(cxx_string, arr)
             else:
-                # simple functor with scalar parameter
+                # basic functor with scalar parameter
                 func = CxxNewFunc1(cxx_string, float(args[0]))
         elif len(args) == 2:
             if func1_type == "compound":
@@ -161,7 +161,7 @@ cdef class Func1:
                 else:
                     raise ValueError(f"Invalid arguments for modifying functor.")
                 func = CxxNewFunc1(cxx_string, f0._func, float(args[1]))
-            elif func1_type == "simple":
+            elif func1_type == "standard":
                 # tabulating functor
                 if hasattr(args[0], "__len__") and hasattr(args[1], "__len__"):
                     for v in args[0]:
