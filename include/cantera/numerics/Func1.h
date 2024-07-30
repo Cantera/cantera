@@ -76,16 +76,9 @@ class Func1
 public:
     Func1() = default;
 
-    Func1(shared_ptr<Func1> f1, shared_ptr<Func1> f2)
-        : m_f1_shared(f1), m_f2_shared(f2)
-    {
-        m_f1 = f1.get();
-        m_f2 = f2.get();
-    }
+    Func1(shared_ptr<Func1> f1, shared_ptr<Func1> f2) : m_f1(f1), m_f2(f2) {}
 
-    Func1(shared_ptr<Func1> f1, double A) : m_c(A), m_f1_shared(f1) {
-        m_f1 = f1.get();
-    }
+    Func1(shared_ptr<Func1> f1, double A) : m_c(A), m_f1(f1) {}
 
     virtual ~Func1() = default;
 
@@ -132,16 +125,16 @@ public:
     //! Accessor function for the stored constant
     double c() const;
 
-    //! Accessor function for m_f1_shared
+    //! Accessor function for m_f1
     //! @since New in %Cantera 3.0.
     shared_ptr<Func1> func1_shared() const {
-        return m_f1_shared;
+        return m_f1;
     }
 
-    //! Accessor function for m_f2_shared
+    //! Accessor function for m_f2
     //! @since New in %Cantera 3.0.
     shared_ptr<Func1> func2_shared() const {
-        return m_f2_shared;
+        return m_f2;
     }
 
     //! Return the order of the function, if it makes sense
@@ -149,11 +142,8 @@ public:
 
 protected:
     double m_c = 0.0;
-    Func1* m_f1 = nullptr;
-    Func1* m_f2 = nullptr;
-
-    shared_ptr<Func1> m_f1_shared;
-    shared_ptr<Func1> m_f2_shared;
+    shared_ptr<Func1> m_f1;
+    shared_ptr<Func1> m_f2;
 };
 
 //! Sum of two functions.
@@ -186,7 +176,7 @@ shared_ptr<Func1> newPlusConstFunction(shared_ptr<Func1> f1, double c);
 
 //! Implements the @c sin() function.
 /*!
- * The functor class with type @c "sin" returns @f$ f(x) = \cos(\omega x) @f$,
+ * The functor class with type @c "sin" returns @f$ f(x) = \sin(\omega x) @f$,
  * where the argument @f$ x @f$ is in radians.
  * @param omega  Frequency @f$ \omega @f$ (default=1.0)
  * @ingroup func1basic
@@ -426,21 +416,7 @@ public:
 class Sum1 : public Func1
 {
 public:
-    Sum1(Func1& f1, Func1& f2) {
-        m_f1 = &f1;
-        m_f2 = &f2;
-    }
-
     Sum1(shared_ptr<Func1> f1, shared_ptr<Func1> f2) : Func1(f1, f2) {}
-
-    ~Sum1() override {
-        if (!m_f1_shared) {
-            delete m_f1;
-        }
-        if (!m_f2_shared) {
-            delete m_f2;
-        }
-    }
 
     string type() const override {
         return "sum";
@@ -451,7 +427,7 @@ public:
     }
 
     shared_ptr<Func1> derivative() const override {
-        return newSumFunction(m_f1_shared->derivative(), m_f2_shared->derivative());
+        return newSumFunction(m_f1->derivative(), m_f2->derivative());
     }
 
     int order() const override {
@@ -471,21 +447,7 @@ public:
 class Diff1 : public Func1
 {
 public:
-    Diff1(Func1& f1, Func1& f2) {
-        m_f1 = &f1;
-        m_f2 = &f2;
-    }
-
     Diff1(shared_ptr<Func1> f1, shared_ptr<Func1> f2) : Func1(f1, f2) {}
-
-    ~Diff1() override {
-        if (!m_f1_shared) {
-            delete m_f1;
-        }
-        if (!m_f2_shared) {
-            delete m_f2;
-        }
-    }
 
     string type() const override {
         return "diff";
@@ -496,7 +458,7 @@ public:
     }
 
     shared_ptr<Func1> derivative() const override {
-        return newDiffFunction(m_f1_shared->derivative(), m_f2_shared->derivative());
+        return newDiffFunction(m_f1->derivative(), m_f2->derivative());
     }
 
     int order() const override {
@@ -517,21 +479,7 @@ public:
 class Product1 : public Func1
 {
 public:
-    Product1(Func1& f1, Func1& f2) {
-        m_f1 = &f1;
-        m_f2 = &f2;
-    }
-
     Product1(shared_ptr<Func1> f1, shared_ptr<Func1> f2) : Func1(f1, f2) {}
-
-    ~Product1() override {
-        if (!m_f1_shared) {
-            delete m_f1;
-        }
-        if (!m_f2_shared) {
-            delete m_f2;
-        }
-    }
 
     string type() const override {
         return "product";
@@ -560,18 +508,7 @@ public:
 class TimesConstant1 : public Func1
 {
 public:
-    TimesConstant1(Func1& f1, double a) {
-        m_f1 = &f1;
-        m_c = a;
-    }
-
     TimesConstant1(shared_ptr<Func1> f1, double a) : Func1(f1, a) {}
-
-    ~TimesConstant1() override {
-        if (!m_f1_shared) {
-            delete m_f1;
-        }
-    }
 
     string type() const override {
         return "times-constant";
@@ -598,7 +535,7 @@ public:
     }
 
     shared_ptr<Func1> derivative() const override {
-        return newTimesConstFunction(m_f1_shared->derivative(), m_c);
+        return newTimesConstFunction(m_f1->derivative(), m_c);
     }
 
     string write(const string& arg) const override;
@@ -618,18 +555,7 @@ public:
 class PlusConstant1 : public Func1
 {
 public:
-    PlusConstant1(Func1& f1, double a) {
-        m_f1 = &f1;
-        m_c = a;
-    }
-
     PlusConstant1(shared_ptr<Func1> f1, double a) : Func1(f1, a) {}
-
-    ~PlusConstant1() override {
-        if (!m_f1_shared) {
-            delete m_f1;
-        }
-    }
 
     string type() const override {
         return "plus-constant";
@@ -640,7 +566,7 @@ public:
     }
 
     shared_ptr<Func1> derivative() const override {
-        return m_f1_shared->derivative();
+        return m_f1->derivative();
     }
 
     string write(const string& arg) const override;
@@ -661,21 +587,7 @@ public:
 class Ratio1 : public Func1
 {
 public:
-    Ratio1(Func1& f1, Func1& f2) {
-        m_f1 = &f1;
-        m_f2 = &f2;
-    }
-
     Ratio1(shared_ptr<Func1> f1, shared_ptr<Func1> f2) : Func1(f1, f2) {}
-
-    ~Ratio1() override {
-        if (!m_f1_shared) {
-            delete m_f1;
-        }
-        if (!m_f2_shared) {
-            delete m_f2;
-        }
-    }
 
     string type() const override {
         return "ratio";
@@ -704,21 +616,7 @@ public:
 class Composite1 : public Func1
 {
 public:
-    Composite1(Func1& f1, Func1& f2) {
-        m_f1 = &f1;
-        m_f2 = &f2;
-    }
-
     Composite1(shared_ptr<Func1> f1, shared_ptr<Func1> f2) : Func1(f1, f2) {}
-
-    ~Composite1() override {
-        if (!m_f1_shared) {
-            delete m_f1;
-        }
-        if (!m_f2_shared) {
-            delete m_f2;
-        }
-    }
 
     string type() const override {
         return "composite";
@@ -832,8 +730,7 @@ protected:
  * Implements a Fourier cosine/sine series.
  * The functor class with type @c "Fourier" returns
  * @f[
- * f(t) = \frac{A_0}{2} +
- * \sum_{n=1}^N A_n \cos (n \omega t) + B_n \sin (n \omega t)
+ * f(t) = \frac{a_0}{2} + \sum_{n=1}^N a_n \cos (n \omega t) + b_n \sin (n \omega t)
  * @f]
  * @ingroup func1advanced
  */
@@ -927,21 +824,10 @@ protected:
 class Periodic1 : public Func1
 {
 public:
-    Periodic1(Func1& f, double T) {
-        m_f1 = &f;
-        m_c = T;
-    }
-
     Periodic1(shared_ptr<Func1> f, double A) : Func1(f, A) {}
 
     string type() const override {
         return "periodic";
-    }
-
-    ~Periodic1() override {
-        if (!m_f1_shared) {
-            delete m_f1;
-        }
     }
 
     double eval(double t) const override {

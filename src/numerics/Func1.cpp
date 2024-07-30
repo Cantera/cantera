@@ -444,15 +444,14 @@ string Const1::write(const string& arg) const
 
 string Ratio1::write(const string& arg) const
 {
-    return "\\frac{" + m_f1->write(arg) + "}{"
-           + m_f2->write(arg) + "}";
+    return "\\frac{" + m_f1->write(arg) + "}{" + m_f2->write(arg) + "}";
 }
 
 shared_ptr<Func1> Ratio1::derivative() const {
-    auto a1 = newProdFunction(m_f1_shared->derivative(), m_f2_shared);
-    auto a2 = newProdFunction(m_f1_shared, m_f2_shared->derivative());
+    auto a1 = newProdFunction(m_f1->derivative(), m_f2);
+    auto a2 = newProdFunction(m_f1, m_f2->derivative());
     auto s = newDiffFunction(a1, a2);
-    auto p = newProdFunction(m_f2_shared, m_f2_shared);
+    auto p = newProdFunction(m_f2, m_f2);
     return newRatioFunction(s, p);
 }
 
@@ -470,8 +469,8 @@ string Product1::write(const string& arg) const
 }
 
 shared_ptr<Func1> Product1::derivative() const {
-    auto a1 = newProdFunction(m_f1_shared, m_f2_shared->derivative());
-    auto a2 = newProdFunction(m_f2_shared, m_f1_shared->derivative());
+    auto a1 = newProdFunction(m_f1, m_f2->derivative());
+    auto a2 = newProdFunction(m_f2, m_f1->derivative());
     return newSumFunction(a1, a2);
 }
 
@@ -504,9 +503,9 @@ string Composite1::write(const string& arg) const
 }
 
 shared_ptr<Func1> Composite1::derivative() const {
-    auto d1 = m_f1_shared->derivative();
-    auto d2 = m_f2_shared->derivative();
-    auto d3 = newCompositeFunction(d1, m_f2_shared);
+    auto d1 = m_f1->derivative();
+    auto d2 = m_f2->derivative();
+    auto d3 = newCompositeFunction(d1, m_f2);
     return newProdFunction(d3, d2);
 }
 
@@ -537,7 +536,6 @@ string PlusConstant1::write(const string& arg) const
     return fmt::format("{} + {}", m_f1->write(arg), m_c);
 }
 
-
 double Func1::isProportional(TimesConstant1& other)
 {
     if (isIdentical(*other.func1_shared())) {
@@ -545,6 +543,7 @@ double Func1::isProportional(TimesConstant1& other)
     }
     return 0.0;
 }
+
 double Func1::isProportional(Func1& other)
 {
     if (isIdentical(other)) {
