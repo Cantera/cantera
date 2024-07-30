@@ -146,9 +146,9 @@ shared_ptr<Func1> newFunc1(const string& func1Type,
 //! Check definition of functor object.
 //! @param func1Type  String identifying functor type.
 //! @return string indicating functor type: @c "undefined" if not defined;
-//!     @c "simple" if @ref func1basic or @ref func1advanced (defined in Func1Factory);
-//!     @c "compound" if @ref func1compound (defined in Math1FactoryA); or
-//!     @c "modified" if @ref func1modified (defined in Math1FactoryB).
+//!     @c "standard" if @ref func1basic or @ref func1advanced (defined in
+//!     Func1Factory); @c "compound" if @ref func1compound (defined in Math1FactoryA);
+//!     or @c "modified" if @ref func1modified (defined in Math1FactoryB).
 //! @internal Not intended for use in external API's (Python, MATLAB, etc.).
 //! @ingroup func1helper
 //! @since New in %Cantera 3.1

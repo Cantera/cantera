@@ -76,13 +76,13 @@ classdef Func1 < handle
                 error(['Functor ''' typ ''' is not implemented'])
             end
 
-            if length(varargin) == 0 && func1Type == "simple"
-                % simple functor with no parameter
+            if length(varargin) == 0 && func1Type == "standard"
+                % basic functor with no parameter
                 x.id = ctFunc('func_new_basic', typ, 1.);
-            elseif length(varargin) == 1 && func1Type == "simple"
+            elseif length(varargin) == 1 && func1Type == "standard"
                 coeffs = varargin{1};
                 if length(coeffs) == 1
-                    % simple functor with scalar parameter
+                    % basic functor with scalar parameter
                     x.id = ctFunc('func_new_basic', typ, coeffs);
                 elseif isa(coeffs, 'double')
                     % advanced functor with array parameter
@@ -110,7 +110,7 @@ classdef Func1 < handle
                         error('Invalid arguments for modifying functor')
                     end
                     x.id = ctFunc('func_new_modified', typ, arg1.id, arg2);
-                else % func1Type == "simple"
+                else % func1Type == "standard"
                     % tabulating functors
                     if ~isa(arg1, 'double') || ~isa(arg2, 'double')
                         error('Invalid arguments for tabulating functor')
