@@ -476,7 +476,7 @@ config_options = [
            preferred option depends on the CPU manufacturer. In general, OpenBLAS
            ('openblas') is prioritized over standard libraries ('lapack,blas'), with
            Eigen being used if no suitable BLAS/LAPACK libraries are detected. On Intel
-           CPU's, MKL (Windows: 'mkl_rt' / Linux: 'mkl_rt,dl') has the highest priority,
+           CPUs, MKL (Windows: 'mkl_rt' / Linux: 'mkl_rt,dl') has the highest priority,
            followed by the other options. Note that Eigen is required whether or not
            BLAS/LAPACK libraries are used.""",
         "default", ("default", "y", "n")),
@@ -1199,7 +1199,7 @@ if nan_works.strip() != "1":
     config_error(
         "Cantera requires a working implementation of 'std::isnan'.\n"
         "If you have specified '-ffast-math' or equivalent as an optimization option,\n"
-        "either remove this option or add the '-fno-finite-math-only option'."
+        "either remove this option or add the '-fno-finite-math-only' option."
     )
 
 def split_version(version):
