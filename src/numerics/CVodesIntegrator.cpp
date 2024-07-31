@@ -5,7 +5,6 @@
 
 #include "cantera/numerics/CVodesIntegrator.h"
 #include "cantera/base/stringUtils.h"
-#include "sundials/sundials_config.h"
 
 #include <iostream>
 using namespace std;

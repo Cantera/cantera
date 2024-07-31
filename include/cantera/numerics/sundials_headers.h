@@ -1,7 +1,6 @@
 #ifndef CT_SUNDIALS_HEADERS
 #define CT_SUNDIALS_HEADERS
 
-#include "sundials/sundials_config.h"
 #include "sundials/sundials_types.h"
 #include "sundials/sundials_math.h"
 #include "sundials/sundials_nvector.h"
