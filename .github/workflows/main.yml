@@ -528,6 +528,7 @@ jobs:
             python=${{ env.PYTHON_VERSION }} sundials=${{ matrix.sundials-ver }} scons
             numpy ruamel.yaml cython boost-cpp fmt=${{ matrix.fmt-ver }} eigen yaml-cpp
             pandas libgomp openblas pytest pytest-xdist highfive python-graphviz
+            setuptools
           post-cleanup: none
       - name: Build Cantera
         run: |
@@ -596,7 +597,7 @@ jobs:
         create-args: >-
           python=${{ matrix.python-version }} scons numpy cython ruamel.yaml boost-cpp
           eigen yaml-cpp pandas pytest pytest-xdist highfive pint python-graphviz
-          fmt=${{ matrix.fmt-ver }}
+          fmt=${{ matrix.fmt-ver }} setuptools
         init-shell: powershell bash
         post-cleanup: none
     - name: Build Cantera
