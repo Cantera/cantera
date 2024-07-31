@@ -2,6 +2,12 @@ html {
     --pst-icon-external-link: "";
 }
 
+html[data-theme=light] {
+    /* Improve contrast with foreground colors */
+    --pst-color-surface: rgb(250, 250, 250);
+    --pst-color-primary: rgb(4, 97, 113);
+}
+
 p + div.math {
     /* Remove post-paragraph space ahead of equation to center vertically */
     margin-top: -1.15em;

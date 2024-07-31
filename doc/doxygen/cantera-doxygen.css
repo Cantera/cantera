@@ -1,12 +1,46 @@
-/* Colors to match pydata-sphinx-theme */
 html {
-    --primary-color: rgb(10, 125, 145);
+    /* Colors to match pydata-sphinx-theme */
+    --primary-color: rgb(4, 97, 113);
     --pst-color-text-muted: rgb(100, 100, 100);
+
+    /* Increase contrast of text in footer */
+    --page-secondary-foreground-color: rgb(81, 96, 112);
+
+    /* Improve contrast in code snippets */
+    --code-background: #fafafa;
+    --fragment-keyword: #a25999;
+    --fragment-keywordtype: #7a51aa;
+    --fragment-keywordflow: #a35822;
+    --fragment-comment: #666666;
+    --fragment-link: #4269ad;
+    --fragment-preprocessor: #2f7975;
+    --fragment-token: #387a4d;
+
+    /* Improve contrast in admonitions */
+    --todo-color-darker: #172d37;
+    --note-color-dark: #8e6100;
 }
 
 html.dark-mode {
     --primary-color: rgb(63, 177, 197);
     --pst-color-text-muted: rgb(164, 164, 164);
+
+    /* Improve contrast in admonitions */
+    --warning-color-dark: rgb(247, 66, 46);
+
+    /* Improve contrast of light text in "inline", "virtual", ... badges */
+    span.mlabel {
+        background-color: rgb(4, 97, 113);
+    }
+}
+
+/* Don't try to gray out the placeholder search text */
+#MSearchField::placeholder {
+    color: var(--searchbar-foreground);
+}
+
+#MSearchField {
+    color: var(--searchbar-foreground);
 }
 
 .directory td.entry a:focus {
