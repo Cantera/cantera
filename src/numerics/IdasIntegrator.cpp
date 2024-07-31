@@ -7,7 +7,6 @@
 #include "cantera/base/stringUtils.h"
 
 #include "cantera/numerics/sundials_headers.h"
-#include "sundials/sundials_config.h"
 
 using namespace std;
 

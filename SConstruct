@@ -1475,7 +1475,7 @@ if env['system_sundials'] == 'y':
     elif sundials_ver > parse_version("7.0.0"):
         logger.warning(f"Sundials version {env['sundials_version']!r} has not been tested.")
 
-    logger.info(f"Using system installation of Sundials version {sundials_version!r}.")
+    logger.info(f"Using system installation of Sundials version {env['sundials_version']!r}.")
 
     # Determine whether or not Sundials was built with BLAS/LAPACK
     if sundials_ver <= parse_version("5.4"):
