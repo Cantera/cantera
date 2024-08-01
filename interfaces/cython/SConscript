@@ -1,6 +1,7 @@
 """Cython-based Python Module"""
 import re
 from pathlib import Path
+from packaging.version import parse as parse_version
 from buildutils import *
 
 Import('env', 'build', 'install')
@@ -79,6 +80,10 @@ ext = localenv.LoadableModule(f"cantera/_cantera{module_ext}",
 
 build_cmd = ("$python_cmd_esc -m pip wheel -v --no-build-isolation --no-deps "
              "--wheel-dir=build/python/dist build/python")
+# We've already warned that this Python version might be unsupported, so disable
+# pip's check for a correct version of Python.
+if parse_version(localenv["py_version_short"]) >= env["python_max_version"]:
+    build_cmd += " --ignore-requires-python"
 wheel_name = ("Cantera-${cantera_version}-cp${py_version_nodot}"
               "-cp${py_version_nodot}-${py_plat}.whl")
 mod = build(localenv.Command(f"#build/python/dist/{wheel_name}", "setup.cfg",
