@@ -18,7 +18,10 @@
 namespace Cantera
 {
 
+//! Unique identifier for the left inlet.
 const int LeftInlet = 1;
+
+//! Unique identifier for the right inlet.
 const int RightInlet = -1;
 
 //! @defgroup bdryGroup Boundaries
@@ -125,7 +128,10 @@ protected:
     size_t m_start_right = 0;
     ThermoPhase* m_phase_left = nullptr;
     ThermoPhase* m_phase_right = nullptr;
+
+    //! Temperature of the boundary.
     double m_temp = 0.0;
+    //! Mass flow rate at the boundary.
     double m_mdot = 0.0;
 };
 
@@ -171,8 +177,12 @@ public:
     void fromArray(SolutionArray& arr, double* soln) override;
 
 protected:
+    //! A marker that indicates whether this is a left inlet or a right inlet.
     int m_ilr;
+
+    //! The spread rate of the inlet [1/s]
     double m_V0 = 0.0;
+
     size_t m_nsp = 0;
     vector<double> m_yin;
     string m_xstr;
