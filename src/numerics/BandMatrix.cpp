@@ -6,7 +6,6 @@
 #include "cantera/numerics/BandMatrix.h"
 #include "cantera/base/utilities.h"
 #include "cantera/base/stringUtils.h"
-#include "sundials/sundials_config.h"
 
 #if CT_USE_LAPACK
     #include "cantera/numerics/ctlapack.h"
