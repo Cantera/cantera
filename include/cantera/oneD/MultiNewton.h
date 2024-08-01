@@ -76,6 +76,8 @@ protected:
     //! Work arrays of size #m_n used in solve().
     vector<double> m_x, m_stp, m_stp1;
 
+
+
     int m_maxAge = 5;
 
     //! number of variables

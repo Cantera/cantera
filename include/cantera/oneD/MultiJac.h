@@ -53,6 +53,7 @@ public:
         m_age++;
     }
 
+    //! Update the transient terms in the Jacobian by using the transient mask.
     void updateTransient(double rdt, integer* mask);
 
     //! Set the Jacobian age.
@@ -60,6 +61,7 @@ public:
         m_age = age;
     }
 
+    //! Return the transient mask.
     vector<int>& transientMask() {
         return m_mask;
     }
@@ -79,6 +81,8 @@ protected:
     double m_atol = sqrt(std::numeric_limits<double>::epsilon());
     double m_elapsed = 0.0;
     vector<double> m_ssdiag;
+
+    //! Transient mask for transient terms, 1 if transient, 0 if steady-state
     vector<int> m_mask;
     int m_nevals = 0;
     int m_age = 100000;

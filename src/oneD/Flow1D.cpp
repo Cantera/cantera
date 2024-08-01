@@ -249,10 +249,10 @@ void Flow1D::setGas(const double* x, size_t j)
 void Flow1D::setGasAtMidpoint(const double* x, size_t j)
 {
     m_thermo->setTemperature(0.5*(T(x,j)+T(x,j+1)));
-    const double* yyj = x + m_nv*j + c_offset_Y;
-    const double* yyjp = x + m_nv*(j+1) + c_offset_Y;
+    const double* yy_j = x + m_nv*j + c_offset_Y;
+    const double* yy_j_plus1 = x + m_nv*(j+1) + c_offset_Y;
     for (size_t k = 0; k < m_nsp; k++) {
-        m_ybar[k] = 0.5*(yyj[k] + yyjp[k]);
+        m_ybar[k] = 0.5*(yy_j[k] + yy_j_plus1[k]);
     }
     m_thermo->setMassFractions_NoNorm(m_ybar.data());
     m_thermo->setPressure(m_press);
@@ -514,55 +514,53 @@ void Flow1D::evalContinuity(double* x, double* rsd, int* diag,
 {
     // The left boundary has the same form for all cases.
     if (jmin == 0) { // left boundary
-        rsd[index(c_offset_U,jmin)] = -(rho_u(x,jmin + 1) - rho_u(x,jmin))/m_dz[jmin]
-                                      -(density(jmin + 1)*V(x,jmin + 1)
-                                      + density(jmin)*V(x,jmin));
-
-        diag[index(c_offset_U,jmin)] = 0; // Algebraic constraint
+        rsd[index(c_offset_U, jmin)] = -(rho_u(x, jmin+1) - rho_u(x, jmin))/m_dz[jmin]
+                                      -(density(jmin+1)*V(x, jmin+1)
+                                      + density(jmin)*V(x, jmin));
+        diag[index(c_offset_U, jmin)] = 0; // Algebraic constraint
     }
 
     if (jmax == m_points - 1) { // right boundary
         if (m_usesLambda) { // axisymmetric flow
             rsd[index(c_offset_U, jmax)] = rho_u(x, jmax);
         } else { // right boundary (same for unstrained/free-flow)
-            rsd[index(c_offset_U, jmax)] = rho_u(x, jmax) - rho_u(x, jmax - 1);
+            rsd[index(c_offset_U, jmax)] = rho_u(x, jmax) - rho_u(x, jmax-1);
         }
         diag[index(c_offset_U, jmax)] = 0; // Algebraic constraint
     }
 
     // j0 and j1 are constrained to only interior points
     size_t j0 = std::max<size_t>(jmin, 1);
-    size_t j1 = std::min(jmax, m_points - 2);
+    size_t j1 = std::min(jmax, m_points-2);
     if (m_usesLambda) { // "axisymmetric-flow"
         for (size_t j = j0; j <= j1; j++) { // interior points
             // For "axisymmetric-flow", the continuity equation  propagates the
             // mass flow rate information to the left (j+1 -> j) from the value
             // specified at the right boundary. The lambda information propagates
             // in the opposite direction.
-            rsd[index(c_offset_U,j)] = -(rho_u(x,j+1) - rho_u(x,j))/m_dz[j]
-                                       -(density(j+1)*V(x,j+1) + density(j)*V(x,j));
-
+            rsd[index(c_offset_U, j)] = -(rho_u(x, j+1) - rho_u(x, j))/m_dz[j]
+                                       -(density(j+1)*V(x, j+1) + density(j)*V(x, j));
             diag[index(c_offset_U, j)] = 0; // Algebraic constraint
         }
     } else if (m_isFree) { // "free-flow"
         for (size_t j = j0; j <= j1; j++) {
             // terms involving V are zero as V=0 by definition
             if (grid(j) > m_zfixed) {
-                rsd[index(c_offset_U,j)] = -(rho_u(x,j) - rho_u(x,j-1))/m_dz[j-1];
+                rsd[index(c_offset_U, j)] = -(rho_u(x, j) - rho_u(x, j-1))/m_dz[j-1];
             } else if (grid(j) == m_zfixed) {
                 if (m_do_energy[j]) {
-                    rsd[index(c_offset_U,j)] = (T(x,j) - m_tfixed);
+                    rsd[index(c_offset_U, j)] = (T(x, j) - m_tfixed);
                 } else {
-                    rsd[index(c_offset_U,j)] = (rho_u(x,j) - m_rho[0]*0.3); // why 0.3?
+                    rsd[index(c_offset_U, j)] = (rho_u(x, j) - m_rho[0]*0.3); // why 0.3?
                 }
             } else { // grid(j < m_zfixed
-                rsd[index(c_offset_U,j)] = -(rho_u(x,j+1) - rho_u(x,j))/m_dz[j];
+                rsd[index(c_offset_U, j)] = -(rho_u(x, j+1) - rho_u(x, j))/m_dz[j];
             }
             diag[index(c_offset_U, j)] = 0; // Algebraic constraint
         }
     } else { // "unstrained-flow" (fixed mass flow rate)
         for (size_t j = j0; j <= j1; j++) {
-            rsd[index(c_offset_U, j)] = rho_u(x, j) - rho_u(x, j - 1);
+            rsd[index(c_offset_U, j)] = rho_u(x, j) - rho_u(x, j-1);
             diag[index(c_offset_U, j)] = 0; // Algebraic constraint
         }
     }
@@ -580,19 +578,19 @@ void Flow1D::evalMomentum(double* x, double* rsd, int* diag,
     }
 
     if (jmin == 0) { // left boundary
-        rsd[index(c_offset_V,jmin)] = V(x,jmin);
+        rsd[index(c_offset_V, jmin)] = V(x, jmin);
     }
 
     if (jmax == m_points - 1) { // right boundary
-        rsd[index(c_offset_V,jmax)] = V(x,jmax);
-        diag[index(c_offset_V,jmax)] = 0;
+        rsd[index(c_offset_V, jmax)] = V(x, jmax);
+        diag[index(c_offset_V, jmax)] = 0;
     }
 
     // j0 and j1 are constrained to only interior points
     size_t j0 = std::max<size_t>(jmin, 1);
-    size_t j1 = std::min(jmax, m_points - 2);
+    size_t j1 = std::min(jmax, m_points-2);
     for (size_t j = j0; j <= j1; j++) { // interior points
-        rsd[index(c_offset_V,j)] = (shear(x, j) - lambda(x, j)
+        rsd[index(c_offset_V, j)] = (shear(x, j) - lambda(x, j)
                                     - rho_u(x, j) * dVdz(x, j)
                                     - m_rho[j] * V(x, j) * V(x, j)) / m_rho[j]
                                    - rdt * (V(x, j) - V_prev(j));
@@ -613,7 +611,7 @@ void Flow1D::evalLambda(double* x, double* rsd, int* diag,
 
     if (jmin == 0) { // left boundary
         if (m_twoPointControl) {
-            rsd[index(c_offset_L, jmin)] = lambda(x,jmin+1) - lambda(x,jmin);
+            rsd[index(c_offset_L, jmin)] = lambda(x, jmin+1) - lambda(x, jmin);
         } else {
             rsd[index(c_offset_L, jmin)] = -rho_u(x, jmin);
         }
@@ -626,18 +624,18 @@ void Flow1D::evalLambda(double* x, double* rsd, int* diag,
 
     // j0 and j1 are constrained to only interior points
     size_t j0 = std::max<size_t>(jmin, 1);
-    size_t j1 = std::min(jmax, m_points - 2);
+    size_t j1 = std::min(jmax, m_points-2);
     for (size_t j = j0; j <= j1; j++) { // interior points
         if (m_twoPointControl) {
             if (grid(j) == m_zLeft) {
                 rsd[index(c_offset_L, j)] = T(x,j) - m_tLeft;
             } else if (grid(j) > m_zLeft) {
-                rsd[index(c_offset_L, j)] = lambda(x,j) - lambda(x,j-1);
+                rsd[index(c_offset_L, j)] = lambda(x, j) - lambda(x, j-1);
             } else if (grid(j) < m_zLeft) {
-                rsd[index(c_offset_L, j)] = lambda(x,j+1) - lambda(x,j);
+                rsd[index(c_offset_L, j)] = lambda(x, j) - lambda(x, j+1);
             }
         } else {
-            rsd[index(c_offset_L, j)] = lambda(x,j) - lambda(x,j-1);
+            rsd[index(c_offset_L, j)] = lambda(x, j) - lambda(x, j-1);
         }
         diag[index(c_offset_L, j)] = 0;
     }
@@ -647,35 +645,35 @@ void Flow1D::evalEnergy(double* x, double* rsd, int* diag,
                         double rdt, size_t jmin, size_t jmax)
 {
     if (jmin == 0) { // left boundary
-        rsd[index(c_offset_T,jmin)] = T(x,jmin);
+        rsd[index(c_offset_T, jmin)] = T(x, jmin);
     }
 
     if (jmax == m_points - 1) { // right boundary
-        rsd[index(c_offset_T, jmax)] = T(x,jmax);
+        rsd[index(c_offset_T, jmax)] = T(x, jmax);
     }
 
     // j0 and j1 are constrained to only interior points
     size_t j0 = std::max<size_t>(jmin, 1);
-    size_t j1 = std::min(jmax, m_points - 2);
+    size_t j1 = std::min(jmax, m_points-2);
     for (size_t j = j0; j <= j1; j++) {
         if (m_do_energy[j]) {
             grad_hk(x, j);
             double sum = 0.0;
             for (size_t k = 0; k < m_nsp; k++) {
-                double flxk = 0.5*(m_flux(k,j-1) + m_flux(k,j));
-                sum += m_wdot(k,j)*m_hk(k,j);
-                sum += flxk * m_dhk_dz(k,j) / m_wt[k];
+                double flxk = 0.5*(m_flux(k, j-1) + m_flux(k, j));
+                sum += m_wdot(k, j)*m_hk(k, j);
+                sum += flxk * m_dhk_dz(k, j) / m_wt[k];
             }
 
-            rsd[index(c_offset_T, j)] = - m_cp[j]*rho_u(x,j)*dTdz(x,j)
-                                        - divHeatFlux(x,j) - sum;
+            rsd[index(c_offset_T, j)] = - m_cp[j]*rho_u(x, j)*dTdz(x, j)
+                                        - conduction(x, j) - sum;
             rsd[index(c_offset_T, j)] /= (m_rho[j]*m_cp[j]);
-            rsd[index(c_offset_T, j)] -= rdt*(T(x,j) - T_prev(j));
+            rsd[index(c_offset_T, j)] -= rdt*(T(x, j) - T_prev(j));
             rsd[index(c_offset_T, j)] -= (m_qdotRadiation[j] / (m_rho[j] * m_cp[j]));
             diag[index(c_offset_T, j)] = 1;
         } else {
             // residual equations if the energy equation is disabled
-            rsd[index(c_offset_T, j)] = T(x,j) - T_fixed(j);
+            rsd[index(c_offset_T, j)] = T(x, j) - T_fixed(j);
             diag[index(c_offset_T, j)] = 0;
         }
     }
@@ -693,31 +691,29 @@ void Flow1D::evalUo(double* x, double* rsd, int* diag,
     }
 
     if (jmin == 0) { // left boundary
-        rsd[index(c_offset_Uo, jmin)] = Uo(x,jmin+1) - Uo(x,jmin);
+        rsd[index(c_offset_Uo, jmin)] = Uo(x, jmin+1) - Uo(x, jmin);
         diag[index(c_offset_Uo, jmin)] = 0;
     }
 
     if (jmax == m_points - 1) { // right boundary
         if(m_twoPointControl) {
-            rsd[index(c_offset_Uo, jmax)] = Uo(x,jmax) - Uo(x,jmax-1);
+            rsd[index(c_offset_Uo, jmax)] = Uo(x, jmax) - Uo(x, jmax-1);
         }
         diag[index(c_offset_Uo, jmax)] = 0;
     }
 
     // j0 and j1 are constrained to only interior points
     size_t j0 = std::max<size_t>(jmin, 1);
-    size_t j1 = std::min(jmax, m_points - 2);
+    size_t j1 = std::min(jmax, m_points-2);
     for (size_t j = j0; j <= j1; j++) { // interior points
         if (m_twoPointControl) {
             if (grid(j) == m_zRight) {
-                rsd[index(c_offset_Uo, j)] = T(x,j) - m_tRight;
+                rsd[index(c_offset_Uo, j)] = T(x, j) - m_tRight;
             } else if (grid(j) > m_zRight) {
-                rsd[index(c_offset_Uo, j)] = Uo(x,j) - Uo(x,j-1);
+                rsd[index(c_offset_Uo, j)] = Uo(x, j) - Uo(x, j-1);
             } else if (grid(j) < m_zRight) {
-                rsd[index(c_offset_Uo, j)] = Uo(x,j+1) - Uo(x,j);
+                rsd[index(c_offset_Uo, j)] = Uo(x, j) - Uo(x, j+1);
             }
-        } else {
-            rsd[index(c_offset_Uo, j)] = Uo(x,j+1) - Uo(x,j);
         }
         diag[index(c_offset_Uo, j)] = 0;
     }
@@ -730,18 +726,19 @@ void Flow1D::evalSpecies(double* x, double* rsd, int* diag,
         double sum = 0.0;
         for (size_t k = 0; k < m_nsp; k++) {
             sum += Y(x,k,jmin);
-            rsd[index(c_offset_Y + k, jmin)] = -(m_flux(k,jmin) +
-                                                rho_u(x,jmin) * Y(x,k,jmin));
+            rsd[index(c_offset_Y+k, jmin)] = -(m_flux(k, jmin) +
+                                                rho_u(x, jmin) * Y(x, k, jmin));
         }
         rsd[index(c_offset_Y + leftExcessSpecies(), jmin)] = 1.0 - sum;
+        diag[index(c_offset_Y + leftExcessSpecies(), jmin)] = 0;
     }
 
     if (jmax == m_points - 1) { // right boundary
         double sum = 0.0;
         for (size_t k = 0; k < m_nsp; k++) {
             sum += Y(x,k,jmax);
-            rsd[index(k+c_offset_Y,jmax)] = m_flux(k,jmax-1) +
-                                            rho_u(x,jmax)*Y(x,k,jmax);
+            rsd[index(k+c_offset_Y, jmax)] = m_flux(k, jmax-1) +
+                                            rho_u(x, jmax)*Y(x, k, jmax);
         }
         rsd[index(c_offset_Y + rightExcessSpecies(), jmax)] = 1.0 - sum;
         diag[index(c_offset_Y + rightExcessSpecies(), jmax)] = 0;
@@ -749,14 +746,14 @@ void Flow1D::evalSpecies(double* x, double* rsd, int* diag,
 
     // j0 and j1 are constrained to only interior points
     size_t j0 = std::max<size_t>(jmin, 1);
-    size_t j1 = std::min(jmax, m_points - 2);
+    size_t j1 = std::min(jmax, m_points-2);
     for (size_t j = j0; j <= j1; j++) {
         for (size_t k = 0; k < m_nsp; k++) {
-            double convec = rho_u(x,j)*dYdz(x,k,j);
-            double diffus = 2.0*(m_flux(k,j) - m_flux(k,j-1)) / (z(j+1) - z(j-1));
-            rsd[index(c_offset_Y + k, j)] = (m_wt[k]*m_wdot(k,j)
-                                             - convec - diffus)/m_rho[j]
-                                            - rdt*(Y(x,k,j) - Y_prev(k,j));
+            double convec = rho_u(x, j)*dYdz(x, k, j);
+            double diffus = 2*(m_flux(k, j) - m_flux(k, j-1)) / (z(j+1) - z(j-1));
+            rsd[index(c_offset_Y + k, j)] = (m_wt[k]*m_wdot(k, j)
+                                             - convec - diffus) / m_rho[j]
+                                            - rdt*(Y(x, k, j) - Y_prev(k, j));
             diag[index(c_offset_Y + k, j)] = 1;
         }
     }
@@ -1153,13 +1150,9 @@ void Flow1D::fixTemperature(size_t j)
 
 void Flow1D::grad_hk(const double* x, size_t j)
 {
+    size_t jloc = (u(x, j) > 0.0 ? j : j + 1);
     for(size_t k = 0; k < m_nsp; k++) {
-        if (u(x, j) > 0.0) {
-            m_dhk_dz(k,j) = (m_hk(k,j) - m_hk(k,j-1)) / m_dz[j - 1];
-        }
-        else {
-            m_dhk_dz(k,j) = (m_hk(k,j+1) - m_hk(k,j)) / m_dz[j];
-        }
+        m_dhk_dz(k, j) =  (m_hk(k, jloc) - m_hk(k, jloc-1))/m_dz[jloc-1];
     }
 }
 
