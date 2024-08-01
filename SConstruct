@@ -1036,10 +1036,37 @@ elif env['env_vars']:
             logger.warning(f"Failed to propagate environment variable {name!r}\n"
                            "Edit cantera.conf or the build command line to fix this.")
 
-env["extra_inc_dirs"] = [Path(d).as_posix() for d in env["extra_inc_dirs"].split(os.pathsep) if d]
-env["extra_lib_dirs"] = [Path(d).as_posix() for d in env["extra_lib_dirs"].split(os.pathsep) if d]
+
+def make_relative_path_absolute(path_to_check: str | Path) -> str:
+    """If a path is absolute, return it in POSIX format.
+    If a path is relative, assume it's relative to the source root, convert it to an
+    absolute path, and return the converted path in POSIX format.
+    """
+    pth = Path(path_to_check)
+    if not pth.is_absolute():
+        pth = Path(Dir("#" + path_to_check).abspath)
+
+    return pth.as_posix()
+
+
+inc_dirs = []
+for inc_dir in env["extra_inc_dirs"].split(os.pathsep):
+    if not inc_dir:
+        continue
+    inc_dirs.append(make_relative_path_absolute(inc_dir))
+
+env["extra_inc_dirs"] = inc_dirs
+
+lib_dirs = []
+for lib_dir in env["extra_lib_dirs"].split(os.pathsep):
+    if not lib_dir:
+        continue
+    lib_dirs.append(make_relative_path_absolute(lib_dir))
+
+env["extra_lib_dirs"] = lib_dirs
 
 # Add conda library/include paths (if applicable) to extra
+# Assume "CONDA_PREFIX" is always absolute if it exists
 conda_prefix = os.environ.get("CONDA_PREFIX")
 if conda_prefix is not None:
     conda_prefix = Path(conda_prefix)
@@ -1070,22 +1097,22 @@ else:
     env['FORTRAN_LINK'] = '$FORTRAN'
 
 if env['boost_inc_dir']:
-    env["boost_inc_dir"] = Path(env["boost_inc_dir"]).as_posix()
+    env["boost_inc_dir"] = make_relative_path_absolute(env["boost_inc_dir"])
     add_system_include(env, env['boost_inc_dir'])
 
 if env['blas_lapack_dir']:
-    env["blas_lapack_dir"] = Path(env["blas_lapack_dir"]).as_posix()
+    env["blas_lapack_dir"] = make_relative_path_absolute(env["blas_lapack_dir"])
     env.Append(LIBPATH=[env['blas_lapack_dir']])
     if env['use_rpath_linkage']:
         env.Append(RPATH=env['blas_lapack_dir'])
 
 if env['system_sundials'] in ('y','default'):
     if env['sundials_include']:
-        env["sundials_include"] = Path(env["sundials_include"]).as_posix()
+        env["sundials_include"] = make_relative_path_absolute(env["sundials_include"])
         add_system_include(env, env['sundials_include'])
         env['system_sundials'] = 'y'
     if env['sundials_libdir']:
-        env["sundials_libdir"] = Path(env["sundials_libdir"]).as_posix()
+        env["sundials_libdir"] = make_relative_path_absolute(env["sundials_libdir"])
         env.Append(LIBPATH=[env['sundials_libdir']])
         env['system_sundials'] = 'y'
         if env['use_rpath_linkage']:
