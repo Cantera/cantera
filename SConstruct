@@ -1728,8 +1728,8 @@ elif env['python_package'] == 'none':
 env["python_min_version"] = python_min_version
 env["python_max_version"] = python_max_version
 env["py_requires_ver_str"] = py_requires_ver_str
-env["cython_version_spec"] = SpecifierSet(">=0.29.31")
-env["numpy_version_spec"] = SpecifierSet(">=1.12.0,<3")
+env["cython_version_spec"] = SpecifierSet(">=0.29.31", prereleases=True)
+env["numpy_version_spec"] = SpecifierSet(">=1.12.0,<3", prereleases=True)
 env["cython_version_spec_str"] = str(env["cython_version_spec"])
 env["numpy_version_spec_str"] = str(env["numpy_version_spec"])
 
@@ -1738,11 +1738,11 @@ env["numpy_version_spec_str"] = str(env["numpy_version_spec"])
 # 18.04 repositories and seems to work. Older versions such as
 # 0.13.14 on CentOS7 and 0.10.23 on Ubuntu 16.04 raise an exception
 # that they are missing the RoundTripRepresenter
-env["ruamel_version_spec"] = SpecifierSet(">=0.15.34")
+env["ruamel_version_spec"] = SpecifierSet(">=0.15.34", prereleases=True)
 env["ruamel_version_spec_str"] = str(env["ruamel_version_spec"])
 
 # Minimum pytest version assumed based on Ubuntu 20.04
-env["pytest_version_spec"] = SpecifierSet(">=4.6.9")
+env["pytest_version_spec"] = SpecifierSet(">=4.6.9", prereleases=True)
 
 env['install_python_action'] = ''
 env['python_module_loc'] = ''
