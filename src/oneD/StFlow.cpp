@@ -223,7 +223,7 @@ void StFlow::evalResidual(double* x, double* rsd, int* diag,
                 }
 
                 rsd[index(c_offset_T, j)] = - m_cp[j]*rho_u(x,j)*dtdzj
-                                            - divHeatFlux(x,j) - sum;
+                                            - conduction(x,j) - sum;
                 rsd[index(c_offset_T, j)] /= (m_rho[j]*m_cp[j]);
                 rsd[index(c_offset_T, j)] -= rdt*(T(x,j) - T_prev(j));
                 rsd[index(c_offset_T, j)] -= (m_qdotRadiation[j] / (m_rho[j] * m_cp[j]));
