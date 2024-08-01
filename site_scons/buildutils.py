@@ -27,7 +27,7 @@ __all__ = ("Option", "PathOption", "BoolOption", "EnumOption", "Configuration",
            "add_RegressionTest", "get_command_output", "listify", "which",
            "ConfigBuilder", "multi_glob", "get_spawn", "quoted", "add_system_include",
            "get_pip_install_location", "compiler_flag_list", "setup_python_env",
-           "checkout_submodule", "check_for_python")
+           "checkout_submodule", "check_for_python", "make_relative_path_absolute")
 
 if TYPE_CHECKING:
     from typing import Iterable, TypeVar, Union, List, Dict, Tuple, Optional, \
@@ -1631,3 +1631,15 @@ def check_for_python(env: SCEnvironment, command_line_targets: List[str]) -> Dic
             logger.info(f"Using pytest version {pytest_version}")
 
     return {"python_package": "y", "require_numpy_1_7_API": require_numpy_1_7_API}
+
+
+def make_relative_path_absolute(path_to_check: Union[str, Path]) -> str:
+    """If a path is absolute, return it in POSIX format.
+    If a path is relative, assume it's relative to the source root, convert it to an
+    absolute path, and return the converted path in POSIX format.
+    """
+    pth = Path(path_to_check)
+    if not pth.is_absolute():
+        pth = Path(Dir("#" + path_to_check).abspath)
+
+    return pth.as_posix()

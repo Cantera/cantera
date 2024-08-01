@@ -1037,18 +1037,6 @@ elif env['env_vars']:
                            "Edit cantera.conf or the build command line to fix this.")
 
 
-def make_relative_path_absolute(path_to_check: str | Path) -> str:
-    """If a path is absolute, return it in POSIX format.
-    If a path is relative, assume it's relative to the source root, convert it to an
-    absolute path, and return the converted path in POSIX format.
-    """
-    pth = Path(path_to_check)
-    if not pth.is_absolute():
-        pth = Path(Dir("#" + path_to_check).abspath)
-
-    return pth.as_posix()
-
-
 inc_dirs = []
 for inc_dir in env["extra_inc_dirs"].split(os.pathsep):
     if not inc_dir:
