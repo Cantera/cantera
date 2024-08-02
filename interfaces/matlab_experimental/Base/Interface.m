@@ -57,7 +57,7 @@ classdef Interface < handle & ThermoPhase & Kinetics
             ID = ctFunc('soln_newInterface', src, name, na, adj);
 
             % Inherit methods and properties from ThermoPhase and Kinetics
-            s@ThermoPhase('clib', ID);
+            s@ThermoPhase(ID);
             s@Kinetics('clib', ID);
             s.phaseID = ID;
             s.interfaceName = name;

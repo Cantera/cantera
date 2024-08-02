@@ -1,14 +1,10 @@
 classdef ThermoPhase < handle
     % ThermoPhase Class ::
     %
-    %     >> t = ThermoPhase(src, id)
+    %     >> t = ThermoPhase(id)
     %
-    % :param src:
-    %     Input string of YAML file name when creating from file OR
-    %     "clib" when called by the class constructors of :mat:class:`Solution`
-    %     or :mat:class:`Interface`.
     % :param id:
-    %     ID of the phase to import as specified in the input file.
+    %     Integer ID of the solution holding the :mat:class:`ThermoPhase` object.
     % :return:
     %     Instance of class :mat:class:`ThermoPhase`.
 
@@ -428,21 +424,15 @@ classdef ThermoPhase < handle
     methods
         %% ThermoPhase Class Constructor
 
-        function tp = ThermoPhase(src, id)
+        function tp = ThermoPhase(id)
             % Create a :mat:class:`ThermoPhase` object.
             ctIsLoaded;
 
-            if strcmp(src, 'clib') & isnumeric(id)
-                tp.tpID = ctFunc('soln_thermo', id);
-                tp.basis = 'molar';
-                return
+            if ~isnumeric(id)
+                error('Invalid argument: constructor requires integer solution ID.')
             end
 
-            if nargin < 2
-                id = '';
-            end
-
-            tp.tpID = ctFunc('thermo_newFromFile', src, id);
+            tp.tpID = ctFunc('soln_thermo', id);
             tp.basis = 'molar';
         end
 
