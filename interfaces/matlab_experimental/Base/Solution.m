@@ -1,7 +1,7 @@
 classdef Solution < handle & ThermoPhase & Kinetics & Transport
     % Solution Class ::
     %
-    %     >> s = Solution(src, id, trans)
+    %     >> s = Solution(src, name, trans)
     %
     % Class :mat:class:`Solution` represents solutions of multiple species. A
     % solution is defined as a mixture of two or more constituents
@@ -39,12 +39,12 @@ classdef Solution < handle & ThermoPhase & Kinetics & Transport
     %
     % :param src:
     %     Input string of YAML file name.
-    % :param id:
-    %     ID of the phase to import as specified in the YAML file.
-    % :param trans:
-    %     String, transport modeling. Possible values are ``'default'``, ``'none'``,
-    %     ``'mixture-averaged'``, or ``'multicomponent'``. If not specified,
-    %     ``'default'`` is used.
+    % :param name:
+    %     name of the phase to import as specified in the YAML file.
+    % :param transport_model:
+    %     String specigying transport model. Possible values are ``'default'``,
+    %     ``'none'``, ``'mixture-averaged'``, or ``'multicomponent'``. If not specified,
+    %     ``'none'`` is used.
     % :return:
     %     Instance of class :mat:class:`Solution`.
 
@@ -57,25 +57,24 @@ classdef Solution < handle & ThermoPhase & Kinetics & Transport
 
         %% Solution Class Constructor
 
-        function s = Solution(src, id, trans)
+        function s = Solution(src, name, transport_model)
             % Create a :mat:class:`Solution` object.
 
             ctIsLoaded;
 
-            if nargin < 2 || nargin > 3
-                error('Solution class constructor expects 2 or 3 input arguments.');
+            if nargin == 0 || ~ischar(src)
+                error("Invalid argument: Solution requires name of input file.")
             end
 
-            if nargin == 3
-                if ~(strcmp(trans, 'default') || strcmp(trans, 'none')...
-                     || strcmp(trans, 'mixture-averaged') || strcmp(trans, 'multicomponent'))
-                    error('Unknown transport modelling specified.');
-                end
-            else
-                trans = 'default';
+            if nargin < 2
+                name = '';
             end
 
-            ID = ctFunc('soln_newSolution', src, id, trans);
+            if nargin < 3
+                transport_model = 'none';
+            end
+
+            ID = ctFunc('soln_newSolution', src, name, transport_model);
             % Inherit methods and properties from ThermoPhase, Kinetics, and Transport
             s@ThermoPhase('clib', ID);
             s@Kinetics('clib', ID);
