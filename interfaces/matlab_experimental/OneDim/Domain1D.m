@@ -92,7 +92,7 @@ classdef Domain1D < handle
 
             ctIsLoaded;
 
-            d.domainID = ctFunc('domain_new', type, phase.phaseID, id);
+            d.domainID = ctFunc('domain_new', type, phase.solnID, id);
 
         end
 

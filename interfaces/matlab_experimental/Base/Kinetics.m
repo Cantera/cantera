@@ -1,7 +1,11 @@
 classdef Kinetics < handle
     % Kinetics Class ::
     %
-    %     >> k = Kinetics(varargin)
+    %     >> k = Kinetics(id)
+    %
+    % Retrieve instance of class :mat:class:`Kinetics` associated with a
+    % :mat:class:`Solution` object. The constructor is called whenever a new
+    % :mat:class:`Solution` is instantiated and should not be used directly.
     %
     % Class :mat:class:`Kinetics` represents kinetics managers, which manage
     % reaction mechanisms. The reaction mechanism attributes are specified in a

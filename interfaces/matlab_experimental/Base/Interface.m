@@ -19,7 +19,7 @@ classdef Interface < handle & ThermoPhase & Kinetics
     %     Instance of class :mat:class:`Interface`.
 
     properties (SetAccess = immutable)
-        phaseID % ID of the interface.
+        solnID % ID of the interface.
         interfaceName % Name of the interface.
     end
 
@@ -51,7 +51,7 @@ classdef Interface < handle & ThermoPhase & Kinetics
             % Get ID of adjacent phases
             adj = [];
             for i = 3:nargin
-                adj(i-2) = varargin{i}.phaseID;
+                adj(i-2) = varargin{i}.solnID;
             end
 
             ID = ctFunc('soln_newInterface', src, name, na, adj);
@@ -59,7 +59,7 @@ classdef Interface < handle & ThermoPhase & Kinetics
             % Inherit methods and properties from ThermoPhase and Kinetics
             s@ThermoPhase(ID);
             s@Kinetics(ID);
-            s.phaseID = ID;
+            s.solnID = ID;
             s.interfaceName = name;
             s.nAdjacent = ctFunc('soln_nAdjacent', ID);
         end
@@ -68,7 +68,7 @@ classdef Interface < handle & ThermoPhase & Kinetics
 
         function delete(s)
             % Delete :mat:class:`Interface` object.
-            disp('Interface class object has been deleted');
+            ctFunc('soln_del', s.solnID);
         end
 
         %% Interface Get Methods

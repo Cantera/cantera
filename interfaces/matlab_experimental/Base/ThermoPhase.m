@@ -3,6 +3,10 @@ classdef ThermoPhase < handle
     %
     %     >> t = ThermoPhase(id)
     %
+    % Retrieve instance of class :mat:class:`ThermoPhase` associated with a
+    % :mat:class:`Solution` object. The constructor is called whenever a new
+    % :mat:class:`Solution` is instantiated and should not be used directly.
+    %
     % :param id:
     %     Integer ID of the solution holding the :mat:class:`ThermoPhase` object.
     % :return:

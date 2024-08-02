@@ -11,7 +11,7 @@ clear all
 close all
 
 tic
-help surfreactor
+help surf_reactor
 
 %% Set the initial conditions
 

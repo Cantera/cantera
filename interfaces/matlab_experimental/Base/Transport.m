@@ -4,7 +4,8 @@ classdef Transport < handle
     %     >> tr = Transport(id)
     %
     % Retrieve instance of class :mat:class:`Transport` associated with a
-    % :mat:class:`Solution` object.
+    % :mat:class:`Solution` object. The constructor is called whenever a new
+    % :mat:class:`Solution` is instantiated and should not be used directly.
     %
     % :param id:
     %     Integer ID of the solution holding the :mat:class:`Transport` object.
