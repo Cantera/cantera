@@ -10,15 +10,22 @@ on:
     # Run when the main branch is pushed to
     branches:
       - main
+  # Run on pull requests when this file is modified
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/post-merge-tests.yml
+
+env:
+  PIP_EXTRA_INDEX_URL: https://pypi.anaconda.org/scientific-python-nightly-wheels/simple
+  PIP_ONLY_BINARY: ":all:"
 
 jobs:
   prerelease-cython:
     name: Pre-release Cython
     runs-on: ubuntu-22.04
     timeout-minutes: 60
-    env:
-      HDF5_LIBDIR: /usr/lib/x86_64-linux-gnu/hdf5/serial
-      HDF5_INCLUDEDIR: /usr/include/hdf5/serial
     steps:
     - uses: actions/checkout@v4
       name: Checkout the repository
@@ -43,16 +50,16 @@ jobs:
     - name: Build Cantera
       run: python3 `which scons` build env_vars=all
         CXX=clang++-14 CC=clang-14 f90_interface=n extra_lib_dirs=/usr/lib/llvm/lib
-        -j4 debug=n --debug=time hdf_libdir=$HDF5_LIBDIR hdf_include=$HDF5_INCLUDEDIR
-        logging=debug python_package=y
+        -j4 debug=n --debug=time logging=debug python_package=y
     - name: Build Tests
       run: python3 `which scons` -j4 build-tests
     - name: Run compiled tests
       run: python3 `which scons` test-gtest test-legacy --debug=time
     - name: Run Python tests
-      run: |
-        LD_LIBRARY_PATH=build/lib
-        python3 -m pytest -raP -v -n auto --durations=50 test/python
+      run: python3 -m pytest -raP -v -n auto --durations=50 test/python
+      env:
+        LD_LIBRARY_PATH: "${LD_LIBRARY_PATH}:build/lib"
+        PYTHONPATH: build/python
 
   ubuntu-docker:
     name: Docker 'ubuntu:${{ matrix.image }}' image
@@ -64,9 +71,6 @@ jobs:
     timeout-minutes: 60
     container:
       image: ubuntu:${{ matrix.image }}
-    env:
-      HDF5_LIBDIR: /usr/lib/x86_64-linux-gnu/hdf5/serial
-      HDF5_INCLUDEDIR: /usr/include/hdf5/serial
     steps:
     - name: Install git on ubuntu:${{ matrix.image }}
       run: |
@@ -95,7 +99,6 @@ jobs:
     - name: Build Cantera
       run: |
         scons build env_vars=all -j4 debug=n --debug=time \
-        hdf_libdir=$HDF5_LIBDIR hdf_include=$HDF5_INCLUDEDIR \
         system_eigen=y system_fmt=y system_sundials=y system_yamlcpp=y \
         system_blas_lapack=y hdf_support=y f90_interface=y \
         cc_flags=-D_GLIBCXX_ASSERTIONS python_package=y
@@ -106,7 +109,8 @@ jobs:
     - name: Run Python tests
       run: python3 -m pytest -raP -v -n auto --durations=50 test/python
       env:
-        LD_LIBRARY_PATH: build/lib
+        LD_LIBRARY_PATH: "${LD_LIBRARY_PATH}:build/lib"
+        PYTHONPATH: build/python
 
   fedora-docker:
     name: Docker 'fedora:${{ matrix.image }}' image
@@ -134,7 +138,7 @@ jobs:
         python3-devel python3-numpy python3-pandas python3-pint python3-pip \
         python3-pytest python3-pytest-xdist python3-ruamel-yaml python3-scipy \
         python3-scons python3-wheel sundials-devel yaml-cpp-devel hdf5-devel \
-        highfive-devel python3-graphviz
+        highfive-devel python3-graphviz python3-packaging
     - name: Build Cantera
       run: |
         scons build -j4 debug=n --debug=time python_package=y f90_interface=y \
@@ -151,6 +155,7 @@ jobs:
       run: python3 -m pytest -raP -v -n auto --durations=50 test/python
       env:
         LD_LIBRARY_PATH: build/lib
+        PYTHONPATH: build/python
 
   ubuntu-python-prerelease:
     name: ${{ matrix.os }} with Python ${{ matrix.python-version }}
@@ -161,9 +166,6 @@ jobs:
         python-version: ['3.13']
         os: ['ubuntu-22.04', 'ubuntu-24.04']
       fail-fast: false
-    env:
-      HDF5_LIBDIR: /usr/lib/x86_64-linux-gnu/hdf5/serial
-      HDF5_INCLUDEDIR: /usr/include/hdf5/serial
     steps:
     - uses: actions/checkout@v4
       name: Checkout the repository
@@ -182,25 +184,26 @@ jobs:
         libblas-dev liblapack-dev libhdf5-dev libfmt-dev
         gcc --version
     - name: Upgrade pip
-      run: python3 -m pip install -U pip setuptools wheel
+      run: python3 -m pip install -U pip setuptools wheel packaging
     - name: Install Python dependencies
       run: |
-        python3 -m pip install ruamel.yaml scons numpy cython pandas pytest \
+        python3 -m pip install ruamel.yaml scons pytest \
         pytest-xdist pytest-github-actions-annotate-failures pint graphviz
+        python3 -m pip install --pre numpy cython pandas scipy
     - name: Build Cantera
       run: |
         python3 `which scons` build env_vars=all -j4 debug=n --debug=time \
-        system_fmt=y hdf_libdir=$HDF5_LIBDIR hdf_include=$HDF5_INCLUDEDIR \
-        system_blas_lapack=y hdf_support=y cc_flags=-D_GLIBCXX_ASSERTIONS \
+        system_fmt=y system_blas_lapack=y hdf_support=y cc_flags=-D_GLIBCXX_ASSERTIONS \
         python_package=y
     - name: Build Tests
       run: python3 `which scons` -j4 build-tests
     - name: Run compiled tests
       run: python3 `which scons` test-gtest test-legacy --debug=time
     - name: Run Python tests
-      run: |
-        LD_LIBRARY_PATH=build/lib
-        python3 -m pytest -raP -v -n auto --durations=50 test/python
+      run: python3 -m pytest -raP -v -n auto --durations=50 test/python
+      env:
+        LD_LIBRARY_PATH: "${LD_LIBRARY_PATH}:build/lib"
+        PYTHONPATH: build/python
 
   macos-homebrew:
     runs-on: macos-14
@@ -213,27 +216,30 @@ jobs:
         submodules: recursive
     # NumPy is installed here for the Python custom rate tests
     - name: Install Brew dependencies
-      run: brew install --display-times boost libomp hdf5 python python-setuptools scons numpy
+      run: brew install --display-times boost libomp hdf5 python numpy
     - name: Set Include folder
-      run: |
-        echo "BOOST_INC_DIR=$(brew --prefix)/include" >> $GITHUB_ENV
+      run: echo "BOOST_INC_DIR=$(brew --prefix)/include" >> $GITHUB_ENV
     # This is necessary because of PEP 668 https://peps.python.org/pep-0668/
     # PEP 668 prohibits installation to system Python packages via pip
     - name: Create a virtualenv for dependencies
       run: |
         $(brew --prefix)/bin/python3.12 -m venv .venv
     - name: Install Python dependencies
+      # SCons must be installed into the virtualenv because packaging is a dependency
+      # and we can't install packaging for the homebrew Python
       run: |
         ./.venv/bin/python -m pip install -U pip setuptools wheel build
         ./.venv/bin/python -m pip install ruamel.yaml numpy cython pandas pytest \
-          pytest-xdist pytest-github-actions-annotate-failures pint graphviz
+          pytest-xdist pytest-github-actions-annotate-failures pint graphviz \
+          scons packaging
     - name: Build Cantera
-      run: $(brew --prefix)/bin/scons build env_vars=all python_cmd="$(pwd)/.venv/bin/python" -j3 debug=n --debug=time boost_inc_dir=${BOOST_INC_DIR} python_package=y
+      run: ./.venv/bin/scons build env_vars=all -j3 debug=n --debug=time boost_inc_dir=${BOOST_INC_DIR} python_package=y
     - name: Build Tests
-      run: $(brew --prefix)/bin/scons -j3 build-tests
+      run: ./.venv/bin/scons -j3 build-tests
     - name: Run compiled tests
-      run: $(brew --prefix)/bin/scons test-gtest test-legacy --debug=time
+      run: ./.venv/bin/scons test-gtest test-legacy --debug=time
     - name: Run Python tests
-      run: |
-        export DYLD_LIBRARY_PATH=build/lib
-        ./.venv/bin/python -m pytest -raP -v -n auto --durations=50 test/python
+      run: ./.venv/bin/python -m pytest -raP -v -n auto --durations=50 test/python
+      env:
+        DYLD_LIBRARY_PATH: "${DYLD_LIBRARY_PATH}:build/lib"
+        PYTHONPATH: build/python
