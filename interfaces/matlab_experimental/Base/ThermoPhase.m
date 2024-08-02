@@ -436,16 +436,6 @@ classdef ThermoPhase < handle
             tp.basis = 'molar';
         end
 
-        %% ThermoPhase class Destructor
-
-        function delete(tp)
-            % Delete the :mat:class:`ThermoPhase` object.
-
-            if ~isa(tp, 'Solution') && ~isa(tp, 'Interface')
-                ctFunc('thermo_del', tp.tpID);
-            end
-        end
-
         %% ThermoPhase Utility Methods
 
         function display(tp)

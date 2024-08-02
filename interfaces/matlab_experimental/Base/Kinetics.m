@@ -101,16 +101,6 @@ classdef Kinetics < handle
             kin.kinID = ctFunc('soln_kinetics', id);
         end
 
-        %% Kinetics Class Destructor
-
-        function delete(kin)
-            % Delete the :mat:class:`Kinetics` object.
-
-            if ~isa(kin, 'Solution') && ~isa(kin, 'Interface')
-                ctFunc('kin_del', kin.kinID);
-            end
-        end
-
         %% Get scalar attributes
 
         function n = kineticsSpeciesIndex(kin, name, phase)
