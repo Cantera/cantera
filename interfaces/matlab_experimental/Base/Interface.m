@@ -58,7 +58,7 @@ classdef Interface < handle & ThermoPhase & Kinetics
 
             % Inherit methods and properties from ThermoPhase and Kinetics
             s@ThermoPhase(ID);
-            s@Kinetics('clib', ID);
+            s@Kinetics(ID);
             s.phaseID = ID;
             s.interfaceName = name;
             s.nAdjacent = ctFunc('soln_nAdjacent', ID);

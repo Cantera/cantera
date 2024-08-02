@@ -11,32 +11,10 @@ classdef Kinetics < handle
     % reaction rates of progress, species production rates, and other
     % quantities pertaining to a reaction mechanism.
     %
-    % :param varargin:
-    %     Variable number of inputs consisting of the following:
-    %       - ph:
-    %           An instance of class :mat:class:`ThermoPhase` representing the
-    %           phase in which reactions occur.
-    %       - src:
-    %           Input string of YAML file name when creating from file OR
-    %           "clib" when called by the class constructors of :mat:class:`Solution`
-    %           or :mat:class:`Interface`.
-    %     Optional:
-    %       - id:
-    %           ID of the phase to import as specified in the input file.
-    %       - neighbor1:
-    %           Instance of class :mat:class:`ThermoPhase` or
-    %           :mat:class:`Solution` representing the 1st neighboring phase.
-    %       - neighbor2:
-    %           Instance of class :mat:class:`ThermoPhase` or
-    %           :mat:class:`Solution` representing the 2nd neighboring phase.
-    %       - neighbor3:
-    %           Instance of class :mat:class:`ThermoPhase` or
-    %           :mat:class:`Solution` representing the 3rd neighboring phase.
-    %       - neighbor4:
-    %           Instance of class :mat:class:`ThermoPhase` or
-    %           :mat:class:`Solution` representing the 4th neighboring phase.
+    % :param id:
+    %     Integer ID of the solution holding the :mat:class:`Kinetics` object.
     % :return:
-    %      Instance of class :mat:class:`Kinetics`.
+    %     Instance of class :mat:class:`Kinetics`.
 
     properties (SetAccess = immutable)
         kinID % ID of the Kinetics object.
@@ -112,41 +90,21 @@ classdef Kinetics < handle
     methods
         %% Kinetics Class Constructor
 
-        function kin = Kinetics(varargin)
+        function kin = Kinetics(id)
 
             ctIsLoaded;
 
-            tmp = varargin{1};
-            src = varargin{2};
-
-            if ischar(tmp) & isnumeric(src)
-                if strcmp(tmp, 'clib')
-                    kin.kinID = ctFunc('soln_kinetics', src);
-                    return
-                end
+            if ~isnumeric(id)
+                error('Invalid argument: constructor requires integer solution ID.')
             end
 
-            ph = tmp.tpID;
-
-            if nargin == 2
-                id = '-';
-            elseif nargin > 2
-                id = varargin{3};
-            end
-
-            neighbours = {-1, -1, -1, -1};
-
-            for i = 4:length(varargin)
-                neighbours{i-3} = varargin{i}.tpID;
-            end
-
-            kin.kinID = ctFunc('kin_newFromFile', src, id, ph, neighbours{:});
+            kin.kinID = ctFunc('soln_kinetics', id);
         end
 
         %% Kinetics Class Destructor
 
         function delete(kin)
-            % Delete the :mat:class:`Sim1D` object.
+            % Delete the :mat:class:`Kinetics` object.
 
             if ~isa(kin, 'Solution') && ~isa(kin, 'Interface')
                 ctFunc('kin_del', kin.kinID);
