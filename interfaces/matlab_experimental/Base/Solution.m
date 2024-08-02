@@ -77,7 +77,7 @@ classdef Solution < handle & ThermoPhase & Kinetics & Transport
             ID = ctFunc('soln_newSolution', src, name, transport_model);
             % Inherit methods and properties from ThermoPhase, Kinetics, and Transport
             s@ThermoPhase(ID);
-            s@Kinetics('clib', ID);
+            s@Kinetics(ID);
             s@Transport('clib', ID);
             s.phaseID = ID;
             s.solnName = ctString('soln_name', s.phaseID);
