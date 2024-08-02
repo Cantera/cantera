@@ -102,7 +102,9 @@ jobs:
         python3 `which scons` build env_vars=all -j4 debug=n --debug=time \
         system_fmt=y cc_flags=-D_GLIBCXX_ASSERTIONS
     - name: Upload shared library
-      uses: actions/upload-artifact@v4
+      # Pin to 4.3.4 to resolve errors around only uploading symlinks.
+      # See https://github.com/actions/upload-artifact/issues/589
+      uses: actions/upload-artifact@v4.3.4
       if: matrix.python-version == '3.11'
       with:
         path: build/lib/libcantera_shared.so
@@ -205,7 +207,9 @@ jobs:
       run: scons build env_vars=all -j3 debug=n --debug=time
         boost_inc_dir=${BOOST_INC_DIR} ${{ matrix.extra-build-args }}
     - name: Upload shared library
-      uses: actions/upload-artifact@v4
+      # Pin to 4.3.4 to resolve errors around only uploading symlinks.
+      # See https://github.com/actions/upload-artifact/issues/589
+      uses: actions/upload-artifact@v4.3.4
       if: matrix.python-version == '3.11' && matrix.macos-version == 'macos-12'
       with:
         path: build/lib/libcantera_shared.dylib
@@ -606,7 +610,9 @@ jobs:
         --debug=time -j4
       shell: pwsh
     - name: Upload shared library
-      uses: actions/upload-artifact@v4
+      # Pin to 4.3.4 to resolve errors around only uploading symlinks.
+      # See https://github.com/actions/upload-artifact/issues/589
+      uses: actions/upload-artifact@v4.3.4
       if: matrix.python-version == '3.11'
       with:
         path: build/lib/cantera_shared.dll
