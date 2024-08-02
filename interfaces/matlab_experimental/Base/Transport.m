@@ -1,26 +1,13 @@
 classdef Transport < handle
     % Transport Class ::
     %
-    %     >> tr = Transport(th, model, loglevel)
+    %     >> tr = Transport(id)
     %
-    % Create a new instance of class :mat:class:`Transport`. One to three
-    % arguments may be supplied. The first must be an instance of class
-    % :mat:class:`ThermoPhase`. The second (optional) argument is the type of
-    % model desired, specified by the string ``'default'``,
-    % ``'mixture-averaged'`` or ``'multicomponent'``. ``'default'``
-    % uses the default transport specified in the phase definition.
-    % The third argument is the logging level desired.
+    % Retrieve instance of class :mat:class:`Transport` associated with a
+    % :mat:class:`Solution` object.
     %
-    % :param tp:
-    %     Instance of class :mat:class:`ThermoPhase` OR string "clib"
-    %     when called by the class constructors of :mat:class:`Solution` or
-    %     :mat:class:`Interface`.
-    % :param model:
-    %     String indicating the transport model to use. Possible values
-    %     are ``'default'``, ``'none'``, ``'mixture-averaged'``,
-    %     and ``'multicomponent'``. Optional.
-    % :param loglevel:
-    %     Level of diagnostic logging. Default if not specified is 4. Optional.
+    % :param id:
+    %     Integer ID of the solution holding the :mat:class:`Transport` object.
     % :return:
     %     Instance of class :mat:class:`Transport`.
 
@@ -53,43 +40,16 @@ classdef Transport < handle
     methods
         %% Transport Class Constructor
 
-        function tr = Transport(varargin)
-
+        function tr = Transport(id)
+            % Create a :mat:class:`Transport` object.
             ctIsLoaded;
-            tr.trID = 0;
 
-            tp = varargin{1};
-
-            if ischar(tp) & isnumeric(varargin{2})
-                if strcmp(tp, 'clib')
-                    tr.trID = ctFunc('soln_transport', varargin{2});
-                    return
-                end
+            if ~isnumeric(id)
+                error('Invalid argument: constructor requires integer solution ID.')
             end
 
-            if nargin < 2
-                model = 'default'
-            else
-                model = varargin{2};
-            end
-
-            if nargin < 3
-                loglevel = 4;
-            end
-
-            if ~isa(tp, 'ThermoPhase')
-                error(['The first argument must be an ', ...
-                       'instance of class ThermoPhase']);
-            end
-
-            tr.th = tp.tpID;
-
-            if strcmp(model, 'default')
-                tr.trID = ctFunc('trans_newDefault', tp.tpID, loglevel);
-            else
-                tr.trID = ctFunc('trans_new', model, tp.tpID, loglevel);
-            end
-
+            tr.trID = ctFunc('soln_transport', id);
+            tr.th = ctFunc('soln_thermo', id);
         end
 
         %% Transport Destructor Methods
