@@ -1,7 +1,7 @@
 classdef Solution < handle & ThermoPhase & Kinetics & Transport
     % Solution Class ::
     %
-    %     >> s = Solution(src, name, trans)
+    %     >> s = Solution(src, name, transport_model)
     %
     % Class :mat:class:`Solution` represents solutions of multiple species. A
     % solution is defined as a mixture of two or more constituents
@@ -12,20 +12,12 @@ classdef Solution < handle & ThermoPhase & Kinetics & Transport
     % of each species, which may be given as mole fractions or mass
     % fractions. ::
     %
-    %     >> s = Solution('input.yaml', phase_name, transport_model)
+    %     >> s = Solution('input.yaml')
     %
-    % constructs a :mat:class:`Solution` object from a specification contained in
-    % file ``input.yaml`` with the name of the phase to be imported specified with
-    % ``phase_name``. If a :mat:class:`Transport` model is included in ``input.yaml``,
-    % it will be included in the :mat:class:`Solution` instance with the default
-    % transport modeling as set in the input file. To specify the transport modeling,
-    % set the input argument ``trans`` to one of ``'default'``, ``'none'``,
-    % ``'mixture-averaged'``, or ``'multicomponent'``.
-    %
-    % In this case, the phase name must be specified as well. Alternatively,
-    % change the ``transport`` node in the YAML file, or ``transport``
-    % property in the CTI file before loading the phase. The transport
-    % modeling cannot be changed once the phase is loaded.
+    % constructs a :mat:class:`Solution` object from specifications contained in
+    % file ``input.yaml``. The phase defaults to the first phase listed in the
+    % YAML input file and no :mat:class:`Transport` model is included unless
+    % explicitly specified.
     %
     % Class :mat:class:`Solution` derives from three more basic classes, and most of
     % its methods are inherited from these classes. These are:
@@ -42,14 +34,14 @@ classdef Solution < handle & ThermoPhase & Kinetics & Transport
     % :param name:
     %     name of the phase to import as specified in the YAML file.
     % :param transport_model:
-    %     String specigying transport model. Possible values are ``'default'``,
+    %     String specifying transport model. Possible values are ``'default'``,
     %     ``'none'``, ``'mixture-averaged'``, or ``'multicomponent'``. If not specified,
     %     ``'none'`` is used.
     % :return:
     %     Instance of class :mat:class:`Solution`.
 
     properties (SetAccess = immutable)
-        phaseID % ID of the solution.
+        solnID % ID of the solution.
         solnName % Name of the solution.
     end
 
@@ -79,8 +71,8 @@ classdef Solution < handle & ThermoPhase & Kinetics & Transport
             s@ThermoPhase(ID);
             s@Kinetics(ID);
             s@Transport(ID);
-            s.phaseID = ID;
-            s.solnName = ctString('soln_name', s.phaseID);
+            s.solnID = ID;
+            s.solnName = ctString('soln_name', s.solnID);
             s.th = s.tpID;
         end
 
@@ -88,7 +80,7 @@ classdef Solution < handle & ThermoPhase & Kinetics & Transport
 
         function delete(s)
             % Delete :mat:class:`Solution` object.
-            ctFunc('soln_del', s.phaseID);
+            ctFunc('soln_del', s.solnID);
         end
 
     end

@@ -117,10 +117,10 @@ classdef Reactor < handle
             if nargin == 0
                 error('Reactor contents must be specified')
             elseif nargin == 1
-                typ = 'Reactor'
-                name = '(none)'
+                typ = 'Reactor';
+                name = '(none)';
             elseif nargin == 2
-                name = '(none)'
+                name = '(none)';
             elseif nargin > 3
                 error('too many arguments');
             end
@@ -130,7 +130,7 @@ classdef Reactor < handle
             end
 
             r.type = char(typ);
-            r.id = ctFunc('reactor_new3', typ, content.phaseID, name);
+            r.id = ctFunc('reactor_new3', typ, content.solnID, name);
 
 
         end
