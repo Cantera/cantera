@@ -33,7 +33,7 @@ extern "C" {
     CANTERA_CAPI size_t soln_nAdjacent(int n);
     CANTERA_CAPI int soln_adjacent(int n, int a);
 
-    CANTERA_CAPI int thermo_newFromFile(const char* filename, const char* phasename);
+    CANTERA_CAPI int thermo_newFromFile(const char* filename, const char* phasename); //!< @todo remove from .NET and Fortran interfaces
     CANTERA_CAPI int thermo_del(int n);
     CANTERA_CAPI size_t thermo_nElements(int n);
     CANTERA_CAPI size_t thermo_nSpecies(int n);
@@ -123,7 +123,7 @@ extern "C" {
     //! @since Starting in %Cantera 3.0, the "phasename" argument should be blank
     CANTERA_CAPI int kin_newFromFile(const char* filename, const char* phasename,
                                      int reactingPhase, int neighbor1, int neighbor2,
-                                     int neighbor3, int neighbor4);
+                                     int neighbor3, int neighbor4); //!< @todo remove from .NET and Fortran interfaces
     CANTERA_CAPI int kin_del(int n);
     CANTERA_CAPI size_t kin_nSpecies(int n);
     CANTERA_CAPI size_t kin_nReactions(int n);
@@ -156,8 +156,8 @@ extern "C" {
     CANTERA_CAPI int kin_advanceCoverages(int n, double tstep);
     CANTERA_CAPI size_t kin_phase(int n, size_t i);
 
-    CANTERA_CAPI int trans_newDefault(int th, int loglevel);
-    CANTERA_CAPI int trans_new(const char* model, int th, int loglevel);
+    CANTERA_CAPI int trans_newDefault(int th, int loglevel); //!< @todo remove from .NET and Fortran interfaces
+    CANTERA_CAPI int trans_new(const char* model, int th, int loglevel); //!< @todo remove from .NET and Fortran interfaces
     CANTERA_CAPI int trans_del(int n);
     CANTERA_CAPI int trans_transportModel(int n, int lennm, char* nm);
     CANTERA_CAPI double trans_viscosity(int n);
