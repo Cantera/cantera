@@ -52,16 +52,6 @@ classdef Transport < handle
             tr.th = ctFunc('soln_thermo', id);
         end
 
-        %% Transport Destructor Methods
-
-        function delete(tr)
-            % Delete the :mat:class:`Transport` object.
-
-            if ~isa(tr, 'Solution')
-                ctFunc('trans_del', tr.trID);
-            end
-        end
-
         %% Transport Get Methods
 
         function v = get.viscosity(tr)
