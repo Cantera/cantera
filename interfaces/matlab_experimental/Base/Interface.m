@@ -1,20 +1,16 @@
 classdef Interface < handle & ThermoPhase & Kinetics
     % Interface Class ::
     %
-    %     >> s = Interface(src, id, p1, p2, p3, p4)
+    %     >> s = Interface(src, name, p1, p2)
     %
     % See `ideal-surface <https://cantera.org/documentation/docs-2.6/sphinx/html/yaml/phases.html#sec-yaml-ideal-surface>`__
     % and `Declaring adjacent phases <https://cantera.org/tutorials/yaml/phases.html#declaring-adjacent-phases>`__.
     %
+    % :param src: YAML file containing the interface or edge phase.
+    % :param name: Name of the interface or edge phase in the YAML file.
     % :param varargin:
-    %     Variable number of inputs consisting of the following:
-    %       - src: YAML file containing the interface or edge phase.
-    %       - id: Name of the interface or edge phase in the YAML file.
-    %     Optional:
-    %       - p1: 1st adjacent phase to the interface.
-    %       - p2: 2nd adjacent phase to the interface.
-    %       - p3: 3rd adjacent phase to the interface.
-    %       - p4: 4th adjacent phase to the interface.
+    %     Optional list of phases pi adjacent to the interface; if omitted, adjacent
+    %     phases are added automatically.
     % :return:
     %     Instance of class :mat:class:`Interface`.
 
@@ -34,24 +30,23 @@ classdef Interface < handle & ThermoPhase & Kinetics
     properties (SetAccess = protected)
         concentrations % Concentrations of the species on an interface.
         nAdjacent % Number of adjacent phases.
+        adjacentNames % Names of adjacent phases.
     end
 
     methods
         %% Interface Class Constructor
 
-        function s = Interface(varargin)
+        function s = Interface(src, name, varargin)
             % Create an :mat:class:`Interface` object.
 
             ctIsLoaded;
 
-            src = varargin{1};
-            name = varargin{2};
             na = nargin - 2;
 
             % Get ID of adjacent phases
             adj = [];
-            for i = 3:nargin
-                adj(i-2) = varargin{i}.solnID;
+            for i = 1:na
+                adj(i) = varargin{i}.solnID;
             end
 
             ID = ctFunc('soln_newInterface', src, name, na, adj);
@@ -62,6 +57,10 @@ classdef Interface < handle & ThermoPhase & Kinetics
             s.solnID = ID;
             s.interfaceName = name;
             s.nAdjacent = ctFunc('soln_nAdjacent', ID);
+            s.adjacentNames = {};
+            for i = 1:s.nAdjacent
+                s.adjacentNames{i} = ctString('soln_adjacentName', ID, i-1);
+            end
         end
 
         %% Interface Class Destructor
@@ -73,9 +72,15 @@ classdef Interface < handle & ThermoPhase & Kinetics
 
         %% Interface Get Methods
 
-        function phase = adjacent(s, n)
-            % Get the nth adjacent phase of an interface.
-            phase = ctFunc('soln_adjacent', s, n);
+        function adj = adjacent(s, name)
+            % Get adjacent phase of an interface by name.
+            exact_match = strcmp(s.adjacentNames, name);
+            if sum(exact_match) ~= 1
+                error(['No adjacent phase with name ''' name ''' found.'])
+            end
+            location = find(exact_match);
+            id = ctFunc('soln_adjacent', s.solnID, location-1);
+            adj = Solution(id);
         end
 
         function c = coverages(s)
