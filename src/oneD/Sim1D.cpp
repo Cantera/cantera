@@ -751,7 +751,7 @@ void Sim1D::setLeftControlPoint(double temperature)
             if ((current_val - temperature) * (next_val - temperature) < 0.0) {
                 // Pick the coordinate of the point with the temperature closest
                 // to the desired temperature
-                int index = 0;
+                size_t index = 0;
                 if (std::abs(current_val - temperature) <
                     std::abs(next_val - temperature)) {
                     index = m;
@@ -802,7 +802,7 @@ void Sim1D::setRightControlPoint(double temperature)
             if ((current_val - temperature) * (next_val - temperature) < 0.0) {
                 // Pick the coordinate of the point with the temperature closest
                 // to the desired temperature
-                int index = 0;
+                size_t index = 0;
                 if (std::abs(current_val - temperature) <
                     std::abs(next_val - temperature)) {
                     index = m;
