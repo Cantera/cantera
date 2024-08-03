@@ -90,13 +90,7 @@ extern "C" {
                 soln = newInterface(infile, name, adj);
             } else {
                 soln = newInterface(infile, name);
-                for (size_t i = 0; i < soln->nAdjacent(); i++) {
-                    // add automatically loaded adjacent solutions
-                    auto adj = soln->adjacent(i);
-                    if (SolutionCabinet::index(*adj) < 0) {
-                        SolutionCabinet::add(adj);
-                    }
-                }
+                // adjacent phases can be retrieved via soln_adjacent
             }
             // add associated objects
             ThermoCabinet::add(soln->thermo());
@@ -218,7 +212,16 @@ extern "C" {
             if (a < 0 || a >= (int)soln->nAdjacent()) {
                 return -1;
             }
-            return SolutionCabinet::index(*(soln->adjacent(a)));
+            auto adj = soln->adjacent(a);
+            // add associated objects
+            ThermoCabinet::add(adj->thermo());
+            if (adj->kinetics()) {
+                KineticsCabinet::add(adj->kinetics());
+            }
+            if (adj->transport()) {
+                TransportCabinet::add(adj->transport());
+            }
+            return SolutionCabinet::add(adj);
         } catch (...) {
             return handleAllExceptions(-2, ERR);
         }
