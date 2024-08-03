@@ -1481,7 +1481,7 @@ if env['system_sundials'] == 'y':
     retcode, sundials_version = conf.TryRun(sundials_version_source, '.cpp')
     if retcode == 0:
         config_error("Failed to determine Sundials version.")
-    env["sundials_version"] = sundials_version.strip(' "\n')
+    env["sundials_version"] = sundials_version.strip(' "\r\n')
 
     sundials_ver = parse_version(env['sundials_version'])
     if sundials_ver < parse_version("3.0") or sundials_ver >= parse_version("8.0"):
