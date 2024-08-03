@@ -13,17 +13,17 @@ close all
 tic
 help surf_reactor
 
-%% Set the initial conditions
-
-t = 870.0;
-gas = Solution('ptcombust.yaml', 'gas');
-
-gas.TPX = {t, OneAtm, 'CH4:0.01, O2:0.21, N2:0.78'};
-
 % The surface reaction mechanism describes catalytic combustion of
 % methane on platinum, and is from Deutschmann et al., 26th
 % Symp. (Intl.) on Combustion,1996, pp. 1747-1754
-surf = Interface('ptcombust.yaml', 'Pt_surf', gas);
+surf = Interface('ptcombust.yaml', 'Pt_surf');
+gas = surf.adjacent('gas');
+
+%% Set the initial conditions
+
+t = 870.0;
+gas.TPX = {t, OneAtm, 'CH4:0.01, O2:0.21, N2:0.78'};
+
 surf.TP = {t, surf.P};
 
 nsp = gas.nSpecies;

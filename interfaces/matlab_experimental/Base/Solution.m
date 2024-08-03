@@ -36,7 +36,7 @@ classdef Solution < handle & ThermoPhase & Kinetics & Transport
     % :param transport_model:
     %     String specifying transport model. Possible values are ``'default'``,
     %     ``'none'``, ``'mixture-averaged'``, or ``'multicomponent'``. If not specified,
-    %     ``'none'`` is used.
+    %     ``'default'`` is used.
     % :return:
     %     Instance of class :mat:class:`Solution`.
 
@@ -54,19 +54,25 @@ classdef Solution < handle & ThermoPhase & Kinetics & Transport
 
             ctIsLoaded;
 
-            if nargin == 0 || ~ischar(src)
-                error("Invalid argument: Solution requires name of input file.")
+            if isnumeric(src)
+                % New MATLAB object from existing C++ Solution
+                ID = src;
+            else
+                % New C++/MATLAB object from YAML source
+                if ~ischar(src)
+                    error("Invalid argument: Solution requires name of input file.")
+                end
+                if nargin < 2
+                    name = '';
+                end
+
+                if nargin < 3
+                    transport_model = 'default';
+                end
+
+                ID = ctFunc('soln_newSolution', src, name, transport_model);
             end
 
-            if nargin < 2
-                name = '';
-            end
-
-            if nargin < 3
-                transport_model = 'none';
-            end
-
-            ID = ctFunc('soln_newSolution', src, name, transport_model);
             % Inherit methods and properties from ThermoPhase, Kinetics, and Transport
             s@ThermoPhase(ID);
             s@Kinetics(ID);
