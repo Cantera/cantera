@@ -32,6 +32,7 @@ extern "C" {
     CANTERA_CAPI int soln_setTransportModel(int n, const char* model);
     CANTERA_CAPI size_t soln_nAdjacent(int n);
     CANTERA_CAPI int soln_adjacent(int n, int a);
+    CANTERA_CAPI int soln_adjacentName(int n, int a, int lennm, char* nm);
 
     CANTERA_CAPI int thermo_newFromFile(const char* filename, const char* phasename); //!< @todo remove from .NET and Fortran interfaces
     CANTERA_CAPI int thermo_del(int n);

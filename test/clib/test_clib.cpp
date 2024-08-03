@@ -136,11 +136,11 @@ TEST(ct, new_interface_auto)
 
     vector<int> adj;
     int surf = soln_newInterface("ptcombust.yaml", "Pt_surf", 0, adj.data());
-    ASSERT_EQ(surf, 1);
+    ASSERT_EQ(surf, 0);
 
     ASSERT_EQ(soln_nAdjacent(surf), 1u);
     int gas = soln_adjacent(surf, 0);
-    ASSERT_EQ(gas, 0);
+    ASSERT_EQ(gas, 1);
 
     int buflen = soln_name(gas, 0, 0) + 1; // include \0
     char* buf = new char[buflen];
@@ -148,6 +148,13 @@ TEST(ct, new_interface_auto)
     string solName = buf;
     ASSERT_EQ(solName, "gas");
     delete[] buf;
+
+    buflen = soln_adjacentName(surf, 0, 0, 0) + 1;
+    char* buf2 = new char[buflen];
+    soln_adjacentName(surf, 0, buflen, buf2);
+    solName = buf2;
+    ASSERT_EQ(solName, "gas");
+    delete[] buf2;
 }
 
 TEST(ct, thermo)

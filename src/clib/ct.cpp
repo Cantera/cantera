@@ -227,6 +227,19 @@ extern "C" {
         }
     }
 
+    int soln_adjacentName(int n, int a, int lennm, char* nm)
+    {
+        try {
+            auto soln = SolutionCabinet::at(n);
+            if (a < 0 || a >= (int)soln->nAdjacent()) {
+                throw CanteraError("soln_adjacentName", "Invalid index {}.", a);
+            }
+            return static_cast<int>(copyString(soln->adjacent(a)->name(), nm, lennm));
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
     //--------------- Phase ---------------------//
 
     size_t thermo_nElements(int n)
