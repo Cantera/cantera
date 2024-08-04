@@ -116,7 +116,15 @@ public:
      */
     bool isIdentical(Func1& other) const;
 
+    /**
+     * @deprecated Deprecated in %Cantera 3.1 and removed thereafter; replaced by
+     *      internal function.
+     */
     virtual double isProportional(TimesConstant1& other);
+    /**
+     * @deprecated Deprecated in %Cantera 3.1 and removed thereafter; replaced by
+     *      internal function.
+     */
     virtual double isProportional(Func1& other);
 
     //! Write LaTeX string describing function.
