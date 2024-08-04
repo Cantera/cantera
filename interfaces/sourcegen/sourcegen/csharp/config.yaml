@@ -10,6 +10,7 @@ ignore_funcs:
   ct.h:
     - ct_setLogWriter
     - soln_newInterface # signature causes syntax error in sourcegen
+    - thermo_size
   ctreactor.h:
     - flowReactor_setMassFlowRate
 
