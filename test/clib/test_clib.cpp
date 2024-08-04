@@ -28,10 +28,21 @@ TEST(ct, cabinet_exceptions)
     string err = reportError();
     EXPECT_THAT(err, HasSubstr("Index 999 out of range."));
 
+    soln_thermo(998);
+    err = reportError();
+    EXPECT_THAT(err, HasSubstr("Index 998 out of range."));
+
     int ret = soln_del(999);
     ASSERT_EQ(ret, -1);
     err = reportError();
     EXPECT_THAT(err, HasSubstr("delete a non-existing object."));
+
+    int ref = soln_newSolution("h2o2.yaml", "ohmech", "default");
+    soln_del(ref);
+    int thermo = soln_thermo(ref);
+    EXPECT_EQ(thermo, -2);
+    err = reportError();
+    EXPECT_THAT(err, HasSubstr("has been deleted."));
 
     ct_resetStorage();
     ret = soln_del(0);
@@ -48,6 +59,9 @@ TEST(ct, new_solution)
     int buflen = soln_name(ref, 0, 0) + 1; // include \0
     ASSERT_EQ(buflen, int(name.size() + 1));
 
+    int thermo = soln_thermo(ref);
+    ASSERT_EQ(thermo_parent(thermo), ref);
+
     char* buf = new char[buflen];
     soln_name(ref, buflen, buf);
     string solName = buf;
@@ -59,45 +73,62 @@ TEST(ct, soln_objects)
 {
     ct_resetStorage();
 
-    thermo_newFromFile("gri30.yaml", "gri30");
+    int thermo0 = thermo_newFromFile("gri30.yaml", "gri30");
+    ASSERT_EQ(thermo_size(), 1);
 
     int ref = soln_newSolution("gri30.yaml", "gri30", "none");
     ASSERT_EQ(ref, 0);
+    ASSERT_EQ(thermo_size(), 2);
     int ref2 = soln_newSolution("h2o2.yaml", "ohmech", "default");
     ASSERT_EQ(ref2, 1);
+    ASSERT_EQ(thermo_size(), 3);
 
-    int thermo = soln_thermo(ref2);
-    ASSERT_EQ(thermo, 2);
-    ASSERT_EQ(thermo_nSpecies(thermo), 10u);
+    ASSERT_EQ(thermo_parent(thermo0), -1);
 
-    int kin = soln_kinetics(ref2);
-    ASSERT_EQ(kin, 1);
-    ASSERT_EQ(kin_nReactions(kin), 29u);
+    int thermo = soln_thermo(ref);
+    ASSERT_EQ(thermo_parent(thermo), ref);
 
-    int trans = soln_kinetics(ref2);
-    ASSERT_EQ(trans, 1);
-    int buflen = trans_transportModel(trans, 0, 0);
+    int thermo2 = soln_thermo(ref2);
+    ASSERT_EQ(thermo2, 2);
+    ASSERT_EQ(thermo_nSpecies(thermo2), 10u);
+    ASSERT_EQ(thermo_parent(thermo2), ref2);
+
+    int kin = soln_kinetics(ref);
+
+    int kin2 = soln_kinetics(ref2);
+    ASSERT_EQ(kin2, 1);
+    ASSERT_EQ(kin_nReactions(kin2), 29u);
+    ASSERT_EQ(kin_parent(kin2), ref2);
+    ASSERT_EQ(kin_parent(kin), ref);
+
+    int trans = soln_transport(ref);
+    ASSERT_EQ(trans_parent(trans), ref);
+
+    int trans2 = soln_transport(ref2);
+    ASSERT_EQ(trans2, 1);
+    int buflen = trans_transportModel(trans2, 0, 0);
     vector<char> buf(buflen);
-    trans_transportModel(trans, buflen, buf.data());
+    trans_transportModel(trans2, buflen, buf.data());
     string trName(buf.data());
     ASSERT_EQ(trName, "mixture-averaged");
+    ASSERT_EQ(trans_parent(trans2), ref2);
 
     soln_del(ref2);
-    size_t nsp = thermo_nSpecies(thermo);
+    size_t nsp = thermo_nSpecies(thermo2);
     ASSERT_EQ(nsp, npos);
     string err = reportError();
     EXPECT_THAT(err, HasSubstr("has been deleted."));
 
-    size_t nr = thermo_nSpecies(thermo);
+    size_t nr = thermo_nSpecies(thermo2);
     ASSERT_EQ(nr, npos);
     err = reportError();
     EXPECT_THAT(err, HasSubstr("has been deleted."));
 
-    trans = soln_setTransportModel(ref, "mixture-averaged");
-    ASSERT_EQ(trans, 2);
-    buflen = trans_transportModel(trans, 0, 0);
+    trans2 = soln_setTransportModel(ref, "mixture-averaged");
+    ASSERT_EQ(trans2, 2);
+    buflen = trans_transportModel(trans2, 0, 0);
     buf.resize(buflen);
-    trans_transportModel(trans, buflen, buf.data());
+    trans_transportModel(trans2, buflen, buf.data());
     trName = buf.data();
     ASSERT_EQ(trName, "mixture-averaged");
 }
