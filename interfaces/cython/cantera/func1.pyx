@@ -62,12 +62,47 @@ cdef class Func1:
     Note that all methods which accept `Func1` objects will also accept the
     callable object and create the wrapper on their own, so it is often not
     necessary to explicitly create a `Func1` object.
+
+    Note that `Func1` objects also allow for direct access to functor objects
+    implemented in C++ based on associated type specifiers::
+
+        >>> f5 = Func1("exp", 3.)  # C++ 'Exp1' functor
+        >>> f5.cxx_type
+        'Cantera::Exp1'
+        >>> f5.write()
+        '\\exp(3x)'
+        >>> f5(2.)
+        403.4287934927351
+        >>> f6 = Func1("Arrhenius", [9630.0, 2.0, 2012.878])  # C++ 'Arrhenius1' functor
+        >>> f6(1500)
+        5662665826.195515
+
+    For implemented C++ functor types, see the Cantera C++ :ct:`Func1` documentation.
+
+    `Func1` objects support operator overloading which facilitates the construction of
+    compound functions, where some standard simplifications are implemented::
+
+        >>> f7 = 2 * f5 + 3
+        >>> f7.write()
+        '2\\exp(3x) + 3'
+        >>> f7(2.)
+        809.8575869854702
+        >>> f8 = f5 * f5
+        >>> f8.write()
+        '\\exp(6x)'
+        >>> f8(2.)
+        162754.79141900392
+
+    .. versionchanged:: 3.1
+
+        Implementations for operator overloading and direct support for C++ functor
+        construction are added.
     """
     def __cinit__(self, *args, **kwargs):
         self.exception = None
         self.callable = None
 
-    def __init__(self, c, *, init=True):
+    def __init__(self, c, *args, init=True):
         if init is False:
             # used by 'create' classmethod
             return
@@ -76,7 +111,13 @@ cdef class Func1:
             self._set_callback(c)
             return
 
-        cdef Func1 func
+        cdef shared_ptr[CxxFunc1] cxx_func
+        if isinstance(c, str):
+            cxx_func = Func1._make_cxx_func1(stringify(c), args)
+            self._func = cxx_func
+            self.func = cxx_func.get()
+            return
+
         try:
             arr = np.array(c)
             if arr.ndim == 0:
@@ -87,9 +128,9 @@ cdef class Func1:
                 k = float(arr.flat[0])
             else:
                 raise TypeError
-            func = Func1.cxx_functor("constant", k)
-            self._func = func._func
-            self.func = self._func.get()
+            cxx_func = Func1._make_cxx_func1(stringify("constant"), (k,))
+            self._func = cxx_func
+            self.func = cxx_func.get()
 
         except TypeError:
             raise TypeError(
@@ -110,22 +151,16 @@ cdef class Func1:
         """
         return pystr(self.func.type())
 
-    @classmethod
-    def cxx_functor(cls, functor_type, *args):
-        """
-        Retrieve a C++ `Func1` functor (advanced feature).
-
-        For implemented functor types, see the Cantera C++ ``Func1`` documentation.
-
-        .. versionadded:: 3.0
-        """
+    @staticmethod
+    cdef shared_ptr[CxxFunc1] _make_cxx_func1(string cxx_string, tuple args):
+        """Create C++ functor from type specifier and arguments."""
         cdef shared_ptr[CxxFunc1] func
         cdef Func1 f0
         cdef Func1 f1
-        cdef string cxx_string = stringify(functor_type)
         cdef vector[double] arr
         func1_type = pystr(CxxCheckFunc1(cxx_string))
         if func1_type == "undefined":
+            functor_type = pystr(cxx_string)
             raise NotImplementedError(f"Functor '{functor_type}' is not implemented.")
         if len(args) == 0 and func1_type == "standard":
             # basic functor with no parameter
@@ -175,13 +210,92 @@ cdef class Func1:
                 raise ValueError("Invalid arguments")
         else:
             raise ValueError("Invalid arguments")
+        return func
 
-        cls_name = pystr(func.get().typeName()).split("::")[-1]
-        cdef Func1 out = type(
-            cls_name, (cls, ), {"__module__": cls.__module__})(None, init=False)
+    @staticmethod
+    cdef Func1 _make_func1(shared_ptr[CxxFunc1] func):
+        """Create Python Func1 from C++ functor."""
+        cdef Func1 out = Func1(None, init=False)
         out._func = func
         out.func = out._func.get()
         return out
+
+    @staticmethod
+    def cxx_functor(functor_type, *args):
+        """
+        Retrieve a C++ `Func1` functor (advanced feature).
+
+        For implemented functor types, see the Cantera C++ ``Func1`` documentation.
+
+        .. versionadded:: 3.0
+
+        .. deprecated:: 3.1
+
+            To be removed after Cantera 3.1; replaced by alternative constructor.
+        """
+        warnings.warn(
+            "To be removed after Cantera 3.1; use alternative constructor instead.",
+            DeprecationWarning)
+        cdef shared_ptr[CxxFunc1] func
+        func = Func1._make_cxx_func1(stringify(functor_type), args)
+        return Func1._make_func1(func)
+
+    def __add__(self, other):
+        if not isinstance(other, Func1):
+            other = Func1(other)
+        cdef Func1 f1 = other
+        return Func1._make_func1(CxxNewSumFunction(self._func, f1._func))
+
+    def __radd__(self, other):
+        if not isinstance(other, Func1):
+            other = Func1(other)
+        cdef Func1 f1 = other
+        return Func1._make_func1(CxxNewSumFunction(f1._func, self._func))
+
+    def __sub__(self, other):
+        if not isinstance(other, Func1):
+            other = Func1(other)
+        cdef Func1 f1 = other
+        return Func1._make_func1(CxxNewDiffFunction(self._func, f1._func))
+
+    def __rsub__(self, other):
+        if not isinstance(other, Func1):
+            other = Func1(other)
+        cdef Func1 f1 = other
+        return Func1._make_func1(CxxNewDiffFunction(f1._func, self._func))
+
+    def __mul__(self, other):
+        if not isinstance(other, Func1):
+            other = Func1(other)
+        cdef Func1 f1 = other
+        return Func1._make_func1(CxxNewProdFunction(self._func, f1._func))
+
+    def __rmul__(self, other):
+        if not isinstance(other, Func1):
+            other = Func1(other)
+        cdef Func1 f1 = other
+        return Func1._make_func1(CxxNewProdFunction(f1._func, self._func))
+
+    def __truediv__(self, other):
+        if not isinstance(other, Func1):
+            other = Func1(other)
+        cdef Func1 f1 = other
+        return Func1._make_func1(CxxNewRatioFunction(self._func, f1._func))
+
+    def __rtruediv__(self, other):
+        if not isinstance(other, Func1):
+            other = Func1(other)
+        cdef Func1 f1 = other
+        return Func1._make_func1(CxxNewRatioFunction(f1._func, self._func))
+
+    @property
+    def cxx_type(self):
+        """
+        Return the type of the underlying C++ functor object.
+
+        .. versionadded:: 3.1
+        """
+        return pystr(self.func.typeName())
 
     def write(self, name="x"):
         """
