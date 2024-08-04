@@ -67,6 +67,12 @@ classdef Func1 < handle
 
             ctIsLoaded;
 
+            if isnumeric(typ)
+                % instantiate from handle
+                x.id = typ;
+                return
+            end
+
             if ~isa(typ, 'char')
                 error('Function type must be a string');
             end
@@ -134,19 +140,43 @@ classdef Func1 < handle
         %% Func1 Class Utility Methods
 
         function r = plus(f1,f2)
-            r = Func1('sum', f1, f2);
+            if isa(f1, 'double') && length(f1) == 1
+                f1 = Func1('constant', f1);
+            elseif isa(f2, 'double') && length(f2) == 1
+                f2 = Func1('constant', f2);
+            end
+            id = ctFunc('func_new_sum', f1.id, f2.id);
+            r = Func1(id);
         end
 
         function r = minus(f1,f2)
-            r = Func1('diff', f1, f2);
+            if isa(f1, 'double') && length(f1) == 1
+                f1 = Func1('constant', f1);
+            elseif isa(f2, 'double') && length(f2) == 1
+                f2 = Func1('constant', f2);
+            end
+            id = ctFunc('func_new_diff', f1.id, f2.id);
+            r = Func1(id);
         end
 
         function r = mtimes(f1,f2)
-            r = Func1('product', f1, f2);
+            if isa(f1, 'double') && length(f1) == 1
+                f1 = Func1('constant', f1);
+            elseif isa(f2, 'double') && length(f2) == 1
+                f2 = Func1('constant', f2);
+            end
+            id = ctFunc('func_new_prod', f1.id, f2.id);
+            r = Func1(id);
         end
 
         function r = mrdivide(f1,f2)
-            r = Func1('ratio', f1, f2);
+            if isa(f1, 'double') && length(f1) == 1
+                f1 = Func1('constant', f1);
+            elseif isa(f2, 'double') && length(f2) == 1
+                f2 = Func1('constant', f2);
+            end
+            id = ctFunc('func_new_ratio', f1.id, f2.id);
+            r = Func1(id);
         end
 
         function s = type(f)
