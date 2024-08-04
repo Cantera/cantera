@@ -11,6 +11,7 @@
 #include "cantera/base/ctexceptions.h"
 #include "cantera/base/utilities.h"
 #include <unordered_map>
+#include <boost/range/adaptor/reversed.hpp>
 
 namespace Cantera {
 
@@ -61,12 +62,14 @@ public:
     /**
      * Add a new object. The index of the object is returned.
      */
-    static int add(shared_ptr<M> obj) {
+    static int add(shared_ptr<M> obj, int parent=-1) {
         dataRef data = getData();
         data.push_back(obj);
+        auto& parents = getParents();
+        parents.push_back(parent);
         int idx = static_cast<int>(data.size()) - 1;
         lookupRef lookup = getLookup();
-        if (index(*obj) >= 0) {
+        if (lookup.count(obj.get())) {
             lookup[obj.get()].insert(idx);
         } else {
             lookup[obj.get()] = {idx};
@@ -97,6 +100,7 @@ public:
      */
     static int reset() {
         getData().clear();
+        getParents().clear();
         getLookup().clear();
         return 0;
     }
@@ -107,7 +111,7 @@ public:
     static int copy(int n) {
         dataRef data = getData();
         try {
-            return add(*data[n]);
+            return add(*data[n]);  // do not copy parent to avoid ambiguous data
         } catch (std::exception& err) {
             throw CanteraError("SharedCabinet::newCopy", err.what());
         }
@@ -136,6 +140,17 @@ public:
             throw CanteraError("SharedCabinet::del",
                 "Attempt made to delete a non-existing object.");
         }
+    }
+
+    /**
+     * Return handle of parent to object n.
+     */
+    static int parent(int n) {
+        auto& parents = getParents();
+        if (n < 0 || n >= len(parents)) {
+            throw CanteraError("SharedCabinet::parent", "Index {} out of range.", n);
+        }
+        return parents[n];
     }
 
     /**
@@ -189,13 +204,19 @@ public:
      * object is not in the SharedCabinet. If multiple indices reference the same
      * object, the index of the last one added is returned.
      */
-    static int index(const M& obj) {
+    static int index(const M& obj, int parent=-1) {
         lookupRef lookup = getLookup();
         if (!lookup.count(&obj)) {
             return -1;
         }
         set<int>& entry = lookup.at(&obj);
-        return *entry.rbegin();
+        auto& parents = getParents();
+        for (const auto e : boost::adaptors::reverse(entry)) {
+            if (parents[e] == parent) {
+                return e;
+            }
+        }
+        return -2;  // not found
     }
 
 private:
@@ -209,6 +230,18 @@ private:
             s_storage = new SharedCabinet<M>();
         }
         return s_storage->m_table;
+    }
+
+    /**
+     * Static function that returns a pointer to the list of parent object handles of
+     * the singleton SharedCabinet<M> instance. All member functions should
+     * access the data through this function.
+     */
+    static vector<int>& getParents() {
+        if (s_storage == nullptr) {
+            s_storage = new SharedCabinet<M>();
+        }
+        return s_storage->m_parents;
     }
 
     /**
@@ -234,7 +267,12 @@ private:
     std::unordered_map<const M*, set<int>> m_lookup;
 
     /**
-     * list to hold pointers to objects.
+     * List to hold handles of parent objects.
+     */
+    vector<int> m_parents;
+
+    /**
+     * List to hold pointers to objects.
      */
     vector<shared_ptr<M>> m_table;
 };

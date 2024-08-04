@@ -61,15 +61,16 @@ extern "C" {
     {
         try {
             auto soln = newSolution(infile, name, transport);
+            int id = SolutionCabinet::add(soln);
             // add associated objects
-            ThermoCabinet::add(soln->thermo());
+            ThermoCabinet::add(soln->thermo(), id);
             if (soln->kinetics()) {
-                KineticsCabinet::add(soln->kinetics());
+                KineticsCabinet::add(soln->kinetics(), id);
             }
             if (soln->transport()) {
-                TransportCabinet::add(soln->transport());
+                TransportCabinet::add(soln->transport(), id);
             }
-            return SolutionCabinet::add(soln);
+            return id;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -93,14 +94,15 @@ extern "C" {
                 // adjacent phases can be retrieved via soln_adjacent
             }
             // add associated objects
-            ThermoCabinet::add(soln->thermo());
+            int id = SolutionCabinet::add(soln);
+            ThermoCabinet::add(soln->thermo(), id);
             if (soln->kinetics()) {
-                KineticsCabinet::add(soln->kinetics());
+                KineticsCabinet::add(soln->kinetics(), id);
             }
             if (soln->transport()) {
-                TransportCabinet::add(soln->transport());
+                TransportCabinet::add(soln->transport(), id);
             }
-            return SolutionCabinet::add(soln);
+            return id;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -112,18 +114,18 @@ extern "C" {
             if (n >= 0 && n < SolutionCabinet::size()) {
                 // remove all associated objects
                 auto soln = SolutionCabinet::at(n);
-                int index = ThermoCabinet::index(*(soln->thermo()));
+                int index = ThermoCabinet::index(*(soln->thermo()), n);
                 if (index >= 0) {
                     ThermoCabinet::del(index);
                 }
                 if (soln->kinetics()) {
-                    index = KineticsCabinet::index(*(soln->kinetics()));
+                    index = KineticsCabinet::index(*(soln->kinetics()), n);
                     if (index >= 0) {
                         KineticsCabinet::del(index);
                     }
                 }
                 if (soln->transport()) {
-                    index = TransportCabinet::index(*(soln->transport()));
+                    index = TransportCabinet::index(*(soln->transport()), n);
                     if (index >= 0) {
                         TransportCabinet::del(index);
                     }
@@ -151,7 +153,7 @@ extern "C" {
     {
         try {
             auto soln = SolutionCabinet::at(n);
-            return ThermoCabinet::index(*soln->thermo());
+            return ThermoCabinet::index(*soln->thermo(), n);
         } catch (...) {
             return handleAllExceptions(-2, ERR);
         }
@@ -164,7 +166,7 @@ extern "C" {
             if (!soln->kinetics()) {
                 return -1;
             }
-            return KineticsCabinet::index(*(soln->kinetics()));
+            return KineticsCabinet::index(*(soln->kinetics()), n);
         } catch (...) {
             return handleAllExceptions(-2, ERR);
         }
@@ -177,7 +179,7 @@ extern "C" {
             if (!soln->transport()) {
                 return -1;
             }
-            return TransportCabinet::index(*(soln->transport()));
+            return TransportCabinet::index(*(soln->transport()), n);
         } catch (...) {
             return handleAllExceptions(-2, ERR);
         }
@@ -188,9 +190,9 @@ extern "C" {
         try {
             auto soln = SolutionCabinet::at(n);
             TransportCabinet::del(
-                TransportCabinet::index(*(soln->transport())));
+                TransportCabinet::index(*(soln->transport()), n));
             soln->setTransportModel(model);
-            return TransportCabinet::add(soln->transport());
+            return TransportCabinet::add(soln->transport(), n);
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -209,19 +211,20 @@ extern "C" {
     {
         try {
             auto soln = SolutionCabinet::at(n);
-            if (a < 0 || a >= (int)soln->nAdjacent()) {
+            if (a < 0 || a >= static_cast<int>(soln->nAdjacent())) {
                 return -1;
             }
             auto adj = soln->adjacent(a);
             // add associated objects
-            ThermoCabinet::add(adj->thermo());
+            int id = SolutionCabinet::add(adj);
+            ThermoCabinet::add(adj->thermo(), id);
             if (adj->kinetics()) {
-                KineticsCabinet::add(adj->kinetics());
+                KineticsCabinet::add(adj->kinetics(), id);
             }
             if (adj->transport()) {
-                TransportCabinet::add(adj->transport());
+                TransportCabinet::add(adj->transport(), id);
             }
-            return SolutionCabinet::add(adj);
+            return id;
         } catch (...) {
             return handleAllExceptions(-2, ERR);
         }
@@ -231,7 +234,7 @@ extern "C" {
     {
         try {
             auto soln = SolutionCabinet::at(n);
-            if (a < 0 || a >= (int)soln->nAdjacent()) {
+            if (a < 0 || a >= static_cast<int>(soln->nAdjacent())) {
                 throw CanteraError("soln_adjacentName", "Invalid index {}.", a);
             }
             return static_cast<int>(copyString(soln->adjacent(a)->name(), nm, lennm));
@@ -1723,6 +1726,42 @@ extern "C" {
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int thermo_parent(int n)
+    {
+        try {
+            return ThermoCabinet::parent(n);
+        } catch (...) {
+            return handleAllExceptions(-2, ERR);
+        }
+    }
+
+    int thermo_size()
+    {
+        try {
+            return ThermoCabinet::size();
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int kin_parent(int n)
+    {
+        try {
+            return KineticsCabinet::parent(n);
+        } catch (...) {
+            return handleAllExceptions(-2, ERR);
+        }
+    }
+
+    int trans_parent(int n)
+    {
+        try {
+            return TransportCabinet::parent(n);
+        } catch (...) {
+            return handleAllExceptions(-2, ERR);
         }
     }
 
