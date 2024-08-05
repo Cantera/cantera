@@ -295,11 +295,8 @@ classdef ctTestThermo < matlab.unittest.TestCase
 
             self.verifySubstring(str, self.phase.name);
             self.verifySubstring(str, 'temperature');
-
-            for i = 1:self.phase.nSpecies
-                name = self.phase.speciesName(i);
-                self.verifySubstring(str, name{:});
-            end
+            self.verifySubstring(str, 'H2');
+            self.verifySubstring(str, 'minor');
         end
 
         function testRefInfo(self)
