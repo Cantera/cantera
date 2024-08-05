@@ -1586,12 +1586,13 @@ extern "C" {
 
     //-------------------- Functions ---------------------------
 
-    int thermo_report3(int nth, int show_thermo, int ibuf, char* buf)
+    int thermo_report3(int nth, int show_thermo, double threshold, int ibuf, char* buf)
     {
         try {
             bool stherm = (show_thermo != 0);
             return static_cast<int>(
-                copyString(ThermoCabinet::item(nth).report(stherm), buf, ibuf));
+                copyString(ThermoCabinet::item(nth).report(stherm, threshold),
+                buf, ibuf));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
