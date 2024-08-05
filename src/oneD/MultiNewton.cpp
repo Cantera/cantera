@@ -140,6 +140,8 @@ void MultiNewton::resize(size_t sz)
     m_x.resize(m_n);
     m_stp.resize(m_n);
     m_stp1.resize(m_n);
+    temp_x0.resize(m_n);
+    temp_stp0.resize(m_n);
 }
 
 double MultiNewton::norm2(const double* x, const double* step, OneDim& r) const
@@ -231,17 +233,19 @@ int MultiNewton::dampStep(const double* x0, const double* step0,
     // ---------- Attempt damped step ----------
 
     // damping coefficient starts at 1.0
-    double damp = 1.0;
+    double alpha = 1.0;
     size_t m;
     for (m = 0; m < NDAMP; m++) {
-        double ff = fbound*damp;
+        double ff = fbound*alpha;
 
         // step the solution by the damped step size
+        // x_{k+1} = x_k + alpha_k*J(x_k)^-1 F(x_k)
         for (size_t j = 0; j < m_n; j++) {
-            x1[j] = ff*step0[j] + x0[j];
+            x1[j] = x0[j] + ff*step0[j];
         }
 
         // compute the next undamped step that would result if x1 is accepted
+        // J(x_k)^-1 F(x_k+1)
         step(x1, step1, r, jac, loglevel-1);
 
         // compute the weighted norm of step1
@@ -251,19 +255,19 @@ int MultiNewton::dampStep(const double* x0, const double* step0,
         if (loglevel > 0) {
             double ss = r.ssnorm(x1,step1);
             writelog("\n{:d}  {:9.5f}   {:9.5f}   {:9.5f}   {:9.5f}   {:9.5f} {:4d}  {:d}/{:d}",
-                     m, damp, fbound, log10(ss+SmallNumber),
+                     m, alpha, fbound, log10(ss+SmallNumber),
                      log10(s0+SmallNumber), log10(s1+SmallNumber),
                      jac.nEvals(), jac.age(), m_maxAge);
         }
 
-        // if the norm of s1 is less than the norm of s0, then accept this
+        // If the norm of s1 is less than the norm of s0, then accept this
         // damping coefficient. Also accept it if this step would result in a
         // converged solution. Otherwise, decrease the damping coefficient and
         // try again.
         if (s1 < 1.0 || s1 < s0) {
             break;
         }
-        damp /= DampFactor;
+        alpha /= DampFactor;
     }
 
     // If a damping coefficient was found, return 1 if the solution after
