@@ -66,7 +66,7 @@ extern "C" {
     CANTERA_CAPI size_t thermo_elementIndex(int n, const char* nm);
     CANTERA_CAPI size_t thermo_speciesIndex(int n, const char* nm);
     //! @since Changed signature in %Cantera 3.1
-    CANTERA_CAPI int thermo_report3(int nth, int show_thermo, int ibuf, char* buf);
+    CANTERA_CAPI int thermo_report3(int nth, int show_thermo, double threshold, int ibuf, char* buf);
     CANTERA_CAPI int thermo_print(int nth, int show_thermo, double threshold);
     CANTERA_CAPI double thermo_nAtoms(int n, size_t k, size_t m);
     CANTERA_CAPI int thermo_addElement(int n, const char* name, double weight);

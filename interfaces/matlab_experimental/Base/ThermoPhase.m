@@ -976,8 +976,11 @@ classdef ThermoPhase < handle
             s = ctString('thermo_getName', tp.tpID);
         end
 
-        function str = get.report(tp)
-            str = ctString('thermo_report3', tp.tpID, 1);
+        function str = get.report(tp, threshold)
+            if nargin < 2
+                threshold = 1e-14;
+            end
+            str = ctString('thermo_report3', tp.tpID, 1, threshold);
         end
 
         function n = get.speciesNames(tp)
