@@ -1586,16 +1586,12 @@ extern "C" {
 
     //-------------------- Functions ---------------------------
 
-    int thermo_report(int nth, int ibuf, char* buf, int show_thermo)
+    int thermo_report3(int nth, int show_thermo, int ibuf, char* buf)
     {
         try {
             bool stherm = (show_thermo != 0);
-            string s = ThermoCabinet::item(nth).report(stherm);
-            if (int(s.size()) > ibuf - 1) {
-                return -(static_cast<int>(s.size()) + 1);
-            }
-            copyString(s, buf, ibuf);
-            return 0;
+            return static_cast<int>(
+                copyString(ThermoCabinet::item(nth).report(stherm), buf, ibuf));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -1633,7 +1629,7 @@ extern "C" {
         }
     }
 
-    int ct_getDataDirectories(int buflen, char* buf, const char* sep)
+    int ct_getDataDirectories3(const char* sep, int buflen, char* buf)
     {
         try {
             return static_cast<int>(copyString(getDataDirectories(sep), buf, buflen));

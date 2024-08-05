@@ -24,7 +24,8 @@ extern "C" {
     CANTERA_CAPI double func_value(int i, double t);
     CANTERA_CAPI int func_derivative(int i);
     CANTERA_CAPI int func_duplicate(int i);
-    CANTERA_CAPI int func_write(int i, const char* arg, size_t lennm, char* nm); //!< @since Changed signature in %Cantera 3.1
+    //! @since Changed signature in %Cantera 3.1
+    CANTERA_CAPI int func_write(int i, const char* arg, size_t lennm, char* nm);
     CANTERA_CAPI int ct_clearFunc();
 
 #ifdef __cplusplus
