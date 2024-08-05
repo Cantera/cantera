@@ -9,10 +9,5 @@ function d = ctDataDirectories()
     %     Cell array with strings representing the data file search directories
 
     ctIsLoaded;
-    buflen = calllib(ct, 'ct_getDataDirectories', 0, '', ';');
-    aa = char(ones(1, buflen));
-    ptr = libpointer('cstring', aa);
-    [~, bb, ~] = calllib(ct, 'ct_getDataDirectories', buflen, ptr, ';');
-    d = bb;
-    clear aa, bb, ptr
+    d = ctString('ct_getDataDirectories3', ';');
 end

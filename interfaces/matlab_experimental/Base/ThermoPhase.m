@@ -977,16 +977,7 @@ classdef ThermoPhase < handle
         end
 
         function str = get.report(tp)
-            buflen = 0 - calllib(ctLib, 'thermo_report', tp.tpID, 0, '', 1);
-            aa = char(ones(1, buflen));
-            ptr = libpointer('cstring', aa);
-            [iok, bb] = calllib(ctLib, 'thermo_report', tp.tpID, buflen, ptr, 1);
-
-            if iok < 0
-                error(ctGetErr);
-            end
-
-            str = bb;
+            str = ctString('thermo_report3', tp.tpID, 1);
         end
 
         function n = get.speciesNames(tp)
