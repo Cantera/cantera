@@ -45,11 +45,61 @@ public:
                      const OneDim& r, int loglevel);
 
     /**
-     * On entry, step0 must contain an undamped Newton step for the solution x0.
-     * This method attempts to find a damping coefficient such that the next
-     * undamped step would have a norm smaller than that of step0. If
-     * successful, the new solution after taking the damped step is returned in
-     * x1, and the undamped step at x1 is returned in step1.
+     * Performs a damped Newton step to solve the system of nonlinear equations.
+     *
+     * On entry, `step0` must contain an undamped Newton step for the solution `x0`.
+     * This method attempts to find a damping coefficient `alpha_k` such that the next
+     * undamped step would have a norm smaller than that of `step0`. If successful,
+     * the new solution after taking the damped step is returned in `x1`, and the
+     * undamped step at `x1` is returned in `step1`.
+     *
+     * This uses the method outlined in @cite kee2003.
+     *
+     * The system of equations can be written in the form:
+     * @f[
+     *   F(x) = 0
+     * @f]
+     *
+     * Where `F` is the system of nonlinear equations, `x` is the solution vector.
+     *
+     * For the damped Newton method we are solving:
+     *
+     * @f[
+     *   x_{k+1} - x_k = \inc x_k = -\alpha_k J^(-1)(x_k) F(x_k)
+     * @f]
+     *
+     * Where `J` is the Jacobian matrix of `F` with respect to `x`, and `alpha_k` is
+     * the damping factor, and @f$ \inc x_k @f$ is the Newton step at `x_k`, sometimes
+     * called the correction vector. In the equations here, k is just an iteration
+     * variable.
+     *
+     * In this method, the Jacobian does not update, even when the solution vector is
+     * evaluated at different points.
+     *
+     * The general algorithm is described below.
+     *
+     * We want to solve the equation:
+     * @f[
+     *   x_{k+1} = x_k + \alpha_k \inc x_k
+     * @f]
+     *
+     * Pick @f$ \alpha_k @f$ such that @f$ \norm{\inc x_{k+1}} < \norm{\inc x_k} @f$.
+     * Where @f$ \inc x_k = J^{-1}(x_k) F(x_k) @f$, and
+     * @f$ \inc x_{k+1} = J^{-1}(x_{k}) F(x_{k+1}) @f$.
+     *
+     * @param x0 initial solution about which a Newton step will be taken
+     * @param step0 initial Newton step without any damping
+     * @param x1 solution after taking the damped Newton step
+     * @param step1 Newton step after taking the damped Newton step
+     * @param loglevel controls amount of printed diagnostics
+     * @param writetitle controls if logging title is printed
+     *
+     * Returns:
+     * - int : Status code
+     *   - `1` if a damping coefficient is found and the solution converges.
+     *   - `0` if a damping coefficient is found but the solution does not converge.
+     *   - `-2` if no suitable damping coefficient is found within the maximum iterations.
+     *   - `-3` if the current solution `x0` is too close to the boundary and the step points out of the allowed domain.
      */
     int dampStep(const double* x0, const double* step0, double* x1, double* step1,
                  double& s1, OneDim& r, MultiJac& jac, int loglevel, bool writetitle);
@@ -74,7 +124,7 @@ public:
 
 protected:
     //! Work arrays of size #m_n used in solve().
-    vector<double> m_x, m_stp, m_stp1;
+    vector<double> m_x, m_stp, m_stp1, temp_x0, temp_stp0;
 
     int m_maxAge = 5;
 
