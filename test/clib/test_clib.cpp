@@ -208,6 +208,32 @@ TEST(ct, thermo)
     double T = thermo_temperature(thermo);
     ASSERT_GT(T, 2200);
     ASSERT_LT(T, 2300);
+
+    size_t ns = thermo_nSpecies(thermo);
+    vector<double> work(ns);
+    vector<double> X(ns);
+    thermo_getMoleFractions(thermo, ns, X.data());
+    double prod;
+
+    thermo_getPartialMolarEnthalpies(thermo, ns, work.data());
+    prod = std::inner_product(X.begin(), X.end(), work.begin(), 0.0);
+    ASSERT_NEAR(prod, thermo_enthalpy_mole(thermo), 1e-6);
+
+    thermo_getPartialMolarEntropies(thermo, ns, work.data());
+    prod = std::inner_product(X.begin(), X.end(), work.begin(), 0.0);
+    ASSERT_NEAR(prod, thermo_entropy_mole(thermo), 1e-6);
+
+    thermo_getPartialMolarIntEnergies(thermo, ns, work.data());
+    prod = std::inner_product(X.begin(), X.end(), work.begin(), 0.0);
+    ASSERT_NEAR(prod, thermo_intEnergy_mole(thermo), 1e-6);
+
+    thermo_getPartialMolarCp(thermo, ns, work.data());
+    prod = std::inner_product(X.begin(), X.end(), work.begin(), 0.0);
+    ASSERT_NEAR(prod, thermo_cp_mole(thermo), 1e-6);
+
+    thermo_getPartialMolarVolumes(thermo, ns, work.data());
+    prod = std::inner_product(X.begin(), X.end(), work.begin(), 0.0);
+    ASSERT_NEAR(prod, 1./thermo_molarDensity(thermo), 1e-6);
 }
 
 TEST(ct, kinetics)
