@@ -1348,16 +1348,15 @@ elif conf.CheckDeclaration('_LIBCPP_VERSION', '#include <iostream>', 'C++'):
 else:
     env['cxx_stdlib'] = []
 
-if not env["using_apple_clang"]:
-    # This checks for these three libraries in order and stops when it finds the
-    # first success. Intel = iomp5, LLVM/clang = omp, GCC = gomp. Since gomp is
-    # likely to be installed on the system even if other compilers are installed
-    # or in use, it needs to go last in the check.
-    env['HAS_OPENMP'] = conf.CheckLibWithHeader(
-        ["iomp5", "omp", "gomp"], "omp.h", language="C++"
-    )
-else:
-    env["HAS_OPENMP"] = False
+
+# This checks for these three libraries in order and stops when it finds the
+# first success. Intel = iomp5, LLVM/clang = omp, GCC = gomp. Since gomp is
+# likely to be installed on the system even if other compilers are installed
+# or in use, it needs to go last in the check.
+env['HAS_OPENMP'] = conf.CheckLibWithHeader(
+    ["iomp5", "omp", "gomp"], "omp.h", language="C++"
+)
+
 _, boost_lib_version = run_preprocessor(conf, ["<boost/version.hpp>"], "BOOST_LIB_VERSION")
 if not retcode:
     config_error("Boost could not be found. Install Boost headers or set "
