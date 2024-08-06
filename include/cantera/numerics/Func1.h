@@ -111,10 +111,12 @@ public:
     //! Routine to determine if two functions are the same.
     /*!
      * Two functions are the same if they are the same function. This means
-     * that the ID and stored constant is the same. This means that the m_f1
-     * and m_f2 are identical if they are non-null.
+     * that the ID and stored constant is the same. This means that the #m_f1
+     * and #m_f2 are identical if they are non-null. Functors of the base class
+     * Func1 are by default not identical, as they are used by callback functions
+     * that cannot be differentiated.
      */
-    bool isIdentical(Func1& other) const;
+    virtual bool isIdentical(Func1& other) const;
 
     /**
      * @deprecated Deprecated in %Cantera 3.1 and removed thereafter; replaced by
@@ -130,16 +132,16 @@ public:
     //! Write LaTeX string describing function.
     virtual string write(const string& arg) const;
 
-    //! Accessor function for the stored constant
+    //! Accessor function for the stored constant #m_c.
     double c() const;
 
-    //! Accessor function for m_f1
+    //! Accessor function for #m_f1.
     //! @since New in %Cantera 3.0.
     shared_ptr<Func1> func1_shared() const {
         return m_f1;
     }
 
-    //! Accessor function for m_f2
+    //! Accessor function for #m_f2.
     //! @since New in %Cantera 3.0.
     shared_ptr<Func1> func2_shared() const {
         return m_f2;
@@ -364,6 +366,10 @@ public:
     //!     last tabulated value is held until a new tabulated time value is reached.
     //! @since New in %Cantera 3.0
     void setMethod(const string& method);
+
+    bool isIdentical(Func1& other) const override {
+        return false;  // base class check is insufficient
+    }
 
     string write(const string& arg) const override;
 
@@ -676,6 +682,10 @@ public:
         return "Gaussian";
     }
 
+    bool isIdentical(Func1& other) const override {
+        return false;  // base class check is insufficient
+    }
+
     double eval(double t) const override {
         double x = (t - m_t0)/m_tau;
         return m_A * std::exp(-x*x);
@@ -716,6 +726,10 @@ public:
 
     string type() const override {
         return "polynomial3";
+    }
+
+    bool isIdentical(Func1& other) const override {
+        return false;  // base class check is insufficient
     }
 
     double eval(double t) const override {
@@ -760,6 +774,10 @@ public:
 
     string type() const override {
         return "Fourier";
+    }
+
+    bool isIdentical(Func1& other) const override {
+        return false;  // base class check is insufficient
     }
 
     double eval(double t) const override {
@@ -808,6 +826,10 @@ public:
 
     string type() const override {
         return "Arrhenius";
+    }
+
+    bool isIdentical(Func1& other) const override {
+        return false;  // base class check is insufficient
     }
 
     double eval(double t) const override {
