@@ -104,7 +104,7 @@ public:
     //! Creates a derivative to the current function
     /*!
      * @return  shared pointer to new derivative function.
-     * @since Starting in Cantera 3.1, the return type is a `shared_ptr`.
+     * @since Starting in %Cantera 3.1, the return type is a `shared_ptr`.
      */
     virtual shared_ptr<Func1> derivative() const;
 
