@@ -1391,14 +1391,18 @@ elif env["system_blas_lapack"] == "default":
         logger.info("No system BLAS/LAPACK libraries detected.")
 
 if "mkl_rt" in env["blas_lapack_libs"]:
-    retcode, mkl_version = run_preprocessor(conf, ["mkl.h"], "__INTEL_MKL__ __INTEL_MKL_MINOR__ __INTEL_MKL_UPDATE__")
+    retcode, mkl_version = run_preprocessor(
+        conf, ["mkl.h"], "__INTEL_MKL__ __INTEL_MKL_MINOR__ __INTEL_MKL_UPDATE__"
+    )
     if retcode:
-        logger.info(f"Using MKL {".".join(mkl_version.strip().split())}")
+        logger.info(f"Using MKL {'.'.join(mkl_version.strip().split())}")
     else:
         logger.warning("Failed to determine MKL version.")
 
 elif "openblas" in env["blas_lapack_libs"]:
-    retcode, openblas_version = run_preprocessor(conf, ["<openblas_config.h>"], "OPENBLAS_VERSION")
+    retcode, openblas_version = run_preprocessor(
+        conf, ["<openblas_config.h>"], "OPENBLAS_VERSION"
+    )
     if retcode:
         logger.info(f"Using {openblas_version.replace('"', "").strip()}")
     else:
