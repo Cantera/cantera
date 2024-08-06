@@ -66,7 +66,7 @@ extern "C" {
     CANTERA_CAPI size_t thermo_elementIndex(int n, const char* nm);
     CANTERA_CAPI size_t thermo_speciesIndex(int n, const char* nm);
     //! @since Changed signature in %Cantera 3.1
-    CANTERA_CAPI int thermo_report3(int nth, int show_thermo, double threshold, int ibuf, char* buf);
+    CANTERA_CAPI int thermo_report(int nth, int show_thermo, double threshold, int ibuf, char* buf);
     CANTERA_CAPI int thermo_print(int nth, int show_thermo, double threshold);
     CANTERA_CAPI double thermo_nAtoms(int n, size_t k, size_t m);
     CANTERA_CAPI int thermo_addElement(int n, const char* name, double weight);
@@ -182,7 +182,7 @@ extern "C" {
     CANTERA_CAPI int ct_setLogCallback(LogCallback writer);
     CANTERA_CAPI int ct_addCanteraDirectory(size_t buflen, const char* buf);
     //! @since Changed signature in %Cantera 3.1
-    CANTERA_CAPI int ct_getDataDirectories3(const char* sep, int buflen, char* buf);
+    CANTERA_CAPI int ct_getDataDirectories(const char* sep, int buflen, char* buf);
     CANTERA_CAPI int ct_getCanteraVersion(int buflen, char* buf);
     CANTERA_CAPI int ct_getGitCommit(int buflen, char* buf);
     CANTERA_CAPI int ct_suppress_thermo_warnings(int suppress);
