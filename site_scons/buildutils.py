@@ -1643,3 +1643,19 @@ def make_relative_path_absolute(path_to_check: Union[str, Path]) -> str:
         pth = Path(Dir("#" + path_to_check).abspath)
 
     return pth.as_posix()
+
+
+def config_error(message):
+    if logger.getEffectiveLevel() == logging.DEBUG:
+        logger.error(message)
+        debug_message = [
+            f"\n{' Contents of config.log: ':*^80}\n",
+            Path("config.log").read_text().strip(),
+            f"\n{' End of config.log ':*^80}",
+        ]
+        logger.debug("\n".join(debug_message), print_level=False)
+    else:
+        error_message = [message]
+        error_message.append("\nSee 'config.log' for details.")
+        logger.error("\n".join(error_message))
+    sys.exit(1)

@@ -1163,21 +1163,6 @@ if env['coverage']:
         logger.error("Coverage testing is only available with GCC.")
         exit(0)
 
-def config_error(message):
-    if env["logging"].lower() == "debug":
-        logger.error(message)
-        debug_message = [
-            f"\n{' Contents of config.log: ':*^80}\n",
-            open("config.log").read().strip(),
-            f"\n{' End of config.log ':*^80}",
-        ]
-        logger.debug("\n".join(debug_message), print_level=False)
-    else:
-        error_message = [message]
-        error_message.append("\nSee 'config.log' for details.")
-        logger.error("\n".join(error_message))
-    sys.exit(1)
-
 conf = Configure(env, custom_tests={'CheckStatement': CheckStatement})
 env = conf.env  # Retain updates to `env` after the end of the `Configure` context
 
