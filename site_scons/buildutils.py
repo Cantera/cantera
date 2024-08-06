@@ -1645,6 +1645,57 @@ def make_relative_path_absolute(path_to_check: Union[str, Path]) -> str:
     return pth.as_posix()
 
 
+def run_preprocessor(conf, includes, text, defines=()) -> tuple[int, str]:
+    if not isinstance(includes, (tuple, list)):
+        includes = [includes]
+    if not isinstance(text, (tuple, list)):
+        text = [text]
+    if not isinstance(defines, (tuple, list)):
+        defines = [defines]
+    if "msvc" in conf.env["toolchain"]:
+        # Yes this needs 4 slashes on each side. The first pair are escaped by Python,
+        # the second pair are escaped by the shell to leave a single backslash to be
+        # interpreted by the Windows shell as a directory separator.
+        preprocessor_flags = ['/P', '/Fi".\\\\.sconf_temp\\\\"']
+    else:
+        preprocessor_flags = ["-E"]
+    conf.env.Prepend(CXXFLAGS=preprocessor_flags)
+    source = ["#define " + d for d in defines]
+    source.extend("#include " + ii for ii in includes)
+    source.extend(text)
+    retcode = conf.TryCompile(text="\n".join(source), extension=".cpp")
+    for flag in preprocessor_flags:
+        conf.env["CXXFLAGS"].remove(flag)
+    if retcode:
+        retval = None
+        # On MSVC, the `/P` flag produces an output file named for the input file,
+        # that is, `conftest_<hash of contents>_0.i`. However, SCons assumes that the
+        # `.obj` file will still be the target and sets that as the `conf.lastTarget`
+        # with the filename: `conftest_<hash of contents>_0_<hash of action>.obj`.
+        # Since we need the contents of the `.i` file, we need this string munging on
+        # the `.obj` filename to find the right file. If SCons ever decides to change
+        # how they name conftest files, this will probably break. --Bryan
+        if "msvc" in conf.env["toolchain"]:
+            fname = conf.lastTarget.name.rsplit("_", maxsplit=1)[0]
+            content = Path(".sconf_temp", fname).with_suffix(".i").read_text().splitlines()
+        else:
+            content = conf.lastTarget.get_text_contents().splitlines()
+        # Go from bottom to top of the file, since the preprocessor is going to spit
+        # out lots of irrelevant lines.
+        for line in reversed(content):
+            # The MSVC compiler tends to produce extra output at the end of the `.i`
+            # file that we don't want.
+            if not line.strip() or line.strip().startswith("conftest"):
+                continue
+            retval = line.strip()
+            break
+        if retval is None:
+            raise ValueError("Could not find version. See config.log.")
+        return retcode, retval
+    else:
+        return retcode, ""
+
+
 def config_error(message):
     if logger.getEffectiveLevel() == logging.DEBUG:
         logger.error(message)
