@@ -1427,65 +1427,30 @@ env['NEED_LIBM'] = not conf.CheckLibWithHeader(None, 'math.h', 'C',
                                                'double x; log(x);', False)
 env['LIBM'] = ['m'] if env['NEED_LIBM'] else []
 
-if env['system_sundials'] == 'y':
-    for subdir in ('sundials', 'nvector', 'cvodes', 'idas', 'sunlinsol', 'sunmatrix',
-                   'sunnonlinsol'):
-        remove_directory('include/cantera/ext/' + subdir)
 
+if env['system_sundials'] in ("y", "default"):
     # Determine Sundials version
-    sundials_version_source = get_expression_value(['"sundials/sundials_config.h"'],
-                                                   'QUOTE(SUNDIALS_VERSION)')
-    retcode, sundials_version = conf.TryRun(sundials_version_source, '.cpp')
-    if retcode == 0:
-        config_error("Failed to determine Sundials version.")
-    env["sundials_version"] = sundials_version.strip(' "\r\n')
+    retcode, sundials_version = run_preprocessor(
+        conf,
+        ['"sundials/sundials_config.h"'],
+        "SUNDIALS_VERSION_MAJOR SUNDIALS_VERSION_MINOR SUNDIALS_VERSION_PATCH",
+    )
+    if retcode:
+        sundials_info = check_sundials(conf, sundials_version)
+        env["system_sundials"] = sundials_info["system_sundials"]
+        env["sundials_version"] = sundials_info["sundials_version"]
+        env["has_sundials_lapack"] = sundials_info["has_sundials_lapack"]
 
-    sundials_ver = parse_version(env['sundials_version'])
-    if sundials_ver < parse_version("3.0") or sundials_ver >= parse_version("8.0"):
-        logger.error(f"Sundials version {env['sundials_version']!r} is not supported.")
-        sys.exit(1)
-    elif sundials_ver > parse_version("7.0.0"):
-        logger.warning(f"Sundials version {env['sundials_version']!r} has not been tested.")
-
-    logger.info(f"Using system installation of Sundials version {env['sundials_version']!r}.")
-
-    # Determine whether or not Sundials was built with BLAS/LAPACK
-    if sundials_ver <= parse_version("5.4"):
-        # In Sundials 2.6-5.4, SUNDIALS_BLAS_LAPACK is either defined or undefined
-        env['has_sundials_lapack'] = conf.CheckDeclaration('SUNDIALS_BLAS_LAPACK',
-                '#include "sundials/sundials_config.h"', 'C++')
-    elif sundials_ver <= parse_version("6.6.0"):
-        # In Sundials 5.5-6.6.0, two defines are included specific to the
-        # SUNLINSOL packages indicating whether SUNDIALS has been built with LAPACK
-        lapackband = conf.CheckDeclaration(
-            "SUNDIALS_SUNLINSOL_LAPACKBAND",
-            '#include "sundials/sundials_config.h"',
-            "C++",
-        )
-        lapackdense = conf.CheckDeclaration(
-            "SUNDIALS_SUNLINSOL_LAPACKDENSE",
-            '#include "sundials/sundials_config.h"',
-            "C++",
-        )
-        env["has_sundials_lapack"] = lapackband and lapackdense
-    else:
-        # In Sundials 6.6.1, the SUNDIALS_BLAS_LAPACK_ENABLED macro was introduced
-        env["has_sundials_lapack"] = conf.CheckDeclaration("SUNDIALS_BLAS_LAPACK_ENABLED",
-                '#include "sundials/sundials_config.h"', 'c++')
-
-    # In the case where a user is trying to link Cantera to an external BLAS/LAPACK
-    # library, but Sundials was configured without this support, print a Warning.
-    if not env['has_sundials_lapack'] and env['use_lapack']:
-        logger.warning("External BLAS/LAPACK has been specified for Cantera "
-                       "but Sundials was built without this support.")
-else: # env['system_sundials'] == 'n'
+if env["system_sundials"] in ("n", "default"):
+    if not os.path.exists('ext/sundials/include/cvodes/cvodes.h'):
+        checkout_submodule("Sundials", "ext/sundials")
     logger.info("Using private installation of Sundials version 5.3.")
     env['sundials_version'] = '5.3'
     env['has_sundials_lapack'] = int(env['use_lapack'])
 
 if env['system_sundials'] == 'y':
     env['sundials_libs'] = ['sundials_cvodes', 'sundials_idas', 'sundials_nvecserial']
-    if sundials_ver >= parse_version("7.0.0"):
+    if parse_version(env["sundials_version"]) >= parse_version("7.0.0"):
         env['sundials_libs'].append('sundials_core')
     if env['use_lapack']:
         if env.get('has_sundials_lapack'):

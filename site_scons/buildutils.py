@@ -11,6 +11,7 @@ import shutil
 import enum
 from pathlib import Path
 from packaging.version import parse as parse_version
+from packaging.specifiers import SpecifierSet
 import logging
 from typing import TYPE_CHECKING
 from collections.abc import Mapping as MappingABC
@@ -27,7 +28,8 @@ __all__ = ("Option", "PathOption", "BoolOption", "EnumOption", "Configuration",
            "add_RegressionTest", "get_command_output", "listify", "which",
            "ConfigBuilder", "multi_glob", "get_spawn", "quoted", "add_system_include",
            "get_pip_install_location", "compiler_flag_list", "setup_python_env",
-           "checkout_submodule", "check_for_python", "make_relative_path_absolute")
+           "checkout_submodule", "check_for_python", "make_relative_path_absolute",
+           "check_sundials", "config_error", "run_preprocessor")
 
 if TYPE_CHECKING:
     from typing import Iterable, TypeVar, Union, List, Dict, Tuple, Optional, \
@@ -1694,6 +1696,74 @@ def run_preprocessor(conf, includes, text, defines=()) -> tuple[int, str]:
         return retcode, retval
     else:
         return retcode, ""
+
+
+def check_sundials(conf: SCons.Sconf.SConfBase, sundials_version: str) -> Dict[str, str]:
+    sundials_ver = parse_version(".".join(sundials_version.strip().replace('"', "").split()))
+    should_exit_with_error = conf.env["system_sundials"] == "y"
+    if sundials_ver < parse_version("3.0") or sundials_ver >= parse_version("8.0"):
+        if should_exit_with_error:
+            config_error(f"Sundials version must be >=3.0,<8.0. Found {sundials_ver}.")
+        return {"system_sundials": "n", "sundials_version": "", "has_sundials_lapack": 0}
+    elif sundials_ver > parse_version("7.0.0"):
+        logger.warning(f"Sundials version {sundials_ver} has not been tested.")
+
+    cvode_checks = {
+        SpecifierSet(">=3.0,<4.0"): ("CVodeCreate(CV_BDF, CV_NEWTON);", ["sundials_cvodes"]),
+        SpecifierSet(">=4.0,<6.0"): ("CVodeCreate(CV_BDF);", ["sundials_cvodes"]),
+        SpecifierSet(">=6.0,<7.0"): ("SUNContext ctx; SUNContext_Create(0, &ctx);", ["sundials_cvodes"]),
+        SpecifierSet(">=7.0,<8.0"): ("SUNContext ctx; SUNContext_Create(SUN_COMM_NULL, &ctx);", ["sundials_core"])
+    }
+    for version_spec, (cvode_call, libs) in cvode_checks.items():
+        if sundials_ver in version_spec:
+            ret = conf.CheckLibWithHeader(
+                libs,
+                header="cvodes/cvodes.h",
+                language='C++',
+                call=cvode_call,
+                autoadd=False,
+            )
+            # CheckLibWithHeader returns True to indicate success
+            if not ret:
+                if should_exit_with_error:
+                    config_error("Could not link to the Sundials library. Did you set the include/library paths?")
+                return {"system_sundials": "n", "sundials_version": "", "has_sundials_lapack": 0}
+            break
+
+    logger.info(f"Using system installation of Sundials version {sundials_ver}.")
+
+    # Determine whether or not Sundials was built with BLAS/LAPACK
+    if sundials_ver < parse_version("5.5"):
+        # In Sundials 2.6-5.4, SUNDIALS_BLAS_LAPACK is either defined or undefined
+        has_sundials_lapack = conf.CheckDeclaration('SUNDIALS_BLAS_LAPACK',
+                '#include "sundials/sundials_config.h"', 'C++')
+    elif sundials_ver <= parse_version("6.6.0"):
+        # In Sundials 5.5-6.6.0, two defines are included specific to the
+        # SUNLINSOL packages indicating whether SUNDIALS has been built with LAPACK
+        lapackband = conf.CheckDeclaration(
+            "SUNDIALS_SUNLINSOL_LAPACKBAND",
+            '#include "sundials/sundials_config.h"',
+            "C++",
+        )
+        lapackdense = conf.CheckDeclaration(
+            "SUNDIALS_SUNLINSOL_LAPACKDENSE",
+            '#include "sundials/sundials_config.h"',
+            "C++",
+        )
+        has_sundials_lapack = lapackband and lapackdense
+    else:
+        # In Sundials 6.6.1, the SUNDIALS_BLAS_LAPACK_ENABLED macro was introduced
+        has_sundials_lapack = conf.CheckDeclaration("SUNDIALS_BLAS_LAPACK_ENABLED",
+                '#include "sundials/sundials_config.h"', 'c++')
+
+    # In the case where a user is trying to link Cantera to an external BLAS/LAPACK
+    # library, but Sundials was configured without this support, print a Warning.
+    # TODO: Why is this a warning and what can/should users do about it?
+    if not has_sundials_lapack and conf.env['use_lapack']:
+        logger.warning("External BLAS/LAPACK has been specified for Cantera "
+                       "but Sundials was built without this support.")
+
+    return {"system_sundials": "y", "sundials_version": str(sundials_ver), "has_sundials_lapack": has_sundials_lapack}
 
 
 def config_error(message):
