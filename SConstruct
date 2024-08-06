@@ -1172,14 +1172,11 @@ if not conf.CheckCXXHeader("cmath", "<>"):
         "The C++ compiler is not correctly configured (incomplete include paths)."
     )
 
-def get_expression_value(includes, expression, defines=()):
-    s = ['#define ' + d for d in defines]
-    s.extend('#include ' + i for i in includes)
-    s.extend(('#define Q(x) #x',
-              '#define QUOTE(x) Q(x)',
-              '#include <iostream>',
+def get_expression_value(includes, expression):
+    s = ['#include ' + i for i in includes]
+    s.extend(('#include <iostream>',
               'int main(int argc, char** argv) {',
-              '    std::cout << %s << std::endl;' % expression,
+              f'    std::cout << {expression} << std::endl;',
               '    return 0;',
               '}\n'))
     return '\n'.join(s)
