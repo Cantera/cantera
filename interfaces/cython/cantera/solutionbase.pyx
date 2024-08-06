@@ -227,6 +227,9 @@ cdef class _SolutionBase:
             self.kinetics.skipUndeclaredThirdBodies(True)
             for reaction in reactions:
                 self.kinetics.addReaction(reaction._reaction, False)
+                if isinstance(reaction.rate, (CustomRate, ExtensibleRate)):
+                    # prevent premature garbage collection
+                    self._custom_rates.append(reaction.rate)
             self.kinetics.resizeReactions()
 
         if isinstance(self, Transport):
