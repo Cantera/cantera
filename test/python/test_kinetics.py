@@ -1256,6 +1256,27 @@ class TestReaction(utilities.CanteraTest):
         self.assertIn('O', terms)
         self.assertIn('OH', terms)
 
+    def test_custom_from_scratch(self):
+        species = self.gas.species()
+        custom_reactions = self.gas.reactions()
+
+        L = lambda T: 38.7 * T**2.7 * np.exp(-3150.15/T)
+        rate1 = ct.CustomRate(L)
+        custom_reactions[2] = ct.Reaction(
+            equation='H2 + O <=> H + OH',
+            rate=rate1)
+
+        gas1 = ct.Solution(thermo='ideal-gas', kinetics='gas',
+                           species=species, reactions=custom_reactions)
+        gas1.TPX = self.gas.TPX
+
+        # remove references to Python objects
+        del custom_reactions
+        del rate1
+        assert gas1.reaction(2).rate.type == 'custom-rate-function'
+        assert gas1.net_production_rates[2] == pytest.approx(
+            self.gas.net_production_rates[2], rel=1e-5)
+
     def test_elementary(self):
         r = ct.Reaction({"O":1, "H2":1}, {"H":1, "OH":1},
                         ct.ArrheniusRate(3.87e1, 2.7, 6260*1000*4.184))
