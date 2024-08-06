@@ -929,7 +929,7 @@ elif env["OS"] == "Darwin":
     config.select("macOS")
 
 # SHLIBVERSION fails with MinGW: http://scons.tigris.org/issues/show_bug.cgi?id=3035
-if (env["toolchain"] == "mingw"):
+if "mingw" in env["toolchain"] :
     config.select("mingw")
 
 config.select("default")
