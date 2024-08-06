@@ -6,7 +6,7 @@ An example demonstrating how to use custom reaction objects.
 
 For benchmark purposes, an ignition test is run to compare simulation times.
 
-Requires: cantera >= 3.0.0
+Requires: cantera >= 3.1.0
 
 .. tags:: Python, kinetics, benchmarking, user-defined model
 """
@@ -25,20 +25,32 @@ gas0 = ct.Solution(mech)
 species = gas0.species()
 reactions = gas0.reactions()
 
-# construct custom reactions: replace 2nd reaction with equivalent custom reaction
-custom_reactions = [r for r in reactions]
-custom_reactions[2] = ct.Reaction(
+# construct reactions based on CustomRate: replace two reactions with equivalent
+# custom versions (uses Func1 functors defined by Python lambda functions)
+reactions[2] = ct.Reaction(
     equation='H2 + O <=> H + OH',
     rate=lambda T: 38.7 * T**2.7 * exp(-3150.1542797022735/T))
-custom_reactions[4] = ct.Reaction(
+reactions[4] = ct.Reaction(
     equation='H2O2 + O <=> HO2 + OH',
     rate=lambda T: 9630.0 * T**2.0 * exp(-2012.8781339950629/T))
 
-gas1 = ct.Solution(thermo='ideal-gas', kinetics='gas',
-                   species=species, reactions=custom_reactions)
+gas1a = ct.Solution(thermo='ideal-gas', kinetics='gas',
+                    species=species, reactions=reactions)
 
-# construct reactions based on ExtensibleRate: replace 2nd reaction with equivalent
-# ExtensibleRate
+# construct reactions based on CustomRate: replace two reactions with equivalent
+# custom versions (uses Func1 functors defined by C++ class Arrhenius1)
+reactions[2] = ct.Reaction(
+    equation='H2 + O <=> H + OH',
+    rate=ct.Func1("Arrhenius", [38.7, 2.7, 3150.1542797022735]))
+reactions[4] = ct.Reaction(
+    equation='H2O2 + O <=> HO2 + OH',
+    rate=ct.Func1("Arrhenius", [9630.0, 2.0, 2012.8781339950629]))
+
+gas1b = ct.Solution(thermo='ideal-gas', kinetics='gas',
+                    species=species, reactions=reactions)
+
+# construct reactions based on ExtensibleRate: replace two reactions with equivalent
+# extensible versions
 class ExtensibleArrheniusData(ct.ExtensibleRateData):
     __slots__ = ("T",)
     def __init__(self):
@@ -90,11 +102,10 @@ extensible_yaml4 = """
     Ea: 4000
     """
 
-extensible_reactions = gas0.reactions()
-extensible_reactions[2] = ct.Reaction.from_yaml(extensible_yaml2, gas0)
-extensible_reactions[4] = ct.Reaction.from_yaml(extensible_yaml4, gas0)
+reactions[2] = ct.Reaction.from_yaml(extensible_yaml2, gas0)
+reactions[4] = ct.Reaction.from_yaml(extensible_yaml4, gas0)
 gas2 = ct.Solution(thermo="ideal-gas", kinetics="gas",
-                   species=species, reactions=extensible_reactions)
+                   species=species, reactions=reactions)
 
 # construct test case - simulate ignition
 
@@ -116,8 +127,7 @@ def ignition(gas, dT=0):
 # output results
 
 repeat = 100
-print("Average time of {} simulation runs for '{}' "
-      "({})".format(repeat, mech, fuel))
+print(f"Average time of {repeat} simulation runs for '{mech}' ({fuel})")
 
 sim0 = 0
 sim0_steps = 0
@@ -126,19 +136,29 @@ for i in range(repeat):
     sim0 += elapsed
     sim0_steps += steps
 sim0 *= 1e6 / sim0_steps
-print('- New framework (YAML): '
-      '{0:.2f} μs/step (T_final={1:.2f})'.format(sim0, gas0.T))
+print(f'- Built-in rate parameterizations: {sim0:.2f} μs/step (T_final={gas0.T:.2f})')
 
-sim1 = 0
-sim1_steps = 0
+sim1a = 0
+sim1a_steps = 0
 for i in range(repeat):
-    elapsed, steps = ignition(gas1, dT=i)
-    sim1 += elapsed
-    sim1_steps += steps
-sim1 *= 1e6 / sim1_steps
-print('- Two Custom reactions: '
-      '{0:.2f} μs/step (T_final={1:.2f}) ...'
-      '{2:+.2f}%'.format(sim1, gas1.T, 100 * sim1 / sim0 - 100))
+    elapsed, steps = ignition(gas1a, dT=i)
+    sim1a += elapsed
+    sim1a_steps += steps
+sim1a *= 1e6 / sim1a_steps
+print('- Two Custom reactions (Python): '
+      f'{sim1a:.2f} μs/step (T_final={gas1a.T:.2f}) ... '
+      f'{100 * sim1a / sim0 - 100:+.2f}%')
+
+sim1b = 0
+sim1b_steps = 0
+for i in range(repeat):
+    elapsed, steps = ignition(gas1b, dT=i)
+    sim1b += elapsed
+    sim1b_steps += steps
+sim1b *= 1e6 / sim1b_steps
+print('- Two Custom reactions (C++): '
+      f'{sim1b:.2f} μs/step (T_final={gas1b.T:.2f}) ... '
+      f'{100 * sim1b / sim0 - 100:+.2f}%')
 
 sim2 = 0
 sim2_steps = 0
@@ -148,5 +168,5 @@ for i in range(repeat):
     sim2_steps += steps
 sim2 *= 1e6 / sim2_steps
 print('- Two Extensible reactions: '
-      '{0:.2f} μs/step (T_final={1:.2f}) ...'
-      '{2:+.2f}%'.format(sim2, gas1.T, 100 * sim2 / sim0 - 100))
+      f'{sim2:.2f} μs/step (T_final={gas2.T:.2f}) ... '
+      f'{100 * sim2 / sim0 - 100:+.2f}%')
