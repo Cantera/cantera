@@ -929,7 +929,8 @@ elif env["OS"] == "Darwin":
     config.select("macOS")
 
 # SHLIBVERSION fails with MinGW: http://scons.tigris.org/issues/show_bug.cgi?id=3035
-if (env["toolchain"] == "mingw"):
+# I don't think this does anything? env["toolchain"] seems to be a list of strings, not a single string.
+if env["toolchain"] == "mingw":
     config.select("mingw")
 
 config.select("default")
