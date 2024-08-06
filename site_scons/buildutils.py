@@ -1645,6 +1645,29 @@ def make_relative_path_absolute(path_to_check: Union[str, Path]) -> str:
     return pth.as_posix()
 
 
+def run_preprocessor(conf, includes, text, defines=()) -> tuple[int, str]:
+    if not isinstance(includes, (tuple, list)):
+        includes = [includes]
+    if not isinstance(text, (tuple, list)):
+        text = [text]
+    if not isinstance(defines, (tuple, list)):
+        defines = [defines]
+    if "msvc" in conf.env["toolchain"]:
+        preprocessor_flag = "/E"
+    else:
+        preprocessor_flag = "-E"
+    conf.env.Prepend(CXXFLAGS=[preprocessor_flag])
+    source = ["#define " + d for d in defines]
+    source.extend("#include " + ii for ii in includes)
+    source.extend(text)
+    retcode = conf.TryCompile(text="\n".join(source), extension=".cpp")
+    conf.env["CXXFLAGS"].remove(preprocessor_flag)
+    if retcode:
+        return retcode, conf.lastTarget.get_text_contents().splitlines()[-1]
+    else:
+        return retcode, ""
+
+
 def config_error(message):
     if logger.getEffectiveLevel() == logging.DEBUG:
         logger.error(message)
