@@ -38,7 +38,7 @@ shared_ptr<Func1> Func1::derivative() const
 
 bool Func1::isIdentical(Func1& other) const
 {
-    if (type() != other.type() || m_c != other.m_c) {
+    if (type() == "functor" || type() != other.type() || m_c != other.m_c) {
         return false;
     }
     if (m_f1) {
