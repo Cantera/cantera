@@ -1463,11 +1463,11 @@ else:
     env['sundials_libs'] = []
 
 if env["hdf_include"] and env["hdf_support"] in ("y", "default"):
-    env["hdf_include"] = Path(env["hdf_include"]).as_posix()
+    env["hdf_include"] = make_relative_path_absolute(env["hdf_include"])
     add_system_include(env, env["hdf_include"])
     env["hdf_support"] = "y"
 if env["hdf_libdir"] and env["hdf_support"] in ("y", "default"):
-    env["hdf_libdir"] = Path(env["hdf_libdir"]).as_posix()
+    env["hdf_libdir"] = make_relative_path_absolute(env["hdf_libdir"])
     env.Append(LIBPATH=[env["hdf_libdir"]])
     env["hdf_support"] = "y"
     if env["use_rpath_linkage"]:
