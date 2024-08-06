@@ -119,19 +119,6 @@ classdef ThermoPhase < handle
         % Partial molar volumes for the species in the mixture. Units: m^3/kmol.
         partialMolarVolumes
 
-        % Non-dimensional enthalpies ::
-        %
-        %     >> v = tp.enthalpies_RT
-        %
-        % :param tp:
-        %     Instance of class :mat:class:`ThermoPhase` (or another
-        %     object that derives from ThermoPhase).
-        % :return:
-        %     Vector of standard-state species enthalpies constant
-        %     and T is the temperature. For gaseous species, these
-        %     values are ideal gas enthalpies.
-        enthalpies_RT
-
         critDensity % Critical density. Units: kg/m^3.
 
         critPressure % Critical pressure. Units: Pa.
@@ -1097,14 +1084,6 @@ classdef ThermoPhase < handle
             pt = libpointer('doublePtr', xx);
             ctFunc('thermo_getPartialMolarVolumes', tp.tpID, nsp, pt);
             volumes = pt.Value;
-        end
-
-        function enthalpy = get.enthalpies_RT(tp)
-            nsp = tp.nSpecies;
-            xx = zeros(1, nsp);
-            pt = libpointer('doublePtr', xx);
-            ctFunc('thermo_getEnthalpies_RT', tp.tpID, nsp, pt);
-            enthalpy = pt.Value;
         end
 
         function entropy = get.S(tp)
