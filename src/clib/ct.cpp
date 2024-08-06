@@ -1586,7 +1586,7 @@ extern "C" {
 
     //-------------------- Functions ---------------------------
 
-    int thermo_report3(int nth, int show_thermo, double threshold, int ibuf, char* buf)
+    int thermo_report(int nth, int show_thermo, double threshold, int ibuf, char* buf)
     {
         try {
             bool stherm = (show_thermo != 0);
@@ -1630,7 +1630,7 @@ extern "C" {
         }
     }
 
-    int ct_getDataDirectories3(const char* sep, int buflen, char* buf)
+    int ct_getDataDirectories(const char* sep, int buflen, char* buf)
     {
         try {
             return static_cast<int>(copyString(getDataDirectories(sep), buf, buflen));

@@ -980,7 +980,7 @@ classdef ThermoPhase < handle
             if nargin < 2
                 threshold = 1e-14;
             end
-            str = ctString('thermo_report3', tp.tpID, 1, threshold);
+            str = ctString('thermo_report', tp.tpID, 1, threshold);
         end
 
         function n = get.speciesNames(tp)

@@ -17,7 +17,7 @@ public class DataDirectoryCollection : IReadOnlyList<DirectoryInfo>
 
         return InteropUtil
             .GetString(500, (size, buffer) =>
-                LibCantera.ct_getDataDirectories3(sep.ToString(), size, buffer))
+                LibCantera.ct_getDataDirectories(sep.ToString(), size, buffer))
             .Split(sep)
             .Select(d => new DirectoryInfo(d));
     }
