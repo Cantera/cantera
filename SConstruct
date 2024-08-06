@@ -1198,9 +1198,11 @@ if env["OS"] == "Darwin" and env["use_rpath_linkage"] and not env.subst("$__RPAT
                           for x in env['RPATH']])
 
 # Check that libraries link correctly
-cmath_check_source = get_expression_value(["<cmath>"], "cos(0. * argc)")
-retcode, cmath_works = conf.TryRun(cmath_check_source, ".cpp")
-if cmath_works.strip() != "1":
+retcode = conf.TryLink(
+    "#include <cmath>\nint main(int argc, char** argv) { cos(0 * argc); return 0;}",
+    ".cpp",
+)
+if not retcode:
     config_error(
         "The C++ compiler is not correctly configured (failed at linking stage)."
     )
