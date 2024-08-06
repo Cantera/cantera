@@ -1232,20 +1232,17 @@ def split_version(version):
 
 # Check for fmt library and checkout submodule if needed
 if env['system_fmt'] in ('y', 'default'):
-    fmt_version_source = get_expression_value(
-        ['<fmt/format.h>'], 'FMT_VERSION', ['FMT_HEADER_ONLY'])
-    retcode, fmt_lib_version = conf.TryRun(fmt_version_source, '.cpp')
+    retcode, fmt_version_text = run_preprocessor(
+        conf, ["<fmt/format.h>"], "FMT_VERSION", ["FMT_HEADER_ONLY"]
+    )
     if retcode:
-        fmt_lib_version = split_version(fmt_lib_version)
+        fmt_lib_version = split_version(fmt_version_text)
         fmt_min_version = "6.1.2"
         if parse_version(fmt_lib_version) < parse_version(fmt_min_version):
             if env['system_fmt'] == 'y':
                 config_error(
                     f"System fmt version {fmt_lib_version} is not supported;"
                     f"version {fmt_min_version} or higher is required.")
-                logger.info(
-                    f"System fmt version {fmt_lib_version} is not supported; "
-                    "using private installation instead.")
         else:
             env['system_fmt'] = True
             logger.info(f"Using system installation of fmt library.")
@@ -1256,15 +1253,14 @@ if env['system_fmt'] in ('y', 'default'):
 if env['system_fmt'] in ('n', 'default'):
     if not os.path.exists('ext/fmt/include/fmt/ostream.h'):
         checkout_submodule("fmt", "ext/fmt")
-
-    fmt_version_source = get_expression_value(
-        ['"../ext/fmt/include/fmt/format.h"'], 'FMT_VERSION', ['FMT_HEADER_ONLY'])
-    retcode, fmt_lib_version = conf.TryRun(fmt_version_source, '.cpp')
+    retcode, fmt_version_text = run_preprocessor(
+        conf, ['"../ext/fmt/include/fmt/format.h"'], "FMT_VERSION", ["FMT_HEADER_ONLY"]
+    )
     if not retcode:
         config_error('Expected private installation of fmt library, but it is '
             'not configured correctly.')
 
-    fmt_lib_version = split_version(fmt_lib_version)
+    fmt_lib_version = split_version(fmt_version_text)
     env['system_fmt'] = False
     logger.info(f"Using private installation of fmt library.")
 
@@ -1335,10 +1331,12 @@ if env["system_eigen"] in ("n", "default"):
         checkout_submodule("Eigen", "ext/eigen")
     eigen_include = '"../ext/eigen/Eigen/Core"'
 
-eigen_versions = 'QUOTE(EIGEN_WORLD_VERSION) "." QUOTE(EIGEN_MAJOR_VERSION) "." QUOTE(EIGEN_MINOR_VERSION)'
-eigen_version_source = get_expression_value([eigen_include], eigen_versions)
-retcode, eigen_lib_version = conf.TryRun(eigen_version_source, ".cpp")
-env["EIGEN_LIB_VERSION"] = eigen_lib_version.strip()
+_, eigen_lib_version = run_preprocessor(
+    conf,
+    [eigen_include],
+    "EIGEN_WORLD_VERSION EIGEN_MAJOR_VERSION EIGEN_MINOR_VERSION",
+)
+env["EIGEN_LIB_VERSION"] = eigen_lib_version.strip().replace(" ", ".")
 logger.info(f"Found Eigen version {env['EIGEN_LIB_VERSION']}")
 
 # Determine which standard library to link to when using Fortran to
@@ -1360,20 +1358,17 @@ if not env["using_apple_clang"]:
     )
 else:
     env["HAS_OPENMP"] = False
-    logger.info("Not checking for OpenMP support due to using XCode compiler.")
-
-boost_version_source = get_expression_value(['<boost/version.hpp>'], 'BOOST_LIB_VERSION')
-retcode, boost_lib_version = conf.TryRun(boost_version_source, '.cpp')
-env['BOOST_LIB_VERSION'] = '.'.join(boost_lib_version.strip().split('_'))
-if not env['BOOST_LIB_VERSION']:
-    config_error("Boost could not be found. Install Boost headers or set"
-                 " 'boost_inc_dir' to point to the boost headers.")
+_, boost_lib_version = run_preprocessor(conf, ["<boost/version.hpp>"], "BOOST_LIB_VERSION")
+if not retcode:
+    config_error("Boost could not be found. Install Boost headers or set "
+                 "'boost_inc_dir' to point to the boost headers.")
 else:
+    env['BOOST_LIB_VERSION'] = '.'.join(boost_lib_version.strip().replace('"', "").split('_'))
+    if parse_version(env['BOOST_LIB_VERSION']) < parse_version("1.70"):
+        # Boost.DLL with std::filesystem (making it header-only) is available in Boost 1.70
+        # or newer
+        config_error("Cantera requires Boost version 1.70 or newer.")
     logger.info(f"Found Boost version {env['BOOST_LIB_VERSION']}")
-if parse_version(env['BOOST_LIB_VERSION']) < parse_version("1.70"):
-    # Boost.DLL with std::filesystem (making it header-only) is available in Boost 1.70
-    # or newer
-    config_error("Cantera requires Boost version 1.70 or newer.")
 
 # check BLAS/LAPACK installations
 if env["system_blas_lapack"] == "n":
@@ -1411,66 +1406,22 @@ elif env["system_blas_lapack"] == "default":
         logger.info("No system BLAS/LAPACK libraries detected.")
 
 if "mkl_rt" in env["blas_lapack_libs"]:
-    mkl_version = textwrap.dedent("""\
-        #include <iostream>
-        #include "mkl.h"
-        int main(int argc, char** argv) {
-            MKLVersion Version;
-            mkl_get_version(&Version);
-            std::cout << Version.MajorVersion << "." << Version.MinorVersion << "."
-                << Version.UpdateVersion << " for " << Version.Platform;
-            return 0;
-        }
-    """)
-    retcode, mkl_version = conf.TryRun(mkl_version, ".cpp")
+    retcode, mkl_version = run_preprocessor(
+        conf, ["mkl.h"], "__INTEL_MKL__ __INTEL_MKL_MINOR__ __INTEL_MKL_UPDATE__"
+    )
     if retcode:
-        logger.info(f"Using MKL {mkl_version}")
+        logger.info(f"Using MKL {'.'.join(mkl_version.strip().split())}")
     else:
         logger.warning("Failed to determine MKL version.")
 
 elif "openblas" in env["blas_lapack_libs"]:
-    openblas_version_source = get_expression_value(["<openblas_config.h>"], "OPENBLAS_VERSION")
-    retcode, openblas_version = conf.TryRun(openblas_version_source, ".cpp")
+    retcode, openblas_version = run_preprocessor(
+        conf, ["<openblas_config.h>"], "OPENBLAS_VERSION"
+    )
     if retcode:
-        logger.info(f"Using {openblas_version.strip()}")
+        logger.info("Using {}", openblas_version.replace('"', '').strip())
     else:
         logger.warning("Failed to determine OpenBLAS version.")
-
-import SCons.Conftest, SCons.SConf
-context = SCons.SConf.CheckContext(conf)
-
-cvode_checks = [
-    ("CVodeCreate(CV_BDF, CV_NEWTON);", ["sundials_cvodes"]),  # Sundials <= 3.2
-    ("CVodeCreate(CV_BDF);", ["sundials_cvodes"]),  # Sundials>=4.0,<6.0
-    ("SUNContext ctx; SUNContext_Create(0, &ctx);", ["sundials_cvodes"]),  # Sundials>=6.0,<7.0
-    ("SUNContext ctx; SUNContext_Create(SUN_COMM_NULL, &ctx);",
-     ["sundials_cvodes", "sundials_core"])  # Sundials>=7.0
-]
-for cvode_call, libs in cvode_checks:
-    ret = SCons.Conftest.CheckLib(context, libs,
-                                  header='#include "cvodes/cvodes.h"',
-                                  language='C++',
-                                  call=cvode_call,
-                                  autoadd=False,
-                                  extra_libs=env['blas_lapack_libs'])
-    # CheckLib returns False to indicate success
-    if not ret:
-        if env['system_sundials'] == 'default':
-            env['system_sundials'] = 'y'
-        break
-
-# Execute if the cycle ends without 'break'
-else:
-    if env['system_sundials'] == 'default':
-        env['system_sundials'] = 'n'
-    elif env['system_sundials'] == 'y':
-        config_error('Expected system installation of Sundials, but it could '
-                     'not be found.')
-
-# Checkout Sundials submodule if needed
-if (env['system_sundials'] == 'n' and
-    not os.path.exists('ext/sundials/include/cvodes/cvodes.h')):
-    checkout_submodule("Sundials", "ext/sundials")
 
 env['NEED_LIBM'] = not conf.CheckLibWithHeader(None, 'math.h', 'C',
                                                'double x; log(x);', False)
@@ -1579,9 +1530,7 @@ if env["use_hdf5"] and env["system_highfive"] in ("y", "default"):
             "hdf5", "highfive/H5File.hpp", language="C++", autoadd=False):
 
         highfive_include = "<highfive/H5Version.hpp>"
-        h5_version_source = get_expression_value(
-            [highfive_include], "QUOTE(HIGHFIVE_VERSION)")
-        retcode, h5_lib_version = conf.TryRun(h5_version_source, ".cpp")
+        retcode, h5_lib_version = run_preprocessor(conf, [highfive_include], "HIGHFIVE_VERSION")
         if retcode:
             if parse_version(h5_lib_version) < parse_version("2.5"):
                 if env["system_highfive"] == "y":
@@ -1626,17 +1575,11 @@ if env["use_hdf5"]:
                            f"#include {highfive_include}"):
         env["highfive_boolean"] = True
 
-    hdf_version = textwrap.dedent("""\
-        #include <iostream>
-        #include "H5public.h"
-        int main(int argc, char** argv) {
-            std::cout << H5_VERS_MAJOR << "." << H5_VERS_MINOR << "." << H5_VERS_RELEASE;
-            return 0;
-        }
-    """)
-    retcode, hdf_version = conf.TryRun(hdf_version, ".cpp")
+    retcode, hdf_version = run_preprocessor(
+        conf, ['"H5public.h"'], "H5_VERS_MAJOR H5_VERS_MINOR H5_VERS_RELEASE"
+    )
     if retcode:
-        env["HDF_VERSION"] = hdf_version
+        env["HDF_VERSION"] = ".".join(hdf_version.strip().split())
         logger.info(
             f"Using HighFive version {env['HIGHFIVE_VERSION']} "
             f"for HDF5 {env['HDF_VERSION']}")
