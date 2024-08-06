@@ -1220,15 +1220,24 @@ if cmath_works.strip() != "1":
         "The C++ compiler is not correctly configured (failed at linking stage)."
     )
 
-# Check that NaN is treated correctly
-nan_check_source = get_expression_value(["<cmath>"], "std::isnan(NAN + argc)")
-retcode, nan_works = conf.TryRun(nan_check_source, ".cpp")
-if nan_works.strip() != "1":
-    config_error(
-        "Cantera requires a working implementation of 'std::isnan'.\n"
-        "If you have specified '-ffast-math' or equivalent as an optimization option,\n"
-        "either remove this option or add the '-fno-finite-math-only' option."
-    )
+# Check that NaN is treated correctly. Only run this check when we are not cross-
+# compiling because it actually runs an executable; if we're cross-compiling then the
+# build machine architecture does not support the machine code from the compiler, by
+# definition, so the executable can't run. This check actually has to run because we
+# care about the runtime behavior of std::isnan.
+# The environment variable here is specific to the conda-forge builder environment,
+# but that's the only place we regularly cross-compile as far as I know.
+# See https://conda-forge.org/docs/maintainer/knowledge_base/#how-to-enable-cross-compilation
+# --Bryan
+if not os.environ.get("CONDA_BUILD_CROSS_COMPILATION") == "1":
+    nan_check_source = get_expression_value(["<cmath>"], "std::isnan(NAN + argc)")
+    retcode, nan_works = conf.TryRun(nan_check_source, ".cpp")
+    if nan_works.strip() != "1":
+        config_error(
+            "Cantera requires a working implementation of 'std::isnan'.\n"
+            "If you have specified '-ffast-math' or equivalent as an optimization option,\n"
+            "either remove this option or add the '-fno-finite-math-only' option."
+        )
 
 def split_version(version):
     """Split integer version into version string."""
