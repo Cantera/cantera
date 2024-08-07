@@ -708,7 +708,7 @@ protected:
      * @f$ Y_k @f$ with respect to z for species k at point j using upwind
      * differencing.
      *
-     * For details on the upwinding scheme, see dVdz().
+     * For details on the upwinding scheme, @see dVdz().
      *
      * @param[in] x The local domain state vector.
      * @param[in] k The species index.
@@ -723,7 +723,7 @@ protected:
      * This function calculates the spatial derivative of temperature T
      * with respect to z at point j using upwind differencing.
      *
-     * For details on the upwinding scheme, see dVdz().
+     * For details on the upwinding scheme, @see dVdz().
      *
      * @param[in] x The local domain state vector.
      * @param[in] j The index at which the derivative is computed.
@@ -829,15 +829,7 @@ protected:
      * differencing. Updates all species molar enthalpies for all species at point j.
      * Does not return a value, but updates the m_dhk_dz 2D array.
      *
-     * @f[
-     *   \frac{\partial h_k}{\partial z} \bigg|_{j} \approx \frac{h_k(x, k, j_{\text{loc}})
-     *   - h_k(x, k, j_{\text{loc}} - 1)}{m_{\text{dz}}[j_{\text{loc}} - 1]}
-     * @f]
-     *
-     * Where the value of loc is determined by the sign of the axial velocity.
-     * If the axial velocity is positive, the value of loc is j. If the axial velocity
-     * is negative, the value of loc is j + 1. A positive velocity means that the flow
-     * is moving left-to-right.
+     * For details on the upwinding scheme, @see dVdz().
      *
      * @param[in] k The species index.
      * @param[in] j The index at which the derivative is computed.
