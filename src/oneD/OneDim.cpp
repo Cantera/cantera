@@ -217,7 +217,6 @@ int OneDim::solve(double* x, double* xnew, int loglevel)
         m_jac->updateTransient(m_rdt, m_mask.data());
         m_jac_ok = true;
     }
-
     return m_newt->solve(x, xnew, *this, *m_jac, loglevel);
 }
 
@@ -338,33 +337,37 @@ double OneDim::timeStep(int nsteps, double dt, double* x, double* r, int logleve
     // set the Jacobian age parameter to the transient value
     newton().setOptions(m_ts_jac_age);
 
-    debuglog("\n\n step    size (s)    log10(ss) \n", loglevel);
-    debuglog("===============================\n", loglevel);
-
     int n = 0;
     int successiveFailures = 0;
+
+    if (loglevel > 0) {
+        writelog("\n\n{:<5s}    {:<8s}    {:<9s}\n", "step", "dt (s)", "log10(ss)");
+        writelog("===============================", loglevel);
+    }
 
     while (n < nsteps) {
         if (loglevel > 0) {
             double ss = ssnorm(x, r);
-            writelog(" {:>4d}  {:10.4g}  {:10.4g}", n, dt, log10(ss));
+            writelog("\n{:<5d}    {:<10.4g}   {:<10.4g}", n, dt, log10(ss));
         }
 
         // set up for time stepping with stepsize dt
         initTimeInteg(dt,x);
 
+        int j0 = m_jac->nEvals(); // Store the current number of Jacobian evaluations
+
         // solve the transient problem
-        int m = solve(x, r, loglevel-1);
+        int status = solve(x, r, loglevel-1);
 
         // successful time step. Copy the new solution in r to
         // the current solution in x.
-        if (m >= 0) {
+        if (status >= 0) {
             successiveFailures = 0;
             m_nsteps++;
             n += 1;
-            debuglog("\n", loglevel);
             copy(r, r + m_size, x);
-            if (m == 100) {
+            // No Jacobian evaluations were performed, so a larger timestep can be used
+            if (m_jac->nEvals() == j0) {
                 dt *= 1.5;
             }
             if (m_time_step_callback) {
@@ -380,19 +383,27 @@ double OneDim::timeStep(int nsteps, double dt, double* x, double* r, int logleve
             successiveFailures++;
             // No solution could be found with this time step.
             // Decrease the stepsize and try again.
-            debuglog("...failure.\n", loglevel);
+            debuglog("\nTimestep failed", loglevel);
             if (successiveFailures > 2) {
-                //debuglog("Resetting negative species concentrations.\n", loglevel);
+                debuglog("(Resetting negative species concentrations)\n", loglevel);
                 resetBadValues(x);
                 successiveFailures = 0;
             } else {
+                debuglog("(Reducing timestep)\n", loglevel);
                 dt *= m_tfactor;
                 if (dt < m_tmin) {
-                    throw CanteraError("OneDim::timeStep",
-                                       "Time integration failed.");
+                    string err_msg = fmt::format(
+                        "Time integration failed. Minimum timestep ({}) reached.", m_tmin);
+                    throw CanteraError("OneDim::timeStep", err_msg);
                 }
             }
         }
+    }
+
+    // Write the final step to the log
+    if (loglevel > 0) {
+        double ss = ssnorm(x, r);
+        writelog("\n{:<5d}    {:<10.4g}   {:<10.4g}\n", n, dt, log10(ss));
     }
 
     // return the value of the last stepsize, which may be smaller
