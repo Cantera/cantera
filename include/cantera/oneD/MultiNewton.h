@@ -111,6 +111,15 @@ public:
      * Find the solution to F(X) = 0 by damped Newton iteration. On entry, x0
      * contains an initial estimate of the solution. On successful return, x1
      * contains the converged solution.
+     *
+     * The convergence criteria is when the 2-norm of the Newton step is less than one.
+     *
+     * Returns:
+     * - int : Status code
+     *   - `1`  a converged step was able to be taken.
+     *   - `-2` no suitable damping coefficient was found within the maximum iterations.
+     *   - `-3` the current solution `x0` was too close to the boundary and the step
+     *          points out of the allowed domain.
      */
     int solve(double* x0, double* x1, OneDim& r, MultiJac& jac, int loglevel);
 
@@ -124,7 +133,7 @@ public:
 
 protected:
     //! Work arrays of size #m_n used in solve().
-    vector<double> m_x, m_stp, m_stp1, temp_x0, temp_stp0;
+    vector<double> m_x, m_stp, m_stp1;
 
     int m_maxAge = 5;
 

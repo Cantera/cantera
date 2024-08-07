@@ -419,6 +419,9 @@ void Sim1D::solve(int loglevel, bool refine_grid)
     int attempt_counter = 0;
     const int max_history = 10; // Store up to 10 previous solutions
     std::string header;
+    if (loglevel > 6) {
+        clearDebugFile();
+    }
 
     while (new_points > 0) {
         size_t istep = 0;
@@ -435,12 +438,12 @@ void Sim1D::solve(int loglevel, bool refine_grid)
             // Attempt to solve the steady problem
             setSteadyMode();
             newton().setOptions(m_ss_jac_age);
-            debuglog("Attempt Newton solution of steady-state problem...", loglevel);
+            debuglog("\nAttempt Newton solution of steady-state problem.", loglevel);
             int status = newtonSolve(loglevel-1);
 
             if (status == 0) {
                 if (loglevel > 0) {
-                    writelog("    success.\n\n");
+                    writelog("\nNewton steady-state solve succeeded.\n\n");
                     writelog("Problem solved on [");
                     for (size_t mm = 1; mm < nDomains(); mm+=2) {
                         writelog("{}", domain(mm).nPoints());
@@ -453,47 +456,27 @@ void Sim1D::solve(int loglevel, bool refine_grid)
                 if (m_steady_callback) {
                     m_steady_callback->eval(0);
                 }
+                writeDebugInfo("NewtonSuccess", "After successful Newton solve",
+                               loglevel, attempt_counter);
 
-                if (loglevel > 6) {
-                    header = fmt::format("solution_{}_NewtonSuccess", attempt_counter);
-                    save("debug_sim1d.yaml", header,
-                         "After successful Newton solve", true);
-                }
-                if (loglevel > 7) {
-                    header = fmt::format("residual_{}_NewtonSuccess", attempt_counter);
-                    saveResidual("debug_sim1d.yaml", header,
-                                 "After successful Newton solve", true);
-                }
                 ok = true;
             } else {
-                debuglog("    failure. \n", loglevel);
-                if (loglevel > 6) {
-                    header = fmt::format("solution_{}_NewtonFail", attempt_counter);
-                    save("debug_sim1d.yaml", header,
-                         "After unsuccessful Newton solve", true);
-                }
-                if (loglevel > 7) {
-                    header = fmt::format("residual_{}_NewtonFail", attempt_counter);
-                    saveResidual("debug_sim1d.yaml", header,
-                                 "After unsuccessful Newton solve", true);
-                }
+                debuglog("\nNewton steady-state solve failed.\n", loglevel);
+                writeDebugInfo("NewtonFail", "After unsuccessful Newton solve",
+                               loglevel, attempt_counter);
+
                 if (loglevel > 0) {
-                    writelog("Take {} timesteps   ", nsteps);
-                }
-                dt = timeStep(nsteps, dt, m_state->data(), m_xnew.data(), loglevel-1);
-                m_xlast_ts = *m_state;
-                if (loglevel > 6) {
-                    header = fmt::format("solution_{}_Timestepping", attempt_counter);
-                    save("debug_sim1d.yaml", header, "After timestepping", true);
-                }
-                if (loglevel > 7) {
-                    header = fmt::format("residual_{}_Timestepping", attempt_counter);
-                    saveResidual("debug_sim1d.yaml", header,
-                                 "After timestepping", true);
+                    writelog("\nTake {} timesteps:", nsteps);
                 }
 
+                dt = timeStep(nsteps, dt, m_state->data(), m_xnew.data(), loglevel-1);
+                m_xlast_ts = *m_state;
+                writeDebugInfo("Timestepping", "After timestepping", loglevel,
+                               attempt_counter);
+
+                // Repeat the last timestep's data for logging purposes
                 if (loglevel == 1) {
-                    writelog(" {:10.4g} {:10.4g}\n", dt,
+                    writelog("\nFinal timestep info: dt= {:<10.4g} log10(ss)= {:<10.4g}\n", dt,
                              log10(ssnorm(m_state->data(), m_xnew.data())));
                 }
                 istep++;
@@ -519,15 +502,7 @@ void Sim1D::solve(int loglevel, bool refine_grid)
                 // to avoid multiple successive failed time steps.
                 dt = m_tstep;
             }
-            if (new_points && loglevel > 6) {
-                header = fmt::format("solution_{}_Regridding", attempt_counter);
-                save("debug_sim1d.yaml", header, "After regridding", true);
-            }
-            if (new_points && loglevel > 7) {
-                header = fmt::format("residual_{}_Regridding", attempt_counter);
-                saveResidual("debug_sim1d.yaml", header,
-                             "After regridding", true);
-            }
+            writeDebugInfo("Regridding", "After regridding", loglevel, attempt_counter);
         } else {
             debuglog("grid refinement disabled.\n", loglevel);
             new_points = 0;
@@ -622,6 +597,24 @@ int Sim1D::refine(int loglevel)
     resize();
     finalize();
     return np;
+}
+
+void Sim1D::clearDebugFile() {
+    if (std::remove("debug_sim1d.yaml") != 0) {
+        writelog("Warning: Unable to delete previous debug file 'debug_sim1d.yaml'\n");
+    }
+}
+
+void Sim1D::writeDebugInfo(const std::string& header, const std::string& message,
+                         int loglevel, int attempt_counter) {
+    if (loglevel > 6) {
+        std::string fileHeader = fmt::format("solution_{}_{}", attempt_counter, header);
+        save("debug_sim1d.yaml", fileHeader, message, true);
+    }
+    if (loglevel > 7) {
+        std::string fileHeader = fmt::format("residual_{}_{}", attempt_counter, header);
+        saveResidual("debug_sim1d.yaml", fileHeader, message, true);
+    }
 }
 
 int Sim1D::setFixedTemperature(double t)

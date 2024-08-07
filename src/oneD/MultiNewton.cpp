@@ -62,12 +62,12 @@ double bound_step(const double* x, const double* step, Domain1D& r, int loglevel
 
             if (loglevel > 1 && (newval > above || newval < below)) {
                 if (!wroteTitle) {
-                    writelog("\nNewton step takes solution out of bounds.\n\n");
-                    writelog("  {:>12s}  {:>12s}  {:>4s}  {:>10s}  {:>10s}  {:>10s}  {:>10s}\n",
+                    writelog("\n   Undamped Newton step takes solution out of bounds:\n");
+                    writelog("   {:<10s}  {:<12s}  {:<4s}  {:<10s}   {:<10s}   {:<10s}   {:<10s}\n",
                              "domain","component","pt","value","step","min","max");
                     wroteTitle = true;
                 }
-                writelog("          {:4d}  {:>12s}  {:4d}  {:10.3e}  {:10.3e}  {:10.3e}  {:10.3e}\n",
+                writelog("   {:<10d}  {:<12s}  {:<4d}  {:<10.3e}   {:<10.3e}   {:<10.3e}   {:<10.3e}\n",
                          r.domainIndex(), r.componentName(m), j,
                          val, step[index(m,j)], below, above);
             }
@@ -140,8 +140,6 @@ void MultiNewton::resize(size_t sz)
     m_x.resize(m_n);
     m_stp.resize(m_n);
     m_stp1.resize(m_n);
-    temp_x0.resize(m_n);
-    temp_stp0.resize(m_n);
 }
 
 double MultiNewton::norm2(const double* x, const double* step, OneDim& r) const
@@ -206,14 +204,14 @@ int MultiNewton::dampStep(const double* x0, const double* step0,
                           OneDim& r, MultiJac& jac, int loglevel, bool writetitle)
 {
     // write header
-    if (loglevel > 0 && writetitle) {
-        writelog("\n\nDamped Newton iteration:\n");
-        writeline('-', 65, false);
+    if (loglevel > 0) {
+        writelog("\n\n{}\n", "Damped Newton iteration:");
+        writeline('-', 83, false);
 
-        writelog("\n{}  {:>9s}   {:>9s}     {:>9s}   {:>9s}   {:>9s}  {:>5s} {:>5s}\n",
-                "m","F_damp","F_bound","log10(ss)",
-                "log10(s0)","log10(s1)","N_jac","Age");
-        writeline('-', 65);
+        writelog("\n{:<6s}  {:<9s}    {:<9s}      {:<9s}   {:<9s}   {:<9s}  {:<5s}  {:<5s}\n",
+                 "Iter", "F_damp", "F_bound", "log10(ss)",
+                "log10(s0)", "log10(s1)", "N_jac", "Age");
+        writeline('-', 83, false);
     }
 
     // compute the weighted norm of the undamped step size step0
@@ -226,22 +224,21 @@ int MultiNewton::dampStep(const double* x0, const double* step0,
     // step0 points out of the allowed domain. In this case, the Newton
     // algorithm fails, so return an error condition.
     if (fbound < 1.e-10) {
-        debuglog("\nAt limits.\n", loglevel);
+        debuglog("\nNo damping step can be taken without leaving bounds on solution.\n", loglevel);
         return -3;
     }
 
     // ---------- Attempt damped step ----------
 
-    // damping coefficient starts at 1.0
-    double alpha = 1.0;
+    // damping coefficient starts at 1.0, but must be scaled by the
+    // fbound factor to ensure that the solution remains within bounds.
+    double alpha = fbound*1.0;
     size_t m;
     for (m = 0; m < NDAMP; m++) {
-        double ff = fbound*alpha;
-
         // step the solution by the damped step size
         // x_{k+1} = x_k + alpha_k*J(x_k)^-1 F(x_k)
         for (size_t j = 0; j < m_n; j++) {
-            x1[j] = x0[j] + ff*step0[j];
+            x1[j] = x0[j] + alpha*step0[j];
         }
 
         // compute the next undamped step that would result if x1 is accepted
@@ -251,10 +248,9 @@ int MultiNewton::dampStep(const double* x0, const double* step0,
         // compute the weighted norm of step1
         s1 = norm2(x1, step1, r);
 
-        // write log information
         if (loglevel > 0) {
             double ss = r.ssnorm(x1,step1);
-            writelog("\n{:d}  {:9.5f}   {:9.5f}   {:9.5f}   {:9.5f}   {:9.5f} {:4d}  {:d}/{:d}",
+            writelog("\n{:<6d}  {:<9.5g}   {:<9.5g}     {:<9.5f}   {:<9.5f}   {:<9.5f}  {:<5d}  {:d}/{:d}",
                      m, alpha, fbound, log10(ss+SmallNumber),
                      log10(s0+SmallNumber), log10(s1+SmallNumber),
                      jac.nEvals(), jac.age(), m_maxAge);
@@ -275,11 +271,20 @@ int MultiNewton::dampStep(const double* x0, const double* step0,
     // return 0 otherwise. If no damping coefficient could be found, return -2.
     if (m < NDAMP) {
         if (s1 > 1.0) {
+            if (loglevel > 0) {
+                writelog("\nDamping coefficient found, but solution does not converge.\n");
+            }
             return 0;
         } else {
+            if (loglevel > 0) {
+                writelog("\nDamping coefficient found and solution converges.\n");
+            }
             return 1;
         }
     } else {
+        if (loglevel > 0) {
+            writelog("\nNo damping coefficient found.\n");
+        }
         return -2;
     }
 }
@@ -287,21 +292,19 @@ int MultiNewton::dampStep(const double* x0, const double* step0,
 int MultiNewton::solve(double* x0, double* x1, OneDim& r, MultiJac& jac, int loglevel)
 {
     clock_t t0 = clock();
-    int m = 0;
+    int status = 0;
     bool forceNewJac = false;
     double s1=1.e30;
 
     copy(x0, x0 + m_n, &m_x[0]);
 
-    bool frst = true;
     double rdt = r.rdt();
-    int j0 = jac.nEvals();
     int nJacReeval = 0;
     while (true) {
         // Check whether the Jacobian should be re-evaluated.
         if (jac.age() > m_maxAge) {
             if (loglevel > 0) {
-                writelog("\nMaximum Jacobian age reached ({})\n", m_maxAge);
+                writelog("\nMaximum Jacobian age reached ({}), updating it.", m_maxAge);
             }
             forceNewJac = true;
         }
@@ -320,30 +323,19 @@ int MultiNewton::solve(double* x0, double* x1, OneDim& r, MultiJac& jac, int log
         jac.incrementAge();
 
         // damp the Newton step
-        m = dampStep(&m_x[0], &m_stp[0], x1, &m_stp1[0], s1, r, jac, loglevel-1, frst);
-        if (loglevel == 1 && m >= 0) {
-            if (frst) {
-                writelog("\n\n    {:>10s}    {:>10s}   {:>5s}",
-                         "log10(ss)","log10(s1)","N_jac");
-                writelog("\n    ------------------------------------");
-            }
-            double ss = r.ssnorm(&m_x[0], &m_stp[0]);
-            writelog("\n    {:10.4f}    {:10.4f}       {:d}",
-                     log10(ss),log10(s1),jac.nEvals());
-        }
-        frst = false;
+        status = dampStep(&m_x[0], &m_stp[0], x1, &m_stp1[0], s1, r, jac, loglevel-1, true);
 
         // Successful step, but not converged yet. Take the damped step, and try
         // again.
-        if (m == 0) {
+        if (status == 0) {
             copy(x1, x1 + m_n, m_x.begin());
-        } else if (m == 1) {
+        } else if (status == 1) {
             // convergence
             if (rdt == 0) {
                 jac.setAge(0); // for efficient sensitivity analysis
             }
             break;
-        } else if (m < 0) {
+        } else if (status < 0) {
             // If dampStep fails, first try a new Jacobian if an old one was
             // being used. If it was a new Jacobian, then return -1 to signify
             // failure.
@@ -353,23 +345,21 @@ int MultiNewton::solve(double* x0, double* x1, OneDim& r, MultiJac& jac, int log
                     break;
                 }
                 nJacReeval++;
-                debuglog("\nRe-evaluating Jacobian, since no damping "
-                         "coefficient\ncould be found with this Jacobian.\n",
-                         loglevel);
+                if (loglevel > 0) {
+                    writelog("\nRe-evaluating Jacobian(damping coefficient not found"
+                            " with this Jacobian)");
+                }
             } else {
                 break;
             }
         }
     }
 
-    if (m < 0) {
+    if (status < 0) { // Why is this done?
         copy(m_x.begin(), m_x.end(), x1);
     }
-    if (m > 0 && jac.nEvals() == j0) {
-        m = 100;
-    }
     m_elapsed += (clock() - t0)/(1.0*CLOCKS_PER_SEC);
-    return m;
+    return status;
 }
 
 } // end namespace Cantera
