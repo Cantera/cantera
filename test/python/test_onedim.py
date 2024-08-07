@@ -660,7 +660,9 @@ class TestFreeFlame(utilities.CanteraTest):
 
         self.sim.solve(loglevel=0)
 
-    @pytest.mark.filterwarnings("ignore:.*reaction_phase_index.*:DeprecationWarning")
+    # @pytest.mark.filterwarnings("ignore:.*reaction_phase_index.*:DeprecationWarning")
+    # TODO: remove fixture after Cantera 3.1; @pytest.mark.filterwarnings does not work
+    @pytest.mark.usefixtures("allow_deprecated")  # to ignore reaction_phase_index
     def test_array_properties(self):
         self.create_sim(ct.one_atm, 300, 'H2:1.1, O2:1, AR:5')
         grid_shape = self.sim.grid.shape
