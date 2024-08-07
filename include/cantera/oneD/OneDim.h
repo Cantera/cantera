@@ -46,7 +46,11 @@ public:
     MultiNewton& newton();
 
     /**
-     * Solve F(x) = 0, where F(x) is the multi-domain residual function.
+     * Solve F(x) = 0, where F(x) is the multi-domain residual function. Returns
+     * a 1 on success, and either a -2 or -3 on failure depending on whether the
+     * maximum number of damping steps was reached(-2) or if the solution was up
+     * against the bounds(-3).
+     *
      * @param x0         Starting estimate of solution.
      * @param x1         Final solution satisfying F(x1) = 0.
      * @param loglevel   Controls amount of diagnostic output.
@@ -232,6 +236,13 @@ public:
     void setMaxTimeStep(double tmax) {
         m_tmax = tmax;
     }
+
+    /**
+     * Sets a factor by which the time step is reduced if the time stepping
+     * fails. The default value is 0.5.
+     *
+     * @param tfactor factor time step is multiplied by if time stepping fails
+     */
     void setTimeStepFactor(double tfactor) {
         m_tfactor = tfactor;
     }

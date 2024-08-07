@@ -168,6 +168,12 @@ public:
      */
     AnyMap restore(const string& fname, const string& name);
 
+    void clearDebugFile();
+
+    void writeDebugInfo(const string& header, const string& message, int loglevel,
+                        int attempt_counter);
+
+
     //! @}
 
     void setTimeStep(double stepsize, size_t n, const int* tsteps);
