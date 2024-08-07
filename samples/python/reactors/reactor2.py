@@ -96,7 +96,7 @@ df = pd.DataFrame.from_dict({
     'P2 (bar)': states2.P / 1e5,
     'V2 (m3)': states2.V,
 })
-df.to_csv("pistion.csv")
+df.to_csv("piston.csv")
 df
 
 # %%
