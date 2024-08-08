@@ -1,7 +1,7 @@
 classdef FlowDevice < handle
     % FlowDevice Class ::
     %
-    %     >> x = FlowDevice(typ)
+    %     >> x = FlowDevice(typ, name)
     %
     % Base class for devices that allow flow between reactors.
     % :mat:class:`FlowDevice` objects are assumed to be adiabatic,
@@ -18,6 +18,8 @@ classdef FlowDevice < handle
     %     Type of :mat:class:`FlowDevice` to be created. ``typ='MassFlowController'``
     %     for :mat:class:`MassFlowController`,  ``typ='PressureController'`` for
     %     :mat:class:`PressureController`, and ``typ='Valve'`` for :mat:class:`Valve`.
+    % :param name:
+    %     Reactor name (optional; default is ``(none)``).
     % :return:
     %     Instance of class :mat:class:`FlowDevice`.
 
@@ -30,7 +32,7 @@ classdef FlowDevice < handle
 
     properties (SetAccess = public)
 
-        name  % name of flow device.
+        name  % Name of flow device.
 
         % Upstream object of type :mat:class:`Reactor` or :mat:class:`Reservoir`.
         upstream
