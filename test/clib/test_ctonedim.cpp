@@ -254,25 +254,3 @@ TEST(ctonedim, freeflame_from_parts)
         Tprev = T;
     }
 }
-
-TEST(ctonedim, stflow_tests)
-{
-    //! @todo: To be removed after Cantera 3.1
-    ct_resetStorage();
-    auto gas = newThermo("h2o2.yaml", "ohmech");
-
-    int sol = soln_newSolution("h2o2.yaml", "ohmech", "default");
-    int ph = soln_thermo(sol);
-    int kin = soln_kinetics(sol);
-    int tr = soln_transport(sol);
-
-    // spot check some errors
-    int itype = 2; // free flow
-    int ret = stflow_new(ph, kin, tr, itype);
-    ASSERT_EQ(ret, -1);  // -1 is an error code
-
-    int flow = flow1D_new(ph, kin, tr, itype);
-    ASSERT_EQ(stflow_setTransport(flow, tr), -1);
-    ASSERT_EQ(stflow_pressure(flow), DERR);  // DERR is an error code
-    ASSERT_EQ(stflow_setPressure(flow, OneAtm), -1);
-}
