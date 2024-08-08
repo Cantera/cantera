@@ -204,14 +204,14 @@ scons command
 
 - If Cantera compiles successfully, you should see a message that looks like:
 
-  ```
-  *******************************************************
-  Compilation completed successfully.
+  ```none
+  ********************** Compilation completed successfully **********************
 
   - To run the test suite, type 'scons test'.
   - To list available tests, type 'scons test-help'.
   - To install, type 'scons install'.
-  *******************************************************
+
+  ********************************************************************************
   ```
 
 - If you do not see this message, check the output for errors to see what went
@@ -247,3 +247,40 @@ command:
 ```bash
 scons build doxygen_docs=y sphinx_docs=y
 ```
+
+## Installing Cantera
+
+- To install Cantera into default directories, run the SCons installer as:
+
+  ```bash
+  scons install
+  ```
+
+  which may require super-user permissions if the installation directory is protected.
+  An installation into an active [Conda environment](sec-conda) is recommended.
+
+  Alternatively, you can specify location and layout of the installation via
+
+  - [`prefix`](sconsopt-prefix)
+  - [`layout`](sconsopt-layout)
+  - [`python_prefix`](sconsopt-python-prefix)
+
+- If Cantera installs successfully, you should see a message that looks similar to
+
+  ```none
+  **************** Cantera 3.x.y has been successfully installed *****************
+
+  File locations:
+
+    library files               C:/path/to/prefix/Library/lib
+    C++ headers                 C:/path/to/prefix/Library/include
+    samples                     C:/path/to/prefix/share/cantera/samples
+    data files                  C:/path/to/prefix/share/cantera/data
+    input file converters       C:/path/to/prefix/Scripts
+    Python package              C:/path/to/prefix/Lib/site-packages
+    Python examples             C:/path/to/prefix/share/cantera/samples/python
+
+  ********************************************************************************
+  ```
+
+  where slight variations may depend on operating system and configuration.
