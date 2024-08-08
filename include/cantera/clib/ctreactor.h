@@ -19,6 +19,8 @@ extern "C" {
 
     CANTERA_CAPI int reactor_new(const char* type, int n, const char* name);
     CANTERA_CAPI int reactor_del(int i);
+    CANTERA_CAPI int reactor_name(int i, int len, char* nbuf);
+    CANTERA_CAPI int reactor_setName(int i, const char* name);
     CANTERA_CAPI int reactor_setInitialVolume(int i, double v);
     CANTERA_CAPI int reactor_setChemistry(int i, int cflag);
     CANTERA_CAPI int reactor_setEnergy(int i, int eflag);
@@ -49,8 +51,10 @@ extern "C" {
     CANTERA_CAPI double reactornet_atol(int i);
     CANTERA_CAPI double reactornet_sensitivity(int i, const char* v, int p, int r);
 
-    CANTERA_CAPI int flowdev_new(const char* type);
+    CANTERA_CAPI int flowdev_new(const char* type, const char* name);
     CANTERA_CAPI int flowdev_del(int i);
+    CANTERA_CAPI int flowdev_name(int i, int len, char* nbuf);
+    CANTERA_CAPI int flowdev_setName(int i, const char* name);
     CANTERA_CAPI int flowdev_install(int i, int n, int m);
     CANTERA_CAPI int flowdev_setPrimary(int i, int n);
     CANTERA_CAPI double flowdev_massFlowRate(int i);
@@ -60,8 +64,10 @@ extern "C" {
     CANTERA_CAPI int flowdev_setPressureFunction(int i, int n);
     CANTERA_CAPI int flowdev_setTimeFunction(int i, int n);
 
-    CANTERA_CAPI int wall_new(const char* type);
+    CANTERA_CAPI int wall_new(const char* type, const char* name);
     CANTERA_CAPI int wall_del(int i);
+    CANTERA_CAPI int wall_name(int i, int len, char* nbuf);
+    CANTERA_CAPI int wall_setName(int i, const char* name);
     CANTERA_CAPI int wall_install(int i, int n, int m);
     CANTERA_CAPI double wall_expansionRate(int i);
     CANTERA_CAPI double wall_heatRate(int i);
@@ -75,8 +81,10 @@ extern "C" {
     CANTERA_CAPI int wall_setEmissivity(int i, double epsilon);
     CANTERA_CAPI int wall_ready(int i);
 
-    CANTERA_CAPI int reactorsurface_new(int type);
+    CANTERA_CAPI int reactorsurface_new(const char* name);
     CANTERA_CAPI int reactorsurface_del(int i);
+    CANTERA_CAPI int reactorsurface_name(int i, int len, char* nbuf);
+    CANTERA_CAPI int reactorsurface_setName(int i, const char* name);
     CANTERA_CAPI int reactorsurface_install(int i, int n);
     CANTERA_CAPI int reactorsurface_setkinetics(int i, int n);
     CANTERA_CAPI double reactorsurface_area(int i);
