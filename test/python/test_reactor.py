@@ -236,10 +236,34 @@ class TestReactor(utilities.CanteraTest):
         self.assertLessEqual(self.net.time, max_steps * max_step_size)
         self.assertEqual(self.net.max_steps, max_steps)
 
-    def test_wall_type(self):
+    def test_wall_type1(self):
         self.make_reactors(P1=101325, P2=300000)
         self.add_wall(K=0.1, A=1.0)
-        self.assertEqual(self.w.type, "Wall")
+        net = ct.ReactorNet([self.r1, self.r2])  # assigns default names
+        assert self.r1.name.startswith(f"{self.r1.type}_")  # default name
+        assert self.r2.name.startswith(f"{self.r2.type}_")  # default name
+        assert self.w.type == "Wall"
+        assert self.w.name.startswith("Wall_")  # default name
+        self.w.name = "name-of-wall"
+        assert self.w.name == "name-of-wall"
+
+    def test_wall_type2(self):
+        self.make_reactors(n_reactors=1)
+        res = ct.Reservoir(self.gas1)
+        w = ct.Wall(self.r1, res)
+        net = ct.ReactorNet([self.r1])  # assigns default names
+        assert self.r1.name.startswith(f"{self.r1.type}_")  # default name
+        assert w.type == "Wall"
+        assert w.name.startswith("Wall_")  # default name
+
+    def test_wall_type3(self):
+        self.make_reactors(n_reactors=1)
+        res = ct.Reservoir(self.gas1)
+        w = ct.Wall(res, self.r1)
+        net = ct.ReactorNet([self.r1])  # assigns default names
+        assert self.r1.name.startswith(f"{self.r1.type}_")  # default name
+        assert w.type == "Wall"
+        assert w.name.startswith("Wall_")  # default name
 
     def test_equalize_pressure(self):
         self.make_reactors(P1=101325, P2=300000)
@@ -555,6 +579,15 @@ class TestReactor(utilities.CanteraTest):
         self.assertNear(ma + 0.1, mb)
         self.assertArrayNear(ma * Ya + 0.1 * gas2.Y, mb * Yb)
 
+    def test_mass_flow_controller_type(self):
+        self.make_reactors(n_reactors=2)
+        mfc = ct.MassFlowController(self.r1, self.r2)
+        net = ct.ReactorNet([self.r1, self.r2])  # assigns default names
+        assert mfc.type == "MassFlowController"
+        assert mfc.name.startswith("MassFlowController_")  # default name
+        mfc.name = "name-of-mfc"
+        assert mfc.name == "name-of-mfc"
+
     def test_mass_flow_controller_errors(self):
         # Make sure Python error message actually gets displayed
         self.make_reactors(n_reactors=2)
@@ -692,6 +725,26 @@ class TestReactor(utilities.CanteraTest):
         assert valve.pressure_function == approx(delta_p())
         assert valve.mass_flow_rate == approx(mdot())
 
+    def test_valve_type1(self):
+        self.make_reactors()
+        res = ct.Reservoir(self.gas1)
+        v = ct.Valve(self.r1, res)
+        ct.ReactorNet([self.r1])  # assigns default names
+        assert self.r1.name.startswith(f"{self.r1.type}_")  # default name
+        assert res.name.startswith(f"{res.type}_")  # default name
+        assert v.type == "Valve"
+        assert v.name.startswith("Valve_")  # default name
+        v.name = "name-of-valve"
+        assert v.name == "name-of-valve"
+
+    def test_valve_type2(self):
+        self.make_reactors()
+        res = ct.Reservoir(self.gas1)
+        ct.Valve(res, self.r1)
+        ct.ReactorNet([self.r1])  # assigns default names
+        assert self.r1.name.startswith(f"{self.r1.type}_")  # default name
+        assert res.name.startswith(f"{res.type}_")  # default name
+
     @pytest.mark.usefixtures("allow_deprecated")
     def test_valve_errors(self):
         self.make_reactors()
@@ -756,6 +809,17 @@ class TestReactor(utilities.CanteraTest):
             self.assertNear(mdot(t), mfc.mass_flow_rate)
             dP = self.r1.thermo.P - outlet_reservoir.thermo.P
             self.assertNear(mdot(t) + pfunc(dP), pc.mass_flow_rate)
+
+    def test_pressure_controller_type(self):
+        self.make_reactors()
+        res = ct.Reservoir(self.gas1)
+        mfc = ct.MassFlowController(res, self.r1, mdot=0.6)
+        p = ct.PressureController(self.r1, self.r2, primary=mfc, K=0.5)
+        net = ct.ReactorNet([self.r1, self.r2])  # assigns default names
+        assert p.type == "PressureController"
+        assert p.name.startswith("PressureController_")  # default name
+        p.name = "name-of-pressure-controller"
+        assert p.name == "name-of-pressure-controller"
 
     def test_pressure_controller_errors(self):
         self.make_reactors()
@@ -1293,6 +1357,13 @@ class TestConstPressureReactor(utilities.CanteraTest):
         self.net1.max_time_step = 0.05
         self.net2.max_time_step = 0.05
         self.net2.max_err_test_fails = 10
+
+    def test_reactor_surface_type(self):
+        self.create_reactors(add_surf=True)
+        assert self.surf1.type == "ReactorSurface"
+        assert self.surf1.name.startswith("ReactorSurface_")  # default name
+        self.surf1.name = "name-of-reactor-surface"
+        assert self.surf1.name == "name-of-reactor-surface"
 
     def test_component_index(self):
         self.create_reactors(add_surf=True)
