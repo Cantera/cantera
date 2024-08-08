@@ -681,8 +681,8 @@ protected:
     //! @{
 
     /**
-     * This function calculates the spatial derivative of velocity V with respect
-     * to z at point j using upwind differencing.
+     * Calculates the spatial derivative of velocity V with respect to z at point j
+     * using upwind differencing.
      *
      * The general formula for a variable, Var, is:
      * @f[
@@ -704,9 +704,8 @@ protected:
     }
 
     /**
-     * This function calculates the spatial derivative of the species mass fraction
-     * @f$ Y_k @f$ with respect to z for species k at point j using upwind
-     * differencing.
+     * Calculates the spatial derivative of the species mass fraction @f$ Y_k @f$ with
+     * respect to z for species k at point j using upwind differencing.
      *
      * For details on the upwinding scheme, @see dVdz().
      *
@@ -720,8 +719,8 @@ protected:
     }
 
     /**
-     * This function calculates the spatial derivative of temperature T
-     * with respect to z at point j using upwind differencing.
+     * Calculates the spatial derivative of temperature T with respect to z at point
+     * j using upwind differencing.
      *
      * For details on the upwinding scheme, @see dVdz().
      *
@@ -748,8 +747,8 @@ protected:
      * using a central difference formula, but evaluated at j+1/2 and j-1/2 (halfway
      * between the grid points around point j).
      *
-     * The value of @f$ A @f$ at point @f$ j-1/2 @f$ is estimating using a central difference
-     * formula:
+     * The value of @f$ A @f$ at point @f$ j-1/2 @f$ is estimating using a central
+     * difference formula:
      *
      * @f[
      *  A_{j-1/2} = \mu_{j-1/2} \frac{V_j - V_{j-1}}{z_j - z_{j-1}}
@@ -761,12 +760,12 @@ protected:
      *   A_{j+1/2} = \mu_{j+1/2} \frac{V_{j+1} - V_j}{z_{j+1} - z_j}
      * @f]
      *
-     * In the implementation, a vector of viscosities are used which actually represents
+     * In the implementation, a vector of viscosities is used which actually represents
      * the viscosity evaluated at the midpoints between grid points. In other words,
      * the value of mu[j] is actually @f$ \mu_{j+1/2} @f$. The transport properties
      * between grid points are not the average of the adjacent grid points, but rather,
-     * the state of the system at the midpoint is estimated, and then the transport properties
-     * are evaluated at that state (T,P,Y) for example.
+     * the state of the system at the midpoint is estimated, and then the transport
+     * properties are evaluated at that state (T,P,Y) for example.
      *
      * The outer discretization uses a central difference between the j+1/2 and j-1/2
      * locations.
@@ -784,8 +783,9 @@ protected:
      * Substituting these values into the central difference formula gives:
      *
      * @f[
-     *   \frac{d}{dz}\left(\mu \frac{dV}{dz}\right) \approx \frac{\mu_{j+1/2} \frac{V_{j+1} - V_j}{z_{j+1} - z_j} -
-     *     \mu_{j-1/2} \frac{V_j - V_{j-1}}{z_j - z_{j-1}}}{\frac{z_{j+1} - z_{j-1}}{2}}
+     *  \frac{d}{dz}\left(\mu \frac{dV}{dz}\right) \approx
+     *   \frac{\mu_{j+1/2} \frac{V_{j+1} - V_j}{z_{j+1} - z_j} -
+     *   \mu_{j-1/2} \frac{V_j - V_{j-1}}{z_j - z_{j-1}}}{\frac{z_{j+1} - z_{j-1}}{2}}
      * @f]
      *
      * @param[in] x The local domain state vector.
@@ -861,8 +861,8 @@ protected:
     //! coefficient times species molar mass divided by mean molecular weight
     vector<double> m_diff;
 
-    //! Vector of size #m_nsp by #m_nsp by #m_points for saving multicomponent diffusion
-    //! coefficients.
+    //! Vector of size #m_nsp by #m_nsp by #m_points for saving multicomponent
+    //! diffusion coefficients.
     vector<double> m_multidiff;
 
     //! Array of size #m_nsp by #m_points for saving thermal diffusion coefficients
