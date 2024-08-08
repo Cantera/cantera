@@ -11,9 +11,12 @@
 
 #include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/numerics/eigen_sparse.h"
+#include "cantera/base/AnyMap.h"
 
 namespace Cantera
 {
+
+class Reaction;
 
 /**
  * Base class for a phase with plasma properties. This class manages the
@@ -271,8 +274,22 @@ public:
         return m_levelNum;
     }
 
+    //! Get elastic electron energy loss rate (eV/s)
+    double elasticElectronEnergyLossRate() {
+        return concentration(m_electronSpeciesIndex) *
+               normalizedElasticElectronEnergyLossRate();
+    }
+
+    //! Get normalized elastic electron energy loss rate (eV-m3/kmol/s)
+    double normalizedElasticElectronEnergyLossRate();
+
 protected:
     void updateThermo() const override;
+
+    //! update interpolated cross sections
+    //! This function needs to be called when the EEDF is updated or
+    //! when the cross sections are updated
+    void updateInterpolatedCrossSections();
 
     //! When electron energy distribution changed, plasma properties such as
     //! electron-collision reaction rates need to be re-evaluated.
@@ -345,6 +362,15 @@ protected:
     //! Flag of normalizing electron energy distribution
     bool m_do_normalizeElectronEnergyDist = true;
 
+    //! Data for initiate reaction
+    AnyMap m_root;
+
+    //! get the target species index
+    size_t targetSpeciesIndex(shared_ptr<Reaction> R);
+
+    //! get cross section interpolated
+    vector<double> crossSection(shared_ptr<Reaction> reaction);
+
 private:
     //! Electron energy distribution change variable. Whenever
     //! #m_electronEnergyDist changes, this int is incremented.
@@ -353,6 +379,15 @@ private:
     //! Electron energy level change variable. Whenever
     //! #m_electronEnergyLevels changes, this int is incremented.
     int m_levelNum = -1;
+
+    //! The list of shared pointers of plasma collision reactions
+    vector<shared_ptr<Reaction>> m_collisions;
+
+    //! Indices of elastic collisions
+    vector<size_t> m_elasticCollisionIndices;
+
+    //! Collision cross section
+    vector<Eigen::ArrayXd> m_interpolatedCrossSections;
 };
 
 }

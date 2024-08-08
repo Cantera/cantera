@@ -569,6 +569,10 @@ Eigen::SparseMatrix<double> Kinetics::netProductionRates_ddCi()
 
 void Kinetics::addThermo(shared_ptr<ThermoPhase> thermo)
 {
+    if (std::find(m_thermo.begin(), m_thermo.end(), thermo) != m_thermo.end()) {
+        // duplicated thermo
+        return;
+    }
     // the phase with lowest dimensionality is assumed to be the
     // phase/interface at which reactions take place
     if (thermo->nDim() <= m_mindim) {
