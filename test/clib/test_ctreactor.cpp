@@ -13,6 +13,15 @@ TEST(ctreactor, reactor_soln)
     int sol = soln_newSolution("gri30.yaml", "gri30", "none");
     int reactor = reactor_new("IdealGasReactor", sol, "test");
     ASSERT_EQ(reactor, 0);
+
+    int ret = reactor_setName(reactor, "spam");
+    ASSERT_EQ(ret, 0);
+    int buflen = reactor_name(reactor, 0, 0);
+    char* buf = new char[buflen];
+    reactor_name(reactor, buflen, buf);
+    string rName = buf;
+    ASSERT_EQ(rName, "spam");
+    delete[] buf;
 }
 
 vector<double> T_ctreactor = {

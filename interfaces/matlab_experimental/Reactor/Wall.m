@@ -52,6 +52,8 @@ classdef Wall < handle
 
     properties (SetAccess = protected)
 
+        name  % Name of wall.
+
         left % Reactor on the left.
         right % Reactor on the right.
 
@@ -87,15 +89,18 @@ classdef Wall < handle
     methods
         %% Wall Class Constructor
 
-        function w = Wall(l, r)
+        function w = Wall(l, r, name)
             % Create a :mat:class:`Wall` object.
             ctIsLoaded;
 
             % At the moment, only one wall type is implemented
             typ = 'Wall';
+            if nargin < 3
+                name = '(none)';
+            end
 
             w.type = char(typ);
-            w.id = ctFunc('wall_new', w.type);
+            w.id = ctFunc('wall_new', w.type, name);
 
             % Install the wall between left and right reactors
             w.left = l;
@@ -127,6 +132,10 @@ classdef Wall < handle
 
         %% ReactorNet get methods
 
+        function name = get.name(w)
+            name = ctString('wall_name', w.id);
+        end
+
         function a = get.area(w)
             a = ctFunc('wall_area', w.id);
         end
@@ -140,6 +149,10 @@ classdef Wall < handle
         end
 
         %% ReactorNet set methods
+
+        function set.name(w, name)
+            ctFunc('wall_setName', w.id, name);
+        end
 
         function set.area(w, a)
             ctFunc('wall_setArea', w.id, a);

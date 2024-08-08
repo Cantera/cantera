@@ -12,6 +12,7 @@
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/kinetics/Kinetics.h"
 #include "cantera/zerodim.h"
+#include "cantera/base/stringUtils.h"
 #include "clib_utils.h"
 
 using namespace Cantera;
@@ -53,6 +54,26 @@ extern "C" {
     {
         try {
             ReactorCabinet::del(i);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int reactor_name(int i, int len, char* nbuf)
+    {
+        try {
+            return static_cast<int>(
+                copyString(ReactorCabinet::item(i).name(), nbuf, len));
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int reactor_setName(int i, const char* name)
+    {
+        try {
+            ReactorCabinet::item(i).setName(name);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -349,10 +370,10 @@ extern "C" {
 
     // flow devices
 
-    int flowdev_new(const char* type)
+    int flowdev_new(const char* type, const char* name)
     {
         try {
-            return FlowDeviceCabinet::add(newFlowDevice(type));
+            return FlowDeviceCabinet::add(newFlowDevice(type, name));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -362,6 +383,26 @@ extern "C" {
     {
         try {
             FlowDeviceCabinet::del(i);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int flowdev_name(int i, int len, char* nbuf)
+    {
+        try {
+            return static_cast<int>(
+                copyString(FlowDeviceCabinet::item(i).name(), nbuf, len));
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int flowdev_setName(int i, const char* name)
+    {
+        try {
+            FlowDeviceCabinet::item(i).setName(name);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -455,10 +496,10 @@ extern "C" {
 
     /////////////    Walls   ///////////////////////
 
-    int wall_new(const char* type)
+    int wall_new(const char* type, const char* name)
     {
         try {
-            return WallCabinet::add(newWall(type));
+            return WallCabinet::add(newWall(type, name));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -468,6 +509,26 @@ extern "C" {
     {
         try {
             WallCabinet::del(i);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int wall_name(int i, int len, char* nbuf)
+    {
+        try {
+            return static_cast<int>(
+                copyString(WallCabinet::item(i).name(), nbuf, len));
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int wall_setName(int i, const char* name)
+    {
+        try {
+            WallCabinet::item(i).setName(name);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);

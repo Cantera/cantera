@@ -9,6 +9,8 @@ classdef Reactor < handle
 
     properties (SetAccess = public)
 
+        name  % Name of reactor.
+
         contents
 
         % Density of the reactor contents at the end of the last call to
@@ -158,6 +160,10 @@ classdef Reactor < handle
 
         %% Reactor Get Methods
 
+        function name = get.name(r)
+            name = ctString('reactor_name', r.id);
+        end
+
         function temperature = get.T(r)
             temperature = ctFunc('reactor_temperature', r.id);
         end
@@ -212,6 +218,10 @@ classdef Reactor < handle
         end
 
         %% Reactor set methods
+
+        function set.name(r, name)
+            ctFunc('reactor_setName', r.id, name);
+        end
 
         function set.V(r, v0)
 
