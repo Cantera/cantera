@@ -43,6 +43,9 @@ public:
         m_name = name;
     }
 
+    //! Set the default name of a wall. Returns `false` if it was previously set.
+    bool setDefaultName(const string& typ, int count);
+
     //! Rate of volume change (m^3/s) for the adjacent reactors at current reactor
     //! network time.
     /*!
@@ -103,6 +106,7 @@ public:
 
 protected:
     string m_name = "";  //!< Wall name.
+    bool m_defaultNameSet = false;  //!< `true` if default name has been previously set.
 
     ReactorBase* m_left = nullptr;
     ReactorBase* m_right = nullptr;

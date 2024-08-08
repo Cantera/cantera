@@ -10,6 +10,18 @@
 namespace Cantera
 {
 
+bool WallBase::setDefaultName(const string& typ, int count)
+{
+    if (m_defaultNameSet) {
+        return false;
+    }
+    m_defaultNameSet = true;
+    if (m_name == "(none)" || m_name == "") {
+        m_name = fmt::format("{}_{}", typ, count);
+    }
+    return true;
+}
+
 bool WallBase::install(ReactorBase& rleft, ReactorBase& rright)
 {
     // check if wall is already installed
