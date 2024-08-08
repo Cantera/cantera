@@ -462,18 +462,6 @@ Next: Download the Source Code
   py -m pip install setuptools wheel cython numpy ruamel.yaml pytest
   ```
 
-- In addition to the general software, building the MATLAB toolbox also requires:
-
-  - MATLAB version later than 2009a
-
-    - Typically installed to:
-
-      ```
-      C:\Program Files\MATLAB\R20YYn
-      ```
-
-      where `YY` is a two digit year and `n` is either `a` or `b`
-
 ```{button-ref} source-code
 :color: primary
 :shadow:

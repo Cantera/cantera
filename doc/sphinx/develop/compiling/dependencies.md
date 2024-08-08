@@ -150,9 +150,9 @@ compiler is required only if you plan to build the Fortran module.
   - Required to run the Python test suite.
   - Known to work with version 7.2.0
 
-- Matlab
+- MATLAB
 
-  - Required to build the Cantera Matlab toolbox.
+  - Required to run the experimental MATLAB toolbox.
   - Known to work with 2022a. Expected to work with versions >= 2009a.
 
 - [Windows Installer XML (WiX) toolset](http://wixtoolset.org/)
