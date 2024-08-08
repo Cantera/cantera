@@ -70,16 +70,6 @@ extern "C" {
             size_t m, const double* temp);
     CANTERA_CAPI int flow1D_solveEnergyEqn(int i, int flag);
 
-    //! @todo: Remove all functions with `stflow` prefix after %Cantera 3.1
-    CANTERA_CAPI int stflow_new(int iph, int ikin, int itr, int itype);
-    CANTERA_CAPI int stflow_setTransport(int i, int itr);
-    CANTERA_CAPI int stflow_enableSoret(int i, int iSoret);
-    CANTERA_CAPI int stflow_setPressure(int i, double p);
-    CANTERA_CAPI double stflow_pressure(int i);
-    CANTERA_CAPI int stflow_setFixedTempProfile(int i, size_t n, const double* pos,
-            size_t m, const double* temp);
-    CANTERA_CAPI int stflow_solveEnergyEqn(int i, int flag);
-
     CANTERA_CAPI int sim1D_new(size_t nd, const int* domains);
     CANTERA_CAPI int sim1D_del(int i);
     CANTERA_CAPI int sim1D_setValue(int i, int dom, int comp, int localPoint, double value);
