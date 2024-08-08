@@ -17,20 +17,22 @@ classdef MassFlowController < FlowDevice
     %     Upstream :mat:class:`Reactor` or :mat:class:`Reservoir`.
     % :param downstream:
     %     Downstream :mat:class:`Reactor` or :mat:class:`Reservoir`.
+    % :param name:
+    %     Flow device name (optional; default is ``(none)``).
     % :return:
     %     Instance of class :mat:class:`FlowDevice`.
 
     methods
 
-        function m = MassFlowController(upstream, downstream)
+        function m = MassFlowController(upstream, downstream, name)
             % Constructor
 
-            m@FlowDevice('MassFlowController');
-
-            if nargin == 2
-                m.install(upstream, downstream)
+            if nargin < 3
+                name = '(none)';
             end
 
+            m@FlowDevice('MassFlowController', name);
+            m.install(upstream, downstream)
         end
 
     end

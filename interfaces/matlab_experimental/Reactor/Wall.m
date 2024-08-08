@@ -40,6 +40,8 @@ classdef Wall < handle
     % :param r:
     %    Instance of class :mat:class:`Reactor` to be used as the bulk phase
     %    on the right side of the wall.
+    % :param name:
+    %     Wall name (optional; default is ``(none)``).
     % :return:
     %    Instance of class :mat:class:`Wall`.
 

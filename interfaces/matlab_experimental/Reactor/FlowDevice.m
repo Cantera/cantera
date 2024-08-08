@@ -30,7 +30,7 @@ classdef FlowDevice < handle
 
     properties (SetAccess = public)
 
-        name  % name of flow device.
+        name  % Name of flow device.
 
         % Upstream object of type :mat:class:`Reactor` or :mat:class:`Reservoir`.
         upstream
