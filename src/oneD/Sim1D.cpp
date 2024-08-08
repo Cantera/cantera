@@ -600,8 +600,12 @@ int Sim1D::refine(int loglevel)
 }
 
 void Sim1D::clearDebugFile() {
-    if (std::remove("debug_sim1d.yaml") != 0) {
-        writelog("Warning: Unable to delete previous debug file 'debug_sim1d.yaml'\n");
+    // Use std::filesystem::remove to attempt deletion without throwing exceptions
+    if (!std::filesystem::remove("debug_sim1d.yaml")) {
+        // Only log a warning if the file existed and couldn't be deleted for some other reason
+        if (std::filesystem::exists("debug_sim1d.yaml")) {
+            writelog("Warning: Unable to delete previous debug file 'debug_sim1d.yaml'\n");
+        }
     }
 }
 
