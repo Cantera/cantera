@@ -1,7 +1,7 @@
 classdef Wall < handle
     % Wall Class ::
     %
-    %     >> x = Wall(l, r)
+    %     >> x = Wall(l, r, name)
     %
     % A Wall separates two reactors, or a reactor and a reservoir.
     % A Wall has a finite area, may conduct heat between the two
@@ -40,6 +40,8 @@ classdef Wall < handle
     % :param r:
     %    Instance of class :mat:class:`Reactor` to be used as the bulk phase
     %    on the right side of the wall.
+    % :param name:
+    %     Wall name (optional; default is ``(none)``).
     % :return:
     %    Instance of class :mat:class:`Wall`.
 
@@ -114,9 +116,7 @@ classdef Wall < handle
 
             % Check whether the wall is ready.
             ok = ctFunc('wall_ready', w.id);
-            if ok
-                disp('The wall object is ready.');
-            else
+            if ~ok
                 error('The wall object is not ready.');
             end
 

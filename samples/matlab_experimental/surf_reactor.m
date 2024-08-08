@@ -46,7 +46,8 @@ w = Wall(r, env);
 A = 1e-4; % Wall area
 
 % Add a reacting surface, with an area matching that of the wall
-rsurf = ReactorSurface(surf, r, A);
+rsurf = ReactorSurface(surf, r);
+rsurf.area = A;
 
 % set the wall area and heat transfer coefficient.
 w.area = A;

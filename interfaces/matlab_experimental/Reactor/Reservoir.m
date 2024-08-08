@@ -1,7 +1,7 @@
 classdef Reservoir < Reactor
     % Create a :mat:class:`Reservoir` object. ::
     %
-    %     >> r = Reservoir(contents)
+    %     >> r = Reservoir(contents, name)
     %
     % A :mat:class:`Reservoir` is an instance of class :mat:class:`Reactor`
     % configured so that its intensive state is constant in time. A reservoir
@@ -14,26 +14,27 @@ classdef Reservoir < Reactor
     %
     % .. code-block:: matlab
     %
-    %     r1 = Reservoir         % an empty reservoir
     %     r2 = Reservoir(gas)    % a reservoir containing a gas
     %
     % See also: :mat:class:`Reactor`
     %
     % :param contents:
     %     Cantera :mat:class:`Solution` to be set as the contents of the reactor.
+    % :param name:
+    %     Reservoir name (optional; default is ``(none)``).
     % :return:
     %     Instance of class :mat:class:`Reactor`.
 
     methods
 
-        function r = Reservoir(contents)
+        function r = Reservoir(contents, name)
             % Constructor
 
-            if nargin == 0
-                contents = 0;
+            if nargin < 2
+                name = '(none)';
             end
 
-            r@Reactor(contents, 'Reservoir');
+            r@Reactor(contents, 'Reservoir', name);
         end
 
     end
