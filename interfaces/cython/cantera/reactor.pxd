@@ -32,8 +32,8 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
     # factories
     cdef shared_ptr[CxxReactorBase] newReactor(string) except +translate_exception
     cdef shared_ptr[CxxReactorBase] newReactor(string, shared_ptr[CxxSolution], string) except +translate_exception
-    cdef shared_ptr[CxxFlowDevice] newFlowDevice(string) except +translate_exception
-    cdef shared_ptr[CxxWallBase] newWall(string) except +translate_exception
+    cdef shared_ptr[CxxFlowDevice] newFlowDevice(string, string) except +translate_exception
+    cdef shared_ptr[CxxWallBase] newWall(string, string) except +translate_exception
 
     # reactors
     cdef cppclass CxxReactorBase "Cantera::ReactorBase":
@@ -86,6 +86,8 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
     cdef cppclass CxxWallBase "Cantera::WallBase":
         CxxWallBase()
         string type()
+        string name()
+        void setName(string) except +translate_exception
         cbool install(CxxReactorBase&, CxxReactorBase&)
         double area()
         void setArea(double)
@@ -117,7 +119,10 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
     # reactor surface
 
     cdef cppclass CxxReactorSurface "Cantera::ReactorSurface":
-        CxxReactorSurface()
+        CxxReactorSurface(string) except +translate_exception
+        string type()
+        string name()
+        void setName(string) except +translate_exception
         double area()
         void setArea(double)
         void setKinetics(CxxKinetics*)
@@ -132,6 +137,8 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
     cdef cppclass CxxFlowDevice "Cantera::FlowDevice":
         CxxFlowDevice()
         string type()
+        string name()
+        void setName(string) except +translate_exception
         double massFlowRate() except +translate_exception
         double massFlowRate(double) except +translate_exception
         cbool install(CxxReactorBase&, CxxReactorBase&) except +translate_exception
