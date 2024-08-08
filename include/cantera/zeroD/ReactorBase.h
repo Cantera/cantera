@@ -76,6 +76,9 @@ public:
         m_name = name;
     }
 
+    //! Set the default name of a reactor. Returns `false` if it was previously set.
+    bool setDefaultName(map<string, int>& counts);
+
     //! Set the Solution specifying the ReactorBase content.
     //! @param sol  Solution object to be set.
     //! @since New in %Cantera 3.1.
@@ -307,7 +310,8 @@ protected:
     //! Vector of length nWalls(), indicating whether this reactor is on the left (0)
     //! or right (1) of each wall.
     vector<int> m_lr;
-    string m_name;
+    string m_name;  //!< Reactor name.
+    bool m_defaultNameSet = false;  //!< `true` if default name has been previously set.
 
     //! The ReactorNet that this reactor is part of
     ReactorNet* m_net = nullptr;
