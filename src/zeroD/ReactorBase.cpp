@@ -18,8 +18,15 @@ ReactorBase::ReactorBase(const string& name) : m_name(name)
 }
 
 ReactorBase::ReactorBase(shared_ptr<Solution> sol, const string& name)
+    : ReactorBase(name)
 {
-    m_name = name;
+    if (!sol || !(sol->thermo())) {
+        warn_deprecated("ReactorBase::ReactorBase",
+            "Creation of empty reactor objects is deprecated in Cantera 3.1 and will "
+            "raise\nexceptions thereafter; reactor contents should be provided in the "
+            "constructor.");
+        return;
+    }
     setSolution(sol);
 }
 
