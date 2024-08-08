@@ -87,7 +87,7 @@ int main(int argc, char** argv)
     thermo_print(thermo, 1, 1e-6);
 
     printf("\ntime       Temperature\n");
-    int reactor = reactor_new3("IdealGasReactor", soln, "test");
+    int reactor = reactor_new("IdealGasReactor", soln, "test");
     int net = reactornet_new();
     reactornet_addreactor(net, reactor);
 

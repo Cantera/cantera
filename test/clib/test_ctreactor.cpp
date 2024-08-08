@@ -11,23 +11,8 @@ using namespace Cantera;
 TEST(ctreactor, reactor_soln)
 {
     int sol = soln_newSolution("gri30.yaml", "gri30", "none");
-    int reactor = reactor_new3("IdealGasReactor", sol, "test");
+    int reactor = reactor_new("IdealGasReactor", sol, "test");
     ASSERT_EQ(reactor, 0);
-}
-
-TEST(ctreactor, reactor_objects)
-{
-    int thermo = thermo_newFromFile("gri30.yaml", "gri30");
-    int kin = kin_newFromFile("gri30.yaml", "", thermo, -1, -1, -1, -1);
-
-    suppress_deprecation_warnings();
-    int reactor = reactor_new("IdealGasReactor");
-    ASSERT_GE(reactor, 0);
-    int ret = reactor_setThermoMgr(reactor, thermo);
-    ASSERT_EQ(ret, 0);
-    ret = reactor_setKineticsMgr(reactor, kin);
-    ASSERT_EQ(ret, 0);
-    make_deprecation_warnings_fatal();
 }
 
 vector<double> T_ctreactor = {
@@ -47,7 +32,7 @@ TEST(ctreactor, reactor_simple)
     thermo_setTemperature(thermo, T);
     thermo_setPressure(thermo, P);
 
-    int reactor = reactor_new3("IdealGasReactor", sol, "test");
+    int reactor = reactor_new("IdealGasReactor", sol, "test");
     int net = reactornet_new();
     int ret = reactornet_addreactor(net, reactor);
     ASSERT_EQ(ret, 0);
@@ -55,73 +40,6 @@ TEST(ctreactor, reactor_simple)
     double t = 0.0;
     int count = 0;
     while (t < 0.1) {
-        double Tref = T_ctreactor[count];
-        ASSERT_NEAR(reactor_temperature(reactor), Tref, 1e-2);
-        t = reactornet_time(net) + 5e-3;
-        ret = reactornet_advance(net, t);
-        ASSERT_EQ(ret, 0);
-        count++;
-    }
-}
-
-TEST(ctreactor, reactor_insert)
-{
-    double T = 1050;
-    double P = 5 * 101325;
-    string X = "CH4:1.0, O2:2.0, N2:7.52";
-
-    int sol = soln_newSolution("gri30.yaml", "gri30", "none");
-    int thermo = soln_thermo(sol);
-    thermo_setMoleFractionsByName(thermo, X.c_str());
-    thermo_setTemperature(thermo, T);
-    thermo_setPressure(thermo, P);
-
-    suppress_deprecation_warnings();
-    int reactor = reactor_new("IdealGasReactor");
-    int ret = reactor_insert(reactor, sol);
-    make_deprecation_warnings_fatal();
-    ASSERT_EQ(ret, 0);
-    int net = reactornet_new();
-    ret = reactornet_addreactor(net, reactor);
-    ASSERT_EQ(ret, 0);
-
-    double t = 0.0;
-    int count = 0;
-    while (t < 0.1) {
-        double Tref = T_ctreactor[count];
-        ASSERT_NEAR(reactor_temperature(reactor), Tref, 1e-2);
-        t = reactornet_time(net) + 5e-3;
-        ret = reactornet_advance(net, t);
-        ASSERT_EQ(ret, 0);
-        count++;
-    }
-}
-
-TEST(ctreactor, reactor_from_parts)
-{
-    double T = 1050;
-    double P = 5 * 101325;
-    string X = "CH4:1.0, O2:2.0, N2:7.52";
-
-    int thermo = thermo_newFromFile("gri30.yaml", "gri30");
-    int kin = kin_newFromFile("gri30.yaml", "", thermo, -1, -1, -1, -1);
-    thermo_setMoleFractionsByName(thermo, X.c_str());
-    thermo_setTemperature(thermo, T);
-    thermo_setPressure(thermo, P);
-
-    suppress_deprecation_warnings();
-    int reactor = reactor_new("IdealGasReactor");
-    reactor_setThermoMgr(reactor, thermo);
-    reactor_setKineticsMgr(reactor, kin);
-    make_deprecation_warnings_fatal();
-    int net = reactornet_new();
-    int ret = reactornet_addreactor(net, reactor);
-    ASSERT_EQ(ret, 0);
-
-    double t = 0.0;
-    int count = 0;
-    while (t < 0.1) {
-        T = reactor_temperature(reactor);
         double Tref = T_ctreactor[count];
         ASSERT_NEAR(reactor_temperature(reactor), Tref, 1e-2);
         t = reactornet_time(net) + 5e-3;

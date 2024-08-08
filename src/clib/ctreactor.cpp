@@ -40,16 +40,7 @@ extern "C" {
 
     // reactor
 
-    int reactor_new(const char* type)
-    {
-        try {
-            return ReactorCabinet::add(newReactor(type));
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int reactor_new3(const char* type, int n, const char* name)
+    int reactor_new(const char* type, int n, const char* name)
     {
         try {
             return ReactorCabinet::add(newReactor(type, SolutionCabinet::at(n), name));

@@ -130,9 +130,7 @@ classdef Reactor < handle
             end
 
             r.type = char(typ);
-            r.id = ctFunc('reactor_new3', typ, content.solnID, name);
-
-
+            r.id = ctFunc('reactor_new', typ, content.solnID, name);
         end
 
         %% Reactor Class Destructor
