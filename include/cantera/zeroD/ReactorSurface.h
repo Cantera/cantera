@@ -40,6 +40,9 @@ public:
         m_name = name;
     }
 
+    //! Set the default name of a wall. Returns `false` if it was previously set.
+    bool setDefaultName(map<string, int>& counts);
+
     //! Returns the surface area [m^2]
     double area() const;
 
@@ -103,6 +106,7 @@ public:
 
 protected:
     string m_name;  //!< Reactor surface name.
+    bool m_defaultNameSet = false;  //!< `true` if default name has been previously set.
 
     double m_area = 1.0;
 

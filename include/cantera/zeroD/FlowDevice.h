@@ -45,6 +45,9 @@ public:
         m_name = name;
     }
 
+    //! Set the default name of a flow device. Returns `false` if it was previously set.
+    bool setDefaultName(map<string, int>& counts);
+
     //! Mass flow rate (kg/s).
     double massFlowRate() {
         if (m_mdot == Undef) {
@@ -131,6 +134,7 @@ public:
 
 protected:
     string m_name;  //!< Flow device name.
+    bool m_defaultNameSet = false;  //!< `true` if default name has been previously set.
 
     double m_mdot = Undef;
 

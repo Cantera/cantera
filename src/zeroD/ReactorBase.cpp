@@ -37,6 +37,19 @@ ReactorBase::~ReactorBase()
     }
 }
 
+bool ReactorBase::setDefaultName(map<string, int>& counts)
+{
+    if (m_defaultNameSet) {
+        return false;
+    }
+    m_defaultNameSet = true;
+    if (m_name == "(none)" || m_name == "") {
+        m_name = fmt::format("{}_{}", type(), counts[type()]);
+    }
+    counts[type()]++;
+    return true;
+}
+
 void ReactorBase::setSolution(shared_ptr<Solution> sol) {
     if (!sol || !(sol->thermo())) {
         throw CanteraError("ReactorBase::setSolution",

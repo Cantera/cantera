@@ -5,6 +5,7 @@
 
 #include "cantera/zeroD/ReactorNet.h"
 #include "cantera/zeroD/FlowDevice.h"
+#include "cantera/zeroD/ReactorSurface.h"
 #include "cantera/zeroD/Wall.h"
 #include "cantera/base/utilities.h"
 #include "cantera/base/Array.h"
@@ -304,6 +305,44 @@ void ReactorNet::addReactor(Reactor& r)
         // numerically, and use a Newton linear iterator
         m_integ->setMethod(BDF_Method);
         m_integ->setLinearSolverType("DENSE");
+    }
+    updateNames(r);
+}
+
+void ReactorNet::updateNames(Reactor& r)
+{
+    // ensure that reactors and components have reproducible names
+    r.setDefaultName(m_counts);
+
+    for (size_t i=0; i<r.nWalls(); i++) {
+        auto& w = r.wall(i);
+        w.setDefaultName(m_counts);
+        if (w.left().type() == "Reservoir") {
+            w.left().setDefaultName(m_counts);
+        }
+        if (w.right().type() == "Reservoir") {
+            w.right().setDefaultName(m_counts);
+        }
+    }
+
+    for (size_t i=0; i<r.nInlets(); i++) {
+        auto& in = r.inlet(i);
+        in.setDefaultName(m_counts);
+        if (in.in().type() == "Reservoir") {
+            in.in().setDefaultName(m_counts);
+        }
+    }
+
+    for (size_t i=0; i<r.nOutlets(); i++) {
+        auto& out = r.outlet(i);
+        out.setDefaultName(m_counts);
+        if (out.out().type() == "Reservoir") {
+            out.out().setDefaultName(m_counts);
+        }
+    }
+
+    for (size_t i=0; i<r.nSurfs(); i++) {
+        r.surface(i)->setDefaultName(m_counts);
     }
 }
 
