@@ -23,7 +23,7 @@ class ReactorBase;
 class FlowDevice
 {
 public:
-    FlowDevice() = default;
+    FlowDevice(const string& name="(none)") : m_name(name) {}
 
     virtual ~FlowDevice() = default;
     FlowDevice(const FlowDevice&) = delete;
@@ -33,6 +33,16 @@ public:
     //! corresponds to the name of the derived class.
     virtual string type() const {
         return "FlowDevice";
+    }
+
+    //! Retrieve flow device name.
+    string name() const {
+        return m_name;
+    }
+
+    //! Set flow device name.
+    void setName(const string& name) {
+        m_name = name;
     }
 
     //! Mass flow rate (kg/s).
@@ -77,6 +87,11 @@ public:
         return *m_out;
     }
 
+    //! Return a mutable reference to the downstream reactor.
+    ReactorBase& out() {
+        return *m_out;
+    }
+
     //! Return current value of the pressure function.
     /*!
      * The mass flow rate [kg/s] is calculated given the pressure drop [Pa] and a
@@ -115,6 +130,8 @@ public:
     }
 
 protected:
+    string m_name;  //!< Flow device name.
+
     double m_mdot = Undef;
 
     //! Function set by setPressureFunction; used by updateMassFlowRate
