@@ -50,12 +50,12 @@ struct SensitivityParameter
 class ReactorBase
 {
 public:
-    explicit ReactorBase(const string& name = "(none)");
+    explicit ReactorBase(const string& name="(none)");
     //! Instantiate a ReactorBase object with Solution contents.
     //! @param sol  Solution object to be set.
     //! @param name  Name of the reactor.
     //! @since New in %Cantera 3.1.
-    ReactorBase(shared_ptr<Solution> sol, const string& name = "(none)");
+    ReactorBase(shared_ptr<Solution> sol, const string& name="(none)");
     virtual ~ReactorBase();
     ReactorBase(const ReactorBase&) = delete;
     ReactorBase& operator=(const ReactorBase&) = delete;

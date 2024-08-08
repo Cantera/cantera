@@ -14,9 +14,15 @@ std::mutex FlowDeviceFactory::flowDevice_mutex;
 
 FlowDeviceFactory::FlowDeviceFactory()
 {
-    reg("MassFlowController", []() { return new MassFlowController(); });
-    reg("PressureController", []() { return new PressureController(); });
-    reg("Valve", []() { return new Valve(); });
+    reg("MassFlowController", [](const string& name) {
+        return new MassFlowController(name);
+    });
+    reg("PressureController", [](const string& name) {
+        return new PressureController(name);
+    });
+    reg("Valve", [](const string& name) {
+        return new Valve(name);
+    });
 }
 
 FlowDeviceFactory* FlowDeviceFactory::factory() {
@@ -33,13 +39,15 @@ void FlowDeviceFactory::deleteFactory() {
     s_factory = 0;
 }
 
-shared_ptr<FlowDevice> newFlowDevice(const string& model)
+shared_ptr<FlowDevice> newFlowDevice(const string& model, const string& name)
 {
-    return shared_ptr<FlowDevice>(FlowDeviceFactory::factory()->create(model));
+    return shared_ptr<FlowDevice>(FlowDeviceFactory::factory()->create(model, name));
 }
 
 shared_ptr<FlowDevice> newFlowDevice3(const string& model)
 {
+    warn_deprecated("newFlowDevice3",
+        "Use newFlowDevice instead; to be removed after Cantera 3.1.");
     return newFlowDevice(model);
 }
 

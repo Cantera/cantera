@@ -13,9 +13,8 @@
 namespace Cantera
 {
 
-ReactorBase::ReactorBase(const string& name)
+ReactorBase::ReactorBase(const string& name) : m_name(name)
 {
-    m_name = name;
 }
 
 ReactorBase::ReactorBase(shared_ptr<Solution> sol, const string& name)

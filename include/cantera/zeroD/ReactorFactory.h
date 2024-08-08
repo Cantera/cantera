@@ -19,7 +19,7 @@ namespace Cantera
 //! ```cpp
 //!     shared_ptr<ReactorBase> r1 = newReactor("IdealGasReactor");
 //! ```
-class ReactorFactory : public Factory<ReactorBase>
+class ReactorFactory : public Factory<ReactorBase, const string&>
 {
 public:
     static ReactorFactory* factory();
