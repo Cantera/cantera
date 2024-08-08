@@ -59,7 +59,7 @@ template <class R>
 class ReactorDelegator : public Delegator, public R, public ReactorAccessor
 {
 public:
-    ReactorDelegator() {
+    ReactorDelegator(const string& name="") : m_name(name) {
         install("initialize", m_initialize, [this](double t0) { R::initialize(t0); });
         install("syncState", m_syncState, [this]() { R::syncState(); });
         install("getState", m_getState,
@@ -185,6 +185,7 @@ public:
     }
 
 private:
+    string m_name;
     function<void(double)> m_initialize;
     function<void()> m_syncState;
     function<void(std::array<size_t, 1>, double*)> m_getState;

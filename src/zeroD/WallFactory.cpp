@@ -14,7 +14,7 @@ std::mutex WallFactory::wall_mutex;
 
 WallFactory::WallFactory()
 {
-    reg("Wall", []() { return new Wall(); });
+    reg("Wall", [](const string& name) { return new Wall(name); });
 }
 
 WallFactory* WallFactory::factory() {
@@ -31,13 +31,15 @@ void WallFactory::deleteFactory() {
     s_factory = 0;
 }
 
-shared_ptr<WallBase> newWall(const string& model)
+shared_ptr<WallBase> newWall(const string& model, const string& name)
 {
-    return shared_ptr<WallBase>(WallFactory::factory()->create(model));
+    return shared_ptr<WallBase>(WallFactory::factory()->create(model, name));
 }
 
 shared_ptr<WallBase> newWall3(const string& model)
 {
+    warn_deprecated("newWall3",
+        "Use newWall instead; to be removed after Cantera 3.1.");
     return newWall(model);
 }
 

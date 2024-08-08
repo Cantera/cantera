@@ -19,7 +19,7 @@ namespace Cantera
 //! ```cpp
 //!     shared_ptr<WallBase> piston = newWall("Wall");
 //! ```
-class WallFactory : public Factory<WallBase>
+class WallFactory : public Factory<WallBase, const string&>
 {
 public:
     static WallFactory* factory();
@@ -34,22 +34,22 @@ private:
 
 //! @defgroup wallGroup Walls
 //! Zero-dimensional objects adjacent to reactors.
-//! Wall objects should be instantiated via the newWall() function, for
+//! Wall objects should be instantiated via the newWall function, for
 //! example:
 //!
 //! ```cpp
-//!     shared_ptr<WallBase> piston = newWall("Wall");
+//!     shared_ptr<WallBase> piston = newWall("Wall", "my_piston");
 //! ```
 //! @ingroup zerodGroup
 //! @{
 
 //! Create a WallBase object of the specified type
 //! @since Starting in %Cantera 3.1, this method returns a `shared_ptr<WallBase>`
-shared_ptr<WallBase> newWall(const string& model);
+shared_ptr<WallBase> newWall(const string& model, const string& name="(none)");
 
 //! Create a WallBase object of the specified type
 //! @since New in %Cantera 3.0.
-//! @deprecated Transitional method. Use newWall() instead.
+//! @deprecated Replaced by newWall. To be removed after %Cantera 3.1.
 shared_ptr<WallBase> newWall3(const string& model);
 
 //! @}

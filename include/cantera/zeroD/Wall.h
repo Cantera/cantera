@@ -21,7 +21,7 @@ class Func1;
 class WallBase
 {
 public:
-    WallBase() = default;
+    WallBase(const string& name="(none)") : m_name(name) {}
 
     virtual ~WallBase() {}
     WallBase(const WallBase&) = delete;
@@ -31,6 +31,16 @@ public:
     //! corresponds to the name of the derived class.
     virtual string type() const {
         return "WallBase";
+    }
+
+    //! Retrieve wall name.
+    string name() const {
+        return m_name;
+    }
+
+    //! Set wall name.
+    void setName(const string& name) {
+        m_name = name;
     }
 
     //! Rate of volume change (m^3/s) for the adjacent reactors at current reactor
@@ -92,6 +102,8 @@ public:
     }
 
 protected:
+    string m_name;  //!< Wall name.
+
     ReactorBase* m_left = nullptr;
     ReactorBase* m_right = nullptr;
 
@@ -110,7 +122,7 @@ protected:
 class Wall : public WallBase
 {
 public:
-    Wall() = default;
+    using WallBase::WallBase;  // inherit constructors
 
     //! String indicating the wall model implemented. Usually
     //! corresponds to the name of the derived class.
