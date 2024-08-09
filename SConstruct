@@ -929,7 +929,8 @@ elif env["OS"] == "Darwin":
     config.select("macOS")
 
 # SHLIBVERSION fails with MinGW: http://scons.tigris.org/issues/show_bug.cgi?id=3035
-if (env["toolchain"] == "mingw"):
+# I don't think this does anything? env["toolchain"] seems to be a list of strings, not a single string.
+if env["toolchain"] == "mingw":
     config.select("mingw")
 
 config.select("default")
@@ -1163,21 +1164,6 @@ if env['coverage']:
         logger.error("Coverage testing is only available with GCC.")
         exit(0)
 
-def config_error(message):
-    if env["logging"].lower() == "debug":
-        logger.error(message)
-        debug_message = [
-            f"\n{' Contents of config.log: ':*^80}\n",
-            open("config.log").read().strip(),
-            f"\n{' End of config.log ':*^80}",
-        ]
-        logger.debug("\n".join(debug_message), print_level=False)
-    else:
-        error_message = [message]
-        error_message.append("\nSee 'config.log' for details.")
-        logger.error("\n".join(error_message))
-    sys.exit(1)
-
 conf = Configure(env, custom_tests={'CheckStatement': CheckStatement})
 env = conf.env  # Retain updates to `env` after the end of the `Configure` context
 
@@ -1187,35 +1173,41 @@ if not conf.CheckCXXHeader("cmath", "<>"):
         "The C++ compiler is not correctly configured (incomplete include paths)."
     )
 
-def get_expression_value(includes, expression, defines=()):
-    s = ['#define ' + d for d in defines]
-    s.extend('#include ' + i for i in includes)
-    s.extend(('#define Q(x) #x',
-              '#define QUOTE(x) Q(x)',
-              '#include <iostream>',
+def get_expression_value(includes, expression):
+    s = ['#include ' + i for i in includes]
+    s.extend(('#include <iostream>',
               'int main(int argc, char** argv) {',
-              '    std::cout << %s << std::endl;' % expression,
+              f'    std::cout << {expression} << std::endl;',
               '    return 0;',
               '}\n'))
     return '\n'.join(s)
 
 # Check that libraries link correctly
-cmath_check_source = get_expression_value(["<cmath>"], "cos(0. * argc)")
-retcode, cmath_works = conf.TryRun(cmath_check_source, ".cpp")
-if cmath_works.strip() != "1":
+retcode = conf.TryLink(
+    "#include <cmath>\nint main(int argc, char** argv) { cos(0 * argc); return 0;}",
+    ".cpp",
+)
+if not retcode:
     config_error(
         "The C++ compiler is not correctly configured (failed at linking stage)."
     )
 
-# Check that NaN is treated correctly
-nan_check_source = get_expression_value(["<cmath>"], "std::isnan(NAN + argc)")
-retcode, nan_works = conf.TryRun(nan_check_source, ".cpp")
-if nan_works.strip() != "1":
-    config_error(
-        "Cantera requires a working implementation of 'std::isnan'.\n"
-        "If you have specified '-ffast-math' or equivalent as an optimization option,\n"
-        "either remove this option or add the '-fno-finite-math-only' option."
-    )
+# Check that NaN is treated correctly. Only run this check when we are not cross-
+# compiling because it actually runs an executable; if we're cross-compiling then the
+# build machine architecture does not support the machine code from the compiler, by
+# definition, so the executable can't run. This check actually has to run because we
+# care about the runtime behavior of std::isnan.
+# The environment variables here are specific to the conda-forge builder environment,
+# but that's the only place we regularly cross-compile as far as I know. --Bryan
+if os.environ.get("build_platform") == os.environ.get("target_platform"):
+    nan_check_source = get_expression_value(["<cmath>"], "std::isnan(NAN + argc)")
+    retcode, nan_works = conf.TryRun(nan_check_source, ".cpp")
+    if nan_works.strip() != "1":
+        config_error(
+            "Cantera requires a working implementation of 'std::isnan'.\n"
+            "If you have specified '-ffast-math' or equivalent as an optimization option,\n"
+            "either remove this option or add the '-fno-finite-math-only' option."
+        )
 
 def split_version(version):
     """Split integer version into version string."""
@@ -1225,20 +1217,17 @@ def split_version(version):
 
 # Check for fmt library and checkout submodule if needed
 if env['system_fmt'] in ('y', 'default'):
-    fmt_version_source = get_expression_value(
-        ['<fmt/format.h>'], 'FMT_VERSION', ['FMT_HEADER_ONLY'])
-    retcode, fmt_lib_version = conf.TryRun(fmt_version_source, '.cpp')
+    retcode, fmt_version_text = run_preprocessor(
+        conf, ["<fmt/format.h>"], "FMT_VERSION", ["FMT_HEADER_ONLY"]
+    )
     if retcode:
-        fmt_lib_version = split_version(fmt_lib_version)
+        fmt_lib_version = split_version(fmt_version_text)
         fmt_min_version = "6.1.2"
         if parse_version(fmt_lib_version) < parse_version(fmt_min_version):
             if env['system_fmt'] == 'y':
                 config_error(
                     f"System fmt version {fmt_lib_version} is not supported;"
                     f"version {fmt_min_version} or higher is required.")
-                logger.info(
-                    f"System fmt version {fmt_lib_version} is not supported; "
-                    "using private installation instead.")
         else:
             env['system_fmt'] = True
             logger.info(f"Using system installation of fmt library.")
@@ -1249,15 +1238,14 @@ if env['system_fmt'] in ('y', 'default'):
 if env['system_fmt'] in ('n', 'default'):
     if not os.path.exists('ext/fmt/include/fmt/ostream.h'):
         checkout_submodule("fmt", "ext/fmt")
-
-    fmt_version_source = get_expression_value(
-        ['"../ext/fmt/include/fmt/format.h"'], 'FMT_VERSION', ['FMT_HEADER_ONLY'])
-    retcode, fmt_lib_version = conf.TryRun(fmt_version_source, '.cpp')
+    retcode, fmt_version_text = run_preprocessor(
+        conf, ['"../ext/fmt/include/fmt/format.h"'], "FMT_VERSION", ["FMT_HEADER_ONLY"]
+    )
     if not retcode:
         config_error('Expected private installation of fmt library, but it is '
             'not configured correctly.')
 
-    fmt_lib_version = split_version(fmt_lib_version)
+    fmt_lib_version = split_version(fmt_version_text)
     env['system_fmt'] = False
     logger.info(f"Using private installation of fmt library.")
 
@@ -1328,10 +1316,12 @@ if env["system_eigen"] in ("n", "default"):
         checkout_submodule("Eigen", "ext/eigen")
     eigen_include = '"../ext/eigen/Eigen/Core"'
 
-eigen_versions = 'QUOTE(EIGEN_WORLD_VERSION) "." QUOTE(EIGEN_MAJOR_VERSION) "." QUOTE(EIGEN_MINOR_VERSION)'
-eigen_version_source = get_expression_value([eigen_include], eigen_versions)
-retcode, eigen_lib_version = conf.TryRun(eigen_version_source, ".cpp")
-env["EIGEN_LIB_VERSION"] = eigen_lib_version.strip()
+_, eigen_lib_version = run_preprocessor(
+    conf,
+    [eigen_include],
+    "EIGEN_WORLD_VERSION EIGEN_MAJOR_VERSION EIGEN_MINOR_VERSION",
+)
+env["EIGEN_LIB_VERSION"] = eigen_lib_version.strip().replace(" ", ".")
 logger.info(f"Found Eigen version {env['EIGEN_LIB_VERSION']}")
 
 # Determine which standard library to link to when using Fortran to
@@ -1344,30 +1334,26 @@ else:
     env['cxx_stdlib'] = []
 
 env['HAS_CLANG'] = conf.CheckDeclaration('__clang__', '', 'C++')
-if not env["using_apple_clang"]:
-    # This checks for these three libraries in order and stops when it finds the
-    # first success. Intel = iomp5, LLVM/clang = omp, GCC = gomp. Since gomp is
-    # likely to be installed on the system even if other compilers are installed
-    # or in use, it needs to go last in the check.
-    env['HAS_OPENMP'] = conf.CheckLibWithHeader(
-        ["iomp5", "omp", "gomp"], "omp.h", language="C++"
-    )
-else:
-    env["HAS_OPENMP"] = False
-    logger.info("Not checking for OpenMP support due to using XCode compiler.")
 
-boost_version_source = get_expression_value(['<boost/version.hpp>'], 'BOOST_LIB_VERSION')
-retcode, boost_lib_version = conf.TryRun(boost_version_source, '.cpp')
-env['BOOST_LIB_VERSION'] = '.'.join(boost_lib_version.strip().split('_'))
-if not env['BOOST_LIB_VERSION']:
-    config_error("Boost could not be found. Install Boost headers or set"
-                 " 'boost_inc_dir' to point to the boost headers.")
+# This checks for these three libraries in order and stops when it finds the
+# first success. Intel = iomp5, LLVM/clang = omp, GCC = gomp. Since gomp is
+# likely to be installed on the system even if other compilers are installed
+# or in use, it needs to go last in the check.
+env['HAS_OPENMP'] = conf.CheckLibWithHeader(
+    ["iomp5", "omp", "gomp"], "omp.h", language="C++"
+)
+
+_, boost_lib_version = run_preprocessor(conf, ["<boost/version.hpp>"], "BOOST_LIB_VERSION")
+if not retcode:
+    config_error("Boost could not be found. Install Boost headers or set "
+                 "'boost_inc_dir' to point to the boost headers.")
 else:
+    env['BOOST_LIB_VERSION'] = '.'.join(boost_lib_version.strip().replace('"', "").split('_'))
+    if parse_version(env['BOOST_LIB_VERSION']) < parse_version("1.70"):
+        # Boost.DLL with std::filesystem (making it header-only) is available in Boost 1.70
+        # or newer
+        config_error("Cantera requires Boost version 1.70 or newer.")
     logger.info(f"Found Boost version {env['BOOST_LIB_VERSION']}")
-if parse_version(env['BOOST_LIB_VERSION']) < parse_version("1.70"):
-    # Boost.DLL with std::filesystem (making it header-only) is available in Boost 1.70
-    # or newer
-    config_error("Cantera requires Boost version 1.70 or newer.")
 
 # check BLAS/LAPACK installations
 if env["system_blas_lapack"] == "n":
@@ -1405,130 +1391,51 @@ elif env["system_blas_lapack"] == "default":
         logger.info("No system BLAS/LAPACK libraries detected.")
 
 if "mkl_rt" in env["blas_lapack_libs"]:
-    mkl_version = textwrap.dedent("""\
-        #include <iostream>
-        #include "mkl.h"
-        int main(int argc, char** argv) {
-            MKLVersion Version;
-            mkl_get_version(&Version);
-            std::cout << Version.MajorVersion << "." << Version.MinorVersion << "."
-                << Version.UpdateVersion << " for " << Version.Platform;
-            return 0;
-        }
-    """)
-    retcode, mkl_version = conf.TryRun(mkl_version, ".cpp")
+    retcode, mkl_version = run_preprocessor(
+        conf, ["mkl.h"], "__INTEL_MKL__ __INTEL_MKL_MINOR__ __INTEL_MKL_UPDATE__"
+    )
     if retcode:
-        logger.info(f"Using MKL {mkl_version}")
+        logger.info(f"Using MKL {'.'.join(mkl_version.strip().split())}")
     else:
         logger.warning("Failed to determine MKL version.")
 
 elif "openblas" in env["blas_lapack_libs"]:
-    openblas_version_source = get_expression_value(["<openblas_config.h>"], "OPENBLAS_VERSION")
-    retcode, openblas_version = conf.TryRun(openblas_version_source, ".cpp")
+    retcode, openblas_version = run_preprocessor(
+        conf, ["<openblas_config.h>"], "OPENBLAS_VERSION"
+    )
     if retcode:
-        logger.info(f"Using {openblas_version.strip()}")
+        logger.info(f"Using {openblas_version.replace('"', "").strip()}")
     else:
         logger.warning("Failed to determine OpenBLAS version.")
-
-import SCons.Conftest, SCons.SConf
-context = SCons.SConf.CheckContext(conf)
-
-cvode_checks = [
-    ("CVodeCreate(CV_BDF, CV_NEWTON);", ["sundials_cvodes"]),  # Sundials <= 3.2
-    ("CVodeCreate(CV_BDF);", ["sundials_cvodes"]),  # Sundials>=4.0,<6.0
-    ("SUNContext ctx; SUNContext_Create(0, &ctx);", ["sundials_cvodes"]),  # Sundials>=6.0,<7.0
-    ("SUNContext ctx; SUNContext_Create(SUN_COMM_NULL, &ctx);",
-     ["sundials_cvodes", "sundials_core"])  # Sundials>=7.0
-]
-for cvode_call, libs in cvode_checks:
-    ret = SCons.Conftest.CheckLib(context, libs,
-                                  header='#include "cvodes/cvodes.h"',
-                                  language='C++',
-                                  call=cvode_call,
-                                  autoadd=False,
-                                  extra_libs=env['blas_lapack_libs'])
-    # CheckLib returns False to indicate success
-    if not ret:
-        if env['system_sundials'] == 'default':
-            env['system_sundials'] = 'y'
-        break
-
-# Execute if the cycle ends without 'break'
-else:
-    if env['system_sundials'] == 'default':
-        env['system_sundials'] = 'n'
-    elif env['system_sundials'] == 'y':
-        config_error('Expected system installation of Sundials, but it could '
-                     'not be found.')
-
-# Checkout Sundials submodule if needed
-if (env['system_sundials'] == 'n' and
-    not os.path.exists('ext/sundials/include/cvodes/cvodes.h')):
-    checkout_submodule("Sundials", "ext/sundials")
 
 env['NEED_LIBM'] = not conf.CheckLibWithHeader(None, 'math.h', 'C',
                                                'double x; log(x);', False)
 env['LIBM'] = ['m'] if env['NEED_LIBM'] else []
 
-if env['system_sundials'] == 'y':
-    for subdir in ('sundials', 'nvector', 'cvodes', 'idas', 'sunlinsol', 'sunmatrix',
-                   'sunnonlinsol'):
-        remove_directory('include/cantera/ext/' + subdir)
 
+if env['system_sundials'] in ("y", "default"):
     # Determine Sundials version
-    sundials_version_source = get_expression_value(['"sundials/sundials_config.h"'],
-                                                   'QUOTE(SUNDIALS_VERSION)')
-    retcode, sundials_version = conf.TryRun(sundials_version_source, '.cpp')
-    if retcode == 0:
-        config_error("Failed to determine Sundials version.")
-    env["sundials_version"] = sundials_version.strip(' "\r\n')
+    retcode, sundials_version = run_preprocessor(
+        conf,
+        ['"sundials/sundials_config.h"'],
+        "SUNDIALS_VERSION_MAJOR SUNDIALS_VERSION_MINOR SUNDIALS_VERSION_PATCH",
+    )
+    if retcode:
+        sundials_info = check_sundials(conf, sundials_version)
+        env["system_sundials"] = sundials_info["system_sundials"]
+        env["sundials_version"] = sundials_info["sundials_version"]
+        env["has_sundials_lapack"] = sundials_info["has_sundials_lapack"]
 
-    sundials_ver = parse_version(env['sundials_version'])
-    if sundials_ver < parse_version("3.0") or sundials_ver >= parse_version("8.0"):
-        logger.error(f"Sundials version {env['sundials_version']!r} is not supported.")
-        sys.exit(1)
-    elif sundials_ver > parse_version("7.0.0"):
-        logger.warning(f"Sundials version {env['sundials_version']!r} has not been tested.")
-
-    logger.info(f"Using system installation of Sundials version {env['sundials_version']!r}.")
-
-    # Determine whether or not Sundials was built with BLAS/LAPACK
-    if sundials_ver <= parse_version("5.4"):
-        # In Sundials 2.6-5.4, SUNDIALS_BLAS_LAPACK is either defined or undefined
-        env['has_sundials_lapack'] = conf.CheckDeclaration('SUNDIALS_BLAS_LAPACK',
-                '#include "sundials/sundials_config.h"', 'C++')
-    elif sundials_ver <= parse_version("6.6.0"):
-        # In Sundials 5.5-6.6.0, two defines are included specific to the
-        # SUNLINSOL packages indicating whether SUNDIALS has been built with LAPACK
-        lapackband = conf.CheckDeclaration(
-            "SUNDIALS_SUNLINSOL_LAPACKBAND",
-            '#include "sundials/sundials_config.h"',
-            "C++",
-        )
-        lapackdense = conf.CheckDeclaration(
-            "SUNDIALS_SUNLINSOL_LAPACKDENSE",
-            '#include "sundials/sundials_config.h"',
-            "C++",
-        )
-        env["has_sundials_lapack"] = lapackband and lapackdense
-    else:
-        # In Sundials 6.6.1, the SUNDIALS_BLAS_LAPACK_ENABLED macro was introduced
-        env["has_sundials_lapack"] = conf.CheckDeclaration("SUNDIALS_BLAS_LAPACK_ENABLED",
-                '#include "sundials/sundials_config.h"', 'c++')
-
-    # In the case where a user is trying to link Cantera to an external BLAS/LAPACK
-    # library, but Sundials was configured without this support, print a Warning.
-    if not env['has_sundials_lapack'] and env['use_lapack']:
-        logger.warning("External BLAS/LAPACK has been specified for Cantera "
-                       "but Sundials was built without this support.")
-else: # env['system_sundials'] == 'n'
+if env["system_sundials"] in ("n", "default"):
+    if not os.path.exists('ext/sundials/include/cvodes/cvodes.h'):
+        checkout_submodule("Sundials", "ext/sundials")
     logger.info("Using private installation of Sundials version 5.3.")
     env['sundials_version'] = '5.3'
     env['has_sundials_lapack'] = int(env['use_lapack'])
 
 if env['system_sundials'] == 'y':
     env['sundials_libs'] = ['sundials_cvodes', 'sundials_idas', 'sundials_nvecserial']
-    if sundials_ver >= parse_version("7.0.0"):
+    if parse_version(env["sundials_version"]) >= parse_version("7.0.0"):
         env['sundials_libs'].append('sundials_core')
     if env['use_lapack']:
         if env.get('has_sundials_lapack'):
@@ -1541,11 +1448,11 @@ else:
     env['sundials_libs'] = []
 
 if env["hdf_include"] and env["hdf_support"] in ("y", "default"):
-    env["hdf_include"] = Path(env["hdf_include"]).as_posix()
+    env["hdf_include"] = make_relative_path_absolute(env["hdf_include"])
     add_system_include(env, env["hdf_include"])
     env["hdf_support"] = "y"
 if env["hdf_libdir"] and env["hdf_support"] in ("y", "default"):
-    env["hdf_libdir"] = Path(env["hdf_libdir"]).as_posix()
+    env["hdf_libdir"] = make_relative_path_absolute(env["hdf_libdir"])
     env.Append(LIBPATH=[env["hdf_libdir"]])
     env["hdf_support"] = "y"
     if env["use_rpath_linkage"]:
@@ -1573,9 +1480,7 @@ if env["use_hdf5"] and env["system_highfive"] in ("y", "default"):
             "hdf5", "highfive/H5File.hpp", language="C++", autoadd=False):
 
         highfive_include = "<highfive/H5Version.hpp>"
-        h5_version_source = get_expression_value(
-            [highfive_include], "QUOTE(HIGHFIVE_VERSION)")
-        retcode, h5_lib_version = conf.TryRun(h5_version_source, ".cpp")
+        retcode, h5_lib_version = run_preprocessor(conf, [highfive_include], "HIGHFIVE_VERSION")
         if retcode:
             if parse_version(h5_lib_version) < parse_version("2.5"):
                 if env["system_highfive"] == "y":
@@ -1620,17 +1525,11 @@ if env["use_hdf5"]:
                            f"#include {highfive_include}"):
         env["highfive_boolean"] = True
 
-    hdf_version = textwrap.dedent("""\
-        #include <iostream>
-        #include "H5public.h"
-        int main(int argc, char** argv) {
-            std::cout << H5_VERS_MAJOR << "." << H5_VERS_MINOR << "." << H5_VERS_RELEASE;
-            return 0;
-        }
-    """)
-    retcode, hdf_version = conf.TryRun(hdf_version, ".cpp")
+    retcode, hdf_version = run_preprocessor(
+        conf, ['"H5public.h"'], "H5_VERS_MAJOR H5_VERS_MINOR H5_VERS_RELEASE"
+    )
     if retcode:
-        env["HDF_VERSION"] = hdf_version
+        env["HDF_VERSION"] = ".".join(hdf_version.strip().split())
         logger.info(
             f"Using HighFive version {env['HIGHFIVE_VERSION']} "
             f"for HDF5 {env['HDF_VERSION']}")
