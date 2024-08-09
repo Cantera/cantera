@@ -444,7 +444,7 @@ void Flow1D::updateDiffFluxes(const double* x, size_t j0, size_t j1)
                     sum -= m_flux(k,j);
                 }
             }
-            // correction flux to insure that \sum_k Y_k V_k = 0.
+            // correction flux to ensure that \sum_k Y_k V_k = 0.
             for (size_t k = 0; k < m_nsp; k++) {
                 m_flux(k,j) += sum*Y(x,k,j);
             }
