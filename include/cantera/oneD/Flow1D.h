@@ -425,8 +425,14 @@ protected:
         }
     }
 
-    //! Update the transport properties at grid points in the range from `j0`
-    //! to `j1`, based on solution `x`.
+    /**
+     * Update the transport properties at grid points in the range from `j0`
+     * to `j1`, based on solution `x`. Evaluates the solution at the midpoint
+     * between `j` and `j + 1` to compute the transport properties. For example,
+     * the viscosity at element `j`  is the viscosity evaluated at the midpoint
+     * between `j` and `j + 1`.
+     *
+     */
     virtual void updateTransport(double* x, size_t j0, size_t j1);
 
     //! Update the diffusive mass fluxes.
@@ -463,7 +469,6 @@ protected:
     /**
      * Evaluate the continuity equation residual.
      *
-     * This function calculates the residual of the continuity equation
      * @f[
      *     \frac{d(\rho u)}{dz} + 2\rho V = 0
      * @f]
@@ -481,7 +486,8 @@ protected:
      *  A specified mass flux; the main example being burner-stabilized flames.
      *
      * The default boundary condition for the continuity equation is
-     * (@f$ u = 0 @f$) at the left and right boundary.
+     * (@f$ u = 0 @f$) at the right boundary. Because the equation is a first order
+     * equation, only one boundary condition is needed.
      *
      * @param[in] x Local domain state vector, includes variables like temperature,
      *               density, etc.
@@ -499,7 +505,6 @@ protected:
     /**
      * Evaluate the momentum equation residual.
      *
-     * The function calculates the radial momentum equation defined as
      * @f[
      *    \rho u \frac{dV}{dz} + \rho V^2 =
      *    \frac{d}{dz}\left( \mu \frac{dV}{dz} \right) - \Lambda
@@ -518,7 +523,6 @@ protected:
     /**
      * Evaluate the lambda equation residual.
      *
-     * The function calculates the lambda equation as
      * @f[
      *    \frac{d\Lambda}{dz} = 0
      * @f]
@@ -527,7 +531,8 @@ protected:
      * equation and continuity equations to be simultaneously satisfied in
      * axisymmetric flows. The lambda equation propagates information from
      * left-to-right. The default boundary condition is @f$ \Lambda = 0 @f$
-     * at the left and zero flux at the right boundary.
+     * at the left boundary. The equation is first order and so only one
+     * boundary condition is needed.
      *
      * For argument explanation, see evalContinuity().
      */
@@ -537,7 +542,6 @@ protected:
     /**
      * Evaluate the energy equation residual.
      *
-     * The function calculates the energy equation:
      * @f[
      *   \rho c_p u \frac{dT}{dz} =
      *   \frac{d}{dz}\left( \lambda \frac{dT}{dz} \right)
@@ -558,7 +562,6 @@ protected:
     /**
      * Evaluate the species equations' residuals.
      *
-     * The function calculates the species equations as
      * @f[
      *    \rho u \frac{dY_k}{dz} + \frac{dj_k}{dz} = W_k\dot{\omega}_k
      * @f]
@@ -634,6 +637,7 @@ protected:
     double V(const double* x, size_t j) const {
         return x[index(c_offset_V, j)];
     }
+
     double V_prev(size_t j) const {
         return prevSoln(c_offset_V, j);
     }
@@ -670,41 +674,166 @@ protected:
 
     //! @name Convective spatial derivatives
     //!
-    //! These use upwind differencing, assuming u(z) is negative
+    //! These methods use upwind differencing to calculate spatial derivatives
+    //! for velocity, species mass fractions, and temperature. Upwind differencing
+    //! is a numerical discretization method that considers the direction of the
+    //! flow to improve stability.
     //! @{
+
+    /**
+     * Calculates the spatial derivative of velocity V with respect to z at point j
+     * using upwind differencing.
+     *
+     * The general formula for a variable, Var, is:
+     * @f[
+     *   \frac{\partial Var}{\partial z} \bigg|_{j} \approx \frac{Var(x, j_{\text{loc}}) -
+     *   Var(x, j_{\text{loc}} - 1)}{m_{\text{dz}}[j_{\text{loc}} - 1]}
+     * @f]
+     *
+     * Where the value of loc is determined by the sign of the axial velocity.
+     * If the axial velocity is positive, the value of loc is j. If the axial velocity
+     * is negative, the value of loc is j + 1. A positive velocity means that the flow
+     * is moving left-to-right.
+     *
+     * @param[in] x The local domain state vector.
+     * @param[in] j The index at which the derivative is computed.
+     */
     double dVdz(const double* x, size_t j) const {
-        size_t jloc = (u(x,j) > 0.0 ? j : j + 1);
-        return (V(x,jloc) - V(x,jloc-1))/m_dz[jloc-1];
+        size_t jloc = (u(x, j) > 0.0 ? j : j + 1);
+        return (V(x, jloc) - V(x, jloc-1))/m_dz[jloc-1];
     }
 
+    /**
+     * Calculates the spatial derivative of the species mass fraction @f$ Y_k @f$ with
+     * respect to z for species k at point j using upwind differencing.
+     *
+     * For details on the upwinding scheme, @see dVdz().
+     *
+     * @param[in] x The local domain state vector.
+     * @param[in] k The species index.
+     * @param[in] j The index at which the derivative is computed.
+     */
     double dYdz(const double* x, size_t k, size_t j) const {
-        size_t jloc = (u(x,j) > 0.0 ? j : j + 1);
-        return (Y(x,k,jloc) - Y(x,k,jloc-1))/m_dz[jloc-1];
+        size_t jloc = (u(x, j) > 0.0 ? j : j + 1);
+        return (Y(x, k, jloc) - Y(x, k, jloc-1))/m_dz[jloc-1];
     }
 
+    /**
+     * Calculates the spatial derivative of temperature T with respect to z at point
+     * j using upwind differencing.
+     *
+     * For details on the upwinding scheme, @see dVdz().
+     *
+     * @param[in] x The local domain state vector.
+     * @param[in] j The index at which the derivative is computed.
+     */
     double dTdz(const double* x, size_t j) const {
-        size_t jloc = (u(x,j) > 0.0 ? j : j + 1);
-        return (T(x,jloc) - T(x,jloc-1))/m_dz[jloc-1];
+        size_t jloc = (u(x, j) > 0.0 ? j : j + 1);
+        return (T(x, jloc) - T(x, jloc-1))/m_dz[jloc-1];
     }
     //! @}
 
+    /**
+     * Compute the shear term from the momentum equation using a central
+     * three-point differencing scheme. This term is discretized
+     *
+     * The term to be discretized is:
+     * @f[
+     *   \frac{d}{dz}\left(\mu \frac{dV}{dz}\right)
+     * @f]
+     *
+     * Let @f$ A = \mu \frac{dV}{dz} @f$ for simplicity. We'll call this the inner
+     * term or inner discretization. In this situation, the inner term is evaluated
+     * using a central difference formula, but evaluated at j+1/2 and j-1/2 (halfway
+     * between the grid points around point j).
+     *
+     * The value of @f$ A @f$ at point @f$ j-1/2 @f$ is estimating using a central
+     * difference formula:
+     *
+     * @f[
+     *  A_{j-1/2} = \mu_{j-1/2} \frac{V_j - V_{j-1}}{z_j - z_{j-1}}
+     * @f]
+     *
+     * The value of @f$ A @f$ at point @f$ j+1/2 @f$ is:
+     *
+     * @f[
+     *   A_{j+1/2} = \mu_{j+1/2} \frac{V_{j+1} - V_j}{z_{j+1} - z_j}
+     * @f]
+     *
+     * In the implementation, a vector of viscosities is used which actually represents
+     * the viscosity evaluated at the midpoints between grid points. In other words,
+     * the value of mu[j] is actually @f$ \mu_{j+1/2} @f$. The transport properties
+     * between grid points are not the average of the adjacent grid points, but rather,
+     * the state of the system at the midpoint is estimated, and then the transport
+     * properties are evaluated at that state (T,P,Y) for example.
+     *
+     * The outer discretization uses a central difference between the j+1/2 and j-1/2
+     * locations.
+     *
+     * @f[
+     *  \frac{dA}{dz} \approx \frac{A_{j+1/2} - A_{j-1/2}}{z_{j+1/2} - z_{j-1/2}}
+     * @f]
+     *
+     * Where the values of @f$ z @f$ are:
+     * @f$ z_{j+1/2} = z_{j} + 0.5*(z_{j+1} - z_j) = 0.5*(z_{j} + z_{j+1}) @f$ and
+     * @f$ z_{j-1/2} = z_j - 0.5*(z_j - z_{j-1}) = 0.5*(z_{j} + z_{j-1}) @f$. The
+     * difference between these two values is
+     * @f$ z_{j+1/2} - z_{j-1/2} = \frac{z_{j+1} - z_{j-1}}{2} @f$.
+     *
+     * Substituting these values into the central difference formula gives:
+     *
+     * @f[
+     *  \frac{d}{dz}\left(\mu \frac{dV}{dz}\right) \approx
+     *   \frac{\mu_{j+1/2} \frac{V_{j+1} - V_j}{z_{j+1} - z_j} -
+     *   \mu_{j-1/2} \frac{V_j - V_{j-1}}{z_j - z_{j-1}}}{\frac{z_{j+1} - z_{j-1}}{2}}
+     * @f]
+     *
+     * @param[in] x The local domain state vector.
+     * @param[in] j The index at which the derivative is computed.
+     */
     double shear(const double* x, size_t j) const {
-        double c1 = m_visc[j-1]*(V(x,j) - V(x,j-1));
-        double c2 = m_visc[j]*(V(x,j+1) - V(x,j));
-        return 2.0*(c2/(z(j+1) - z(j)) - c1/(z(j) - z(j-1)))/(z(j+1) - z(j-1));
+        double A_left = m_visc[j-1]*(V(x, j) - V(x, j-1)) / (z(j) - z(j-1));
+        double A_right = m_visc[j]*(V(x, j+1) - V(x, j)) / (z(j+1) - z(j));
+        return 2.0*(A_right - A_left) / (z(j+1) - z(j-1));
     }
 
-    double divHeatFlux(const double* x, size_t j) const {
-        double c1 = m_tcon[j-1]*(T(x,j) - T(x,j-1));
-        double c2 = m_tcon[j]*(T(x,j+1) - T(x,j));
-        return -2.0*(c2/(z(j+1) - z(j)) - c1/(z(j) - z(j-1)))/(z(j+1) - z(j-1));
+    /**
+     * Compute the conduction term from the energy equation using a central
+     * three-point differencing scheme.
+     *
+     * For the details about the discretization, @see shear().
+     *
+     * @param[in] x The local domain state vector.
+     * @param[in] j The index at which the derivative is computed.
+     */
+    double conduction(const double* x, size_t j) const {
+        double A_left = m_tcon[j-1]*(T(x, j) - T(x, j-1)) / (z(j) - z(j-1));
+        double A_right = m_tcon[j]*(T(x, j+1) - T(x, j)) / (z(j+1) - z(j));
+        return -2.0*(A_right - A_left) / (z(j+1) - z(j-1));
     }
 
+    /**
+     * Array access mapping for a 3D array stored in a 1D vector. Used for
+     * accessing data in the m_multidiff member variable.
+     *
+     * @param[in] k First species index.
+     * @param[in] j The grid point index.
+     * @param[in] m The second species index.
+     */
     size_t mindex(size_t k, size_t j, size_t m) {
         return m*m_nsp*m_nsp + m_nsp*j + k;
     }
 
-    //! Get the gradient of species specific molar enthalpies
+    /**
+     * Compute the spatial derivative of species specific molar enthalpies using upwind
+     * differencing. Updates all species molar enthalpies for all species at point j.
+     * Does not return a value, but updates the m_dhk_dz 2D array.
+     *
+     * For details on the upwinding scheme, @see dVdz().
+     *
+     * @param[in] k The species index.
+     * @param[in] j The index at which the derivative is computed.
+     */
     virtual void grad_hk(const double* x, size_t j);
 
     //---------------------------------------------------------
@@ -713,7 +842,7 @@ protected:
 
     double m_press = -1.0; // pressure
 
-    // grid parameters
+    // Grid spacing. Element j holds the value of grid(j+1) - grid(j)
     vector<double> m_dz;
 
     // mixture thermo properties
@@ -727,11 +856,19 @@ protected:
     // transport properties
     vector<double> m_visc;
     vector<double> m_tcon;
-    //! Array of size #m_nsp by #m_points for saving density times diffusion
+
+    //! Vector of size #m_nsp by #m_points for saving density times diffusion
     //! coefficient times species molar mass divided by mean molecular weight
     vector<double> m_diff;
+
+    //! Vector of size #m_nsp by #m_nsp by #m_points for saving multicomponent
+    //! diffusion coefficients.
     vector<double> m_multidiff;
+
+    //! Array of size #m_nsp by #m_points for saving thermal diffusion coefficients
     Array2D m_dthermal;
+
+    //! Array of size #m_nsp by #m_points for saving diffusive mass fluxes
     Array2D m_flux;
 
     //! Array of size #m_nsp by #m_points for saving molar enthalpies
@@ -808,6 +945,9 @@ public:
     double m_tfixed = -1.0;
 
 private:
+    //! Holds the average of the species mass fractions between grid points j and j+1.
+    //! Used when building a gas state at the grid midpoints for evaluating transport
+    //! properties at the midpoints.
     vector<double> m_ybar;
 };
 

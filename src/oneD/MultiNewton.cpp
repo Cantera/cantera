@@ -293,7 +293,6 @@ int MultiNewton::solve(double* x0, double* x1, OneDim& r, MultiJac& jac, int log
     double rdt = r.rdt();
     int j0 = jac.nEvals();
     int nJacReeval = 0;
-
     while (true) {
         // Check whether the Jacobian should be re-evaluated.
         if (jac.age() > m_maxAge) {
