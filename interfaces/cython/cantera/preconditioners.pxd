@@ -12,6 +12,8 @@ cdef extern from "cantera/numerics/PreconditionerBase.h" namespace "Cantera":
         CxxPreconditionerBase()
         string preconditionerSide()
         void setPreconditionerSide(string) except +translate_exception
+        double gamma()
+        void setGamma(double) except +translate_exception
 
 cdef extern from "cantera/numerics/AdaptivePreconditioner.h" namespace "Cantera":
     cdef cppclass CxxAdaptivePreconditioner "Cantera::AdaptivePreconditioner" \

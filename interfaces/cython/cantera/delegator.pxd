@@ -7,6 +7,15 @@
 from .ctcxx cimport *
 from .func1 cimport *
 from .units cimport CxxUnitStack
+# from .kinetics cimport *
+
+cdef extern from "cantera/numerics/eigen_sparse.h" namespace "Eigen":
+    cdef cppclass CxxEigenTriplet "Eigen::Triplet<double>":
+        CxxEigenTriplet()
+        CxxEigenTriplet(size_t, size_t, double)
+        size_t row()
+        size_t col()
+        size_t value()
 
 cdef extern from "<array>" namespace "std" nogil:
     cdef cppclass size_array1 "std::array<size_t, 1>":
@@ -52,7 +61,7 @@ cdef extern from "cantera/base/Delegator.h" namespace "Cantera":
         void setDelegate(string&, function[int(double&, void*)], string&) except +translate_exception
         void setDelegate(string&, function[int(string&, size_t)], string&) except +translate_exception
         void setDelegate(string&, function[int(size_t&, string&)], string&) except +translate_exception
-
+        void setDelegate(string&, function[void(vector[CxxEigenTriplet]&)], string&) except +translate_exception
 
 cdef extern from "cantera/cython/funcWrapper.h":
     # pyOverride is actually a templated function, but we have to specify the individual
@@ -77,6 +86,9 @@ cdef extern from "cantera/cython/funcWrapper.h":
     cdef function[int(string&, size_t)] pyOverride(PyObject*, int(PyFuncInfo&, string&, size_t))
     cdef function[int(size_t&, const string&)] pyOverride(
         PyObject*, int(PyFuncInfo&, size_t&, const string&))
+    cdef function[void(vector[CxxEigenTriplet]&)] pyOverride(
+        PyObject*, void(PyFuncInfo&, vector[CxxEigenTriplet]&))
+
 
 cdef extern from "cantera/base/ExtensionManager.h" namespace "Cantera":
     cdef cppclass CxxExtensionManager "Cantera::ExtensionManager":
