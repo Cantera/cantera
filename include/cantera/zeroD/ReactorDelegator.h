@@ -59,7 +59,9 @@ template <class R>
 class ReactorDelegator : public Delegator, public R, public ReactorAccessor
 {
 public:
-    ReactorDelegator() {
+    ReactorDelegator(shared_ptr<Solution> contents, const string& name="(none)")
+        : R(contents, name)
+    {
         install("initialize", m_initialize, [this](double t0) { R::initialize(t0); });
         install("syncState", m_syncState, [this]() { R::syncState(); });
         install("getState", m_getState,
@@ -95,6 +97,10 @@ public:
     }
 
     // Overrides of Reactor methods
+
+    string type() const override {
+        return fmt::format("Extensible{}", R::type());
+    }
 
     void initialize(double t0) override {
         m_initialize(t0);

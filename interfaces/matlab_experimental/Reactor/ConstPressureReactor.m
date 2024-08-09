@@ -10,26 +10,27 @@ classdef ConstPressureReactor < Reactor
     %
     % .. code-block:: matlab
     %
-    %     r1 = ConstPressureReactor         % an empty reactor
     %     r2 = ConstPressureReactor(contents)    % a reactor containing contents
     %
     % See also: :mat:class:`Reactor`
     %
     % :param contents:
     %     Cantera :mat:class:`Solution` to be set as the contents of the reactor.
+    % :param name:
+    %     Reactor name (optional; default is ``(none)``).
     % :return:
     %     Instance of class :mat:class:`ConstPressureReactor`.
 
     methods
 
-        function r = ConstPressureReactor(contents)
+        function r = ConstPressureReactor(contents, name)
             % Constructor
 
-            if nargin == 0
-                contents = 0;
+            if nargin < 2
+                name = '(none)'
             end
 
-            r@Reactor(contents, 'ConstPressureReactor');
+            r@Reactor(contents, 'ConstPressureReactor', name);
         end
 
     end

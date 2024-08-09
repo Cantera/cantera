@@ -8,26 +8,27 @@ classdef FlowReactor < Reactor
     %
     % .. code-block:: matlab
     %
-    %     r1 = FlowReactor         % an empty reactor
     %     r2 = FlowReactor(gas)    % a reactor containing a gas
     %
     % See also: :mat:class:`Reactor`
     %
     % :param contents:
     %     Cantera :mat:class:`Solution` to be set as the contents of the reactor.
+    % :param name:
+    %     Reactor name (optional; default is ``(none)``).
     % :return:
     %     Instance of class :mat:class:`FlowReactor`.
 
     methods
 
-        function r = FlowReactor(contents)
+        function r = FlowReactor(contents, name)
             % Constructor
 
-            if nargin == 0
-                contents = 0;
+            if nargin < 2
+                name = '(none)'
             end
 
-            r@Reactor(contents, 'FlowReactor');
+            r@Reactor(contents, 'FlowReactor', name);
         end
 
     end

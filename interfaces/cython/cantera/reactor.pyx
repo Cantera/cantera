@@ -2,7 +2,6 @@
 # at https://cantera.org/license.txt for license and copyright information.
 
 import warnings
-from collections import defaultdict as _defaultdict
 import numbers as _numbers
 from cython.operator cimport dereference as deref
 
@@ -12,27 +11,19 @@ from ._utils import *
 from .delegator cimport *
 from .drawnetwork import *
 
-_reactor_counts = _defaultdict(int)
-
 cdef class ReactorBase:
     """
     Common base class for reactors and reservoirs.
     """
     reactor_type = "none"
     def __cinit__(self, _SolutionBase contents=None, name=None, *, **kwargs):
-        def reactor_name(name):
-            if name is not None:
-                return name
-            _reactor_counts[self.reactor_type] += 1
-            return f"{self.reactor_type}_{_reactor_counts[self.reactor_type]}"
-
         if isinstance(contents, _SolutionBase):
             self._reactor = newReactor(stringify(self.reactor_type),
-                                       contents._base, stringify(reactor_name(name)))
+                                       contents._base, stringify(name))
         else:
             # deprecated: will raise warnings in C++ layer
             self._reactor = newReactor(stringify(self.reactor_type))
-            self._reactor.get().setName(stringify(reactor_name(name)))
+            self._reactor.get().setName(stringify(name))
         self.rbase = self._reactor.get()
 
     def __init__(self, _SolutionBase contents=None, name=None, *, volume=None,
@@ -66,7 +57,6 @@ cdef class ReactorBase:
         """The name of the reactor."""
         def __get__(self):
             return pystr(self.rbase.name())
-
         def __set__(self, name):
             self.rbase.setName(stringify(name))
 
@@ -796,6 +786,9 @@ cdef class ReactorSurface:
     """
     Represents a surface in contact with the contents of a reactor.
 
+    :param name:
+        Name string. If omitted, the name is ``'ReactorSurface_n'``, where ``'n'``
+        is an integer assigned in the order reactor surfaces are created.
     :param kin:
         The `Kinetics` or `Interface` object representing reactions on this
         surface.
@@ -810,13 +803,14 @@ cdef class ReactorSurface:
     .. versionadded:: 3.1
        Added the ``node_attr`` parameter.
     """
-    def __cinit__(self):
-        self.surface = new CxxReactorSurface()
+    def __cinit__(self, *args, **kwargs):
+        name = kwargs.get("name")
+        self.surface = new CxxReactorSurface(stringify(name))
 
     def __dealloc__(self):
         del self.surface
 
-    def __init__(self, kin=None, Reactor r=None, *, A=None, node_attr=None):
+    def __init__(self, kin=None, Reactor r=None, *, name=None, A=None, node_attr=None):
         if kin is not None:
             self.kinetics = kin
         if r is not None:
@@ -832,6 +826,18 @@ cdef class ReactorSurface:
         r._surfaces.append(self)
         r.reactor.addSurface(self.surface)
         self._reactor = r
+
+    property type:
+        """The type of the reactor surface."""
+        def __get__(self):
+            return pystr(self.surface.type())
+
+    property name:
+        """The name of the reactor surface."""
+        def __get__(self):
+            return pystr(self.surface.name())
+        def __set__(self, name):
+            self.surface.setName(stringify(name))
 
     property area:
         """ Area on which reactions can occur [m^2] """
@@ -941,7 +947,8 @@ cdef class WallBase:
     """
     wall_type = "none"
     def __cinit__(self, *args, **kwargs):
-        self._wall = newWall(stringify(self.wall_type))
+        name = kwargs.get("name")
+        self._wall = newWall(stringify(self.wall_type), stringify(name))
         self.wall = self._wall.get()
 
     def __init__(self, left, right, *, name=None, A=None, K=None, U=None,
@@ -979,12 +986,6 @@ cdef class WallBase:
         self._heat_flux_func = None
 
         self._install(left, right)
-        if name is not None:
-            self.name = name
-        else:
-            _reactor_counts['Wall'] += 1
-            n = _reactor_counts['Wall']
-            self.name = 'Wall_{0}'.format(n)
 
         if A is not None:
             self.area = A
@@ -1014,6 +1015,13 @@ cdef class WallBase:
         """The type of the wall."""
         def __get__(self):
             return pystr(self.wall.type())
+
+    property name:
+        """The name of the wall."""
+        def __get__(self):
+            return pystr(self.wall.name())
+        def __set__(self, name):
+            self.wall.setName(stringify(name))
 
     property area:
         """ The wall area [m^2]. """
@@ -1212,28 +1220,27 @@ cdef class FlowDevice:
     """
     flowdevice_type = "none"
     def __cinit__(self, *args, **kwargs):
-        self._dev = newFlowDevice(stringify(self.flowdevice_type))
+        name = kwargs.get("name")
+        self._dev = newFlowDevice(stringify(self.flowdevice_type), stringify(name))
         self.dev = self._dev.get()
 
     def __init__(self, upstream, downstream, *, name=None, edge_attr=None):
         assert self.dev != NULL
         self._rate_func = None
-
-        if name is not None:
-            self.name = name
-        else:
-            _reactor_counts[self.__class__.__name__] += 1
-            n = _reactor_counts[self.__class__.__name__]
-            self.name = '{0}_{1}'.format(self.__class__.__name__, n)
-
         self.edge_attr = edge_attr or {}
-
         self._install(upstream, downstream)
 
     property type:
         """The type of the flow device."""
         def __get__(self):
             return pystr(self.dev.type())
+
+    property name:
+        """The name of the flow device."""
+        def __get__(self):
+            return pystr(self.dev.name())
+        def __set__(self, name):
+            self.dev.setName(stringify(name))
 
     def _install(self, ReactorBase upstream, ReactorBase downstream):
         """

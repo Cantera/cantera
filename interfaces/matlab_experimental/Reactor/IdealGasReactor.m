@@ -9,26 +9,27 @@ classdef IdealGasReactor < Reactor
     %
     % .. code-block:: matlab
     %
-    %     r1 = IdealGasReactor         % an empty reactor
     %     r2 = IdealGasReactor(gas)    % a reactor containing a gas
     %
     % See also: :mat:class:`Reactor`
     %
     % :param contents:
     %     Cantera :mat:class:`Solution` to be set as the contents of the reactor.
+    % :param name:
+    %     Reactor name (optional; default is ``(none)``).
     % :return:
     %     Instance of class :mat:class:`IdealGasReactor`.
 
     methods
 
-        function r = IdealGasReactor(contents)
+        function r = IdealGasReactor(contents, name)
             % Constructor
 
-            if nargin == 0
-                contents = 0;
+            if nargin < 2
+                name = '(none)';
             end
 
-            r@Reactor(contents, 'IdealGasReactor');
+            r@Reactor(contents, 'IdealGasReactor', name);
         end
 
     end

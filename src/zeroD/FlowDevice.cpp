@@ -11,6 +11,18 @@
 namespace Cantera
 {
 
+bool FlowDevice::setDefaultName(const string& typ, int count)
+{
+    if (m_defaultNameSet) {
+        return false;
+    }
+    m_defaultNameSet = true;
+    if (m_name == "(none)" || m_name == "") {
+        m_name = fmt::format("{}_{}", typ, count);
+    }
+    return true;
+}
+
 bool FlowDevice::install(ReactorBase& in, ReactorBase& out)
 {
     if (m_in || m_out) {

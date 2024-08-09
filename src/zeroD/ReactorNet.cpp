@@ -5,6 +5,7 @@
 
 #include "cantera/zeroD/ReactorNet.h"
 #include "cantera/zeroD/FlowDevice.h"
+#include "cantera/zeroD/ReactorSurface.h"
 #include "cantera/zeroD/Wall.h"
 #include "cantera/base/utilities.h"
 #include "cantera/base/Array.h"
@@ -304,6 +305,72 @@ void ReactorNet::addReactor(Reactor& r)
         // numerically, and use a Newton linear iterator
         m_integ->setMethod(BDF_Method);
         m_integ->setLinearSolverType("DENSE");
+    }
+    updateNames(r);
+}
+
+void ReactorNet::updateNames(Reactor& r)
+{
+    // ensure that reactors and components have reproducible names
+    auto rType = r.type();
+    r.setDefaultName(rType, m_count[rType]);
+    m_count[rType]++;
+
+    for (size_t i=0; i<r.nWalls(); i++) {
+        auto& w = r.wall(i);
+        auto wType = w.type();
+        if (w.setDefaultName(wType, m_count[wType])) {
+            m_count[wType]++;
+        }
+        if (w.left().type() == "Reservoir") {
+            auto& res = w.left();
+            auto resType = res.type();
+            res.setDefaultName(resType, m_count[resType]);
+            m_count[resType]++;
+        }
+        if (w.right().type() == "Reservoir") {
+            auto& res = w.right();
+            auto resType = res.type();
+            res.setDefaultName(resType, m_count[resType]);
+            m_count[resType]++;
+        }
+    }
+
+    for (size_t i=0; i<r.nInlets(); i++) {
+        auto& in = r.inlet(i);
+        auto inType = in.type();
+        if (in.setDefaultName(inType, m_count[inType])) {
+            m_count[inType]++;
+        }
+        if (in.in().type() == "Reservoir") {
+            auto& res = in.in();
+            auto resType = res.type();
+            res.setDefaultName(resType, m_count[resType]);
+            m_count[resType]++;
+        }
+    }
+
+    for (size_t i=0; i<r.nOutlets(); i++) {
+        auto& out = r.outlet(i);
+        auto outType = out.type();
+        if (out.setDefaultName(outType, m_count[outType])) {
+            m_count[outType]++;
+        }
+        if (out.out().type() == "Reservoir") {
+            auto& res = out.out();
+            auto resType = res.type();
+            res.setDefaultName(resType, m_count[resType]);
+            m_count[resType]++;
+        }
+    }
+
+    for (size_t i=0; i<r.nSurfs(); i++) {
+        auto surf = r.surface(i);
+        auto surfType = surf->type();
+        if (surf->name() == "(none)" || surf->name() == "") {
+            surf->setName(fmt::format("{}_{}", surfType, m_count[surfType]));
+        }
+        m_count[surfType]++;
     }
 }
 

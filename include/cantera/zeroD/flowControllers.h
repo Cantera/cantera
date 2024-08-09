@@ -20,7 +20,7 @@ namespace Cantera
 class MassFlowController : public FlowDevice
 {
 public:
-    MassFlowController() = default;
+    using FlowDevice::FlowDevice;  // inherit constructors
 
     string type() const override {
         return "MassFlowController";
@@ -65,7 +65,7 @@ public:
 class PressureController : public FlowDevice
 {
 public:
-    PressureController() = default;
+    using FlowDevice::FlowDevice;  // inherit constructors
 
     string type() const override {
         return "PressureController";
@@ -123,7 +123,7 @@ protected:
 class Valve : public FlowDevice
 {
 public:
-    Valve() = default;
+    using FlowDevice::FlowDevice;  // inherit constructors
 
     string type() const override {
         return "Valve";
