@@ -1199,6 +1199,19 @@ def get_expression_value(includes, expression, defines=()):
               '}\n'))
     return '\n'.join(s)
 
+# Need to ensure that RPATH is working before we can continue with library checks
+env['HAS_CLANG'] = conf.CheckDeclaration('__clang__', '', 'C++')
+
+if env['OS'] == 'Solaris' or env['HAS_CLANG']:
+    env["RPATHPREFIX"] = "-Wl,-rpath,"
+
+# Add initial libraries to RPATH
+if env["OS"] == "Darwin" and env["use_rpath_linkage"] and not env.subst("$__RPATH"):
+    # SCons doesn't want to specify RPATH on macOS, so circumvent that behavior by
+    # specifying this directly as part of LINKFLAGS
+    env.Append(LINKFLAGS=[env.subst(f'$RPATHPREFIX{x}$RPATHSUFFIX')
+                          for x in env['RPATH']])
+
 # Check that libraries link correctly
 cmath_check_source = get_expression_value(["<cmath>"], "cos(0. * argc)")
 retcode, cmath_works = conf.TryRun(cmath_check_source, ".cpp")
@@ -1343,7 +1356,6 @@ elif conf.CheckDeclaration('_LIBCPP_VERSION', '#include <iostream>', 'C++'):
 else:
     env['cxx_stdlib'] = []
 
-env['HAS_CLANG'] = conf.CheckDeclaration('__clang__', '', 'C++')
 if not env["using_apple_clang"]:
     # This checks for these three libraries in order and stops when it finds the
     # first success. Intel = iomp5, LLVM/clang = omp, GCC = gomp. Since gomp is
@@ -1909,15 +1921,12 @@ def cdefine(definevar, configvar, comp=True, value=1):
     else:
         configh[definevar] = None
 
-if env['OS'] == 'Solaris' or env['HAS_CLANG']:
-    env["RPATHPREFIX"] = "-Wl,-rpath,"
-
+# Update RPATH with additional library directories
 if env["OS"] == "Darwin" and env["use_rpath_linkage"] and not env.subst("$__RPATH"):
     # SCons doesn't want to specify RPATH on macOS, so circumvent that behavior by
     # specifying this directly as part of LINKFLAGS
-    env.Append(LINKFLAGS=[env.subst(f'$RPATHPREFIX{x}$RPATHSUFFIX')
-                          for x in env['RPATH']])
-
+    env.Append(LINKFLAGS=[d for x in env['RPATH']
+        if (d := env.subst(f'$RPATHPREFIX{x}$RPATHSUFFIX')) not in env['LINKFLAGS']])
 
 if env.get('has_sundials_lapack') and env['use_lapack']:
     configh['CT_SUNDIALS_USE_LAPACK'] = 1
