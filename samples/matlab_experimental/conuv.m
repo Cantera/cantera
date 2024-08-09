@@ -12,9 +12,9 @@ function dydt = conuv(t, y, gas, mw)
 
     % energy equation
     wdot = gas.netProdRates;
-    H = (gas.enthalpies_RT - ones(1, nsp))';
+    U = gas.partialMolarIntEnergies';
     gas.basis = 'mass';
-    tdot =- gas.T * GasConstant / (gas.D * gas.cv) .* wdot * H;
+    tdot =- 1 / (gas.D * gas.cv) .* wdot * U;
 
     % set up column vector for dydt
     dydt = [tdot

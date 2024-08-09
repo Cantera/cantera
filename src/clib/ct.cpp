@@ -696,6 +696,18 @@ extern "C" {
         }
     }
 
+    int thermo_electrochemPotentials(int n, size_t lenm, double* emu)
+    {
+        try {
+            ThermoPhase& thrm = ThermoCabinet::item(n);
+            thrm.checkSpeciesArraySize(lenm);
+            thrm.getElectrochemPotentials(emu);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
     int thermo_setPressure(int n, double p)
     {
         try {
@@ -969,6 +981,66 @@ extern "C" {
     {
         try {
             ThermoCabinet::item(n).setElectricPotential(v);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int thermo_getPartialMolarEnthalpies(int n, size_t lenm, double* pmh)
+    {
+        try {
+            auto& thrm = ThermoCabinet::item(n);
+            thrm.checkSpeciesArraySize(lenm);
+            thrm.getPartialMolarEnthalpies(pmh);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int thermo_getPartialMolarEntropies(int n, size_t lenm, double* pms)
+    {
+        try {
+            auto& thrm = ThermoCabinet::item(n);
+            thrm.checkSpeciesArraySize(lenm);
+            thrm.getPartialMolarEntropies(pms);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int thermo_getPartialMolarIntEnergies(int n, size_t lenm, double* pmu)
+    {
+        try {
+            auto& thrm = ThermoCabinet::item(n);
+            thrm.checkSpeciesArraySize(lenm);
+            thrm.getPartialMolarIntEnergies(pmu);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int thermo_getPartialMolarCp(int n, size_t lenm, double* pmcp)
+    {
+        try {
+            auto& thrm = ThermoCabinet::item(n);
+            thrm.checkSpeciesArraySize(lenm);
+            thrm.getPartialMolarCp(pmcp);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int thermo_getPartialMolarVolumes(int n, size_t lenm, double* pmv)
+    {
+        try {
+            auto& thrm = ThermoCabinet::item(n);
+            thrm.checkSpeciesArraySize(lenm);
+            thrm.getPartialMolarVolumes(pmv);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);

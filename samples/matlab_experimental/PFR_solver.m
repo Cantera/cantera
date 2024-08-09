@@ -35,7 +35,7 @@ function F = PFR_Solver(x, soln_vector, gas, mdot, A_in, dAdx, k)
 
     gas.basis = 'mass';
     MW = gas.molecularWeights;
-    h = gas.enthalpies_RT .* R .* T;
+    h = gas.partialMolarEnthalpies;
     w = gas.netProdRates;
     Cp = gas.cp;
     %--------------------------------------------------------------------------

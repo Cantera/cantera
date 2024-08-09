@@ -92,10 +92,16 @@ extern "C" {
     CANTERA_CAPI double thermo_thermalExpansionCoeff(int n);
     CANTERA_CAPI double thermo_isothermalCompressibility(int n);
     CANTERA_CAPI int thermo_chemPotentials(int n, size_t lenm, double* murt);
+    CANTERA_CAPI int thermo_electrochemPotentials(int n, size_t lenm, double* emu);
     CANTERA_CAPI int thermo_getEnthalpies_RT(int n, size_t lenm, double* h_rt);
     CANTERA_CAPI int thermo_getEntropies_R(int n, size_t lenm, double* s_r);
     CANTERA_CAPI int thermo_getCp_R(int n, size_t lenm, double* cp_r);
     CANTERA_CAPI int thermo_setElectricPotential(int n, double v);
+    CANTERA_CAPI int thermo_getPartialMolarEnthalpies(int n, size_t lenm, double* pmh);
+    CANTERA_CAPI int thermo_getPartialMolarEntropies(int n, size_t lenm, double* pms);
+    CANTERA_CAPI int thermo_getPartialMolarIntEnergies(int n, size_t lenm, double* pmu);
+    CANTERA_CAPI int thermo_getPartialMolarCp(int n, size_t lenm, double* pmcp);
+    CANTERA_CAPI int thermo_getPartialMolarVolumes(int n, size_t lenm, double* pmv);
     CANTERA_CAPI int thermo_set_TP(int n, double* vals);
     CANTERA_CAPI int thermo_set_TD(int n, double* vals);
     CANTERA_CAPI int thermo_set_DP(int n, double* vals);

@@ -90,21 +90,6 @@ classdef ThermoPhase < handle
 
         Q % Vapor fraction of the phase.
 
-        % Chemical potentials of the species ::
-        %
-        %     >> mu = tp.chemPotentials
-        %
-        % The expressions used to compute the chemical potential
-        % depend on the model implemented by the underlying kernel
-        % thermo manager.
-        %
-        % :param tp:
-        %     Instance of class :mat:class:`ThermoPhase` (or another
-        %     object that derives from ThermoPhase).
-        % :return:
-        %     Vector of species chemical potentials. Units: J/kmol.
-        chemicalPotentials
-
         % Basis-dependent specific heat at constant volume.
         % Units: J/kg-K (mass basis) or J/kmol-K (molar basis).
         cv
@@ -113,24 +98,32 @@ classdef ThermoPhase < handle
         % Units: J/kg-K (mass basis) or J/kmol-K (molar basis).
         cp
 
+        % Chemical potentials of the species. Units: J/kmol.
+        chemicalPotentials
+
+        % Electrochemical potentials of the species. Units: J/kmol.
+        electrochemicalPotentials
+
+        % Partial molar enthalpies for the species in the mixture. Units: J/kmol.
+        partialMolarEnthalpies
+
+        % Partial molar entropies for the species in the mixture. Units: J/kmol/K.
+        partialMolarEntropies
+
+        % Partial molar internal energies for the species in the mixture. Units: J/kmol.
+        partialMolarIntEnergies
+
+        % Partial molar heat capacities for the species in the mixture. Units: J/kmol/K.
+        partialMolarCp
+
+        % Partial molar volumes for the species in the mixture. Units: m^3/kmol.
+        partialMolarVolumes
+
         critDensity % Critical density. Units: kg/m^3.
 
         critPressure % Critical pressure. Units: Pa.
 
         critTemperature % Critical temperature. Units: K.
-
-        % Non-dimensional enthalpies ::
-        %
-        %     >> v = tp.enthalpies_RT
-        %
-        % :param tp:
-        %     Instance of class :mat:class:`ThermoPhase` (or another
-        %     object that derives from ThermoPhase).
-        % :return:
-        %     Vector of standard-state species enthalpies constant
-        %     and T is the temperature. For gaseous species, these
-        %     values are ideal gas enthalpies.
-        enthalpies_RT
 
         eosType % Type of equation of state.
 
@@ -855,14 +848,6 @@ classdef ThermoPhase < handle
             e = pt.Value;
         end
 
-        function mu = get.chemicalPotentials(tp)
-            nsp = tp.nSpecies;
-            xx = zeros(1, nsp);
-            pt = libpointer('doublePtr', xx);
-            ctFunc('thermo_chemPotentials', tp.tpID, nsp, pt);
-            mu = pt.Value;
-        end
-
         function c = get.cv(tp)
             if strcmp(tp.basis, 'molar')
                 c = ctFunc('thermo_cv_mole', tp.tpID);
@@ -1039,12 +1024,60 @@ classdef ThermoPhase < handle
             end
         end
 
-        function enthalpy = get.enthalpies_RT(tp)
+        function mu = get.chemicalPotentials(tp)
             nsp = tp.nSpecies;
             xx = zeros(1, nsp);
             pt = libpointer('doublePtr', xx);
-            ctFunc('thermo_getEnthalpies_RT', tp.tpID, nsp, pt);
-            enthalpy = pt.Value;
+            ctFunc('thermo_chemPotentials', tp.tpID, nsp, pt);
+            mu = pt.Value;
+        end
+
+        function emu = get.electrochemicalPotentials(tp)
+            nsp = tp.nSpecies;
+            xx = zeros(1, nsp);
+            pt = libpointer('doublePtr', xx);
+            ctFunc('thermo_electrochemPotentials', tp.tpID, nsp, pt);
+            emu = pt.Value;
+        end
+
+        function enthalpies = get.partialMolarEnthalpies(tp)
+            nsp = tp.nSpecies;
+            xx = zeros(1, nsp);
+            pt = libpointer('doublePtr', xx);
+            ctFunc('thermo_getPartialMolarEnthalpies', tp.tpID, nsp, pt);
+            enthalpies = pt.Value;
+        end
+
+        function entropies = get.partialMolarEntropies(tp)
+            nsp = tp.nSpecies;
+            xx = zeros(1, nsp);
+            pt = libpointer('doublePtr', xx);
+            ctFunc('thermo_getPartialMolarEntropies', tp.tpID, nsp, pt);
+            entropies = pt.Value;
+        end
+
+        function intEnergies = get.partialMolarIntEnergies(tp)
+            nsp = tp.nSpecies;
+            xx = zeros(1, nsp);
+            pt = libpointer('doublePtr', xx);
+            ctFunc('thermo_getPartialMolarIntEnergies', tp.tpID, nsp, pt);
+            intEnergies = pt.Value;
+        end
+
+        function cps = get.partialMolarCp(tp)
+            nsp = tp.nSpecies;
+            xx = zeros(1, nsp);
+            pt = libpointer('doublePtr', xx);
+            ctFunc('thermo_getPartialMolarCp', tp.tpID, nsp, pt);
+            cps = pt.Value;
+        end
+
+        function volumes = get.partialMolarVolumes(tp)
+            nsp = tp.nSpecies;
+            xx = zeros(1, nsp);
+            pt = libpointer('doublePtr', xx);
+            ctFunc('thermo_getPartialMolarVolumes', tp.tpID, nsp, pt);
+            volumes = pt.Value;
         end
 
         function entropy = get.S(tp)
