@@ -274,5 +274,3 @@ At the left boundary (`j=0`):
 $$
 F = \rho_j u_j Y_{k, j} - j_{k, j+1/2}
 $$
-
-
