@@ -295,7 +295,9 @@ cdef class Func1:
 
         .. versionadded:: 3.1
         """
-        return pystr(self.func.typeName())
+        # ensure that Windows and macOS/Linux return same string
+        # (names demangled on some Windows systems start with 'class ')
+        return pystr(self.func.typeName()).split()[-1]
 
     def write(self, name="x"):
         """
