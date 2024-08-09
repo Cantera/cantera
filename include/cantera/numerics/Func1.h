@@ -82,7 +82,7 @@ public:
 
     virtual ~Func1() = default;
 
-    Func1(const Func1& right) = delete;
+    // Func1(const Func1& right) = delete;  //! @todo Uncomment after %Cantera 3.1
     Func1& operator=(const Func1& right) = delete;
 
     //! Returns a string describing the type of the function
@@ -110,11 +110,20 @@ public:
 
     //! Routine to determine if two functions are the same.
     /*!
-     * Two functions are the same if they are the same function. This means
-     * that the ID and stored constant is the same. This means that the #m_f1
-     * and #m_f2 are identical if they are non-null. Functors of the base class
-     * Func1 are by default not identical, as they are used by callback functions
-     * that cannot be differentiated.
+     * Two functions are the same if they are the same function. For example, either
+     * ID and stored constant are the same, or the #m_f1 and #m_f2 are identical if they
+     * are non-null. Functors of the base class Func1 are by default not identical, as
+     * they are used by callback functions that cannot be differentiated. In instances
+     * where exact comparisons are not implemented, `false` is returned to prevent false
+     * positives that could lead to incorrect simplifications of compound functors.
+     */
+    virtual bool isIdentical(shared_ptr<Func1> other) const;
+
+    //! Routine to determine if two functions are the same.
+    /*!
+     * @deprecated Deprecated in %Cantera 3.1 and removed thereafter; replaced by
+     *      isIdentical(shared_ptr<Func1>&).
+     * @todo Restore deleted copy constructor after removal.
      */
     virtual bool isIdentical(Func1& other) const;
 
@@ -367,7 +376,7 @@ public:
     //! @since New in %Cantera 3.0
     void setMethod(const string& method);
 
-    bool isIdentical(Func1& other) const override {
+    bool isIdentical(shared_ptr<Func1> other) const override {
         return false;  // base class check is insufficient
     }
 
@@ -682,7 +691,7 @@ public:
         return "Gaussian";
     }
 
-    bool isIdentical(Func1& other) const override {
+    bool isIdentical(shared_ptr<Func1> other) const override {
         return false;  // base class check is insufficient
     }
 
@@ -728,7 +737,7 @@ public:
         return "polynomial3";
     }
 
-    bool isIdentical(Func1& other) const override {
+    bool isIdentical(shared_ptr<Func1> other) const override {
         return false;  // base class check is insufficient
     }
 
@@ -776,7 +785,7 @@ public:
         return "Fourier";
     }
 
-    bool isIdentical(Func1& other) const override {
+    bool isIdentical(shared_ptr<Func1> other) const override {
         return false;  // base class check is insufficient
     }
 
@@ -828,7 +837,7 @@ public:
         return "Arrhenius";
     }
 
-    bool isIdentical(Func1& other) const override {
+    bool isIdentical(shared_ptr<Func1> other) const override {
         return false;  // base class check is insufficient
     }
 
