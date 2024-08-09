@@ -70,6 +70,46 @@ extern "C" {
         }
     }
 
+    int func_new_sum(int a, int b)
+    {
+        try {
+            return FuncCabinet::add(
+                newSumFunction(FuncCabinet::at(a), FuncCabinet::at(b)));
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int func_new_diff(int a, int b)
+    {
+        try {
+            return FuncCabinet::add(
+                newDiffFunction(FuncCabinet::at(a), FuncCabinet::at(b)));
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int func_new_prod(int a, int b)
+    {
+        try {
+            return FuncCabinet::add(
+                newProdFunction(FuncCabinet::at(a), FuncCabinet::at(b)));
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int func_new_ratio(int a, int b)
+    {
+        try {
+            return FuncCabinet::add(
+                newRatioFunction(FuncCabinet::at(a), FuncCabinet::at(b)));
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
     int func_del(int i)
     {
         try {

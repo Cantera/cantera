@@ -82,7 +82,7 @@ public:
 
     virtual ~Func1() = default;
 
-    Func1(const Func1& right) = delete;
+    // Func1(const Func1& right) = delete;  //! @todo Uncomment after %Cantera 3.1
     Func1& operator=(const Func1& right) = delete;
 
     //! Returns a string describing the type of the function
@@ -104,34 +104,53 @@ public:
     //! Creates a derivative to the current function
     /*!
      * @return  shared pointer to new derivative function.
-     * @since Starting in Cantera 3.1, the return type is a `shared_ptr`.
+     * @since Starting in %Cantera 3.1, the return type is a `shared_ptr`.
      */
     virtual shared_ptr<Func1> derivative() const;
 
     //! Routine to determine if two functions are the same.
     /*!
-     * Two functions are the same if they are the same function. This means
-     * that the ID and stored constant is the same. This means that the m_f1
-     * and m_f2 are identical if they are non-null.
+     * Two functions are the same if they are the same function. For example, either
+     * ID and stored constant are the same, or the #m_f1 and #m_f2 are identical if they
+     * are non-null. Functors of the base class Func1 are by default not identical, as
+     * they are used by callback functions that cannot be differentiated. In instances
+     * where exact comparisons are not implemented, `false` is returned to prevent false
+     * positives that could lead to incorrect simplifications of compound functors.
      */
-    bool isIdentical(Func1& other) const;
+    virtual bool isIdentical(shared_ptr<Func1> other) const;
 
+    //! Routine to determine if two functions are the same.
+    /*!
+     * @deprecated Deprecated in %Cantera 3.1 and removed thereafter; replaced by
+     *      isIdentical(shared_ptr<Func1>&).
+     * @todo Restore deleted copy constructor after removal.
+     */
+    virtual bool isIdentical(Func1& other) const;
+
+    /**
+     * @deprecated Deprecated in %Cantera 3.1 and removed thereafter; replaced by
+     *      internal function.
+     */
     virtual double isProportional(TimesConstant1& other);
+    /**
+     * @deprecated Deprecated in %Cantera 3.1 and removed thereafter; replaced by
+     *      internal function.
+     */
     virtual double isProportional(Func1& other);
 
     //! Write LaTeX string describing function.
     virtual string write(const string& arg) const;
 
-    //! Accessor function for the stored constant
+    //! Accessor function for the stored constant #m_c.
     double c() const;
 
-    //! Accessor function for m_f1
+    //! Accessor function for #m_f1.
     //! @since New in %Cantera 3.0.
     shared_ptr<Func1> func1_shared() const {
         return m_f1;
     }
 
-    //! Accessor function for m_f2
+    //! Accessor function for #m_f2.
     //! @since New in %Cantera 3.0.
     shared_ptr<Func1> func2_shared() const {
         return m_f2;
@@ -356,6 +375,10 @@ public:
     //!     last tabulated value is held until a new tabulated time value is reached.
     //! @since New in %Cantera 3.0
     void setMethod(const string& method);
+
+    bool isIdentical(shared_ptr<Func1> other) const override {
+        return false;  // base class check is insufficient
+    }
 
     string write(const string& arg) const override;
 
@@ -668,6 +691,10 @@ public:
         return "Gaussian";
     }
 
+    bool isIdentical(shared_ptr<Func1> other) const override {
+        return false;  // base class check is insufficient
+    }
+
     double eval(double t) const override {
         double x = (t - m_t0)/m_tau;
         return m_A * std::exp(-x*x);
@@ -708,6 +735,10 @@ public:
 
     string type() const override {
         return "polynomial3";
+    }
+
+    bool isIdentical(shared_ptr<Func1> other) const override {
+        return false;  // base class check is insufficient
     }
 
     double eval(double t) const override {
@@ -752,6 +783,10 @@ public:
 
     string type() const override {
         return "Fourier";
+    }
+
+    bool isIdentical(shared_ptr<Func1> other) const override {
+        return false;  // base class check is insufficient
     }
 
     double eval(double t) const override {
@@ -800,6 +835,10 @@ public:
 
     string type() const override {
         return "Arrhenius";
+    }
+
+    bool isIdentical(shared_ptr<Func1> other) const override {
+        return false;  // base class check is insufficient
     }
 
     double eval(double t) const override {

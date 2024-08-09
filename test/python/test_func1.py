@@ -79,7 +79,7 @@ class TestFunc1(utilities.CanteraTest):
 
     def test_simple(self):
         with pytest.raises(NotImplementedError):
-            ct.Func1.cxx_functor("spam")
+            ct.Func1("spam")
         functors = {
             'sin': math.sin,
             'cos': math.cos,
@@ -88,11 +88,16 @@ class TestFunc1(utilities.CanteraTest):
         }
         for name, fcn in functors.items():
             coeff = 2.34
-            func = ct.Func1.cxx_functor(name, coeff)
+            func = ct.Func1(name, coeff)
+            assert func.cxx_type == f"Cantera::{name.capitalize()}1"
             assert func.type == name
             for val in [.1, 1., 10.]:
                 assert name in func.write()
                 assert func(val) == pytest.approx(fcn(coeff * val))
+
+    def test_deprecated(self):
+        with pytest.warns(DeprecationWarning, match="use alternative constructor"):
+            ct.Func1.cxx_functor("cos")
 
     def test_compound(self):
         functors = {
@@ -101,37 +106,94 @@ class TestFunc1(utilities.CanteraTest):
             'product': lambda x, y: x * y,
             'ratio': lambda x, y: x / y,
         }
-        f1 = ct.Func1.cxx_functor('pow', 2)
-        f2 = ct.Func1.cxx_functor('sin')
+        f1 = ct.Func1('pow', 2)
+        f2 = ct.Func1('sin')
         for name, fcn in functors.items():
-            func = ct.Func1.cxx_functor(name, f1, f2)
+            func = ct.Func1(name, f1, f2)
             assert func.type == name
             for val in [.1, 1., 10.]:
                 assert name not in func.write()
                 assert func(val) == pytest.approx(fcn(f1(val), f2(val)))
         f0 = 3.1415
         fcn = lambda x, y: x + y
-        func1 = ct.Func1.cxx_functor('sum', f0, f1)
-        func2 = ct.Func1.cxx_functor('sum', f2, f0)
+        func1 = ct.Func1('sum', f0, f1)
+        func2 = ct.Func1('sum', f2, f0)
         for val in [.1, 1., 10.]:
             assert func1(val) == pytest.approx(fcn(f0, f1(val)))
             assert func2(val) == pytest.approx(fcn(f2(val), f0))
         with pytest.raises(ValueError):
-            ct.Func1.cxx_functor('sum', f0, f0)
+            ct.Func1('sum', f0, f0)
         with pytest.raises(ValueError):
-            ct.Func1.cxx_functor('sum', 'spam', 'eggs')
+            ct.Func1('sum', 'spam', 'eggs')
+
+    def test_new_sum(self):
+        f1 = ct.Func1('sin', 3.)
+        f2 = f1 + 0
+        assert f2.type == 'sin'
+        assert f2(.5) == np.sin(.5*3)
+        f2 = 0 + f1
+        assert f2.type == 'sin'
+        assert f2(.5) == np.sin(.5*3)
+        f2 = f1 + ct.Func1(1.)
+        assert f2.type == 'plus-constant'
+        assert f2(.5) == np.sin(.5*3) + 1.
+        f2 = f1 + f1
+        assert f2.type == 'times-constant'
+        assert f2(.5) == 2 * np.sin(.5*3)
+
+    def test_new_diff(self):
+        f1 = ct.Func1('sin', 3.)
+        f2 = f1 - 0
+        assert f2(.5) == np.sin(.5*3)
+        assert f2.type == 'sin'
+        f2 = 0 - f1
+        assert f2.type == 'times-constant'
+        assert f2(.5) == -np.sin(.5*3)
+        f2 = f1 - ct.Func1(1.)
+        assert f2.type == 'plus-constant'
+        assert f2(.5) == np.sin(.5*3) - 1.
+        f2 = f1 - f1
+        assert f2.type == 'constant'
+        assert f2(.5) == 0.
+
+    def test_new_prod(self):
+        f1 = ct.Func1('sin', 3.)
+        f2 = f1 * ct.Func1(1.)
+        assert f2.type == 'sin'
+        assert f2(.5) == np.sin(.5*3)
+        f2 = 2 * f1
+        assert f2.type == 'times-constant'
+        assert f2(.5) == 2 * np.sin(.5*3)
+        f2 = f1 * 0
+        assert f2.type == 'constant'
+        assert f2(.5) == 0.
+
+    def test_new_ratio(self):
+        f1 = ct.Func1('sin', 3.)
+        f2 = f1 / ct.Func1(1.)
+        assert f2.type == 'sin'
+        assert f2(.5) == np.sin(.5*3)
+        f2 = 0 / f1
+        assert f2.type == 'constant'
+        assert f2(.5) == 0.
+        f2 = f1 / 2
+        assert f2.type == 'times-constant'
+        assert f2(.5) == .5*np.sin(.5*3)
+        f2 = ct.Func1( 0.) / 3.
+        assert f2.type == 'constant'
+        assert f2(.5) == 0.
 
     def test_modified(self):
         functors = {
             'plus-constant': lambda x, y: x + y,
             'times-constant': lambda x, y: x * y,
         }
-        f1 = ct.Func1.cxx_functor('sin')
+        f1 = ct.Func1('sin')
         constant = 2.34
         for name, fcn in functors.items():
             with pytest.raises(ValueError):
-                ct.Func1.cxx_functor(name, constant, f1)
-            func = ct.Func1.cxx_functor(name, f1, constant)
+                ct.Func1(name, constant, f1)
+            func = ct.Func1(name, f1, constant)
             assert func.type == name
             for val in [.1, 1., 10.]:
                 assert name not in func.write()
@@ -143,7 +205,7 @@ class TestFunc1(utilities.CanteraTest):
         time = arr[:, 0]
         fval = arr[:, 1]
         fcn0 = ct.Tabulated1(time, fval)
-        fcn1 = ct.Func1.cxx_functor("tabulated-linear", time, fval)
+        fcn1 = ct.Func1("tabulated-linear", time, fval)
         assert fcn0.type == "tabulated-linear"
         assert fcn1.type == "tabulated-linear"
         for t, f in zip(time, fval):

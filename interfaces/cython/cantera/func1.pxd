@@ -42,6 +42,14 @@ cdef extern from "cantera/numerics/Func1Factory.h":
     cdef shared_ptr[CxxFunc1] CxxNewFunc1 "Cantera::newFunc1" (
         string, shared_ptr[CxxFunc1], double) except +translate_exception
     cdef string CxxCheckFunc1 "Cantera::checkFunc1" (string) except +translate_exception
+    cdef shared_ptr[CxxFunc1] CxxNewSumFunction "Cantera::newSumFunction" (
+        shared_ptr[CxxFunc1], shared_ptr[CxxFunc1]) except +translate_exception
+    cdef shared_ptr[CxxFunc1] CxxNewDiffFunction "Cantera::newDiffFunction" (
+        shared_ptr[CxxFunc1], shared_ptr[CxxFunc1]) except +translate_exception
+    cdef shared_ptr[CxxFunc1] CxxNewProdFunction "Cantera::newProdFunction" (
+        shared_ptr[CxxFunc1], shared_ptr[CxxFunc1]) except +translate_exception
+    cdef shared_ptr[CxxFunc1] CxxNewRatioFunction "Cantera::newRatioFunction" (
+        shared_ptr[CxxFunc1], shared_ptr[CxxFunc1]) except +translate_exception
 
 
 cdef class Func1:
@@ -50,3 +58,7 @@ cdef class Func1:
     cdef object callable
     cdef object exception
     cpdef void _set_callback(self, object) except *
+    @staticmethod
+    cdef shared_ptr[CxxFunc1] _make_cxx_func1(string, tuple)
+    @staticmethod
+    cdef Func1 _make_func1(shared_ptr[CxxFunc1])

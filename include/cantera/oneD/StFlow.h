@@ -15,7 +15,7 @@ namespace Cantera
  *  This class represents 1D flow domains that satisfy the one-dimensional
  *  similarity solution for chemically-reacting, axisymmetric flows.
  *
- *  @deprecated To be removed after Cantera 3.1; replaced by Flow1D.
+ *  @deprecated To be removed after %Cantera 3.1; replaced by Flow1D.
  *  @ingroup flowGroup
  */
 class StFlow : public Flow1D

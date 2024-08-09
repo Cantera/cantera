@@ -36,28 +36,36 @@ shared_ptr<Func1> Func1::derivative() const
         "Needs to be overloaded by Func1 specialization.");
 }
 
-bool Func1::isIdentical(Func1& other) const
+bool Func1::isIdentical(shared_ptr<Func1> other) const
 {
-    if (type() != other.type() || m_c != other.m_c) {
+    if (type() == "functor" || type() != other->type() || m_c != other->m_c) {
         return false;
     }
     if (m_f1) {
-        if (!other.m_f1) {
+        if (!other->m_f1) {
             return false;
         }
-        if (!m_f1->isIdentical(*other.m_f1)) {
+        if (!m_f1->isIdentical(other->m_f1)) {
             return false;
         }
     }
     if (m_f2) {
-        if (!other.m_f2) {
+        if (!other->m_f2) {
             return false;
         }
-        if (!m_f2->isIdentical(*other.m_f2)) {
+        if (!m_f2->isIdentical(other->m_f2)) {
             return false;
         }
     }
     return true;
+}
+
+bool Func1::isIdentical(Func1& other) const
+{
+    warn_deprecated(
+        "Func1::isIdentical",
+        "Deprecated in Cantera 3.1; replaced by version using shared_ptr<Func1>.");
+    return isIdentical(std::make_shared<Func1>(Func1(other)));
 }
 
 //! accessor function for the returned constant
@@ -538,7 +546,10 @@ string PlusConstant1::write(const string& arg) const
 
 double Func1::isProportional(TimesConstant1& other)
 {
-    if (isIdentical(*other.func1_shared())) {
+    warn_deprecated(
+        "Func1::isProportional",
+        "Deprecated in Cantera 3.1; replaced by internal function.");
+    if (isIdentical(other.func1_shared())) {
         return other.c();
     }
     return 0.0;
@@ -546,6 +557,9 @@ double Func1::isProportional(TimesConstant1& other)
 
 double Func1::isProportional(Func1& other)
 {
+    warn_deprecated(
+        "Func1::isProportional",
+        "Deprecated in Cantera 3.1; replaced by internal function.");
     if (isIdentical(other)) {
         return 1.0;
     } else {
@@ -585,11 +599,40 @@ bool isPow(const shared_ptr<Func1>& f)
     return f->type() == "pow";
 }
 
+pair<bool, double> isProportional(
+    const shared_ptr<Func1>&f1, const shared_ptr<Func1>&f2)
+{
+    bool tc1 = isTimesConst(f1);
+    bool tc2 = isTimesConst(f2);
+    if (!tc1 && !tc2) {
+        if (f1->isIdentical(f2)) {
+            return {true, 1.0};
+        }
+        return {false, 0.};
+    }
+    if (!tc1 && tc2) {
+        if (f1->isIdentical((f2->func1_shared()))) {
+            return {true, f2->c()};
+        }
+        return {false, 0.};
+    }
+    if (tc1 && !tc2) {
+        if (f2->isIdentical((f1->func1_shared()))) {
+            return {true, 1. / f1->c()};
+        }
+        return {false, 0.};
+    }
+    if (f2->func1_shared()->isIdentical((f1->func1_shared()))) {
+        return {true, f2->c() / f1->c()};
+    }
+    return {false, 0.};
+}
+
 } // end unnamed namespace
 
 shared_ptr<Func1> newSumFunction(shared_ptr<Func1> f1, shared_ptr<Func1> f2)
 {
-    if (f1->isIdentical(*f2)) {
+    if (f1->isIdentical(f2)) {
         return newTimesConstFunction(f1, 2.);
     }
     if (isZero(f1)) {
@@ -598,8 +641,14 @@ shared_ptr<Func1> newSumFunction(shared_ptr<Func1> f1, shared_ptr<Func1> f2)
     if (isZero(f2)) {
         return f1;
     }
-    double c = f1->isProportional(*f2);
-    if (c != 0.) {
+    if (isConstant(f2)) {
+        return newPlusConstFunction(f1, f2->c());
+    }
+    if (isConstant(f1)) {
+        return newPlusConstFunction(f2, f1->c());
+    }
+    auto [prop, c] = isProportional(f1, f2);
+    if (prop) {
         if (c == -1.) {
             return make_shared<Const1>(0.);
         }
@@ -616,17 +665,18 @@ shared_ptr<Func1> newDiffFunction(shared_ptr<Func1> f1, shared_ptr<Func1> f2)
     if (isZero(f1)) {
         return newTimesConstFunction(f2, -1.);
     }
-
-    if (f1->isIdentical(*f2)) {
+    if (f1->isIdentical(f2)) {
         return make_shared<Const1>(0.);
     }
-    double c = f1->isProportional(*f2);
-    if (c != 0.) {
+    if (isConstant(f2)) {
+        return newPlusConstFunction(f1, -f2->c());
+    }
+    auto [prop, c] = isProportional(f1, f2);
+    if (prop) {
         if (c == 1.0) {
             return make_shared<Const1>(0.);
-        } else {
-            return newTimesConstFunction(f1, 1. - c);
         }
+        return newTimesConstFunction(f1, 1. - c);
     }
     return make_shared<Diff1>(f1, f2);
 }
@@ -692,8 +742,14 @@ shared_ptr<Func1> newRatioFunction(shared_ptr<Func1> f1, shared_ptr<Func1> f2)
     if (isZero(f1)) {
         return make_shared<Const1>(0.);
     }
-    if (f1->isIdentical(*f2)) {
+    if (isZero(f2)) {
+        throw CanteraError("newRatioFunction", "Division by zero.");
+    }
+    if (f1->isIdentical(f2)) {
         return make_shared<Const1>(1.);
+    }
+    if (isConstant(f2)) {
+        return newTimesConstFunction(f1, 1. / f2->c());
     }
     if (isPow(f1) && isPow(f2)) {
         return make_shared<Pow1>(f1->c() - f2->c());

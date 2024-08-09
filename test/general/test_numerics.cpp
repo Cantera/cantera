@@ -1,4 +1,5 @@
 #include "gtest/gtest.h"
+#include "gmock/gmock.h"
 #include "cantera/numerics/polyfit.h"
 #include "cantera/numerics/funcs.h"
 #include "cantera/numerics/Func1Factory.h"
@@ -132,6 +133,7 @@ TEST(ctfunc, functor)
     auto functor = newFunc1("functor");
     ASSERT_EQ(functor->type(), "functor");
     ASSERT_THROW(functor->derivative(), CanteraError);
+    ASSERT_FALSE(functor->isIdentical(functor));  // comparison is disabled
 }
 
 TEST(ctfunc, invalid)
@@ -157,6 +159,7 @@ TEST(ctfunc, sin)
     EXPECT_DOUBLE_EQ(dfunctor->eval(.5), omega * cos(omega * .5));
 
     ASSERT_THROW(newFunc1("sin", vector<double>()), CanteraError);
+    ASSERT_TRUE(functor->isIdentical(functor));
 }
 
 TEST(ctfunc, cos)
@@ -172,6 +175,7 @@ TEST(ctfunc, cos)
     EXPECT_DOUBLE_EQ(dfunctor->eval(.5), -omega * sin(omega * .5));
 
     ASSERT_THROW(newFunc1("cos", {1., 2.}), CanteraError);
+    ASSERT_TRUE(functor->isIdentical(functor));
 }
 
 TEST(ctfunc, exp)
@@ -187,6 +191,7 @@ TEST(ctfunc, exp)
     EXPECT_DOUBLE_EQ(dfunctor->eval(.5), omega * exp(omega * .5));
 
     ASSERT_THROW(newFunc1("exp", {1., 2.}), CanteraError);
+    ASSERT_TRUE(functor->isIdentical(functor));
 }
 
 TEST(ctfunc, log)
@@ -203,6 +208,7 @@ TEST(ctfunc, log)
     EXPECT_DOUBLE_EQ(dfunctor->eval(.5), omega / .5);
 
     ASSERT_THROW(newFunc1("log", vector<double>()), CanteraError);
+    ASSERT_TRUE(functor->isIdentical(functor));
 }
 
 TEST(ctfunc, pow)
@@ -216,6 +222,7 @@ TEST(ctfunc, pow)
     EXPECT_DOUBLE_EQ(dfunctor->eval(.5), exp * pow(.5, exp - 1));
 
     ASSERT_THROW(newFunc1("pow", vector<double>()), CanteraError);
+    ASSERT_TRUE(functor->isIdentical(functor));
 }
 
 TEST(ctfunc, constant)
@@ -231,6 +238,7 @@ TEST(ctfunc, constant)
     EXPECT_DOUBLE_EQ(dfunctor->eval(.5), 0.);
 
     ASSERT_THROW(newFunc1("constant", {1., 2., 3.}), CanteraError);
+    ASSERT_TRUE(functor->isIdentical(functor));
 }
 
 TEST(ctfunc, tabulated_linear)
@@ -251,6 +259,7 @@ TEST(ctfunc, tabulated_linear)
 
     params.push_back(1.);
     ASSERT_THROW(newFunc1("tabulated-linear", params), CanteraError);
+    ASSERT_FALSE(functor->isIdentical(functor));  // comparison is disabled
 }
 
 TEST(ctfunc, tabulated_previous)
@@ -270,6 +279,7 @@ TEST(ctfunc, tabulated_previous)
     auto dfunctor = functor->derivative();
     EXPECT_DOUBLE_EQ(dfunctor->eval(.5), 0.);
     EXPECT_DOUBLE_EQ(dfunctor->eval(1.5), 0.);
+    ASSERT_FALSE(functor->isIdentical(functor));  // comparison is disabled
 }
 
 TEST(ctfunc, poly)
@@ -285,9 +295,10 @@ TEST(ctfunc, poly)
     EXPECT_DOUBLE_EQ(functor0->eval(.5), (a2 * .5 + a1) * .5 + a0);
     ASSERT_THROW(functor0->derivative(), CanteraError);
 
-    params = {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    params = {1, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0};
     auto functor1 = newFunc1("polynomial3", params);
-    EXPECT_EQ(functor1->write("x"), "x^{10}");
+    EXPECT_EQ(functor1->write("x"), "x^{10} - x^8");
+    ASSERT_FALSE(functor0->isIdentical(functor0));  // comparison is disabled
 }
 
 TEST(ctfunc, Fourier)
@@ -308,6 +319,7 @@ TEST(ctfunc, Fourier)
     params.push_back(1.);
     ASSERT_THROW(newFunc1("Fourier", params), CanteraError);
     ASSERT_THROW(newFunc1("Fourier", vector<double>({1., 2.})), CanteraError);
+    ASSERT_FALSE(functor->isIdentical(functor));  // comparison is disabled
 }
 
 TEST(ctfunc, Gaussian)
@@ -327,6 +339,7 @@ TEST(ctfunc, Gaussian)
     ASSERT_THROW(functor->derivative(), CanteraError);
 
     ASSERT_THROW(newFunc1("Gaussian", vector<double>({1., 2.})), CanteraError);
+    ASSERT_FALSE(functor->isIdentical(functor));  // comparison is disabled
 }
 
 TEST(ctfunc, Arrhenius)
@@ -342,6 +355,7 @@ TEST(ctfunc, Arrhenius)
     ASSERT_THROW(functor->derivative(), CanteraError);
 
     ASSERT_THROW(newFunc1("Arrhenius", vector<double>({1., 2.})), CanteraError);
+    ASSERT_FALSE(functor->isIdentical(functor));  // comparison is disabled
 }
 
 TEST(ctmath, invalid)
@@ -355,114 +369,263 @@ TEST(ctmath, invalid)
 TEST(ctmath, sum)
 {
     ASSERT_EQ(checkFunc1("sum"), "compound");
+    double x = 0.6;
     double omega = 2.;
     auto functor0 = newFunc1("sin", omega);
     auto functor1 = newFunc1("cos", omega);
     auto functor = newFunc1("sum", functor0, functor1);
     EXPECT_EQ(functor->type(), "sum");
     EXPECT_DOUBLE_EQ(functor->eval(0.), 1.);
-    EXPECT_DOUBLE_EQ(functor->eval(.5), sin(omega * .5) + cos(omega * .5));
+    EXPECT_DOUBLE_EQ(functor->eval(x), sin(omega * x) + cos(omega * x));
+    ASSERT_TRUE(functor->isIdentical(functor));
 
     auto dfunctor = functor->derivative();
-    EXPECT_DOUBLE_EQ(dfunctor->eval(.5), omega * (cos(omega * .5) - sin(omega * .5)));
+    EXPECT_DOUBLE_EQ(dfunctor->eval(x), omega * (cos(omega * x) - sin(omega * x)));
+}
+
+TEST(ctmath, new_sum)
+{
+    double x = 0.6;
+    auto functor = newSumFunction(newFunc1("sin"), newFunc1("sin"));
+    EXPECT_EQ(functor->type(), "times-constant");
+    EXPECT_DOUBLE_EQ(functor->eval(x), 2 * sin(x));
+    functor = newSumFunction(newFunc1("sin"), newFunc1("constant", 0.));
+    EXPECT_EQ(functor->type(), "sin");
+    EXPECT_DOUBLE_EQ(functor->eval(x), sin(x));
+    functor = newSumFunction(newFunc1("sin"), newFunc1("constant", 1.));
+    EXPECT_EQ(functor->type(), "plus-constant");
+    EXPECT_DOUBLE_EQ(functor->eval(x), sin(x) + 1.);
+    functor = newSumFunction(newFunc1("constant", 1.), newFunc1("sin"));
+    EXPECT_EQ(functor->type(), "plus-constant");
+    EXPECT_DOUBLE_EQ(functor->eval(x), sin(x) + 1.);
+    functor = newSumFunction(newFunc1("constant", 0.), newFunc1("cos"));
+    EXPECT_EQ(functor->type(), "cos");
+    EXPECT_DOUBLE_EQ(functor->eval(x), cos(x));
+
+    functor = newSumFunction(newFunc1("sin"), newFunc1("sin"));
+    EXPECT_EQ(functor->type(), "times-constant");
+    EXPECT_DOUBLE_EQ(functor->c(), 2.);
+    auto times = newTimesConstFunction(newFunc1("sin"), 2.5);
+    functor = newSumFunction(newFunc1("sin"), times);
+    EXPECT_EQ(functor->type(), "times-constant");
+    EXPECT_DOUBLE_EQ(functor->c(), 3.5);
+    functor = newSumFunction(times, newFunc1("sin"));
+    EXPECT_EQ(functor->type(), "times-constant");
+    EXPECT_DOUBLE_EQ(functor->c(), 3.5);
+    functor = newSumFunction(times, times);
+    EXPECT_EQ(functor->type(), "times-constant");
+    EXPECT_DOUBLE_EQ(functor->c(), 5.);
+    functor = newSumFunction(times, newTimesConstFunction(newFunc1("sin"), -2.5));
+    EXPECT_EQ(functor->type(), "constant");
+    EXPECT_DOUBLE_EQ(functor->c(), 0.);
 }
 
 TEST(ctmath, diff)
 {
+    double x = 0.6;
     double omega = 2.;
     auto functor0 = newFunc1("sin", omega);
     auto functor1 = newFunc1("cos", omega);
     auto functor = newFunc1("diff", functor0, functor1);
     EXPECT_EQ(functor->type(), "diff");
     EXPECT_DOUBLE_EQ(functor->eval(0.), -1.);
-    EXPECT_DOUBLE_EQ(functor->eval(.5), sin(omega * .5) - cos(omega * .5));
+    EXPECT_DOUBLE_EQ(functor->eval(x), sin(omega * x) - cos(omega * x));
+    ASSERT_TRUE(functor->isIdentical(functor));
 
     auto dfunctor = functor->derivative();
     EXPECT_DOUBLE_EQ(dfunctor->eval(.5), omega * (cos(omega * .5) + sin(omega * .5)));
 }
 
+TEST(ctmath, new_diff)
+{
+    double x = 0.6;
+    auto functor = newDiffFunction(newFunc1("sin"), newFunc1("sin"));
+    EXPECT_EQ(functor->type(), "constant");
+    EXPECT_DOUBLE_EQ(functor->eval(x), 0.);
+    functor = newDiffFunction(newFunc1("sin"), newFunc1("constant", 0.));
+    EXPECT_EQ(functor->type(), "sin");
+    EXPECT_DOUBLE_EQ(functor->eval(x), sin(x));
+    functor = newDiffFunction(newFunc1("sin"), newFunc1("constant", 1.));
+    EXPECT_EQ(functor->type(), "plus-constant");
+    EXPECT_DOUBLE_EQ(functor->eval(x), sin(x) - 1.);
+    functor = newDiffFunction(newFunc1("constant", 0.), newFunc1("cos"));
+    EXPECT_EQ(functor->type(), "times-constant");
+    EXPECT_DOUBLE_EQ(functor->eval(x), -cos(x));
+
+    functor = newDiffFunction(newFunc1("sin"), newFunc1("sin"));
+    EXPECT_EQ(functor->type(), "constant");
+    EXPECT_DOUBLE_EQ(functor->c(), 0.);
+    auto times = newTimesConstFunction(newFunc1("sin"), 2.5);
+    functor = newDiffFunction(newFunc1("sin"), times);
+    EXPECT_EQ(functor->type(), "times-constant");
+    EXPECT_DOUBLE_EQ(functor->c(), -1.5);
+    functor = newDiffFunction(times, newFunc1("sin"));
+    EXPECT_EQ(functor->type(), "times-constant");
+    EXPECT_DOUBLE_EQ(functor->c(), 1.5);
+    functor = newDiffFunction(times, times);
+    EXPECT_EQ(functor->type(), "constant");
+    EXPECT_DOUBLE_EQ(functor->c(), 0.);
+    functor = newDiffFunction(times, newTimesConstFunction(newFunc1("sin"), -2.5));
+    EXPECT_EQ(functor->type(), "times-constant");
+    EXPECT_DOUBLE_EQ(functor->c(), 5.);
+}
+
 TEST(ctmath, prod)
 {
+    double x = 0.6;
     double omega = 2.;
     auto functor0 = newFunc1("sin", omega);
     auto functor1 = newFunc1("cos", omega);
     auto functor = newFunc1("product", functor0, functor1);
     EXPECT_EQ(functor->type(), "product");
     EXPECT_DOUBLE_EQ(functor->eval(0.), 0);
-    EXPECT_DOUBLE_EQ(functor->eval(0.5), sin(omega * 0.5) * cos(omega * 0.5));
+    EXPECT_DOUBLE_EQ(functor->eval(x), sin(omega * x) * cos(omega * x));
+    ASSERT_TRUE(functor->isIdentical(functor));
 
     auto dfunctor = functor->derivative();
-    EXPECT_DOUBLE_EQ(dfunctor->eval(0.5),
-        omega * (pow(cos(omega * 0.5), 2) - pow(sin(omega * 0.5), 2)));
+    EXPECT_DOUBLE_EQ(dfunctor->eval(x),
+        omega * (pow(cos(omega * x), 2) - pow(sin(omega * x), 2)));
+}
+
+TEST(ctmath, new_prod)
+{
+    double x = 0.6;
+    auto functor = newProdFunction(newFunc1("sin"), newFunc1("constant", 1.));
+    EXPECT_EQ(functor->type(), "sin");
+    EXPECT_DOUBLE_EQ(functor->eval(x), sin(x));
+    functor = newProdFunction(newFunc1("constant", 1.), newFunc1("sin"));
+    EXPECT_EQ(functor->type(), "sin");
+    EXPECT_DOUBLE_EQ(functor->eval(x), sin(x));
+    functor = newProdFunction(newFunc1("sin"), newFunc1("constant", 0.));
+    EXPECT_EQ(functor->type(), "constant");
+    EXPECT_DOUBLE_EQ(functor->eval(x), 0.);
+    functor = newProdFunction(newFunc1("constant", 0.), newFunc1("cos"));
+    EXPECT_EQ(functor->type(), "constant");
+    EXPECT_DOUBLE_EQ(functor->eval(x), 0.);
+    functor = newProdFunction(newFunc1("constant", 2.), newFunc1("constant", 2.5));
+    EXPECT_EQ(functor->type(), "constant");
+    EXPECT_DOUBLE_EQ(functor->eval(x), 5.);
+    functor = newProdFunction(newFunc1("sin"), newFunc1("constant", 2.));
+    EXPECT_EQ(functor->type(), "times-constant");
+    EXPECT_DOUBLE_EQ(functor->eval(x), 2*sin(x));
+    functor = newProdFunction(newFunc1("constant", 2.), newFunc1("cos"));
+    EXPECT_EQ(functor->type(), "times-constant");
+    EXPECT_DOUBLE_EQ(functor->eval(x), 2*cos(x));
+    functor = newProdFunction(newFunc1("exp", 2.), newFunc1("exp"));
+    EXPECT_EQ(functor->type(), "exp");
+    EXPECT_DOUBLE_EQ(functor->eval(x), exp(2.*x) * exp(x));
+    functor = newProdFunction(newFunc1("pow", 2.), newFunc1("pow", 3.));
+    EXPECT_EQ(functor->type(), "pow");
+    EXPECT_DOUBLE_EQ(functor->eval(x), pow(x, 2.) * pow(x, 3.));
+    auto comp = newFunc1("composite", newFunc1("pow", 2), newFunc1("sin"));
+    EXPECT_EQ(comp->type(), "composite");
+    functor = newProdFunction(comp, newFunc1("pow", 3.));
+    EXPECT_EQ(functor->type(), "product");
+    EXPECT_DOUBLE_EQ(functor->eval(x), pow(sin(x), 2) * pow(x, 3));
 }
 
 TEST(ctmath, ratio)
 {
+    double x = 0.6;
     double omega = 2.;
     auto functor0 = newFunc1("sin", omega);
     auto functor1 = newFunc1("cos", omega);
     auto functor = newFunc1("ratio", functor0, functor1);
     EXPECT_EQ(functor->type(), "ratio");
     EXPECT_DOUBLE_EQ(functor->eval(0.), 0.);
-    EXPECT_DOUBLE_EQ(functor->eval(0.5), sin(omega * 0.5) / cos(omega * 0.5));
+    EXPECT_DOUBLE_EQ(functor->eval(x), sin(omega * x) / cos(omega * x));
+    ASSERT_TRUE(functor->isIdentical(functor));
 
     auto dfunctor = functor->derivative();
-    EXPECT_DOUBLE_EQ(dfunctor->eval(0.5), omega / pow(cos(omega * 0.5), 2));
+    EXPECT_DOUBLE_EQ(dfunctor->eval(x), omega / pow(cos(omega * x), 2));
+}
+
+TEST(ctmath, new_ratio)
+{
+    double x = 0.6;
+    auto functor = newRatioFunction(newFunc1("sin"), newFunc1("constant", 1.));
+    EXPECT_EQ(functor->type(), "sin");
+    EXPECT_DOUBLE_EQ(functor->eval(x), sin(x));
+    EXPECT_THROW(
+        newRatioFunction(newFunc1("sin"), newFunc1("constant", 0.)), CanteraError);
+    functor = newRatioFunction(newFunc1("constant", 0.), newFunc1("cos"));
+    EXPECT_EQ(functor->type(), "constant");
+    EXPECT_DOUBLE_EQ(functor->eval(x), 0.);
+    functor = newRatioFunction(newFunc1("cos"), newFunc1("constant", 2.));
+    EXPECT_EQ(functor->type(), "times-constant");
+    EXPECT_DOUBLE_EQ(functor->eval(x), 0.5 * cos(x));
+    functor = newRatioFunction(newFunc1("sin"), newFunc1("sin"));
+    EXPECT_EQ(functor->type(), "constant");
+    EXPECT_DOUBLE_EQ(functor->eval(x), 1);
+    functor = newRatioFunction(newFunc1("exp", 3.), newFunc1("exp"));
+    EXPECT_EQ(functor->type(), "exp");
+    EXPECT_DOUBLE_EQ(functor->eval(x), exp(3.*x) / exp(x));
+    functor = newRatioFunction(newFunc1("pow", 3.), newFunc1("pow", 2.));
+    EXPECT_EQ(functor->type(), "pow");
+    EXPECT_DOUBLE_EQ(functor->eval(x), pow(x, 3.) / pow(x, 2.));
 }
 
 TEST(ctmath, composite)
 {
+    double x = 0.6;
     double omega = 2.;
     auto functor0 = newFunc1("sin", omega);
     auto functor1 = newFunc1("cos", omega);
     auto functor = newFunc1("composite", functor0, functor1);
     EXPECT_EQ(functor->type(), "composite");
     EXPECT_DOUBLE_EQ(functor->eval(0.), sin(omega));
-    EXPECT_DOUBLE_EQ(functor->eval(0.5), sin(omega * cos(omega * 0.5)));
+    EXPECT_DOUBLE_EQ(functor->eval(x), sin(omega * cos(omega * x)));
+    ASSERT_TRUE(functor->isIdentical(functor));
 
     auto dfunctor = functor->derivative();
-    EXPECT_DOUBLE_EQ(dfunctor->eval(0.5),
-        - omega * omega * sin(omega * 0.5) * cos(omega * cos(omega * 0.5)));
+    EXPECT_DOUBLE_EQ(dfunctor->eval(x),
+        - omega * omega * sin(omega * x) * cos(omega * cos(omega * x)));
 }
 
 TEST(ctmath, times_constant)
 {
     ASSERT_EQ(checkFunc1("times-constant"), "modified");
+    double x = 0.6;
     double omega = 2.;
     auto functor0 = newFunc1("sin", omega);
     double A = 1.234;
     auto functor = newFunc1("times-constant", functor0, A);
     EXPECT_EQ(functor->type(), "times-constant");
     EXPECT_DOUBLE_EQ(functor->eval(0.), 0.);
-    EXPECT_DOUBLE_EQ(functor->eval(0.5), sin(omega * 0.5) * A);
+    EXPECT_DOUBLE_EQ(functor->eval(x), sin(omega * x) * A);
+    ASSERT_TRUE(functor->isIdentical(functor));
 
     auto dfunctor = functor->derivative();
-    EXPECT_DOUBLE_EQ(dfunctor->eval(0.5), A * omega * cos(omega * 0.5));
+    EXPECT_DOUBLE_EQ(dfunctor->eval(x), A * omega * cos(omega * x));
 }
 
 TEST(ctmath, plus_constant)
 {
+    double x = 0.6;
     double omega = 2.;
     auto functor0 = newFunc1("sin", omega);
     double A = 1.234;
     auto functor = newFunc1("plus-constant", functor0, A);
     EXPECT_EQ(functor->type(), "plus-constant");
     EXPECT_DOUBLE_EQ(functor->eval(0.), A);
-    EXPECT_DOUBLE_EQ(functor->eval(0.5), sin(omega * 0.5) + A);
+    EXPECT_DOUBLE_EQ(functor->eval(x), sin(omega * x) + A);
+    ASSERT_TRUE(functor->isIdentical(functor));
 
     auto dfunctor = functor->derivative();
-    EXPECT_DOUBLE_EQ(dfunctor->eval(0.5), omega * cos(omega * 0.5));
+    EXPECT_DOUBLE_EQ(dfunctor->eval(x), omega * cos(omega * x));
 }
 
 TEST(ctmath, periodic)
 {
+    double x = 0.6;
     double omega = 2.;
     auto functor0 = newFunc1("sin", omega);
     double A = 1.234;
     auto functor = newFunc1("periodic", functor0, A);
     EXPECT_EQ(functor->type(), "periodic");
     EXPECT_DOUBLE_EQ(functor->eval(0.), functor->eval(A));
-    EXPECT_DOUBLE_EQ(functor->eval(0.5), functor->eval(0.5 + A));
+    EXPECT_DOUBLE_EQ(functor->eval(x), functor->eval(x + A));
+    ASSERT_TRUE(functor->isIdentical(functor));
 
     ASSERT_THROW(functor->derivative(), CanteraError);
 }

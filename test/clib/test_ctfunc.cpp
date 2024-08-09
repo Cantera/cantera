@@ -187,6 +187,8 @@ TEST(ctmath, sum)
     int fcn = func_new_compound("sum", fcn0, fcn1);
     ASSERT_GE(fcn, 0);
     EXPECT_DOUBLE_EQ(func_value(fcn, 0.5), sin(omega * 0.5) + cos(omega * 0.5));
+    int fcn2 = func_new_sum(fcn0, fcn1);
+    EXPECT_DOUBLE_EQ(func_value(fcn, 0.5), func_value(fcn2, 0.5));
 }
 
 TEST(ctmath, diff)
@@ -197,6 +199,8 @@ TEST(ctmath, diff)
     int fcn = func_new_compound("diff", fcn0, fcn1);
     ASSERT_GE(fcn, 0);
     EXPECT_DOUBLE_EQ(func_value(fcn, 0.5), sin(omega * 0.5) - cos(omega * 0.5));
+    int fcn2 = func_new_diff(fcn0, fcn1);
+    EXPECT_DOUBLE_EQ(func_value(fcn, 0.5), func_value(fcn2, 0.5));
 }
 
 TEST(ctmath, prod)
@@ -207,6 +211,8 @@ TEST(ctmath, prod)
     int fcn = func_new_compound("product", fcn0, fcn1);
     ASSERT_GE(fcn, 0);
     EXPECT_DOUBLE_EQ(func_value(fcn, 0.5), sin(omega * 0.5) * cos(omega * 0.5));
+    int fcn2 = func_new_prod(fcn0, fcn1);
+    EXPECT_DOUBLE_EQ(func_value(fcn, 0.5), func_value(fcn2, 0.5));
 }
 
 TEST(ctmath, ratio)
@@ -217,6 +223,8 @@ TEST(ctmath, ratio)
     int fcn = func_new_compound("ratio", fcn0, fcn1);
     ASSERT_GE(fcn, 0);
     EXPECT_DOUBLE_EQ(func_value(fcn, 0.5), sin(omega * 0.5) / cos(omega * 0.5));
+    int fcn2 = func_new_ratio(fcn0, fcn1);
+    EXPECT_DOUBLE_EQ(func_value(fcn, 0.5), func_value(fcn2, 0.5));
 }
 
 TEST(ctmath, composite)

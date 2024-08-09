@@ -44,7 +44,7 @@ private:
 //! @{
 
 //! Create a FlowDevice object of the specified type
-//! @since Starting in Cantera 3.1, this method returns a `shared_ptr<FlowDevice>`
+//! @since Starting in %Cantera 3.1, this method returns a `shared_ptr<FlowDevice>`
 shared_ptr<FlowDevice> newFlowDevice(const string& model);
 
 //! Create a FlowDevice object of the specified type
