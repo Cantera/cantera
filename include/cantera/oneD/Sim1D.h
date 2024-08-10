@@ -168,10 +168,35 @@ public:
      */
     AnyMap restore(const string& fname, const string& name);
 
+    /**
+     * Deletes a `debug_sim1d.yaml` file if it exists. Used to clear the file for
+     * successive calls to the solve() method.
+     */
     void clearDebugFile();
 
-    void writeDebugInfo(const string& header, const string& message, int loglevel,
-                        int attempt_counter);
+    /**
+     * Write solver debugging information to a YAML file based on the specified log
+     * level.
+     *
+     * This method writes solver debug information to a specified YAML file
+     * (`debug_sim1d.yaml`). The section headers are formatted according to the provided
+     * `header_suffix` and `attempt_counter` arguments. Depending on the log level, the
+     * method will save either the solution information or the residual information
+     * for each attempted solution.
+     *
+     * @param header_suffix  Header used to construct a unique section in the YAML file
+     *                       where the information will be written to.
+     * @param message  A string that is written to the `description` tag in the YAML
+     *                 file.
+     * @param loglevel  Controls the type of output that will be written. A `loglevel`
+     *                  greater than 6 saves the solution, and a `loglevel` greater
+     *                  than 7 saves the residual additionally.
+     * @param attempt_counter  An integer counter used to uniquely identify the attempt
+     *                         which is included in the file header to differentiate
+     *                         between multiple solution attempts.
+     */
+     void writeDebugInfo(const string& header_suffix, const string& message, int loglevel,
+                         int attempt_counter);
 
 
     //! @}

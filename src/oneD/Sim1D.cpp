@@ -418,7 +418,6 @@ void Sim1D::solve(int loglevel, bool refine_grid)
     // For debugging outputs
     int attempt_counter = 0;
     const int max_history = 10; // Store up to 10 previous solutions
-    std::string header;
     if (loglevel > 6) {
         clearDebugFile();
     }
@@ -466,7 +465,7 @@ void Sim1D::solve(int loglevel, bool refine_grid)
                                loglevel, attempt_counter);
 
                 if (loglevel > 0) {
-                    writelog("\nTake {} timesteps:", nsteps);
+                    writelog("\nAttempt {} timesteps.", nsteps);
                 }
 
                 dt = timeStep(nsteps, dt, m_state->data(), m_xnew.data(), loglevel-1);
@@ -599,25 +598,22 @@ int Sim1D::refine(int loglevel)
     return np;
 }
 
-void Sim1D::clearDebugFile() {
-    // Use std::filesystem::remove to attempt deletion without throwing exceptions
-    if (!std::filesystem::remove("debug_sim1d.yaml")) {
-        // Only log a warning if the file existed and couldn't be deleted for some other reason
-        if (std::filesystem::exists("debug_sim1d.yaml")) {
-            writelog("Warning: Unable to delete previous debug file 'debug_sim1d.yaml'\n");
-        }
-    }
+void Sim1D::clearDebugFile()
+{
+    std::filesystem::remove("debug_sim1d.yaml");
 }
 
-void Sim1D::writeDebugInfo(const std::string& header, const std::string& message,
-                         int loglevel, int attempt_counter) {
+void Sim1D::writeDebugInfo(const string& header_suffix, const string& message,
+                           int loglevel, int attempt_counter)
+{
+    string file_header;
     if (loglevel > 6) {
-        std::string fileHeader = fmt::format("solution_{}_{}", attempt_counter, header);
-        save("debug_sim1d.yaml", fileHeader, message, true);
+        file_header = fmt::format("solution_{}_{}", attempt_counter, header_suffix);
+        save("debug_sim1d.yaml", file_header, message, true);
     }
     if (loglevel > 7) {
-        std::string fileHeader = fmt::format("residual_{}_{}", attempt_counter, header);
-        saveResidual("debug_sim1d.yaml", fileHeader, message, true);
+        file_header = fmt::format("residual_{}_{}", attempt_counter, header_suffix);
+        saveResidual("debug_sim1d.yaml", file_header, message, true);
     }
 }
 
