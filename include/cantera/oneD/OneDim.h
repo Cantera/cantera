@@ -46,14 +46,16 @@ public:
     MultiNewton& newton();
 
     /**
-     * Solve F(x) = 0, where F(x) is the multi-domain residual function. Returns
-     * a 1 on success, and either a -2 or -3 on failure depending on whether the
-     * maximum number of damping steps was reached(-2) or if the solution was up
-     * against the bounds(-3).
+     * Solve F(x) = 0, where F(x) is the multi-domain residual function.
      *
      * @param x0         Starting estimate of solution.
      * @param x1         Final solution satisfying F(x1) = 0.
      * @param loglevel   Controls amount of diagnostic output.
+     *
+     * @returns
+     * - 1 for success
+     * - -2 failure (maximum number of damping steps was reached)
+     * - -3 failure (solution was up against the bounds
      */
     int solve(double* x0, double* x1, int loglevel);
 

@@ -53,7 +53,7 @@ public:
      * the new solution after taking the damped step is returned in `x1`, and the
      * undamped step at `x1` is returned in `step1`.
      *
-     * This uses the method outlined in @cite kee2003.
+     * This uses the method outlined in Kee et al. @cite kee2003.
      *
      * The system of equations can be written in the form:
      * @f[
@@ -65,11 +65,11 @@ public:
      * For the damped Newton method we are solving:
      *
      * @f[
-     *   x_{k+1} - x_k = \inc x_k = -\alpha_k J^(-1)(x_k) F(x_k)
+     *   x_{k+1} - x_k = \Delta x_k = -\alpha_k J^(-1)(x_k) F(x_k)
      * @f]
      *
-     * Where `J` is the Jacobian matrix of `F` with respect to `x`, and `alpha_k` is
-     * the damping factor, and @f$ \inc x_k @f$ is the Newton step at `x_k`, sometimes
+     * Where @f$ J @f$ is the Jacobian matrix of @f$ F @f$ with respect to @f$ x @f$, and @f$ \alpha_k @f$ is
+     * the damping factor, and @f$ \Delta x_k @f$ is the Newton step at @fx_k @f, sometimes
      * called the correction vector. In the equations here, k is just an iteration
      * variable.
      *
@@ -80,26 +80,29 @@ public:
      *
      * We want to solve the equation:
      * @f[
-     *   x_{k+1} = x_k + \alpha_k \inc x_k
+     *   x_{k+1} = x_k + \alpha_k \Delta x_k
      * @f]
      *
-     * Pick @f$ \alpha_k @f$ such that @f$ \norm{\inc x_{k+1}} < \norm{\inc x_k} @f$.
-     * Where @f$ \inc x_k = J^{-1}(x_k) F(x_k) @f$, and
-     * @f$ \inc x_{k+1} = J^{-1}(x_{k}) F(x_{k+1}) @f$.
+     * Pick @f$ \alpha_k @f$ such that @f$ \norm{\Delta x_{k+1}} < \norm{\Delta x_k} @f$.
+     * Where @f$ \Delta x_k = J^{-1}(x_k) F(x_k) @f$, and
+     * @f$ \Delta x_{k+1} = J^{-1}(x_{k}) F(x_{k+1}) @f$.
      *
-     * @param x0 initial solution about which a Newton step will be taken
-     * @param step0 initial Newton step without any damping
-     * @param x1 solution after taking the damped Newton step
-     * @param step1 Newton step after taking the damped Newton step
-     * @param loglevel controls amount of printed diagnostics
-     * @param writetitle controls if logging title is printed
+     * @param[in] x0 initial solution about which a Newton step will be taken
+     * @param[in] step0 initial undamped Newton step
+     * @param[out] x1 solution after taking the damped Newton step
+     * @param[out] step1 Newton step after taking the damped Newton step
+     * @param[out] s1 norm of the subsequent Newton step after taking the damped Newton step
+     * @param[in] r domain object, used for evaluating residuals over all domains
+     * @param[in] jac Jacobian evaluator
+     * @param[in] loglevel controls amount of printed diagnostics
+     * @param[in] writetitle controls if logging title is printed
      *
-     * Returns:
-     * - int : Status code
-     *   - `1` if a damping coefficient is found and the solution converges.
-     *   - `0` if a damping coefficient is found but the solution does not converge.
-     *   - `-2` if no suitable damping coefficient is found within the maximum iterations.
-     *   - `-3` if the current solution `x0` is too close to the boundary and the step points out of the allowed domain.
+     * @returns
+     *   - `1` a damping coefficient was found and the solution converges.
+     *   - `0` a damping coefficient was found, but the solution has not converged yet.
+     *   - `-2` no suitable damping coefficient was found within the maximum iterations.
+     *   - `-3` the current solution `x0` is too close to the solution bounds and the
+     *          step would exceed the bounds on one or more components.
      */
     int dampStep(const double* x0, const double* step0, double* x1, double* step1,
                  double& s1, OneDim& r, MultiJac& jac, int loglevel, bool writetitle);
@@ -108,18 +111,18 @@ public:
     double norm2(const double* x, const double* step, OneDim& r) const;
 
     /**
-     * Find the solution to F(X) = 0 by damped Newton iteration. On entry, x0
+     * Find the solution to F(x) = 0 by damped Newton iteration. On entry, x0
      * contains an initial estimate of the solution. On successful return, x1
-     * contains the converged solution.
+     * contains the converged solution. If failure occurs, x1 will contain the
+     * value of x0 i.e. no change in solution.
      *
      * The convergence criteria is when the 2-norm of the Newton step is less than one.
      *
-     * Returns:
-     * - int : Status code
-     *   - `1`  a converged step was able to be taken.
+     * @returns
+     *   - `1`  a converged solution was found.
      *   - `-2` no suitable damping coefficient was found within the maximum iterations.
-     *   - `-3` the current solution `x0` was too close to the boundary and the step
-     *          points out of the allowed domain.
+     *   - `-3` the current solution `x0` is too close to the solution bounds and the
+     *          step would exceed the bounds on one or more components.
      */
     int solve(double* x0, double* x1, OneDim& r, MultiJac& jac, int loglevel);
 
@@ -135,11 +138,19 @@ protected:
     //! Work arrays of size #m_n used in solve().
     vector<double> m_x, m_stp, m_stp1;
 
+    //! Maximum allowable Jacobian age before it is recomputed.
     int m_maxAge = 5;
+
+    //! Factor by which the damping coefficient is reduced in each iteration
+    double m_dampFactor = sqrt(2.0);
+
+    //! Maximum number of damping iterations
+    size_t m_maxDampIter = 7;
 
     //! number of variables
     size_t m_n;
 
+    //! Elapsed CPU time spent computing the Jacobian.
     double m_elapsed = 0.0;
 };
 }
