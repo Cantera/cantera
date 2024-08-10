@@ -60,7 +60,7 @@ interface.
 :text-align: center
 ```
 
-```{grid-item-card} C
+```{grid-item-card} C (experimental)
 :link: clib/index
 :link-type: doc
 :text-align: center
