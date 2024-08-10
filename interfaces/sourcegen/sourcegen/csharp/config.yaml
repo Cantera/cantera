@@ -23,6 +23,7 @@ class_crosswalk:
   reactor: Reactor
   reactornet: ReactorNet
   reactorsurface: ReactorSurface
+  reactoredge: ReactorEdge
   soln: Solution
   surf: Surface
   thermo: ThermoPhase

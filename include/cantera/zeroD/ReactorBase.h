@@ -24,6 +24,7 @@ class FlowDevice;
 class WallBase;
 class ReactorNet;
 class ReactorSurface;
+class ReactorEdge;
 class Kinetics;
 class ThermoPhase;
 class Solution;
@@ -161,6 +162,16 @@ public:
     //! Return the number of surfaces in a reactor
     virtual size_t nSurfs() {
         return m_surfaces.size();
+    }
+
+    virtual void addEdge(ReactorEdge* edge);
+
+    //! Return a reference to the *n*-th ReactorEdge connected to this
+    //! reactor
+    ReactorEdge* edge(size_t n);
+    //! Return the number of edges in a reactor
+    virtual size_t nEdges() {
+        return m_edges.size();
     }
 
     /**
@@ -303,6 +314,7 @@ protected:
 
     vector<WallBase*> m_wall;
     vector<ReactorSurface*> m_surfaces;
+    vector<ReactorEdge*> m_edges;
 
     //! Vector of length nWalls(), indicating whether this reactor is on the left (0)
     //! or right (1) of each wall.
