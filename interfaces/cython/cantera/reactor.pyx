@@ -16,7 +16,7 @@ cdef class ReactorBase:
     Common base class for reactors and reservoirs.
     """
     reactor_type = "none"
-    def __cinit__(self, _SolutionBase contents=None, name=None, *, **kwargs):
+    def __cinit__(self, _SolutionBase contents=None, *, name="(none)", **kwargs):
         if isinstance(contents, _SolutionBase):
             self._reactor = newReactor(stringify(self.reactor_type),
                                        contents._base, stringify(name))
@@ -26,8 +26,8 @@ cdef class ReactorBase:
             self._reactor.get().setName(stringify(name))
         self.rbase = self._reactor.get()
 
-    def __init__(self, _SolutionBase contents=None, name=None, *, volume=None,
-                 node_attr=None):
+    def __init__(self, _SolutionBase contents=None, *,
+                 name="(none)", volume=None, node_attr=None):
         self._inlets = []
         self._outlets = []
         self._walls = []
@@ -198,16 +198,19 @@ cdef class Reactor(ReactorBase):
     def __cinit__(self, *args, **kwargs):
         self.reactor = <CxxReactor*>(self.rbase)
 
-    def __init__(self, contents=None, *, name=None, energy='on', group_name="", **kwargs):
+    def __init__(self, contents=None, *,
+                 name="(none)", energy='on', group_name="", **kwargs):
         """
         :param contents:
             Reactor contents. If not specified, the reactor is initially empty.
             In this case, call `insert` to specify the contents. Providing valid
             contents will become mandatory after Cantera 3.1.
         :param name:
-            Used only to identify this reactor in output. If not specified,
-            defaults to ``'Reactor_n'``, where *n* is an integer assigned in
-            the order `Reactor` objects are created.
+            Name string. If not specified, the name initially defaults to ``'(none)'``
+            and changes to ``'<reactor_type>_n'`` when `Reactor` objects are installed
+            within a `ReactorNet`. For the latter, ``<reactor_type>`` is the type of
+            the reactor and *n* is an integer assigned in the order reactors are
+            installed.
         :param energy:
             Set to ``'on'`` or ``'off'``. If set to ``'off'``, the energy
             equation is not solved, and the temperature is held at its
@@ -234,7 +237,7 @@ cdef class Reactor(ReactorBase):
         >>> r3 = Reactor(name='adiabatic_reactor', contents=gas)
 
         """
-        super().__init__(contents, name, **kwargs)
+        super().__init__(contents, name=name, **kwargs)
 
         if energy == 'off':
             self.energy_enabled = False
@@ -787,8 +790,10 @@ cdef class ReactorSurface:
     Represents a surface in contact with the contents of a reactor.
 
     :param name:
-        Name string. If omitted, the name is ``'ReactorSurface_n'``, where ``'n'``
-        is an integer assigned in the order reactor surfaces are created.
+        Name string. If not specified, the name initially defaults to ``'(none)'`` and
+        changes to ``'ReactorSurface_n'`` when when associated `Reactor` objects are
+        installed within a `ReactorNet`. For the latter, *n* is an integer assigned in
+        the order reactor surfaces are detected.
     :param kin:
         The `Kinetics` or `Interface` object representing reactions on this
         surface.
@@ -803,14 +808,14 @@ cdef class ReactorSurface:
     .. versionadded:: 3.1
        Added the ``node_attr`` parameter.
     """
-    def __cinit__(self, *args, **kwargs):
-        name = kwargs.get("name")
+    def __cinit__(self, *args, name="(none)", **kwargs):
         self.surface = new CxxReactorSurface(stringify(name))
 
     def __dealloc__(self):
         del self.surface
 
-    def __init__(self, kin=None, Reactor r=None, *, name=None, A=None, node_attr=None):
+    def __init__(self, kin=None, Reactor r=None, *,
+                 name="(none)", A=None, node_attr=None):
         if kin is not None:
             self.kinetics = kin
         if r is not None:
@@ -946,12 +951,11 @@ cdef class WallBase:
     Common base class for walls.
     """
     wall_type = "none"
-    def __cinit__(self, *args, **kwargs):
-        name = kwargs.get("name")
+    def __cinit__(self, *args, name="(none)", **kwargs):
         self._wall = newWall(stringify(self.wall_type), stringify(name))
         self.wall = self._wall.get()
 
-    def __init__(self, left, right, *, name=None, A=None, K=None, U=None,
+    def __init__(self, left, right, *, name="(none)", A=None, K=None, U=None,
                  Q=None, velocity=None, edge_attr=None):
         """
         :param left:
@@ -959,8 +963,11 @@ cdef class WallBase:
         :param right:
             Reactor or reservoir on the right. Required.
         :param name:
-            Name string. If omitted, the name is ``'Wall_n'``, where ``'n'``
-            is an integer assigned in the order walls are created.
+            Name string. If not specified, the name initially defaults to ``'(none)'``
+            and changes to ``'<wall_type>_n'`` when when associated `Reactor` objects
+            are installed within a `ReactorNet`. For the latter, ``<wall_type>`` is
+            the type of the wall and *n* is an integer assigned in the order walls are
+            detected.
         :param A:
             Wall area [m^2]. Defaults to 1.0 m^2.
         :param K:
@@ -1219,12 +1226,11 @@ cdef class FlowDevice:
     pressure between the upstream and downstream reactors.
     """
     flowdevice_type = "none"
-    def __cinit__(self, *args, **kwargs):
-        name = kwargs.get("name")
+    def __cinit__(self, *args, name="(none)", **kwargs):
         self._dev = newFlowDevice(stringify(self.flowdevice_type), stringify(name))
         self.dev = self._dev.get()
 
-    def __init__(self, upstream, downstream, *, name=None, edge_attr=None):
+    def __init__(self, upstream, downstream, *, name="(none)", edge_attr=None):
         assert self.dev != NULL
         self._rate_func = None
         self.edge_attr = edge_attr or {}
@@ -1390,7 +1396,7 @@ cdef class MassFlowController(FlowDevice):
     """
     flowdevice_type = "MassFlowController"
 
-    def __init__(self, upstream, downstream, *, name=None, mdot=1., **kwargs):
+    def __init__(self, upstream, downstream, *, name="(none)", mdot=1., **kwargs):
         super().__init__(upstream, downstream, name=name, **kwargs)
         self.mass_flow_rate = mdot
 
@@ -1464,7 +1470,7 @@ cdef class Valve(FlowDevice):
     """
     flowdevice_type = "Valve"
 
-    def __init__(self, upstream, downstream, *, name=None, K=1., **kwargs):
+    def __init__(self, upstream, downstream, *, name="(none)", K=1., **kwargs):
         super().__init__(upstream, downstream, name=name, **kwargs)
         if isinstance(K, _numbers.Real):
             self.valve_coeff = K
@@ -1507,14 +1513,8 @@ cdef class PressureController(FlowDevice):
     """
     flowdevice_type = "PressureController"
 
-    def __init__(self, upstream, downstream, *,
-            name=None, primary=None, K=1., **kwargs):
-        if "master" in kwargs:
-            warnings.warn(
-                "PressureController: The 'master' keyword argument is deprecated; "
-                "use 'primary' instead.", DeprecationWarning)
-            primary = kwargs["master"]
-        super().__init__(upstream, downstream, name=name, **kwargs)
+    def __init__(self, upstream, downstream, *, name="(none)", primary=None, K=1.):
+        super().__init__(upstream, downstream, name=name)
         if primary is not None:
             self.primary = primary
         if isinstance(K, _numbers.Real):
