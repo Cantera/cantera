@@ -383,8 +383,7 @@ extern "C" {
             bool ok = FlowDeviceCabinet::at(i)->install(
                 *ReactorCabinet::at(n), *ReactorCabinet::at(m));
             if (!ok) {
-                throw CanteraError("flowdev_install",
-                                   "Could not install flow device.");
+                throw CanteraError("flowdev_install", "Could not install flow device.");
             }
             return 0;
         } catch (...) {
