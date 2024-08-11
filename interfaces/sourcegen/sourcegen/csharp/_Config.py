@@ -20,6 +20,7 @@ class Config:
     ret_type_crosswalk = {
         "const char*": "string",
         "const double*": "double[]",
+        "const int*": "int[]",
         "size_t": "nuint",
         "char*": "byte*"
     }

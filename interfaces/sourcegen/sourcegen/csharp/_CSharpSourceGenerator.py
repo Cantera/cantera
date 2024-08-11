@@ -5,6 +5,7 @@ from itertools import starmap
 from pathlib import Path
 from typing import List, Dict
 import re
+import warnings
 
 from ._dataclasses import CsFunc
 from ._Config import Config
@@ -84,8 +85,10 @@ class CSharpSourceGenerator(SourceGenerator):
             p_type = getter.params[1].p_type
 
             # for get-string type functions we need to look up the type of the second
-            # (index 1) param for a cast because sometimes it"s an int and other times
+            # (index 1) param for a cast because sometimes it's an int and other times
             # its a nuint (size_t)
+            if p_type in {"nuint", "size_t"}:
+                warnings.warn(f"Detected size of type {p_type!r} in {getter.name!r}.")
             text = f"""
                 public unsafe string {cs_name}
                 {{
@@ -113,7 +116,10 @@ class CSharpSourceGenerator(SourceGenerator):
         self._config = Config.from_parsed(config)
 
     def _get_wrapper_class_name(self, clib_area: str) -> str:
-        return self._config.class_crosswalk[clib_area]
+        try:
+            return self._config.class_crosswalk[clib_area]
+        except KeyError as err:
+            raise ValueError(f"Invalid class_crosswalk area {clib_area!r}") from err
 
     def _get_handle_class_name(self, clib_area: str) -> str:
         return self._get_wrapper_class_name(clib_area) + "Handle"
@@ -142,7 +148,7 @@ class CSharpSourceGenerator(SourceGenerator):
                 release_func_handle_class_name = handle_class_name
             elif method.startswith("new"):
                 ret_type = handle_class_name
-            else:
+            elif params:
                 params[0] = Param(handle_class_name, params[0].name)
 
         for c_type, cs_type in self._config.ret_type_crosswalk.items():
@@ -152,8 +158,9 @@ class CSharpSourceGenerator(SourceGenerator):
 
         setter_double_arrays_count = 0
 
-        for i in range(0, len(params)):
-            param_type, param_name = params[i]
+        # for i in range(len(params)):
+        for i, (param_type, param_name) in enumerate(params):
+            # param_type, param_name = params[i]
 
             for c_type, cs_type in self._config.ret_type_crosswalk.items():
                 if param_type == c_type:
@@ -163,13 +170,15 @@ class CSharpSourceGenerator(SourceGenerator):
             # Most "setter" functions for arrays in CLib use a const double*,
             # but we also need to handle the cases for a plain double*
             if param_type == "double*" and method.startswith("set"):
+                warnings.warn(
+                    f"Detected non-constant {param_type!r} in setter {name!r}.")
                 setter_double_arrays_count += 1
                 if setter_double_arrays_count > 1:
                     # We assume a double* can reliably become a double[].
                     # However, this logic is too simplistic if there is
                     # more than one array.
-                    raise ValueError(f"Cannot scaffold {name} with "
-                        + "more than one array of doubles!")
+                    raise ValueError(
+                        f"Cannot scaffold {name} with more than one array of doubles!")
 
                 if clib_area == "thermo" and re.match("^set_[A-Z]{2}$", method):
                     # Special case for the functions that set thermo pairs
