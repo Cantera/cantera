@@ -54,8 +54,10 @@ extern "C" {
     CANTERA_CAPI double thermo_massFraction(int n, int k);
     CANTERA_CAPI int thermo_getMoleFractions(int n, int lenx, double* x);
     CANTERA_CAPI int thermo_getMassFractions(int n, int leny, double* y);
-    CANTERA_CAPI int thermo_setMoleFractions(int n, int lenx, double* x, int norm);
-    CANTERA_CAPI int thermo_setMassFractions(int n, int leny, double* y, int norm);
+    CANTERA_CAPI int thermo_setMoleFractions(int n, int lenx, const double* x,
+                                             int norm);
+    CANTERA_CAPI int thermo_setMassFractions(int n, int leny, const double* y,
+                                             int norm);
     CANTERA_CAPI int thermo_setMoleFractionsByName(int n, const char* x);
     CANTERA_CAPI int thermo_setMassFractionsByName(int n, const char* y);
     CANTERA_CAPI int thermo_getAtomicWeights(int n, int lenm, double* atw);
@@ -105,20 +107,20 @@ extern "C" {
     CANTERA_CAPI int thermo_getPartialMolarIntEnergies(int n, int lenm, double* pmu);
     CANTERA_CAPI int thermo_getPartialMolarCp(int n, int lenm, double* pmcp);
     CANTERA_CAPI int thermo_getPartialMolarVolumes(int n, int lenm, double* pmv);
-    CANTERA_CAPI int thermo_set_TP(int n, double* vals);
-    CANTERA_CAPI int thermo_set_TD(int n, double* vals);
-    CANTERA_CAPI int thermo_set_DP(int n, double* vals);
-    CANTERA_CAPI int thermo_set_HP(int n, double* vals);
-    CANTERA_CAPI int thermo_set_UV(int n, double* vals);
-    CANTERA_CAPI int thermo_set_SV(int n, double* vals);
-    CANTERA_CAPI int thermo_set_SP(int n, double* vals);
-    CANTERA_CAPI int thermo_set_ST(int n, double* vals);
-    CANTERA_CAPI int thermo_set_TV(int n, double* vals);
-    CANTERA_CAPI int thermo_set_PV(int n, double* vals);
-    CANTERA_CAPI int thermo_set_UP(int n, double* vals);
-    CANTERA_CAPI int thermo_set_VH(int n, double* vals);
-    CANTERA_CAPI int thermo_set_TH(int n, double* vals);
-    CANTERA_CAPI int thermo_set_SH(int n, double* vals);
+    CANTERA_CAPI int thermo_set_TP(int n, const double* vals);
+    CANTERA_CAPI int thermo_set_TD(int n, const double* vals);
+    CANTERA_CAPI int thermo_set_DP(int n, const double* vals);
+    CANTERA_CAPI int thermo_set_HP(int n, const double* vals);
+    CANTERA_CAPI int thermo_set_UV(int n, const double* vals);
+    CANTERA_CAPI int thermo_set_SV(int n, const double* vals);
+    CANTERA_CAPI int thermo_set_SP(int n, const double* vals);
+    CANTERA_CAPI int thermo_set_ST(int n, const double* vals);
+    CANTERA_CAPI int thermo_set_TV(int n, const double* vals);
+    CANTERA_CAPI int thermo_set_PV(int n, const double* vals);
+    CANTERA_CAPI int thermo_set_UP(int n, const double* vals);
+    CANTERA_CAPI int thermo_set_VH(int n, const double* vals);
+    CANTERA_CAPI int thermo_set_TH(int n, const double* vals);
+    CANTERA_CAPI int thermo_set_SH(int n, const double* vals);
     CANTERA_CAPI int thermo_equilibrate(int n, const char* XY, const char* solver,
                                         double rtol, int maxsteps, int maxiter,
                                         int loglevel);

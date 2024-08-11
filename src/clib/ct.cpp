@@ -387,7 +387,7 @@ extern "C" {
         }
     }
 
-    int thermo_setMoleFractions(int n, int lenx, double* x, int norm)
+    int thermo_setMoleFractions(int n, int lenx, const double* x, int norm)
     {
         try {
             auto ph = ThermoCabinet::at(n);
@@ -414,7 +414,7 @@ extern "C" {
         }
     }
 
-    int thermo_setMassFractions(int n, int leny, double* y, int norm)
+    int thermo_setMassFractions(int n, int leny, const double* y, int norm)
     {
         try {
             auto ph = ThermoCabinet::at(n);
@@ -721,7 +721,7 @@ extern "C" {
         }
     }
 
-    int thermo_set_TP(int n, double* vals)
+    int thermo_set_TP(int n, const double* vals)
     {
         try{
             ThermoCabinet::at(n)->setState_TP(vals[0], vals[1]);
@@ -731,7 +731,7 @@ extern "C" {
         }
     }
 
-    int thermo_set_TD(int n, double* vals)
+    int thermo_set_TD(int n, const double* vals)
     {
         try{
             ThermoCabinet::at(n)->setState_TD(vals[0], vals[1]);
@@ -741,7 +741,7 @@ extern "C" {
         }
     }
 
-    int thermo_set_DP(int n, double* vals)
+    int thermo_set_DP(int n, const double* vals)
     {
         try{
             ThermoCabinet::at(n)->setState_DP(vals[0], vals[1]);
@@ -751,7 +751,7 @@ extern "C" {
         }
     }
 
-    int thermo_set_HP(int n, double* vals)
+    int thermo_set_HP(int n, const double* vals)
     {
         try {
             if (vals[1] < 0.0) {
@@ -769,7 +769,7 @@ extern "C" {
         }
     }
 
-    int thermo_set_UV(int n, double* vals)
+    int thermo_set_UV(int n, const double* vals)
     {
         try {
             if (vals[1] < 0.0) {
@@ -787,7 +787,7 @@ extern "C" {
         }
     }
 
-    int thermo_set_SV(int n, double* vals)
+    int thermo_set_SV(int n, const double* vals)
     {
         try {
             ThermoCabinet::at(n)->setState_SV(vals[0],vals[1]);
@@ -797,7 +797,7 @@ extern "C" {
         }
     }
 
-    int thermo_set_SP(int n, double* vals)
+    int thermo_set_SP(int n, const double* vals)
     {
         try {
             ThermoCabinet::at(n)->setState_SP(vals[0],vals[1]);
@@ -807,7 +807,7 @@ extern "C" {
         }
     }
 
-    int thermo_set_ST(int n, double* vals)
+    int thermo_set_ST(int n, const double* vals)
     {
         try {
             ThermoCabinet::at(n)->setState_ST(vals[0],vals[1]);
@@ -817,7 +817,7 @@ extern "C" {
         }
     }
 
-    int thermo_set_TV(int n, double* vals)
+    int thermo_set_TV(int n, const double* vals)
     {
         try {
             ThermoCabinet::at(n)->setState_TV(vals[0],vals[1]);
@@ -827,7 +827,7 @@ extern "C" {
         }
     }
 
-    int thermo_set_PV(int n, double* vals)
+    int thermo_set_PV(int n, const double* vals)
     {
         try {
             ThermoCabinet::at(n)->setState_PV(vals[0],vals[1]);
@@ -837,7 +837,7 @@ extern "C" {
         }
     }
 
-    int thermo_set_UP(int n, double* vals)
+    int thermo_set_UP(int n, const double* vals)
     {
         try {
             ThermoCabinet::at(n)->setState_UP(vals[0],vals[1]);
@@ -847,7 +847,7 @@ extern "C" {
         }
     }
 
-    int thermo_set_VH(int n, double* vals)
+    int thermo_set_VH(int n, const double* vals)
     {
         try {
             ThermoCabinet::at(n)->setState_VH(vals[0],vals[1]);
@@ -857,7 +857,7 @@ extern "C" {
         }
     }
 
-    int thermo_set_TH(int n, double* vals)
+    int thermo_set_TH(int n, const double* vals)
     {
         try {
             ThermoCabinet::at(n)->setState_TH(vals[0],vals[1]);
@@ -867,7 +867,7 @@ extern "C" {
         }
     }
 
-    int thermo_set_SH(int n, double* vals)
+    int thermo_set_SH(int n, const double* vals)
     {
         try {
             ThermoCabinet::at(n)->setState_SH(vals[0],vals[1]);
