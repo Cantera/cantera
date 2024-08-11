@@ -1098,7 +1098,7 @@ extern "C" {
     double thermo_vaporFraction(int n)
     {
         try {
-            return ThermoCabinet::get<PureFluidPhase>(n).vaporFraction();
+            return ThermoCabinet::as<PureFluidPhase>(n)->vaporFraction();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -1125,7 +1125,7 @@ extern "C" {
     int thermo_setState_Psat(int n, double p, double x)
     {
         try {
-            ThermoCabinet::get<PureFluidPhase>(n).setState_Psat(p, x);
+            ThermoCabinet::as<PureFluidPhase>(n)->setState_Psat(p, x);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -1135,7 +1135,7 @@ extern "C" {
     int thermo_setState_Tsat(int n, double t, double x)
     {
         try {
-            ThermoCabinet::get<PureFluidPhase>(n).setState_Tsat(t, x);
+            ThermoCabinet::as<PureFluidPhase>(n)->setState_Tsat(t, x);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -1520,7 +1520,7 @@ extern "C" {
     int kin_advanceCoverages(int n, double tstep)
     {
         try {
-            KineticsCabinet::get<InterfaceKinetics>(n).advanceCoverages(tstep);
+            KineticsCabinet::as<InterfaceKinetics>(n)->advanceCoverages(tstep);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);

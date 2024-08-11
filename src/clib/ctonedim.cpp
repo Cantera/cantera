@@ -351,7 +351,7 @@ extern "C" {
     double bdry_massFraction(int i, int k)
     {
         try {
-            return DomainCabinet::get<Boundary1D>(i).massFraction(k);
+            return DomainCabinet::as<Boundary1D>(i)->massFraction(k);
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -360,7 +360,7 @@ extern "C" {
     double bdry_mdot(int i)
     {
         try {
-            return DomainCabinet::get<Boundary1D>(i).mdot();
+            return DomainCabinet::as<Boundary1D>(i)->mdot();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -370,7 +370,7 @@ extern "C" {
     {
         try {
             auto k = KineticsCabinet::at(j);
-            DomainCabinet::get<ReactingSurf1D>(i).setKinetics(k);
+            DomainCabinet::as<ReactingSurf1D>(i)->setKinetics(k);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -380,7 +380,7 @@ extern "C" {
     int reactingsurf_enableCoverageEqs(int i, int onoff)
     {
         try {
-            DomainCabinet::get<ReactingSurf1D>(i).enableCoverageEquations(onoff != 0);
+            DomainCabinet::as<ReactingSurf1D>(i)->enableCoverageEquations(onoff != 0);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -390,7 +390,7 @@ extern "C" {
     int inlet_setSpreadRate(int i, double v)
     {
         try {
-            DomainCabinet::get<Inlet1D>(i).setSpreadRate(v);
+            DomainCabinet::as<Inlet1D>(i)->setSpreadRate(v);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -422,7 +422,7 @@ extern "C" {
     int flow1D_setTransport(int i, int itr)
     {
         try {
-            DomainCabinet::get<Flow1D>(i).setTransport(TransportCabinet::at(itr));
+            DomainCabinet::as<Flow1D>(i)->setTransport(TransportCabinet::at(itr));
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -433,7 +433,7 @@ extern "C" {
     {
         try {
             bool withSoret = (iSoret > 0);
-            DomainCabinet::get<Flow1D>(i).enableSoret(withSoret);
+            DomainCabinet::as<Flow1D>(i)->enableSoret(withSoret);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -443,7 +443,7 @@ extern "C" {
     int flow1D_setPressure(int i, double p)
     {
         try {
-            DomainCabinet::get<Flow1D>(i).setPressure(p);
+            DomainCabinet::as<Flow1D>(i)->setPressure(p);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -453,7 +453,7 @@ extern "C" {
     double flow1D_pressure(int i)
     {
         try {
-            return DomainCabinet::get<Flow1D>(i).pressure();
+            return DomainCabinet::as<Flow1D>(i)->pressure();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -468,7 +468,7 @@ extern "C" {
                 vpos[j] = pos[j];
                 vtemp[j] = temp[j];
             }
-            DomainCabinet::get<Flow1D>(i).setFixedTempProfile(vpos, vtemp);
+            DomainCabinet::as<Flow1D>(i)->setFixedTempProfile(vpos, vtemp);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -479,9 +479,9 @@ extern "C" {
     {
         try {
             if (flag > 0) {
-                DomainCabinet::get<Flow1D>(i).solveEnergyEqn(npos);
+                DomainCabinet::as<Flow1D>(i)->solveEnergyEqn(npos);
             } else {
-                DomainCabinet::get<Flow1D>(i).fixTemperature(npos);
+                DomainCabinet::as<Flow1D>(i)->fixTemperature(npos);
             }
             return 0;
         } catch (...) {

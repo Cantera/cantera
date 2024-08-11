@@ -181,18 +181,6 @@ public:
     }
 
     /**
-     * Return a reference to object n, cast to a reference of the specified type.
-     */
-    template <class T>
-    static T& get(int n) {
-        auto obj = std::dynamic_pointer_cast<T>(at(n));
-        if (obj) {
-            return *obj;
-        }
-        throw CanteraError("SharedCabinet::get", "Item is not of the correct type.");
-    }
-
-    /**
      * Return the index in the SharedCabinet to the specified object, or -1 if the
      * object is not in the SharedCabinet. If multiple indices reference the same
      * object, the index of the last one added is returned.
