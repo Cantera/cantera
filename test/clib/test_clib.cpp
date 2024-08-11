@@ -203,7 +203,7 @@ TEST(ct, thermo)
     ret = thermo_setMoleFractionsByName(thermo, "CH4:1.0, O2:2.0, N2:7.52");
     ASSERT_EQ(ret, 0);
 
-    ret = thermo_equilibrate(thermo, "HP", 0, 1e-9, 50000, 1000, 0);
+    ret = thermo_equilibrate(thermo, "HP", "auto", 1e-9, 50000, 1000, 0);
     ASSERT_EQ(ret, 0);
     double T = thermo_temperature(thermo);
     ASSERT_GT(T, 2200);
@@ -219,7 +219,7 @@ TEST(ct, kinetics)
     int nr = kin_nReactions(kin);
     ASSERT_EQ(nr, 325);
 
-    thermo_equilibrate(thermo, "HP", 0, 1e-9, 50000, 1000, 0);
+    thermo_equilibrate(thermo, "HP", "auto", 1e-9, 50000, 1000, 0);
     double T = thermo_temperature(thermo);
     thermo_setTemperature(thermo, T - 200);
 

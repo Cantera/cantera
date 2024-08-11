@@ -877,24 +877,11 @@ extern "C" {
         }
     }
 
-    int thermo_equilibrate(int n, const char* XY, int solver,
+    int thermo_equilibrate(int n, const char* XY, const char* solver,
                            double rtol, int maxsteps, int maxiter, int loglevel)
     {
         try {
-            string ssolver;
-            if (solver < 0) {
-                ssolver = "auto";
-            } else if (solver == 0) {
-                ssolver = "element_potential";
-            } else if (solver == 1) {
-                ssolver = "gibbs";
-            } else if (solver == 2) {
-                ssolver = "vcs";
-            } else {
-                throw CanteraError("thermo_equilibrate",
-                    "Invalid equilibrium solver specified.");
-            }
-            ThermoCabinet::at(n)->equilibrate(XY, ssolver, rtol, maxsteps,
+            ThermoCabinet::at(n)->equilibrate(XY, solver, rtol, maxsteps,
                                               maxiter, 0, loglevel);
             return 0;
         } catch (...) {
