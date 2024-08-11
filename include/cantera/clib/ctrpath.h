@@ -35,7 +35,7 @@ extern "C" {
     CANTERA_CAPI int rdiag_setTitle(int i, const char* title);
     CANTERA_CAPI int rdiag_write(int i, int fmt, const char* fname);
     CANTERA_CAPI int rdiag_add(int i, int n);
-    CANTERA_CAPI int rdiag_findMajor(int i, double threshold, size_t lda, double* a);
+    CANTERA_CAPI int rdiag_findMajor(int i, double threshold, int lda, double* a);
     CANTERA_CAPI int rdiag_setFont(int i, const char* font);
     CANTERA_CAPI int rdiag_displayOnly(int i, int k);
 

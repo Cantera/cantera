@@ -23,8 +23,10 @@ extern "C" {
     CANTERA_CAPI int reactor_setInitialVolume(int i, double v);
     CANTERA_CAPI int reactor_setChemistry(int i, int cflag);
     CANTERA_CAPI int reactor_setEnergy(int i, int eflag);
-    CANTERA_CAPI int reactor_setThermoMgr(int i, int n);  //!< @deprecated: remove after 3.1
-    CANTERA_CAPI int reactor_setKineticsMgr(int i, int n);  //!< @deprecated: remove after 3.1
+    //! @deprecated: remove after 3.1
+    CANTERA_CAPI int reactor_setThermoMgr(int i, int n);
+    //! @deprecated: remove after 3.1
+    CANTERA_CAPI int reactor_setKineticsMgr(int i, int n);
     CANTERA_CAPI int reactor_insert(int i, int n);
     CANTERA_CAPI double reactor_mass(int i);
     CANTERA_CAPI double reactor_volume(int i);
@@ -34,7 +36,7 @@ extern "C" {
     CANTERA_CAPI double reactor_intEnergy_mass(int i);
     CANTERA_CAPI double reactor_pressure(int i);
     CANTERA_CAPI double reactor_massFraction(int i, int k);
-    CANTERA_CAPI size_t reactor_nSensParams(int i);
+    CANTERA_CAPI int reactor_nSensParams(int i);
     CANTERA_CAPI int reactor_addSensitivityReaction(int i, int rxn);
     CANTERA_CAPI int flowReactor_setMassFlowRate(int i, double mdot);
 
@@ -43,7 +45,8 @@ extern "C" {
     CANTERA_CAPI int reactornet_setInitialTime(int i, double t);
     CANTERA_CAPI int reactornet_setMaxTimeStep(int i, double maxstep);
     CANTERA_CAPI int reactornet_setTolerances(int i, double rtol, double atol);
-    CANTERA_CAPI int reactornet_setSensitivityTolerances(int i, double rtol, double atol);
+    CANTERA_CAPI int reactornet_setSensitivityTolerances(int i, double rtol,
+                                                         double atol);
     CANTERA_CAPI int reactornet_addreactor(int i, int n);
     CANTERA_CAPI int reactornet_advance(int i, double t);
     CANTERA_CAPI double reactornet_step(int i);

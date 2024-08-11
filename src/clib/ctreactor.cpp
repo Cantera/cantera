@@ -210,7 +210,7 @@ extern "C" {
         }
     }
 
-    size_t reactor_nSensParams(int i)
+    int reactor_nSensParams(int i)
     {
         try {
             return ReactorCabinet::get<Reactor>(i).nSensParams();

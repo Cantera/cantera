@@ -209,8 +209,7 @@ extern "C" {
         }
     }
 
-    int rdiag_findMajor(int i, double threshold,
-                        size_t lda, double* a)
+    int rdiag_findMajor(int i, double threshold, int lda, double* a)
     {
         try {
             DiagramCabinet::item(i).findMajorPaths(threshold, lda, a);

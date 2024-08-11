@@ -81,7 +81,7 @@ extern "C" {
         }
     }
 
-    size_t mix_nElements(int i)
+    int mix_nElements(int i)
     {
         try {
             return mixCabinet::item(i).nElements();
@@ -90,7 +90,7 @@ extern "C" {
         }
     }
 
-    size_t mix_elementIndex(int i, const char* name)
+    int mix_elementIndex(int i, const char* name)
     {
         try {
             return mixCabinet::item(i).elementIndex(name);
@@ -99,7 +99,7 @@ extern "C" {
         }
     }
 
-    size_t mix_nSpecies(int i)
+    int mix_nSpecies(int i)
     {
         try {
             return mixCabinet::item(i).nSpecies();
@@ -108,7 +108,7 @@ extern "C" {
         }
     }
 
-    size_t mix_speciesIndex(int i, int k, int p)
+    int mix_speciesIndex(int i, int k, int p)
     {
         try {
             MultiPhase& mix = mixCabinet::item(i);
@@ -132,7 +132,7 @@ extern "C" {
         }
     }
 
-    size_t mix_nPhases(int i)
+    int mix_nPhases(int i)
     {
         try {
             return mixCabinet::item(i).nPhases();
@@ -168,7 +168,7 @@ extern "C" {
         }
     }
 
-    int mix_setMoles(int i, size_t nlen, const double* n)
+    int mix_setMoles(int i, int nlen, const double* n)
     {
         try {
             MultiPhase& mix = mixCabinet::item(i);
@@ -256,8 +256,7 @@ extern "C" {
     {
         try {
             if (p < 0.0) {
-                throw CanteraError("mix_setPressure",
-                                   "Pressure must be positive.");
+                throw CanteraError("mix_setPressure", "Pressure must be positive.");
             }
             mixCabinet::item(i).setPressure(p);
             return 0;
@@ -309,7 +308,7 @@ extern "C" {
         }
     }
 
-    int mix_getChemPotentials(int i, size_t lenmu, double* mu)
+    int mix_getChemPotentials(int i, int lenmu, double* mu)
     {
         try {
             MultiPhase& mix = mixCabinet::item(i);
@@ -366,7 +365,7 @@ extern "C" {
         }
     }
 
-    size_t mix_speciesPhaseIndex(int i, int k)
+    int mix_speciesPhaseIndex(int i, int k)
     {
         try {
             MultiPhase& mix = mixCabinet::item(i);

@@ -90,14 +90,14 @@ TEST(ct, soln_objects)
 
     int thermo2 = soln_thermo(ref2);
     ASSERT_EQ(thermo2, 2);
-    ASSERT_EQ(thermo_nSpecies(thermo2), 10u);
+    ASSERT_EQ(thermo_nSpecies(thermo2), 10);
     ASSERT_EQ(thermo_parent(thermo2), ref2);
 
     int kin = soln_kinetics(ref);
 
     int kin2 = soln_kinetics(ref2);
     ASSERT_EQ(kin2, 1);
-    ASSERT_EQ(kin_nReactions(kin2), 29u);
+    ASSERT_EQ(kin_nReactions(kin2), 29);
     ASSERT_EQ(kin_parent(kin2), ref2);
     ASSERT_EQ(kin_parent(kin), ref);
 
@@ -114,12 +114,12 @@ TEST(ct, soln_objects)
     ASSERT_EQ(trans_parent(trans2), ref2);
 
     soln_del(ref2);
-    size_t nsp = thermo_nSpecies(thermo2);
+    int nsp = thermo_nSpecies(thermo2);
     ASSERT_EQ(nsp, npos);
     string err = reportError();
     EXPECT_THAT(err, HasSubstr("has been deleted."));
 
-    size_t nr = thermo_nSpecies(thermo2);
+    int nr = thermo_nSpecies(thermo2);
     ASSERT_EQ(nr, npos);
     err = reportError();
     EXPECT_THAT(err, HasSubstr("has been deleted."));
@@ -169,7 +169,7 @@ TEST(ct, new_interface_auto)
     int surf = soln_newInterface("ptcombust.yaml", "Pt_surf", 0, adj.data());
     ASSERT_EQ(surf, 0);
 
-    ASSERT_EQ(soln_nAdjacent(surf), 1u);
+    ASSERT_EQ(soln_nAdjacent(surf), 1);
     int gas = soln_adjacent(surf, 0);
     ASSERT_EQ(gas, 1);
 
@@ -193,8 +193,8 @@ TEST(ct, thermo)
     int ret;
     int thermo = thermo_newFromFile("gri30.yaml", "gri30");
     ASSERT_GE(thermo, 0);
-    size_t nsp = thermo_nSpecies(thermo);
-    ASSERT_EQ(nsp, 53u);
+    int nsp = thermo_nSpecies(thermo);
+    ASSERT_EQ(nsp, 53);
 
     ret = thermo_setTemperature(thermo, 500);
     ASSERT_EQ(ret, 0);
@@ -216,8 +216,8 @@ TEST(ct, kinetics)
     int kin = kin_newFromFile("gri30.yaml", "", thermo, -1, -1, -1, -1);
     ASSERT_GE(kin, 0);
 
-    size_t nr = kin_nReactions(kin);
-    ASSERT_EQ(nr, 325u);
+    int nr = kin_nReactions(kin);
+    ASSERT_EQ(nr, 325);
 
     thermo_equilibrate(thermo, "HP", 0, 1e-9, 50000, 1000, 0);
     double T = thermo_temperature(thermo);
@@ -247,7 +247,7 @@ TEST(ct, transport)
     int tran = trans_newDefault(thermo, 0);
     ASSERT_GE(tran, 0);
 
-    size_t nsp = thermo_nSpecies(thermo);
+    int nsp = thermo_nSpecies(thermo);
     vector<double> c_dkm(nsp);
     int ret = trans_getMixDiffCoeffs(tran, 53, c_dkm.data());
     ASSERT_EQ(ret, 0);

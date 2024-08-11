@@ -16,10 +16,10 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-    CANTERA_CAPI int func_check(const char* type, size_t len, char* buf); //!< @since New in %Cantera 3.1
+    //! @since New in %Cantera 3.1
+    CANTERA_CAPI int func_check(const char* type, int len, char* buf);
     CANTERA_CAPI int func_new_basic(const char* type, double c);
-    CANTERA_CAPI int func_new_advanced(const char* type, size_t lenp, const double* p);
+    CANTERA_CAPI int func_new_advanced(const char* type, int lenp, const double* p);
     CANTERA_CAPI int func_new_compound(const char* type, int a, int b);
     CANTERA_CAPI int func_new_modified(const char* type, int a, double c);
     CANTERA_CAPI int func_new_sum(int a, int b);
@@ -27,12 +27,12 @@ extern "C" {
     CANTERA_CAPI int func_new_prod(int a, int b);
     CANTERA_CAPI int func_new_ratio(int a, int b);
     CANTERA_CAPI int func_del(int i);
-    CANTERA_CAPI int func_type(int i, size_t lennm, char* nm);
+    CANTERA_CAPI int func_type(int i, int lennm, char* nm);
     CANTERA_CAPI double func_value(int i, double t);
     CANTERA_CAPI int func_derivative(int i);
     CANTERA_CAPI int func_duplicate(int i);
     //! @since Changed signature in %Cantera 3.1
-    CANTERA_CAPI int func_write(int i, const char* arg, size_t lennm, char* nm);
+    CANTERA_CAPI int func_write(int i, const char* arg, int lennm, char* nm);
     CANTERA_CAPI int ct_clearFunc();
 
 #ifdef __cplusplus

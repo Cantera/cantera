@@ -68,16 +68,17 @@ extern "C" {
         }
     }
 
-    int domain_type(int i, size_t lennm, char* nm)
+    int domain_type(int i, int lennm, char* nm)
     {
         try {
-            return static_cast<int>(copyString(DomainCabinet::item(i).type(), nm, lennm));
+            return static_cast<int>(
+                copyString(DomainCabinet::item(i).type(), nm, lennm));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
     }
 
-    size_t domain_index(int i)
+    int domain_index(int i)
     {
         try {
             return DomainCabinet::item(i).domainIndex();
@@ -86,7 +87,7 @@ extern "C" {
         }
     }
 
-    size_t domain_nComponents(int i)
+    int domain_nComponents(int i)
     {
         try {
             return DomainCabinet::item(i).nComponents();
@@ -95,7 +96,7 @@ extern "C" {
         }
     }
 
-    size_t domain_nPoints(int i)
+    int domain_nPoints(int i)
     {
         try {
             return DomainCabinet::item(i).nPoints();
@@ -115,7 +116,7 @@ extern "C" {
         }
     }
 
-    size_t domain_componentIndex(int i, const char* name)
+    int domain_componentIndex(int i, const char* name)
     {
         try {
             return DomainCabinet::item(i).componentIndex(name);
@@ -169,8 +170,7 @@ extern "C" {
         }
     }
 
-    int domain_setSteadyTolerances(int i, int n, double rtol,
-                                   double atol)
+    int domain_setSteadyTolerances(int i, int n, double rtol, double atol)
     {
         try {
             Domain1D& dom = DomainCabinet::item(i);
@@ -182,8 +182,7 @@ extern "C" {
         }
     }
 
-    int domain_setTransientTolerances(int i, int n, double rtol,
-                                      double atol)
+    int domain_setTransientTolerances(int i, int n, double rtol, double atol)
     {
         try {
             Domain1D& dom = DomainCabinet::item(i);
@@ -217,7 +216,7 @@ extern "C" {
         }
     }
 
-    int domain_setupGrid(int i, size_t npts, const double* grid)
+    int domain_setupGrid(int i, int npts, const double* grid)
     {
         try {
             DomainCabinet::item(i).setupGrid(npts, grid);
@@ -460,8 +459,8 @@ extern "C" {
         }
     }
 
-    int flow1D_setFixedTempProfile(int i, size_t n, const double* pos,
-                                   size_t m, const double* temp)
+    int flow1D_setFixedTempProfile(int i, int n, const double* pos,
+                                   int m, const double* temp)
     {
         try {
             vector<double> vpos(n), vtemp(n);
@@ -492,7 +491,7 @@ extern "C" {
 
     //------------------- Sim1D --------------------------------------
 
-    int sim1D_new(size_t nd, const int* domains)
+    int sim1D_new(int nd, const int* domains)
     {
         try {
             vector<shared_ptr<Domain1D>> d;
@@ -525,8 +524,8 @@ extern "C" {
         }
     }
 
-    int sim1D_setProfile(int i, int dom, int comp, size_t np, const double* pos,
-                         size_t nv, const double* v)
+    int sim1D_setProfile(int i, int dom, int comp, int np, const double* pos,
+                         int nv, const double* v)
     {
         try {
             Sim1D& sim = SimCabinet::item(i);
@@ -573,7 +572,7 @@ extern "C" {
         }
     }
 
-    int sim1D_setTimeStep(int i, double stepsize, size_t ns, const int* nsteps)
+    int sim1D_setTimeStep(int i, double stepsize, int ns, const int* nsteps)
     {
         try {
             SimCabinet::item(i).setTimeStep(stepsize, ns, nsteps);

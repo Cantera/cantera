@@ -149,7 +149,7 @@ TEST(ctonedim, freeflame_from_parts)
     int ph = soln_thermo(sol);
     int kin = soln_kinetics(sol);
     int tr = soln_transport(sol);
-    size_t nsp = thermo_nSpecies(ph);
+    int nsp = thermo_nSpecies(ph);
 
     // reactants
     double uin = .3;
@@ -208,10 +208,10 @@ TEST(ctonedim, freeflame_from_parts)
     // set up initial guess
     vector<double> locs{0.0, 0.3, 0.7, 1.0};
     vector<double> value{uin, uin, uout, uout};
-    int comp = static_cast<int>(domain_componentIndex(flow, "velocity"));
+    int comp = domain_componentIndex(flow, "velocity");
     sim1D_setProfile(flame, dom, comp, 4, locs.data(), 4, value.data());
     value = {T, T, Tad, Tad};
-    comp = static_cast<int>(domain_componentIndex(flow, "T"));
+    comp = domain_componentIndex(flow, "T");
     sim1D_setProfile(flame, dom, comp, 4, locs.data(), 4, value.data());
     for (size_t i = 0; i < nsp; i++) {
         value = {yin[i], yin[i], yout[i], yout[i]};
@@ -220,7 +220,7 @@ TEST(ctonedim, freeflame_from_parts)
         thermo_getSpeciesName(ph, i, buflen, buf);
         string name = buf;
         ASSERT_EQ(name, gas->speciesName(i));
-        comp = static_cast<int>(domain_componentIndex(flow, buf));
+        comp = domain_componentIndex(flow, buf);
         sim1D_setProfile(flame, dom, comp, 4, locs.data(), 4, value.data());
     }
 
@@ -245,11 +245,11 @@ TEST(ctonedim, freeflame_from_parts)
         ASSERT_GE(ret, 0);
     }
 
-    ASSERT_EQ(domain_nPoints(flow), static_cast<size_t>(nz + 1));
-    comp = static_cast<int>(domain_componentIndex(dom, "T"));
+    ASSERT_EQ(domain_nPoints(flow), nz + 1);
+    comp = domain_componentIndex(dom, "T");
     double Tprev = sim1D_value(flame, dom, comp, 0);
-    for (size_t n = 0; n < domain_nPoints(flow); n++) {
-        T = sim1D_value(flame, dom, comp, static_cast<int>(n));
+    for (int n = 0; n < domain_nPoints(flow); n++) {
+        T = sim1D_value(flame, dom, comp, n);
         ASSERT_GE(T, Tprev);
         Tprev = T;
     }

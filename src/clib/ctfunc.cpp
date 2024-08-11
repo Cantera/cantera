@@ -23,7 +23,7 @@ extern "C" {
 
     // functions
 
-    int func_check(const char* type, size_t len, char* buf)
+    int func_check(const char* type, int len, char* buf)
     {
         try {
             return static_cast<int>(copyString(checkFunc1(type), buf, len));
@@ -41,7 +41,7 @@ extern "C" {
         }
     }
 
-    int func_new_advanced(const char* type, size_t lenp, const double* params)
+    int func_new_advanced(const char* type, int lenp, const double* params)
     {
         try {
             vector<double> par(params, params + lenp);
@@ -130,7 +130,7 @@ extern "C" {
         }
     }
 
-    int func_type(int i, size_t lennm, char* nm)
+    int func_type(int i, int lennm, char* nm)
     {
         try {
             return static_cast<int>(copyString(FuncCabinet::item(i).type(), nm, lennm));
@@ -166,10 +166,11 @@ extern "C" {
         }
     }
 
-    int func_write(int i, const char* arg, size_t len, char* buf)
+    int func_write(int i, const char* arg, int len, char* buf)
     {
         try {
-            return static_cast<int>(copyString(FuncCabinet::item(i).write(arg), buf, len));
+            return static_cast<int>(
+                copyString(FuncCabinet::item(i).write(arg), buf, len));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
