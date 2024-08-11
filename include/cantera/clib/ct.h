@@ -165,7 +165,7 @@ extern "C" {
     CANTERA_CAPI int kin_isReversible(int n, int i);
     CANTERA_CAPI int kin_getType(int n, int len, char* name);
     CANTERA_CAPI int kin_start(int n, int p);
-    CANTERA_CAPI int kin_speciesIndex(int n, const char* nm, const char* ph);
+    CANTERA_CAPI int kin_speciesIndex(int n, const char* nm);
     CANTERA_CAPI int kin_advanceCoverages(int n, double tstep);
     CANTERA_CAPI int kin_phase(int n, int i);
 
