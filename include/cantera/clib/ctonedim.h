@@ -47,16 +47,7 @@ extern "C" {
     CANTERA_CAPI double bdry_massFraction(int i, int k);
     CANTERA_CAPI double bdry_mdot(int i);
 
-    CANTERA_CAPI int reactingsurf_setkineticsmgr(int i, int j);
     CANTERA_CAPI int reactingsurf_enableCoverageEqs(int i, int onoff);
-
-    CANTERA_CAPI int inlet_new();
-    CANTERA_CAPI int outlet_new();
-    CANTERA_CAPI int outletres_new();
-    CANTERA_CAPI int symm_new();
-    CANTERA_CAPI int surf_new();
-    CANTERA_CAPI int reactingsurf_new();
-    CANTERA_CAPI int flow1D_new(int iph, int ikin, int itr, int itype);
 
     CANTERA_CAPI int flow1D_setTransport(int i, int itr);
     CANTERA_CAPI int flow1D_enableSoret(int i, int iSoret);
