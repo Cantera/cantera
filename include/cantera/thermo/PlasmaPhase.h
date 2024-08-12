@@ -15,6 +15,9 @@
 namespace Cantera
 {
 
+class Reaction;
+class ElectronCollisionPlasmaRate;
+
 /**
  * Base class for a phase with plasma properties. This class manages the
  * plasma properties such as electron energy distribution function (EEDF).
@@ -97,13 +100,6 @@ public:
     //! @param  length The length of the vectors, which equals #m_nPoints.
     void setDiscretizedElectronEnergyDist(const double* levels,
                                           const double* distrb,
-                                          size_t length);
-
-    //! Set discretized electron energy distribution.
-    //! @param  distrb The vector of electron energy distribution.
-    //!                Length: #m_nPoints.
-    //! @param  length The length of the vectors, which equals #m_nPoints.
-    void setDiscretizedElectronEnergyDist(const double* distrb,
                                           size_t length);
 
     //! Get electron energy distribution.
@@ -198,6 +194,11 @@ public:
         return m_nPoints;
     }
 
+    //! Number of collisions
+    size_t nCollisions() const {
+        return m_collisions.size();
+    }
+
     //! Electron Species Index
     size_t electronSpeciesIndex() const {
         return m_electronSpeciesIndex;
@@ -271,6 +272,25 @@ public:
         return m_levelNum;
     }
 
+    //! Return the interpolated cross section Number #m_csNum
+    int interpCrossSectionNum() const {
+        return m_csNum;
+    }
+
+    //! add Solution object
+    virtual void addSolution(std::weak_ptr<Solution> soln);
+
+    /**
+     * The elastic power loss(J/s/m3)
+     *   @f[
+     *     P_k = N_A N_A C_e e \sum_k C_k K_k,
+     *   @f]
+     * where @f$ C_k @f$ and @f$ C_e @f$ are the concentration (kmol/m3) of the
+     * target species and electrons, respectively. @f$ K_k @f$ is the elastic
+     * electron energy loss coefficient (eV-m3/s).
+     */
+    double elasticPowerLoss();
+
 protected:
     void updateThermo() const override;
 
@@ -283,6 +303,10 @@ protected:
     //! In addition, the cross-sections need to be interpolated at
     //! the new level.
     void electronEnergyLevelChanged();
+
+    //! When the interpolated cross sections changed, plasma properties such as
+    //! elastic power loss need to be re-evaluated.
+    void interpolatedCrossSectionsChanged();
 
     //! Check the electron energy levels
     /*!
@@ -317,6 +341,12 @@ protected:
     //! Electron energy distribution norm
     void normalizeElectronEnergyDistribution();
 
+    //! Update interpolated cross sections
+    void updateInterpolatedCrossSections();
+
+    //! Update electron energy distribution difference
+    void updateElectronEnergyDistDifference();
+
     // Electron energy order in the exponential term
     double m_isotropicShapeFactor = 2.0;
 
@@ -345,6 +375,28 @@ protected:
     //! Flag of normalizing electron energy distribution
     bool m_do_normalizeElectronEnergyDist = true;
 
+    //! Data for initiate reaction
+    AnyMap m_root;
+
+    //! Electron energy distribution Difference dF/dε (V^-5/2)
+    Eigen::ArrayXd m_electronEnergyDistDiff;
+
+    //! Elastic electron energy loss coefficients (eV m3/s)
+    /*! The elastic electron energy loss coefficient for species k is,
+     *   @f[
+     *     K_k = \frac{2 m_e}{m_k} \sqrt{\frac{2 e}{m_e}} \int_0^{\infty} \sigma_k
+     *           \epsilon^2 \left( F_0 + \frac{k_B T}{e}
+     *           \frac{\partial F_0}{\partial \epsilon} \right) d \epsilon,
+     *   @f]
+     * where @f$ m_e @f$ [kg] is the electron mass, @f$ \epsilon @f$ [V] is the
+     * electron energy, @f$ \sigma_k @f$ [m2] is the reaction collision cross section,
+     * @f$ F_0 @f$ [V^(-3/2)] is the normalized electron energy distribution function.
+     */
+    vector<double> m_elasticElectronEnergyLossCoefficients;
+
+    //! update elastic electron energy loss coefficients
+    void updateElasticElectronEnergyLossCoefficients();
+
 private:
     //! Electron energy distribution change variable. Whenever
     //! #m_electronEnergyDist changes, this int is incremented.
@@ -353,6 +405,28 @@ private:
     //! Electron energy level change variable. Whenever
     //! #m_electronEnergyLevels changes, this int is incremented.
     int m_levelNum = -1;
+
+    //! Interpolated collision cross section change variable. Whenever
+    //! #ElectronCollisionPlasmaRate::m_crossSectionsInterpolated changes,
+    //! this int is incremented.
+    int m_csNum = -1;
+
+    //! The list of shared pointers of plasma collision reactions
+    vector<shared_ptr<Reaction>> m_collisions;
+
+    //! The list of shared pointers of ElectronCollisionPlasmaRate
+    vector<shared_ptr<ElectronCollisionPlasmaRate>> m_collisionRates;
+
+    //! The collision-target species indices of #m_collisions
+    vector<size_t> m_targetSpeciesIndices;
+
+    //! Interpolated cross sections. This is used for storing
+    //! interpolated cross sections temporarily.
+    vector<double> m_interp_cs;
+
+    //! Set collisions
+    void setCollisions();
+
 };
 
 }
