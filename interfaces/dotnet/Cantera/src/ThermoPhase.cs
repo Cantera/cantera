@@ -17,7 +17,7 @@ public partial class ThermoPhase
     unsafe delegate int SetPairFunc(ThermoPhaseHandle n, (double, double)* values);
 
     /// <summary>
-    /// Using reflection and the fact that CLIB follows a naming convention for
+    /// Using reflection and the fact that Clib follows a naming convention for
     /// the functions that set the pairs of thermodynamic variables simultaneously
     /// </summary>
     static readonly Lazy<Dictionary<ThermoPair, SetPairFunc>> s_pairSetters;

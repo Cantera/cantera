@@ -1,7 +1,7 @@
 # Experimental MATLAB Toolbox for Cantera
 This experimental Matlab Toolbox for Cantera changes the Matlab interface to the modern
 Matlab structure and syntaxes for OOP. It replaces the MEX interface with direct
-function calling from Cantera Clib.
+function calling from Cantera CLib.
 
 ## Installation guide:
 
