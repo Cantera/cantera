@@ -464,7 +464,7 @@ extern "C" {
     {
         try {
             vector<double> vpos(n), vtemp(n);
-            for (size_t j = 0; j < n; j++) {
+            for (int j = 0; j < n; j++) {
                 vpos[j] = pos[j];
                 vtemp[j] = temp[j];
             }
@@ -495,7 +495,7 @@ extern "C" {
     {
         try {
             vector<shared_ptr<Domain1D>> d;
-            for (size_t n = 0; n < nd; n++) {
+            for (int n = 0; n < nd; n++) {
                 d.push_back(DomainCabinet::at(domains[n]));
             }
             return SimCabinet::add(make_shared<Sim1D>(d));
@@ -532,7 +532,7 @@ extern "C" {
             sim.checkDomainIndex(dom);
             sim.domain(dom).checkComponentIndex(comp);
             vector<double> vv, pv;
-            for (size_t n = 0; n < np; n++) {
+            for (int n = 0; n < np; n++) {
                 vv.push_back(v[n]);
                 pv.push_back(pos[n]);
             }
