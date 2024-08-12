@@ -37,8 +37,6 @@ extern "C" {
     CANTERA_CAPI int soln_adjacent(int n, int a);
     CANTERA_CAPI int soln_adjacentName(int n, int a, int lennm, char* nm);
 
-    //! @todo remove from .NET and Fortran interfaces
-    CANTERA_CAPI int thermo_newFromFile(const char* filename, const char* phasename);
     CANTERA_CAPI int thermo_parent(int n);
     CANTERA_CAPI int thermo_size();
     CANTERA_CAPI int thermo_del(int n);
@@ -134,11 +132,6 @@ extern "C" {
     CANTERA_CAPI int thermo_setState_Psat(int n, double p, double x);
     CANTERA_CAPI int thermo_setState_Tsat(int n, double t, double x);
 
-    //! @since Starting in %Cantera 3.0, the "phasename" argument should be blank
-    //! @todo remove from .NET and Fortran interfaces
-    CANTERA_CAPI int kin_newFromFile(const char* filename, const char* phasename,
-                                     int reactingPhase, int neighbor1, int neighbor2,
-                                     int neighbor3, int neighbor4);
     CANTERA_CAPI int kin_parent(int n);
     CANTERA_CAPI int kin_del(int n);
     CANTERA_CAPI int kin_nSpecies(int n);

@@ -73,23 +73,18 @@ TEST(ct, soln_objects)
 {
     ct_resetStorage();
 
-    int thermo0 = thermo_newFromFile("gri30.yaml", "gri30");
-    ASSERT_EQ(thermo_size(), 1);
-
     int ref = soln_newSolution("gri30.yaml", "gri30", "none");
     ASSERT_EQ(ref, 0);
-    ASSERT_EQ(thermo_size(), 2);
+    ASSERT_EQ(thermo_size(), 1);  // one ThermoPhase object
+
     int ref2 = soln_newSolution("h2o2.yaml", "ohmech", "default");
     ASSERT_EQ(ref2, 1);
-    ASSERT_EQ(thermo_size(), 3);
-
-    ASSERT_EQ(thermo_parent(thermo0), -1);
-
+    ASSERT_EQ(thermo_size(), 2);  // two ThermoPhase objects
     int thermo = soln_thermo(ref);
     ASSERT_EQ(thermo_parent(thermo), ref);
 
     int thermo2 = soln_thermo(ref2);
-    ASSERT_EQ(thermo2, 2);
+    ASSERT_EQ(thermo2, 1);  // references stored object with index '1'
     ASSERT_EQ(thermo_nSpecies(thermo2), 10);
     ASSERT_EQ(thermo_parent(thermo2), ref2);
 
@@ -191,7 +186,8 @@ TEST(ct, new_interface_auto)
 TEST(ct, thermo)
 {
     int ret;
-    int thermo = thermo_newFromFile("gri30.yaml", "gri30");
+    int sol = soln_newSolution("gri30.yaml", "gri30", "none");
+    int thermo = soln_thermo(sol);
     ASSERT_GE(thermo, 0);
     int nsp = thermo_nSpecies(thermo);
     ASSERT_EQ(nsp, 53);
@@ -212,8 +208,9 @@ TEST(ct, thermo)
 
 TEST(ct, kinetics)
 {
-    int thermo = thermo_newFromFile("gri30.yaml", "gri30");
-    int kin = kin_newFromFile("gri30.yaml", "", thermo, -1, -1, -1, -1);
+    int sol0 = soln_newSolution("gri30.yaml", "gri30", "none");
+    int thermo = soln_thermo(sol0);
+    int kin = soln_kinetics(sol0);
     ASSERT_GE(kin, 0);
 
     int nr = kin_nReactions(kin);
@@ -243,8 +240,9 @@ TEST(ct, kinetics)
 
 TEST(ct, transport)
 {
-    int thermo = thermo_newFromFile("gri30.yaml", "gri30");
-    int tran = trans_newDefault(thermo, 0);
+    int sol0 = soln_newSolution("gri30.yaml", "gri30", "default");
+    int thermo = soln_thermo(sol0);
+    int tran = soln_transport(sol0);
     ASSERT_GE(tran, 0);
 
     int nsp = thermo_nSpecies(thermo);

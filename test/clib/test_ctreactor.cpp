@@ -17,8 +17,9 @@ TEST(ctreactor, reactor_soln)
 
 TEST(ctreactor, reactor_objects)
 {
-    int thermo = thermo_newFromFile("gri30.yaml", "gri30");
-    int kin = kin_newFromFile("gri30.yaml", "", thermo, -1, -1, -1, -1);
+    int sol = soln_newSolution("gri30.yaml", "gri30", "none");
+    int thermo = soln_thermo(sol);
+    int kin = soln_kinetics(sol);
 
     suppress_deprecation_warnings();
     int reactor = reactor_new("IdealGasReactor");
@@ -103,8 +104,9 @@ TEST(ctreactor, reactor_from_parts)
     double P = 5 * 101325;
     string X = "CH4:1.0, O2:2.0, N2:7.52";
 
-    int thermo = thermo_newFromFile("gri30.yaml", "gri30");
-    int kin = kin_newFromFile("gri30.yaml", "", thermo, -1, -1, -1, -1);
+    int sol = soln_newSolution("gri30.yaml", "gri30", "none");
+    int thermo = soln_thermo(sol);
+    int kin = soln_kinetics(sol);
     thermo_setMoleFractionsByName(thermo, X.c_str());
     thermo_setTemperature(thermo, T);
     thermo_setPressure(thermo, P);

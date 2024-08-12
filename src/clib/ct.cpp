@@ -519,7 +519,6 @@ extern "C" {
         }
     }
 
-
     double thermo_nAtoms(int n, int k, int m)
     {
         try {
@@ -540,14 +539,6 @@ extern "C" {
     }
 
     //-------------- Thermo --------------------//
-
-    int thermo_newFromFile(const char* filename, const char* phasename) {
-        try {
-            return ThermoCabinet::add(newThermo(filename, phasename));
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
 
     int thermo_getEosType(int n, int leneos, char* eos)
     {
@@ -928,7 +919,6 @@ extern "C" {
         }
     }
 
-
     int thermo_getEnthalpies_RT(int n, int lenm, double* h_rt)
     {
         try {
@@ -1131,42 +1121,6 @@ extern "C" {
 
     //-------------- Kinetics ------------------//
 
-    // @todo Define a new version of this function that does not require the
-    //     unused 'phasename' argument.
-    int kin_newFromFile(const char* filename, const char* phasename,
-                        int reactingPhase, int neighbor1, int neighbor2,
-                        int neighbor3, int neighbor4)
-    {
-        try {
-            vector<shared_ptr<ThermoPhase>> phases;
-            phases.push_back(ThermoCabinet::at(reactingPhase));
-            if (neighbor1 >= 0) {
-                phases.push_back(ThermoCabinet::at(neighbor1));
-                if (neighbor2 >= 0) {
-                    phases.push_back(ThermoCabinet::at(neighbor2));
-                    if (neighbor3 >= 0) {
-                        phases.push_back(ThermoCabinet::at(neighbor3));
-                        if (neighbor4 >= 0) {
-                            phases.push_back(ThermoCabinet::at(neighbor4));
-                        }
-                    }
-                }
-            }
-            if (phasename != nullptr) {
-                string phase_str(phasename);
-                if (!phase_str.empty() && phase_str != phases[0]->name()) {
-                    throw CanteraError("kin_newFromFile",
-                                       "Reacting phase must be first");
-                }
-            }
-            shared_ptr<Kinetics> kin = newKinetics(phases, filename);
-            return KineticsCabinet::add(kin);
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    //-------------------------------------
     int kin_getType(int n, int lennm, char* nm)
     {
         try {
