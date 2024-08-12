@@ -12,6 +12,8 @@ namespace Cantera;
 /// </summary>
 public class SpeciesCollection : IReadOnlyList<Species>
 {
+    readonly SolutionHandle _sol;
+
     readonly ThermoPhaseHandle _handle;
 
     // this collection should be eagerly-initialized because it depends on interop

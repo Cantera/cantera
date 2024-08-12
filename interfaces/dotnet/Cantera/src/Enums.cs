@@ -104,32 +104,6 @@ static class ThermoPairExtensions
 // the constants MUST match what CLIB is expecting
 
 /// <summary>
-/// Determines which algorithm is used to find equilibrium.
-/// </summary>
-public enum EquilibriumSolver
-{
-    /// <summary>
-    /// Allow Cantera to determine the optimum algorithm.
-    /// </summary>
-    Auto = -1,
-
-    /// <summary>
-    /// Solve by using the element potential algorithm.
-    /// </summary>
-    ElementPotential,
-
-    /// <summary>
-    /// Solve by using the general algorithm to minimize Gibbs free energy.
-    /// </summary>
-    Gibbs,
-
-    /// <summary>
-    /// Solved by using the VCS algorithm to minimize Gibbs free energy.
-    /// </summary>
-    Vcs
-}
-
-/// <summary>
 /// The
 /// </summary>
 public enum LogLevel

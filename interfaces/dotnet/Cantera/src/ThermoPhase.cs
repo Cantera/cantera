@@ -51,9 +51,11 @@ public partial class ThermoPhase
     /// </summary>
     public SpeciesCollection Species => _species.Value;
 
-    internal ThermoPhase(string filename, string? phaseName)
+    internal ThermoPhase(string filename, string? phaseName, string? transModel)
     {
-        _handle = LibCantera.thermo_newFromFile(filename, phaseName ?? "");
+        _sol = LibCantera.soln_newSolution(
+            filename, phaseName ?? "", transModel ?? "default");
+        _handle = LibCantera.soln_thermo(_sol);
         _handle.EnsureValid();
 
         _species = new(() => new SpeciesCollection(_handle));
@@ -61,17 +63,16 @@ public partial class ThermoPhase
 
     /// <summary>
     /// Simulates bringing the phase to thermodynamic equilibrium by holding the
-    /// specified <see cref="ThermoPair" /> constant and using the algorithm
-    /// identified by the given <see cref="EquilibriumSolver" />.
+    /// specified <see cref="ThermoPair" /> constant and using the identified algorithm.
     /// </summary>
     public void Equilibrate(ThermoPair thermoPair,
-                            EquilibriumSolver solver = EquilibriumSolver.Auto,
+                            string algorithm = "auto",
                             double tolerance = 1e-9, int maxSteps = 1000,
                             int maxIterations = 100, int logVerbosity = 0)
     {
         var interopString = thermoPair.ToInteropString();
 
-        var retVal = LibCantera.thermo_equilibrate(_handle, interopString, (int) solver,
+        var retVal = LibCantera.thermo_equilibrate(_handle, interopString, algorithm,
             tolerance, maxSteps, maxIterations, logVerbosity);
 
         InteropUtil.CheckReturn(retVal);
