@@ -205,130 +205,184 @@ $$
 \Delta x^{(m+1)} = J(x^{(m)})^{-1} F(x^{(m+1)})
 $$
 
-During the search for the correct value of $\lambda$, the value of $\lambda$ starts at 1, it is adjusted down to a value that keeps the solution within
-the trust region. The process then begins for finding $\lambda$, failures result in the damping factor being reduced by a constant factor. The current
-factor in  Cantera is the $\sqrt{2}$.
+During the search for the correct value of $\lambda$, the value of $\lambda$ starts
+at 1, it is adjusted down to a value that keeps the solution within the trust region.
+The process then begins for finding $\lambda$, failures result in the damping factor
+being reduced by a constant factor. The current factor in  Cantera is the $\sqrt{2}$.
 
-During the damped Newton method, the Jacobian is kept at the $x^{(m)}$ value. This sometimes can cause issues with convergence if the Jacobian becomes out of date (due to sensitivity to the solution). In Cantera, the Jacobian is updated if too many attempted steps fail to take any damped step. The balance of how long to wait before updating the Jacobian is a trade-off between the cost of updating the Jacobian and the cost of failing to converge.
-
+During the damped Newton method, the Jacobian is kept at the $x^{(m)}$ value. This
+sometimes can cause issues with convergence if the Jacobian becomes out of date
+(due to sensitivity to the solution). In Cantera, the Jacobian is updated if too many
+attempted steps fail to take any damped step. The balance of how long to wait before
+updating the Jacobian is a trade-off between the cost of updating the Jacobian and the
+cost of failing to converge.
 
 ### Convergence Criteria
 
-As was discussed earlier, the Newton method is an iterative method, and it's important to assess when the method has reached a point where the iterations
-can be stopped. This point is called convergence. Cantera's implementation uses a **weighted norm** of the step vector to determine convergence, rather than a simple absolute norm. A damped Newton step is considered to be converged when the **weighted norm** of the correction vector is less than 1. During the solution, the process of
-finding and taking a damped Newton step is repeated until the **weighted norm** of the correction vector is less than 1, if it is not, then the process continues.
+As was discussed earlier, the Newton method is an iterative method, and it's important
+to assess when the method has reached a point where the iterations can be stopped. This
+point is called convergence. Cantera's implementation uses a **weighted norm** of the
+step vector to determine convergence, rather than a simple absolute norm. A damped
+Newton step is considered to be converged when the **weighted norm** of the correction
+vector is less than 1. During the solution, the process of finding and taking a damped
+Newton step is repeated until the **weighted norm** of the correction vector is less
+than 1, if it is not, then the process continues.
 
-In a multivariate system, different variables may have vastly different magnitudes and units. A simple absolute norm could either be dominated by large components or fail to account for smaller components effectively. By normalizing the step vector components using \( w_n \), the weighted norm ensures that the convergence criterion is meaningful across all solution components, regardless of their individual scales.
+In a multivariate system, different variables may have vastly different magnitudes
+and units. A simple absolute norm could either be dominated by large components or fail
+to account for smaller components effectively. By normalizing the step vector
+components using $w_n$, the weighted norm ensures that the convergence criterion is
+meaningful across all solution components, regardless of their individual scales.
 
-This approach provides a more robust and scale-invariant method for assessing convergence, making it especially useful in systems with diverse variables.
+This approach provides a more robust and scale-invariant method for assessing
+convergence, making it especially useful in systems with diverse variables.
 
 #### Definition of the Weighted Norm
 
-The weighted norm of the step vector \( \mathbf{s} \) is calculated as:
+The weighted norm of the step vector $\mathbf{s}$ is calculated as:
 
 $$
 \text{Weighted Norm} = \sum_{n,j} \left(\frac{s_{n,j}}{w_n}\right)^2
 $$
 
 where:
-- \( s_{n,j} \) is the Newton step vector component for the \( n \)-th solution variable at the \( j \)-th grid point.
-- \( w_n \) is the error weight for the \( n \)-th solution component, given by:
+- $s_{n,j}$ is the Newton step vector component for the $n$-th solution variable
+  at the $j$-th grid point.
+- $w_n$ is the error weight for the $n$-th solution component, given by:
 
 $$
 w_n = \epsilon_{r,n} \cdot \frac{\sum_j |x_{n,j}|}{J} + \epsilon_{a,n}
 $$
 
 Here:
-- \( \epsilon_{r,n} \) is the relative error tolerance for the \( n \)-th solution component.
-- \( \frac{\sum_j |x_{n,j}|}{J} \) is the average magnitude of the \( n \)-th solution component over all grid points, and $J$ is the total number of grid points.
-- \( \epsilon_{a,n} \) is the absolute error tolerance for the \( n \)-th solution component.
+- $\epsilon_{r,n}$ is the relative error tolerance for the $n$-th solution component.
+- $\frac{\sum_j |x_{n,j}|}{J}$ is the average magnitude of the $n$-th solution
+  component over all grid points, and $J$ is the total number of grid points.
+- \( \epsilon_{a,n} \) is the absolute error tolerance for the $n$-th solution
+  component.
 
 #### Interpretation of the Weighted Norm
 
-The weighted norm is a relative measure that helps bring all components of the step vector into a comparable range, taking into account the scales of the different solution components. Here's how to interpret it:
+The weighted norm is a relative measure that helps bring all components of the step
+vector into a comparable range, taking into account the scales of the different
+solution components. It can be interpreted as follows:
 
-- **Relative Error Term** \( (\epsilon_{r,n}) \): Scales the step size relative to the average magnitude of the corresponding solution component. This means that larger components can tolerate larger steps.
-- **Absolute Error Term** \( (\epsilon_{a,n}) \): Ensures that even very small solution components are considered in the convergence check by providing a minimum threshold.
+- **Relative Error Term** $(\epsilon_{r,n})$: Scales the step size relative to the
+  average magnitude of the corresponding solution component. This means that larger
+  components can tolerate larger steps.
+- **Absolute Error Term** $(\epsilon_{a,n})$: Ensures that even very small solution
+  components are considered in the convergence check by providing a minimum threshold.
 
 #### Convergence Criterion
 
 The Newton iteration is considered converged when the weighted norm is less than 1:
 
-\[
+$$
 \sum_{n,j} \left(\frac{s_{n,j}}{w_n}\right)^2 < 1
-\]
+$$
 
-This criterion indicates that each component of the step vector \( s_{n,j} \) is sufficiently small relative to the expected precision (as defined by the weights \( w_n \)).
+This criterion indicates that each component of the step vector $s_{n,j}$ is
+sufficiently small relative to the expected precision (as defined by the weights
+$w_n$).
 
 ## Transient Solution
 
-There will be times when the solution of the steady-state problem can not be found using the damped Newton method. In this case, a transient solution is solved and a specified number of time steps is taken before the steady-state damped Newton method is attempted again. The transient equation for stepping forward in time (using backward euler method) is given by:
+There will be times when the solution of the steady-state problem can not be found
+using the damped Newton method. In this case, a transient solution is solved and a
+specified number of time steps are taken before the steady-state damped Newton
+method is attempted again.
+
+
+The equation that is being solved for the transient case is:
 
 $$
-\left( J(x_{(n)}) - \frac{I}{\Delta t} \right) \Delta x_{(n+1)} = -F(x_{(n)})
+\frac{d x}{dt} = F_{ss}(x)
 $$
 
-Here the `n+1` is the solution at the next time step, `n` is the solution at the current time step. This problem is analogous to the method that was just described above with the exception that the Jacobian matrix is modified to include the time step size. In Cantera, this is exactly what is done. The Jacobian matrix is modified to include the time step size, and the damped Newton method is then used to solve the transient problem because it has the same solution procedure as the steady-state problem, with the exception of that modified Jacobian matrix.
-
-### Differential-Algebraic Equation (DAE) Form
-
-A generic DAE system can be expressed as:
-
-$$
-F\left(t, x, \frac{dx}{dt}\right) = 0
-$$
-
-Where:
-- $x$ is the solution vector.
-- $\frac{dx}{dt}$ represents the time derivatives of the differential components of $x$.
-- $F(t, x, \frac{dx}{dt})$ is the residual vector, which combines both differential equations and algebraic constraints.
-
-### Backward Euler Time Discretization
-
-Using the backward Euler method to discretize the time derivative:
+Where $F_{ss}(x)$ is the residual vector for the steady-state problem. That is, the
+residual vector that arises when the $\frac{d x}{dt}$ term is zero in the governing
+equations. The transient solution is solved using the implicit backward Euler method.
+The solution at the next time step is given by:
 
 $$
-\frac{dx}{dt} \approx \frac{x_{n+1} - x_n}{\Delta t}
+\frac{x_{n+1} - x_n}{\Delta t} = F_{ss}(x_{n+1})
 $$
 
-The residual equation for the time step $n+1$ becomes:
+Here the `n+1` is the solution at the next time step, `n` is the solution at the current
+time step.
+
+We consider a case where each element of the residual vector may not have a
+corresponding time derivative term. These equations without time derivative terms are
+referred to as algebraic equations, and the ones with time derivative terms are
+referred to as differential equations. A general way to express this is by writing the
+equation above in the following form.
 
 $$
-F\left(t_{n+1}, x_{n+1}, \frac{x_{n+1} - x_n}{\Delta t}\right) = 0
+\alpha \frac{x_{n+1} - x_n}{\Delta t} + F_{ss}(x_{n+1})
 $$
 
-### Newton's Method for Solving the Nonlinear System
+Where $\alpha$ is a diagonal matrix with diagonal values that are equal to 1 for
+differential equations and 0 for algebraic equations.
 
-To solve the nonlinear system using Newton's method:
+Moving all terms to the right hand side of the equation, we get our expression for the
+residual equation that we will by solving:
 
-1. **Newton Iteration**:
+$$
+F(x_n, x_{n+1}) = -\frac{\alpha}{\Delta t}(x_{n+1} - x_n) + F_{ss}(x_{n+1})
+$$
 
-   $$
-   J\left(x_{n+1}^{(k)}\right) \Delta x_{n+1}^{(k)} = -F\left(t_{n+1}, x_{n+1}^{(k)}, \frac{x_{n+1}^{(k)} - x_n}{\Delta t}\right)
-   $$
+For the Newton method, we linearize the residual equation about the solution vector at
+the next iteration(not timestep) by using a Taylor series expansion. The linearized
+equation is given by:
 
-   Where:
-   - $x_{n+1}^{(k)}$ is the solution at the $k$-th Newton iteration for the time step $n+1$.
-   - $J$ is the Jacobian matrix, which is the derivative of the residual function with respect to $x$.
+$$
+F(x_n, x_{n+1}) \approx F(x_n, x_{n+1}^{(k)}) +
+  \frac{\partial F(x_n, x_{n+1}^{(k)})}{\partial x_{n+1}} \Delta x_{n+1}^{(k)}
+$$
 
-2. **Jacobian Structure**:
-   The Jacobian matrix is composed of:
+Where $x_{n+1}^{(k)}$ is the solution at the $k$-th Newton iteration for the time step
+$n+1$. The Jacobian is the derivative term that is multiplying the correction vector
+$\Delta x_{n+1}^{(k)}$. The Jacobian is given by:
 
-   $$
-   J = \frac{1}{\Delta t} I + \frac{\partial F}{\partial x_{n+1}^{(k)}}
-   $$
+$$
+J(x_n, x_{n+1}^{(k)}) = \frac{\partial F(x_n, x_{n+1}^{(k)})}{\partial x_{n+1}}
+$$
 
-   - The term $\frac{1}{\Delta t} I$ arises from the derivative of the backward Euler time discretization.
-   - The second term is the Jacobian of the steady-state residual with respect to $x_{n+1}^{(k)}$.
+Using the expression for the residual equation defined earlier, the Jacobian matrix can
+be written as:
 
-3. **Update Solution**:
+$$
+J(x_n, x_{n+1}^{(k)}) = \frac{\alpha}{\Delta t} I +
+  \frac{\partial F_{ss}(x_{n+1}^{(k)})}{\partial x_{n+1}}
+$$
 
-   $$
-   x_{n+1}^{(k+1)} = x_{n+1}^{(k)} + \Delta x_{n+1}^{(k)}
-   $$
+Where $\frac{\partial x_n}{\partial x_{n+1}}$ is zero, and
+$\frac{\partial x_{n+1}}{\partial x_{n+1}}$ is the identity matrix.
 
-4. **Convergence**:
-   - Iterate until the Newton correction $\Delta x_{n+1}^{(k)}$ is sufficiently small.
-   - Once converged, $x_{n+1}^{(k+1)}$ is accepted as $x_{n+1}$, and the process advances to the next time step.
+The linearized equation is set to zero to obtain the equation that will be used to send
+the residual equation to zero. This equation is:
 
+$$
+J(x_{n+1}^{(k)}) \Delta x_{n+1}^{(k)} = -F(x_n, x_{n+1}^{(k)})
+$$
 
+Taking the full expression for the Jacobian and the residual equation, we get:
+
+$$
+\left(-\frac{\alpha}{\Delta t} I  + J_{ss}(x_{n+1}^{(k)})\right) \Delta x_{n+1}^{(k)} =
+  -\left( -\frac{\alpha}{\Delta t} (x_{n+1}^{(k)} - x_n) + F_{ss}(x_{n+1}^{(k)}) \right)
+$$
+
+Recall that the original steady-state equation, solved using the damped Newton method
+had the form:
+
+$$
+J_{ss}(x^{(k)}) \Delta x^{(k)} = -\lambda^{(k)} F_{ss}(x^{(k)})
+$$
+
+The transient equation has the same form as the steady-state equation, and so the same
+damped Newton method can be used to solve the transient problem for a single timestep.
+
+$$
+J(x_{n+1}^{(k)}) \Delta x_{n+1}^{(k)} = -\lambda^{(k)} F(x_n, x_{n+1}^{(k)})
+$$

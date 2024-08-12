@@ -7,7 +7,7 @@
    viewBox="0 0 173.58698 137.60609"
    version="1.1"
    id="svg1"
-   inkscape:version="1.3.2 (091e20e, 2023-11-25, custom)"
+   inkscape:version="1.3.2 (1:1.3.2+202311252150+091e20ef0f)"
    sodipodi:docname="damped_newton_diagram.svg"
    inkscape:export-filename="two_point_control_diagram.svg"
    inkscape:export-xdpi="150"
@@ -30,9 +30,9 @@
      inkscape:cx="266.67197"
      inkscape:cy="326.80389"
      inkscape:window-width="1920"
-     inkscape:window-height="1017"
-     inkscape:window-x="-8"
-     inkscape:window-y="-8"
+     inkscape:window-height="941"
+     inkscape:window-x="0"
+     inkscape:window-y="27"
      inkscape:window-maximized="1"
      inkscape:current-layer="layer1" /><defs
      id="defs1"><marker
@@ -292,7 +292,7 @@
          x="65.555496"
          y="220.94476">x<tspan
    style="font-size:65%;baseline-shift:super"
-   id="tspan3">(m+1)</tspan></tspan></text><text
+   id="tspan3">(k+1)</tspan></tspan></text><text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:4.58611px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
        x="47.064987"
@@ -324,7 +324,7 @@
          x="38.604362"
          y="262.4577">x<tspan
    style="font-size:65%;baseline-shift:super"
-   id="tspan3-8">(m)</tspan></tspan></text><text
+   id="tspan3-8">(k)</tspan></tspan></text><text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:6.35px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
        x="95.60257"
@@ -335,7 +335,7 @@
          x="95.60257"
          y="262.88937">Δx<tspan
    style="font-size:65%;baseline-shift:super"
-   id="tspan9">(m)</tspan></tspan></text><text
+   id="tspan9">(k)</tspan></tspan></text><text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:6.35px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
        x="28.111406"
@@ -346,9 +346,9 @@
          x="28.111406"
          y="229.74162">λ<tspan
    style="font-size:65%;baseline-shift:super"
-   id="tspan11">(m)</tspan>Δx<tspan
+   id="tspan11">(k)</tspan>Δx<tspan
    style="font-size:65%;baseline-shift:super"
-   id="tspan12">(m)</tspan></tspan></text><text
+   id="tspan12">(k)</tspan></tspan></text><text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:4.23333px;line-height:1.25;font-family:sans-serif;baseline-shift:baseline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
        x="54.283073"
@@ -360,9 +360,9 @@
          y="191.6521"
          style="font-size:4.23333px">Δx<tspan
    style="font-size:4.23333px;baseline-shift:super"
-   id="tspan13">(m+1)</tspan>&lt;Δx<tspan
+   id="tspan13">(k+1)</tspan>&lt;Δx<tspan
    style="font-size:4.23333px;baseline-shift:super"
-   id="tspan14">(m)</tspan></tspan></text><text
+   id="tspan14">(k)</tspan></tspan></text><text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:4.23333px;line-height:1.25;font-family:sans-serif;baseline-shift:baseline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
        x="118.82137"
@@ -374,9 +374,9 @@
          y="154.20409"
          style="font-size:4.23333px">Δx<tspan
    style="font-size:4.23333px;baseline-shift:super"
-   id="tspan13-3">(m+1)</tspan>&gt;Δx<tspan
+   id="tspan13-3">(k+1)</tspan>&gt;Δx<tspan
    style="font-size:4.23333px;baseline-shift:super"
-   id="tspan14-8">(m)</tspan></tspan></text><text
+   id="tspan14-8">(k)</tspan></tspan></text><text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:6.35px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
        x="160.70126"
@@ -387,4 +387,4 @@
          x="160.70126"
          y="203.97893">Δx<tspan
    style="font-size:65%;baseline-shift:super"
-   id="tspan9-4">(m+1)</tspan></tspan></text></g></svg>
+   id="tspan9-4">(k+1)</tspan></tspan></text></g></svg>
