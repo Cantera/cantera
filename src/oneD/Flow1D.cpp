@@ -515,8 +515,8 @@ void Flow1D::evalContinuity(double* x, double* rsd, int* diag,
     // The left boundary has the same form for all cases.
     if (jmin == 0) { // left boundary
         rsd[index(c_offset_U, jmin)] = -(rho_u(x, jmin+1) - rho_u(x, jmin))/m_dz[jmin]
-                                      -(density(jmin+1)*V(x, jmin+1)
-                                      + density(jmin)*V(x, jmin));
+                                       -(density(jmin+1)*V(x, jmin+1)
+                                       + density(jmin)*V(x, jmin));
         diag[index(c_offset_U, jmin)] = 0; // Algebraic constraint
     }
 
@@ -539,7 +539,7 @@ void Flow1D::evalContinuity(double* x, double* rsd, int* diag,
             // specified at the right boundary. The lambda information propagates
             // in the opposite direction.
             rsd[index(c_offset_U, j)] = -(rho_u(x, j+1) - rho_u(x, j))/m_dz[j]
-                                       -(density(j+1)*V(x, j+1) + density(j)*V(x, j));
+                                        -(density(j+1)*V(x, j+1) + density(j)*V(x, j));
             diag[index(c_offset_U, j)] = 0; // Algebraic constraint
         }
     } else if (m_isFree) { // "free-flow"
@@ -591,9 +591,9 @@ void Flow1D::evalMomentum(double* x, double* rsd, int* diag,
     size_t j1 = std::min(jmax, m_points-2);
     for (size_t j = j0; j <= j1; j++) { // interior points
         rsd[index(c_offset_V, j)] = (shear(x, j) - lambda(x, j)
-                                    - rho_u(x, j) * dVdz(x, j)
-                                    - m_rho[j] * V(x, j) * V(x, j)) / m_rho[j]
-                                   - rdt * (V(x, j) - V_prev(j));
+                                     - rho_u(x, j) * dVdz(x, j)
+                                     - m_rho[j] * V(x, j) * V(x, j)) / m_rho[j]
+                                    - rdt * (V(x, j) - V_prev(j));
         diag[index(c_offset_V, j)] = 1;
     }
 }
@@ -738,7 +738,7 @@ void Flow1D::evalSpecies(double* x, double* rsd, int* diag,
         for (size_t k = 0; k < m_nsp; k++) {
             sum += Y(x,k,jmax);
             rsd[index(k+c_offset_Y, jmax)] = m_flux(k, jmax-1) +
-                                            rho_u(x, jmax)*Y(x, k, jmax);
+                                             rho_u(x, jmax)*Y(x, k, jmax);
         }
         rsd[index(c_offset_Y + rightExcessSpecies(), jmax)] = 1.0 - sum;
         diag[index(c_offset_Y + rightExcessSpecies(), jmax)] = 0;
@@ -752,7 +752,7 @@ void Flow1D::evalSpecies(double* x, double* rsd, int* diag,
             double convec = rho_u(x, j)*dYdz(x, k, j);
             double diffus = 2*(m_flux(k, j) - m_flux(k, j-1)) / (z(j+1) - z(j-1));
             rsd[index(c_offset_Y + k, j)] = (m_wt[k]*m_wdot(k, j)
-                                             - convec - diffus) / m_rho[j]
+                                              - convec - diffus) / m_rho[j]
                                             - rdt*(Y(x, k, j) - Y_prev(k, j));
             diag[index(c_offset_Y + k, j)] = 1;
         }

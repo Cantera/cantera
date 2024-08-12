@@ -515,7 +515,7 @@ protected:
      * default boundary condition is zero radial velocity (@f$ V @f$) at the left
      * and right boundary.
      *
-     * For argument explanation, see evalContinuity().
+     * For argument explanation, @see evalContinuity().
      */
     virtual void evalMomentum(double* x, double* rsd, int* diag,
                               double rdt, size_t jmin, size_t jmax);
@@ -534,7 +534,7 @@ protected:
      * at the left boundary. The equation is first order and so only one
      * boundary condition is needed.
      *
-     * For argument explanation, see evalContinuity().
+     * For argument explanation, @see evalContinuity().
      */
     virtual void evalLambda(double* x, double* rsd, int* diag,
                             double rdt, size_t jmin, size_t jmax);
@@ -554,7 +554,7 @@ protected:
      * at the left and right boundaries. These boundary values are updated by the
      * specific boundary object connected to the domain.
      *
-     * For argument explanation, see evalContinuity().
+     * For argument explanation, @see evalContinuity().
      */
     virtual void evalEnergy(double* x, double* rsd, int* diag,
                             double rdt, size_t jmin, size_t jmax);
@@ -570,7 +570,7 @@ protected:
      * of species mass fractions (@f$ Y_k @f$). The default boundary condition is zero
      * flux for species at the left and right boundary.
      *
-     * For argument explanation, see evalContinuity().
+     * For argument explanation, @see evalContinuity().
      */
     virtual void evalSpecies(double* x, double* rsd, int* diag,
                              double rdt, size_t jmin, size_t jmax);
@@ -582,7 +582,7 @@ protected:
      * boundary condition is zero electric field (@f$ E @f$) at the boundary,
      * and @f$ E @f$ is zero within the domain.
      *
-     * For argument explanation, see evalContinuity().
+     * For argument explanation, @see evalContinuity().
      */
     virtual void evalElectricField(double* x, double* rsd, int* diag,
                                    double rdt, size_t jmin, size_t jmax);
@@ -608,7 +608,7 @@ protected:
      * be specified while maintaining block tridiagonal structure. The default boundary
      * condition is @f$ U_o = 0 @f$ at the right and zero flux at the left boundary.
      *
-     * For argument explanation, see evalContinuity().
+     * For argument explanation, @see evalContinuity().
      */
     virtual void evalUo(double* x, double* rsd, int* diag,
                         double rdt, size_t jmin, size_t jmax);
@@ -684,10 +684,12 @@ protected:
      * Calculates the spatial derivative of velocity V with respect to z at point j
      * using upwind differencing.
      *
-     * The general formula for a variable, Var, is:
+     * For more details on the upwinding scheme, see the
+     * [documentation](../../html/reference/onedim/discretization.html#upwinding).
+     *
      * @f[
-     *   \frac{\partial Var}{\partial z} \bigg|_{j} \approx \frac{Var(x, j_{\text{loc}}) -
-     *   Var(x, j_{\text{loc}} - 1)}{m_{\text{dz}}[j_{\text{loc}} - 1]}
+     *   \frac{\partial V}{\partial z} \bigg|_{j} \approx \frac{V_{j_{\text{loc}}} -
+     *     V_{j_{\text{loc}}-1}}{z_{\text{loc}} - z_{\text{loc}-1}}
      * @f]
      *
      * Where the value of loc is determined by the sign of the axial velocity.
@@ -696,7 +698,7 @@ protected:
      * is moving left-to-right.
      *
      * @param[in] x The local domain state vector.
-     * @param[in] j The index at which the derivative is computed.
+     * @param[in] j The grid point index at which the derivative is computed.
      */
     double dVdz(const double* x, size_t j) const {
         size_t jloc = (u(x, j) > 0.0 ? j : j + 1);
@@ -711,7 +713,7 @@ protected:
      *
      * @param[in] x The local domain state vector.
      * @param[in] k The species index.
-     * @param[in] j The index at which the derivative is computed.
+     * @param[in] j The grid point index at which the derivative is computed.
      */
     double dYdz(const double* x, size_t k, size_t j) const {
         size_t jloc = (u(x, j) > 0.0 ? j : j + 1);
@@ -725,7 +727,7 @@ protected:
      * For details on the upwinding scheme, @see dVdz().
      *
      * @param[in] x The local domain state vector.
-     * @param[in] j The index at which the derivative is computed.
+     * @param[in] j The grid point index at which the derivative is computed.
      */
     double dTdz(const double* x, size_t j) const {
         size_t jloc = (u(x, j) > 0.0 ? j : j + 1);
@@ -735,52 +737,16 @@ protected:
 
     /**
      * Compute the shear term from the momentum equation using a central
-     * three-point differencing scheme. This term is discretized
+     * three-point differencing scheme.
      *
      * The term to be discretized is:
      * @f[
      *   \frac{d}{dz}\left(\mu \frac{dV}{dz}\right)
      * @f]
      *
-     * Let @f$ A = \mu \frac{dV}{dz} @f$ for simplicity. We'll call this the inner
-     * term or inner discretization. In this situation, the inner term is evaluated
-     * using a central difference formula, but evaluated at j+1/2 and j-1/2 (halfway
-     * between the grid points around point j).
-     *
-     * The value of @f$ A @f$ at point @f$ j-1/2 @f$ is estimating using a central
-     * difference formula:
-     *
-     * @f[
-     *  A_{j-1/2} = \mu_{j-1/2} \frac{V_j - V_{j-1}}{z_j - z_{j-1}}
-     * @f]
-     *
-     * The value of @f$ A @f$ at point @f$ j+1/2 @f$ is:
-     *
-     * @f[
-     *   A_{j+1/2} = \mu_{j+1/2} \frac{V_{j+1} - V_j}{z_{j+1} - z_j}
-     * @f]
-     *
-     * In the implementation, a vector of viscosities is used which actually represents
-     * the viscosity evaluated at the midpoints between grid points. In other words,
-     * the value of mu[j] is actually @f$ \mu_{j+1/2} @f$. The transport properties
-     * between grid points are not the average of the adjacent grid points, but rather,
-     * the state of the system at the midpoint is estimated, and then the transport
-     * properties are evaluated at that state (T,P,Y) for example.
-     *
-     * The outer discretization uses a central difference between the j+1/2 and j-1/2
-     * locations.
-     *
-     * @f[
-     *  \frac{dA}{dz} \approx \frac{A_{j+1/2} - A_{j-1/2}}{z_{j+1/2} - z_{j-1/2}}
-     * @f]
-     *
-     * Where the values of @f$ z @f$ are:
-     * @f$ z_{j+1/2} = z_{j} + 0.5*(z_{j+1} - z_j) = 0.5*(z_{j} + z_{j+1}) @f$ and
-     * @f$ z_{j-1/2} = z_j - 0.5*(z_j - z_{j-1}) = 0.5*(z_{j} + z_{j-1}) @f$. The
-     * difference between these two values is
-     * @f$ z_{j+1/2} - z_{j-1/2} = \frac{z_{j+1} - z_{j-1}}{2} @f$.
-     *
-     * Substituting these values into the central difference formula gives:
+     * For more details on the discretization scheme used for the second derivative,
+     * see the
+     * [documentation](../../html/reference/onedim/discretization.html#second-derivative-term).
      *
      * @f[
      *  \frac{d}{dz}\left(\mu \frac{dV}{dz}\right) \approx
@@ -789,7 +755,7 @@ protected:
      * @f]
      *
      * @param[in] x The local domain state vector.
-     * @param[in] j The index at which the derivative is computed.
+     * @param[in] j The grid point index at which the derivative is computed.
      */
     double shear(const double* x, size_t j) const {
         double A_left = m_visc[j-1]*(V(x, j) - V(x, j-1)) / (z(j) - z(j-1));
@@ -804,7 +770,7 @@ protected:
      * For the details about the discretization, @see shear().
      *
      * @param[in] x The local domain state vector.
-     * @param[in] j The index at which the derivative is computed.
+     * @param[in] j The grid point index at which the derivative is computed.
      */
     double conduction(const double* x, size_t j) const {
         double A_left = m_tcon[j-1]*(T(x, j) - T(x, j-1)) / (z(j) - z(j-1));
@@ -814,7 +780,7 @@ protected:
 
     /**
      * Array access mapping for a 3D array stored in a 1D vector. Used for
-     * accessing data in the m_multidiff member variable.
+     * accessing data in the #m_multidiff member variable.
      *
      * @param[in] k First species index.
      * @param[in] j The grid point index.
@@ -827,11 +793,11 @@ protected:
     /**
      * Compute the spatial derivative of species specific molar enthalpies using upwind
      * differencing. Updates all species molar enthalpies for all species at point j.
-     * Does not return a value, but updates the m_dhk_dz 2D array.
+     * Updates the #m_dhk_dz 2D array.
      *
      * For details on the upwinding scheme, @see dVdz().
      *
-     * @param[in] k The species index.
+     * @param[in] x The local domain state vector.
      * @param[in] j The index at which the derivative is computed.
      */
     virtual void grad_hk(const double* x, size_t j);
