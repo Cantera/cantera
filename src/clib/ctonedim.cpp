@@ -387,16 +387,6 @@ extern "C" {
         }
     }
 
-    int inlet_setSpreadRate(int i, double v)
-    {
-        try {
-            DomainCabinet::as<Inlet1D>(i)->setSpreadRate(v);
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
     //------------------ flow domains --------------------
 
     int flow1D_new(int iph, int ikin, int itr, int itype)

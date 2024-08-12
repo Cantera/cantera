@@ -40,8 +40,8 @@ extern "C" {
 
     CANTERA_CAPI int bdry_setMdot(int i, double mdot);
     CANTERA_CAPI int bdry_setTemperature(int i, double t);
-    CANTERA_CAPI int bdry_setSpreadRate(int i, double v);
     CANTERA_CAPI int bdry_setMoleFractions(int i, const char* x);
+    CANTERA_CAPI int bdry_setSpreadRate(int i, double v);
     CANTERA_CAPI double bdry_temperature(int i);
     CANTERA_CAPI double bdry_spreadRate(int i);
     CANTERA_CAPI double bdry_massFraction(int i, int k);
@@ -56,10 +56,8 @@ extern "C" {
     CANTERA_CAPI int symm_new();
     CANTERA_CAPI int surf_new();
     CANTERA_CAPI int reactingsurf_new();
-
-    CANTERA_CAPI int inlet_setSpreadRate(int i, double v);
-
     CANTERA_CAPI int flow1D_new(int iph, int ikin, int itr, int itype);
+
     CANTERA_CAPI int flow1D_setTransport(int i, int itr);
     CANTERA_CAPI int flow1D_enableSoret(int i, int iSoret);
     CANTERA_CAPI int flow1D_setPressure(int i, double p);

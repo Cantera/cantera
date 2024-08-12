@@ -38,7 +38,7 @@ extern "C" {
     CANTERA_CAPI double reactor_massFraction(int i, int k);
     CANTERA_CAPI int reactor_nSensParams(int i);
     CANTERA_CAPI int reactor_addSensitivityReaction(int i, int rxn);
-    CANTERA_CAPI int flowReactor_setMassFlowRate(int i, double mdot);
+    CANTERA_CAPI int reactor_setMassFlowRate(int i, double mdot);
 
     CANTERA_CAPI int reactornet_new();
     CANTERA_CAPI int reactornet_del(int i);
