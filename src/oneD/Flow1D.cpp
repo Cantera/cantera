@@ -592,9 +592,13 @@ void Flow1D::evalMomentum(double* x, double* rsd, int* diag,
     for (size_t j = j0; j <= j1; j++) { // interior points
         rsd[index(c_offset_V, j)] = (shear(x, j) - lambda(x, j)
                                      - rho_u(x, j) * dVdz(x, j)
-                                     - m_rho[j] * V(x, j) * V(x, j)) / m_rho[j]
-                                    - rdt * (V(x, j) - V_prev(j));
-        diag[index(c_offset_V, j)] = 1;
+                                     - m_rho[j] * V(x, j) * V(x, j)) / m_rho[j];
+        if (!m_twoPointControl) {
+            rsd[index(c_offset_V, j)] -= rdt * (V(x, j) - V_prev(j));
+            diag[index(c_offset_V, j)] = 1;
+        } else {
+            diag[index(c_offset_V, j)] = 0;
+        }
     }
 }
 
@@ -668,9 +672,13 @@ void Flow1D::evalEnergy(double* x, double* rsd, int* diag,
             rsd[index(c_offset_T, j)] = - m_cp[j]*rho_u(x, j)*dTdz(x, j)
                                         - conduction(x, j) - sum;
             rsd[index(c_offset_T, j)] /= (m_rho[j]*m_cp[j]);
-            rsd[index(c_offset_T, j)] -= rdt*(T(x, j) - T_prev(j));
             rsd[index(c_offset_T, j)] -= (m_qdotRadiation[j] / (m_rho[j] * m_cp[j]));
-            diag[index(c_offset_T, j)] = 1;
+            if (!m_twoPointControl || (m_z[j] != m_tLeft && m_z[j] != m_tRight)) {
+                rsd[index(c_offset_T, j)] -= rdt*(T(x, j) - T_prev(j));
+                diag[index(c_offset_T, j)] = 1;
+            } else {
+                diag[index(c_offset_T, j)] = 0;
+            }
         } else {
             // residual equations if the energy equation is disabled
             rsd[index(c_offset_T, j)] = T(x, j) - T_fixed(j);
