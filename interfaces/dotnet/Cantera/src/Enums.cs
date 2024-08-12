@@ -101,7 +101,7 @@ static class ThermoPairExtensions
     }
 }
 
-// the constants MUST match what CLIB is expecting
+// the constants MUST match what Clib is expecting
 
 /// <summary>
 /// Determines which algorithm is used to find equilibrium.
