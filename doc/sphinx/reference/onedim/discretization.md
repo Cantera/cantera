@@ -1,7 +1,5 @@
 # Discretization of 1D Equations
 
-# Governing Equations
-
 The governing equations outlined in the [governing equations](./governing-equations)
 must be discretized in order to obtain solutions for 1D flame configurations. Various
 discretization methods are used for different terms in the equations, and their
@@ -137,8 +135,8 @@ The discretized equation in residual form (all terms moved to one side) at the i
 points in the domain is given below.
 
 $$
-F_{V,j} = -\rho_j u_j \left( \frac{V_{j_{\text{\ell}}} -
-  V_{j_{\ell-1}}}{z_{\ell} - z_{\ell-1}} \right) - \rho_j V_j^2 + \Lambda_j +
+F_{V,j} = -\rho_j u_j \left( \frac{V_{\ell} -
+  V_{\ell-1}}{z_{\ell} - z_{\ell-1}} \right) - \rho_j V_j^2 + \Lambda_j +
   \frac{\mu_{j+1/2} \frac{V_{j+1} - V_j}{z_{j+1} - z_j} -
   \mu_{j-1/2} \frac{V_j - V_{j-1}}{z_j - z_{j-1}}}{\frac{z_{j+1} - z_{j-1}}{2}}
 $$
@@ -277,15 +275,15 @@ The discretized equation in residual form (all terms moved to one side) at the i
 points in the domain is given below.
 
 $$
-F_{T,j} = -\rho_j c_p u_j \left( \frac{T_{j_{\ell}} -
-  T_{j_{\ell-1}}}{z_{\ell} - z_{\ell-1}} \right) +
+F_{T,j} = -\rho_j c_p u_j \left( \frac{T_{\ell} -
+  T_{\ell-1}}{z_{\ell} - z_{\ell-1}} \right) +
   \frac{\lambda_{j+1/2} \frac{T_{j+1} - T_j}{z_{j+1} - z_j} -
   \lambda_{j-1/2} \frac{T_j - T_{j-1}}{z_j - z_{j-1}}}{\frac{z_{j+1} - z_{j-1}}{2}} -
-  \sum_k j_{k, j} \left( \frac{h_{k, j_{\ell}} -
-  h_{k, j_{\ell-1}}}{z_{\ell} - z_{\ell-1}} \right)
+  \sum_k j_{k, j} \left( \frac{h_{k, \ell} -
+  h_{k, \ell-1}}{z_{\ell} - z_{\ell-1}} \right)
 $$
 
-The upwinding on the enthalpy gradient term uses upwinding.
+The enthalpy gradient term uses upwinding.
 
 ### Boundary Conditions
 
@@ -336,7 +334,7 @@ discretized equation is:
 
 $$
 F_{Y_k,j} = -\rho_j u_j
-  \left( \frac{Y_{k, j_{\ell}} - Y_{j_{\ell-1}}}
+  \left( \frac{Y_{k, \ell} - Y_{\ell-1}}
   {z_{\ell} - z_{\ell-1}} \right) -
   \frac{j_{k, j+1/2} - j_{k, j-1/2}}{z_{j+1/2} - z_{j-1/2}} + \dot \omega_{k, j} W_k
 $$

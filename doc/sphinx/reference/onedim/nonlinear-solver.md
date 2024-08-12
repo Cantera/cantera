@@ -4,7 +4,8 @@
 
 Cantera uses a hybrid time stepping / steady-state algorithm to solve the discretized
 1-dimensional flame equations. For both the time stepping and steady-state problems,
-a damped Newton's method solver is used.
+a damped Newton's method solver is used. The general principles of the solver used in
+Cantera are described in {cite:t}`kee2003`(Chapter 15).
 
 ## Problem Definition
 
@@ -14,7 +15,7 @@ takes the form of $F(x) = 0$. The function $F(x)$ is a vector-value function of 
 solution vector, $x$, which is a vector of all solution components at all grid points.
 
 $$
-\mathbf{x} =
+x =
 \begin{pmatrix}
 u_0 \\
 V_0 \\
@@ -33,18 +34,18 @@ The vector-value function $F(x)$ is a vector of the residuals for each of the go
 equations at all of the grid points.
 
 $$
-\mathbf{F}(\mathbf{x}) =
+F(x) =
 \begin{pmatrix}
-F_{u,0}(\mathbf{x}) \\
-F_{V,0}(\mathbf{x}) \\
-F_{T,0}(\mathbf{x}) \\
-F_{\Lambda,0}(\mathbf{x}) \\
-F_{Y_1,0}(\mathbf{x}) \\
+F_{u,0}(x) \\
+F_{V,0}(x) \\
+F_{T,0}(x) \\
+F_{\Lambda,0}(x) \\
+F_{Y_1,0}(x) \\
 \vdots \\
-F_{u,1}(\mathbf{x}) \\
-F_{V,1}(\mathbf{x}) \\
+F_{u,1}(x) \\
+F_{V,1}(x) \\
 \vdots \\
-F_{Y_m,N}(\mathbf{x})
+F_{Y_m,N}(x)
 \end{pmatrix}
 $$
 
@@ -61,30 +62,35 @@ matrix is used to determine the direction of the correction vector that will dri
 solution towards zero error.
 
 $$
-\mathbf{J}(\mathbf{x}^{(k)}) =
-\frac{\partial \mathbf{F}(\mathbf{x}^{(k)})}{\partial \mathbf{x}} =
+J(x) =
+\frac{\partial F(x)}{\partial x}
+$$
+
+For the vector-value residual vector $F(x)$, the Jacobian matrix looks like,
+
+$$
 \begin{pmatrix}
-\frac{\partial F_{U,0}(\mathbf{x}^{(k)})}{\partial U_0} &
-\frac{\partial F_{U,0}(\mathbf{x}^{(k)})}{\partial V_0} &
-\frac{\partial F_{U,0}(\mathbf{x}^{(k)})}{\partial T_0} &
-\frac{\partial F_{U,0}(\mathbf{x}^{(k)})}{\partial Y_{m,0}} &
+\frac{\partial F_{U,0}(x)}{\partial U_0} &
+\frac{\partial F_{U,0}(x)}{\partial V_0} &
+\frac{\partial F_{U,0}(x)}{\partial T_0} &
+\frac{\partial F_{U,0}(x)}{\partial Y_{m,0}} &
 \cdots &
-\frac{\partial F_{U,0}(\mathbf{x}^{(k)})}{\partial U_N} &
-\frac{\partial F_{U,0}(\mathbf{x}^{(k)})}{\partial V_N} &
-\frac{\partial F_{U,0}(\mathbf{x}^{(k)})}{\partial T_N} &
-\frac{\partial F_{U,0}(\mathbf{x}^{(k)})}{\partial Y_{m,N}}
+\frac{\partial F_{U,0}(x)}{\partial U_N} &
+\frac{\partial F_{U,0}(x)}{\partial V_N} &
+\frac{\partial F_{U,0}(x)}{\partial T_N} &
+\frac{\partial F_{U,0}(x)}{\partial Y_{m,N}}
 
 \\
 
-\frac{\partial F_{V,0}(\mathbf{x}^{(k)})}{\partial U_0} &
-\frac{\partial F_{V,0}(\mathbf{x}^{(k)})}{\partial V_0} &
-\frac{\partial F_{V,0}(\mathbf{x}^{(k)})}{\partial T_0} &
-\frac{\partial F_{V,0}(\mathbf{x}^{(k)})}{\partial Y_{m,0}} &
+\frac{\partial F_{V,0}(x)}{\partial U_0} &
+\frac{\partial F_{V,0}(x)}{\partial V_0} &
+\frac{\partial F_{V,0}(x)}{\partial T_0} &
+\frac{\partial F_{V,0}(x)}{\partial Y_{m,0}} &
 \cdots &
-\frac{\partial F_{V,0}(\mathbf{x}^{(k)})}{\partial U_N} &
-\frac{\partial F_{V,0}(\mathbf{x}^{(k)})}{\partial V_N} &
-\frac{\partial F_{U,0}(\mathbf{x}^{(k)})}{\partial T_N} &
-\frac{\partial F_{V,0}(\mathbf{x}^{(k)})}{\partial Y_{m,N}}
+\frac{\partial F_{V,0}(x)}{\partial U_N} &
+\frac{\partial F_{V,0}(x)}{\partial V_N} &
+\frac{\partial F_{U,0}(x)}{\partial T_N} &
+\frac{\partial F_{V,0}(x)}{\partial Y_{m,N}}
 
 \\
 
@@ -92,27 +98,27 @@ $$
 
 \\
 
-\frac{\partial F_{U,N}(\mathbf{x}^{(k)})}{\partial U_0} &
-\frac{\partial F_{U,N}(\mathbf{x}^{(k)})}{\partial V_0} &
-\frac{\partial F_{U,N}(\mathbf{x}^{(k)})}{\partial T_0} &
-\frac{\partial F_{U,N}(\mathbf{x}^{(k)})}{\partial Y_{m,0}} &
+\frac{\partial F_{U,N}(x)}{\partial U_0} &
+\frac{\partial F_{U,N}(x)}{\partial V_0} &
+\frac{\partial F_{U,N}(x)}{\partial T_0} &
+\frac{\partial F_{U,N}(x)}{\partial Y_{m,0}} &
 \cdots &
-\frac{\partial F_{U,N}(\mathbf{x}^{(k)})}{\partial U_N} &
-\frac{\partial F_{U,N}(\mathbf{x}^{(k)})}{\partial V_N} &
-\frac{\partial F_{U,N}(\mathbf{x}^{(k)})}{\partial T_N} &
-\frac{\partial F_{U,N}(\mathbf{x}^{(k)})}{\partial Y_{m,N}}
+\frac{\partial F_{U,N}(x)}{\partial U_N} &
+\frac{\partial F_{U,N}(x)}{\partial V_N} &
+\frac{\partial F_{U,N}(x)}{\partial T_N} &
+\frac{\partial F_{U,N}(x)}{\partial Y_{m,N}}
 
 \\
 
-\frac{\partial F_{V,N}(\mathbf{x}^{(k)})}{\partial U_0} &
-\frac{\partial F_{V,N}(\mathbf{x}^{(k)})}{\partial V_0} &
-\frac{\partial F_{V,N}(\mathbf{x}^{(k)})}{\partial T_0} &
-\frac{\partial F_{V,N}(\mathbf{x}^{(k)})}{\partial Y_{m,0}} &
+\frac{\partial F_{V,N}(x)}{\partial U_0} &
+\frac{\partial F_{V,N}(x)}{\partial V_0} &
+\frac{\partial F_{V,N}(x)}{\partial T_0} &
+\frac{\partial F_{V,N}(x)}{\partial Y_{m,0}} &
 \cdots &
-\frac{\partial F_{V,N}(\mathbf{x}^{(k)})}{\partial U_N} &
-\frac{\partial F_{V,N}(\mathbf{x}^{(k)})}{\partial V_N} &
-\frac{\partial F_{V,N}(\mathbf{x}^{(k)})}{\partial T_N} &
-\frac{\partial F_{V,N}(\mathbf{x}^{(k)})}{\partial Y_{m,N}}
+\frac{\partial F_{V,N}(x)}{\partial U_N} &
+\frac{\partial F_{V,N}(x)}{\partial V_N} &
+\frac{\partial F_{V,N}(x)}{\partial T_N} &
+\frac{\partial F_{V,N}(x)}{\partial Y_{m,N}}
 
 \end{pmatrix}
 $$
@@ -133,7 +139,7 @@ J(x^{(k)}) \left( x^{(k+1)} - x^{(k)} \right) = -\lambda^{(k)} F(x^{(k)})
   \quad (k = 0, 1, 2, 3, \ldots)
 $$
 
-Here, $ \mathbf{J}(x^{(k)}) $ is the Jacobian matrix of $ F(x^{(k)}) $.
+Here, $ J(x^{(k)}) $ is the Jacobian matrix of $ F(x^{(k)}) $.
 
 Another way to looking at the equation is:
 
@@ -144,7 +150,7 @@ $$
 
 Where $ \Delta x^{(k)} $ is a vector that represents a correction to the current
 solution that will take the solution from $ x^{(k)} $ to $ x^{(k+1)} $. During each
-iteration this correction vector changes and during during the iteration process it
+iteration this correction vector changes and during the iteration process it
 should reduce in size until it becomes zero. This correction vector points in the
 direction that will drive the solution towards a zero error.
 
@@ -208,16 +214,121 @@ During the damped Newton method, the Jacobian is kept at the $x^{(m)}$ value. Th
 
 ### Convergence Criteria
 
-A damped newton step is considered to be converged when the norm of the correction vector is less than 1. During the steady-state solution, the process of
-finding and taking a damped newton step is repeated until the norm of the correction vector is less than 1, if it is not, then the process continues.
+As was discussed earlier, the Newton method is an iterative method, and it's important to assess when the method has reached a point where the iterations
+can be stopped. This point is called convergence. Cantera's implementation uses a **weighted norm** of the step vector to determine convergence, rather than a simple absolute norm. A damped Newton step is considered to be converged when the **weighted norm** of the correction vector is less than 1. During the solution, the process of
+finding and taking a damped Newton step is repeated until the **weighted norm** of the correction vector is less than 1, if it is not, then the process continues.
 
+In a multivariate system, different variables may have vastly different magnitudes and units. A simple absolute norm could either be dominated by large components or fail to account for smaller components effectively. By normalizing the step vector components using \( w_n \), the weighted norm ensures that the convergence criterion is meaningful across all solution components, regardless of their individual scales.
+
+This approach provides a more robust and scale-invariant method for assessing convergence, making it especially useful in systems with diverse variables.
+
+#### Definition of the Weighted Norm
+
+The weighted norm of the step vector \( \mathbf{s} \) is calculated as:
+
+$$
+\text{Weighted Norm} = \sum_{n,j} \left(\frac{s_{n,j}}{w_n}\right)^2
+$$
+
+where:
+- \( s_{n,j} \) is the Newton step vector component for the \( n \)-th solution variable at the \( j \)-th grid point.
+- \( w_n \) is the error weight for the \( n \)-th solution component, given by:
+
+$$
+w_n = \epsilon_{r,n} \cdot \frac{\sum_j |x_{n,j}|}{J} + \epsilon_{a,n}
+$$
+
+Here:
+- \( \epsilon_{r,n} \) is the relative error tolerance for the \( n \)-th solution component.
+- \( \frac{\sum_j |x_{n,j}|}{J} \) is the average magnitude of the \( n \)-th solution component over all grid points, and $J$ is the total number of grid points.
+- \( \epsilon_{a,n} \) is the absolute error tolerance for the \( n \)-th solution component.
+
+#### Interpretation of the Weighted Norm
+
+The weighted norm is a relative measure that helps bring all components of the step vector into a comparable range, taking into account the scales of the different solution components. Here's how to interpret it:
+
+- **Relative Error Term** \( (\epsilon_{r,n}) \): Scales the step size relative to the average magnitude of the corresponding solution component. This means that larger components can tolerate larger steps.
+- **Absolute Error Term** \( (\epsilon_{a,n}) \): Ensures that even very small solution components are considered in the convergence check by providing a minimum threshold.
+
+#### Convergence Criterion
+
+The Newton iteration is considered converged when the weighted norm is less than 1:
+
+\[
+\sum_{n,j} \left(\frac{s_{n,j}}{w_n}\right)^2 < 1
+\]
+
+This criterion indicates that each component of the step vector \( s_{n,j} \) is sufficiently small relative to the expected precision (as defined by the weights \( w_n \)).
 
 ## Transient Solution
 
-There will be times when the solution of the steady-state problem can not be found using the damped newton method. In this case, a transient solution is solved and a specified number of time steps is taken before the steady-state damped newton method is attempted again. The transient equation for stepping forward in time (using backward euler method) is given by:
+There will be times when the solution of the steady-state problem can not be found using the damped Newton method. In this case, a transient solution is solved and a specified number of time steps is taken before the steady-state damped Newton method is attempted again. The transient equation for stepping forward in time (using backward euler method) is given by:
 
 $$
-\left( J(x^{(n)}) - \frac{I}{\Delta t} \right) \Delta x^{(n+1)} = -F(x^{(n)})
+\left( J(x_{(n)}) - \frac{I}{\Delta t} \right) \Delta x_{(n+1)} = -F(x_{(n)})
 $$
 
-Here the `n+1` is the solution at the next time step, `n` is the solution at the current time step. This problem is analogous to the method that was just described above with the exception that the Jacobian matrix is modified to include the time step size. In Cantera, this is exactly what is done. The Jacobian matrix is modified to include the time step size, and the damped newton method is then used to solve the transient problem because it has the same solution proceedure as the steady-state problem, with the exception of that modified Jacobian matrix.
+Here the `n+1` is the solution at the next time step, `n` is the solution at the current time step. This problem is analogous to the method that was just described above with the exception that the Jacobian matrix is modified to include the time step size. In Cantera, this is exactly what is done. The Jacobian matrix is modified to include the time step size, and the damped Newton method is then used to solve the transient problem because it has the same solution procedure as the steady-state problem, with the exception of that modified Jacobian matrix.
+
+### Differential-Algebraic Equation (DAE) Form
+
+A generic DAE system can be expressed as:
+
+$$
+F\left(t, x, \frac{dx}{dt}\right) = 0
+$$
+
+Where:
+- $x$ is the solution vector.
+- $\frac{dx}{dt}$ represents the time derivatives of the differential components of $x$.
+- $F(t, x, \frac{dx}{dt})$ is the residual vector, which combines both differential equations and algebraic constraints.
+
+### Backward Euler Time Discretization
+
+Using the backward Euler method to discretize the time derivative:
+
+$$
+\frac{dx}{dt} \approx \frac{x_{n+1} - x_n}{\Delta t}
+$$
+
+The residual equation for the time step $n+1$ becomes:
+
+$$
+F\left(t_{n+1}, x_{n+1}, \frac{x_{n+1} - x_n}{\Delta t}\right) = 0
+$$
+
+### Newton's Method for Solving the Nonlinear System
+
+To solve the nonlinear system using Newton's method:
+
+1. **Newton Iteration**:
+
+   $$
+   J\left(x_{n+1}^{(k)}\right) \Delta x_{n+1}^{(k)} = -F\left(t_{n+1}, x_{n+1}^{(k)}, \frac{x_{n+1}^{(k)} - x_n}{\Delta t}\right)
+   $$
+
+   Where:
+   - $x_{n+1}^{(k)}$ is the solution at the $k$-th Newton iteration for the time step $n+1$.
+   - $J$ is the Jacobian matrix, which is the derivative of the residual function with respect to $x$.
+
+2. **Jacobian Structure**:
+   The Jacobian matrix is composed of:
+
+   $$
+   J = \frac{1}{\Delta t} I + \frac{\partial F}{\partial x_{n+1}^{(k)}}
+   $$
+
+   - The term $\frac{1}{\Delta t} I$ arises from the derivative of the backward Euler time discretization.
+   - The second term is the Jacobian of the steady-state residual with respect to $x_{n+1}^{(k)}$.
+
+3. **Update Solution**:
+
+   $$
+   x_{n+1}^{(k+1)} = x_{n+1}^{(k)} + \Delta x_{n+1}^{(k)}
+   $$
+
+4. **Convergence**:
+   - Iterate until the Newton correction $\Delta x_{n+1}^{(k)}$ is sufficiently small.
+   - Once converged, $x_{n+1}^{(k+1)}$ is accepted as $x_{n+1}$, and the process advances to the next time step.
+
+
