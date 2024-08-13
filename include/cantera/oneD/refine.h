@@ -69,6 +69,9 @@ public:
         return m_gridmin;
     }
 
+    //! Determine locations in the grid that need additional grid points.
+    //!
+    //! @returns The number of new grid points needed (size of #m_loc)
     int analyze(size_t n, const double* z, const double* x);
     int getNewGrid(int n, const double* z, int nn, double* znew);
     int nNewPoints() {

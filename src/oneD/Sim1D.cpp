@@ -507,11 +507,21 @@ void Sim1D::solve(int loglevel, bool refine_grid)
             new_points = 0;
         }
     }
+    if (new_points < 0) {
+        // If the solver finished after removing grid points, do one final evaluation
+        // of the governing equations to update internal arrays in each domain that may
+        // be used for data saved in output files.
+        for (auto dom : m_dom) {
+            dom->eval(npos, m_state->data() + dom->loc(), m_xnew.data() + dom->loc(),
+                      m_mask.data());
+        }
+    }
 }
 
 int Sim1D::refine(int loglevel)
 {
-    int ianalyze, np = 0;
+    int added = 0;
+    int discarded = 0;
     vector<double> znew, xnew;
     vector<size_t> dsize;
 
@@ -526,17 +536,13 @@ int Sim1D::refine(int loglevel)
         m_grid_last_ss.push_back(d.grid());
 
         // determine where new points are needed
-        ianalyze = r.analyze(d.grid().size(), d.grid().data(),
-                             m_state->data() + start(n));
-        if (ianalyze < 0) {
-            return ianalyze;
-        }
+        r.analyze(d.grid().size(), d.grid().data(), m_state->data() + start(n));
 
         if (loglevel > 0) {
             r.show();
         }
 
-        np += r.nNewPoints();
+        added += r.nNewPoints();
         size_t comp = d.nComponents();
 
         // loop over points in the current grid
@@ -559,7 +565,7 @@ int Sim1D::refine(int loglevel)
                     // add new point at midpoint
                     double zmid = 0.5*(d.grid(m) + d.grid(m+1));
                     znew.push_back(zmid);
-                    np++;
+                    added++;
 
                     // for each component, linearly interpolate
                     // the solution to this point
@@ -569,6 +575,7 @@ int Sim1D::refine(int loglevel)
                     }
                 }
             } else {
+                discarded++;
                 if (loglevel > 0) {
                     writelog("refine: discarding point at {}\n", d.grid(m));
                 }
@@ -595,7 +602,7 @@ int Sim1D::refine(int loglevel)
     *m_state = xnew;
     resize();
     finalize();
-    return np;
+    return added || -discarded;
 }
 
 void Sim1D::clearDebugFile()
