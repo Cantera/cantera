@@ -215,6 +215,12 @@ public:
     }
 
     //! Refine the grid in all domains.
+    //!
+    //! @returns If positive, the number of new grid points added. If negative, the
+    //!     number of grid points removed. If zero, the grid is unchanged.
+    //!
+    //! @since Changed in %Cantera 3.1. Previously, the return value was zero if points
+    //!     were removed but not added.
     int refine(int loglevel=0);
 
     //! Add node for fixed temperature point of freely propagating flame
