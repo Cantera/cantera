@@ -53,9 +53,9 @@ public partial class ThermoPhase
 
     internal ThermoPhase(string filename, string? phaseName, string? transModel)
     {
-        _sol = LibCantera.soln_newSolution(
+        var sol = LibCantera.soln_newSolution(
             filename, phaseName ?? "", transModel ?? "default");
-        _handle = LibCantera.soln_thermo(_sol);
+        _handle = LibCantera.soln_thermo(sol);
         _handle.EnsureValid();
 
         _species = new(() => new SpeciesCollection(_handle));

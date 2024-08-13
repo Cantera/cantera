@@ -127,6 +127,7 @@ public static class Application
     /// looking up the given name.
     /// </summary>
     public static ThermoPhase CreateThermoPhase(string filename,
-                                                string? phaseName = null) =>
-        new ThermoPhase(filename, phaseName);
+                                                string? phaseName = null,
+                                                string? transModel = null) =>
+        new ThermoPhase(filename, phaseName, transModel);
 }

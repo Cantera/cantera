@@ -12,8 +12,6 @@ namespace Cantera;
 /// </summary>
 public class SpeciesCollection : IReadOnlyList<Species>
 {
-    readonly SolutionHandle _sol;
-
     readonly ThermoPhaseHandle _handle;
 
     // this collection should be eagerly-initialized because it depends on interop
@@ -53,7 +51,7 @@ public class SpeciesCollection : IReadOnlyList<Species>
         set
         {
             var retval = LibCantera.thermo_setMassFractions(_handle,
-                (nuint) value.Length, value, InteropConsts.True);
+                value.Length, value, InteropConsts.True);
 
             InteropUtil.CheckReturn(retval);
         }
@@ -72,7 +70,7 @@ public class SpeciesCollection : IReadOnlyList<Species>
         set
         {
             var retval = LibCantera.thermo_setMoleFractions(_handle,
-                (nuint) value.Length, value, InteropConsts.True);
+                value.Length, value, InteropConsts.True);
 
             InteropUtil.CheckReturn(retval);
         }
@@ -98,7 +96,7 @@ public class SpeciesCollection : IReadOnlyList<Species>
             for (var i = 0; i < count; i++)
             {
                 int getName(int length, byte* buffer) => LibCantera
-                    .thermo_getSpeciesName(handle, (nuint) i, (nuint) length, buffer);
+                    .thermo_getSpeciesName(handle, i, length, buffer);
 
                 var name = InteropUtil.GetString(10, getName);
 
@@ -261,7 +259,7 @@ public class SpeciesCollection : IReadOnlyList<Species>
     public void SetUnnormalizedMassFractions(double[] fractions)
     {
         var retval = LibCantera.thermo_setMassFractions(_handle,
-            (nuint) fractions.Length, fractions, InteropConsts.False);
+            fractions.Length, fractions, InteropConsts.False);
 
         InteropUtil.CheckReturn(retval);
     }
@@ -274,7 +272,7 @@ public class SpeciesCollection : IReadOnlyList<Species>
     public void SetUnnormalizedMoleFractions(double[] fractions)
     {
         var retval = LibCantera.thermo_setMoleFractions(_handle,
-            (nuint) fractions.Length, fractions, InteropConsts.False);
+            fractions.Length, fractions, InteropConsts.False);
 
         InteropUtil.CheckReturn(retval);
     }
