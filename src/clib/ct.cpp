@@ -1468,26 +1468,6 @@ extern "C" {
 
     //------------------- Transport ---------------------------
 
-    int trans_newDefault(int ith, int loglevel)
-    {
-        try {
-            auto tr = newTransport(ThermoCabinet::at(ith), "default");
-            return TransportCabinet::add(tr);
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int trans_new(const char* model, int ith, int loglevel)
-    {
-        try {
-            auto tr = newTransport(ThermoCabinet::at(ith), model);
-            return TransportCabinet::add(tr);
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
     int trans_transportModel(int i, int lennm, char* nm)
     {
         try {
@@ -1772,36 +1752,6 @@ extern "C" {
             return TransportCabinet::parent(n);
         } catch (...) {
             return handleAllExceptions(-2, ERR);
-        }
-    }
-
-    int thermo_del(int n)
-    {
-        try {
-            ThermoCabinet::del(n);
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int kin_del(int n)
-    {
-        try {
-            KineticsCabinet::del(n);
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int trans_del(int n)
-    {
-        try {
-            TransportCabinet::del(n);
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
         }
     }
 }
