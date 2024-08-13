@@ -1408,10 +1408,7 @@ def get_pip_install_location(
     root = quoted(root) if root is not None else None
     install_script = textwrap.dedent(f"""
         from pip import __version__ as pip_version
-        try:
-            from packaging.version import parse as parse_version
-        except ImportError:
-            from pkg_resources import parse_version
+        from packaging.version import parse as parse_version
         import pip
         import json
         pip_version = parse_version(pip_version)
