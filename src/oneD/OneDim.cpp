@@ -342,17 +342,17 @@ double OneDim::timeStep(int nsteps, double dt, double* x, double* r, int logleve
 
     // Only output this if nothing else under this function call will be output
     if (loglevel == 1){
-        debuglog("\n=============================", loglevel);
-        debuglog(fmt::format("\n{:<5s}   {:<10s}  {:<9s}\n", "step", "dt (s)", "log10(ss)"), loglevel);
-        debuglog("=============================", loglevel);
+        debuglog("\n============================", loglevel);
+        debuglog(fmt::format("\n{:<5s}  {:<11s}   {:<7s}\n", "step", "dt (s)", "log(ss)"), loglevel);
+        debuglog("============================", loglevel);
     }
     while (n < nsteps) {
         if (loglevel == 1) { // At level 1, output concise information
             double ss = ssnorm(x, r);
-            writelog("\n{:<5d}  {:<10.4g}   {:<10.4g}", n, dt, log10(ss));
+            writelog("\n{:<5d}  {:<6.4e}   {:>7.4f}", n, dt, log10(ss));
         } else if (loglevel > 1) {
             double ss = ssnorm(x, r);
-            writelog("\nTimestep({}) dt= {:<10.4g} log10(ss)= {:<10.4g}", n, dt, log10(ss));
+            writelog("\nTimestep ({}) dt= {:<11.4e}  log(ss)= {:<7.4f}", n, dt, log10(ss));
         }
 
         // set up for time stepping with stepsize dt
@@ -366,6 +366,9 @@ double OneDim::timeStep(int nsteps, double dt, double* x, double* r, int logleve
         // successful time step. Copy the new solution in r to
         // the current solution in x.
         if (status >= 0) {
+            if (loglevel > 1) {
+                writelog("\nTimestep ({}) succeeded", n);
+            }
             successiveFailures = 0;
             m_nsteps++;
             n += 1;
@@ -384,16 +387,20 @@ double OneDim::timeStep(int nsteps, double dt, double* x, double* r, int logleve
                     "reaching steady-state solution.", m_nsteps_max);
             }
         } else {
-            successiveFailures++;
             // No solution could be found with this time step.
             // Decrease the stepsize and try again.
-            debuglog("\nTimestep failed", loglevel);
+            successiveFailures++;
+            if (loglevel == 1) {
+                writelog("\nTimestep failed");
+            }else if (loglevel > 1) {
+                writelog("\nTimestep ({}) failed", n);
+            }
             if (successiveFailures > 2) {
-                debuglog(" (Resetting negative species concentrations)", loglevel);
+                debuglog("--> Resetting negative species concentrations", loglevel);
                 resetBadValues(x);
                 successiveFailures = 0;
             } else {
-                debuglog(" (Reducing timestep)", loglevel);
+                debuglog("--> Reducing timestep", loglevel);
                 dt *= m_tfactor;
                 if (dt < m_tmin) {
                     string err_msg = fmt::format(
@@ -407,10 +414,11 @@ double OneDim::timeStep(int nsteps, double dt, double* x, double* r, int logleve
     // Write the final step to the log
     if (loglevel == 1) {
         double ss = ssnorm(x, r);
-        writelog("\n{:<5d}  {:<10.4g}   {:<10.4g}", n, dt, log10(ss));
+        writelog("\n{:<5d}  {:<6.4e}   {:>7.4f}", n, dt, log10(ss));
+        debuglog("\n============================", loglevel);
     } else if (loglevel > 1) {
         double ss = ssnorm(x, r);
-        writelog("\nTimestep({}) dt= {:<10.4g} log10(ss)= {:<10.4g}\n", n, dt, log10(ss));
+        writelog("\nTimestep({}) dt= {:<11.4e} log10(ss)= {:<7.4f}\n", n, dt, log10(ss));
     }
 
     // return the value of the last stepsize, which may be smaller

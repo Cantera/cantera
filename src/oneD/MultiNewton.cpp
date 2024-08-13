@@ -39,7 +39,7 @@ double bound_step(const double* x, const double* step, Domain1D& r, int loglevel
     Indx index(nv, np);
     double fbound = 1.0;
     bool wroteTitle = false;
-    string separator = fmt::format("\n     {:=>79}", ""); // 80 equals signs, for debug
+    string separator = fmt::format("\n     {:=>69}", ""); // equals sign separator
 
     for (size_t m = 0; m < nv; m++) {
         double above = r.upperBound(m);
@@ -64,16 +64,30 @@ double bound_step(const double* x, const double* step, Domain1D& r, int loglevel
 
             if (loglevel > 1 && (newval > above || newval < below)) {
                 if (!wroteTitle){
-                    writelog("\n     Undamped Newton step takes solution out of bounds:");
+                    string header = fmt::format("     {:=>10}","") +
+                                    "Undamped Newton step takes solution out of bounds" +
+                                    fmt::format("{:=>10}", "");
+                    writelog("\n{}", header);
                     writelog(separator);
-                    writelog("\n     {:<6s}  {:<12s} {:<4s}    {:<10s}   {:<12s}   {:<10s}   {:<10s}",
-                             "Domain","Component","Loc","Value","Value Change","Min Bound","Max Bound");
+                    // Split header across 2 lines to shorten the line length
+                    writelog("\n     {:<7s}   {:23s}   {:<9s}   {:<9s}   {:<9s}",
+                             "Domain/", "", "Value", "Min", "Max");
+                    writelog("\n     {:8s}  {:<9s}     {:<9s}   {:6s}      {:5s}       {:5s}",
+                             "Grid Loc", "Component", "Value", "Change", "Bound", "Bound");
                     writelog(separator);
                     wroteTitle = true;
                 }
-                writelog("\n     {:<6d}  {:<12s} {:<4d}   {:>10.3e}   {:>10.3e}     {:>10.3e}   {:>10.3e}",
-                         r.domainIndex(), r.componentName(m), j, val, step[index(m,j)],
-                         below, above);
+                // This create a dynamic spacing to allow for a nicely formatted output in the
+                // Domain/Grid Loc column
+                int domainLength = to_string(r.domainIndex()).length(); // For adjusting spacing
+                int gridLength = to_string(j).length(); // For adjusting spacing
+                int padding = 9; // Total spacing for first column
+                string formatString = fmt::format("{{:<{}d}} / {{:<{}d}}{:>{}}",
+                                                  domainLength, gridLength, "",
+                                                  padding-3-domainLength-gridLength);
+                writelog(fmt::format("\n     {}", formatString), r.domainIndex(), j);
+                writelog(" {:<12s} {:>10.3e}  {:>10.3e}  {:>10.3e}  {:>10.3e}",
+                         r.componentName(m), val, step[index(m,j)], below, above);
             }
         }
     }
@@ -218,13 +232,13 @@ int MultiNewton::dampStep(const double* x0, const double* step0,
 {
     // write header
     if (loglevel > 0 && writetitle) {
-        string separator = fmt::format("  {:->80}", "");
-        writelog("\n\n{}\n", "  Damped Newton iteration:");
-        writelog(separator);
+        string header = fmt::format("  {:->23}Damped Newton iteration{:->24}", "", "");
+        string separator = fmt::format("  {:->70}", "");
+        writelog("\n\n{}", header);
 
-        writelog("\n  {:<6s}  {:<9s}     {:<9s}       {:<9s}   {:<9s}   {:<9s}  {:<5s}  {:<5s}\n",
-                 "Iter", "F_damp", "F_bound", "log10(ss)",
-                "log10(s0)", "log10(s1)", "N_jac", "Age");
+        writelog("\n  {:<4s}  {:<10s}   {:<10s}  {:<7s}  {:<7s}  {:<7s}  {:<5s}  {:<3s}\n",
+                 "Iter", "F_damp", "F_bound", "log(ss)",
+                "log(s0)", "log(s1)", "N_jac", "Age");
         writelog(separator);
     }
 
@@ -264,7 +278,7 @@ int MultiNewton::dampStep(const double* x0, const double* step0,
 
         if (loglevel > 0) {
             double ss = r.ssnorm(x1,step1);
-            writelog("\n  {:<6d}  {:<9.5e}   {:<9.5e}     {:<9.5f}   {:<9.5f}   {:<9.5f}  {:<5d}  {:d}/{:d}",
+            writelog("\n  {:<4d}  {:<9.3e}   {:<9.3e}   {:>6.3f}   {:>6.3f}   {:>6.3f}    {:<5d}  {:d}/{:d}",
                      m, alpha, fbound, log10(ss+SmallNumber),
                      log10(s0+SmallNumber), log10(s1+SmallNumber),
                      jac.nEvals(), jac.age(), m_maxAge);
@@ -285,14 +299,14 @@ int MultiNewton::dampStep(const double* x0, const double* step0,
     // return 0 otherwise. If no damping coefficient could be found, return -2.
     if (m < m_maxDampIter) {
         if (s1 > 1.0) {
-                debuglog("\n  Damping coefficient found (solution has not converged yet).", loglevel);
+                debuglog("\n  Damping coefficient found (solution has not converged yet)", loglevel);
             return 0;
         } else {
-                debuglog("\n  Damping coefficient found (solution has converged).", loglevel);
+                debuglog("\n  Damping coefficient found (solution has converged)", loglevel);
             return 1;
         }
     } else {
-            debuglog("\n  No damping coefficient found (max damping iterations reached).", loglevel);
+            debuglog("\n  No damping coefficient found (max damping iterations reached)", loglevel);
         return -2;
     }
 }
@@ -365,7 +379,7 @@ int MultiNewton::solve(double* x0, double* x1, OneDim& r, MultiJac& jac, int log
     }
     // Close off the damped iteration table that is written by the dampedStep() method
     if (loglevel > 1) {
-        string separator = fmt::format("\n  {:->80}", "");
+        string separator = fmt::format("\n  {:->70}", "");
         writelog(separator);
     }
 
