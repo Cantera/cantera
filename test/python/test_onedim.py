@@ -1243,6 +1243,7 @@ class TestDiffusionFlame(utilities.CanteraTest):
         sim.right_control_point_temperature += temperature_decrement
         sim.left_control_point_temperature += temperature_decrement
         sim.solve(loglevel=0, refine_grid=False)
+        assert sim.Uo == approx(sim.velocity[-1])
         temperature_4 = sim.T
 
         # Check the difference between the un-perturbed two-point solution and the
@@ -1287,6 +1288,7 @@ class TestDiffusionFlame(utilities.CanteraTest):
         assert (sim.right_control_point_temperature
                 == approx(original_settings['right-temperature'], 1e-4))
 
+        assert sim.Uo == approx(sim.velocity[-1])
 
         # Test - Check error conditions
         sim = ct.CounterflowDiffusionFlame(gas, width=width)
