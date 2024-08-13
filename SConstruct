@@ -1445,6 +1445,7 @@ if env["system_sundials"] in ("n", "default"):
     logger.info("Using private installation of Sundials version 5.3.")
     env['sundials_version'] = '5.3'
     env['has_sundials_lapack'] = int(env['use_lapack'])
+    env["system_sundials"] = "n"
 
 if env['system_sundials'] == 'y':
     env['sundials_libs'] = ['sundials_cvodes', 'sundials_idas', 'sundials_nvecserial']
