@@ -1234,7 +1234,7 @@ if env['system_fmt'] in ('y', 'default'):
     retcode, fmt_version_text = run_preprocessor(
         conf, ["<fmt/format.h>"], "FMT_VERSION", ["FMT_HEADER_ONLY"]
     )
-    if retcode:
+    if retcode and fmt_version_text:
         fmt_lib_version = split_version(fmt_version_text)
         fmt_min_version = "6.1.2"
         if parse_version(fmt_lib_version) < parse_version(fmt_min_version):
@@ -1407,7 +1407,7 @@ if "mkl_rt" in env["blas_lapack_libs"]:
     retcode, mkl_version = run_preprocessor(
         conf, ["mkl.h"], "__INTEL_MKL__ __INTEL_MKL_MINOR__ __INTEL_MKL_UPDATE__"
     )
-    if retcode:
+    if retcode and mkl_version:
         logger.info(f"Using MKL {'.'.join(mkl_version.strip().split())}")
     else:
         logger.warning("Failed to determine MKL version.")
@@ -1416,7 +1416,7 @@ elif "openblas" in env["blas_lapack_libs"]:
     retcode, openblas_version = run_preprocessor(
         conf, ["<openblas_config.h>"], "OPENBLAS_VERSION"
     )
-    if retcode:
+    if retcode and openblas_version:
         logger.info("Using {}", openblas_version.replace('"', '').strip())
     else:
         logger.warning("Failed to determine OpenBLAS version.")
@@ -1433,7 +1433,7 @@ if env['system_sundials'] in ("y", "default"):
         ['"sundials/sundials_config.h"'],
         "SUNDIALS_VERSION_MAJOR SUNDIALS_VERSION_MINOR SUNDIALS_VERSION_PATCH",
     )
-    if retcode:
+    if retcode and sundials_version:
         sundials_info = check_sundials(conf, sundials_version)
         env["system_sundials"] = sundials_info["system_sundials"]
         env["sundials_version"] = sundials_info["sundials_version"]
@@ -1494,7 +1494,7 @@ if env["use_hdf5"] and env["system_highfive"] in ("y", "default"):
 
         highfive_include = "<highfive/H5Version.hpp>"
         retcode, h5_lib_version = run_preprocessor(conf, [highfive_include], "HIGHFIVE_VERSION")
-        if retcode:
+        if retcode and h5_lib_version:
             if parse_version(h5_lib_version) < parse_version("2.5"):
                 if env["system_highfive"] == "y":
                     config_error(
@@ -1541,7 +1541,7 @@ if env["use_hdf5"]:
     retcode, hdf_version = run_preprocessor(
         conf, ['"H5public.h"'], "H5_VERS_MAJOR H5_VERS_MINOR H5_VERS_RELEASE"
     )
-    if retcode:
+    if retcode and hdf_version:
         env["HDF_VERSION"] = ".".join(hdf_version.strip().split())
         logger.info(
             f"Using HighFive version {env['HIGHFIVE_VERSION']} "
