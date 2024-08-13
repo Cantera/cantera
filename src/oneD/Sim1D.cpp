@@ -475,7 +475,7 @@ void Sim1D::solve(int loglevel, bool refine_grid)
 
                 // Repeat the last timestep's data for logging purposes
                 if (loglevel == 1) {
-                    writelog("\nFinal timestep info: dt= {:<10.4g} log10(ss)= {:<10.4g}\n", dt,
+                    writelog("\nFinal timestep info: dt= {:<10.4g} log(ss)= {:<10.4g}\n", dt,
                              log10(ssnorm(m_state->data(), m_xnew.data())));
                 }
                 istep++;
