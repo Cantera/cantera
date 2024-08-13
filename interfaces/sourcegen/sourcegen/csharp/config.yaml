@@ -58,3 +58,7 @@ wrapper_classes:
     cv_mass: MassCv
   # strings
     name: Name
+  soln: {}
+  func:
+  # strings
+    type: type
