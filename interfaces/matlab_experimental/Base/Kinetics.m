@@ -107,22 +107,17 @@ classdef Kinetics < handle
 
         %% Get scalar attributes
 
-        function n = kineticsSpeciesIndex(kin, name, phase)
+        function n = kineticsSpeciesIndex(kin, name)
             % Get the species index of a species of a phase in the Kinetics class. ::
             %
-            %     >> n = kin.kineticsSpeciesIndex(name, phase)
+            %     >> n = kin.kineticsSpeciesIndex(name)
             %
             % :param name:
             %    String name or integer index of the species.
-            % :param phase:
-            %    String name or integer index of the phase.
             % :return:
             %    Index of the species.
 
-            if nargin == 2
-                phase = '';
-            end
-            n = ctFunc('kin_speciesIndex', kin.kinID, name, phase) + 1;
+            n = ctFunc('kin_speciesIndex', kin.kinID, name) + 1;
         end
 
         function n = multiplier(kin, irxn)
