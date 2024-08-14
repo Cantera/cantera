@@ -685,6 +685,39 @@ class TestSolutionArrayIO(utilities.CanteraTest):
         b.restore(outfile, "arr")
         assert b.shape == states.shape
 
+    @pytest.mark.skipif("native" not in ct.hdf_support(),
+                        reason="Cantera compiled without HDF support")
+    def test_overwrite_h5(self):
+        self.run_overwrite("h5")
+
+    def test_overwrite_yaml(self):
+        self.run_overwrite("yaml")
+
+    def run_overwrite(self, mode):
+        outfile = self.test_work_path / f"solutionarray_overwrite.{mode}"
+        outfile.unlink(missing_ok=True)
+
+        states = ct.SolutionArray(self.gas, 8)
+        states.TPX = np.linspace(300, 1000, 8), 2e5, 'H2:0.5, O2:0.4'
+        states.save(outfile, "arr")
+
+        b = ct.SolutionArray(self.gas)
+        b.restore(outfile, "arr")
+        assert b.shape == states.shape
+        assert b.T[-1] == states.T[-1]
+
+        states.equilibrate('HP')
+
+        with pytest.raises(ct.CanteraError, match="use 'overwrite' argument"):
+            states.save(outfile, "arr")
+
+        states.save(outfile, "arr", overwrite=True)
+
+        c = ct.SolutionArray(self.gas)
+        c.restore(outfile, "arr")
+        assert c.shape == states.shape
+        assert c.T[-1] == states.T[-1]
+
 
 class TestLegacyHDF(utilities.CanteraTest):
     # Test SolutionArray legacy HDF file input
