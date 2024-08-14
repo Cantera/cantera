@@ -237,60 +237,6 @@ extern "C" {
         }
     }
 
-    int inlet_new()
-    {
-        try {
-            return DomainCabinet::add(make_shared<Inlet1D>());
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int surf_new()
-    {
-        try {
-            return DomainCabinet::add(make_shared<Surf1D>());
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int reactingsurf_new()
-    {
-        try {
-            return DomainCabinet::add(make_shared<ReactingSurf1D>());
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int symm_new()
-    {
-        try {
-            return DomainCabinet::add(make_shared<Symm1D>());
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int outlet_new()
-    {
-        try {
-            return DomainCabinet::add(make_shared<Outlet1D>());
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int outletres_new()
-    {
-        try {
-            return DomainCabinet::add(make_shared<OutletRes1D>());
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
     int bdry_setMdot(int i, double mdot)
     {
         try {
@@ -364,17 +310,6 @@ extern "C" {
             return DomainCabinet::get<Boundary1D>(i).mdot();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
-        }
-    }
-
-    int reactingsurf_setkineticsmgr(int i, int j)
-    {
-        try {
-            auto k = KineticsCabinet::at(j);
-            DomainCabinet::get<ReactingSurf1D>(i).setKinetics(k);
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
         }
     }
 

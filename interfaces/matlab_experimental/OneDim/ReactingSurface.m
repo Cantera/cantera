@@ -38,8 +38,6 @@ classdef ReactingSurface < Boundary1D
             end
 
             s@Boundary1D('reacting-surface', surface_mech, id);
-
-            ctFunc('reactingsurf_setkineticsmgr', s.domainID, surface_mech.kinID);
             s.coverageEnabled = false;
         end
 
