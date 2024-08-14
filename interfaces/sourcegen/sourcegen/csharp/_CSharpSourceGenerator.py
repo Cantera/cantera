@@ -136,13 +136,17 @@ class CSharpSourceGenerator(SourceGenerator):
             handle_class_name = self._get_handle_class_name(clib_area)
 
             # It’s not a “global” function, therefore:
-            #   * It wraps a constructor and returns a handle, or
+            #   * It wraps a constructor and returns a handle,
+            #   * It wraps an instance method that returns a handle, or
             #   * It wraps an instance method and takes the handle as the first param.
             if method.startswith("del"):
                 release_func_handle_class_name = handle_class_name
             elif method.startswith("new"):
                 ret_type = handle_class_name
-            else:
+            elif name in self._config.class_accessors:
+                ret_type = self._config.class_accessors[name]
+                params[0] = Param(handle_class_name, params[0].name)
+            elif params:
                 params[0] = Param(handle_class_name, params[0].name)
 
         for c_type, cs_type in self._config.ret_type_crosswalk.items():
@@ -152,8 +156,7 @@ class CSharpSourceGenerator(SourceGenerator):
 
         setter_double_arrays_count = 0
 
-        for i in range(0, len(params)):
-            param_type, param_name = params[i]
+        for i, (param_type, param_name) in enumerate(params):
 
             for c_type, cs_type in self._config.ret_type_crosswalk.items():
                 if param_type == c_type:
