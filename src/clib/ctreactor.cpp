@@ -191,7 +191,7 @@ extern "C" {
         }
     }
 
-    int flowReactor_setMassFlowRate(int i, double mdot)
+    int reactor_setMassFlowRate(int i, double mdot)
     {
         try {
             ReactorCabinet::get<FlowReactor>(i).setMassFlowRate(mdot);
