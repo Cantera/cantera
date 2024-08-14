@@ -611,7 +611,7 @@ AnyMap CVodesIntegrator::solverStats() const
                   "supported with sundials versions less than 4.");
     #endif
 
-    #if SUNDIALS_VERSION_MAJOR >= 6
+    #if SUNDIALS_VERSION_MAJOR >= 7 || (SUNDIALS_VERSION_MAJOR == 6 && SUNDIALS_VERSION_MINOR >= 2)
         long int stepSolveFails = 0;
         CVodeGetNumStepSolveFails(m_cvode_mem, &stepSolveFails);
         stats["step_solve_fails"] = stepSolveFails;
