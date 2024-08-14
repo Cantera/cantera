@@ -193,6 +193,13 @@ public:
     //! index of component with name @e name.
     virtual size_t componentIndex(const string& name) const;
 
+    /**
+     * Set the upper and lower bounds for a solution component, n.
+     *
+     * @param n // solution component index
+     * @param lower  // lower bound on component n
+     * @param upper  // upper bound on component n
+     */
     void setBounds(size_t n, double lower, double upper) {
         m_min[n] = lower;
         m_max[n] = upper;
@@ -258,18 +265,22 @@ public:
         return m_min[n];
     }
 
-    //! Prepare to do time stepping with time step dt
-    /*!
-     * Copy the internally-stored solution at the last time step to array x0.
+    /**
+     * Performs the setup required before starting a time-stepping solution.
+     * Stores the solution provided in `x0` to the internal storage, and sets
+     * the reciprocal of the time step to `1/dt`.
+     *
+     * @param[in] dt  Time step
+     * @param[in] x0  Array to store the solution at the last time step
      */
     void initTimeInteg(double dt, const double* x0) {
         std::copy(x0 + loc(), x0 + loc() + size(), m_slast.begin());
         m_rdt = 1.0/dt;
     }
 
-    //! Prepare to solve the steady-state problem
-    /*!
-     * Set the internally-stored reciprocal of the time step to 0.0
+    /**
+     * Set the internally-stored reciprocal of the time step to 0.0, which is
+     * used to indicate that the problem is in steady-state mode.
      */
     void setSteadyMode() {
         m_rdt = 0.0;
@@ -297,7 +308,7 @@ public:
     /*!
      *  This function must be implemented in classes derived from Domain1D.
      *
-     *  @param j  Grid point at which to update the residual
+     *  @param[in] j  Grid point at which to update the residual
      *  @param[in] x  State vector
      *  @param[out] r  residual vector
      *  @param[out] mask  Boolean mask indicating whether each solution
@@ -309,9 +320,25 @@ public:
         throw NotImplementedError("Domain1D::eval");
     }
 
+    /**
+     * Returns the index of the solution vector, which corresponds to component
+     * n at grid point j.
+     *
+     * @param n  component index
+     * @param j  grid point index
+     */
     size_t index(size_t n, size_t j) const {
         return m_nv*j + n;
     }
+
+    /**
+     * Returns the value of solution component n at grid point j of the solution
+     * vector x.
+     *
+     * @param x  solution vector
+     * @param n  component index
+     * @param j  grid point index
+     */
     double value(const double* x, size_t n, size_t j) const {
         return x[index(n,j)];
     }
@@ -365,6 +392,9 @@ public:
         return m_solution;
     }
 
+    /**
+     * Return the size of the solution vector (the product of #m_nv and #m_points).
+     */
     size_t size() const {
         return m_nv*m_points;
     }
@@ -445,6 +475,7 @@ public:
         m_id = s;
     }
 
+    //! Returns the identifying tag for this domain.
     string id() const {
         if (m_id != "") {
             return m_id;
@@ -530,17 +561,17 @@ protected:
 
     shared_ptr<vector<double>> m_state; //!< data pointer shared from OneDim
 
-    double m_rdt = 0.0;
-    size_t m_nv = 0;
+    double m_rdt = 0.0; //!< Reciprocal of the time step
+    size_t m_nv = 0; //!< Number of solution components
     size_t m_points; //!< Number of grid points
-    vector<double> m_slast;
-    vector<double> m_max;
-    vector<double> m_min;
-    vector<double> m_rtol_ss, m_rtol_ts;
-    vector<double> m_atol_ss, m_atol_ts;
-    vector<double> m_z;
+    vector<double> m_slast; //!< Solution vector at the last time step
+    vector<double> m_max; //!< Upper bounds on solution components
+    vector<double> m_min; //!< Lower bounds on solution components
+    vector<double> m_rtol_ss, m_rtol_ts; //!< Relative tolerances for steady and transient modes
+    vector<double> m_atol_ss, m_atol_ts; //!< Absolute tolerances for steady and transient modes
+    vector<double> m_z; //!< 1D spatial grid coordinates
     OneDim* m_container = nullptr;
-    size_t m_index;
+    size_t m_index; //!< Left-to-right location of this domain
 
     //! Starting location within the solution vector for unknowns that
     //! correspond to this domain
@@ -551,13 +582,13 @@ protected:
 
     size_t m_jstart = 0;
 
-    Domain1D* m_left = nullptr;
-    Domain1D* m_right = nullptr;
+    Domain1D* m_left = nullptr; //!< Pointer to the domain to the left
+    Domain1D* m_right = nullptr; //!< Pointer to the domain to the right
 
     //! Identity tag for the domain
     string m_id;
-    unique_ptr<Refiner> m_refiner;
-    vector<string> m_name;
+    unique_ptr<Refiner> m_refiner; //!< Refiner object used for placing grid points
+    vector<string> m_name; //!< Names of solution components
     int m_bw = -1;
     bool m_force_full_update = false;
 

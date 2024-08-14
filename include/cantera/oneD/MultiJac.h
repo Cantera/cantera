@@ -26,10 +26,19 @@ public:
     MultiJac(OneDim& r);
 
     /**
-     * Evaluate the Jacobian at x0. The unperturbed residual function is resid0,
-     * which must be supplied on input. The third parameter 'rdt' is the
-     * reciprocal of the time step. If zero, the steady-state Jacobian is
-     * evaluated.
+     * Evaluates the Jacobian at x0 using finite differences. The unperturbed residual
+     * function is resid0, which must be supplied on input. The parameter 'rdt' is the
+     * reciprocal of the time step. If zero, the steady-state Jacobian is evaluated,
+     * otherwise the transient Jacobian is evaluated.
+     *
+     * Each variable in the input vector `x0` is perturbed to compute the
+     * corresponding column of the Jacobian matrix. The Jacobian is computed by
+     * perturbing each variable, evaluating the residual function, and then
+     * estimating the partial derivatives numerically using finite differences.
+     *
+     * @param x0    Solution vector at which to evaluate the Jacobian
+     * @param resid0 Residual vector at x0
+     * @param rdt   Reciprocal of the time step
      */
     void eval(double* x0, double* resid0, double rdt);
 
@@ -76,16 +85,16 @@ protected:
      */
     OneDim* m_resid;
 
-    vector<double> m_r1;
-    double m_rtol = 1e-5;
+    vector<double> m_r1; //!< Perturbed residual vector
+    double m_rtol = 1e-5; //!< Relative tolerance for perturbing solution components
     double m_atol = sqrt(std::numeric_limits<double>::epsilon());
-    double m_elapsed = 0.0;
-    vector<double> m_ssdiag;
+    double m_elapsed = 0.0; //!< Elapsed CPU time taken to compute the Jacobian
+    vector<double> m_ssdiag; //!< Diagonal of the steady-state Jacobian
 
     //! Transient mask for transient terms, 1 if transient, 0 if steady-state
     vector<int> m_mask;
     int m_nevals = 0;
-    int m_age = 100000;
+    int m_age = 100000; //!< Age of the Jacobian (times 'incrementAge' has been called)
     size_t m_size;
     size_t m_points;
 };
