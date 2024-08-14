@@ -5,10 +5,11 @@ from itertools import starmap
 from pathlib import Path
 from typing import List, Dict
 import re
+import textwrap
 
 from ._dataclasses import CsFunc
 from ._Config import Config
-from .._helpers import normalize_indent
+from .._helpers import normalize_indent, hanging_text
 from .._dataclasses import Func, Param, HeaderFile
 from .._SourceGenerator import SourceGenerator
 
@@ -200,8 +201,8 @@ class CSharpSourceGenerator(SourceGenerator):
     def _scaffold_interop(self, header_file_path: Path, cs_funcs: List[CsFunc]):
         functions_text = "\n\n".join(map(self._get_interop_func_text, cs_funcs))
 
-        interop_text = normalize_indent(f"""
-            {normalize_indent(self._config.preamble)}
+        interop_text = textwrap.dedent(f"""
+            {hanging_text(self._config.preamble, 12)}
 
             using System.Runtime.InteropServices;
 
@@ -209,9 +210,9 @@ class CSharpSourceGenerator(SourceGenerator):
 
             static partial class LibCantera
             {{
-                {normalize_indent(functions_text)}
+                {hanging_text(functions_text, 16)}
             }}
-        """)
+        """).lstrip()
 
         self._write_file("Interop.LibCantera." + header_file_path.name + ".g.cs",
             interop_text)
@@ -219,13 +220,13 @@ class CSharpSourceGenerator(SourceGenerator):
     def _scaffold_handles(self, header_file_path: Path, handles: Dict[str, str]):
         handles_text = "\n\n".join(starmap(self._get_base_handle_text, handles.items()))
 
-        handles_text = normalize_indent(f"""
-            {normalize_indent(self._config.preamble)}
+        handles_text = textwrap.dedent(f"""
+            {hanging_text(self._config.preamble, 12)}
 
             namespace Cantera.Interop;
 
-            {normalize_indent(handles_text)}
-        """)
+            {hanging_text(handles_text, 12)}
+        """).lstrip()
 
         self._write_file("Interop.Handles." + header_file_path.name + ".g.cs",
             handles_text)
@@ -234,13 +235,13 @@ class CSharpSourceGenerator(SourceGenerator):
         derived_handles = "\n\n".join(starmap(self._get_derived_handle_text,
             self._config.derived_handles.items()))
 
-        derived_handles_text = normalize_indent(f"""
-            {normalize_indent(self._config.preamble)}
+        derived_handles_text = textwrap.dedent(f"""
+            {hanging_text(self._config.preamble, 12)}
 
             namespace Cantera.Interop;
 
-            {derived_handles}
-        """)
+            {hanging_text(derived_handles, 12)}
+        """).lstrip()
 
         self._write_file("Interop.Handles.g.cs", derived_handles_text)
 
@@ -253,8 +254,8 @@ class CSharpSourceGenerator(SourceGenerator):
             self._get_property_text(clib_area, c_name, cs_name, known_funcs)
                 for (c_name, cs_name) in props.items())
 
-        wrapper_class_text = normalize_indent(f"""
-            {normalize_indent(self._config.preamble)}
+        wrapper_class_text = textwrap.dedent(f"""
+            {hanging_text(self._config.preamble, 12)}
 
             using Cantera.Interop;
 
@@ -266,7 +267,7 @@ class CSharpSourceGenerator(SourceGenerator):
 
                 #pragma warning disable CS1591
 
-                {normalize_indent(properties_text)}
+                {hanging_text(properties_text, 16)}
 
                 #pragma warning restore CS1591
 
@@ -277,7 +278,7 @@ class CSharpSourceGenerator(SourceGenerator):
                 public void Dispose() =>
                     _handle.Dispose();
             }}
-        """)
+        """).lstrip()
 
         self._write_file(wrapper_class_name + ".g.cs", wrapper_class_text)
 
