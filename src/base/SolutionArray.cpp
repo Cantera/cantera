@@ -989,9 +989,12 @@ void SolutionArray::writeHeader(AnyMap& root, const string& name,
                                 const string& desc, bool overwrite)
 {
     AnyMap& data = openField(root, name);
-    if (!data.empty() && !overwrite) {
-        throw CanteraError("SolutionArray::writeHeader",
-            "Field name '{}' exists; use 'overwrite' argument to overwrite.", name);
+    if (!data.empty()) {
+        if (!overwrite) {
+            throw CanteraError("SolutionArray::writeHeader",
+                "Field name '{}' exists; use 'overwrite' argument to overwrite.", name);
+        }
+        data.clear();
     }
     data.update(preamble(desc));
 }
