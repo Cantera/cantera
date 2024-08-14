@@ -90,47 +90,32 @@ TEST(ctonedim, outlet)
 
 TEST(ctonedim, reacting_surface)
 {
-    int surf = soln_newInterface("ptcombust.yaml", "Pt_surf", 0, 0);
-    int index = domain_new("reacting-surface", surf, "surface");
-    ASSERT_GE(index, 0);
+    int interface = soln_newInterface("ptcombust.yaml", "Pt_surf", 0, 0);
+
+    int surf = domain_new("reacting-surface", interface, "");
+    ASSERT_GE(surf, 0);
+
+    int buflen = domain_type(surf, 0, 0);
+    char* buf = new char[buflen];
+    domain_type(surf, buflen, buf);
+    string domName = buf;
+    ASSERT_EQ(domName, "reacting-surface");
+    delete[] buf;
 }
 
-TEST(ctonedim, reacting_surface_from_parts)
-{
-    int index = reactingsurf_new();
-    ASSERT_GE(index, 0);
-
-    int gas = thermo_newFromFile("ptcombust.yaml", "gas");
-    int surf = thermo_newFromFile("ptcombust.yaml", "Pt_surf");
-    int kin = kin_newFromFile("ptcombust.yaml", "", surf, gas, -1, -1, -1);
-    ASSERT_GE(kin, 0);
-
-    int ret = reactingsurf_setkineticsmgr(index, kin);
-    ASSERT_EQ(ret, 0);
-}
-
-TEST(ctonedim, catcomb_stack)
+TEST(ctonedim, catcomb)
 {
     int sol = soln_newSolution("ptcombust.yaml", "gas", "default");
-    int gas = soln_thermo(sol);
-    int gas_kin = soln_kinetics(sol);
-    int trans = soln_transport(sol);
+    int interface = soln_newInterface("ptcombust.yaml", "Pt_surf", 0, 0);
 
-    int surf = thermo_newFromFile("ptcombust.yaml", "Pt_surf");
-    int surf_kin = kin_newFromFile("ptcombust.yaml", "", surf, gas, -1, -1, -1);
-
-    // inlet
-    int inlet = inlet_new();
-
-    // flow
-    int itype = 1; // free flow
-    int flow = flow1D_new(gas, gas_kin, trans, itype);
-    domain_setID(flow, "flow");
+    // inlet and flow domains
+    int inlet = domain_new("inlet", sol, "inlet");
+    int flow = domain_new("axisymmetric-flow", sol, "flow");
+    ASSERT_EQ(flow, inlet+1);
 
     // reacting surface
-    int reac_surf = reactingsurf_new();
-    int ret = reactingsurf_setkineticsmgr(reac_surf, surf_kin);
-    ASSERT_EQ(ret, 0);
+    int reac_surf = domain_new("reacting-surface", interface, "surface");
+    ASSERT_EQ(reac_surf, flow+1);
 
     // set up stack
     vector<int> doms{inlet, flow, reac_surf};
