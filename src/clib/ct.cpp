@@ -1754,4 +1754,25 @@ extern "C" {
             return handleAllExceptions(-2, ERR);
         }
     }
+
+    int thermo_del(int n)
+    {
+        // function is needed for sourcegen
+        // no-op: object is managed by Solution
+        return 0;
+    }
+
+    int kin_del(int n)
+    {
+        // function is needed for sourcegen
+        // no-op: object is managed by Solution
+        return 0;
+    }
+
+    int trans_del(int n)
+    {
+        // function is needed for sourcegen
+        // no-op: object is managed by Solution
+        return 0;
+    }
 }
