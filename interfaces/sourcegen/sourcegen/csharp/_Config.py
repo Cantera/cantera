@@ -29,7 +29,8 @@ class Config:
         "double*": "double[]"
     }
 
-    preamble = "/*\n" + get_preamble() + "*/"
+    # Reformat preamble to standard comment block
+    preamble = "\n * ".join(["/*"] + get_preamble().split("\n")) + "\n */"
 
     # These we load from the parsed YAML config file
     class_crosswalk: Dict[str, str]
