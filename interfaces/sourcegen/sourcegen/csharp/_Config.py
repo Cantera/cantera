@@ -20,6 +20,7 @@ class Config:
     ret_type_crosswalk = {
         "const char*": "string",
         "const double*": "double[]",
+        "const int*": "int[]",
         "size_t": "nuint",
         "char*": "byte*"
     }
@@ -35,6 +36,8 @@ class Config:
     # These we load from the parsed YAML config file
     class_crosswalk: Dict[str, str]
 
+    class_accessors: Dict[str, str]
+
     derived_handles: Dict[str, str]
 
     wrapper_classes: Dict[str, Dict[str, str]]
@@ -42,5 +45,6 @@ class Config:
     @staticmethod
     def from_parsed(parsed_config_file: dict):
         return Config(parsed_config_file["class_crosswalk"],
+                      parsed_config_file["class_accessors"],
                       parsed_config_file["derived_handles"],
                       parsed_config_file["wrapper_classes"])

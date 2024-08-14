@@ -1,20 +1,18 @@
-# ignore these files entirely:
+# Ignore these files entirely:
 ignore_files:
   - ctfunc.h
   - ctmatlab.h
   - ctonedim.h
   - ctrpath.h
 
-#ignore these specific functions:
+# Ignore these specific functions:
 ignore_funcs:
   ct.h:
     - ct_setLogWriter
-    - soln_newInterface # signature causes syntax error in sourcegen
-    - thermo_size
   ctreactor.h:
     - flowReactor_setMassFlowRate
 
-# replaces the name as determined by the C function prefix
+# Replaces the name as determined by the C function prefix
 # with the name of the class that function is designed to expose
 class_crosswalk:
   flowdev: FlowDevice
@@ -28,6 +26,16 @@ class_crosswalk:
   thermo: ThermoPhase
   trans: Transport
   wall: Wall
+
+# Provides information on instance methods that return instances
+# of other C# classes.
+class_accessors:
+  soln_thermo: ThermoPhaseHandle
+  soln_kinetics: KineticsHandle
+  soln_transport: TransportHandle
+  thermo_parent: SolutionHandle
+  kin_parent: SolutionHandle
+  trans_parent: SolutionHandle
 
 # Handles for which there is no special delete function,
 # so we need to generate them manually because we can't
