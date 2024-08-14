@@ -9,8 +9,6 @@ ignore_files:
 ignore_funcs:
   ct.h:
     - ct_setLogWriter
-  ctreactor.h:
-    - flowReactor_setMassFlowRate
 
 # Replaces the name as determined by the C function prefix
 # with the name of the class that function is designed to expose
