@@ -19,7 +19,7 @@ public partial class ThermoPhase
     unsafe delegate int SetPairFunc(ThermoPhaseHandle n, (double, double)* values);
 
     /// <summary>
-    /// Using reflection and the fact that Clib follows a naming convention for
+    /// Using reflection and the fact that CLib follows a naming convention for
     /// the functions that set the pairs of thermodynamic variables simultaneously
     /// </summary>
     static readonly Lazy<Dictionary<ThermoPair, SetPairFunc>> s_pairSetters;
@@ -64,17 +64,17 @@ public partial class ThermoPhase
 
     /// <summary>
     /// Simulates bringing the phase to thermodynamic equilibrium by holding the
-    /// specified <see cref="ThermoPair" /> constant and using the algorithm
-    /// identified by the given <see cref="EquilibriumSolver" />.
+    /// specified <see cref="ThermoPair" /> constant and using the algorithm(s)
+    /// identified by the solver string.
     /// </summary>
     public void Equilibrate(ThermoPair thermoPair,
-                            EquilibriumSolver solver = EquilibriumSolver.Auto,
+                            string solver = "auto",
                             double tolerance = 1e-9, int maxSteps = 1000,
                             int maxIterations = 100, int logVerbosity = 0)
     {
         var interopString = thermoPair.ToInteropString();
 
-        var retVal = LibCantera.thermo_equilibrate(_handle, interopString, (int) solver,
+        var retVal = LibCantera.thermo_equilibrate(_handle, interopString, solver,
             tolerance, maxSteps, maxIterations, logVerbosity);
 
         InteropUtil.CheckReturn(retVal);

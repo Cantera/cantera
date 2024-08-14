@@ -117,7 +117,7 @@ extern "C" {
     CANTERA_CAPI int thermo_set_VH(int n, double* vals);
     CANTERA_CAPI int thermo_set_TH(int n, double* vals);
     CANTERA_CAPI int thermo_set_SH(int n, double* vals);
-    CANTERA_CAPI int thermo_equilibrate(int n, const char* XY, int solver,
+    CANTERA_CAPI int thermo_equilibrate(int n, const char* XY, const char* solver,
                                         double rtol, int maxsteps, int maxiter,
                                         int loglevel);
 

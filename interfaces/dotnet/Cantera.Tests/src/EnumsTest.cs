@@ -38,10 +38,6 @@ public class EnumsTests
     }
 
     [Fact]
-    public void EquilibriumSolver_MapsCorrectly() =>
-        TestInteropEnumInvariants<EquilibriumSolver>(true, -1, 2);
-
-    [Fact]
     public void LogLevel_MapsCorrectly() =>
         TestInteropEnumInvariants<LogLevel>(true, 0, 2);
 

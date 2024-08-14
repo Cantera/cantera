@@ -149,7 +149,7 @@ TEST(ctonedim, freeflame_from_parts)
     thermo_getMassFractions(ph, nsp, yin.data());
 
     // product estimate
-    int ret = thermo_equilibrate(ph, "HP", 0, 1e-9, 50000, 1000, 0);
+    int ret = thermo_equilibrate(ph, "HP", "auto", 1e-9, 50000, 1000, 0);
     ASSERT_GE(ret, 0);
     double rho_out = thermo_density(ph);
     double Tad = thermo_temperature(ph);
