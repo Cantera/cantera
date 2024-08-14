@@ -14,6 +14,7 @@
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/base/utilities.h"
 #include <boost/algorithm/string.hpp>
+#include <boost/range/adaptor/reversed.hpp>
 #include <fstream>
 #include <sstream>
 
@@ -1275,6 +1276,23 @@ void SolutionArray::writeEntry(AnyMap& root, const string& name, const string& s
         }
         data["components"] = componentNames();
     }
+
+    // add ordering rules
+    vector<vector<string>> ordering = {};
+    if (data.hasKey("components")) {
+        auto components = data["components"].as<vector<string>>();
+        for (auto component : boost::adaptors::reverse(components)) {
+            ordering.push_back({"head", component});
+        }
+    }
+
+    const vector<string> header = { "type", "size", "basis", "components" };
+    for (auto entry : boost::adaptors::reverse(header)) {
+        ordering.push_back({"head", entry});
+    }
+
+    data["__type__"] = "SolutionArray";
+    AnyMap::addOrderingRules("SolutionArray", ordering);
 
     // If this is not replacing an existing solution, put it at the end
     if (!preexisting) {
