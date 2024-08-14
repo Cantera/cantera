@@ -451,11 +451,10 @@ classdef ThermoPhase < handle
             %     Not all of the properties to be held constant are available with
             %     all of the solvers.
             % :param solver:
-            %     Specifies the equilibrium solver to use. If solver = 0, a fast
-            %     solver using the element potential method will be used. If
-            %     solver = 1, a slower but more robust Gibbs minimization solver
-            %     will be used. If solver >= 2, a version of the VCS algorithm will
-            %     be used. If solver < 0 or is unspecified, the fast solver
+            %     Specifies the equilibrium solver to use. Choices are
+            %     'element_potential' (fast solver using the element potential method),
+            %     'gibbs' (slower but more robust Gibbs minimization solver), 'vcs'
+            %     (VCS algorithm). For the default 'auto' setting, the fast solver
             %     will be tried first, then if it fails the Gibbs minimization solver
             %     will be tried.
             % :param rtol:
@@ -472,7 +471,7 @@ classdef ThermoPhase < handle
             %     generate more detailed information.
 
             if nargin < 3
-                solver = -1;
+                solver = 'auto';
             end
 
             if nargin < 4
@@ -492,7 +491,7 @@ classdef ThermoPhase < handle
             end
 
             ctFunc('thermo_equilibrate', tp.tpID, xy, solver, rtol, ...
-                    maxsteps, maxiter, loglevel);
+                   maxsteps, maxiter, loglevel);
         end
 
         %% ThermoPhase inquiry methods

@@ -54,7 +54,7 @@ int main(int argc, char** argv)
     thermo_setTemperature(thermo, 500);
     thermo_setPressure(thermo, 5 * 101325);
     thermo_setMoleFractionsByName(thermo, "CH4:1.0, O2:2.0, N2:7.52");
-    thermo_equilibrate(thermo, "HP", 0, 1e-9, 50000, 1000, 0);
+    thermo_equilibrate(thermo, "HP", "auto", 1e-9, 50000, 1000, 0);
     thermo_print(thermo, 1, 0);
 
     int kin = soln_kinetics(soln);
