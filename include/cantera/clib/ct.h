@@ -39,6 +39,7 @@ extern "C" {
 
     CANTERA_CAPI int thermo_parent(int n);
     CANTERA_CAPI int thermo_size();
+    CANTERA_CAPI int thermo_del(int n);  //!< no-op; object is managed by Solution
     CANTERA_CAPI size_t thermo_nElements(int n);
     CANTERA_CAPI size_t thermo_nSpecies(int n);
     CANTERA_CAPI double thermo_temperature(int n);
@@ -131,6 +132,7 @@ extern "C" {
     CANTERA_CAPI int thermo_setState_Tsat(int n, double t, double x);
 
     CANTERA_CAPI int kin_parent(int n);
+    CANTERA_CAPI int kin_del(int n);  //!< no-op; object is managed by Solution
     CANTERA_CAPI size_t kin_nSpecies(int n);
     CANTERA_CAPI size_t kin_nReactions(int n);
     CANTERA_CAPI size_t kin_nPhases(int n);
@@ -163,6 +165,7 @@ extern "C" {
     CANTERA_CAPI size_t kin_phase(int n, size_t i);
 
     CANTERA_CAPI int trans_parent(int n);
+    CANTERA_CAPI int trans_del(int n);  //!< no-op; object is managed by Solution
     CANTERA_CAPI int trans_transportModel(int n, int lennm, char* nm);
     CANTERA_CAPI double trans_viscosity(int n);
     CANTERA_CAPI double trans_electricalConductivity(int n);

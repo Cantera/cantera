@@ -44,9 +44,6 @@ class_accessors:
 #  Derived: Base
 derived_handles:
   SurfaceHandle: ThermoPhaseHandle
-  ThermoPhaseHandle: SolutionHandle
-  KineticsHandle: SolutionHandle
-  TransportHandle: SolutionHandle
 
 # Provides info for scaffolding higher-level idiomatic C# classes
 # At this stage, we can scaffold simple properties that follow the
