@@ -13,6 +13,11 @@ def with_unpack_iter(cls: type) -> type:
     return cls
 
 
+def hanging_text(text: str, spaces: int) -> str:
+    ret = ("\n" + " "*spaces).join(text.split("\n"))
+    return "\n".join([line.rstrip() for line in ret.split("\n")])
+
+
 def normalize_indent(code: str) -> str:
     code = textwrap.dedent(code).strip()
 
