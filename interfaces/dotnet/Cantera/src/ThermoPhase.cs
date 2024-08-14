@@ -10,6 +10,8 @@ namespace Cantera;
 /// </summary>
 public partial class ThermoPhase
 {
+    readonly SolutionHandle _sol;
+
     /// <summary>
     /// Represents a func that sets a pair of thermo variables using a pointer
     /// to a pair of doubles to stand in for a stack-allocated array with two elements.
@@ -53,7 +55,8 @@ public partial class ThermoPhase
 
     internal ThermoPhase(string filename, string? phaseName)
     {
-        _handle = LibCantera.thermo_newFromFile(filename, phaseName ?? "");
+        _sol = LibCantera.soln_newSolution(filename, phaseName ?? "", "none");
+        _handle = LibCantera.soln_thermo(_sol);
         _handle.EnsureValid();
 
         _species = new(() => new SpeciesCollection(_handle));
