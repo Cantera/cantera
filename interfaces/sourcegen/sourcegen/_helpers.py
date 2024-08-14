@@ -32,4 +32,4 @@ def normalize_indent(code: str) -> str:
 
 
 def get_preamble() -> str:
-    return Path(__file__).parent.joinpath("preamble.txt").read_text()
+    return Path(__file__).parent.joinpath("preamble.txt").read_text("utf-8").strip()
