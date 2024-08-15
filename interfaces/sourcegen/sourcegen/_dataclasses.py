@@ -25,6 +25,7 @@ class Func:
     ret_type: str
     name: str
     params: List[Param]
+    comments: str
 
 
 @dataclass(frozen=True)

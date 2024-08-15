@@ -21,14 +21,22 @@ class CSharpSourceGenerator(SourceGenerator):
         return ", ".join(p.p_type + " " + p.name for p in params)
 
     def _get_interop_func_text(self, func: CsFunc) -> str:
-        ret_type, name, params, _, _ = func
+        ret_type, name, params, comments, _, _ = func
         requires_unsafe_keyword = any(p.p_type.endswith("*") for p in params)
         params_text = self._join_params(params)
 
+        ret = ""
+        if comments:
+            # convert trailing C++ doxygen comments, but retain C++ formatting
+            # comment blocks will not be parsed by .NET
+            comments = comments.replace("//!< ", "//! ").strip()
+            ret += f"{comments}\n"
+
+        ret += f"{self._config.func_prolog} "
         if requires_unsafe_keyword:
-            return f"{self._config.func_prolog} unsafe {ret_type} {name}({params_text});"
-        else:
-            return f"{self._config.func_prolog} {ret_type} {name}({params_text});"
+            ret += "unsafe "
+        ret += f"{ret_type} {name}({params_text});"  # function text
+        return ret
 
     @staticmethod
     def _get_base_handle_text(class_name: str, release_func_name: str) -> str:
@@ -119,7 +127,7 @@ class CSharpSourceGenerator(SourceGenerator):
         return self._get_wrapper_class_name(clib_area) + "Handle"
 
     def _convert_func(self, parsed: Func) -> CsFunc:
-        ret_type, name, _ = parsed
+        ret_type, name, _, comments = parsed
         clib_area, method = name.split("_", 1)
 
         # Shallow copy the params list
@@ -184,6 +192,7 @@ class CSharpSourceGenerator(SourceGenerator):
         func = CsFunc(ret_type,
                       name,
                       params,
+                      comments,
                       release_func_handle_class_name is not None,
                       release_func_handle_class_name)
 
