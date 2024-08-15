@@ -37,8 +37,11 @@ if TYPE_CHECKING:
     import SCons.Environment
     import SCons.Node.FS
     import SCons.Variables
+    import SCons.SConf
 
     SCEnvironment = SCons.Environment.Environment
+    SConfigure = SCons.SConf.SConfBase
+    TextOrSequence = Union[str, List[str], Tuple[str]]
     LFSNode = List[Union[SCons.Node.FS.File, SCons.Node.FS.Dir]]
     SCVariables = SCons.Variables.Variables
     TPathLike = TypeVar("TPathLike", Path, str)
@@ -1446,7 +1449,10 @@ def checkout_submodule(name: str, submodule_path: str):
         sys.exit(1)
 
 
-def check_for_python(env: SCEnvironment, command_line_targets: List[str]) -> Dict[str, str]:
+def check_for_python(
+    env: "SCEnvironment",
+    command_line_targets: List[str]
+) -> Dict[str, str]:
     # Pytest is required only to test the Python module
     check_for_pytest = "test" in command_line_targets or any(
         target.startswith(("test-python", "test-help")) for target in command_line_targets
@@ -1644,7 +1650,12 @@ def make_relative_path_absolute(path_to_check: Union[str, Path]) -> str:
     return pth.as_posix()
 
 
-def run_preprocessor(conf, includes, text, defines=()) -> tuple[int, str]:
+def run_preprocessor(
+    conf: "SConfigure",
+    includes: "TextOrSequence",
+    text: "TextOrSequence",
+    defines: "TextOrSequence" = ()
+) -> Tuple[int, str]:
     if not isinstance(includes, (tuple, list)):
         includes = [includes]
     if not isinstance(text, (tuple, list)):
@@ -1695,7 +1706,7 @@ def run_preprocessor(conf, includes, text, defines=()) -> tuple[int, str]:
         return retcode, ""
 
 
-def check_sundials(conf: SCons.Sconf.SConfBase, sundials_version: str) -> Dict[str, str]:
+def check_sundials(conf: "SConfigure", sundials_version: str) -> Dict[str, str]:
     sundials_ver = parse_version(".".join(sundials_version.strip().replace('"', "").split()))
     should_exit_with_error = conf.env["system_sundials"] == "y"
     if sundials_ver < parse_version("3.0") or sundials_ver >= parse_version("8.0"):
@@ -1760,10 +1771,14 @@ def check_sundials(conf: SCons.Sconf.SConfBase, sundials_version: str) -> Dict[s
         logger.warning("External BLAS/LAPACK has been specified for Cantera "
                        "but Sundials was built without this support.")
 
-    return {"system_sundials": "y", "sundials_version": str(sundials_ver), "has_sundials_lapack": has_sundials_lapack}
+    return {
+        "system_sundials": "y",
+        "sundials_version": str(sundials_ver),
+        "has_sundials_lapack": has_sundials_lapack
+    }
 
 
-def config_error(message):
+def config_error(message: str) -> None:
     if logger.getEffectiveLevel() == logging.DEBUG:
         logger.error(message)
         debug_message = [
