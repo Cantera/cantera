@@ -17,7 +17,8 @@ class HeaderFileParser:
             return Param(*parts)
 
     @classmethod
-    def _parse_func(cls, c_func: str) -> Func:
+    def _parse_func(cls, func_comment: tuple[str, str]) -> Func:
+        c_func, comment = func_comment
         lparen = c_func.index("(")
         rparen = c_func.index(")")
         front = c_func[0:lparen].split()
@@ -27,7 +28,7 @@ class HeaderFileParser:
 
         ret_type = front[-2]
         name = front[-1]
-        return Func(ret_type, name, params)
+        return Func(ret_type, name, params, comment)
 
     def __init__(self, path: Path, ignore_funcs: List[str] = None):
         self._path = path
@@ -36,17 +37,60 @@ class HeaderFileParser:
     def parse(self) -> HeaderFile:
         ct = self._path.read_text()
 
-        matches = re.finditer(r"CANTERA_CAPI.*?;", ct, re.DOTALL)
-        c_functions = [re.sub(r"\s+", " ", m.group()) for m in matches]
+        def parse_with_doxygen(text):
+            # a primitive doxygen parser for Cantera CLib header files
+            regex = re.compile((
+                r"(?P<blank>\n\s*\n)|"  # blank line
+                r"(?P<head>(?=//! )[^\n]*)|"  # leading doxygen comment
+                r"(?P<func>(?=CANTERA_CAPI)[^;]*;)|"  # CLib function
+                r"(?P<tail>(?=//!< )[^\n]*)"))  # trailing doxygen comment
+            matches = re.finditer(regex, text)
+
+            pairs = []
+            function = None
+            comments = []
+            for m in matches:
+                if function:
+                    if m.group("func"):
+                        # new function: flush buffers
+                        pairs.append((function, "\n".join(comments)))
+                        comments = []
+                        function = m.group("func")
+                    elif m.group("head"):
+                        # new heading comment: flush buffers
+                        pairs.append((function, "\n".join(comments)))
+                        comments = [m.group("head")]
+                        function = None
+                    elif m.group("tail"):
+                        # trailing comment: append to buffer
+                        comments.append(m.group("tail"))
+                    else:  # m.group("blank"):
+                        # blank line: flush buffers
+                        pairs.append((function, "\n".join(comments)))
+                        comments = []
+                        function = None
+                else:
+                    if m.group("blank"):
+                        # blank line: clear buffer
+                        comments = []
+                    elif m.group("head"):
+                        # new heading comment: buffer
+                        comments.append(m.group("head"))
+                    elif m.group("func"):
+                        # new function: buffer
+                        function = m.group("func")
+            return pairs
+
+        c_functions = parse_with_doxygen(ct)
 
         if not c_functions:
             return
 
         parsed = map(self._parse_func, c_functions)
 
-        print(f"  parsing " + self._path.name)
+        print(f"  parsing {self._path.name}")
         if self._ignore_funcs:
-            print(f"    ignoring " + str(self._ignore_funcs))
+            print(f"    ignoring {self._ignore_funcs}")
 
         parsed = [f for f in parsed if f.name not in self._ignore_funcs]
 
