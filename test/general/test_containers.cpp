@@ -488,3 +488,29 @@ TEST(AnyMap, definedKeyOrdering)
     EXPECT_LT(loc["one"], loc["half"]);
     EXPECT_LT(loc["zero"], loc["half"]);
 }
+
+TEST(AnyMap, localKeyOrdering)
+{
+    AnyMap m = AnyMap::fromYamlString("{zero: 1, half: 2}");
+    m["one"] = 1;
+    m["two"] = 2;
+    m["three"] = 3;
+    m["four"] = 4;
+    m["__type__"] = "Test";
+
+    m.setOrderingRules({
+        {"head", "three"},
+        {"tail", "one"}
+    });
+
+    string result = m.toYamlString();
+    std::unordered_map<string, size_t> loc;
+    for (auto& [key, value] : m) {
+        loc[key] = result.find(key);
+    }
+    EXPECT_LT(loc["three"], loc["one"]);
+    EXPECT_LT(loc["three"], loc["half"]);
+    EXPECT_LT(loc["four"], loc["one"]);
+    EXPECT_LT(loc["one"], loc["half"]);
+    EXPECT_LT(loc["zero"], loc["half"]);
+}
