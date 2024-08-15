@@ -52,7 +52,7 @@ namespace Cantera
  *           changed or removed without notice.
  * @todo Implement electron Boltzmann equation solver to solve EEDF.
  *       https://github.com/Cantera/enhancements/issues/127
- * @ingroup phase
+ * @ingroup thermoprops
  */
 class PlasmaPhase: public IdealGasPhase
 {

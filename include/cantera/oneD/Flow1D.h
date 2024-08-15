@@ -465,6 +465,7 @@ protected:
     //! @name Governing Equations
     //! Methods called by eval() to calculate residuals for individual governing
     //! equations.
+    //! @{
 
     /**
      * Evaluate the continuity equation residual.
