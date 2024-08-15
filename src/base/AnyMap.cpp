@@ -1626,7 +1626,6 @@ AnyMap::Iterator& AnyMap::Iterator::operator++()
     return *this;
 }
 
-
 AnyMap::OrderedProxy::OrderedProxy(const AnyMap& data)
     : m_data(&data)
 {
@@ -1641,7 +1640,7 @@ AnyMap::OrderedProxy::OrderedProxy(const AnyMap& data)
     int head = 0; // sort key of the first programmatically-added item
     int tail = 0; // sort key of the last programmatically-added item
     for (auto& item : *m_data) {
-        const auto& order = item.second.order();
+        const auto& order = item.second.order();  // order is line and column
         if (order.first == -1) { // Item is not from an input file
             head = std::min(head, order.second);
             tail = std::max(tail, order.second);
@@ -1650,39 +1649,48 @@ AnyMap::OrderedProxy::OrderedProxy(const AnyMap& data)
     }
     std::sort(m_ordered.begin(), m_ordered.end());
 
-    // Adjust sort keys for items that should moved to the beginning or end of
-    // the list
-    if (m_data->hasKey("__type__")) {
-        bool order_changed = false;
+    // Determine ordering rules, defaulting to local ordering rules
+    vector<string> headFields(data.headFields());
+    vector<string> tailFields(data.tailFields());
+    if (headFields.empty() && tailFields.empty() && m_data->hasKey("__type__")) {
+        // No local rules defined, so follow global ordering rules
         const auto& itemType = m_data->at("__type__").asString();
         std::unique_lock<std::mutex> lock(yaml_field_order_mutex);
         if (AnyMap::s_headFields.count(itemType)) {
-            for (const auto& key : AnyMap::s_headFields[itemType]) {
-                for (auto& [order, item] : m_ordered) {
-                    if (order.first >= 0) {
-                        // This and following items come from an input file and
-                        // should not be re-ordered
-                        break;
-                    }
-                    if (item->first == key) {
-                        order.second = --head;
-                        order_changed = true;
-                    }
+            headFields = AnyMap::s_headFields[itemType];
+        }
+        if (AnyMap::s_tailFields.count(itemType)) {
+            tailFields = AnyMap::s_tailFields[itemType];
+        }
+    }
+
+    // Adjust sort keys for items that should moved to the beginning or end of the list.
+    if (!headFields.empty() || !tailFields.empty()) {
+        // Apply ordering rules
+        bool order_changed = false;
+        for (const auto& key : headFields) {
+            for (auto& [order, item] : m_ordered) {
+                if (order.first >= 0) {
+                    // This and following items come from an input file and
+                    // should not be re-ordered
+                    break;
+                }
+                if (item->first == key) {
+                    order.second = --head;
+                    order_changed = true;
                 }
             }
         }
-        if (AnyMap::s_tailFields.count(itemType)) {
-            for (const auto& key : AnyMap::s_tailFields[itemType]) {
-                for (auto& [order, item] : m_ordered) {
-                    if (order.first >= 0) {
-                        // This and following items come from an input file and
-                        // should not be re-ordered
-                        break;
-                    }
-                    if (item->first == key) {
-                        order.second = ++tail;
-                        order_changed = true;
-                    }
+        for (const auto& key : tailFields) {
+            for (auto& [order, item] : m_ordered) {
+                if (order.first >= 0) {
+                    // This and following items come from an input file and
+                    // should not be re-ordered
+                    break;
+                }
+                if (item->first == key) {
+                    order.second = ++tail;
+                    order_changed = true;
                 }
             }
         }
@@ -1782,10 +1790,11 @@ void AnyMap::setFlowStyle(bool flow) {
 }
 
 bool AnyMap::addOrderingRules(const string& objectType,
-                             const vector<vector<string>>& specs)
+                              const vector<vector<string>>& specs)
 {
     std::unique_lock<std::mutex> lock(yaml_field_order_mutex);
     for (const auto& spec : specs) {
+        // vectors are of the form {rule, field}
         if (spec.at(0) == "head") {
             s_headFields[objectType].push_back(spec.at(1));
         } else if (spec.at(0) == "tail") {
@@ -1796,6 +1805,23 @@ bool AnyMap::addOrderingRules(const string& objectType,
         }
     }
     return true;
+}
+
+void AnyMap::setOrderingRules(const vector<vector<string>>& specs)
+{
+    m_headFields.clear();
+    m_tailFields.clear();
+    for (const auto& spec : specs) {
+        // vectors are of the form {rule, field}
+        if (spec.at(0) == "head") {
+            m_headFields.push_back(spec.at(1));
+        } else if (spec.at(0) == "tail") {
+            m_tailFields.push_back(spec.at(1));
+        } else {
+            throw CanteraError("AnyMap::setOrderingRules",
+                "Unknown ordering rule '{}'", spec.at(0));
+        }
+    }
 }
 
 void AnyMap::clearCachedFile(const string& filename)

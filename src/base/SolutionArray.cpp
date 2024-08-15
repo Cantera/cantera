@@ -1285,14 +1285,11 @@ void SolutionArray::writeEntry(AnyMap& root, const string& name, const string& s
             ordering.push_back({"head", component});
         }
     }
-
-    const vector<string> header = { "type", "size", "basis", "components" };
+    const vector<string> header = {"type", "size", "api-shape", "basis", "components"};
     for (auto entry : boost::adaptors::reverse(header)) {
         ordering.push_back({"head", entry});
     }
-
-    data["__type__"] = "SolutionArray";
-    AnyMap::addOrderingRules("SolutionArray", ordering);
+    data.setOrderingRules(ordering);
 
     // If this is not replacing an existing solution, put it at the end
     if (!preexisting) {

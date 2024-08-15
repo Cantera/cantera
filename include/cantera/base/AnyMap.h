@@ -698,8 +698,24 @@ public:
     static bool addOrderingRules(const string& objectType,
                                  const vector<vector<string>>& specs);
 
+    //! Set local rules for element order when outputting AnyMap objects to YAML.
+    //! Rules follow the same logic as those implemented by addOrderingRules(), and
+    //! override those global rules.
+    void setOrderingRules(const vector<vector<string>>& specs);
+
     //! Remove the specified file from the input cache if it is present
     static void clearCachedFile(const string& filename);
+
+protected:
+    //! Fields that should appear first in YAML output when overriding global rules.
+    const vector<string>& headFields() const {
+        return m_headFields;
+    }
+
+    //! Fields that should appear last in YAML output when overriding global rules.
+    const vector<string>& tailFields() const {
+        return m_tailFields;
+    }
 
 private:
     //! The stored data
@@ -723,6 +739,12 @@ private:
     //! YAML. Keys in this map are matched to `__type__` keys in AnyMap
     //! objects, and values are a list of field names.
     static std::unordered_map<string, vector<string>> s_tailFields;
+
+    //! Fields that should appear first in YAML output when overriding global rules.
+    vector<string> m_headFields = {};
+
+    //! Fields that should appear last in YAML output when overriding global rules.
+    vector<string> m_tailFields = {};
 
     friend class AnyValue;
     friend YAML::Emitter& YAML::operator<<(YAML::Emitter& out, const AnyMap& rhs);
