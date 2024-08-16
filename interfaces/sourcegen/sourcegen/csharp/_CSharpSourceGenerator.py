@@ -3,6 +3,8 @@
 
 from itertools import starmap
 from pathlib import Path
+import sys
+import logging
 from typing import List, Dict
 import re
 
@@ -12,6 +14,8 @@ from .._helpers import normalize_indent
 from .._dataclasses import Func, Param, HeaderFile
 from .._SourceGenerator import SourceGenerator
 
+
+logger = logging.getLogger()
 
 class CSharpSourceGenerator(SourceGenerator):
     """The SourceGenerator for scaffolding C# files for the .NET interface"""
@@ -110,13 +114,15 @@ class CSharpSourceGenerator(SourceGenerator):
                 }
             """
         else:
-            raise ValueError(f"Unable to scaffold properties of type {prop_type}!")
+            logger.critical(f"Unable to scaffold properties of type {prop_type}!")
+            sys.exit(1)
 
         return normalize_indent(text)
 
     def __init__(self, out_dir: str, config: dict):
         if not out_dir:
-            raise ValueError("Non-empty string identifying output path required.")
+            logger.critical("Non-empty string identifying output path required.")
+            sys.exit(1)
         self._out_dir = Path(out_dir)
 
         # use the typed config
@@ -178,8 +184,9 @@ class CSharpSourceGenerator(SourceGenerator):
                     # We assume a double* can reliably become a double[].
                     # However, this logic is too simplistic if there is
                     # more than one array.
-                    raise ValueError(f"Cannot scaffold {name} with "
-                        + "more than one array of doubles!")
+                    logger.critical(f"Cannot scaffold {name} with "
+                                    "more than one array of doubles!")
+                    sys.exit(1)
 
                 if clib_area == "thermo" and re.match("^set_[A-Z]{2}$", method):
                     # Special case for the functions that set thermo pairs
@@ -201,7 +208,7 @@ class CSharpSourceGenerator(SourceGenerator):
         return func
 
     def _write_file(self, filename: str, contents: str):
-        print("  writing " + filename)
+        logger.info("  writing " + filename)
 
         self._out_dir.joinpath(filename).write_text(contents)
 

@@ -4,6 +4,8 @@
 import importlib
 import inspect
 from pathlib import Path
+import logging
+import sys
 from typing import List, Dict
 import ruamel.yaml
 
@@ -11,12 +13,28 @@ from ._HeaderFileParser import HeaderFileParser
 from ._SourceGenerator import SourceGenerator
 
 
+logger = logging.getLogger()
+
+class CustomFormatter(logging.Formatter):
+    """Minimalistic logging output"""
+
+    def format(self, record):
+        formatter = logging.Formatter("[%(levelname)s] %(message)s")
+        return formatter.format(record)
+
+
 _clib_path = Path(__file__).parent.joinpath("../../../include/cantera/clib").resolve()
 _clib_defs_path = _clib_path.joinpath("clib_defs.h")
 
 def generate_source(lang: str, out_dir: str=""):
     """Main entry point of sourcegen."""
-    print("Generating source files...")
+    loghandler = logging.StreamHandler(sys.stdout)
+    loghandler.setFormatter(CustomFormatter())
+    logger.handlers.clear()
+    logger.addHandler(loghandler)
+    logger.setLevel(logging.DEBUG)
+
+    logger.info("Generating source files...")
 
     module = importlib.import_module(__package__ + "." + lang)
     config_path = Path(module.__file__).parent.joinpath("config.yaml")
@@ -42,3 +60,4 @@ def generate_source(lang: str, out_dir: str=""):
     scaffolder: SourceGenerator = scaffolder_type(out_dir, config)
 
     scaffolder.generate_source(files)
+    logger.info("Done.")
