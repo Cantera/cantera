@@ -521,9 +521,9 @@ void Flow1D::evalContinuity(double* x, double* rsd, int* diag,
     }
 
     if (jmax == m_points - 1) { // right boundary
-        if (m_usesLambda) { // axisymmetric flow
+        if (m_usesLambda) { // zero mass flux
             rsd[index(c_offset_U, jmax)] = rho_u(x, jmax);
-        } else { // right boundary (same for unstrained/free-flow)
+        } else { // zero gradient, same for unstrained or free-flow
             rsd[index(c_offset_U, jmax)] = rho_u(x, jmax) - rho_u(x, jmax-1);
         }
         diag[index(c_offset_U, jmax)] = 0; // Algebraic constraint
