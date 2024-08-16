@@ -341,10 +341,10 @@ double OneDim::timeStep(int nsteps, double dt, double* x, double* r, int logleve
     int successiveFailures = 0;
 
     // Only output this if nothing else under this function call will be output
-    if (loglevel == 1){
-        debuglog("\n============================", loglevel);
-        debuglog(fmt::format("\n{:<5s}  {:<11s}   {:<7s}\n", "step", "dt (s)", "log(ss)"), loglevel);
-        debuglog("============================", loglevel);
+    if (loglevel == 1) {
+        writelog("\n============================");
+        writelog("\n{:<5s}  {:<11s}   {:<7s}\n", "step", "dt (s)", "log(ss)");
+        writelog("============================");
     }
     while (n < nsteps) {
         if (loglevel == 1) { // At level 1, output concise information
@@ -392,7 +392,7 @@ double OneDim::timeStep(int nsteps, double dt, double* x, double* r, int logleve
             successiveFailures++;
             if (loglevel == 1) {
                 writelog("\nTimestep failed");
-            }else if (loglevel > 1) {
+            } else if (loglevel > 1) {
                 writelog("\nTimestep ({}) failed", n);
             }
             if (successiveFailures > 2) {
@@ -415,7 +415,7 @@ double OneDim::timeStep(int nsteps, double dt, double* x, double* r, int logleve
     if (loglevel == 1) {
         double ss = ssnorm(x, r);
         writelog("\n{:<5d}  {:<6.4e}   {:>7.4f}", n, dt, log10(ss));
-        debuglog("\n============================", loglevel);
+        writelog("\n============================");
     } else if (loglevel > 1) {
         double ss = ssnorm(x, r);
         writelog("\nTimestep({}) dt= {:<11.4e} log10(ss)= {:<7.4f}\n", n, dt, log10(ss));

@@ -232,14 +232,11 @@ int MultiNewton::dampStep(const double* x0, const double* step0,
 {
     // write header
     if (loglevel > 0 && writetitle) {
-        string header = fmt::format("  {:->23}Damped Newton iteration{:->24}", "", "");
-        string separator = fmt::format("  {:->70}", "");
-        writelog("\n\n{}", header);
-
+        writelog("\n\n  {:-^70}", " Damped Newton iteration ");
         writelog("\n  {:<4s}  {:<10s}   {:<10s}  {:<7s}  {:<7s}  {:<7s}  {:<5s}  {:<3s}\n",
                  "Iter", "F_damp", "F_bound", "log(ss)",
-                "log(s0)", "log(s1)", "N_jac", "Age");
-        writelog(separator);
+                 "log(s0)", "log(s1)", "N_jac", "Age");
+        writelog("  {:->70}", "");
     }
 
     // compute the weighted norm of the undamped step size step0
@@ -379,8 +376,7 @@ int MultiNewton::solve(double* x0, double* x1, OneDim& r, MultiJac& jac, int log
     }
     // Close off the damped iteration table that is written by the dampedStep() method
     if (loglevel > 1) {
-        string separator = fmt::format("\n  {:->70}", "");
-        writelog(separator);
+        writelog("\n  {:->70}", "");
     }
 
     if (status < 0) { // Reset x1 to x0 if the solution failed
