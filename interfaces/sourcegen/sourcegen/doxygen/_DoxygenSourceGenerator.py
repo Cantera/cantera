@@ -1,7 +1,13 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
+import sys
+from pathlib import Path
 from typing import List, Dict
+try:
+    from ruamel import yaml
+except ImportError:
+    import ruamel_yaml as yaml
 
 from ._Config import Config
 
@@ -14,22 +20,29 @@ class DoxygenSourceGenerator(SourceGenerator):
     """The SourceGenerator for referencing CLib functions to doxygen information."""
 
     def __init__(self, out_dir: str, config: dict):
-        if out_dir:
-            raise ValueError("Doxygen generator does not use output folder.")
+        self._out_dir = out_dir or None
 
         # use the typed config
         self._config = Config.from_parsed(config)
         self._doxygen = TagFileParser.from_parsed(config)
 
     def generate_source(self, headers_files: List[HeaderFile]):
-        documented_funcs: Dict[str, AnnotatedFunc] = {}
-        undocumented_funcs: List[str] = []
+        """Generate output"""
+        annotated_map: Dict[str, List[Dict[str, str]]] = {}
 
         for header_file in headers_files:
-            doxy_funcs = list(map(self._doxygen.annotated_func, header_file.funcs))
-            documented_funcs.update((f.name, f) for f in doxy_funcs if f is not None)
-            undocumented_funcs.extend([_ for _ in doxy_funcs if _ is None])
+            name = header_file.path.name
+            annotated_map[name] = []
+            for func in list(map(self._doxygen.annotated_func, header_file.funcs)):
+                if func is not None:
+                    annotated_map[name].append(func)
 
-        for func in documented_funcs.values():
-            print(f"{func.name:<18}: {func.cxx_name:<20} "
-                  f"{func.cxx_anchorfile} ({func.cxx_anchor})")
+        emitter = yaml.YAML()
+        emitter.width = 80
+        emitter.register_class(AnnotatedFunc)
+        if self._out_dir:
+            out = Path(self._out_dir) / "interop.yaml"
+            with open(out, "wt", encoding="utf-8") as stream:
+                emitter.dump(annotated_map, stream)
+        else:
+            emitter.dump(annotated_map, sys.stdout)
