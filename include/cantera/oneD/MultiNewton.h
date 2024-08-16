@@ -60,18 +60,19 @@ public:
      *   F(x) = 0
      * @f]
      *
-     * Where `F` is the system of nonlinear equations, `x` is the solution vector.
+     * Where @f$ F @f$ is the system of nonlinear equations and @f$ x @f$ is the
+     * solution vector.
      *
      * For the damped Newton method we are solving:
      *
      * @f[
-     *   x_{k+1} - x_k = \Delta x_k = -\alpha_k J^(-1)(x_k) F(x_k)
+     *   x_{k+1} - x_k = \Delta x_k = -\alpha_k J^{-1}(x_k) F(x_k)
      * @f]
      *
-     * Where @f$ J @f$ is the Jacobian matrix of @f$ F @f$ with respect to @f$ x @f$, and @f$ \alpha_k @f$ is
-     * the damping factor, and @f$ \Delta x_k @f$ is the Newton step at @fx_k @f, sometimes
-     * called the correction vector. In the equations here, k is just an iteration
-     * variable.
+     * Where @f$ J @f$ is the Jacobian matrix of @f$ F @f$ with respect to @f$ x @f$,
+     * and @f$ \alpha_k @f$ is the damping factor, and @f$ \Delta x_k @f$ is the Newton
+     * step at @f$ x_k @f$, sometimes called the correction vector. In the equations
+     * here, @f$ k @f$ is just an iteration variable.
      *
      * In this method, the Jacobian does not update, even when the solution vector is
      * evaluated at different points.
@@ -83,8 +84,9 @@ public:
      *   x_{k+1} = x_k + \alpha_k \Delta x_k
      * @f]
      *
-     * Pick @f$ \alpha_k @f$ such that @f$ \norm{\Delta x_{k+1}} < \norm{\Delta x_k} @f$.
-     * Where @f$ \Delta x_k = J^{-1}(x_k) F(x_k) @f$, and
+     * Pick @f$ \alpha_k @f$ such that
+     * @f$ \Vert \Delta x_{k+1} \Vert < \Vert \Delta x_k \Vert @f$
+     * where @f$ \Delta x_k = J^{-1}(x_k) F(x_k) @f$, and
      * @f$ \Delta x_{k+1} = J^{-1}(x_{k}) F(x_{k+1}) @f$.
      *
      * @param[in] x0 initial solution about which a Newton step will be taken
