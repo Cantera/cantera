@@ -1,8 +1,7 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
-from typing import List, Dict, Union
-import warnings
+from typing import List, Dict
 
 from ._Config import Config
 
@@ -32,5 +31,5 @@ class DoxygenSourceGenerator(SourceGenerator):
             undocumented_funcs.extend([_ for _ in doxy_funcs if _ is None])
 
         for func in documented_funcs.values():
-            self._doxygen.find_anchor(func)
-            # print(f"{func.name}: {func.implements}")
+            print(f"{func.name:<18}: {func.cxx_name:<20} "
+                  f"{func.cxx_anchorfile} ({func.cxx_anchor})")
