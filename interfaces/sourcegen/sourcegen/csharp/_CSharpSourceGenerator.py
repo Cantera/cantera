@@ -26,7 +26,7 @@ class CSharpSourceGenerator(SourceGenerator):
         return ", ".join(p.p_type + " " + p.name for p in params)
 
     def _get_interop_func_text(self, func: CsFunc) -> str:
-        ret_type, name, params, comments, _, _ = func
+        comments, ret_type, name, params, _, _ = func
         requires_unsafe_keyword = any(p.p_type.endswith("*") for p in params)
         params_text = self._join_params(params)
 
@@ -136,7 +136,7 @@ class CSharpSourceGenerator(SourceGenerator):
         return self._get_wrapper_class_name(clib_area) + "Handle"
 
     def _convert_func(self, parsed: Func) -> CsFunc:
-        ret_type, name, _, comments = parsed
+        comments, ret_type, name, _ = parsed
         clib_area, method = name.split("_", 1)
 
         # Shallow copy the params list
@@ -202,10 +202,10 @@ class CSharpSourceGenerator(SourceGenerator):
 
             params[i] = Param(param_type, param_name)
 
-        func = CsFunc(ret_type,
+        func = CsFunc(comments,
+                      ret_type,
                       name,
                       params,
-                      comments,
                       release_func_handle_class_name is not None,
                       release_func_handle_class_name)
 

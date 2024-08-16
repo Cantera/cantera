@@ -21,7 +21,7 @@ class HeaderFileParser:
 
     @classmethod
     def _parse_func(cls, func_comment: tuple[str, str]) -> Func:
-        c_func, comment = func_comment
+        c_func, annotations = func_comment
         lparen = c_func.index("(")
         rparen = c_func.index(")")
         front = c_func[0:lparen].split()
@@ -31,7 +31,7 @@ class HeaderFileParser:
 
         ret_type = front[-2]
         name = front[-1]
-        return Func(ret_type, name, params, comment)
+        return Func(annotations, ret_type, name, params)
 
     def __init__(self, path: Path, ignore_funcs: List[str] = None):
         self._path = path
