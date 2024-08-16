@@ -93,7 +93,7 @@ class TagFileParser:
 
     def annotated_func(self, parsed: Func) -> Union[AnnotatedFunc, None]:
         """Match function with doxygen tag information."""
-        ret_type, name, params, comments = parsed
+        comments = parsed.annotations
 
         def doxygen_func(tag: str, text: str) -> Union[str, None]:
             regex = re.compile(r"(?<={0} ).*[^\(\n]|((?<={0} )(.*?)\))".format(tag))
@@ -148,9 +148,9 @@ class TagFileParser:
                              doxygen_func("@relates", comments),
                              xml_tags("type", xml)[0],
                              xml_tags("name", xml)[0],
+                             xml_tags("arglist", xml)[0],
                              xml_tags("anchorfile", xml)[0].replace(".html", ".xml"),
-                             xml_tags("anchor", xml)[0],
-                             xml_tags("arglist", xml)[0])
+                             xml_tags("anchor", xml)[0])
 
 def xml_tags(tag: str, text: str, suffix: str="") -> Union[str, None]:
     if suffix:

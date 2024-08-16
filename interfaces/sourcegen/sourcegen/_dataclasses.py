@@ -28,10 +28,10 @@ class Param:
 class Func:
     """Represents a function parsed from a C header file"""
 
+    annotations: str
     ret_type: str
     name: str
     params: List[Param]
-    comments: str
 
 
 @dataclass(frozen=True)
@@ -43,24 +43,24 @@ class AnnotatedFunc(Func):
     relates: str
     cxx_type: str
     cxx_name: str
+    cxx_arglist: str
     cxx_anchorfile: str
     cxx_anchor: str
-    cxx_arglist: str
 
     @classmethod
     def to_yaml(cls, representer, func):
         out = BlockMap([
+            ('annotations', yaml.scalarstring.PreservedScalarString(func.annotations)),
             ('ret_type', func.ret_type),
             ('name', func.name),
             ('params', f"({', '.join([_.p_type for _ in func.params])})"),
-            ('comments', yaml.scalarstring.PreservedScalarString(func.comments)),
             ('implements', func.implements),
             ('relates', func.relates),
             ('cxx_type', func.cxx_type),
             ('cxx_name', func.cxx_name),
+            ('cxx_arglist', func.cxx_arglist),
             ('cxx_anchorfile', func.cxx_anchorfile),
             ('cxx_anchor', func.cxx_anchor),
-            ('cxx_arglist', func.cxx_arglist),
         ])
         return representer.represent_dict(out)
 
