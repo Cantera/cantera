@@ -3,9 +3,16 @@
 
 from dataclasses import dataclass, asdict
 from pathlib import Path
-from typing import List, Union
+from typing import List
+try:
+    from ruamel import yaml
+except ImportError:
+    import ruamel_yaml as yaml
+
 from ._helpers import with_unpack_iter
 
+
+BlockMap = yaml.comments.CommentedMap
 
 @dataclass(frozen=True)
 @with_unpack_iter
@@ -26,6 +33,7 @@ class Func:
     params: List[Param]
     comments: str
 
+
 @dataclass(frozen=True)
 @with_unpack_iter
 class AnnotatedFunc(Func):
@@ -39,8 +47,23 @@ class AnnotatedFunc(Func):
     cxx_anchor: str
     cxx_arglist: str
 
-    def as_dict(self):
-        return asdict(self)
+    @classmethod
+    def to_yaml(cls, representer, func):
+        out = BlockMap([
+            ('ret_type', func.ret_type),
+            ('name', func.name),
+            ('params', f"({', '.join([_.p_type for _ in func.params])})"),
+            ('comments', yaml.scalarstring.PreservedScalarString(func.comments)),
+            ('implements', func.implements),
+            ('relates', func.relates),
+            ('cxx_type', func.cxx_type),
+            ('cxx_name', func.cxx_name),
+            ('cxx_anchorfile', func.cxx_anchorfile),
+            ('cxx_anchor', func.cxx_anchor),
+            ('cxx_arglist', func.cxx_arglist),
+        ])
+        return representer.represent_dict(out)
+
 
 @dataclass(frozen=True)
 @with_unpack_iter
