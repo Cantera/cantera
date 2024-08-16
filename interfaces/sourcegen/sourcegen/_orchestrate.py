@@ -14,7 +14,8 @@ from ._SourceGenerator import SourceGenerator
 _clib_path = Path(__file__).parent.joinpath("../../../include/cantera/clib").resolve()
 _clib_defs_path = _clib_path.joinpath("clib_defs.h")
 
-def generate_source(lang: str, out_dir: str):
+def generate_source(lang: str, out_dir: str=""):
+    """Main entry point of sourcegen."""
     print("Generating source files...")
 
     module = importlib.import_module(__package__ + "." + lang)
@@ -38,6 +39,6 @@ def generate_source(lang: str, out_dir: str):
     # find and instantiate the language-specific SourceGenerator
     _, scaffolder_type = inspect.getmembers(module,
         lambda m: inspect.isclass(m) and issubclass(m, SourceGenerator))[0]
-    scaffolder: SourceGenerator = scaffolder_type(Path(out_dir), config)
+    scaffolder: SourceGenerator = scaffolder_type(out_dir, config)
 
     scaffolder.generate_source(files)

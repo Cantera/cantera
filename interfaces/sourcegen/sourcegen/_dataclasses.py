@@ -4,7 +4,6 @@
 from dataclasses import dataclass
 from pathlib import Path
 from typing import List
-import re
 from ._helpers import with_unpack_iter
 
 
