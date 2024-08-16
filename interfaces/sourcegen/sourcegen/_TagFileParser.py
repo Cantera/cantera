@@ -7,7 +7,7 @@ import re
 import logging
 from typing import Dict, List, Union
 
-from ._dataclasses import Func, AnnotatedFunc
+from ._dataclasses import Func, AnnotatedFunc, ArgList
 
 
 logger = logging.getLogger(__name__)
@@ -109,15 +109,6 @@ class TagFileParser:
         if not implements:
             return None
 
-        def shorten_arglist(arglist: str) -> str:
-            # Only keep contents between parentheses and replace HTML entities
-            ret = re.findall(re.compile(r'(?<=\().*(?=\))'), arglist)[0]
-            replacements = [(" &amp;", "& "), ("&lt; ", "<"), (" &gt;", ">")]
-            for rep in replacements:
-                ret = ret.replace(*rep)
-            # Remove parameters names and default values from argument string
-            return ", ".join([" ".join(_.split()[:-1]) for _ in ret.split(",")])
-
         cxx_func = implements.split("(")[0]
         if cxx_func not in self._known:
             logger.error(f"Did not find {cxx_func!r} in tag file.")
@@ -130,11 +121,11 @@ class TagFileParser:
                 logger.error(
                     f"Need argument list to disambiguate {implements!r}: skipping.")
                 return None
-            args = args[0]
+            args = f"({args[0]})"
             ix = -1
             for i, xml in enumerate(self._known[cxx_func]):
-                arglist = xml_tags("arglist", xml)[0]
-                if args == shorten_arglist(arglist):
+                arglist = ArgList.from_xml(xml_tags("arglist", xml)[0])
+                if args == arglist.short_str():
                     ix = i
                     break
             if ix < 0:
