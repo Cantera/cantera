@@ -515,7 +515,7 @@ protected:
      * default boundary condition is zero radial velocity (@f$ V @f$) at the left
      * and right boundary.
      *
-     * For argument explanation, @see evalContinuity().
+     * For argument explanation, see evalContinuity().
      */
     virtual void evalMomentum(double* x, double* rsd, int* diag,
                               double rdt, size_t jmin, size_t jmax);
@@ -534,7 +534,7 @@ protected:
      * at the left boundary. The equation is first order and so only one
      * boundary condition is needed.
      *
-     * For argument explanation, @see evalContinuity().
+     * For argument explanation, see evalContinuity().
      */
     virtual void evalLambda(double* x, double* rsd, int* diag,
                             double rdt, size_t jmin, size_t jmax);
@@ -554,7 +554,7 @@ protected:
      * at the left and right boundaries. These boundary values are updated by the
      * specific boundary object connected to the domain.
      *
-     * For argument explanation, @see evalContinuity().
+     * For argument explanation, see evalContinuity().
      */
     virtual void evalEnergy(double* x, double* rsd, int* diag,
                             double rdt, size_t jmin, size_t jmax);
@@ -570,7 +570,7 @@ protected:
      * of species mass fractions (@f$ Y_k @f$). The default boundary condition is zero
      * flux for species at the left and right boundary.
      *
-     * For argument explanation, @see evalContinuity().
+     * For argument explanation, see evalContinuity().
      */
     virtual void evalSpecies(double* x, double* rsd, int* diag,
                              double rdt, size_t jmin, size_t jmax);
@@ -582,7 +582,7 @@ protected:
      * boundary condition is zero electric field (@f$ E @f$) at the boundary,
      * and @f$ E @f$ is zero within the domain.
      *
-     * For argument explanation, @see evalContinuity().
+     * For argument explanation, see evalContinuity().
      */
     virtual void evalElectricField(double* x, double* rsd, int* diag,
                                    double rdt, size_t jmin, size_t jmax);
@@ -608,7 +608,7 @@ protected:
      * be specified while maintaining block tridiagonal structure. The default boundary
      * condition is @f$ U_o = 0 @f$ at the right and zero flux at the left boundary.
      *
-     * For argument explanation, @see evalContinuity().
+     * For argument explanation, see evalContinuity().
      */
     virtual void evalUo(double* x, double* rsd, int* diag,
                         double rdt, size_t jmin, size_t jmax);
@@ -685,17 +685,17 @@ protected:
      * using upwind differencing.
      *
      * For more details on the upwinding scheme, see the
-     * [documentation](../../html/reference/onedim/discretization.html#upwinding).
+     * [science reference documentation](../reference/onedim/discretization.html#upwinding).
      *
      * @f[
-     *   \frac{\partial V}{\partial z} \bigg|_{j} \approx \frac{V_{j_{\text{loc}}} -
-     *     V_{j_{\text{loc}}-1}}{z_{\text{loc}} - z_{\text{loc}-1}}
+     *   \frac{\partial V}{\partial z} \bigg|_{j} \approx \frac{V_{\ell} -
+     *     V_{\ell-1}}{z_{\ell} - z_{\ell-1}}
      * @f]
      *
-     * Where the value of loc is determined by the sign of the axial velocity.
-     * If the axial velocity is positive, the value of loc is j. If the axial velocity
-     * is negative, the value of loc is j + 1. A positive velocity means that the flow
-     * is moving left-to-right.
+     * Where the value of @f$ \ell @f$ is determined by the sign of the axial velocity.
+     * If the axial velocity is positive, the value of @f$ \ell @f$ is j. If the axial
+     * velocity is negative, the value of @f$ \ell @f$ is j + 1. A positive velocity
+     * means that the flow is moving left-to-right.
      *
      * @param[in] x The local domain state vector.
      * @param[in] j The grid point index at which the derivative is computed.
@@ -709,7 +709,7 @@ protected:
      * Calculates the spatial derivative of the species mass fraction @f$ Y_k @f$ with
      * respect to z for species k at point j using upwind differencing.
      *
-     * For details on the upwinding scheme, @see dVdz().
+     * For details on the upwinding scheme, see dVdz().
      *
      * @param[in] x The local domain state vector.
      * @param[in] k The species index.
@@ -724,7 +724,7 @@ protected:
      * Calculates the spatial derivative of temperature T with respect to z at point
      * j using upwind differencing.
      *
-     * For details on the upwinding scheme, @see dVdz().
+     * For details on the upwinding scheme, see dVdz().
      *
      * @param[in] x The local domain state vector.
      * @param[in] j The grid point index at which the derivative is computed.
@@ -746,7 +746,7 @@ protected:
      *
      * For more details on the discretization scheme used for the second derivative,
      * see the
-     * [documentation](../../html/reference/onedim/discretization.html#second-derivative-term).
+     * [documentation](../reference/onedim/discretization.html#second-derivative-term).
      *
      * @f[
      *  \frac{d}{dz}\left(\mu \frac{dV}{dz}\right) \approx
@@ -767,7 +767,7 @@ protected:
      * Compute the conduction term from the energy equation using a central
      * three-point differencing scheme.
      *
-     * For the details about the discretization, @see shear().
+     * For the details about the discretization, see shear().
      *
      * @param[in] x The local domain state vector.
      * @param[in] j The grid point index at which the derivative is computed.
@@ -795,7 +795,7 @@ protected:
      * differencing. Updates all species molar enthalpies for all species at point j.
      * Updates the #m_dhk_dz 2D array.
      *
-     * For details on the upwinding scheme, @see dVdz().
+     * For details on the upwinding scheme, see dVdz().
      *
      * @param[in] x The local domain state vector.
      * @param[in] j The index at which the derivative is computed.

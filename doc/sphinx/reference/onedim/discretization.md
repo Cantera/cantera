@@ -80,29 +80,87 @@ one-sided form which uses a stencil that pulls from points to right of a grid po
 For consistency, the radial momentum term, ($2\rho V$), also uses the same points and
 averages the value between two nodes.
 
+There are three 1D flame configurations: free flames, strained flames, and burner stabilized
+flames. The free flames have a constant mass flow rate that is set by the user. The burner
+stabilized flames solve for a mass flow rate that achieves a desired temperature at a
+point in the domain. The strained flames have a mass flow rate that is set by the user and
+varies with axial position.
+
+
+#### Strained flames
+
 The discretized equation in residual form (all terms moved to one side) at the interior
-points in the domain is given below.
+points in the domain for strained flames is given below.
 
 $$
 F_{u,j} = \frac{\rho_j u_j - \rho_{j+1} u_{j+1}}{z_{j+1} - z_j} +
   2 \left( \frac{\rho_j V_j + \rho_{j+1} V_{j+1}}{2} \right)
 $$
 
+#### Free flames
+
+The discretized equation in residual form at the interior points in domain for free
+flames is given below.
+
+$$
+F_{u,j} =
+\begin{cases}
+-\dfrac{\rho_j u_j - \rho_{j-1} u_{j-1}}{z_j - z_{j-1}}, & \text{if } z_j > z_{\text{fixed}} \\[10pt]
+T_j - T_{\text{fixed}}, & \text{if } z_j = z_{\text{fixed}} \\[10pt]
+-\dfrac{\rho_{j+1} u_{j+1} - \rho_j u_j}{z_{j+1} - z_j}, & \text{if } z_j < z_{\text{fixed}}
+\end{cases}
+$$
+
+Where $z_{\text{fixed}}$ is the axial position where the temperature is fixed. The value
+of $T_{\text{fixed}}$ is the desired temperature at the fixed axial position.
+
+#### Unstrained flames
+
+The discretized equation in residual form at the interior points in the domain for
+unstrained flames is given below.
+
+$$
+F_{u,j} = \frac{\rho_j u_j - \rho_{j+1} u_{j+1}}{z_{j+1} - z_j}
+$$
+
+This is a zero gradient condition for the mass flow i.e. the mass flow rate is
+constant.
+
+
 ### Boundary Conditions
 
-At the right boundary, the default boundary condition is a zero velocity condition,
-which is representative of a stagnation surface.
+The boundary conditions are expressed in a residual form in the Cantera solver. This
+allows for complex expressions to be used at the boundaries. The solver will attempt to
+find the solution such that the residual at the boundary goes to zero.
+
+#### Right Boundary
+
+At the right boundary, there are a few default boundary conditions depending on the
+type of flow.
+
+##### Strained Flames
+
+For strained flames, the default right boundary condition is a zero mass
+flow rate.
 
 At the right boundary ($j=N$):
 
 $$
-F_{u,j} = \rho_j u_j - \dot m
+F_{u,j} = \rho_j u_j
 $$
 
-Expressing the boundary residual in this form will drive the Newton root finding
-algorithm to find the value of $ \rho_j u_j $ that minimizes the difference between it
-and the imposed (from a user-defined boundary mass flow rate specification, for
-example) boundary condition.
+##### Unstrained Flames
+
+For unstrained flames, the default right boundary condition is a zero axial velocity
+gradient.
+
+At the right boundary ($j=N$):
+
+$$
+F_{u,j} = \frac{\rho_j u_j - \rho_{j-1} u_{j-1}}{z_j - z_{j-1}}
+$$
+
+#### Left Boundary
 
 There is no imposed boundary condition at the left boundary because only one boundary
 condition can be enforced for a first-order differential equation. As such, the
@@ -148,7 +206,7 @@ The upwinding formula for the radial velocity derivative term
 
 $$
 \left( \rho u \frac{\partial V}{\partial z} \right) \bigg|_{j} \approx
-  \rho_j u_j \frac{V_{j_{\ell}} - V_{j_{\ell-1}}}{z_{\ell} - z_{\ell-1}}
+  \rho_j u_j \frac{V_{\ell} - V_{\ell-1}}{z_{\ell} - z_{\ell-1}}
 $$
 
 Where the value of $\ell$ is determined by the sign of the axial velocity $u$. If the
@@ -165,7 +223,7 @@ $$
 \frac{d}{dz}\left(\mu \frac{dV}{dz}\right)
 $$
 
-For simplicity, let $ A = \mu \frac{dV}{dz} $ for simplicity. This will be called the
+Let $ A = \mu \frac{dV}{dz} $ for simplicity. This will be called the
 inner term. In this situation, the inner term is evaluated using a central difference
 formula, but instead of using the `j+1` and `j-1` points, the derivative is estimated
 using `j+1/2` and `j-1/2` (halfway between the grid points around point j).
@@ -275,12 +333,15 @@ The discretized equation in residual form (all terms moved to one side) at the i
 points in the domain is given below.
 
 $$
-F_{T,j} = -\rho_j c_p u_j \left( \frac{T_{\ell} -
+\begin{align*}
+F_{T,j} = & -\rho_j c_p u_j \left( \frac{T_{\ell} -
   T_{\ell-1}}{z_{\ell} - z_{\ell-1}} \right) +
   \frac{\lambda_{j+1/2} \frac{T_{j+1} - T_j}{z_{j+1} - z_j} -
-  \lambda_{j-1/2} \frac{T_j - T_{j-1}}{z_j - z_{j-1}}}{\frac{z_{j+1} - z_{j-1}}{2}} -
-  \sum_k j_{k, j} \left( \frac{h_{k, \ell} -
-  h_{k, \ell-1}}{z_{\ell} - z_{\ell-1}} \right)
+  \lambda_{j-1/2} \frac{T_j - T_{j-1}}{z_j - z_{j-1}}}{\frac{z_{j+1} - z_{j-1}}{2}} \\
+& - \sum_k j_{k, j} \left( \frac{h_{k, \ell} -
+  h_{k, \ell-1}}{z_{\ell} - z_{\ell-1}} \right) - \sum_k h_{k, j} W_k \dot \omega_{k, j}
+\end{align*}
+
 $$
 
 The enthalpy gradient term uses upwinding.

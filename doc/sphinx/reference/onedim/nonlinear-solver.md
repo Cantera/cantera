@@ -62,68 +62,20 @@ matrix is used to determine the direction of the correction vector that will dri
 solution towards zero error.
 
 $$
-J(x) =
-\frac{\partial F(x)}{\partial x}
+J(x) =\pxpy{F(x)}{x}
 $$
 
-For the vector-value residual vector $F(x)$, the Jacobian matrix looks like,
+For the vector-value residual $F(x)$, the Jacobian matrix has elmenets that are
+partial derivatives of the residuals with respect to each solution component at each
+grid point.
 
 $$
-\begin{pmatrix}
-\frac{\partial F_{U,0}(x)}{\partial U_0} &
-\frac{\partial F_{U,0}(x)}{\partial V_0} &
-\frac{\partial F_{U,0}(x)}{\partial T_0} &
-\frac{\partial F_{U,0}(x)}{\partial Y_{m,0}} &
-\cdots &
-\frac{\partial F_{U,0}(x)}{\partial U_N} &
-\frac{\partial F_{U,0}(x)}{\partial V_N} &
-\frac{\partial F_{U,0}(x)}{\partial T_N} &
-\frac{\partial F_{U,0}(x)}{\partial Y_{m,N}}
-
-\\
-
-\frac{\partial F_{V,0}(x)}{\partial U_0} &
-\frac{\partial F_{V,0}(x)}{\partial V_0} &
-\frac{\partial F_{V,0}(x)}{\partial T_0} &
-\frac{\partial F_{V,0}(x)}{\partial Y_{m,0}} &
-\cdots &
-\frac{\partial F_{V,0}(x)}{\partial U_N} &
-\frac{\partial F_{V,0}(x)}{\partial V_N} &
-\frac{\partial F_{U,0}(x)}{\partial T_N} &
-\frac{\partial F_{V,0}(x)}{\partial Y_{m,N}}
-
-\\
-
-\vdots & \vdots & \vdots & \vdots & & \vdots & \vdots & \vdots & \vdots
-
-\\
-
-\frac{\partial F_{U,N}(x)}{\partial U_0} &
-\frac{\partial F_{U,N}(x)}{\partial V_0} &
-\frac{\partial F_{U,N}(x)}{\partial T_0} &
-\frac{\partial F_{U,N}(x)}{\partial Y_{m,0}} &
-\cdots &
-\frac{\partial F_{U,N}(x)}{\partial U_N} &
-\frac{\partial F_{U,N}(x)}{\partial V_N} &
-\frac{\partial F_{U,N}(x)}{\partial T_N} &
-\frac{\partial F_{U,N}(x)}{\partial Y_{m,N}}
-
-\\
-
-\frac{\partial F_{V,N}(x)}{\partial U_0} &
-\frac{\partial F_{V,N}(x)}{\partial V_0} &
-\frac{\partial F_{V,N}(x)}{\partial T_0} &
-\frac{\partial F_{V,N}(x)}{\partial Y_{m,0}} &
-\cdots &
-\frac{\partial F_{V,N}(x)}{\partial U_N} &
-\frac{\partial F_{V,N}(x)}{\partial V_N} &
-\frac{\partial F_{V,N}(x)}{\partial T_N} &
-\frac{\partial F_{V,N}(x)}{\partial Y_{m,N}}
-
-\end{pmatrix}
+J_{i,j} = \frac{\partial F_i(x)}{\partial x_j}
 $$
 
-This is approximated numerically in the 1D solver instead of having analytical
+Moving across a row of the Jacobian matrix encodes how the value of the residual at
+a grid point changes with respect to each solution component. The Jacobian is
+approximated numerically in the 1D solver instead of having analytical
 relations derived for each governing equation.
 
 ### Damped Newton Method
@@ -132,7 +84,7 @@ The damped Newton method starts with an initial guess for the solution, $x^{(0)}
 performs a series of iterations until the solution converges with the help of a
 damping parameter.
 
-For each iteration, k, the solution is updated using the following relation:
+For each iteration, $k$, the solution is updated using the following relation:
 
 $$
 J(x^{(k)}) \left( x^{(k+1)} - x^{(k)} \right) = -\lambda^{(k)} F(x^{(k)})
@@ -162,13 +114,13 @@ parameter is selected to satisfy two conditions:
   2. The norms of succeeding undamped steps decrease in magnitude.
 
 The following image visually illustrates the damped Newton method. In it, the undamped
-Newton step \( $ \Delta x^{(k)} $ \) is shown. The second vector is the undamped step
+Newton step $ \Delta x^{(k)} $ is shown. The second vector is the undamped step
 that would occur if the full initial step were to be taken. The shorter vector
-representing the damped correction \( $ \lambda^{(k)} \Delta x^{(k)} $ \) is a trial
-step. The method takes this trial step to get to a new solution at \( $ x^{(k+1)} $ \).
+representing the damped correction $ \lambda^{(k)} \Delta x^{(k)} $ is a trial
+step. The method takes this trial step to get to a new solution at $ x^{(k+1)} $.
 A new step vector is then computed using the trial solution, which gives
 $ \Delta x^{(k+1)} $. The length of this vector is compared to the length of the
-original undamped step \( $ \Delta x^{(k)} $ \). If the length of the new step is less
+original undamped step $ \Delta x^{(k)} $. If the length of the new step is less
 than the length of the original step, then the trial step is accepted, and the damping
 value is accepted. The step is then taken, and the process is repeated until the
 solution converges.
@@ -184,25 +136,25 @@ Representation of the damped Newton method. Adapted from {cite:t}`kee2003`.
 For a more mathematical representation of the damped Newton method, we consider:
 
 $$
-x^{(m+1)} = x^{(m)} + \lambda^{(m)} \Delta x^{(m)}
+x^{(k+1)} = x^{(k)} + \lambda^{(k)} \Delta x^{(k)}
 $$
 
 A value of $\lambda$ needs to be picked that satisfies:
 
 $$
-|\Delta x^{(m+1)}| < |\Delta x^{(m)}|
+|\Delta x^{(k+1)}| < |\Delta x^{(k)}|
 $$
 
 Where:
 
 $$
-\Delta x^{(m)} = J(x^{(m)})^{-1} F(x^{(m)})
+\Delta x^{(k)} = J(x^{(k)})^{-1} F(x^{(k)})
 $$
 
 and,
 
 $$
-\Delta x^{(m+1)} = J(x^{(m)})^{-1} F(x^{(m+1)})
+\Delta x^{(k+1)} = J(x^{(k)})^{-1} F(x^{(k+1)})
 $$
 
 During the search for the correct value of $\lambda$, the value of $\lambda$ starts
@@ -210,7 +162,7 @@ at 1, it is adjusted down to a value that keeps the solution within the trust re
 The process then begins for finding $\lambda$, failures result in the damping factor
 being reduced by a constant factor. The current factor in  Cantera is the $\sqrt{2}$.
 
-During the damped Newton method, the Jacobian is kept at the $x^{(m)}$ value. This
+During the damped Newton method, the Jacobian is kept at the $x^{(k)}$ value. This
 sometimes can cause issues with convergence if the Jacobian becomes out of date
 (due to sensitivity to the solution). In Cantera, the Jacobian is updated if too many
 attempted steps fail to take any damped step. The balance of how long to wait before
@@ -221,11 +173,11 @@ cost of failing to converge.
 
 As was discussed earlier, the Newton method is an iterative method, and it's important
 to assess when the method has reached a point where the iterations can be stopped. This
-point is called convergence. Cantera's implementation uses a **weighted norm** of the
+point is called convergence. Cantera's implementation uses a *weighted norm* of the
 step vector to determine convergence, rather than a simple absolute norm. A damped
-Newton step is considered to be converged when the **weighted norm** of the correction
+Newton step is considered to be converged when the weighted norm of the correction
 vector is less than 1. During the solution, the process of finding and taking a damped
-Newton step is repeated until the **weighted norm** of the correction vector is less
+Newton step is repeated until the weighted norm of the correction vector is less
 than 1, if it is not, then the process continues.
 
 In a multivariate system, different variables may have vastly different magnitudes
@@ -242,11 +194,11 @@ convergence, making it especially useful in systems with diverse variables.
 The weighted norm of the step vector $\mathbf{s}$ is calculated as:
 
 $$
-\text{Weighted Norm} = \sum_{n,j} \left(\frac{s_{n,j}}{w_n}\right)^2
+\text{Weighted Norm} = \sum_{n,j} \left(\frac{\Delta x_{n,j}}{w_n}\right)^2
 $$
 
 where:
-- $s_{n,j}$ is the Newton step vector component for the $n$-th solution variable
+- $\Delta x_{n,j}$ is the Newton step vector component for the $n$-th solution variable
   at the $j$-th grid point.
 - $w_n$ is the error weight for the $n$-th solution component, given by:
 
@@ -258,7 +210,7 @@ Here:
 - $\epsilon_{r,n}$ is the relative error tolerance for the $n$-th solution component.
 - $\frac{\sum_j |x_{n,j}|}{J}$ is the average magnitude of the $n$-th solution
   component over all grid points, and $J$ is the total number of grid points.
-- \( \epsilon_{a,n} \) is the absolute error tolerance for the $n$-th solution
+- $\epsilon_{a,n}$ is the absolute error tolerance for the $n$-th solution
   component.
 
 #### Interpretation of the Weighted Norm
@@ -278,12 +230,12 @@ solution components. It can be interpreted as follows:
 The Newton iteration is considered converged when the weighted norm is less than 1:
 
 $$
-\sum_{n,j} \left(\frac{s_{n,j}}{w_n}\right)^2 < 1
+\sum_{n,j} \left(\frac{\Delta x_{n,j}}{w_n}\right)^2 < 1
 $$
 
-This criterion indicates that each component of the step vector $s_{n,j}$ is
-sufficiently small relative to the expected precision (as defined by the weights
-$w_n$).
+This criterion indicates that each component of the step vector $\Delta x_{n,j}$ (the
+change in each component) is sufficiently small compared to the relative and absolute
+error tolerances on that component.
 
 ## Transient Solution
 
@@ -318,7 +270,7 @@ referred to as differential equations. A general way to express this is by writi
 equation above in the following form.
 
 $$
-\alpha \frac{x_{n+1} - x_n}{\Delta t} + F_{ss}(x_{n+1})
+\alpha \frac{x_{n+1} - x_n}{\Delta t} = F_{ss}(x_{n+1})
 $$
 
 Where $\alpha$ is a diagonal matrix with diagonal values that are equal to 1 for
@@ -352,12 +304,18 @@ Using the expression for the residual equation defined earlier, the Jacobian mat
 be written as:
 
 $$
-J(x_n, x_{n+1}^{(k)}) = \frac{\alpha}{\Delta t} I +
+J(x_n, x_{n+1}^{(k)}) = \frac{\alpha}{\Delta t} +
   \frac{\partial F_{ss}(x_{n+1}^{(k)})}{\partial x_{n+1}}
 $$
 
 Where $\frac{\partial x_n}{\partial x_{n+1}}$ is zero, and
-$\frac{\partial x_{n+1}}{\partial x_{n+1}}$ is the identity matrix.
+$\frac{\partial x_{n+1}}{\partial x_{n+1}}$ is the identity matrix. Recalling the
+previous definition of the steady-state Jacobian matrix, we can write the transient
+Jacobian matrix as:
+
+$$
+J(x_n, x_{n+1}^{(k)}) = \frac{\alpha}{\Delta t} + J_{ss}(x_{n+1}^{(k)})
+$$
 
 The linearized equation is set to zero to obtain the equation that will be used to send
 the residual equation to zero. This equation is:
@@ -369,7 +327,7 @@ $$
 Taking the full expression for the Jacobian and the residual equation, we get:
 
 $$
-\left(-\frac{\alpha}{\Delta t} I  + J_{ss}(x_{n+1}^{(k)})\right) \Delta x_{n+1}^{(k)} =
+\left(-\frac{\alpha}{\Delta t} + J_{ss}(x_{n+1}^{(k)})\right) \Delta x_{n+1}^{(k)} =
   -\left( -\frac{\alpha}{\Delta t} (x_{n+1}^{(k)} - x_n) + F_{ss}(x_{n+1}^{(k)}) \right)
 $$
 
