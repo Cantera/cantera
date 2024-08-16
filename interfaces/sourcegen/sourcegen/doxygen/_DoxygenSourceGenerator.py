@@ -7,9 +7,8 @@ import warnings
 import re
 
 from ._Config import Config
-from ._dataclasses import DoxyFunc
 
-from .._dataclasses import Func, HeaderFile
+from .._dataclasses import Func, HeaderFile, AnnotatedFunc
 from .._SourceGenerator import SourceGenerator
 
 
@@ -64,19 +63,17 @@ class DoxygenSourceGenerator(SourceGenerator):
 
         return classes, functions
 
-    def _convert_func(self, parsed: Func) -> Union[DoxyFunc, None]:
+    def _convert_func(self, parsed: Func) -> Union[AnnotatedFunc, None]:
         ret_type, name, params, comments = parsed
         if not comments or "@implements" not in comments:
             return None
         regex = re.compile(r"(?<=@implements ).*[^\(\n]|((?<=@implements )(.*?)\))")
-        found = [_ for _ in re.finditer(regex, comments)]
+        found = list(re.finditer(regex, comments))
         if not found:
             raise RuntimeError("This needs debugging.")
 
-
-
         implemented = found[0][0]
-        return DoxyFunc(ret_type, name, params, comments, implemented)
+        return AnnotatedFunc(ret_type, name, params, comments, implemented, "", "", "", "", "")
 
     def _find_anchor(self, func):
         if "::" in func.implements:
@@ -116,7 +113,7 @@ class DoxygenSourceGenerator(SourceGenerator):
         self._classes, self._functions = self._parse_doxyfile()
 
     def generate_source(self, headers_files: List[HeaderFile]):
-        documented_funcs: Dict[str, DoxyFunc] = {}
+        documented_funcs: Dict[str, AnnotatedFunc] = {}
         undocumented_funcs: List[str] = []
 
         for header_file in headers_files:

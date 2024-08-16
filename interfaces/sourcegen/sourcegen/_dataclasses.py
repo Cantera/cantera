@@ -26,6 +26,17 @@ class Func:
     params: List[Param]
     comments: str
 
+@dataclass(frozen=True)
+@with_unpack_iter
+class AnnotatedFunc(Func):
+    """Represents a function annotated with doxygen info."""
+
+    implements: str
+    related: str
+    cxx_type: str
+    cxx_anchor_file: str
+    cxx_anchor: str
+    cxx_arglist: str
 
 @dataclass(frozen=True)
 @with_unpack_iter
