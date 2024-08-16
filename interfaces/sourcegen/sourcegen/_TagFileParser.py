@@ -17,22 +17,29 @@ class TagFileParser:
     def _parse_doxyfile(self, class_crosswalk: Dict[str, str]):
         """Retrieve class and function information from Cantera namespace."""
 
-        def xml_compounds(kind: str, name: str="") -> List[str]:
+        def xml_compounds(kind: str, names: List[str]) -> Dict[str,str]:
             regex = re.compile(r'<compound kind="{0}"[\s\S]*?</compound>'.format(kind))
-            if not name:
-                return re.findall(regex, self._doxygen_tags)
+            found = []
+            compounds = {}
             for compound in re.findall(regex, self._doxygen_tags):
-                compound_name = xml_tags("name", compound)[0]
-                if compound_name == name:
-                    return [compound]
-            msg = f"Tag file does not contain compound {kind!r} with name {name!r}."
+                qualified_name = xml_tags("name", compound)[0]
+                compound_name = qualified_name.split(":")[-1]
+                if compound_name in names:
+                    found.append(compound_name)
+                    compounds[compound_name] = compound
+                    if not set(names) - set(found):
+                        return compounds
+            missing = '", "'.join(set(names) - set(found))
+            msg = f"Missing {kind!r} compound(s):\n    {missing!r}\n"
+            msg += f"using regex: {regex}"
             raise ValueError(msg)
 
-        namespace = xml_compounds("namespace", "Cantera")[0]
-
-        # Get class names and handle exceptions for unknown/undocumented classes
+        # Parse content of namespace Cantera
+        namespace = xml_compounds("namespace", ["Cantera"])["Cantera"]
         qualified_names = xml_tags("class", namespace, suffix='kind="class"')
         class_names = [_.split(":")[-1] for _ in qualified_names]
+
+        # Handle exceptions for unknown/undocumented classes
         unknown = set(class_crosswalk.values()) - set(class_names)
         if unknown:
             unknown = '", "'.join(unknown)
@@ -41,28 +48,24 @@ class TagFileParser:
 
         # Parse content of classes that are specified by the configuration file
         class_names = set(class_crosswalk.values()) & set(class_names)
-        regex = re.compile(r'<compound kind="class">[\s\S]*?</compound>')
-        classes = {}
-        regex_name = re.compile(r'(?<=<name>)(.*?)(?=</name>)')
-        for cl in re.findall(regex, self._doxygen_tags):
-            names = re.findall(regex_name, cl)
-            if names and names[0] in qualified_names:
-                classes[names[0].split(":")[-1]] = cl
+        classes = xml_compounds("class", class_names)
 
-        # Get functions defined in Cantera namespace
-        regex = re.compile(r'<member kind="function">[\s\S]*?</member>')
-        functions = {}
-        for fn in re.findall(regex, namespace):
-            names = re.findall(regex_name, fn)
-            if names:
-                name = names[0]
-                if name in functions:
-                    functions[name].append(fn)
+        def xml_members(kind: str, text: str, prefix="") -> Dict[str, str]:
+            regex = re.compile(r'<member kind="{0}"[\s\S]*?</member>'.format(kind))
+            functions = {}
+            for func in re.findall(regex, text):
+                func_name = f'{prefix}{xml_tags("name", func)[0]}'
+                if func_name in functions:
+                    functions[func_name].append(func)
                 else:
-                    functions[name] = [fn]
+                    functions[func_name] = [func]
+            return functions
 
-        self._classes = classes
-        self._functions = functions
+        # Get known functions from namespace and methods from classes
+        self._known = xml_members("function", namespace)
+        for name, cls in classes.items():
+            prefix = f"{name}::"
+            self._known.update(xml_members("function", cls, prefix))
 
     def __init__(self, class_crosswalk: Dict[str, str]) -> None:
         tag_file = _tag_path / "Cantera.tag"
@@ -97,27 +100,43 @@ class TagFileParser:
         implements = doxygen_func("@implements", comments)
         if not implements:
             return None
-        relates = doxygen_func("@relates", comments)
+
+        def shorten_arglist(arglist: str) -> str:
+            # Only keep contents between parentheses and replace HTML entities
+            ret = re.findall(re.compile(r'(?<=\().*(?=\))'), arglist)[0]
+            replacements = [(" &amp;", "& "), ("&lt; ", "<"), (" &gt;", ">")]
+            for rep in replacements:
+                ret = ret.replace(*rep)
+            # Remove parameters names and default values from argument string
+            return ", ".join([" ".join(_.split()[:-1]) for _ in ret.split(",")])
 
         cxx_func = implements.split("(")[0]
-        if "::" in cxx_func:
-            # A class
-            return AnnotatedFunc(ret_type, name, params, comments, implements, relates, "", "", "", "", "")
-
-        if cxx_func not in self._functions:
+        if cxx_func not in self._known:
             msg = f"Did not find {cxx_func!r} in tag file."
             warnings.warn(msg)
             return None
-        if len(self._functions[cxx_func]) > 1:
-            msg = f"Ambiguous function {cxx_func!r}"
-            warnings.warn(msg)
-            return AnnotatedFunc(ret_type, name, params, comments, implements, relates, "", "", "", "", "")
-        xml = self._functions[cxx_func][0]
+        ix = 0
+        if len(self._known[cxx_func]) > 1:
+            # Disambiguate functions with same name
+            args = re.findall(re.compile(r'(?<=\().*(?=\))'), implements)
+            if not args:
+                msg = f"Need argument list to disambiguate {implements!r}"
+                raise RuntimeError(msg)
+            args = args[0]
+            ix = -1
+            for i, xml in enumerate(self._known[cxx_func]):
+                arglist = xml_tags("arglist", xml)[0]
+                if args == shorten_arglist(arglist):
+                    ix = i
+                    break
+            if ix < 0:
+                msg = f"Unable to match {cxx_func!r} to known function."
+                raise RuntimeError(msg)
+        xml = self._known[cxx_func][ix]
 
-        # A function
         return AnnotatedFunc(*parsed,
                              implements,
-                             relates,
+                             doxygen_func("@relates", comments),
                              xml_tags("type", xml)[0],
                              xml_tags("name", xml)[0],
                              xml_tags("anchorfile", xml)[0].replace(".html", ".xml"),

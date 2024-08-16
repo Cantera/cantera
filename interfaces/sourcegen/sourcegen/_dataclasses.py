@@ -1,7 +1,7 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 from pathlib import Path
 from typing import List, Union
 from ._helpers import with_unpack_iter
@@ -32,12 +32,15 @@ class AnnotatedFunc(Func):
     """Represents a function annotated with doxygen info."""
 
     implements: str
-    relates: Union[str, None]
+    relates: str
     cxx_type: str
     cxx_name: str
     cxx_anchorfile: str
     cxx_anchor: str
     cxx_arglist: str
+
+    def as_dict(self):
+        return asdict(self)
 
 @dataclass(frozen=True)
 @with_unpack_iter
