@@ -7,7 +7,7 @@ from typing import Dict
 
 @dataclass(frozen=True)
 class Config:
-    """Provides configuration info for the DoxygenSourceGenerator class"""
+    """Provides configuration info for the YamlSourceGenerator class"""
 
     # These we load from the parsed YAML config file
     class_crosswalk: Dict[str, str]
