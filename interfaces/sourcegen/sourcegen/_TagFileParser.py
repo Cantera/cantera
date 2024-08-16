@@ -33,8 +33,8 @@ class TagFileParser:
                     if not set(names) - set(found):
                         return compounds
             missing = '", "'.join(set(names) - set(found))
-            msg = f"Missing {kind!r} compound(s):\n    {missing!r}\n"
-            msg += f"using regex: {regex}"
+            msg = f"Missing {kind!r} compound(s):\n    {missing!r}\nusing regex "
+            msg += f"{regex}. Continuing with remaining compounds: \n    {found!r}"
             logger.error(msg)
 
         # Parse content of namespace Cantera
@@ -43,14 +43,18 @@ class TagFileParser:
         class_names = [_.split(":")[-1] for _ in qualified_names]
 
         # Handle exceptions for unknown/undocumented classes
-        unknown = set(class_crosswalk.values()) - set(class_names)
+        configured = []
+        for cls in class_crosswalk.values():
+            configured.extend(cls)  # one prefix can map to multiple classes
+        unknown = set(configured) - set(class_names)
         if unknown:
-            unknown = '", "'.join(unknown)
-            msg = f"Unknown/undocumented class(es) in configuration file: {unknown!r}"
-            logger.warning(msg)
+            unknown = "', '".join(unknown)
+            logger.warning(
+                "Class(es) in configuration file are missing from tag file: "
+                f"'{unknown}'")
 
         # Parse content of classes that are specified by the configuration file
-        class_names = set(class_crosswalk.values()) & set(class_names)
+        class_names = set(configured) & set(class_names)
         classes = xml_compounds("class", class_names)
 
         def xml_members(kind: str, text: str, prefix="") -> Dict[str, str]:
@@ -123,7 +127,8 @@ class TagFileParser:
             # Disambiguate functions with same name
             args = re.findall(re.compile(r'(?<=\().*(?=\))'), implements)
             if not args:
-                logger.error(f"Need argument list to disambiguate {implements!r}")
+                logger.error(
+                    f"Need argument list to disambiguate {implements!r}: skipping.")
                 return None
             args = args[0]
             ix = -1
@@ -133,7 +138,8 @@ class TagFileParser:
                     ix = i
                     break
             if ix < 0:
-                logger.error(f"Unable to match {cxx_func!r} to known function.")
+                logger.error(
+                    f"Unable to match {cxx_func!r} to known functions: skipping.")
                 return None
         xml = self._known[cxx_func][ix]
 
