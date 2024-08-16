@@ -4,7 +4,7 @@
 from pathlib import Path
 import re
 import warnings
-from typing import List, Dict, Union
+from typing import Dict, List, Union
 
 from ._dataclasses import Func, AnnotatedFunc
 
@@ -16,20 +16,23 @@ class TagFileParser:
 
     def _parse_doxyfile(self, class_crosswalk: Dict[str, str]):
         """Retrieve class and function information from Cantera namespace."""
-        regex = re.compile(r'<compound kind="namespace"[\s\S]*?</compound>')
-        regex_name = re.compile(r'(?<=<name>)(.*?)(?=</name>)')
-        namespace = None
-        for ns in re.findall(regex, self._doxygen_tags):
-            names = re.findall(regex_name, ns)
-            if names and "Cantera" == names[0]:
-                namespace = ns
-                break
-        if not namespace:
-            raise ValueError("Invalid tag file does not contain namespace 'Cantera'.")
+
+        def xml_compounds(kind: str, name: str="") -> List[str]:
+            regex = re.compile(r'<compound kind="{0}"[\s\S]*?</compound>'.format(kind))
+            if not name:
+                return re.findall(regex, self._doxygen_tags)
+            for compound in re.findall(regex, self._doxygen_tags):
+                compound_name = xml_tags("name", compound)[0]
+                if compound_name == name:
+                    return [compound]
+            msg = f"Tag file does not contain compound {kind!r} with name {name!r}."
+            raise ValueError(msg)
+
+        namespace = xml_compounds("namespace", "Cantera")[0]
 
         # Get class names and handle exceptions for unknown/undocumented classes
-        regex = re.compile(r'(?<=<class kind="class">Cantera::)(.*?)(?=</class>)')
-        class_names = re.findall(regex, namespace)
+        qualified_names = xml_tags("class", namespace, suffix='kind="class"')
+        class_names = [_.split(":")[-1] for _ in qualified_names]
         unknown = set(class_crosswalk.values()) - set(class_names)
         if unknown:
             unknown = '", "'.join(unknown)
@@ -38,9 +41,9 @@ class TagFileParser:
 
         # Parse content of classes that are specified by the configuration file
         class_names = set(class_crosswalk.values()) & set(class_names)
-        qualified_names = [f"Cantera::{_}" for _ in class_names]
         regex = re.compile(r'<compound kind="class">[\s\S]*?</compound>')
         classes = {}
+        regex_name = re.compile(r'(?<=<name>)(.*?)(?=</name>)')
         for cl in re.findall(regex, self._doxygen_tags):
             names = re.findall(regex_name, cl)
             if names and names[0] in qualified_names:
@@ -80,33 +83,55 @@ class TagFileParser:
     def annotated_func(self, parsed: Func) -> Union[AnnotatedFunc, None]:
         """Match function with doxygen tag information."""
         ret_type, name, params, comments = parsed
-        if not comments or "@implements" not in comments:
+
+        def doxygen_func(tag: str, text: str) -> Union[str, None]:
+            regex = re.compile(r"(?<={0} ).*[^\(\n]|((?<={0} )(.*?)\))".format(tag))
+            matched = list(re.finditer(regex, text))
+            if not matched:
+                return None
+            if len(matched) > 1:
+                msg = f"Found more than one {tag!r} annotation."
+                raise RuntimeError(msg)
+            return matched[0][0]
+
+        implements = doxygen_func("@implements", comments)
+        if not implements:
             return None
-        regex = re.compile(r"(?<=@implements ).*[^\(\n]|((?<=@implements )(.*?)\))")
-        found = list(re.finditer(regex, comments))
-        if not found:
-            raise RuntimeError("This needs debugging.")
+        relates = doxygen_func("@relates", comments)
 
-        implemented = found[0][0]
-        return AnnotatedFunc(ret_type, name, params, comments, implemented, "", "", "", "", "")
-
-    def find_anchor(self, func):
-        if "::" in func.implements:
+        cxx_func = implements.split("(")[0]
+        if "::" in cxx_func:
             # A class
-            print(f"{func.name:<18}: {func.implements}")
-        elif func.implements not in self._functions:
-            msg = f"Unable to find {func.implements!r} in doxygen tag file"
+            return AnnotatedFunc(ret_type, name, params, comments, implements, relates, "", "", "", "", "")
+
+        if cxx_func not in self._functions:
+            msg = f"Did not find {cxx_func!r} in tag file."
             warnings.warn(msg)
-            return
-        else:
-            # A function
-            if len(self._functions[func.implements]) > 1:
-                raise RuntimeError(f"Ambiguous function {func.implemens!r}")
-            xml = self._functions[func.implements][0]
-            regex = re.compile(r'(?<=<anchorfile>)(.*?)(?=</anchorfile>)')
-            anchor_file = re.findall(regex, xml)
-            regex = re.compile(r'(?<=<anchor>)(.*?)(?=</anchor>)')
-            anchor = re.findall(regex, xml)
-            if anchor:
-                print(f"{func.name:<18}: {func.implements:<20} "
-                      f"{anchor_file[0].replace('.html', '.xml')} ({anchor[0]})")
+            return None
+        if len(self._functions[cxx_func]) > 1:
+            msg = f"Ambiguous function {cxx_func!r}"
+            warnings.warn(msg)
+            return AnnotatedFunc(ret_type, name, params, comments, implements, relates, "", "", "", "", "")
+        xml = self._functions[cxx_func][0]
+
+        # A function
+        return AnnotatedFunc(*parsed,
+                             implements,
+                             relates,
+                             xml_tags("type", xml)[0],
+                             xml_tags("name", xml)[0],
+                             xml_tags("anchorfile", xml)[0].replace(".html", ".xml"),
+                             xml_tags("anchor", xml)[0],
+                             xml_tags("arglist", xml)[0])
+
+def xml_tags(tag: str, text: str, suffix: str="") -> Union[str, None]:
+    if suffix:
+        suffix = f" {suffix.strip()}"
+    regex = re.compile(r'(?<=<{0}{1}>)(.*?)(?=</{0}>)'.format(tag, suffix))
+    matched = re.findall(regex, text)
+    if not matched:
+        blanks = text.split("\n")[-1].split("<")[0]
+        msg = f"Could not extract {tag!r} from:\n{blanks}{text}\n"
+        msg += f"using regex: {regex}"
+        raise RuntimeError(msg)
+    return matched

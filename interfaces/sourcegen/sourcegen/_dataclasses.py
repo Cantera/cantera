@@ -3,7 +3,7 @@
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List
+from typing import List, Union
 from ._helpers import with_unpack_iter
 
 
@@ -32,9 +32,10 @@ class AnnotatedFunc(Func):
     """Represents a function annotated with doxygen info."""
 
     implements: str
-    related: str
+    relates: Union[str, None]
     cxx_type: str
-    cxx_anchor_file: str
+    cxx_name: str
+    cxx_anchorfile: str
     cxx_anchor: str
     cxx_arglist: str
 
