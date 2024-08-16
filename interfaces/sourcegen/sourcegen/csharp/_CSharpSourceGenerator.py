@@ -169,7 +169,7 @@ class CSharpSourceGenerator(SourceGenerator):
         setter_double_arrays_count = 0
 
         for i in range(0, len(params)):
-            param_type, param_name = params[i]
+            param_type, param_name, _ = params[i]
 
             for c_type, cs_type in self._config.ret_type_crosswalk.items():
                 if param_type == c_type:
