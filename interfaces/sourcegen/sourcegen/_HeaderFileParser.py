@@ -2,11 +2,14 @@
 # at https://cantera.org/license.txt for license and copyright information.
 
 from pathlib import Path
+import logging
 import re
 from typing import List
 
 from ._dataclasses import HeaderFile, Func, Param
 
+
+logger = logging.getLogger()
 
 class HeaderFileParser:
 
@@ -88,9 +91,9 @@ class HeaderFileParser:
 
         parsed = map(self._parse_func, c_functions)
 
-        print(f"  parsing {self._path.name}")
+        logger.info(f"  parsing {self._path.name}")
         if self._ignore_funcs:
-            print(f"    ignoring {self._ignore_funcs}")
+            logger.info(f"    ignoring {self._ignore_funcs}")
 
         parsed = [f for f in parsed if f.name not in self._ignore_funcs]
 

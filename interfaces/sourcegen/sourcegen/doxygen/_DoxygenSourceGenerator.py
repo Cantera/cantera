@@ -3,6 +3,7 @@
 
 import sys
 from pathlib import Path
+import logging
 from typing import List, Dict
 try:
     from ruamel import yaml
@@ -15,6 +16,8 @@ from .._dataclasses import HeaderFile, AnnotatedFunc
 from .._SourceGenerator import SourceGenerator
 from .._TagFileParser import TagFileParser
 
+
+logger = logging.getLogger()
 
 class DoxygenSourceGenerator(SourceGenerator):
     """The SourceGenerator for referencing CLib functions to doxygen information."""
@@ -42,6 +45,7 @@ class DoxygenSourceGenerator(SourceGenerator):
         emitter.register_class(AnnotatedFunc)
         if self._out_dir:
             out = Path(self._out_dir) / "interop.yaml"
+            logger.info(f"  writing {out.name}")
             with open(out, "wt", encoding="utf-8") as stream:
                 emitter.dump(annotated_map, stream)
         else:

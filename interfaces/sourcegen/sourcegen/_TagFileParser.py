@@ -1,13 +1,16 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
+import sys
 from pathlib import Path
 import re
-import warnings
+import logging
 from typing import Dict, List, Union
 
 from ._dataclasses import Func, AnnotatedFunc
 
+
+logger = logging.getLogger(__name__)
 
 _tag_path = Path(__file__).parent.joinpath("../../../build/doc/").resolve()
 
@@ -32,7 +35,7 @@ class TagFileParser:
             missing = '", "'.join(set(names) - set(found))
             msg = f"Missing {kind!r} compound(s):\n    {missing!r}\n"
             msg += f"using regex: {regex}"
-            raise ValueError(msg)
+            logger.error(msg)
 
         # Parse content of namespace Cantera
         namespace = xml_compounds("namespace", ["Cantera"])["Cantera"]
@@ -44,7 +47,7 @@ class TagFileParser:
         if unknown:
             unknown = '", "'.join(unknown)
             msg = f"Unknown/undocumented class(es) in configuration file: {unknown!r}"
-            warnings.warn(msg)
+            logger.warning(msg)
 
         # Parse content of classes that are specified by the configuration file
         class_names = set(class_crosswalk.values()) & set(class_names)
@@ -70,9 +73,10 @@ class TagFileParser:
     def __init__(self, class_crosswalk: Dict[str, str]) -> None:
         tag_file = _tag_path / "Cantera.tag"
         if not tag_file.exists():
-            raise FileNotFoundError(
-                f"Tag file does not exist at expected location:\n    {tag_file}\n"
-                "Run 'scons doxygen' to generate.")
+            msg = (f"Tag file does not exist at expected location:\n    {tag_file}\n"
+                   "Run 'scons doxygen' to generate.")
+            logger.critical(msg)
+            sys.exit(1)
 
         with tag_file.open() as fid:
             self._doxygen_tags = fid.read()
@@ -93,8 +97,8 @@ class TagFileParser:
             if not matched:
                 return None
             if len(matched) > 1:
-                msg = f"Found more than one {tag!r} annotation."
-                raise RuntimeError(msg)
+                msg = f"Found more than one {tag!r} annotation; returning first."
+                logging.warning(msg)
             return matched[0][0]
 
         implements = doxygen_func("@implements", comments)
@@ -112,16 +116,15 @@ class TagFileParser:
 
         cxx_func = implements.split("(")[0]
         if cxx_func not in self._known:
-            msg = f"Did not find {cxx_func!r} in tag file."
-            warnings.warn(msg)
+            logger.error(f"Did not find {cxx_func!r} in tag file.")
             return None
         ix = 0
         if len(self._known[cxx_func]) > 1:
             # Disambiguate functions with same name
             args = re.findall(re.compile(r'(?<=\().*(?=\))'), implements)
             if not args:
-                msg = f"Need argument list to disambiguate {implements!r}"
-                raise RuntimeError(msg)
+                logger.error(f"Need argument list to disambiguate {implements!r}")
+                return None
             args = args[0]
             ix = -1
             for i, xml in enumerate(self._known[cxx_func]):
@@ -130,8 +133,8 @@ class TagFileParser:
                     ix = i
                     break
             if ix < 0:
-                msg = f"Unable to match {cxx_func!r} to known function."
-                raise RuntimeError(msg)
+                logger.error(f"Unable to match {cxx_func!r} to known function.")
+                return None
         xml = self._known[cxx_func][ix]
 
         return AnnotatedFunc(*parsed,
@@ -152,5 +155,6 @@ def xml_tags(tag: str, text: str, suffix: str="") -> Union[str, None]:
         blanks = text.split("\n")[-1].split("<")[0]
         msg = f"Could not extract {tag!r} from:\n{blanks}{text}\n"
         msg += f"using regex: {regex}"
-        raise RuntimeError(msg)
+        logger.error(msg)
+        return None
     return matched
