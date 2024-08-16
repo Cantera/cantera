@@ -114,8 +114,10 @@ class CSharpSourceGenerator(SourceGenerator):
 
         return normalize_indent(text)
 
-    def __init__(self, out_dir: Path, config: dict):
-        self._out_dir = out_dir
+    def __init__(self, out_dir: str, config: dict):
+        if not out_dir:
+            raise ValueError("Non-empty string identifying output path required.")
+        self._out_dir = Path(out_dir)
 
         # use the typed config
         self._config = Config.from_parsed(config)

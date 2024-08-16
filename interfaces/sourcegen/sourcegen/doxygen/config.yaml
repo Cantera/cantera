@@ -1,0 +1,64 @@
+# ignore these files entirely:
+ignore_files:
+  - ctmatlab.h
+  - ctonedim.h
+  - ctrpath.h
+
+#ignore these specific functions:
+ignore_funcs:
+  ct.h:
+    - ct_setLogWriter
+    - soln_newInterface # signature causes syntax error in sourcegen
+    - thermo_size
+  ctreactor.h:
+    - flowReactor_setMassFlowRate
+
+# replaces the name as determined by the C function prefix
+# with the name of the class that function is designed to expose
+class_crosswalk:
+  flowdev: FlowDevice
+  kin: Kinetics
+  mix: Mixture
+  reactor: Reactor
+  reactornet: ReactorNet
+  reactorsurface: ReactorSurface
+  soln: Solution
+  surf: Surface
+  thermo: ThermoPhase
+  trans: Transport
+  wall: Wall
+  func: Func1
+
+# # Handles for which there is no special delete function,
+# # so we need to generate them manually because we can't
+# # discover the type name from the delete.
+# # Declare these as
+# #  Derived: Base
+# derived_handles:
+#   SurfaceHandle: ThermoPhaseHandle
+
+# # Provides info for scaffolding higher-level idiomatic C# classes
+# # At this stage, we can scaffold simple properties that follow the
+# # naming conventions _prop, _setProp for scalars and
+# # _getProp, _setProp for array-likes (string, double[]).
+# # The C# class name will be determine by the class crosswalk above.
+# # The C# property names are the values for the CLib "property" keys.
+# wrapper_classes:
+#   thermo:
+#   # scalars
+#     density: Density
+#     electricPotential: ElectricPotential
+#     meanMolecularWeight: MeanMolecularWeight
+#     molarDensity: MolarDensity
+#     pressure: Pressure
+#     temperature: Temperature
+#     enthalpy_mass: MassEnthalpy
+#     enthalpy_mole: MolarEnthalpy
+#     entropy_mass: MassEntropy
+#     entropy_mole: MolarEntropy
+#     cp_mole: MolarCp
+#     cv_mole: MolarCv
+#     cp_mass: MassCp
+#     cv_mass: MassCv
+#   # strings
+#     name: Name
