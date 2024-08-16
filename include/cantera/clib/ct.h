@@ -60,6 +60,8 @@ extern "C" {
     CANTERA_CAPI int thermo_setMoleFractionsByName(int n, const char* x);
     CANTERA_CAPI int thermo_setMassFractionsByName(int n, const char* y);
     CANTERA_CAPI int thermo_getAtomicWeights(int n, size_t lenm, double* atw);
+    //! @implements Phase::molecularWeights
+    //! @relates Phase::nSpecies
     CANTERA_CAPI int thermo_getMolecularWeights(int n, size_t lenm, double* mw);
     CANTERA_CAPI int thermo_getCharges(int n, size_t lenm, double* sc);
     CANTERA_CAPI int thermo_getElementName(int n, size_t k, size_t lennm, char* nm);
