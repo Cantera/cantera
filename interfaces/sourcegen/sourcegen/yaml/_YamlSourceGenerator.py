@@ -19,7 +19,7 @@ from .._TagFileParser import TagFileParser
 
 logger = logging.getLogger()
 
-class DoxygenSourceGenerator(SourceGenerator):
+class YamlSourceGenerator(SourceGenerator):
     """The SourceGenerator for referencing CLib functions to doxygen information."""
 
     def __init__(self, out_dir: str, config: dict):
