@@ -39,7 +39,7 @@ width = 18.e-3  # 18mm wide
 f = ct.CounterflowDiffusionFlame(gas, width=width)
 
 # Define the operating pressure and boundary conditions
-f.P = 1.e5  # 1 bar
+f.P = 1.0e5  # 1 bar
 f.fuel_inlet.mdot = 0.5  # kg/m^2/s
 f.fuel_inlet.X = 'H2:1'
 f.fuel_inlet.T = 300  # K
@@ -87,6 +87,10 @@ error_count = 0
 strain_rate_tol = 0.10
 
 f.two_point_control_enabled = True
+
+# Prevent two point control from finding solutions with negative inlet velocities
+f.flame.set_bounds(spread_rate=(-1e-5, 1e20))
+
 f.max_time_step_count = 100
 T_max = max(f.T)
 a_max = strain_rate = f.strain_rate('max')
@@ -133,7 +137,7 @@ for i in range(n_max):
         logger.debug(err)
         if strain_rate / a_max < strain_rate_tol:
             logger.info('SUCCESS! Traversed unstable branch down to '
-                        f'{100 * strain_rate / a_max:.1f}% of the maximum strain rate.')
+                        f'{100 * strain_rate / a_max:.2f}% of the maximum strain rate.')
             break
 
         # Restore the previous solution and try a smaller temperature increment for the
