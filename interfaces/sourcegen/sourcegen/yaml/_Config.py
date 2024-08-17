@@ -15,3 +15,10 @@ class Config:
     @staticmethod
     def from_parsed(parsed_config_file: dict):
         return Config(parsed_config_file["class_crosswalk"])
+
+    def classes(self):
+        """Return all classes referenced in configuration file."""
+        ret = []
+        for cls in self.class_crosswalk.values():
+            ret.extend(cls)  # one prefix can map to multiple classes
+        return ret

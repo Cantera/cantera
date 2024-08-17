@@ -17,7 +17,7 @@ _tag_path = Path(__file__).parent.joinpath("../../../build/doc/").resolve()
 class TagFileParser:
     """Class handling contents of doxygen tag file."""
 
-    def _parse_doxyfile(self, class_crosswalk: Dict[str, str]):
+    def _parse_doxyfile(self, class_crosswalk: List[str]):
         """Retrieve class and function information from Cantera namespace."""
 
         def xml_compounds(kind: str, names: List[str]) -> Dict[str,str]:
@@ -43,10 +43,7 @@ class TagFileParser:
         class_names = [_.split(":")[-1] for _ in qualified_names]
 
         # Handle exceptions for unknown/undocumented classes
-        configured = []
-        for cls in class_crosswalk.values():
-            configured.extend(cls)  # one prefix can map to multiple classes
-        unknown = set(configured) - set(class_names)
+        unknown = set(class_crosswalk) - set(class_names)
         if unknown:
             unknown = "', '".join(unknown)
             logger.warning(
@@ -54,7 +51,7 @@ class TagFileParser:
                 f"'{unknown}'")
 
         # Parse content of classes that are specified by the configuration file
-        class_names = set(configured) & set(class_names)
+        class_names = set(class_crosswalk) & set(class_names)
         classes = xml_compounds("class", class_names)
 
         def xml_members(kind: str, text: str, prefix="") -> Dict[str, str]:
@@ -86,10 +83,6 @@ class TagFileParser:
             self._doxygen_tags = fid.read()
 
         self._parse_doxyfile(class_crosswalk)
-
-    @staticmethod
-    def from_parsed(parsed_config_file: dict):
-        return TagFileParser(parsed_config_file["class_crosswalk"])
 
     def annotated_func(self, parsed: Func) -> Union[AnnotatedFunc, None]:
         """Match function with doxygen tag information."""
@@ -142,6 +135,7 @@ class TagFileParser:
                              xml_tags("arglist", xml)[0],
                              xml_tags("anchorfile", xml)[0].replace(".html", ".xml"),
                              xml_tags("anchor", xml)[0])
+
 
 def xml_tags(tag: str, text: str, suffix: str="") -> Union[str, None]:
     if suffix:

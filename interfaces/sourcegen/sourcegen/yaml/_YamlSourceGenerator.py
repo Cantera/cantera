@@ -27,7 +27,7 @@ class YamlSourceGenerator(SourceGenerator):
 
         # use the typed config
         self._config = Config.from_parsed(config)
-        self._doxygen = TagFileParser.from_parsed(config)
+        self._doxygen_tags = TagFileParser(self._config.classes())
 
     def generate_source(self, headers_files: List[HeaderFile]):
         """Generate output"""
@@ -36,7 +36,7 @@ class YamlSourceGenerator(SourceGenerator):
         for header_file in headers_files:
             name = header_file.path.name
             annotated_map[name] = []
-            for func in list(map(self._doxygen.annotated_func, header_file.funcs)):
+            for func in list(map(self._doxygen_tags.annotated_func, header_file.funcs)):
                 if func is not None:
                     annotated_map[name].append(func)
 
