@@ -5,6 +5,7 @@ from dataclasses import fields
 import inspect
 from pathlib import Path
 import textwrap
+import re
 
 
 def with_unpack_iter(cls: type) -> type:
@@ -38,3 +39,22 @@ def normalize_indent(code: str) -> str:
 
 def get_preamble() -> str:
     return Path(__file__).parent.joinpath("preamble.txt").read_text("utf-8").strip()
+
+
+def xml_tag(tag: str, text: str, suffix: str="", index=0) -> str:
+    """Extract content enclosed between XML tags, optionally skipping matches."""
+    if suffix:
+        suffix = f" {suffix.strip()}"
+    regex = re.compile(rf'(?<=<{tag}{suffix}>)(.*?)(?=</{tag}>)')
+    match = re.findall(regex, text)
+    if index >= len(match):
+        return ""  # not enough matches found
+    return match[index]
+
+
+def split_arglist(arglist: str) -> tuple:
+    """Split C++ argument list into text within parentheses and suffix."""
+    arglist = arglist.strip()
+    suffix = arglist[arglist.rfind(")") + 1:]
+    arglist = re.findall(re.compile(r'(?<=\().*(?=\))'), arglist)[0]
+    return arglist, suffix.strip()

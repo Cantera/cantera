@@ -101,3 +101,17 @@ class HeaderFileParser:
             return
 
         return HeaderFile(self._path, parsed)
+
+
+def doxygen_func(tag: str, text: str) -> str:
+    """Extract function signature from doxygen tag if it exists."""
+    regex = re.compile(rf"(?<={tag} ).*[^\(\n]|((?<={tag} )(.*?)\))")
+    matched = list(re.finditer(regex, text))
+    if not matched:
+        return ""
+    if len(matched) > 1:
+        msg = f"Found more than one {tag!r} annotation; returning first."
+        logging.warning(msg)
+        signatures = '\n  - '.join([""] + [_[0] for _ in matched])
+        logging.debug("Found instances:%s", signatures)
+    return matched[0][0]
