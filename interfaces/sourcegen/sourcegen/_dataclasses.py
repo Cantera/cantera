@@ -3,18 +3,10 @@
 
 from dataclasses import dataclass
 from pathlib import Path
-import re
+from typing import List, Any
 
-from typing import List, Any, Tuple
-try:
-    from ruamel import yaml
-except ImportError:
-    import ruamel_yaml as yaml
+from ._helpers import with_unpack_iter, xml_tag, split_arglist
 
-from ._helpers import with_unpack_iter
-
-
-BlockMap = yaml.comments.CommentedMap
 
 @dataclass(frozen=True)
 @with_unpack_iter
@@ -67,16 +59,9 @@ class ArgList:
     suffix: str = ""
 
     @staticmethod
-    def _split_arglist(arglist: str) -> Tuple[str, str]:
-        arglist = arglist.strip()
-        suffix = arglist[arglist.rfind(")") + 1:]
-        arglist = re.findall(re.compile(r'(?<=\().*(?=\))'), arglist)[0]
-        return arglist, suffix.strip()
-
-    @staticmethod
     def from_str(arglist: str) -> 'ArgList':
         """Generate ArgList from string argument list"""
-        arglist, suffix = ArgList._split_arglist(arglist)
+        arglist, suffix = split_arglist(arglist)
         if not arglist:
             return ArgList([], suffix)
         return ArgList([Param.from_str(_) for _ in arglist.split(",")], suffix)
@@ -84,7 +69,7 @@ class ArgList:
     @staticmethod
     def from_xml(arglist: str) -> 'ArgList':
         """Generate ArgList from XML string argument list"""
-        arglist, suffix = ArgList._split_arglist(arglist)
+        arglist, suffix = split_arglist(arglist)
         if not arglist:
             return ArgList([], suffix)
         return ArgList([Param.from_xml(_) for _ in arglist.split(",")], suffix)
@@ -105,7 +90,7 @@ class ArgList:
 @dataclass(frozen=True)
 @with_unpack_iter
 class Func:
-    """Represents a function parsed from a C header file"""
+    """Represents a function parsed from a C header file."""
 
     annotations: str
     ret_type: str
@@ -115,33 +100,34 @@ class Func:
 
 @dataclass(frozen=True)
 @with_unpack_iter
-class AnnotatedFunc(Func):
-    """Represents a function annotated with doxygen info."""
+class TagInfo:
+    """Represents information parsed from a doxygen tag file."""
 
-    implements: str
-    relates: str
-    cxx_type: str
-    cxx_name: str
-    cxx_arglist: str
-    cxx_anchorfile: str
-    cxx_anchor: str
+    type: str = ""
+    name: str = ""
+    arglist: str = ""
+    anchorfile: str = ""
+    anchor: str = ""
 
-    @classmethod
-    def to_yaml(cls, representer, func):
-        out = BlockMap([
-            ('annotations', yaml.scalarstring.PreservedScalarString(func.annotations)),
-            ('ret_type', func.ret_type),
-            ('name', func.name),
-            ('params', f"({', '.join([_.p_type for _ in func.params])})"),
-            ('implements', func.implements),
-            ('relates', func.relates),
-            ('cxx_type', Param.from_xml(func.cxx_type).short_str()),
-            ('cxx_name', func.cxx_name),
-            ('cxx_arglist', ArgList.from_xml(func.cxx_arglist).long_str()),
-            ('cxx_anchorfile', func.cxx_anchorfile),
-            ('cxx_anchor', func.cxx_anchor),
-        ])
-        return representer.represent_dict(out)
+    @staticmethod
+    def from_xml(xml):
+        """Create tag information based on XML data."""
+        return TagInfo(xml_tag("type", xml),
+                       xml_tag("name", xml),
+                       xml_tag("arglist", xml),
+                       xml_tag("anchorfile", xml).replace(".html", ".xml"),
+                       xml_tag("anchor", xml))
+
+    def __bool__(self):
+        return all([self.type, self.name, self.arglist, self.anchorfile, self.anchor])
+
+    def signature(self):
+        """Generate function signature based on tag information."""
+        ret = f"{self.type} {self.name}{self.arglist}"
+        replacements = [(" &amp;", "& "), ("&lt; ", "<"), (" &gt;", ">")]
+        for rep in replacements:
+            ret = ret.replace(*rep)
+        return ret
 
 
 @dataclass(frozen=True)

@@ -41,7 +41,7 @@ def generate_source(lang: str, out_dir: str=""):
 
     config = {}
     if config_path.exists():
-        with config_path.open() as config_file:
+        with config_path.open("r", encoding="utf-8") as config_file:
             reader = ruamel.yaml.YAML(typ="safe")
             config = reader.load(config_file)
 
