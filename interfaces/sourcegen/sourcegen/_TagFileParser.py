@@ -5,15 +5,49 @@ import sys
 from pathlib import Path
 import re
 import logging
+from dataclasses import dataclass
 from typing import Dict, List, Union
 
-from ._dataclasses import ArgList, TagInfo
-from ._helpers import xml_tag
+from ._dataclasses import ArgList
+from ._helpers import with_unpack_iter
 
 
 logger = logging.getLogger(__name__)
 
 _tag_path = Path(__file__).parent.joinpath("../../../build/doc/").resolve()
+
+
+@dataclass(frozen=True)
+@with_unpack_iter
+class TagInfo:
+    """Represents information parsed from a doxygen tag file."""
+
+    type: str = ""
+    name: str = ""
+    arglist: str = ""
+    anchorfile: str = ""
+    anchor: str = ""
+
+    @staticmethod
+    def from_xml(xml):
+        """Create tag information based on XML data."""
+        return TagInfo(xml_tag("type", xml),
+                       xml_tag("name", xml),
+                       xml_tag("arglist", xml),
+                       xml_tag("anchorfile", xml).replace(".html", ".xml"),
+                       xml_tag("anchor", xml))
+
+    def __bool__(self):
+        return all([self.type, self.name, self.arglist, self.anchorfile, self.anchor])
+
+    def signature(self):
+        """Generate function signature based on tag information."""
+        ret = f"{self.type} {self.name}{self.arglist}"
+        replacements = [(" &amp;", "& "), ("&lt; ", "<"), (" &gt;", ">")]
+        for rep in replacements:
+            ret = ret.replace(*rep)
+        return ret
+
 
 class TagFileParser:
     """Class handling contents of doxygen tag file."""
@@ -125,3 +159,14 @@ class TagFileParser:
                              func_string)
                 return TagInfo()
         return TagInfo.from_xml(self._known[cxx_func][ix])
+
+
+def xml_tag(tag: str, text: str, suffix: str="", index=0) -> str:
+    """Extract content enclosed between XML tags, optionally skipping matches."""
+    if suffix:
+        suffix = f" {suffix.strip()}"
+    regex = re.compile(rf'(?<=<{tag}{suffix}>)(.*?)(?=</{tag}>)')
+    match = re.findall(regex, text)
+    if index >= len(match):
+        return ""  # not enough matches found
+    return match[index]

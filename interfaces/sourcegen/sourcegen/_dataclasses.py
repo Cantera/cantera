@@ -2,10 +2,11 @@
 # at https://cantera.org/license.txt for license and copyright information.
 
 from dataclasses import dataclass
+import re
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import List, Any
 
-from ._helpers import with_unpack_iter, xml_tag, split_arglist
+from ._helpers import with_unpack_iter
 
 
 @dataclass(frozen=True)
@@ -100,38 +101,6 @@ class Func:
 
 @dataclass(frozen=True)
 @with_unpack_iter
-class TagInfo:
-    """Represents information parsed from a doxygen tag file."""
-
-    type: str = ""
-    name: str = ""
-    arglist: str = ""
-    anchorfile: str = ""
-    anchor: str = ""
-
-    @staticmethod
-    def from_xml(xml):
-        """Create tag information based on XML data."""
-        return TagInfo(xml_tag("type", xml),
-                       xml_tag("name", xml),
-                       xml_tag("arglist", xml),
-                       xml_tag("anchorfile", xml).replace(".html", ".xml"),
-                       xml_tag("anchor", xml))
-
-    def __bool__(self):
-        return all([self.type, self.name, self.arglist, self.anchorfile, self.anchor])
-
-    def signature(self):
-        """Generate function signature based on tag information."""
-        ret = f"{self.type} {self.name}{self.arglist}"
-        replacements = [(" &amp;", "& "), ("&lt; ", "<"), (" &gt;", ">")]
-        for rep in replacements:
-            ret = ret.replace(*rep)
-        return ret
-
-
-@dataclass(frozen=True)
-@with_unpack_iter
 class Recipe:
     """Represents a recipe for a CLib method."""
 
@@ -150,3 +119,11 @@ class HeaderFile:
     path: Path
     funcs: List[Func]
     recipes: List[Recipe] = None
+
+
+def split_arglist(arglist: str) -> tuple:
+    """Split C++ argument list into text within parentheses and suffix."""
+    arglist = arglist.strip()
+    suffix = arglist[arglist.rfind(")") + 1:]
+    arglist = re.findall(re.compile(r'(?<=\().*(?=\))'), arglist)[0]
+    return arglist, suffix.strip()
