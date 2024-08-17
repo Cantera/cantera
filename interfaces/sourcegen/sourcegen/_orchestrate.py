@@ -45,14 +45,17 @@ def generate_source(lang: str, out_dir: str=""):
             reader = ruamel.yaml.YAML(typ="safe")
             config = reader.load(config_file)
 
-    ignore_files: List[str] = config.get("ignore_files", [])
+    ignore_files: List[str] = config.get("ignore_files", ["all"])
     ignore_funcs: Dict[str, List[str]] = config.get("ignore_funcs", {})
 
-    files = (HeaderFileParser(f, ignore_funcs.get(f.name, [])).parse()
-        for f in _clib_path.glob("*.h")
-        if f != _clib_defs_path and f.name not in ignore_files)
-    # removes instances where HeaderFile.parse() returned None
-    files = list(filter(None, files))
+    if "all" in ignore_files:
+        files = []
+    else:
+        files = (HeaderFileParser(f, ignore_funcs.get(f.name, [])).parse()
+            for f in _clib_path.glob("*.h")
+            if f != _clib_defs_path and f.name not in ignore_files)
+        # removes instances where HeaderFile.parse() returned None
+        files = list(filter(None, files))
 
     # find and instantiate the language-specific SourceGenerator
     _, scaffolder_type = inspect.getmembers(module,
