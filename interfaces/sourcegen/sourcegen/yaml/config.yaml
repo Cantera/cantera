@@ -13,17 +13,17 @@ ignore_funcs:
   ctreactor.h:
     - flowReactor_setMassFlowRate
 
-# replaces the name as determined by the C function prefix
-# with the name of the class that function is designed to expose
-class_crosswalk:
-  flowdev: [FlowDevice]
-  kin: [Kinetics]
-  mix: [Mixture]
-  reactor: [Reactor]
-  reactornet: [ReactorNet]
-  reactorsurface: [ReactorSurface]
-  soln: [Solution]
-  thermo: [Phase, ThermoPhase]
-  trans: [Transport]
-  wall: [Wall]
-  func: [Func1]
+# list of classes/bases used within CLib
+bases:
+  - FlowDevice
+  - Kinetics
+  - Mixture
+  - Reactor
+  - ReactorNet
+  - ReactorSurface
+  - Solution
+  - Phase
+  - ThermoPhase
+  - Transport
+  - Wall
+  - Func1

@@ -46,8 +46,8 @@ class YamlSourceGenerator(SourceGenerator):
         self._out_dir = out_dir or None
 
         # use the typed config
-        self._config = Config.from_parsed(config)
-        self._doxygen_tags = TagFileParser(self._config.classes())
+        self._config = Config.from_parsed(**config)
+        self._doxygen_tags = TagFileParser(self._config.bases)
 
     def generate_source(self, headers_files: List[HeaderFile]):
         """Generate output"""

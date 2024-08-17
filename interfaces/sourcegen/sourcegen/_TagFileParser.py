@@ -18,11 +18,11 @@ _tag_path = Path(__file__).parent.joinpath("../../../build/doc/").resolve()
 class TagFileParser:
     """Class handling contents of doxygen tag file."""
 
-    def _parse_doxyfile(self, class_crosswalk: List[str]):
+    def _parse_doxyfile(self, bases: List[str]):
         """Retrieve class and function information from Cantera namespace."""
 
         def xml_compounds(kind: str, names: List[str]) -> Dict[str,str]:
-            regex = re.compile(r'<compound kind="{0}"[\s\S]*?</compound>'.format(kind))
+            regex = re.compile(rf'<compound kind="{kind}"[\s\S]*?</compound>')
             found = []
             compounds = {}
             for compound in re.findall(regex, self._doxygen_tags):
@@ -41,7 +41,7 @@ class TagFileParser:
         def xml_tags(tag: str, text: str, suffix: str="") -> Union[str, None]:
             if suffix:
                 suffix = f" {suffix.strip()}"
-            regex = re.compile(r'(?<=<{0}{1}>)(.*?)(?=</{0}>)'.format(tag, suffix))
+            regex = re.compile(rf'(?<=<{tag}{suffix}>)(.*?)(?=</{tag}>)')
             matched = re.findall(regex, text)
             if not matched:
                 blanks = text.split("\n")[-1].split("<")[0]
@@ -57,7 +57,7 @@ class TagFileParser:
         class_names = [_.split(":")[-1] for _ in qualified_names]
 
         # Handle exceptions for unknown/undocumented classes
-        unknown = set(class_crosswalk) - set(class_names)
+        unknown = set(bases) - set(class_names)
         if unknown:
             unknown = "', '".join(unknown)
             logger.warning(
@@ -65,7 +65,7 @@ class TagFileParser:
                 unknown)
 
         # Parse content of classes that are specified by the configuration file
-        class_names = set(class_crosswalk) & set(class_names)
+        class_names = set(bases) & set(class_names)
         classes = xml_compounds("class", class_names)
 
         def xml_members(kind: str, text: str, prefix="") -> Dict[str, str]:
@@ -85,7 +85,7 @@ class TagFileParser:
             prefix = f"{name}::"
             self._known.update(xml_members("function", cls, prefix))
 
-    def __init__(self, class_crosswalk: Dict[str, str]) -> None:
+    def __init__(self, bases: Dict[str, str]) -> None:
         tag_file = _tag_path / "Cantera.tag"
         if not tag_file.exists():
             msg = (f"Tag file does not exist at expected location:\n    {tag_file}\n"
@@ -96,7 +96,8 @@ class TagFileParser:
         with tag_file.open() as fid:
             self._doxygen_tags = fid.read()
 
-        self._parse_doxyfile(class_crosswalk)
+        logging.info("Parsing doxygen tags...")
+        self._parse_doxyfile(bases)
 
     def tag_info(self, func_string: str) -> TagInfo:
         """Look up tag information based on (partial) function signature."""
