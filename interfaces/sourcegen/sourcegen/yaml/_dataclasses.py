@@ -1,3 +1,5 @@
+"""Module implementing data classes specific to YAML source generator."""
+
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
@@ -21,6 +23,7 @@ class AnnotatedFunc(Func):
 
     implements: str
     relates: str
+    cxx_base: str
     cxx_type: str
     cxx_name: str
     cxx_arglist: str
@@ -36,6 +39,7 @@ class AnnotatedFunc(Func):
             ('params', f"({', '.join([_.p_type for _ in func.params])})"),
             ('implements', func.implements),
             ('relates', func.relates),
+            ('cxx_base', func.cxx_base),
             ('cxx_type', Param.from_xml(func.cxx_type).short_str()),
             ('cxx_name', func.cxx_name),
             ('cxx_arglist', ArgList.from_xml(func.cxx_arglist).long_str()),

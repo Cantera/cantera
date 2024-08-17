@@ -174,7 +174,8 @@ class CSharpSourceGenerator(SourceGenerator):
         setter_double_arrays_count = 0
 
         for i, param in enumerate(params):
-            param_type, param_name, _ = param
+            param_type = param.p_type
+            param_name = param.name
 
             for c_type, cs_type in self._config.ret_type_crosswalk.items():
                 if param_type == c_type:
@@ -189,8 +190,8 @@ class CSharpSourceGenerator(SourceGenerator):
                     # We assume a double* can reliably become a double[].
                     # However, this logic is too simplistic if there is
                     # more than one array.
-                    logger.critical(f"Cannot scaffold {name} with "
-                                    "more than one array of doubles!")
+                    logger.critical("Cannot scaffold '%s' with "
+                                    "more than one array of doubles!", name)
                     sys.exit(1)
 
                 if clib_area == "thermo" and re.match("^set_[A-Z]{2}$", method):
@@ -213,9 +214,9 @@ class CSharpSourceGenerator(SourceGenerator):
         return func
 
     def _write_file(self, filename: str, contents: str):
-        logger.info("  writing " + filename)
+        logger.info("  writing %s", filename)
 
-        self._out_dir.joinpath(filename).write_text(contents)
+        self._out_dir.joinpath(filename).write_text(contents, encoding="utf-8")
 
     def _scaffold_interop(self, header_file_path: Path, cs_funcs: List[CsFunc]):
         functions_text = "\n\n".join(map(self._get_interop_func_text, cs_funcs))

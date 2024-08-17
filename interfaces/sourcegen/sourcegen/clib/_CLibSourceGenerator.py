@@ -1,3 +1,5 @@
+"""Generator for CLib source files."""
+
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
@@ -7,9 +9,9 @@ from typing import List
 
 from ._Config import Config
 
-from .._dataclasses import HeaderFile
+from .._dataclasses import HeaderFile, ArgList, Param
 from .._SourceGenerator import SourceGenerator
-from .._TagFileParser import TagFileParser
+from .._TagFileParser import TagFileParser, TagDetails, tag_lookup
 
 
 logger = logging.getLogger()
@@ -25,6 +27,24 @@ class CLibSourceGenerator(SourceGenerator):
                 bases |= set(recipe.bases)
         return list(bases)
 
+    @staticmethod
+    def _make_annotation(details: TagDetails, relates="") -> str:
+        msg = ["", details.briefdescription]
+
+        def param(item: Param):
+            ret = "@param"
+            if item.direction:
+                ret += f"[{item.direction}]"
+            ret += f" {item.name}"
+            return f"{ret:<20} {item.description}"
+
+        msg += [param(_) for _ in details.parameterlist]
+        arglist = ArgList.from_xml(details.arglist)
+        msg += [f"@implements {details.qualified_name}{arglist.short_str()}"]
+        if relates:
+            msg += [f"@relates {relates}"]
+        return "\n//! ".join(msg).strip()
+
     def __init__(self, out_dir: str, config: dict):
         self._out_dir = out_dir or None
         self._config = Config.from_parsed(**config)  # typed config
@@ -39,4 +59,6 @@ class CLibSourceGenerator(SourceGenerator):
                     print(f"{recipe.name}: N/A")
                     continue
                 tag_info = self._doxygen_tags.tag_info(recipe.implements)
-                print(f"{recipe.name}: {tag_info.signature()}")
+                tag_details = tag_lookup(tag_info)
+                print(f"{recipe.name}:\n"
+                      f"{self._make_annotation(tag_details, recipe.relates)}\n")
