@@ -7,10 +7,10 @@ from pathlib import Path
 import logging
 import sys
 from typing import List, Dict
-import ruamel.yaml
 
 from ._HeaderFileParser import HeaderFileParser
 from ._SourceGenerator import SourceGenerator
+from ._helpers import read_config
 
 
 logger = logging.getLogger()
@@ -23,9 +23,6 @@ class CustomFormatter(logging.Formatter):
         return formatter.format(record)
 
 
-_clib_path = Path(__file__).parent.joinpath("../../../include/cantera/clib").resolve()
-_clib_defs_path = _clib_path.joinpath("clib_defs.h")
-
 def generate_source(lang: str, out_dir: str=""):
     """Main entry point of sourcegen."""
     loghandler = logging.StreamHandler(sys.stdout)
@@ -33,29 +30,17 @@ def generate_source(lang: str, out_dir: str=""):
     logger.handlers.clear()
     logger.addHandler(loghandler)
     logger.setLevel(logging.DEBUG)
-
-    logger.info("Generating source files...")
+    logger.info("Generating '%s' source files...", lang)
 
     module = importlib.import_module(__package__ + "." + lang)
-    config_path = Path(module.__file__).parent.joinpath("config.yaml")
+    config = read_config(Path(module.__file__).parent.joinpath("config.yaml"))
+    ignore_files: List[str] = config.pop("ignore_files", [])
+    ignore_funcs: Dict[str, List[str]] = config.pop("ignore_funcs", {})
 
-    config = {}
-    if config_path.exists():
-        with config_path.open("r", encoding="utf-8") as config_file:
-            reader = ruamel.yaml.YAML(typ="safe")
-            config = reader.load(config_file)
-
-    ignore_files: List[str] = config.get("ignore_files", ["all"])
-    ignore_funcs: Dict[str, List[str]] = config.get("ignore_funcs", {})
-
-    if "all" in ignore_files:
-        files = []
+    if lang == 'clib':
+        files = HeaderFileParser.parse_yaml(ignore_files, ignore_funcs)
     else:
-        files = (HeaderFileParser(f, ignore_funcs.get(f.name, [])).parse()
-            for f in _clib_path.glob("*.h")
-            if f != _clib_defs_path and f.name not in ignore_files)
-        # removes instances where HeaderFile.parse() returned None
-        files = list(filter(None, files))
+        files = HeaderFileParser.parse_h(ignore_files, ignore_funcs)
 
     # find and instantiate the language-specific SourceGenerator
     _, scaffolder_type = inspect.getmembers(module,

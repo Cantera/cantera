@@ -1,0 +1,38 @@
+# Configuration for code generation.
+# Implements replacement for CLib "ctfunc"
+
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at https://cantera.org/license.txt for license and copyright information.
+
+sections:
+- prefix: func
+  bases:
+  - Func1
+  functions:
+  - name: check
+    implements: checkFunc1
+  - name: newBasic
+    implements: newFunc1(const string&, double)
+  - name: newAdvanced
+    implements: newFunc1(const string&, const vector<double>&)
+  - name: newCompound
+    implements: newFunc1(const string&, const shared_ptr<Func1>, const shared_ptr<Func1>)
+  - name: newModified
+    implements: newFunc1(const string&, const shared_ptr<Func1>, double)
+  - name: newSum
+    implements: newSumFunction
+  - name: newDiff
+    implements: newDiffFunction
+  - name: newProd
+    implements: newProdFunction
+  - name: newRatio
+    implements: newRatioFunction
+  - name: type
+    implements: Func1::type
+  - name: value
+    implements: Func1::eval
+  - name: derivative
+    implements: Func1::derivative
+  - name: write
+    implements: Func1::write
+  - name: del

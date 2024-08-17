@@ -3,7 +3,7 @@
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Any
+from typing import List, Dict, Any
 
 from ._helpers import with_unpack_iter, xml_tag, split_arglist
 
@@ -132,8 +132,21 @@ class TagInfo:
 
 @dataclass(frozen=True)
 @with_unpack_iter
+class Recipe:
+    """Represents a recipe for a CLib method."""
+
+    prefix: str
+    name: str
+    bases: List[str]
+    implements: str
+    relates: str = ""
+
+
+@dataclass(frozen=True)
+@with_unpack_iter
 class HeaderFile:
     """Represents information about a parsed C header file"""
 
     path: Path
     funcs: List[Func]
+    recipes: List[Recipe] = None

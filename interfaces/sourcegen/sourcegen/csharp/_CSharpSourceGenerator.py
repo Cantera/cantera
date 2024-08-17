@@ -114,7 +114,7 @@ class CSharpSourceGenerator(SourceGenerator):
                 }
             """
         else:
-            logger.critical(f"Unable to scaffold properties of type {prop_type}!")
+            logger.critical("Unable to scaffold properties of type '%s'!", prop_type)
             sys.exit(1)
 
         return normalize_indent(text)
@@ -126,7 +126,7 @@ class CSharpSourceGenerator(SourceGenerator):
         self._out_dir = Path(out_dir)
 
         # use the typed config
-        self._config = Config.from_parsed(config)
+        self._config = Config.from_parsed(**config)
 
     def _get_wrapper_class_name(self, clib_area: str) -> str:
         return self._config.class_crosswalk[clib_area]

@@ -6,10 +6,15 @@ import logging
 import re
 from typing import List
 
-from ._dataclasses import HeaderFile, Func, Param
+from ._dataclasses import HeaderFile, Func, Recipe, Param
+from ._helpers import read_config
 
 
 logger = logging.getLogger()
+
+_clib_path = Path(__file__).parent.joinpath("../../../include/cantera/clib").resolve()
+_clib_ignore = ["clib_defs.h", "ctmatlab.h"]
+_data_path = Path(__file__).parent.joinpath("_data").resolve()
 
 class HeaderFileParser:
 
@@ -37,11 +42,42 @@ class HeaderFileParser:
         self._path = path
         self._ignore_funcs = ignore_funcs
 
-    def parse(self) -> HeaderFile:
+    @classmethod
+    def parse_yaml(cls, ignore_files, ignore_funcs) -> List[HeaderFile]:
+        """Parse header file YAML configuration."""
+        files = [_ for _ in _data_path.glob("*.yaml") if _.name not in ignore_files]
+        return [cls(_, ignore_funcs.get(_.name, []))._parse_yaml() for _ in files]
+
+    def _parse_yaml(self) -> HeaderFile:
+        config = read_config(self._path)
+        recipes = []
+        for section in config.get("sections", []):
+            prefix = section["prefix"]
+            bases = section["bases"]
+            for func in section["functions"]:
+                func_name = f"{prefix}_{func['name']}"
+                if func_name in self._ignore_funcs:
+                    continue
+                recipes.append(
+                    Recipe(prefix,
+                           func_name,
+                           bases,
+                           func.get("implements", ""),
+                           func.get("relates", "")))
+        return HeaderFile(self._path, [], recipes)
+
+    @classmethod
+    def parse_h(cls, ignore_files, ignore_funcs) -> List[HeaderFile]:
+        """Parse existing header file."""
+        files = [_ for _ in _clib_path.glob("*.h")
+                 if _.name not in ignore_files + _clib_ignore]
+        return [cls(_, ignore_funcs.get(_.name, []))._parse_h() for _ in files]
+
+    def _parse_h(self) -> HeaderFile:
         ct = self._path.read_text()
 
         def parse_with_doxygen(text):
-            # a primitive doxygen parser for Cantera CLib header files
+            # a primitive doxygen parser for existing Cantera CLib header files
             regex = re.compile((
                 r"(?P<blank>\n\s*\n)|"  # blank line
                 r"(?P<head>(?=//! )[^\n]*)|"  # leading doxygen comment

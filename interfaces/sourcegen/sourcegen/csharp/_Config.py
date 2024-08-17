@@ -38,8 +38,7 @@ class Config:
 
     wrapper_classes: Dict[str, Dict[str, str]]
 
-    @staticmethod
-    def from_parsed(parsed_config_file: dict):
-        return Config(parsed_config_file["class_crosswalk"],
-                      parsed_config_file["derived_handles"],
-                      parsed_config_file["wrapper_classes"])
+    @classmethod
+    def from_parsed(cls, *,
+                    class_crosswalk=None, derived_handles=None, wrapper_classes=None):
+        return cls(class_crosswalk or {}, derived_handles or {}, wrapper_classes or {})

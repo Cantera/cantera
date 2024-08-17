@@ -6,6 +6,19 @@ import inspect
 from pathlib import Path
 import textwrap
 import re
+try:
+    from ruamel import yaml
+except ImportError:
+    import ruamel_yaml as yaml
+
+
+def read_config(config_file: Path) -> dict:
+    if config_file.is_file():
+        with config_file.open("r", encoding="utf-8") as config_file:
+            reader = yaml.YAML(typ="safe")
+            return reader.load(config_file)
+    else:
+        return {}
 
 
 def with_unpack_iter(cls: type) -> type:
