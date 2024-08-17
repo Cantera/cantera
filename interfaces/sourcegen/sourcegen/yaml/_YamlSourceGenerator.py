@@ -1,3 +1,5 @@
+"""Generator for annotated YAML summaries of CLib header files."""
+
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
@@ -50,7 +52,7 @@ class YamlSourceGenerator(SourceGenerator):
         self._doxygen_tags = TagFileParser(self._config.bases)
 
     def generate_source(self, headers_files: List[HeaderFile]):
-        """Generate output"""
+        """Generate output."""
         annotated_map: Dict[str, List[Dict[str, str]]] = {}
 
         for header_file in headers_files:

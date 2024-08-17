@@ -17,6 +17,8 @@ class Param:
     p_type: str
     name: str = ""
     default: Any = None
+    direction: str = ""
+    description: str = ""
 
     @staticmethod
     def from_str(param: str) -> 'Param':
