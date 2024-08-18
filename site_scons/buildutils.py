@@ -1452,7 +1452,28 @@ def checkout_submodule(name: str, submodule_path: str):
 def check_for_python(
     env: "SCEnvironment",
     command_line_targets: List[str]
-) -> Dict[str, str]:
+) -> Dict[str, Union[str | bool]]:
+    """Check for compatible versions of Python and Python-specific dependencies.
+
+    Args:
+        env (SCons.Environment): The SCons construction environment.
+        command_line_targets (list[str]): The list of targets passed on the command line
+            by the user.
+
+    Returns:
+        dict[str, str | bool]: Dictionary with either one or two keys:
+            * ``"python_package"``: String with the value ``"y"`` or ``"n"`` to
+              indicate whether or not the Python package will be built. This key will
+              always be present.
+            * ``"require_numpy_1_7_API"``: Boolean indicating whether Cython will use
+              NumPy 1.7 API support. This is purely a compile-time constant and does not
+              affect which versions of NumPy Cantera supports. This key may or may not
+              be present in the return dictionary.
+
+    Raises:
+        config_error: If the user specifies that the Python package should be built but
+            no compatible versions of Python, Cython, and NumPy can be found.
+    """
     # Pytest is required only to test the Python module
     check_for_pytest = "test" in command_line_targets or any(
         target.startswith(("test-python", "test-help")) for target in command_line_targets
@@ -1656,6 +1677,33 @@ def run_preprocessor(
     text: "TextOrSequence",
     defines: "TextOrSequence" = ()
 ) -> Tuple[int, str]:
+    """Run the C preprocessor and return the last line of the processed source.
+
+    This function can be used to extract ``#define``ed values from header files to use,
+    for example, to determine whether a header is present or the version of an external
+    dependency.
+
+    A source file is constructed by concatenating the ``includes``, ``text``, and
+    ``defines``. That file is passed to the C preprocessor selected SCons for the
+    environment. If the preprocessor errors during execution, this function returns the
+    preprocessor return code and an empty string. If preprocessing is successful, the
+    return code of the preprocessor and the last line of the preprocessor output are
+    returned.
+
+    Args:
+        conf (SCons.SConf.SConfBase): An instance of the SConf configuration object.
+        includes (str | list[str] | tuple[str]): Names of headers to include in the
+            constructed source file.
+        text (str | list[str] | tuple[str]): The text of the source file to include in
+            the constructed source file.
+        defines (str | list[str] | tuple[str]): Names of variables to ``#define`` in
+            the constructed source file. Optional, defaults to an empty tuple.
+
+    Returns:
+        tuple[int, str]: The return code of the preprocessor and a string of the
+            preprocessor output. If the preprocessor encounters an error, the string
+            will be empty.
+    """
     if not isinstance(includes, (tuple, list)):
         includes = [includes]
     if not isinstance(text, (tuple, list)):
@@ -1684,7 +1732,7 @@ def run_preprocessor(
         # with the filename: `conftest_<hash of contents>_0_<hash of action>.obj`.
         # Since we need the contents of the `.i` file, we need this string munging on
         # the `.obj` filename to find the right file. If SCons ever decides to change
-        # how they name conftest files, this will probably break. --Bryan
+        # how they name conftest files, this will probably break.
         if "msvc" in conf.env["toolchain"]:
             fname = conf.lastTarget.name.rsplit("_", maxsplit=1)[0]
             content = Path(".sconf_temp", fname).with_suffix(".i").read_text().splitlines()
@@ -1706,8 +1754,31 @@ def run_preprocessor(
         return retcode, ""
 
 
-def check_sundials(conf: "SConfigure", sundials_version: str) -> Dict[str, str]:
-    sundials_ver = parse_version(".".join(sundials_version.strip().replace('"', "").split()))
+def check_sundials(conf: "SConfigure", sundials_version: str) -> Dict[str, Union[str, int, bool]]:
+    """Check for the version of SUNDIALS and whether SUNDIALS was built with BLAS/LAPACK
+
+    Args:
+        conf (SCons.SConf.SConfBase): An instance of the SConf configuration object.
+        sundials_version (str): A string with the version of SUNDIALS. The expected
+            format is ``"X Y Z"`` including the quote symbols.
+
+    Returns:
+        Dict[str, str]: A dictionary with three keys:
+            * ``"system_sundials"``: String ``"y"`` or ``"n"`` indicating whether a
+              compatible version of SUNDIALS was found in the system directories.
+            * ``"sundials_version"``: String with the parsed version of SUNDIALS with
+              periods between the version components.
+            * ``"sundials_blas_lapack"``: Boolean or integer indicating whether SUNDIALS was built
+              with BLAS/LAPACK support. Always ``False`` if ``"system_sundials"`` is
+              ``"n"``.
+
+    Raises:
+        ``config_error``: If the user specified ``system_sundials==y`` but a compatible
+            version could not be found.
+    """
+    sundials_ver = parse_version(
+        ".".join(sundials_version.strip().replace('"', "").split())
+    )
     should_exit_with_error = conf.env["system_sundials"] == "y"
     if sundials_ver < parse_version("3.0") or sundials_ver >= parse_version("8.0"):
         if should_exit_with_error:
@@ -1719,8 +1790,12 @@ def check_sundials(conf: "SConfigure", sundials_version: str) -> Dict[str, str]:
     cvode_checks = {
         SpecifierSet(">=3.0,<4.0"): ("CVodeCreate(CV_BDF, CV_NEWTON);", ["sundials_cvodes"]),
         SpecifierSet(">=4.0,<6.0"): ("CVodeCreate(CV_BDF);", ["sundials_cvodes"]),
-        SpecifierSet(">=6.0,<7.0"): ("SUNContext ctx; SUNContext_Create(0, &ctx);", ["sundials_cvodes"]),
-        SpecifierSet(">=7.0,<8.0"): ("SUNContext ctx; SUNContext_Create(SUN_COMM_NULL, &ctx);", ["sundials_core"])
+        SpecifierSet(">=6.0,<7.0"): (
+            "SUNContext ctx; SUNContext_Create(0, &ctx);", ["sundials_cvodes"]
+        ),
+        SpecifierSet(">=7.0,<8.0"): (
+            "SUNContext ctx; SUNContext_Create(SUN_COMM_NULL, &ctx);", ["sundials_core"]
+        )
     }
     for version_spec, (cvode_call, libs) in cvode_checks.items():
         if sundials_ver in version_spec:
@@ -1734,7 +1809,10 @@ def check_sundials(conf: "SConfigure", sundials_version: str) -> Dict[str, str]:
             # CheckLibWithHeader returns True to indicate success
             if not ret:
                 if should_exit_with_error:
-                    config_error("Could not link to the Sundials library. Did you set the include/library paths?")
+                    config_error(
+                        "Could not link to the Sundials library. Did you set the "
+                        "include/library paths?"
+                    )
                 return {"system_sundials": "n", "sundials_version": "", "has_sundials_lapack": 0}
             break
 
@@ -1764,12 +1842,13 @@ def check_sundials(conf: "SConfigure", sundials_version: str) -> Dict[str, str]:
         has_sundials_lapack = conf.CheckDeclaration("SUNDIALS_BLAS_LAPACK_ENABLED",
                 '#include "sundials/sundials_config.h"', 'c++')
 
-    # In the case where a user is trying to link Cantera to an external BLAS/LAPACK
-    # library, but Sundials was configured without this support, print a Warning.
-    # TODO: Why is this a warning and what can/should users do about it?
     if not has_sundials_lapack and conf.env['use_lapack']:
-        logger.warning("External BLAS/LAPACK has been specified for Cantera "
-                       "but Sundials was built without this support.")
+        logger.warning(
+            "External BLAS/LAPACK has been specified for Cantera but SUNDIALS was built "
+            "without this support. Cantera will use the slower default solver "
+            "implementations included with SUNDIALS. You can resolve this warning by "
+            "installing or building SUNDIALS with BLAS/LAPACK support."
+        )
 
     return {
         "system_sundials": "y",
@@ -1779,6 +1858,7 @@ def check_sundials(conf: "SConfigure", sundials_version: str) -> Dict[str, str]:
 
 
 def config_error(message: str) -> None:
+    """Log an error message to the console and exit the build with code 1."""
     if logger.getEffectiveLevel() == logging.DEBUG:
         logger.error(message)
         debug_message = [
