@@ -24,7 +24,11 @@ class Config:
     prop_type_crosswalk = {
         "int": "int",
         "size_t": "int",
-        "string": "const char*",
+        "double": "double",
+        "const string&": "const char*",
+        "shared_ptr<T>": "int",
+        "const shared_ptr<T>": "int",
+        "const vector<double>&": 'const double*',
     }
 
     cabinets: List[str]

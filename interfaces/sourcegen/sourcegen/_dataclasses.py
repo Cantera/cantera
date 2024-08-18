@@ -126,6 +126,12 @@ class Func:
             r_type, name = name.rsplit(" ", 1)
         return cls(annotations, r_type, name, arglist.params, arglist.spec)
 
+    def declaration(self) -> str:
+        """Return a string representation of the function (without semi-colon)."""
+        return (f"{self.ret_type} "
+                f"{self.name}{ArgList(self.params).long_str()} "
+                f"{self.spec}").strip()
+
 
 @dataclass(frozen=True)
 @with_unpack_iter
