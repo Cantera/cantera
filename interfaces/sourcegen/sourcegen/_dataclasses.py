@@ -16,9 +16,9 @@ class Param:
 
     p_type: str
     name: str = ""
-    default: Any = None
-    direction: str = ""
     description: str = ""
+    direction: str = ""
+    default: Any = None
 
     @staticmethod
     def from_str(param: str) -> 'Param':
@@ -29,7 +29,7 @@ class Param:
             param = param[:param.rfind("=")]
         parts = param.strip().rsplit(" ", 1)
         if len(parts) == 2 and parts[0] not in ["const", "virtual", "static"]:
-            return Param(*parts, default)
+            return Param(*parts, "", "", default)
         return Param(param)
 
     @staticmethod

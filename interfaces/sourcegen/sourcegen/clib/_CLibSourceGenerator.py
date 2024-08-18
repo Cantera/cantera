@@ -73,11 +73,11 @@ class CLibSourceGenerator(SourceGenerator):
             if ret_type == "char*":
                 # string expressions require special handling
                 returns = Param(
-                    "int", "", "", "",
+                    "int", "",
                     "Actual length of string or -1 for exception handling.")
                 buffer = [
-                    Param("int", "lenBuf", "", "in", "Length of reserved array."),
-                    Param(ret_type, "charBuf", "", "out", "Returned string value.")]
+                    Param("int", "lenBuf", "Length of reserved array.", "in"),
+                    Param(ret_type, "charBuf", "Returned string value.", "out")]
                 return returns, buffer, []
             if not any([what.startswith("shared_ptr"), ret_type.endswith("[]")]):
                 # direct correspondence
@@ -86,18 +86,17 @@ class CLibSourceGenerator(SourceGenerator):
             # all other types require reserved buffers
             what = "vector" if what.startswith("vector") else "array"
             returns = Param(
-                "int", "", "", "",
-                f"Actual length of {what} or -1 for exception handling.")
+                "int", "", f"Actual length of {what} or -1 for exception handling.")
             buffer = [
-                Param("int", "lenBuf", "", "in", "Length of reserved array."),
-                Param(ret_type, "valueBuf", "", "out", f"Returned {what} value.")]
+                Param("int", "lenBuf", "Length of reserved array.", "in"),
+                Param(ret_type, "valueBuf", f"Returned {what} value.", "out")]
             return returns, buffer, []
 
         if what.startswith("shared_ptr"):
             # check for crosswalk with object from cabinets
             handle = self._handle_crosswalk(what)
             returns = Param(
-                "int", "", "", "",
+                "int", "",
                 f"Handle to stored {handle} object or -1 for exception handling.")
             return returns, [], [handle]
 
@@ -118,16 +117,16 @@ class CLibSourceGenerator(SourceGenerator):
         elif recipe.what == "destructor":
             details = TagDetails(
                 "", "", "", "", "", "", f"Delete {recipe.base} handle.", "",
-                [Param("int", "handle", "", "", f"Handle to {recipe.base} object.")])
+                [Param("int", "handle", f"Handle to {recipe.base} object.")])
             ret_param = Param(
-                "int", "", "", "",
-                "Zero for success and -1 for exception handling.")
+                "int", "", "Zero for success and -1 for exception handling.")
             annotations = f"//! {details.briefdescription}"
             buffer_params = []
             cabinets = [recipe.base]
 
         else:
-            logger.critical("Unable to build declaration for '%s'.", recipe.name)
+            logger.critical("Unable to build declaration for '%s' with type '%s'.",
+                            recipe.name, recipe.what)
             sys.exit(1)
 
         declaration = f"{ret_param.p_type} {recipe.name}(...);"

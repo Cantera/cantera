@@ -226,7 +226,7 @@ def tag_lookup(tag_info: TagInfo) -> TagDetails:
             directions.append(direction)
             names.append(xml_tag("parametername", name_line))
         description = cleanup(xml_tag("parameterdescription", par_map))
-        return [Param("", n, "", d, description) for n, d in zip(names, directions)]
+        return [Param("", n, description, d) for n, d in zip(names, directions)]
 
     xml = matches[0]
     par_list = []
