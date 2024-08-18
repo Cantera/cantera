@@ -15,8 +15,8 @@
 
 using namespace Cantera;
 
-typedef SharedCabinet<Func1> FuncCabinet;
-// Assign storage to the SharedCabinet<Func1> static member
+typedef Cabinet<Func1> FuncCabinet;
+// Assign storage to the Cabinet<Func1> static member
 template<> FuncCabinet* FuncCabinet::s_storage = 0;
 
 extern "C" {

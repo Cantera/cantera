@@ -25,9 +25,9 @@
 
 using namespace Cantera;
 
-typedef SharedCabinet<ThermoPhase> ThermoCabinet;
-typedef SharedCabinet<Kinetics> KineticsCabinet;
-typedef SharedCabinet<Transport> TransportCabinet;
+typedef Cabinet<ThermoPhase> ThermoCabinet;
+typedef Cabinet<Kinetics> KineticsCabinet;
+typedef Cabinet<Transport> TransportCabinet;
 
 typedef integer status_t;
 

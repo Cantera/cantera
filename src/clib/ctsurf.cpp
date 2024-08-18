@@ -14,7 +14,7 @@
 
 using namespace Cantera;
 
-typedef SharedCabinet<ThermoPhase> ThermoCabinet;
+typedef Cabinet<ThermoPhase> ThermoCabinet;
 template<> ThermoCabinet* ThermoCabinet::s_storage; // defined in ct.cpp
 
 

@@ -16,15 +16,15 @@
 
 using namespace Cantera;
 
-typedef SharedCabinet<ReactorBase> ReactorCabinet;
-typedef SharedCabinet<ReactorNet> NetworkCabinet;
-typedef SharedCabinet<FlowDevice> FlowDeviceCabinet;
-typedef SharedCabinet<WallBase> WallCabinet;
-typedef SharedCabinet<Func1> FuncCabinet;
-typedef SharedCabinet<ThermoPhase> ThermoCabinet;
-typedef SharedCabinet<Kinetics> KineticsCabinet;
-typedef SharedCabinet<Solution> SolutionCabinet;
-typedef SharedCabinet<ReactorSurface> ReactorSurfaceCabinet;
+typedef Cabinet<ReactorBase> ReactorCabinet;
+typedef Cabinet<ReactorNet> NetworkCabinet;
+typedef Cabinet<FlowDevice> FlowDeviceCabinet;
+typedef Cabinet<WallBase> WallCabinet;
+typedef Cabinet<Func1> FuncCabinet;
+typedef Cabinet<ThermoPhase> ThermoCabinet;
+typedef Cabinet<Kinetics> KineticsCabinet;
+typedef Cabinet<Solution> SolutionCabinet;
+typedef Cabinet<ReactorSurface> ReactorSurfaceCabinet;
 
 template<> ReactorCabinet* ReactorCabinet::s_storage = 0;
 template<> NetworkCabinet* NetworkCabinet::s_storage = 0;
