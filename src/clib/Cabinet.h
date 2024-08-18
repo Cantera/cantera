@@ -181,13 +181,6 @@ public:
     }
 
     /**
-     * Return a reference to object n.
-     */
-    static M& item(int n) {
-        return *at(n);
-    }
-
-    /**
      * Return a reference to object n, cast to a reference of the specified type.
      */
     template <class T>

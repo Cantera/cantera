@@ -133,7 +133,7 @@ extern "C" {
     int func_type(int i, size_t lennm, char* nm)
     {
         try {
-            return static_cast<int>(copyString(FuncCabinet::item(i).type(), nm, lennm));
+            return static_cast<int>(copyString(FuncCabinet::at(i)->type(), nm, lennm));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -142,7 +142,7 @@ extern "C" {
     double func_value(int i, double t)
     {
         try {
-            return FuncCabinet::item(i).eval(t);
+            return FuncCabinet::at(i)->eval(t);
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -169,7 +169,7 @@ extern "C" {
     int func_write(int i, const char* arg, size_t len, char* buf)
     {
         try {
-            return static_cast<int>(copyString(FuncCabinet::item(i).write(arg), buf, len));
+            return static_cast<int>(copyString(FuncCabinet::at(i)->write(arg), buf, len));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
