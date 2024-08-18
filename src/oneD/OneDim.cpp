@@ -217,7 +217,7 @@ int OneDim::solve(double* x, double* xnew, int loglevel)
         m_jac->updateTransient(m_rdt, m_mask.data());
         m_jac_ok = true;
     }
-    return m_newt->solve(x, xnew, *this, *m_jac, loglevel-1);
+    return m_newt->solve(x, xnew, *this, *m_jac, loglevel);
 }
 
 void OneDim::evalSSJacobian(double* x, double* xnew)
@@ -361,7 +361,7 @@ double OneDim::timeStep(int nsteps, double dt, double* x, double* r, int logleve
         int j0 = m_jac->nEvals(); // Store the current number of Jacobian evaluations
 
         // solve the transient problem
-        int status = solve(x, r, loglevel-1);
+        int status = solve(x, r, loglevel);
 
         // successful time step. Copy the new solution in r to
         // the current solution in x.
@@ -418,7 +418,7 @@ double OneDim::timeStep(int nsteps, double dt, double* x, double* r, int logleve
         writelog("\n============================");
     } else if (loglevel > 1) {
         double ss = ssnorm(x, r);
-        writelog("\nTimestep({}) dt= {:<11.4e} log10(ss)= {:<7.4f}\n", n, dt, log10(ss));
+        writelog("\nTimestep ({}) dt= {:<11.4e} log10(ss)= {:<7.4f}\n", n, dt, log10(ss));
     }
 
     // return the value of the last stepsize, which may be smaller
