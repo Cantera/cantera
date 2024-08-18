@@ -54,7 +54,7 @@ extern "C" {
     int mix_addPhase(int i, int j, double moles)
     {
         try {
-            mixCabinet::item(i).addPhase(&ThermoCabinet::item(j), moles);
+            mixCabinet::at(i)->addPhase(ThermoCabinet::at(j).get(), moles);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -64,7 +64,7 @@ extern "C" {
     int mix_init(int i)
     {
         try {
-            mixCabinet::item(i).init();
+            mixCabinet::at(i)->init();
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -74,7 +74,7 @@ extern "C" {
     int mix_updatePhases(int i)
     {
         try {
-            mixCabinet::item(i).updatePhases();
+            mixCabinet::at(i)->updatePhases();
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -84,7 +84,7 @@ extern "C" {
     size_t mix_nElements(int i)
     {
         try {
-            return mixCabinet::item(i).nElements();
+            return mixCabinet::at(i)->nElements();
         } catch (...) {
             return handleAllExceptions(npos, npos);
         }
@@ -93,7 +93,7 @@ extern "C" {
     size_t mix_elementIndex(int i, const char* name)
     {
         try {
-            return mixCabinet::item(i).elementIndex(name);
+            return mixCabinet::at(i)->elementIndex(name);
         } catch (...) {
             return handleAllExceptions(npos, npos);
         }
@@ -102,7 +102,7 @@ extern "C" {
     size_t mix_nSpecies(int i)
     {
         try {
-            return mixCabinet::item(i).nSpecies();
+            return mixCabinet::at(i)->nSpecies();
         } catch (...) {
             return handleAllExceptions(npos, npos);
         }
@@ -111,10 +111,10 @@ extern "C" {
     size_t mix_speciesIndex(int i, int k, int p)
     {
         try {
-            MultiPhase& mix = mixCabinet::item(i);
-            mix.checkPhaseIndex(p);
-            mix.checkSpeciesIndex(k);
-            return mix.speciesIndex(k, p);
+            auto& mix = mixCabinet::at(i);
+            mix->checkPhaseIndex(p);
+            mix->checkSpeciesIndex(k);
+            return mix->speciesIndex(k, p);
         } catch (...) {
             return handleAllExceptions(npos, npos);
         }
@@ -123,10 +123,10 @@ extern "C" {
     double mix_nAtoms(int i, int k, int m)
     {
         try {
-            MultiPhase& mix = mixCabinet::item(i);
-            mix.checkSpeciesIndex(k);
-            mix.checkElementIndex(m);
-            return mixCabinet::item(i).nAtoms(k,m);
+            auto& mix = mixCabinet::at(i);
+            mix->checkSpeciesIndex(k);
+            mix->checkElementIndex(m);
+            return mixCabinet::at(i)->nAtoms(k,m);
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -135,7 +135,7 @@ extern "C" {
     size_t mix_nPhases(int i)
     {
         try {
-            return mixCabinet::item(i).nPhases();
+            return mixCabinet::at(i)->nPhases();
         } catch (...) {
             return handleAllExceptions(npos, npos);
         }
@@ -144,9 +144,9 @@ extern "C" {
     double mix_phaseMoles(int i, int n)
     {
         try {
-            MultiPhase& mix = mixCabinet::item(i);
-            mix.checkPhaseIndex(n);
-            return mix.phaseMoles(n);
+            auto& mix = mixCabinet::at(i);
+            mix->checkPhaseIndex(n);
+            return mix->phaseMoles(n);
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -155,13 +155,13 @@ extern "C" {
     int mix_setPhaseMoles(int i, int n, double v)
     {
         try {
-            MultiPhase& mix = mixCabinet::item(i);
-            mix.checkPhaseIndex(n);
+            auto& mix = mixCabinet::at(i);
+            mix->checkPhaseIndex(n);
             if (v < 0.0) {
                 throw CanteraError("mix_setPhaseMoles",
                                    "Mole number must be non-negative.");
             }
-            mix.setPhaseMoles(n, v);
+            mix->setPhaseMoles(n, v);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -171,9 +171,9 @@ extern "C" {
     int mix_setMoles(int i, size_t nlen, const double* n)
     {
         try {
-            MultiPhase& mix = mixCabinet::item(i);
-            mix.checkSpeciesArraySize(nlen);
-            mix.setMoles(n);
+            auto& mix = mixCabinet::at(i);
+            mix->checkSpeciesArraySize(nlen);
+            mix->setMoles(n);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -184,7 +184,7 @@ extern "C" {
     int mix_setMolesByName(int i, const char* n)
     {
         try {
-            mixCabinet::item(i).setMolesByName(n);
+            mixCabinet::at(i)->setMolesByName(n);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -198,7 +198,7 @@ extern "C" {
                 throw CanteraError("mix_setTemperature",
                                    "Temperature must be positive.");
             }
-            mixCabinet::item(i).setTemperature(t);
+            mixCabinet::at(i)->setTemperature(t);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -208,7 +208,7 @@ extern "C" {
     double mix_temperature(int i)
     {
         try {
-            return mixCabinet::item(i).temperature();
+            return mixCabinet::at(i)->temperature();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -217,7 +217,7 @@ extern "C" {
     double mix_minTemp(int i)
     {
         try {
-            return mixCabinet::item(i).minTemp();
+            return mixCabinet::at(i)->minTemp();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -226,7 +226,7 @@ extern "C" {
     double mix_maxTemp(int i)
     {
         try {
-            return mixCabinet::item(i).maxTemp();
+            return mixCabinet::at(i)->maxTemp();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -235,7 +235,7 @@ extern "C" {
     double mix_charge(int i)
     {
         try {
-            return mixCabinet::item(i).charge();
+            return mixCabinet::at(i)->charge();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -244,9 +244,9 @@ extern "C" {
     double mix_phaseCharge(int i, int p)
     {
         try {
-            MultiPhase& mix = mixCabinet::item(i);
-            mix.checkPhaseIndex(p);
-            return mix.phaseCharge(p);
+            auto& mix = mixCabinet::at(i);
+            mix->checkPhaseIndex(p);
+            return mix->phaseCharge(p);
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -259,7 +259,7 @@ extern "C" {
                 throw CanteraError("mix_setPressure",
                                    "Pressure must be positive.");
             }
-            mixCabinet::item(i).setPressure(p);
+            mixCabinet::at(i)->setPressure(p);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -269,7 +269,7 @@ extern "C" {
     double mix_pressure(int i)
     {
         try {
-            return mixCabinet::item(i).pressure();
+            return mixCabinet::at(i)->pressure();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -278,9 +278,9 @@ extern "C" {
     double mix_speciesMoles(int i, int k)
     {
         try {
-            MultiPhase& mix = mixCabinet::item(i);
-            mix.checkSpeciesIndex(k);
-            return mix.speciesMoles(k);
+            auto& mix = mixCabinet::at(i);
+            mix->checkSpeciesIndex(k);
+            return mix->speciesMoles(k);
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -289,9 +289,9 @@ extern "C" {
     double mix_elementMoles(int i, int m)
     {
         try {
-            MultiPhase& mix = mixCabinet::item(i);
-            mix.checkElementIndex(m);
-            return mix.elementMoles(m);
+            auto& mix = mixCabinet::at(i);
+            mix->checkElementIndex(m);
+            return mix->elementMoles(m);
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -301,7 +301,7 @@ extern "C" {
                            int maxsteps, int maxiter, int loglevel)
     {
         try {
-            mixCabinet::item(i).equilibrate(XY, "auto", rtol, maxsteps, maxiter,
+            mixCabinet::at(i)->equilibrate(XY, "auto", rtol, maxsteps, maxiter,
                                             0, loglevel);
             return 0;
         } catch (...) {
@@ -312,9 +312,9 @@ extern "C" {
     int mix_getChemPotentials(int i, size_t lenmu, double* mu)
     {
         try {
-            MultiPhase& mix = mixCabinet::item(i);
-            mix.checkSpeciesArraySize(lenmu);
-            mix.getChemPotentials(mu);
+            auto& mix = mixCabinet::at(i);
+            mix->checkSpeciesArraySize(lenmu);
+            mix->getChemPotentials(mu);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -324,7 +324,7 @@ extern "C" {
     double mix_enthalpy(int i)
     {
         try {
-            return mixCabinet::item(i).enthalpy();
+            return mixCabinet::at(i)->enthalpy();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -333,7 +333,7 @@ extern "C" {
     double mix_entropy(int i)
     {
         try {
-            return mixCabinet::item(i).entropy();
+            return mixCabinet::at(i)->entropy();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -342,7 +342,7 @@ extern "C" {
     double mix_gibbs(int i)
     {
         try {
-            return mixCabinet::item(i).gibbs();
+            return mixCabinet::at(i)->gibbs();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -351,7 +351,7 @@ extern "C" {
     double mix_cp(int i)
     {
         try {
-            return mixCabinet::item(i).cp();
+            return mixCabinet::at(i)->cp();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -360,7 +360,7 @@ extern "C" {
     double mix_volume(int i)
     {
         try {
-            return mixCabinet::item(i).volume();
+            return mixCabinet::at(i)->volume();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -369,9 +369,9 @@ extern "C" {
     size_t mix_speciesPhaseIndex(int i, int k)
     {
         try {
-            MultiPhase& mix = mixCabinet::item(i);
-            mix.checkSpeciesIndex(k);
-            return mix.speciesPhaseIndex(k);
+            auto& mix = mixCabinet::at(i);
+            mix->checkSpeciesIndex(k);
+            return mix->speciesPhaseIndex(k);
         } catch (...) {
             return handleAllExceptions(npos, npos);
         }
@@ -380,9 +380,9 @@ extern "C" {
     double mix_moleFraction(int i, int k)
     {
         try {
-            MultiPhase& mix = mixCabinet::item(i);
-            mix.checkSpeciesIndex(k);
-            return mix.moleFraction(k);
+            auto& mix = mixCabinet::at(i);
+            mix->checkSpeciesIndex(k);
+            return mix->moleFraction(k);
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
