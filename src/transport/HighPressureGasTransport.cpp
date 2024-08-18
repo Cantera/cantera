@@ -320,8 +320,9 @@ void HighPressureGasTransport::getBinaryDiffCoeffs(const size_t ld, double* cons
             double x_j = std::max(Tiny, m_molefracs[j]);
 
             // Weight mole fractions of i and j so that X_i + X_j = 1.0.
-            x_i = x_i/(x_i + x_j);
-            x_j = x_j/(x_i + x_j);
+            double sum_x_ij = x_i + x_j;
+            x_i = x_i/(sum_x_ij);
+            x_j = x_j/(sum_x_ij);
 
             // Calculate Tr and Pr based on mole-fraction-weighted critical constants.
             double Tr_ij = m_temp/(x_i*Tcrit_i(i) + x_j*Tcrit_i(j));
@@ -664,8 +665,9 @@ void ChungHighPressureGasTransport::getBinaryDiffCoeffs(const size_t ld, double*
             double x_j = std::max(Tiny, m_molefracs[j]);
 
             // Weight mole fractions of i and j so that X_i + X_j = 1.0.
-            x_i = x_i/(x_i + x_j);
-            x_j = x_j/(x_i + x_j);
+            double sum_x_ij = x_i + x_j;
+            x_i = x_i/(sum_x_ij);
+            x_j = x_j/(sum_x_ij);
 
             // Calculate Tr and Pr based on mole-fraction-weighted critical constants.
             double Tr_ij = m_temp/(x_i*Tcrit_i(i) + x_j*Tcrit_i(j));
