@@ -25,12 +25,12 @@ _xml_path = _tag_path / "doxygen" / "xml"
 class TagInfo:
     """Represents information parsed from a doxygen tag file."""
 
-    base: str = ""
-    type: str = ""
-    name: str = ""
-    arglist: str = ""
-    anchorfile: str = ""
-    anchor: str = ""
+    base: str = ""  #: qualified scope (skipping Cantera namespace)
+    type: str = ""  #: return type
+    name: str = ""  #: function name
+    arglist: str = ""  #: function argument list
+    anchorfile: str = ""  #: doxygen anchor file
+    anchor: str = ""  #: doxygen anchor
 
     @staticmethod
     def from_xml(qualified_name, xml):

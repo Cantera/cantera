@@ -108,9 +108,11 @@ class Recipe:
 
     prefix: str
     name: str
-    bases: List[str]
+    base: str
+    uses: List[str]
     implements: str
     relates: str = ""
+    what: str = ""
 
 
 @dataclass(frozen=True)

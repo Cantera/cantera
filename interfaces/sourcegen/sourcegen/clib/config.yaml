@@ -8,3 +8,11 @@ ignore_files: []
 
 # Ignore these specific functions:
 ignore_funcs: {}
+
+# Cabinets holding objects
+cabinets:
+- Solution
+- ThermoPhase
+- Kinetics
+- Transport
+- Func1

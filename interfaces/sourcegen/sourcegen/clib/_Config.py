@@ -4,13 +4,32 @@
 # at https://cantera.org/license.txt for license and copyright information.
 
 from dataclasses import dataclass
+from typing import List
 
 
 @dataclass(frozen=True)
 class Config:
     """Provides configuration info for the CLibSourceGenerator class"""
 
+    ret_type_crosswalk = {
+        "int": "int",
+        "size_t": "int",
+        "double": "double",
+        "shared_ptr<T>": "int",
+        "string": "char*",
+        "vector<double>": "double[]",
+        "vector<int>": "int[]",
+    }
+
+    prop_type_crosswalk = {
+        "int": "int",
+        "size_t": "int",
+        "string": "const char*",
+    }
+
+    cabinets: List[str]
+
     @classmethod
-    def from_parsed(cls) -> 'Config':
+    def from_parsed(cls, *, cabinets=None) -> 'Config':
         """Ensure that configurations are correct."""
-        return cls()
+        return cls(cabinets or [])

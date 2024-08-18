@@ -55,7 +55,8 @@ class HeaderFileParser:
         recipes = []
         for section in config.get("sections", []):
             prefix = section["prefix"]
-            bases = section["bases"]
+            base = section["base"]
+            uses = section["uses"]
             for func in section["functions"]:
                 func_name = f"{prefix}_{func['name']}"
                 if func_name in self._ignore_funcs:
@@ -63,9 +64,11 @@ class HeaderFileParser:
                 recipes.append(
                     Recipe(prefix,
                            func_name,
-                           bases,
+                           base,
+                           uses,
                            func.get("implements", ""),
-                           func.get("relates", "")))
+                           func.get("relates", ""),
+                           func.get("what", "")))
         return HeaderFile(self._path, [], recipes)
 
     @classmethod
