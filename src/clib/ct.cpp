@@ -28,10 +28,10 @@
 
 using namespace Cantera;
 
-typedef SharedCabinet<ThermoPhase> ThermoCabinet;
-typedef SharedCabinet<Kinetics> KineticsCabinet;
-typedef SharedCabinet<Transport> TransportCabinet;
-typedef SharedCabinet<Solution> SolutionCabinet;
+typedef Cabinet<ThermoPhase> ThermoCabinet;
+typedef Cabinet<Kinetics> KineticsCabinet;
+typedef Cabinet<Transport> TransportCabinet;
+typedef Cabinet<Solution> SolutionCabinet;
 
 template<> ThermoCabinet* ThermoCabinet::s_storage = 0;
 template<> KineticsCabinet* KineticsCabinet::s_storage = 0;

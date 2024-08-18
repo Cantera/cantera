@@ -16,12 +16,12 @@
 using namespace Cantera;
 using namespace std;
 
-typedef SharedCabinet<ReactionPathBuilder> BuilderCabinet;
-typedef SharedCabinet<ReactionPathDiagram> DiagramCabinet;
+typedef Cabinet<ReactionPathBuilder> BuilderCabinet;
+typedef Cabinet<ReactionPathDiagram> DiagramCabinet;
 template<> DiagramCabinet* DiagramCabinet::s_storage = 0;
 template<> BuilderCabinet* BuilderCabinet::s_storage = 0;
 
-typedef SharedCabinet<Kinetics> KineticsCabinet;
+typedef Cabinet<Kinetics> KineticsCabinet;
 template<> KineticsCabinet* KineticsCabinet::s_storage; // defined in ct.cpp
 
 extern "C" {

@@ -20,15 +20,15 @@
 using namespace std;
 using namespace Cantera;
 
-typedef SharedCabinet<Sim1D> SimCabinet;
-typedef SharedCabinet<Domain1D> DomainCabinet;
+typedef Cabinet<Sim1D> SimCabinet;
+typedef Cabinet<Domain1D> DomainCabinet;
 template<> SimCabinet* SimCabinet::s_storage = 0;
 template<> DomainCabinet* DomainCabinet::s_storage = 0;
 
-typedef SharedCabinet<ThermoPhase> ThermoCabinet;
-typedef SharedCabinet<Kinetics> KineticsCabinet;
-typedef SharedCabinet<Transport> TransportCabinet;
-typedef SharedCabinet<Solution> SolutionCabinet;
+typedef Cabinet<ThermoPhase> ThermoCabinet;
+typedef Cabinet<Kinetics> KineticsCabinet;
+typedef Cabinet<Transport> TransportCabinet;
+typedef Cabinet<Solution> SolutionCabinet;
 template<> ThermoCabinet* ThermoCabinet::s_storage; // defined in ct.cpp
 template<> KineticsCabinet* KineticsCabinet::s_storage; // defined in ct.cpp
 template<> TransportCabinet* TransportCabinet::s_storage; // defined in ct.cpp
