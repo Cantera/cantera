@@ -346,24 +346,23 @@ void HighPressureGasTransport::getBinaryDiffCoeffs(const size_t ld, double* cons
 
 double HighPressureGasTransport::viscosity()
 {
-    LucasMixtureParameters params;
-    computeMixtureParameters(params);
+    computeMixtureParameters();
 
     // This is η*ξ
     double nondimensional_viscosity = highPressureNondimensionalViscosity(
-        params.Tr_mix, params.Pr_mix, params.FP_mix_o, params.FQ_mix_o,
-        params.P_vap_mix, params.Pc_mix);
+        m_Tr_mix, m_Pr_mix, m_FP_mix_o, m_FQ_mix_o,
+        m_P_vap_mix, m_Pc_mix);
 
     // Using equation 9-4.14, with units of 1/(Pa*s)
-    double numerator = GasConstant*params.Tc_mix*pow(Avogadro,2.0);
-    double denominator = pow(params.MW_mix,3.0)*pow(params.Pc_mix,4.0);
+    double numerator = GasConstant*m_Tc_mix*pow(Avogadro,2.0);
+    double denominator = pow(m_MW_mix,3.0)*pow(m_Pc_mix,4.0);
     double xi = pow(numerator / denominator, 1.0/6.0);
 
     // Return the viscosity in kg/m/s
     return nondimensional_viscosity / xi;
 }
 
-void HighPressureGasTransport::computeMixtureParameters(LucasMixtureParameters& params)
+void HighPressureGasTransport::computeMixtureParameters()
 {
     double Tc_mix = 0.0;
     double Pc_mix_n = 0.0; // Numerator in equation 9-5.19
@@ -455,14 +454,14 @@ void HighPressureGasTransport::computeMixtureParameters(LucasMixtureParameters& 
     }
     FQ_mix_o *= A;
 
-    params.FQ_mix_o = FQ_mix_o;
-    params.FP_mix_o = FP_mix_o;
-    params.Tc_mix = Tc_mix;
-    params.Tr_mix = Tr_mix;
-    params.Pc_mix = Pc_mix;
-    params.Pr_mix = Pr_mix;
-    params.MW_mix = MW_mix;
-    params.P_vap_mix = P_vap_mix;
+    m_FQ_mix_o = FQ_mix_o;
+    m_FP_mix_o = FP_mix_o;
+    m_Tc_mix = Tc_mix;
+    m_Tr_mix = Tr_mix;
+    m_Pc_mix = Pc_mix;
+    m_Pr_mix = Pr_mix;
+    m_MW_mix = MW_mix;
+    m_P_vap_mix = P_vap_mix;
 }
 
 // Pure species critical properties - Tc, Pc, Vc, Zc:
@@ -690,17 +689,16 @@ void ChungHighPressureGasTransport::getBinaryDiffCoeffs(const size_t ld, double*
 
 double ChungHighPressureGasTransport::thermalConductivity()
 {
-    ChungMixtureParameters params;
-    computeMixtureParameters(params);
+    computeMixtureParameters();
 
     // Compute T_star using equation 9-5.26, using the mixture parameters
     double tKelvin = m_thermo->temperature();
-    double T_star = tKelvin / params.epsilon_over_k_mix;
+    double T_star = tKelvin / m_epsilon_over_k_mix;
 
     // The density is required for high-pressure gases.
     // The Chung method requires density to be units of mol/cm^3
     // We use the mixture molecular weight (units of kg/kmol).
-    double kg_per_m3_to_mol_per_cm3 = (1.0 / params.MW_mix)*1e-3; // 1 kmol/m^3 = 1e-3 mol/cm^3
+    double kg_per_m3_to_mol_per_cm3 = (1.0 / m_MW_mix)*1e-3; // 1 kmol/m^3 = 1e-3 mol/cm^3
     double density = m_thermo->density()*kg_per_m3_to_mol_per_cm3;
 
     // The value of Cv is already a mole-weighted average of the pure species values
@@ -708,9 +706,9 @@ double ChungHighPressureGasTransport::thermalConductivity()
 
     // This result is in units of W/m/K
     double thermal_conductivity = highPressureThermalConductivity(
-        tKelvin, T_star, params.MW_mix, density, Cv_mix, params.Vc_mix,
-        params.Tc_mix, params.sigma_mix, params.acentric_factor_mix,
-        params.mu_r_mix, params.kappa_mix);
+        tKelvin, T_star, m_MW_mix, density, Cv_mix, m_Vc_mix,
+        m_Tc_mix, m_sigma_mix, m_acentric_factor_mix,
+        m_mu_r_mix, m_kappa_mix);
 
     // Return the thermal conductivity in W/m/K
     return thermal_conductivity;
@@ -774,31 +772,30 @@ double ChungHighPressureGasTransport::highPressureThermalConductivity(
 
 double ChungHighPressureGasTransport::viscosity()
 {
-    ChungMixtureParameters params;
-    computeMixtureParameters(params);
+    computeMixtureParameters();
 
     // Compute T_star using equation 9-5.26, using the mixture parameters
     double tKelvin = m_thermo->temperature();
-    double T_star = tKelvin / params.epsilon_over_k_mix;
+    double T_star = tKelvin / m_epsilon_over_k_mix;
 
     // The density is required for high-pressure gases.
     // The Chung method requires density to be units of mol/cm^3
     // We use the mixture molecular weight (units of kg/kmol) here.
-    double kg_per_m3_to_mol_per_cm3 = (1.0 / params.MW_mix)*1e-3; // 1 kmol/m^3 = 1e-3 mol/cm^3
+    double kg_per_m3_to_mol_per_cm3 = (1.0 / m_MW_mix)*1e-3; // 1 kmol/m^3 = 1e-3 mol/cm^3
     double molar_density = m_thermo->density()*kg_per_m3_to_mol_per_cm3;
 
     // This result is in units of micropoise
-    double viscosity = highPressureViscosity(T_star, params.MW_mix, molar_density,
-                                             params.Vc_mix, params.Tc_mix,
-                                             params.acentric_factor_mix,
-                                             params.mu_r_mix, params.kappa_mix);
+    double viscosity = highPressureViscosity(T_star, m_MW_mix, molar_density,
+                                             m_Vc_mix, m_Tc_mix,
+                                             m_acentric_factor_mix,
+                                             m_mu_r_mix, m_kappa_mix);
 
     double micropoise_to_pascals_second = 1e-7;
     return viscosity*micropoise_to_pascals_second;
 
 }
 
-void ChungHighPressureGasTransport::computeMixtureParameters(ChungMixtureParameters& params)
+void ChungHighPressureGasTransport::computeMixtureParameters()
 {
     // Here we use the combining rules defined on page 9.25.
     // We have ASSUMED that the binary interaction parameters are unity for all species
@@ -813,52 +810,52 @@ void ChungHighPressureGasTransport::computeMixtureParameters(ChungMixtureParamet
     for (size_t i = 0; i < m_nsp; i++) {
         for (size_t j = 0; j <m_nsp; j++){
             double sigma_ij = sqrt(sigma_i[i]*sigma_i[j]); // Equation 9-5.33
-            params.sigma_mix += molefracs[i]*molefracs[j]*pow(sigma_ij,3.0); // Equation 9-5.25
+            m_sigma_mix += molefracs[i]*molefracs[j]*pow(sigma_ij,3.0); // Equation 9-5.25
 
             double epsilon_over_k_ij = sqrt(epsilon_over_k_i[i]*epsilon_over_k_i[j]); // Equation 9-5.35
-            params.epsilon_over_k_mix += molefracs[i]*molefracs[j]*epsilon_over_k_ij*pow(sigma_ij,3.0); // Equation 9-5.27 (numerator only)
+            m_epsilon_over_k_mix += molefracs[i]*molefracs[j]*epsilon_over_k_ij*pow(sigma_ij,3.0); // Equation 9-5.27 (numerator only)
 
             // This equation is raised to the power 2, so what we do here is first
             // store only the double summation into this variable, and then later
             // square the result.
             double MW_ij =  (2*MW_i[i]*MW_i[j]) / (MW_i[i] + MW_i[j]); // Equation 9-5.40
-            params.MW_mix += molefracs[i]*molefracs[j]*epsilon_over_k_ij*pow(sigma_ij,2.0)*sqrt(MW_ij); // Equation 9-5.28 (double summation only)
+            m_MW_mix += molefracs[i]*molefracs[j]*epsilon_over_k_ij*pow(sigma_ij,2.0)*sqrt(MW_ij); // Equation 9-5.28 (double summation only)
 
             double acentric_factor_ij = 0.5*(acentric_factor_i[i] + acentric_factor_i[j]); // Equation 9-5.36
-            params.acentric_factor_mix += molefracs[i]*molefracs[j]*acentric_factor_ij*pow(sigma_ij,3.0); // Equation 9-5.29
+            m_acentric_factor_mix += molefracs[i]*molefracs[j]*acentric_factor_ij*pow(sigma_ij,3.0); // Equation 9-5.29
 
             // The base class' dipole moment values are in the SI units, so we need to
             // convert to Debye units.
             double SI_to_Debye = lightSpeed; // Conversion factor from C*m to Debye
             double dipole_ii = m_dipole(i,i)*SI_to_Debye;
             double dipole_jj = m_dipole(j,j)*SI_to_Debye;
-            params.mu_mix += molefracs[i]*molefracs[j]*pow(dipole_ii*dipole_jj,2.0)/pow(sigma_ij,3.0); // Equation 9-5.30
+            m_mu_mix += molefracs[i]*molefracs[j]*pow(dipole_ii*dipole_jj,2.0)/pow(sigma_ij,3.0); // Equation 9-5.30
 
             // Using equation 9-5.31
             double kappa_ij = sqrt(kappa_i[i]*kappa_i[j]); // Equation 9-5.39
-            params.kappa_mix += molefracs[i]*molefracs[j]*kappa_ij; // Equation 9-5.31
+            m_kappa_mix += molefracs[i]*molefracs[j]*kappa_ij; // Equation 9-5.31
         }
     }
 
     // Finalize the expressions for the mixture values of the parameters
-    params.sigma_mix = pow(params.sigma_mix, 1.0/3.0); // Equation 9-5.25 computed the cube of sigma_mix
-    params.epsilon_over_k_mix /= pow(params.sigma_mix,3.0);
+    m_sigma_mix = pow(m_sigma_mix, 1.0/3.0); // Equation 9-5.25 computed the cube of sigma_mix
+    m_epsilon_over_k_mix /= pow(m_sigma_mix,3.0);
 
     // The MW_mix was only the numerator inside the brackets of equation 9-5.28
-    params.MW_mix = pow(params.MW_mix/(params.epsilon_over_k_mix*params.sigma_mix*params.sigma_mix), 2.0);
+    m_MW_mix = pow(m_MW_mix/(m_epsilon_over_k_mix*m_sigma_mix*m_sigma_mix), 2.0);
 
-    params.acentric_factor_mix /= pow(params.sigma_mix, 3.0);
+    m_acentric_factor_mix /= pow(m_sigma_mix, 3.0);
 
-    params.mu_mix = pow(pow(params.sigma_mix, 3.0)*params.mu_mix, 1.0/4.0); // Equation 9-5.30 computed the 4th power of mu_mix
+    m_mu_mix = pow(pow(m_sigma_mix, 3.0)*m_mu_mix, 1.0/4.0); // Equation 9-5.30 computed the 4th power of mu_mix
 
     // Tc_mix is computed using equation 9-5.44.
-    params.Tc_mix = 1.2593*params.epsilon_over_k_mix;
+    m_Tc_mix = 1.2593*m_epsilon_over_k_mix;
 
     // Vc_mix is computed using equation 9-5.43.
-    params.Vc_mix = pow(params.sigma_mix/0.809, 3.0);
+    m_Vc_mix = pow(m_sigma_mix/0.809, 3.0);
 
     // mu_r_mix is computed using equation 9-5.42.
-    params.mu_r_mix = 131.3*params.mu_mix/sqrt(params.Vc_mix*params.Tc_mix);
+    m_mu_r_mix = 131.3*m_mu_mix/sqrt(m_Vc_mix*m_Tc_mix);
 }
 
 /**
