@@ -46,7 +46,7 @@ TransportFactory::TransportFactory()
     addDeprecatedAlias("water", "Water");
     reg("high-pressure", []() { return new HighPressureGasTransport(); });
     addDeprecatedAlias("high-pressure", "HighP");
-    reg("high-pressure-chung", []() { return new ChungHighPressureGasTransport(); });
+    reg("high-pressure-Chung", []() { return new ChungHighPressureGasTransport(); });
     m_CK_mode["CK_Mix"] = m_CK_mode["mixture-averaged-CK"] = true;
     m_CK_mode["CK_Multi"] = m_CK_mode["multicomponent-CK"] = true;
 }

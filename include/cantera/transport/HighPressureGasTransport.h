@@ -691,7 +691,7 @@ protected:
 
 public:
     string transportModel() const override {
-        return "high-pressure-chung";
+        return "high-pressure-Chung";
     }
 
     void init(ThermoPhase* thermo, int mode=0, int log_level=0) override;
