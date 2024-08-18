@@ -323,7 +323,7 @@ int MultiNewton::solve(double* x0, double* x1, OneDim& r, MultiJac& jac, int log
     while (true) {
         // Check whether the Jacobian should be re-evaluated.
         if (jac.age() > m_maxAge) {
-            if (loglevel > 0) {
+            if (loglevel > 1) {
                 writelog("\n  Maximum Jacobian age reached ({}), updating it.", m_maxAge);
             }
             forceNewJac = true;
@@ -365,7 +365,7 @@ int MultiNewton::solve(double* x0, double* x1, OneDim& r, MultiJac& jac, int log
                     break;
                 }
                 nJacReeval++;
-                if (loglevel > 0) {
+                if (loglevel > 1) {
                     writelog("\n  Re-evaluating Jacobian (damping coefficient not found"
                             " with this Jacobian)");
                 }
