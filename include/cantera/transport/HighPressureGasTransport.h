@@ -16,19 +16,6 @@
 namespace Cantera
 {
 
-// These are the parameters that are needed to calculate the viscosity using the Lucas method.
-struct LucasMixtureParameters
-{
-    double FQ_mix_o;
-    double FP_mix_o;
-    double Tr_mix;
-    double Pr_mix;
-    double Pc_mix;
-    double Tc_mix;
-    double MW_mix;
-    double P_vap_mix;
-};
-
 /**
  * The implementation employs a method of corresponding states, using the Takahashi
  * @cite takahashi1975 approach for binary diffusion coefficients (using mixture
@@ -472,7 +459,7 @@ protected:
     double elyHanleyReferenceThermalConductivity(double rho0, double T0);
 
     /**
-     * Returns the composition-dependent values of parameters that are needed for the
+     * Computes the composition-dependent values of parameters that are needed for the
      * Lucas viscosity model.
      *
      * The equations for the mixing rules defined on page 9.23 of @cite poling2001 for
@@ -548,7 +535,7 @@ protected:
      * @f]
      *
      */
-    void computeMixtureParameters(LucasMixtureParameters& params);
+    void computeMixtureParameters();
 
     /**
      * Returns the non-dimensional low-pressure mixture viscosity in using the Lucas
@@ -669,26 +656,15 @@ protected:
     const double ref_rhoc = 0.1628; // g/cm^3
     const double ref_acentric_factor = 0.011; // unitless
 
-};
-
-
-//These are the parameters that are needed to calculate the viscosity using the Chung method.
-struct ChungMixtureParameters
-{
-    // Mixture critical properties used by the Chung viscosity model.
-    double Vc_mix = 0;
-    double Tc_mix = 0;
-
-    // Values associated with the calculation of sigma and the molecular weight used in the Chung viscosity model.
-    double sigma_mix = 0;
-    double epsilon_over_k_mix = 0;
-    double MW_mix = 0;
-
-    // Values associated with the calculation of the Fc factor in the Chung viscosity model.
-    double mu_mix = 0;
-    double mu_r_mix = 0;
-    double acentric_factor_mix = 0;
-    double kappa_mix = 0;
+    // Parameters that are needed to calculate the viscosity using the Lucas method.
+    double m_FQ_mix_o; // Quantum correction factor
+    double m_FP_mix_o; // Polarity correction factor
+    double m_Tr_mix; // Reduced temperature
+    double m_Pr_mix; // Reduced pressure
+    double m_Pc_mix; // Critical pressure
+    double m_Tc_mix; // Critical temperature
+    double m_MW_mix; // Molecular weight
+    double m_P_vap_mix; // Vapor pressure
 };
 
 /**
@@ -826,7 +802,7 @@ protected:
     double Zcrit_i(size_t i);
 
     /**
-     * Returns the composition-dependent values of the parameters needed for
+     * Computes the composition-dependent values of the parameters needed for
      * the Chung viscosity model.
      *
      * The equations for the mixing rules defined on page 9.25 for the Chung method's
@@ -990,7 +966,7 @@ protected:
      * In the equations, @f$ T_c @f$ must be in units of K, @f$ V_c @f$ must be in
      * units of cm^3/mol, and @f$ \mu @f$ must be in units of Debye.
      */
-    void computeMixtureParameters(ChungMixtureParameters& params);
+    void computeMixtureParameters();
 
     /**
      * Returns the low-pressure mixture viscosity in Pa*s using the Chung method.
@@ -1211,6 +1187,23 @@ protected:
     std::vector<double> MW_i;
     std::vector<double> acentric_factor_i;
     std::vector<double> kappa_i;
+
+    // Parameters that are needed to calculate the viscosity using the Chung method.
+
+    // Mixture critical properties used by the Chung viscosity model.
+    double m_Vc_mix = 0;
+    double m_Tc_mix = 0;
+
+    // Values associated with the calculation of sigma and the molecular weight used in the Chung viscosity model.
+    double m_sigma_mix = 0;
+    double m_epsilon_over_k_mix = 0;
+    double m_MW_mix = 0;
+
+    // Values associated with the calculation of the Fc factor in the Chung viscosity model.
+    double m_mu_mix = 0;
+    double m_mu_r_mix = 0;
+    double m_acentric_factor_mix = 0;
+    double m_kappa_mix = 0;
 
 };
 
