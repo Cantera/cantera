@@ -26,7 +26,7 @@ class CSharpSourceGenerator(SourceGenerator):
         return ", ".join(p.p_type + " " + p.name for p in params)
 
     def _get_interop_func_text(self, func: CsFunc) -> str:
-        comments, ret_type, name, params, _, _ = func
+        comments, ret_type, name, params, _, _, _ = func
         requires_unsafe_keyword = any(p.p_type.endswith("*") for p in params)
         params_text = self._join_params(params)
 
@@ -68,7 +68,7 @@ class CSharpSourceGenerator(SourceGenerator):
 
         if getter:
             # here we have found a simple scalar property
-            prop_type = getter.ret_type
+            prop_type = getter.ret_type.replace("CANTERA_CAPI ", "")  # strip specifier
         else:
             # here we have found an array-like property (string, double[])
             getter = known_funcs[clib_area + "_get" + c_name.capitalize()]
@@ -136,7 +136,7 @@ class CSharpSourceGenerator(SourceGenerator):
         return self._get_wrapper_class_name(clib_area) + "Handle"
 
     def _convert_func(self, parsed: Func) -> CsFunc:
-        comments, ret_type, name, _ = parsed
+        comments, ret_type, name, _, _ = parsed
         clib_area, method = name.split("_", 1)
 
         # Shallow copy the params list
@@ -208,6 +208,7 @@ class CSharpSourceGenerator(SourceGenerator):
                       ret_type,
                       name,
                       params,
+                      "",
                       release_func_handle_class_name is not None,
                       release_func_handle_class_name)
 

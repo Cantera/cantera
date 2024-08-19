@@ -4,7 +4,7 @@
 from dataclasses import dataclass
 import re
 from pathlib import Path
-from typing import List, Any
+from typing import List, Any, Tuple
 
 from ._helpers import with_unpack_iter
 
@@ -23,6 +23,7 @@ class Param:
     @staticmethod
     def from_str(param: str) -> 'Param':
         """Generate Param from string parameter"""
+        param = param.strip()
         default = None
         if "=" in param:
             default = param[param.rfind("=") + 1:]
@@ -34,6 +35,7 @@ class Param:
 
     @staticmethod
     def from_xml(param: str) -> 'Param':
+        param = param.strip()
         replacements = [(" &amp;", "& "), ("&lt; ", "<"), (" &gt;", ">")]
         for rep in replacements:
             param = param.replace(*rep)
@@ -59,23 +61,35 @@ class ArgList:
     """Represents a function argument list"""
 
     params: List[Param]
-    suffix: str = ""
+    spec: str = ""  #: Specification (example: `const`)
+
+    @staticmethod
+    def _split_arglist(arglist: str) -> Tuple[str, str]:
+        """Split string into text within parentheses and trailing specification."""
+        arglist = arglist.strip()
+        if not arglist:
+            return "", ""
+        spec = arglist[arglist.rfind(")") + 1:]
+        # match text within parentheses
+        regex = re.compile(r'(?<=\().*(?=\))', flags=re.DOTALL)
+        arglist = re.findall(regex, arglist)[0]
+        return arglist, spec
 
     @staticmethod
     def from_str(arglist: str) -> 'ArgList':
-        """Generate ArgList from string argument list"""
-        arglist, suffix = split_arglist(arglist)
+        """Generate ArgList from string argument list."""
+        arglist, spec = ArgList._split_arglist(arglist)
         if not arglist:
-            return ArgList([], suffix)
-        return ArgList([Param.from_str(_) for _ in arglist.split(",")], suffix)
+            return ArgList([], spec)
+        return ArgList([Param.from_str(_) for _ in arglist.split(",")], spec)
 
     @staticmethod
     def from_xml(arglist: str) -> 'ArgList':
         """Generate ArgList from XML string argument list"""
-        arglist, suffix = split_arglist(arglist)
+        arglist, spec = ArgList._split_arglist(arglist)
         if not arglist:
-            return ArgList([], suffix)
-        return ArgList([Param.from_xml(_) for _ in arglist.split(",")], suffix)
+            return ArgList([], spec)
+        return ArgList([Param.from_xml(_) for _ in arglist.split(",")], spec)
 
     def short_str(self) -> str:
         """Return a short string representation of the argument list"""
@@ -83,7 +97,7 @@ class ArgList:
 
     def long_str(self) -> str:
         """Return a short string representation of the argument list"""
-        return f"({', '.join([_.long_str() for _ in self.params])}) {self.suffix}".strip()
+        return f"({', '.join([_.long_str() for _ in self.params])}) {self.spec}".strip()
 
     def n_optional(self):
         """Return the number of optional arguments"""
@@ -95,10 +109,22 @@ class ArgList:
 class Func:
     """Represents a function parsed from a C header file."""
 
-    annotations: str
-    ret_type: str
+    annotations: str  # documentation block
+    ret_type: str  # may include leading specifier
     name: str
     params: List[Param]
+    spec: str  # trailing specifier
+
+    @classmethod
+    def from_str(cls, func: str, annotations: str="") -> 'Func':
+        """Generate Func from string function signature"""
+        func = func.strip()
+        name = re.findall(re.compile(r'.*?(?=\(|$)'), func)[0]
+        arglist = ArgList.from_str(func.replace(name, "").strip())
+        r_type = ""
+        if " " in name:
+            r_type, name = name.rsplit(" ", 1)
+        return cls(annotations, r_type, name, arglist.params, arglist.spec)
 
 
 @dataclass(frozen=True)
@@ -123,11 +149,3 @@ class HeaderFile:
     path: Path
     funcs: List[Func]
     recipes: List[Recipe] = None
-
-
-def split_arglist(arglist: str) -> tuple:
-    """Split C++ argument list into text within parentheses and suffix."""
-    arglist = arglist.strip()
-    suffix = arglist[arglist.rfind(")") + 1:]
-    arglist = re.findall(re.compile(r'(?<=\().*(?=\))'), arglist)[0]
-    return arglist, suffix.strip()
