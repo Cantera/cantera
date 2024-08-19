@@ -818,7 +818,7 @@ class TestFreeFlame(utilities.CanteraTest):
         meta = f.restore(filename, "group0")
         assert meta['description'] == desc
         assert meta['cantera-version'] == ct.__version__
-        assert meta['git-commit'] == f"'{ct.__git_commit__}'"
+        assert meta['git-commit'] == ct.__git_commit__
 
         self.check_save_restore(f)
 
