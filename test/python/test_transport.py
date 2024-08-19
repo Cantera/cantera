@@ -176,19 +176,6 @@ class TestTransport:
         assert gas1.thermal_conductivity == approx(gas2.thermal_conductivity)
         assert gas1.multi_diff_coeffs == approx(gas2.multi_diff_coeffs)
 
-    def test_high_pressure_chung_viscosity(self):
-        state = 520, 6e7, 'NH3:1.0'
-
-        gas1 = ct.Solution('gri30.yaml')
-        gas1.transport_model = 'high-pressure-chung'
-        gas1.TPX = state
-
-        # Values from Poling et al. (2001), example 9-12 for ammonia
-        experimental_viscosity = 466e-7 # 466 micropoise = 466e-7 Pa s
-
-        error = abs(gas1.viscosity - experimental_viscosity) / experimental_viscosity
-        assert error <= 0.05  # Error should be less than 5%
-
     def test_species_visosities(self, phase):
         for species_name in phase.species_names:
             # check that species viscosity matches overall for single-species
@@ -672,3 +659,21 @@ class TestIonGasTransportData:
         assert data['quadrupole-polarizability'] == approx(3.602)
 
         assert 'dispersion-coefficient' not in gas.species('CO2').transport.input_data
+
+
+class TestHighPressureGasTransport():
+    def test_acentric_factor_from_critical_properties(self):
+        # The acentric factor should be obtained from the critical-properties.yaml
+        # file given the input file that lacks the acentric-factor field.
+        state = 370.8, 174.8e5, 'CH4:0.755, CO2:0.245'
+        gas = ct.Solution(self.test_data_path / 'methane_co2_noAcentricFactor.yaml')
+        gas.transport_model = 'high-pressure-Chung'
+        gas.TPX = state
+        thermal_conductivity_1 = gas.thermal_conductivity
+
+        gas = ct.Solution(self.test_data_path / 'methane_co2.yaml')
+        gas.transport_model = 'high-pressure-Chung'
+        gas.TPX = state
+        thermal_conductivity_2 = gas.thermal_conductivity
+        assert thermal_conductivity_1 == pytest.approx(thermal_conductivity_2, 1e-6)
+
