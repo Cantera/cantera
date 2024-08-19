@@ -495,16 +495,19 @@ class TestIonGasTransportData(utilities.CanteraTest):
         self.assertNear(tr1.quadrupole_polarizability, tr2.quadrupole_polarizability)
 
 class TestHighPressureGasTransport(utilities.CanteraTest):
-    def test_high_pressure_chung_viscosity(self):
-        state = 520, 6e7, 'NH3:1.0'
+    def test_acentric_factor_from_critical_properties(self):
+        # The acentric factor should be obtained from the critical-properties.yaml
+        # file given the input file that lacks the acentric-factor field.
+        state = 370.8, 174.8e5, 'CH4:0.755, CO2:0.245'
+        gas = ct.Solution(self.test_data_path / 'methane_co2_noAcentricFactor.yaml')
+        gas.transport_model = 'high-pressure-Chung'
+        gas.TPX = state
+        thermal_conductivity_1 = gas.thermal_conductivity
 
-        gas1 = ct.Solution('gri30.yaml')
-        gas1.transport_model = 'high-pressure-chung'
-        gas1.TPX = state
-
-        # Values from Poling et al. (2001), example 9-12 for ammonia
-        experimental_viscosity = 466e-7 # 466 micropoise = 466e-7 Pa s
-
-        assert gas1.viscosity == pytest.approx(experimental_viscosity, 0.05)
+        gas = ct.Solution(self.test_data_path / 'methane_co2.yaml')
+        gas.transport_model = 'high-pressure-Chung'
+        gas.TPX = state
+        thermal_conductivity_2 = gas.thermal_conductivity
+        assert thermal_conductivity_1 == pytest.approx(thermal_conductivity_2, 1e-6)
 
 
