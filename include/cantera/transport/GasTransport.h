@@ -203,7 +203,7 @@ protected:
      * name of a file containing transport property parameters and a list of
      * species names.
      */
-    void getTransportData();
+    virtual void getTransportData();
 
     //! Corrections for polar-nonpolar binary diffusion coefficients
     /*!
