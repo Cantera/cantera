@@ -453,7 +453,7 @@ void HighPressureGasTransport::computeMixtureParameters()
         // The dipole moment is stored in SI units, and it needs to be in
         // units of Debye for the Lucas method.
         double pascals_to_bar = 1e-5;
-        double SI_to_Debye = 1.0 / 3.335e-30; // Conversion factor from C*m to Debye
+        double SI_to_Debye = lightSpeed / 1e-21; // Conversion factor from C*m to Debye
         double dipole_ii = m_dipole(i,i)*SI_to_Debye;
         double mu_ri = 52.46*dipole_ii*dipole_ii*(Pcrit_i(i)*pascals_to_bar)/(Tc*Tc);
 
@@ -787,7 +787,7 @@ double ChungHighPressureGasTransport::highPressureThermalConductivity(
 {
     // Calculate the low-pressure viscosity using the Chung method (units of Pa*s)
     double viscosity = lowPressureViscosity(T, T_star, MW, acentric_factor, mu_r,
-                                              sigma, kappa);
+                                            sigma, kappa);
 
 
     double M_prime = MW / 1000.0; // Convert kg/kmol to kg/mol
@@ -858,7 +858,6 @@ double ChungHighPressureGasTransport::viscosity()
 
     double micropoise_to_pascals_second = 1e-7;
     return viscosity*micropoise_to_pascals_second;
-
 }
 
 void ChungHighPressureGasTransport::computeMixtureParameters()
@@ -871,6 +870,18 @@ void ChungHighPressureGasTransport::computeMixtureParameters()
     // require a final division by the final mixture values, and so the quantities in
     // the loop are only the numerators of the equations that are referenced in the
     // comments. After the loop, the final mixture values are computed and stored.
+
+    // Zero out the mixture values of the parameters
+    m_sigma_mix = 0.0;
+    m_epsilon_over_k_mix = 0.0;
+    m_MW_mix = 0.0;
+    m_acentric_factor_mix = 0.0;
+    m_mu_mix = 0.0;
+    m_kappa_mix = 0.0;
+    m_Tc_mix = 0.0;
+    m_Vc_mix = 0.0;
+    m_mu_r_mix = 0.0;
+
     vector<double> molefracs(m_nsp);
     m_thermo->getMoleFractions(&molefracs[0]);
     for (size_t i = 0; i < m_nsp; i++) {
@@ -892,7 +903,7 @@ void ChungHighPressureGasTransport::computeMixtureParameters()
 
             // The base class' dipole moment values are in the SI units, so we need to
             // convert to Debye units.
-            double SI_to_Debye = lightSpeed; // Conversion factor from C*m to Debye
+            double SI_to_Debye = lightSpeed / 1e-21; // Conversion factor from C*m to Debye
             double dipole_ii = m_dipole(i,i)*SI_to_Debye;
             double dipole_jj = m_dipole(j,j)*SI_to_Debye;
             m_mu_mix += molefracs[i]*molefracs[j]*pow(dipole_ii*dipole_jj,2.0)/pow(sigma_ij,3.0); // Equation 9-5.30
@@ -949,15 +960,14 @@ double ChungHighPressureGasTransport::lowPressureViscosity(double T, double T_st
     double omega = neufeldCollisionIntegral(T_star); // Equation 9-4.3.
 
     // Molecular shapes and polarities factor, Equation 9-4.11
-    double Fc = 1 -0.2756*acentric_factor + 0.059035*pow(mu_r, 4.0) + kappa;
+    double Fc = 1 - 0.2756*acentric_factor + 0.059035*pow(mu_r, 4.0) + kappa;
 
     // Equation 9-3.9, multiplied by the Chung factor, Fc
     // (another way of writing 9-4.10 that avoids explicit use of the critical volume
     // in this method)
-    double viscosity = Fc* (26.69*sqrt(MW*T)/(sigma*sigma*omega));
+    double viscosity = Fc*(26.69*sqrt(MW*T)/(sigma*sigma*omega));
 
     double micropoise_to_pascals_second = 1e-7;
-
     return micropoise_to_pascals_second*viscosity;
 }
 
@@ -993,7 +1003,6 @@ double ChungHighPressureGasTransport::highPressureViscosity(double T_star, doubl
     double G_2 = (E_1*((1.0-exp(-E_4*y)) / y) + E_2*G_1*exp(E_5*y) + E_3*G_1) / (E_1*E_4 + E_2 + E_3);
 
     double eta_2 = E_7*y*y*G_2*exp(E_8 + E_9/T_star + E_10/(T_star*T_star)); // Equation 9-6.23
-
 
     double omega = neufeldCollisionIntegral(T_star); // Equation 9-4.3
 
