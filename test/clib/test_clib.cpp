@@ -10,14 +10,11 @@ using ::testing::HasSubstr;
 
 string reportError()
 {
-    int buflen = 0;
-    char* output_buf = 0;
-    buflen = ct_getCanteraError(buflen, output_buf) + 1;
-    output_buf = new char[buflen];
-    ct_getCanteraError(buflen, output_buf);
-    string err = output_buf;
-    delete[] output_buf;
-    return err;
+    vector<char> output_buf;
+    int buflen = ct_getCanteraError(0, output_buf.data()) + 1;
+    output_buf.resize(buflen);
+    ct_getCanteraError(buflen, output_buf.data());
+    return string(output_buf.data());
 }
 
 TEST(ct, cabinet_exceptions)
@@ -62,11 +59,10 @@ TEST(ct, new_solution)
     int thermo = soln_thermo(ref);
     ASSERT_EQ(thermo_parent(thermo), ref);
 
-    char* buf = new char[buflen];
-    soln_name(ref, buflen, buf);
-    string solName = buf;
+    vector<char> buf(buflen);
+    soln_name(ref, buflen, buf.data());
+    string solName(buf.data());
     ASSERT_EQ(solName, name);
-    delete[] buf;
 }
 
 TEST(ct, soln_objects)
@@ -142,19 +138,17 @@ TEST(ct, new_interface)
 
     int ph_surf = soln_thermo(surf);
     int buflen = soln_name(ph_surf, 0, 0) + 1; // include \0
-    char* buf = new char[buflen];
-    soln_name(ph_surf, buflen, buf);
-    string solName = buf;
+    vector<char> buf(buflen);
+    soln_name(ph_surf, buflen, buf.data());
+    string solName(buf.data());
     ASSERT_EQ(solName, "Pt_surf");
-    delete[] buf;
 
     int kin_surf = soln_kinetics(surf);
     buflen = kin_getType(kin_surf, 0, 0) + 1; // include \0
-    buf = new char[buflen];
-    kin_getType(ph_surf, buflen, buf);
-    string kinType = buf;
+    buf.resize(buflen);
+    kin_getType(ph_surf, buflen, buf.data());
+    string kinType(buf.data());
     ASSERT_EQ(kinType, "surface");
-    delete[] buf;
 }
 
 TEST(ct, new_interface_auto)
@@ -170,18 +164,16 @@ TEST(ct, new_interface_auto)
     ASSERT_EQ(gas, 1);
 
     int buflen = soln_name(gas, 0, 0) + 1; // include \0
-    char* buf = new char[buflen];
-    soln_name(gas, buflen, buf);
-    string solName = buf;
+    vector<char> buf(buflen);
+    soln_name(gas, buflen, buf.data());
+    string solName(buf.data());
     ASSERT_EQ(solName, "gas");
-    delete[] buf;
 
     buflen = soln_adjacentName(surf, 0, 0, 0) + 1;
-    char* buf2 = new char[buflen];
-    soln_adjacentName(surf, 0, buflen, buf2);
-    solName = buf2;
+    buf.resize(buflen);
+    soln_adjacentName(surf, 0, buflen, buf.data());
+    solName = buf.data();
     ASSERT_EQ(solName, "gas");
-    delete[] buf2;
 }
 
 TEST(ct, thermo)

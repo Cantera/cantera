@@ -17,11 +17,10 @@ TEST(ctreactor, reactor_soln)
     int ret = reactor_setName(reactor, "spam");
     ASSERT_EQ(ret, 0);
     int buflen = reactor_name(reactor, 0, 0);
-    char* buf = new char[buflen];
-    reactor_name(reactor, buflen, buf);
-    string rName = buf;
+    vector<char> buf(buflen);
+    reactor_name(reactor, buflen, buf.data());
+    string rName(buf.data());
     ASSERT_EQ(rName, "spam");
-    delete[] buf;
 }
 
 vector<double> T_ctreactor = {
