@@ -395,6 +395,19 @@ public:
 protected:
 
     /**
+     * Obtain required parameters from the 'critical-parameters' species input section,
+     * and checks the critical-properties.yaml file if an acentric factor is not
+     * specified.
+     *
+     * The way that GasTransport parses the input file is that if an acentric
+     * factor is not specified, it is quietly set to 0.0. A user may have the proper
+     * acentric factor in the critical-properties.yaml file, so that file is checked if
+     * a zero value is present.
+     *
+     */
+    void getTransportData() override;
+
+    /**
      * Computes and stores the estimate of the critical properties for each species.
      *
      * This method sets the species composition vector to unity for species i and zero
@@ -753,6 +766,19 @@ public:
     friend class TransportFactory;
 
 protected:
+
+    /**
+     * Obtain required parameters from the 'critical-parameters' species input section,
+     * and checks the critical-properties.yaml file if an acentric factor is not
+     * specified.
+     *
+     * The way that GasTransport parses the input file is that if an acentric
+     * factor is not specified, it is quietly set to 0.0. A user may have the proper
+     * acentric factor in the critical-properties.yaml file, so that file is checked if
+     * a zero value is present.
+     *
+     */
+    void getTransportData() override;
 
     /**
      * Computes and stores the estimate of the critical properties for each species.
