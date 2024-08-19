@@ -924,9 +924,7 @@ AnyMap preamble(const string& desc)
     }
     data["generator"] = "Cantera SolutionArray";
     data["cantera-version"] = CANTERA_VERSION;
-    // escape commit to ensure commits are read correctly from YAML
-    // example: prevent '3491027e7' from being converted to an integer
-    data["git-commit"] = "'" + gitCommit() + "'";
+    data["git-commit"] = gitCommit();
 
     // Add a timestamp indicating the current time
     time_t aclock;
