@@ -27,11 +27,10 @@ TEST(ctfunc, sin)
     EXPECT_DOUBLE_EQ(func_value(dfcn, 0.5), omega * cos(omega * 0.5));
 
     int buflen = func_write(fcn, "x", 0, 0);
-    char* buf = new char[buflen];
-    func_write(fcn, "x", buflen, buf);
-    string rep = buf;
+    vector<char> buf(buflen);
+    func_write(fcn, "x", buflen, buf.data());
+    string rep(buf.data());
     ASSERT_EQ(rep, "\\sin(2.1x)");
-    delete[] buf;
 }
 
 TEST(ctfunc, cos)
@@ -123,11 +122,10 @@ TEST(ctfunc, poly)
     params = {1, 0, -2.2, 3.1};
     fcn = func_new_advanced("polynomial3", params.size(), params.data());
     int buflen = func_write(fcn, "x", 0, 0);
-    char* buf = new char[buflen];
-    func_write(fcn, "x", buflen, buf);
-    string rep = buf;
+    vector<char> buf(buflen);
+    func_write(fcn, "x", buflen, buf.data());
+    string rep(buf.data());
     ASSERT_EQ(rep, "x^3 - 2.2x + 3.1");
-    delete[] buf;
 }
 
 TEST(ctfunc, Fourier)

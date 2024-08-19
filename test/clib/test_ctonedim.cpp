@@ -29,11 +29,10 @@ TEST(ctonedim, freeflow)
     ASSERT_NEAR(flow1D_pressure(flow), P, 1e-5);
 
     int buflen = domain_type(flow, 0, 0);
-    char* buf = new char[buflen];
-    domain_type(flow, buflen, buf);
-    string domType = buf;
+    vector<char> buf(buflen);
+    domain_type(flow, buflen, buf.data());
+    string domType(buf.data());
     ASSERT_EQ(domType, "free-flow");
-    delete[] buf;
 }
 
 TEST(ctonedim, inlet)
@@ -43,11 +42,10 @@ TEST(ctonedim, inlet)
     ASSERT_GE(inlet, 0);
 
     int buflen = domain_type(inlet, 0, 0);
-    char* buf = new char[buflen];
-    domain_type(inlet, buflen, buf);
-    string domType = buf;
+    vector<char> buf(buflen);
+    domain_type(inlet, buflen, buf.data());
+    string domType(buf.data());
     ASSERT_EQ(domType, "inlet");
-    delete[] buf;
 }
 
 TEST(ctonedim, outlet)
@@ -57,11 +55,10 @@ TEST(ctonedim, outlet)
     ASSERT_GE(outlet, 0);
 
     int buflen = domain_type(outlet, 0, 0);
-    char* buf = new char[buflen];
-    domain_type(outlet, buflen, buf);
-    string domType = buf;
+    vector<char> buf(buflen);
+    domain_type(outlet, buflen, buf.data());
+    string domType(buf.data());
     ASSERT_EQ(domType, "outlet");
-    delete[] buf;
 }
 
 TEST(ctonedim, reacting_surface)
@@ -71,11 +68,10 @@ TEST(ctonedim, reacting_surface)
     ASSERT_GE(surf, 0);
 
     int buflen = domain_type(surf, 0, 0);
-    char* buf = new char[buflen];
-    domain_type(surf, buflen, buf);
-    string domType = buf;
+    vector<char> buf(buflen);
+    domain_type(surf, buflen, buf.data());
+    string domType(buf.data());
     ASSERT_EQ(domType, "reacting-surface");
-    delete[] buf;
 }
 
 TEST(ctonedim, catcomb)
@@ -170,11 +166,11 @@ TEST(ctonedim, freeflame)
     for (size_t i = 0; i < nsp; i++) {
         value = {yin[i], yin[i], yout[i], yout[i]};
         int buflen = thermo_getSpeciesName(ph, i, 0, 0) + 1; // include \0
-        char* buf = new char[buflen];
-        thermo_getSpeciesName(ph, i, buflen, buf);
-        string name = buf;
+        vector<char> buf(buflen);
+        thermo_getSpeciesName(ph, i, buflen, buf.data());
+        string name(buf.data());
         ASSERT_EQ(name, gas->speciesName(i));
-        comp = static_cast<int>(domain_componentIndex(flow, buf));
+        comp = static_cast<int>(domain_componentIndex(flow, buf.data()));
         sim1D_setProfile(flame, dom, comp, 4, locs.data(), 4, value.data());
     }
 
