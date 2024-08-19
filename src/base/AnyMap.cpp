@@ -1787,7 +1787,8 @@ bool AnyMap::addOrderingRules(const string& objectType,
     std::unique_lock<std::mutex> lock(yaml_field_order_mutex);
     for (const auto& spec : specs) {
         if (spec.at(0) == "head") {
-            s_headFields[objectType].push_back(spec.at(1));
+            s_headFields[objectType].insert(s_headFields[objectType].begin(),
+                                            spec.at(1));
         } else if (spec.at(0) == "tail") {
             s_tailFields[objectType].push_back(spec.at(1));
         } else {

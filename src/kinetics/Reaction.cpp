@@ -202,8 +202,8 @@ AnyMap Reaction::parameters(bool withInput) const
     }
 
     static bool reg = AnyMap::addOrderingRules("Reaction",
-        {{"head", "type"},
-         {"head", "equation"},
+        {{"head", "equation"},
+         {"head", "type"},
          {"tail", "duplicate"},
          {"tail", "orders"},
          {"tail", "negative-orders"},
