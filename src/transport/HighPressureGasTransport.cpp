@@ -13,6 +13,13 @@
 #include "cantera/base/stringUtils.h"
 #include "cantera/transport/MultiTransport.h"
 
+#include "cantera/transport/GasTransport.h"
+#include "cantera/transport/TransportData.h"
+#include "cantera/thermo/ThermoPhase.h"
+#include "cantera/thermo/Species.h"
+#include <boost/algorithm/string.hpp>
+
+
 using namespace std;
 
 namespace Cantera
@@ -102,6 +109,38 @@ void HighPressureGasTransport::init(ThermoPhase* thermo, int mode, int log_level
 {
     MixTransport::init(thermo, mode, log_level);
     initializeCriticalProperties();
+}
+
+void HighPressureGasTransport::getTransportData()
+{
+    // Call the base class's method to fill the properties
+    GasTransport::getTransportData();
+
+    // Contents of 'critical-properties.yaml', loaded later if needed
+    AnyMap critPropsDb;
+    std::unordered_map<string, AnyMap*> dbSpecies;
+
+    // If a species has a zero acentric factor, check the critical-properties.yaml
+    // database to see if it has a value specified for the species.
+    for (size_t k = 0; k < m_thermo->nSpecies(); k++) {
+        if (m_w_ac[k] == 0.0) {
+            // Load 'crit-properties.yaml' file if not already loaded
+            if (critPropsDb.empty()) {
+                critPropsDb = AnyMap::fromYamlFile("critical-properties.yaml");
+                dbSpecies = critPropsDb["species"].asMap("name");
+            }
+
+            // All names in critical-properties.yaml are upper case
+            auto ucName = boost::algorithm::to_upper_copy(m_thermo->species(k)->name);
+            if (dbSpecies.count(ucName)) {
+                auto& spec = *dbSpecies.at(ucName);
+                auto& critProps = spec["critical-parameters"].as<AnyMap>();
+                if (critProps.hasKey("acentric-factor")) {
+                    m_w_ac[k] = critProps.convert("acentric-factor", "1");
+                }
+            }
+        }
+    }
 }
 
 void HighPressureGasTransport::initializeCriticalProperties()
@@ -585,6 +624,38 @@ void ChungHighPressureGasTransport::init(ThermoPhase* thermo, int mode, int log_
     MixTransport::init(thermo, mode, log_level);
     initializeCriticalProperties();
     initializePureFluidProperties();
+}
+
+void ChungHighPressureGasTransport::getTransportData()
+{
+    // Call the base class's method to fill the properties
+    GasTransport::getTransportData();
+
+    // Contents of 'critical-properties.yaml', loaded later if needed
+    AnyMap critPropsDb;
+    std::unordered_map<string, AnyMap*> dbSpecies;
+
+    // If a species has a zero acentric factor, check the critical-properties.yaml
+    // database to see if it has a value specified for the species.
+    for (size_t k = 0; k < m_thermo->nSpecies(); k++) {
+        if (m_w_ac[k] == 0.0) {
+            // Load 'crit-properties.yaml' file if not already loaded
+            if (critPropsDb.empty()) {
+                critPropsDb = AnyMap::fromYamlFile("critical-properties.yaml");
+                dbSpecies = critPropsDb["species"].asMap("name");
+            }
+
+            // All names in critical-properties.yaml are upper case
+            auto ucName = boost::algorithm::to_upper_copy(m_thermo->species(k)->name);
+            if (dbSpecies.count(ucName)) {
+                auto& spec = *dbSpecies.at(ucName);
+                auto& critProps = spec["critical-parameters"].as<AnyMap>();
+                if (critProps.hasKey("acentric-factor")) {
+                    m_w_ac[k] = critProps.convert("acentric-factor", "1");
+                }
+            }
+        }
+    }
 }
 
 void ChungHighPressureGasTransport::initializeCriticalProperties()
