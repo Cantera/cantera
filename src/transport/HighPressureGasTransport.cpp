@@ -11,11 +11,6 @@
 #include "cantera/thermo/IdealGasPhase.h"
 #include "cantera/transport/TransportFactory.h"
 #include "cantera/base/stringUtils.h"
-#include "cantera/transport/MultiTransport.h"
-
-#include "cantera/transport/GasTransport.h"
-#include "cantera/transport/TransportData.h"
-#include "cantera/thermo/ThermoPhase.h"
 #include "cantera/thermo/Species.h"
 #include <boost/algorithm/string.hpp>
 
