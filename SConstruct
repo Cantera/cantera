@@ -162,11 +162,16 @@ cantera_version = "3.1.0a4"
 cantera_pure_version = re.match(r'(\d+\.\d+\.\d+)', cantera_version).group(0)
 cantera_short_version = re.match(r'(\d+\.\d+)', cantera_version).group(0)
 
-try:
-    cantera_git_commit = get_command_output("git", "rev-parse", "--short", "HEAD")
+cantera_git_commit = os.environ.get("CT_GIT_COMMIT")
+if not cantera_git_commit:
+    try:
+        cantera_git_commit = get_command_output("git", "rev-parse", "--short", "HEAD")
+        logger.info(f"Building Cantera from git commit {cantera_git_commit!r}")
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        cantera_git_commit = "unknown"
+else:
     logger.info(f"Building Cantera from git commit {cantera_git_commit!r}")
-except (subprocess.CalledProcessError, FileNotFoundError):
-    cantera_git_commit = "unknown"
+
 
 # Python Package Settings
 python_min_version = parse_version("3.8")
