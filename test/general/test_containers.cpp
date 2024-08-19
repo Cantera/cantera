@@ -470,10 +470,14 @@ TEST(AnyMap, definedKeyOrdering)
     m["two"] = 2;
     m["three"] = 3;
     m["four"] = 4;
+    m["five"] = 5;
+    m["six"] = 6;
     m["__type__"] = "Test";
 
     AnyMap::addOrderingRules("Test", {
         {"head", "three"},
+        {"head", "five"},
+        {"tail", "six"},
         {"tail", "one"}
     });
 
@@ -487,4 +491,6 @@ TEST(AnyMap, definedKeyOrdering)
     EXPECT_LT(loc["four"], loc["one"]);
     EXPECT_LT(loc["one"], loc["half"]);
     EXPECT_LT(loc["zero"], loc["half"]);
+    EXPECT_LT(loc["three"], loc["five"]);
+    EXPECT_LT(loc["six"], loc["one"]);
 }

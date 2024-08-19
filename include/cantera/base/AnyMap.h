@@ -672,7 +672,8 @@ public:
      * Enables specifying keys that should appear at either the beginning
      * or end of the generated YAML mapping. Only programmatically-added keys
      * are rearranged. Keys which come from YAML input retain their existing
-     * ordering, and are output after programmatically-added keys.
+     * ordering, and are output after programmatically-added keys. Keys are
+     * output in the order provided to this method.
      *
      * This function should be called exactly once for any given spec that
      * is to be added. To facilitate this, the method returns a bool so that
