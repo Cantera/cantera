@@ -5,6 +5,7 @@ import pickle
 import re
 
 import pytest
+from ruamel import yaml
 from .utilities import allow_deprecated
 
 import cantera as ct
@@ -691,11 +692,22 @@ class TestSolutionArrayIO(utilities.CanteraTest):
         self.run_overwrite("h5")
 
     def test_overwrite_yaml(self):
-        self.run_overwrite("yaml")
+        overwritten, fresh = self.run_overwrite("yaml")
+
+        # Check that keys are written in the same order in both newly-created
+        # and overwritten files
+        reader = yaml.YAML(typ="rt")
+        yml1 = reader.load(fresh)
+        yml2 = reader.load(overwritten)
+
+        assert list(yml1["arr"]) == list(yml2["arr"])
+        assert list(yml1["arr"]["data"]) == list(yml2["arr"]["data"])
 
     def run_overwrite(self, mode):
         outfile = self.test_work_path / f"solutionarray_overwrite.{mode}"
+        outfile2 = self.test_work_path / f"solutionarray_fresh.{mode}"
         outfile.unlink(missing_ok=True)
+        outfile2.unlink(missing_ok=True)
 
         states = ct.SolutionArray(self.gas, 8)
         states.TPX = np.linspace(300, 1000, 8), 2e5, 'H2:0.5, O2:0.4'
@@ -712,11 +724,14 @@ class TestSolutionArrayIO(utilities.CanteraTest):
             states.save(outfile, "arr")
 
         states.save(outfile, "arr", overwrite=True)
+        states.save(outfile2, "arr")
 
         c = ct.SolutionArray(self.gas)
         c.restore(outfile, "arr")
         assert c.shape == states.shape
         assert c.T[-1] == states.T[-1]
+
+        return outfile, outfile2
 
 
 class TestLegacyHDF(utilities.CanteraTest):

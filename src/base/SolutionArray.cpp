@@ -1234,6 +1234,10 @@ void SolutionArray::writeEntry(AnyMap& root, const string& name, const string& s
     }
     data.update(m_meta);
 
+    if (m_size > 1) {
+        data["components"] = componentNames();
+    }
+
     for (auto& [key, value] : *m_extra) {
         data[key] = value;
     }
@@ -1263,36 +1267,24 @@ void SolutionArray::writeEntry(AnyMap& root, const string& name, const string& s
             data["mass-fractions"] = std::move(items);
         }
     } else if (m_size > 1) {
-        const auto& nativeState = phase->nativeState();
-        for (auto& [key, offset] : nativeState) {
-            if (key == "X" || key == "Y") {
+        for (auto& code : phase->nativeMode()) {
+            string name(1, code);
+            if (name == "X" || name == "Y") {
                 for (auto& spc : phase->speciesNames()) {
                     data[spc] = getComponent(spc);
                 }
-                data["basis"] = key == "X" ? "mole" : "mass";
+                data["basis"] = name == "X" ? "mole" : "mass";
             } else {
-                data[key] = getComponent(key);
+                data[name] = getComponent(name);
             }
         }
-        data["components"] = componentNames();
     }
 
-    // add ordering rules
-    vector<vector<string>> ordering = {};
-    if (data.hasKey("components")) {
-        auto components = data["components"].as<vector<string>>();
-        for (auto component : boost::adaptors::reverse(components)) {
-            ordering.push_back({"head", component});
-        }
+    static bool reg = AnyMap::addOrderingRules("SolutionArray",
+        {{"head", "type"}, {"head", "size"}, {"head", "basis"}});
+    if (reg) {
+        data["__type__"] = "SolutionArray";
     }
-
-    const vector<string> header = { "type", "size", "basis", "components" };
-    for (auto entry : boost::adaptors::reverse(header)) {
-        ordering.push_back({"head", entry});
-    }
-
-    data["__type__"] = "SolutionArray";
-    AnyMap::addOrderingRules("SolutionArray", ordering);
 
     // If this is not replacing an existing solution, put it at the end
     if (!preexisting) {
