@@ -35,6 +35,7 @@ class AnyBase {
 public:
     AnyBase() = default;
     virtual ~AnyBase() = default;
+    AnyBase& operator=(const AnyBase& other);
 
     //! For values which are derived from an input file, set the line and column
     //! of this value in that file. Used for providing context for some error
