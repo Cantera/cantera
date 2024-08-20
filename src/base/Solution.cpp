@@ -194,7 +194,7 @@ shared_ptr<Solution> newSolution(const string &infile,
 
     // load YAML file
     auto rootNode = AnyMap::fromYamlFile(infile);
-    AnyMap& phaseNode = rootNode["phases"].getMapWhere("name", name);
+    const AnyMap& phaseNode = rootNode.at("phases").getMapWhere("name", name);
     auto sol = newSolution(phaseNode, rootNode, transport, adjacent);
     sol->setSource(infile);
     return sol;
@@ -204,12 +204,12 @@ shared_ptr<Solution> newSolution(const string& infile, const string& name,
     const string& transport, const vector<string>& adjacent)
 {
     auto rootNode = AnyMap::fromYamlFile(infile);
-    AnyMap& phaseNode = rootNode["phases"].getMapWhere("name", name);
+    const AnyMap& phaseNode = rootNode.at("phases").getMapWhere("name", name);
 
     vector<shared_ptr<Solution>> adjPhases;
     // Create explicitly-specified adjacent bulk phases
     for (auto& name : adjacent) {
-        auto& adjNode = rootNode["phases"].getMapWhere("name", name);
+        const auto& adjNode = rootNode.at("phases").getMapWhere("name", name);
         adjPhases.push_back(newSolution(adjNode, rootNode));
     }
     return newSolution(phaseNode, rootNode, transport, adjPhases);
