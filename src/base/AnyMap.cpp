@@ -602,6 +602,18 @@ std::unordered_map<string, vector<string>> AnyMap::s_tailFields;
 
 // Methods of class AnyBase
 
+AnyBase& AnyBase::operator=(const AnyBase& other)
+{
+    m_metadata = other.m_metadata;
+    // Copy location information only if it's been set from an input file. Otherwise,
+    // the ordering information at the destination is more important to preserve.
+    if (other.m_line != -1 && other.m_column >= 0) {
+        m_line = other.m_line;
+        m_column = other.m_column;
+    }
+    return *this;
+}
+
 void AnyBase::setLoc(int line, int column)
 {
     m_line = line;
