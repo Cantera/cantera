@@ -31,31 +31,35 @@ class CLibSourceGenerator(SourceGenerator):
         return list(bases)
 
     @staticmethod
-    def _build_annotation(details: TagDetails, ret: Param,
+    def _javadoc_comment(block):
+        """Build deblanked JavaDoc-style (C-style) comment block."""
+        block = ["/**"] + block.strip().split("\n")
+        block = "\n * ".join(block).strip() + "\n */"
+        return "\n".join([line.rstrip() for line in block.split('\n')])
+
+    def _build_annotation(self, details: TagDetails, ret: Param,
                           params: List[Param], relates: List=[]) -> str:
         """Build annotation block."""
-        msg = ["/**", details.briefdescription, ""]
-
         def param(item: Param):
-            ret = "@param"
-            if item.direction:
-                ret += f"[{item.direction}]"
-            ret += f" {item.name}"
+            ret = par_template.render(par=item)
             if item.description:
                 return f"{ret:<20} {item.description}"
             return f"{ret:<20} Undocumented."
 
-        msg += [param(_) for _ in params]
-        if ret.description:
-            msg += [f"{'@returns':<20} {ret.description}"]
-        arglist = ArgList.from_xml(details.arglist)
-        if details.qualified_name or relates:
-            msg += [""]  # line break
+        loader = Environment(loader=BaseLoader)
+        par_template = loader.from_string(self._templates["clib-param"])
+        template = loader.from_string(self._templates["clib-comment"])
+        implements = ""
         if details.qualified_name:
-            msg += [f"@implements {details.qualified_name}{arglist.short_str()}"]
-        if relates:
-            msg += [f"@relates {', '.join(relates)}"]
-        return "\n * ".join(msg).strip() + "\n */"
+            arglist = ArgList.from_xml(details.arglist)
+            implements = f"{details.qualified_name}{arglist.short_str()}"
+
+        block = template.render(
+            briefdescription=details.briefdescription,
+            params=[param(par) for par in params],
+            returns=ret.description, implements=implements,
+            relates=relates)
+        return self._javadoc_comment(block)
 
     def _handle_crosswalk(self, what: str, crosswalk: Dict) -> str:
         """Crosswalk for object handle."""
