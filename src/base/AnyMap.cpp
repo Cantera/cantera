@@ -1790,7 +1790,7 @@ void AnyMap::setUnits(const UnitSystem& units)
 }
 
 void AnyMap::setFlowStyle(bool flow) {
-    (*this)["__flow__"] = flow;
+    m_data["__flow__"] = flow;
 }
 
 bool AnyMap::addOrderingRules(const string& objectType,
@@ -1831,6 +1831,7 @@ AnyMap AnyMap::fromYamlString(const string& yaml) {
         throw InputFileError("AnyMap::fromYamlString", fake, err.msg);
     }
     amap.setMetadata("file-contents", AnyValue(yaml));
+    amap.setLoc(0, 0);
     amap.applyUnits();
     return amap;
 }
@@ -1884,6 +1885,7 @@ AnyMap AnyMap::fromYamlFile(const string& name, const string& parent_name)
         throw;
     }
     cache_item["__file__"] = fullName;
+    cache_item.setLoc(0, 0);
 
     if (cache_item.hasKey("deprecated")) {
         warn_deprecated(fullName, cache_item["deprecated"].asString());

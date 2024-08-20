@@ -356,6 +356,18 @@ TEST(AnyMap, sizes) {
     EXPECT_EQ(m.size(), 0U);
 }
 
+TEST(AnyMap, error_loc) {
+    AnyMap m = AnyMap::fromYamlString("{spam: 4, eggs: 12}");
+    try {
+        m.at("fake");
+        FAIL();
+    } catch (CanteraError& err) {
+        EXPECT_THAT(err.what(), testing::HasSubstr("Error on line 1"));
+        // Column marker lines up with opening brace
+        EXPECT_THAT(err.what(), testing::HasSubstr("\n          ^"));
+    }
+}
+
 TEST(AnyMap, loadYaml)
 {
     AnyMap m = AnyMap::fromYamlString(
