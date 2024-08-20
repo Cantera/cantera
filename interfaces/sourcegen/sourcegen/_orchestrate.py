@@ -30,10 +30,12 @@ def generate_source(lang: str, out_dir: str=""):
     logger.handlers.clear()
     logger.addHandler(loghandler)
     logger.setLevel(logging.DEBUG)
-    logger.info("Generating '%s' source files...", lang)
+    logger.info(f"Generating {lang!r} source files...")
 
     module = importlib.import_module(__package__ + "." + lang)
-    config = read_config(Path(module.__file__).parent.joinpath("config.yaml"))
+    root = Path(module.__file__).parent
+    config = read_config(root.joinpath("config.yaml"))
+    templates = read_config(root.joinpath("templates.yaml"))
     ignore_files: List[str] = config.pop("ignore_files", [])
     ignore_funcs: Dict[str, List[str]] = config.pop("ignore_funcs", {})
 
@@ -45,7 +47,7 @@ def generate_source(lang: str, out_dir: str=""):
     # find and instantiate the language-specific SourceGenerator
     _, scaffolder_type = inspect.getmembers(module,
         lambda m: inspect.isclass(m) and issubclass(m, SourceGenerator))[0]
-    scaffolder: SourceGenerator = scaffolder_type(out_dir, config)
+    scaffolder: SourceGenerator = scaffolder_type(out_dir, config, templates)
 
     scaffolder.generate_source(files)
     logger.info("Done.")

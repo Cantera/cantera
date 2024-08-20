@@ -120,7 +120,7 @@ class CSharpSourceGenerator(SourceGenerator):
 
         return normalize_indent(text)
 
-    def __init__(self, out_dir: str, config: dict):
+    def __init__(self, out_dir: str, config: dict, templates: dict):
         if not out_dir:
             logger.critical("Non-empty string identifying output path required.")
             sys.exit(1)
@@ -128,6 +128,7 @@ class CSharpSourceGenerator(SourceGenerator):
 
         # use the typed config
         self._config = Config.from_parsed(**config)
+        self._templates = templates
 
     def _get_wrapper_class_name(self, clib_area: str) -> str:
         return self._config.class_crosswalk[clib_area]

@@ -1,0 +1,39 @@
+# Definitions used for Jinja template replacement.
+
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at https://cantera.org/license.txt for license and copyright information.
+
+clib-preamble: |-
+  /**
+   * @file {{ filename }}
+   *
+   * @warning  This module is an experimental part of the %Cantera API and
+   *      may be changed or removed without notice.
+   */
+
+  // This file is part of Cantera. See License.txt in the top-level directory or
+  // at https://cantera.org/license.txt for license and copyright information.
+
+clib-definition: |-
+  {{ annotations }}
+  CANTERA_CAPI {{ declaration }};
+
+clib-file: |-
+  {{ preamble }}
+
+  #ifndef {{ guard }}
+  #define {{ guard }}
+
+  #include "clib_defs.h"
+
+  #ifdef __cplusplus
+  extern "C" {
+  #endif
+      {% for header_entry in header_entries %}
+      {{ header_entry | indent(4) }}
+      {% endfor %}
+  #ifdef __cplusplus
+  }
+  #endif
+
+  #endif // {{ guard }}

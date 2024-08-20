@@ -4,9 +4,11 @@
 # at https://cantera.org/license.txt for license and copyright information.
 
 import sys
+from pathlib import Path
 import logging
 from typing import List, Tuple, Dict
 
+from jinja2 import Environment, BaseLoader
 
 from ._Config import Config
 
@@ -192,19 +194,47 @@ class CLibSourceGenerator(SourceGenerator):
             sys.exit(1)
 
         c_func = Func("", ret_param.p_type, recipe.name, args, "")
-        declaration = f"{c_func.declaration()};"
+        declaration = c_func.declaration()
         annotations = self._build_annotation(details, ret_param, args, recipe.relates)
 
         return declaration, annotations, cabinets
 
     def _parse_header(self, header: HeaderFile):
+        """Parse header file and generate output."""
+        loader = Environment(loader=BaseLoader)
+
+        filename = header.path.name.replace(".yaml", ".h")
+        template = loader.from_string(self._templates["clib-preamble"])
+        preamble = template.render(filename=filename)
+
+        template = loader.from_string(self._templates["clib-definition"])
+        declarations = []
         for recipe in header.recipes:
             declaration, annotations, _ = self.build_declaration(recipe)
-            print(f"{annotations}\n{declaration}\n")
+            declarations.append(
+                template.render(declaration=declaration, annotations=annotations))
 
-    def __init__(self, out_dir: str, config: dict):
+        guard = f"__{filename.upper().replace('.', '_')}__"
+        template = loader.from_string(self._templates["clib-file"])
+        output = template.render(
+            preamble=preamble, header_entries=declarations, guard=guard)
+
+        if self._out_dir:
+            out = Path(self._out_dir) / filename
+            logger.info(f"  writing {filename!r}")
+            with open(out, "wt", encoding="utf-8") as stream:
+                stream.write(output)
+                stream.write("\n")
+        else:
+            print(output)
+
+    def __init__(self, out_dir: str, config: dict, templates: dict):
         self._out_dir = out_dir or None
+        if self._out_dir is not None:
+            self._out_dir = Path(out_dir)
+            self._out_dir.mkdir(parents=True, exist_ok=True)
         self._config = Config.from_parsed(**config)  # typed config
+        self._templates = templates
 
     def generate_source(self, headers_files: List[HeaderFile]):
         """Generate output"""

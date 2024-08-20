@@ -44,11 +44,12 @@ class YamlSourceGenerator(SourceGenerator):
                              doxygen_func("@relates", comments),
                              *tag_info)
 
-    def __init__(self, out_dir: str, config: dict):
+    def __init__(self, out_dir: str, config: dict, templates: dict):
         self._out_dir = out_dir or None
 
         # use the typed config
         self._config = Config.from_parsed(**config)
+        self._templates = templates
         self._doxygen_tags = TagFileParser(self._config.bases)
 
     def generate_source(self, headers_files: List[HeaderFile]):
