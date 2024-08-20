@@ -4,10 +4,9 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
-sections:
-- prefix: func
+cabinet:
+  prefix: func
   base: Func1
-  uses: []
   functions:
   - name: check
     implements: checkFunc1

@@ -7,11 +7,13 @@
 ignore_files: []
 
 # Ignore these specific functions:
-ignore_funcs: {}
+ignore_funcs:
+  ctsoln_auto.yaml: [soln_newInterface]
 
 # Cabinets holding objects
 cabinets:
 - Solution
+- Interface
 - ThermoPhase
 - Kinetics
 - Transport

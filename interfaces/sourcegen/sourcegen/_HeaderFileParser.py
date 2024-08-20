@@ -43,22 +43,26 @@ class HeaderFileParser:
     def _parse_yaml(self) -> HeaderFile:
         config = read_config(self._path)
         recipes = []
-        for section in config.get("sections", []):
-            prefix = section["prefix"]
-            base = section["base"]
-            uses = section["uses"]
-            for func in section["functions"]:
-                func_name = f"{prefix}_{func['name']}"
-                if func_name in self._ignore_funcs:
-                    continue
-                recipes.append(
-                    Recipe(prefix,
-                           func_name,
-                           base,
-                           uses,
-                           func.get("implements", ""),
-                           func.get("relates", ""),
-                           func.get("what", "")))
+        cabinet = config.get("cabinet", [])
+        prefix = cabinet["prefix"]
+        base = cabinet["base"]
+        parents = cabinet.get("parents", [])
+        derived = cabinet.get("derived", [])
+        uses = cabinet.get("uses", [])
+        for func in cabinet["functions"]:
+            func_name = f"{prefix}_{func['name']}"
+            if func_name in self._ignore_funcs:
+                continue
+            recipes.append(
+                Recipe(prefix,
+                       func_name,
+                       base,
+                       parents,
+                       derived,
+                       uses,
+                       func.get("implements", ""),
+                       func.get("relates", ""),
+                       func.get("what", "")))
         return HeaderFile(self._path, [], recipes)
 
     @classmethod

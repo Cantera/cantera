@@ -30,7 +30,7 @@ class CLibSourceGenerator(SourceGenerator):
 
     @staticmethod
     def _build_annotation(details: TagDetails, ret: Param,
-                          params: List[Param], relates="") -> str:
+                          params: List[Param], relates: List=[]) -> str:
         """Build annotation block."""
         msg = ["/**", details.briefdescription, ""]
 
@@ -47,9 +47,12 @@ class CLibSourceGenerator(SourceGenerator):
         if ret.description:
             msg += [f"{'@returns':<20} {ret.description}"]
         arglist = ArgList.from_xml(details.arglist)
-        msg += ["", f"@implements {details.qualified_name}{arglist.short_str()}"]
+        if details.qualified_name or relates:
+            msg += [""]  # line break
+        if details.qualified_name:
+            msg += [f"@implements {details.qualified_name}{arglist.short_str()}"]
         if relates:
-            msg += [f"@relates {relates}"]
+            msg += [f"@relates {', '.join(relates)}"]
         return "\n * ".join(msg).strip() + "\n */"
 
     def _handle_crosswalk(self, what: str, crosswalk: Dict) -> str:
@@ -82,6 +85,11 @@ class CLibSourceGenerator(SourceGenerator):
                     Param("int", "lenBuf", "Length of reserved array.", "in"),
                     Param(ret_type, "charBuf", "Returned string value.", "out")]
                 return returns, buffer, []
+            if ret_type == "void":
+                returns = Param(
+                    "int", "",
+                    "Zero for success or -1 for exception handling.")
+                return returns, [], []
             if not any([what.startswith("shared_ptr"), ret_type.endswith("[]")]):
                 # direct correspondence
                 return Param(ret_type), [], []
@@ -95,7 +103,7 @@ class CLibSourceGenerator(SourceGenerator):
                 Param(ret_type, "valueBuf", f"Returned {what} value.", "out")]
             return returns, buffer, []
 
-        if what.startswith("shared_ptr"):
+        if "shared_ptr" in what:
             # check for crosswalk with object from cabinets
             handle = self._handle_crosswalk(what, self._config.ret_type_crosswalk)
             returns = Param(
@@ -103,7 +111,7 @@ class CLibSourceGenerator(SourceGenerator):
                 f"Handle to stored {handle} object or -1 for exception handling.")
             return returns, [], [handle]
 
-        logging.critical("Failed crosswalk for return type '%s'.", what)
+        logging.critical(f"Failed crosswalk for return type {what!r}.")
         sys.exit(1)
 
     def _prop_crosswalk(self, par_list: List[Param]) -> Tuple[List[Param], List[str]]:
@@ -138,7 +146,7 @@ class CLibSourceGenerator(SourceGenerator):
             if "::" in implements:
                 what = implements.split("::")[0]
                 args_merged.append(
-                    Param("int", "handle", f"Handle to {what} object."))
+                    Param("int", "handle", f"Handle to queried {what} object."))
             # Merge parameters from signature, doxygen info and doxygen details
             args_used = ArgList.from_xml(details.arglist).params  # from doxygen
             if "(" in implements:
@@ -166,28 +174,26 @@ class CLibSourceGenerator(SourceGenerator):
             par_list = merge_params(recipe.implements, details)
             prop_params, prop_cabinets = self._prop_crosswalk(par_list)
             cabinets += prop_cabinets
-            all_params = prop_params + buffer_params
-            c_func = Func("", ret_param.p_type, recipe.name, all_params, "")
-            declaration = f"{c_func.declaration()};"
-            annotations = self._build_annotation(
-                details, ret_param, all_params, recipe.relates)
+            args = prop_params + buffer_params
 
         elif recipe.what == "destructor":
             args = [Param("int", "handle", f"Handle to {recipe.base} object.")]
             details = TagDetails(
-                "", "", "", "", "", "", f"Delete {recipe.base} handle.", "", args)
+                "", "", "", "", "", "", f"Delete {recipe.base} object.", "", args)
             ret_param = Param(
                 "int", "", "Zero for success and -1 for exception handling.")
             annotations = f"//! {details.briefdescription}"
             buffer_params = []
             cabinets = [recipe.base]
-            declaration = f"{ret_param.p_type} {recipe.name}(...);"
 
         else:
             logger.critical("Unable to build declaration for '%s' with type '%s'.",
                             recipe.name, recipe.what)
             sys.exit(1)
 
+        c_func = Func("", ret_param.p_type, recipe.name, args, "")
+        declaration = f"{c_func.declaration()};"
+        annotations = self._build_annotation(details, ret_param, args, recipe.relates)
 
         return declaration, annotations, cabinets
 

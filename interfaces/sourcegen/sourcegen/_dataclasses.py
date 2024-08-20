@@ -141,6 +141,8 @@ class Recipe:
     prefix: str
     name: str
     base: str
+    parents: List[str]
+    derived: List[str]
     uses: List[str]
     implements: str
     relates: str = ""

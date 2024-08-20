@@ -1,0 +1,42 @@
+# Configuration for code generation.
+# Implements portion of replacement for CLib "ct"
+
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at https://cantera.org/license.txt for license and copyright information.
+
+cabinet:
+  prefix: soln
+  base: Solution
+  parents: []  # List of parent classes
+  derived: [Interface]  # List of specializations
+  uses: [ThermoPhase, Kinetics, Transport]  # List of referenced cabinets
+  functions:
+  - name: newSolution
+    implements: newSolution(const string&, const string&, const string&)
+    what: constructor
+  - name: newInterface  # currently disabled in CLib's config.yaml
+    implements:
+      newInterface(const string&, const string&, const vector<shared_ptr<Solution>>&)
+    what: constructor
+  - name: del
+    what: destructor
+    relates:  # methods used to retrieve instances of managed objects
+    - "Solution::thermo"
+    - "Solution::kinetics"
+    - "Solution::transport"
+  - name: name
+    implements: Solution::name
+  - name: setName
+    implements: Solution::setName
+  - name: thermo
+    implements: Solution::thermo
+  - name: kinetics
+    implements: Solution::kinetics
+  - name: transport
+    implements: Solution::transport
+  - name: setTransport
+    implements: Solution::setTransport
+  - name: soln_nAdjacent
+    implements: Solution::nAdjacent
+  - name: adjacent
+    implements: Solution::adjacent(size_t)

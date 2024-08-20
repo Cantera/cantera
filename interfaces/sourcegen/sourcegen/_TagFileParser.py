@@ -155,27 +155,33 @@ class TagFileParser:
         """Look up tag information based on (partial) function signature."""
         cxx_func = func_string.split("(")[0].split(" ")[-1]
         if cxx_func not in self._known:
-            logger.error("Did not find '%s' in tag file.", cxx_func)
-            return TagInfo()
+            logger.critical(f"Did not find {cxx_func!r} in doxygen tag file.")
+            sys.exit(1)
         ix = 0
         if len(self._known[cxx_func]) > 1:
             # Disambiguate functions with same name
             args = re.findall(re.compile(r'(?<=\().*(?=\))'), func_string)
             if not args:
-                logger.error("Need argument list to disambiguate '%s': skipping.",
-                             func_string)
-                return TagInfo()
+                known = '\n - '.join(
+                    [""] + [ArgList.from_xml(xml_tag("arglist", xml)).short_str()
+                            for xml in self._known[cxx_func]])
+                # logger.debug(f"Known functions: are {known}")
+                logger.critical(
+                    f"Need argument list to disambiguate {func_string!r}. "
+                    f"possible matches are:{known}")
+                sys.exit(1)
             args = f"({args[0]})"
             ix = -1
             for i, xml in enumerate(self._known[cxx_func]):
                 arglist = ArgList.from_xml(xml_tag("arglist", xml))
-                if args == arglist.short_str():
+                if args[:-1] in arglist.short_str():
                     ix = i
                     break
             if ix < 0:
-                logger.error("Unable to match '%s' to known functions: skipping.",
-                             func_string)
-                return TagInfo()
+                logger.critical(
+                    f"Unable to match {func_string!r} to known functions.")
+                sys.exit(1)
+
         return TagInfo.from_xml(cxx_func, self._known[cxx_func][ix])
 
 
