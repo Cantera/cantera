@@ -260,7 +260,8 @@ jobs:
     - name: Install Python dependencies
       run: |
         python3 -m pip install ruamel.yaml scons numpy cython pandas scipy pytest \
-        pytest-github-actions-annotate-failures pytest-cov gcovr!=7.0.0 pint graphviz
+        pytest-github-actions-annotate-failures pytest-cov gcovr!=7.0.0 pint graphviz \
+        Jinja2
     - name: Setup .NET Core SDK
       uses: actions/setup-dotnet@v4
       with:
@@ -850,7 +851,7 @@ jobs:
       name: Checkout the repository
     - name: Install Python dependencies
       # Install for the default system Python 3, which is used by 'dotnet build'
-      run: python3 -m pip install ruamel.yaml
+      run: python3 -m pip install ruamel.yaml Jinja2
     - name: Install library dependencies with micromamba (Windows)
       uses: mamba-org/setup-micromamba@v1
       with:
