@@ -473,6 +473,7 @@ public:
 
     //! Add items from `other` to this AnyMap. If keys in `other` also exist in
     //! this AnyMap, the `keepExisting` option determines which item is used.
+    //! Local units defined in `other` are not retained.
     void update(const AnyMap& other, bool keepExisting=true);
 
     //! Mark `key` as excluded from this map. This prevents `key` from being added
@@ -584,7 +585,7 @@ public:
     class OrderedProxy {
     public:
         OrderedProxy() {}
-        OrderedProxy(const AnyMap& data);
+        OrderedProxy(const AnyMap& data, bool withUnits);
         OrderedIterator begin() const;
         OrderedIterator end() const;
 
@@ -621,10 +622,13 @@ public:
         OrderedProxy::OrderVector::const_iterator m_stop;
     };
 
-    // Return a proxy object that allows iteration in an order determined by the
-    // order of insertion, the location in an input file, and rules specified by
-    // the addOrderingRules() method.
-    OrderedProxy ordered() const { return OrderedProxy(*this); }
+    //! Return a proxy object that allows iteration in an order determined by the order
+    //! of insertion, the location in an input file, and rules specified by the
+    //! addOrderingRules() method. The `withUnits` flag determines whether to include a
+    //! `units` directive, if any local units are defined (for use by the YAML emitter).
+    OrderedProxy ordered(bool withUnits=false) const {
+        return OrderedProxy(*this, withUnits);
+    }
 
     //! Returns the number of elements in this map
     size_t size() const;

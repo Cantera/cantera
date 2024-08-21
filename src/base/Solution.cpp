@@ -322,9 +322,8 @@ shared_ptr<Solution> newSolution(const AnyMap& phaseNode,
         if (key == "phases") {
             // header ends with "phases" field
             break;
-        } else if (key != "units") {
-            header[key] = value;
         }
+        header[key] = value;
     }
     sol->header() = header;
 

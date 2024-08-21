@@ -703,6 +703,10 @@ class TestSolutionArrayIO(utilities.CanteraTest):
         assert list(yml1["arr"]) == list(yml2["arr"])
         assert list(yml1["arr"]["data"]) == list(yml2["arr"]["data"])
 
+        # Header fields come first, and in the desired order
+        assert (list(yml1["arr"])[:4]
+                == ["generator", "cantera-version", "git-commit", "date"])
+
     def run_overwrite(self, mode):
         outfile = self.test_work_path / f"solutionarray_overwrite.{mode}"
         outfile2 = self.test_work_path / f"solutionarray_fresh.{mode}"

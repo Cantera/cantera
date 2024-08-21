@@ -296,7 +296,7 @@ YAML::Emitter& operator<<(YAML::Emitter& out, const AnyMap& rhs)
         out << YAML::Flow;
         out << YAML::BeginMap;
         size_t width = 15;
-        for (const auto& [name, value] : rhs.ordered()) {
+        for (const auto& [name, value] : rhs.ordered(true)) {
             string valueStr;
             bool foundType = true;
             bool needsQuotes = false;
@@ -339,7 +339,7 @@ YAML::Emitter& operator<<(YAML::Emitter& out, const AnyMap& rhs)
         }
     } else {
         out << YAML::BeginMap;
-        for (const auto& [key, value] : rhs.ordered()) {
+        for (const auto& [key, value] : rhs.ordered(true)) {
             out << key;
             out << value;
         }
@@ -1492,7 +1492,7 @@ void AnyMap::clear()
 
 void AnyMap::update(const AnyMap& other, bool keepExisting)
 {
-    for (const auto& [key, value] : other) {
+    for (const auto& [key, value] : other.ordered()) {
         if (!keepExisting || m_data.count(key) == 0) {
             (*this)[key] = value;
         }
@@ -1639,11 +1639,13 @@ AnyMap::Iterator& AnyMap::Iterator::operator++()
 }
 
 
-AnyMap::OrderedProxy::OrderedProxy(const AnyMap& data)
+AnyMap::OrderedProxy::OrderedProxy(const AnyMap& data, bool withUnits)
     : m_data(&data)
 {
     // Units always come first
-    if (m_data->hasKey("__units__") && m_data->at("__units__").as<AnyMap>().size()) {
+    if (withUnits && m_data->hasKey("__units__")
+        && m_data->at("__units__").as<AnyMap>().size())
+    {
         m_units = make_unique<pair<const string, AnyValue>>(
             "units", m_data->at("__units__"));
         m_units->second.setFlowStyle();

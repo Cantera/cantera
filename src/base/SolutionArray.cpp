@@ -932,15 +932,6 @@ AnyMap preamble(const string& desc)
     struct tm* newtime = localtime(&aclock); // Convert time to struct tm form
     data["date"] = stripnonprint(asctime(newtime));
 
-    // Force metadata fields to the top of the file
-    if (data.hasKey("description")) {
-        data["description"].setLoc(-6, 0);
-    }
-    data["generator"].setLoc(-5, 0);
-    data["cantera-version"].setLoc(-4, 0);
-    data["git-commit"].setLoc(-3, 0);
-    data["date"].setLoc(-2, 0);
-
     return data;
 }
 
