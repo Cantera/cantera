@@ -84,23 +84,12 @@ public:
         m_chem = cflag;
     }
 
-    //! Returns `true` if changes in the reactor composition due to chemical reactions
-    //! are enabled.
-    bool chemistryEnabled() const {
-        return m_chem;
-    }
-
     void setEnergy(int eflag=1) override {
         if (eflag > 0) {
             m_energy = true;
         } else {
             m_energy = false;
         }
-    }
-
-    //! Returns `true` if solution of the energy equation is enabled.
-    bool energyEnabled() const {
-        return m_energy;
     }
 
     //! Number of equations (state variables) for this reactor
@@ -201,7 +190,7 @@ public:
     //! @param limit value for step size limit
     void setAdvanceLimit(const string& nm, const double limit);
 
-    //! Calculate the Jacobian of a specific Reactor specialization.
+    //! A wrapper for the Jacobian function to return the Eigen::SparseMatrix<double>
     //! @warning Depending on the particular implementation, this may return an
     //! approximate Jacobian intended only for use in forming a preconditioner for
     //! iterative solvers.
@@ -209,9 +198,42 @@ public:
     //!
     //! @warning  This method is an experimental part of the %Cantera
     //! API and may be changed or removed without notice.
-    virtual Eigen::SparseMatrix<double> jacobian() {
-        throw NotImplementedError("Reactor::jacobian");
+    virtual Eigen::SparseMatrix<double> jacobian();
+
+    //! Calculate the Jacobian of a specific Reactor specialization.
+    //! @param jacVector vector where jacobian triplets are added
+    //! @warning Depending on the particular implementation, this may return an
+    //! approximate Jacobian intended only for use in forming a preconditioner for
+    //! iterative solvers.
+    //! @ingroup derivGroup
+    //!
+    //! @warning  This method is an experimental part of the %Cantera
+    //! API and may be changed or removed without notice.
+    virtual void buildJacobian(vector<Eigen::Triplet<double>>& jacVector) {
+        throw NotImplementedError(type() + "::buildJacobian");
     }
+
+    //! Calculate the Jacobian of a Reactor specialization for wall contributions.
+    //! @param jacVector vector where jacobian triplets are added
+    //! @warning Depending on the particular implementation, this may return an
+    //! approximate Jacobian intended only for use in forming a preconditioner for
+    //! iterative solvers.
+    //! @ingroup derivGroup
+    //!
+    //! @warning  This method is an experimental part of the %Cantera
+    //! API and may be changed or removed without notice.
+    virtual void buildWallJacobian(vector<Eigen::Triplet<double>>& jacVector);
+
+    //! Calculate flow contributions to the Jacobian of a Reactor specialization.
+    //! @param jacVector vector where jacobian triplets are added
+    //! @warning Depending on the particular implementation, this may return an
+    //! approximate Jacobian intended only for use in forming a preconditioner for
+    //! iterative solvers.
+    //! @ingroup derivGroup
+    //!
+    //! @warning  This method is an experimental part of the %Cantera
+    //! API and may be changed or removed without notice.
+    virtual void buildFlowJacobian(vector<Eigen::Triplet<double>>& jacVector);
 
     //! Calculate the reactor-specific Jacobian using a finite difference method.
     //!
@@ -294,8 +316,6 @@ protected:
 
     vector<double> m_wdot; //!< Species net molar production rates
     vector<double> m_uk; //!< Species molar internal energies
-    bool m_chem = false;
-    bool m_energy = true;
     size_t m_nv = 0;
     size_t m_nv_surf; //!!< Number of variables associated with reactor surfaces
 
@@ -306,6 +326,10 @@ protected:
 
     //! Vector of triplets representing the jacobian
     vector<Eigen::Triplet<double>> m_jac_trips;
+    //! Boolean to skip walls in jacobian
+    bool m_jac_skip_walls = false;
+    //! Boolean to skip flow devices in jacobian
+    bool m_jac_skip_flow_devices = false;
 };
 }
 
