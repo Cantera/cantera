@@ -4,18 +4,11 @@
 from dataclasses import dataclass
 from typing import Dict
 
-from .._helpers import get_preamble, normalize_indent
-
 
 @dataclass(frozen=True)
 class Config:
     """Provides configuration info for the CSharpSourceGenerator class"""
 
-
-    func_prolog = normalize_indent("""
-        [DllImport(LibFile)]
-        public static extern
-    """)
 
     ret_type_crosswalk = {
         "const char*": "string",
@@ -29,9 +22,6 @@ class Config:
         "byte*": "string",
         "double*": "double[]"
     }
-
-    # Reformat preamble to standard comment block
-    preamble = "\n * ".join(["/*"] + get_preamble().split("\n")) + "\n */"
 
     # These we load from the parsed YAML config file
     class_crosswalk: Dict[str, str]
