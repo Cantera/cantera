@@ -3,6 +3,8 @@
 
 from itertools import starmap
 from pathlib import Path
+import sys
+import logging
 from typing import List, Dict
 import re
 import textwrap
@@ -10,26 +12,21 @@ import textwrap
 from ._dataclasses import CsFunc
 from ._Config import Config
 from .._helpers import normalize_indent, hanging_text
-from .._dataclasses import Func, Param, HeaderFile
+from .._dataclasses import Func, Param, HeaderFile, ArgList
 from .._SourceGenerator import SourceGenerator
 
+
+_logger = logging.getLogger()
 
 class CSharpSourceGenerator(SourceGenerator):
     """The SourceGenerator for scaffolding C# files for the .NET interface"""
 
-    @staticmethod
-    def _join_params(params: List[Param]) -> str:
-        return ", ".join(p.p_type + " " + p.name for p in params)
-
     def _get_interop_func_text(self, func: CsFunc) -> str:
-        ret_type, name, params, _, _ = func
-        requires_unsafe_keyword = any(p.p_type.endswith("*") for p in params)
-        params_text = self._join_params(params)
-
-        if requires_unsafe_keyword:
-            return f"{self._config.func_prolog} unsafe {ret_type} {name}({params_text});"
-        else:
-            return f"{self._config.func_prolog} {ret_type} {name}({params_text});"
+        ret = f"{self._config.func_prolog} "
+        if func.unsafe():
+            ret += "unsafe "
+        ret += f"{func.declaration()};"  # function text
+        return ret
 
     @staticmethod
     def _get_base_handle_text(class_name: str, release_func_name: str) -> str:
@@ -62,7 +59,7 @@ class CSharpSourceGenerator(SourceGenerator):
             getter = known_funcs[clib_area + "_get" + c_name.capitalize()]
             # this assumes the last param in the function is a pointer type,
             # from which we determine the appropriate C# type
-            prop_type = self._config.prop_type_crosswalk[getter.params[-1].p_type]
+            prop_type = self._config.prop_type_crosswalk[getter.arglist[-1].p_type]
 
         setter = known_funcs.get(clib_area + "_set" + c_name.capitalize())
 
@@ -82,7 +79,7 @@ class CSharpSourceGenerator(SourceGenerator):
                 }
             """
         elif prop_type == "string":
-            p_type = getter.params[1].p_type
+            p_type = getter.arglist[1].p_type
 
             # for get-string type functions we need to look up the type of the second
             # (index 1) param for a cast because sometimes it"s an int and other times
@@ -103,15 +100,19 @@ class CSharpSourceGenerator(SourceGenerator):
                 }
             """
         else:
-            raise ValueError(f"Unable to scaffold properties of type {prop_type}!")
+            _logger.critical(f"Unable to scaffold properties of type {prop_type!r}!")
+            sys.exit(1)
 
         return normalize_indent(text)
 
-    def __init__(self, out_dir: Path, config: dict):
-        self._out_dir = out_dir
+    def __init__(self, out_dir: str, config: dict):
+        if not out_dir:
+            _logger.critical("Non-empty string identifying output path required.")
+            sys.exit(1)
+        self._out_dir = Path(out_dir)
 
         # use the typed config
-        self._config = Config.from_parsed(config)
+        self._config = Config.from_parsed(**config)
 
     def _get_wrapper_class_name(self, clib_area: str) -> str:
         return self._config.class_crosswalk[clib_area]
@@ -129,7 +130,7 @@ class CSharpSourceGenerator(SourceGenerator):
         # replace their entry in the list.
         # Therefore, copy the list so that we don’t accidentally modify
         # the params list which is attached to the C func.
-        params = parsed.params[:]
+        params = parsed.arglist[:]
 
         release_func_handle_class_name = None
 
@@ -157,7 +158,9 @@ class CSharpSourceGenerator(SourceGenerator):
 
         setter_double_arrays_count = 0
 
-        for i, (param_type, param_name) in enumerate(params):
+        for i, param in enumerate(params):
+            param_type = param.p_type
+            param_name = param.name
 
             for c_type, cs_type in self._config.ret_type_crosswalk.items():
                 if param_type == c_type:
@@ -172,8 +175,9 @@ class CSharpSourceGenerator(SourceGenerator):
                     # We assume a double* can reliably become a double[].
                     # However, this logic is too simplistic if there is
                     # more than one array.
-                    raise ValueError(f"Cannot scaffold {name} with "
-                        + "more than one array of doubles!")
+                    _logger.critical(f"Cannot scaffold {name!r} with "
+                                     "more than one array of doubles!")
+                    sys.exit(1)
 
                 if clib_area == "thermo" and re.match("^set_[A-Z]{2}$", method):
                     # Special case for the functions that set thermo pairs
@@ -187,16 +191,16 @@ class CSharpSourceGenerator(SourceGenerator):
 
         func = CsFunc(ret_type,
                       name,
-                      params,
+                      ArgList(params),
                       release_func_handle_class_name is not None,
                       release_func_handle_class_name)
 
         return func
 
     def _write_file(self, filename: str, contents: str):
-        print("  writing " + filename)
+        _logger.info(f"  writing {filename!r}")
 
-        self._out_dir.joinpath(filename).write_text(contents)
+        self._out_dir.joinpath(filename).write_text(contents, encoding="utf-8")
 
     def _scaffold_interop(self, header_file_path: Path, cs_funcs: List[CsFunc]):
         functions_text = "\n\n".join(map(self._get_interop_func_text, cs_funcs))
