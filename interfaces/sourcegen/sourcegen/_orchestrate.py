@@ -34,7 +34,8 @@ def generate_source(lang: str, out_dir: str=""):
 
     module = importlib.import_module(__package__ + "." + lang)
     root = Path(module.__file__).parent
-    config = read_config(root.joinpath("config.yaml"))
+    config = read_config(root / "config.yaml")
+    templates = read_config(root / "templates.yaml")
     ignore_files: List[str] = config.pop("ignore_files", [])
     ignore_funcs: Dict[str, List[str]] = config.pop("ignore_funcs", {})
 
@@ -43,7 +44,7 @@ def generate_source(lang: str, out_dir: str=""):
     # find and instantiate the language-specific SourceGenerator
     _, scaffolder_type = inspect.getmembers(module,
         lambda m: inspect.isclass(m) and issubclass(m, SourceGenerator))[0]
-    scaffolder: SourceGenerator = scaffolder_type(out_dir, config)
+    scaffolder: SourceGenerator = scaffolder_type(out_dir, config, templates)
 
     scaffolder.generate_source(files)
     _logger.info("Done.")
