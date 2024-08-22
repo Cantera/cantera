@@ -19,7 +19,7 @@ class ReactorBase;
 /**
  * Base class for 'flow devices' (valves, pressure regulators, etc.)
  * connecting reactors.
- * @ingroup flowDeviceGroup
+ * @ingroup connectorGroup
  */
 class FlowDevice : public ConnectorNode
 {
