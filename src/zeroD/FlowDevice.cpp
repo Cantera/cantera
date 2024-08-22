@@ -11,8 +11,46 @@
 namespace Cantera
 {
 
+FlowDevice::FlowDevice(shared_ptr<ReactorNode> r0, shared_ptr<ReactorNode> r1,
+                       const string& name) : Connector(r0, r1, name)
+{
+    if (!m_nodes.first || !m_nodes.second) {
+        warn_deprecated("FlowDevice::FlowDevice",
+            "After Cantera 3.1, Reactors must be provided to a FlowDevice "
+            "constructor.");
+        return;
+    }
+    // todo: switch to shared pointers after Cantera 3.1.
+    m_in = std::dynamic_pointer_cast<ReactorBase>(r0).get();
+    m_out = std::dynamic_pointer_cast<ReactorBase>(r1).get();
+    m_in->addOutlet(*this);
+    m_out->addInlet(*this);
+
+    // construct adapters between inlet and outlet species
+    const ThermoPhase& mixin = m_in->contents();
+    const ThermoPhase& mixout = m_out->contents();
+
+    m_nspin = mixin.nSpecies();
+    m_nspout = mixout.nSpecies();
+    string nm;
+    size_t ki, ko;
+    for (ki = 0; ki < m_nspin; ki++) {
+        nm = mixin.speciesName(ki);
+        ko = mixout.speciesIndex(nm);
+        m_in2out.push_back(ko);
+    }
+    for (ko = 0; ko < m_nspout; ko++) {
+        nm = mixout.speciesName(ko);
+        ki = mixin.speciesIndex(nm);
+        m_out2in.push_back(ki);
+    }
+}
+
 bool FlowDevice::install(ReactorBase& in, ReactorBase& out)
 {
+    warn_deprecated("FlowDevice::install",
+        "To be removed after Cantera 3.1. Reactors should be provided to constructor "
+        "instead.");
     if (m_in || m_out) {
         throw CanteraError("FlowDevice::install", "Already installed");
     }
