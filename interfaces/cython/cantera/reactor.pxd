@@ -34,6 +34,8 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
     cdef shared_ptr[CxxReactorNode] newReactorNode(string, shared_ptr[CxxSolution], string) except +translate_exception
     cdef shared_ptr[CxxFlowDevice] newFlowDevice(string, string) except +translate_exception
     cdef shared_ptr[CxxWallBase] newWall(string, string) except +translate_exception
+    cdef shared_ptr[CxxConnector] newConnector(string) except +translate_exception
+    cdef shared_ptr[CxxConnector] newConnector(string, shared_ptr[CxxReactorNode], shared_ptr[CxxReactorNode], string) except +translate_exception
 
     # reactors
     cdef cppclass CxxReactorNode "Cantera::ReactorNode":
@@ -86,12 +88,29 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         int inletSurfaceMaxErrorFailures()
         void setInletSurfaceMaxErrorFailures(int) except +translate_exception
 
-    # walls
-    cdef cppclass CxxWallBase "Cantera::WallBase":
-        CxxWallBase()
+    # reactor surface
+    cdef cppclass CxxReactorSurface "Cantera::ReactorSurface" (CxxReactorNode):
+        CxxReactorSurface()
+        double area()
+        void setArea(double)
+        void setKinetics(CxxKinetics*)
+        void setCoverages(double*)
+        void setCoverages(Composition&) except +translate_exception
+        void syncState()
+        void addSensitivityReaction(size_t) except +translate_exception
+        size_t nSensParams()
+
+    # connectors
+
+    cdef cppclass CxxConnector "Cantera::Connector":
+        CxxConnector()
         string type()
         string name()
         void setName(string) except +translate_exception
+
+    # walls
+    cdef cppclass CxxWallBase "Cantera::WallBase" (CxxConnector):
+        CxxWallBase()
         cbool install(CxxReactorBase&, CxxReactorBase&)
         double area()
         void setArea(double)
@@ -120,26 +139,10 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         double heatFlux()
         void setHeatFlux(CxxFunc1*)
 
-    # reactor surface
-
-    cdef cppclass CxxReactorSurface "Cantera::ReactorSurface" (CxxReactorNode):
-        CxxReactorSurface()
-        double area()
-        void setArea(double)
-        void setKinetics(CxxKinetics*)
-        void setCoverages(double*)
-        void setCoverages(Composition&) except +translate_exception
-        void syncState()
-        void addSensitivityReaction(size_t) except +translate_exception
-        size_t nSensParams()
-
     # flow devices
 
-    cdef cppclass CxxFlowDevice "Cantera::FlowDevice":
+    cdef cppclass CxxFlowDevice "Cantera::FlowDevice" (CxxConnector):
         CxxFlowDevice()
-        string type()
-        string name()
-        void setName(string) except +translate_exception
         double massFlowRate() except +translate_exception
         double massFlowRate(double) except +translate_exception
         cbool install(CxxReactorBase&, CxxReactorBase&) except +translate_exception
@@ -282,19 +285,13 @@ cdef class ExtensibleReactor(Reactor):
     cdef CxxReactorAccessor* accessor
 
 cdef class ReactorSurface(ReactorNode):
-    # cdef shared_ptr[CxxReactorNode] _surface
     cdef CxxReactorSurface* surface
     cdef Kinetics _kinetics
     cdef ReactorBase _reactor
 
-cdef class WallBase:
-    cdef shared_ptr[CxxWallBase] _wall
-    cdef CxxWallBase* wall
-    cdef object _velocity_func
-    cdef object _heat_flux_func
-    cdef ReactorBase _left_reactor
-    cdef ReactorBase _right_reactor
-    cdef str name
+cdef class Connector:
+    cdef shared_ptr[CxxConnector] _edge
+    cdef CxxConnector* edge
     cdef public dict edge_attr
     """
     A dictionary containing draw attributes for the representation of the `WallBase` as
@@ -304,25 +301,24 @@ cdef class WallBase:
     .. versionadded:: 3.1
     """
 
+cdef class WallBase(Connector):
+    # cdef shared_ptr[CxxWallBase] _wall
+    cdef CxxWallBase* wall
+    cdef object _velocity_func
+    cdef object _heat_flux_func
+    cdef ReactorBase _left_reactor
+    cdef ReactorBase _right_reactor
+
 cdef class Wall(WallBase):
     pass
 
-cdef class FlowDevice:
-    cdef shared_ptr[CxxFlowDevice] _dev
+cdef class FlowDevice(Connector):
+    # cdef shared_ptr[CxxFlowDevice] _dev
     cdef CxxFlowDevice* dev
     cdef Func1 _rate_func
     cdef Func1 _time_func
-    cdef str name
     cdef ReactorBase _upstream
     cdef ReactorBase _downstream
-    cdef public dict edge_attr
-    """
-    A dictionary containing draw attributes for the representation of the `FlowDevice`
-    as a graphviz edge.See https://graphviz.org/docs/edges/ for a list of all usable
-    attributes.
-
-    .. versionadded:: 3.1
-    """
 
 cdef class MassFlowController(FlowDevice):
     pass
