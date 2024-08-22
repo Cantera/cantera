@@ -4,7 +4,7 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/zeroD/Connector.h"
-#include "cantera/zeroD/ReactorBase.h"
+#include "cantera/zeroD/ReactorNode.h"
 
 namespace Cantera
 {

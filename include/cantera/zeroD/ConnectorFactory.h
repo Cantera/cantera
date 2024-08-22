@@ -25,7 +25,7 @@ class WallBase;
 //!
 //! where `r0` and `r1` are reactor objects.
 class ConnectorFactory :
-    public Factory<Connector, shared_ptr<ReactorBase>, shared_ptr<ReactorBase>, const string&>
+    public Factory<Connector, shared_ptr<ReactorNode>, shared_ptr<ReactorNode>, const string&>
 {
 public:
     static ConnectorFactory* factory();
@@ -61,8 +61,8 @@ private:
 //! @param name  Name of the connector.
 //! @since New in %Cantera 3.1.
 shared_ptr<Connector> newConnector(const string& model,
-                                   shared_ptr<ReactorBase> r0,
-                                   shared_ptr<ReactorBase> r1,
+                                   shared_ptr<ReactorNode> r0=nullptr,
+                                   shared_ptr<ReactorNode> r1=nullptr,
                                    const string& name="(none)");
 
 //! Create a FlowDevice object of the specified type

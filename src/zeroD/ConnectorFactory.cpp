@@ -17,16 +17,16 @@ std::mutex ConnectorFactory::connector_mutex;
 ConnectorFactory::ConnectorFactory()
 {
     reg("MassFlowController",
-        [](shared_ptr<ReactorBase> r0, shared_ptr<ReactorBase> r1, const string& name)
+        [](shared_ptr<ReactorNode> r0, shared_ptr<ReactorNode> r1, const string& name)
         { return new MassFlowController(r0, r1, name); });
     reg("PressureController",
-        [](shared_ptr<ReactorBase> r0, shared_ptr<ReactorBase> r1, const string& name)
+        [](shared_ptr<ReactorNode> r0, shared_ptr<ReactorNode> r1, const string& name)
         { return new PressureController(r0, r1, name); });
     reg("Valve",
-        [](shared_ptr<ReactorBase> r0, shared_ptr<ReactorBase> r1, const string& name)
+        [](shared_ptr<ReactorNode> r0, shared_ptr<ReactorNode> r1, const string& name)
         { return new Valve(r0, r1, name); });
     reg("Wall",
-        [](shared_ptr<ReactorBase> r0, shared_ptr<ReactorBase> r1, const string& name)
+        [](shared_ptr<ReactorNode> r0, shared_ptr<ReactorNode> r1, const string& name)
         { return new Wall(r0, r1, name); });
 }
 
@@ -46,7 +46,7 @@ void ConnectorFactory::deleteFactory() {
 
 shared_ptr<Connector> newConnector(
     const string& model,
-    shared_ptr<ReactorBase> r0, shared_ptr<ReactorBase> r1, const string& name)
+    shared_ptr<ReactorNode> r0, shared_ptr<ReactorNode> r1, const string& name)
 {
     return shared_ptr<Connector>(
         ConnectorFactory::factory()->create(model, r0, r1, name));

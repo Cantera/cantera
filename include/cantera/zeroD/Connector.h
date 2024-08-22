@@ -11,7 +11,7 @@
 
 namespace Cantera
 {
-class ReactorBase;
+class ReactorNode;
 
 /**
  * Base class for walls and flow devices connecting reactors.
@@ -29,11 +29,11 @@ public:
     //! @todo  Implement deprecation warning.
     Connector(const string& name="(none)") : m_name(name) {}
 
-    //! Instantiate a Connector object with associated ReactorBase objects.
+    //! Instantiate a Connector object with associated ReactorNode objects.
     //! @param r0  First reactor.
     //! @param r1  Second reactor.
     //! @param name  Name of the connector.
-    Connector(shared_ptr<ReactorBase> r0, shared_ptr<ReactorBase> r1,
+    Connector(shared_ptr<ReactorNode> r0, shared_ptr<ReactorNode> r1,
               const string& name="(none)") : m_nodes({r0, r1}), m_name(name) {}
 
     virtual ~Connector() = default;
@@ -61,7 +61,7 @@ public:
 
 protected:
     //! Pair of reactors forming end points of the connector.
-    pair<shared_ptr<ReactorBase>, shared_ptr<ReactorBase>> m_nodes;
+    pair<shared_ptr<ReactorNode>, shared_ptr<ReactorNode>> m_nodes;
 
     string m_name;  //!< Connector name.
     bool m_defaultNameSet = false;  //!< `true` if default name has been previously set.
