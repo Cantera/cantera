@@ -23,14 +23,8 @@ namespace Cantera
 {
 
 Reactor::Reactor(shared_ptr<Solution> sol, const string& name)
-    : ReactorBase(name)
+    : ReactorBase(sol, name)
 {
-    if (!sol || !(sol->thermo())) {
-        throw CanteraError("Reactor::Reactor",
-            "Reactor contents must be provided as constructor arguments");
-    }
-    setSolution(sol);
-    setThermo(*sol->thermo());
     setKinetics(*sol->kinetics());
 }
 
