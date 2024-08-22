@@ -24,6 +24,8 @@ class ReactorBase;
 class FlowDevice : public ConnectorNode
 {
 public:
+    FlowDevice(shared_ptr<ReactorBase> r0, shared_ptr<ReactorBase> r1,
+               const string& name="(none)");
     using ConnectorNode::ConnectorNode;  // inherit constructors
 
     string type() const override {
@@ -55,6 +57,8 @@ public:
     /*!
      * @param in Upstream reactor.
      * @param out Downstream reactor.
+     * @deprecated To be removed after Cantera 3.2. Reactors should be provided to
+     *      constructor instead.
      */
     bool install(ReactorBase& in, ReactorBase& out);
 

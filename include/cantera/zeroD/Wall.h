@@ -22,6 +22,8 @@ class Func1;
 class WallBase : public ConnectorNode
 {
 public:
+    WallBase(shared_ptr<ReactorBase> r0, shared_ptr<ReactorBase> r1,
+             const string& name="(none)");
     using ConnectorNode::ConnectorNode;  // inherit constructors
 
     string type() const override {
@@ -58,6 +60,8 @@ public:
     virtual void setArea(double a);
 
     //! Install the wall between two reactors or reservoirs
+    //! @deprecated To be removed after Cantera 3.2. Reactors should be provided to
+    //!     constructor instead.
     bool install(ReactorBase& leftReactor, ReactorBase& rightReactor);
 
     //! Called just before the start of integration
