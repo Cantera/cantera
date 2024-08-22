@@ -20,6 +20,7 @@ class SurfPhase;
 class ReactorSurface : public ReactorNode
 {
 public:
+    ReactorSurface(shared_ptr<Solution> sol, const string& name="(none)");
     using ReactorNode::ReactorNode;  // inherit constructors
 
     string type() const override {

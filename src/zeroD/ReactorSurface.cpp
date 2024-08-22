@@ -7,10 +7,50 @@
 #include "cantera/zeroD/ReactorNet.h"
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/kinetics/Kinetics.h"
+#include "cantera/kinetics/InterfaceKinetics.h"
 #include "cantera/kinetics/Reaction.h"
+#include "cantera/base/Solution.h"
 
 namespace Cantera
 {
+
+ReactorSurface::ReactorSurface(shared_ptr<Solution> sol, const string& name)
+    : ReactorNode(name)
+{
+    if (!sol || !(sol->thermo())) {
+        warn_deprecated("ReactorSurface::ReactorSurface",
+            "Creation of empty reactor objects is deprecated in Cantera 3.1 and will "
+            "raise\nexceptions thereafter; reactor contents should be provided in the "
+            "constructor.");
+        return;
+    } else if (!std::dynamic_pointer_cast<SurfPhase>(sol->thermo())) {
+        throw CanteraError("ReactorSurface::ReactorSurface",
+            "Solution object must have a SurfPhase object as the thermo manager.");
+    }
+    m_solution = sol;
+
+    if (!sol->kinetics() ) {
+        throw CanteraError("ReactorSurface::ReactorSurface",
+            "Solution object must have kinetics manager.");
+    } else if (!std::dynamic_pointer_cast<InterfaceKinetics>(sol->kinetics())) {
+        throw CanteraError("ReactorSurface::ReactorSurface",
+            "Kinetics manager must be an InterfaceKinetics object.");
+    }
+    // todo: move all member variables to use shared pointers after Cantera 3.1
+    m_kinetics = m_solution->kinetics().get();
+    m_solution->thermo()->addSpeciesLock();
+
+    m_thermo = dynamic_cast<SurfPhase*>(&m_kinetics->thermo(0));
+    if (m_thermo == nullptr) {
+        // This should never happen, as the Solution should already contain the correct
+        // SurfPhase object
+        throw CanteraError("ReactorSurface::ReactorSurface",
+            "Specified kinetics manager does not represent a surface "
+            "kinetics mechanism.");
+    }
+    m_cov.resize(m_thermo->nSpecies());
+    m_thermo->getCoverages(m_cov.data());
+}
 
 double ReactorSurface::area() const
 {
