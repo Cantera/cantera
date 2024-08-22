@@ -78,6 +78,10 @@ ReactorFactory::ReactorFactory()
     reg("MoleReactor",
         [](shared_ptr<Solution> sol, const string& name)
         { return new MoleReactor(sol, name); });
+    reg("ReactorSurface",
+        [](shared_ptr<Solution> sol, const string& name)
+        { return new ReactorSurface(sol, name); });
+
 }
 
 ReactorFactory* ReactorFactory::factory() {
@@ -94,17 +98,33 @@ void ReactorFactory::deleteFactory() {
     s_factory = 0;
 }
 
+shared_ptr<ReactorNode> newReactorNode(
+    const string& model, shared_ptr<Solution> contents, const string& name)
+{
+    return shared_ptr<ReactorNode>(
+        ReactorFactory::factory()->create(model, contents, name));
+}
+
+shared_ptr<ReactorNode> newReactorNode(const string& model)
+{
+    return newReactorNode(model, nullptr, "");
+}
+
 shared_ptr<ReactorBase> newReactor(const string& model)
 {
-    return shared_ptr<ReactorBase>(
-        ReactorFactory::factory()->create(model, nullptr, ""));
+    return newReactor(model, nullptr, "");
 }
 
 shared_ptr<ReactorBase> newReactor(
     const string& model, shared_ptr<Solution> contents, const string& name)
 {
-    return shared_ptr<ReactorBase>(
-        ReactorFactory::factory()->create(model, contents, name));
+    auto reactor = std::dynamic_pointer_cast<ReactorBase>(
+        newReactorNode(model, contents, name));
+    if (!reactor) {
+        throw CanteraError("newReactor",
+            "Detected incompatible ReactorBase type '{}'", model);
+    }
+    return reactor;
 }
 
 shared_ptr<ReactorBase> newReactor3(const string& model)

@@ -19,7 +19,7 @@ namespace Cantera
 //! ```cpp
 //!     shared_ptr<ReactorBase> r1 = newReactor("IdealGasReactor");
 //! ```
-class ReactorFactory : public Factory<ReactorBase, shared_ptr<Solution>, const string&>
+class ReactorFactory : public Factory<ReactorNode, shared_ptr<Solution>, const string&>
 {
 public:
     static ReactorFactory* factory();
@@ -42,6 +42,20 @@ private:
 //! ```
 //! @ingroup zerodGroup
 //! @{
+
+//! Create a ReactorNode object of the specified type
+//! @param model  String representing type of reactor node.
+//! @param contents  Solution object holding thermo/kinetics.
+//! @param name  Name of reactor.
+//! @since New in %Cantera 3.1.
+shared_ptr<ReactorNode> newReactorNode(
+    const string& model, shared_ptr<Solution> contents,
+    const string& name="(none)");
+
+//! Create a ReactorNode object of the specified type
+//! @since New in %Cantera 3.1.
+//! @deprecated Transitional method. Use newReactorNode() with contents instead.
+shared_ptr<ReactorNode> newReactorNode(const string& model);
 
 //! Create a Reactor object of the specified type
 //! @since Starting in %Cantera 3.1, this method returns a `shared_ptr<ReactorBase>`
