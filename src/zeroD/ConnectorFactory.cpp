@@ -54,8 +54,13 @@ shared_ptr<Connector> newConnector(
 
 shared_ptr<FlowDevice> newFlowDevice(const string& model, const string& name)
 {
-    return std::dynamic_pointer_cast<FlowDevice>(
+    auto dev = std::dynamic_pointer_cast<FlowDevice>(
         newConnector(model, nullptr, nullptr, name));
+    if (!dev) {
+        throw CanteraError("newFlowDevice",
+            "Detected incompatible Connector type '{}'", model);
+    }
+    return dev;
 }
 
 shared_ptr<FlowDevice> newFlowDevice3(const string& model)
@@ -65,5 +70,22 @@ shared_ptr<FlowDevice> newFlowDevice3(const string& model)
     return newFlowDevice(model);
 }
 
+shared_ptr<WallBase> newWall(const string& model, const string& name)
+{
+    auto wall = std::dynamic_pointer_cast<WallBase>(
+        newConnector(model, nullptr, nullptr, name));
+    if (!wall) {
+        throw CanteraError("newWall",
+            "Detected incompatible Connector type '{}'", model);
+    }
+    return wall;
+}
+
+shared_ptr<WallBase> newWall3(const string& model)
+{
+    warn_deprecated("newWall3",
+        "Use newWall instead; to be removed after Cantera 3.1.");
+    return newWall(model);
+}
 
 }
