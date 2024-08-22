@@ -48,6 +48,10 @@ shared_ptr<ConnectorNode> newConnectorNode(
     const string& model,
     shared_ptr<ReactorBase> r0, shared_ptr<ReactorBase> r1, const string& name)
 {
+    if (!r0 || !r1) {
+        warn_deprecated("newConnectorNode",
+            "Instantiation of empty connector nodes to be removed after Cantera 3.2.");
+    }
     return shared_ptr<ConnectorNode>(
         ConnectorFactory::factory()->create(model, r0, r1, name));
 }

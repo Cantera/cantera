@@ -24,7 +24,14 @@ ReactorBase::ReactorBase(shared_ptr<Solution> sol, const string& name)
         throw CanteraError("ReactorBase::ReactorBase",
                            "Missing or incomplete Solution object.");
     }
-    setSolution(sol);
+    m_solution = sol;
+    setThermo(*sol->thermo());
+    try {
+        setKinetics(*sol->kinetics());
+    } catch (NotImplementedError&) {
+        // kinetics not used (example: Reservoir)
+    }
+    m_solution->thermo()->addSpeciesLock();
 }
 
 ReactorBase::~ReactorBase()
@@ -47,7 +54,11 @@ bool ReactorBase::setDefaultName(map<string, int>& counts)
     return true;
 }
 
-void ReactorBase::setSolution(shared_ptr<Solution> sol) {
+void ReactorBase::setSolution(shared_ptr<Solution> sol)
+{
+    warn_deprecated("ReactorBase::setSolution",
+        "After Cantera 3.2, a change of reactor contents after instantiation "
+        "will be disabled.");
     if (!sol || !(sol->thermo())) {
         throw CanteraError("ReactorBase::setSolution",
             "Missing or incomplete Solution object.");
