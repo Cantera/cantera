@@ -27,6 +27,11 @@ ReactorBase::ReactorBase(shared_ptr<Solution> sol, const string& name)
 }
 
 void ReactorBase::setSolution(shared_ptr<Solution> sol) {
+    if (m_solution) {
+        warn_deprecated("ReactorBase::setSolution",
+            "After Cantera 3.1, a change of reactor contents after instantiation "
+            "will be disabled.");
+    }
     if (!sol || !(sol->thermo())) {
         throw CanteraError("ReactorBase::setSolution",
             "Missing or incomplete Solution object.");
@@ -47,7 +52,8 @@ void ReactorBase::setSolution(shared_ptr<Solution> sol) {
 void ReactorBase::insert(shared_ptr<Solution> sol)
 {
     warn_deprecated("ReactorBase::insert",
-        "To be removed after Cantera 3.1. Superseded by 'setSolution'.");
+        "To be removed after Cantera 3.1. Superseded by instantiation of reactor "
+        "objects with content.");
     setSolution(sol);
 }
 

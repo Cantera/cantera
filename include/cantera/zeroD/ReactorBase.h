@@ -52,6 +52,8 @@ public:
     //! Set the Solution specifying the ReactorBase content.
     //! @param sol  Solution object to be set.
     //! @since New in %Cantera 3.1.
+    //! @deprecated  To be removed after %Cantera 3.1. Superseded by instiation of
+    //!              ReactorBase with Solution object.
     void setSolution(shared_ptr<Solution> sol);
 
     //! @name Methods to set up a simulation
@@ -62,7 +64,8 @@ public:
         m_vol = vol;
     }
 
-    //! @deprecated To be removed after %Cantera 3.1. Superseded by setSolution.
+    //! @deprecated  To be removed after %Cantera 3.1. Superseded by instiation of
+    //!              ReactorBase with Solution object.
     void insert(shared_ptr<Solution> sol);
 
     //! Specify the mixture contained in the reactor. Note that a pointer to
