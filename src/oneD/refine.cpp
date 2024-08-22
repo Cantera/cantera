@@ -95,13 +95,13 @@ int Refiner::analyze(size_t n, const double* z, const double* x)
             double slope_max = *max_element(slope.begin(), slope.end());
 
             // max absolute values of val and slope
-            double val_amplitude = std::max(fabs(val_max), fabs(val_min));
-            double slope_amplitude = std::max(fabs(slope_max), fabs(slope_min));
+            double val_magnitude = std::max(fabs(val_max), fabs(val_min));
+            double slope_magnitude = std::max(fabs(slope_max), fabs(slope_min));
 
             // refine based on component i only if the range of val is greater than a
             // fraction 'min_range' of max |val|. This eliminates components that
             // consist of small fluctuations around a constant value.
-            if ((val_max - val_min) > m_min_range*val_amplitude) {
+            if ((val_max - val_min) > m_min_range*val_magnitude) {
                 // maximum allowable difference in value between adjacent points. Based
                 // on the global min and max values of the component over the domain.
                 double max_change = m_slope*(val_max - val_min) + m_thresh;
@@ -124,7 +124,7 @@ int Refiner::analyze(size_t n, const double* z, const double* x)
             // greater than a fraction 'min_range' of max|s|. This eliminates
             // components that consist of small fluctuations on a constant slope
             // background.
-            if ((slope_max - slope_min) > m_min_range*slope_amplitude) {
+            if ((slope_max - slope_min) > m_min_range*slope_magnitude) {
                 // maximum allowable difference in slope between adjacent points.
                 double max_change = m_curve*(slope_max - slope_min) + m_thresh;
                 for (size_t j = 0; j < n-2; j++) {
