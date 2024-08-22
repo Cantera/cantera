@@ -12,6 +12,13 @@
 
 namespace Cantera
 {
+//! @defgroup zerodGroup Zero-Dimensional Reactor Networks
+//!
+//! @details See the
+//! [Reactor Science](../reference/reactors/index.html)
+//! section of the %Cantera website for a description of the governing equations for
+//! specific reactor types and the methods used for solving networks of interconnected
+//! reactors.
 
 class Array2D;
 class Integrator;

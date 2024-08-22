@@ -13,10 +13,6 @@
 namespace Cantera
 {
 
-ReactorBase::ReactorBase(const string& name) : m_name(name)
-{
-}
-
 ReactorBase::ReactorBase(shared_ptr<Solution> sol, const string& name)
     : ReactorBase(name)
 {
@@ -28,26 +24,6 @@ ReactorBase::ReactorBase(shared_ptr<Solution> sol, const string& name)
         return;
     }
     setSolution(sol);
-}
-
-ReactorBase::~ReactorBase()
-{
-    if (m_solution) {
-        m_solution->thermo()->removeSpeciesLock();
-    }
-}
-
-bool ReactorBase::setDefaultName(map<string, int>& counts)
-{
-    if (m_defaultNameSet) {
-        return false;
-    }
-    m_defaultNameSet = true;
-    if (m_name == "(none)" || m_name == "") {
-        m_name = fmt::format("{}_{}", type(), counts[type()]);
-    }
-    counts[type()]++;
-    return true;
 }
 
 void ReactorBase::setSolution(shared_ptr<Solution> sol) {
