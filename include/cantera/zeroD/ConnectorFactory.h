@@ -13,6 +13,7 @@ namespace Cantera
 {
 
 class FlowDevice;
+class WallBase;
 
 //! Factory class to create ConnectorNode objects.
 //!
@@ -68,6 +69,10 @@ shared_ptr<ConnectorNode> newConnectorNode(const string& model,
 //! Create a FlowDevice object of the specified type
 //! @since Starting in %Cantera 3.1, this method returns a `shared_ptr<FlowDevice>`
 shared_ptr<FlowDevice> newFlowDevice(const string& model, const string& name="(none)");
+
+//! Create a WallBase object of the specified type
+//! @since Starting in %Cantera 3.1, this method returns a `shared_ptr<WallBase>`
+shared_ptr<WallBase> newWall(const string& model, const string& name="(none)");
 
 //! @}
 }

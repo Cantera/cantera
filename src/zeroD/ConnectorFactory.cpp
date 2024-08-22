@@ -54,8 +54,24 @@ shared_ptr<ConnectorNode> newConnectorNode(
 
 shared_ptr<FlowDevice> newFlowDevice(const string& model, const string& name)
 {
-    return std::dynamic_pointer_cast<FlowDevice>(
+    auto dev = std::dynamic_pointer_cast<FlowDevice>(
         newConnectorNode(model, nullptr, nullptr, name));
+    if (!dev) {
+        throw CanteraError("newFlowDevice",
+            "Detected incompatible ConnectorNode type '{}'", model);
+    }
+    return dev;
+}
+
+shared_ptr<WallBase> newWall(const string& model, const string& name)
+{
+    auto wall = std::dynamic_pointer_cast<WallBase>(
+        newConnectorNode(model, nullptr, nullptr, name));
+    if (!wall) {
+        throw CanteraError("newWall",
+            "Detected incompatible ConnectorNode type '{}'", model);
+    }
+    return wall;
 }
 
 }
