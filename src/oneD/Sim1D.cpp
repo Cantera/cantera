@@ -567,8 +567,8 @@ int Sim1D::refine(int loglevel)
                     znew.push_back(zmid);
                     added++;
 
-                    // for each component, linearly interpolate
-                    // the solution to this point
+                    // for each component, linearly interpolate the solution to this
+                    // point
                     for (size_t i = 0; i < comp; i++) {
                         double xmid = 0.5*(value(n, i, m) + value(n, i, m+1));
                         xnew.push_back(xmid);

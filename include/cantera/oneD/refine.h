@@ -47,11 +47,14 @@ public:
      * the slope and curve parameters utilize a normalized ratio when making refinement
      * decisions.
      *
-     * ratio = fabs(val[j+1] - val[j]) / m_slope*(val_max - val_min);
-     * ratio_curve = fabs(slope[j+1] - slope[j]) / m_curve*(slope_max - slope_min);
      * @f[
      *   \text{ratio} = \frac{|x[j+1] - x[j]|}{\text{m_slope}*(x_{\text{max}} -
      *                  x_{\text{min}})}
+     * @f]
+     *
+     * @f[
+     *  \text{ratio\_curve} = \frac{|slope[j+1] - slope[j]|}{\text{m_curve}*(slope_{\text{max}} -
+     *                 slope_{\text{min}})}
      * @f]
      *
      * If this ratio exceeds 1, refinement is needed. This normalized ratio is what
@@ -222,7 +225,7 @@ protected:
     //! Indices of grid points that need new grid points added after them
     set<size_t> m_insertion_points;
 
-    //! Indices of grid points that should be kept, 1=keep, -1=remove, 0=unset
+    //! Map of grid point indices that should be kept, 1=keep, -1=remove, 0=unset
     map<size_t, int> m_keep;
 
     //! Names of components that require the addition of new grid points
@@ -237,7 +240,10 @@ protected:
     double m_slope = 0.8;
     double m_curve = 0.8;
     double m_prune = -0.001;
-    double m_min_range = 0.01; //!< Minimum range of values for refinement
+
+    //! Threshold parameter that is used distinguish between small fluctuations
+    //! around a constant value during the refinement process.
+    double m_min_range = 0.01;
 
     Domain1D* m_domain; //! Pointer to the domain to be refined
     size_t m_nv; //!< Number of components in the domain
