@@ -8,6 +8,7 @@
 
 #include "cantera/base/ctexceptions.h"
 #include "cantera/zeroD/ReactorBase.h"
+#include "Connector.h"
 
 namespace Cantera
 {
@@ -16,35 +17,16 @@ class Func1;
 
 /**
  * Base class for 'walls' (walls, pistons, etc.) connecting reactors.
- * @ingroup wallGroup
+ * @ingroup connectorGroup
  */
-class WallBase
+class WallBase : public Connector
 {
 public:
-    WallBase(const string& name="(none)") : m_name(name) {}
+    using Connector::Connector;  // inherit constructors
 
-    virtual ~WallBase() {}
-    WallBase(const WallBase&) = delete;
-    WallBase& operator=(const WallBase&) = delete;
-
-    //! String indicating the wall model implemented. Usually
-    //! corresponds to the name of the derived class.
-    virtual string type() const {
+    string type() const override {
         return "WallBase";
     }
-
-    //! Retrieve wall name.
-    string name() const {
-        return m_name;
-    }
-
-    //! Set wall name.
-    void setName(const string& name) {
-        m_name = name;
-    }
-
-    //! Set the default name of a wall. Returns `false` if it was previously set.
-    bool setDefaultName(map<string, int>& counts);
 
     //! Rate of volume change (m^3/s) for the adjacent reactors at current reactor
     //! network time.
@@ -105,8 +87,8 @@ public:
     }
 
 protected:
-    string m_name;  //!< Wall name.
-    bool m_defaultNameSet = false;  //!< `true` if default name has been previously set.
+    // string m_name;  //!< Wall name.
+    // bool m_defaultNameSet = false;  //!< `true` if default name has been previously set.
 
     ReactorBase* m_left = nullptr;
     ReactorBase* m_right = nullptr;
@@ -121,7 +103,7 @@ protected:
 /*!
  * Walls can move (changing the volume of the adjacent reactors) and allow heat
  * transfer between reactors.
- * @ingroup wallGroup
+ * @ingroup connectorGroup
  */
 class Wall : public WallBase
 {
