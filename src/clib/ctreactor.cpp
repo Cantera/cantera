@@ -17,19 +17,17 @@
 
 using namespace Cantera;
 
-typedef Cabinet<ReactorBase> ReactorCabinet;
 typedef Cabinet<ReactorNet> NetworkCabinet;
+typedef Cabinet<ReactorNode> ReactorCabinet;
 typedef Cabinet<Connector> ConnectorCabinet;
 typedef Cabinet<Func1> FuncCabinet;
 typedef Cabinet<ThermoPhase> ThermoCabinet;
 typedef Cabinet<Kinetics> KineticsCabinet;
 typedef Cabinet<Solution> SolutionCabinet;
-typedef Cabinet<ReactorSurface> ReactorSurfaceCabinet;
 
-template<> ReactorCabinet* ReactorCabinet::s_storage = 0;
 template<> NetworkCabinet* NetworkCabinet::s_storage = 0;
+template<> ReactorCabinet* ReactorCabinet::s_storage = 0;
 template<> ConnectorCabinet* ConnectorCabinet::s_storage = 0;
-template<> ReactorSurfaceCabinet* ReactorSurfaceCabinet::s_storage = 0;
 template<> FuncCabinet* FuncCabinet::s_storage; // defined in ctfunc.cpp
 template<> ThermoCabinet* ThermoCabinet::s_storage; // defined in ct.cpp
 template<> KineticsCabinet* KineticsCabinet::s_storage; // defined in ct.cpp
@@ -81,7 +79,7 @@ extern "C" {
     int reactor_setInitialVolume(int i, double v)
     {
         try {
-            ReactorCabinet::at(i)->setInitialVolume(v);
+            ReactorCabinet::as<ReactorBase>(i)->setInitialVolume(v);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -91,7 +89,7 @@ extern "C" {
     int reactor_setThermoMgr(int i, int n)
     {
         try {
-            ReactorCabinet::at(i)->setThermoMgr(*ThermoCabinet::at(n));
+            ReactorCabinet::as<ReactorBase>(i)->setThermoMgr(*ThermoCabinet::at(n));
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -101,7 +99,7 @@ extern "C" {
     int reactor_setKineticsMgr(int i, int n)
     {
         try {
-            ReactorCabinet::at(i)->setKineticsMgr(*KineticsCabinet::at(n));
+            ReactorCabinet::as<ReactorBase>(i)->setKineticsMgr(*KineticsCabinet::at(n));
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -121,7 +119,7 @@ extern "C" {
     double reactor_mass(int i)
     {
         try {
-            return ReactorCabinet::at(i)->mass();
+            return ReactorCabinet::as<ReactorBase>(i)->mass();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -130,7 +128,7 @@ extern "C" {
     double reactor_volume(int i)
     {
         try {
-            return ReactorCabinet::at(i)->volume();
+            return ReactorCabinet::as<ReactorBase>(i)->volume();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -139,7 +137,7 @@ extern "C" {
     double reactor_density(int i)
     {
         try {
-            return ReactorCabinet::at(i)->density();
+            return ReactorCabinet::as<ReactorBase>(i)->density();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -148,7 +146,7 @@ extern "C" {
     double reactor_temperature(int i)
     {
         try {
-            return ReactorCabinet::at(i)->temperature();
+            return ReactorCabinet::as<ReactorBase>(i)->temperature();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -157,7 +155,7 @@ extern "C" {
     double reactor_enthalpy_mass(int i)
     {
         try {
-            return ReactorCabinet::at(i)->enthalpy_mass();
+            return ReactorCabinet::as<ReactorBase>(i)->enthalpy_mass();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -166,7 +164,7 @@ extern "C" {
     double reactor_intEnergy_mass(int i)
     {
         try {
-            return ReactorCabinet::at(i)->intEnergy_mass();
+            return ReactorCabinet::as<ReactorBase>(i)->intEnergy_mass();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -175,7 +173,7 @@ extern "C" {
     double reactor_pressure(int i)
     {
         try {
-            return ReactorCabinet::at(i)->pressure();
+            return ReactorCabinet::as<ReactorBase>(i)->pressure();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -184,7 +182,7 @@ extern "C" {
     double reactor_massFraction(int i, int k)
     {
         try {
-            return ReactorCabinet::at(i)->massFraction(k);
+            return ReactorCabinet::as<ReactorBase>(i)->massFraction(k);
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -304,7 +302,7 @@ extern "C" {
     {
         try {
             NetworkCabinet::at(i)->addReactor(
-                dynamic_cast<Reactor&>(*ReactorCabinet::at(n)));
+                dynamic_cast<Reactor&>(*ReactorCabinet::as<ReactorBase>(n)));
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -411,7 +409,7 @@ extern "C" {
     {
         try {
             bool ok = ConnectorCabinet::as<FlowDevice>(i)->install(
-                *ReactorCabinet::at(n), *ReactorCabinet::at(m));
+                *ReactorCabinet::as<ReactorBase>(n), *ReactorCabinet::as<ReactorBase>(m));
             if (!ok) {
                 throw CanteraError("flowdev_install",
                                    "Could not install flow device.");
@@ -539,7 +537,7 @@ extern "C" {
     {
         try {
             ConnectorCabinet::as<Wall>(i)->install(
-                *ReactorCabinet::at(n), *ReactorCabinet::at(m));
+                *ReactorCabinet::as<ReactorBase>(n), *ReactorCabinet::as<ReactorBase>(m));
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -657,7 +655,7 @@ extern "C" {
     int reactorsurface_new(const char* name)
     {
         try {
-            return ReactorSurfaceCabinet::add(make_shared<ReactorSurface>(name));
+            return ReactorCabinet::add(make_shared<ReactorSurface>(name));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -666,7 +664,7 @@ extern "C" {
     int reactorsurface_del(int i)
     {
         try {
-            ReactorSurfaceCabinet::del(i);
+            ReactorCabinet::del(i);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -677,7 +675,7 @@ extern "C" {
     {
         try {
             return static_cast<int>(
-                copyString(ReactorSurfaceCabinet::at(i)->name(), nbuf, len));
+                copyString(ReactorCabinet::at(i)->name(), nbuf, len));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -686,7 +684,7 @@ extern "C" {
     int reactorsurface_setName(int i, const char* name)
     {
         try {
-            ReactorSurfaceCabinet::at(i)->setName(name);
+            ReactorCabinet::at(i)->setName(name);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -696,7 +694,8 @@ extern "C" {
     int reactorsurface_install(int i, int n)
     {
         try {
-            ReactorCabinet::at(n)->addSurface(ReactorSurfaceCabinet::at(i).get());
+            ReactorCabinet::as<ReactorBase>(n)->addSurface(
+                ReactorCabinet::as<ReactorSurface>(i).get());
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -706,7 +705,8 @@ extern "C" {
     int reactorsurface_setkinetics(int i, int n)
     {
         try {
-            ReactorSurfaceCabinet::at(i)->setKinetics(KineticsCabinet::at(n).get());
+            ReactorCabinet::as<ReactorSurface>(i)->setKinetics(
+                KineticsCabinet::at(n).get());
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -716,7 +716,7 @@ extern "C" {
     double reactorsurface_area(int i)
     {
         try {
-            return ReactorSurfaceCabinet::at(i)->area();
+            return ReactorCabinet::as<ReactorSurface>(i)->area();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -725,7 +725,7 @@ extern "C" {
     int reactorsurface_setArea(int i, double v)
     {
         try {
-            ReactorSurfaceCabinet::at(i)->setArea(v);
+            ReactorCabinet::as<ReactorSurface>(i)->setArea(v);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -735,7 +735,7 @@ extern "C" {
     int reactorsurface_addSensitivityReaction(int i, int rxn)
     {
         try {
-            ReactorSurfaceCabinet::at(i)->addSensitivityReaction(rxn);
+            ReactorCabinet::as<ReactorSurface>(i)->addSensitivityReaction(rxn);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -748,7 +748,6 @@ extern "C" {
             ReactorCabinet::clear();
             NetworkCabinet::clear();
             ConnectorCabinet::clear();
-            ReactorSurfaceCabinet::clear();
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
