@@ -4,6 +4,7 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/zeroD/ConnectorFactory.h"
+#include "cantera/zeroD/FlowDevice.h"
 #include "cantera/zeroD/flowControllers.h"
 #include "cantera/zeroD/Wall.h"
 
@@ -49,6 +50,12 @@ shared_ptr<ConnectorNode> newConnectorNode(
 {
     return shared_ptr<ConnectorNode>(
         ConnectorFactory::factory()->create(model, r0, r1, name));
+}
+
+shared_ptr<FlowDevice> newFlowDevice(const string& model, const string& name)
+{
+    return std::dynamic_pointer_cast<FlowDevice>(
+        newConnectorNode(model, nullptr, nullptr, name));
 }
 
 }
