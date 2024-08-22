@@ -11,29 +11,60 @@ from ._utils import *
 from .delegator cimport *
 from .drawnetwork import *
 
-cdef class ReactorBase:
+
+cdef class ReactorNode:
+    """
+    Common base class for ReactorBase and ReactorSurface.
+    """
+    reactor_type = "node"
+
+    def __cinit__(self, _SolutionBase contents=None, *args, name="(none)", **kwargs):
+        if isinstance(contents, _SolutionBase):
+            self._node = newReactorNode(stringify(self.reactor_type),
+                                        contents._base, stringify(name))
+        else:
+            # deprecated: will raise warnings in C++ layer
+            self._node = newReactorNode(stringify(self.reactor_type))
+            self._node.get().setName(stringify(name))
+        self.node = self._node.get()
+
+    @property
+    def type(self):
+        """The type of the reactor."""
+        return pystr(self.node.type())
+
+    property name:
+        """The name of the reactor."""
+        def __get__(self):
+            return pystr(self.node.name())
+        def __set__(self, name):
+            self.node.setName(stringify(name))
+
+    def __reduce__(self):
+        raise NotImplementedError('Reactor object is not picklable')
+
+    def __copy__(self):
+        raise NotImplementedError('Reactor object is not copyable')
+
+
+cdef class ReactorBase(ReactorNode):
     """
     Common base class for reactors and reservoirs.
     """
-    reactor_type = "none"
-    def __cinit__(self, _SolutionBase contents=None, *, name="(none)", **kwargs):
-        if isinstance(contents, _SolutionBase):
-            self._reactor = newReactor(stringify(self.reactor_type),
-                                       contents._base, stringify(name))
-        else:
-            # deprecated: will raise warnings in C++ layer
-            self._reactor = newReactor(stringify(self.reactor_type))
-            self._reactor.get().setName(stringify(name))
-        self.rbase = self._reactor.get()
+    reactor_type = "base"
+
+    def __cinit__(self, *args, **kwargs):
+        self.rbase = <CxxReactorBase*>(self.node)
 
     def __init__(self, _SolutionBase contents=None, *,
                  name="(none)", volume=None, node_attr=None):
+        self._thermo = contents
         self._inlets = []
         self._outlets = []
         self._walls = []
         self._surfaces = []
         if isinstance(contents, _SolutionBase):
-            self.insert(contents)  # leave insert for the time being
+            self._thermo = contents
 
         if volume is not None:
             self.volume = volume
@@ -47,18 +78,6 @@ cdef class ReactorBase:
         """
         self._thermo = solution
         self.rbase.setSolution(solution._base)
-
-    property type:
-        """The type of the reactor."""
-        def __get__(self):
-            return pystr(self.rbase.type())
-
-    property name:
-        """The name of the reactor."""
-        def __get__(self):
-            return pystr(self.rbase.name())
-        def __set__(self, name):
-            self.rbase.setName(stringify(name))
 
     def syncState(self):
         """
@@ -179,12 +198,6 @@ cdef class ReactorBase:
         return draw_reactor(self, graph, graph_attr, node_attr, print_state, species,
                             species_units)
 
-    def __reduce__(self):
-        raise NotImplementedError('Reactor object is not picklable')
-
-    def __copy__(self):
-        raise NotImplementedError('Reactor object is not copyable')
-
 
 cdef class Reactor(ReactorBase):
     """
@@ -238,6 +251,7 @@ cdef class Reactor(ReactorBase):
 
         """
         super().__init__(contents, name=name, **kwargs)
+        self._kinetics = contents
 
         if energy == 'off':
             self.energy_enabled = False
@@ -785,7 +799,7 @@ cdef class ExtensibleIdealGasConstPressureMoleReactor(ExtensibleReactor):
     reactor_type = "ExtensibleIdealGasConstPressureMoleReactor"
 
 
-cdef class ReactorSurface:
+cdef class ReactorSurface(ReactorNode):
     """
     Represents a surface in contact with the contents of a reactor.
 
@@ -808,11 +822,10 @@ cdef class ReactorSurface:
     .. versionadded:: 3.1
        Added the ``node_attr`` parameter.
     """
-    def __cinit__(self, *args, name="(none)", **kwargs):
-        self.surface = new CxxReactorSurface(stringify(name))
+    reactor_type = "ReactorSurface"
 
-    def __dealloc__(self):
-        del self.surface
+    def __cinit__(self, *args, **kwargs):
+        self.surface = <CxxReactorSurface*>(self.node)
 
     def __init__(self, kin=None, Reactor r=None, *,
                  name="(none)", A=None, node_attr=None):
@@ -831,18 +844,6 @@ cdef class ReactorSurface:
         r._surfaces.append(self)
         r.reactor.addSurface(self.surface)
         self._reactor = r
-
-    property type:
-        """The type of the reactor surface."""
-        def __get__(self):
-            return pystr(self.surface.type())
-
-    property name:
-        """The name of the reactor surface."""
-        def __get__(self):
-            return pystr(self.surface.name())
-        def __set__(self, name):
-            self.surface.setName(stringify(name))
 
     property area:
         """ Area on which reactions can occur [m^2] """
@@ -1340,7 +1341,6 @@ cdef class FlowDevice:
             g = Func1(k)
         self._time_func = g
         self.dev.setTimeFunction(g.func)
-
 
     def draw(self, graph=None, *, graph_attr=None, node_attr=None, edge_attr=None):
         """

@@ -30,21 +30,25 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
     cdef cppclass CxxFlowDevice "Cantera::FlowDevice"
 
     # factories
-    cdef shared_ptr[CxxReactorBase] newReactor(string) except +translate_exception
-    cdef shared_ptr[CxxReactorBase] newReactor(string, shared_ptr[CxxSolution], string) except +translate_exception
+    cdef shared_ptr[CxxReactorNode] newReactorNode(string) except +translate_exception
+    cdef shared_ptr[CxxReactorNode] newReactorNode(string, shared_ptr[CxxSolution], string) except +translate_exception
     cdef shared_ptr[CxxFlowDevice] newFlowDevice(string, string) except +translate_exception
     cdef shared_ptr[CxxWallBase] newWall(string, string) except +translate_exception
 
     # reactors
-    cdef cppclass CxxReactorBase "Cantera::ReactorBase":
-        CxxReactorBase()
+    cdef cppclass CxxReactorNode "Cantera::ReactorNode":
+        CxxReactorNode()
         string type()
+        string name()
+        void setName(string)
+
+    # reactors
+    cdef cppclass CxxReactorBase "Cantera::ReactorBase" (CxxReactorNode):
+        CxxReactorBase()
         void setSolution(shared_ptr[CxxSolution]) except +translate_exception
         void restoreState() except +translate_exception
         void syncState() except +translate_exception
         double volume()
-        string name()
-        void setName(string)
         void setInitialVolume(double)
 
     cdef cppclass CxxReactor "Cantera::Reactor" (CxxReactorBase):
@@ -118,11 +122,8 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
 
     # reactor surface
 
-    cdef cppclass CxxReactorSurface "Cantera::ReactorSurface":
-        CxxReactorSurface(string) except +translate_exception
-        string type()
-        string name()
-        void setName(string) except +translate_exception
+    cdef cppclass CxxReactorSurface "Cantera::ReactorSurface" (CxxReactorNode):
+        CxxReactorSurface()
         double area()
         void setArea(double)
         void setKinetics(CxxKinetics*)
@@ -222,14 +223,9 @@ cdef extern from "cantera/zeroD/ReactorDelegator.h" namespace "Cantera":
 
 ctypedef CxxReactorAccessor* CxxReactorAccessorPtr
 
-cdef class ReactorBase:
-    cdef shared_ptr[CxxReactorBase] _reactor
-    cdef CxxReactorBase* rbase
-    cdef object _thermo
-    cdef list _inlets
-    cdef list _outlets
-    cdef list _walls
-    cdef list _surfaces
+cdef class ReactorNode:
+    cdef shared_ptr[CxxReactorNode] _node
+    cdef CxxReactorNode* node
     cdef public dict node_attr
     """
     A dictionary containing draw attributes for the representation of the reactor as a
@@ -238,6 +234,15 @@ cdef class ReactorBase:
 
     .. versionadded:: 3.1
     """
+
+cdef class ReactorBase(ReactorNode):
+    # cdef shared_ptr[CxxReactorNode] _reactor
+    cdef CxxReactorBase* rbase
+    cdef object _thermo
+    cdef list _inlets
+    cdef list _outlets
+    cdef list _walls
+    cdef list _surfaces
 
 cdef class Reactor(ReactorBase):
     cdef CxxReactor* reactor
@@ -276,18 +281,11 @@ cdef class ExtensibleReactor(Reactor):
     cdef public _delegates
     cdef CxxReactorAccessor* accessor
 
-cdef class ReactorSurface:
+cdef class ReactorSurface(ReactorNode):
+    # cdef shared_ptr[CxxReactorNode] _surface
     cdef CxxReactorSurface* surface
     cdef Kinetics _kinetics
     cdef ReactorBase _reactor
-    cdef public dict node_attr
-    """
-    A dictionary containing draw attributes for the representation of the reactor
-    surface as a graphviz node. See https://graphviz.org/docs/nodes/ for a list of all
-    usable attributes.
-
-    .. versionadded:: 3.1
-    """
 
 cdef class WallBase:
     cdef shared_ptr[CxxWallBase] _wall
