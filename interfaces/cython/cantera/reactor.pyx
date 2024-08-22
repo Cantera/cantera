@@ -28,7 +28,7 @@ cdef class ReactorBase:
         self._walls = []
         self._surfaces = []
         if isinstance(contents, _SolutionBase):
-            self.insert(contents)  # leave insert for the time being
+            self._thermo = contents
 
         if volume is not None:
             self.volume = volume
@@ -39,9 +39,14 @@ cdef class ReactorBase:
         """
         Set ``solution`` to be the object used to compute thermodynamic
         properties and kinetic rates for this reactor.
+
+        .. deprecated:: 3.2
+
+            After Cantera 3.2, a change of reactor contents after instantiation
+            will be disabled.
         """
         self._thermo = solution
-        self.rbase.setSolution(solution._base)
+        self.rbase.setSolution(solution._base)  # raises warning in C++ core
 
     property type:
         """The type of the reactor."""
@@ -939,14 +944,52 @@ cdef class ReactorSurface:
         self.surface.addSensitivityReaction(m)
 
 
-cdef class WallBase:
+cdef class ConnectorNode:
+    """
+    Common base class for walls and flow devices.
+    """
+    node_type = "none"
+
+    def __cinit__(self, ReactorBase left=None, ReactorBase right=None, *,
+                  ReactorBase upstream=None, ReactorBase downstream=None,
+                  name="(none)", **kwargs):
+        # ensure that both naming conventions (Wall and FlowDevice) are covered
+        cdef ReactorBase r0 = left or upstream
+        cdef ReactorBase r1 = right or downstream
+        if isinstance(r0, ReactorBase) and isinstance(r1, ReactorBase):
+            self._node = newConnectorNode(stringify(self.node_type),
+                                          r0._reactor, r1._reactor, stringify(name))
+            self.node = self._node.get()
+            return
+        raise TypeError(f"Invalid reactor types: {r0} and {r1}.")
+
+    @property
+    def type(self):
+        """The type of the connector."""
+        return pystr(self.node.type())
+
+    @property
+    def name(self):
+        """The name of the connector."""
+        return pystr(self.node.name())
+
+    @name.setter
+    def name(self, name):
+        self.node.setName(stringify(name))
+
+    def __reduce__(self):
+        raise NotImplementedError('Reactor object is not picklable')
+
+    def __copy__(self):
+        raise NotImplementedError('Reactor object is not copyable')
+
+
+cdef class WallBase(ConnectorNode):
     """
     Common base class for walls.
     """
-    wall_type = "none"
-    def __cinit__(self, *args, name="(none)", **kwargs):
-        self._wall = newWall(stringify(self.wall_type), stringify(name))
-        self.wall = self._wall.get()
+    def __cinit__(self, *args, **kwargs):
+        self.wall = <CxxWall*>(self.node)
 
     def __init__(self, left, right, *, name="(none)", A=None, K=None, U=None,
                  Q=None, velocity=None, edge_attr=None):
@@ -985,8 +1028,6 @@ cdef class WallBase:
         self._velocity_func = None
         self._heat_flux_func = None
 
-        self._install(left, right)
-
         if A is not None:
             self.area = A
         if K is not None:
@@ -999,29 +1040,11 @@ cdef class WallBase:
             self.velocity = velocity
         self.edge_attr = edge_attr or {}
 
-    def _install(self, ReactorBase left, ReactorBase right):
-        """
-        Install this Wall between two `Reactor` objects or between a
-        `Reactor` and a `Reservoir`.
-        """
         left._add_wall(self)
         right._add_wall(self)
-        self.wall.install(deref(left.rbase), deref(right.rbase))
         # Keep references to prevent premature garbage collection
         self._left_reactor = left
         self._right_reactor = right
-
-    property type:
-        """The type of the wall."""
-        def __get__(self):
-            return pystr(self.wall.type())
-
-    property name:
-        """The name of the wall."""
-        def __get__(self):
-            return pystr(self.wall.name())
-        def __set__(self, name):
-            self.wall.setName(stringify(name))
 
     property area:
         """ The wall area [m^2]. """
@@ -1138,7 +1161,7 @@ cdef class Wall(WallBase):
     :math:`q_0(t)` is a specified function of time. The heat flux is positive
     when heat flows from the reactor on the left to the reactor on the right.
     """
-    wall_type = "Wall"
+    node_type = "Wall"
 
     property expansion_rate_coeff:
         """
@@ -1207,7 +1230,7 @@ cdef class Wall(WallBase):
         (<CxxWall*>self.wall).setHeatFlux(f.func)
 
 
-cdef class FlowDevice:
+cdef class FlowDevice(ConnectorNode):
     """
     Base class for devices that allow flow between reactors.
 
@@ -1218,37 +1241,15 @@ cdef class FlowDevice:
     across a FlowDevice, and the pressure difference equals the difference in
     pressure between the upstream and downstream reactors.
     """
-    flowdevice_type = "none"
-    def __cinit__(self, *args, name="(none)", **kwargs):
-        self._dev = newFlowDevice(stringify(self.flowdevice_type), stringify(name))
-        self.dev = self._dev.get()
+    def __cinit__(self, *args, **kwargs):
+        self.dev = <CxxFlowDevice*>(self.node)
 
     def __init__(self, upstream, downstream, *, name="(none)", edge_attr=None):
         assert self.dev != NULL
         self._rate_func = None
         self.edge_attr = edge_attr or {}
-        self._install(upstream, downstream)
-
-    property type:
-        """The type of the flow device."""
-        def __get__(self):
-            return pystr(self.dev.type())
-
-    property name:
-        """The name of the flow device."""
-        def __get__(self):
-            return pystr(self.dev.name())
-        def __set__(self, name):
-            self.dev.setName(stringify(name))
-
-    def _install(self, ReactorBase upstream, ReactorBase downstream):
-        """
-        Install the device between the ``upstream`` (source) and ``downstream``
-        (destination) reactors or reservoirs.
-        """
         upstream._add_outlet(self)
         downstream._add_inlet(self)
-        self.dev.install(deref(upstream.rbase), deref(downstream.rbase))
         # Keep references to prevent premature garbage collection
         self._upstream = upstream
         self._downstream = downstream
@@ -1387,10 +1388,10 @@ cdef class MassFlowController(FlowDevice):
     that this capability should be used with caution, since no account is
     taken of the work required to do this.
     """
-    flowdevice_type = "MassFlowController"
+    node_type = "MassFlowController"
 
-    def __init__(self, upstream, downstream, *, name="(none)", mdot=1., **kwargs):
-        super().__init__(upstream, downstream, name=name, **kwargs)
+    def __init__(self, upstream, downstream, *, name="(none)", mdot=1., edge_attr=None):
+        super().__init__(upstream, downstream, name=name, edge_attr=edge_attr)
         self.mass_flow_rate = mdot
 
     property mass_flow_coeff:
@@ -1461,10 +1462,10 @@ cdef class Valve(FlowDevice):
     value, very small pressure differences will result in flow between the
     reactors that counteracts the pressure difference.
     """
-    flowdevice_type = "Valve"
+    node_type = "Valve"
 
-    def __init__(self, upstream, downstream, *, name="(none)", K=1., **kwargs):
-        super().__init__(upstream, downstream, name=name, **kwargs)
+    def __init__(self, upstream, downstream, *, name="(none)", K=1., edge_attr=None):
+        super().__init__(upstream, downstream, name=name, edge_attr=edge_attr)
         if isinstance(K, _numbers.Real):
             self.valve_coeff = K
         else:
@@ -1504,10 +1505,11 @@ cdef class PressureController(FlowDevice):
 
     where :math:`f` is the arbitrary function of a single argument.
     """
-    flowdevice_type = "PressureController"
+    node_type = "PressureController"
 
-    def __init__(self, upstream, downstream, *, name="(none)", primary=None, K=1.):
-        super().__init__(upstream, downstream, name=name)
+    def __init__(self, upstream, downstream, *,
+                 name="(none)", primary=None, K=1., edge_attr=None):
+        super().__init__(upstream, downstream, name=name, edge_attr=edge_attr)
         if primary is not None:
             self.primary = primary
         if isinstance(K, _numbers.Real):
