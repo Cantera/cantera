@@ -162,6 +162,7 @@ plt.figure()
 plt.semilogx(time_history.t, time_history("CO").X, "-o")
 plt.xlabel("Time (s)")
 plt.ylabel("Mole Fraction : $X_{CO}$")
+plt.show()
 
 # %%
 # Illustration : Modeling experimental data
@@ -288,6 +289,7 @@ plt.ylabel(r"Mole Fractions")
 
 plt.xlim([650, 1100])
 plt.legend(loc=1)
+plt.show()
 
 # %%
 # References
