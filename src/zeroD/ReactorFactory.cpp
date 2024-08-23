@@ -105,21 +105,12 @@ shared_ptr<ReactorNode> newReactorNode(
         ReactorFactory::factory()->create(model, contents, name));
 }
 
-shared_ptr<ReactorNode> newReactorNode(const string& model)
-{
-    return newReactorNode(model, nullptr, "");
-}
-
 shared_ptr<ReactorBase> newReactor(const string& model)
 {
-    return newReactor(model, nullptr, "");
-}
-
-shared_ptr<ReactorBase> newReactor(
-    const string& model, shared_ptr<Solution> contents, const string& name)
-{
+    warn_deprecated("newReactor",
+        "Replaced by newReactor with contents; to be removed after Cantera 3.1.");
     auto reactor = std::dynamic_pointer_cast<ReactorBase>(
-        newReactorNode(model, contents, name));
+        newReactorNode(model, nullptr, ""));
     if (!reactor) {
         throw CanteraError("newReactor",
             "Detected incompatible ReactorBase type '{}'", model);
@@ -129,7 +120,6 @@ shared_ptr<ReactorBase> newReactor(
 
 shared_ptr<ReactorBase> newReactor3(const string& model)
 {
-    warn_deprecated("newReactor3", "To be removed after Cantera 3.1.");
     return newReactor(model);
 }
 

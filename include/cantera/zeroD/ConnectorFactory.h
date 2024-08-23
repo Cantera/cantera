@@ -61,13 +61,9 @@ private:
 //! @param name  Name of the connector.
 //! @since New in %Cantera 3.1.
 shared_ptr<Connector> newConnector(const string& model,
-                                   shared_ptr<ReactorNode> r0=nullptr,
-                                   shared_ptr<ReactorNode> r1=nullptr,
+                                   shared_ptr<ReactorNode> r0,
+                                   shared_ptr<ReactorNode> r1,
                                    const string& name="(none)");
-
-//! Create a FlowDevice object of the specified type
-//! @since Starting in %Cantera 3.1, this method returns a `shared_ptr<FlowDevice>`
-shared_ptr<FlowDevice> newFlowDevice(const string& model, const string& name="(none)");
 
 //! Create a FlowDevice object of the specified type
 //! @since New in %Cantera 3.0.
@@ -76,6 +72,7 @@ shared_ptr<FlowDevice> newFlowDevice3(const string& model);
 
 //! Create a WallBase object of the specified type
 //! @since Starting in %Cantera 3.1, this method returns a `shared_ptr<WallBase>`
+//! @deprecated Replaced by newConnector. To be removed after %Cantera 3.1.
 shared_ptr<WallBase> newWall(const string& model, const string& name="(none)");
 
 //! Create a WallBase object of the specified type

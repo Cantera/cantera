@@ -52,10 +52,12 @@ shared_ptr<Connector> newConnector(
         ConnectorFactory::factory()->create(model, r0, r1, name));
 }
 
-shared_ptr<FlowDevice> newFlowDevice(const string& model, const string& name)
+shared_ptr<FlowDevice> newFlowDevice3(const string& model)
 {
+    warn_deprecated("newFlowDevice3",
+        "Replaced by newConnector; to be removed after Cantera 3.1.");
     auto dev = std::dynamic_pointer_cast<FlowDevice>(
-        newConnector(model, nullptr, nullptr, name));
+        newConnector(model, nullptr, nullptr, "(none)"));
     if (!dev) {
         throw CanteraError("newFlowDevice",
             "Detected incompatible Connector type '{}'", model);
@@ -63,15 +65,10 @@ shared_ptr<FlowDevice> newFlowDevice(const string& model, const string& name)
     return dev;
 }
 
-shared_ptr<FlowDevice> newFlowDevice3(const string& model)
-{
-    warn_deprecated("newFlowDevice3",
-        "Use newFlowDevice instead; to be removed after Cantera 3.1.");
-    return newFlowDevice(model);
-}
-
 shared_ptr<WallBase> newWall(const string& model, const string& name)
 {
+    warn_deprecated("newWall",
+        "Replaced by newConnector; to be removed after Cantera 3.1.");
     auto wall = std::dynamic_pointer_cast<WallBase>(
         newConnector(model, nullptr, nullptr, name));
     if (!wall) {
@@ -84,7 +81,7 @@ shared_ptr<WallBase> newWall(const string& model, const string& name)
 shared_ptr<WallBase> newWall3(const string& model)
 {
     warn_deprecated("newWall3",
-        "Use newWall instead; to be removed after Cantera 3.1.");
+        "Replaced by newConnector; to be removed after Cantera 3.1.");
     return newWall(model);
 }
 

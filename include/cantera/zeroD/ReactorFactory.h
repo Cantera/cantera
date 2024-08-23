@@ -49,23 +49,13 @@ private:
 //! @param name  Name of reactor.
 //! @since New in %Cantera 3.1.
 shared_ptr<ReactorNode> newReactorNode(
-    const string& model, shared_ptr<Solution> contents,
+    const string& model, shared_ptr<Solution> contents=nullptr,
     const string& name="(none)");
-
-//! Create a ReactorNode object of the specified type
-//! @since New in %Cantera 3.1.
-//! @deprecated Transitional method. Use newReactorNode() with contents instead.
-shared_ptr<ReactorNode> newReactorNode(const string& model);
 
 //! Create a Reactor object of the specified type
 //! @since Starting in %Cantera 3.1, this method returns a `shared_ptr<ReactorBase>`
 //! @deprecated Transitional method. Use newReactor() with contents instead.
 shared_ptr<ReactorBase> newReactor(const string& model);
-
-//! Create a Reactor object of the specified type and contents
-//! @since New in %Cantera 3.1.
-shared_ptr<ReactorBase> newReactor(
-    const string& model, shared_ptr<Solution> contents, const string& name="(none)");
 
 //! Create a Reactor object of the specified type
 //! @since New in %Cantera 3.0.
