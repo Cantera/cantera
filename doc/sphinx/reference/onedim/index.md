@@ -30,10 +30,15 @@ differences in the boundary conditions applied.
 : This page describes the hybrid time-stepping--steady-state damped Newton solver that
   is used to solve the discretized governing equations.
 
+[](grid-refinement)
+: This page describes the grid refinement strategy used to ensure that the solution is
+  well-resolved.
+
 ```{toctree}
 :hidden:
 
 governing-equations
 discretization
 nonlinear-solver
+grid-refinement
 ```
