@@ -105,10 +105,19 @@ shared_ptr<ReactorNode> newReactorNode(
         ReactorFactory::factory()->create(model, contents, name));
 }
 
+shared_ptr<ReactorNode> newReactorNode(const string& model)
+{
+    warn_deprecated("newReactorNode",
+        "Transitional method to be removed after Cantera 3.1. Use newReactorNode with "
+        "contents instead.");
+    return shared_ptr<ReactorNode>(
+        ReactorFactory::factory()->create(model, nullptr, ""));
+}
+
 shared_ptr<ReactorBase> newReactor(const string& model)
 {
     warn_deprecated("newReactor",
-        "Replaced by newReactor with contents; to be removed after Cantera 3.1.");
+        "Superseded by newReactorNode with contents; to be removed after Cantera 3.1.");
     auto reactor = std::dynamic_pointer_cast<ReactorBase>(
         newReactorNode(model, nullptr, ""));
     if (!reactor) {

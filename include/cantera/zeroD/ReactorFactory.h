@@ -12,12 +12,12 @@
 namespace Cantera
 {
 
-//! Factory class to create reactor objects
+//! Factory class to create reactor objects.
 //!
-//! This class is mainly used via the newReactor() function, for example:
+//! This class is mainly used via the newReactorNode() function, for example:
 //!
 //! ```cpp
-//!     shared_ptr<ReactorBase> r1 = newReactor("IdealGasReactor");
+//!     shared_ptr<ReactorNode> r1 = newReactorNode("IdealGasReactor", contents);
 //! ```
 class ReactorFactory : public Factory<ReactorNode, shared_ptr<Solution>, const string&>
 {
@@ -34,32 +34,41 @@ private:
 
 //! @defgroup reactorGroup Reactors
 //! Zero-dimensional objects representing stirred reactors.
-//! Reactors simulate time-dependent behavior considering gas-phase chemistry.
-//! Reactor objects should be instantiated via the newReactor() function, for example:
+//! Reactors simulate time-dependent behavior considering gas-phase chemistry. Reactor
+//! objects should be instantiated via the newReactorNode() function, for example:
 //!
 //! ```cpp
-//!     shared_ptr<ReactorBase> r1 = newReactor("IdealGasReactor");
+//!     shared_ptr<ReactorNode> r1 = newReactorNode("IdealGasReactor", contents);
 //! ```
+//!
+//! where contents is a Solution object.
 //! @ingroup zerodGroup
 //! @{
 
-//! Create a ReactorNode object of the specified type
+//! Create a %ReactorNode object of the specified type.
 //! @param model  String representing type of reactor node.
 //! @param contents  Solution object holding thermo/kinetics.
 //! @param name  Name of reactor.
 //! @since New in %Cantera 3.1.
 shared_ptr<ReactorNode> newReactorNode(
-    const string& model, shared_ptr<Solution> contents=nullptr,
+    const string& model, shared_ptr<Solution> contents,
     const string& name="(none)");
 
-//! Create a Reactor object of the specified type
+//! Create an empty ReactorNode object of the specified type.
+//! @since Transitional method; new in %Cantera 3.1.
+//! @deprecated Empty reactors will no longer be supported after %Cantera 3.1.
+//!     Use newReactorNode() with contents instead.
+shared_ptr<ReactorNode> newReactorNode(const string& model);
+
+//! Create an empty ReactorBase object of the specified type.
 //! @since Starting in %Cantera 3.1, this method returns a `shared_ptr<ReactorBase>`
-//! @deprecated Transitional method. Use newReactor() with contents instead.
+//! @deprecated Empty reactors will no longer be supported after %Cantera 3.1.
+//!     Superseded by newReactorNode().
 shared_ptr<ReactorBase> newReactor(const string& model);
 
-//! Create a Reactor object of the specified type
+//! Create a Reactor object of the specified type.
 //! @since New in %Cantera 3.0.
-//! @deprecated Transitional method. Use newReactor() instead.
+//! @deprecated Transitional method. Superseded by newReactorNode().
 shared_ptr<ReactorBase> newReactor3(const string& model);
 
 //! @}

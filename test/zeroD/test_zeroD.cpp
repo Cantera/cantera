@@ -191,12 +191,12 @@ TEST(zerodim, mole_reactor_2)
     auto gas = newSolution("h2o2.yaml", "ohmech", "none");
 
     auto tank = std::dynamic_pointer_cast<Reservoir>(
-        newReactor("Reservoir", gas, "fuel-air-tank"));
+        newReactorNode("Reservoir", gas, "fuel-air-tank"));
     auto exhaust = std::dynamic_pointer_cast<Reservoir>(
-        newReactor("Reservoir", gas, "exhaust"));
+        newReactorNode("Reservoir", gas, "exhaust"));
 
     auto stirred = std::dynamic_pointer_cast<IdealGasMoleReactor>(
-        newReactor("IdealGasMoleReactor", gas, "stirred-reactor"));
+        newReactorNode("IdealGasMoleReactor", gas, "stirred-reactor"));
     stirred->setEnergy(0);
     stirred->setInitialVolume(30.5 * 1e-6);
 
