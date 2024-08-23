@@ -40,8 +40,7 @@ classdef Valve < FlowDevice
                 name = '(none)';
             end
 
-            v@FlowDevice('Valve', name);
-            v.install(upstream, downstream)
+            v@FlowDevice('Valve', upstream, downstream, name);
         end
 
     end
