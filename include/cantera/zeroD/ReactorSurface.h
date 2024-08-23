@@ -72,7 +72,7 @@ public:
     //! Set the coverages and temperature in the surface phase object to the
     //! values for this surface. The temperature is set to match the bulk phase
     //! of the attached Reactor.
-    void syncState();
+    void syncState() override;
 
     //! Enable calculation of sensitivities with respect to the rate constant
     //! for reaction `i`.

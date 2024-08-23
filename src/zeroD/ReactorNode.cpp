@@ -43,4 +43,16 @@ void ReactorNode::setDefaultName(map<string, int>& counts)
     counts[type()]++;
 }
 
+void ReactorNode::restoreState()
+{
+    throw NotImplementedError("ReactorNode::restoreState",
+        "Method needs to be overloaded.");
+}
+
+void ReactorNode::syncState()
+{
+    throw NotImplementedError("ReactorNode::syncState",
+        "Method needs to be overloaded.");
+}
+
 }

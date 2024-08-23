@@ -40,13 +40,13 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         string type()
         string name()
         void setName(string)
+        void syncState() except +translate_exception
 
     # reactors
     cdef cppclass CxxReactorBase "Cantera::ReactorBase" (CxxReactorNode):
         CxxReactorBase() except +translate_exception
         void setSolution(shared_ptr[CxxSolution]) except +translate_exception
         void restoreState() except +translate_exception
-        void syncState() except +translate_exception
         double volume()
         void setInitialVolume(double)
 
@@ -92,7 +92,6 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         void setArea(double)
         void setCoverages(double*)
         void setCoverages(Composition&) except +translate_exception
-        void syncState()
         void addSensitivityReaction(size_t) except +translate_exception
         size_t nSensParams()
 
@@ -109,9 +108,6 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         CxxWallBase()
         double area()
         void setArea(double)
-        void setCoverages(int, double*)
-        void setCoverages(int, Composition&) except +translate_exception
-        void syncCoverages(int)
         double expansionRate() except +translate_exception
         double vdot(double) except +translate_exception
         double heatRate() except +translate_exception

@@ -876,10 +876,10 @@ class TestReactor(utilities.CanteraTest):
         T2a = self.r2.T
 
         self.r1.thermo.TD = 300, None
-        self.r1.syncState()
+        self.r1.sync_state()
 
         self.r2.thermo.TD = 1000, None
-        self.r2.syncState()
+        self.r2.sync_state()
 
         self.assertNear(self.r1.T, 300)
         self.assertNear(self.r2.T, 1000)
@@ -1989,7 +1989,7 @@ class TestFlowReactor2(utilities.CanteraTest):
         gas.TPX = 1700, 4000, 'NH3:1.0, SiF4:0.4'
         surf.TP = gas.TP
         r.mass_flow_rate = 0.01
-        r.syncState()
+        r.sync_state()
 
         sim.initial_time = 0.
         sim.advance(0.6)
@@ -2904,9 +2904,9 @@ class ExtensibleReactorTest(utilities.CanteraTest):
         r = DummyReactor(self.gas)
         net = ct.ReactorNet([r])
         self.assertEqual(r.component_index("H2"), 5 + 3 + self.gas.species_index("H2"))
-        r.syncState()
+        r.sync_state()
         net.advance(1)
-        r.syncState()
+        r.sync_state()
         self.assertEqual(r.sync_calls, 2)
 
     def test_RHS_LHS(self):

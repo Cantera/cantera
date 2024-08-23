@@ -42,6 +42,14 @@ cdef class ReactorNode:
     def name(self, name):
         self.node.setName(stringify(name))
 
+    def sync_state(self):
+        """
+        Set the state of the Reactor to match that of the associated `ThermoPhase`
+        object. After calling `sync_state()`, call `ReactorNet.reinitialize()` before
+        further integration.
+        """
+        self.node.syncState()
+
     def __reduce__(self):
         raise NotImplementedError('Reactor object is not picklable')
 
@@ -91,8 +99,14 @@ cdef class ReactorBase(ReactorNode):
         Set the state of the Reactor to match that of the associated
         `ThermoPhase` object. After calling syncState(), call
         ReactorNet.reinitialize() before further integration.
+
+        .. deprecated:: 3.1
+
+            To be removed after Cantera 3.1; renamed to sync_state.
         """
-        self.rbase.syncState()
+        warnings.warn("Renamed to sync_state; to be removed after Cantera 3.1.",
+            DeprecationWarning)
+        self.sync_state()
 
     property thermo:
         """The `ThermoPhase` object representing the reactor's contents."""
@@ -865,7 +879,7 @@ cdef class ReactorSurface(ReactorNode):
         this surface.
         """
         def __get__(self):
-            self.surface.syncState()
+            self.sync_state()
             return self._kinetics
 
     property coverages:
@@ -875,7 +889,7 @@ cdef class ReactorSurface(ReactorNode):
         def __get__(self):
             if self._kinetics is None:
                 raise CanteraError('No kinetics manager present')
-            self.surface.syncState()
+            self.sync_state()
             return self._kinetics.coverages
         def __set__(self, coverages):
             if self._kinetics is None:

@@ -53,6 +53,15 @@ public:
     //! Set the default name of a reactor. Returns `false` if it was previously set.
     void setDefaultName(map<string, int>& counts);
 
+    //! Set the state of the Phase object associated with this reactor to the
+    //! reactor's current state.
+    virtual void restoreState();
+
+    //! Set the state of the reactor to correspond to the state of the
+    //! associated ThermoPhase object. This is the inverse of restoreState().
+    //! Calling this will trigger integrator reinitialization.
+    virtual void syncState();
+
 protected:
     //! Composite thermo/kinetics handler.
     shared_ptr<Solution> m_solution;

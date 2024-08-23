@@ -148,14 +148,9 @@ public:
 
     //! @}
 
-    //! Set the state of the Phase object associated with this reactor to the
-    //! reactor's current state.
-    void restoreState();
+    void restoreState() override;
 
-    //! Set the state of the reactor to correspond to the state of the
-    //! associated ThermoPhase object. This is the inverse of restoreState().
-    //! Calling this will trigger integrator reinitialization.
-    virtual void syncState();
+    void syncState() override;
 
     //! return a reference to the contents.
     ThermoPhase& contents() {

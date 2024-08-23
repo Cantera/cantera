@@ -119,9 +119,6 @@ public:
     }
 
 protected:
-    // string m_name;  //!< Flow device name.
-    // bool m_defaultNameSet = false;  //!< `true` if default name has been previously set.
-
     double m_mdot = Undef;
 
     //! Function set by setPressureFunction; used by updateMassFlowRate

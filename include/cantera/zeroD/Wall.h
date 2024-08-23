@@ -91,9 +91,6 @@ public:
     }
 
 protected:
-    // string m_name;  //!< Wall name.
-    // bool m_defaultNameSet = false;  //!< `true` if default name has been previously set.
-
     ReactorBase* m_left = nullptr;
     ReactorBase* m_right = nullptr;
 
