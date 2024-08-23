@@ -31,8 +31,7 @@ classdef MassFlowController < FlowDevice
                 name = '(none)';
             end
 
-            m@FlowDevice('MassFlowController', name);
-            m.install(upstream, downstream)
+            m@FlowDevice('MassFlowController', upstream, downstream, name);
         end
 
     end
