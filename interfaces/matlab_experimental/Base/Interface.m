@@ -1,4 +1,4 @@
-classdef Interface < handle & ThermoPhase & Kinetics
+classdef Interface < Solution
     % Interface Class ::
     %
     %     >> s = Interface(src, name, p1, p2)
@@ -13,11 +13,6 @@ classdef Interface < handle & ThermoPhase & Kinetics
     %     phases are added automatically.
     % :return:
     %     Instance of class :mat:class:`Interface`.
-
-    properties (SetAccess = immutable)
-        solnID % ID of the interface.
-        interfaceName % Name of the interface.
-    end
 
     properties (SetAccess = public)
 
@@ -51,23 +46,13 @@ classdef Interface < handle & ThermoPhase & Kinetics
 
             ID = ctFunc('soln_newInterface', src, name, na, adj);
 
-            % Inherit methods and properties from ThermoPhase and Kinetics
-            s@ThermoPhase(ID);
-            s@Kinetics(ID);
-            s.solnID = ID;
-            s.interfaceName = name;
+            % Inherit methods and properties from Solution
+            s@Solution(ID);
             s.nAdjacent = ctFunc('soln_nAdjacent', ID);
             s.adjacentNames = {};
             for i = 1:s.nAdjacent
                 s.adjacentNames{i} = ctString('soln_adjacentName', ID, i-1);
             end
-        end
-
-        %% Interface Class Destructor
-
-        function delete(s)
-            % Delete :mat:class:`Interface` object.
-            ctFunc('soln_del', s.solnID);
         end
 
         %% Interface Get Methods
