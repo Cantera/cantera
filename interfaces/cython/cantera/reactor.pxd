@@ -32,21 +32,18 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
     # factories
     cdef shared_ptr[CxxReactorNode] newReactorNode(string) except +translate_exception
     cdef shared_ptr[CxxReactorNode] newReactorNode(string, shared_ptr[CxxSolution], string) except +translate_exception
-    cdef shared_ptr[CxxFlowDevice] newFlowDevice(string, string) except +translate_exception
-    cdef shared_ptr[CxxWallBase] newWall(string, string) except +translate_exception
-    cdef shared_ptr[CxxConnector] newConnector(string) except +translate_exception
     cdef shared_ptr[CxxConnector] newConnector(string, shared_ptr[CxxReactorNode], shared_ptr[CxxReactorNode], string) except +translate_exception
 
     # reactors
     cdef cppclass CxxReactorNode "Cantera::ReactorNode":
-        CxxReactorNode()
+        CxxReactorNode() except +translate_exception
         string type()
         string name()
         void setName(string)
 
     # reactors
     cdef cppclass CxxReactorBase "Cantera::ReactorBase" (CxxReactorNode):
-        CxxReactorBase()
+        CxxReactorBase() except +translate_exception
         void setSolution(shared_ptr[CxxSolution]) except +translate_exception
         void restoreState() except +translate_exception
         void syncState() except +translate_exception
@@ -54,7 +51,7 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         void setInitialVolume(double)
 
     cdef cppclass CxxReactor "Cantera::Reactor" (CxxReactorBase):
-        CxxReactor()
+        CxxReactor() except +translate_exception
         void setChemistry(cbool)
         cbool chemistryEnabled()
         void setEnergy(int)
@@ -65,7 +62,7 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         void getState(double*) except +translate_exception
         CxxSparseMatrix jacobian() except +translate_exception
         CxxSparseMatrix finiteDifferenceJacobian() except +translate_exception
-        void addSurface(CxxReactorSurface*)
+        void addSurface(CxxReactorSurface*) except +translate_exception
         void setAdvanceLimit(string&, double) except +translate_exception
         void addSensitivityReaction(size_t) except +translate_exception
         void addSensitivitySpeciesEnthalpy(size_t) except +translate_exception
@@ -93,7 +90,6 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         CxxReactorSurface()
         double area()
         void setArea(double)
-        void setKinetics(CxxKinetics*)
         void setCoverages(double*)
         void setCoverages(Composition&) except +translate_exception
         void syncState()
@@ -103,7 +99,7 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
     # connectors
 
     cdef cppclass CxxConnector "Cantera::Connector":
-        CxxConnector()
+        CxxConnector() except +translate_exception
         string type()
         string name()
         void setName(string) except +translate_exception
@@ -111,10 +107,8 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
     # walls
     cdef cppclass CxxWallBase "Cantera::WallBase" (CxxConnector):
         CxxWallBase()
-        cbool install(CxxReactorBase&, CxxReactorBase&)
         double area()
         void setArea(double)
-        void setKinetics(CxxKinetics*, CxxKinetics*)
         void setCoverages(int, double*)
         void setCoverages(int, Composition&) except +translate_exception
         void syncCoverages(int)
@@ -142,19 +136,18 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
     # flow devices
 
     cdef cppclass CxxFlowDevice "Cantera::FlowDevice" (CxxConnector):
-        CxxFlowDevice()
+        CxxFlowDevice() except +translate_exception
         double massFlowRate() except +translate_exception
         double massFlowRate(double) except +translate_exception
-        cbool install(CxxReactorBase&, CxxReactorBase&) except +translate_exception
         double evalPressureFunction() except +translate_exception
         void setPressureFunction(CxxFunc1*) except +translate_exception
         double evalTimeFunction() except +translate_exception
         void setTimeFunction(CxxFunc1*) except +translate_exception
 
     cdef cppclass CxxMassFlowController "Cantera::MassFlowController" (CxxFlowDevice):
-        CxxMassFlowController()
-        void setMassFlowRate(double)
-        void setMassFlowCoeff(double)
+        CxxMassFlowController() except +translate_exception
+        void setMassFlowRate(double) except +translate_exception
+        void setMassFlowCoeff(double) except +translate_exception
         double getMassFlowCoeff()
 
     cdef cppclass CxxValve "Cantera::Valve" (CxxFlowDevice):

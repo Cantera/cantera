@@ -33,12 +33,14 @@ cdef class ReactorNode:
         """The type of the reactor."""
         return pystr(self.node.type())
 
-    property name:
+    @property
+    def name(self):
         """The name of the reactor."""
-        def __get__(self):
-            return pystr(self.node.name())
-        def __set__(self, name):
-            self.node.setName(stringify(name))
+        return pystr(self.node.name())
+
+    @name.setter
+    def name(self, name):
+        self.node.setName(stringify(name))
 
     def __reduce__(self):
         raise NotImplementedError('Reactor object is not picklable')
@@ -835,7 +837,7 @@ cdef class ReactorSurface(ReactorNode):
     def __init__(self, kin=None, Reactor r=None, *,
                  name="(none)", A=None, node_attr=None):
         if kin is not None:
-            self.kinetics = kin
+            self._kinetics = kin
         if r is not None:
             self.install(r)
         if A is not None:
@@ -865,9 +867,6 @@ cdef class ReactorSurface(ReactorNode):
         def __get__(self):
             self.surface.syncState()
             return self._kinetics
-        def __set__(self, Kinetics k):
-            self._kinetics = k
-            self.surface.setKinetics(self._kinetics.kinetics)
 
     property coverages:
         """
@@ -958,16 +957,19 @@ cdef class Connector:
     """
     edge_type = "edge"
 
-    def __cinit__(self, ReactorNode r0=None, ReactorNode r1=None, *,
+    def __cinit__(self, ReactorNode left=None, ReactorNode right=None, *,
+                  ReactorNode upstream=None, ReactorNode downstream=None,
                   name="(none)", **kwargs):
+        # ensure that both naming conventions (Wall and FlowDevice) are covered
+        cdef ReactorNode r0 = left or upstream
+        cdef ReactorNode r1 = right or downstream
         if isinstance(r0, ReactorNode) and isinstance(r1, ReactorNode):
+            # catch named arguments
             self._edge = newConnector(stringify(self.edge_type),
                                       r0._node, r1._node, stringify(name))
-        else:
-            # deprecated: will raise warnings in C++ layer
-            self._edge = newConnector(stringify(self.edge_type))
-            self._edge.get().setName(stringify(name))
-        self.edge = self._edge.get()
+            self.edge = self._edge.get()
+            return
+        raise TypeError(f"Invalid reactor types: {r0} and {r1}.")
 
     @property
     def type(self):
@@ -1034,8 +1036,6 @@ cdef class WallBase(Connector):
         self._velocity_func = None
         self._heat_flux_func = None
 
-        self._install(left, right)
-
         if A is not None:
             self.area = A
         if K is not None:
@@ -1060,13 +1060,6 @@ cdef class WallBase(Connector):
             return self.wall.area()
         def __set__(self, double value):
             self.wall.setArea(value)
-
-    def _install(self, ReactorBase left, ReactorBase right):
-        """
-        Install this Wall between two `Reactor` objects or between a
-        `Reactor` and a `Reservoir`.
-        """
-        self.wall.install(deref(left.rbase), deref(right.rbase))
 
     @property
     def left_reactor(self):
@@ -1263,20 +1256,12 @@ cdef class FlowDevice(Connector):
         assert self.dev != NULL
         self._rate_func = None
         self.edge_attr = edge_attr or {}
-        self._install(upstream, downstream)
 
         upstream._add_outlet(self)
         downstream._add_inlet(self)
         # Keep references to prevent premature garbage collection
         self._upstream = upstream
         self._downstream = downstream
-
-    def _install(self, ReactorBase upstream, ReactorBase downstream):
-        """
-        Install the device between the ``upstream`` (source) and ``downstream``
-        (destination) reactors or reservoirs.
-        """
-        self.dev.install(deref(upstream.rbase), deref(downstream.rbase))
 
     @property
     def upstream(self):
@@ -1413,8 +1398,8 @@ cdef class MassFlowController(FlowDevice):
     """
     edge_type = "MassFlowController"
 
-    def __init__(self, upstream, downstream, *, name="(none)", mdot=1., **kwargs):
-        super().__init__(upstream, downstream, name=name, **kwargs)
+    def __init__(self, upstream, downstream, *, name="(none)", mdot=1., edge_attr=None):
+        super().__init__(upstream, downstream, name=name, edge_attr=edge_attr)
         self.mass_flow_rate = mdot
 
     property mass_flow_coeff:
@@ -1487,8 +1472,8 @@ cdef class Valve(FlowDevice):
     """
     edge_type = "Valve"
 
-    def __init__(self, upstream, downstream, *, name="(none)", K=1., **kwargs):
-        super().__init__(upstream, downstream, name=name, **kwargs)
+    def __init__(self, upstream, downstream, *, name="(none)", K=1., edge_attr=None):
+        super().__init__(upstream, downstream, name=name, edge_attr=edge_attr)
         if isinstance(K, _numbers.Real):
             self.valve_coeff = K
         else:

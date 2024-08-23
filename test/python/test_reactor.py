@@ -754,11 +754,6 @@ class TestReactor(utilities.CanteraTest):
             # Must assign contents of both reactors before creating Valve
             ct.Valve(self.r1, res)
 
-        # v = ct.Valve(self.r1, self.r2)
-        # with self.assertRaisesRegex(ct.CanteraError, 'Already installed'):
-        #     # inlet and outlet cannot be reassigned
-        #     v._install(self.r2, self.r1)
-
     def test_pressure_controller1(self):
         self.make_reactors(n_reactors=1)
         g = ct.Solution('h2o2.yaml', transport_model=None)
