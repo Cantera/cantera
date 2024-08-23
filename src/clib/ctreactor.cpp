@@ -42,7 +42,8 @@ extern "C" {
     int reactor_new(const char* type, int n, const char* name)
     {
         try {
-            return ReactorCabinet::add(newReactor(type, SolutionCabinet::at(n), name));
+            return ReactorCabinet::add(
+                newReactor(type, SolutionCabinet::at(n), name));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -92,16 +93,6 @@ extern "C" {
     {
         try {
             ReactorCabinet::at(i)->setInitialVolume(v);
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int reactor_setSolution(int i, int n)
-    {
-        try {
-            ReactorCabinet::as<Reactor>(i)->setSolution(SolutionCabinet::at(n));
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -363,7 +354,8 @@ extern "C" {
         try {
 
             return ConnectorCabinet::add(
-                newConnector(type, ReactorCabinet::at(n), ReactorCabinet::at(m), name));
+                newConnectorNode(type,
+                                 ReactorCabinet::at(n), ReactorCabinet::at(m), name));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -410,60 +402,6 @@ extern "C" {
     }
 
     // flow devices
-
-    int flowdev_new(const char* type, const char* name)
-    {
-        try {
-            return ConnectorCabinet::add(newFlowDevice(type, name));
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int flowdev_del(int i)
-    {
-        try {
-            ConnectorCabinet::del(i);
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int flowdev_name(int i, int len, char* nbuf)
-    {
-        try {
-            return static_cast<int>(
-                copyString(ConnectorCabinet::at(i)->name(), nbuf, len));
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int flowdev_setName(int i, const char* name)
-    {
-        try {
-            ConnectorCabinet::at(i)->setName(name);
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int flowdev_install(int i, int n, int m)
-    {
-        try {
-            bool ok = ConnectorCabinet::as<FlowDevice>(i)->install(
-                *ReactorCabinet::at(n), *ReactorCabinet::at(m));
-            if (!ok) {
-                throw CanteraError("flowdev_install",
-                                   "Could not install flow device.");
-            }
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
 
     int flowdev_setPrimary(int i, int n)
     {
@@ -538,56 +476,6 @@ extern "C" {
     }
 
     /////////////    Walls   ///////////////////////
-
-    int wall_new(const char* type, const char* name)
-    {
-        try {
-            return ConnectorCabinet::add(newWall(type, name));
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int wall_del(int i)
-    {
-        try {
-            ConnectorCabinet::del(i);
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int wall_name(int i, int len, char* nbuf)
-    {
-        try {
-            return static_cast<int>(
-                copyString(ConnectorCabinet::at(i)->name(), nbuf, len));
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int wall_setName(int i, const char* name)
-    {
-        try {
-            ConnectorCabinet::at(i)->setName(name);
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int wall_install(int i, int n, int m)
-    {
-        try {
-            ConnectorCabinet::as<Wall>(i)->install(
-                *ReactorCabinet::at(n), *ReactorCabinet::at(m));
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
 
     double wall_expansionRate(int i)
     {
@@ -681,15 +569,6 @@ extern "C" {
         try {
             ConnectorCabinet::as<Wall>(i)->setEmissivity(epsilon);
             return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int wall_ready(int i)
-    {
-        try {
-            return int(ConnectorCabinet::as<Wall>(i)->ready());
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
