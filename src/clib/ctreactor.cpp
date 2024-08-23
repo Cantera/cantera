@@ -56,6 +56,16 @@ extern "C" {
         }
     }
 
+    int reactor_type(int i, int len, char* nbuf)
+    {
+        try {
+            return static_cast<int>(
+                copyString(ReactorCabinet::at(i)->type(), nbuf, len));
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
     int reactor_name(int i, int len, char* nbuf)
     {
         try {
@@ -359,6 +369,59 @@ extern "C" {
     {
         try {
             return NetworkCabinet::at(i)->sensitivity(v, p, r);
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    // connectors
+
+    int connector_new(const char* type, int n, int m, const char* name)
+    {
+        try {
+
+            return ConnectorCabinet::add(
+                newConnector(type, ReactorCabinet::at(n), ReactorCabinet::at(m), name));
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int connector_del(int i)
+    {
+        try {
+            ConnectorCabinet::del(i);
+            return 0;
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int connector_type(int i, int len, char* nbuf)
+    {
+        try {
+            return static_cast<int>(
+                copyString(ConnectorCabinet::at(i)->type(), nbuf, len));
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int connector_name(int i, int len, char* nbuf)
+    {
+        try {
+            return static_cast<int>(
+                copyString(ConnectorCabinet::at(i)->name(), nbuf, len));
+        } catch (...) {
+            return handleAllExceptions(-1, ERR);
+        }
+    }
+
+    int connector_setName(int i, const char* name)
+    {
+        try {
+            ConnectorCabinet::at(i)->setName(name);
+            return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
