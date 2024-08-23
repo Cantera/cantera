@@ -19,6 +19,7 @@ extern "C" {
 
     CANTERA_CAPI int reactor_new(const char* type, int n, const char* name);
     CANTERA_CAPI int reactor_del(int i);
+    CANTERA_CAPI int reactor_type(int i, int len, char* nbuf);
     CANTERA_CAPI int reactor_name(int i, int len, char* nbuf);
     CANTERA_CAPI int reactor_setName(int i, const char* name);
     CANTERA_CAPI int reactor_setInitialVolume(int i, double v);
@@ -50,6 +51,12 @@ extern "C" {
     CANTERA_CAPI double reactornet_rtol(int i);
     CANTERA_CAPI double reactornet_atol(int i);
     CANTERA_CAPI double reactornet_sensitivity(int i, const char* v, int p, int r);
+
+    CANTERA_CAPI int connector_new(const char* type, int r0, int r1, const char* name);
+    CANTERA_CAPI int connector_del(int i);
+    CANTERA_CAPI int connector_type(int i, int len, char* nbuf);
+    CANTERA_CAPI int connector_name(int i, int len, char* nbuf);
+    CANTERA_CAPI int connector_setName(int i, const char* name);
 
     CANTERA_CAPI int flowdev_new(const char* type, const char* name);
     CANTERA_CAPI int flowdev_del(int i);
