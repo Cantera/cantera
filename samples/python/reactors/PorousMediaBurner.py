@@ -131,7 +131,7 @@ class SolidProperties:
 def effectiveConductivitySiC(Ts):  # for silicon carbide
     return (1 - 0.84) * 1857.0 * Ts**(-0.5332)
 
-# YZA: Thermal conductivity of zirconia–alumina composites, N.P. Bansal, D. Zhu, 
+# YZA: Thermal conductivity of zirconia–alumina composites, N.P. Bansal, D. Zhu,
 #      Ceramics International, 31(7), pp 911-916 (2015)
 def effectiveConductivityYZA(Ts):  # for yittria-stabilized zirconia alumina
     return 0.3
@@ -409,3 +409,4 @@ plt.legend()
 plt.xlabel("x (m)")
 plt.ylabel("T (K)")
 plt.savefig("T.png")
+plt.show()
