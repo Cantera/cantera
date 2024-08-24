@@ -22,8 +22,7 @@ namespace bmt = boost::math::tools;
 namespace Cantera
 {
 
-Reactor::Reactor(shared_ptr<Solution> sol, const string& name)
-    : ReactorBase(name)
+Reactor::Reactor(shared_ptr<Solution> sol, const string& name) : ReactorBase(sol, name)
 {
     if (!sol || !(sol->thermo())) {
         warn_deprecated("Reactor::Reactor",

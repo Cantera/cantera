@@ -19,7 +19,7 @@ namespace Cantera
 //! ```cpp
 //!     shared_ptr<ReactorNode> r1 = newReactorNode("IdealGasReactor", contents);
 //! ```
-class ReactorFactory : public Factory<ReactorNode, shared_ptr<Solution>, const string&>
+class ReactorFactory : public SharedFactory<ReactorNode, shared_ptr<Solution>, const string&>
 {
 public:
     static ReactorFactory* factory();
@@ -59,12 +59,6 @@ shared_ptr<ReactorNode> newReactorNode(
 //! @deprecated Empty reactors will no longer be supported after %Cantera 3.1.
 //!     Use newReactorNode() with contents instead.
 shared_ptr<ReactorNode> newReactorNode(const string& model);
-
-//! Create an empty ReactorBase object of the specified type.
-//! @since Starting in %Cantera 3.1, this method returns a `shared_ptr<ReactorBase>`
-//! @deprecated Empty reactors will no longer be supported after %Cantera 3.1.
-//!     Superseded by newReactorNode().
-shared_ptr<ReactorBase> newReactor(const string& model);
 
 //! Create a Reactor object of the specified type.
 //! @since New in %Cantera 3.0.

@@ -26,61 +26,62 @@ ReactorFactory::ReactorFactory()
 {
     reg("Reservoir",
         [](shared_ptr<Solution> sol, const string& name)
-        { return new Reservoir(sol, name); });
+        { return Reservoir::create(sol, name); });
     reg("Reactor",
         [](shared_ptr<Solution> sol, const string& name)
-        { return new Reactor(sol, name); });
+        { return Reactor::create(sol, name); });
     reg("ConstPressureReactor",
         [](shared_ptr<Solution> sol, const string& name)
-        { return new ConstPressureReactor(sol, name); });
+        { return ConstPressureReactor::create(sol, name); });
     reg("FlowReactor",
         [](shared_ptr<Solution> sol, const string& name)
-        { return new FlowReactor(sol, name); });
+        { return FlowReactor::create(sol, name); });
     reg("IdealGasReactor",
         [](shared_ptr<Solution> sol, const string& name)
-        { return new IdealGasReactor(sol, name); });
+        { return IdealGasReactor::create(sol, name); });
     reg("IdealGasConstPressureReactor",
         [](shared_ptr<Solution> sol, const string& name)
-        { return new IdealGasConstPressureReactor(sol, name); });
+        { return IdealGasConstPressureReactor::create(sol, name); });
     reg("ExtensibleReactor",
         [](shared_ptr<Solution> sol, const string& name)
-        { return new ReactorDelegator<Reactor>(sol, name); });
+        { return ReactorDelegator<Reactor>::create(sol, name); });
     reg("ExtensibleIdealGasReactor",
         [](shared_ptr<Solution> sol, const string& name)
-        { return new ReactorDelegator<IdealGasReactor>(sol, name); });
+        { return ReactorDelegator<IdealGasReactor>::create(sol, name); });
     reg("ExtensibleConstPressureReactor",
         [](shared_ptr<Solution> sol, const string& name)
-        { return new ReactorDelegator<ConstPressureReactor>(sol, name); });
+        { return ReactorDelegator<ConstPressureReactor>::create(sol, name); });
     reg("ExtensibleIdealGasConstPressureReactor",
         [](shared_ptr<Solution> sol, const string& name)
-        { return new ReactorDelegator<IdealGasConstPressureReactor>(sol, name); });
+        { return ReactorDelegator<IdealGasConstPressureReactor>::create(sol, name); });
     reg("ExtensibleMoleReactor",
         [](shared_ptr<Solution> sol, const string& name)
-        { return new ReactorDelegator<MoleReactor>(sol, name); });
+        { return ReactorDelegator<MoleReactor>::create(sol, name); });
     reg("ExtensibleConstPressureMoleReactor",
         [](shared_ptr<Solution> sol, const string& name)
-        { return new ReactorDelegator<ConstPressureMoleReactor>(sol, name); });
+        { return ReactorDelegator<ConstPressureMoleReactor>::create(sol, name); });
     reg("ExtensibleIdealGasMoleReactor",
         [](shared_ptr<Solution> sol, const string& name)
-        { return new ReactorDelegator<IdealGasMoleReactor>(sol, name); });
+        { return ReactorDelegator<IdealGasMoleReactor>::create(sol, name); });
     reg("ExtensibleIdealGasConstPressureMoleReactor",
         [](shared_ptr<Solution> sol, const string& name)
-        { return new ReactorDelegator<IdealGasConstPressureMoleReactor>(sol, name); });
+        { return
+            ReactorDelegator<IdealGasConstPressureMoleReactor>::create(sol, name); });
     reg("IdealGasConstPressureMoleReactor",
         [](shared_ptr<Solution> sol, const string& name)
-        { return new IdealGasConstPressureMoleReactor(sol, name); });
+        { return IdealGasConstPressureMoleReactor::create(sol, name); });
     reg("IdealGasMoleReactor",
         [](shared_ptr<Solution> sol, const string& name)
-        { return new IdealGasMoleReactor(sol, name); });
+        { return IdealGasMoleReactor::create(sol, name); });
     reg("ConstPressureMoleReactor",
         [](shared_ptr<Solution> sol, const string& name)
-        { return new ConstPressureMoleReactor(sol, name); });
+        { return ConstPressureMoleReactor::create(sol, name); });
     reg("MoleReactor",
         [](shared_ptr<Solution> sol, const string& name)
-        { return new MoleReactor(sol, name); });
+        { return MoleReactor::create(sol, name); });
     reg("ReactorSurface",
         [](shared_ptr<Solution> sol, const string& name)
-        { return new ReactorSurface(sol, name); });
+        { return ReactorSurface::create(sol, name); });
 
 }
 
@@ -101,8 +102,7 @@ void ReactorFactory::deleteFactory() {
 shared_ptr<ReactorNode> newReactorNode(
     const string& model, shared_ptr<Solution> contents, const string& name)
 {
-    return shared_ptr<ReactorNode>(
-        ReactorFactory::factory()->create(model, contents, name));
+    return ReactorFactory::factory()->create(model, contents, name);
 }
 
 shared_ptr<ReactorNode> newReactorNode(const string& model)
@@ -110,13 +110,12 @@ shared_ptr<ReactorNode> newReactorNode(const string& model)
     warn_deprecated("newReactorNode",
         "Transitional method to be removed after Cantera 3.1. Use newReactorNode with "
         "contents instead.");
-    return shared_ptr<ReactorNode>(
-        ReactorFactory::factory()->create(model, nullptr, ""));
+    return ReactorFactory::factory()->create(model, nullptr, "");
 }
 
-shared_ptr<ReactorBase> newReactor(const string& model)
+shared_ptr<ReactorBase> newReactor3(const string& model)
 {
-    warn_deprecated("newReactor",
+    warn_deprecated("newReactor3",
         "Superseded by newReactorNode with contents; to be removed after Cantera 3.1.");
     auto reactor = std::dynamic_pointer_cast<ReactorBase>(
         newReactorNode(model, nullptr, ""));
@@ -125,11 +124,6 @@ shared_ptr<ReactorBase> newReactor(const string& model)
             "Detected incompatible ReactorBase type '{}'", model);
     }
     return reactor;
-}
-
-shared_ptr<ReactorBase> newReactor3(const string& model)
-{
-    return newReactor(model);
 }
 
 }

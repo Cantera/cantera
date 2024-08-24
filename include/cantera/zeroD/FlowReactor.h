@@ -18,6 +18,16 @@ class FlowReactor : public IdealGasReactor
 public:
     using IdealGasReactor::IdealGasReactor; // inherit constructors
 
+    //! Create a new FlowReactor.
+    //! @param contents  Solution object describing contents.
+    //! @param name  Name of the reactor. Optional; if left empty, a default name will
+    //!     be assigned when the reactor is integrated into a ReactorNet.
+    static shared_ptr<FlowReactor> create(
+        shared_ptr<Solution> contents, const string& name="")
+    {
+        return shared_ptr<FlowReactor>( new FlowReactor(contents, name) );
+    }
+
     string type() const override {
         return "FlowReactor";
     }
@@ -161,6 +171,7 @@ protected:
     //! maximum number of steady-state integrator error test failures
     int m_max_ss_error_fails = 10;
 };
+
 }
 
 #endif

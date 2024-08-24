@@ -22,6 +22,17 @@ class IdealGasConstPressureMoleReactor : public ConstPressureMoleReactor
 public:
     using ConstPressureMoleReactor::ConstPressureMoleReactor; // inherit constructors
 
+    //! Create a new IdealGasConstPressureMoleReactor.
+    //! @param contents  Solution object describing contents.
+    //! @param name  Name of the reactor. Optional; if left empty, a default name will
+    //!     be assigned when the reactor is integrated into a ReactorNet.
+    static shared_ptr<IdealGasConstPressureMoleReactor> create(
+        shared_ptr<Solution> contents, const string& name="")
+    {
+        return shared_ptr<IdealGasConstPressureMoleReactor>(
+            new IdealGasConstPressureMoleReactor(contents, name) );
+    }
+
     string type() const override {
         return "IdealGasConstPressureMoleReactor";
     };

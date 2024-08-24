@@ -22,6 +22,16 @@ class MoleReactor : public Reactor
 public:
     using Reactor::Reactor; // inherit constructors
 
+    //! Create a new MoleReactor.
+    //! @param contents  Solution object describing contents.
+    //! @param name  Name of the reactor. Optional; if left empty, a default name will
+    //!     be assigned when the reactor is integrated into a ReactorNet.
+    static shared_ptr<MoleReactor> create(
+        shared_ptr<Solution> contents, const string& name="")
+    {
+        return shared_ptr<MoleReactor>( new MoleReactor(contents, name) );
+    }
+
     string type() const override {
         return "MoleReactor";
     }

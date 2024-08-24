@@ -23,6 +23,16 @@ public:
     ReactorSurface(shared_ptr<Solution> sol, const string& name="(none)");
     using ReactorNode::ReactorNode;  // inherit constructors
 
+    //! Create a new ReactorSurface.
+    //! @param contents  Solution object describing contents.
+    //! @param name  Name of the reactor. Optional; if left empty, a default name will
+    //!     be assigned when the reactor is integrated into a ReactorNet.
+    static shared_ptr<ReactorSurface> create(
+        shared_ptr<Solution> contents, const string& name="")
+    {
+        return shared_ptr<ReactorSurface>( new ReactorSurface(contents, name) );
+    }
+
     string type() const override {
         return "ReactorSurface";
     }

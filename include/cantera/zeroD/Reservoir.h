@@ -20,6 +20,16 @@ class Reservoir : public ReactorBase
 public:
     using ReactorBase::ReactorBase; // inherit constructors
 
+    //! Create a new Reservoir.
+    //! @param contents  Solution object describing contents.
+    //! @param name  Name of the reservoir. Optional; if left empty, a default name will
+    //!     be assigned when the object is integrated into a ReactorNet.
+    static shared_ptr<Reservoir> create(
+        shared_ptr<Solution> contents, const string& name="")
+    {
+        return shared_ptr<Reservoir>( new Reservoir(contents, name) );
+    }
+
     string type() const override {
         return "Reservoir";
     }

@@ -49,6 +49,18 @@ public:
     Reactor(shared_ptr<Solution> sol, const string& name="(none)");
     using ReactorBase::ReactorBase; // inherit constructors
 
+    Reactor() = default;
+
+    //! Create a new Reactor.
+    //! @param contents  Solution object describing contents.
+    //! @param name  Name of the reactor. Optional; if left empty, a default name will
+    //!     be assigned when the reactor is integrated into a ReactorNet.
+    static shared_ptr<Reactor> create(
+        shared_ptr<Solution> contents, const string& name="")
+    {
+        return shared_ptr<Reactor>( new Reactor(contents, name) );
+    }
+
     string type() const override {
         return "Reactor";
     }
@@ -307,6 +319,7 @@ protected:
     //! Vector of triplets representing the jacobian
     vector<Eigen::Triplet<double>> m_jac_trips;
 };
+
 }
 
 #endif
