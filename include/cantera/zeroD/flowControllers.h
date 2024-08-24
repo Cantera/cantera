@@ -19,8 +19,24 @@ namespace Cantera
  */
 class MassFlowController : public FlowDevice
 {
-public:
+protected:
     using FlowDevice::FlowDevice;  // inherit constructors
+
+public:
+    //! @todo: deprecate public default constructor after Cantera 3.1 and make protected
+    MassFlowController() = default;
+
+    //! Create a new MassFlowController.
+    //! @param r0  Reactor upstream of the mass flow controller.
+    //! @param r1  Reactor downstream of the mass flow controller.
+    //! @param name  Name of the mass flow controller. Optional; if left empty, a
+    //!     default name will be assigned when the object is integrated into a
+    //!     ReactorNet.
+    static shared_ptr<MassFlowController> create(
+        shared_ptr<ReactorNode> r0, shared_ptr<ReactorNode> r1, const string& name="")
+    {
+        return shared_ptr<MassFlowController>( new MassFlowController(r0, r1, name) );
+    }
 
     string type() const override {
         return "MassFlowController";
@@ -64,8 +80,23 @@ public:
  */
 class PressureController : public FlowDevice
 {
-public:
+protected:
     using FlowDevice::FlowDevice;  // inherit constructors
+
+public:
+    //! @todo: deprecate public default constructor after Cantera 3.1 and make protected
+    PressureController() = default;
+
+    //! Create a new PressureController.
+    //! @param r0  Reactor upstream of the pressure controller.
+    //! @param r1  Reactor downstream of the pressure controller.
+    //! @param name  Name of the pressure controller. Optional; if left empty, a default
+    //!     name will be assigned when the object is integrated into a ReactorNet.
+    static shared_ptr<PressureController> create(
+        shared_ptr<ReactorNode> r0, shared_ptr<ReactorNode> r1, const string& name="")
+    {
+        return shared_ptr<PressureController>( new PressureController(r0, r1, name) );
+    }
 
     string type() const override {
         return "PressureController";
@@ -122,8 +153,23 @@ protected:
  */
 class Valve : public FlowDevice
 {
-public:
+protected:
     using FlowDevice::FlowDevice;  // inherit constructors
+
+public:
+    //! @todo: deprecate public default constructor after Cantera 3.1 and make protected
+    Valve() = default;
+
+    //! Create a new Valve.
+    //! @param r0  Reactor left of the valve.
+    //! @param r1  Reactor right of the valve.
+    //! @param name  Name of the valve. Optional; if left empty, a default name will be
+    //!     assigned when the object is integrated into a ReactorNet.
+    static shared_ptr<Valve> create(
+        shared_ptr<ReactorNode> r0, shared_ptr<ReactorNode> r1, const string& name="")
+    {
+        return shared_ptr<Valve>( new Valve(r0, r1, name) );
+    }
 
     string type() const override {
         return "Valve";

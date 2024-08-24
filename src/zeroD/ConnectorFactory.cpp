@@ -18,16 +18,16 @@ ConnectorFactory::ConnectorFactory()
 {
     reg("MassFlowController",
         [](shared_ptr<ReactorNode> r0, shared_ptr<ReactorNode> r1, const string& name)
-        { return new MassFlowController(r0, r1, name); });
+        { return MassFlowController::create(r0, r1, name); });
     reg("PressureController",
         [](shared_ptr<ReactorNode> r0, shared_ptr<ReactorNode> r1, const string& name)
-        { return new PressureController(r0, r1, name); });
+        { return PressureController::create(r0, r1, name); });
     reg("Valve",
         [](shared_ptr<ReactorNode> r0, shared_ptr<ReactorNode> r1, const string& name)
-        { return new Valve(r0, r1, name); });
+        { return Valve::create(r0, r1, name); });
     reg("Wall",
         [](shared_ptr<ReactorNode> r0, shared_ptr<ReactorNode> r1, const string& name)
-        { return new Wall(r0, r1, name); });
+        { return Wall::create(r0, r1, name); });
 }
 
 ConnectorFactory* ConnectorFactory::factory() {
@@ -48,8 +48,7 @@ shared_ptr<Connector> newConnector(
     const string& model,
     shared_ptr<ReactorNode> r0, shared_ptr<ReactorNode> r1, const string& name)
 {
-    return shared_ptr<Connector>(
-        ConnectorFactory::factory()->create(model, r0, r1, name));
+    return ConnectorFactory::factory()->create(model, r0, r1, name);
 }
 
 shared_ptr<FlowDevice> newFlowDevice3(const string& model)

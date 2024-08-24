@@ -21,10 +21,12 @@ class Func1;
  */
 class WallBase : public Connector
 {
-public:
-    WallBase(shared_ptr<ReactorNode> r0, shared_ptr<ReactorNode> r1,
-             const string& name="(none)");
+protected:
     using Connector::Connector;  // inherit constructors
+
+public:
+    //! @todo: deprecate public default constructor after Cantera 3.1 and make protected
+    WallBase() = default;
 
     string type() const override {
         return "WallBase";
@@ -68,6 +70,7 @@ public:
     virtual void initialize() {}
 
     //! True if the wall is correctly configured and ready to use.
+    //! @deprecated  No longer needed after Cantera 3.1.
     virtual bool ready() {
         return (m_left != 0 && m_right != 0);
     }
@@ -108,8 +111,25 @@ protected:
  */
 class Wall : public WallBase
 {
-public:
+protected:
+    Wall(shared_ptr<ReactorNode> r0, shared_ptr<ReactorNode> r1,
+         const string& name="(none)");
     using WallBase::WallBase;  // inherit constructors
+
+public:
+    //! @todo: deprecate public default constructor after Cantera 3.1 and make protected
+    Wall() = default;
+
+    //! Create a new Wall.
+    //! @param r0  Reactor left of the wall.
+    //! @param r1  Reactor right of the wall.
+    //! @param name  Name of the wall. Optional; if left empty, a default name will be
+    //!     assigned when the wall is integrated into a ReactorNet.
+    static shared_ptr<Wall> create(
+        shared_ptr<ReactorNode> r0, shared_ptr<ReactorNode> r1, const string& name="")
+    {
+        return shared_ptr<Wall>( new Wall(r0, r1, name) );
+    }
 
     //! String indicating the wall model implemented. Usually
     //! corresponds to the name of the derived class.

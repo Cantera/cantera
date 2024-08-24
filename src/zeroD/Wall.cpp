@@ -10,13 +10,12 @@
 namespace Cantera
 {
 
-WallBase::WallBase(shared_ptr<ReactorNode> r0, shared_ptr<ReactorNode> r1,
-                   const string& name) : Connector(r0, r1, name)
+Wall::Wall(shared_ptr<ReactorNode> r0, shared_ptr<ReactorNode> r1,
+           const string& name) : WallBase(r0, r1, name)
 {
     if (!m_nodes.first || !m_nodes.second) {
-        warn_deprecated("FlowDevice::FlowDevice",
-            "After Cantera 3.1, Reactors must be provided to a FlowDevice "
-            "constructor.");
+        warn_deprecated("Wall::Wall",
+            "After Cantera 3.1, Reactors must be provided during Wall instantiation.");
         return;
     }
     // todo: switch to shared pointers after Cantera 3.1.

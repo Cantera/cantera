@@ -23,10 +23,15 @@ class ReactorBase;
  */
 class FlowDevice : public Connector
 {
-public:
-    FlowDevice(shared_ptr<ReactorNode> r0, shared_ptr<ReactorNode> r1,
-              const string& name="(none)");
+protected:
     using Connector::Connector;  // inherit constructors
+
+    FlowDevice(shared_ptr<ReactorNode> r0, shared_ptr<ReactorNode> r1,
+               const string& name="(none)");
+
+public:
+    //! @todo: deprecate public default constructor after Cantera 3.1 and make protected
+    FlowDevice() = default;
 
     string type() const override {
         return "FlowDevice";
@@ -62,6 +67,7 @@ public:
      */
     bool install(ReactorBase& in, ReactorBase& out);
 
+    //! @deprecated  No longer needed after Cantera 3.1.
     virtual bool ready() {
         return (m_in != 0 && m_out != 0);
     }

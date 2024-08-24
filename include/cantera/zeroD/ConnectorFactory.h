@@ -25,7 +25,7 @@ class WallBase;
 //!
 //! where `r0` and `r1` are reactor objects.
 class ConnectorFactory :
-    public Factory<Connector, shared_ptr<ReactorNode>, shared_ptr<ReactorNode>, const string&>
+    public SharedFactory<Connector, shared_ptr<ReactorNode>, shared_ptr<ReactorNode>, const string&>
 {
 public:
     static ConnectorFactory* factory();

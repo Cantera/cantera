@@ -22,12 +22,10 @@ class ReactorNode;
  *
  * @ingroup connectorGroup
  */
-class Connector
+class Connector : public std::enable_shared_from_this<Connector>
 {
-public:
-    //! Transitional constructor.
-    //! @todo  Implement deprecation warning.
-    Connector(const string& name="(none)") : m_name(name) {}
+protected:
+    Connector() = default;
 
     //! Instantiate a Connector object with associated ReactorNode objects.
     //! @param r0  First reactor.
@@ -36,6 +34,7 @@ public:
     Connector(shared_ptr<ReactorNode> r0, shared_ptr<ReactorNode> r1,
               const string& name="(none)") : m_nodes({r0, r1}), m_name(name) {}
 
+public:
     virtual ~Connector() = default;
     Connector(const Connector&) = delete;
     Connector& operator=(const Connector&) = delete;
