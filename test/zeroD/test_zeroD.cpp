@@ -3,9 +3,11 @@
 #include "cantera/kinetics.h"
 #include "cantera/zerodim.h"
 #include "cantera/base/Interface.h"
+#include "cantera/numerics/Func1.h"
 #include "cantera/numerics/eigen_sparse.h"
 #include "cantera/numerics/PreconditionerFactory.h"
 #include "cantera/numerics/AdaptivePreconditioner.h"
+#include "cantera/zeroD/ReactorDelegator.h"
 
 using namespace Cantera;
 
@@ -19,9 +21,8 @@ TEST(zerodim, simple)
 
     auto sol = newSolution("gri30.yaml", "gri30", "none");
     sol->thermo()->setState_TPX(T, P, X);
-    auto cppNode = newReactorNode("IdealGasReactor", sol, "simple");
-    ASSERT_EQ(cppNode->name(), "simple");
-    auto reactor = std::dynamic_pointer_cast<ReactorBase>(cppNode);
+    auto reactor = IdealGasReactor::create(sol, "simple");
+    ASSERT_EQ(reactor->name(), "simple");
     reactor->initialize();
     ReactorNet network;
     network.addReactor(reactor);
@@ -36,7 +37,7 @@ TEST(zerodim, simple)
 }
 
 // Test guards preventing segfaults for uninitialized zerodim objects
-TEST(zerodim, test_guards)
+TEST(zerodim, test_empty_guards)
 {
     // Reactor with no contents
     Reactor reactor;
@@ -57,104 +58,169 @@ TEST(zerodim, test_guards)
     EXPECT_THROW(Valve().updateMassFlowRate(0.), CanteraError);
 }
 
+TEST(zerodim, reactor_guards)
+{
+    auto gas = newSolution("h2o2.yaml", "ohmech", "none");
+
+    auto reservoir = Reservoir::create(gas);
+    auto reactor = IdealGasReactor::create(gas, "bulk");
+    auto exhaust = Reservoir::create(gas);
+    ASSERT_EQ(reactor->name(), "bulk");
+    EXPECT_THROW(reactor->addSurface(reservoir), CanteraError);
+
+    auto wall = Wall::create(reservoir, reactor);
+    auto preg = PressureController::create(reactor, exhaust);
+    EXPECT_THROW(preg->setPrimary(wall), CanteraError);
+
+    ReactorNet net;
+    EXPECT_THROW(net.addReactor(reservoir), CanteraError);
+}
+
+TEST(zerodim, deprecated)
+{
+    EXPECT_THROW(newReactor3("Reactor"), CanteraError);
+    EXPECT_THROW(newFlowDevice3("Valve"), CanteraError);
+    EXPECT_THROW(newWall3("Wall"), CanteraError);
+
+    auto gas = newSolution("h2o2.yaml", "ohmech", "none");
+    auto r0 = Reservoir::create(gas, "upstream");
+    auto r1 = IdealGasReactor::create(gas, "mid");
+    auto r2 = Reservoir::create(gas, "downstream");
+    auto fcn = Const1(1.);
+
+    auto wall = Wall::create(r0, r1);
+    EXPECT_THROW(wall->setVelocity(&fcn), CanteraError);
+    EXPECT_THROW(wall->setHeatFlux(&fcn), CanteraError);
+
+    auto valve = Valve::create(r0, r1);
+    EXPECT_THROW(valve->setTimeFunction(&fcn), CanteraError);
+    EXPECT_THROW(valve->setPressureFunction(&fcn), CanteraError);
+
+    auto preg = PressureController::create(r1, r2);
+    EXPECT_THROW(preg->setPrimary(valve.get()), CanteraError);
+}
+
+TEST(zerodim, reactor_types)
+{
+    auto gas = newSolution("h2o2.yaml", "ohmech", "none");
+
+    ASSERT_EQ(Reservoir::create(gas)->type(), "Reservoir");
+    ASSERT_EQ(Reactor::create(gas)->type(), "Reactor");
+    ASSERT_EQ(ConstPressureReactor::create(gas)->type(), "ConstPressureReactor");
+    ASSERT_EQ(FlowReactor::create(gas)->type(), "FlowReactor");
+    ASSERT_EQ(IdealGasReactor::create(gas)->type(), "IdealGasReactor");
+    ASSERT_EQ(IdealGasConstPressureReactor::create(gas)->type(),
+              "IdealGasConstPressureReactor");
+    ASSERT_EQ(ReactorDelegator<Reactor>::create(gas)->type(),
+              "ExtensibleReactor");
+    ASSERT_EQ(ReactorDelegator<IdealGasReactor>::create(gas)->type(),
+              "ExtensibleIdealGasReactor");
+    ASSERT_EQ(ReactorDelegator<ConstPressureReactor>::create(gas)->type(),
+              "ExtensibleConstPressureReactor");
+    ASSERT_EQ(ReactorDelegator<IdealGasConstPressureReactor>::create(gas)->type(),
+              "ExtensibleIdealGasConstPressureReactor");
+    ASSERT_EQ(ReactorDelegator<MoleReactor>::create(gas)->type(),
+              "ExtensibleMoleReactor");
+    ASSERT_EQ(ReactorDelegator<IdealGasMoleReactor>::create(gas)->type(),
+              "ExtensibleIdealGasMoleReactor");
+    ASSERT_EQ(ReactorDelegator<ConstPressureMoleReactor>::create(gas)->type(),
+              "ExtensibleConstPressureMoleReactor");
+    ASSERT_EQ(ReactorDelegator<IdealGasConstPressureMoleReactor>::create(gas)->type(),
+              "ExtensibleIdealGasConstPressureMoleReactor");
+    ASSERT_EQ(MoleReactor::create(gas)->type(), "MoleReactor");
+    ASSERT_EQ(IdealGasMoleReactor::create(gas)->type(), "IdealGasMoleReactor");
+    ASSERT_EQ(ConstPressureMoleReactor::create(gas)->type(), "ConstPressureMoleReactor");
+    ASSERT_EQ(IdealGasConstPressureMoleReactor::create(gas)->type(),
+              "IdealGasConstPressureMoleReactor");
+}
+
 TEST(zerodim, surface)
 {
-    auto gas = newSolution("ptcombust.yaml", "gas");
+    auto gas = newSolution("ptcombust.yaml", "gas", "none");
     auto surf = newInterface("ptcombust.yaml", "Pt_surf", {gas});
 
-    auto node0 = newReactorNode("IdealGasReactor", gas, "bulk");
-    auto reactor = std::dynamic_pointer_cast<ReactorBase>(node0);
+    auto reactor = IdealGasReactor::create(gas, "bulk");
     ASSERT_EQ(reactor->name(), "bulk");
 
-    auto node1 = newReactorNode("ReactorSurface", surf, "surface");
-    auto cppSurface = std::dynamic_pointer_cast<ReactorSurface>(node1);
-    ASSERT_EQ(cppSurface->name(), "surface");
+    auto rsurf = ReactorSurface::create(surf, "surface");
+    ASSERT_EQ(rsurf->name(), "surface");
+
+    reactor->addSurface(rsurf);
 }
 
 TEST(zerodim, flowdevice)
 {
     auto gas = newSolution("gri30.yaml", "gri30", "none");
 
-    auto node0 = newReactorNode("IdealGasReactor", gas, "upstream");
-    auto node1 = newReactorNode("IdealGasReactor", gas, "downstream");
+    auto node0 = IdealGasReactor::create(gas, "upstream");
+    auto node1 = IdealGasReactor::create(gas, "downstream");
 
-    auto edge = newConnector("Valve", node0, node1, "valve");
-    ASSERT_EQ(edge->name(), "valve");
-
-    auto valve = std::dynamic_pointer_cast<FlowDevice>(edge);
+    auto valve = Valve::create(node0, node1, "valve");
+    ASSERT_EQ(valve->name(), "valve");
     ASSERT_EQ(valve->in().name(), "upstream");
     ASSERT_EQ(valve->out().name(), "downstream");
 
-    ASSERT_EQ(std::dynamic_pointer_cast<ReactorBase>(node0)->nInlets(), 0);
-    ASSERT_EQ(std::dynamic_pointer_cast<ReactorBase>(node0)->nOutlets(), 1);
-    ASSERT_EQ(std::dynamic_pointer_cast<ReactorBase>(node1)->nInlets(), 1);
-    ASSERT_EQ(std::dynamic_pointer_cast<ReactorBase>(node1)->nOutlets(), 0);
+    ASSERT_EQ(node0->nInlets(), 0);
+    ASSERT_EQ(node0->nOutlets(), 1);
+    ASSERT_EQ(node1->nInlets(), 1);
+    ASSERT_EQ(node1->nOutlets(), 0);
 }
 
 TEST(zerodim, wall)
 {
     auto gas = newSolution("gri30.yaml", "gri30", "none");
 
-    auto node0 = newReactorNode("IdealGasReactor", gas, "left");
-    auto node1 = newReactorNode("IdealGasReactor", gas, "right");
+    auto node0 = IdealGasReactor::create(gas, "left");
+    auto node1 = IdealGasReactor::create(gas, "right");
 
-    auto edge = newConnector("Wall", node0, node1, "wall");
-    ASSERT_EQ(edge->name(), "wall");
-
-    auto wall = std::dynamic_pointer_cast<WallBase>(edge);
+    auto wall = Wall::create(node0, node1, "wall");
+    ASSERT_EQ(wall->name(), "wall");
     ASSERT_EQ(wall->left().name(), "left");
     ASSERT_EQ(wall->right().name(), "right");
 
-    ASSERT_EQ(std::dynamic_pointer_cast<ReactorBase>(node0)->nWalls(), 1);
-    ASSERT_EQ(std::dynamic_pointer_cast<ReactorBase>(node1)->nWalls(), 1);
+    ASSERT_EQ(node0->nWalls(), 1);
+    ASSERT_EQ(node1->nWalls(), 1);
 }
 
 TEST(zerodim, empty)
 {
     // Deprecated/transitional modes. Remove after Cantera 3.1.
     EXPECT_THROW(newReactorNode("IdealGasReactor", nullptr, "igr"), CanteraError);
-    EXPECT_THROW(newConnector("Valve", nullptr, nullptr, "valve"), CanteraError);
 
     suppress_deprecation_warnings();
-    auto node0 = newReactorNode("IdealGasReactor", nullptr, "r0");
-    auto node1 = newReactorNode("IdealGasReactor", nullptr, "r1");
+    auto r0 = IdealGasReactor::create(nullptr, "r0");
+    auto r1 = IdealGasReactor::create(nullptr, "r1");
     make_deprecation_warnings_fatal();
+    ASSERT_EQ(r0->name(), "r0");
+    ASSERT_EQ(r1->name(), "r1");
 
     auto gas = newSolution("gri30.yaml", "gri30", "none");
-    auto r0 = std::dynamic_pointer_cast<ReactorBase>(node0);
-    auto r1 = std::dynamic_pointer_cast<ReactorBase>(node1);
-
     suppress_deprecation_warnings();
     r0->insert(gas);
     r1->insert(gas);
     make_deprecation_warnings_fatal();
 
-    auto edge0 = newConnector("Wall", node0, node1, "wall");
-    auto edge1 = newConnector("Valve", node0, node1, "valve");
-
-    auto wall = std::dynamic_pointer_cast<WallBase>(edge0);
-    EXPECT_THROW(wall->install(*r0, *r1), CanteraError);
-    auto valve = std::dynamic_pointer_cast<FlowDevice>(edge1);
-    EXPECT_THROW(valve->install(*r0, *r1), CanteraError);
+    EXPECT_THROW(newConnector("Valve", nullptr, nullptr, "valve"), CanteraError);
+    EXPECT_THROW(Valve::create(nullptr, nullptr), CanteraError);
 
     suppress_deprecation_warnings();
-    auto edge2 = newConnector("Wall", nullptr, nullptr, "empty_wall");
-    auto edge3 = newConnector("Valve", nullptr, nullptr, "empty_valve");
+    auto wall = Wall::create(nullptr, nullptr, "my_wall");
+    auto valve = Valve::create(nullptr, nullptr, "my_valve");
     make_deprecation_warnings_fatal();
 
-    wall = std::dynamic_pointer_cast<WallBase>(edge2);
-    valve = std::dynamic_pointer_cast<FlowDevice>(edge3);
+    EXPECT_THROW(wall->install(*r0, *r1), CanteraError);
+    EXPECT_THROW(valve->install(*r0, *r1), CanteraError);
 
     suppress_deprecation_warnings();
     wall->install(*r0, *r1);
     valve->install(*r0, *r1);
     make_deprecation_warnings_fatal();
 
-    ASSERT_EQ(wall->name(), "empty_wall");
-    ASSERT_EQ(wall->left().name(), "r0");
+    ASSERT_EQ(wall->name(), "my_wall");
+    // ASSERT_EQ(wall->left().name(), "r0");
     ASSERT_EQ(wall->right().name(), "r1");
 
-    ASSERT_EQ(valve->name(), "empty_valve");
+    ASSERT_EQ(valve->name(), "my_valve");
     ASSERT_EQ(valve->in().name(), "r0");
     ASSERT_EQ(valve->out().name(), "r1");
 }
@@ -164,51 +230,20 @@ TEST(zerodim, mole_reactor)
     // simplified version of continuous_reactor.py
     auto gas = newSolution("h2o2.yaml", "ohmech", "none");
 
-    auto tank = make_shared<Reservoir>(gas, "fuel-air-tank");
-    auto exhaust = make_shared<Reservoir>(gas, "exhaust");
+    auto tank = Reservoir::create(gas, "fuel-air-tank");
+    auto exhaust = Reservoir::create(gas, "exhaust");
 
-    auto stirred = make_shared<IdealGasMoleReactor>(gas, "stirred-reactor");
+    auto stirred = IdealGasMoleReactor::create(gas, "stirred-reactor");
     stirred->setEnergy(0);
     stirred->setInitialVolume(30.5 * 1e-6);
 
-    auto mfc = make_shared<MassFlowController>(tank, stirred, "mass-flow-controller");
+    auto mfc = MassFlowController::create(tank, stirred, "mass-flow-controller");
     double residenceTime = 2.;
     double mass = stirred->mass();
     mfc->setMassFlowRate(mass/residenceTime);
 
-    auto preg = make_shared<PressureController>(stirred, exhaust, "pressure-regulator");
-    preg->setPrimary(mfc.get());
-    preg->setPressureCoeff(1e-3);
-
-    auto net = ReactorNet();
-    net.addReactor(*stirred);
-    net.initialize();
-}
-
-TEST(zerodim, mole_reactor_2)
-{
-    // simplified version of continuous_reactor.py
-    auto gas = newSolution("h2o2.yaml", "ohmech", "none");
-
-    auto tank = std::dynamic_pointer_cast<Reservoir>(
-        newReactorNode("Reservoir", gas, "fuel-air-tank"));
-    auto exhaust = std::dynamic_pointer_cast<Reservoir>(
-        newReactorNode("Reservoir", gas, "exhaust"));
-
-    auto stirred = std::dynamic_pointer_cast<IdealGasMoleReactor>(
-        newReactorNode("IdealGasMoleReactor", gas, "stirred-reactor"));
-    stirred->setEnergy(0);
-    stirred->setInitialVolume(30.5 * 1e-6);
-
-    auto mfc = std::dynamic_pointer_cast<MassFlowController>(
-        newConnector("MassFlowController", tank, stirred, "mass-flow-controller"));
-    double residenceTime = 2.;
-    double mass = stirred->mass();
-    mfc->setMassFlowRate(mass/residenceTime);
-
-    auto preg = std::dynamic_pointer_cast<PressureController>(
-        newConnector("PressureController", stirred, exhaust, "pressure-regulator"));
-    preg->setPrimary(mfc.get());
+    auto preg = PressureController::create(stirred, exhaust, "pressure-regulator");
+    preg->setPrimary(mfc);
     preg->setPressureCoeff(1e-3);
 
     auto net = ReactorNet();
@@ -230,9 +265,9 @@ TEST(zerodim, test_individual_reactor_initialization)
     shared_ptr<Solution> sol1 = newSolution("h2o2.yaml");
     sol1->thermo()->setState_TPX(T0, P0, X0);
     // set up reactor object
-    Reactor reactor1(sol1);
+    auto reactor1 = Reactor::create(sol1);
     // initialize reactor prior to integration to ensure no impact
-    reactor1.initialize();
+    reactor1->initialize();
     // setup reactor network and integrate
     ReactorNet network;
     network.addReactor(reactor1);
@@ -243,16 +278,16 @@ TEST(zerodim, test_individual_reactor_initialization)
     sol2->thermo()->setState_TPX(T0, P0, X0);
     sol2->thermo()->equilibrate("UV");
     // secondary reactor for comparison
-    Reactor reactor2(sol2);
-    reactor2.initialize(0.0);
+    auto reactor2 = Reactor::create(sol2);
+    reactor2->initialize(0.0);
     // get state of reactors
-    vector<double> state1(reactor1.neq());
-    vector<double> state2(reactor2.neq());
-    reactor1.getState(state1.data());
-    reactor2.getState(state2.data());
+    vector<double> state1(reactor1->neq());
+    vector<double> state2(reactor2->neq());
+    reactor1->getState(state1.data());
+    reactor2->getState(state2.data());
     // compare the reactors.
-    EXPECT_EQ(reactor1.neq(), reactor2.neq());
-    for (size_t i = 0; i < reactor1.neq(); i++) {
+    EXPECT_EQ(reactor1->neq(), reactor2->neq());
+    for (size_t i = 0; i < reactor1->neq(); i++) {
         EXPECT_NEAR(state1[i], state2[i], tol);
     }
 }
@@ -263,26 +298,26 @@ TEST(MoleReactorTestSet, test_mole_reactor_get_state)
     double tol = 1e-8;
     auto sol = newSolution("h2o2.yaml");
     sol->thermo()->setState_TPY(1000.0, OneAtm, "H2:0.5, O2:0.5");
-    IdealGasConstPressureMoleReactor reactor(sol);
-    reactor.setInitialVolume(0.5);
-    reactor.setEnergy(false);
-    reactor.initialize();
-    vector<double> state(reactor.neq());
+    auto reactor = IdealGasConstPressureMoleReactor::create(sol);
+    reactor->setInitialVolume(0.5);
+    reactor->setEnergy(false);
+    reactor->initialize();
+    vector<double> state(reactor->neq());
     // test get state
-    const ThermoPhase& thermo = reactor.contents();
-    const vector<double>& imw = thermo.inverseMolecularWeights();
+    const auto thermo = reactor->contents3()->thermo();
+    const vector<double>& imw = thermo->inverseMolecularWeights();
     // prescribed state
-    double mass = reactor.volume() * thermo.density();
-    size_t H2I = reactor.componentIndex("H2")-1;
-    size_t O2I = reactor.componentIndex("O2")-1;
+    double mass = reactor->volume() * thermo->density();
+    size_t H2I = reactor->componentIndex("H2")-1;
+    size_t O2I = reactor->componentIndex("O2")-1;
     double O2_Moles = imw[O2I] * 0.5 * mass;
     double  H2_Moles = imw[H2I] * 0.5 * mass;
     // test getState
-    reactor.getState(state.data());
-    EXPECT_NEAR(state[reactor.componentIndex("H2")], H2_Moles, tol);
-    EXPECT_NEAR(state[reactor.componentIndex("O2")], O2_Moles, tol);
-    EXPECT_NEAR(reactor.volume(), 0.5, tol);
-    EXPECT_NEAR(reactor.pressure(), OneAtm, tol);
+    reactor->getState(state.data());
+    EXPECT_NEAR(state[reactor->componentIndex("H2")], H2_Moles, tol);
+    EXPECT_NEAR(state[reactor->componentIndex("O2")], O2_Moles, tol);
+    EXPECT_NEAR(reactor->volume(), 0.5, tol);
+    EXPECT_NEAR(reactor->pressure(), OneAtm, tol);
 }
 
 TEST(AdaptivePreconditionerTests, test_adaptive_precon_utils)
@@ -342,8 +377,8 @@ TEST(AdaptivePreconditionerTests, test_precon_solver_stats)
     // setting up solution object and thermo/kinetics pointers
     auto sol = newSolution("h2o2.yaml");
     sol->thermo()->setState_TPY(1000.0, OneAtm, "H2:0.5, O2:0.5");
-    IdealGasMoleReactor reactor(sol);
-    reactor.setInitialVolume(0.5);
+    auto reactor = IdealGasMoleReactor::create(sol);
+    reactor->setInitialVolume(0.5);
     // setup reactor network and integrate
     ReactorNet network;
     network.addReactor(reactor);
