@@ -28,31 +28,30 @@ void runexample()
 
     // create a reservoir for the fuel inlet, and set to pure methane.
     gas->setState_TPX(300.0, OneAtm, "CH4:1.0");
-    Reservoir fuel_in(sol);
+    auto fuel_in = Reservoir::create(sol);
     double fuel_mw = gas->meanMolecularWeight();
 
     auto air = newSolution("air.yaml", "air", "none");
     double air_mw = air->thermo()->meanMolecularWeight();
 
     // create a reservoir for the air inlet
-    Reservoir air_in(air);
+    auto air_in = Reservoir::create(air);
 
     // to ignite the fuel/air mixture, we'll introduce a pulse of radicals.
     // The steady-state behavior is independent of how we do this, so we'll
     // just use a stream of pure atomic hydrogen.
     gas->setState_TPX(300.0, OneAtm, "H:1.0");
-    Reservoir igniter(sol);
+    auto igniter = Reservoir::create(sol);
 
 
     // create the combustor, and fill it in initially with N2
     gas->setState_TPX(300.0, OneAtm, "N2:1.0");
-    Reactor combustor(sol);
-    combustor.setInitialVolume(1.0);
+    auto combustor = Reactor::create(sol);
+    combustor->setInitialVolume(1.0);
 
 
-    // create a reservoir for the exhaust. The initial composition
-    // doesn't matter.
-    Reservoir exhaust(sol);
+    // create a reservoir for the exhaust. The initial composition does not matter.
+    auto exhaust = Reservoir::create(sol);
 
 
     // lean combustion, phi = 0.5
@@ -63,20 +62,17 @@ void runexample()
     double air_mdot = factor*9.52*air_mw;
     double fuel_mdot = factor*equiv_ratio*fuel_mw;
 
-    // create and install the mass flow controllers. Controllers
-    // m1 and m2 provide constant mass flow rates, and m3 provides
-    // a short Gaussian pulse only to ignite the mixture
-    MassFlowController m1;
-    m1.install(fuel_in, combustor);
-    m1.setMassFlowRate(fuel_mdot);
+    // create and install the mass flow controllers. Controllers m1 and m2
+    // provide constant mass flow rates, and m3 provides a short Gaussian
+    // pulse only to ignite the mixture.
+    auto m1 = MassFlowController::create(fuel_in, combustor);
+    m1->setMassFlowRate(fuel_mdot);
 
-    // Now create the air mass flow controller.  Note that this connects
-    // two reactors with different reaction mechanisms and different
-    // numbers of species. Downstream and upstream species are matched by
-    // name.
-    MassFlowController m2;
-    m2.install(air_in, combustor);
-    m2.setMassFlowRate(air_mdot);
+    // Now create the air mass flow controller. Note that this connects two
+    // reactors with different reaction mechanisms and different numbers of
+    // species. Downstream and upstream species are matched by name.
+    auto m2 = MassFlowController::create(air_in, combustor);
+    m2->setMassFlowRate(air_mdot);
 
 
     // The igniter will use a Gaussian 'functor' object to specify the
@@ -84,17 +80,15 @@ void runexample()
     double A = 0.1;
     double FWHM = 0.2;
     double t0 = 0.5;
-    Gaussian1 igniter_mdot(A, t0, FWHM);
+    auto igniter_mdot = make_shared<Gaussian1>(A, t0, FWHM);
 
-    MassFlowController m3;
-    m3.install(igniter, combustor);
-    m3.setTimeFunction(&igniter_mdot);
+    auto m3 = MassFlowController::create(igniter, combustor);
+    m3->setTimeFunction(igniter_mdot);
 
     // put a valve on the exhaust line to regulate the pressure
-    Valve v;
-    v.install(combustor, exhaust);
+    auto v = Valve::create(combustor, exhaust);
     double Kv = 1.0;
-    v.setValveCoeff(Kv);
+    v->setValveCoeff(Kv);
 
     // the simulation only contains one reactor
     ReactorNet sim;
@@ -121,13 +115,13 @@ void runexample()
     while (tnow < tfinal) {
         tnow += 0.005;
         sim.advance(tnow);
-        tres = combustor.mass()/v.massFlowRate();
+        tres = combustor->mass() / v->massFlowRate();
         f << tnow << ", "
-          << combustor.temperature() << ", "
+          << combustor->temperature() << ", "
           << tres << ", ";
-        ThermoPhase& c = combustor.contents();
+        auto c = combustor->contents3()->thermo();
         for (size_t i = 0; i < k_out.size(); i++) {
-            f << c.moleFraction(k_out[i]) << ", ";
+            f << c->moleFraction(k_out[i]) << ", ";
         }
         f << std::endl;
     }

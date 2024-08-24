@@ -37,7 +37,7 @@ int kinetics1(int np, void* p)
     // Note that it is ok to insert the same gas object into multiple reactors
     // or reservoirs. All this means is that this object will be used to evaluate
     // thermodynamic or kinetic quantities needed.
-    IdealGasConstPressureReactor r(sol);
+    auto r = IdealGasConstPressureReactor::create(sol);
 
     double dt = 1.e-5; // interval at which output is written
     int nsteps = 100; // number of intervals
@@ -68,7 +68,7 @@ int kinetics1(int np, void* p)
 
     // print final temperature and timing data
     double tmm = 1.0*(t1 - t0)/CLOCKS_PER_SEC;
-    cout << " Tfinal = " << r.temperature() << endl;
+    cout << " Tfinal = " << r->temperature() << endl;
     cout << " time = " << tmm << endl;
     cout << " number of residual function evaluations = "
          << sim.integrator().nEvals() << endl;
