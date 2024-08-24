@@ -179,8 +179,9 @@ double HighPressureGasTransport::thermalConductivity()
     // below Equation 1 in @cite ely-hanley1981 .
     const double f_int = 1.32;
 
+    // Pure-species model parameters
     vector<double> Lambda_1_i(m_nsp); // Internal contribution to thermal conductivity (lamba'')
-    vector<double> f_i(m_nsp); // Pure-species model parameter
+    vector<double> f_i(m_nsp);
     vector<double> h_i(m_nsp);
     vector<double> V_k(m_nsp);
 
@@ -797,7 +798,7 @@ double ChungHighPressureGasTransport::highPressureThermalConductivity(
     static const vector<double> a = {2.44166, -5.0924e-1, 6.6107, 1.4543e1, 7.9274e-1, -5.8634, 9.1089e1};
     static const vector<double> b = {7.4824e-1, -1.5094, 5.6207, -8.9139, 8.2019e-1, 1.2801e1, 1.2811e2};
     static const vector<double> c = {-9.1858e-1, -4.9991e1, 6.4760e1, -5.6379, -6.9369e-1, 9.5893, -5.4217e1};
-    static const vector<double> d ={1.2172e2, 6.9983e1, 2.7039e1, 7.4344e1, 6.3173, 6.5529e1, 5.2381e2};
+    static const vector<double> d = {1.2172e2, 6.9983e1, 2.7039e1, 7.4344e1, 6.3173, 6.5529e1, 5.2381e2};
 
     // This is slightly pedantic, but this is done to have the naming convention in the
     // equations used match the variable names in the code. This is equation 10-5.9.
