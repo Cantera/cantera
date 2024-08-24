@@ -18,7 +18,7 @@ namespace Cantera
 class Reservoir : public ReactorBase
 {
 public:
-    using ReactorBase::ReactorBase; // inherit constructors
+    using ReactorBase::ReactorBase;  // inherit constructors
 
     //! Create a new Reservoir.
     //! @param contents  Solution object describing contents.

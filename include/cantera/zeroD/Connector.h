@@ -25,8 +25,6 @@ class ReactorNode;
 class Connector : public std::enable_shared_from_this<Connector>
 {
 protected:
-    Connector() = default;
-
     //! Instantiate a Connector object with associated ReactorNode objects.
     //! @param r0  First reactor.
     //! @param r1  Second reactor.
@@ -35,6 +33,7 @@ protected:
               const string& name="(none)") : m_nodes({r0, r1}), m_name(name) {}
 
 public:
+    Connector() = default;
     virtual ~Connector() = default;
     Connector(const Connector&) = delete;
     Connector& operator=(const Connector&) = delete;

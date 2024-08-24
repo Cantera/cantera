@@ -24,14 +24,11 @@ class ReactorBase;
 class FlowDevice : public Connector
 {
 protected:
-    using Connector::Connector;  // inherit constructors
-
     FlowDevice(shared_ptr<ReactorNode> r0, shared_ptr<ReactorNode> r1,
                const string& name="(none)");
 
 public:
-    //! @todo: deprecate public default constructor after Cantera 3.1 and make protected
-    FlowDevice() = default;
+    using Connector::Connector;  // inherit constructors
 
     string type() const override {
         return "FlowDevice";

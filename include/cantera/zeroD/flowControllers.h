@@ -19,12 +19,8 @@ namespace Cantera
  */
 class MassFlowController : public FlowDevice
 {
-protected:
-    using FlowDevice::FlowDevice;  // inherit constructors
-
 public:
-    //! @todo: deprecate public default constructor after Cantera 3.1 and make protected
-    MassFlowController() = default;
+    using FlowDevice::FlowDevice;  // inherit constructors
 
     //! Create a new MassFlowController.
     //! @param r0  Reactor upstream of the mass flow controller.
@@ -80,12 +76,8 @@ public:
  */
 class PressureController : public FlowDevice
 {
-protected:
-    using FlowDevice::FlowDevice;  // inherit constructors
-
 public:
-    //! @todo: deprecate public default constructor after Cantera 3.1 and make protected
-    PressureController() = default;
+    using FlowDevice::FlowDevice;  // inherit constructors
 
     //! Create a new PressureController.
     //! @param r0  Reactor upstream of the pressure controller.
@@ -153,12 +145,8 @@ protected:
  */
 class Valve : public FlowDevice
 {
-protected:
-    using FlowDevice::FlowDevice;  // inherit constructors
-
 public:
-    //! @todo: deprecate public default constructor after Cantera 3.1 and make protected
-    Valve() = default;
+    using FlowDevice::FlowDevice;  // inherit constructors
 
     //! Create a new Valve.
     //! @param r0  Reactor left of the valve.

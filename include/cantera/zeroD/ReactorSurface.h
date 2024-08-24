@@ -19,8 +19,10 @@ class SurfPhase;
 //! @ingroup reactorGroup
 class ReactorSurface : public ReactorNode
 {
-public:
+protected:
     ReactorSurface(shared_ptr<Solution> sol, const string& name="(none)");
+
+public:
     using ReactorNode::ReactorNode;  // inherit constructors
 
     //! Create a new ReactorSurface.

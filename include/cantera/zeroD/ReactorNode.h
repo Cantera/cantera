@@ -20,16 +20,15 @@ class Solution;
  */
 class ReactorNode
 {
-public:
-    //! Transitional constructor.
-    //! @todo  Implement deprecation warning.
-    explicit ReactorNode(const string& name="(none)") : m_name(name) {}
+protected:
     //! Instantiate a ReactorNode object with Solution contents.
     //! @param sol  Solution object to be set.
     //! @param name  Name of the reactor.
     //! @since New in %Cantera 3.1.
     ReactorNode(shared_ptr<Solution> sol, const string& name="(none)");
 
+public:
+    ReactorNode() = default;
     virtual ~ReactorNode();
     ReactorNode(const ReactorNode&) = delete;
     ReactorNode& operator=(const ReactorNode&) = delete;

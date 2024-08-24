@@ -21,12 +21,8 @@ class Func1;
  */
 class WallBase : public Connector
 {
-protected:
-    using Connector::Connector;  // inherit constructors
-
 public:
-    //! @todo: deprecate public default constructor after Cantera 3.1 and make protected
-    WallBase() = default;
+    using Connector::Connector;  // inherit constructors
 
     string type() const override {
         return "WallBase";
@@ -114,11 +110,9 @@ class Wall : public WallBase
 protected:
     Wall(shared_ptr<ReactorNode> r0, shared_ptr<ReactorNode> r1,
          const string& name="(none)");
-    using WallBase::WallBase;  // inherit constructors
 
 public:
-    //! @todo: deprecate public default constructor after Cantera 3.1 and make protected
-    Wall() = default;
+    using WallBase::WallBase;  // inherit constructors
 
     //! Create a new Wall.
     //! @param r0  Reactor left of the wall.

@@ -45,11 +45,11 @@ class AnyMap;
  */
 class Reactor : public ReactorBase
 {
-public:
+protected:
     Reactor(shared_ptr<Solution> sol, const string& name="(none)");
-    using ReactorBase::ReactorBase; // inherit constructors
 
-    Reactor() = default;
+public:
+    using ReactorBase::ReactorBase; // inherit constructors
 
     //! Create a new Reactor.
     //! @param contents  Solution object describing contents.

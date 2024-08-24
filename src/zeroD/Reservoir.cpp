@@ -10,7 +10,7 @@ namespace Cantera
 
 shared_ptr<Reservoir> newReservoir(shared_ptr<Solution> contents, const string& name)
 {
-    return make_shared<Reservoir>(contents, name);
+    return Reservoir::create(contents, name);
 }
 
 }

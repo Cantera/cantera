@@ -58,7 +58,9 @@ public:
 template <class R>
 class ReactorDelegator : public Delegator, public R, public ReactorAccessor
 {
-public:
+protected:
+    using R::R;  // inherit constructors
+
     ReactorDelegator(shared_ptr<Solution> contents, const string& name="(none)")
         : R(contents, name)
     {

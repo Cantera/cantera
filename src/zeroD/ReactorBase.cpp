@@ -14,24 +14,25 @@ namespace Cantera
 {
 
 ReactorBase::ReactorBase(shared_ptr<Solution> sol, const string& name)
-    : ReactorBase(name)
+    : ReactorNode(sol, name)
 {
-    if (!sol || !(sol->thermo())) {
-        warn_deprecated("ReactorBase::ReactorBase",
-            "Creation of empty reactor objects is deprecated in Cantera 3.1 and will "
-            "raise\nexceptions thereafter; reactor contents should be provided in the "
-            "constructor.");
+    if (!m_solution) {
+        // warning was raised by ReactorNode;
+        // @todo convert to exception after Cantera 3.1.
         return;
     }
-    setSolution(sol);
+    setThermo(*sol->thermo());
+    try {
+        setKinetics(*sol->kinetics());
+    } catch (NotImplementedError&) {
+        // kinetics not used (example: Reservoir)
+    }
 }
 
 void ReactorBase::setSolution(shared_ptr<Solution> sol) {
-    if (m_solution) {
-        warn_deprecated("ReactorBase::setSolution",
-            "After Cantera 3.1, a change of reactor contents after instantiation "
-            "will be disabled.");
-    }
+    warn_deprecated("ReactorBase::setSolution",
+        "After Cantera 3.1, a change of reactor contents after instantiation "
+        "will be disabled.");
     if (!sol || !(sol->thermo())) {
         throw CanteraError("ReactorBase::setSolution",
             "Missing or incomplete Solution object.");

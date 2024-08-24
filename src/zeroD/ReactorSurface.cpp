@@ -15,19 +15,17 @@ namespace Cantera
 {
 
 ReactorSurface::ReactorSurface(shared_ptr<Solution> sol, const string& name)
-    : ReactorNode(name)
+    : ReactorNode(sol, name)
 {
-    if (!sol || !(sol->thermo())) {
-        warn_deprecated("ReactorSurface::ReactorSurface",
-            "Creation of empty reactor objects is deprecated in Cantera 3.1 and will "
-            "raise\nexceptions thereafter; reactor contents should be provided in the "
-            "constructor.");
+    if (!m_solution) {
+        // warning was raised by ReactorNode;
+        // @todo convert to exception after Cantera 3.1.
         return;
-    } else if (!std::dynamic_pointer_cast<SurfPhase>(sol->thermo())) {
+    }
+    if (!std::dynamic_pointer_cast<SurfPhase>(sol->thermo())) {
         throw CanteraError("ReactorSurface::ReactorSurface",
             "Solution object must have a SurfPhase object as the thermo manager.");
     }
-    m_solution = sol;
 
     if (!sol->kinetics() ) {
         throw CanteraError("ReactorSurface::ReactorSurface",

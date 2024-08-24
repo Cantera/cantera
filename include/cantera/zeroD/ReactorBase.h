@@ -41,8 +41,10 @@ struct SensitivityParameter
  */
 class ReactorBase : public ReactorNode
 {
-public:
+protected:
     ReactorBase(shared_ptr<Solution> sol, const string& name="(none)");
+
+public:
     using ReactorNode::ReactorNode;  // inherit constructors
 
     string type() const override {
@@ -52,7 +54,7 @@ public:
     //! Set the Solution specifying the ReactorBase content.
     //! @param sol  Solution object to be set.
     //! @since New in %Cantera 3.1.
-    //! @deprecated  To be removed after %Cantera 3.1. Superseded by instiation of
+    //! @deprecated  To be removed after %Cantera 3.1. Superseded by instantiation of
     //!              ReactorBase with Solution object.
     void setSolution(shared_ptr<Solution> sol);
 
@@ -64,7 +66,7 @@ public:
         m_vol = vol;
     }
 
-    //! @deprecated  To be removed after %Cantera 3.1. Superseded by instiation of
+    //! @deprecated  To be removed after %Cantera 3.1. Superseded by instantiation of
     //!              ReactorBase with Solution object.
     void insert(shared_ptr<Solution> sol);
 
