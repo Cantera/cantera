@@ -24,7 +24,7 @@ TEST(zerodim, simple)
     auto reactor = std::dynamic_pointer_cast<ReactorBase>(cppNode);
     reactor->initialize();
     ReactorNet network;
-    network.addReactor(dynamic_cast<IdealGasReactor&>(*reactor));
+    network.addReactor(reactor);
     network.initialize();
 
     double t = 0.0;
@@ -212,7 +212,7 @@ TEST(zerodim, mole_reactor_2)
     preg->setPressureCoeff(1e-3);
 
     auto net = ReactorNet();
-    net.addReactor(*stirred);
+    net.addReactor(stirred);
     net.initialize();
 }
 

@@ -282,8 +282,7 @@ extern "C" {
     int reactornet_addreactor(int i, int n)
     {
         try {
-            NetworkCabinet::at(i)->addReactor(
-                dynamic_cast<Reactor&>(*ReactorCabinet::as<ReactorBase>(n)));
+            NetworkCabinet::at(i)->addReactor(ReactorCabinet::at(n));
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -404,7 +403,7 @@ extern "C" {
     {
         try {
             ConnectorCabinet::as<PressureController>(i)->setPrimary(
-                ConnectorCabinet::as<FlowDevice>(n).get());
+                ConnectorCabinet::at(n));
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -454,7 +453,7 @@ extern "C" {
     {
         try {
             ConnectorCabinet::as<FlowDevice>(i)->setPressureFunction(
-                FuncCabinet::at(n).get());
+                FuncCabinet::at(n));
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -465,7 +464,7 @@ extern "C" {
     {
         try {
             ConnectorCabinet::as<FlowDevice>(i)->setTimeFunction(
-                FuncCabinet::at(n).get());
+                FuncCabinet::at(n));
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -534,7 +533,7 @@ extern "C" {
     int wall_setHeatFlux(int i, int n)
     {
         try {
-            ConnectorCabinet::as<Wall>(i)->setHeatFlux(FuncCabinet::at(n).get());
+            ConnectorCabinet::as<Wall>(i)->setHeatFlux(FuncCabinet::at(n));
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -554,7 +553,7 @@ extern "C" {
     int wall_setVelocity(int i, int n)
     {
         try {
-            ConnectorCabinet::as<Wall>(i)->setVelocity(FuncCabinet::at(n).get());
+            ConnectorCabinet::as<Wall>(i)->setVelocity(FuncCabinet::at(n));
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -576,8 +575,7 @@ extern "C" {
     int reactorsurface_install(int i, int n)
     {
         try {
-            ReactorCabinet::as<ReactorBase>(n)->addSurface(
-                ReactorCabinet::as<ReactorSurface>(i).get());
+            ReactorCabinet::as<ReactorBase>(n)->addSurface(ReactorCabinet::at(i));
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);

@@ -62,6 +62,10 @@ public:
         throw NotImplementedError("MassFlowController::setPressureFunction");
     }
 
+    void setPressureFunction(shared_ptr<Func1> f) override {
+        throw NotImplementedError("MassFlowController::setPressureFunction");
+    }
+
     //! If a function of time has been specified for mdot, then update the
     //! stored mass flow rate. Otherwise, mdot is a constant, and does not
     //! need updating.
@@ -101,12 +105,34 @@ public:
     //! Set the primary mass flow controller.
     /*!
      * @since New in %Cantera 3.0.
+     * @deprecated  To be removed after %Cantera 3.1. Replaced by version using
+     *      shared pointer.
      */
     void setPrimary(FlowDevice* primary) {
+        warn_deprecated("PressureController::setPrimary",
+            "To be removed after Cantera 3.1. "
+            "Replaced by version using shared pointer.");
         m_primary = primary;
     }
 
+    //! Set the primary mass flow controller.
+    /*!
+     * @since New in %Cantera 3.1. Replaces version using raw pointer.
+     */
+    void setPrimary(shared_ptr<Connector> primary) {
+        auto dev = std::dynamic_pointer_cast<FlowDevice>(primary);
+        if (!dev) {
+            throw CanteraError("PressureController::setPrimary",
+                "Invalid flow device type: '{}'", primary->type());
+        }
+        m_primary = dev.get();
+    }
+
     void setTimeFunction(Func1* g) override {
+        throw NotImplementedError("PressureController::setTimeFunction");
+    }
+
+    void setTimeFunction(shared_ptr<Func1> g) override {
         throw NotImplementedError("PressureController::setTimeFunction");
     }
 

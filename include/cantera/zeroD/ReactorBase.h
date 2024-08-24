@@ -130,10 +130,15 @@ public:
     //! Return a reference to the *n*-th Wall connected to this reactor.
     WallBase& wall(size_t n);
 
+    //! @deprecated  To be removed after %Cantera 3.1. Replaced by version using
+    //!     shared pointer.
     virtual void addSurface(ReactorSurface* surf);
 
-    //! Return a reference to the *n*-th ReactorSurface connected to this
-    //! reactor
+    //! Add a ReactorSurface to a bulk reactor.
+    //! @since New in %Cantera 3.1. Replaces version using raw pointer.
+    virtual void addSurface(shared_ptr<ReactorNode> surf);
+
+    //! Return a reference to the *n*-th ReactorSurface connected to this reactor
     ReactorSurface* surface(size_t n);
 
     //! Return the number of surfaces in a reactor

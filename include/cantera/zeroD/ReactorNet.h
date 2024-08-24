@@ -143,7 +143,13 @@ public:
     double step();
 
     //! Add the reactor *r* to this reactor network.
+    //! @deprecated To be removed after %Cantera 3.1. Superseded by version using
+    //!     shared pointer.
     void addReactor(Reactor& r);
+
+    //! Add the reactor *r* to this reactor network.
+    //! @since New in Cantera 3.1. Replaces version using reference.
+    void addReactor(shared_ptr<ReactorNode> r);
 
     //! Return a reference to the *n*-th reactor in this network. The reactor
     //! indices are determined by the order in which the reactors were added

@@ -62,7 +62,7 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         void getState(double*) except +translate_exception
         CxxSparseMatrix jacobian() except +translate_exception
         CxxSparseMatrix finiteDifferenceJacobian() except +translate_exception
-        void addSurface(CxxReactorSurface*) except +translate_exception
+        void addSurface(shared_ptr[CxxReactorNode]) except +translate_exception
         void setAdvanceLimit(string&, double) except +translate_exception
         void addSensitivityReaction(size_t) except +translate_exception
         void addSensitivitySpeciesEnthalpy(size_t) except +translate_exception
@@ -125,9 +125,9 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         void setEmissivity(double) except +translate_exception
         double getEmissivity()
         double velocity()
-        void setVelocity(CxxFunc1*)
+        void setVelocity(shared_ptr[CxxFunc1])
         double heatFlux()
-        void setHeatFlux(CxxFunc1*)
+        void setHeatFlux(shared_ptr[CxxFunc1])
 
     # flow devices
 
@@ -136,9 +136,9 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         double massFlowRate() except +translate_exception
         double massFlowRate(double) except +translate_exception
         double evalPressureFunction() except +translate_exception
-        void setPressureFunction(CxxFunc1*) except +translate_exception
+        void setPressureFunction(shared_ptr[CxxFunc1]) except +translate_exception
         double evalTimeFunction() except +translate_exception
-        void setTimeFunction(CxxFunc1*) except +translate_exception
+        void setTimeFunction(shared_ptr[CxxFunc1]) except +translate_exception
 
     cdef cppclass CxxMassFlowController "Cantera::MassFlowController" (CxxFlowDevice):
         CxxMassFlowController() except +translate_exception
@@ -155,13 +155,13 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         CxxPressureController()
         double getPressureCoeff()
         void setPressureCoeff(double)
-        void setPrimary(CxxFlowDevice*)
+        void setPrimary(shared_ptr[CxxConnector])
 
     # reactor net
 
     cdef cppclass CxxReactorNet "Cantera::ReactorNet":
         CxxReactorNet()
-        void addReactor(CxxReactor&) except +translate_exception
+        void addReactor(shared_ptr[CxxReactorNode]) except +translate_exception
         double advance(double, cbool) except +translate_exception
         double step() except +translate_exception
         void initialize() except +translate_exception

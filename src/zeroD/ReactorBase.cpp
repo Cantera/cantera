@@ -120,8 +120,24 @@ WallBase& ReactorBase::wall(size_t n)
 
 void ReactorBase::addSurface(ReactorSurface* surf)
 {
+    warn_deprecated("FlowDevice::setTimeFunction",
+        "To be removed after Cantera 3.1. Replaced by version using shared "
+        "pointer.");
     if (find(m_surfaces.begin(), m_surfaces.end(), surf) == m_surfaces.end()) {
         m_surfaces.push_back(surf);
+        surf->setReactor(this);
+    }
+}
+
+void ReactorBase::addSurface(shared_ptr<ReactorNode> node)
+{
+    auto surf = std::dynamic_pointer_cast<ReactorSurface>(node);
+    if (!surf) {
+        throw CanteraError("ReactorBase::addSurface",
+            "Invalid type of reactor surface: '{}", node->type());
+    }
+    if (find(m_surfaces.begin(), m_surfaces.end(), surf.get()) == m_surfaces.end()) {
+        m_surfaces.push_back(surf.get());
         surf->setReactor(this);
     }
 }

@@ -97,7 +97,15 @@ public:
     //! Set a function of pressure that is used in determining the
     //! mass flow rate through the device. The evaluation of mass flow
     //! depends on the derived flow device class.
+    //! @deprecated To be removed after %Cantera 3.1. Superseded by version using
+    //!     shared pointer.
     virtual void setPressureFunction(Func1* f);
+
+    //! Set a function of pressure that is used in determining the
+    //! mass flow rate through the device. The evaluation of mass flow
+    //! depends on the derived flow device class.
+    //! @version New in %Cantera 3.1. Replaces version using raw pointer.
+    virtual void setPressureFunction(shared_ptr<Func1> f);
 
     //! Return current value of the time function.
     /*!
@@ -111,7 +119,15 @@ public:
     //! Set a function of time that is used in determining
     //! the mass flow rate through the device. The evaluation of mass flow
     //! depends on the derived flow device class.
+    //! @deprecated To be removed after %Cantera 3.1. Superseded by version using
+    //!     shared pointer.
     virtual void setTimeFunction(Func1* g);
+
+    //! Set a function of time that is used in determining
+    //! the mass flow rate through the device. The evaluation of mass flow
+    //! depends on the derived flow device class.
+    //! @version New in %Cantera 3.1. Replaces version using raw pointer.
+    virtual void setTimeFunction(shared_ptr<Func1> g);
 
     //! Set current reactor network time
     /*!
@@ -126,9 +142,11 @@ protected:
 
     //! Function set by setPressureFunction; used by updateMassFlowRate
     Func1* m_pfunc = nullptr;
+    shared_ptr<Func1> m_pfunc_shared;  //!< Shared pointer to pressure function.
 
     //! Function set by setTimeFunction; used by updateMassFlowRate
     Func1* m_tfunc = nullptr;
+    shared_ptr<Func1> m_tfunc_shared;  //!< Shared pointer to time function.
 
     //! Coefficient set by derived classes; used by updateMassFlowRate
     double m_coeff = 1.0;

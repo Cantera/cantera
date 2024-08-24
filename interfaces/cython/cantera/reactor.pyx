@@ -3,7 +3,6 @@
 
 import warnings
 import numbers as _numbers
-from cython.operator cimport dereference as deref
 
 from .thermo cimport *
 from ._utils cimport pystr, stringify, comp_map, py_to_anymap, anymap_to_py
@@ -863,7 +862,7 @@ cdef class ReactorSurface(ReactorNode):
         Add this `ReactorSurface` to the specified `Reactor`
         """
         r._surfaces.append(self)
-        r.reactor.addSurface(self.surface)
+        r.reactor.addSurface(self._node)
         self._reactor = r
 
     property area:
@@ -1228,7 +1227,7 @@ cdef class Wall(WallBase):
             f = Func1(v)
 
         self._velocity_func = f
-        (<CxxWall*>(self.wall)).setVelocity(f.func)
+        (<CxxWall*>(self.wall)).setVelocity(f._func)
 
     @property
     def heat_flux(self):
@@ -1249,7 +1248,7 @@ cdef class Wall(WallBase):
             f = Func1(q)
 
         self._heat_flux_func = f
-        (<CxxWall*>self.wall).setHeatFlux(f.func)
+        (<CxxWall*>self.wall).setHeatFlux(f._func)
 
 
 cdef class FlowDevice(Connector):
@@ -1329,7 +1328,7 @@ cdef class FlowDevice(Connector):
         else:
             f = Func1(k)
         self._rate_func = f
-        self.dev.setPressureFunction(f.func)
+        self.dev.setPressureFunction(f._func)
 
     @property
     def time_function(self):
@@ -1356,7 +1355,7 @@ cdef class FlowDevice(Connector):
         else:
             g = Func1(k)
         self._time_func = g
-        self.dev.setTimeFunction(g.func)
+        self.dev.setTimeFunction(g._func)
 
     def draw(self, graph=None, *, graph_attr=None, node_attr=None, edge_attr=None):
         """
@@ -1560,7 +1559,7 @@ cdef class PressureController(FlowDevice):
 
     @primary.setter
     def primary(self, FlowDevice d):
-        (<CxxPressureController*>self.dev).setPrimary(d.dev)
+        (<CxxPressureController*>self.dev).setPrimary(d._edge)
 
 
 cdef class ReactorNet:
@@ -1585,7 +1584,7 @@ cdef class ReactorNet:
     def add_reactor(self, Reactor r):
         """Add a reactor to the network."""
         self._reactors.append(r)
-        self.net.addReactor(deref(r.reactor))
+        self.net.addReactor(r._node)
 
     def advance(self, double t, pybool apply_limit=True):
         """
