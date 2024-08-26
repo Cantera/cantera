@@ -1,7 +1,7 @@
 import cantera as ct
 from . import utilities
 import numpy as np
-from .utilities import allow_deprecated
+from .utilities import allow_deprecated, yaml
 import pytest
 from pytest import approx
 
@@ -154,6 +154,22 @@ class TestOnedim(utilities.CanteraTest):
         for cls in ct.FlameBase.__subclasses__():
             with pytest.raises(ValueError, match="mutually exclusive"):
                 sim = cls(gas, grid=[0, 0.1, 0.2], width=0.4)
+
+
+def check_component_order(fname: str, group: str):
+    with fname.open("r", encoding="utf-8") as fid:
+        reader = yaml.YAML(typ="safe")
+        contents = reader.load(fid)
+    components = []
+    index = -1
+    for key, value in contents[group]["flame"].items():
+        if components:
+            index += 1
+            field = components.pop()
+            msg = f"Found mismatch of components at index {index}: expected {field!r}"
+            assert key == field, msg
+        if key == "components":
+            components = value[::-1]
 
 
 class TestFreeFlame(utilities.CanteraTest):
@@ -326,7 +342,8 @@ class TestFreeFlame(utilities.CanteraTest):
 
     def test_restart_yaml(self):
         # restart from YAML format
-        self.run_restart("yaml")
+        filename, group = self.run_restart("yaml")
+        check_component_order(filename, group)
 
     @pytest.mark.skipif("native" not in ct.hdf_support(),
                         reason="Cantera compiled without HDF support")
@@ -357,6 +374,7 @@ class TestFreeFlame(utilities.CanteraTest):
         rhou = self.sim.inlet.mdot
         for rhou_j in self.sim.density * self.sim.velocity:
             self.assertNear(rhou_j, rhou, 1e-4)
+        return data, group
 
     def test_settings(self):
         self.create_sim(p=ct.one_atm, Tin=400, reactants='H2:0.8, O2:0.5', width=0.1)
@@ -580,7 +598,8 @@ class TestFreeFlame(utilities.CanteraTest):
 
     def test_fixed_restore_yaml(self):
         # save and restore using YAML format
-        self.run_fixed_restore("yaml")
+        filename, group = self.run_fixed_restore("yaml")
+        check_component_order(filename, group)
 
     @pytest.mark.skipif("native" not in ct.hdf_support(),
                         reason="Cantera compiled without HDF support")
@@ -659,6 +678,8 @@ class TestFreeFlame(utilities.CanteraTest):
         self.assertEqual(self.sim.boundary_emissivities, (0.3, 0.8))
 
         self.sim.solve(loglevel=0)
+
+        return filename, "test"
 
     # @pytest.mark.filterwarnings("ignore:.*reaction_phase_index.*:DeprecationWarning")
     # TODO: remove fixture after Cantera 3.1; @pytest.mark.filterwarnings does not work
@@ -1673,7 +1694,8 @@ class TestStagnationFlame(utilities.CanteraTest):
         self.run_save_restore("h5")
 
     def test_restore_yaml(self):
-        self.run_save_restore("yaml")
+        filename, group = self.run_save_restore("yaml")
+        check_component_order(filename, group)
 
     def run_save_restore(self, mode):
         filename = self.test_work_path / f"stagnation.{mode}"
@@ -1686,6 +1708,7 @@ class TestStagnationFlame(utilities.CanteraTest):
         jet.restore(filename, "test")
 
         self.check_save_restore(jet)
+        return filename, "test"
 
     def check_save_restore(self, jet):
         # pytest.approx is used as equality for floats cannot be guaranteed for loaded
@@ -1783,7 +1806,8 @@ class TestImpingingJet(utilities.CanteraTest):
         self.run_save_restore("h5")
 
     def test_restore_yaml(self):
-        self.run_save_restore("yaml")
+        filename, group = self.run_save_restore("yaml")
+        check_component_order(filename, group)
 
     def run_save_restore(self, mode):
         filename = self.test_work_path / f"impingingjet.{mode}"
@@ -1797,6 +1821,7 @@ class TestImpingingJet(utilities.CanteraTest):
         jet.restore(filename, "test")
 
         self.check_save_restore(jet)
+        return filename, "test"
 
     def check_save_restore(self, jet, tol_T=None, tol_X=None):
         # pytest.approx is used as equality for floats cannot be guaranteed for loaded
@@ -1862,7 +1887,8 @@ class TestTwinFlame(utilities.CanteraTest):
 
     def test_save_restore_yaml(self):
         # save and restore using YAML format
-        self.run_save_restore("yaml")
+        filename, group = self.run_save_restore("yaml")
+        check_component_order(filename, group)
 
     @pytest.mark.skipif("native" not in ct.hdf_support(),
                         reason="Cantera compiled without HDF support")
@@ -1885,6 +1911,7 @@ class TestTwinFlame(utilities.CanteraTest):
         self.assertArrayNear(sim.Y, sim2.Y)
 
         sim2.solve(loglevel=0)
+        return filename, "solution"
 
     def test_bad_boundary_conditions(self):
         gas = ct.Solution("h2o2.yaml")
