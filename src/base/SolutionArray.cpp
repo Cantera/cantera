@@ -1227,8 +1227,8 @@ void SolutionArray::writeEntry(AnyMap& root, const string& name, const string& s
         data["components"] = componentNames();
     }
 
-    for (auto& [key, value] : *m_extra) {
-        data[key] = value;
+    for (auto& [_, key] : *m_order) {
+        data[key] = m_extra->at(key);
     }
 
     auto phase = m_sol->thermo();
