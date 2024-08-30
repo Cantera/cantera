@@ -453,7 +453,8 @@ protected:
      *
      * Computes the temperature dependent (referred to as the dilute viscosity in the
      * reference) component only (eta_0) from the expression in Table III in
-     * @cite ely-hanley1981
+     * @cite ely-hanley1981 . Prevents inputs larger than 10,000 Kelvin by just
+     * returning the value at 10,000 Kelvin.
      *
      * @param T0
      */
