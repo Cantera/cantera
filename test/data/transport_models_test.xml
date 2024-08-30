@@ -13,7 +13,7 @@
       <pressure units="Pa">2666.4473684210525</pressure>
       <moleFractions>H:0.002, H2:0.988, CH3:0.0002, CH4:0.01</moleFractions>
     </state>
-    <thermo model="IdealGas"/>
+    <thermo model="RedlichKwong"/>
     <kinetics model="GasKinetics"/>
     <transport model="UnityLewis"/>
   </phase>
@@ -28,7 +28,7 @@
       <pressure units="Pa">2666.4473684210525</pressure>
       <moleFractions>H:0.002, H2:0.988, CH3:0.0002, CH4:0.01</moleFractions>
     </state>
-    <thermo model="IdealGas"/>
+    <thermo model="RedlichKwong"/>
     <kinetics model="GasKinetics"/>
     <transport model="CK_Mix"/>
   </phase>
@@ -43,7 +43,7 @@
       <pressure units="Pa">2666.4473684210525</pressure>
       <moleFractions>H:0.002, H2:0.988, CH3:0.0002, CH4:0.01</moleFractions>
     </state>
-    <thermo model="IdealGas"/>
+    <thermo model="RedlichKwong"/>
     <kinetics model="GasKinetics"/>
     <transport model="CK_Multi"/>
   </phase>
@@ -58,7 +58,7 @@
       <pressure units="Pa">2666.4473684210525</pressure>
       <moleFractions>H:0.002, H2:0.988, CH3:0.0002, CH4:0.01</moleFractions>
     </state>
-    <thermo model="IdealGas"/>
+    <thermo model="RedlichKwong"/>
     <kinetics model="GasKinetics"/>
     <transport model="HighP"/>
   </phase>
