@@ -8,7 +8,7 @@ phases:
   elements: [H, C]
   species:
   - gri30.yaml/species: [H, H2, CH3, CH4]
-  thermo: ideal-gas
+  thermo: Redlich-Kwong
   transport: unity-Lewis-number
   skip-undeclared-third-bodies: true
   kinetics: gas
@@ -20,7 +20,7 @@ phases:
   elements: [H, C]
   species:
   - gri30.yaml/species: [H, H2, CH3, CH4]
-  thermo: ideal-gas
+  thermo: Redlich-Kwong
   transport: mixture-averaged-CK
   skip-undeclared-third-bodies: true
   kinetics: gas
@@ -32,7 +32,7 @@ phases:
   elements: [H, C]
   species:
   - gri30.yaml/species: [H, H2, CH3, CH4]
-  thermo: ideal-gas
+  thermo: Redlich-Kwong
   transport: multicomponent-CK
   skip-undeclared-third-bodies: true
   kinetics: gas
@@ -44,7 +44,7 @@ phases:
   elements: [H, C]
   species:
   - gri30.yaml/species: [H, H2, CH3, CH4]
-  thermo: ideal-gas
+  thermo: Redlich-Kwong
   transport: high-pressure
   skip-undeclared-third-bodies: true
   kinetics: gas
