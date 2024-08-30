@@ -289,6 +289,10 @@ double HighPressureGasTransport::elyHanleyDiluteViscosity(double T0)
     // Conversion factor from the correlation in micrograms/cm/s to Pa*s.
     double const correlation_viscosity_conversion = 1e-7;
 
+    if (T0 > 10000) {
+        T0 = 10000; // Limit the temperature to 10000 K
+    }
+
     // Coefficients for the correlation from Table III of @cite ely-hanley1981
     const std::vector<double> c = {2.907741307e6, -3.312874033e6, 1.608101838e6,
         -4.331904871e5, 7.062481330e4, -7.116620750e3, 4.325174400e2, -1.445911210e1, 2.037119479e-1};
