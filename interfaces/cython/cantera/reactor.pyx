@@ -2083,6 +2083,7 @@ cdef class ReactorNet:
 
         .. versionadded:: 3.1
         """
-        return draw_reactor_net(self, graph_attr, node_attr, edge_attr, heat_flow_attr,
-                 mass_flow_attr, moving_wall_edge_attr, surface_edge_attr,
-                 show_wall_velocity, print_state, species, species_units)
+        return draw_reactor_net(self, graph_attr, node_attr, edge_attr,
+                                heat_flow_attr, mass_flow_attr, moving_wall_edge_attr,
+                                surface_edge_attr, show_wall_velocity, print_state,
+                                species, species_units)

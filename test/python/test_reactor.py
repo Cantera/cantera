@@ -1017,11 +1017,11 @@ class TestReactor(utilities.CanteraTest):
         self.make_reactors(T1=T1, P1=P1, X1=X1, T2=T2, P2=P2, X2=X2)
         self.r1.name = "Name 1"
         self.r2.name = "Name 2"
-        w = ct.Wall(self.r1, self.r2, U=0.1, edge_attr={'style': 'dotted'})
+        w = ct.Wall(self.r1, self.r2, U=0.1, edge_attr={'style': 'dotted'}, name="wall")
         w.edge_attr = {'color': 'green'}
         graph = w.draw(node_attr={'style': 'filled'},
                        edge_attr={'style': 'dashed', 'color': 'blue'})
-        expected = [('\t"Name 2" -> "Name 1" [label="q = 30 W" '
+        expected = [('\t"Name 2" -> "Name 1" [label="wall\\nQ̇ = 30 W" '
                      'color=blue style=dashed]\n')]
         assert graph.body == expected
 
@@ -1032,19 +1032,19 @@ class TestReactor(utilities.CanteraTest):
         self.make_reactors(T1=T1, P1=P1, X1=X1, T2=T2, P2=P2, X2=X2)
         self.r1.name = "Name 1"
         self.r2.name = "Name 2"
-        w = ct.Wall(self.r1, self.r2, U=0.1, velocity=1)
+        w = ct.Wall(self.r1, self.r2, U=0.1, velocity=1, name="wall")
         graph = w.draw()
-        expected = [('\t"Name 1" -> "Name 2" [label="wall vel. = 1 m/s" '
+        expected = [('\t"Name 1" -> "Name 2" [label="wall\\nv = 1 m/s" '
                      'arrowhead=icurveteecurve arrowtail=icurveteecurve '
                      'dir=both style=dotted]\n'),
-                    ('\t"Name 2" -> "Name 1" [label="q = 30 W" '
+                    ('\t"Name 2" -> "Name 1" [label="wall\\nQ̇ = 30 W" '
                      'color=red style=dashed]\n')]
         assert graph.body == expected
 
         # omit heat flow if zero
         w.heat_transfer_coeff = 0
         graph = w.draw()
-        expected = [('\t"Name 1" -> "Name 2" [label="wall vel. = 1 m/s" '
+        expected = [('\t"Name 1" -> "Name 2" [label="wall\\nv = 1 m/s" '
                      'arrowhead=icurveteecurve arrowtail=icurveteecurve '
                      'dir=both style=dotted]\n')]
         assert graph.body == expected
@@ -1059,13 +1059,13 @@ class TestReactor(utilities.CanteraTest):
         gas2.TPX = 300, 101325, 'H2:1.0'
         outlet_reservoir = ct.Reservoir(gas2, name='Outlet')
         mfc = ct.MassFlowController(inlet_reservoir, self.r1, mdot=2,
-                                    edge_attr={'xlabel': 'MFC'})
-        pfc = ct.PressureController(self.r1, outlet_reservoir, primary=mfc)
+                                    edge_attr={'xlabel': 'MFC'}, name="MFC")
+        ct.PressureController(self.r1, outlet_reservoir, primary=mfc, name="PC")
         mfc.edge_attr.update({'color': 'purple'})
         self.net.advance_to_steady_state()
         graph = mfc.draw(node_attr={'style': 'filled'},
                          edge_attr={'style': 'dotted', 'color': 'blue'})
-        expected = [('\tInlet -> Reactor [label="ṁ = 2 kg/s" color=blue '
+        expected = [('\tInlet -> Reactor [label="MFC\\nṁ = 2 kg/s" color=blue '
                      'style=dotted xlabel=MFC]\n')]
         assert graph.body == expected
 
@@ -1074,39 +1074,42 @@ class TestReactor(utilities.CanteraTest):
         self.make_reactors()
         self.r1.name = "RH"
         self.r2.name = "RC"
-        self.add_wall(U=10)
+        self.add_wall(U=10, name="wall")
         gas2 = ct.Solution('h2o2.yaml', transport_model=None)
         gas2.TPX = 600, 101325, 'O2:1.0'
         hot_inlet = ct.Reservoir(gas2, name='InH')
         gas2.TPX = 200, 101325, 'O2:1.0'
         cold_inlet = ct.Reservoir(gas2, name='InC')
         outlet = ct.Reservoir(gas2, name='Out')
-        mfc_hot1 = ct.MassFlowController(hot_inlet, self.r1, mdot=2)
-        mfc_hot2 = ct.MassFlowController(hot_inlet, self.r1, mdot=1)
-        mfc_cold = ct.MassFlowController(cold_inlet, self.r2, mdot=2)
-        pfc_hot1 = ct.PressureController(self.r1, outlet, primary=mfc_hot1)
-        pfc_hot2 = ct.PressureController(self.r1, outlet, primary=mfc_hot2)
-        pfc_cold = ct.PressureController(self.r2, outlet, primary=mfc_cold)
+        mfc_hot1 = ct.MassFlowController(hot_inlet, self.r1, mdot=1.5, name='mfc_h1')
+        mfc_hot2 = ct.MassFlowController(hot_inlet, self.r1, mdot=1, name='mfc_h2')
+        mfc_cold = ct.MassFlowController(cold_inlet, self.r2, mdot=2, name='mfc_c')
+        ct.PressureController(self.r1, outlet, primary=mfc_hot1, name='pc_h1')
+        ct.PressureController(self.r1, outlet, primary=mfc_hot2, name='pc_h2')
+        ct.PressureController(self.r2, outlet, primary=mfc_cold, name='pc_c')
         self.net.advance_to_steady_state()
         graph = self.net.draw(mass_flow_attr={'color': 'green'},
                               heat_flow_attr={'color': 'orange'},
                               print_state=True)
         expected = {
             '\tRC [label="{RC|{T (K)\\n202.18|P (bar)\\n1.013}}" shape=Mrecord]\n',
-            '\tRH [label="{RH|{T (K)\\n598.68|P (bar)\\n1.013}}" shape=Mrecord]\n',
             '\tOut [label="{Out|{T (K)\\n200.00|P (bar)\\n1.013}}" shape=Mrecord]\n',
-            '\tRC [label="{RC|{T (K)\\n202.18|P (bar)\\n1.013}}" shape=Mrecord]\n',
             '\tInH [label="{InH|{T (K)\\n600.00|P (bar)\\n1.013}}" shape=Mrecord]\n',
             '\tInC [label="{InC|{T (K)\\n200.00|P (bar)\\n1.013}}" shape=Mrecord]\n',
-            '\tRH [label="{RH|{T (K)\\n598.68|P (bar)\\n1.013}}" shape=Mrecord]\n',
-            '\tInH -> RH [label="ṁ = 3 kg/s" color=green]\n',
-            '\tRH -> Out [label="ṁ = 3 kg/s" color=green]\n',
-            '\tRC -> Out [label="ṁ = 2 kg/s" color=green]\n',
-            '\tInC -> RC [label="ṁ = 2 kg/s" color=green]\n',
-            '\tRH -> RC [label="q = 4e+03 W" color=orange style=dashed]\n'
+            '\tRH [label="{RH|{T (K)\\n598.42|P (bar)\\n1.013}}" shape=Mrecord]\n',
+            '\tInH -> RH [label="mfc_h1\\nṁ = 2.5 kg/s" color=green]\n',
+            '\tInH -> RH [label="mfc_h2\\nṁ = 2.5 kg/s" color=green]\n',
+            '\tRH -> Out [label="pc_h1\\nṁ = 2.5 kg/s" color=green]\n',
+            '\tRH -> Out [label="pc_h2\\nṁ = 2.5 kg/s" color=green]\n',
+            '\tRC -> Out [label="pc_c\\nṁ = 2 kg/s" color=green]\n',
+            '\tInC -> RC [label="mfc_c\\nṁ = 2 kg/s" color=green]\n',
+            '\tRH -> RC [label="wall\\nQ̇ = 4e+03 W" color=orange style=dashed]\n'
         }
         # use sets because order can be random
-        assert set(graph.body) == expected
+        # expected defines two alternatives for inH -> RH and RH -> Out as test defines
+        # pairs of redundant mass flow controllers and pressure controllers; dependent
+        # on type of reactor, either first or second is chosen for the visualization.
+        assert not set(graph.body) - expected
 
 
 class TestMoleReactor(TestReactor):

@@ -246,8 +246,8 @@ def draw_flow_controllers(flow_controllers, graph=None, graph_attr=None, node_at
             rate *= -1
 
         graph.edge(inflow_name, outflow_name,
-                   **{"label": f"ṁ = {rate:.2g} kg/s", **edge_attr, **fc.edge_attr,
-                      **edge_attr_overwrite})
+                   **{"label": f"{fc.name}\\nṁ = {rate:.2g} kg/s",
+                      **edge_attr, **fc.edge_attr, **edge_attr_overwrite})
 
     return graph
 
@@ -291,18 +291,18 @@ def draw_walls(walls, graph=None, graph_attr=None, node_attr=None, edge_attr=Non
         assert r_in.name != r_out.name, "All reactors must have unique names when drawn."
 
         # display wall velocity as arrow indicating the wall's movement
-        v = w.expansion_rate / w.area
-        if v != 0 and show_wall_velocity:
-            if v > 0:
+        vel = w.expansion_rate / w.area
+        if vel != 0 and show_wall_velocity:
+            if vel > 0:
                 inflow_name, outflow_name = r_in.name, r_out.name
             else:
-                v *= -1
+                vel *= -1
                 inflow_name, outflow_name = r_out.name, r_in.name
 
             graph.edge(inflow_name, outflow_name,
                        **{"arrowtail": "icurveteecurve", "dir": "both",
                           "style": "dotted", "arrowhead": "icurveteecurve",
-                          "label": f"wall vel. = {v:.2g} m/s",
+                          "label": f"{w.name}\\nv = {vel:.2g} m/s",
                           **(moving_wall_edge_attr or {})})
 
         # sum up heat rate/mass flow rate while considering the direction
@@ -310,7 +310,7 @@ def draw_walls(walls, graph=None, graph_attr=None, node_attr=None, edge_attr=Non
                 - sum(idupe.heat_Rate for idupe in inv_duplicates))
 
         # just show wall velocity if there is no heat flow
-        if rate == 0 and v > 0:
+        if rate == 0 and vel > 0:
             return graph
 
         # ensure arrow always indicates a positive flow
@@ -321,7 +321,7 @@ def draw_walls(walls, graph=None, graph_attr=None, node_attr=None, edge_attr=Non
 
         edge_attr = {"color": "red", "style": "dashed", **(edge_attr or {})}
         graph.edge(inflow_name, outflow_name,
-                   **{"label": f"q = {rate:.2g} W", **edge_attr, **w.edge_attr,
-                      **edge_attr_overwrite})
+                   **{"label": f"{w.name}\\nQ̇ = {rate:.2g} W",
+                      **edge_attr, **w.edge_attr, **edge_attr_overwrite})
 
     return graph
