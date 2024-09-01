@@ -57,12 +57,12 @@ r2 = ct.IdealGasReactor(gas, name="Reacting partition")
 # conduct heat
 
 # add a flexible wall (a piston) between r2 and r1
-w = ct.Wall(r2, r1, A=1.0, K=0.5e-4, U=100.0)
+w = ct.Wall(r2, r1, A=1.0, K=0.5e-4, U=100.0, name="Piston")
 
 # heat loss to the environment. Heat loss always occur through walls, so we
 # create a wall separating r2 from the environment, give it a non-zero area,
 # and specify the overall heat transfer coefficient through the wall.
-w2 = ct.Wall(r2, env, A=1.0, U=500.0)
+w2 = ct.Wall(r2, env, A=1.0, U=500.0, name="External Wall")
 
 sim = ct.ReactorNet([r1, r2])
 
@@ -118,4 +118,7 @@ _ = ax[2].set(xlabel='Time (s)', ylabel='Volume (m$^3$)')
 # %%
 # Show the final state
 # --------------------
-sim.draw(print_state=True, species="X")
+try:
+    diagram = sim.draw(print_state=True, species="X")
+except ImportError as err:
+    print(f"Unable to show network structure:\n{err}")

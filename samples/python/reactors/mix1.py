@@ -47,27 +47,27 @@ rho_b = gas_b.density
 # replaced with a reactor with no outlet, if it is desired to integrate the
 # composition leaving the mixer in time, or by an arbitrary network of
 # downstream reactors.
-res_a = ct.Reservoir(gas_a, name='air')
-res_b = ct.Reservoir(gas_b, name='fuel')
-downstream = ct.Reservoir(gas_b, name='outlet')
+res_a = ct.Reservoir(gas_a, name='Air Reservoir')
+res_b = ct.Reservoir(gas_b, name='Fuel Reservoir')
+downstream = ct.Reservoir(gas_a, name='Outlet Reservoir')
 
 # %%
 # Create a reactor for the mixer. A reactor is required instead of a
 # reservoir, since the state will change with time if the inlet mass flow
 # rates change or if there is chemistry occurring.
 gas_b.TPX = 300.0, ct.one_atm, 'O2:0.21, N2:0.78, AR:0.01'
-mixer = ct.IdealGasReactor(gas_b, name='mixer')
+mixer = ct.IdealGasReactor(gas_b, name='Mixer')
 
 # %%
 # Create two mass flow controllers connecting the upstream reservoirs to the
 # mixer, and set their mass flow rates to values corresponding to
 # stoichiometric combustion.
-mfc1 = ct.MassFlowController(res_a, mixer, mdot=rho_a*2.5/0.21)
-mfc2 = ct.MassFlowController(res_b, mixer, mdot=rho_b*1.0)
+mfc1 = ct.MassFlowController(res_a, mixer, mdot=rho_a*2.5/0.21, name="Air Inlet")
+mfc2 = ct.MassFlowController(res_b, mixer, mdot=rho_b*1.0, name="Fuel Inlet")
 
 # %%
 # Connect the mixer to the downstream reservoir with a valve.
-outlet = ct.Valve(mixer, downstream, K=10.0)
+outlet = ct.Valve(mixer, downstream, K=10.0, name="Valve")
 
 sim = ct.ReactorNet([mixer])
 
@@ -84,4 +84,7 @@ print(mixer.thermo.report())
 # %%
 # Show the network structure
 # --------------------------
-diagram = sim.draw(print_state=True, species="X")
+try:
+    diagram = sim.draw(print_state=True, species="X")
+except ImportError as err:
+    print(f"Unable to show network structure:\n{err}")
