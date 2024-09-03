@@ -1145,7 +1145,7 @@ def compiler_flag_list(
     cc_flags = []
     for flag in flags:
         if flag in cc_flags:
-                continue
+            continue
         if not any(re.match(exclude, flag) for exclude in excludes):
             cc_flags.append(flag)
 
@@ -1212,9 +1212,8 @@ def listify(value: "Union[str, Iterable]") -> "List[str]":
     """
     if isinstance(value, str):
         return value.split()
-    else:
-        # Already a sequence. Return as a list
-        return list(value)
+    # Already a sequence. Return as a list
+    return list(value)
 
 
 def remove_file(name: "TPathLike") -> None:
@@ -1231,19 +1230,6 @@ def remove_directory(name: "TPathLike") -> None:
     if path_name.exists() and path_name.is_dir():
         logger.info(f"Removing directory '{name!s}'")
         shutil.rmtree(path_name)
-
-
-def ipdb():
-    """
-    Break execution and drop into an IPython debug shell at the point
-    where this function is called.
-    """
-    from IPython.core.debugger import Pdb
-    from IPython.core import getipython
-
-    ip = getipython.get_ipython()
-    def_colors = ip.colors
-    Pdb(def_colors).set_trace(sys._getframe().f_back)
 
 
 def get_spawn(env: "SCEnvironment"):
@@ -1305,6 +1291,7 @@ def get_command_output(cmd: str, *args: str, ignore_errors=False):
         **kwargs,
     )
     return data.stdout.strip()
+
 
 _python_info = None
 def setup_python_env(env):
@@ -1392,6 +1379,7 @@ def setup_python_env(env):
 
 
     return env
+
 
 def get_pip_install_location(
     python_cmd: str,
