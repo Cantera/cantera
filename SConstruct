@@ -91,11 +91,16 @@ from packaging.specifiers import SpecifierSet
 from packaging.version import parse as parse_version
 import SCons
 
+from buildutils import (Option, PathOption, BoolOption, EnumOption, Configuration,
+                        logger, remove_directory, remove_file, test_results,
+                        add_RegressionTest, get_command_output, listify, which,
+                        ConfigBuilder, multi_glob, quoted, add_system_include,
+                        checkout_submodule, check_for_python, check_sundials,
+                        config_error, run_preprocessor, make_relative_path_absolute)
+
 # ensure that Python and SCons versions are sufficient for the build process
 EnsurePythonVersion(3, 7)
 EnsureSConsVersion(3, 0, 0)
-
-from buildutils import *
 
 if not COMMAND_LINE_TARGETS:
     # Print usage help
@@ -1862,7 +1867,7 @@ cdefine('CT_USE_SYSTEM_YAMLCPP', 'system_yamlcpp')
 
 config_h_build = env.Command('build/src/config.h.build',
                              'include/cantera/base/config.h.in',
-                       ConfigBuilder(configh))
+                             ConfigBuilder(configh))
 # This separate copy operation, which SCons will skip if config.h.build is
 # unmodified, prevents unnecessary rebuilds of the precompiled header
 config_h = env.Command('include/cantera/base/config.h',

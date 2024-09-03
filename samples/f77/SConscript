@@ -1,5 +1,4 @@
-from os.path import join as pjoin, relpath
-from buildutils import *
+from buildutils import compiler_flag_list
 
 Import('env', 'install', 'buildSample')
 localenv = env.Clone()

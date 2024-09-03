@@ -1,6 +1,4 @@
-import os
-
-from buildutils import *
+from buildutils import multi_glob, compiler_flag_list
 
 Import('env', 'build', 'install')
 localenv = env.Clone()

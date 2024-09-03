@@ -1,9 +1,9 @@
-
 from collections import namedtuple
 from pathlib import Path
 import subprocess
-from buildutils import *
 from SCons import Errors
+
+from buildutils import multi_glob
 
 Import('env', 'build', 'install')
 

@@ -5,7 +5,7 @@ from os.path import join as pjoin
 import time
 import sys
 
-from buildutils import *
+from buildutils import logger, test_results, multi_glob
 
 Import('env','build','install')
 localenv = env.Clone()
