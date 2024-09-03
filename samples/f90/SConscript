@@ -1,5 +1,6 @@
-from os.path import join as pjoin, relpath
-from buildutils import *
+from os.path import join as pjoin
+
+from buildutils import quoted
 
 Import('env', 'install', 'buildSample')
 localenv = env.Clone()

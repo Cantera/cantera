@@ -1,6 +1,7 @@
 import os
 from os.path import join as pjoin
-from buildutils import *
+
+from buildutils import test_results, multi_glob
 
 Import('env','build','install')
 localenv = env.Clone()

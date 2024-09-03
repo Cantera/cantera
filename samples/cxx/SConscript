@@ -1,7 +1,7 @@
 from os.path import join as pjoin
-import os
-from buildutils import *
 from collections import namedtuple
+
+from buildutils import logger, multi_glob, quoted, compiler_flag_list
 
 Import('env', 'build', 'install', 'buildSample')
 

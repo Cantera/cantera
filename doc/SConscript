@@ -1,11 +1,9 @@
-
 from collections import namedtuple
-from os.path import join as pjoin
 from pathlib import Path
-import os
 import subprocess
-from buildutils import *
 from SCons import Errors
+
+from buildutils import multi_glob
 
 Import('env', 'build', 'install')
 

@@ -2,7 +2,9 @@
 import re
 from pathlib import Path
 from packaging.version import parse as parse_version
-from buildutils import *
+
+from buildutils import (get_command_output, which, multi_glob,
+                        get_pip_install_location, setup_python_env)
 
 Import('env', 'build', 'install')
 
