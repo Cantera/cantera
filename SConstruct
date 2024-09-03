@@ -86,6 +86,7 @@ import atexit
 import subprocess
 import re
 import textwrap
+from copy import deepcopy
 from packaging.specifiers import SpecifierSet
 from packaging.version import parse as parse_version
 import SCons
@@ -787,6 +788,11 @@ if "help" in COMMAND_LINE_TARGETS:
 
         sys.exit(0)
 
+if "sphinx" in COMMAND_LINE_TARGETS:
+    # need to buffer all options before system-dependent selections are applied
+    windows_options_full = deepcopy(windows_options)
+    config_options_full = deepcopy(config_options)
+
 # **************************************
 # *** Read user-configurable options ***
 # **************************************
@@ -987,8 +993,11 @@ for arg in ARGUMENTS:
 
 # Store full config for doc build
 if env['sphinx_docs']:
-    config.add(windows_options)
-    env['config'] = config
+    # rebuild configuration from buffered options
+    config_full = Configuration()
+    config_full.add(windows_options_full)
+    config_full.add(config_options_full)
+    env['config'] = config_full
 def get_processor_name():
     """Check processor name"""
     # adapted from:
