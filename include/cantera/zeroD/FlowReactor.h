@@ -30,7 +30,7 @@ public:
         return false;
     }
 
-    //! Not implemented; FlowReactor implements getStateDAE() instead.
+    //! Not implemented; FlowReactor implements getStateDae() instead.
     void getState(double* y) override {
         throw NotImplementedError("FlowReactor::getState");
     }
