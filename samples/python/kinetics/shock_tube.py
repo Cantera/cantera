@@ -1,6 +1,6 @@
 """
 Simulate species profiles for a shock tube as a function of time, and observe the impact of
-incorporating the reduced-pressure linear mixture rule (LMR-R) in such calculations. 
+incorporating the reduced-pressure linear mixture rule (LMR-R) in such calculations.
 
 Here we predict the H2O mole fraction time profiles for a mixture of 
 1163 ppm H2O2/1330 ppm H2O/665 ppm O2/20% CO2/Ar following reflected shock waves at 1196 K
@@ -68,9 +68,9 @@ expData = {
 }
 
 plt.plot(expData['t'],np.array(expData['X_H2O'])*100,'o',markersize=3.5,fillstyle='none',color='k',label='Shao et al.')
-plt.legend(fontsize=8,frameon=False, loc='lower right')  
+plt.legend(fontsize=8,frameon=False, loc='lower right')
 plt.ylabel(r'$\rm H_2O$ mole fraction [%]')
 plt.xlabel(r'Time [$\mathdefault{\mu s}$]')
 plt.xlim([0,300])
 plt.ylim([0.12,0.28])
-plt.show()     
+plt.show()

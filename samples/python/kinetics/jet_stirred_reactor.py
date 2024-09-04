@@ -73,7 +73,6 @@ def main():
         'Original':'alzueta.yaml',
         'LMR-R':'alzueta_LMRR.yaml',
         }
-    
     inputs = {
         'X': {'H2': 0.03, 'O2': 0.03, 'Ar': 0.846, 'NH3':0.094},
         'T_range': np.linspace(800,1050,50), # [K]
@@ -100,7 +99,7 @@ def main():
         gas.TPX = inputs['Tin'], inputs['P']*ct.one_atm, inputs['X']
         tempDependence = getTemperatureDependence(gas,inputs)
         ax[0].plot(tempDependence.index, np.subtract(tempDependence['temperature'],tempDependence.index), color=colours[k],label=m) 
-        ax[1].plot(tempDependence.index, tempDependence['O2']*100, color=colours[k])   
+        ax[1].plot(tempDependence.index, tempDependence['O2']*100, color=colours[k])
         ax[2].plot(tempDependence.index, tempDependence['H2']*100, color=colours[k])
     ax[0].plot(inputs['data']['T_range'],inputs['data']['deltaT'],'o',markersize=3.5,fillstyle='none',color='k',label="Sabia et al.")
     ax[1].plot(inputs['data']['T_range'],inputs['data']['X_O2'],'o',markersize=3.5,fillstyle='none',color='k')

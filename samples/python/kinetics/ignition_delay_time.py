@@ -1,7 +1,7 @@
 """
 Simulate ignition delay times for a shock tube across a range of initial temperatures,
 and observe the impact of incorporating the reduced-pressure linear mixture rule (LMR-R)
-in such calculations. 
+in such calculations.
 
 Here we predict ignition delay times behind reflected shock waves for a mixture of
 3% H2/1.5% O2/20% CO2/Ar at ~12 atm, and compare results against the experimental measurements
@@ -81,4 +81,4 @@ plt.xlabel('Temperature [K]')
 plt.title('Ignition delay times for 3% H$_2$/1.5% O$_2$/20% CO$_2$/Ar at ~12 atm',fontsize=10)
 
 plt.legend(fontsize=10, frameon=False, loc='upper right')
-plt.show()     
+plt.show()
