@@ -45,26 +45,26 @@ Tin = 296  # unburned gas temperature [K]
 p=760
 
 for k, m in enumerate(models):
-  vel_list = []
-  phi_list = []
-  for j, fuel_frac in enumerate(fuel_list):
-      gas = ct.Solution(list(models.values())[k])
-      NH3 = alpha*fuel_frac
-      H2 = (1-alpha)*fuel_frac
-      ox_frac = 1 - fuel_frac # oxidizer fraction
-      O2 = ox_frac*0.21
-      N2 = ox_frac*0.79
-      phi = np.divide(fuel_frac/O2,1/a_st)
-      phi_list.append(phi)
-      X = {'NH3':NH3,'H2':H2,'O2':O2,'N2':N2}
-      gas.TPX = Tin, (p/760)*ct.one_atm, X
-      f = ct.FreeFlame(gas, width=0.03)
-      f.set_refine_criteria(ratio=3, slope=0.05, curve=0.05)
-      f.transport_model = 'multicomponent'
-      f.soret_enabled = True
-      f.solve(loglevel=1, auto=True)
-      vel_list.append(f.velocity[0] * 100) # cm/s
-  plt.plot(phi_list, vel_list, color=colours[k],label=m)
+    vel_list = []
+    phi_list = []
+    for j, fuel_frac in enumerate(fuel_list):
+        gas = ct.Solution(list(models.values())[k])
+        NH3 = alpha*fuel_frac
+        H2 = (1-alpha)*fuel_frac
+        ox_frac = 1 - fuel_frac # oxidizer fraction
+        O2 = ox_frac*0.21
+        N2 = ox_frac*0.79
+        phi = np.divide(fuel_frac/O2,1/a_st)
+        phi_list.append(phi)
+        X = {'NH3':NH3,'H2':H2,'O2':O2,'N2':N2}
+        gas.TPX = Tin, (p/760)*ct.one_atm, X
+        f = ct.FreeFlame(gas, width=0.03)
+        f.set_refine_criteria(ratio=3, slope=0.05, curve=0.05)
+        f.transport_model = 'multicomponent'
+        f.soret_enabled = True
+        f.solve(loglevel=1, auto=True)
+        vel_list.append(f.velocity[0] * 100) # cm/s
+    plt.plot(phi_list, vel_list, color=colours[k],label=m)
 
 expData = {
    'X_NH3': [16.3,16.4,17.0,18.0,19.0,20.0,21.9,24.0,26.0,28.5,29.0,30.0,31.0,31.5],
