@@ -1,7 +1,7 @@
 """
 Simulate temperature profiles and species profiles in a jet-stirred reactor across a range of
 initial temperatures, and observe the impact of incorporating the reduced-pressure linear mixture
-rule (LMR-R) in such calculations. Code for transient (time history) simulations is also provided. 
+rule (LMR-R) in such calculations.
 
 Here we will consider a mixture of H2/O2/NH3/Ar (with 10% NH3) at 1.2 atm, and compare results
 against the experimental measurements of Sabia et al. [1]
@@ -116,22 +116,3 @@ def main():
     plt.show()
 
 main()
-
-# # USE THE CODE BELOW AS A STARTING POINT FOR SIMULATING THE TIME HISTORY INSTEAD OF T-DEPENDENCE OF THE JSR
-# def getTimeHistory(gas, inputs): 
-#     stirredReactor = getStirredReactor(gas,inputs)
-#     reactorNetwork = ct.ReactorNet([stirredReactor])
-#     columnNames = ['pressure'] + [stirredReactor.component_name(item) for item in range(stirredReactor.n_vars)]
-#     timeHistory = pd.DataFrame(columns=columnNames)
-#     t = 0
-#     counter = 1
-#     while t < inputs['t_max']:
-#         t = reactorNetwork.step()
-#         if(counter%10 == 0):
-#             state = np.hstack([stirredReactor.thermo.P, stirredReactor.mass, 
-#                         stirredReactor.volume, stirredReactor.T, stirredReactor.thermo.X])
-#             timeHistory.loc[t] = state
-#         counter += 1
-#     return timeHistory
-
-    
