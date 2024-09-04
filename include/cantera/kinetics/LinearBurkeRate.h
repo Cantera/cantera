@@ -1,9 +1,9 @@
-//! @file LmrRate.h
+//! @file LinearBurkeRate.h
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
-#ifndef CT_LMRRATE_H
-#define CT_LMRRATE_H
+#ifndef CT_LINEARBURKERATE_H
+#define CT_LINEARBURKERATE_H
 #include "cantera/kinetics/Arrhenius.h"
 #include <boost/variant.hpp>
 #include "cantera/kinetics/Falloff.h"
@@ -13,14 +13,14 @@
 namespace Cantera
 {
 
-//! Data container holding shared data specific to LmrRate
+//! Data container holding shared data specific to LinearBurkeRate
 /**
- * The data container `LmrData` holds precalculated data common to
- * all `LmrRate` objects.
+ * The data container `LinearBurkeData` holds precalculated data common to
+ * all `LinearBurkeRate` objects.
  */
-struct LmrData : public ReactionData
+struct LinearBurkeData : public ReactionData
 {
-    LmrData();
+    LinearBurkeData();
 
     void update(double T, double P) override
     {
@@ -71,23 +71,23 @@ protected:
 /*!
  * [ADD IN THE MATHEMATICAL FORMULA]
  */
-class LmrRate final : public ReactionRate
+class LinearBurkeRate final : public ReactionRate
 {
 public:
     //! Default constructor.
-    LmrRate() = default;
+    LinearBurkeRate() = default;
 
     //! Constructor from Arrhenius rate expressions at a set of pressures
-    explicit LmrRate(const std::multimap<double, ArrheniusRate>& rates);
+    explicit LinearBurkeRate(const std::multimap<double, ArrheniusRate>& rates);
 
-    LmrRate(const AnyMap& node, const UnitStack& rate_units={});
+    LinearBurkeRate(const AnyMap& node, const UnitStack& rate_units={});
 
     unique_ptr<MultiRateBase> newMultiRate() const override {
-        return make_unique<MultiRate<LmrRate, LmrData>>();
+        return make_unique<MultiRate<LinearBurkeRate, LinearBurkeData>>();
     }
 
     //! Identifier of reaction rate type
-    const string type() const override { return "LMR_R"; }
+    const string type() const override { return "linear-burke"; }
 
     //! Perform object setup based on AnyMap node information
     /*!
@@ -108,10 +108,10 @@ public:
      */
     using RateTypes = boost::variant<PlogRate, TroeRate, ChebyshevRate>;
     using DataTypes = boost::variant<PlogData, FalloffData, ChebyshevData>;
-    double evalPlogRate(const LmrData& shared_data, DataTypes& dataObj, RateTypes& rateObj);
-    double evalTroeRate(const LmrData& shared_data, DataTypes& dataObj, RateTypes& rateObj);
-    double evalChebyshevRate(const LmrData& shared_data, DataTypes& dataObj, RateTypes& rateObj);
-    double evalFromStruct(const LmrData& shared_data);
+    double evalPlogRate(const LinearBurkeData& shared_data, DataTypes& dataObj, RateTypes& rateObj);
+    double evalTroeRate(const LinearBurkeData& shared_data, DataTypes& dataObj, RateTypes& rateObj);
+    double evalChebyshevRate(const LinearBurkeData& shared_data, DataTypes& dataObj, RateTypes& rateObj);
+    double evalFromStruct(const LinearBurkeData& shared_data);
 
     void setContext(const Reaction& rxn, const Kinetics& kin) override;
 
