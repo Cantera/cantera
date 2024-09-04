@@ -53,7 +53,7 @@ def getTemperatureDependence(gas, inputs):
     stirredReactor = getStirredReactor(gas,inputs)
     columnNames = ['pressure'] + [stirredReactor.component_name(item) for item in range(stirredReactor.n_vars)]
     tempDependence = pd.DataFrame(columns=columnNames)
-    for T in inputs['T_list']:
+    for T in inputs['T_range']:
         gas.TPX = T, inputs['P']*ct.one_atm, inputs['X']
         stirredReactor = getStirredReactor(gas,inputs)
         reactorNetwork = ct.ReactorNet([stirredReactor])
