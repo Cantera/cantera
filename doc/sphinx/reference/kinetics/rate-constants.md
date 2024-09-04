@@ -236,9 +236,9 @@ Chebyshev reactions can be defined in the YAML format using the
 ```
 
 (sec-lmrr)=
-## Reduced-Pressure Linear Mixture Rule (LMR-R) for Complex-Forming Reactions
+## Linear Burke Rate Expressions
 
-This mixture rule is used to evaluate the rate constants of complex-forming reactions, and is a mole-fraction-weighted sum of the bath gas rate constants (when pure) evaluated at the reduced pressure ($R$) and temperature ($T$) of the mixture.
+Linear Burke rate expressions employ the reduced-pressure linear mixture rule (LMR-R). This mixture rule is used to evaluate the rate constants of complex-forming reactions, and is a mole-fraction-weighted sum of the bath gas rate constants (when pure) evaluated at the reduced pressure ($R$) and temperature ($T$) of the mixture.
 
 $$
 k_{\text{LMR-R}}(T,P,\textit{\textbf{X}}) = \sum_{i} k_{i}(T,R_{\text{LMR}})\tilde{X}_{i,\text{LMR}}
@@ -279,7 +279,7 @@ $$
 k_{\text{LMR-R}}(T,P,\textit{\textbf{X}}) &= \sum_{n} k_{n}(T,P_{n,\text{LMR}}^{\text{ eff}})\tilde{X}_{n,\text{LMR}} + k_{M}(T,P_{M,\text{LMR}}^{\text{ eff}}) \left(1-\sum_{n}\tilde{X}_{n,\text{LMR}}\right)
 $$
 
-If the user has limited or incomplete access to parameter inputs (a likely scenario, given the scarcity of puplished third-body efficiencies and master equation eigenvalues), this computational implementation allowes them much greater flexibility and power to make educated assumptions. Further description of the LMR-R theory and computational method is available here {cite:singal}`singal2025` [citation not yet added]
+If the user has limited or incomplete access to parameter inputs (a likely scenario, given the scarcity of puplished third-body efficiencies and master equation eigenvalues), this computational implementation allowes them much greater flexibility and power to make educated assumptions. Further description of the LMR-R theory and computational method is available here {cite:singal}`singal2024` [citation not yet added]
 
 ```{versionadded} 3.1
 ```
