@@ -235,6 +235,55 @@ Chebyshev reactions can be defined in the YAML format using the
 [`Chebyshev`](sec-yaml-Chebyshev) reaction `type`.
 ```
 
+(sec-lmrr)=
+## Reduced-Pressure Linear Mixture Rule (LMR-R) for Complex-Forming Reactions
+
+This mixture rule is used to evaluate the rate constants of complex-forming reactions, and is a mole-fraction-weighted sum of the bath gas rate constants (when pure) evaluated at the reduced pressure ($R$) and temperature ($T$) of the mixture.
+
+$$
+k_{\text{LMR-R}}(T,P,\textit{\textbf{X}}) = \sum_{i} k_{i}(T,R_{\text{LMR}})\tilde{X}_{i,\text{LMR}}
+$$
+
+where the reduced pressure, $R$, in its most general form
+
+$$
+R_{\text{LMR}}(T,P,\textit{\textbf{X}}) = \frac{\sum_{i} \Lambda_{0,i}(T)X_i[M]}{\Lambda_{\infty}(T)}
+$$
+
+and the fractional contribution of each component to the reduced pressure, $\tilde{X}_{i}$
+
+$$
+\tilde{X}_{i,\text{LMR}}(T,P,\textit{\textbf{X}})=\frac{\Lambda_{0,i}(T)X_i}{\sum_{j} \Lambda_{0,j}(T)X_j}
+$$
+
+can be cast in terms of the absolute value of the least negative chemically significant eigenvalue of the master equation for the $i^{th}$ collider (when pure) in the low-pressure limit, $\Lambda_{0,i}(T)[M]$, and high-pressure limit, $\Lambda_{\infty}(T)$, and $[M]$ is the total concentration.
+
+Evaluating all rate constants at the reduced pressure ($R$)---instead of the pressure ($P$)---of the mixture takes advantage of the fact that rate constants (and their chemically significant eigenvectors) for different colliders are usually far more similar at the same $R$ than the same $P$. In practice, since rate constants are usually expressed with respect to pressure $P$ (which has units of Pa, Torr, bar, atm, etc.) rather than reduced pressure $R$ (which is dimensionless), one needs to find the effective pressure for the $i^{th}$ collider, $P_{i}^{\text{ eff}}$ (with units of $P$), such that the reduced pressure of pure collider $i$ is equal to the reduced pressure of the mixture, which can be shown to be
+
+$$
+P_{i,\text{LMR}}^{\text{ eff}}(T,P,\textit{\textbf{X}}) = \frac{\sum_{j} \Lambda_{0,j}(T)X_j}{\Lambda_{0,i}(T)}P
+$$
+
+such that an alternate version of the generalized LMR-R equation can be written as
+
+\begin{equation}
+k_{\text{LMR-R}}(T,P,\textit{\textbf{X}}) = \sum_{i} k_{i}(T,P_{i,\text{LMR}}^{\text{ eff}})\tilde{X}_{i,\text{LMR}}
+\label{eq:LMRR_k_P_i_eff}
+\end{equation}
+
+The user can either specify $k_i(T,P)$ and $\Lambda_{0,i}(T)$ for each collider, or specify the third-body efficiency, $\epsilon_{0,i}(T)$, for each non-M collider and assign $\epsilon_{0,\text{M}}(T)=1$.  The pressure-dependent aspect of each i-th collider ($k_i(T,P)$) can be specified in any combination of Troe, PLOG, or Chebyshev formats for colliders for which data are available and $\Lambda_{0,i}(T)$ for each collider (or $\epsilon_{0,i}(T)$ for each non-M collider) can be specified in modified Arrhenius format for colliders for which data are available.
+
+In fact, if $\Lambda_{0,i}(T)$ (or $\epsilon_{0,i}(T)$) for any colliders have available data or can be estimated using typical values (as is typically done in kinetic models for reactions in modified Lindemann expressions) but no data for $k_i(T,P)$ are available, this implementation also allows some colliders to be specified with unique $\Lambda_{0,i}(T)$ (or $\epsilon_{0,i}(T)$) without $k_i(T,P)$, by assuming the same reduced-pressure dependence as M (i.e. $k_{i}(T,R)=k_{M}(T,R)$). Cantera employs the following derived form of the generalized LMR-R equation, where the sum over $n$ is only for the colliders for which unique $k_n(T,P)$ are available. If unique $k_i(T,P)$ data are available for all colliders, then the second term in the above equation effectively disappears.
+
+$$
+k_{\text{LMR-R}}(T,P,\textit{\textbf{X}}) &= \sum_{n} k_{n}(T,P_{n,\text{LMR}}^{\text{ eff}})\tilde{X}_{n,\text{LMR}} + k_{M}(T,P_{M,\text{LMR}}^{\text{ eff}}) \left(1-\sum_{n}\tilde{X}_{n,\text{LMR}}\right)
+$$
+
+If the user has limited or incomplete access to parameter inputs (a likely scenario, given the scarcity of puplished third-body efficiencies and master equation eigenvalues), this computational implementation allowes them much greater flexibility and power to make educated assumptions. Further description of the LMR-R theory and computational method is available here {cite:singal}`singal2025` [citation not yet added]
+
+```{versionadded} 3.1
+```
+
 (sec-blowers-masel)=
 ## Blowers-Masel Reactions
 
