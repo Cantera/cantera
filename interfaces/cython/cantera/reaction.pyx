@@ -660,32 +660,17 @@ cdef class PlogRate(ReactionRate):
             self._rate.reset(new CxxPlogRate(ratemap))
             self.rate = self._rate.get()
 
-cdef class LmrRate(ReactionRate):
+cdef class LinearBurkeRate(ReactionRate):
     r"""
-    A pressure-dependent reaction rate parameterized by logarithmically
-    interpolating between Arrhenius rate expressions at various pressures.
+    A reaction rate dependent on both pressure and mixture composition that accounts for collisions between reactants and bath gas species.
     """
-    _reaction_rate_type = "LMR_R"
+    _reaction_rate_type = "linear-Burke"
 
     def __cinit__(self, rates=None, input_data=None, init=True):
+        self.set_cxx_object()
 
-        if init and isinstance(rates, list):
-            self.rates = rates
-
-        elif init:
-            if isinstance(input_data, dict):
-                self._rate.reset(new CxxLmrRate(py_to_anymap(input_data)))
-            elif rates is None:
-                self._rate.reset(new CxxLmrRate(py_to_anymap({})))
-            elif input_data:
-                raise TypeError("Invalid parameter 'input_data'")
-            else:
-                raise TypeError("Invalid parameter 'rates'")
-            self.set_cxx_object()
-
-    cdef CxxLmrRate* cxx_object(self):
-        return <CxxLmrRate*>self.rate
-
+    cdef CxxLinearBurkeRate* cxx_object(self):
+        return <CxxLinearBurkeRate*>self.rate
 
 cdef class ChebyshevRate(ReactionRate):
     r"""
