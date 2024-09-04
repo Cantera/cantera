@@ -1,8 +1,8 @@
-//! @file LmrRate.cpp
+//! @file LinearBurkeRate.cpp
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
-#include "cantera/kinetics/LmrRate.h"
+#include "cantera/kinetics/LinearBurkeRate.h"
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/kinetics/Kinetics.h"
 #include <boost/variant.hpp>
@@ -54,35 +54,35 @@ void LmrData::restore()
     m_pressure_buf = -1.;
 }
 
-LmrRate::LmrRate(const AnyMap& node, const UnitStack& rate_units)
+LinearBurkeRate::LinearBurkeRate(const AnyMap& node, const UnitStack& rate_units)
 {
     setParameters(node, rate_units);
 }
 
-void LmrRate::setParameters(const AnyMap& node, const UnitStack& rate_units)
+void LinearBurkeRate::setParameters(const AnyMap& node, const UnitStack& rate_units)
 {
     UnitStack eps_units{{Units(1.0), 1.0}};
     ReactionRate::setParameters(node, rate_units);
     if (!node.hasKey("collider-list")) {
-        throw InputFileError("LmrRate::setParameters", m_input,
+        throw InputFileError("LinearBurkeRate::setParameters", m_input,
             "Incorrect YAML input for LMR-R reaction. Please review implementation guide.");
     }
     auto colliders = node["collider-list"].asVector<AnyMap>();
     if (!colliders[0].hasKey("collider")) {
-        throw InputFileError("LmrRate::setParameters", m_input,
+        throw InputFileError("LinearBurkeRate::setParameters", m_input,
             "Incorrect YAML input for LMR-R reaction. Please review implementation guide.");
     }
     else if (colliders[0]["collider"].as<string>() != "M") {
-        throw InputFileError("LmrRate::setParameters", m_input,
+        throw InputFileError("LinearBurkeRate::setParameters", m_input,
             "The first species defined in LMR-R YAML input must be 'M'. Please review implementation guide.");
     }
     else if (!colliders[0].hasKey("eig0") && !colliders[0].hasKey("eps")) {
-        throw InputFileError("LmrRate::setParameters", m_input,
+        throw InputFileError("LinearBurkeRate::setParameters", m_input,
             "A third-body efficiency (eps) or ME eigenvalue (eig0) must be provided for collider M. Please review implementation guide.");
     }
     else if (colliders[0].hasKey("eps")) {
         if (colliders[0]["eps"]["A"] != 1 || colliders[0]["eps"]["b"] != 0 || colliders[0]["eps"]["Ea"] != 0) {
-            throw InputFileError("LmrRate::setParameters", m_input,
+            throw InputFileError("LinearBurkeRate::setParameters", m_input,
                 "The third-body efficiency (eps) must be entered for M as 'eps: {A: 1, b: 0, Ea: 0}'. Please review implementation guide.");
         }
     }
@@ -101,7 +101,7 @@ void LmrRate::setParameters(const AnyMap& node, const UnitStack& rate_units)
         dataObj_M = ChebyshevData();
     }
     else {
-        throw InputFileError("LmrRate::setParameters", m_input,
+        throw InputFileError("LinearBurkeRate::setParameters", m_input,
             "The M-collider must be specified in a pressure-dependent-Arrhenius (PLOG), falloff (Troe form), or Chebyshev format.");
     }
     string eig_eps_key;
@@ -112,7 +112,7 @@ void LmrRate::setParameters(const AnyMap& node, const UnitStack& rate_units)
         eig_eps_key = "eps";
     }
     else{
-        throw InputFileError("LmrRate::setParameters", m_input,
+        throw InputFileError("LinearBurkeRate::setParameters", m_input,
             "Cannot have both eig0 and eps chosen for M. Any additional colliders must make same choice as that of M. Please review implementation guide.");
     }
     AnyMap params;
@@ -123,11 +123,11 @@ void LmrRate::setParameters(const AnyMap& node, const UnitStack& rate_units)
     // Start at 1 because index 0 is for "M"
     for (size_t i = 1; i < colliders.size(); i++){
         if (!colliders[i].hasKey("collider")) {
-                throw InputFileError("LmrRate::setParameters", m_input,
+                throw InputFileError("LinearBurkeRate::setParameters", m_input,
                     "Incorrect YAML input for LMR-R reaction. Please review implementation guide.");
         }
         if (!colliders[i].hasKey(eig_eps_key)) {
-            throw InputFileError("LmrRate::setParameters", m_input,
+            throw InputFileError("LinearBurkeRate::setParameters", m_input,
                 "All collider strengths must be defined uniformly as either eig0 or eps. No mixing and matching is allowed.");
         }
         // Save data to colliderInfo, which will make it accessible by getParameters
@@ -169,28 +169,28 @@ void LmrRate::setParameters(const AnyMap& node, const UnitStack& rate_units)
     }
 }
 
-void LmrRate::validate(const string& equation, const Kinetics& kin)
+void LinearBurkeRate::validate(const string& equation, const Kinetics& kin)
 {
     vector<double> T = {500, 1000, 1500, 2000};
     for (size_t i = 0; i < T.size(); i++){
         if (epsObj_M.evalRate(log(T[i]), 1 / T[i]) < 0) {
-            throw InputFileError("LmrRate::validate", m_input,
+            throw InputFileError("LinearBurkeRate::validate", m_input,
                 "Invalid eig0 or eps entry for M.");
         }
         for (size_t j = 0; j<colliderIndices.size(); j++) {
             if (epsObjs1[j].evalRate(log(T[i]), 1 / T[i]) < 0){
-                throw InputFileError("LmrRate::validate", m_input,
+                throw InputFileError("LinearBurkeRate::validate", m_input,
                     "Invalid eig0 or eps entry for one of the specified colliders.");
             }
             if (rateObjs[j].which() != 0 && rateObjs[j].which() != 1 && rateObjs[j].which() != 2) {
-                throw InputFileError("LmrRate::validate", m_input,
+                throw InputFileError("LinearBurkeRate::validate", m_input,
                     "Something went wrong... Please review implementation guide and check your k(T,P) definitions.");
             }
         }
     }
 }
 
-void LmrRate::setContext(const Reaction& rxn, const Kinetics& kin)
+void LinearBurkeRate::setContext(const Reaction& rxn, const Kinetics& kin)
 {
     for (size_t i = 0; i<colliderNames.size(); i++){
         colliderIndices.push_back(kin.kineticsSpeciesIndex(colliderNames[i]));
@@ -198,7 +198,7 @@ void LmrRate::setContext(const Reaction& rxn, const Kinetics& kin)
     nSpecies = kin.nTotalSpecies();
 }
 
-double LmrRate::evalPlogRate(const LmrData& shared_data, DataTypes& dataObj, RateTypes& rateObj)
+double LinearBurkeRate::evalPlogRate(const LmrData& shared_data, DataTypes& dataObj, RateTypes& rateObj)
 {
     PlogData& data = boost::get<PlogData>(dataObj);
     PlogRate& rate = boost::get<PlogRate>(rateObj);
@@ -210,7 +210,7 @@ double LmrRate::evalPlogRate(const LmrData& shared_data, DataTypes& dataObj, Rat
     return rate.evalFromStruct(data);
 }
 
-double LmrRate::evalTroeRate(const LmrData& shared_data, DataTypes& dataObj, RateTypes& rateObj)
+double LinearBurkeRate::evalTroeRate(const LmrData& shared_data, DataTypes& dataObj, RateTypes& rateObj)
 {
     FalloffData& data = boost::get<FalloffData>(dataObj);
     TroeRate& rate = boost::get<TroeRate>(rateObj);
@@ -222,7 +222,7 @@ double LmrRate::evalTroeRate(const LmrData& shared_data, DataTypes& dataObj, Rat
     return rate.evalFromStruct(data);
 }
 
-double LmrRate::evalChebyshevRate(const LmrData& shared_data, DataTypes& dataObj, RateTypes& rateObj)
+double LinearBurkeRate::evalChebyshevRate(const LmrData& shared_data, DataTypes& dataObj, RateTypes& rateObj)
 {
     ChebyshevData& data = boost::get<ChebyshevData>(dataObj);
     ChebyshevRate& rate = boost::get<ChebyshevRate>(rateObj);
@@ -233,7 +233,7 @@ double LmrRate::evalChebyshevRate(const LmrData& shared_data, DataTypes& dataObj
     return rate.evalFromStruct(data);
 }
 
-double LmrRate::evalFromStruct(const LmrData& shared_data)
+double LinearBurkeRate::evalFromStruct(const LmrData& shared_data)
 {
     double sigmaX_M = 0.0;
     // Test each species listed at the top of the YAML file
@@ -263,7 +263,7 @@ double LmrRate::evalFromStruct(const LmrData& shared_data)
     // Add all M colliders to eps_mix in a single step
     eps_mix += sigmaX_M * eps_M;
     if (eps_mix == 0) {
-        throw InputFileError("LmrRate::evalFromStruct", m_input, "eps_mix == 0 for some reason");
+        throw InputFileError("LinearBurkeRate::evalFromStruct", m_input, "eps_mix == 0 for some reason");
     }
     double k_LMR_ = 0.0;
     counter = 0;
@@ -294,7 +294,7 @@ double LmrRate::evalFromStruct(const LmrData& shared_data)
                         break;
                     }
                     else {
-                        throw InputFileError("LmrRate::evalFromStruct", m_input, "Something went wrong...");
+                        throw InputFileError("LinearBurkeRate::evalFromStruct", m_input, "Something went wrong...");
                     }
                 }
             }
@@ -316,7 +316,7 @@ double LmrRate::evalFromStruct(const LmrData& shared_data)
     return k_LMR_;
 }
 
-void LmrRate::getParameters(AnyMap& rateNode, const Units& rate_units) const
+void LinearBurkeRate::getParameters(AnyMap& rateNode, const Units& rate_units) const
 {
     vector<AnyMap> topLevelList;
     for (const auto& entry : colliderInfo) {

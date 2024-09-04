@@ -1,9 +1,9 @@
-//! @file LmrRate.h
+//! @file LINEARBURKERATE.h
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
-#ifndef CT_LMRRATE_H
-#define CT_LMRRATE_H
+#ifndef CT_LINEARBURKERATE_H
+#define CT_LINEARBURKERATE_H
 #include "cantera/kinetics/Arrhenius.h"
 #include <boost/variant.hpp>
 #include "cantera/kinetics/Falloff.h"
@@ -13,10 +13,10 @@
 namespace Cantera
 {
 
-//! Data container holding shared data specific to LmrRate
+//! Data container holding shared data specific to LinearBurkeRate
 /**
  * The data container `LmrData` holds precalculated data common to
- * all `LmrRate` objects.
+ * all `LinearBurkeRate` objects.
  */
 struct LmrData : public ReactionData
 {
@@ -71,23 +71,23 @@ protected:
 /*!
  * [ADD IN THE MATHEMATICAL FORMULA]
  */
-class LmrRate final : public ReactionRate
+class LinearBurkeRate final : public ReactionRate
 {
 public:
     //! Default constructor.
-    LmrRate() = default;
+    LinearBurkeRate() = default;
 
     //! Constructor from Arrhenius rate expressions at a set of pressures
-    explicit LmrRate(const std::multimap<double, ArrheniusRate>& rates);
+    explicit LinearBurkeRate(const std::multimap<double, ArrheniusRate>& rates);
 
-    LmrRate(const AnyMap& node, const UnitStack& rate_units={});
+    LinearBurkeRate(const AnyMap& node, const UnitStack& rate_units={});
 
     unique_ptr<MultiRateBase> newMultiRate() const override {
-        return make_unique<MultiRate<LmrRate, LmrData>>();
+        return make_unique<MultiRate<LinearBurkeRate, LmrData>>();
     }
 
     //! Identifier of reaction rate type
-    const string type() const override { return "LMR_R"; }
+    const string type() const override { return "linear-burke"; }
 
     //! Perform object setup based on AnyMap node information
     /*!
