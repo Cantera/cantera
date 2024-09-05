@@ -32,10 +32,7 @@ import numpy as np
 
 plt.figure(figsize=(3.5,2.5))
 
-models = {    
-          'Original':'alzueta.yaml',
-          'LMR-R':'alzueta_LMRR.yaml',
-          }
+models = {'Original':'alzueta.yaml','LMR-R':'alzueta_LMRR.yaml'}
 colours = ["xkcd:grey",'xkcd:purple']
 
 fuel_list = np.linspace(0.14,0.4,20) # mole fractions of fuel to simulate across

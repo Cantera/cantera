@@ -35,10 +35,7 @@ import numpy as np
 
 plt.figure()
 
-models = {    
-          'Original':'alzueta.yaml',
-          'LMR-R':'alzueta_LMRR.yaml',
-          }
+models = {'Original':'alzueta.yaml','LMR-R':'alzueta_LMRR.yaml'}
 
 colours = ["xkcd:grey",'xkcd:purple']
 

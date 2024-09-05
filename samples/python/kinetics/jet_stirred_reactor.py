@@ -60,19 +60,16 @@ def getTemperatureDependence(gas, inputs):
         t = 0
         while t < inputs['t_max']:
             t = reactorNetwork.step()
-        state = np.hstack([stirredReactor.thermo.P, 
-                        stirredReactor.mass, 
-                        stirredReactor.volume, 
-                        stirredReactor.T, 
+        state = np.hstack([stirredReactor.thermo.P,
+                        stirredReactor.mass,
+                        stirredReactor.volume,
+                        stirredReactor.T,
                         stirredReactor.thermo.X])
         tempDependence.loc[T] = state
     return tempDependence
 
 def main():
-    models = {
-        'Original':'alzueta.yaml',
-        'LMR-R':'alzueta_LMRR.yaml',
-        }
+    models = {'Original':'alzueta.yaml','LMR-R':'alzueta_LMRR.yaml'}
     inputs = {
         'X': {'H2': 0.03, 'O2': 0.03, 'Ar': 0.846, 'NH3':0.094},
         'T_range': np.linspace(800,1050,50), # [K]
@@ -90,15 +87,14 @@ def main():
             'X_H2': [3.030,3.038,3.038,3.038,3.030,2.993,2.948,2.829,2.693,2.434,2.126]
         }
     }
-
-    f, ax = plt.subplots(1, 3, figsize=(6.5, 2.5)) 
+    f, ax = plt.subplots(1, 3, figsize=(6.5, 2.5))
     plt.subplots_adjust(wspace=0.6)
     colours = ["xkcd:grey",'xkcd:purple']
     for k,m in enumerate(models):
         gas = ct.Solution(list(models.values())[k])
         gas.TPX = inputs['Tin'], inputs['P']*ct.one_atm, inputs['X']
         tempDependence = getTemperatureDependence(gas,inputs)
-        ax[0].plot(tempDependence.index, np.subtract(tempDependence['temperature'],tempDependence.index), color=colours[k],label=m) 
+        ax[0].plot(tempDependence.index, np.subtract(tempDependence['temperature'],tempDependence.index), color=colours[k],label=m)
         ax[1].plot(tempDependence.index, tempDependence['O2']*100, color=colours[k])
         ax[2].plot(tempDependence.index, tempDependence['H2']*100, color=colours[k])
     ax[0].plot(inputs['data']['T_range'],inputs['data']['deltaT'],'o',markersize=3.5,fillstyle='none',color='k',label="Sabia et al.")
