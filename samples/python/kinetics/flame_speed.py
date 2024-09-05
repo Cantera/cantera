@@ -26,8 +26,6 @@ Requires: cantera >= 3.1
 .. tags:: burning velocity, flame speed, equivalence ratio, mixture rule, LMR-R
 """
 
-import sys, os
-sys.path.append("C:/Users/pjsin/Documents/cantera/build/python")
 import cantera as ct
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -38,7 +36,7 @@ plt.figure(figsize=(3.5,2.5))
 models = {'Original':'alzueta.yaml','LMR-R':'alzueta_LMRR.yaml'}
 colours = ["xkcd:grey",'xkcd:purple']
 
-fuel_list = np.linspace(0.14,0.4,20) # mole fractions of fuel to simulate across
+fuel_list = np.linspace(0.14,0.4,2) # mole fractions of fuel to simulate across
 alpha = 1.0
 a_st = 0.75
 Tin = 296  # unburned gas temperature [K]

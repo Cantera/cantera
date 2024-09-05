@@ -28,8 +28,6 @@ Requires: cantera >= 3.1
 .. tags:: jet-stirred reactor, species profile, temperature profile, time history, mixture rule, LMR-R
 """
 
-import sys, os
-sys.path.append("C:/Users/pjsin/Documents/cantera/build/python")
 import numpy as np
 import pandas as pd
 import time as time

@@ -29,8 +29,6 @@ Requires: cantera >= 3.1
 .. tags:: species profile, shock tube, mixture rule, Burke, LMR-R
 """
 
-import sys, os
-sys.path.append("C:/Users/pjsin/Documents/cantera/build/python")
 import cantera as ct
 import matplotlib.pyplot as plt
 import numpy as np
