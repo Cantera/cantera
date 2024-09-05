@@ -17,7 +17,7 @@ description: |-
       (2024).
 
 generator: ck2yaml
-input-files: [glarborg2023-mech.txt, glarborg2023-therm.txt, glarborg2023-tran.txt]
+input-files: [alzueta2023-mech.txt, alzueta2023-therm.txt, alzueta2023-tran.txt]
 cantera-version: 2.6.0
 date: Tue, 07 Nov 2023 18:48:43 -0500
 

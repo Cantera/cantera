@@ -1,18 +1,15 @@
 description: |-
-  ************************************************************************
-  ************************************************************************
-  ******************* For further documentation of mechanism:  ***********
-  ******************* see references below and their citations ***********
-  ************************************************************************
-  ************************************************************************
-  Nitrogen subset
-  P. Glarborg, J.A. Miller, B. Ruscic, S.J. Klippenstein,
-  "Modeling Nitrogen Chemistry in Combustion",
-  Prog. Energy Combust. Sci. 67 (2018) 31-68.
-  Updates marked by #
+  Present mechanism:
+    M. U. Alzueta, I. Salas, H. Hashemi, P. Glarborg, CO-assisted NH3
+    oxidation, Combust. Flame 257 (2023) 112438.
+  Nitrogen subset:
+    P. Glarborg, J.A. Miller, B. Ruscic, S.J. Klippenstein, "Modeling
+    Nitrogen Chemistry in Combustion", Prog. Energy Combust. Sci. 67
+    (2018) 31-68.
+  Further citations are provided for select reactions below.
 
 generator: ck2yaml
-input-files: [glarborg2023-mech.txt, glarborg2023-therm.txt, glarborg2023-tran.txt]
+input-files: [alzueta2023-mech.txt, alzueta2023-therm.txt, alzueta2023-tran.txt]
 cantera-version: 2.6.0
 date: Tue, 07 Nov 2023 18:48:43 -0500
 
