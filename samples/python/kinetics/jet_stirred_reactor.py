@@ -22,7 +22,7 @@ References:
     (2024).
 
 Requires: cantera >= 3.1
-Keywords: jet-stirred reactor, species profile, temperature profile, time history, mixture rule, LMR-R
+.. tags:: jet-stirred reactor, species profile, temperature profile, time history, mixture rule, LMR-R
 """
 
 import sys, os

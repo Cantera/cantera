@@ -23,7 +23,7 @@ References:
     (2024).
 
 Requires: cantera >= 3.1
-Keywords: ignition delay time, shock tube, mixture rule, LMR-R
+.. tags:: ignition delay time, shock tube, mixture rule, LMR-R
 """
 
 import sys, os

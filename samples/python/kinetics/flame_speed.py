@@ -20,7 +20,7 @@ References:
     (2024).
 
 Requires: cantera >= 3.1
-Keywords: burning velocity, flame speed, equivalence ratio, mixture rule, LMR-R
+.. tags:: burning velocity, flame speed, equivalence ratio, mixture rule, LMR-R
 """
 
 import sys, os
