@@ -235,7 +235,7 @@ Chebyshev reactions can be defined in the YAML format using the
 [`Chebyshev`](sec-yaml-Chebyshev) reaction `type`.
 ```
 
-(sec-lmrr)=
+(sec-linear-burke)=
 ## Linear Burke Rate Expressions
 
 Linear Burke rate expressions employ the reduced-pressure linear mixture rule (LMR-R). This mixture rule is used to evaluate the rate constants of complex-forming reactions, and is a mole-fraction-weighted sum of the bath gas rate constants (when pure) evaluated at the reduced pressure ($R$) and temperature ($T$) of the mixture.
