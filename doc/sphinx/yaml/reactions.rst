@@ -413,54 +413,97 @@ Additional fields are:
     to individual colliders (species in the bath gas).
 
 ``collider``
-    The name of the collider species, which must be entered with quotations (e.g.,
+    The name of the collider species, which must be entered inside quotations (e.g.,
     "H2O"). The first collider defined must be "M", which represents the generic
     reference collider (often Ar or N2) that represents all species lacking their
     own explicit parameterization.
 
-``eps`` or ``eig``
+``eps`` or ``eig0``
     The fractional contribution of each bath gas component (collider) to the reduced
     pressure. ``eps`` represents the third-body efficiency of the collider relative
     to that of the reference collider "M" ("M" must be provided <eps: {A:1, b:0, Ea: 0}>
-    by necessity). ``eig`` represents the absolute value of the least negative chemically
+    by necessity). ``eig0`` represents the absolute value of the least negative chemically
     significant eigenvalue of the master equation, evaluated for a collider at its low-pressure
-    limit. All explicitly defined colliders must include either ``eps`` or ``eig``, but the choice
+    limit. All explicitly defined colliders must include either ``eps`` or ``eig0``, but the choice
     must remain consistent throughout a single reaction -- either all colliders are defined with ``eps``,
-    or all are defined with ``eig``. In both cases, the parameters are entered in Arrhenius format to
+    or all are defined with ``eig0``. In both cases, the parameters are entered in Arrhenius format to
     enable representation of their temperature-dependence.
 
 The pressure-dependent aspect of the rate constant can be parameterized in the user's choice of
 :ref:`Troe <sec-yaml-falloff>`,
 :ref:`pressure-dependent-arrhenius <sec-yaml-pressure-dependent-Arrhenius>`, or
 :ref:`Chebyshev <sec-yaml-Chebyshev>` representations. The same parameters used for a standalone
-Troe, PLOG, or Chebyshev reaction are then inserted directly below ``eps`` or ``eig`` for a given collider
+Troe, PLOG, or Chebyshev reaction are then inserted directly below ``eps`` or ``eig0`` for a given collider
 (note: Troe cannot be given its own ``efficiencies`` key). At minimum, this treatment must be applied to the
 reference collider "M". However, additional colliders may also be given their own Troe, PLOG, or Chebyshev
 parameterization if so desired. Mixing and matching of types within the same reaction is allowed (e.g., a PLOG
 table for "M", Troe parameters for "H2", and Chebyshev data for "NH3").
 
-Example::
+Examples::
 
-    equation: H + O2 (+M) <=> HO2 (+M)
+    equation: H + OH <=> H2O
+    type: linear-burke
+    collider-list:
+    - collider: 'M' # N2 is reference collider (Troe format)
+        eps: {A: 1, b: 0, Ea: 0}
+        low-P-rate-constant: {A: 4.530000e+21, b: -1.820309e+00, Ea: 4.987000e+02}
+        high-P-rate-constant: {A: 2.510000e+13, b: 2.329303e-01, Ea: -1.142000e+02}
+        Troe: {A: 9.995044e-01, T3: 1.0e-30, T1: 1.0e+30}
+    - collider: 'AR'
+        eps: {A: 2.20621e-02, b: 4.74036e-01, Ea: -1.13148e+02}
+    - collider: 'H2O'
+        eps: {A: 1.04529e-01, b: 5.50787e-01, Ea: -2.32675e+02}
+
+    equation: H + O2 (+M) <=> HO2 (+M)  # including "(+M)" is optional
     type: linear-burke
     collider-list: 
-    - collider: "M" # Argon is reference collider in this case
-      eps: {A: 1, b: 0, Ea: 0}
-      rate-constants:
-      - {P: 1.316e-02 atm, A: 9.39968e+14, b: -2.14348e+00, Ea: 7.72730e+01}
-      - {P: 1.316e-01 atm, A: 1.07254e+16, b: -2.15999e+00, Ea: 1.30239e+02}
-      - {P: 3.947e-01 atm, A: 3.17830e+16, b: -2.15813e+00, Ea: 1.66994e+02}
-      - {P: 1.000e+00 atm, A: 7.72584e+16, b: -2.15195e+00, Ea: 2.13473e+02}
-      - {P: 3.000e+00 atm, A: 2.11688e+17, b: -2.14062e+00, Ea: 2.79031e+02}
-      - {P: 1.000e+01 atm, A: 6.53093e+17, b: -2.13213e+00, Ea: 3.87493e+02}
-      - {P: 3.000e+01 atm, A: 1.49784e+18, b: -2.10026e+00, Ea: 4.87579e+02}
-      - {P: 1.000e+02 atm, A: 3.82218e+18, b: -2.07057e+00, Ea: 6.65984e+02}
+    - collider: "M" # Argon is reference collider (PLOG format)
+        eps: {A: 1, b: 0, Ea: 0}
+        rate-constants:
+        - {P: 1.316e-02 atm, A: 9.39968e+14, b: -2.14348e+00, Ea: 7.72730e+01}
+        - {P: 1.316e-01 atm, A: 1.07254e+16, b: -2.15999e+00, Ea: 1.30239e+02}
+        - {P: 3.947e-01 atm, A: 3.17830e+16, b: -2.15813e+00, Ea: 1.66994e+02}
+        - {P: 1.000e+00 atm, A: 7.72584e+16, b: -2.15195e+00, Ea: 2.13473e+02}
+        - {P: 3.000e+00 atm, A: 2.11688e+17, b: -2.14062e+00, Ea: 2.79031e+02}
+        - {P: 1.000e+01 atm, A: 6.53093e+17, b: -2.13213e+00, Ea: 3.87493e+02}
+        - {P: 3.000e+01 atm, A: 1.49784e+18, b: -2.10026e+00, Ea: 4.87579e+02}
+        - {P: 1.000e+02 atm, A: 3.82218e+18, b: -2.07057e+00, Ea: 6.65984e+02}
+    - collider: "HE"
+        eps: {A: 3.37601e-01, b: 1.82568e-01, Ea: 3.62408e+01}
+    - collider: "N2"
+        eps: {A: 1.24932e+02, b: -5.93263e-01, Ea: 5.40921e+02}
     - collider: "H2"
-      eps: {A: 3.13717e+04, b: -1.25419e+00, Ea: 1.12924e+03}
+        eps: {A: 3.13717e+04, b: -1.25419e+00, Ea: 1.12924e+03}
+    - collider: "CO2"
+        eps: {A: 1.62413e+08, b: -2.27622e+00, Ea: 1.97023e+03}
     - collider: "NH3"
-      eps: {A: 4.97750e+00, b: 1.64855e-01, Ea: -2.80351e+02}
+        eps: {A: 4.97750e+00, b: 1.64855e-01, Ea: -2.80351e+02}
     - collider: "H2O"
-      eps: {A: 3.69146e+01, b: -7.12902e-02, Ea: 3.19087e+01}
+        eps: {A: 3.69146e+01, b: -7.12902e-02, Ea: 3.19087e+01}
+
+    equation: H2O2 <=> 2 OH
+    type: linear-burke
+    collider-list:
+    - collider: 'M' # Argon is reference collider (Chebyshev format)
+        eps: {A: 1, b: 0, Ea: 0}
+        temperature-range: [200.0, 2000.0]
+        pressure-range: [1.000e-01 atm, 1.000e+02 atm]
+        data:
+        - [-1.5843e+01, 8.7088e-01, -9.4364e-02, -2.8099e-03, -4.4803e-04, 1.5809e-03, -2.5088e-04]
+        - [2.3154e+01, 5.2739e-01, 2.8862e-02, -5.4601e-03, 7.0783e-04, -3.0282e-03, 7.8121e-04]
+        - [-3.8008e-01, 8.6349e-02, 4.0292e-02, -7.2269e-03, 5.7570e-04, 2.7944e-03, -1.4912e-03]
+        - [-1.4800e-01, -7.1798e-03, 2.2052e-02, 6.2269e-03, -5.9801e-03, -8.2205e-06, 1.9243e-03]
+        - [-6.0604e-02, -1.4203e-02, 1.3414e-03, 9.6228e-03, 1.7002e-03, -3.6506e-03, -4.3168e-04]
+        - [-2.4557e-02, -9.7102e-03, -5.8753e-03, 3.0456e-03, 5.8666e-03, 1.5037e-03, -2.0073e-03]
+        - [-1.5400e-02, -5.2427e-03, -6.9148e-03, -5.9440e-03, -1.2183e-03, 2.1694e-03, 1.5925e-03]
+    - collider: 'N2'
+        eps: {A: 1.14813e+00, b: 4.60090e-02, Ea: -2.92413e+00}
+    - collider: 'CO2'
+        eps: {A: 8.98839e+01, b: -4.27974e-01, Ea: 2.41392e+02}
+    - collider: 'H2O2'
+        eps: {A: 6.45295e-01, b: 4.26266e-01, Ea: 4.28932e+01}
+    - collider: 'H2O'
+        eps: {A: 1.36377e+00, b: 3.06592e-01, Ea: 2.10079e+02}
 
 
 .. _sec-yaml-interface-Arrhenius:
