@@ -406,16 +406,6 @@ A complex-forming reaction (one that depends on both P and X) parameterized
 according to the reduced-pressure linear mixture rule as
 :ref:`described here <sec-linear-burke>`.
 
-The pressure-dependent aspect of the rate constant can be parameterized in the user's choice of
-:ref:`Troe <sec-yaml-falloff>`,
-:ref:`pressure-dependent-arrhenius <sec-yaml-pressure-dependent-Arrhenius>`, or
-:ref:`Chebyshev <sec-yaml-Chebyshev>` representations. The same parameters used for a standalone
-Troe, PLOG, or Chebyshev reaction are then inserted directly below ``eps`` or ``eig0`` for a given collider
-(note: Troe cannot be given its own ``efficiencies`` key). At minimum, this treatment must be applied to ``"M"``.
-However, additional colliders may also be given their own Troe, PLOG, or Chebyshev
-parameterization if so desired. Mixing and matching of types within the same reaction is allowed (e.g., a PLOG
-table for ``"M"``, Troe parameters for ``"H2"``, and Chebyshev data for ``"NH3"``).
-
 Additional fields are:
 
 ``collider-list``
@@ -438,6 +428,16 @@ Additional fields are:
     must remain consistent throughout a single reaction (either all colliders are defined with ``eps``,
     or all are defined with ``eig0``). In both cases, the parameters are entered in Arrhenius format to
     enable representation of their temperature-dependence.
+
+The pressure-dependent aspect of the rate constant can be parameterized in the user's choice of
+:ref:`Troe <sec-yaml-falloff>`,
+:ref:`pressure-dependent-arrhenius <sec-yaml-pressure-dependent-Arrhenius>`, or
+:ref:`Chebyshev <sec-yaml-Chebyshev>` representations. The same parameters used for a standalone
+Troe, PLOG, or Chebyshev reaction are then inserted directly below ``eps`` or ``eig0`` for a given collider
+(note: Troe cannot be given its own ``efficiencies`` key). At minimum, this treatment must be applied to ``"M"``.
+However, additional colliders may also be given their own Troe, PLOG, or Chebyshev
+parameterization if so desired. Mixing and matching of types within the same reaction is allowed (e.g., a PLOG
+table for ``"M"``, Troe parameters for ``"H2"``, and Chebyshev data for ``"NH3"``).
 
 A mathematical description of this YAML implementation can be found in Eq. 8 of
 :cite:t:`singal2024`. [CITATION NOT YET ADDED]
