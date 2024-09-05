@@ -1,15 +1,20 @@
 description: |-
-  ************************************************************************
-  ************************************************************************
-  ******************* For further documentation of mechanism:  ***********
-  ******************* see references below and their citations ***********
-  ************************************************************************
-  ************************************************************************
-  Nitrogen subset
-  P. Glarborg, J.A. Miller, B. Ruscic, S.J. Klippenstein,
-  "Modeling Nitrogen Chemistry in Combustion",
-  Prog. Energy Combust. Sci. 67 (2018) 31-68.
-  Updates marked by #
+  A variation of the 2023 model of NH3 and H2 chemistry published by Alzueta and coworkers. [1] Six
+  complex-forming reactions have been modified according to the linear Burke rate implementation of
+  the reduced-pressure linear mixture rule (LMR-R). These are: H2O (+M), HO2 (+M), H2O2 (+M),
+  NH3 (+M), N2H4 (+M), and HNO (+M). Ab initio third-body efficiencies were obtained at discrete
+  temperatures from Jasper [2] and then fitted to an Arrhenius parameterization to facilitate the
+  temperature-dependence of these parameters. Further description of the methodology used to adapt
+  this mechanism is available in Singal et al. [3]
+
+  References:
+  [1] M. U. Alzueta, I. Salas, H. Hashemi, P. Glarborg, CO-assisted NH3 oxidation, Combust. Flame 257
+      (2023) 112438.
+  [2] A. W. Jasper, Predicting third-body collision efficiencies for water and other polyatomic
+      baths. Faraday Discuss. 238 (2022) 68-86.
+  [3] P. J. Singal, J. Lee, L. Lei, R. L. Speth, M. P. Burke, Implementation of New Mixture Rules
+      Has a Substantial Impact on Combustion Predictions for H2 and NH3, Proc. Combust. Inst. 40
+      (2024).
 
 generator: ck2yaml
 input-files: [glarborg2023-mech.txt, glarborg2023-therm.txt, glarborg2023-tran.txt]
