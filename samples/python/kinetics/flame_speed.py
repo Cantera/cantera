@@ -1,4 +1,7 @@
 """
+Flame speed as a function of equivalence ratio
+==============================================
+
 Simulate flame speeds across a range of equivalence ratios, and observe the impact of incorporating the
 reduced-pressure linear mixture rule (LMR-R) in such calculations.
 

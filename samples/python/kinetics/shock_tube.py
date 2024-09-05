@@ -1,4 +1,7 @@
 """
+Shock-tube species profiles as a function of time
+=================================================
+
 Simulate species profiles for a shock tube as a function of time, and observe the impact of
 incorporating the reduced-pressure linear mixture rule (LMR-R) in such calculations.
 

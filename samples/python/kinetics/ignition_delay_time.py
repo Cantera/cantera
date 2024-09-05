@@ -1,4 +1,7 @@
 """
+Ignition delay time as a function of initial temperature
+========================================================
+
 Simulate ignition delay times for a shock tube across a range of initial temperatures,
 and observe the impact of incorporating the reduced-pressure linear mixture rule (LMR-R)
 in such calculations.

@@ -1,4 +1,7 @@
 """
+JSR temperature and species profiles
+====================================
+
 Simulate temperature profiles and species profiles in a jet-stirred reactor across a range of
 initial temperatures, and observe the impact of incorporating the reduced-pressure linear mixture
 rule (LMR-R) in such calculations.
