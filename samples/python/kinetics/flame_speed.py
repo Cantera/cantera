@@ -23,7 +23,7 @@ References:
     (2024).
 
 Requires: cantera >= 3.1
-.. tags:: burning velocity, flame speed, equivalence ratio, mixture rule, LMR-R
+.. tags:: burning velocity, flame speed, equivalence ratio, mixture rule, Burke, LMR-R
 """
 
 import cantera as ct
@@ -35,10 +35,9 @@ plt.figure(figsize=(3.5,2.5))
 
 models = {'Original':'alzueta.yaml','LMR-R':'alzueta_LMRR.yaml'}
 colours = ["xkcd:grey",'xkcd:purple']
-
-fuel_list = np.linspace(0.14,0.4,2) # mole fractions of fuel to simulate across
-alpha = 1.0
-a_st = 0.75
+n=20 # number of points to simulate
+fuel_list = np.linspace(0.14,0.4,n) # mole fractions of fuel to simulate across
+a_st = 0.75 # coefficient of oxidizer for stoichiometric combustion
 Tin = 296  # unburned gas temperature [K]
 p=760
 
@@ -47,14 +46,13 @@ for k, m in enumerate(models):
     phi_list = []
     for j, fuel_frac in enumerate(fuel_list):
         gas = ct.Solution(list(models.values())[k])
-        NH3 = alpha*fuel_frac
-        H2 = (1-alpha)*fuel_frac
+        NH3 = fuel_frac
         ox_frac = 1 - fuel_frac # oxidizer fraction
         O2 = ox_frac*0.21
         N2 = ox_frac*0.79
         phi = np.divide(fuel_frac/O2,1/a_st)
         phi_list.append(phi)
-        X = {'NH3':NH3,'H2':H2,'O2':O2,'N2':N2}
+        X = {'NH3':NH3,'O2':O2,'N2':N2}
         gas.TPX = Tin, (p/760)*ct.one_atm, X
         f = ct.FreeFlame(gas, width=0.03)
         f.set_refine_criteria(ratio=3, slope=0.05, curve=0.05)
@@ -72,7 +70,7 @@ X_NH3 = np.divide(expData['X_NH3'],100)
 X_O2 = np.multiply(np.subtract(1,X_NH3), 0.21)
 phi_data = np.divide(np.divide(X_NH3,X_O2),np.divide(4,3))
 plt.plot(phi_data,expData['vel'],'o',fillstyle='none',color='k',label='Ronney')
-plt.legend(fontsize=8,frameon=False, loc='lower right')
+plt.legend(fontsize=8,frameon=False, loc='upper right')
 plt.ylabel(r'Burning velocity [cm $\rm s^{-1}$]')
 plt.xlabel(r'Equivalence Ratio')
 plt.xlim([0.6, 2.1])
