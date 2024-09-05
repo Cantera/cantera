@@ -414,19 +414,19 @@ Additional fields are:
 
 ``collider``
     The name of the collider species, which must be entered inside quotations (e.g.,
-    "H2O"). The first collider defined must be "M", which represents the generic
-    reference collider (often Ar or N2) that represents all species lacking their
+    ``"H2O"``). The first collider defined must be ``"M"``, which represents the generic
+    reference collider (often ``Ar`` or ``N2``) that represents all species lacking their
     own explicit parameterization.
 
 ``eps`` or ``eig0``
     The fractional contribution of each bath gas component (collider) to the reduced
     pressure. ``eps`` represents the third-body efficiency of the collider relative
-    to that of the reference collider "M" ("M" must be provided <eps: {A:1, b:0, Ea: 0}>
+    to that of the reference collider ``"M"`` (``"M"`` must be provided ``eps: {A:1, b:0, Ea: 0}``
     by necessity). ``eig0`` represents the absolute value of the least negative chemically
     significant eigenvalue of the master equation, evaluated for a collider at its low-pressure
     limit. All explicitly defined colliders must include either ``eps`` or ``eig0``, but the choice
-    must remain consistent throughout a single reaction -- either all colliders are defined with ``eps``,
-    or all are defined with ``eig0``. In both cases, the parameters are entered in Arrhenius format to
+    must remain consistent throughout a single reaction (either all colliders are defined with ``eps``,
+    or all are defined with ``eig0``). In both cases, the parameters are entered in Arrhenius format to
     enable representation of their temperature-dependence.
 
 The pressure-dependent aspect of the rate constant can be parameterized in the user's choice of
@@ -434,10 +434,13 @@ The pressure-dependent aspect of the rate constant can be parameterized in the u
 :ref:`pressure-dependent-arrhenius <sec-yaml-pressure-dependent-Arrhenius>`, or
 :ref:`Chebyshev <sec-yaml-Chebyshev>` representations. The same parameters used for a standalone
 Troe, PLOG, or Chebyshev reaction are then inserted directly below ``eps`` or ``eig0`` for a given collider
-(note: Troe cannot be given its own ``efficiencies`` key). At minimum, this treatment must be applied to the
-reference collider "M". However, additional colliders may also be given their own Troe, PLOG, or Chebyshev
+(note: Troe cannot be given its own ``efficiencies`` key). At minimum, this treatment must be applied to ``"M"``.
+However, additional colliders may also be given their own Troe, PLOG, or Chebyshev
 parameterization if so desired. Mixing and matching of types within the same reaction is allowed (e.g., a PLOG
-table for "M", Troe parameters for "H2", and Chebyshev data for "NH3").
+table for ``"M"``, Troe parameters for ``"H2"``, and Chebyshev data for ``"NH3"``).
+
+A mathematical description of this YAML implementation can be found in Eq. 8 of
+:cite:t:`singal2024`. [CITATION NOT YET ADDED]
 
 Examples::
     - equation: H + OH <=> H2O
