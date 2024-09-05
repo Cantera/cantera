@@ -91,17 +91,14 @@ reactions:
     - {P: 1.000e+04 atm, A: 6.79586e+12, b: -5.77830e-01, Ea: 4.56911e+02}
   - collider: "AR"
     eps: {A: 2.20621e-02, b: 4.74036e-01, Ea: -1.13148e+02}
-    # eps: {A: 10, b: 0, Ea: 0}
   - collider: "H2O"
     eps: {A: 1.04529e-01, b: 5.50787e-01, Ea: -2.32675e+02}
-    # eps: {A: 100, b: 0, Ea: 0}
 - equation: H2O + O2 <=> H + OH + O2  # Reaction 14
   duplicate: true
   rate-constant: {A: 9.15e+27, b: -3.322, Ea: 1.2079e+05}
 - equation: H2O + H2O <=> H + OH + H2O  # Reaction 15
   rate-constant: {A: 1.0e+26, b: -2.44, Ea: 1.2018e+05}
 - equation: H + O2 (+M) <=> HO2 (+M)  # Reaction 16
-  # units: {length: m, quantity: kmol, activation-energy: cal/mol}
   type: linear-burke
   collider-list: 
   - collider: "M" # Ar is reference collider
@@ -147,7 +144,6 @@ reactions:
   rate-constant: {A: 6.4e+17, b: -1.54, Ea: 8540.0}
 - equation: H2O2 (+M) <=> OH + OH (+M)  # Reaction 25
   type: linear-burke
-  # units: {length: m, quantity: kmol, activation-energy: cal/mol}
   collider-list: 
   - collider: "M" # Ar is reference collider
     eps: {A: 1, b: 0, Ea: 0}
@@ -315,8 +311,7 @@ reactions:
 - equation: HCO + HCO <=> CO + CH2O  # Reaction 71
   rate-constant: {A: 2.7e+13, b: 0.0, Ea: 0.0}
 - equation: NH3 (+M) <=> H + NH2 (+M)  # Reaction 72
-  type: linear-burke                          # Rxn direction is reversed
-  # units: {length: m, quantity: kmol, activation-energy: cal/mol}
+  type: linear-burke
   collider-list: 
   - collider: "M" # Ar is reference collider
     eps: {A: 1, b: 0, Ea: 0}
@@ -390,16 +385,6 @@ reactions:
     - {P: 1.000e+02 atm, A: 2.56240e+20, b: -3.31075e+00, Ea: 2.07400e+03}
     - {P: 1.000e+03 atm, A: 8.99670e+16, b: -2.12230e+00, Ea: 1.37012e+03}
     - {P: 1.000e+04 atm, A: 5.28067e+13, b: -1.06166e+00, Ea: 5.64223e+02}
-# # June 25 version below
-#     - {P: 1.000e-04 atm, A: 1.20024e+28, b: -6.43982e+00, Ea: 2.05356e+03}
-#     - {P: 1.000e-03 atm, A: 1.19856e+29, b: -6.43893e+00, Ea: 2.16055e+03}
-#     - {P: 1.000e-02 atm, A: 1.80223e+30, b: -6.48573e+00, Ea: 2.49649e+03}
-#     - {P: 1.000e-01 atm, A: 1.07660e+31, b: -6.40257e+00, Ea: 3.01349e+03}
-#     - {P: 1.000e+00 atm, A: 3.65176e+29, b: -5.65302e+00, Ea: 2.95891e+03}
-#     - {P: 1.000e+01 atm, A: 4.51325e+26, b: -4.50139e+00, Ea: 2.58051e+03}
-#     - {P: 1.000e+02 atm, A: 2.56240e+23, b: -3.31075e+00, Ea: 2.07400e+03}
-#     - {P: 1.000e+03 atm, A: 8.99669e+19, b: -2.12230e+00, Ea: 1.37012e+03}
-#     - {P: 1.000e+04 atm, A: 5.28068e+16, b: -1.06166e+00, Ea: 5.64223e+02}
   - collider: "N2"
     eps: {A: 1.46848e+01, b: -3.00962e-01, Ea: 1.65146e+02}
   - collider: "O2"
@@ -579,8 +564,7 @@ reactions:
 - equation: HNOH + NO2 <=> HONO + HNO  # Reaction 166
   rate-constant: {A: 8.0e+11, b: 0.0, Ea: 6000.0}
 - equation: HNO (+M) <=> H + NO (+M)  # Reaction 167
-  type: linear-burke                         # Rxn direction has been reversed
-  # units: {length: m, quantity: kmol, activation-energy: cal/mol}
+  type: linear-burke
   collider-list: 
   - collider: "M" # Ar is reference collider
     eps: {A: 1, b: 0, Ea: 0}
