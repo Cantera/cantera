@@ -459,7 +459,7 @@ Examples::
 
     equation: H + O2 (+M) <=> HO2 (+M)  # Including "(+M)" is optional
     type: linear-burke
-    collider-list: 
+    collider-list:
     - collider: "M" # Argon is reference collider (PLOG format)
       eps: {A: 1, b: 0, Ea: 0}
       rate-constants:

@@ -76,7 +76,7 @@ reactions:
 - equation: H + OH (+M) <=> H2O (+M)  # Reaction 13
   type: linear-burke
   units: {length: m, quantity: kmol, activation-energy: cal/mol}
-  collider-list: 
+  collider-list:
   - collider: "M" # N2 is reference collider
     eps: {A: 1, b: 0, Ea: 0}
     rate-constants:
@@ -100,7 +100,7 @@ reactions:
   rate-constant: {A: 1.0e+26, b: -2.44, Ea: 1.2018e+05}
 - equation: H + O2 (+M) <=> HO2 (+M)  # Reaction 16
   type: linear-burke
-  collider-list: 
+  collider-list:
   - collider: "M" # Ar is reference collider
     eps: {A: 1, b: 0, Ea: 0}
     rate-constants:
@@ -144,7 +144,7 @@ reactions:
   rate-constant: {A: 6.4e+17, b: -1.54, Ea: 8540.0}
 - equation: H2O2 (+M) <=> OH + OH (+M)  # Reaction 25
   type: linear-burke
-  collider-list: 
+  collider-list:
   - collider: "M" # Ar is reference collider
     eps: {A: 1, b: 0, Ea: 0}
     rate-constants:
@@ -312,7 +312,7 @@ reactions:
   rate-constant: {A: 2.7e+13, b: 0.0, Ea: 0.0}
 - equation: NH3 (+M) <=> H + NH2 (+M)  # Reaction 72
   type: linear-burke
-  collider-list: 
+  collider-list:
   - collider: "M" # Ar is reference collider
     eps: {A: 1, b: 0, Ea: 0}
     rate-constants:
@@ -372,7 +372,7 @@ reactions:
 - equation: 2 NH2 (+M) <=> N2H4 (+M)  # Reaction 90
   type: linear-burke
   units: {length: m, quantity: kmol, activation-energy: cal/mol}
-  collider-list: 
+  collider-list:
   - collider: "M" # Ar is reference collider
     eps: {A: 1, b: 0, Ea: 0}
     rate-constants:
@@ -565,7 +565,7 @@ reactions:
   rate-constant: {A: 8.0e+11, b: 0.0, Ea: 6000.0}
 - equation: HNO (+M) <=> H + NO (+M)  # Reaction 167
   type: linear-burke
-  collider-list: 
+  collider-list:
   - collider: "M" # Ar is reference collider
     eps: {A: 1, b: 0, Ea: 0}
     rate-constants:
