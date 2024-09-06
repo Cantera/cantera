@@ -23,7 +23,7 @@ References:
     (2024).
 
 Requires: cantera >= 3.1
-.. tags:: burning velocity, flame speed, equivalence ratio, mixture rule, Burke, LMR-R
+.. tags:: flame speed, kinetics, mixture rule
 """
 
 import cantera as ct

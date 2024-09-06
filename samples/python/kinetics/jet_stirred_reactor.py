@@ -25,7 +25,7 @@ References:
     (2024).
 
 Requires: cantera >= 3.1
-.. tags:: jet-stirred reactor, species profile, temperature profile, mixture rule, Burke, LMR-R
+.. tags:: jet-stirred reactor, species profile, temperature profile, kinetics, mixture rule
 """
 
 import numpy as np
