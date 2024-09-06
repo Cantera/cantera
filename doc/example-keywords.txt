@@ -18,9 +18,11 @@ fuel cell
 heat transfer
 ignition delay
 internal combustion engine
+jet-stirred reactor
 kinetics
 Matlab
 mixture
+mixture rule
 multicomponent transport
 multiphase
 non-ideal fluid
@@ -41,6 +43,9 @@ saving output
 sensitivity analysis
 strained flame
 surface chemistry
+shock tube
+species profile
+temperature profile
 thermodynamic cycle
 thermodynamics
 transport
