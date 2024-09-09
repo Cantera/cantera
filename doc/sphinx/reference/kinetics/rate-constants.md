@@ -279,7 +279,7 @@ $$
 k_{\text{LMR-R}}(T,P,\textit{\textbf{X}}) &= \sum_{n} k_{n}(T,P_{n,\text{LMR}}^{\text{ eff}})\tilde{X}_{n,\text{LMR}} + k_{M}(T,P_{M,\text{LMR}}^{\text{ eff}}) \left(1-\sum_{n}\tilde{X}_{n,\text{LMR}}\right)
 $$
 
-If the user has limited or incomplete access to parameter inputs (a likely scenario, given the scarcity of puplished third-body efficiencies and master equation eigenvalues), this computational implementation allowes them much greater flexibility and power to make educated assumptions. Further description of the LMR-R theory and computational method is available here {cite:singal}`singal2024` [citation not yet added].
+If the user has limited or incomplete access to parameter inputs (a likely scenario, given the scarcity of puplished third-body efficiencies and master equation eigenvalues), this computational implementation allowes them much greater flexibility and power to make educated assumptions. Further description of the LMR-R theory and computational method is available in {cite:t}`singal2024`.
 
 ```{admonition} YAML Usage
 :class: tip

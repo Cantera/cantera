@@ -440,7 +440,7 @@ parameterization if so desired. Mixing and matching of types within the same rea
 table for ``"M"``, Troe parameters for ``"H2"``, and Chebyshev data for ``"NH3"``).
 
 A mathematical description of this YAML implementation can be found in Eq. 8 of
-:cite:t:`singal2024`. [CITATION NOT YET ADDED]
+:cite:t:`singal2024`.
 
 Examples::
 
