@@ -3,6 +3,7 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
+#include "cantera/base/Solution.h"
 #include "cantera/zeroD/FlowDevice.h"
 #include "cantera/zeroD/ReactorBase.h"
 #include "cantera/thermo/ThermoPhase.h"
@@ -27,21 +28,21 @@ FlowDevice::FlowDevice(shared_ptr<ReactorNode> r0, shared_ptr<ReactorNode> r1,
     m_out->addInlet(*this);
 
     // construct adapters between inlet and outlet species
-    const ThermoPhase& mixin = m_in->contents();
-    const ThermoPhase& mixout = m_out->contents();
+    const auto mixin = m_in->contents3()->thermo();
+    const auto mixout = m_out->contents3()->thermo();
 
-    m_nspin = mixin.nSpecies();
-    m_nspout = mixout.nSpecies();
+    m_nspin = mixin->nSpecies();
+    m_nspout = mixout->nSpecies();
     string nm;
     size_t ki, ko;
     for (ki = 0; ki < m_nspin; ki++) {
-        nm = mixin.speciesName(ki);
-        ko = mixout.speciesIndex(nm);
+        nm = mixin->speciesName(ki);
+        ko = mixout->speciesIndex(nm);
         m_in2out.push_back(ko);
     }
     for (ko = 0; ko < m_nspout; ko++) {
-        nm = mixout.speciesName(ko);
-        ki = mixin.speciesIndex(nm);
+        nm = mixout->speciesName(ko);
+        ki = mixin->speciesIndex(nm);
         m_out2in.push_back(ki);
     }
 }
@@ -60,21 +61,21 @@ bool FlowDevice::install(ReactorBase& in, ReactorBase& out)
     m_out->addInlet(*this);
 
     // construct adapters between inlet and outlet species
-    const ThermoPhase& mixin = m_in->contents();
-    const ThermoPhase& mixout = m_out->contents();
+    const auto mixin = m_in->contents3()->thermo();
+    const auto mixout = m_out->contents3()->thermo();
 
-    m_nspin = mixin.nSpecies();
-    m_nspout = mixout.nSpecies();
+    m_nspin = mixin->nSpecies();
+    m_nspout = mixout->nSpecies();
     string nm;
     size_t ki, ko;
     for (ki = 0; ki < m_nspin; ki++) {
-        nm = mixin.speciesName(ki);
-        ko = mixout.speciesIndex(nm);
+        nm = mixin->speciesName(ki);
+        ko = mixout->speciesIndex(nm);
         m_in2out.push_back(ko);
     }
     for (ko = 0; ko < m_nspout; ko++) {
-        nm = mixout.speciesName(ko);
-        ki = mixin.speciesIndex(nm);
+        nm = mixout->speciesName(ko);
+        ki = mixin->speciesIndex(nm);
         m_out2in.push_back(ki);
     }
     return true;

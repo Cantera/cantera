@@ -37,6 +37,9 @@ struct SensitivityParameter
  * Base class for stirred reactors. Allows using any substance model, with
  * arbitrary inflow, outflow, heat loss/gain, surface chemistry, and volume
  * change.
+ * @todo After completion of the %Cantera 3.1 deprecation cycle, all methods should be
+ *      either moved to ReactorNode or Reactor, with ReactorBase entering its own
+ *      deprecation cycle in %Cantera 3.2.
  * @ingroup reactorGroup
  */
 class ReactorBase : public ReactorNode
@@ -85,7 +88,7 @@ public:
     }
 
     //! Set the energy equation on or off.
-    virtual void setEnergy(int eflag = 1) {
+    virtual void setEnergy(bool eflag = true) {
         throw NotImplementedError("ReactorBase::setEnergy");
     }
 
@@ -146,13 +149,6 @@ public:
         return m_surfaces.size();
     }
 
-    /**
-     * Initialize the reactor. Called automatically by ReactorNet::initialize.
-     */
-    virtual void initialize(double t0 = 0.0) {
-        throw NotImplementedError("ReactorBase::initialize");
-    }
-
     //! @}
 
     void restoreState() override;
@@ -160,19 +156,31 @@ public:
     void syncState() override;
 
     //! return a reference to the contents.
+    //! @deprecated  Behavior to change after %Cantera 3.1, when a shared pointer to
+    //!     a Solution object will be returned. For new behavior, use transitional
+    //!     method ReactorNode::contents3().
     ThermoPhase& contents() {
         if (!m_thermo) {
             throw CanteraError("ReactorBase::contents",
                                "Reactor contents not defined.");
         }
+        warn_user("ReactorBase::contents",
+            "Behavior to change after Cantera 3.1; for new behavior, see "
+            "ReactorNode::contents3.");
         return *m_thermo;
     }
 
+    //! @deprecated  Behavior to change after %Cantera 3.1, when a shared pointer to
+    //!     a Solution object will be returned. For new behavior, use transitional
+    //!     method ReactorNode::contents3().
     const ThermoPhase& contents() const {
         if (!m_thermo) {
             throw CanteraError("ReactorBase::contents",
                                "Reactor contents not defined.");
         }
+        warn_user("ReactorBase::contents",
+            "Behavior to change after Cantera 3.1; for new behavior, see "
+            "ReactorNode::contents3.");
         return *m_thermo;
     }
 

@@ -102,12 +102,8 @@ public:
         return m_chem;
     }
 
-    void setEnergy(int eflag=1) override {
-        if (eflag > 0) {
-            m_energy = true;
-        } else {
-            m_energy = false;
-        }
+    void setEnergy(bool eflag=true) override {
+        m_energy = eflag;
     }
 
     //! Returns `true` if solution of the energy equation is enabled.

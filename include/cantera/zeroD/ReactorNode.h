@@ -61,6 +61,22 @@ public:
     //! Calling this will trigger integrator reinitialization.
     virtual void syncState();
 
+    /**
+     * Initialize the reactor. Called automatically by ReactorNet::initialize().
+     */
+    virtual void initialize(double t0 = 0.0) {
+        throw NotImplementedError("ReactorNode::initialize");
+    }
+
+    //! Return a shared pointer to reactor contents.
+    shared_ptr<Solution> contents3() {
+        if (!m_solution) {
+            throw CanteraError("ReactorNode::contents",
+                               "Reactor contents not defined.");
+        }
+        return m_solution;
+    }
+
 protected:
     //! Composite thermo/kinetics handler.
     shared_ptr<Solution> m_solution;

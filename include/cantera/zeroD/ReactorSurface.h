@@ -55,9 +55,11 @@ public:
         return m_kinetics;
     }
 
+protected:
     //! Set the InterfaceKinetics object for this surface
     void setKinetics(Kinetics* kin);
 
+public:
     //! Set the reactor that this Surface interacts with
     void setReactor(ReactorBase* reactor);
 
