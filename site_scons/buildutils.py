@@ -23,14 +23,6 @@ try:
 except ImportError:
     np = None
 
-__all__ = ("Option", "PathOption", "BoolOption", "EnumOption", "Configuration",
-           "logger", "remove_directory", "remove_file", "test_results",
-           "add_RegressionTest", "get_command_output", "listify", "which",
-           "ConfigBuilder", "multi_glob", "get_spawn", "quoted", "add_system_include",
-           "get_pip_install_location", "compiler_flag_list", "setup_python_env",
-           "checkout_submodule", "check_for_python", "make_relative_path_absolute",
-           "check_sundials", "config_error", "run_preprocessor")
-
 if TYPE_CHECKING:
     from typing import Iterable, TypeVar, Union, List, Dict, Tuple, Optional, \
         Iterator, Sequence
