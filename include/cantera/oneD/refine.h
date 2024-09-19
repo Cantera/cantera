@@ -131,7 +131,7 @@ public:
      * @param[in] z  Point to array of grid points
      * @param[in] x  Pointer to solution vector
      *
-     * @returns The number of new grid points needed (size of #m_insertion_points)
+     * @returns The number of new grid points needed (size of #m_insertPts)
      */
     int analyze(size_t n, const double* z, const double* x);
 
@@ -150,16 +150,20 @@ public:
      * @param[in] nn The maximum number of points that the new grid array `znew` can hold.
      * @param[out] znew Pointer to the array where the new grid points will be stored.
      *
-     * @return The function returns 0 upon successful creation of the new grid. Throws an exception if the provided
-     *         output array size is insufficient to hold the new grid.
+     * @return The function returns 0 upon successful creation of the new grid. Throws
+     *         an exception if the provided output array size is insufficient to hold
+     *         the new grid.
+     *
+     * @deprecated Starting in %Cantera 3.1, this function is unused. To be removed
+     *             after %Cantera 3.1.
      */
     int getNewGrid(int n, const double* z, int nn, double* znew);
 
     /**
      * Returns the number of new grid points that were needed.
      */
-    int numNewPoints() {
-        return static_cast<int>(m_insertion_points.size());
+    int nNewPoints() {
+        return static_cast<int>(m_insertPts.size());
     }
 
     /**
@@ -180,7 +184,7 @@ public:
      * @param j  Grid point index
      */
     bool newPointNeeded(size_t j) {
-        return m_insertion_points.find(j) != m_insertion_points.end();
+        return m_insertPts.find(j) != m_insertPts.end();
     }
 
     /**
@@ -189,7 +193,7 @@ public:
      * @param j Grid point index
      */
     bool keepPoint(size_t j) {
-        return (m_keep[j] != -1);
+        return (m_keep[j] != REMOVE);
     }
 
     /**
@@ -223,29 +227,34 @@ public:
 
 protected:
     //! Indices of grid points that need new grid points added after them
-    set<size_t> m_insertion_points;
+    set<size_t> m_insertPts;
 
-    //! Map of grid point indices that should be kept, 1=keep, -1=remove, 0=unset
-    map<size_t, int> m_keep;
+    // Grid point refinement status
+    enum GridPointStatus {
+        UNSET = 0,
+        KEEP = 1,
+        REMOVE = -1
+    };
+
+    //! Status of whether each grid point should be kept or removed.
+    map<size_t, GridPointStatus> m_keep;
 
     //! Names of components that require the addition of new grid points
-    set<string> m_component_name;
+    set<string> m_componentNames;
 
-    //! Vector of flags indicating whether each component should be considered
-    //! for grid refinement
+    //! Flags for whether each component should be considered for grid refinement
     vector<bool> m_active;
 
     //! Refinement criteria
-    double m_ratio = 10.0;
-    double m_slope = 0.8;
-    double m_curve = 0.8;
-    double m_prune = -0.001;
+    double m_ratio = 10.0; //!< grid spacing refinement criteria
+    double m_slope = 0.8; //!< function change refinement criteria
+    double m_curve = 0.8; //!< function slope refinement criteria
+    double m_prune = -0.001; //!< pruning refinement criteria
 
-    //! Threshold parameter that is used distinguish between small fluctuations
-    //! around a constant value during the refinement process.
+    //! Threshold for ignoring small changes around a constant during refinement.
     double m_min_range = 0.01;
 
-    Domain1D* m_domain; //! Pointer to the domain to be refined
+    Domain1D* m_domain; //!< Pointer to the domain to be refined.
     size_t m_nv; //!< Number of components in the domain
     size_t m_npmax = 1000; //!< Maximum number of grid points
 

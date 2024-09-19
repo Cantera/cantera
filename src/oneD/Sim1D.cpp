@@ -542,7 +542,7 @@ int Sim1D::refine(int loglevel)
             r.show();
         }
 
-        added += r.numNewPoints();
+        added += r.nNewPoints();
         size_t comp = d.nComponents();
 
         // loop over points in the current grid
