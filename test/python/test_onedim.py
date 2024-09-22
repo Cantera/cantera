@@ -1,11 +1,11 @@
 import cantera as ct
-from . import utilities
+from . import utilities as utils
 import numpy as np
 from .utilities import allow_deprecated, yaml
 import pytest
 from pytest import approx
 
-class TestOnedim(utilities.CanteraTest):
+class TestOnedim(utils.CanteraTest):
     def test_instantiate(self):
         gas = ct.Solution("h2o2.yaml")
         free = ct.FreeFlow(gas)
@@ -30,48 +30,48 @@ class TestOnedim(utilities.CanteraTest):
         flame = ct.FreeFlow(gas1)
         sim = ct.Sim1D((inlet, flame))
 
-        self.assertEqual(inlet.name, 'something')
+        assert inlet.name == 'something'
 
         gas2.TPX = 400, 101325, 'H2:0.3, O2:0.5, AR:0.2'
         Xref = gas2.X
         Yref = gas2.Y
         inlet.Y = Yref
 
-        self.assertArrayNear(inlet.Y, Yref)
-        self.assertArrayNear(inlet.X, Xref)
+        utils.assertArrayNear(inlet.Y, Yref)
+        utils.assertArrayNear(inlet.X, Xref)
 
         gas2.TPX = 400, 101325, 'H2:0.5, O2:0.2, AR:0.3'
         Xref = gas2.X
         Yref = gas2.Y
         inlet.X = Xref
-        self.assertArrayNear(inlet.X, Xref)
-        self.assertArrayNear(inlet.Y, Yref)
+        utils.assertArrayNear(inlet.X, Xref)
+        utils.assertArrayNear(inlet.Y, Yref)
 
         inlet.X = {'H2':0.3, 'O2':0.5, 'AR':0.2}
-        self.assertNear(inlet.X[gas2.species_index('H2')], 0.3)
+        utils.assertNear(inlet.X[gas2.species_index('H2')], 0.3)
 
     def test_grid_check(self):
         gas = ct.Solution("h2o2.yaml")
         flame = ct.FreeFlow(gas)
 
-        with self.assertRaisesRegex(ct.CanteraError, 'monotonically'):
+        with pytest.raises(ct.CanteraError, match='monotonically'):
             flame.grid = [0, 0.1, 0.1, 0.2]
 
-        with self.assertRaisesRegex(ct.CanteraError, 'monotonically'):
+        with pytest.raises(ct.CanteraError, match='monotonically'):
             flame.grid = [0, 0.1, 0.2, 0.05]
 
     def test_unpicklable(self):
         import pickle
         gas = ct.Solution("h2o2.yaml")
         flame = ct.FreeFlow(gas)
-        with self.assertRaises(NotImplementedError):
+        with pytest.raises(NotImplementedError):
             pickle.dumps(flame)
 
     def test_uncopyable(self):
         import copy
         gas = ct.Solution("h2o2.yaml")
         flame = ct.FreeFlow(gas)
-        with self.assertRaises(NotImplementedError):
+        with pytest.raises(NotImplementedError):
             copy.copy(flame)
 
     def test_exceptions(self):
@@ -92,9 +92,9 @@ class TestOnedim(utilities.CanteraTest):
         sim = ct.Sim1D((inlet, flame))
 
         for x in (inlet, flame, sim):
-            with self.assertRaises(AttributeError):
+            with pytest.raises(AttributeError):
                 x.foobar = 300
-            with self.assertRaises(AttributeError):
+            with pytest.raises(AttributeError):
                 x.foobar
 
     def test_tolerances(self):
@@ -105,7 +105,7 @@ class TestOnedim(utilities.CanteraTest):
         # Some things don't work until the domains have been added to a Sim1D
         sim = ct.Sim1D((left, flame, right))
 
-        with self.assertRaisesRegex(ct.CanteraError, 'no component'):
+        with pytest.raises(ct.CanteraError, match='no component'):
             flame.set_steady_tolerances(foobar=(3e-4, 3e-6))
 
         flame.set_steady_tolerances(default=(5e-3, 5e-5),
@@ -121,10 +121,10 @@ class TestOnedim(utilities.CanteraTest):
         rtol_ss = set(flame.steady_reltol())
         rtol_ts = set(flame.transient_reltol())
 
-        self.assertEqual(atol_ss, set((5e-5, 3e-6, 7e-9)))
-        self.assertEqual(atol_ts, set((6e-5, 4e-6, 2e-9)))
-        self.assertEqual(rtol_ss, set((5e-3, 3e-4, 7e-7)))
-        self.assertEqual(rtol_ts, set((6e-3, 4e-4, 2e-7)))
+        assert atol_ss == set((5e-5, 3e-6, 7e-9))
+        assert atol_ts == set((6e-5, 4e-6, 2e-9))
+        assert rtol_ss == set((5e-3, 3e-4, 7e-7))
+        assert rtol_ts == set((6e-3, 4e-4, 2e-7))
 
     def test_switch_transport(self):
         gas = ct.Solution('h2o2.yaml')
