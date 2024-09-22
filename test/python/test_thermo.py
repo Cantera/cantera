@@ -1626,8 +1626,8 @@ class TestSpeciesThermo(utilities.CanteraTest):
 
 class TestQuantity(utilities.CanteraTest):
     @classmethod
-    def setUpClass(cls):
-        utilities.CanteraTest.setUpClass()
+    def setup_class(cls):
+        utilities.CanteraTest.setup_class()
         cls.gas = ct.Solution('gri30.yaml', transport_model=None)
 
     def setUp(self):
@@ -1864,8 +1864,8 @@ class TestMisc(utilities.CanteraTest):
 
 class TestElement(utilities.CanteraTest):
     @classmethod
-    def setUpClass(cls):
-        utilities.CanteraTest.setUpClass()
+    def setup_class(cls):
+        utilities.CanteraTest.setup_class()
         cls.ar_sym = ct.Element('Ar')
         cls.ar_name = ct.Element('argon')
         cls.ar_num = ct.Element(18)
@@ -1940,8 +1940,8 @@ class TestElement(utilities.CanteraTest):
 
 class TestSolutionArray(utilities.CanteraTest):
     @classmethod
-    def setUpClass(cls):
-        utilities.CanteraTest.setUpClass()
+    def setup_class(cls):
+        utilities.CanteraTest.setup_class()
         cls.gas = ct.Solution('h2o2.yaml')
 
     def test_passthrough(self):

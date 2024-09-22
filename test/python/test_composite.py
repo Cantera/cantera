@@ -22,8 +22,8 @@ from . import utilities
 class TestModels(utilities.CanteraTest):
 
     @classmethod
-    def setUpClass(cls):
-        utilities.CanteraTest.setUpClass()
+    def setup_class(cls):
+        utilities.CanteraTest.setup_class()
         cls.yml_file = cls.test_data_path / "thermo-models.yaml"
         cls.yml = utilities.load_yaml(cls.yml_file)
 
@@ -169,8 +169,8 @@ class TestPickle(utilities.CanteraTest):
 class TestEmptyThermoPhase(utilities.CanteraTest):
     """ Test empty Solution object """
     @classmethod
-    def setUpClass(cls):
-        utilities.CanteraTest.setUpClass()
+    def setup_class(cls):
+        utilities.CanteraTest.setup_class()
         cls.gas = ct.ThermoPhase()
 
     def test_empty_report(self):
@@ -189,8 +189,8 @@ class TestEmptyThermoPhase(utilities.CanteraTest):
 class TestEmptySolution(TestEmptyThermoPhase):
     """ Test empty Solution object """
     @classmethod
-    def setUpClass(cls):
-        utilities.CanteraTest.setUpClass()
+    def setup_class(cls):
+        utilities.CanteraTest.setup_class()
         cls.gas = ct.Solution()
 
     def test_empty_composite(self):
@@ -216,8 +216,8 @@ class TestEmptyEdgeCases(utilities.CanteraTest):
 class TestSolutionArray(utilities.CanteraTest):
     """ Test SolutionArray basics """
     @classmethod
-    def setUpClass(cls):
-        utilities.CanteraTest.setUpClass()
+    def setup_class(cls):
+        utilities.CanteraTest.setup_class()
         cls.gas = ct.Solution('h2o2.yaml', transport_model=None)
 
     def test_from_state_scalar(self):
@@ -322,8 +322,8 @@ class TestSolutionArrayInfo(utilities.CanteraTest):
     width = 80
 
     @classmethod
-    def setUpClass(cls):
-        utilities.CanteraTest.setUpClass()
+    def setup_class(cls):
+        utilities.CanteraTest.setup_class()
         cls.gas = ct.Solution('h2o2.yaml', transport_model=None)
 
     def setUp(self):
@@ -435,8 +435,8 @@ class TestSolutionArrayInfo(utilities.CanteraTest):
 class TestSolutionArrayIO(utilities.CanteraTest):
     """ Test SolutionArray file IO """
     @classmethod
-    def setUpClass(cls):
-        utilities.CanteraTest.setUpClass()
+    def setup_class(cls):
+        utilities.CanteraTest.setup_class()
         cls.gas = ct.Solution('h2o2.yaml', transport_model=None)
 
     def test_collect_data(self):
@@ -601,7 +601,7 @@ class TestSolutionArrayIO(utilities.CanteraTest):
         with pytest.raises(ct.CanteraError, match="Invalid species basis"):
             arr.save(outfile, basis="foo")
 
-    @utilities.unittest.skipIf(_pandas is None, "pandas is not installed")
+    @pytest.mark.skipif(_pandas is None, reason="pandas is not installed")
     def test_to_pandas(self):
         states = ct.SolutionArray(self.gas, 7, extra={"props": range(7)})
         states.TPX = np.linspace(300, 1000, 7), 2e5, 'H2:0.5, O2:0.4'
@@ -860,8 +860,8 @@ class TestLegacyHDF(utilities.CanteraTest):
 class TestRestoreIdealGas(utilities.CanteraTest):
     """ Test restoring of the IdealGas class """
     @classmethod
-    def setUpClass(cls):
-        utilities.CanteraTest.setUpClass()
+    def setup_class(cls):
+        utilities.CanteraTest.setup_class()
         cls.gas = ct.Solution('h2o2.yaml', transport_model=None)
 
     def test_restore_gas(self):
@@ -970,8 +970,8 @@ class TestRestoreIdealGas(utilities.CanteraTest):
 class TestRestorePureFluid(utilities.CanteraTest):
     """ Test restoring of the PureFluid class """
     @classmethod
-    def setUpClass(cls):
-        utilities.CanteraTest.setUpClass()
+    def setup_class(cls):
+        utilities.CanteraTest.setup_class()
         cls.water = ct.Water()
 
     def test_restore_water(self):

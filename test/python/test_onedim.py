@@ -1,11 +1,11 @@
 import cantera as ct
-from . import utilities as utils
+from . import utilities
 import numpy as np
 from .utilities import allow_deprecated, yaml
 import pytest
 from pytest import approx
 
-class TestOnedim(utils.CanteraTest):
+class TestOnedim(utilities.CanteraTest):
     def test_instantiate(self):
         gas = ct.Solution("h2o2.yaml")
         free = ct.FreeFlow(gas)
@@ -37,18 +37,18 @@ class TestOnedim(utils.CanteraTest):
         Yref = gas2.Y
         inlet.Y = Yref
 
-        utils.assertArrayNear(inlet.Y, Yref)
-        utils.assertArrayNear(inlet.X, Xref)
+        self.assertArrayNear(inlet.Y, Yref)
+        self.assertArrayNear(inlet.X, Xref)
 
         gas2.TPX = 400, 101325, 'H2:0.5, O2:0.2, AR:0.3'
         Xref = gas2.X
         Yref = gas2.Y
         inlet.X = Xref
-        utils.assertArrayNear(inlet.X, Xref)
-        utils.assertArrayNear(inlet.Y, Yref)
+        self.assertArrayNear(inlet.X, Xref)
+        self.assertArrayNear(inlet.Y, Yref)
 
         inlet.X = {'H2':0.3, 'O2':0.5, 'AR':0.2}
-        utils.assertNear(inlet.X[gas2.species_index('H2')], 0.3)
+        self.assertNear(inlet.X[gas2.species_index('H2')], 0.3)
 
     def test_grid_check(self):
         gas = ct.Solution("h2o2.yaml")
@@ -925,7 +925,7 @@ class TestDiffusionFlame(utilities.CanteraTest):
     # (2) Start Python and run:
     #     >>> import cantera.test
     #     >>> t = cantera.test.test_onedim.TestDiffusionFlame()
-    #     >>> t.setUpClass()
+    #     >>> t.setup_class()
     #     >>> t.test_mixture_averaged(True)
     #     >>> t.test_auto(True)
     #     >>> t.test_mixture_averaged_rad(True)
@@ -1357,7 +1357,7 @@ class TestCounterflowPremixedFlame(utilities.CanteraTest):
     # (2) Start Python and run:
     #     >>> import cantera.test
     #     >>> t = cantera.test.test_onedim.TestCounterflowPremixedFlame()
-    #     >>> t.setUpClass()
+    #     >>> t.setup_class()
     #     >>> t.test_mixture_averaged(True)
     # (3) Compare the reference files created in the current working directory with
     #     the ones in test/data and replace them if needed.
@@ -1475,7 +1475,7 @@ class TestCounterflowPremixedFlameNonIdeal(utilities.CanteraTest):
     # (2) Start Python and run:
     #     >>> import cantera.test
     #     >>> t = cantera.test.test_onedim.TestCounterflowPremixedFlameNonIdeal()
-    #     >>> t.setUpClass()
+    #     >>> t.setup_class()
     #     >>> t.test_mixture_averaged(True)
     # (3) Compare the reference files created in the current working directory with
     #     the ones in test/data and replace them if needed.

@@ -5,8 +5,8 @@ from . import utilities
 
 class TestMixture(utilities.CanteraTest):
     @classmethod
-    def setUpClass(self):
-        utilities.CanteraTest.setUpClass()
+    def setup_class(self):
+        utilities.CanteraTest.setup_class()
         self.phase1 = ct.Solution('h2o2.yaml', transport_model=None)
         self.phase2 = ct.Solution('air.yaml')
 

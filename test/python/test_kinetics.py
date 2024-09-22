@@ -136,7 +136,7 @@ class TestKinetics(utilities.CanteraTest):
         check_product('O', 0, 0)
         check_product('O2', 0, 1)
 
-    @utilities.unittest.skipIf(isinstance(_scipy_sparse, ImportError), "scipy is not installed")
+    @pytest.mark.skipif(isinstance(_scipy_sparse, ImportError), reason="scipy is not installed")
     def test_stoich_coeffs_sparse(self):
         nu_r_dense = self.phase.reactant_stoich_coeffs
         nu_p_dense = self.phase.product_stoich_coeffs
@@ -750,8 +750,8 @@ class TestEmptyKinetics(utilities.CanteraTest):
 
 class TestReactionPath(utilities.CanteraTest):
     @classmethod
-    def setUpClass(cls):
-        utilities.CanteraTest.setUpClass()
+    def setup_class(cls):
+        utilities.CanteraTest.setup_class()
         cls.gas = ct.Solution('gri30.yaml', transport_model=None)
         cls.gas.TPX = 1300.0, ct.one_atm, 'CH4:0.4, O2:1, N2:3.76'
         r = ct.IdealGasReactor(cls.gas)
@@ -1193,8 +1193,8 @@ class TestDuplicateReactions(utilities.CanteraTest):
 
 class TestReaction(utilities.CanteraTest):
     @classmethod
-    def setUpClass(cls):
-        utilities.CanteraTest.setUpClass()
+    def setup_class(cls):
+        utilities.CanteraTest.setup_class()
         cls.gas = ct.Solution('h2o2.yaml', transport_model=None)
         cls.gas.X = 'H2:0.1, H2O:0.2, O2:0.7, O:1e-4, OH:1e-5, H:2e-5'
         cls.gas.TP = 900, 2*ct.one_atm

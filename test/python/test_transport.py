@@ -366,7 +366,7 @@ class TestWaterTransport(utilities.CanteraTest):
     the critical point.
     """
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls.water = ct.Water()
 
     def check_viscosity(self, T, P, mu, rtol):
@@ -415,7 +415,7 @@ class TestIAPWS95WaterTransport(utilities.CanteraTest):
     results in better comparisons with data from the NIST Webbook.
     """
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls.water = ct.Solution('thermo-models.yaml', 'liquid-water')
 
     def check_viscosity(self, T, P, mu, rtol):
@@ -451,8 +451,8 @@ class TestIAPWS95WaterTransport(utilities.CanteraTest):
 
 class TestTransportData(utilities.CanteraTest):
     @classmethod
-    def setUpClass(cls):
-        utilities.CanteraTest.setUpClass()
+    def setup_class(cls):
+        utilities.CanteraTest.setup_class()
         cls.gas = ct.Solution("h2o2.yaml")
         cls.gas.X = 'H2O:0.6, H2:0.4'
 
