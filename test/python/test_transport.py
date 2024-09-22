@@ -1,21 +1,22 @@
+import copy
 import numpy as np
+import pytest
 
 import cantera as ct
 from . import utilities
 from .utilities import allow_deprecated
-import copy
-import pytest
 
 
 class TestTransport(utilities.CanteraTest):
-    def setUp(self):
+    def setup_method(self):
+        """ Runs before tests """
         self.phase = ct.Solution("h2o2.yaml")
         self.phase.X = [0.1, 1e-4, 1e-5, 0.2, 2e-4, 0.3, 1e-6, 5e-5, 1e-6, 0.4]
         self.phase.TP = 800, 2*ct.one_atm
 
     def test_scalar_properties(self):
-        self.assertTrue(self.phase.viscosity > 0.0)
-        self.assertTrue(self.phase.thermal_conductivity > 0.0)
+        assert self.phase.viscosity > 0.0
+        assert self.phase.thermal_conductivity > 0.0
 
     def test_unityLewis(self):
         self.phase.transport_model = 'unity-Lewis-number'
@@ -25,13 +26,13 @@ class TestTransport(utilities.CanteraTest):
         Dkm = self.phase.mix_diff_coeffs_mass
 
         eps = np.spacing(1) # Machine precision
-        self.assertTrue(all(np.diff(Dkm) < 2*eps))
+        assert all(np.diff(Dkm) < 2*eps)
         self.assertNear(Dkm[0], alpha)
-        self.assertTrue(all(np.diff(Dkm_prime) < 2*eps))
+        assert all(np.diff(Dkm_prime) < 2*eps)
         self.assertNear(Dkm_prime[0], alpha)
 
     def test_mixtureAveraged(self):
-        self.assertEqual(self.phase.transport_model, 'mixture-averaged')
+        assert self.phase.transport_model == 'mixture-averaged'
         Dkm1 = self.phase.mix_diff_coeffs
         Dkm1b = self.phase.mix_diff_coeffs_mole
         Dkm1c = self.phase.mix_diff_coeffs_mass
@@ -55,26 +56,26 @@ class TestTransport(utilities.CanteraTest):
         Dkm1 = self.phase.mix_diff_coeffs_mole
         self.phase.TP = self.phase.T + 1, None
         Dkm2 = self.phase.mix_diff_coeffs_mole
-        self.assertTrue(all(Dkm2 > Dkm1))
+        assert all(Dkm2 > Dkm1)
 
         Dkm1 = self.phase.mix_diff_coeffs_mass
         self.phase.TP = self.phase.T + 1, None
         Dkm2 = self.phase.mix_diff_coeffs_mass
-        self.assertTrue(all(Dkm2 > Dkm1))
+        assert all(Dkm2 > Dkm1)
 
         Dkm1 = self.phase.mix_diff_coeffs
         self.phase.TP = self.phase.T + 1, None
         Dkm2 = self.phase.mix_diff_coeffs
-        self.assertTrue(all(Dkm2 > Dkm1))
+        assert all(Dkm2 > Dkm1)
 
     def test_CK_mode(self):
         mu_ct = self.phase.viscosity
         self.phase.transport_model = 'mixture-averaged-CK'
-        self.assertEqual(self.phase.transport_model, 'mixture-averaged-CK')
+        assert self.phase.transport_model == 'mixture-averaged-CK'
         mu_ck = self.phase.viscosity
         # values should be close, but not identical
-        self.assertGreater(abs(mu_ct - mu_ck) / mu_ct, 1e-8)
-        self.assertLess(abs(mu_ct - mu_ck) / mu_ct, 1e-2)
+        assert abs(mu_ct - mu_ck) / mu_ct > 1e-8
+        assert abs(mu_ct - mu_ck) / mu_ct < 1e-2
 
     def test_ionGas(self):
         # IonGasTransport gives the same result for a mixture
@@ -97,8 +98,8 @@ class TestTransport(utilities.CanteraTest):
                              np.zeros(self.phase.n_species))
 
         self.phase.transport_model = 'multicomponent'
-        self.assertTrue(all(self.phase.multi_diff_coeffs.flat >= 0.0))
-        self.assertTrue(all(self.phase.thermal_diff_coeffs.flat != 0.0))
+        assert all(self.phase.multi_diff_coeffs.flat >= 0.0)
+        assert all(self.phase.thermal_diff_coeffs.flat != 0.0)
 
     def test_add_species_mix(self):
         yaml = (self.cantera_data_path / "gri30.yaml").read_text()
@@ -169,9 +170,9 @@ class TestTransport(utilities.CanteraTest):
         visc2_h2 = self.phase['H2'].species_viscosities[0]
         self.phase.set_viscosity_polynomial(self.phase.species_index('H2'), mu_poly_h2)
         visc3_h2 = self.phase['H2'].species_viscosities[0]
-        self.assertTrue(visc1_h2o != visc1_h2)
-        self.assertEqual(visc1_h2o, visc2_h2)
-        self.assertEqual(visc1_h2, visc3_h2)
+        assert visc1_h2o != visc1_h2
+        assert visc1_h2o == visc2_h2
+        assert visc1_h2 == visc3_h2
 
     def test_transport_polynomial_fits_conductivity(self):
         self.phase.X = {'O2': 1}
@@ -184,9 +185,9 @@ class TestTransport(utilities.CanteraTest):
         cond2_h2 = self.phase.thermal_conductivity
         self.phase.set_thermal_conductivity_polynomial(self.phase.species_index('H2'), lambda_poly_h2)
         cond3_h2 = self.phase.thermal_conductivity
-        self.assertTrue(cond1_o2 != cond1_h2)
-        self.assertEqual(cond1_o2, cond2_h2)
-        self.assertEqual(cond1_h2, cond3_h2)
+        assert cond1_o2 != cond1_h2
+        assert cond1_o2 == cond2_h2
+        assert cond1_h2 == cond3_h2
 
     def test_transport_polynomial_fits_diffusion(self):
         D12 = self.phase.binary_diff_coeffs[1, 2]
@@ -201,15 +202,16 @@ class TestTransport(utilities.CanteraTest):
         self.phase.set_binary_diff_coeffs_polynomial(2, 3, bd_poly_23)
         D12new = self.phase.binary_diff_coeffs[1, 2]
         D23new = self.phase.binary_diff_coeffs[2, 3]
-        self.assertTrue(D12 != D23)
-        self.assertEqual(D12, D23mod)
-        self.assertEqual(D23, D12mod)
-        self.assertEqual(D12, D12new)
-        self.assertEqual(D23, D23new)
+        assert D12 != D23
+        assert D12 == D23mod
+        assert D23 == D12mod
+        assert D12 == D12new
+        assert D23 == D23new
 
 
 class TestIonTransport(utilities.CanteraTest):
-    def setUp(self):
+    def setup_method(self):
+        """ Runs before tests """
         self.p = ct.one_atm
         self.T = 2237
         self.gas = ct.Solution('ch4_ion.yaml')
@@ -239,9 +241,9 @@ class TestIonTransport(utilities.CanteraTest):
         mdiff = self.gas.mix_diff_coeffs[self.kH3Op]
         mobi = self.gas.mobilities[self.kH3Op]
         self.gas.TP = 0.9 * self.T, self.p
-        self.assertTrue(bdiff != self.gas.binary_diff_coeffs[self.kN2][self.kH3Op])
-        self.assertTrue(mdiff != self.gas.mix_diff_coeffs[self.kH3Op])
-        self.assertTrue(mobi != self.gas.mobilities[self.kH3Op])
+        assert bdiff != self.gas.binary_diff_coeffs[self.kN2][self.kH3Op]
+        assert mdiff != self.gas.mix_diff_coeffs[self.kH3Op]
+        assert mobi != self.gas.mobilities[self.kH3Op]
 
 
 class TestTransportGeometryFlags(utilities.CanteraTest):
@@ -306,12 +308,13 @@ class TestTransportGeometryFlags(utilities.CanteraTest):
         for geoms in bad:
             test = copy.copy(good)
             test.update(geoms)
-            with self.assertRaisesRegex(ct.CanteraError, 'invalid geometry'):
+            with pytest.raises(ct.CanteraError, match='invalid geometry'):
                 ct.Species.list_from_yaml(self.species_data.format(**test))
 
 
 class TestDustyGas(utilities.CanteraTest):
-    def setUp(self):
+    def setup_method(self):
+        """ Runs before tests """
         self.phase = ct.DustyGas("h2o2.yaml")
         self.phase.TPX = 500.0, ct.one_atm, "O2:2.0, H2:1.0, H2O:1.0"
         self.phase.porosity = 0.2
@@ -345,8 +348,8 @@ class TestDustyGas(utilities.CanteraTest):
         fluxes1 = self.phase.molar_fluxes(T1, T2, rho1, rho2, Y1, Y2, 1e-4)
         kH2 = self.phase.species_index('H2')
         kH2O = self.phase.species_index('H2O')
-        self.assertTrue(fluxes1[kH2] < 0)
-        self.assertTrue(fluxes1[kH2O] > 0)
+        assert fluxes1[kH2] < 0
+        assert fluxes1[kH2O] > 0
 
         # Not sure why the following condition is not satisfied:
         # self.assertNear(sum(fluxes1) / sum(abs(fluxes1)), 0.0)
@@ -355,7 +358,7 @@ class TestDustyGas(utilities.CanteraTest):
         gas1 = ct.Solution("h2o2.yaml", transport_model="multicomponent")
         gas1.TPX = self.phase.TPX
 
-        self.assertEqual(self.phase.thermal_conductivity, gas1.thermal_conductivity)
+        assert self.phase.thermal_conductivity == gas1.thermal_conductivity
 
 class TestWaterTransport(utilities.CanteraTest):
     """
@@ -458,7 +461,7 @@ class TestTransportData(utilities.CanteraTest):
 
     def test_read(self):
         tr = self.gas.species('H2').transport
-        self.assertEqual(tr.geometry, 'linear')
+        assert tr.geometry == 'linear'
         self.assertNear(tr.diameter, 2.92e-10)
         self.assertNear(tr.well_depth, 38.0 * ct.boltzmann)
         self.assertNear(tr.polarizability, 0.79e-30)
@@ -468,7 +471,7 @@ class TestTransportData(utilities.CanteraTest):
         tr1 = ct.GasTransportData()
         tr1.set_customary_units('nonlinear', 2.60, 572.40, 1.84, 0.0, 4.00)
         tr2 = self.gas.species('H2O').transport
-        self.assertEqual(tr1.geometry, tr2.geometry)
+        assert tr1.geometry == tr2.geometry
         self.assertNear(tr1.diameter, tr2.diameter)
         self.assertNear(tr1.well_depth, tr2.well_depth)
         self.assertNear(tr1.dipole, tr2.dipole)
@@ -477,7 +480,8 @@ class TestTransportData(utilities.CanteraTest):
 
 
 class TestIonGasTransportData(utilities.CanteraTest):
-    def setUp(self):
+    def setup_method(self):
+        """ Runs before tests """
         self.gas = ct.Solution("ch4_ion.yaml")
 
     def test_read_ion(self):
