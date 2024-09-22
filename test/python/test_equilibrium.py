@@ -1,6 +1,6 @@
-import unittest
-
 import numpy as np
+import pytest
+from pytest import approx
 
 import cantera as ct
 from . import utilities
@@ -13,7 +13,7 @@ class EquilTestCases:
     def check(self, gas, **moles):
         nTotal = sum(moles.values())
         for name, X in moles.items():
-            self.assertAlmostEqual(gas[name].X[0], X/nTotal)
+            assert gas[name].X[0] == approx(X/nTotal)
 
     def test_equil_complete_stoichiometric(self):
         """
@@ -73,23 +73,21 @@ class EquilTestCases:
 
 class ChemEquilTest(EquilTestCases, utilities.CanteraTest):
     def __init__(self, *args, **kwargs):
-        EquilTestCases.__init__(self, 'element_potential')
-        unittest.TestCase.__init__(self, *args, **kwargs)
+        super.__init__(self, 'element_potential')
 
 
 class MultiphaseEquilTest(EquilTestCases, utilities.CanteraTest):
     def __init__(self, *args, **kwargs):
-        EquilTestCases.__init__(self, 'gibbs')
-        unittest.TestCase.__init__(self, *args, **kwargs)
+        super.__init__(self, 'gibbs')
 
-    @unittest.expectedFailure
+    @pytest.mark.xfail
     def test_equil_gri_stoichiometric(self):
         gas = ct.Solution('gri30.yaml', transport_model=None)
         gas.TPX = 301, 100000, 'CH4:1.0, O2:2.0'
         gas.equilibrate('TP', self.solver)
         self.check(gas, CH4=0, O2=0, H2O=2, CO2=1)
 
-    @unittest.expectedFailure
+    @pytest.mark.xfail
     def test_equil_gri_lean(self):
         gas = ct.Solution('gri30.yaml', transport_model=None)
         gas.TPX = 301, 100000, 'CH4:1.0, O2:3.0'
@@ -115,7 +113,7 @@ class EquilExtraElements(utilities.CanteraTest):
         self.gas.equilibrate('TP')
         self.assertNear(self.gas['CH4'].X[0], 0.0)
 
-    @unittest.expectedFailure
+    @pytest.mark.xfail
     def test_element_potential(self):
         self.gas.equilibrate('TP', solver='element_potential')
         self.assertNear(self.gas['CH4'].X[0], 0.0)
@@ -131,18 +129,19 @@ class EquilExtraElements(utilities.CanteraTest):
 
 class VCS_EquilTest(EquilTestCases, utilities.CanteraTest):
     def __init__(self, *args, **kwargs):
-        EquilTestCases.__init__(self, 'vcs')
-        unittest.TestCase.__init__(self, *args, **kwargs)
+        super.__init__(self, 'vcs')
 
 
 class TestKOH_Equil(utilities.CanteraTest):
     "Test roughly based on examples/multiphase/plasma_equilibrium.py"
-    def setUp(self):
-        self.phases = ct.import_phases("KOH.yaml",
+    @classmethod
+    def setup_class(cls):
+        super().setup_class()
+        cls.phases = ct.import_phases("KOH.yaml",
                 ['K_solid', 'K_liquid', 'KOH_a', 'KOH_b', 'KOH_liquid',
                  'K2O2_solid', 'K2O_solid', 'KO2_solid', 'ice', 'liquid_water',
                  'KOH_plasma'])
-        self.mix = ct.Mixture(self.phases)
+        cls.mix = ct.Mixture(cls.phases)
 
     def test_equil_TP(self):
         temperatures = range(350, 5000, 300)
@@ -190,12 +189,14 @@ class TestKOH_Equil(utilities.CanteraTest):
 
 class TestEquil_GasCarbon(utilities.CanteraTest):
     "Test rougly based on examples/multiphase/adiabatic.py"
-    def setUp(self):
-        self.gas = ct.Solution('gri30.yaml', transport_model=None)
-        self.carbon = ct.Solution("graphite.yaml")
-        self.fuel = 'CH4'
-        self.mix_phases = [(self.gas, 1.0), (self.carbon, 0.0)]
-        self.n_species = self.gas.n_species + self.carbon.n_species
+    @classmethod
+    def setup_class(cls):
+        super().setup_class()
+        cls.gas = ct.Solution('gri30.yaml', transport_model=None)
+        cls.carbon = ct.Solution("graphite.yaml")
+        cls.fuel = 'CH4'
+        cls.mix_phases = [(cls.gas, 1.0), (cls.carbon, 0.0)]
+        cls.n_species = cls.gas.n_species + cls.carbon.n_species
 
     def solve(self, solver, **kwargs):
         n_points = 12
