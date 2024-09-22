@@ -96,7 +96,7 @@ class MultiphaseEquilTest(EquilTestCases, utilities.CanteraTest):
 
 
 class EquilExtraElements(utilities.CanteraTest):
-    def setUp(self):
+    def setup_method(self):
         s = """
         phases:
         - name: gas
@@ -134,14 +134,12 @@ class VCS_EquilTest(EquilTestCases, utilities.CanteraTest):
 
 class TestKOH_Equil(utilities.CanteraTest):
     "Test roughly based on examples/multiphase/plasma_equilibrium.py"
-    @classmethod
-    def setup_class(cls):
-        super().setup_class()
-        cls.phases = ct.import_phases("KOH.yaml",
+    def setup_method(self):
+        self.phases = ct.import_phases("KOH.yaml",
                 ['K_solid', 'K_liquid', 'KOH_a', 'KOH_b', 'KOH_liquid',
                  'K2O2_solid', 'K2O_solid', 'KO2_solid', 'ice', 'liquid_water',
                  'KOH_plasma'])
-        cls.mix = ct.Mixture(cls.phases)
+        self.mix = ct.Mixture(self.phases)
 
     def test_equil_TP(self):
         temperatures = range(350, 5000, 300)
@@ -188,15 +186,14 @@ class TestKOH_Equil(utilities.CanteraTest):
 
 
 class TestEquil_GasCarbon(utilities.CanteraTest):
-    "Test rougly based on examples/multiphase/adiabatic.py"
-    @classmethod
-    def setup_class(cls):
-        super().setup_class()
-        cls.gas = ct.Solution('gri30.yaml', transport_model=None)
-        cls.carbon = ct.Solution("graphite.yaml")
-        cls.fuel = 'CH4'
-        cls.mix_phases = [(cls.gas, 1.0), (cls.carbon, 0.0)]
-        cls.n_species = cls.gas.n_species + cls.carbon.n_species
+    "Test roughly based on examples/multiphase/adiabatic.py"
+    def setup_method(self):
+        """ Runs before each test """
+        self.gas = ct.Solution('gri30.yaml', transport_model=None)
+        self.carbon = ct.Solution("graphite.yaml")
+        self.fuel = 'CH4'
+        self.mix_phases = [(self.gas, 1.0), (self.carbon, 0.0)]
+        self.n_species = self.gas.n_species + self.carbon.n_species
 
     def solve(self, solver, **kwargs):
         n_points = 12
