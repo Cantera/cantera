@@ -50,7 +50,7 @@ class TestReactor(utilities.CanteraTest):
         self.make_reactors(independent=False, n_reactors=1)
         assert not self.net.verbose
         self.net.verbose = True
-        assert not self.net.verbose
+        assert self.net.verbose
 
     @pytest.mark.usefixtures("allow_deprecated")
     def test_insert(self):
@@ -544,15 +544,15 @@ class TestReactor(utilities.CanteraTest):
             else:
                 return 0.0
         mfc.mass_flow_rate = mdot
-        self.assertEqual(mfc.mass_flow_coeff, 1.)
+        assert mfc.mass_flow_coeff == 1.
 
-        self.assertEqual(mfc.type, type(mfc).__name__)
-        self.assertEqual(len(reservoir.inlets), 0)
-        self.assertEqual(len(reservoir.outlets), 1)
-        self.assertEqual(reservoir.outlets[0], mfc)
-        self.assertEqual(len(self.r1.outlets), 0)
-        self.assertEqual(len(self.r1.inlets), 1)
-        self.assertEqual(self.r1.inlets[0], mfc)
+        assert mfc.type == type(mfc).__name__
+        assert len(reservoir.inlets) == 0
+        assert len(reservoir.outlets) == 1
+        assert reservoir.outlets[0] == mfc
+        assert len(self.r1.outlets) == 0
+        assert len(self.r1.inlets) == 1
+        assert self.r1.inlets[0] == mfc
 
         ma = self.r1.volume * self.r1.density
         Ya = self.r1.Y
@@ -592,7 +592,7 @@ class TestReactor(utilities.CanteraTest):
         mfc = ct.MassFlowController(self.r1, self.r2)
         mfc.mass_flow_rate = lambda t: eggs
 
-        with self.assertRaisesRegex(Exception, 'eggs'):
+        with pytest.raises(Exception, match='eggs'):
             self.net.step()
 
         with pytest.raises(NotImplementedError):
@@ -605,10 +605,10 @@ class TestReactor(utilities.CanteraTest):
         k = 2e-5
         valve.valve_coeff = k
 
-        self.assertEqual(self.r1.outlets, self.r2.inlets)
-        self.assertEqual(valve.valve_coeff, k)
-        self.assertTrue(self.r1.energy_enabled)
-        self.assertTrue(self.r2.energy_enabled)
+        assert self.r1.outlets == self.r2.inlets
+        assert valve.valve_coeff == k
+        assert self.r1.energy_enabled
+        assert self.r2.energy_enabled
         self.net.initialize()
         self.assertNear((self.r1.thermo.P - self.r2.thermo.P) * k,
                         valve.mass_flow_rate)
@@ -642,10 +642,10 @@ class TestReactor(utilities.CanteraTest):
         valve = ct.Valve(self.r1, self.r2)
         k = 2e-5
         valve.valve_coeff = k
-        self.assertEqual(valve.valve_coeff, k)
+        assert valve.valve_coeff == k
 
-        self.assertFalse(self.r1.energy_enabled)
-        self.assertFalse(self.r2.energy_enabled)
+        assert not self.r1.energy_enabled
+        assert not self.r2.energy_enabled
 
         m1a = self.r1.thermo.density * self.r1.volume
         m2a = self.r2.thermo.density * self.r2.volume
@@ -674,7 +674,7 @@ class TestReactor(utilities.CanteraTest):
         valve = ct.Valve(self.r1, self.r2)
         mdot = lambda dP: 5e-3 * np.sqrt(dP) if dP > 0 else 0.0
         valve.pressure_function = mdot
-        self.assertEqual(valve.valve_coeff, 1.)
+        assert valve.valve_coeff == 1.
 
         Y1 = self.r1.Y
         kO2 = self.gas1.species_index('O2')
@@ -748,12 +748,12 @@ class TestReactor(utilities.CanteraTest):
         self.make_reactors()
         res = ct.Reservoir()  # warning raised from C++ code
 
-        with self.assertRaisesRegex(ct.CanteraError, 'contents not defined'):
+        with pytest.raises(ct.CanteraError, match='contents not defined'):
             # Must assign contents of both reactors before creating Valve
             v = ct.Valve(self.r1, res)
 
         v = ct.Valve(self.r1, self.r2)
-        with self.assertRaisesRegex(ct.CanteraError, 'Already installed'):
+        with pytest.raises(ct.CanteraError, match='Already installed'):
             # inlet and outlet cannot be reassigned
             v._install(self.r2, self.r1)
 
@@ -773,7 +773,7 @@ class TestReactor(utilities.CanteraTest):
         pc = ct.PressureController(self.r1, outlet_reservoir)
         pc.primary = mfc
         pc.pressure_coeff = 1e-5
-        self.assertEqual(pc.pressure_coeff, 1e-5)
+        assert pc.pressure_coeff == 1e-5
 
         t = 0
         while t < 1.0:
@@ -799,7 +799,7 @@ class TestReactor(utilities.CanteraTest):
         pc.primary = mfc
         pfunc = lambda dp: 1.e-5 * abs(dp)**.5
         pc.pressure_function = pfunc
-        self.assertEqual(pc.pressure_coeff, 1.)
+        assert pc.pressure_coeff == 1.
 
         t = 0
         while t < 1.0:
@@ -826,11 +826,11 @@ class TestReactor(utilities.CanteraTest):
 
         p = ct.PressureController(self.r1, self.r2, primary=mfc, K=0.5)
 
-        with self.assertRaisesRegex(ct.CanteraError, 'is not ready'):
+        with pytest.raises(ct.CanteraError, match='is not ready'):
             p = ct.PressureController(self.r1, self.r2, K=0.5)
             p.mass_flow_rate
 
-        with self.assertRaisesRegex(ct.CanteraError, 'is not ready'):
+        with pytest.raises(ct.CanteraError, match='is not ready'):
             p = ct.PressureController(self.r1, self.r2)
             p.mass_flow_rate
 
@@ -896,31 +896,31 @@ class TestReactor(utilities.CanteraTest):
     def test_unpicklable(self):
         self.make_reactors()
         import pickle
-        with self.assertRaises(NotImplementedError):
+        with pytest.raises(NotImplementedError):
             pickle.dumps(self.r1)
-        with self.assertRaises(NotImplementedError):
+        with pytest.raises(NotImplementedError):
             pickle.dumps(self.net)
 
     def test_uncopyable(self):
         self.make_reactors()
         import copy
-        with self.assertRaises(NotImplementedError):
+        with pytest.raises(NotImplementedError):
             copy.copy(self.r1)
-        with self.assertRaises(NotImplementedError):
+        with pytest.raises(NotImplementedError):
             copy.copy(self.net)
 
     def test_invalid_property(self):
         self.make_reactors()
         for x in (self.r1, self.net):
-            with self.assertRaises(AttributeError):
+            with pytest.raises(AttributeError):
                 x.foobar = 300
-            with self.assertRaises(AttributeError):
+            with pytest.raises(AttributeError):
                 x.foobar
 
     def test_bad_kwarg(self):
         g = ct.Solution('h2o2.yaml', transport_model=None)
         self.reactorClass(g, name='ok')
-        with self.assertRaises(ct.CanteraError):
+        with pytest.raises(ct.CanteraError):
             self.reactorClass(foobar=3.14)
 
     def test_preconditioner_unsupported(self):
@@ -928,7 +928,7 @@ class TestReactor(utilities.CanteraTest):
         self.net.preconditioner = ct.AdaptivePreconditioner()
         # initialize should throw an error because the mass fraction
         # reactors do not support preconditioning
-        with self.assertRaises(ct.CanteraError):
+        with pytest.raises(ct.CanteraError):
             self.net.initialize()
 
     @pytest.mark.skipif(_graphviz is None, reason="graphviz is not installed")
@@ -1166,7 +1166,8 @@ class TestIdealGasReactor(TestReactor):
 
 class TestWellStirredReactorIgnition(utilities.CanteraTest):
     """ Ignition (or not) of a well-stirred reactor """
-    def setup(self, T0, P0, mdot_fuel, mdot_ox):
+    def setup_reactor(self, T0, P0, mdot_fuel, mdot_ox):
+        """ Runs before tests """
         gas_def = """
         phases:
         - name: gas
@@ -1226,7 +1227,7 @@ class TestWellStirredReactorIgnition(utilities.CanteraTest):
         mdot_f = 1.0
         mdot_o = 5.0
         T0 = 900.0
-        self.setup(T0, 10*ct.one_atm, mdot_f, mdot_o)
+        self.setup_reactor(T0, 10*ct.one_atm, mdot_f, mdot_o)
         self.gas.set_multiplier(0.0)
         t,T = self.integrate(100.0)
 
@@ -1237,10 +1238,10 @@ class TestWellStirredReactorIgnition(utilities.CanteraTest):
                         mdot_f / (mdot_o + mdot_f))
 
     def test_ignition1(self):
-        self.setup(900.0, 10*ct.one_atm, 1.0, 5.0)
+        self.setup_reactor(900.0, 10*ct.one_atm, 1.0, 5.0)
         t,T = self.integrate(10.0)
 
-        self.assertTrue(T[-1] > 1200) # mixture ignited
+        assert T[-1] > 1200 # mixture ignited
         for i in range(len(t)):
             if T[i] > 0.5 * (T[0] + T[-1]):
                 tIg = t[i]
@@ -1250,10 +1251,10 @@ class TestWellStirredReactorIgnition(utilities.CanteraTest):
         self.assertNear(tIg, 2.2249, 1e-3)
 
     def test_ignition2(self):
-        self.setup(900.0, 10*ct.one_atm, 1.0, 20.0)
+        self.setup_reactor(900.0, 10*ct.one_atm, 1.0, 20.0)
         t,T = self.integrate(10.0)
 
-        self.assertTrue(T[-1] > 1200) # mixture ignited
+        assert T[-1] > 1200 # mixture ignited
         for i in range(len(t)):
             if T[i] > 0.5 * (T[0] + T[-1]):
                 tIg = t[i]
@@ -1263,16 +1264,16 @@ class TestWellStirredReactorIgnition(utilities.CanteraTest):
         self.assertNear(tIg, 1.4856, 1e-3)
 
     def test_ignition3(self):
-        self.setup(900.0, 10*ct.one_atm, 1.0, 80.0)
+        self.setup_reactor(900.0, 10*ct.one_atm, 1.0, 80.0)
         self.net.max_time_step = 0.5
         t,T = self.integrate(100.0)
-        self.assertTrue(T[-1] < 910) # mixture did not ignite
+        assert T[-1] < 910 # mixture did not ignite
 
     def test_steady_state(self):
-        self.setup(900.0, 10*ct.one_atm, 1.0, 20.0)
+        self.setup_reactor(900.0, 10*ct.one_atm, 1.0, 20.0)
         residuals = self.net.advance_to_steady_state(return_residuals=True)
         # test if steady state is reached
-        self.assertTrue(residuals[-1] < 10. * self.net.rtol)
+        assert residuals[-1] < 10. * self.net.rtol
         # regression test; no external basis for these results
         self.assertNear(self.combustor.T, 2498.94, 1e-5)
         self.assertNear(self.combustor.thermo['H2O'].Y[0], 0.103658, 1e-5)
@@ -1372,16 +1373,16 @@ class TestConstPressureReactor(utilities.CanteraTest):
             N0 = net.n_vars - gas.n_species - iface.n_species
             N1 = net.n_vars - iface.n_species
             for i, name in enumerate(gas.species_names):
-                self.assertEqual(i + N0, r.component_index(name))
+                assert i + N0 == r.component_index(name)
             for i, name in enumerate(iface.species_names):
-                self.assertEqual(i + N1, r.component_index(name))
+                assert i + N1 == r.component_index(name)
 
     def test_component_names(self):
         self.create_reactors(add_surf=True)
         for i in range(self.net1.n_vars):
-            self.assertEqual(self.r1.component_index(self.r1.component_name(i)), i)
-            self.assertEqual(self.net1.component_name(i),
-                '{}: {}'.format(self.r1.name, self.r1.component_name(i)))
+            assert self.r1.component_index(self.r1.component_name(i)) == i
+            assert self.net1.component_name(i) == '{}: {}'.format(self.r1.name,
+                                                                  self.r1.component_name(i))
 
     def integrate(self, surf=False):
         for t in np.arange(0.5, 50, 1.0):
@@ -1418,7 +1419,7 @@ class TestConstPressureReactor(utilities.CanteraTest):
         self.net2.preconditioner = ct.AdaptivePreconditioner()
         # initialize should throw an error because the mass fraction
         # reactors do not support preconditioning
-        with self.assertRaises(ct.CanteraError):
+        with pytest.raises(ct.CanteraError):
             self.net2.initialize()
 
 class TestConstPressureMoleReactor(TestConstPressureReactor):
@@ -1450,7 +1451,7 @@ class TestIdealGasConstPressureMoleReactor(TestConstPressureMoleReactor):
         self.create_reactors()
         assert self.precon.side == "right"
         self.net2.initialize()
-        self.assertEqual(self.net2.linear_solver_type, "GMRES")
+        assert self.net2.linear_solver_type == "GMRES"
 
 
 class TestIdealGasMoleReactor(TestMoleReactor):
@@ -2095,7 +2096,7 @@ class TestSurfaceKinetics(utilities.CanteraTest):
 
         bad = utilities.compareProfiles(reference_file, test_file,
                                         rtol=1e-5, atol=1e-9, xtol=1e-12)
-        self.assertFalse(bool(bad), bad)
+        assert not bool(bad), bad
 
     def test_coverages_regression2(self):
         # Test with energy equation enabled
@@ -2120,7 +2121,7 @@ class TestSurfaceKinetics(utilities.CanteraTest):
 
         bad = utilities.compareProfiles(reference_file, test_file,
                                         rtol=1e-5, atol=1e-9, xtol=1e-12)
-        self.assertFalse(bool(bad), bad)
+        assert not bool(bad), bad
 
     @pytest.mark.skipif(_graphviz is None, reason="graphviz is not installed")
     def test_draw_ReactorSurface(self):
@@ -2135,7 +2136,7 @@ class TestSurfaceKinetics(utilities.CanteraTest):
                     '\t"Reactor surface" [shape=underline style=filled]\n',
                     ('\tReactor -> "Reactor surface" '
                      '[arrowhead=none color=red style=dotted]\n')]
-        self.assertEqual(graph.body, expected)
+        assert graph.body == expected
 
 
 class TestReactorSensitivities(utilities.CanteraTest):
@@ -2146,17 +2147,16 @@ class TestReactorSensitivities(utilities.CanteraTest):
         r1 = ct.IdealGasReactor(gas)
         net.add_reactor(r1)
 
-        self.assertEqual(net.n_sensitivity_params, 0)
+        assert net.n_sensitivity_params == 0
         r1.add_sensitivity_reaction(40)
         r1.add_sensitivity_reaction(41)
 
         net.advance(0.1)
 
-        self.assertEqual(net.n_sensitivity_params, 2)
-        self.assertEqual(net.n_vars,
-                         gas.n_species + r1.component_index(gas.species_name(0)))
+        assert net.n_sensitivity_params == 2
+        assert net.n_vars == gas.n_species + r1.component_index(gas.species_name(0))
         S = net.sensitivities()
-        self.assertEqual(S.shape, (net.n_vars, net.n_sensitivity_params))
+        assert S.shape == (net.n_vars, net.n_sensitivity_params)
 
     def test_sensitivities2(self):
         net = ct.ReactorNet()
@@ -2229,11 +2229,11 @@ class TestReactorSensitivities(utilities.CanteraTest):
         def check_names(reactor, net, params):
             for i,(kind,p) in enumerate(params):
                 rname, comp = net.sensitivity_parameter_name(i).split(': ')
-                self.assertEqual(reactor.name, rname)
+                assert reactor.name == rname
                 if kind == 'r':
-                    self.assertEqual(gas.reaction(p).equation, comp)
+                    assert gas.reaction(p).equation == comp
                 elif kind == 's':
-                    self.assertEqual(p + ' enthalpy', comp)
+                    assert p + ' enthalpy' == comp
 
         params1 = [('r', 2), ('r', 10), ('r', 18), ('r', 19), ('s', 'O2'),
                    ('s', 'OH'), ('s', 'H2O2')]
@@ -2295,7 +2295,7 @@ class TestReactorSensitivities(utilities.CanteraTest):
 
             pname = lambda r,i: '%s: %s' % (r.name, gas.reaction(i).equation)
             for i,(r,p) in enumerate(params1):
-                self.assertEqual(pname(r,p), net1.sensitivity_parameter_name(i))
+                assert pname(r,p) == net1.sensitivity_parameter_name(i)
 
             rA2,rB2,net2 = setup(reverse)
             params2 = [(rB2,10),(rA2,19),(rB2,18),(rA2,2)]
@@ -2304,7 +2304,7 @@ class TestReactorSensitivities(utilities.CanteraTest):
             S.append(integrate(rA2, net2))
 
             for i,(r,p) in enumerate(params2):
-                self.assertEqual(pname(r,p), net2.sensitivity_parameter_name(i))
+                assert pname(r,p) == net2.sensitivity_parameter_name(i)
 
         # Check that the results reflect the changed parameter ordering
         for a,b in ((0,1), (2,3)):
@@ -2467,7 +2467,8 @@ class CombustorTestImplementation:
     consistent output.
     """
 
-    def setUp(self):
+    def setup_method(self):
+        """ Runs before tests """
         self.referenceFile = utilities.TEST_DATA_PATH / "CombustorTest-integrateWithAdvance.csv"
         self.gas = ct.Solution('h2o2.yaml', transport_model=None)
 
@@ -2525,10 +2526,10 @@ class CombustorTestImplementation:
             self.data.append([tnow, self.combustor.T] +
                              list(self.combustor.thermo.X))
 
-        self.assertTrue(tnow >= tfinal)
+        assert tnow >= tfinal
         bad = utilities.compareProfiles(self.referenceFile, self.data,
                                         rtol=1e-3, atol=1e-9)
-        self.assertFalse(bad, bad)
+        assert not bad, bad
 
     def test_integrateWithAdvance(self, saveReference=False):
         self.data = []
@@ -2542,7 +2543,7 @@ class CombustorTestImplementation:
         else:
             bad = utilities.compareProfiles(self.referenceFile, self.data,
                                             rtol=1e-6, atol=1e-12)
-            self.assertFalse(bad, bad)
+            assert not bad, bad
 
     def test_invasive_mdot_function(self):
         def igniter_mdot(t, t0=0.1, fwhm=0.05, amplitude=0.1):
@@ -2561,7 +2562,7 @@ class CombustorTestImplementation:
 
         bad = utilities.compareProfiles(self.referenceFile, self.data,
                                         rtol=1e-6, atol=1e-12)
-        self.assertFalse(bad, bad)
+        assert not bad, bad
 
 class WallTestImplementation:
     """
@@ -2573,7 +2574,8 @@ class WallTestImplementation:
     consistent output.
     """
 
-    def setUp(self):
+    def setup_method(self):
+        """ Runs before tests """
         self.referenceFile = utilities.TEST_DATA_PATH / "WallTest-integrateWithAdvance.csv"
         # reservoir to represent the environment
         self.gas0 = ct.Solution("air.yaml")
@@ -2610,10 +2612,10 @@ class WallTestImplementation:
                               self.r1.thermo.P, self.r2.thermo.P,
                               self.r1.volume, self.r2.volume])
 
-        self.assertTrue(tnow >= tfinal)
+        assert tnow >= tfinal
         bad = utilities.compareProfiles(self.referenceFile, self.data,
                                         rtol=1e-3, atol=1e-8)
-        self.assertFalse(bad, bad)
+        assert not bad, bad
 
     def test_integrateWithAdvance(self, saveReference=False):
         self.data = []
@@ -2629,7 +2631,7 @@ class WallTestImplementation:
         else:
             bad = utilities.compareProfiles(self.referenceFile, self.data,
                                             rtol=2e-5, atol=1e-9)
-            self.assertFalse(bad, bad)
+            assert not bad, bad
 
 
 # Keep the implementations separate from the pytest-derived class
@@ -2666,8 +2668,8 @@ class PureFluidReactorTest(utilities.CanteraTest):
             net.advance(t)
             states.append(TD=r1.thermo.TD, t=net.time)
 
-        self.assertEqual(states.Q[0], 0)
-        self.assertEqual(states.Q[-1], 1)
+        assert states.Q[0] == 0
+        assert states.Q[-1] == 1
         self.assertNear(states.Q[30], 0.54806, 1e-4)
 
     def test_Reactor_2(self):
@@ -2691,8 +2693,8 @@ class PureFluidReactorTest(utilities.CanteraTest):
             net.advance(t)
             states.append(TD=r1.thermo.TD, t=net.time)
 
-        self.assertEqual(states.Q[0], 0)
-        self.assertEqual(states.Q[-1], 1)
+        assert states.Q[0] == 0
+        assert states.Q[-1] == 1
         self.assertNear(states.Q[20], 0.644865, 1e-4)
 
 
@@ -2715,8 +2717,8 @@ class PureFluidReactorTest(utilities.CanteraTest):
             net.advance(t)
             states.append(TD=r1.thermo.TD, t=t)
 
-        self.assertEqual(states.Q[1], 0)
-        self.assertEqual(states.Q[-2], 1)
+        assert states.Q[1] == 0
+        assert states.Q[-2] == 1
         for i in range(3,7):
             self.assertNear(states.T[i], states.T[2])
 
@@ -2754,11 +2756,12 @@ class AdvanceCoveragesTest(utilities.CanteraTest):
 
         # check that the solutions are similar, but not identical
         self.assertArrayNear(cov, self.surf.coverages)
-        self.assertTrue(any(cov != self.surf.coverages))
+        assert any(cov != self.surf.coverages)
 
 
 class ExtensibleReactorTest(utilities.CanteraTest):
-    def setUp(self):
+    def setup_method(self):
+        """ Runs before tests """
         self.gas = ct.Solution("h2o2.yaml")
 
     def test_extra_variable(self):
@@ -2806,12 +2809,12 @@ class ExtensibleReactorTest(utilities.CanteraTest):
             V.append(r.volume)
 
         # Wall is accelerating
-        self.assertTrue((np.diff(V, 2) > 0).all())
+        assert (np.diff(V, 2) > 0).all()
 
-        self.assertIn('v_wall', net.component_name(self.gas.n_species + 3))
-        self.assertEqual(r.component_index('volume'), 1)
-        self.assertEqual(r.component_name(self.gas.n_species + 3), 'v_wall')
-        self.assertEqual(r.component_name(2), 'temperature')
+        assert 'v_wall' in net.component_name(self.gas.n_species + 3)
+        assert r.component_index('volume') == 1
+        assert r.component_name(self.gas.n_species + 3) == 'v_wall'
+        assert r.component_name(2) == 'temperature'
 
     def test_replace_equations(self):
         nsp = self.gas.n_species
@@ -2843,7 +2846,7 @@ class ExtensibleReactorTest(utilities.CanteraTest):
             def replace_eval(self, t): # wrong number of arguments
                 pass
 
-        with self.assertRaisesRegex(ValueError, "right number of arguments"):
+        with pytest.raises(ValueError, match="right number of arguments"):
             DummyReactor1(self.gas)
 
         class DummyReactor2(ct.ExtensibleReactor):
@@ -2855,14 +2858,14 @@ class ExtensibleReactorTest(utilities.CanteraTest):
                 # Otherwise, does not return a value
 
         r2 = DummyReactor2(self.gas)
-        self.assertEqual(r2.component_index("succeed"), 0)
+        assert r2.component_index("succeed") == 0
         with self.assertRaises(TypeError):
             r2.component_index("wrong-type")
         # Error information should have been reset
-        self.assertEqual(r2.component_index("succeed"), 0)
-        with self.assertRaisesRegex(ct.CanteraError, "did not return a value"):
+        assert r2.component_index("succeed") == 0
+        with pytest.raises(ct.CanteraError, match="did not return a value"):
             r2.component_index("H2")
-        self.assertEqual(r2.component_index("succeed"), 0)
+        assert r2.component_index("succeed") == 0
 
     def test_delegate_throws(self):
         class TestException(Exception):
@@ -2906,11 +2909,11 @@ class ExtensibleReactorTest(utilities.CanteraTest):
 
         r = DummyReactor(self.gas)
         net = ct.ReactorNet([r])
-        self.assertEqual(r.component_index("H2"), 5 + 3 + self.gas.species_index("H2"))
+        assert r.component_index("H2") == 5 + 3 + self.gas.species_index("H2")
         r.syncState()
         net.advance(1)
         r.syncState()
-        self.assertEqual(r.sync_calls, 2)
+        assert r.sync_calls == 2
 
     def test_RHS_LHS(self):
         # set initial state
@@ -3104,7 +3107,7 @@ class ExtensibleReactorTest(utilities.CanteraTest):
             self.assertNear(r1.expansion_rate, -r2.expansion_rate)
             self.assertNear(V0, r1.volume + r2.volume)
             deltaCnow = deltaC()
-            self.assertLess(deltaCnow, deltaCprev) # difference is always decreasing
+            assert deltaCnow < deltaCprev # difference is always decreasing
             deltaCprev = deltaCnow
             self.assertArrayNear(M0, r1.mass * r1.thermo.Y + r2.mass * r2.thermo.Y, rtol=2e-8)
             states1.append(r1.thermo.state, t=net.time, mass=r1.mass, vdot=r1.expansion_rate)
