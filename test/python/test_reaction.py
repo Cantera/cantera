@@ -16,8 +16,8 @@ class TestImplicitThirdBody(utilities.CanteraTest):
     # tests for three-body reactions with specified collision partner
 
     @classmethod
-    def setUpClass(cls):
-        utilities.CanteraTest.setUpClass()
+    def setup_class(cls):
+        utilities.CanteraTest.setup_class()
         cls.gas = ct.Solution("gri30.yaml")
 
     def test_implicit_three_body(self):
@@ -172,8 +172,8 @@ class ReactionRateTests:
     _yaml = None # yaml string specifying parameters
 
     @classmethod
-    def setUpClass(cls):
-        utilities.CanteraTest.setUpClass()
+    def setup_class(cls):
+        utilities.CanteraTest.setup_class()
         cls.soln = ct.Solution("kineticsfromscratch.yaml")
 
     def setUp(self):
@@ -459,8 +459,8 @@ class FalloffRateTests(ReactionRateTests):
     _n_data = [0] # list of valid falloff coefficient array lengths
 
     @classmethod
-    def setUpClass(cls):
-        ReactionRateTests.setUpClass()
+    def setup_class(cls):
+        ReactionRateTests.setup_class()
         param = cls._input["low-P-rate-constant"]
         cls._parts["low"] = ct.Arrhenius(param["A"], param["b"], param["Ea"])
         param = cls._input["high-P-rate-constant"]
@@ -632,8 +632,8 @@ class TestPlogRate(ReactionRateTests, utilities.CanteraTest):
         """
 
     @classmethod
-    def setUpClass(cls):
-        ReactionRateTests.setUpClass()
+    def setup_class(cls):
+        ReactionRateTests.setup_class()
         cls._parts = {
             "rates": [(rc["P"], ct.Arrhenius(rc["A"], rc["b"], rc["Ea"]))
                       for rc in cls._input["rate-constants"]],
@@ -716,8 +716,8 @@ class TestChebyshevRate(ReactionRateTests, utilities.CanteraTest):
         """
 
     @classmethod
-    def setUpClass(cls):
-        ReactionRateTests.setUpClass()
+    def setup_class(cls):
+        ReactionRateTests.setup_class()
         cls._parts = {
             "pressure_range": cls._input["pressure-range"],
             "temperature_range": cls._input["temperature-range"],
@@ -745,8 +745,8 @@ class SurfaceReactionRateTests(ReactionRateTests):
     # test suite for surface reaction rate expressions
 
     @classmethod
-    def setUpClass(cls):
-        utilities.CanteraTest.setUpClass()
+    def setup_class(cls):
+        utilities.CanteraTest.setup_class()
         cls.soln = ct.Interface("kineticsfromscratch.yaml", "Pt_surf", transport_model=None)
         cls.gas = cls.soln.adjacent["ohmech"]
 
@@ -987,8 +987,8 @@ class ReactionTests:
     _rc_units = None # Units of the rate coefficient
 
     @classmethod
-    def setUpClass(cls):
-        utilities.CanteraTest.setUpClass()
+    def setup_class(cls):
+        utilities.CanteraTest.setup_class()
         cls.soln = ct.Solution("kineticsfromscratch.yaml", transport_model=None)
         cls.species = cls.soln.species()
 
@@ -1200,8 +1200,8 @@ class TestElementary(ReactionTests, utilities.CanteraTest):
     _rc_units = ct.Units("m^3 / kmol / s")
 
     @classmethod
-    def setUpClass(cls):
-        ReactionTests.setUpClass()
+    def setup_class(cls):
+        ReactionTests.setup_class()
         cls._rate_obj = ct.ArrheniusRate(**cls._rate)
 
 
@@ -1350,8 +1350,8 @@ class TestTroe(ReactionTests, utilities.CanteraTest):
     _rc_units = ct.Units("m^3 / kmol / s")
 
     @classmethod
-    def setUpClass(cls):
-        ReactionTests.setUpClass()
+    def setup_class(cls):
+        ReactionTests.setup_class()
         param = cls._rate["low_P_rate_constant"]
         low = ct.Arrhenius(param["A"], param["b"], param["Ea"])
         param = cls._rate["high_P_rate_constant"]
@@ -1389,8 +1389,8 @@ class TestLindemann(ReactionTests, utilities.CanteraTest):
     _rc_units = ct.Units("m^3 / kmol / s")
 
     @classmethod
-    def setUpClass(cls):
-        ReactionTests.setUpClass()
+    def setup_class(cls):
+        ReactionTests.setup_class()
         param = cls._rate["low_P_rate_constant"]
         low = ct.Arrhenius(param["A"], param["b"], param["Ea"])
         param = cls._rate["high_P_rate_constant"]
@@ -1424,8 +1424,8 @@ class TestChemicallyActivated(ReactionTests, utilities.CanteraTest):
     _rc_units = ct.Units("m^3 / kmol / s")
 
     @classmethod
-    def setUpClass(cls):
-        ReactionTests.setUpClass()
+    def setup_class(cls):
+        ReactionTests.setup_class()
         param = cls._rate["low_P_rate_constant"]
         low = ct.Arrhenius(param["A"], param["b"], param["Ea"])
         param = cls._rate["high_P_rate_constant"]
@@ -1464,8 +1464,8 @@ class TestPlog(ReactionTests, utilities.CanteraTest):
     _rc_units = ct.Units("m^3 / kmol / s")
 
     @classmethod
-    def setUpClass(cls):
-        ReactionTests.setUpClass()
+    def setup_class(cls):
+        ReactionTests.setup_class()
         cls._rate_obj = ct.ReactionRate.from_dict(cls._rate)
 
     def eval_rate(self, rate):
@@ -1704,7 +1704,7 @@ class TestExtensible2(utilities.CanteraTest):
     """
 
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         here = str(Path(__file__).parent)
         if here not in sys.path:
             sys.path.append(here)
@@ -1894,8 +1894,8 @@ class InterfaceReactionTests(ReactionTests):
     _coverage_deps = None
 
     @classmethod
-    def setUpClass(cls):
-        utilities.CanteraTest.setUpClass()
+    def setup_class(cls):
+        utilities.CanteraTest.setup_class()
         cls.soln = ct.Interface("kineticsfromscratch.yaml", "Pt_surf", transport_model=None)
         cls.adj = [cls.soln.adjacent["ohmech"]]
         cls.gas = cls.adj[0]
@@ -2197,8 +2197,8 @@ class TestElectronCollisionPlasmaReaction(ReactionTests, utilities.CanteraTest):
     _rc_units = ct.Units("m^3 / kmol / s")
 
     @classmethod
-    def setUpClass(cls):
-        utilities.CanteraTest.setUpClass()
+    def setup_class(cls):
+        utilities.CanteraTest.setup_class()
         cls.soln = ct.Solution("oxygen-plasma.yaml",
                                "discretized-electron-energy-plasma",
                                transport_model=None)

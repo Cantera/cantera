@@ -19,7 +19,7 @@ class RateExpressionTests:
     rate_type = None
 
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls.tpx = cls.gas.TPX
 
         cls.r_stoich = cls.gas.reactant_stoich_coeffs
@@ -512,12 +512,12 @@ class RateExpressionTests:
 class HydrogenOxygen(RateExpressionTests):
 
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls.gas = ct.Solution("h2o2.yaml", transport_model=None)
         #   species: [H2, H, O, O2, OH, H2O, HO2, H2O2, AR, N2]
         cls.gas.X = [0.1, 1e-4, 1e-5, 0.2, 2e-4, 0.3, 1e-6, 5e-5, 0.3, 0.1]
         cls.gas.TP = 800, 2 * ct.one_atm
-        super().setUpClass()
+        super().setup_class()
 
 
 class TestElementaryRev(HydrogenOxygen, utilities.CanteraTest):
@@ -549,8 +549,8 @@ class TestThreeBody(HydrogenOxygen, utilities.CanteraTest):
     rate_type = "Arrhenius"
 
     @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
+    def setup_class(cls):
+        super().setup_class()
         cls.ix3b = list(range(cls.gas.n_species))
 
     def test_thirdbodies_forward(self):
@@ -573,12 +573,12 @@ class TestThreeBody(HydrogenOxygen, utilities.CanteraTest):
 class EdgeCases(RateExpressionTests):
 
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls.gas = ct.Solution("jacobian-tests.yaml", transport_model=None)
         #   species: [H2, H, O, O2, OH, H2O, HO2, H2O2, AR]
         cls.gas.X = [0.1, 1e-4, 1e-5, 0.2, 2e-4, 0.3, 1e-6, 5e-5, 0.4]
         cls.gas.TP = 800, 2 * ct.one_atm
-        super().setUpClass()
+        super().setup_class()
 
 
 class TestElementaryIrr(EdgeCases, utilities.CanteraTest):
@@ -617,8 +617,8 @@ class TestThreeBodyNoDefault(EdgeCases, utilities.CanteraTest):
     rate_type = "Arrhenius"
 
     @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
+    def setup_class(cls):
+        super().setup_class()
         efficiencies = {"H2": 2.0, "H2O": 6.0, "AR": 0.7}
         cls.ix3b = [cls.gas.species_index(k) for k in efficiencies.keys()]
 
@@ -626,12 +626,12 @@ class TestThreeBodyNoDefault(EdgeCases, utilities.CanteraTest):
 class FromScratchCases(RateExpressionTests):
 
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls.gas = ct.Solution("kineticsfromscratch.yaml", transport_model=None)
         #   species: [AR, O, H2, H, OH, O2, H2O, H2O2, HO2]
         cls.gas.X = [0.1, 3e-4, 5e-5, 6e-6, 3e-3, 0.6, 0.25, 1e-6, 2e-5]
         cls.gas.TP = 2000, 5 * ct.one_atm
-        super().setUpClass()
+        super().setup_class()
 
     @pytest.mark.usefixtures("has_temperature_derivative_warnings")
     def test_forward_rop_ddT(self):
@@ -696,7 +696,7 @@ class FullTests:
     rtol = 1e-4
 
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls.tpx = cls.gas.TPX
 
     def setUp(self):
@@ -901,32 +901,32 @@ class FullTests:
 class FullHydrogenOxygen(FullTests, utilities.CanteraTest):
 
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls.gas = ct.Solution("h2o2.yaml", transport_model=None)
         cls.gas.TPX = 300, 5 * ct.one_atm, "H2:1, O2:3"
         cls.gas.equilibrate("HP")
-        super().setUpClass()
+        super().setup_class()
 
 
 class FullGriMech(FullTests, utilities.CanteraTest):
 
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls.gas = ct.Solution("gri30.yaml", transport_model=None)
         cls.gas.TPX = 300, 5 * ct.one_atm, "CH4:1, C3H8:.1, O2:1, N2:3.76"
         cls.gas.equilibrate("HP")
-        super().setUpClass()
+        super().setup_class()
 
 
 class FullEdgeCases(FullTests, utilities.CanteraTest):
 
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         cls.gas = ct.Solution("jacobian-tests.yaml", transport_model=None)
         #   species: [H2, H, O, O2, OH, H2O, HO2, H2O2, AR]
         cls.gas.TPX = 300, 2 * ct.one_atm, "H2:1, O2:3, AR:0.4"
         cls.gas.equilibrate("HP")
-        super().setUpClass()
+        super().setup_class()
 
 
 class SurfaceRateExpressionTests:
@@ -942,7 +942,7 @@ class SurfaceRateExpressionTests:
     rate_type = None
 
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         # all species indices
         all_species = cls.surf.species() + cls.gas.species()
         cls.sidxs  = {spec.name:i for i, spec in enumerate(all_species)}
@@ -1025,7 +1025,7 @@ class SurfaceRateExpressionTests:
 class PlatinumHydrogen(SurfaceRateExpressionTests):
 
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         phase_defs = """
             units: {length: cm, quantity: mol, activation-energy: J/mol}
             phases:
@@ -1052,7 +1052,7 @@ class PlatinumHydrogen(SurfaceRateExpressionTests):
         cls.surf.TPX = 800, 2*ct.one_atm , "PT(S):4.0, H(S):0.5, H2O(S):0.1, OH(S):0.2, O(S):0.8"
         cls.gas_tpx = cls.gas.TPX
         cls.surf_tpx = cls.surf.TPX
-        super().setUpClass()
+        super().setup_class()
 
 class SurfInterfaceArrhenius(PlatinumHydrogen, utilities.CanteraTest):
     rxn_idx = 7
@@ -1080,7 +1080,7 @@ class SurfaceFullTests:
     rtol = 1e-4
 
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         # all species indices
         all_species = cls.surf.species() + cls.gas.species()
         cls.sidxs  = {spec.name:i for i, spec in enumerate(all_species)}
@@ -1178,7 +1178,7 @@ class SurfaceFullTests:
 class FullPlatinumHydrogen(SurfaceFullTests, utilities.CanteraTest):
 
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         phase_defs = """
             units: {length: cm, quantity: mol, activation-energy: J/mol}
             phases:
@@ -1205,4 +1205,4 @@ class FullPlatinumHydrogen(SurfaceFullTests, utilities.CanteraTest):
         cls.surf.TPX = 800, 2*ct.one_atm , "PT(S):1.0, H(S):0.5, H2O(S):0.1, OH(S):0.2, O(S):0.8"
         cls.gas_tpx = cls.gas.TPX
         cls.surf_tpx = cls.surf.TPX
-        super().setUpClass()
+        super().setup_class()
