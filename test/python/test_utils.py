@@ -25,8 +25,8 @@ class TestUnitSystem(utilities.CanteraTest):
             "time": "s",
         }
         for dim, unit in units.items():
-            self.assertIn(dim, checks)
-            self.assertEqual(checks[dim], unit)
+            assert dim in checks
+            assert checks[dim] == unit
 
     def test_cgs(self):
         system = ct.UnitSystem({
@@ -46,22 +46,22 @@ class TestUnitSystem(utilities.CanteraTest):
             "time": "s",
         }
         for dim, unit in units.items():
-            self.assertIn(dim, checks)
-            self.assertEqual(checks[dim], unit)
+            assert dim in checks
+            assert checks[dim] == unit
 
     def test_activation_energy(self):
         system = ct.UnitSystem({"activation-energy": "eV"})
         units = system.units
-        self.assertEqual(units["activation-energy"], "eV")
+        assert units["activation-energy"] == "eV"
 
         system = ct.UnitSystem({"activation-energy": "K"})
         units = system.units
-        self.assertEqual(units["activation-energy"], "K")
+        assert units["activation-energy"] == "K"
 
     def test_raises(self):
-        with self.assertRaisesRegex(ct.CanteraError, "non-unity conversion factor"):
+        with pytest.raises(ct.CanteraError, match="non-unity conversion factor"):
             ct.UnitSystem({"temperature": "2 K"})
-        with self.assertRaisesRegex(ct.CanteraError, "non-unity conversion factor"):
+        with pytest.raises(ct.CanteraError, match="non-unity conversion factor"):
             ct.UnitSystem({"current": "2 A"})
 
     def test_convert_to_default(self):
@@ -161,21 +161,21 @@ class TestPyToAnyValue(utilities.CanteraTest):
 
     def check_conversion(self, value, check_type=None):
         out, held_type = _py_to_any_to_py(value)
-        self.assertEqual(out, value)
+        assert out == value
         if check_type is not None:
-            self.assertEqual(held_type, check_type)
+            assert held_type == check_type
 
     def check_inexact_conversion(self, value, check_type=None):
         out, held_type = _py_to_any_to_py(value)
         if isinstance(value, np.ndarray):
-            self.assertEqual(out, value.tolist())
+            assert out == value.tolist()
         else:
-            self.assertEqual(out, list(value))
+            assert out == list(value)
         if check_type is not None:
-            self.assertEqual(held_type, check_type)
+            assert held_type == check_type
 
     def check_raises(self, value, ee, regex):
-        with self.assertRaisesRegex(ee, regex):
+        with pytest.raises(ee, match=regex):
             _py_to_any_to_py(value)
 
     def test_none(self):
