@@ -5,11 +5,15 @@ from pytest import approx
 
 import cantera as ct
 from . import utilities
+from .utilities import (
+    assertNear,
+    assertArrayNear
+)
 
 from cantera._utils import _py_to_any_to_py, _py_to_anymap_to_py
 
 
-class TestUnitSystem(utilities.CanteraTest):
+class TestUnitSystem:
 
     def test_default(self):
         units = ct.UnitSystem().units
@@ -25,8 +29,8 @@ class TestUnitSystem(utilities.CanteraTest):
             "time": "s",
         }
         for dim, unit in units.items():
-            self.assertIn(dim, checks)
-            self.assertEqual(checks[dim], unit)
+            assert dim in checks
+            assert checks[dim] == unit
 
     def test_cgs(self):
         system = ct.UnitSystem({
@@ -46,22 +50,22 @@ class TestUnitSystem(utilities.CanteraTest):
             "time": "s",
         }
         for dim, unit in units.items():
-            self.assertIn(dim, checks)
-            self.assertEqual(checks[dim], unit)
+            assert dim in checks
+            assert checks[dim] == unit
 
     def test_activation_energy(self):
         system = ct.UnitSystem({"activation-energy": "eV"})
         units = system.units
-        self.assertEqual(units["activation-energy"], "eV")
+        assert units["activation-energy"] == "eV"
 
         system = ct.UnitSystem({"activation-energy": "K"})
         units = system.units
-        self.assertEqual(units["activation-energy"], "K")
+        assert units["activation-energy"] == "K"
 
     def test_raises(self):
-        with self.assertRaisesRegex(ct.CanteraError, "non-unity conversion factor"):
+        with pytest.raises(ct.CanteraError, match="non-unity conversion factor"):
             ct.UnitSystem({"temperature": "2 K"})
-        with self.assertRaisesRegex(ct.CanteraError, "non-unity conversion factor"):
+        with pytest.raises(ct.CanteraError, match="non-unity conversion factor"):
             ct.UnitSystem({"current": "2 A"})
 
     def test_convert_to_default(self):
@@ -89,17 +93,17 @@ class TestUnitSystem(utilities.CanteraTest):
     def test_convert_to_array(self):
         system = ct.UnitSystem({"length": "km"})
         x = np.array(((3, 4), (0.5, 2.0), (1.0, 0.0)))
-        self.assertArrayNear(system.convert_to(x, "m"), 1000 * x)
+        assertArrayNear(system.convert_to(x, "m"), 1000 * x)
 
     def test_convert_activation_energy_to_array(self):
         system = ct.UnitSystem({"activation-energy": "J/mol"})
         x = np.array(((3, 4), (0.5, 2.0), (1.0, 0.0)))
-        self.assertArrayNear(system.convert_activation_energy_to(x, "J/kmol"), 1000 * x)
+        assertArrayNear(system.convert_activation_energy_to(x, "J/kmol"), 1000 * x)
 
     def test_convert_rate_coeff_to_array(self):
         system = ct.UnitSystem({"length": "cm"})
         x = np.array(((3, 4), (0.5, 2.0), (1.0, 0.0)))
-        self.assertArrayNear(system.convert_rate_coeff_to(x, "m^2/kmol/s"), 0.0001 * x)
+        assertArrayNear(system.convert_rate_coeff_to(x, "m^2/kmol/s"), 0.0001 * x)
 
     def test_convert_to_sequence(self):
         system = ct.UnitSystem({"length": "km"})
@@ -157,25 +161,25 @@ class TestUnitSystem(utilities.CanteraTest):
         with pytest.raises(TypeError):
             system.convert_rate_coeff_to({"spam": 13}, "m^6/kmol^2/s")
 
-class TestPyToAnyValue(utilities.CanteraTest):
+class TestPyToAnyValue:
 
     def check_conversion(self, value, check_type=None):
         out, held_type = _py_to_any_to_py(value)
-        self.assertEqual(out, value)
+        assert out == value
         if check_type is not None:
-            self.assertEqual(held_type, check_type)
+            assert held_type == check_type
 
     def check_inexact_conversion(self, value, check_type=None):
         out, held_type = _py_to_any_to_py(value)
         if isinstance(value, np.ndarray):
-            self.assertEqual(out, value.tolist())
+            assert out == value.tolist()
         else:
-            self.assertEqual(out, list(value))
+            assert out == list(value)
         if check_type is not None:
-            self.assertEqual(held_type, check_type)
+            assert held_type == check_type
 
     def check_raises(self, value, ee, regex):
-        with self.assertRaisesRegex(ee, regex):
+        with pytest.raises(ee, match=regex):
             _py_to_any_to_py(value)
 
     def test_none(self):
@@ -265,10 +269,13 @@ class TestPyToAnyValue(utilities.CanteraTest):
         self.check_raises([3+4j, 1-2j], ct.CanteraError, "Unable to convert")
 
 
-class TestAnyMap(utilities.CanteraTest):
-    @classmethod
-    def setup_class(cls):
-        data = {
+@pytest.fixture(scope='class')
+def setup_any_map(request):
+    request.cls.data = _py_to_anymap_to_py(request.cls.orig_data)
+
+@pytest.mark.usefixtures("setup_any_map")
+class TestAnyMap:
+    orig_data = {
             "units": {"length": "mm", "energy": "kJ"},
             "group1": {
                 "a": 5000,
@@ -281,7 +288,6 @@ class TestAnyMap(utilities.CanteraTest):
                 "x": 1300
             }
         }
-        cls.data = _py_to_anymap_to_py(data)
 
     def test_units_simple(self):
         assert self.data['group1'].convert('a', 'm') == 5.0
@@ -291,7 +297,7 @@ class TestAnyMap(utilities.CanteraTest):
     def test_units_activation_energy(self):
         assert self.data['group1'].convert_activation_energy('a', 'J/kmol') == 5e6
         assert (self.data['group1'].convert_activation_energy('c', 'J/kmol')
-                == pytest.approx(8000 * ct.gas_constant))
+                == approx(8000 * ct.gas_constant))
 
     def test_units_nested(self):
         assert self.data['group2'].convert('x', 'J/kg') == 1300 * 1e6
@@ -304,17 +310,17 @@ class TestAnyMap(utilities.CanteraTest):
 
         converted = _py_to_anymap_to_py(params)
         assert converted['spam'] == [2e6, 3e6, 4e6]
-        assert converted['eggs'] == pytest.approx(10)
-        assert converted['beans'] == pytest.approx(5 * ct.gas_constant)
+        assert converted['eggs'] == approx(10)
+        assert converted['beans'] == approx(5 * ct.gas_constant)
 
         # Unit conversions are deferred
         outer = ct.AnyMap()
         outer['units'] = {'mass': 'g', 'activation-energy': 'K'}
         outer['inner'] = params
         converted = _py_to_anymap_to_py(outer)
-        assert converted['inner']['spam'] == pytest.approx([2e9, 3e9, 4e9])
-        assert converted['inner']['eggs'] == pytest.approx(10e3)
-        assert converted['inner']['beans'] == pytest.approx(5)
+        assert converted['inner']['spam'] == approx([2e9, 3e9, 4e9])
+        assert converted['inner']['eggs'] == approx(10e3)
+        assert converted['inner']['beans'] == approx(5)
 
         outer.set_quantity('cheese', {'gouda': 5.5}, 'J/kg')
         with pytest.raises(ct.CanteraError):
@@ -324,7 +330,9 @@ class TestAnyMap(utilities.CanteraTest):
         with pytest.raises(ct.CanteraError):
             _py_to_anymap_to_py(outer)
 
-def test_list_data_files():
-    data_files = ct.list_data_files()
-    assert "gri30.yaml" in data_files
-    assert str(Path("example_data/oxygen-plasma-itikawa.yaml")) in data_files
+class TestListDataFiles:
+
+    def test_list_data_files(self):
+        data_files = ct.list_data_files()
+        assert "gri30.yaml" in data_files
+        assert str(Path("example_data/oxygen-plasma-itikawa.yaml")) in data_files
