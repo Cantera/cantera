@@ -4,7 +4,7 @@ import re
 import numpy as np
 import pytest
 from pytest import approx
-from .utilities import unittest, allow_deprecated
+from .utilities import allow_deprecated
 
 import cantera as ct
 
@@ -48,16 +48,16 @@ class TestReactor(utilities.CanteraTest):
 
     def test_verbose(self):
         self.make_reactors(independent=False, n_reactors=1)
-        self.assertFalse(self.net.verbose)
+        assert not self.net.verbose
         self.net.verbose = True
-        self.assertTrue(self.net.verbose)
+        assert not self.net.verbose
 
     @pytest.mark.usefixtures("allow_deprecated")
     def test_insert(self):
         R = self.reactorClass()  # warning raised from C++ code
-        with self.assertRaisesRegex(ct.CanteraError, 'No phase'):
+        with pytest.raises(ct.CanteraError, match='No phase'):
             R.T
-        with self.assertRaisesRegex(ct.CanteraError, 'No phase'):
+        with pytest.raises(ct.CanteraError, match='No phase'):
             R.kinetics.net_production_rates
 
         g = ct.Solution('h2o2.yaml', transport_model=None)
@@ -65,15 +65,15 @@ class TestReactor(utilities.CanteraTest):
         R.insert(g)
 
         self.assertNear(R.T, 300)
-        self.assertEqual(len(R.kinetics.net_production_rates), g.n_species)
+        assert len(R.kinetics.net_production_rates) == g.n_species
 
     def test_volume(self):
         g = ct.Solution('h2o2.yaml', transport_model=None)
         R = self.reactorClass(g, volume=11)
-        self.assertEqual(R.volume, 11)
+        assert R.volume == 11
 
         R.volume = 9
-        self.assertEqual(R.volume, 9)
+        assert R.volume ==  9
 
     def test_names(self):
         self.make_reactors()
@@ -82,14 +82,14 @@ class TestReactor(utilities.CanteraTest):
         digits1 = pattern.search(self.r1.name).group(0)
         digits2 = pattern.search(self.r2.name).group(0)
 
-        self.assertEqual(int(digits2), int(digits1) + 1)
+        assert int(digits2) == int(digits1) + 1
 
         self.r1.name = 'hello'
-        self.assertEqual(self.r1.name, 'hello')
+        assert self.r1.name == 'hello'
 
     def test_types(self):
         self.make_reactors()
-        self.assertEqual(self.r1.type, self.reactorClass.__name__)
+        assert self.r1.type == self.reactorClass.__name__
 
     def test_component_index(self):
         self.make_reactors(n_reactors=1)
@@ -97,18 +97,16 @@ class TestReactor(utilities.CanteraTest):
 
         N0 = self.net.n_vars - self.gas1.n_species
         for i, name in enumerate(self.gas1.species_names):
-            self.assertEqual(i + N0, self.r1.component_index(name))
+            assert i + N0 == self.r1.component_index(name)
 
     def test_component_names(self):
         self.make_reactors(n_reactors=2)
         self.net.initialize()
         N = self.net.n_vars // 2
         for i in range(N):
-            self.assertEqual(self.r1.component_index(self.r1.component_name(i)), i)
-            self.assertEqual(self.net.component_name(i),
-                '{}: {}'.format(self.r1.name, self.r1.component_name(i)))
-            self.assertEqual(self.net.component_name(N+i),
-                '{}: {}'.format(self.r2.name, self.r2.component_name(i)))
+            assert self.r1.component_index(self.r1.component_name(i)) ==  i
+            assert self.net.component_name(i) == '{}: {}'.format(self.r1.name, self.r1.component_name(i))
+            assert self.net.component_name(N+i) == '{}: {}'.format(self.r2.name, self.r2.component_name(i))
 
     def test_independent_variable(self):
         self.make_reactors(independent=False, n_reactors=1)
@@ -207,7 +205,7 @@ class TestReactor(utilities.CanteraTest):
         t = tStart
 
         self.net.max_time_step = dt_max
-        self.assertEqual(self.net.max_time_step, dt_max)
+        assert self.net.max_time_step == dt_max
         self.net.initial_time = tStart
         assert self.net.initial_time == tStart
         self.assertNear(self.net.time, tStart)
@@ -215,7 +213,7 @@ class TestReactor(utilities.CanteraTest):
         while t < tEnd:
             tPrev = t
             t = self.net.step()
-            self.assertTrue(t - tPrev <= 1.0001 * dt_max)
+            assert t - tPrev <= 1.0001 * dt_max
             self.assertNear(t, self.net.time)
 
         #self.assertNear(self.net.time, tEnd)
@@ -230,11 +228,11 @@ class TestReactor(utilities.CanteraTest):
         self.net.initial_time = 0.
         self.net.max_time_step = max_step_size
         self.net.max_steps = max_steps
-        with self.assertRaisesRegex(
-                ct.CanteraError, 'Maximum number of timesteps'):
+        with pytest.raises(
+                ct.CanteraError, match='Maximum number of timesteps'):
             self.net.advance(1e-04)
-        self.assertLessEqual(self.net.time, max_steps * max_step_size)
-        self.assertEqual(self.net.max_steps, max_steps)
+        assert self.net.time <= max_steps * max_step_size
+        assert self.net.max_steps == max_steps
 
     def test_wall_type1(self):
         self.make_reactors(P1=101325, P2=300000)
@@ -269,16 +267,16 @@ class TestReactor(utilities.CanteraTest):
         self.make_reactors(P1=101325, P2=300000)
         self.add_wall(K=0.1, A=1.0)
 
-        self.assertEqual(len(self.r1.walls), 1)
-        self.assertEqual(len(self.r2.walls), 1)
-        self.assertEqual(self.r1.walls[0], self.w)
-        self.assertEqual(self.r2.walls[0], self.w)
+        assert len(self.r1.walls) == 1
+        assert len(self.r2.walls) == 1
+        assert self.r1.walls[0] == self.w
+        assert self.r2.walls[0] == self.w
 
         self.net.advance(1.0)
 
         self.assertNear(self.net.time, 1.0)
         self.assertNear(self.gas1.P, self.gas2.P)
-        self.assertNotAlmostEqual(self.r1.T, self.r2.T)
+        assert self.r1.T != approx(self.r2.T)
 
     def test_tolerances(self, rtol_lim=1e-10, atol_lim=1e-20):
         def integrate(atol, rtol):
@@ -289,8 +287,8 @@ class TestReactor(utilities.CanteraTest):
             self.net.rtol = rtol
             self.net.atol = atol
 
-            self.assertEqual(self.net.rtol, rtol)
-            self.assertEqual(self.net.atol, atol)
+            assert self.net.rtol == rtol
+            assert self.net.atol == atol
 
             tEnd = 1.0
             nSteps = 0
@@ -317,18 +315,18 @@ class TestReactor(utilities.CanteraTest):
         limit_H2 = .01
         ix = self.net.global_component_index('H2', 0)
         self.r1.set_advance_limit('H2', limit_H2)
-        self.assertEqual(self.net.advance_limits[ix], limit_H2)
+        assert self.net.advance_limits[ix] == limit_H2
 
         self.r1.set_advance_limit('H2', None)
-        self.assertEqual(self.net.advance_limits[ix], -1.)
+        assert self.net.advance_limits[ix] == -1.
 
         self.r1.set_advance_limit('H2', limit_H2)
         self.net.advance_limits = None
-        self.assertEqual(self.net.advance_limits[ix], -1.)
+        assert self.net.advance_limits[ix] == -1.
 
         self.r1.set_advance_limit('H2', limit_H2)
         self.net.advance_limits = 0 * self.net.advance_limits - 1.
-        self.assertEqual(self.net.advance_limits[ix], -1.)
+        assert self.net.advance_limits[ix] == -1.
 
     @pytest.mark.xfail(reason="See GitHub Issue #1453")
     def test_advance_with_limits(self):
@@ -340,7 +338,7 @@ class TestReactor(utilities.CanteraTest):
             if limit_H2 is not None:
                 self.r1.set_advance_limit('H2', limit_H2)
                 ix = self.net.global_component_index('H2', 0)
-                self.assertEqual(self.net.advance_limits[ix], limit_H2)
+                assert self.net.advance_limits[ix] == limit_H2
 
             tEnd = 0.1
             tStep = 7e-4
@@ -361,10 +359,10 @@ class TestReactor(utilities.CanteraTest):
         n_advance_negative = integrate(-1.0)
         n_advance_override = integrate(.001, False)
 
-        self.assertGreater(n_advance_coarse, n_baseline)
-        self.assertGreater(n_advance_fine, n_advance_coarse)
-        self.assertEqual(n_advance_negative, n_baseline)
-        self.assertEqual(n_advance_override, n_baseline)
+        assert n_advance_coarse > n_baseline
+        assert n_advance_fine > n_advance_coarse
+        assert n_advance_negative == n_baseline
+        assert n_advance_override == n_baseline
 
     def test_heat_transfer1(self):
         # Connected reactors reach thermal equilibrium after some time
@@ -374,7 +372,7 @@ class TestReactor(utilities.CanteraTest):
         self.net.advance(10.0)
         self.assertNear(self.net.time, 10.0)
         self.assertNear(self.r1.T, self.r2.T, 5e-7)
-        self.assertNotAlmostEqual(self.r1.thermo.P, self.r2.thermo.P)
+        assert self.r1.thermo.P != approx(self.r2.thermo.P)
 
     def test_advance_limits_invalid(self):
         self.make_reactors(n_reactors=1)
@@ -2124,7 +2122,7 @@ class TestSurfaceKinetics(utilities.CanteraTest):
                                         rtol=1e-5, atol=1e-9, xtol=1e-12)
         self.assertFalse(bool(bad), bad)
 
-    @utilities.unittest.skipIf(_graphviz is None, "graphviz is not installed")
+    @pytest.mark.skipif(_graphviz is None, reason="graphviz is not installed")
     def test_draw_ReactorSurface(self):
         self.make_reactors()
         surf = ct.ReactorSurface(self.interface, self.r1)
@@ -2447,7 +2445,7 @@ class TestReactorSensitivities(utilities.CanteraTest):
 
     # See https://github.com/Cantera/enhancements/issues/55
     # @todo: replace np.trapz with np.trapezoid when dropping support for NumPy 1.x
-    @unittest.skip("Integration of sensitivity ODEs is unreliable")
+    @pytest.mark.skip(reason="Integration of sensitivity ODEs is unreliable")
     @pytest.mark.filterwarnings("ignore:`trapz` is deprecated")
     def test_ignition_delay_sensitivity(self):
         species = ('H2', 'H', 'O2', 'H2O2', 'H2O', 'OH', 'HO2')
@@ -2634,10 +2632,10 @@ class WallTestImplementation:
             self.assertFalse(bad, bad)
 
 
-# Keep the implementations separate from the unittest-derived class
+# Keep the implementations separate from the pytest-derived class
 # so that they can be run independently to generate the reference data files.
-class CombustorTest(CombustorTestImplementation, unittest.TestCase): pass
-class WallTest(WallTestImplementation, unittest.TestCase): pass
+class CombustorTest(CombustorTestImplementation): pass
+class WallTest(WallTestImplementation): pass
 
 
 class PureFluidReactorTest(utilities.CanteraTest):

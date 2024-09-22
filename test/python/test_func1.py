@@ -42,7 +42,7 @@ class TestFunc1(utilities.CanteraTest):
         for t in [0.1, 0.7, 4.5]:
             self.assertNear(f(t), 5)
 
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             ct.Func1([3,4])
 
     def test_numpy(self):
@@ -54,7 +54,7 @@ class TestFunc1(utilities.CanteraTest):
             self.assertNear(f(t), 5)
             self.assertNear(g(t), 5)
 
-        with self.assertRaises(TypeError):
+        with pytest.raises(TypeError):
             ct.Func1(np.array([3,4]))
 
     def test_failure(self):
@@ -62,19 +62,19 @@ class TestFunc1(utilities.CanteraTest):
             raise ValueError('bad')
 
         f = ct.Func1(fails)
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             f(0.1)
 
     def test_unpicklable(self):
         import pickle
         f = ct.Func1(np.sin)
-        with self.assertRaises(NotImplementedError):
+        with pytest.raises(NotImplementedError):
             pickle.dumps(f)
 
     def test_uncopyable(self):
         import copy
         f = ct.Func1(np.sin)
-        with self.assertRaises(NotImplementedError):
+        with pytest.raises(NotImplementedError):
             copy.copy(f)
 
     def test_simple(self):
