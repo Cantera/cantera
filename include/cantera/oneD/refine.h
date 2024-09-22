@@ -258,6 +258,7 @@ protected:
     size_t m_nv; //!< Number of components in the domain
     size_t m_npmax = 1000; //!< Maximum number of grid points
 
+    //! Closest that a solution component at two adjacent grid points can be.
     double m_thresh = std::sqrt(std::numeric_limits<double>::epsilon());
     double m_gridmin = 1e-10; //!< minimum grid spacing [m]
 };
