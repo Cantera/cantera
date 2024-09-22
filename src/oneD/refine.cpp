@@ -83,7 +83,7 @@ int Refiner::analyze(size_t n, const double* z, const double* x)
                 val[j] = value(x, i, j);
             }
 
-            // slope of component i
+            // slope of component i (using forward difference)
             for (size_t j = 0; j < n-1; j++) {
                 slope[j] = (val[j+1] - val[j]) / dz[j];
             }
@@ -104,9 +104,11 @@ int Refiner::analyze(size_t n, const double* z, const double* x)
             if (valMax - valMin > m_min_range*valMagnitude) {
                 // maximum allowable difference in value between adjacent points. Based
                 // on the global min and max values of the component over the domain.
-                double max_change = m_slope*(valMax - valMin) + m_thresh;
+                double max_change = m_slope*(valMax - valMin);
                 for (size_t j = 0; j < n-1; j++) {
-                    double ratio = fabs(val[j+1] - val[j]) / max_change;
+                    // m_thresh prevents two adjacent points from being considered
+                    // if they are too close together.
+                    double ratio = fabs(val[j+1] - val[j]) / (max_change + m_thresh);
                     if (ratio > 1.0 && dz[j] >= 2 * m_gridmin) {
                         m_insertPts.insert(j);
                         m_componentNames.insert(name);
@@ -124,11 +126,14 @@ int Refiner::analyze(size_t n, const double* z, const double* x)
             // greater than a fraction 'min_range' of max|s|. This eliminates
             // components that consist of small fluctuations on a constant slope
             // background.
-            if (valMax - valMin > m_min_range*valMagnitude && slopeMax - slopeMin > m_min_range*slopeMagnitude) {
+            if (slopeMax - slopeMin > m_min_range*slopeMagnitude) {
                 // maximum allowable difference in slope between adjacent points.
-                double max_change = m_curve*(slopeMax - slopeMin) + m_thresh;
+                double max_change = m_curve*(slopeMax - slopeMin);
                 for (size_t j = 0; j < n-2; j++) {
-                    double ratio = fabs(slope[j+1] - slope[j]) / max_change;
+                    // If the smallest allowable values between two points is m_thresh,
+                    // the smallest allowable slope between those points is
+                    // m_thresh/dz[j].
+                    double ratio = fabs(slope[j+1] - slope[j]) / (max_change + m_thresh/dz[j]);
                     if (ratio > 1.0 && dz[j] >= 2*m_gridmin && dz[j+1] >= 2*m_gridmin) {
                         m_componentNames.insert(name);
                         m_insertPts.insert(j);
