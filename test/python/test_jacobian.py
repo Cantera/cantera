@@ -29,7 +29,8 @@ class RateExpressionTests:
         cls.rix = [cls.gas.species_index(k) for k in cls.rxn.reactants.keys()]
         cls.pix = [cls.gas.species_index(k) for k in cls.rxn.products.keys()]
 
-    def setUp(self):
+    def setup_method(self):
+        """ Runs before tests """
         self.gas.TPX = self.tpx
         self.gas.set_multiplier(0.)
         self.gas.set_multiplier(1., self.rxn_idx)
@@ -38,15 +39,15 @@ class RateExpressionTests:
         # check stoichiometric coefficient output
         for k, v in self.rxn.reactants.items():
             ix = self.gas.species_index(k)
-            self.assertEqual(self.r_stoich[ix, self.rxn_idx], v)
+            assert self.r_stoich[ix, self.rxn_idx] == v
         for k, v in self.rxn.products.items():
             ix = self.gas.species_index(k)
-            self.assertEqual(self.p_stoich[ix, self.rxn_idx], v)
+            assert self.p_stoich[ix, self.rxn_idx] == v
 
     def test_input(self):
         # ensure that correct equation is referenced
-        self.assertEqual(self.equation, self.rxn.equation)
-        self.assertEqual(self.rate_type, self.rxn.rate.type)
+        assert self.equation == self.rxn.equation
+        assert self.rate_type == self.rxn.rate.type
 
     def rop_derivs(self, spc_ix, mode, const_t=True, rtol_deltac=1e-5, atol_deltac=1e-20, ddX=True):
         # numerical derivative for rates-of-progress with respect to mole fractions
@@ -107,9 +108,9 @@ class RateExpressionTests:
 
         # ensure all zeros are in the correct spots
         for spc_ix in set(self.rix + self.ix3b):
-            self.assertTrue(dropm[self.rxn_idx, spc_ix]) # non-zero
+            assert dropm[self.rxn_idx, spc_ix] # non-zero
             dropm[self.rxn_idx, spc_ix] = 0
-        self.assertFalse(dropm.any())
+        assert not dropm.any()
 
     def test_reverse_rop_ddX(self):
         # check derivatives of reverse rates of progress with respect to mole fractions
@@ -133,9 +134,9 @@ class RateExpressionTests:
 
         # ensure all zeros are in the correct spots
         for spc_ix in set(self.pix + self.ix3b):
-            self.assertTrue(dropm[self.rxn_idx, spc_ix]) # non-zero
+            assert dropm[self.rxn_idx, spc_ix] # non-zero
             dropm[self.rxn_idx, spc_ix] = 0
-        self.assertFalse(dropm.any())
+        assert not dropm.any()
 
     def test_net_rop_ddX(self):
         # check derivatives of net rates of progress with respect to mole fractions
@@ -154,9 +155,9 @@ class RateExpressionTests:
 
         # ensure all zeros are in the correct spots
         for spc_ix in set(self.rix + self.pix + self.ix3b):
-            self.assertTrue(drop[self.rxn_idx, spc_ix]) # non-zero
+            assert drop[self.rxn_idx, spc_ix] # non-zero
             drop[self.rxn_idx, spc_ix] = 0
-        self.assertFalse(drop.any())
+        assert not drop.any()
 
     def test_forward_rop_ddCi(self):
         # check derivatives of forward rates of progress with respect to species
@@ -183,9 +184,9 @@ class RateExpressionTests:
 
         # ensure all zeros are in the correct spots
         for spc_ix in set(self.rix + self.ix3b):
-            self.assertTrue(dropm[self.rxn_idx, spc_ix]) # non-zero
+            assert dropm[self.rxn_idx, spc_ix] # non-zero
             dropm[self.rxn_idx, spc_ix] = 0
-        self.assertFalse(dropm.any())
+        assert not dropm.any()
 
     def test_reverse_rop_ddCi(self):
         # check derivatives of reverse rates of progress with respect to species
@@ -209,9 +210,9 @@ class RateExpressionTests:
 
         # ensure all zeros are in the correct spots
         for spc_ix in set(self.pix + self.ix3b):
-            self.assertTrue(dropm[self.rxn_idx, spc_ix]) # non-zero
+            assert dropm[self.rxn_idx, spc_ix] # non-zero
             dropm[self.rxn_idx, spc_ix] = 0
-        self.assertFalse(dropm.any())
+        assert not dropm.any()
 
     def test_net_rop_ddCi(self):
         # check derivatives of net rates of progress with respect to species
@@ -267,9 +268,9 @@ class RateExpressionTests:
             return
 
         # ensure all zeros are in the correct spots
-        self.assertTrue(drop[self.rxn_idx]) # non-zero
+        assert drop[self.rxn_idx] # non-zero
         drop[self.rxn_idx] = 0
-        self.assertFalse(drop.any())
+        assert not drop.any()
 
     def test_reverse_rop_ddT(self):
         # check derivatives of reverse rop with respect to temperature
@@ -292,9 +293,9 @@ class RateExpressionTests:
             return
 
         # ensure all zeros are in the correct spots
-        self.assertTrue(drop[self.rxn_idx]) # non-zero
+        assert drop[self.rxn_idx] # non-zero
         drop[self.rxn_idx] = 0
-        self.assertFalse(drop.any())
+        assert not drop.any()
 
     def test_net_rop_ddT(self):
         # check derivatives of net rop with respect to temperature
@@ -317,9 +318,9 @@ class RateExpressionTests:
             return
 
         # ensure all zeros are in the correct spots
-        self.assertTrue(drop[self.rxn_idx]) # non-zero
+        assert drop[self.rxn_idx] # non-zero
         drop[self.rxn_idx] = 0
-        self.assertFalse(drop.any())
+        assert not drop.any()
 
     def rop_ddP(self, mode=None, rtol=1e-6):
         # numerical derivative for rates-of-progress at constant pressure
@@ -510,7 +511,6 @@ class RateExpressionTests:
 
 
 class HydrogenOxygen(RateExpressionTests):
-
     @classmethod
     def setup_class(cls):
         cls.gas = ct.Solution("h2o2.yaml", transport_model=None)
@@ -518,6 +518,7 @@ class HydrogenOxygen(RateExpressionTests):
         cls.gas.X = [0.1, 1e-4, 1e-5, 0.2, 2e-4, 0.3, 1e-6, 5e-5, 0.3, 0.1]
         cls.gas.TP = 800, 2 * ct.one_atm
         super().setup_class()
+
 
 
 class TestElementaryRev(HydrogenOxygen, utilities.CanteraTest):
@@ -571,7 +572,6 @@ class TestThreeBody(HydrogenOxygen, utilities.CanteraTest):
 
 
 class EdgeCases(RateExpressionTests):
-
     @classmethod
     def setup_class(cls):
         cls.gas = ct.Solution("jacobian-tests.yaml", transport_model=None)
@@ -579,6 +579,7 @@ class EdgeCases(RateExpressionTests):
         cls.gas.X = [0.1, 1e-4, 1e-5, 0.2, 2e-4, 0.3, 1e-6, 5e-5, 0.4]
         cls.gas.TP = 800, 2 * ct.one_atm
         super().setup_class()
+
 
 
 class TestElementaryIrr(EdgeCases, utilities.CanteraTest):
@@ -632,6 +633,7 @@ class FromScratchCases(RateExpressionTests):
         cls.gas.X = [0.1, 3e-4, 5e-5, 6e-6, 3e-3, 0.6, 0.25, 1e-6, 2e-5]
         cls.gas.TP = 2000, 5 * ct.one_atm
         super().setup_class()
+
 
     @pytest.mark.usefixtures("has_temperature_derivative_warnings")
     def test_forward_rop_ddT(self):
@@ -699,7 +701,8 @@ class FullTests:
     def setup_class(cls):
         cls.tpx = cls.gas.TPX
 
-    def setUp(self):
+    def setup_method(self):
+        """ Runs before tests """
         self.gas.TPX = self.tpx
         self.gas.derivative_settings = {} # reset
 
@@ -908,6 +911,7 @@ class FullHydrogenOxygen(FullTests, utilities.CanteraTest):
         super().setup_class()
 
 
+
 class FullGriMech(FullTests, utilities.CanteraTest):
 
     @classmethod
@@ -916,6 +920,7 @@ class FullGriMech(FullTests, utilities.CanteraTest):
         cls.gas.TPX = 300, 5 * ct.one_atm, "CH4:1, C3H8:.1, O2:1, N2:3.76"
         cls.gas.equilibrate("HP")
         super().setup_class()
+
 
 
 class FullEdgeCases(FullTests, utilities.CanteraTest):
@@ -927,6 +932,7 @@ class FullEdgeCases(FullTests, utilities.CanteraTest):
         cls.gas.TPX = 300, 2 * ct.one_atm, "H2:1, O2:3, AR:0.4"
         cls.gas.equilibrate("HP")
         super().setup_class()
+
 
 
 class SurfaceRateExpressionTests:
@@ -954,7 +960,7 @@ class SurfaceRateExpressionTests:
         cls.rix = [cls.sidxs[k] for k in cls.rxn.reactants.keys()]
         cls.pix = [cls.sidxs[k] for k in cls.rxn.products.keys()]
 
-    def setUp(self):
+    def setup_method(self):
         # gas phase
         self.gas.TPX = self.gas_tpx
         self.gas.set_multiplier(0)
@@ -969,15 +975,15 @@ class SurfaceRateExpressionTests:
         # check stoichiometric coefficient output
         for k, v in self.rxn.reactants.items():
             ix = self.sidxs[k]
-            self.assertEqual(self.r_stoich[ix, self.rxn_idx], v)
+            assert self.r_stoich[ix, self.rxn_idx] == v
         for k, v in self.rxn.products.items():
             ix = self.sidxs[k]
-            self.assertEqual(self.p_stoich[ix, self.rxn_idx], v)
+            assert self.p_stoich[ix, self.rxn_idx] == v
 
     def test_input(self):
         # ensure that correct equation is referenced
-        self.assertEqual(self.equation, self.rxn.equation)
-        self.assertEqual(self.rate_type, self.rxn.rate.type)
+        assert self.equation, self.rxn.equation
+        assert self.rate_type == self.rxn.rate.type
 
     def test_forward_rop_ddCi(self):
         # check derivatives of forward rates of progress with respect to species
@@ -1054,6 +1060,7 @@ class PlatinumHydrogen(SurfaceRateExpressionTests):
         cls.surf_tpx = cls.surf.TPX
         super().setup_class()
 
+
 class SurfInterfaceArrhenius(PlatinumHydrogen, utilities.CanteraTest):
     rxn_idx = 7
     equation = "H(S) + O(S) <=> OH(S) + PT(S)"
@@ -1085,7 +1092,8 @@ class SurfaceFullTests:
         all_species = cls.surf.species() + cls.gas.species()
         cls.sidxs  = {spec.name:i for i, spec in enumerate(all_species)}
 
-    def setUp(self):
+    def setup_method(self):
+        """ Runs before tests """
         # gas phase
         self.gas.TPX = self.gas_tpx
         self.gas.derivative_settings = {} # reset defaults
@@ -1206,3 +1214,4 @@ class FullPlatinumHydrogen(SurfaceFullTests, utilities.CanteraTest):
         cls.gas_tpx = cls.gas.TPX
         cls.surf_tpx = cls.surf.TPX
         super().setup_class()
+
