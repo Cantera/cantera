@@ -195,7 +195,7 @@ class TestFreeFlame(utilities.CanteraTest):
         self.sim.energy_enabled = False
         self.sim.solve(loglevel=0, refine_grid=False)
 
-        self.assertFalse(self.sim.energy_enabled)
+        assert not self.sim.energy_enabled
 
     def solve_mix(self, ratio=3.0, slope=0.3, curve=0.2, prune=0.0, refine=True):
         # Solve with the energy equation enabled
@@ -203,20 +203,21 @@ class TestFreeFlame(utilities.CanteraTest):
         self.sim.energy_enabled = True
         self.sim.solve(loglevel=0, refine_grid=refine)
 
-        self.assertTrue(self.sim.energy_enabled)
-        self.assertEqual(self.sim.transport_model, 'mixture-averaged')
+        assert self.sim.energy_enabled
+        assert self.sim.transport_model == 'mixture-averaged'
 
     def solve_multi(self):
         self.sim.transport_model = 'multicomponent'
         self.sim.solve(loglevel=0, refine_grid=True)
 
-        self.assertEqual(self.sim.transport_model, 'multicomponent')
+        assert self.sim.transport_model == 'multicomponent'
 
     def test_flow_type(self):
         Tin = 300
         p = ct.one_atm
         reactants = 'H2:0.65, O2:0.5, AR:2'
         self.create_sim(p, Tin, reactants, width=0.0001)
+
         assert self.sim.flame.domain_type == "free-flow"
 
     def test_fixed_temperature(self):
@@ -264,8 +265,8 @@ class TestFreeFlame(utilities.CanteraTest):
         self.sim.solve(refine_grid=True, auto=True, loglevel=0)
 
         self.assertNear(self.sim.velocity[0], 17.02, 1e-1)
-        self.assertLess(self.sim.grid[-1], 2.0) # grid should not be too wide
-        self.assertEqual(self.sim.flame.tolerances("T"), (2e-4, 1e-8))
+        assert self.sim.grid[-1] < 2.0 # grid should not be too wide
+        assert self.sim.flame.tolerances("T") == (2e-4, 1e-8)
 
     @utilities.slow_test
     def test_converge_adiabatic(self):
@@ -296,12 +297,12 @@ class TestFreeFlame(utilities.CanteraTest):
         T3 = self.sim.T[-1]
         X3 = self.sim.X[:,-1]
 
-        self.assertLess(abs(T2-Tad), abs(T1-Tad))
-        self.assertLess(abs(T3-Tad), abs(T2-Tad))
+        assert abs(T2-Tad) < abs(T1-Tad)
+        assert abs(T3-Tad) < abs(T2-Tad)
 
         for k in range(self.gas.n_species):
-            self.assertLessEqual(abs(X2[k]-Xad[k]), abs(X1[k]-Xad[k]))
-            self.assertLessEqual(abs(X3[k]-Xad[k]), abs(X2[k]-Xad[k]))
+            assert abs(X2[k]-Xad[k]) <= abs(X1[k]-Xad[k])
+            assert abs(X3[k]-Xad[k]) <= abs(X2[k]-Xad[k])
 
     def run_mix(self, phi, T, width, p, refine):
         reactants = {'H2': phi, 'O2': 0.5, 'AR': 2}
@@ -485,20 +486,20 @@ class TestFreeFlame(utilities.CanteraTest):
         # the mixture-averaged flame speed.
         self.solve_multi()
         Su_multi = self.sim.velocity[0]
-        self.assertFalse(self.sim.soret_enabled)
+        assert not self.sim.soret_enabled
 
         self.assertNear(Su_mix, Su_multi, 5e-2)
-        self.assertNotEqual(Su_mix, Su_multi)
+        assert Su_mix != Su_multi
 
         # Flame speed with Soret effect should be similar but not identical to
         # the multicomponent flame speed
         self.sim.soret_enabled = True
         self.sim.solve(loglevel=0, refine_grid=True)
-        self.assertTrue(self.sim.soret_enabled)
+        assert self.sim.soret_enabled
         Su_soret = self.sim.velocity[0]
 
         self.assertNear(Su_multi, Su_soret, 2e-1)
-        self.assertNotEqual(Su_multi, Su_soret)
+        assert Su_multi != Su_soret
 
     def test_unity_lewis(self):
         self.create_sim(ct.one_atm, 300, 'H2:1.1, O2:1, AR:5.3')
@@ -513,7 +514,7 @@ class TestFreeFlame(utilities.CanteraTest):
 
         # deviation of enthalpy should be much lower for unity Le model (tends
         # towards zero as grid is refined)
-        self.assertLess(dh_unity_lewis, 0.1 * dh_mix)
+        assert dh_unity_lewis < 0.1 * dh_mix
 
     def test_flux_gradient_mass(self):
         self.create_sim(ct.one_atm, 300, 'H2:1.1, O2:1, AR:5.3')
@@ -536,10 +537,10 @@ class TestFreeFlame(utilities.CanteraTest):
         # multicomponent transport results in an error
 
         self.create_sim(101325, 300, 'H2:1.0, O2:1.0')
-        self.assertFalse(self.sim.soret_enabled)
-        self.assertFalse(self.sim.transport_model == 'multicomponent')
+        assert not self.sim.soret_enabled
+        assert not self.sim.transport_model == 'multicomponent'
 
-        with self.assertRaisesRegex(ct.CanteraError, 'requires.*multicomponent'):
+        with pytest.raises(ct.CanteraError, match='requires.*multicomponent'):
             self.sim.soret_enabled = True
             self.sim.solve(loglevel=0, auto=False)
 
@@ -578,7 +579,7 @@ class TestFreeFlame(utilities.CanteraTest):
         self.solve_mix(slope=0.5, curve=0.3, prune=0.1)
         N2 = len(self.sim.grid)
 
-        self.assertLess(N2, N1)
+        assert N2 < N1
 
         # TODO: check that the solution is actually correct (that is, that the
         # residual satisfies the error tolerances) on the new grid.
@@ -642,7 +643,7 @@ class TestFreeFlame(utilities.CanteraTest):
         rtol, atol = self.sim.flame.tolerances("T")
         self.assertNear(rtol, T_rtol)
         self.assertNear(atol, T_atol)
-        self.assertFalse(self.sim.energy_enabled)
+        assert not self.sim.energy_enabled
 
         P2a = self.sim.P
 
@@ -670,12 +671,12 @@ class TestFreeFlame(utilities.CanteraTest):
         self.assertArrayNear(u1, u3, 1e-3)
         self.assertArrayNear(V1, V3, 1e-3)
 
-        self.assertFalse(self.sim.radiation_enabled)
-        self.assertFalse(self.sim.soret_enabled)
+        assert not self.sim.radiation_enabled
+        assert not self.sim.soret_enabled
 
         self.sim.restore(filename, "test2")
-        self.assertTrue(self.sim.radiation_enabled)
-        self.assertEqual(self.sim.boundary_emissivities, (0.3, 0.8))
+        assert self.sim.radiation_enabled
+        assert self.sim.boundary_emissivities == (0.3, 0.8)
 
         self.sim.solve(loglevel=0)
 
@@ -747,8 +748,8 @@ class TestFreeFlame(utilities.CanteraTest):
         T2 = self.sim.T
         Y2 = self.sim.Y
 
-        self.assertTrue(self.sim.soret_enabled)
-        self.assertEqual(self.sim.max_grid_points, 234)
+        assert self.sim.soret_enabled
+        assert self.sim.max_grid_points == 234
         self.assertArrayNear(T1, T2)
         for k1, species in enumerate(gas1.species_names):
             k2 = gas2.species_index(species)
@@ -877,7 +878,7 @@ class TestFreeFlame(utilities.CanteraTest):
 
         self.sim.set_refine_criteria(*good)
         for i in range(4):
-            with self.assertRaisesRegex(ct.CanteraError, 'Refiner::setCriteria'):
+            with pytest.raises(ct.CanteraError, match='Refiner::setCriteria'):
                 vals = list(good)
                 vals[i] = bad[i]
                 self.sim.set_refine_criteria(*vals)
@@ -887,7 +888,7 @@ class TestFreeFlame(utilities.CanteraTest):
         vals = {'ratio': 3.0, 'slope': 0.1, 'curve': 0.2, 'prune': 0.05}
         self.sim.set_refine_criteria(**vals)
         check = self.sim.get_refine_criteria()
-        self.assertEqual(vals, check)
+        assert vals == check
 
     def test_replace_grid(self):
         self.create_sim(ct.one_atm, 300.0, 'H2:1.1, O2:1, AR:5')
@@ -909,14 +910,14 @@ class TestFreeFlame(utilities.CanteraTest):
         # Set the maximum grid points to be a low number that should
         # be exceeded by the refinement
         self.sim.max_grid_points = 10
-        with self.assertRaisesRegex(ct.CanteraError, 'max number of grid points'):
+        with pytest.raises(ct.CanteraError, match='max number of grid points'):
             self.sim.solve(loglevel=0, refine_grid=True)
 
     def test_set_max_grid_points(self):
         self.create_sim(ct.one_atm, 400.0, 'H2:1.1, O2:1, AR:5')
-        self.assertEqual(self.sim.max_grid_points, 1000)
+        assert self.sim.max_grid_points == 1000
         self.sim.max_grid_points = 10
-        self.assertEqual(self.sim.max_grid_points, 10)
+        assert self.sim.max_grid_points == 10
 
 
 class TestDiffusionFlame(utilities.CanteraTest):
@@ -956,7 +957,7 @@ class TestDiffusionFlame(utilities.CanteraTest):
         self.sim.energy_enabled = False
         self.sim.solve(loglevel=0, refine_grid=False)
 
-        self.assertFalse(self.sim.energy_enabled)
+        assert not self.sim.energy_enabled
 
     def solve_mix(self, ratio=3.0, slope=0.1, curve=0.12, prune=0.0):
         # Solve with the energy equation enabled
@@ -965,8 +966,8 @@ class TestDiffusionFlame(utilities.CanteraTest):
         self.sim.energy_enabled = True
         self.sim.solve(loglevel=0, refine_grid=True)
 
-        self.assertTrue(self.sim.energy_enabled)
-        self.assertEqual(self.sim.transport_model, 'mixture-averaged')
+        assert self.sim.energy_enabled
+        assert self.sim.transport_model == 'mixture-averaged'
 
     @utilities.slow_test
     def test_mixture_averaged(self, saveReference=False):
@@ -977,7 +978,7 @@ class TestDiffusionFlame(utilities.CanteraTest):
         nPoints = len(self.sim.grid)
         Tfixed = self.sim.T
         self.solve_fixed_T()
-        self.assertEqual(nPoints, len(self.sim.grid))
+        assert nPoints == len(self.sim.grid)
         self.assertArrayNear(Tfixed, self.sim.T)
 
         self.solve_mix()
@@ -993,7 +994,7 @@ class TestDiffusionFlame(utilities.CanteraTest):
         else:
             bad = utilities.compareProfiles(self.test_data_path / referenceFile, data,
                                             rtol=1e-2, atol=1e-8, xtol=1e-2)
-            self.assertFalse(bad, bad)
+            assert not bad, bad
 
     def test_auto(self, saveReference=False):
         referenceFile = "DiffusionFlameTest-h2-auto.csv"
@@ -1008,7 +1009,7 @@ class TestDiffusionFlame(utilities.CanteraTest):
 
         def time_step_func(dt):
             timesteps.append(dt)
-            self.assertGreater(dt, 0)
+            assert dt > 0
             return 0
 
         self.sim.set_steady_callback(steady_func)
@@ -1017,8 +1018,8 @@ class TestDiffusionFlame(utilities.CanteraTest):
         self.sim.set_refine_criteria(ratio=3.0, slope=0.1, curve=0.12, prune=0.0)
         self.sim.solve(loglevel=0, auto=True)
 
-        self.assertNotEqual(len(nPoints), 0)
-        self.assertNotEqual(len(timesteps), 0)
+        assert len(nPoints) != 0
+        assert len(timesteps) != 0
 
         data = np.empty((self.sim.flame.n_points, self.gas.n_species + 4))
         data[:,0] = self.sim.grid
@@ -1032,13 +1033,13 @@ class TestDiffusionFlame(utilities.CanteraTest):
         else:
             bad = utilities.compareProfiles(self.test_data_path / referenceFile, data,
                                             rtol=1e-2, atol=1e-8, xtol=1e-2)
-            self.assertFalse(bad, bad)
+            assert not bad, bad
 
     def run_extinction(self, mdot_fuel, mdot_ox, T_ox, width, P):
         self.create_sim(fuel='H2:1.0', oxidizer='O2:1.0', p=ct.one_atm*P,
                         mdot_fuel=mdot_fuel, mdot_ox=mdot_ox, T_ox=T_ox, width=width)
         self.sim.solve(loglevel=0, auto=True)
-        self.assertFalse(self.sim.extinct())
+        assert not self.sim.extinct()
 
     def test_extinction_case1(self):
         self.run_extinction(mdot_fuel=0.5, mdot_ox=3.0, T_ox=300, width=0.018, P=1.0)
@@ -1092,11 +1093,11 @@ class TestDiffusionFlame(utilities.CanteraTest):
         nPoints = len(self.sim.grid)
         Tfixed = self.sim.T
         self.solve_fixed_T()
-        self.assertEqual(nPoints, len(self.sim.grid))
+        assert nPoints == len(self.sim.grid)
         self.assertArrayNear(Tfixed, self.sim.T)
-        self.assertFalse(self.sim.radiation_enabled)
+        assert not self.sim.radiation_enabled
         self.sim.radiation_enabled = True
-        self.assertTrue(self.sim.radiation_enabled)
+        assert self.sim.radiation_enabled
         self.sim.flame.boundary_emissivities = 0.25, 0.15
 
         self.solve_mix()
@@ -1108,14 +1109,14 @@ class TestDiffusionFlame(utilities.CanteraTest):
         data[:,4:] = self.sim.Y.T
 
         qdot = self.sim.flame.radiative_heat_loss
-        self.assertEqual(len(qdot), self.sim.flame.n_points)
+        assert len(qdot) == self.sim.flame.n_points
 
         if saveReference:
             np.savetxt(referenceFile, data, '%11.6e', ', ')
         else:
             bad = utilities.compareProfiles(self.test_data_path / referenceFile, data,
                                             rtol=1e-2, atol=1e-8, xtol=1e-2)
-            self.assertFalse(bad, bad)
+            assert not bad, bad
 
         filename = self.test_work_path / "DiffusionFlameTest-h2-mix-rad.csv"
         # In Python >= 3.8, this can be replaced by the missing_ok argument
@@ -1123,9 +1124,9 @@ class TestDiffusionFlame(utilities.CanteraTest):
             filename.unlink()
 
         self.sim.save(filename, basis="mole") # check output
-        self.assertTrue(filename.is_file())
+        assert filename.is_file()
         csv_data = np.genfromtxt(filename, dtype=float, delimiter=',', names=True)
-        self.assertIn('radiativeheatloss', csv_data.dtype.names)
+        assert 'radiativeheatloss' in csv_data.dtype.names
 
     def test_strain_rate(self):
         # This doesn't test that the values are correct, just that they can be
@@ -1141,17 +1142,17 @@ class TestDiffusionFlame(utilities.CanteraTest):
         a_stoich1 = self.sim.strain_rate('stoichiometric', fuel='H2')
         a_stoich2 = self.sim.strain_rate('stoichiometric', fuel='H2', stoich=0.5)
 
-        self.assertLessEqual(a_mean, a_max)
-        self.assertLessEqual(a_pf_fuel, a_max)
-        self.assertLessEqual(a_pf_oxidizer, a_max)
-        self.assertLessEqual(a_stoich1, a_max)
-        self.assertEqual(a_stoich1, a_stoich2)
+        assert a_mean <= a_max
+        assert a_pf_fuel <= a_max
+        assert a_pf_oxidizer <= a_max
+        assert a_stoich1 <= a_max
+        assert a_stoich1 == a_stoich2
 
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             self.sim.strain_rate('bad_keyword')
-        with self.assertRaises(KeyError): # missing 'fuel'
+        with pytest.raises(KeyError): # missing 'fuel'
             self.sim.strain_rate('stoichiometric')
-        with self.assertRaises(KeyError): # missing 'stoich'
+        with pytest.raises(KeyError): # missing 'stoich'
             self.sim.strain_rate('stoichiometric', fuel='H2', oxidizer='H2O2')
 
     def test_mixture_fraction(self):
@@ -1160,13 +1161,13 @@ class TestDiffusionFlame(utilities.CanteraTest):
         Z = self.sim.mixture_fraction('H')
         self.assertNear(Z[0], 1.0)
         self.assertNear(Z[-1], 0.0)
-        self.assertTrue(all(Z >= 0))
-        self.assertTrue(all(Z <= 1.0))
+        assert all(Z >= 0)
+        assert all(Z <= 1.0)
         Z = self.sim.mixture_fraction('Bilger')
         self.assertNear(Z[0], 1.0)
         self.assertNear(Z[-1], 0.0)
-        self.assertTrue(all(Z >= 0))
-        self.assertTrue(all(Z <= 1.0))
+        assert all(Z >= 0)
+        assert all(Z <= 1.0)
 
     def test_equivalence_ratio(self):
         self.create_sim(p=ct.one_atm)
@@ -1387,7 +1388,7 @@ class TestCounterflowPremixedFlame(utilities.CanteraTest):
 
         sim.set_refine_criteria(ratio=3, slope=0.2, curve=0.4, prune=0.02)
         sim.energy_enabled = True
-        self.assertFalse(sim.radiation_enabled)
+        assert not sim.radiation_enabled
         sim.solve(loglevel=0, refine_grid=True)
 
         data = np.empty((sim.flame.n_points, gas.n_species + 4))
@@ -1403,15 +1404,15 @@ class TestCounterflowPremixedFlame(utilities.CanteraTest):
         else:
             bad = utilities.compareProfiles(self.test_data_path / referenceFile, data,
                                             rtol=1e-2, atol=1e-8, xtol=1e-2)
-            self.assertFalse(bad, bad)
+            assert not bad, bad
 
         filename = self.test_work_path / "CounterflowPremixedFlame-h2-mix.csv"
         filename.unlink(missing_ok=True)
 
         sim.save(filename) # check output
-        self.assertTrue(filename.is_file())
+        assert filename.is_file()
         csv_data = np.genfromtxt(filename, dtype=float, delimiter=',', names=True)
-        self.assertNotIn('qdot', csv_data.dtype.names)
+        assert 'qdot' not in csv_data.dtype.names
 
     def run_case(self, phi, T, width, P):
         gas = ct.Solution("h2o2.yaml")
@@ -1421,8 +1422,8 @@ class TestCounterflowPremixedFlame(utilities.CanteraTest):
         sim.products.mdot = 5 * gas.density
         sim.set_refine_criteria(ratio=6, slope=0.7, curve=0.8, prune=0.2)
         sim.solve(loglevel=0, auto=True)
-        self.assertTrue(all(sim.T >= T - 1e-3))
-        self.assertTrue(all(sim.spread_rate >= -1e-9))
+        assert all(sim.T >= T - 1e-3)
+        assert all(sim.spread_rate >= -1e-9)
         assert np.allclose(sim.L, sim.L[0])
         return sim
 
@@ -1505,7 +1506,7 @@ class TestCounterflowPremixedFlameNonIdeal(utilities.CanteraTest):
 
         sim.set_refine_criteria(ratio=3, slope=0.2, curve=0.4, prune=0.02)
         sim.energy_enabled = True
-        self.assertFalse(sim.radiation_enabled)
+        assert not sim.radiation_enabled
         sim.solve(loglevel=0, refine_grid=True)
 
         data = np.empty((sim.flame.n_points, gas.n_species + 4))
@@ -1521,15 +1522,15 @@ class TestCounterflowPremixedFlameNonIdeal(utilities.CanteraTest):
         else:
             bad = utilities.compareProfiles(self.test_data_path / referenceFile, data,
                                             rtol=1e-2, atol=1e-8, xtol=1e-2)
-            self.assertFalse(bad, bad)
+            assert not bad, bad
 
         filename = self.test_work_path / "CounterflowPremixedFlame-h2-mix-RK.csv"
         filename.unlink(missing_ok=True)
 
         sim.save(filename) # check output
-        self.assertTrue(filename.is_file())
+        assert filename.is_file()
         csv_data = np.genfromtxt(filename, dtype=float, delimiter=',', names=True)
-        self.assertNotIn('qdot', csv_data.dtype.names)
+        assert 'qdot' not in csv_data.dtype.names
 
     def run_case(self, phi, T, width, P):
         gas = ct.Solution("h2o2.yaml", "ohmech-RK")
@@ -1539,8 +1540,8 @@ class TestCounterflowPremixedFlameNonIdeal(utilities.CanteraTest):
         sim.products.mdot = 5 * gas.density
         sim.set_refine_criteria(ratio=6, slope=0.7, curve=0.8, prune=0.2)
         sim.solve(loglevel=0, auto=True)
-        self.assertTrue(all(sim.T >= T - 1e-3))
-        self.assertTrue(all(sim.spread_rate >= -1e-9))
+        assert all(sim.T >= T - 1e-3)
+        assert all(sim.spread_rate >= -1e-9)
         assert np.allclose(sim.L, sim.L[0])
         return sim
 
@@ -1586,7 +1587,7 @@ class TestBurnerFlame(utilities.CanteraTest):
         sim = ct.BurnerFlame(gas=gas, width=width)
         sim.burner.mdot = gas.density * 0.15
         sim.solve(loglevel=0, auto=True)
-        self.assertGreater(sim.T[1], T)
+        assert sim.T[1] > T
         assert np.allclose(sim.L, 0)
 
     def test_case1(self):
@@ -1656,7 +1657,8 @@ class TestBurnerFlame(utilities.CanteraTest):
 
 
 class TestStagnationFlame(utilities.CanteraTest):
-    def setUp(self):
+    def setup_method(self):
+        """ Runs before tests """
         self.gas = ct.Solution("h2o2.yaml")
 
     def create_stagnation(self, comp, tsurf, tinlet, mdot, width):
@@ -1739,7 +1741,8 @@ class TestStagnationFlame(utilities.CanteraTest):
 
 
 class TestImpingingJet(utilities.CanteraTest):
-    def setUp(self):
+    def setup_method(self):
+        """ Runs before tests """
         self.surf_phase = ct.Interface("ptcombust-simple.yaml", "Pt_surf")
         self.gas = self.surf_phase.adjacent["gas"]
 
@@ -1767,9 +1770,9 @@ class TestImpingingJet(utilities.CanteraTest):
 
         sim.solve(loglevel=0, auto=True)
 
-        self.assertTrue(all(np.diff(sim.T) > 0))
-        self.assertTrue(all(np.diff(sim.Y[sim.gas.species_index('CH4')]) < 0))
-        self.assertTrue(all(np.diff(sim.Y[sim.gas.species_index('CO2')]) > 0))
+        assert all(np.diff(sim.T) > 0)
+        assert all(np.diff(sim.Y[sim.gas.species_index('CH4')]) < 0)
+        assert all(np.diff(sim.Y[sim.gas.species_index('CO2')]) > 0)
         self.sim = sim
 
     def test_reacting_surface_case1(self):
@@ -1866,7 +1869,7 @@ class TestTwinFlame(utilities.CanteraTest):
         axial_velocity = 2.0
         sim.reactants.mdot = gas.density * axial_velocity
         sim.solve(loglevel=0, auto=True)
-        self.assertGreater(sim.T[-1], T + 100)
+        assert sim.T[-1] > T + 100
         assert np.allclose(sim.L, sim.L[0])
         return sim
 
