@@ -982,7 +982,7 @@ class SurfaceRateExpressionTests:
 
     def test_input(self):
         # ensure that correct equation is referenced
-        assert self.equation, self.rxn.equation
+        assert self.equation == self.rxn.equation
         assert self.rate_type == self.rxn.rate.type
 
     def test_forward_rop_ddCi(self):
