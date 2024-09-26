@@ -5,11 +5,15 @@ from pytest import approx
 
 import cantera as ct
 from . import utilities
+from .utilities import (
+    assertNear,
+    assertArrayNear
+)
 
 from cantera._utils import _py_to_any_to_py, _py_to_anymap_to_py
 
 
-class TestUnitSystem(utilities.CanteraTest):
+class TestUnitSystem():
 
     def test_default(self):
         units = ct.UnitSystem().units
@@ -89,17 +93,17 @@ class TestUnitSystem(utilities.CanteraTest):
     def test_convert_to_array(self):
         system = ct.UnitSystem({"length": "km"})
         x = np.array(((3, 4), (0.5, 2.0), (1.0, 0.0)))
-        self.assertArrayNear(system.convert_to(x, "m"), 1000 * x)
+        assertArrayNear(system.convert_to(x, "m"), 1000 * x)
 
     def test_convert_activation_energy_to_array(self):
         system = ct.UnitSystem({"activation-energy": "J/mol"})
         x = np.array(((3, 4), (0.5, 2.0), (1.0, 0.0)))
-        self.assertArrayNear(system.convert_activation_energy_to(x, "J/kmol"), 1000 * x)
+        assertArrayNear(system.convert_activation_energy_to(x, "J/kmol"), 1000 * x)
 
     def test_convert_rate_coeff_to_array(self):
         system = ct.UnitSystem({"length": "cm"})
         x = np.array(((3, 4), (0.5, 2.0), (1.0, 0.0)))
-        self.assertArrayNear(system.convert_rate_coeff_to(x, "m^2/kmol/s"), 0.0001 * x)
+        assertArrayNear(system.convert_rate_coeff_to(x, "m^2/kmol/s"), 0.0001 * x)
 
     def test_convert_to_sequence(self):
         system = ct.UnitSystem({"length": "km"})
@@ -157,7 +161,7 @@ class TestUnitSystem(utilities.CanteraTest):
         with pytest.raises(TypeError):
             system.convert_rate_coeff_to({"spam": 13}, "m^6/kmol^2/s")
 
-class TestPyToAnyValue(utilities.CanteraTest):
+class TestPyToAnyValue():
 
     def check_conversion(self, value, check_type=None):
         out, held_type = _py_to_any_to_py(value)
@@ -265,10 +269,13 @@ class TestPyToAnyValue(utilities.CanteraTest):
         self.check_raises([3+4j, 1-2j], ct.CanteraError, "Unable to convert")
 
 
-class TestAnyMap(utilities.CanteraTest):
-    @classmethod
-    def setup_class(cls):
-        data = {
+@pytest.fixture(scope='class')
+def setup_any_map(request):
+    request.cls.data = _py_to_anymap_to_py(request.cls.orig_data)
+
+@pytest.mark.usefixtures("setup_any_map")
+class TestAnyMap():
+    orig_data = {
             "units": {"length": "mm", "energy": "kJ"},
             "group1": {
                 "a": 5000,
@@ -281,7 +288,6 @@ class TestAnyMap(utilities.CanteraTest):
                 "x": 1300
             }
         }
-        cls.data = _py_to_anymap_to_py(data)
 
     def test_units_simple(self):
         assert self.data['group1'].convert('a', 'm') == 5.0
@@ -324,7 +330,9 @@ class TestAnyMap(utilities.CanteraTest):
         with pytest.raises(ct.CanteraError):
             _py_to_anymap_to_py(outer)
 
-def test_list_data_files():
-    data_files = ct.list_data_files()
-    assert "gri30.yaml" in data_files
-    assert str(Path("example_data/oxygen-plasma-itikawa.yaml")) in data_files
+class TestListDataFiles():
+
+    def test_list_data_files(self):
+        data_files = ct.list_data_files()
+        assert "gri30.yaml" in data_files
+        assert str(Path("example_data/oxygen-plasma-itikawa.yaml")) in data_files
