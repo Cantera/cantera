@@ -8,7 +8,8 @@ from . import utilities
 from .utilities import allow_deprecated, yaml
 from .utilities import (
     assertNear,
-    assertArrayNear
+    assertArrayNear,
+    compareProfiles
 )
 
 
@@ -1001,7 +1002,7 @@ class TestDiffusionFlame():
         if saveReference:
             np.savetxt(referenceFile, data, '%11.6e', ', ')
         else:
-            bad = utilities.compareProfiles(self.test_data_path / referenceFile, data,
+            bad = compareProfiles(self.test_data_path / referenceFile, data,
                                             rtol=1e-2, atol=1e-8, xtol=1e-2)
             assert not bad, bad
 
@@ -1040,7 +1041,7 @@ class TestDiffusionFlame():
         if saveReference:
             np.savetxt(referenceFile, data, '%11.6e', ', ')
         else:
-            bad = utilities.compareProfiles(self.test_data_path / referenceFile, data,
+            bad = compareProfiles(self.test_data_path / referenceFile, data,
                                             rtol=1e-2, atol=1e-8, xtol=1e-2)
             assert not bad, bad
 
@@ -1123,7 +1124,7 @@ class TestDiffusionFlame():
         if saveReference:
             np.savetxt(referenceFile, data, '%11.6e', ', ')
         else:
-            bad = utilities.compareProfiles(self.test_data_path / referenceFile, data,
+            bad = compareProfiles(self.test_data_path / referenceFile, data,
                                             rtol=1e-2, atol=1e-8, xtol=1e-2)
             assert not bad, bad
 
@@ -1411,7 +1412,7 @@ class TestCounterflowPremixedFlame():
         if saveReference:
             np.savetxt(referenceFile, data, '%11.6e', ', ')
         else:
-            bad = utilities.compareProfiles(self.test_data_path / referenceFile, data,
+            bad = compareProfiles(self.test_data_path / referenceFile, data,
                                             rtol=1e-2, atol=1e-8, xtol=1e-2)
             assert not bad, bad
 
@@ -1531,7 +1532,7 @@ class TestCounterflowPremixedFlameNonIdeal():
         if saveReference:
             np.savetxt(referenceFile, data, '%11.6e', ', ')
         else:
-            bad = utilities.compareProfiles(self.test_data_path / referenceFile, data,
+            bad = compareProfiles(self.test_data_path / referenceFile, data,
                                             rtol=1e-2, atol=1e-8, xtol=1e-2)
             assert not bad, bad
 
