@@ -1,18 +1,24 @@
 import pytest
 import cantera as ct
 from . import utilities
+from .utilities import (
+    assertNear,
+    assertArrayNear
+)
 
+@pytest.fixture(scope='class')
+def phases(request):
+    # Create class-level data for each test
+    request.cls.phase1 = ct.Solution('h2o2.yaml', transport_model=None)
+    request.cls.phase2 = ct.Solution('air.yaml')
 
-class TestMixture(utilities.CanteraTest):
-    @classmethod
-    def setup_class(self):
-        super().setup_class()
-        self.phase1 = ct.Solution('h2o2.yaml', transport_model=None)
-        self.phase2 = ct.Solution('air.yaml')
+@pytest.fixture(scope='function')
+def mixture(request, phases):
+    # Create instance-level data for each test
+    request.cls.mix = ct.Mixture([(request.cls.phase1, 1.0), (request.cls.phase2, 2.0)])
 
-    def setup_method(self):
-        """ Runs before tests"""
-        self.mix = ct.Mixture([(self.phase1, 1.0), (self.phase2, 2.0)])
+@pytest.mark.usefixtures("mixture")
+class TestMixture():
 
     def test_sizes(self):
         assert self.mix.n_phases == 2
@@ -132,8 +138,8 @@ class TestMixture(utilities.CanteraTest):
 
         S[2] = 7
         self.mix.species_moles = S
-        self.assertNear(self.mix.species_moles[2], S[2])
-        self.assertNear(self.mix.phase_moles(0), sum(S[:self.phase1.n_species]))
+        assertNear(self.mix.species_moles[2], S[2])
+        assertNear(self.mix.phase_moles(0), sum(S[:self.phase1.n_species]))
 
         with pytest.raises(ValueError):
             self.mix.species_moles = (1, 2, 3)
@@ -144,17 +150,17 @@ class TestMixture(utilities.CanteraTest):
     def test_element_moles(self):
         self.mix.species_moles = 'H2:1.0, OH:4.0'
 
-        self.assertNear(self.mix.element_moles('H'), 6)
-        self.assertNear(self.mix.element_moles('O'), 4)
-        self.assertNear(self.mix.element_moles('N'), 0)
+        assertNear(self.mix.element_moles('H'), 6)
+        assertNear(self.mix.element_moles('O'), 4)
+        assertNear(self.mix.element_moles('N'), 0)
 
     def test_chemical_potentials(self):
         C = self.mix.chemical_potentials
         C1 = self.phase1.chemical_potentials
         C2 = self.phase2.chemical_potentials
 
-        self.assertArrayNear(C[:self.phase1.n_species], C1)
-        self.assertArrayNear(C[self.phase1.n_species:], C2)
+        assertArrayNear(C[:self.phase1.n_species], C1)
+        assertArrayNear(C[self.phase1.n_species:], C2)
 
     def test_equilibrate1(self):
         self.mix.species_moles = 'H2:1.0, O2:0.5, N2:1.0'
@@ -165,10 +171,9 @@ class TestMixture(utilities.CanteraTest):
         self.mix.equilibrate('TP', solver='vcs', estimate_equil=-1)
 
         E2 = [self.mix.element_moles(m) for m in range(self.mix.n_elements)]
-        self.assertArrayNear(E1, E2)
-        self.assertNear(self.mix.T, 400)
-        self.assertNear(self.mix.P, 2 * ct.one_atm)
-
+        assertArrayNear(E1, E2)
+        assertNear(self.mix.T, 400)
+        assertNear(self.mix.P, 2 * ct.one_atm)
 
     @pytest.mark.xfail(reason="See https://github.com/Cantera/cantera/issues/1023")
     def test_equilibrate2(self):
@@ -180,9 +185,9 @@ class TestMixture(utilities.CanteraTest):
         self.mix.equilibrate('TP', solver='gibbs')
 
         E2 = [self.mix.element_moles(m) for m in range(self.mix.n_elements)]
-        self.assertArrayNear(E1, E2)
-        self.assertNear(self.mix.T, 400)
-        self.assertNear(self.mix.P, 2 * ct.one_atm)
+        assertArrayNear(E1, E2)
+        assertNear(self.mix.T, 400)
+        assertNear(self.mix.P, 2 * ct.one_atm)
 
     def test_invalid_property(self):
         x = self.mix
