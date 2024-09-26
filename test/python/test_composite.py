@@ -1,12 +1,9 @@
-import sys
-
 import numpy as np
 import pickle
-import re
-
 import pytest
+import re
 from ruamel import yaml
-from .utilities import allow_deprecated
+import sys
 
 import cantera as ct
 
@@ -16,16 +13,22 @@ except ImportError:
     pass
 
 from cantera.composite import _pandas
+
 from . import utilities
+from .utilities import allow_deprecated
+from .utilities import (
+    assertNear,
+    assertArrayNear
 
+)
 
-class TestModels(utilities.CanteraTest):
+@pytest.fixture(scope='class')
+def setup_models_tests(request, load_yaml):
+    request.cls.yml_file = request.cls.test_data_path / "thermo-models.yaml"
+    request.cls.yml = load_yaml(request.cls.yml_file)
 
-    @classmethod
-    def setup_class(cls):
-        super().setup_class()
-        cls.yml_file = cls.test_data_path / "thermo-models.yaml"
-        cls.yml = utilities.load_yaml(cls.yml_file)
+@pytest.mark.usefixtures('setup_models_tests')
+class TestModels():
 
     def test_load_thermo_models(self):
         for ph in self.yml['phases']:
@@ -74,9 +77,9 @@ class TestModels(utilities.CanteraTest):
     def test_restore_thermo_models(self):
 
         def check(a, b):
-            self.assertArrayNear(a.T, b.T)
-            self.assertArrayNear(a.P, b.P)
-            self.assertArrayNear(a.X, b.X)
+            assertArrayNear(a.T, b.T)
+            assertArrayNear(a.P, b.P)
+            assertArrayNear(a.X, b.X)
 
         for ph in self.yml['phases']:
 
@@ -127,7 +130,7 @@ class TestModels(utilities.CanteraTest):
                     raise TypeError(msg) from inst
 
 
-class TestPickle(utilities.CanteraTest):
+class TestPickle():
 
     def test_pickle_gas(self):
         gas = ct.Solution("h2o2.yaml", transport_model=None)
@@ -137,9 +140,9 @@ class TestPickle(utilities.CanteraTest):
 
         with open(self.test_work_path / "gas.pkl", "rb") as pkl:
             gas2 = pickle.load(pkl)
-        self.assertNear(gas.T, gas2.T)
-        self.assertNear(gas.P, gas2.P)
-        self.assertArrayNear(gas.X, gas2.X)
+        assertNear(gas.T, gas2.T)
+        assertNear(gas.P, gas2.P)
+        assertArrayNear(gas.X, gas2.X)
 
         assert  gas2.transport_model == "none"
 
@@ -152,9 +155,9 @@ class TestPickle(utilities.CanteraTest):
 
         with open(self.test_work_path / "gas.pkl", "rb") as pkl:
             gas2 = pickle.load(pkl)
-        self.assertNear(gas.T, gas2.T)
-        self.assertNear(gas.P, gas2.P)
-        self.assertArrayNear(gas.X, gas2.X)
+        assertNear(gas.T, gas2.T)
+        assertNear(gas.P, gas2.P)
+        assertArrayNear(gas.X, gas2.X)
 
         assert gas2.transport_model == "multicomponent"
 
@@ -165,13 +168,12 @@ class TestPickle(utilities.CanteraTest):
             with open(self.test_work_path / "interface.pkl", "wb") as pkl:
                 pickle.dump(interface, pkl)
 
-
-class TestEmptyThermoPhase(utilities.CanteraTest):
+@pytest.fixture(scope='class')
+def setup_empty_thermo_phase_tests(request):
+    request.cls.gas = ct.ThermoPhase()
+@pytest.mark.usefixtures('setup_empty_thermo_phase_tests')
+class TestEmptyThermoPhase():
     """ Test empty Solution object """
-    @classmethod
-    def setup_class(cls):
-        super().setup_class()
-        cls.gas = ct.ThermoPhase()
 
     def test_empty_report(self):
         with pytest.raises(NotImplementedError):
@@ -186,19 +188,19 @@ class TestEmptyThermoPhase(utilities.CanteraTest):
             self.gas.equilibrate("TP")
 
 
-class TestEmptySolution(utilities.CanteraTest):
+class TestEmptySolution():
     """ Test empty Solution object """
-    @classmethod
-    def setup_class(cls):
-        super().setup_class()
-        cls.gas = ct.Solution()
 
-    def test_empty_composite(self):
-        assert self.gas.thermo_model == "none"
-        assert self.gas.composite ==  ("none", "none", "none")
+    @pytest.fixture(scope='function')
+    def gas(self):
+        return ct.Solution()
+
+    def test_empty_composite(self, gas):
+        assert gas.thermo_model == "none"
+        assert gas.composite ==  ("none", "none", "none")
 
 
-class TestEmptyEdgeCases(utilities.CanteraTest):
+class TestEmptyEdgeCases():
     """ Test for edge cases where constructors are not allowed """
     def test_empty_phase(self):
         with pytest.raises(ValueError, match="Arguments are insufficient to define a phase"):
@@ -213,35 +215,35 @@ class TestEmptyEdgeCases(utilities.CanteraTest):
             ct.Transport()
 
 
-class TestSolutionArray(utilities.CanteraTest):
+class TestSolutionArray():
     """ Test SolutionArray basics """
-    @classmethod
-    def setup_class(cls):
-        super().setup_class()
-        cls.gas = ct.Solution('h2o2.yaml', transport_model=None)
 
-    def test_from_state_scalar(self):
-        state = list(self.gas.state)
-        arr = ct.SolutionArray(self.gas, states=[state])
+    @pytest.fixture(scope='function')
+    def gas(self):
+        return ct.Solution('h2o2.yaml', transport_model=None)
+
+    def test_from_state_scalar(self, gas):
+        state = list(gas.state)
+        arr = ct.SolutionArray(gas, states=[state])
         assert arr.shape == (1,)
 
-    def test_from_state_list(self):
-        states = [list(self.gas.state)] * 5
-        arr = ct.SolutionArray(self.gas, states=states)
+    def test_from_state_list(self, gas):
+        states = [list(gas.state)] * 5
+        arr = ct.SolutionArray(gas, states=states)
         assert arr.shape == (5,)
 
-    def test_from_state_array(self):
-        states = [[list(self.gas.state)] * 5] * 3
-        arr = ct.SolutionArray(self.gas, states=states)
+    def test_from_state_array(self, gas):
+        states = [[list(gas.state)] * 5] * 3
+        arr = ct.SolutionArray(gas, states=states)
         assert arr.shape == (3, 5) # shape is based on numpy conversion
 
-    def test_slice_twice(self):
+    def test_slice_twice(self, gas):
         T_list = np.linspace(300, 1000, 8)
-        self.gas.TPX = T_list[0], ct.one_atm, {"H2": 1.}
-        arr = ct.SolutionArray(self.gas)
+        gas.TPX = T_list[0], ct.one_atm, {"H2": 1.}
+        arr = ct.SolutionArray(gas)
         for T in T_list[1:]:
-            self.gas.TPX = T, ct.one_atm, {"H2": 1.}
-            arr.append(self.gas.state)
+            gas.TPX = T, ct.one_atm, {"H2": 1.}
+            arr.append(gas.state)
         ix = 4
         arr_trunc = arr[ix:]
         assert arr_trunc.T[0] == arr.T[ix]
@@ -253,19 +255,19 @@ class TestSolutionArray(utilities.CanteraTest):
         with pytest.raises(IndexError):
             arr_trunc[10]
 
-    def test_from_state_numpy(self):
-        states = np.array([[list(self.gas.state)] * 5] * 3)
-        arr = ct.SolutionArray(self.gas, states=states)
+    def test_from_state_numpy(self, gas):
+        states = np.array([[list(gas.state)] * 5] * 3)
+        arr = ct.SolutionArray(gas, states=states)
         assert arr.shape == (3, 5)
 
-    def test_missing_attribute(self):
-        arr = ct.SolutionArray(self.gas, 5, extra={"spam": 0})
+    def test_missing_attribute(self, gas):
+        arr = ct.SolutionArray(gas, 5, extra={"spam": 0})
         assert len(arr.spam) == 5
         with pytest.raises(AttributeError, match="no attribute"):
             arr.eggs
 
-    def test_auxiliary(self):
-        arr = ct.SolutionArray(self.gas, 5, extra={"spam": 0})
+    def test_auxiliary(self, gas):
+        arr = ct.SolutionArray(gas, 5, extra={"spam": 0})
         arr.spam = np.arange(5)
         assert len(arr.spam) == 5
         assert arr.get_auxiliary(4) == {"spam": 4}
@@ -317,14 +319,13 @@ class TestSolutionArray(utilities.CanteraTest):
         assert arr.net_production_rates.size == gas.n_species
 
 
-class TestSolutionArrayInfo(utilities.CanteraTest):
+@pytest.fixture(scope='class')
+def setup_solution_array_info_tests(request):
+    request.cls.gas = ct.Solution('h2o2.yaml', transport_model=None)
+@pytest.mark.usefixtures('setup_solution_array_info_tests')
+class TestSolutionArrayInfo():
     """ Test SolutionArray summary output """
     width = 80
-
-    @classmethod
-    def setup_class(cls):
-        super().setup_class()
-        cls.gas = ct.Solution('h2o2.yaml', transport_model=None)
 
     def setup_method(self):
         """ Runs before each test """
@@ -432,13 +433,13 @@ class TestSolutionArrayInfo(utilities.CanteraTest):
         arr = ct.SolutionArray(w, 15, extra={"spam": np.arange(15, dtype=int)})
         self.check(arr, arr.info(rows=7, width=self.width), 8)
 
+@pytest.fixture(scope='class')
+def setup_solution_array_io_tests(request):
+    request.cls.gas = ct.Solution('h2o2.yaml', transport_model=None)
 
-class TestSolutionArrayIO(utilities.CanteraTest):
+@pytest.mark.usefixtures('setup_solution_array_io_tests')
+class TestSolutionArrayIO():
     """ Test SolutionArray file IO """
-    @classmethod
-    def setup_class(cls):
-        super().setup_class()
-        cls.gas = ct.Solution('h2o2.yaml', transport_model=None)
 
     def test_collect_data(self):
         states = ct.SolutionArray(self.gas)
@@ -467,7 +468,7 @@ class TestSolutionArrayIO(utilities.CanteraTest):
         states.append(gas.state)
         assert states[0].T == gas.T
         assert states[0].P == gas.P
-        self.assertArrayNear(states[0].X, gas.X)
+        assertArrayNear(states[0].X, gas.X)
         assert len(states) == 1
         assert states.shape == (1,)
         assert states.ndim == 1
@@ -481,7 +482,7 @@ class TestSolutionArrayIO(utilities.CanteraTest):
         states.append(T=gas.T, P=gas.P, Y=gas.Y, normalize=False)
         assert states[0].T == gas.T
         assert states[0].P == gas.P
-        self.assertArrayNear(states[0].Y, gas.Y)
+        assertArrayNear(states[0].Y, gas.Y)
 
     @pytest.mark.skipif("native" not in ct.hdf_support(),
                         reason="Cantera compiled without HDF support")
@@ -497,20 +498,20 @@ class TestSolutionArrayIO(utilities.CanteraTest):
         gas_new = ct.Solution("h2o2.yaml")
         b = ct.SolutionArray(gas_new)
         b.restore(outfile, "group0") #, normalize=False)
-        self.assertArrayNear(states.T, b.T)
-        self.assertArrayNear(states.P, b.P)
-        self.assertArrayNear(states.X, b.X)
+        assertArrayNear(states.T, b.T)
+        assertArrayNear(states.P, b.P)
+        assertArrayNear(states.X, b.X)
 
     def check_arrays(self, a, b, rtol=1e-8):
-        self.assertArrayNear(a.T, b.T, rtol=rtol)
-        self.assertArrayNear(a.P, b.P, rtol=rtol)
-        self.assertArrayNear(a.X, b.X, rtol=rtol)
+        assertArrayNear(a.T, b.T, rtol=rtol)
+        assertArrayNear(a.P, b.P, rtol=rtol)
+        assertArrayNear(a.X, b.X, rtol=rtol)
         for key in a.extra:
             value = getattr(a, key)
             if isinstance(value[0], str):
                 assert (getattr(b, key) == value).all()
             else:
-                self.assertArrayNear(getattr(b, key), value, rtol=rtol)
+                assertArrayNear(getattr(b, key), value, rtol=rtol)
         if b.meta:
             # not all output formats preserve metadata
             for key, value in a.meta.items():
@@ -739,23 +740,27 @@ class TestSolutionArrayIO(utilities.CanteraTest):
         return outfile, outfile2
 
 
-class TestLegacyHDF(utilities.CanteraTest):
-    # Test SolutionArray legacy HDF file input
-    #
-    # All input files were created using the Cantera 2.6 Python test suite:
-    # - solutionarray_fancy_legacy.h5
-    #   -> test_composite.py::TestSolutionArrayIO::test_write_hdf
-    # - solutionarray_str_legacy.h5
-    #   -> test_composite.py::TestSolutionArrayIO::test_write_hdf_str_column
-    # - solutionarray_multi_legacy.h5
-    #   -> test_composite.py::TestSolutionArrayIO::test_write_hdf_multi_column
-    # - solutionarray_no_norm_legacy.h5
-    #   -> test_composite.py::TestSolutionArrayIO::test_import_no_norm_data
-    # - solutionarray_water_legacy.h5
-    #   -> test_composite.py::TestRestorePureFluid::test_import_no_norm_water
-    def setup_method(self):
-        """ Runs before each test """
-        self.gas = ct.Solution('h2o2.yaml', transport_model=None)
+@pytest.fixture(scope='function')
+def setup_legacy_hdf_tests(request):
+    request.cls.gas = ct.Solution('h2o2.yaml', transport_model=None)
+
+@pytest.mark.usefixtures('setup_legacy_hdf_tests')
+class TestLegacyHDF():
+    """
+    Test SolutionArray legacy HDF file input
+
+    All input files were created using the Cantera 2.6 Python test suite:
+    - solutionarray_fancy_legacy.h5
+      -> test_composite.py::TestSolutionArrayIO::test_write_hdf
+    - solutionarray_str_legacy.h5
+      -> test_composite.py::TestSolutionArrayIO::test_write_hdf_str_column
+    - solutionarray_multi_legacy.h5
+      -> test_composite.py::TestSolutionArrayIO::test_write_hdf_multi_column
+    - solutionarray_no_norm_legacy.h5
+      -> test_composite.py::TestSolutionArrayIO::test_import_no_norm_data
+     - solutionarray_water_legacy.h5
+      -> test_composite.py::TestRestorePureFluid::test_import_no_norm_water
+    """
 
     @pytest.mark.xfail(reason="Unable to read fixed length strings from HDF")
     @pytest.mark.skipif("native" not in ct.hdf_support(),
@@ -790,7 +795,7 @@ class TestLegacyHDF(utilities.CanteraTest):
         infile = self.test_data_path / f"solutionarray_multi_legacy.h5"
 
         b.restore(infile, "group0")
-        self.assertArrayNear(arr.spam, b.spam)
+        assertArrayNear(arr.spam, b.spam)
 
     @pytest.mark.skipif("native" not in ct.hdf_support(),
                         reason="Cantera compiled without HDF support")
@@ -809,11 +814,11 @@ class TestLegacyHDF(utilities.CanteraTest):
         infile = self.test_data_path / f"solutionarray_fancy_legacy.h5"
         b = ct.SolutionArray(self.gas)
         attr = b.restore(infile, "group0")
-        self.assertArrayNear(states.T, b.T)
-        self.assertArrayNear(states.P, b.P)
-        self.assertArrayNear(states.X, b.X)
-        self.assertArrayNear(states.foo, b.foo)
-        self.assertArrayNear(states.bar, b.bar)
+        assertArrayNear(states.T, b.T)
+        assertArrayNear(states.P, b.P)
+        assertArrayNear(states.X, b.X)
+        assertArrayNear(states.foo, b.foo)
+        assertArrayNear(states.bar, b.bar)
         assert b.meta['spam'] == 'eggs'
         assert b.meta['hello'] == 'world'
         assert attr['foobar'] == 'spam and eggs'
@@ -836,9 +841,9 @@ class TestLegacyHDF(utilities.CanteraTest):
             b.read_hdf(infile, normalize=False)
         else:
             b.restore(infile, "group0")
-        self.assertArrayNear(states.T, b.T, rtol=1e-7)
-        self.assertArrayNear(states.P, b.P, rtol=1e-7)
-        self.assertArrayNear(states.X, b.X, rtol=1e-7)
+        assertArrayNear(states.T, b.T, rtol=1e-7)
+        assertArrayNear(states.P, b.P, rtol=1e-7)
+        assertArrayNear(states.X, b.X, rtol=1e-7)
 
     @pytest.mark.skipif("native" not in ct.hdf_support(),
                         reason="Cantera compiled without HDF support")
@@ -853,29 +858,30 @@ class TestLegacyHDF(utilities.CanteraTest):
         infile = self.test_data_path / "solutionarray_water_legacy.h5"
         c = ct.SolutionArray(w_new)
         c.restore(infile, "group0")
-        self.assertArrayNear(states.T, c.T, rtol=1e-7)
-        self.assertArrayNear(states.P, c.P, rtol=1e-7)
-        self.assertArrayNear(states.Q, c.Q, rtol=1e-7)
+        assertArrayNear(states.T, c.T, rtol=1e-7)
+        assertArrayNear(states.P, c.P, rtol=1e-7)
+        assertArrayNear(states.Q, c.Q, rtol=1e-7)
 
 
-class TestRestoreIdealGas(utilities.CanteraTest):
+@pytest.fixture(scope='class')
+def setup_restore_ideal_gas_tests(request):
+    request.cls.gas = ct.Solution('h2o2.yaml', transport_model=None)
+
+@pytest.mark.usefixtures('setup_restore_ideal_gas_tests')
+class TestRestoreIdealGas():
     """ Test restoring of the IdealGas class """
-    @classmethod
-    def setup_class(cls):
-        super().setup_class()
-        cls.gas = ct.Solution('h2o2.yaml', transport_model=None)
 
     def test_restore_gas(self):
 
         def check(a, b, atol=None):
             if atol is None:
-                self.assertArrayNear(a.T, b.T)
-                self.assertArrayNear(a.P, b.P)
-                self.assertArrayNear(a.X, b.X)
+                assertArrayNear(a.T, b.T)
+                assertArrayNear(a.P, b.P)
+                assertArrayNear(a.X, b.X)
             else:
-                self.assertArrayNear(a.T, b.T, atol=atol)
-                self.assertArrayNear(a.P, b.P, atol=atol)
-                self.assertArrayNear(a.X, b.X, atol=atol)
+                assertArrayNear(a.T, b.T, atol=atol)
+                assertArrayNear(a.P, b.P, atol=atol)
+                assertArrayNear(a.X, b.X, atol=atol)
 
         # test ThermoPhase
         a = ct.SolutionArray(self.gas)
@@ -897,8 +903,8 @@ class TestRestoreIdealGas(utilities.CanteraTest):
         # skip concentrations
         b = ct.SolutionArray(self.gas)
         b.restore_data({'T': data['T'], 'density': data['density']})
-        self.assertArrayNear(a.T, b.T)
-        self.assertArrayNear(a.density, b.density)
+        assertArrayNear(a.T, b.T)
+        assertArrayNear(a.density, b.density)
         assert not np.allclose(a.X, b.X)
 
         # wrong data shape
@@ -930,7 +936,7 @@ class TestRestoreIdealGas(utilities.CanteraTest):
         b = ct.SolutionArray(self.gas, extra=('time',))
         b.restore_data(data_mod)
         check(a, b)
-        self.assertArrayNear(b.time, t)
+        assertArrayNear(b.time, t)
 
         # wrong extra
         b = ct.SolutionArray(self.gas, extra=('xyz',))
@@ -967,20 +973,20 @@ class TestRestoreIdealGas(utilities.CanteraTest):
         check(a, b)
         assert len(b.extra) == 0
 
+@pytest.fixture(scope='class')
+def setup_restore_pure_fluid_tests(request):
+    request.cls.water = ct.Water()
 
-class TestRestorePureFluid(utilities.CanteraTest):
+@pytest.mark.usefixtures('setup_restore_pure_fluid_tests')
+class TestRestorePureFluid():
     """ Test restoring of the PureFluid class """
-    @classmethod
-    def setup_class(cls):
-        super().setup_class()
-        cls.water = ct.Water()
 
     def test_restore_water(self):
 
         def check(a, b):
-            self.assertArrayNear(a.T, b.T)
-            self.assertArrayNear(a.P, b.P)
-            self.assertArrayNear(a.Q, b.Q)
+            assertArrayNear(a.T, b.T)
+            assertArrayNear(a.P, b.P)
+            assertArrayNear(a.Q, b.Q)
 
         assert self.water.has_phase_transition
 
@@ -1030,9 +1036,9 @@ class TestRestorePureFluid(utilities.CanteraTest):
         w_new = ct.Water()
         c = ct.SolutionArray(w_new)
         c.restore(outfile, "group0") # normalize=False)
-        self.assertArrayNear(states.T, c.T)
-        self.assertArrayNear(states.P, c.P)
-        self.assertArrayNear(states.Q, c.Q)
+        assertArrayNear(states.T, c.T)
+        assertArrayNear(states.P, c.P)
+        assertArrayNear(states.Q, c.Q)
 
     def test_append_no_norm_water(self):
         w = ct.Water()
@@ -1060,13 +1066,15 @@ class TestRestorePureFluid(utilities.CanteraTest):
 
         saved = ct.SolutionArray(water)
         saved.restore(outfile, "group0") # normalize=False)
-        self.assertArrayNear(states.T, saved.T)
-        self.assertArrayNear(states.P, saved.P)
-        self.assertArrayNear(states.Q, saved.Q)
+        assertArrayNear(states.T, saved.T)
+        assertArrayNear(states.P, saved.P)
+        assertArrayNear(states.Q, saved.Q)
         assert list(saved.phase_of_matter) == pom
 
 
-class TestSolutionSerialization(utilities.CanteraTest):
+class TestSolutionSerialization():
+    """ Test Solution serialization """
+
     def test_input_data_simple(self):
         gas = ct.Solution('h2o2.yaml')
         data = gas.input_data
@@ -1122,13 +1130,13 @@ class TestSolutionSerialization(utilities.CanteraTest):
         assert 'kinetics' not in data
         assert 'transport' not in data
 
-    def test_yaml_simple(self):
+    def test_yaml_simple(self, load_yaml):
         gas = ct.Solution('h2o2.yaml')
         gas.TPX = 500, ct.one_atm, 'H2: 1.0, O2: 1.0'
         gas.equilibrate('HP')
         gas.TP = 1500, ct.one_atm
         gas.write_yaml(self.test_work_path / "h2o2-generated.yaml")
-        generated = utilities.load_yaml(self.test_work_path / "h2o2-generated.yaml")
+        generated = load_yaml(self.test_work_path / "h2o2-generated.yaml")
         for key in ('generator', 'date', 'phases', 'species', 'reactions'):
             assert key in generated
         assert generated['phases'][0]['transport'] == 'mixture-averaged'
@@ -1138,38 +1146,38 @@ class TestSolutionSerialization(utilities.CanteraTest):
             assert blessed.equation == generated["equation"]
 
         gas2 = ct.Solution(self.test_work_path / "h2o2-generated.yaml")
-        self.assertArrayNear(gas.concentrations, gas2.concentrations)
-        self.assertArrayNear(gas.partial_molar_enthalpies,
-                             gas2.partial_molar_enthalpies)
-        self.assertArrayNear(gas.forward_rate_constants,
-                             gas2.forward_rate_constants)
-        self.assertArrayNear(gas.mix_diff_coeffs, gas2.mix_diff_coeffs)
+        assertArrayNear(gas.concentrations, gas2.concentrations)
+        assertArrayNear(gas.partial_molar_enthalpies,
+                        gas2.partial_molar_enthalpies)
+        assertArrayNear(gas.forward_rate_constants,
+                        gas2.forward_rate_constants)
+        assertArrayNear(gas.mix_diff_coeffs, gas2.mix_diff_coeffs)
 
-    def test_yaml_outunits1(self):
+    def test_yaml_outunits1(self, load_yaml):
         gas = ct.Solution('h2o2.yaml')
         gas.TPX = 500, ct.one_atm, 'H2: 1.0, O2: 1.0'
         gas.equilibrate('HP')
         gas.TP = 1500, ct.one_atm
         units = {'length': 'cm', 'quantity': 'mol', 'energy': 'cal'}
         gas.write_yaml(self.test_work_path / "h2o2-generated.yaml", units=units)
-        generated = utilities.load_yaml(self.test_work_path / "h2o2-generated.yaml")
-        original = utilities.load_yaml(self.cantera_data_path / "h2o2.yaml")
+        generated = load_yaml(self.test_work_path / "h2o2-generated.yaml")
+        original = load_yaml(self.cantera_data_path / "h2o2.yaml")
         assert generated['units'] == units
 
         for r1, r2 in zip(original['reactions'], generated['reactions']):
             if 'rate-constant' in r1:
-                self.assertNear(r1['rate-constant']['A'], r2['rate-constant']['A'])
-                self.assertNear(r1['rate-constant']['Ea'], r2['rate-constant']['Ea'])
+                assertNear(r1['rate-constant']['A'], r2['rate-constant']['A'])
+                assertNear(r1['rate-constant']['Ea'], r2['rate-constant']['Ea'])
 
         gas2 = ct.Solution(self.test_work_path / "h2o2-generated.yaml")
-        self.assertArrayNear(gas.concentrations, gas2.concentrations)
-        self.assertArrayNear(gas.partial_molar_enthalpies,
-                             gas2.partial_molar_enthalpies)
-        self.assertArrayNear(gas.forward_rate_constants,
-                             gas2.forward_rate_constants)
-        self.assertArrayNear(gas.mix_diff_coeffs, gas2.mix_diff_coeffs)
+        assertArrayNear(gas.concentrations, gas2.concentrations)
+        assertArrayNear(gas.partial_molar_enthalpies,
+                        gas2.partial_molar_enthalpies)
+        assertArrayNear(gas.forward_rate_constants,
+                        gas2.forward_rate_constants)
+        assertArrayNear(gas.mix_diff_coeffs, gas2.mix_diff_coeffs)
 
-    def test_yaml_outunits2(self):
+    def test_yaml_outunits2(self, load_yaml):
         gas = ct.Solution('h2o2.yaml')
         gas.TPX = 500, ct.one_atm, 'H2: 1.0, O2: 1.0'
         gas.equilibrate('HP')
@@ -1177,24 +1185,25 @@ class TestSolutionSerialization(utilities.CanteraTest):
         units = {'length': 'cm', 'quantity': 'mol', 'energy': 'cal'}
         system = ct.UnitSystem(units)
         gas.write_yaml(self.test_work_path / "h2o2-generated.yaml", units=system)
-        generated = utilities.load_yaml(self.test_work_path / "h2o2-generated.yaml")
-        original = utilities.load_yaml(self.cantera_data_path / "h2o2.yaml")
+        generated = load_yaml(self.test_work_path / "h2o2-generated.yaml")
+        original = load_yaml(self.cantera_data_path / "h2o2.yaml")
 
         for r1, r2 in zip(original['reactions'], generated['reactions']):
             if 'rate-constant' in r1:
-                self.assertNear(r1['rate-constant']['A'], r2['rate-constant']['A'])
-                self.assertNear(r1['rate-constant']['Ea'], r2['rate-constant']['Ea'])
+                assertNear(r1['rate-constant']['A'], r2['rate-constant']['A'])
+                assertNear(r1['rate-constant']['Ea'], r2['rate-constant']['Ea'])
 
         gas2 = ct.Solution(self.test_work_path / "h2o2-generated.yaml")
-        self.assertArrayNear(gas.concentrations, gas2.concentrations)
-        self.assertArrayNear(gas.partial_molar_enthalpies,
-                             gas2.partial_molar_enthalpies)
-        self.assertArrayNear(gas.forward_rate_constants,
-                             gas2.forward_rate_constants)
-        self.assertArrayNear(gas.mix_diff_coeffs, gas2.mix_diff_coeffs)
+        assertArrayNear(gas.concentrations, gas2.concentrations)
+        assertArrayNear(gas.partial_molar_enthalpies,
+                        gas2.partial_molar_enthalpies)
+        assertArrayNear(gas.forward_rate_constants,
+                        gas2.forward_rate_constants)
+        assertArrayNear(gas.mix_diff_coeffs, gas2.mix_diff_coeffs)
 
-    def check_ptcombust(self, gas, surf):
-        generated = utilities.load_yaml(self.test_work_path / "ptcombust-generated.yaml")
+    @pytest.mark.usefixtures('load_yaml')
+    def check_ptcombust(self, gas, surf, load_yaml):
+        generated = load_yaml(self.test_work_path / "ptcombust-generated.yaml")
         for key in ("phases", "species", "gas-reactions", "Pt_surf-reactions"):
             assert key in generated
         assert len(generated["gas-reactions"]) == gas.n_reactions
@@ -1202,27 +1211,27 @@ class TestSolutionSerialization(utilities.CanteraTest):
         assert len(generated["species"]) == surf.n_total_species
 
         surf2 = ct.Solution(self.test_work_path / "ptcombust-generated.yaml", "Pt_surf")
-        self.assertArrayNear(surf.concentrations, surf2.concentrations)
-        self.assertArrayNear(surf.partial_molar_enthalpies,
-                             surf2.partial_molar_enthalpies)
-        self.assertArrayNear(surf.forward_rate_constants,
-                             surf2.forward_rate_constants)
+        assertArrayNear(surf.concentrations, surf2.concentrations)
+        assertArrayNear(surf.partial_molar_enthalpies,
+                        surf2.partial_molar_enthalpies)
+        assertArrayNear(surf.forward_rate_constants,
+                        surf2.forward_rate_constants)
 
-    def test_yaml_surface_explicit(self):
+    def test_yaml_surface_explicit(self, load_yaml):
         gas = ct.Solution("ptcombust.yaml", "gas")
         surf = ct.Interface("ptcombust.yaml", "Pt_surf", [gas])
         gas.TPY = 900, ct.one_atm, np.ones(gas.n_species)
         surf.coverages = np.ones(surf.n_species)
         surf.write_yaml(self.test_work_path / "ptcombust-generated.yaml")
-        self.check_ptcombust(gas, surf)
+        self.check_ptcombust(gas, surf, load_yaml)
 
-    def test_yaml_surface_adjacent(self):
+    def test_yaml_surface_adjacent(self, load_yaml):
         surf = ct.Interface("ptcombust.yaml", "Pt_surf")
         gas = surf.adjacent["gas"]
         gas.TPY = 900, ct.one_atm, np.ones(gas.n_species)
         surf.coverages = np.ones(surf.n_species)
         surf.write_yaml(self.test_work_path / "ptcombust-generated.yaml")
-        self.check_ptcombust(gas, surf)
+        self.check_ptcombust(gas, surf, load_yaml)
 
     def test_yaml_eos(self):
         ice = ct.Solution('water.yaml', 'ice')
@@ -1230,8 +1239,8 @@ class TestSolutionSerialization(utilities.CanteraTest):
         ice.write_yaml(self.test_work_path / "ice-generated.yaml", units={'length': 'mm', 'mass': 'g'})
 
         ice2 = ct.Solution(self.test_work_path / "ice-generated.yaml")
-        self.assertNear(ice.density, ice2.density)
-        self.assertNear(ice.entropy_mole, ice2.entropy_mole)
+        assertNear(ice.density, ice2.density)
+        assertNear(ice.entropy_mole, ice2.entropy_mole)
 
     def test_yaml_inconsistent_species(self):
         gas = ct.Solution('h2o2.yaml', transport_model=None)
@@ -1331,7 +1340,8 @@ class TestSolutionSerialization(utilities.CanteraTest):
         assert not gas_reduced.reaction(24).duplicate
 
 
-class TestSpeciesSerialization(utilities.CanteraTest):
+class TestSpeciesSerialization():
+
     def test_species_simple(self):
         gas = ct.Solution('h2o2.yaml', transport_model=None)
         data = gas.species('H2O').input_data
@@ -1350,10 +1360,10 @@ class TestSpeciesSerialization(utilities.CanteraTest):
         data = gas.species('H2O').input_data['transport']
         assert data['model'] == 'gas'
         assert data['geometry'] == 'nonlinear'
-        self.assertNear(data['dipole'], 1.844)
+        assertNear(data['dipole'], 1.844)
 
 
-class TestInterfaceAdjacent(utilities.CanteraTest):
+class TestInterfaceAdjacent():
     def test_surface(self):
         surf = ct.Interface("ptcombust.yaml", "Pt_surf")
         assert list(surf.adjacent) == ["gas"]
@@ -1375,7 +1385,7 @@ class TestInterfaceAdjacent(utilities.CanteraTest):
         gas1 = tpb.adjacent["metal_surface"].adjacent["gas"]
         gas2 = tpb.adjacent["oxide_surface"].adjacent["gas"]
         gas1.X = [0.1, 0.4, 0.3, 0.2]
-        self.assertArrayNear(gas1.X, gas2.X)
+        assertArrayNear(gas1.X, gas2.X)
 
     def test_invalid(self):
         with pytest.raises(ct.CanteraError, match="does not contain"):
