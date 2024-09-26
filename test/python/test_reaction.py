@@ -2246,5 +2246,3 @@ class TestElectronCollisionPlasmaReaction(ReactionTests):
         rate_obj = rxn.rate.__class__(input_data=rate_input_data)
         rxn2 = self.from_rate(rate_obj)
         self.check_rxn(rxn2)
-
-

@@ -1206,4 +1206,3 @@ class FullPlatinumHydrogen(SurfaceFullTests):
         cls.gas_tpx = cls.gas.TPX
         cls.surf_tpx = cls.surf.TPX
         super().setup_class()
-
