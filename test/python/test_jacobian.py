@@ -4,12 +4,48 @@ import pytest
 import cantera as ct
 from . import utilities
 from .utilities import has_temperature_derivative_warnings
+from .utilities import (
+    assertNear,
+    assertArrayNear
+)
 
+
+@pytest.fixture(scope='class')
+def setup_rate_expression_tests(request):
+    request.cls.tpx = request.cls.gas.TPX
+
+    request.cls.r_stoich = request.cls.gas.reactant_stoich_coeffs
+    request.cls.p_stoich = request.cls.gas.product_stoich_coeffs
+
+    request.cls.rxn = request.cls.gas.reactions()[request.cls.rxn_idx]
+    request.cls.rix = [request.cls.gas.species_index(k) for k in request.cls.rxn.reactants.keys()]
+    request.cls.pix = [request.cls.gas.species_index(k) for k in request.cls.rxn.products.keys()]
+
+@pytest.fixture(scope='function')
+def setup_rate_expression_data(request, setup_rate_expression_tests):
+    request.cls.gas.TPX = request.cls.tpx
+    request.cls.gas.set_multiplier(0.)
+    request.cls.gas.set_multiplier(1., request.cls.rxn_idx)
+    request.cls.gas.derivative_settings = {} # reset defaults
+
+    # check stoichiometric coefficient output
+    for k, v in request.cls.rxn.reactants.items():
+        ix = request.cls.gas.species_index(k)
+        assert request.cls.r_stoich[ix, request.cls.rxn_idx] == v
+    for k, v in request.cls.rxn.products.items():
+        ix = request.cls.gas.species_index(k)
+        assert request.cls.p_stoich[ix, request.cls.rxn_idx] == v
 
 class RateExpressionTests:
-    # Generic test class to check derivatives evaluated for a single reaction within
-    # a reaction mechanism
+    """
+    Generic test class to check derivatives evaluated for a single reaction within
+    a reaction mechanism. It is the responsibility of the deriving class to provide,
+    at the minimum, the following class attributes:
 
+    gas
+    tpx
+
+    """
     rxn_idx = None # index of reaction to be tested
     phase = None
     rtol = 1e-5
@@ -17,32 +53,8 @@ class RateExpressionTests:
     ix3b = [] # three-body indices
     equation = None
     rate_type = None
-
-    @classmethod
-    def setup_class(cls):
-        cls.tpx = cls.gas.TPX
-
-        cls.r_stoich = cls.gas.reactant_stoich_coeffs
-        cls.p_stoich = cls.gas.product_stoich_coeffs
-
-        cls.rxn = cls.gas.reactions()[cls.rxn_idx]
-        cls.rix = [cls.gas.species_index(k) for k in cls.rxn.reactants.keys()]
-        cls.pix = [cls.gas.species_index(k) for k in cls.rxn.products.keys()]
-
-    def setup_method(self):
-        """ Runs before tests """
-        self.gas.TPX = self.tpx
-        self.gas.set_multiplier(0.)
-        self.gas.set_multiplier(1., self.rxn_idx)
-        self.gas.derivative_settings = {} # reset defaults
-
-        # check stoichiometric coefficient output
-        for k, v in self.rxn.reactants.items():
-            ix = self.gas.species_index(k)
-            assert self.r_stoich[ix, self.rxn_idx] == v
-        for k, v in self.rxn.products.items():
-            ix = self.gas.species_index(k)
-            assert self.p_stoich[ix, self.rxn_idx] == v
+    gas = None
+    tpx = None
 
     def test_input(self):
         # ensure that correct equation is referenced
@@ -97,11 +109,11 @@ class RateExpressionTests:
                 order = self.r_stoich[spc_ix, self.rxn_idx]
             else:
                 order = self.orders[self.gas.species_names[spc_ix]]
-            self.assertNear(rop[self.rxn_idx],
+            assertNear(rop[self.rxn_idx],
                 drop[self.rxn_idx, spc_ix] * self.gas.X[spc_ix] / order)
 
             drop_num = self.rop_derivs(spc_ix, mode="forward")
-            self.assertArrayNear(dropm[:, spc_ix] + dropp * self.gas.P, drop_num, self.rtol)
+            assertArrayNear(dropm[:, spc_ix] + dropp * self.gas.P, drop_num, self.rtol)
 
         if isinstance(self.rxn.rate, ct.FalloffRate):
             return
@@ -123,11 +135,11 @@ class RateExpressionTests:
         rop = self.gas.reverse_rates_of_progress
         for spc_ix in self.pix:
             order = self.p_stoich[spc_ix, self.rxn_idx]
-            self.assertNear(rop[self.rxn_idx],
+            assertNear(rop[self.rxn_idx],
                 drop[self.rxn_idx, spc_ix] * self.gas.X[spc_ix] / order)
 
             drop_num = self.rop_derivs(spc_ix, mode="reverse")
-            self.assertArrayNear(dropm[:, spc_ix] + dropp * self.gas.P, drop_num, self.rtol)
+            assertArrayNear(dropm[:, spc_ix] + dropp * self.gas.P, drop_num, self.rtol)
 
         if not self.rxn.reversible or isinstance(self.rxn.rate, ct.FalloffRate):
             return
@@ -148,7 +160,7 @@ class RateExpressionTests:
             drop_num = self.rop_derivs(spc_ix, mode="net")
             ix = drop[:, spc_ix] != 0
             drop_ = drop[:, spc_ix] + dropp * self.gas.P
-            self.assertArrayNear(drop_[ix], drop_num[ix], self.rtol)
+            assertArrayNear(drop_[ix], drop_num[ix], self.rtol)
 
         if not self.rxn.reversible or isinstance(self.rxn.rate, ct.FalloffRate):
             return
@@ -173,11 +185,11 @@ class RateExpressionTests:
                 order = self.r_stoich[spc_ix, self.rxn_idx]
             else:
                 order = self.orders[self.gas.species_names[spc_ix]]
-            self.assertNear(rop[self.rxn_idx],
+            assertNear(rop[self.rxn_idx],
                 drop[self.rxn_idx, spc_ix] * self.gas.concentrations[spc_ix] / order)
 
             drop_num = self.rop_derivs(spc_ix, mode="forward", ddX=False)
-            self.assertArrayNear(dropm[:, spc_ix] + dropp * self.gas.P, drop_num, 1e-3)
+            assertArrayNear(dropm[:, spc_ix] + dropp * self.gas.P, drop_num, 1e-3)
 
         if isinstance(self.rxn.rate, ct.FalloffRate):
             return
@@ -199,11 +211,11 @@ class RateExpressionTests:
         rop = self.gas.reverse_rates_of_progress
         for spc_ix in self.pix:
             order = self.p_stoich[spc_ix, self.rxn_idx]
-            self.assertNear(rop[self.rxn_idx],
+            assertNear(rop[self.rxn_idx],
                 drop[self.rxn_idx, spc_ix] * self.gas.concentrations[spc_ix] / order)
 
             drop_num = self.rop_derivs(spc_ix, mode="reverse", ddX=False)
-            self.assertArrayNear(dropm[:, spc_ix] + dropp * self.gas.P, drop_num, 1e-3)
+            assertArrayNear(dropm[:, spc_ix] + dropp * self.gas.P, drop_num, 1e-3)
 
         if not self.rxn.reversible or isinstance(self.rxn.rate, ct.FalloffRate):
             return
@@ -224,7 +236,7 @@ class RateExpressionTests:
             drop_num = self.rop_derivs(spc_ix, mode="net", ddX=False)
             ix = drop[:, spc_ix] != 0
             drop_ = drop[:, spc_ix] + dropp * self.gas.P
-            self.assertArrayNear(drop_[ix], drop_num[ix], 1e-4)
+            assertArrayNear(drop_[ix], drop_num[ix], 1e-4)
 
         if not self.rxn.reversible or isinstance(self.rxn.rate, ct.FalloffRate):
             return
@@ -255,14 +267,14 @@ class RateExpressionTests:
         drop = self.gas.forward_rates_of_progress_ddT
         drop += self.gas.forward_rates_of_progress_ddC * dcdt
         drop_num = self.rop_ddT(mode="forward", const_p=True)
-        self.assertNear(drop[self.rxn_idx], drop_num, self.rtol)
+        assertNear(drop[self.rxn_idx], drop_num, self.rtol)
 
         # constant density (volume) - need to account for pressure change
         dpdt = self.gas.P / self.gas.T
         drop = self.gas.forward_rates_of_progress_ddT
         drop += self.gas.forward_rates_of_progress_ddP * dpdt
         drop_num = self.rop_ddT(mode="forward")
-        self.assertNear(drop[self.rxn_idx], drop_num, self.rtol)
+        assertNear(drop[self.rxn_idx], drop_num, self.rtol)
 
         if isinstance(self.rxn.rate, ct.FalloffRate):
             return
@@ -280,14 +292,14 @@ class RateExpressionTests:
         drop = self.gas.reverse_rates_of_progress_ddT
         drop += self.gas.reverse_rates_of_progress_ddC * dcdt
         drop_num = self.rop_ddT(mode="reverse", const_p=True)
-        self.assertNear(drop[self.rxn_idx], drop_num, self.rtol)
+        assertNear(drop[self.rxn_idx], drop_num, self.rtol)
 
         # constant density (volume) - need to account for pressure change
         dpdt = self.gas.P / self.gas.T
         drop = self.gas.reverse_rates_of_progress_ddT
         drop += self.gas.reverse_rates_of_progress_ddP * dpdt
         drop_num = self.rop_ddT(mode="reverse")
-        self.assertNear(drop[self.rxn_idx], drop_num, self.rtol)
+        assertNear(drop[self.rxn_idx], drop_num, self.rtol)
 
         if not self.rxn.reversible or isinstance(self.rxn.rate, ct.FalloffRate):
             return
@@ -305,14 +317,14 @@ class RateExpressionTests:
         drop = self.gas.net_rates_of_progress_ddT
         drop += self.gas.net_rates_of_progress_ddC * dcdt
         drop_num = self.rop_ddT(mode="net", const_p=True)
-        self.assertNear(drop[self.rxn_idx], drop_num, self.rtol)
+        assertNear(drop[self.rxn_idx], drop_num, self.rtol)
 
         # constant density (volume) - need to account for pressure change
         dpdt = self.gas.P / self.gas.T
         drop = self.gas.net_rates_of_progress_ddT
         drop += self.gas.net_rates_of_progress_ddP * dpdt
         drop_num = self.rop_ddT(mode="forward") - self.rop_ddT(mode="reverse")
-        self.assertNear(drop[self.rxn_idx], drop_num, self.rtol)
+        assertNear(drop[self.rxn_idx], drop_num, self.rtol)
 
         if not self.rxn.reversible or isinstance(self.rxn.rate, ct.FalloffRate):
             return
@@ -347,7 +359,7 @@ class RateExpressionTests:
         drop = self.gas.forward_rates_of_progress_ddP
         drop += self.gas.forward_rates_of_progress_ddC * dcdp
         drop_num = self.rop_ddP(mode="forward")
-        self.assertNear(drop[self.rxn_idx], drop_num, self.rtol)
+        assertNear(drop[self.rxn_idx], drop_num, self.rtol)
 
     def test_reverse_rop_ddP(self):
         # check derivatives of reverse rop with respect to pressure
@@ -357,7 +369,7 @@ class RateExpressionTests:
         drop = self.gas.reverse_rates_of_progress_ddP
         drop += self.gas.reverse_rates_of_progress_ddC * dcdp
         drop_num = self.rop_ddP(mode="reverse")
-        self.assertNear(drop[self.rxn_idx], drop_num, self.rtol)
+        assertNear(drop[self.rxn_idx], drop_num, self.rtol)
 
     def test_net_rop_ddP(self):
         # check derivatives of net rop with respect to pressure
@@ -367,7 +379,7 @@ class RateExpressionTests:
         drop = self.gas.net_rates_of_progress_ddP
         drop += self.gas.net_rates_of_progress_ddC * dcdp
         drop_num = self.rop_ddP(mode="net")
-        self.assertNear(drop[self.rxn_idx], drop_num, self.rtol)
+        assertNear(drop[self.rxn_idx], drop_num, self.rtol)
 
     def rate_ddT(self, mode=None, const_p=False, rtol=1e-6):
         # numerical derivative for production rates with respect to temperature
@@ -457,7 +469,7 @@ class RateExpressionTests:
             drate_num = self.rate_ddX(spc_ix, "creation")
             ix = drate[:, spc_ix] != 0
             drate[:, spc_ix] += dratep * self.gas.P
-            self.assertArrayNear(drate[ix, spc_ix], drate_num[ix], self.rtol)
+            assertArrayNear(drate[ix, spc_ix], drate_num[ix], self.rtol)
 
     def test_destruction_ddX(self):
         # check derivatives of destruction rates with respect to mole fractions
@@ -467,7 +479,7 @@ class RateExpressionTests:
             drate_num = self.rate_ddX(spc_ix, "destruction")
             ix = drate[:, spc_ix] != 0
             drate[:, spc_ix] += dratep * self.gas.P
-            self.assertArrayNear(drate[ix, spc_ix], drate_num[ix], self.rtol)
+            assertArrayNear(drate[ix, spc_ix], drate_num[ix], self.rtol)
 
     def test_net_production_ddX(self):
         # check derivatives of destruction rates with respect to mole fractions
@@ -477,7 +489,7 @@ class RateExpressionTests:
             drate_num = self.rate_ddX(spc_ix, "net")
             ix = drate[:, spc_ix] != 0
             drate[:, spc_ix] += dratep * self.gas.P
-            self.assertArrayNear(drate[ix, spc_ix], drate_num[ix], self.rtol)
+            assertArrayNear(drate[ix, spc_ix], drate_num[ix], self.rtol)
 
     def test_creation_ddCi(self):
         # check derivatives of creation rates with respect to mole fractions
@@ -487,7 +499,7 @@ class RateExpressionTests:
             drate_num = self.rate_ddX(spc_ix, "creation", ddX=False)
             ix = drate[:, spc_ix] != 0
             drate[:, spc_ix] += dratep * self.gas.P
-            self.assertArrayNear(drate[ix, spc_ix], drate_num[ix], 1e-3)
+            assertArrayNear(drate[ix, spc_ix], drate_num[ix], 1e-3)
 
     def test_destruction_ddCi(self):
         # check derivatives of destruction rates with respect to mole fractions
@@ -497,7 +509,7 @@ class RateExpressionTests:
             drate_num = self.rate_ddX(spc_ix, "destruction", ddX=False)
             ix = drate[:, spc_ix] != 0
             drate[:, spc_ix] += dratep * self.gas.P
-            self.assertArrayNear(drate[ix, spc_ix], drate_num[ix], 1e-3)
+            assertArrayNear(drate[ix, spc_ix], drate_num[ix], 1e-3)
 
     def test_net_production_ddCi(self):
         # check derivatives of destruction rates with respect to mole fractions
@@ -507,52 +519,46 @@ class RateExpressionTests:
             drate_num = self.rate_ddX(spc_ix, "net", ddX=False)
             ix = drate[:, spc_ix] != 0
             # drate[:, spc_ix] += dratep * self.gas.P
-            self.assertArrayNear(drate[ix, spc_ix], drate_num[ix], 1e-3)
+            assertArrayNear(drate[ix, spc_ix], drate_num[ix], 1e-3)
 
 
+@pytest.mark.usefixtures("setup_rate_expression_data")
 class HydrogenOxygen(RateExpressionTests):
-    @classmethod
-    def setup_class(cls):
-        cls.gas = ct.Solution("h2o2.yaml", transport_model=None)
-        #   species: [H2, H, O, O2, OH, H2O, HO2, H2O2, AR, N2]
-        cls.gas.X = [0.1, 1e-4, 1e-5, 0.2, 2e-4, 0.3, 1e-6, 5e-5, 0.3, 0.1]
-        cls.gas.TP = 800, 2 * ct.one_atm
-        super().setup_class()
 
+    gas = ct.Solution("h2o2.yaml", transport_model=None)
+    #   species: [H2, H, O, O2, OH, H2O, HO2, H2O2, AR, N2]
+    gas.X = [0.1, 1e-4, 1e-5, 0.2, 2e-4, 0.3, 1e-6, 5e-5, 0.3, 0.1]
+    gas.TP = 800, 2 * ct.one_atm
 
-
-class TestElementaryRev(HydrogenOxygen, utilities.CanteraTest):
+class TestElementaryRev(HydrogenOxygen):
     # Standard elementary reaction with two reactants
     rxn_idx = 2
     equation = "H2 + O <=> H + OH"
     rate_type = "Arrhenius"
 
-
-class TestElementarySelf(HydrogenOxygen, utilities.CanteraTest):
+class TestElementarySelf(HydrogenOxygen):
     # Elementary reaction with reactant reacting with itself
     rxn_idx = 27
     equation = "2 HO2 <=> H2O2 + O2"
     rate_type = "Arrhenius"
 
-
-class TestFalloff(HydrogenOxygen, utilities.CanteraTest):
+class TestFalloff(HydrogenOxygen):
     # Fall-off reaction
     rxn_idx = 21
     equation = "2 OH (+M) <=> H2O2 (+M)"
     rate_type = "falloff"
     rtol = 1e-4
 
+@pytest.fixture(scope='class')
+def setup_three_body_tests(request, setup_rate_expression_tests):
+    request.cls.ix3b = list(range(request.cls.gas.n_species))
 
-class TestThreeBody(HydrogenOxygen, utilities.CanteraTest):
+@pytest.mark.usefixtures("setup_three_body_tests")
+class TestThreeBody(HydrogenOxygen):
     # Three body reaction with default efficiency
     rxn_idx = 1
     equation = "H + O + M <=> OH + M"
     rate_type = "Arrhenius"
-
-    @classmethod
-    def setup_class(cls):
-        super().setup_class()
-        cls.ix3b = list(range(cls.gas.n_species))
 
     def test_thirdbodies_forward(self):
         drop = self.gas.forward_rates_of_progress_ddX
@@ -560,7 +566,7 @@ class TestThreeBody(HydrogenOxygen, utilities.CanteraTest):
         drops = self.gas.forward_rates_of_progress_ddX
         dropm = drop - drops
         rop = self.gas.forward_rates_of_progress
-        self.assertNear(rop[self.rxn_idx], (dropm[self.rxn_idx] * self.gas.X).sum())
+        assertNear(rop[self.rxn_idx], (dropm[self.rxn_idx] * self.gas.X).sum())
 
     def test_thirdbodies_reverse(self):
         drop = self.gas.reverse_rates_of_progress_ddX
@@ -568,42 +574,34 @@ class TestThreeBody(HydrogenOxygen, utilities.CanteraTest):
         drops = self.gas.reverse_rates_of_progress_ddX
         dropm = drop - drops
         rop = self.gas.reverse_rates_of_progress
-        self.assertNear(rop[self.rxn_idx], (dropm[self.rxn_idx] * self.gas.X).sum())
+        assertNear(rop[self.rxn_idx], (dropm[self.rxn_idx] * self.gas.X).sum())
 
-
+@pytest.mark.usefixtures("setup_rate_expression_data")
 class EdgeCases(RateExpressionTests):
-    @classmethod
-    def setup_class(cls):
-        cls.gas = ct.Solution("jacobian-tests.yaml", transport_model=None)
-        #   species: [H2, H, O, O2, OH, H2O, HO2, H2O2, AR]
-        cls.gas.X = [0.1, 1e-4, 1e-5, 0.2, 2e-4, 0.3, 1e-6, 5e-5, 0.4]
-        cls.gas.TP = 800, 2 * ct.one_atm
-        super().setup_class()
+    gas = ct.Solution("jacobian-tests.yaml", transport_model=None)
+    #   species: [H2, H, O, O2, OH, H2O, HO2, H2O2, AR]
+    gas.X = [0.1, 1e-4, 1e-5, 0.2, 2e-4, 0.3, 1e-6, 5e-5, 0.4]
+    gas.TP = 800, 2 * ct.one_atm
 
-
-
-class TestElementaryIrr(EdgeCases, utilities.CanteraTest):
+class TestElementaryIrr(EdgeCases):
     # Irreversible elementary reaction with two reactants
     rxn_idx = 0
     equation = "HO2 + O => O2 + OH"
     rate_type = "Arrhenius"
 
-
-class TestElementaryOne(EdgeCases, utilities.CanteraTest):
+class TestElementaryOne(EdgeCases):
     # Three-body reaction with single reactant species
     rxn_idx = 1
     equation = "H2 <=> 2 H"
     rate_type = "Arrhenius"
 
-
-class TestElementaryThree(EdgeCases, utilities.CanteraTest):
+class TestElementaryThree(EdgeCases):
     # Elementary reaction with three reactants
     rxn_idx = 2
     equation = "2 H + O <=> H2O"
     rate_type = "Arrhenius"
 
-
-class TestElementaryFrac(EdgeCases, utilities.CanteraTest):
+class TestElementaryFrac(EdgeCases):
     # Elementary reaction with specified reaction order
     rxn_idx = 3
     orders = {"H2": 0.8, "O2": 1.0, "OH": 2.0}
@@ -611,29 +609,23 @@ class TestElementaryFrac(EdgeCases, utilities.CanteraTest):
     rate_type = "Arrhenius"
 
 
-class TestThreeBodyNoDefault(EdgeCases, utilities.CanteraTest):
+@pytest.fixture(scope='class')
+def setup_three_body_no_default_tests(request, setup_rate_expression_tests):
+    efficiencies = {"H2": 2.0, "H2O": 6.0, "AR": 0.7}
+    request.cls.ix3b = [request.cls.gas.species_index(k) for k in efficiencies.keys()]
+@pytest.mark.usefixtures("setup_three_body_no_default_tests")
+class TestThreeBodyNoDefault(EdgeCases):
     # Three body reaction without default efficiency
     rxn_idx = 4
     equation = "H + O + M <=> OH + M"
     rate_type = "Arrhenius"
 
-    @classmethod
-    def setup_class(cls):
-        super().setup_class()
-        efficiencies = {"H2": 2.0, "H2O": 6.0, "AR": 0.7}
-        cls.ix3b = [cls.gas.species_index(k) for k in efficiencies.keys()]
-
-
 class FromScratchCases(RateExpressionTests):
 
-    @classmethod
-    def setup_class(cls):
-        cls.gas = ct.Solution("kineticsfromscratch.yaml", transport_model=None)
-        #   species: [AR, O, H2, H, OH, O2, H2O, H2O2, HO2]
-        cls.gas.X = [0.1, 3e-4, 5e-5, 6e-6, 3e-3, 0.6, 0.25, 1e-6, 2e-5]
-        cls.gas.TP = 2000, 5 * ct.one_atm
-        super().setup_class()
-
+    gas = ct.Solution("kineticsfromscratch.yaml", transport_model=None)
+    #   species: [AR, O, H2, H, OH, O2, H2O, H2O2, HO2]
+    gas.X = [0.1, 3e-4, 5e-5, 6e-6, 3e-3, 0.6, 0.25, 1e-6, 2e-5]
+    gas.TP = 2000, 5 * ct.one_atm
 
     @pytest.mark.usefixtures("has_temperature_derivative_warnings")
     def test_forward_rop_ddT(self):
@@ -651,22 +643,22 @@ class FromScratchCases(RateExpressionTests):
     def test_net_rate_ddT(self):
         super().test_net_rate_ddT()
 
-
-class TestPlog(FromScratchCases, utilities.CanteraTest):
+@pytest.mark.usefixtures("setup_rate_expression_data")
+class TestPlog(FromScratchCases):
     # Plog reaction
     rxn_idx = 3
     equation = "H2 + O2 <=> 2 OH"
     rate_type = "pressure-dependent-Arrhenius"
 
-
-class TestChebyshev(FromScratchCases, utilities.CanteraTest):
+@pytest.mark.usefixtures("setup_rate_expression_data")
+class TestChebyshev(FromScratchCases):
     # Chebyshev reaction
     rxn_idx = 4
     equation = "HO2 <=> O + OH"
     rate_type = "Chebyshev"
 
-
-class TestBlowersMasel(FromScratchCases, utilities.CanteraTest):
+@pytest.mark.usefixtures("setup_rate_expression_data")
+class TestBlowersMasel(FromScratchCases):
     # Blowers-Masel
     rxn_idx = 6
     equation = "H2 + O <=> H + OH"
@@ -749,7 +741,7 @@ class FullTests:
                 # test entries that are not spurious
                 ix = np.abs((stoich[:, i] != 0) * drop[i, :]) > 1e-6
                 drop_ = drop[i, ix] + dropp[i] * self.gas.P
-                self.assertArrayNear(drop_, drop_num[i, ix], self.rtol)
+                assertArrayNear(drop_, drop_num[i, ix], self.rtol)
             except AssertionError as err:
                 print(i, self.gas.reaction(i).rate.type)
                 print(self.gas.reaction(i))
@@ -767,7 +759,7 @@ class FullTests:
                 # test entries that are not spurious
                 ix = np.abs((stoich[:, i] != 0) * drop[i, :]) > 1e-6
                 drop_ = drop[i, ix] + dropp[i] * self.gas.P
-                self.assertArrayNear(drop_, drop_num[i, ix], self.rtol)
+                assertArrayNear(drop_, drop_num[i, ix], self.rtol)
             except AssertionError as err:
                 print(i, self.gas.reaction(i).rate.type)
                 print(self.gas.reaction(i))
@@ -785,7 +777,7 @@ class FullTests:
                 # test entries that are not spurious
                 ix = np.abs((stoich[:, i] != 0) * drop[i, :]) > 1e-6
                 drop_ = drop[i, ix] + dropp[i] * self.gas.P
-                self.assertArrayNear(drop_, drop_num[i, ix], self.rtol)
+                assertArrayNear(drop_, drop_num[i, ix], self.rtol)
             except AssertionError as err:
                 if self.gas.reaction(i).reversible:
                     print(i, self.gas.reaction(i).rate.type)
@@ -805,7 +797,7 @@ class FullTests:
                 # test entries that are not spurious
                 ix = np.abs((stoich[:, i] != 0) * drop[i, :]) > 1e-6
                 drop_ = drop[i, ix] + dropp[i] * self.gas.P
-                self.assertArrayNear(drop_, drop_num[i, ix], self.rtol)
+                assertArrayNear(drop_, drop_num[i, ix], self.rtol)
             except AssertionError as err:
                 print(i, self.gas.reaction(i).rate.type)
                 print(self.gas.reaction(i))
@@ -824,7 +816,7 @@ class FullTests:
                 # test entries that are not spurious
                 ix = np.abs((stoich[:, i] != 0) * drop[i, :]) > 1e-6
                 drop_ = drop[i, ix] + dropp[i] * self.gas.P
-                self.assertArrayNear(drop_, drop_num[i, ix], self.rtol)
+                assertArrayNear(drop_, drop_num[i, ix], self.rtol)
             except AssertionError as err:
                 print(i, self.gas.reaction(i).rate.type)
                 print(self.gas.reaction(i))
@@ -843,7 +835,7 @@ class FullTests:
                 # test entries that are not spurious
                 ix = np.abs((stoich[:, i] != 0) * drop[i, :]) > 1e-6
                 drop_ = drop[i, ix] + dropp[i] * self.gas.P
-                self.assertArrayNear(drop_, drop_num[i, ix], self.rtol)
+                assertArrayNear(drop_, drop_num[i, ix], self.rtol)
             except AssertionError as err:
                 if self.gas.reaction(i).reversible:
                     print(i, self.gas.reaction(i).rate.type)
@@ -874,7 +866,7 @@ class FullTests:
         drop = self.gas.forward_rates_of_progress_ddT
         drop += self.gas.forward_rates_of_progress_ddC * dcdt
         drop_num = self.rop_ddT(mode="forward")
-        self.assertArrayNear(drop, drop_num, self.rtol)
+        assertArrayNear(drop, drop_num, self.rtol)
 
     def test_reverse_rop_ddT(self):
         # check reverse rop against numerical derivative with respect to temperature
@@ -882,7 +874,7 @@ class FullTests:
         drop = self.gas.reverse_rates_of_progress_ddT
         drop += self.gas.reverse_rates_of_progress_ddC * dcdt
         drop_num = self.rop_ddT(mode="reverse")
-        self.assertArrayNear(drop, drop_num, self.rtol)
+        assertArrayNear(drop, drop_num, self.rtol)
 
     def test_net_rop_ddT(self):
         # check net rop against numerical derivative with respect to temperature
@@ -891,7 +883,7 @@ class FullTests:
         drop += self.gas.net_rates_of_progress_ddC * dcdt
         drop_num = self.rop_ddT(mode="net")
         try:
-            self.assertArrayNear(drop, drop_num, self.rtol)
+            assertArrayNear(drop, drop_num, self.rtol)
         except AssertionError as err:
             i = np.argmax(2 * (drop - drop_num) / (drop + drop_num + 2e-4))
             print(i, self.gas.reaction(i).rate.type)
@@ -901,7 +893,7 @@ class FullTests:
             raise err
 
 
-class FullHydrogenOxygen(FullTests, utilities.CanteraTest):
+class FullHydrogenOxygen(FullTests):
 
     @classmethod
     def setup_class(cls):
@@ -912,7 +904,7 @@ class FullHydrogenOxygen(FullTests, utilities.CanteraTest):
 
 
 
-class FullGriMech(FullTests, utilities.CanteraTest):
+class FullGriMech(FullTests):
 
     @classmethod
     def setup_class(cls):
@@ -923,7 +915,7 @@ class FullGriMech(FullTests, utilities.CanteraTest):
 
 
 
-class FullEdgeCases(FullTests, utilities.CanteraTest):
+class FullEdgeCases(FullTests):
 
     @classmethod
     def setup_class(cls):
@@ -997,7 +989,7 @@ class SurfaceRateExpressionTests:
                 order = self.r_stoich[spc_ix, self.rxn_idx]
             else:
                 order = self.orders[specs[spc_ix]]
-            self.assertNear(rop[self.rxn_idx],
+            assertNear(rop[self.rxn_idx],
                 drop[self.rxn_idx, spc_ix] * concentrations[spc_ix] / order)
 
     def test_reverse_rop_ddCi(self):
@@ -1012,7 +1004,7 @@ class SurfaceRateExpressionTests:
                 order = self.p_stoich[spc_ix, self.rxn_idx]
             else:
                 order = self.orders[specs[spc_ix]]
-            self.assertNear(rop[self.rxn_idx],
+            assertNear(rop[self.rxn_idx],
                 drop[self.rxn_idx, spc_ix] * concentrations[spc_ix] / order)
 
     def test_net_rop_ddCi(self):
@@ -1026,7 +1018,7 @@ class SurfaceRateExpressionTests:
         for spc_ix in self.rix + self.pix:
             ix = np.abs(drop[:, spc_ix]) > 1
             drop_ = drop[:, spc_ix]
-            self.assertArrayNear(drop_[ix], rop[ix], 1e-3)
+            assertArrayNear(drop_[ix], rop[ix], 1e-3)
 
 class PlatinumHydrogen(SurfaceRateExpressionTests):
 
@@ -1061,23 +1053,23 @@ class PlatinumHydrogen(SurfaceRateExpressionTests):
         super().setup_class()
 
 
-class SurfInterfaceArrhenius(PlatinumHydrogen, utilities.CanteraTest):
+class SurfInterfaceArrhenius(PlatinumHydrogen):
     rxn_idx = 7
     equation = "H(S) + O(S) <=> OH(S) + PT(S)"
     rate_type = "interface-Arrhenius"
 
-class SurfGasFwdStickingArrhenius(PlatinumHydrogen, utilities.CanteraTest):
+class SurfGasFwdStickingArrhenius(PlatinumHydrogen):
     rxn_idx = 5
     equation = "H2O + PT(S) => H2O(S)"
     rate_type = "sticking-Arrhenius"
 
-class SurfGasInterfaceArrhenius(PlatinumHydrogen, utilities.CanteraTest):
+class SurfGasInterfaceArrhenius(PlatinumHydrogen):
     rxn_idx = 0
     equation = "H2 + 2 PT(S) => 2 H(S)"
     rate_type = "interface-Arrhenius"
     orders = {"PT(S)": 1, "H2": 1, "H(S)": 2}
 
-class GasSurfInterfaceArrhenius(PlatinumHydrogen, utilities.CanteraTest):
+class GasSurfInterfaceArrhenius(PlatinumHydrogen):
     rxn_idx = 6
     equation = "H2O(S) => H2O + PT(S)"
     rate_type = "interface-Arrhenius"
@@ -1129,7 +1121,7 @@ class SurfaceFullTests:
         # rates of progress do not factor in reaction order it must be accounted for
         drop /= total_orders
         # compare the rate of progress vectors produced in different ways
-        self.assertArrayNear(drop, rop, self.rtol)
+        assertArrayNear(drop, rop, self.rtol)
 
     def test_reverse_rop_ddCi(self):
         # matrix multiplication of the reverse rate of progress derivatives  w.r.t
@@ -1155,7 +1147,7 @@ class SurfaceFullTests:
         # rates of progress do not factor in reaction order it must be accounted for
         drop /= total_orders
         # compare the rate of progress vectors produced in different ways
-        self.assertArrayNear(drop, rop, self.rtol)
+        assertArrayNear(drop, rop, self.rtol)
 
     def test_net_rop_ddCi(self):
         # check derivatives of net rates of progress with respect to species
@@ -1181,9 +1173,9 @@ class SurfaceFullTests:
                 curr_order += orders[k] if k in orders else v
             ropr[i] *= curr_order
         # compare the rate of progress vectors produced in different ways
-        self.assertArrayNear(drop, ropf - ropr, self.rtol)
+        assertArrayNear(drop, ropf - ropr, self.rtol)
 
-class FullPlatinumHydrogen(SurfaceFullTests, utilities.CanteraTest):
+class FullPlatinumHydrogen(SurfaceFullTests):
 
     @classmethod
     def setup_class(cls):
