@@ -1,11 +1,18 @@
-import cantera as ct
-from . import utilities
 import numpy as np
-from .utilities import allow_deprecated, yaml
 import pytest
 from pytest import approx
 
-class TestOnedim(utilities.CanteraTest):
+import cantera as ct
+
+from . import utilities
+from .utilities import allow_deprecated, yaml
+from .utilities import (
+    assertNear,
+    assertArrayNear
+)
+
+
+class TestOnedim():
     def test_instantiate(self):
         gas = ct.Solution("h2o2.yaml")
         free = ct.FreeFlow(gas)
@@ -37,18 +44,18 @@ class TestOnedim(utilities.CanteraTest):
         Yref = gas2.Y
         inlet.Y = Yref
 
-        self.assertArrayNear(inlet.Y, Yref)
-        self.assertArrayNear(inlet.X, Xref)
+        assertArrayNear(inlet.Y, Yref)
+        assertArrayNear(inlet.X, Xref)
 
         gas2.TPX = 400, 101325, 'H2:0.5, O2:0.2, AR:0.3'
         Xref = gas2.X
         Yref = gas2.Y
         inlet.X = Xref
-        self.assertArrayNear(inlet.X, Xref)
-        self.assertArrayNear(inlet.Y, Yref)
+        assertArrayNear(inlet.X, Xref)
+        assertArrayNear(inlet.Y, Yref)
 
         inlet.X = {'H2':0.3, 'O2':0.5, 'AR':0.2}
-        self.assertNear(inlet.X[gas2.species_index('H2')], 0.3)
+        assertNear(inlet.X[gas2.species_index('H2')], 0.3)
 
     def test_grid_check(self):
         gas = ct.Solution("h2o2.yaml")
@@ -172,7 +179,7 @@ def check_component_order(fname: str, group: str):
             components = value[::-1]
 
 
-class TestFreeFlame(utilities.CanteraTest):
+class TestFreeFlame():
     tol_ss = [1.0e-5, 1.0e-14]  # [rtol atol] for steady-state problem
     tol_ts = [1.0e-4, 1.0e-11]  # [rtol atol] for time stepping
 
@@ -232,8 +239,8 @@ class TestFreeFlame(utilities.CanteraTest):
         tfixed = 900.
         self.sim.fixed_temperature = tfixed
         zfixed = np.interp(tfixed, tvec, zvec)
-        self.assertNear(self.sim.fixed_temperature, tfixed)
-        self.assertNear(self.sim.fixed_temperature_location, zfixed)
+        assertNear(self.sim.fixed_temperature, tfixed)
+        assertNear(self.sim.fixed_temperature_location, zfixed)
 
     @utilities.slow_test
     def test_auto_width(self):
@@ -247,14 +254,14 @@ class TestFreeFlame(utilities.CanteraTest):
         self.gas.TPX = Tin, p, reactants
         self.gas.equilibrate('HP')
         Tad = self.gas.T
-        self.assertNear(Tad, self.sim.T[-1], 2e-2)
+        assertNear(Tad, self.sim.T[-1], 2e-2)
 
         # Re-solving with auto=False should not trigger a DomainTooNarrow
         # exception, and should leave domain width constant
         self.sim.flame.grid *= 0.3
         old_width = self.sim.grid[-1]
         self.sim.solve(loglevel=0, refine_grid=True, auto=False)
-        self.assertNear(self.sim.grid[-1], old_width)
+        assertNear(self.sim.grid[-1], old_width)
 
     def test_auto_width2(self):
         self.create_sim(p=ct.one_atm, Tin=400, reactants='H2:0.8, O2:0.5',
@@ -264,7 +271,7 @@ class TestFreeFlame(utilities.CanteraTest):
         self.sim.flame.set_steady_tolerances(T=(2e-4, 1e-8))
         self.sim.solve(refine_grid=True, auto=True, loglevel=0)
 
-        self.assertNear(self.sim.velocity[0], 17.02, 1e-1)
+        assertNear(self.sim.velocity[0], 17.02, 1e-1)
         assert self.sim.grid[-1] < 2.0 # grid should not be too wide
         assert self.sim.flame.tolerances("T") == (2e-4, 1e-8)
 
@@ -313,25 +320,25 @@ class TestFreeFlame(utilities.CanteraTest):
 
         # Check continuity
         for rhou_j in self.sim.density * self.sim.velocity:
-            self.assertNear(rhou_j, rhou, 1e-4)
+            assertNear(rhou_j, rhou, 1e-4)
 
     def test_solution_array_output(self):
         self.run_mix(phi=1.0, T=300, width=2.0, p=1.0, refine=False)
 
         flow = self.sim.to_array(normalize=True)
-        self.assertArrayNear(self.sim.grid, flow.grid)
-        self.assertArrayNear(self.sim.T, flow.T)
+        assertArrayNear(self.sim.grid, flow.grid)
+        assertArrayNear(self.sim.T, flow.T)
 
         f2 = ct.FreeFlame(self.gas)
         f2.from_array(flow)
-        self.assertArrayNear(self.sim.grid, f2.grid)
-        self.assertArrayNear(self.sim.T, f2.T)
+        assertArrayNear(self.sim.grid, f2.grid)
+        assertArrayNear(self.sim.T, f2.T)
 
         inlet = self.sim.to_array(self.sim.inlet)
         f2.from_array(inlet, f2.inlet)
-        self.assertNear(self.sim.inlet.T, f2.inlet.T)
-        self.assertNear(self.sim.inlet.mdot, f2.inlet.mdot)
-        self.assertArrayNear(self.sim.inlet.Y, f2.inlet.Y)
+        assertNear(self.sim.inlet.T, f2.inlet.T)
+        assertNear(self.sim.inlet.mdot, f2.inlet.mdot)
+        assertArrayNear(self.sim.inlet.Y, f2.inlet.Y)
 
     def test_restart_array(self):
         # restart from SolutionArray
@@ -374,7 +381,7 @@ class TestFreeFlame(utilities.CanteraTest):
         # Check continuity
         rhou = self.sim.inlet.mdot
         for rhou_j in self.sim.density * self.sim.velocity:
-            self.assertNear(rhou_j, rhou, 1e-4)
+            assertNear(rhou_j, rhou, 1e-4)
         return data, group
 
     def test_settings(self):
@@ -469,7 +476,7 @@ class TestFreeFlame(utilities.CanteraTest):
             self.sim.solve(loglevel=0, refine_grid=False)
             Suminus = self.sim.velocity[0]
             fwd = (Suplus-Suminus)/(2*Su0*dk)
-            self.assertNear(fwd, dSdk_adj[m], rtol=5e-3, atol=1e-7)
+            assertNear(fwd, dSdk_adj[m], rtol=5e-3, atol=1e-7)
 
     # @utilities.unittest.skip('sometimes slow')
     def test_multicomponent(self):
@@ -488,7 +495,7 @@ class TestFreeFlame(utilities.CanteraTest):
         Su_multi = self.sim.velocity[0]
         assert not self.sim.soret_enabled
 
-        self.assertNear(Su_mix, Su_multi, 5e-2)
+        assertNear(Su_mix, Su_multi, 5e-2)
         assert Su_mix != Su_multi
 
         # Flame speed with Soret effect should be similar but not identical to
@@ -498,7 +505,7 @@ class TestFreeFlame(utilities.CanteraTest):
         assert self.sim.soret_enabled
         Su_soret = self.sim.velocity[0]
 
-        self.assertNear(Su_multi, Su_soret, 2e-1)
+        assertNear(Su_multi, Su_soret, 2e-1)
         assert Su_multi != Su_soret
 
     def test_unity_lewis(self):
@@ -641,24 +648,24 @@ class TestFreeFlame(utilities.CanteraTest):
         # Sim is initially in "steady-state" mode, so this returns the
         # steady-state tolerances
         rtol, atol = self.sim.flame.tolerances("T")
-        self.assertNear(rtol, T_rtol)
-        self.assertNear(atol, T_atol)
+        assertNear(rtol, T_rtol)
+        assertNear(atol, T_atol)
         assert not self.sim.energy_enabled
 
         P2a = self.sim.P
 
-        self.assertNear(p, P1)
-        self.assertNear(P1, P2a)
+        assertNear(p, P1)
+        assertNear(P1, P2a)
 
         Y2 = self.sim.Y
         u2 = self.sim.velocity
         V2 = self.sim.spread_rate
         T2 = self.sim.T
 
-        self.assertArrayNear(Y1, Y2)
-        self.assertArrayNear(u1, u2)
-        self.assertArrayNear(V1, V2)
-        self.assertArrayNear(T1, T2)
+        assertArrayNear(Y1, Y2)
+        assertArrayNear(u1, u2)
+        assertArrayNear(V1, V2)
+        assertArrayNear(T1, T2)
 
         self.solve_fixed_T()
         Y3 = self.sim.Y
@@ -667,9 +674,9 @@ class TestFreeFlame(utilities.CanteraTest):
 
         # TODO: These tolerances seem too loose, but the tests fail on some
         # systems with tighter tolerances.
-        self.assertArrayNear(Y1, Y3, 3e-3)
-        self.assertArrayNear(u1, u3, 1e-3)
-        self.assertArrayNear(V1, V3, 1e-3)
+        assertArrayNear(Y1, Y3, 3e-3)
+        assertArrayNear(u1, u3, 1e-3)
+        assertArrayNear(V1, V3, 1e-3)
 
         assert not self.sim.radiation_enabled
         assert not self.sim.soret_enabled
@@ -750,10 +757,10 @@ class TestFreeFlame(utilities.CanteraTest):
 
         assert self.sim.soret_enabled
         assert self.sim.max_grid_points == 234
-        self.assertArrayNear(T1, T2)
+        assertArrayNear(T1, T2)
         for k1, species in enumerate(gas1.species_names):
             k2 = gas2.species_index(species)
-            self.assertArrayNear(Y1[k1], Y2[k2])
+            assertArrayNear(Y1[k1], Y2[k2])
 
     @utilities.slow_test
     def test_save_restore_remove_species_yaml(self):
@@ -780,10 +787,10 @@ class TestFreeFlame(utilities.CanteraTest):
         T2 = self.sim.T
         Y2 = self.sim.Y
 
-        self.assertArrayNear(T1, T2)
+        assertArrayNear(T1, T2)
         for k2, species in enumerate(gas2.species_names):
             k1 = gas1.species_index(species)
-            self.assertArrayNear(Y1[k1], Y2[k2])
+            assertArrayNear(Y1[k1], Y2[k2])
 
     def test_write_csv(self):
         filename = self.test_work_path / "onedim-save.csv"
@@ -793,10 +800,10 @@ class TestFreeFlame(utilities.CanteraTest):
         self.sim.save(filename, basis="mole")
         data = ct.SolutionArray(self.gas)
         data.read_csv(filename)
-        self.assertArrayNear(data.grid, self.sim.grid)
-        self.assertArrayNear(data.T, self.sim.T)
+        assertArrayNear(data.grid, self.sim.grid)
+        assertArrayNear(data.T, self.sim.T)
         k = self.gas.species_index('H2')
-        self.assertArrayNear(data.X[:, k], self.sim.X[k, :])
+        assertArrayNear(data.X[:, k], self.sim.X[k, :])
 
     @pytest.mark.usefixtures("allow_deprecated")
     @pytest.mark.filterwarnings("ignore:.*legacy HDF.*:UserWarning")
@@ -903,7 +910,7 @@ class TestFreeFlame(utilities.CanteraTest):
         self.sim.set_initial_guess()
 
         self.solve_fixed_T()
-        self.assertNear(self.sim.velocity[-1], ub, 1e-2)
+        assertNear(self.sim.velocity[-1], ub, 1e-2)
 
     def test_exceed_max_grid_points(self):
         self.create_sim(ct.one_atm, 400.0, 'H2:1.1, O2:1, AR:5')
@@ -920,18 +927,20 @@ class TestFreeFlame(utilities.CanteraTest):
         assert self.sim.max_grid_points == 10
 
 
-class TestDiffusionFlame(utilities.CanteraTest):
-    # Note: to re-create the reference files:
-    # (1) set PYTHONPATH to build/python.
-    # (2) Start Python and run:
-    #     >>> import cantera.test
-    #     >>> t = cantera.test.test_onedim.TestDiffusionFlame()
-    #     >>> t.setup_class()
-    #     >>> t.test_mixture_averaged(True)
-    #     >>> t.test_auto(True)
-    #     >>> t.test_mixture_averaged_rad(True)
-    # (3) Compare the reference files created in the current working directory with
-    #     the ones in test/data and replace them if needed.
+class TestDiffusionFlame():
+    """
+    Note: to re-create the reference files:
+    (1) set PYTHONPATH to build/python.
+    (2) Start Python and run:
+        >>> import cantera.test
+        >>> t = cantera.test.test_onedim.TestDiffusionFlame()
+        >>> t.setup_class()
+        >>> t.test_mixture_averaged(True)
+        >>> t.test_auto(True)
+        >>> t.test_mixture_averaged_rad(True)
+    (3) Compare the reference files created in the current working directory with
+        the ones in test/data and replace them if needed.
+    """
 
     def create_sim(self, p, fuel='H2:1.0, AR:1.0', T_fuel=300, mdot_fuel=0.24,
                    oxidizer='O2:0.2, AR:0.8', T_ox=300, mdot_ox=0.72, width=0.02):
@@ -1081,9 +1090,9 @@ class TestDiffusionFlame(utilities.CanteraTest):
 
         # Check inlet
         mdot = self.sim.density * self.sim.velocity
-        self.assertNear(mdot[0], self.sim.fuel_inlet.mdot, 1e-4)
-        self.assertNear(self.sim.T[0], self.sim.fuel_inlet.T, 1e-4)
-        self.assertNear(mdot[-1], -self.sim.oxidizer_inlet.mdot, 1e-4)
+        assertNear(mdot[0], self.sim.fuel_inlet.mdot, 1e-4)
+        assertNear(self.sim.T[0], self.sim.fuel_inlet.T, 1e-4)
+        assertNear(mdot[-1], -self.sim.oxidizer_inlet.mdot, 1e-4)
 
     def test_mixture_averaged_rad(self, saveReference=False):
         referenceFile = "DiffusionFlameTest-h2-mix-rad.csv"
@@ -1094,7 +1103,7 @@ class TestDiffusionFlame(utilities.CanteraTest):
         Tfixed = self.sim.T
         self.solve_fixed_T()
         assert nPoints == len(self.sim.grid)
-        self.assertArrayNear(Tfixed, self.sim.T)
+        assertArrayNear(Tfixed, self.sim.T)
         assert not self.sim.radiation_enabled
         self.sim.radiation_enabled = True
         assert self.sim.radiation_enabled
@@ -1159,13 +1168,13 @@ class TestDiffusionFlame(utilities.CanteraTest):
         self.create_sim(p=ct.one_atm)
         self.sim.set_initial_guess()
         Z = self.sim.mixture_fraction('H')
-        self.assertNear(Z[0], 1.0)
-        self.assertNear(Z[-1], 0.0)
+        assertNear(Z[0], 1.0)
+        assertNear(Z[-1], 0.0)
         assert all(Z >= 0)
         assert all(Z <= 1.0)
         Z = self.sim.mixture_fraction('Bilger')
-        self.assertNear(Z[0], 1.0)
-        self.assertNear(Z[-1], 0.0)
+        assertNear(Z[0], 1.0)
+        assertNear(Z[-1], 0.0)
         assert all(Z >= 0)
         assert all(Z <= 1.0)
 
@@ -1195,7 +1204,6 @@ class TestDiffusionFlame(utilities.CanteraTest):
         sim.oxidizer_inlet.X = "O2: 1.0, N2: 3.76"
         sim.fuel_inlet.X = "H2: 1.0"
         sim.set_initial_guess()
-
 
     def test_two_point_control(self):
         """
@@ -1252,7 +1260,7 @@ class TestDiffusionFlame(utilities.CanteraTest):
         temperature_2 = sim.T
 
         # Check difference between the two solutions
-        self.assertArrayNear(temperature_1, temperature_2, rtol=1e-4, atol=1e-6)
+        assertArrayNear(temperature_1, temperature_2, rtol=1e-4, atol=1e-6)
 
 
         # Test - See if the solution is the same when the temperature is decremented and
@@ -1270,7 +1278,7 @@ class TestDiffusionFlame(utilities.CanteraTest):
 
         # Check the difference between the un-perturbed two-point solution and the
         # round-trip solution.
-        self.assertArrayNear(temperature_2, temperature_4, rtol=1e-4, atol=1e-6)
+        assertArrayNear(temperature_2, temperature_4, rtol=1e-4, atol=1e-6)
 
         # Test 4 - Checking property setters/getters
         val_1 = sim.right_control_point_temperature
@@ -1281,7 +1289,6 @@ class TestDiffusionFlame(utilities.CanteraTest):
         val_2 = sim.left_control_point_temperature
         sim.left_control_point_temperature += increment
         assert sim.left_control_point_temperature == val_2 + increment
-
 
         # Test - Check if the parameters are saved and restored correctly
         filename = self.test_work_path / "two_point_control.yaml"
@@ -1352,16 +1359,18 @@ class TestDiffusionFlame(utilities.CanteraTest):
             sim.right_control_point_temperature
 
 
-class TestCounterflowPremixedFlame(utilities.CanteraTest):
-    # Note: to re-create the reference file:
-    # (1) set PYTHONPATH to build/python.
-    # (2) Start Python and run:
-    #     >>> import cantera.test
-    #     >>> t = cantera.test.test_onedim.TestCounterflowPremixedFlame()
-    #     >>> t.setup_class()
-    #     >>> t.test_mixture_averaged(True)
-    # (3) Compare the reference files created in the current working directory with
-    #     the ones in test/data and replace them if needed.
+class TestCounterflowPremixedFlame():
+    """
+    Note: to re-create the reference file:
+    (1) set PYTHONPATH to build/python.
+    (2) Start Python and run:
+        >>> import cantera.test
+        >>> t = cantera.test.test_onedim.TestCounterflowPremixedFlame()
+        >>> t.setup_class()
+        >>> t.test_mixture_averaged(True)
+    (3) Compare the reference files created in the current working directory with
+        the ones in test/data and replace them if needed.
+    """
 
     def test_mixture_averaged(self, saveReference=False):
         T_in = 373.0  # inlet temperature
@@ -1459,8 +1468,8 @@ class TestCounterflowPremixedFlame(utilities.CanteraTest):
 
         # Check inlet / outlet
         mdot = sim.density * sim.velocity
-        self.assertNear(mdot[0], sim.reactants.mdot, 1e-4)
-        self.assertNear(mdot[-1], -sim.products.mdot, 1e-4)
+        assertNear(mdot[0], sim.reactants.mdot, 1e-4)
+        assertNear(mdot[-1], -sim.products.mdot, 1e-4)
 
     def test_bad_boundary_conditions(self):
         gas = ct.Solution("h2o2.yaml")
@@ -1470,16 +1479,18 @@ class TestCounterflowPremixedFlame(utilities.CanteraTest):
             sim.solve(loglevel=0)
 
 
-class TestCounterflowPremixedFlameNonIdeal(utilities.CanteraTest):
-    # Note: to re-create the reference file:
-    # (1) set PYTHONPATH to build/python.
-    # (2) Start Python and run:
-    #     >>> import cantera.test
-    #     >>> t = cantera.test.test_onedim.TestCounterflowPremixedFlameNonIdeal()
-    #     >>> t.setup_class()
-    #     >>> t.test_mixture_averaged(True)
-    # (3) Compare the reference files created in the current working directory with
-    #     the ones in test/data and replace them if needed.
+class TestCounterflowPremixedFlameNonIdeal():
+    """
+    Note: to re-create the reference file:
+    (1) set PYTHONPATH to build/python.
+    (2) Start Python and run:
+        >>> import cantera.test
+        >>> t = cantera.test.test_onedim.TestCounterflowPremixedFlameNonIdeal()
+        >>> t.setup_class()
+        >>> t.test_mixture_averaged(True)
+    (3) Compare the reference files created in the current working directory with
+        the ones in test/data and replace them if needed.
+    """
 
     def test_mixture_averaged(self, saveReference=False):
         T_in = 373.0  # inlet temperature
@@ -1532,42 +1543,41 @@ class TestCounterflowPremixedFlameNonIdeal(utilities.CanteraTest):
         csv_data = np.genfromtxt(filename, dtype=float, delimiter=',', names=True)
         assert 'qdot' not in csv_data.dtype.names
 
-    def run_case(self, phi, T, width, P):
-        gas = ct.Solution("h2o2.yaml", "ohmech-RK")
-        gas.TPX = T, P * ct.one_atm, {'H2':phi, 'O2':0.5, 'AR':3}
-        sim = ct.CounterflowPremixedFlame(gas=gas, width=width)
-        sim.reactants.mdot = 10 * gas.density
-        sim.products.mdot = 5 * gas.density
-        sim.set_refine_criteria(ratio=6, slope=0.7, curve=0.8, prune=0.2)
-        sim.solve(loglevel=0, auto=True)
-        assert all(sim.T >= T - 1e-3)
-        assert all(sim.spread_rate >= -1e-9)
-        assert np.allclose(sim.L, sim.L[0])
-        return sim
+    @pytest.fixture(scope='function')
+    def run_case(self):
+        """Helper function to create and run a simulation case."""
+        def _run_case(phi, T, width, P):
+            gas = ct.Solution("h2o2.yaml", "ohmech-RK")
+            gas.TPX = T, P * ct.one_atm, {'H2': phi, 'O2': 0.5, 'AR': 3}
+            sim = ct.CounterflowPremixedFlame(gas=gas, width=width)
+            sim.reactants.mdot = 10 * gas.density
+            sim.products.mdot = 5 * gas.density
+            sim.set_refine_criteria(ratio=6, slope=0.7, curve=0.8, prune=0.2)
+            sim.solve(loglevel=0, auto=True)
+            assert all(sim.T >= T - 1e-3)
+            assert all(sim.spread_rate >= -1e-9)
+            assert np.allclose(sim.L, sim.L[0])
+            return sim
+        return _run_case
+
+    @pytest.mark.parametrize(
+        "phi, T, width, P",
+        [
+            (0.4, 400, 0.05, 10.0),
+            (0.5, 500, 0.03, 2.0),
+            (0.7, 300, 0.05, 2.0),
+            (1.5, 400, 0.03, 0.02),
+            (2.0, 300, 0.2, 0.2),
+        ]
+    )
+    @utilities.slow_test
+    def test_solve_cases(self, run_case, phi, T, width, P):
+        """Parameterized test cases for different simulation setups"""
+        run_case(phi, T, width, P)
 
     @utilities.slow_test
-    def test_solve_case1(self):
-        self.run_case(phi=0.4, T=400, width=0.05, P=10.0)
-
-    @utilities.slow_test
-    def test_solve_case2(self):
-        self.run_case(phi=0.5, T=500, width=0.03, P=2.0)
-
-    @utilities.slow_test
-    def test_solve_case3(self):
-        self.run_case(phi=0.7, T=300, width=0.05, P=2.0)
-
-    @utilities.slow_test
-    def test_solve_case4(self):
-        self.run_case(phi=1.5, T=400, width=0.03, P=0.02)
-
-    @utilities.slow_test
-    def test_solve_case5(self):
-        self.run_case(phi=2.0, T=300, width=0.2, P=0.2)
-
-    @utilities.slow_test
-    def test_restart(self):
-        sim = self.run_case(phi=2.0, T=300, width=0.2, P=0.2)
+    def test_restart(self, run_case):
+        sim = run_case(phi=2.0, T=300, width=0.2, P=0.2)
 
         arr = sim.to_array()
         sim.reactants.mdot *= 1.1
@@ -1577,10 +1587,25 @@ class TestCounterflowPremixedFlameNonIdeal(utilities.CanteraTest):
 
         # Check inlet / outlet
         mdot = sim.density * sim.velocity
-        self.assertNear(mdot[0], sim.reactants.mdot, 1e-4)
-        self.assertNear(mdot[-1], -sim.products.mdot, 1e-4)
+        assertNear(mdot[0], sim.reactants.mdot, 1e-4)
+        assertNear(mdot[-1], -sim.products.mdot, 1e-4)
 
-class TestBurnerFlame(utilities.CanteraTest):
+
+class TestBurnerFlame():
+
+    @pytest.fixture(scope='function')
+    def run_case(self):
+        """Helper function to create and run a simulation case."""
+        def _run_case(phi, T, width, P):
+            gas = ct.Solution("h2o2.yaml")
+            gas.TPX = T, ct.one_atm*P, {'H2':phi, 'O2':0.5, 'AR':1.5}
+            sim = ct.BurnerFlame(gas=gas, width=width)
+            sim.burner.mdot = gas.density * 0.15
+            sim.solve(loglevel=0, auto=True)
+            assert sim.T[1] > T
+            assert np.allclose(sim.L, 0)
+        return _run_case
+
     def solve(self, phi, T, width, P):
         gas = ct.Solution("h2o2.yaml")
         gas.TPX = T, ct.one_atm*P, {'H2':phi, 'O2':0.5, 'AR':1.5}
@@ -1590,24 +1615,20 @@ class TestBurnerFlame(utilities.CanteraTest):
         assert sim.T[1] > T
         assert np.allclose(sim.L, 0)
 
-    def test_case1(self):
-        self.solve(phi=0.5, T=500, width=2.0, P=0.1)
-
+    @pytest.mark.parametrize(
+        "phi, T, width, P",
+        [
+            pytest.param(0.5, 500, 2.0, 0.1, id="case1"),
+            pytest.param(2.0, 400, 0.05, 1.0, marks=utilities.slow_test, id="case2"),
+            pytest.param(1.7, 300, 0.05, 1.0, marks=utilities.slow_test, id="case3"),
+            pytest.param(0.5, 300, 1.0, 5.0, marks=utilities.slow_test, id="case4"),
+            pytest.param(1.0, 400, 0.2, 0.01, marks=utilities.slow_test, id="case5"),
+        ]
+    )
     @utilities.slow_test
-    def test_case2(self):
-        self.solve(phi=2.0, T=400, width=0.05, P=1.0)
-
-    @utilities.slow_test
-    def test_case3(self):
-        self.solve(phi=1.7, T=300, width=0.05, P=1.0)
-
-    @utilities.slow_test
-    def test_case4(self):
-        self.solve(phi=0.5, T=300, width=1.0, P=5.0)
-
-    @utilities.slow_test
-    def test_case5(self):
-        self.solve(phi=1.0, T=400, width=0.2, P=0.01)
+    def test_solve_cases(self, run_case, phi, T, width, P):
+        """Parameterized test cases for different simulation setups"""
+        run_case(phi, T, width, P)
 
     def test_fixed_temp(self):
         gas = ct.Solution("h2o2.yaml")
@@ -1619,9 +1640,9 @@ class TestBurnerFlame(utilities.CanteraTest):
 
         sim.energy_enabled = False
         sim.solve(loglevel=0, refine_grid=True)
-        self.assertNear(sim.T[0], 400)
-        self.assertNear(sim.T[-1], 500)
-        self.assertNear(max(sim.T), 1100)
+        assertNear(sim.T[0], 400)
+        assertNear(sim.T[-1], 500)
+        assertNear(max(sim.T), 1100)
 
     def test_blowoff(self):
         gas = ct.Solution("h2o2.yaml")
@@ -1632,9 +1653,9 @@ class TestBurnerFlame(utilities.CanteraTest):
         sim.set_refine_criteria(ratio=3, slope=0.3, curve=0.5, prune=0)
         sim.solve(loglevel=0, auto=True)
         # nonreacting solution
-        self.assertNear(sim.T[-1], sim.T[0], 1e-6)
-        self.assertNear(sim.velocity[-1], sim.velocity[0], 1e-6)
-        self.assertArrayNear(sim.Y[:,0], sim.Y[:,-1], 1e-6, atol=1e-6)
+        assertNear(sim.T[-1], sim.T[0], 1e-6)
+        assertNear(sim.velocity[-1], sim.velocity[0], 1e-6)
+        assertArrayNear(sim.Y[:,0], sim.Y[:,-1], 1e-6, atol=1e-6)
 
     def test_restart(self):
         gas = ct.Solution("h2o2.yaml")
@@ -1653,13 +1674,14 @@ class TestBurnerFlame(utilities.CanteraTest):
         # Check continuity
         rhou = sim.burner.mdot
         for rhou_j in sim.density * sim.velocity:
-            self.assertNear(rhou_j, rhou, 1e-4)
+            assertNear(rhou_j, rhou, 1e-4)
 
+@pytest.fixture(scope='function')
+def setup_stagnation_tests(request):
+    request.cls.gas = ct.Solution("h2o2.yaml")
 
-class TestStagnationFlame(utilities.CanteraTest):
-    def setup_method(self):
-        """ Runs before tests """
-        self.gas = ct.Solution("h2o2.yaml")
+@pytest.mark.usefixtures("setup_stagnation_tests")
+class TestStagnationFlame():
 
     def create_stagnation(self, comp, tsurf, tinlet, mdot, width):
         p = 0.05 * ct.one_atm  # pressure
@@ -1739,12 +1761,13 @@ class TestStagnationFlame(utilities.CanteraTest):
 
         jet.solve(loglevel=0)
 
+@pytest.fixture(scope='function')
+def setup_impinging_jet_tests(request):
+    request.cls.surf_phase = ct.Interface("ptcombust-simple.yaml", "Pt_surf")
+    request.cls.gas = request.cls.surf_phase.adjacent["gas"]
 
-class TestImpingingJet(utilities.CanteraTest):
-    def setup_method(self):
-        """ Runs before tests """
-        self.surf_phase = ct.Interface("ptcombust-simple.yaml", "Pt_surf")
-        self.gas = self.surf_phase.adjacent["gas"]
+@pytest.mark.usefixtures("setup_impinging_jet_tests")
+class TestImpingingJet():
 
     def create_reacting_surface(self, comp, tsurf, tinlet, width):
         self.gas.TPX = tinlet, ct.one_atm, comp
@@ -1859,7 +1882,7 @@ class TestImpingingJet(utilities.CanteraTest):
         jet.solve(loglevel=0)
 
 
-class TestTwinFlame(utilities.CanteraTest):
+class TestTwinFlame():
     def solve(self, phi, T, width, P):
         gas = ct.Solution("h2o2.yaml")
         gas.TP = T, ct.one_atm
@@ -1885,8 +1908,8 @@ class TestTwinFlame(utilities.CanteraTest):
 
         # Check inlet
         mdot = sim.density * sim.velocity
-        self.assertNear(mdot[0], sim.reactants.mdot, 1e-4)
-        self.assertNear(sim.T[0], sim.reactants.T, 1e-4)
+        assertNear(mdot[0], sim.reactants.mdot, 1e-4)
+        assertNear(sim.T[0], sim.reactants.T, 1e-4)
 
     def test_save_restore_yaml(self):
         # save and restore using YAML format
@@ -1910,8 +1933,8 @@ class TestTwinFlame(utilities.CanteraTest):
         sim2 = ct.CounterflowTwinPremixedFlame(gas=gas)
         sim2.restore(filename)
 
-        self.assertArrayNear(sim.grid, sim2.grid)
-        self.assertArrayNear(sim.Y, sim2.Y)
+        assertArrayNear(sim.grid, sim2.grid)
+        assertArrayNear(sim.Y, sim2.Y)
 
         sim2.solve(loglevel=0)
         return filename, "solution"
@@ -1923,7 +1946,7 @@ class TestTwinFlame(utilities.CanteraTest):
         with pytest.raises(ct.CanteraError, match="must be positive"):
             sim.solve(loglevel=0)
 
-class TestIonFreeFlame(utilities.CanteraTest):
+class TestIonFreeFlame():
     @utilities.slow_test
     def test_ion_profile(self):
         reactants = 'CH4:0.216, O2:2'
@@ -1947,10 +1970,10 @@ class TestIonFreeFlame(utilities.CanteraTest):
         self.sim.solve(loglevel=0, stage=2)
 
         # Regression test
-        self.assertNear(max(self.sim.E), 149.63179056676853, 1e-3)
+        assertNear(max(self.sim.E), 149.63179056676853, 1e-3)
 
 
-class TestIonBurnerFlame(utilities.CanteraTest):
+class TestIonBurnerFlame():
     def test_ion_profile(self):
         reactants = 'CH4:1.0, O2:2.0, N2:7.52'
         p = ct.one_atm
@@ -1968,5 +1991,5 @@ class TestIonBurnerFlame(utilities.CanteraTest):
         self.sim.solve(loglevel=0, stage=2, auto=True)
 
         # Regression test
-        self.assertNear(max(self.sim.E), 591.76, 1e-2)
-        self.assertNear(max(self.sim.X[self.gas.species_index('E')]), 8.024e-9, 1e-2)
+        assertNear(max(self.sim.E), 591.76, 1e-2)
+        assertNear(max(self.sim.X[self.gas.species_index('E')]), 8.024e-9, 1e-2)
