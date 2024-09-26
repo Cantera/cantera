@@ -1,13 +1,19 @@
-import numpy as np
-import re
-import itertools
 import importlib.metadata
+import itertools
+import numpy as np
 import pytest
 from pytest import approx
+import re
 
 import cantera as ct
+
 from . import utilities
 from .utilities import allow_deprecated
+from .utilities import (
+    assertNear,
+    assertArrayNear,
+    compare
+)
 
 # avoid explicit dependence of cantera on scipy
 try:
@@ -17,13 +23,14 @@ except importlib.metadata.PackageNotFoundError:
 else:
     from scipy import sparse as _scipy_sparse
 
+@pytest.fixture(scope='function')
+def setup_kinetics(request):
+    request.cls.phase = ct.Solution('h2o2.yaml', transport_model=None)
+    request.cls.phase.X = [0.1, 1e-4, 1e-5, 0.2, 2e-4, 0.3, 1e-6, 5e-5, 0.4, 0]
+    request.cls.phase.TP = 800, 2 * ct.one_atm
 
-class TestKinetics(utilities.CanteraTest):
-    def setup_method(self):
-        """Runs before tests"""
-        self.phase = ct.Solution('h2o2.yaml', transport_model=None)
-        self.phase.X = [0.1, 1e-4, 1e-5, 0.2, 2e-4, 0.3, 1e-6, 5e-5, 0.4, 0]
-        self.phase.TP = 800, 2 * ct.one_atm
+@pytest.mark.usefixtures("setup_kinetics")
+class TestKinetics():
 
     @pytest.mark.usefixtures("allow_deprecated")
     def test_counts(self):
@@ -46,20 +53,20 @@ class TestKinetics(utilities.CanteraTest):
         fwd_rates1 = self.phase.forward_rates_of_progress
         rev_rates1 = self.phase.reverse_rates_of_progress
 
-        self.assertNear(2 * fwd_rates0[0], fwd_rates1[0])
-        self.assertNear(0.1 * fwd_rates0[6], fwd_rates1[6])
-        self.assertNear(2 * rev_rates0[0], rev_rates1[0])
-        self.assertNear(0.1 * rev_rates0[6], rev_rates1[6])
+        assertNear(2 * fwd_rates0[0], fwd_rates1[0])
+        assertNear(0.1 * fwd_rates0[6], fwd_rates1[6])
+        assertNear(2 * rev_rates0[0], rev_rates1[0])
+        assertNear(0.1 * rev_rates0[6], rev_rates1[6])
         for i in range(self.phase.n_reactions):
             if i not in (0, 6):
-                self.assertNear(fwd_rates0[i], fwd_rates1[i])
-                self.assertNear(rev_rates0[i], rev_rates1[i])
+                assertNear(fwd_rates0[i], fwd_rates1[i])
+                assertNear(rev_rates0[i], rev_rates1[i])
 
         self.phase.set_multiplier(0.5)
         fwd_rates2 = self.phase.forward_rates_of_progress
         rev_rates2 = self.phase.reverse_rates_of_progress
-        self.assertArrayNear(0.5 * fwd_rates0, fwd_rates2)
-        self.assertArrayNear(0.5 * rev_rates0, rev_rates2)
+        assertArrayNear(0.5 * fwd_rates0, fwd_rates2)
+        assertArrayNear(0.5 * rev_rates0, rev_rates2)
 
     def test_legacy_reaction_rate(self):
         ct.use_legacy_rate_constants(True)
@@ -69,7 +76,7 @@ class TestKinetics(utilities.CanteraTest):
         ix_3b = np.array([r.reaction_type == "three-body-Arrhenius" for r in self.phase.reactions()])
         ix_other = ix_3b == False
 
-        self.assertArrayNear(fwd_rates_legacy[ix_other], fwd_rates[ix_other])
+        assertArrayNear(fwd_rates_legacy[ix_other], fwd_rates[ix_other])
         assert not (fwd_rates_legacy[ix_3b] == fwd_rates[ix_3b]).any()
 
     def test_reaction_type(self):
@@ -152,18 +159,18 @@ class TestKinetics(utilities.CanteraTest):
 
     def test_rates_of_progress(self):
         assert len(self.phase.net_rates_of_progress) == self.phase.n_reactions
-        self.assertArrayNear(self.phase.forward_rates_of_progress - self.phase.reverse_rates_of_progress,
-                             self.phase.net_rates_of_progress)
+        assertArrayNear(self.phase.forward_rates_of_progress - self.phase.reverse_rates_of_progress,
+                        self.phase.net_rates_of_progress)
 
     def test_heat_release(self):
         hrr = - self.phase.partial_molar_enthalpies.dot(self.phase.net_production_rates)
-        self.assertNear(hrr, self.phase.heat_release_rate)
-        self.assertNear(hrr, sum(self.phase.heat_production_rates))
+        assertNear(hrr, self.phase.heat_release_rate)
+        assertNear(hrr, sum(self.phase.heat_production_rates))
 
     def test_rate_constants(self):
         assert len(self.phase.forward_rate_constants) == self.phase.n_reactions
         ix = self.phase.reverse_rate_constants != 0.
-        self.assertArrayNear(
+        assertArrayNear(
             self.phase.forward_rate_constants[ix] / self.phase.reverse_rate_constants[ix],
             self.phase.equilibrium_constants[ix])
 
@@ -175,21 +182,21 @@ class TestKinetics(utilities.CanteraTest):
         destruction = (np.dot(nu_r, self.phase.forward_rates_of_progress) +
                        np.dot(nu_p, self.phase.reverse_rates_of_progress))
 
-        self.assertArrayNear(self.phase.creation_rates, creation)
-        self.assertArrayNear(self.phase.destruction_rates, destruction)
-        self.assertArrayNear(self.phase.net_production_rates,
+        assertArrayNear(self.phase.creation_rates, creation)
+        assertArrayNear(self.phase.destruction_rates, destruction)
+        assertArrayNear(self.phase.net_production_rates,
                              creation - destruction)
 
     def test_reaction_deltas(self):
-        self.assertArrayNear(self.phase.delta_enthalpy -
+        assertArrayNear(self.phase.delta_enthalpy -
                              self.phase.delta_entropy * self.phase.T,
                              self.phase.delta_gibbs)
-        self.assertArrayNear(self.phase.delta_standard_enthalpy -
-                             self.phase.delta_standard_entropy * self.phase.T,
-                             self.phase.delta_standard_gibbs)
+        assertArrayNear(self.phase.delta_standard_enthalpy -
+                        self.phase.delta_standard_entropy * self.phase.T,
+                        self.phase.delta_standard_gibbs)
 
 
-class KineticsFromReactions(utilities.CanteraTest):
+class KineticsFromReactions():
     """
     Test for Kinetics objects which are constructed directly from Reaction
     objects instead of from input files.
@@ -209,9 +216,9 @@ class KineticsFromReactions(utilities.CanteraTest):
         assert (gas1.reactant_stoich_coeffs == gas2.reactant_stoich_coeffs).all()
         assert (gas1.product_stoich_coeffs == gas2.product_stoich_coeffs).all()
 
-        self.assertArrayNear(gas1.delta_gibbs, gas2.delta_gibbs)
-        self.assertArrayNear(gas1.reverse_rate_constants, gas2.reverse_rate_constants)
-        self.assertArrayNear(gas1.net_production_rates, gas2.net_production_rates)
+        assertArrayNear(gas1.delta_gibbs, gas2.delta_gibbs)
+        assertArrayNear(gas1.reverse_rate_constants, gas2.reverse_rate_constants)
+        assertArrayNear(gas1.net_production_rates, gas2.net_production_rates)
 
     def test_surface(self):
         surf1 = ct.Interface("ptcombust.yaml", "Pt_surf")
@@ -239,18 +246,18 @@ class KineticsFromReactions(utilities.CanteraTest):
             assert r1.products == r2.products
             assert r1.rate.pre_exponential_factor == r2.rate.pre_exponential_factor
             assert r1.rate.temperature_exponent == r2.rate.temperature_exponent
-            self.assertNear(r1.rate.activation_energy, r2.rate.activation_energy)
+            assertNear(r1.rate.activation_energy, r2.rate.activation_energy)
 
-        self.assertArrayNear(surf1.delta_enthalpy, surf2.delta_enthalpy)
-        self.assertArrayNear(surf1.forward_rate_constants, surf2.forward_rate_constants)
-        self.assertArrayNear(surf1.reverse_rate_constants, surf2.reverse_rate_constants)
+        assertArrayNear(surf1.delta_enthalpy, surf2.delta_enthalpy)
+        assertArrayNear(surf1.forward_rate_constants, surf2.forward_rate_constants)
+        assertArrayNear(surf1.reverse_rate_constants, surf2.reverse_rate_constants)
 
         rop1 = surf1.net_production_rates
         rop2 = surf2.net_production_rates
         for k in gas.species_names + surf1.species_names:
             k1 = surf1.kinetics_species_index(k)
             k2 = surf2.kinetics_species_index(k)
-            self.assertNear(rop1[k1], rop2[k2])
+            assertNear(rop1[k1], rop2[k2])
 
     def test_add_reaction(self):
         gas1 = ct.Solution('h2o2.yaml', transport_model=None)
@@ -271,9 +278,9 @@ class KineticsFromReactions(utilities.CanteraTest):
         assert (gas1.reactant_stoich_coeffs == gas2.reactant_stoich_coeffs).all()
         assert (gas1.product_stoich_coeffs == gas2.product_stoich_coeffs).all()
 
-        self.assertArrayNear(gas1.delta_gibbs, gas2.delta_gibbs)
-        self.assertArrayNear(gas1.reverse_rate_constants, gas2.reverse_rate_constants)
-        self.assertArrayNear(gas1.net_production_rates, gas2.net_production_rates)
+        assertArrayNear(gas1.delta_gibbs, gas2.delta_gibbs)
+        assertArrayNear(gas1.reverse_rate_constants, gas2.reverse_rate_constants)
+        assertArrayNear(gas1.net_production_rates, gas2.net_production_rates)
 
     def test_coverage_dependence_flags(self):
         surf = ct.Interface("ptcombust.yaml", "Pt_surf")
@@ -330,7 +337,7 @@ class KineticsFromReactions(utilities.CanteraTest):
         assert gas.reaction_equations() == restored.reaction_equations
 
 
-class KineticsRepeatability(utilities.CanteraTest):
+class KineticsRepeatability():
     """
     Tests to make sure that lazily evaluated terms in the rate expression
     are always updated correctly.
@@ -364,7 +371,7 @@ class KineticsRepeatability(utilities.CanteraTest):
         gas.TDX = self.T0, self.rho0, self.X0
         w4 = gas.net_production_rates
 
-        self.assertArrayNear(w1, w4)
+        assertArrayNear(w1, w4)
 
     def check_rates_temperature1(self, mech):
         gas = self.setup_gas(mech)
@@ -382,7 +389,7 @@ class KineticsRepeatability(utilities.CanteraTest):
         gas.TDX = self.T0, self.rho0, self.X0
         w4 = gas.net_production_rates
 
-        self.assertArrayNear(w1, w4)
+        assertArrayNear(w1, w4)
 
     def check_rates_temperature2(self, mech):
         gas = self.setup_gas(mech)
@@ -400,7 +407,7 @@ class KineticsRepeatability(utilities.CanteraTest):
         gas.TPX = self.T0, self.P0, self.X0
         w4 = gas.net_production_rates
 
-        self.assertArrayNear(w1, w4)
+        assertArrayNear(w1, w4)
 
     def check_rates_pressure(self, mech):
         gas = self.setup_gas(mech)
@@ -418,7 +425,7 @@ class KineticsRepeatability(utilities.CanteraTest):
         gas.TPX = self.T0, self.P0, self.X0
         w4 = gas.net_production_rates
 
-        self.assertArrayNear(w1, w4)
+        assertArrayNear(w1, w4)
 
     def test_gri30_composition(self):
         self.check_rates_composition("gri30.yaml")
@@ -522,7 +529,7 @@ def check_raises(yaml, err_msg, line):
         assert err in msg
 
 
-class TestUndeclared(utilities.CanteraTest):
+class TestUndeclared():
 
     _gas_def = """
             phases:
@@ -642,7 +649,7 @@ class TestUndeclared(utilities.CanteraTest):
         assert surf.n_reactions == 14
 
 
-class TestInvalidInput(utilities.CanteraTest):
+class TestInvalidInput():
 
     _gas_def = """
             phases:
@@ -713,28 +720,29 @@ class TestInvalidInput(utilities.CanteraTest):
         check_raises(gas_def, "negative pre-exponential factor", line=14)
 
 
-class TestEmptyKinetics(utilities.CanteraTest):
+class TestEmptyKinetics():
     def test_empty(self):
         gas = ct.Solution("air-no-reactions.yaml")
 
         assert gas.n_reactions == 0
-        self.assertArrayNear(gas.creation_rates, np.zeros(gas.n_species))
-        self.assertArrayNear(gas.destruction_rates, np.zeros(gas.n_species))
-        self.assertArrayNear(gas.net_production_rates, np.zeros(gas.n_species))
+        assertArrayNear(gas.creation_rates, np.zeros(gas.n_species))
+        assertArrayNear(gas.destruction_rates, np.zeros(gas.n_species))
+        assertArrayNear(gas.net_production_rates, np.zeros(gas.n_species))
 
 
-class TestReactionPath(utilities.CanteraTest):
-    @classmethod
-    def setup_class(cls):
-        super().setup_class()
-        cls.gas = ct.Solution('gri30.yaml', transport_model=None)
-        cls.gas.TPX = 1300.0, ct.one_atm, 'CH4:0.4, O2:1, N2:3.76'
-        r = ct.IdealGasReactor(cls.gas)
-        net = ct.ReactorNet([r])
+@pytest.fixture(scope='class')
+def setup_reaction_path_tests(request):
+    request.cls.gas = ct.Solution('gri30.yaml', transport_model=None)
+    request.cls.gas.TPX = 1300.0, ct.one_atm, 'CH4:0.4, O2:1, N2:3.76'
+    r = ct.IdealGasReactor(request.cls.gas)
+    net = ct.ReactorNet([r])
+    T = r.T
+    while T < 1900:
+        net.step()
         T = r.T
-        while T < 1900:
-            net.step()
-            T = r.T
+
+@pytest.mark.usefixtures('setup_reaction_path_tests')
+class TestReactionPath():
 
     def check_dot(self, diagram, element):
         diagram.label_threshold = 0
@@ -808,7 +816,7 @@ class TestReactionPath(utilities.CanteraTest):
             fluxes = sorted(fluxes.values())
 
             for i in range(1, 20):
-                self.assertNear(dot_fluxes[-i], fluxes[-i], 1e-2)
+                assertNear(dot_fluxes[-i], fluxes[-i], 1e-2)
 
     def test_dot_oneway_autoscaled(self):
         for element in ['N', 'C', 'H', 'O']:
@@ -827,7 +835,7 @@ class TestReactionPath(utilities.CanteraTest):
             fluxes = sorted(fluxes.values())
 
             for i in range(1, 20):
-                self.assertNear(dot_fluxes[-i], fluxes[-i], 1e-2)
+                assertNear(dot_fluxes[-i], fluxes[-i], 1e-2)
 
     def test_fluxes(self):
         gas = ct.Solution('h2o2.yaml', transport_model=None)
@@ -837,17 +845,17 @@ class TestReactionPath(utilities.CanteraTest):
         ropr = gas.reverse_rates_of_progress
         fluxes, _ = self.get_fluxes(diagram)
 
-        self.assertNear(fluxes['HO2','H'], ropr[5] + ropr[9], 1e-5)
-        self.assertNear(fluxes['H', 'H2'], 2*ropf[11] + ropf[16], 1e-5)
-        self.assertNear(fluxes['H', 'H2O'], ropf[15], 1e-5)
-        self.assertNear(fluxes['H', 'OH'], ropf[17], 1e-5)
-        self.assertNear(fluxes['HO2','H2'], ropf[16], 1e-5)
-        self.assertNear(fluxes['HO2', 'H2O'], ropf[15], 1e-5)
-        self.assertNear(fluxes['HO2', 'OH'], ropf[17], 1e-5)
-        self.assertNear(fluxes['HO2', 'H2O2'], 2*ropf[26] + 2*ropf[27], 1e-5)
+        assertNear(fluxes['HO2','H'], ropr[5] + ropr[9], 1e-5)
+        assertNear(fluxes['H', 'H2'], 2*ropf[11] + ropf[16], 1e-5)
+        assertNear(fluxes['H', 'H2O'], ropf[15], 1e-5)
+        assertNear(fluxes['H', 'OH'], ropf[17], 1e-5)
+        assertNear(fluxes['HO2','H2'], ropf[16], 1e-5)
+        assertNear(fluxes['HO2', 'H2O'], ropf[15], 1e-5)
+        assertNear(fluxes['HO2', 'OH'], ropf[17], 1e-5)
+        assertNear(fluxes['HO2', 'H2O2'], 2*ropf[26] + 2*ropf[27], 1e-5)
 
 
-class TestChemicallyActivated(utilities.CanteraTest):
+class TestChemicallyActivated():
     def test_rate_evaluation(self):
         gas = ct.Solution("chemically-activated-reaction.yaml")
         P = [2026.5, 202650.0, 10132500.0] # pressure
@@ -857,10 +865,10 @@ class TestChemicallyActivated(utilities.CanteraTest):
 
         for i in range(len(P)):
             gas.TPX = 900.0, P[i], [0.01, 0.01, 0.04, 0.10, 0.84]
-            self.assertNear(gas.forward_rates_of_progress[0], Rf[i], 2e-5)
+            assertNear(gas.forward_rates_of_progress[0], Rf[i], 2e-5)
 
 
-class ExplicitForwardOrderTest(utilities.CanteraTest):
+class ExplicitForwardOrderTest():
     def setup_method(self):
         """ Runs before tests """
         self.gas = ct.Solution("explicit-forward-order.yaml")
@@ -877,9 +885,9 @@ class ExplicitForwardOrderTest(utilities.CanteraTest):
         C = self.gas.concentrations
         Rf = self.gas.forward_rates_of_progress
         kf = self.gas.forward_rate_constants
-        self.assertNear(Rf[0], kf[0] * C[2]**1.5 * C[3]**0.5)
-        self.assertNear(Rf[1], kf[1] * C[0]**1.0 * C[4]**0.2)
-        self.assertNear(Rf[2], kf[2] * C[2]**3.0)
+        assertNear(Rf[0], kf[0] * C[2]**1.5 * C[3]**0.5)
+        assertNear(Rf[1], kf[1] * C[0]**1.0 * C[4]**0.2)
+        assertNear(Rf[2], kf[2] * C[2]**3.0)
 
     def test_ratio1(self):
         rop1 = self.gas.forward_rates_of_progress
@@ -887,9 +895,9 @@ class ExplicitForwardOrderTest(utilities.CanteraTest):
         self.gas.TPX = None, None, [0.02, 0.87, 0.04, 0.03, 0.04]
         rop2 = self.gas.forward_rates_of_progress
         ratio = rop2/rop1
-        self.assertNear(ratio[0], 2**1.5) # order of R1A is 1.5
-        self.assertNear(ratio[1], 2**1.0) # order of H is 1.0
-        self.assertNear(ratio[2], 2**3) # order of R1A is 3
+        assertNear(ratio[0], 2**1.5) # order of R1A is 1.5
+        assertNear(ratio[1], 2**1.0) # order of H is 1.0
+        assertNear(ratio[2], 2**3) # order of R1A is 3
 
     def test_ratio2(self):
         rop1 = self.gas.forward_rates_of_progress
@@ -897,12 +905,12 @@ class ExplicitForwardOrderTest(utilities.CanteraTest):
         self.gas.TPX = None, None, [0.01, 0.83, 0.02, 0.06, 0.08]
         rop2 = self.gas.forward_rates_of_progress
         ratio = rop2/rop1
-        self.assertNear(ratio[0], 2**0.5) # order of R1B is 0.5
-        self.assertNear(ratio[1], 2**0.2) # order of P1 is 1.0
-        self.assertNear(ratio[2], 2**0.0) # order of R1B is 0
+        assertNear(ratio[0], 2**0.5) # order of R1B is 0.5
+        assertNear(ratio[1], 2**0.2) # order of P1 is 1.0
+        assertNear(ratio[2], 2**0.0) # order of R1B is 0
 
 
-class TestSofcKinetics(utilities.CanteraTest):
+class TestSofcKinetics():
     """ Test based on sofc.py """
     _mech = "sofc.yaml"
 
@@ -969,18 +977,18 @@ class TestSofcKinetics(utilities.CanteraTest):
             s.advance_coverages(50.0)
 
         # These values are just a regression test with no theoretical basis
-        self.assertArrayNear(anode_surf.coverages,
-                             [6.18736878e-01, 3.81123655e-01, 8.6303646e-05,
-                              2.59274203e-06, 5.05700981e-05], 1e-7)
-        self.assertArrayNear(oxide_surf_a.coverages,
-                             [4.99435780e-02, 9.48927983e-01, 1.12840418e-03,
-                              3.35936530e-08], 1e-7)
-        self.assertArrayNear(cathode_surf.coverages,
-                             [1.48180380e-07, 7.57234727e-14, 9.99999827e-01,
-                              2.49235513e-08, 4.03296469e-13], 1e-7)
-        self.assertArrayNear(oxide_surf_c.coverages,
-                             [4.99896947e-02, 9.49804199e-01, 2.06104679e-04,
-                              1.11970271e-09], 1e-7)
+        assertArrayNear(anode_surf.coverages,
+                        [6.18736878e-01, 3.81123655e-01, 8.6303646e-05,
+                        2.59274203e-06, 5.05700981e-05], 1e-7)
+        assertArrayNear(oxide_surf_a.coverages,
+                        [4.99435780e-02, 9.48927983e-01, 1.12840418e-03,
+                         3.35936530e-08], 1e-7)
+        assertArrayNear(cathode_surf.coverages,
+                        [1.48180380e-07, 7.57234727e-14, 9.99999827e-01,
+                         2.49235513e-08, 4.03296469e-13], 1e-7)
+        assertArrayNear(oxide_surf_c.coverages,
+                        [4.99896947e-02, 9.49804199e-01, 2.06104679e-04,
+                         1.11970271e-09], 1e-7)
 
         Ea0 = newton_solve(anode_curr, xstart=-0.51)
         Ec0 = newton_solve(cathode_curr, xstart=0.51)
@@ -1001,10 +1009,10 @@ class TestSofcKinetics(utilities.CanteraTest):
                              cathode_bulk.electric_potential -
                              anode_bulk.electric_potential])
 
-        self.compare(data, self.test_data_path / "sofc-test.csv", rtol=1e-7)
+        compare(data, self.test_data_path / "sofc-test.csv", rtol=1e-7)
 
 
-class TestLithiumIonBatteryKinetics(utilities.CanteraTest):
+class TestLithiumIonBatteryKinetics():
     """ Test based on lithium_ion_battery.py """
     _mech = "lithium_ion_battery.yaml"
 
@@ -1121,7 +1129,7 @@ class TestLithiumIonBatteryKinetics(utilities.CanteraTest):
             assert  method == manual
 
 
-class TestDuplicateReactions(utilities.CanteraTest):
+class TestDuplicateReactions():
     infile = 'duplicate-reactions.yaml'
 
     def check(self, name):
@@ -1166,15 +1174,15 @@ class TestDuplicateReactions(utilities.CanteraTest):
         gas = ct.Solution(self.infile, 'K')
         assert gas.n_reactions == 3
 
+@pytest.fixture(scope='class')
+def setup_reaction_tests(request):
+    request.cls.gas = ct.Solution('h2o2.yaml', transport_model=None)
+    request.cls.gas.X = 'H2:0.1, H2O:0.2, O2:0.7, O:1e-4, OH:1e-5, H:2e-5'
+    request.cls.gas.TP = 900, 2*ct.one_atm
+    request.cls.species = ct.Species.list_from_file("h2o2.yaml")
 
-class TestReaction(utilities.CanteraTest):
-    @classmethod
-    def setup_class(cls):
-        super().setup_class()
-        cls.gas = ct.Solution('h2o2.yaml', transport_model=None)
-        cls.gas.X = 'H2:0.1, H2O:0.2, O2:0.7, O:1e-4, OH:1e-5, H:2e-5'
-        cls.gas.TP = 900, 2*ct.one_atm
-        cls.species = ct.Species.list_from_file("h2o2.yaml")
+@pytest.mark.usefixtures("setup_reaction_tests")
+class TestReaction():
 
     def test_from_yaml(self):
         r = ct.Reaction.from_yaml(
@@ -1224,9 +1232,9 @@ class TestReaction(utilities.CanteraTest):
         r = ct.Reaction({"O": 1, "H2": 1}, {"H": 1, "OH": 1},
                         ct.ArrheniusRate(3.87e1, 2.7, 2.6e7))
         data = r.input_data
-        self.assertNear(data['rate-constant']['A'], 3.87e1)
-        self.assertNear(data['rate-constant']['b'], 2.7)
-        self.assertNear(data['rate-constant']['Ea'], 2.6e7)
+        assertNear(data['rate-constant']['A'], 3.87e1)
+        assertNear(data['rate-constant']['b'], 2.7)
+        assertNear(data['rate-constant']['Ea'], 2.6e7)
         terms = data['equation'].split()
         assert 'O' in terms
         assert 'OH' in terms
@@ -1280,14 +1288,14 @@ class TestElementaryReaction(TestReaction):
                            species=self.species, reactions=[r])
         gas2.TPX = self.gas.TPX
 
-        self.assertNear(gas2.forward_rate_constants[0],
-                        self.gas.forward_rate_constants[2])
-        self.assertNear(gas2.net_rates_of_progress[0],
-                        self.gas.net_rates_of_progress[2])
+        assertNear(gas2.forward_rate_constants[0],
+                   self.gas.forward_rate_constants[2])
+        assertNear(gas2.net_rates_of_progress[0],
+                   self.gas.net_rates_of_progress[2])
 
     def test_arrhenius_rate(self):
         R = self.gas.reaction(2)
-        self.assertNear(R.rate(self.gas.T), self.gas.forward_rate_constants[2])
+        assertNear(R.rate(self.gas.T), self.gas.forward_rate_constants[2])
 
     def test_negative_A(self):
         species = ct.Species.list_from_file("gri30.yaml")
@@ -1310,14 +1318,14 @@ class TestElementaryReaction(TestReaction):
         b1 = R.rate.temperature_exponent
         Ta1 = R.rate.activation_energy / ct.gas_constant
         T = gas.T
-        self.assertNear(A1*T**b1*np.exp(-Ta1/T), gas.forward_rate_constants[2])
+        assertNear(A1*T**b1*np.exp(-Ta1/T), gas.forward_rate_constants[2])
 
         A2 = 1.5 * A1
         b2 = b1 + 0.1
         Ta2 = Ta1 * 1.2
         R.rate = ct.ArrheniusRate(A2, b2, Ta2 * ct.gas_constant)
         gas.modify_reaction(2, R)
-        self.assertNear(A2*T**b2*np.exp(-Ta2/T), gas.forward_rate_constants[2])
+        assertNear(A2*T**b2*np.exp(-Ta2/T), gas.forward_rate_constants[2])
 
 
 class TestFalloffReaction(TestReaction):
@@ -1357,10 +1365,10 @@ class TestFalloffReaction(TestReaction):
                            species=self.species, reactions=[r])
         gas2.TPX = self.gas.TPX
 
-        self.assertNear(gas2.forward_rate_constants[0],
-                        self.gas.forward_rate_constants[21])
-        self.assertNear(gas2.net_rates_of_progress[0],
-                        self.gas.net_rates_of_progress[21])
+        assertNear(gas2.forward_rate_constants[0],
+                   self.gas.forward_rate_constants[21])
+        assertNear(gas2.net_rates_of_progress[0],
+                    self.gas.net_rates_of_progress[21])
 
     def test_modify_falloff(self):
         gas = ct.Solution('gri30.yaml', transport_model=None)
@@ -1376,7 +1384,7 @@ class TestFalloffReaction(TestReaction):
 
         gas.modify_reaction(53, r2)
         kf = gas.forward_rate_constants
-        self.assertNear(kf[49], kf[53])
+        assertNear(kf[49], kf[53])
 
 
 class TestThreebodyReaction(TestReaction):
@@ -1389,10 +1397,10 @@ class TestThreebodyReaction(TestReaction):
                            species=self.species, reactions=[r])
         gas2.TPX = self.gas.TPX
 
-        self.assertNear(gas2.forward_rate_constants[0],
-                        self.gas.forward_rate_constants[1])
-        self.assertNear(gas2.net_rates_of_progress[0],
-                        self.gas.net_rates_of_progress[1])
+        assertNear(gas2.forward_rate_constants[0],
+                   self.gas.forward_rate_constants[1])
+        assertNear(gas2.net_rates_of_progress[0],
+                   self.gas.net_rates_of_progress[1])
 
     def test_modify_third_body(self):
         gas = ct.Solution('h2o2.yaml', transport_model=None)
@@ -1408,7 +1416,7 @@ class TestThreebodyReaction(TestReaction):
         R.rate = ct.ArrheniusRate(A2, b2, 0.0)
         gas.modify_reaction(5, R)
         kf2 = gas.forward_rate_constants[5]
-        self.assertNear((A2*T**b2) / (A1*T**b1), kf2/kf1)
+        assertNear((A2*T**b2) / (A1*T**b1), kf2/kf1)
 
 
 class TestPlogReaction(TestReaction):
@@ -1432,17 +1440,17 @@ class TestPlogReaction(TestReaction):
 
         for P in [0.001, 0.01, 0.2, 1.0, 1.1, 9.0, 10.0, 99.0, 103.0]:
             gas1.TP = gas2.TP = 900, P * ct.one_atm
-            self.assertNear(gas2.forward_rate_constants[0],
-                            gas1.forward_rate_constants[0])
-            self.assertNear(gas2.net_rates_of_progress[0],
-                            gas1.net_rates_of_progress[0])
+            assertNear(gas2.forward_rate_constants[0],
+                       gas1.forward_rate_constants[0])
+            assertNear(gas2.net_rates_of_progress[0],
+                       gas1.net_rates_of_progress[0])
 
     def test_plog_rate(self):
         gas1 = ct.Solution('pdep-test.yaml')
         gas1.TP = 800, 2*ct.one_atm
         for i in range(4):
-            self.assertNear(gas1.reaction(i).rate(gas1.T, gas1.P),
-                            gas1.forward_rate_constants[i])
+            assertNear(gas1.reaction(i).rate(gas1.T, gas1.P),
+                       gas1.forward_rate_constants[i])
 
     def test_plog_invalid_third_body(self):
         with pytest.raises(ct.CanteraError, match="Found superfluous"):
@@ -1457,12 +1465,12 @@ class TestPlogReaction(TestReaction):
         r0.rate = ct.PlogRate(r1.rate.rates)
         gas.modify_reaction(0, r0)
         kf = gas.forward_rate_constants
-        self.assertNear(kf[0], kf[1])
+        assertNear(kf[0], kf[1])
 
         # Removing the high-pressure rates should have no effect at low P...
         r1.rate = ct.PlogRate(rates=r1.rate.rates[:-4])
         gas.modify_reaction(1, r1)
-        self.assertNear(kf[1], gas.forward_rate_constants[1])
+        assertNear(kf[1], gas.forward_rate_constants[1])
 
         # ... but should change the rate at higher pressures
         gas.TP = 1010, 12.0 * ct.one_atm
@@ -1491,10 +1499,10 @@ class TestChebyshevReaction(TestReaction):
 
         for T,P in itertools.product([300, 500, 1500], [1e4, 4e5, 3e6]):
             gas1.TP = gas2.TP = T, P
-            self.assertNear(gas2.forward_rate_constants[0],
-                            gas1.forward_rate_constants[4])
-            self.assertNear(gas2.net_rates_of_progress[0],
-                            gas1.net_rates_of_progress[4])
+            assertNear(gas2.forward_rate_constants[0],
+                       gas1.forward_rate_constants[4])
+            assertNear(gas2.net_rates_of_progress[0],
+                       gas1.net_rates_of_progress[4])
 
     def test_chebyshev_single_P(self):
         species = ct.Species.list_from_file("pdep-test.yaml")
@@ -1516,7 +1524,7 @@ class TestChebyshevReaction(TestReaction):
             k1 = gas.forward_rate_constants[0]
             gas.TP = T, 1e6
             k2 = gas.forward_rate_constants[0]
-            self.assertNear(k1, k2)
+            assertNear(k1, k2)
 
     def test_chebyshev_single_T(self):
         species = ct.Species.list_from_file("pdep-test.yaml")
@@ -1535,14 +1543,14 @@ class TestChebyshevReaction(TestReaction):
             k1 = gas.forward_rate_constants[0]
             gas.TP = 1700, P
             k2 = gas.forward_rate_constants[0]
-            self.assertNear(k1, k2)
+            assertNear(k1, k2)
 
     def test_chebyshev_rate(self):
         gas1 = ct.Solution('pdep-test.yaml')
         gas1.TP = 800, 2*ct.one_atm
         for i in range(4,6):
-            self.assertNear(gas1.reaction(i).rate(gas1.T, gas1.P),
-                            gas1.forward_rate_constants[i])
+            assertNear(gas1.reaction(i).rate(gas1.T, gas1.P),
+                       gas1.forward_rate_constants[i])
 
     def test_chebyshev_bad_shape_yaml(self):
         species = ct.Species.list_from_file("pdep-test.yaml")
@@ -1571,8 +1579,8 @@ class TestChebyshevReaction(TestReaction):
 
         r1 = gas.reaction(4)
         r2 = gas.reaction(5)
-        r1.rate = ct.ChebyshevRate(
-            r2.rate.temperature_range, r2.rate.pressure_range, r2.rate.data)
+        r1.rate = ct.ChebyshevRate(r2.rate.temperature_range, r2.rate.pressure_range,
+                                   r2.rate.data)
 
         # rates should be different before calling 'modify_reaction'
         kf = gas.forward_rate_constants
@@ -1580,7 +1588,7 @@ class TestChebyshevReaction(TestReaction):
 
         gas.modify_reaction(4, r1)
         kf = gas.forward_rate_constants
-        self.assertNear(kf[4], kf[5])
+        assertNear(kf[4], kf[5])
 
 
 class TestBlowersMaselReaction(TestReaction):
@@ -1600,10 +1608,10 @@ class TestBlowersMaselReaction(TestReaction):
         gas1.X = 'H2:0.1, H2O:0.2, O2:0.7, O:1e-4, OH:1e-5, H:2e-5'
         gas2.X = 'H2:0.1, H2O:0.2, O2:0.7, O:1e-4, OH:1e-5, H:2e-5'
 
-        self.assertNear(gas2.forward_rate_constants[0],
-                        gas1.forward_rate_constants[0], rtol=1e-7)
-        self.assertNear(gas2.net_rates_of_progress[0],
-                        gas1.net_rates_of_progress[0], rtol=1e-7)
+        assertNear(gas2.forward_rate_constants[0],
+                   gas1.forward_rate_constants[0], rtol=1e-7)
+        assertNear(gas2.net_rates_of_progress[0],
+                   gas1.net_rates_of_progress[0], rtol=1e-7)
 
     def test_negative_A_blowersmasel(self):
         species = ct.Solution("blowers-masel.yaml").species()
@@ -1635,8 +1643,8 @@ class TestBlowersMaselReaction(TestReaction):
         species = gas.species('OH')
 
         gas.reaction(0).rate.delta_enthalpy = deltaH
-        self.assertNear(gas.reaction(0).rate.delta_enthalpy, deltaH)
-        self.assertNear(E, gas.reaction(0).rate.activation_energy)
+        assertNear(gas.reaction(0).rate.delta_enthalpy, deltaH)
+        assertNear(E, gas.reaction(0).rate.activation_energy)
 
         perturbed_coeffs = species.thermo.coeffs.copy()
         perturbed_coeffs[6] += deltaH_high / ct.gas_constant
@@ -1645,9 +1653,9 @@ class TestBlowersMaselReaction(TestReaction):
                             species.thermo.reference_pressure, perturbed_coeffs)
         gas.modify_species(index, species)
         gas.reaction(0).rate.delta_enthalpy = deltaH_high
-        self.assertNear(gas.reaction(0).rate.delta_enthalpy, deltaH_high)
-        self.assertNear(deltaH_high, gas.reaction(0).rate.activation_energy)
-        self.assertNear(A*gas.T**b*np.exp(-deltaH_high/ct.gas_constant/gas.T), gas.forward_rate_constants[0])
+        assertNear(gas.reaction(0).rate.delta_enthalpy, deltaH_high)
+        assertNear(deltaH_high, gas.reaction(0).rate.activation_energy)
+        assertNear(A*gas.T**b*np.exp(-deltaH_high/ct.gas_constant/gas.T), gas.forward_rate_constants[0])
 
         perturbed_coeffs = species.thermo.coeffs.copy()
         perturbed_coeffs[6] += deltaH_low / ct.gas_constant
@@ -1656,9 +1664,9 @@ class TestBlowersMaselReaction(TestReaction):
                             species.thermo.reference_pressure, perturbed_coeffs)
         gas.modify_species(index, species)
         gas.reaction(0).rate.delta_enthalpy = deltaH_low
-        self.assertNear(gas.reaction(0).rate.delta_enthalpy, deltaH_low)
+        assertNear(gas.reaction(0).rate.delta_enthalpy, deltaH_low)
         assert gas.reaction(0).rate.activation_energy == 0
-        self.assertNear(A*gas.T**b*np.exp(0/ct.gas_constant/gas.T), gas.forward_rate_constants[0])
+        assertNear(A*gas.T**b*np.exp(0/ct.gas_constant/gas.T), gas.forward_rate_constants[0])
 
     def test_modify_BlowersMasel(self):
         gas = ct.Solution("blowers-masel.yaml")
@@ -1671,7 +1679,7 @@ class TestBlowersMaselReaction(TestReaction):
         R.rate.delta_enthalpy = delta_enthalpy
         Ta1 = R.rate.activation_energy / ct.gas_constant
         T = gas.T
-        self.assertNear(A1 * T**b1 * np.exp(-Ta1 / T), gas.forward_rate_constants[0])
+        assertNear(A1 * T**b1 * np.exp(-Ta1 / T), gas.forward_rate_constants[0])
 
         # randomly modify the rate parameters of a Blowers-Masel reaction
         A2 = 1.5 * A1
@@ -1683,7 +1691,7 @@ class TestBlowersMaselReaction(TestReaction):
         R.rate.delta_enthalpy = delta_enthalpy
         Ta2 = R.rate.activation_energy / ct.gas_constant
         gas.modify_reaction(0, R)
-        self.assertNear(A2 * T**b2 * np.exp(-Ta2 / T), gas.forward_rate_constants[0])
+        assertNear(A2 * T**b2 * np.exp(-Ta2 / T), gas.forward_rate_constants[0])
 
 
 class TestInterfaceReaction(TestReaction):
@@ -1695,7 +1703,7 @@ class TestInterfaceReaction(TestReaction):
 
         rate = ct.InterfaceArrheniusRate(3.7e20, 0, 67.4e6)
         rate.coverage_dependencies = {'H(S)': (0, 0, -6e6)}
-        self.assertNear(rate.coverage_dependencies["H(S)"]["E"], -6e6)
+        assertNear(rate.coverage_dependencies["H(S)"]["E"], -6e6)
         r1 = ct.Reaction(equation="2 H(S) <=> H2 + 2 PT(S)", rate=rate)
 
         surf2 = ct.Interface(thermo='ideal-surface', species=surf_species,
@@ -1707,10 +1715,10 @@ class TestInterfaceReaction(TestReaction):
 
         for T in [300, 500, 1500]:
             gas.TP = surf1.TP = surf2.TP = T, 5*ct.one_atm
-            self.assertNear(surf1.forward_rate_constants[1],
-                            surf2.forward_rate_constants[0])
-            self.assertNear(surf1.net_rates_of_progress[1],
-                            surf2.net_rates_of_progress[0])
+            assertNear(surf1.forward_rate_constants[1],
+                       surf2.forward_rate_constants[0])
+            assertNear(surf1.net_rates_of_progress[1],
+                       surf2.net_rates_of_progress[0])
 
     def test_BlowersMaselinterface(self):
         gas = ct.Solution("gri30.yaml", transport_model=None)
@@ -1718,7 +1726,7 @@ class TestInterfaceReaction(TestReaction):
         surf1 = ct.Interface("blowers-masel.yaml", "Pt_surf", [gas])
         rate = ct.InterfaceBlowersMaselRate(3.7e20, 0, 67.4e6, 1e9)
         rate.coverage_dependencies = {"H(S)": (0, 0, -6e6)}
-        self.assertNear(rate.coverage_dependencies["H(S)"]["E"], -6e6)
+        assertNear(rate.coverage_dependencies["H(S)"]["E"], -6e6)
 
         r1 = ct.Reaction("H(S):2", "H2:1, PT(S):2", rate)
 
@@ -1734,10 +1742,10 @@ class TestInterfaceReaction(TestReaction):
 
         for T in [300, 500, 1500]:
             gas.TP = surf1.TP = surf2.TP = T, 5*ct.one_atm
-            self.assertNear(surf1.forward_rate_constants[0],
-                            surf2.forward_rate_constants[0])
-            self.assertNear(surf1.net_rates_of_progress[0],
-                            surf2.net_rates_of_progress[0])
+            assertNear(surf1.forward_rate_constants[0],
+                       surf2.forward_rate_constants[0])
+            assertNear(surf1.net_rates_of_progress[0],
+                       surf2.net_rates_of_progress[0])
 
     def test_modify_interface(self):
         surf = ct.Interface("ptcombust.yaml", "Pt_surf")
@@ -1755,7 +1763,7 @@ class TestInterfaceReaction(TestReaction):
         surf.coverages = 'O(S):0.2, PT(S):0.6, H(S):0.2'
         k3 = surf.forward_rate_constants[1]
         assert k1 != approx(k2)
-        self.assertNear(k2, k3)
+        assertNear(k2, k3)
 
     def test_modify_BMinterface(self):
         gas = ct.Solution("gri30.yaml", transport_model=None)
@@ -1780,8 +1788,8 @@ class TestInterfaceReaction(TestReaction):
         surf.coverages = "O(S):0.2, PT(S):0.6, H(S):0.2"
         k3 = surf.forward_rate_constants[0]
 
-        self.assertNear(k1 / k2, np.exp(-O2_delta_theta_k * Ek / ct.gas_constant / surf.T))
-        self.assertNear(k2, k3)
+        assertNear(k1 / k2, np.exp(-O2_delta_theta_k * Ek / ct.gas_constant / surf.T))
+        assertNear(k2, k3)
 
 
 class TestStickingCoefficient(TestReaction):
@@ -1805,7 +1813,7 @@ class TestStickingCoefficient(TestReaction):
         k1 = surf.forward_rate_constants[2]
         surf.modify_reaction(2, R)
         k2 = surf.forward_rate_constants[2]
-        self.assertNear(k1, 4*k2)
+        assertNear(k1, 4*k2)
 
     def test_motz_wise(self):
         # Motz & Wise off for all reactions
@@ -1820,14 +1828,14 @@ class TestStickingCoefficient(TestReaction):
         k2 = surf2.forward_rate_constants
 
         # M&W toggled on (globally) for reactions 2 and 7
-        self.assertNear(2.0 * k1[2], k2[2]) # sticking coefficient = 1.0
-        self.assertNear(1.6 * k1[7], k2[7]) # sticking coefficient = 0.75
+        assertNear(2.0 * k1[2], k2[2]) # sticking coefficient = 1.0
+        assertNear(1.6 * k1[7], k2[7]) # sticking coefficient = 0.75
 
         # M&W toggled off (locally) for reaction 4
-        self.assertNear(k1[4], k2[4])
+        assertNear(k1[4], k2[4])
 
         # M&W toggled on (locally) for reaction 9
-        self.assertNear(2.0 * k1[9], k2[9]) # sticking coefficient = 1.0
+        assertNear(2.0 * k1[9], k2[9]) # sticking coefficient = 1.0
 
     def test_modify_BMsticking(self):
         gas = ct.Solution("gri30.yaml", transport_model=None)
@@ -1842,7 +1850,7 @@ class TestStickingCoefficient(TestReaction):
         k1 = surf.forward_rate_constants[1]
         surf.modify_reaction(1, R)
         k2 = surf.forward_rate_constants[1]
-        self.assertNear(k1, 4*k2)
+        assertNear(k1, 4*k2)
 
     def test_BMmotz_wise(self):
         # Motz & Wise off for all reactions
@@ -1857,14 +1865,14 @@ class TestStickingCoefficient(TestReaction):
         k2 = surf2.forward_rate_constants
 
         # M&W toggled on (globally) for reactions 1 and 2
-        self.assertNear(2.0 * k1[1], k2[1]) # sticking coefficient = 1.0
-        self.assertNear(1.6 * k1[2], k2[2]) # sticking coefficient = 0.75
+        assertNear(2.0 * k1[1], k2[1]) # sticking coefficient = 1.0
+        assertNear(1.6 * k1[2], k2[2]) # sticking coefficient = 0.75
 
         # M&W toggled off (locally) for reaction 3
-        self.assertNear(k1[3], k2[3])
+        assertNear(k1[3], k2[3])
 
         # M&W toggled on (locally) for reaction 4
-        self.assertNear(k1[4], k2[4]) # sticking coefficient = 1.0
+        assertNear(k1[4], k2[4]) # sticking coefficient = 1.0
 
 
 class TestElectrochemicalReaction(TestReaction):
