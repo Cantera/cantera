@@ -362,7 +362,7 @@ class TestDustyGas():
         assert fluxes1[kH2O] > 0
 
         # Not sure why the following condition is not satisfied:
-        # self.assertNear(sum(fluxes1) / sum(abs(fluxes1)), 0.0)
+        # assertNear(sum(fluxes1) / sum(abs(fluxes1)), 0.0)
 
     def test_thermal_conductivity(self):
         gas1 = ct.Solution("h2o2.yaml", transport_model="multicomponent")

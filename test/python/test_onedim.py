@@ -987,7 +987,7 @@ class TestDiffusionFlame():
         Tfixed = self.sim.T
         self.solve_fixed_T()
         assert nPoints == len(self.sim.grid)
-        self.assertArrayNear(Tfixed, self.sim.T)
+        assertArrayNear(Tfixed, self.sim.T)
 
         self.solve_mix()
         data = np.empty((self.sim.flame.n_points, self.gas.n_species + 4))
