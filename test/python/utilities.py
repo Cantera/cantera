@@ -1,12 +1,13 @@
 import numpy as np
-import warnings
-import pytest
 from pathlib import Path, PurePath
+import pytest
+import warnings
 
 try:
     from ruamel import yaml
 except ImportError:
     import ruamel_yaml as yaml
+
 
 # Custom assertions functions
 def assertIsFinite(value):

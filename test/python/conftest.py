@@ -71,7 +71,7 @@ def cantera_setup():
 
 
 @pytest.fixture(scope="class", autouse=True)
-def test_work_path(request):
+def test_work_path(request, cantera_setup):
     """
     Fixture to create a working directory for a test class.
     This will only run for class-based tests.
@@ -92,7 +92,7 @@ def test_work_path(request):
         work_path = root_dir / "test" / "work" / "python"
         using_tempfile = False
         try:
-            work_path.mkdir(parents=True, exist_ok=True)
+            work_path.mkdir(exist_ok=True)
         except FileNotFoundError:
             work_path = Path(tempfile.mkdtemp())
             using_tempfile = True
@@ -100,8 +100,8 @@ def test_work_path(request):
         work_path = Path(tempfile.mkdtemp())
         using_tempfile = True
 
-    cantera.add_directory(work_path)
     cantera.make_deprecation_warnings_fatal()
+    cantera.add_directory(work_path)
 
     # Assign to the test class
     request.cls.test_work_path = work_path
