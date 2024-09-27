@@ -685,18 +685,20 @@ class TestBlowersMasel(FromScratchCases):
         super().test_net_rate_ddT()
 
 
+@pytest.fixture(scope='class')
+def setup_full_tests(request):
+    request.cls.tpx = request.cls.gas.TPX
+    request.cls.gas.equilibrate("HP")
+
+@pytest.fixture(scope='function')
+def full_tests_data(request, setup_full_tests):
+    request.cls.gas.TPX = request.cls.tpx
+    request.cls.gas.derivative_settings = {} # reset
+
 class FullTests:
     # Generic test class to check derivatives evaluated for an entire reaction mechanisms
     rtol = 1e-4
-
-    @classmethod
-    def setup_class(cls):
-        cls.tpx = cls.gas.TPX
-
-    def setup_method(self):
-        """ Runs before tests """
-        self.gas.TPX = self.tpx
-        self.gas.derivative_settings = {} # reset
+    gas = None
 
     def rop_derivs(self, mode, rtol_deltac=1e-9, atol_deltac=1e-20, ddX=True):
         # numerical derivative for rates-of-progress with respect to mole fractions
@@ -892,85 +894,79 @@ class FullTests:
             print(drop_num[i])
             raise err
 
+@pytest.mark.usefixtures("full_tests_data")
+class TestFullHydrogenOxygen(FullTests):
 
-class FullHydrogenOxygen(FullTests):
-
-    @classmethod
-    def setup_class(cls):
-        cls.gas = ct.Solution("h2o2.yaml", transport_model=None)
-        cls.gas.TPX = 300, 5 * ct.one_atm, "H2:1, O2:3"
-        cls.gas.equilibrate("HP")
-        super().setup_class()
+    gas = ct.Solution("h2o2.yaml", transport_model=None)
+    gas.TPX = 300, 5 * ct.one_atm, "H2:1, O2:3"
 
 
+@pytest.mark.usefixtures("full_tests_data")
+class TestFullGriMech(FullTests):
 
-class FullGriMech(FullTests):
+    gas = ct.Solution("gri30.yaml", transport_model=None)
+    gas.TPX = 300, 5 * ct.one_atm, "CH4:1, C3H8:.1, O2:1, N2:3.76"
 
-    @classmethod
-    def setup_class(cls):
-        cls.gas = ct.Solution("gri30.yaml", transport_model=None)
-        cls.gas.TPX = 300, 5 * ct.one_atm, "CH4:1, C3H8:.1, O2:1, N2:3.76"
-        cls.gas.equilibrate("HP")
-        super().setup_class()
+@pytest.mark.usefixtures("full_tests_data")
+class TestFullEdgeCases(FullTests):
 
-
-
-class FullEdgeCases(FullTests):
-
-    @classmethod
-    def setup_class(cls):
-        cls.gas = ct.Solution("jacobian-tests.yaml", transport_model=None)
-        #   species: [H2, H, O, O2, OH, H2O, HO2, H2O2, AR]
-        cls.gas.TPX = 300, 2 * ct.one_atm, "H2:1, O2:3, AR:0.4"
-        cls.gas.equilibrate("HP")
-        super().setup_class()
+    gas = ct.Solution("jacobian-tests.yaml", transport_model=None)
+    #   species: [H2, H, O, O2, OH, H2O, HO2, H2O2, AR]
+    gas.TPX = 300, 2 * ct.one_atm, "H2:1, O2:3, AR:0.4"
 
 
+@pytest.fixture(scope='class')
+def setup_surface_rate_expression_tests(request):
+
+    # gas state information
+    request.cls.gas_tpx = request.cls.gas.TPX
+    request.cls.surf_tpx = request.cls.surf.TPX
+
+    # all species indices
+    all_species = request.cls.surf.species() + request.cls.gas.species()
+    request.cls.sidxs  = {spec.name:i for i, spec in enumerate(all_species)}
+
+    # kinetics objects
+    request.cls.r_stoich = request.cls.surf.reactant_stoich_coeffs
+    request.cls.p_stoich = request.cls.surf.product_stoich_coeffs
+    request.cls.rxn = request.cls.surf.reactions()[request.cls.rxn_idx]
+    request.cls.rix = [request.cls.sidxs[k] for k in request.cls.rxn.reactants.keys()]
+    request.cls.pix = [request.cls.sidxs[k] for k in request.cls.rxn.products.keys()]
+
+@pytest.fixture(scope='function')
+def surface_rate_expression_data(request, setup_surface_rate_expression_tests):
+    # gas phase
+    request.cls.gas.TPX = request.cls.gas_tpx
+    request.cls.gas.set_multiplier(0)
+    request.cls.gas.derivative_settings = {} # reset defaults
+
+    # surface phase
+    request.cls.surf.TPX = request.cls.surf_tpx
+    request.cls.surf.set_multiplier(0.)
+    request.cls.surf.set_multiplier(1., request.cls.rxn_idx)
+    request.cls.surf.derivative_settings = {"skip-coverage-dependence": True, "skip-electrochemistry": True}
+
+    # check stoichiometric coefficient output
+    for k, v in request.cls.rxn.reactants.items():
+        ix = request.cls.sidxs[k]
+        assert request.cls.r_stoich[ix, request.cls.rxn_idx] == v
+    for k, v in request.cls.rxn.products.items():
+        ix = request.cls.sidxs[k]
+        assert request.cls.p_stoich[ix, request.cls.rxn_idx] == v
 
 class SurfaceRateExpressionTests:
-    # Generic test class to check derivatives evaluated for a single reaction within
-    # a reaction mechanism for surfaces
+    """
+    Generic test class to check derivatives evaluated for a single reaction within
+    a reaction mechanism for surfaces.
+    """
 
     rxn_idx = None # index of reaction to be tested
     phase = None
     rtol = 1e-5
     orders = None
-    ix3b = [] # three-body indices
+    ix3b = [] # three-body reaction indices
     equation = None
     rate_type = None
-
-    @classmethod
-    def setup_class(cls):
-        # all species indices
-        all_species = cls.surf.species() + cls.gas.species()
-        cls.sidxs  = {spec.name:i for i, spec in enumerate(all_species)}
-
-        # kinetics objects
-        cls.r_stoich = cls.surf.reactant_stoich_coeffs
-        cls.p_stoich = cls.surf.product_stoich_coeffs
-        cls.rxn = cls.surf.reactions()[cls.rxn_idx]
-        cls.rix = [cls.sidxs[k] for k in cls.rxn.reactants.keys()]
-        cls.pix = [cls.sidxs[k] for k in cls.rxn.products.keys()]
-
-    def setup_method(self):
-        # gas phase
-        self.gas.TPX = self.gas_tpx
-        self.gas.set_multiplier(0)
-        self.gas.derivative_settings = {} # reset defaults
-
-        # surface phase
-        self.surf.TPX = self.surf_tpx
-        self.surf.set_multiplier(0.)
-        self.surf.set_multiplier(1., self.rxn_idx)
-        self.surf.derivative_settings = {"skip-coverage-dependence": True, "skip-electrochemistry": True}
-
-        # check stoichiometric coefficient output
-        for k, v in self.rxn.reactants.items():
-            ix = self.sidxs[k]
-            assert self.r_stoich[ix, self.rxn_idx] == v
-        for k, v in self.rxn.products.items():
-            ix = self.sidxs[k]
-            assert self.p_stoich[ix, self.rxn_idx] == v
 
     def test_input(self):
         # ensure that correct equation is referenced
@@ -1005,7 +1001,7 @@ class SurfaceRateExpressionTests:
             else:
                 order = self.orders[specs[spc_ix]]
             assertNear(rop[self.rxn_idx],
-                drop[self.rxn_idx, spc_ix] * concentrations[spc_ix] / order)
+                       drop[self.rxn_idx, spc_ix] * concentrations[spc_ix] / order)
 
     def test_net_rop_ddCi(self):
         # check derivatives of net rates of progress with respect to species
@@ -1020,78 +1016,82 @@ class SurfaceRateExpressionTests:
             drop_ = drop[:, spc_ix]
             assertArrayNear(drop_[ix], rop[ix], 1e-3)
 
+@pytest.mark.usefixtures("surface_rate_expression_data")
 class PlatinumHydrogen(SurfaceRateExpressionTests):
 
-    @classmethod
-    def setup_class(cls):
-        phase_defs = """
-            units: {length: cm, quantity: mol, activation-energy: J/mol}
-            phases:
-            - name: gas
-              thermo: ideal-gas
-              species:
-              - gri30.yaml/species: [H2, H2O, H2O2, O2]
-              kinetics: gas
-              reactions:
-              - gri30.yaml/reactions: declared-species
-              skip-undeclared-third-bodies: true
-            - name: Pt_surf
-              thermo: ideal-surface
-              species:
-              - ptcombust.yaml/species: [PT(S), H(S), H2O(S), OH(S), O(S)]
-              kinetics: surface
-              reactions: [ptcombust.yaml/reactions: declared-species]
-              site-density: 3e-09
-        """
-        # create phase objects
-        cls.gas = ct.Solution(yaml=phase_defs, name="gas")
-        cls.surf = ct.Interface(yaml=phase_defs, name="Pt_surf", adjacent=[cls.gas])
-        cls.gas.TPX = 800, 2*ct.one_atm, "H2:1.5, O2:1.0, H2O2:0.75, H2O:0.3"
-        cls.surf.TPX = 800, 2*ct.one_atm , "PT(S):4.0, H(S):0.5, H2O(S):0.1, OH(S):0.2, O(S):0.8"
-        cls.gas_tpx = cls.gas.TPX
-        cls.surf_tpx = cls.surf.TPX
-        super().setup_class()
+    phase_defs = """
+        units: {length: cm, quantity: mol, activation-energy: J/mol}
+        phases:
+        - name: gas
+          thermo: ideal-gas
+          species:
+          - gri30.yaml/species: [H2, H2O, H2O2, O2]
+          kinetics: gas
+          reactions:
+          - gri30.yaml/reactions: declared-species
+          skip-undeclared-third-bodies: true
+        - name: Pt_surf
+          thermo: ideal-surface
+          species:
+          - ptcombust.yaml/species: [PT(S), H(S), H2O(S), OH(S), O(S)]
+          kinetics: surface
+          reactions: [ptcombust.yaml/reactions: declared-species]
+          site-density: 3e-09
+    """
+    # create phase objects
+    gas = ct.Solution(yaml=phase_defs, name="gas")
+    surf = ct.Interface(yaml=phase_defs, name="Pt_surf", adjacent=[gas])
+    gas.TPX = 800, 2*ct.one_atm, "H2:1.5, O2:1.0, H2O2:0.75, H2O:0.3"
+    surf.TPX = 800, 2*ct.one_atm , "PT(S):4.0, H(S):0.5, H2O(S):0.1, OH(S):0.2, O(S):0.8"
 
 
-class SurfInterfaceArrhenius(PlatinumHydrogen):
+class TestSurfInterfaceArrhenius(PlatinumHydrogen):
     rxn_idx = 7
     equation = "H(S) + O(S) <=> OH(S) + PT(S)"
     rate_type = "interface-Arrhenius"
 
-class SurfGasFwdStickingArrhenius(PlatinumHydrogen):
+class TestSurfGasFwdStickingArrhenius(PlatinumHydrogen):
     rxn_idx = 5
     equation = "H2O + PT(S) => H2O(S)"
     rate_type = "sticking-Arrhenius"
 
-class SurfGasInterfaceArrhenius(PlatinumHydrogen):
+class TestSurfGasInterfaceArrhenius(PlatinumHydrogen):
     rxn_idx = 0
     equation = "H2 + 2 PT(S) => 2 H(S)"
     rate_type = "interface-Arrhenius"
     orders = {"PT(S)": 1, "H2": 1, "H(S)": 2}
 
-class GasSurfInterfaceArrhenius(PlatinumHydrogen):
+class TestGasSurfInterfaceArrhenius(PlatinumHydrogen):
     rxn_idx = 6
     equation = "H2O(S) => H2O + PT(S)"
     rate_type = "interface-Arrhenius"
+
+
+@pytest.fixture(scope='class')
+def setup_surface_full_tests(request):
+    # all species indices
+    all_species = request.cls.surf.species() + request.cls.gas.species()
+    request.cls.sidxs  = {spec.name:i for i, spec in enumerate(all_species)}
+    request.cls.gas_tpx = request.cls.gas.TPX
+    request.cls.surf_tpx = request.cls.surf.TPX
+
+
+@pytest.fixture(scope='function')
+def setup_surface_full_data(request, setup_surface_full_tests):
+    # gas phase
+    request.cls.gas.TPX = request.cls.gas_tpx
+    request.cls.gas.derivative_settings = {} # reset defaults
+
+    # surface phase
+    request.cls.surf.TPX = request.cls.surf_tpx
+    request.cls.surf.derivative_settings = {"skip-coverage-dependence": True, "skip-electrochemistry": True}
 
 class SurfaceFullTests:
     # Generic test class to check derivatives evaluated for an entire reaction mechanisms
     rtol = 1e-4
 
-    @classmethod
-    def setup_class(cls):
-        # all species indices
-        all_species = cls.surf.species() + cls.gas.species()
-        cls.sidxs  = {spec.name:i for i, spec in enumerate(all_species)}
-
-    def setup_method(self):
-        """ Runs before tests """
-        # gas phase
-        self.gas.TPX = self.gas_tpx
-        self.gas.derivative_settings = {} # reset defaults
-        # surface phase
-        self.surf.TPX = self.surf_tpx
-        self.surf.derivative_settings = {"skip-coverage-dependence": True, "skip-electrochemistry": True}
+    gas = None
+    surf = None
 
     # closure to get concentrations vector
     def get_concentrations(self):
@@ -1175,34 +1175,30 @@ class SurfaceFullTests:
         # compare the rate of progress vectors produced in different ways
         assertArrayNear(drop, ropf - ropr, self.rtol)
 
-class FullPlatinumHydrogen(SurfaceFullTests):
+@pytest.mark.usefixtures("setup_surface_full_data")
+class TestFullPlatinumHydrogen(SurfaceFullTests):
 
-    @classmethod
-    def setup_class(cls):
-        phase_defs = """
-            units: {length: cm, quantity: mol, activation-energy: J/mol}
-            phases:
-            - name: gas
-              thermo: ideal-gas
-              species:
-              - gri30.yaml/species: [H2, H2O, H2O2, O2]
-              kinetics: gas
-              reactions:
-              - gri30.yaml/reactions: declared-species
-              skip-undeclared-third-bodies: true
-            - name: Pt_surf
-              thermo: ideal-surface
-              species:
-              - ptcombust.yaml/species: [PT(S), H(S), H2O(S), OH(S), O(S)]
-              kinetics: surface
-              reactions: [ptcombust.yaml/reactions: declared-species]
-              site-density: 3e-09
-        """
-        # create phase objects
-        cls.gas = ct.Solution(yaml=phase_defs, name="gas")
-        cls.surf = ct.Interface(yaml=phase_defs, name="Pt_surf", adjacent=[cls.gas])
-        cls.gas.TPX = 800, 2*ct.one_atm, "H2:1.5, O2:1.0, H2O2:0.75, H2O:0.3"
-        cls.surf.TPX = 800, 2*ct.one_atm , "PT(S):1.0, H(S):0.5, H2O(S):0.1, OH(S):0.2, O(S):0.8"
-        cls.gas_tpx = cls.gas.TPX
-        cls.surf_tpx = cls.surf.TPX
-        super().setup_class()
+    phase_defs = """
+        units: {length: cm, quantity: mol, activation-energy: J/mol}
+        phases:
+        - name: gas
+          thermo: ideal-gas
+          species:
+          - gri30.yaml/species: [H2, H2O, H2O2, O2]
+          kinetics: gas
+          reactions:
+          - gri30.yaml/reactions: declared-species
+          skip-undeclared-third-bodies: true
+        - name: Pt_surf
+          thermo: ideal-surface
+          species:
+          - ptcombust.yaml/species: [PT(S), H(S), H2O(S), OH(S), O(S)]
+          kinetics: surface
+          reactions: [ptcombust.yaml/reactions: declared-species]
+          site-density: 3e-09
+    """
+    # create phase objects
+    gas = ct.Solution(yaml=phase_defs, name="gas")
+    surf = ct.Interface(yaml=phase_defs, name="Pt_surf", adjacent=[gas])
+    gas.TPX = 800, 2*ct.one_atm, "H2:1.5, O2:1.0, H2O2:0.75, H2O:0.3"
+    surf.TPX = 800, 2*ct.one_atm , "PT(S):1.0, H(S):0.5, H2O(S):0.1, OH(S):0.2, O(S):0.8"
