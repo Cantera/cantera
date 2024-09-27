@@ -7,8 +7,6 @@ import re
 
 import cantera as ct
 
-from . import utilities
-from .utilities import allow_deprecated
 from .utilities import (
     assertNear,
     assertArrayNear,

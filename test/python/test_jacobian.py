@@ -2,8 +2,6 @@ import numpy as np
 import pytest
 
 import cantera as ct
-from . import utilities
-from .utilities import has_temperature_derivative_warnings
 from .utilities import (
     assertNear,
     assertArrayNear

@@ -8,14 +8,12 @@ import sys
 import textwrap
 
 import cantera as ct
-from . import utilities
 from .utilities import (
     assertNear,
     assertArrayNear,
     assertIsFinite,
     assertIsNaN
 )
-from .utilities import has_temperature_derivative_warnings
 
 
 @pytest.fixture(scope='class')

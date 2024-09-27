@@ -4,9 +4,7 @@ import pytest
 from pytest import approx
 
 import cantera as ct
-from . import utilities
 from .utilities import (
-    assertNear,
     assertArrayNear
 )
 

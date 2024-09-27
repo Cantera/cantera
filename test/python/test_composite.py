@@ -14,8 +14,6 @@ except ImportError:
 
 from cantera.composite import _pandas
 
-from . import utilities
-from .utilities import allow_deprecated
 from .utilities import (
     assertNear,
     assertArrayNear
