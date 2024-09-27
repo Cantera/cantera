@@ -576,7 +576,8 @@ class TestThreeBody(HydrogenOxygen):
 
 @pytest.mark.usefixtures("setup_rate_expression_data")
 class EdgeCases(RateExpressionTests):
-    gas = ct.Solution("jacobian-tests.yaml", transport_model=None)
+
+    gas = ct.Solution(f"{cls.test_data_path}/jacobian-tests.yaml", transport_model=None)
     #   species: [H2, H, O, O2, OH, H2O, HO2, H2O2, AR]
     gas.X = [0.1, 1e-4, 1e-5, 0.2, 2e-4, 0.3, 1e-6, 5e-5, 0.4]
     gas.TP = 800, 2 * ct.one_atm
@@ -908,7 +909,7 @@ class TestFullGriMech(FullTests):
 @pytest.mark.usefixtures("full_tests_data")
 class TestFullEdgeCases(FullTests):
 
-    gas = ct.Solution("jacobian-tests.yaml", transport_model=None)
+    gas = ct.Solution(f"{cls.test_data_path}/jacobian-tests.yaml", transport_model=None)
     #   species: [H2, H, O, O2, OH, H2O, HO2, H2O2, AR]
     gas.TPX = 300, 2 * ct.one_atm, "H2:1, O2:3, AR:0.4"
 

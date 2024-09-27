@@ -11,6 +11,7 @@ except ImportError:
 
 pytest.register_assert_rewrite("pint.testing")
 
+
 TEST_DATA_PATH = Path(__file__).parents[1] / "data"
 CANTERA_DATA_PATH = Path(cantera.__file__).parent / "data"
 
