@@ -5,14 +5,9 @@ from pathlib import Path
 import pytest
 from pytest import approx
 
-from . import utilities
-from .utilities import allow_deprecated
 from .utilities import (
     assertNear,
-    assertArrayNear,
-    assertIsFinite,
-    assertIsNaN,
-    compare
+    assertArrayNear
 )
 
 import cantera as ct
@@ -94,7 +89,7 @@ class Testck2yaml:
                 assertNear(ref_kf[i], gas_kf[i], rtol=tol, msg='kf' + message)
                 assertNear(ref_kr[i], gas_kr[i], rtol=tol, msg='kr' + message)
 
-    @utilities.slow_test
+    @pytest.mark.slow_test
     def test_gri30(self):
         output = self.convert('gri30.inp', thermo='gri30_thermo.dat',
                               transport='gri30_tran.dat', output='gri30_test')
@@ -391,7 +386,7 @@ class Testck2yaml:
         captured = self._capsys.readouterr()
         assert "Third bodies do not match: 'M' and 'AR'" in captured.out
 
-    @utilities.slow_test
+    @pytest.mark.slow_test
     def test_reaction_units(self):
         out_def = self.convert('units-default.inp', thermo='dummy-thermo.dat')
         out_cus = self.convert('units-custom.inp', thermo='dummy-thermo.dat')
@@ -927,7 +922,7 @@ class Testyaml2ck:
                 message = 'dkm for species {0} at T = {1}'.format(i, T)
                 assertNear(Dkm_ck[i], Dkm_yaml[yaml_idx[i]], msg=message)
 
-    @utilities.slow_test
+    @pytest.mark.slow_test
     def test_gri30(self):
         input_file = self.cantera_data_path / "gri30.yaml"
         self.convert(input_file)
@@ -1171,7 +1166,7 @@ class Testcti2yaml:
                 message = 'dkm for species {0} at T = {1}'.format(i, T)
                 assertNear(Dkm_cti[i], Dkm_yaml[i], msg=message)
 
-    @utilities.slow_test
+    @pytest.mark.slow_test
     def test_gri30(self):
         self.convert("gri30")
         ctiPhase, yamlPhase = self.checkConversion('gri30')
@@ -1200,7 +1195,7 @@ class Testcti2yaml:
         self.checkThermo(ctiSurf, yamlSurf, [400, 800, 1600])
         self.checkKinetics(ctiSurf, yamlSurf, [500, 1200], [1e4, 3e5])
 
-    @utilities.slow_test
+    @pytest.mark.slow_test
     def test_ptcombust_motzwise(self):
         self.convert("ptcombust-motzwise")
         ctiSurf, yamlSurf = self.checkConversion("ptcombust-motzwise", ct.Interface,
@@ -1228,7 +1223,7 @@ class Testcti2yaml:
         ctiMetal.electric_potential = yamlMetal.electric_potential = 4
         self.checkKinetics(cti_tpb, yaml_tpb, [900, 1000, 1100], [1e5])
 
-    @utilities.slow_test
+    @pytest.mark.slow_test
     def test_liquidvapor(self):
         self.convert("liquidvapor")
         for name in ["water", "nitrogen", "methane", "hydrogen", "oxygen", "heptane"]:
@@ -1394,7 +1389,7 @@ class Testctml2yaml:
                 message = 'dkm for species {0} at T = {1}'.format(i, T)
                 assertNear(Dkm_ctml[i], Dkm_yaml[i], msg=message)
 
-    @utilities.slow_test
+    @pytest.mark.slow_test
     def test_gri30(self):
         self.convert("gri30")
         ctmlPhase, yamlPhase = self.checkConversion('gri30')

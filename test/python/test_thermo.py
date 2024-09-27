@@ -5,12 +5,10 @@ import pytest
 from pytest import approx
 
 import cantera as ct
-from . import utilities
 from .utilities import (
     assertNear,
     assertArrayNear
 )
-from .utilities import allow_deprecated
 
 @pytest.fixture(scope='function')
 def setup_thermo_phase_tests(request):
@@ -307,7 +305,7 @@ class TestThermoPhase:
             self.phase.Y = np.array([])
         assertArrayNear(self.phase.X, X0)
 
-    @utilities.slow_test
+    @pytest.mark.slow_test
     def test_set_equivalence_ratio_stoichiometric(self):
         gas = ct.Solution('gri30.yaml', transport_model=None)
         for fuel in ('C2H6', 'H2:0.7, CO:0.3', 'NH3:0.4, CH3OH:0.6'):

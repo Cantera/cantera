@@ -3,7 +3,6 @@ import pytest
 from pytest import approx
 
 import cantera as ct
-from . import utilities
 from .utilities import (
     assertNear,
     compare,
@@ -188,7 +187,7 @@ class TestKOH_Equil:
         # temperatures of over 1000 K, and liquid water for temperatures of 2000-5000 K.
         compare(data, self.test_data_path / "koh-equil-TP.csv")
 
-    @utilities.slow_test
+    @pytest.mark.slow_test
     def test_equil_HP(self):
         temperatures = range(350, 5000, 300)
         data = np.zeros((len(temperatures), self.mix.n_species+2))
@@ -245,11 +244,11 @@ class TestEquil_GasCarbon:
 
         compare(data, self.test_data_path / "gas-carbon-equil.csv")
 
-    @utilities.slow_test
+    @pytest.mark.slow_test
     def test_gibbs(self):
         self.solve('gibbs')
 
-    @utilities.slow_test
+    @pytest.mark.slow_test
     def test_vcs(self):
         self.solve('vcs')
 
