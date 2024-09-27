@@ -2,6 +2,7 @@ import cantera
 from os import environ
 from pathlib import Path
 import pytest
+import tempfile
 
 try:
     from ruamel import yaml
