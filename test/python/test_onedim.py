@@ -4,8 +4,7 @@ from pytest import approx
 
 import cantera as ct
 
-from . import utilities
-from .utilities import allow_deprecated, yaml
+from .utilities import yaml
 from .utilities import (
     assertNear,
     assertArrayNear,
@@ -164,7 +163,6 @@ class TestOnedim:
             with pytest.raises(ValueError, match="mutually exclusive"):
                 sim = cls(gas, grid=[0, 0.1, 0.2], width=0.4)
 
-
 def check_component_order(fname: str, group: str):
     with fname.open("r", encoding="utf-8") as fid:
         reader = yaml.YAML(typ="safe")
@@ -244,7 +242,7 @@ class TestFreeFlame:
         assertNear(self.sim.fixed_temperature, tfixed)
         assertNear(self.sim.fixed_temperature_location, zfixed)
 
-    @utilities.slow_test
+    @pytest.mark.slow_test
     def test_auto_width(self):
         Tin = 300
         p = ct.one_atm
@@ -277,7 +275,7 @@ class TestFreeFlame:
         assert self.sim.grid[-1] < 2.0 # grid should not be too wide
         assert self.sim.flame.tolerances("T") == (2e-4, 1e-8)
 
-    @utilities.slow_test
+    @pytest.mark.slow_test
     def test_converge_adiabatic(self):
         # Test that the adiabatic flame temperature and species profiles
         # converge to the correct equilibrium values as the grid is refined
@@ -426,31 +424,31 @@ class TestFreeFlame:
     def test_mixture_averaged_case1(self):
         self.run_mix(phi=0.65, T=300, width=0.03, p=1.0, refine=True)
 
-    @utilities.slow_test
+    @pytest.mark.slow_test
     def test_mixture_averaged_case2(self):
         self.run_mix(phi=0.5, T=300, width=2.0, p=1.0, refine=False)
 
-    @utilities.slow_test
+    @pytest.mark.slow_test
     def test_mixture_averaged_case3(self):
         self.run_mix(phi=0.5, T=500, width=0.05, p=1.0, refine=False)
 
-    @utilities.slow_test
+    @pytest.mark.slow_test
     def test_mixture_averaged_case4(self):
         self.run_mix(phi=0.7, T=400, width=2.0, p=5.0, refine=False)
 
-    @utilities.slow_test
+    @pytest.mark.slow_test
     def test_mixture_averaged_case5(self):
         self.run_mix(phi=1.0, T=300, width=2.0, p=5.0, refine=False)
 
-    @utilities.slow_test
+    @pytest.mark.slow_test
     def test_mixture_averaged_case6(self):
         self.run_mix(phi=1.5, T=300, width=0.2, p=1.0, refine=True)
 
-    @utilities.slow_test
+    @pytest.mark.slow_test
     def test_mixture_averaged_case7(self):
         self.run_mix(phi=1.5, T=500, width=2.0, p=0.1, refine=False)
 
-    @utilities.slow_test
+    @pytest.mark.slow_test
     def test_mixture_averaged_case8(self):
         self.run_mix(phi=2.0, T=400, width=2.0, p=5.0, refine=False)
 
@@ -553,7 +551,7 @@ class TestFreeFlame:
             self.sim.soret_enabled = True
             self.sim.solve(loglevel=0, auto=False)
 
-    @utilities.slow_test
+    @pytest.mark.slow_test
     def test_soret_with_auto(self):
         # Test that auto solving with Soret enabled works
         self.create_sim(101325, 300, 'H2:2.0, O2:1.0')
@@ -729,7 +727,7 @@ class TestFreeFlame:
             flame_value = getattr(self.sim, attr)
             assert flame_value.shape == np.asarray(soln_value).shape + grid_shape
 
-    @utilities.slow_test
+    @pytest.mark.slow_test
     def test_save_restore_add_species_yaml(self):
         reactants = "H2:1.1, O2:1, AR:5"
         p = 2 * ct.one_atm
@@ -764,7 +762,7 @@ class TestFreeFlame:
             k2 = gas2.species_index(species)
             assertArrayNear(Y1[k1], Y2[k2])
 
-    @utilities.slow_test
+    @pytest.mark.slow_test
     def test_save_restore_remove_species_yaml(self):
         reactants = "H2:1.1, O2:1, AR:5"
         p = 2 * ct.one_atm
@@ -980,7 +978,7 @@ class TestDiffusionFlame:
         assert self.sim.energy_enabled
         assert self.sim.transport_model == 'mixture-averaged'
 
-    @utilities.slow_test
+    @pytest.mark.slow_test
     def test_mixture_averaged(self, saveReference=False):
         referenceFile = "DiffusionFlameTest-h2-mix.csv"
         self.create_sim(p=ct.one_atm)
@@ -1055,31 +1053,31 @@ class TestDiffusionFlame:
     def test_extinction_case1(self):
         self.run_extinction(mdot_fuel=0.5, mdot_ox=3.0, T_ox=300, width=0.018, P=1.0)
 
-    @utilities.slow_test
+    @pytest.mark.slow_test
     def test_extinction_case2(self):
         self.run_extinction(mdot_fuel=0.5, mdot_ox=1.0, T_ox=300, width=0.01, P=5.0)
 
-    @utilities.slow_test
+    @pytest.mark.slow_test
     def test_extinction_case3(self):
         self.run_extinction(mdot_fuel=1.0, mdot_ox=0.5, T_ox=500, width=0.02, P=5.0)
 
-    @utilities.slow_test
+    @pytest.mark.slow_test
     def test_extinction_case4(self):
         self.run_extinction(mdot_fuel=1.0, mdot_ox=3.0, T_ox=400, width=0.05, P=2.0)
 
-    @utilities.slow_test
+    @pytest.mark.slow_test
     def test_extinction_case5(self):
         self.run_extinction(mdot_fuel=1.0, mdot_ox=3.0, T_ox=300, width=0.1, P=1.0)
 
-    @utilities.slow_test
+    @pytest.mark.slow_test
     def test_extinction_case6(self):
         self.run_extinction(mdot_fuel=0.5, mdot_ox=0.5, T_ox=600, width=0.2, P=0.05)
 
-    @utilities.slow_test
+    @pytest.mark.slow_test
     def test_extinction_case7(self):
         self.run_extinction(mdot_fuel=0.2, mdot_ox=2.0, T_ox=600, width=0.2, P=0.05)
 
-    @utilities.slow_test
+    @pytest.mark.slow_test
     def test_restart(self):
         self.run_extinction(mdot_fuel=0.5, mdot_ox=3.0, T_ox=300, width=0.018, P=1.0)
 
@@ -1438,27 +1436,27 @@ class TestCounterflowPremixedFlame:
         assert np.allclose(sim.L, sim.L[0])
         return sim
 
-    @utilities.slow_test
+    @pytest.mark.slow_test
     def test_solve_case1(self):
         self.run_case(phi=0.4, T=400, width=0.05, P=10.0)
 
-    @utilities.slow_test
+    @pytest.mark.slow_test
     def test_solve_case2(self):
         self.run_case(phi=0.5, T=500, width=0.03, P=2.0)
 
-    @utilities.slow_test
+    @pytest.mark.slow_test
     def test_solve_case3(self):
         self.run_case(phi=0.7, T=300, width=0.05, P=2.0)
 
-    @utilities.slow_test
+    @pytest.mark.slow_test
     def test_solve_case4(self):
         self.run_case(phi=1.5, T=400, width=0.03, P=0.02)
 
-    @utilities.slow_test
+    @pytest.mark.slow_test
     def test_solve_case5(self):
         self.run_case(phi=2.0, T=300, width=0.2, P=0.2)
 
-    @utilities.slow_test
+    @pytest.mark.slow_test
     def test_restart(self):
         sim = self.run_case(phi=2.0, T=300, width=0.2, P=0.2)
 
@@ -1572,12 +1570,12 @@ class TestCounterflowPremixedFlameNonIdeal:
             (2.0, 300, 0.2, 0.2),
         ]
     )
-    @utilities.slow_test
+    @pytest.mark.slow_test
     def test_solve_cases(self, run_case, phi, T, width, P):
         """Parameterized test cases for different simulation setups"""
         run_case(phi, T, width, P)
 
-    @utilities.slow_test
+    @pytest.mark.slow_test
     def test_restart(self, run_case):
         sim = run_case(phi=2.0, T=300, width=0.2, P=0.2)
 
@@ -1621,13 +1619,13 @@ class TestBurnerFlame:
         "phi, T, width, P",
         [
             pytest.param(0.5, 500, 2.0, 0.1, id="case1"),
-            pytest.param(2.0, 400, 0.05, 1.0, marks=utilities.slow_test, id="case2"),
-            pytest.param(1.7, 300, 0.05, 1.0, marks=utilities.slow_test, id="case3"),
-            pytest.param(0.5, 300, 1.0, 5.0, marks=utilities.slow_test, id="case4"),
-            pytest.param(1.0, 400, 0.2, 0.01, marks=utilities.slow_test, id="case5"),
+            pytest.param(2.0, 400, 0.05, 1.0, marks=pytest.mark.slow_test, id="case2"),
+            pytest.param(1.7, 300, 0.05, 1.0, marks=pytest.mark.slow_test, id="case3"),
+            pytest.param(0.5, 300, 1.0, 5.0, marks=pytest.mark.slow_test, id="case4"),
+            pytest.param(1.0, 400, 0.2, 0.01, marks=pytest.mark.slow_test, id="case5"),
         ]
     )
-    @utilities.slow_test
+    @pytest.mark.slow_test
     def test_solve_cases(self, run_case, phi, T, width, P):
         """Parameterized test cases for different simulation setups"""
         run_case(phi, T, width, P)
@@ -1803,11 +1801,11 @@ class TestImpingingJet:
     def test_reacting_surface_case1(self):
         self.run_reacting_surface(xch4=0.095, tsurf=900.0, mdot=0.06, width=0.1)
 
-    @utilities.slow_test
+    @pytest.mark.slow_test
     def test_reacting_surface_case2(self):
         self.run_reacting_surface(xch4=0.07, tsurf=1200.0, mdot=0.2, width=0.05)
 
-    @utilities.slow_test
+    @pytest.mark.slow_test
     def test_reacting_surface_case3(self):
         self.run_reacting_surface(xch4=0.2, tsurf=800.0, mdot=0.1, width=0.2)
 

@@ -4,7 +4,6 @@ import re
 import numpy as np
 import pytest
 from pytest import approx
-from .utilities import allow_deprecated
 
 import cantera as ct
 
@@ -15,7 +14,6 @@ except ImportError:
 
 from cantera.drawnetwork import _graphviz
 
-from . import utilities
 from .utilities import (
     assertNear,
     assertArrayNear,
@@ -2259,11 +2257,11 @@ class TestReactorSensitivities:
     def test_parameter_order1a(self):
         self._test_parameter_order1(ct.IdealGasReactor)
 
-    @utilities.slow_test
+    @pytest.mark.slow_test
     def test_parameter_order1b(self):
         self._test_parameter_order1(ct.IdealGasConstPressureReactor)
 
-    @utilities.slow_test
+    @pytest.mark.slow_test
     def test_parameter_order2(self):
         # Multiple reactors, changing the order in which parameters are added
         gas = ct.Solution('h2o2.yaml', transport_model=None)
@@ -2325,7 +2323,7 @@ class TestReactorSensitivities:
         assertArrayNear(S[1][:N], S[3][N:], 1e-5, 1e-5)
         assertArrayNear(S[1][N:], S[3][:N], 1e-5, 1e-5)
 
-    @utilities.slow_test
+    @pytest.mark.slow_test
     def test_parameter_order3(self):
         # Test including reacting surfaces
         interface = ct.Interface("diamond.yaml", "diamond_100")
@@ -2474,7 +2472,7 @@ class CombustorTestImplementation:
 
     def setup_method(self):
         """ Runs before tests """
-        self.referenceFile = utilities.TEST_DATA_PATH / "CombustorTest-integrateWithAdvance.csv"
+        self.referenceFile = self.test_data_path / "CombustorTest-integrateWithAdvance.csv"
         self.gas = ct.Solution('h2o2.yaml', transport_model=None)
 
         # create a reservoir for the fuel inlet, and set to pure methane.
@@ -2581,7 +2579,7 @@ class WallTestImplementation:
 
     def setup_method(self):
         """ Runs before tests """
-        self.referenceFile = utilities.TEST_DATA_PATH / "WallTest-integrateWithAdvance.csv"
+        self.referenceFile = self.test_data_path / "WallTest-integrateWithAdvance.csv"
         # reservoir to represent the environment
         self.gas0 = ct.Solution("air.yaml")
         self.gas0.TP = 300, ct.one_atm
