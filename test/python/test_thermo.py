@@ -85,7 +85,8 @@ class TestThermoPhase():
             assert name == self.phase.species_name(i)
             assert i == self.phase.species_index(name)
             assert i == self.phase.species_index(i)
-        with pytest.raises(ct.CanteraError, match='IndexError thrown by Phase::checkSpeciesIndex'):
+        with pytest.raises(ct.CanteraError,
+                           match='IndexError thrown by Phase::checkSpeciesIndex'):
             self.phase.species(self.phase.n_species)
 
     def test_elements(self):
@@ -1242,7 +1243,8 @@ class TestPlasmaPhase():
     def test_add_multiple_electron_species(self, phase):
         electron = ct.Species('Electron', 'E:1')
         electron.thermo = ct.ConstantCp(100, 200, 101325, coeffs=(300, 1, 1, 1))
-        with pytest.raises(ct.CanteraError, match='Only one electron species is allowed'):
+        with pytest.raises(ct.CanteraError,
+                           match='Only one electron species is allowed'):
             phase.add_species(electron)
 
 

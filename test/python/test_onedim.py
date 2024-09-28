@@ -20,7 +20,8 @@ class TestOnedim():
 
     def test_badInstantiate(self):
         solid = ct.Solution("diamond.yaml", "diamond")
-        with pytest.raises(ct.CanteraError, match="An appropriate transport model\nshould be set when instantiating"):
+        with pytest.raises(ct.CanteraError,
+                           match="An appropriate transport model\nshould be set when instantiating"):
             ct.FreeFlow(solid)
 
     def test_instantiateSurface(self):

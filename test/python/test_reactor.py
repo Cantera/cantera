@@ -1833,7 +1833,8 @@ class TestFlowReactor2():
         surf.TP = gas.TP
         r, rsurf, sim = self.make_reactors(gas, surf)
 
-        with pytest.raises(ct.CanteraError, match="repeated recoverable residual errors"):
+        with pytest.raises(ct.CanteraError,
+                           match="repeated recoverable residual errors"):
             while r.thermo.T > 1300:
                 sim.step()
 
@@ -1849,7 +1850,8 @@ class TestFlowReactor2():
         surf.TP = gas.TP
         r, rsurf, sim = self.make_reactors(gas, surf)
 
-        with pytest.raises(ct.CanteraError, match="repeated recoverable residual errors"):
+        with pytest.raises(ct.CanteraError,
+                           match="repeated recoverable residual errors"):
             while r.thermo.T > 1300:
                 sim.advance(sim.distance + 0.01)
 

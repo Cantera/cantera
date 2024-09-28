@@ -49,7 +49,7 @@ class TestModels():
 
                 if not sol.is_compressible:
                     with pytest.raises(ct.CanteraError,
-                                                match='Density is not an independent'):
+                                       match='Density is not an independent'):
                         sol.TD = TD
 
                 assert len(z) == sol.state_size
@@ -201,7 +201,8 @@ class TestEmptySolution():
 class TestEmptyEdgeCases():
     """ Test for edge cases where constructors are not allowed """
     def test_empty_phase(self):
-        with pytest.raises(ValueError, match="Arguments are insufficient to define a phase"):
+        with pytest.raises(ValueError,
+                           match="Arguments are insufficient to define a phase"):
             ct.ThermoPhase(thermo="ideal-gas")
 
     def test_empty_kinetics(self):
