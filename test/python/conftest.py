@@ -52,6 +52,8 @@ def load_yaml():
                 return yaml_parser.load(stream)
         except yaml.constructor.ConstructorError:
             with open(yml_file, "rt", encoding="utf-8") as stream:
+                # Ensure that  the loader remains backward-compatible with legacy
+                # ruamel.yaml versions (prior to 0.17.0).
                 return yaml.safe_load(stream)
     return _load
 
