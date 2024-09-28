@@ -28,7 +28,7 @@ def setup_kinetics(request):
     request.cls.phase.TP = 800, 2 * ct.one_atm
 
 @pytest.mark.usefixtures("setup_kinetics")
-class TestKinetics():
+class TestKinetics:
 
     @pytest.mark.usefixtures("allow_deprecated")
     def test_counts(self):
@@ -194,7 +194,7 @@ class TestKinetics():
                         self.phase.delta_standard_gibbs)
 
 
-class KineticsFromReactions():
+class KineticsFromReactions:
     """
     Test for Kinetics objects which are constructed directly from Reaction
     objects instead of from input files.
@@ -335,7 +335,7 @@ class KineticsFromReactions():
         assert gas.reaction_equations() == restored.reaction_equations
 
 
-class KineticsRepeatability():
+class KineticsRepeatability:
     """
     Tests to make sure that lazily evaluated terms in the rate expression
     are always updated correctly.
@@ -527,7 +527,7 @@ def check_raises(yaml, err_msg, line):
         assert err in msg
 
 
-class TestUndeclared():
+class TestUndeclared:
 
     _gas_def = """
             phases:
@@ -647,7 +647,7 @@ class TestUndeclared():
         assert surf.n_reactions == 14
 
 
-class TestInvalidInput():
+class TestInvalidInput:
 
     _gas_def = """
             phases:
@@ -718,7 +718,7 @@ class TestInvalidInput():
         check_raises(gas_def, "negative pre-exponential factor", line=14)
 
 
-class TestEmptyKinetics():
+class TestEmptyKinetics:
     def test_empty(self):
         gas = ct.Solution("air-no-reactions.yaml")
 
@@ -740,7 +740,7 @@ def setup_reaction_path_tests(request):
         T = r.T
 
 @pytest.mark.usefixtures('setup_reaction_path_tests')
-class TestReactionPath():
+class TestReactionPath:
 
     def check_dot(self, diagram, element):
         diagram.label_threshold = 0
@@ -853,7 +853,7 @@ class TestReactionPath():
         assertNear(fluxes['HO2', 'H2O2'], 2*ropf[26] + 2*ropf[27], 1e-5)
 
 
-class TestChemicallyActivated():
+class TestChemicallyActivated:
     def test_rate_evaluation(self):
         gas = ct.Solution("chemically-activated-reaction.yaml")
         P = [2026.5, 202650.0, 10132500.0] # pressure
@@ -866,7 +866,7 @@ class TestChemicallyActivated():
             assertNear(gas.forward_rates_of_progress[0], Rf[i], 2e-5)
 
 
-class ExplicitForwardOrderTest():
+class ExplicitForwardOrderTest:
     def setup_method(self):
         """ Runs before tests """
         self.gas = ct.Solution("explicit-forward-order.yaml")
@@ -908,7 +908,7 @@ class ExplicitForwardOrderTest():
         assertNear(ratio[2], 2**0.0) # order of R1B is 0
 
 
-class TestSofcKinetics():
+class TestSofcKinetics:
     """ Test based on sofc.py """
     _mech = "sofc.yaml"
 
@@ -1010,7 +1010,7 @@ class TestSofcKinetics():
         compare(data, self.test_data_path / "sofc-test.csv", rtol=1e-7)
 
 
-class TestLithiumIonBatteryKinetics():
+class TestLithiumIonBatteryKinetics:
     """ Test based on lithium_ion_battery.py """
     _mech = "lithium_ion_battery.yaml"
 
@@ -1127,7 +1127,7 @@ class TestLithiumIonBatteryKinetics():
             assert  method == manual
 
 
-class TestDuplicateReactions():
+class TestDuplicateReactions:
     infile = 'duplicate-reactions.yaml'
 
     def check(self, name):
@@ -1180,7 +1180,7 @@ def setup_reaction_tests(request):
     request.cls.species = ct.Species.list_from_file("h2o2.yaml")
 
 @pytest.mark.usefixtures("setup_reaction_tests")
-class TestReaction():
+class TestReaction:
 
     def test_from_yaml(self):
         r = ct.Reaction.from_yaml(

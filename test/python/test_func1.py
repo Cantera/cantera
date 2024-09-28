@@ -9,7 +9,7 @@ from .utilities import (
     assertArrayNear
 )
 
-class TestFunc1():
+class TestFunc1:
     def test_function(self):
         f = ct.Func1(np.sin)
         assertNear(f(0), np.sin(0))

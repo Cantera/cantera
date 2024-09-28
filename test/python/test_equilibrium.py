@@ -122,7 +122,7 @@ def extra_elements(request):
     request.cls.gas.set_equivalence_ratio(0.8, 'CH4', 'O2:1.0, N2:3.76')
 
 @pytest.mark.usefixtures('extra_elements')
-class TestEquilExtraElements():
+class TestEquilExtraElements:
     """
     Tests equilibrium with extra elements that are not involved in the reactions.
     """
@@ -163,7 +163,7 @@ def koh_equil(request):
     request.cls.mix = ct.Mixture(phases)
 
 @pytest.mark.usefixtures('koh_equil')
-class TestKOH_Equil():
+class TestKOH_Equil:
     """
     Test roughly based on examples/multiphase/plasma_equilibrium.py
     """
@@ -221,7 +221,7 @@ def carbon_equil(request):
     request.cls.n_species = request.cls.gas.n_species + request.cls.carbon.n_species
 
 @pytest.mark.usefixtures('carbon_equil')
-class TestEquil_GasCarbon():
+class TestEquil_GasCarbon:
     "Test roughly based on examples/multiphase/adiabatic.py"
 
     def solve(self, solver, **kwargs):
@@ -256,7 +256,7 @@ class TestEquil_GasCarbon():
         self.solve('vcs', estimate_equil=-1)
 
 
-class Test_IdealSolidSolnPhase_Equil():
+class Test_IdealSolidSolnPhase_Equil:
     def test_equil(self):
         gas = ct.ThermoPhase("IdealSolidSolnPhaseExample.yaml")
         gas.TPX = 500, ct.one_atm, 'C2H2-graph: 1.0'

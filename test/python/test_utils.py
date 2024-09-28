@@ -11,7 +11,7 @@ from .utilities import (
 from cantera._utils import _py_to_any_to_py, _py_to_anymap_to_py
 
 
-class TestUnitSystem():
+class TestUnitSystem:
 
     def test_default(self):
         units = ct.UnitSystem().units
@@ -159,7 +159,7 @@ class TestUnitSystem():
         with pytest.raises(TypeError):
             system.convert_rate_coeff_to({"spam": 13}, "m^6/kmol^2/s")
 
-class TestPyToAnyValue():
+class TestPyToAnyValue:
 
     def check_conversion(self, value, check_type=None):
         out, held_type = _py_to_any_to_py(value)
@@ -272,7 +272,7 @@ def setup_any_map(request):
     request.cls.data = _py_to_anymap_to_py(request.cls.orig_data)
 
 @pytest.mark.usefixtures("setup_any_map")
-class TestAnyMap():
+class TestAnyMap:
     orig_data = {
             "units": {"length": "mm", "energy": "kJ"},
             "group1": {
@@ -328,7 +328,7 @@ class TestAnyMap():
         with pytest.raises(ct.CanteraError):
             _py_to_anymap_to_py(outer)
 
-class TestListDataFiles():
+class TestListDataFiles:
 
     def test_list_data_files(self):
         data_files = ct.list_data_files()

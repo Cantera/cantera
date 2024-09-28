@@ -12,7 +12,7 @@ from .utilities import (
 )
 
 
-class TestOnedim():
+class TestOnedim:
     def test_instantiate(self):
         gas = ct.Solution("h2o2.yaml")
         free = ct.FreeFlow(gas)
@@ -179,7 +179,7 @@ def check_component_order(fname: str, group: str):
             components = value[::-1]
 
 
-class TestFreeFlame():
+class TestFreeFlame:
     tol_ss = [1.0e-5, 1.0e-14]  # [rtol atol] for steady-state problem
     tol_ts = [1.0e-4, 1.0e-11]  # [rtol atol] for time stepping
 
@@ -927,7 +927,7 @@ class TestFreeFlame():
         assert self.sim.max_grid_points == 10
 
 
-class TestDiffusionFlame():
+class TestDiffusionFlame:
     """
     Note: to re-create the reference files:
     (1) set PYTHONPATH to build/python.
@@ -1359,7 +1359,7 @@ class TestDiffusionFlame():
             sim.right_control_point_temperature
 
 
-class TestCounterflowPremixedFlame():
+class TestCounterflowPremixedFlame:
     """
     Note: to re-create the reference file:
     (1) set PYTHONPATH to build/python.
@@ -1479,7 +1479,7 @@ class TestCounterflowPremixedFlame():
             sim.solve(loglevel=0)
 
 
-class TestCounterflowPremixedFlameNonIdeal():
+class TestCounterflowPremixedFlameNonIdeal:
     """
     Note: to re-create the reference file:
     (1) set PYTHONPATH to build/python.
@@ -1591,7 +1591,7 @@ class TestCounterflowPremixedFlameNonIdeal():
         assertNear(mdot[-1], -sim.products.mdot, 1e-4)
 
 
-class TestBurnerFlame():
+class TestBurnerFlame:
 
     @pytest.fixture(scope='function')
     def run_case(self):
@@ -1681,7 +1681,7 @@ def setup_stagnation_tests(request):
     request.cls.gas = ct.Solution("h2o2.yaml")
 
 @pytest.mark.usefixtures("setup_stagnation_tests")
-class TestStagnationFlame():
+class TestStagnationFlame:
 
     def create_stagnation(self, comp, tsurf, tinlet, mdot, width):
         p = 0.05 * ct.one_atm  # pressure
@@ -1767,7 +1767,7 @@ def setup_impinging_jet_tests(request):
     request.cls.gas = request.cls.surf_phase.adjacent["gas"]
 
 @pytest.mark.usefixtures("setup_impinging_jet_tests")
-class TestImpingingJet():
+class TestImpingingJet:
 
     def create_reacting_surface(self, comp, tsurf, tinlet, width):
         self.gas.TPX = tinlet, ct.one_atm, comp
@@ -1882,7 +1882,7 @@ class TestImpingingJet():
         jet.solve(loglevel=0)
 
 
-class TestTwinFlame():
+class TestTwinFlame:
     def solve(self, phi, T, width, P):
         gas = ct.Solution("h2o2.yaml")
         gas.TP = T, ct.one_atm
@@ -1946,7 +1946,7 @@ class TestTwinFlame():
         with pytest.raises(ct.CanteraError, match="must be positive"):
             sim.solve(loglevel=0)
 
-class TestIonFreeFlame():
+class TestIonFreeFlame:
 
     @pytest.mark.slow_test
     def test_ion_profile(self):
@@ -1974,7 +1974,7 @@ class TestIonFreeFlame():
         assertNear(max(self.sim.E), 149.63179056676853, 1e-3)
 
 
-class TestIonBurnerFlame():
+class TestIonBurnerFlame:
     def test_ion_profile(self):
         reactants = 'CH4:1.0, O2:2.0, N2:7.52'
         p = ct.one_atm

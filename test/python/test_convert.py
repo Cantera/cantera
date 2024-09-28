@@ -13,7 +13,7 @@ from .utilities import (
 import cantera as ct
 from cantera import ck2yaml, cti2yaml, ctml2yaml, yaml2ck, lxcat2yaml
 
-class Testck2yaml():
+class Testck2yaml:
     @pytest.fixture(autouse=True)
     def inject_fixtures(self, capsys):
         self._capsys = capsys
@@ -779,7 +779,7 @@ class Testck2yaml():
         assert "no more than 3 digits." in captured.out
 
 
-class Testyaml2ck():
+class Testyaml2ck:
     """Test yaml2ck by converting to CK then back to YAML to read with Cantera."""
     ext: str = "-from-yaml2ck.yaml"
 
@@ -1082,7 +1082,7 @@ class Testyaml2ck():
         assert ck_phase.species("H2").input_data["thermo"]["note"] == "Line 1\nLine 2"
 
 
-class Testcti2yaml():
+class Testcti2yaml:
     def convert(self, basename, src_dir=None, encoding=None):
         if src_dir is None:
             src_dir = self.test_data_path
@@ -1305,7 +1305,7 @@ class Testcti2yaml():
         self.checkKinetics(ctiGas, yamlGas, [300, 1001, 2500], [1e5, 10e5])
 
 
-class Testctml2yaml():
+class Testctml2yaml:
     def convert(self, basename, src_dir=None):
         if src_dir is None:
             src_dir = self.test_data_path
@@ -1664,7 +1664,7 @@ class Testctml2yaml():
         with pytest.warns(UserWarning, match="Duplicate 'reactionData' id"):
             self.convert("duplicate-reactionData-ids")
 
-class Testlxcat2yaml():
+class Testlxcat2yaml:
     def convert(self, inputFile=None, database=None, mechFile=None, phase=None,
                 insert=True, output=None):
         if inputFile is not None:

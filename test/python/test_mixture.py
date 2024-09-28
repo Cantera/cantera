@@ -17,7 +17,7 @@ def mixture(request, phases):
     request.cls.mix = ct.Mixture([(request.cls.phase1, 1.0), (request.cls.phase2, 2.0)])
 
 @pytest.mark.usefixtures("mixture")
-class TestMixture():
+class TestMixture:
 
     def test_sizes(self):
         assert self.mix.n_phases == 2

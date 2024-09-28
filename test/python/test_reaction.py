@@ -18,7 +18,7 @@ def gas(request):
     request.cls.gas = ct.Solution("gri30.yaml")
 
 @pytest.mark.usefixtures("gas")
-class TestImplicitThirdBody():
+class TestImplicitThirdBody:
     """ tests for three-body reactions with specified collision partner """
 
     def test_implicit_three_body(self):
@@ -982,7 +982,7 @@ def reaction_data(request, setup_reaction_tests):
     request.cls.soln.TP = 900, 2*ct.one_atm
     request.cls.adj = []
 
-class ReactionTests():
+class ReactionTests:
     # test suite for reaction expressions
 
     _cls = ct.Reaction # reaction object to be tested
@@ -1703,7 +1703,7 @@ def setup_extensible2_tests(request):
         sys.path.append(here)
 
 @pytest.mark.usefixtures("setup_extensible2_tests")
-class TestExtensible2():
+class TestExtensible2:
     # Test handling of ExtensibleRate defined in a separate Python module
 
     _input_template = """
@@ -1801,7 +1801,7 @@ def setup_extensible3_tests(request):
     request.cls.gas = ct.Solution('h2o2.yaml', transport_model=None)
 
 @pytest.mark.usefixtures("setup_extensible3_tests")
-class TestExtensible3():
+class TestExtensible3:
     # Additional ExtensibleRate tests
 
     def test_explicit_units(self):

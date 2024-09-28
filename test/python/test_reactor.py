@@ -20,7 +20,7 @@ from .utilities import (
     compareProfiles
 )
 
-class TestReactor():
+class TestReactor:
     reactorClass = ct.Reactor
 
     def make_reactors(self, independent=True, n_reactors=2,
@@ -1167,7 +1167,7 @@ class TestIdealGasReactor(TestReactor):
     reactorClass = ct.IdealGasReactor
 
 
-class TestWellStirredReactorIgnition():
+class TestWellStirredReactorIgnition:
     """ Ignition (or not) of a well-stirred reactor """
     def setup_reactor(self, T0, P0, mdot_fuel, mdot_ox):
         """ Runs before tests """
@@ -1283,7 +1283,7 @@ class TestWellStirredReactorIgnition():
         assertNear(self.combustor.thermo['HO2'].Y[0], 8.734515e-06, 1e-5)
 
 
-class TestConstPressureReactor():
+class TestConstPressureReactor:
     """
     The constant pressure reactor should give essentially the same results as
     as a regular "Reactor" with a wall with a very high expansion rate
@@ -1493,7 +1493,7 @@ class TestIdealGasMoleReactor(TestMoleReactor):
             assertNear(r1.thermo.P, r2.thermo.P, rtol=1e-5)
 
 
-class TestReactorJacobians():
+class TestReactorJacobians:
 
     def test_multi_surface_simple(self):
         # conditions for simulation
@@ -1664,7 +1664,7 @@ class FailRate(ct.ExtensibleRate):
         return 0.0
 
 
-class TestFlowReactor():
+class TestFlowReactor:
     gas_def = """
     phases:
     - name: gas
@@ -1783,7 +1783,7 @@ class TestFlowReactor():
         with pytest.raises(ct.CanteraError, match='out of bounds'):
             r.component_name(200)
 
-class TestFlowReactor2():
+class TestFlowReactor2:
     def import_phases(self):
         surf = ct.Interface('SiF4_NH3_mec.yaml', 'SI3N4')
         return surf, surf.adjacent['gas']
@@ -2035,7 +2035,7 @@ class TestFlowReactor2():
         sim.initialize()
 
 
-class TestSurfaceKinetics():
+class TestSurfaceKinetics:
     def make_reactors(self):
         self.net = ct.ReactorNet()
 
@@ -2143,7 +2143,7 @@ class TestSurfaceKinetics():
         assert graph.body == expected
 
 
-class TestReactorSensitivities():
+class TestReactorSensitivities:
     def test_sensitivities1(self):
         net = ct.ReactorNet()
         gas = ct.Solution('gri30.yaml', transport_model=None)
@@ -2643,7 +2643,7 @@ class CombustorTest(CombustorTestImplementation): pass
 class WallTest(WallTestImplementation): pass
 
 
-class PureFluidReactorTest():
+class PureFluidReactorTest:
     def test_Reactor(self):
         phase = ct.PureFluid("liquidvapor.yaml", "oxygen")
         air = ct.Solution("air.yaml")
@@ -2726,7 +2726,7 @@ class PureFluidReactorTest():
             assertNear(states.T[i], states.T[2])
 
 
-class AdvanceCoveragesTest():
+class AdvanceCoveragesTest:
     def setup(self, model="ptcombust.yaml", gas_phase="gas", interface_phase="Pt_surf"):
         # create gas and interface
         self.surf = ct.Interface(model, interface_phase)
@@ -2767,7 +2767,7 @@ def setup_extensible_reactor(request):
     request.cls.gas = ct.Solution("h2o2.yaml")
 
 @pytest.mark.usefixtures('setup_extensible_reactor')
-class ExtensibleReactorTest():
+class ExtensibleReactorTest:
 
     def test_extra_variable(self):
         class InertialWallReactor(ct.ExtensibleIdealGasReactor):

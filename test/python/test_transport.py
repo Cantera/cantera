@@ -16,7 +16,7 @@ def setup_transport(request):
     request.cls.phase.TP = 800, 2*ct.one_atm
 
 @pytest.mark.usefixtures("setup_transport")
-class TestTransport():
+class TestTransport:
 
     def test_scalar_properties(self):
         assert self.phase.viscosity > 0.0
@@ -225,7 +225,7 @@ def setup_ion_transport(request):
     request.cls.kH3Op = request.cls.gas.species_index("H3O+")
 
 @pytest.mark.usefixtures("setup_ion_transport")
-class TestIonTransport():
+class TestIonTransport:
 
     def test_binary_diffusion(self):
         bdiff = self.gas.binary_diff_coeffs[self.kN2][self.kH3Op]
@@ -253,7 +253,7 @@ class TestIonTransport():
         assert mobi != self.gas.mobilities[self.kH3Op]
 
 
-class TestTransportGeometryFlags():
+class TestTransportGeometryFlags:
     species_data = """
     - name: H2
       composition: {{H: 2}}
@@ -331,7 +331,7 @@ def setup_dusty_gas(request):
     request.cls.Dref = request.cls.phase.multi_diff_coeffs
 
 @pytest.mark.usefixtures("setup_dusty_gas")
-class TestDustyGas():
+class TestDustyGas:
 
     def test_porosity(self):
         self.phase.porosity = 0.4
@@ -376,7 +376,7 @@ def water(request):
     request.cls.water = ct.Water()
 
 @pytest.mark.usefixtures("water")
-class TestWaterTransport():
+class TestWaterTransport:
     """
     Comparison values are taken from the NIST Chemistry WebBook. Agreement is
     limited by the use of a different equation of state here (Reynolds) than
@@ -432,7 +432,7 @@ def setup_IAPWS95Water(request):
     request.cls.water = ct.Solution('thermo-models.yaml', 'liquid-water')
 
 @pytest.mark.usefixtures("setup_IAPWS95Water")
-class TestIAPWS95WaterTransport():
+class TestIAPWS95WaterTransport:
     """
     Water transport properties test using the IAPWS95 equation of state. This
     results in better comparisons with data from the NIST Webbook.
@@ -476,7 +476,7 @@ def setup_transport_data(request):
     request.cls.gas.X = 'H2O:0.6, H2:0.4'
 
 @pytest.mark.usefixtures("setup_transport_data")
-class TestTransportData():
+class TestTransportData:
 
     def test_read(self):
         tr = self.gas.species('H2').transport
@@ -504,7 +504,7 @@ def setup_ion_transport_data(request):
     request.cls.gas = ct.Solution("ch4_ion.yaml")
 
 @pytest.mark.usefixtures("setup_ion_transport_data")
-class TestIonGasTransportData():
+class TestIonGasTransportData:
 
     def test_read_ion(self):
         tr = self.gas.species('N2').transport

@@ -15,7 +15,7 @@ def setup_thermo_phase_tests(request):
     request.cls.phase = ct.Solution('h2o2.yaml', transport_model=None)
 
 @pytest.mark.usefixtures('setup_thermo_phase_tests')
-class TestThermoPhase():
+class TestThermoPhase:
 
     def test_source(self):
         assert self.phase.source == 'h2o2.yaml'
@@ -1004,7 +1004,7 @@ def setup_thermo_tests(request):
     request.cls.gas.TPX = 450, 2e5, 'H2:1.0, O2:0.4, AR:3, H2O:0.1'
 
 @pytest.mark.usefixtures("setup_thermo_tests")
-class TestThermo():
+class TestThermo:
 
     def test_setSV_lowT(self):
         """
@@ -1123,7 +1123,7 @@ class TestThermo():
 def setup_interface_tests(request):
     request.cls.interface = ct.Interface("diamond.yaml", "diamond_100")
 @pytest.mark.usefixtures("setup_interface_tests")
-class TestInterfacePhase():
+class TestInterfacePhase:
 
     def test_properties(self):
         self.interface.site_density = 100
@@ -1159,7 +1159,7 @@ class TestInterfacePhase():
         assertNear(C[self.interface.species_index('c6*M')], 0.75)
 
 
-class TestInterfacePhase2():
+class TestInterfacePhase2:
 
     @pytest.fixture(scope='function')
     def surf(self):
@@ -1189,7 +1189,7 @@ class TestInterfacePhase2():
         assertArrayNear(X_normalized * sum(theta), X_unnormalized)
 
 
-class TestPlasmaPhase():
+class TestPlasmaPhase:
 
     @pytest.fixture(scope='function')
     def phase(self):
@@ -1248,7 +1248,7 @@ class TestPlasmaPhase():
             phase.add_species(electron)
 
 
-class ImportTest():
+class ImportTest:
     """
     Tests the various ways of creating a Solution object
     """
@@ -1291,7 +1291,7 @@ def setup_species_tests(request):
     request.cls.gas = ct.Solution('h2o2.yaml', transport_model=None)
 
 @pytest.mark.usefixtures("setup_species_tests")
-class TestSpecies():
+class TestSpecies:
 
     def test_standalone(self):
         s = ct.Species('CH4', {'C':1, 'H':4})
@@ -1513,7 +1513,7 @@ def setup_species_thermo_tests(request):
     request.cls.gas.X = 'H2O:1.0'
 
 @pytest.mark.usefixtures("setup_species_thermo_tests")
-class TestSpeciesThermo():
+class TestSpeciesThermo:
     h2o_coeffs = [
         1000.0, 3.03399249E+00, 2.17691804E-03, -1.64072518E-07,
         -9.70419870E-11, 1.68200992E-14, -3.00042971E+04, 4.96677010E+00,
@@ -1653,7 +1653,7 @@ def setup_quantity_tests_data(request, setup_quantity_tests):
     request.cls.gas.basis = 'mass'
 
 @pytest.mark.usefixtures("setup_quantity_tests_data")
-class TestQuantity():
+class TestQuantity:
 
     def test_mass_moles(self):
         q1 = ct.Quantity(self.gas, mass=5)
@@ -1830,7 +1830,7 @@ class TestQuantity():
         assert gas.n_species == N + 1
 
 
-class TestMisc():
+class TestMisc:
     def test_stringify_bad(self):
         with pytest.raises(AttributeError):
             ct.Solution(3)
@@ -1890,7 +1890,7 @@ def setup_element_tests(request):
     request.cls.ar_num = ct.Element(18)
 
 @pytest.mark.usefixtures("setup_element_tests")
-class TestElement():
+class TestElement:
 
     def test_element_multiple_possibilities(self):
         # Carbon starts with Ca, the symbol for calcium.
@@ -1965,7 +1965,7 @@ def setup_solution_array_tests(request):
     request.cls.gas = ct.Solution('h2o2.yaml')
 
 @pytest.mark.usefixtures("setup_solution_array_tests")
-class TestSolutionArray():
+class TestSolutionArray:
 
     def test_passthrough(self):
         states = ct.SolutionArray(self.gas, 3)

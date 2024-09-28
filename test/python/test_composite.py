@@ -26,7 +26,7 @@ def setup_models_tests(request, load_yaml):
     request.cls.yml = load_yaml(request.cls.yml_file)
 
 @pytest.mark.usefixtures('setup_models_tests')
-class TestModels():
+class TestModels:
 
     def test_load_thermo_models(self):
         for ph in self.yml['phases']:
@@ -128,7 +128,7 @@ class TestModels():
                     raise TypeError(msg) from inst
 
 
-class TestPickle():
+class TestPickle:
 
     def test_pickle_gas(self):
         gas = ct.Solution("h2o2.yaml", transport_model=None)
@@ -170,7 +170,7 @@ class TestPickle():
 def setup_empty_thermo_phase_tests(request):
     request.cls.gas = ct.ThermoPhase()
 @pytest.mark.usefixtures('setup_empty_thermo_phase_tests')
-class TestEmptyThermoPhase():
+class TestEmptyThermoPhase:
     """ Test empty Solution object """
 
     def test_empty_report(self):
@@ -186,7 +186,7 @@ class TestEmptyThermoPhase():
             self.gas.equilibrate("TP")
 
 
-class TestEmptySolution():
+class TestEmptySolution:
     """ Test empty Solution object """
 
     @pytest.fixture(scope='function')
@@ -198,7 +198,7 @@ class TestEmptySolution():
         assert gas.composite ==  ("none", "none", "none")
 
 
-class TestEmptyEdgeCases():
+class TestEmptyEdgeCases:
     """ Test for edge cases where constructors are not allowed """
     def test_empty_phase(self):
         with pytest.raises(ValueError,
@@ -214,7 +214,7 @@ class TestEmptyEdgeCases():
             ct.Transport()
 
 
-class TestSolutionArray():
+class TestSolutionArray:
     """ Test SolutionArray basics """
 
     @pytest.fixture(scope='function')
@@ -322,7 +322,7 @@ class TestSolutionArray():
 def setup_solution_array_info_tests(request):
     request.cls.gas = ct.Solution('h2o2.yaml', transport_model=None)
 @pytest.mark.usefixtures('setup_solution_array_info_tests')
-class TestSolutionArrayInfo():
+class TestSolutionArrayInfo:
     """ Test SolutionArray summary output """
     width = 80
 
@@ -437,7 +437,7 @@ def setup_solution_array_io_tests(request):
     request.cls.gas = ct.Solution('h2o2.yaml', transport_model=None)
 
 @pytest.mark.usefixtures('setup_solution_array_io_tests')
-class TestSolutionArrayIO():
+class TestSolutionArrayIO:
     """ Test SolutionArray file IO """
 
     def test_collect_data(self):
@@ -744,7 +744,7 @@ def setup_legacy_hdf_tests(request):
     request.cls.gas = ct.Solution('h2o2.yaml', transport_model=None)
 
 @pytest.mark.usefixtures('setup_legacy_hdf_tests')
-class TestLegacyHDF():
+class TestLegacyHDF:
     """
     Test SolutionArray legacy HDF file input
 
@@ -867,7 +867,7 @@ def setup_restore_ideal_gas_tests(request):
     request.cls.gas = ct.Solution('h2o2.yaml', transport_model=None)
 
 @pytest.mark.usefixtures('setup_restore_ideal_gas_tests')
-class TestRestoreIdealGas():
+class TestRestoreIdealGas:
     """ Test restoring of the IdealGas class """
 
     def test_restore_gas(self):
@@ -977,7 +977,7 @@ def setup_restore_pure_fluid_tests(request):
     request.cls.water = ct.Water()
 
 @pytest.mark.usefixtures('setup_restore_pure_fluid_tests')
-class TestRestorePureFluid():
+class TestRestorePureFluid:
     """ Test restoring of the PureFluid class """
 
     def test_restore_water(self):
@@ -1071,7 +1071,7 @@ class TestRestorePureFluid():
         assert list(saved.phase_of_matter) == pom
 
 
-class TestSolutionSerialization():
+class TestSolutionSerialization:
     """ Test Solution serialization """
 
     def test_input_data_simple(self):
@@ -1339,7 +1339,7 @@ class TestSolutionSerialization():
         assert not gas_reduced.reaction(24).duplicate
 
 
-class TestSpeciesSerialization():
+class TestSpeciesSerialization:
 
     def test_species_simple(self):
         gas = ct.Solution('h2o2.yaml', transport_model=None)
@@ -1362,7 +1362,7 @@ class TestSpeciesSerialization():
         assertNear(data['dipole'], 1.844)
 
 
-class TestInterfaceAdjacent():
+class TestInterfaceAdjacent:
     def test_surface(self):
         surf = ct.Interface("ptcombust.yaml", "Pt_surf")
         assert list(surf.adjacent) == ["gas"]

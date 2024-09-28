@@ -12,7 +12,7 @@ def water(request):
     request.cls.water = ct.Water()
 
 @pytest.mark.usefixtures("water")
-class TestPureFluid():
+class TestPureFluid:
     """ Test functionality of the PureFluid class """
 
     def test_critical_properties(self):
@@ -400,7 +400,7 @@ def setup_fluid(request):
     request.cls.s0 = request.cls.fluid.s
 
 
-class PureFluidTestCases():
+class PureFluidTestCases:
     """
     Test the results of pure fluid phase calculations against tabulated
     references and for consistency with basic thermodynamic relations.
@@ -649,7 +649,7 @@ def pure_fluid(request):
     request.cls.fluid = ct.Water()
 
 @pytest.mark.usefixtures('pure_fluid')
-class TestPureFluidConvergence():
+class TestPureFluidConvergence:
 
     def test_TP(self):
         # Focus on the region near the critical point
