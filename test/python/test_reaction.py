@@ -1,5 +1,4 @@
 import gc
-from math import exp
 import numpy as np
 from pathlib import Path
 import pytest
@@ -10,9 +9,7 @@ import textwrap
 import cantera as ct
 from .utilities import (
     assertNear,
-    assertArrayNear,
-    assertIsFinite,
-    assertIsNaN
+    assertArrayNear
 )
 
 
@@ -221,7 +218,7 @@ class ReactionRateTests:
         assert self._type == rate.type
         assert self._cls.__name__ in f"{rate}"
         value = self.eval(rate)
-        assertIsFinite(value)
+        assert np.isfinite(value)
         assertNear(value, self.soln.forward_rate_constants[self._index])
 
     def test_from_parts(self):
@@ -243,11 +240,11 @@ class ReactionRateTests:
     def test_unconfigured(self):
         # check behavior of unconfigured rate object
         rate0 = self.from_input({})
-        assertIsNaN(self.eval(rate0))
+        assert np.isnan(self.eval(rate0))
         input_data = rate0.input_data
         rate1 = self.from_dict(input_data)
         assert rate1.type == self._type
-        assertIsNaN(self.eval(rate1))
+        assert np.isnan(self.eval(rate1))
 
     def test_roundtrip(self):
         # check round-trip instantiation via input_data
@@ -779,9 +776,9 @@ class SurfaceReactionRateTests(ReactionRateTests):
         rate = self.from_yaml()
         value = self.eval(rate, species=False)
         if "coverage-dependencies" in self._input:
-            assertIsNaN(value)
+            assert np.isnan(value)
         else:
-            assertIsFinite(value)
+            assert np.isfinite(value)
 
     def test_from_parts(self):
         rate = self.from_parts()
@@ -1143,7 +1140,7 @@ class ReactionTests:
     def test_no_rate(self):
         # check behavior for instantiation from keywords / no rate
         rxn = self.from_empty()
-        assertIsNaN(self.eval_rate(rxn.rate))
+        assert np.isnan(self.eval_rate(rxn.rate))
 
         with pytest.raises(ct.CanteraError, match="validate"):
             ct.Solution(thermo=self.soln.thermo_model,
@@ -1532,7 +1529,7 @@ def setup_custom_tests(request, reaction_data):
     statidmethod is used on the lambda function to prevent it from being passed
     self as the first argument.
     """
-    request.cls._rate = staticmethod(lambda T: 38.7 * T**2.7 * exp(-3150.15428/T))
+    request.cls._rate = staticmethod(lambda T: 38.7 * T**2.7 * np.exp(-3150.15428/T))
 
 @pytest.mark.usefixtures("setup_custom_tests")
 class TestCustom(ReactionTests):
@@ -1541,7 +1538,7 @@ class TestCustom(ReactionTests):
     # probe O + H2 <=> H + OH
     _rate_cls = ct.CustomRate
     _equation = "H2 + O <=> H + OH"
-    _rate_obj = ct.CustomRate(lambda T: 38.7 * T**2.7 * exp(-3150.15428/T))
+    _rate_obj = ct.CustomRate(lambda T: 38.7 * T**2.7 * np.exp(-3150.15428/T))
     _index = 0
     _rate_type = "custom-rate-function"
     _yaml = None
@@ -1574,7 +1571,7 @@ class TestCustom(ReactionTests):
 
     def test_custom_lambda(self):
         # check instantiation from keywords / rate provided as lambda function
-        rxn = self.from_rate(lambda T: 38.7 * T**2.7 * exp(-3150.15428/T))
+        rxn = self.from_rate(lambda T: 38.7 * T**2.7 * np.exp(-3150.15428/T))
         self.check_rxn(rxn)
 
     def test_persistent(self):
@@ -1628,7 +1625,7 @@ class UserRate1(ct.ExtensibleRate):
     def eval(self, data):
         if self.eval_error:
             raise ValueError("Error evaluating rate")
-        return self.A * data.T**2.7 * exp(-3150.15428/data.T)
+        return self.A * data.T**2.7 * np.exp(-3150.15428/data.T)
 
 
 @pytest.fixture(scope='function')
@@ -1797,7 +1794,7 @@ class UserRate2(ct.ExtensibleRate):
             raise ValueError(f"Negative length found in reaction {equation}")
 
     def eval(self, data):
-        return self.A * (self.length / 2.0)**2 * exp(-self.Ta/data.T)
+        return self.A * (self.length / 2.0)**2 * np.exp(-self.Ta/data.T)
 
 @pytest.fixture(scope='function')
 def setup_extensible3_tests(request):
@@ -1878,7 +1875,7 @@ class TestExtensible3:
         rxn = ct.Reaction(equation='H2 + OH = H2O + H', rate=rate)
         self.gas.add_reaction(rxn)
 
-        kf = rate.A * (rate.length / 2.0)**2 * exp(-rate.Ta/self.gas.T)
+        kf = rate.A * (rate.length / 2.0)**2 * np.exp(-rate.Ta/self.gas.T)
         assert self.gas.forward_rate_constants[-1] == approx(kf)
 
         rxn2 = self.gas.reaction(self.gas.n_reactions - 1)
@@ -1899,7 +1896,7 @@ class TestExtensible3:
         """
         rxn = ct.Reaction.from_yaml(rxn, kinetics=gas)
         gas.add_reaction(rxn)
-        kf = 1000 * (200 / 2.0)**2 * exp(-1000/gas.T)
+        kf = 1000 * (200 / 2.0)**2 * np.exp(-1000/gas.T)
         assert gas.forward_rate_constants[-1] == approx(kf)
 
 
