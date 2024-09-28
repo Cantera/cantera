@@ -10,13 +10,6 @@ except ImportError:
 
 
 # Custom assertions functions
-def assertIsFinite(value):
-    if not np.isfinite(value):
-        pytest.fail(f"Value '{value}' is not finite")
-
-def assertIsNaN(value):
-    if not np.isnan(value):
-        pytest.fail(f"Value '{value}' is a number")
 
 def assertNear(a, b, rtol=1e-8, atol=1e-12, msg=None):
     if a == b:
