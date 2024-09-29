@@ -3,7 +3,6 @@ import pickle
 import pytest
 import re
 from ruamel import yaml
-import sys
 
 import cantera as ct
 
@@ -17,7 +16,6 @@ from cantera.composite import _pandas
 from .utilities import (
     assertNear,
     assertArrayNear
-
 )
 
 @pytest.fixture(scope='class')
