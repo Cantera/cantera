@@ -3,7 +3,6 @@ import pickle
 import pytest
 import re
 from ruamel import yaml
-import sys
 
 import cantera as ct
 
@@ -17,7 +16,6 @@ from cantera.composite import _pandas
 from .utilities import (
     assertNear,
     assertArrayNear
-
 )
 
 @pytest.fixture(scope='class')
@@ -1113,12 +1111,11 @@ class TestSolutionSerialization:
         assert data['custom-field']['first'] == True
         assert data['custom-field']['last'] == [100, 200, 300]
 
-        if sys.version_info >= (3,7):
-            # Check that items are ordered as expected
-            assert list(data) == ["name", "thermo", "elements", "species", "state",
-                                  "custom-field", "literal-string"]
-            assert list(data["custom-field"]) == ["first", "second", "last"]
-            assert data["literal-string"] == "spam\nand\neggs\n"
+        # Check that items are ordered as expected
+        assert list(data) == ["name", "thermo", "elements", "species", "state",
+                                "custom-field", "literal-string"]
+        assert list(data["custom-field"]) == ["first", "second", "last"]
+        assert data["literal-string"] == "spam\nand\neggs\n"
 
     def test_input_data_debye_huckel(self):
         soln = ct.Solution('thermo-models.yaml', 'debye-huckel-B-dot-ak')
