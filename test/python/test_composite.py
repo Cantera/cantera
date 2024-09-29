@@ -1,6 +1,7 @@
 import numpy as np
 import pickle
 import pytest
+from pytest import approx
 import re
 from ruamel import yaml
 
@@ -14,7 +15,6 @@ except ImportError:
 from cantera.composite import _pandas
 
 from .utilities import (
-    assertNear,
     assertArrayNear
 )
 
@@ -136,8 +136,8 @@ class TestPickle:
 
         with open(self.test_work_path / "gas.pkl", "rb") as pkl:
             gas2 = pickle.load(pkl)
-        assertNear(gas.T, gas2.T)
-        assertNear(gas.P, gas2.P)
+        assert gas.T == approx(gas2.T)
+        assert gas.P == approx(gas2.P)
         assertArrayNear(gas.X, gas2.X)
 
         assert  gas2.transport_model == "none"
@@ -151,8 +151,8 @@ class TestPickle:
 
         with open(self.test_work_path / "gas.pkl", "rb") as pkl:
             gas2 = pickle.load(pkl)
-        assertNear(gas.T, gas2.T)
-        assertNear(gas.P, gas2.P)
+        assert gas.T == approx(gas2.T)
+        assert gas.P == approx(gas2.P)
         assertArrayNear(gas.X, gas2.X)
 
         assert gas2.transport_model == "multicomponent"
@@ -164,36 +164,35 @@ class TestPickle:
             with open(self.test_work_path / "interface.pkl", "wb") as pkl:
                 pickle.dump(interface, pkl)
 
-@pytest.fixture(scope='class')
-def setup_empty_thermo_phase_tests(request):
-    request.cls.gas = ct.ThermoPhase()
-@pytest.mark.usefixtures('setup_empty_thermo_phase_tests')
+
 class TestEmptyThermoPhase:
     """ Test empty Solution object """
 
-    def test_empty_report(self):
+    @pytest.fixture
+    def empty_thermo_phase(self):
+        return ct.ThermoPhase()
+
+    def test_empty_report(self, empty_thermo_phase):
         with pytest.raises(NotImplementedError):
-            self.gas()
+            empty_thermo_phase()
 
-    def test_empty_TP(self):
+    def test_empty_TP(self, empty_thermo_phase):
         with pytest.raises(NotImplementedError):
-            self.gas.TP = 300, ct.one_atm
+            empty_thermo_phase.TP = 300, ct.one_atm
 
-    def test_empty_equilibrate(self):
+    def test_empty_equilibrate(self, empty_thermo_phase):
         with pytest.raises(NotImplementedError):
-            self.gas.equilibrate("TP")
+            empty_thermo_phase.equilibrate("TP")
 
 
-class TestEmptySolution:
+@pytest.fixture(scope='function')
+def empty_solution():
+    return ct.Solution()
+
+def test_empty_composite(empty_solution):
     """ Test empty Solution object """
-
-    @pytest.fixture(scope='function')
-    def gas(self):
-        return ct.Solution()
-
-    def test_empty_composite(self, gas):
-        assert gas.thermo_model == "none"
-        assert gas.composite ==  ("none", "none", "none")
+    assert empty_solution.thermo_model == "none"
+    assert empty_solution.composite ==  ("none", "none", "none")
 
 
 class TestEmptyEdgeCases:
@@ -215,7 +214,7 @@ class TestEmptyEdgeCases:
 class TestSolutionArray:
     """ Test SolutionArray basics """
 
-    @pytest.fixture(scope='function')
+    @pytest.fixture
     def gas(self):
         return ct.Solution('h2o2.yaml', transport_model=None)
 
@@ -271,8 +270,7 @@ class TestSolutionArray:
         arr.set_auxiliary(0, {"spam": 42})
         assert arr.spam[0] == 42
 
-    def test_disables_add_species(self):
-        gas = ct.Solution('h2o2.yaml', transport_model=None)
+    def test_disables_add_species(self, gas):
         states = [list(gas.state)] * 3
         arr = ct.SolutionArray(gas, states=states)
 
@@ -289,8 +287,7 @@ class TestSolutionArray:
         gas.add_species(species_x)
         assert gas.n_species == N + 1
 
-    def test_selected_species(self):
-        gas = ct.Solution("h2o2.yaml", transport_model=None)
+    def test_selected_species(self, gas):
         gas.TPX = 300, ct.one_atm, {"H2": .5, "O2": .5}
         gas.equilibrate("HP")
         gas.TP = 1500, ct.one_atm
@@ -1163,8 +1160,8 @@ class TestSolutionSerialization:
 
         for r1, r2 in zip(original['reactions'], generated['reactions']):
             if 'rate-constant' in r1:
-                assertNear(r1['rate-constant']['A'], r2['rate-constant']['A'])
-                assertNear(r1['rate-constant']['Ea'], r2['rate-constant']['Ea'])
+                assert r1['rate-constant']['A'] == approx(r2['rate-constant']['A'])
+                assert r1['rate-constant']['Ea'] == approx(r2['rate-constant']['Ea'])
 
         gas2 = ct.Solution(self.test_work_path / "h2o2-generated.yaml")
         assertArrayNear(gas.concentrations, gas2.concentrations)
@@ -1187,8 +1184,8 @@ class TestSolutionSerialization:
 
         for r1, r2 in zip(original['reactions'], generated['reactions']):
             if 'rate-constant' in r1:
-                assertNear(r1['rate-constant']['A'], r2['rate-constant']['A'])
-                assertNear(r1['rate-constant']['Ea'], r2['rate-constant']['Ea'])
+                assert r1['rate-constant']['A'] == approx(r2['rate-constant']['A'])
+                assert r1['rate-constant']['Ea'] == approx(r2['rate-constant']['Ea'])
 
         gas2 = ct.Solution(self.test_work_path / "h2o2-generated.yaml")
         assertArrayNear(gas.concentrations, gas2.concentrations)
@@ -1235,8 +1232,8 @@ class TestSolutionSerialization:
         ice.write_yaml(self.test_work_path / "ice-generated.yaml", units={'length': 'mm', 'mass': 'g'})
 
         ice2 = ct.Solution(self.test_work_path / "ice-generated.yaml")
-        assertNear(ice.density, ice2.density)
-        assertNear(ice.entropy_mole, ice2.entropy_mole)
+        assert ice.density == approx(ice2.density)
+        assert ice.entropy_mole == approx(ice2.entropy_mole)
 
     def test_yaml_inconsistent_species(self):
         gas = ct.Solution('h2o2.yaml', transport_model=None)
@@ -1272,7 +1269,7 @@ class TestSolutionSerialization:
         assert data2["foo"] == "bar"
         assert data2["transport"]["baz"] == 1234.5
         assert data2["thermo"]["something"] == [False, True]
-        assert gas2.reaction(5).input_data["baked-beans"]
+        assert gas2.reaction(5).input_data["baked-beans"] is True
 
     def test_yaml_strings(self):
         yaml = """
@@ -1356,7 +1353,7 @@ class TestSpeciesSerialization:
         data = gas.species('H2O').input_data['transport']
         assert data['model'] == 'gas'
         assert data['geometry'] == 'nonlinear'
-        assertNear(data['dipole'], 1.844)
+        assert data['dipole'] == approx(1.844)
 
 
 class TestInterfaceAdjacent:
