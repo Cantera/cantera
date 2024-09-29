@@ -865,12 +865,13 @@ class TestChemicallyActivated:
             gas.TPX = 900.0, P[i], [0.01, 0.01, 0.04, 0.10, 0.84]
             assertNear(gas.forward_rates_of_progress[0], Rf[i], 2e-5)
 
+@pytest.fixture(scope='class')
+def setup_explicit_forward_order_tests(request):
+    request.cls.gas = ct.Solution("explicit-forward-order.yaml")
+    request.cls.gas.TPX = 800, 101325, [0.01, 0.90, 0.02, 0.03, 0.04]
 
+@pytest.mark.usefixtures('setup_explicit_forward_order_tests')
 class ExplicitForwardOrderTest:
-    def setup_method(self):
-        """ Runs before tests """
-        self.gas = ct.Solution("explicit-forward-order.yaml")
-        self.gas.TPX = 800, 101325, [0.01, 0.90, 0.02, 0.03, 0.04]
 
     def test_irreversibility(self):
         # Reactions are irreversible

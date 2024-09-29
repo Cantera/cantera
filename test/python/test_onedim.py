@@ -934,7 +934,6 @@ class TestDiffusionFlame:
     (2) Start Python and run:
         >>> import cantera.test
         >>> t = cantera.test.test_onedim.TestDiffusionFlame()
-        >>> t.setup_class()
         >>> t.test_mixture_averaged(True)
         >>> t.test_auto(True)
         >>> t.test_mixture_averaged_rad(True)
@@ -1366,7 +1365,6 @@ class TestCounterflowPremixedFlame:
     (2) Start Python and run:
         >>> import cantera.test
         >>> t = cantera.test.test_onedim.TestCounterflowPremixedFlame()
-        >>> t.setup_class()
         >>> t.test_mixture_averaged(True)
     (3) Compare the reference files created in the current working directory with
         the ones in test/data and replace them if needed.
@@ -1486,7 +1484,6 @@ class TestCounterflowPremixedFlameNonIdeal:
     (2) Start Python and run:
         >>> import cantera.test
         >>> t = cantera.test.test_onedim.TestCounterflowPremixedFlameNonIdeal()
-        >>> t.setup_class()
         >>> t.test_mixture_averaged(True)
     (3) Compare the reference files created in the current working directory with
         the ones in test/data and replace them if needed.
