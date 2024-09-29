@@ -6,7 +6,6 @@ import pytest
 from pytest import approx
 
 from .utilities import (
-    assertNear,
     assertArrayNear
 )
 
@@ -72,9 +71,9 @@ class Testck2yaml:
             gas_s = gas.standard_entropies_R
             for i in range(gas.n_species):
                 message = ' for species {0} at T = {1}'.format(i, T)
-                assertNear(ref_cp[i], gas_cp[i], 1e-7, msg='cp'+message)
-                assertNear(ref_h[i], gas_h[i], 1e-7, msg='h'+message)
-                assertNear(ref_s[i], gas_s[i], 1e-7, msg='s'+message)
+                assert ref_cp[i] == approx(gas_cp[i], rel=1e-7)
+                assert ref_h[i] == approx(gas_h[i], rel=1e-7)
+                assert ref_s[i] == approx(gas_s[i], rel=1e-7)
 
     def checkKinetics(self, ref, gas, temperatures, pressures, tol=1e-8):
         for T,P in itertools.product(temperatures, pressures):
@@ -86,8 +85,8 @@ class Testck2yaml:
             gas_kr = gas.reverse_rate_constants
             for i in range(gas.n_reactions):
                 message = ' for reaction {0} at T = {1}, P = {2}'.format(i, T, P)
-                assertNear(ref_kf[i], gas_kf[i], rtol=tol, msg='kf' + message)
-                assertNear(ref_kr[i], gas_kr[i], rtol=tol, msg='kr' + message)
+                assert ref_kf[i] == approx(gas_kf[i], rel=tol)
+                assert ref_kr[i] == approx(gas_kr[i], rel=tol)
 
     @pytest.mark.slow_test
     def test_gri30(self):
@@ -570,7 +569,7 @@ class Testck2yaml:
         output = self.convert('custom-elements.inp')
         gas = ct.Solution(output)
         assert gas.n_elements == 4
-        assertNear(gas.atomic_weight(2), 13.003)
+        assert gas.atomic_weight(2) == approx(13.003)
         assert gas.n_atoms('ethane', 'C') == 2
         assert gas.n_atoms('CC', 'C') == 1
         assert gas.n_atoms('CC', 'Ci') == 1
@@ -588,9 +587,9 @@ class Testck2yaml:
 
         # Different units for rate constants in each input file
         # 62.1 kJ/gmol = 6.21e7 J/kmol
-        assertNear(gas.reaction(0).rate.activation_energy, 6.21e7)
+        assert gas.reaction(0).rate.activation_energy == approx(6.21e7)
         # 67400 J/mol = 6.74e7 J/kmol
-        assertNear(surf.reaction(1).rate.activation_energy, 6.74e7)
+        assert surf.reaction(1).rate.activation_energy == approx(6.74e7)
 
         # Sticking coefficients
         assert surf.reaction(4).duplicate
@@ -606,7 +605,7 @@ class Testck2yaml:
         assert len(covdeps) == 2
         assert "H_Pt" in covdeps
         assert covdeps["OH_Pt"]["m"] == 1.0
-        assertNear(covdeps["H_Pt"]["E"], -6e6) # 6000 J/gmol = 6e6 J/kmol
+        assert covdeps["H_Pt"]["E"] == approx(-6e6) # 6000 J/gmol = 6e6 J/kmol
 
     def test_surface_mech2(self):
         output = self.convert('surface1-gas-noreac.inp', surface='surface1.inp',
@@ -621,7 +620,7 @@ class Testck2yaml:
         covdeps = surf.reaction(1).rate.coverage_dependencies
         assert "H_Pt" in covdeps
         assert covdeps["OH_Pt"]["m"] == 1.0
-        assertNear(covdeps["H_Pt"]["E"], -6e6)
+        assert covdeps["H_Pt"]["E"] == approx(-6e6)
 
     def test_surf_bad_files(self):
         with pytest.raises(ck2yaml.InputError):
@@ -886,12 +885,12 @@ class Testyaml2ck:
             h_yaml = yaml_phase.partial_molar_enthalpies
             s_ck = ck_phase.partial_molar_entropies
             s_yaml = yaml_phase.partial_molar_entropies
-            assertNear(ck_phase.density, yaml_phase.density)
+            assert ck_phase.density == approx(yaml_phase.density)
             for i in range(ck_phase.n_species):
                 message = ' for species {0} at T = {1}'.format(i, T)
-                assertNear(cp_ck[i], cp_yaml[yaml_idx[i]], tol, msg='cp'+message)
-                assertNear(h_ck[i], h_yaml[yaml_idx[i]], tol, msg='h'+message)
-                assertNear(s_ck[i], s_yaml[yaml_idx[i]], tol, msg='s'+message)
+                assert cp_ck[i] == approx(cp_yaml[yaml_idx[i]], rel=tol)
+                assert h_ck[i] == approx(h_yaml[yaml_idx[i]], rel=tol)
+                assert s_ck[i] == approx(s_yaml[yaml_idx[i]], rel=tol)
 
     def check_kinetics(self, ck_phase, yaml_phase, temperatures, pressures, tol=1e-7):
         for T, P in itertools.product(temperatures, pressures):
@@ -903,8 +902,8 @@ class Testyaml2ck:
             kr_yaml = yaml_phase.reverse_rate_constants
             for i in range(yaml_phase.n_reactions):
                 message = f"for reaction {i+1}: {yaml_phase.reaction(i)} at T = {T}, P = {P}"
-                assertNear(kf_ck[i], kf_yaml[i], rtol=tol, msg="kf " + message)
-                assertNear(kr_ck[i], kr_yaml[i], rtol=tol, msg="kr " + message)
+                assert kf_ck[i] == approx(kf_yaml[i], rel=tol)
+                assert kr_ck[i] == approx(kr_yaml[i], rel=tol)
 
     def check_transport(self, ck_phase, yaml_phase, temperatures, model="mixture-averaged"):
         yaml_idx = {ck_phase.species_index(s): yaml_phase.species_index(s) for s in ck_phase.species_names}
@@ -913,14 +912,13 @@ class Testyaml2ck:
         for T in temperatures:
             ck_phase.TP = T, ct.one_atm
             yaml_phase.TP = T, ct.one_atm
-            assertNear(ck_phase.viscosity, yaml_phase.viscosity)
-            assertNear(ck_phase.thermal_conductivity,
-                            yaml_phase.thermal_conductivity)
+            assert ck_phase.viscosity == approx(yaml_phase.viscosity)
+            assert ck_phase.thermal_conductivity == approx(yaml_phase.thermal_conductivity)
             Dkm_ck = ck_phase.mix_diff_coeffs
             Dkm_yaml = yaml_phase.mix_diff_coeffs
             for i in range(ck_phase.n_species):
                 message = 'dkm for species {0} at T = {1}'.format(i, T)
-                assertNear(Dkm_ck[i], Dkm_yaml[yaml_idx[i]], msg=message)
+                assert Dkm_ck[i] == approx(Dkm_yaml[yaml_idx[i]])
 
     @pytest.mark.slow_test
     def test_gri30(self):
@@ -1129,13 +1127,13 @@ class Testcti2yaml:
             h_yaml = yamlPhase.partial_molar_enthalpies
             s_cti = ctiPhase.partial_molar_entropies
             s_yaml = yamlPhase.partial_molar_entropies
-            assertNear(ctiPhase.density, yamlPhase.density)
+            assert ctiPhase.density == approx(yamlPhase.density)
             for i in range(ctiPhase.n_species):
                 message = ' for species {0} at T = {1}'.format(i, T)
                 if check_cp:
-                    assertNear(cp_cti[i], cp_yaml[i], tol, msg='cp'+message)
-                assertNear(h_cti[i], h_yaml[i], tol, msg='h'+message)
-                assertNear(s_cti[i], s_yaml[i], tol, msg='s'+message)
+                    cp_cti[i] == approx(cp_yaml[i], rel=tol)
+                assert h_cti[i] == approx(h_yaml[i], rel=tol)
+                assert s_cti[i] == approx(s_yaml[i], rel=tol)
 
     def checkKinetics(self, ctiPhase, yamlPhase, temperatures, pressures, tol=1e-7):
         for T,P in itertools.product(temperatures, pressures):
@@ -1147,8 +1145,8 @@ class Testcti2yaml:
             kr_yaml = yamlPhase.reverse_rate_constants
             for i in range(yamlPhase.n_reactions):
                 message = ' for reaction {0} at T = {1}, P = {2}'.format(i, T, P)
-                assertNear(kf_cti[i], kf_yaml[i], rtol=tol, msg='kf '+message)
-                assertNear(kr_cti[i], kr_yaml[i], rtol=tol, msg='kr '+message)
+                assert kf_cti[i] == approx(kf_yaml[i], rel=tol)
+                assert kr_cti[i] == approx(kr_yaml[i], rel=tol)
 
     def checkTransport(self, ctiPhase, yamlPhase, temperatures,
                        model='mixture-averaged'):
@@ -1157,14 +1155,13 @@ class Testcti2yaml:
         for T in temperatures:
             ctiPhase.TP = T, ct.one_atm
             yamlPhase.TP = T, ct.one_atm
-            assertNear(ctiPhase.viscosity, yamlPhase.viscosity)
-            assertNear(ctiPhase.thermal_conductivity,
-                            yamlPhase.thermal_conductivity)
+            assert ctiPhase.viscosity == approx(yamlPhase.viscosity)
+            assert ctiPhase.thermal_conductivity == approx(yamlPhase.thermal_conductivity)
             Dkm_cti = ctiPhase.mix_diff_coeffs
             Dkm_yaml = yamlPhase.mix_diff_coeffs
             for i in range(ctiPhase.n_species):
                 message = 'dkm for species {0} at T = {1}'.format(i, T)
-                assertNear(Dkm_cti[i], Dkm_yaml[i], msg=message)
+                assert Dkm_cti[i] == approx(Dkm_yaml[i])
 
     @pytest.mark.slow_test
     def test_gri30(self):
@@ -1352,13 +1349,13 @@ class Testctml2yaml:
             h_yaml = yamlPhase.partial_molar_enthalpies
             s_ctml = ctmlPhase.partial_molar_entropies
             s_yaml = yamlPhase.partial_molar_entropies
-            assertNear(ctmlPhase.density, yamlPhase.density)
+            assert ctmlPhase.density == approx(yamlPhase.density)
             for i in range(ctmlPhase.n_species):
                 message = ' for species {0} at T = {1}'.format(ctmlPhase.species_names[i], T)
                 if check_cp:
-                    assertNear(cp_ctml[i], cp_yaml[i], tol, msg='cp'+message)
-                assertNear(h_ctml[i], h_yaml[i], tol, msg='h'+message)
-                assertNear(s_ctml[i], s_yaml[i], tol, msg='s'+message)
+                    assert cp_ctml[i] == approx(cp_yaml[i], rel=tol)
+                assert h_ctml[i] == approx(h_yaml[i], rel=tol)
+                assert s_ctml[i] == approx(s_yaml[i], rel=tol)
 
     def checkKinetics(self, ctmlPhase, yamlPhase, temperatures, pressures, tol=1e-7):
         for T,P in itertools.product(temperatures, pressures):
@@ -1370,8 +1367,8 @@ class Testctml2yaml:
             kr_yaml = yamlPhase.reverse_rate_constants
             for i in range(yamlPhase.n_reactions):
                 message = ' for reaction {0} at T = {1}, P = {2}'.format(i, T, P)
-                assertNear(kf_ctml[i], kf_yaml[i], rtol=tol, msg='kf '+message)
-                assertNear(kr_ctml[i], kr_yaml[i], rtol=tol, msg='kr '+message)
+                assert kf_ctml[i] == approx(kf_yaml[i], rel=tol)
+                assert kr_ctml[i] == approx(kr_yaml[i], rel=tol)
 
     def checkTransport(self, ctmlPhase, yamlPhase, temperatures,
                        model='mixture-averaged'):
@@ -1380,14 +1377,13 @@ class Testctml2yaml:
         for T in temperatures:
             ctmlPhase.TP = T, ct.one_atm
             yamlPhase.TP = T, ct.one_atm
-            assertNear(ctmlPhase.viscosity, yamlPhase.viscosity)
-            assertNear(ctmlPhase.thermal_conductivity,
-                            yamlPhase.thermal_conductivity)
+            assert ctmlPhase.viscosity == approx(yamlPhase.viscosity)
+            assert ctmlPhase.thermal_conductivity ==  approx(yamlPhase.thermal_conductivity)
             Dkm_ctml = ctmlPhase.mix_diff_coeffs
             Dkm_yaml = yamlPhase.mix_diff_coeffs
             for i in range(ctmlPhase.n_species):
                 message = 'dkm for species {0} at T = {1}'.format(i, T)
-                assertNear(Dkm_ctml[i], Dkm_yaml[i], msg=message)
+                assert Dkm_ctml[i] == approx(Dkm_yaml[i])
 
     @pytest.mark.slow_test
     def test_gri30(self):
@@ -1564,9 +1560,8 @@ class Testctml2yaml:
         for T in [298, 1001, 2400]:
             ctmlWater.TD = T, dens
             yamlWater.TD = T, dens
-            assertNear(ctmlWater.viscosity, yamlWater.viscosity)
-            assertNear(ctmlWater.thermal_conductivity,
-                       yamlWater.thermal_conductivity)
+            assert ctmlWater.viscosity == approx(yamlWater.viscosity)
+            assert ctmlWater.thermal_conductivity == approx(yamlWater.thermal_conductivity)
 
     def test_hmw_nacl_phase(self):
         basename = "HMW_NaCl_sp1977_alt"
