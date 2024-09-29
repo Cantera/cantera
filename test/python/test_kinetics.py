@@ -194,7 +194,7 @@ class TestKinetics:
                         self.phase.delta_standard_gibbs)
 
 
-class KineticsFromReactions:
+class TestKineticsFromReactions:
     """
     Test for Kinetics objects which are constructed directly from Reaction
     objects instead of from input files.
@@ -335,7 +335,7 @@ class KineticsFromReactions:
         assert gas.reaction_equations() == restored.reaction_equations
 
 
-class KineticsRepeatability:
+class TestKineticsRepeatability:
     """
     Tests to make sure that lazily evaluated terms in the rate expression
     are always updated correctly.
@@ -871,7 +871,7 @@ def setup_explicit_forward_order_tests(request):
     request.cls.gas.TPX = 800, 101325, [0.01, 0.90, 0.02, 0.03, 0.04]
 
 @pytest.mark.usefixtures('setup_explicit_forward_order_tests')
-class ExplicitForwardOrderTest:
+class TestExplicitForwardOrder:
 
     def test_irreversibility(self):
         # Reactions are irreversible

@@ -78,7 +78,7 @@ class EquilTestCases:
         self.check(gas, CH4=1, O2=1)
 
 
-class ChemEquilTest(EquilTestCases):
+class TestChemEquil(EquilTestCases):
     """
     Tests using the 'element_potential' solver.
     """

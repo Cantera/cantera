@@ -1248,7 +1248,7 @@ class TestPlasmaPhase:
             phase.add_species(electron)
 
 
-class ImportTest:
+class TestImport:
     """
     Tests the various ways of creating a Solution object
     """
