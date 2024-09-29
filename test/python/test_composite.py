@@ -1,6 +1,7 @@
 import numpy as np
 import pickle
 import pytest
+from pytest import approx
 import re
 from ruamel import yaml
 
@@ -14,7 +15,6 @@ except ImportError:
 from cantera.composite import _pandas
 
 from .utilities import (
-    assertNear,
     assertArrayNear
 )
 
@@ -136,8 +136,8 @@ class TestPickle:
 
         with open(self.test_work_path / "gas.pkl", "rb") as pkl:
             gas2 = pickle.load(pkl)
-        assertNear(gas.T, gas2.T)
-        assertNear(gas.P, gas2.P)
+        gas.T == approx(gas2.T)
+        gas.P == approx(gas2.P)
         assertArrayNear(gas.X, gas2.X)
 
         assert  gas2.transport_model == "none"
@@ -151,8 +151,8 @@ class TestPickle:
 
         with open(self.test_work_path / "gas.pkl", "rb") as pkl:
             gas2 = pickle.load(pkl)
-        assertNear(gas.T, gas2.T)
-        assertNear(gas.P, gas2.P)
+        gas.T == approx(gas2.T)
+        gas.P == approx(gas2.P)
         assertArrayNear(gas.X, gas2.X)
 
         assert gas2.transport_model == "multicomponent"
@@ -1163,8 +1163,8 @@ class TestSolutionSerialization:
 
         for r1, r2 in zip(original['reactions'], generated['reactions']):
             if 'rate-constant' in r1:
-                assertNear(r1['rate-constant']['A'], r2['rate-constant']['A'])
-                assertNear(r1['rate-constant']['Ea'], r2['rate-constant']['Ea'])
+                r1['rate-constant']['A'] == approx(r2['rate-constant']['A'])
+                r1['rate-constant']['Ea'] == approx(r2['rate-constant']['Ea'])
 
         gas2 = ct.Solution(self.test_work_path / "h2o2-generated.yaml")
         assertArrayNear(gas.concentrations, gas2.concentrations)
@@ -1187,8 +1187,8 @@ class TestSolutionSerialization:
 
         for r1, r2 in zip(original['reactions'], generated['reactions']):
             if 'rate-constant' in r1:
-                assertNear(r1['rate-constant']['A'], r2['rate-constant']['A'])
-                assertNear(r1['rate-constant']['Ea'], r2['rate-constant']['Ea'])
+                r1['rate-constant']['A'] == approx(r2['rate-constant']['A'])
+                r1['rate-constant']['Ea'] == approx(r2['rate-constant']['Ea'])
 
         gas2 = ct.Solution(self.test_work_path / "h2o2-generated.yaml")
         assertArrayNear(gas.concentrations, gas2.concentrations)
@@ -1235,8 +1235,8 @@ class TestSolutionSerialization:
         ice.write_yaml(self.test_work_path / "ice-generated.yaml", units={'length': 'mm', 'mass': 'g'})
 
         ice2 = ct.Solution(self.test_work_path / "ice-generated.yaml")
-        assertNear(ice.density, ice2.density)
-        assertNear(ice.entropy_mole, ice2.entropy_mole)
+        ice.density == approx(ice2.density)
+        ice.entropy_mole == approx(ice2.entropy_mole)
 
     def test_yaml_inconsistent_species(self):
         gas = ct.Solution('h2o2.yaml', transport_model=None)
@@ -1356,7 +1356,7 @@ class TestSpeciesSerialization:
         data = gas.species('H2O').input_data['transport']
         assert data['model'] == 'gas'
         assert data['geometry'] == 'nonlinear'
-        assertNear(data['dipole'], 1.844)
+        data['dipole'] == approx(1.844)
 
 
 class TestInterfaceAdjacent:
