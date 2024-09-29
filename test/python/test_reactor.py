@@ -1172,6 +1172,7 @@ class TestIdealGasReactor(TestReactor):
 
 class TestWellStirredReactorIgnition:
     """ Ignition (or not) of a well-stirred reactor """
+
     def setup_reactor(self, T0, P0, mdot_fuel, mdot_ox):
         """ Runs before tests """
         gas_def = """
@@ -1191,11 +1192,11 @@ class TestWellStirredReactorIgnition:
 
         # fuel inlet
         self.gas.TPX = T0, P0, "CH4:1.0"
-        self.fuel_in = ct.Reservoir(self.gas)
+        fuel_in = ct.Reservoir(self.gas)
 
         # oxidizer inlet
         self.gas.TPX = T0, P0, "N2:3.76, O2:1.0"
-        self.oxidizer_in = ct.Reservoir(self.gas)
+        oxidizer_in = ct.Reservoir(self.gas)
 
         # reactor, initially filled with N2
         self.gas.TPX = T0, P0, "N2:1.0"
@@ -1203,15 +1204,15 @@ class TestWellStirredReactorIgnition:
         self.combustor.volume = 1.0
 
         # outlet
-        self.exhaust = ct.Reservoir(self.gas)
+        exhaust = ct.Reservoir(self.gas)
 
         # connect the reactor to the reservoirs
-        self.fuel_mfc = ct.MassFlowController(self.fuel_in, self.combustor)
-        self.fuel_mfc.mass_flow_rate = mdot_fuel
-        self.oxidizer_mfc = ct.MassFlowController(self.oxidizer_in, self.combustor)
-        self.oxidizer_mfc.mass_flow_rate = mdot_ox
-        self.valve = ct.Valve(self.combustor, self.exhaust)
-        self.valve.valve_coeff = 1.0
+        fuel_mfc = ct.MassFlowController(fuel_in, self.combustor)
+        fuel_mfc.mass_flow_rate = mdot_fuel
+        oxidizer_mfc = ct.MassFlowController(oxidizer_in, self.combustor)
+        oxidizer_mfc.mass_flow_rate = mdot_ox
+        valve = ct.Valve(self.combustor, exhaust)
+        valve.valve_coeff = 1.0
 
         self.net = ct.ReactorNet()
         self.net.add_reactor(self.combustor)
@@ -2463,7 +2464,61 @@ class TestReactorSensitivities:
             assertNear(dtigdh_cvodes[i], dtigdh, atol=1e-14, rtol=5e-2)
 
 
-class CombustorTestImplementation:
+@pytest.fixture(scope='class')
+def setup_combustor_tests(request):
+    request.cls.referenceFile = request.cls.test_data_path / "CombustorTest-integrateWithAdvance.csv"
+
+@pytest.fixture(scope='function')
+def setup_combustor_tests_data(request, setup_combustor_tests):
+    gas = ct.Solution('h2o2.yaml', transport_model=None)
+
+    # create a reservoir for the fuel inlet, and set to pure methane.
+    gas.TPX = 300.0, ct.one_atm, 'H2:1.0'
+    fuel_in = ct.Reservoir(gas)
+    fuel_mw = gas.mean_molecular_weight
+
+    # Oxidizer inlet
+    gas.TPX = 300.0, ct.one_atm, 'O2:1.0, AR:3.0'
+    oxidizer_in = ct.Reservoir(gas)
+    oxidizer_mw = gas.mean_molecular_weight
+
+    # to ignite the fuel/air mixture, we'll introduce a pulse of radicals.
+    # The steady-state behavior is independent of how we do this, so we'll
+    # just use a stream of pure atomic hydrogen.
+    gas.TPX = 300.0, ct.one_atm, 'H:1.0'
+    request.cls.igniter = ct.Reservoir(gas)
+
+    # create the combustor, and fill it in initially with a diluent
+    gas.TPX = 300.0, ct.one_atm, 'AR:1.0'
+    request.cls.combustor = ct.IdealGasReactor(gas)
+
+    # create a reservoir for the exhaust
+    request.cls.exhaust = ct.Reservoir(gas)
+
+    # compute fuel and air mass flow rates
+    factor = 0.1
+    oxidizer_mdot = 4 * factor*oxidizer_mw
+    fuel_mdot = factor*fuel_mw
+
+    # The igniter will use a time-dependent igniter mass flow rate.
+    def igniter_mdot(t, t0=0.1, fwhm=0.05, amplitude=0.1):
+        return amplitude * math.exp(-(t-t0)**2 * 4 * math.log(2) / fwhm**2)
+
+    # create and install the mass flow controllers. Controllers
+    # m1 and m2 provide constant mass flow rates, and m3 provides
+    # a short Gaussian pulse only to ignite the mixture
+    request.cls.m1 = ct.MassFlowController(fuel_in, request.cls.combustor, mdot=fuel_mdot)
+    request.cls.m2 = ct.MassFlowController(oxidizer_in, request.cls.combustor, mdot=oxidizer_mdot)
+    request.cls.m3 = ct.MassFlowController(request.cls.igniter, request.cls.combustor, mdot=igniter_mdot)
+
+    # put a valve on the exhaust line to regulate the pressure
+    request.cls.v = ct.Valve(request.cls.combustor, request.cls.exhaust, K=1.0)
+
+    # the simulation only contains one reactor
+    request.cls.sim = ct.ReactorNet([request.cls.combustor])
+
+@pytest.mark.usefixtures('setup_combustor_tests_data')
+class CombustorTests:
     """
     These tests are based on the sample:
 
@@ -2472,56 +2527,6 @@ class CombustorTestImplementation:
     with some simplifications so that they run faster and produce more
     consistent output.
     """
-
-    def setup_method(self):
-        """ Runs before tests """
-        self.referenceFile = self.test_data_path / "CombustorTest-integrateWithAdvance.csv"
-        self.gas = ct.Solution('h2o2.yaml', transport_model=None)
-
-        # create a reservoir for the fuel inlet, and set to pure methane.
-        self.gas.TPX = 300.0, ct.one_atm, 'H2:1.0'
-        fuel_in = ct.Reservoir(self.gas)
-        fuel_mw = self.gas.mean_molecular_weight
-
-        # Oxidizer inlet
-        self.gas.TPX = 300.0, ct.one_atm, 'O2:1.0, AR:3.0'
-        oxidizer_in = ct.Reservoir(self.gas)
-        oxidizer_mw = self.gas.mean_molecular_weight
-
-        # to ignite the fuel/air mixture, we'll introduce a pulse of radicals.
-        # The steady-state behavior is independent of how we do this, so we'll
-        # just use a stream of pure atomic hydrogen.
-        self.gas.TPX = 300.0, ct.one_atm, 'H:1.0'
-        self.igniter = ct.Reservoir(self.gas)
-
-        # create the combustor, and fill it in initially with a diluent
-        self.gas.TPX = 300.0, ct.one_atm, 'AR:1.0'
-        self.combustor = ct.IdealGasReactor(self.gas)
-
-        # create a reservoir for the exhaust
-        self.exhaust = ct.Reservoir(self.gas)
-
-        # compute fuel and air mass flow rates
-        factor = 0.1
-        oxidizer_mdot = 4 * factor*oxidizer_mw
-        fuel_mdot = factor*fuel_mw
-
-        # The igniter will use a time-dependent igniter mass flow rate.
-        def igniter_mdot(t, t0=0.1, fwhm=0.05, amplitude=0.1):
-            return amplitude * math.exp(-(t-t0)**2 * 4 * math.log(2) / fwhm**2)
-
-        # create and install the mass flow controllers. Controllers
-        # m1 and m2 provide constant mass flow rates, and m3 provides
-        # a short Gaussian pulse only to ignite the mixture
-        self.m1 = ct.MassFlowController(fuel_in, self.combustor, mdot=fuel_mdot)
-        self.m2 = ct.MassFlowController(oxidizer_in, self.combustor, mdot=oxidizer_mdot)
-        self.m3 = ct.MassFlowController(self.igniter, self.combustor, mdot=igniter_mdot)
-
-        # put a valve on the exhaust line to regulate the pressure
-        self.v = ct.Valve(self.combustor, self.exhaust, K=1.0)
-
-        # the simulation only contains one reactor
-        self.sim = ct.ReactorNet([self.combustor])
 
     def test_integrateWithStep(self):
         tnow = 0.0
@@ -2570,7 +2575,39 @@ class CombustorTestImplementation:
                                         rtol=1e-6, atol=1e-12)
         assert not bad, bad
 
-class WallTestImplementation:
+
+@pytest.fixture(scope='class')
+def setup_wall_tests(request):
+    request.cls.referenceFile = request.cls.test_data_path / "WallTest-integrateWithAdvance.csv"
+
+@pytest.fixture(scope='function')
+def setup_wall_tests_data(request, setup_wall_tests):
+    # reservoir to represent the environment
+    gas0 = ct.Solution("air.yaml")
+    gas0.TP = 300, ct.one_atm
+    env = ct.Reservoir(gas0)
+
+    # reactor to represent the side filled with Argon
+    gas1 = ct.Solution("air.yaml")
+    gas1.TPX = 1000.0, 30*ct.one_atm, 'AR:1.0'
+    request.cls.r1 = ct.Reactor(gas1)
+
+    # reactor to represent the combustible mixture
+    gas2 = ct.Solution('h2o2.yaml', transport_model=None)
+    gas2.TPX = 500.0, 1.5*ct.one_atm, 'H2:0.5, O2:1.0, AR:10.0'
+    request.cls.r2 = ct.Reactor(gas2)
+
+    # Wall between the two reactors
+    w1 = ct.Wall(request.cls.r2, request.cls.r1, A=1.0, K=2e-4, U=400.0)
+
+    # Wall to represent heat loss to the environment
+    w2 = ct.Wall(request.cls.r2, env, A=1.0, U=2000.0)
+
+    # Create the reactor network
+    request.cls.sim = ct.ReactorNet([request.cls.r1, request.cls.r2])
+
+@pytest.mark.usefixtures('setup_wall_tests_data')
+class WallTests:
     """
     These tests are based on the sample:
 
@@ -2579,33 +2616,6 @@ class WallTestImplementation:
     with some simplifications so that they run faster and produce more
     consistent output.
     """
-
-    def setup_method(self):
-        """ Runs before tests """
-        self.referenceFile = self.test_data_path / "WallTest-integrateWithAdvance.csv"
-        # reservoir to represent the environment
-        self.gas0 = ct.Solution("air.yaml")
-        self.gas0.TP = 300, ct.one_atm
-        self.env = ct.Reservoir(self.gas0)
-
-        # reactor to represent the side filled with Argon
-        self.gas1 = ct.Solution("air.yaml")
-        self.gas1.TPX = 1000.0, 30*ct.one_atm, 'AR:1.0'
-        self.r1 = ct.Reactor(self.gas1)
-
-        # reactor to represent the combustible mixture
-        self.gas2 = ct.Solution('h2o2.yaml', transport_model=None)
-        self.gas2.TPX = 500.0, 1.5*ct.one_atm, 'H2:0.5, O2:1.0, AR:10.0'
-        self.r2 = ct.Reactor(self.gas2)
-
-        # Wall between the two reactors
-        self.w1 = ct.Wall(self.r2, self.r1, A=1.0, K=2e-4, U=400.0)
-
-        # Wall to represent heat loss to the environment
-        self.w2 = ct.Wall(self.r2, self.env, A=1.0, U=2000.0)
-
-        # Create the reactor network
-        self.sim = ct.ReactorNet([self.r1, self.r2])
 
     def test_integrateWithStep(self):
         tnow = 0.0
@@ -2642,11 +2652,11 @@ class WallTestImplementation:
 
 # Keep the implementations separate from the pytest-derived class
 # so that they can be run independently to generate the reference data files.
-class CombustorTest(CombustorTestImplementation): pass
-class WallTest(WallTestImplementation): pass
+class TestCombustor(CombustorTests): pass
+class TestWall(WallTests): pass
 
 
-class PureFluidReactorTest:
+class TestPureFluidReactor:
     def test_Reactor(self):
         phase = ct.PureFluid("liquidvapor.yaml", "oxygen")
         air = ct.Solution("air.yaml")
@@ -2729,16 +2739,18 @@ class PureFluidReactorTest:
             assertNear(states.T[i], states.T[2])
 
 
-class AdvanceCoveragesTest:
-    def setup(self, model="ptcombust.yaml", gas_phase="gas", interface_phase="Pt_surf"):
-        # create gas and interface
-        self.surf = ct.Interface(model, interface_phase)
-        self.gas = self.surf.adjacent["gas"]
+@pytest.fixture(scope='function')
+def setup_advance_converages_data(request):
+    mechanism_file = 'ptcombust.yaml'
+    interface_phase = 'Pt_surf'
+    #request.cls.surf = ct.Interface(f'{request.cls.test_data_path}/{mechanism_file}', interface_phase)
+    request.cls.surf = ct.Interface(mechanism_file, interface_phase)
+    request.cls.gas = request.cls.surf.adjacent["gas"]
 
-    def test_advance_coverages_parameters(self):
-        # create gas and interface
-        self.setup()
+@pytest.mark.usefixtures('setup_advance_converages_data')
+class TestAdvanceCoverages:
 
+    def test_bad_timestep_specification(self):
         # first, test max step size & max steps
         dt = 1.0
         max_steps = 10
@@ -2748,8 +2760,10 @@ class AdvanceCoveragesTest:
             self.surf.advance_coverages(
                 dt=dt, max_step_size=max_step_size, max_steps=max_steps)
 
-        # next, run with different tolerances
-        self.setup()
+    def test_different_tolerances(self):
+        dt = 1.0
+
+        #Run with different tolerances
         self.surf.coverages = 'O(S):0.1, PT(S):0.5, H(S):0.4'
         self.gas.TP = self.surf.TP
 
@@ -2766,11 +2780,11 @@ class AdvanceCoveragesTest:
 
 
 @pytest.fixture(scope='function')
-def setup_extensible_reactor(request):
+def setup_extensible_reactor_data(request):
     request.cls.gas = ct.Solution("h2o2.yaml")
 
-@pytest.mark.usefixtures('setup_extensible_reactor')
-class ExtensibleReactorTest:
+@pytest.mark.usefixtures('setup_extensible_reactor_data')
+class TestExtensibleReactor:
 
     def test_extra_variable(self):
         class InertialWallReactor(ct.ExtensibleIdealGasReactor):
