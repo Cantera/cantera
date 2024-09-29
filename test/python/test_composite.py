@@ -321,14 +321,15 @@ class TestSolutionArray:
 @pytest.fixture(scope='class')
 def setup_solution_array_info_tests(request):
     request.cls.gas = ct.Solution('h2o2.yaml', transport_model=None)
-@pytest.mark.usefixtures('setup_solution_array_info_tests')
+
+@pytest.fixture(scope='function')
+def setup_solution_array_info_data(request, setup_solution_array_info_tests):
+    request.cls.gas.TPY = 300, ct.one_atm, "H2: 1"
+
+@pytest.mark.usefixtures('setup_solution_array_info_data')
 class TestSolutionArrayInfo:
     """ Test SolutionArray summary output """
     width = 80
-
-    def setup_method(self):
-        """ Runs before each test """
-        self.gas.TPY = 300, ct.one_atm, "H2: 1"
 
     def check(self, arr, repr, rows):
         count = 0
@@ -1200,7 +1201,6 @@ class TestSolutionSerialization:
                         gas2.forward_rate_constants)
         assertArrayNear(gas.mix_diff_coeffs, gas2.mix_diff_coeffs)
 
-    @pytest.mark.usefixtures('load_yaml')
     def check_ptcombust(self, gas, surf, load_yaml):
         generated = load_yaml(self.test_work_path / "ptcombust-generated.yaml")
         for key in ("phases", "species", "gas-reactions", "Pt_surf-reactions"):
