@@ -332,7 +332,7 @@ class TestKineticsFromReactions:
         gas.write_yaml(yaml_file)
         restored = ct.Solution(yaml_file)
         assert gas.species_names == restored.species_names
-        assert gas.reaction_equations() == restored.reaction_equations
+        assert gas.reaction_equations() == restored.reaction_equations()
 
 
 class TestKineticsRepeatability:
@@ -473,10 +473,10 @@ class TestKineticsRepeatability:
         for i, R in enumerate(gas.reactions()):
             if ('OH' in R.reactants or 'OH' in R.products) and R.reversible:
                 # Rate should be different if reaction involves OH
-                assert not pytest.approx(w2[i] / w1[i], rel=1e-5)
+                assert not pytest.approx(w2[i] / w1[i], rel=1e-5) == 1
             else:
                 # Rate should be the same if reaction does not involve OH
-                assert pytest.approx(w2[i] / w1[i], rel=1e-5)
+                assert pytest.approx(w2[i] / w1[i], rel=1e-5) == 1
 
     def test_pdep_err(self):
         err_msg = ("InputFileError thrown by PlogRate::validate:",
@@ -865,7 +865,7 @@ class TestChemicallyActivated:
             gas.TPX = 900.0, P[i], [0.01, 0.01, 0.04, 0.10, 0.84]
             assertNear(gas.forward_rates_of_progress[0], Rf[i], 2e-5)
 
-@pytest.fixture(scope='class')
+@pytest.fixture(scope='function')
 def setup_explicit_forward_order_tests(request):
     request.cls.gas = ct.Solution("explicit-forward-order.yaml")
     request.cls.gas.TPX = 800, 101325, [0.01, 0.90, 0.02, 0.03, 0.04]
