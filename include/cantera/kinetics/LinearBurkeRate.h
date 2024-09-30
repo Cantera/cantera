@@ -67,18 +67,12 @@ protected:
 
 //! Pressure-dependent and composition-dependent reaction rate calculated
 //! according to the reduced-pressure linear mixture rule (LMR-R) developed
-//! at Columbia University. @cite singal2025 [CITATION NOT YET ACTIVE]
-/*!
- * [ADD IN THE MATHEMATICAL FORMULA]
- */
+//! at Columbia University. @cite singal2025
 class LinearBurkeRate final : public ReactionRate
 {
 public:
     //! Default constructor.
     LinearBurkeRate() = default;
-
-    //! Constructor from Arrhenius rate expressions at a set of pressures
-    explicit LinearBurkeRate(const std::multimap<double, ArrheniusRate>& rates);
 
     LinearBurkeRate(const AnyMap& node, const UnitStack& rate_units={});
 
@@ -96,18 +90,17 @@ public:
      */
     void setParameters(const AnyMap& node, const UnitStack& rate_units) override;
 
-    void getParameters(AnyMap& rateNode, const Units& rate_units) const;
-    void getParameters(AnyMap& rateNode) const override {
-        return getParameters(rateNode, Units(0));
-    }
+    void getParameters(AnyMap& rateNode) const override;
+
+    //! Create type aliases that refer to Plog, Troe, and Chebyshev
+    using RateTypes = boost::variant<PlogRate, TroeRate, ChebyshevRate>;
+    using DataTypes = boost::variant<PlogData, FalloffData, ChebyshevData>;
 
     //! Evaluate overall reaction rate, using Troe/PLOG/Chebyshev to evaluate
     //! pressure-dependent aspect of the reaction
     /*!
      *  @param shared_data  data shared by all reactions of a given type
      */
-    using RateTypes = boost::variant<PlogRate, TroeRate, ChebyshevRate>;
-    using DataTypes = boost::variant<PlogData, FalloffData, ChebyshevData>;
     double evalPlogRate(const LinearBurkeData& shared_data, DataTypes& dataObj, RateTypes& rateObj);
     double evalTroeRate(const LinearBurkeData& shared_data, DataTypes& dataObj, RateTypes& rateObj);
     double evalChebyshevRate(const LinearBurkeData& shared_data, DataTypes& dataObj, RateTypes& rateObj);
@@ -117,23 +110,35 @@ public:
 
     void validate(const string& equation, const Kinetics& kin) override;
 
-    vector<size_t> colliderIndices;
-    map<string, AnyMap> colliderInfo;
-    // Third-body collision efficiency objects (eps = eig0_i/eig0_M)
-    // epsObjs1 used for k(T,P,X) and eig0_mix calculation
-    // epsObjs2 used for logPeff calculation
-    vector<ArrheniusRate> epsObjs1;
-    vector<ArrheniusRate> epsObjs2;
+    //! String name of each collider, appearing in the same order as that of the
+    //! original reaction input.
     vector<string> colliderNames;
-    vector<RateTypes> rateObjs;
-    vector<DataTypes> dataObjs;
-    RateTypes rateObj_M;
-    DataTypes dataObj_M;
-    // Third-body collision efficiency object for M (eig0_M/eig0_M = 1)
-    ArrheniusRate epsObj_M;
-    size_t nSpecies;
-    double logPeff_;
-    double eps_mix;
+
+    //! Index of each collider in the kinetics object species list where the vector
+    //! elements appear in the same order as that of the original reaction input.
+    vector<size_t> colliderIndices;
+
+    //! Allows data from setParameters() to be later accessed by getParameters()
+    map<string, AnyMap> colliderInfo;
+
+    //! Third-body collision efficiency objects (eps = eig0_i/eig0_M)
+    vector<ArrheniusRate> epsObjs1; //!< used for k(T,P,X) and eig0_mix calculation
+    vector<ArrheniusRate> epsObjs2; //!< used for logPeff calculation
+    ArrheniusRate epsObj_M; //!< used just for M (eig0_M/eig0_M = 1 always)
+
+    //! Stores rate objects corresponding to each collider, which can be either
+    //! PlogRate, TroeRate, or ChebyshevRate
+    vector<RateTypes> rateObjs; //!< list for non-M colliders
+    RateTypes rateObj_M; //!< collider M
+
+    //! Stores data objects corresponding to each collider, which can be either
+    //! PlogData, TroeData, or ChebyshevData
+    vector<DataTypes> dataObjs; //!< list for non-M colliders
+    DataTypes dataObj_M; //!< collider M
+
+    size_t nSpecies; //!< total number of species in the kinetics object
+    double logPeff_; //! effective pressure as a function of eps
+    double eps_mix; //! mole-fraction-weighted overall eps value of the mixtures
 };
 
 }
