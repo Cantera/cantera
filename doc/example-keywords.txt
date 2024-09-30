@@ -22,7 +22,6 @@ jet-stirred reactor
 kinetics
 Matlab
 mixture
-mixture rule
 multicomponent transport
 multiphase
 non-ideal fluid
@@ -44,8 +43,6 @@ sensitivity analysis
 strained flame
 surface chemistry
 shock tube
-species profile
-temperature profile
 thermodynamic cycle
 thermodynamics
 transport
