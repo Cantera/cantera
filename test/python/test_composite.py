@@ -1272,7 +1272,7 @@ class TestSolutionSerialization:
         assert data2["foo"] == "bar"
         assert data2["transport"]["baz"] == 1234.5
         assert data2["thermo"]["something"] == [False, True]
-        assert gas2.reaction(5).input_data["baked-beans"]
+        assert gas2.reaction(5).input_data["baked-beans"] is True
 
     def test_yaml_strings(self):
         yaml = """
