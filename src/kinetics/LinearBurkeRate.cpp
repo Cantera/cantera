@@ -63,16 +63,16 @@ void LinearBurkeRate::setParameters(const AnyMap& node, const UnitStack& rate_un
 {
     UnitStack eps_units{{Units(1.0), 1.0}};
     ReactionRate::setParameters(node, rate_units);
-    if (!node.hasKey("collider-list")) {
+    if (!node.hasKey("colliders")) {
         throw InputFileError("LinearBurkeRate::setParameters", m_input,
             "Incorrect YAML input for LMR-R reaction. Please review implementation guide.");
     }
-    auto colliders = node["collider-list"].asVector<AnyMap>();
-    if (!colliders[0].hasKey("collider")) {
+    auto colliders = node["colliders"].asVector<AnyMap>();
+    if (!colliders[0].hasKey("name")) {
         throw InputFileError("LinearBurkeRate::setParameters", m_input,
             "Incorrect YAML input for LMR-R reaction. Please review implementation guide.");
     }
-    else if (colliders[0]["collider"].as<string>() != "M") {
+    else if (colliders[0]["name"].as<string>() != "M") {
         throw InputFileError("LinearBurkeRate::setParameters", m_input,
             "The first species defined in LMR-R YAML input must be 'M'. Please review implementation guide.");
     }
@@ -122,7 +122,7 @@ void LinearBurkeRate::setParameters(const AnyMap& node, const UnitStack& rate_un
     epsObj_M = ArrheniusRate(AnyValue(params), colliders[0].units(), eps_units);
     // Start at 1 because index 0 is for "M"
     for (size_t i = 1; i < colliders.size(); i++){
-        if (!colliders[i].hasKey("collider")) {
+        if (!colliders[i].hasKey("name")) {
                 throw InputFileError("LinearBurkeRate::setParameters", m_input,
                     "Incorrect YAML input for LMR-R reaction. Please review implementation guide.");
         }
@@ -131,8 +131,8 @@ void LinearBurkeRate::setParameters(const AnyMap& node, const UnitStack& rate_un
                 "All collider strengths must be defined uniformly as either eig0 or eps. No mixing and matching is allowed.");
         }
         // Save data to colliderInfo, which will make it accessible by getParameters
-        colliderInfo.insert({colliders[i]["collider"].as<string>(), colliders[i]});
-        colliderNames.push_back(colliders[i]["collider"].as<string>());
+        colliderInfo.insert({colliders[i]["name"].as<string>(), colliders[i]});
+        colliderNames.push_back(colliders[i]["name"].as<string>());
         ArrheniusRate epsObj_i;
         // eig0 and eps are ONLY interchangeable due to the requirement that eps_M have parameters {A: 1, b: 0, Ea: 0}
         params["A"] = colliders[i][eig_eps_key]["A"].asDouble() / colliders[0][eig_eps_key]["A"].asDouble();
@@ -324,31 +324,31 @@ void LinearBurkeRate::getParameters(AnyMap& rateNode, const Units& rate_units) c
         auto colliders_i = entry.second;
         AnyMap colliderNode;
         if(colliders_i.hasKey("rate-constants")) {
-            colliderNode["collider"] = name;
+            colliderNode["name"] = name;
             colliderNode["eps"] = colliders_i["eps"];
             colliderNode["rate-constants"] = colliders_i["rate-constants"];
         }
         else if(colliders_i.hasKey("Troe")) {
-            colliderNode["collider"] = name;
+            colliderNode["name"] = name;
             colliderNode["eps"] = colliders_i["eps"];
             colliderNode["low-P-rate-constant"] = colliders_i["low-P-rate-constant"];
             colliderNode["high-P-rate-constant"] = colliders_i["high-P-rate-constant"];
             colliderNode["Troe"] = colliders_i["Troe"];
         }
         else if(colliders_i.hasKey("data") && colliders_i.hasKey("pressure-range") && colliders_i.hasKey("temperature-range")) {
-            colliderNode["collider"] = name;
+            colliderNode["name"] = name;
             colliderNode["eps"] = colliders_i["eps"];
             colliderNode["temperature-range"] = colliders_i["temperature-range"];
             colliderNode["pressure-range"] = colliders_i["pressure-range"];
             colliderNode["data"] = colliders_i["data"];
         }
         else {
-            colliderNode["collider"] = name;
+            colliderNode["name"] = name;
             colliderNode["eps"] = colliders_i["eps"];
         }
         topLevelList.push_back(std::move(colliderNode));
     }
-    rateNode["collider-list"] = std::move(topLevelList);
+    rateNode["colliders"] = std::move(topLevelList);
 }
 
 }
