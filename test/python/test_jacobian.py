@@ -1,9 +1,9 @@
 import numpy as np
 import pytest
+from pytest import approx
 
 import cantera as ct
 from .utilities import (
-    assertNear,
     assertArrayNear
 )
 
@@ -109,7 +109,7 @@ class RateExpressionTests:
                 order = self.r_stoich[spc_ix, self.rxn_idx]
             else:
                 order = self.orders[self.gas.species_names[spc_ix]]
-            assertNear(rop[self.rxn_idx],
+            assert rop[self.rxn_idx] == approx(
                 drop[self.rxn_idx, spc_ix] * self.gas.X[spc_ix] / order)
 
             drop_num = self.rop_derivs(spc_ix, mode="forward")
@@ -135,7 +135,7 @@ class RateExpressionTests:
         rop = self.gas.reverse_rates_of_progress
         for spc_ix in self.pix:
             order = self.p_stoich[spc_ix, self.rxn_idx]
-            assertNear(rop[self.rxn_idx],
+            assert rop[self.rxn_idx] == approx(
                 drop[self.rxn_idx, spc_ix] * self.gas.X[spc_ix] / order)
 
             drop_num = self.rop_derivs(spc_ix, mode="reverse")
@@ -185,7 +185,7 @@ class RateExpressionTests:
                 order = self.r_stoich[spc_ix, self.rxn_idx]
             else:
                 order = self.orders[self.gas.species_names[spc_ix]]
-            assertNear(rop[self.rxn_idx],
+            assert rop[self.rxn_idx] == approx(
                 drop[self.rxn_idx, spc_ix] * self.gas.concentrations[spc_ix] / order)
 
             drop_num = self.rop_derivs(spc_ix, mode="forward", ddX=False)
@@ -211,7 +211,7 @@ class RateExpressionTests:
         rop = self.gas.reverse_rates_of_progress
         for spc_ix in self.pix:
             order = self.p_stoich[spc_ix, self.rxn_idx]
-            assertNear(rop[self.rxn_idx],
+            assert rop[self.rxn_idx] == approx(
                 drop[self.rxn_idx, spc_ix] * self.gas.concentrations[spc_ix] / order)
 
             drop_num = self.rop_derivs(spc_ix, mode="reverse", ddX=False)
@@ -267,14 +267,14 @@ class RateExpressionTests:
         drop = self.gas.forward_rates_of_progress_ddT
         drop += self.gas.forward_rates_of_progress_ddC * dcdt
         drop_num = self.rop_ddT(mode="forward", const_p=True)
-        assertNear(drop[self.rxn_idx], drop_num, self.rtol)
+        assert drop[self.rxn_idx] == approx(drop_num, self.rtol)
 
         # constant density (volume) - need to account for pressure change
         dpdt = self.gas.P / self.gas.T
         drop = self.gas.forward_rates_of_progress_ddT
         drop += self.gas.forward_rates_of_progress_ddP * dpdt
         drop_num = self.rop_ddT(mode="forward")
-        assertNear(drop[self.rxn_idx], drop_num, self.rtol)
+        assert drop[self.rxn_idx] == approx(drop_num, self.rtol)
 
         if isinstance(self.rxn.rate, ct.FalloffRate):
             return
@@ -292,14 +292,14 @@ class RateExpressionTests:
         drop = self.gas.reverse_rates_of_progress_ddT
         drop += self.gas.reverse_rates_of_progress_ddC * dcdt
         drop_num = self.rop_ddT(mode="reverse", const_p=True)
-        assertNear(drop[self.rxn_idx], drop_num, self.rtol)
+        assert drop[self.rxn_idx] == approx(drop_num, self.rtol)
 
         # constant density (volume) - need to account for pressure change
         dpdt = self.gas.P / self.gas.T
         drop = self.gas.reverse_rates_of_progress_ddT
         drop += self.gas.reverse_rates_of_progress_ddP * dpdt
         drop_num = self.rop_ddT(mode="reverse")
-        assertNear(drop[self.rxn_idx], drop_num, self.rtol)
+        assert drop[self.rxn_idx] == approx(drop_num, self.rtol)
 
         if not self.rxn.reversible or isinstance(self.rxn.rate, ct.FalloffRate):
             return
@@ -317,14 +317,14 @@ class RateExpressionTests:
         drop = self.gas.net_rates_of_progress_ddT
         drop += self.gas.net_rates_of_progress_ddC * dcdt
         drop_num = self.rop_ddT(mode="net", const_p=True)
-        assertNear(drop[self.rxn_idx], drop_num, self.rtol)
+        assert drop[self.rxn_idx] == approx(drop_num, self.rtol)
 
         # constant density (volume) - need to account for pressure change
         dpdt = self.gas.P / self.gas.T
         drop = self.gas.net_rates_of_progress_ddT
         drop += self.gas.net_rates_of_progress_ddP * dpdt
         drop_num = self.rop_ddT(mode="forward") - self.rop_ddT(mode="reverse")
-        assertNear(drop[self.rxn_idx], drop_num, self.rtol)
+        assert drop[self.rxn_idx] == approx(drop_num, self.rtol)
 
         if not self.rxn.reversible or isinstance(self.rxn.rate, ct.FalloffRate):
             return
@@ -359,7 +359,7 @@ class RateExpressionTests:
         drop = self.gas.forward_rates_of_progress_ddP
         drop += self.gas.forward_rates_of_progress_ddC * dcdp
         drop_num = self.rop_ddP(mode="forward")
-        assertNear(drop[self.rxn_idx], drop_num, self.rtol)
+        assert drop[self.rxn_idx] == approx(drop_num, self.rtol)
 
     def test_reverse_rop_ddP(self):
         # check derivatives of reverse rop with respect to pressure
@@ -369,7 +369,7 @@ class RateExpressionTests:
         drop = self.gas.reverse_rates_of_progress_ddP
         drop += self.gas.reverse_rates_of_progress_ddC * dcdp
         drop_num = self.rop_ddP(mode="reverse")
-        assertNear(drop[self.rxn_idx], drop_num, self.rtol)
+        assert drop[self.rxn_idx] == approx(drop_num, self.rtol)
 
     def test_net_rop_ddP(self):
         # check derivatives of net rop with respect to pressure
@@ -379,7 +379,7 @@ class RateExpressionTests:
         drop = self.gas.net_rates_of_progress_ddP
         drop += self.gas.net_rates_of_progress_ddC * dcdp
         drop_num = self.rop_ddP(mode="net")
-        assertNear(drop[self.rxn_idx], drop_num, self.rtol)
+        assert drop[self.rxn_idx] == approx(drop_num, self.rtol)
 
     def rate_ddT(self, mode=None, const_p=False, rtol=1e-6):
         # numerical derivative for production rates with respect to temperature
@@ -566,7 +566,7 @@ class TestThreeBody(HydrogenOxygen):
         drops = self.gas.forward_rates_of_progress_ddX
         dropm = drop - drops
         rop = self.gas.forward_rates_of_progress
-        assertNear(rop[self.rxn_idx], (dropm[self.rxn_idx] * self.gas.X).sum())
+        assert rop[self.rxn_idx] == approx((dropm[self.rxn_idx] * self.gas.X).sum())
 
     def test_thirdbodies_reverse(self):
         drop = self.gas.reverse_rates_of_progress_ddX
@@ -574,7 +574,7 @@ class TestThreeBody(HydrogenOxygen):
         drops = self.gas.reverse_rates_of_progress_ddX
         dropm = drop - drops
         rop = self.gas.reverse_rates_of_progress
-        assertNear(rop[self.rxn_idx], (dropm[self.rxn_idx] * self.gas.X).sum())
+        assert rop[self.rxn_idx] == approx((dropm[self.rxn_idx] * self.gas.X).sum())
 
 @pytest.mark.usefixtures("setup_rate_expression_data")
 class EdgeCases(RateExpressionTests):
@@ -986,7 +986,7 @@ class SurfaceRateExpressionTests:
                 order = self.r_stoich[spc_ix, self.rxn_idx]
             else:
                 order = self.orders[specs[spc_ix]]
-            assertNear(rop[self.rxn_idx],
+            assert rop[self.rxn_idx] == approx(
                 drop[self.rxn_idx, spc_ix] * concentrations[spc_ix] / order)
 
     def test_reverse_rop_ddCi(self):
@@ -1001,7 +1001,7 @@ class SurfaceRateExpressionTests:
                 order = self.p_stoich[spc_ix, self.rxn_idx]
             else:
                 order = self.orders[specs[spc_ix]]
-            assertNear(rop[self.rxn_idx],
+            assert rop[self.rxn_idx] == approx(
                        drop[self.rxn_idx, spc_ix] * concentrations[spc_ix] / order)
 
     def test_net_rop_ddCi(self):
