@@ -33,8 +33,7 @@ import cantera as ct
 import matplotlib.pyplot as plt
 import numpy as np
 
-plt.figure(figsize=(3.5,2.5))
-
+fig, ax = plt.subplots()
 models = {'Original':'alzueta.yaml','LMR-R':'alzueta_LMRR.yaml'}
 colours = ["xkcd:grey",'xkcd:purple']
 
@@ -44,7 +43,7 @@ for k,m in enumerate(models):
     X_O2 = 665e-6
     X_CO2= 0.2*(1-X_H2O2-X_H2O-X_O2)
     X_Ar = 1-X_CO2
-    gas = ct.Solution(list(models.values())[k])
+    gas = ct.Solution(models[m])
     gas.TPX = 1196, 2.127*ct.one_atm, {'H2O2':X_H2O2, 'H2O':X_H2O, 'O2':X_O2, 'CO2':X_CO2, 'AR':X_Ar}
     r = ct.Reactor(contents=gas,energy="on")
     reactorNetwork = ct.ReactorNet([r])
@@ -57,17 +56,14 @@ for k,m in enumerate(models):
         if counter % 10 == 0:
             timeHistory.append(r.thermo.state, t=t)
         counter += 1
-    plt.plot(timeHistory.t*1e6, timeHistory('H2O').X*100, color=colours[k],label=m)
-
+    ax.plot(timeHistory.t*1e6, timeHistory('H2O').X*100, color=colours[k],label=m)
 expData = {
     't': [12.3,20.3,26.4,39.6,58.5,79.2,96.1,113.8,131.6,145.7,161.2,181.6,195.3,219.9,237.2,248.6,262.4,272.2,280.9],
     'X_H2O': [1.47E-03,1.59E-03,1.66E-03,1.78E-03,1.98E-03,2.06E-03,2.15E-03,2.22E-03,2.26E-03,2.30E-03,2.39E-03,2.38E-03,2.40E-03,2.42E-03,2.47E-03,2.53E-03,2.51E-03,2.50E-03,2.47E-03]
 }
-
-plt.plot(expData['t'],np.array(expData['X_H2O'])*100,'o',markersize=3.5,fillstyle='none',color='k',label='Shao et al.')
-plt.legend(fontsize=8,frameon=False, loc='lower right')
-plt.ylabel(r'$\rm H_2O$ mole fraction [%]')
-plt.xlabel(r'Time [$\mathdefault{\mu s}$]')
-plt.xlim([0,300])
-plt.ylim([0.12,0.28])
+ax.plot(expData['t'],np.array(expData['X_H2O'])*100,'o',fillstyle='none',color='k',label='Shao et al.')
+ax.legend(frameon=False, loc='lower right')
+ax.set_ylabel(r'$\rm H_2O$ mole fraction [%]')
+ax.set_xlabel(r'Time [$\mathdefault{\mu s}$]')
+ax.set_xlim([0,300])
 plt.show()
