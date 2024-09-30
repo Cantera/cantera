@@ -2,25 +2,20 @@
 Flame speed as a function of equivalence ratio
 ==============================================
 
-Simulate flame speeds across a range of equivalence ratios, and observe the impact of incorporating the
-reduced-pressure linear mixture rule (LMR-R) in such calculations.
+Simulate flame speeds across a range of equivalence ratios, and observe the impact of incorporating the reduced-pressure linear mixture rule (LMR-R) in such calculations.
 
-Here we will consider a mixture of NH3/air at 1 atm and 296 K, and compare results against the
-experimental measurements of Ronney [1]
+Here we will consider a mixture of NH3/air (1 atm, 296 K) and compare results against the experimental measurements of Ronney. [1] Two models are compared in this example:
 
-Two models are compared in this example:
-(i)  A 2023 model of H2 and NH3 chemistry published by Alzueta et al. [2]
-(ii) An adapted version of this model that has applied the reduced-pressure linear mixture
-     rule (LMR-R) and ab initio third-body efficiencies [3]
+1. A 2023 model of H2 and NH3 chemistry published by Alzueta et al. [2]
+2. An adapted version of this model that has applied the reduced-pressure linear mixture rule (LMR-R) and ab initio third-body efficiencies [3]
 
 References:
-[1] P. D. Ronney, Effect of chemistry and transport properties on near-limit flames at microgravity,
-    Combust. Sci. Tech. 59 (1988) 123 -- 141.
-[2] M. U. Alzueta, I. Salas, H. Hashemi, P. Glarborg, CO-assisted NH3 oxidation, Combust. Flame 257
-    (2023) 112438.
-[3] P. J. Singal, J. Lee, L. Lei, R. L. Speth, M. P. Burke, Implementation of New Mixture Rules
-    Has a Substantial Impact on Combustion Predictions for H2 and NH3, Proc. Combust. Inst. 41
-    (2025).
+
+    [1] P. D. Ronney, Effect of chemistry and transport properties on near-limit flames at microgravity, Combust. Sci. Tech. 59 (1988) 123 -- 141.
+    
+    [2] M. U. Alzueta, I. Salas, H. Hashemi, P. Glarborg, CO-assisted NH3 oxidation, Combust. Flame 257 (2023) 112438.
+    
+    [3] P. J. Singal, J. Lee, L. Lei, R. L. Speth, M. P. Burke, Implementation of New Mixture Rules Has a Substantial Impact on Combustion Predictions for H2 and NH3, Proc. Combust. Inst. 41 (2025).
 
 Requires: cantera >= 3.1
 .. tags:: flame speed, kinetics

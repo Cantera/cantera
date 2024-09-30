@@ -1,28 +1,21 @@
 """
 Jet-stirred reactor temperature and species profiles
-====================================
+====================================================
 
-Simulate temperature profiles and species profiles in a jet-stirred reactor across a range of
-initial temperatures, and observe the impact of incorporating the reduced-pressure linear mixture
-rule (LMR-R) in such calculations.
+Simulate temperature profiles and species profiles in a jet-stirred reactor across a range of initial temperatures, and observe the impact of incorporating the reduced-pressure linear mixture rule (LMR-R) in such calculations.
 
-Here we will consider a mixture of H2/O2/NH3/Ar (with 10% NH3) at 1.2 atm, and compare results
-against the experimental measurements of Sabia et al. [1]
+Here we will consider a mixture of H2/O2/NH3/Ar (with 10% NH3) at 1.2 atm, and compare results against the experimental measurements of Sabia et al. [1] Two models are compared in this example:
 
-Two models are compared in this example:
-(i)  A 2023 model of H2 and NH3 chemistry published by Alzueta et al. [2]
-(ii) An adapted version of this model that has applied the reduced-pressure linear mixture
-     rule (LMR-R) and ab initio third-body efficiencies [3]
+1. A 2023 model of H2 and NH3 chemistry published by Alzueta et al. [2]
+2. An adapted version of this model that has applied the reduced-pressure linear mixture rule (LMR-R) and ab initio third-body efficiencies [3]
 
 References:
-[1] P. Sabia, M. V. Manna, R. Ragucci, M. de Joannon, Mutual inhibition effect of hydrogen and ammonia
-    in oxidation processes and the role of ammonia as “strong” collider in third-molecular reactions,
-    Int. J. Hydrogen Energy 45 (2020) 32113 -- 32127.
-[2] M. U. Alzueta, I. Salas, H. Hashemi, P. Glarborg, CO-assisted NH3 oxidation, Combust. Flame 257
-    (2023) 112438.
-[3] P. J. Singal, J. Lee, L. Lei, R. L. Speth, M. P. Burke, Implementation of New Mixture Rules
-    Has a Substantial Impact on Combustion Predictions for H2 and NH3, Proc. Combust. Inst. 40
-    (2024).
+
+    [1] P. Sabia, M. V. Manna, R. Ragucci, M. de Joannon, Mutual inhibition effect of hydrogen and ammonia in oxidation processes and the role of ammonia as “strong” collider in third-molecular reactions, Int. J. Hydrogen Energy 45 (2020) 32113 -- 32127.
+
+    [2] M. U. Alzueta, I. Salas, H. Hashemi, P. Glarborg, CO-assisted NH3 oxidation, Combust. Flame 257 (2023) 112438.
+
+    [3] P. J. Singal, J. Lee, L. Lei, R. L. Speth, M. P. Burke, Implementation of New Mixture Rules Has a Substantial Impact on Combustion Predictions for H2 and NH3, Proc. Combust. Inst. 41 (2025).
 
 Requires: cantera >= 3.1
 .. tags:: jet-stirred reactor, kinetics

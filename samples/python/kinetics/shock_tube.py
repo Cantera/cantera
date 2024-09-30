@@ -2,28 +2,20 @@
 Shock-tube species profiles as a function of time
 =================================================
 
-Simulate species profiles for a shock tube as a function of time, and observe the impact of
-incorporating the reduced-pressure linear mixture rule (LMR-R) in such calculations.
+Simulate species profiles for a shock tube as a function of time, and observe the impact of incorporating the reduced-pressure linear mixture rule (LMR-R) in such calculations.
 
-Here we predict the H2O mole fraction time profiles for a mixture of
-1163 ppm H2O2/1330 ppm H2O/665 ppm O2/20% CO2/Ar following reflected shock waves at 1196 K
-and 2.127 atm, and compare results against the experimental measurements
-of Shao et al. [1]
+Here we predict the H2O mole fraction time profiles for a mixture of 1163 ppm H2O2/1330 ppm H2O/665 ppm O2/20% CO2/Ar following reflected shock waves (1196 K, 2.127 atm) and compare results against the experimental measurements of Shao et al. [1] Two models are compared in this example:
 
-Two models are compared in this example:
-(i)  A 2023 model of H2 and NH3 chemistry published by Alzueta et al. [2]
-(ii) An adapted version of this model that has applied the reduced-pressure linear mixture
-     rule (LMR-R) and ab initio third-body efficiencies [3]
+1. A 2023 model of H2 and NH3 chemistry published by Alzueta et al. [2]
+2. An adapted version of this model that has applied the reduced-pressure linear mixture rule (LMR-R) and ab initio third-body efficiencies [3]
 
 References:
-[1] J. Shao, R. Choudhary, D. F. Davidson, R. K. Hanson, Shock tube/laser absorption measurement
-    of the rate constant of the reaction: H2O2+CO2 = 2OH+CO2, Proc. Combust. Inst. 39 (2023) 735
-    -- 743.
-[2] M. U. Alzueta, I. Salas, H. Hashemi, P. Glarborg, CO-assisted NH3 oxidation, Combust. Flame
-    257 (2023) 112438.
-[3] P. J. Singal, J. Lee, L. Lei, R. L. Speth, M. P. Burke, Implementation of New Mixture Rules
-    Has a Substantial Impact on Combustion Predictions for H2 and NH3, Proc. Combust. Inst. 40
-    (2024).
+
+    [1] J. Shao, R. Choudhary, D. F. Davidson, R. K. Hanson, Shock tube/laser absorption measurement of the rate constant of the reaction: H2O2+CO2 = 2OH+CO2, Proc. Combust. Inst. 39 (2023) 735 -- 743.
+
+    [2] M. U. Alzueta, I. Salas, H. Hashemi, P. Glarborg, CO-assisted NH3 oxidation, Combust. Flame 257 (2023) 112438.
+
+    [3] P. J. Singal, J. Lee, L. Lei, R. L. Speth, M. P. Burke, Implementation of New Mixture Rules Has a Substantial Impact on Combustion Predictions for H2 and NH3, Proc. Combust. Inst. 41 (2025).
 
 Requires: cantera >= 3.1
 .. tags:: shock tube, kinetics
