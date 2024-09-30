@@ -31,28 +31,18 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 fig, ax = plt.subplots()
-
 models = {'Original':'alzueta.yaml','LMR-R':'alzueta_LMRR.yaml'}
 colours = ["xkcd:grey",'xkcd:purple']
-n=16 # number of points to simulate
-fuel_list = np.linspace(0.14,0.37,n) # mole fractions of fuel to simulate across
-a_st = 0.75 # coefficient of oxidizer for stoichiometric combustion
 Tin = 296  # unburned gas temperature [K]
-p=760
-
+p=760  # pressure [torr]
+n=16 # number of points to simulate
+phi_list = np.linspace(0.6,2.0,n) # equivalence ratios to simulate across
 for k, m in enumerate(models):
     vel_list = []
-    phi_list = []
-    for j, fuel_frac in enumerate(fuel_list):
-        gas = ct.Solution(list(models.values())[k])
-        NH3 = fuel_frac
-        ox_frac = 1 - fuel_frac # oxidizer fraction
-        O2 = ox_frac*0.21
-        N2 = ox_frac*0.79
-        phi = np.divide(fuel_frac/O2,1/a_st)
-        phi_list.append(phi)
-        X = {'NH3':NH3,'O2':O2,'N2':N2}
-        gas.TPX = Tin, (p/760)*ct.one_atm, X
+    gas = ct.Solution(models[m])
+    for j, phi in enumerate(phi_list):
+        gas.set_equivalence_ratio(phi, 'NH3', {'O2':1, 'N2': 3.76})
+        gas.TP = Tin, (p/760)*ct.one_atm
         f = ct.FreeFlame(gas, width=0.03)
         f.set_refine_criteria(ratio=3, slope=0.06, curve=0.10)
         # f.transport_model = 'multicomponent' # optionally enable
@@ -60,7 +50,6 @@ for k, m in enumerate(models):
         f.solve(loglevel=1, auto=True)
         vel_list.append(f.velocity[0] * 100) # cm/s
     ax.plot(phi_list, vel_list, color=colours[k],label=m)
-
 expData = {
    'X_NH3': [16.3,16.4,17.0,18.0,19.0,20.0,21.9,24.0,26.0,28.5,29.0,30.0,31.0,31.5],
    'vel': [1.35,1.48,2.30,3.36,4.01,5.88,6.80,8.14,6.73,5.00,4.78,3.3,2.9,3.0]
@@ -69,9 +58,7 @@ X_NH3 = np.divide(expData['X_NH3'],100)
 X_O2 = np.multiply(np.subtract(1,X_NH3), 0.21)
 phi_data = np.divide(np.divide(X_NH3,X_O2),np.divide(4,3))
 ax.plot(phi_data,expData['vel'],'o',fillstyle='none',color='k',label='Ronney')
-ax.legend(fontsize=8,frameon=False, loc='upper right')
-ax.ylabel(r'Burning velocity [cm $\rm s^{-1}$]')
-ax.xlabel(r'Equivalence Ratio')
-ax.xlim([0.6, 2.1])
-ax.ylim([0, 12])
+ax.legend(frameon=False, loc='upper right')
+ax.set_ylabel(r'Burning velocity [cm $\rm s^{-1}$]')
+ax.set_xlabel(r'Equivalence Ratio')
 plt.show()
