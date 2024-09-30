@@ -1,26 +1,26 @@
 import math
 import numpy as np
 import pytest
+from pytest import approx
 
 import cantera as ct
 
 from .utilities import (
-    assertNear,
     assertArrayNear
 )
 
 class TestFunc1:
     def test_function(self):
         f = ct.Func1(np.sin)
-        assertNear(f(0), np.sin(0))
-        assertNear(f(0.1), np.sin(0.1))
-        assertNear(f(0.7), np.sin(0.7))
+        assert f(0) == approx(np.sin(0))
+        assert f(0.1) == approx(np.sin(0.1))
+        assert f(0.7) == approx(np.sin(0.7))
 
     def test_lambda(self):
         f = ct.Func1(lambda t: np.sin(t)*np.sqrt(t))
         assert f.type == "functor"
         for t in [0.1, 0.7, 4.5]:
-            assertNear(f(t), np.sin(t)*np.sqrt(t))
+            assert f(t) == approx(np.sin(t)*np.sqrt(t))
 
     def test_callable(self):
         class Multiplier:
@@ -33,18 +33,18 @@ class TestFunc1:
         f = ct.Func1(m)
         assert f.type == "functor"
         for t in [0.1, 0.7, 4.5]:
-            assertNear(f(t), 8.1*t)
+            assert f(t) == approx(8.1*t)
 
     def test_constant(self):
         f = ct.Func1(5)
         for t in [0.1, 0.7, 4.5]:
-            assertNear(f(t), 5)
+            assert f(t) == approx(5)
         assert f.type == "constant"
 
     def test_sequence(self):
         f = ct.Func1([5])
         for t in [0.1, 0.7, 4.5]:
-            assertNear(f(t), 5)
+            assert f(t) == approx(5)
 
         with pytest.raises(TypeError):
             ct.Func1([3,4])
@@ -55,8 +55,8 @@ class TestFunc1:
         g = ct.Func1(np.array([[5]]))
         assert g.type == "constant"
         for t in [0.1, 0.7, 4.5]:
-            assertNear(f(t), 5)
-            assertNear(g(t), 5)
+            assert f(t) == approx(5)
+            assert g(t) == approx(5)
 
         with pytest.raises(TypeError):
             ct.Func1(np.array([3,4]))
@@ -222,14 +222,14 @@ class TestFunc1:
         fcn = ct.Tabulated1(time, fval)
         assert fcn.type == "tabulated-linear"
         for t, f in zip(time, fval):
-            assertNear(f, fcn(t))
+            assert f == approx(fcn(t))
 
     def test_tabulated3(self):
         time = 0, 1, 2,
         fval = 2, 1, 0,
         fcn = ct.Tabulated1(time, fval)
-        assertNear(fcn(-1), fval[0])
-        assertNear(fcn(3), fval[-1])
+        assert fcn(-1) == approx(fval[0])
+        assert fcn(3) == approx(fval[-1])
 
     def test_tabulated4(self):
         time = np.array([0, 1, 2])
@@ -238,7 +238,7 @@ class TestFunc1:
         tt = .5*(time[1:] + time[:-1])
         ff = .5*(fval[1:] + fval[:-1])
         for t, f in zip(tt, ff):
-            assertNear(f, fcn(t))
+            assert f == approx(fcn(t))
 
     def test_tabulated5(self):
         time = [0, 1, 2]
