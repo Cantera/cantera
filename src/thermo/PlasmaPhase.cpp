@@ -74,8 +74,7 @@ void PlasmaPhase::setIsotropicElectronEnergyDistribution()
     double c1 = x * std::pow(gamma2, 1.5) / std::pow(gamma1, 2.5);
     double c2 = x * std::pow(gamma2 / gamma1, x);
     m_electronEnergyDist =
-        c1 * m_electronEnergyLevels.sqrt() /
-        std::pow(meanElectronEnergy(), 1.5) *
+        c1  / std::pow(meanElectronEnergy(), 1.5) *
         (-c2 * (m_electronEnergyLevels /
         meanElectronEnergy()).pow(x)).exp();
     checkElectronEnergyDistribution();
