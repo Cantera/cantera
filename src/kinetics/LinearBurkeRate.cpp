@@ -182,10 +182,6 @@ void LinearBurkeRate::validate(const string& equation, const Kinetics& kin)
                 throw InputFileError("LinearBurkeRate::validate", m_input,
                     "Invalid eig0 or eps entry for one of the specified colliders.");
             }
-            if (rateObjs[j].which() != 0 && rateObjs[j].which() != 1 && rateObjs[j].which() != 2) {
-                throw InputFileError("LinearBurkeRate::validate", m_input,
-                    "Something went wrong... Please review implementation guide and check your k(T,P) definitions.");
-            }
         }
     }
 }
