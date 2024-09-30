@@ -56,6 +56,13 @@ def load_yaml():
                 return yaml.safe_load(stream)
     return _load
 
+@pytest.fixture(scope="session")
+def test_data_path():
+    return TEST_DATA_PATH
+
+@pytest.fixture(scope="session")
+def cantera_data_path():
+    return CANTERA_DATA_PATH
 
 @pytest.fixture(scope="session", autouse=True)
 def cantera_setup():
@@ -67,6 +74,7 @@ def cantera_setup():
     cantera.add_directory(CANTERA_DATA_PATH)
     cantera.print_stack_trace_on_segfault()
     cantera.CanteraError.set_stack_trace_depth(20)
+    cantera.make_deprecation_warnings_fatal()
 
     # Yield control to tests
     yield
@@ -102,7 +110,6 @@ def test_work_path(request, cantera_setup):
         work_path = Path(tempfile.mkdtemp())
         using_tempfile = True
 
-    cantera.make_deprecation_warnings_fatal()
     cantera.add_directory(work_path)
 
     # Assign to the test class
