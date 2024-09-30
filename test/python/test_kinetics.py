@@ -1276,8 +1276,8 @@ class TestReaction:
         with pytest.raises(ct.CanteraError, match='Products are different'):
             self.gas.modify_reaction(16, R)
 
-
-class TestElementaryReaction(TestReaction):
+@pytest.mark.usefixtures("setup_reaction_tests")
+class TestElementaryReaction:
 
     def test_elementary(self):
         r = ct.Reaction({"O":1, "H2":1}, {"H":1, "OH":1},
@@ -1326,8 +1326,8 @@ class TestElementaryReaction(TestReaction):
         gas.modify_reaction(2, R)
         assertNear(A2*T**b2*np.exp(-Ta2/T), gas.forward_rate_constants[2])
 
-
-class TestFalloffReaction(TestReaction):
+@pytest.mark.usefixtures("setup_reaction_tests")
+class TestFalloffReaction:
 
     def test_negative_A_falloff(self):
         species = ct.Species.list_from_file("gri30.yaml")
@@ -1385,8 +1385,8 @@ class TestFalloffReaction(TestReaction):
         kf = gas.forward_rate_constants
         assertNear(kf[49], kf[53])
 
-
-class TestThreebodyReaction(TestReaction):
+@pytest.mark.usefixtures("setup_reaction_tests")
+class TestThreebodyReaction:
     def test_threebody(self):
         tb = ct.ThirdBody(efficiencies={"AR":0.7, "H2":2.0, "H2O":6.0})
         r = ct.Reaction({"O":1, "H":1}, {"OH":1},
@@ -1417,8 +1417,8 @@ class TestThreebodyReaction(TestReaction):
         kf2 = gas.forward_rate_constants[5]
         assertNear((A2*T**b2) / (A1*T**b1), kf2/kf1)
 
-
-class TestPlogReaction(TestReaction):
+@pytest.mark.usefixtures("setup_reaction_tests")
+class TestPlogReaction:
 
     def test_plog(self):
         gas1 = ct.Solution('pdep-test.yaml')
@@ -1476,8 +1476,8 @@ class TestPlogReaction(TestReaction):
         kf = gas.forward_rates_of_progress
         kf[0] != approx(kf[1])
 
-
-class TestChebyshevReaction(TestReaction):
+@pytest.mark.usefixtures("setup_reaction_tests")
+class TestChebyshevReaction:
     def test_chebyshev(self):
         gas1 = ct.Solution('pdep-test.yaml')
         species = ct.Species.list_from_file("pdep-test.yaml")
@@ -1589,8 +1589,8 @@ class TestChebyshevReaction(TestReaction):
         kf = gas.forward_rate_constants
         assertNear(kf[4], kf[5])
 
-
-class TestBlowersMaselReaction(TestReaction):
+@pytest.mark.usefixtures("setup_reaction_tests")
+class TestBlowersMaselReaction:
 
     def test_BlowersMasel(self):
         r = ct.Reaction({"O":1, "H2":1}, {"H":1, "OH":1},
@@ -1692,8 +1692,8 @@ class TestBlowersMaselReaction(TestReaction):
         gas.modify_reaction(0, R)
         assertNear(A2 * T**b2 * np.exp(-Ta2 / T), gas.forward_rate_constants[0])
 
-
-class TestInterfaceReaction(TestReaction):
+@pytest.mark.usefixtures("setup_reaction_tests")
+class TestInterfaceReaction:
 
     def test_interface(self):
         surf_species = ct.Species.list_from_file("ptcombust.yaml")
@@ -1791,7 +1791,8 @@ class TestInterfaceReaction(TestReaction):
         assertNear(k2, k3)
 
 
-class TestStickingCoefficient(TestReaction):
+@pytest.mark.usefixtures("setup_reaction_tests")
+class TestStickingCoefficient:
 
     def test_invalid_sticking(self):
         yaml = """
@@ -1873,8 +1874,8 @@ class TestStickingCoefficient(TestReaction):
         # M&W toggled on (locally) for reaction 4
         assertNear(k1[4], k2[4]) # sticking coefficient = 1.0
 
-
-class TestElectrochemicalReaction(TestReaction):
+@pytest.mark.usefixtures("setup_reaction_tests")
+class TestElectrochemicalReaction:
 
     def test_electron_collision_plasma(self):
         gas1 = ct.Solution('oxygen-plasma.yaml',
