@@ -23,7 +23,7 @@ References:
     (2025).
 
 Requires: cantera >= 3.1
-.. tags:: flame speed, kinetics, mixture rule
+.. tags:: flame speed, kinetics
 """
 
 import cantera as ct

@@ -26,7 +26,7 @@ References:
     (2024).
 
 Requires: cantera >= 3.1
-.. tags:: species profile, shock tube, kinetics, mixture rule
+.. tags:: shock tube, kinetics
 """
 
 import cantera as ct
