@@ -15,12 +15,12 @@ namespace Cantera
 
 //! Data container holding shared data specific to LinearBurkeRate
 /**
- * The data container `LmrData` holds precalculated data common to
+ * The data container `LinearBurkeData` holds precalculated data common to
  * all `LinearBurkeRate` objects.
  */
-struct LmrData : public ReactionData
+struct LinearBurkeData : public ReactionData
 {
-    LmrData();
+    LinearBurkeData();
 
     void update(double T, double P) override
     {
@@ -83,7 +83,7 @@ public:
     LinearBurkeRate(const AnyMap& node, const UnitStack& rate_units={});
 
     unique_ptr<MultiRateBase> newMultiRate() const override {
-        return make_unique<MultiRate<LinearBurkeRate, LmrData>>();
+        return make_unique<MultiRate<LinearBurkeRate, LinearBurkeData>>();
     }
 
     //! Identifier of reaction rate type
@@ -108,10 +108,10 @@ public:
      */
     using RateTypes = boost::variant<PlogRate, TroeRate, ChebyshevRate>;
     using DataTypes = boost::variant<PlogData, FalloffData, ChebyshevData>;
-    double evalPlogRate(const LmrData& shared_data, DataTypes& dataObj, RateTypes& rateObj);
-    double evalTroeRate(const LmrData& shared_data, DataTypes& dataObj, RateTypes& rateObj);
-    double evalChebyshevRate(const LmrData& shared_data, DataTypes& dataObj, RateTypes& rateObj);
-    double evalFromStruct(const LmrData& shared_data);
+    double evalPlogRate(const LinearBurkeData& shared_data, DataTypes& dataObj, RateTypes& rateObj);
+    double evalTroeRate(const LinearBurkeData& shared_data, DataTypes& dataObj, RateTypes& rateObj);
+    double evalChebyshevRate(const LinearBurkeData& shared_data, DataTypes& dataObj, RateTypes& rateObj);
+    double evalFromStruct(const LinearBurkeData& shared_data);
 
     void setContext(const Reaction& rxn, const Kinetics& kin) override;
 

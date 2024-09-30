@@ -10,12 +10,12 @@
 namespace Cantera
 {
 
-LmrData::LmrData()
+LinearBurkeData::LinearBurkeData()
 {
     moleFractions.resize(1, NAN);
 }
 
-bool LmrData::update(const ThermoPhase& phase, const Kinetics& kin)
+bool LinearBurkeData::update(const ThermoPhase& phase, const Kinetics& kin)
 {
     int X = phase.stateMFNumber();
     double T = phase.temperature();
@@ -34,17 +34,17 @@ bool LmrData::update(const ThermoPhase& phase, const Kinetics& kin)
     return false;
 }
 
-void LmrData::perturbPressure(double deltaP)
+void LinearBurkeData::perturbPressure(double deltaP)
 {
     if (m_pressure_buf > 0.) {
-        throw CanteraError("LmrData::perturbPressure",
+        throw CanteraError("LinearBurkeData::perturbPressure",
             "Cannot apply another perturbation as state is already perturbed.");
     }
     m_pressure_buf = pressure;
     update(temperature, pressure * (1. + deltaP));
 }
 
-void LmrData::restore()
+void LinearBurkeData::restore()
 {
     ReactionData::restore();
     if (m_pressure_buf < 0.) {
@@ -198,7 +198,7 @@ void LinearBurkeRate::setContext(const Reaction& rxn, const Kinetics& kin)
     nSpecies = kin.nTotalSpecies();
 }
 
-double LinearBurkeRate::evalPlogRate(const LmrData& shared_data, DataTypes& dataObj, RateTypes& rateObj)
+double LinearBurkeRate::evalPlogRate(const LinearBurkeData& shared_data, DataTypes& dataObj, RateTypes& rateObj)
 {
     PlogData& data = boost::get<PlogData>(dataObj);
     PlogRate& rate = boost::get<PlogRate>(rateObj);
@@ -210,7 +210,7 @@ double LinearBurkeRate::evalPlogRate(const LmrData& shared_data, DataTypes& data
     return rate.evalFromStruct(data);
 }
 
-double LinearBurkeRate::evalTroeRate(const LmrData& shared_data, DataTypes& dataObj, RateTypes& rateObj)
+double LinearBurkeRate::evalTroeRate(const LinearBurkeData& shared_data, DataTypes& dataObj, RateTypes& rateObj)
 {
     FalloffData& data = boost::get<FalloffData>(dataObj);
     TroeRate& rate = boost::get<TroeRate>(rateObj);
@@ -222,7 +222,7 @@ double LinearBurkeRate::evalTroeRate(const LmrData& shared_data, DataTypes& data
     return rate.evalFromStruct(data);
 }
 
-double LinearBurkeRate::evalChebyshevRate(const LmrData& shared_data, DataTypes& dataObj, RateTypes& rateObj)
+double LinearBurkeRate::evalChebyshevRate(const LinearBurkeData& shared_data, DataTypes& dataObj, RateTypes& rateObj)
 {
     ChebyshevData& data = boost::get<ChebyshevData>(dataObj);
     ChebyshevRate& rate = boost::get<ChebyshevRate>(rateObj);
@@ -233,7 +233,7 @@ double LinearBurkeRate::evalChebyshevRate(const LmrData& shared_data, DataTypes&
     return rate.evalFromStruct(data);
 }
 
-double LinearBurkeRate::evalFromStruct(const LmrData& shared_data)
+double LinearBurkeRate::evalFromStruct(const LinearBurkeData& shared_data)
 {
     double sigmaX_M = 0.0;
     // Test each species listed at the top of the YAML file
