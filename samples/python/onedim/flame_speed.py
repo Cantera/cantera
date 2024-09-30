@@ -28,7 +28,6 @@ Requires: cantera >= 3.1
 
 import cantera as ct
 import matplotlib.pyplot as plt
-import pandas as pd
 import numpy as np
 
 fig, ax = plt.subplots()
