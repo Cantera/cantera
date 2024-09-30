@@ -4,8 +4,7 @@ from pytest import approx
 
 import cantera as ct
 from .utilities import (
-    assertNear,
-    compare,
+    compare
 )
 
 class EquilTestCases:
@@ -130,20 +129,20 @@ class TestEquilExtraElements:
     def test_auto(self):
         # Succeeds after falling back to VCS
         self.gas.equilibrate('TP')
-        assertNear(self.gas['CH4'].X[0], 0.0)
+        assert self.gas['CH4'].X[0] == approx(0.0)
 
     @pytest.mark.xfail
     def test_element_potential(self):
         self.gas.equilibrate('TP', solver='element_potential')
-        assertNear(self.gas['CH4'].X[0], 0.0)
+        assert self.gas['CH4'].X[0] == approx(0.0)
 
     def test_gibbs(self):
         self.gas.equilibrate('TP', solver='gibbs')
-        assertNear(self.gas['CH4'].X[0], 0.0)
+        assert self.gas['CH4'].X[0] == approx(0.0)
 
     def test_vcs(self):
         self.gas.equilibrate('TP', solver='vcs')
-        assertNear(self.gas['CH4'].X[0], 0.0)
+        assert self.gas['CH4'].X[0] == approx(0.0)
 
 
 class TestVCS_EquilTest(EquilTestCases):
@@ -262,5 +261,5 @@ class Test_IdealSolidSolnPhase_Equil:
         gas.TPX = 500, ct.one_atm, 'C2H2-graph: 1.0'
 
         gas.equilibrate('TP', solver='element_potential')
-        assertNear(gas['C-graph'].X[0], 2.0 / 3.0)
-        assertNear(gas['H2-solute'].X[0], 1.0 / 3.0)
+        assert gas['C-graph'].X[0] == approx(2.0 / 3.0)
+        assert gas['H2-solute'].X[0] == approx(1.0 / 3.0)
