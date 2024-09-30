@@ -26,7 +26,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 fig, ax = plt.subplots()
-models = {'Original':'alzueta.yaml','LMR-R':'alzueta_LMRR.yaml'}
+file = 'alzueta.yaml'
+models = {'Original': 'baseline_mechanism', 'LMR-R': 'linear-Burke_mechanism'}
 colours = ["xkcd:grey",'xkcd:purple']
 Tin = 296  # unburned gas temperature [K]
 p=760  # pressure [torr]
@@ -34,7 +35,7 @@ n=16 # number of points to simulate
 phi_list = np.linspace(0.6,2.0,n) # equivalence ratios to simulate across
 for k, m in enumerate(models):
     vel_list = []
-    gas = ct.Solution(models[m])
+    gas = ct.Solution(file, name=models[m])
     for j, phi in enumerate(phi_list):
         gas.set_equivalence_ratio(phi, 'NH3', {'O2':1, 'N2': 3.76})
         gas.TP = Tin, (p/760)*ct.one_atm

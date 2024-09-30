@@ -30,7 +30,8 @@ import matplotlib.pyplot as plt
 f, ax = plt.subplots(1, 3)
 plt.subplots_adjust(wspace=0.6)
 colours = ["xkcd:grey",'xkcd:purple']
-models = {'Original':'alzueta.yaml','LMR-R':'alzueta_LMRR.yaml'}
+file = 'alzueta.yaml'
+models = {'Original': 'baseline_mechanism', 'LMR-R': 'linear-Burke_mechanism'}
 
 inputs = {
     'X': {'H2': 0.03, 'O2': 0.03, 'Ar': 0.846, 'NH3':0.094},
@@ -86,7 +87,7 @@ def getTemperatureDependence(gas, inputs):
     return tempDependence
 
 for k,m in enumerate(models):
-    gas = ct.Solution(models[m])
+    gas = ct.Solution(file, name=models[m])
     gas.TPX = inputs['Tin'], inputs['P']*ct.one_atm, inputs['X']
     tempDependence = getTemperatureDependence(gas,inputs)
     ax[0].plot(tempDependence.index, np.subtract(tempDependence['temperature'],tempDependence.index), color=colours[k],label=m)

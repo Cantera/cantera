@@ -20,13 +20,15 @@ References:
 Requires: cantera >= 3.1
 .. tags:: shock tube, kinetics
 """
-
+import sys, os
+sys.path.append("C:/Users/pjsin/Documents/cantera/build/python")
 import cantera as ct
 import matplotlib.pyplot as plt
 import numpy as np
 
 fig, ax = plt.subplots()
-models = {'Original':'alzueta.yaml','LMR-R':'alzueta_LMRR.yaml'}
+file = 'alzueta.yaml'
+models = {'Original': 'baseline_mechanism', 'LMR-R': 'linear-Burke_mechanism'}
 colours = ["xkcd:grey",'xkcd:purple']
 
 for k,m in enumerate(models):
@@ -35,7 +37,7 @@ for k,m in enumerate(models):
     X_O2 = 665e-6
     X_CO2= 0.2*(1-X_H2O2-X_H2O-X_O2)
     X_Ar = 1-X_CO2
-    gas = ct.Solution(models[m])
+    gas = ct.Solution(file, name=models[m])
     gas.TPX = 1196, 2.127*ct.one_atm, {'H2O2':X_H2O2, 'H2O':X_H2O, 'O2':X_O2, 'CO2':X_CO2, 'AR':X_Ar}
     r = ct.Reactor(contents=gas,energy="on")
     reactorNetwork = ct.ReactorNet([r])
