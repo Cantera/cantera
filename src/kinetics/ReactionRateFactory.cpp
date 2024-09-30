@@ -77,7 +77,7 @@ ReactionRateFactory::ReactionRateFactory()
     });
 
     // LinearBurkeRate evaluator
-    reg("linear-burke", [](const AnyMap& node, const UnitStack& rate_units) {
+    reg("linear-Burke", [](const AnyMap& node, const UnitStack& rate_units) {
         return new LinearBurkeRate(node, rate_units);
     });
 
