@@ -19,8 +19,8 @@ References:
 [2] M. U. Alzueta, I. Salas, H. Hashemi, P. Glarborg, CO-assisted NH3 oxidation, Combust. Flame 257
     (2023) 112438.
 [3] P. J. Singal, J. Lee, L. Lei, R. L. Speth, M. P. Burke, Implementation of New Mixture Rules
-    Has a Substantial Impact on Combustion Predictions for H2 and NH3, Proc. Combust. Inst. 40
-    (2024).
+    Has a Substantial Impact on Combustion Predictions for H2 and NH3, Proc. Combust. Inst. 41
+    (2025).
 
 Requires: cantera >= 3.1
 .. tags:: flame speed, kinetics, mixture rule
@@ -34,8 +34,8 @@ fig, ax = plt.subplots()
 
 models = {'Original':'alzueta.yaml','LMR-R':'alzueta_LMRR.yaml'}
 colours = ["xkcd:grey",'xkcd:purple']
-n=20 # number of points to simulate
-fuel_list = np.linspace(0.14,0.4,n) # mole fractions of fuel to simulate across
+n=16 # number of points to simulate
+fuel_list = np.linspace(0.14,0.37,n) # mole fractions of fuel to simulate across
 a_st = 0.75 # coefficient of oxidizer for stoichiometric combustion
 Tin = 296  # unburned gas temperature [K]
 p=760
@@ -54,9 +54,9 @@ for k, m in enumerate(models):
         X = {'NH3':NH3,'O2':O2,'N2':N2}
         gas.TPX = Tin, (p/760)*ct.one_atm, X
         f = ct.FreeFlame(gas, width=0.03)
-        f.set_refine_criteria(ratio=3, slope=0.05, curve=0.05)
-        f.transport_model = 'multicomponent'
-        f.soret_enabled = True
+        f.set_refine_criteria(ratio=3, slope=0.06, curve=0.10)
+        # f.transport_model = 'multicomponent' # optionally enable
+        # f.soret_enabled = True  # optionally enable
         f.solve(loglevel=1, auto=True)
         vel_list.append(f.velocity[0] * 100) # cm/s
     ax.plot(phi_list, vel_list, color=colours[k],label=m)
