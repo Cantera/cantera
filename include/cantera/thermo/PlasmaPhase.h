@@ -18,38 +18,60 @@ namespace Cantera
 class Reaction;
 class ElectronCollisionPlasmaRate;
 
-/**
- * Base class for a phase with plasma properties. This class manages the
- * plasma properties such as electron energy distribution function (EEDF).
- * There are two ways to define the electron distribution and electron
- * temperature. The first method uses setElectronTemperature() to set
- * the electron temperature which is used to calculate the electron energy
- * distribution with isotropic-velocity model. The generalized electron
- * energy distribution for isotropic-velocity distribution can be
- * expressed as [1,2],
+//! Base class for handling plasma properties, specifically focusing on the
+//! electron energy distribution.
+/*!
+ * This class provides functionality to manage the the electron energy distribution
+ * using two primary methods for defining the electron distribution and electron
+ * temperature.
+ *
+ * The first method utilizes setElectronTemperature(), which sets the electron
+ * temperature and calculates the electron energy distribution assuming an
+ * isotropic-velocity model. Note that all units in PlasmaPhase are in SI, except
+ * for electron energy, which is measured in volts.
+ *
+ * The generalized electron energy distribution for an isotropic-velocity
+ * distribution (as described by Gudmundsson @cite gudmundsson2001 and Khalilpour
+ * and Foroutan @cite khalilpour2020)
+ * is given by:
  *   @f[
  *          f(\epsilon) = c_1 \frac{\sqrt{\epsilon}}{\epsilon_m^{3/2}}
- *          \exp(-c_2 (\frac{\epsilon}{\epsilon_m})^x),
+ *          \exp \left(-c_2 \left(\frac{\epsilon}{\epsilon_m}\right)^x \right),
  *   @f]
- * where @f$ x = 1 @f$ and @f$ x = 2 @f$ correspond to the Maxwellian and
- * Druyvesteyn (default) electron energy distribution, respectively.
- * @f$ \epsilon_m = 3/2 T_e @f$ [eV] (mean electron energy). The second
- * method uses setDiscretizedElectronEnergyDist() to manually set electron
- * energy distribution and calculate electron temperature from mean electron
- * energy, which is calculated as [3],
- *   @f[
- *          \epsilon_m = \int_0^{\infty} \epsilon^{3/2} f(\epsilon) d\epsilon,
- *   @f]
- * which can be calculated using trapezoidal rule,
- *   @f[
- *          \epsilon_m = \sum_i (\epsilon^{5/2}_{i+1} - \epsilon^{5/2}_i)
- *                       (f(\epsilon_{i+1}) + f(\epsilon_i)) / 2,
- *   @f]
- * where @f$ i @f$ is the index of energy levels.
+ * where @f$ x = 1 @f$ corresponds to a Maxwellian distribution and
+ * @f$ x = 2 @f$ corresponds to a Druyvesteyn distribution (which is the
+ * default). Here, @f$ \epsilon_m = \frac{3}{2} T_e @f$ [V] represents the
+ * mean electron energy.
  *
- * For references, see Gudmundsson @cite gudmundsson2001; Khalilpour and Foroutan
- * @cite khalilpour2020; Hagelaar and Pitchford @cite hagelaar2005, and BOLOS
- * @cite BOLOS.
+ * The total probability distribution integrates to one:
+ *   @f[
+ *           \int_0^{\infty} f(\epsilon) d\epsilon = 1.
+ *   @f]
+ * According to Hagelaar and Pitchford @cite hagelaar2005, the electron energy
+ * probability function can be defined as
+ * @f$ F(\epsilon) = \frac{f(\epsilon)}{\sqrt{\epsilon}} @f$ with units of
+ * [V@f$^{-3/2}@f$]. The generalized form of the electron energy probability
+ * function for isotropic-velocity distributions is:
+ *   @f[
+ *          F(\epsilon) = c_1 \frac{1}{\epsilon_m^{3/2}}
+ *          \exp\left(-c_2 \left(\frac{\epsilon}{\epsilon_m}\right)^x\right),
+ *   @f]
+ * and this form is used to model the isotropic electron energy distribution
+ * in PlasmaPhase.
+ *
+ * The second method allows for manual definition of the electron energy
+ * distribution using setDiscretizedElectronEnergyDist(). In this approach,
+ * the electron temperature is derived from the mean electron energy,
+ * @f$ \epsilon_m @f$, which can be calculated as follows @cite hagelaar2005 :
+ *   @f[
+ *          \epsilon_m = \int_0^{\infty} \epsilon^{3/2} F(\epsilon) d\epsilon.
+ *   @f]
+ * This integral can be approximated using the trapezoidal rule,
+ *   @f[
+ *          \epsilon_m = \sum_i \left(\epsilon_{i+1}^{5/2} - \epsilon_i^{5/2}\right)
+ *                       \frac{F(\epsilon_{i+1}) + F(\epsilon_i)}{2},
+ *   @f]
+ * where @f$ i @f$ is the index of discrete energy levels, or Simpson's rule.
  *
  * @warning  This class is an experimental part of %Cantera and may be
  *           changed or removed without notice.
