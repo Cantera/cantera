@@ -26,7 +26,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 fig, ax = plt.subplots()
-file = 'alzueta.yaml'
+file = 'example_data/alzueta.yaml'
 models = {'Original': 'baseline_mechanism', 'LMR-R': 'LMRR_mechanism'}
 colours = ["xkcd:grey",'xkcd:purple']
 Tin = 296  # unburned gas temperature [K]

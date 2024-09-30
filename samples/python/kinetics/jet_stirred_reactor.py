@@ -30,7 +30,7 @@ import matplotlib.pyplot as plt
 f, ax = plt.subplots(1, 3)
 plt.subplots_adjust(wspace=0.6)
 colours = ["xkcd:grey",'xkcd:purple']
-file = 'alzueta.yaml'
+file = 'example_data/alzueta.yaml'
 models = {'Original': 'baseline_mechanism', 'LMR-R': 'LMRR_mechanism'}
 
 inputs = {
