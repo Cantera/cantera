@@ -7,7 +7,7 @@ Simulate flame speeds across a range of equivalence ratios, and observe the impa
 Here we will consider a mixture of NH3/air (1 atm, 296 K) and compare results against the experimental measurements of Ronney. [1] Two models are compared in this example:
 
 1. A 2023 model of H2 and NH3 chemistry published by Alzueta et al. [2]
-2. An adapted version of this model that has applied the reduced-pressure linear mixture rule (LMR-R) and ab initio third-body efficiencies [3]
+2. An adapted version of this model that has applied the reduced-pressure linear mixture rule (LMR-R) and ab initio third-body efficiencies. [3]
 
 References:
 
@@ -27,7 +27,7 @@ import numpy as np
 
 fig, ax = plt.subplots()
 file = 'alzueta.yaml'
-models = {'Original': 'baseline_mechanism', 'LMR-R': 'linear-Burke_mechanism'}
+models = {'Original': 'baseline_mechanism', 'LMR-R': 'LMRR_mechanism'}
 colours = ["xkcd:grey",'xkcd:purple']
 Tin = 296  # unburned gas temperature [K]
 p=760  # pressure [torr]

@@ -7,7 +7,7 @@ Simulate temperature profiles and species profiles in a jet-stirred reactor acro
 Here we will consider a mixture of H2/O2/NH3/Ar (with 10% NH3) at 1.2 atm, and compare results against the experimental measurements of Sabia et al. [1] Two models are compared in this example:
 
 1. A 2023 model of H2 and NH3 chemistry published by Alzueta et al. [2]
-2. An adapted version of this model that has applied the reduced-pressure linear mixture rule (LMR-R) and ab initio third-body efficiencies [3]
+2. An adapted version of this model that has applied the reduced-pressure linear mixture rule (LMR-R) and ab initio third-body efficiencies. [3]
 
 References:
 
@@ -31,7 +31,7 @@ f, ax = plt.subplots(1, 3)
 plt.subplots_adjust(wspace=0.6)
 colours = ["xkcd:grey",'xkcd:purple']
 file = 'alzueta.yaml'
-models = {'Original': 'baseline_mechanism', 'LMR-R': 'linear-Burke_mechanism'}
+models = {'Original': 'baseline_mechanism', 'LMR-R': 'LMRR_mechanism'}
 
 inputs = {
     'X': {'H2': 0.03, 'O2': 0.03, 'Ar': 0.846, 'NH3':0.094},

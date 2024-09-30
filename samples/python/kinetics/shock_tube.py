@@ -7,7 +7,7 @@ Simulate species profiles for a shock tube as a function of time, and observe th
 Here we predict the H2O mole fraction time profiles for a mixture of 1163 ppm H2O2/1330 ppm H2O/665 ppm O2/20% CO2/Ar following reflected shock waves (1196 K, 2.127 atm) and compare results against the experimental measurements of Shao et al. [1] Two models are compared in this example:
 
 1. A 2023 model of H2 and NH3 chemistry published by Alzueta et al. [2]
-2. An adapted version of this model that has applied the reduced-pressure linear mixture rule (LMR-R) and ab initio third-body efficiencies [3]
+2. An adapted version of this model that has applied the reduced-pressure linear mixture rule (LMR-R) and ab initio third-body efficiencies. [3]
 
 References:
 
@@ -20,15 +20,14 @@ References:
 Requires: cantera >= 3.1
 .. tags:: shock tube, kinetics
 """
-import sys, os
-sys.path.append("C:/Users/pjsin/Documents/cantera/build/python")
+
 import cantera as ct
 import matplotlib.pyplot as plt
 import numpy as np
 
 fig, ax = plt.subplots()
 file = 'alzueta.yaml'
-models = {'Original': 'baseline_mechanism', 'LMR-R': 'linear-Burke_mechanism'}
+models = {'Original': 'baseline_mechanism', 'LMR-R': 'LMRR_mechanism'}
 colours = ["xkcd:grey",'xkcd:purple']
 
 for k,m in enumerate(models):

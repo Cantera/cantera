@@ -19,7 +19,7 @@ phases:
     CO2, HOCO, CH2O, HCO, NH2, NH, N, NNH, N2H4, N2H3, tHNNH, cHNNH, H2NN,
     NH2OH, H2NO, HNOH, HNO, HON, HONO, HNO2, NO3, HONO2, H2NCO, HNCO, NCO,
     AR, HE, N2]
-  reactions: [common, baseline-pdep]
+  reactions: [common_reactions, baseline-pdep_reactions]
   kinetics: gas
   transport: mixture-averaged
   state: {T: 300.0, P: 1 atm}
@@ -31,7 +31,7 @@ phases:
     CO2, HOCO, CH2O, HCO, NH2, NH, N, NNH, N2H4, N2H3, tHNNH, cHNNH, H2NN,
     NH2OH, H2NO, HNOH, HNO, HON, HONO, HNO2, NO3, HONO2, H2NCO, HNCO, NCO,
     AR, HE, N2]
-  reactions: [common, linear-Burke]
+  reactions: [common_reactions, linear-Burke_reactions]
   kinetics: gas
   transport: mixture-averaged
   state: {T: 300.0, P: 1 atm}
@@ -935,7 +935,7 @@ species:
     polarizability: 1.76
     rotational-relaxation: 4.0
 
-baseline-pdep:
+baseline-pdep_reactions:
 - equation: H2O + M <=> H + OH + M  # Reaction 13
   type: three-body
   rate-constant: {A: 6.1e+27, b: -3.322, Ea: 1.2079e+05}
@@ -971,7 +971,7 @@ baseline-pdep:
   Troe: {A: 0.82, T3: 1.0e-30, T1: 1.0e+30, T2: 1.0e+30}
   efficiencies: {N2: 1.6}
 
-linear-Burke:
+linear-Burke_reactions:
 - equation: H + OH (+M) <=> H2O (+M)  # Reaction 13
   type: linear-Burke
   units: {length: m, quantity: kmol, activation-energy: cal/mol}
@@ -1101,7 +1101,7 @@ linear-Burke:
   - name: H2O
     eps: {A: 3.35451e+00, b: 1.33352e-01, Ea: 6.64633e+01}
 
-common:
+common_reactions:
 - equation: H + O2 <=> O + OH  # Reaction 1
   rate-constant: {A: 1.0e+14, b: 0.0, Ea: 1.5286e+04}
 - equation: O + H2 <=> OH + H  # Reaction 2
