@@ -27,7 +27,7 @@ import numpy as np
 
 fig, ax = plt.subplots()
 file = 'example_data/alzueta.yaml'
-models = {'Original': 'baseline_mechanism', 'LMR-R': 'LMRR_mechanism'}
+models = {'Original': 'baseline_mechanism', 'LMR-R': 'linear-Burke_mechanism'}
 colours = ["xkcd:grey",'xkcd:purple']
 Tin = 296  # unburned gas temperature [K]
 p=760  # pressure [torr]

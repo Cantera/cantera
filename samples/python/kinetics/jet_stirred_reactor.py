@@ -31,7 +31,7 @@ f, ax = plt.subplots(1, 3)
 plt.subplots_adjust(wspace=0.6)
 colours = ["xkcd:grey",'xkcd:purple']
 file = 'example_data/alzueta.yaml'
-models = {'Original': 'baseline_mechanism', 'LMR-R': 'LMRR_mechanism'}
+models = {'Original': 'baseline_mechanism', 'LMR-R': 'linear-Burke_mechanism'}
 
 inputs = {
     'X': {'H2': 0.03, 'O2': 0.03, 'Ar': 0.846, 'NH3':0.094},
