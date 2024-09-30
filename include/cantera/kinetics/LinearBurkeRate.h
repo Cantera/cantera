@@ -77,9 +77,6 @@ public:
     //! Default constructor.
     LinearBurkeRate() = default;
 
-    //! Constructor from Arrhenius rate expressions at a set of pressures
-    explicit LinearBurkeRate(const std::multimap<double, ArrheniusRate>& rates);
-
     LinearBurkeRate(const AnyMap& node, const UnitStack& rate_units={});
 
     unique_ptr<MultiRateBase> newMultiRate() const override {
