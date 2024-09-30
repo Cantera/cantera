@@ -31,7 +31,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 
-plt.figure(figsize=(3.5,2.5))
+fig, ax = plt.subplots()
 
 models = {'Original':'alzueta.yaml','LMR-R':'alzueta_LMRR.yaml'}
 colours = ["xkcd:grey",'xkcd:purple']
@@ -60,7 +60,7 @@ for k, m in enumerate(models):
         f.soret_enabled = True
         f.solve(loglevel=1, auto=True)
         vel_list.append(f.velocity[0] * 100) # cm/s
-    plt.plot(phi_list, vel_list, color=colours[k],label=m)
+    ax.plot(phi_list, vel_list, color=colours[k],label=m)
 
 expData = {
    'X_NH3': [16.3,16.4,17.0,18.0,19.0,20.0,21.9,24.0,26.0,28.5,29.0,30.0,31.0,31.5],
@@ -69,10 +69,10 @@ expData = {
 X_NH3 = np.divide(expData['X_NH3'],100)
 X_O2 = np.multiply(np.subtract(1,X_NH3), 0.21)
 phi_data = np.divide(np.divide(X_NH3,X_O2),np.divide(4,3))
-plt.plot(phi_data,expData['vel'],'o',fillstyle='none',color='k',label='Ronney')
-plt.legend(fontsize=8,frameon=False, loc='upper right')
-plt.ylabel(r'Burning velocity [cm $\rm s^{-1}$]')
-plt.xlabel(r'Equivalence Ratio')
-plt.xlim([0.6, 2.1])
-plt.ylim([0, 12])
+ax.plot(phi_data,expData['vel'],'o',fillstyle='none',color='k',label='Ronney')
+ax.legend(fontsize=8,frameon=False, loc='upper right')
+ax.ylabel(r'Burning velocity [cm $\rm s^{-1}$]')
+ax.xlabel(r'Equivalence Ratio')
+ax.xlim([0.6, 2.1])
+ax.ylim([0, 12])
 plt.show()
