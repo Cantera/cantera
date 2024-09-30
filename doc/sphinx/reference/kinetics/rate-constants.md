@@ -266,20 +266,19 @@ $$
 
 such that an alternate version of the generalized LMR-R equation can be written as
 
-\begin{equation}
+$$
 k_{\text{LMR-R}}(T,P,\boldsymbol{X}) = \sum_{i} k_{i}(T,P_{i,\text{LMR}}^{\text{ eff}})\tilde{X}_{i,\text{LMR}}
-\label{eq:LMRR_k_P_i_eff}
-\end{equation}
+$$
 
 The user can either specify $k_i(T,P)$ and $\Lambda_{0,i}(T)$ for each collider, or specify the third-body efficiency, $\epsilon_{0,i}(T)$, for each non-M collider and assign $\epsilon_{0,\text{M}}(T)=1$.  The pressure-dependent aspect of each i-th collider ($k_i(T,P)$) can be specified in any combination of Troe, PLOG, or Chebyshev formats for colliders for which data are available and $\Lambda_{0,i}(T)$ for each collider (or $\epsilon_{0,i}(T)$ for each non-M collider) can be specified in modified Arrhenius format for colliders for which data are available.
 
 In fact, if $\Lambda_{0,i}(T)$ (or $\epsilon_{0,i}(T)$) for any colliders have available data or can be estimated using typical values (as is typically done in kinetic models for reactions in modified Lindemann expressions) but no data for $k_i(T,P)$ are available, this implementation also allows some colliders to be specified with unique $\Lambda_{0,i}(T)$ (or $\epsilon_{0,i}(T)$) without $k_i(T,P)$, by assuming the same reduced-pressure dependence as M (i.e. $k_{i}(T,R)=k_{M}(T,R)$). Cantera employs the following derived form of the generalized LMR-R equation, where the sum over $n$ is only for the colliders for which unique $k_n(T,P)$ are available. If unique $k_i(T,P)$ data are available for all colliders, then the second term in the above equation effectively disappears.
 
 $$
-k_{\text{LMR-R}}(T,P,\boldsymbol{X}) &= \sum_{n} k_{n}(T,P_{n,\text{LMR}}^{\text{ eff}})\tilde{X}_{n,\text{LMR}} + k_{M}(T,P_{M,\text{LMR}}^{\text{ eff}}) \left(1-\sum_{n}\tilde{X}_{n,\text{LMR}}\right)
+k_{\text{LMR-R}}(T,P,\boldsymbol{X}) = \sum_{n} k_{n}(T,P_{n,\text{LMR}}^{\text{ eff}})\tilde{X}_{n,\text{LMR}} + k_{M}(T,P_{M,\text{LMR}}^{\text{ eff}}) \left(1-\sum_{n}\tilde{X}_{n,\text{LMR}}\right)
 $$
 
-If the user has limited or incomplete access to parameter inputs (a likely scenario, given the scarcity of puplished third-body efficiencies and master equation eigenvalues), this computational implementation allowes them much greater flexibility and power to make educated assumptions. Further description of the LMR-R theory and computational method is available in {cite:t}`singal2024`.
+If the user has limited or incomplete access to parameter inputs (a likely scenario, given the scarcity of puplished third-body efficiencies and master equation eigenvalues), this computational implementation allowes them much greater flexibility and power to make educated assumptions. Further description of the LMR-R theory and computational method is available in {cite:t}`singal2025`.
 
 ```{admonition} YAML Usage
 :class: tip
