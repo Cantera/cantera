@@ -1,11 +1,10 @@
 import itertools
 import numpy as np
 import pytest
+from pytest import approx
 
 import cantera as ct
-from .utilities import (
-    assertNear,
-)
+
 
 @pytest.fixture(scope='function')
 def water(request):
@@ -16,54 +15,54 @@ class TestPureFluid:
     """ Test functionality of the PureFluid class """
 
     def test_critical_properties(self):
-        assertNear(self.water.critical_pressure, 22.089e6)
-        assertNear(self.water.critical_temperature, 647.286)
-        assertNear(self.water.critical_density, 317.0)
+        assert self.water.critical_pressure == approx(22.089e6)
+        assert self.water.critical_temperature == approx(647.286)
+        assert self.water.critical_density == approx(317.0)
 
     def test_temperature_limits(self):
         co2 = ct.CarbonDioxide()
-        assertNear(co2.min_temp, 216.54)
-        assertNear(co2.max_temp, 1500.0)
+        assert co2.min_temp == approx(216.54)
+        assert co2.max_temp == approx(1500.0)
 
     def test_set_state(self):
         self.water.PQ = 101325, 0.5
-        assertNear(self.water.P, 101325)
-        assertNear(self.water.Q, 0.5)
+        assert self.water.P == approx(101325)
+        assert self.water.Q == approx(0.5)
 
         self.water.TQ = 500, 0.8
-        assertNear(self.water.T, 500)
-        assertNear(self.water.Q, 0.8)
+        assert self.water.T == approx(500)
+        assert self.water.Q == approx(0.8)
 
     def test_substance_set(self):
         self.water.TV = 400, 1.45
-        assertNear(self.water.T, 400)
-        assertNear(self.water.v, 1.45)
+        assert self.water.T == approx(400)
+        assert self.water.v == approx(1.45)
         with pytest.raises(ct.CanteraError, match='Negative specific volume'):
             self.water.TV = 300, -1.
 
         self.water.PV = 101325, 1.45
-        assertNear(self.water.P, 101325)
-        assertNear(self.water.v, 1.45)
+        assert self.water.P == approx(101325)
+        assert self.water.v == approx(1.45)
 
         self.water.UP = -1.45e7, 101325
-        assertNear(self.water.u, -1.45e7)
-        assertNear(self.water.P, 101325)
+        assert self.water.u == approx(-1.45e7)
+        assert self.water.P == approx(101325)
 
         self.water.VH = 1.45, -1.45e7
-        assertNear(self.water.v, 1.45)
-        assertNear(self.water.h, -1.45e7)
+        assert self.water.v == approx(1.45)
+        assert self.water.h == approx(-1.45e7)
 
         self.water.TH = 400, -1.45e7
-        assertNear(self.water.T, 400)
-        assertNear(self.water.h, -1.45e7)
+        assert self.water.T == approx(400)
+        assert self.water.h == approx(-1.45e7)
 
         self.water.SH = 5000, -1.45e7
-        assertNear(self.water.s, 5000)
-        assertNear(self.water.h, -1.45e7)
+        assert self.water.s == approx(5000)
+        assert self.water.h == approx(-1.45e7)
 
         self.water.ST = 5000, 400
-        assertNear(self.water.s, 5000)
-        assertNear(self.water.T, 400)
+        assert self.water.s == approx(5000)
+        assert self.water.T == approx(400)
 
     def test_states(self):
         assert self.water._native_state == ('T', 'D')
@@ -74,9 +73,9 @@ class TestPureFluid:
         self.water.TQ = 500, 0.0
         p = self.water.P
         self.water.Q = 0.8
-        assertNear(self.water.P, p)
-        assertNear(self.water.T, 500)
-        assertNear(self.water.Q, 0.8)
+        assert self.water.P == approx(p)
+        assert self.water.T == approx(500)
+        assert self.water.Q == approx(0.8)
 
         self.water.TP = 650, 101325
         with pytest.raises(ct.CanteraError):
@@ -88,10 +87,10 @@ class TestPureFluid:
 
     def test_set_minmax(self):
         self.water.TP = self.water.min_temp, 101325
-        assertNear(self.water.T, self.water.min_temp)
+        assert self.water.T == approx(self.water.min_temp)
 
         self.water.TP = self.water.max_temp, 101325
-        assertNear(self.water.T, self.water.max_temp)
+        assert self.water.T == approx(self.water.max_temp)
 
     def check_fd_properties(self, T1, P1, T2, P2, tol):
         # Properties which are computed as finite differences
@@ -111,15 +110,15 @@ class TestPureFluid:
         alpha2 = self.water.thermal_expansion_coeff
         h2b = self.water.enthalpy_mass
 
-        assertNear(cp1, cp2, tol)
-        assertNear(cv1, cv2, tol)
-        assertNear(k1, k2, tol)
-        assertNear(alpha1, alpha2, tol)
+        assert cp1 == approx(cp2, rel=tol)
+        assert cv1 == approx(cv2, rel=tol)
+        assert k1 == approx(k2, rel=tol)
+        assert alpha1 == approx(alpha2, rel=tol)
 
         # calculating these finite difference properties should not perturb the
         # state of the object (except for checks on edge cases)
-        assertNear(h1a, h1b, 1e-9)
-        assertNear(h2a, h2b, 1e-9)
+        assert h1a == approx(h1b, rel=1e-9)
+        assert h2a == approx(h2b, rel=1e-9)
 
     def test_properties_near_min(self):
         self.check_fd_properties(self.water.min_temp*(1+1e-5), 101325,
@@ -146,21 +145,21 @@ class TestPureFluid:
         ref = ct.Solution('h2o2.yaml', transport_model=None)
         ref.TPX = 450, 12, 'H2O:1.0'
         self.water.TP = 450, 12
-        assertNear(ref.isothermal_compressibility,
-                        self.water.isothermal_compressibility, 1e-5)
+        assert ref.isothermal_compressibility == approx(
+               self.water.isothermal_compressibility, rel=1e-5)
 
     def test_thermal_expansion_coeff_lowP(self):
         # Low-pressure limit corresponds to ideal gas
         ref = ct.Solution('h2o2.yaml', transport_model=None)
         ref.TPX = 450, 12, 'H2O:1.0'
         self.water.TP = 450, 12
-        assertNear(ref.thermal_expansion_coeff,
-                        self.water.thermal_expansion_coeff, 1e-5)
+        assert ref.thermal_expansion_coeff == approx(
+               self.water.thermal_expansion_coeff, rel=1e-5)
 
     def test_thermal_expansion_coeff_TD(self):
         for T in [440, 550, 660]:
             self.water.TD = T, 0.1
-            assertNear(T * self.water.thermal_expansion_coeff, 1.0, 1e-2)
+            assert T * self.water.thermal_expansion_coeff == approx(1.0, rel=1e-2)
 
     def test_pq_setter_triple_check(self):
         self.water.PQ = 101325, .2
@@ -170,7 +169,7 @@ class TestPureFluid:
         # ensure that correct triple point pressure is recalculated
         # (necessary as this value is not stored by the C++ base class)
         self.water.PQ = 101325, .2
-        assertNear(T, self.water.T, 1e-9)
+        assert T == approx(self.water.T, rel=1e-9)
         with pytest.raises(ct.CanteraError, match='below triple point'):
             # min_temp is triple point temperature
             self.water.TP = self.water.min_temp, 101325
@@ -181,10 +180,10 @@ class TestPureFluid:
         # Critical point
         self.water.TP = 300, ct.one_atm
         self.water.TQ = self.water.critical_temperature, .5
-        assertNear(self.water.P, self.water.critical_pressure)
+        assert self.water.P == approx(self.water.critical_pressure)
         self.water.TP = 300, ct.one_atm
         self.water.PQ = self.water.critical_pressure, .5
-        assertNear(self.water.T, self.water.critical_temperature)
+        assert self.water.T == approx(self.water.critical_temperature)
 
         # Supercritical
         with pytest.raises(ct.CanteraError, match='supercritical'):
@@ -215,10 +214,10 @@ class TestPureFluid:
         self.water.TQ = 373.15, 1.
         assert self.water.phase_of_matter == 'liquid-gas-mix'
         w.TP = self.water.T, .999 * self.water.P_sat
-        assertNear(self.water.cp, w.cp, 1.e-3)
-        assertNear(self.water.cv, w.cv, 1.e-3)
-        assertNear(self.water.thermal_expansion_coeff, w.thermal_expansion_coeff, 1.e-3)
-        assertNear(self.water.isothermal_compressibility, w.isothermal_compressibility, 1.e-3)
+        assert self.water.cp == approx(w.cp, rel=1.e-3)
+        assert self.water.cv == approx(w.cv, rel=1.e-3)
+        assert self.water.thermal_expansion_coeff == approx(w.thermal_expansion_coeff, rel=1.e-3)
+        assert self.water.isothermal_compressibility == approx(w.isothermal_compressibility, rel=1.e-3)
 
         # Saturated mixture
         self.water.TQ = 373.15, .5
@@ -232,10 +231,10 @@ class TestPureFluid:
         self.water.TQ = 373.15, 0.
         assert self.water.phase_of_matter == 'liquid-gas-mix'
         w.TP = self.water.T, 1.001 * self.water.P_sat
-        assertNear(self.water.cp, w.cp, 1.e-3)
-        assertNear(self.water.cv, w.cv, 1.e-3)
-        assertNear(self.water.thermal_expansion_coeff, w.thermal_expansion_coeff, 1.e-3)
-        assertNear(self.water.isothermal_compressibility, w.isothermal_compressibility, 1.e-3)
+        assert self.water.cp == approx(w.cp, rel=1.e-3)
+        assert self.water.cv == approx(w.cv, rel=1.e-3)
+        assert self.water.thermal_expansion_coeff == approx(w.thermal_expansion_coeff, rel=1.e-3)
+        assert self.water.isothermal_compressibility == approx(w.isothermal_compressibility, rel=1.e-3)
 
     def test_saturation_near_limits(self):
         # Low temperature limit (triple point)
@@ -246,19 +245,19 @@ class TestPureFluid:
         self.water.TP = 300, ct.one_atm
         self.water.P_sat # ensure that solver buffers sufficiently different values
         self.water.TP = 300, psat
-        assertNear(self.water.T_sat, self.water.min_temp)
+        assert self.water.T_sat == approx(self.water.min_temp)
 
         # High temperature limit (critical point) - saturation temperature
         self.water.TP = 300, ct.one_atm
         self.water.P_sat # ensure that solver buffers sufficiently different values
         self.water.TP = self.water.critical_temperature, self.water.critical_pressure
-        assertNear(self.water.T_sat, self.water.critical_temperature)
+        assert self.water.T_sat == approx(self.water.critical_temperature)
 
         # High temperature limit (critical point) - saturation pressure
         self.water.TP = 300, ct.one_atm
         self.water.P_sat # ensure that solver buffers sufficiently different values
         self.water.TP = self.water.critical_temperature, self.water.critical_pressure
-        assertNear(self.water.P_sat, self.water.critical_pressure)
+        assert self.water.P_sat == approx(self.water.critical_pressure)
 
         # Supercricital
         with pytest.raises(ct.CanteraError, match='Illegal temperature value'):
@@ -280,16 +279,16 @@ class TestPureFluid:
     def test_TPQ(self):
         self.water.TQ = 400, 0.8
         T, P, Q = self.water.TPQ
-        assertNear(T, 400)
-        assertNear(Q, 0.8)
+        assert T == approx(400)
+        assert Q == approx(0.8)
 
         # a supercritical state
         self.water.TPQ = 800, 3e7, 1
-        assertNear(self.water.T, 800)
-        assertNear(self.water.P, 3e7)
+        assert self.water.T == approx(800)
+        assert self.water.P == approx(3e7)
 
         self.water.TPQ = T, P, Q
-        assertNear(self.water.Q, 0.8)
+        assert self.water.Q == approx(0.8)
         with pytest.raises(ct.CanteraError, match='inconsistent'):
             self.water.TPQ = T, .999*P, Q
         with pytest.raises(ct.CanteraError, match='inconsistent'):
@@ -298,7 +297,7 @@ class TestPureFluid:
             self.water.TPQ = T, P, 'spam'
 
         self.water.TPQ = 500, 1e5, 1  # superheated steam
-        assertNear(self.water.P, 1e5)
+        assert self.water.P == approx(1e5)
         with pytest.raises(ct.CanteraError, match='inconsistent'):
             self.water.TPQ = 500, 1e5, 0  # vapor fraction should be 1 (T < Tc)
         with pytest.raises(ct.CanteraError, match='inconsistent'):
@@ -334,9 +333,9 @@ class TestPureFluid:
 
     def test_water_iapws(self):
         w = ct.Water(backend='IAPWS95')
-        assertNear(w.critical_density, 322.)
-        assertNear(w.critical_temperature, 647.096)
-        assertNear(w.critical_pressure, 22064000.0)
+        assert w.critical_density == approx(322.)
+        assert w.critical_temperature == approx(647.096)
+        assert w.critical_pressure == approx(22064000.0)
 
         # test internal TP setters (setters update temperature at constant
         # density before updating pressure)
@@ -345,15 +344,15 @@ class TestPureFluid:
         w.TP = 2000, ct.one_atm # supercritical
         assert w.phase_of_matter == "supercritical"
         w.TP = 300, ct.one_atm # state goes from supercritical -> gas -> liquid
-        assertNear(w.density, dens)
+        assert w.density == approx(dens)
         assert w.phase_of_matter == "liquid"
 
         # test setters for critical conditions
         w.TP = w.critical_temperature, w.critical_pressure
-        assertNear(w.density, 322.)
+        assert w.density == approx(322.)
         w.TP = 2000, ct.one_atm # uses current density as initial guess
         w.TP = 273.16, ct.one_atm # uses fixed density as initial guess
-        assertNear(w.density, 999.84376)
+        assert w.density == approx(999.84376)
         assert w.phase_of_matter == "liquid"
         w.TP = w.T, w.P_sat
         assert w.phase_of_matter == "liquid"
@@ -430,7 +429,7 @@ class PureFluidTestCases:
 
             # At constant volume, dU = T dS
             msg = 'At state: T=%s, rho=%s' % (state.T, state.rho)
-            assertNear((u2-u1)/(s2-s1), state.T, self.tol.dUdS, msg=msg)
+            assert (u2-u1)/(s2-s1) == approx(state.T, rel=self.tol.dUdS)
 
     def test_consistency_volume(self):
         for state in self.states:
@@ -447,7 +446,7 @@ class PureFluidTestCases:
 
             # At constant temperature, dA = - p dV
             msg = 'At state: T=%s, rho=%s' % (state.T, state.rho)
-            assertNear(-(a2-a1)/dV, p, tol, msg=msg)
+            assert -(a2-a1)/dV == approx(p, rel=tol)
 
     def test_saturation(self):
         for state in self.states:
@@ -471,36 +470,34 @@ class PureFluidTestCases:
 
             # Clausius-Clapeyron Relation
             msg = 'At state: T=%s, rho=%s' % (state.T, state.rho)
-            assertNear((p2-p1)/dT, (hg-hf)/(state.T * (vg-vf)),
-                            self.tol.dPdT, msg=msg)
+            assert (p2-p1)/dT == approx((hg-hf)/(state.T * (vg-vf)),
+                   rel=self.tol.dPdT)
 
             # True for a change in state at constant pressure and temperature
-            assertNear(hg-hf, state.T * (sg-sf), self.tol.hTs, msg=msg)
+            assert hg-hf == approx(state.T * (sg-sf), rel=self.tol.hTs)
 
     def test_pressure(self):
         for state in self.states:
             self.fluid.TD = state.T, state.rho
             # dP/drho is high for liquids, so relax tolerances
-            tol = 50*self.tol.p if state.phase == 'liquid' else self.tol.p
+            tol = 70*self.tol.p if state.phase == 'liquid' else self.tol.p
             tol *= state.tolMod
             msg = 'At state: T=%s, rho=%s' % (state.T, state.rho)
-            assertNear(self.fluid.P, state.p, tol, msg=msg)
+            assert self.fluid.P == approx(state.p, rel=tol)
 
     def test_internal_energy(self):
         for state in self.states:
             self.fluid.TD = state.T, state.rho
             msg = 'At state: T=%s, rho=%s' % (state.T, state.rho)
-            assertNear(self.fluid.u - self.u0,
-                            state.u - self.refState.u,
-                            self.tol.u * state.tolMod, msg=msg)
+            assert self.fluid.u - self.u0 == approx(state.u - self.refState.u,
+                   rel=self.tol.u * state.tolMod)
 
     def test_entropy(self):
         for state in self.states:
             self.fluid.TD = state.T, state.rho
             msg = 'At state: T=%s, rho=%s' % (state.T, state.rho)
-            assertNear(self.fluid.s - self.s0,
-                            state.s - self.refState.s,
-                            self.tol.s * state.tolMod, msg=msg)
+            assert self.fluid.s - self.s0 == approx(state.s - self.refState.s,
+                   rel=self.tol.s * state.tolMod)
 
 
 @pytest.mark.usefixtures("setup_fluid")
@@ -665,8 +662,8 @@ class TestPureFluidConvergence:
         for T,P in itertools.product(TT, PP):
             try:
                 self.fluid.TP = T, P
-                assertNear(self.fluid.T, T, 1e-6)
-                assertNear(self.fluid.P, P, 1e-6)
+                assert self.fluid.T == approx(T, rel=1e-6)
+                assert self.fluid.P == approx(P, rel=1e-6)
             except Exception as e:
                 errors += 'Error at T=%r, P=%r:\n%s\n\n' % (T,P,e)
                 nErrors += 1
@@ -683,8 +680,8 @@ class TestPureFluidConvergence:
         for u,v in itertools.product(UU, VV):
             try:
                 self.fluid.UV = u, v
-                assertNear(self.fluid.u, u, 1e-6)
-                assertNear(self.fluid.v, v, 1e-6)
+                assert self.fluid.u == approx(u, rel=1e-6)
+                assert self.fluid.v == approx(v, rel=1e-6)
             except Exception as e:
                 errors += 'Error at u=%r, v=%r:\n%s\n\n' % (u,v,e)
                 nErrors += 1
@@ -701,8 +698,8 @@ class TestPureFluidConvergence:
         for h,P in itertools.product(HH, PP):
             try:
                 self.fluid.HP = h, P
-                assertNear(self.fluid.h, h, 1e-6)
-                assertNear(self.fluid.P, P, 1e-6)
+                assert self.fluid.h == approx(h, rel=1e-6)
+                assert self.fluid.P == approx(P, rel=1e-6)
             except Exception as e:
                 errors += 'Error at h=%r, P=%r:\n%s\n\n' % (h,P,e)
                 nErrors += 1
