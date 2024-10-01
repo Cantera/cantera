@@ -600,7 +600,7 @@ class TestFreeFlame:
         assert meta["generator"] == "Cantera Sim1D"
         assert meta["cantera-version"] == "2.6.0"
         assert self.sim.inlet.T == 300
-        assert self.sim.P == pytest.approx(ct.one_atm)
+        assert self.sim.P == approx(ct.one_atm)
         assert len(self.sim.grid) == 9
 
     def test_fixed_restore_yaml(self):
@@ -851,13 +851,13 @@ class TestFreeFlame:
         self.check_save_restore(f)
 
     def check_save_restore(self, f, tol_T=None, tol_X=None):
-        # pytest.approx is used as equality for floats cannot be guaranteed for loaded
+        # approx is used as equality for floats cannot be guaranteed for loaded
         # HDF5 files if they were created on a different OS and/or architecture
-        assert list(f.grid) == pytest.approx(list(self.sim.grid))
-        assert list(f.T) == pytest.approx(list(self.sim.T), rel=tol_T)
+        assert list(f.grid) == approx(list(self.sim.grid))
+        assert list(f.T) == approx(list(self.sim.T), rel=tol_T)
         k = self.gas.species_index('H2')
-        assert list(f.X[k, :]) == pytest.approx(list(self.sim.X[k, :]), rel=tol_X)
-        assert list(f.inlet.X) == pytest.approx(list(self.sim.inlet.X))
+        assert list(f.X[k, :]) == approx(list(self.sim.X[k, :]), rel=tol_X)
+        assert list(f.inlet.X) == approx(list(self.sim.inlet.X))
 
         def check_settings(one, two):
             for k, v in one.items():
@@ -865,11 +865,11 @@ class TestFreeFlame:
                 if isinstance(v, dict):
                     for kk, vv in v.items():
                         if isinstance(vv, float):
-                            assert two[k][kk] == pytest.approx(vv)
+                            assert two[k][kk] == approx(vv)
                         else:
                             assert two[k][kk] == vv
                 elif isinstance(v, float):
-                    assert two[k] == pytest.approx(v)
+                    assert two[k] == approx(v)
                 else:
                     assert two[k] == v
 
@@ -1730,12 +1730,12 @@ class TestStagnationFlame:
         return filename, "test"
 
     def check_save_restore(self, jet):
-        # pytest.approx is used as equality for floats cannot be guaranteed for loaded
+        # approx is used as equality for floats cannot be guaranteed for loaded
         # HDF5 files if they were created on a different OS and/or architecture
-        assert list(jet.grid) == pytest.approx(list(self.sim.grid))
-        assert list(jet.T) == pytest.approx(list(self.sim.T), 1e-3)
+        assert list(jet.grid) == approx(list(self.sim.grid))
+        assert list(jet.T) == approx(list(self.sim.T), 1e-3)
         k = self.sim.gas.species_index('H2')
-        assert list(jet.X[k, :]) == pytest.approx(list(self.sim.X[k, :]), 1e-4)
+        assert list(jet.X[k, :]) == approx(list(self.sim.X[k, :]), 1e-4)
 
         settings = self.sim.flame.settings
         for k, v in jet.flame.settings.items():
@@ -1746,11 +1746,11 @@ class TestStagnationFlame:
             if isinstance(v, dict):
                 for kk, vv in v.items():
                     if isinstance(vv, float):
-                        assert settings[k][kk] == pytest.approx(vv)
+                        assert settings[k][kk] == approx(vv)
                     else:
                         assert settings[k][kk] == vv
             if isinstance(k, float):
-                assert settings[k] == pytest.approx(v)
+                assert settings[k] == approx(v)
             else:
                 assert settings[k] == v
 
@@ -1845,12 +1845,12 @@ class TestImpingingJet:
         return filename, "test"
 
     def check_save_restore(self, jet, tol_T=None, tol_X=None):
-        # pytest.approx is used as equality for floats cannot be guaranteed for loaded
+        # approx is used as equality for floats cannot be guaranteed for loaded
         # HDF5 files if they were created on a different OS and/or architecture
-        assert list(jet.grid) == pytest.approx(list(self.sim.grid))
-        assert list(jet.T) == pytest.approx(list(self.sim.T), tol_T)
+        assert list(jet.grid) == approx(list(self.sim.grid))
+        assert list(jet.T) == approx(list(self.sim.T), tol_T)
         k = self.sim.gas.species_index('H2')
-        assert list(jet.X[k, :]) == pytest.approx(list(self.sim.X[k, :]), tol_X)
+        assert list(jet.X[k, :]) == approx(list(self.sim.X[k, :]), tol_X)
 
         settings = self.sim.flame.settings
         for k, v in jet.flame.settings.items():
@@ -1861,18 +1861,18 @@ class TestImpingingJet:
             if isinstance(v, dict):
                 for kk, vv in v.items():
                     if isinstance(vv, float):
-                        assert settings[k][kk] == pytest.approx(vv)
+                        assert settings[k][kk] == approx(vv)
                     else:
                         assert settings[k][kk] == vv
             if isinstance(k, float):
-                assert settings[k] == pytest.approx(v)
+                assert settings[k] == approx(v)
             else:
                 assert settings[k] == v
 
-        assert list(jet.surface.surface.X) == pytest.approx(list(self.sim.surface.surface.X))
+        assert list(jet.surface.surface.X) == approx(list(self.sim.surface.surface.X))
         for i in range(self.sim.surface.n_components):
             assert self.sim.value("surface", i, 0) == \
-                pytest.approx(jet.value("surface", i, 0), tol_X)
+                approx(jet.value("surface", i, 0), tol_X)
 
         jet.solve(loglevel=0)
 

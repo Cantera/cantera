@@ -97,7 +97,7 @@ class TestFunc1:
             assert func.type == name
             for val in [.1, 1., 10.]:
                 assert name in func.write()
-                assert func(val) == pytest.approx(fcn(coeff * val))
+                assert func(val) == approx(fcn(coeff * val))
 
     def test_deprecated(self):
         with pytest.warns(DeprecationWarning, match="use alternative constructor"):
@@ -117,14 +117,14 @@ class TestFunc1:
             assert func.type == name
             for val in [.1, 1., 10.]:
                 assert name not in func.write()
-                assert func(val) == pytest.approx(fcn(f1(val), f2(val)))
+                assert func(val) == approx(fcn(f1(val), f2(val)))
         f0 = 3.1415
         fcn = lambda x, y: x + y
         func1 = ct.Func1('sum', f0, f1)
         func2 = ct.Func1('sum', f2, f0)
         for val in [.1, 1., 10.]:
-            assert func1(val) == pytest.approx(fcn(f0, f1(val)))
-            assert func2(val) == pytest.approx(fcn(f2(val), f0))
+            assert func1(val) == approx(fcn(f0, f1(val)))
+            assert func2(val) == approx(fcn(f2(val), f0))
         with pytest.raises(ValueError):
             ct.Func1('sum', f0, f0)
         with pytest.raises(ValueError):
@@ -201,7 +201,7 @@ class TestFunc1:
             assert func.type == name
             for val in [.1, 1., 10.]:
                 assert name not in func.write()
-                assert func(val) == pytest.approx(fcn(f1(val), constant))
+                assert func(val) == approx(fcn(f1(val), constant))
 
     def test_tabulated1(self):
         # this implicitly probes advanced functors
@@ -213,8 +213,8 @@ class TestFunc1:
         assert fcn0.type == "tabulated-linear"
         assert fcn1.type == "tabulated-linear"
         for t, f in zip(time, fval):
-            assert fcn0(t) == pytest.approx(f)
-            assert fcn1(t) == pytest.approx(f)
+            assert fcn0(t) == approx(f)
+            assert fcn1(t) == approx(f)
 
     def test_tabulated2(self):
         time = [0, 1, 2]

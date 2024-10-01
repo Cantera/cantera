@@ -295,7 +295,7 @@ class TestAnyMap:
     def test_units_activation_energy(self):
         assert self.data['group1'].convert_activation_energy('a', 'J/kmol') == 5e6
         assert (self.data['group1'].convert_activation_energy('c', 'J/kmol')
-                == pytest.approx(8000 * ct.gas_constant))
+                == approx(8000 * ct.gas_constant))
 
     def test_units_nested(self):
         assert self.data['group2'].convert('x', 'J/kg') == 1300 * 1e6
@@ -308,17 +308,17 @@ class TestAnyMap:
 
         converted = _py_to_anymap_to_py(params)
         assert converted['spam'] == [2e6, 3e6, 4e6]
-        assert converted['eggs'] == pytest.approx(10)
-        assert converted['beans'] == pytest.approx(5 * ct.gas_constant)
+        assert converted['eggs'] == approx(10)
+        assert converted['beans'] == approx(5 * ct.gas_constant)
 
         # Unit conversions are deferred
         outer = ct.AnyMap()
         outer['units'] = {'mass': 'g', 'activation-energy': 'K'}
         outer['inner'] = params
         converted = _py_to_anymap_to_py(outer)
-        assert converted['inner']['spam'] == pytest.approx([2e9, 3e9, 4e9])
-        assert converted['inner']['eggs'] == pytest.approx(10e3)
-        assert converted['inner']['beans'] == pytest.approx(5)
+        assert converted['inner']['spam'] == approx([2e9, 3e9, 4e9])
+        assert converted['inner']['eggs'] == approx(10e3)
+        assert converted['inner']['beans'] == approx(5)
 
         outer.set_quantity('cheese', {'gouda': 5.5}, 'J/kg')
         with pytest.raises(ct.CanteraError):

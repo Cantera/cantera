@@ -411,7 +411,7 @@ class RateExpressionTests:
         drate += self.gas.net_production_rates_ddC * dcdt
         drate_num = self.rate_ddT(mode="net", const_p=True)
         for spc_ix in self.rix + self.pix:
-            assert drate[spc_ix] == pytest.approx(drate_num[spc_ix], rel=self.rtol)
+            assert drate[spc_ix] == approx(drate_num[spc_ix], rel=self.rtol)
 
         # constant density (volume) - need to account for pressure change
         # numeric: d(omegadot)/dT =
@@ -421,7 +421,7 @@ class RateExpressionTests:
         drate += self.gas.net_production_rates_ddP * dpdt
         drate_num = self.rate_ddT(mode="creation") - self.rate_ddT(mode="destruction")
         for spc_ix in self.rix + self.pix:
-            assert drate[spc_ix] == pytest.approx(drate_num[spc_ix], rel=self.rtol)
+            assert drate[spc_ix] == approx(drate_num[spc_ix], rel=self.rtol)
 
     def rate_ddX(self, spc_ix, mode=None, const_t=True, rtol_deltac=1e-6,
                  atol_deltac=1e-20, ddX=True):
