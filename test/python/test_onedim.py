@@ -6,7 +6,6 @@ import cantera as ct
 
 from .utilities import yaml
 from .utilities import (
-    assertNear,
     assertArrayNear,
     compareProfiles
 )
@@ -56,7 +55,7 @@ class TestOnedim:
         assertArrayNear(inlet.Y, Yref)
 
         inlet.X = {'H2':0.3, 'O2':0.5, 'AR':0.2}
-        assertNear(inlet.X[gas2.species_index('H2')], 0.3)
+        assert inlet.X[gas2.species_index('H2')] == approx(0.3)
 
     def test_grid_check(self):
         gas = ct.Solution("h2o2.yaml")
@@ -239,8 +238,8 @@ class TestFreeFlame:
         tfixed = 900.
         self.sim.fixed_temperature = tfixed
         zfixed = np.interp(tfixed, tvec, zvec)
-        assertNear(self.sim.fixed_temperature, tfixed)
-        assertNear(self.sim.fixed_temperature_location, zfixed)
+        assert self.sim.fixed_temperature == approx(tfixed)
+        assert self.sim.fixed_temperature_location == approx(zfixed)
 
     @pytest.mark.slow_test
     def test_auto_width(self):
@@ -254,14 +253,14 @@ class TestFreeFlame:
         self.gas.TPX = Tin, p, reactants
         self.gas.equilibrate('HP')
         Tad = self.gas.T
-        assertNear(Tad, self.sim.T[-1], 2e-2)
+        assert Tad == approx(self.sim.T[-1], rel=2e-2)
 
         # Re-solving with auto=False should not trigger a DomainTooNarrow
         # exception, and should leave domain width constant
         self.sim.flame.grid *= 0.3
         old_width = self.sim.grid[-1]
         self.sim.solve(loglevel=0, refine_grid=True, auto=False)
-        assertNear(self.sim.grid[-1], old_width)
+        assert self.sim.grid[-1] == approx(old_width)
 
     def test_auto_width2(self):
         self.create_sim(p=ct.one_atm, Tin=400, reactants='H2:0.8, O2:0.5',
@@ -271,7 +270,7 @@ class TestFreeFlame:
         self.sim.flame.set_steady_tolerances(T=(2e-4, 1e-8))
         self.sim.solve(refine_grid=True, auto=True, loglevel=0)
 
-        assertNear(self.sim.velocity[0], 17.02, 1e-1)
+        assert self.sim.velocity[0] == approx(17.02, rel=1e-1)
         assert self.sim.grid[-1] < 2.0 # grid should not be too wide
         assert self.sim.flame.tolerances("T") == (2e-4, 1e-8)
 
@@ -320,7 +319,7 @@ class TestFreeFlame:
 
         # Check continuity
         for rhou_j in self.sim.density * self.sim.velocity:
-            assertNear(rhou_j, rhou, 1e-4)
+            assert rhou_j == approx(rhou, rel=1e-4)
 
     def test_solution_array_output(self):
         self.run_mix(phi=1.0, T=300, width=2.0, p=1.0, refine=False)
@@ -336,8 +335,8 @@ class TestFreeFlame:
 
         inlet = self.sim.to_array(self.sim.inlet)
         f2.from_array(inlet, f2.inlet)
-        assertNear(self.sim.inlet.T, f2.inlet.T)
-        assertNear(self.sim.inlet.mdot, f2.inlet.mdot)
+        assert self.sim.inlet.T == approx(f2.inlet.T)
+        assert self.sim.inlet.mdot == approx(f2.inlet.mdot)
         assertArrayNear(self.sim.inlet.Y, f2.inlet.Y)
 
     def test_restart_array(self):
@@ -381,7 +380,7 @@ class TestFreeFlame:
         # Check continuity
         rhou = self.sim.inlet.mdot
         for rhou_j in self.sim.density * self.sim.velocity:
-            assertNear(rhou_j, rhou, 1e-4)
+            assert rhou_j == approx(rhou, rel=1e-4)
         return data, group
 
     def test_settings(self):
@@ -476,7 +475,7 @@ class TestFreeFlame:
             self.sim.solve(loglevel=0, refine_grid=False)
             Suminus = self.sim.velocity[0]
             fwd = (Suplus-Suminus)/(2*Su0*dk)
-            assertNear(fwd, dSdk_adj[m], rtol=5e-3, atol=1e-7)
+            assert fwd == approx(dSdk_adj[m], rel=5e-3, abs=1e-7)
 
     # @utilities.unittest.skip('sometimes slow')
     def test_multicomponent(self):
@@ -495,7 +494,7 @@ class TestFreeFlame:
         Su_multi = self.sim.velocity[0]
         assert not self.sim.soret_enabled
 
-        assertNear(Su_mix, Su_multi, 5e-2)
+        assert Su_mix == approx(Su_multi, rel=5e-2)
         assert Su_mix != Su_multi
 
         # Flame speed with Soret effect should be similar but not identical to
@@ -505,7 +504,7 @@ class TestFreeFlame:
         assert self.sim.soret_enabled
         Su_soret = self.sim.velocity[0]
 
-        assertNear(Su_multi, Su_soret, 2e-1)
+        assert Su_multi == approx(Su_soret, rel=2e-1)
         assert Su_multi != Su_soret
 
     def test_unity_lewis(self):
@@ -601,7 +600,7 @@ class TestFreeFlame:
         assert meta["generator"] == "Cantera Sim1D"
         assert meta["cantera-version"] == "2.6.0"
         assert self.sim.inlet.T == 300
-        assert self.sim.P == pytest.approx(ct.one_atm)
+        assert self.sim.P == approx(ct.one_atm)
         assert len(self.sim.grid) == 9
 
     def test_fixed_restore_yaml(self):
@@ -648,14 +647,14 @@ class TestFreeFlame:
         # Sim is initially in "steady-state" mode, so this returns the
         # steady-state tolerances
         rtol, atol = self.sim.flame.tolerances("T")
-        assertNear(rtol, T_rtol)
-        assertNear(atol, T_atol)
+        assert rtol == approx(T_rtol)
+        assert atol == approx(T_atol)
         assert not self.sim.energy_enabled
 
         P2a = self.sim.P
 
-        assertNear(p, P1)
-        assertNear(P1, P2a)
+        assert p == approx(P1)
+        assert P1 == approx(P2a)
 
         Y2 = self.sim.Y
         u2 = self.sim.velocity
@@ -852,13 +851,13 @@ class TestFreeFlame:
         self.check_save_restore(f)
 
     def check_save_restore(self, f, tol_T=None, tol_X=None):
-        # pytest.approx is used as equality for floats cannot be guaranteed for loaded
+        # approx is used as equality for floats cannot be guaranteed for loaded
         # HDF5 files if they were created on a different OS and/or architecture
-        assert list(f.grid) == pytest.approx(list(self.sim.grid))
-        assert list(f.T) == pytest.approx(list(self.sim.T), rel=tol_T)
+        assert list(f.grid) == approx(list(self.sim.grid))
+        assert list(f.T) == approx(list(self.sim.T), rel=tol_T)
         k = self.gas.species_index('H2')
-        assert list(f.X[k, :]) == pytest.approx(list(self.sim.X[k, :]), rel=tol_X)
-        assert list(f.inlet.X) == pytest.approx(list(self.sim.inlet.X))
+        assert list(f.X[k, :]) == approx(list(self.sim.X[k, :]), rel=tol_X)
+        assert list(f.inlet.X) == approx(list(self.sim.inlet.X))
 
         def check_settings(one, two):
             for k, v in one.items():
@@ -866,11 +865,11 @@ class TestFreeFlame:
                 if isinstance(v, dict):
                     for kk, vv in v.items():
                         if isinstance(vv, float):
-                            assert two[k][kk] == pytest.approx(vv)
+                            assert two[k][kk] == approx(vv)
                         else:
                             assert two[k][kk] == vv
                 elif isinstance(v, float):
-                    assert two[k] == pytest.approx(v)
+                    assert two[k] == approx(v)
                 else:
                     assert two[k] == v
 
@@ -910,7 +909,7 @@ class TestFreeFlame:
         self.sim.set_initial_guess()
 
         self.solve_fixed_T()
-        assertNear(self.sim.velocity[-1], ub, 1e-2)
+        assert self.sim.velocity[-1] == approx(ub, rel=1e-2)
 
     def test_exceed_max_grid_points(self):
         self.create_sim(ct.one_atm, 400.0, 'H2:1.1, O2:1, AR:5')
@@ -1089,9 +1088,9 @@ class TestDiffusionFlame:
 
         # Check inlet
         mdot = self.sim.density * self.sim.velocity
-        assertNear(mdot[0], self.sim.fuel_inlet.mdot, 1e-4)
-        assertNear(self.sim.T[0], self.sim.fuel_inlet.T, 1e-4)
-        assertNear(mdot[-1], -self.sim.oxidizer_inlet.mdot, 1e-4)
+        assert mdot[0] == approx(self.sim.fuel_inlet.mdot, rel=1e-4)
+        assert self.sim.T[0] == approx(self.sim.fuel_inlet.T, rel=1e-4)
+        assert mdot[-1] == approx(-self.sim.oxidizer_inlet.mdot, rel=1e-4)
 
     def test_mixture_averaged_rad(self, saveReference=False):
         referenceFile = "DiffusionFlameTest-h2-mix-rad.csv"
@@ -1167,13 +1166,13 @@ class TestDiffusionFlame:
         self.create_sim(p=ct.one_atm)
         self.sim.set_initial_guess()
         Z = self.sim.mixture_fraction('H')
-        assertNear(Z[0], 1.0)
-        assertNear(Z[-1], 0.0)
+        assert Z[0] == approx(1.0)
+        assert Z[-1] == approx(0.0)
         assert all(Z >= 0)
         assert all(Z <= 1.0)
         Z = self.sim.mixture_fraction('Bilger')
-        assertNear(Z[0], 1.0)
-        assertNear(Z[-1], 0.0)
+        assert Z[0] == approx(1.0)
+        assert Z[-1] == approx(0.0)
         assert all(Z >= 0)
         assert all(Z <= 1.0)
 
@@ -1466,8 +1465,8 @@ class TestCounterflowPremixedFlame:
 
         # Check inlet / outlet
         mdot = sim.density * sim.velocity
-        assertNear(mdot[0], sim.reactants.mdot, 1e-4)
-        assertNear(mdot[-1], -sim.products.mdot, 1e-4)
+        assert mdot[0] == approx(sim.reactants.mdot, rel=1e-4)
+        assert mdot[-1] == approx(-sim.products.mdot, rel=1e-4)
 
     def test_bad_boundary_conditions(self):
         gas = ct.Solution("h2o2.yaml")
@@ -1584,8 +1583,8 @@ class TestCounterflowPremixedFlameNonIdeal:
 
         # Check inlet / outlet
         mdot = sim.density * sim.velocity
-        assertNear(mdot[0], sim.reactants.mdot, 1e-4)
-        assertNear(mdot[-1], -sim.products.mdot, 1e-4)
+        assert mdot[0] == approx(sim.reactants.mdot, rel=1e-4)
+        assert mdot[-1] == approx(-sim.products.mdot, rel=1e-4)
 
 
 class TestBurnerFlame:
@@ -1622,7 +1621,6 @@ class TestBurnerFlame:
             pytest.param(1.0, 400, 0.2, 0.01, marks=pytest.mark.slow_test, id="case5"),
         ]
     )
-    @pytest.mark.slow_test
     def test_solve_cases(self, run_case, phi, T, width, P):
         """Parameterized test cases for different simulation setups"""
         run_case(phi, T, width, P)
@@ -1637,9 +1635,9 @@ class TestBurnerFlame:
 
         sim.energy_enabled = False
         sim.solve(loglevel=0, refine_grid=True)
-        assertNear(sim.T[0], 400)
-        assertNear(sim.T[-1], 500)
-        assertNear(max(sim.T), 1100)
+        assert sim.T[0] == approx(400)
+        assert sim.T[-1] == approx(500)
+        assert max(sim.T) == approx(1100)
 
     def test_blowoff(self):
         gas = ct.Solution("h2o2.yaml")
@@ -1650,8 +1648,8 @@ class TestBurnerFlame:
         sim.set_refine_criteria(ratio=3, slope=0.3, curve=0.5, prune=0)
         sim.solve(loglevel=0, auto=True)
         # nonreacting solution
-        assertNear(sim.T[-1], sim.T[0], 1e-6)
-        assertNear(sim.velocity[-1], sim.velocity[0], 1e-6)
+        assert sim.T[-1] == approx(sim.T[0], rel=1e-6)
+        assert sim.velocity[-1] == approx(sim.velocity[0], rel=1e-6)
         assertArrayNear(sim.Y[:,0], sim.Y[:,-1], 1e-6, atol=1e-6)
 
     def test_restart(self):
@@ -1671,7 +1669,7 @@ class TestBurnerFlame:
         # Check continuity
         rhou = sim.burner.mdot
         for rhou_j in sim.density * sim.velocity:
-            assertNear(rhou_j, rhou, 1e-4)
+            assert rhou_j == approx(rhou, rel=1e-4)
 
 @pytest.fixture(scope='function')
 def setup_stagnation_tests(request):
@@ -1732,12 +1730,12 @@ class TestStagnationFlame:
         return filename, "test"
 
     def check_save_restore(self, jet):
-        # pytest.approx is used as equality for floats cannot be guaranteed for loaded
+        # approx is used as equality for floats cannot be guaranteed for loaded
         # HDF5 files if they were created on a different OS and/or architecture
-        assert list(jet.grid) == pytest.approx(list(self.sim.grid))
-        assert list(jet.T) == pytest.approx(list(self.sim.T), 1e-3)
+        assert list(jet.grid) == approx(list(self.sim.grid))
+        assert list(jet.T) == approx(list(self.sim.T), 1e-3)
         k = self.sim.gas.species_index('H2')
-        assert list(jet.X[k, :]) == pytest.approx(list(self.sim.X[k, :]), 1e-4)
+        assert list(jet.X[k, :]) == approx(list(self.sim.X[k, :]), 1e-4)
 
         settings = self.sim.flame.settings
         for k, v in jet.flame.settings.items():
@@ -1748,11 +1746,11 @@ class TestStagnationFlame:
             if isinstance(v, dict):
                 for kk, vv in v.items():
                     if isinstance(vv, float):
-                        assert settings[k][kk] == pytest.approx(vv)
+                        assert settings[k][kk] == approx(vv)
                     else:
                         assert settings[k][kk] == vv
             if isinstance(k, float):
-                assert settings[k] == pytest.approx(v)
+                assert settings[k] == approx(v)
             else:
                 assert settings[k] == v
 
@@ -1847,12 +1845,12 @@ class TestImpingingJet:
         return filename, "test"
 
     def check_save_restore(self, jet, tol_T=None, tol_X=None):
-        # pytest.approx is used as equality for floats cannot be guaranteed for loaded
+        # approx is used as equality for floats cannot be guaranteed for loaded
         # HDF5 files if they were created on a different OS and/or architecture
-        assert list(jet.grid) == pytest.approx(list(self.sim.grid))
-        assert list(jet.T) == pytest.approx(list(self.sim.T), tol_T)
+        assert list(jet.grid) == approx(list(self.sim.grid))
+        assert list(jet.T) == approx(list(self.sim.T), tol_T)
         k = self.sim.gas.species_index('H2')
-        assert list(jet.X[k, :]) == pytest.approx(list(self.sim.X[k, :]), tol_X)
+        assert list(jet.X[k, :]) == approx(list(self.sim.X[k, :]), tol_X)
 
         settings = self.sim.flame.settings
         for k, v in jet.flame.settings.items():
@@ -1863,18 +1861,18 @@ class TestImpingingJet:
             if isinstance(v, dict):
                 for kk, vv in v.items():
                     if isinstance(vv, float):
-                        assert settings[k][kk] == pytest.approx(vv)
+                        assert settings[k][kk] == approx(vv)
                     else:
                         assert settings[k][kk] == vv
             if isinstance(k, float):
-                assert settings[k] == pytest.approx(v)
+                assert settings[k] == approx(v)
             else:
                 assert settings[k] == v
 
-        assert list(jet.surface.surface.X) == pytest.approx(list(self.sim.surface.surface.X))
+        assert list(jet.surface.surface.X) == approx(list(self.sim.surface.surface.X))
         for i in range(self.sim.surface.n_components):
             assert self.sim.value("surface", i, 0) == \
-                pytest.approx(jet.value("surface", i, 0), tol_X)
+                approx(jet.value("surface", i, 0), tol_X)
 
         jet.solve(loglevel=0)
 
@@ -1905,8 +1903,8 @@ class TestTwinFlame:
 
         # Check inlet
         mdot = sim.density * sim.velocity
-        assertNear(mdot[0], sim.reactants.mdot, 1e-4)
-        assertNear(sim.T[0], sim.reactants.T, 1e-4)
+        assert mdot[0] == approx(sim.reactants.mdot, rel=1e-4)
+        assert sim.T[0] == approx(sim.reactants.T, rel=1e-4)
 
     def test_save_restore_yaml(self):
         # save and restore using YAML format
@@ -1968,7 +1966,7 @@ class TestIonFreeFlame:
         self.sim.solve(loglevel=0, stage=2)
 
         # Regression test
-        assertNear(max(self.sim.E), 149.63179056676853, 1e-3)
+        assert max(self.sim.E) == approx(149.63179056676853, rel=1e-3)
 
 
 class TestIonBurnerFlame:
@@ -1989,5 +1987,5 @@ class TestIonBurnerFlame:
         self.sim.solve(loglevel=0, stage=2, auto=True)
 
         # Regression test
-        assertNear(max(self.sim.E), 591.76, 1e-2)
-        assertNear(max(self.sim.X[self.gas.species_index('E')]), 8.024e-9, 1e-2)
+        assert max(self.sim.E) == approx(591.76, rel=1e-2)
+        assert max(self.sim.X[self.gas.species_index('E')]) == approx(8.024e-9, rel=1e-2)
