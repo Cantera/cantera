@@ -8,7 +8,6 @@ import textwrap
 
 import cantera as ct
 from .utilities import (
-    assertNear,
     assertArrayNear
 )
 
@@ -219,7 +218,7 @@ class ReactionRateTests:
         assert self._cls.__name__ in f"{rate}"
         value = self.eval(rate)
         assert np.isfinite(value)
-        assertNear(value, self.soln.forward_rate_constants[self._index])
+        assert value == approx(self.soln.forward_rate_constants[self._index])
 
     def test_from_parts(self):
         # check constructors (from argument list)
@@ -276,7 +275,7 @@ class ReactionRateTests:
         drate += self.soln.forward_rate_constants_ddC * dcdt
         self.soln.TP = self.soln.T + deltaT, self.soln.P
         k1 = self.eval(rate)
-        assertNear((k1 - k0) / deltaT, drate[self._index], 1e-6)
+        assert (k1 - k0) / deltaT == approx(drate[self._index], rel=1e-6)
 
     def test_derivative_ddP(self):
         # check pressure derivative against numerical derivative
@@ -288,7 +287,7 @@ class ReactionRateTests:
         drate = self.soln.forward_rate_constants_ddP
         self.soln.TP = self.soln.T, self.soln.P + deltaP
         k1 = self.eval(rate)
-        assertNear((k1 - k0) / deltaP, drate[self._index], 1e-6)
+        assert (k1 - k0) / deltaP == approx(drate[self._index], rel=1e-6)
 
 @pytest.mark.usefixtures("setup_reaction_rate_tests")
 class TestArrheniusRate(ReactionRateTests):
@@ -305,7 +304,7 @@ class TestArrheniusRate(ReactionRateTests):
         rate = self.from_parts()
         assert self._parts["A"] == rate.pre_exponential_factor
         assert self._parts["b"] == rate.temperature_exponent
-        assertNear(self._parts["Ea"], rate.activation_energy)
+        assert self._parts["Ea"] == approx(rate.activation_energy)
         self.check_rate(rate)
 
     def test_negative_A(self):
@@ -333,16 +332,16 @@ class TestArrheniusRate(ReactionRateTests):
         b =  rate.temperature_exponent
         A = rate.pre_exponential_factor
         k0 = self.eval(rate)
-        assertNear(k0, A * T**b * np.exp(-Ea/R/T))
+        assert k0 == approx(A * T**b * np.exp(-Ea/R/T))
 
         scaled_ddT = (Ea / R / T + b) / T
 
         dkdT = self.soln.forward_rate_constants_ddT[self._index]
-        assertNear(dkdT, k0 * scaled_ddT) # exact
+        assert dkdT == approx(k0 * scaled_ddT) # exact
 
         dT = 1.e-6
         dkdT_numeric = (rate(T + dT) - rate(T)) / dT
-        assertNear(dkdT, dkdT_numeric, 1.e-6)
+        assert dkdT == approx(dkdT_numeric, rel=1.e-6)
 
 @pytest.mark.usefixtures("setup_reaction_rate_tests")
 class TestBlowersMaselRate(ReactionRateTests):
@@ -367,8 +366,8 @@ class TestBlowersMaselRate(ReactionRateTests):
         rate = self.from_parts()
         assert self._parts["A"] == rate.pre_exponential_factor
         assert self._parts["b"] == rate.temperature_exponent
-        assertNear(self._parts["Ea0"], rate.activation_energy)
-        assertNear(self._parts["w"], rate.bond_energy)
+        assert self._parts["Ea0"] == approx(rate.activation_energy)
+        assert self._parts["w"] == approx(rate.bond_energy)
         self.check_rate(rate)
 
     def test_negative_A(self):
@@ -431,7 +430,7 @@ class TestTwoTempPlasmaRate(ReactionRateTests):
         self.soln.TP = self.soln.T + deltaT, self.soln.P
         # Due to Te changes automatically with T, the initial value is used instead.
         k1 = rate(self.soln.T, self.soln.Te - deltaT)
-        assertNear((k1 - k0) / deltaT, drate[self._index], 1e-6)
+        assert (k1 - k0) / deltaT == approx(drate[self._index], rel=1e-6)
 
 
 class TestTwoTempPlasmaRateShort(TestTwoTempPlasmaRate):
@@ -487,7 +486,7 @@ class FalloffRateTests(ReactionRateTests):
         drate = self.soln.forward_rate_constants_ddT
         self.soln.TP = self.soln.T * (1 + pert), self.soln.P * (1 + pert)
         k1 = self.eval(rate)
-        assertNear((k1 - k0) / deltaT, drate[self._index], 1e-6)
+        assert (k1 - k0) / deltaT == approx(drate[self._index], rel=1e-6)
 
         # derivative at constant pressure
         self.soln.TP = TP
@@ -495,7 +494,7 @@ class FalloffRateTests(ReactionRateTests):
         drate += self.soln.forward_rate_constants_ddC * dcdt
         self.soln.TP = self.soln.T * (1 + pert), self.soln.P
         k1 = self.eval(rate)
-        assertNear((k1 - k0) / deltaT, drate[self._index], 1e-6)
+        assert (k1 - k0) / deltaT == approx(drate[self._index], rel=1e-6)
 
     def test_derivative_ddP(self):
         pert = self.soln.derivative_settings["rtol-delta"]
@@ -509,7 +508,7 @@ class FalloffRateTests(ReactionRateTests):
         drate += self.soln.forward_rate_constants_ddC * dcdp
         self.soln.TP = self.soln.T, self.soln.P + deltaP
         k1 = self.eval(rate)
-        assertNear((k1 - k0) / deltaP, drate[self._index], 1e-6)
+        assert (k1 - k0) / deltaP == approx(drate[self._index], rel=1e-6)
 
 @pytest.mark.usefixtures("setup_falloff_rate_tests")
 class TestLindemannRate(FalloffRateTests):
@@ -652,10 +651,10 @@ class TestPlogRate(ReactionRateTests):
         assert len(rates) == len(other)
         for index, item in enumerate(rates):
             P, rate = item
-            assertNear(P, other[index]["P"])
-            assertNear(rate.pre_exponential_factor, other[index]["A"])
-            assertNear(rate.temperature_exponent, other[index]["b"])
-            assertNear(rate.activation_energy, other[index]["Ea"])
+            assert P == approx(other[index]["P"])
+            assert rate.pre_exponential_factor == approx(other[index]["A"])
+            assert rate.temperature_exponent == approx(other[index]["b"])
+            assert rate.activation_energy == approx(other[index]["Ea"])
 
     def test_set_rates(self):
         # test setter for property rates
@@ -670,10 +669,10 @@ class TestPlogRate(ReactionRateTests):
 
         for index, item in enumerate(rates):
             P, rate = item
-            assertNear(P, other[index]["P"])
-            assertNear(rate.pre_exponential_factor, other[index]["A"])
-            assertNear(rate.temperature_exponent, other[index]["b"])
-            assertNear(rate.activation_energy, other[index]["Ea"])
+            assert P == approx(other[index]["P"])
+            assert rate.pre_exponential_factor == approx(other[index]["A"])
+            assert rate.temperature_exponent == approx(other[index]["b"])
+            assert rate.activation_energy == approx(other[index]["Ea"])
 
     def test_no_rates(self):
         # test instantiation of empty rate
@@ -785,9 +784,9 @@ class SurfaceReactionRateTests(ReactionRateTests):
         assert self._parts["A"] == rate.pre_exponential_factor
         assert self._parts["b"] == rate.temperature_exponent
         if "Ea" in self._parts:
-            assertNear(self._parts["Ea"], rate.activation_energy)
+            assert self._parts["Ea"] == approx(rate.activation_energy)
         else:
-            assertNear(self._parts["w"], rate.bond_energy)
+            assert self._parts["w"] == approx(rate.bond_energy)
         self.check_rate(rate)
 
     @pytest.mark.skip("Derivative is not supported")
@@ -822,7 +821,7 @@ class StickingReactionRateTests(SurfaceReactionRateTests):
         weight = self.gas.molecular_weights[self.gas.species_index(self._sticking_species)]
         assert rate.sticking_species == self._sticking_species
         assert rate.sticking_order == self._sticking_order
-        assert rate.sticking_weight == pytest.approx(weight)
+        assert rate.sticking_weight == approx(weight)
 
 @pytest.mark.usefixtures("surface_rate_reaction_data")
 class TestSurfaceArrheniusRate(SurfaceReactionRateTests):
@@ -1038,7 +1037,7 @@ class ReactionTests:
 
     def check_rate(self, rate_obj):
         rate = self.eval_rate(rate_obj)
-        assertNear(rate, self.soln.forward_rate_constants[self._index])
+        assert rate == approx(self.soln.forward_rate_constants[self._index])
 
     def check_rxn(self, rxn):
         # helper function that checks reaction configuration
@@ -1070,10 +1069,10 @@ class ReactionTests:
     def check_solution(self, sol2):
         # helper function that checks evaluation of reaction rates
         ix = self._index
-        assertNear(sol2.forward_rate_constants[0],
-                   self.soln.forward_rate_constants[ix])
-        assertNear(sol2.net_rates_of_progress[0],
-                   self.soln.net_rates_of_progress[ix])
+        assert sol2.forward_rate_constants[0] == approx(
+               self.soln.forward_rate_constants[ix])
+        assert sol2.net_rates_of_progress[0] == approx(
+               self.soln.net_rates_of_progress[ix])
 
     def test_rate(self):
         # check consistency of reaction rate and forward rate constant
@@ -1181,7 +1180,7 @@ class ReactionTests:
         elif isinstance(one, (dict, str)):
             assert one == two
         else:
-            assertNear(one, two)
+            assert one == approx(two)
 
 @pytest.fixture(scope='class')
 def setup_elementary_tests(request, setup_reaction_tests):
@@ -1481,10 +1480,10 @@ class TestPlog(ReactionTests):
         assert len(rates) == len(other)
         for index, item in enumerate(rates):
             P, rate = item
-            assertNear(P, other[index][0])
-            assertNear(rate.pre_exponential_factor, other[index][1].pre_exponential_factor)
-            assertNear(rate.temperature_exponent, other[index][1].temperature_exponent)
-            assertNear(rate.activation_energy, other[index][1].activation_energy)
+            assert P == approx(other[index][0])
+            assert rate.pre_exponential_factor == approx(other[index][1].pre_exponential_factor)
+            assert rate.temperature_exponent == approx(other[index][1].temperature_exponent)
+            assert rate.activation_energy == approx(other[index][1].activation_energy)
 
 @pytest.mark.usefixtures("reaction_data")
 class TestChebyshev(ReactionTests):
@@ -1567,7 +1566,7 @@ class TestCustom(ReactionTests):
         # check result of rate expression
         f = ct.Func1(self._rate)
         rate = ct.CustomRate(f)
-        assertNear(rate(self.soln.T), self.soln.forward_rate_constants[self._index])
+        assert rate(self.soln.T) == approx(self.soln.forward_rate_constants[self._index])
 
     def test_custom_lambda(self):
         # check instantiation from keywords / rate provided as lambda function
@@ -1725,7 +1724,7 @@ class TestExtensible2:
 
         for T in np.linspace(300, 3000, 10):
             gas.TP = T, None
-            assert gas.forward_rate_constants[0] == pytest.approx(3.14 * T**2)
+            assert gas.forward_rate_constants[0] == approx(3.14 * T**2)
 
     def test_missing_module(self):
         with pytest.raises(ct.CanteraError, match="No module named 'fake_ext'"):
@@ -1814,7 +1813,7 @@ class TestExtensible3:
         """
         rxn = ct.Reaction.from_yaml(rxn, kinetics=self.gas)
         assert rxn.rate.length == 2
-        assert rxn.rate.Ta == pytest.approx(1000 / ct.gas_constant)
+        assert rxn.rate.Ta == approx(1000 / ct.gas_constant)
 
     def test_implicit_units(self):
         rxn = """
@@ -1827,7 +1826,7 @@ class TestExtensible3:
         """
         rxn = ct.Reaction.from_yaml(rxn, kinetics=self.gas)
         assert rxn.rate.length == 2
-        assert rxn.rate.Ta == pytest.approx(1000 / ct.gas_constant)
+        assert rxn.rate.Ta == approx(1000 / ct.gas_constant)
 
     def test_output_units(self, load_yaml):
         rxn = """
@@ -1847,9 +1846,9 @@ class TestExtensible3:
         yml = load_yaml(self.test_work_path / 'user-rate-units.yaml')
         rxn = yml['reactions'][-1]
         assert rxn['type'] == 'user-rate-2'
-        assert rxn['A'] == pytest.approx(1000 * 1000**3)
-        assert rxn['L'] == pytest.approx(200 * 1000)
-        assert rxn['Ea'] == pytest.approx(50 / ct.faraday)
+        assert rxn['A'] == approx(1000 * 1000**3)
+        assert rxn['L'] == approx(200 * 1000)
+        assert rxn['Ea'] == approx(50 / ct.faraday)
 
     def test_validate_error(self):
         rxn = """
@@ -1940,8 +1939,8 @@ class InterfaceReactionTests(ReactionTests):
 
     def check_rate(self, rate_obj):
         rate = self.eval_rate(rate_obj)
-        assertNear(self._value, rate)
-        assertNear(self._value, self.soln.forward_rate_constants[self._index])
+        assert self._value == approx(rate)
+        assert self._value == approx(self.soln.forward_rate_constants[self._index])
 
     def from_rate(self, rate):
         if isinstance(rate, dict):
@@ -2075,7 +2074,7 @@ class StickReactionTests(InterfaceReactionTests):
         weight = self.gas.molecular_weights[self.gas.species_index(self._sticking_species)]
         assert rxn.rate.sticking_species == self._sticking_species
         assert rxn.rate.sticking_order == self._sticking_order
-        assert rxn.rate.sticking_weight == pytest.approx(weight)
+        assert rxn.rate.sticking_weight == approx(weight)
 
     def test_site_density(self):
         assert self.soln.site_density == self.soln.reaction(self._index).rate.site_density
