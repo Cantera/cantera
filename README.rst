@@ -118,11 +118,11 @@ NumFOCUS
 Cantera is a fiscally-sponsored project of `NumFOCUS <https://numfocus.org>`__,
 a non-profit dedicated to supporting the open source scientific computing
 community. Please consider `making a donation
-<https://numfocus.salsalabs.org/donate-to-cantera/index.html>`__ to support the
+<https://numfocus.org/donate-to-cantera>`__ to support the
 development of Cantera through NumFOCUS.
 
 .. image:: https://img.shields.io/badge/powered%20by-NumFOCUS-orange.svg?style=flat&colorA=E1523D&colorB=007D8A
-    :target: https://numfocus.salsalabs.org/donate-to-cantera/index.html
+    :target: https://numfocus.org/donate-to-cantera
     :alt: Powered by NumFOCUS
 
 .. |cantera| image:: https://cantera.org/assets/img/cantera-logo.png
