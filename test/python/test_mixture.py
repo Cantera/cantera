@@ -1,7 +1,8 @@
 import pytest
+from pytest import approx
+
 import cantera as ct
 from .utilities import (
-    assertNear,
     assertArrayNear
 )
 
@@ -137,8 +138,8 @@ class TestMixture:
 
         S[2] = 7
         self.mix.species_moles = S
-        assertNear(self.mix.species_moles[2], S[2])
-        assertNear(self.mix.phase_moles(0), sum(S[:self.phase1.n_species]))
+        assert self.mix.species_moles[2] == approx(S[2])
+        assert self.mix.phase_moles(0) == approx(sum(S[:self.phase1.n_species]))
 
         with pytest.raises(ValueError):
             self.mix.species_moles = (1, 2, 3)
@@ -149,9 +150,9 @@ class TestMixture:
     def test_element_moles(self):
         self.mix.species_moles = 'H2:1.0, OH:4.0'
 
-        assertNear(self.mix.element_moles('H'), 6)
-        assertNear(self.mix.element_moles('O'), 4)
-        assertNear(self.mix.element_moles('N'), 0)
+        assert self.mix.element_moles('H') == approx(6)
+        assert self.mix.element_moles('O') == approx(4)
+        assert self.mix.element_moles('N') == approx(0)
 
     def test_chemical_potentials(self):
         C = self.mix.chemical_potentials
@@ -171,8 +172,8 @@ class TestMixture:
 
         E2 = [self.mix.element_moles(m) for m in range(self.mix.n_elements)]
         assertArrayNear(E1, E2)
-        assertNear(self.mix.T, 400)
-        assertNear(self.mix.P, 2 * ct.one_atm)
+        assert self.mix.T == approx(400)
+        assert self.mix.P == approx(2 * ct.one_atm)
 
     @pytest.mark.xfail(reason="See https://github.com/Cantera/cantera/issues/1023")
     def test_equilibrate2(self):
@@ -185,8 +186,8 @@ class TestMixture:
 
         E2 = [self.mix.element_moles(m) for m in range(self.mix.n_elements)]
         assertArrayNear(E1, E2)
-        assertNear(self.mix.T, 400)
-        assertNear(self.mix.P, 2 * ct.one_atm)
+        assert self.mix.T == approx(400)
+        assert self.mix.P == approx(2 * ct.one_atm)
 
     def test_invalid_property(self):
         x = self.mix
