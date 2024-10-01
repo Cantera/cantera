@@ -15,7 +15,6 @@ except ImportError:
 from cantera.drawnetwork import _graphviz
 
 from .utilities import (
-    assertNear,
     assertArrayNear,
     compareProfiles
 )
@@ -67,7 +66,7 @@ class TestReactor:
         g.TP = 300, 101325
         R.insert(g)
 
-        assertNear(R.T, 300)
+        assert R.T == approx(300)
         assert len(R.kinetics.net_production_rates) == g.n_species
 
     def test_volume(self):
@@ -127,10 +126,10 @@ class TestReactor:
         self.net.advance(1.0)
 
         # Nothing should change from the initial condition
-        assertNear(T1, self.gas1.T)
-        assertNear(T2, self.gas2.T)
-        assertNear(P1, self.gas1.P)
-        assertNear(P2, self.gas2.P)
+        assert T1 == approx(self.gas1.T)
+        assert T2 == approx(self.gas2.T)
+        assert P1 == approx(self.gas1.P)
+        assert P2 == approx(self.gas2.P)
 
     def test_disjoint2(self):
         T1, P1 = 300, 101325
@@ -140,10 +139,10 @@ class TestReactor:
         self.net.advance(1.0)
 
         # Nothing should change from the initial condition
-        assertNear(T1, self.r1.T)
-        assertNear(T2, self.r2.T)
-        assertNear(P1, self.r1.thermo.P)
-        assertNear(P2, self.r2.thermo.P)
+        assert T1 == approx(self.r1.T)
+        assert T2 == approx(self.r2.T)
+        assert P1 == approx(self.r1.thermo.P)
+        assert P2 == approx(self.r2.thermo.P)
 
     def test_derivative(self):
         T1, P1 = 300, 101325
@@ -159,7 +158,7 @@ class TestReactor:
         dt += self.net.time
         dy += self.net.get_state()
         for i in range(self.net.n_vars):
-            assertNear(dydt[i], dy[i]/dt)
+            assert dydt[i] == approx(dy[i]/dt)
 
     def test_finite_difference_jacobian(self):
         self.make_reactors(n_reactors=1, T1=900, P1=101325, X1="H2:0.4, O2:0.4, N2:0.2")
@@ -211,15 +210,15 @@ class TestReactor:
         assert self.net.max_time_step == dt_max
         self.net.initial_time = tStart
         assert self.net.initial_time == tStart
-        assertNear(self.net.time, tStart)
+        assert self.net.time == approx(tStart)
 
         while t < tEnd:
             tPrev = t
             t = self.net.step()
             assert t - tPrev <= 1.0001 * dt_max
-            assertNear(t, self.net.time)
+            assert t == approx(self.net.time)
 
-        #assertNear(self.net.time, tEnd)
+        #assert self.net.time == approx(tEnd)
 
     def test_maxsteps(self):
         self.make_reactors()
@@ -277,8 +276,8 @@ class TestReactor:
 
         self.net.advance(1.0)
 
-        assertNear(self.net.time, 1.0)
-        assertNear(self.gas1.P, self.gas2.P)
+        assert self.net.time == approx(1.0)
+        assert self.gas1.P == approx(self.gas2.P)
         assert self.r1.T != approx(self.r2.T)
 
     def test_tolerances(self, rtol_lim=1e-10, atol_lim=1e-20):
@@ -373,8 +372,8 @@ class TestReactor:
         self.add_wall(U=500, A=1.0)
 
         self.net.advance(10.0)
-        assertNear(self.net.time, 10.0)
-        assertNear(self.r1.T, self.r2.T, 5e-7)
+        assert self.net.time == approx(10.0)
+        assert self.r1.T == approx(self.r2.T, rel=5e-7)
         assert self.r1.thermo.P != approx(self.r2.thermo.P)
 
     def test_advance_limits_invalid(self):
@@ -403,16 +402,16 @@ class TestReactor:
         self.r2.volume = 0.25
         w = self.add_wall(U=100, A=0.5)
 
-        assertNear(w.heat_transfer_coeff * w.area * (self.r1.T - self.r2.T),
-                        w.heat_rate)
+        assert w.heat_transfer_coeff * w.area * (self.r1.T - self.r2.T) == approx(
+               w.heat_rate)
         self.net.advance(1.0)
-        assertNear(w.heat_transfer_coeff * w.area * (self.r1.T - self.r2.T),
-                        w.heat_rate)
+        assert w.heat_transfer_coeff * w.area * (self.r1.T - self.r2.T) == approx(
+               w.heat_rate)
         T1b = self.r1.T
         T2b = self.r2.T
 
-        assertNear(T1a, T1b)
-        assertNear(T2a, T2b)
+        assert T1a == approx(T1b)
+        assert T2a == approx(T2b)
 
     def test_equilibrium_UV(self):
         # Adiabatic, constant volume combustion should proceed to equilibrium
@@ -429,9 +428,9 @@ class TestReactor:
         gas.TPX = T0, P0, X0
         gas.equilibrate('UV')
 
-        assertNear(self.r1.T, gas.T)
-        assertNear(self.r1.thermo.density, gas.density)
-        assertNear(self.r1.thermo.P, gas.P)
+        assert self.r1.T == approx(gas.T)
+        assert self.r1.thermo.density == approx(gas.density)
+        assert self.r1.thermo.P == approx(gas.P)
         assertArrayNear(self.r1.thermo.X, gas.X)
 
     def test_equilibrium_HP(self):
@@ -454,9 +453,9 @@ class TestReactor:
         gas2.TPX = T0, P0, X0
         gas2.equilibrate('HP')
 
-        assertNear(r1.T, gas2.T)
-        assertNear(r1.thermo.P, P0)
-        assertNear(r1.thermo.density, gas2.density)
+        assert r1.T == approx(gas2.T)
+        assert r1.thermo.P == approx(P0)
+        assert r1.thermo.density == approx(gas2.density)
         assertArrayNear(r1.thermo.X, gas2.X)
 
     def test_wall_velocity(self):
@@ -475,12 +474,12 @@ class TestReactor:
         self.w.velocity = v
         self.net.advance(1.0)
         assert self.w.velocity == approx(v(1.0))
-        assertNear(self.w.expansion_rate, 1.0 * A, 1e-7)
+        assert self.w.expansion_rate == approx(1.0 * A, rel=1e-7)
         self.net.advance(2.0)
-        assertNear(self.w.expansion_rate, 0.0, 1e-7)
+        assert self.w.expansion_rate == approx(0.0, rel=1e-7)
 
-        assertNear(self.r1.volume, V1 + 1.0 * A, 1e-7)
-        assertNear(self.r2.volume, V2 - 1.0 * A, 1e-7)
+        assert self.r1.volume == approx(V1 + 1.0 * A, rel=1e-7)
+        assert self.r2.volume == approx(V2 - 1.0 * A, rel=1e-7)
 
     def test_disable_energy(self):
         self.make_reactors(T1=500)
@@ -488,8 +487,8 @@ class TestReactor:
         self.add_wall(A=1.0, U=2500)
         self.net.advance(11.0)
 
-        assertNear(self.r1.T, 500)
-        assertNear(self.r2.T, 500)
+        assert self.r1.T == approx(500)
+        assert self.r2.T == approx(500)
 
     def test_disable_chemistry(self):
         self.make_reactors(T1=1000, n_reactors=1, X1='H2:2.0,O2:1.0')
@@ -497,9 +496,9 @@ class TestReactor:
 
         self.net.advance(11.0)
 
-        assertNear(self.r1.T, 1000)
-        assertNear(self.r1.thermo.X[self.r1.thermo.species_index('H2')], 2.0/3.0)
-        assertNear(self.r1.thermo.X[self.r1.thermo.species_index('O2')], 1.0/3.0)
+        assert self.r1.T == approx(1000)
+        assert self.r1.thermo.X[self.r1.thermo.species_index('H2')] == approx(2.0/3.0)
+        assert self.r1.thermo.X[self.r1.thermo.species_index('O2')] == approx(1.0/3.0)
 
     def test_heat_flux_func(self):
         self.make_reactors(T1=500, T2=300)
@@ -521,10 +520,10 @@ class TestReactor:
         U1b = self.r1.volume * self.r1.density * self.r1.thermo.u
         U2b = self.r2.volume * self.r2.density * self.r2.thermo.u
 
-        assertNear(V1a, self.r1.volume)
-        assertNear(V2a, self.r2.volume)
-        assertNear(U1a - Q, U1b, 1e-6)
-        assertNear(U2a + Q, U2b, 1e-6)
+        assert V1a == approx(self.r1.volume)
+        assert V2a == approx(self.r2.volume)
+        assert U1a - Q == approx(U1b, rel=1e-6)
+        assert U2a + Q == approx(U2b, rel=1e-6)
 
     def test_mass_flow_controller(self):
         self.make_reactors(n_reactors=1)
@@ -564,20 +563,20 @@ class TestReactor:
         self.net.max_time_step = 0.05
 
         self.net.advance(0.1)
-        assertNear(mfc.mass_flow_rate, 0.)
+        assert mfc.mass_flow_rate == approx(0.)
         self.net.advance(0.3)
-        assertNear(mfc.mass_flow_rate, 0.04)
+        assert mfc.mass_flow_rate == approx(0.04)
         self.net.advance(1.0)
-        assertNear(mfc.mass_flow_rate, 0.08)
+        assert mfc.mass_flow_rate == approx(0.08)
         self.net.advance(1.2)
-        assertNear(mfc.mass_flow_rate, 0.)
+        assert mfc.mass_flow_rate == approx(0.)
 
         self.net.advance(2.5)
 
         mb = self.r1.volume * self.r1.density
         Yb = self.r1.Y
 
-        assertNear(ma + 0.1, mb)
+        assert ma + 0.1 == approx(mb)
         assertArrayNear(ma * Ya + 0.1 * gas2.Y, mb * Yb)
 
     def test_mass_flow_controller_type(self):
@@ -613,8 +612,8 @@ class TestReactor:
         assert self.r1.energy_enabled
         assert self.r2.energy_enabled
         self.net.initialize()
-        assertNear((self.r1.thermo.P - self.r2.thermo.P) * k,
-                   valve.mass_flow_rate)
+        assert (self.r1.thermo.P - self.r2.thermo.P) * k == approx(
+                valve.mass_flow_rate)
 
         m1a = self.r1.thermo.density * self.r1.volume
         m2a = self.r2.thermo.density * self.r2.volume
@@ -626,9 +625,9 @@ class TestReactor:
         m1b = self.r1.thermo.density * self.r1.volume
         m2b = self.r2.thermo.density * self.r2.volume
 
-        assertNear((self.r1.thermo.P - self.r2.thermo.P) * k,
-                        valve.mass_flow_rate)
-        assertNear(m1a+m2a, m1b+m2b)
+        assert (self.r1.thermo.P - self.r2.thermo.P) * k == approx(
+                valve.mass_flow_rate)
+        assert m1a + m2a == approx(m1b + m2b)
         Y1b = self.r1.thermo.Y
         Y2b = self.r2.thermo.Y
         assertArrayNear(m1a*Y1a + m2a*Y2a, m1b*Y1b + m2b*Y2b, atol=1e-10)
@@ -663,8 +662,8 @@ class TestReactor:
             self.net.advance(t)
             m1 = self.r1.thermo.density * self.r1.volume
             m2 = self.r2.thermo.density * self.r2.volume
-            assertNear(m2, (m2a - A/B) * np.exp(-B * t) + A/B)
-            assertNear(m1a+m2a, m1+m2)
+            assert m2 == approx((m2a - A/B) * np.exp(-B * t) + A/B)
+            assert m1a + m2a == approx(m1 + m2)
             assertArrayNear(self.r1.Y, Y1)
 
     def test_valve3(self):
@@ -693,10 +692,10 @@ class TestReactor:
             t = self.net.step()
             p1 = self.r1.thermo.P
             p2 = self.r2.thermo.P
-            assertNear(mdot(p1-p2), valve.mass_flow_rate)
+            assert mdot(p1-p2) == approx(valve.mass_flow_rate)
             assertArrayNear(Y1, self.r1.Y)
-            assertNear(speciesMass(kAr), mAr)
-            assertNear(speciesMass(kO2), mO2)
+            assert speciesMass(kAr) == approx(mAr)
+            assert speciesMass(kO2) == approx(mO2)
 
     def test_valve_timing(self):
         # test timed valve
@@ -781,9 +780,9 @@ class TestReactor:
         t = 0
         while t < 1.0:
             t = self.net.step()
-            assertNear(mdot(t), mfc.mass_flow_rate)
+            assert mdot(t) == approx(mfc.mass_flow_rate)
             dP = self.r1.thermo.P - outlet_reservoir.thermo.P
-            assertNear(mdot(t) + 1e-5 * dP, pc.mass_flow_rate)
+            assert mdot(t) + 1e-5 * dP == approx(pc.mass_flow_rate)
 
     def test_pressure_controller2(self):
         self.make_reactors(n_reactors=1)
@@ -807,9 +806,9 @@ class TestReactor:
         t = 0
         while t < 1.0:
             t = self.net.step()
-            assertNear(mdot(t), mfc.mass_flow_rate)
+            assert mdot(t) == approx(mfc.mass_flow_rate)
             dP = self.r1.thermo.P - outlet_reservoir.thermo.P
-            assertNear(mdot(t) + pfunc(dP), pc.mass_flow_rate)
+            assert mdot(t) + pfunc(dP) == approx(pc.mass_flow_rate)
 
     def test_pressure_controller_type(self):
         self.make_reactors()
@@ -851,7 +850,7 @@ class TestReactor:
         t0 = 0.0
         tf = t0 + 0.5
         self.net.advance(tf)
-        assertNear(self.net.time, tf)
+        assert self.net.time == approx(tf)
         p1a = self.r1.thermo.P
         p2a = self.r2.thermo.P
         assert valve.pressure_function == approx(pfunc_a(p1a - p2a))
@@ -866,13 +865,13 @@ class TestReactor:
         self.net.initial_time = t0
         tf = t0 + 0.5
         self.net.advance(tf)
-        assertNear(self.net.time, tf)
+        assert self.net.time == approx(tf)
         p1b = self.r1.thermo.P
         p2b = self.r2.thermo.P
         assert valve.pressure_function == approx(pfunc_b(p1b - p2b))
 
-        assertNear(p1a, p1b)
-        assertNear(p2a, p2b)
+        assert p1a == approx(p1b)
+        assert p2a == approx(p2b)
 
     def test_reinitialize(self):
         self.make_reactors(T1=300, T2=1000, independent=False)
@@ -887,14 +886,14 @@ class TestReactor:
         self.r2.thermo.TD = 1000, None
         self.r2.syncState()
 
-        assertNear(self.r1.T, 300)
-        assertNear(self.r2.T, 1000)
+        assert self.r1.T == approx(300)
+        assert self.r2.T == approx(1000)
         self.net.advance(2.0)
         T1b = self.r1.T
         T2b = self.r2.T
 
-        assertNear(T1a, T1b)
-        assertNear(T2a, T2b)
+        assert T1a == approx(T1b)
+        assert T2a == approx(T2b)
 
     def test_unpicklable(self):
         self.make_reactors()
@@ -1158,8 +1157,8 @@ class TestMoleReactor(TestReactor):
             net1.advance(i)
             net2.advance(i)
             assertArrayNear(r1.thermo.Y, r2.thermo.Y, rtol=5e-4, atol=1e-6)
-            assertNear(r1.T, r2.T, rtol=5e-5)
-            assertNear(r1.thermo.P, r2.thermo.P, rtol=1e-6)
+            assert r1.T == approx(r2.T, rel=5e-5)
+            assert r1.thermo.P == approx(r2.thermo.P, rel=1e-6)
             assertArrayNear(rsurf1.coverages, rsurf2.coverages, rtol=1e-4,
                             atol=1e-8)
 
@@ -1239,10 +1238,9 @@ class TestWellStirredReactorIgnition:
         t,T = self.integrate(100.0)
 
         for i in range(len(t)):
-            assertNear(T[i], T0, rtol=1e-5)
+            assert T[i] == approx(T0, rel=1e-5)
 
-        assertNear(self.combustor.thermo['CH4'].Y,
-                   mdot_f / (mdot_o + mdot_f))
+        assert self.combustor.thermo['CH4'].Y == approx(mdot_f / (mdot_o + mdot_f))
 
     def test_ignition1(self):
         self.setup_reactor(900.0, 10*ct.one_atm, 1.0, 5.0)
@@ -1255,7 +1253,7 @@ class TestWellStirredReactorIgnition:
                 break
 
         # regression test; no external basis for this result
-        assertNear(tIg, 2.2249, 1e-3)
+        assert tIg == approx(2.2249, rel=1e-3)
 
     def test_ignition2(self):
         self.setup_reactor(900.0, 10*ct.one_atm, 1.0, 20.0)
@@ -1268,7 +1266,7 @@ class TestWellStirredReactorIgnition:
                 break
 
         # regression test; no external basis for this result
-        assertNear(tIg, 1.4856, 1e-3)
+        assert tIg == approx(1.4856, rel=1e-3)
 
     def test_ignition3(self):
         self.setup_reactor(900.0, 10*ct.one_atm, 1.0, 80.0)
@@ -1282,9 +1280,9 @@ class TestWellStirredReactorIgnition:
         # test if steady state is reached
         assert residuals[-1] < 10. * self.net.rtol
         # regression test; no external basis for these results
-        assertNear(self.combustor.T, 2498.94, 1e-5)
-        assertNear(self.combustor.thermo['H2O'].Y[0], 0.103658, 1e-5)
-        assertNear(self.combustor.thermo['HO2'].Y[0], 8.734515e-06, 1e-5)
+        assert self.combustor.T == approx(2498.94, rel=1e-5)
+        assert self.combustor.thermo['H2O'].Y[0] == approx(0.103658, rel=1e-5)
+        assert self.combustor.thermo['HO2'].Y[0] == approx(8.734515e-06, rel=1e-5)
 
 
 class TestConstPressureReactor:
@@ -1397,8 +1395,8 @@ class TestConstPressureReactor:
             self.net2.advance(t)
             assertArrayNear(self.r1.thermo.Y, self.r2.thermo.Y,
                             rtol=5e-4, atol=1e-6)
-            assertNear(self.r1.T, self.r2.T, rtol=5e-5)
-            assertNear(self.r1.thermo.P, self.r2.thermo.P, rtol=1e-6)
+            assert self.r1.T == approx(self.r2.T, rel=5e-5)
+            assert self.r1.thermo.P == approx(self.r2.thermo.P, rel=1e-6)
             if surf:
                 assertArrayNear(self.surf1.coverages, self.surf2.coverages,
                                      rtol=1e-4, atol=1e-8)
@@ -1493,8 +1491,8 @@ class TestIdealGasMoleReactor(TestMoleReactor):
             net1.advance(t)
             net2.advance(t)
             assertArrayNear(r1.thermo.Y, r2.thermo.Y, rtol=5e-4, atol=1e-6)
-            assertNear(r1.T, r2.T, rtol=1e-5)
-            assertNear(r1.thermo.P, r2.thermo.P, rtol=1e-5)
+            assert r1.T == approx(r2.T, rel=1e-5)
+            assert r1.thermo.P == approx(r2.thermo.P, rel=1e-5)
 
 
 class TestReactorJacobians:
@@ -1693,10 +1691,10 @@ class TestFlowReactor:
 
         x = 0
         v0 = r.speed
-        assertNear(v0, 10 / r.density)
+        assert v0 == approx(10 / r.density)
         while x < 10.0:
             x = net.step()
-            assertNear(v0, r.speed)
+            assert v0 == approx(r.speed)
 
     def test_reacting(self):
         g = ct.Solution(yaml=self.gas_def)
@@ -2059,21 +2057,21 @@ class TestSurfaceKinetics:
         surf1 = ct.ReactorSurface(self.interface, self.r1)
 
         surf1.coverages = {'c6HH':0.3, 'c6HM':0.7}
-        assertNear(surf1.coverages[0], 0.3)
-        assertNear(surf1.coverages[1], 0.0)
-        assertNear(surf1.coverages[4], 0.7)
+        assert surf1.coverages[0] == approx(0.3)
+        assert surf1.coverages[1] == approx(0.0)
+        assert surf1.coverages[4] == approx(0.7)
         self.net.advance(1e-5)
         C_left = surf1.coverages
 
         self.make_reactors()
         surf2 = ct.ReactorSurface(self.interface, self.r2)
         surf2.coverages = 'c6HH:0.3, c6HM:0.7'
-        assertNear(surf2.coverages[0], 0.3)
-        assertNear(surf2.coverages[4], 0.7)
+        assert surf2.coverages[0] == approx(0.3)
+        assert surf2.coverages[4] == approx(0.7)
         self.net.advance(1e-5)
         C_right = surf2.coverages
 
-        assertNear(sum(C_left), 1.0)
+        assert sum(C_left) == approx(1.0)
         assertArrayNear(C_left, C_right)
 
         with pytest.raises(ValueError):
@@ -2208,8 +2206,8 @@ class TestReactorSensitivities:
             assertArrayNear(S[K2+1,:], np.zeros(2))
 
             # Sensitivity coefficients for the disjoint reactors should be zero
-            assertNear(np.linalg.norm(S[Ns:K2,1]), 0.0, atol=1e-5)
-            assertNear(np.linalg.norm(S[K2+Ns:,0]), 0.0, atol=1e-5)
+            assert np.linalg.norm(S[Ns:K2,1]) == approx(0.0, abs=1e-5)
+            assert np.linalg.norm(S[K2+Ns:,0]) == approx(0.0, abs=1e-5)
 
     def _test_parameter_order1(self, reactorClass):
         # Single reactor, changing the order in which parameters are added
@@ -2461,7 +2459,7 @@ class TestReactorSensitivities:
         dH = 1e4
         for i,s in enumerate(species):
             dtigdh = (self.calc_tig(s, dH) - tig0) / dH
-            assertNear(dtigdh_cvodes[i], dtigdh, atol=1e-14, rtol=5e-2)
+            assert dtigdh_cvodes[i] == approx(dtigdh, rel=5e-2, abs=1e-14)
 
 
 @pytest.fixture(scope='class')
@@ -2686,7 +2684,7 @@ class TestPureFluidReactor:
 
         assert states.Q[0] == 0
         assert states.Q[-1] == 1
-        assertNear(states.Q[30], 0.54806, 1e-4)
+        assert states.Q[30] == approx(0.54806, rel=1e-4)
 
     def test_Reactor_2(self):
         phase = ct.PureFluid("liquidvapor.yaml", "carbon-dioxide")
@@ -2711,7 +2709,7 @@ class TestPureFluidReactor:
 
         assert states.Q[0] == 0
         assert states.Q[-1] == 1
-        assertNear(states.Q[20], 0.644865, 1e-4)
+        assert states.Q[20] == approx(0.644865, rel=1e-4)
 
 
     def test_ConstPressureReactor(self):
@@ -2736,7 +2734,7 @@ class TestPureFluidReactor:
         assert states.Q[1] == 0
         assert states.Q[-2] == 1
         for i in range(3,7):
-            assertNear(states.T[i], states.T[2])
+            assert states.T[i] == approx(states.T[2])
 
 
 @pytest.fixture(scope='function')
@@ -2972,7 +2970,7 @@ class TestExtensibleReactor:
         r1_heat = (mass_lump * cp_lump * (r1.thermo.T - 500) +
                    mass_gas * (self.gas.enthalpy_mass - gas_initial_enthalpy))
         add_heat = Q * time
-        assertNear(add_heat, r1_heat, atol=1e-5)
+        assert add_heat == approx(r1_heat, abs=1e-5)
 
     def test_heat_addition(self):
         # Applying heat via 'heat_rate' property should be equivalent to adding it via
@@ -2992,8 +2990,8 @@ class TestExtensibleReactor:
         for t in np.linspace(0.1, 5, 10):
             net.advance(t)
             U = r1.thermo.int_energy_mass * r1.mass
-            assertNear(U - U0, (Qext + Qwall) * t)
-            assertNear(r1.heat_rate, Qext + Qwall)
+            assert U - U0 == approx((Qext + Qwall) * t)
+            assert r1.heat_rate == approx(Qext + Qwall)
 
     def test_with_surface(self):
         phase_defs = """
@@ -3070,15 +3068,15 @@ class TestExtensibleReactor:
         for t in np.linspace(0.1, 1, 12):
             net.advance(t)
             mH, mO = masses()
-            assertNear(mH, mH0)
-            assertNear(mO, mO0)
+            assert mH == approx(mH0)
+            assert mO == approx(mO0)
 
         # Regression test values
-        assertNear(r1.thermo.P, 647.56016304)
-        assertNear(r1.thermo.X[kH2], 0.4784268406)
-        assertNear(r1.thermo.X[kO2], 0.5215731594)
-        assertNear(r1.surfaces[0].kinetics.X[kHs], 0.3665198138)
-        assertNear(r1.surfaces[0].kinetics.X[kPts], 0.6334801862)
+        assert r1.thermo.P == approx(647.56016304)
+        assert r1.thermo.X[kH2] == approx(0.4784268406)
+        assert r1.thermo.X[kO2] == approx(0.5215731594)
+        assert r1.surfaces[0].kinetics.X[kHs] == approx(0.3665198138)
+        assert r1.surfaces[0].kinetics.X[kPts] == approx(0.6334801862)
 
     def test_interactions(self):
         # Reactors connected by a movable, H2-permeable surface
@@ -3126,8 +3124,8 @@ class TestExtensibleReactor:
         V0 = r1.volume + r2.volume
         for t in np.linspace(0.01, 0.2, 50):
             net.advance(t)
-            assertNear(r1.expansion_rate, -r2.expansion_rate)
-            assertNear(V0, r1.volume + r2.volume)
+            assert r1.expansion_rate == approx(-r2.expansion_rate)
+            assert V0 == approx(r1.volume + r2.volume)
             deltaCnow = deltaC()
             assert deltaCnow < deltaCprev # difference is always decreasing
             deltaCprev = deltaCnow
@@ -3136,6 +3134,6 @@ class TestExtensibleReactor:
             states2.append(r2.thermo.state, t=net.time, mass=r2.mass, vdot=r2.expansion_rate)
 
         # Regression test values
-        assertNear(r1.thermo.P, 151561.15, rtol=1e-6)
-        assertNear(r1.thermo["H2"].Y[0], 0.13765976, rtol=1e-6)
-        assertNear(r2.thermo["O2"].Y[0], 0.94617029, rtol=1e-6)
+        assert r1.thermo.P == approx(151561.15, rel=1e-6)
+        assert r1.thermo["H2"].Y[0] == approx(0.13765976, rel=1e-6)
+        assert r2.thermo["O2"].Y[0] == approx(0.94617029, rel=1e-6)
