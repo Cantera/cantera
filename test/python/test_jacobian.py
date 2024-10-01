@@ -267,14 +267,14 @@ class RateExpressionTests:
         drop = self.gas.forward_rates_of_progress_ddT
         drop += self.gas.forward_rates_of_progress_ddC * dcdt
         drop_num = self.rop_ddT(mode="forward", const_p=True)
-        assert drop[self.rxn_idx] == approx(drop_num, self.rtol)
+        assert drop[self.rxn_idx] == approx(drop_num, rel=self.rtol)
 
         # constant density (volume) - need to account for pressure change
         dpdt = self.gas.P / self.gas.T
         drop = self.gas.forward_rates_of_progress_ddT
         drop += self.gas.forward_rates_of_progress_ddP * dpdt
         drop_num = self.rop_ddT(mode="forward")
-        assert drop[self.rxn_idx] == approx(drop_num, self.rtol)
+        assert drop[self.rxn_idx] == approx(drop_num, rel=self.rtol)
 
         if isinstance(self.rxn.rate, ct.FalloffRate):
             return
@@ -292,14 +292,14 @@ class RateExpressionTests:
         drop = self.gas.reverse_rates_of_progress_ddT
         drop += self.gas.reverse_rates_of_progress_ddC * dcdt
         drop_num = self.rop_ddT(mode="reverse", const_p=True)
-        assert drop[self.rxn_idx] == approx(drop_num, self.rtol)
+        assert drop[self.rxn_idx] == approx(drop_num, rel=self.rtol)
 
         # constant density (volume) - need to account for pressure change
         dpdt = self.gas.P / self.gas.T
         drop = self.gas.reverse_rates_of_progress_ddT
         drop += self.gas.reverse_rates_of_progress_ddP * dpdt
         drop_num = self.rop_ddT(mode="reverse")
-        assert drop[self.rxn_idx] == approx(drop_num, self.rtol)
+        assert drop[self.rxn_idx] == approx(drop_num, rel=self.rtol)
 
         if not self.rxn.reversible or isinstance(self.rxn.rate, ct.FalloffRate):
             return
@@ -317,14 +317,14 @@ class RateExpressionTests:
         drop = self.gas.net_rates_of_progress_ddT
         drop += self.gas.net_rates_of_progress_ddC * dcdt
         drop_num = self.rop_ddT(mode="net", const_p=True)
-        assert drop[self.rxn_idx] == approx(drop_num, self.rtol)
+        assert drop[self.rxn_idx] == approx(drop_num, rel=self.rtol)
 
         # constant density (volume) - need to account for pressure change
         dpdt = self.gas.P / self.gas.T
         drop = self.gas.net_rates_of_progress_ddT
         drop += self.gas.net_rates_of_progress_ddP * dpdt
         drop_num = self.rop_ddT(mode="forward") - self.rop_ddT(mode="reverse")
-        assert drop[self.rxn_idx] == approx(drop_num, self.rtol)
+        assert drop[self.rxn_idx] == approx(drop_num, rel=self.rtol)
 
         if not self.rxn.reversible or isinstance(self.rxn.rate, ct.FalloffRate):
             return
@@ -359,7 +359,7 @@ class RateExpressionTests:
         drop = self.gas.forward_rates_of_progress_ddP
         drop += self.gas.forward_rates_of_progress_ddC * dcdp
         drop_num = self.rop_ddP(mode="forward")
-        assert drop[self.rxn_idx] == approx(drop_num, self.rtol)
+        assert drop[self.rxn_idx] == approx(drop_num, rel=self.rtol)
 
     def test_reverse_rop_ddP(self):
         # check derivatives of reverse rop with respect to pressure
@@ -369,7 +369,7 @@ class RateExpressionTests:
         drop = self.gas.reverse_rates_of_progress_ddP
         drop += self.gas.reverse_rates_of_progress_ddC * dcdp
         drop_num = self.rop_ddP(mode="reverse")
-        assert drop[self.rxn_idx] == approx(drop_num, self.rtol)
+        assert drop[self.rxn_idx] == approx(drop_num, rel=self.rtol)
 
     def test_net_rop_ddP(self):
         # check derivatives of net rop with respect to pressure
@@ -379,7 +379,7 @@ class RateExpressionTests:
         drop = self.gas.net_rates_of_progress_ddP
         drop += self.gas.net_rates_of_progress_ddC * dcdp
         drop_num = self.rop_ddP(mode="net")
-        assert drop[self.rxn_idx] == approx(drop_num, self.rtol)
+        assert drop[self.rxn_idx] == approx(drop_num, rel=self.rtol)
 
     def rate_ddT(self, mode=None, const_p=False, rtol=1e-6):
         # numerical derivative for production rates with respect to temperature
@@ -411,7 +411,7 @@ class RateExpressionTests:
         drate += self.gas.net_production_rates_ddC * dcdt
         drate_num = self.rate_ddT(mode="net", const_p=True)
         for spc_ix in self.rix + self.pix:
-            assert drate[spc_ix] == pytest.approx(drate_num[spc_ix], self.rtol)
+            assert drate[spc_ix] == pytest.approx(drate_num[spc_ix], rel=self.rtol)
 
         # constant density (volume) - need to account for pressure change
         # numeric: d(omegadot)/dT =
@@ -421,7 +421,7 @@ class RateExpressionTests:
         drate += self.gas.net_production_rates_ddP * dpdt
         drate_num = self.rate_ddT(mode="creation") - self.rate_ddT(mode="destruction")
         for spc_ix in self.rix + self.pix:
-            assert drate[spc_ix] == pytest.approx(drate_num[spc_ix], self.rtol)
+            assert drate[spc_ix] == pytest.approx(drate_num[spc_ix], rel=self.rtol)
 
     def rate_ddX(self, spc_ix, mode=None, const_t=True, rtol_deltac=1e-6,
                  atol_deltac=1e-20, ddX=True):
