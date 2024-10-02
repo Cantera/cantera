@@ -14,9 +14,6 @@ except ImportError:
 
 from cantera.composite import _pandas
 
-from .utilities import (
-    assertArrayNear
-)
 
 @pytest.fixture(scope='class')
 def setup_models_tests(request, load_yaml):
@@ -73,9 +70,9 @@ class TestModels:
     def test_restore_thermo_models(self):
 
         def check(a, b):
-            assertArrayNear(a.T, b.T)
-            assertArrayNear(a.P, b.P)
-            assertArrayNear(a.X, b.X)
+            assert a.T == approx(b.T)
+            assert a.P == approx(b.P)
+            assert a.X == approx(b.X)
 
         for ph in self.yml['phases']:
 
@@ -138,7 +135,7 @@ class TestPickle:
             gas2 = pickle.load(pkl)
         assert gas.T == approx(gas2.T)
         assert gas.P == approx(gas2.P)
-        assertArrayNear(gas.X, gas2.X)
+        assert gas.X == approx(gas2.X)
 
         assert  gas2.transport_model == "none"
 
@@ -153,7 +150,7 @@ class TestPickle:
             gas2 = pickle.load(pkl)
         assert gas.T == approx(gas2.T)
         assert gas.P == approx(gas2.P)
-        assertArrayNear(gas.X, gas2.X)
+        assert gas.X == approx(gas2.X)
 
         assert gas2.transport_model == "multicomponent"
 
@@ -463,7 +460,7 @@ class TestSolutionArrayIO:
         states.append(gas.state)
         assert states[0].T == gas.T
         assert states[0].P == gas.P
-        assertArrayNear(states[0].X, gas.X)
+        assert states[0].X == approx(gas.X)
         assert len(states) == 1
         assert states.shape == (1,)
         assert states.ndim == 1
@@ -477,7 +474,7 @@ class TestSolutionArrayIO:
         states.append(T=gas.T, P=gas.P, Y=gas.Y, normalize=False)
         assert states[0].T == gas.T
         assert states[0].P == gas.P
-        assertArrayNear(states[0].Y, gas.Y)
+        assert states[0].Y == approx(gas.Y)
 
     @pytest.mark.skipif("native" not in ct.hdf_support(),
                         reason="Cantera compiled without HDF support")
@@ -493,20 +490,20 @@ class TestSolutionArrayIO:
         gas_new = ct.Solution("h2o2.yaml")
         b = ct.SolutionArray(gas_new)
         b.restore(outfile, "group0") #, normalize=False)
-        assertArrayNear(states.T, b.T)
-        assertArrayNear(states.P, b.P)
-        assertArrayNear(states.X, b.X)
+        assert states.T == approx(b.T)
+        assert states.P == approx(b.P)
+        assert states.X == approx(b.X)
 
     def check_arrays(self, a, b, rtol=1e-8):
-        assertArrayNear(a.T, b.T, rtol=rtol)
-        assertArrayNear(a.P, b.P, rtol=rtol)
-        assertArrayNear(a.X, b.X, rtol=rtol)
+        assert a.T == approx(b.T, rel=rtol)
+        assert a.P == approx(b.P, rel=rtol)
+        assert a.X == approx(b.X, rel=rtol)
         for key in a.extra:
             value = getattr(a, key)
             if isinstance(value[0], str):
                 assert (getattr(b, key) == value).all()
             else:
-                assertArrayNear(getattr(b, key), value, rtol=rtol)
+                assert getattr(b, key) == approx(value, rel=rtol)
         if b.meta:
             # not all output formats preserve metadata
             for key, value in a.meta.items():
@@ -790,7 +787,7 @@ class TestLegacyHDF:
         infile = self.test_data_path / f"solutionarray_multi_legacy.h5"
 
         b.restore(infile, "group0")
-        assertArrayNear(arr.spam, b.spam)
+        assert arr.spam == approx(b.spam)
 
     @pytest.mark.skipif("native" not in ct.hdf_support(),
                         reason="Cantera compiled without HDF support")
@@ -809,11 +806,11 @@ class TestLegacyHDF:
         infile = self.test_data_path / f"solutionarray_fancy_legacy.h5"
         b = ct.SolutionArray(self.gas)
         attr = b.restore(infile, "group0")
-        assertArrayNear(states.T, b.T)
-        assertArrayNear(states.P, b.P)
-        assertArrayNear(states.X, b.X)
-        assertArrayNear(states.foo, b.foo)
-        assertArrayNear(states.bar, b.bar)
+        assert states.T == approx(b.T)
+        assert states.P == approx(b.P)
+        assert states.X == approx(b.X)
+        assert states.foo == approx(b.foo)
+        assert states.bar == approx(b.bar)
         assert b.meta['spam'] == 'eggs'
         assert b.meta['hello'] == 'world'
         assert attr['foobar'] == 'spam and eggs'
@@ -836,9 +833,9 @@ class TestLegacyHDF:
             b.read_hdf(infile, normalize=False)
         else:
             b.restore(infile, "group0")
-        assertArrayNear(states.T, b.T, rtol=1e-7)
-        assertArrayNear(states.P, b.P, rtol=1e-7)
-        assertArrayNear(states.X, b.X, rtol=1e-7)
+        assert states.T == approx(b.T, rel=1e-7)
+        assert states.P == approx(b.P, rel=1e-7)
+        assert states.X == approx(b.X, rel=1e-7)
 
     @pytest.mark.skipif("native" not in ct.hdf_support(),
                         reason="Cantera compiled without HDF support")
@@ -853,9 +850,9 @@ class TestLegacyHDF:
         infile = self.test_data_path / "solutionarray_water_legacy.h5"
         c = ct.SolutionArray(w_new)
         c.restore(infile, "group0")
-        assertArrayNear(states.T, c.T, rtol=1e-7)
-        assertArrayNear(states.P, c.P, rtol=1e-7)
-        assertArrayNear(states.Q, c.Q, rtol=1e-7)
+        assert states.T == approx(c.T, rel=1e-7)
+        assert states.P == approx(c.P, rel=1e-7)
+        assert states.Q == approx(c.Q, rel=1e-7)
 
 
 @pytest.fixture(scope='class')
@@ -870,13 +867,13 @@ class TestRestoreIdealGas:
 
         def check(a, b, atol=None):
             if atol is None:
-                assertArrayNear(a.T, b.T)
-                assertArrayNear(a.P, b.P)
-                assertArrayNear(a.X, b.X)
+                assert a.T == approx(b.T)
+                assert a.P == approx(b.P)
+                assert a.X == approx(b.X)
             else:
-                assertArrayNear(a.T, b.T, atol=atol)
-                assertArrayNear(a.P, b.P, atol=atol)
-                assertArrayNear(a.X, b.X, atol=atol)
+                assert a.T == approx(b.T, abs=atol)
+                assert a.P == approx(b.P, abs=atol)
+                assert a.X == approx(b.X, abs=atol)
 
         # test ThermoPhase
         a = ct.SolutionArray(self.gas)
@@ -898,9 +895,9 @@ class TestRestoreIdealGas:
         # skip concentrations
         b = ct.SolutionArray(self.gas)
         b.restore_data({'T': data['T'], 'density': data['density']})
-        assertArrayNear(a.T, b.T)
-        assertArrayNear(a.density, b.density)
-        assert not np.allclose(a.X, b.X)
+        assert a.T == approx(b.T)
+        assert a.density == approx(b.density)
+        assert not a.X == approx(b.X)
 
         # wrong data shape
         b = ct.SolutionArray(self.gas)
@@ -931,7 +928,7 @@ class TestRestoreIdealGas:
         b = ct.SolutionArray(self.gas, extra=('time',))
         b.restore_data(data_mod)
         check(a, b)
-        assertArrayNear(b.time, t)
+        assert b.time == approx(t)
 
         # wrong extra
         b = ct.SolutionArray(self.gas, extra=('xyz',))
@@ -979,9 +976,9 @@ class TestRestorePureFluid:
     def test_restore_water(self):
 
         def check(a, b):
-            assertArrayNear(a.T, b.T)
-            assertArrayNear(a.P, b.P)
-            assertArrayNear(a.Q, b.Q)
+            assert a.T == approx(b.T)
+            assert a.P == approx(b.P)
+            assert a.Q == approx(b.Q)
 
         assert self.water.has_phase_transition
 
@@ -1031,9 +1028,9 @@ class TestRestorePureFluid:
         w_new = ct.Water()
         c = ct.SolutionArray(w_new)
         c.restore(outfile, "group0") # normalize=False)
-        assertArrayNear(states.T, c.T)
-        assertArrayNear(states.P, c.P)
-        assertArrayNear(states.Q, c.Q)
+        assert states.T == approx(c.T)
+        assert states.P == approx(c.P)
+        assert states.Q == approx(c.Q)
 
     def test_append_no_norm_water(self):
         w = ct.Water()
@@ -1061,9 +1058,9 @@ class TestRestorePureFluid:
 
         saved = ct.SolutionArray(water)
         saved.restore(outfile, "group0") # normalize=False)
-        assertArrayNear(states.T, saved.T)
-        assertArrayNear(states.P, saved.P)
-        assertArrayNear(states.Q, saved.Q)
+        assert states.T == approx(saved.T)
+        assert states.P == approx(saved.P)
+        assert states.Q == approx(saved.Q)
         assert list(saved.phase_of_matter) == pom
 
 
@@ -1140,12 +1137,10 @@ class TestSolutionSerialization:
             assert blessed.equation == generated["equation"]
 
         gas2 = ct.Solution(self.test_work_path / "h2o2-generated.yaml")
-        assertArrayNear(gas.concentrations, gas2.concentrations)
-        assertArrayNear(gas.partial_molar_enthalpies,
-                        gas2.partial_molar_enthalpies)
-        assertArrayNear(gas.forward_rate_constants,
-                        gas2.forward_rate_constants)
-        assertArrayNear(gas.mix_diff_coeffs, gas2.mix_diff_coeffs)
+        assert gas.concentrations == approx(gas2.concentrations)
+        assert gas.partial_molar_enthalpies == approx(gas2.partial_molar_enthalpies)
+        assert gas.forward_rate_constants == approx(gas2.forward_rate_constants)
+        assert gas.mix_diff_coeffs == approx(gas2.mix_diff_coeffs)
 
     def test_yaml_outunits1(self, load_yaml):
         gas = ct.Solution('h2o2.yaml')
@@ -1164,12 +1159,10 @@ class TestSolutionSerialization:
                 assert r1['rate-constant']['Ea'] == approx(r2['rate-constant']['Ea'])
 
         gas2 = ct.Solution(self.test_work_path / "h2o2-generated.yaml")
-        assertArrayNear(gas.concentrations, gas2.concentrations)
-        assertArrayNear(gas.partial_molar_enthalpies,
-                        gas2.partial_molar_enthalpies)
-        assertArrayNear(gas.forward_rate_constants,
-                        gas2.forward_rate_constants)
-        assertArrayNear(gas.mix_diff_coeffs, gas2.mix_diff_coeffs)
+        assert gas.concentrations == approx(gas2.concentrations)
+        assert gas.partial_molar_enthalpies == approx(gas2.partial_molar_enthalpies)
+        assert gas.forward_rate_constants == approx(gas2.forward_rate_constants)
+        assert gas.mix_diff_coeffs == approx(gas2.mix_diff_coeffs)
 
     def test_yaml_outunits2(self, load_yaml):
         gas = ct.Solution('h2o2.yaml')
@@ -1188,12 +1181,10 @@ class TestSolutionSerialization:
                 assert r1['rate-constant']['Ea'] == approx(r2['rate-constant']['Ea'])
 
         gas2 = ct.Solution(self.test_work_path / "h2o2-generated.yaml")
-        assertArrayNear(gas.concentrations, gas2.concentrations)
-        assertArrayNear(gas.partial_molar_enthalpies,
-                        gas2.partial_molar_enthalpies)
-        assertArrayNear(gas.forward_rate_constants,
-                        gas2.forward_rate_constants)
-        assertArrayNear(gas.mix_diff_coeffs, gas2.mix_diff_coeffs)
+        assert gas.concentrations == approx(gas2.concentrations)
+        assert gas.partial_molar_enthalpies == approx(gas2.partial_molar_enthalpies)
+        assert gas.forward_rate_constants == approx(gas2.forward_rate_constants)
+        assert gas.mix_diff_coeffs == approx(gas2.mix_diff_coeffs)
 
     def check_ptcombust(self, gas, surf, load_yaml):
         generated = load_yaml(self.test_work_path / "ptcombust-generated.yaml")
@@ -1204,11 +1195,9 @@ class TestSolutionSerialization:
         assert len(generated["species"]) == surf.n_total_species
 
         surf2 = ct.Solution(self.test_work_path / "ptcombust-generated.yaml", "Pt_surf")
-        assertArrayNear(surf.concentrations, surf2.concentrations)
-        assertArrayNear(surf.partial_molar_enthalpies,
-                        surf2.partial_molar_enthalpies)
-        assertArrayNear(surf.forward_rate_constants,
-                        surf2.forward_rate_constants)
+        assert surf.concentrations == approx(surf2.concentrations)
+        assert surf.partial_molar_enthalpies == approx(surf2.partial_molar_enthalpies)
+        assert surf.forward_rate_constants == approx(surf2.forward_rate_constants)
 
     def test_yaml_surface_explicit(self, load_yaml):
         gas = ct.Solution("ptcombust.yaml", "gas")
@@ -1378,7 +1367,7 @@ class TestInterfaceAdjacent:
         gas1 = tpb.adjacent["metal_surface"].adjacent["gas"]
         gas2 = tpb.adjacent["oxide_surface"].adjacent["gas"]
         gas1.X = [0.1, 0.4, 0.3, 0.2]
-        assertArrayNear(gas1.X, gas2.X)
+        assert gas1.X == approx(gas2.X)
 
     def test_invalid(self):
         with pytest.raises(ct.CanteraError, match="does not contain"):
