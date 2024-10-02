@@ -5,9 +5,6 @@ from pathlib import Path
 import pytest
 from pytest import approx
 
-from .utilities import (
-    assertArrayNear
-)
 
 import cantera as ct
 from cantera import ck2yaml, cti2yaml, ctml2yaml, yaml2ck, lxcat2yaml
@@ -399,10 +396,10 @@ class Testck2yaml:
 
         R = gas.reactant_stoich_coeffs
         P = gas.product_stoich_coeffs
-        assertArrayNear(R[:,0], [0, 1.5, 0.5, 0])
-        assertArrayNear(P[:,0], [1, 0, 0, 1])
-        assertArrayNear(R[:,1], [1, 0, 0, 1])
-        assertArrayNear(P[:,1], [0, 0.33, 1.67, 0])
+        assert R[:,0] == approx([0, 1.5, 0.5, 0])
+        assert P[:,0] == approx([1, 0, 0, 1])
+        assert R[:,1] == approx([1, 0, 0, 1])
+        assert P[:,1] == approx([0, 0.33, 1.67, 0])
 
     def test_unparsable_reaction(self):
         with pytest.raises(ck2yaml.InputError, match="Unparsable line"):
