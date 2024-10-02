@@ -1,10 +1,10 @@
 import copy
 import numpy as np
 import pytest
+from pytest import approx
 
 import cantera as ct
 from .utilities import (
-    assertNear,
     assertArrayNear
 )
 
@@ -31,9 +31,9 @@ class TestTransport:
 
         eps = np.spacing(1) # Machine precision
         assert all(np.diff(Dkm) < 2*eps)
-        assertNear(Dkm[0], alpha)
+        assert Dkm[0] == approx(alpha)
         assert all(np.diff(Dkm_prime) < 2*eps)
-        assertNear(Dkm_prime[0], alpha)
+        assert Dkm_prime[0] == approx(alpha)
 
     def test_mixtureAveraged(self):
         assert self.phase.transport_model == 'mixture-averaged'
@@ -124,8 +124,8 @@ class TestTransport:
             gas2.add_species(S[s])
         gas2.TPX = state
 
-        assertNear(gas1.viscosity, gas2.viscosity)
-        assertNear(gas1.thermal_conductivity, gas2.thermal_conductivity)
+        assert gas1.viscosity == approx(gas2.viscosity)
+        assert gas1.thermal_conductivity == approx(gas2.thermal_conductivity)
         assertArrayNear(gas1.binary_diff_coeffs, gas2.binary_diff_coeffs)
         assertArrayNear(gas1.mix_diff_coeffs, gas2.mix_diff_coeffs)
 
@@ -148,7 +148,7 @@ class TestTransport:
             gas2.add_species(S[s])
         gas2.TPX = state
 
-        assertNear(gas1.thermal_conductivity, gas2.thermal_conductivity)
+        assert gas1.thermal_conductivity == approx(gas2.thermal_conductivity)
         assertArrayNear(gas1.multi_diff_coeffs, gas2.multi_diff_coeffs)
 
     def test_species_visosities(self):
@@ -158,12 +158,10 @@ class TestTransport:
             self.phase.X = {species_name: 1}
             self.phase.TP = 800, 2*ct.one_atm
             visc = self.phase.viscosity
-            assertNear(self.phase[species_name].species_viscosities[0],
-                            visc)
+            assert self.phase[species_name].species_viscosities[0] == approx(visc)
             # and ensure it doesn't change with pressure
             self.phase.TP = 800, 5*ct.one_atm
-            assertNear(self.phase[species_name].species_viscosities[0],
-                            visc)
+            assert self.phase[species_name].species_viscosities[0] == approx(visc)
 
     def test_transport_polynomial_fits_viscosity(self):
         visc1_h2o = self.phase['H2O'].species_viscosities[0]
@@ -229,19 +227,19 @@ class TestIonTransport:
 
     def test_binary_diffusion(self):
         bdiff = self.gas.binary_diff_coeffs[self.kN2][self.kH3Op]
-        assertNear(bdiff, 4.258e-4, 1e-4)  # Regression test
+        assert bdiff == approx(4.258e-4, rel=1e-4)  # Regression test
 
     def test_mixture_diffusion(self):
         mdiff = self.gas.mix_diff_coeffs[self.kH3Op]
-        assertNear(mdiff, 5.057e-4, 1e-4)  # Regression test
+        assert mdiff == approx(5.057e-4, rel=1e-4)  # Regression test
 
     def test_O2_anion_mixture_diffusion(self):
         mdiff = self.gas['O2-'].mix_diff_coeffs[0]
-        assertNear(mdiff, 2.784e-4, 1e-3)  # Regression test
+        assert mdiff == approx(2.784e-4, rel=1e-3)  # Regression test
 
     def test_mobility(self):
         mobi = self.gas.mobilities[self.kH3Op]
-        assertNear(mobi, 2.623e-3, 1e-4)  # Regression test
+        assert mobi == approx(2.623e-3, rel=1e-4)  # Regression test
 
     def test_update_temperature(self):
         bdiff = self.gas.binary_diff_coeffs[self.kN2][self.kH3Op]
@@ -362,7 +360,8 @@ class TestDustyGas:
         assert fluxes1[kH2O] > 0
 
         # Not sure why the following condition is not satisfied:
-        # assertNear(sum(fluxes1) / sum(abs(fluxes1)), 0.0)
+        #assert sum(fluxes1) == approx(0.0)
+        #assert sum(fluxes1) / sum(abs(fluxes1)) == approx(0.0)
 
     def test_thermal_conductivity(self):
         gas1 = ct.Solution("h2o2.yaml", transport_model="multicomponent")
@@ -387,11 +386,11 @@ class TestWaterTransport:
 
     def check_viscosity(self, T, P, mu, rtol):
         self.water.TP = T, P
-        assertNear(self.water.viscosity, mu, rtol)
+        assert self.water.viscosity == approx(mu, rel=rtol)
 
     def check_thermal_conductivity(self, T, P, k, rtol):
         self.water.TP = T, P
-        assertNear(self.water.thermal_conductivity, k, rtol)
+        assert self.water.thermal_conductivity == approx(k, rel=rtol)
 
     def test_viscosity_liquid(self):
         self.check_viscosity(400, 1e6, 2.1880e-4, 1e-3)
@@ -440,11 +439,11 @@ class TestIAPWS95WaterTransport:
 
     def check_viscosity(self, T, P, mu, rtol):
         self.water.TP = T, P
-        assertNear(self.water.viscosity, mu, rtol)
+        assert self.water.viscosity == approx(mu, rel=rtol)
 
     def check_thermal_conductivity(self, T, P, k, rtol):
         self.water.TP = T, P
-        assertNear(self.water.thermal_conductivity, k, rtol)
+        assert self.water.thermal_conductivity == approx(k, rel=rtol)
 
     def test_viscosity_liquid(self):
         self.check_viscosity(400, 1e6, 2.1880e-4, 2e-4)
@@ -481,21 +480,21 @@ class TestTransportData:
     def test_read(self):
         tr = self.gas.species('H2').transport
         assert tr.geometry == 'linear'
-        assertNear(tr.diameter, 2.92e-10)
-        assertNear(tr.well_depth, 38.0 * ct.boltzmann)
-        assertNear(tr.polarizability, 0.79e-30)
-        assertNear(tr.rotational_relaxation, 280)
+        assert tr.diameter == approx(2.92e-10)
+        assert tr.well_depth == approx(38.0 * ct.boltzmann)
+        assert tr.polarizability == approx(0.79e-30)
+        assert tr.rotational_relaxation == approx(280)
 
     def test_set_customary_units(self):
         tr1 = ct.GasTransportData()
         tr1.set_customary_units('nonlinear', 2.60, 572.40, 1.84, 0.0, 4.00)
         tr2 = self.gas.species('H2O').transport
         assert tr1.geometry == tr2.geometry
-        assertNear(tr1.diameter, tr2.diameter)
-        assertNear(tr1.well_depth, tr2.well_depth)
-        assertNear(tr1.dipole, tr2.dipole)
-        assertNear(tr1.polarizability, tr2.polarizability)
-        assertNear(tr1.rotational_relaxation, tr2.rotational_relaxation)
+        assert tr1.diameter == approx(tr2.diameter)
+        assert tr1.well_depth == approx(tr2.well_depth)
+        assert tr1.dipole == approx(tr2.dipole)
+        assert tr1.polarizability == approx(tr2.polarizability)
+        assert tr1.rotational_relaxation == approx(tr2.rotational_relaxation)
 
 
 @pytest.fixture(scope='function')
@@ -508,8 +507,8 @@ class TestIonGasTransportData:
 
     def test_read_ion(self):
         tr = self.gas.species('N2').transport
-        assertNear(tr.dispersion_coefficient, 2.995e-50)
-        assertNear(tr.quadrupole_polarizability, 3.602e-50)
+        assert tr.dispersion_coefficient == approx(2.995e-50)
+        assert tr.quadrupole_polarizability == approx(3.602e-50)
 
     def test_set_customary_units(self):
         tr1 = ct.GasTransportData()
@@ -517,5 +516,5 @@ class TestIonGasTransportData:
                                 dispersion_coefficient = 2.995,
                                 quadrupole_polarizability = 3.602)
         tr2 = self.gas.species('N2').transport
-        assertNear(tr1.dispersion_coefficient, tr2.dispersion_coefficient)
-        assertNear(tr1.quadrupole_polarizability, tr2.quadrupole_polarizability)
+        assert tr1.dispersion_coefficient == approx(tr2.dispersion_coefficient)
+        assert tr1.quadrupole_polarizability == approx(tr2.quadrupole_polarizability)
