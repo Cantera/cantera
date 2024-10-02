@@ -146,7 +146,7 @@ class TestTransport(utilities.CanteraTest):
         self.assertNear(gas1.thermal_conductivity, gas2.thermal_conductivity)
         self.assertArrayNear(gas1.multi_diff_coeffs, gas2.multi_diff_coeffs)
 
-    def test_species_visosities(self):
+    def test_species_viscosities(self):
         for species_name in self.phase.species_names:
             # check that species viscosity matches overall for single-species
             # state
@@ -493,3 +493,21 @@ class TestIonGasTransportData(utilities.CanteraTest):
         tr2 = self.gas.species('N2').transport
         self.assertNear(tr1.dispersion_coefficient, tr2.dispersion_coefficient)
         self.assertNear(tr1.quadrupole_polarizability, tr2.quadrupole_polarizability)
+
+class TestHighPressureGasTransport(utilities.CanteraTest):
+    def test_acentric_factor_from_critical_properties(self):
+        # The acentric factor should be obtained from the critical-properties.yaml
+        # file given the input file that lacks the acentric-factor field.
+        state = 370.8, 174.8e5, 'CH4:0.755, CO2:0.245'
+        gas = ct.Solution(self.test_data_path / 'methane_co2_noAcentricFactor.yaml')
+        gas.transport_model = 'high-pressure-Chung'
+        gas.TPX = state
+        thermal_conductivity_1 = gas.thermal_conductivity
+
+        gas = ct.Solution(self.test_data_path / 'methane_co2.yaml')
+        gas.transport_model = 'high-pressure-Chung'
+        gas.TPX = state
+        thermal_conductivity_2 = gas.thermal_conductivity
+        assert thermal_conductivity_1 == pytest.approx(thermal_conductivity_2, 1e-6)
+
+
