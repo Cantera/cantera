@@ -6,7 +6,6 @@ import cantera as ct
 
 from .utilities import yaml
 from .utilities import (
-    assertArrayNear,
     compareProfiles
 )
 
@@ -44,15 +43,15 @@ class TestOnedim:
         Yref = gas2.Y
         inlet.Y = Yref
 
-        assertArrayNear(inlet.Y, Yref)
-        assertArrayNear(inlet.X, Xref)
+        assert inlet.Y == approx(Yref)
+        assert inlet.X == approx(Xref)
 
         gas2.TPX = 400, 101325, 'H2:0.5, O2:0.2, AR:0.3'
         Xref = gas2.X
         Yref = gas2.Y
         inlet.X = Xref
-        assertArrayNear(inlet.X, Xref)
-        assertArrayNear(inlet.Y, Yref)
+        assert inlet.X == approx(Xref)
+        assert inlet.Y == approx(Yref)
 
         inlet.X = {'H2':0.3, 'O2':0.5, 'AR':0.2}
         assert inlet.X[gas2.species_index('H2')] == approx(0.3)
@@ -325,19 +324,19 @@ class TestFreeFlame:
         self.run_mix(phi=1.0, T=300, width=2.0, p=1.0, refine=False)
 
         flow = self.sim.to_array(normalize=True)
-        assertArrayNear(self.sim.grid, flow.grid)
-        assertArrayNear(self.sim.T, flow.T)
+        assert self.sim.grid == approx(flow.grid)
+        assert self.sim.T == approx(flow.T)
 
         f2 = ct.FreeFlame(self.gas)
         f2.from_array(flow)
-        assertArrayNear(self.sim.grid, f2.grid)
-        assertArrayNear(self.sim.T, f2.T)
+        assert self.sim.grid == approx(f2.grid)
+        assert self.sim.T == approx(f2.T)
 
         inlet = self.sim.to_array(self.sim.inlet)
         f2.from_array(inlet, f2.inlet)
         assert self.sim.inlet.T == approx(f2.inlet.T)
         assert self.sim.inlet.mdot == approx(f2.inlet.mdot)
-        assertArrayNear(self.sim.inlet.Y, f2.inlet.Y)
+        assert self.sim.inlet.Y == approx(f2.inlet.Y)
 
     def test_restart_array(self):
         # restart from SolutionArray
@@ -661,10 +660,10 @@ class TestFreeFlame:
         V2 = self.sim.spread_rate
         T2 = self.sim.T
 
-        assertArrayNear(Y1, Y2)
-        assertArrayNear(u1, u2)
-        assertArrayNear(V1, V2)
-        assertArrayNear(T1, T2)
+        assert Y1 == approx(Y2)
+        assert u1 == approx(u2)
+        assert V1 == approx(V2)
+        assert T1 == approx(T2)
 
         self.solve_fixed_T()
         Y3 = self.sim.Y
@@ -673,9 +672,9 @@ class TestFreeFlame:
 
         # TODO: These tolerances seem too loose, but the tests fail on some
         # systems with tighter tolerances.
-        assertArrayNear(Y1, Y3, 3e-3)
-        assertArrayNear(u1, u3, 1e-3)
-        assertArrayNear(V1, V3, 1e-3)
+        assert Y1 == approx(Y3, rel=3e-3)
+        assert u1 == approx(u3, rel=1e-3)
+        assert V1 == approx(V3, rel=1e-3)
 
         assert not self.sim.radiation_enabled
         assert not self.sim.soret_enabled
@@ -756,10 +755,10 @@ class TestFreeFlame:
 
         assert self.sim.soret_enabled
         assert self.sim.max_grid_points == 234
-        assertArrayNear(T1, T2)
+        assert T1 == approx(T2)
         for k1, species in enumerate(gas1.species_names):
             k2 = gas2.species_index(species)
-            assertArrayNear(Y1[k1], Y2[k2])
+            assert Y1[k1] == approx(Y2[k2])
 
     @pytest.mark.slow_test
     def test_save_restore_remove_species_yaml(self):
@@ -786,10 +785,10 @@ class TestFreeFlame:
         T2 = self.sim.T
         Y2 = self.sim.Y
 
-        assertArrayNear(T1, T2)
+        assert T1 == approx(T2)
         for k2, species in enumerate(gas2.species_names):
             k1 = gas1.species_index(species)
-            assertArrayNear(Y1[k1], Y2[k2])
+            assert Y1[k1] == approx(Y2[k2])
 
     def test_write_csv(self):
         filename = self.test_work_path / "onedim-save.csv"
@@ -799,10 +798,10 @@ class TestFreeFlame:
         self.sim.save(filename, basis="mole")
         data = ct.SolutionArray(self.gas)
         data.read_csv(filename)
-        assertArrayNear(data.grid, self.sim.grid)
-        assertArrayNear(data.T, self.sim.T)
+        assert data.grid == approx(self.sim.grid)
+        assert data.T == approx(self.sim.T)
         k = self.gas.species_index('H2')
-        assertArrayNear(data.X[:, k], self.sim.X[k, :])
+        assert data.X[:, k] == approx(self.sim.X[k, :])
 
     @pytest.mark.usefixtures("allow_deprecated")
     @pytest.mark.filterwarnings("ignore:.*legacy HDF.*:UserWarning")
@@ -986,7 +985,7 @@ class TestDiffusionFlame:
         Tfixed = self.sim.T
         self.solve_fixed_T()
         assert nPoints == len(self.sim.grid)
-        assertArrayNear(Tfixed, self.sim.T)
+        assert Tfixed == approx(self.sim.T)
 
         self.solve_mix()
         data = np.empty((self.sim.flame.n_points, self.gas.n_species + 4))
@@ -1101,7 +1100,7 @@ class TestDiffusionFlame:
         Tfixed = self.sim.T
         self.solve_fixed_T()
         assert nPoints == len(self.sim.grid)
-        assertArrayNear(Tfixed, self.sim.T)
+        assert Tfixed == approx(self.sim.T)
         assert not self.sim.radiation_enabled
         self.sim.radiation_enabled = True
         assert self.sim.radiation_enabled
@@ -1258,7 +1257,7 @@ class TestDiffusionFlame:
         temperature_2 = sim.T
 
         # Check difference between the two solutions
-        assertArrayNear(temperature_1, temperature_2, rtol=1e-4, atol=1e-6)
+        assert temperature_1 == approx(temperature_2, rel=1e-4, abs=1e-6)
 
 
         # Test - See if the solution is the same when the temperature is decremented and
@@ -1276,7 +1275,7 @@ class TestDiffusionFlame:
 
         # Check the difference between the un-perturbed two-point solution and the
         # round-trip solution.
-        assertArrayNear(temperature_2, temperature_4, rtol=1e-4, atol=1e-6)
+        assert temperature_2 == approx(temperature_4, rel=1e-4, abs=1e-6)
 
         # Test 4 - Checking property setters/getters
         val_1 = sim.right_control_point_temperature
@@ -1650,7 +1649,7 @@ class TestBurnerFlame:
         # nonreacting solution
         assert sim.T[-1] == approx(sim.T[0], rel=1e-6)
         assert sim.velocity[-1] == approx(sim.velocity[0], rel=1e-6)
-        assertArrayNear(sim.Y[:,0], sim.Y[:,-1], 1e-6, atol=1e-6)
+        assert sim.Y[:,0] == approx(sim.Y[:,-1], rel=1e-6, abs=1e-6)
 
     def test_restart(self):
         gas = ct.Solution("h2o2.yaml")
@@ -1928,8 +1927,8 @@ class TestTwinFlame:
         sim2 = ct.CounterflowTwinPremixedFlame(gas=gas)
         sim2.restore(filename)
 
-        assertArrayNear(sim.grid, sim2.grid)
-        assertArrayNear(sim.Y, sim2.Y)
+        assert sim.grid == approx(sim2.grid)
+        assert sim.Y == approx(sim2.Y)
 
         sim2.solve(loglevel=0)
         return filename, "solution"

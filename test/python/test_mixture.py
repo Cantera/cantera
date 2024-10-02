@@ -2,9 +2,7 @@ import pytest
 from pytest import approx
 
 import cantera as ct
-from .utilities import (
-    assertArrayNear
-)
+
 
 @pytest.fixture(scope='class')
 def phases(request):
@@ -159,8 +157,8 @@ class TestMixture:
         C1 = self.phase1.chemical_potentials
         C2 = self.phase2.chemical_potentials
 
-        assertArrayNear(C[:self.phase1.n_species], C1)
-        assertArrayNear(C[self.phase1.n_species:], C2)
+        assert C[:self.phase1.n_species] == approx(C1)
+        assert C[self.phase1.n_species:] == approx(C2)
 
     def test_equilibrate1(self):
         self.mix.species_moles = 'H2:1.0, O2:0.5, N2:1.0'
@@ -171,7 +169,7 @@ class TestMixture:
         self.mix.equilibrate('TP', solver='vcs', estimate_equil=-1)
 
         E2 = [self.mix.element_moles(m) for m in range(self.mix.n_elements)]
-        assertArrayNear(E1, E2)
+        assert E1 == approx(E2)
         assert self.mix.T == approx(400)
         assert self.mix.P == approx(2 * ct.one_atm)
 
@@ -185,7 +183,7 @@ class TestMixture:
         self.mix.equilibrate('TP', solver='gibbs')
 
         E2 = [self.mix.element_moles(m) for m in range(self.mix.n_elements)]
-        assertArrayNear(E1, E2)
+        assert E1 == approx(E2)
         assert self.mix.T == approx(400)
         assert self.mix.P == approx(2 * ct.one_atm)
 

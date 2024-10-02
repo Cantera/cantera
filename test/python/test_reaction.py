@@ -7,9 +7,6 @@ import sys
 import textwrap
 
 import cantera as ct
-from .utilities import (
-    assertArrayNear
-)
 
 
 @pytest.fixture(scope='class')
@@ -1176,7 +1173,7 @@ class ReactionTests:
         # helper function for deprecation tests
         assert type(one) == type(two)
         if isinstance(one, (list, tuple, np.ndarray)):
-            assertArrayNear(one, two)
+            assert one == approx(two)
         elif isinstance(one, (dict, str)):
             assert one == two
         else:

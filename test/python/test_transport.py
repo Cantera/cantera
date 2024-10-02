@@ -4,9 +4,7 @@ import pytest
 from pytest import approx
 
 import cantera as ct
-from .utilities import (
-    assertArrayNear
-)
+
 
 @pytest.fixture(scope='function')
 def setup_transport(request):
@@ -47,11 +45,11 @@ class TestTransport:
         Dkm2b = self.phase.mix_diff_coeffs_mole
         Dkm2c = self.phase.mix_diff_coeffs_mass
         Dbin2 = self.phase.binary_diff_coeffs
-        assertArrayNear(Dkm1, Dkm2)
-        assertArrayNear(Dkm1b, Dkm2b)
-        assertArrayNear(Dkm1c, Dkm2c)
-        assertArrayNear(Dbin1, Dbin2)
-        assertArrayNear(Dbin1, Dbin1.T)
+        assert Dkm1 == approx(Dkm2)
+        assert Dkm1b == approx(Dkm2b)
+        assert Dkm1c == approx(Dkm2c)
+        assert Dbin1 == approx(Dbin2)
+        assert Dbin1 == approx(Dbin1.T)
 
     def test_mixDiffCoeffsChange(self):
         # This test is mainly to make code coverage in GasTransport.cpp
@@ -91,15 +89,14 @@ class TestTransport:
         self.phase.transport_model = 'mixture-averaged'
         Dkm2 = self.phase.mix_diff_coeffs
         Dbin2 = self.phase.binary_diff_coeffs
-        assertArrayNear(Dkm1, Dkm2)
-        assertArrayNear(Dbin1, Dbin2)
+        assert Dkm1 == approx(Dkm2)
+        assert Dbin1 == approx(Dbin2)
 
     def test_multiComponent(self):
         with pytest.raises(NotImplementedError):
             self.phase.multi_diff_coeffs
 
-        assertArrayNear(self.phase.thermal_diff_coeffs,
-                             np.zeros(self.phase.n_species))
+        assert self.phase.thermal_diff_coeffs == approx(np.zeros(self.phase.n_species))
 
         self.phase.transport_model = 'multicomponent'
         assert all(self.phase.multi_diff_coeffs.flat >= 0.0)
@@ -126,8 +123,8 @@ class TestTransport:
 
         assert gas1.viscosity == approx(gas2.viscosity)
         assert gas1.thermal_conductivity == approx(gas2.thermal_conductivity)
-        assertArrayNear(gas1.binary_diff_coeffs, gas2.binary_diff_coeffs)
-        assertArrayNear(gas1.mix_diff_coeffs, gas2.mix_diff_coeffs)
+        assert gas1.binary_diff_coeffs == approx(gas2.binary_diff_coeffs)
+        assert gas1.mix_diff_coeffs == approx(gas2.mix_diff_coeffs)
 
     def test_add_species_multi(self):
         yaml = (self.cantera_data_path / "gri30.yaml").read_text()
@@ -149,7 +146,7 @@ class TestTransport:
         gas2.TPX = state
 
         assert gas1.thermal_conductivity == approx(gas2.thermal_conductivity)
-        assertArrayNear(gas1.multi_diff_coeffs, gas2.multi_diff_coeffs)
+        assert gas1.multi_diff_coeffs == approx(gas2.multi_diff_coeffs)
 
     def test_species_visosities(self):
         for species_name in self.phase.species_names:
@@ -334,12 +331,12 @@ class TestDustyGas:
     def test_porosity(self):
         self.phase.porosity = 0.4
         D = self.phase.multi_diff_coeffs
-        assertArrayNear(self.Dref * 2, D)
+        assert self.Dref * 2 == approx(D)
 
     def test_tortuosity(self):
         self.phase.tortuosity = 0.6
         D = self.phase.multi_diff_coeffs
-        assertArrayNear(self.Dref * 0.5, D)
+        assert self.Dref * 0.5 == approx(D)
 
     # The other parameters don't have such simple relationships to the diffusion
     # coefficients, so we can't test them as easily
@@ -351,7 +348,7 @@ class TestDustyGas:
         T2, rho2, Y2 = self.phase.TDY
 
         fluxes0 = self.phase.molar_fluxes(T1, T1, rho1, rho1, Y1, Y1, 1e-4)
-        assertArrayNear(fluxes0, np.zeros(self.phase.n_species))
+        assert fluxes0 == approx(np.zeros(self.phase.n_species))
 
         fluxes1 = self.phase.molar_fluxes(T1, T2, rho1, rho2, Y1, Y2, 1e-4)
         kH2 = self.phase.species_index('H2')

@@ -8,7 +8,6 @@ import re
 import cantera as ct
 
 from .utilities import (
-    assertArrayNear,
     compare
 )
 
@@ -62,8 +61,8 @@ class TestKinetics:
         self.phase.set_multiplier(0.5)
         fwd_rates2 = self.phase.forward_rates_of_progress
         rev_rates2 = self.phase.reverse_rates_of_progress
-        assertArrayNear(0.5 * fwd_rates0, fwd_rates2)
-        assertArrayNear(0.5 * rev_rates0, rev_rates2)
+        assert 0.5 * fwd_rates0 == approx(fwd_rates2)
+        assert 0.5 * rev_rates0 == approx(rev_rates2)
 
     def test_legacy_reaction_rate(self):
         ct.use_legacy_rate_constants(True)
@@ -73,7 +72,7 @@ class TestKinetics:
         ix_3b = np.array([r.reaction_type == "three-body-Arrhenius" for r in self.phase.reactions()])
         ix_other = ix_3b == False
 
-        assertArrayNear(fwd_rates_legacy[ix_other], fwd_rates[ix_other])
+        assert fwd_rates_legacy[ix_other] == approx(fwd_rates[ix_other])
         assert not (fwd_rates_legacy[ix_3b] == fwd_rates[ix_3b]).any()
 
     def test_reaction_type(self):
@@ -156,8 +155,9 @@ class TestKinetics:
 
     def test_rates_of_progress(self):
         assert len(self.phase.net_rates_of_progress) == self.phase.n_reactions
-        assertArrayNear(self.phase.forward_rates_of_progress - self.phase.reverse_rates_of_progress,
-                        self.phase.net_rates_of_progress)
+        assert (self.phase.forward_rates_of_progress -
+                self.phase.reverse_rates_of_progress) == approx(
+               self.phase.net_rates_of_progress)
 
     def test_heat_release(self):
         hrr = - self.phase.partial_molar_enthalpies.dot(self.phase.net_production_rates)
@@ -167,9 +167,9 @@ class TestKinetics:
     def test_rate_constants(self):
         assert len(self.phase.forward_rate_constants) == self.phase.n_reactions
         ix = self.phase.reverse_rate_constants != 0.
-        assertArrayNear(
-            self.phase.forward_rate_constants[ix] / self.phase.reverse_rate_constants[ix],
-            self.phase.equilibrium_constants[ix])
+        assert (self.phase.forward_rate_constants[ix] /
+                self.phase.reverse_rate_constants[ix]) == approx(
+               self.phase.equilibrium_constants[ix])
 
     def test_species_rates(self):
         nu_p = self.phase.product_stoich_coeffs
@@ -179,18 +179,18 @@ class TestKinetics:
         destruction = (np.dot(nu_r, self.phase.forward_rates_of_progress) +
                        np.dot(nu_p, self.phase.reverse_rates_of_progress))
 
-        assertArrayNear(self.phase.creation_rates, creation)
-        assertArrayNear(self.phase.destruction_rates, destruction)
-        assertArrayNear(self.phase.net_production_rates,
-                             creation - destruction)
+        assert self.phase.creation_rates == approx(creation)
+        assert self.phase.destruction_rates == approx(destruction)
+        assert self.phase.net_production_rates == approx(creation - destruction)
 
     def test_reaction_deltas(self):
-        assertArrayNear(self.phase.delta_enthalpy -
-                             self.phase.delta_entropy * self.phase.T,
-                             self.phase.delta_gibbs)
-        assertArrayNear(self.phase.delta_standard_enthalpy -
-                        self.phase.delta_standard_entropy * self.phase.T,
-                        self.phase.delta_standard_gibbs)
+        assert (self.phase.delta_enthalpy -
+                self.phase.delta_entropy * self.phase.T) == approx(
+               self.phase.delta_gibbs)
+
+        assert (self.phase.delta_standard_enthalpy -
+                self.phase.delta_standard_entropy * self.phase.T) == approx(
+               self.phase.delta_standard_gibbs)
 
 
 class TestKineticsFromReactions:
@@ -213,9 +213,9 @@ class TestKineticsFromReactions:
         assert (gas1.reactant_stoich_coeffs == gas2.reactant_stoich_coeffs).all()
         assert (gas1.product_stoich_coeffs == gas2.product_stoich_coeffs).all()
 
-        assertArrayNear(gas1.delta_gibbs, gas2.delta_gibbs)
-        assertArrayNear(gas1.reverse_rate_constants, gas2.reverse_rate_constants)
-        assertArrayNear(gas1.net_production_rates, gas2.net_production_rates)
+        assert gas1.delta_gibbs == approx(gas2.delta_gibbs)
+        assert gas1.reverse_rate_constants == approx(gas2.reverse_rate_constants)
+        assert gas1.net_production_rates == approx(gas2.net_production_rates)
 
     def test_surface(self):
         surf1 = ct.Interface("ptcombust.yaml", "Pt_surf")
@@ -245,9 +245,9 @@ class TestKineticsFromReactions:
             assert r1.rate.temperature_exponent == r2.rate.temperature_exponent
             assert r1.rate.activation_energy == approx(r2.rate.activation_energy)
 
-        assertArrayNear(surf1.delta_enthalpy, surf2.delta_enthalpy)
-        assertArrayNear(surf1.forward_rate_constants, surf2.forward_rate_constants)
-        assertArrayNear(surf1.reverse_rate_constants, surf2.reverse_rate_constants)
+        assert surf1.delta_enthalpy == approx(surf2.delta_enthalpy)
+        assert surf1.forward_rate_constants == approx(surf2.forward_rate_constants)
+        assert surf1.reverse_rate_constants == approx(surf2.reverse_rate_constants)
 
         rop1 = surf1.net_production_rates
         rop2 = surf2.net_production_rates
@@ -275,9 +275,9 @@ class TestKineticsFromReactions:
         assert (gas1.reactant_stoich_coeffs == gas2.reactant_stoich_coeffs).all()
         assert (gas1.product_stoich_coeffs == gas2.product_stoich_coeffs).all()
 
-        assertArrayNear(gas1.delta_gibbs, gas2.delta_gibbs)
-        assertArrayNear(gas1.reverse_rate_constants, gas2.reverse_rate_constants)
-        assertArrayNear(gas1.net_production_rates, gas2.net_production_rates)
+        assert gas1.delta_gibbs == approx(gas2.delta_gibbs)
+        assert gas1.reverse_rate_constants == approx(gas2.reverse_rate_constants)
+        assert gas1.net_production_rates == approx(gas2.net_production_rates)
 
     def test_coverage_dependence_flags(self):
         surf = ct.Interface("ptcombust.yaml", "Pt_surf")
@@ -368,7 +368,7 @@ class TestKineticsRepeatability:
         gas.TDX = self.T0, self.rho0, self.X0
         w4 = gas.net_production_rates
 
-        assertArrayNear(w1, w4)
+        assert w1 == approx(w4)
 
     def check_rates_temperature1(self, mech):
         gas = self.setup_gas(mech)
@@ -386,7 +386,7 @@ class TestKineticsRepeatability:
         gas.TDX = self.T0, self.rho0, self.X0
         w4 = gas.net_production_rates
 
-        assertArrayNear(w1, w4)
+        assert w1 == approx(w4)
 
     def check_rates_temperature2(self, mech):
         gas = self.setup_gas(mech)
@@ -404,7 +404,7 @@ class TestKineticsRepeatability:
         gas.TPX = self.T0, self.P0, self.X0
         w4 = gas.net_production_rates
 
-        assertArrayNear(w1, w4)
+        assert w1 == approx(w4)
 
     def check_rates_pressure(self, mech):
         gas = self.setup_gas(mech)
@@ -422,7 +422,7 @@ class TestKineticsRepeatability:
         gas.TPX = self.T0, self.P0, self.X0
         w4 = gas.net_production_rates
 
-        assertArrayNear(w1, w4)
+        assert w1 == approx(w4)
 
     def test_gri30_composition(self):
         self.check_rates_composition("gri30.yaml")
@@ -722,9 +722,9 @@ class TestEmptyKinetics:
         gas = ct.Solution("air-no-reactions.yaml")
 
         assert gas.n_reactions == 0
-        assertArrayNear(gas.creation_rates, np.zeros(gas.n_species))
-        assertArrayNear(gas.destruction_rates, np.zeros(gas.n_species))
-        assertArrayNear(gas.net_production_rates, np.zeros(gas.n_species))
+        assert gas.creation_rates == approx(np.zeros(gas.n_species))
+        assert gas.destruction_rates == approx(np.zeros(gas.n_species))
+        assert gas.net_production_rates == approx(np.zeros(gas.n_species))
 
 
 @pytest.fixture(scope='class')
@@ -975,18 +975,21 @@ class TestSofcKinetics:
             s.advance_coverages(50.0)
 
         # These values are just a regression test with no theoretical basis
-        assertArrayNear(anode_surf.coverages,
-                        [6.18736878e-01, 3.81123655e-01, 8.6303646e-05,
-                        2.59274203e-06, 5.05700981e-05], 1e-7)
-        assertArrayNear(oxide_surf_a.coverages,
-                        [4.99435780e-02, 9.48927983e-01, 1.12840418e-03,
-                         3.35936530e-08], 1e-7)
-        assertArrayNear(cathode_surf.coverages,
-                        [1.48180380e-07, 7.57234727e-14, 9.99999827e-01,
-                         2.49235513e-08, 4.03296469e-13], 1e-7)
-        assertArrayNear(oxide_surf_c.coverages,
-                        [4.99896947e-02, 9.49804199e-01, 2.06104679e-04,
-                         1.11970271e-09], 1e-7)
+        assert anode_surf.coverages == approx(
+               [6.18736878e-01, 3.81123655e-01, 8.6303646e-05,
+               2.59274203e-06, 5.05700981e-05], rel=1e-7)
+
+        assert oxide_surf_a.coverages == approx(
+               [4.99435780e-02, 9.48927983e-01, 1.12840418e-03,
+               3.35936530e-08], rel=1e-7)
+
+        assert cathode_surf.coverages == approx(
+               [1.48180380e-07, 7.57234727e-14, 9.99999827e-01,
+               2.49235513e-08, 4.03296469e-13], rel=1e-7)
+
+        assert oxide_surf_c.coverages == approx(
+               [4.99896947e-02, 9.49804199e-01, 2.06104679e-04,
+               1.11970271e-09], rel=1e-7)
 
         Ea0 = newton_solve(anode_curr, xstart=-0.51)
         Ec0 = newton_solve(cathode_curr, xstart=0.51)
@@ -1101,7 +1104,7 @@ class TestLithiumIonBatteryKinetics:
 
         data = np.array(data).ravel()
         ref = np.genfromtxt(self.test_data_path / "lithium-ion-battery-test.csv")
-        assert np.allclose(data, ref, rtol=1e-7)
+        assert data == approx(ref, rel=1e-7)
 
     def test_interface_current(self):
         anode_int = ct.Interface("lithium_ion_battery.yaml", "edge_anode_electrolyte")
