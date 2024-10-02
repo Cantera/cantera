@@ -1,9 +1,8 @@
 import math
-import re
-
 import numpy as np
 import pytest
 from pytest import approx
+import re
 
 import cantera as ct
 
@@ -15,7 +14,6 @@ except ImportError:
 from cantera.drawnetwork import _graphviz
 
 from .utilities import (
-    assertArrayNear,
     compareProfiles
 )
 
@@ -431,7 +429,7 @@ class TestReactor:
         assert self.r1.T == approx(gas.T)
         assert self.r1.thermo.density == approx(gas.density)
         assert self.r1.thermo.P == approx(gas.P)
-        assertArrayNear(self.r1.thermo.X, gas.X)
+        assert self.r1.thermo.X == approx(gas.X)
 
     def test_equilibrium_HP(self):
         # Adiabatic, constant pressure combustion should proceed to equilibrium
@@ -456,7 +454,7 @@ class TestReactor:
         assert r1.T == approx(gas2.T)
         assert r1.thermo.P == approx(P0)
         assert r1.thermo.density == approx(gas2.density)
-        assertArrayNear(r1.thermo.X, gas2.X)
+        assert r1.thermo.X == approx(gas2.X)
 
     def test_wall_velocity(self):
         self.make_reactors()
@@ -577,7 +575,7 @@ class TestReactor:
         Yb = self.r1.Y
 
         assert ma + 0.1 == approx(mb)
-        assertArrayNear(ma * Ya + 0.1 * gas2.Y, mb * Yb)
+        assert ma * Ya + 0.1 * gas2.Y == approx(mb * Yb)
 
     def test_mass_flow_controller_type(self):
         self.make_reactors(n_reactors=2)
@@ -630,8 +628,8 @@ class TestReactor:
         assert m1a + m2a == approx(m1b + m2b)
         Y1b = self.r1.thermo.Y
         Y2b = self.r2.thermo.Y
-        assertArrayNear(m1a*Y1a + m2a*Y2a, m1b*Y1b + m2b*Y2b, atol=1e-10)
-        assertArrayNear(Y1a, Y1b)
+        assert m1a*Y1a + m2a*Y2a == approx(m1b*Y1b + m2b*Y2b, abs=1e-10)
+        assert Y1a == approx(Y1b)
 
     def test_valve2(self):
         # Similar to test_valve1, but by disabling the energy equation
@@ -664,7 +662,7 @@ class TestReactor:
             m2 = self.r2.thermo.density * self.r2.volume
             assert m2 == approx((m2a - A/B) * np.exp(-B * t) + A/B)
             assert m1a + m2a == approx(m1 + m2)
-            assertArrayNear(self.r1.Y, Y1)
+            assert self.r1.Y == approx(Y1)
 
     def test_valve3(self):
         # This case specifies a non-linear relationship between pressure drop
@@ -693,7 +691,7 @@ class TestReactor:
             p1 = self.r1.thermo.P
             p2 = self.r2.thermo.P
             assert mdot(p1-p2) == approx(valve.mass_flow_rate)
-            assertArrayNear(Y1, self.r1.Y)
+            assert Y1 == approx(self.r1.Y)
             assert speciesMass(kAr) == approx(mAr)
             assert speciesMass(kO2) == approx(mO2)
 
@@ -1156,11 +1154,10 @@ class TestMoleReactor(TestReactor):
         for i in np.linspace(0, 0.0025, 50)[1:]:
             net1.advance(i)
             net2.advance(i)
-            assertArrayNear(r1.thermo.Y, r2.thermo.Y, rtol=5e-4, atol=1e-6)
+            assert r1.thermo.Y == approx(r2.thermo.Y, rel=5e-4, abs=1e-6)
             assert r1.T == approx(r2.T, rel=5e-5)
             assert r1.thermo.P == approx(r2.thermo.P, rel=1e-6)
-            assertArrayNear(rsurf1.coverages, rsurf2.coverages, rtol=1e-4,
-                            atol=1e-8)
+            assert rsurf1.coverages == approx(rsurf2.coverages, rel=1e-4, abs=1e-8)
 
     def test_tolerances(self, rtol_lim=1e-8, atol_lim=1e-18):
         super().test_tolerances(rtol_lim, atol_lim)
@@ -1393,13 +1390,12 @@ class TestConstPressureReactor:
         for t in np.arange(0.5, 50, 1.0):
             self.net1.advance(t)
             self.net2.advance(t)
-            assertArrayNear(self.r1.thermo.Y, self.r2.thermo.Y,
-                            rtol=5e-4, atol=1e-6)
+            assert self.r1.thermo.Y == approx(self.r2.thermo.Y, rel=5e-4, abs=1e-6)
             assert self.r1.T == approx(self.r2.T, rel=5e-5)
             assert self.r1.thermo.P == approx(self.r2.thermo.P, rel=1e-6)
             if surf:
-                assertArrayNear(self.surf1.coverages, self.surf2.coverages,
-                                     rtol=1e-4, atol=1e-8)
+                assert self.surf1.coverages == approx(self.surf2.coverages,
+                                                      rel=1e-4, abs=1e-8)
 
     def test_closed(self):
         self.create_reactors()
@@ -1490,7 +1486,7 @@ class TestIdealGasMoleReactor(TestMoleReactor):
         for t in np.arange(0.5, 5, 0.5):
             net1.advance(t)
             net2.advance(t)
-            assertArrayNear(r1.thermo.Y, r2.thermo.Y, rtol=5e-4, atol=1e-6)
+            assert r1.thermo.Y == approx(r2.thermo.Y, rel=5e-4, abs=1e-6)
             assert r1.T == approx(r2.T, rel=1e-5)
             assert r1.thermo.P == approx(r2.thermo.P, rel=1e-5)
 
@@ -1525,11 +1521,11 @@ class TestReactorJacobians:
         # the volume row is not considered in comparisons because it is presently
         # not calculated.
         # check first row is near, terms which are generally on the order of 1e5 to 1e7
-        assertArrayNear(jacobian[0, 2:], fd_jacobian[0, 2:], 1e-1, 1e-2)
+        assert jacobian[0, 2:] == approx(fd_jacobian[0, 2:], rel=1e-1, abs=1e-2)
         # check first col is near, these are finite difference terms and should be close
-        assertArrayNear(jacobian[2:, 0], fd_jacobian[2:, 0], 1e-3, 1e-4)
+        assert jacobian[2:, 0] == approx(fd_jacobian[2:, 0], rel=1e-3, abs=1e-4)
         # check all species are near, these terms are usually ~ 1e2
-        assertArrayNear(jacobian[2:, 2:], fd_jacobian[2:, 2:], 1e-3, 1e-4)
+        assert jacobian[2:, 2:] == approx(fd_jacobian[2:, 2:], rel=1e-3, abs=1e-4)
 
     def test_gas_simple(self):
         # conditions for simulation
@@ -1545,7 +1541,7 @@ class TestReactorJacobians:
         net = ct.ReactorNet([r])
         net.initialize()
         # compare jacobians
-        assertArrayNear(r.jacobian, r.finite_difference_jacobian, rtol=1e-6)
+        assert r.jacobian == approx(r.finite_difference_jacobian, rel=1e-6)
 
     def test_const_volume_hydrogen_single(self):
         # conditions for simulation
@@ -1567,11 +1563,11 @@ class TestReactorJacobians:
         # the volume row is not considered in comparisons because it is presently
         # not calculated.
         # check first row is near, terms which are generally on the order of 1e5 to 1e7
-        assertArrayNear(jacobian[0, 2:], fd_jacobian[0, 2:], 1e-2, 1e-3)
+        assert jacobian[0, 2:] == approx(fd_jacobian[0, 2:], rel=1e-2, abs=1e-3)
         # check first col is near, these are finite difference terms and should be close
-        assertArrayNear(jacobian[2:, 0], fd_jacobian[2:, 0], 1e-3, 1e-4)
+        assert jacobian[2:, 0] == approx(fd_jacobian[2:, 0], rel=1e-3, abs=1e-4)
         # check all species are near, these terms are usually ~ 1e2
-        assertArrayNear(jacobian[2:, 2:], fd_jacobian[2:, 2:], 1e-3, 1e-4)
+        assert jacobian[2:, 2:] == approx(fd_jacobian[2:, 2:], rel=1e-3, abs=1e-4)
 
     def test_const_pressure_hydrogen_single(self):
         # conditions for simulation
@@ -1588,7 +1584,7 @@ class TestReactorJacobians:
         net = ct.ReactorNet([r])
         net.step()
         # compare analytical jacobian with finite difference
-        assertArrayNear(r.jacobian, r.finite_difference_jacobian, 1e-3, 1e-4)
+        assert r.jacobian == approx(r.finite_difference_jacobian, rel=1e-3, abs=1e-4)
 
     def test_phase_order_surf_jacobian(self):
         # create gas phase
@@ -1638,7 +1634,7 @@ class TestReactorJacobians:
         net.derivative_settings = {"skip-coverage-dependence":True}
         net.initialize()
         # check that they two arrays are the same
-        assertArrayNear(r1.jacobian, r2.jacobian, 2e-6, 1e-8)
+        assert r1.jacobian == approx(r2.jacobian, rel=2e-6, abs=1e-8)
 
 # A rate type used for testing integrator error handling
 class FailRateData(ct.ExtensibleRateData):
@@ -2072,7 +2068,7 @@ class TestSurfaceKinetics:
         C_right = surf2.coverages
 
         assert sum(C_left) == approx(1.0)
-        assertArrayNear(C_left, C_right)
+        assert C_left == approx(C_right)
 
         with pytest.raises(ValueError):
             surf2.coverages = np.ones(self.interface.n_species + 1)
@@ -2089,7 +2085,7 @@ class TestSurfaceKinetics:
         C[4] = 0.7
 
         surf1.coverages = C
-        assertArrayNear(surf1.coverages, C)
+        assert surf1.coverages == approx(C)
         data = []
         test_file = self.test_work_path / "test_coverages_regression1.csv"
         reference_file = self.test_data_path / "WallKinetics-coverages-regression1.csv"
@@ -2114,7 +2110,7 @@ class TestSurfaceKinetics:
         C[4] = 0.7
 
         surf.coverages = C
-        assertArrayNear(surf.coverages, C)
+        assert surf.coverages == approx(C)
         data = []
         test_file = self.test_work_path / "test_coverages_regression2.csv"
         reference_file = self.test_data_path / "WallKinetics-coverages-regression2.csv"
@@ -2202,8 +2198,8 @@ class TestReactorSensitivities:
             K2 = Ns + gas1.n_species + interface.n_species
 
             # Constant volume should generate zero sensitivity coefficient
-            assertArrayNear(S[1,:], np.zeros(2))
-            assertArrayNear(S[K2+1,:], np.zeros(2))
+            assert S[1,:] == approx(np.zeros(2))
+            assert S[K2+1,:] == approx(np.zeros(2))
 
             # Sensitivity coefficients for the disjoint reactors should be zero
             assert np.linalg.norm(S[Ns:K2,1]) == approx(0.0, abs=1e-5)
@@ -2254,7 +2250,7 @@ class TestReactorSensitivities:
         check_names(r2, net2, params2)
 
         for i,j in enumerate((5,3,6,0,4,2,1)):
-            assertArrayNear(S1[:,i], S2[:,j])
+            assert S1[:,i] == approx(S2[:,j])
 
     def test_parameter_order1a(self):
         self._test_parameter_order1(ct.IdealGasReactor)
@@ -2315,15 +2311,15 @@ class TestReactorSensitivities:
         # Check that the results reflect the changed parameter ordering
         for a,b in ((0,1), (2,3)):
             for i,j in enumerate((3,1,0,2)):
-                assertArrayNear(S[a][:,i], S[b][:,j])
+                assert S[a][:,i] == approx(S[b][:,j])
 
         # Check that results are consistent after changing the order that
         # reactors are added to the network
         N = gas.n_species + r.component_index(gas.species_name(0))
-        assertArrayNear(S[0][:N], S[2][N:], 1e-5, 1e-5)
-        assertArrayNear(S[0][N:], S[2][:N], 1e-5, 1e-5)
-        assertArrayNear(S[1][:N], S[3][N:], 1e-5, 1e-5)
-        assertArrayNear(S[1][N:], S[3][:N], 1e-5, 1e-5)
+        assert S[0][:N] == approx(S[2][N:], rel=1e-5, abs=1e-5)
+        assert S[0][N:] == approx(S[2][:N], rel=1e-5, abs=1e-5)
+        assert S[1][:N] == approx(S[3][N:], rel=1e-5, abs=1e-5)
+        assert S[1][N:] == approx(S[3][:N], rel=1e-5, abs=1e-5)
 
     @pytest.mark.slow_test
     def test_parameter_order3(self):
@@ -2390,7 +2386,7 @@ class TestReactorSensitivities:
 
         for a,b in [(0,1),(2,3),(4,5),(6,7)]:
             for i,j in enumerate((4,2,1,3,0)):
-                assertArrayNear(S[a][:,i], S[b][:,j], 1e-2, 1e-3)
+                assert S[a][:,i] == approx(S[b][:,j], rel=1e-2, abs=1e-3)
 
     def setup_ignition_delay(self):
         gas = ct.Solution('h2o2.yaml', transport_model=None)
@@ -2773,7 +2769,7 @@ class TestAdvanceCoverages:
         self.surf.advance_coverages(dt=dt, rtol=1e-7, atol=1e-14)
 
         # check that the solutions are similar, but not identical
-        assertArrayNear(cov, self.surf.coverages)
+        assert cov == approx(self.surf.coverages)
         assert any(cov != self.surf.coverages)
 
 
@@ -2859,7 +2855,7 @@ class TestExtensibleReactor:
 
         while(net.time < 1):
             net.step()
-            assertArrayNear(r.get_state(), np.exp(- net.time / tau))
+            assert r.get_state() == approx(np.exp(- net.time / tau))
 
     def test_error_handling(self):
         class DummyReactor1(ct.ExtensibleReactor):
@@ -3129,7 +3125,7 @@ class TestExtensibleReactor:
             deltaCnow = deltaC()
             assert deltaCnow < deltaCprev # difference is always decreasing
             deltaCprev = deltaCnow
-            assertArrayNear(M0, r1.mass * r1.thermo.Y + r2.mass * r2.thermo.Y, rtol=2e-8)
+            assert M0 == approx(r1.mass * r1.thermo.Y + r2.mass * r2.thermo.Y, rel=2e-8)
             states1.append(r1.thermo.state, t=net.time, mass=r1.mass, vdot=r1.expansion_rate)
             states2.append(r2.thermo.state, t=net.time, mass=r2.mass, vdot=r2.expansion_rate)
 

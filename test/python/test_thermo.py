@@ -1,13 +1,10 @@
 import gc
-
 import numpy as np
 import pytest
 from pytest import approx
 
 import cantera as ct
-from .utilities import (
-    assertArrayNear
-)
+
 
 @pytest.fixture(scope='function')
 def setup_thermo_phase_tests(request):
@@ -208,19 +205,19 @@ class TestThermoPhase:
         X0 = self.phase.X
         with pytest.raises(ct.CanteraError, match='Trouble processing'):
             self.phase.X = 'H2:1.0, O2:asdf'
-        assertArrayNear(X0, self.phase.X)
+        assert X0 == approx(self.phase.X)
 
         with pytest.raises(ct.CanteraError, match='Trouble processing'):
             self.phase.X = 'H2:1e-x4'
-        assertArrayNear(X0, self.phase.X)
+        assert X0 == approx(self.phase.X)
 
         with pytest.raises(ct.CanteraError, match='decimal point in exponent'):
             self.phase.X = 'H2:1e-1.4'
-        assertArrayNear(X0, self.phase.X)
+        assert X0 == approx(self.phase.X)
 
         with pytest.raises(ct.CanteraError, match='Duplicate key'):
             self.phase.X = 'H2:0.5, O2:1.0, H2:0.1'
-        assertArrayNear(X0, self.phase.X)
+        assert X0 == approx(self.phase.X)
 
     def test_setCompositionDict(self):
         self.phase.X = {b'H2': 1.0, b'O2': 3.0}
@@ -248,14 +245,14 @@ class TestThermoPhase:
         X[2] = 1.0
         X[0] = 0.01
         self.phase.set_unnormalized_mole_fractions(X)
-        assertArrayNear(self.phase.X, X)
+        assert self.phase.X == approx(X)
         assert sum(X) == approx(1.01)
 
         Y = np.zeros(self.phase.n_species)
         Y[2] = 1.0
         Y[0] = 0.01
         self.phase.set_unnormalized_mass_fractions(Y)
-        assertArrayNear(self.phase.Y, Y)
+        assert self.phase.Y == approx(Y)
         assert sum(Y) == approx(1.01)
 
     def test_setCompositionNoNormBad(self):
@@ -296,13 +293,13 @@ class TestThermoPhase:
         X0 = self.phase.X
         with pytest.raises(ValueError, match='incorrect length'):
             self.phase['H2', 'O2'].Y = [0.1, 0.2, 0.3]
-        assertArrayNear(self.phase.X, X0)
+        assert self.phase.X == approx(X0)
 
     def test_setCompositionEmpty_bad(self):
         X0 = self.phase.X
         with pytest.raises(ValueError, match='incorrect length'):
             self.phase.Y = np.array([])
-        assertArrayNear(self.phase.X, X0)
+        assert self.phase.X == approx(X0)
 
     @pytest.mark.slow_test
     def test_set_equivalence_ratio_stoichiometric(self):
@@ -441,7 +438,7 @@ class TestThermoPhase:
                                      include_species=["H2", "O2"]) == approx(2)
         assert gas.T == approx(T)
         assert gas.P == approx(P)
-        assertArrayNear(gas.X, original_X)
+        assert gas.X == approx(original_X)
 
         def test_simple_dilution(fraction, basis):
             if isinstance(fraction, str):
@@ -485,7 +482,7 @@ class TestThermoPhase:
             Y = gas.Y
             assert phi == approx(gas.equivalence_ratio("H2", "O2", include_species=["H2", "O2"], basis=basis))
             assert phi == approx(gas.equivalence_ratio(include_species=["H2", "O2"], basis=basis))
-            assertArrayNear(Y, gas.Y)
+            assert Y == approx(gas.Y)
             assert gas.T == approx(T)
             assert gas.P == approx(P)
 
@@ -531,14 +528,14 @@ class TestThermoPhase:
         gas.set_equivalence_ratio(phi, fuel, oxidizer, fraction={"diluent": fraction},
                                   diluent=diluent)
         X_expected = X_Mix * (1 - fraction) + fraction * X_diluent
-        assertArrayNear(gas.X, X_expected)
+        assert gas.X == approx(X_expected)
 
         gas.set_equivalence_ratio(phi, fuel, oxidizer, basis="mass")
         Y_Mix = gas.Y
         gas.set_equivalence_ratio(phi, fuel, oxidizer, fraction={"diluent": fraction},
                                   diluent=diluent, basis="mass")
         Y_expected = Y_Mix * (1 - fraction) + fraction * Y_diluent
-        assertArrayNear(gas.Y, Y_expected)
+        assert gas.Y == approx(Y_expected)
 
         phi = 0.8
         fraction = 0.05
@@ -548,13 +545,13 @@ class TestThermoPhase:
                                   diluent=diluent, basis="mass")
         Y_expected = fraction * (Y_fuel + AFR * Y_oxidizer) \
                      + (1 - fraction * (1 + AFR)) * Y_diluent
-        assertArrayNear(gas.Y, Y_expected)
+        assert gas.Y == approx(Y_expected)
 
         gas.set_equivalence_ratio(phi, fuel, oxidizer, fraction={"oxidizer": fraction},
                                   diluent=diluent, basis="mass")
         Y_expected = fraction * (Y_fuel / AFR + Y_oxidizer) \
                      + (1 - fraction * (1 + 1 / AFR)) * Y_diluent
-        assertArrayNear(gas.Y, Y_expected)
+        assert gas.Y == approx(Y_expected)
 
         gas.X = fuel
         M_fuel = gas.mean_molecular_weight
@@ -568,13 +565,13 @@ class TestThermoPhase:
                                   diluent=diluent)
         X_expected = fraction * (X_fuel + AFR * X_oxidizer) \
                      + (1 - fraction * (1 + AFR)) * X_diluent
-        assertArrayNear(gas.X, X_expected)
+        assert gas.X == approx(X_expected)
 
         gas.set_equivalence_ratio(phi, fuel, oxidizer, fraction={"oxidizer": fraction},
                                   diluent=diluent)
         X_expected = fraction * (X_fuel / AFR + X_oxidizer) \
                      + (1 - fraction * (1 + 1 / AFR)) * X_diluent
-        assertArrayNear(gas.X, X_expected)
+        assert gas.X == approx(X_expected)
 
     def test_full_report(self):
         report = self.phase.report(threshold=0.0)
@@ -640,7 +637,7 @@ class TestThermoPhase:
             assert self.phase.T == approx(T)
             assert self.phase.Te == approx(T)
             assert self.phase.density == approx(rho)
-            assertArrayNear(self.phase.Y, Y)
+            assert self.phase.Y == approx(Y)
 
         self.phase.TDY = T0, rho0, Y0
         self.phase.TPY = T1, P1, Y1
@@ -757,12 +754,12 @@ class TestThermoPhase:
         T,D,X = self.phase.TDX
         assert T == approx(self.phase.T)
         assert D == approx(self.phase.density)
-        assertArrayNear(X, self.phase.X)
+        assert X == approx(self.phase.X)
 
         T,D,Y = self.phase.TDY
         assert T == approx(self.phase.T)
         assert D == approx(self.phase.density)
-        assertArrayNear(Y, self.phase.Y)
+        assert Y == approx(self.phase.Y)
 
         T,D = self.phase.TD
         assert T == approx(self.phase.T)
@@ -771,12 +768,12 @@ class TestThermoPhase:
         T,P,X = self.phase.TPX
         assert T == approx(self.phase.T)
         assert P == approx(self.phase.P)
-        assertArrayNear(X, self.phase.X)
+        assert X == approx(self.phase.X)
 
         T,P,Y = self.phase.TPY
         assert T == approx(self.phase.T)
         assert P == approx(self.phase.P)
-        assertArrayNear(Y, self.phase.Y)
+        assert Y == approx(self.phase.Y)
 
         T,P = self.phase.TP
         assert T == approx(self.phase.T)
@@ -785,12 +782,12 @@ class TestThermoPhase:
         H,P,X = self.phase.HPX
         assert H == approx(self.phase.h)
         assert P == approx(self.phase.P)
-        assertArrayNear(X, self.phase.X)
+        assert X == approx(self.phase.X)
 
         H,P,Y = self.phase.HPY
         assert H == approx(self.phase.h)
         assert P == approx(self.phase.P)
-        assertArrayNear(Y, self.phase.Y)
+        assert Y == approx(self.phase.Y)
 
         H,P = self.phase.HP
         assert H == approx(self.phase.h)
@@ -799,12 +796,12 @@ class TestThermoPhase:
         U,V,X = self.phase.UVX
         assert U == approx(self.phase.u)
         assert V == approx(self.phase.v)
-        assertArrayNear(X, self.phase.X)
+        assert X == approx(self.phase.X)
 
         U,V,Y = self.phase.UVY
         assert U == approx(self.phase.u)
         assert V == approx(self.phase.v)
-        assertArrayNear(Y, self.phase.Y)
+        assert Y == approx(self.phase.Y)
 
         U,V = self.phase.UV
         assert U == approx(self.phase.u)
@@ -813,12 +810,12 @@ class TestThermoPhase:
         S,P,X = self.phase.SPX
         assert S == approx(self.phase.s)
         assert P == approx(self.phase.P)
-        assertArrayNear(X, self.phase.X)
+        assert X == approx(self.phase.X)
 
         S,P,Y = self.phase.SPY
         assert S == approx(self.phase.s)
         assert P == approx(self.phase.P)
-        assertArrayNear(Y, self.phase.Y)
+        assert Y == approx(self.phase.Y)
 
         S,P = self.phase.SP
         assert S == approx(self.phase.s)
@@ -827,12 +824,12 @@ class TestThermoPhase:
         S,V,X = self.phase.SVX
         assert S == approx(self.phase.s)
         assert V == approx(self.phase.v)
-        assertArrayNear(X, self.phase.X)
+        assert X == approx(self.phase.X)
 
         S,V,Y = self.phase.SVY
         assert S == approx(self.phase.s)
         assert V == approx(self.phase.v)
-        assertArrayNear(Y, self.phase.Y)
+        assert Y == approx(self.phase.Y)
 
         S,V = self.phase.SV
         assert S == approx(self.phase.s)
@@ -841,12 +838,12 @@ class TestThermoPhase:
         D,P,X = self.phase.DPX
         assert D == approx(self.phase.density)
         assert P == approx(self.phase.P)
-        assertArrayNear(X, self.phase.X)
+        assert X == approx(self.phase.X)
 
         D,P,Y = self.phase.DPY
         assert D == approx(self.phase.density)
         assert P == approx(self.phase.P)
-        assertArrayNear(Y, self.phase.Y)
+        assert Y == approx(self.phase.Y)
 
         D,P = self.phase.DP
         assert D == approx(self.phase.density)
@@ -900,10 +897,9 @@ class TestThermoPhase:
 
     def test_activities(self):
         self.phase.TDY = 850.0, 0.2, 'H2:0.1, H2O:0.6, AR:0.3'
-        assertArrayNear(self.phase.X, self.phase.activities)
+        assert self.phase.X == approx(self.phase.activities)
 
-        assertArrayNear(self.phase.activity_coefficients,
-                        np.ones(self.phase.n_species))
+        assert self.phase.activity_coefficients == approx(np.ones(self.phase.n_species))
 
     def test_isothermal_compressibility(self):
         assert self.phase.isothermal_compressibility == approx(1.0/self.phase.P)
@@ -936,8 +932,8 @@ class TestThermoPhase:
         self.phase.TPY = state
         assert self.phase.enthalpy_mass == approx(ref.enthalpy_mass)
         assert self.phase.entropy_mole == approx(ref.entropy_mole)
-        assertArrayNear(ref[self.phase.species_names].partial_molar_cp,
-                        self.phase.partial_molar_cp)
+        assert ref[self.phase.species_names].partial_molar_cp == approx(
+               self.phase.partial_molar_cp)
 
     def test_add_species_disabled(self):
         ref = ct.Solution('gri30.yaml', transport_model=None)
@@ -1175,14 +1171,14 @@ class TestInterfacePhase2:
     def test_multi_site_unnormalized(self, surf):
         theta = [0.5, 0.1, 0.1, 0.32]
         surf.set_unnormalized_coverages(theta)
-        assertArrayNear(surf.coverages, theta)
+        assert surf.coverages == approx(theta)
 
         X_unnormalized = surf.X
         assert np.isclose(sum(theta), sum(surf.X))
 
         surf.coverages = theta
         X_normalized = surf.X
-        assertArrayNear(X_normalized * sum(theta), X_unnormalized)
+        assert X_normalized * sum(theta) == approx(X_unnormalized)
 
 
 class TestPlasmaPhase:
@@ -1205,7 +1201,7 @@ class TestPlasmaPhase:
     def test_set_get_electron_energy_levels(self, phase):
         levels = np.linspace(0.01, 10, num=9)
         phase.electron_energy_levels = levels
-        assertArrayNear(levels, phase.electron_energy_levels)
+        assert levels == approx(phase.electron_energy_levels)
 
     def test_isotropic_velocity_electron_energy_distribution(self, phase):
         levels = np.linspace(0.01, 10, num=9)
@@ -1223,8 +1219,8 @@ class TestPlasmaPhase:
         phase.normalize_electron_energy_distribution_enabled = False
         phase.quadrature_method = "trapezoidal"
         phase.set_discretized_electron_energy_distribution(levels, dist)
-        assertArrayNear(levels, phase.electron_energy_levels)
-        assertArrayNear(dist, phase.electron_energy_distribution)
+        assert levels == approx(phase.electron_energy_levels)
+        assert dist == approx(phase.electron_energy_distribution)
         mean_energy = 2.0 / 5.0 * np.trapz(dist, np.power(levels, 5./2.))
         assert phase.mean_electron_energy == approx(mean_energy, rel=1e-4)
         electron_temp = 2.0 / 3.0 * (phase.mean_electron_energy *
@@ -1266,7 +1262,7 @@ class TestImport:
         assert gas1.n_elements == gas2.n_elements
         assert gas1.species_names == gas2.species_names
         assert gas1.T == approx(gas2.T)
-        assertArrayNear(gas1.X, gas2.X)
+        assert gas1.X == approx(gas2.X)
 
     def test_yaml_ideal_gas_simple(self):
         gas = ct.ThermoPhase('ideal-gas.yaml', 'simple')
@@ -1541,7 +1537,7 @@ class TestSpeciesThermo:
         assert st.min_temp == 300
         assert st.max_temp == 3500
         assert st.reference_pressure == 101325
-        assertArrayNear(self.h2o_coeffs, st.coeffs)
+        assert self.h2o_coeffs == approx(st.coeffs)
         assert st.n_coeffs == len(st.coeffs)
         assert st._check_n_coeffs(st.n_coeffs)
 
@@ -1704,7 +1700,7 @@ class TestQuantity:
         assert q1.mass * 2.5 == approx(q2.mass)
         assert q1.moles * 2.5 == approx(q2.moles)
         assert q1.entropy * 2.5 == approx(q2.entropy)
-        assertArrayNear(q1.X, q2.X)
+        assert q1.X == approx(q2.X)
 
     def test_multiply_HP(self):
         self.gas.TPX = 500, 101325, 'CH4:1.0, O2:0.4'
@@ -1727,7 +1723,7 @@ class TestQuantity:
         # addition is at constant UV
         assert q0.U + q2.U == approx(q1.U)
         assert q0.V + q2.V == approx(q1.V)
-        assertArrayNear(q0.X*q0.moles + q2.X*q2.moles, q1.X*q1.moles)
+        assert q0.X*q0.moles + q2.X*q2.moles == approx(q1.X*q1.moles)
 
     def test_add(self):
         q1 = ct.Quantity(self.gas, mass=5)
@@ -1739,7 +1735,7 @@ class TestQuantity:
         # addition is at constant UV
         assert q1.U + q2.U == approx(q3.U)
         assert q1.V + q2.V == approx(q3.V)
-        assertArrayNear(q1.X*q1.moles + q2.X*q2.moles, q3.X*q3.moles)
+        assert q1.X*q1.moles + q2.X*q2.moles == approx(q3.X*q3.moles)
 
     def test_add_molar(self):
         q1 = ct.Quantity(self.gas, mass=5)
@@ -1763,7 +1759,7 @@ class TestQuantity:
 
         assert q1.H + q2.H == approx(q4.H)
         assert q4.P == approx(q1.P)
-        assertArrayNear(q1.X*q1.moles + q2.X*q2.moles, q4.X*q4.moles)
+        assert q1.X*q1.moles + q2.X*q2.moles == approx(q4.X*q4.moles)
 
     def test_add_errors(self):
         q1 = ct.Quantity(self.gas, mass=5)
@@ -2000,8 +1996,8 @@ class TestSolutionArray:
         X = 'H2:0.5, O2:0.4, AR:0.1, H2O2:0.01, OH:0.001'
         states.TPX = T, P, X
 
-        assertArrayNear(states.T, T)
-        assertArrayNear(states.P, P)
+        assert states.T == approx(T)
+        assert states.P == approx(P)
 
         h = states.enthalpy_mass
         ropr = states.reverse_rates_of_progress
@@ -2009,8 +2005,8 @@ class TestSolutionArray:
         for i in range(N):
             self.gas.TPX = T[i], P[i], X
             assert self.gas.enthalpy_mass == approx(h[i])
-            assertArrayNear(self.gas.reverse_rates_of_progress, ropr[i])
-            assertArrayNear(self.gas.mix_diff_coeffs, Dkm[i])
+            assert self.gas.reverse_rates_of_progress == approx(ropr[i])
+            assert self.gas.mix_diff_coeffs == approx(Dkm[i])
 
     def test_properties_ndim(self):
         states = ct.SolutionArray(self.gas, (2,3,5))
@@ -2033,8 +2029,8 @@ class TestSolutionArray:
         for i,j,k in np.ndindex(TT.shape):
             self.gas.TPX = T[k], P[i][0][0], X[j]
             assert self.gas.enthalpy_mass == approx(h[i,j,k])
-            assertArrayNear(self.gas.reverse_rates_of_progress, ropr[i,j,k])
-            assertArrayNear(self.gas.mix_diff_coeffs, Dkm[i,j,k])
+            assert self.gas.reverse_rates_of_progress == approx(ropr[i,j,k])
+            assert self.gas.mix_diff_coeffs == approx(Dkm[i,j,k])
 
     def test_array_properties_exist(self):
         grid_shape = (7, 3)
@@ -2094,40 +2090,40 @@ class TestSolutionArray:
         row2.TD = 300, 0.5
         T = states.T
         D = states.density
-        assertArrayNear(T[0], T0[0])
-        assertArrayNear(T[1], 300*np.ones(5))
-        assertArrayNear(D[1], 0.5*np.ones(5))
+        assert T[0] == approx(T0[0])
+        assert T[1] == approx(300*np.ones(5))
+        assert D[1] == approx(0.5*np.ones(5))
 
         col3 = states[:,2]
         col3.TD = 400, 2.5
         T = states.T
         D = states.density
-        assertArrayNear(T[:,2], 400*np.ones(2))
-        assertArrayNear(D[:,2], 2.5*np.ones(2))
+        assert T[:,2] == approx(400*np.ones(2))
+        assert D[:,2] == approx(2.5*np.ones(2))
 
         # Verify that the slices are updated when the original object changes
         states.TP = 900, None
-        assertArrayNear(col3.T, 900*np.ones(2))
-        assertArrayNear(row2.T, 900*np.ones(5))
+        assert col3.T == approx(900*np.ones(2))
+        assert row2.T == approx(900*np.ones(5))
 
     def test_extra_create_by_dict(self):
         extra = {"grid": np.arange(10), "velocity": np.random.rand(10)}
         states = ct.SolutionArray(self.gas, 10, extra=extra)
         keys = states.extra
         assert keys[0] == 'grid'
-        assertArrayNear(states.grid, np.arange(10))
+        assert states.grid == approx(np.arange(10))
 
     def test_extra_no_shape(self):
         # The shape of the value for "prop" here is (), which is falsey
         # and causes the use of np.full()
         states = ct.SolutionArray(self.gas, 3, extra={"prop": 1})
         assert states.prop.shape == (3,)
-        assertArrayNear(states.prop, np.array((1, 1, 1)))
+        assert states.prop == approx(np.array((1, 1, 1)))
 
         # Check a multidimensional SolutionArray
         states = ct.SolutionArray(self.gas, (2, 2), extra={"prop": 3})
         assert states.prop.shape == (2, 2)
-        assertArrayNear(states.prop, np.array(((3, 3), (3, 3))))
+        assert states.prop == approx(np.array(((3, 3), (3, 3))))
 
     def test_extra_not_empty(self):
         """Test that a non-empty SolutionArray raises a ValueError if
@@ -2186,10 +2182,10 @@ class TestSolutionArray:
     def test_extra_setattr(self):
         states = ct.SolutionArray(self.gas, 7, extra={'prop': range(7)})
         states.prop = 0
-        assertArrayNear(states.prop, np.zeros((7,)))
+        assert states.prop == approx(np.zeros((7,)))
         mod_array = np.linspace(0, 10, 7).astype(np.int64)
         states.prop = mod_array
-        assertArrayNear(states.prop, mod_array)
+        assert states.prop == approx(mod_array)
         with pytest.raises(ValueError, match="Incompatible shapes"):
             states.prop = [1, 2]
 
@@ -2198,7 +2194,7 @@ class TestSolutionArray:
         # as Python and C++ representations do not reference shared memory
         states = ct.SolutionArray(self.gas, 7, extra={'prop': range(7)})
         array = np.arange(7)
-        assertArrayNear(states.prop, array)
+        assert states.prop == approx(array)
         states[1].prop = -5
         assert states.prop[1] == -5
         with pytest.raises(ValueError, match="read-only"):
@@ -2315,7 +2311,7 @@ class TestSolutionArray:
             assert P[0] == approx(P[i])
 
         states.TP = np.linspace(400, 500, 5), 101325
-        assertArrayNear(states.Q.squeeze(), np.ones(5))
+        assert states.Q.squeeze() == approx(np.ones(5))
 
     def test_phase_of_matter(self):
         water = ct.Water()
@@ -2380,7 +2376,7 @@ class TestSolutionArray:
         states.sort('T')
         assert not (states.t[1:] - states.t[:-1] > 0).all()
         assert (states.T[1:] - states.T[:-1] > 0).all()
-        assertArrayNear(states.P, P)
+        assert states.P == approx(P)
 
         states.sort('T', reverse=True)
         assert (states.T[1:] - states.T[:-1] < 0).all()
@@ -2394,13 +2390,13 @@ class TestSolutionArray:
         # with phi.
         states.set_equivalence_ratio(phi, fuel, oxidizer)
         comp = (states("H2").X / (2 * states("O2").X)).squeeze(1)
-        assertArrayNear(comp, phi)
+        assert comp == approx(phi)
         states.set_equivalence_ratio(phi[0], fuel, oxidizer)
         comp = (states("H2").X / (2 * states("O2").X)).squeeze(1)
-        assertArrayNear(comp, np.full_like(phi, phi[0]))
+        assert comp == approx(np.full_like(phi, phi[0]))
         states.set_equivalence_ratio(phi.tolist(), fuel, oxidizer)
         comp = (states("H2").X / (2 * states("O2").X)).squeeze(1)
-        assertArrayNear(comp, phi)
+        assert comp == approx(phi)
 
     def test_set_equivalence_ratio_wrong_shape_raises(self):
         states = ct.SolutionArray(self.gas, 8)
@@ -2418,7 +2414,7 @@ class TestSolutionArray:
         # with phi.
         states.set_equivalence_ratio(phi, fuel, oxidizer)
         comp = (states("H2").X / (2 * states("O2").X)).squeeze(2)
-        assertArrayNear(comp, phi)
+        assert comp == approx(phi)
 
     def test_set_mixture_fraction(self):
         states = ct.SolutionArray(self.gas, 8)
@@ -2428,13 +2424,12 @@ class TestSolutionArray:
         # dimensionality from a 2-d column array to a vector for comparison
         # with mixture_fraction.
         states.set_mixture_fraction(mixture_fraction, fuel, oxidizer)
-        assertArrayNear(states("H2").Y.squeeze(1), mixture_fraction)
+        assert states("H2").Y.squeeze(1) == approx(mixture_fraction)
         states.set_mixture_fraction(mixture_fraction[0], fuel, oxidizer)
-        assertArrayNear(states("H2").Y.squeeze(1), np.full_like(mixture_fraction,
-                                                                mixture_fraction[0]),
-        )
+        assert states("H2").Y.squeeze(1) == approx(np.full_like(mixture_fraction,
+                                                                mixture_fraction[0]),)
         states.set_mixture_fraction(mixture_fraction.tolist(), fuel, oxidizer)
-        assertArrayNear(states("H2").Y.squeeze(1), mixture_fraction)
+        assert states("H2").Y.squeeze(1) == approx(mixture_fraction)
 
     def test_set_mixture_fraction_wrong_shape_raises(self):
         states = ct.SolutionArray(self.gas, 8)
@@ -2451,18 +2446,18 @@ class TestSolutionArray:
         # The mass fraction array needs to be squeezed here to reduce its
         # dimensionality from a 3-d array to a 2-d array for comparison
         # with mixture_fraction.
-        assertArrayNear(states("H2").Y.squeeze(2), mixture_fraction)
+        assert states("H2").Y.squeeze(2) == approx(mixture_fraction)
 
     def test_species_slicing(self):
         states = ct.SolutionArray(self.gas, (2,5))
         states.TPX = np.linspace(500, 1000, 5), 2e5, 'H2:0.5, O2:0.4'
         states.equilibrate('HP')
-        assertArrayNear(states('H2').X.squeeze(),
-                        states.X[...,self.gas.species_index('H2')])
+        assert states('H2').X.squeeze() == approx(
+               states.X[...,self.gas.species_index('H2')])
 
         kk = (self.gas.species_index('OH'), self.gas.species_index('O'))
-        assertArrayNear(states('OH','O').partial_molar_cp,
-                        states.partial_molar_cp[...,kk])
+        assert states('OH','O').partial_molar_cp == approx(
+               states.partial_molar_cp[...,kk])
 
     def test_slice_SolutionArray(self):
         soln = ct.SolutionArray(self.gas, 10)

@@ -1,6 +1,6 @@
 import numpy as np
 from pathlib import Path, PurePath
-import pytest
+from pytest import approx
 import warnings
 
 try:
@@ -10,39 +10,6 @@ except ImportError:
 
 
 # Custom assertions functions
-
-def assertNear(a, b, rtol=1e-8, atol=1e-12, msg=None):
-    if a == b:
-        return  # handles case where a == b == inf
-    cmp = 2 * abs(a - b)/(abs(a) + abs(b) + 2 * atol / rtol)
-    if not cmp < rtol:
-        message = ('AssertNear: %.14g - %.14g = %.14g\n' % (a, b, a-b) +
-                    'Relative error of %10e exceeds rtol = %10e' % (cmp, rtol))
-        if msg:
-            message = msg + '\n' + message
-        pytest.fail(message)
-
-def assertArrayNear(A, B, rtol=1e-8, atol=1e-12, msg=None):
-    if len(A) != len(B):
-        pytest.fail("Arrays are of different lengths ({0}, {1})".format(len(A), len(B)))
-    A = np.asarray(A)
-    B = np.asarray(B)
-
-    worst = 0, ''
-    for i in np.ndindex(A.shape):
-        a = A[i]
-        b = B[i]
-        cmp = 2 * abs(a - b)/(abs(a) + abs(b) + 2 * atol / rtol)
-        if not cmp < rtol:
-            message = ('AssertNear: {:.14g} - {:.14g} = {:.14g}\n'.format(a, b, a-b) +
-                        'Relative error for element {} of {:10e} exceeds rtol = {:10e}'.format(i, cmp, rtol))
-            if msg:
-                message = msg + '\n' + message
-            if not cmp < worst[0]:
-                worst = cmp, message
-
-    if worst[0]:
-        pytest.fail(worst[1])
 
 def compare(data, reference_file, rtol=1e-8, atol=1e-12):
     """
@@ -55,7 +22,7 @@ def compare(data, reference_file, rtol=1e-8, atol=1e-12):
         ref = np.genfromtxt(reference_file)
         assert data.shape == ref.shape
         for i in range(ref.shape[0]):
-            assertArrayNear(ref[i], data[i], rtol, atol)
+            assert ref[i] == approx(data[i], rel=rtol, abs=atol)
     else:
         # Generate the output file for the first time
         warnings.warn('Generating test data file:' +
