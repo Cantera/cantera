@@ -39,15 +39,14 @@ classdef ReactorSurface < handle
 
             ctIsLoaded;
 
-            if ~isa(surf, 'Kinetics') || ~isa(reactor, 'Reactor')
+            if ~isa(surf, 'Solution') || ~isa(reactor, 'Reactor')
                 error('Invalid parameters.')
             end
             if nargin < 3
                 name = '(none)';
             end
 
-            s.surfID = ctFunc('reactorsurface_new', name);
-            ctFunc('reactorsurface_setkinetics', s.surfID, surf.kinID);
+            s.surfID = ctFunc('reactor_new', 'ReactorSurface', surf.solnID, name);
             ctFunc('reactorsurface_install', s.surfID, reactor.id);
         end
 
@@ -56,7 +55,7 @@ classdef ReactorSurface < handle
         function delete(s)
             % Delete the :mat:class:`ReactorSurface` object.
 
-            ctFunc('reactorsurface_del', s.surfID);
+            ctFunc('reactor_del', s.surfID);
         end
 
         %% ReactorSurface Utility Methods
@@ -77,7 +76,7 @@ classdef ReactorSurface < handle
         %% ReactorSurface Get Methods
 
         function name = get.name(s)
-            name = ctString('reactorsurface_name', s.surfID);
+            name = ctString('reactor_name', s.surfID);
         end
 
         function a = get.area(s)
@@ -87,7 +86,7 @@ classdef ReactorSurface < handle
         %% ReactorSurface Set Methods
 
         function set.name(s, name)
-            ctFunc('reactorsurface_setName', s.surfID, name);
+            ctFunc('reactor_setName', s.surfID, name);
         end
 
         function set.area(s, a)

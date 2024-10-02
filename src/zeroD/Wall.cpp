@@ -10,21 +10,26 @@
 namespace Cantera
 {
 
-bool WallBase::setDefaultName(map<string, int>& counts)
+Wall::Wall(shared_ptr<ReactorNode> r0, shared_ptr<ReactorNode> r1,
+           const string& name) : WallBase(r0, r1, name)
 {
-    if (m_defaultNameSet) {
-        return false;
+    if (!m_nodes.first || !m_nodes.second) {
+        warn_deprecated("Wall::Wall",
+            "After Cantera 3.1, Reactors must be provided during Wall instantiation.");
+        return;
     }
-    m_defaultNameSet = true;
-    if (m_name == "(none)" || m_name == "") {
-        m_name = fmt::format("{}_{}", type(), counts[type()]);
-    }
-    counts[type()]++;
-    return true;
+    // todo: switch to shared pointers after Cantera 3.1.
+    m_left = std::dynamic_pointer_cast<ReactorBase>(r0).get();
+    m_right = std::dynamic_pointer_cast<ReactorBase>(r1).get();
+    m_left->addWall(*this, 0);
+    m_right->addWall(*this, 1);
 }
 
 bool WallBase::install(ReactorBase& rleft, ReactorBase& rright)
 {
+    warn_deprecated("WallBase::install",
+        "To be removed after Cantera 3.1. Reactors should be provided to constructor "
+        "instead.");
     // check if wall is already installed
     if (m_left || m_right) {
         return false;

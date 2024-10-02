@@ -13,44 +13,26 @@
 namespace Cantera
 {
 
-ReactorBase::ReactorBase(const string& name) : m_name(name)
-{
-}
-
 ReactorBase::ReactorBase(shared_ptr<Solution> sol, const string& name)
-    : ReactorBase(name)
+    : ReactorNode(sol, name)
 {
-    if (!sol || !(sol->thermo())) {
-        warn_deprecated("ReactorBase::ReactorBase",
-            "Creation of empty reactor objects is deprecated in Cantera 3.1 and will "
-            "raise\nexceptions thereafter; reactor contents should be provided in the "
-            "constructor.");
+    if (!m_solution) {
+        // warning was raised by ReactorNode;
+        // @todo convert to exception after Cantera 3.1.
         return;
     }
-    setSolution(sol);
-}
-
-ReactorBase::~ReactorBase()
-{
-    if (m_solution) {
-        m_solution->thermo()->removeSpeciesLock();
+    setThermo(*sol->thermo());
+    try {
+        setKinetics(*sol->kinetics());
+    } catch (NotImplementedError&) {
+        // kinetics not used (example: Reservoir)
     }
-}
-
-bool ReactorBase::setDefaultName(map<string, int>& counts)
-{
-    if (m_defaultNameSet) {
-        return false;
-    }
-    m_defaultNameSet = true;
-    if (m_name == "(none)" || m_name == "") {
-        m_name = fmt::format("{}_{}", type(), counts[type()]);
-    }
-    counts[type()]++;
-    return true;
 }
 
 void ReactorBase::setSolution(shared_ptr<Solution> sol) {
+    warn_deprecated("ReactorBase::setSolution",
+        "After Cantera 3.1, a change of reactor contents after instantiation "
+        "will be disabled.");
     if (!sol || !(sol->thermo())) {
         throw CanteraError("ReactorBase::setSolution",
             "Missing or incomplete Solution object.");
@@ -71,7 +53,8 @@ void ReactorBase::setSolution(shared_ptr<Solution> sol) {
 void ReactorBase::insert(shared_ptr<Solution> sol)
 {
     warn_deprecated("ReactorBase::insert",
-        "To be removed after Cantera 3.1. Superseded by 'setSolution'.");
+        "To be removed after Cantera 3.1. Superseded by instantiation of reactor "
+        "objects with content.");
     setSolution(sol);
 }
 
@@ -137,8 +120,24 @@ WallBase& ReactorBase::wall(size_t n)
 
 void ReactorBase::addSurface(ReactorSurface* surf)
 {
+    warn_deprecated("FlowDevice::setTimeFunction",
+        "To be removed after Cantera 3.1. Replaced by version using shared "
+        "pointer.");
     if (find(m_surfaces.begin(), m_surfaces.end(), surf) == m_surfaces.end()) {
         m_surfaces.push_back(surf);
+        surf->setReactor(this);
+    }
+}
+
+void ReactorBase::addSurface(shared_ptr<ReactorNode> node)
+{
+    auto surf = std::dynamic_pointer_cast<ReactorSurface>(node);
+    if (!surf) {
+        throw CanteraError("ReactorBase::addSurface",
+            "Invalid type of reactor surface: '{}", node->type());
+    }
+    if (find(m_surfaces.begin(), m_surfaces.end(), surf.get()) == m_surfaces.end()) {
+        m_surfaces.push_back(surf.get());
         surf->setReactor(this);
     }
 }

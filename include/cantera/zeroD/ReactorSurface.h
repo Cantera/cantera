@@ -16,32 +16,28 @@ class SurfPhase;
 
 //! A surface where reactions can occur that is in contact with the bulk fluid of a
 //! Reactor.
-//! @ingroup wallGroup
-class ReactorSurface
+//! @ingroup reactorGroup
+class ReactorSurface : public ReactorNode
 {
-public:
-    ReactorSurface(const string& name="(none)") : m_name(name) {}
-    virtual ~ReactorSurface() = default;
-    ReactorSurface(const ReactorSurface&) = delete;
-    ReactorSurface& operator=(const ReactorSurface&) = delete;
+protected:
+    ReactorSurface(shared_ptr<Solution> sol, const string& name="(none)");
 
-    //! String indicating the wall model implemented.
-    virtual string type() const {
+public:
+    using ReactorNode::ReactorNode;  // inherit constructors
+
+    //! Create a new ReactorSurface.
+    //! @param contents  Solution object describing contents.
+    //! @param name  Name of the reactor. Optional; if left empty, a default name will
+    //!     be assigned when the reactor is integrated into a ReactorNet.
+    static shared_ptr<ReactorSurface> create(
+        shared_ptr<Solution> contents, const string& name="")
+    {
+        return shared_ptr<ReactorSurface>( new ReactorSurface(contents, name) );
+    }
+
+    string type() const override {
         return "ReactorSurface";
     }
-
-    //! Retrieve reactor surface name.
-    string name() const {
-        return m_name;
-    }
-
-    //! Set reactor surface name.
-    void setName(const string& name) {
-        m_name = name;
-    }
-
-    //! Set the default name of a wall. Returns `false` if it was previously set.
-    bool setDefaultName(map<string, int>& counts);
 
     //! Returns the surface area [m^2]
     double area() const;
@@ -59,9 +55,11 @@ public:
         return m_kinetics;
     }
 
+protected:
     //! Set the InterfaceKinetics object for this surface
     void setKinetics(Kinetics* kin);
 
+public:
     //! Set the reactor that this Surface interacts with
     void setReactor(ReactorBase* reactor);
 
@@ -88,7 +86,7 @@ public:
     //! Set the coverages and temperature in the surface phase object to the
     //! values for this surface. The temperature is set to match the bulk phase
     //! of the attached Reactor.
-    void syncState();
+    void syncState() override;
 
     //! Enable calculation of sensitivities with respect to the rate constant
     //! for reaction `i`.
@@ -105,9 +103,6 @@ public:
     void resetSensitivityParameters();
 
 protected:
-    string m_name;  //!< Reactor surface name.
-    bool m_defaultNameSet = false;  //!< `true` if default name has been previously set.
-
     double m_area = 1.0;
 
     SurfPhase* m_thermo = nullptr;

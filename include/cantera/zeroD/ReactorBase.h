@@ -8,17 +8,10 @@
 
 #include "cantera/base/global.h"
 #include "cantera/base/ctexceptions.h"
+#include "ReactorNode.h"
 
 namespace Cantera
 {
-
-//! @defgroup zerodGroup Zero-Dimensional Reactor Networks
-//!
-//! @details See the
-//! [Reactor Science](https://cantera.org/science/reactors/reactors.html)
-//! section of the %Cantera website for a description of the governing equations for
-//! specific reactor types and the methods used for solving networks of interconnected
-//! reactors.
 
 class FlowDevice;
 class WallBase;
@@ -26,7 +19,6 @@ class ReactorNet;
 class ReactorSurface;
 class Kinetics;
 class ThermoPhase;
-class Solution;
 
 enum class SensParameterType {
     reaction,
@@ -45,43 +37,28 @@ struct SensitivityParameter
  * Base class for stirred reactors. Allows using any substance model, with
  * arbitrary inflow, outflow, heat loss/gain, surface chemistry, and volume
  * change.
+ * @todo After completion of the %Cantera 3.1 deprecation cycle, all methods should be
+ *      either moved to ReactorNode or Reactor, with ReactorBase entering its own
+ *      deprecation cycle in %Cantera 3.2.
  * @ingroup reactorGroup
  */
-class ReactorBase
+class ReactorBase : public ReactorNode
 {
-public:
-    explicit ReactorBase(const string& name="(none)");
-    //! Instantiate a ReactorBase object with Solution contents.
-    //! @param sol  Solution object to be set.
-    //! @param name  Name of the reactor.
-    //! @since New in %Cantera 3.1.
+protected:
     ReactorBase(shared_ptr<Solution> sol, const string& name="(none)");
-    virtual ~ReactorBase();
-    ReactorBase(const ReactorBase&) = delete;
-    ReactorBase& operator=(const ReactorBase&) = delete;
 
-    //! String indicating the reactor model implemented. Usually
-    //! corresponds to the name of the derived class.
-    virtual string type() const {
+public:
+    using ReactorNode::ReactorNode;  // inherit constructors
+
+    string type() const override {
         return "ReactorBase";
     }
-
-    //! Return the name of this reactor
-    string name() const {
-        return m_name;
-    }
-
-    //! Set the name of this reactor
-    void setName(const string& name) {
-        m_name = name;
-    }
-
-    //! Set the default name of a reactor. Returns `false` if it was previously set.
-    bool setDefaultName(map<string, int>& counts);
 
     //! Set the Solution specifying the ReactorBase content.
     //! @param sol  Solution object to be set.
     //! @since New in %Cantera 3.1.
+    //! @deprecated  To be removed after %Cantera 3.1. Superseded by instantiation of
+    //!              ReactorBase with Solution object.
     void setSolution(shared_ptr<Solution> sol);
 
     //! @name Methods to set up a simulation
@@ -92,7 +69,8 @@ public:
         m_vol = vol;
     }
 
-    //! @deprecated To be removed after %Cantera 3.1. Superseded by setSolution.
+    //! @deprecated  To be removed after %Cantera 3.1. Superseded by instantiation of
+    //!              ReactorBase with Solution object.
     void insert(shared_ptr<Solution> sol);
 
     //! Specify the mixture contained in the reactor. Note that a pointer to
@@ -110,7 +88,7 @@ public:
     }
 
     //! Set the energy equation on or off.
-    virtual void setEnergy(int eflag = 1) {
+    virtual void setEnergy(bool eflag = true) {
         throw NotImplementedError("ReactorBase::setEnergy");
     }
 
@@ -155,10 +133,15 @@ public:
     //! Return a reference to the *n*-th Wall connected to this reactor.
     WallBase& wall(size_t n);
 
+    //! @deprecated  To be removed after %Cantera 3.1. Replaced by version using
+    //!     shared pointer.
     virtual void addSurface(ReactorSurface* surf);
 
-    //! Return a reference to the *n*-th ReactorSurface connected to this
-    //! reactor
+    //! Add a ReactorSurface to a bulk reactor.
+    //! @since New in %Cantera 3.1. Replaces version using raw pointer.
+    virtual void addSurface(shared_ptr<ReactorNode> surf);
+
+    //! Return a reference to the *n*-th ReactorSurface connected to this reactor
     ReactorSurface* surface(size_t n);
 
     //! Return the number of surfaces in a reactor
@@ -166,38 +149,38 @@ public:
         return m_surfaces.size();
     }
 
-    /**
-     * Initialize the reactor. Called automatically by ReactorNet::initialize.
-     */
-    virtual void initialize(double t0 = 0.0) {
-        throw NotImplementedError("ReactorBase::initialize");
-    }
-
     //! @}
 
-    //! Set the state of the Phase object associated with this reactor to the
-    //! reactor's current state.
-    void restoreState();
+    void restoreState() override;
 
-    //! Set the state of the reactor to correspond to the state of the
-    //! associated ThermoPhase object. This is the inverse of restoreState().
-    //! Calling this will trigger integrator reinitialization.
-    virtual void syncState();
+    void syncState() override;
 
     //! return a reference to the contents.
+    //! @deprecated  Behavior to change after %Cantera 3.1, when a shared pointer to
+    //!     a Solution object will be returned. For new behavior, use transitional
+    //!     method ReactorNode::contents3().
     ThermoPhase& contents() {
         if (!m_thermo) {
             throw CanteraError("ReactorBase::contents",
                                "Reactor contents not defined.");
         }
+        warn_user("ReactorBase::contents",
+            "Behavior to change after Cantera 3.1; for new behavior, see "
+            "ReactorNode::contents3.");
         return *m_thermo;
     }
 
+    //! @deprecated  Behavior to change after %Cantera 3.1, when a shared pointer to
+    //!     a Solution object will be returned. For new behavior, use transitional
+    //!     method ReactorNode::contents3().
     const ThermoPhase& contents() const {
         if (!m_thermo) {
             throw CanteraError("ReactorBase::contents",
                                "Reactor contents not defined.");
         }
+        warn_user("ReactorBase::contents",
+            "Behavior to change after Cantera 3.1; for new behavior, see "
+            "ReactorNode::contents3.");
         return *m_thermo;
     }
 
@@ -310,14 +293,9 @@ protected:
     //! Vector of length nWalls(), indicating whether this reactor is on the left (0)
     //! or right (1) of each wall.
     vector<int> m_lr;
-    string m_name;  //!< Reactor name.
-    bool m_defaultNameSet = false;  //!< `true` if default name has been previously set.
 
     //! The ReactorNet that this reactor is part of
     ReactorNet* m_net = nullptr;
-
-    //! Composite thermo/kinetics/transport handler
-    shared_ptr<Solution> m_solution;
 };
 }
 

@@ -126,7 +126,7 @@ states2 = ct.SolutionArray(r2.thermo)
 for n in range(n_steps):
     # Set the state of the reservoir to match that of the previous reactor
     gas2.TDY = r2.thermo.TDY
-    upstream.syncState()
+    upstream.sync_state()
     # integrate the reactor forward in time until steady state is reached
     sim2.reinitialize()
     sim2.advance_to_steady_state()

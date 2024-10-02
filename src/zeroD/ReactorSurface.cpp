@@ -7,22 +7,47 @@
 #include "cantera/zeroD/ReactorNet.h"
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/kinetics/Kinetics.h"
+#include "cantera/kinetics/InterfaceKinetics.h"
 #include "cantera/kinetics/Reaction.h"
+#include "cantera/base/Solution.h"
 
 namespace Cantera
 {
 
-bool ReactorSurface::setDefaultName(map<string, int>& counts)
+ReactorSurface::ReactorSurface(shared_ptr<Solution> sol, const string& name)
+    : ReactorNode(sol, name)
 {
-    if (m_defaultNameSet) {
-        return false;
+    if (!m_solution) {
+        // warning was raised by ReactorNode;
+        // @todo convert to exception after Cantera 3.1.
+        return;
     }
-    m_defaultNameSet = true;
-    if (m_name == "(none)" || m_name == "") {
-        m_name = fmt::format("{}_{}", type(), counts[type()]);
+    if (!std::dynamic_pointer_cast<SurfPhase>(sol->thermo())) {
+        throw CanteraError("ReactorSurface::ReactorSurface",
+            "Solution object must have a SurfPhase object as the thermo manager.");
     }
-    counts[type()]++;
-    return true;
+
+    if (!sol->kinetics() ) {
+        throw CanteraError("ReactorSurface::ReactorSurface",
+            "Solution object must have kinetics manager.");
+    } else if (!std::dynamic_pointer_cast<InterfaceKinetics>(sol->kinetics())) {
+        throw CanteraError("ReactorSurface::ReactorSurface",
+            "Kinetics manager must be an InterfaceKinetics object.");
+    }
+    // todo: move all member variables to use shared pointers after Cantera 3.1
+    m_kinetics = m_solution->kinetics().get();
+    m_solution->thermo()->addSpeciesLock();
+
+    m_thermo = dynamic_cast<SurfPhase*>(&m_kinetics->thermo(0));
+    if (m_thermo == nullptr) {
+        // This should never happen, as the Solution should already contain the correct
+        // SurfPhase object
+        throw CanteraError("ReactorSurface::ReactorSurface",
+            "Specified kinetics manager does not represent a surface "
+            "kinetics mechanism.");
+    }
+    m_cov.resize(m_thermo->nSpecies());
+    m_thermo->getCoverages(m_cov.data());
 }
 
 double ReactorSurface::area() const

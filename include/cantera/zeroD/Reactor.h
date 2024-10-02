@@ -45,9 +45,21 @@ class AnyMap;
  */
 class Reactor : public ReactorBase
 {
-public:
+protected:
     Reactor(shared_ptr<Solution> sol, const string& name="(none)");
+
+public:
     using ReactorBase::ReactorBase; // inherit constructors
+
+    //! Create a new Reactor.
+    //! @param contents  Solution object describing contents.
+    //! @param name  Name of the reactor. Optional; if left empty, a default name will
+    //!     be assigned when the reactor is integrated into a ReactorNet.
+    static shared_ptr<Reactor> create(
+        shared_ptr<Solution> contents, const string& name="")
+    {
+        return shared_ptr<Reactor>( new Reactor(contents, name) );
+    }
 
     string type() const override {
         return "Reactor";
@@ -90,12 +102,8 @@ public:
         return m_chem;
     }
 
-    void setEnergy(int eflag=1) override {
-        if (eflag > 0) {
-            m_energy = true;
-        } else {
-            m_energy = false;
-        }
+    void setEnergy(bool eflag=true) override {
+        m_energy = eflag;
     }
 
     //! Returns `true` if solution of the energy equation is enabled.
@@ -307,6 +315,7 @@ protected:
     //! Vector of triplets representing the jacobian
     vector<Eigen::Triplet<double>> m_jac_trips;
 };
+
 }
 
 #endif

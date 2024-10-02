@@ -58,7 +58,9 @@ public:
 template <class R>
 class ReactorDelegator : public Delegator, public R, public ReactorAccessor
 {
-public:
+protected:
+    using R::R;  // inherit constructors
+
     ReactorDelegator(shared_ptr<Solution> contents, const string& name="(none)")
         : R(contents, name)
     {
@@ -94,6 +96,19 @@ public:
             [this](const string& nm) { return R::componentIndex(nm); });
         install("speciesIndex", m_speciesIndex,
             [this](const string& nm) { return R::speciesIndex(nm); });
+    }
+
+public:
+    //! Create a new %ReactorDelegator.
+    //! @param contents  Solution object describing contents.
+    //! @param name  Name of the reactor. Optional; if left empty, a default name will be
+    //!     assigned when the reactor is integrated into a ReactorNet.
+    //! @tparam R  Type of the delegated reactor class.
+    static shared_ptr<ReactorDelegator<R>> create(
+        shared_ptr<Solution> contents, const string& name="")
+    {
+        return shared_ptr<ReactorDelegator<R>>(
+            new ReactorDelegator<R>(contents, name) );
     }
 
     // Overrides of Reactor methods

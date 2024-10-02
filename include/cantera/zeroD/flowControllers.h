@@ -15,12 +15,24 @@ namespace Cantera
 /**
  * A class for mass flow controllers. The mass flow rate is constant or
  * specified as a function of time.
- * @ingroup flowDeviceGroup
+ * @ingroup connectorGroup
  */
 class MassFlowController : public FlowDevice
 {
 public:
     using FlowDevice::FlowDevice;  // inherit constructors
+
+    //! Create a new MassFlowController.
+    //! @param r0  Reactor upstream of the mass flow controller.
+    //! @param r1  Reactor downstream of the mass flow controller.
+    //! @param name  Name of the mass flow controller. Optional; if left empty, a
+    //!     default name will be assigned when the object is integrated into a
+    //!     ReactorNet.
+    static shared_ptr<MassFlowController> create(
+        shared_ptr<ReactorNode> r0, shared_ptr<ReactorNode> r1, const string& name="")
+    {
+        return shared_ptr<MassFlowController>( new MassFlowController(r0, r1, name) );
+    }
 
     string type() const override {
         return "MassFlowController";
@@ -50,6 +62,10 @@ public:
         throw NotImplementedError("MassFlowController::setPressureFunction");
     }
 
+    void setPressureFunction(shared_ptr<Func1> f) override {
+        throw NotImplementedError("MassFlowController::setPressureFunction");
+    }
+
     //! If a function of time has been specified for mdot, then update the
     //! stored mass flow rate. Otherwise, mdot is a constant, and does not
     //! need updating.
@@ -60,12 +76,23 @@ public:
  * A class for flow controllers where the flow rate is equal to the flow rate
  * of a primary mass flow controller plus a correction proportional to the
  * pressure difference between the inlet and outlet.
- * @ingroup flowDeviceGroup
+ * @ingroup connectorGroup
  */
 class PressureController : public FlowDevice
 {
 public:
     using FlowDevice::FlowDevice;  // inherit constructors
+
+    //! Create a new PressureController.
+    //! @param r0  Reactor upstream of the pressure controller.
+    //! @param r1  Reactor downstream of the pressure controller.
+    //! @param name  Name of the pressure controller. Optional; if left empty, a default
+    //!     name will be assigned when the object is integrated into a ReactorNet.
+    static shared_ptr<PressureController> create(
+        shared_ptr<ReactorNode> r0, shared_ptr<ReactorNode> r1, const string& name="")
+    {
+        return shared_ptr<PressureController>( new PressureController(r0, r1, name) );
+    }
 
     string type() const override {
         return "PressureController";
@@ -78,12 +105,34 @@ public:
     //! Set the primary mass flow controller.
     /*!
      * @since New in %Cantera 3.0.
+     * @deprecated  To be removed after %Cantera 3.1. Replaced by version using
+     *      shared pointer.
      */
     void setPrimary(FlowDevice* primary) {
+        warn_deprecated("PressureController::setPrimary",
+            "To be removed after Cantera 3.1. "
+            "Replaced by version using shared pointer.");
         m_primary = primary;
     }
 
+    //! Set the primary mass flow controller.
+    /*!
+     * @since New in %Cantera 3.1. Replaces version using raw pointer.
+     */
+    void setPrimary(shared_ptr<Connector> primary) {
+        auto dev = std::dynamic_pointer_cast<FlowDevice>(primary);
+        if (!dev) {
+            throw CanteraError("PressureController::setPrimary",
+                "Invalid flow device type: '{}'", primary->type());
+        }
+        m_primary = dev.get();
+    }
+
     void setTimeFunction(Func1* g) override {
+        throw NotImplementedError("PressureController::setTimeFunction");
+    }
+
+    void setTimeFunction(shared_ptr<Func1> g) override {
         throw NotImplementedError("PressureController::setTimeFunction");
     }
 
@@ -118,12 +167,23 @@ protected:
  * The default behavior is a linearly proportional to the pressure difference.
  * Note that real valves do not have this behavior, so this class does not
  * model real, physical valves.
- * @ingroup flowDeviceGroup
+ * @ingroup connectorGroup
  */
 class Valve : public FlowDevice
 {
 public:
     using FlowDevice::FlowDevice;  // inherit constructors
+
+    //! Create a new Valve.
+    //! @param r0  Reactor left of the valve.
+    //! @param r1  Reactor right of the valve.
+    //! @param name  Name of the valve. Optional; if left empty, a default name will be
+    //!     assigned when the object is integrated into a ReactorNet.
+    static shared_ptr<Valve> create(
+        shared_ptr<ReactorNode> r0, shared_ptr<ReactorNode> r1, const string& name="")
+    {
+        return shared_ptr<Valve>( new Valve(r0, r1, name) );
+    }
 
     string type() const override {
         return "Valve";
