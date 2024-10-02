@@ -5,9 +5,6 @@ from pytest import approx
 
 import cantera as ct
 
-from .utilities import (
-    assertArrayNear
-)
 
 class TestFunc1:
     def test_function(self):
@@ -246,7 +243,7 @@ class TestFunc1:
         fcn = ct.Tabulated1(time, fval, method='previous')
         assert fcn.type == "tabulated-previous"
         val = np.array([fcn(v) for v in [-0.5, 0, 0.5, 1.5, 2, 2.5]])
-        assertArrayNear(val, np.array([2.0, 2.0, 2.0, 1.0, 0.0, 0.0]))
+        assert val == approx(np.array([2.0, 2.0, 2.0, 1.0, 0.0, 0.0]))
 
     def test_tabulated_failures(self):
         with pytest.raises(ct.CanteraError, match="even number of entries"):

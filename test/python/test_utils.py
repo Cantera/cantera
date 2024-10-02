@@ -1,13 +1,9 @@
-from pathlib import Path
 import numpy as np
+from pathlib import Path
 import pytest
 from pytest import approx
 
 import cantera as ct
-from .utilities import (
-    assertArrayNear
-)
-
 from cantera._utils import _py_to_any_to_py, _py_to_anymap_to_py
 
 
@@ -91,17 +87,17 @@ class TestUnitSystem:
     def test_convert_to_array(self):
         system = ct.UnitSystem({"length": "km"})
         x = np.array(((3, 4), (0.5, 2.0), (1.0, 0.0)))
-        assertArrayNear(system.convert_to(x, "m"), 1000 * x)
+        assert system.convert_to(x, "m") == approx(1000 * x)
 
     def test_convert_activation_energy_to_array(self):
         system = ct.UnitSystem({"activation-energy": "J/mol"})
         x = np.array(((3, 4), (0.5, 2.0), (1.0, 0.0)))
-        assertArrayNear(system.convert_activation_energy_to(x, "J/kmol"), 1000 * x)
+        assert system.convert_activation_energy_to(x, "J/kmol") == approx(1000 * x)
 
     def test_convert_rate_coeff_to_array(self):
         system = ct.UnitSystem({"length": "cm"})
         x = np.array(((3, 4), (0.5, 2.0), (1.0, 0.0)))
-        assertArrayNear(system.convert_rate_coeff_to(x, "m^2/kmol/s"), 0.0001 * x)
+        assert system.convert_rate_coeff_to(x, "m^2/kmol/s") == approx(0.0001 * x)
 
     def test_convert_to_sequence(self):
         system = ct.UnitSystem({"length": "km"})

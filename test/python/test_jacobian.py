@@ -3,9 +3,6 @@ import pytest
 from pytest import approx
 
 import cantera as ct
-from .utilities import (
-    assertArrayNear
-)
 
 
 @pytest.fixture(scope='class')
@@ -113,7 +110,7 @@ class RateExpressionTests:
                 drop[self.rxn_idx, spc_ix] * self.gas.X[spc_ix] / order)
 
             drop_num = self.rop_derivs(spc_ix, mode="forward")
-            assertArrayNear(dropm[:, spc_ix] + dropp * self.gas.P, drop_num, self.rtol)
+            assert dropm[:, spc_ix] + dropp * self.gas.P == approx(drop_num, rel=self.rtol)
 
         if isinstance(self.rxn.rate, ct.FalloffRate):
             return
@@ -139,7 +136,7 @@ class RateExpressionTests:
                 drop[self.rxn_idx, spc_ix] * self.gas.X[spc_ix] / order)
 
             drop_num = self.rop_derivs(spc_ix, mode="reverse")
-            assertArrayNear(dropm[:, spc_ix] + dropp * self.gas.P, drop_num, self.rtol)
+            assert dropm[:, spc_ix] + dropp * self.gas.P == approx(drop_num, rel=self.rtol)
 
         if not self.rxn.reversible or isinstance(self.rxn.rate, ct.FalloffRate):
             return
@@ -160,7 +157,7 @@ class RateExpressionTests:
             drop_num = self.rop_derivs(spc_ix, mode="net")
             ix = drop[:, spc_ix] != 0
             drop_ = drop[:, spc_ix] + dropp * self.gas.P
-            assertArrayNear(drop_[ix], drop_num[ix], self.rtol)
+            assert drop_[ix] == approx(drop_num[ix], rel=self.rtol)
 
         if not self.rxn.reversible or isinstance(self.rxn.rate, ct.FalloffRate):
             return
@@ -189,7 +186,7 @@ class RateExpressionTests:
                 drop[self.rxn_idx, spc_ix] * self.gas.concentrations[spc_ix] / order)
 
             drop_num = self.rop_derivs(spc_ix, mode="forward", ddX=False)
-            assertArrayNear(dropm[:, spc_ix] + dropp * self.gas.P, drop_num, 1e-3)
+            assert dropm[:, spc_ix] + dropp * self.gas.P == approx(drop_num, rel=1e-3)
 
         if isinstance(self.rxn.rate, ct.FalloffRate):
             return
@@ -215,7 +212,7 @@ class RateExpressionTests:
                 drop[self.rxn_idx, spc_ix] * self.gas.concentrations[spc_ix] / order)
 
             drop_num = self.rop_derivs(spc_ix, mode="reverse", ddX=False)
-            assertArrayNear(dropm[:, spc_ix] + dropp * self.gas.P, drop_num, 1e-3)
+            assert dropm[:, spc_ix] + dropp * self.gas.P == approx(drop_num, rel=1e-3)
 
         if not self.rxn.reversible or isinstance(self.rxn.rate, ct.FalloffRate):
             return
@@ -236,7 +233,7 @@ class RateExpressionTests:
             drop_num = self.rop_derivs(spc_ix, mode="net", ddX=False)
             ix = drop[:, spc_ix] != 0
             drop_ = drop[:, spc_ix] + dropp * self.gas.P
-            assertArrayNear(drop_[ix], drop_num[ix], 1e-4)
+            assert drop_[ix] == approx(drop_num[ix], rel=1e-4)
 
         if not self.rxn.reversible or isinstance(self.rxn.rate, ct.FalloffRate):
             return
@@ -469,7 +466,7 @@ class RateExpressionTests:
             drate_num = self.rate_ddX(spc_ix, "creation")
             ix = drate[:, spc_ix] != 0
             drate[:, spc_ix] += dratep * self.gas.P
-            assertArrayNear(drate[ix, spc_ix], drate_num[ix], self.rtol)
+            assert drate[ix, spc_ix] == approx(drate_num[ix], rel=self.rtol)
 
     def test_destruction_ddX(self):
         # check derivatives of destruction rates with respect to mole fractions
@@ -479,7 +476,7 @@ class RateExpressionTests:
             drate_num = self.rate_ddX(spc_ix, "destruction")
             ix = drate[:, spc_ix] != 0
             drate[:, spc_ix] += dratep * self.gas.P
-            assertArrayNear(drate[ix, spc_ix], drate_num[ix], self.rtol)
+            assert drate[ix, spc_ix] == approx(drate_num[ix], rel=self.rtol)
 
     def test_net_production_ddX(self):
         # check derivatives of destruction rates with respect to mole fractions
@@ -489,7 +486,7 @@ class RateExpressionTests:
             drate_num = self.rate_ddX(spc_ix, "net")
             ix = drate[:, spc_ix] != 0
             drate[:, spc_ix] += dratep * self.gas.P
-            assertArrayNear(drate[ix, spc_ix], drate_num[ix], self.rtol)
+            assert drate[ix, spc_ix] == approx(drate_num[ix], rel=self.rtol)
 
     def test_creation_ddCi(self):
         # check derivatives of creation rates with respect to mole fractions
@@ -499,7 +496,7 @@ class RateExpressionTests:
             drate_num = self.rate_ddX(spc_ix, "creation", ddX=False)
             ix = drate[:, spc_ix] != 0
             drate[:, spc_ix] += dratep * self.gas.P
-            assertArrayNear(drate[ix, spc_ix], drate_num[ix], 1e-3)
+            assert drate[ix, spc_ix] == approx(drate_num[ix], rel=1e-3)
 
     def test_destruction_ddCi(self):
         # check derivatives of destruction rates with respect to mole fractions
@@ -509,7 +506,7 @@ class RateExpressionTests:
             drate_num = self.rate_ddX(spc_ix, "destruction", ddX=False)
             ix = drate[:, spc_ix] != 0
             drate[:, spc_ix] += dratep * self.gas.P
-            assertArrayNear(drate[ix, spc_ix], drate_num[ix], 1e-3)
+            assert drate[ix, spc_ix] == approx(drate_num[ix], rel=1e-3)
 
     def test_net_production_ddCi(self):
         # check derivatives of destruction rates with respect to mole fractions
@@ -519,7 +516,7 @@ class RateExpressionTests:
             drate_num = self.rate_ddX(spc_ix, "net", ddX=False)
             ix = drate[:, spc_ix] != 0
             # drate[:, spc_ix] += dratep * self.gas.P
-            assertArrayNear(drate[ix, spc_ix], drate_num[ix], 1e-3)
+            assert drate[ix, spc_ix] == approx(drate_num[ix], rel=1e-3)
 
 
 @pytest.mark.usefixtures("setup_rate_expression_data")
@@ -743,7 +740,7 @@ class FullTests:
                 # test entries that are not spurious
                 ix = np.abs((stoich[:, i] != 0) * drop[i, :]) > 1e-6
                 drop_ = drop[i, ix] + dropp[i] * self.gas.P
-                assertArrayNear(drop_, drop_num[i, ix], self.rtol)
+                assert drop_ == approx(drop_num[i, ix], rel=self.rtol)
             except AssertionError as err:
                 print(i, self.gas.reaction(i).rate.type)
                 print(self.gas.reaction(i))
@@ -761,7 +758,7 @@ class FullTests:
                 # test entries that are not spurious
                 ix = np.abs((stoich[:, i] != 0) * drop[i, :]) > 1e-6
                 drop_ = drop[i, ix] + dropp[i] * self.gas.P
-                assertArrayNear(drop_, drop_num[i, ix], self.rtol)
+                assert drop_ == approx(drop_num[i, ix], rel=self.rtol)
             except AssertionError as err:
                 print(i, self.gas.reaction(i).rate.type)
                 print(self.gas.reaction(i))
@@ -779,7 +776,7 @@ class FullTests:
                 # test entries that are not spurious
                 ix = np.abs((stoich[:, i] != 0) * drop[i, :]) > 1e-6
                 drop_ = drop[i, ix] + dropp[i] * self.gas.P
-                assertArrayNear(drop_, drop_num[i, ix], self.rtol)
+                assert drop_ == approx(drop_num[i, ix], rel=self.rtol)
             except AssertionError as err:
                 if self.gas.reaction(i).reversible:
                     print(i, self.gas.reaction(i).rate.type)
@@ -799,7 +796,7 @@ class FullTests:
                 # test entries that are not spurious
                 ix = np.abs((stoich[:, i] != 0) * drop[i, :]) > 1e-6
                 drop_ = drop[i, ix] + dropp[i] * self.gas.P
-                assertArrayNear(drop_, drop_num[i, ix], self.rtol)
+                assert drop_ == approx(drop_num[i, ix], rel=self.rtol)
             except AssertionError as err:
                 print(i, self.gas.reaction(i).rate.type)
                 print(self.gas.reaction(i))
@@ -818,7 +815,7 @@ class FullTests:
                 # test entries that are not spurious
                 ix = np.abs((stoich[:, i] != 0) * drop[i, :]) > 1e-6
                 drop_ = drop[i, ix] + dropp[i] * self.gas.P
-                assertArrayNear(drop_, drop_num[i, ix], self.rtol)
+                assert drop_ == approx(drop_num[i, ix], rel=self.rtol)
             except AssertionError as err:
                 print(i, self.gas.reaction(i).rate.type)
                 print(self.gas.reaction(i))
@@ -837,7 +834,7 @@ class FullTests:
                 # test entries that are not spurious
                 ix = np.abs((stoich[:, i] != 0) * drop[i, :]) > 1e-6
                 drop_ = drop[i, ix] + dropp[i] * self.gas.P
-                assertArrayNear(drop_, drop_num[i, ix], self.rtol)
+                assert drop_ == approx(drop_num[i, ix], rel=self.rtol)
             except AssertionError as err:
                 if self.gas.reaction(i).reversible:
                     print(i, self.gas.reaction(i).rate.type)
@@ -868,7 +865,7 @@ class FullTests:
         drop = self.gas.forward_rates_of_progress_ddT
         drop += self.gas.forward_rates_of_progress_ddC * dcdt
         drop_num = self.rop_ddT(mode="forward")
-        assertArrayNear(drop, drop_num, self.rtol)
+        assert drop == approx(drop_num, rel=self.rtol)
 
     def test_reverse_rop_ddT(self):
         # check reverse rop against numerical derivative with respect to temperature
@@ -876,7 +873,7 @@ class FullTests:
         drop = self.gas.reverse_rates_of_progress_ddT
         drop += self.gas.reverse_rates_of_progress_ddC * dcdt
         drop_num = self.rop_ddT(mode="reverse")
-        assertArrayNear(drop, drop_num, self.rtol)
+        assert drop == approx(drop_num, rel=self.rtol)
 
     def test_net_rop_ddT(self):
         # check net rop against numerical derivative with respect to temperature
@@ -885,7 +882,7 @@ class FullTests:
         drop += self.gas.net_rates_of_progress_ddC * dcdt
         drop_num = self.rop_ddT(mode="net")
         try:
-            assertArrayNear(drop, drop_num, self.rtol)
+            assert drop == approx(drop_num, rel=self.rtol)
         except AssertionError as err:
             i = np.argmax(2 * (drop - drop_num) / (drop + drop_num + 2e-4))
             print(i, self.gas.reaction(i).rate.type)
@@ -1014,7 +1011,7 @@ class SurfaceRateExpressionTests:
         for spc_ix in self.rix + self.pix:
             ix = np.abs(drop[:, spc_ix]) > 1
             drop_ = drop[:, spc_ix]
-            assertArrayNear(drop_[ix], rop[ix], 1e-3)
+            assert drop_[ix] == approx(rop[ix], rel=1e-3)
 
 @pytest.mark.usefixtures("surface_rate_expression_data")
 class PlatinumHydrogen(SurfaceRateExpressionTests):
@@ -1121,7 +1118,7 @@ class SurfaceFullTests:
         # rates of progress do not factor in reaction order it must be accounted for
         drop /= total_orders
         # compare the rate of progress vectors produced in different ways
-        assertArrayNear(drop, rop, self.rtol)
+        assert drop == approx(rop, rel=self.rtol)
 
     def test_reverse_rop_ddCi(self):
         # matrix multiplication of the reverse rate of progress derivatives  w.r.t
@@ -1147,7 +1144,7 @@ class SurfaceFullTests:
         # rates of progress do not factor in reaction order it must be accounted for
         drop /= total_orders
         # compare the rate of progress vectors produced in different ways
-        assertArrayNear(drop, rop, self.rtol)
+        assert drop == approx(rop, rel=self.rtol)
 
     def test_net_rop_ddCi(self):
         # check derivatives of net rates of progress with respect to species
@@ -1173,7 +1170,7 @@ class SurfaceFullTests:
                 curr_order += orders[k] if k in orders else v
             ropr[i] *= curr_order
         # compare the rate of progress vectors produced in different ways
-        assertArrayNear(drop, ropf - ropr, self.rtol)
+        assert drop == approx(ropf - ropr, rel=self.rtol)
 
 @pytest.mark.usefixtures("setup_surface_full_data")
 class TestFullPlatinumHydrogen(SurfaceFullTests):
