@@ -11,17 +11,6 @@ except ImportError:
 
 # Custom assertions functions
 
-def assertNear(a, b, rtol=1e-8, atol=1e-12, msg=None):
-    if a == b:
-        return  # handles case where a == b == inf
-    cmp = 2 * abs(a - b)/(abs(a) + abs(b) + 2 * atol / rtol)
-    if not cmp < rtol:
-        message = ('AssertNear: %.14g - %.14g = %.14g\n' % (a, b, a-b) +
-                    'Relative error of %10e exceeds rtol = %10e' % (cmp, rtol))
-        if msg:
-            message = msg + '\n' + message
-        pytest.fail(message)
-
 def assertArrayNear(A, B, rtol=1e-8, atol=1e-12, msg=None):
     if len(A) != len(B):
         pytest.fail("Arrays are of different lengths ({0}, {1})".format(len(A), len(B)))
