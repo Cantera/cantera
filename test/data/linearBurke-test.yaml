@@ -136,7 +136,7 @@ species:
     rotational-relaxation: 3.8
 
 baseline-pdep_reactions:
-- equation: H2O <=> H + OH
+- equation: H + OH <=> H2O
   type: pressure-dependent-Arrhenius
   # units: {length: m, quantity: kmol, activation-energy: cal/mol}
   rate-constants:
