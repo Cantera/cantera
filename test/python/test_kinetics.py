@@ -1396,6 +1396,57 @@ class TestReaction(utilities.CanteraTest):
         with self.assertRaisesRegex(ct.CanteraError, "Found superfluous"):
             gas = ct.Solution("pdep-test.yaml", "plog-invalid")
 
+    def test_LinearBurke_PLOG(self):
+        reaction = "H + OH <=> H2O"
+        gas_baseline = ct.Solution('linearBurke-test.yaml',phase='baseline_mechanism')
+        gas_linearBurke = ct.Solution('linearBurke-test.yaml',phase='linear-Burke_mechanism')
+        T = 1000 # [K]
+        P_ls = [0.1,1,10,100] # [atm]
+        for i in range(len(P_ls)-1):
+            # collider 'O2' treated as M
+            gas_baseline.TPX = gas_linearBurke.TPX = T,P_ls[i],{'O2':1}
+            self.assertNear(gas_baseline.reaction_equations().index(reaction), 
+                            gas_linearBurke.reaction_equations().index(reaction))
+            # collider 'H2O' must behave as 'M' if 'M' were eval. at 10x the pressure
+            gas_linearBurke.TPX = T,P_ls[i],{'H2O':1}
+            gas_baseline.TPX = T, P_ls[i]*10,{'H2O':1}
+            self.assertNear(gas_baseline.reaction_equations().index(reaction), 
+                            gas_linearBurke.reaction_equations().index(reaction))
+
+    def test_LinearBurke_Troe(self):
+        reaction = "H + O2 (+M) <=> HO2 (+M)"
+        gas_baseline = ct.Solution('linearBurke-test.yaml',phase='baseline_mechanism')
+        gas_linearBurke = ct.Solution('linearBurke-test.yaml',phase='linear-Burke_mechanism')
+        T = 1000 # [K]
+        P_ls = [0.1,1,10,100] # [atm]
+        for i in range(len(P_ls)-1):
+            # collider 'O2' treated as M
+            gas_baseline.TPX = gas_linearBurke.TPX = T,P_ls[i],{'O2':1}
+            self.assertNear(gas_baseline.reaction_equations().index(reaction), 
+                            gas_linearBurke.reaction_equations().index(reaction))
+            # collider 'H2O' must behave as 'M' if 'M' were eval. at 10x the pressure
+            gas_linearBurke.TPX = T,P_ls[i],{'H2O':1}
+            gas_baseline.TPX = T, P_ls[i]*10,{'H2O':1}
+            self.assertNear(gas_baseline.reaction_equations().index(reaction), 
+                            gas_linearBurke.reaction_equations().index(reaction))
+    
+    def test_LinearBurke_Chebyshev(self):
+        reaction = "H2O2 (+M) <=> OH + OH (+M)"
+        gas_baseline = ct.Solution('linearBurke-test.yaml',phase='baseline_mechanism')
+        gas_linearBurke = ct.Solution('linearBurke-test.yaml',phase='linear-Burke_mechanism')
+        T = 1000 # [K]
+        P_ls = [0.1,1,10,100] # [atm]
+        for i in range(len(P_ls)-1):
+            # collider 'O2' treated as M
+            gas_baseline.TPX = gas_linearBurke.TPX = T,P_ls[i],{'O2':1}
+            self.assertNear(gas_baseline.reaction_equations().index(reaction), 
+                            gas_linearBurke.reaction_equations().index(reaction))
+            # collider 'H2O' must behave as 'M' if 'M' were eval. at 10x the pressure
+            gas_linearBurke.TPX = T,P_ls[i],{'H2O':1}
+            gas_baseline.TPX = T, P_ls[i]*10,{'H2O':1}
+            self.assertNear(gas_baseline.reaction_equations().index(reaction), 
+                            gas_linearBurke.reaction_equations().index(reaction))
+
     def test_chebyshev(self):
         gas1 = ct.Solution('pdep-test.yaml')
         species = ct.Species.list_from_file("pdep-test.yaml")
