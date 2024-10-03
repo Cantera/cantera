@@ -1396,7 +1396,7 @@ class TestReaction(utilities.CanteraTest):
         with self.assertRaisesRegex(ct.CanteraError, "Found superfluous"):
             gas = ct.Solution("pdep-test.yaml", "plog-invalid")
 
-    def test_LinearBurke_PLOG(self):
+    def test_linearburke_plog(self):
         reaction = "H + OH <=> H2O"
         gas_baseline = ct.Solution('linearBurke-test.yaml',phase='baseline_mechanism')
         gas_linearBurke = ct.Solution('linearBurke-test.yaml',phase='linear-Burke_mechanism')
@@ -1413,7 +1413,7 @@ class TestReaction(utilities.CanteraTest):
             self.assertNear(gas_baseline.reaction_equations().index(reaction), 
                             gas_linearBurke.reaction_equations().index(reaction))
 
-    def test_LinearBurke_Troe(self):
+    def test_linearburke_troe(self):
         reaction = "H + O2 (+M) <=> HO2 (+M)"
         gas_baseline = ct.Solution('linearBurke-test.yaml',phase='baseline_mechanism')
         gas_linearBurke = ct.Solution('linearBurke-test.yaml',phase='linear-Burke_mechanism')
@@ -1430,7 +1430,7 @@ class TestReaction(utilities.CanteraTest):
             self.assertNear(gas_baseline.reaction_equations().index(reaction), 
                             gas_linearBurke.reaction_equations().index(reaction))
     
-    def test_LinearBurke_Chebyshev(self):
+    def test_linearburke_chebyshev(self):
         reaction = "H2O2 (+M) <=> OH + OH (+M)"
         gas_baseline = ct.Solution('linearBurke-test.yaml',phase='baseline_mechanism')
         gas_linearBurke = ct.Solution('linearBurke-test.yaml',phase='linear-Burke_mechanism')
