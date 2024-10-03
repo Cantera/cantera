@@ -675,12 +675,8 @@ cdef class LinearBurkeRate(ReactionRate):
         elif init:
             if isinstance(input_data, dict):
                 self._rate.reset(new CxxLinearBurkeRate(py_to_anymap(input_data)))
-            elif rates is None:
-                self._rate.reset(new CxxLinearBurkeRate(py_to_anymap({})))
-            elif input_data:
+            else input_data:
                 raise TypeError("Invalid parameter 'input_data'")
-            else:
-                raise TypeError("Invalid parameter 'rates'")
             self.set_cxx_object()
 
     cdef CxxLinearBurkeRate* cxx_object(self):
