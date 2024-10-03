@@ -138,6 +138,12 @@ void LinearBurkeRate::setParameters(const AnyMap& node, const UnitStack& rate_un
         params["A"] = colliders[i][eig_eps_key]["A"].asDouble() / colliders[0][eig_eps_key]["A"].asDouble();
         params["b"] = colliders[i][eig_eps_key]["b"].asDouble() - colliders[0][eig_eps_key]["b"].asDouble();
         params["Ea"] = colliders[i][eig_eps_key]["Ea"].asDouble() - colliders[0][eig_eps_key]["Ea"].asDouble();
+
+        if (params["A"] < 0) {
+            throw InputFileError("LinearBurkeRate::setParameters", m_input,
+                "Invalid eig0 or eps entry for M.");
+        }
+
         epsObj_i = ArrheniusRate(AnyValue(params), colliders[i].units(), eps_units);
         if (colliders[i].hasKey("rate-constants")) {
             rateObjs.push_back(PlogRate(colliders[i], rate_units));
@@ -169,22 +175,7 @@ void LinearBurkeRate::setParameters(const AnyMap& node, const UnitStack& rate_un
     }
 }
 
-void LinearBurkeRate::validate(const string& equation, const Kinetics& kin)
-{
-    vector<double> T = {500, 1000, 1500, 2000};
-    for (size_t i = 0; i < T.size(); i++){
-        if (epsObj_M.evalRate(log(T[i]), 1 / T[i]) < 0) {
-            throw InputFileError("LinearBurkeRate::validate", m_input,
-                "Invalid eig0 or eps entry for M.");
-        }
-        for (size_t j = 0; j<colliderIndices.size(); j++) {
-            if (epsObjs1[j].evalRate(log(T[i]), 1 / T[i]) < 0){
-                throw InputFileError("LinearBurkeRate::validate", m_input,
-                    "Invalid eig0 or eps entry for one of the specified colliders.");
-            }
-        }
-    }
-}
+void LinearBurkeRate::validate(const string& equation, const Kinetics& kin){}
 
 void LinearBurkeRate::setContext(const Reaction& rxn, const Kinetics& kin)
 {
