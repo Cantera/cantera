@@ -90,7 +90,6 @@ public:
      */
     void setParameters(const AnyMap& node, const UnitStack& rate_units) override;
 
-    void getParameters(AnyMap& rateNode, const Units& rate_units) const;
     void getParameters(AnyMap& rateNode) const override {
         return getParameters(rateNode, Units(0));
     }

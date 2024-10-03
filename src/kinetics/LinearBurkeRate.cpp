@@ -141,7 +141,7 @@ void LinearBurkeRate::setParameters(const AnyMap& node, const UnitStack& rate_un
 
         if (params["A"] < 0) {
             throw InputFileError("LinearBurkeRate::setParameters", m_input,
-                "Invalid eig0 or eps entry for M.");
+                "Invalid eig0 or eps entry for one or more colliders.");
         }
 
         epsObj_i = ArrheniusRate(AnyValue(params), colliders[i].units(), eps_units);
@@ -279,7 +279,7 @@ double LinearBurkeRate::evalFromStruct(const LinearBurkeData& shared_data)
     return k_LMR_;
 }
 
-void LinearBurkeRate::getParameters(AnyMap& rateNode, const Units& rate_units) const
+void LinearBurkeRate::getParameters(AnyMap& rateNode) const
 {
     vector<AnyMap> topLevelList;
     for (const auto& entry : colliderInfo) {
