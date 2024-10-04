@@ -238,9 +238,8 @@ double LinearBurkeRate::evalFromStruct(const LinearBurkeData& shared_data)
         eps_mix += shared_data.moleFractions[i] * epsObjs1[j].evalRate(shared_data.logT, shared_data.recipT);
         sigmaX_M -= shared_data.moleFractions[i];
     }
-    double eps_M = epsObj_M.evalRate(shared_data.logT, shared_data.recipT);
     // Add all M colliders to eps_mix in a single step
-    eps_mix += sigmaX_M * eps_M;
+    eps_mix += sigmaX_M; // eps_mix += sigmaX_M * eps_M, but eps_M = 1 always
     if (eps_mix == 0) {
         throw InputFileError("LinearBurkeRate::evalFromStruct", m_input, "eps_mix == 0 for some reason");
     }
@@ -267,18 +266,17 @@ double LinearBurkeRate::evalFromStruct(const LinearBurkeData& shared_data)
             throw InputFileError("LinearBurkeRate::evalFromStruct", m_input, "Something went wrong...");
         }
     }
-    logPeff_ = shared_data.logP + log(eps_mix) - log(eps_M);
-    // 0 means PlogRate
-    if (rateObj_M.which() == 0) {
-        k_LMR_ += evalPlogRate(shared_data, dataObj_M, rateObj_M) * eps_M * sigmaX_M / eps_mix;
+    // logPeff_ = shared_data.logP + log(eps_mix) - log(eps_M), but log(eps_M)=0 always
+    logPeff_ = shared_data.logP + log(eps_mix);
+    if (rateObj_M.which() == 0) { // 0 means PlogRate
+        // k_LMR_ += evalPlogRate(shared_data, dataObj_M, rateObj_M) * eps_M * sigmaX_M / eps_mix, but eps_M = 1 always
+        k_LMR_ += evalPlogRate(shared_data, dataObj_M, rateObj_M) * sigmaX_M / eps_mix;
     }
-    // 1 means TroeRate
-    else if (rateObj_M.which() == 1) {
-        k_LMR_ += evalTroeRate(shared_data, dataObj_M, rateObj_M) * eps_M * sigmaX_M / eps_mix;
+    else if (rateObj_M.which() == 1) { // 1 means TroeRate
+        k_LMR_ += evalTroeRate(shared_data, dataObj_M, rateObj_M) * sigmaX_M / eps_mix;
     }
-    // 2 means ChebyshevRate
-    else if (rateObj_M.which() == 2) {
-        k_LMR_ += evalChebyshevRate(shared_data, dataObj_M, rateObj_M) * eps_M * sigmaX_M / eps_mix;
+    else if (rateObj_M.which() == 2) { // 2 means ChebyshevRate
+        k_LMR_ += evalChebyshevRate(shared_data, dataObj_M, rateObj_M) * sigmaX_M / eps_mix;
     }
     return k_LMR_;
 }
