@@ -1,13 +1,19 @@
 description: |-
-  A variation of the 2023 model of NH3 and H2 chemistry published by Alzueta and coworkers, with the original version denoted below as "baseline_mechanism". [1] In the modified version, "linear-Burke_mechanism", six complex-forming reactions have been modified according to the linear Burke rate implementation of the reduced-pressure linear mixture rule (LMR-R). These are: H2O (+M), HO2 (+M), H2O2 (+M), NH3 (+M), N2H4 (+M), and HNO (+M). Ab initio third-body efficiencies were obtained at discrete temperatures from Jasper [2] and then fitted to an Arrhenius parameterization to facilitate the temperature-dependence of these parameters. Further description of the methodology used to adapt this mechanism is available in Singal et al. [3]
+  This mechanism includes three complex-forming reactions, shown with and without
+  the linear-Burke implementation. All parameters are idealized and are only
+  intended for demonstration. Do not use this mechanism for any other scientific
+  purposes. The thermodynamic and transport data were taken directly from Alzueta et
+  al. [1], and the reactions were adapted from the linear-Burke model of Singal et al.
+  [2].
 
   References:
 
-    [1] M. U. Alzueta, I. Salas, H. Hashemi, P. Glarborg, CO-assisted NH3 oxidation, Combust. Flame 257 (2023) 112438.
+    [1] M. U. Alzueta, I. Salas, H. Hashemi, P. Glarborg, CO-assisted NH3 oxidation,
+        Combust. Flame 257 (2023) 112438.
 
-    [2] A. W. Jasper, Predicting third-body collision efficiencies for water and other polyatomic baths. Faraday Discuss. 238 (2022) 68-86.
-
-    [3] P. J. Singal, J. Lee, L. Lei, R. L. Speth, M. P. Burke, Implementation of New Mixture Rules Has a Substantial Impact on Combustion Predictions for H2 and NH3, Proc. Combust. Inst. 41 (2025).
+    [2] P. J. Singal, J. Lee, L. Lei, R. L. Speth, M. P. Burke, Implementation of New
+        Mixture Rules Has a Substantial Impact on Combustion Predictions for H2 and NH3,
+        Proc. Combust. Inst. 41 (2025).
 
 units: {length: cm, time: s, quantity: mol, activation-energy: cal/mol}
 
@@ -20,7 +26,7 @@ phases:
   kinetics: gas
   transport: mixture-averaged
   state: {T: 300.0, P: 1 atm}
-  
+
 - name: linear-Burke_mechanism
   thermo: ideal-gas
   elements: [O, H]
