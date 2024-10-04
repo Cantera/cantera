@@ -63,27 +63,28 @@ void LinearBurkeRate::setParameters(const AnyMap& node, const UnitStack& rate_un
 {
     UnitStack eps_units{{Units(1.0), 1.0}};
     ReactionRate::setParameters(node, rate_units);
+    auto eqn = node["equation"].asString();
     if (!node.hasKey("colliders")) {
         throw InputFileError("LinearBurkeRate::setParameters", m_input,
-            "'colliders' key missing from reaction '{}'.",node['equation']);
+            "'colliders' key missing from reaction '{}'.",eqn);
     }
     auto colliders = node["colliders"].asVector<AnyMap>();
     if (!colliders[0].hasKey("name")) {
         throw InputFileError("LinearBurkeRate::setParameters", m_input,
-            "'colliders' key missing from reaction '{}'.",node['equation']);
+            "'colliders' key missing from reaction '{}'.",eqn);
     }
     else if (!colliders[0].hasKey("eps") && !colliders[0].hasKey("eig0")) {
         throw InputFileError("LinearBurkeRate::setParameters", m_input,
-                "Collider 'M' in reaction '{}' is missing an 'eps' or 'eig0' key.", node['equation']);
+                "Collider 'M' in reaction '{}' is missing an 'eps' or 'eig0' key.", eqn);
     }
     else if (colliders[0]["name"].as<string>() != "M") {
         throw InputFileError("LinearBurkeRate::setParameters", m_input,
-            "The first collider defined in reaction '{}' must be 'M'.",node['equation']);
+            "The first collider defined in reaction '{}' must be 'M'.",eqn);
     }
     else if (colliders[0].hasKey("eps")) {
         if (colliders[0]["eps"]["A"] != 1 || colliders[0]["eps"]["b"] != 0 || colliders[0]["eps"]["Ea"] != 0) {
             throw InputFileError("LinearBurkeRate::setParameters", m_input,
-                "The third-body efficiency (eps) must be entered for M as 'eps: {A: 1, b: 0, Ea: 0}' in reaction '{}'.", node['equation']);
+                "The third-body efficiency (eps) must be entered for M as 'eps: {A: 1, b: 0, Ea: 0}' in reaction '{}'.", eqn);
         }
     }
     if (colliders[0].hasKey("rate-constants")) {
@@ -102,7 +103,7 @@ void LinearBurkeRate::setParameters(const AnyMap& node, const UnitStack& rate_un
     }
     else {
         throw InputFileError("LinearBurkeRate::setParameters", m_input,
-            "Collider 'M' for reaction '{}' must be specified in a pressure-dependent-Arrhenius (PLOG), falloff (Troe form), or Chebyshev format.", node['equation']);
+            "Collider 'M' for reaction '{}' must be specified in a pressure-dependent-Arrhenius (PLOG), falloff (Troe form), or Chebyshev format.", eqn);
     }
     string eig_eps_key;
     if (colliders[0].hasKey("eig0") && !colliders[0].hasKey("eps")) {
@@ -113,7 +114,7 @@ void LinearBurkeRate::setParameters(const AnyMap& node, const UnitStack& rate_un
     }
     else{
         throw InputFileError("LinearBurkeRate::setParameters", m_input,
-            "Collider 'M' in reaction '{}' cannot contain both eps and eig0. Any additional colliders must also make same choice as that of M.", node['equation']);
+            "Collider 'M' in reaction '{}' cannot contain both eps and eig0. Any additional colliders must also make same choice as that of M.", eqn);
     }
     AnyMap params;
     params["A"] = 1.0;
@@ -124,15 +125,15 @@ void LinearBurkeRate::setParameters(const AnyMap& node, const UnitStack& rate_un
     for (size_t i = 1; i < colliders.size(); i++){
         if (!colliders[i].hasKey("name")) {
                 throw InputFileError("LinearBurkeRate::setParameters", m_input,
-                    "The collider located at index '{}' in 'colliders' of reaction '{}' has no 'name' defined.", to_string(i), node['equation']);
+                    "The collider located at index '{}' in 'colliders' of reaction '{}' has no 'name' defined.", std::to_string(i), eqn);
         }
         if (!colliders[i].hasKey("eps") && !colliders[0].hasKey("eig0")) {
             throw InputFileError("LinearBurkeRate::setParameters", m_input,
-                "Collider '{}' in reaction '{}' is missing an 'eps' or 'eig0' key.", colliders[i]["name"], node['equation']);
+                "Collider '{}' in reaction '{}' is missing an 'eps' or 'eig0' key.", colliders[i]["name"], eqn);
         }
         if (!colliders[i].hasKey(eig_eps_key)) {
             throw InputFileError("LinearBurkeRate::setParameters", m_input,
-                "All collision efficiencies in reaction '{}' must be defined uniformly as either eig0 or eps. No mixing and matching is allowed.", node['equation']);
+                "All collision efficiencies in reaction '{}' must be defined uniformly as either eig0 or eps. No mixing and matching is allowed.", eqn);
         }
         // Save data to colliderInfo, which will make it accessible by getParameters
         colliderInfo.insert({colliders[i]["name"].as<string>(), colliders[i]});
@@ -143,7 +144,7 @@ void LinearBurkeRate::setParameters(const AnyMap& node, const UnitStack& rate_un
         params["b"] = colliders[i][eig_eps_key]["b"].asDouble() - colliders[0][eig_eps_key]["b"].asDouble();
         params["Ea"] = colliders[i][eig_eps_key]["Ea"].asDouble() - colliders[0][eig_eps_key]["Ea"].asDouble();
 
-        if (params["A"] < 0) {
+        if (params["A"].asDouble() < 0) {
             throw InputFileError("LinearBurkeRate::setParameters", m_input,
                 "Invalid eig0 or eps entry for one or more colliders.");
         }
