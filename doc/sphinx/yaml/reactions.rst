@@ -397,14 +397,14 @@ Example::
            [-1.43220e-01,  7.71110e-02,  1.27080e-02, -6.41540e-04]]
 
 
-.. _sec-yaml-linear-burke:
+.. _sec-yaml-linear-Burke:
 
-``linear-burke``
+``linear-Burke``
 -------------
 
 A complex-forming reaction (one that depends on both P and X) parameterized
 according to the reduced-pressure linear mixture rule as
-:ref:`described here <sec-linear-burke>`.
+:ref:`described here <sec-linear-Burke>`.
 
 Additional fields are:
 
@@ -445,7 +445,7 @@ A mathematical description of this YAML implementation can be found in Eq. 8 of
 Examples::
 
     equation: H + OH <=> H2O
-    type: linear-burke
+    type: linear-Burke
     colliders:
     - name: M # N2 is reference collider (Troe format)
       eps: {A: 1, b: 0, Ea: 0}
@@ -458,7 +458,7 @@ Examples::
       eps: {A: 1.04529e-01, b: 5.50787e-01, Ea: -2.32675e+02}
 
     equation: H + O2 (+M) <=> HO2 (+M)  # Including "(+M)" is optional
-    type: linear-burke
+    type: linear-Burke
     colliders:
     - name: M # Ar is reference collider (PLOG format)
       eps: {A: 1, b: 0, Ea: 0}
@@ -485,7 +485,7 @@ Examples::
       eps: {A: 3.69146e+01, b: -7.12902e-02, Ea: 3.19087e+01}
 
     equation: H2O2 <=> 2 OH
-    type: linear-burke
+    type: linear-Burke
     colliders:
     - name: M # Ar is reference collider (Chebyshev format)
       eps: {A: 1, b: 0, Ea: 0}
