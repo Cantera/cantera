@@ -156,7 +156,7 @@ baseline-pdep_reactions:
   high-P-rate-constant: {A: 4.7e+12, b: 0.44, Ea: 0.0}
   Troe: {A: 0.5, T3: 1.0e-30, T1: 1.0e+30}
 
-- equation: H2O2 (+M) <=> OH + OH (+M)
+- equation: H2O2 <=> 2 OH
   type: Chebyshev
   temperature-range: [200.0, 2000.0]
   pressure-range: [1.000e-01 atm, 1.000e+02 atm]
@@ -200,7 +200,7 @@ linear-Burke_reactions:
   - name: H2O
     eps: {A: 10, b: 0, Ea: 0}
 
-- equation: H2O2 (+M) <=> OH + OH (+M)
+- equation: H2O2 <=> 2 OH
   type: linear-burke
   colliders:
   - name: M

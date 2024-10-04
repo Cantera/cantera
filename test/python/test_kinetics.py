@@ -1431,7 +1431,7 @@ class TestReaction(utilities.CanteraTest):
                             gas_linearBurke.reaction_equations().index(reaction))
     
     def test_linearburke_chebyshev(self):
-        reaction = "H2O2 (+M) <=> OH + OH (+M)"
+        reaction = "H2O2 <=> 2 OH"
         gas_baseline = ct.Solution('linearBurke-test.yaml',phase='baseline_mechanism')
         gas_linearBurke = ct.Solution('linearBurke-test.yaml',phase='linear-Burke_mechanism')
         T = 1000 # [K]
