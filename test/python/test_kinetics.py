@@ -1405,12 +1405,12 @@ class TestReaction(utilities.CanteraTest):
         for i in range(len(P_ls)-1):
             # collider 'O2' treated as M
             gas_baseline.TPX = gas_linearBurke.TPX = T,P_ls[i],{'O2':1}
-            self.assertNear(gas_baseline.reaction_equations().index(reaction), 
+            self.assertNear(gas_baseline.reaction_equations().index(reaction),
                             gas_linearBurke.reaction_equations().index(reaction))
             # collider 'H2O' must behave as 'M' if 'M' were eval. at 10x the pressure
             gas_linearBurke.TPX = T,P_ls[i],{'H2O':1}
             gas_baseline.TPX = T, P_ls[i]*10,{'H2O':1}
-            self.assertNear(gas_baseline.reaction_equations().index(reaction), 
+            self.assertNear(gas_baseline.reaction_equations().index(reaction),
                             gas_linearBurke.reaction_equations().index(reaction))
 
     def test_linearburke_troe(self):
@@ -1422,14 +1422,14 @@ class TestReaction(utilities.CanteraTest):
         for i in range(len(P_ls)-1):
             # collider 'O2' treated as M
             gas_baseline.TPX = gas_linearBurke.TPX = T,P_ls[i],{'O2':1}
-            self.assertNear(gas_baseline.reaction_equations().index(reaction), 
+            self.assertNear(gas_baseline.reaction_equations().index(reaction),
                             gas_linearBurke.reaction_equations().index(reaction))
             # collider 'H2O' must behave as 'M' if 'M' were eval. at 10x the pressure
             gas_linearBurke.TPX = T,P_ls[i],{'H2O':1}
             gas_baseline.TPX = T, P_ls[i]*10,{'H2O':1}
-            self.assertNear(gas_baseline.reaction_equations().index(reaction), 
+            self.assertNear(gas_baseline.reaction_equations().index(reaction),
                             gas_linearBurke.reaction_equations().index(reaction))
-    
+
     def test_linearburke_chebyshev(self):
         reaction = "H2O2 <=> 2 OH"
         gas_baseline = ct.Solution('linearBurke-test.yaml',phase='baseline_mechanism')
@@ -1439,12 +1439,12 @@ class TestReaction(utilities.CanteraTest):
         for i in range(len(P_ls)-1):
             # collider 'O2' treated as M
             gas_baseline.TPX = gas_linearBurke.TPX = T,P_ls[i],{'O2':1}
-            self.assertNear(gas_baseline.reaction_equations().index(reaction), 
+            self.assertNear(gas_baseline.reaction_equations().index(reaction),
                             gas_linearBurke.reaction_equations().index(reaction))
             # collider 'H2O' must behave as 'M' if 'M' were eval. at 10x the pressure
             gas_linearBurke.TPX = T,P_ls[i],{'H2O':1}
             gas_baseline.TPX = T, P_ls[i]*10,{'H2O':1}
-            self.assertNear(gas_baseline.reaction_equations().index(reaction), 
+            self.assertNear(gas_baseline.reaction_equations().index(reaction),
                             gas_linearBurke.reaction_equations().index(reaction))
 
     def test_chebyshev(self):
