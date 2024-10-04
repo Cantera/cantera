@@ -127,9 +127,10 @@ void LinearBurkeRate::setParameters(const AnyMap& node, const UnitStack& rate_un
                 throw InputFileError("LinearBurkeRate::setParameters", m_input,
                     "The collider located at index '{}' in 'colliders' of reaction '{}' has no 'name' defined.", std::to_string(i), eqn);
         }
+        auto nm = colliders[i]["name"].asString();
         if (!colliders[i].hasKey("eps") && !colliders[0].hasKey("eig0")) {
             throw InputFileError("LinearBurkeRate::setParameters", m_input,
-                "Collider '{}' in reaction '{}' is missing an 'eps' or 'eig0' key.", colliders[i]["name"], eqn);
+                "Collider '{}' in reaction '{}' is missing an 'eps' or 'eig0' key.", nm, eqn);
         }
         if (!colliders[i].hasKey(eig_eps_key)) {
             throw InputFileError("LinearBurkeRate::setParameters", m_input,
