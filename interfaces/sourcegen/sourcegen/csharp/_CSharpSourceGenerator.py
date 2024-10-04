@@ -1,54 +1,25 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
-from itertools import starmap
 from pathlib import Path
+import sys
+import logging
 from typing import List, Dict
 import re
-import textwrap
+
+from jinja2 import Environment, BaseLoader
 
 from ._dataclasses import CsFunc
 from ._Config import Config
-from .._helpers import normalize_indent, hanging_text
-from .._dataclasses import Func, Param, HeaderFile
+from .._dataclasses import Func, Param, HeaderFile, ArgList
 from .._SourceGenerator import SourceGenerator
 
 
+_logger = logging.getLogger()
+_loader = Environment(loader=BaseLoader)
+
 class CSharpSourceGenerator(SourceGenerator):
     """The SourceGenerator for scaffolding C# files for the .NET interface"""
-
-    @staticmethod
-    def _join_params(params: List[Param]) -> str:
-        return ", ".join(p.p_type + " " + p.name for p in params)
-
-    def _get_interop_func_text(self, func: CsFunc) -> str:
-        ret_type, name, params, _, _ = func
-        requires_unsafe_keyword = any(p.p_type.endswith("*") for p in params)
-        params_text = self._join_params(params)
-
-        if requires_unsafe_keyword:
-            return f"{self._config.func_prolog} unsafe {ret_type} {name}({params_text});"
-        else:
-            return f"{self._config.func_prolog} {ret_type} {name}({params_text});"
-
-    @staticmethod
-    def _get_base_handle_text(class_name: str, release_func_name: str) -> str:
-        handle = normalize_indent(f"""
-            class {class_name} : CanteraHandle
-            {{
-                protected override bool ReleaseHandle() =>
-                    LibCantera.{release_func_name}(Value) == InteropConsts.Success;
-            }}
-        """)
-
-        return handle
-
-    @staticmethod
-    def _get_derived_handle_text(derived_class_name: str, base_class_name: str) -> str:
-        derived_text = f"""class {derived_class_name} : {base_class_name} {{ }}"""
-
-        return derived_text
-
 
     def _get_property_text(self, clib_area: str, c_name: str, cs_name: str,
                            known_funcs: Dict[str, CsFunc]) -> str:
@@ -62,56 +33,40 @@ class CSharpSourceGenerator(SourceGenerator):
             getter = known_funcs[clib_area + "_get" + c_name.capitalize()]
             # this assumes the last param in the function is a pointer type,
             # from which we determine the appropriate C# type
-            prop_type = self._config.prop_type_crosswalk[getter.params[-1].p_type]
+            prop_type = self._config.prop_type_crosswalk[getter.arglist[-1].p_type]
 
-        setter = known_funcs.get(clib_area + "_set" + c_name.capitalize())
+        setter = known_funcs.get(
+            clib_area + "_set" + c_name.capitalize(),
+            CsFunc("", "", "", "", ""))
 
         if prop_type in ["int", "double"]:
-            text = f"""
-                public {prop_type} {cs_name}
-                {{
-                    get => InteropUtil.CheckReturn(
-                        LibCantera.{getter.name}(_handle));"""
-
-            if setter:
-                text += f"""
-                    set => InteropUtil.CheckReturn(
-                        LibCantera.{setter.name}(_handle, value));"""
-
-            text += """
-                }
-            """
+            template = _loader.from_string(self._templates["csharp-property-int-double"])
+            text = template.render(
+                prop_type=prop_type, cs_name=cs_name,
+                getter=getter.name, setter=setter.name)
         elif prop_type == "string":
-            p_type = getter.params[1].p_type
-
             # for get-string type functions we need to look up the type of the second
             # (index 1) param for a cast because sometimes it"s an int and other times
             # its a nuint (size_t)
-            text = f"""
-                public unsafe string {cs_name}
-                {{
-                    get => InteropUtil.GetString(40, (length, buffer) =>
-                        LibCantera.{getter.name}(_handle, ({p_type}) length, buffer));
-            """
-
-            if setter:
-                text += f"""
-                    set => InteropUtil.CheckReturn(
-                        LibCantera.{setter.name}(_handle, value));"""
-
-            text += """
-                }
-            """
+            template = _loader.from_string(self._templates["csharp-property-string"])
+            text = template.render(
+                cs_name=cs_name, p_type=getter.arglist[1].p_type,
+                getter=getter.name, setter=setter.name)
         else:
-            raise ValueError(f"Unable to scaffold properties of type {prop_type}!")
+            _logger.critical(f"Unable to scaffold properties of type {prop_type!r}!")
+            sys.exit(1)
 
-        return normalize_indent(text)
+        return text
 
-    def __init__(self, out_dir: Path, config: dict):
-        self._out_dir = out_dir
+    def __init__(self, out_dir: str, config: dict, templates: dict):
+        if not out_dir:
+            _logger.critical("Non-empty string identifying output path required.")
+            sys.exit(1)
+        self._out_dir = Path(out_dir)
 
         # use the typed config
-        self._config = Config.from_parsed(config)
+        self._config = Config.from_parsed(**config)
+        self._templates = templates
 
     def _get_wrapper_class_name(self, clib_area: str) -> str:
         return self._config.class_crosswalk[clib_area]
@@ -129,7 +84,7 @@ class CSharpSourceGenerator(SourceGenerator):
         # replace their entry in the list.
         # Therefore, copy the list so that we don’t accidentally modify
         # the params list which is attached to the C func.
-        params = parsed.params[:]
+        params = parsed.arglist[:]
 
         release_func_handle_class_name = None
 
@@ -157,7 +112,9 @@ class CSharpSourceGenerator(SourceGenerator):
 
         setter_double_arrays_count = 0
 
-        for i, (param_type, param_name) in enumerate(params):
+        for i, param in enumerate(params):
+            param_type = param.p_type
+            param_name = param.name
 
             for c_type, cs_type in self._config.ret_type_crosswalk.items():
                 if param_type == c_type:
@@ -172,8 +129,9 @@ class CSharpSourceGenerator(SourceGenerator):
                     # We assume a double* can reliably become a double[].
                     # However, this logic is too simplistic if there is
                     # more than one array.
-                    raise ValueError(f"Cannot scaffold {name} with "
-                        + "more than one array of doubles!")
+                    _logger.critical(f"Cannot scaffold {name!r} with "
+                                     "more than one array of doubles!")
+                    sys.exit(1)
 
                 if clib_area == "thermo" and re.match("^set_[A-Z]{2}$", method):
                     # Special case for the functions that set thermo pairs
@@ -187,100 +145,65 @@ class CSharpSourceGenerator(SourceGenerator):
 
         func = CsFunc(ret_type,
                       name,
-                      params,
+                      ArgList(params),
                       release_func_handle_class_name is not None,
                       release_func_handle_class_name)
 
         return func
 
-    def _write_file(self, filename: str, contents: str):
-        print("  writing " + filename)
+    def _write_file(self, file_name: str, template_name: str, **kwargs) -> None:
+        _logger.info(f"  writing {file_name!r}")
+        template = _loader.from_string(self._templates["csharp-preamble"])
+        preamble = template.render(file_name=file_name)
 
-        self._out_dir.joinpath(filename).write_text(contents)
+        template = _loader.from_string(self._templates[template_name])
+        contents = template.render(preamble=preamble, **kwargs)
+
+        self._out_dir.joinpath(file_name).write_text(contents, encoding="utf-8")
 
     def _scaffold_interop(self, header_file_path: Path, cs_funcs: List[CsFunc]):
-        functions_text = "\n\n".join(map(self._get_interop_func_text, cs_funcs))
+        template = _loader.from_string(self._templates["csharp-interop-func"])
+        function_list = [
+            template.render(unsafe=func.unsafe(), declaration=func.declaration())
+            for func in cs_funcs]
 
-        interop_text = textwrap.dedent(f"""
-            {hanging_text(self._config.preamble, 12)}
-
-            using System.Runtime.InteropServices;
-
-            namespace Cantera.Interop;
-
-            static partial class LibCantera
-            {{
-                {hanging_text(functions_text, 16)}
-            }}
-        """).lstrip()
-
-        self._write_file("Interop.LibCantera." + header_file_path.name + ".g.cs",
-            interop_text)
+        file_name = "Interop.LibCantera." + header_file_path.name + ".g.cs"
+        self._write_file(
+            file_name, "csharp-scaffold-interop", cs_functions=function_list)
 
     def _scaffold_handles(self, header_file_path: Path, handles: Dict[str, str]):
-        handles_text = "\n\n".join(starmap(self._get_base_handle_text, handles.items()))
+        template = _loader.from_string(self._templates["csharp-base-handle"])
+        handle_list = [
+            template.render(class_name=key, release_func_name=val)
+            for key, val in handles.items()]
 
-        handles_text = textwrap.dedent(f"""
-            {hanging_text(self._config.preamble, 12)}
-
-            namespace Cantera.Interop;
-
-            {hanging_text(handles_text, 12)}
-        """).lstrip()
-
-        self._write_file("Interop.Handles." + header_file_path.name + ".g.cs",
-            handles_text)
+        file_name = "Interop.Handles." + header_file_path.name + ".g.cs"
+        self._write_file(
+            file_name, "csharp-scaffold-handles", cs_handles=handle_list)
 
     def _scaffold_derived_handles(self):
-        derived_handles = "\n\n".join(starmap(self._get_derived_handle_text,
-            self._config.derived_handles.items()))
+        template = _loader.from_string(self._templates["csharp-derived-handle"])
+        handle_list = [
+            template.render(derived_class_name=key, base_class_name=val)
+            for key, val in self._config.derived_handles.items()]
 
-        derived_handles_text = textwrap.dedent(f"""
-            {hanging_text(self._config.preamble, 12)}
-
-            namespace Cantera.Interop;
-
-            {hanging_text(derived_handles, 12)}
-        """).lstrip()
-
-        self._write_file("Interop.Handles.g.cs", derived_handles_text)
+        file_name = "Interop.Handles.g.cs"
+        self._write_file(
+            file_name, "csharp-scaffold-handles", cs_handles=handle_list)
 
     def _scaffold_wrapper_class(self, clib_area: str, props: Dict[str, str],
                                 known_funcs: Dict[str, CsFunc]):
+        property_list = [
+            self._get_property_text(clib_area, c_name, cs_name, known_funcs)
+            for c_name, cs_name in props.items()]
+
         wrapper_class_name = self._get_wrapper_class_name(clib_area)
         handle_class_name = self._get_handle_class_name(clib_area)
-
-        properties_text = "\n\n".join(
-            self._get_property_text(clib_area, c_name, cs_name, known_funcs)
-                for (c_name, cs_name) in props.items())
-
-        wrapper_class_text = textwrap.dedent(f"""
-            {hanging_text(self._config.preamble, 12)}
-
-            using Cantera.Interop;
-
-            namespace Cantera;
-
-            public partial class {wrapper_class_name} : IDisposable
-            {{
-                readonly {handle_class_name} _handle;
-
-                #pragma warning disable CS1591
-
-                {hanging_text(properties_text, 16)}
-
-                #pragma warning restore CS1591
-
-                /// <summary>
-                /// Frees the underlying resources used by the
-                /// native Cantera library for this instance.
-                /// </summary>
-                public void Dispose() =>
-                    _handle.Dispose();
-            }}
-        """).lstrip()
-
-        self._write_file(wrapper_class_name + ".g.cs", wrapper_class_text)
+        file_name = wrapper_class_name + ".g.cs"
+        self._write_file(
+            file_name, "csharp-scaffold-wrapper-class",
+            wrapper_class_name=wrapper_class_name, handle_class_name=handle_class_name,
+            cs_properties=property_list)
 
     def generate_source(self, headers_files: List[HeaderFile]):
         self._out_dir.mkdir(parents=True, exist_ok=True)
