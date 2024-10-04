@@ -672,7 +672,6 @@ cdef class LinearBurkeRate(ReactionRate):
     cdef CxxLinearBurkeRate* cxx_object(self):
         return <CxxLinearBurkeRate*>self.rate
 
-
 cdef class ChebyshevRate(ReactionRate):
     r"""
     A pressure-dependent reaction rate parameterized by a bivariate Chebyshev
