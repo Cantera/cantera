@@ -90,9 +90,7 @@ public:
      */
     void setParameters(const AnyMap& node, const UnitStack& rate_units) override;
 
-    void getParameters(AnyMap& rateNode) const override {
-        return getParameters(rateNode, Units(0));
-    }
+    void getParameters(AnyMap& rateNode) const override;
 
     //! Create type aliases that refer to Plog, Troe, and Chebyshev
     using RateTypes = boost::variant<PlogRate, TroeRate, ChebyshevRate>;
