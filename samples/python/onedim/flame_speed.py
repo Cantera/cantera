@@ -12,9 +12,9 @@ Here we will consider a mixture of NH3/air (1 atm, 296 K) and compare results ag
 References:
 
     [1] P. D. Ronney, Effect of chemistry and transport properties on near-limit flames at microgravity, Combust. Sci. Tech. 59 (1988) 123 -- 141.
-    
+
     [2] M. U. Alzueta, I. Salas, H. Hashemi, P. Glarborg, CO-assisted NH3 oxidation, Combust. Flame 257 (2023) 112438.
-    
+
     [3] P. J. Singal, J. Lee, L. Lei, R. L. Speth, M. P. Burke, Implementation of New Mixture Rules Has a Substantial Impact on Combustion Predictions for H2 and NH3, Proc. Combust. Inst. 41 (2025).
 
 Requires: cantera >= 3.1
