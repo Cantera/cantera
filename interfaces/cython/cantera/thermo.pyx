@@ -1905,6 +1905,24 @@ cdef class ThermoPhase(_SolutionBase):
                 raise ThermoModelMethodError(self.thermo_model)
             return pystr(self.plasma.electronSpeciesName())
 
+    property elastic_electron_energy_loss_rate:
+        """ Elastic electron energy loss rate """
+        def __get__(self):
+            if not self._enable_plasma:
+                raise ThermoModelMethodError(self.thermo_model)
+            return self.plasma.elasticElectronEnergyLossRate()
+
+    property normalized_elastic_electron_energy_loss_rate:
+        """
+        Normalized elastic electron energy loss rate
+        The elastic electron energy loss rate is normalized
+        by dividing the concentration of electron.
+        """
+        def __get__(self):
+            if not self._enable_plasma:
+                raise ThermoModelMethodError(self.thermo_model)
+            return self.plasma.normalizedElasticElectronEnergyLossRate()
+
 
 cdef class InterfacePhase(ThermoPhase):
     """ A class representing a surface, edge phase """

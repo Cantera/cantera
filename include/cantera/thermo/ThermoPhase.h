@@ -19,6 +19,8 @@
 namespace Cantera
 {
 
+class Kinetics;
+
 /**
  * @defgroup thermoprops Thermodynamic Properties
  *
@@ -388,7 +390,7 @@ enum class ThermoBasis
  *
  * @ingroup thermoprops
  */
-class ThermoPhase : public Phase
+class ThermoPhase : public Phase, public std::enable_shared_from_this<ThermoPhase>
 {
 public:
     //! Constructor. Note that ThermoPhase is meant to be used as a base class,
@@ -1957,6 +1959,10 @@ public:
 
     //! @}
 
+    shared_ptr<Kinetics> kinetics() {
+        return m_kinetics;
+    }
+
 protected:
     //! Store the parameters of a ThermoPhase object such that an identical
     //! one could be reconstructed using the newThermo(AnyMap&) function. This
@@ -1993,6 +1999,11 @@ protected:
 
     //! last value of the temperature processed by reference state
     mutable double m_tlast = 0.0;
+
+    //! The kinetics object associates with ThermoPhase
+    //! Some phase requires Kinetics to perform calculation
+    //! such as PlasmaPhase
+    shared_ptr<Kinetics> m_kinetics;
 };
 
 }

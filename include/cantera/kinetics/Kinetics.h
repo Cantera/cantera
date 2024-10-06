@@ -1407,6 +1407,11 @@ public:
         return m_root.lock();
     }
 
+    //! Get the value of #m_ready
+    bool ready() const {
+        return m_ready;
+    }
+
 protected:
     //! Cache for saved calculations within each Kinetics object.
     ValueCache m_cache;
