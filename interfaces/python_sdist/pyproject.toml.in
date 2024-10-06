@@ -62,10 +62,10 @@ lxcat2yaml = "cantera.lxcat2yaml:main"
 
 [tool.scikit-build]
 logging.level = "DEBUG"
+build.verbose = true
 
 [tool.scikit-build.cmake]
 version = ">=3.24"
-verbose = true
 
 [tool.scikit-build.ninja]
 # As of 21-JULY-2024, Ninja 1.12 is not available on PyPI
@@ -95,11 +95,6 @@ test-command = "pytest -vv --durations=100 ${CANTERA_TEST_DIR}/test/python"
 before-build = "pip install delvewheel"
 repair-wheel-command = "delvewheel repair --add-path %HDF5_LIB_DIR%;%ZLIB_LIB_DIR% -w {dest_dir} {wheel}"
 test-command = "pytest -vv --durations=100 %CANTERA_TEST_DIR%\\test\\python"
-
-[[tool.cibuildwheel.overrides]]
-select = "*_aarch64*"
-# Work around https://github.com/pypa/cibuildwheel/issues/1771
-container-engine = { name = "docker", create-args = ["--platform", "linux/arm64"]}
 
 [tool.cibuildwheel.macos]
 # https://cibuildwheel.pypa.io/en/stable/faq/#macos-passing-dyld_library_path-to-delocate

@@ -96,6 +96,10 @@ file(GLOB_RECURSE CT_LIB_SOURCES "*.cpp")
 list(FILTER CT_LIB_SOURCES EXCLUDE REGEX "extensions/.*")
 list(APPEND CT_LIB_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/extensions/canteraShared.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/extensions/pythonShim.cpp")
 
+set(BLA_VENDOR OpenBLAS)
+find_package(LAPACK REQUIRED)
+find_package(BLAS REQUIRED)
+
 add_library(cantera_lib STATIC ${CT_LIB_SOURCES})
 target_include_directories(cantera_lib PRIVATE "../include" "${Python_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}")
 set_target_properties(cantera_lib PROPERTIES POSITION_INDEPENDENT_CODE ON)
@@ -104,6 +108,8 @@ target_link_libraries(cantera_lib PUBLIC
     fmt::fmt
     Eigen3::Eigen
     HighFive
+    BLAS::BLAS
+    LAPACK::LAPACK
     SUNDIALS::core_static
     SUNDIALS::nvecserial_static
     SUNDIALS::cvodes_static
