@@ -102,8 +102,8 @@ class TestTransport:
         assert all(self.phase.multi_diff_coeffs.flat >= 0.0)
         assert all(self.phase.thermal_diff_coeffs.flat != 0.0)
 
-    def test_add_species_mix(self):
-        yaml = (self.cantera_data_path / "gri30.yaml").read_text()
+    def test_add_species_mix(self, cantera_data_path):
+        yaml = (cantera_data_path / "gri30.yaml").read_text()
         S = {s.name: s for s in ct.Species.list_from_yaml(yaml, "species")}
 
         base = ['H', 'H2', 'OH', 'O2', 'AR']
@@ -126,8 +126,8 @@ class TestTransport:
         assert gas1.binary_diff_coeffs == approx(gas2.binary_diff_coeffs)
         assert gas1.mix_diff_coeffs == approx(gas2.mix_diff_coeffs)
 
-    def test_add_species_multi(self):
-        yaml = (self.cantera_data_path / "gri30.yaml").read_text()
+    def test_add_species_multi(self, cantera_data_path):
+        yaml = (cantera_data_path / "gri30.yaml").read_text()
         S = {s.name: s for s in ct.Species.list_from_yaml(yaml, "species")}
 
         base = ['H', 'H2', 'OH', 'O2', 'AR', 'N2']
