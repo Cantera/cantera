@@ -6,6 +6,7 @@ import re
 from ruamel import yaml
 
 import cantera as ct
+from .utilities import load_yaml
 
 try:
     ct.composite._import_pandas()
@@ -16,8 +17,8 @@ from cantera.composite import _pandas
 
 
 @pytest.fixture(scope='class')
-def setup_models_tests(request, load_yaml):
-    request.cls.yml_file = request.cls.test_data_path / "thermo-models.yaml"
+def setup_models_tests(request, test_data_path):
+    request.cls.yml_file = test_data_path / "thermo-models.yaml"
     request.cls.yml = load_yaml(request.cls.yml_file)
 
 @pytest.mark.usefixtures('setup_models_tests')
@@ -764,12 +765,12 @@ class TestLegacyHDF:
         # fixed string lengths based on compile-time templates)
         self.run_read_legacy_hdf_str_column()
 
-    def run_read_legacy_hdf_str_column(self, legacy=False):
+    def run_read_legacy_hdf_str_column(self, test_data_path, legacy=False):
         # recreate states used to create legacy HDF file
         arr = ct.SolutionArray(self.gas, 3, extra={'spam': 'eggs'})
 
         b = ct.SolutionArray(self.gas, extra={'spam'})
-        infile = self.test_data_path / f"solutionarray_str_legacy.h5"
+        infile = test_data_path / f"solutionarray_str_legacy.h5"
 
         if legacy:
             b.read_hdf(infile)
@@ -780,11 +781,11 @@ class TestLegacyHDF:
     @pytest.mark.skipif("native" not in ct.hdf_support(),
                         reason="Cantera compiled without HDF support")
     @pytest.mark.filterwarnings("ignore:.*legacy HDF.*:UserWarning")
-    def test_legacy_hdf_multidim(self):
+    def test_legacy_hdf_multidim(self, test_data_path):
         # recreate states used to create legacy HDF file
         arr = ct.SolutionArray(self.gas, 3, extra={'spam': [[1, 2], [3, 4], [5, 6]]})
         b = ct.SolutionArray(self.gas, extra={'spam'})
-        infile = self.test_data_path / f"solutionarray_multi_legacy.h5"
+        infile = test_data_path / f"solutionarray_multi_legacy.h5"
 
         b.restore(infile, "group0")
         assert arr.spam == approx(b.spam)
@@ -1121,7 +1122,7 @@ class TestSolutionSerialization:
         assert 'kinetics' not in data
         assert 'transport' not in data
 
-    def test_yaml_simple(self, load_yaml):
+    def test_yaml_simple(self):
         gas = ct.Solution('h2o2.yaml')
         gas.TPX = 500, ct.one_atm, 'H2: 1.0, O2: 1.0'
         gas.equilibrate('HP')
@@ -1142,7 +1143,7 @@ class TestSolutionSerialization:
         assert gas.forward_rate_constants == approx(gas2.forward_rate_constants)
         assert gas.mix_diff_coeffs == approx(gas2.mix_diff_coeffs)
 
-    def test_yaml_outunits1(self, load_yaml):
+    def test_yaml_outunits1(self, cantera_data_path):
         gas = ct.Solution('h2o2.yaml')
         gas.TPX = 500, ct.one_atm, 'H2: 1.0, O2: 1.0'
         gas.equilibrate('HP')
@@ -1150,7 +1151,7 @@ class TestSolutionSerialization:
         units = {'length': 'cm', 'quantity': 'mol', 'energy': 'cal'}
         gas.write_yaml(self.test_work_path / "h2o2-generated.yaml", units=units)
         generated = load_yaml(self.test_work_path / "h2o2-generated.yaml")
-        original = load_yaml(self.cantera_data_path / "h2o2.yaml")
+        original = load_yaml(cantera_data_path / "h2o2.yaml")
         assert generated['units'] == units
 
         for r1, r2 in zip(original['reactions'], generated['reactions']):
@@ -1164,7 +1165,7 @@ class TestSolutionSerialization:
         assert gas.forward_rate_constants == approx(gas2.forward_rate_constants)
         assert gas.mix_diff_coeffs == approx(gas2.mix_diff_coeffs)
 
-    def test_yaml_outunits2(self, load_yaml):
+    def test_yaml_outunits2(self, cantera_data_path):
         gas = ct.Solution('h2o2.yaml')
         gas.TPX = 500, ct.one_atm, 'H2: 1.0, O2: 1.0'
         gas.equilibrate('HP')
@@ -1173,7 +1174,7 @@ class TestSolutionSerialization:
         system = ct.UnitSystem(units)
         gas.write_yaml(self.test_work_path / "h2o2-generated.yaml", units=system)
         generated = load_yaml(self.test_work_path / "h2o2-generated.yaml")
-        original = load_yaml(self.cantera_data_path / "h2o2.yaml")
+        original = load_yaml(cantera_data_path / "h2o2.yaml")
 
         for r1, r2 in zip(original['reactions'], generated['reactions']):
             if 'rate-constant' in r1:
@@ -1186,7 +1187,7 @@ class TestSolutionSerialization:
         assert gas.forward_rate_constants == approx(gas2.forward_rate_constants)
         assert gas.mix_diff_coeffs == approx(gas2.mix_diff_coeffs)
 
-    def check_ptcombust(self, gas, surf, load_yaml):
+    def check_ptcombust(self, gas, surf):
         generated = load_yaml(self.test_work_path / "ptcombust-generated.yaml")
         for key in ("phases", "species", "gas-reactions", "Pt_surf-reactions"):
             assert key in generated
@@ -1199,21 +1200,21 @@ class TestSolutionSerialization:
         assert surf.partial_molar_enthalpies == approx(surf2.partial_molar_enthalpies)
         assert surf.forward_rate_constants == approx(surf2.forward_rate_constants)
 
-    def test_yaml_surface_explicit(self, load_yaml):
+    def test_yaml_surface_explicit(self):
         gas = ct.Solution("ptcombust.yaml", "gas")
         surf = ct.Interface("ptcombust.yaml", "Pt_surf", [gas])
         gas.TPY = 900, ct.one_atm, np.ones(gas.n_species)
         surf.coverages = np.ones(surf.n_species)
         surf.write_yaml(self.test_work_path / "ptcombust-generated.yaml")
-        self.check_ptcombust(gas, surf, load_yaml)
+        self.check_ptcombust(gas, surf)
 
-    def test_yaml_surface_adjacent(self, load_yaml):
+    def test_yaml_surface_adjacent(self):
         surf = ct.Interface("ptcombust.yaml", "Pt_surf")
         gas = surf.adjacent["gas"]
         gas.TPY = 900, ct.one_atm, np.ones(gas.n_species)
         surf.coverages = np.ones(surf.n_species)
         surf.write_yaml(self.test_work_path / "ptcombust-generated.yaml")
-        self.check_ptcombust(gas, surf, load_yaml)
+        self.check_ptcombust(gas, surf)
 
     def test_yaml_eos(self):
         ice = ct.Solution('water.yaml', 'ice')

@@ -8,6 +8,7 @@ from pytest import approx
 
 import cantera as ct
 from cantera import ck2yaml, cti2yaml, ctml2yaml, yaml2ck, lxcat2yaml
+from .utilities import load_yaml
 
 class Testck2yaml:
     @pytest.fixture(autouse=True)
@@ -678,7 +679,7 @@ class Testck2yaml:
         captured = self._capsys.readouterr()
         assert "Missing input file: 'nonexistent-file-813.inp'" in captured.out
 
-    def test_extra(self, load_yaml):
+    def test_extra(self):
         output = self.convert("h2o2.inp", output="h2o2_extra", extra="extra.yaml")
         yml = load_yaml(output)
 
@@ -701,7 +702,7 @@ class Testck2yaml:
         assert "alternate description" in captured.out
         assert "needs to be a string" in captured.out
 
-    def test_sri_zero(self, load_yaml):
+    def test_sri_zero(self):
         # This test tests it can convert the SRI parameters when D or E equal to 0
         output = self.convert('sri_convert_test.txt')
         mech = load_yaml(output)
@@ -737,7 +738,7 @@ class Testck2yaml:
                     'R1A + R1B', 'R3 + H'):
             assert token in captured.out
 
-    def test_single_Tint(self, load_yaml):
+    def test_single_Tint(self):
         output = self.convert(None, thermo="thermo_single_Tint.dat",
                               output="thermo_single_Tint",
                               single_intermediate_temperature=True)
@@ -918,8 +919,8 @@ class Testyaml2ck:
                 assert Dkm_ck[i] == approx(Dkm_yaml[yaml_idx[i]])
 
     @pytest.mark.slow_test
-    def test_gri30(self):
-        input_file = self.cantera_data_path / "gri30.yaml"
+    def test_gri30(self, cantera_data_path):
+        input_file = cantera_data_path / "gri30.yaml"
         self.convert(input_file)
         X = {'O2': 0.3, 'H2': 0.1, 'CH4': 0.2, 'CO2': 0.4}
         ck_phase, yaml_phase = self.check_conversion(input_file)
@@ -936,8 +937,8 @@ class Testyaml2ck:
         self.check_thermo(ck_phase, yaml_phase, [300, 500])
         self.check_kinetics(ck_phase, yaml_phase, [300, 1001, 2500], [1e5, 10e5])
 
-    def test_phase_id(self):
-        input_file = self.cantera_data_path / "nDodecane_Reitz.yaml"
+    def test_phase_id(self, cantera_data_path):
+        input_file = cantera_data_path / "nDodecane_Reitz.yaml"
         self.convert(input_file, "nDodecane_IG")
         ck_phase, yaml_phase = self.check_conversion(input_file, name="nDodecane_IG")
         ck_phase.X = "h2:1"
