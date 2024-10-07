@@ -7,6 +7,7 @@ import sys
 import textwrap
 
 import cantera as ct
+from .utilities import load_yaml
 
 
 @pytest.fixture(scope='class')
@@ -1825,7 +1826,7 @@ class TestExtensible3:
         assert rxn.rate.length == 2
         assert rxn.rate.Ta == approx(1000 / ct.gas_constant)
 
-    def test_output_units(self, load_yaml):
+    def test_output_units(self):
         rxn = """
         equation: H2 + OH = H2O + H
         type: user-rate-2

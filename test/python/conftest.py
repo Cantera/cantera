@@ -38,24 +38,6 @@ def has_temperature_derivative_warnings():
         # test warning raised for BlowersMasel and TwoTempPlasma derivatives
         yield
 
-
-@pytest.fixture(scope="session")
-def load_yaml():
-    """
-    Fixture to load YAML files safely.
-    """
-    def _load(yml_file):
-        try:
-            yaml_parser = yaml.YAML(typ="safe")
-            with open(yml_file, "rt", encoding="utf-8") as stream:
-                return yaml_parser.load(stream)
-        except yaml.constructor.ConstructorError:
-            # Ensure that the loader remains backward-compatible with legacy
-            # ruamel.yaml versions (prior to 0.17.0).
-            with open(yml_file, "rt", encoding="utf-8") as stream:
-                return yaml.safe_load(stream)
-    return _load
-
 @pytest.fixture(scope="session")
 def test_data_path():
     return TEST_DATA_PATH
