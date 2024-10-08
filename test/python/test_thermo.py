@@ -1402,9 +1402,9 @@ class TestSpecies:
         assert species[1].composition == {'H': 1, 'O': 2}
         assert species[0].thermo.h(300) == approx(100)
 
-    def test_list_from_yaml_section(self):
+    def test_list_from_yaml_section(self, test_data_path):
         species = ct.Species.list_from_yaml(
-            (self.test_data_path / "ideal-gas.yaml").read_text(),
+            (test_data_path / "ideal-gas.yaml").read_text(),
             'species')
 
         assert species[0].name == 'O2'

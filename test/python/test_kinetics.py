@@ -912,7 +912,7 @@ class TestSofcKinetics:
     """ Test based on sofc.py """
     _mech = "sofc.yaml"
 
-    def test_sofc(self):
+    def test_sofc(self, test_data_path):
         mech = self._mech
         T = 1073.15  # T in K
         P = ct.one_atm
@@ -1010,14 +1010,14 @@ class TestSofcKinetics:
                              cathode_bulk.electric_potential -
                              anode_bulk.electric_potential])
 
-        compare(data, self.test_data_path / "sofc-test.csv", rtol=1e-7)
+        compare(data, test_data_path / "sofc-test.csv", rtol=1e-7)
 
 
 class TestLithiumIonBatteryKinetics:
     """ Test based on lithium_ion_battery.py """
     _mech = "lithium_ion_battery.yaml"
 
-    def test_lithium_ion_battery(self):
+    def test_lithium_ion_battery(self, test_data_path):
         mech = self._mech
         samples = 11
         soc = np.linspace(0., 1., samples)  # [-] Input state of charge (0...1)
@@ -1103,7 +1103,7 @@ class TestLithiumIonBatteryKinetics:
             data.append(phi_s_cathode - phi_s_anode)
 
         data = np.array(data).ravel()
-        ref = np.genfromtxt(self.test_data_path / "lithium-ion-battery-test.csv")
+        ref = np.genfromtxt(test_data_path / "lithium-ion-battery-test.csv")
         assert data == approx(ref, rel=1e-7)
 
     def test_interface_current(self):

@@ -807,10 +807,10 @@ class TestFreeFlame:
     @pytest.mark.filterwarnings("ignore:.*legacy HDF.*:UserWarning")
     @pytest.mark.skipif("native" not in ct.hdf_support(),
                         reason="Cantera compiled without HDF support")
-    def test_restore_legacy_hdf(self):
+    def test_restore_legacy_hdf(self, test_data_path):
         # Legacy input file was created using the Cantera 2.6 Python test suite:
         # - restore_legacy.h5 -> test_onedim.py::TestFreeFlame::test_write_hdf
-        filename = self.test_data_path / f"freeflame_legacy.h5"
+        filename = test_data_path / f"freeflame_legacy.h5"
 
         self.run_mix(phi=1.1, T=350, width=2.0, p=2.0, refine=False)
         desc = 'mixture-averaged simulation'
@@ -976,7 +976,7 @@ class TestDiffusionFlame:
         assert self.sim.transport_model == 'mixture-averaged'
 
     @pytest.mark.slow_test
-    def test_mixture_averaged(self, saveReference=False):
+    def test_mixture_averaged(self, test_data_path, saveReference=False):
         referenceFile = "DiffusionFlameTest-h2-mix.csv"
         self.create_sim(p=ct.one_atm)
         self.sim.set_initial_guess()
@@ -998,11 +998,11 @@ class TestDiffusionFlame:
         if saveReference:
             np.savetxt(referenceFile, data, '%11.6e', ', ')
         else:
-            bad = compareProfiles(self.test_data_path / referenceFile, data,
+            bad = compareProfiles(test_data_path / referenceFile, data,
                                             rtol=1e-2, atol=1e-8, xtol=1e-2)
             assert not bad, bad
 
-    def test_auto(self, saveReference=False):
+    def test_auto(self, test_data_path, saveReference=False):
         referenceFile = "DiffusionFlameTest-h2-auto.csv"
         self.create_sim(p=ct.one_atm, mdot_fuel=2, mdot_ox=3)
 
@@ -1037,7 +1037,7 @@ class TestDiffusionFlame:
         if saveReference:
             np.savetxt(referenceFile, data, '%11.6e', ', ')
         else:
-            bad = compareProfiles(self.test_data_path / referenceFile, data,
+            bad = compareProfiles(test_data_path / referenceFile, data,
                                             rtol=1e-2, atol=1e-8, xtol=1e-2)
             assert not bad, bad
 
@@ -1091,7 +1091,7 @@ class TestDiffusionFlame:
         assert self.sim.T[0] == approx(self.sim.fuel_inlet.T, rel=1e-4)
         assert mdot[-1] == approx(-self.sim.oxidizer_inlet.mdot, rel=1e-4)
 
-    def test_mixture_averaged_rad(self, saveReference=False):
+    def test_mixture_averaged_rad(self, test_data_path, saveReference=False):
         referenceFile = "DiffusionFlameTest-h2-mix-rad.csv"
         self.create_sim(p=ct.one_atm)
         self.sim.set_initial_guess()
@@ -1120,7 +1120,7 @@ class TestDiffusionFlame:
         if saveReference:
             np.savetxt(referenceFile, data, '%11.6e', ', ')
         else:
-            bad = compareProfiles(self.test_data_path / referenceFile, data,
+            bad = compareProfiles(test_data_path / referenceFile, data,
                                             rtol=1e-2, atol=1e-8, xtol=1e-2)
             assert not bad, bad
 
@@ -1368,7 +1368,7 @@ class TestCounterflowPremixedFlame:
         the ones in test/data and replace them if needed.
     """
 
-    def test_mixture_averaged(self, saveReference=False):
+    def test_mixture_averaged(self, test_data_path, saveReference=False):
         T_in = 373.0  # inlet temperature
         comp = 'H2:1.6, O2:1, AR:7'  # premixed gas composition
 
@@ -1407,7 +1407,7 @@ class TestCounterflowPremixedFlame:
         if saveReference:
             np.savetxt(referenceFile, data, '%11.6e', ', ')
         else:
-            bad = compareProfiles(self.test_data_path / referenceFile, data,
+            bad = compareProfiles(test_data_path / referenceFile, data,
                                             rtol=1e-2, atol=1e-8, xtol=1e-2)
             assert not bad, bad
 
@@ -1487,7 +1487,7 @@ class TestCounterflowPremixedFlameNonIdeal:
         the ones in test/data and replace them if needed.
     """
 
-    def test_mixture_averaged(self, saveReference=False):
+    def test_mixture_averaged(self, test_data_path, saveReference=False):
         T_in = 373.0  # inlet temperature
         comp = 'H2:1.6, O2:1, AR:7'  # premixed gas composition
 
@@ -1526,7 +1526,7 @@ class TestCounterflowPremixedFlameNonIdeal:
         if saveReference:
             np.savetxt(referenceFile, data, '%11.6e', ', ')
         else:
-            bad = compareProfiles(self.test_data_path / referenceFile, data,
+            bad = compareProfiles(test_data_path / referenceFile, data,
                                             rtol=1e-2, atol=1e-8, xtol=1e-2)
             assert not bad, bad
 
@@ -1807,10 +1807,10 @@ class TestImpingingJet:
     @pytest.mark.skipif("native" not in ct.hdf_support(),
                         reason="Cantera compiled without HDF support")
     @pytest.mark.filterwarnings("ignore:.*legacy HDF.*:UserWarning")
-    def test_restore_legacy_hdf(self):
+    def test_restore_legacy_hdf(self, test_data_path):
         # Legacy input file was created using the Cantera 2.6 Python test suite:
         # - restore_legacy.h5 -> test_onedim.py::TestImpingingJet::test_write_hdf
-        filename = self.test_data_path / f"impingingjet_legacy.h5"
+        filename = test_data_path / f"impingingjet_legacy.h5"
 
         self.run_reacting_surface(xch4=0.095, tsurf=900.0, mdot=0.06, width=0.1)
         jet = ct.ImpingingJet(gas=self.gas, surface=self.surf_phase)

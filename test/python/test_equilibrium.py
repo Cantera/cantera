@@ -167,7 +167,7 @@ class TestKOH_Equil:
     Test roughly based on examples/multiphase/plasma_equilibrium.py
     """
 
-    def test_equil_TP(self):
+    def test_equil_TP(self, test_data_path):
         temperatures = range(350, 5000, 300)
         data = np.zeros((len(temperatures), self.mix.n_species+1))
         data[:,0] = temperatures
@@ -184,10 +184,10 @@ class TestKOH_Equil:
         # VCS solver extrapolating thermo polynomials outside of their valid range. See
         # https://github.com/Cantera/cantera/issues/270. The results show ice at
         # temperatures of over 1000 K, and liquid water for temperatures of 2000-5000 K.
-        compare(data, self.test_data_path / "koh-equil-TP.csv")
+        compare(data, test_data_path / "koh-equil-TP.csv")
 
     @pytest.mark.slow_test
-    def test_equil_HP(self):
+    def test_equil_HP(self, test_data_path):
         temperatures = range(350, 5000, 300)
         data = np.zeros((len(temperatures), self.mix.n_species+2))
         data[:,0] = temperatures
@@ -208,7 +208,7 @@ class TestKOH_Equil:
             data[i,1] = self.mix.T # equilibrated temperature
             data[i,2:] = self.mix.species_moles
 
-        compare(data, self.test_data_path / "koh-equil-HP.csv")
+        compare(data, test_data_path / "koh-equil-HP.csv")
 
 
 @pytest.fixture(scope='function')
@@ -222,6 +222,10 @@ def carbon_equil(request):
 @pytest.mark.usefixtures('carbon_equil')
 class TestEquil_GasCarbon:
     "Test roughly based on examples/multiphase/adiabatic.py"
+
+    @pytest.fixture(autouse=True)
+    def inject_fixtures(self, test_data_path):
+        self.test_data_path = test_data_path
 
     def solve(self, solver, **kwargs):
         n_points = 12

@@ -163,27 +163,23 @@ class TestPickle:
                 pickle.dump(interface, pkl)
 
 
-class TestEmptyThermoPhase:
-    """ Test empty Solution object """
+@pytest.fixture(params=[ct.ThermoPhase(), ct.Solution()])
+def empty_object(request):
+    return request.param
 
-    @pytest.fixture
-    def empty_thermo_phase(self):
-        return ct.ThermoPhase()
-
-    def test_empty_report(self, empty_thermo_phase):
+def test_empty_report(empty_object):
         with pytest.raises(NotImplementedError):
-            empty_thermo_phase()
+            empty_object()
 
-    def test_empty_TP(self, empty_thermo_phase):
-        with pytest.raises(NotImplementedError):
-            empty_thermo_phase.TP = 300, ct.one_atm
+def test_empty_TP(empty_object):
+    with pytest.raises(NotImplementedError):
+        empty_object.TP = 300, ct.one_atm
 
-    def test_empty_equilibrate(self, empty_thermo_phase):
-        with pytest.raises(NotImplementedError):
-            empty_thermo_phase.equilibrate("TP")
+def test_empty_equilibrate(empty_object):
+    with pytest.raises(NotImplementedError):
+        empty_object.equilibrate("TP")
 
-
-@pytest.fixture(scope='function')
+@pytest.fixture
 def empty_solution():
     return ct.Solution()
 
@@ -793,10 +789,7 @@ class TestLegacyHDF:
     @pytest.mark.skipif("native" not in ct.hdf_support(),
                         reason="Cantera compiled without HDF support")
     @pytest.mark.filterwarnings("ignore:.*legacy HDF.*:UserWarning")
-    def test_legacy_hdf(self):
-        self.run_legacy_hdf()
-
-    def run_legacy_hdf(self, legacy=False):
+    def test_legacy_hdf(self, test_data_path, legacy=False):
         # recreate states used to create legacy HDF file (valid portion)
         extra = {'foo': range(7), 'bar': range(7)}
         meta = {'spam': 'eggs', 'hello': 'world'}
@@ -804,7 +797,7 @@ class TestLegacyHDF:
         states.TPX = np.linspace(300, 1000, 7), 2e5, 'H2:0.5, O2:0.4'
         states.equilibrate('HP')
 
-        infile = self.test_data_path / f"solutionarray_fancy_legacy.h5"
+        infile = test_data_path / f"solutionarray_fancy_legacy.h5"
         b = ct.SolutionArray(self.gas)
         attr = b.restore(infile, "group0")
         assert states.T == approx(b.T)
@@ -819,15 +812,12 @@ class TestLegacyHDF:
     @pytest.mark.skipif("native" not in ct.hdf_support(),
                         reason="Cantera compiled without HDF support")
     @pytest.mark.filterwarnings("ignore:.*legacy HDF.*:UserWarning")
-    def test_read_legacy_hdf_no_norm(self):
-        self.run_read_legacy_hdf_no_norm()
-
-    def run_read_legacy_hdf_no_norm(self, legacy=False):
+    def test_read_legacy_hdf_no_norm(self, test_data_path, legacy=False):
         # recreate states used to create legacy HDF file
         self.gas.set_unnormalized_mole_fractions(np.full(self.gas.n_species, 0.3))
         states = ct.SolutionArray(self.gas, 5)
 
-        infile = self.test_data_path / "solutionarray_no_norm_legacy.h5"
+        infile = test_data_path / "solutionarray_no_norm_legacy.h5"
 
         b = ct.SolutionArray(self.gas)
         if legacy:
@@ -841,14 +831,14 @@ class TestLegacyHDF:
     @pytest.mark.skipif("native" not in ct.hdf_support(),
                         reason="Cantera compiled without HDF support")
     @pytest.mark.filterwarnings("ignore:.*legacy HDF.*:UserWarning")
-    def test_import_no_norm_water(self):
+    def test_import_no_norm_water(self, test_data_path):
         # recreate states used to create legacy HDF file
         w = ct.Water()
         w.TQ = 300, 0.5
         states = ct.SolutionArray(w, 5)
 
         w_new = ct.Water()
-        infile = self.test_data_path / "solutionarray_water_legacy.h5"
+        infile = test_data_path / "solutionarray_water_legacy.h5"
         c = ct.SolutionArray(w_new)
         c.restore(infile, "group0")
         assert states.T == approx(c.T, rel=1e-7)
