@@ -2073,7 +2073,7 @@ class TestSurfaceKinetics:
         with pytest.raises(ValueError):
             surf2.coverages = np.ones(self.interface.n_species + 1)
 
-    def test_coverages_regression1(self):
+    def test_coverages_regression1(self, test_data_path):
         # Test with energy equation disabled
         self.make_reactors()
         self.r1.energy_enabled = False
@@ -2088,7 +2088,7 @@ class TestSurfaceKinetics:
         assert surf1.coverages == approx(C)
         data = []
         test_file = self.test_work_path / "test_coverages_regression1.csv"
-        reference_file = self.test_data_path / "WallKinetics-coverages-regression1.csv"
+        reference_file = test_data_path / "WallKinetics-coverages-regression1.csv"
         data = []
         for t in np.linspace(1e-6, 1e-3):
             self.net.advance(t)
@@ -2100,7 +2100,7 @@ class TestSurfaceKinetics:
                                         rtol=1e-5, atol=1e-9, xtol=1e-12)
         assert not bool(bad), bad
 
-    def test_coverages_regression2(self):
+    def test_coverages_regression2(self, test_data_path):
         # Test with energy equation enabled
         self.make_reactors()
         surf = ct.ReactorSurface(self.interface, self.r1)
@@ -2113,7 +2113,7 @@ class TestSurfaceKinetics:
         assert surf.coverages == approx(C)
         data = []
         test_file = self.test_work_path / "test_coverages_regression2.csv"
-        reference_file = self.test_data_path / "WallKinetics-coverages-regression2.csv"
+        reference_file = test_data_path / "WallKinetics-coverages-regression2.csv"
         data = []
         for t in np.linspace(1e-6, 1e-3):
             self.net.advance(t)
@@ -2459,8 +2459,8 @@ class TestReactorSensitivities:
 
 
 @pytest.fixture(scope='class')
-def setup_combustor_tests(request):
-    request.cls.referenceFile = request.cls.test_data_path / "CombustorTest-integrateWithAdvance.csv"
+def setup_combustor_tests(request, test_data_path):
+    request.cls.referenceFile = test_data_path / "CombustorTest-integrateWithAdvance.csv"
 
 @pytest.fixture(scope='function')
 def setup_combustor_tests_data(request, setup_combustor_tests):
@@ -2571,8 +2571,8 @@ class CombustorTests:
 
 
 @pytest.fixture(scope='class')
-def setup_wall_tests(request):
-    request.cls.referenceFile = request.cls.test_data_path / "WallTest-integrateWithAdvance.csv"
+def setup_wall_tests(request, test_data_path):
+    request.cls.referenceFile = test_data_path / "WallTest-integrateWithAdvance.csv"
 
 @pytest.fixture(scope='function')
 def setup_wall_tests_data(request, setup_wall_tests):
@@ -2734,11 +2734,11 @@ class TestPureFluidReactor:
 
 
 @pytest.fixture(scope='function')
-def setup_advance_converages_data(request):
+def setup_advance_converages_data(request, cantera_data_path):
     mechanism_file = 'ptcombust.yaml'
     interface_phase = 'Pt_surf'
-    #request.cls.surf = ct.Interface(f'{request.cls.test_data_path}/{mechanism_file}', interface_phase)
-    request.cls.surf = ct.Interface(mechanism_file, interface_phase)
+    request.cls.surf = ct.Interface(f'{cantera_data_path}/{mechanism_file}', interface_phase)
+    #request.cls.surf = ct.Interface(mechanism_file, interface_phase)
     request.cls.gas = request.cls.surf.adjacent["gas"]
 
 @pytest.mark.usefixtures('setup_advance_converages_data')
