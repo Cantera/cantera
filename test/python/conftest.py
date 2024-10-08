@@ -97,8 +97,6 @@ def test_work_path(request, cantera_setup):
     # Assign to the test class
     request.cls.test_work_path = work_path
     request.cls.using_tempfile = using_tempfile
-    request.cls.test_data_path = TEST_DATA_PATH
-    request.cls.cantera_data_path = CANTERA_DATA_PATH
 
     yield
 

@@ -5,15 +5,16 @@ from pathlib import Path
 import pytest
 from pytest import approx
 
-
 import cantera as ct
 from cantera import ck2yaml, cti2yaml, ctml2yaml, yaml2ck, lxcat2yaml
 from .utilities import load_yaml
 
+
 class Testck2yaml:
     @pytest.fixture(autouse=True)
-    def inject_fixtures(self, capsys):
+    def inject_fixtures(self, capsys, test_data_path):
         self._capsys = capsys
+        self.test_data_path = test_data_path
 
     def convert(self, inputFile, thermo=None, transport=None,
                 surface=None, output=None, quiet=True, extra=None, **kwargs):
@@ -780,6 +781,10 @@ class Testyaml2ck:
     """Test yaml2ck by converting to CK then back to YAML to read with Cantera."""
     ext: str = "-from-yaml2ck.yaml"
 
+    @pytest.fixture(autouse=True)
+    def inject_fixtures(self, test_data_path):
+        self.test_data_path = test_data_path
+
     def _convert_to_ck(
         self,
         input_file: Path,
@@ -1079,6 +1084,11 @@ class Testyaml2ck:
 
 
 class Testcti2yaml:
+
+    @pytest.fixture(autouse=True)
+    def inject_fixtures(self, test_data_path):
+        self.test_data_path = test_data_path
+
     def convert(self, basename, src_dir=None, encoding=None):
         if src_dir is None:
             src_dir = self.test_data_path
@@ -1301,6 +1311,11 @@ class Testcti2yaml:
 
 
 class Testctml2yaml:
+
+    @pytest.fixture(autouse=True)
+    def inject_fixtures(self, test_data_path):
+        self.test_data_path = test_data_path
+
     def convert(self, basename, src_dir=None):
         if src_dir is None:
             src_dir = self.test_data_path
@@ -1658,6 +1673,11 @@ class Testctml2yaml:
             self.convert("duplicate-reactionData-ids")
 
 class Testlxcat2yaml:
+
+    @pytest.fixture(autouse=True)
+    def inject_fixtures(self, test_data_path):
+        self.test_data_path = test_data_path
+
     def convert(self, inputFile=None, database=None, mechFile=None, phase=None,
                 insert=True, output=None):
         if inputFile is not None:
