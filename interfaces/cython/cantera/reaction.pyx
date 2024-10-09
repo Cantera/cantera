@@ -660,6 +660,17 @@ cdef class PlogRate(ReactionRate):
             self._rate.reset(new CxxPlogRate(ratemap))
             self.rate = self._rate.get()
 
+cdef class LinearBurkeRate(ReactionRate):
+    r"""
+    A reaction rate dependent on both pressure and mixture composition that accounts for collisions between reactants and bath gas species.
+    """
+    _reaction_rate_type = "linear-burke"
+
+    def __cinit__(self, rates=None, input_data=None, init=True):
+        self.set_cxx_object()
+
+    cdef CxxLinearBurkeRate* cxx_object(self):
+        return <CxxLinearBurkeRate*>self.rate
 
 cdef class ChebyshevRate(ReactionRate):
     r"""
