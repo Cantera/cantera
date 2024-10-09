@@ -27,7 +27,7 @@ import numpy as np
 
 fig, ax = plt.subplots()
 file = 'example_data/alzueta.yaml'
-models = {'Original': 'baseline_mechanism', 'LMR-R': 'linear-Burke_mechanism'}
+models = {'Original': 'baseline', 'LMR-R': 'linear-Burke'}
 colours = ["xkcd:grey",'xkcd:purple']
 
 for k,m in enumerate(models):
