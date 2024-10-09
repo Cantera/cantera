@@ -67,7 +67,7 @@ protected:
 
 //! Pressure-dependent and composition-dependent reaction rate calculated
 //! according to the reduced-pressure linear mixture rule (LMR-R) developed
-//! at Columbia University. @cite singal2025
+//! at Columbia University. @cite singal2024
 class LinearBurkeRate final : public ReactionRate
 {
 public:
