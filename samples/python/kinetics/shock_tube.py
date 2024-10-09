@@ -26,7 +26,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 fig, ax = plt.subplots()
-file = 'example_data/alzueta.yaml'
+file = 'example_data/ammonia-CO-H2-Alzueta-2023.yaml'
 models = {'Original': 'baseline', 'LMR-R': 'linear-Burke'}
 colours = ["xkcd:grey",'xkcd:purple']
 

@@ -30,7 +30,7 @@ import matplotlib.pyplot as plt
 f, ax = plt.subplots(1, 3)
 plt.subplots_adjust(wspace=0.6)
 colours = ["xkcd:grey",'xkcd:purple']
-file = 'example_data/alzueta.yaml'
+file = 'example_data/ammonia-CO-H2-Alzueta-2023.yaml'
 models = {'Original': 'baseline', 'LMR-R': 'linear-Burke'}
 
 inputs = {
