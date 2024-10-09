@@ -278,7 +278,7 @@ $$
 k_{\text{LMR-R}}(T,P,\boldsymbol{X}) = \sum_{n} k_{n}(T,P_{n,\text{LMR}}^{\text{ eff}})\tilde{X}_{n,\text{LMR}} + k_{M}(T,P_{M,\text{LMR}}^{\text{ eff}}) \left(1-\sum_{n}\tilde{X}_{n,\text{LMR}}\right)
 $$
 
-where the sum over $n$ is only for the colliders for which unique $k_n(T,P)$ are available.
+where the sum over $n$ is only for the colliders for which unique $k_n(T,P)$ are available. Each $k_n(T,P)$ can be specified in the user's choice of Troe, Plog, or Chebyshev formats. For the Troe format, the effective third-body concentration is calculated by dividing $P_{i}^{\text{ eff}}$ by the temperature and ideal gas constant. For the other formats, $P_{i}^{\text{ eff}}$ is implemented directly as the 'pressure' of interest.
 
 While not required if unique $k_i(T,P)$ data are available, this approximation, like LMR-R, takes advantage of the fact that rate constants for colliders with even very different third-body efficiencies often are much more similar at the same reduced pressure ($R$) than at the same pressure ($P$) and, in fact, are exactly the same if they differ in only their collision frequency (but have the same energy- and angular-momentum-transfer kernel). This equation forms the basis of the computational implementation of LMR-R in Cantera via the Linear Burke Rate reaction class, as it enables the most accurate representation of $k_{\text{LMR-R}}(T,P,\boldsymbol{X})$ possible given limitations in the completeness of the dataset at any given moment. Further description of the LMR-R theory and computational method is available in {cite:t}`singal2024`.
 
