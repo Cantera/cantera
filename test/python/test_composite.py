@@ -6,7 +6,7 @@ import re
 from ruamel import yaml
 
 import cantera as ct
-from utilities import load_yaml
+from .utilities import load_yaml
 
 try:
     ct.composite._import_pandas()

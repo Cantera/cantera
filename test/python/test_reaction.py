@@ -7,7 +7,7 @@ import sys
 import textwrap
 
 import cantera as ct
-from utilities import load_yaml
+from .utilities import load_yaml
 
 
 @pytest.fixture(scope='class')

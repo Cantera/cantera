@@ -7,7 +7,7 @@ from pytest import approx
 
 import cantera as ct
 from cantera import ck2yaml, cti2yaml, ctml2yaml, yaml2ck, lxcat2yaml
-from utilities import load_yaml
+from .utilities import load_yaml
 
 
 class Testck2yaml:
