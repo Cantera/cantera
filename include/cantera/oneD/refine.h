@@ -22,46 +22,24 @@ public:
     Refiner& operator=(const Refiner&) = delete;
 
     /**
-     *  Set grid refinement criteria.
+     * Set grid refinement criteria.
      *
      * The ratio parameter is the maximum allowed ratio between grid spacing at
      * adjacent intervals. The ratio parameter considers the situation where the
      * left interval is much larger than the right interval, or if the right
-     * interval is much larger than the left interval.
+     * interval is much larger than the left interval. See
+     * [ratio](../reference/onedim/grid-refinement.html#ratio).
      *
      * The slope parameter is the maximum fractional change in the value of each
-     * solution component between adjacent grid points. This quantity is used to
-     * check the criteria given below:
-     *    val[j+1] - val[j]  < slope*(val_max - val_min)
-     * Where val_max and val_min are the maximum and minimum values of the
-     * component over the entire domain.
+     * solution component between adjacent grid points. See
+     * [slope](../reference/onedim/grid-refinement.html#slope).
      *
      * The curve parameter is the maximum fractional change in the derivative of
-     * each solution component between adjacent grid points. This quantity is
-     * used to check the criteria given below:
-     *   slope[j+1] - slope[j]  < curve*(slope_max - slope_min)
-     * Where slope_max and slope_min are the maximum and minimum slopes of the
-     * component over the entire domain.
+     * each solution component between adjacent grid points. See
+     * [curve](../reference/onedim/grid-refinement.html#curve).
      *
-     * The prune parameter is a threshold for removing unnecessary grid points. Both
-     * the slope and curve parameters utilize a normalized ratio when making refinement
-     * decisions.
-     *
-     * @f[
-     *   \text{ratio} = \frac{|x[j+1] - x[j]|}{\text{m_slope}*(x_{\text{max}} -
-     *                  x_{\text{min}})}
-     * @f]
-     *
-     * @f[
-     *  \text{ratio\_curve} = \frac{|slope[j+1] - slope[j]|}{\text{m_curve}*(slope_{\text{max}} -
-     *                 slope_{\text{min}})}
-     * @f]
-     *
-     * If this ratio exceeds 1, refinement is needed. This normalized ratio is what
-     * the prune parameter is compared against. If the normalized ratio is greater
-     * than the prune parameter, the grid point is kept, otherwise it is marked for
-     * removal. Too much refinement can lead to unnecessary grid points, which will
-     * slow down the solution process.
+     * The prune parameter is a threshold for removing unnecessary grid points.
+     * See [prune](../reference/onedim/grid-refinement.html#prune).
      *
      * A rule of thumb with the prune parameter is that, if you have specified your
      * slope and curve parameters to a desireable level, then the ratio above would
@@ -69,7 +47,10 @@ public:
      * would be "good enough" for the solution at hand. A ratio less than than one
      * still meets the criteria, but introduces more grid points. The prune parameter
      * allows you set the point at which the refiner decides that is has overly-refined
-     * the grid and can remove points that are not needed.
+     * the grid and can remove points that are not needed. It is most useful when
+     * running multiple simulations where the boundary conditions change, and the
+     * location of the regions where grid refinement is needed changes. In this case,
+     * the prune parameter can be used to remove grid points that are no longer needed.
      *
      *  @param ratio Maximum ratio between grid spacing at adjacent intervals.
      *      That is, `(x[j+1] - x[j]) / (x[j] - x[j-1]) < ratio`
@@ -125,7 +106,7 @@ public:
 
     /**
      * Determine locations in the grid that need additional grid points and
-     * updates the internal state of the Refiner with this information.
+     * update the internal state of the Refiner with this information.
      *
      * @param[in] n  Number of grid points
      * @param[in] z  Point to array of grid points
@@ -136,11 +117,11 @@ public:
     int analyze(size_t n, const double* z, const double* x);
 
     /**
-     * Constructs a new grid based on refinement locations determined by the analyze
+     * Constructs a new grid based on refinement locations determined by the analyze()
      * method.
      *
      * This function generates a new grid by inserting additional points into the
-     * current grid at locations where the `analyze` method has identified a need for
+     * current grid at locations where the analyze() method has identified a need for
      * refinement. The new grid points are placed midway between existing points deemed
      * necessary for increased resolution. If no refinement is needed, the original
      * grid is copied directly.
@@ -154,14 +135,11 @@ public:
      *         an exception if the provided output array size is insufficient to hold
      *         the new grid.
      *
-     * @deprecated Starting in %Cantera 3.1, this function is unused. To be removed
-     *             after %Cantera 3.1.
+     * @deprecated Unused. To be removed after %Cantera 3.1.
      */
     int getNewGrid(int n, const double* z, int nn, double* znew);
 
-    /**
-     * Returns the number of new grid points that were needed.
-     */
+    //! Returns the number of new grid points that were needed.
     int nNewPoints() {
         return static_cast<int>(m_insertPts.size());
     }
@@ -199,13 +177,13 @@ public:
     /**
      * Returns the value of the solution component, n, at grid point j.
      *
-     * @param x Solution vector
-     * @param n Solution Component index
+     * @param x %Solution vector
+     * @param n %Solution component index
      * @param j Grid point index
      */
     double value(const double* x, size_t n, size_t j);
 
-    //! Returns the maximum ratio of grid spacing at adjacent intervals
+    //! Returns the maximum allowable ratio of grid spacing between adjacent intervals
     double maxRatio() {
         return m_ratio;
     }
@@ -245,11 +223,13 @@ protected:
     //! Flags for whether each component should be considered for grid refinement
     vector<bool> m_active;
 
-    //! Refinement criteria
+    //! @name Refinement criteria
+    //! @{
     double m_ratio = 10.0; //!< grid spacing refinement criteria
     double m_slope = 0.8; //!< function change refinement criteria
     double m_curve = 0.8; //!< function slope refinement criteria
     double m_prune = -0.001; //!< pruning refinement criteria
+    //! @}
 
     //! Threshold for ignoring small changes around a constant during refinement.
     double m_min_range = 0.01;
@@ -258,7 +238,7 @@ protected:
     size_t m_nv; //!< Number of components in the domain
     size_t m_npmax = 1000; //!< Maximum number of grid points
 
-    //! Closest that a solution component at two adjacent grid points can be.
+    //! Absolute tolerance threshold for solution components in the domain
     double m_thresh = std::sqrt(std::numeric_limits<double>::epsilon());
     double m_gridmin = 1e-10; //!< minimum grid spacing [m]
 };

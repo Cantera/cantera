@@ -106,8 +106,6 @@ int Refiner::analyze(size_t n, const double* z, const double* x)
                 // on the global min and max values of the component over the domain.
                 double max_change = m_slope*(valMax - valMin);
                 for (size_t j = 0; j < n-1; j++) {
-                    // m_thresh prevents two adjacent points from being considered
-                    // if they are too close together.
                     double ratio = fabs(val[j+1] - val[j]) / (max_change + m_thresh);
                     if (ratio > 1.0 && dz[j] >= 2 * m_gridmin) {
                         m_insertPts.insert(j);
@@ -130,9 +128,9 @@ int Refiner::analyze(size_t n, const double* z, const double* x)
                 // maximum allowable difference in slope between adjacent points.
                 double max_change = m_curve*(slopeMax - slopeMin);
                 for (size_t j = 0; j < n-2; j++) {
-                    // If the smallest allowable values between two points is m_thresh,
-                    // the smallest allowable slope between those points is
-                    // m_thresh/dz[j].
+                    // Using the solution component absolute tolerance (m_thresh),
+                    // a smallest allowable slope can be estimated for an interval dz
+                    // as m_thresh/dz.
                     double ratio = fabs(slope[j+1] - slope[j]) / (max_change + m_thresh/dz[j]);
                     if (ratio > 1.0 && dz[j] >= 2*m_gridmin && dz[j+1] >= 2*m_gridmin) {
                         m_componentNames.insert(name);
@@ -240,8 +238,8 @@ void Refiner::show()
 int Refiner::getNewGrid(int n, const double* z, int nn, double* zn)
 {
     warn_deprecated(
-    "Refiner::getNewGrid",
-    "Deprecated in Cantera 3.1; unsed function that will be removed.");
+        "Refiner::getNewGrid",
+        "Deprecated in Cantera 3.1; unused function that will be removed.");
 
     int nnew = static_cast<int>(m_insertPts.size());
     if (nnew + n > nn) {
