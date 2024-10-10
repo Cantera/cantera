@@ -1,5 +1,6 @@
 import cantera
-from os import environ
+import os
+import sys
 from pathlib import Path
 import pytest
 import tempfile
@@ -19,7 +20,7 @@ def pytest_configure(config):
     config.addinivalue_line("markers", "slow_test: mark test as slow")
 
 def pytest_collection_modifyitems(config, items):
-    if environ.get("CT_SKIP_SLOW", "0") == "1":
+    if os.environ.get("CT_SKIP_SLOW", "0") == "1":
         skip_slow = pytest.mark.skip(reason="slow test")
         for item in items:
             if "slow_test" in item.keywords:
@@ -46,7 +47,7 @@ def test_data_path():
 def cantera_data_path():
     return CANTERA_DATA_PATH
 
-@pytest.fixture(scope="session", autouse=True)
+@pytest.fixture(scope="module", autouse=True)
 def cantera_setup():
     """
     Fixture to set up Cantera environment for the entire test session.
