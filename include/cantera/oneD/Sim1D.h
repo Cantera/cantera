@@ -203,6 +203,24 @@ public:
 
     void setTimeStep(double stepsize, size_t n, const int* tsteps);
 
+    /**
+     * Performs the hybrid Newton steady/time-stepping solution.
+     *
+     * The solver attempts to solve the steady-state problem first. If the steady-state
+     * solver fails, the time-stepping solver is used to take multiple time steps to
+     * move the solution closer to the steady-state solution. The steady-state solver is
+     * called again after the timesteps to make further progress towards the steady-state
+     * solution. This process is repeated until the steady-state solver converges or the
+     * maximum number of timesteps is reached.
+     *
+     * At the end of a successful solve, if the refine_grid flag is set, the grid will be
+     * analyzed and refined if necessary. If the grid is refined, the solution process
+     * described above is repeated with the new grid. This process is repeated until the
+     * grid no longer needs refinement based on the refine criteria.
+     *
+     * @param loglevel  Controls the amount of diagnostic output.
+     * @param refine_grid  If `true`, the grid will be refined
+     */
     void solve(int loglevel = 0, bool refine_grid = true);
 
     void eval(double rdt=-1.0, int count = 1) {
