@@ -503,7 +503,8 @@ class RateExpressionTests:
             tnew = gas.T * ctot1 / ctot0
             gas.TPX = tnew, gas.P, conc / ctot1
         drate = (calc(mode) - rate0) / dconc
-        gas.TPX = tpx
+
+        gas.TPX = tpx # reset state
         # cantera calculates kinetics derivatives with respect to mole fractions
         # and concentrations, when ddX flag is true it will return the numerical
         # derivatives in the form of mole fractions but otherwise return concentrations
@@ -573,7 +574,6 @@ class RateExpressionTests:
             assert drate[ix, spc_ix] == approx(drate_num[ix], rel=1e-3)
 
 
-@pytest.mark.usefixtures("setup_rate_expression_data")
 class HydrogenOxygen(RateExpressionTests):
 
     @pytest.fixture(scope='class')
