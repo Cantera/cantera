@@ -89,7 +89,7 @@ when the spacing on the right interval is too large.
 ```{figure} /_static/images/onedim/refinement_right_interval_stencil.svg
 :width: 75%
 :alt: The points that are marked as needing new grid points inserted to the right of
-      them and which ones should be marked to be kept.
+them and which ones should be marked to be kept.
 :align: center
 
 The points that are marked as needing new grid points inserted to the right of them
@@ -104,7 +104,7 @@ when the spacing on the left interval is too large.
 ```{figure} /_static/images/onedim/refinement_left_interval_stencil.svg
 :width: 75%
 :alt: The points that are marked as needing new grid points inserted to the right of
-      them and which ones should be marked to be kept.
+them and which ones should be marked to be kept.
 :align: center
 
 The points that are marked as needing new grid points inserted to the right of them
