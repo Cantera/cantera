@@ -213,7 +213,7 @@ public:
      * solution. This process is repeated until the steady-state solver converges or the
      * maximum number of timesteps is reached.
      *
-     * At the end of a successful solve, if the refine_grid flag is set, the grid will be
+     * At the end of a successful solve, if the `refine_grid` flag is set, the grid will be
      * analyzed and refined if necessary. If the grid is refined, the solution process
      * described above is repeated with the new grid. This process is repeated until the
      * grid no longer needs refinement based on the refine criteria.
