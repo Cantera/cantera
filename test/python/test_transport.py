@@ -6,26 +6,25 @@ from pytest import approx
 import cantera as ct
 
 
-@pytest.fixture(scope='function')
-def setup_transport(request):
-    # Create instance-level data for each test
-    request.cls.phase = ct.Solution('h2o2.yaml')
-    request.cls.phase.X = [0.1, 1e-4, 1e-5, 0.2, 2e-4, 0.3, 1e-6, 5e-5, 1e-6, 0.4]
-    request.cls.phase.TP = 800, 2*ct.one_atm
-
-@pytest.mark.usefixtures("setup_transport")
 class TestTransport:
 
-    def test_scalar_properties(self):
-        assert self.phase.viscosity > 0.0
-        assert self.phase.thermal_conductivity > 0.0
+    @pytest.fixture(scope='function')
+    def phase(self):
+        phase = ct.Solution('h2o2.yaml')
+        phase.X = [0.1, 1e-4, 1e-5, 0.2, 2e-4, 0.3, 1e-6, 5e-5, 1e-6, 0.4]
+        phase.TP = 800, 2*ct.one_atm
+        return phase
 
-    def test_unityLewis(self):
-        self.phase.transport_model = 'unity-Lewis-number'
-        alpha = self.phase.thermal_conductivity/(self.phase.density*self.phase.cp)
-        Dkm_prime = self.phase.mix_diff_coeffs
+    def test_scalar_properties(self, phase):
+        assert phase.viscosity > 0.0
+        assert phase.thermal_conductivity > 0.0
 
-        Dkm = self.phase.mix_diff_coeffs_mass
+    def test_unityLewis(self, phase):
+        phase.transport_model = 'unity-Lewis-number'
+        alpha = phase.thermal_conductivity/(phase.density*phase.cp)
+        Dkm_prime = phase.mix_diff_coeffs
+
+        Dkm = phase.mix_diff_coeffs_mass
 
         eps = np.spacing(1) # Machine precision
         assert all(np.diff(Dkm) < 2*eps)
@@ -33,74 +32,74 @@ class TestTransport:
         assert all(np.diff(Dkm_prime) < 2*eps)
         assert Dkm_prime[0] == approx(alpha)
 
-    def test_mixtureAveraged(self):
-        assert self.phase.transport_model == 'mixture-averaged'
-        Dkm1 = self.phase.mix_diff_coeffs
-        Dkm1b = self.phase.mix_diff_coeffs_mole
-        Dkm1c = self.phase.mix_diff_coeffs_mass
-        Dbin1 = self.phase.binary_diff_coeffs
+    def test_mixtureAveraged(self, phase):
+        assert phase.transport_model == 'mixture-averaged'
+        Dkm1 = phase.mix_diff_coeffs
+        Dkm1b = phase.mix_diff_coeffs_mole
+        Dkm1c = phase.mix_diff_coeffs_mass
+        Dbin1 = phase.binary_diff_coeffs
 
-        self.phase.transport_model = 'multicomponent'
-        Dkm2 = self.phase.mix_diff_coeffs
-        Dkm2b = self.phase.mix_diff_coeffs_mole
-        Dkm2c = self.phase.mix_diff_coeffs_mass
-        Dbin2 = self.phase.binary_diff_coeffs
+        phase.transport_model = 'multicomponent'
+        Dkm2 = phase.mix_diff_coeffs
+        Dkm2b = phase.mix_diff_coeffs_mole
+        Dkm2c = phase.mix_diff_coeffs_mass
+        Dbin2 = phase.binary_diff_coeffs
         assert Dkm1 == approx(Dkm2)
         assert Dkm1b == approx(Dkm2b)
         assert Dkm1c == approx(Dkm2c)
         assert Dbin1 == approx(Dbin2)
         assert Dbin1 == approx(Dbin1.T)
 
-    def test_mixDiffCoeffsChange(self):
+    def test_mixDiffCoeffsChange(self, phase):
         # This test is mainly to make code coverage in GasTransport.cpp
         # consistent by always covering the path where the binary diffusion
         # coefficients need to be updated
-        Dkm1 = self.phase.mix_diff_coeffs_mole
-        self.phase.TP = self.phase.T + 1, None
-        Dkm2 = self.phase.mix_diff_coeffs_mole
+        Dkm1 = phase.mix_diff_coeffs_mole
+        phase.TP = phase.T + 1, None
+        Dkm2 = phase.mix_diff_coeffs_mole
         assert all(Dkm2 > Dkm1)
 
-        Dkm1 = self.phase.mix_diff_coeffs_mass
-        self.phase.TP = self.phase.T + 1, None
-        Dkm2 = self.phase.mix_diff_coeffs_mass
+        Dkm1 = phase.mix_diff_coeffs_mass
+        phase.TP = phase.T + 1, None
+        Dkm2 = phase.mix_diff_coeffs_mass
         assert all(Dkm2 > Dkm1)
 
-        Dkm1 = self.phase.mix_diff_coeffs
-        self.phase.TP = self.phase.T + 1, None
-        Dkm2 = self.phase.mix_diff_coeffs
+        Dkm1 = phase.mix_diff_coeffs
+        phase.TP = phase.T + 1, None
+        Dkm2 = phase.mix_diff_coeffs
         assert all(Dkm2 > Dkm1)
 
-    def test_CK_mode(self):
-        mu_ct = self.phase.viscosity
-        self.phase.transport_model = 'mixture-averaged-CK'
-        assert self.phase.transport_model == 'mixture-averaged-CK'
-        mu_ck = self.phase.viscosity
+    def test_CK_mode(self, phase):
+        mu_ct = phase.viscosity
+        phase.transport_model = 'mixture-averaged-CK'
+        assert phase.transport_model == 'mixture-averaged-CK'
+        mu_ck = phase.viscosity
         # values should be close, but not identical
         assert abs(mu_ct - mu_ck) / mu_ct > 1e-8
         assert abs(mu_ct - mu_ck) / mu_ct < 1e-2
 
-    def test_ionGas(self):
+    def test_ionGas(self, phase):
         # IonGasTransport gives the same result for a mixture
         # without ionized species
-        self.phase.transport_model = 'ionized-gas'
-        Dkm1 = self.phase.mix_diff_coeffs
-        Dbin1 = self.phase.binary_diff_coeffs
+        phase.transport_model = 'ionized-gas'
+        Dkm1 = phase.mix_diff_coeffs
+        Dbin1 = phase.binary_diff_coeffs
 
-        self.phase.transport_model = 'mixture-averaged'
-        Dkm2 = self.phase.mix_diff_coeffs
-        Dbin2 = self.phase.binary_diff_coeffs
+        phase.transport_model = 'mixture-averaged'
+        Dkm2 = phase.mix_diff_coeffs
+        Dbin2 = phase.binary_diff_coeffs
         assert Dkm1 == approx(Dkm2)
         assert Dbin1 == approx(Dbin2)
 
-    def test_multiComponent(self):
+    def test_multiComponent(self, phase):
         with pytest.raises(NotImplementedError):
-            self.phase.multi_diff_coeffs
+            phase.multi_diff_coeffs
 
-        assert self.phase.thermal_diff_coeffs == approx(np.zeros(self.phase.n_species))
+        assert phase.thermal_diff_coeffs == approx(np.zeros(phase.n_species))
 
-        self.phase.transport_model = 'multicomponent'
-        assert all(self.phase.multi_diff_coeffs.flat >= 0.0)
-        assert all(self.phase.thermal_diff_coeffs.flat != 0.0)
+        phase.transport_model = 'multicomponent'
+        assert all(phase.multi_diff_coeffs.flat >= 0.0)
+        assert all(phase.thermal_diff_coeffs.flat != 0.0)
 
     def test_add_species_mix(self, cantera_data_path):
         yaml = (cantera_data_path / "gri30.yaml").read_text()
@@ -148,59 +147,59 @@ class TestTransport:
         assert gas1.thermal_conductivity == approx(gas2.thermal_conductivity)
         assert gas1.multi_diff_coeffs == approx(gas2.multi_diff_coeffs)
 
-    def test_species_visosities(self):
-        for species_name in self.phase.species_names:
+    def test_species_visosities(self, phase):
+        for species_name in phase.species_names:
             # check that species viscosity matches overall for single-species
             # state
-            self.phase.X = {species_name: 1}
-            self.phase.TP = 800, 2*ct.one_atm
-            visc = self.phase.viscosity
-            assert self.phase[species_name].species_viscosities[0] == approx(visc)
+            phase.X = {species_name: 1}
+            phase.TP = 800, 2*ct.one_atm
+            visc = phase.viscosity
+            assert phase[species_name].species_viscosities[0] == approx(visc)
             # and ensure it doesn't change with pressure
-            self.phase.TP = 800, 5*ct.one_atm
-            assert self.phase[species_name].species_viscosities[0] == approx(visc)
+            phase.TP = 800, 5*ct.one_atm
+            assert phase[species_name].species_viscosities[0] == approx(visc)
 
-    def test_transport_polynomial_fits_viscosity(self):
-        visc1_h2o = self.phase['H2O'].species_viscosities[0]
-        mu_poly_h2o = self.phase.get_viscosity_polynomial(self.phase.species_index("H2O"))
-        visc1_h2 = self.phase['H2'].species_viscosities[0]
-        mu_poly_h2 = self.phase.get_viscosity_polynomial(self.phase.species_index('H2'))
-        self.phase.set_viscosity_polynomial(self.phase.species_index('H2'), mu_poly_h2o)
-        visc2_h2 = self.phase['H2'].species_viscosities[0]
-        self.phase.set_viscosity_polynomial(self.phase.species_index('H2'), mu_poly_h2)
-        visc3_h2 = self.phase['H2'].species_viscosities[0]
+    def test_transport_polynomial_fits_viscosity(self, phase):
+        visc1_h2o = phase['H2O'].species_viscosities[0]
+        mu_poly_h2o = phase.get_viscosity_polynomial(phase.species_index("H2O"))
+        visc1_h2 = phase['H2'].species_viscosities[0]
+        mu_poly_h2 = phase.get_viscosity_polynomial(phase.species_index('H2'))
+        phase.set_viscosity_polynomial(phase.species_index('H2'), mu_poly_h2o)
+        visc2_h2 = phase['H2'].species_viscosities[0]
+        phase.set_viscosity_polynomial(phase.species_index('H2'), mu_poly_h2)
+        visc3_h2 = phase['H2'].species_viscosities[0]
         assert visc1_h2o != visc1_h2
         assert visc1_h2o == visc2_h2
         assert visc1_h2 == visc3_h2
 
-    def test_transport_polynomial_fits_conductivity(self):
-        self.phase.X = {'O2': 1}
-        cond1_o2 = self.phase.thermal_conductivity
-        lambda_poly_o2 = self.phase.get_thermal_conductivity_polynomial(self.phase.species_index("O2"))
-        self.phase.X = {"H2": 1}
-        cond1_h2 = self.phase.thermal_conductivity
-        lambda_poly_h2 = self.phase.get_thermal_conductivity_polynomial(self.phase.species_index('H2'))
-        self.phase.set_thermal_conductivity_polynomial(self.phase.species_index('H2'), lambda_poly_o2)
-        cond2_h2 = self.phase.thermal_conductivity
-        self.phase.set_thermal_conductivity_polynomial(self.phase.species_index('H2'), lambda_poly_h2)
-        cond3_h2 = self.phase.thermal_conductivity
+    def test_transport_polynomial_fits_conductivity(self, phase):
+        phase.X = {'O2': 1}
+        cond1_o2 = phase.thermal_conductivity
+        lambda_poly_o2 = phase.get_thermal_conductivity_polynomial(phase.species_index("O2"))
+        phase.X = {"H2": 1}
+        cond1_h2 = phase.thermal_conductivity
+        lambda_poly_h2 = phase.get_thermal_conductivity_polynomial(phase.species_index('H2'))
+        phase.set_thermal_conductivity_polynomial(phase.species_index('H2'), lambda_poly_o2)
+        cond2_h2 = phase.thermal_conductivity
+        phase.set_thermal_conductivity_polynomial(phase.species_index('H2'), lambda_poly_h2)
+        cond3_h2 = phase.thermal_conductivity
         assert cond1_o2 != cond1_h2
         assert cond1_o2 == cond2_h2
         assert cond1_h2 == cond3_h2
 
-    def test_transport_polynomial_fits_diffusion(self):
-        D12 = self.phase.binary_diff_coeffs[1, 2]
-        D23 = self.phase.binary_diff_coeffs[2, 3]
-        bd_poly_12 = self.phase.get_binary_diff_coeffs_polynomial(1, 2)
-        bd_poly_23 = self.phase.get_binary_diff_coeffs_polynomial(2, 3)
-        self.phase.set_binary_diff_coeffs_polynomial(1, 2, bd_poly_23)
-        self.phase.set_binary_diff_coeffs_polynomial(2, 3, bd_poly_12)
-        D12mod = self.phase.binary_diff_coeffs[1, 2]
-        D23mod = self.phase.binary_diff_coeffs[2, 3]
-        self.phase.set_binary_diff_coeffs_polynomial(1, 2, bd_poly_12)
-        self.phase.set_binary_diff_coeffs_polynomial(2, 3, bd_poly_23)
-        D12new = self.phase.binary_diff_coeffs[1, 2]
-        D23new = self.phase.binary_diff_coeffs[2, 3]
+    def test_transport_polynomial_fits_diffusion(self, phase):
+        D12 = phase.binary_diff_coeffs[1, 2]
+        D23 = phase.binary_diff_coeffs[2, 3]
+        bd_poly_12 = phase.get_binary_diff_coeffs_polynomial(1, 2)
+        bd_poly_23 = phase.get_binary_diff_coeffs_polynomial(2, 3)
+        phase.set_binary_diff_coeffs_polynomial(1, 2, bd_poly_23)
+        phase.set_binary_diff_coeffs_polynomial(2, 3, bd_poly_12)
+        D12mod = phase.binary_diff_coeffs[1, 2]
+        D23mod = phase.binary_diff_coeffs[2, 3]
+        phase.set_binary_diff_coeffs_polynomial(1, 2, bd_poly_12)
+        phase.set_binary_diff_coeffs_polynomial(2, 3, bd_poly_23)
+        D12new = phase.binary_diff_coeffs[1, 2]
+        D23new = phase.binary_diff_coeffs[2, 3]
         assert D12 != D23
         assert D12 == D23mod
         assert D23 == D12mod
@@ -208,44 +207,54 @@ class TestTransport:
         assert D23 == D23new
 
 
-@pytest.fixture(scope='function')
-def setup_ion_transport(request):
-    # Create instance-level data for each test
-    request.cls.p = ct.one_atm
-    request.cls.T = 2237
-    request.cls.gas = ct.Solution('ch4_ion.yaml')
-    request.cls.gas.X = 'O2:0.7010, H2O:0.1885, CO2:9.558e-2'
-    request.cls.gas.TP = request.cls.T, request.cls.p
-    request.cls.kN2 = request.cls.gas.species_index("N2")
-    request.cls.kH3Op = request.cls.gas.species_index("H3O+")
-
-@pytest.mark.usefixtures("setup_ion_transport")
 class TestIonTransport:
 
-    def test_binary_diffusion(self):
-        bdiff = self.gas.binary_diff_coeffs[self.kN2][self.kH3Op]
+    @pytest.fixture(scope='class')
+    def initial_conditions(self):
+        return {
+            'T': 2237,
+            'P': ct.one_atm,
+            'X': 'O2:0.7010, H2O:0.1885, CO2:9.558e-2'
+        }
+
+    @pytest.fixture(scope='function')
+    def gas(self, initial_conditions):
+        gas = ct.Solution('ch4_ion.yaml')
+        gas.TPX = initial_conditions['T'], initial_conditions['P'], initial_conditions['X']
+        return gas
+
+    @pytest.fixture(scope='function')
+    def N2_idx(self, gas):
+        return gas.species_index("N2")
+
+    @pytest.fixture(scope='function')
+    def H3Op_idx(self, gas):
+        return gas.species_index("H3O+")
+
+    def test_binary_diffusion(self, gas, N2_idx, H3Op_idx):
+        bdiff = gas.binary_diff_coeffs[N2_idx][H3Op_idx]
         assert bdiff == approx(4.258e-4, rel=1e-4)  # Regression test
 
-    def test_mixture_diffusion(self):
-        mdiff = self.gas.mix_diff_coeffs[self.kH3Op]
+    def test_mixture_diffusion(self, gas, H3Op_idx):
+        mdiff = gas.mix_diff_coeffs[H3Op_idx]
         assert mdiff == approx(5.057e-4, rel=1e-4)  # Regression test
 
-    def test_O2_anion_mixture_diffusion(self):
-        mdiff = self.gas['O2-'].mix_diff_coeffs[0]
+    def test_O2_anion_mixture_diffusion(self, gas):
+        mdiff = gas['O2-'].mix_diff_coeffs[0]
         assert mdiff == approx(2.784e-4, rel=1e-3)  # Regression test
 
-    def test_mobility(self):
-        mobi = self.gas.mobilities[self.kH3Op]
+    def test_mobility(self, gas, H3Op_idx):
+        mobi = gas.mobilities[H3Op_idx]
         assert mobi == approx(2.623e-3, rel=1e-4)  # Regression test
 
-    def test_update_temperature(self):
-        bdiff = self.gas.binary_diff_coeffs[self.kN2][self.kH3Op]
-        mdiff = self.gas.mix_diff_coeffs[self.kH3Op]
-        mobi = self.gas.mobilities[self.kH3Op]
-        self.gas.TP = 0.9 * self.T, self.p
-        assert bdiff != self.gas.binary_diff_coeffs[self.kN2][self.kH3Op]
-        assert mdiff != self.gas.mix_diff_coeffs[self.kH3Op]
-        assert mobi != self.gas.mobilities[self.kH3Op]
+    def test_update_temperature(self, gas, N2_idx, H3Op_idx):
+        bdiff = gas.binary_diff_coeffs[N2_idx][H3Op_idx]
+        mdiff = gas.mix_diff_coeffs[H3Op_idx]
+        mobi = gas.mobilities[H3Op_idx]
+        gas.TP = 0.9 * gas.T, gas.P
+        assert bdiff != gas.binary_diff_coeffs[N2_idx][H3Op_idx]
+        assert mdiff != gas.mix_diff_coeffs[H3Op_idx]
+        assert mobi != gas.mobilities[H3Op_idx]
 
 
 class TestTransportGeometryFlags:
@@ -314,64 +323,71 @@ class TestTransportGeometryFlags:
                 ct.Species.list_from_yaml(self.species_data.format(**test))
 
 
-@pytest.fixture(scope='function')
-def setup_dusty_gas(request):
-    # Create instance-level data for each test
-    request.cls.phase = ct.DustyGas("h2o2.yaml")
-    request.cls.phase.TPX = 500.0, ct.one_atm, "O2:2.0, H2:1.0, H2O:1.0"
-    request.cls.phase.porosity = 0.2
-    request.cls.phase.tortuosity = 0.3
-    request.cls.phase.mean_pore_radius = 1e-4
-    request.cls.phase.mean_particle_diameter = 5e-4
-    request.cls.Dref = request.cls.phase.multi_diff_coeffs
 
-@pytest.mark.usefixtures("setup_dusty_gas")
 class TestDustyGas:
 
-    def test_porosity(self):
-        self.phase.porosity = 0.4
-        D = self.phase.multi_diff_coeffs
-        assert self.Dref * 2 == approx(D)
+    @pytest.fixture(scope='class')
+    def initial_conditions(self):
+        return {
+            'T': 500.0,
+            'P': ct.one_atm,
+            'X': "O2:2.0, H2:1.0, H2O:1.0"
+        }
 
-    def test_tortuosity(self):
-        self.phase.tortuosity = 0.6
-        D = self.phase.multi_diff_coeffs
-        assert self.Dref * 0.5 == approx(D)
+    @pytest.fixture
+    def phase(self, initial_conditions):
+        phase = ct.DustyGas("h2o2.yaml")
+        phase.TPX = initial_conditions['T'], initial_conditions['P'], initial_conditions['X']
+        phase.porosity = 0.2
+        phase.tortuosity = 0.3
+        phase.mean_pore_radius = 1e-4
+        phase.mean_particle_diameter = 5e-4
+        return phase
+
+    @pytest.fixture
+    def Dref(self, phase):
+        return phase.multi_diff_coeffs
+
+    def test_porosity(self, phase, Dref):
+        phase.porosity = 0.4
+        D = phase.multi_diff_coeffs
+        assert Dref * 2 == approx(D)
+
+    def test_tortuosity(self, phase, Dref):
+        phase.tortuosity = 0.6
+        D = phase.multi_diff_coeffs
+        assert Dref * 0.5 == approx(D)
 
     # The other parameters don't have such simple relationships to the diffusion
     # coefficients, so we can't test them as easily
 
-    def test_molar_fluxes(self):
-        T1, rho1, Y1 = self.phase.TDY
-        self.phase.TPX = 500.0, ct.one_atm, "O2:2.0, H2:1.001, H2O:0.999"
+    def test_molar_fluxes(self, phase):
+        T1, rho1, Y1 = phase.TDY
+        phase.TPX = 500.0, ct.one_atm, "O2:2.0, H2:1.001, H2O:0.999"
 
-        T2, rho2, Y2 = self.phase.TDY
+        T2, rho2, Y2 = phase.TDY
 
-        fluxes0 = self.phase.molar_fluxes(T1, T1, rho1, rho1, Y1, Y1, 1e-4)
-        assert fluxes0 == approx(np.zeros(self.phase.n_species))
+        fluxes0 = phase.molar_fluxes(T1, T1, rho1, rho1, Y1, Y1, 1e-4)
+        assert fluxes0 == approx(np.zeros(phase.n_species))
 
-        fluxes1 = self.phase.molar_fluxes(T1, T2, rho1, rho2, Y1, Y2, 1e-4)
-        kH2 = self.phase.species_index('H2')
-        kH2O = self.phase.species_index('H2O')
-        assert fluxes1[kH2] < 0
-        assert fluxes1[kH2O] > 0
+        fluxes1 = phase.molar_fluxes(T1, T2, rho1, rho2, Y1, Y2, 1e-4)
+        H2_idx = phase.species_index('H2')
+        H2O_idx = phase.species_index('H2O')
+        assert fluxes1[H2_idx] < 0
+        assert fluxes1[H2O_idx] > 0
 
         # Not sure why the following condition is not satisfied:
         #assert sum(fluxes1) == approx(0.0)
         #assert sum(fluxes1) / sum(abs(fluxes1)) == approx(0.0)
 
-    def test_thermal_conductivity(self):
+    def test_thermal_conductivity(self, phase):
         gas1 = ct.Solution("h2o2.yaml", transport_model="multicomponent")
-        gas1.TPX = self.phase.TPX
+        gas1.TPX = phase.TPX
 
-        assert self.phase.thermal_conductivity == gas1.thermal_conductivity
+        assert phase.thermal_conductivity == gas1.thermal_conductivity
 
 
-@pytest.fixture(scope='function')
-def water(request):
-    request.cls.water = ct.Water()
 
-@pytest.mark.usefixtures("water")
 class TestWaterTransport:
     """
     Comparison values are taken from the NIST Chemistry WebBook. Agreement is
@@ -381,111 +397,143 @@ class TestWaterTransport:
     the critical point.
     """
 
-    def check_viscosity(self, T, P, mu, rtol):
-        self.water.TP = T, P
-        assert self.water.viscosity == approx(mu, rel=rtol)
+    @pytest.fixture(scope='class')
+    def water(self):
+        return ct.Water()
 
-    def check_thermal_conductivity(self, T, P, k, rtol):
-        self.water.TP = T, P
-        assert self.water.thermal_conductivity == approx(k, rel=rtol)
+    @pytest.fixture(scope='class')
+    def water(self):
+        return ct.Water()
 
-    def test_viscosity_liquid(self):
-        self.check_viscosity(400, 1e6, 2.1880e-4, 1e-3)
-        self.check_viscosity(400, 8e6, 2.2061e-4, 1e-3)
-        self.check_viscosity(620, 1.6e7, 6.7489e-5, 2e-3)
-        self.check_viscosity(620, 2.8e7, 7.5684e-5, 2e-3)
+    @pytest.mark.parametrize("T, P, mu, rtol", [
+        (400, 1e6, 2.1880e-4, 1e-3),
+        (400, 8e6, 2.2061e-4, 1e-3),
+        (620, 1.6e7, 6.7489e-5, 2e-3),
+        (620, 2.8e7, 7.5684e-5, 2e-3),
+    ])
+    def test_viscosity_liquid(self, water, T, P, mu, rtol):
+        water.TP = T, P
+        assert water.viscosity == approx(mu, rel=rtol)
 
-    def test_thermal_conductivity_liquid(self):
-        self.check_thermal_conductivity(400, 1e6, 0.68410, 1e-3)
-        self.check_thermal_conductivity(400, 8e6, 0.68836, 1e-3)
-        self.check_thermal_conductivity(620, 1.6e7, 0.45458, 2e-3)
-        self.check_thermal_conductivity(620, 2.8e7, 0.49705, 2e-3)
+    @pytest.mark.parametrize("T, P, mu, rtol", [
+        (600, 1e6, 2.1329e-5, 1e-3),
+        (620, 5e6, 2.1983e-5, 1e-3),
+        (620, 1.5e7, 2.2858e-5, 2e-3),
+    ])
+    def test_viscosity_vapor(self, water, T, P, mu, rtol):
+        water.TP = T, P
+        assert water.viscosity == approx(mu, rel=rtol)
 
-    def test_viscosity_vapor(self):
-        self.check_viscosity(600, 1e6, 2.1329e-5, 1e-3)
-        self.check_viscosity(620, 5e6, 2.1983e-5, 1e-3)
-        self.check_viscosity(620, 1.5e7, 2.2858e-5, 2e-3)
+    @pytest.mark.parametrize("T, P, mu, rtol", [
+        (660, 2.2e7, 2.7129e-5, 2e-3),
+        (660, 2.54e7, 3.8212e-5, 1e-2),
+        (660, 2.8e7, 5.3159e-5, 1e-2),
+    ])
+    def test_viscosity_supercritical(self, water, T, P, mu, rtol):
+        water.TP = T, P
+        assert water.viscosity == approx(mu, rel=rtol)
 
-    def test_thermal_conductivity_vapor(self):
-        self.check_thermal_conductivity(600, 1e6, 0.047636, 1e-3)
-        self.check_thermal_conductivity(620, 5e6, 0.055781, 1e-3)
-        self.check_thermal_conductivity(620, 1.5e7, 0.10524, 2e-3)
+    @pytest.mark.parametrize("T, P, k, rtol", [
+        (400, 1e6, 0.68410, 1e-3),
+        (400, 8e6, 0.68836, 1e-3),
+        (620, 1.6e7, 0.45458, 2e-3),
+        (620, 2.8e7, 0.49705, 2e-3),
+    ])
+    def test_thermal_conductivity_liquid(self, water, T, P, k, rtol):
+        water.TP = T, P
+        assert water.thermal_conductivity == approx(k, rel=rtol)
 
-    def test_viscosity_supercritical(self):
-        self.check_viscosity(660, 2.2e7, 2.7129e-5, 2e-3)
-        self.check_viscosity(660, 2.54e7, 3.8212e-5, 1e-2)
-        self.check_viscosity(660, 2.8e7, 5.3159e-5, 1e-2)
+    @pytest.mark.parametrize("T, P, k, rtol", [
+        (600, 1e6, 0.047636, 1e-3),
+        (620, 5e6, 0.055781, 1e-3),
+        (620, 1.5e7, 0.10524, 2e-3),
+    ])
+    def test_thermal_conductivity_vapor(self, water, T, P, k, rtol):
+        water.TP = T, P
+        assert water.thermal_conductivity == approx(k, rel=rtol)
 
-    def test_thermal_conductivity_supercritical(self):
-        self.check_thermal_conductivity(660, 2.2e7, 0.14872, 1e-2)
-        self.check_thermal_conductivity(660, 2.54e7, 0.35484, 2e-2)
-        self.check_thermal_conductivity(660, 2.8e7, 0.38479, 1e-2)
+    @pytest.mark.parametrize("T, P, k, rtol", [
+        (660, 2.2e7, 0.14872, 1e-2),
+        (660, 2.54e7, 0.35484, 2e-2),
+        (660, 2.8e7, 0.38479, 1e-2),
+    ])
+    def test_thermal_conductivity_supercritical(self, water, T, P, k, rtol):
+        water.TP = T, P
+        assert water.thermal_conductivity == approx(k, rel=rtol)
 
 
-@pytest.fixture(scope='function')
-def setup_IAPWS95Water(request):
-    # Create instance-level data for each test
-    request.cls.water = ct.Solution('thermo-models.yaml', 'liquid-water')
-
-@pytest.mark.usefixtures("setup_IAPWS95Water")
 class TestIAPWS95WaterTransport:
     """
     Water transport properties test using the IAPWS95 equation of state. This
     results in better comparisons with data from the NIST Webbook.
     """
 
-    def check_viscosity(self, T, P, mu, rtol):
-        self.water.TP = T, P
-        assert self.water.viscosity == approx(mu, rel=rtol)
+    @pytest.fixture(scope='class')
+    def water(self):
+        return ct.Solution('thermo-models.yaml', 'liquid-water')
 
-    def check_thermal_conductivity(self, T, P, k, rtol):
-        self.water.TP = T, P
-        assert self.water.thermal_conductivity == approx(k, rel=rtol)
+    @pytest.mark.parametrize("T, P, mu, rtol", [
+        (400, 1e6, 2.1880e-4, 2e-4),
+        (400, 8e6, 2.2061e-4, 2e-4),
+        (620, 1.6e7, 6.7489e-5, 1e-4),
+        (620, 2.8e7, 7.5684e-5, 1e-4),
+    ])
+    def test_viscosity_liquid(self, water, T, P, mu, rtol):
+        water.TP = T, P
+        assert water.viscosity == approx(mu, rel=rtol)
 
-    def test_viscosity_liquid(self):
-        self.check_viscosity(400, 1e6, 2.1880e-4, 2e-4)
-        self.check_viscosity(400, 8e6, 2.2061e-4, 2e-4)
-        self.check_viscosity(620, 1.6e7, 6.7489e-5, 1e-4)
-        self.check_viscosity(620, 2.8e7, 7.5684e-5, 1e-4)
+    @pytest.mark.parametrize("T, P, mu, rtol", [
+        (660, 2.2e7, 2.7129e-5, 1e-4),
+        (660, 2.54e7, 3.8212e-5, 1e-4),
+        (660, 2.8e7, 5.3159e-5, 1e-4),
+    ])
+    def test_viscosity_supercritical(self, water, T, P, mu, rtol):
+        water.TP = T, P
+        assert water.viscosity == approx(mu, rel=rtol)
 
-    def test_thermal_conductivity_liquid(self):
-        self.check_thermal_conductivity(400, 1e6, 0.68410, 1e-4)
-        self.check_thermal_conductivity(400, 8e6, 0.68836, 1e-4)
-        self.check_thermal_conductivity(620, 1.6e7, 0.45458, 1e-4)
-        self.check_thermal_conductivity(620, 2.8e7, 0.49705, 1e-4)
+    @pytest.mark.parametrize("T, P, k, rtol", [
+        (400, 1e6, 0.68410, 1e-4),
+        (400, 8e6, 0.68836, 1e-4),
+        (620, 1.6e7, 0.45458, 1e-4),
+        (620, 2.8e7, 0.49705, 1e-4),
+    ])
+    def test_thermal_conductivity_liquid(self, water, T, P, k, rtol):
+        water.TP = T, P
+        assert water.thermal_conductivity == approx(k, rel=rtol)
 
-    def test_viscosity_supercritical(self):
-        self.check_viscosity(660, 2.2e7, 2.7129e-5, 1e-4)
-        self.check_viscosity(660, 2.54e7, 3.8212e-5, 1e-4)
-        self.check_viscosity(660, 2.8e7, 5.3159e-5, 1e-4)
+    @pytest.mark.parametrize("T, P, k, rtol", [
+        (660, 2.2e7, 0.14872, 1e-4),
+        (660, 2.54e7, 0.35484, 1e-4),
+        (660, 2.8e7, 0.38479, 1e-4),
+    ])
+    def test_thermal_conductivity_supercritical(self, water, T, P, k, rtol):
+        water.TP = T, P
+        assert water.thermal_conductivity == approx(k, rel=rtol)
 
-    def test_thermal_conductivity_supercritical(self):
-        self.check_thermal_conductivity(660, 2.2e7, 0.14872, 1e-4)
-        self.check_thermal_conductivity(660, 2.54e7, 0.35484, 1e-4)
-        self.check_thermal_conductivity(660, 2.8e7, 0.38479, 1e-4)
 
-
-@pytest.fixture(scope='function')
-def setup_transport_data(request):
-    # Create instance-level data for each test
-    request.cls.gas = ct.Solution("h2o2.yaml")
-    request.cls.gas.X = 'H2O:0.6, H2:0.4'
-
-@pytest.mark.usefixtures("setup_transport_data")
 class TestTransportData:
 
-    def test_read(self):
-        tr = self.gas.species('H2').transport
+    @pytest.fixture(scope='class')
+    def gas(self):
+        gas = ct.Solution("h2o2.yaml")
+        return gas
+
+    @pytest.fixture(scope='function', autouse=True)
+    def initial_condition(self, gas):
+        gas.X = 'H2O:0.6, H2:0.4'
+
+    def test_read(self, gas):
+        tr = gas.species('H2').transport
         assert tr.geometry == 'linear'
         assert tr.diameter == approx(2.92e-10)
         assert tr.well_depth == approx(38.0 * ct.boltzmann)
         assert tr.polarizability == approx(0.79e-30)
         assert tr.rotational_relaxation == approx(280)
 
-    def test_set_customary_units(self):
+    def test_set_customary_units(self, gas):
         tr1 = ct.GasTransportData()
         tr1.set_customary_units('nonlinear', 2.60, 572.40, 1.84, 0.0, 4.00)
-        tr2 = self.gas.species('H2O').transport
+        tr2 = gas.species('H2O').transport
         assert tr1.geometry == tr2.geometry
         assert tr1.diameter == approx(tr2.diameter)
         assert tr1.well_depth == approx(tr2.well_depth)
@@ -494,24 +542,22 @@ class TestTransportData:
         assert tr1.rotational_relaxation == approx(tr2.rotational_relaxation)
 
 
-@pytest.fixture(scope='function')
-def setup_ion_transport_data(request):
-    # Create instance-level data for each test
-    request.cls.gas = ct.Solution("ch4_ion.yaml")
-
-@pytest.mark.usefixtures("setup_ion_transport_data")
 class TestIonGasTransportData:
 
-    def test_read_ion(self):
-        tr = self.gas.species('N2').transport
+    @pytest.fixture(scope='class')
+    def gas(self):
+        return ct.Solution("ch4_ion.yaml")
+
+    def test_read_ion(self, gas):
+        tr = gas.species('N2').transport
         assert tr.dispersion_coefficient == approx(2.995e-50)
         assert tr.quadrupole_polarizability == approx(3.602e-50)
 
-    def test_set_customary_units(self):
+    def test_set_customary_units(self, gas):
         tr1 = ct.GasTransportData()
         tr1.set_customary_units('linear', 3.62, 97.53, 1.76,
                                 dispersion_coefficient = 2.995,
                                 quadrupole_polarizability = 3.602)
-        tr2 = self.gas.species('N2').transport
+        tr2 = gas.species('N2').transport
         assert tr1.dispersion_coefficient == approx(tr2.dispersion_coefficient)
         assert tr1.quadrupole_polarizability == approx(tr2.quadrupole_polarizability)
