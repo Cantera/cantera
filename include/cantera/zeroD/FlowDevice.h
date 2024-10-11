@@ -9,6 +9,7 @@
 #include "cantera/base/ct_defs.h"
 #include "cantera/base/global.h"
 #include "cantera/base/ctexceptions.h"
+#include "Connector.h"
 
 namespace Cantera
 {
@@ -18,35 +19,20 @@ class ReactorBase;
 /**
  * Base class for 'flow devices' (valves, pressure regulators, etc.)
  * connecting reactors.
- * @ingroup flowDeviceGroup
+ * @ingroup connectorGroup
  */
-class FlowDevice
+class FlowDevice : public Connector
 {
+protected:
+    FlowDevice(shared_ptr<ReactorNode> r0, shared_ptr<ReactorNode> r1,
+               const string& name="(none)");
+
 public:
-    FlowDevice(const string& name="(none)") : m_name(name) {}
+    using Connector::Connector;  // inherit constructors
 
-    virtual ~FlowDevice() = default;
-    FlowDevice(const FlowDevice&) = delete;
-    FlowDevice& operator=(const FlowDevice&) = delete;
-
-    //! String indicating the flow device implemented. Usually
-    //! corresponds to the name of the derived class.
-    virtual string type() const {
+    string type() const override {
         return "FlowDevice";
     }
-
-    //! Retrieve flow device name.
-    string name() const {
-        return m_name;
-    }
-
-    //! Set flow device name.
-    void setName(const string& name) {
-        m_name = name;
-    }
-
-    //! Set the default name of a flow device. Returns `false` if it was previously set.
-    bool setDefaultName(map<string, int>& counts);
 
     //! Mass flow rate (kg/s).
     double massFlowRate() {
@@ -73,9 +59,12 @@ public:
     /*!
      * @param in Upstream reactor.
      * @param out Downstream reactor.
+     * @deprecated To be removed after Cantera 3.1. Reactors should be provided to
+     *      constructor instead.
      */
     bool install(ReactorBase& in, ReactorBase& out);
 
+    //! @deprecated  No longer needed after Cantera 3.1.
     virtual bool ready() {
         return (m_in != 0 && m_out != 0);
     }
@@ -108,7 +97,15 @@ public:
     //! Set a function of pressure that is used in determining the
     //! mass flow rate through the device. The evaluation of mass flow
     //! depends on the derived flow device class.
+    //! @deprecated To be removed after %Cantera 3.1. Superseded by version using
+    //!     shared pointer.
     virtual void setPressureFunction(Func1* f);
+
+    //! Set a function of pressure that is used in determining the
+    //! mass flow rate through the device. The evaluation of mass flow
+    //! depends on the derived flow device class.
+    //! @version New in %Cantera 3.1. Replaces version using raw pointer.
+    virtual void setPressureFunction(shared_ptr<Func1> f);
 
     //! Return current value of the time function.
     /*!
@@ -122,7 +119,15 @@ public:
     //! Set a function of time that is used in determining
     //! the mass flow rate through the device. The evaluation of mass flow
     //! depends on the derived flow device class.
+    //! @deprecated To be removed after %Cantera 3.1. Superseded by version using
+    //!     shared pointer.
     virtual void setTimeFunction(Func1* g);
+
+    //! Set a function of time that is used in determining
+    //! the mass flow rate through the device. The evaluation of mass flow
+    //! depends on the derived flow device class.
+    //! @version New in %Cantera 3.1. Replaces version using raw pointer.
+    virtual void setTimeFunction(shared_ptr<Func1> g);
 
     //! Set current reactor network time
     /*!
@@ -133,16 +138,15 @@ public:
     }
 
 protected:
-    string m_name;  //!< Flow device name.
-    bool m_defaultNameSet = false;  //!< `true` if default name has been previously set.
-
     double m_mdot = Undef;
 
     //! Function set by setPressureFunction; used by updateMassFlowRate
     Func1* m_pfunc = nullptr;
+    shared_ptr<Func1> m_pfunc_shared;  //!< Shared pointer to pressure function.
 
     //! Function set by setTimeFunction; used by updateMassFlowRate
     Func1* m_tfunc = nullptr;
+    shared_ptr<Func1> m_tfunc_shared;  //!< Shared pointer to time function.
 
     //! Coefficient set by derived classes; used by updateMassFlowRate
     double m_coeff = 1.0;

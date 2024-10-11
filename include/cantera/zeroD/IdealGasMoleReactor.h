@@ -22,6 +22,17 @@ class IdealGasMoleReactor : public MoleReactor
 public:
     using MoleReactor::MoleReactor; // inherit constructors
 
+    //! Create a new IdealGasMoleReactor.
+    //! @param contents  Solution object describing contents.
+    //! @param name  Name of the reactor. Optional; if left empty, a default name will
+    //!     be assigned when the reactor is integrated into a ReactorNet.
+    static shared_ptr<IdealGasMoleReactor> create(
+        shared_ptr<Solution> contents, const string& name="")
+    {
+        return shared_ptr<IdealGasMoleReactor>(
+            new IdealGasMoleReactor(contents, name) );
+    }
+
     string type() const override {
         return "IdealGasMoleReactor";
     }

@@ -8,6 +8,7 @@
 
 #include "cantera/base/ctexceptions.h"
 #include "cantera/zeroD/ReactorBase.h"
+#include "Connector.h"
 
 namespace Cantera
 {
@@ -16,35 +17,16 @@ class Func1;
 
 /**
  * Base class for 'walls' (walls, pistons, etc.) connecting reactors.
- * @ingroup wallGroup
+ * @ingroup connectorGroup
  */
-class WallBase
+class WallBase : public Connector
 {
 public:
-    WallBase(const string& name="(none)") : m_name(name) {}
+    using Connector::Connector;  // inherit constructors
 
-    virtual ~WallBase() {}
-    WallBase(const WallBase&) = delete;
-    WallBase& operator=(const WallBase&) = delete;
-
-    //! String indicating the wall model implemented. Usually
-    //! corresponds to the name of the derived class.
-    virtual string type() const {
+    string type() const override {
         return "WallBase";
     }
-
-    //! Retrieve wall name.
-    string name() const {
-        return m_name;
-    }
-
-    //! Set wall name.
-    void setName(const string& name) {
-        m_name = name;
-    }
-
-    //! Set the default name of a wall. Returns `false` if it was previously set.
-    bool setDefaultName(map<string, int>& counts);
 
     //! Rate of volume change (m^3/s) for the adjacent reactors at current reactor
     //! network time.
@@ -76,12 +58,15 @@ public:
     virtual void setArea(double a);
 
     //! Install the wall between two reactors or reservoirs
+    //! @deprecated To be removed after Cantera 3.1. Reactors should be provided to
+    //!     constructor instead.
     bool install(ReactorBase& leftReactor, ReactorBase& rightReactor);
 
     //! Called just before the start of integration
     virtual void initialize() {}
 
     //! True if the wall is correctly configured and ready to use.
+    //! @deprecated  No longer needed after Cantera 3.1.
     virtual bool ready() {
         return (m_left != 0 && m_right != 0);
     }
@@ -105,9 +90,6 @@ public:
     }
 
 protected:
-    string m_name;  //!< Wall name.
-    bool m_defaultNameSet = false;  //!< `true` if default name has been previously set.
-
     ReactorBase* m_left = nullptr;
     ReactorBase* m_right = nullptr;
 
@@ -121,12 +103,27 @@ protected:
 /*!
  * Walls can move (changing the volume of the adjacent reactors) and allow heat
  * transfer between reactors.
- * @ingroup wallGroup
+ * @ingroup connectorGroup
  */
 class Wall : public WallBase
 {
+protected:
+    Wall(shared_ptr<ReactorNode> r0, shared_ptr<ReactorNode> r1,
+         const string& name="(none)");
+
 public:
     using WallBase::WallBase;  // inherit constructors
+
+    //! Create a new Wall.
+    //! @param r0  Reactor left of the wall.
+    //! @param r1  Reactor right of the wall.
+    //! @param name  Name of the wall. Optional; if left empty, a default name will be
+    //!     assigned when the wall is integrated into a ReactorNet.
+    static shared_ptr<Wall> create(
+        shared_ptr<ReactorNode> r0, shared_ptr<ReactorNode> r1, const string& name="")
+    {
+        return shared_ptr<Wall>( new Wall(r0, r1, name) );
+    }
 
     //! String indicating the wall model implemented. Usually
     //! corresponds to the name of the derived class.
@@ -139,9 +136,23 @@ public:
     double velocity() const;
 
     //! Set the wall velocity to a specified function of time, @f$ v(t) @f$.
+    //! @deprecated To be removed after %Cantera 3.1. Replaced by version using
+    //!     shared pointer.
     void setVelocity(Func1* f=0) {
+        warn_deprecated("Wall::setHeatFlux",
+            "To be removed after Cantera 3.1. "
+            "Replaced by version using shared pointer.");
         if (f) {
             m_vf = f;
+        }
+    }
+
+    //! Set the wall velocity to a specified function of time, @f$ v(t) @f$.
+    //! @since New in %Cantera 3.1. Replaces version using raw pointer.
+    void setVelocity(shared_ptr<Func1> f=nullptr) {
+        if (f) {
+            m_vf_shared = f;
+            m_vf = f.get();
         }
     }
 
@@ -164,8 +175,20 @@ public:
     double heatFlux() const;
 
     //! Specify the heat flux function @f$ q_0(t) @f$.
+    //! @deprecated To be removed after %Cantera 3.1. Replaced by version using
+    //!     shared pointer.
     void setHeatFlux(Func1* q) {
+        warn_deprecated("Wall::setHeatFlux",
+            "To be removed after Cantera 3.1. "
+            "Replaced by version using shared pointer.");
         m_qf = q;
+    }
+
+    //! Specify the heat flux function @f$ q_0(t) @f$.
+    //! @since New in %Cantera 3.1. Replaces version using raw pointer.
+    void setHeatFlux(shared_ptr<Func1> q) {
+        m_qf_shared = q;
+        m_qf = q.get();
     }
 
     //! Heat flow rate through the wall (W).
@@ -232,9 +255,11 @@ protected:
 
     //! Velocity function
     Func1* m_vf = nullptr;
+    shared_ptr<Func1> m_vf_shared = nullptr;  //!< Shared pointer to velocity function.
 
     //! Heat flux function
     Func1* m_qf = nullptr;
+    shared_ptr<Func1> m_qf_shared = nullptr;  //!< Shared pointer to heat flux function.
 };
 
 }

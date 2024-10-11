@@ -30,25 +30,28 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
     cdef cppclass CxxFlowDevice "Cantera::FlowDevice"
 
     # factories
-    cdef shared_ptr[CxxReactorBase] newReactor(string) except +translate_exception
-    cdef shared_ptr[CxxReactorBase] newReactor(string, shared_ptr[CxxSolution], string) except +translate_exception
-    cdef shared_ptr[CxxFlowDevice] newFlowDevice(string, string) except +translate_exception
-    cdef shared_ptr[CxxWallBase] newWall(string, string) except +translate_exception
+    cdef shared_ptr[CxxReactorNode] newReactorNode(string) except +translate_exception
+    cdef shared_ptr[CxxReactorNode] newReactorNode(string, shared_ptr[CxxSolution], string) except +translate_exception
+    cdef shared_ptr[CxxConnector] newConnector(string, shared_ptr[CxxReactorNode], shared_ptr[CxxReactorNode], string) except +translate_exception
 
     # reactors
-    cdef cppclass CxxReactorBase "Cantera::ReactorBase":
-        CxxReactorBase()
+    cdef cppclass CxxReactorNode "Cantera::ReactorNode":
+        CxxReactorNode() except +translate_exception
         string type()
-        void setSolution(shared_ptr[CxxSolution]) except +translate_exception
-        void restoreState() except +translate_exception
-        void syncState() except +translate_exception
-        double volume()
         string name()
         void setName(string)
+        void syncState() except +translate_exception
+
+    # reactors
+    cdef cppclass CxxReactorBase "Cantera::ReactorBase" (CxxReactorNode):
+        CxxReactorBase() except +translate_exception
+        void setSolution(shared_ptr[CxxSolution]) except +translate_exception
+        void restoreState() except +translate_exception
+        double volume()
         void setInitialVolume(double)
 
     cdef cppclass CxxReactor "Cantera::Reactor" (CxxReactorBase):
-        CxxReactor()
+        CxxReactor() except +translate_exception
         void setChemistry(cbool)
         cbool chemistryEnabled()
         void setEnergy(int)
@@ -59,7 +62,7 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         void getState(double*) except +translate_exception
         CxxSparseMatrix jacobian() except +translate_exception
         CxxSparseMatrix finiteDifferenceJacobian() except +translate_exception
-        void addSurface(CxxReactorSurface*)
+        void addSurface(shared_ptr[CxxReactorNode]) except +translate_exception
         void setAdvanceLimit(string&, double) except +translate_exception
         void addSensitivityReaction(size_t) except +translate_exception
         void addSensitivitySpeciesEnthalpy(size_t) except +translate_exception
@@ -82,19 +85,29 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         int inletSurfaceMaxErrorFailures()
         void setInletSurfaceMaxErrorFailures(int) except +translate_exception
 
-    # walls
-    cdef cppclass CxxWallBase "Cantera::WallBase":
-        CxxWallBase()
+    # reactor surface
+    cdef cppclass CxxReactorSurface "Cantera::ReactorSurface" (CxxReactorNode):
+        CxxReactorSurface()
+        double area()
+        void setArea(double)
+        void setCoverages(double*)
+        void setCoverages(Composition&) except +translate_exception
+        void addSensitivityReaction(size_t) except +translate_exception
+        size_t nSensParams()
+
+    # connectors
+
+    cdef cppclass CxxConnector "Cantera::Connector":
+        CxxConnector() except +translate_exception
         string type()
         string name()
         void setName(string) except +translate_exception
-        cbool install(CxxReactorBase&, CxxReactorBase&)
+
+    # walls
+    cdef cppclass CxxWallBase "Cantera::WallBase" (CxxConnector):
+        CxxWallBase()
         double area()
         void setArea(double)
-        void setKinetics(CxxKinetics*, CxxKinetics*)
-        void setCoverages(int, double*)
-        void setCoverages(int, Composition&) except +translate_exception
-        void syncCoverages(int)
         double expansionRate() except +translate_exception
         double vdot(double) except +translate_exception
         double heatRate() except +translate_exception
@@ -112,45 +125,25 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         void setEmissivity(double) except +translate_exception
         double getEmissivity()
         double velocity()
-        void setVelocity(CxxFunc1*)
+        void setVelocity(shared_ptr[CxxFunc1])
         double heatFlux()
-        void setHeatFlux(CxxFunc1*)
-
-    # reactor surface
-
-    cdef cppclass CxxReactorSurface "Cantera::ReactorSurface":
-        CxxReactorSurface(string) except +translate_exception
-        string type()
-        string name()
-        void setName(string) except +translate_exception
-        double area()
-        void setArea(double)
-        void setKinetics(CxxKinetics*)
-        void setCoverages(double*)
-        void setCoverages(Composition&) except +translate_exception
-        void syncState()
-        void addSensitivityReaction(size_t) except +translate_exception
-        size_t nSensParams()
+        void setHeatFlux(shared_ptr[CxxFunc1])
 
     # flow devices
 
-    cdef cppclass CxxFlowDevice "Cantera::FlowDevice":
-        CxxFlowDevice()
-        string type()
-        string name()
-        void setName(string) except +translate_exception
+    cdef cppclass CxxFlowDevice "Cantera::FlowDevice" (CxxConnector):
+        CxxFlowDevice() except +translate_exception
         double massFlowRate() except +translate_exception
         double massFlowRate(double) except +translate_exception
-        cbool install(CxxReactorBase&, CxxReactorBase&) except +translate_exception
         double evalPressureFunction() except +translate_exception
-        void setPressureFunction(CxxFunc1*) except +translate_exception
+        void setPressureFunction(shared_ptr[CxxFunc1]) except +translate_exception
         double evalTimeFunction() except +translate_exception
-        void setTimeFunction(CxxFunc1*) except +translate_exception
+        void setTimeFunction(shared_ptr[CxxFunc1]) except +translate_exception
 
     cdef cppclass CxxMassFlowController "Cantera::MassFlowController" (CxxFlowDevice):
-        CxxMassFlowController()
-        void setMassFlowRate(double)
-        void setMassFlowCoeff(double)
+        CxxMassFlowController() except +translate_exception
+        void setMassFlowRate(double) except +translate_exception
+        void setMassFlowCoeff(double) except +translate_exception
         double getMassFlowCoeff()
 
     cdef cppclass CxxValve "Cantera::Valve" (CxxFlowDevice):
@@ -162,13 +155,13 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         CxxPressureController()
         double getPressureCoeff()
         void setPressureCoeff(double)
-        void setPrimary(CxxFlowDevice*)
+        void setPrimary(shared_ptr[CxxConnector])
 
     # reactor net
 
     cdef cppclass CxxReactorNet "Cantera::ReactorNet":
         CxxReactorNet()
-        void addReactor(CxxReactor&) except +translate_exception
+        void addReactor(shared_ptr[CxxReactorNode]) except +translate_exception
         double advance(double, cbool) except +translate_exception
         double step() except +translate_exception
         void initialize() except +translate_exception
@@ -222,14 +215,9 @@ cdef extern from "cantera/zeroD/ReactorDelegator.h" namespace "Cantera":
 
 ctypedef CxxReactorAccessor* CxxReactorAccessorPtr
 
-cdef class ReactorBase:
-    cdef shared_ptr[CxxReactorBase] _reactor
-    cdef CxxReactorBase* rbase
-    cdef object _thermo
-    cdef list _inlets
-    cdef list _outlets
-    cdef list _walls
-    cdef list _surfaces
+cdef class ReactorNode:
+    cdef shared_ptr[CxxReactorNode] _node
+    cdef CxxReactorNode* node
     cdef public dict node_attr
     """
     A dictionary containing draw attributes for the representation of the reactor as a
@@ -238,6 +226,15 @@ cdef class ReactorBase:
 
     .. versionadded:: 3.1
     """
+
+cdef class ReactorBase(ReactorNode):
+    # cdef shared_ptr[CxxReactorNode] _reactor
+    cdef CxxReactorBase* rbase
+    cdef object _thermo
+    cdef list _inlets
+    cdef list _outlets
+    cdef list _walls
+    cdef list _surfaces
 
 cdef class Reactor(ReactorBase):
     cdef CxxReactor* reactor
@@ -276,27 +273,14 @@ cdef class ExtensibleReactor(Reactor):
     cdef public _delegates
     cdef CxxReactorAccessor* accessor
 
-cdef class ReactorSurface:
+cdef class ReactorSurface(ReactorNode):
     cdef CxxReactorSurface* surface
     cdef Kinetics _kinetics
     cdef ReactorBase _reactor
-    cdef public dict node_attr
-    """
-    A dictionary containing draw attributes for the representation of the reactor
-    surface as a graphviz node. See https://graphviz.org/docs/nodes/ for a list of all
-    usable attributes.
 
-    .. versionadded:: 3.1
-    """
-
-cdef class WallBase:
-    cdef shared_ptr[CxxWallBase] _wall
-    cdef CxxWallBase* wall
-    cdef object _velocity_func
-    cdef object _heat_flux_func
-    cdef ReactorBase _left_reactor
-    cdef ReactorBase _right_reactor
-    cdef str name
+cdef class Connector:
+    cdef shared_ptr[CxxConnector] _edge
+    cdef CxxConnector* edge
     cdef public dict edge_attr
     """
     A dictionary containing draw attributes for the representation of the `WallBase` as
@@ -306,25 +290,24 @@ cdef class WallBase:
     .. versionadded:: 3.1
     """
 
+cdef class WallBase(Connector):
+    # cdef shared_ptr[CxxWallBase] _wall
+    cdef CxxWallBase* wall
+    cdef object _velocity_func
+    cdef object _heat_flux_func
+    cdef ReactorBase _left_reactor
+    cdef ReactorBase _right_reactor
+
 cdef class Wall(WallBase):
     pass
 
-cdef class FlowDevice:
-    cdef shared_ptr[CxxFlowDevice] _dev
+cdef class FlowDevice(Connector):
+    # cdef shared_ptr[CxxFlowDevice] _dev
     cdef CxxFlowDevice* dev
     cdef Func1 _rate_func
     cdef Func1 _time_func
-    cdef str name
     cdef ReactorBase _upstream
     cdef ReactorBase _downstream
-    cdef public dict edge_attr
-    """
-    A dictionary containing draw attributes for the representation of the `FlowDevice`
-    as a graphviz edge.See https://graphviz.org/docs/edges/ for a list of all usable
-    attributes.
-
-    .. versionadded:: 3.1
-    """
 
 cdef class MassFlowController(FlowDevice):
     pass

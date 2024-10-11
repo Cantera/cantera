@@ -24,6 +24,7 @@ class_crosswalk:
   thermo: ThermoPhase
   trans: Transport
   wall: Wall
+  connector: Connector
 
 # Provides information on instance methods that return instances
 # of other C# classes.
@@ -42,6 +43,9 @@ class_accessors:
 #  Derived: Base
 derived_handles:
   SurfaceHandle: ThermoPhaseHandle
+  WallHandle: ConnectorHandle
+  FlowDeviceHandle: ConnectorHandle
+  ReactorSurfaceHandle: ReactorHandle
 
 # Provides info for scaffolding higher-level idiomatic C# classes
 # At this stage, we can scaffold simple properties that follow the

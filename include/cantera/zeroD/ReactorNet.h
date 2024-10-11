@@ -12,6 +12,13 @@
 
 namespace Cantera
 {
+//! @defgroup zerodGroup Zero-Dimensional Reactor Networks
+//!
+//! @details See the
+//! [Reactor Science](../reference/reactors/index.html)
+//! section of the %Cantera website for a description of the governing equations for
+//! specific reactor types and the methods used for solving networks of interconnected
+//! reactors.
 
 class Array2D;
 class Integrator;
@@ -136,7 +143,13 @@ public:
     double step();
 
     //! Add the reactor *r* to this reactor network.
+    //! @deprecated To be removed after %Cantera 3.1. Superseded by version using
+    //!     shared pointer.
     void addReactor(Reactor& r);
+
+    //! Add the reactor *r* to this reactor network.
+    //! @since New in Cantera 3.1. Replaces version using reference.
+    void addReactor(shared_ptr<ReactorNode> r);
 
     //! Return a reference to the *n*-th reactor in this network. The reactor
     //! indices are determined by the order in which the reactors were added

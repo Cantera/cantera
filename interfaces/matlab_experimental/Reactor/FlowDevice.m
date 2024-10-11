@@ -1,4 +1,4 @@
-classdef FlowDevice < handle
+classdef FlowDevice < Connector
     % FlowDevice Class ::
     %
     %     >> x = FlowDevice(typ, name)
@@ -25,20 +25,15 @@ classdef FlowDevice < handle
 
     properties (SetAccess = immutable)
 
-        type % Type of flow device.
-        id % ID of FlowDevice object.
-
-    end
-
-    properties (SetAccess = public)
-
-        name  % Name of flow device.
-
         % Upstream object of type :mat:class:`Reactor` or :mat:class:`Reservoir`.
         upstream
 
         % Downstream object of type :mat:class:`Reactor` or :mat:class:`Reservoir`.
         downstream
+
+    end
+
+    properties (SetAccess = public)
 
         % The mass flow rate through the :mat:class:`FlowDevice` at the current time.
         %
@@ -60,78 +55,27 @@ classdef FlowDevice < handle
     methods
         %% FlowDevice Class Constructor
 
-        function x = FlowDevice(typ, name)
+        function x = FlowDevice(typ, upstream, downstream, name)
             % Create a :mat:class:`FlowDevice` object.
 
             ctIsLoaded;
 
-            if nargin == 0
-                error('please specify the type of flow device to be created');
-            end
-            if nargin < 2
+            if nargin < 4
                 name = '(none)';
             end
 
-            x.type = typ;
-            x.id = ctFunc('flowdev_new', typ, name);
-            x.upstream = -1;
-            x.downstream = -1;
-        end
-
-        %% FlowDevice Class Destructor
-
-        function delete(f)
-            % Delete the :mat:class:`FlowDevice` object.
-
-            ctFunc('flowdev_del', f.id);
-        end
-
-        %% Utility Methods
-
-        function install(f, upstream, downstream)
-            % Install a flow device between reactors or reservoirs. ::
-            %
-            %     >> f.install(upstream, downstream)
-            %
-            % :param f:
-            %     Instance of class :mat:class:`FlowDevice` to install.
-            % :param upstream:
-            %     Upstream :mat:class:`Reactor` or :mat:class:`Reservoir`.
-            % :param downstream:
-            %     Downstream :mat:class:`Reactor` or :mat:class:`Reservoir`.
-            % :return:
-            %     Instance of class :mat:class:`FlowDevice`.
-
-            if nargin == 3
-
-                if ~isa(upstream, 'Reactor') || ~isa(downstream, 'Reactor')
-                    error(['Flow devices can only be installed between', ...
-                           'reactors or reservoirs']);
-                end
-
-                i = upstream.id;
-                j = downstream.id;
-                ctFunc('flowdev_install', f.id, i, j);
-            else error('install requires 3 arguments');
-            end
-
+            x@Connector(typ, upstream, downstream, name)
+            x.upstream = upstream;
+            x.downstream = downstream;
         end
 
         %% FlowDevice Get Methods
-
-        function name = get.name(f)
-            name = ctString('flowdev_name', f.id);
-        end
 
         function mdot = get.massFlowRate(f)
             mdot = ctFunc('flowdev_massFlowRate2', f.id);
         end
 
         %% FlowDevice Set Methods
-
-        function set.name(f, name)
-            ctFunc('flowdev_setName', f.id, name);
-        end
 
         function set.massFlowRate(f, mdot)
 
