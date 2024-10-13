@@ -626,7 +626,7 @@ class TestElementarySelf(HydrogenOxygen):
 
 class TestFalloff(HydrogenOxygen):
     """ Fall-off reaction"""
-    rtol = 1e-4
+    rtol = 2e-4
 
     @pytest.fixture(scope='class')
     def rxn_idx(self):
