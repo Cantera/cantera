@@ -19,178 +19,181 @@ except importlib.metadata.PackageNotFoundError:
 else:
     from scipy import sparse as _scipy_sparse
 
-@pytest.fixture(scope='function')
-def setup_kinetics(request):
-    request.cls.phase = ct.Solution('h2o2.yaml', transport_model=None)
-    request.cls.phase.X = [0.1, 1e-4, 1e-5, 0.2, 2e-4, 0.3, 1e-6, 5e-5, 0.4, 0]
-    request.cls.phase.TP = 800, 2 * ct.one_atm
 
-@pytest.mark.usefixtures("setup_kinetics")
 class TestKinetics:
 
+    @pytest.fixture(scope='class')
+    def initial_conditions(self):
+        return { 'X': [0.1, 1e-4, 1e-5, 0.2, 2e-4, 0.3, 1e-6, 5e-5, 0.4, 0],
+                 'T': 800, 'P': 2 * ct.one_atm}
+
+    @pytest.fixture
+    def phase(self, initial_conditions):
+        phase = ct.Solution('h2o2.yaml', transport_model=None)
+        phase.TPX = initial_conditions['T'], initial_conditions['P'], initial_conditions['X']
+        return phase
+
     @pytest.mark.usefixtures("allow_deprecated")
-    def test_counts(self):
-        assert self.phase.n_reactions == 29
-        assert self.phase.n_total_species == 10
-        assert self.phase.n_phases == 1
-        assert self.phase.reaction_phase_index == 0  # deprecated
+    def test_counts(self, phase):
+        assert phase.n_reactions == 29
+        assert phase.n_total_species == 10
+        assert phase.n_phases == 1
+        assert phase.reaction_phase_index == 0  # deprecated
 
-    def test_is_reversible(self):
-        for i in range(self.phase.n_reactions):
-            assert self.phase.reaction(i).reversible
+    def test_is_reversible(self, phase):
+        for i in range(phase.n_reactions):
+            assert phase.reaction(i).reversible
 
-    def test_multiplier(self):
-        fwd_rates0 = self.phase.forward_rates_of_progress
-        rev_rates0 = self.phase.reverse_rates_of_progress
+    def test_multiplier(self, phase):
+        fwd_rates0 = phase.forward_rates_of_progress
+        rev_rates0 = phase.reverse_rates_of_progress
 
-        self.phase.set_multiplier(2.0, 0)
-        self.phase.set_multiplier(0.1, 6)
+        phase.set_multiplier(2.0, 0)
+        phase.set_multiplier(0.1, 6)
 
-        fwd_rates1 = self.phase.forward_rates_of_progress
-        rev_rates1 = self.phase.reverse_rates_of_progress
+        fwd_rates1 = phase.forward_rates_of_progress
+        rev_rates1 = phase.reverse_rates_of_progress
 
         assert 2 * fwd_rates0[0] == approx(fwd_rates1[0])
         assert 0.1 * fwd_rates0[6] == approx(fwd_rates1[6])
         assert 2 * rev_rates0[0] == approx(rev_rates1[0])
         assert 0.1 * rev_rates0[6] == approx(rev_rates1[6])
-        for i in range(self.phase.n_reactions):
+        for i in range(phase.n_reactions):
             if i not in (0, 6):
                 assert fwd_rates0[i] == approx(fwd_rates1[i])
                 assert rev_rates0[i] == approx(rev_rates1[i])
 
-        self.phase.set_multiplier(0.5)
-        fwd_rates2 = self.phase.forward_rates_of_progress
-        rev_rates2 = self.phase.reverse_rates_of_progress
+        phase.set_multiplier(0.5)
+        fwd_rates2 = phase.forward_rates_of_progress
+        rev_rates2 = phase.reverse_rates_of_progress
         assert 0.5 * fwd_rates0 == approx(fwd_rates2)
         assert 0.5 * rev_rates0 == approx(rev_rates2)
 
-    def test_legacy_reaction_rate(self):
+    def test_legacy_reaction_rate(self, phase):
         ct.use_legacy_rate_constants(True)
-        fwd_rates_legacy = self.phase.forward_rate_constants
+        fwd_rates_legacy = phase.forward_rate_constants
         ct.use_legacy_rate_constants(False)
-        fwd_rates = self.phase.forward_rate_constants
-        ix_3b = np.array([r.reaction_type == "three-body-Arrhenius" for r in self.phase.reactions()])
+        fwd_rates = phase.forward_rate_constants
+        ix_3b = np.array([r.reaction_type == "three-body-Arrhenius" for r in phase.reactions()])
         ix_other = ix_3b == False
 
         assert fwd_rates_legacy[ix_other] == approx(fwd_rates[ix_other])
         assert not (fwd_rates_legacy[ix_3b] == fwd_rates[ix_3b]).any()
 
-    def test_reaction_type(self):
-        assert self.phase.reaction(0).reaction_type == "three-body-Arrhenius"
-        assert self.phase.reaction(2).reaction_type == "Arrhenius"
-        assert self.phase.reaction(2).rate.type == "Arrhenius"
-        assert self.phase.reaction(21).reaction_type == "falloff-Troe"
+    def test_reaction_type(self, phase):
+        assert phase.reaction(0).reaction_type == "three-body-Arrhenius"
+        assert phase.reaction(2).reaction_type == "Arrhenius"
+        assert phase.reaction(2).rate.type == "Arrhenius"
+        assert phase.reaction(21).reaction_type == "falloff-Troe"
 
         with pytest.raises(ct.CanteraError, match="outside valid range"):
-            self.phase.reaction(33).reaction_type
+            phase.reaction(33).reaction_type
         with pytest.raises(ct.CanteraError, match="outside valid range"):
-            self.phase.reaction(-2).reaction_type
+            phase.reaction(-2).reaction_type
 
-    def test_reaction_equations(self):
-        assert self.phase.n_reactions == len(self.phase.reaction_equations())
-        r, p = [x.split() for x in self.phase.reaction(18).equation.split('<=>')]
+    def test_reaction_equations(self, phase):
+        assert phase.n_reactions == len(phase.reaction_equations())
+        r, p = [x.split() for x in phase.reaction(18).equation.split('<=>')]
         assert 'H' in r
         assert 'H2O2' in r
         assert 'HO2' in p
         assert 'H2' in p
 
-    def test_reactants_products(self):
-        for i in range(self.phase.n_reactions):
-            R = self.phase.reaction(i).reactant_string
-            P = self.phase.reaction(i).product_string
-            assert self.phase.reaction(i).equation.startswith(R)
-            assert self.phase.reaction(i).equation.endswith(P)
-            for k in range(self.phase.n_species):
-                if self.phase.reactant_stoich_coeff(k, i) != 0:
-                    assert self.phase.species_name(k) in R
-                if self.phase.product_stoich_coeff(k, i) != 0:
-                    assert self.phase.species_name(k) in P
+    def test_reactants_products(self, phase):
+        for i in range(phase.n_reactions):
+            R = phase.reaction(i).reactant_string
+            P = phase.reaction(i).product_string
+            assert phase.reaction(i).equation.startswith(R)
+            assert phase.reaction(i).equation.endswith(P)
+            for k in range(phase.n_species):
+                if phase.reactant_stoich_coeff(k, i) != 0:
+                    assert phase.species_name(k) in R
+                if phase.product_stoich_coeff(k, i) != 0:
+                    assert phase.species_name(k) in P
 
-    def test_stoich_coeffs(self):
-        nu_r = self.phase.reactant_stoich_coeffs
-        nu_p = self.phase.product_stoich_coeffs
+    def test_stoich_coeffs(self, phase):
+        nu_r = phase.reactant_stoich_coeffs
+        nu_p = phase.product_stoich_coeffs
 
-        def check_reactant(s, i, value):
-            k = self.phase.kinetics_species_index(s)
-            assert self.phase.reactant_stoich_coeff(s, i) == value
-            assert self.phase.reactant_stoich_coeff(k, i) == value
+        def check_reactant(s, i, value, phase):
+            k = phase.kinetics_species_index(s)
+            assert phase.reactant_stoich_coeff(s, i) == value
+            assert phase.reactant_stoich_coeff(k, i) == value
             assert nu_r[k, i] == value
 
-        def check_product(s, i, value):
-            k = self.phase.kinetics_species_index(s)
-            assert self.phase.product_stoich_coeff(k, i) == value
-            assert self.phase.product_stoich_coeff(s, i) == value
+        def check_product(s, i, value, phase):
+            k = phase.kinetics_species_index(s)
+            assert phase.product_stoich_coeff(k, i) == value
+            assert phase.product_stoich_coeff(s, i) == value
             assert nu_p[k, i] == value
 
         # H + H2O2 <=> HO2 + H2
-        check_reactant('H', 18, 1)
-        check_reactant('H2O2', 18, 1)
-        check_reactant('HO2', 18, 0)
-        check_reactant('H2', 18, 0)
+        check_reactant('H', 18, 1, phase)
+        check_reactant('H2O2', 18, 1, phase)
+        check_reactant('HO2', 18, 0, phase)
+        check_reactant('H2', 18, 0, phase)
 
-        check_product('H', 18, 0)
-        check_product('H2O2', 18, 0)
-        check_product('HO2', 18, 1)
-        check_product('H2', 18, 1)
+        check_product('H', 18, 0, phase)
+        check_product('H2O2', 18, 0, phase)
+        check_product('HO2', 18, 1, phase)
+        check_product('H2', 18, 1, phase)
 
         # 2 O + M <=> O2 + M
-        check_reactant('O', 0, 2)
-        check_reactant('O2', 0, 0)
-        check_product('O', 0, 0)
-        check_product('O2', 0, 1)
+        check_reactant('O', 0, 2, phase)
+        check_reactant('O2', 0, 0, phase)
+        check_product('O', 0, 0, phase)
+        check_product('O2', 0, 1, phase)
 
     @pytest.mark.skipif(isinstance(_scipy_sparse, ImportError), reason="scipy is not installed")
-    def test_stoich_coeffs_sparse(self):
-        nu_r_dense = self.phase.reactant_stoich_coeffs
-        nu_p_dense = self.phase.product_stoich_coeffs
+    def test_stoich_coeffs_sparse(self, phase):
+        nu_r_dense = phase.reactant_stoich_coeffs
+        nu_p_dense = phase.product_stoich_coeffs
 
         ct.use_sparse(True)
-        nu_r_sparse = self.phase.reactant_stoich_coeffs
-        nu_p_sparse = self.phase.product_stoich_coeffs
+        nu_r_sparse = phase.reactant_stoich_coeffs
+        nu_p_sparse = phase.product_stoich_coeffs
 
         assert (nu_r_sparse.toarray() == nu_r_dense).all()
         assert (nu_p_sparse.toarray() == nu_p_dense).all()
 
         ct.use_sparse(False)
 
-    def test_rates_of_progress(self):
-        assert len(self.phase.net_rates_of_progress) == self.phase.n_reactions
-        assert (self.phase.forward_rates_of_progress -
-                self.phase.reverse_rates_of_progress) == approx(
-               self.phase.net_rates_of_progress)
+    def test_rates_of_progress(self, phase):
+        assert len(phase.net_rates_of_progress) == phase.n_reactions
+        assert (phase.forward_rates_of_progress -
+                phase.reverse_rates_of_progress) == approx(phase.net_rates_of_progress)
 
-    def test_heat_release(self):
-        hrr = - self.phase.partial_molar_enthalpies.dot(self.phase.net_production_rates)
-        assert hrr == approx(self.phase.heat_release_rate)
-        assert hrr == approx(sum(self.phase.heat_production_rates))
+    def test_heat_release(self, phase):
+        hrr = - phase.partial_molar_enthalpies.dot(phase.net_production_rates)
+        assert hrr == approx(phase.heat_release_rate)
+        assert hrr == approx(sum(phase.heat_production_rates))
 
-    def test_rate_constants(self):
-        assert len(self.phase.forward_rate_constants) == self.phase.n_reactions
-        ix = self.phase.reverse_rate_constants != 0.
-        assert (self.phase.forward_rate_constants[ix] /
-                self.phase.reverse_rate_constants[ix]) == approx(
-               self.phase.equilibrium_constants[ix])
+    def test_rate_constants(self, phase):
+        assert len(phase.forward_rate_constants) == phase.n_reactions
+        ix = phase.reverse_rate_constants != 0.
+        assert (phase.forward_rate_constants[ix] /
+                phase.reverse_rate_constants[ix]) == approx(
+               phase.equilibrium_constants[ix])
 
-    def test_species_rates(self):
-        nu_p = self.phase.product_stoich_coeffs
-        nu_r = self.phase.reactant_stoich_coeffs
-        creation = (np.dot(nu_p, self.phase.forward_rates_of_progress) +
-                    np.dot(nu_r, self.phase.reverse_rates_of_progress))
-        destruction = (np.dot(nu_r, self.phase.forward_rates_of_progress) +
-                       np.dot(nu_p, self.phase.reverse_rates_of_progress))
+    def test_species_rates(self, phase):
+        nu_p = phase.product_stoich_coeffs
+        nu_r = phase.reactant_stoich_coeffs
+        creation = (np.dot(nu_p, phase.forward_rates_of_progress) +
+                    np.dot(nu_r, phase.reverse_rates_of_progress))
+        destruction = (np.dot(nu_r, phase.forward_rates_of_progress) +
+                       np.dot(nu_p, phase.reverse_rates_of_progress))
 
-        assert self.phase.creation_rates == approx(creation)
-        assert self.phase.destruction_rates == approx(destruction)
-        assert self.phase.net_production_rates == approx(creation - destruction)
+        assert phase.creation_rates == approx(creation)
+        assert phase.destruction_rates == approx(destruction)
+        assert phase.net_production_rates == approx(creation - destruction)
 
-    def test_reaction_deltas(self):
-        assert (self.phase.delta_enthalpy -
-                self.phase.delta_entropy * self.phase.T) == approx(
-               self.phase.delta_gibbs)
+    def test_reaction_deltas(self, phase):
+        assert (phase.delta_enthalpy -
+                phase.delta_entropy * phase.T) == approx(phase.delta_gibbs)
 
-        assert (self.phase.delta_standard_enthalpy -
-                self.phase.delta_standard_entropy * self.phase.T) == approx(
-               self.phase.delta_standard_gibbs)
+        assert (phase.delta_standard_enthalpy -
+                phase.delta_standard_entropy * phase.T) == approx(
+               phase.delta_standard_gibbs)
 
 
 class TestKineticsFromReactions:
@@ -718,6 +721,7 @@ class TestInvalidInput:
 
 
 class TestEmptyKinetics:
+
     def test_empty(self):
         gas = ct.Solution("air-no-reactions.yaml")
 
@@ -727,21 +731,24 @@ class TestEmptyKinetics:
         assert gas.net_production_rates == approx(np.zeros(gas.n_species))
 
 
-@pytest.fixture(scope='class')
-def setup_reaction_path_tests(request):
-    request.cls.gas = ct.Solution('gri30.yaml', transport_model=None)
-    request.cls.gas.TPX = 1300.0, ct.one_atm, 'CH4:0.4, O2:1, N2:3.76'
-    r = ct.IdealGasReactor(request.cls.gas)
-    net = ct.ReactorNet([r])
-    T = r.T
-    while T < 1900:
-        net.step()
-        T = r.T
-
-@pytest.mark.usefixtures('setup_reaction_path_tests')
 class TestReactionPath:
 
-    def check_dot(self, diagram, element):
+    @pytest.fixture(scope='class')
+    def gas(self):
+        gas = ct.Solution('gri30.yaml', transport_model=None)
+        gas.TPX = 1300.0, ct.one_atm, 'CH4:0.4, O2:1, N2:3.76'
+        return gas
+
+    @pytest.fixture(scope='class', autouse=True)
+    def run_reactor(self, gas):
+        r = ct.IdealGasReactor(gas)
+        net = ct.ReactorNet([r])
+        T = r.T
+        while T < 1900:
+            net.step()
+            T = r.T
+
+    def check_dot(self, gas, diagram, element):
         diagram.label_threshold = 0
         diagram.threshold = 0
         dot = diagram.get_dot()
@@ -776,7 +783,7 @@ class TestReactionPath:
         # All of the species in the graph should contain the element whose
         # flux we're looking at
         for spec in species:
-            assert self.gas.n_atoms(spec, element) > 0
+            assert gas.n_atoms(spec, element) > 0
 
         # return fluxes from the dot file for further tests
         return [float(re.search('label *= *"(.*?)"', line).group(1))
@@ -798,36 +805,36 @@ class TestReactionPath:
                 net[s[1], s[0]] = - fwd - rev
         return directional, net
 
-    def test_dot_net_autoscaled(self):
+    def test_dot_net_autoscaled(self, gas):
         for element in ['N', 'C', 'H', 'O']:
-            diagram = ct.ReactionPathDiagram(self.gas, element)
-            dot_fluxes = self.check_dot(diagram, element)
+            diagram = ct.ReactionPathDiagram(gas, element)
+            dot_fluxes = self.check_dot(gas, diagram, element)
             assert max(dot_fluxes) == 1.0
 
-    def test_dot_net_unscaled(self):
+    def test_dot_net_unscaled(self, gas):
         for element in ['N', 'C', 'H', 'O']:
-            diagram = ct.ReactionPathDiagram(self.gas, element)
+            diagram = ct.ReactionPathDiagram(gas, element)
             diagram.scale = 1.0
-            dot_fluxes = sorted(self.check_dot(diagram, element))
+            dot_fluxes = sorted(self.check_dot(gas, diagram, element))
             _, fluxes = self.get_fluxes(diagram)
             fluxes = sorted(fluxes.values())
 
             for i in range(1, 20):
                 assert dot_fluxes[-i] == approx(fluxes[-i], rel=1e-2)
 
-    def test_dot_oneway_autoscaled(self):
+    def test_dot_oneway_autoscaled(self, gas):
         for element in ['N', 'C', 'H', 'O']:
-            diagram = ct.ReactionPathDiagram(self.gas, element)
+            diagram = ct.ReactionPathDiagram(gas, element)
             diagram.flow_type = 'OneWayFlow'
-            dot_fluxes = self.check_dot(diagram, element)
+            dot_fluxes = self.check_dot(gas, diagram, element)
             assert max(dot_fluxes) == 1.0
 
-    def test_dot_oneway_unscaled(self):
+    def test_dot_oneway_unscaled(self, gas):
         for element in ['N', 'C', 'H', 'O']:
-            diagram = ct.ReactionPathDiagram(self.gas, element)
+            diagram = ct.ReactionPathDiagram(gas, element)
             diagram.scale = 1.0
             diagram.flow_type = 'OneWayFlow'
-            dot_fluxes = sorted(self.check_dot(diagram, element))
+            dot_fluxes = sorted(self.check_dot(gas, diagram, element))
             fluxes, _ = self.get_fluxes(diagram)
             fluxes = sorted(fluxes.values())
 
@@ -864,44 +871,45 @@ class TestChemicallyActivated:
             gas.TPX = 900.0, P[i], [0.01, 0.01, 0.04, 0.10, 0.84]
             assert gas.forward_rates_of_progress[0] == approx(Rf[i], rel=2e-5)
 
-@pytest.fixture(scope='function')
-def setup_explicit_forward_order_tests(request):
-    request.cls.gas = ct.Solution("explicit-forward-order.yaml")
-    request.cls.gas.TPX = 800, 101325, [0.01, 0.90, 0.02, 0.03, 0.04]
 
-@pytest.mark.usefixtures('setup_explicit_forward_order_tests')
 class TestExplicitForwardOrder:
 
-    def test_irreversibility(self):
+    @pytest.fixture
+    def gas(self):
+        gas = ct.Solution("explicit-forward-order.yaml")
+        gas.TPX = 800, 101325, [0.01, 0.90, 0.02, 0.03, 0.04]
+        return gas
+
+    def test_irreversibility(self, gas):
         # Reactions are irreversible
-        Rr = self.gas.reverse_rate_constants
+        Rr = gas.reverse_rate_constants
         for i in range(3):
             assert Rr[i] == 0.0
 
-    def test_rateConstants(self):
+    def test_rateConstants(self, gas):
         # species order: [H, AR, R1A, R1B, P1]
-        C = self.gas.concentrations
-        Rf = self.gas.forward_rates_of_progress
-        kf = self.gas.forward_rate_constants
+        C = gas.concentrations
+        Rf = gas.forward_rates_of_progress
+        kf = gas.forward_rate_constants
         assert Rf[0] == approx(kf[0] * C[2]**1.5 * C[3]**0.5)
         assert Rf[1] == approx(kf[1] * C[0]**1.0 * C[4]**0.2)
         assert Rf[2] == approx(kf[2] * C[2]**3.0)
 
-    def test_ratio1(self):
-        rop1 = self.gas.forward_rates_of_progress
+    def test_ratio1(self, gas):
+        rop1 = gas.forward_rates_of_progress
         # Double concentration of H and R1A
-        self.gas.TPX = None, None, [0.02, 0.87, 0.04, 0.03, 0.04]
-        rop2 = self.gas.forward_rates_of_progress
+        gas.TPX = None, None, [0.02, 0.87, 0.04, 0.03, 0.04]
+        rop2 = gas.forward_rates_of_progress
         ratio = rop2/rop1
         assert ratio[0] == approx(2**1.5) # order of R1A is 1.5
         assert ratio[1] == approx(2**1.0) # order of H is 1.0
         assert ratio[2] == approx(2**3) # order of R1A is 3
 
-    def test_ratio2(self):
-        rop1 = self.gas.forward_rates_of_progress
+    def test_ratio2(self, gas):
+        rop1 = gas.forward_rates_of_progress
         # Double concentration of P1 and R1B
-        self.gas.TPX = None, None, [0.01, 0.83, 0.02, 0.06, 0.08]
-        rop2 = self.gas.forward_rates_of_progress
+        gas.TPX = None, None, [0.01, 0.83, 0.02, 0.06, 0.08]
+        rop2 = gas.forward_rates_of_progress
         ratio = rop2/rop1
         assert ratio[0] == approx(2**0.5) # order of R1B is 0.5
         assert ratio[1] == approx(2**0.2) # order of P1 is 1.0
@@ -1175,23 +1183,33 @@ class TestDuplicateReactions:
         gas = ct.Solution(self.infile, 'K')
         assert gas.n_reactions == 3
 
-@pytest.fixture(scope='class')
-def setup_reaction_tests(request):
-    request.cls.gas = ct.Solution('h2o2.yaml', transport_model=None)
-    request.cls.gas.X = 'H2:0.1, H2O:0.2, O2:0.7, O:1e-4, OH:1e-5, H:2e-5'
-    request.cls.gas.TP = 900, 2*ct.one_atm
-    request.cls.species = ct.Species.list_from_file("h2o2.yaml")
 
-@pytest.mark.usefixtures("setup_reaction_tests")
+# Fixture for the following test classes
+@pytest.fixture(scope='class')
+def initial_conditions():
+    return {'T': 900, 'P': 2*ct.one_atm,
+            'X': 'H2:0.1, H2O:0.2, O2:0.7, O:1e-4, OH:1e-5, H:2e-5'}
+
+@pytest.fixture(scope='class')
+def gas(initial_conditions):
+    gas = ct.Solution('h2o2.yaml', transport_model=None)
+    gas.X = initial_conditions['X']
+    gas.TP = initial_conditions['T'], initial_conditions['P']
+    return gas
+
+@pytest.fixture(scope='class')
+def species():
+    return ct.Species.list_from_file("h2o2.yaml")
+
 class TestReaction:
 
-    def test_from_yaml(self):
+    def test_from_yaml(self, gas):
         r = ct.Reaction.from_yaml(
                 "{equation: 2 O + M <=> O2 + M,"
                 " type: three-body,"
                 " rate-constant: {A: 1.2e+11, b: -1.0, Ea: 0.0},"
                 " efficiencies: {H2: 2.4, H2O: 15.4, AR: 0.83}}",
-                self.gas)
+                gas)
 
         assert r.third_body is not None
         assert r.reactants['O'] == 2
@@ -1202,13 +1220,13 @@ class TestReaction:
         assert 'O2' in r
         assert 'H2O' not in r
 
-    def test_list_from_file(self):
-        R = ct.Reaction.list_from_file("h2o2.yaml", self.gas)
+    def test_list_from_file(self, gas):
+        R = ct.Reaction.list_from_file("h2o2.yaml", gas)
         eq1 = [r.equation for r in R]
-        eq2 = [r.equation for r in self.gas.reactions()]
+        eq2 = [r.equation for r in gas.reactions()]
         assert eq1 == eq2
 
-    def test_list_from_yaml(self):
+    def test_list_from_yaml(self, gas):
         yaml = """
             - equation: O + H2 <=> H + OH  # Reaction 3
               rate-constant: {A: 3.87e+04, b: 2.7, Ea: 6260.0}
@@ -1217,13 +1235,13 @@ class TestReaction:
             - equation: O + H2O2 <=> OH + HO2  # Reaction 5
               rate-constant: {A: 9.63e+06, b: 2.0, Ea: 4000.0}
         """
-        R = ct.Reaction.list_from_yaml(yaml, self.gas)
+        R = ct.Reaction.list_from_yaml(yaml, gas)
         assert len(R) == 3
         assert 'HO2' in R[2].products
         assert R[0].rate.temperature_exponent == 2.7
 
-    def test_input_data_from_file(self):
-        R = self.gas.reaction(0)
+    def test_input_data_from_file(self, gas):
+        R = gas.reaction(0)
         data = R.input_data
         assert data['type'] == 'three-body'
         assert data['efficiencies'] == {'H2': 2.4, 'H2O': 15.4, 'AR': 0.83}
@@ -1240,9 +1258,9 @@ class TestReaction:
         assert 'O' in terms
         assert 'OH' in terms
 
-    def test_custom_from_scratch(self):
-        species = self.gas.species()
-        custom_reactions = self.gas.reactions()
+    def test_custom_from_scratch(self, gas):
+        species = gas.species()
+        custom_reactions = gas.reactions()
 
         L = lambda T: 38.7 * T**2.7 * np.exp(-3150.15/T)
         rate1 = ct.CustomRate(L)
@@ -1252,51 +1270,50 @@ class TestReaction:
 
         gas1 = ct.Solution(thermo='ideal-gas', kinetics='gas',
                            species=species, reactions=custom_reactions)
-        gas1.TPX = self.gas.TPX
+        gas1.TPX = gas.TPX
 
         del custom_reactions
         del rate1
 
         assert gas1.reaction(2).rate.type == 'custom-rate-function'
-        assert gas1.net_production_rates[2] == approx(self.gas.net_production_rates[2],
+        assert gas1.net_production_rates[2] == approx(gas.net_production_rates[2],
                                                       rel=1e-5)
 
-    def test_modify_invalid(self):
+    def test_modify_invalid(self, gas):
         # different reaction type
-        tbr = self.gas.reaction(0)
+        tbr = gas.reaction(0)
         R2 = ct.Reaction(tbr.reactants, tbr.products, tbr.rate)
         with pytest.raises(ct.CanteraError, match='types are different'):
-            self.gas.modify_reaction(0, R2)
+            gas.modify_reaction(0, R2)
 
         # different reactants
-        R = self.gas.reaction(4)
+        R = gas.reaction(4)
         with pytest.raises(ct.CanteraError, match='Reactants are different'):
-            self.gas.modify_reaction(24, R)
+            gas.modify_reaction(24, R)
 
         # different products
-        R = self.gas.reaction(15)
+        R = gas.reaction(15)
         with pytest.raises(ct.CanteraError, match='Products are different'):
-            self.gas.modify_reaction(16, R)
+            gas.modify_reaction(16, R)
 
-@pytest.mark.usefixtures("setup_reaction_tests")
 class TestElementaryReaction:
 
-    def test_elementary(self):
+    def test_elementary(self, gas, species):
         r = ct.Reaction({"O":1, "H2":1}, {"H":1, "OH":1},
                         ct.ArrheniusRate(3.87e1, 2.7, 6260*1000*4.184))
 
         gas2 = ct.Solution(thermo='ideal-gas', kinetics='gas',
-                           species=self.species, reactions=[r])
-        gas2.TPX = self.gas.TPX
+                           species=species, reactions=[r])
+        gas2.TPX = gas.TPX
 
         assert gas2.forward_rate_constants[0] == approx(
-               self.gas.forward_rate_constants[2])
+               gas.forward_rate_constants[2])
         assert gas2.net_rates_of_progress[0] == approx(
-               self.gas.net_rates_of_progress[2])
+               gas.net_rates_of_progress[2])
 
-    def test_arrhenius_rate(self):
-        R = self.gas.reaction(2)
-        assert R.rate(self.gas.T) == approx(self.gas.forward_rate_constants[2])
+    def test_arrhenius_rate(self, gas):
+        R = gas.reaction(2)
+        assert R.rate(gas.T) == approx(gas.forward_rate_constants[2])
 
     def test_negative_A(self):
         species = ct.Species.list_from_file("gri30.yaml")
@@ -1311,9 +1328,9 @@ class TestElementaryReaction:
         gas = ct.Solution(thermo='ideal-gas', kinetics='gas',
                           species=species, reactions=[r])
 
-    def test_modify_elementary(self):
+    def test_modify_elementary(self, gas):
         gas = ct.Solution('h2o2.yaml', transport_model=None)
-        gas.TPX = self.gas.TPX
+        gas.TPX = gas.TPX
         R = gas.reaction(2)
         A1 = R.rate.pre_exponential_factor
         b1 = R.rate.temperature_exponent
@@ -1328,7 +1345,6 @@ class TestElementaryReaction:
         gas.modify_reaction(2, R)
         assert A2*T**b2*np.exp(-Ta2/T) == approx(gas.forward_rate_constants[2])
 
-@pytest.mark.usefixtures("setup_reaction_tests")
 class TestFalloffReaction:
 
     def test_negative_A_falloff(self):
@@ -1353,7 +1369,7 @@ class TestFalloffReaction:
                           species=species, reactions=[rxn])
         assert gas.forward_rate_constants < 0
 
-    def test_falloff(self):
+    def test_falloff(self, gas, species):
         high_rate = ct.Arrhenius(7.4e10, -0.37, 0.0)
         low_rate = ct.Arrhenius(2.3e12, -0.9, -1700 * 1000 * 4.184)
         tb = ct.ThirdBody(efficiencies={"AR":0.7, "H2":2.0, "H2O":6.0})
@@ -1363,13 +1379,13 @@ class TestFalloffReaction:
         assert r.rate.type == "falloff"
 
         gas2 = ct.Solution(thermo='ideal-gas', kinetics='gas',
-                           species=self.species, reactions=[r])
-        gas2.TPX = self.gas.TPX
+                           species=species, reactions=[r])
+        gas2.TPX = gas.TPX
 
         assert gas2.forward_rate_constants[0] == approx(
-               self.gas.forward_rate_constants[21])
+               gas.forward_rate_constants[21])
         assert gas2.net_rates_of_progress[0] == approx(
-               self.gas.net_rates_of_progress[21])
+               gas.net_rates_of_progress[21])
 
     def test_modify_falloff(self):
         gas = ct.Solution('gri30.yaml', transport_model=None)
@@ -1387,25 +1403,25 @@ class TestFalloffReaction:
         kf = gas.forward_rate_constants
         assert kf[49] == approx(kf[53])
 
-@pytest.mark.usefixtures("setup_reaction_tests")
 class TestThreebodyReaction:
-    def test_threebody(self):
+
+    def test_threebody(self, gas, species):
         tb = ct.ThirdBody(efficiencies={"AR":0.7, "H2":2.0, "H2O":6.0})
         r = ct.Reaction({"O":1, "H":1}, {"OH":1},
                         ct.ArrheniusRate(5e11, -1.0, 0.0), third_body=tb)
 
         gas2 = ct.Solution(thermo='ideal-gas', kinetics='gas',
-                           species=self.species, reactions=[r])
-        gas2.TPX = self.gas.TPX
+                           species=species, reactions=[r])
+        gas2.TPX = gas.TPX
 
         assert gas2.forward_rate_constants[0] == approx(
-               self.gas.forward_rate_constants[1])
+               gas.forward_rate_constants[1])
         assert gas2.net_rates_of_progress[0] == approx(
-               self.gas.net_rates_of_progress[1])
+               gas.net_rates_of_progress[1])
 
-    def test_modify_third_body(self):
+    def test_modify_third_body(self, gas):
         gas = ct.Solution('h2o2.yaml', transport_model=None)
-        gas.TPX = self.gas.TPX
+        gas.TPX = gas.TPX
         R = gas.reaction(5)
         A1 = R.rate.pre_exponential_factor
         b1 = R.rate.temperature_exponent
@@ -1419,7 +1435,6 @@ class TestThreebodyReaction:
         kf2 = gas.forward_rate_constants[5]
         assert (A2*T**b2) / (A1*T**b1) == approx(kf2/kf1)
 
-@pytest.mark.usefixtures("setup_reaction_tests")
 class TestPlogReaction:
 
     def test_plog(self):
@@ -1478,7 +1493,6 @@ class TestPlogReaction:
         kf = gas.forward_rates_of_progress
         kf[0] != approx(kf[1])
 
-@pytest.mark.usefixtures("setup_reaction_tests")
 class TestChebyshevReaction:
     def test_chebyshev(self):
         gas1 = ct.Solution('pdep-test.yaml')
@@ -1591,10 +1605,9 @@ class TestChebyshevReaction:
         kf = gas.forward_rate_constants
         assert kf[4] == approx(kf[5])
 
-@pytest.mark.usefixtures("setup_reaction_tests")
 class TestBlowersMaselReaction:
 
-    def test_BlowersMasel(self):
+    def test_BlowersMasel(self, gas):
         r = ct.Reaction({"O":1, "H2":1}, {"H":1, "OH":1},
                 ct.BlowersMaselRate(3.87e1, 2.7, 6260*1000*4.184, 1e9*1000*4.184))
 
@@ -1604,8 +1617,8 @@ class TestBlowersMaselReaction:
         gas2 = ct.Solution(thermo='ideal-gas', kinetics='gas',
                            species=gas1.species(), reactions=[r])
 
-        gas1.TP = self.gas.TP
-        gas2.TP = self.gas.TP
+        gas1.TP = gas.TP
+        gas2.TP = gas.TP
         gas1.X = 'H2:0.1, H2O:0.2, O2:0.7, O:1e-4, OH:1e-5, H:2e-5'
         gas2.X = 'H2:0.1, H2O:0.2, O2:0.7, O:1e-4, OH:1e-5, H:2e-5'
 
@@ -1671,10 +1684,10 @@ class TestBlowersMaselReaction:
         assert A*gas.T**b*np.exp(0/ct.gas_constant/gas.T) == approx(
                gas.forward_rate_constants[0])
 
-    def test_modify_BlowersMasel(self):
+    def test_modify_BlowersMasel(self, gas):
         gas = ct.Solution("blowers-masel.yaml")
         gas.X = 'H2:0.1, H2O:0.2, O2:0.7, O:1e-4, OH:1e-5, H:2e-5'
-        gas.TP = self.gas.TP
+        gas.TP = gas.TP
         R = gas.reaction(0)
         delta_enthalpy = gas.delta_enthalpy[0]
         A1 = R.rate.pre_exponential_factor
@@ -1696,7 +1709,6 @@ class TestBlowersMaselReaction:
         gas.modify_reaction(0, R)
         assert A2 * T**b2 * np.exp(-Ta2 / T) == approx(gas.forward_rate_constants[0])
 
-@pytest.mark.usefixtures("setup_reaction_tests")
 class TestInterfaceReaction:
 
     def test_interface(self):
@@ -1796,7 +1808,6 @@ class TestInterfaceReaction:
         assert k2 == approx(k3)
 
 
-@pytest.mark.usefixtures("setup_reaction_tests")
 class TestStickingCoefficient:
 
     def test_invalid_sticking(self):
@@ -1879,7 +1890,6 @@ class TestStickingCoefficient:
         # M&W toggled on (locally) for reaction 4
         assert k1[4] == approx(k2[4]) # sticking coefficient = 1.0
 
-@pytest.mark.usefixtures("setup_reaction_tests")
 class TestElectrochemicalReaction:
 
     def test_electron_collision_plasma(self):
