@@ -16,19 +16,21 @@ except ImportError:
 from cantera.composite import _pandas
 
 
-@pytest.fixture(scope='class')
-def setup_models_tests(request, test_data_path):
-    request.cls.yml_file = test_data_path / "thermo-models.yaml"
-    request.cls.yml = load_yaml(request.cls.yml_file)
-
-@pytest.mark.usefixtures('setup_models_tests')
 class TestModels:
 
-    def test_load_thermo_models(self):
-        for ph in self.yml['phases']:
+    @pytest.fixture(scope='class', autouse=True)
+    def yml_file(self, test_data_path):
+        return test_data_path / "thermo-models.yaml"
+
+    @pytest.fixture(scope='class')
+    def yml(self, yml_file):
+        return load_yaml(yml_file)
+
+    def test_load_thermo_models(self, yml, yml_file):
+        for ph in yml['phases']:
             ph_name = ph['name']
             try:
-                sol = ct.Solution(self.yml_file, ph_name)
+                sol = ct.Solution(yml_file, ph_name)
 
                 T0, p0 = sol.TP
                 TD = sol.TD
@@ -68,14 +70,14 @@ class TestModels:
                     msg = msg.format(ph['name'], ph['thermo'], sol.TPX)
                     raise TypeError(msg) from inst
 
-    def test_restore_thermo_models(self):
+    def test_restore_thermo_models(self, yml, yml_file):
 
         def check(a, b):
             assert a.T == approx(b.T)
             assert a.P == approx(b.P)
             assert a.X == approx(b.X)
 
-        for ph in self.yml['phases']:
+        for ph in yml['phases']:
 
             skipped = ['pure-fluid']
             if ph['thermo'] in skipped:
@@ -84,7 +86,7 @@ class TestModels:
             ph_name = ph['name']
 
             try:
-                sol = ct.Solution(self.yml_file, ph_name)
+                sol = ct.Solution(yml_file, ph_name)
                 a = ct.SolutionArray(sol, 10)
                 if ph['thermo'] == 'liquid-water-IAPWS95':
                     # ensure that phase remains liquid
