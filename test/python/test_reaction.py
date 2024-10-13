@@ -10,21 +10,20 @@ import cantera as ct
 from .utilities import load_yaml
 
 
-@pytest.fixture(scope='class')
-def gas(request):
-    request.cls.gas = ct.Solution("gri30.yaml")
-
-@pytest.mark.usefixtures("gas")
 class TestImplicitThirdBody:
     """ tests for three-body reactions with specified collision partner """
 
-    def test_implicit_three_body(self):
+    @pytest.fixture(scope='class')
+    def gas(self):
+        return ct.Solution("gri30.yaml")
+
+    def test_implicit_three_body(self, gas):
         # check equivalency of auto-detected and explicit specification
         yaml1 = """
             equation: H + 2 O2 <=> HO2 + O2
             rate-constant: {A: 2.08e+19, b: -1.24, Ea: 0.0}
             """
-        rxn1 = ct.Reaction.from_yaml(yaml1, self.gas)
+        rxn1 = ct.Reaction.from_yaml(yaml1, gas)
         assert rxn1.reaction_type == "three-body-Arrhenius"
         assert rxn1.third_body.default_efficiency == 0.
         assert rxn1.third_body.efficiencies == {"O2": 1}
@@ -35,7 +34,7 @@ class TestImplicitThirdBody:
             default-efficiency: 0
             efficiencies: {O2: 1.0}
             """
-        rxn2 = ct.Reaction.from_yaml(yaml2, self.gas)
+        rxn2 = ct.Reaction.from_yaml(yaml2, gas)
         assert rxn1.third_body.efficiencies == rxn2.third_body.efficiencies
         assert rxn1.third_body.default_efficiency == rxn2.third_body.default_efficiency
 
@@ -115,45 +114,45 @@ class TestImplicitThirdBody:
         assert ("explicit-third-body-duplicates: error"
                 in gas.write_yaml(skip_user_defined=True))
 
-    def test_short_serialization(self):
+    def test_short_serialization(self, gas):
         # check that serialized output is compact
         yaml = """
             equation: H + O2 + H2O <=> HO2 + H2O
             rate-constant: {A: 1.126e+19, b: -0.76, Ea: 0.0}
             """
-        rxn = ct.Reaction.from_yaml(yaml, self.gas)
+        rxn = ct.Reaction.from_yaml(yaml, gas)
         input_data = rxn.input_data
 
         assert "type" not in input_data
         assert "default-efficiency" not in input_data
         assert "efficiencies" not in input_data
 
-    def test_non_integer_stoich(self):
+    def test_non_integer_stoich(self, gas):
         # check that non-integer coefficients prevent automatic conversion
         yaml = """
             equation: 2 H + 1.5 O2 <=> H2O + O2
             rate-constant: {A: 2.08e+19, b: -1.24, Ea: 0.0}
             """
-        rxn = ct.Reaction.from_yaml(yaml, self.gas)
+        rxn = ct.Reaction.from_yaml(yaml, gas)
         assert rxn.reaction_type == "Arrhenius"
 
-    def test_not_three_body(self):
+    def test_not_three_body(self, gas):
         # check that insufficient reactants prevent automatic conversion
         yaml = """
             equation: HCNO + H <=> H + HNCO  # Reaction 270
             rate-constant: {A: 2.1e+15, b: -0.69, Ea: 2850.0}
             """
-        rxn = ct.Reaction.from_yaml(yaml, self.gas)
+        rxn = ct.Reaction.from_yaml(yaml, gas)
         assert rxn.reaction_type == "Arrhenius"
 
-    def test_user_override(self):
+    def test_user_override(self, gas):
         # check that type specification prevents automatic conversion
         yaml = """
             equation: H + 2 O2 <=> HO2 + O2
             rate-constant: {A: 2.08e+19, b: -1.24, Ea: 0.0}
             type: elementary
             """
-        rxn = ct.Reaction.from_yaml(yaml, self.gas)
+        rxn = ct.Reaction.from_yaml(yaml, gas)
         assert rxn.reaction_type == "Arrhenius"
         assert "type" in rxn.input_data
         assert rxn.input_data["type"] == "elementary"
