@@ -402,30 +402,53 @@ Example::
 ``linear-Burke``
 ----------------
 
-A complex-forming reaction (one that depends on both P and X) parameterized
-according to the reduced-pressure linear mixture rule as
-:ref:`described here <sec-linear-Burke>`.
+A complex-forming reaction (one that depends on both P and X) parameterized according to
+the reduced-pressure linear mixture rule as :ref:`described here <sec-linear-Burke>`.
 
 
 
 Additional fields are:
 
 ``colliders``
-    A list of dictionaries, where each entry contains parameters corresponding
-    to individual colliders (species in the bath gas).
+    A list of dictionaries, where each entry contains parameters corresponding to
+    individual colliders (species in the bath gas).
 
 ``name``
-    The name of the collider species (e.g., ``H2O``). The first collider defined must be ``M``, which represents the generic reference collider (often ``Ar`` or ``N2``) that represents all species lacking their own explicit parameterization.
+    The name of the collider species (e.g., ``H2O``). The first collider defined must be
+    ``M``, which represents the generic reference collider (often ``Ar`` or ``N2``) that
+    represents all species lacking their own explicit parameterization.
 
 ``eig0``
-    The absolute value of the least negative chemically significant eigenvalue of the master equation for the :math:`i^{th}` collider (when pure), evaluated at the low-pressure limit, :math:`\Lambda_{0,i}(T)[M]`. This parameter is entered in modified Arrhenius format to enable consideration of temperature dependence.
+    The absolute value of the least negative chemically significant eigenvalue of the
+    master equation for the :math:`i^{th}` collider (when pure), evaluated at the
+    low-pressure limit, :math:`\Lambda_{0,i}(T)[M]`. This parameter is entered in
+    modified Arrhenius format to enable consideration of temperature dependence.
 
 ``eps``
-    The third-body efficiency of the collider relative to that of the reference collider ``M``, defined as :math:`\epsilon_{0,i}(T)=\Lambda_{0,i}(T)/\Lambda_{0,\text{M}}(T)`. The user must assign ``eps: {A:1, b:0, Ea: 0}`` for ``M``, as this is true by definition. This parameter is entered in modified Arrhenius format to enable consideration of temperature dependence. If the user wishes to specify a temperature-independent value, then ``A`` can be set to this value and ``b`` and ``Ea`` can be set to 0.
+    The third-body efficiency of the collider relative to that of the reference collider
+    ``M``, defined as
+    :math:`\epsilon_{0,i}(T)=\Lambda_{0,i}(T)/\Lambda_{0,\text{M}}(T)`. The user must
+    assign ``eps: {A:1, b:0, Ea: 0}`` for ``M``, as this is true by definition. This
+    parameter is entered in modified Arrhenius format to enable consideration of
+    temperature dependence. If the user wishes to specify a temperature-independent
+    value, then ``A`` can be set to this value and ``b`` and ``Ea`` can be set to 0.
 
-``eps`` and ``eig0`` comprise the two acceptable ways to represent the contribution of each bath gas component (collider) to the reduced pressure. All explicitly defined colliders must include either ``eps`` or ``eig0``, but the choice must remain consistent throughout a single reaction (either all colliders are defined with ``eps``, or all are defined with ``eig0``).
+``eps`` and ``eig0`` comprise the two acceptable ways to represent the contribution of
+each bath gas component (collider) to the reduced pressure. All explicitly defined
+colliders must include either ``eps`` or ``eig0``, but the choice must remain consistent
+throughout a single reaction (either all colliders are defined with ``eps``, or all are
+defined with ``eig0``).
 
-The pressure-dependent aspect of the rate constant can be parameterized in the user's choice of :ref:`Troe <sec-yaml-falloff>`, :ref:`pressure-dependent-arrhenius <sec-yaml-pressure-dependent-Arrhenius>`, or :ref:`Chebyshev <sec-yaml-Chebyshev>` representations. The same parameters used for a standalone Troe, PLOG, or Chebyshev reaction are then inserted directly below ``eps`` or ``eig0`` for a given collider (note: Troe cannot be given its own ``efficiencies`` key). At minimum, this treatment must be applied to ``M``. However, additional colliders may also be given their own Troe, PLOG, or Chebyshev parameterization if so desired. Mixing and matching of types within the same reaction is allowed (e.g., a PLOG table for ``M``, Troe parameters for ``H2``, and Chebyshev data for ``NH3``).
+The pressure-dependent aspect of the rate constant can be parameterized in the user's
+choice of :ref:`Troe <sec-yaml-falloff>`, :ref:`pressure-dependent-arrhenius
+<sec-yaml-pressure-dependent-Arrhenius>`, or :ref:`Chebyshev <sec-yaml-Chebyshev>`
+representations. The same parameters used for a standalone Troe, PLOG, or Chebyshev
+reaction are then inserted directly below ``eps`` or ``eig0`` for a given collider
+(note: Troe cannot be given its own ``efficiencies`` key). At minimum, this treatment
+must be applied to ``M``. However, additional colliders may also be given their own
+Troe, PLOG, or Chebyshev parameterization if so desired. Mixing and matching of types
+within the same reaction is allowed (e.g., a PLOG table for ``M``, Troe parameters for
+``H2``, and Chebyshev data for ``NH3``).
 
 A mathematical description of this YAML implementation can be found in Eq. 8 of
 :cite:t:`singal2024`.
@@ -480,13 +503,14 @@ Examples::
       temperature-range: [200.0, 2000.0]
       pressure-range: [1.000e-01 atm, 1.000e+02 atm]
       data:
-      - [-1.5843e+01, 8.7088e-01, -9.4364e-02, -2.8099e-03, -4.4803e-04, 1.5809e-03, -2.5088e-04]
-      - [2.3154e+01, 5.2739e-01, 2.8862e-02, -5.4601e-03, 7.0783e-04, -3.0282e-03, 7.8121e-04]
-      - [-3.8008e-01, 8.6349e-02, 4.0292e-02, -7.2269e-03, 5.7570e-04, 2.7944e-03, -1.4912e-03]
-      - [-1.4800e-01, -7.1798e-03, 2.2052e-02, 6.2269e-03, -5.9801e-03, -8.2205e-06, 1.9243e-03]
-      - [-6.0604e-02, -1.4203e-02, 1.3414e-03, 9.6228e-03, 1.7002e-03, -3.6506e-03, -4.3168e-04]
-      - [-2.4557e-02, -9.7102e-03, -5.8753e-03, 3.0456e-03, 5.8666e-03, 1.5037e-03, -2.0073e-03]
-      - [-1.5400e-02, -5.2427e-03, -6.9148e-03, -5.9440e-03, -1.2183e-03, 2.1694e-03, 1.5925e-03]
+      - [-1.58e+01, 8.71e-01, -9.44e-02, -2.81e-03, -4.48e-04, 1.58e-03, -2.51e-04]
+      - [2.32e+01, 5.27e-01, 2.89e-02, -5.46e-03, 7.08e-04, -3.03e-03, 7.81e-04]
+      - [-3.80e-01, 8.63e-02, 4.03e-02, -7.23e-03, 5.76e-04, 2.79e-03, -1.49e-03]
+      - [-1.48e-01, -7.18e-03, 2.21e-02, 6.23e-03, -5.98e-03, -8.22e-06, 1.92e-03]
+      - [-6.06e-02, -1.42e-02, 1.34e-03, 9.62e-03, 1.70e-03, -3.65e-03, -4.32e-04]
+      - [-2.46e-02, -9.71e-03, -5.88e-03, 3.05e-03, 5.87e-03, 1.50e-03, -2.01e-03]
+      - [-1.54e-02, -5.24e-03, -6.91e-03, -5.94e-03, -1.22e-03, 2.17e-03, 1.59e-03]
+
     - name: N2
       eps: {A: 1.14813e+00, b: 4.60090e-02, Ea: -2.92413e+00}
     - name: CO2

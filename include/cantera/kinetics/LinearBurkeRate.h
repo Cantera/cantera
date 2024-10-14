@@ -65,9 +65,9 @@ protected:
 };
 
 
-//! Pressure-dependent and composition-dependent reaction rate calculated
-//! according to the reduced-pressure linear mixture rule (LMR-R) developed
-//! at Columbia University. @cite singal2024
+//! Pressure-dependent and composition-dependent reaction rate calculated according to
+//! the reduced-pressure linear mixture rule (LMR-R) developed at Columbia University.
+//! @cite singal2024
 class LinearBurkeRate final : public ReactionRate
 {
 public:
@@ -101,9 +101,18 @@ public:
     /*!
      *  @param shared_data  data shared by all reactions of a given type
      */
-    double evalPlogRate(const LinearBurkeData& shared_data, DataTypes& dataObj, RateTypes& rateObj);
-    double evalTroeRate(const LinearBurkeData& shared_data, DataTypes& dataObj, RateTypes& rateObj);
-    double evalChebyshevRate(const LinearBurkeData& shared_data, DataTypes& dataObj, RateTypes& rateObj);
+    double evalPlogRate(
+        const LinearBurkeData& shared_data,
+        DataTypes& dataObj,
+        RateTypes& rateObj);
+    double evalTroeRate(
+        const LinearBurkeData& shared_data,
+        DataTypes& dataObj,
+        RateTypes& rateObj);
+    double evalChebyshevRate(
+        const LinearBurkeData& shared_data,
+        DataTypes& dataObj,
+        RateTypes& rateObj);
     double evalFromStruct(const LinearBurkeData& shared_data);
 
     void setContext(const Reaction& rxn, const Kinetics& kin) override;
