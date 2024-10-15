@@ -13,7 +13,7 @@ convergence of the Newton solver.
 
 The algorithm tracks information about which grid points
 should be kept and which ones need to have additional grid points inserted to the
-right of them. This data is used to refine the grid as well as to keep too many
+right of them. This data is used to refine the grid as well as to prevent too many
 points from being removed during a refinement step.
 
 
@@ -189,12 +189,16 @@ right of the point under consideration.
 This refinement option works in contrast to the other refinement options. Instead of
 adding grid points, this option removes grid points that are not needed. The pruning
 parameter helps the grid refinement algorithm identify areas where the grid may be
-overly refined. You specify a pruning value $ \delta $ that serves as a lower-bound on
+overly refined. It is most useful when running multiple simulations where the boundary
+conditions change, and the location of the regions where grid refinement is needed
+changes. In this case, the prune parameter can be used to remove grid points that are
+no longer needed.
+
+You specify a pruning value $ \delta $ that serves as a lower-bound on
 the ratio quantities. This helps prevent unnecessary grid refinement by
 removing points that are not needed, optimizing computational efficiency without
-sacrificing the accuracy of the solution.
-
-The following criteria are used to decide if a point is marked for removal.
+sacrificing the accuracy of the solution. The following criteria are used to decide
+if a point is marked for removal:
 
 $$
   \frac{\beta_j}{\beta_{\text{max}}} < \delta \quad \text{or}
@@ -205,17 +209,17 @@ If $ \frac{\beta_j}{\beta_{max}} $, or $ \frac{\gamma_j}{\gamma_{max}} $ are les
 than $ \delta $, then the point is marked for removal.
 
 For example, consider a case where the slope refinement criteria is set to 0.5, we
-can look at the pruning criteria as $$ \beta_j < \beta_{max} \delta $$. In this form
+can look at the pruning criteria as $ \beta_j < \beta_{max} \delta $. In this form
 it is easy to see that the pruning parameter defines "What fraction of the original
-$\beta_{max}$ is acceptable enough to remove a point?" Continuing with this example,
+$ \beta_{max} $ is acceptable enough to remove a point?" Continuing with this example,
 consider a case where the refinement has progressed such that these are the values of
-the $$ \beta_j $$ at each point in a domain with 10 grid points.
+the $ \beta_j $ at each point in a domain with 10 grid points.
 
 $$
   \beta_j = [0.11, 0.16, 0.05, 0.1, 0.22, 0.09, 0.05, 0.02, 0.37, 0.29]
 $$
 
-All of the values are below the original $$ \beta_{max} $$ of 0.5, but some are much
+All of the values are below the original $ \beta_{max} $ of 0.5, but some are much
 lower than that threshold. If the pruning parameter is set to a value of 0.2, then
 the effective cutoff threshold for removing a point would be 0.5*0.2 = 0.1. With this
 pruning criteria, the pruned data would be:
@@ -223,3 +227,7 @@ pruning criteria, the pruned data would be:
 $$
   \beta_j = [0.11, 0.16, 0.1, 0.22, 0.37, 0.29]
 $$
+
+Here, the points with values of $ \beta_j $ less than 0.1 have been removed from the
+grid. This is a simple example, but it illustrates how the pruning parameter can be used
+prevent grids from becoming overly refined.
