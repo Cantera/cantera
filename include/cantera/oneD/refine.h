@@ -41,17 +41,6 @@ public:
      * The prune parameter is a threshold for removing unnecessary grid points.
      * See [prune](../reference/onedim/grid-refinement.html#prune).
      *
-     * A rule of thumb with the prune parameter is that, if you have specified your
-     * slope and curve parameters to a desireable level, then the ratio above would
-     * be 1.0 for the case when the grid points just meet the refinement criteria that
-     * would be "good enough" for the solution at hand. A ratio less than than one
-     * still meets the criteria, but introduces more grid points. The prune parameter
-     * allows you set the point at which the refiner decides that is has overly-refined
-     * the grid and can remove points that are not needed. It is most useful when
-     * running multiple simulations where the boundary conditions change, and the
-     * location of the regions where grid refinement is needed changes. In this case,
-     * the prune parameter can be used to remove grid points that are no longer needed.
-     *
      *  @param ratio Maximum ratio between grid spacing at adjacent intervals.
      *      That is, `(x[j+1] - x[j]) / (x[j] - x[j-1]) < ratio`
      *  @param slope Maximum fractional change in the value of each solution
