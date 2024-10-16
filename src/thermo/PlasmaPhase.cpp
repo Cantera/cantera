@@ -27,6 +27,9 @@ PlasmaPhase::PlasmaPhase(const string& inputFile, const string& id_)
 
     // initial electron temperature
     setElectronTemperature(temperature());
+
+    // resize vectors
+    m_cs_interp.resize(m_nPoints);
 }
 
 void PlasmaPhase::updateElectronEnergyDistribution()
@@ -89,18 +92,24 @@ void PlasmaPhase::setMeanElectronEnergy(double energy) {
     updateElectronEnergyDistribution();
 }
 
-void PlasmaPhase::setElectronEnergyLevels(const double* levels, size_t length)
+void PlasmaPhase::setElectronEnergyLevels(const double* levels, size_t length,
+                                          bool updateEnergyDist)
 {
     m_nPoints = length;
     m_electronEnergyLevels = Eigen::Map<const Eigen::ArrayXd>(levels, length);
     checkElectronEnergyLevels();
     electronEnergyLevelChanged();
-    updateElectronEnergyDistribution();
+    if (updateEnergyDist) updateElectronEnergyDistribution();
     m_interp_cs.resize(m_nPoints);
     // The cross sections are interpolated on the energy levels
     if (nCollisions() > 0) {
         updateInterpolatedCrossSections();
     }
+}
+
+void PlasmaPhase::setElectronEnergyLevels(const double* levels, size_t length)
+{
+    setElectronEnergyLevels(levels, length, true);
 }
 
 void PlasmaPhase::electronEnergyDistributionChanged()
@@ -151,9 +160,7 @@ void PlasmaPhase::setDiscretizedElectronEnergyDist(const double* levels,
                                                 size_t length)
 {
     m_distributionType = "discretized";
-    m_nPoints = length;
-    m_electronEnergyLevels =
-        Eigen::Map<const Eigen::ArrayXd>(levels, length);
+    setElectronEnergyLevels(levels, length, false);
     m_electronEnergyDist =
         Eigen::Map<const Eigen::ArrayXd>(dist, length);
     checkElectronEnergyLevels();
