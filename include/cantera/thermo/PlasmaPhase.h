@@ -101,11 +101,19 @@ public:
 
     void initThermo() override;
 
-    //! Set electron energy levels.
+    //! Set electron energy levels, and update electron energy distribution.
     //! @param  levels The vector of electron energy levels (eV).
     //!                Length: #m_nPoints.
     //! @param  length The length of the @c levels.
     void setElectronEnergyLevels(const double* levels, size_t length);
+
+    //! Set electron energy levels.
+    //! @param  levels The vector of electron energy levels (eV).
+    //!                Length: #m_nPoints.
+    //! @param  length The length of the @c levels.
+    //! @param  updateEnergyDist update electron energy distribution
+    void setElectronEnergyLevels(const double* levels, size_t length,
+                                 bool updateEnergyDist);
 
     //! Get electron energy levels.
     //! @param  levels The vector of electron energy levels (eV). Length: #m_nPoints
