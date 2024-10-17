@@ -999,7 +999,7 @@ class TestDiffusionFlame:
             np.savetxt(referenceFile, data, '%11.6e', ', ')
         else:
             bad = compareProfiles(test_data_path / referenceFile, data,
-                                            rtol=1e-2, atol=1e-8, xtol=1e-2)
+                                  rtol=1e-2, atol=1e-8, xtol=1e-2)
             assert not bad, bad
 
     def test_auto(self, test_data_path, saveReference=False):
@@ -1038,7 +1038,7 @@ class TestDiffusionFlame:
             np.savetxt(referenceFile, data, '%11.6e', ', ')
         else:
             bad = compareProfiles(test_data_path / referenceFile, data,
-                                            rtol=1e-2, atol=1e-8, xtol=1e-2)
+                                  rtol=1e-2, atol=1e-8, xtol=1e-2)
             assert not bad, bad
 
     def run_extinction(self, mdot_fuel, mdot_ox, T_ox, width, P):
@@ -1121,7 +1121,7 @@ class TestDiffusionFlame:
             np.savetxt(referenceFile, data, '%11.6e', ', ')
         else:
             bad = compareProfiles(test_data_path / referenceFile, data,
-                                            rtol=1e-2, atol=1e-8, xtol=1e-2)
+                                  rtol=1e-2, atol=1e-8, xtol=1e-2)
             assert not bad, bad
 
         filename = self.test_work_path / "DiffusionFlameTest-h2-mix-rad.csv"
@@ -1408,7 +1408,7 @@ class TestCounterflowPremixedFlame:
             np.savetxt(referenceFile, data, '%11.6e', ', ')
         else:
             bad = compareProfiles(test_data_path / referenceFile, data,
-                                            rtol=1e-2, atol=1e-8, xtol=1e-2)
+                                  rtol=1e-2, atol=1e-8, xtol=1e-2)
             assert not bad, bad
 
         filename = self.test_work_path / "CounterflowPremixedFlame-h2-mix.csv"
@@ -1419,42 +1419,41 @@ class TestCounterflowPremixedFlame:
         csv_data = np.genfromtxt(filename, dtype=float, delimiter=',', names=True)
         assert 'qdot' not in csv_data.dtype.names
 
-    def run_case(self, phi, T, width, P):
-        gas = ct.Solution("h2o2.yaml")
-        gas.TPX = T, P * ct.one_atm, {'H2':phi, 'O2':0.5, 'AR':2}
-        sim = ct.CounterflowPremixedFlame(gas=gas, width=width)
-        sim.reactants.mdot = 10 * gas.density
-        sim.products.mdot = 5 * gas.density
-        sim.set_refine_criteria(ratio=6, slope=0.7, curve=0.8, prune=0.2)
-        sim.solve(loglevel=0, auto=True)
-        assert all(sim.T >= T - 1e-3)
-        assert all(sim.spread_rate >= -1e-9)
-        assert np.allclose(sim.L, sim.L[0])
-        return sim
+    @pytest.fixture(scope='function')
+    def run_case(self):
+        """Helper function to create and run a simulation case."""
+        def _run_case(phi, T, width, P):
+            gas = ct.Solution("h2o2.yaml")
+            gas.TPX = T, P * ct.one_atm, {'H2': phi, 'O2': 0.5, 'AR': 2}
+            sim = ct.CounterflowPremixedFlame(gas=gas, width=width)
+            sim.reactants.mdot = 10 * gas.density
+            sim.products.mdot = 5 * gas.density
+            sim.set_refine_criteria(ratio=6, slope=0.7, curve=0.8, prune=0.2)
+            sim.solve(loglevel=0, auto=True)
+            assert all(sim.T >= T - 1e-3)
+            assert all(sim.spread_rate >= -1e-9)
+            assert np.allclose(sim.L, sim.L[0])
+            return sim
+        return _run_case
+
+    @pytest.mark.parametrize(
+        "phi, T, width, P",
+        [
+            (0.4, 400, 0.05, 10.0),
+            (0.5, 500, 0.03, 2.0),
+            (0.7, 300, 0.05, 2.0),
+            (1.5, 400, 0.03, 0.02),
+            (2.0, 300, 0.2, 0.2),
+        ]
+    )
+    @pytest.mark.slow_test
+    def test_solve_case(self, run_case, phi, T, width, P):
+        """Parameterized test cases for different simulation setups."""
+        run_case(phi, T, width, P)
 
     @pytest.mark.slow_test
-    def test_solve_case1(self):
-        self.run_case(phi=0.4, T=400, width=0.05, P=10.0)
-
-    @pytest.mark.slow_test
-    def test_solve_case2(self):
-        self.run_case(phi=0.5, T=500, width=0.03, P=2.0)
-
-    @pytest.mark.slow_test
-    def test_solve_case3(self):
-        self.run_case(phi=0.7, T=300, width=0.05, P=2.0)
-
-    @pytest.mark.slow_test
-    def test_solve_case4(self):
-        self.run_case(phi=1.5, T=400, width=0.03, P=0.02)
-
-    @pytest.mark.slow_test
-    def test_solve_case5(self):
-        self.run_case(phi=2.0, T=300, width=0.2, P=0.2)
-
-    @pytest.mark.slow_test
-    def test_restart(self):
-        sim = self.run_case(phi=2.0, T=300, width=0.2, P=0.2)
+    def test_restart(self, run_case):
+        sim = run_case(phi=2.0, T=300, width=0.2, P=0.2)
 
         arr = sim.to_array()
         sim.reactants.mdot *= 1.1
@@ -1527,7 +1526,7 @@ class TestCounterflowPremixedFlameNonIdeal:
             np.savetxt(referenceFile, data, '%11.6e', ', ')
         else:
             bad = compareProfiles(test_data_path / referenceFile, data,
-                                            rtol=1e-2, atol=1e-8, xtol=1e-2)
+                                  rtol=1e-2, atol=1e-8, xtol=1e-2)
             assert not bad, bad
 
         filename = self.test_work_path / "CounterflowPremixedFlame-h2-mix-RK.csv"
@@ -1600,15 +1599,6 @@ class TestBurnerFlame:
             assert sim.T[1] > T
             assert np.allclose(sim.L, 0)
         return _run_case
-
-    def solve(self, phi, T, width, P):
-        gas = ct.Solution("h2o2.yaml")
-        gas.TPX = T, ct.one_atm*P, {'H2':phi, 'O2':0.5, 'AR':1.5}
-        sim = ct.BurnerFlame(gas=gas, width=width)
-        sim.burner.mdot = gas.density * 0.15
-        sim.solve(loglevel=0, auto=True)
-        assert sim.T[1] > T
-        assert np.allclose(sim.L, 0)
 
     @pytest.mark.parametrize(
         "phi, T, width, P",

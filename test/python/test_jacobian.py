@@ -19,6 +19,12 @@ class RateExpressionTests:
     """
     rtol = 1e-5 # relative tolerance for comparisons
 
+    rxn_idx = None
+    equation = None
+    rate_type = None
+    orders = None
+    ix3b = []
+
     @pytest.fixture(scope='class')
     def rxn(self, gas, rxn_idx):
         """Fixture to retrieve the reaction object."""
@@ -45,31 +51,43 @@ class RateExpressionTests:
         return [gas.species_index(k) for k in rxn.products.keys()]
 
     @pytest.fixture(scope='class')
-    def ix3b(self):
+    def rxn_idx(self, test_data):
+        return test_data["rxn_idx"]
+
+    @pytest.fixture(scope='class')
+    def equation(self, test_data):
+        return test_data["equation"]
+
+    @pytest.fixture(scope='class')
+    def rate_type(self, test_data):
+        return test_data["rate_type"]
+
+    @pytest.fixture(scope='class')
+    def ix3b(self, test_data):
         """Fixture to retrieve species indices involved in three-body interactions."""
-        return []
+        return test_data.get("ix3b", [])
 
     @pytest.fixture(scope='class')
-    def orders(self):
+    def orders(self, test_data):
         """Fixture to retrieve reaction orders."""
-        return None
+        return test_data.get("orders", None)
 
     @pytest.fixture(scope='class')
-    def setup_rate_expression_tests(self, gas, rxn, r_stoich, p_stoich):
+    def setup_rate_expression_tests(self, gas, r_stoich, p_stoich, rxn):
         """
         Sets the TPX state for the gas object and provides stoichiometric coefficients
-        and species indices. Runs once per class.
+        and species indices as well as setting test-specific attributes. Runs once
+        per class.
         """
         tpx = gas.TPX
         return {
             "tpx": tpx,
             "r_stoich": r_stoich,
-            "p_stoich": p_stoich,
-            "rxn": rxn
+            "p_stoich": p_stoich
         }
 
     @pytest.fixture(scope='function', autouse=True)
-    def setup_rate_expression_data(self, gas, setup_rate_expression_tests, rxn_idx):
+    def setup_rate_expression_data(self, gas, setup_rate_expression_tests, rxn_idx, rxn):
         """
         Resets the gas state before each test and configures reaction multipliers.
         Also verifies stoichiometric coefficients.
@@ -78,7 +96,6 @@ class RateExpressionTests:
         tpx = data["tpx"]
         r_stoich = data["r_stoich"]
         p_stoich = data["p_stoich"]
-        rxn = data["rxn"]
 
         # Reset gas phase
         gas.TPX = tpx
@@ -90,13 +107,13 @@ class RateExpressionTests:
         for k, v in rxn.reactants.items():
             ix = gas.species_index(k)
             actual = r_stoich[ix, rxn_idx]
-            assert actual == v, f"Reactant stoich mismatch for species '{k}': expected {v}, got {actual}"
+            assert actual == v, f"Reactant stoich mismatch for species '{k}'"
 
         # Check stoichiometric coefficients for products
         for k, v in rxn.products.items():
             ix = gas.species_index(k)
             actual = p_stoich[ix, rxn_idx]
-            assert actual == v, f"Product stoich mismatch for species '{k}': expected {v}, got {actual}"
+            assert actual == v, f"Product stoich mismatch for species '{k}'"
 
     def test_input(self, equation, rate_type, rxn):
         """Ensure that correct equation is referenced"""
@@ -589,39 +606,23 @@ class TestElementaryRev(HydrogenOxygen):
     """Standard elementary reaction with two reactants"""
 
     @pytest.fixture(scope='class')
-    def rxn_idx(self):
-        return 2
-
-    @pytest.fixture(scope='class')
-    def equation(self):
-        return "H2 + O <=> H + OH"
-
-    @pytest.fixture(scope='class')
-    def rate_type(self):
-        return "Arrhenius"
-
-    @pytest.fixture(scope='class')
-    def orders(self):
-        return None
+    def test_data(self):
+        return {
+            "rxn_idx": 2,
+            "equation": "H2 + O <=> H + OH",
+            "rate_type": "Arrhenius"
+        }
 
 class TestElementarySelf(HydrogenOxygen):
     """Elementary reaction with reactant reacting with itself"""
 
     @pytest.fixture(scope='class')
-    def rxn_idx(self):
-        return 27
-
-    @pytest.fixture(scope='class')
-    def equation(self):
-        return "2 HO2 <=> H2O2 + O2"
-
-    @pytest.fixture(scope='class')
-    def rate_type(self):
-        return "Arrhenius"
-
-    @pytest.fixture(scope='class')
-    def orders(self):
-        return None
+    def test_data(self):
+        return {
+            "rxn_idx": 27,
+            "equation": "2 HO2 <=> H2O2 + O2",
+            "rate_type": "Arrhenius"
+        }
 
 
 class TestFalloff(HydrogenOxygen):
@@ -629,40 +630,24 @@ class TestFalloff(HydrogenOxygen):
     rtol = 2e-4
 
     @pytest.fixture(scope='class')
-    def rxn_idx(self):
-        return 21
-
-    @pytest.fixture(scope='class')
-    def equation(self):
-        return "2 OH (+M) <=> H2O2 (+M)"
-
-    @pytest.fixture(scope='class')
-    def rate_type(self):
-        return "falloff"
-
-    @pytest.fixture(scope='class')
-    def orders(self):
-        return None
-
+    def test_data(self):
+        return {
+            "rxn_idx": 21,
+            "equation": "2 OH (+M) <=> H2O2 (+M)",
+            "rate_type": "falloff"
+        }
 
 class TestThreeBody(HydrogenOxygen):
     """ Three-body reaction with default efficiency"""
 
     @pytest.fixture(scope='class')
-    def ix3b(self, gas):
-        return list(range(gas.n_species))
-
-    @pytest.fixture(scope='class')
-    def rxn_idx(self):
-        return 1
-
-    @pytest.fixture(scope='class')
-    def equation(self):
-        return "H + O + M <=> OH + M"
-
-    @pytest.fixture(scope='class')
-    def rate_type(self):
-        return "Arrhenius"
+    def test_data(self, gas):
+        return {
+            "rxn_idx": 1,
+            "equation": "H + O + M <=> OH + M",
+            "rate_type": "Arrhenius",
+            "ix3b": list(range(gas.n_species))
+        }
 
     def test_thirdbodies_forward(self, gas, rxn_idx):
         drop = gas.forward_rates_of_progress_ddX
@@ -680,7 +665,6 @@ class TestThreeBody(HydrogenOxygen):
         rop = gas.reverse_rates_of_progress
         assert rop[rxn_idx] == approx((dropm[rxn_idx] * gas.X).sum())
 
-@pytest.mark.usefixtures("setup_rate_expression_data")
 class EdgeCases(RateExpressionTests):
 
     @pytest.fixture(scope='class')
@@ -696,98 +680,61 @@ class TestElementaryIrr(EdgeCases):
     """Irreversible elementary reaction with two reactants"""
 
     @pytest.fixture(scope='class')
-    def rxn_idx(self):
-        return 0
-
-    @pytest.fixture(scope='class')
-    def equation(self):
-        return "HO2 + O => O2 + OH"
-
-    @pytest.fixture(scope='class')
-    def rate_type(self):
-        return "Arrhenius"
-
-    @pytest.fixture(scope='class')
-    def orders(self):
-        return None
+    def test_data(self):
+        return {
+            "rxn_idx": 0,
+            "equation": "HO2 + O => O2 + OH",
+            "rate_type": "Arrhenius"
+        }
 
 class TestElementaryOne(EdgeCases):
     """Three-body reaction with single reactant species"""
 
     @pytest.fixture(scope='class')
-    def rxn_idx(self):
-        return 1
-
-    @pytest.fixture(scope='class')
-    def equation(self):
-        return "H2 <=> 2 H"
-
-    @pytest.fixture(scope='class')
-    def rate_type(self):
-        return "Arrhenius"
-
-    @pytest.fixture(scope='class')
-    def orders(self):
-        return None
+    def test_data(self):
+        return {
+            "rxn_idx": 1,
+            "equation": "H2 <=> 2 H",
+            "rate_type": "Arrhenius"
+        }
 
 class TestElementaryThree(EdgeCases):
     """Elementary reaction with three reactants"""
 
     @pytest.fixture(scope='class')
-    def rxn_idx(self):
-        return 2
+    def test_data(self):
+        return {
+            "rxn_idx": 2,
+            "equation": "2 H + O <=> H2O",
+            "rate_type": "Arrhenius"
+        }
 
-    @pytest.fixture(scope='class')
-    def equation(self):
-        return "2 H + O <=> H2O"
-
-    @pytest.fixture(scope='class')
-    def rate_type(self):
-        return "Arrhenius"
-
-    @pytest.fixture(scope='class')
-    def orders(self):
-        return None
 
 class TestElementaryFrac(EdgeCases):
     """Elementary reaction with specified reaction order"""
 
     @pytest.fixture(scope='class')
-    def rxn_idx(self):
-        return 3
-
-    @pytest.fixture(scope='class')
-    def equation(self):
-        return "0.7 H2 + 0.2 O2 + 0.6 OH => H2O"
-
-    @pytest.fixture(scope='class')
-    def rate_type(self):
-        return "Arrhenius"
-
-    @pytest.fixture(scope='class')
-    def orders(self):
-        return {"H2": 0.8, "O2": 1.0, "OH": 2.0}
+    def test_data(self):
+        return {
+            "rxn_idx": 3,
+            "equation": "0.7 H2 + 0.2 O2 + 0.6 OH => H2O",
+            "rate_type": "Arrhenius",
+            "orders": {"H2": 0.8, "O2": 1.0, "OH": 2.0}
+        }
 
 
 class TestThreeBodyNoDefault(EdgeCases):
     """Three body reaction without default efficiency"""
 
     @pytest.fixture(scope='class')
-    def ix3b(self, gas):
+    def test_data(self, gas):
         efficiencies = {"H2": 2.0, "H2O": 6.0, "AR": 0.7}
-        return [gas.species_index(k) for k in efficiencies.keys()]
-
-    @pytest.fixture(scope='class')
-    def rxn_idx(self):
-        return 4
-
-    @pytest.fixture(scope='class')
-    def equation(self):
-        return "H + O + M <=> OH + M"
-
-    @pytest.fixture(scope='class')
-    def rate_type(self):
-        return "Arrhenius"
+        return {
+            "rxn_idx": 4,
+            "equation": "H + O + M <=> OH + M",
+            "rate_type": "Arrhenius",
+            "ix3b": [gas.species_index(k) for k in efficiencies.keys()]
+        }
 
 
 class FromScratchCases(RateExpressionTests):
@@ -826,84 +773,59 @@ class TestPlog(FromScratchCases):
     """ Plog reaction"""
 
     @pytest.fixture(scope='class')
-    def rxn_idx(self):
-        return 3
-
-    @pytest.fixture(scope='class')
-    def equation(self):
-        return "H2 + O2 <=> 2 OH"
-
-    @pytest.fixture(scope='class')
-    def rate_type(self):
-        return "pressure-dependent-Arrhenius"
-
-    @pytest.fixture(scope='class')
-    def orders(self):
-        return None
+    def test_data(self):
+        return {
+            "rxn_idx": 3,
+            "equation": "H2 + O2 <=> 2 OH",
+            "rate_type": "pressure-dependent-Arrhenius"
+        }
 
 
-@pytest.mark.usefixtures("setup_rate_expression_data")
 class TestChebyshev(FromScratchCases):
     """Chebyshev reaction"""
 
     @pytest.fixture(scope='class')
-    def rxn_idx(self):
-        return 4
-
-    @pytest.fixture(scope='class')
-    def equation(self):
-        return "HO2 <=> O + OH"
-
-    @pytest.fixture(scope='class')
-    def rate_type(self):
-        return "Chebyshev"
-
-    @pytest.fixture(scope='class')
-    def orders(self):
-        return None
+    def test_data(self):
+        return {
+            "rxn_idx": 4,
+            "equation": "HO2 <=> O + OH",
+            "rate_type": "Chebyshev"
+        }
 
 
 class TestBlowersMasel(FromScratchCases):
     """Blowers-Masel"""
 
     @pytest.fixture(scope='class')
-    def rxn_idx(self):
-        return 6
-
-    @pytest.fixture(scope='class')
-    def equation(self):
-        return "H2 + O <=> H + OH"
-
-    @pytest.fixture(scope='class')
-    def rate_type(self):
-        return "Blowers-Masel"
-
-    @pytest.fixture(scope='class')
-    def orders(self):
-        return None
+    def test_data(self):
+        return {
+            "rxn_idx": 6,
+            "equation": "H2 + O <=> H + OH",
+            "rate_type": "Blowers-Masel"
+        }
 
     @pytest.mark.xfail(reason="Change of reaction enthalpy is not considered")
     @pytest.mark.filterwarnings("ignore:.*does not consider.*(electron|enthalpy).*:UserWarning")
     def test_forward_rop_ddT(self, gas, rxn_idx, rxn):
-        """Override to handle expected fall-off rate limitations."""
+        """Override to handle issues with Blowers-Masel derivatives."""
         super().test_forward_rop_ddT(gas, rxn_idx, rxn)
 
     @pytest.mark.xfail(reason="Change of reaction enthalpy is not considered")
     @pytest.mark.filterwarnings("ignore:.*does not consider.*(electron|enthalpy).*:UserWarning")
     def test_reverse_rop_ddT(self, gas, rxn_idx, rxn):
-        """Override to handle expected fall-off rate limitations."""
+        """Override to handle issues with Blowers-Masel derivatives."""
         super().test_reverse_rop_ddT(gas, rxn_idx, rxn)
 
     @pytest.mark.xfail(reason="Change of reaction enthalpy is not considered")
     @pytest.mark.filterwarnings("ignore:.*does not consider.*(electron|enthalpy).*:UserWarning")
     def test_net_rop_ddT(self, gas, rxn_idx, rxn):
-        """Override to handle expected fall-off rate limitations."""
+        """Override to handle issues with Blowers-Masel derivatives."""
         super().test_net_rop_ddT(gas, rxn_idx, rxn)
 
     @pytest.mark.xfail(reason="Change of reaction enthalpy is not considered")
     @pytest.mark.filterwarnings("ignore:.*does not consider.*(electron|enthalpy).*:UserWarning")
     def test_net_rate_ddT(self, gas, rix, pix):
-        """Override to handle expected fall-off rate limitations."""
+        """Override to handle issues with Blowers-Masel derivatives."""
         super().test_net_rate_ddT(gas, rix, pix)
 
 
@@ -1148,7 +1070,6 @@ class FullTests:
             print(drop_num[i])
             raise err
 
-@pytest.mark.usefixtures("full_tests_data")
 class TestFullHydrogenOxygen(FullTests):
 
     @pytest.fixture(scope='class')
@@ -1158,7 +1079,6 @@ class TestFullHydrogenOxygen(FullTests):
         gas.TPX = 300, 5 * ct.one_atm, "H2:1, O2:3"
         return gas
 
-@pytest.mark.usefixtures("full_tests_data")
 class TestFullGriMech(FullTests):
 
     @pytest.fixture(scope='class')
@@ -1168,7 +1088,6 @@ class TestFullGriMech(FullTests):
         gas.TPX = 300, 5 * ct.one_atm, "CH4:1, C3H8:.1, O2:1, N2:3.76"
         return gas
 
-@pytest.mark.usefixtures("full_tests_data")
 class TestFullEdgeCases(FullTests):
 
     @pytest.fixture(scope='class')
@@ -1253,13 +1172,13 @@ class SurfaceRateExpressionTests:
         for k, v in rxn.reactants.items():
             ix = sidxs[k]
             actual = r_stoich[ix, rxn_idx]
-            assert actual == v, f"Reactant stoich mismatch for species '{k}': expected {v}, got {actual}"
+            assert actual == v, f"Reactant stoich mismatch for species '{k}'"
 
         # Check stoichiometric coefficients for products
         for k, v in rxn.products.items():
             ix = sidxs[k]
             actual = p_stoich[ix, rxn_idx]
-            assert actual == v, f"Product stoich mismatch for species '{k}': expected {v}, got {actual}"
+            assert actual == v, f"Product stoich mismatch for species '{k}'"
 
     def get_concentrations(self, surf, gas):
         """Concatenate concentrations from surface and gas phases."""
@@ -1269,8 +1188,8 @@ class SurfaceRateExpressionTests:
     def test_input(self, rxn_data, equation, rate_type):
         """Ensure that the correct equation and rate type are referenced."""
         rxn = rxn_data["rxn"]
-        assert equation == rxn.equation, f"Expected equation '{equation}', got '{rxn.equation}'"
-        assert rate_type == rxn.rate.type, f"Expected rate type '{rate_type}', got '{rxn.rate.type}'"
+        assert equation == rxn.equation
+        assert rate_type == rxn.rate.type
 
     def test_forward_rop_ddCi(self, surf, gas, rxn_data, orders, rxn_idx):
         """Test forward rates of progress derivatives."""
@@ -1579,7 +1498,6 @@ class SurfaceFullTests:
         assert drop == approx(ropf - ropr, rel=self.rtol)
 
 
-@pytest.mark.usefixtures("setup_surface_full_data")
 class TestFullPlatinumHydrogen(SurfaceFullTests):
 
     phase_defs = """

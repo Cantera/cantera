@@ -1114,6 +1114,7 @@ class TestThermo:
 @pytest.fixture(scope='function')
 def setup_interface_tests(request):
     request.cls.interface = ct.Interface("diamond.yaml", "diamond_100")
+
 @pytest.mark.usefixtures("setup_interface_tests")
 class TestInterfacePhase:
 

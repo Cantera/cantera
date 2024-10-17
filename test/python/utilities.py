@@ -37,8 +37,7 @@ def compare(data, reference_file, rtol=1e-8, atol=1e-12):
             assert ref[i] == approx(data[i], rel=rtol, abs=atol)
     else:
         # Generate the output file for the first time
-        warnings.warn('Generating test data file:' +
-                        Path(reference_file).resolve())
+        warnings.warn('Generating test data file:' + Path(reference_file).resolve())
         np.savetxt(reference_file, data, fmt='%.10e')
 
 def compareProfiles(reference, sample, rtol=1e-5, atol=1e-12, xtol=1e-5):

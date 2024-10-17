@@ -399,6 +399,7 @@ def setup_fluid(request):
     request.cls.s0 = request.cls.fluid.s
 
 
+@pytest.mark.usefixtures("setup_fluid")
 class PureFluidTestCases:
     """
     Test the results of pure fluid phase calculations against tabulated
@@ -429,7 +430,7 @@ class PureFluidTestCases:
 
             # At constant volume, dU = T dS
             msg = 'At state: T=%s, rho=%s' % (state.T, state.rho)
-            assert (u2-u1)/(s2-s1) == approx(state.T, rel=self.tol.dUdS)
+            assert (u2-u1)/(s2-s1) == approx(state.T, rel=self.tol.dUdS), msg
 
     def test_consistency_volume(self):
         for state in self.states:
@@ -446,7 +447,7 @@ class PureFluidTestCases:
 
             # At constant temperature, dA = - p dV
             msg = 'At state: T=%s, rho=%s' % (state.T, state.rho)
-            assert -(a2-a1)/dV == approx(p, rel=tol)
+            assert -(a2-a1)/dV == approx(p, rel=tol), msg
 
     def test_saturation(self):
         for state in self.states:
@@ -471,7 +472,7 @@ class PureFluidTestCases:
             # Clausius-Clapeyron Relation
             msg = 'At state: T=%s, rho=%s' % (state.T, state.rho)
             assert (p2-p1)/dT == approx((hg-hf)/(state.T * (vg-vf)),
-                   rel=self.tol.dPdT)
+                   rel=self.tol.dPdT), msg
 
             # True for a change in state at constant pressure and temperature
             assert hg-hf == approx(state.T * (sg-sf), rel=self.tol.hTs)
@@ -483,24 +484,23 @@ class PureFluidTestCases:
             tol = 70*self.tol.p if state.phase == 'liquid' else self.tol.p
             tol *= state.tolMod
             msg = 'At state: T=%s, rho=%s' % (state.T, state.rho)
-            assert self.fluid.P == approx(state.p, rel=tol)
+            assert self.fluid.P == approx(state.p, rel=tol), msg
 
     def test_internal_energy(self):
         for state in self.states:
             self.fluid.TD = state.T, state.rho
             msg = 'At state: T=%s, rho=%s' % (state.T, state.rho)
             assert self.fluid.u - self.u0 == approx(state.u - self.refState.u,
-                   rel=self.tol.u * state.tolMod)
+                   rel=self.tol.u * state.tolMod), msg
 
     def test_entropy(self):
         for state in self.states:
             self.fluid.TD = state.T, state.rho
             msg = 'At state: T=%s, rho=%s' % (state.T, state.rho)
             assert self.fluid.s - self.s0 == approx(state.s - self.refState.s,
-                   rel=self.tol.s * state.tolMod)
+                   rel=self.tol.s * state.tolMod), msg
 
 
-@pytest.mark.usefixtures("setup_fluid")
 class TestHFC134a(PureFluidTestCases):
     """
     Reference values for HFC134a taken from NIST Chemistry WebBook, which
@@ -531,7 +531,6 @@ class TestHFC134a(PureFluidTestCases):
 # different methods for satisfying the phase equilibrium condition g_l = g_v.
 # Cantera uses the actual equation of state, while the tabulated values given
 # by Reynolds are based on the given P_sat(T_sat) relations.
-@pytest.mark.usefixtures("setup_fluid")
 class TestCarbonDioxide(PureFluidTestCases):
     states = [
         StateData('liquid', 230.0, 2.0, rho=1132.4, h=28.25, s=0.1208),
@@ -546,7 +545,6 @@ class TestCarbonDioxide(PureFluidTestCases):
     tol = Tolerances(2e-3, 2e-3, 2e-3)
 
 
-@pytest.mark.usefixtures("setup_fluid")
 class TestHeptane(PureFluidTestCases):
     states = [
         StateData('liquid', 300.0, 0.006637, v=0.001476, h=0.0, s=0.0, relax=True),  # sat
@@ -562,7 +560,6 @@ class TestHeptane(PureFluidTestCases):
 
 
 # para-hydrogen
-@pytest.mark.usefixtures("setup_fluid")
 class TestHydrogen(PureFluidTestCases):
     states = [
         StateData('liquid', 18.0, 0.04807, v=0.013660, h=30.1, s=1.856, relax=True),  # sat
@@ -578,7 +575,6 @@ class TestHydrogen(PureFluidTestCases):
     name = "hydrogen"
     tol = Tolerances(2e-3, 2e-3, 2e-3, 2e-4)
 
-@pytest.mark.usefixtures("setup_fluid")
 class TestMethane(PureFluidTestCases):
     states = [
         StateData('liquid', 100.0, 0.50, rho=439.39, h=31.65, s=0.3206),
@@ -593,7 +589,6 @@ class TestMethane(PureFluidTestCases):
     name = "methane"
     tol = Tolerances(2e-3, 2e-3, 2e-3)
 
-@pytest.mark.usefixtures("setup_fluid")
 class TestNitrogen(PureFluidTestCases):
     states = [
         StateData('liquid', 80.0, 0.1370, v=0.001256, h=33.50, s=0.4668, relax=True),  # sat
@@ -607,7 +602,6 @@ class TestNitrogen(PureFluidTestCases):
     name = "nitrogen"
     tol = Tolerances(2e-3, 2e-3, 2e-3)
 
-@pytest.mark.usefixtures("setup_fluid")
 class TestOxygen(PureFluidTestCases):
     states = [
         StateData('liquid', 80.0, 0.03009, v=0.000840, h=42.56, s=0.6405, relax=True),  # sat
@@ -622,7 +616,6 @@ class TestOxygen(PureFluidTestCases):
     name = "oxygen"
     tol = Tolerances(2e-3, 2e-3, 2e-3)
 
-@pytest.mark.usefixtures("setup_fluid")
 class TestWater(PureFluidTestCases):
     states = [
         StateData('liquid', 295.0, 0.002620, v=0.0010025, h=90.7, s=0.3193, relax=True),
