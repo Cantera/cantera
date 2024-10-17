@@ -105,8 +105,10 @@ class TestReactor:
         N = self.net.n_vars // 2
         for i in range(N):
             assert self.r1.component_index(self.r1.component_name(i)) ==  i
-            assert self.net.component_name(i) == '{}: {}'.format(self.r1.name, self.r1.component_name(i))
-            assert self.net.component_name(N+i) == '{}: {}'.format(self.r2.name, self.r2.component_name(i))
+            assert (self.net.component_name(i)
+                    == '{}: {}'.format(self.r1.name, self.r1.component_name(i)))
+            assert (self.net.component_name(N+i)
+                    == '{}: {}'.format(self.r2.name, self.r2.component_name(i)))
 
     def test_independent_variable(self):
         self.make_reactors(independent=False, n_reactors=1)
@@ -215,8 +217,6 @@ class TestReactor:
             t = self.net.step()
             assert t - tPrev <= 1.0001 * dt_max
             assert t == approx(self.net.time)
-
-        #assert self.net.time == approx(tEnd)
 
     def test_maxsteps(self):
         self.make_reactors()
@@ -400,11 +400,11 @@ class TestReactor:
         self.r2.volume = 0.25
         w = self.add_wall(U=100, A=0.5)
 
-        assert w.heat_transfer_coeff * w.area * (self.r1.T - self.r2.T) == approx(
-               w.heat_rate)
+        assert (w.heat_transfer_coeff * w.area * (self.r1.T - self.r2.T)
+                == approx(w.heat_rate))
         self.net.advance(1.0)
-        assert w.heat_transfer_coeff * w.area * (self.r1.T - self.r2.T) == approx(
-               w.heat_rate)
+        assert (w.heat_transfer_coeff * w.area * (self.r1.T - self.r2.T)
+                == approx(w.heat_rate))
         T1b = self.r1.T
         T2b = self.r2.T
 
@@ -2443,7 +2443,8 @@ class TestReactorSensitivities:
         return dtdp
 
     # @todo: replace np.trapz with np.trapezoid when dropping support for NumPy 1.x
-    @pytest.mark.skip(reason="Integration of sensitivity ODEs is unreliable, see: https://github.com/Cantera/enhancements/issues/55")
+    @pytest.mark.skip(reason="Integration of sensitivity ODEs is unreliable, "
+                              "see: https://github.com/Cantera/enhancements/issues/55")
     @pytest.mark.filterwarnings("ignore:`trapz` is deprecated")
     def test_ignition_delay_sensitivity(self):
         species = ('H2', 'H', 'O2', 'H2O2', 'H2O', 'OH', 'HO2')
@@ -2455,12 +2456,9 @@ class TestReactorSensitivities:
             assert dtigdh_cvodes[i] == approx(dtigdh, rel=5e-2, abs=1e-14)
 
 
-@pytest.fixture(scope='class')
-def setup_combustor_tests(request, test_data_path):
-    request.cls.referenceFile = test_data_path / "CombustorTest-integrateWithAdvance.csv"
 
 @pytest.fixture(scope='function')
-def setup_combustor_tests_data(request, setup_combustor_tests):
+def setup_combustor_tests_data(request):
     gas = ct.Solution('h2o2.yaml', transport_model=None)
 
     # create a reservoir for the fuel inlet, and set to pure methane.
@@ -2518,8 +2516,9 @@ class CombustorTests:
     with some simplifications so that they run faster and produce more
     consistent output.
     """
+    referenceFile = "CombustorTest-integrateWithAdvance.csv"
 
-    def test_integrateWithStep(self):
+    def test_integrateWithStep(self, test_data_path):
         tnow = 0.0
         tfinal = 0.25
         self.data = []
@@ -2529,11 +2528,11 @@ class CombustorTests:
                              list(self.combustor.thermo.X))
 
         assert tnow >= tfinal
-        bad = compareProfiles(self.referenceFile, self.data,
-                                        rtol=1e-3, atol=1e-9)
+        bad = compareProfiles(test_data_path / self.referenceFile, self.data,
+                              rtol=1e-3, atol=1e-9)
         assert not bad, bad
 
-    def test_integrateWithAdvance(self, saveReference=False):
+    def test_integrateWithAdvance(self, test_data_path, saveReference=False):
         self.data = []
         for t in np.linspace(0, 0.25, 101)[1:]:
             self.sim.advance(t)
@@ -2541,13 +2540,14 @@ class CombustorTests:
                              list(self.combustor.thermo.X))
 
         if saveReference:
-            np.savetxt(self.referenceFile, np.array(self.data), '%11.6e', ', ')
+            np.savetxt(test_data_path / self.referenceFile, np.array(self.data),
+                       '%11.6e', ', ')
         else:
-            bad = compareProfiles(self.referenceFile, self.data,
-                                            rtol=1e-6, atol=1e-12)
+            bad = compareProfiles(test_data_path / self.referenceFile, self.data,
+                                  rtol=1e-6, atol=1e-12)
             assert not bad, bad
 
-    def test_invasive_mdot_function(self):
+    def test_invasive_mdot_function(self, test_data_path):
         def igniter_mdot(t, t0=0.1, fwhm=0.05, amplitude=0.1):
             # Querying properties of the igniter changes the state of the
             # underlying ThermoPhase object, but shouldn't affect the
@@ -2562,17 +2562,13 @@ class CombustorTests:
             self.data.append([t, self.combustor.T] +
                              list(self.combustor.thermo.X))
 
-        bad = compareProfiles(self.referenceFile, self.data,
-                                        rtol=1e-6, atol=1e-12)
+        bad = compareProfiles(test_data_path / self.referenceFile, self.data,
+                              rtol=1e-6, atol=1e-12)
         assert not bad, bad
 
 
-@pytest.fixture(scope='class')
-def setup_wall_tests(request, test_data_path):
-    request.cls.referenceFile = test_data_path / "WallTest-integrateWithAdvance.csv"
-
 @pytest.fixture(scope='function')
-def setup_wall_tests_data(request, setup_wall_tests):
+def setup_wall_tests_data(request):
     # reservoir to represent the environment
     gas0 = ct.Solution("air.yaml")
     gas0.TP = 300, ct.one_atm
@@ -2607,8 +2603,9 @@ class WallTests:
     with some simplifications so that they run faster and produce more
     consistent output.
     """
+    referenceFile = "WallTest-integrateWithAdvance.csv"
 
-    def test_integrateWithStep(self):
+    def test_integrateWithStep(self, test_data_path):
         tnow = 0.0
         tfinal = 0.01
         self.data = []
@@ -2620,11 +2617,11 @@ class WallTests:
                               self.r1.volume, self.r2.volume])
 
         assert tnow >= tfinal
-        bad = compareProfiles(self.referenceFile, self.data,
-                                        rtol=1e-3, atol=1e-8)
+        bad = compareProfiles(test_data_path / self.referenceFile, self.data,
+                              rtol=1e-3, atol=1e-8)
         assert not bad, bad
 
-    def test_integrateWithAdvance(self, saveReference=False):
+    def test_integrateWithAdvance(self, test_data_path, saveReference=False):
         self.data = []
         for t in np.linspace(0, 0.01, 200)[1:]:
             self.sim.advance(t)
@@ -2634,10 +2631,11 @@ class WallTests:
                               self.r1.volume, self.r2.volume])
 
         if saveReference:
-            np.savetxt(self.referenceFile, np.array(self.data), '%11.6e', ', ')
+            np.savetxt(test_data_path / self.referenceFile, np.array(self.data),
+                       '%11.6e', ', ')
         else:
-            bad = compareProfiles(self.referenceFile, self.data,
-                                            rtol=2e-5, atol=1e-9)
+            bad = compareProfiles(test_data_path / self.referenceFile, self.data,
+                                  rtol=2e-5, atol=1e-9)
             assert not bad, bad
 
 
@@ -2731,11 +2729,10 @@ class TestPureFluidReactor:
 
 
 @pytest.fixture(scope='function')
-def setup_advance_converages_data(request, cantera_data_path):
+def setup_advance_converages_data(request):
     mechanism_file = 'ptcombust.yaml'
     interface_phase = 'Pt_surf'
-    request.cls.surf = ct.Interface(f'{cantera_data_path}/{mechanism_file}', interface_phase)
-    #request.cls.surf = ct.Interface(mechanism_file, interface_phase)
+    request.cls.surf = ct.Interface(mechanism_file, interface_phase)
     request.cls.gas = request.cls.surf.adjacent["gas"]
 
 @pytest.mark.usefixtures('setup_advance_converages_data')

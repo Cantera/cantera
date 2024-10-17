@@ -11,7 +11,7 @@ from .utilities import load_yaml
 
 
 class TestImplicitThirdBody:
-    """ tests for three-body reactions with specified collision partner """
+    """Tests for three-body reactions with specified collision partner """
 
     @pytest.fixture(scope='class')
     def gas(self):
@@ -158,17 +158,8 @@ class TestImplicitThirdBody:
         assert rxn.input_data["type"] == "elementary"
 
 
-@pytest.fixture(scope='class')
-def solution(request):
-    request.cls.soln = ct.Solution("kineticsfromscratch.yaml")
-
-@pytest.fixture(scope='function')
-def setup_reaction_rate_tests(request, solution):
-    request.cls.soln.X = "H2:0.1, H2O:0.2, O2:0.7, O:1e-4, OH:1e-5, H:2e-5, H2O2:1e-7"
-    request.cls.soln.TP = 900, 2 * ct.one_atm
-
 class ReactionRateTests:
-    # test suite for reaction rate expressions
+    """Test suite for reaction rate expressions"""
 
     _cls = None # reaction rate object to be tested
     _type = None # name of reaction rate
@@ -176,6 +167,16 @@ class ReactionRateTests:
     _parts = {}
     _input = None # input parameters (dict corresponding to YAML)
     _yaml = None # yaml string specifying parameters
+
+    @pytest.fixture(scope='class')
+    def solution(self):
+        return ct.Solution("kineticsfromscratch.yaml")
+
+    @pytest.fixture(scope='function', autouse=True)
+    def setup_test_data(self, solution):
+        self.soln = solution
+        self.soln.X = "H2:0.1, H2O:0.2, O2:0.7, O:1e-4, OH:1e-5, H:2e-5, H2O2:1e-7"
+        self.soln.TP = 900, 2 * ct.one_atm
 
     def finalize(self, rate):
         # perform additional setup after construction (whenever applicable)
@@ -286,9 +287,8 @@ class ReactionRateTests:
         k1 = self.eval(rate)
         assert (k1 - k0) / deltaP == approx(drate[self._index], rel=1e-6)
 
-@pytest.mark.usefixtures("setup_reaction_rate_tests")
 class TestArrheniusRate(ReactionRateTests):
-    # test Arrhenius rate expressions
+    """Test Arrhenius rate expressions"""
 
     _cls = ct.ArrheniusRate
     _type = "Arrhenius"
@@ -340,9 +340,8 @@ class TestArrheniusRate(ReactionRateTests):
         dkdT_numeric = (rate(T + dT) - rate(T)) / dT
         assert dkdT == approx(dkdT_numeric, rel=1.e-6)
 
-@pytest.mark.usefixtures("setup_reaction_rate_tests")
 class TestBlowersMaselRate(ReactionRateTests):
-    # test Blowers-Masel rate expressions
+    """Test Blowers-Masel rate expressions"""
 
     _cls = ct.BlowersMaselRate
     _type = "Blowers-Masel"
@@ -379,9 +378,8 @@ class TestBlowersMaselRate(ReactionRateTests):
     def test_derivative_ddT(self):
         super().test_derivative_ddT()
 
-@pytest.mark.usefixtures("setup_reaction_rate_tests")
 class TestTwoTempPlasmaRate(ReactionRateTests):
-    # test TwoTempPlasma rate expressions
+    """Test TwoTempPlasma rate expressions"""
 
     _cls = ct.TwoTempPlasmaRate
     _type = "two-temperature-plasma"
@@ -431,7 +429,7 @@ class TestTwoTempPlasmaRate(ReactionRateTests):
 
 
 class TestTwoTempPlasmaRateShort(TestTwoTempPlasmaRate):
-    # test TwoTempPlasma rate expressions
+    """Test TwoTempPlasma rate expressions"""
 
     _index = 12
     _input = {"rate-constant": {"A": 17283, "b": -3.1}}
@@ -450,17 +448,18 @@ class TestTwoTempPlasmaRateShort(TestTwoTempPlasmaRate):
         self.check_rate(rate)
 
 
-@pytest.fixture(scope='class')
-def setup_falloff_rate_tests(request, solution):
-    param = request.cls._input["low-P-rate-constant"]
-    request.cls._parts["low"] = ct.Arrhenius(param["A"], param["b"], param["Ea"])
-    param = request.cls._input["high-P-rate-constant"]
-    request.cls._parts["high"] = ct.Arrhenius(param["A"], param["b"], param["Ea"])
-
 class FalloffRateTests(ReactionRateTests):
-    # test Falloff rate expressions
+    """Test Falloff rate expressions"""
+
     _type = "falloff"
     _n_data = [0] # list of valid falloff coefficient array lengths
+
+    @pytest.fixture(scope='class', autouse=True)
+    def setup_falloff_data(self):
+        param = self._input["low-P-rate-constant"]
+        self._parts["low"] = ct.Arrhenius(param["A"], param["b"], param["Ea"])
+        param = self._input["high-P-rate-constant"]
+        self._parts["high"] = ct.Arrhenius(param["A"], param["b"], param["Ea"])
 
     def eval(self, rate):
         concm = self.soln.third_body_concentrations[self._index]
@@ -507,9 +506,8 @@ class FalloffRateTests(ReactionRateTests):
         k1 = self.eval(rate)
         assert (k1 - k0) / deltaP == approx(drate[self._index], rel=1e-6)
 
-@pytest.mark.usefixtures("setup_falloff_rate_tests")
 class TestLindemannRate(FalloffRateTests):
-    # test Lindemann rate expressions
+    """Test Lindemann rate expressions"""
 
     _cls = ct.LindemannRate
     _index = 7
@@ -532,9 +530,8 @@ class TestLindemannRate(FalloffRateTests):
         # Falloff-function for Lindemann is unity by definition
         assert np.isclose(rate.falloff_function(300, 0.), 1.)
 
-@pytest.mark.usefixtures("setup_falloff_rate_tests")
 class TestTroeRate(FalloffRateTests):
-    # test Troe rate expressions
+    """Test Troe rate expressions"""
 
     _cls = ct.TroeRate
     _index = 2
@@ -564,9 +561,8 @@ class TestTroeRate(FalloffRateTests):
         with pytest.warns(UserWarning, match="Unexpected parameter value T2=0"):
             ct.ReactionRate.from_yaml(yaml)
 
-@pytest.mark.usefixtures("setup_falloff_rate_tests")
 class TestSriRate(FalloffRateTests):
-    # test SRI rate expressions
+    """Test SRI rate expressions"""
 
     _cls = ct.SriRate
     _index = 8
@@ -585,9 +581,8 @@ class TestSriRate(FalloffRateTests):
         """
     _n_data = [3, 5]
 
-@pytest.mark.usefixtures("setup_falloff_rate_tests")
 class TestTsangRate(FalloffRateTests):
-    # test Tsang rate expressions
+    """Test Tsang rate expressions"""
 
     _cls = ct.TsangRate
     _index = 9
@@ -606,16 +601,9 @@ class TestTsangRate(FalloffRateTests):
         """
     _n_data = [1, 2]
 
-@pytest.fixture(scope='class')
-def setup_plog_rate_tests(request, solution):
-    request.cls._parts = {
-        "rates": [(rc["P"], ct.Arrhenius(rc["A"], rc["b"], rc["Ea"]))
-                  for rc in request.cls._input["rate-constants"]],
-        }
 
-@pytest.mark.usefixtures("setup_plog_rate_tests")
 class TestPlogRate(ReactionRateTests):
-    # test Plog rate expressions
+    """Test Plog rate expressions"""
 
     _cls = ct.PlogRate
     _type = "pressure-dependent-Arrhenius"
@@ -633,6 +621,13 @@ class TestPlogRate(ReactionRateTests):
         - {P: 10.0 atm, A: 1.2866e+47, b: -9.0246, Ea: 3.97965e+04 cal/mol}
         - {P: 100.0 atm, A: 5.9632e+56, b: -11.529, Ea: 5.25996e+04 cal/mol}
         """
+
+    @pytest.fixture(scope='function', autouse=True)
+    def setup_plog_data(self, setup_test_data):
+        self._parts = {
+            "rates": [(rc["P"], ct.Arrhenius(rc["A"], rc["b"], rc["Ea"]))
+                      for rc in self._input["rate-constants"]],
+            }
 
     def eval(self, rate):
         # check evaluation as a function of temperature and pressure
@@ -689,17 +684,8 @@ class TestPlogRate(ReactionRateTests):
             ct.ReactionRate.from_yaml(yaml)
 
 
-@pytest.fixture(scope='class')
-def setup_test_chebyshev_rate(request, solution):
-    request.cls._parts = {
-            "pressure_range": request.cls._input["pressure-range"],
-            "temperature_range": request.cls._input["temperature-range"],
-            "data": request.cls._input["data"],
-        }
-
-@pytest.mark.usefixtures("setup_test_chebyshev_rate")
 class TestChebyshevRate(ReactionRateTests):
-    # test Chebyshev rate expressions
+    """Test Chebyshev rate expressions"""
 
     _cls = ct.ChebyshevRate
     _type = "Chebyshev"
@@ -719,6 +705,14 @@ class TestChebyshevRate(ReactionRateTests):
         - [0.3177, 0.26889, 0.094806, -7.6385e-03]
         """
 
+    @pytest.fixture(scope='function', autouse=True)
+    def setup_chebyshev_data(self, setup_test_data):
+        self._parts = {
+            "pressure_range": self._input["pressure-range"],
+            "temperature_range": self._input["temperature-range"],
+            "data": self._input["data"],
+        }
+
     def eval(self, rate):
         # check evaluation as a function of temperature and pressure
         return rate(self.soln.T, self.soln.P)
@@ -736,19 +730,20 @@ class TestChebyshevRate(ReactionRateTests):
         assert rate.n_temperature == rate.data.shape[0]
 
 
-@pytest.fixture(scope='class')
-def setup_surface_reaction_rate_tests(request):
-    request.cls.soln = ct.Interface("kineticsfromscratch.yaml", "Pt_surf", transport_model=None)
-    request.cls.gas = request.cls.soln.adjacent["ohmech"]
-
-@pytest.fixture(scope='function')
-def surface_rate_reaction_data(request, setup_surface_reaction_rate_tests):
-    request.cls.soln.TP = 900, ct.one_atm
-    request.cls.gas.X = "H2:0.05, H2O:0.01, O:1e-4, OH: 1e5, H:2e-5, O2:0.21, AR:0.79"
-    request.cls.gas.TP = 900, ct.one_atm
-
 class SurfaceReactionRateTests(ReactionRateTests):
-    # test suite for surface reaction rate expressions
+    """Test suite for surface reaction rate expressions"""
+
+    @pytest.fixture(scope='class', autouse=True)
+    def solution(self):
+        return ct.Interface("kineticsfromscratch.yaml", "Pt_surf", transport_model=None)
+
+    @pytest.fixture(scope='function', autouse=True)
+    def setup_test_data(self, solution):
+        self.soln = solution
+        self.gas = self.soln.adjacent['ohmech']
+        self.soln.TP = 900, ct.one_atm
+        self.gas.X = "H2:0.05, H2O:0.01, O:1e-4, OH: 1e5, H:2e-5, O2:0.21, AR:0.79"
+        self.gas.TP = 900, ct.one_atm
 
     def eval(self, rate, species=True):
         # evaluate rate expression
@@ -820,7 +815,6 @@ class StickingReactionRateTests(SurfaceReactionRateTests):
         assert rate.sticking_order == self._sticking_order
         assert rate.sticking_weight == approx(weight)
 
-@pytest.mark.usefixtures("surface_rate_reaction_data")
 class TestSurfaceArrheniusRate(SurfaceReactionRateTests):
     # test interface-Arrhenius rate expressions without coverage dependency
 
@@ -834,7 +828,6 @@ class TestSurfaceArrheniusRate(SurfaceReactionRateTests):
         type: interface-Arrhenius
         """
 
-@pytest.mark.usefixtures("surface_rate_reaction_data")
 class TestInterfaceArrheniusRate(SurfaceReactionRateTests):
     # test interface-Arrhenius rate expressions with coverage dependency
 
@@ -853,7 +846,6 @@ class TestInterfaceArrheniusRate(SurfaceReactionRateTests):
         type: interface-Arrhenius
         """
 
-@pytest.mark.usefixtures("surface_rate_reaction_data")
 class TestStickingRate(StickingReactionRateTests):
     # test surface-sticking rate expressions without coverage dependency
 
@@ -869,7 +861,6 @@ class TestStickingRate(StickingReactionRateTests):
         type: sticking-Arrhenius
         """
 
-@pytest.mark.usefixtures("surface_rate_reaction_data")
 class TestCoverageStickingRate(StickingReactionRateTests):
     # test sticking rate expressions with coverage dependency
 
@@ -890,7 +881,6 @@ class TestCoverageStickingRate(StickingReactionRateTests):
         type: sticking-Arrhenius
         """
 
-@pytest.mark.usefixtures("surface_rate_reaction_data")
 class TestMotzWiseStickingRate(StickingReactionRateTests):
     # test interface reaction with coverages
 
@@ -910,7 +900,6 @@ class TestMotzWiseStickingRate(StickingReactionRateTests):
         type: sticking-Arrhenius
         """
 
-@pytest.mark.usefixtures("surface_rate_reaction_data")
 class TestSurfaceBMRate(SurfaceReactionRateTests):
     # test coverage-Blowers-Masel rate expressions with coverage dependency
 
@@ -926,7 +915,6 @@ class TestSurfaceBMRate(SurfaceReactionRateTests):
         type: interface-Blowers-Masel
         """
 
-@pytest.mark.usefixtures("surface_rate_reaction_data")
 class TestSurfaceBMRate(SurfaceReactionRateTests):
     # test coverage-Blowers-Masel rate expressions with coverage dependency
 
@@ -945,7 +933,6 @@ class TestSurfaceBMRate(SurfaceReactionRateTests):
         type: interface-Blowers-Masel
         """
 
-@pytest.mark.usefixtures("surface_rate_reaction_data")
 class TestBMStickate(StickingReactionRateTests):
     # test coverage-Blowers-Masel stick expressions with coverage dependency
 
@@ -1182,7 +1169,7 @@ class ReactionTests:
 @pytest.fixture(scope='class')
 def setup_elementary_tests(request, setup_reaction_tests):
     """
-    Uses the base classes fixture as a dependency to make sure the
+    Uses the base class's fixture as a dependency to make sure the
     execution order is correct.
     """
     request.cls._rate_obj = ct.ArrheniusRate(**request.cls._rate)
@@ -1478,8 +1465,10 @@ class TestPlog(ReactionTests):
         for index, item in enumerate(rates):
             P, rate = item
             assert P == approx(other[index][0])
-            assert rate.pre_exponential_factor == approx(other[index][1].pre_exponential_factor)
-            assert rate.temperature_exponent == approx(other[index][1].temperature_exponent)
+            assert (rate.pre_exponential_factor
+                    == approx(other[index][1].pre_exponential_factor))
+            assert (rate.temperature_exponent
+                    == approx(other[index][1].temperature_exponent))
             assert rate.activation_energy == approx(other[index][1].activation_energy)
 
 @pytest.mark.usefixtures("reaction_data")
@@ -1518,22 +1507,14 @@ class TestChebyshev(ReactionTests):
     def eval_rate(self, rate):
         return rate(self.soln.T, self.soln.P)
 
-
-@pytest.fixture(scope='function')
-def setup_custom_tests(request, reaction_data):
-    """
-    statidmethod is used on the lambda function to prevent it from being passed
-    self as the first argument.
-    """
-    request.cls._rate = staticmethod(lambda T: 38.7 * T**2.7 * np.exp(-3150.15428/T))
-
-@pytest.mark.usefixtures("setup_custom_tests")
+@pytest.mark.usefixtures("reaction_data")
 class TestCustom(ReactionTests):
     # test Custom reaction
 
     # probe O + H2 <=> H + OH
     _rate_cls = ct.CustomRate
     _equation = "H2 + O <=> H + OH"
+    _rate = staticmethod(lambda T: 38.7 * T**2.7 * np.exp(-3150.15428/T))
     _rate_obj = ct.CustomRate(lambda T: 38.7 * T**2.7 * np.exp(-3150.15428/T))
     _index = 0
     _rate_type = "custom-rate-function"

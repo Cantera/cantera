@@ -791,7 +791,7 @@ class TestLegacyHDF:
     @pytest.mark.skipif("native" not in ct.hdf_support(),
                         reason="Cantera compiled without HDF support")
     @pytest.mark.filterwarnings("ignore:.*legacy HDF.*:UserWarning")
-    def test_legacy_hdf(self, test_data_path, legacy=False):
+    def test_legacy_hdf(self, test_data_path):
         # recreate states used to create legacy HDF file (valid portion)
         extra = {'foo': range(7), 'bar': range(7)}
         meta = {'spam': 'eggs', 'hello': 'world'}
@@ -814,7 +814,7 @@ class TestLegacyHDF:
     @pytest.mark.skipif("native" not in ct.hdf_support(),
                         reason="Cantera compiled without HDF support")
     @pytest.mark.filterwarnings("ignore:.*legacy HDF.*:UserWarning")
-    def test_read_legacy_hdf_no_norm(self, test_data_path, legacy=False):
+    def test_read_legacy_hdf_no_norm(self, test_data_path):
         # recreate states used to create legacy HDF file
         self.gas.set_unnormalized_mole_fractions(np.full(self.gas.n_species, 0.3))
         states = ct.SolutionArray(self.gas, 5)
@@ -822,10 +822,7 @@ class TestLegacyHDF:
         infile = test_data_path / "solutionarray_no_norm_legacy.h5"
 
         b = ct.SolutionArray(self.gas)
-        if legacy:
-            b.read_hdf(infile, normalize=False)
-        else:
-            b.restore(infile, "group0")
+        b.restore(infile, "group0")
         assert states.T == approx(b.T, rel=1e-7)
         assert states.P == approx(b.P, rel=1e-7)
         assert states.X == approx(b.X, rel=1e-7)

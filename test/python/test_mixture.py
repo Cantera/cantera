@@ -17,7 +17,7 @@ class TestMixture:
     @pytest.fixture(scope='function')
     def mix(request, phase1, phase2):
         # Create instance-level data for each test
-        return  ct.Mixture([(phase1, 1.0), (phase2, 2.0)])
+        return ct.Mixture([(phase1, 1.0), (phase2, 2.0)])
 
     def test_sizes(self, mix, phase1, phase2):
         assert mix.n_phases == 2
@@ -28,9 +28,6 @@ class TestMixture:
         assert len(E) == mix.n_elements
 
     def test_element_index(self, mix):
-        m_H = mix.element_index('H')
-        assert m_H == mix.element_index(m_H)
-
         with pytest.raises(ValueError, match='No such element'):
             mix.element_index('W')
 

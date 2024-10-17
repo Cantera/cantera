@@ -209,18 +209,10 @@ class TestTransport:
 
 class TestIonTransport:
 
-    @pytest.fixture(scope='class')
-    def initial_conditions(self):
-        return {
-            'T': 2237,
-            'P': ct.one_atm,
-            'X': 'O2:0.7010, H2O:0.1885, CO2:9.558e-2'
-        }
-
     @pytest.fixture(scope='function')
-    def gas(self, initial_conditions):
+    def gas(self):
         gas = ct.Solution('ch4_ion.yaml')
-        gas.TPX = initial_conditions['T'], initial_conditions['P'], initial_conditions['X']
+        gas.TPX = 2237, ct.one_atm, 'O2:0.7010, H2O:0.1885, CO2:9.558e-2'
         return gas
 
     @pytest.fixture(scope='function')
@@ -401,10 +393,6 @@ class TestWaterTransport:
     def water(self):
         return ct.Water()
 
-    @pytest.fixture(scope='class')
-    def water(self):
-        return ct.Water()
-
     @pytest.mark.parametrize("T, P, mu, rtol", [
         (400, 1e6, 2.1880e-4, 1e-3),
         (400, 8e6, 2.2061e-4, 1e-3),
@@ -517,10 +505,6 @@ class TestTransportData:
     def gas(self):
         gas = ct.Solution("h2o2.yaml")
         return gas
-
-    @pytest.fixture(scope='function', autouse=True)
-    def initial_condition(self, gas):
-        gas.X = 'H2O:0.6, H2:0.4'
 
     def test_read(self, gas):
         tr = gas.species('H2').transport

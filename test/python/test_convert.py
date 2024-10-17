@@ -54,7 +54,7 @@ class Testck2yaml:
                         for i in range(ref.n_species)]
         compositionB = [[gas.n_atoms(i,j) for j in range(gas.n_elements)]
                         for i in range(gas.n_species)]
-        assert compositionA, compositionB
+        assert compositionA == compositionB
 
         return ref, gas
 
@@ -70,9 +70,9 @@ class Testck2yaml:
             gas_s = gas.standard_entropies_R
             for i in range(gas.n_species):
                 message = ' for species {0} at T = {1}'.format(i, T)
-                assert ref_cp[i] == approx(gas_cp[i], rel=1e-7)
-                assert ref_h[i] == approx(gas_h[i], rel=1e-7)
-                assert ref_s[i] == approx(gas_s[i], rel=1e-7)
+                assert ref_cp[i] == approx(gas_cp[i], rel=1e-7), 'cp' + message
+                assert ref_h[i] == approx(gas_h[i], rel=1e-7), 'h' + message
+                assert ref_s[i] == approx(gas_s[i], rel=1e-7), 's' + message
 
     def checkKinetics(self, ref, gas, temperatures, pressures, tol=1e-8):
         for T,P in itertools.product(temperatures, pressures):
@@ -84,8 +84,8 @@ class Testck2yaml:
             gas_kr = gas.reverse_rate_constants
             for i in range(gas.n_reactions):
                 message = ' for reaction {0} at T = {1}, P = {2}'.format(i, T, P)
-                assert ref_kf[i] == approx(gas_kf[i], rel=tol)
-                assert ref_kr[i] == approx(gas_kr[i], rel=tol)
+                assert ref_kf[i] == approx(gas_kf[i], rel=tol), 'kf' + message
+                assert ref_kr[i] == approx(gas_kr[i], rel=tol), 'kr' + message
 
     @pytest.mark.slow_test
     def test_gri30(self):
@@ -228,15 +228,15 @@ class Testck2yaml:
         assert list(nu[:,1]) == [-2, 3, 0, -1, 0, 0, 0, 0, 0, 0]
         assert list(nu[:,2]) == [-1, 0, 0, 0, 1, 0, 0, 0, 0, 0]
         assert list(nu[:,3]) == [3, 0, 0, 0, -2, -1, 0, 0, 0, 0]
-        assert list(nu[:,4])== [2, 0, 0, 0, -1, 0, -1, 0, 0, 0]
-        assert list(nu[:,5])== [1, 0, 0, 0, 1, -1, -1, 0, 0, 0]
-        assert list(nu[:,6])== [2, 0, -1, 0, 0, -1, 0, 0, 0, 0]
-        assert list(nu[:,7])== [0, 0, 0, 0, -1, 1, 0, 0, 0, 0]
-        assert list(nu[:,8])== [0, 0, 0, 0, -1, 1, 0, 0, 0, 0]
-        assert list(nu[:,9])== [0, 0, 0, 0, -1, 1, 0, 0, 0, 0]
-        assert list(nu[:,10])== [0, 0, -1, 0, 2, 0, 0, -1, 0, 0]
-        assert list(nu[:,11])== [0, 0, -1, 0, 2, 0, 0, 0, -1, 0]
-        assert list(nu[:,12])== [0, 0, 0, 0, 1, 0, 0, 0, 0, -1]
+        assert list(nu[:,4]) == [2, 0, 0, 0, -1, 0, -1, 0, 0, 0]
+        assert list(nu[:,5]) == [1, 0, 0, 0, 1, -1, -1, 0, 0, 0]
+        assert list(nu[:,6]) == [2, 0, -1, 0, 0, -1, 0, 0, 0, 0]
+        assert list(nu[:,7]) == [0, 0, 0, 0, -1, 1, 0, 0, 0, 0]
+        assert list(nu[:,8]) == [0, 0, 0, 0, -1, 1, 0, 0, 0, 0]
+        assert list(nu[:,9]) == [0, 0, 0, 0, -1, 1, 0, 0, 0, 0]
+        assert list(nu[:,10]) == [0, 0, -1, 0, 2, 0, 0, -1, 0, 0]
+        assert list(nu[:,11]) == [0, 0, -1, 0, 2, 0, 0, 0, -1, 0]
+        assert list(nu[:,12]) == [0, 0, 0, 0, 1, 0, 0, 0, 0, -1]
 
     def test_unterminatedSections(self):
         output = self.convert('unterminated-sections.inp', quiet=False)
@@ -320,7 +320,7 @@ class Testck2yaml:
         # two irreversible reactions with reactants and products swapped, unless
         # the explicit reverse rate is zero so only the forward reaction is used.
         Rr = gas.reverse_rate_constants
-        assert  Rr[0] == 0.0
+        assert Rr[0] == 0.0
         assert Rr[1] == 0.0
         assert Rr[2] == 0.0
         assert Rr[3] == 0.0
@@ -891,9 +891,9 @@ class Testyaml2ck:
             assert ck_phase.density == approx(yaml_phase.density)
             for i in range(ck_phase.n_species):
                 message = ' for species {0} at T = {1}'.format(i, T)
-                assert cp_ck[i] == approx(cp_yaml[yaml_idx[i]], rel=tol)
-                assert h_ck[i] == approx(h_yaml[yaml_idx[i]], rel=tol)
-                assert s_ck[i] == approx(s_yaml[yaml_idx[i]], rel=tol)
+                assert cp_ck[i] == approx(cp_yaml[yaml_idx[i]], rel=tol), 'cp' + message
+                assert h_ck[i] == approx(h_yaml[yaml_idx[i]], rel=tol), 'h' + message
+                assert s_ck[i] == approx(s_yaml[yaml_idx[i]], rel=tol), 's' + message
 
     def check_kinetics(self, ck_phase, yaml_phase, temperatures, pressures, tol=1e-7):
         for T, P in itertools.product(temperatures, pressures):
@@ -905,8 +905,8 @@ class Testyaml2ck:
             kr_yaml = yaml_phase.reverse_rate_constants
             for i in range(yaml_phase.n_reactions):
                 message = f"for reaction {i+1}: {yaml_phase.reaction(i)} at T = {T}, P = {P}"
-                assert kf_ck[i] == approx(kf_yaml[i], rel=tol)
-                assert kr_ck[i] == approx(kr_yaml[i], rel=tol)
+                assert kf_ck[i] == approx(kf_yaml[i], rel=tol), 'kf ' + message
+                assert kr_ck[i] == approx(kr_yaml[i], rel=tol), 'kr ' + message
 
     def check_transport(self, ck_phase, yaml_phase, temperatures, model="mixture-averaged"):
         yaml_idx = {ck_phase.species_index(s): yaml_phase.species_index(s) for s in ck_phase.species_names}
@@ -921,7 +921,7 @@ class Testyaml2ck:
             Dkm_yaml = yaml_phase.mix_diff_coeffs
             for i in range(ck_phase.n_species):
                 message = 'dkm for species {0} at T = {1}'.format(i, T)
-                assert Dkm_ck[i] == approx(Dkm_yaml[yaml_idx[i]])
+                assert Dkm_ck[i] == approx(Dkm_yaml[yaml_idx[i]]), message
 
     @pytest.mark.slow_test
     def test_gri30(self, cantera_data_path):
@@ -1139,9 +1139,9 @@ class Testcti2yaml:
             for i in range(ctiPhase.n_species):
                 message = ' for species {0} at T = {1}'.format(i, T)
                 if check_cp:
-                    cp_cti[i] == approx(cp_yaml[i], rel=tol)
-                assert h_cti[i] == approx(h_yaml[i], rel=tol)
-                assert s_cti[i] == approx(s_yaml[i], rel=tol)
+                    cp_cti[i] == approx(cp_yaml[i], rel=tol), 'cp' + message
+                assert h_cti[i] == approx(h_yaml[i], rel=tol), 'h' + message
+                assert s_cti[i] == approx(s_yaml[i], rel=tol), 's' + message
 
     def checkKinetics(self, ctiPhase, yamlPhase, temperatures, pressures, tol=1e-7):
         for T,P in itertools.product(temperatures, pressures):
@@ -1153,8 +1153,8 @@ class Testcti2yaml:
             kr_yaml = yamlPhase.reverse_rate_constants
             for i in range(yamlPhase.n_reactions):
                 message = ' for reaction {0} at T = {1}, P = {2}'.format(i, T, P)
-                assert kf_cti[i] == approx(kf_yaml[i], rel=tol)
-                assert kr_cti[i] == approx(kr_yaml[i], rel=tol)
+                assert kf_cti[i] == approx(kf_yaml[i], rel=tol), 'kf ' + message
+                assert kr_cti[i] == approx(kr_yaml[i], rel=tol), 'kr ' + message
 
     def checkTransport(self, ctiPhase, yamlPhase, temperatures,
                        model='mixture-averaged'):
@@ -1169,7 +1169,7 @@ class Testcti2yaml:
             Dkm_yaml = yamlPhase.mix_diff_coeffs
             for i in range(ctiPhase.n_species):
                 message = 'dkm for species {0} at T = {1}'.format(i, T)
-                assert Dkm_cti[i] == approx(Dkm_yaml[i])
+                assert Dkm_cti[i] == approx(Dkm_yaml[i]), message
 
     @pytest.mark.slow_test
     def test_gri30(self):
@@ -1343,7 +1343,8 @@ class Testctml2yaml:
             assert C.duplicate == Y.duplicate
 
         for i, sp in zip(range(ctmlPhase.n_reactions), ctmlPhase.kinetics_species_names):
-            assert ctmlPhase.reactant_stoich_coeff(sp, i) == yamlPhase.reactant_stoich_coeff(sp, i)
+            assert (ctmlPhase.reactant_stoich_coeff(sp, i)
+                    == yamlPhase.reactant_stoich_coeff(sp, i))
 
         return ctmlPhase, yamlPhase
 
@@ -1366,9 +1367,9 @@ class Testctml2yaml:
             for i in range(ctmlPhase.n_species):
                 message = ' for species {0} at T = {1}'.format(ctmlPhase.species_names[i], T)
                 if check_cp:
-                    assert cp_ctml[i] == approx(cp_yaml[i], rel=tol)
-                assert h_ctml[i] == approx(h_yaml[i], rel=tol)
-                assert s_ctml[i] == approx(s_yaml[i], rel=tol)
+                    assert cp_ctml[i] == approx(cp_yaml[i], rel=tol), 'cp' + message
+                assert h_ctml[i] == approx(h_yaml[i], rel=tol), 'h' + message
+                assert s_ctml[i] == approx(s_yaml[i], rel=tol), 's' + message
 
     def checkKinetics(self, ctmlPhase, yamlPhase, temperatures, pressures, tol=1e-7):
         for T,P in itertools.product(temperatures, pressures):
@@ -1380,8 +1381,8 @@ class Testctml2yaml:
             kr_yaml = yamlPhase.reverse_rate_constants
             for i in range(yamlPhase.n_reactions):
                 message = ' for reaction {0} at T = {1}, P = {2}'.format(i, T, P)
-                assert kf_ctml[i] == approx(kf_yaml[i], rel=tol)
-                assert kr_ctml[i] == approx(kr_yaml[i], rel=tol)
+                assert kf_ctml[i] == approx(kf_yaml[i], rel=tol), 'kf ' + message
+                assert kr_ctml[i] == approx(kr_yaml[i], rel=tol), 'kr ' + message
 
     def checkTransport(self, ctmlPhase, yamlPhase, temperatures,
                        model='mixture-averaged'):
@@ -1396,7 +1397,7 @@ class Testctml2yaml:
             Dkm_yaml = yamlPhase.mix_diff_coeffs
             for i in range(ctmlPhase.n_species):
                 message = 'dkm for species {0} at T = {1}'.format(i, T)
-                assert Dkm_ctml[i] == approx(Dkm_yaml[i])
+                assert Dkm_ctml[i] == approx(Dkm_yaml[i]), message
 
     @pytest.mark.slow_test
     def test_gri30(self):
