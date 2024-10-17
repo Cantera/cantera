@@ -240,13 +240,13 @@ Chebyshev reactions can be defined in the YAML format using the
 
 Linear Burke rate expressions employ the reduced-pressure linear mixture rule (LMR-R).
 This mixture rule is used to evaluate the rate constants of complex-forming reactions,
-and is a mole-fraction-weighted sum of the bath gas rate constants (when pure) evaluated
+and is a weighted sum of the bath gas rate constants (when pure) evaluated
 at the reduced pressure ($R$) and temperature ($T$) of the mixture.
 
 $$ k_{\text{LMR-R}}(T,P,\boldsymbol{X}) = \sum_{i}
 k_{i}(T,R_{\text{LMR}})\tilde{X}_{i,\text{LMR}} $$
 
-where the reduced pressure, $R$, in its most general form
+where the reduced pressure, $R_{\text{LMR}}$, in its most general form
 
 $$ R_{\text{LMR}}(T,P,\boldsymbol{X}) = \frac{\sum_{i}
 \Lambda_{0,i}(T)X_i[M]}{\Lambda_{\infty}(T)} $$
@@ -270,7 +270,7 @@ expressed with respect to pressure $P$ (which has units of Pa, Torr, bar, atm, e
 rather than reduced pressure $R$ (which is dimensionless), one needs to find the
 effective pressure for the $i^{th}$ collider, $P_{i}^{\text{ eff}}$ (with units of $P$),
 such that the reduced pressure of pure collider $i$ is equal to the reduced pressure of
-the mixture, which can be shown to be
+the mixture. This can be shown to be
 
 $$ P_{i,\text{LMR}}^{\text{ eff}}(T,P,\boldsymbol{X}) = \frac{\sum_{j}
 \Lambda_{0,j}(T)X_j}{\Lambda_{0,i}(T)}P $$
@@ -290,15 +290,14 @@ $\epsilon_{0,i}(T)=\Lambda_{0,i}(T)/\Lambda_{0,\text{M}}(T)$ (where the user mus
 $\epsilon_{0,\text{M}}(T)=1$, as this is true by definition), can be implemented by the
 user in lieu of $\Lambda_{0,i}(T)$.
 
-While direct implementation of LMR-R via the above equation would require $k_i(T,P)$ be
+While full implementation of LMR-R via the above equation would require $k_i(T,P)$ be
 specified in addition to $\Lambda_{0,i}(T)$ or $\epsilon_{0,i}(T)$ for each important
-collider, often data for $k_i(T,P)$ (i.e. the complete $T,P$-dependence) for each
+collider, often data for $k_i(T,P)$ (that is, the complete $T,P$-dependence) for each
 collider is not available even when $\Lambda_{0,i}(T)$ or $\epsilon_{0,i}(T)$ have
 available data or can be estimated using typical values (as is typically done in kinetic
-models for reactions in modified Lindemann expressions).  It would therefore be useful
-to allow some colliders to be specified with unique $\Lambda_{0,i}(T)$ (or
-$\epsilon_{0,i}(T)$) without $k_i(T,P)$, by assuming the same reduced-pressure
-dependence as M (i.e. $k_{i}(T,R)=k_{M}(T,R)$) for those colliders:
+models for reactions in modified Lindemann expressions). Therefore, for colliders with
+unique $\Lambda_{0,i}(T)$ (or $\epsilon_{0,i}(T)$) but without $k_i(T,P)$, the same
+reduced-pressure dependence as M (that is, $k_{i}(T,R)=k_{M}(T,R)$) is assumed:
 
 $$ k_{\text{LMR-R}}(T,P,\boldsymbol{X}) = \sum_{n} k_{n}(T,P_{n,\text{LMR}}^{\text{
 eff}})\tilde{X}_{n,\text{LMR}} + k_{M}(T,P_{M,\text{LMR}}^{\text{ eff}})
@@ -317,7 +316,7 @@ different third-body efficiencies often are much more similar at the same reduce
 pressure ($R$) than at the same pressure ($P$) and, in fact, are exactly the same if
 they differ in only their collision frequency (but have the same energy- and
 angular-momentum-transfer kernel). This equation forms the basis of the computational
-implementation of LMR-R in Cantera via the Linear Burke Rate reaction class, as it
+implementation of LMR-R in Cantera via the :ct:`LinearBurkeRate` reaction class, as it
 enables the most accurate representation of $k_{\text{LMR-R}}(T,P,\boldsymbol{X})$
 possible given limitations in the completeness of the dataset at any given moment.
 Further description of the LMR-R theory and computational method is available in
