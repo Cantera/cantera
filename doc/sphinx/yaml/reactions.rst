@@ -405,60 +405,69 @@ Example::
 A complex-forming reaction (one that depends on both P and X) parameterized according to
 the reduced-pressure linear mixture rule as :ref:`described here <sec-linear-Burke>`.
 
-
-
-Additional fields are:
-
-``colliders``
-    A list of dictionaries, where each entry contains parameters corresponding to
-    individual colliders (species in the bath gas).
-
-``name``
-    The name of the collider species (e.g., ``H2O``). The first collider defined must be
-    ``M``, which represents the generic reference collider (often ``Ar`` or ``N2``) that
-    represents all species lacking their own explicit parameterization.
-
-``eig0``
-    The absolute value of the least negative chemically significant eigenvalue of the
-    master equation for the :math:`i^{th}` collider (when pure), evaluated at the
-    low-pressure limit, :math:`\Lambda_{0,i}(T)[M]`. This parameter is entered in
-    modified Arrhenius format to enable consideration of temperature dependence.
-
-``efficiency``
-    The third-body efficiency of the collider relative to that of the reference collider
-    ``M``, defined as
-    :math:`\epsilon_{0,i}(T)=\Lambda_{0,i}(T)/\Lambda_{0,\text{M}}(T)`. The user must
-    assign ``efficiency: {A:1, b:0, Ea: 0}`` for ``M``, as this is true by definition. This
-    parameter is entered in modified Arrhenius format to enable consideration of
-    temperature dependence. If the user wishes to specify a temperature-independent
-    value, then ``A`` can be set to this value and ``b`` and ``Ea`` can be set to 0.
-
 ``efficiency`` and ``eig0`` comprise the two acceptable ways to represent the contribution of
 each bath gas component (collider) to the reduced pressure. All explicitly defined
 colliders must include either ``efficiency`` or ``eig0``, but the choice must remain consistent
 throughout a single reaction (either all colliders are defined with ``efficiency``, or all are
 defined with ``eig0``).
 
-The pressure-dependent aspect of the rate constant can be parameterized in the user's
+The pressure-dependent aspect of each collider rate constant can be parameterized in the user's
 choice of :ref:`Troe <sec-yaml-falloff>`, :ref:`pressure-dependent-arrhenius
 <sec-yaml-pressure-dependent-Arrhenius>`, or :ref:`Chebyshev <sec-yaml-Chebyshev>`
 representations. The same parameters used for a standalone Troe, PLOG, or Chebyshev
-reaction are then inserted directly below ``efficiency`` or ``eig0`` for a given collider
-(note: Troe cannot be given its own ``efficiencies`` key). At minimum, this treatment
-must be applied to ``M``. However, additional colliders may also be given their own
-Troe, PLOG, or Chebyshev parameterization if so desired. Mixing and matching of types
-within the same reaction is allowed (e.g., a PLOG table for ``M``, Troe parameters for
+reaction are then inserted directly below ``efficiency`` or ``eig0`` for a given collider. 
+At minimum, this treatment must be applied to ``M``. However, additional colliders may also
+be given their own Troe, PLOG, or Chebyshev parameterization if so desired. Mixing and matching
+of types within the same reaction is allowed (e.g., a PLOG table for ``M``, Troe parameters for
 ``H2``, and Chebyshev data for ``NH3``).
+
+Additional fields are:
+
+``colliders``
+    A list of dictionaries, where each entry contains parameters corresponding to
+    individual colliders (species in the bath gas). Each entry within the ``colliders`` list
+    may contain the following fields:
+
+    ``name``
+        The name of the collider species (e.g., ``H2O``). The first collider defined must be
+        ``M``, which represents the generic reference collider (often ``Ar`` or ``N2``) that
+        represents all species lacking their own explicit parameterization.
+
+    ``eig0``
+        The absolute value of the least negative chemically significant eigenvalue of the
+        master equation for the :math:`i^{th}` collider (when pure), evaluated at the
+        low-pressure limit, :math:`\Lambda_{0,i}(T)[M]`. This parameter is entered in
+        modified Arrhenius format to enable consideration of temperature dependence.
+
+    ``efficiency``
+        The third-body efficiency of the collider relative to that of the reference collider
+        ``M``, defined as
+        :math:`\epsilon_{0,i}(T)=\Lambda_{0,i}(T)/\Lambda_{0,\text{M}}(T)`. The user must
+        assign ``efficiency: {A:1, b:0, Ea: 0}`` for ``M``, as this is true by definition. This
+        parameter is entered in modified Arrhenius format to enable consideration of
+        temperature dependence. If the user wishes to specify a temperature-independent
+        value, then ``A`` can be set to this value and ``b`` and ``Ea`` can be set to 0.
+
+    A :ref:`Troe <sec-yaml-falloff>` implementation alse requires: ``high-P-rate-constant``,
+    ``low-P-rate-constant``, ``Troe`` (do not use the Troe ``efficiencies`` key)
+
+    A :ref:`pressure-dependent-arrhenius<sec-yaml-pressure-dependent-Arrhenius>` implementation
+    also requires: ``rate-constants``
+
+    A :ref:`Chebyshev <sec-yaml-Chebyshev>` implementation also requires: ``temperature-range``, 
+    ``pressure-range``, ``data``
 
 A mathematical description of this YAML implementation can be found in Eq. 8 of
 :cite:t:`singal2024`.
 
-Examples::
+Examples:
+
+*`linear-Burke` rate with Troe format for the reference collider (N2)*:
 
     equation: H + OH <=> H2O
     type: linear-Burke
     colliders:
-    - name: M # N2 is reference collider (Troe format)
+    - name: M
       efficiency: {A: 1, b: 0, Ea: 0}
       low-P-rate-constant: {A: 4.530000e+21, b: -1.820309e+00, Ea: 4.987000e+02}
       high-P-rate-constant: {A: 2.510000e+13, b: 2.329303e-01, Ea: -1.142000e+02}
@@ -468,10 +477,12 @@ Examples::
     - name: H2O
       efficiency: {A: 1.04529e-01, b: 5.50787e-01, Ea: -2.32675e+02}
 
-    equation: H + O2 (+M) <=> HO2 (+M)  # Including "(+M)" is optional
+*`linear-Burke` rate with PLOG format for the reference collider (Ar)*:
+
+    equation: H + O2 (+M) <=> HO2 (+M)
     type: linear-Burke
     colliders:
-    - name: M # Ar is reference collider (PLOG format)
+    - name: M
       efficiency: {A: 1, b: 0, Ea: 0}
       rate-constants:
       - {P: 1.316e-02 atm, A: 9.39968e+14, b: -2.14348e+00, Ea: 7.72730e+01}
@@ -495,10 +506,12 @@ Examples::
     - name: H2O
       efficiency: {A: 3.69146e+01, b: -7.12902e-02, Ea: 3.19087e+01}
 
+*`linear-Burke` rate with Chebyshev format for the reference collider (Ar)*:
+
     equation: H2O2 <=> 2 OH
     type: linear-Burke
     colliders:
-    - name: M # Ar is reference collider (Chebyshev format)
+    - name: M
       efficiency: {A: 1, b: 0, Ea: 0}
       temperature-range: [200.0, 2000.0]
       pressure-range: [1.000e-01 atm, 1.000e+02 atm]
@@ -510,7 +523,6 @@ Examples::
       - [-6.06e-02, -1.42e-02, 1.34e-03, 9.62e-03, 1.70e-03, -3.65e-03, -4.32e-04]
       - [-2.46e-02, -9.71e-03, -5.88e-03, 3.05e-03, 5.87e-03, 1.50e-03, -2.01e-03]
       - [-1.54e-02, -5.24e-03, -6.91e-03, -5.94e-03, -1.22e-03, 2.17e-03, 1.59e-03]
-
     - name: N2
       efficiency: {A: 1.14813e+00, b: 4.60090e-02, Ea: -2.92413e+00}
     - name: CO2
