@@ -212,7 +212,7 @@ linear-Burke_reactions:
     efficiency: {A: 10, b: 0, Ea: 0}
 
 - equation: H + O2 (+M) <=> HO2 (+M)
-  type: linear-burke
+  type: linear-Burke
   colliders:
   - name: M
     type: falloff
@@ -223,7 +223,7 @@ linear-Burke_reactions:
     efficiency: {A: 10, b: 0, Ea: 0}
 
 - equation: H2O2 <=> 2 OH
-  type: linear-burke
+  type: linear-Burke
   colliders:
   - name: M
     type: Chebyshev
