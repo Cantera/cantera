@@ -28,6 +28,8 @@ The fields common to all ``reaction`` entries are:
     - ``chemically-activated`` (:ref:`details <sec-yaml-chemically-activated>`)
     - ``pressure-dependent-Arrhenius`` (:ref:`details <sec-yaml-pressure-dependent-Arrhenius>`)
     - ``Chebyshev`` (:ref:`details <sec-yaml-Chebyshev>`)
+    - ``linear-Burke`` (:ref:`details <sec-yaml-linear-Burke>`)
+
 
     Reactions without a specified ``type`` on surfaces or edges are
     automatically treated as :ref:`interface-Arrhenius <sec-yaml-interface-Arrhenius>`
@@ -412,7 +414,7 @@ choice must remain consistent throughout a single reaction (either all colliders
 defined with ``efficiency``, or all are defined with ``eig0``).
 
 The pressure-dependent aspect of each collider rate constant can be parameterized in the
-user's choice of :ref:`Troe <sec-yaml-falloff>`, :ref:`pressure-dependent-arrhenius <sec-yaml-pressure-dependent-Arrhenius>`,
+user's choice of :ref:`Troe <sec-yaml-falloff>`, :ref:`pressure-dependent-Arrhenius <sec-yaml-pressure-dependent-Arrhenius>`,
 or :ref:`Chebyshev <sec-yaml-Chebyshev>` representations. The same parameters used for a
 standalone Troe, PLOG, or Chebyshev reaction are then inserted directly below
 ``efficiency`` or ``eig0`` for a given collider. At minimum, this treatment must be
@@ -420,6 +422,9 @@ applied to ``M``. However, additional colliders may also be given their own Troe
 or Chebyshev parameterization if so desired. Mixing and matching of types within the
 same reaction is allowed (e.g., a PLOG table for ``M``, Troe parameters for ``H2``, and
 Chebyshev data for ``NH3``).
+
+A mathematical description of this YAML implementation can be found in Eq. 8 of
+:cite:t:`singal2024`.
 
 Additional fields are:
 
@@ -436,29 +441,29 @@ Additional fields are:
     ``eig0``
         The absolute value of the least negative chemically significant eigenvalue of
         the master equation for the :math:`i^{th}` collider (when pure), evaluated at
-        the low-pressure limit, :math:`\Lambda_{0,i}(T)[M]`. This parameter is entered
-        in modified Arrhenius format to enable consideration of temperature dependence.
+        the low-pressure limit, :math:`\Lambda_{0,i}(T)[M]`. The user must explicitly
+        assign an ``eig0`` for ``M``. This parameter is entered in modified Arrhenius
+        format to enable consideration of temperature dependence.
 
     ``efficiency``
         The third-body efficiency of the collider relative to that of the reference
         collider ``M``, defined as :math:`\epsilon_{0,i}(T)=\Lambda_{0,i}(T)/\Lambda_{0,\text{M}}(T)`.
         The user does not need to assign an ``efficiency`` for ``M``, as it is always
-        equal to 1 by definition. This parameter is entered in modified Arrhenius format
-        to enable consideration of temperature dependence. If the user wishes to specify
-        a temperature-independent value, then ``A`` can be set to this value and ``b``
-        and ``Ea`` can be set to 0.
+        equal to 1 by definition. However, they are free to do so, as long as it takes
+        the form 'efficiency: {A: 1, b: 0, Ea: 0}' (no other variations are permitted).
+        This parameter is entered in modified Arrhenius format to enable consideration
+        of temperature dependence. If the user wishes to specify a
+        temperature-independent value, then ``A`` can be set to this value and ``b`` and
+        ``Ea`` can be set to 0 (such as 'H2O: {A: 10, b: 0, Ea: 0}').
 
-    A :ref:`Troe <sec-yaml-falloff>` implementation alse requires: ``high-P-rate-constant``,
+    A :ref:`Troe <sec-yaml-falloff>` implementation also requires: ``high-P-rate-constant``,
     ``low-P-rate-constant``, ``Troe`` (do not use the Troe ``efficiencies`` key).
 
-    A :ref:`pressure-dependent-arrhenius<sec-yaml-pressure-dependent-Arrhenius>` implementation
+    A :ref:`pressure-dependent-Arrhenius <sec-yaml-pressure-dependent-Arrhenius>` implementation
     also requires: ``rate-constants``.
 
     A :ref:`Chebyshev <sec-yaml-Chebyshev>` implementation also requires: ``temperature-range``,
     ``pressure-range``, ``data``.
-
-A mathematical description of this YAML implementation can be found in Eq. 8 of
-:cite:t:`singal2024`.
 
 Examples:
 
@@ -468,6 +473,7 @@ Examples:
     type: linear-Burke
     colliders:
     - name: M
+      type: falloff
       low-P-rate-constant: {A: 4.530000e+21, b: -1.820309e+00, Ea: 4.987000e+02}
       high-P-rate-constant: {A: 2.510000e+13, b: 2.329303e-01, Ea: -1.142000e+02}
       Troe: {A: 9.995044e-01, T3: 1.0e-30, T1: 1.0e+30}
@@ -478,10 +484,11 @@ Examples:
 
 *`linear-Burke` rate with PLOG format for the reference collider (Ar)*:
 
-    equation: H + O2 (+M) <=> HO2 (+M)
+    equation: H + O2 (+M) <=> HO2 (+M) # Adding '(+M)' is optional
     type: linear-Burke
     colliders:
     - name: M
+      type: pressure-dependent-Arrhenius
       rate-constants:
       - {P: 1.316e-02 atm, A: 9.39968e+14, b: -2.14348e+00, Ea: 7.72730e+01}
       - {P: 1.316e-01 atm, A: 1.07254e+16, b: -2.15999e+00, Ea: 1.30239e+02}
@@ -510,6 +517,7 @@ Examples:
     type: linear-Burke
     colliders:
     - name: M
+      type: Chebyshev
       temperature-range: [200.0, 2000.0]
       pressure-range: [1.000e-01 atm, 1.000e+02 atm]
       data:
