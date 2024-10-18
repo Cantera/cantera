@@ -405,57 +405,57 @@ Example::
 A complex-forming reaction (one that depends on both P and X) parameterized according to
 the reduced-pressure linear mixture rule as :ref:`described here <sec-linear-Burke>`.
 
-``efficiency`` and ``eig0`` comprise the two acceptable ways to represent the contribution of
-each bath gas component (collider) to the reduced pressure. All explicitly defined
-colliders must include either ``efficiency`` or ``eig0``, but the choice must remain consistent
-throughout a single reaction (either all colliders are defined with ``efficiency``, or all are
-defined with ``eig0``).
+``efficiency`` and ``eig0`` comprise the two acceptable ways to represent the
+contribution of each bath gas component (collider) to the reduced pressure. All
+explicitly defined colliders must include either ``efficiency`` or ``eig0``, but the
+choice must remain consistent throughout a single reaction (either all colliders are
+defined with ``efficiency``, or all are defined with ``eig0``).
 
-The pressure-dependent aspect of each collider rate constant can be parameterized in the user's
-choice of :ref:`Troe <sec-yaml-falloff>`, :ref:`pressure-dependent-arrhenius
-<sec-yaml-pressure-dependent-Arrhenius>`, or :ref:`Chebyshev <sec-yaml-Chebyshev>`
-representations. The same parameters used for a standalone Troe, PLOG, or Chebyshev
-reaction are then inserted directly below ``efficiency`` or ``eig0`` for a given collider. 
-At minimum, this treatment must be applied to ``M``. However, additional colliders may also
-be given their own Troe, PLOG, or Chebyshev parameterization if so desired. Mixing and matching
-of types within the same reaction is allowed (e.g., a PLOG table for ``M``, Troe parameters for
-``H2``, and Chebyshev data for ``NH3``).
+The pressure-dependent aspect of each collider rate constant can be parameterized in the
+user's choice of :ref:`Troe <sec-yaml-falloff>`, :ref:`pressure-dependent-arrhenius <sec-yaml-pressure-dependent-Arrhenius>`,
+or :ref:`Chebyshev <sec-yaml-Chebyshev>` representations. The same parameters used for a
+standalone Troe, PLOG, or Chebyshev reaction are then inserted directly below
+``efficiency`` or ``eig0`` for a given collider. At minimum, this treatment must be
+applied to ``M``. However, additional colliders may also be given their own Troe, PLOG,
+or Chebyshev parameterization if so desired. Mixing and matching of types within the
+same reaction is allowed (e.g., a PLOG table for ``M``, Troe parameters for ``H2``, and
+Chebyshev data for ``NH3``).
 
 Additional fields are:
 
 ``colliders``
     A list of dictionaries, where each entry contains parameters corresponding to
-    individual colliders (species in the bath gas). Each entry within the ``colliders`` list
-    may contain the following fields:
+    individual colliders (species in the bath gas). Each entry within the ``colliders``
+    list may contain the following fields:
 
     ``name``
-        The name of the collider species (e.g., ``H2O``). The first collider defined must be
-        ``M``, which represents the generic reference collider (often ``Ar`` or ``N2``) that
-        represents all species lacking their own explicit parameterization.
+        The name of the collider species (e.g., ``H2O``). The first collider defined
+        must be ``M``, which represents the generic reference collider (often ``Ar`` or
+        ``N2``) that represents all species lacking their own explicit parameterization.
 
     ``eig0``
-        The absolute value of the least negative chemically significant eigenvalue of the
-        master equation for the :math:`i^{th}` collider (when pure), evaluated at the
-        low-pressure limit, :math:`\Lambda_{0,i}(T)[M]`. This parameter is entered in
-        modified Arrhenius format to enable consideration of temperature dependence.
+        The absolute value of the least negative chemically significant eigenvalue of
+        the master equation for the :math:`i^{th}` collider (when pure), evaluated at
+        the low-pressure limit, :math:`\Lambda_{0,i}(T)[M]`. This parameter is entered
+        in modified Arrhenius format to enable consideration of temperature dependence.
 
     ``efficiency``
-        The third-body efficiency of the collider relative to that of the reference collider
-        ``M``, defined as :math:`\epsilon_{0,i}(T)=\Lambda_{0,i}(T)/\Lambda_{0,\text{M}}(T)`.
-        The user does not need to assign an ``efficiency`` for ``M``, as it is always equal to
-        1 by definition. This parameter is entered in modified Arrhenius format to enable
-        consideration of temperature dependence. If the user wishes to specify a
-        temperature-independent value, then ``A`` can be set to this value and ``b`` and ``Ea``
-        can be set to 0.
+        The third-body efficiency of the collider relative to that of the reference
+        collider ``M``, defined as :math:`\epsilon_{0,i}(T)=\Lambda_{0,i}(T)/\Lambda_{0,\text{M}}(T)`.
+        The user does not need to assign an ``efficiency`` for ``M``, as it is always
+        equal to 1 by definition. This parameter is entered in modified Arrhenius format
+        to enable consideration of temperature dependence. If the user wishes to specify
+        a temperature-independent value, then ``A`` can be set to this value and ``b``
+        and ``Ea`` can be set to 0.
 
     A :ref:`Troe <sec-yaml-falloff>` implementation alse requires: ``high-P-rate-constant``,
-    ``low-P-rate-constant``, ``Troe`` (do not use the Troe ``efficiencies`` key)
+    ``low-P-rate-constant``, ``Troe`` (do not use the Troe ``efficiencies`` key).
 
     A :ref:`pressure-dependent-arrhenius<sec-yaml-pressure-dependent-Arrhenius>` implementation
-    also requires: ``rate-constants``
+    also requires: ``rate-constants``.
 
-    A :ref:`Chebyshev <sec-yaml-Chebyshev>` implementation also requires: ``temperature-range``, 
-    ``pressure-range``, ``data``
+    A :ref:`Chebyshev <sec-yaml-Chebyshev>` implementation also requires: ``temperature-range``,
+    ``pressure-range``, ``data``.
 
 A mathematical description of this YAML implementation can be found in Eq. 8 of
 :cite:t:`singal2024`.
