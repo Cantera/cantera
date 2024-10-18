@@ -74,7 +74,7 @@ void LinearBurkeRate::setParameters(const AnyMap& node, const UnitStack& rate_un
             "'colliders' key missing from reaction '{}'.",eqn);
     } else if (!colliders[0].hasKey("efficiency") && !colliders[0].hasKey("eig0")) {
         throw InputFileError("LinearBurkeRate::setParameters", m_input,
-                "Collider 'M' in reaction '{}' is missing an 'efficiency' or 'eig0' key.",
+                "Collider 'M' in reaction '{}' lacks an 'efficiency' or 'eig0' key.",
                 eqn);
     } else if (colliders[0]["name"].as<string>() != "M") {
         throw InputFileError("LinearBurkeRate::setParameters", m_input,
@@ -109,8 +109,8 @@ void LinearBurkeRate::setParameters(const AnyMap& node, const UnitStack& rate_un
     }
     else{
         throw InputFileError("LinearBurkeRate::setParameters", m_input,
-            "Collider 'M' in reaction '{}' cannot contain both 'efficiency' and 'eig0'. Any"
-            " additional colliders must also make same choice as that of M.", eqn);
+            "Collider 'M' in reaction '{}' cannot contain both 'efficiency' and 'eig0'."
+            " Any additional colliders must also make same choice as that of M.", eqn);
     }
     AnyMap params;
     params["A"] = 1.0;
@@ -128,13 +128,14 @@ void LinearBurkeRate::setParameters(const AnyMap& node, const UnitStack& rate_un
         auto nm = colliders[i]["name"].asString();
         if (!colliders[i].hasKey("efficiency") && !colliders[0].hasKey("eig0")) {
             throw InputFileError("LinearBurkeRate::setParameters", m_input,
-                "Collider '{}' in reaction '{}' is missing an 'efficiency' or 'eig0' key.",
+                "Collider '{}' in reaction '{}' lacks an 'efficiency' or 'eig0' key.",
                 nm, eqn);
         }
         if (!colliders[i].hasKey(eig_eps_key)) {
             throw InputFileError("LinearBurkeRate::setParameters", m_input,
                 "All collision efficiencies in reaction '{}' must be defined uniformly"
-                " as either 'eig0' or 'efficiency'. No mixing and matching is allowed.", eqn);
+                " as either 'eig0' or 'efficiency'. No mixing and matching is allowed.",
+                eqn);
         }
         // Save data to m_colliderInfo, which will make it accessible by getParameters
         m_colliderInfo[colliders[i]["name"].asString()] = colliders[i];
@@ -178,8 +179,8 @@ void LinearBurkeRate::setParameters(const AnyMap& node, const UnitStack& rate_un
                 m_epsObjs2.push_back(epsObj_i);
             }
         }
-        // Collider has an 'efficiency' specified, but no other info is provided. Assign it the
-        // same rate and data objects as "M"
+        // Collider has an 'efficiency' specified, but no other info is provided. Assign
+        // it the same rate and data objects as "M"
         else {
             m_rateObjs.push_back(m_rateObj_M);
             m_dataObjs.push_back(m_dataObj_M);
@@ -269,18 +270,18 @@ double LinearBurkeRate::evalFromStruct(const LinearBurkeData& shared_data)
         logPeff_ = shared_data.logP + log(eps_mix) - log(eps2);
         // 0 means PlogRate
         if (m_rateObjs[j].which() == 0) {
-            k_LMR_ += evalPlogRate(shared_data, m_dataObjs[j], m_rateObjs[j],logPeff_) * eps1 *
-                shared_data.moleFractions[i] / eps_mix;
+            k_LMR_ += evalPlogRate(shared_data, m_dataObjs[j], m_rateObjs[j], logPeff_)
+                 * eps1 * shared_data.moleFractions[i] / eps_mix;
         }
         // 1 means TroeRate
         else if (m_rateObjs[j].which() == 1) {
-            k_LMR_ += evalTroeRate(shared_data, m_dataObjs[j], m_rateObjs[j],logPeff_) * eps1 *
-                shared_data.moleFractions[i] / eps_mix;
+            k_LMR_ += evalTroeRate(shared_data, m_dataObjs[j], m_rateObjs[j], logPeff_)
+                 * eps1 * shared_data.moleFractions[i] / eps_mix;
         }
         // 2 means ChebyshevRate
         else if (m_rateObjs[j].which() == 2) {
-            k_LMR_ += evalChebyshevRate(shared_data, m_dataObjs[j], m_rateObjs[j],logPeff_) * eps1 *
-                shared_data.moleFractions[i] / eps_mix;
+            k_LMR_ += evalChebyshevRate(shared_data, m_dataObjs[j], m_rateObjs[j], logPeff_)
+                 * eps1 * shared_data.moleFractions[i] / eps_mix;
         }
         else {
             throw InputFileError("LinearBurkeRate::evalFromStruct", m_input,
@@ -291,16 +292,19 @@ double LinearBurkeRate::evalFromStruct(const LinearBurkeData& shared_data)
     // logPeff_ = shared_data.logP + log(eps_mix) - log(eps_M)
     // but log(eps_M)=0 always
     logPeff_ = shared_data.logP + log(eps_mix);
+    // We actually have
+    // k_LMR_+=evalPlogRate(shared_data,m_dataObj_M,m_rateObj_M)*eps_M*sigmaX_M/eps_mix
+    // k_LMR_+=evalTroeRate(shared_data,m_dataObj_M,m_rateObj_M)*eps_M*sigmaX_M/eps_mix
+    // etc., but eps_M = 1 always
     if (m_rateObj_M.which() == 0) { // 0 means PlogRate
-        // We actually have
-        // k_LMR_+=evalPlogRate(shared_data,m_dataObj_M,m_rateObj_M)*eps_M*sigmaX_M/eps_mix
-        // but eps_M = 1 always
-        k_LMR_ += evalPlogRate(shared_data, m_dataObj_M, m_rateObj_M,logPeff_) * sigmaX_M / eps_mix;
+        k_LMR_ += evalPlogRate(shared_data, m_dataObj_M, m_rateObj_M, logPeff_) *
+             sigmaX_M / eps_mix;
     } else if (m_rateObj_M.which() == 1) { // 1 means TroeRate
-        k_LMR_ += evalTroeRate(shared_data, m_dataObj_M, m_rateObj_M,logPeff_) * sigmaX_M / eps_mix;
+        k_LMR_ += evalTroeRate(shared_data, m_dataObj_M, m_rateObj_M, logPeff_) *
+             sigmaX_M / eps_mix;
     } else if (m_rateObj_M.which() == 2) { // 2 means ChebyshevRate
-        k_LMR_ += evalChebyshevRate(shared_data, m_dataObj_M, m_rateObj_M,logPeff_) * sigmaX_M /
-            eps_mix;
+        k_LMR_ += evalChebyshevRate(shared_data, m_dataObj_M, m_rateObj_M, logPeff_) *
+             sigmaX_M / eps_mix;
     }
     return k_LMR_;
 }

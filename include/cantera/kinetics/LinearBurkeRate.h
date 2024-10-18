@@ -66,7 +66,7 @@ protected:
 
 //! Pressure-dependent and composition-dependent reaction rate calculated according to
 //! the reduced-pressure linear mixture rule (LMR-R).
-//! 
+//!
 //! This parameterization is described by Singal et al. @cite singal2024 and in the
 //! [science reference](../reference/kinetics/rate-constants.html#linear-burke-rate-expressions)
 //! documentation.
@@ -98,7 +98,7 @@ public:
     using RateTypes = boost::variant<PlogRate, TroeRate, ChebyshevRate>;
     //! Create type alias that refers to PlogData, FalloffData, and ChebyshevData
     using DataTypes = boost::variant<PlogData, FalloffData, ChebyshevData>;
-    
+
     double evalFromStruct(const LinearBurkeData& shared_data);
 
     void setContext(const Reaction& rxn, const Kinetics& kin) override;
@@ -146,7 +146,7 @@ protected:
     //! Third-body collision efficiency object for the reference collider M
     //! (eig0_M/eig0_M = 1 always)
     ArrheniusRate m_epsObj_M;
-    
+
     //! Stores rate objects corresponding the reference collider M, which can be
     //! either PlogRate, TroeRate, or ChebyshevRate
     RateTypes m_rateObj_M;
@@ -160,7 +160,7 @@ protected:
     //! Stores data objects corresponding to each non-M collider, which can be either
     //! PlogData, TroeData, or ChebyshevData
     vector<DataTypes> m_dataObjs; //!< list for non-M colliders
-    
+
     size_t m_nSpecies; //!< total number of species in the kinetics object
 };
 
