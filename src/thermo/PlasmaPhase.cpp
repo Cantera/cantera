@@ -176,6 +176,17 @@ void PlasmaPhase::updateElectronTemperatureFromEnergyDist()
     Eigen::ArrayXd eps52 = m_electronEnergyLevels.pow(5./2.);
     double epsilon_m = 2.0 / 5.0 * numericalQuadrature(m_quadratureMethod,
                                                        m_electronEnergyDist, eps52);
+    if (epsilon_m < 0.0 && m_quadratureMethod == "simpson") {
+        // try trapezoidal method
+        epsilon_m = 2.0 / 5.0 * numericalQuadrature(
+            "trapezoidal", m_electronEnergyDist, eps52);
+    }
+
+    if (epsilon_m < 0.0) {
+        throw CanteraError("PlasmaPhase::updateElectronTemperatureFromEnergyDist",
+            "The electron energy distribution produces negative electron temperature.");
+    }
+
     m_electronTemp = 2.0 / 3.0 * epsilon_m * ElectronCharge / Boltzmann;
 }
 
