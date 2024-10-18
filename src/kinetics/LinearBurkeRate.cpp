@@ -72,10 +72,6 @@ void LinearBurkeRate::setParameters(const AnyMap& node, const UnitStack& rate_un
     if (!colliders[0].hasKey("name")) {
         throw InputFileError("LinearBurkeRate::setParameters", m_input,
             "'colliders' key missing from reaction '{}'.",eqn);
-    } else if (!colliders[0].hasKey("efficiency") && !colliders[0].hasKey("eig0")) {
-        throw InputFileError("LinearBurkeRate::setParameters", m_input,
-                "Collider 'M' in reaction '{}' lacks an 'efficiency' or 'eig0' key.",
-                eqn);
     } else if (colliders[0]["name"].as<string>() != "M") {
         throw InputFileError("LinearBurkeRate::setParameters", m_input,
             "The first collider defined in reaction '{}' must be 'M'.",eqn);
@@ -83,13 +79,23 @@ void LinearBurkeRate::setParameters(const AnyMap& node, const UnitStack& rate_un
         throw InputFileError("LinearBurkeRate::setParameters", m_input,
             "'type' key missing for 'M' from reaction '{}'. Must be either 'falloff'"
             " (Troe format), 'pressure-dependent-Arrhenius', or 'Chebyshev'.",eqn);
+    } else if (colliders[0].hasKey("efficiency")) { //
+        if (colliders[0]["efficiency"]["A"] != 1 ||
+            colliders[0]["efficiency"]["b"] != 0 ||
+            colliders[0]["efficiency"]["Ea"] != 0) {
+            throw InputFileError("LinearBurkeRate::setParameters", m_input,
+                "It is not necessary to provide an 'efficiency' for 'M' in reaction "
+                "'{}', as it is always equal to 1, by definition. However, if it is "
+                "entered, then it must be: 'efficiency: {A: 1, b: 0, Ea: 0}'.", eqn);
+        }
     }
     if (colliders[0]["type"] == "pressure-dependent-Arrhenius") {
         m_rateObj_M = PlogRate(colliders[0], rate_units);
         m_dataObj_M = PlogData();
     } else if (colliders[0]["type"] == "falloff" && colliders[0].hasKey("Troe")) {
-        m_rateObj_M = TroeRate(colliders[0], rate_units);
-        m_rateObj_M.setRateIndex(0);
+        TroeRate troeRateObj = TroeRate(colliders[0], rate_units);
+        troeRateObj.setRateIndex(0);
+        m_rateObj_M = troeRateObj;
         m_dataObj_M = FalloffData();
     } else if (colliders[0]["type"] == "Chebyshev") {
         m_rateObj_M = ChebyshevRate(colliders[0], rate_units);
@@ -101,23 +107,22 @@ void LinearBurkeRate::setParameters(const AnyMap& node, const UnitStack& rate_un
             " pressure-dependent-Arrhenius (PLOG), falloff (Troe form), or Chebyshev"
             " format.", eqn);
     }
-    string eig_eps_key;
-    if (colliders[0].hasKey("eig0") && !colliders[0].hasKey("efficiency")) {
-        eig_eps_key = "eig0";
-    } else if (colliders[0].hasKey("efficiency") && !colliders[0].hasKey("eig0")) {
-        eig_eps_key = "efficiency";
-    }
-    else{
-        throw InputFileError("LinearBurkeRate::setParameters", m_input,
-            "Collider 'M' in reaction '{}' cannot contain both 'efficiency' and 'eig0'."
-            " Any additional colliders must also make same choice as that of M.", eqn);
-    }
     AnyMap params;
     params["A"] = 1.0;
     params["b"] = 0.0;
     params["Ea"] = 0.0;
     m_epsObj_M = ArrheniusRate(AnyValue(params), colliders[0].units(), eps_units);
     m_colliderInfo["M"] = colliders[0];
+    string eig_eps_key;
+    // If using eig0 for all colliders, then it is mandatory to specify an eig0 value
+    // for the reference collider
+    if (colliders[0].hasKey("eig0")){
+        eig_eps_key = "eig0";
+    }
+    else {
+        eig_eps_key = "efficiency";
+        colliders[0][eig_eps_key] = params;
+    }
     // Start at 1 because index 0 is for "M"
     for (size_t i = 1; i < colliders.size(); i++){
         if (!colliders[i].hasKey("name")) {
@@ -126,16 +131,41 @@ void LinearBurkeRate::setParameters(const AnyMap& node, const UnitStack& rate_un
                 " has no 'name' defined.", i, eqn);
         }
         auto nm = colliders[i]["name"].asString();
-        if (!colliders[i].hasKey("efficiency") && !colliders[0].hasKey("eig0")) {
-            throw InputFileError("LinearBurkeRate::setParameters", m_input,
-                "Collider '{}' in reaction '{}' lacks an 'efficiency' or 'eig0' key.",
-                nm, eqn);
+        if (eig_eps_key == "eig0"){ // 'M' has 'eig0'
+            if (!colliders[i].hasKey("eig0") && !colliders[i].hasKey("efficiency")){
+                throw InputFileError("LinearBurkeRate::setParameters", m_input,
+                    "Collider '{}' in reaction '{}' lacks an 'eig0' key.",
+                    nm, eqn);
+            } else if (!colliders[i].hasKey("eig0") && colliders[i].hasKey("efficiency")){
+                throw InputFileError("LinearBurkeRate::setParameters", m_input,
+                    "Since 'M' has been explicitly given 'eig0', all other "
+                    "colliders must receive 'eig0' as well. No mixing and matching "
+                    "of 'eig0' and 'efficiency' is allowed.", eqn);
+            } else if (colliders[i].hasKey("eig0") && colliders[i].hasKey("efficiency")){
+                throw InputFileError("LinearBurkeRate::setParameters", m_input,
+                    "Collider '{}' in reaction '{}' cannot contain both 'efficiency'"
+                    " and 'eig0'. All additional colliders must also make the"
+                    " same choice as that of 'M'.", nm, eqn);
+            }
         }
-        if (!colliders[i].hasKey(eig_eps_key)) {
-            throw InputFileError("LinearBurkeRate::setParameters", m_input,
-                "All collision efficiencies in reaction '{}' must be defined uniformly"
-                " as either 'eig0' or 'efficiency'. No mixing and matching is allowed.",
-                eqn);
+        else { // 'M' has 'efficiency'
+            if (!colliders[i].hasKey("efficiency") && !colliders[i].hasKey("eig0")){
+                throw InputFileError("LinearBurkeRate::setParameters", m_input,
+                    "Collider '{}' in reaction '{}' lacks an 'efficiency' key.",
+                    nm, eqn);
+            } else if (!colliders[i].hasKey("efficiency") && colliders[i].hasKey("eig0")){
+                throw InputFileError("LinearBurkeRate::setParameters", m_input,
+                    "Since 'M' has been (implicitly) given 'efficiency', all other "
+                    "colliders must also receive an 'efficiency'. No mixing and matching "
+                    "of 'efficiency' and 'eig0' is allowed.\nIf you wish to define all "
+                    "colliders according to 'eig0' instead, then an 'eig0' value must "
+                    "be explicitly provided for 'M' as well.", eqn);
+            } else if (colliders[i].hasKey("efficiency") && colliders[i].hasKey("eig0")){
+                throw InputFileError("LinearBurkeRate::setParameters", m_input,
+                    "Collider '{}' in reaction '{}' cannot contain both 'eig0'"
+                    " and 'efficiency'. All additional colliders must also make the"
+                    " same choice as that of 'M'.", nm, eqn);
+            }
         }
         // Save data to m_colliderInfo, which will make it accessible by getParameters
         m_colliderInfo[colliders[i]["name"].asString()] = colliders[i];
@@ -157,7 +187,7 @@ void LinearBurkeRate::setParameters(const AnyMap& node, const UnitStack& rate_un
         }
 
         epsObj_i = ArrheniusRate(AnyValue(params), colliders[i].units(), eps_units);
-        if(colliders_i.hasKey("type")) {
+        if(colliders[i].hasKey("type")) {
             if (colliders[i]["type"] == "pressure-dependent-Arrhenius") {
                 m_rateObjs.push_back(PlogRate(colliders[i], rate_units));
                 m_dataObjs.push_back(PlogData());
@@ -249,8 +279,7 @@ double LinearBurkeRate::evalFromStruct(const LinearBurkeData& shared_data)
     double eps_mix = 0.0; // mole-fraction-weighted overall eps value of the mixtures
     for (size_t j = 0; j < m_colliderIndices.size(); j++) {
         size_t i = m_colliderIndices[j];
-        eps_mix += shared_data.moleFractions[i] *
-            m_epsObjs1[j].evalRate(shared_data.logT, shared_data.recipT);
+        eps_mix += shared_data.moleFractions[i] * m_epsObjs1[j].evalRate(shared_data.logT, shared_data.recipT);
         sigmaX_M -= shared_data.moleFractions[i];
     }
     // Add all M colliders to eps_mix in a single step
@@ -319,25 +348,28 @@ void LinearBurkeRate::getParameters(AnyMap& rateNode) const
         if(collider.hasKey("type")) {
             if(collider["type"] == "pressure-dependent-Arrhenius") {
                 colliderNode["name"] = name;
-                if (colliderNode.hasKey("eps")){ // only collider "M" will lack this
-                    colliderNode["eps"] = collider["eps"];
+                if (colliderNode.hasKey("efficiency")){ // only collider "M" will lack this
+                    colliderNode["efficiency"] = collider["efficiency"];
                 }
+                colliderNode["type"] == collider["type"];
                 colliderNode["rate-constants"] = collider["rate-constants"];
             }
             else if(collider["type"] == "falloff" && collider.hasKey("Troe")) {
                 colliderNode["name"] = name;
-                if (colliderNode.hasKey("eps")){
-                    colliderNode["eps"] = collider["eps"];
+                if (colliderNode.hasKey("efficiency")){
+                    colliderNode["efficiency"] = collider["efficiency"];
                 }
+                colliderNode["type"] == collider["type"];
                 colliderNode["low-P-rate-constant"] = collider["low-P-rate-constant"];
                 colliderNode["high-P-rate-constant"] = collider["high-P-rate-constant"];
                 colliderNode["Troe"] = collider["Troe"];
             }
             else if(collider["type"] == "Chebyshev") {
                 colliderNode["name"] = name;
-                if (colliderNode.hasKey("eps")){
-                    colliderNode["eps"] = collider["eps"];
+                if (colliderNode.hasKey("efficiency")){
+                    colliderNode["efficiency"] = collider["efficiency"];
                 }
+                colliderNode["type"] == collider["type"];
                 colliderNode["temperature-range"] = collider["temperature-range"];
                 colliderNode["pressure-range"] = collider["pressure-range"];
                 colliderNode["data"] = collider["data"];
@@ -345,7 +377,7 @@ void LinearBurkeRate::getParameters(AnyMap& rateNode) const
         }
         else {
             colliderNode["name"] = name;
-            colliderNode["eps"] = collider["eps"];
+            colliderNode["efficiency"] = collider["efficiency"];
         }
         topLevelList.push_back(std::move(colliderNode));
     }
