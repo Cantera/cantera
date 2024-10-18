@@ -623,7 +623,7 @@ class TestPlogRate(ReactionRateTests):
         """
 
     @pytest.fixture(scope='function', autouse=True)
-    def setup_plog_data(self, setup_test_data):
+    def setup_plog_data(self):
         self._parts = {
             "rates": [(rc["P"], ct.Arrhenius(rc["A"], rc["b"], rc["Ea"]))
                       for rc in self._input["rate-constants"]],
@@ -706,7 +706,7 @@ class TestChebyshevRate(ReactionRateTests):
         """
 
     @pytest.fixture(scope='function', autouse=True)
-    def setup_chebyshev_data(self, setup_test_data):
+    def setup_chebyshev_data(self):
         self._parts = {
             "pressure_range": self._input["pressure-range"],
             "temperature_range": self._input["temperature-range"],
@@ -790,7 +790,7 @@ class SurfaceReactionRateTests(ReactionRateTests):
         pass
 
 class StickingReactionRateTests(SurfaceReactionRateTests):
-    # test suite for surface reaction rate expressions
+    """Test suite for surface reaction rate expressions"""
 
     _sticking_species = None
     _sticking_order = None
@@ -816,7 +816,7 @@ class StickingReactionRateTests(SurfaceReactionRateTests):
         assert rate.sticking_weight == approx(weight)
 
 class TestSurfaceArrheniusRate(SurfaceReactionRateTests):
-    # test interface-Arrhenius rate expressions without coverage dependency
+    """Test interface-Arrhenius rate expressions without coverage dependency"""
 
     _cls = ct.InterfaceArrheniusRate
     _type = "interface-Arrhenius"
@@ -829,7 +829,7 @@ class TestSurfaceArrheniusRate(SurfaceReactionRateTests):
         """
 
 class TestInterfaceArrheniusRate(SurfaceReactionRateTests):
-    # test interface-Arrhenius rate expressions with coverage dependency
+    """Test interface-Arrhenius rate expressions with coverage dependency"""
 
     _cls = ct.InterfaceArrheniusRate
     _type = "interface-Arrhenius"
@@ -847,7 +847,7 @@ class TestInterfaceArrheniusRate(SurfaceReactionRateTests):
         """
 
 class TestStickingRate(StickingReactionRateTests):
-    # test surface-sticking rate expressions without coverage dependency
+    """Test surface-sticking rate expressions without coverage dependency"""
 
     _cls = ct.StickingArrheniusRate
     _type = "sticking-Arrhenius"
@@ -862,7 +862,7 @@ class TestStickingRate(StickingReactionRateTests):
         """
 
 class TestCoverageStickingRate(StickingReactionRateTests):
-    # test sticking rate expressions with coverage dependency
+    """Test sticking rate expressions with coverage dependency"""
 
     _cls = ct.StickingArrheniusRate
     _type = "sticking-Arrhenius"
@@ -882,7 +882,7 @@ class TestCoverageStickingRate(StickingReactionRateTests):
         """
 
 class TestMotzWiseStickingRate(StickingReactionRateTests):
-    # test interface reaction with coverages
+    """Test interface reaction with coverages"""
 
     _cls = ct.StickingArrheniusRate
     _type = "sticking-Arrhenius"
@@ -901,7 +901,7 @@ class TestMotzWiseStickingRate(StickingReactionRateTests):
         """
 
 class TestSurfaceBMRate(SurfaceReactionRateTests):
-    # test coverage-Blowers-Masel rate expressions with coverage dependency
+    """Test coverage-Blowers-Masel rate expressions with coverage dependency"""
 
     _cls = ct.InterfaceBlowersMaselRate
     _type = "interface-Blowers-Masel"
@@ -916,7 +916,7 @@ class TestSurfaceBMRate(SurfaceReactionRateTests):
         """
 
 class TestSurfaceBMRate(SurfaceReactionRateTests):
-    # test coverage-Blowers-Masel rate expressions with coverage dependency
+    """Test coverage-Blowers-Masel rate expressions with coverage dependency"""
 
     _cls = ct.InterfaceBlowersMaselRate
     _type = "interface-Blowers-Masel"
@@ -934,7 +934,7 @@ class TestSurfaceBMRate(SurfaceReactionRateTests):
         """
 
 class TestBMStickate(StickingReactionRateTests):
-    # test coverage-Blowers-Masel stick expressions with coverage dependency
+    """Test coverage-Blowers-Masel stick expressions with coverage dependency"""
 
     _cls = ct.StickingBlowersMaselRate
     _type = "sticking-Blowers-Masel"
@@ -966,7 +966,7 @@ def reaction_data(request, setup_reaction_tests):
     request.cls.adj = []
 
 class ReactionTests:
-    # test suite for reaction expressions
+    """Test suite for reaction expressions"""
 
     _cls = ct.Reaction # reaction object to be tested
     _rate_cls = None # corresponding reaction rate type
@@ -1053,10 +1053,10 @@ class ReactionTests:
     def check_solution(self, sol2):
         # helper function that checks evaluation of reaction rates
         ix = self._index
-        assert sol2.forward_rate_constants[0] == approx(
-               self.soln.forward_rate_constants[ix])
-        assert sol2.net_rates_of_progress[0] == approx(
-               self.soln.net_rates_of_progress[ix])
+        assert (sol2.forward_rate_constants[0]
+                == approx(self.soln.forward_rate_constants[ix]))
+        assert (sol2.net_rates_of_progress[0]
+                == approx(self.soln.net_rates_of_progress[ix]))
 
     def test_rate(self):
         # check consistency of reaction rate and forward rate constant
@@ -1095,7 +1095,8 @@ class ReactionTests:
             sol2.coverages = self.soln.coverages
             sol2.TP = self.soln.TP
         else:
-            sol2 = ct.Solution(thermo=self.soln.thermo_model, kinetics=self.soln.kinetics_model,
+            sol2 = ct.Solution(thermo=self.soln.thermo_model,
+                               kinetics=self.soln.kinetics_model,
                                species=self.species, reactions=[])
             sol2.TPX = self.soln.TPX
             # need to setup electron energy distribution for plasma
