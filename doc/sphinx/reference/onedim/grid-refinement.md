@@ -27,7 +27,7 @@ refinement process: ratio, slope, curve, and prune.
 This refinement option controls the maximum ratio of the spacing between the grid
 points that are adjacent to a point under consideration. If the ratio between two
 adjacent grid points is greater than the ratio
-specified by the user ($ \alpha_{max} $), then an additional grid point is inserted
+specified by the user ($ R_{max} $), then an additional grid point is inserted
 between the two points. Depending on which interval adjacent to a point under
 consideration is larger, two conditions are checked:
 
@@ -42,10 +42,10 @@ For grid points that have a larger spacing on the left interval, as shown in the
 Grid with a spacing on the right interval that is too large.
 ```
 
-the ratio, $ \alpha $ is calculated as:
+the ratio, $ R $ is calculated as:
 
 $$
-  \alpha = \frac{{z_j - z_{j-1}}}{{z_{j+1} - z_j}}
+  R = \frac{{z_j - z_{j-1}}}{{z_{j+1} - z_j}}
 $$
 
 #### Larger Right Interval
@@ -59,12 +59,11 @@ For grid points that have a larger spacing on the right interval, as shown in th
 Grid with a spacing on the left interval that is too large.
 ```
 
-the ratio, $ \alpha $ is calculated as:
+the ratio, $ R $ is calculated as:
 
 $$
-  \alpha = \frac{{z_{j+1} - z_j}}{{z_j - z_{j-1}}}
+  R = \frac{{z_{j+1} - z_j}}{{z_j - z_{j-1}}}
 $$
-
 
 These conditions are checked for all grid points in the domain, and if the ratio
 is greater than the user-specified value, then an additional grid point is inserted
@@ -114,14 +113,15 @@ is well-resolved in regions where the solution has steep gradients.
 The specific criteria that is being enforced is:
 
 $$
-  \beta_j = \frac{\left|{x_{n,j+1} - x_{n,j}}\right|}{\displaystyle\max_j x_n - \displaystyle\min_j x_n} \le \beta_{max}
+  S_j = \frac{\left|{x_{n,j+1} - x_{n,j}}\right|}{\displaystyle\max_j x_n
+        - \displaystyle\min_j x_n} \le S_{max}
 $$
 
-Where $ \beta_j $ is computed at each domain point, $ \beta_{max} $ is a number
+Where $ S_j $ is computed at each domain point, $ S_{max} $ is a number
 between 0 and 1 that is specified by the user, $ x_n $ is the solution component
 being considered, and $ \displaystyle\max_j x_n $ and $ \displaystyle\min_j x_n $ are
 the maximum and minimum values of the solution component across the domain. Points
-where $ \beta_j $ is greater than $ \beta_{max} $ are marked to have an additional grid
+where $ S_j $ is greater than $ S_{max} $ are marked to have an additional grid
 point inserted to the right of them. Visually, the minimum and maximum solution
 component values are shown in the image below. For a point, j, considered where
 the change between the solution at j and the solution at j+1 is larger than the
@@ -149,16 +149,16 @@ where the solution has steep gradients.
 The specific criteria that is being enforced is:
 
 $$
-  \gamma_j = \frac{\left| x'_{n, j+1} - x'_{n, j} \right|}
-             {\displaystyle\max_j x'_n - \displaystyle\min_j x'_n} \le \gamma_{max}
+  C_j = \frac{\left| x'_{n, j+1} - x'_{n, j} \right|}
+        {\displaystyle\max_j x'_n - \displaystyle\min_j x'_n} \le C_{max}
 $$
 
-Where $ \gamma_j$ is computed at each grid point, $ \gamma_{max} $ is a number between
+Where $ C_j$ is computed at each grid point, $ C_{max} $ is a number between
 0 and 1 that is specified by the user, $ x'_n $ is the derivative of the
 solution component being considered, and $ \displaystyle\max_j x'_n $ and
 $ \displaystyle\min_j x'_n $ are the maximum and minimum values of the
-solution component derivative across the domain. Points where $ \gamma_j $ is greater
-than $ \gamma_{max} $ are marked to have an additional grid point inserted to the
+solution component derivative across the domain. Points where $ C_j $ is greater
+than $ C_{max} $ are marked to have an additional grid point inserted to the
 right of them. Visually, the minimum and maximum global quantities are shown in the
 image below.
 
@@ -178,11 +178,6 @@ $$
   x'_{n, j} \approx \frac{x_{n,j+1} - x_{n,j}}{z_{j+1} - z_{j}}
 $$
 
-If a point is marked as needing an additional grid point, the refinement algorithm will
-actually insert a point to the right of the point under consideration as well as to the
-point that is to the right. This essentially splits the two intervals that are to the
-right of the point under consideration.
-
 
 ### Prune
 
@@ -194,40 +189,40 @@ conditions change, and the location of the regions where grid refinement is need
 changes. In this case, the prune parameter can be used to remove grid points that are
 no longer needed.
 
-You specify a pruning value $ \delta $ that serves as a lower-bound on
+You specify a pruning value $ P $ that serves as a lower-bound on
 the ratio quantities. This helps prevent unnecessary grid refinement by
 removing points that are not needed, optimizing computational efficiency without
 sacrificing the accuracy of the solution. The following criteria are used to decide
 if a point is marked for removal:
 
 $$
-  \frac{\beta_j}{\beta_{\text{max}}} < \delta \quad \text{or}
-  \quad \frac{\gamma_j}{\gamma_{\text{max}}} < \delta
+  \frac{S_j}{S_{\text{max}}} < P \quad \text{or}
+  \quad \frac{C_j}{C_{\text{max}}} < P
 $$
 
-If $ \frac{\beta_j}{\beta_{max}} $, or $ \frac{\gamma_j}{\gamma_{max}} $ are less
-than $ \delta $, then the point is marked for removal.
+If $ \frac{S_j}{S_{max}} $, or $ \frac{C_j}{C_{max}} $ are less
+than $ P $, then the point is marked for removal.
 
 For example, consider a case where the slope refinement criteria is set to 0.5, we
-can look at the pruning criteria as $ \beta_j < \beta_{max} \delta $. In this form
+can look at the pruning criteria as $ S_j < S_{max} P $. In this form
 it is easy to see that the pruning parameter defines "What fraction of the original
-$ \beta_{max} $ is acceptable enough to remove a point?" Continuing with this example,
+$ S_{max} $ is acceptable enough to remove a point?" Continuing with this example,
 consider a case where the refinement has progressed such that these are the values of
-the $ \beta_j $ at each point in a domain with 10 grid points.
+the $ S_j $ at each point in a domain with 10 grid points.
 
 $$
-  \beta_j = [0.11, 0.16, 0.05, 0.1, 0.22, 0.09, 0.05, 0.02, 0.37, 0.29]
+  S_j = [0.11, 0.16, 0.05, 0.1, 0.22, 0.09, 0.05, 0.02, 0.37, 0.29]
 $$
 
-All of the values are below the original $ \beta_{max} $ of 0.5, but some are much
+All of the values are below the original $ S_{max} $ of 0.5, but some are much
 lower than that threshold. If the pruning parameter is set to a value of 0.2, then
 the effective cutoff threshold for removing a point would be 0.5*0.2 = 0.1. With this
 pruning criteria, the pruned data would be:
 
 $$
-  \beta_j = [0.11, 0.16, 0.1, 0.22, 0.37, 0.29]
+  S_j = [0.11, 0.16, 0.1, 0.22, 0.37, 0.29]
 $$
 
-Here, the points with values of $ \beta_j $ less than 0.1 have been removed from the
+Here, the points with values of $ S_j $ less than 0.1 have been removed from the
 grid. This is a simple example, but it illustrates how the pruning parameter can be used
 prevent grids from becoming overly refined.
