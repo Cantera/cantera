@@ -2459,58 +2459,7 @@ class TestReactorSensitivities:
             assert dtigdh_cvodes[i] == approx(dtigdh, rel=5e-2, abs=1e-14)
 
 
-
-@pytest.fixture(scope='function')
-def setup_combustor_tests_data(request):
-    gas = ct.Solution('h2o2.yaml', transport_model=None)
-
-    # create a reservoir for the fuel inlet, and set to pure methane.
-    gas.TPX = 300.0, ct.one_atm, 'H2:1.0'
-    fuel_in = ct.Reservoir(gas)
-    fuel_mw = gas.mean_molecular_weight
-
-    # Oxidizer inlet
-    gas.TPX = 300.0, ct.one_atm, 'O2:1.0, AR:3.0'
-    oxidizer_in = ct.Reservoir(gas)
-    oxidizer_mw = gas.mean_molecular_weight
-
-    # to ignite the fuel/air mixture, we'll introduce a pulse of radicals.
-    # The steady-state behavior is independent of how we do this, so we'll
-    # just use a stream of pure atomic hydrogen.
-    gas.TPX = 300.0, ct.one_atm, 'H:1.0'
-    request.cls.igniter = ct.Reservoir(gas)
-
-    # create the combustor, and fill it in initially with a diluent
-    gas.TPX = 300.0, ct.one_atm, 'AR:1.0'
-    request.cls.combustor = ct.IdealGasReactor(gas)
-
-    # create a reservoir for the exhaust
-    request.cls.exhaust = ct.Reservoir(gas)
-
-    # compute fuel and air mass flow rates
-    factor = 0.1
-    oxidizer_mdot = 4 * factor*oxidizer_mw
-    fuel_mdot = factor*fuel_mw
-
-    # The igniter will use a time-dependent igniter mass flow rate.
-    def igniter_mdot(t, t0=0.1, fwhm=0.05, amplitude=0.1):
-        return amplitude * math.exp(-(t-t0)**2 * 4 * math.log(2) / fwhm**2)
-
-    # create and install the mass flow controllers. Controllers
-    # m1 and m2 provide constant mass flow rates, and m3 provides
-    # a short Gaussian pulse only to ignite the mixture
-    request.cls.m1 = ct.MassFlowController(fuel_in, request.cls.combustor, mdot=fuel_mdot)
-    request.cls.m2 = ct.MassFlowController(oxidizer_in, request.cls.combustor, mdot=oxidizer_mdot)
-    request.cls.m3 = ct.MassFlowController(request.cls.igniter, request.cls.combustor, mdot=igniter_mdot)
-
-    # put a valve on the exhaust line to regulate the pressure
-    request.cls.v = ct.Valve(request.cls.combustor, request.cls.exhaust, K=1.0)
-
-    # the simulation only contains one reactor
-    request.cls.sim = ct.ReactorNet([request.cls.combustor])
-
-@pytest.mark.usefixtures('setup_combustor_tests_data')
-class CombustorTests:
+class TestCombustor:
     """
     These tests are based on the sample:
 
@@ -2518,86 +2467,136 @@ class CombustorTests:
 
     with some simplifications so that they run faster and produce more
     consistent output.
+
+    Note: to re-create the reference file:
+    (1) set PYTHONPATH to build/python.
+    (2) go into test/python directory and run:
+        pytest --save-reference=combustor test_reactor.py::TestCombustor::test_integrateWithAdvance
+    (3) Compare the reference files created in the current working directory with
+        the ones in test/data and replace them if needed.
     """
     referenceFile = "CombustorTest-integrateWithAdvance.csv"
 
-    def test_integrateWithStep(self, test_data_path):
+    @pytest.fixture
+    def setup_combustor_tests(self):
+        gas = ct.Solution('h2o2.yaml', transport_model=None)
+
+        # create a reservoir for the fuel inlet, and set to pure methane.
+        gas.TPX = 300.0, ct.one_atm, 'H2:1.0'
+        fuel_in = ct.Reservoir(gas)
+        fuel_mw = gas.mean_molecular_weight
+
+        # Oxidizer inlet
+        gas.TPX = 300.0, ct.one_atm, 'O2:1.0, AR:3.0'
+        oxidizer_in = ct.Reservoir(gas)
+        oxidizer_mw = gas.mean_molecular_weight
+
+        # to ignite the fuel/air mixture, we'll introduce a pulse of radicals.
+        # The steady-state behavior is independent of how we do this, so we'll
+        # just use a stream of pure atomic hydrogen.
+        gas.TPX = 300.0, ct.one_atm, 'H:1.0'
+        igniter = ct.Reservoir(gas)
+
+        # create the combustor, and fill it with a diluent
+        gas.TPX = 300.0, ct.one_atm, 'AR:1.0'
+        combustor = ct.IdealGasReactor(gas)
+
+        # create a reservoir for the exhaust
+        exhaust = ct.Reservoir(gas)
+
+        # compute fuel and air mass flow rates
+        factor = 0.1
+        oxidizer_mdot = 4 * factor * oxidizer_mw
+        fuel_mdot = factor * fuel_mw
+
+        # The igniter will use a time-dependent igniter mass flow rate.
+        def igniter_mdot(t, t0=0.1, fwhm=0.05, amplitude=0.1):
+            return amplitude * math.exp(-(t - t0) ** 2 * 4 * math.log(2) / fwhm ** 2)
+
+        # create and install the mass flow controllers. Controllers m1 and m2 provide
+        # constant mass flow rates, and m3 provides a short Gaussian pulse only to ignite
+        # the mixture
+        m1 = ct.MassFlowController(fuel_in, combustor, mdot=fuel_mdot)
+        m2 = ct.MassFlowController(oxidizer_in, combustor, mdot=oxidizer_mdot)
+        m3 = ct.MassFlowController(igniter, combustor, mdot=igniter_mdot)
+
+        # put a valve on the exhaust line to regulate the pressure
+        valve = ct.Valve(combustor, exhaust, K=1.0)
+
+        # the simulation only contains one reactor
+        sim = ct.ReactorNet([combustor])
+
+        return {
+            'fuel_in': fuel_in,
+            'oxidizer_in': oxidizer_in,
+            'igniter': igniter,
+            'combustor': combustor,
+            'exhaust': exhaust,
+            'm1': m1,
+            'm2': m2,
+            'm3': m3,
+            'valve': valve,
+            'sim': sim
+        }
+
+    def test_integrateWithStep(self, test_data_path, setup_combustor_tests):
+        sim = setup_combustor_tests['sim']
+        combustor = setup_combustor_tests['combustor']
+
         tnow = 0.0
         tfinal = 0.25
-        self.data = []
+        data = []
         while tnow < tfinal:
-            tnow = self.sim.step()
-            self.data.append([tnow, self.combustor.T] +
-                             list(self.combustor.thermo.X))
+            tnow = sim.step()
+            data.append([tnow, combustor.T] + list(combustor.thermo.X))
 
         assert tnow >= tfinal
-        bad = compareProfiles(test_data_path / self.referenceFile, self.data,
+        bad = compareProfiles(test_data_path / self.referenceFile, data,
                               rtol=1e-3, atol=1e-9)
         assert not bad, bad
 
-    def test_integrateWithAdvance(self, test_data_path, saveReference=False):
-        self.data = []
-        for t in np.linspace(0, 0.25, 101)[1:]:
-            self.sim.advance(t)
-            self.data.append([t, self.combustor.T] +
-                             list(self.combustor.thermo.X))
+    def test_integrateWithAdvance(self, request, test_data_path, setup_combustor_tests):
+        sim = setup_combustor_tests['sim']
+        combustor = setup_combustor_tests['combustor']
 
-        if saveReference:
-            np.savetxt(test_data_path / self.referenceFile, np.array(self.data),
-                       '%11.6e', ', ')
+        data = []
+        for t in np.linspace(0, 0.25, 101)[1:]:
+            sim.advance(t)
+            data.append([t, combustor.T] + list(combustor.thermo.X))
+
+        saveReference = request.config.getoption("--save-reference")
+        if saveReference == 'combustor':
+            np.savetxt(self.referenceFile, np.array(data), '%11.6e', ', ')
         else:
-            bad = compareProfiles(test_data_path / self.referenceFile, self.data,
+            bad = compareProfiles(test_data_path / self.referenceFile, data,
                                   rtol=1e-6, atol=1e-12)
             assert not bad, bad
 
-    def test_invasive_mdot_function(self, test_data_path):
+    def test_invasive_mdot_function(self, test_data_path, setup_combustor_tests):
+        igniter = setup_combustor_tests['igniter']
+        m3 = setup_combustor_tests['m3']
+        sim = setup_combustor_tests['sim']
+        combustor = setup_combustor_tests['combustor']
+
         def igniter_mdot(t, t0=0.1, fwhm=0.05, amplitude=0.1):
             # Querying properties of the igniter changes the state of the
             # underlying ThermoPhase object, but shouldn't affect the
             # integration
-            self.igniter.density
+            igniter.density
             return amplitude * math.exp(-(t-t0)**2 * 4 * math.log(2) / fwhm**2)
-        self.m3.mass_flow_rate = igniter_mdot
+        m3.mass_flow_rate = igniter_mdot
 
-        self.data = []
+        data = []
         for t in np.linspace(0, 0.25, 101)[1:]:
-            self.sim.advance(t)
-            self.data.append([t, self.combustor.T] +
-                             list(self.combustor.thermo.X))
+            sim.advance(t)
+            data.append([t, combustor.T] + list(combustor.thermo.X))
 
-        bad = compareProfiles(test_data_path / self.referenceFile, self.data,
+        bad = compareProfiles(test_data_path / self.referenceFile, data,
                               rtol=1e-6, atol=1e-12)
         assert not bad, bad
 
 
-@pytest.fixture(scope='function')
-def setup_wall_tests_data(request):
-    # reservoir to represent the environment
-    gas0 = ct.Solution("air.yaml")
-    gas0.TP = 300, ct.one_atm
-    env = ct.Reservoir(gas0)
-
-    # reactor to represent the side filled with Argon
-    gas1 = ct.Solution("air.yaml")
-    gas1.TPX = 1000.0, 30*ct.one_atm, 'AR:1.0'
-    request.cls.r1 = ct.Reactor(gas1)
-
-    # reactor to represent the combustible mixture
-    gas2 = ct.Solution('h2o2.yaml', transport_model=None)
-    gas2.TPX = 500.0, 1.5*ct.one_atm, 'H2:0.5, O2:1.0, AR:10.0'
-    request.cls.r2 = ct.Reactor(gas2)
-
-    # Wall between the two reactors
-    w1 = ct.Wall(request.cls.r2, request.cls.r1, A=1.0, K=2e-4, U=400.0)
-
-    # Wall to represent heat loss to the environment
-    w2 = ct.Wall(request.cls.r2, env, A=1.0, U=2000.0)
-
-    # Create the reactor network
-    request.cls.sim = ct.ReactorNet([request.cls.r1, request.cls.r2])
-
-@pytest.mark.usefixtures('setup_wall_tests_data')
-class WallTests:
+class TestWall:
     """
     These tests are based on the sample:
 
@@ -2605,47 +2604,74 @@ class WallTests:
 
     with some simplifications so that they run faster and produce more
     consistent output.
+
+    Note: to re-create the reference file:
+    (1) set PYTHONPATH to build/python.
+    (2) go into test/python directory and run:
+        pytest --save-reference=wall test_reactor.py::TestWall::test_integrateWithAdvance
+    (3) Compare the reference files created in the current working directory with
+        the ones in test/data and replace them if needed.
     """
     referenceFile = "WallTest-integrateWithAdvance.csv"
 
-    def test_integrateWithStep(self, test_data_path):
+    @pytest.fixture
+    def setup_wall_tests(self):
+        # reservoir to represent the environment
+        gas0 = ct.Solution("air.yaml")
+        gas0.TP = 300, ct.one_atm
+        env = ct.Reservoir(gas0)
+
+        # reactor to represent the side filled with Argon
+        gas1 = ct.Solution("air.yaml")
+        gas1.TPX = 1000.0, 30*ct.one_atm, 'AR:1.0'
+        r1 = ct.Reactor(gas1)
+
+        # reactor to represent the combustible mixture
+        gas2 = ct.Solution('h2o2.yaml', transport_model=None)
+        gas2.TPX = 500.0, 1.5*ct.one_atm, 'H2:0.5, O2:1.0, AR:10.0'
+        r2 = ct.Reactor(gas2)
+
+        # Wall between the two reactors
+        w1 = ct.Wall(r2, r1, A=1.0, K=2e-4, U=400.0)
+
+        # Wall to represent heat loss to the environment
+        w2 = ct.Wall(r2, env, A=1.0, U=2000.0)
+
+        # Create the reactor network
+        sim = ct.ReactorNet([r1, r2])
+
+        return sim, r1, r2
+
+    def test_integrateWithStep(self, test_data_path, setup_wall_tests):
+        sim, r1, r2 = setup_wall_tests
         tnow = 0.0
         tfinal = 0.01
-        self.data = []
+        data = []
         while tnow < tfinal:
-            tnow = self.sim.step()
-            self.data.append([tnow,
-                              self.r1.T, self.r2.T,
-                              self.r1.thermo.P, self.r2.thermo.P,
-                              self.r1.volume, self.r2.volume])
+            tnow = sim.step()
+            data.append([tnow, r1.T, r2.T, r1.thermo.P,
+                        r2.thermo.P, r1.volume, r2.volume])
 
         assert tnow >= tfinal
-        bad = compareProfiles(test_data_path / self.referenceFile, self.data,
+        bad = compareProfiles(test_data_path / self.referenceFile, data,
                               rtol=1e-3, atol=1e-8)
         assert not bad, bad
 
-    def test_integrateWithAdvance(self, test_data_path, saveReference=False):
-        self.data = []
+    def test_integrateWithAdvance(self, request, test_data_path, setup_wall_tests):
+        sim, r1, r2 = setup_wall_tests
+        data = []
         for t in np.linspace(0, 0.01, 200)[1:]:
-            self.sim.advance(t)
-            self.data.append([t,
-                              self.r1.T, self.r2.T,
-                              self.r1.thermo.P, self.r2.thermo.P,
-                              self.r1.volume, self.r2.volume])
+            sim.advance(t)
+            data.append([t, r1.T, r2.T, r1.thermo.P,
+                        r2.thermo.P, r1.volume, r2.volume])
 
-        if saveReference:
-            np.savetxt(test_data_path / self.referenceFile, np.array(self.data),
-                       '%11.6e', ', ')
+        saveReference = request.config.getoption("--save-reference")
+        if saveReference == 'wall':
+            np.savetxt(self.referenceFile, np.array(self.data), '%11.6e', ', ')
         else:
-            bad = compareProfiles(test_data_path / self.referenceFile, self.data,
+            bad = compareProfiles(test_data_path / self.referenceFile, data,
                                   rtol=2e-5, atol=1e-9)
             assert not bad, bad
-
-
-# Keep the implementations separate from the pytest-derived class
-# so that they can be run independently to generate the reference data files.
-class TestCombustor(CombustorTests): pass
-class TestWall(WallTests): pass
 
 
 class TestPureFluidReactor:
@@ -3122,9 +3148,11 @@ class TestExtensibleReactor:
             deltaCnow = deltaC()
             assert deltaCnow < deltaCprev # difference is always decreasing
             deltaCprev = deltaCnow
-            assert M0 == approx(r1.mass * r1.thermo.Y + r2.mass * r2.thermo.Y, rel=2e-8)
-            states1.append(r1.thermo.state, t=net.time, mass=r1.mass, vdot=r1.expansion_rate)
-            states2.append(r2.thermo.state, t=net.time, mass=r2.mass, vdot=r2.expansion_rate)
+            assert M0 == approx(r1.mass * r1.thermo.Y + r2.mass * r2.thermo.Y,rel=2e-8)
+            states1.append(r1.thermo.state, t=net.time, mass=r1.mass,
+                           vdot=r1.expansion_rate)
+            states2.append(r2.thermo.state, t=net.time, mass=r2.mass,
+                           vdot=r2.expansion_rate)
 
         # Regression test values
         assert r1.thermo.P == approx(151561.15, rel=1e-6)

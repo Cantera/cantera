@@ -927,14 +927,12 @@ class TestFreeFlame:
 
 class TestDiffusionFlame:
     """
-    Note: to re-create the reference files:
-    (1) set PYTHONPATH to build/python.
-    (2) Start Python and run:
-        >>> import cantera.test
-        >>> t = cantera.test.test_onedim.TestDiffusionFlame()
-        >>> t.test_mixture_averaged(True)
-        >>> t.test_auto(True)
-        >>> t.test_mixture_averaged_rad(True)
+    Note: to re-create the reference file:
+    (1) Set PYTHONPATH to build/python.
+    (2) Go into test/python directory and run:
+        pytest --save-reference=diffusion test_onedim.py::TestDiffusionFlame::test_mixture_averaged
+        pytest --save-reference=diffusion test_onedim.py::TestDiffusionFlame::test_auto
+        pytest --save-reference=diffusion test_onedim.py::TestDiffusionFlame::test_mixture_averaged_rad
     (3) Compare the reference files created in the current working directory with
         the ones in test/data and replace them if needed.
     """
@@ -976,7 +974,7 @@ class TestDiffusionFlame:
         assert self.sim.transport_model == 'mixture-averaged'
 
     @pytest.mark.slow_test
-    def test_mixture_averaged(self, test_data_path, saveReference=False):
+    def test_mixture_averaged(self, request, test_data_path):
         referenceFile = "DiffusionFlameTest-h2-mix.csv"
         self.create_sim(p=ct.one_atm)
         self.sim.set_initial_guess()
@@ -995,14 +993,15 @@ class TestDiffusionFlame:
         data[:,3] = self.sim.T
         data[:,4:] = self.sim.Y.T
 
-        if saveReference:
+        saveReference = request.config.getoption("--save-reference")
+        if saveReference == 'diffusion':
             np.savetxt(referenceFile, data, '%11.6e', ', ')
         else:
             bad = compareProfiles(test_data_path / referenceFile, data,
                                   rtol=1e-2, atol=1e-8, xtol=1e-2)
             assert not bad, bad
 
-    def test_auto(self, test_data_path, saveReference=False):
+    def test_auto(self, request, test_data_path):
         referenceFile = "DiffusionFlameTest-h2-auto.csv"
         self.create_sim(p=ct.one_atm, mdot_fuel=2, mdot_ox=3)
 
@@ -1034,7 +1033,8 @@ class TestDiffusionFlame:
         data[:,3] = self.sim.T
         data[:,4:] = self.sim.Y.T
 
-        if saveReference:
+        saveReference = request.config.getoption("--save-reference")
+        if saveReference == 'diffusion':
             np.savetxt(referenceFile, data, '%11.6e', ', ')
         else:
             bad = compareProfiles(test_data_path / referenceFile, data,
@@ -1091,7 +1091,7 @@ class TestDiffusionFlame:
         assert self.sim.T[0] == approx(self.sim.fuel_inlet.T, rel=1e-4)
         assert mdot[-1] == approx(-self.sim.oxidizer_inlet.mdot, rel=1e-4)
 
-    def test_mixture_averaged_rad(self, test_data_path, saveReference=False):
+    def test_mixture_averaged_rad(self, request, test_data_path):
         referenceFile = "DiffusionFlameTest-h2-mix-rad.csv"
         self.create_sim(p=ct.one_atm)
         self.sim.set_initial_guess()
@@ -1117,7 +1117,8 @@ class TestDiffusionFlame:
         qdot = self.sim.flame.radiative_heat_loss
         assert len(qdot) == self.sim.flame.n_points
 
-        if saveReference:
+        saveReference = request.config.getoption("--save-reference")
+        if saveReference == 'diffusion':
             np.savetxt(referenceFile, data, '%11.6e', ', ')
         else:
             bad = compareProfiles(test_data_path / referenceFile, data,
@@ -1359,16 +1360,14 @@ class TestDiffusionFlame:
 class TestCounterflowPremixedFlame:
     """
     Note: to re-create the reference file:
-    (1) set PYTHONPATH to build/python.
-    (2) Start Python and run:
-        >>> import cantera.test
-        >>> t = cantera.test.test_onedim.TestCounterflowPremixedFlame()
-        >>> t.test_mixture_averaged(True)
+    (1) Set PYTHONPATH to build/python.
+    (2) Go into test/python directory and run:
+        pytest --save-reference=counterflow_premixed test_onedim.py::TestCounterflowPremixedFlame::test_mixture_averaged
     (3) Compare the reference files created in the current working directory with
         the ones in test/data and replace them if needed.
     """
 
-    def test_mixture_averaged(self, test_data_path, saveReference=False):
+    def test_mixture_averaged(self, request, test_data_path):
         T_in = 373.0  # inlet temperature
         comp = 'H2:1.6, O2:1, AR:7'  # premixed gas composition
 
@@ -1404,7 +1403,8 @@ class TestCounterflowPremixedFlame:
         data[:,4:] = sim.Y.T
 
         referenceFile = "CounterflowPremixedFlame-h2-mix.csv"
-        if saveReference:
+        saveReference = request.config.getoption("--save-reference")
+        if saveReference == 'counterflow_premixed':
             np.savetxt(referenceFile, data, '%11.6e', ', ')
         else:
             bad = compareProfiles(test_data_path / referenceFile, data,
@@ -1477,16 +1477,14 @@ class TestCounterflowPremixedFlame:
 class TestCounterflowPremixedFlameNonIdeal:
     """
     Note: to re-create the reference file:
-    (1) set PYTHONPATH to build/python.
-    (2) Start Python and run:
-        >>> import cantera.test
-        >>> t = cantera.test.test_onedim.TestCounterflowPremixedFlameNonIdeal()
-        >>> t.test_mixture_averaged(True)
+    (1) Set PYTHONPATH to build/python.
+    (2) Go into test/python directory and run:
+        pytest --save-reference=counterflow_premixed_nonideal test_onedim.py::TestCounterflowPremixedFlameNonIdeal::test_mixture_averaged
     (3) Compare the reference files created in the current working directory with
         the ones in test/data and replace them if needed.
     """
 
-    def test_mixture_averaged(self, test_data_path, saveReference=False):
+    def test_mixture_averaged(self, request, test_data_path):
         T_in = 373.0  # inlet temperature
         comp = 'H2:1.6, O2:1, AR:7'  # premixed gas composition
 
@@ -1522,7 +1520,8 @@ class TestCounterflowPremixedFlameNonIdeal:
         data[:,4:] = sim.Y.T
 
         referenceFile = "CounterflowPremixedFlame-h2-mix-RK.csv"
-        if saveReference:
+        saveReference = request.config.getoption("--save-reference")
+        if saveReference == 'counterflow_premixed_nonideal':
             np.savetxt(referenceFile, data, '%11.6e', ', ')
         else:
             bad = compareProfiles(test_data_path / referenceFile, data,
