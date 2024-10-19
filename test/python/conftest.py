@@ -16,6 +16,14 @@ TEST_DATA_PATH = Path(__file__).parents[1] / "data"
 CANTERA_DATA_PATH = Path(cantera.__file__).parent / "data"
 
 
+def pytest_addoption(parser):
+    parser.addoption(
+        "--save-reference", action="store", default=None,
+        help="Save the reference output files for specific tests. "
+             "Options: diffusion, counterflow_premixed, counterflow_premixed_nonideal, "
+             "combustor, wall"
+    )
+
 def pytest_configure(config):
     config.addinivalue_line("markers", "slow_test: mark test as slow")
 
