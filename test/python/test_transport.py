@@ -215,19 +215,16 @@ class TestIonTransport:
         gas.TPX = 2237, ct.one_atm, 'O2:0.7010, H2O:0.1885, CO2:9.558e-2'
         return gas
 
-    @pytest.fixture(scope='function')
-    def N2_idx(self, gas):
-        return gas.species_index("N2")
+    def test_binary_diffusion(self, gas):
+        N2_idx = gas.species_index("N2")
+        H3Op_idx = gas.species_index("H3O+")
 
-    @pytest.fixture(scope='function')
-    def H3Op_idx(self, gas):
-        return gas.species_index("H3O+")
-
-    def test_binary_diffusion(self, gas, N2_idx, H3Op_idx):
         bdiff = gas.binary_diff_coeffs[N2_idx][H3Op_idx]
         assert bdiff == approx(4.258e-4, rel=1e-4)  # Regression test
 
-    def test_mixture_diffusion(self, gas, H3Op_idx):
+    def test_mixture_diffusion(self, gas):
+        H3Op_idx = gas.species_index("H3O+")
+
         mdiff = gas.mix_diff_coeffs[H3Op_idx]
         assert mdiff == approx(5.057e-4, rel=1e-4)  # Regression test
 
@@ -235,11 +232,16 @@ class TestIonTransport:
         mdiff = gas['O2-'].mix_diff_coeffs[0]
         assert mdiff == approx(2.784e-4, rel=1e-3)  # Regression test
 
-    def test_mobility(self, gas, H3Op_idx):
+    def test_mobility(self, gas):
+        H3Op_idx = gas.species_index("H3O+")
+
         mobi = gas.mobilities[H3Op_idx]
         assert mobi == approx(2.623e-3, rel=1e-4)  # Regression test
 
-    def test_update_temperature(self, gas, N2_idx, H3Op_idx):
+    def test_update_temperature(self, gas):
+        N2_idx = gas.species_index("N2")
+        H3Op_idx = gas.species_index("H3O+")
+
         bdiff = gas.binary_diff_coeffs[N2_idx][H3Op_idx]
         mdiff = gas.mix_diff_coeffs[H3Op_idx]
         mobi = gas.mobilities[H3Op_idx]
@@ -318,18 +320,10 @@ class TestTransportGeometryFlags:
 
 class TestDustyGas:
 
-    @pytest.fixture(scope='class')
-    def initial_conditions(self):
-        return {
-            'T': 500.0,
-            'P': ct.one_atm,
-            'X': "O2:2.0, H2:1.0, H2O:1.0"
-        }
-
     @pytest.fixture
-    def phase(self, initial_conditions):
+    def phase(self):
         phase = ct.DustyGas("h2o2.yaml")
-        phase.TPX = initial_conditions['T'], initial_conditions['P'], initial_conditions['X']
+        phase.TPX = 500.0, ct.one_atm, "O2:2.0, H2:1.0, H2O:1.0"
         phase.porosity = 0.2
         phase.tortuosity = 0.3
         phase.mean_pore_radius = 1e-4
