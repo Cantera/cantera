@@ -74,6 +74,16 @@ set(HIGHFIVE_BUILD_DOCS OFF)
 # SUNDIALS build options
 set(EXAMPLES_INSTALL OFF)
 set(EXAMPLES_ENABLE_C OFF)
+set(BUILD_ARKODE OFF)
+set(BUILD_CVODE OFF)
+set(BUILD_IDA OFF)
+set(BUILD_KINSOL OFF)
+set(BUILD_CPODES OFF)
+if ("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
+    set(BLA_VENDOR Apple)
+elseif ("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
+    set(BLA_VENDOR OpenBLAS)
+endif()
 
 # fmt build options
 set(FMT_INSTALL OFF)
@@ -96,9 +106,13 @@ file(GLOB_RECURSE CT_LIB_SOURCES "*.cpp")
 list(FILTER CT_LIB_SOURCES EXCLUDE REGEX "extensions/.*")
 list(APPEND CT_LIB_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/extensions/canteraShared.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/extensions/pythonShim.cpp")
 
-set(BLA_VENDOR OpenBLAS)
-find_package(LAPACK REQUIRED)
-find_package(BLAS REQUIRED)
+if (NOT "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
+    find_package(LAPACK REQUIRED)
+    find_package(BLAS REQUIRED)
+    set (SUNDIALS_LIBRARIES BLAS::BLAS LAPACK::LAPACK SUNDIALS::sunlinsollapackdense_static SUNDIALS::sunlinsollapackband_static)
+else()
+    set (SUNDIALS_LIBRARIES SUNDIALS::sunlinsoldense_static SUNDIALS::sunlinsolband_static)
+endif()
 
 add_library(cantera_lib STATIC ${CT_LIB_SOURCES})
 target_include_directories(cantera_lib PRIVATE "../include" "${Python_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}")
@@ -108,8 +122,6 @@ target_link_libraries(cantera_lib PUBLIC
     fmt::fmt
     Eigen3::Eigen
     HighFive
-    BLAS::BLAS
-    LAPACK::LAPACK
     SUNDIALS::core_static
     SUNDIALS::nvecserial_static
     SUNDIALS::cvodes_static
@@ -117,9 +129,7 @@ target_link_libraries(cantera_lib PUBLIC
     SUNDIALS::sunmatrixband_static
     SUNDIALS::sunmatrixdense_static
     SUNDIALS::sunmatrixsparse_static
-    # SUNDIALS::sunlinsoldense_static
-    SUNDIALS::sunlinsollapackdense_static
-    # SUNDIALS::sunlinsolband_static
-    SUNDIALS::sunlinsollapackband_static
     SUNDIALS::sunlinsolspgmr_static
-    SUNDIALS::sunnonlinsolnewton_static)
+    SUNDIALS::sunnonlinsolnewton_static
+    ${SUNDIALS_LIBRARIES}
+)
