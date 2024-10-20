@@ -196,11 +196,11 @@ sacrificing the accuracy of the solution. The following criteria are used to dec
 if a point is marked for removal:
 
 $$
-  \frac{S_j}{S_{\text{max}}} < P \quad \text{or}
+  \frac{S_j}{S_{\text{max}}} < P \quad \text{and}
   \quad \frac{C_j}{C_{\text{max}}} < P
 $$
 
-If $ \frac{S_j}{S_{max}} $, or $ \frac{C_j}{C_{max}} $ are less
+If $ \frac{S_j}{S_{max}} $, and $ \frac{C_j}{C_{max}} $ are less
 than $ P $, then the point is marked for removal.
 
 For example, consider a case where the slope refinement criteria is set to 0.5, we
@@ -216,13 +216,16 @@ $$
 
 All of the values are below the original $ S_{max} $ of 0.5, but some are much
 lower than that threshold. If the pruning parameter is set to a value of 0.2, then
-the effective cutoff threshold for removing a point would be 0.5*0.2 = 0.1. With this
-pruning criteria, the pruned data would be:
+the effective cutoff threshold for removing a point would be **0.5*0.2 = 0.1**. With
+this pruning criteria, points that are marked for removal are shown below in red.
 
 $$
-  S_j = [0.11, 0.16, 0.1, 0.22, 0.37, 0.29]
+  S_j = [0.11, 0.16, \textcolor{red}{0.05}, 0.1, 0.22, \textcolor{red}{0.09},
+         \textcolor{red}{0.05}, \textcolor{red}{0.02}, 0.37, 0.29]
 $$
 
-Here, the points with values of $ S_j $ less than 0.1 have been removed from the
-grid. This is a simple example, but it illustrates how the pruning parameter can be used
-prevent grids from becoming overly refined.
+Here, the points with values of $ S_j $ less than 0.1 have been marked to be removed
+from the grid. This is a simple example and in reality these points would also need
+to be marked for removal in the context of the curve pruning criteria as well, but it
+illustrates how the pruning parameter can be used prevent grids from becoming overly
+refined.
