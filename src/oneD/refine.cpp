@@ -129,8 +129,8 @@ int Refiner::analyze(size_t n, const double* z, const double* x)
                 double max_change = m_curve*(slopeMax - slopeMin);
                 for (size_t j = 0; j < n-2; j++) {
                     // Using the solution component absolute tolerance (m_thresh),
-                    // a smallest allowable slope can be estimated for an interval dz
-                    // as m_thresh/dz.
+                    // an absolute tolerance for the change in slope can be estimated
+                    // for an interval dz as m_thresh/dz.
                     double ratio = fabs(slope[j+1] - slope[j]) / (max_change + m_thresh/dz[j]);
                     if (ratio > 1.0 && dz[j] >= 2*m_gridmin && dz[j+1] >= 2*m_gridmin) {
                         m_componentNames.insert(name);
