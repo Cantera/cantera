@@ -62,13 +62,13 @@ lxcat2yaml = "cantera.lxcat2yaml:main"
 
 [tool.scikit-build]
 logging.level = "DEBUG"
+build.verbose = true
 
 [tool.scikit-build.cmake]
 version = ">=3.24"
-verbose = true
 
 [tool.scikit-build.ninja]
-# As of 21-JULY-2024, Ninja 1.12 is not available on PyPI
+# As of 06-OCTOBER-2024, Ninja 1.12 is not available on PyPI
 version = ">=1.11"
 make-fallback = false
 
@@ -87,8 +87,8 @@ build-frontend = { name="build", args=["-vv"] }
 skip = "pp* *musllinux*"
 test-extras = ["pandas", "units", "graphviz"]
 test-requires = ["pytest"]
-manylinux-x86_64-image = "ghcr.io/cantera/manylinux_2_28_x86_64-hdf5-boost"
-manylinux-aarch64-image = "ghcr.io/cantera/manylinux_2_28_aarch64-hdf5-boost"
+manylinux-x86_64-image = "ghcr.io/cantera/cantera-base-manylinux_2_28-x86_64"
+manylinux-aarch64-image = "ghcr.io/cantera/cantera-base-manylinux_2_28-aarch64"
 test-command = "pytest -vv --durations=100 ${CANTERA_TEST_DIR}/test/python"
 
 [tool.cibuildwheel.windows]
