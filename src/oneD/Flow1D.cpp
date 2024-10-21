@@ -10,6 +10,8 @@
 #include "cantera/transport/TransportFactory.h"
 #include "cantera/numerics/funcs.h"
 #include "cantera/base/global.h"
+#include "cantera/thermo/Species.h"
+
 
 using namespace std;
 
@@ -101,10 +103,52 @@ void Flow1D::_init(ThermoPhase* ph, size_t nsp, size_t points)
     }
     setupGrid(m_points, gr.data());
 
-    // Find indices for radiating species
-    m_kRadiating.resize(2, npos);
-    m_kRadiating[0] = m_thermo->speciesIndex("CO2", false);
-    m_kRadiating[1] = m_thermo->speciesIndex("H2O", false);
+    // Parse radiation data from the YAML file
+    for (auto& name : m_thermo->speciesNames()) {
+        auto& data = m_thermo->species(name)->input;
+        if (data.hasKey("radiation")) {
+            cout << "Radiation data found for species " << name << endl;
+            m_absorptionSpecies.insert({name, m_thermo->speciesIndex(name,false)});
+            if (data["radiation"].hasKey("fit-type")) {
+                m_PMAC[name]["fit-type"] = data["radiation"]["fit-type"].asString();
+            } else {
+                throw InputFileError("Flow1D::Flow1D", data,
+                "No 'fit-type' entry found for species '{}'", name);
+            }
+
+            // This is the direct tabulation of the optical path length
+            if (data["radiation"]["fit-type"] == "table") {
+                if (data["radiation"].hasKey("temperatures")) {
+                    cout << "Storing temperatures for species " << name << endl;
+                    // Each species may have a specific set of temperatures that are used
+                    m_PMAC[name]["temperatures"] = data["radiation"]["temperatures"].asVector<double>();
+                } else {
+                    throw InputFileError("Flow1D::Flow1D", data,
+                    "No 'temperatures' entry found for species '{}'", name);
+                }
+                if (data["radiation"].hasKey("data")) {
+                    cout << "Storing data for species " << name << endl;
+                    // This data is the Plank mean absorption coefficient
+                    m_PMAC[name]["coefficients"] = data["radiation"]["data"].asVector<double>();
+                } else {
+                    throw InputFileError("Flow1D::Flow1D", data,
+                    "No 'data' entry found for species '{}'", name);
+                }
+            } else if (data["radiation"]["fit-type"] == "polynomial") {
+                cout << "Polynomial fit found for species " << name << endl;
+                if (data["radiation"].hasKey("data")) {
+                    cout << "Storing data for species " << name << endl;
+                    m_PMAC[name]["coefficients"] = data["radiation"]["data"].asVector<double>();
+                } else {
+                    throw InputFileError("Flow1D::Flow1D", data,
+                    "No 'data' entry found for species '{}'", name);
+                }
+            } else {
+                throw InputFileError("Flow1D::Flow1D", data,
+                "Invalid 'fit-type' entry found for species '{}'", name);
+            }
+        }
+    }
 }
 
 Flow1D::Flow1D(shared_ptr<ThermoPhase> th, size_t nsp, size_t points)
@@ -526,34 +570,61 @@ void Flow1D::computeRadiation(double* x, size_t jmin, size_t jmax)
 
     // Polynomial coefficients:
     const double c_H2O[6] = {-0.23093, -1.12390, 9.41530, -2.99880,
-                                    0.51382, -1.86840e-5};
+                             0.51382, -1.86840e-5};
     const double c_CO2[6] = {18.741, -121.310, 273.500, -194.050,
-                                    56.310, -5.8169};
+                             56.310, -5.8169};
 
     // Calculation of the two boundary values
     double boundary_Rad_left = m_epsilon_left * StefanBoltz * pow(T(x, 0), 4);
     double boundary_Rad_right = m_epsilon_right * StefanBoltz * pow(T(x, m_points - 1), 4);
 
+    double coef = 0.0;
     for (size_t j = jmin; j < jmax; j++) {
         // calculation of the mean Planck absorption coefficient
         double k_P = 0;
-        // Absorption coefficient for H2O
-        if (m_kRadiating[1] != npos) {
-            double k_P_H2O = 0;
-            for (size_t n = 0; n <= 5; n++) {
-                k_P_H2O += c_H2O[n] * pow(1000 / T(x, j), (double) n);
+
+        for(const auto& [sp_name, sp_idx] : m_absorptionSpecies) {
+            if (m_PMAC[sp_name]["fit-type"].asString() == "table") {
+                // temperature table interval search
+                int T_index = 0;
+                const int OPL_table_size = m_PMAC[sp_name]["temperatures"].asVector<double>().size();
+                for (int k = 0; k < OPL_table_size; k++) {
+                    if (T(x, j) < m_PMAC[sp_name]["temperatures"].asVector<double>()[k]) {
+                        if (T(x, j) < m_PMAC[sp_name]["temperatures"].asVector<double>()[0]) {
+                            T_index = 0; //lower table limit
+                        }
+                        else {
+                            T_index = k;
+                        }
+                        break;
+                    }
+                    else {
+                        T_index=OPL_table_size-1; //upper table limit
+                    }
+                }
+
+                // absorption coefficient for specie
+                double k_P_specie = 0.0;
+                if ((T_index == 0) || (T_index == OPL_table_size-1)) {
+                    coef=log(1.0/m_PMAC[sp_name]["coefficients"].asVector<double>()[T_index]);
+                }
+                else {
+                    coef=log(1.0/m_PMAC[sp_name]["coefficients"].asVector<double>()[T_index-1])+
+                    (log(1.0/m_PMAC[sp_name]["coefficients"].asVector<double>()[T_index])-log(1.0/m_PMAC[sp_name]["coefficients"].asVector<double>()[T_index-1]))*
+                    (T(x, j)-m_PMAC[sp_name]["temperatures"].asVector<double>()[T_index-1])/(m_PMAC[sp_name]["temperatures"].asVector<double>()[T_index]-m_PMAC[sp_name]["temperatures"].asVector<double>()[T_index-1]);
+                }
+                k_P_specie = exp(coef);
+
+                k_P_specie /= k_P_ref;
+                k_P += m_press * X(x, m_absorptionSpecies[sp_name], j) * k_P_specie;
+            } else if (m_PMAC[sp_name]["fit-type"].asString() == "polynomial") {
+                double k_P_specie = 0.0;
+                for (size_t n = 0; n <= 5; n++) {
+                    k_P_specie += m_PMAC[sp_name]["coefficients"].asVector<double>()[n] * pow(1000 / T(x, j), (double) n);
+                }
+                k_P_specie /= k_P_ref;
+                k_P += m_press * X(x, m_absorptionSpecies[sp_name], j) * k_P_specie;
             }
-            k_P_H2O /= k_P_ref;
-            k_P += m_press * X(x, m_kRadiating[1], j) * k_P_H2O;
-        }
-        // Absorption coefficient for CO2
-        if (m_kRadiating[0] != npos) {
-            double k_P_CO2 = 0;
-            for (size_t n = 0; n <= 5; n++) {
-                k_P_CO2 += c_CO2[n] * pow(1000 / T(x, j), (double) n);
-            }
-            k_P_CO2 /= k_P_ref;
-            k_P += m_press * X(x, m_kRadiating[0], j) * k_P_CO2;
         }
 
         // Calculation of the radiative heat loss term

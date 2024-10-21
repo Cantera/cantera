@@ -540,6 +540,8 @@ protected:
      * Computes the radiative heat loss vector over points jmin to jmax and stores
      * the data in the qdotRadiation variable.
      *
+     * The `fit-type` of `polynomial` is uses the model described below.
+     *
      * The simple radiation model used was established by Liu and Rogg
      * @cite liu1991. This model considers the radiation of CO2 and H2O.
      *
@@ -550,6 +552,20 @@ protected:
      * lines are taken from the RADCAL program @cite RADCAL.
      * The coefficients for the polynomials are taken from
      * [TNF Workshop](https://tnfworkshop.org/radiation/) material.
+     *
+     *
+     * The `fit-type` of `table` is uses the model described below.
+     *
+     * Spectra for molecules are downloaded with HAPI library from // https://hitran.org/hapi/
+     * [R.V. Kochanov, I.E. Gordon, L.S. Rothman, P. Wcislo, C. Hill, J.S. Wilzewski,
+     * HITRAN Application Programming Interface (HAPI): A comprehensive approach
+     * to working with spectroscopic data, J. Quant. Spectrosc. Radiat. Transfer 177,
+     * 15-30 (2016), https://doi.org/10.1016/j.jqsrt.2016.03.005].
+     *
+     * Planck mean optical path lengths are what are read in from a YAML input file.
+     *
+     *
+     *
      */
     void computeRadiation(double* x, size_t jmin, size_t jmax);
 
@@ -1029,6 +1045,16 @@ protected:
 
     //! radiative heat loss vector
     vector<double> m_qdotRadiation;
+
+    // boundary emissivities for the radiation calculations
+    double m_epsilon_left = 0.0;
+    double m_epsilon_right = 0.0;
+
+    std::map<std::string, int> m_absorptionSpecies; //!< Absorbing species
+    AnyMap m_PMAC; //!< Absorption coefficient data for each species
+
+    // Old radiation variable that can not be deleted for some reason
+    std::vector<size_t> m_kRadiating;
 
     // fixed T and Y values
     //! Fixed values of the temperature at each grid point that are used when solving
