@@ -182,7 +182,7 @@ else:
 # Python Package Settings
 python_min_version = parse_version("3.8")
 # Newest Python version not supported/tested by Cantera
-python_max_version = parse_version("3.13")
+python_max_version = parse_version("3.14")
 # The string is used to set python_requires in setup.cfg.in
 py_requires_ver_str = f">={python_min_version},<{python_max_version}"
 

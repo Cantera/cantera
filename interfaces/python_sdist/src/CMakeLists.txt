@@ -40,11 +40,11 @@ FetchContent_Declare(
   FIND_PACKAGE_ARGS NAMES fmt GLOBAL
 )
 
-set(HIGHFIVE_VERSION 2.9.0)
+set(HIGHFIVE_VERSION 2.10.0)
 FetchContent_Declare(
   HighFive
   URL https://github.com/BlueBrain/HighFive/archive/refs/tags/v${HIGHFIVE_VERSION}.tar.gz
-  URL_HASH SHA256=6301def8ceb9f4d7a595988612db288b448a3c0546f6c83417dab38c64994d7e
+  URL_HASH SHA256=c29e8e1520e7298fabb26545f804e35bb3af257005c1c2df62e39986458d7c38
   # FIND_PACKAGE_ARGS has to be the last thing in this call because it greedily takes
   # everything after it to pass to `find_package()`
   FIND_PACKAGE_ARGS NAMES HighFive
@@ -74,6 +74,16 @@ set(HIGHFIVE_BUILD_DOCS OFF)
 # SUNDIALS build options
 set(EXAMPLES_INSTALL OFF)
 set(EXAMPLES_ENABLE_C OFF)
+set(BUILD_ARKODE OFF)
+set(BUILD_CVODE OFF)
+set(BUILD_IDA OFF)
+set(BUILD_KINSOL OFF)
+set(BUILD_CPODES OFF)
+if ("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
+    set(BLA_VENDOR Apple)
+elseif ("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
+    set(BLA_VENDOR OpenBLAS)
+endif()
 
 # fmt build options
 set(FMT_INSTALL OFF)
@@ -96,6 +106,14 @@ file(GLOB_RECURSE CT_LIB_SOURCES "*.cpp")
 list(FILTER CT_LIB_SOURCES EXCLUDE REGEX "extensions/.*")
 list(APPEND CT_LIB_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/extensions/canteraShared.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/extensions/pythonShim.cpp")
 
+if (NOT "${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
+    find_package(LAPACK REQUIRED)
+    find_package(BLAS REQUIRED)
+    set (SUNDIALS_LIBRARIES BLAS::BLAS LAPACK::LAPACK SUNDIALS::sunlinsollapackdense_static SUNDIALS::sunlinsollapackband_static)
+else()
+    set (SUNDIALS_LIBRARIES SUNDIALS::sunlinsoldense_static SUNDIALS::sunlinsolband_static)
+endif()
+
 add_library(cantera_lib STATIC ${CT_LIB_SOURCES})
 target_include_directories(cantera_lib PRIVATE "../include" "${Python_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}")
 set_target_properties(cantera_lib PROPERTIES POSITION_INDEPENDENT_CODE ON)
@@ -111,7 +129,7 @@ target_link_libraries(cantera_lib PUBLIC
     SUNDIALS::sunmatrixband_static
     SUNDIALS::sunmatrixdense_static
     SUNDIALS::sunmatrixsparse_static
-    SUNDIALS::sunlinsoldense_static
-    SUNDIALS::sunlinsolband_static
     SUNDIALS::sunlinsolspgmr_static
-    SUNDIALS::sunnonlinsolnewton_static)
+    SUNDIALS::sunnonlinsolnewton_static
+    ${SUNDIALS_LIBRARIES}
+)
