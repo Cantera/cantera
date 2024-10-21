@@ -59,7 +59,7 @@ jobs:
           select-by-folder: /home/runner/work/cantera/cantera/test/matlab_experimental
 
   ubuntu-multiple-pythons:
-    name: ${{ matrix.os }} with Python ${{ matrix.python-version }}, Numpy ${{ matrix.numpy || 'latest' }}
+    name: ${{ matrix.os }} with Python ${{ matrix.python-version }}, Numpy ${{ matrix.numpy || 'latest' }}, Cython ${{ matrix.cython || 'latest' }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
     strategy:
@@ -67,11 +67,19 @@ jobs:
         python-version: ['3.8', '3.10', '3.11', '3.12']
         os: ['ubuntu-20.04', 'ubuntu-22.04']
         numpy: ['']
+        cython: ['']
         include:
           # Keep some test cases with NumPy 1.x until we drop support
         - python-version: '3.12'
           os: 'ubuntu-24.04'
           numpy: "'<2.0'"
+          # Keep some test cases with older Cython versions
+        - python-version: '3.10'
+          os: 'ubuntu-24.04'
+          cython: "==0.29.31" # minimum supported version
+        - python-version: '3.11'
+          os: 'ubuntu-24.04'
+          cython: "==3.0.8" # System version for Ubuntu 24.04
 
       fail-fast: false
     steps:
@@ -95,8 +103,8 @@ jobs:
     - name: Install Python dependencies
       run: |
         python3 -m pip install ruamel.yaml scons==3.1.2 numpy${{ matrix.numpy }} \
-          cython pandas pytest pytest-github-actions-annotate-failures pytest-xdist \
-          pint graphviz
+          cython${{ matrix.cython }} pandas pytest \
+          pytest-github-actions-annotate-failures pytest-xdist pint graphviz
     - name: Build Cantera
       run: |
         python3 `which scons` build env_vars=all -j4 debug=n --debug=time \
