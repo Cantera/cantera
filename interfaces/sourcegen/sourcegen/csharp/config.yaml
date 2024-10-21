@@ -1,6 +1,5 @@
 # Ignore these files entirely:
 ignore_files:
-  - ctfunc.h
   - ctmatlab.h
   - ctonedim.h
   - ctrpath.h
@@ -24,6 +23,7 @@ class_crosswalk:
   thermo: ThermoPhase
   trans: Transport
   wall: Wall
+  func: Func1
 
 # Provides information on instance methods that return instances
 # of other C# classes.
