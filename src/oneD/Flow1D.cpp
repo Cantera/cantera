@@ -149,6 +149,23 @@ void Flow1D::_init(ThermoPhase* ph, size_t nsp, size_t points)
             }
         }
     }
+
+    // Polynomial coefficients for CO2 and H2O (backwards compatibility)
+    // Check if "CO2" is already in the map, if not, add the polynomial fit data
+    if (!m_PMAC.hasKey("CO2")) {
+        const std::vector<double> c_CO2 = {18.741, -121.310, 273.500, -194.050, 56.310,
+                                           -5.8169};
+        m_PMAC["CO2"]["fit-type"] = "polynomial";
+        m_PMAC["CO2"]["coefficients"] = c_CO2;
+    }
+
+    // Check if "H2O" is already in the map, if not, add the polynomial fit data
+    if (!m_PMAC.hasKey("H2O")) {
+        const std::vector<double> c_H2O = {-0.23093, -1.12390, 9.41530, -2.99880,
+                                           0.51382, -1.86840e-5};
+        m_PMAC["H2O"]["fit-type"] = "polynomial";
+        m_PMAC["H2O"]["coefficients"] = c_H2O;
+    }
 }
 
 Flow1D::Flow1D(shared_ptr<ThermoPhase> th, size_t nsp, size_t points)
@@ -567,12 +584,6 @@ void Flow1D::computeRadiation(double* x, size_t jmin, size_t jmax)
     // Variable definitions for the Planck absorption coefficient and the
     // radiation calculation:
     double k_P_ref = 1.0*OneAtm;
-
-    // Polynomial coefficients:
-    const double c_H2O[6] = {-0.23093, -1.12390, 9.41530, -2.99880,
-                             0.51382, -1.86840e-5};
-    const double c_CO2[6] = {18.741, -121.310, 273.500, -194.050,
-                             56.310, -5.8169};
 
     // Calculation of the two boundary values
     double boundary_Rad_left = m_epsilon_left * StefanBoltz * pow(T(x, 0), 4);
