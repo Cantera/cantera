@@ -26,7 +26,7 @@ References:
 
 Requires: cantera >= 3.1
 
-.. tags:: flame speed, kinetics
+.. tags:: flame speed, kinetics, combustion, premixed flame
 """
 
 import cantera as ct

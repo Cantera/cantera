@@ -1479,7 +1479,6 @@ class TestPlogReaction:
         assert kf[0] != approx(kf[1])
 
 class TestLinearBurkeReaction:
-
     def test_linearburke_plog(self):
         reaction = "H + OH <=> H2O"
         gas_baseline = ct.Solution('linearBurke-test.yaml',
@@ -1546,8 +1545,8 @@ class TestLinearBurkeReaction:
             k_linearBurke = getK(gas_linearBurke, T, P,'H2O:1')
             assert k_baseline == approx(k_linearBurke)
 
-class TestChebyshevReaction:
 
+class TestChebyshevReaction:
     def test_chebyshev(self):
         gas1 = ct.Solution('pdep-test.yaml')
         species = ct.Species.list_from_file("pdep-test.yaml")

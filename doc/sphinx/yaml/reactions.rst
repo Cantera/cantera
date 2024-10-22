@@ -450,11 +450,11 @@ Additional fields are:
         collider ``M``, defined as :math:`\epsilon_{0,i}(T)=\Lambda_{0,i}(T)/\Lambda_{0,\text{M}}(T)`.
         The user does not need to assign an ``efficiency`` for ``M``, as it is always
         equal to 1 by definition. However, they are free to do so, as long as it takes
-        the form 'efficiency: {A: 1, b: 0, Ea: 0}' (no other variations are permitted).
+        the form ``efficiency: {A: 1, b: 0, Ea: 0}`` (no variations are permitted).
         This parameter is entered in modified Arrhenius format to enable consideration
         of temperature dependence. If the user wishes to specify a
         temperature-independent value, then ``A`` can be set to this value and ``b`` and
-        ``Ea`` can be set to 0 (such as 'H2O: {A: 10, b: 0, Ea: 0}').
+        ``Ea`` can be set to 0 (such as ``H2O: {A: 10, b: 0, Ea: 0}``).
 
     A :ref:`Troe <sec-yaml-falloff>` implementation also requires: ``high-P-rate-constant``,
     ``low-P-rate-constant``, ``Troe`` (do not use the Troe ``efficiencies`` key).
@@ -467,7 +467,7 @@ Additional fields are:
 
 Examples:
 
-*`linear-Burke` rate with Troe format for the reference collider (N2)*:
+`linear-Burke` *rate with Troe format for the reference collider (N2)*::
 
     equation: H + OH <=> H2O
     type: linear-Burke
@@ -482,7 +482,7 @@ Examples:
     - name: H2O
       efficiency: {A: 1.04529e-01, b: 5.50787e-01, Ea: -2.32675e+02}
 
-*`linear-Burke` rate with PLOG format for the reference collider (Ar)*:
+`linear-Burke` *rate with PLOG format for the reference collider (Ar)*::
 
     equation: H + O2 (+M) <=> HO2 (+M) # Adding '(+M)' is optional
     type: linear-Burke
@@ -511,7 +511,7 @@ Examples:
     - name: H2O
       efficiency: {A: 3.69146e+01, b: -7.12902e-02, Ea: 3.19087e+01}
 
-*`linear-Burke` rate with Chebyshev format for the reference collider (Ar)*:
+`linear-Burke` *rate with Chebyshev format for the reference collider (Ar)*::
 
     equation: H2O2 <=> 2 OH
     type: linear-Burke
