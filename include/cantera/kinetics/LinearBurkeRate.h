@@ -70,6 +70,7 @@ protected:
 //! This parameterization is described by Singal et al. @cite singal2024 and in the
 //! [science reference](../reference/kinetics/rate-constants.html#linear-burke-rate-expressions)
 //! documentation.
+//! @ingroup otherRateGroup
 class LinearBurkeRate final : public ReactionRate
 {
 public:
@@ -94,9 +95,9 @@ public:
 
     void getParameters(AnyMap& rateNode) const override;
 
-    //! Create type alias that refers to PlogRate, TroeRate, and ChebyshevRate
+    //! Type alias that refers to PlogRate, TroeRate, and ChebyshevRate
     using RateTypes = boost::variant<PlogRate, TroeRate, ChebyshevRate>;
-    //! Create type alias that refers to PlogData, FalloffData, and ChebyshevData
+    //! Type alias that refers to PlogData, FalloffData, and ChebyshevData
     using DataTypes = boost::variant<PlogData, FalloffData, ChebyshevData>;
 
     double evalFromStruct(const LinearBurkeData& shared_data);
@@ -106,27 +107,20 @@ public:
     void validate(const string& equation, const Kinetics& kin) override;
 
 protected:
-    //! Evaluate overall reaction rate using PLOG to evaluate
-    //! pressure-dependent aspect of the reaction
-    double evalPlogRate(
-        const LinearBurkeData& shared_data,
-        DataTypes& dataObj,
-        RateTypes& rateObj,
-        double logPeff);
-    //! Evaluate overall reaction rate using Troe to evaluate
-    //! pressure-dependent aspect of the reaction
-    double evalTroeRate(
-        const LinearBurkeData& shared_data,
-        DataTypes& dataObj,
-        RateTypes& rateObj,
-        double logPeff);
-    //! Evaluate overall reaction rate using Chebyshev to evaluate
-    //! pressure-dependent aspect of the reaction
-    double evalChebyshevRate(
-        const LinearBurkeData& shared_data,
-        DataTypes& dataObj,
-        RateTypes& rateObj,
-        double logPeff);
+    //! Evaluate overall reaction rate using PLOG to evaluate pressure-dependent aspect
+    //! of the reaction
+    double evalPlogRate(const LinearBurkeData& shared_data, DataTypes& dataObj,
+                        RateTypes& rateObj, double logPeff);
+
+    //! Evaluate overall reaction rate using Troe to evaluate pressure-dependent aspect
+    //! of the reaction
+    double evalTroeRate(const LinearBurkeData& shared_data, DataTypes& dataObj,
+                        RateTypes& rateObj, double logPeff);
+
+    //! Evaluate overall reaction rate using Chebyshev to evaluate pressure-dependent
+    //! aspect of the reaction
+    double evalChebyshevRate(const LinearBurkeData& shared_data, DataTypes& dataObj,
+                             RateTypes& rateObj, double logPeff);
 
     //! String name of each collider, appearing in the same order as that of the
     //! original reaction input.
@@ -141,7 +135,7 @@ protected:
 
     //! Third-body collision efficiency object for k(T,P,X) and eig0_mix calculation
     vector<ArrheniusRate> m_epsObjs1;
-    //! Third-body collision efficiency object for m_logPeff_ calculation
+    //! Third-body collision efficiency object for logPeff calculation
     vector<ArrheniusRate> m_epsObjs2;
     //! Third-body collision efficiency object for the reference collider M
     //! (eig0_M/eig0_M = 1 always)

@@ -316,7 +316,7 @@ different third-body efficiencies often are much more similar at the same reduce
 pressure ($R$) than at the same pressure ($P$) and, in fact, are exactly the same if
 they differ in only their collision frequency (but have the same energy- and
 angular-momentum-transfer kernel). This equation forms the basis of the computational
-implementation of LMR-R in Cantera via the :ct:`LinearBurkeRate` reaction class, as it
+implementation of LMR-R in Cantera via the {ct}`LinearBurkeRate` reaction class, as it
 enables the most accurate representation of $k_{\text{LMR-R}}(T,P,\boldsymbol{X})$
 possible given limitations in the completeness of the dataset at any given moment.
 Further description of the LMR-R theory and computational method is available in
