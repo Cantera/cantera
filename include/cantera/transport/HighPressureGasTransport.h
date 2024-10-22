@@ -284,6 +284,10 @@ protected:
      * state. This method only needs to be called once, as the critical properties for
      * the pure species do not change.
      *
+     * All species must have critical properties defined in the input file, either via
+     * critical properties or by specific values of the equation of state that are
+     * not zero.
+     *
      */
     void initializeCriticalProperties();
 
@@ -847,6 +851,10 @@ protected:
      * properties and stores them. It then resets the composition vector to the original
      * state. This method only needs to be called once, as the critical properties for
      * the pure species do not change.
+     *
+     * All species must have critical properties defined in the input file, either via
+     * critical properties or by specific values of the equation of state that are
+     * not zero.
      *
      */
     void initializeCriticalProperties();
