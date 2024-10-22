@@ -155,6 +155,12 @@ void HighPressureGasTransport::initializeCriticalProperties()
         mf_temp[i] = 1.0;
         m_thermo->setMoleFractions(&mf_temp[0]);
 
+        if (m_thermo->critTemperature() > 1e4) {
+            throw CanteraError("HighPressureGasTransport::initializeCriticalProperties",
+                "Species '{}' must have critical properties defined or non-zero cubic parameters. "
+                "Check the species definition or the thermo data file.",
+                m_thermo->species(i)->name);
+        }
         m_Tcrit[i] = m_thermo->critTemperature();
         m_Pcrit[i] = m_thermo->critPressure();
         m_Vcrit[i] = m_thermo->critVolume();
@@ -705,6 +711,12 @@ void ChungHighPressureGasTransport::initializeCriticalProperties()
         mf_temp[i] = 1.0;
         m_thermo->setMoleFractions(&mf_temp[0]);
 
+        if (m_thermo->critTemperature() > 1e4) {
+            throw CanteraError("ChungHighPressureGasTransport::initializeCriticalProperties",
+                "Species '{}' must have critical properties defined or non-zero cubic parameters. "
+                "Check the species definition or the thermo data file.",
+                m_thermo->species(i)->name);
+        }
         m_Tcrit[i] = m_thermo->critTemperature();
         m_Pcrit[i] = m_thermo->critPressure();
         m_Vcrit[i] = m_thermo->critVolume();
