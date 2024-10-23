@@ -135,6 +135,16 @@ public:
         return m_crossSections;
     }
 
+    //! The value of #m_crossSectionsInterpolated
+    const vector<double>& crossSectionInterpolated() const {
+        return m_crossSectionsInterpolated;
+    }
+
+    //! Set the value of #m_crossSectionsInterpolated
+    void setCrossSectionInterpolated(vector<double>& cs) {
+        m_crossSectionsInterpolated = cs;
+    }
+
 private:
     //! electron energy levels [eV]
     vector<double> m_energyLevels;
