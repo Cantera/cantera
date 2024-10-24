@@ -10,8 +10,7 @@ phases:
   state:
     T: 300
     P: 1 atm
-    
-species:    
+species:
 - name: CH4
   composition: {C: 1, H: 4}
   thermo:
@@ -36,7 +35,6 @@ species:
     critical-molar-volume: 0.0989
     critical-compressibility: 0.288
     acentric-factor: 0.011
-  
 - name: CO2
   composition: {C: 1, O: 2}
   thermo:
@@ -60,7 +58,4 @@ species:
     critical-pressure: 7.39e+06
     critical-molar-volume: 0.0948
     critical-compressibility: 0.275
-    acentric-factor: 0.228     
-
-
-
+    acentric-factor: 0.228
