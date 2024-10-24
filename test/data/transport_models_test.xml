@@ -13,7 +13,7 @@
       <pressure units="Pa">2666.4473684210525</pressure>
       <moleFractions>H:0.002, H2:0.988, CH3:0.0002, CH4:0.01</moleFractions>
     </state>
-    <thermo model="RedlichKwong"/>
+    <thermo model="IdealGas"/>
     <kinetics model="GasKinetics"/>
     <transport model="UnityLewis"/>
   </phase>
@@ -28,7 +28,7 @@
       <pressure units="Pa">2666.4473684210525</pressure>
       <moleFractions>H:0.002, H2:0.988, CH3:0.0002, CH4:0.01</moleFractions>
     </state>
-    <thermo model="RedlichKwong"/>
+    <thermo model="IdealGas"/>
     <kinetics model="GasKinetics"/>
     <transport model="CK_Mix"/>
   </phase>
@@ -43,20 +43,20 @@
       <pressure units="Pa">2666.4473684210525</pressure>
       <moleFractions>H:0.002, H2:0.988, CH3:0.0002, CH4:0.01</moleFractions>
     </state>
-    <thermo model="RedlichKwong"/>
+    <thermo model="IdealGas"/>
     <kinetics model="GasKinetics"/>
     <transport model="CK_Multi"/>
   </phase>
   <phase id="HighP" dim="3">
-    <elementArray datasrc="elements.xml">H C</elementArray>
-    <speciesArray datasrc="gri30.xml#species_data">H H2 CH3 CH4</speciesArray>
+    <elementArray datasrc="elements.xml">H C O</elementArray>
+    <speciesArray datasrc="gri30.xml#species_data">CO2 CH4</speciesArray>
     <reactionArray datasrc="gri30.xml#reaction_data">
       <skip species="undeclared" third_bodies="undeclared"/>
     </reactionArray>
     <state>
       <temperature units="K">1200.0</temperature>
       <pressure units="Pa">2666.4473684210525</pressure>
-      <moleFractions>H:0.002, H2:0.988, CH3:0.0002, CH4:0.01</moleFractions>
+      <moleFractions>CO2: 0.988, CH4: 0.012</moleFractions>
     </state>
     <thermo model="RedlichKwong"/>
     <kinetics model="GasKinetics"/>
