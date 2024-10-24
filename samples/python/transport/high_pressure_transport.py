@@ -99,6 +99,3 @@ plt.title('Methane Thermal Conductivity Model Comparison')
 plt.legend()
 plt.grid(True)
 plt.show()
-
-
-
