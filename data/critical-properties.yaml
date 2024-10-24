@@ -6295,3 +6295,14 @@ species:
     source: |-
       The acentric factor is calculated using the pure fluid saturation data from
       Lemmon et al. (2022).
+- name: H2
+  descriptive-name: hydrogen
+  molecular-weight: 2.016
+  critical-parameters:
+    critical-temperature: 32.98
+    critical-pressure: 1.293e6
+    critical-molar-volume: 0.0642
+    critical-compressibility: 0.303
+    acentric-factor: -0.217
+    source: |-
+      Properties of Gases and Liquids, 5th edition, Poling.
