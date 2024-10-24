@@ -8,7 +8,7 @@ phases:
   elements: [H, C]
   species:
   - gri30.yaml/species: [H, H2, CH3, CH4]
-  thermo: Redlich-Kwong
+  thermo: ideal-gas
   transport: unity-Lewis-number
   skip-undeclared-third-bodies: true
   kinetics: gas
@@ -20,7 +20,7 @@ phases:
   elements: [H, C]
   species:
   - gri30.yaml/species: [H, H2, CH3, CH4]
-  thermo: Redlich-Kwong
+  thermo: ideal-gas
   transport: mixture-averaged-CK
   skip-undeclared-third-bodies: true
   kinetics: gas
@@ -32,7 +32,7 @@ phases:
   elements: [H, C]
   species:
   - gri30.yaml/species: [H, H2, CH3, CH4]
-  thermo: Redlich-Kwong
+  thermo: ideal-gas
   transport: multicomponent-CK
   skip-undeclared-third-bodies: true
   kinetics: gas
@@ -41,14 +41,13 @@ phases:
   state: {T: 1200.0 K, P: 2666.4473684210525 Pa, X: {H: 2.0e-03, H2: 0.988, CH3: 2.0e-04,
       CH4: 0.01}}
 - name: HighP
-  elements: [H, C]
+  elements: [H, C, O]
   species:
-  - gri30.yaml/species: [H, H2, CH3, CH4]
+  - methane_co2.yaml/species: [CO2, CH4]
   thermo: Redlich-Kwong
   transport: high-pressure
   skip-undeclared-third-bodies: true
   kinetics: gas
   reactions:
-  - gri30.yaml/reactions: declared-species
-  state: {T: 1200.0 K, P: 2666.4473684210525 Pa, X: {H: 2.0e-03, H2: 0.988, CH3: 2.0e-04,
-      CH4: 0.01}}
+  - gri30.yaml/reactions: none
+  state: {T: 1200.0 K, P: 2666.4473684210525 Pa, X: {CO2: 0.988, CH4: 0.012}}
