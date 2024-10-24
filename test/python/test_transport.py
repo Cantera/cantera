@@ -662,18 +662,42 @@ class TestIonGasTransportData:
 
 
 class TestHighPressureGasTransport():
-    def test_acentric_factor_from_critical_properties(self):
-        # The acentric factor should be obtained from the critical-properties.yaml
-        # file given the input file that lacks the acentric-factor field.
+    def test_acentric_factor_from_critical_properties(self, test_data_path):
+        """
+        The acentric factor should be obtained from the critical-properties.yaml
+        file given the input file that lacks the acentric-factor field, as would
+        be the case when the cubic equation of state parameters are provided
+        directly.
+        """
+
+        # Missing acentric factor
         state = 370.8, 174.8e5, 'CH4:0.755, CO2:0.245'
-        gas = ct.Solution(self.test_data_path / 'methane_co2_noAcentricFactor.yaml')
+        gas = ct.Solution(test_data_path / 'methane_co2_noAcentricFactor.yaml')
         gas.transport_model = 'high-pressure-Chung'
         gas.TPX = state
         thermal_conductivity_1 = gas.thermal_conductivity
 
-        gas = ct.Solution(self.test_data_path / 'methane_co2.yaml')
+        # Has acentric factor
+        gas = ct.Solution(test_data_path / 'methane_co2.yaml')
         gas.transport_model = 'high-pressure-Chung'
         gas.TPX = state
         thermal_conductivity_2 = gas.thermal_conductivity
+
         assert thermal_conductivity_1 == pytest.approx(thermal_conductivity_2, 1e-6)
 
+    def test_failure_for_species_with_no_properties(self, test_data_path):
+        """
+        All species must have critical properties defined to use the high pressure
+        transport model. This test uses a YAML file with a specified value of the
+        a and b parameters for the Peng-Robinson equation of state, which should
+        be parsed by the thermo model and will set the critical properties to
+        non-physical values. These non-physical values should trigger an error
+        in the high-pressure transport model.
+        """
+        gas = ct.Solution(test_data_path / 'methane_co2_noCritProp.yaml')
+
+        with pytest.raises(ct.CanteraError, match="must have critical properties defined"):
+            gas.transport_model = 'high-pressure-Chung'
+
+        with pytest.raises(ct.CanteraError, match="must have critical properties defined"):
+            gas.transport_model = 'high-pressure'

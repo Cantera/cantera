@@ -30,6 +30,13 @@ species:
     diameter: 3.746
     polarizability: 2.6
     rotational-relaxation: 13.0
+  critical-parameters:
+    critical-temperature: 190.7
+    critical-pressure: 4.63e+06
+    critical-molar-volume: 0.0989
+    critical-compressibility: 0.288
+    acentric-factor: 0.011
+  
 - name: CO2
   composition: {C: 1, O: 2}
   thermo:
@@ -48,12 +55,10 @@ species:
     diameter: 3.763
     polarizability: 2.65
     rotational-relaxation: 2.1
-  critical-parameters:
-    critical-temperature: 304.2
-    critical-pressure: 7.39e+06
-    critical-molar-volume: 0.0948
-    critical-compressibility: 0.275
-    acentric-factor: 0.228     
-
+  equation-of-state:
+    model: Peng-Robinson
+    a: 0
+    b: 0
+    acentric-factor: 0.228
 
 
