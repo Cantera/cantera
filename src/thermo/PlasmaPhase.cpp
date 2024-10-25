@@ -27,7 +27,7 @@ PlasmaPhase::PlasmaPhase(const string& inputFile, const string& id_)
     m_electronEnergyLevels = Eigen::ArrayXd::LinSpaced(m_nPoints, 0.0, 1.0);
 
     // initial electron temperature
-    setElectronTemperature(temperature());
+    m_electronTemp = temperature();
 
     // resize vectors
     m_cs_interp.resize(m_nPoints);
@@ -224,23 +224,24 @@ void PlasmaPhase::setParameters(const AnyMap& phaseNode, const AnyMap& rootNode)
         m_distributionType = eedf["type"].asString();
         if (m_distributionType == "isotropic") {
             if (eedf.hasKey("shape-factor")) {
-                setIsotropicShapeFactor(eedf["shape-factor"].asDouble());
+                m_isotropicShapeFactor = eedf["shape-factor"].asDouble();
             } else {
                 throw CanteraError("PlasmaPhase::setParameters",
                     "isotropic type requires shape-factor key.");
             }
+            if (eedf.hasKey("energy-levels")) {
+                setElectronEnergyLevels(eedf["energy-levels"].asVector<double>().data(),
+                                        eedf["energy-levels"].asVector<double>().size(),
+                                        false);
+            }
             if (eedf.hasKey("mean-electron-energy")) {
                 double energy = eedf.convert("mean-electron-energy", "eV");
+                // setMeanElectronEnergy() calls updateElectronEnergyDistribution()
                 setMeanElectronEnergy(energy);
             } else {
                 throw CanteraError("PlasmaPhase::setParameters",
                     "isotropic type requires electron-temperature key.");
             }
-            if (eedf.hasKey("energy-levels")) {
-                setElectronEnergyLevels(eedf["energy-levels"].asVector<double>().data(),
-                                        eedf["energy-levels"].asVector<double>().size());
-            }
-            setIsotropicElectronEnergyDistribution();
         } else if (m_distributionType == "discretized") {
             if (!eedf.hasKey("energy-levels")) {
                 throw CanteraError("PlasmaPhase::setParameters",
