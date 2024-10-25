@@ -730,6 +730,68 @@ class TestChebyshevRate(ReactionRateTests):
         assert rate.n_temperature == rate.data.shape[0]
 
 
+class TestLinearBurkeRate(ReactionRateTests):
+    _cls = ct.LinearBurkeRate
+    _type = "linear-Burke"
+    _index = 14
+    _input = {
+        "colliders": [
+            {"name": "M",
+             "type": "pressure-dependent-Arrhenius",
+             "rate-constants": [
+                 {"P": 10132.5, "A": 5.13043e+15, "b": -2.80388, "Ea": 5.08801e+02 * 4184},
+                 {"P": 101325.0, "A": 5.47458e+16, "b": -2.81214, "Ea": 5.50629e+02 * 4184},
+                 {"P": 1013250.0, "A": 1.04665e+18, "b": -2.89077, "Ea": 8.27164e+02 * 4184},
+             ],
+            },
+            {"name": "H2O",
+             "efficiency": {"A": 10, "b": 0, "Ea": 0}},
+            {"name": "O2",
+             "type": "falloff",
+             "efficiency": {"A": 1.24932e+02, "b": -5.93263e-01, "Ea": 5.40921e+02 * 4184},
+             "low-P-rate-constant": [6.366e+20, -1.72, 524.8 * 4184],
+             "high-P-rate-constant": [4.7e+12, 0.44, 0.0],
+             "Troe": {"A": 0.5, "T3": 1.0e-30, "T1": 1.0e+30}
+            },
+        ]
+    }
+    _yaml = """
+        units: {activation-energy: cal/mol}
+        type: linear-Burke
+        colliders:
+        - name: M
+          type: pressure-dependent-Arrhenius
+          rate-constants:
+          - {P: 1.000e-01 atm, A: 5.13043e+15, b: -2.80388e+00, Ea: 5.08801e+02}
+          - {P: 1.000e+00 atm, A: 5.47458e+16, b: -2.81214e+00, Ea: 5.50629e+02}
+          - {P: 1.000e+01 atm, A: 1.04665e+18, b: -2.89077e+00, Ea: 8.27164e+02}
+        - name: H2O
+          efficiency: {A: 10, b: 0, Ea: 0}
+        - name: O2
+          type: falloff
+          efficiency: {A: 1.24932e+02, b: -5.93263e-01, Ea: 5.40921e+02}
+          low-P-rate-constant: {A: 6.366e+20, b: -1.72, Ea: 524.8}
+          high-P-rate-constant: {A: 4.7e+12, b: 0.44, Ea: 0.0}
+          Troe: {A: 0.5, T3: 1.0e-30, T1: 1.0e+30}
+    """
+
+    @pytest.mark.skip("construction from parts not yet supported")
+    def test_from_parts(self):
+        pass
+
+    @pytest.mark.skip("deferred construction not yet supported")
+    def test_unconfigured(self):
+        pass
+
+    def eval(self, rate):
+        # Rate can only be evaluated in the context of a Kinetics object
+        gas = ct.Solution(thermo='ideal-gas', kinetics='bulk',
+                          species=self.soln.species())
+        gas.add_reaction(ct.Reaction(equation='H + O = OH', rate=rate))
+        gas.TPX = self.soln.TPX
+        return gas.forward_rate_constants[0]
+
+
 class SurfaceReactionRateTests(ReactionRateTests):
     """Test suite for surface reaction rate expressions"""
 
