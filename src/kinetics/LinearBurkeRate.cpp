@@ -111,7 +111,6 @@ void LinearBurkeRate::setParameters(const AnyMap& node, const UnitStack& rate_un
     params["b"] = 0.0;
     params["Ea"] = 0.0;
     m_epsObj_M = ArrheniusRate(AnyValue(params), colliders[0].units(), eps_units);
-    m_colliderInfo["M"] = colliders[0];
     string eig_eps_key;
     // If using eig0 for all colliders, then it is mandatory to specify an eig0 value
     // for the reference collider
@@ -164,8 +163,6 @@ void LinearBurkeRate::setParameters(const AnyMap& node, const UnitStack& rate_un
                     " same choice as that of 'M'.", nm, eqn);
             }
         }
-        // Save data to m_colliderInfo, which will make it accessible by getParameters
-        m_colliderInfo[colliders[i]["name"].asString()] = colliders[i];
         m_colliderNames.push_back(colliders[i]["name"].as<string>());
 
         ArrheniusRate epsObj_i;
@@ -205,6 +202,7 @@ void LinearBurkeRate::setParameters(const AnyMap& node, const UnitStack& rate_un
                 m_epsObjs1.push_back(epsObj_i);
                 m_epsObjs2.push_back(epsObj_i);
             }
+            m_hasRateConstant.push_back(true);
         } else {
             // Collider has an 'efficiency' specified, but no other info is provided.
             // Assign it the same rate and data objects as "M"
@@ -212,6 +210,7 @@ void LinearBurkeRate::setParameters(const AnyMap& node, const UnitStack& rate_un
             m_dataObjs.push_back(m_dataObj_M);
             m_epsObjs1.push_back(epsObj_i);
             m_epsObjs2.push_back(m_epsObj_M);
+            m_hasRateConstant.push_back(false);
         }
     }
 }
@@ -332,41 +331,41 @@ double LinearBurkeRate::evalFromStruct(const LinearBurkeData& shared_data)
 void LinearBurkeRate::getParameters(AnyMap& rateNode) const
 {
     vector<AnyMap> topLevelList;
-    for (const auto& entry : m_colliderInfo) {
-        string name = entry.first;
-        auto collider = entry.second;
-        AnyMap colliderNode;
-        if (collider.hasKey("type")) {
-            colliderNode["type"] = collider["type"];
-            if (collider["type"] == "pressure-dependent-Arrhenius") {
-                colliderNode["name"] = name;
-                if (colliderNode.hasKey("efficiency")) {
-                    // only collider "M" will lack this
-                    colliderNode["efficiency"] = collider["efficiency"];
-                }
-                colliderNode["rate-constants"] = collider["rate-constants"];
-            } else if (collider["type"] == "falloff" && collider.hasKey("Troe")) {
-                colliderNode["name"] = name;
-                if (colliderNode.hasKey("efficiency")) {
-                    colliderNode["efficiency"] = collider["efficiency"];
-                }
-                colliderNode["low-P-rate-constant"] = collider["low-P-rate-constant"];
-                colliderNode["high-P-rate-constant"] = collider["high-P-rate-constant"];
-                colliderNode["Troe"] = collider["Troe"];
-            } else if (collider["type"] == "Chebyshev") {
-                colliderNode["name"] = name;
-                if (colliderNode.hasKey("efficiency")) {
-                    colliderNode["efficiency"] = collider["efficiency"];
-                }
-                colliderNode["temperature-range"] = collider["temperature-range"];
-                colliderNode["pressure-range"] = collider["pressure-range"];
-                colliderNode["data"] = collider["data"];
+    AnyMap M_node, M_params;
+    M_node["name"] = "M";
+    if (m_rateObj_M.which() == 0) {
+        auto& rate = boost::get<PlogRate>(m_rateObj_M);
+        M_params = rate.parameters();
+    } else if (m_rateObj_M.which() == 1) {
+        auto& rate = boost::get<TroeRate>(m_rateObj_M);
+        M_params = rate.parameters();
+    } else if (m_rateObj_M.which() == 2) {
+        auto& rate = boost::get<ChebyshevRate>(m_rateObj_M);
+        M_params = rate.parameters();
+    }
+    M_node.update(M_params);
+    topLevelList.push_back(std::move(M_node));
+
+    for (size_t i = 0; i < m_colliderNames.size(); i++) {
+        AnyMap collider, efficiency, params;
+        collider["name"] = m_colliderNames[i];
+        m_epsObjs1[i].getRateParameters(efficiency);
+        collider["efficiency"] = std::move(efficiency);
+        if (m_hasRateConstant[i]) {
+            const auto& var_rate = m_rateObjs[i];
+            if (var_rate.which() == 0) {
+                auto& rate = boost::get<PlogRate>(var_rate);
+                params = rate.parameters();
+            } else if (var_rate.which() == 1) {
+                auto& rate = boost::get<TroeRate>(var_rate);
+                params = rate.parameters();
+            } else if (var_rate.which() == 2) {
+                auto& rate = boost::get<ChebyshevRate>(var_rate);
+                params = rate.parameters();
             }
-        } else {
-            colliderNode["name"] = name;
-            colliderNode["efficiency"] = collider["efficiency"];
+            collider.update(params);
         }
-        topLevelList.push_back(std::move(colliderNode));
+        topLevelList.push_back(std::move(collider));
     }
     rateNode["colliders"] = std::move(topLevelList);
 }
