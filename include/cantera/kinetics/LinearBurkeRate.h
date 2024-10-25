@@ -129,9 +129,8 @@ protected:
     //! Index of each collider in the kinetics object species list where the vector
     //! elements appear in the same order as that of the original reaction input.
     vector<size_t> m_colliderIndices;
-
-    //! Allows data from setParameters() to be later accessed by getParameters()
-    map<string, AnyMap> m_colliderInfo;
+    //! Indicates which colliders have a distinct k(T,P) versus only an efficiency
+    vector<bool> m_hasRateConstant;
 
     //! Third-body collision efficiency object for k(T,P,X) and eig0_mix calculation
     vector<ArrheniusRate> m_epsObjs1;
