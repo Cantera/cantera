@@ -153,8 +153,6 @@ protected:
     //! Stores data objects corresponding to each non-M collider, which can be either
     //! PlogData, TroeData, or ChebyshevData
     vector<DataTypes> m_dataObjs; //!< list for non-M colliders
-
-    size_t m_nSpecies; //!< total number of species in the kinetics object
 };
 
 }

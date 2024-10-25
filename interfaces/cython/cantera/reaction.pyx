@@ -667,8 +667,17 @@ cdef class LinearBurkeRate(ReactionRate):
     """
     _reaction_rate_type = "linear-Burke"
 
-    def __cinit__(self, rates=None, input_data=None, init=True):
+    def __cinit__(self, input_data=None, init=True):
         self.set_cxx_object()
+
+        if init:
+            if isinstance(input_data, dict):
+                self._rate.reset(new CxxLinearBurkeRate(py_to_anymap(input_data)))
+            elif input_data:
+                raise TypeError("'input_data' must be a dict")
+            else:
+                raise ValueError("No input data provided")
+            self.set_cxx_object()
 
     cdef CxxLinearBurkeRate* cxx_object(self):
         return <CxxLinearBurkeRate*>self.rate
