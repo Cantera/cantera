@@ -7,6 +7,7 @@
 #define CT_DOMAIN1D_H
 
 #include "cantera/base/ctexceptions.h"
+#include "cantera/base/global.h"
 
 namespace Cantera
 {
@@ -117,8 +118,15 @@ public:
      */
     virtual void init() {  }
 
-    virtual void setInitialState(double* xlocal = 0) {}
-    virtual void setState(size_t point, const double* state, double* x) {}
+    //! @deprecated Unused. To be removed after Cantera 3.1.
+    virtual void setInitialState(double* xlocal = 0) {
+        warn_deprecated("Domain1D::setInitialState", "To be removed after Cantera 3.1.");
+    }
+
+    //! @deprecated Unused. To be removed after Cantera 3.1.
+    virtual void setState(size_t point, const double* state, double* x) {
+        warn_deprecated("Domain1D::setState", "To be removed after Cantera 3.1.");
+    }
 
     /**
      * When called, this function should reset "bad" values in the state vector
@@ -343,7 +351,10 @@ public:
         return x[index(n,j)];
     }
 
-    virtual void setJac(MultiJac* jac) {}
+    //! @deprecated To be removed after Cantera 3.1.
+    virtual void setJac(MultiJac* jac) {
+        warn_deprecated("Domain1D::setJac", "To be removed after Cantera 3.1.");
+    }
 
     //! Save the state of this domain as a SolutionArray.
     /*!
@@ -485,7 +496,11 @@ public:
     }
 
     //! Print the solution.
-    virtual void show(std::ostream& s, const double* x) {}
+    //! @deprecated Not implemented. To be removed after Cantera 3.1.
+    virtual void show(std::ostream& s, const double* x) {
+        warn_deprecated("Domain1D::show(std::ostream, double*)",
+                        "Not implemented. To be removed after Cantera 3.1.");
+    }
 
     //! Print the solution.
     virtual void show(const double* x);
@@ -508,7 +523,11 @@ public:
     const vector<double>& grid() const {
         return m_z;
     }
+
+    //! @deprecated To be removed after Cantera 3.1. Use z() instead.
     double grid(size_t point) const {
+        warn_deprecated("Domain1D::grid",
+            "To be removed after Cantera 3.1. Use z() instead.");
         return m_z[point];
     }
 

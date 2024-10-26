@@ -203,10 +203,6 @@ void OneDim::resize()
     // delete the current Jacobian evaluator and create a new one
     m_jac = make_unique<MultiJac>(*this);
     m_jac_ok = false;
-
-    for (size_t i = 0; i < nDomains(); i++) {
-        m_dom[i]->setJac(m_jac.get());
-    }
 }
 
 int OneDim::solve(double* x, double* xnew, int loglevel)

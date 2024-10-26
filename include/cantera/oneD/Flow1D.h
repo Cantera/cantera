@@ -865,7 +865,6 @@ protected:
     vector<bool> m_do_energy;
     bool m_do_soret = false;
     ThermoBasis m_fluxGradientBasis = ThermoBasis::molar;
-    vector<bool> m_do_species;
     bool m_do_multicomponent = false;
 
     //! flag for the radiative heat loss

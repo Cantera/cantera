@@ -173,9 +173,9 @@ int flamespeed(double phi, bool refine_grid, int loglevel)
                                          flow->componentIndex("CO2"),n));
             Uvec.push_back(flame.value(flowdomain,
                                        flow->componentIndex("velocity"),n));
-            zvec.push_back(flow->grid(n));
+            zvec.push_back(flow->z(n));
             print("{:9.6f}\t{:8.3f}\t{:5.3f}\t{:7.5f}\n",
-                  flow->grid(n), Tvec[n], Uvec[n], COvec[n]);
+                  flow->z(n), Tvec[n], Uvec[n], COvec[n]);
         }
 
         print("\nAdiabatic flame temperature from equilibrium is: {}\n", Tad);
@@ -185,7 +185,7 @@ int flamespeed(double phi, bool refine_grid, int loglevel)
         outfile << "  Grid,   Temperature,   Uvec,   CO,    CO2\n";
         for (size_t n = 0; n < flow->nPoints(); n++) {
             print(outfile, " {:11.3e}, {:11.3e}, {:11.3e}, {:11.3e}, {:11.3e}\n",
-                  flow->grid(n), Tvec[n], Uvec[n], COvec[n], CO2vec[n]);
+                  flow->z(n), Tvec[n], Uvec[n], COvec[n], CO2vec[n]);
         }
     } catch (CanteraError& err) {
         std::cerr << err.what() << std::endl;

@@ -331,6 +331,7 @@ void Sim1D::setFlatProfile(size_t dom, size_t comp, double v)
 
 void Sim1D::show(ostream& s)
 {
+    warn_deprecated("Sim1D::show(ostream&)", "To be removed after Cantera 3.1.");
     for (size_t n = 0; n < nDomains(); n++) {
         if (domain(n).type() != "empty") {
             domain(n).show(s, m_state->data() + start(n));
@@ -551,7 +552,7 @@ int Sim1D::refine(int loglevel)
         for (size_t m = 0; m < npnow; m++) {
             if (r.keepPoint(m)) {
                 // add the current grid point to the new grid
-                znew.push_back(d.grid(m));
+                znew.push_back(d.z(m));
 
                 // do the same for the solution at this point
                 for (size_t i = 0; i < comp; i++) {
@@ -563,7 +564,7 @@ int Sim1D::refine(int loglevel)
                 // for this new point
                 if (r.newPointNeeded(m) && m + 1 < npnow) {
                     // add new point at midpoint
-                    double zmid = 0.5*(d.grid(m) + d.grid(m+1));
+                    double zmid = 0.5*(d.z(m) + d.z(m+1));
                     znew.push_back(zmid);
                     added++;
 
@@ -577,7 +578,7 @@ int Sim1D::refine(int loglevel)
             } else {
                 discarded++;
                 if (loglevel > 0) {
-                    writelog("refine: discarding point at {}\n", d.grid(m));
+                    writelog("refine: discarding point at {}\n", d.z(m));
                 }
             }
         }
@@ -648,8 +649,8 @@ int Sim1D::setFixedTemperature(double t)
                 double t2 = value(n, c_offset_T, m + 1);
                 // threshold to avoid adding new point too close to existing point
                 double thresh = min(1., 1.e-1 * (t2 - t1));
-                z1 = d.grid(m);
-                z2 = d.grid(m + 1);
+                z1 = d.z(m);
+                z2 = d.z(m + 1);
                 if (fabs(t - t1) <= thresh) {
                     zfixed = z1;
                     fixedpt = true;
@@ -673,7 +674,7 @@ int Sim1D::setFixedTemperature(double t)
         // copy solution domain and push back values
         for (size_t m = 0; m < npnow; m++) {
             // add the current grid point to the new grid
-            znew.push_back(d.grid(m));
+            znew.push_back(d.z(m));
 
             // do the same for the solution at this point
             for (size_t i = 0; i < comp; i++) {
@@ -774,7 +775,7 @@ void Sim1D::setLeftControlPoint(double temperature)
                 } else {
                     index = m+1;
                 }
-                d_axis.setLeftControlPointCoordinate(d_axis.grid(index));
+                d_axis.setLeftControlPointCoordinate(d_axis.z(index));
                 d_axis.setLeftControlPointTemperature(value(n,c_offset_T,index));
                 return;
             }
@@ -825,7 +826,7 @@ void Sim1D::setRightControlPoint(double temperature)
                 } else {
                     index = m-1;
                 }
-                d_axis.setRightControlPointCoordinate(d_axis.grid(index));
+                d_axis.setRightControlPointCoordinate(d_axis.z(index));
                 d_axis.setRightControlPointTemperature(value(n,c_offset_T,index));
                 return;
             }

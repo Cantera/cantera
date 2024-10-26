@@ -75,6 +75,7 @@ public:
         return m_mask;
     }
 
+    //! @deprecated To be removed after Cantera 3.1.
     void incrementDiagonal(int j, double d);
 
 protected:
@@ -95,8 +96,6 @@ protected:
     vector<int> m_mask;
     int m_nevals = 0;
     int m_age = 100000; //!< Age of the Jacobian (times 'incrementAge' has been called)
-    size_t m_size;
-    size_t m_points;
 };
 }
 
