@@ -44,10 +44,7 @@ Flow1D::Flow1D(ThermoPhase* ph, size_t nsp, size_t points) :
     // plus the offset of the first mass fraction.
     m_nv = c_offset_Y + m_nsp;
 
-    // enable all species equations by default
-    m_do_species.resize(m_nsp, true);
-
-    // but turn off the energy equation at all points
+    // Turn off the energy equation at all points
     m_do_energy.resize(m_points,false);
 
     m_diff.resize(m_nsp*m_points);
@@ -545,15 +542,15 @@ void Flow1D::evalContinuity(double* x, double* rsd, int* diag,
     } else if (m_isFree) { // "free-flow"
         for (size_t j = j0; j <= j1; j++) {
             // terms involving V are zero as V=0 by definition
-            if (grid(j) > m_zfixed) {
+            if (z(j) > m_zfixed) {
                 rsd[index(c_offset_U, j)] = -(rho_u(x, j) - rho_u(x, j-1))/m_dz[j-1];
-            } else if (grid(j) == m_zfixed) {
+            } else if (z(j) == m_zfixed) {
                 if (m_do_energy[j]) {
                     rsd[index(c_offset_U, j)] = (T(x, j) - m_tfixed);
                 } else {
                     rsd[index(c_offset_U, j)] = (rho_u(x, j) - m_rho[0]*0.3); // why 0.3?
                 }
-            } else { // grid(j < m_zfixed
+            } else { // z(j) < m_zfixed
                 rsd[index(c_offset_U, j)] = -(rho_u(x, j+1) - rho_u(x, j))/m_dz[j];
             }
             diag[index(c_offset_U, j)] = 0; // Algebraic constraint
@@ -631,11 +628,11 @@ void Flow1D::evalLambda(double* x, double* rsd, int* diag,
     size_t j1 = std::min(jmax, m_points-2);
     for (size_t j = j0; j <= j1; j++) { // interior points
         if (m_twoPointControl) {
-            if (grid(j) == m_zLeft) {
+            if (z(j) == m_zLeft) {
                 rsd[index(c_offset_L, j)] = T(x,j) - m_tLeft;
-            } else if (grid(j) > m_zLeft) {
+            } else if (z(j) > m_zLeft) {
                 rsd[index(c_offset_L, j)] = lambda(x, j) - lambda(x, j-1);
-            } else if (grid(j) < m_zLeft) {
+            } else if (z(j) < m_zLeft) {
                 rsd[index(c_offset_L, j)] = lambda(x, j) - lambda(x, j+1);
             }
         } else {
@@ -715,11 +712,11 @@ void Flow1D::evalUo(double* x, double* rsd, int* diag,
     size_t j1 = std::min(jmax, m_points-2);
     for (size_t j = j0; j <= j1; j++) { // interior points
         if (m_twoPointControl) {
-            if (grid(j) == m_zRight) {
+            if (z(j) == m_zRight) {
                 rsd[index(c_offset_Uo, j)] = T(x, j) - m_tRight;
-            } else if (grid(j) > m_zRight) {
+            } else if (z(j) > m_zRight) {
                 rsd[index(c_offset_Uo, j)] = Uo(x, j) - Uo(x, j-1);
-            } else if (grid(j) < m_zRight) {
+            } else if (z(j) < m_zRight) {
                 rsd[index(c_offset_Uo, j)] = Uo(x, j) - Uo(x, j+1);
             }
         }
@@ -890,15 +887,6 @@ AnyMap Flow1D::getMeta() const
 
     state["flux-gradient-basis"] = static_cast<long int>(m_fluxGradientBasis);
 
-    set<bool> species_flags(m_do_species.begin(), m_do_species.end());
-    if (species_flags.size() == 1) {
-        state["species-enabled"] = m_do_species[0];
-    } else {
-        for (size_t k = 0; k < m_nsp; k++) {
-            state["species-enabled"][m_thermo->speciesName(k)] = m_do_species[k];
-        }
-    }
-
     state["refine-criteria"]["ratio"] = m_refiner->maxRatio();
     state["refine-criteria"]["slope"] = m_refiner->maxDelta();
     state["refine-criteria"]["curve"] = m_refiner->maxSlope();
@@ -1008,15 +996,6 @@ void Flow1D::setMeta(const AnyMap& state)
     if (state.hasKey("flux-gradient-basis")) {
         m_fluxGradientBasis = static_cast<ThermoBasis>(
                 state["flux-gradient-basis"].asInt());
-    }
-
-    if (state.hasKey("species-enabled")) {
-        const AnyValue& se = state["species-enabled"];
-        if (se.isScalar()) {
-            m_do_species.assign(m_thermo->nSpecies(), se.asBool());
-        } else {
-            m_do_species = se.asVector<bool>(m_thermo->nSpecies());
-        }
     }
 
     if (state.hasKey("radiation-enabled")) {

@@ -129,7 +129,7 @@ extern "C" {
         try {
             auto& dom = DomainCabinet::at(i);
             dom->checkPointIndex(n);
-            return dom->grid(n);
+            return dom->z(n);
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }

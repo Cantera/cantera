@@ -12,23 +12,22 @@ namespace Cantera
 MultiJac::MultiJac(OneDim& r)
     : BandMatrix(r.size(),r.bandwidth(),r.bandwidth())
 {
-    m_size = r.size();
-    m_points = r.points();
     m_resid = &r;
-    m_r1.resize(m_size);
-    m_ssdiag.resize(m_size);
-    m_mask.resize(m_size);
+    m_r1.resize(m_n);
+    m_ssdiag.resize(m_n);
+    m_mask.resize(m_n);
 }
 
 void MultiJac::updateTransient(double rdt, integer* mask)
 {
-    for (size_t n = 0; n < m_size; n++) {
+    for (size_t n = 0; n < m_n; n++) {
         value(n,n) = m_ssdiag[n] - mask[n]*rdt;
     }
 }
 
 void MultiJac::incrementDiagonal(int j, double d)
 {
+    warn_deprecated("MultiJac::incrementDiagonal", "To be removed after Cantera 3.1.");
     m_ssdiag[j] += d;
     value(j,j) = m_ssdiag[j];
 }
@@ -40,7 +39,7 @@ void MultiJac::eval(double* x0, double* resid0, double rdt)
     bfill(0.0);
     size_t ipt=0;
 
-    for (size_t j = 0; j < m_points; j++) {
+    for (size_t j = 0; j < m_resid->points(); j++) {
         size_t nv = m_resid->nVars(j);
         for (size_t n = 0; n < nv; n++) {
             // perturb x(n); preserve sign(x(n))
@@ -60,7 +59,7 @@ void MultiJac::eval(double* x0, double* resid0, double rdt)
 
             // compute nth column of Jacobian
             for (size_t i = j - 1; i != j+2; i++) {
-                if (i != npos && i < m_points) {
+                if (i != npos && i < m_resid->points()) {
                     size_t mv = m_resid->nVars(i);
                     size_t iloc = m_resid->loc(i);
                     for (size_t m = 0; m < mv; m++) {
@@ -73,7 +72,7 @@ void MultiJac::eval(double* x0, double* resid0, double rdt)
         }
     }
 
-    for (size_t n = 0; n < m_size; n++) {
+    for (size_t n = 0; n < m_n; n++) {
         m_ssdiag[n] = value(n,n);
     }
 

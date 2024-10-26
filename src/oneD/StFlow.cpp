@@ -292,17 +292,17 @@ void StFlow::evalContinuity(size_t j, double* x, double* rsd, int* diag, double 
             -(density(j+1)*V(x,j+1) + density(j)*V(x,j));
     } else if (m_isFree) {
         // terms involving V are zero as V=0 by definition
-        if (grid(j) > m_zfixed) {
+        if (z(j) > m_zfixed) {
             rsd[index(c_offset_U,j)] =
                 - (rho_u(x,j) - rho_u(x,j-1))/m_dz[j-1];
-        } else if (grid(j) == m_zfixed) {
+        } else if (z(j) == m_zfixed) {
             if (m_do_energy[j]) {
                 rsd[index(c_offset_U,j)] = (T(x,j) - m_tfixed);
             } else {
                 rsd[index(c_offset_U,j)] = (rho_u(x,j)
                                             - m_rho[0]*0.3); // why 0.3?
             }
-        } else if (grid(j) < m_zfixed) {
+        } else if (z(j) < m_zfixed) {
             rsd[index(c_offset_U,j)] =
                 - (rho_u(x,j+1) - rho_u(x,j))/m_dz[j];
         }
