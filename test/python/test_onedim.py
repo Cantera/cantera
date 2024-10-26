@@ -390,7 +390,7 @@ class TestFreeFlame:
         # new implementation
         new_keys = {
             "type", "points", "tolerances", "transport-model", "phase",
-            "radiation-enabled", "energy-enabled", "Soret-enabled", "species-enabled",
+            "radiation-enabled", "energy-enabled", "Soret-enabled",
             "refine-criteria", "fixed-point"}
         settings = sim.flame.settings
         for k in new_keys:

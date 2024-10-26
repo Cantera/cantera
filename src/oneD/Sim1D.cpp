@@ -203,7 +203,6 @@ AnyMap legacyH5(shared_ptr<SolutionArray> arr, const AnyMap& header={})
         {"radiation-enabled", "radiation_enabled"},
         {"energy-enabled", "energy_enabled"},
         {"Soret-enabled", "soret_enabled"},
-        {"species-enabled", "species_enabled"},
     };
     for (const auto& [newName, oldName] : header_pairs) {
         if (header.hasKey(oldName)) {

@@ -191,22 +191,23 @@ public:
         }
     }
 
-    //! Name of the nth component. May be overloaded.
+    //! Name of component `n`. May be overloaded.
     virtual string componentName(size_t n) const;
 
+    //! Set the name of the component `n` to `name`.
     void setComponentName(size_t n, const string& name) {
         m_name[n] = name;
     }
 
-    //! index of component with name @e name.
+    //! index of component with name `name`.
     virtual size_t componentIndex(const string& name) const;
 
     /**
      * Set the upper and lower bounds for a solution component, n.
      *
-     * @param n // solution component index
-     * @param lower  // lower bound on component n
-     * @param upper  // upper bound on component n
+     * @param n  solution component index
+     * @param lower  lower bound on component n
+     * @param upper  upper bound on component n
      */
     void setBounds(size_t n, double lower, double upper) {
         m_min[n] = lower;
@@ -215,9 +216,9 @@ public:
 
     //! Set tolerances for time-stepping mode
     /*!
-     * @param rtol Relative tolerance
-     * @param atol Absolute tolerance
-     * @param n    component index these tolerances apply to. If set to -1 (the
+     * @param rtol  Relative tolerance
+     * @param atol  Absolute tolerance
+     * @param n  component index these tolerances apply to. If set to -1 (the
      *      default), these tolerances will be applied to all solution
      *      components.
      */
@@ -225,9 +226,9 @@ public:
 
     //! Set tolerances for steady-state mode
     /*!
-     * @param rtol Relative tolerance
-     * @param atol Absolute tolerance
-     * @param n    component index these tolerances apply to. If set to -1 (the
+     * @param rtol  Relative tolerance
+     * @param atol  Absolute tolerance
+     * @param n  component index these tolerances apply to. If set to -1 (the
      *     default), these tolerances will be applied to all solution
      *     components.
      */
@@ -321,8 +322,7 @@ public:
      *  @param[out] r  residual vector
      *  @param[out] mask  Boolean mask indicating whether each solution
      *      component has a time derivative (1) or not (0).
-     *  @param[in] rdt Reciprocal of the timestep (`rdt=0` implies steady-
-     *  state.)
+     *  @param[in] rdt  Reciprocal of the timestep (`rdt=0` implies steady-state.)
      */
     virtual void eval(size_t j, double* x, double* r, integer* mask, double rdt=0.0) {
         throw NotImplementedError("Domain1D::eval");
@@ -358,7 +358,7 @@ public:
 
     //! Save the state of this domain as a SolutionArray.
     /*!
-     * @param soln local solution vector for this domain
+     * @param soln  local solution vector for this domain
      * @todo  Despite the method's name, data are copied; the intent is to access data
      *      directly in future revisions, where a non-const version will be implemented.
      *
@@ -372,7 +372,7 @@ public:
     /*!
      * This method serves as an external interface for high-level API's; it does not
      * provide direct access to memory.
-     * @param normalize If true, normalize concentrations (default=false)
+     * @param normalize  If true, normalize concentrations (default=false)
      *
      * @since New in %Cantera 3.0.
      */
@@ -380,8 +380,8 @@ public:
 
     //! Restore the solution for this domain from a SolutionArray
     /*!
-     * @param[in]  arr SolutionArray defining the state of this domain
-     * @param[out] soln Value of the solution vector, local to this domain
+     * @param[in] arr  SolutionArray defining the state of this domain
+     * @param[out] soln  Value of the solution vector, local to this domain
      *
      * @since New in %Cantera 3.0.
      */
@@ -392,7 +392,7 @@ public:
     //! Restore the solution for this domain from a SolutionArray.
     /*!
      * This method serves as an external interface for high-level API's.
-     * @param  arr SolutionArray defining the state of this domain
+     * @param arr  SolutionArray defining the state of this domain
      * @since New in %Cantera 3.0.
      */
     void fromArray(const shared_ptr<SolutionArray>& arr);
@@ -403,9 +403,7 @@ public:
         return m_solution;
     }
 
-    /**
-     * Return the size of the solution vector (the product of #m_nv and #m_points).
-     */
+    //! Return the size of the solution vector (the product of #m_nv and #m_points).
     size_t size() const {
         return m_nv*m_points;
     }
@@ -416,26 +414,17 @@ public:
      */
     void locate();
 
-    /**
-     * Location of the start of the local solution vector in the global
-     * solution vector,
-     */
+    //! Location of the start of the local solution vector in the global solution vector
     virtual size_t loc(size_t j = 0) const {
         return m_iloc;
     }
 
-    /**
-     * The index of the first (that is, left-most) grid point belonging to this
-     * domain.
-     */
+    //! The index of the first (that is, left-most) grid point belonging to this domain.
     size_t firstPoint() const {
         return m_jstart;
     }
 
-    /**
-     * The index of the last (that is, right-most) grid point belonging to this
-     * domain.
-     */
+    //! The index of the last (that is, right-most) grid point belonging to this domain.
     size_t lastPoint() const {
         return m_jstart + m_points - 1;
     }
@@ -503,23 +492,36 @@ public:
     }
 
     //! Print the solution.
+    //! @param x  Pointer to the local portion of the system state vector
     virtual void show(const double* x);
 
+    //! Get the coordinate [m] of the point with local index `jlocal`
     double z(size_t jlocal) const {
         return m_z[jlocal];
     }
+
+    //! Get the coordinate [m] of the first (leftmost) grid point in this domain
     double zmin() const {
         return m_z[0];
     }
+
+    //! Get the coordinate [m] of the last (rightmost) grid point in this domain
     double zmax() const {
         return m_z[m_points - 1];
     }
 
+    //! Set initial values for a component at each grid point
+    //! @param name  Name of the component
+    //! @param values  Array of length nPoints() containing the initial values
+    //! @param soln  Pointer to the local portion of the system state vector
     void setProfile(const string& name, double* values, double* soln);
 
+    //! Access the array of grid coordinates [m]
     vector<double>& grid() {
         return m_z;
     }
+
+    //! Access the array of grid coordinates [m]
     const vector<double>& grid() const {
         return m_z;
     }
@@ -586,10 +588,15 @@ protected:
     vector<double> m_slast; //!< Solution vector at the last time step
     vector<double> m_max; //!< Upper bounds on solution components
     vector<double> m_min; //!< Lower bounds on solution components
-    vector<double> m_rtol_ss, m_rtol_ts; //!< Relative tolerances for steady and transient modes
-    vector<double> m_atol_ss, m_atol_ts; //!< Absolute tolerances for steady and transient modes
+    vector<double> m_rtol_ss; //!< Relative tolerances for steady mode
+    vector<double> m_rtol_ts; //!< Relative tolerances for transient mode
+    vector<double> m_atol_ss; //!< Absolute tolerances for steady mode
+    vector<double> m_atol_ts; //!< Absolute tolerances for transient mode
     vector<double> m_z; //!< 1D spatial grid coordinates
+
+    //! Parent OneDim simulation containing this and adjacent domains
     OneDim* m_container = nullptr;
+
     size_t m_index; //!< Left-to-right location of this domain
 
     //! Starting location within the solution vector for unknowns that
@@ -599,6 +606,8 @@ protected:
      */
     size_t m_iloc = 0;
 
+    //! Index of the first point in this domain in the global point list.
+    //! @see firstPoint(), lastPoint()
     size_t m_jstart = 0;
 
     Domain1D* m_left = nullptr; //!< Pointer to the domain to the left
@@ -608,8 +617,8 @@ protected:
     string m_id;
     unique_ptr<Refiner> m_refiner; //!< Refiner object used for placing grid points
     vector<string> m_name; //!< Names of solution components
-    int m_bw = -1;
-    bool m_force_full_update = false;
+    int m_bw = -1; //!< See bandwidth()
+    bool m_force_full_update = false; //!< see forceFullUpdate()
 
     //! Composite thermo/kinetics/transport handler
     shared_ptr<Solution> m_solution;
