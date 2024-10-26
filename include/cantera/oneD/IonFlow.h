@@ -28,9 +28,14 @@ namespace Cantera
 class IonFlow : public Flow1D
 {
 public:
+    //! Create a new IonFlow domain.
+    //! @param ph  Object representing the gas phase. This object will be used
+    //!     to evaluate all thermodynamic, kinetic, and transport properties.
+    //! @param nsp  Number of species.
+    //! @param points  Initial number of grid points
     IonFlow(ThermoPhase* ph = 0, size_t nsp = 1, size_t points = 1);
 
-    //! Create a new flow domain.
+    //! Create a new IonFlow domain.
     //! @param sol  Solution object used to evaluate all thermodynamic, kinetic, and
     //!     transport properties
     //! @param id  name of flow domain
@@ -61,7 +66,7 @@ public:
      * See Bisetti and El Morsli @cite bisetti2012.
      * If in the future the class GasTransport is improved, this method may
      * be discarded. This method specifies this profile.
-    */
+     */
     void setElectronTransport(vector<double>& tfix,
                               vector<double>& diff_e,
                               vector<double>& mobi_e);
@@ -127,8 +132,14 @@ protected:
     //! index of neutral species
     vector<size_t> m_kNeutral;
 
-    //! coefficients of polynomial fitting of fixed electron transport profile
+    //! Coefficients of polynomial fit for electron mobility as a function of
+    //! temperature.
+    //! @see setElectronTransport
     vector<double> m_mobi_e_fix;
+
+    //! Coefficients of polynomial fit for electron diffusivity as a function of
+    //! temperature.
+    //! @see setElectronTransport
     vector<double> m_diff_e_fix;
 
     //! mobility
@@ -140,16 +151,17 @@ protected:
     //! index of electron
     size_t m_kElectron = npos;
 
-    //! electric field
+    //! electric field [V/m]
     double E(const double* x, size_t j) const {
         return x[index(c_offset_E, j)];
     }
 
+    //! Axial gradient of the electric field [V/m²]
     double dEdz(const double* x, size_t j) const {
         return (E(x,j)-E(x,j-1))/(z(j)-z(j-1));
     }
 
-    //! number density
+    //! number density [molecules/m³]
     double ND(const double* x, size_t k, size_t j) const {
         return Avogadro * m_rho[j] * Y(x,k,j) / m_wt[k];
     }
