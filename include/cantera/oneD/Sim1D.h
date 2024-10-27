@@ -30,7 +30,7 @@ public:
 
     /**
      * Standard constructor.
-     * @param domains A vector of shared pointers to the domains to be linked together.
+     * @param domains  A vector of shared pointers to the domains to be linked together.
      *     The domain pointers must be entered in left-to-right order --- that is,
      *     the pointer to the leftmost domain is domain[0], the pointer to the
      *     domain to its right is domain[1], etc.
@@ -44,10 +44,10 @@ public:
 
     //! Set initial guess for one component for all domains
     /**
-     * @param component component name
-     * @param locs A vector of relative positions, beginning with 0.0 at the
+     * @param component  component name
+     * @param locs  A vector of relative positions, beginning with 0.0 at the
      *     left of the domain, and ending with 1.0 at the right of the domain.
-     * @param vals A vector of values corresponding to the relative position
+     * @param vals  A vector of values corresponding to the relative position
      *     locations.
      */
     void setInitialGuess(const string& component, vector<double>& locs,
@@ -55,32 +55,37 @@ public:
 
     /**
      * Set a single value in the solution vector.
-     * @param dom domain number, beginning with 0 for the leftmost domain.
-     * @param comp component number
-     * @param localPoint grid point within the domain, beginning with 0 for
+     * @param dom  domain number, beginning with 0 for the leftmost domain.
+     * @param comp  component number
+     * @param localPoint  grid point within the domain, beginning with 0 for
      *     the leftmost grid point in the domain.
-     * @param value the value.
+     * @param value  the value.
      */
     void setValue(size_t dom, size_t comp, size_t localPoint, double value);
 
     /**
      * Get one entry in the solution vector.
-     * @param dom domain number, beginning with 0 for the leftmost domain.
-     * @param comp component number
-     * @param localPoint grid point within the domain, beginning with 0 for
+     * @param dom  domain number, beginning with 0 for the leftmost domain.
+     * @param comp  component number
+     * @param localPoint  grid point within the domain, beginning with 0 for
      *     the leftmost grid point in the domain.
      */
     double value(size_t dom, size_t comp, size_t localPoint) const;
 
+    //! Get an entry in the work vector, which may contain either a new system state
+    //! or the current residual of the system.
+    //! @param dom  domain index
+    //! @param comp  component index
+    //! @param localPoint  grid point within the domain
     double workValue(size_t dom, size_t comp, size_t localPoint) const;
 
     /**
      * Specify a profile for one component of one domain.
-     * @param dom domain number, beginning with 0 for the leftmost domain.
-     * @param comp component number
-     * @param pos A vector of relative positions, beginning with 0.0 at the
+     * @param dom  domain number, beginning with 0 for the leftmost domain.
+     * @param comp  component number
+     * @param pos  A vector of relative positions, beginning with 0.0 at the
      *     left of the domain, and ending with 1.0 at the right of the domain.
-     * @param values A vector of values corresponding to the relative position
+     * @param values  A vector of values corresponding to the relative position
      *     locations.
      *
      * Note that the vector pos and values can have lengths different than the
@@ -202,6 +207,13 @@ public:
 
     //! @}
 
+    //! Set the number of time steps to try when the steady Newton solver is
+    //! unsuccessful.
+    //! @param stepsize  Initial time step size [s]
+    //! @param n  Length of `tsteps` array
+    //! @param tsteps  A sequence of time step counts to take after subsequent failures
+    //!     of the steady-state solver. The last value in `tsteps` will be used again
+    //!     after further unsuccessful solution attempts.
     void setTimeStep(double stepsize, size_t n, const int* tsteps);
 
     /**
@@ -301,15 +313,15 @@ public:
     /**
      * Get the maximum number of grid points in this domain. @see Refiner::maxPoints
      *
-     * @param dom domain number, beginning with 0 for the leftmost domain.
+     * @param dom  domain number, beginning with 0 for the leftmost domain.
      */
     size_t maxGridPoints(size_t dom);
 
     //! Set the minimum grid spacing in the specified domain(s).
     /*!
-     * @param dom Domain index. If dom == -1, the specified spacing is applied
-     *            to all domains.
-     * @param gridmin The minimum allowable grid spacing [m]
+     * @param dom  Domain index. If dom == -1, the specified spacing is applied
+     *             to all domains.
+     * @param gridmin  The minimum allowable grid spacing [m]
      */
     void setGridMin(int dom, double gridmin);
 
@@ -323,10 +335,13 @@ public:
     //! failure during grid refinement.
     void restoreSteadySolution();
 
+    //! Get the initial value of the system state from each domain in the simulation.
     void getInitialSoln();
 
+    //! Get the Jacobian element @f$ J_{ij} = \partial f_i / \partial x_j \f$
     double jacobian(int i, int j);
 
+    //! Evaluate the Jacobian in steady-state mode.
     void evalSSJacobian();
 
     //! Solve the equation @f$ J^T \lambda = b @f$.

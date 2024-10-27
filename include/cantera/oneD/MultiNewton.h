@@ -23,11 +23,14 @@ namespace Cantera
 class MultiNewton
 {
 public:
+    //! Constructor
+    //! @param sz  Number of variables in the system
     MultiNewton(int sz);
     virtual ~MultiNewton() {};
     MultiNewton(const MultiNewton&) = delete;
     MultiNewton& operator=(const MultiNewton&) = delete;
 
+    //! Get the number of variables in the system.
     size_t size() {
         return m_n;
     }
@@ -89,15 +92,16 @@ public:
      * where @f$ \Delta x_k = J^{-1}(x_k) F(x_k) @f$, and
      * @f$ \Delta x_{k+1} = J^{-1}(x_{k}) F(x_{k+1}) @f$.
      *
-     * @param[in] x0 initial solution about which a Newton step will be taken
-     * @param[in] step0 initial undamped Newton step
-     * @param[out] x1 solution after taking the damped Newton step
-     * @param[out] step1 Newton step after taking the damped Newton step
-     * @param[out] s1 norm of the subsequent Newton step after taking the damped Newton step
-     * @param[in] r domain object, used for evaluating residuals over all domains
-     * @param[in] jac Jacobian evaluator
-     * @param[in] loglevel controls amount of printed diagnostics
-     * @param[in] writetitle controls if logging title is printed
+     * @param[in] x0  initial solution about which a Newton step will be taken
+     * @param[in] step0  initial undamped Newton step
+     * @param[out] x1  solution after taking the damped Newton step
+     * @param[out] step1  Newton step after taking the damped Newton step
+     * @param[out] s1  norm of the subsequent Newton step after taking the damped Newton
+     *     step
+     * @param[in] r  domain object, used for evaluating residuals over all domains
+     * @param[in] jac  Jacobian evaluator
+     * @param[in] loglevel  controls amount of printed diagnostics
+     * @param[in] writetitle  controls if logging title is printed
      *
      * @returns
      *   - `1` a damping coefficient was found and the solution converges.
@@ -129,6 +133,8 @@ public:
     int solve(double* x0, double* x1, OneDim& r, MultiJac& jac, int loglevel);
 
     //! Set options.
+    //! @param maxJacAge  Maximum number of steps that can be taken before requiring
+    //!                   a Jacobian update
     void setOptions(int maxJacAge = 5) {
         m_maxAge = maxJacAge;
     }
@@ -137,8 +143,14 @@ public:
     void resize(size_t points);
 
 protected:
-    //! Work arrays of size #m_n used in solve().
-    vector<double> m_x, m_stp, m_stp1;
+    //! Work array holding the system state after the last successful step. Size #m_n.
+    vector<double> m_x;
+
+    //! Work array holding the undamped Newton step or the system residual. Size #m_n.
+    vector<double> m_stp;
+
+    //! Work array holding the damped Newton step. Size #m_n.
+    vector<double> m_stp1;
 
     //! Maximum allowable Jacobian age before it is recomputed.
     int m_maxAge = 5;
