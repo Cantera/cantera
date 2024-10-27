@@ -216,13 +216,13 @@ int OneDim::solve(double* x, double* xnew, int loglevel)
     return m_newt->solve(x, xnew, *this, *m_jac, loglevel);
 }
 
-void OneDim::evalSSJacobian(double* x, double* xnew)
+void OneDim::evalSSJacobian(double* x, double* rsd)
 {
     double rdt_save = m_rdt;
     m_jac_ok = false;
     setSteadyMode();
-    eval(npos, x, xnew, 0.0, 0);
-    m_jac->eval(x, xnew, 0.0);
+    eval(npos, x, rsd, 0.0, 0);
+    m_jac->eval(x, rsd, 0.0);
     m_rdt = rdt_save;
 }
 
