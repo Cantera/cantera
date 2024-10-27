@@ -791,6 +791,24 @@ class TestLinearBurkeRate(ReactionRateTests):
         gas.TPX = self.soln.TPX
         return gas.forward_rate_constants[0]
 
+    @pytest.mark.parametrize("section,message", [
+        ("no-colliders", "'colliders' key missing"),
+        ("no-name-first", "'name' key missing from collider entry"),
+        ("no-name-later", "'name' key missing from collider entry"),
+        ("no-M", "The first collider must be 'M'"),
+        ("missing-eig0", "Collider 'H2O' lacks an 'eig0' key"),
+        ("missing-efficiency", "Collider 'H2O' lacks an 'efficiency' key."),
+        ("eig0-and-efficiency", "Collider 'AR' cannot contain both"),
+        ("missing-M-rate", "'type' key missing for 'M'"),
+        ("bad-M-rate", "Collider 'M' must be specified"),
+        ("bad-M-efficiency", "not necessary to provide an 'efficiency' for 'M'"),
+        ("bad-other-rate", "Collider 'H2O': 'Arrhenius' rate parameterization"),
+        ("negative-efficiency", "Invalid 'efficiency' entry for collider 'AR'"),
+    ])
+    def test_input_errors(self, section, message):
+        with pytest.raises(ct.CanteraError, match=message):
+            ct.Reaction.list_from_file("linearBurke-test.yaml", self.soln,
+                                       f"reactions-{section}")
 
 class SurfaceReactionRateTests(ReactionRateTests):
     """Test suite for surface reaction rate expressions"""
