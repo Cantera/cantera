@@ -1479,56 +1479,20 @@ class TestPlogReaction:
         assert kf[0] != approx(kf[1])
 
 class TestLinearBurkeReaction:
-    def test_linearburke_plog(self):
-        reaction = "H + OH <=> H2O"
-        gas_baseline = ct.Solution('linearBurke-test.yaml',
-                                   name='baseline_mechanism')
-        gas_linearBurke = ct.Solution('linearBurke-test.yaml',
-                                      name='linear-Burke_mechanism')
-        T = 1000 # [K]
-        P_ls = [0.1,1,10,100] # [atm]
-        for P in P_ls:
-            def getK(gas, T, P, X):
-                gas.TPX = T,P,X
-                eqn = gas.reaction_equations().index(reaction)
-                return gas.forward_rate_constants[eqn]
-            # collider 'O2' treated as M in this test reaction
-            k_baseline = getK(gas_baseline, T, P,'O2:1')
-            k_linearBurke = getK(gas_linearBurke, T, P,'O2:1')
-            assert k_baseline == approx(k_linearBurke)
-            # collider 'H2O' must behave as 'M' if 'M' were eval. at 10x the pressure
-            k_baseline = getK(gas_baseline, T, P*10,'H2O:1')
-            k_linearBurke = getK(gas_linearBurke, T, P,'H2O:1')
-            assert k_baseline == approx(k_linearBurke)
+    @pytest.fixture(scope='class')
+    def gas_baseline(self):
+        return ct.Solution('linearBurke-test.yaml', name='baseline_mechanism')
 
-    def test_linearburke_troe(self):
-        reaction = "H + O2 (+M) <=> HO2 (+M)"
-        gas_baseline = ct.Solution('linearBurke-test.yaml',
-                                   name='baseline_mechanism')
-        gas_linearBurke = ct.Solution('linearBurke-test.yaml',
-                                      name='linear-Burke_mechanism')
-        T = 1000 # [K]
-        P_ls = [0.1,1,10,100] # [atm]
-        for P in P_ls:
-            def getK(gas, T, P, X):
-                gas.TPX = T,P,X
-                eqn = gas.reaction_equations().index(reaction)
-                return gas.forward_rate_constants[eqn]
-            # collider 'O2' treated as M in this test reaction
-            k_baseline = getK(gas_baseline, T, P,'O2:1')
-            k_linearBurke = getK(gas_linearBurke, T, P,'O2:1')
-            assert k_baseline == approx(k_linearBurke)
-            # collider 'H2O' must behave as 'M' if 'M' were eval. at 10x the pressure
-            k_baseline = getK(gas_baseline, T, P*10,'H2O:1')
-            k_linearBurke = getK(gas_linearBurke, T, P,'H2O:1')
-            assert k_baseline == approx(k_linearBurke)
+    @pytest.fixture(scope='class')
+    def gas_linearBurke(self):
+        return ct.Solution('linearBurke-test.yaml', name='linear-Burke_mechanism')
 
-    def test_linearburke_chebyshev(self):
-        reaction = "H2O2 <=> 2 OH"
-        gas_baseline = ct.Solution('linearBurke-test.yaml',
-                                   name='baseline_mechanism')
-        gas_linearBurke = ct.Solution('linearBurke-test.yaml',
-                                      name='linear-Burke_mechanism')
+    @pytest.mark.parametrize("reaction", [
+        pytest.param("H + OH <=> H2O", id="PLOG"),
+        pytest.param("H + O2 (+M) <=> HO2 (+M)", id="Troe"),
+        pytest.param("H2O2 <=> 2 OH", id="Chebyshev"),
+    ])
+    def test_efficiency(self, gas_baseline, gas_linearBurke, reaction):
         T = 1000 # [K]
         P_ls = [0.1,1,10,100] # [atm]
         for P in P_ls:
