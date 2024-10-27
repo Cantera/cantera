@@ -4,11 +4,13 @@
 
 #ifndef CT_LINEARBURKERATE_H
 #define CT_LINEARBURKERATE_H
+
 #include "cantera/kinetics/Arrhenius.h"
-#include <boost/variant.hpp>
 #include "cantera/kinetics/Falloff.h"
 #include "cantera/kinetics/ChebyshevRate.h"
 #include "cantera/kinetics/PlogRate.h"
+
+#include <variant>
 
 namespace Cantera
 {
@@ -96,9 +98,9 @@ public:
     void getParameters(AnyMap& rateNode) const override;
 
     //! Type alias that refers to PlogRate, TroeRate, and ChebyshevRate
-    using RateTypes = boost::variant<PlogRate, TroeRate, ChebyshevRate>;
+    using RateTypes = std::variant<PlogRate, TroeRate, ChebyshevRate>;
     //! Type alias that refers to PlogData, FalloffData, and ChebyshevData
-    using DataTypes = boost::variant<PlogData, FalloffData, ChebyshevData>;
+    using DataTypes = std::variant<PlogData, FalloffData, ChebyshevData>;
 
     double evalFromStruct(const LinearBurkeData& shared_data);
 
