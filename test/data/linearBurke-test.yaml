@@ -219,6 +219,7 @@ linear-Burke_reactions:
     low-P-rate-constant: {A: 6.366e+20, b: -1.72, Ea: 524.8}
     high-P-rate-constant: {A: 4.7e+12, b: 0.44, Ea: 0.0}
     Troe: {A: 0.5, T3: 1.0e-30, T1: 1.0e+30}
+    efficiency: {A: 1.0, b: 0.0, Ea: 0}
   - name: H2O
     efficiency: {A: 10, b: 0, Ea: 0}
 
@@ -246,3 +247,151 @@ linear-Burke_reactions:
       1.5925e-03]
   - name: H2O
     efficiency: {A: 10, b: 0, Ea: 0}
+
+# Invalid reaction definitions to test various input errors
+
+reactions-no-colliders:
+- equation: H + O2 (+M) <=> HO2 (+M)
+  type: linear-Burke
+  name: M
+  low-P-rate-constant: {A: 6.366e+20, b: -1.72, Ea: 524.8}
+  high-P-rate-constant: {A: 4.7e+12, b: 0.44, Ea: 0.0}
+  Troe: {A: 0.5, T3: 1.0e-30, T1: 1.0e+30}
+
+reactions-no-name-first:
+- equation: H + O2 (+M) <=> HO2 (+M)
+  type: linear-Burke
+  colliders:
+  - type: falloff
+    low-P-rate-constant: {A: 6.366e+20, b: -1.72, Ea: 524.8}
+    high-P-rate-constant: {A: 4.7e+12, b: 0.44, Ea: 0.0}
+    Troe: {A: 0.5, T3: 1.0e-30, T1: 1.0e+30}
+  - name: H2O
+    efficiency: {A: 10, b: 0, Ea: 0}
+
+reactions-no-name-later:
+- equation: H + O2 (+M) <=> HO2 (+M)
+  type: linear-Burke
+  colliders:
+  - name: M
+    type: falloff
+    low-P-rate-constant: {A: 6.366e+20, b: -1.72, Ea: 524.8}
+    high-P-rate-constant: {A: 4.7e+12, b: 0.44, Ea: 0.0}
+    Troe: {A: 0.5, T3: 1.0e-30, T1: 1.0e+30}
+  - name: H2O
+    efficiency: {A: 10, b: 0, Ea: 0}
+  - type: pressure-dependent-Arrhenius
+    rate-constants:
+    - {P: 1.000e+00 atm, A: 5.47458e+16, b: -2.81214e+00, Ea: 5.50629e+02}
+    - {P: 1.000e+01 atm, A: 1.04665e+18, b: -2.89077e+00, Ea: 8.27164e+02}
+    efficiency: {A: 3.0, b: 0, Ea: 0}
+
+reactions-no-M:
+- equation: H + OH <=> H2O
+  type: linear-Burke
+  colliders:
+  - name: H2O
+    efficiency: {A: 10, b: 0, Ea: 0}
+
+reactions-missing-eig0:
+- equation: H + OH <=> H2O
+  type: linear-Burke
+  colliders:
+  - name: M
+    type: pressure-dependent-Arrhenius
+    rate-constants:
+    - {P: 1.000e+00 atm, A: 5.47458e+16, b: -2.81214e+00, Ea: 5.50629e+02}
+    - {P: 1.000e+01 atm, A: 1.04665e+18, b: -2.89077e+00, Ea: 8.27164e+02}
+    eig0: {A: 2.20621e-02, b: 4.74036e-01, Ea: -1.13148e+02}
+  - name: H2O
+    efficiency: {A: 10, b: 0, Ea: 0}
+
+reactions-missing-efficiency:
+- equation: H + OH <=> H2O
+  type: linear-Burke
+  colliders:
+  - name: M
+    type: pressure-dependent-Arrhenius
+    rate-constants:
+    - {P: 1.000e+00 atm, A: 5.47458e+16, b: -2.81214e+00, Ea: 5.50629e+02}
+    - {P: 1.000e+01 atm, A: 1.04665e+18, b: -2.89077e+00, Ea: 8.27164e+02}
+  - name: H2O
+    type: falloff
+    low-P-rate-constant: {A: 2.4e+14, b: 0.206, Ea: -1550.0}
+    high-P-rate-constant: {A: 1.5e+15, b: -0.41, Ea: 0.0}
+    Troe: {A: 0.82, T3: 1.0e-30, T1: 1.0e+30, T2: 1.0e+30}
+
+reactions-eig0-and-efficiency:
+- equation: H + O2 (+M) <=> HO2 (+M)
+  type: linear-Burke
+  colliders:
+  - name: M
+    type: pressure-dependent-Arrhenius
+    rate-constants:
+    - {P: 1.000e+00 atm, A: 5.47458e+16, b: -2.81214e+00, Ea: 5.50629e+02}
+    - {P: 1.000e+01 atm, A: 1.04665e+18, b: -2.89077e+00, Ea: 8.27164e+02}
+  - name: H2O
+    efficiency: {A: 10, b: 0, Ea: 0}
+  - name: AR
+    efficiency: {A: 5, b: 0, Ea: 0}
+    eig0: {A: 2.4e+14, b: 0.206, Ea: -1550.0}
+
+reactions-missing-M-rate:
+- equation: H + OH <=> H2O
+  type: linear-Burke
+  colliders:
+  - name: M
+    rate-constants:
+    - {P: 1.000e+00 atm, A: 5.47458e+16, b: -2.81214e+00, Ea: 5.50629e+02}
+    - {P: 1.000e+01 atm, A: 1.04665e+18, b: -2.89077e+00, Ea: 8.27164e+02}
+  - name: H2O
+    efficiency: {A: 10, b: 0, Ea: 0}
+
+reactions-bad-M-rate:
+- equation: H + OH <=> H2O
+  type: linear-Burke
+  colliders:
+  - name: M
+    type: Arrhenius
+    rate-constant: {A: 4.7e+12, b: 0.44, Ea: 0.0}
+  - name: H2O
+    efficiency: {A: 10, b: 0, Ea: 0}
+
+reactions-bad-M-efficiency:
+- equation: H + O2 (+M) <=> HO2 (+M)
+  type: linear-Burke
+  colliders:
+  - name: M
+    type: falloff
+    low-P-rate-constant: {A: 6.366e+20, b: -1.72, Ea: 524.8}
+    high-P-rate-constant: {A: 4.7e+12, b: 0.44, Ea: 0.0}
+    Troe: {A: 0.5, T3: 1.0e-30, T1: 1.0e+30}
+    efficiency: {A: 1.0, b: 0.5, Ea: 0}
+  - name: H2O
+    efficiency: {A: 10, b: 0, Ea: 0}
+
+reactions-bad-other-rate:
+- equation: H + OH <=> H2O
+  type: linear-Burke
+  colliders:
+  - name: M
+    type: pressure-dependent-Arrhenius
+    rate-constants:
+    - {P: 1.000e+00 atm, A: 5.47458e+16, b: -2.81214e+00, Ea: 5.50629e+02}
+    - {P: 1.000e+01 atm, A: 1.04665e+18, b: -2.89077e+00, Ea: 8.27164e+02}
+  - name: H2O
+    efficiency: {A: 10, b: 0, Ea: 0}
+    type: Arrhenius
+    rate-constant: {A: 1.6e+34, b: -5.49, Ea: 1987.0}
+
+reactions-negative-efficiency:
+- equation: H + OH <=> H2O
+  type: linear-Burke
+  colliders:
+  - name: M
+    type: pressure-dependent-Arrhenius
+    rate-constants:
+    - {P: 1.000e+00 atm, A: 5.47458e+16, b: -2.81214e+00, Ea: 5.50629e+02}
+    - {P: 1.000e+01 atm, A: 1.04665e+18, b: -2.89077e+00, Ea: 8.27164e+02}
+  - name: AR
+    efficiency: {A: -3.1, b: 0.5, Ea: 0}
