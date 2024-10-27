@@ -5,7 +5,8 @@
 #include "cantera/kinetics/LinearBurkeRate.h"
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/kinetics/Kinetics.h"
-#include <boost/variant.hpp>
+
+using std::get; // for std::variant
 
 namespace Cantera
 {
@@ -208,8 +209,8 @@ void LinearBurkeRate::setContext(const Reaction& rxn, const Kinetics& kin)
 double LinearBurkeRate::evalPlogRate(const LinearBurkeData& shared_data,
     DataTypes& dataObj, RateTypes& rateObj, double logPeff)
 {
-    PlogData& data = boost::get<PlogData>(dataObj);
-    PlogRate& rate = boost::get<PlogRate>(rateObj);
+    PlogData& data = std::get<PlogData>(dataObj);
+    PlogRate& rate = std::get<PlogRate>(rateObj);
     // Replace logP with log of the effective pressure with respect to eps
     data.logP = logPeff;
     data.logT = shared_data.logT;
@@ -221,8 +222,8 @@ double LinearBurkeRate::evalPlogRate(const LinearBurkeData& shared_data,
 double LinearBurkeRate::evalTroeRate(const LinearBurkeData& shared_data,
     DataTypes& dataObj, RateTypes& rateObj, double logPeff)
 {
-    FalloffData& data = boost::get<FalloffData>(dataObj);
-    TroeRate& rate = boost::get<TroeRate>(rateObj);
+    FalloffData& data = get<FalloffData>(dataObj);
+    TroeRate& rate = get<TroeRate>(rateObj);
     data.conc_3b = {exp(logPeff) / GasConstant / shared_data.temperature};
     data.logT = shared_data.logT;
     data.recipT = shared_data.recipT;
@@ -233,8 +234,8 @@ double LinearBurkeRate::evalTroeRate(const LinearBurkeData& shared_data,
 double LinearBurkeRate::evalChebyshevRate(const LinearBurkeData& shared_data,
     DataTypes& dataObj, RateTypes& rateObj, double logPeff)
 {
-    ChebyshevData& data = boost::get<ChebyshevData>(dataObj);
-    ChebyshevRate& rate = boost::get<ChebyshevRate>(rateObj);
+    ChebyshevData& data = get<ChebyshevData>(dataObj);
+    ChebyshevRate& rate = get<ChebyshevRate>(rateObj);
     data.log10P = log10(exp(logPeff));
     data.logT = shared_data.logT;
     data.recipT = shared_data.recipT;
@@ -273,13 +274,13 @@ double LinearBurkeRate::evalFromStruct(const LinearBurkeData& shared_data)
         // eps2 equals either eps_M or eps_i, depending on the scenario
         // effective pressure as a function of eps
         logPeff = shared_data.logP + log(eps_mix) - log(eps2);
-        if (m_rateObjs[j].which() == 0) { // 0 means PlogRate
+        if (m_rateObjs[j].index() == 0) { // 0 means PlogRate
             k_LMR_ += evalPlogRate(shared_data, m_dataObjs[j], m_rateObjs[j], logPeff)
                  * eps1 * shared_data.moleFractions[i] / eps_mix;
-        } else if (m_rateObjs[j].which() == 1) { // 1 means TroeRate
+        } else if (m_rateObjs[j].index() == 1) { // 1 means TroeRate
             k_LMR_ += evalTroeRate(shared_data, m_dataObjs[j], m_rateObjs[j], logPeff)
                  * eps1 * shared_data.moleFractions[i] / eps_mix;
-        } else if (m_rateObjs[j].which() == 2) { // 2 means ChebyshevRate
+        } else if (m_rateObjs[j].index() == 2) { // 2 means ChebyshevRate
             k_LMR_ += evalChebyshevRate(shared_data, m_dataObjs[j], m_rateObjs[j], logPeff)
                  * eps1 * shared_data.moleFractions[i] / eps_mix;
         } else {
@@ -295,13 +296,13 @@ double LinearBurkeRate::evalFromStruct(const LinearBurkeData& shared_data)
     // k_LMR_+=evalPlogRate(shared_data,m_dataObj_M,m_rateObj_M)*eps_M*sigmaX_M/eps_mix
     // k_LMR_+=evalTroeRate(shared_data,m_dataObj_M,m_rateObj_M)*eps_M*sigmaX_M/eps_mix
     // etc., but eps_M = 1 always
-    if (m_rateObj_M.which() == 0) { // 0 means PlogRate
+    if (m_rateObj_M.index() == 0) { // 0 means PlogRate
         k_LMR_ += evalPlogRate(shared_data, m_dataObj_M, m_rateObj_M, logPeff) *
              sigmaX_M / eps_mix;
-    } else if (m_rateObj_M.which() == 1) { // 1 means TroeRate
+    } else if (m_rateObj_M.index() == 1) { // 1 means TroeRate
         k_LMR_ += evalTroeRate(shared_data, m_dataObj_M, m_rateObj_M, logPeff) *
              sigmaX_M / eps_mix;
-    } else if (m_rateObj_M.which() == 2) { // 2 means ChebyshevRate
+    } else if (m_rateObj_M.index() == 2) { // 2 means ChebyshevRate
         k_LMR_ += evalChebyshevRate(shared_data, m_dataObj_M, m_rateObj_M, logPeff) *
              sigmaX_M / eps_mix;
     }
@@ -313,14 +314,14 @@ void LinearBurkeRate::getParameters(AnyMap& rateNode) const
     vector<AnyMap> topLevelList;
     AnyMap M_node, M_params;
     M_node["name"] = "M";
-    if (m_rateObj_M.which() == 0) {
-        auto& rate = boost::get<PlogRate>(m_rateObj_M);
+    if (m_rateObj_M.index() == 0) {
+        auto& rate = get<PlogRate>(m_rateObj_M);
         M_params = rate.parameters();
-    } else if (m_rateObj_M.which() == 1) {
-        auto& rate = boost::get<TroeRate>(m_rateObj_M);
+    } else if (m_rateObj_M.index() == 1) {
+        auto& rate = get<TroeRate>(m_rateObj_M);
         M_params = rate.parameters();
-    } else if (m_rateObj_M.which() == 2) {
-        auto& rate = boost::get<ChebyshevRate>(m_rateObj_M);
+    } else if (m_rateObj_M.index() == 2) {
+        auto& rate = get<ChebyshevRate>(m_rateObj_M);
         M_params = rate.parameters();
     }
     M_node.update(M_params);
@@ -333,14 +334,14 @@ void LinearBurkeRate::getParameters(AnyMap& rateNode) const
         collider["efficiency"] = std::move(efficiency);
         if (m_hasRateConstant[i]) {
             const auto& var_rate = m_rateObjs[i];
-            if (var_rate.which() == 0) {
-                auto& rate = boost::get<PlogRate>(var_rate);
+            if (var_rate.index() == 0) {
+                auto& rate = get<PlogRate>(var_rate);
                 params = rate.parameters();
-            } else if (var_rate.which() == 1) {
-                auto& rate = boost::get<TroeRate>(var_rate);
+            } else if (var_rate.index() == 1) {
+                auto& rate = get<TroeRate>(var_rate);
                 params = rate.parameters();
-            } else if (var_rate.which() == 2) {
-                auto& rate = boost::get<ChebyshevRate>(var_rate);
+            } else if (var_rate.index() == 2) {
+                auto& rate = get<ChebyshevRate>(var_rate);
                 params = rate.parameters();
             }
             collider.update(params);
