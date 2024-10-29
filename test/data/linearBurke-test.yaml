@@ -35,6 +35,14 @@ phases:
   transport: mixture-averaged
   state: {T: 300.0, P: 1 atm}
 
+- name: linear-Burke-complex
+  thermo: ideal-gas
+  species:
+  - pdep-test.yaml/species: all
+  kinetics: bulk
+  reactions: [reactions-complex]
+  state: {T: 300.0, P: 1 atm}
+
 species:
 - name: H
   composition: {H: 1}
@@ -247,6 +255,78 @@ linear-Burke_reactions:
       1.5925e-03]
   - name: H2O
     efficiency: {A: 10, b: 0, Ea: 0}
+
+# A more complex linear-Burke definition with multiple colliders that use different
+# parameterizations. Duplicate reactions using the baseline parameterizations are
+# included for rate comparisons
+reactions-complex:
+- equation: R1A + R1B (+M) <=> P1 + H (+M) # Reaction 1
+  type: linear-Burke
+  duplicate: true
+  colliders:
+  - name: M
+    type: Chebyshev
+    temperature-range: [300.0, 2000.0]
+    pressure-range: [1e3, 1e7]
+    data:
+    - [8.2883, -1.1397, -0.12059, 0.016034]
+    - [1.9764, 1.0037, 7.2865e-03, -0.030432]
+    - [0.3177, 0.26889, 0.094806, -7.6385e-03]
+    - [-0.031285, -0.039412, 0.044375, 0.014458]
+  - name: P3A
+    efficiency: {A: 3.0, b: 0.0, Ea: 0.0}
+    type: pressure-dependent-Arrhenius
+    rate-constants:
+    - {P: 0.01 atm, A: 1.2124e+16, b: -0.5779, Ea: 1.08727e+04}
+    - {P: 1.0 atm, A: 4.9108e+31, b: -4.8507, Ea: 2.47728e+04}
+    - {P: 10.0 atm, A: 1.2866e+47, b: -9.0246, Ea: 3.97965e+04}
+    - {P: 100.0 atm, A: 5.9632e+56, b: -11.529, Ea: 5.25996e+04}
+  - name: P3B
+    efficiency: {A: 5.0, b: 0.0, Ea: 0.0}
+    type: falloff
+    low-P-rate-constant: {A: 2.3e+18, b: -0.9, Ea: -1700.0}
+    high-P-rate-constant: {A: 7.4e+13, b: -0.37, Ea: 0.0}
+    Troe: {A: 0.7346, T3: 94.0, T1: 1756.0, T2: 5182.0}
+  - name: P5A  # identical rate to M, unity efficiency
+    type: Chebyshev
+    efficiency: {A: 1.0, b: 0.0, Ea: 0.0}
+    temperature-range: [300.0, 2000.0]
+    pressure-range: [1e3, 1e7]
+    data:
+    - [8.2883, -1.1397, -0.12059, 0.016034]
+    - [1.9764, 1.0037, 7.2865e-03, -0.030432]
+    - [0.3177, 0.26889, 0.094806, -7.6385e-03]
+    - [-0.031285, -0.039412, 0.044375, 0.014458]
+  - name: R6
+    efficiency: {A: 7.0, b: 0.0, Ea: 0.0}
+
+- equation: R1A + R1B <=> P1 + H  # M for Reaction 1
+  type: Chebyshev
+  duplicate: true
+  temperature-range: [300.0, 2000.0]
+  pressure-range: [1e3, 1e7]
+  data:
+  - [8.2883, -1.1397, -0.12059, 0.016034]
+  - [1.9764, 1.0037, 7.2865e-03, -0.030432]
+  - [0.3177, 0.26889, 0.094806, -7.6385e-03]
+  - [-0.031285, -0.039412, 0.044375, 0.014458]
+
+- equation: R1A + R1B <=> P1 + H  # collider P3A for Reaction 1
+  type: pressure-dependent-Arrhenius
+  duplicate: true
+  rate-constants:
+  - {P: 0.01 atm, A: 1.2124e+16, b: -0.5779, Ea: 1.08727e+04}
+  - {P: 1.0 atm, A: 4.9108e+31, b: -4.8507, Ea: 2.47728e+04}
+  - {P: 10.0 atm, A: 1.2866e+47, b: -9.0246, Ea: 3.97965e+04}
+  - {P: 100.0 atm, A: 5.9632e+56, b: -11.529, Ea: 5.25996e+04}
+
+- equation: R1A + R1B (+M) <=> P1 + H (+M)  # collider P3B for Reaction 1
+  type: falloff
+  duplicate: true
+  low-P-rate-constant: {A: 2.3e+18, b: -0.9, Ea: -1700.0}
+  high-P-rate-constant: {A: 7.4e+13, b: -0.37, Ea: 0.0}
+  Troe: {A: 0.7346, T3: 94.0, T1: 1756.0, T2: 5182.0}
+
 
 # Invalid reaction definitions to test various input errors
 

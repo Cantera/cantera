@@ -292,6 +292,7 @@ double LinearBurkeRate::evalFromStruct(const LinearBurkeData& shared_data)
     // logPeff = shared_data.logP + log(eps_mix) - log(eps_M)
     // but log(eps_M)=0 always
     logPeff = shared_data.logP + log(eps_mix);
+
     // We actually have
     // k_LMR_+=evalPlogRate(shared_data,m_dataObj_M,m_rateObj_M)*eps_M*sigmaX_M/eps_mix
     // k_LMR_+=evalTroeRate(shared_data,m_dataObj_M,m_rateObj_M)*eps_M*sigmaX_M/eps_mix
