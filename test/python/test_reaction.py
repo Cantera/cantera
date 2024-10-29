@@ -810,6 +810,41 @@ class TestLinearBurkeRate(ReactionRateTests):
             ct.Reaction.list_from_file("linearBurke-test.yaml", self.soln,
                                        f"reactions-{section}")
 
+    def test_serialization1(self):
+        gas = ct.Solution("linearBurke-test.yaml", "linear-Burke_mechanism")
+        Mdata = []
+        for R in gas.reactions():
+            R.clear_user_data()
+            colliders = R.input_data["colliders"]
+            assert colliders[0]["name"] == "M"
+            Mdata.append(colliders[0])
+
+        assert Mdata[0]["type"] == "pressure-dependent-Arrhenius"
+        assert len(Mdata[0]["rate-constants"]) == 9
+        assert Mdata[1]["type"] == "falloff"
+        assert "Troe" in Mdata[1]
+        assert Mdata[2]["type"] == "Chebyshev"
+        assert Mdata[2]["data"][0][0] == approx(-1.5843e+01)
+
+    def test_serialization2(self):
+        gas = ct.Solution("linearBurke-test.yaml", "linear-Burke-complex")
+        rdata = []
+        for R in gas.reactions():
+            R.clear_user_data()
+            rdata.append(R.input_data)
+        colliders = rdata[0]["colliders"]
+
+        for field in ["type", "temperature-range", "pressure-range", "data"]:
+            assert colliders[0][field] == rdata[1][field], field
+        for field in ["type", "rate-constants"]:
+            assert colliders[1][field] == rdata[2][field], field
+        for field in ["type", "low-P-rate-constant", "high-P-rate-constant", "Troe"]:
+            assert colliders[2][field] == rdata[3][field], field
+        for field in ["type", "temperature-range", "pressure-range", "data"]:
+            assert colliders[3][field] == rdata[1][field], field
+        assert colliders[4] == {"name": "R6", "efficiency": {"A": 7, "b": 0, "Ea": 0}}
+
+
 class SurfaceReactionRateTests(ReactionRateTests):
     """Test suite for surface reaction rate expressions"""
 
