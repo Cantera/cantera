@@ -89,10 +89,10 @@ for sample in samples:
         incdirs.extend([localenv["sundials_include"], localenv["boost_inc_dir"]])
         incdirs.append(localenv["hdf_include"])
         incdirs.extend(localenv["extra_inc_dirs"])
-        incdirs = list(set(incdirs))
+        incdirs = sorted(set(incdirs))
 
         libdirs.extend(localenv["extra_lib_dirs"])
-        libdirs = list(set(libdirs))
+        libdirs = sorted(set(libdirs))
 
     if env["OS"] == "Darwin" and env["use_rpath_linkage"] and not env.subst("$__RPATH"):
         # SCons fails to specify RPATH on macOS, so circumvent that behavior by
