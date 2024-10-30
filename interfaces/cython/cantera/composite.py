@@ -918,7 +918,7 @@ class SolutionArray(SolutionArrayBase):
             if valid_species:
 
                 if len(valid_species) != len(all_species):
-                    incompatible = list(set(valid_species) ^ set(all_species))
+                    incompatible = sorted(set(valid_species) ^ set(all_species))
                     raise ValueError('incompatible species information for '
                                     '{}'.format(incompatible))
 
