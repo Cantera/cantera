@@ -22,7 +22,7 @@ References:
 
     [3] P. J. Singal, J. Lee, L. Lei, R. L. Speth, M. P. Burke, Implementation of New
     Mixture Rules Has a Substantial Impact on Combustion Predictions for H2 and NH3,
-    Proc. Combust. Inst. 40 (2024).
+    Proc. Combust. Inst. 40 (2024) 105779.
 
 Requires: cantera >= 3.1
 
