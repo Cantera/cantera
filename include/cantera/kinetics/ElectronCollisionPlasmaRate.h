@@ -31,6 +31,8 @@ struct ElectronCollisionPlasmaData : public ReactionData
         ReactionData::invalidateCache();
         energyLevels.resize(0);
         distribution.resize(0);
+        m_dist_number = -1;
+        m_level_number = -1;
     }
 
     vector<double> energyLevels; //!< electron energy levels
@@ -141,10 +143,8 @@ public:
         return m_crossSectionsInterpolated;
     }
 
-    //! Set the value of #m_crossSectionsInterpolated [m2]
-    void setCrossSectionInterpolated(vector<double>& cs) {
-        m_crossSectionsInterpolated = cs;
-    }
+    //! Update the value of #m_crossSectionsInterpolated [m2]
+    void updateInterpolatedCrossSection(const vector<double>&);
 
 private:
     //! electron energy levels [eV]

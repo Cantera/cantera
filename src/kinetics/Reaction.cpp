@@ -316,6 +316,19 @@ void Reaction::setRate(shared_ptr<ReactionRate> rate)
             "Reaction rate for reaction '{}' must not be empty.", equation());
     }
     m_rate = rate;
+    for (const auto& [id, callback] : m_setRateCallbacks) {
+        callback();
+    }
+}
+
+void Reaction::registerSetRateCallback(void* id, const function<void()>& callback)
+{
+    m_setRateCallbacks[id] = callback;
+}
+
+void Reaction::removeSetRateCallback(void* id)
+{
+    m_setRateCallbacks.erase(id);
 }
 
 string Reaction::reactantString() const
