@@ -95,6 +95,8 @@ public:
      */
     explicit PlasmaPhase(const string& inputFile="", const string& id="");
 
+    ~PlasmaPhase();
+
     string type() const override {
         return "plasma";
     }
@@ -301,11 +303,6 @@ public:
         return m_levelNum;
     }
 
-    //! Return the interpolated cross section Number #m_csNum
-    int interpCrossSectionNum() const {
-        return m_csNum;
-    }
-
     //! add Solution object
     virtual void addSolution(std::weak_ptr<Solution> soln) override;
 
@@ -332,10 +329,6 @@ protected:
     //! In addition, the cross-sections need to be interpolated at
     //! the new level.
     void electronEnergyLevelChanged();
-
-    //! When the interpolated cross sections changed, plasma properties such as
-    //! elastic power loss need to be re-evaluated.
-    void interpolatedCrossSectionsChanged();
 
     //! Check the electron energy levels
     /*!
@@ -370,8 +363,8 @@ protected:
     //! Electron energy distribution norm
     void normalizeElectronEnergyDistribution();
 
-    //! Update interpolated cross sections
-    void updateInterpolatedCrossSections();
+    //! Update interpolated cross section of a collision
+    bool updateInterpolatedCrossSection(size_t k);
 
     //! Update electron energy distribution difference
     void updateElectronEnergyDistDifference();
@@ -423,6 +416,9 @@ protected:
      */
     vector<double> m_elasticElectronEnergyLossCoefficients;
 
+    //! update the elastic electron energy loss coefficient of i collision
+    void updateElasticElectronEnergyLossCoefficient(size_t i);
+
     //! update elastic electron energy loss coefficients
     void updateElasticElectronEnergyLossCoefficients();
 
@@ -435,16 +431,8 @@ private:
     //! #m_electronEnergyLevels changes, this int is incremented.
     int m_levelNum = -1;
 
-    //! Interpolated collision cross section change variable. Whenever
-    //! #ElectronCollisionPlasmaRate::m_crossSectionsInterpolated changes,
-    //! this int is incremented.
-    int m_csNum = -1;
-
     //! The list of shared pointers of plasma collision reactions
     vector<shared_ptr<Reaction>> m_collisions;
-
-    //! The list of shared pointers of ElectronCollisionPlasmaRate
-    vector<shared_ptr<ElectronCollisionPlasmaRate>> m_collisionRates;
 
     //! The collision-target species indices of #m_collisions
     vector<size_t> m_targetSpeciesIndices;
@@ -453,8 +441,15 @@ private:
     //! interpolated cross sections temporarily.
     vector<double> m_interp_cs;
 
-    //! Set collisions
+    //! The list of whether the interpolated cross sections is ready
+    vector<bool> m_interp_cs_ready;
+
+    //! Set collisions. This function sets the list of collisions and
+    //! the list of target species using #addCollision.
     void setCollisions();
+
+    //! Add a collision and record the target species
+    void addCollision(std::shared_ptr<Reaction> collision);
 
 };
 
