@@ -204,3 +204,13 @@ compiler is required only if you plan to build the Fortran module.
 
   - Required to build the dependency graph images in the C++ API Documentation
   - Known to work with version 2.40.1, expected to work with versions >=2.40.1
+
+- [Jinja](https://jinja.palletsprojects.com/en/stable/)
+
+  - Required for experimental code generation (example: .NET interface)
+  - Known to work for Jinja 3.1.4
+
+- [.NET](https://dotnet.microsoft.com/)
+
+  - Required for the compilation of the experimental .NET interface
+  - Known to work for the .NET 6.0 SDK

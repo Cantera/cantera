@@ -154,6 +154,7 @@ compile Cantera on your operating system.
   # - perl  # optional (needed for documentation)
   # - coolprop  # optional (needed for some examples)
   # - pint  # optional (needed for some examples)
+  # - jinja2  # optional (needed for code generation; example: .NET interface)
   # - pip:  # optional (list of PyPI managed packages)
   #   - "git+https://github.com/Cantera/sphinx-tags.git@main"  # optional (needed for documentation)
   ```
