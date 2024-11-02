@@ -43,7 +43,7 @@ content-type = "text/x-rst"
 
 [project.urls]
 Homepage = "https://cantera.org"
-Documentation = "https://cantera.org/documentation"
+Documentation = "https://cantera.org/stable/reference"
 Funding = "https://numfocus.org/donate-to-cantera"
 Source = "https://github.com/Cantera/cantera"
 Tracker = "https://github.com/Cantera/cantera/issues"

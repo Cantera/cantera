@@ -7,9 +7,9 @@ function calling from Cantera CLib.
 
 1. Install Matlab (any release newer than R2008a).
 2. Compile Cantera from Source and install in your Conda environment, as directed in
-   this link. https://cantera.org/install/compiling-install.html. The experimental
-   Matlab Toolbox does not require a SCons option to install at this moment since it's
-   stand-alone.
+   this link. https://cantera.org/stable/develop/compiling-install.html. The
+   experimental Matlab Toolbox does not require a SCons option to install at this moment
+   since it's stand-alone.
 3. For first time users, launch Matlab, then navigate to `/path/to/cantera/source/code`
    (the folder containing `interfaces` and `samples`) using "Browse for Folder".
    Note for Ubuntu users: Matlab must be launched from the terminal

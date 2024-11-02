@@ -17,16 +17,14 @@ be able to help you out.
 
 ## Documentation
 
-The [documentation](https://cantera.org/documentation)
+The [Cantera Website](https://cantera.org)
 offers a number of starting points:
 
-- [Python tutorial](https://cantera.org/tutorials/python-tutorial.html)
-- [Application Examples in Python (Jupyter)](https://github.com/Cantera/cantera-jupyter#cantera-jupyter)
-- [A guide to Cantera's input file format](https://cantera.org/tutorials/input-files.html)
+- [Python tutorial](https://cantera.org/stable/userguide/python-tutorial.html)
+- [Gallery of Python Examples](https://cantera.org/stable/examples/python/index.html)
+- [A guide to Cantera's input file format](https://cantera.org/stable/userguide/input-tutorial.html)
 - [Information about the Cantera community](https://cantera.org/community.html)
-
-Documentation for the [development version of
-Cantera](https://cantera.org/documentation/dev-docs.html) is also available.
+- [Developers: Compile and Modify Cantera](https://cantera.org/stable/develop/index.html)
 
 ## Contributions
 
