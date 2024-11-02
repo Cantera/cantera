@@ -70,26 +70,23 @@ void ElectronCollisionPlasmaRate::getParameters(AnyMap& node) const {
     node["cross-sections"] = m_crossSections;
 }
 
+void ElectronCollisionPlasmaRate::updateInterpolatedCrossSection(
+    const vector<double>& sharedLevels) {
+    m_crossSectionsInterpolated.clear();
+    m_crossSectionsInterpolated.reserve(sharedLevels.size());
+    for (double level : sharedLevels) {
+        m_crossSectionsInterpolated.emplace_back(linearInterp(level,
+                                            m_energyLevels, m_crossSections));
+    }
+}
+
 double ElectronCollisionPlasmaRate::evalFromStruct(
     const ElectronCollisionPlasmaData& shared_data)
 {
     // Interpolate cross-sections data to the energy levels of
     // the electron energy distribution function
     if (shared_data.levelChanged) {
-        m_crossSectionsInterpolated.clear();
-        m_crossSectionsInterpolated.reserve(shared_data.energyLevels.size());
-        for (double level : shared_data.energyLevels) {
-            m_crossSectionsInterpolated.emplace_back(linearInterp(level,
-                                                m_energyLevels, m_crossSections));
-        }
-    } else {
-        // The interpolated cross section is set by the PlasmaPhase
-        // check the size of the vector
-        if (m_crossSectionsInterpolated.size() != shared_data.energyLevels.size()) {
-            throw CanteraError("ElectronCollisionPlasmaRate::evalFromStruct",
-                               "Energy levels and interpolated cross section ",
-                               "must have the same length.");
-        }
+        updateInterpolatedCrossSection(shared_data.energyLevels);
     }
 
     // Map cross sections to Eigen::ArrayXd
