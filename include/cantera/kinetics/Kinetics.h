@@ -1394,6 +1394,26 @@ public:
         return m_root.lock();
     }
 
+    //! Register a function to be called if reaction is added.
+    //! @param id  A unique ID corresponding to the object affected by the callback.
+    //!   Typically, this is a pointer to an object that also holds a reference to the
+    //!   Kinetics object.
+    //! @param callback  The callback function to be called after any reaction is added.
+    //! When the callback becomes invalid (for example, the corresponding object is
+    //! being deleted, the removeReactionAddedCallback() method must be invoked.
+    //! @since New in %Cantera 3.1
+    void registerReactionAddedCallback(void* id, const function<void()>& callback)
+    {
+        m_reactionAddedCallbacks[id] = callback;
+    }
+
+    //! Remove the reaction-changed callback function associated with the specified object.
+    //! @since New in %Cantera 3.1
+    void removeReactionAddedCallback(void* id)
+    {
+        m_reactionAddedCallbacks.erase(id);
+    }
+
 protected:
     //! Cache for saved calculations within each Kinetics object.
     ValueCache m_cache;
@@ -1517,6 +1537,9 @@ protected:
 
     //! reference to Solution
     std::weak_ptr<Solution> m_root;
+
+    //! Callback functions that are invoked when the reaction is added.
+    map<void*, function<void()>> m_reactionAddedCallbacks;
 };
 
 }

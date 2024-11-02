@@ -696,6 +696,10 @@ bool Kinetics::addReaction(shared_ptr<Reaction> r, bool resize)
         m_ready = false;
     }
 
+    for (const auto& [id, callback] : m_reactionAddedCallbacks) {
+        callback();
+    }
+
     return true;
 }
 
@@ -703,6 +707,13 @@ void Kinetics::modifyReaction(size_t i, shared_ptr<Reaction> rNew)
 {
     checkReactionIndex(i);
     shared_ptr<Reaction>& rOld = m_reactions[i];
+
+    if (rNew->rate()->type() == "electron-collision-plasma") {
+        throw CanteraError("Kinetics::modifyReaction",
+            "Type electron-collision-plasma is not supported. "
+            "Use the rate object of the reaction to modify the data.");
+    }
+
     if (rNew->type() != rOld->type()) {
         throw CanteraError("Kinetics::modifyReaction",
             "Reaction types are different: {} != {}.",
