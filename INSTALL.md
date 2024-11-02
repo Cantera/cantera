@@ -15,4 +15,7 @@ shown by running `scons help`.
 
 ## Detailed Instructions
 
-See the instructions available [online](https://cantera.org/install/compiling-install.html).
+See the instructions available for installing packages providing the
+[current stable version](https://cantera.org/stable/install/index.html) or compilation
+instructions for building the
+[latest development version](https://cantera.org/dev/develop/index.html).
