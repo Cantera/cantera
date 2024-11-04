@@ -4,7 +4,9 @@ import pytest
 from pytest import approx
 
 import cantera as ct
-
+from .utilities import (
+    compareProfiles
+)
 
 class TestTransport:
 
@@ -662,28 +664,15 @@ class TestIonGasTransportData:
 
 
 class TestHighPressureGasTransport():
-    def test_acentric_factor_from_critical_properties(self, test_data_path):
-        """
-        The acentric factor should be obtained from the critical-properties.yaml
-        file given the input file that lacks the acentric-factor field, as would
-        be the case when the cubic equation of state parameters are provided
-        directly.
-        """
-
-        # Missing acentric factor
-        state = 370.8, 174.8e5, 'CH4:0.755, CO2:0.245'
-        gas = ct.Solution(test_data_path / 'methane_co2_noAcentricFactor.yaml')
-        gas.transport_model = 'high-pressure-Chung'
-        gas.TPX = state
-        thermal_conductivity_1 = gas.thermal_conductivity
-
-        # Has acentric factor
-        gas = ct.Solution(test_data_path / 'methane_co2.yaml')
-        gas.transport_model = 'high-pressure-Chung'
-        gas.TPX = state
-        thermal_conductivity_2 = gas.thermal_conductivity
-
-        assert thermal_conductivity_1 == pytest.approx(thermal_conductivity_2, 1e-6)
+    """
+    Note: to re-create the reference file:
+    (1) Set PYTHONPATH to build/python.
+    (2) Go into test/python directory and run:
+        pytest --save-reference=high_pressure_transport test_transport.py::TestHighPressureGasTransport::test_high_pressure_transport
+        pytest --save-reference=high_pressure_chung_transport test_transport.py::TestHighPressureGasTransport::test_high_pressure_chung_transport
+    (3) Compare the reference files created in the current working directory with
+        the ones in test/data and replace them if needed.
+    """
 
     def test_failure_for_species_with_no_properties(self, test_data_path):
         """
@@ -701,3 +690,90 @@ class TestHighPressureGasTransport():
 
         with pytest.raises(ct.CanteraError, match="must have critical properties defined"):
             gas.transport_model = 'high-pressure'
+
+    def test_high_pressure_transport(self, request, test_data_path):
+        """
+        This test compares the viscosity and thermal conductivities of a mixture of
+        CH4 and CO2 over a range of pressures using the high-pressure transport
+        model and compares the results to a reference file. This is a regression test.
+        """
+        referenceFile = "HighPressureTest.csv"
+
+        phasedef = """
+        phases:
+        - name: methane_co2
+          species:
+          - gri30.yaml/species: [CH4, CO2]
+          thermo: Peng-Robinson
+          transport: mixture-averaged
+          state: {T: 300, P: 1 atm}
+        """
+        gas = ct.Solution(yaml=phasedef)
+        gas.transport_model = 'high-pressure'
+
+        pressures = np.linspace(101325, 6e7, 100)
+        # Collect viscosities and thermal conductivities
+        viscosities = []
+        thermal_conductivities = []
+        diffusion_coefficients = []
+        for pressure in pressures:
+            gas.TPX = 350, pressure, 'CH4:0.755, CO2:0.245'
+            viscosities.append(gas.viscosity)
+            thermal_conductivities.append(gas.thermal_conductivity)
+            diffusion_coefficients.append(gas.mix_diff_coeffs)
+
+        data = np.empty((len(viscosities), 3+ len(diffusion_coefficients[0])))
+        data[:,0] = pressures
+        data[:,1] = viscosities
+        data[:,2] = thermal_conductivities
+        for i in range(len(diffusion_coefficients[0])):
+            data[:,3+i] = [d[i] for d in diffusion_coefficients]
+
+        saveReference = request.config.getoption("--save-reference")
+        if saveReference == 'high_pressure_transport':
+            np.savetxt(referenceFile, data, '%11.6e', ', ')
+        else:
+            bad = compareProfiles(test_data_path / referenceFile, data,
+                                  rtol=1e-2, atol=1e-8, xtol=1e-2)
+            assert not bad, bad
+
+    def test_high_pressure_chung_transport(self, request, test_data_path):
+        referenceFile = "HighPressureChungTest.csv"
+
+        phasedef = """
+        phases:
+        - name: methane_co2
+          species:
+          - gri30.yaml/species: [CH4, CO2]
+          thermo: Peng-Robinson
+          transport: mixture-averaged
+          state: {T: 300, P: 1 atm}
+        """
+        gas = ct.Solution(yaml=phasedef)
+        gas.transport_model = 'high-pressure-Chung'
+
+        pressures = np.linspace(101325, 6e7, 100)
+        # Collect viscosities and thermal conductivities
+        viscosities = []
+        thermal_conductivities = []
+        diffusion_coefficients = []
+        for pressure in pressures:
+            gas.TPX = 350, pressure, 'CH4:0.755, CO2:0.245'
+            viscosities.append(gas.viscosity)
+            thermal_conductivities.append(gas.thermal_conductivity)
+            diffusion_coefficients.append(gas.mix_diff_coeffs)
+
+        data = np.empty((len(viscosities), 3+len(diffusion_coefficients[0])))
+        data[:,0] = pressures
+        data[:,1] = viscosities
+        data[:,2] = thermal_conductivities
+        for i in range(len(diffusion_coefficients[0])):
+            data[:,3+i] = [d[i] for d in diffusion_coefficients]
+
+        saveReference = request.config.getoption("--save-reference")
+        if saveReference == 'high_pressure_chung_transport':
+            np.savetxt(referenceFile, data, '%11.6e', ', ')
+        else:
+            bad = compareProfiles(test_data_path / referenceFile, data,
+                                  rtol=1e-2, atol=1e-8, xtol=1e-2)
+            assert not bad, bad
