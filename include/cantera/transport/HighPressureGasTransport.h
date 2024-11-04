@@ -388,7 +388,7 @@ protected:
      * the acentric factor of the reference fluid, and @f$ F(T_R^i, V_R^i) @f$ is a
      * function of the reduced temperature and reduced volume of species i. The
      * function @f$ F(T_R^i, V_R^i) @f$ is defined by Equation 13 in
-     * @cite ely-hanley1981:
+     * @cite ely-hanley1981 :
      *
      * @f[
      *   F(T_R^i, V_R^i) = a_1 + b_1 ln(T_+^i) + (c_1 + d_1/T_+^i) (V_+^i - 0.5)
@@ -396,13 +396,13 @@ protected:
      *
      * Where @f$ T_+^i @f$ and @f$ V_+^i @f$ are limited values of the reduced
      * temperature and pressure. The limited temperature is defined by Equation 15 in
-     * @cite ely-hanley1981:
+     * @cite ely-hanley1981 :
      *
      * @f[
      *   T_+^i = \text{min}(2, \text{max}(T_R^i, 0.5))
      * @f]
      *
-     * and the limited pressure is defined by Equation 16 in @cite ely-hanley1981:
+     * and the limited pressure is defined by Equation 16 in @cite ely-hanley1981 :
      *
      * @f[
      *  V_i^+ = \text{min}(2, \text{max}(V_R^i, 0.5))
