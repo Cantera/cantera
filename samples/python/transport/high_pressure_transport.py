@@ -10,7 +10,7 @@ do not yield accurate results.
 
 Requires:  cantera >= 3.1.0
 
-.. tags:: Python, transport, high-pressure
+.. tags:: Python, transport, non-ideal fluid
 """
 import matplotlib.pyplot as plt
 import numpy as np
@@ -43,10 +43,21 @@ nist_thermal_conductivities = [
     0.085705, 0.086573, 0.087431, 0.088282, 0.089124, 0.089959, 0.090787, 0.091607,
     0.092421, 0.093228, 0.094029, 0.094824, 0.095612, 0.096395, 0.097172, 0.097944]
 
+# Create the gas object using a subset of the gri30 mechanism for the methane-co2
+# system
+phasedef = """
+  phases:
+  - name: methane_co2
+    species:
+    - gri30.yaml/species: [CH4, CO2]
+    thermo: Peng-Robinson
+    transport: mixture-averaged
+    state: {T: 300, P: 1 atm}
+"""
+gas = ct.Solution(yaml=phasedef)
 
 # Plot the difference between the high-pressure viscosity and thermal conductivity
 # models and the ideal gas model for Methane.
-gas = ct.Solution('methane_co2.yaml')
 
 pressures = np.linspace(101325, 6e7, 100)
 # Collect ideal viscosities and thermal conductivities
@@ -75,27 +86,29 @@ for pressure in pressures:
     real_viscosities_2.append(gas.viscosity)
     real_thermal_conductivities_2.append(gas.thermal_conductivity)
 
+# %%
 # Plot the data
-plt.figure(figsize=(10, 6))
-plt.plot(pressures, ideal_viscosities, label='Ideal Viscosity')
-plt.plot(pressures, real_viscosities_1, label='High-Pressure Viscosity (Chung)')
-plt.plot(pressures, real_viscosities_2, label='High-Pressure Viscosity')
-plt.plot(nist_pressures, nist_viscosities, 'o', label='NIST Data')
-plt.xlabel('Pressure (Pa)')
-plt.ylabel('Viscosity  (Pa·s)')
-plt.title('Methane Viscosity Model Comparison')
-plt.legend()
-plt.grid(True)
+# -------------
+mpa_to_pa = 1e6 # conversion factor from MPa to Pa
+fig, ax = plt.subplots()
+ax.plot(pressures, ideal_viscosities, label='Ideal Viscosity')
+ax.plot(pressures, real_viscosities_1, label='High-Pressure Viscosity (Chung)')
+ax.plot(pressures, real_viscosities_2, label='High-Pressure Viscosity')
+ax.plot(nist_pressures*mpa_to_pa, nist_viscosities, 'o', label='NIST Data')
+ax.set(xlabel='Pressure (Pa)', ylabel ='Viscosity  (Pa·s)',
+        title='Methane Viscosity Model Comparison')
+ax.legend()
+ax.grid(True)
 plt.show()
 
-plt.figure(figsize=(10, 6))
-plt.plot(pressures, ideal_thermal_conductivities, label='Ideal Thermal Conductivity')
-plt.plot(pressures, real_thermal_conductivities_1, label='High-Pressure Thermal Conductivity (Chung)')
-plt.plot(pressures, real_thermal_conductivities_2, label='High-Pressure Thermal Conductivity')
-plt.plot(nist_pressures, nist_thermal_conductivities, 'o', label='NIST Data')
-plt.xlabel('Pressure (Pa)')
-plt.ylabel('Thermal Conductivity (W/m·K)')
-plt.title('Methane Thermal Conductivity Model Comparison')
-plt.legend()
-plt.grid(True)
+# %%
+fig, ax = plt.subplots()
+ax.plot(pressures, ideal_thermal_conductivities, label='Ideal Thermal Conductivity')
+ax.plot(pressures, real_thermal_conductivities_1, label='High-Pressure Thermal Conductivity (Chung)')
+ax.plot(pressures, real_thermal_conductivities_2, label='High-Pressure Thermal Conductivity')
+ax.plot(nist_pressures*mpa_to_pa, nist_thermal_conductivities, 'o', label='NIST Data')
+ax.set(xlabel='Pressure (Pa)', ylabel ='Thermal Conductivity (W/m·K)',
+       title='Methane Thermal Conductivity Model Comparison')
+ax.legend()
+ax.grid(True)
 plt.show()

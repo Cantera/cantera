@@ -16,7 +16,6 @@ Fortran 77
 Fortran 90
 fuel cell
 heat transfer
-high-pressure
 ignition delay
 internal combustion engine
 jet-stirred reactor
