@@ -18,7 +18,7 @@ def pytest_addoption(parser):
         "--save-reference", action="store", default=None,
         help="Save the reference output files for specific tests. "
              "Options: diffusion, counterflow_premixed, counterflow_premixed_nonideal, "
-             "combustor, wall"
+             "combustor, wall, high_pressure_transport, high_pressure_chung_transport"
     )
 
 def pytest_configure(config):
