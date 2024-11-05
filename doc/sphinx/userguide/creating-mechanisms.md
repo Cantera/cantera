@@ -206,6 +206,7 @@ specified in the `transport` field. A [complete list of supported models](sec-ya
 can be found in the YAML Input File Reference. For most transport models, additional
 parameters need to be specified within each species definition.
 
+(sec-yaml-guide-adjacent)=
 ### Declaring Adjacent Phases
 
 For interface phases (surfaces and edges), the names of phases adjacent to the interface
