@@ -53,16 +53,12 @@ class AnyMap;
  *      function.
  *
  * %Cantera input files are written using YAML syntax. For more information on using
- * YAML files in %Cantera, see the
- * [YAML Users' Guide](https://cantera.org/tutorials/yaml/defining-phases.html)
- * or the [YAML Input File API Reference](../../../../sphinx/html/yaml/index.html).
- * %Cantera provides the
- * [`ck2yaml`](https://cantera.org/tutorials/ck2yaml-tutorial.html)
- * tool for converting Chemkin-format mechanisms to the YAML format. The utilities
- * [`cti2yaml`](https://cantera.org/tutorials/legacy2yaml.html#cti2yaml) and
- * [`ctml2yaml`](https://cantera.org/tutorials/legacy2yaml.html#ctml2yaml) should be
- * used to convert legacy CTI and XML input files (from %Cantera 2.6 and earlier) to the
- * YAML format.
+ * YAML files in %Cantera, see the [YAML Users' Guide](../userguide/input-tutorial.html)
+ * or the [YAML Input File API Reference](../yaml/index.html). %Cantera provides the
+ * [`ck2yaml`](../userguide/ck2yaml-tutorial.html) tool for converting Chemkin-format
+ * mechanisms to the YAML format. The utilities [`cti2yaml`](../yaml/cti2yaml.html) and
+ * [`ctml2yaml`](../yaml/ctml2yaml.html) should be used to convert legacy CTI and XML
+ * input files (from %Cantera 2.6 and earlier) to the YAML format.
  *
  * @ingroup ioGroup
  * @{

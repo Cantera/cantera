@@ -79,8 +79,8 @@ class Solution(Transport, Kinetics, ThermoPhase):
     models.
 
     For non-trivial uses cases of this functionality, see the examples
-    `extract_submechanism.py <https://cantera.org/examples/python/kinetics/extract_submechanism.py.html>`_
-    and `mechanism_reduction.py <https://cantera.org/examples/python/kinetics/mechanism_reduction.py.html>`_.
+    :doc:`extract_submechanism.py </examples/python/kinetics/extract_submechanism>`
+    :doc:`mechanism_reduction.py </examples/python/kinetics/mechanism_reduction>`.
 
     In addition, `Solution` objects can be constructed by passing the text of
     the YAML phase definition in directly, using the ``yaml`` keyword

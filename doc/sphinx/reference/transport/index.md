@@ -15,6 +15,7 @@ one another.
   interact with one another to determine properties such as viscosity, thermal
   conductivity, and diffusion coefficients for a given thermodynamic state.
 
+(sec-species-transport-parameters)=
 ## Species Transport Parameters
 
 Transport property models in general require parameters that express the effect of each

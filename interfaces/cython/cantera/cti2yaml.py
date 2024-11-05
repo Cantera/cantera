@@ -266,14 +266,14 @@ class species:
             The parameterization to use to compute the reference-state
             thermodynamic properties. This must be one of the entry types
             described in `Thermodynamic Property Models
-            <https://cantera.org/science/species-thermo.html#sec-thermo-models>`__.
+            <https://github.com/Cantera/cantera-website/blob/v2.6.0/pages/science/species-thermo.rst#thermodynamic-property-models>`__.
             To specify multiple parameterizations, each for a different temperature range,
             group them in parentheses.
         :param transport:
             An entry specifying parameters to compute this species'
             contribution to the transport properties. This must be one of the
             entry types described in `Species Transport Coefficients
-            <https://cantera.org/science/species-thermo.html#species-transport-coefficients>`__,
+            <https://github.com/Cantera/cantera-website/blob/v2.6.0/pages/science/transport.rst#species-transport-coefficients>`__,
             and must be consistent with the transport model of the phase into which
             the species is imported. To specify parameters for multiple
             transport models, group the entries in parentheses.
@@ -649,9 +649,9 @@ class reaction:
             for example, ``"CH4:0.25 O2:1.5"``.
         :param options:
             Processing options, as described in
-            `Options <https://cantera.org/tutorials/cti/reactions.html#options>`__.
+            `Options <https://github.com/Cantera/cantera-website/blob/v2.6.0/pages/tutorials/cti/reactions.rst#options>`__.
             May be one or more (as a list) of the following: ``'duplicate'``,
-            ``'negative_A'``,`` 'negative_orders'``, ``'nonreactant_orders'``.
+            ``'negative_A'``, ``'negative_orders'``, ``'nonreactant_orders'``.
         """
         self.equation = equation
         self.order = get_composition(order)
@@ -713,7 +713,7 @@ class three_body_reaction(reaction):
         :param id:
             An optional identification string.
         :param options: Processing options, as described in
-            `Options <https://cantera.org/tutorials/cti/reactions.html#options>`__.
+            `Options <https://github.com/Cantera/cantera-website/blob/v2.6.0/pages/tutorials/cti/reactions.rst#options>`__.
         """
         super().__init__(equation, kf, id, '', options)
         self.type = 'three-body'
@@ -772,7 +772,7 @@ class falloff_reaction(falloff_base):
             An optional identification string.
         :param options:
             Processing options, as described in
-            `Options <https://cantera.org/tutorials/cti/reactions.html#options>`__.
+            `Options <https://github.com/Cantera/cantera-website/blob/v2.6.0/pages/tutorials/cti/reactions.rst#options>`__.
         """
         super().__init__(equation, kf0, kf, efficiencies, falloff, id, options)
         self.type = 'falloff'
@@ -804,7 +804,7 @@ class chemically_activated_reaction(falloff_base):
             An optional identification string.
         :param options:
             Processing options, as described in
-            `Options <https://cantera.org/tutorials/cti/reactions.html#options>`__.
+            `Options <https://github.com/Cantera/cantera-website/blob/v2.6.0/pages/tutorials/cti/reactions.rst#options>`__.
         """
         super().__init__(equation, kLow, kHigh, efficiencies, falloff, id,
                          options)
@@ -911,7 +911,7 @@ class surface_reaction(reaction):
             the reverse reaction.
         :param options:
             Processing options, as described in
-            `Options <https://cantera.org/tutorials/cti/reactions.html#options>`__.
+            `Options <https://github.com/Cantera/cantera-website/blob/v2.6.0/pages/tutorials/cti/reactions.rst#options>`__.
         """
         super().__init__(equation, kf, id, order, options)
         self.type = 'surface'
@@ -1015,14 +1015,14 @@ class phase:
         :param species:
             The species. A string or sequence of strings in the format
             described in `Defining the Species
-            <https://cantera.org/tutorials/cti/phases.html#defining-the-species>`__.
+            <https://github.com/Cantera/cantera-website/blob/v2.6.0/pages/tutorials/cti/phases.rst#defining-the-species>`__.
         :param note:
             A user-defined comment. Not evaluated by Cantera itself.
         :param reactions:
             The homogeneous reactions. If omitted, no reactions will be
             included. A string or sequence of strings in the format described
             in `Declaring the Reactions
-            <https://cantera.org/tutorials/cti/phases.html#declaring-the-reactions>`__.
+            <https://github.com/Cantera/cantera-website/blob/v2.6.0/pages/tutorials/cti/phases.rst#declaring-the-reactions>`__.
             This field is not allowed for ``stoichiometric_solid`` and
             ``stoichiometric_liquid`` entries.
         :param initial_state:
@@ -1470,7 +1470,7 @@ class ideal_interface(phase):
             The heterogeneous reactions at this interface. If omitted, no
             reactions will be included. A string or sequence of strings in the
             format described in `Declaring the Reactions
-            <https://cantera.org/tutorials/cti/phases.html#declaring-the-reactions>`__.
+            <https://github.com/Cantera/cantera-website/blob/v2.6.0/pages/tutorials/cti/phases.rst#declaring-the-reactions>`__.
         :param site_density:
             The number of adsorption sites per unit area.
         :param phases:
