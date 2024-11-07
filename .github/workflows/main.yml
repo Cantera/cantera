@@ -64,7 +64,7 @@ jobs:
     timeout-minutes: 60
     strategy:
       matrix:
-        python-version: ['3.8', '3.10', '3.11', '3.12']
+        python-version: ['3.8', '3.10', '3.11', '3.12', '3.13']
         os: ['ubuntu-20.04', 'ubuntu-22.04']
         numpy: ['']
         cython: ['']
@@ -180,7 +180,7 @@ jobs:
     strategy:
       matrix:
         macos-version: ['macos-12', 'macos-14']
-        python-version: ['3.11', '3.12']
+        python-version: ['3.11', '3.12', '3.13']
         include:
           - macos-version: 'macos-12'
             python-version: '3.8'
@@ -439,6 +439,9 @@ jobs:
         - os: "ubuntu-20.04"
           python-version: "3.12"
           numpy: ""
+        - os: "ubuntu-22.04"
+          python-version: "3.13"
+          numpy: ""
       fail-fast: false
     steps:
       # We're not building Cantera here, we only need the checkout for the samples
@@ -591,7 +594,7 @@ jobs:
           fmt-ver: '9.1'
         - python-version: '3.12'
           fmt-ver: '7.1'
-        - python-version: '3.12'
+        - python-version: '3.13'
           fmt-ver: '11.0'
           extra-build-args: cxx_flags='/EHsc /std:c++20 /utf-8'
       fail-fast: false
@@ -669,7 +672,7 @@ jobs:
     strategy:
       matrix:
         vs-toolset: ['14.2']
-        python-version: ["3.8", "3.10", "3.11", "3.12"]
+        python-version: ["3.8", "3.10", "3.11", "3.12", "3.13"]
       fail-fast: false
     steps:
       - uses: actions/checkout@v4
