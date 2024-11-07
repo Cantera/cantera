@@ -147,7 +147,7 @@ class TestTransport:
         assert gas1.thermal_conductivity == approx(gas2.thermal_conductivity)
         assert gas1.multi_diff_coeffs == approx(gas2.multi_diff_coeffs)
 
-    def test_species_visosities(self, phase):
+    def test_species_viscosities(self, phase):
         for species_name in phase.species_names:
             # check that species viscosity matches overall for single-species
             # state
