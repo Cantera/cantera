@@ -47,8 +47,8 @@ class CSharpSourceGenerator(SourceGenerator):
 
         if prop_type == "string":
             # for get-string type functions we need to look up the type of the second
-            # (index 1) param for a cast because sometimes it"s an int and other times
-            # its a nuint (size_t)
+            # (index 1) param for a cast because sometimes it's an int and other times
+            # it's a nuint (size_t)
             template = _loader.from_string(self._templates["csharp-property-string"])
             return template.render(
                 cs_name=cs_name, p_type=getter.arglist[1].p_type,

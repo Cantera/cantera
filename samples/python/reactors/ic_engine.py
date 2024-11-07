@@ -2,7 +2,7 @@
 Diesel-type internal combustion engine simulation with gaseous fuel
 ===================================================================
 
-The simulation uses n-Dodecane as fuel, which is injected close to top dead
+The simulation uses n-dodecane as fuel, which is injected close to top dead
 center. Note that this example uses numerous simplifying assumptions and
 thus serves for illustration purposes only.
 
@@ -239,7 +239,7 @@ fig, ax = plt.subplots()
 ax.plot(t, states('o2').X, label='O2')
 ax.plot(t, states('co2').X, label='CO2')
 ax.plot(t, states('co').X, label='CO')
-ax.plot(t, states('c12h26').X * 10, label='n-Dodecane x10')
+ax.plot(t, states('c12h26').X * 10, label='n-dodecane x10')
 ax.legend(loc=0)
 ax.set_ylabel('$X_i$ [-]')
 ax.set_xlabel(r'$\phi$ [deg]')
