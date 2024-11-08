@@ -179,14 +179,16 @@ jobs:
     timeout-minutes: 90
     strategy:
       matrix:
-        macos-version: ['macos-12', 'macos-14']
-        python-version: ['3.11', '3.12', '3.13']
+        macos-version: ['macos-13', 'macos-14', 'macos-15']
+        python-version: ['3.12', '3.13']
         include:
-          - macos-version: 'macos-12'
+          - macos-version: 'macos-13'
             python-version: '3.8'
           - macos-version: 'macos-14'
             python-version: '3.10'
             extra-build-args: cxx_flags='-std=c++20'
+          - macos-version: 'macos-15'
+            python-version: '3.11'
       fail-fast: false
     steps:
     - uses: actions/checkout@v4
@@ -218,7 +220,7 @@ jobs:
       # Pin to 4.3.4 to resolve errors around only uploading symlinks.
       # See https://github.com/actions/upload-artifact/issues/589
       uses: actions/upload-artifact@v4.3.4
-      if: matrix.python-version == '3.11' && matrix.macos-version == 'macos-12'
+      if: matrix.python-version == '3.12' && matrix.macos-version == 'macos-13'
       with:
         path: build/lib/libcantera_shared.dylib
         name: libcantera_shared.dylib
