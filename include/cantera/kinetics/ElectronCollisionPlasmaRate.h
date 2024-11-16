@@ -89,6 +89,7 @@ protected:
 class ElectronCollisionPlasmaRate : public ReactionRate
 {
 public:
+
     ElectronCollisionPlasmaRate() = default;
 
     ElectronCollisionPlasmaRate(const AnyMap& node,
@@ -133,6 +134,16 @@ public:
     //! The value of #m_crossSections [m2]
     const vector<double>& crossSections() const {
         return m_crossSections;
+    }
+
+    //! The value of #m_crossSectionsInterpolated [m2]
+    const vector<double>& crossSectionInterpolated() const {
+        return m_crossSectionsInterpolated;
+    }
+
+    //! Set the value of #m_crossSectionsInterpolated [m2]
+    void setCrossSectionInterpolated(vector<double>& cs) {
+        m_crossSectionsInterpolated = cs;
     }
 
 private:

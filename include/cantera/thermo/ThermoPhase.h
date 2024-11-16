@@ -15,6 +15,7 @@
 #include "MultiSpeciesThermo.h"
 #include "cantera/base/Units.h"
 #include "cantera/base/AnyMap.h"
+#include "cantera/base/Solution.h"
 
 namespace Cantera
 {
@@ -1957,6 +1958,11 @@ public:
 
     //! @}
 
+    //! add Solution object
+    virtual void addSolution(std::weak_ptr<Solution> soln) {
+        m_soln = soln;
+    }
+
 protected:
     //! Store the parameters of a ThermoPhase object such that an identical
     //! one could be reconstructed using the newThermo(AnyMap&) function. This
@@ -1993,6 +1999,9 @@ protected:
 
     //! last value of the temperature processed by reference state
     mutable double m_tlast = 0.0;
+
+    //! reference to Solution
+    std::weak_ptr<Solution> m_soln;
 };
 
 }
