@@ -1258,6 +1258,9 @@ void Flow1D::enableTwoPointControl(bool twoPointControl)
 {
     if (isStrained()) {
         m_twoPointControl = twoPointControl;
+        // Prevent finding spurious solutions with negative velocity (outflow) at either
+        // inlet.
+        setBounds(c_offset_V, -1e-5, 1e20);
     } else {
         throw CanteraError("Flow1D::enableTwoPointControl",
             "Invalid operation: two-point control can only be used"
