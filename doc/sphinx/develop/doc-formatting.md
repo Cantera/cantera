@@ -65,7 +65,7 @@ blocks in the examples that are parsed by Sphinx Gallery.
   for linking to things using the default role (that is, Python objects)
 
 ## Useful Doxygen syntax
-- Linking to a Sphinx page: `[link text](../reference/science/phasethermo/lattice.html)`
+- Linking to a Sphinx page: `[link text](../reference/thermo/species-thermo.html)`
 - Citations: `@cite authorYYYY` will generate a numbered citation like `[8]`, assuming
   `authorYYYY` is a key in `doc/doxygen/cantera.bib`.
 - Equations can be added using LaTeX input bracketed by `@f[` and `@f]`.
