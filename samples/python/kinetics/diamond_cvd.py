@@ -41,7 +41,7 @@ with open('diamond.csv', 'w', newline='') as f:
     writer.writerow(['H mole Fraction', 'Growth Rate (microns/hour)'] +
                     d.species_names)
 
-    iC = d.kinetics_species_index(dbulk.species_index('C(d)'), 1)
+    iC = d.kinetics_species_index('C(d)')
 
     for n in range(20):
         x[ih] /= 1.4
