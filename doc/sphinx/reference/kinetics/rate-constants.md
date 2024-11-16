@@ -475,3 +475,38 @@ Two-temperature plasma reactions can be defined in the YAML format by specifying
 [`two-temperature-plasma`](sec-yaml-two-temperature-plasma) as the reaction `type` and
 providing the two activation energies as part of the `rate-constant`.
 :::
+
+(sec-electron-collision-plasma-rate)=
+## Electron Collision Plasma Reactions
+
+The electron collision plasma reaction rate uses the electron collision data and the
+electron energy distribution to calculate the reaction rate. Hagelaar and Pitchford
+{cite:t}`hagelaar2005` define the reaction rate coefficient (Eqn. 63) as,
+
+$$  k =  \gamma \int_0^{\infty} \epsilon \sigma F_0 d\epsilon  $$
+
+where $\gamma = \sqrt{2/m_e}$ (Eqn.4 in Hagelaar {cite:t}`hagelaar2015`), $m_e$ [kg] is
+the electron mass, $\epsilon$ [J] is the electron energy, $\sigma(\epsilon)$ [m²] is the
+reaction collision cross section, $F_0(\epsilon)$ [$\t{J^{-3/2}}$] is the normalized
+electron energy distribution function, and $k$ has units of [m³/s].
+
+To recast this in terms of moles rather than molecules, and letting $\epsilon_V$ be the
+electron energy expressed in volts, the forward rate coefficient can be rewritten as
+
+$$  k_f = \sqrt{\frac{e}{2 m_e}} N_A
+          \int_0^{\infty} \sigma(\epsilon_V) F_0(\epsilon_V) d{{\epsilon_V}^2}
+$$
+
+where $e$ is the elementary charge [C] and $N_A$ is the Avogadro constant
+[$\t{kmol^{-1}}$].
+
+```{versionadded} 3.1
+```
+
+:::{admonition} YAML Usage
+:class: tip
+
+Electron collision reactions can be defined in the YAML format by specifying
+[`electron-collision-plasma`](sec-yaml-electron-collision-plasma) as the reaction `type`
+and providing lists with the `cross-sections` and corresponding `energy-levels`.
+:::
