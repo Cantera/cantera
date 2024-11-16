@@ -24,6 +24,7 @@ The fields common to all ``reaction`` entries are:
     - ``three-body`` (:ref:`details <sec-yaml-three-body>`)
     - ``Blowers-Masel`` (:ref:`details <sec-yaml-Blowers-Masel>`)
     - ``two-temperature-plasma`` (:ref:`details <sec-yaml-two-temperature-plasma>`)
+    - ``electron-collision-plasma`` (:ref:`details <sec-yaml-electron-collision-plasma>`)
     - ``falloff`` (:ref:`details <sec-yaml-falloff>`)
     - ``chemically-activated`` (:ref:`details <sec-yaml-chemically-activated>`)
     - ``pressure-dependent-Arrhenius`` (:ref:`details <sec-yaml-pressure-dependent-Arrhenius>`)
@@ -276,6 +277,26 @@ Example::
     equation: O + H => O + H
     type: two-temperature-plasma
     rate-constant: {A: 17283, b: -3.1, Ea-gas: -5820 J/mol, Ea-electron: 1081 J/mol}
+
+
+.. _sec-yaml-electron-collision-plasma:
+
+``electron-collision-plasma``
+-----------------------------
+
+Electron collision plasma reactions involve an electron as one of the reactants, and are
+parameterized by the collision cross section as a function of the electron energy. The
+rate calculation is :ref:`described here <sec-electron-collision-plasma-rate>`. The rate
+parameters are specified using the following additional fields in the reaction entry:
+
+``energy-levels``
+    A list of electron energy levels [V]
+
+``cross-sections``
+    A list of collision cross sections [m²] for the reaction at the specified energy
+    levels.
+
+.. versionadded:: 3.1
 
 
 .. _sec-yaml-falloff:

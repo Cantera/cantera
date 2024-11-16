@@ -77,7 +77,7 @@ protected:
  *        k_f = \sqrt{\frac{2e}{m_e}} N_A \int_0^{\infty} \epsilon_V \sigma F_0 d\epsilon_V.
  *   @f]
  *
- * For the convience of calculation, the final form becomes,
+ * For the convenience of calculation, the final form becomes,
  *
  *   @f[
  *        k_f = 0.5 \sqrt{\frac{2e}{m_e}} N_A \int_0^{\infty} \sigma F_0 d{{\epsilon_V}^2}.
