@@ -18,6 +18,7 @@ namespace Cantera
 
 class Solution;
 class Species;
+class Kinetics;
 
 //! Class Phase is the base class for phases of matter, managing the species and
 //! elements in a phase, as well as the independent variables of temperature,
