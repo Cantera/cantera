@@ -205,7 +205,7 @@ void PlasmaPhase::updateElectronTemperatureFromEnergyDist()
 
 void PlasmaPhase::setIsotropicShapeFactor(double x) {
     m_isotropicShapeFactor = x;
-    setIsotropicElectronEnergyDistribution();
+    updateElectronEnergyDistribution();
 }
 
 void PlasmaPhase::getParameters(AnyMap& phaseNode) const
