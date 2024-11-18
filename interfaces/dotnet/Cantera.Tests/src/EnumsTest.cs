@@ -33,7 +33,7 @@ public class EnumsTests
         {
             Assert.Equal(name, interopString);
 
-            Assert.Single(withLongNames.Where(f => f.interopString == name));
+            Assert.Single(withLongNames, f => f.interopString == name);
         }
     }
 
