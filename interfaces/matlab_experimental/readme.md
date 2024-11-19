@@ -9,7 +9,7 @@ function calling from Cantera CLib.
 2. Compile Cantera from Source and install in your Conda environment, as directed in
    this link. https://cantera.org/install/compiling-install.html. The experimental
    Matlab Toolbox does not require a SCons option to install at this moment since it's
-   stand-alone. It also does not require the current Matlab Toolbox to be installed.
+   stand-alone.
 3. For first time users, launch Matlab, then navigate to `/path/to/cantera/source/code`
    (the folder containing `interfaces` and `samples`) using "Browse for Folder".
    Note for Ubuntu users: Matlab must be launched from the terminal
@@ -26,13 +26,13 @@ function calling from Cantera CLib.
 6. Open the file named 'ctRoot.m', in the second line, edit `output=` to
    `output='/path/to/conda/environment'`, then save the file. This sets the search path
    for the `ctLoad` command to find the shared library file for Cantera.
-7. Make sure the current (old) Matlab Toolbox for
+7. Make sure the legacy (old) Matlab Toolbox for
    Cantera (if it's already installed) and samples files are removed from
-   the Matlab search path. Having both the current and experimental version
+   the Matlab search path. Having both the legacy and experimental version
    of the toolbox in the search path will lead to conflicts.
    The command to remove search path in Matlab is `rmpath`.
 8. In the Matlab command window, run `savepath` to save all search paths.
-9. To switch back to the current matlab toolbox, revert the search paths.
+9. To switch back to the legacy Matlab toolbox, revert the search paths.
 
 ## Usage guide:
 
