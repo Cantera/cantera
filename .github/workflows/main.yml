@@ -480,9 +480,11 @@ jobs:
         # See https://unix.stackexchange.com/a/392973 for an explanation of the -exec part.
         # Skip 1D_packed_bed.py due to difficulty installing scikits.odes.
         # Increase figure limit to handle flame_speed_convergence_analysis.py.
+        # Skip equations_of_state.py in cases where CoolProp is broken (temporarily, for Python 3.13)
         run: |
           ln -s libcantera_shared.so build/lib/libcantera_shared.so.3
           rm samples/python/reactors/1D_packed_bed.py
+          python3 -m CoolProp || rm samples/python/thermo/equations_of_state.py
           echo "figure.max_open_warning: 100" > matplotlibrc
           export LD_LIBRARY_PATH=build/lib
           find samples/python -type f -iname "*.py" \
