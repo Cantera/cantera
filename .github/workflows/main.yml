@@ -483,7 +483,6 @@ jobs:
         run: |
           ln -s libcantera_shared.so build/lib/libcantera_shared.so.3
           rm samples/python/reactors/1D_packed_bed.py
-          rm samples/python/reactors/continuous_reactor.py
           echo "figure.max_open_warning: 100" > matplotlibrc
           export LD_LIBRARY_PATH=build/lib
           find samples/python -type f -iname "*.py" \
