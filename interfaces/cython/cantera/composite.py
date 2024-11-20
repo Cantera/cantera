@@ -230,7 +230,8 @@ class Quantity:
         else:
             self.mass = 1.0
 
-        assert constant in ('TP','TV','HP','SP','SV','UV')
+        assert constant in ('TP','TV','HP','SP','SV','UV'), 
+            "Error: constant must be one of 'TP','TV','HP','SP','SV', or 'UV'" 
         self.constant = constant
 
     @property
@@ -316,7 +317,8 @@ class Quantity:
         if self._id != other._id:
             raise ValueError('Cannot add Quantities with different phase '
                 'definitions.')
-        assert self.constant == other.constant
+        assert self.constant == other.constant,
+            "Error: Cannot add Quantities when with different constant values" 
 
         m = self.mass + other.mass
         Y = (self.Y * self.mass + other.Y * other.mass)
