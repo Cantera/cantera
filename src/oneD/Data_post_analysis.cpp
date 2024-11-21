@@ -6,13 +6,10 @@
 
 namespace Cantera{
 
-    void Data_post_analysis::Initialize(Sim1D &flame, StFlow &flow,Inlet1D_new &inlet, Inlet1D_new &outlet, shared_ptr<Solution> sol, std::string sol_id){
+    void Data_post_analysis::Initialize(Sim1D &flame, StFlow &flow, shared_ptr<Solution> sol, std::string sol_id){
         auto gas(sol->thermo());
         m_flame=&flame;
         m_flow=&flow;
-        m_inlet=&inlet;
-        m_outlet=&outlet;
-        m_pool=m_inlet->Pool();
         m_sol=sol;
         dfdp_flag=false;
         //assgined the number of points to points
@@ -35,11 +32,19 @@ namespace Cantera{
         folder_name="Post_process/"+sol_id+"K";
         check_path(folder_name);
         Output_Solution(folder_name+"/Results.txt");
-        Output_liquid_pool(folder_name+"/Result_pool.txt");
         Output_Reaction_rate(folder_name+"/Reaction_rate.txt");
         Output_Heat_Prod_Rate(folder_name+"/Heat_prod_rate.txt");
         Output_Sensitivity({"T"},folder_name+"/Sensitivity.txt");
         std::cout<<"Data post analysis has been finished\n";
+    
+    }
+    
+    void Data_post_analysis::Initialize(Sim1D &flame, StFlow &flow,Inlet1D_new &inlet, Inlet1D_new &outlet, shared_ptr<Solution> sol, std::string sol_id){
+        Initialize(flame, flow, sol, sol_id);
+        m_inlet=&inlet;
+        m_outlet=&outlet;
+        m_pool=m_inlet->Pool();
+        Output_liquid_pool(folder_name+"/Result_pool.txt");
     }
 
     void Data_post_analysis::Output_Solution(std::string Result_file_name){

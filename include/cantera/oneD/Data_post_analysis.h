@@ -20,6 +20,9 @@ namespace Cantera
             std::cout<<"\n..............................................................................\n";
             std::cout<<"*************************Data post analysis is called*************************\n";
             std::cout<<"..............................................................................\n";}
+        //For gas phase counterflow flame analysis
+        void Data_post_analysis::Initialize(Sim1D &flame, StFlow &flow, shared_ptr<Solution> sol, std::string sol_id)
+        //For liquid pool conterflow flame analysis
         void Initialize(Sim1D &flame, StFlow &flow,Inlet1D_new &inlet, Inlet1D_new &outlet, shared_ptr<Solution> sol, std::string sol_id);
 
         //Restore flame with existed solution
