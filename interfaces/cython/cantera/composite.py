@@ -230,8 +230,10 @@ class Quantity:
         else:
             self.mass = 1.0
 
-        assert constant in ('TP','TV','HP','SP','SV','UV'), 
-            "Error: constant must be one of 'TP','TV','HP','SP','SV', or 'UV'" 
+        if constant not in ('TP','TV','HP','SP','SV','UV'): 
+            raise ValueError(
+                f"Constant {constant} is invalid."
+                "Must be one of 'TP','TV','HP','SP','SV', or 'UV'")
         self.constant = constant
 
     @property
@@ -315,10 +317,13 @@ class Quantity:
 
     def __iadd__(self, other):
         if self._id != other._id:
-            raise ValueError('Cannot add Quantities with different phase '
-                'definitions.')
-        assert self.constant == other.constant,
-            "Error: Cannot add Quantities when with different constant values" 
+            raise ValueError(
+                'Cannot add Quantities with different phase '
+                f'definitions. {self._id} != {other._id}')
+        if self.constant != other.constant:
+            raise ValueError(
+                "Cannot add Quantities with different "
+                f"constant values. {self.constant} != {other.constant}")
 
         m = self.mass + other.mass
         Y = (self.Y * self.mass + other.Y * other.mass)
@@ -333,7 +338,8 @@ class Quantity:
         else:  # self.constant == 'HP'
             dp_rel = 2 * abs(self.P - other.P) / (self.P + other.P)
             if dp_rel > 1.0e-7:
-                raise ValueError('Cannot add Quantities at constant pressure when'
+                raise ValueError(
+                    'Cannot add Quantities at constant pressure when '
                     f'pressure is not equal ({self.P} != {other.P})')
 
             H = self.enthalpy + other.enthalpy
@@ -1331,7 +1337,8 @@ def _state2_prop(name, doc_source):
         return a, b
 
     def setter(self, AB):
-        assert len(AB) == 2, "Expected 2 elements, got {}".format(len(AB))
+        if len(AB) != 2: 
+            raise ValueError("Expected 2 elements, got {}".format(len(AB)))
         A, B, _ = np.broadcast_arrays(AB[0], AB[1], self._output_dummy)
         for loc, index in enumerate(self._indices):
             self._set_loc(loc)
@@ -1357,7 +1364,8 @@ def _state3_prop(name, doc_source, scalar=False):
         return a, b, c
 
     def setter(self, ABC):
-        assert len(ABC) == 3, "Expected 3 elements, got {}".format(len(ABC))
+        if len(ABC) != 3: 
+            raise ValueError("Expected 3 elements, got {}".format(len(ABC)))
         A, B, _ = np.broadcast_arrays(ABC[0], ABC[1], self._output_dummy)
         XY = ABC[2] # composition
         if len(np.shape(XY)) < 2:
