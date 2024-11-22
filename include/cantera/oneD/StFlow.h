@@ -345,6 +345,70 @@ public:
     size_t rightExcessSpecies() const {
         return m_kExcessRight;
     }
+    //! return heat conductivity vector (added for boundary calculation) Unit W/m-K
+    vector<double> heat_conductivity()
+    {return m_tcon;}
+
+    //! return grid vector (added for boundary calculation)
+    vector<double> grid_dz()
+    {return m_dz;}
+
+    //! return enthalpy vector (added for boundary calculation) Unit J/kmol
+    vector<double> Enthalpy()
+    {vector<double> Enthalpy_inlet(m_enthp.nRows());
+        double* itr= &Enthalpy_inlet[0];
+        m_enthp.getColumn(0, itr );
+    return Enthalpy_inlet;}
+
+    //!return heat capacity (added for boundary calculation)
+    vector<double> Cp()
+    {return m_cp;}
+
+    //!return molecular weight  (added for boundary calculation)
+    doublereal Mw(size_t k)
+    {return m_wt[k];}
+
+    //!return mean molecular weight  (added for boundary calculation)
+    doublereal Mean_Mw(size_t j)
+    {return m_wtm[j];}
+
+    //!return dT/dz (added for boundary calculation)
+    doublereal dT_dz(const doublereal* x, size_t j){
+        return dTdz(x, j);
+    }
+
+    //!return dY/dz (added for boundary calculation)
+    doublereal dY_dz(const doublereal* x, size_t k , size_t j){
+        return dYdz(x, k, j);
+    }
+
+    //!diffusive_flux (added for boundary calculation)
+    doublereal diffusive_flux(size_t k, size_t j)const{
+        return m_flux(k,j);//number of species: k, number of points: j;
+    }
+    //!rho_u (added for boundary calculation)
+    doublereal rho_u(doublereal* x, size_t j)const{
+        return m_rho[j]*x[index(c_offset_U,j)];//number of species: k, number of points: j;
+    }
+    //!molar fraction of individual component (added for boundary calculation)
+    doublereal molar_fraction(const doublereal* x, size_t k, size_t j) const {
+        return m_wtm[j]*Y(x,k,j)/m_wt[k];
+    }
+
+    /*doublereal& Y(doublereal* x, size_t k, size_t j) {
+        return x[index(c_offset_Y + k, j)];
+    }*/
+    
+    double Eneg_terms(size_t k, size_t j){
+    std::vector<vector<double>> Eneg_terms={Eneg_RHS_term_1, Eneg_RHS_term_2, Eneg_RHS_term_3, Eneg_RHS_term_4};
+    return Eneg_terms[k][j];
+    }
+    
+    // k: term index; j: point index, n: species index
+    double Species_terms(size_t k, size_t j, size_t n){
+    std::vector<Array2D> Species_terms={Sp_RHS_term_1, Sp_RHS_term_2, Sp_RHS_term_3};
+    return Species_terms[k].value(j, n);
+    }
 
 protected:
     AnyMap getMeta() const override;
@@ -381,6 +445,7 @@ protected:
             m_wtm[j] = m_thermo->meanMolecularWeight();
             m_cp[j] = m_thermo->cp_mass();
             m_thermo->getPartialMolarEnthalpies(&m_hk(0, j));
+            m_thermo->getPartialMolarEnthalpies(&m_enthp(0,j));//enthalpy update was added for boundary condition
         }
     }
 
@@ -495,6 +560,7 @@ protected:
     // species thermo properties
     vector<double> m_wt;
     vector<double> m_cp;
+    Array2D m_enthp;//added for boundary condition calculation
 
     // transport properties
     vector<double> m_visc;
@@ -558,6 +624,12 @@ protected:
     //! to `j1`, based on solution `x`.
     virtual void updateTransport(double* x, size_t j0, size_t j1);
 
+    //output of all terms in energy equation
+    vector<double> Eneg_RHS_term_1, Eneg_RHS_term_2, Eneg_RHS_term_3, Eneg_RHS_term_4;
+    
+    //output of all iterms in each specie equation
+    Array2D Sp_RHS_term_1, Sp_RHS_term_2, Sp_RHS_term_3;
+    
 public:
     //! Location of the point where temperature is fixed
     double m_zfixed = Undef;

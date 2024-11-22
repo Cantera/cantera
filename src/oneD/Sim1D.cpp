@@ -878,6 +878,35 @@ void Sim1D::solveAdjoint(const double* b, double* lambda)
     Jt.solve(b, lambda);
 }
 
+void Sim1D::solveAdjoint_all(const Array2D* b_all, Array2D* lambda_all)
+{std::cout<<"solveAdjoint_all is called\n";
+    for (auto& D : m_dom) {
+        D->forceFullUpdate(true);
+    }
+    evalSSJacobian();
+    for (auto& D : m_dom) {
+        D->forceFullUpdate(false);
+    }
+
+    // Form J^T
+    size_t bw = bandwidth();
+    BandMatrix Jt(size(), bw, bw);
+    for (size_t i = 0; i < size(); i++) {
+        size_t j1 = (i > bw) ? i - bw : 0;
+        size_t j2 = (i + bw >= size()) ? size() - 1: i + bw;
+        for (size_t j = j1; j <= j2; j++) {
+            Jt(j,i) = m_jac->value(i,j);
+        }
+    }
+    
+    //check if columns of b_all is equal to columns of lambda_all
+    if(b_all->nColumns()!=lambda_all->nColumns()){CanteraError("Sim1D::solvedAdjoint_all","Input size is not equal to output size");}
+    for(size_t i=0;i<b_all->nColumns();i++){
+    std::cout<<"Solving adjoint at point "<<i+1<<"/"<<b_all->nColumns()<<"\n";
+    Jt.solve(b_all->ptrColumn(i), lambda_all->ptrColumn(i));
+    }
+}
+
 void Sim1D::resize()
 {
     OneDim::resize();

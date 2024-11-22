@@ -194,7 +194,17 @@ void StFlow::resize(size_t ncomponents, size_t points)
     m_cp.resize(m_points, 0.0);
     m_visc.resize(m_points, 0.0);
     m_tcon.resize(m_points, 0.0);
+    m_enthp.resize(m_nsp,m_points,0.0);
 
+    Eneg_RHS_term_1.resize(m_points, 0.0);
+    Eneg_RHS_term_2.resize(m_points, 0.0);
+    Eneg_RHS_term_3.resize(m_points, 0.0);
+    Eneg_RHS_term_4.resize(m_points, 0.0);
+    
+    Sp_RHS_term_1.resize(m_points, m_nsp, 0.0);
+    Sp_RHS_term_2.resize(m_points, m_nsp, 0.0);
+    Sp_RHS_term_3.resize(m_points, m_nsp, 0.0);
+    
     m_diff.resize(m_nsp*m_points);
     if (m_do_multicomponent) {
         m_multidiff.resize(m_nsp*m_nsp*m_points);
@@ -543,6 +553,11 @@ void StFlow::evalResidual(double* x, double* rsd, int* diag,
                    - convec - diffus)/m_rho[j]
                   - rdt*(Y(x,k,j) - Y_prev(k,j));
                 diag[index(c_offset_Y + k, j)] = 1;
+                
+                //output terms in specis equations                
+                Sp_RHS_term_1(j,k)=-convec;
+                Sp_RHS_term_2(j,k)=-diffus;
+                Sp_RHS_term_3(j,k)=m_wt[k]*(wdot(k,j));                
             }
 
             //-----------------------------------------------
@@ -558,13 +573,22 @@ void StFlow::evalResidual(double* x, double* rsd, int* diag,
                 setGas(x,j);
                 double dtdzj = dTdz(x,j);
                 double sum = 0.0;
+                double sum1=0;//used for heat release term
+                double sum2=0;//used for heat convection from species diffusion
 
                 grad_hk(x, j);
                 for (size_t k = 0; k < m_nsp; k++) {
                     double flxk = 0.5*(m_flux(k,j-1) + m_flux(k,j));
                     sum += wdot(k,j)*m_hk(k,j);
                     sum += flxk * m_dhk_dz(k,j) / m_wt[k];
+                    sum1 += wdot(k,j)*m_hk(k,j);
+                    sum2 += flxk * m_dhk_dz(k,j) / m_wt[k];;
                 }
+                
+                Eneg_RHS_term_1[j]=m_cp[j]*rho_u(x,j)*dtdzj;//heat convection from species convection
+                Eneg_RHS_term_2[j]=divHeatFlux(x,j);//heat conduction
+                Eneg_RHS_term_3[j]=sum1;//heat generation
+                Eneg_RHS_term_4[j]=sum2;//heat convection from species diffusion                
 
                 rsd[index(c_offset_T, j)] = - m_cp[j]*rho_u(x,j)*dtdzj
                                             - divHeatFlux(x,j) - sum;
