@@ -232,7 +232,7 @@ class Quantity:
 
         if constant not in ('TP','TV','HP','SP','SV','UV'):
             raise ValueError(
-                f"Constant {constant} is invalid."
+                f"Constant {constant} is invalid. "
                 "Must be one of 'TP','TV','HP','SP','SV', or 'UV'")
         self.constant = constant
 
