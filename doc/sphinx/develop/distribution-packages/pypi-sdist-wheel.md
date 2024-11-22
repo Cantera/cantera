@@ -156,3 +156,10 @@ those are emulated and already very slow.
 As much of the configuration for `cibuildwheel` as possible is done statically in
 `pyproject.toml.in`. Only values that are dynamically determined when the workflow runs
 should be set in the workflow.
+
+This workflow should be automatically triggered when a new version of Cantera is tagged,
+identified by a tag matching the pattern `v*`. This is managed by the GitHub action
+workflow in `.github/workflows/packaging.yml` in the main Cantera repository. You can
+[check the status](https://github.com/Cantera/pypi-packages/actions/workflows/python-package.yml)
+of these package builds or trigger the workflow manually (in case it fails and requires
+updates after the tag is pushed).

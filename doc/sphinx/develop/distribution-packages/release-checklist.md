@@ -95,9 +95,9 @@ maintainers.
     is the same as `tar`).
 
 - Build officially-maintained packages
-  - [PyPI](https://cantera.org/dev/develop/distribution-packages/pypi-sdist-wheel)
-  - [conda-forge](https://cantera.org/dev/develop/distribution-packages/conda)
-  - [Ubuntu](https://github.com/Cantera/cantera-ubuntu)
+  - [PyPI](pypi-sdist-wheel)
+  - [conda-forge](conda)
+  - [Ubuntu](ubuntu-ppa)
 
 - Generate the detailed Changelog using the
   [`graphql.py`](https://github.com/Cantera/cantera-release-guide/blob/main/graphql.py)
