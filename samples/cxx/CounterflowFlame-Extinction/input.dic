@@ -1,0 +1,46 @@
+#include <string>
+#include <iostream>
+
+struct Parameters{
+
+    //choose mode 
+    std::string mode="Calculation";//"Analysis"
+    
+    //setup for input mechanism
+    std::string mech = "/usr/local/share/cantera/samples/cxx/ZoeyH/NH3_data/nh3_cej_chem.yaml";
+    
+    //setup for initial conditions
+    double InitialStrainRate = 50.000000;//s^{-1}
+    std::string backup_id="90.000000";
+    double  delta_SR = 1;// s^{-1}
+    
+    //setup for liquid pool counterflow flame
+    double pressure = 1.0 * Cantera::OneAtm; //atm
+    double distance = 0.0145; //separation distance 14.5mm//change from 14.5mm to 10.5mm
+    double T_f = 298.15; //K
+    double T_ox = 298.15; //K
+    
+    // Input fuel and molar fractions
+    std::map<std::string, double> fuel_fractions = {
+        {"NH3", 0.95},
+        {"H2", 0.05},
+        {"N2", 0.0}
+    };
+    
+    // Input oxygen and molar fractions
+    std::map<std::string, double> ox_fractions = {
+        {"O2", 0.21},
+        {"N2", 0.79}
+    };
+    
+    //setup for solver
+    bool refine_grid = true; 
+
+    //setup for output options
+    bool save_sol=true, save_eqn=true, sens_output=false; 
+    
+
+};
+
+ 
+
