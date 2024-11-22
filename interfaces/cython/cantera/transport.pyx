@@ -277,28 +277,40 @@ cdef class Transport(_SolutionBase):
             return get_transport_1d(self, tran_getMobilities)
 
     def get_viscosity_polynomial(self, i):
-        """Get the polynomial fit to the logarithm of temperature for
-        the viscosity of species ``i``."""
+        """
+        Get the coefficients of the polynomial fit for the viscosity of species ``i``
+        as a function of temperature. See :ct:`GasTransport::fitProperties` for the
+        functional form.
+        """
         n_values = 4 if self.transport.CKMode() else 5
         return get_transport_polynomial(self, tran_getViscosityPolynomial, i, n_values)
 
     def get_thermal_conductivity_polynomial(self, i):
-        """Get the polynomial fit to the logarithm of temperature for
-        the thermal conductivity of species ``i``."""
+        """
+        Get the coefficients of the polynomial fit for the thermal conductivity of
+        species ``i`` as a function of temperature. See
+        :ct:`GasTransport::fitProperties` for the functional form.
+        """
         n_values = 4 if self.transport.CKMode() else 5
         return get_transport_polynomial(self, tran_getConductivityPolynomial, i,
                                         n_values)
 
     def get_binary_diff_coeffs_polynomial(self, i, j):
-        """Get the polynomial fit to the logarithm of temperature for
-        the binary diffusion coefficient of species ``i`` and ``j``."""
+        """
+        Get the coefficients of the polynomial fit of the binary diffusion coefficient
+        for species ``i`` and ``j`` as a function of temperature. See
+        :ct:`GasTransport::fitDiffCoeffs` for the functional form.
+        """
         n_values = 4 if self.transport.CKMode() else 5
         return get_binary_transport_polynomial(self, tran_getBinDiffusivityPolynomial,
                                                i, j, n_values)
 
     def get_collision_integral_polynomials(self, i, j):
-        """Get the polynomial fit to the logarithm of temperature for
-        the collision integral of species ``i`` and ``j``."""
+        """
+        Get the coefficients of the polynomial fit of the collision integral for
+        species ``i`` and ``j`` as a function of temperature. See
+        :ct:`GasTransport::fitCollisionIntegrals`.
+        """
         n_values = 7 if self.transport.CKMode() else 9
         cdef np.ndarray[np.double_t, ndim=1] adata = np.empty(n_values)
         cdef np.ndarray[np.double_t, ndim=1] bdata = np.empty(n_values)
@@ -308,8 +320,11 @@ cdef class Transport(_SolutionBase):
         return adata, bdata, cdata
 
     def set_viscosity_polynomial(self, i, values):
-        """Set the polynomial fit to the logarithm of temperature for
-        the viscosity of species ``i``."""
+        """
+        Set the coefficients of the polynomial fit for the viscosity of species ``i``
+        as a function of temperature. See :ct:`GasTransport::fitProperties` for the
+        functional form.
+        """
         n_values = 4 if self.transport.CKMode() else 5
         if len(values) != n_values:
             raise ValueError(
@@ -320,8 +335,11 @@ cdef class Transport(_SolutionBase):
         tran_setViscosityPolynomial(self.transport, i, &data[0])
 
     def set_thermal_conductivity_polynomial(self, i, values):
-        """Set the polynomial fit to the logarithm of temperature for
-        the thermal conductivity of species ``i``."""
+        """
+        Set the coefficients of the polynomial fit for the thermal conductivity of
+        species ``i`` as a function of temperature. See
+        :ct:`GasTransport::fitProperties` for the functional form.
+        """
         n_values = 4 if self.transport.CKMode() else 5
         if len(values) != n_values:
             raise ValueError(
@@ -332,8 +350,11 @@ cdef class Transport(_SolutionBase):
         tran_setConductivityPolynomial(self.transport, i, &data[0])
 
     def set_binary_diff_coeffs_polynomial(self, i, j, values):
-        """Set the polynomial fit to the logarithm of temperature for
-        the binary diffusion coefficient of species ``i`` and ``j``."""
+        """
+        Set the coefficients of the polynomial fit of the binary diffusion coefficient
+        for species ``i`` and ``j`` as a function of temperature. See
+        :ct:`GasTransport::fitDiffCoeffs` for the functional form.
+        """
         n_values = 4 if self.transport.CKMode() else 5
         if len(values) != n_values:
             raise ValueError(
@@ -345,8 +366,11 @@ cdef class Transport(_SolutionBase):
 
     def set_collision_integral_polynomial(self, i, j, avalues, bvalues, cvalues,
                                           actualT=True):
-        """Get the polynomial fit to the logarithm of temperature for
-        the collision integral of species ``i`` and ``j``."""
+        """
+        Set the coefficients of the polynomial fit of the collision integral for
+        species ``i`` and ``j`` as a function of temperature. See
+        :ct:`GasTransport::fitCollisionIntegrals`.
+        """
         n_values = 7 if self.transport.CKMode() else 9
         if len(avalues) != n_values:
             raise ValueError(
