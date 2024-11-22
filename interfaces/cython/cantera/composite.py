@@ -230,7 +230,7 @@ class Quantity:
         else:
             self.mass = 1.0
 
-        if constant not in ('TP','TV','HP','SP','SV','UV'): 
+        if constant not in ('TP','TV','HP','SP','SV','UV'):
             raise ValueError(
                 f"Constant {constant} is invalid."
                 "Must be one of 'TP','TV','HP','SP','SV', or 'UV'")
@@ -1337,7 +1337,7 @@ def _state2_prop(name, doc_source):
         return a, b
 
     def setter(self, AB):
-        if len(AB) != 2: 
+        if len(AB) != 2:
             raise ValueError("Expected 2 elements, got {}".format(len(AB)))
         A, B, _ = np.broadcast_arrays(AB[0], AB[1], self._output_dummy)
         for loc, index in enumerate(self._indices):
@@ -1364,7 +1364,7 @@ def _state3_prop(name, doc_source, scalar=False):
         return a, b, c
 
     def setter(self, ABC):
-        if len(ABC) != 3: 
+        if len(ABC) != 3:
             raise ValueError("Expected 3 elements, got {}".format(len(ABC)))
         A, B, _ = np.broadcast_arrays(ABC[0], ABC[1], self._output_dummy)
         XY = ABC[2] # composition
