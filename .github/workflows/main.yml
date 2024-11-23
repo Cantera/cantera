@@ -583,9 +583,6 @@ jobs:
     name: Windows 2022, Python ${{ matrix.python-version }}, fmt ${{ matrix.fmt-ver }}
     runs-on: windows-2022
     timeout-minutes: 60
-    defaults:
-      run:
-        shell: bash -l {0}
     strategy:
       matrix:
         include:
@@ -617,13 +614,12 @@ jobs:
           python=${{ matrix.python-version }} scons numpy cython ruamel.yaml boost-cpp
           eigen yaml-cpp pandas pytest pytest-xdist highfive pint python-graphviz
           fmt=${{ matrix.fmt-ver }} setuptools
-        init-shell: powershell bash
         post-cleanup: none
+        init-shell: powershell
     - name: Build Cantera
       run: scons build system_eigen=y system_yamlcpp=y system_highfive=y logging=debug
         toolchain=msvc f90_interface=n debug=n ${{ matrix.extra-build-args }}
         --debug=time -j4
-      shell: pwsh
     - name: Upload shared library
       # Pin to 4.3.4 to resolve errors around only uploading symlinks.
       # See https://github.com/actions/upload-artifact/issues/589
@@ -640,30 +636,30 @@ jobs:
     - name: Run Python tests
       run: |
         pytest -raP -v -n auto --durations=50 test/python
-      shell: pwsh
     - name: Test Install
       # spot-check installation locations
       run: |
-        set -x
         scons install
-        test -f ${CONDA_PREFIX}/Library/bin/cantera_shared.dll
-        test -f ${CONDA_PREFIX}/Library/include/cantera/base/Solution.h
-        test -f ${CONDA_PREFIX}/Scripts/ck2yaml
-        test -f ${CONDA_PREFIX}/share/cantera/data/gri30.yaml
-        test -d ${CONDA_PREFIX}/share/cantera/samples
-        test -d ${CONDA_PREFIX}/share/cantera/samples/python
-        test -d ${CONDA_PREFIX}/Lib/site-packages/cantera
+        $paths = @('Library/bin/cantera_shared.dll',
+            'Library/include/cantera/base/Solution.h', 'Scripts/ck2yaml.exe',
+            'share/cantera/data/gri30.yaml', 'share/cantera/samples',
+            'share/cantera/samples/python', 'Lib/site-packages/cantera')
+        Foreach ($path in $paths) {
+          if (-not (Test-Path $Env:CONDA_PREFIX/$path)) {
+            echo "$path not found in install directory"
+            exit 1
+          }
+        }
     - name: Test Essentials
       # ensure that Python package loads and converter scripts work
       run: |
-        set -x
         python -c 'import cantera as ct; import sys; sys.exit(0) if ct.__version__.startswith("3.1.0") else sys.exit(1)'
         ck2yaml --input=test/data/h2o2.inp --output=h2o2-test.yaml
-        test -f h2o2-test.yaml
+        if (-not (Test-Path h2o2-test.yaml)) { exit 1 }
         cti2yaml test/data/ch4_ion.cti ch4_ion-test.yaml
-        test -f ch4_ion-test.yaml
+        if (-not (Test-Path ch4_ion-test.yaml)) { exit 1 }
         yaml2ck data/h2o2.yaml --mechanism=h2o2-test.ck
-        test -f h2o2-test.ck
+        if (-not (Test-Path h2o2-test.ck)) { exit 1 }
 
   windows:
     name: "Windows 2019, MSVC ${{ matrix.vs-toolset }}, Python ${{ matrix.python-version }}"
@@ -709,10 +705,9 @@ jobs:
           rm $BOOST_ROOT/download.7z
         shell: bash
       - name: Build Cantera
-        run: scons build -j4 boost_inc_dir=%BOOST_ROOT% debug=n logging=debug
+        run: scons build -j4 boost_inc_dir=$Env:BOOST_ROOT debug=n logging=debug
           python_package=y env_vars=USERPROFILE,GITHUB_ACTIONS
           msvc_version=${{ matrix.vs-toolset }} f90_interface=n --debug=time
-        shell: cmd
       - name: Build Tests
         run: scons -j4 build-tests --debug=time
       - name: Run compiled tests
@@ -817,10 +812,9 @@ jobs:
         rm $BOOST_ROOT/download.7z
       shell: bash
     - name: Build Cantera
-      run: scons build -j4 boost_inc_dir=%BOOST_ROOT% debug=n logging=debug
+      run: scons build -j4 boost_inc_dir=$Env:BOOST_ROOT debug=n logging=debug
         python_package=y env_vars=USERPROFILE,PYTHONPATH,GITHUB_ACTIONS
         toolchain=mingw f90_interface=n --debug=time
-      shell: cmd
     - name: Upload Wheel
       uses: actions/upload-artifact@v4
       with:
