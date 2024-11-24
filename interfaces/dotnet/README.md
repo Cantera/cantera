@@ -42,7 +42,7 @@ the use of Windows.
 
 ### Building the .NET Interface.
 
-After [building the main Cantera library](https://cantera.org/install/compiling-install.html),
+After [building the main Cantera library](https://cantera.org/stable/develop/index.html),
 switch to this directory and run `dotnet build`.
 
 In order to force re-import of generated code from sourcegen, a manual deletion of
