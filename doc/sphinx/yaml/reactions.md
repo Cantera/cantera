@@ -74,8 +74,8 @@ Arrhenius rate expressions are specified as a mapping with fields:
 or a corresponding three-element list. The following are equivalent:
 
 ```yaml
-{A: -2.70000E+13 cm^3/mol/s, b: 0, Ea: 355 cal/mol}
-[-2.70000E+13 cm^3/mol/s, 0, 355 cal/mol]
+{A: 2.70E+13 cm^3/mol/s, b: 0, Ea: 355 cal/mol}
+[2.70E+13 cm^3/mol/s, 0, 355 cal/mol]
 ```
 
 (sec-yaml-blowers-masel-rate)=
@@ -146,6 +146,20 @@ supported:
 : The efficiency for use for species not included in the `efficiencies` mapping.
   Defaults to 1.0.
 
+Examples:
+
+```yaml
+- equation: O + H + M <=> OH + M
+  rate-constant: {A: 5.0e+5, b: -1.0, Ea: 0.0}
+  default-efficiency: 0.0
+  efficiencies: {H2: 2.0, H2O: 6.0, AR: 0.7}
+- equation: O + H + M <=> OH + M
+  rate-constant: {A: 3.0e+5, b: 0.0, Ea: 123.0}
+  # Efficiencies for the species in the previous reaction must be explicitly zero
+  # to avoid double counting and being considered a duplicate reaction
+  efficiencies: {H2: 0.0, H2O: 0.0, AR: 0.0, CO: 3.0}
+```
+
 (sec-yaml-rate-types)=
 ## Reaction types
 
@@ -167,9 +181,9 @@ Additional fields are:
 Example:
 
 ```yaml
-equation: N + NO <=> N2 + O
-rate-constant: {A: -2.70000E+13 cm^3/mol/s, b: 0, Ea: 355 cal/mol}
-negative-A: true
+- equation: N + NO <=> N2 + O
+  rate-constant: {A: -2.70000E+13 cm^3/mol/s, b: 0, Ea: 355 cal/mol}
+  negative-A: true
 ```
 
 (sec-yaml-three-body)=
@@ -186,10 +200,10 @@ Includes the fields of an `elementary` reaction, plus the fields for specifying
 Example:
 
 ```yaml
-equation: 2 O + M = O2 + M
-type: three-body
-rate-constant: [1.20000E+17 cm^6/mol^2/s, -1, 0]
-efficiencies: {AR: 0.83, H2O: 5}
+- equation: 2 O + M = O2 + M
+  type: three-body
+  rate-constant: [1.20000E+17 cm^6/mol^2/s, -1, 0]
+  efficiencies: {AR: 0.83, H2O: 5}
 ```
 
 The `type` field of the YAML entry may be omitted. Reactions containing the generic
@@ -247,9 +261,9 @@ mapping.
 Example:
 
 ```yaml
-equation: O + H2 <=> H + OH
-type: Blowers-Masel
-rate-constant: {A: 3.87e+04 cm^2/mol/s, b: 2.7, Ea0: 6260.0 cal/mol, w: 1e9 cal/mol}
+- equation: O + H2 <=> H + OH
+  type: Blowers-Masel
+  rate-constant: {A: 3.87e+04 cm^2/mol/s, b: 2.7, Ea0: 6260.0 cal/mol, w: 1e9 cal/mol}
 ```
 
 (sec-yaml-two-temperature-plasma)=
@@ -262,9 +276,9 @@ Includes the fields of an [`elementary`](sec-yaml-elementary) reaction, except t
 Example:
 
 ```yaml
-equation: O + H => O + H
-type: two-temperature-plasma
-rate-constant: {A: 17283, b: -3.1, Ea-gas: -5820 J/mol, Ea-electron: 1081 J/mol}
+- equation: O + H => O + H
+  type: two-temperature-plasma
+  rate-constant: {A: 17283, b: -3.1, Ea-gas: -5820 J/mol, Ea-electron: 1081 J/mol}
 ```
 
 (sec-yaml-electron-collision-plasma)=
@@ -281,6 +295,15 @@ parameters are specified using the following additional fields in the reaction e
 `cross-sections`
 : A list of collision cross sections [m²] for the reaction at the specified energy
   levels.
+
+Example:
+
+```yaml
+- equation: O2 + e => e + e + O2+
+  type: electron-collision-plasma
+  energy-levels: [13.0, 15.5, 18, 23]
+  cross-sections: [1.17e-22, 7.3e-22, 1.64e-21, 3.66e-21]
+```
 
 :::{versionadded} 3.1
 :::
@@ -315,14 +338,20 @@ Includes field for specifying {ref}`efficiencies <sec-yaml-efficiencies>` as wel
 : Parameters for the [Tsang](sec-tsang-falloff) falloff function. A mapping containing
   the keys `A` and `B`. The default value for `B` is 0.0.
 
-Example:
+Examples:
 
 ```yaml
-equation: H + CH2 (+ N2) <=> CH3 (+N2)
-type: falloff
-high-P-rate-constant: [6.00000E+14 cm^3/mol/s, 0, 0]
-low-P-rate-constant: {A: 1.04000E+26 cm^6/mol^2/s, b: -2.76, Ea: 1600}
-Troe: {A: 0.562, T3: 91, T1: 5836}
+- equation: H + CH2 (+ N2) <=> CH3 (+N2)
+  type: falloff
+  high-P-rate-constant: [6.00000E+14 cm^3/mol/s, 0, 0]
+  low-P-rate-constant: {A: 1.04000E+26 cm^6/mol^2/s, b: -2.76, Ea: 1600}
+  Troe: {A: 0.562, T3: 91, T1: 5836}
+- equation: O + CO (+M) <=> CO2 (+M)
+  type: falloff  # Lindemann form since no additional falloff function parameters given
+  low-P-rate-constant: {A: 6.02e+14, b: 0.0, Ea: 3000.0}
+  high-P-rate-constant: {A: 1.8e+10, b: 0.0, Ea: 2385.0}
+  efficiencies: {H2: 2.0, O2: 6.0, H2O: 6.0, CH4: 2.0, CO: 1.5, CO2: 3.5,
+    C2H6: 3.0, AR: 0.5}
 ```
 
 (sec-yaml-chemically-activated)=
@@ -335,10 +364,10 @@ The parameters are the same as for {ref}`sec-yaml-falloff` reactions.
 Example:
 
 ```yaml
-equation: CH3 + OH (+M) <=> CH2O + H2 (+M)
-type: chemically-activated
-high-P-rate-constant: [5.88E-14, 6.721, -3022.227]
-low-P-rate-constant: [282320.078, 1.46878, -3270.56495]
+- equation: CH3 + OH (+M) <=> CH2O + H2 (+M)
+  type: chemically-activated
+  high-P-rate-constant: [5.88E-14, 6.721, -3022.227]
+  low-P-rate-constant: [282320.078, 1.46878, -3270.56495]
 ```
 
 (sec-yaml-pressure-dependent-arrhenius)=
@@ -356,13 +385,13 @@ The only additional field in this reaction type is:
 Example:
 
 ```yaml
-equation: H + CH4 <=> H2 + CH3
-type: pressure-dependent-Arrhenius
-rate-constants:
-- {P: 0.039474 atm, A: 2.720000e+09 cm^3/mol/s, b: 1.2, Ea: 6834.0}
-- {P: 1.0 atm, A: 1.260000e+20, b: -1.83, Ea: 15003.0}
-- {P: 1.0 atm, A: 1.230000e+04, b: 2.68, Ea: 6335.0}
-- {P: 1.01325 MPa, A: 1.680000e+16, b: -0.6, Ea: 14754.0}
+- equation: H + CH4 <=> H2 + CH3
+  type: pressure-dependent-Arrhenius
+  rate-constants:
+  - {P: 0.039474 atm, A: 2.720000e+09 cm^3/mol/s, b: 1.2, Ea: 6834.0}
+  - {P: 1.0 atm, A: 1.260000e+20, b: -1.83, Ea: 15003.0}
+  - {P: 1.0 atm, A: 1.230000e+04, b: 2.68, Ea: 6335.0}
+  - {P: 1.01325 MPa, A: 1.680000e+16, b: -0.6, Ea: 14754.0}
 ```
 
 (sec-yaml-chebyshev)=
@@ -387,16 +416,16 @@ Additional fields are:
 Example:
 
 ```yaml
-equation: CH4 <=> CH3 + H
-type: Chebyshev
-temperature-range: [290, 3000]
-pressure-range: [0.0098692326671601278 atm, 98.692326671601279 atm]
-data: [[-1.44280e+01,  2.59970e-01, -2.24320e-02, -2.78700e-03],
-       [ 2.20630e+01,  4.88090e-01, -3.96430e-02, -5.48110e-03],
-       [-2.32940e-01,  4.01900e-01, -2.60730e-02, -5.04860e-03],
-       [-2.93660e-01,  2.85680e-01, -9.33730e-03, -4.01020e-03],
-       [-2.26210e-01,  1.69190e-01,  4.85810e-03, -2.38030e-03],
-       [-1.43220e-01,  7.71110e-02,  1.27080e-02, -6.41540e-04]]
+- equation: CH4 <=> CH3 + H
+  type: Chebyshev
+  temperature-range: [290, 3000]
+  pressure-range: [0.0098692326671601278 atm, 98.692326671601279 atm]
+  data: [[-1.44280e+01,  2.59970e-01, -2.24320e-02, -2.78700e-03],
+         [ 2.20630e+01,  4.88090e-01, -3.96430e-02, -5.48110e-03],
+         [-2.32940e-01,  4.01900e-01, -2.60730e-02, -5.04860e-03],
+         [-2.93660e-01,  2.85680e-01, -9.33730e-03, -4.01020e-03],
+         [-2.26210e-01,  1.69190e-01,  4.85810e-03, -2.38030e-03],
+         [-1.43220e-01,  7.71110e-02,  1.27080e-02, -6.41540e-04]]
 ```
 
 (sec-yaml-linear-burke)=
@@ -469,77 +498,77 @@ Examples:
 `linear-Burke` *rate with Troe format for the reference collider (N2)*:
 
 ```yaml
-equation: H + OH <=> H2O
-type: linear-Burke
-colliders:
-- name: M
-  type: falloff
-  low-P-rate-constant: {A: 4.530000e+21, b: -1.820309e+00, Ea: 4.987000e+02}
-  high-P-rate-constant: {A: 2.510000e+13, b: 2.329303e-01, Ea: -1.142000e+02}
-  Troe: {A: 9.995044e-01, T3: 1.0e-30, T1: 1.0e+30}
-- name: AR
-  efficiency: {A: 2.20621e-02, b: 4.74036e-01, Ea: -1.13148e+02}
-- name: H2O
-  efficiency: {A: 1.04529e-01, b: 5.50787e-01, Ea: -2.32675e+02}
+- equation: H + OH <=> H2O
+  type: linear-Burke
+  colliders:
+  - name: M
+    type: falloff
+    low-P-rate-constant: {A: 4.530000e+21, b: -1.820309e+00, Ea: 4.987000e+02}
+    high-P-rate-constant: {A: 2.510000e+13, b: 2.329303e-01, Ea: -1.142000e+02}
+    Troe: {A: 9.995044e-01, T3: 1.0e-30, T1: 1.0e+30}
+  - name: AR
+    efficiency: {A: 2.20621e-02, b: 4.74036e-01, Ea: -1.13148e+02}
+  - name: H2O
+    efficiency: {A: 1.04529e-01, b: 5.50787e-01, Ea: -2.32675e+02}
 ```
 
 `linear-Burke` *rate with PLOG format for the reference collider (Ar)*:
 
 ```yaml
-equation: H + O2 (+M) <=> HO2 (+M) # Adding '(+M)' is optional
-type: linear-Burke
-colliders:
-- name: M
-  type: pressure-dependent-Arrhenius
-  rate-constants:
-  - {P: 1.316e-02 atm, A: 9.39968e+14, b: -2.14348e+00, Ea: 7.72730e+01}
-  - {P: 1.316e-01 atm, A: 1.07254e+16, b: -2.15999e+00, Ea: 1.30239e+02}
-  - {P: 3.947e-01 atm, A: 3.17830e+16, b: -2.15813e+00, Ea: 1.66994e+02}
-  - {P: 1.000e+00 atm, A: 7.72584e+16, b: -2.15195e+00, Ea: 2.13473e+02}
-  - {P: 3.000e+00 atm, A: 2.11688e+17, b: -2.14062e+00, Ea: 2.79031e+02}
-  - {P: 1.000e+01 atm, A: 6.53093e+17, b: -2.13213e+00, Ea: 3.87493e+02}
-  - {P: 3.000e+01 atm, A: 1.49784e+18, b: -2.10026e+00, Ea: 4.87579e+02}
-  - {P: 1.000e+02 atm, A: 3.82218e+18, b: -2.07057e+00, Ea: 6.65984e+02}
-- name: HE
-  efficiency: {A: 3.37601e-01, b: 1.82568e-01, Ea: 3.62408e+01}
-- name: N2
-  efficiency: {A: 1.24932e+02, b: -5.93263e-01, Ea: 5.40921e+02}
-- name: H2
-  efficiency: {A: 3.13717e+04, b: -1.25419e+00, Ea: 1.12924e+03}
-- name: CO2
-  efficiency: {A: 1.62413e+08, b: -2.27622e+00, Ea: 1.97023e+03}
-- name: NH3
-  efficiency: {A: 4.97750e+00, b: 1.64855e-01, Ea: -2.80351e+02}
-- name: H2O
-  efficiency: {A: 3.69146e+01, b: -7.12902e-02, Ea: 3.19087e+01}
+- equation: H + O2 (+M) <=> HO2 (+M) # Adding '(+M)' is optional
+  type: linear-Burke
+  colliders:
+  - name: M
+    type: pressure-dependent-Arrhenius
+    rate-constants:
+    - {P: 1.316e-02 atm, A: 9.39968e+14, b: -2.14348e+00, Ea: 7.72730e+01}
+    - {P: 1.316e-01 atm, A: 1.07254e+16, b: -2.15999e+00, Ea: 1.30239e+02}
+    - {P: 3.947e-01 atm, A: 3.17830e+16, b: -2.15813e+00, Ea: 1.66994e+02}
+    - {P: 1.000e+00 atm, A: 7.72584e+16, b: -2.15195e+00, Ea: 2.13473e+02}
+    - {P: 3.000e+00 atm, A: 2.11688e+17, b: -2.14062e+00, Ea: 2.79031e+02}
+    - {P: 1.000e+01 atm, A: 6.53093e+17, b: -2.13213e+00, Ea: 3.87493e+02}
+    - {P: 3.000e+01 atm, A: 1.49784e+18, b: -2.10026e+00, Ea: 4.87579e+02}
+    - {P: 1.000e+02 atm, A: 3.82218e+18, b: -2.07057e+00, Ea: 6.65984e+02}
+  - name: HE
+    efficiency: {A: 3.37601e-01, b: 1.82568e-01, Ea: 3.62408e+01}
+  - name: N2
+    efficiency: {A: 1.24932e+02, b: -5.93263e-01, Ea: 5.40921e+02}
+  - name: H2
+    efficiency: {A: 3.13717e+04, b: -1.25419e+00, Ea: 1.12924e+03}
+  - name: CO2
+    efficiency: {A: 1.62413e+08, b: -2.27622e+00, Ea: 1.97023e+03}
+  - name: NH3
+    efficiency: {A: 4.97750e+00, b: 1.64855e-01, Ea: -2.80351e+02}
+  - name: H2O
+    efficiency: {A: 3.69146e+01, b: -7.12902e-02, Ea: 3.19087e+01}
 ```
 
 `linear-Burke` *rate with Chebyshev format for the reference collider (Ar)*:
 
 ```yaml
-equation: H2O2 <=> 2 OH
-type: linear-Burke
-colliders:
-- name: M
-  type: Chebyshev
-  temperature-range: [200.0, 2000.0]
-  pressure-range: [1.000e-01 atm, 1.000e+02 atm]
-  data:
-  - [-1.58e+01, 8.71e-01, -9.44e-02, -2.81e-03, -4.48e-04, 1.58e-03, -2.51e-04]
-  - [2.32e+01, 5.27e-01, 2.89e-02, -5.46e-03, 7.08e-04, -3.03e-03, 7.81e-04]
-  - [-3.80e-01, 8.63e-02, 4.03e-02, -7.23e-03, 5.76e-04, 2.79e-03, -1.49e-03]
-  - [-1.48e-01, -7.18e-03, 2.21e-02, 6.23e-03, -5.98e-03, -8.22e-06, 1.92e-03]
-  - [-6.06e-02, -1.42e-02, 1.34e-03, 9.62e-03, 1.70e-03, -3.65e-03, -4.32e-04]
-  - [-2.46e-02, -9.71e-03, -5.88e-03, 3.05e-03, 5.87e-03, 1.50e-03, -2.01e-03]
-  - [-1.54e-02, -5.24e-03, -6.91e-03, -5.94e-03, -1.22e-03, 2.17e-03, 1.59e-03]
-- name: N2
-  efficiency: {A: 1.14813e+00, b: 4.60090e-02, Ea: -2.92413e+00}
-- name: CO2
-  efficiency: {A: 8.98839e+01, b: -4.27974e-01, Ea: 2.41392e+02}
-- name: H2O2
-  efficiency: {A: 6.45295e-01, b: 4.26266e-01, Ea: 4.28932e+01}
-- name: H2O
-  efficiency: {A: 1.36377e+00, b: 3.06592e-01, Ea: 2.10079e+02}
+- equation: H2O2 <=> 2 OH
+  type: linear-Burke
+  colliders:
+  - name: M
+    type: Chebyshev
+    temperature-range: [200.0, 2000.0]
+    pressure-range: [1.000e-01 atm, 1.000e+02 atm]
+    data:
+    - [-1.58e+01, 8.71e-01, -9.44e-02, -2.81e-03, -4.48e-04, 1.58e-03, -2.51e-04]
+    - [2.32e+01, 5.27e-01, 2.89e-02, -5.46e-03, 7.08e-04, -3.03e-03, 7.81e-04]
+    - [-3.80e-01, 8.63e-02, 4.03e-02, -7.23e-03, 5.76e-04, 2.79e-03, -1.49e-03]
+    - [-1.48e-01, -7.18e-03, 2.21e-02, 6.23e-03, -5.98e-03, -8.22e-06, 1.92e-03]
+    - [-6.06e-02, -1.42e-02, 1.34e-03, 9.62e-03, 1.70e-03, -3.65e-03, -4.32e-04]
+    - [-2.46e-02, -9.71e-03, -5.88e-03, 3.05e-03, 5.87e-03, 1.50e-03, -2.01e-03]
+    - [-1.54e-02, -5.24e-03, -6.91e-03, -5.94e-03, -1.22e-03, 2.17e-03, 1.59e-03]
+  - name: N2
+    efficiency: {A: 1.14813e+00, b: 4.60090e-02, Ea: -2.92413e+00}
+  - name: CO2
+    efficiency: {A: 8.98839e+01, b: -4.27974e-01, Ea: 2.41392e+02}
+  - name: H2O2
+    efficiency: {A: 6.45295e-01, b: 4.26266e-01, Ea: 4.28932e+01}
+  - name: H2O
+    efficiency: {A: 1.36377e+00, b: 3.06592e-01, Ea: 2.10079e+02}
 ```
 
 (sec-yaml-interface-arrhenius)=
@@ -581,7 +610,7 @@ Examples:
 - equation: 2 O(S) => O2 + 2 Pt(S)
   rate-constant: {A: 3.7e+21, b: 0, Ea: 213200 J/mol}
   coverage-dependencies: {O(S): {a: 0.0, m: 0.0,
-    E: [1.0e3 J/mol, 3.0e3 J/mol , -7.0e4 J/mol , 5.0e3 J/mol]}
+    E: [1.0e3 J/mol, 3.0e3 J/mol , -7.0e4 J/mol , 5.0e3 J/mol]}}
 
 - equation: CH4 + PT(S) + O(S) => CH3(S) + OH(S)
   rate-constant: {A: 5.0e+18, b: 0.7, Ea: 4.2e+04}
@@ -605,10 +634,10 @@ constant.
 Example:
 
 ```yaml
-equation: 2 H(s) => H2 + 2 Pt(s)
-type: Blowers-Masel
-rate-constant: {A: 3.7e21 cm^2/mol/s, b: 0, Ea0: 67400 J/mol, w: 1000000 J/mol}
-coverage-dependencies: {H(s): {a: 0, m: 0, E: -6000 J/mol}}
+- equation: 2 H(s) => H2 + 2 Pt(s)
+  type: Blowers-Masel
+  rate-constant: {A: 3.7e21 cm^2/mol/s, b: 0, Ea0: 67400 J/mol, w: 1000000 J/mol}
+  coverage-dependencies: {H(s): {a: 0, m: 0, E: -6000 J/mol}}
 ```
 
 (sec-yaml-sticking-arrhenius)=
@@ -633,8 +662,8 @@ Includes the fields of an [](sec-yaml-interface-Arrhenius) reaction plus:
 Example:
 
 ```yaml
-equation: OH + PT(S) => OH(S)
-sticking-coefficient: {A: 1.0, b: 0, Ea: 0}
+- equation: OH + PT(S) => OH(S)
+  sticking-coefficient: {A: 1.0, b: 0, Ea: 0}
 ```
 
 (sec-yaml-sticking-blowers-masel)=
@@ -647,10 +676,10 @@ for the sticking coefficient.
 Example:
 
 ```yaml
-equation: OH + PT(S) => OH(S)
-type: Blowers-Masel
-sticking-coefficient: {A: 1.0, b: 0, Ea0: 0, w: 100000}
-Motz-Wise: true
+- equation: OH + PT(S) => OH(S)
+  type: Blowers-Masel
+  sticking-coefficient: {A: 1.0, b: 0, Ea0: 0, w: 100000}
+  Motz-Wise: true
 ```
 
 (sec-yaml-electrochemical-reaction)=
@@ -671,7 +700,7 @@ Includes the fields of an [](sec-yaml-interface-Arrhenius) reaction, plus:
 Example:
 
 ```yaml
-equation: LiC6 <=> Li+(e) + C6
-rate-constant: [5.74, 0.0, 0.0]
-beta: 0.4
+- equation: LiC6 <=> Li+(e) + C6
+  rate-constant: [5.74, 0.0, 0.0]
+  beta: 0.4
 ```

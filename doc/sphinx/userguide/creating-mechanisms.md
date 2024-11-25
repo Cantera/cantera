@@ -513,10 +513,14 @@ The number of atoms of an element must be non-negative, except for electrons.
 Examples:
 
 ```yaml
-composition: {C: 1, O: 2}  # carbon dioxide
-composition: {Ar: 1, E: -2}  # Ar++
-composition: {Y: 1, Ba: 2, Cu: 3, O: 6.5}  # stoichiometric YBCO
-composition: {}  # A surface species representing an empty site
+- name: CO2
+  composition: {C: 1, O: 2}  # carbon dioxide
+- name: Ar++
+  composition: {Ar: 1, E: -2}  # Ar++
+- name: YBCO
+  composition: {Y: 1, Ba: 2, Cu: 3, O: 6.5}  # stoichiometric YBCO
+- name: (s)
+  composition: {}  # A surface species representing an empty site
 ```
 
 ### Thermodynamic Properties
@@ -533,14 +537,16 @@ An example `thermo` field using the 7-coefficient NASA polynomials in two temper
 regions:
 
 ```yaml
-thermo:
-  model: NASA7
-  temperature-ranges: [200.0, 1000.0, 3500.0]
-  data:
-  - [5.14987613, -0.0136709788, 4.91800599e-05, -4.84743026e-08, 1.66693956e-11,
-    -1.02466476e+04, -4.64130376]
-  - [0.074851495, 0.0133909467, -5.73285809e-06, 1.22292535e-09, -1.0181523e-13,
-    -9468.34459, 18.437318]
+- name: CH4
+  composition: {C: 1, H: 4}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 3500.0]
+    data:
+    - [5.14987613, -0.0136709788, 4.91800599e-05, -4.84743026e-08, 1.66693956e-11,
+      -1.02466476e+04, -4.64130376]
+    - [0.074851495, 0.0133909467, -5.73285809e-06, 1.22292535e-09, -1.0181523e-13,
+      -9468.34459, 18.437318]
 ```
 
 ### Species Equation of State
@@ -551,6 +557,21 @@ of each `species` entry, with the type of parameterization used specified by the
 field of the `equation-of-state` field. A
 [complete list of equation of state parameterizations](sec-yaml-species-eos) and their
 model-specific fields can be found in the YAML Input File Reference.
+
+An example species definition including coefficients for the Redlich-Kwong real gas
+model:
+
+```yaml
+- name: c12h26
+  composition: {C: 12, H: 26}
+  thermo:
+    model: NASA7
+    ...
+  equation-of-state:
+    model: Redlich-Kwong
+    a: [1.80382e+14, 0]
+    b: 259.6081315
+```
 
 (sec-yaml-guide-species-transport)=
 ### Species Transport Coefficients
@@ -563,16 +584,21 @@ parameters used depend on the transport model specified at the phase level. The 
 of possible parameters is described in the {ref}`API documentation
 <sec-yaml-species-transport>`.
 
-An example of a `transport` entry for a gas-phase species:
+An example of a species definition with a gas-phase `transport` entry:
 
 ```yaml
-transport:
-  model: gas
-  geometry: linear
-  well-depth: 107.4
-  diameter: 3.458
-  polarizability: 1.6
-  rotational-relaxation: 3.8
+- name: O2
+  composition: {O: 2}
+  thermo:
+    model: NASA7
+    ...
+  transport:
+    model: gas
+    geometry: linear
+    well-depth: 107.4
+    diameter: 3.458
+    polarizability: 1.6
+    rotational-relaxation: 3.8
 ```
 
 (sec-yaml-guide-reactions)=
@@ -619,6 +645,11 @@ treated as [`interface-Blowers-Masel`](sec-yaml-interface-Blowers-Masel), and re
 involving charge transfer are automatically identified as
 [`electrochemical`](sec-yaml-electrochemical-reaction) reactions.
 
+:::{seealso}
+See the [reference documentation](sec-yaml-rate-types) for examples of reactions using
+each of the reaction rate parameterizations supported by Cantera.
+:::
+
 ### Arrhenius Expressions
 
 Most reaction types in Cantera are parameterized by one or more modified Arrhenius
@@ -651,6 +682,32 @@ by the non-dimensional quantity $[T/(1\;\t{K})]^b$.
 
 The key `E` is used to specify $E_a$.
 
+The following examples show some reaction definitions making use of Arrhenius and
+Arrhenius-like rate parameterizations:
+
+```yaml
+- equation: H2 + O <=> H + OH
+  rate-constant: {A: 5.08e+04, b: 2.67, Ea: 6292.0}
+- equation: H2O2 (+ M) <=> OH + OH (+ M)
+  type: falloff
+  low-P-rate-constant: {A: 2.49e+24, b: -2.3, Ea: 4.8749e+04}
+  high-P-rate-constant: {A: 2.0e+12, b: 0.9, Ea: 4.8749e+04}
+  Troe: {A: 0.43, T3: 1.0e-30, T1: 1.0e+30}
+  efficiencies: {CO2: 1.6, CO: 2.8, H2O2: 7.7, H2: 3.7, H2O: 7.65, N2: 1.5,
+    O2: 1.2, HE: 0.65}
+- equation: CH3 + OH <=> CH2(S) + H2O
+  type: pressure-dependent-Arrhenius
+  rate-constants:
+  - {P: 0.01 atm, A: 4.936e+14, b: -0.669, Ea: -445.8}
+  - {P: 0.1 atm, A: 1.207e+15, b: -0.778, Ea: -175.6}
+  - {P: 1.0 atm, A: 5.282e+17, b: -1.518, Ea: 1772.0}
+  - {P: 10.0 atm, A: 4.788e+23, b: -3.155, Ea: 7003.0}
+  - {P: 100.0 atm, A: 8.433e+19, b: -1.962, Ea: 8244.0}
+- equation: E + O2 + O2 => O2- + O2
+  type: two-temperature-plasma
+  rate-constant: {A: 4.2e-27, b: -1.0, Ea-gas: 600, Ea-electron: 700}
+```
+
 (sec-yaml-reaction-options)=
 ### Duplicate Reactions
 
@@ -666,25 +723,38 @@ $$  k_f(T) = \sum_{n=1}^{N} A_n T^{b_n} \exp(-E_n/RT)  $$
 
 While Cantera does not provide such a form for reaction rates, it can be implemented by
 defining $N$ duplicate reactions, and assigning one rate coefficient in the sum to each
-reaction. By adding the field:
+reaction. By adding the field **`duplicate: true`** to a reaction entry, then the
+reaction not only *may* have a duplicate, it *must*. Any reaction that specifies that it
+is a duplicate, but cannot be paired with another reaction in the phase that qualifies
+as its duplicate generates an error. The following defines a pair of duplicate
+reactions:
 
 ```yaml
-duplicate: true
+- equation: OH + HO2 <=> O2 + H2O
+  duplicate: true
+  rate-constant: {A: 1.45e+13, b: 0.0, Ea: -500.0}
+- equation: OH + H2O2 <=> HO2 + H2O
+  duplicate: true
+  rate-constant: {A: 2.0e+12, b: 0.0, Ea: 427.0}
 ```
-
-to a reaction entry, then the reaction not only *may* have a duplicate, it *must*. Any
-reaction that specifies that it is a duplicate, but cannot be paired with another
-reaction in the phase that qualifies as its duplicate generates an error.
 
 ### Negative Pre-exponential Factors
 
 If some of the terms in the above sum have negative $A_n$, this scheme fails, since
 Cantera normally does not allow negative pre-exponential factors. But if there are
 duplicate reactions such that the total rate is positive, then the fact that negative
-$A$ parameters are acceptable can be indicated by adding the field:
+$A$ parameters are acceptable can be indicated by adding the field
+**`negative-A: true`**. For example, consider the following pair of duplicate rates with
+one negative rate:
 
 ```yaml
-negative-A: true
+- equation: NH2 + NO2 <=> H2NO + NO
+  duplicate: true
+  rate-constant: {A: 1.1e+12, b: 0.11, Ea: -1186.0}
+- equation: NH2 + NO2 <=> H2NO + NO
+  duplicate: true
+  rate-constant: {A: -4.3e+17, b: -1.874, Ea: 588.0}
+  negative-A: true
 ```
 
 ### Reaction Orders

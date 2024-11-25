@@ -228,6 +228,9 @@ thermo:
 (sec-yaml-species-crit-props)=
 ## Species critical state parameters
 
+Properties characterizing the critical state of a species can be represented as fields
+of a `critical-parameters` entry:
+
 `critical-temperature`
 : The critical temperature of the species [K]
 
@@ -237,8 +240,20 @@ thermo:
 `acentric-factor`
 : Pitzer's acentric factor $\omega$ [-]
 
+Example:
+```yaml
+critical-parameters:
+  critical-temperature: 32.938
+  critical-pressure: 1.2858 MPa
+  acentric-factor: -0.22
+```
+
 (sec-yaml-species-eos)=
 ## Species equation of state models
+
+Species-specific parameters used in the equation of state are defined in the
+`equation-of-state` entry, which defines the `model` field as well as additional
+model-specific fields.
 
 `model`
 : String specifying the model to be used. Required. Supported model strings are:
@@ -346,6 +361,15 @@ Additional fields:
 `data`
 : Vector of 4 coefficients for a cubic polynomial in temperature
 
+Example:
+
+```yaml
+equation-of-state:
+  model: molar-volume-temperature-polynomial
+  data: [0.536504 cm^3/mol, -1.04279e-4 cm^3/mol/K, 3.84825e-9 cm^3/mol/K^2,
+         -5.2853e-12 cm^3/mol/K^3]
+```
+
 (sec-yaml-eos-peng-robinson)=
 ### Peng-Robinson
 
@@ -399,6 +423,17 @@ Additional fields:
 `binary-a`
 : Mapping where the keys are species and the values are the `a` coefficients for binary
   interactions between the two species.
+
+Example:
+
+```yaml
+equation-of-state:
+  model: Redlich-Kwong
+  a: [6.45714e+12, 0]
+  b: 29.65792
+  binary-a:
+    H2O: [7.897e+12, 0]
+```
 
 (sec-yaml-species-transport)=
 ## Species transport models
