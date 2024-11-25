@@ -17,3 +17,14 @@ The fields of an `element` entry are:
 
 `entropy298`
 : The standard molar entropy of the element at 298.15 K. Optional.
+
+An example `elements` section:
+
+```yaml
+elements:
+- symbol: C13
+  atomic-weight: 13.003354826
+  atomic-number: 6
+- symbol: O-18
+  atomic-weight: 17.9991603
+```

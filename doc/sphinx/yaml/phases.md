@@ -231,6 +231,23 @@ Includes the fields of [](sec-yaml-ideal-condensed), plus:
   `molar-volume`
   : The molar volume of the phase at these mole fractions. This input is optional.
 
+```yaml
+- name: graphite-anode
+  thermo: binary-solution-tabulated
+  species: ["Li[anode]", "V[anode]"]
+  standard-concentration-basis: unity
+  tabulated-species: Li[anode]
+  units: {energy: J, quantity: mol, pressure: atm}
+  tabulated-thermo:
+    mole-fractions: [5.75000E-03, 1.25841E-01, 2.45932E-01, 3.66023E-01,
+      4.86114E-01, 6.06205E-01, 7.26295E-01]
+    enthalpy: [-6.40692E+04, -9.69664E+03, -8.31339E+03, -7.69063E+03,
+      -3.94568E+03, -2.01329E+03, -1.59649E+03]
+    entropy: [3.05724E+01, 2.53501E+01, 1.27000E+01, 1.21865E+01, 1.70474E+01,
+      1.92980E+01, 1.92885E+01]
+  state: {T: 300, P: 1, X: {"Li[anode]": 0.3, "V[anode]": 0.7}}
+```
+
 :::{versionadded} 2.5
 :::
 
@@ -248,8 +265,10 @@ Additional fields:
 Example:
 
 ```yaml
-thermo: compound-lattice
-composition: {Li7Si3(s): 1.0, Li7Si3-interstitial: 1.0}
+- name: Li7Si3_and_Interstitials(S)
+  elements: [Li, Si]
+  thermo: compound-lattice
+  composition: {Li7Si3(s): 1.0, Li7Si3-interstitial: 1.0}
 ```
 
 (sec-yaml-coverage-dependent-surface)=
@@ -332,19 +351,29 @@ in the `activity-data` field:
 Example:
 
 ```yaml
-thermo: Debye-Huckel
-activity-data:
-  model: beta_ij
-  max-ionic-strength: 3.0
-  use-Helgeson-fixed-form: true
-  default-ionic-radius: 3.042843 angstrom
-  beta:
-  - species: [H+, Cl-]
-    beta: 0.27
-  - species: [Na+, Cl-]
-    beta: 0.15
-  - species: [Na+, OH-]
-    beta: 0.06
+- name: debye-huckel-pitzer-beta_ij-IAPWS
+  species:
+  - water_IAPWS: [H2O(L)]
+  - species_waterSolution: [Na+, Cl-, H+, OH-, NaCl(aq), NaOH(aq)]
+  thermo: Debye-Huckel
+  activity-data:
+    model: Pitzer-with-beta_ij
+    A_Debye: variable
+    B_Debye: 3.28640E9 kg^0.5/gmol^0.5/m
+    default-ionic-radius: 3.042843 angstrom
+    max-ionic-strength: 3.0
+    beta:
+    - species: [H+, Cl-]
+      beta: 0.27
+    - species: [Na+, Cl-]
+      beta: 0.15
+    - species: [Na+, OH-]
+      beta: 0.06
+  state:
+    T: 300.0 K
+    P: 1.01325e+05 Pa
+    molalities: {Na+: 3.0, Cl-: 3.0, H+: 1.0499e-08, OH-: 1.3765e-06,
+                 NaCl(aq): 0.98492, NaOH(aq): 3.8836e-06}
 ```
 
 In addition, the Debye-Hückel model uses several species-specific properties which may
@@ -365,20 +394,21 @@ be defined in the `Debye-Huckel` field of the *species* entry. These properties 
 Example:
 
 ```yaml
-name: NaCl(aq)
-composition: {Na: 1, Cl: 1}
-thermo:
-  model: piecewise-Gibbs
-  h0: -96.03E3 cal/mol
-  dimensionless: true
-  data: {298.15: -174.5057463, 333.15: -174.5057463}
-equation-of-state:
-  model: constant-volume
-  molar-volume: 1.3
-Debye-Huckel:
-  ionic-radius: 4 angstrom
-  electrolyte-species-type: weak-acid-associated
-  weak-acid-charge: -1.0
+species:
+- name: NaCl(aq)
+  composition: {Na: 1, Cl: 1}
+  thermo:
+    model: piecewise-Gibbs
+    h0: -96.03E3 cal/mol
+    dimensionless: true
+    data: {298.15: -174.5057463, 333.15: -174.5057463}
+  equation-of-state:
+    model: constant-volume
+    molar-volume: 1.3
+  Debye-Huckel:
+    ionic-radius: 4 angstrom
+    electrolyte-species-type: weak-acid-associated
+    weak-acid-charge: -1.0
 ```
 
 (sec-yaml-edge)=
@@ -394,8 +424,15 @@ Additional fields:
 Example:
 
 ```yaml
-thermo: edge
-site-density: 5.0e-17 mol/cm
+- name: tpb
+  thermo: edge
+  adjacent-phases: [metal, metal_surface, oxide_surface]
+  elements: [H, O]
+  species: [(tpb)]
+  kinetics: edge
+  reactions: [tpb-reactions]
+  state: {T: 1073.15, coverages: {(tpb): 1.0}}
+  site-density: 5.0e-17 mol/cm
 ```
 
 (sec-yaml-electron-cloud)=
@@ -409,10 +446,32 @@ Additional fields:
 `density`
 : The density of the bulk metal
 
+Example:
+
+```yaml
+- name: metal
+  thermo: electron-cloud
+  elements: [E]
+  species: [electron]
+  state:
+    T: 1073.15
+    X: {electron: 1.0}
+  density: 9 g/cm^3
+```
+
 (sec-yaml-fixed-stoichiometry)=
 ### `fixed-stoichiometry`
 
 An incompressible phase with fixed composition, as {ct}`described here <StoichSubstance>`.
+
+Example:
+
+```yaml
+- name: diamond
+  thermo: fixed-stoichiometry
+  elements: [C]
+  species: [C(d)]
+```
 
 (sec-yaml-hmw-electrolyte)=
 ### `HMW-electrolyte`
@@ -504,34 +563,35 @@ Additional parameters for this model are contained in the `activity-data` field:
 Example:
 
 ```yaml
-thermo: HMW-electrolyte
-activity-data:
-  temperature-model: complex
-  A_Debye: 1.175930 kg^0.5/gmol^0.5
-  interactions:
-  - species: [Na+, Cl-]
-    beta0: [0.0765, 0.008946, -3.3158E-6, -777.03, -4.4706]
-    beta1: [0.2664, 6.1608E-5, 1.0715E-6, 0.0, 0.0]
-    beta2: [0.0, 0.0, 0.0, 0.0, 0.0]
-    Cphi: [0.00127, -4.655E-5, 0.0, 33.317, 0.09421]
-    alpha1: 2.0
-  - species: [H+, Cl-]
-    beta0: [0.1775]
-    beta1: [0.2945]
-    beta2: [0.0]
-    Cphi: [0.0008]
-    alpha1: 2.0
-  - species: [Na+, OH-]
-    beta0: 0.0864
-    beta1: 0.253
-    beta2: 0.0
-    Cphi: 0.0044
-    alpha1: 2.0
-    alpha2: 0.0
-  - {species: [Cl-, OH-], theta: -0.05}
-  - {species: [Na+, Cl-, OH-], psi: -0.006}
-  - {species: [Na+, H+], theta: 0.036}
-  - {species: [Cl-, Na+, H+], psi: [-0.004]}
+- name: NaCl_electrolyte
+  thermo: HMW-electrolyte
+  activity-data:
+    temperature-model: complex
+    A_Debye: 1.175930 kg^0.5/gmol^0.5
+    interactions:
+    - species: [Na+, Cl-]
+      beta0: [0.0765, 0.008946, -3.3158E-6, -777.03, -4.4706]
+      beta1: [0.2664, 6.1608E-5, 1.0715E-6, 0.0, 0.0]
+      beta2: [0.0, 0.0, 0.0, 0.0, 0.0]
+      Cphi: [0.00127, -4.655E-5, 0.0, 33.317, 0.09421]
+      alpha1: 2.0
+    - species: [H+, Cl-]
+      beta0: [0.1775]
+      beta1: [0.2945]
+      beta2: [0.0]
+      Cphi: [0.0008]
+      alpha1: 2.0
+    - species: [Na+, OH-]
+      beta0: 0.0864
+      beta1: 0.253
+      beta2: 0.0
+      Cphi: 0.0044
+      alpha1: 2.0
+      alpha2: 0.0
+    - {species: [Cl-, OH-], theta: -0.05}
+    - {species: [Na+, Cl-, OH-], psi: -0.006}
+    - {species: [Na+, H+], theta: 0.036}
+    - {species: [Cl-, Na+, H+], psi: [-0.004]}
 ```
 
 (sec-yaml-ideal-gas)=
@@ -544,7 +604,6 @@ Example:
 ```yaml
 - name: ohmech
   thermo: ideal-gas
-  elements: [O, H, Ar, N]
   species: [H2, H, O, O2, OH, H2O, HO2, H2O2, AR, N2]
   kinetics: gas
   transport: mixture-averaged
@@ -592,16 +651,21 @@ Additional fields:
 Example:
 
 ```yaml
-thermo: ideal-molal-solution
-standard-concentration-basis: solvent-molar-volume
-cutoff:
-  model: polyexp
-  gamma_o: 0.0001
-  gamma_k: 10.0
-  X_o: 0.2
-  c_0: 0.05
-  slope_f: 0.6
-  slope_g: 0.0
+- name: NaCl_electrolyte
+  species: [H2O(L), Cl-, H+, Na+, OH-]
+  thermo: ideal-molal-solution
+  standard-concentration-basis: solvent-molar-volume
+  cutoff:
+    model: polyexp
+    gamma_o: 0.0001
+    gamma_k: 10.0
+    X_o: 0.2
+    c_0: 0.05
+    slope_f: 0.6
+    slope_g: 0.0
+  state: {T: 298.15 K, P: 1.01325e+05 Pa,
+          molalities: {Na+: 6.0954, Cl-: 6.0954, H+: 2.1628e-09, OH-: 1.3977e-06}}
+
 ```
 
 (sec-yaml-ideal-condensed)=
@@ -615,6 +679,18 @@ Additional fields:
 : A string specifying the basis for the standard concentration. One of
   `unity`, `species-molar-volume`, or `solvent-molar-volume`.
 
+Example:
+
+```yaml
+- name: electrolyte
+  thermo: ideal-condensed
+  species: ['C3H4O3[elyt]', 'C4H6O3[elyt]', 'Li+[elyt]', 'PF6-[elyt]']
+  state:
+    X: {'C3H4O3[elyt]': 0.47901, 'C4H6O3[elyt]': 0.37563, 'Li+[elyt]': 0.07268,
+        'PF6-[elyt]': 0.07268}
+  standard-concentration-basis: unity
+```
+
 (sec-yaml-ideal-solution-vpss)=
 ### `ideal-solution-VPSS`
 
@@ -626,6 +702,15 @@ Additional fields:
 `standard-concentration-basis`
 : A string specifying the basis for the standard concentration. One of
   `unity`, `species-molar-volume`, or `solvent-molar-volume`.
+
+Example:
+
+```yaml
+- name: NaCl_electrolyte
+  species: [H2O(L), Na+, Cl-, H+, OH-]
+  thermo: ideal-solution-VPSS
+  standard-concentration-basis: solvent-molar-volume
+```
 
 (sec-yaml-ideal-surface)=
 ### `ideal-surface`
@@ -665,11 +750,30 @@ Additional fields:
 `site-density`
 : The molar density of lattice sites
 
+Example:
+
+```yaml
+- name: oxide_bulk
+  thermo: lattice
+  species: [Ox, VO**]
+  state: {T: 1073.15, P: 1.01325e+05, X: {Ox: 0.95, VO**: 0.05}}
+  site-density: 0.0176 mol/cm^3
+```
+
 (sec-yaml-liquid-water-iapws95)=
 ### `liquid-water-IAPWS95`
 
 An implementation of the IAPWS95 equation of state for water {cite:p}`wagner2002`, for
 the liquid region only as {ct}`described here <WaterSSTP>`.
+
+Example:
+
+```yaml
+- name: liquid-water-IAPWS95
+  species: [H2O]
+  thermo: liquid-water-IAPWS95
+  state: {T: 300.0, P: 1.01325e+05}
+```
 
 (sec-yaml-margules)=
 ### `Margules`
@@ -704,11 +808,13 @@ Additional fields:
 Example:
 
 ```yaml
-thermo: Margules
-interactions:
-- species: [KCl(l), LiCl(l)]
-  excess-enthalpy: [-17570, -377]
-  excess-entropy: [-7.627, 4.958]
+- name: MoltenSalt_electrolyte
+  species: [LiCl(L), KCl(L)]
+  thermo: Margules
+  interactions:
+  - species: [KCl(L), LiCl(L)]
+    excess-enthalpy: [-17570. J/gmol, -377 J/gmol]
+    excess-entropy: [-7.627 J/gmol/K, 4.958 J/gmol/K]
 ```
 
 (sec-yaml-peng-robinson)=
@@ -719,6 +825,16 @@ A multi-species real gas following the Peng-Robinson equation of state, as
 
 The parameters for each species are contained in the corresponding species
 entries. See [Peng-Robinson species equation of state](sec-yaml-eos-peng-robinson).
+
+Example:
+
+```yaml
+- name: CO2-PR
+  species: [CO2, H2O, H2, CO, CH4, O2, N2]
+  thermo: Peng-Robinson
+  kinetics: bulk
+  state: {T: 300, P: 1 atm, mole-fractions: {CO2: 0.99, H2: 0.01}}
+```
 
 :::{versionadded} 3.0
 :::
@@ -811,6 +927,16 @@ Additional fields:
   - `oxygen`
   - `water`
 
+Example:
+
+```yaml
+- name: carbon-dioxide
+  thermo: pure-fluid
+  species: [CO2]
+  state: {T: 280.0, P: 1.01325e+05}
+  pure-fluid-name: carbon-dioxide
+```
+
 (sec-yaml-redlich-kister)=
 ### `Redlich-Kister`
 
@@ -836,13 +962,14 @@ Additional fields:
 Example:
 
 ```yaml
-thermo: Redlich-Kister
-interactions:
-- species: [Li(C6), V(C6)]
-  excess-enthalpy: [-3.268e+06, 3.955e+06, -4.573e+06, 6.147e+06, -3.339e+06,
-                    1.117e+07, 2.997e+05, -4.866e+07, 1.362e+05, 1.373e+08,
-                    -2.129e+07, -1.722e+08, 3.956e+07, 9.302e+07, -3.280e+07]
-  excess-entropy: [0.0]
+- name: LiC6_and_Vacancies
+  thermo: Redlich-Kister
+  interactions:
+  - species: [Li(C6), V(C6)]
+    excess-enthalpy: [-3.268e+06, 3.955e+06, -4.573e+06, 6.147e+06, -3.339e+06,
+                      1.117e+07, 2.997e+05, -4.866e+07, 1.362e+05, 1.373e+08,
+                      -2.129e+07, -1.722e+08, 3.956e+07, 9.302e+07, -3.280e+07]
+    excess-entropy: [0.0]
 ```
 
 (sec-yaml-redlich-kwong)=
