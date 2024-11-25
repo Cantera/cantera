@@ -17,6 +17,86 @@ See the [](input-tutorial) for an introduction to the YAML syntax used by Canter
 a description of how dimensional values are handled.
 ```
 
+## General File Structure
+
+The top level of a Cantera [YAML](https://yaml.org/spec/1.2/spec.html#Introduction)
+input file is a mapping, which typically includes several keys providing relevant
+metadata followed by several sections that provide definitions for
+[phases](sec-yaml-guide-phases), [species](sec-yaml-guide-species), and
+[reactions](sec-yaml-guide-reactions). In case input data is provided in a unit system
+other than Cantera's default, a [`units`](sec-yaml-units) mapping can be provided. The
+following is a typical, abbreviated input file (a subset of the `h2o2.yaml` input file
+included with Cantera):
+
+```yaml
+description: |-
+  Hydrogen-Oxygen submechanism extracted from GRI-Mech 3.0.
+  Modified from the original to include N2.
+
+  Redlich-Kwong coefficients are based on tabulated critical properties or estimated
+  according to the method of Joback and Reid, "Estimation of pure-component properties
+  from group-contributions," Chem. Eng. Comm. 57 (1987) 233-243.
+
+generator: ck2yaml
+input-files: [h2o2.inp, gri30_tran.dat]
+cantera-version: 2.5.0
+date: Wed, 11 Dec 2019 16:59:04 -0500
+
+units: {length: cm, time: s, quantity: mol, activation-energy: cal/mol}
+
+phases:
+- name: ohmech
+  thermo: ideal-gas
+  species: [H2, O2, OH]
+  kinetics: gas
+  state: {T: 300.0, P: 1 atm}
+
+- name: ohmech-RK
+  thermo: Redlich-Kwong
+  species: [H2, O2, OH]
+  kinetics: gas
+  state: {T: 300.0, P: 1 atm}
+
+species:
+- name: O2
+  composition: {O: 2}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 3500.0]
+    data:
+    - [3.78245636, -2.99673416e-03, 9.84730201e-06, -9.68129509e-09, 3.24372837e-12,
+      -1063.94356, 3.65767573]
+    - [3.28253784, 1.48308754e-03, -7.57966669e-07, 2.09470555e-10, -2.16717794e-14,
+      -1088.45772, 5.45323129]
+    note: TPIS89
+  equation-of-state:
+    model: Redlich-Kwong
+    a: 1.74102e+12
+    b: 22.08100907
+- name: O
+  composition: {O: 1}
+  thermo:
+    model: NASA7
+    temperature-ranges: [200.0, 1000.0, 3500.0]
+    data:
+    - [3.1682671, -3.27931884e-03, 6.64306396e-06, -6.12806624e-09, 2.11265971e-12,
+      2.91222592e+04, 2.05193346]
+    - [2.56942078, -8.59741137e-05, 4.19484589e-08, -1.00177799e-11, 1.22833691e-15,
+      2.92175791e+04, 4.78433864]
+    note: L1/90
+  equation-of-state:
+    model: Redlich-Kwong
+    a: 4.74173e+11
+    b: 10.69952492
+
+reactions:
+- equation: 2 O + M <=> O2 + M  # Reaction 1
+  type: three-body
+  rate-constant: {A: 1.2e+17, b: -1.0, Ea: 0.0}
+  efficiencies: {H2: 2.4, H2O: 15.4, AR: 0.83}
+```
+
+(sec-yaml-guide-phases)=
 ## Phases
 
 For each phase that appears in a problem, a corresponding entry should be present in the
