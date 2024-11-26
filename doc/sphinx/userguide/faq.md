@@ -41,6 +41,9 @@ There are a few sites that distribute mechanisms in the Cantera YAML format:
 - [CollectionOfMechanisms](https://github.com/jiweiqi/CollectionOfMechanisms) is a
   user-maintained GitHub repository of mechanisms that have been obtained from
   scientific publications and other sources.
+- Stanford University provides the
+  [Foundational Fuel Chemistry Model Version 2.0](https://web.stanford.edu/group/haiwanglab/FFCM2/)
+  (FFCM-2) for combustion of H₂, CO, CH₂O, and C₁-C₄ hydrocarbons.
 
 Many research groups maintain pages with mechanisms they developed, provided in the
   Chemkin format. These mechanisms can be converted to the Cantera YAML format using the
