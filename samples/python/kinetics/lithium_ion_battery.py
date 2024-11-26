@@ -159,7 +159,8 @@ print(f"Runnning Cantera version: {ct.__version__}")
 # ~~~~~~~~~~~~~~~~~
 #
 # The phase thermodynamics are defined according to experimentally-measured open circuit
-# voltage values, as described in the reference provided above
+# voltage values, as described in the reference provided above. These values are stored
+# in the input file :doc:`lithium_ion_battery.yaml <../../input/lithium_ion_battery>`.
 
 input_file = "../data/lithium_ion_battery.yaml"
 anode = ct.Solution(input_file, "anode")

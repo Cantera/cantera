@@ -3,9 +3,10 @@ Growth of diamond film using CVD
 ================================
 
 This example computes the growth rate of a diamond film according to a simplified
-version of a particular published growth mechanism (see file ``diamond.yaml`` for
-details). Only the surface coverage equations are solved here; the gas composition is
-fixed. (For an example of coupled gas-phase and surface, see
+version of a particular published growth mechanism (see
+:doc:`diamond.yaml <../../input/diamond>` for details). Only the surface coverage
+equations are solved here; the gas composition is fixed. (For an example of coupled
+gas-phase and surface, see
 :doc:`catalytic_combustion.py <../onedim/catalytic_combustion>`.) Atomic hydrogen plays
 an important role in diamond CVD, and this example computes the growth rate and surface
 coverages as a function of [H] at the surface for fixed temperature and [CH3].

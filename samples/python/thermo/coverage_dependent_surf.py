@@ -5,7 +5,8 @@ Surface with coverage-dependent thermo
 This example demonstrates (1) the four different dependency models available
 for coverage-dependent enthalpy and entropy calculations and (2) capability
 of including self-interaction but also cross-interaction among different
-surface species.
+surface species. See the input file :doc:`covdepsurf.yaml <../../input/covdepsurf>`
+for the method of defining the coverage-dependency parameters.
 
 First demonstration is with a binary system composed of Pt and CO* where Pt
 is vacant Pt sites and CO* is CO adsorbates with CO*-CO* lateral interaction.
