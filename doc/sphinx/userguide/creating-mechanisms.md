@@ -15,6 +15,9 @@ phases and interfaces for use in Cantera simulations.
 ```{seealso}
 See the [](input-tutorial) for an introduction to the YAML syntax used by Cantera and
 a description of how dimensional values are handled.
+
+See the [](../examples/input/index) for several complete YAML input files demonstrating
+a variety of thermodynamic and reaction parameterizations.
 ```
 
 ## General File Structure

@@ -7,7 +7,8 @@
 % modeled using the :ct:`BinarySolutionTabulatedThermo` class.
 % Further required cell parameters are the electrolyte ionic resistance,
 % the stoichiometry ranges of the active materials (electrode balancing),
-% and the surface area of the active materials.
+% and the surface area of the active materials. These values are stored in the input
+% file :doc:`lithium_ion_battery.yaml <../input/lithium_ion_battery>`.
 %
 % The functionality of this example is presented in greater detail in the
 % reference (which also describes the derivation of the
