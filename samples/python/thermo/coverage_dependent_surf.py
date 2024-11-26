@@ -29,7 +29,9 @@ import cantera as ct
 import numpy as np
 import matplotlib.pyplot as plt
 
-# first demonstration: the four coverage dependency models
+# %%
+# First demonstration: the four coverage dependency models
+# --------------------------------------------------------
 
 # provide discrete enthalpy and entropy values calculated with DFT
 # array of CO* coverage
@@ -72,33 +74,35 @@ for model in models_dict:
         models_dict[model]['hrt'].append(phase.standard_enthalpies_RT[i_CO])
         models_dict[model]['sr'].append(phase.standard_entropies_R[i_CO])
 
-# plot coverage-dependent enthalpy against DFT-derived enthalpy data
-plt.plot(dft_covs, dft_hrts, marker='o', color='k', linewidth=0,
-         label='DFT data')
+# %%
+# Plot coverage-dependent enthalpy against DFT-derived enthalpy data
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+fig, ax = plt.subplots()
+ax.plot(dft_covs, dft_hrts, marker='o', color='k', linewidth=0, label='DFT data')
 for model in models_dict:
-    plt.plot(CO_covs, models_dict[model]['hrt'], label=model)
-plt.xlabel(r'$\theta_\mathrm{CO*}$')
-plt.ylabel(r'$h^{\circ}_\mathrm{CO*}/\mathrm{R}T$')
-plt.legend(loc='best')
-plt.title('CO* standard state enthalpy\n'
-           + 'with four dependency models at 300 K, 1 atm')
+    ax.plot(CO_covs, models_dict[model]['hrt'], label=model)
+ax.set(xlabel=r'$\theta_\mathrm{CO*}$')
+ax.set(ylabel=r'$h^{\circ}_\mathrm{CO*}/\mathrm{R}T$')
+ax.legend(loc='best')
+ax.set_title('CO* standard state enthalpy\nwith four dependency models at 300 K, 1 atm')
 plt.show()
-plt.clf()
 
-# plot coverage-dependent entropy against DFT-derived enthalpy data
-plt.plot(dft_covs, dft_srs, marker='o', color='k', linewidth=0,
-         label='DFT data')
+# %%
+# Plot coverage-dependent entropy against DFT-derived enthalpy data
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+fig, ax = plt.subplots()
+ax.plot(dft_covs, dft_srs, marker='o', color='k', linewidth=0, label='DFT data')
 for model in models_dict:
-    plt.plot(CO_covs, models_dict[model]['sr'], label=model)
-plt.xlabel(r'$\theta_\mathrm{CO*}$')
-plt.ylabel(r'$s^{\circ}_\mathrm{CO*}/\mathrm{R}$')
-plt.legend(loc='best')
-plt.title('CO* standard state entropy\n'
-          + 'with four dependency models at 300 K, 1 atm')
+    ax.plot(CO_covs, models_dict[model]['sr'], label=model)
+ax.set(xlabel=r'$\theta_\mathrm{CO*}$')
+ax.set(ylabel=r'$s^{\circ}_\mathrm{CO*}/\mathrm{R}$')
+ax.legend(loc='best')
+ax.set_title('CO* standard state entropy\nwith four dependency models at 300 K, 1 atm')
 plt.show()
-plt.clf()
 
-# second demonstration: coverage dependence from self- and cross-interaction
+# %%
+# Second demonstration: coverage dependence from self- and cross-interaction
+# --------------------------------------------------------------------------
 
 # import a phase with both types of lateral interactions
 phase = ct.Interface('example_data/covdepsurf.yaml', 'covdep_cross')
@@ -117,15 +121,16 @@ for i, CO_cov in enumerate(covs):
         phase.coverages = [1. - CO_cov - O_cov, CO_cov, O_cov]
         CO_hrts[i,j] = phase.standard_enthalpies_RT[i_CO]
 
-# plot the enthalpy matrix
-cntr = plt.contourf(covs, covs, CO_hrts,
-                    levels=np.linspace(-120, -50, 71),
-                    cmap='inferno')
+# %%
+# Plot the enthalpy matrix
+# ~~~~~~~~~~~~~~~~~~~~~~~~
+fig, ax = plt.subplots()
+cntr = ax.contourf(covs, covs, CO_hrts,
+                   levels=np.linspace(-120, -50, 71),
+                   cmap='inferno')
 
-plt.xlabel(r'$\theta_\mathrm{CO*}$')
-plt.ylabel(r'$\theta_\mathrm{O*}$')
-cbar = plt.colorbar(cntr)
+ax.set(xlabel=r'$\theta_\mathrm{CO*}$', ylabel=r'$\theta_\mathrm{O*}$')
+cbar = fig.colorbar(cntr)
 cbar.ax.set_ylabel(r'$h^{\circ}_\mathrm{CO*}/\mathrm{R}T$')
-plt.title('CO* standard state enthalpy\n'
-          + 'with CO*$-$CO* and CO*$-$O* interactions')
+ax.set_title('CO* standard state enthalpy\nwith CO*$-$CO* and CO*$-$O* interactions')
 plt.show()
