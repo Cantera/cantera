@@ -38,7 +38,9 @@ are:
 `skip-undeclared-elements`
 : If set to `true`, do not add species that contain elements that are not explicitly
   included in the phase. The default is `false`, where the presence of such species is
-  considered an error.
+  considered an error. Filtering of reactions is controlled by the `declared-species`
+  option in the [](sec-yaml-phase-reactions) entry and the
+  `skip-undeclared-third-bodies` flag.
 
 `skip-undeclared-third-bodies`
 : If set to `true`, ignore third body efficiencies for species that are not defined in
@@ -111,6 +113,7 @@ are:
   - `surface` ({ct}`details <InterfaceKinetics>`)
   - `edge` ({ct}`details <EdgeKinetics>`)
 
+(sec-yaml-phase-reactions)=
 `reactions`
 : Source of reactions to include in the phase, if a kinetics model has been specified.
   This can be:

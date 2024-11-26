@@ -225,6 +225,24 @@ phases:
   ...
 ```
 
+In cases where the element restriction is also being used to select a subset of
+reactions, it is usually necessary to use the `declared-species` option and the
+`skip-undeclared-third-bodies` flag as well:
+
+```yaml
+phases:
+- name: gas
+  thermo: ideal-gas
+  elements: [O, H, N]
+  species:
+  - gri30.yaml/species: all
+  skip-undeclared-elements: true
+  skip-undeclared-third-bodies: true
+  kinetics: bulk
+  reactions:
+  - gri30.yaml/reactions: declared-species
+```
+
 ### Setting the Kinetics Model
 
 The kinetics model to be used, if any, is specified in the `kinetics` field. Supported
