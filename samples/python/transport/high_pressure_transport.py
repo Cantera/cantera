@@ -43,8 +43,10 @@ nist_thermal_conductivities = np.array([
     0.085705, 0.086573, 0.087431, 0.088282, 0.089124, 0.089959, 0.090787, 0.091607,
     0.092421, 0.093228, 0.094029, 0.094824, 0.095612, 0.096395, 0.097172, 0.097944])
 
-# Create the gas object using a subset of the gri30 mechanism for the methane-co2
-# system
+# %%
+# Create the gas object for the methane-CO2 system using reference state thermo from
+# the gri30 mechanism, species critical properties from `critical-properties.yaml`,
+# and the Peng-Robinson equation of state.
 phasedef = """
   phases:
   - name: methane_co2
