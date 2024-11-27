@@ -142,6 +142,8 @@ are:
   - `none`
   - `high-pressure`: A model for high-pressure gas transport properties based on a
     method of corresponding states ({ct}`details <HighPressureGasTransport>`)
+  - `high-pressure-Chung`: A model for high-pressure gas transport properties based on
+    the method of Chung ({ct}`details <ChungHighPressureGasTransport>`)
   - `ionized-gas`: A model implementing the Stockmayer-(n,6,4) model for transport of
     ions in a gas ({ct}`details <IonGasTransport>`)
   - `mixture-averaged`: The mixture-averaged transport model for ideal gases
