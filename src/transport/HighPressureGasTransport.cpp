@@ -103,6 +103,7 @@ void HighPressureGasTransport::init(ThermoPhase* thermo, int mode, int log_level
 {
     MixTransport::init(thermo, mode, log_level);
     initializeCriticalProperties();
+    m_P_corr_ij.resize(m_nsp, m_nsp);
 }
 
 void HighPressureGasTransport::getTransportData()
@@ -185,7 +186,8 @@ double HighPressureGasTransport::thermalConductivity()
     const double f_int = 1.32;
 
     // Pure-species model parameters
-    vector<double> Lambda_1_i(m_nsp); // Internal contribution to thermal conductivity (lamba'')
+    // Internal contribution to thermal conductivity (lamba'')
+    vector<double> Lambda_1_i(m_nsp);
     vector<double> f_i(m_nsp);
     vector<double> h_i(m_nsp);
     vector<double> V_k(m_nsp);
@@ -195,8 +197,9 @@ double HighPressureGasTransport::thermalConductivity()
         // Calculate variables for density-independent component, Equation 1,
         // the equation requires the pure-species viscosity estimate from
         // Ely and Hanley.
-        double mu_i = elyHanleyDilutePureSpeciesViscosity(V_k[i], Tcrit_i(i), Vcrit_i(i),
-                                                          Zcrit_i(i), m_w_ac[i], m_mw[i]);
+        double mu_i = elyHanleyDilutePureSpeciesViscosity(V_k[i], Tcrit_i(i),
+                                                          Vcrit_i(i), Zcrit_i(i),
+                                                          m_w_ac[i], m_mw[i]);
 
         // This is the internal contribution to the thermal conductivity of
         // pure-species component, i, from Equation 1 in ely-hanley1983
@@ -276,8 +279,8 @@ double HighPressureGasTransport::thermalConductivity()
     return Lambda_1_m + Lambda_2_m;
 }
 
-double HighPressureGasTransport::elyHanleyDilutePureSpeciesViscosity(double V, double Tc, double Vc,
-    double Zc, double acentric_factor, double mw)
+double HighPressureGasTransport::elyHanleyDilutePureSpeciesViscosity(double V,
+    double Tc, double Vc, double Zc, double acentric_factor, double mw)
 {
     double Tr = m_thermo->temperature() / Tc;
     double Vr = V / Vc;
@@ -291,7 +294,9 @@ double HighPressureGasTransport::elyHanleyDilutePureSpeciesViscosity(double V, d
     // Dilute reference fluid viscosity correlation, from Table III in
     // ely-hanley1981
     double mu_0 = elyHanleyDiluteReferenceViscosity(T_0);
-    double F = sqrt(f_fac*(mw/m_ref_MW))*pow(h_fac,-2.0/3.0); // Equation 2, ely-hanley1981
+
+    // Equation 2, ely-hanley1981
+    double F = sqrt(f_fac*(mw/m_ref_MW))*pow(h_fac,-2.0/3.0);
 
     return mu_0*F;
 }
@@ -365,28 +370,15 @@ double HighPressureGasTransport::elyHanleyReferenceThermalConductivity(double rh
     const vector<double> a = {-7.197708227, 8.5678222640e1, 1.2471834689e1,
                               -9.8462522975e2, 3.5946850007e-1, 6.9798412538e1,
                               -8.7288332851e2};
-    double delta_lambda_ref = exp(a[0] + a[1]/T0) * (exp((a[2] + a[3]*pow(T0,-1.5))*pow(rho0,0.1) + (rho0/m_ref_rhoc - 1)
-                *sqrt(rho0)*(a[4] + a[5]/T0 + a[6]*pow(T0,-2))) - 1.0);
+    double delta_lambda_ref = exp(a[0] + a[1]/T0)
+                              * (exp((a[2] + a[3]*pow(T0,-1.5))*pow(rho0,0.1)
+                              + (rho0/m_ref_rhoc - 1)*sqrt(rho0)*(a[4] + a[5]/T0
+                              + a[6]*pow(T0,-2))) - 1.0);
 
     return Lambda_ref_star + (Lambda_ref_1 + delta_lambda_ref)*correlation_factor;
 }
 
-
-void HighPressureGasTransport::getBinaryDiffCoeffs(const size_t ld, double* const d)
-{
-    update_C();
-    update_T();
-    // If necessary, evaluate the binary diffusion coefficients from the polynomial
-    // fits
-    if (!m_bindiff_ok) {
-        updateDiff_T();
-    }
-    if (ld < m_nsp) {
-        throw CanteraError("HighPressureGasTransport::getBinaryDiffCoeffs",
-                           "ld is too small");
-    }
-
-    double rp = 1.0/m_thermo->pressure();
+void HighPressureGasTransport::updateCorrectionFactors() {
     for (size_t i = 0; i < m_nsp; i++) {
         for (size_t j = 0; j < m_nsp; j++) {
             // Add an offset to avoid a condition where x_i and x_j both equal
@@ -412,9 +404,32 @@ void HighPressureGasTransport::getBinaryDiffCoeffs(const size_t ld, double* cons
             if (P_corr_ij<0) {
                 P_corr_ij = Tiny;
             }
+            m_P_corr_ij(i, j) = P_corr_ij;
+        }
+    }
+}
+
+void HighPressureGasTransport::getBinaryDiffCoeffs(const size_t ld, double* const d)
+{
+    update_C();
+    update_T();
+    updateCorrectionFactors();
+    // If necessary, evaluate the binary diffusion coefficients from the polynomial
+    // fits
+    if (!m_bindiff_ok) {
+        updateDiff_T();
+    }
+    if (ld < m_nsp) {
+        throw CanteraError("HighPressureGasTransport::getBinaryDiffCoeffs",
+                           "ld is too small");
+    }
+
+    double rp = 1.0/m_thermo->pressure();
+    for (size_t i = 0; i < m_nsp; i++) {
+        for (size_t j = 0; j < m_nsp; j++) {
             // Multiply the standard low-pressure binary diffusion coefficient
             // (m_bdiff) by the Takahashi correction factor P_corr_ij.
-            d[ld*j + i] = P_corr_ij*(rp * m_bdiff(i,j));
+            d[ld*j + i] = m_P_corr_ij(i,j)*(rp * m_bdiff(i,j));
         }
     }
 }
@@ -423,6 +438,7 @@ void HighPressureGasTransport::getMixDiffCoeffs(double* const d)
 {
     update_T();
     update_C();
+    updateCorrectionFactors();
 
     // update the binary diffusion coefficients if necessary
     if (!m_bindiff_ok) {
@@ -432,36 +448,17 @@ void HighPressureGasTransport::getMixDiffCoeffs(double* const d)
     double mmw = m_thermo->meanMolecularWeight();
     double p = m_thermo->pressure();
     if (m_nsp == 1) {
-        double P_corr = takahashiCorrectionFactor( p/Pcrit_i(0), m_temp/Tcrit_i(0));
-        d[0] = P_corr*m_bdiff(0,0) / p;
+        d[0] = m_P_corr_ij(0,0)*m_bdiff(0,0) / p;
     } else {
         for (size_t i = 0; i < m_nsp; i++) {
             double sum2 = 0.0;
             for (size_t j = 0; j < m_nsp; j++) {
                 if (j != i) {
-                    // Add an offset to avoid a condition where x_i and x_j both equal
-                    // zero (this would lead to Pr_ij = Inf).
-                    double x_i = std::max(Tiny, m_molefracs[i]);
-                    double x_j = std::max(Tiny, m_molefracs[j]);
-
-                    // Weight mole fractions of i and j so that X_i + X_j = 1.0.
-                    double sum_x_ij = x_i + x_j;
-                    x_i = x_i/(sum_x_ij);
-                    x_j = x_j/(sum_x_ij);
-
-                    // Calculate Tr and Pr based on mole-fraction-weighted critical constants.
-                    double Tr_ij = m_temp/(x_i*Tcrit_i(i) + x_j*Tcrit_i(j));
-                    double Pr_ij = p/(x_i*Pcrit_i(i) + x_j*Pcrit_i(j));
-
-                    // Calculate the parameters for Takahashi correlation
-                    double P_corr_ij;
-                    P_corr_ij = takahashiCorrectionFactor(Pr_ij, Tr_ij);
-                    sum2 += m_molefracs[j] / (P_corr_ij*m_bdiff(j,i));
+                    sum2 += m_molefracs[j] / (m_P_corr_ij(i,j)*m_bdiff(j,i));
                 }
             }
             if (sum2 <= 0.0) {
-                double P_corr = takahashiCorrectionFactor( p/Pcrit_i(i), m_temp/Tcrit_i(i));
-                d[i] = P_corr*m_bdiff(i,i) / p;
+                d[i] = m_P_corr_ij(i,i)*m_bdiff(i,i) / p;
             } else {
                 d[i] = (mmw - m_molefracs[i] * m_mw[i])/(p * mmw * sum2);
             }
@@ -473,6 +470,7 @@ void HighPressureGasTransport::getMixDiffCoeffsMole(double* const d)
 {
     update_T();
     update_C();
+    updateCorrectionFactors();
 
     // update the binary diffusion coefficients if necessary
     if (!m_bindiff_ok) {
@@ -481,36 +479,17 @@ void HighPressureGasTransport::getMixDiffCoeffsMole(double* const d)
 
     double p = m_thermo->pressure();
     if (m_nsp == 1) {
-        double P_corr = takahashiCorrectionFactor( p/Pcrit_i(0), m_temp/Tcrit_i(0));
-        d[0] = P_corr*m_bdiff(0,0) / p;
+        d[0] = m_P_corr_ij(0,0)*m_bdiff(0,0) / p;
     } else {
         for (size_t i = 0; i < m_nsp; i++) {
             double sum2 = 0.0;
             for (size_t j = 0; j < m_nsp; j++) {
                 if (j != i) {
-                    // Add an offset to avoid a condition where x_i and x_j both equal
-                    // zero (this would lead to Pr_ij = Inf).
-                    double x_i = std::max(Tiny, m_molefracs[i]);
-                    double x_j = std::max(Tiny, m_molefracs[j]);
-
-                    // Weight mole fractions of i and j so that X_i + X_j = 1.0.
-                    double sum_x_ij = x_i + x_j;
-                    x_i = x_i/(sum_x_ij);
-                    x_j = x_j/(sum_x_ij);
-
-                    // Calculate Tr and Pr based on mole-fraction-weighted critical constants.
-                    double Tr_ij = m_temp/(x_i*Tcrit_i(i) + x_j*Tcrit_i(j));
-                    double Pr_ij = p/(x_i*Pcrit_i(i) + x_j*Pcrit_i(j));
-
-                    // Calculate the parameters for Takahashi correlation
-                    double P_corr_ij;
-                    P_corr_ij = takahashiCorrectionFactor(Pr_ij, Tr_ij);
-                    sum2 += m_molefracs[j] / (P_corr_ij*m_bdiff(j,i));
+                    sum2 += m_molefracs[j] / (m_P_corr_ij(i,j)*m_bdiff(j,i));
                 }
             }
             if (sum2 <= 0.0) {
-                double P_corr = takahashiCorrectionFactor( p/Pcrit_i(i), m_temp/Tcrit_i(i));
-                d[i] = P_corr*m_bdiff(i,i) / p;
+                d[i] = m_P_corr_ij(i,i)*m_bdiff(i,i) / p;
             } else {
                 d[i] = (1 - m_molefracs[i]) / (p * sum2);
             }
@@ -522,6 +501,7 @@ void HighPressureGasTransport::getMixDiffCoeffsMass(double* const d)
 {
     update_T();
     update_C();
+    updateCorrectionFactors();
 
     // update the binary diffusion coefficients if necessary
     if (!m_bindiff_ok) {
@@ -532,8 +512,7 @@ void HighPressureGasTransport::getMixDiffCoeffsMass(double* const d)
     double p = m_thermo->pressure();
 
     if (m_nsp == 1) {
-        double P_corr = takahashiCorrectionFactor( p/Pcrit_i(0), m_temp/Tcrit_i(0));
-        d[0] = P_corr*m_bdiff(0,0) / p;
+        d[0] = m_P_corr_ij(0,0)*m_bdiff(0,0) / p;
     } else {
         for (size_t i=0; i<m_nsp; i++) {
             double sum1 = 0.0;
@@ -542,25 +521,8 @@ void HighPressureGasTransport::getMixDiffCoeffsMass(double* const d)
                 if (j==i) {
                     continue;
                 }
-                // Add an offset to avoid a condition where x_i and x_j both equal
-                // zero (this would lead to Pr_ij = Inf).
-                double x_i = std::max(Tiny, m_molefracs[i]);
-                double x_j = std::max(Tiny, m_molefracs[j]);
-
-                // Weight mole fractions of i and j so that X_i + X_j = 1.0.
-                double sum_x_ij = x_i + x_j;
-                x_i = x_i/(sum_x_ij);
-                x_j = x_j/(sum_x_ij);
-
-                // Calculate Tr and Pr based on mole-fraction-weighted critical constants.
-                double Tr_ij = m_temp/(x_i*Tcrit_i(i) + x_j*Tcrit_i(j));
-                double Pr_ij = p/(x_i*Pcrit_i(i) + x_j*Pcrit_i(j));
-
-                // Calculate the parameters for Takahashi correlation
-                double P_corr_ij;
-                P_corr_ij = takahashiCorrectionFactor(Pr_ij, Tr_ij);
-                sum1 += m_molefracs[j] / (P_corr_ij*m_bdiff(i,j));
-                sum2 += m_molefracs[j] * m_mw[j] / (P_corr_ij*m_bdiff(i,j));
+                sum1 += m_molefracs[j] / (m_P_corr_ij(i,j)*m_bdiff(i,j));
+                sum2 += m_molefracs[j] * m_mw[j] / (m_P_corr_ij(i,j)*m_bdiff(i,j));
             }
             sum1 *= p;
             sum2 *= p * m_molefracs[i] / (mmw - m_mw[i]*m_molefracs[i]);
@@ -721,8 +683,8 @@ double HighPressureGasTransport::lowPressureNondimensionalViscosity(
 double HighPressureGasTransport::highPressureNondimensionalViscosity(
     double Tr, double Pr, double FP_low, double FQ_low, double P_vap, double P_crit)
 {
-
-    double Z_1 = lowPressureNondimensionalViscosity(Tr, FP_low, FQ_low); // This is η_0*ξ
+    // This is η_0*ξ
+    double Z_1 = lowPressureNondimensionalViscosity(Tr, FP_low, FQ_low);
 
     double Z_2;
     if (Tr <= 1.0) {
@@ -785,20 +747,23 @@ double HighPressureGasTransport::highPressureNondimensionalViscosity(
     return Z_2 * FP * FQ;
 }
 
-double HighPressureGasTransport::quantumCorrectionFactor(double Q, double Tr, double MW)
+double HighPressureGasTransport::quantumCorrectionFactor(double Q, double Tr,
+                                                         double MW)
 {
     return 1.22*pow(Q,0.15)*(1 + 0.00385*pow(pow(Tr - 12.0, 2.0), 1.0/MW)
                              *sign(Tr - 12.0));
 }
 
-double HighPressureGasTransport::polarityCorrectionFactor(double mu_r, double Tr, double Z_crit)
+double HighPressureGasTransport::polarityCorrectionFactor(double mu_r, double Tr,
+                                                          double Z_crit)
 {
     if (mu_r < 0.022) {
         return 1;
     } else if (mu_r < 0.075) {
         return 1 + 30.55*pow(max(0.292 - Z_crit,0.0), 1.72);
     } else {
-        return 1 + 30.55*pow(max(0.292 - Z_crit, 0.0), 1.72)*fabs(0.96 + 0.1*(Tr - 0.7));
+        return 1 + 30.55*pow(max(0.292 - Z_crit, 0.0), 1.72)
+               *fabs(0.96 + 0.1*(Tr - 0.7));
     }
 }
 
@@ -810,6 +775,7 @@ void ChungHighPressureGasTransport::init(ThermoPhase* thermo, int mode, int log_
     MixTransport::init(thermo, mode, log_level);
     initializeCriticalProperties();
     initializePureFluidProperties();
+    m_P_corr_ij.resize(m_nsp, m_nsp);
 }
 
 void ChungHighPressureGasTransport::getTransportData()
@@ -906,21 +872,7 @@ void ChungHighPressureGasTransport::initializePureFluidProperties()
     }
 }
 
-void ChungHighPressureGasTransport::getBinaryDiffCoeffs(const size_t ld, double* const d)
-{
-    update_C();
-    update_T();
-    // If necessary, evaluate the binary diffusion coefficients from the polynomial
-    // fits
-    if (!m_bindiff_ok) {
-        updateDiff_T();
-    }
-    if (ld < m_nsp) {
-        throw CanteraError("ChungHighPressureGasTransport::getBinaryDiffCoeffs",
-                           "ld is too small");
-    }
-
-    double rp = 1.0/m_thermo->pressure();
+void ChungHighPressureGasTransport::updateCorrectionFactors() {
     for (size_t i = 0; i < m_nsp; i++) {
         for (size_t j = 0; j < m_nsp; j++) {
             // Add an offset to avoid a condition where x_i and x_j both equal
@@ -946,9 +898,32 @@ void ChungHighPressureGasTransport::getBinaryDiffCoeffs(const size_t ld, double*
             if (P_corr_ij<0) {
                 P_corr_ij = Tiny;
             }
+            m_P_corr_ij(i, j) = P_corr_ij;
+        }
+    }
+}
+
+void ChungHighPressureGasTransport::getBinaryDiffCoeffs(const size_t ld, double* const d)
+{
+    update_C();
+    update_T();
+    updateCorrectionFactors();
+    // If necessary, evaluate the binary diffusion coefficients from the polynomial
+    // fits
+    if (!m_bindiff_ok) {
+        updateDiff_T();
+    }
+    if (ld < m_nsp) {
+        throw CanteraError("ChungHighPressureGasTransport::getBinaryDiffCoeffs",
+                           "ld is too small");
+    }
+
+    double rp = 1.0/m_thermo->pressure();
+    for (size_t i = 0; i < m_nsp; i++) {
+        for (size_t j = 0; j < m_nsp; j++) {
             // Multiply the standard low-pressure binary diffusion coefficient
             // (m_bdiff) by the Takahashi correction factor P_corr_ij.
-            d[ld*j + i] = P_corr_ij*(rp * m_bdiff(i,j));
+            d[ld*j + i] = m_P_corr_ij(i,j)*(rp * m_bdiff(i,j));
         }
     }
 }
@@ -957,6 +932,7 @@ void ChungHighPressureGasTransport::getMixDiffCoeffs(double* const d)
 {
     update_T();
     update_C();
+    updateCorrectionFactors();
 
     // update the binary diffusion coefficients if necessary
     if (!m_bindiff_ok) {
@@ -966,36 +942,17 @@ void ChungHighPressureGasTransport::getMixDiffCoeffs(double* const d)
     double mmw = m_thermo->meanMolecularWeight();
     double p = m_thermo->pressure();
     if (m_nsp == 1) {
-        double P_corr = takahashiCorrectionFactor( p/Pcrit_i(0), m_temp/Tcrit_i(0));
-        d[0] = P_corr*m_bdiff(0,0) / p;
+        d[0] = m_P_corr_ij(0,0)*m_bdiff(0,0) / p;
     } else {
         for (size_t i = 0; i < m_nsp; i++) {
             double sum2 = 0.0;
             for (size_t j = 0; j < m_nsp; j++) {
                 if (j != i) {
-                    // Add an offset to avoid a condition where x_i and x_j both equal
-                    // zero (this would lead to Pr_ij = Inf).
-                    double x_i = std::max(Tiny, m_molefracs[i]);
-                    double x_j = std::max(Tiny, m_molefracs[j]);
-
-                    // Weight mole fractions of i and j so that X_i + X_j = 1.0.
-                    double sum_x_ij = x_i + x_j;
-                    x_i = x_i/(sum_x_ij);
-                    x_j = x_j/(sum_x_ij);
-
-                    // Calculate Tr and Pr based on mole-fraction-weighted critical constants.
-                    double Tr_ij = m_temp/(x_i*Tcrit_i(i) + x_j*Tcrit_i(j));
-                    double Pr_ij = p/(x_i*Pcrit_i(i) + x_j*Pcrit_i(j));
-
-                    // Calculate the parameters for Takahashi correlation
-                    double P_corr_ij;
-                    P_corr_ij = takahashiCorrectionFactor(Pr_ij, Tr_ij);
-                    sum2 += m_molefracs[j] / (P_corr_ij*m_bdiff(j,i));
+                    sum2 += m_molefracs[j] / (m_P_corr_ij(i,j)*m_bdiff(j,i));
                 }
             }
             if (sum2 <= 0.0) {
-                double P_corr = takahashiCorrectionFactor( p/Pcrit_i(i), m_temp/Tcrit_i(i));
-                d[i] = P_corr*m_bdiff(i,i) / p;
+                d[i] = m_P_corr_ij(i,i)*m_bdiff(i,i) / p;
             } else {
                 d[i] = (mmw - m_molefracs[i] * m_mw[i])/(p * mmw * sum2);
             }
@@ -1007,6 +964,7 @@ void ChungHighPressureGasTransport::getMixDiffCoeffsMole(double* const d)
 {
     update_T();
     update_C();
+    updateCorrectionFactors();
 
     // update the binary diffusion coefficients if necessary
     if (!m_bindiff_ok) {
@@ -1015,36 +973,17 @@ void ChungHighPressureGasTransport::getMixDiffCoeffsMole(double* const d)
 
     double p = m_thermo->pressure();
     if (m_nsp == 1) {
-        double P_corr = takahashiCorrectionFactor( p/Pcrit_i(0), m_temp/Tcrit_i(0));
-        d[0] = P_corr*m_bdiff(0,0) / p;
+        d[0] = m_P_corr_ij(0,0)*m_bdiff(0,0) / p;
     } else {
         for (size_t i = 0; i < m_nsp; i++) {
             double sum2 = 0.0;
             for (size_t j = 0; j < m_nsp; j++) {
                 if (j != i) {
-                    // Add an offset to avoid a condition where x_i and x_j both equal
-                    // zero (this would lead to Pr_ij = Inf).
-                    double x_i = std::max(Tiny, m_molefracs[i]);
-                    double x_j = std::max(Tiny, m_molefracs[j]);
-
-                    // Weight mole fractions of i and j so that X_i + X_j = 1.0.
-                    double sum_x_ij = x_i + x_j;
-                    x_i = x_i/(sum_x_ij);
-                    x_j = x_j/(sum_x_ij);
-
-                    // Calculate Tr and Pr based on mole-fraction-weighted critical constants.
-                    double Tr_ij = m_temp/(x_i*Tcrit_i(i) + x_j*Tcrit_i(j));
-                    double Pr_ij = p/(x_i*Pcrit_i(i) + x_j*Pcrit_i(j));
-
-                    // Calculate the parameters for Takahashi correlation
-                    double P_corr_ij;
-                    P_corr_ij = takahashiCorrectionFactor(Pr_ij, Tr_ij);
-                    sum2 += m_molefracs[j] / (P_corr_ij*m_bdiff(j,i));
+                    sum2 += m_molefracs[j] / (m_P_corr_ij(i,j)*m_bdiff(j,i));
                 }
             }
             if (sum2 <= 0.0) {
-                double P_corr = takahashiCorrectionFactor( p/Pcrit_i(i), m_temp/Tcrit_i(i));
-                d[i] = P_corr*m_bdiff(i,i) / p;
+                d[i] = m_P_corr_ij(i,i)*m_bdiff(i,i) / p;
             } else {
                 d[i] = (1 - m_molefracs[i]) / (p * sum2);
             }
@@ -1056,6 +995,7 @@ void ChungHighPressureGasTransport::getMixDiffCoeffsMass(double* const d)
 {
     update_T();
     update_C();
+    updateCorrectionFactors();
 
     // update the binary diffusion coefficients if necessary
     if (!m_bindiff_ok) {
@@ -1066,8 +1006,7 @@ void ChungHighPressureGasTransport::getMixDiffCoeffsMass(double* const d)
     double p = m_thermo->pressure();
 
     if (m_nsp == 1) {
-        double P_corr = takahashiCorrectionFactor( p/Pcrit_i(0), m_temp/Tcrit_i(0));
-        d[0] = P_corr*m_bdiff(0,0) / p;
+        d[0] = m_P_corr_ij(0,0)*m_bdiff(0,0) / p;
     } else {
         for (size_t i=0; i<m_nsp; i++) {
             double sum1 = 0.0;
@@ -1076,25 +1015,8 @@ void ChungHighPressureGasTransport::getMixDiffCoeffsMass(double* const d)
                 if (j==i) {
                     continue;
                 }
-                // Add an offset to avoid a condition where x_i and x_j both equal
-                // zero (this would lead to Pr_ij = Inf).
-                double x_i = std::max(Tiny, m_molefracs[i]);
-                double x_j = std::max(Tiny, m_molefracs[j]);
-
-                // Weight mole fractions of i and j so that X_i + X_j = 1.0.
-                double sum_x_ij = x_i + x_j;
-                x_i = x_i/(sum_x_ij);
-                x_j = x_j/(sum_x_ij);
-
-                // Calculate Tr and Pr based on mole-fraction-weighted critical constants.
-                double Tr_ij = m_temp/(x_i*Tcrit_i(i) + x_j*Tcrit_i(j));
-                double Pr_ij = p/(x_i*Pcrit_i(i) + x_j*Pcrit_i(j));
-
-                // Calculate the parameters for Takahashi correlation
-                double P_corr_ij;
-                P_corr_ij = takahashiCorrectionFactor(Pr_ij, Tr_ij);
-                sum1 += m_molefracs[j] / (P_corr_ij*m_bdiff(i,j));
-                sum2 += m_molefracs[j] * m_mw[j] / (P_corr_ij*m_bdiff(i,j));
+                sum1 += m_molefracs[j] / (m_P_corr_ij(i,j)*m_bdiff(i,j));
+                sum2 += m_molefracs[j] * m_mw[j] / (m_P_corr_ij(i,j)*m_bdiff(i,j));
             }
             sum1 *= p;
             sum2 *= p * m_molefracs[i] / (mmw - m_mw[i]*m_molefracs[i]);
@@ -1113,8 +1035,9 @@ double ChungHighPressureGasTransport::thermalConductivity()
 
     // The density is required for high-pressure gases.
     // The Chung method requires density to be units of mol/cm^3
-    // We use the mixture molecular weight (units of kg/kmol).
-    double kg_per_m3_to_mol_per_cm3 = (1.0 / m_MW_mix)*1e-3; // 1 kmol/m^3 = 1e-3 mol/cm^3
+    // Use the mixture molecular weight (units of kg/kmol).
+    // 1 kmol/m^3 = 1e-3 mol/cm^3
+    double kg_per_m3_to_mol_per_cm3 = (1.0 / m_MW_mix)*1e-3;
     double density = m_thermo->density()*kg_per_m3_to_mol_per_cm3;
 
     // The value of Cv is already a mole-weighted average of the pure species values
@@ -1144,10 +1067,14 @@ double ChungHighPressureGasTransport::highPressureThermalConductivity(
 
     // Definition of tabulated coefficients for the Chung method, as shown in
     // Table 10-3 on page 10.23.
-    static const vector<double> a = {2.44166, -5.0924e-1, 6.6107, 1.4543e1, 7.9274e-1, -5.8634, 9.1089e1};
-    static const vector<double> b = {7.4824e-1, -1.5094, 5.6207, -8.9139, 8.2019e-1, 1.2801e1, 1.2811e2};
-    static const vector<double> c = {-9.1858e-1, -4.9991e1, 6.4760e1, -5.6379, -6.9369e-1, 9.5893, -5.4217e1};
-    static const vector<double> d = {1.2172e2, 6.9983e1, 2.7039e1, 7.4344e1, 6.3173, 6.5529e1, 5.2381e2};
+    static const vector<double> a = {2.44166, -5.0924e-1, 6.6107, 1.4543e1, 7.9274e-1,
+                                     -5.8634, 9.1089e1};
+    static const vector<double> b = {7.4824e-1, -1.5094, 5.6207, -8.9139, 8.2019e-1,
+                                     1.2801e1, 1.2811e2};
+    static const vector<double> c = {-9.1858e-1, -4.9991e1, 6.4760e1, -5.6379,
+                                     -6.9369e-1, 9.5893, -5.4217e1};
+    static const vector<double> d = {1.2172e2, 6.9983e1, 2.7039e1, 7.4344e1, 6.3173,
+                                     6.5529e1, 5.2381e2};
 
     // This is slightly pedantic, but this is done to have the naming convention in the
     // equations used match the variable names in the code. This is equation 10-5.9.
@@ -1196,8 +1123,9 @@ double ChungHighPressureGasTransport::viscosity()
 
     // The density is required for high-pressure gases.
     // The Chung method requires density to be units of mol/cm^3
-    // We use the mixture molecular weight (units of kg/kmol) here.
-    double kg_per_m3_to_mol_per_cm3 = (1.0 / m_MW_mix)*1e-3; // 1 kmol/m^3 = 1e-3 mol/cm^3
+    // Use the mixture molecular weight (units of kg/kmol) here.
+    // 1 kmol/m^3 = 1e-3 mol/cm^3
+    double kg_per_m3_to_mol_per_cm3 = (1.0 / m_MW_mix)*1e-3;
     double molar_density = m_thermo->density()*kg_per_m3_to_mol_per_cm3;
 
     // This result is in units of micropoise
@@ -1237,26 +1165,43 @@ void ChungHighPressureGasTransport::computeMixtureParameters()
     for (size_t i = 0; i < m_nsp; i++) {
         for (size_t j = 0; j <m_nsp; j++){
             double sigma_ij = sqrt(m_sigma_i[i]*m_sigma_i[j]); // Equation 9-5.33
-            m_sigma_mix += molefracs[i]*molefracs[j]*pow(sigma_ij,3.0); // Equation 9-5.25
+            // Equation 9-5.25
+            m_sigma_mix += molefracs[i]*molefracs[j]*pow(sigma_ij,3.0);
 
-            double epsilon_over_k_ij = sqrt(m_epsilon_over_k_i[i]*m_epsilon_over_k_i[j]); // Equation 9-5.35
-            m_epsilon_over_k_mix += molefracs[i]*molefracs[j]*epsilon_over_k_ij*pow(sigma_ij,3.0); // Equation 9-5.27 (numerator only)
+            // Equation 9-5.35
+            double epsilon_over_k_ij = sqrt(m_epsilon_over_k_i[i]*m_epsilon_over_k_i[j]);
+
+            // Equation 9-5.27 (numerator only)
+            m_epsilon_over_k_mix += molefracs[i]*molefracs[j]*epsilon_over_k_ij
+                                    *pow(sigma_ij,3.0);
 
             // This equation is raised to the power 2, so what we do here is first
             // store only the double summation into this variable, and then later
             // square the result.
-            double MW_ij =  (2*m_MW_i[i]*m_MW_i[j]) / (m_MW_i[i] + m_MW_i[j]); // Equation 9-5.40
-            m_MW_mix += molefracs[i]*molefracs[j]*epsilon_over_k_ij*pow(sigma_ij,2.0)*sqrt(MW_ij); // Equation 9-5.28 (double summation only)
+            // Equation 9-5.40
+            double MW_ij =  (2*m_MW_i[i]*m_MW_i[j]) / (m_MW_i[i] + m_MW_i[j]);
 
-            double acentric_factor_ij = 0.5*(m_acentric_factor_i[i] + m_acentric_factor_i[j]); // Equation 9-5.36
-            m_acentric_factor_mix += molefracs[i]*molefracs[j]*acentric_factor_ij*pow(sigma_ij,3.0); // Equation 9-5.29
+            // Equation 9-5.28 (double summation only)
+            m_MW_mix += molefracs[i]*molefracs[j]*epsilon_over_k_ij*pow(sigma_ij,2.0)
+                        *sqrt(MW_ij);
+
+            // Equation 9-5.36
+            double acentric_factor_ij = 0.5*(m_acentric_factor_i[i]
+                                        + m_acentric_factor_i[j]);
+
+            // Equation 9-5.29
+            m_acentric_factor_mix += molefracs[i]*molefracs[j]*acentric_factor_ij
+                                     *pow(sigma_ij,3.0);
 
             // The base class' dipole moment values are in the SI units, so we need to
             // convert to Debye units.
-            double SI_to_Debye = lightSpeed / 1e-21; // Conversion factor from C*m to Debye
+            double SI_to_Debye = lightSpeed / 1e-21; // Conversion from C*m to Debye
             double dipole_ii = m_dipole(i,i)*SI_to_Debye;
             double dipole_jj = m_dipole(j,j)*SI_to_Debye;
-            m_mu_mix += molefracs[i]*molefracs[j]*pow(dipole_ii*dipole_jj,2.0)/pow(sigma_ij,3.0); // Equation 9-5.30
+
+            // Equation 9-5.30
+            m_mu_mix += molefracs[i]*molefracs[j]*pow(dipole_ii*dipole_jj,2.0)
+                        /pow(sigma_ij,3.0);
 
             // Using equation 9-5.31
             double kappa_ij = sqrt(m_kappa_i[i]*m_kappa_i[j]); // Equation 9-5.39
@@ -1265,7 +1210,9 @@ void ChungHighPressureGasTransport::computeMixtureParameters()
     }
 
     // Finalize the expressions for the mixture values of the parameters
-    m_sigma_mix = pow(m_sigma_mix, 1.0/3.0); // Equation 9-5.25 computed the cube of sigma_mix
+
+    // Equation 9-5.25 computed the cube of sigma_mix
+    m_sigma_mix = pow(m_sigma_mix, 1.0/3.0);
     m_epsilon_over_k_mix /= pow(m_sigma_mix,3.0);
 
     // The MW_mix was only the numerator inside the brackets of equation 9-5.28
@@ -1273,7 +1220,8 @@ void ChungHighPressureGasTransport::computeMixtureParameters()
 
     m_acentric_factor_mix /= pow(m_sigma_mix, 3.0);
 
-    m_mu_mix = pow(pow(m_sigma_mix, 3.0)*m_mu_mix, 1.0/4.0); // Equation 9-5.30 computed the 4th power of mu_mix
+    // Equation 9-5.30 computed the 4th power of mu_mix
+    m_mu_mix = pow(pow(m_sigma_mix, 3.0)*m_mu_mix, 1.0/4.0);
 
     // Tc_mix is computed using equation 9-5.44.
     m_Tc_mix = 1.2593*m_epsilon_over_k_mix;
@@ -1327,10 +1275,14 @@ double ChungHighPressureGasTransport::highPressureViscosity(double T_star, doubl
 {
     // Definition of tabulated coefficients for the Chung method, as shown in Table 9-6
     // on page 9.40 of Poling.
-    static const vector<double> a = {6.324, 1.210e-3, 5.283, 6.623, 19.745, -1.900, 24.275, 0.7972, -0.2382, 0.06863};
-    static const vector<double> b = {50.412, -1.154e-3, 254.209, 38.096, 7.630, -12.537, 3.450, 1.117, 0.06770, 0.3479};
-    static const vector<double> c = {-51.680, -6.257e-3, -168.48, -8.464, -14.354, 4.958, -11.291, 0.01235, -0.8163, 0.5926};
-    static const vector<double> d ={1189.0, 0.03728, 3898.0, 31.42, 31.53, -18.15, 69.35, -4.117, 4.025, -0.727};
+    static const vector<double> a = {6.324, 1.210e-3, 5.283, 6.623, 19.745, -1.900,
+                                     24.275, 0.7972, -0.2382, 0.06863};
+    static const vector<double> b = {50.412, -1.154e-3, 254.209, 38.096, 7.630,
+                                     -12.537, 3.450, 1.117, 0.06770, 0.3479};
+    static const vector<double> c = {-51.680, -6.257e-3, -168.48, -8.464, -14.354,
+                                     4.958, -11.291, 0.01235, -0.8163, 0.5926};
+    static const vector<double> d ={1189.0, 0.03728, 3898.0, 31.42, 31.53, -18.15,
+                                    69.35, -4.117, 4.025, -0.727};
 
     // This is slightly pedantic, but this is done to have the naming convention in the
     // equations used match the variable names in the code.
@@ -1350,9 +1302,11 @@ double ChungHighPressureGasTransport::highPressureViscosity(double T_star, doubl
     double G_1 = (1.0 - 0.5*y)/(pow(1.0-y, 3.0)); // Equation 9-6.21
 
     // Equation 9-6.22
-    double G_2 = (E_1*((1.0-exp(-E_4*y)) / y) + E_2*G_1*exp(E_5*y) + E_3*G_1) / (E_1*E_4 + E_2 + E_3);
+    double G_2 = (E_1*((1.0-exp(-E_4*y)) / y) + E_2*G_1*exp(E_5*y) + E_3*G_1)
+                 / (E_1*E_4 + E_2 + E_3);
 
-    double eta_2 = E_7*y*y*G_2*exp(E_8 + E_9/T_star + E_10/(T_star*T_star)); // Equation 9-6.23
+    // Equation 9-6.23
+    double eta_2 = E_7*y*y*G_2*exp(E_8 + E_9/T_star + E_10/(T_star*T_star));
 
     double omega = neufeldCollisionIntegral(T_star); // Equation 9-4.3
 
@@ -1361,7 +1315,8 @@ double ChungHighPressureGasTransport::highPressureViscosity(double T_star, doubl
 
     // Renamed eta_star and eta_star_star from the Poling description to eta_1 and
     // eta_2 for naming simplicity.
-    double eta_1 = (sqrt(T_star)/omega) * (Fc*(1.0/G_2 + E_6*y)) + eta_2; // Equation 9-6.19
+    // Equation 9-6.19
+    double eta_1 = (sqrt(T_star)/omega) * (Fc*(1.0/G_2 + E_6*y)) + eta_2;
 
     double eta = eta_1 * 36.344 * sqrt(MW*Tc) / pow(Vc, 2.0/3.0); // Equation 9-6.18
 
