@@ -53,7 +53,7 @@ High-pressure Gas
   phase entry to `high-pressure`. Implemented by class {ct}`HighPressureGasTransport`.
 
 Chung high-pressure Gas
-: A model for high-pressure gas transport properties that usesthe method of Chung
+: A model for high-pressure gas transport properties that uses the method of Chung
   {cite:p}`poling2001` for viscosity and thermal conductivity and the Takahashi method
   {cite:p}`takahashi1975,poling2001` for the diffusion coefficient. This high-pressure
   gas transport model can be specified in the YAML format by setting the

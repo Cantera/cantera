@@ -674,7 +674,7 @@ class TestHighPressureGasTransport():
         the ones in test/data and replace them if needed.
     """
 
-    def test_failure_for_species_with_no_properties(self, test_data_path):
+    def test_failure_for_species_with_no_properties(self):
         """
         All species must have critical properties defined to use the high pressure
         transport model. This test uses a YAML file with a specified value of the
@@ -683,7 +683,7 @@ class TestHighPressureGasTransport():
         non-physical values. These non-physical values should trigger an error
         in the high-pressure transport model.
         """
-        gas = ct.Solution(test_data_path / 'methane_co2_noCritProp.yaml')
+        gas = ct.Solution('methane_co2_noCritProp.yaml')
 
         with pytest.raises(ct.CanteraError, match="must have critical properties defined"):
             gas.transport_model = 'high-pressure-Chung'
@@ -763,7 +763,7 @@ class TestHighPressureGasTransport():
             thermal_conductivities.append(gas.thermal_conductivity)
             diffusion_coefficients.append(gas.mix_diff_coeffs)
 
-        data = np.empty((len(viscosities), 3+len(diffusion_coefficients[0])))
+        data = np.empty((len(viscosities), 3+gas.n_species))
         data[:,0] = pressures
         data[:,1] = viscosities
         data[:,2] = thermal_conductivities
