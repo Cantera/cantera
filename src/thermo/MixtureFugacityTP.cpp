@@ -892,9 +892,9 @@ int MixtureFugacityTP::solveCubic(double T, double pres, double a, double b,
             if (fabs(tmp) > 1.0E-4) {
                 for (int j = 0; j < 3; j++) {
                     if (j != i && fabs(Vroot[i] - Vroot[j]) < 1.0E-4 * (fabs(Vroot[i]) + fabs(Vroot[j]))) {
-                        writelog("MixtureFugacityTP::solveCubic(T ={}, p ={}):"
-                                 " WARNING roots have merged: {}, {}\n",
-                                 T, pres, Vroot[i], Vroot[j]);
+                        warn_user("MixtureFugacityTP::solveCubic",
+                                  "roots have merged for T = {}, p = {}: {}, {}",
+                                  T, pres, Vroot[i], Vroot[j]);
                     }
                 }
             }
@@ -954,9 +954,9 @@ int MixtureFugacityTP::solveCubic(double T, double pres, double a, double b,
             }
         }
         if ((fabs(res) > 1.0E-14) && (fabs(res) > 1.0E-14 * fabs(dresdV) * fabs(Vroot[i]))) {
-            writelog("MixtureFugacityTP::solveCubic(T = {}, p = {}): "
-                "WARNING root didn't converge V = {}", T, pres, Vroot[i]);
-            writelogendl();
+            throw CanteraError("MixtureFugacityTP::solveCubic",
+                               "root failed to converge for T = {}, p = {} with "
+                               "V = {}", T, pres, Vroot[i]);
         }
     }
 
