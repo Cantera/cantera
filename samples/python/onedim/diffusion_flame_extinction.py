@@ -25,8 +25,9 @@ import matplotlib.pyplot as plt
 import cantera as ct
 
 
-# PART 1: INITIALIZATION
-
+# %%
+# Initialization
+# --------------
 # Set up an initial hydrogen-oxygen counterflow flame at 1 bar and low strain
 # rate (maximum axial velocity gradient = 2414 1/s)
 
@@ -74,11 +75,11 @@ def names(test):
     return file_name, "solution"
 
 file_name, entry = names("initial-solution")
-f.save(file_name, name=entry, description="Initial solution")
+f.save(file_name, name=entry, description="Initial solution", overwrite=True)
 
-
-# PART 2: COMPUTE EXTINCTION STRAIN
-
+# %%
+# Compute Extinction Strain Rate
+# ------------------------------
 # Exponents for the initial solution variation with changes in strain rate
 # Taken from Fiala and Sattelmayer (2014)
 exp_d_a = - 1. / 2.
@@ -107,6 +108,7 @@ T_max = [np.max(f.T)]
 # List of maximum axial velocity gradients
 a_max = [np.max(np.abs(np.gradient(f.velocity) / np.gradient(f.grid)))]
 
+# %%
 # Simulate counterflow flames at increasing strain rates until the flame is
 # extinguished. To achieve a fast simulation, an initial coarse strain rate
 # increase is set. This increase is reduced after an extinction event and
@@ -171,7 +173,9 @@ while True:
         file_name, entry = names(f"extinction/{n_last_burning:04d}")
         f.restore(file_name, entry)
 
-
+# %%
+# Results
+# -------
 # Print some parameters at the extinction point, after restoring the last burning
 # solution
 file_name, entry = names(f"extinction/{n_last_burning:04d}")
@@ -190,9 +194,11 @@ print('Oxidizer inlet potential flow axial strain rate a_ox={0:.2e} 1/s'.format(
 print('Axial strain rate at stoichiometric surface a_stoich={0:.2e} 1/s'.format(
       f.strain_rate('stoichiometric', fuel='H2')))
 
+# %%
 # Plot the maximum temperature over the maximum axial velocity gradient
 plt.figure()
 plt.semilogx(a_max, T_max)
 plt.xlabel(r'$a_{max}$ [1/s]')
 plt.ylabel(r'$T_{max}$ [K]')
 plt.savefig(output_path / "figure_T_max_a_max.png")
+plt.show()

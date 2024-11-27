@@ -13,6 +13,10 @@ Requires: cantera >= 2.5.0
 .. tags:: Python, thermodynamics, mixture
 """
 
+# %%
+# Set up streams
+# --------------
+
 import cantera as ct
 
 gas = ct.Solution('gri30.yaml')
@@ -31,10 +35,14 @@ A.moles = 1
 nO2 = A.X[A.species_index('O2')]
 B.moles = nO2 * 0.5
 
+# %%
 # Compute the mixed state
+# -----------------------
 M = A + B
 print(M.report())
 
+# %%
 # Show that this state corresponds to stoichiometric combustion
+# -------------------------------------------------------------
 M.equilibrate('TP')
 print(M.report())

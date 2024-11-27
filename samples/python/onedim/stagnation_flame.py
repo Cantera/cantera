@@ -23,8 +23,9 @@ Requires: cantera >= 3.0
 from pathlib import Path
 import cantera as ct
 
-
-# parameter values
+# %%
+# Parameter Values
+# ----------------
 p = 0.05 * ct.one_atm  # pressure
 tburner = 373.0  # burner temperature
 tsurf = 500.0
@@ -47,7 +48,9 @@ slope = 0.1
 curve = 0.2
 prune = 0.06
 
-# Set up the problem
+# %%
+# Set Up the Problem
+# ------------------
 gas = ct.Solution(rxnmech)
 
 # set state to that of the unburned gas at the burner
@@ -70,6 +73,9 @@ sim.set_refine_criteria(ratio=ratio, slope=slope, curve=curve, prune=prune)
 sim.set_initial_guess(products='equil')  # assume adiabatic equilibrium products
 sim.show()
 
+# %%
+# Solve the Problem and Write Output
+# ----------------------------------
 sim.solve(loglevel, auto=True)
 
 output_path = Path() / "stagnation_flame_data"

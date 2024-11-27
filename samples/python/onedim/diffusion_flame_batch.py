@@ -33,8 +33,10 @@ class FlameExtinguished(Exception):
     pass
 
 
-# PART 1: INITIALIZATION
-
+# %%
+# Initialization
+# --------------
+#
 # Set up an initial hydrogen-oxygen counterflow flame at 1 bar and low strain
 # rate (maximum axial velocity gradient = 2414 1/s)
 
@@ -55,6 +57,7 @@ f.oxidizer_inlet.T = 300  # K
 # Set refinement parameters, if used
 f.set_refine_criteria(ratio=3.0, slope=0.1, curve=0.2, prune=0.03)
 
+# %%
 # Define a limit for the maximum temperature below which the flame is
 # considered as extinguished and the computation is aborted
 # This increases the speed of refinement, if enabled
@@ -69,6 +72,7 @@ def interrupt_extinction(t):
 
 f.set_interrupt(interrupt_extinction)
 
+# %%
 # Initialize and solve
 print('Creating the initial solution')
 f.solve(loglevel=0, auto=True)
@@ -96,16 +100,19 @@ file_name, entry = names("initial-solution")
 desc = "Initial hydrogen-oxygen counterflow flame at 1 bar and low strain rate"
 f.save(file_name, name=entry, description=desc)
 
-
-# PART 2: BATCH PRESSURE LOOP
-
+# %%
+# Batch Pressure Loop
+# -------------------
+#
 # Compute counterflow diffusion flames over a range of pressures
+
 # Arbitrarily define a pressure range (in bar)
 p_range = np.round(np.logspace(0, 2, 50), decimals=1)
 
+# %%
 # Exponents for the initial solution variation with changes in pressure Taken
 # from Fiala and Sattelmayer (2014). The exponents are adjusted such that the
-# strain rates increases proportional to p^(3/2), which results in flames
+# strain rates increases proportional to :math:`p^{3/2}`, which results in flames
 # similar with respect to the extinction strain rate.
 exp_d_p = -5. / 4.
 exp_u_p = 1. / 4.
@@ -148,16 +155,17 @@ for p in p_range:
         # If solution failed: Restore the last successful solution and continue
         f.restore(file_name, name=entry)
 
-
-# PART 3: STRAIN RATE LOOP
-
+# %%
+# Strain Rate Loop
+# ----------------
 # Compute counterflow diffusion flames at increasing strain rates at 1 bar
 # The strain rate is assumed to increase by 25% in each step until the flame is
 # extinguished
 strain_factor = 1.25
 
-# Exponents for the initial solution variation with changes in strain rate
-# Taken from Fiala and Sattelmayer (2014)
+# %%
+# Exponents for the initial solution variation with changes in strain rate.
+# Taken from Fiala and Sattelmayer (2014).
 exp_d_a = - 1. / 2.
 exp_u_a = 1. / 2.
 exp_V_a = 1.
@@ -201,8 +209,9 @@ while np.max(f.T) > temperature_limit_extinction:
         print('Error occurred while solving:', e)
         break
 
-
-# PART 4: PLOT SOME FIGURES
+# %%
+# Plotting Results
+# ----------------
 
 fig1 = plt.figure()
 fig2 = plt.figure()
@@ -230,6 +239,7 @@ ax2.legend(loc=0)
 ax2.set_xlabel(r'$z/z_{max}$')
 ax2.set_ylabel(r'$u/u_f$')
 fig1.savefig(output_path / "figure_u_p.png")
+plt.show()
 
 fig3 = plt.figure()
 fig4 = plt.figure()
@@ -257,3 +267,4 @@ ax4.legend(loc=0)
 ax4.set_xlabel(r'$z/z_{max}$')
 ax4.set_ylabel(r'$u/u_f$')
 fig1.savefig(output_path / "figure_u_a.png")
+plt.show()
