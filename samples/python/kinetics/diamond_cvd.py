@@ -17,11 +17,12 @@ Requires: cantera >= 2.6.0, pandas >= 0.25.0, matplotlib >= 2.0
 """
 
 import csv
+import matplotlib.pyplot as plt
+import pandas as pd
 import cantera as ct
 
-print('\n******  CVD Diamond Example  ******\n')
-
-# import the model for the diamond (100) surface and the adjacent bulk phases
+# %%
+# Import the model for the diamond (100) surface and the adjacent bulk phases
 d = ct.Interface("diamond.yaml", "diamond_100")
 g = d.adjacent["gas"]
 dbulk = d.adjacent["diamond"]
@@ -37,6 +38,8 @@ ih = g.species_index('H')
 
 xh0 = x[ih]
 
+# %%
+# Calculate growth rate as a function of H mole fraction in the gas
 with open('diamond.csv', 'w', newline='') as f:
     writer = csv.writer(f)
     writer.writerow(['H mole Fraction', 'Growth Rate (microns/hour)'] +
@@ -56,20 +59,18 @@ with open('diamond.csv', 'w', newline='') as f:
     print('H concentration, growth rate, and surface coverages '
           'written to file diamond.csv')
 
-try:
-    import matplotlib.pyplot as plt
-    import pandas as pd
-    data = pd.read_csv('diamond.csv')
+# %%
+# Plot the results
+data = pd.read_csv('diamond.csv')
 
-    data.plot(x="H mole Fraction", y="Growth Rate (microns/hour)", legend=False)
-    plt.xlabel('H Mole Fraction')
-    plt.ylabel('Growth Rate (microns/hr)')
-    plt.show()
+data.plot(x="H mole Fraction", y="Growth Rate (microns/hour)", legend=False)
+plt.xlabel('H Mole Fraction')
+plt.ylabel('Growth Rate (microns/hr)')
+plt.show()
 
-    names = [name for name in data.columns if not name.startswith(('H mole', 'Growth'))]
-    data.plot(x='H mole Fraction', y=names, legend=True)
-    plt.xlabel('H Mole Fraction')
-    plt.ylabel('Coverage')
-    plt.show()
-except ImportError:
-    print("Install matplotlib and pandas to plot the outputs")
+# %%
+names = [name for name in data.columns if not name.startswith(('H mole', 'Growth'))]
+data.plot(x='H mole Fraction', y=names, legend=True)
+plt.xlabel('H Mole Fraction')
+plt.ylabel('Coverage')
+plt.show()
