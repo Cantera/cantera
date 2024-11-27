@@ -305,6 +305,12 @@ public:
      */
     void getMixDiffCoeffsMass(double* const d) override;
 
+    /**
+     * Updates the matrix of species-pair Takahashi correction factors for use in
+     * computing the binary diffusion coefficients, see takahashiCorrectionFactor()
+     */
+    void updateCorrectionFactors();
+
     friend class TransportFactory;
 
 protected:
@@ -470,7 +476,8 @@ protected:
     /**
      * Returns the phi shape factor of Leach and Leland for a pure species.
      *
-     * The shape factor @f$ \phi_i @f$ is defined by Equation 12 in @cite ely-hanley1981 as follows:
+     * The shape factor @f$ \phi_i @f$ is defined by Equation 12 in
+     * @cite ely-hanley1981 as follows:
      *
      * @f[
      *   \phi_i(T_R^i, V_R^i, \omega_i, Z_c^i) = \frac{Z_c^0}{Z_c^i} [1 + (\omega_i -
@@ -481,7 +488,8 @@ protected:
      * @f$ Z_c^i @f$ is the critical compressibility of species i, @f$ \omega_0 @f$
      * is the acentric factor of the reference fluid, and @f$ G(T_R^i, V_R^i) @f$ is a
      * function of the reduced temperature and reduced volume of species i. The
-     * function @f$ G(T_R^i, V_R^i) @f$ is defined by Equation 14 in @cite ely-hanley1981 :
+     * function @f$ G(T_R^i, V_R^i) @f$ is defined by Equation 14 in
+     * @cite ely-hanley1981 :
      *
      * @f[
      *   G(T_R^i, V_R^i) = a_2(V_+^i + b_2) + c_2(V_+^i + d_2)ln(T_+^i)
@@ -566,7 +574,8 @@ protected:
      * @f]
      *
      * @f[
-     *  \Delta\lambda_0 = \text{exp}[a_1 + a_2/T_0] (exp[(a_3 + a_4/T_0^{3/4})\rho_0^{0.1}
+     *  \Delta\lambda_0 = \text{exp}[a_1 + a_2/T_0]
+     *                    (exp[(a_3 + a_4/T_0^{3/4})\rho_0^{0.1}
      *                    + (\rho_0 / \rho_0,c - 1)\rho_0^{0.5}
      *                      (a_5 + a_6/T_0 + a_7/T_0^2) ] - 1)
      * @f]
@@ -600,7 +609,8 @@ protected:
      * and @f$ X_i @f$ is the mole fraction of species i.
      *
      * @f[
-     *  P_{\text{c,m}} = R T_{\text{c,m}} \frac{\sum_i X_i Z_{\text{c,i}}}{\sum_i X_i V_{\text{c,i}}}
+     *  P_{\text{c,m}} = R T_{\text{c,m}}
+     *                   \frac{\sum_i X_i Z_{\text{c,i}}}{\sum_i X_i V_{\text{c,i}}}
      *
      *  \quad \text{(Equation 9-5.19)}
      * @f]
@@ -646,8 +656,8 @@ protected:
      * fraction of the heaviest component.
      *
      * While it isn't returned as a parameter, the species-specific reduced dipole
-     * moment (@f$ \mu_r @f$) is used to compute the mixture polarity correction factor. It is defined
-     * as:
+     * moment (@f$ \mu_r @f$) is used to compute the mixture polarity correction factor.
+     * It is defined as:
      *
      * @f[
      *   \mu_r = 52.46 \frac{\mu^2 P_{\text{c,i}}}{T_{\text{c,i}}}
@@ -766,6 +776,9 @@ private:
     vector<double> m_Vcrit; //!< Critical volume [m^3/kmol] of each species
     vector<double> m_Zcrit; //!< Critical compressibility [unitless] of each species
 
+    //! Matrix of Takaishi binary diffusion coefficient corrections. Size is nsp x nsp.
+    DenseMatrix m_P_corr_ij;
+
     /**
      * @name Reference fluid properties
      *  These are the properties of the reference fluid, which is methane in this case.
@@ -809,7 +822,8 @@ private:
  * Ch. 10, and diffusion coefficients in Ch. 11).
  *
  * @note All equations that are cited in this implementation are from the 5th edition
- * of the book "The Properties of Gases and Liquids" by Poling, Prausnitz, and O'Connell.
+ * of the book "The Properties of Gases and Liquids" by Poling, Prausnitz, and
+ * O'Connell.
  *
  * @ingroup tranprops
  */
@@ -920,6 +934,12 @@ public:
      *               each species, length m_nsp.
      */
     void getMixDiffCoeffsMass(double* const d) override;
+
+    /**
+     * Updates the matrix of species-pair Takahashi correction factors for use in
+     * computing the binary diffusion coefficients, see takahashiCorrectionFactor()
+     */
+    void updateCorrectionFactors();
 
     friend class TransportFactory;
 
@@ -1175,8 +1195,9 @@ protected:
      * @param sigma  Lennard-Jones collision diameter [Angstroms]
      * @param kappa  Polar correction factor [unitless]
      */
-    double lowPressureViscosity(double T, double T_star, double MW, double acentric_factor,
-                                double mu_r, double sigma, double kappa);
+    double lowPressureViscosity(double T, double T_star, double MW,
+                                double acentric_factor, double mu_r,
+                                double sigma, double kappa);
 
     /**
      * Returns the high-pressure mixture viscosity in micropoise using the Chung
@@ -1202,7 +1223,8 @@ protected:
      * and,
      *
      * @f[
-     *  \eta^* = \frac{(T^*)^{\frac{1}{2}}}{\Omega_v} {F_c[(G_2)^{-1} + E_6 y]} + \eta^{**}
+     *  \eta^* = \frac{(T^*)^{\frac{1}{2}}}{\Omega_v} {F_c[(G_2)^{-1} + E_6 y]}
+     *           + \eta^{**}
      *
      *  \quad \text{(Equation 9-6.19)}
      * @f]
@@ -1288,7 +1310,8 @@ protected:
      * @f]
      *
      * @f[
-     *  G_2 = \frac{(B_1 / y)[1 - \text{exp}(-B_4 y)] + B_2 G_1 \text{exp}(B_5 y) + B_3 G_1}{B_1 B_4 + B_2 + B_3}
+     *  G_2 = \frac{(B_1 / y)[1 - \text{exp}(-B_4 y)]
+     *        + B_2 G_1 \text{exp}(B_5 y) + B_3 G_1}{B_1 B_4 + B_2 + B_3}
      *
      *  \quad \text{(Equation 10-5.8)}
      * @f]
@@ -1308,7 +1331,8 @@ protected:
      * The definition of the @f$ \Psi @f$ function is given by:
      *
      * @f[
-     *  \Psi = 1 + \alpha {\frac{0.215 + 0.28288\alpha - 1.061\beta + 0.26665Z}{0.6366 + \beta Z + 1.061 \alpha \beta}}
+     *  \Psi = 1 + \alpha {\frac{0.215 + 0.28288\alpha - 1.061\beta + 0.26665Z}{0.6366
+     *         + \beta Z + 1.061 \alpha \beta}}
      * @f]
      *
      * with,
@@ -1361,6 +1385,9 @@ private:
     vector<double> m_Pcrit; //!< Critical pressure [Pa] of each species
     vector<double> m_Vcrit; //!< Critical volume [m^3/kmol] of each species
     vector<double> m_Zcrit; //!< Critical compressibility of each species
+
+    //! Matrix of Takaishi binary diffusion coefficient corrections. Size is nsp x nsp.
+    DenseMatrix m_P_corr_ij;
 
     /**
      * @name Pure fluid properties
