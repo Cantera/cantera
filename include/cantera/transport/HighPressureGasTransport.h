@@ -88,7 +88,7 @@ public:
      * Where @f$ \eta_i^* @f$ is the referred to as the dilute gas viscosity and is the
      * component that is temperature dependent described in @cite ely-hanley1981
      * (see elyHanleyDilutePureSpeciesViscosity() ),
-     * @f$ MW_i @f$ is the molecular weight of species i, @f$ f_int @f$ is a constant
+     * @f$ MW_i @f$ is the molecular weight of species i, @f$ f_{int} @f$ is a constant
      * and is 1.32, @f$ C_{p,i}^0 @f$ is the ideal gas heat capacity of species i,
      * and R is the gas constant (J/kmol/K).
      *
@@ -112,9 +112,14 @@ public:
      * @f]
      *
      * Where @f$ MW_0 @f$ is the molecular weight of the reference fluid, @f$ MW_m @f$
-     * is the molecular weight of the mixture, @f$ f_{m,0} @f$ and @f$ h_{m,0} @f$ are
-     * called reducing ratios. The @f$ h_{m,0} @f$ quantity is defined by Equation 9
-     * in @cite ely-hanley1983 :
+     * is the molecular weight of the mixture.
+     *
+     * @note: @f$ MW_m @f$ is an effective mixture molecular weight and should not be
+     *        confused with a mole-weighted average of the molecular weights of the
+     *        species in the mixture.
+     *
+     * The terms @f$ f_{m,0} @f$ and @f$ h_{m,0} @f$ are called reducing ratios. The
+     * @f$ h_{m,0} @f$ quantity is defined by Equation 9 in @cite ely-hanley1983 :
      *
      * @f[
      *   h_{m,0} = \sum_i \sum_j X_i X_j h_{ij}
@@ -123,7 +128,7 @@ public:
      * with @f$ h_{ij} @f$ defined by Equation 11 in @cite ely-hanley1983 :
      *
      * @f[
-     *   h_{ij} = \frac{1}{8} (h_i^{1/3} + h_j^{1/3})^3 (1 - l_{ij})
+     *   h_{ij} = \frac{1}{8} \left( h_i^{1/3} + h_j^{1/3} \right)^3 (1 - l_{ij})
      * @f]
      *
      * The variable @f$ l_{ij} @f$ is a binary interaction parameter and is assumed to
@@ -224,9 +229,9 @@ public:
      * @note The correlations for the reference fluid viscosity return a value of
      *       micro-grams/cm/s and the parts of the thermal conductivity that utilize
      *       the correlation fit parameters give values in units of mW/m/K. Appropriate
-     *       conversions were made in the relevant functions.
-     *       @see elyHanleyDiluteReferenceViscosity()
-     *       @see elyHanleyReferenceThermalConductivity()
+     *       conversions were made in the relevant functions:
+     *       elyHanleyDiluteReferenceViscosity() and
+     *       elyHanleyReferenceThermalConductivity()
      */
     double thermalConductivity() override;
 
@@ -237,26 +242,68 @@ public:
      * viscosity at high pressure is computed using the pure-fluid high pressure
      * relation of Lucas with the difference being that mixture values of the
      * model parameters are used. These mixture values are computed using the mixing
-     * rules described in @see computeMixtureParameters() .
+     * rules described in see computeMixtureParameters() .
      *
      * The mixture pseudo-critical temperature and pressure are calculated using
      * Equations 9-5.18 and 9-5.19. The mixture molecular weight is computed using
      * Equation 9-5.20. The mixture values of the low-pressure polarity and quantum
      * correction factors are computed using Equations 9-5.21 and 9-5.22.
-     *
      */
     double viscosity() override;
 
     /**
-     * Returns the matrix of binary diffusion coefficients using the Takahashi
-     * correction factor.
+     * Computes the matrix of binary diffusion coefficients using the Takahashi
+     * correction factor. Units are m^2/s.
      *
-     *      d[ld*j +  i] = rp*m_bdiff(i,j)*(DP)_R;
+     * The matrix is dimension m_nsp x m_nsp, where m_nsp is the number of
+     * species. The matrix is stored in row-major order, so that d[ld*j + i]
+     * contains the binary diffusion coefficient of species i with respect to
+     * species j.
      *
-     * @param ld    offset of rows in the storage
-     * @param d     output vector of diffusion coefficients.  Units of m**2 / s
+     * d[ld*j + i] = (DP)_R * m_bdiff(i,j) / p
+     *
+     * @param ld  Inner stride for writing the two dimension diffusion
+     *            coefficients into a one dimensional vector
+     * @param d   Diffusion coefficient matrix (must be at least m_nsp * m_nsp
+     *            in length.
      */
     void getBinaryDiffCoeffs(const size_t ld, double* const d) override;
+
+    /**
+     * Returns the Mixture-averaged diffusion coefficients [m^2/s].
+     *
+     * This method is the same as GasTransport::getMixDiffCoeffs() with the exception
+     * that the binary diffusion coefficients are multiplied by the Takahashi correction
+     * factor, which is described in takahashiCorrectionFactor() .
+     *
+     * @param[out] d  Vector of mixture diffusion coefficients, @f$ D_{km}' @f$ ,
+     *                for each species (m^2/s). length m_nsp
+     */
+    void getMixDiffCoeffs(double* const d) override;
+
+    /**
+     *  Returns the mixture-averaged diffusion coefficients [m^2/s].
+     *
+     * This method is the same as GasTransport::getMixDiffCoeffsMole() with the exception
+     * that the binary diffusion coefficients are multiplied by the Takahashi correction
+     * factor, which is described in takahashiCorrectionFactor() .
+     *
+     * @param[out] d vector of mixture-averaged diffusion coefficients for
+     *               each species, length m_nsp.
+     */
+    void getMixDiffCoeffsMole(double* const d) override;
+
+    /**
+     * Returns the mixture-averaged diffusion coefficients [m^2/s].
+     *
+     * This method is the same as GasTransport::getMixDiffCoeffsMass() with the exception
+     * that the binary diffusion coefficients are multiplied by the Takahashi correction
+     * factor, which is described in takahashiCorrectionFactor() .
+     *
+     * @param[out] d vector of mixture-averaged diffusion coefficients for
+     *               each species, length m_nsp.
+     */
+    void getMixDiffCoeffsMass(double* const d) override;
 
     friend class TransportFactory;
 
@@ -271,7 +318,6 @@ protected:
      * factor is not specified, it is quietly set to 0.0. A user may have the proper
      * acentric factor in the critical-properties.yaml file, so that file is checked if
      * a zero value is present.
-     *
      */
     void getTransportData() override;
 
@@ -287,7 +333,6 @@ protected:
      * All species must have critical properties defined in the input file, either via
      * critical properties or by specific values of the equation of state that are
      * not zero.
-     *
      */
     void initializeCriticalProperties();
 
@@ -609,7 +654,6 @@ protected:
      *
      *   \quad \text{(Equation 9-4.17)}
      * @f]
-     *
      */
     void computeMixtureParameters();
 
@@ -629,7 +673,7 @@ protected:
      * mixtures, with the only difference being the values that are passed to the
      * function (pure values versus mixture values).
      *
-     * For the definition of the mixture rules, see @see computeMixtureParameters() .
+     * For the definition of the mixture rules, see computeMixtureParameters() .
      *
      * @param Tr Reduced temperature [unitless]
      * @param FP Polarity correction factor [unitless]
@@ -654,7 +698,7 @@ protected:
      * mixtures, with the only difference being the values that are passed to the
      * function (pure values versus mixture values).
      *
-     * For the definition of the mixture rules, see @see computeMixtureParameters() .
+     * For the definition of the mixture rules, see computeMixtureParameters() .
      *
      * @param Tr Reduced temperature [unitless]
      * @param Pr Reduced pressure [unitless]
@@ -716,31 +760,41 @@ protected:
     double polarityCorrectionFactor(double mu_r, double Tr, double Z_c);
 
 
-    private:
-    //! Critical properties of each species.
-    std::vector<double> m_Tcrit;
-    std::vector<double> m_Pcrit;
-    std::vector<double> m_Vcrit;
-    std::vector<double> m_Zcrit;
+private:
+    vector<double> m_Tcrit; //!< Critical temperature [K] of each species
+    vector<double> m_Pcrit; //!< Critical pressure [Pa] of each species
+    vector<double> m_Vcrit; //!< Critical volume [m^3/kmol] of each species
+    vector<double> m_Zcrit; //!< Critical compressibility [unitless] of each species
 
-    // Reference fluid properties, for methane (used by the thermalConductivity()
-    // method)
-    const double ref_MW = 16.04; // kg/kmol
-    const double ref_Tc = 190.4; // K
-    const double ref_Vc = 0.0986; // m^3/kmol
-    const double ref_Zc = 0.288; // unitless
-    const double ref_rhoc = 0.1628; // g/cm^3
-    const double ref_acentric_factor = 0.011; // unitless
+    /**
+     * @name Reference fluid properties
+     *  These are the properties of the reference fluid, which is methane in this case.
+     *  These are used by the thermalConductivity() method.
+     * @{
+     */
+    const double m_ref_MW = 16.04; //!< Molecular weight [kg/kmol]
+    const double m_ref_Tc = 190.4; //!< Critical temperature [K]
+    const double m_ref_Vc = 0.0986; //!< Critical volume [m^3/kmol]
+    const double m_ref_Zc = 0.288; //!< Critical compressibility [unitless]
+    const double m_ref_rhoc = 0.1628; //!< Critical density [g/cm^3]
+    const double m_ref_acentric_factor = 0.011; //!< Acentric factor [unitless]
+    /** @} */
 
-    // Parameters that are needed to calculate the viscosity using the Lucas method.
-    double m_FQ_mix_o; // Quantum correction factor
-    double m_FP_mix_o; // Polarity correction factor
-    double m_Tr_mix; // Reduced temperature
-    double m_Pr_mix; // Reduced pressure
-    double m_Pc_mix; // Critical pressure
-    double m_Tc_mix; // Critical temperature
-    double m_MW_mix; // Molecular weight
-    double m_P_vap_mix; // Vapor pressure
+    /**
+     * @name Lucas method viscosity parameters
+     *  These are the parameters that are needed to calculate the viscosity using the
+     *  Lucas method.
+     * @{
+     */
+    double m_FQ_mix_o; //!< Quantum correction factor
+    double m_FP_mix_o; //!< Polarity correction factor
+    double m_Tr_mix; //!< Reduced temperature
+    double m_Pr_mix; //!< Reduced pressure
+    double m_Pc_mix; //!< Critical pressure
+    double m_Tc_mix; //!< Critical temperature
+    double m_MW_mix; //!< Molecular weight
+    double m_P_vap_mix; //!< Vapor pressure
+    /** @} */
 };
 
 /**
@@ -779,12 +833,11 @@ public:
      * chapter 9-7 of Poling. This method uses the pure species high-pressure viscosity
      * relation of Chung with the difference being that mixture values of the model
      * are computed using a set of mixing rules given by Chung
-     * @see computeMixtureParameters() . The mixing rules are defined in section
+     * (see computeMixtureParameters() ). The mixing rules are defined in section
      * 9-5 of @cite poling2001.
      *
      * Because this method is using the high-pressure viscosity model with mixture
-     * parameters, @see highPressureViscosity() for details on the model.
-     *
+     * parameters, see highPressureViscosity() for details on the model.
      */
     double viscosity() override;
 
@@ -796,8 +849,8 @@ public:
     * obtain the mixture thermal conductivity.
     *
     * The mixture values of the pseudo-critical temperature and other model parameters
-    * are calculated using the Chung mixing rules defined on page 9.25.
-    * @see computeMixtureParameters() .
+    * are calculated using the Chung mixing rules defined on page 9.25
+    * (see computeMixtureParameters() ).
     *
     * The mixture value of the specific heat is computed using equation 10-6.6, which
     * is the mole fraction weighted sum of the pure species specific heats. This value
@@ -811,20 +864,62 @@ public:
     *
     * Where @f$ C_{v,i} @f$ is the specific heat of species i, and @f$ X_i @f$ is the
     * mole fraction of species i.
-    *
     */
     double thermalConductivity() override;
 
     /**
-     * Returns the matrix of binary diffusion coefficients, augmented by the
-     * Takahashi correction factor.
+     * Computes the matrix of binary diffusion coefficients using the Takahashi
+     * correction factor. Units are m^2/s.
      *
-     *      d[ld*j +  i] = rp*m_bdiff(i,j)*(DP)_R;
+     * The matrix is dimension m_nsp x m_nsp, where m_nsp is the number of
+     * species. The matrix is stored in row-major order, so that d[ld*j + i]
+     * contains the binary diffusion coefficient of species i with respect to
+     * species j.
      *
-     * @param ld    offset of rows in the storage
-     * @param d     output vector of diffusion coefficients.  Units of m**2 / s
+     * d[ld*j + i] = (DP)_R * m_bdiff(i,j) / p
+     *
+     * @param ld  Inner stride for writing the two dimension diffusion
+     *            coefficients into a one dimensional vector
+     * @param d   Diffusion coefficient matrix (must be at least m_nsp * m_nsp
+     *            in length.
      */
     void getBinaryDiffCoeffs(const size_t ld, double* const d) override;
+
+    /**
+     * Returns the Mixture-averaged diffusion coefficients [m^2/s].
+     *
+     * This method is the same as GasTransport::getMixDiffCoeffs() with the exception
+     * that the binary diffusion coefficients are multiplied by the Takahashi correction
+     * factor, which is described in takahashiCorrectionFactor() .
+     *
+     * @param[out] d  Vector of mixture diffusion coefficients, @f$ D_{km}' @f$ ,
+     *                for each species (m^2/s). length m_nsp
+     */
+    void getMixDiffCoeffs(double* const d) override;
+
+    /**
+     *  Returns the mixture-averaged diffusion coefficients [m^2/s].
+     *
+     * This method is the same as GasTransport::getMixDiffCoeffsMole() with the exception
+     * that the binary diffusion coefficients are multiplied by the Takahashi correction
+     * factor, which is described in takahashiCorrectionFactor() .
+     *
+     * @param[out] d vector of mixture-averaged diffusion coefficients for
+     *               each species, length m_nsp.
+     */
+    void getMixDiffCoeffsMole(double* const d) override;
+
+    /**
+     * Returns the mixture-averaged diffusion coefficients [m^2/s].
+     *
+     * This method is the same as GasTransport::getMixDiffCoeffsMass() with the exception
+     * that the binary diffusion coefficients are multiplied by the Takahashi correction
+     * factor, which is described in takahashiCorrectionFactor() .
+     *
+     * @param[out] d vector of mixture-averaged diffusion coefficients for
+     *               each species, length m_nsp.
+     */
+    void getMixDiffCoeffsMass(double* const d) override;
 
     friend class TransportFactory;
 
@@ -839,7 +934,6 @@ protected:
      * factor is not specified, it is quietly set to 0.0. A user may have the proper
      * acentric factor in the critical-properties.yaml file, so that file is checked if
      * a zero value is present.
-     *
      */
     void getTransportData() override;
 
@@ -855,15 +949,10 @@ protected:
      * All species must have critical properties defined in the input file, either via
      * critical properties or by specific values of the equation of state that are
      * not zero.
-     *
      */
     void initializeCriticalProperties();
 
-     /**
-     * Computes and stores pure-fluid specific properties each species.
-     *
-     *
-     */
+    //! Computes and stores pure-fluid specific properties each species.
     void initializePureFluidProperties();
 
     /**
@@ -1065,7 +1154,7 @@ protected:
      * Returns the low-pressure mixture viscosity in Pa*s using the Chung method.
      *
      * @f[
-     *   \eta = 26.69 F_c \frac{(MW*T)^(\frac{1}{2})}{\sigma^2 \Omega}
+     *   \eta = 26.69 F_c \frac{(MW*T)^(1/2)}{\sigma^2 \Omega}
      *
      *   \quad \text{(Equation 9-4.10)}
      * @f]
@@ -1094,7 +1183,7 @@ protected:
      * method.
      *
      * @f[
-     *   \eta = \eta^* \frac{36.344 (M*T_c)^(\frac{1}{2})}{V^{\frac{2}{3}}}
+     *   \eta = \eta^* \frac{36.344 (M*T_c)^(1/2)}{V^{\frac{2}{3}}}
      *
      *   \quad \text{(Equation 9-6.18)}
      * @f]
@@ -1103,8 +1192,8 @@ protected:
      *
      * @f[
      *   \begin{align*}
-     *       \eta &= \text{viscosity, \mu P)} \\
-     *       M &= \text{molecular wight, kg/kmol} \\
+     *       \eta &= \text{viscosity, } \mu P \\
+     *       M &= \text{molecular weight, kg/kmol} \\
      *       T_c &= \text{critical temperature, K} \\
      *       V_c &= \text{critical molar volume, cm}^3 / \text{mol} \\
      *   \end{align*}
@@ -1133,7 +1222,8 @@ protected:
      * @f]
      *
      * The value of @f$ \Omega_v @f$ is the viscosity collision integral evaluated at
-     * the non-dimensional reduced temperature @f$ T^* @f$. @see neufeldCollisionIntegral() .
+     * the non-dimensional reduced temperature @f$ T^* @f$. For details on the
+     * collision integral see neufeldCollisionIntegral() .
      *
      * This function is structured such that it can be used for pure species or
      * mixtures, with the only difference being the values that are passed to the
@@ -1237,7 +1327,6 @@ protected:
      *
      * These functions are from page 10.12 of @cite poling2001 .
      *
-     *
      * This method utilizes the low-pressure Chung viscosity as that is a required
      * parameter in the model, and thus calls the low pressure viscosity
      * implementation. This is why it requires parameters typically associated with
@@ -1248,7 +1337,7 @@ protected:
      * function (pure values versus mixture values).
      *
      * For mixtures, the mixture values of the input variables are computed using the
-     * mixing rules of Chung, @see computeMixtureParameters() .
+     * mixing rules of Chung, see computeMixtureParameters() .
      *
      * @param T  Temperature [K]
      * @param T_star  Reduced temperature [unitless]
@@ -1267,36 +1356,45 @@ protected:
         double rho, double Cv, double Vc, double Tc, double sigma,
         double acentric_factor, double mu_r, double kappa);
 
-    private:
-    //! Critical properties of each species.
-    std::vector<double> m_Tcrit;
-    std::vector<double> m_Pcrit;
-    std::vector<double> m_Vcrit;
-    std::vector<double> m_Zcrit;
+private:
+    vector<double> m_Tcrit; //!< Critical temperature [K] of each species
+    vector<double> m_Pcrit; //!< Critical pressure [Pa] of each species
+    vector<double> m_Vcrit; //!< Critical volume [m^3/kmol] of each species
+    vector<double> m_Zcrit; //!< Critical compressibility of each species
 
-    //! Pure fluid properties of each species.
-    std::vector<double> sigma_i;
-    std::vector<double> epsilon_over_k_i;
-    std::vector<double> MW_i;
-    std::vector<double> acentric_factor_i;
-    std::vector<double> kappa_i;
+    /**
+     * @name Pure fluid properties
+     * These are the pure fluid properties of each species that are needed to compute
+     * the mixture properties for the Chung viscosity and thermal conductivity models.
+     */
+    vector<double> m_sigma_i; //!< Effective molecular diameter [Angstroms]
+    vector<double> m_epsilon_over_k_i; //!< Characteristic temperature [K]
+    vector<double> m_MW_i; //!< Molecular weight [kg/kmol]
+    vector<double> m_acentric_factor_i; //!< Acentric factor [unitless]
+    vector<double> m_kappa_i; //!< Association factor [unitless]
+    /** @} */
 
-    // Parameters that are needed to calculate the viscosity using the Chung method.
 
-    // Mixture critical properties used by the Chung viscosity model.
-    double m_Vc_mix = 0;
-    double m_Tc_mix = 0;
+    /**
+     * @name Chung mixture parameters
+     * These are the parameters that are needed to calculate the viscosity and thermal
+     * conductivity using the Chung method.
+     * @{
+     */
+    double m_Vc_mix = 0; //!< Mixture critical volume [m^3/kmol]
+    double m_Tc_mix = 0; //!< Mixture critical temperature [K]
 
-    // Values associated with the calculation of sigma and the molecular weight used in the Chung viscosity model.
-    double m_sigma_mix = 0;
-    double m_epsilon_over_k_mix = 0;
-    double m_MW_mix = 0;
+    double m_sigma_mix = 0; //!< Effective mixture molecular diameter [Angstroms]
+    double m_epsilon_over_k_mix = 0; //!< Mixture characteristic temperature [K]
+    double m_MW_mix = 0; //!< Effective mixture molecular weight [kg/kmol]
 
-    // Values associated with the calculation of the Fc factor in the Chung viscosity model.
-    double m_mu_mix = 0;
-    double m_mu_r_mix = 0;
-    double m_acentric_factor_mix = 0;
-    double m_kappa_mix = 0;
+    // These are used to compute the Fc factor in the Chung viscosity model
+    double m_mu_mix = 0; //!< Mixture dipole moment [Debye]
+    double m_mu_r_mix = 0; //!< Mixture reduced dipole moment [unitless]
+    double m_acentric_factor_mix = 0; //!< Mixture acentric factor [unitless]
+    double m_kappa_mix = 0; //!< Mixture association factor [unitless]
+
+    /** @} */
 
 };
 
