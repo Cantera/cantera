@@ -54,12 +54,20 @@ public:
         std::copy(m_visc.begin(), m_visc.end(), visc);
     }
 
-    //! Returns the matrix of binary diffusion coefficients.
-    /*!
-     * d[ld*j + i] = rp * m_bdiff(i,j);
+    /**
+     * Computes the matrix of binary diffusion coefficients. Units are m^2/s.
      *
-     * @param ld   offset of rows in the storage
-     * @param d    output vector of diffusion coefficients. Units of m**2 / s
+     * The matrix is dimension m_nsp x m_nsp, where m_nsp is the number of
+     * species. The matrix is stored in row-major order, so that d[ld*j + i]
+     * contains the binary diffusion coefficient of species i with respect to
+     * species j.
+     *
+     * d[ld*j + i] = m_bdiff(i,j) / p
+     *
+     * @param ld   Inner stride for writing the two dimension diffusion
+     *             coefficients into a one dimensional vector
+     * @param d    Diffusion coefficient matrix (must be at least m_nsp * m_nsp
+     *             in length.
      */
     void getBinaryDiffCoeffs(const size_t ld, double* const d) override;
 
