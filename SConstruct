@@ -1375,7 +1375,7 @@ env['HAS_OPENMP'] = conf.CheckLibWithHeader(
     ["iomp5", "omp", "gomp"], "omp.h", language="C++"
 )
 
-_, boost_lib_version = run_preprocessor(conf, ["<boost/version.hpp>"], "BOOST_LIB_VERSION")
+retcode, boost_lib_version = run_preprocessor(conf, ["<boost/version.hpp>"], "BOOST_LIB_VERSION")
 if not retcode:
     config_error("Boost could not be found. Install Boost headers or set "
                  "'boost_inc_dir' to point to the boost headers.")
