@@ -64,7 +64,8 @@ output_path.mkdir(parents=True, exist_ok=True)
 
 print("Save YAML")
 yaml_filepath = output_path / "flame.yaml"
-f.save(yaml_filepath, name="solution", description="Initial methane flame")
+f.save(yaml_filepath, name="solution", description="Initial methane flame",
+       overwrite=True)
 
 print("Save CSV")
 csv_filepath = output_path / "flame.csv"
@@ -74,7 +75,8 @@ if "native" in ct.hdf_support():
     # HDF is not a required dependency
     hdf_filepath = output_path / "flame.h5"
     hdf_filepath.unlink(missing_ok=True)
-    f.save(hdf_filepath, name="freeflame", description="Initial methane flame")
+    f.save(hdf_filepath, name="freeflame", description="Initial methane flame",
+           overwrite=True)
     print("Save HDF\n")
 else:
     print(f"Skipping HDF: Cantera compiled without HDF support\n")
