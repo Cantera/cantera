@@ -11,12 +11,13 @@ and has some effect very near the surface.
 The catalytic combustion mechanism is from Deutschmann et al., 26th
 Symp. (Intl.) on Combustion,1996 pp. 1747-1754
 
-Requires: cantera >= 3.0
+Requires: cantera >= 3.0, matplotlib >= 2.0
 
 .. tags:: Python, catalysis, combustion, 1D flow, surface chemistry
 """
 
 import numpy as np
+import matplotlib.pyplot as plt
 import cantera as ct
 
 # %%
@@ -131,9 +132,30 @@ if "native" in ct.hdf_support():
     filename = "catalytic_combustion.h5"
 else:
     filename = "catalytic_combustion.yaml"
-sim.save(filename, "soln1", description="catalytic combustion example")
+sim.save(filename, "soln1", description="catalytic combustion example",
+         overwrite=True)
 
 # save selected solution components in a CSV file for plotting in Excel or MATLAB.
 sim.save('catalytic_combustion.csv', basis="mole", overwrite=True)
 
 sim.show_stats(0)
+
+# %%
+# Temperature Profile
+# -------------------
+fig, ax = plt.subplots()
+ax.plot(sim.grid, sim.T, color='C3')
+ax.set_ylabel('heat release rate [MW/m³]')
+ax.set(xlabel='distance from inlet [m]')
+plt.show()
+
+# %%
+# Major Species Profiles
+# ----------------------
+fig, ax = plt.subplots()
+major = ('O2', 'CH4', 'H2O', 'CO2')
+states = sim.to_array()
+ax.plot(states.grid, states(*major).X, label=major)
+ax.set(xlabel='distance from inlet [m]', ylabel='mole fractions')
+ax.legend()
+plt.show()
