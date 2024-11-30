@@ -98,7 +98,7 @@ def names(test):
 # Save to data directory
 file_name, entry = names("initial-solution")
 desc = "Initial hydrogen-oxygen counterflow flame at 1 bar and low strain rate"
-f.save(file_name, name=entry, description=desc)
+f.save(file_name, name=entry, description=desc, overwrite=True)
 
 # %%
 # Batch Pressure Loop
@@ -148,7 +148,8 @@ for p in p_range:
         # Try solving the flame
         f.solve(loglevel=0)
         file_name, entry = names(f"pressure-loop/{p:05.1f}")
-        f.save(file_name, name=entry, description=f"pressure = {p} bar")
+        f.save(file_name, name=entry, description=f"pressure = {p} bar",
+               overwrite=True)
         p_previous = p
     except ct.CanteraError as e:
         print('Error occurred while solving:', e, 'Try next pressure level')
@@ -201,7 +202,7 @@ while np.max(f.T) > temperature_limit_extinction:
         f.solve(loglevel=0)
         file_name, entry = names(f"strain-loop/{n:02d}")
         f.save(file_name, name=entry,
-               description=f"strain rate iteration {n}")
+               description=f"strain rate iteration {n}", overwrite=True)
     except FlameExtinguished:
         print('Flame extinguished')
         break
@@ -238,9 +239,10 @@ fig1.savefig(output_path / "figure_T_p.png")
 ax2.legend(loc=0)
 ax2.set_xlabel(r'$z/z_{max}$')
 ax2.set_ylabel(r'$u/u_f$')
-fig1.savefig(output_path / "figure_u_p.png")
+fig2.savefig(output_path / "figure_u_p.png")
 plt.show()
 
+# %%
 fig3 = plt.figure()
 fig4 = plt.figure()
 ax3 = fig3.add_subplot(1, 1, 1)
@@ -261,10 +263,10 @@ for n in n_selected:
 ax3.legend(loc=0)
 ax3.set_xlabel(r'$z/z_{max}$')
 ax3.set_ylabel(r'$T$ [K]')
-fig1.savefig(output_path / "figure_T_a.png")
+fig3.savefig(output_path / "figure_T_a.png")
 
 ax4.legend(loc=0)
 ax4.set_xlabel(r'$z/z_{max}$')
 ax4.set_ylabel(r'$u/u_f$')
-fig1.savefig(output_path / "figure_u_a.png")
+fig4.savefig(output_path / "figure_u_a.png")
 plt.show()

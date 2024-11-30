@@ -146,7 +146,8 @@ while True:
         # Flame is still burning, so proceed to next strain rate
         n_last_burning = n
         file_name, entry = names(f"extinction/{n:04d}")
-        f.save(file_name, name=entry, description=f"Solution at alpha = {alpha[-1]}")
+        f.save(file_name, name=entry, description=f"Solution at alpha = {alpha[-1]}",
+               overwrite=True)
 
         print('Flame burning at alpha = {:8.4F}. Proceeding to the next iteration, '
               'with delta_alpha = {}'.format(alpha[-1], delta_alpha))
@@ -155,7 +156,8 @@ while True:
         # strain rate increase is reached, save the last, non-burning, solution
         # to the output file and break the loop
         file_name, entry = names(f"extinction/{n:04d}")
-        f.save(file_name, name=entry, description=f"Flame extinguished at alpha={alpha[-1]}")
+        f.save(file_name, name=entry, overwrite=True,
+               description=f"Flame extinguished at alpha={alpha[-1]}")
 
         print('Flame extinguished at alpha = {0:8.4F}.'.format(alpha[-1]),
               'Abortion criterion satisfied.')
