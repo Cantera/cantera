@@ -87,8 +87,8 @@ build-frontend = { name="build", args=["-vv"] }
 skip = "pp* *musllinux*"
 test-extras = ["pandas", "units", "graphviz"]
 test-requires = ["pytest"]
-manylinux-x86_64-image = "ghcr.io/cantera/manylinux_2_28_x86_64-hdf5-boost"
-manylinux-aarch64-image = "ghcr.io/cantera/manylinux_2_28_aarch64-hdf5-boost"
+manylinux-x86_64-image = "ghcr.io/cantera/cantera-base-manylinux_2_28-x86_64"
+manylinux-aarch64-image = "ghcr.io/cantera/cantera-base-manylinux_2_28-aarch64"
 test-command = "pytest -vv --durations=100 ${CANTERA_TEST_DIR}/test/python"
 
 [tool.cibuildwheel.windows]
