@@ -20,31 +20,31 @@ FetchContent_Declare(
   FIND_PACKAGE_ARGS NAMES yaml-cpp
 )
 
-set(SUNDIALS_VERSION 7.0.0)
+set(SUNDIALS_VERSION 7.1.1)
 FetchContent_Declare(
   sundials
   URL https://github.com/LLNL/sundials/releases/download/v${SUNDIALS_VERSION}/sundials-${SUNDIALS_VERSION}.tar.gz
-  URL_HASH SHA256=d762a7950ef4097fbe9d289f67a8fb717a0b9f90f87ed82170eb5c36c0a07989
+  URL_HASH SHA256=ea7d6edfb52448ddfdc1ec48f89a721fe6c0a259c10f8ef56f60fcded87a94bb
   # FIND_PACKAGE_ARGS has to be the last thing in this call because it greedily takes
   # everything after it to pass to `find_package()`
-  FIND_PACKAGE_ARGS 7.0.0 EXACT NAMES SUNDIALS
+  FIND_PACKAGE_ARGS NAMES SUNDIALS
 )
 
-set(FMT_VERSION 10.2.1)
+set(FMT_VERSION 11.0.2)
 FetchContent_Declare(
   fmt
   URL https://github.com/fmtlib/fmt/releases/download/${FMT_VERSION}/fmt-${FMT_VERSION}.zip
-  URL_HASH SHA256=312151a2d13c8327f5c9c586ac6cf7cddc1658e8f53edae0ec56509c8fa516c9
+  URL_HASH SHA256=40fc58bebcf38c759e11a7bd8fdc163507d2423ef5058bba7f26280c5b9c5465
   # FIND_PACKAGE_ARGS has to be the last thing in this call because it greedily takes
   # everything after it to pass to `find_package()`
   FIND_PACKAGE_ARGS NAMES fmt GLOBAL
 )
 
-set(HIGHFIVE_VERSION 2.9.0)
+set(HIGHFIVE_VERSION 2.10.0)
 FetchContent_Declare(
   HighFive
   URL https://github.com/BlueBrain/HighFive/archive/refs/tags/v${HIGHFIVE_VERSION}.tar.gz
-  URL_HASH SHA256=6301def8ceb9f4d7a595988612db288b448a3c0546f6c83417dab38c64994d7e
+  URL_HASH SHA256=c29e8e1520e7298fabb26545f804e35bb3af257005c1c2df62e39986458d7c38
   # FIND_PACKAGE_ARGS has to be the last thing in this call because it greedily takes
   # everything after it to pass to `find_package()`
   FIND_PACKAGE_ARGS NAMES HighFive
