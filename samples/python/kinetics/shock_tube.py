@@ -38,7 +38,7 @@ import numpy as np
 
 file = 'example_data/ammonia-CO-H2-Alzueta-2023.yaml'
 models = {'Original': 'baseline', 'LMR-R': 'linear-Burke'}
-colours = {'Original': "xkcd:grey", 'LMR-R': 'xkcd:purple'}
+colors = {'Original': "xkcd:grey", 'LMR-R': 'xkcd:purple'}
 results = {}
 
 # %%
@@ -80,7 +80,7 @@ expData = {
 fig, ax = plt.subplots()
 
 for m, timeHistory in results.items():
-    ax.plot(timeHistory.t*1e6, timeHistory('H2O').X*100, color=colours[m], label=m)
+    ax.plot(timeHistory.t*1e6, timeHistory('H2O').X*100, color=colors[m], label=m)
 
 ax.plot(expData['t'], np.array(expData['X_H2O'])*100, 'o', fillstyle='none', color='k',
         label='Shao et al.')
