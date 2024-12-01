@@ -121,7 +121,8 @@ endif()
 configure_file("../include/cantera/base/config.h.in" "${CMAKE_CURRENT_SOURCE_DIR}/../include/cantera/base/config.h")
 
 add_library(cantera_lib STATIC ${CT_LIB_SOURCES})
-target_include_directories(cantera_lib PRIVATE "../include" "${Python_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}")
+target_include_directories(cantera_lib PRIVATE "../include")
+target_include_directories(cantera_lib SYSTEM PRIVATE "${Python_INCLUDE_DIRS}" "${Boost_INCLUDE_DIRS}")
 set_target_properties(cantera_lib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 target_link_libraries(cantera_lib PUBLIC
     yaml-cpp::yaml-cpp
