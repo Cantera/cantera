@@ -62,13 +62,13 @@ lxcat2yaml = "cantera.lxcat2yaml:main"
 
 [tool.scikit-build]
 logging.level = "DEBUG"
+build.verbose = true
 
 [tool.scikit-build.cmake]
 version = ">=3.24"
-verbose = true
 
 [tool.scikit-build.ninja]
-# As of 21-JULY-2024, Ninja 1.12 is not available on PyPI
+# As of 01-DEC-2024, Ninja 1.12 is not available on PyPI
 version = ">=1.11"
 make-fallback = false
 
