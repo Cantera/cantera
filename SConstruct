@@ -1263,7 +1263,7 @@ if env['system_fmt'] in ('y', 'default'):
                     f"version {fmt_min_version} or higher is required.")
         else:
             env['system_fmt'] = True
-            logger.info(f"Using system installation of fmt library.")
+            logger.info("Using system installation of fmt library.")
     elif env['system_fmt'] == 'y':
         config_error('Expected system installation of fmt library, but it '
             'could not be found.')
@@ -1280,7 +1280,7 @@ if env['system_fmt'] in ('n', 'default'):
 
     fmt_lib_version = split_version(fmt_version_text)
     env['system_fmt'] = False
-    logger.info(f"Using private installation of fmt library.")
+    logger.info("Using private installation of fmt library.")
 
 if env["OS"] == "Windows" and parse_version(fmt_lib_version) < parse_version("8.0.0"):
     # Workaround for symbols not exported on Windows in older fmt versions
