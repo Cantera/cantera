@@ -39,7 +39,7 @@ import numpy as np
 
 file = 'example_data/ammonia-CO-H2-Alzueta-2023.yaml'
 models = {'Original': 'baseline', 'LMR-R': 'linear-Burke'}
-colours = {'Original': "xkcd:grey", 'LMR-R': 'xkcd:purple'}
+colors = {'Original': "xkcd:grey", 'LMR-R': 'xkcd:purple'}
 results = {}
 
 Tin = 296  # unburned gas temperature [K]
@@ -76,7 +76,7 @@ phi_data = (X_NH3/X_O2) / (4/3)
 
 fig, ax = plt.subplots()
 for m, vel_list in results.items():
-    ax.plot(phi_list, vel_list, color=colours[m], label=m)
+    ax.plot(phi_list, vel_list, color=colors[m], label=m)
 ax.plot(phi_data, expData['vel'], 'o', fillstyle='none', color='k', label='Ronney')
 ax.legend(frameon=False, loc='upper right')
 ax.set_ylabel(r'Burning velocity [cm $\rm s^{-1}$]')
