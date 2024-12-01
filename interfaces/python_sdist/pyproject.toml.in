@@ -93,12 +93,12 @@ test-command = "pytest -vv --durations=100 ${CANTERA_TEST_DIR}/test/python"
 
 [tool.cibuildwheel.windows]
 before-build = "pip install delvewheel"
-repair-wheel-command = "delvewheel repair --add-path %HDF5_LIB_DIR%;%ZLIB_LIB_DIR% -w {dest_dir} {wheel}"
+repair-wheel-command = "delvewheel repair --add-path %HDF5_LIB_DIR%;%SUNDIALS_LIB_DIR% -w {dest_dir} {wheel}"
 test-command = "pytest -vv --durations=100 %CANTERA_TEST_DIR%\\test\\python"
 
 [tool.cibuildwheel.macos]
 # https://cibuildwheel.pypa.io/en/stable/faq/#macos-passing-dyld_library_path-to-delocate
 repair-wheel-command = """\
 DYLD_FALLBACK_LIBRARY_PATH=${DYLD_FALLBACK_LIBRARY_PATH} \
-delocate-wheel --require-archs {delocate_archs} -w {dest_dir} -v {wheel} \
+delocate-wheel --require-archs {delocate_archs} -w {dest_dir} -v {wheel}
 """
