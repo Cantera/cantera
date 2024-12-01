@@ -75,6 +75,7 @@ make-fallback = false
 [tool.scikit-build.cmake.define]
 CMAKE_POSITION_INDEPENDENT_CODE = "ON"
 Boost_INCLUDE_DIRS = { env = "Boost_INCLUDE_DIRS" }
+HDF5_ROOT = { env = "HDF5_ROOT" }
 
 [tool.scikit-build.sdist]
 exclude = ["pyproject.toml.in", "cantera/with_units/solution.py.in"]
