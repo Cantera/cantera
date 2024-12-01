@@ -33,10 +33,12 @@ testing.
 1. Install SCons and [build](https://pypi.org/project/build/)
 1. Run `scons sdist`
    a. `scons clean sdist` can also be used to automatically remove the
-   `build` folder prior to building the `sdist.
+   `build` folder prior to building the `sdist`.
 1. Building the wheel requires that Boost and libhdf5 are available on the build system.
-   If these are not installed in standard locations, you can set `BOOST_ROOT` and
-   `HDF5_ROOT` environment variables to point to the correct location.
+   If these are not installed in standard locations, you can set the `Boost_ROOT` and
+   `HDF5_ROOT` environment variables to point to the correct location. On Linux, you
+   will also need to install OpenBLAS (macOS uses Apple's Accelerate framework to
+   provide LAPACK).
 1. Change to the `build/python_sdist/dist` folder
 1. Unpack the sdist: `tar xf cantera-3.1.0a2.tar.gz`. Note the version `3.1.0a2` may be
    different.
@@ -54,13 +56,16 @@ pip install <path to the wheel>`.
 
 Sdists are built from the git checkout using SCons. Starting with v3.1, the only
 dependencies required to build the sdist are SCons and
-build. Dependencies such as NumPy, Boost, or any of
+`build` (also known as `pyproject-build`). Dependencies such as NumPy, Boost, or any of
 the dependencies available as submodules are not necessary to build the sdist.
 
 To build the sdist, run `scons sdist` from the repository root.
 
 ```{note}
-For versions 2.6 and 3.0, all the usual dependencies to build Cantera from source are required. Starting with 3.1, the build process for the sdist was simplified to pull in external dependencies at wheel-build time, rather than copying code from the Cantera external source tree into the sdist.
+For versions 2.6 and 3.0, all the usual dependencies to build Cantera from source
+are required. Starting with 3.1, the build process for the sdist was simplified to
+pull in external dependencies at wheel-build time, rather than copying code from the
+Cantera external source tree into the sdist.
 ```
 
 The code for the sdist is located in the `interfaces/python_sdist` folder. Building the
@@ -110,9 +115,12 @@ wheel. Most of the configuration for the wheel build is therefore done in the
 the `build/python_sdist` folder and from there into the actual sdist tarball.
 
 ```{note}
-The minimum required version of CMake is 3.24 to support all the options we use with
-`FetchContent`. A compatible version should be installed by scikit-build-core if it
-isn't available on the system.
+The minimum required version of CMake is 3.27 to support all the options we use with
+[`FetchContent`](https://cmake.org/cmake/help/latest/module/FetchContent.html). A
+compatible version should be installed by `scikit-build-core` if it isn't available
+on the system. Linux and macOS hosts also require the Ninja build system, version 1.11
+or greater. This should also be installed by `scikit-build-core` at build time if isn't
+available on the system.
 ```
 
 There are essentially 4 stages to the wheel build:
@@ -130,8 +138,8 @@ built during the wheel build and must be pre-installed on the build system. I co
 find a way to have eigen and HighFive, respectively, find those dependencies if they
 were also installed using `FetchContent`. If Boost and libhdf5 are installed in
 non-standard directories, you can use the `Boost_ROOT` or `Boost_INCLUDE_DIRS` and
-`HDF5_ROOT` variables to specific the correct locations. See the CMake documentation for
-`find_package()`.
+`HDF5_ROOT` variables to specify the correct locations. See the CMake documentation for
+[`find_package()`](https://cmake.org/cmake/help/latest/command/find_package.html).
 ```
 
 Steps 1 and 2 above are set up in the `interfaces/python_sdist/src/CMakeLists.txt` file.
@@ -143,15 +151,14 @@ When a version of Cantera is ready to be published to PyPI, the workflow in the
 [pypi-packages](https://github.com/Cantera/pypi-packages) repository must be executed.
 The workflow essentially conducts the steps in the [](#tldr) section above.
 
-The one big addition to the GitHub Action workflow is that there are a couple of shell
-scripts in the `pypi-packages` repository to build libhdf5 for macOS and Windows. On
-macOS, we also link to `libaec` so there's a small patch for the CMakeLists.txt file in
-`libaec`.
+The one big addition to the GitHub Actions workflow is that there are a couple of shell
+scripts in the `pypi-packages` repository to build libhdf5, HighFive, and SUNDIALS for
+macOS and Windows.
 
 For Linux builds, we have a [custom-built manylinux
-image](https://github.com/Cantera/hdf5-boost-manylinux) that already has the
-dependencies installed. This saves time compiling libhdf5 on Linux/ARM builds because
-those are emulated and already very slow.
+image](https://github.com/Cantera/cantera-base-manylinux) that already has the
+dependencies installed. This saves time compiling our dependencies on Linux/ARM builds
+because those are emulated and already very slow.
 
 As much of the configuration for `cibuildwheel` as possible is done statically in
 `pyproject.toml.in`. Only values that are dynamically determined when the workflow runs
@@ -163,3 +170,17 @@ workflow in `.github/workflows/packaging.yml` in the main Cantera repository. Yo
 [check the status](https://github.com/Cantera/pypi-packages/actions/workflows/python-package.yml)
 of these package builds or trigger the workflow manually (in case it fails and requires
 updates after the tag is pushed).
+
+## Tips
+
+* You can manually run the packaging build in the `pypi-packages` repository by going
+  to the _Actions_ tab in the repository and manually running the workflow. Choose
+  your branch from the dropdown and paste in a commit from the `Cantera/cantera`
+  repository. You can paste any valid commit associated with Cantera, including commits
+  from branches associated with pull requests in `Cantera/cantera`.
+* With CMake 3.27 or later, `*_ROOT` locations for dependencies can be spelled as either
+  the canonical spelling defined by the library (for example, `Boost_ROOT`) or as all
+  upper-case (for example, `BOOST_ROOT`). This behavior is configured by [CMake Policy
+  0144](https://cmake.org/cmake/help/latest/policy/CMP0144.html).
+
+[manylinux]:
