@@ -546,7 +546,6 @@ class TestTransportData:
 
 
 class TestIonGasTransportData:
-
     @pytest.fixture(scope='class')
     def gas(self):
         return ct.Solution("ch4_ion.yaml")
@@ -564,3 +563,10 @@ class TestIonGasTransportData:
         tr2 = gas.species('N2').transport
         assert tr1.dispersion_coefficient == approx(tr2.dispersion_coefficient)
         assert tr1.quadrupole_polarizability == approx(tr2.quadrupole_polarizability)
+
+    def test_serialization(self, gas):
+        data = gas.species('N2').transport.input_data
+        assert data['dispersion-coefficient'] == approx(2.995)
+        assert data['quadrupole-polarizability'] == approx(3.602)
+
+        assert 'dispersion-coefficient' not in gas.species('CO2').transport.input_data
