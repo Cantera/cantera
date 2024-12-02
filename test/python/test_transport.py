@@ -342,6 +342,38 @@ def test_bad_transport_input(key, value, message):
     with pytest.raises(ct.CanteraError, match=message):
         ct.Species.list_from_yaml(species_data)
 
+@pytest.mark.parametrize(
+    "model",
+    [
+        "mixture-averaged",
+        "mixture-averaged-CK",
+        "ionized-gas",
+        pytest.param("multicomponent",
+                     marks=pytest.mark.xfail(reason="See Issue #1823"))
+     ]
+)
+def test_single_species_transport(model):
+    """
+    A phase with only one species defined should have the same transport
+    properties as a pure species state in a multi-species phase definition.
+    """
+    yaml_ref = """
+    phases:
+    - name: gas
+      thermo: ideal-gas
+      species:
+      - gri30.yaml/species: [H2, O2, H2O2, OH]
+    """
+    ref = ct.Solution(yaml=yaml_ref, transport_model=model)
+    single = ct.Solution(thermo='ideal-gas', species=[ref.species('H2O2')],
+                         transport_model=model)
+    single.TPX = ref.TPX = 500, 5 * ct.one_atm, 'H2O2:1.0'
+    assert single.min_temp == ref.min_temp
+    assert single.max_temp == ref.max_temp
+    # assert single.viscosity == approx(ref.viscosity)
+    assert single.thermal_conductivity == approx(ref.thermal_conductivity)
+    k = ref.species_index('H2O2')
+    assert single.mix_diff_coeffs[0] == approx(ref.binary_diff_coeffs[k,k])
 
 class TestDustyGas:
 
