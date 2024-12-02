@@ -257,7 +257,36 @@ class TestIonTransport:
         assert mobi != gas.mobilities[H3Op_idx]
 
 
-class TestTransportGeometryFlags:
+@pytest.mark.parametrize(
+    "key,value,message",
+    [
+        ("H_geom", "linear", "invalid geometry"),
+        ("H_geom", "nonlinear", "invalid geometry"),
+        ("H2_geom", "atom", "invalid geometry"),
+        ("H2_geom", "nonsense", "invalid geometry"),
+        ("H2_geom", "nonlinear", "invalid geometry"),
+        ("H2O_geom", "atom", "invalid geometry"),
+        ("OHp_geom", "atom", "invalid geometry"),
+        ("OHp_geom", "nonlinear", "invalid geometry"),
+        ("E_geom", "linear", "invalid geometry"),
+        ("H2_well", -33.4, "negative well depth.*H2"),
+        ("H2O_diam", 0.0, "negative or zero diameter.*H2O"),
+        ("H2O_dipole", -1.84, "negative dipole moment.*H2O"),
+        ("H2_polar", -0.79, "negative polarizability.*H2"),
+        ("OHp_rot", -4, "negative rotation relaxation number.*OHp"),
+        ("H2_disp", -3.1, "negative dispersion coefficient.*H2"),
+        ("H2_quad", -3.1, "negative quadrupole polarizability.*H2"),
+    ]
+)
+def test_bad_transport_input(key, value, message):
+    """ Check that invalid transport inputs raise appropriate exceptions """
+    # Default parameters are valid
+    subs = {"H_geom":"atom", "H2_geom":"linear", "H2O_geom":"nonlinear",
+            "OHp_geom":"linear", "E_geom":"atom", "H2_well": 38.0, "H2O_diam": 2.60,
+            "H2O_dipole": 1.84, "H2_polar": 0.79, "OHp_rot": 4.0, "H2_disp": 2.995,
+            "H2_quad": 3.602}
+    subs[key] = value
+
     species_data = """
     - name: H2
       composition: {{H: 2}}
@@ -265,17 +294,19 @@ class TestTransportGeometryFlags:
         {{model: constant-cp, T0: 1000, h0: 51.7, s0: 19.5, cp0: 8.41}}
       transport:
         model: gas
-        geometry: {H2}
+        geometry: {H2_geom}
         diameter: 2.92
-        well-depth: 38.00
-        polarizability: 0.79
+        well-depth: {H2_well}
+        polarizability: {H2_polar}
         rotational-relaxation: 280.0
+        dispersion-coefficient: {H2_disp}
+        quadrupole-polarizability: {H2_quad}
     - name: H
       composition: {{H: 1}}
       thermo: *dummy-thermo
       transport:
         model: gas
-        geometry: {H}
+        geometry: {H_geom}
         diameter: 2.05
         well-depth: 145.00
     - name: H2O
@@ -283,45 +314,33 @@ class TestTransportGeometryFlags:
       thermo: *dummy-thermo
       transport:
         model: gas
-        geometry: {H2O}
-        diameter: 2.60
+        geometry: {H2O_geom}
+        diameter: {H2O_diam}
         well-depth: 572.40
-        dipole: 1.84
+        dipole: {H2O_dipole}
         rotational-relaxation: 4.0
     - name: OHp
       composition: {{H: 1, O: 1, E: -1}}
       thermo: *dummy-thermo
       transport:
         model: gas
-        geometry: {OHp}
+        geometry: {OHp_geom}
         diameter: 2.60
         well-depth: 572.40
         dipole: 1.84
-        rotational-relaxation: 4.0
+        rotational-relaxation: {OHp_rot}
     - name: E
       composition: {{E: 1}}
       thermo: *dummy-thermo
       transport:
         model: gas
-        geometry: {E}
+        geometry: {E_geom}
         diameter: 0.01
         well-depth: 1.0
-    """
+    """.format(**subs)
 
-    def test_bad_geometry(self):
-        good = {'H':'atom', 'H2':'linear', 'H2O':'nonlinear', 'OHp':'linear',
-                'E':'atom'}
-        ct.Species.list_from_yaml(self.species_data.format(**good))
-
-        bad = [{'H':'linear'}, {'H':'nonlinear'}, {'H2':'atom'},
-               {'H2':'nonlinear'}, {'H2O':'atom'}, {'OHp':'atom'},
-               {'OHp':'nonlinear'}, {'E':'linear'}]
-        for geoms in bad:
-            test = copy.copy(good)
-            test.update(geoms)
-            with pytest.raises(ct.CanteraError, match='invalid geometry'):
-                ct.Species.list_from_yaml(self.species_data.format(**test))
-
+    with pytest.raises(ct.CanteraError, match=message):
+        ct.Species.list_from_yaml(species_data)
 
 
 class TestDustyGas:
