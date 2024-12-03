@@ -215,6 +215,12 @@ double MMCollisionInt::cstar_table[39*8] = {
 
 void MMCollisionInt::init(double tsmin, double tsmax, int log_level)
 {
+    if (log_level == -7) {
+        log_level = 0;
+    } else {
+        warn_deprecated("MMCollisionInt::init", "The log_level parameter "
+            "is deprecated and will be removed after Cantera 3.1.");
+    }
     m_loglevel = log_level;
     debuglog("Collision Integral Polynomial Fits\n", m_loglevel > 0);
     m_nmin = -1;
