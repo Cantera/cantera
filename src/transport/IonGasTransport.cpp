@@ -235,6 +235,12 @@ void IonGasTransport::fitDiffCoeffs(MMCollisionInt& integrals)
             }
         }
     }
+    m_fittingErrors["diff-coeff-max-abs-error"] =
+        std::max(m_fittingErrors.getDouble("diff-coeff-max-abs-error", 0.0),
+                 mxerr);
+    m_fittingErrors["diff-coeff-max-rel-error"] =
+        std::max(m_fittingErrors.getDouble("diff-coeff-max-rel-error", 0.0),
+                 mxrelerr);
 
     if (m_log_level) {
         writelogf("Maximum binary diffusion coefficient absolute error:"

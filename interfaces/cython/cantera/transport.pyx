@@ -393,6 +393,23 @@ cdef class Transport(_SolutionBase):
         self.transport.setCollisionIntegralPolynomial(i, j, &adata[0], &bdata[0],
                                                       &cdata[0], actualT)
 
+    property transport_fitting_errors:
+        """
+        Get error metrics about any functional fits calculated for pure species
+        transport properties. See {ct}`GasTransport::fitDiffCoeffs` and
+        {ct}`GasTransport::fitProperties`.
+
+        .. warning::
+
+            This property is an experimental part of the Cantera API and
+            may be changed or removed without notice.
+
+        .. versionadded:: 3.1
+        """
+        def __get__(self):
+            cdef CxxAnyMap stats = self.transport.fittingErrors()
+            return anymap_to_py(stats)
+
 cdef class DustyGasTransport(Transport):
     """
     Implements the "dusty gas" model for transport in porous media.

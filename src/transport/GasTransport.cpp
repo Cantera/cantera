@@ -616,6 +616,8 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
             mxerr = std::max(mxerr, fabs(err));
             mxrelerr = std::max(mxrelerr, fabs(relerr));
         }
+        m_fittingErrors["viscosity-max-abs-error"] = mxerr;
+        m_fittingErrors["viscosity-max-rel-error"] = mxrelerr;
 
         // evaluate max fit errors for conductivity
         for (size_t n = 0; n < np; n++) {
@@ -635,6 +637,8 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
         }
         m_visccoeffs.push_back(c);
         m_condcoeffs.push_back(c2);
+        m_fittingErrors["conductivity-max-abs-error"] = mxerr_cond;
+        m_fittingErrors["conductivity-max-rel-error"] = mxrelerr_cond;
 
         if (m_log_level >= 2) {
             writelog(m_thermo->speciesName(k) + ": [" + vec2str(c) + "]\n");
@@ -690,8 +694,7 @@ void GasTransport::fitDiffCoeffs(MMCollisionInt& integrals)
 
     // vector of polynomial coefficients
     vector<double> c(degree + 1), c2(degree + 1);
-    double err, relerr,
-               mxerr = 0.0, mxrelerr = 0.0;
+    double err, relerr, mxerr = 0.0, mxrelerr = 0.0;
 
     vector<double> diff(np + 1);
     m_diffcoeffs.clear();
@@ -744,6 +747,9 @@ void GasTransport::fitDiffCoeffs(MMCollisionInt& integrals)
             }
         }
     }
+
+    m_fittingErrors["diff-coeff-max-abs-error"] = mxerr;
+    m_fittingErrors["diff-coeff-max-rel-error"] = mxrelerr;
     if (m_log_level) {
         writelogf("Maximum binary diffusion coefficient absolute error:"
                  "  %12.6g\n", mxerr);
