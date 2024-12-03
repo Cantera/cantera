@@ -81,6 +81,15 @@ void MultiTransport::init(ThermoPhase* thermo, int mode, int log_level)
     }
 }
 
+void MultiTransport::invalidateCache()
+{
+    GasTransport::invalidateCache();
+    m_thermal_tlast += 0.1234;
+    m_l0000_ok = false;
+    m_lmatrix_soln_ok = false;
+    m_molefracs_last[0] += 1.23e-4;
+}
+
 double MultiTransport::thermalConductivity()
 {
     solveLMatrixEquation();
