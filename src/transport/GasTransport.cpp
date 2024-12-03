@@ -357,6 +357,16 @@ void GasTransport::setupCollisionParameters()
     }
 }
 
+void GasTransport::invalidateCache()
+{
+    Transport::invalidateCache();
+    m_temp = Undef;
+    m_visc_ok = false;
+    m_spvisc_ok = false;
+    m_viscwt_ok = false;
+    m_bindiff_ok = false;
+}
+
 void GasTransport::setupCollisionIntegral()
 {
     double tstar_min = 1.e8, tstar_max = 0.0;
@@ -862,12 +872,7 @@ void GasTransport::setViscosityPolynomial(size_t i, double* coeffs)
     for (int k = 0; k < (m_mode == CK_Mode ? 4 : 5); k++) {
         m_visccoeffs[i][k] = coeffs[k];
     }
-
-    m_visc_ok = false;
-    m_spvisc_ok = false;
-    m_viscwt_ok = false;
-    m_bindiff_ok = false;
-    m_temp = -1;
+    invalidateCache();
 }
 
 void GasTransport::setConductivityPolynomial(size_t i, double* coeffs)
@@ -875,12 +880,7 @@ void GasTransport::setConductivityPolynomial(size_t i, double* coeffs)
     for (int k = 0; k < (m_mode == CK_Mode ? 4 : 5); k++) {
         m_condcoeffs[i][k] = coeffs[k];
     }
-
-    m_visc_ok = false;
-    m_spvisc_ok = false;
-    m_viscwt_ok = false;
-    m_bindiff_ok = false;
-    m_temp = -1;
+    invalidateCache();
 }
 
 void GasTransport::setBinDiffusivityPolynomial(size_t i, size_t j, double* coeffs)
@@ -896,12 +896,7 @@ void GasTransport::setBinDiffusivityPolynomial(size_t i, size_t j, double* coeff
     for (int k = 0; k < (m_mode == CK_Mode ? 4 : 5); k++) {
         m_diffcoeffs[ic][k] = coeffs[k];
     }
-
-    m_visc_ok = false;
-    m_spvisc_ok = false;
-    m_viscwt_ok = false;
-    m_bindiff_ok = false;
-    m_temp = -1;
+    invalidateCache();
 }
 
 void GasTransport::setCollisionIntegralPolynomial(size_t i, size_t j,
@@ -927,12 +922,7 @@ void GasTransport::setCollisionIntegralPolynomial(size_t i, size_t j,
         m_star_poly_uses_actualT[i][j] = 1;
         m_star_poly_uses_actualT[j][i] = m_star_poly_uses_actualT[i][j];
     }
-
-    m_visc_ok = false;
-    m_spvisc_ok = false;
-    m_viscwt_ok = false;
-    m_bindiff_ok = false;
-    m_temp = -1;
+    invalidateCache();
 }
 
 }

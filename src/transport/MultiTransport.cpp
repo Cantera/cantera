@@ -54,7 +54,7 @@ void MultiTransport::init(ThermoPhase* thermo, int mode, int log_level)
     // set flags all false
     m_l0000_ok = false;
     m_lmatrix_soln_ok = false;
-    m_thermal_tlast = 0.0;
+    m_thermal_tlast = Undef;
 
     // some work space
     m_spwork1.resize(m_nsp);
@@ -79,6 +79,15 @@ void MultiTransport::init(ThermoPhase* thermo, int mode, int log_level)
         m_sqrt_eps_k[k] = sqrt(m_eps[k]/Boltzmann);
         m_frot_298[k] = Frot(m_eps[k]/kb298, m_sqrt_eps_k[k]/sq298);
     }
+}
+
+void MultiTransport::invalidateCache()
+{
+    GasTransport::invalidateCache();
+    m_thermal_tlast = Undef;
+    m_l0000_ok = false;
+    m_lmatrix_soln_ok = false;
+    m_molefracs_last[0] += 1.23e-4;
 }
 
 double MultiTransport::thermalConductivity()
