@@ -427,6 +427,11 @@ public:
 
     //! @}
 
+    //! Invalidate any cached values which are normally updated only when a
+    //! change in state is detected
+    //! @since New in %Cantera 3.1.
+    virtual void invalidateCache() {}
+
 protected:
     //! pointer to the object representing the phase
     ThermoPhase* m_thermo;
