@@ -71,12 +71,18 @@ class TestTransport:
 
     def test_CK_mode(self, phase):
         mu_ct = phase.viscosity
+        err_ct = phase.transport_fitting_errors
         phase.transport_model = 'mixture-averaged-CK'
         assert phase.transport_model == 'mixture-averaged-CK'
         mu_ck = phase.viscosity
+        err_ck = phase.transport_fitting_errors
         # values should be close, but not identical
         assert abs(mu_ct - mu_ck) / mu_ct > 1e-8
         assert abs(mu_ct - mu_ck) / mu_ct < 1e-2
+
+        # Cantera's fits should be an improvement in all cases
+        for key in err_ct:
+            assert err_ct[key] < err_ck[key]
 
     def test_ionGas(self, phase):
         # IonGasTransport gives the same result for a mixture

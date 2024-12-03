@@ -20,12 +20,12 @@
 
 #include "cantera/base/ct_defs.h"
 #include "cantera/base/ctexceptions.h"
+#include "cantera/base/AnyMap.h"
 
 namespace Cantera
 {
 
 class ThermoPhase;
-class AnyMap;
 
 /**
  * @addtogroup tranprops
@@ -389,6 +389,16 @@ public:
     //! separately.
     AnyMap parameters() const;
 
+    //! Get error metrics about any functional fits calculated for pure species
+    //! transport properties.
+    //!
+    //! See GasTransport::fitDiffCoeffs and GasTransport::fitProperties.
+    //!
+    //! @warning  This method is an experimental part of the %Cantera API and may be
+    //!      changed or removed without notice.
+    //! @since New in %Cantera 3.1.
+    AnyMap fittingErrors() const { return m_fittingErrors; };
+
     //! @name Transport manager construction
     //!
     //! These methods are used during construction.
@@ -421,6 +431,9 @@ protected:
 
     //! Number of species
     size_t m_nsp = 0;
+
+    //! Maximum errors associated with fitting pure species transport properties.
+    AnyMap m_fittingErrors;
 };
 
 }
