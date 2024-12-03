@@ -7,6 +7,7 @@
 #include "cantera/thermo/VPStandardStateTP.h"
 #include "cantera/thermo/PDSS_Water.h"
 #include "cantera/thermo/WaterSSTP.h"
+#include "cantera/base/global.h"
 
 namespace {
 
@@ -32,6 +33,10 @@ namespace Cantera
 
 void WaterTransport::init(ThermoPhase* thermo, int mode, int log_level)
 {
+    if (log_level != -7) {
+        warn_deprecated("Transport::init", "The log_level parameter "
+            "is deprecated and will be removed after Cantera 3.1.");
+    }
     m_thermo = thermo;
 }
 

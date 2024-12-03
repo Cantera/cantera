@@ -23,6 +23,12 @@ void IonGasTransport::init(ThermoPhase* thermo, int mode, int log_level)
         throw CanteraError("IonGasTransport::init",
                            "mode = CK_Mode, which is an outdated lower-order fit.");
     }
+    if (log_level == -7) {
+        log_level = 0;
+    } else {
+        warn_deprecated("Transport::init", "The log_level parameter "
+            "is deprecated and will be removed after Cantera 3.1.");
+    }
     m_log_level = log_level;
     // make a local copy of species charge
     for (size_t k = 0; k < m_nsp; k++) {

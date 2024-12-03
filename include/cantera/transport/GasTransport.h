@@ -148,7 +148,7 @@ public:
                                         double* bstar_coeffs,
                                         double* cstar_coeffs, bool actualT) override;
 
-    void init(ThermoPhase* thermo, int mode=0, int log_level=0) override;
+    void init(ThermoPhase* thermo, int mode=0, int log_level=-7) override;
 
     bool CKMode() const override {
         return m_mode == CK_Mode;
@@ -541,7 +541,8 @@ protected:
     //! Quadrupole polarizability
     vector<double> m_quad_polar;
 
-    //! Level of verbose printing during initialization
+    //! Level of verbose printing during initialization.
+    //! @deprecated To be removed after %Cantera 3.1.
     int m_log_level = 0;
 };
 

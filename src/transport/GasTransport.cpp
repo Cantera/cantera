@@ -29,7 +29,7 @@ void GasTransport::update_T()
 {
     if (m_thermo->nSpecies() != m_nsp) {
         // Rebuild data structures if number of species has changed
-        init(m_thermo, m_mode, m_log_level);
+        init(m_thermo, m_mode, m_log_level != 0 ? m_log_level : -7);
     }
 
     double T = m_thermo->temperature();
@@ -263,6 +263,12 @@ void GasTransport::init(ThermoPhase* thermo, int mode, int log_level)
     m_thermo = thermo;
     m_nsp = m_thermo->nSpecies();
     m_mode = mode;
+    if (log_level == -7) {
+        log_level = 0;
+    } else {
+        warn_deprecated("Transport::init", "The log_level parameter "
+            "is deprecated and will be removed after Cantera 3.1.");
+    }
     m_log_level = log_level;
 
     // set up Monchick and Mason collision integrals
@@ -372,7 +378,7 @@ void GasTransport::setupCollisionIntegral()
     // initialize the collision integral calculator for the desired T* range
     debuglog("*** collision_integrals ***\n", m_log_level);
     MMCollisionInt integrals;
-    integrals.init(tstar_min, tstar_max, m_log_level);
+    integrals.init(tstar_min, tstar_max, m_log_level != 0 ? m_log_level : -7);
     fitCollisionIntegrals(integrals);
     debuglog("*** end of collision_integrals ***\n", m_log_level);
     // make polynomial fits
