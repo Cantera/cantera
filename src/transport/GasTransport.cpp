@@ -916,12 +916,8 @@ void GasTransport::setCollisionIntegralPolynomial(size_t i, size_t j,
     m_astar_poly.push_back(ca);
     m_bstar_poly.push_back(cb);
     m_cstar_poly.push_back(cc);
-    m_poly[i][j] = static_cast<int>(m_astar_poly.size()) - 1;
-    m_poly[j][i] = m_poly[i][j];
-    if (actualT) {
-        m_star_poly_uses_actualT[i][j] = 1;
-        m_star_poly_uses_actualT[j][i] = m_star_poly_uses_actualT[i][j];
-    }
+    m_poly[j][i] = m_poly[i][j] = static_cast<int>(m_astar_poly.size()) - 1;
+    m_star_poly_uses_actualT[j][i] = m_star_poly_uses_actualT[i][j] = (actualT) ? 1 : 0;
     invalidateCache();
 }
 

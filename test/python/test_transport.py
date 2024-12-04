@@ -225,11 +225,11 @@ class TestTransport:
 
         cond1_O2 = get_cond("O2")
         cond1_OH = get_cond("OH")
-        phase.set_collision_integral_polynomial(kO2, kO2, *coll_polys_H2O, False)
+        phase.set_collision_integral_polynomial(kO2, kO2, *coll_polys_H2O, actualT=True)
         assert get_cond("O2") != cond1_O2  # different
         assert get_cond("OH") == cond1_OH  # unchanged; normally shares poly with O2
 
-        phase.set_collision_integral_polynomial(kO2, kO2, *coll_polys_O2, False)
+        phase.set_collision_integral_polynomial(kO2, kO2, *coll_polys_O2, actualT=False)
         assert get_cond("O2") == cond1_O2  # back to original
 
 
