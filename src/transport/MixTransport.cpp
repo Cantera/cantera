@@ -86,10 +86,6 @@ void MixTransport::update_T()
     if (t == m_temp && m_nsp == m_thermo->nSpecies()) {
         return;
     }
-    if (t < 0.0) {
-        throw CanteraError("MixTransport::update_T",
-                           "negative temperature {}", t);
-    }
     GasTransport::update_T();
     // temperature has changed, so polynomial fits will need to be redone.
     m_spcond_ok = false;
