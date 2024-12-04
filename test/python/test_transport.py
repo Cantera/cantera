@@ -212,6 +212,26 @@ class TestTransport:
         assert D12 == D12new
         assert D23 == D23new
 
+    def test_transport_polynomial_fits_collision_integrals(self, phase):
+        kO2 = phase.species_index("O2")
+        kH2O = phase.species_index("H2O")  # unique poly because of dipole moment
+        phase.transport_model = 'multicomponent'
+        coll_polys_H2O = phase.get_collision_integral_polynomials(kH2O, kH2O)
+        coll_polys_O2 = phase.get_collision_integral_polynomials(kO2, kO2)
+
+        def get_cond(species):
+            phase.TPX = 400, 2 * ct.one_atm, {species: 1.0}
+            return phase.thermal_conductivity
+
+        cond1_O2 = get_cond("O2")
+        cond1_OH = get_cond("OH")
+        phase.set_collision_integral_polynomial(kO2, kO2, *coll_polys_H2O, False)
+        assert get_cond("O2") != cond1_O2  # different
+        assert get_cond("OH") == cond1_OH  # unchanged; normally shares poly with O2
+
+        phase.set_collision_integral_polynomial(kO2, kO2, *coll_polys_O2, False)
+        assert get_cond("O2") == cond1_O2  # back to original
+
 
 class TestIonTransport:
 
