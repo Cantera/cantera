@@ -534,7 +534,7 @@ TEST(Reaction, TwoTempPlasmaFromYaml)
 
 TEST(Reaction, ElectronCollisionPlasmaFromYaml)
 {
-    auto sol = newSolution("oxygen-plasma.yaml", "", "none");
+    auto sol = newSolution("oxygen-plasma.yaml", "discretized-electron-energy-plasma", "none");
     AnyMap rxn = AnyMap::fromYamlString(
         "{equation: O2 + E => E + O2,"
         " type: electron-collision-plasma,"

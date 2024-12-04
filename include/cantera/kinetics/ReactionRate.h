@@ -216,6 +216,35 @@ public:
         m_composition_dependent_rate = comp_dep;
     }
 
+    //! @name Properties of the electron-collision-plasma rate
+    //! @{
+
+    //! The value of #ElectronCollisionPlasmaRate::m_energyLevels [eV]
+    virtual const vector<double>& energyLevels() const {
+        throw NotImplementedError("ReactionRate::energyLevels",
+                                  "Not implemented by '{}' object.", type());
+    }
+
+    //! The value of #ElectronCollisionPlasmaRate::m_crossSections [m2]
+    virtual const vector<double>& crossSections() const {
+        throw NotImplementedError("ReactionRate::crossSections",
+                                  "Not implemented by '{}' object.", type());
+    }
+
+    //! The value of #ElectronCollisionPlasmaRate::m_crossSectionsInterpolated
+    virtual const vector<double>& crossSectionInterpolated() const {
+        throw NotImplementedError("ReactionRate::crossSectionInterpolated",
+                                  "Not implemented by '{}' object.", type());
+    }
+
+    //! Set the value of #ElectronCollisionPlasmaRate::m_crossSectionsInterpolated
+    virtual void updateInterpolatedCrossSection(const vector<double>& sharedLevels) {
+        throw NotImplementedError("ReactionRate::updateInterpolatedCrossSection",
+                                  "Not implemented by '{}' object.", type());
+    }
+
+    //! @}
+
 protected:
     //! Get parameters
     //! @param node  AnyMap containing rate information
