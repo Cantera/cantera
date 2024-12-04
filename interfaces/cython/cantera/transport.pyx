@@ -308,7 +308,7 @@ cdef class Transport(_SolutionBase):
     def get_collision_integral_polynomials(self, i, j):
         """
         Get the coefficients of the polynomial fit of the collision integral for
-        species ``i`` and ``j`` as a function of temperature. See
+        species ``i`` and ``j`` as a function of the reduced temperature. See
         :ct:`GasTransport::fitCollisionIntegrals`.
         """
         n_values = 7 if self.transport.CKMode() else 9
@@ -365,11 +365,13 @@ cdef class Transport(_SolutionBase):
         tran_setBinDiffusivityPolynomial(self.transport, i, j, &data[0])
 
     def set_collision_integral_polynomial(self, i, j, avalues, bvalues, cvalues,
-                                          actualT=True):
-        """
+                                          actualT=False):
+        r"""
         Set the coefficients of the polynomial fit of the collision integral for
         species ``i`` and ``j`` as a function of temperature. See
-        :ct:`GasTransport::fitCollisionIntegrals`.
+        :ct:`GasTransport::fitCollisionIntegrals`. The flag ``actualT`` determines
+        whether the fit is done in terms of the reduced temperature
+        (:math:`T^*_{ij} = T k_B / \epsilon_{ij}`; default) or the actual temperature.
         """
         n_values = 7 if self.transport.CKMode() else 9
         if len(avalues) != n_values:
