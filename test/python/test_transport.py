@@ -71,14 +71,24 @@ class TestTransport:
 
     def test_CK_mode(self, phase):
         mu_ct = phase.viscosity
+        cond_ct = phase.thermal_conductivity
+        diff_ct = phase.binary_diff_coeffs
         err_ct = phase.transport_fitting_errors
         phase.transport_model = 'mixture-averaged-CK'
         assert phase.transport_model == 'mixture-averaged-CK'
         mu_ck = phase.viscosity
+        cond_ck = phase.thermal_conductivity
+        diff_ck = phase.binary_diff_coeffs
+
         err_ck = phase.transport_fitting_errors
         # values should be close, but not identical
-        assert abs(mu_ct - mu_ck) / mu_ct > 1e-8
-        assert abs(mu_ct - mu_ck) / mu_ct < 1e-2
+        assert mu_ck == approx(mu_ct, rel=1e-2)
+        assert mu_ck != approx(mu_ct, rel=1e-8)
+        assert cond_ck == approx(cond_ct, rel=1e-2)
+        assert cond_ck != approx(cond_ct, rel=1e-8)
+        assert diff_ck == approx(diff_ct, rel=1e-2)
+        for (i, j), Dij in np.ndenumerate(diff_ck):
+            assert Dij != approx(diff_ct[i,j], rel=1e-8), (i, j)
 
         # Cantera's fits should be an improvement in all cases
         for key in err_ct:
