@@ -154,6 +154,8 @@ public:
         return m_mode == CK_Mode;
     }
 
+    void invalidateCache() override;
+
 protected:
     GasTransport();
 

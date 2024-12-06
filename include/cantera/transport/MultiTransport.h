@@ -102,6 +102,8 @@ public:
 
     void init(ThermoPhase* thermo, int mode=0, int log_level=-7) override;
 
+    void invalidateCache() override;
+
 protected:
     //! Update basic temperature-dependent quantities if the temperature has
     //! changed.
