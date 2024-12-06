@@ -506,6 +506,16 @@ class TestWaterTransport:
         water.TP = T, P
         assert water.viscosity == approx(mu, rel=rtol)
 
+    @pytest.mark.parametrize("T, D, mu, rtol", [
+        (647.43, 280.34, 3.7254e-05, 6e-3),
+        (647.43, 318.89, 4.2286e-05, 6e-3),
+        (648.23, 301.34, 3.9136e-05, 6e-3),
+        (648.23, 330.59, 4.2102e-05, 6e-3)
+    ])
+    def test_viscosity_near_critical(self, water, T, D, mu, rtol):
+        water.TD = T, D
+        assert water.viscosity == approx(mu, rel=rtol)
+
     @pytest.mark.parametrize("T, P, k, rtol", [
         (400, 1e6, 0.68410, 1e-3),
         (400, 8e6, 0.68836, 1e-3),
