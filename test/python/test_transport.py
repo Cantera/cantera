@@ -176,6 +176,8 @@ class TestTransport:
             assert phase[species_name].species_viscosities[0] == approx(visc)
 
     def test_transport_polynomial_fits_viscosity(self, phase):
+        with pytest.raises(ct.CanteraError, match='IndexError'):
+            phase.get_viscosity_polynomial(58)
         visc1_h2o = phase['H2O'].species_viscosities[0]
         mu_poly_h2o = phase.get_viscosity_polynomial(phase.species_index("H2O"))
         visc1_h2 = phase['H2'].species_viscosities[0]
@@ -214,6 +216,8 @@ class TestTransport:
         D23mod = phase.binary_diff_coeffs[2, 3]
         phase.set_binary_diff_coeffs_polynomial(1, 2, bd_poly_12)
         phase.set_binary_diff_coeffs_polynomial(2, 3, bd_poly_23)
+        with pytest.raises(ct.CanteraError, match='IndexError'):
+            phase.set_binary_diff_coeffs_polynomial(2, 33, bd_poly_23)
         D12new = phase.binary_diff_coeffs[1, 2]
         D23new = phase.binary_diff_coeffs[2, 3]
         assert D12 != D23
