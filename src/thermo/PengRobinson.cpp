@@ -560,6 +560,8 @@ double PengRobinson::densityCalc(double T, double presPa, int phaseRequested,
 
 double PengRobinson::densSpinodalLiquid() const
 {
+    warn_deprecated("PengRobinson::densSpinodalLiquid",
+                    "To be removed after Cantera 3.1.");
     double Vroot[3];
     double T = temperature();
     int nsol = solveCubic(T, pressure(), m_a, m_b, m_aAlpha_mix, Vroot);
@@ -582,6 +584,8 @@ double PengRobinson::densSpinodalLiquid() const
 
 double PengRobinson::densSpinodalGas() const
 {
+    warn_deprecated("PengRobinson::densSpinodalGas",
+                    "To be removed after Cantera 3.1.");
     double Vroot[3];
     double T = temperature();
     int nsol = solveCubic(T, pressure(), m_a, m_b, m_aAlpha_mix, Vroot);

@@ -421,6 +421,7 @@ public:
     //! liquid side) for the current temperature.
     /*!
      * @returns the density with units of kg m-3
+     * @deprecated To be removed after %Cantera 3.1.
      */
     virtual double densSpinodalLiquid() const;
 
@@ -428,6 +429,7 @@ public:
     //! side) for the current temperature.
     /*!
      * @returns the density with units of kg m-3
+     * @deprecated To be removed after %Cantera 3.1.
      */
     virtual double densSpinodalGas() const;
 
