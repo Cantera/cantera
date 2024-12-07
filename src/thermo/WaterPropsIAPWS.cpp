@@ -263,36 +263,9 @@ void WaterPropsIAPWS::corr(double temperature, double pressure,
     delGRT = gibbsLiqRT - gibbsGasRT;
 }
 
-void WaterPropsIAPWS::corr1(double temperature, double pressure,
-    double& densLiq, double& densGas, double& pcorr)
-{
-    densLiq = density(temperature, pressure, WATER_LIQUID, densLiq);
-    if (densLiq <= 0.0) {
-        throw CanteraError("WaterPropsIAPWS::corr1",
-            "Error occurred trying to find liquid density at (T,P) = {}  {}",
-            temperature, pressure);
-    }
-    setState_TD(temperature, densLiq);
-    double prL = m_phi.phiR();
-
-    densGas = density(temperature, pressure, WATER_GAS, densGas);
-    if (densGas <= 0.0) {
-        throw CanteraError("WaterPropsIAPWS::corr1",
-            "Error occurred trying to find gas density at (T,P) = {}  {}",
-            temperature, pressure);
-    }
-    setState_TD(temperature, densGas);
-    double prG = m_phi.phiR();
-    double rhs = (prL - prG) + log(densLiq/densGas);
-    rhs /= (1.0/densGas - 1.0/densLiq);
-    pcorr = rhs * R_water * temperature;
-}
-
 double WaterPropsIAPWS::psat(double temperature, int waterState)
 {
-    static int method = 1;
     double densLiq = -1.0, densGas = -1.0, delGRT = 0.0;
-    double dp, pcorr;
     if (temperature >= T_c) {
         densGas = density(temperature, P_c, WATER_SUPERCRIT);
         setState_TD(temperature, densGas);
@@ -300,22 +273,11 @@ double WaterPropsIAPWS::psat(double temperature, int waterState)
     }
     double p = psat_est(temperature);
     for (int i = 0; i < 30; i++) {
-        if (method == 1) {
-            corr(temperature, p, densLiq, densGas, delGRT);
-            double delV = 1.0/densLiq - 1.0/densGas;
-            dp = - delGRT * R_water * temperature / delV;
-        } else {
-            corr1(temperature, p, densLiq, densGas, pcorr);
-            dp = pcorr - p;
-        }
-        p += dp;
-
-        if ((method == 1) && delGRT < 1.0E-8) {
+        corr(temperature, p, densLiq, densGas, delGRT);
+        double delV = 1.0/densLiq - 1.0/densGas;
+        p -= delGRT * R_water * temperature / delV;
+        if (delGRT < 1.0E-8) {
             break;
-        } else {
-            if (fabs(dp/p) < 1.0E-9) {
-                break;
-            }
         }
     }
     // Put the fluid in the desired end condition
