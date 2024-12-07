@@ -408,17 +408,6 @@ private:
     void corr(double temperature, double pressure, double& densLiq,
               double& densGas, double& delGRT);
 
-    //! Utility routine in the calculation of the saturation pressure
-    /*!
-     * @param temperature    temperature (kelvin)
-     * @param pressure       pressure (Pascal)
-     * @param densLiq        Output density of liquid
-     * @param densGas        output Density of gas
-     * @param pcorr          output corrected pressure
-     */
-    void corr1(double temperature, double pressure, double& densLiq,
-               double& densGas, double& pcorr);
-
     //! pointer to the underlying object that does the calculations.
     mutable WaterPropsIAPWSphi m_phi;
 
