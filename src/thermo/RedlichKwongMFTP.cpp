@@ -624,6 +624,8 @@ double RedlichKwongMFTP::densityCalc(double TKelvin, double presPa, int phaseReq
 
 double RedlichKwongMFTP::densSpinodalLiquid() const
 {
+    warn_deprecated("RedlichKwongMFTP::densSpinodalLiquid",
+                    "To be removed after Cantera 3.1.");
     double Vroot[3];
     double T = temperature();
     int nsol = solveCubic(T, pressure(), m_a_current, m_b_current, Vroot);
@@ -646,6 +648,8 @@ double RedlichKwongMFTP::densSpinodalLiquid() const
 
 double RedlichKwongMFTP::densSpinodalGas() const
 {
+    warn_deprecated("RedlichKwongMFTP::densSpinodalGas",
+                    "To be removed after Cantera 3.1.");
     double Vroot[3];
     double T = temperature();
     int nsol = solveCubic(T, pressure(), m_a_current, m_b_current, Vroot);
