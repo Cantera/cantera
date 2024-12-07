@@ -253,6 +253,7 @@ public:
      * @param rhoguess    guessed density of the water; -1.0: no guessed density
      * @returns the density. If an error is encountered in the calculation the
      *     value of -1.0 is returned.
+     * @deprecated To be removed after %Cantera 3.1.
      */
     double density_const(double pressure, int phase = -1, double rhoguess = -1.0) const;
 
@@ -341,6 +342,7 @@ public:
     //! liquid side) for the current temperature.
     /*!
      * @returns the density with units of kg m-3
+     * @deprecated To be removed after %Cantera 3.1.
      */
     double densSpinodalWater() const;
 
@@ -348,6 +350,7 @@ public:
     //! side) for the current temperature.
     /*!
      * @returns the density with units of kg m-3
+     * @deprecated To be removed after %Cantera 3.1.
      */
     double densSpinodalSteam() const;
 

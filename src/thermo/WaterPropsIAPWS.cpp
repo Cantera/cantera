@@ -113,6 +113,8 @@ double WaterPropsIAPWS::density(double temperature, double pressure,
 
 double WaterPropsIAPWS::density_const(double pressure, int phase, double rhoguess) const
 {
+    warn_deprecated("WaterPropsIAPWS::density_const",
+        "To be removed after Cantera 3.1.");
     double temperature = T_c / tau;
     double deltaGuess = 0.0;
     double deltaSave = delta;
@@ -334,6 +336,8 @@ int WaterPropsIAPWS::phaseState(bool checkState) const
 
 double WaterPropsIAPWS::densSpinodalWater() const
 {
+    warn_deprecated("WaterPropsIAPWS::densSpinodalWater",
+        "To be removed after Cantera 3.1.");
     double temperature = T_c/tau;
     double delta_save = delta;
     // return the critical density if we are above or even just a little below
@@ -422,6 +426,8 @@ double WaterPropsIAPWS::densSpinodalWater() const
 
 double WaterPropsIAPWS::densSpinodalSteam() const
 {
+    warn_deprecated("WaterPropsIAPWS::densSpinodalSteam",
+        "To be removed after Cantera 3.1.");
     double temperature = T_c/tau;
     double delta_save = delta;
     // return the critical density if we are above or even just a little below
