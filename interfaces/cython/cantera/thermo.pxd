@@ -210,6 +210,7 @@ cdef extern from "cantera/thermo/PlasmaPhase.h":
         size_t nElectronEnergyLevels()
         double electronPressure()
         string electronSpeciesName()
+        double elasticPowerLoss() except +translate_exception
 
 
 cdef extern from "cantera/cython/thermo_utils.h":

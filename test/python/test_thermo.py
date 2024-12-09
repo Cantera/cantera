@@ -1183,11 +1183,22 @@ class TestInterfacePhase2:
 
 
 class TestPlasmaPhase:
-
     @pytest.fixture(scope='function')
     def phase(self):
-        return ct.Solution('oxygen-plasma.yaml', 'isotropic-electron-energy-plasma',
+        phase = ct.Solution('oxygen-plasma.yaml', 'isotropic-electron-energy-plasma',
                            transport_model=None)
+        phase.isotropic_shape_factor = 1.0
+        return phase
+
+    @property
+    def collision_data(self):
+        return {
+            "equation": "O2 + E => E + O2",
+            "type": "electron-collision-plasma",
+            "energy-levels": [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
+            "cross-sections": [0.0, 3.83e-20, 4.47e-20, 4.79e-20, 5.07e-20, 5.31e-20,
+                               5.49e-20, 5.64e-20, 5.77e-20, 5.87e-20, 5.97e-20]
+        }
 
     def test_converting_electron_energy_to_temperature(self, phase):
         phase.mean_electron_energy = 1.0
@@ -1239,6 +1250,52 @@ class TestPlasmaPhase:
                            match='Only one electron species is allowed'):
             phase.add_species(electron)
 
+    def test_elastic_power_loss_low_T(self, phase):
+        phase.TPX = 1000, ct.one_atm, "O2:1, E:1e-5"
+        assert phase.elastic_power_loss == approx(6846332332)
+
+    def test_elastic_power_loss_high_T(self, phase):
+        # when T is as high as Te the energy loss rate becomes small
+        phase.TPX = 4000, ct.one_atm, "O2:1, E:1e-5"
+        assert phase.elastic_power_loss == approx(2865540)
+
+    def test_elastic_power_loss_replace_rate(self, phase):
+        phase.TPX = 1000, ct.one_atm, "O2:1, E:1e-5"
+        rate = ct.ReactionRate.from_dict(self.collision_data)
+        phase.reaction(1).rate = rate
+        assert phase.elastic_power_loss == approx(11765800095)
+
+    def test_elastic_power_loss_add_reaction(self, phase):
+        phase.TPX = 1000, ct.one_atm, "O2:1, E:1e-5"
+        phase.add_reaction(ct.Reaction.from_dict(self.collision_data, phase))
+        assert phase.elastic_power_loss == approx(18612132428)
+
+    def test_elastic_power_loss_change_levels(self, phase):
+        phase.TPX = 1000, ct.one_atm, "O2:1, E:1e-5"
+        phase.electron_energy_levels = np.linspace(0,10,101)
+        assert phase.elastic_power_loss == approx(113058853)
+
+    def test_elastic_power_loss_change_dist(self, phase):
+        phase.TPX = 1000, ct.one_atm, "O2:1, E:1e-5"
+        levels = np.array([0.0, 0.1, 1.0, 9.0, 10.0])
+        dist = np.array([0.0, 0.2, 0.7, 0.01, 0.01])
+        # set the electron energy levels first to test if
+        # set_discretized_electron_energy_distribution triggers
+        # updating the interpolated cross sections
+        phase.electron_energy_levels = np.array([0.0, 0.1, 1.0, 7.0, 10.0])
+        phase.normalize_electron_energy_distribution_enabled = False
+        phase.set_discretized_electron_energy_distribution(levels, dist)
+        assert phase.elastic_power_loss == approx(7568518396)
+
+    def test_elastic_power_loss_change_mean_electron_energy(self, phase):
+        phase.TPX = 1000, ct.one_atm, "O2:1, E:1e-5"
+        phase.mean_electron_energy = 2.0
+        assert phase.elastic_power_loss == approx(5826212349)
+
+    def test_elastic_power_loss_change_shape_factor(self, phase):
+        phase.TPX = 1000, ct.one_atm, "O2:1, E:1e-5"
+        phase.isotropic_shape_factor = 1.1
+        assert phase.elastic_power_loss == approx(4273351243)
 
 class TestImport:
     """
