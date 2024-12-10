@@ -313,7 +313,7 @@ void MultiTransport::getMassFluxes(const double* state1, const double* state2,
     double gradmax = -1.0;
     for (size_t j = 0; j < m_nsp; j++) {
         if (fabs(x2[j] - x1[j]) > gradmax) {
-            gradmax = fabs(x1[j] - x2[j]);
+            gradmax = fabs(x1[j] - x2[j]) / delta;
             jmax = j;
         }
     }
@@ -322,7 +322,7 @@ void MultiTransport::getMassFluxes(const double* state1, const double* state2,
     // and set the entry in gradx to zero
     for (size_t j = 0; j < m_nsp; j++) {
         m_aa(jmax,j) = y[j];
-        fluxes[j] = x2[j] - x1[j];
+        fluxes[j] = (x2[j] - x1[j]) / delta;
     }
     fluxes[jmax] = 0.0;
 
@@ -338,7 +338,7 @@ void MultiTransport::getMassFluxes(const double* state1, const double* state2,
 
     // thermal diffusion
     if (addThermalDiffusion) {
-        double grad_logt = (t2 - t1)/m_temp;
+        double grad_logt = (t2 - t1) / m_temp / delta;
         for (size_t i = 0; i < m_nsp; i++) {
             fluxes[i] -= m_spwork[i]*grad_logt;
         }
