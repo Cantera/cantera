@@ -187,7 +187,6 @@ CompileAndTest('ChemEquil_ionizedGas',
 CompileAndTest('CpJump', 'CpJump', 'CpJump', 'output_blessed.txt')
 CompileAndTest('diamondSurf', 'diamondSurf', 'diamondSurf', 'runDiamond_blessed.out')
 CompileAndTest('dustyGasTransport', slow=True)
-CompileAndTest('multiGasTransport')
 
 CompileAndTest('pureFluid', 'pureFluidTest')
 CompileAndTest('stoichSolidKinetics')

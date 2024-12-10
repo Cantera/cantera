@@ -1,3 +1,6 @@
+// This file is part of Cantera. See License.txt in the top-level directory or
+// at https://cantera.org/license.txt for license and copyright information.
+
 #include "gtest/gtest.h"
 
 #include "cantera/core.h"
@@ -23,7 +26,7 @@ public:
     }
 
     auto SetUpFluxes() {
-        double T2 = 1200, T3 = 1400;
+        double T2 = 1000, T3 = 1200;
         vector<double> X2(nsp), X3(nsp);
         X2[0] = 0.25; X2[5] = 0.17; X2[14] = 0.15; X2[15] = 0.05; X2[47] = 0.38;
         // sum(X3) == 1.02, but should still lead to net zero mass flux
@@ -158,11 +161,32 @@ TEST_F(GasTransportTest, mixtureViscosity)
 
 TEST_F(GasTransportTest, thermalDiffCoeffs)
 {
+    // regression test based on case from legacy multiGasTransport.cpp
+    const double thermalDiffRef[] = {
+        -1.749421e-06, -5.795523e-10, -1.036581e-14,  2.976174e-15, -2.877580e-11,
+        -8.681002e-07,  2.942992e-18,  2.437224e-17, -3.075226e-22, -7.242761e-22,
+        -1.227900e-19, -4.193045e-21, -2.609672e-16, -3.238708e-14,  7.585519e-07,
+         7.037944e-07,  7.190017e-14,  1.204366e-13,  8.710654e-19,  8.966277e-21,
+         1.419255e-17, -2.828291e-22,  1.092672e-18,  2.067526e-23,  1.607623e-20,
+         -4.376819e-22, -2.041513e-22,  1.158367e-20,  8.472501e-18,  1.273332e-21,
+         -4.408996e-17, -4.943295e-16, -2.097570e-14, -1.207527e-11,  3.627187e-16,
+          5.204528e-13,  2.546007e-19,  6.566709e-17,  7.782264e-17,  2.117999e-18,
+          6.059605e-13,  3.289296e-19,  5.920676e-22,  2.653811e-21,  5.506497e-16,
+          8.840154e-13,  8.195568e-17,  1.155794e-06,  2.282194e-23,  7.479437e-23,
+         -1.400893e-22,  1.968555e-22,  4.414863e-21
+    };
+
     vector<double> thermalDiff(nsp, -1);
     // Thermal diffusion coefficients are zero for the mixture averaged model
     s_mix->getThermalDiffCoeffs(thermalDiff.data());
     for (size_t k = 0; k < nsp; k++) {
         EXPECT_DOUBLE_EQ(thermalDiff[k], 0.0) << k;
+    }
+
+    s_multi->getThermalDiffCoeffs(thermalDiff.data());
+    for (size_t k = 0; k < nsp; k++) {
+        double tol = std::max(1e-16, 1e-5 * fabs(thermalDiffRef[k]));
+        EXPECT_NEAR(thermalDiff[k], thermalDiffRef[k], tol) << k;
     }
 }
 
@@ -177,6 +201,20 @@ TEST_F(GasTransportTest, thermalConductivity_mix)
         double T = 400. + 100. * i;
         s_thermo->setState_TP(T, P0);
         EXPECT_NEAR(s_mix->thermalConductivity(), condRef[i], 1e-6) << T;
+    }
+}
+
+TEST_F(GasTransportTest, thermalConductivity_multi)
+{
+    // regression test based on case from legacy multiGasTransport.cpp
+    const double condRef[] = {
+        6.336474e-02, 7.586649e-02, 8.779171e-02, 9.964744e-02, 1.116838e-01,
+        1.237784e-01, 1.353296e-01, 1.472053e-01, 1.589833e-01, 1.706627e-01
+    };
+    for (size_t i = 0; i < 10; i++) {
+        double T = 400. + 100. * i;
+        s_thermo->setState_TP(T, P0);
+        EXPECT_NEAR(s_multi->thermalConductivity(), condRef[i], 1e-6) << T;
     }
 }
 
@@ -248,4 +286,91 @@ TEST_F(GasTransportTest, getSpeciesFluxes_mix)
     }
     EXPECT_NEAR(netFlux0, 0.0, 1e-19);
     EXPECT_NEAR(netFlux1, 0.0, 1e-19);
+}
+
+TEST_F(GasTransportTest, getSpeciesFluxes_multi)
+{
+    // regression test based on case from legacy multiGasTransport.cpp
+    const double refFlux0[] = {
+        1.128904e-06, 1.674139e-08, 1.018666e-12, 4.476504e-13, 3.399815e-09,
+        1.747460e-05, 3.797483e-16, 3.011704e-15, 0.000000e+00, 2.639948e-20,
+        1.232246e-17, 4.270911e-19, 3.058024e-14, 4.044714e-12, 4.232824e-05,
+       -9.596638e-06, 1.193098e-11, 1.823651e-11, 1.186113e-16, 1.203028e-18,
+        1.695087e-15, 0.000000e+00, 2.211883e-16, 0.000000e+00, 2.382811e-18,
+        0.000000e+00, 0.000000e+00, 2.413676e-18, 5.262102e-16, 6.925377e-20,
+        3.683223e-15, 4.367280e-14, 2.090469e-12, 1.673417e-09, 5.884649e-14,
+        8.947782e-11, 1.660660e-17, 4.017245e-15, 1.177065e-14, 5.761799e-16,
+        1.359860e-10, 6.239818e-17, 0.000000e+00, 1.757578e-19, 3.459268e-14,
+        5.554134e-11, 5.347453e-15,-5.135724e-05, 0.000000e+00, 0.000000e+00,
+        0.000000e+00, 0.000000e+00, 2.291112e-19
+    };
+    const double refFlux1[] = {
+       -1.010313e-06, 1.741584e-08, 1.022405e-12, 4.382750e-13, 3.404361e-09,
+        3.132854e-05, 3.711876e-16, 2.942438e-15, 0.000000e+00, 2.667083e-20,
+        1.231510e-17, 4.269575e-19, 3.050538e-14, 4.033802e-12, 1.379673e-05,
+       -2.196399e-05, 1.168527e-11, 1.784817e-11, 1.160699e-16, 1.178189e-18,
+        1.654891e-15, 0.000000e+00, 2.165422e-16, 0.000000e+00, 2.327262e-18,
+        0.000000e+00, 0.000000e+00, 2.361602e-18, 5.079424e-16, 6.684925e-20,
+        3.699479e-15, 4.391219e-14, 2.098664e-12, 1.672448e-09, 5.759425e-14,
+        8.766254e-11, 1.606061e-17, 3.876206e-15, 1.152131e-14, 5.657122e-16,
+        1.334565e-10, 6.117334e-17, 0.000000e+00, 1.685016e-19, 3.339743e-14,
+        5.362242e-11, 5.166923e-15,-2.217377e-05, 0.000000e+00, 0.000000e+00,
+        0.000000e+00, 0.000000e+00, 2.207645e-19
+    };
+
+    auto [grad_T, grad_X] = SetUpFluxes();
+    Array2D fluxes(nsp, 2, 0.0);
+    s_thermo->setState_TPX(T1, P0, X0.data());
+    s_multi->getSpeciesFluxes(2, grad_T.data(), nsp, &grad_X(0, 0), nsp, &fluxes(0, 0));
+
+    double netFlux0 = 0.0, netFlux1 = 0.0;
+    for (size_t k = 0; k < nsp; k++) {
+        double tol = std::max(1e-14, 1e-4 * fabs(refFlux0[k]));
+        EXPECT_NEAR(fluxes(k, 0), refFlux0[k], tol) << k;
+        tol = std::max(1e-14, 1e-4 * fabs(refFlux1[k]));
+        EXPECT_NEAR(fluxes(k, 1), refFlux1[k], tol) << k;
+        netFlux0 += fluxes(k, 0);
+        netFlux1 += fluxes(k, 1);
+    }
+    EXPECT_NEAR(netFlux0, 0.0, 1e-19);
+    EXPECT_NEAR(netFlux1, 0.0, 1e-19);
+}
+
+TEST_F(GasTransportTest, multicomponentDiffusionCoefficients)
+{
+    const double D_H2_X_ref[] = {
+        0.000000e+00, 2.069166e-02, 1.533272e-03, 7.984950e-04, 1.450324e-03,
+        1.363695e-03, 7.766991e-04, 7.561488e-04, 1.968227e-03, 1.851414e-03,
+        1.681716e-03, 1.681716e-03, 1.576561e-03, 1.486114e-03, 8.951919e-04,
+        5.900643e-04, 8.577657e-04, 8.314705e-04, 8.055783e-04, 8.055783e-04,
+        7.831462e-04, 9.755145e-04, 9.407016e-04, 9.084341e-04, 8.794914e-04,
+        8.454421e-04, 8.193710e-04, 6.691079e-04, 6.070352e-04, 6.070352e-04,
+        1.707391e-03, 1.629845e-03, 1.536190e-03, 1.424771e-03, 8.652237e-04,
+        8.420368e-04, 5.745784e-04, 5.889965e-04, 8.196214e-04, 9.534937e-04,
+        9.135834e-04, 8.834312e-04, 6.690525e-04, 6.009906e-04, 6.009906e-04,
+        6.009906e-04, 6.137995e-04, 8.959026e-04, 6.575936e-04, 5.802367e-04,
+        5.681411e-04, 5.942564e-04, 5.820537e-04
+    };
+    const double D_X_H2_ref[] = {
+        0.000000e+00, 1.737090e-02, 4.930150e-03, 3.253679e-03, 4.846513e-03,
+        3.623689e-03, 3.235537e-03, 3.215876e-03, 4.560725e-03, 5.237593e-03,
+        3.543842e-03, 3.543842e-03, 3.472788e-03, 3.462544e-03, 2.547296e-03,
+        2.446430e-03, 2.768576e-03, 2.748195e-03, 2.678224e-03, 2.678224e-03,
+        2.692416e-03, 2.707123e-03, 2.682446e-03, 2.659347e-03, 2.656733e-03,
+        2.437642e-03, 2.419780e-03, 4.081771e-03, 2.345333e-03, 2.345333e-03,
+        4.352925e-03, 5.189638e-03, 5.080782e-03, 3.834139e-03, 3.120262e-03,
+        3.171634e-03, 2.844790e-03, 2.574628e-03, 3.222283e-03, 3.133609e-03,
+        2.740090e-03, 2.717702e-03, 4.081698e-03, 2.584837e-03, 2.584837e-03,
+        2.584836e-03, 2.595690e-03, 2.178005e-03, 3.172576e-03, 1.892944e-03,
+        1.885366e-03, 2.335541e-03, 2.326147e-03
+    };
+
+    Array2D multiDiff(nsp, nsp);
+    s_thermo->setState_TPX(T1, P0, X0.data());
+    s_multi->getMultiDiffCoeffs(nsp, &multiDiff(0,0));
+    size_t kH2 = s_thermo->speciesIndex("H2");
+    for (size_t k = 0; k < nsp; k++) {
+        EXPECT_NEAR(multiDiff(k, kH2), D_X_H2_ref[k], 1e-8) << k;
+        EXPECT_NEAR(multiDiff(kH2, k), D_H2_X_ref[k], 1e-8) << k;
+    }
 }
