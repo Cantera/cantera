@@ -26,7 +26,6 @@ public:
     }
 
     auto SetUpFluxes() {
-        double T2 = 1000, T3 = 1200;
         vector<double> X2(nsp), X3(nsp);
         X2[0] = 0.25; X2[5] = 0.17; X2[14] = 0.15; X2[15] = 0.05; X2[47] = 0.38;
         // sum(X3) == 1.02, but should still lead to net zero mass flux
@@ -34,7 +33,6 @@ public:
 
         vector<double> grad_T(2, 0.0);
         Array2D grad_X(nsp, 2, 0.0);
-        double dist = 0.1;
         for (size_t k = 0; k < nsp; k++) {
             grad_X(k,0) = (X2[k] - X0[k]) / dist;
             grad_X(k,1) = (X3[k] - X0[k]) / dist;
@@ -65,6 +63,9 @@ public:
         5.00914e-20, 1.54407e-16, 3.07176e-11, 4.93198e-08, 4.84792e-12, 0.307675,
         0.0, 6.21649e-29, 8.42393e-28, 6.77865e-18, 2.19225e-16
     };
+    double dist = 0.1;
+    double T2 = 1000;
+    double T3 = 1200;
 };
 
 shared_ptr<Solution> GasTransportTest::s_soln;
@@ -373,4 +374,39 @@ TEST_F(GasTransportTest, multicomponentDiffusionCoefficients)
         EXPECT_NEAR(multiDiff(k, kH2), D_X_H2_ref[k], 1e-8) << k;
         EXPECT_NEAR(multiDiff(kH2, k), D_H2_X_ref[k], 1e-8) << k;
     }
+}
+
+TEST_F(GasTransportTest, getFluxes_multi)
+{
+    vector<double> fluxS(nsp), fluxMass(nsp), fluxMole(nsp);
+    vector<double> state2, state3;
+    vector<double> X1(nsp), X2(nsp), X3(nsp), grad_X(nsp);
+
+    s_thermo->setState_TPX(T2, P0,
+        "H2:0.25, H:0.0001, H2O:0.17, CO:0.15, CO2:0.05, NO:0.001, N2: 0.38");
+    s_thermo->saveState(state2);
+    s_thermo->getMoleFractions(X2.data());
+    s_thermo->setState_TPX(T3, P0, "H2:0.27, H2O:0.18, CO:0.13, CO2:0.04, N2: 0.38");
+    s_thermo->saveState(state3);
+    s_thermo->getMoleFractions(X3.data());
+    double grad_T = (T3 - T2) / dist;
+    for (size_t k = 0; k < nsp; k++) {
+        X1[k] = 0.5 * (X2[k] + X3[k]);
+        grad_X[k] = (X3[k] - X2[k]) / dist;
+    }
+
+    s_thermo->setState_TPX(0.5 * (T2 + T3), P0, X1.data());
+    s_multi->getSpeciesFluxes(1, &grad_T, nsp, grad_X.data(), nsp, fluxS.data());
+    s_multi->getMassFluxes(state2.data(), state3.data(), dist, fluxMass.data());
+    s_multi->getMolarFluxes(state2.data(), state3.data(), dist, fluxMole.data());
+
+    double netFlux = 0.0;
+    for (size_t k = 0; k < nsp; k++) {
+        double Wk = s_thermo->molecularWeight(k);
+        double tol = std::max(1e-14, 1e-4 * fabs(fluxS[k]));
+        EXPECT_NEAR(fluxMass[k], fluxS[k], tol) << k;
+        EXPECT_NEAR(fluxMole[k] * Wk, fluxS[k], tol) << k;
+        netFlux += fluxMass[k];
+    }
+    EXPECT_NEAR(netFlux, 0.0, 1e-19);
 }
