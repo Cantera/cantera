@@ -5,14 +5,16 @@ on:
     # Build on tags that look like releases
     tags:
       - v*
-    # Build when main or testing is pushed to
+    # Build when main, testing, or the maintenance branch is pushed to
     branches:
       - main
       - testing
+      - "3.1"
   pull_request:
-    # Build when a pull request targets main
+    # Build when a pull request targets main or the maintenance branch
     branches:
       - main
+      - "3.1"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -329,8 +331,6 @@ jobs:
     defaults:
       run:
         shell: bash -l {0}
-    env:
-      DEPLOY: ${{ github.event_name == 'push' && github.repository_owner == 'Cantera' && endsWith(github.ref, 'main') }}
     steps:
       - uses: actions/checkout@v4
         name: Checkout the repository
@@ -386,26 +386,36 @@ jobs:
           name: docs
           retention-days: 14
         if: failure() || success()
+      - name: Determine whether to deploy
+        id: check-branch
+        if: ${{ github.event_name == 'push' && github.repository_owner == 'Cantera' }}
+        run: |
+          if [[ ${{ github.ref }} =~ ^refs\/heads\/([0-9]+\.[0-9]+)$ ]]; then
+              echo "match=true" >> $GITHUB_OUTPUT
+              echo "dest=cantera/${BASH_REMATCH[1]}" >> $GITHUB_OUTPUT
+          elif [[ ${{ github.ref }} == "refs/heads/main" ]]; then
+              echo "match=true" >> $GITHUB_OUTPUT
+              echo "dest=cantera/dev" >> $GITHUB_OUTPUT
+          fi
       # The known_hosts key is generated with `ssh-keygen -F cantera.org` from a
       # machine that has previously logged in to cantera.org and trusts
       # that it logged in to the right machine
       - name: Set up SSH key and host for deploy
-        if: env.DEPLOY == 'true'
+        if: steps.check-branch.outputs.match == 'true'
         uses: shimataro/ssh-key-action@v2
         with:
           key: ${{ secrets.CTDEPLOY_KEY }}
           known_hosts: ${{ secrets.CTDEPLOY_HOST }}
       - name: Upload the docs
-        if: env.DEPLOY == 'true'
+        if: steps.check-branch.outputs.match == 'true'
         env:
           RSYNC_USER: "ctdeploy"
           RSYNC_SERVER: "cantera.org"
-          RSYNC_DEST: "cantera/dev"
           DOCS_OUTPUT_DIR: "./build/doc/html/"
         run: |
           rsync -avzP --checksum --exclude='*.map' --exclude='*.md5' \
             --delete --delete-excluded --filter='P .htaccess' \
-            "${DOCS_OUTPUT_DIR}" ${RSYNC_USER}@${RSYNC_SERVER}:${RSYNC_DEST}
+            "${DOCS_OUTPUT_DIR}" ${RSYNC_USER}@${RSYNC_SERVER}:${{ steps.check-branch.outputs.dest }}
 
   run-examples:
     name: Run Python ${{ matrix.python-version }} examples on ${{ matrix.os }}, NumPy ${{ matrix.numpy || 'latest' }}
