@@ -94,7 +94,7 @@ class TestTransport:
         for key in err_ct:
             assert err_ct[key] < err_ck[key]
 
-    def test_ionGas(self, phase):
+    def test_ionized_gas_with_no_ions(self, phase):
         # IonGasTransport gives the same result for a mixture
         # without ionized species
         phase.transport_model = 'ionized-gas'
@@ -106,6 +106,19 @@ class TestTransport:
         Dbin2 = phase.binary_diff_coeffs
         assert Dkm1 == approx(Dkm2)
         assert Dbin1 == approx(Dbin2)
+
+    def test_ionized_low_T(self):
+        """ (C10H8, O2-) interaction exercises low T* range of Stockmayer potential """
+        phase = ct.Solution('ET_test.yaml')
+        kO2m = phase.species_index("O2^-")
+        kNaphthalene = phase.species_index("C10H8")
+        # Regression test values
+        phase.TP = 300, ct.one_atm
+        Dbin = phase.binary_diff_coeffs
+        assert Dbin[kO2m, kNaphthalene] == approx(2.18902175e-06)
+        phase.TP = 350, ct.one_atm
+        Dbin = phase.binary_diff_coeffs
+        assert Dbin[kO2m, kNaphthalene] == approx(2.92899733e-06)
 
     def test_multiComponent(self, phase):
         with pytest.raises(NotImplementedError):

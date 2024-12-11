@@ -6,9 +6,6 @@ units: {length: cm, quantity: mole, activation-energy: K}
 phases:
 - name: gas
   thermo: ideal-gas
-  elements: [O, N, E]
-  species:
-  - species: [O2, E, O2^-]
   skip-undeclared-third-bodies: true
   kinetics: gas
   reactions:
@@ -69,6 +66,23 @@ species:
     well-depth: 136.5
     polarizability: 1.424
   note: L4/89
+- name: C10H8
+  composition: {C: 10, H: 8}
+  thermo:
+    model: NASA7
+    temperature-ranges: [300.0, 1370.0, 3500.0]
+    data:
+    - [-8.71832426, 0.108564074, -9.40254318e-05, 4.10014902e-08, -7.10574258e-12,
+      1.66434413e+04, 61.5987877]
+    - [15.1184828, 0.0389675576, -1.78248658e-05, 3.92092279e-09, -3.39215689e-13,
+      1.01121562e+04, -60.9041102]
+  transport:
+    model: gas
+    geometry: nonlinear
+    well-depth: 630.4
+    diameter: 6.18
+    polarizability: 16.5
+    rotational-relaxation: 1.0
 
 reactions:
 - equation: E + O2 + O2 => O2^- + O2  # Kossyi (1992) Eq.45
