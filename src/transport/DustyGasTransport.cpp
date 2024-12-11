@@ -162,11 +162,7 @@ void DustyGasTransport::updateMultiDiffCoeffs()
     eval_H_matrix();
 
     // invert H
-    int ierr = invert(m_multidiff);
-    if (ierr != 0) {
-        throw CanteraError("DustyGasTransport::updateMultiDiffCoeffs",
-                           "invert returned ierr = {}", ierr);
-    }
+    invert(m_multidiff);
 }
 
 void DustyGasTransport::getMultiDiffCoeffs(const size_t ld, double* const d)
