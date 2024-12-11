@@ -141,6 +141,7 @@ public:
      *
      * @returns a success flag. 0 indicates a success; ~0 indicates some
      *         error occurred, see the LAPACK documentation
+     * @deprecated After %Cantera 3.2, the return type will be `void`
      */
     int factor() override;
 
@@ -150,6 +151,7 @@ public:
      * @param x  OUTPUT solution to the problem
      * @return a success flag. 0 indicates a success; ~0 indicates some error
      *     occurred, see the LAPACK documentation
+     * @deprecated After %Cantera 3.2, the return type will be `void`
      */
     int solve(const double* const b, double* const x);
 
@@ -161,6 +163,7 @@ public:
      * @param ldb   Leading dimension of `b`. Default is nColumns()
      * @returns a success flag. 0 indicates a success; ~0 indicates some error
      *     occurred, see the LAPACK documentation
+     * @deprecated After %Cantera 3.2, the return type will be `void`
      */
     int solve(double* b, size_t nrhs=1, size_t ldb=0) override;
 

@@ -132,6 +132,14 @@ vector<int>& DenseMatrix::ipiv()
 
 int solve(DenseMatrix& A, double* b, size_t nrhs, size_t ldb)
 {
+    if (A.m_printLevel) {
+        warn_deprecated("DenseMatrix::m_printLevel",
+                        "To be removed after Cantera 3.2.");
+    }
+    if (A.m_useReturnErrorCode) {
+        warn_deprecated("DenseMatrix::m_useReturnErrorCode",
+                        "To be removed after Cantera 3.2.");
+    }
     if (A.nColumns() != A.nRows()) {
         if (A.m_printLevel) {
             writelogf("solve(DenseMatrix& A, double* b): Can only solve a square matrix\n");
@@ -225,6 +233,14 @@ void increment(const DenseMatrix& A, const double* b, double* prod)
 
 int invert(DenseMatrix& A, size_t nn)
 {
+    if (A.m_printLevel) {
+        warn_deprecated("DenseMatrix::m_printLevel",
+                        "To be removed after Cantera 3.2.");
+    }
+    if (A.m_useReturnErrorCode) {
+        warn_deprecated("DenseMatrix::m_useReturnErrorCode",
+                        "To be removed after Cantera 3.2.");
+    }
     int info=0;
     #if CT_USE_LAPACK
         integer n = static_cast<int>(nn != npos ? nn : A.nRows());

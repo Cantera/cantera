@@ -109,6 +109,7 @@ public:
      * @param nrhs Number of right-hand sides to solve, default 1
      * @param ldb  Leading dimension of the right-hand side array. Defaults to
      *              nRows()
+     * @deprecated After %Cantera 3.2, the return type will be `void`
      */
     virtual int solve(double* b, size_t nrhs=1, size_t ldb=0) = 0;
 
