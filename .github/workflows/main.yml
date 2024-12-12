@@ -379,7 +379,7 @@ jobs:
           cd build/doc
           tar --exclude="*.map" --exclude="*.md5" -czf docs.tar.gz html
         if: failure() || success()
-      - name: Store archive of docs output
+      - name: Store a copy of docs output
         uses: actions/upload-artifact@v4
         with:
           path: build/doc/docs.tar.gz
@@ -387,35 +387,69 @@ jobs:
           retention-days: 14
         if: failure() || success()
       - name: Determine whether to deploy
-        id: check-branch
+        id: deploy-conf
         if: ${{ github.event_name == 'push' && github.repository_owner == 'Cantera' }}
         run: |
           if [[ ${{ github.ref }} =~ ^refs\/heads\/([0-9]+\.[0-9]+)$ ]]; then
               echo "match=true" >> $GITHUB_OUTPUT
-              echo "dest=cantera/${BASH_REMATCH[1]}" >> $GITHUB_OUTPUT
+              echo "rsync_dest=cantera/${BASH_REMATCH[1]}" >> $GITHUB_OUTPUT
+              echo "commit=true" >> $GITHUB_OUTPUT
+              echo "git_dest=${BASH_REMATCH[1]}" >> $GITHUB_OUTPUT
+              echo "git_branch=staging" >> $GITHUB_OUTPUT
           elif [[ ${{ github.ref }} == "refs/heads/main" ]]; then
               echo "match=true" >> $GITHUB_OUTPUT
-              echo "dest=cantera/dev" >> $GITHUB_OUTPUT
+              echo "rsync_dest=cantera/dev" >> $GITHUB_OUTPUT
+          elif [[ ${{ github.ref }} == "refs/heads/testing" ]]; then
+              echo "match=true" >> $GITHUB_OUTPUT
+              echo "rsync_dest=testing.cantera.org/dev" >> $GITHUB_OUTPUT
+              echo "commit=true" >> $GITHUB_OUTPUT
+              echo "git_dest=testing" >> $GITHUB_OUTPUT
+              echo "git_branch=testing" >> $GITHUB_OUTPUT
           fi
       # The known_hosts key is generated with `ssh-keygen -F cantera.org` from a
       # machine that has previously logged in to cantera.org and trusts
       # that it logged in to the right machine
       - name: Set up SSH key and host for deploy
-        if: steps.check-branch.outputs.match == 'true'
+        if: steps.deploy-conf.outputs.match == 'true'
         uses: shimataro/ssh-key-action@v2
         with:
           key: ${{ secrets.CTDEPLOY_KEY }}
           known_hosts: ${{ secrets.CTDEPLOY_HOST }}
-      - name: Upload the docs
-        if: steps.check-branch.outputs.match == 'true'
+      - name: Commit docs to api-docs repo
+        if: steps.deploy-conf.outputs.commit == 'true'
+        env:
+          CANTERABOT_DOCS_TOKEN: ${{ secrets.CANTERABOT_DOCS_TOKEN }}
+          # Directory in api-docs repo: either the version (X.Y) or "testing"
+          GIT_DEST: ${{ steps.deploy-conf.outputs.git_dest }}
+          # Branch in api-docs to commit to: either 'staging' or 'testing'
+          BRANCH: ${{ steps.deploy-conf.outputs.git_branch }}
+        run: |
+          set -ex
+          REPO_SHA=`git rev-parse --short=8 HEAD`
+          git clone https://canterabot:${CANTERABOT_DOCS_TOKEN}@github.com/Cantera/api-docs
+
+          cd api-docs
+          git config user.name "CanteraBot"
+          git config user.email "96191898+CanteraBot@users.noreply.github.com"
+
+          git checkout --track origin/${BRANCH}
+          mkdir -p ${GIT_DEST}
+          tar -zxf ../build/doc/docs.tar.gz -C ${GIT_DEST}
+          git add .
+          git commit -m "Update for Cantera ${GIT_DEST} - Cantera/cantera@${REPO_SHA}"
+          git show --stat HEAD
+          git push origin
+      - name: Upload the docs to cantera.org
+        if: steps.deploy-conf.outputs.match == 'true'
         env:
           RSYNC_USER: "ctdeploy"
           RSYNC_SERVER: "cantera.org"
+          RSYNC_DEST: ${{ steps.deploy-conf.outputs.rsync_dest }}
           DOCS_OUTPUT_DIR: "./build/doc/html/"
         run: |
           rsync -avzP --checksum --exclude='*.map' --exclude='*.md5' \
             --delete --delete-excluded --filter='P .htaccess' \
-            "${DOCS_OUTPUT_DIR}" ${RSYNC_USER}@${RSYNC_SERVER}:${{ steps.check-branch.outputs.dest }}
+            "${DOCS_OUTPUT_DIR}" ${RSYNC_USER}@${RSYNC_SERVER}:${RSYNC_DEST}
 
   run-examples:
     name: Run Python ${{ matrix.python-version }} examples on ${{ matrix.os }}, NumPy ${{ matrix.numpy || 'latest' }}
