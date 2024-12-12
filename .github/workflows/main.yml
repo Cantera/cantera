@@ -426,9 +426,11 @@ jobs:
         run: |
           set -ex
           REPO_SHA=`git rev-parse --short=8 HEAD`
+          git config -l
           git clone https://canterabot:${CANTERABOT_DOCS_TOKEN}@github.com/Cantera/api-docs
 
           cd api-docs
+          git config -l
           git config user.name "CanteraBot"
           git config user.email "96191898+CanteraBot@users.noreply.github.com"
 
@@ -438,6 +440,7 @@ jobs:
           git add .
           git commit -m "Update for Cantera ${GIT_DEST} - Cantera/cantera@${REPO_SHA}"
           git show --stat HEAD
+          git config --unset-all http.https://github.com/.extraheader || /bin/true
           git push origin
       - name: Upload the docs to cantera.org
         if: steps.deploy-conf.outputs.match == 'true'
