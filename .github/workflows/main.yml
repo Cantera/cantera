@@ -427,6 +427,7 @@ jobs:
           set -ex
           REPO_SHA=`git rev-parse --short=8 HEAD`
           git config -l
+          git config --unset-all http.https://github.com/.extraheader || /bin/true
           git clone https://canterabot:${CANTERABOT_DOCS_TOKEN}@github.com/Cantera/api-docs
 
           cd api-docs
