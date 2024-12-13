@@ -42,7 +42,7 @@ maintainers.
 
 - Update entries in `doc/sphinx/_static/doc-versions.json`
 
-- Update DOI in `README.rst`
+- Update DOI in `README.rst` and `CITATION.cff`
 
 - Make sure copyright years are correct:
   - `doc/sphinx/conf.py`
