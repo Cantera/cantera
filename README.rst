@@ -132,8 +132,8 @@ development of Cantera through NumFOCUS.
 .. |ci| image:: https://github.com/Cantera/cantera/workflows/CI/badge.svg
     :target: https://github.com/Cantera/cantera/actions?query=workflow%3ACI+event%3Apush
 
-.. |doi| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.8137090.svg
-   :target: https://doi.org/10.5281/zenodo.8137090
+.. |doi| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.14455267.svg
+   :target: https://doi.org/10.5281/zenodo.14455267
 
 .. |codecov| image:: https://img.shields.io/codecov/c/github/Cantera/cantera/main.svg
    :target: https://codecov.io/gh/Cantera/cantera?branch=main
