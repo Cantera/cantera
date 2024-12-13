@@ -56,9 +56,6 @@ maintainers.
   content.
 
 ## After Merging Release Pull Request
-- Once the CI completes, download the `docs` artifact, extract it, and add the contents
-  to the `api-docs` repository.
-
 - Update the recommended citation in `community.md` in the `cantera-website` repository,
   including the year and DOI.
 
@@ -72,6 +69,15 @@ maintainers.
   git checkout -b X.Y
   git push upstream X.Y
   ```
+
+- The CI job on the maintenance branch should upload the docs to the versioned path on
+  `cantera.org` and archive the docs in the `staging` branch of the
+  [`api-docs`](https://github.com/Cantera/api-docs/tree/staging) repository. Check that
+  this worked correctly and merge into the `main` branch if so. Consider squashing
+  multiple updates to the same version to keep this repository from growing too much.
+
+- If this is a feature release, log into `cantera.org` and update the symlink
+  `/var/www/cantera/stable` to point to the docs for the new feature branch.
 
 - Create the release tarball. This requires a couple of steps to merge the
   `example_data` submodule in with the main source directories:
