@@ -10,7 +10,8 @@ namespace Cantera
 {
 
 MultiJac::MultiJac(OneDim& r)
-    : BandMatrix(r.size(),r.bandwidth(),r.bandwidth())
+    : m_mat(r.size(),r.bandwidth(),r.bandwidth())
+    , m_n(r.size())
 {
     m_resid = &r;
     m_r1.resize(m_n);
@@ -21,7 +22,7 @@ MultiJac::MultiJac(OneDim& r)
 void MultiJac::updateTransient(double rdt, integer* mask)
 {
     for (size_t n = 0; n < m_n; n++) {
-        value(n,n) = m_ssdiag[n] - mask[n]*rdt;
+        m_mat.value(n,n) = m_ssdiag[n] - mask[n]*rdt;
     }
 }
 
@@ -29,7 +30,7 @@ void MultiJac::eval(double* x0, double* resid0, double rdt)
 {
     m_nevals++;
     clock_t t0 = clock();
-    bfill(0.0);
+    m_mat.bfill(0.0);
     size_t ipt=0;
 
     for (size_t j = 0; j < m_resid->points(); j++) {
@@ -56,7 +57,7 @@ void MultiJac::eval(double* x0, double* resid0, double rdt)
                     size_t mv = m_resid->nVars(i);
                     size_t iloc = m_resid->loc(i);
                     for (size_t m = 0; m < mv; m++) {
-                        value(m+iloc,ipt) = (m_r1[m+iloc] - resid0[m+iloc])*rdx;
+                        m_mat.value(m+iloc,ipt) = (m_r1[m+iloc] - resid0[m+iloc])*rdx;
                     }
                 }
             }
@@ -66,7 +67,7 @@ void MultiJac::eval(double* x0, double* resid0, double rdt)
     }
 
     for (size_t n = 0; n < m_n; n++) {
-        m_ssdiag[n] = value(n,n);
+        m_ssdiag[n] = m_mat.value(n,n);
     }
 
     m_elapsed += double(clock() - t0)/CLOCKS_PER_SEC;

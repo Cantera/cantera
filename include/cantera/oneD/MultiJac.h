@@ -20,7 +20,7 @@ namespace Cantera
  * @ingroup onedUtilsGroup
  * @ingroup derivGroup
  */
-class MultiJac : public BandMatrix
+class MultiJac
 {
 public:
     //! Constructor.
@@ -72,6 +72,22 @@ public:
         m_age = age;
     }
 
+    double& value(size_t i, size_t j) {
+        return m_mat.value(i, j);
+    }
+
+    double value(size_t i, size_t j) const {
+        return m_mat.value(i, j);
+    }
+
+    void solve(const double* const b, double* const x) {
+        m_mat.solve(b, x);
+    }
+
+    int info() const {
+        return m_mat.info();
+    }
+
     //! Return the transient mask.
     vector<int>& transientMask() {
         return m_mask;
@@ -84,6 +100,9 @@ protected:
      * this Jacobian object.
      */
     OneDim* m_resid;
+
+    BandMatrix m_mat; //!< Underlying matrix storage
+    size_t m_n; //!< Dimension of the (square) matrix
 
     vector<double> m_r1; //!< Perturbed residual vector
     double m_rtol = 1e-5; //!< Relative tolerance for perturbing solution components
@@ -100,6 +119,7 @@ protected:
     int m_nevals = 0; //!< Number of Jacobian evaluations.
     int m_age = 100000; //!< Age of the Jacobian (times incrementAge() has been called)
 };
+
 }
 
 #endif
