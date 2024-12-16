@@ -571,7 +571,7 @@ jobs:
           fmt-ver: 10
         - sundials-ver: 6.6
           fmt-ver: 10
-        - sundials-ver: 7.0
+        - sundials-ver: 7.2
           fmt-ver: 11
           extra-build-args: cxx_flags='-std=c++20'
       fail-fast: false
