@@ -21,11 +21,8 @@ ReactorBase::ReactorBase(shared_ptr<Solution> sol, const string& name)
     : ReactorBase(name)
 {
     if (!sol || !(sol->thermo())) {
-        warn_deprecated("ReactorBase::ReactorBase",
-            "Creation of empty reactor objects is deprecated in Cantera 3.1 and will "
-            "raise\nexceptions thereafter; reactor contents should be provided in the "
-            "constructor.");
-        return;
+        throw CanteraError("ReactorBase::ReactorBase",
+                           "Missing or incomplete Solution object.");
     }
     setSolution(sol);
 }
@@ -68,13 +65,6 @@ void ReactorBase::setSolution(shared_ptr<Solution> sol) {
     m_solution->thermo()->addSpeciesLock();
 }
 
-void ReactorBase::insert(shared_ptr<Solution> sol)
-{
-    warn_deprecated("ReactorBase::insert",
-        "To be removed after Cantera 3.1. Superseded by 'setSolution'.");
-    setSolution(sol);
-}
-
 void ReactorBase::setThermo(ThermoPhase& thermo)
 {
     m_thermo = &thermo;
@@ -83,20 +73,6 @@ void ReactorBase::setThermo(ThermoPhase& thermo)
     m_enthalpy = m_thermo->enthalpy_mass();
     m_intEnergy = m_thermo->intEnergy_mass();
     m_pressure = m_thermo->pressure();
-}
-
-void ReactorBase::setThermoMgr(ThermoPhase& thermo)
-{
-    warn_deprecated("ReactorBase::setThermoMgr",
-        "To be removed after Cantera 3.1. Superseded by 'setSolution'.");
-    setThermo(thermo);
-}
-
-void ReactorBase::setKineticsMgr(Kinetics& kin)
-{
-    warn_deprecated("ReactorBase::setKineticsMgr",
-        "To be removed after Cantera 3.1. Superseded by 'setSolution'.");
-    setKinetics(kin);
 }
 
 void ReactorBase::syncState()

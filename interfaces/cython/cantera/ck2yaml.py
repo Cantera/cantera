@@ -2276,23 +2276,6 @@ def convert(input_file, thermo_file=None, transport_file=None,
     return surface_names
 
 
-def convert_mech(input_file, thermo_file=None, transport_file=None,
-                 surface_file=None, phase_name='gas', extra_file=None,
-                 out_name=None, single_intermediate_temperature=False, quiet=False,
-                 permissive=None, verbose=False):
-    """
-    .. deprecated:: 3.0
-
-        To be removed after Cantera 3.1; renamed to :func:`convert`.
-    """
-    warnings.warn(
-        "To be removed after Cantera 3.1; renamed to 'convert'")
-    _, surface_names = Parser.convert_mech(
-        input_file, thermo_file, transport_file, surface_file, phase_name, extra_file,
-        out_name, single_intermediate_temperature, quiet, permissive, verbose)
-    return surface_names
-
-
 def main(argv=None):
     """Parse command line arguments and pass them to `Parser.convert_mech`."""
     parser = create_argparser()

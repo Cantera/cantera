@@ -90,18 +90,6 @@ public:
         m_vol = vol;
     }
 
-    //! @deprecated To be removed after %Cantera 3.1. Superseded by setSolution.
-    void insert(shared_ptr<Solution> sol);
-
-    //! Specify the mixture contained in the reactor. Note that a pointer to
-    //! this substance is stored, and as the integration proceeds, the state of
-    //! the substance is modified.
-    //! @deprecated To be removed after %Cantera 3.1. Superseded by setSolution.
-    void setThermoMgr(ThermoPhase& thermo);
-
-    //! @deprecated To be removed after %Cantera 3.1. Superseded by setSolution.
-    void setKineticsMgr(Kinetics& kin);
-
     //! Enable or disable changes in reactor composition due to chemical reactions.
     virtual void setChemistry(bool cflag = true) {
         throw NotImplementedError("ReactorBase::setChemistry");

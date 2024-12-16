@@ -575,7 +575,7 @@ class SolutionArray(SolutionArrayBase):
         'species', 'n_atoms', 'molecular_weights', 'min_temp', 'max_temp',
         'reference_pressure', 'charges',
         # From Kinetics
-        'n_total_species', 'n_reactions', 'n_phases', 'reaction_phase_index',
+        'n_total_species', 'n_reactions', 'n_phases',
         'kinetics_species_index', 'reaction', 'reactions', 'modify_reaction',
         'multiplier', 'set_multiplier', 'reaction_equations', 'reactant_stoich_coeff',
         'product_stoich_coeff', 'reactant_stoich_coeffs', 'product_stoich_coeffs',

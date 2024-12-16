@@ -412,11 +412,8 @@ public:
      * @param thermo  Pointer to the ThermoPhase object
      * @param mode    Chemkin compatible mode or not. This alters the
      *                 specification of the collision integrals. defaults to no.
-     * @param log_level Defaults to zero, no logging
-     * @deprecated The `log_level` parameter is deprecated and will be removed after
-     *     %Cantera 3.1.
      */
-    virtual void init(ThermoPhase* thermo, int mode=0, int log_level=-7) {}
+    virtual void init(ThermoPhase* thermo, int mode=0) {}
 
     //! Boolean indicating the form of the transport properties polynomial fits.
     //! Returns true if the Chemkin form is used.

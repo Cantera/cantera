@@ -106,14 +106,6 @@ public:
     //! @{
 
     /**
-     * Output information on current solution for all domains to stream.
-     * @param s  Output stream
-     * @since New in %Cantera 3.0.
-     * @deprecated To be removed after Cantera 3.1.
-     */
-    void show(std::ostream& s);
-
-    /**
      * Show logging information on current solution for all domains.
      * @since New in %Cantera 3.0.
      */

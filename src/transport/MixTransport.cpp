@@ -14,9 +14,9 @@
 namespace Cantera
 {
 
-void MixTransport::init(ThermoPhase* thermo, int mode, int log_level)
+void MixTransport::init(ThermoPhase* thermo, int mode)
 {
-    GasTransport::init(thermo, mode, log_level);
+    GasTransport::init(thermo, mode);
     m_cond.resize(m_nsp);
 }
 

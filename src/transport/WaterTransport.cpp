@@ -31,12 +31,8 @@ const double Hij[6][7] = {
 namespace Cantera
 {
 
-void WaterTransport::init(ThermoPhase* thermo, int mode, int log_level)
+void WaterTransport::init(ThermoPhase* thermo, int mode)
 {
-    if (log_level != -7) {
-        warn_deprecated("Transport::init", "The log_level parameter "
-            "is deprecated and will be removed after Cantera 3.1.");
-    }
     m_thermo = thermo;
 }
 

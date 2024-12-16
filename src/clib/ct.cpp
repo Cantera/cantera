@@ -1191,15 +1191,6 @@ extern "C" {
         }
     }
 
-    size_t kin_reactionPhaseIndex(int n)
-    {
-        try {
-            return KineticsCabinet::at(n)->reactionPhaseIndex();
-        } catch (...) {
-            return handleAllExceptions(npos, npos);
-        }
-    }
-
     double kin_reactantStoichCoeff(int n, int k, int i)
     {
         try {

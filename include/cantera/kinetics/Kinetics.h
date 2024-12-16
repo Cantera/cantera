@@ -212,19 +212,6 @@ public:
     }
 
     /**
-     * Phase where the reactions occur. For heterogeneous mechanisms, one of
-     * the phases in the list of phases represents the 2D interface or 1D edge
-     * at which the reactions take place. This method returns the index of the
-     * phase with the smallest spatial dimension (1, 2, or 3) among the list
-     * of phases. If there is more than one, the index of the first one is
-     * returned. For homogeneous mechanisms, the value 0 is returned.
-     *
-     * @deprecated Starting in %Cantera 3.0, the reacting phase is always be the
-     *     first phase in the InterfaceKinetics object. To be removed after %Cantera 3.1.
-     */
-    size_t reactionPhaseIndex() const;
-
-    /**
      * Return pointer to phase where the reactions occur.
      * @since New in %Cantera 3.0
      */
