@@ -1764,7 +1764,7 @@ def check_sundials(conf: "SConfigure", sundials_version: str) -> Dict[str, Union
         if should_exit_with_error:
             config_error(f"Sundials version must be >=3.0,<8.0. Found {sundials_ver}.")
         return {"system_sundials": "n", "sundials_version": "", "has_sundials_lapack": 0}
-    elif sundials_ver > parse_version("7.0.0"):
+    elif sundials_ver > parse_version("7.2.0"):
         logger.warning(f"Sundials version {sundials_ver} has not been tested.")
 
     cvode_checks = {
