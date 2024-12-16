@@ -1468,7 +1468,7 @@ if env["system_sundials"] in ("n", "default"):
 
 if env['system_sundials'] == 'y':
     env['sundials_libs'] = ['sundials_cvodes', 'sundials_idas', 'sundials_nvecserial']
-    if parse_version(env["sundials_version"]) >= parse_version("7.2.0"):
+    if parse_version(env["sundials_version"]) >= parse_version("7.0.0"):
         env['sundials_libs'].append('sundials_core')
     if env['use_lapack']:
         if env.get('has_sundials_lapack'):
