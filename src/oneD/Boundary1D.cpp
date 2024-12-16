@@ -585,12 +585,6 @@ void Surf1D::fromArray(SolutionArray& arr, double* soln)
     Boundary1D::setMeta(meta);
 }
 
-void Surf1D::show(std::ostream& s, const double* x)
-{
-    s << "-------------------  Surface " << domainIndex() << " ------------------- " << std::endl;
-    s << "  temperature: " << m_temp << " K" << std::endl;
-}
-
 void Surf1D::show(const double* x)
 {
     writelog("    Temperature: {:10.4g} K \n\n", m_temp);

@@ -52,21 +52,6 @@ class TestReactor:
         self.net.verbose = True
         assert self.net.verbose
 
-    @pytest.mark.usefixtures("allow_deprecated")
-    def test_insert(self):
-        R = self.reactorClass()  # warning raised from C++ code
-        with pytest.raises(ct.CanteraError, match='No phase'):
-            R.T
-        with pytest.raises(ct.CanteraError, match='No phase'):
-            R.kinetics.net_production_rates
-
-        g = ct.Solution('h2o2.yaml', transport_model=None)
-        g.TP = 300, 101325
-        R.insert(g)
-
-        assert R.T == approx(300)
-        assert len(R.kinetics.net_production_rates) == g.n_species
-
     def test_volume(self):
         g = ct.Solution('h2o2.yaml', transport_model=None)
         R = self.reactorClass(g, volume=11)
@@ -743,15 +728,8 @@ class TestReactor:
         assert self.r1.name.startswith(f"{self.r1.type}_")  # default name
         assert res.name.startswith(f"{res.type}_")  # default name
 
-    @pytest.mark.usefixtures("allow_deprecated")
     def test_valve_errors(self):
         self.make_reactors()
-        res = ct.Reservoir()  # warning raised from C++ code
-
-        with pytest.raises(ct.CanteraError, match='contents not defined'):
-            # Must assign contents of both reactors before creating Valve
-            v = ct.Valve(self.r1, res)
-
         v = ct.Valve(self.r1, self.r2)
         with pytest.raises(ct.CanteraError, match='Already installed'):
             # inlet and outlet cannot be reassigned
@@ -920,8 +898,8 @@ class TestReactor:
     def test_bad_kwarg(self):
         g = ct.Solution('h2o2.yaml', transport_model=None)
         self.reactorClass(g, name='ok')
-        with pytest.raises(ct.CanteraError):
-            self.reactorClass(foobar=3.14)
+        with pytest.raises(TypeError):
+            self.reactorClass(g, foobar=3.14)
 
     def test_preconditioner_unsupported(self):
         self.make_reactors()

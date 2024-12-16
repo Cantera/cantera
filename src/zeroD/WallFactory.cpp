@@ -36,11 +36,4 @@ shared_ptr<WallBase> newWall(const string& model, const string& name)
     return shared_ptr<WallBase>(WallFactory::factory()->create(model, name));
 }
 
-shared_ptr<WallBase> newWall3(const string& model)
-{
-    warn_deprecated("newWall3",
-        "Use newWall instead; to be removed after Cantera 3.1.");
-    return newWall(model);
-}
-
 }

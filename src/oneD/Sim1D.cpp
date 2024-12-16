@@ -328,16 +328,6 @@ void Sim1D::setFlatProfile(size_t dom, size_t comp, double v)
     }
 }
 
-void Sim1D::show(ostream& s)
-{
-    warn_deprecated("Sim1D::show(ostream&)", "To be removed after Cantera 3.1.");
-    for (size_t n = 0; n < nDomains(); n++) {
-        if (domain(n).type() != "empty") {
-            domain(n).show(s, m_state->data() + start(n));
-        }
-    }
-}
-
 void Sim1D::show()
 {
     for (size_t n = 0; n < nDomains(); n++) {

@@ -90,30 +90,10 @@ extern "C" {
         }
     }
 
-    int reactor_setThermoMgr(int i, int n)
+    int reactor_setSolution(int i, int n)
     {
         try {
-            ReactorCabinet::at(i)->setThermoMgr(*ThermoCabinet::at(n));
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int reactor_setKineticsMgr(int i, int n)
-    {
-        try {
-            ReactorCabinet::at(i)->setKineticsMgr(*KineticsCabinet::at(n));
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int reactor_insert(int i, int n)
-    {
-        try {
-            ReactorCabinet::as<Reactor>(i)->insert(SolutionCabinet::at(n));
+            ReactorCabinet::as<Reactor>(i)->setSolution(SolutionCabinet::at(n));
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);

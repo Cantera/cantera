@@ -25,13 +25,6 @@ void MultiJac::updateTransient(double rdt, integer* mask)
     }
 }
 
-void MultiJac::incrementDiagonal(int j, double d)
-{
-    warn_deprecated("MultiJac::incrementDiagonal", "To be removed after Cantera 3.1.");
-    m_ssdiag[j] += d;
-    value(j,j) = m_ssdiag[j];
-}
-
 void MultiJac::eval(double* x0, double* resid0, double rdt)
 {
     m_nevals++;

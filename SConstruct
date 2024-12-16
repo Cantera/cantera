@@ -324,14 +324,8 @@ config_options = [
            interface further requires ruamel.yaml and pytest. The default
            behavior is to build the full Python module for whichever version of
            Python is running SCons if the required prerequisites (NumPy and
-           Cython) are installed. Note: 'y' is a synonym for 'full' and 'n' is a
-           synonym for 'none'.""",
-        # TODO: Remove 'minimal' after Cantera 3.1 is released. Leave it here for now
-        # to provide migration information.
-        # TODO: Remove 'none' and 'full' options after Cantera 3.1 is released. Prefer
-        # simpler 'y' and 'n' options, since we don't need to distinguish from the
-        # minimal interface.
-        "default", ("full", "none", "n", "y", "default", "minimal")),
+           Cython) are installed.""",
+        "default", ("n", "y", "default")),
     PathOption(
         "python_cmd",
         """Cantera needs to know where to find the Python interpreter. If
@@ -954,16 +948,6 @@ config["python_cmd"].default = sys.executable
 opts.AddVariables(*config.to_scons())
 opts.Update(env)
 opts.Save('cantera.conf', env)
-
-# TODO: Remove after Cantera 3.1, when the minimal option is removed from the
-# configuration.
-if env["python_package"] == "minimal":
-    logger.error(
-        "The 'minimal' option for the Python package was removed in Cantera 3.1. "
-        "Please build the full interface by passing 'python_package=y' or turn off the "
-        "interface with 'python_package=n'"
-    )
-    sys.exit(1)
 
 # Expand ~/ and environment variables used in cantera.conf (variables used on
 # the command line will be expanded by the shell)
@@ -1648,15 +1632,6 @@ debug_message = [
 logger.debug("\n".join(debug_message), print_level=False)
 
 env['python_cmd_esc'] = quoted(env['python_cmd'])
-
-# TODO: Remove this check when 'full' and 'none' are removed
-if env['python_package'] == 'full':
-    logger.warning("The 'full' specification is deprecated and should be replaced by 'y'")
-    env['python_package'] = 'y'  # Allow 'full' as a synonym for 'y'
-elif env['python_package'] == 'none':
-    logger.warning("The 'none' specification is deprecated and should be replaced by 'n'")
-    env['python_package'] = 'n'  # Allow 'none' as a synonym for 'n'
-
 env["python_min_version"] = python_min_version
 env["python_max_version"] = python_max_version
 env["py_requires_ver_str"] = py_requires_ver_str

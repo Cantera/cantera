@@ -235,32 +235,4 @@ void Refiner::show()
     }
 }
 
-int Refiner::getNewGrid(int n, const double* z, int nn, double* zn)
-{
-    warn_deprecated(
-        "Refiner::getNewGrid",
-        "Deprecated in Cantera 3.1; unused function that will be removed.");
-
-    int nnew = static_cast<int>(m_insertPts.size());
-    if (nnew + n > nn) {
-        throw CanteraError("Refine::getNewGrid", "array size too small.");
-    }
-
-    if (m_insertPts.empty()) {
-        copy(z, z + n, zn);
-        return 0;
-    }
-
-    int jn = 0;
-    for (int j = 0; j < n - 1; j++) {
-        zn[jn] = z[j];
-        jn++;
-        if (m_insertPts.count(j)) {
-            zn[jn] = 0.5*(z[j] + z[j+1]);
-            jn++;
-        }
-    }
-    zn[jn] = z[n-1];
-    return 0;
-}
 }

@@ -38,7 +38,7 @@ class TimesConstant1;
 //! Advanced functors implement expressions that require multiple parameters.
 //! The following advanced functor types are implemented:
 //! - @c "tabulated-linear" and @c "tabulated-previous" (class Tabulated1),
-//! - @c "polynomial3" (class Poly13),
+//! - @c "polynomial3" (class Poly1),
 //! - @c "Fourier" (class Fourier1),
 //! - @c "Gaussian" (class Gaussian1),
 //! - @c "Arrhenius" (class Arrhenius1).
@@ -82,7 +82,7 @@ public:
 
     virtual ~Func1() = default;
 
-    // Func1(const Func1& right) = delete;  //! @todo Uncomment after %Cantera 3.1
+    Func1(const Func1& right) = delete;
     Func1& operator=(const Func1& right) = delete;
 
     //! Returns a string describing the type of the function
@@ -118,25 +118,6 @@ public:
      * positives that could lead to incorrect simplifications of compound functors.
      */
     virtual bool isIdentical(shared_ptr<Func1> other) const;
-
-    //! Routine to determine if two functions are the same.
-    /*!
-     * @deprecated Deprecated in %Cantera 3.1 and removed thereafter; replaced by
-     *      isIdentical(shared_ptr<Func1>&).
-     * @todo Restore deleted copy constructor after removal.
-     */
-    virtual bool isIdentical(Func1& other) const;
-
-    /**
-     * @deprecated Deprecated in %Cantera 3.1 and removed thereafter; replaced by
-     *      internal function.
-     */
-    virtual double isProportional(TimesConstant1& other);
-    /**
-     * @deprecated Deprecated in %Cantera 3.1 and removed thereafter; replaced by
-     *      internal function.
-     */
-    virtual double isProportional(Func1& other);
 
     //! Write LaTeX string describing function.
     virtual string write(const string& arg) const;
@@ -537,22 +518,6 @@ public:
         return "times-constant";
     }
 
-    double isProportional(TimesConstant1& other) override {
-        if (func1_shared()->isIdentical(*other.func1_shared())) {
-            return (other.c()/c());
-        } else {
-            return 0.0;
-        }
-    }
-
-    double isProportional(Func1& other) override {
-        if (func1_shared()->isIdentical(other)) {
-            return 1.0/c();
-        } else {
-            return 0.0;
-        }
-    }
-
     double eval(double t) const override {
         return m_f1->eval(t) * m_c;
     }
@@ -713,25 +678,21 @@ protected:
  * @f]
  * with coefficients provided in the order @f$ [a_n, \dots, a_1, a_0] @f$ (consistent
  * with MATLAB and NumPy conventions). Note that %Cantera 3.1 reversed the coefficient
- * order with respect to its earlier definition. A deprecation cycle is skipped as the
- * functor class is not expected to be widely used; the transitional name Poly13 ensures
- * that changed behavior does not go unnoticed. The class name will revert to @b Poly1
- * after %Cantera 3.1.
+ * order with respect to its earlier definition.
  * @since Changed in %Cantera 3.1.
- * @todo Rename to Poly1 after %Cantera 3.1
  * @ingroup func1advanced
  */
-class Poly13 : public Func1
+class Poly1 : public Func1
 {
 public:
-    Poly13(size_t n, const double* c) {
+    Poly1(size_t n, const double* c) {
         m_cpoly.resize(n+1);
         std::copy(c, c+m_cpoly.size(), m_cpoly.begin());
     }
 
     //! Constructor uses @f$ n + 1 @f$ parameters in the following order:
     //! @f$ [a_n, \dots, a_1, a_0] @f$
-    Poly13(const vector<double>& params);
+    Poly1(const vector<double>& params);
 
     string type() const override {
         return "polynomial3";

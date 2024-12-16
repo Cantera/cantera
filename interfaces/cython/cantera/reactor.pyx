@@ -16,14 +16,9 @@ cdef class ReactorBase:
     Common base class for reactors and reservoirs.
     """
     reactor_type = "none"
-    def __cinit__(self, _SolutionBase contents=None, *, name="(none)", **kwargs):
-        if isinstance(contents, _SolutionBase):
-            self._reactor = newReactor(stringify(self.reactor_type),
-                                       contents._base, stringify(name))
-        else:
-            # deprecated: will raise warnings in C++ layer
-            self._reactor = newReactor(stringify(self.reactor_type))
-            self._reactor.get().setName(stringify(name))
+    def __cinit__(self, _SolutionBase contents, *, name="(none)", **kwargs):
+        self._reactor = newReactor(stringify(self.reactor_type),
+                                   contents._base, stringify(name))
         self.rbase = self._reactor.get()
 
     def __init__(self, _SolutionBase contents=None, *,
@@ -198,13 +193,11 @@ cdef class Reactor(ReactorBase):
     def __cinit__(self, *args, **kwargs):
         self.reactor = <CxxReactor*>(self.rbase)
 
-    def __init__(self, contents=None, *,
+    def __init__(self, contents, *,
                  name="(none)", energy='on', group_name="", **kwargs):
         """
         :param contents:
-            Reactor contents. If not specified, the reactor is initially empty.
-            In this case, call `insert` to specify the contents. Providing valid
-            contents will become mandatory after Cantera 3.1.
+            A `Solution` object representing the Reactor contents
         :param name:
             Name string. If not specified, the name initially defaults to ``'(none)'``
             and changes to ``'<reactor_type>_n'`` when `Reactor` objects are installed

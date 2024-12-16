@@ -110,21 +110,6 @@ cdef class Kinetics(_SolutionBase):
         def __get__(self):
             return self.kinetics.nPhases()
 
-    property reaction_phase_index:
-        """
-        The index of the phase where the reactions occur.
-
-        .. deprecated:: 3.0
-
-            After Cantera 3.0, the reacting phase is always the first phase associated
-            with the Kinetics object. This method will be removed after Cantera 3.1.
-        """
-        def __get__(self):
-            warnings.warn("Kinetics.reaction_phase_index: To be removed after "
-                          "Cantera 3.1; The reacting phase is always index 0.",
-                          DeprecationWarning)
-            return 0
-
     def _check_phase_index(self, n):
         if not 0 <= n < self.n_phases:
             raise ValueError("Phase index ({0}) out of range".format(n))
