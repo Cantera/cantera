@@ -398,8 +398,8 @@ cdef class Transport(_SolutionBase):
     property transport_fitting_errors:
         """
         Get error metrics about any functional fits calculated for pure species
-        transport properties. See {ct}`GasTransport::fitDiffCoeffs` and
-        {ct}`GasTransport::fitProperties`.
+        transport properties. See :ct:`GasTransport::fitDiffCoeffs` and
+        :ct:`GasTransport::fitProperties`.
 
         .. warning::
 
