@@ -434,7 +434,7 @@ jobs:
 
           git checkout --track origin/${BRANCH}
           mkdir -p ${GIT_DEST}
-          tar -zxf ../build/doc/docs.tar.gz -C ${GIT_DEST}
+          tar -zxf ../build/doc/docs.tar.gz --strip-components=1 -C ${GIT_DEST}
           git add .
           git commit -m "Update for Cantera ${GIT_DEST} - Cantera/cantera@${REPO_SHA}"
           git show --stat HEAD
