@@ -708,7 +708,7 @@ cdef class Kinetics(_SolutionBase):
         The method returns a matrix with `n_total_species` rows and `n_total_species`
         columns.
 
-        For a derivative with respect to :math: `c_i`, all other :math: `c_i` are
+        For a derivative with respect to :math:`c_i`, all other :math:`c_i` are
         held constant.
 
         .. warning::
@@ -776,7 +776,7 @@ cdef class Kinetics(_SolutionBase):
         species. For sparse output, set ``ct.use_sparse(True)``.
 
         The method returns a matrix with `n_total_species` rows and `n_total_species` columns.
-        For a derivative with respect to :math: `c_i`, all other :math: `c_i` are
+        For a derivative with respect to :math:`c_i`, all other :math:`c_i` are
         held constant.
 
         .. warning::
@@ -844,7 +844,7 @@ cdef class Kinetics(_SolutionBase):
         species. For sparse output, set ``ct.use_sparse(True)``.
 
         The method returns a matrix with `n_total_species` rows and `n_total_species` columns.
-        For a derivative with respect to :math: `c_i`, all other :math: `c_i` are
+        For a derivative with respect to :math:`c_i`, all other :math:`c_i` are
         held constant.
 
         .. warning::

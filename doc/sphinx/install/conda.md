@@ -5,7 +5,7 @@
 [Conda](https://docs.conda.io/projects/conda/en/stable/) is a package manager that can
 be used to install Python packages and other software. Cantera packages are available
 via the `conda-forge` channel, for use with Conda distributions that use that channel.
-We highly recommend using the [Miniforge][https://conda-forge.org/download/]
+We highly recommend using the [Miniforge](https://conda-forge.org/download/)
 distribution, which configures `conda-forge` as the default channel (in which case you
 can omit the argument `--channel conda-forge` from any of the commands below).
 

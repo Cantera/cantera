@@ -345,16 +345,16 @@ cdef class Reactor(ReactorBase):
 
         `Reactor` or `IdealGasReactor`:
 
-          - 0  - mass
-          - 1  - volume
-          - 2  - internal energy or temperature
-          - 3+ - mass fractions of the species
+        - 0  - mass
+        - 1  - volume
+        - 2  - internal energy or temperature
+        - 3+ - mass fractions of the species
 
         `ConstPressureReactor` or `IdealGasConstPressureReactor`:
 
-          - 0  - mass
-          - 1  - enthalpy or temperature
-          - 2+ - mass fractions of the species
+        - 0  - mass
+        - 1  - enthalpy or temperature
+        - 2+ - mass fractions of the species
 
         You can use the function `component_index` to determine the location of
         a specific component from its name, or `component_name` to determine the
@@ -2001,10 +2001,10 @@ cdef class ReactorNet:
 
             Options for this property include:
 
-              - `"DENSE"`
-              - `"GMRES"`
-              - `"BAND"`
-              - `"DIAG"`
+            - `"DENSE"`
+            - `"GMRES"`
+            - `"BAND"`
+            - `"DIAG"`
 
         """
         def __set__(self, linear_solver_type):
