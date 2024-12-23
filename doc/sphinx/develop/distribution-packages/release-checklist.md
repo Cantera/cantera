@@ -69,6 +69,9 @@ maintainers.
   git checkout -b X.Y
   git push upstream X.Y
   ```
+- Also create a tag in the `cantera-example-data` repository for the commit that
+  corresponds to the tagged commit in the main repository. This is needed to build the
+  Ubuntu packages.
 
 - The CI job on the maintenance branch should upload the docs to the versioned path on
   `cantera.org` and archive the docs in the `staging` branch of the
@@ -109,3 +112,6 @@ maintainers.
   [`graphql.py`](https://github.com/Cantera/cantera-release-guide/blob/main/graphql.py)
   script from the `cantera-release-guide` repo and put the resulting list in the
   [wiki](https://github.com/Cantera/cantera/wiki)
+
+- Update text and links in the "welcome" message of the
+  [Cantera Users' Group](https://groups.google.com/g/cantera-users).
