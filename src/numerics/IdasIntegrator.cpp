@@ -350,11 +350,6 @@ void IdasIntegrator::applyOptions()
         #else
             m_linsol_matrix = SUNDenseMatrix(N, N);
         #endif
-        #if SUNDIALS_VERSION_MAJOR >= 6
-            m_linsol_matrix = SUNDenseMatrix(N, N, m_sundials_ctx.get());
-        #else
-            m_linsol_matrix = SUNDenseMatrix(N, N);
-        #endif
         #if CT_SUNDIALS_USE_LAPACK
             #if SUNDIALS_VERSION_MAJOR >= 6
                 m_linsol = SUNLinSol_LapackDense(m_y, (SUNMatrix) m_linsol_matrix,
