@@ -68,16 +68,6 @@ Additional command options:
 #                          screen instead of doing <command>, for example
 #                          'scons build dump'. For debugging purposes.
 
-# This f-string is deliberately here to trigger a SyntaxError when
-# SConstruct is parsed by Python 2. This seems to be the most robust
-# and simplest option that will reliably trigger an error in Python 2
-# and provide actionable feedback for users.
-f"""
-Cantera must be built using Python 3.10 or higher. You can invoke SCons by executing
-    python3 `which scons`
-followed by any desired options.
-"""
-
 from pathlib import Path
 import sys
 import os
@@ -100,7 +90,7 @@ from buildutils import (Option, PathOption, BoolOption, EnumOption, Configuratio
 
 # ensure that Python and SCons versions are sufficient for the build process
 EnsurePythonVersion(3, 10)
-EnsureSConsVersion(3, 0, 0)
+EnsureSConsVersion(4, 0, 0)
 
 if not COMMAND_LINE_TARGETS:
     # Print usage help
@@ -844,8 +834,6 @@ if os.name == "nt":
     elif windows_compiler_env["toolchain"] == "mingw":
         toolchain = ["mingw", "f90"]
         extraEnvArgs["F77"] = None
-        # Next line fixes https://github.com/SCons/scons/issues/2683
-        extraEnvArgs["WINDOWS_INSERT_DEF"] = 1
 
     elif windows_compiler_env["toolchain"] == "intel":
         toolchain = ["intelc"] # note: untested

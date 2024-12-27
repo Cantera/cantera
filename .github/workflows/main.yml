@@ -48,7 +48,7 @@ jobs:
         run: python3 -m pip install -U pip setuptools wheel
       - name: Install Python dependencies
         run: |
-          python3 -m pip install ruamel.yaml scons==3.1.2
+          python3 -m pip install ruamel.yaml scons==4.0.1
       - name: Build Cantera
         run: |
           python3 `which scons` build env_vars=all -j4 debug=n --debug=time \
@@ -106,7 +106,7 @@ jobs:
       run: python3 -m pip install -U pip setuptools wheel
     - name: Install Python dependencies
       run: |
-        python3 -m pip install ruamel.yaml scons==3.1.2 numpy${{ matrix.numpy }} \
+        python3 -m pip install ruamel.yaml scons==4.0.1 numpy${{ matrix.numpy }} \
           cython${{ matrix.cython }} pandas pytest \
           pytest-github-actions-annotate-failures pytest-xdist pint graphviz
     - name: Build Cantera
