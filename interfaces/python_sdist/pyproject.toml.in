@@ -33,7 +33,7 @@ classifiers = [
 requires-python = "@py_requires_ver_str@"
 dependencies = [
     "numpy >= 1.12.0,<3",
-    "ruamel.yaml >= 0.15.34",
+    "ruamel.yaml >= 0.17.16",
 ]
 
 [project.readme]

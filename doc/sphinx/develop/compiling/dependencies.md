@@ -121,8 +121,7 @@ compiler is required only if you plan to build the Fortran module.
 
   - Required to convert input files from Chemkin, {term}`CTI`, and XML to the YAML
     format
-  - Known to work with versions 0.15.42, 0.15.87, and 0.16.5
-  - Expected to work with versions >= 0.15.0
+  - Expected to work with versions >= 0.17.16
 
 - [libhdf5](https://www.hdfgroup.org/solutions/hdf5/)
 

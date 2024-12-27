@@ -2,26 +2,16 @@ import numpy as np
 from pathlib import Path, PurePath
 from pytest import approx
 import warnings
-
-try:
-    from ruamel import yaml
-except ImportError:
-    import ruamel_yaml as yaml
+from ruamel import yaml
 
 
 def load_yaml(yml_file):
     """
     Load YAML data from file using the "safe" loading option.
     """
-    try:
-        yaml_parser = yaml.YAML(typ="safe")
-        with open(yml_file, "rt", encoding="utf-8") as stream:
-            return yaml_parser.load(stream)
-    except yaml.constructor.ConstructorError:
-        with open(yml_file, "rt", encoding="utf-8") as stream:
-            # Ensure that  the loader remains backward-compatible with legacy
-            # ruamel.yaml versions (prior to 0.17.0).
-            return yaml.safe_load(stream)
+    yaml_parser = yaml.YAML(typ="safe")
+    with open(yml_file, "rt", encoding="utf-8") as stream:
+        return yaml_parser.load(stream)
 
 def compare(data, reference_file, rtol=1e-8, atol=1e-12):
     """
