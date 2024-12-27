@@ -48,7 +48,7 @@ jobs:
         run: python3 -m pip install -U pip setuptools wheel
       - name: Install Python dependencies
         run: |
-          python3 -m pip install ruamel.yaml scons==4.0.1
+          python3 -m pip install ruamel.yaml scons==4.0.1 packaging
       - name: Build Cantera
         run: |
           python3 `which scons` build env_vars=all -j4 debug=n --debug=time \
