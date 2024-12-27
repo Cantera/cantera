@@ -26,8 +26,8 @@ compiler is required only if you plan to build the Fortran module.
 
 - Microsoft compilers (C/C++)
 
-  - Known to work with Visual Studio 2017 (MSVC 14.1), Visual Studio 2019 (MSVC 14.2)
-    and Visual Studio 2022 (MSVC 14.3).
+  - Known to work with Visual Studio 2019 (MSVC 14.2) and Visual Studio 2022
+    (MSVC 14.3).
 
 - MinGW (C/C++/Fortran)
 
