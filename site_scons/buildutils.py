@@ -1309,7 +1309,6 @@ def setup_python_env(env):
         _python_info = json.loads(get_command_output(env["python_cmd"], "-c", script))
 
     info = _python_info
-    module_ext = info["EXT_SUFFIX"]
     inc = info["INCLUDEPY"]
     pylib = info.get("LDLIBRARY")
     prefix = info["prefix"]
@@ -1325,16 +1324,7 @@ def setup_python_env(env):
     add_system_include(env, (inc, numpy_include), 'prepend')
     env.Prepend(LIBS=env['cantera_shared_libs'])
 
-    # Fix the module extension for Windows from the sysconfig library.
-    # See https://github.com/python/cpython/pull/22088 and
-    # https://bugs.python.org/issue39825
-    if (py_version_full < parse_version("3.8.7")
-        and env["OS"] == "Windows"
-        and module_ext == ".pyd"
-    ):
-        module_ext = f".cp{py_version_nodot}-{info['plat'].replace('-', '_')}.pyd"
-
-    env["py_module_ext"] = module_ext
+    env["py_module_ext"] = info["EXT_SUFFIX"]
     env["py_version_nodot"] = py_version_nodot
     env["py_version_short"] = info["py_version_short"]
     env["py_plat"] = plat
@@ -1349,13 +1339,6 @@ def setup_python_env(env):
         py_lib = "python" + py_version_nodot
     env["py_libs"] = [py_lib] + [lib[2:] for lib in info.get("LIBS", "").split()
                                  if lib.startswith("-l")]
-
-    # Don't print deprecation warnings for internal Python changes.
-    # Only applies to Python 3.8. The field that is deprecated in Python 3.8
-    # and causes the warnings to appear will be removed in Python 3.9 so no
-    # further warnings should be issued.
-    if env["HAS_CLANG"] and py_version_short == parse_version("3.8"):
-        env.Append(CXXFLAGS='-Wno-deprecated-declarations')
 
     if env['OS'] == 'Darwin':
         env.Append(LINKFLAGS='-undefined dynamic_lookup')

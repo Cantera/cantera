@@ -729,10 +729,7 @@ class TestFreeFlame:
         Tin = 400
 
         filename = self.test_work_path / "onedim-add-species.yaml"
-        # In Python >= 3.8, this can be replaced by the missing_ok argument
-        if filename.is_file():
-            filename.unlink()
-
+        filename.unlink(missing_ok=True)
         self.create_sim(p, Tin, reactants, mech="h2o2.yaml")
         gas1 = self.gas
         self.sim.max_grid_points = 234
@@ -764,10 +761,7 @@ class TestFreeFlame:
         Tin = 400
 
         filename = self.test_work_path / "onedim-remove-species.yaml"
-        # In Python >= 3.8, this can be replaced by the missing_ok argument
-        if filename.is_file():
-            filename.unlink()
-
+        filename.unlink(missing_ok=True)
         self.create_sim(p, Tin, reactants, mech="h2o2-plus.yaml")
         gas1 = self.gas
         self.solve_fixed_T()
@@ -1123,10 +1117,7 @@ class TestDiffusionFlame:
             assert not bad, bad
 
         filename = self.test_work_path / "DiffusionFlameTest-h2-mix-rad.csv"
-        # In Python >= 3.8, this can be replaced by the missing_ok argument
-        if filename.is_file():
-            filename.unlink()
-
+        filename.unlink(missing_ok=True)
         self.sim.save(filename, basis="mole") # check output
         assert filename.is_file()
         csv_data = np.genfromtxt(filename, dtype=float, delimiter=',', names=True)
