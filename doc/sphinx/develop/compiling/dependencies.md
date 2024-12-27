@@ -212,4 +212,4 @@ compiler is required only if you plan to build the Fortran module.
 - [.NET](https://dotnet.microsoft.com/)
 
   - Required for the compilation of the experimental .NET interface
-  - Known to work for the .NET 6.0 SDK
+  - Known to work for the .NET 8.0 SDK

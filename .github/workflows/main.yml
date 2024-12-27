@@ -271,7 +271,7 @@ jobs:
     - name: Setup .NET Core SDK
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '6.x'
+        dotnet-version: '8.x'
     - name: Build Cantera
       run: |
         python3 `which scons` build blas_lapack_libs=lapack,blas coverage=y \
@@ -916,7 +916,7 @@ jobs:
     - name: Setup .NET Core SDK
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '6.x'
+        dotnet-version: '8.x'
     - name: Download the Cantera shared library (.so)
       uses: actions/download-artifact@v4
       with:
