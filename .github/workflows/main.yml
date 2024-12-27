@@ -67,22 +67,24 @@ jobs:
     strategy:
       matrix:
         python-version: ['3.10', '3.11', '3.12', '3.13']
-        os: ['ubuntu-20.04', 'ubuntu-22.04']
+        os: ['ubuntu-24.04']
         numpy: ['']
         cython: ['']
         include:
           # Keep some test cases with NumPy 1.x until we drop support
         - python-version: '3.12'
-          os: 'ubuntu-24.04'
+          os: 'ubuntu-22.04'
           numpy: "'<2.0'"
           # Keep some test cases with older Cython versions
         - python-version: '3.10'
-          os: 'ubuntu-24.04'
+          os: 'ubuntu-22.04'
           cython: "==0.29.31" # minimum supported version
         - python-version: '3.11'
-          os: 'ubuntu-24.04'
+          os: 'ubuntu-22.04'
           cython: "==3.0.8" # System version for Ubuntu 24.04
-
+        - python-version: '3.13'
+          os: 'ubuntu-22.04'
+          numpy: "'<2.2'"
       fail-fast: false
     steps:
     - uses: actions/checkout@v4
@@ -460,27 +462,34 @@ jobs:
       matrix:
         # Keep some test cases with NumPy 1.x until we explicitly drop support
         include:
-        - os: "ubuntu-20.04"
-          python-version: "3.10"
-          numpy: "==1.21.6"
         - os: "ubuntu-22.04"
           python-version: "3.10"
           numpy: ""
+          libhdf5: "libhdf5-103"
+        - os: "ubuntu-24.04"
+          python-version: "3.10"
+          numpy: "==1.21.6"
+          libhdf5: "libhdf5-103-1t64"
         - os: "ubuntu-22.04"
           python-version: "3.11"
           numpy: "==1.23.5"
-        - os: "ubuntu-20.04"
+          libhdf5: "libhdf5-103"
+        - os: "ubuntu-24.04"
           python-version: "3.11"
           numpy: ""
+          libhdf5: "libhdf5-103-1t64"
         - os: "ubuntu-22.04"
           python-version: "3.12"
           numpy: "==1.26.4"
-        - os: "ubuntu-20.04"
+          libhdf5: "libhdf5-103"
+        - os: "ubuntu-24.04"
           python-version: "3.12"
           numpy: ""
+          libhdf5: "libhdf5-103-1t64"
         - os: "ubuntu-22.04"
           python-version: "3.13"
           numpy: ""
+          libhdf5: "libhdf5-103"
       fail-fast: false
     steps:
       # We're not building Cantera here, we only need the checkout for the samples
@@ -495,7 +504,7 @@ jobs:
       - name: Install Apt dependencies
         run: |
           sudo apt update
-          sudo apt install graphviz libhdf5-103 libfmt-dev
+          sudo apt install graphviz ${{ matrix.libhdf5 }} libfmt-dev
       - name: Download the wheel artifact
         uses: actions/download-artifact@v4
         with:
@@ -626,7 +635,7 @@ jobs:
         - python-version: '3.11'
           fmt-ver: '9.1'
         - python-version: '3.12'
-          fmt-ver: '7.1'
+          fmt-ver: '10.0'
         - python-version: '3.13'
           fmt-ver: '11.0'
           extra-build-args: cxx_flags='/EHsc /std:c++20 /utf-8'

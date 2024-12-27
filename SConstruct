@@ -1239,7 +1239,7 @@ if env['system_fmt'] in ('y', 'default'):
     )
     if retcode and fmt_version_text:
         fmt_lib_version = split_version(fmt_version_text)
-        fmt_min_version = "6.1.2"
+        fmt_min_version = "8.0.0"
         if parse_version(fmt_lib_version) < parse_version(fmt_min_version):
             if env['system_fmt'] == 'y':
                 config_error(
@@ -1265,10 +1265,6 @@ if env['system_fmt'] in ('n', 'default'):
     fmt_lib_version = split_version(fmt_version_text)
     env['system_fmt'] = False
     logger.info("Using private installation of fmt library.")
-
-if env["OS"] == "Windows" and parse_version(fmt_lib_version) < parse_version("8.0.0"):
-    # Workaround for symbols not exported on Windows in older fmt versions
-    env.Append(CPPDEFINES={"FMT_HEADER_ONLY": 1})
 
 logger.info(f"Using fmt version {fmt_lib_version}")
 
