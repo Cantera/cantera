@@ -1475,12 +1475,7 @@ def check_for_python(
                 from ruamel import yaml
                 versions["ruamel.yaml"] = yaml.__version__
             except ImportError as ru_err:
-                try:
-                    import ruamel_yaml as yaml
-                    versions["ruamel.yaml"] = yaml.__version__
-                except ImportError as ru_err_2:
-                    err += str(ru_err) + "\\n"
-                    err += str(ru_err_2) + "\\n"
+                err += str(ru_err) + "\\n"
         """)
     if check_for_pytest:
         script += check_module("pytest")
