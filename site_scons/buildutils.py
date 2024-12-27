@@ -1743,16 +1743,15 @@ def check_sundials(conf: "SConfigure", sundials_version: str) -> Dict[str, Union
         ".".join(sundials_version.strip().replace('"', "").split())
     )
     should_exit_with_error = conf.env["system_sundials"] == "y"
-    if sundials_ver < parse_version("3.0") or sundials_ver >= parse_version("8.0"):
+    if sundials_ver < parse_version("5.0") or sundials_ver >= parse_version("8.0"):
         if should_exit_with_error:
-            config_error(f"Sundials version must be >=3.0,<8.0. Found {sundials_ver}.")
+            config_error(f"Sundials version must be >=5.0,<8.0. Found {sundials_ver}.")
         return {"system_sundials": "n", "sundials_version": "", "has_sundials_lapack": 0}
     elif sundials_ver > parse_version("7.2.0"):
         logger.warning(f"Sundials version {sundials_ver} has not been tested.")
 
     cvode_checks = {
-        SpecifierSet(">=3.0,<4.0"): ("CVodeCreate(CV_BDF, CV_NEWTON);", ["sundials_cvodes"]),
-        SpecifierSet(">=4.0,<6.0"): ("CVodeCreate(CV_BDF);", ["sundials_cvodes"]),
+        SpecifierSet(">=5.0,<6.0"): ("CVodeCreate(CV_BDF);", ["sundials_cvodes"]),
         SpecifierSet(">=6.0,<7.0"): (
             "SUNContext ctx; SUNContext_Create(0, &ctx);", ["sundials_cvodes"]
         ),

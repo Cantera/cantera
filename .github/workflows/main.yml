@@ -555,10 +555,6 @@ jobs:
     strategy:
       matrix:
         include:
-        - sundials-ver: 3
-          fmt-ver: 6.1.2
-        - sundials-ver: 4
-          fmt-ver: 8.1
         - sundials-ver: 5.8
           fmt-ver: 9.1
         - sundials-ver: 6.4.1
