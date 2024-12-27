@@ -154,24 +154,15 @@ class MissingNodeText(LookupError):
         super().__init__(message)
 
 
-# Improved float formatting requires Numpy >= 1.14
-HAS_FMT_FLT_POS = hasattr(np, "format_float_positional")
-
-
 def float2string(data: float) -> str:
     """Format a float into a string.
 
     :param data: The floating point data to be formatted.
 
-    Uses *NumPy*'s ``format_float_positional()`` and ``format_float_scientific()`` if
-    they are is available, requires ``numpy >= 1.14``. In that case, values with
-    magnitude between 0.01 and 10000 are formatted using ``format_float_positional ()``
-    and other values are formatted using ``format_float_scientific()``. If those *NumPy*
-    functions are not available, returns the ``repr`` of the input.
+    Values with magnitude between 0.01 and 10000 are formatted using
+    ``format_float_positional()`` and other values are formatted using
+    ``format_float_scientific()``.
     """
-    if not HAS_FMT_FLT_POS:
-        return repr(data)
-
     if data == 0:
         return "0.0"
     elif 0.01 <= abs(data) < 10000:

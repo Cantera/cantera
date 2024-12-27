@@ -1632,12 +1632,14 @@ env["python_min_version"] = python_min_version
 env["python_max_version"] = python_max_version
 env["py_requires_ver_str"] = py_requires_ver_str
 env["cython_version_spec"] = SpecifierSet(">=0.29.31", prereleases=True)
-env["numpy_version_spec"] = SpecifierSet(">=1.12.0,<3", prereleases=True)
+# When updating NumPy spec, also update interfaces/python_sdist/pyproject.toml.in.
+env["numpy_version_spec"] = SpecifierSet(">=1.21.0,<3", prereleases=True)
 env["cython_version_spec_str"] = str(env["cython_version_spec"])
 env["numpy_version_spec_str"] = str(env["numpy_version_spec"])
 
 # We choose ruamel.yaml 0.17.16 as the minimum version since it is the highest version
-# available in the Ubuntu 22.04 repositories.
+# available in the Ubuntu 22.04 repositories. When updating this, also update the
+# version string in interfaces/python_sdist/pyproject.toml.in.
 env["ruamel_version_spec"] = SpecifierSet(">=0.17.16", prereleases=True)
 env["ruamel_version_spec_str"] = str(env["ruamel_version_spec"])
 

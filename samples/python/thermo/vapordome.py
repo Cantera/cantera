@@ -6,7 +6,7 @@ This example generates a saturated steam table and plots the vapor dome. The
 steam table corresponds to data typically found in thermodynamic text books
 and uses the same customary units.
 
-Requires: Cantera >= 2.5.0, matplotlib >= 2.0, pandas >= 1.1.0, numpy >= 1.12
+Requires: Cantera >= 2.5.0, matplotlib >= 2.0, pandas >= 1.1.0
 
 .. tags:: Python, thermodynamics, non-ideal fluid, plotting
 """

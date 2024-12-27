@@ -97,7 +97,7 @@ compiler is required only if you plan to build the Fortran module.
 
   - Required to build the Cantera Python module, and to run significant portions
     of the test suite.
-  - Expected to work with versions >= 1.12.0. 1.16.0 or newer is recommended.
+  - Expected to work with versions >= 1.21.0.
 
 - [Cython](https://cython.org/)
 
