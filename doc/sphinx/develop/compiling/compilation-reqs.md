@@ -224,9 +224,9 @@ Next: Download the Source Code
 
 ### Ubuntu & Debian
 
-- Ubuntu 20.04 LTS (Focal Fossa) or newer
+- Ubuntu 22.04 LTS (Focal Fossa) or newer
 
-- Debian 11.0 (Bullseye) or newer
+- Debian 12.0 (Bookworm) or newer
 
 - The following packages must be installed to build any of the Cantera modules using
   your choice of package manager:
