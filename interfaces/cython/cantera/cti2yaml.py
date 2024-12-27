@@ -60,18 +60,13 @@ def FlowList(*args, **kwargs):
     lst.fa.set_flow_style()
     return lst
 
-# Improved float formatting requires Numpy >= 1.14
-if hasattr(np, 'format_float_positional'):
-    def float2string(data):
-        if data == 0:
-            return '0.0'
-        elif 0.01 <= abs(data) < 10000:
-            return np.format_float_positional(data, trim='0')
-        else:
-            return np.format_float_scientific(data, trim='0')
-else:
-    def float2string(data):
-        return repr(data)
+def float2string(data):
+    if data == 0:
+        return '0.0'
+    elif 0.01 <= abs(data) < 10000:
+        return np.format_float_positional(data, trim='0')
+    else:
+        return np.format_float_scientific(data, trim='0')
 
 def represent_float(self, data):
     if data != data:

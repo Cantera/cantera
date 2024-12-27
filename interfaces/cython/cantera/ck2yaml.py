@@ -60,19 +60,6 @@ def FlowList(*args, **kwargs):
     lst.fa.set_flow_style()
     return lst
 
-# Improved float formatting requires Numpy >= 1.14
-if hasattr(np, 'format_float_positional'):
-    def float2string(data):
-        if data == 0:
-            return '0.0'
-        elif 0.01 <= abs(data) < 10000:
-            return np.format_float_positional(data, trim='0')
-        else:
-            return np.format_float_scientific(data, trim='0')
-else:
-    def float2string(data):
-        return repr(data)
-
 def represent_float(self, data):
     if data != data:
         value = '.nan'
@@ -80,8 +67,12 @@ def represent_float(self, data):
         value = '.inf'
     elif data == -self.inf_value:
         value = '-.inf'
+    elif data == 0:
+        value = '0.0'
+    elif 0.01 <= abs(data) < 10000:
+        value = np.format_float_positional(data, trim='0')
     else:
-        value = float2string(data)
+        value = np.format_float_scientific(data, trim='0')
 
     return self.represent_scalar(u'tag:yaml.org,2002:float', value)
 
