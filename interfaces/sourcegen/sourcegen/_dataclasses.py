@@ -125,3 +125,8 @@ class HeaderFile:
     path: Path
     funcs: List[Func]
     recipes: List[Recipe] = None
+
+    def output_name(self, auto="3", suffix=""):
+        """Return updated path."""
+        ret = self.path.parent / self.path.name.replace("_auto", auto)
+        return ret.with_suffix(suffix)
