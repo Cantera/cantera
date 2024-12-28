@@ -39,7 +39,10 @@ def generate_source(lang: str, out_dir: str=""):
     ignore_files: List[str] = config.pop("ignore_files", [])
     ignore_funcs: Dict[str, List[str]] = config.pop("ignore_funcs", {})
 
-    files = HeaderFileParser.from_headers(ignore_files, ignore_funcs)
+    if lang == 'clib':
+        files = HeaderFileParser.from_yaml(ignore_files, ignore_funcs)
+    else:
+        files = HeaderFileParser.from_headers(ignore_files, ignore_funcs)
 
     # find and instantiate the language-specific SourceGenerator
     _, scaffolder_type = inspect.getmembers(module,
