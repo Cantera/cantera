@@ -7,16 +7,66 @@ import sys
 from pathlib import Path
 import re
 import logging
-#from dataclasses import dataclass
+from dataclasses import dataclass
 
-#from ._dataclasses import ArgList, Param
-#from ._helpers import with_unpack_iter
+from ._dataclasses import ArgList, Param
+from ._helpers import with_unpack_iter
 
 
 _logger = logging.getLogger(__name__)
 
 _tag_path = Path(__file__).parents[3] / "build" / "doc"
 _xml_path = _tag_path / "doxygen" / "xml"
+
+
+@dataclass(frozen=True)
+@with_unpack_iter
+class TagInfo:
+    """Represents information parsed from a doxygen tag file."""
+
+    base: str = ""  #: qualified scope (skipping Cantera namespace)
+    type: str = ""  #: return type
+    name: str = ""  #: function name
+    arglist: str = ""  #: function argument list (original XML string)
+    anchorfile: str = ""  #: doxygen anchor file
+    anchor: str = ""  #: doxygen anchor
+
+    @classmethod
+    def from_xml(cls, qualified_name, xml):
+        """Create tag information based on XML data."""
+        base = ""
+        if "::" in qualified_name:
+            base = qualified_name.split("::", 1)[0]
+        return cls(base,
+                   xml_tag("type", xml),
+                   xml_tag("name", xml),
+                   xml_tag("arglist", xml),
+                   xml_tag("anchorfile", xml).replace(".html", ".xml"),
+                   xml_tag("anchor", xml))
+
+    def __bool__(self):
+        return all([self.type, self.name, self.arglist, self.anchorfile, self.anchor])
+
+    @property
+    def signature(self):
+        """Generate function signature based on tag information."""
+        ret = f"{self.type} {self.name}{self.arglist}"
+        replacements = [(" &amp;", "& "), ("&lt; ", "<"), (" &gt;", ">")]
+        for rep in replacements:
+            ret = ret.replace(*rep)
+        return ret
+
+    @property
+    def id(self):
+        """Generate doxygen id."""
+        return f"{self.anchorfile.replace('.xml', '')}_1{self.anchor}"
+
+    @property
+    def qualified_name(self):
+        """Return qualified name."""
+        if self.base:
+            return f"{self.base}::{self.name}"
+        return self.name
 
 
 class TagFileParser:
@@ -65,7 +115,9 @@ class TagFileParser:
             for func in re.findall(regex, text):
                 func_name = f'{prefix}{xml_tag("name", func)}'
                 if func_name in functions:
-                    functions[func_name].append(func)
+                    # tag file may contain duplicates
+                    if func not in functions[func_name]:
+                        functions[func_name].append(func)
                 else:
                     functions[func_name] = [func]
             return functions
@@ -89,6 +141,38 @@ class TagFileParser:
 
         logging.info("Parsing doxygen tags...")
         self._parse_doxyfile(doxygen_tags, bases)
+
+    def tag_info(self, func_string: str) -> TagInfo:
+        """Look up tag information based on (partial) function signature."""
+        cxx_func = func_string.split("(")[0].split(" ")[-1]
+        if cxx_func not in self._known:
+            _logger.critical(f"Did not find {cxx_func!r} in doxygen tag file.")
+            sys.exit(1)
+        ix = 0
+        if len(self._known[cxx_func]) > 1:
+            # Disambiguate functions with same name
+            args = re.findall(re.compile(r'(?<=\().*(?=\))'), func_string)
+            if not args:
+                known = '\n - '.join(
+                    [""] + [ArgList.from_xml(xml_tag("arglist", xml)).short_str()
+                            for xml in self._known[cxx_func]])
+                _logger.critical(
+                    f"Need argument list to disambiguate {func_string!r}. "
+                    f"possible matches are:{known}")
+                sys.exit(1)
+            args = f"({args[0]})"
+            ix = -1
+            for i, xml in enumerate(self._known[cxx_func]):
+                arglist = ArgList.from_xml(xml_tag("arglist", xml))
+                if args[:-1] in arglist.short_str():
+                    ix = i
+                    break
+            if ix < 0:
+                _logger.critical(
+                    f"Unable to match {func_string!r} to known functions.")
+                sys.exit(1)
+
+        return TagInfo.from_xml(cxx_func, self._known[cxx_func][ix])
 
 
 def xml_tag(tag: str, text: str, suffix: str="", index=0) -> str:
