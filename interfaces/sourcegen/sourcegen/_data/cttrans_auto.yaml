@@ -1,0 +1,17 @@
+# Configuration for code generation.
+# Implements portion of replacement for CLib "ct"
+
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at https://cantera.org/license.txt for license and copyright information.
+
+cabinet:
+  prefix: trans3
+  base: Transport
+  parents: []  # List of parent classes
+  derived: []  # List of specializations
+  uses: [Solution]  # List of referenced cabinets
+  functions:
+  - name: viscosity
+    implements: Transport::viscosity
+  - name: thermalConductivity
+    implements: Transport::thermalConductivity
