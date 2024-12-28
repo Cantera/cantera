@@ -1,0 +1,64 @@
+# Definitions used for Jinja template replacement.
+
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at https://cantera.org/license.txt for license and copyright information.
+
+clib-param: |-
+  @param{{ '[' + par.direction + ']' if par.direction }} {{ par.name }}
+
+clib-comment: |-
+  {{ briefdescription }}
+
+  {% for par in params -%}
+  {{ par }}
+  {% endfor -%}
+  {% if returns -%}
+  {{ '@returns' + 13*' ' + returns }}
+  {% endif -%}
+  {{ ' ' }}
+  {% if implements -%}
+  {{ '@implements ' + implements }}
+  {% endif -%}
+  {% if relates -%}
+  {{ '@relates ' + ', '.join(relates) }}
+  {% endif %}
+
+clib-definition: |-
+  {{ annotations }}
+  CANTERA_CAPI {{ declaration }};
+
+clib-header-file: |-
+  /**
+   * {{ name.upper() }} - Experimental CLib %Cantera interface library.
+   *
+   * @file {{ name }}.cpp
+   *
+   * This library of functions is designed to encapsulate %Cantera functionality
+   * and make it available for use in languages and applications other than C++.
+   * A set of library functions is provided that are declared "extern C". All
+   * %Cantera objects are stored and referenced by integers - no pointers are
+   * passed to or from the calling application.
+   *
+   * @warning  This module is an experimental part of the %Cantera API and
+   *      may be changed or removed without notice.
+   */
+
+  // This file is part of Cantera. See License.txt in the top-level directory or
+  // at https://cantera.org/license.txt for license and copyright information.
+
+  #ifndef {{ guard }}
+  #define {{ guard }}
+
+  #include "clib_defs.h"
+
+  #ifdef __cplusplus
+  extern "C" {
+  #endif
+      {% for header_entry in header_entries %}
+      {{ header_entry | indent(4) }}
+      {% endfor %}
+  #ifdef __cplusplus
+  }
+  #endif
+
+  #endif // {{ guard }}
