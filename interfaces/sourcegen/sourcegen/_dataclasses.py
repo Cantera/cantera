@@ -99,8 +99,29 @@ class Func:
 
 @dataclass(frozen=True)
 @with_unpack_iter
+class Recipe:
+    """
+    Represents a recipe for a CLib method.
+
+    Class holds contents of YAML header configuration.
+    """
+
+    prefix: str  #: Prefix used for CLib access function
+    name: str  #: Name of method (without prefix)
+    base: str  #: C++ class implementing method
+    parents: list[str]  #: List of C++ parent class(es)
+    derived: list[str]  #: List of C++ specializations
+    uses: list[str]  #: List of other C++ classes used by function
+    implements: str  #: Signature of implemented method
+    relates: list[str] = None  #: Methods used to retrieve instances of managed objects
+    what: str = ""  #: Non-empty for special methods: "constructor", "destructor"
+
+
+@dataclass(frozen=True)
+@with_unpack_iter
 class HeaderFile:
     """Represents information about a parsed C header file"""
 
     path: Path
     funcs: List[Func]
+    recipes: List[Recipe] = None
