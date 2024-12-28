@@ -11,9 +11,9 @@ from jinja2 import Environment, BaseLoader
 
 from ._Config import Config
 
-from .._dataclasses import HeaderFile, Recipe #ArgList, Param, Func
+from .._dataclasses import HeaderFile, Recipe, Param #ArgList, Param, Func
 from .._SourceGenerator import SourceGenerator
-from .._TagFileParser import TagFileParser #, TagDetails, tag_lookup
+from .._TagFileParser import TagFileParser, TagDetails, tag_lookup
 
 
 _logger = logging.getLogger()
@@ -57,11 +57,11 @@ class CLibSourceGenerator(SourceGenerator):
 
         if recipe.implements:
             tag_info = self._doxygen_tags.tag_info(recipe.implements)
-            _logger.info(f"    recipe for {recipe.name!r}: {tag_info.anchorfile}")
-            # details = tag_lookup(tag_info)
+            details = tag_lookup(tag_info)
 
-        #     # convert XML return type to format suitable for crosswalk
-        #     ret_type = Param.from_xml(details.type).p_type
+            # convert XML return type to format suitable for crosswalk
+            ret_type = Param.from_xml(details.type).p_type
+            _logger.info(f"    recipe for {recipe.name!r}: {details.qualified_name}")
         #     ret_param, buffer_params, cabinets = self._ret_crosswalk(ret_type)
         #     par_list = merge_params(recipe.implements, details)
         #     prop_params, prop_cabinets = self._prop_crosswalk(par_list)
@@ -69,10 +69,10 @@ class CLibSourceGenerator(SourceGenerator):
         #     args = prop_params + buffer_params
 
         elif recipe.what == "destructor":
-            _logger.info(f"    recipe for {recipe.name!r}: destructor")
-        #     args = [Param("int", "handle", f"Handle to {recipe.base} object.")]
-        #     details = TagDetails(
-        #         "", "", "", "", "", "", f"Delete {recipe.base} object.", "", args)
+            args = [Param("int", "handle", f"Handle to {recipe.base} object.")]
+            details = TagDetails(
+                "", "", "", "", "", "", f"Delete {recipe.base} object.", "", args)
+            _logger.info(f"    recipe for {recipe.name!r}: void")
         #     ret_param = Param(
         #         "int", "", "Zero for success and -1 for exception handling.")
         #     annotations = f"//! {details.briefdescription}"

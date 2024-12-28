@@ -69,6 +69,16 @@ class TagInfo:
         return self.name
 
 
+@dataclass(frozen=True)
+@with_unpack_iter
+class TagDetails(TagInfo):
+    """Create tag information based on XML data."""
+
+    location: str = ""  #: file containing doxygen description
+    briefdescription: str = ""  #: brief doxygen description
+    parameterlist: list[Param] = None  #: annotated doxygen parameter list
+
+
 class TagFileParser:
     """Class handling contents of doxygen tag file."""
 
@@ -101,9 +111,8 @@ class TagFileParser:
         unknown = set(bases) - set(class_names)
         if unknown:
             unknown = "', '".join(unknown)
-            _logger.warning(
-                "Class(es) in configuration file are missing from tag file: '%s'",
-                unknown)
+            _logger.warning("Class(es) in configuration file are missing "
+                            f"from tag file: {unknown!r}")
 
         # Parse content of classes that are specified by the configuration file
         class_names = set(bases) & set(class_names)
@@ -146,7 +155,7 @@ class TagFileParser:
         """Look up tag information based on (partial) function signature."""
         cxx_func = func_string.split("(")[0].split(" ")[-1]
         if cxx_func not in self._known:
-            _logger.critical(f"Did not find {cxx_func!r} in doxygen tag file.")
+            _logger.critical(f"Could not find {cxx_func!r} in doxygen tag file.")
             sys.exit(1)
         ix = 0
         if len(self._known[cxx_func]) > 1:
@@ -175,28 +184,97 @@ class TagFileParser:
         return TagInfo.from_xml(cxx_func, self._known[cxx_func][ix])
 
 
-def xml_tag(tag: str, text: str, suffix: str="", index=0) -> str:
-    """Extract content enclosed between XML tags, optionally skipping matches."""
-    if suffix:
-        suffix = f" {suffix.strip()}"
-    regex = re.compile(rf'(?<=<{tag}{suffix}>)(.*?)(?=</{tag}>)', flags=re.DOTALL)
-    match = re.findall(regex, text)
-    if index >= len(match):
-        return ""  # not enough matches found
-    return match[index].strip()
+def tag_lookup(tag_info: TagInfo) -> TagDetails:
+    """Retrieve tag details from doxygen tree."""
+    xml_file = _xml_path / tag_info.anchorfile
+    if not xml_file.exists():
+        msg = (f"XML file does not exist at expected location: {xml_file}")
+        _logger.error(msg)
+        return TagDetails()
+
+    with xml_file.open() as fid:
+        xml_details = fid.read()
+
+    id_ = tag_info.id
+    regex = re.compile(rf'<memberdef kind="function" id="{id_}"[\s\S]*?</memberdef>')
+    matches = re.findall(regex, xml_details)
+
+    if not matches:
+        _logger.error(f"No XML matches found for {tag_info.qualified_name!r}")
+        return TagDetails()
+    if len(matches) != 1:
+        _logger.error(f"Inconclusive XML matches found for {tag_info.qualified_name!r}")
+        return TagDetails()
+
+    def cleanup(entry: str) -> str:
+        # Remove stray XML markup
+        if entry.startswith("<para>"):
+            entry = xml_tag("para", entry)
+        if "<ref" in entry:
+            regex = re.compile(r'<ref [\s\S]*?>')
+            for ref in re.findall(regex, entry):
+                entry = entry.replace(ref, "<ref>")
+            entry = entry.replace("<ref>", "").replace("</ref>", "")
+        return entry
+
+    def resolve_parameteritem(par_map: str) -> list[Param]:
+        # Resolve/flatten parameter list
+        name_lines = xml_tag("parameternamelist", par_map).split("\n")
+        regex = re.compile(r'(?<=<parametername)(.*?)(?=>)')
+        names = []
+        directions = []
+        for name_line in name_lines:
+            direction = re.findall(regex, name_line)[0]
+            if "=" in direction:
+                name_line = name_line.replace(direction, "")
+                direction = direction.split("=")[1].strip('"')
+            directions.append(direction)
+            names.append(xml_tag("parametername", name_line))
+        description = cleanup(xml_tag("parameterdescription", par_map))
+        return [Param("", n, description, d) for n, d in zip(names, directions)]
+
+    xml = matches[0]
+    par_list = []
+    par_block = xml_tag("parameterlist", xml, suffix='kind="param"')
+    if par_block:
+        for par_map in xml_tags("parameteritem", par_block):
+            par_list.extend(resolve_parameteritem(par_map))
+
+    def xml_attribute(attr: str, text: str, *, entry: str) -> str:
+        """Extract XML attribute."""
+        regex = re.compile(rf'(?<=<{attr} )(.*?)(?=/>)', flags=re.DOTALL)
+        match = re.findall(regex, text)
+        if not match:
+            return ""  # not enough matches found
+        entries = dict([tuple(_.split("=")) for _ in match[0].strip().split(" ")])
+        return entries.get(entry, "").strip('"')
+
+    return TagDetails(*tag_info,
+                      xml_attribute("location", xml, entry="file"),
+                      cleanup(xml_tag("briefdescription", xml)),
+                      par_list)
 
 
-def xml_tags(tag: str, text: str, suffix: str="") -> list[str]:
+def xml_tag(tag: str, text: str, suffix: str="") -> str:
+    """Extract first match of content enclosed between XML tags."""
+    match = xml_tags(tag, text, suffix, True)
+    if match:
+        return match[0].strip()
+    return ""  # not enough matches found
+
+
+def xml_tags(tag: str, text: str, suffix: str="", permissive: bool=False) -> list[str]:
     """Extract list of content enclosed by XML tags."""
     if suffix:
         suffix = f" {suffix.strip()}"
     regex = re.compile(rf'(?<=<{tag}{suffix}>)(.*?)(?=</{tag}>)',
                        flags=re.DOTALL|re.MULTILINE)
     matched = re.findall(regex, text)
-    if not matched:
-        blanks = text.split("\n")[-1].split("<")[0]
-        msg = f"Could not extract {tag!r} from:\n{blanks}{text}\n"
-        msg += f"using regex: {regex}"
-        _logger.error(msg)
-        return []
-    return matched
+    if matched or permissive:
+        return matched
+
+    blanks = text.split("\n")[-1].split("<")[0]
+    msg = f"Could not extract {tag!r} from:\n{blanks}{text}\n"
+    msg += f"using regex: {regex}"
+    _logger.error(msg)
+    return []
