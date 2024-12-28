@@ -2,12 +2,11 @@
 
 The `sourcegen.generate_source` function crudely parses the CLib header files and generates intermediate objects which represent the functions:
 * header file path
-* funcs: list of
-    * return type (string)
-    * name (string)
-    * params: list of
-        * return type
-        * name
+* funcs: list of `Func` objects containing
+    * return type (`string`)
+    * name (`string`)
+    * params: list of function arguments (`ArgList`)
+    * optional annotations
 
 `sourcegen.generate_source` then delegates the source generation to a language-specific sub-package. The sub-package creates the source files in a location appropriate to the build for that language’s build process.
 
@@ -34,4 +33,3 @@ Each sub-package can contain a yaml-based config file named `config.yaml`. The c
 The config file may contain additional values for use by the language-specific sub-package.
 
 ## running from the command line
-
