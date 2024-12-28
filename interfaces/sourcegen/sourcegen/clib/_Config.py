@@ -32,6 +32,7 @@ class Config:
         "shared_ptr<T>": "int",
         "const shared_ptr<T>": "int",
         "const vector<double>&": 'const double*',
+        "const vector<shared_ptr<T>>&": 'int[]',
     }
 
     cabinets: list[str]
