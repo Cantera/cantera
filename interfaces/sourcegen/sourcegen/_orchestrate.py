@@ -9,7 +9,9 @@ import sys
 from typing import List, Dict
 
 from ._HeaderFileParser import HeaderFileParser
+from ._dataclasses import HeaderFile
 from ._SourceGenerator import SourceGenerator
+from .clib import CLibSourceGenerator
 from ._helpers import read_config
 
 
@@ -41,8 +43,21 @@ def generate_source(lang: str, out_dir: str=""):
 
     if lang == 'clib':
         files = HeaderFileParser.from_yaml(ignore_files, ignore_funcs)
-    else:
+    elif lang == 'csharp':
+        # csharp parses existing (traditional) CLib header files
         files = HeaderFileParser.from_headers(ignore_files, ignore_funcs)
+    else:
+        # generate CLib headers from YAML specifications
+        clib_files = HeaderFileParser.from_yaml(ignore_files, ignore_funcs)
+        clib_config = read_config(Path(__file__).parent / "clib" / "config.yaml")
+        for key in ["ignore_files", "ignore_funcs"]:
+            clib_config.pop(key)
+        clib_scaffolder = CLibSourceGenerator(None, clib_config, {})
+        clib_scaffolder.parse_tags(clib_files)
+        files = []
+        for ff in clib_files:
+            funcs = [clib_scaffolder.clib_header(rr) for rr in ff.recipes]
+            files.append(HeaderFile(ff.path, funcs))
 
     # find and instantiate the language-specific SourceGenerator
     _, scaffolder_type = inspect.getmembers(module,
