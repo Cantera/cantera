@@ -9,7 +9,7 @@ import re
 import logging
 from dataclasses import dataclass
 
-from ._dataclasses import ArgList, Param
+from ._dataclasses import ArgList, Param, CFunc
 from ._helpers import with_unpack_iter
 
 
@@ -182,6 +182,29 @@ class TagFileParser:
                 sys.exit(1)
 
         return TagInfo.from_xml(cxx_func, self._known[cxx_func][ix])
+
+    def cxx_func(self, func_string: str, relates: list[str]=None) -> CFunc:
+        """Generate annotated C++ function specification."""
+        details = tag_lookup(self.tag_info(func_string))
+        ret_param = Param.from_xml(details.type)
+
+        # Merge attributes from doxygen signature and doxygen annotations
+        args = ArgList.from_xml(details.arglist).params  # from signature
+        args_annotated = details.parameterlist  # from documentation
+        args_merged = []
+        for arg in args:
+            for desc in args_annotated:
+                if arg.name == desc.name:
+                    args_merged.append(
+                        Param(arg.p_type, arg.name,
+                              desc.description, desc.direction, arg.default))
+                    break
+            else:
+                args_merged.append(Param(arg.p_type, arg.name, "Undocumented."))
+
+        return CFunc(ret_param.p_type, details.name, ArgList(args_merged),
+                     details.briefdescription, None, ret_param.description,
+                     details.base, relates or [])
 
 
 def tag_lookup(tag_info: TagInfo) -> TagDetails:
