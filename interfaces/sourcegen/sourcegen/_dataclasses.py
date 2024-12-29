@@ -1,3 +1,5 @@
+"""Data classes common to sourcegen scaffolders."""
+
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
@@ -12,13 +14,13 @@ from ._helpers import with_unpack_iter
 @dataclass(frozen=True)
 @with_unpack_iter
 class Param:
-    """Represents a function parameter"""
+    """Class representing a function parameter."""
 
-    p_type: str
-    name: str = ""
-    description: str = ""
-    direction: str = ""
-    default: Any = None
+    p_type: str  #: Parameter type
+    name: str = ""  #: Parameter name; may be empty if used for return argument
+    description: str = ""  #: Parameter description (optional annotation)
+    direction: str = ""  #: Direction of parameter (optional annotation)
+    default: Any = None  #: Default value (optional)
 
     @classmethod
     def from_str(cls, param: str) -> 'Param':
@@ -108,11 +110,11 @@ class ArgList:
 @dataclass(frozen=True)
 @with_unpack_iter
 class Func:
-    """Represents a function parsed from a C header file."""
+    """Represents a function declaration in a C/C++ header file."""
 
-    ret_type: str  # may include leading specifier
-    name: str
-    arglist: ArgList
+    ret_type: str  #: Return type; may include leading specifier
+    name: str  #: Function name
+    arglist: ArgList  #: Argument list
 
     @classmethod
     def from_str(cls, func: str) -> 'Func':
@@ -133,6 +135,25 @@ class Func:
 
 @dataclass(frozen=True)
 @with_unpack_iter
+class CFunc(Func):
+    """Represents an annotated function declaration in a C/C++ header file."""
+
+    brief: str=""  #: Brief description (optional)
+    implements: 'Func'=None  #: Implemented C++ function/method (optional)
+    returns: str=""  #: Description of returned value (optional)
+    base: str=""  #: Qualified scope of function/method (optional)
+    relates: list[str]=None  #: List of related C++ methods (optional)
+
+    def short_declaration(self) -> str:
+        """Return a short string representation."""
+        ret = (f"{self.name}{self.arglist.short_str()}").strip()
+        if self.base:
+            return f"{self.base}::{ret}"
+        return ret
+
+
+@dataclass(frozen=True)
+@with_unpack_iter
 class Recipe:
     """
     Represents a recipe for a CLib method.
@@ -145,7 +166,7 @@ class Recipe:
     base: str  #: C++ class implementing method
     parents: list[str]  #: List of C++ parent class(es)
     derived: list[str]  #: List of C++ specializations
-    uses: list[str]  #: List of other C++ classes used by function
+    uses: list[str]  #: List of referenced CLib cabinets
     implements: str  #: Signature of implemented method
     relates: list[str] = None  #: Methods used to retrieve instances of managed objects
     what: str = ""  #: Non-empty for special methods: "constructor", "destructor"
