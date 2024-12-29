@@ -22,14 +22,6 @@ class CLibSourceGenerator(SourceGenerator):
     """The SourceGenerator for generating CLib."""
 
     @staticmethod
-    def _get_bases(headers_files: list[HeaderFile]) -> list[str]:
-        bases = set()
-        for headers in headers_files:
-            for recipe in headers.recipes:
-                bases |= set([recipe.base] + recipe.uses + recipe.parents)
-        return list(bases)
-
-    @staticmethod
     def _javadoc_comment(block):
         """Build deblanked JavaDoc-style (C-style) comment block."""
         block = ["/**"] + block.strip().split("\n")
@@ -226,7 +218,7 @@ class CLibSourceGenerator(SourceGenerator):
             out = Path(self._out_dir) / "include" / filename.name
             _logger.info(f"  writing {filename!r}")
             if not out.parent.exists():
-                out.parent.mkdir(parents=True)
+                out.parent.mkdir(parents=True, exist_ok=True)
             with open(out, "wt", encoding="utf-8") as stream:
                 stream.write(output)
                 stream.write("\n")
@@ -240,10 +232,21 @@ class CLibSourceGenerator(SourceGenerator):
             self._out_dir.mkdir(parents=True, exist_ok=True)
         self._config = Config.from_parsed(**config)  # typed config
         self._templates = templates
+        self._doxygen_tags = None
+
+    def parse_tags(self, headers_files: list[HeaderFile]):
+        """Parse doxygen tags."""
+        def get_bases() -> list[str]:
+            bases = set()
+            for headers in headers_files:
+                for recipe in headers.recipes:
+                    bases |= set([recipe.base] + recipe.uses + recipe.parents)
+            return list(bases)
+        self._doxygen_tags = TagFileParser(get_bases())
 
     def generate_source(self, headers_files: list[HeaderFile]):
         """Generate output."""
-        self._doxygen_tags = TagFileParser(self._get_bases(headers_files))
+        self.parse_tags(headers_files)
 
         for header in headers_files:
             _logger.info(f"  parsing recipes in {header.path.name!r}:")
