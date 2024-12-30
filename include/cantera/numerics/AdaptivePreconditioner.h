@@ -45,6 +45,10 @@ public:
 
     void updatePreconditioner() override;
 
+    int info() const override {
+        return static_cast<int>(m_solver.info());
+    }
+
     //! Prune preconditioner elements
     void prunePreconditioner();
 

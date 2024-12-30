@@ -59,6 +59,13 @@ public:
         m_precon_side = preconSide;
     }
 
+    //! Update the diagonal terms in the Jacobian by using the transient mask.
+    //! @param rdt  Reciprocal of the time step [1/s]
+    //! @param mask  Mask for transient terms: 1 if transient, 0 if algebraic.
+    virtual void updateTransient(double rdt, int* mask) {
+        throw NotImplementedError("PreconditionerBase::updateTransient");
+    }
+
     //! Solve a linear system Ax=b where A is the preconditioner
     //! @param[in] stateSize length of the rhs and output vectors
     //! @param[in] rhs_vector right hand side vector used in linear system
@@ -83,6 +90,10 @@ public:
     virtual void initialize(size_t networkSize) {
         throw NotImplementedError("PreconditionerBase::initialize");
     };
+
+    //! Used to provide system bandwidth for implementations that use banded matrix
+    //! storage. Ignored if not needed.
+    virtual void setBandwidth(size_t bw) {}
 
     //! Print preconditioner contents
     virtual void printPreconditioner() {
@@ -112,6 +123,43 @@ public:
         m_atol = atol;
     }
 
+    //! Get latest status of linear solver. Zero indicates success. Meaning of non-zero
+    //! values is solver dependent.
+    virtual int info() const {
+        throw NotImplementedError("PreconditionerBase::info");
+    }
+
+    //! Elapsed CPU time spent computing the Jacobian elements.
+    double elapsedTime() const {
+        return m_elapsed;
+    }
+    void updateElapsed(double evalTime) {
+        m_elapsed += evalTime;
+    }
+
+    //! Number of Jacobian evaluations.
+    int nEvals() const {
+        return m_nevals;
+    }
+    void incrementEvals() {
+        m_nevals++;
+    }
+
+    //! Number of times 'incrementAge' has been called since the last evaluation
+    int age() const {
+        return m_age;
+    }
+
+    //! Increment the Jacobian age.
+    void incrementAge() {
+        m_age++;
+    }
+
+    //! Set the Jacobian age.
+    void setAge(int age) {
+        m_age = age;
+    }
+
 protected:
     //! Dimension of the preconditioner
     size_t m_dim;
@@ -124,6 +172,11 @@ protected:
 
     //! Absolute tolerance of the ODE solver
     double m_atol = 0;
+
+    double m_elapsed = 0.0; //!< Elapsed CPU time taken to compute the Jacobian
+    int m_nevals = 0; //!< Number of Jacobian evaluations.
+
+    int m_age = 100000; //!< Age of the Jacobian (times incrementAge() has been called)
 
     string m_precon_side = "none";
 };

@@ -5,6 +5,7 @@
 
 #include "cantera/numerics/PreconditionerFactory.h"
 #include "cantera/numerics/AdaptivePreconditioner.h"
+#include "cantera/oneD/MultiJac.h"
 
 namespace Cantera
 {
@@ -30,6 +31,7 @@ std::mutex PreconditionerFactory::precon_mutex;
 PreconditionerFactory::PreconditionerFactory()
 {
     reg("Adaptive", []() { return new AdaptivePreconditioner(); });
+    reg("banded-direct", []() { return new MultiJac(); });
 }
 
 shared_ptr<PreconditionerBase> newPreconditioner(const string& precon)

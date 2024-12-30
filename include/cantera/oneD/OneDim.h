@@ -10,6 +10,7 @@
 
 #include "Domain1D.h"
 #include "MultiJac.h"
+#include "cantera/numerics/PreconditionerBase.h"
 
 namespace Cantera
 {
@@ -42,6 +43,10 @@ public:
     //! Return a reference to the Jacobian evaluator of an OneDim object.
     //! @ingroup derivGroup
     MultiJac& jacobian();
+
+    shared_ptr<PreconditionerBase> getJacobian() {
+        return m_jac;
+    }
 
     //! Return a reference to the Newton iterator.
     MultiNewton& newton();
@@ -374,7 +379,7 @@ protected:
 
     shared_ptr<vector<double>> m_state; //!< Solution vector
 
-    unique_ptr<MultiJac> m_jac; //!< Jacobian evaluator
+    shared_ptr<PreconditionerBase> m_jac; //!< Jacobian evaluator
     unique_ptr<MultiNewton> m_newt; //!< Newton iterator
     double m_rdt = 0.0; //!< reciprocal of time step
     bool m_jac_ok = false; //!< if true, Jacobian is current
