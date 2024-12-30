@@ -155,7 +155,7 @@ class CFunc(Func):
         return f"{self.ret_type} {ret}"
 
 
-@dataclass(frozen=True)
+@dataclass
 @with_unpack_iter
 class Recipe:
     """

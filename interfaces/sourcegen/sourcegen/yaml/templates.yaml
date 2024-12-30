@@ -18,6 +18,7 @@ yaml-preamble: |-
 yaml-definition: |-
   {{ c_func.name }}:
     description: {{ c_func.brief }}
+    what: {{ what }}
     parameters:
       {%- for par in c_func.arglist %}
       {{ par.name }}: {{ par.description }}

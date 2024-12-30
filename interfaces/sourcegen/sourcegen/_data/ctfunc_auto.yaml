@@ -12,36 +12,25 @@ cabinet:
     implements: checkFunc1
   - name: newBasic
     implements: newFunc1(const string&, double)
-    what: constructor
   - name: newAdvanced
     implements: newFunc1(const string&, const vector<double>&)
-    what: constructor
   - name: newCompound
     implements: newFunc1(const string&, const shared_ptr<Func1>, const shared_ptr<Func1>)
-    what: constructor
   - name: newModified
     implements: newFunc1(const string&, const shared_ptr<Func1>, double)
-    what: constructor
   - name: newSum
     implements: newSumFunction
-    what: constructor
   - name: newDiff
     implements: newDiffFunction
-    what: constructor
   - name: newProd
     implements: newProdFunction
-    what: constructor
   - name: newRatio
     implements: newRatioFunction
-    what: constructor
   - name: type
-    implements: Func1::type
   - name: value
     implements: Func1::eval
   - name: derivative
     implements: Func1::derivative
-    what: constructor
   - name: write
-    implements: Func1::write
   - name: del
     what: destructor

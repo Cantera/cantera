@@ -66,7 +66,7 @@ clib-header-file: |-
 
 clib-simple-getter: |-
   try {
-      // implements: {{ implements }}
+      // getter: {{ implements }}
       return {{ base }}Cabinet::at({{ handle }})->{{ method }}();
   } catch (...) {
       return handleAllExceptions({{ error }}, {{ error }});
@@ -74,7 +74,7 @@ clib-simple-getter: |-
 
 clib-simple-setter: |-
   try {
-      // implements: {{ implements }}
+      // setter: {{ implements }}
       {{ base }}Cabinet::at({{ handle }})->{{ method }}({{ arg }});
       return 0;
   } catch (...) {

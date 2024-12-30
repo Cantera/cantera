@@ -12,6 +12,4 @@ cabinet:
   uses: [Solution]  # List of referenced cabinets
   functions:
   - name: viscosity
-    implements: Transport::viscosity
   - name: thermalConductivity
-    implements: Transport::thermalConductivity

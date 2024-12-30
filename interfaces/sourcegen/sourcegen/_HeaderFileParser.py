@@ -40,19 +40,18 @@ class HeaderFileParser:
         derived = cabinet.get("derived", [])
         uses = cabinet.get("uses", [])
         for func in cabinet["functions"]:
-            func_name = f"{prefix}_{func['name']}"
-            if func_name in self._ignore_funcs:
+            if func['name'] in self._ignore_funcs:
                 continue
             recipes.append(
                 Recipe(prefix,
-                    func_name,
-                    base,
-                    parents,
-                    derived,
-                    uses,
-                    func.get("implements", ""),
-                    func.get("relates", []),
-                    func.get("what", "")))
+                       func['name'],
+                       base,
+                       parents,
+                       derived,
+                       uses,
+                       func.get("implements", ""),
+                       func.get("relates", []),
+                       func.get("what", "")))
         return HeaderFile(self._path, [], recipes)
 
     @classmethod
