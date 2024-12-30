@@ -181,13 +181,14 @@ double MultiNewton::norm2(const double* x, const double* step, OneDim& r) const
     return sqrt(sum);
 }
 
-void MultiNewton::step(double* x, double* step, OneDim& r, MultiJac& jac, int loglevel)
+void MultiNewton::step(double* x, double* step, OneDim& r, int loglevel)
 {
     r.eval(npos, x, step);
     for (size_t n = 0; n < r.size(); n++) {
         step[n] = -step[n];
     }
 
+    auto& jac = r.jacobian();
     try {
         jac.solve(step, step);
     } catch (CanteraError&) {
@@ -228,7 +229,7 @@ double MultiNewton::boundStep(const double* x0, const double* step0, const OneDi
 
 int MultiNewton::dampStep(const double* x0, const double* step0,
                           double* x1, double* step1, double& s1,
-                          OneDim& r, MultiJac& jac, int loglevel, bool writetitle)
+                          OneDim& r, int loglevel, bool writetitle)
 {
     // write header
     if (loglevel > 0 && writetitle) {
@@ -259,6 +260,7 @@ int MultiNewton::dampStep(const double* x0, const double* step0,
     // fbound factor to ensure that the solution remains within bounds.
     double alpha = fbound*1.0;
     size_t m;
+    auto& jac = r.jacobian();
     for (m = 0; m < m_maxDampIter; m++) {
         // step the solution by the damped step size
         // x_{k+1} = x_k + alpha_k*J(x_k)^-1 F(x_k)
@@ -268,7 +270,7 @@ int MultiNewton::dampStep(const double* x0, const double* step0,
 
         // compute the next undamped step that would result if x1 is accepted
         // J(x_k)^-1 F(x_k+1)
-        step(x1, step1, r, jac, loglevel-1);
+        step(x1, step1, r, loglevel-1);
 
         // compute the weighted norm of step1
         s1 = norm2(x1, step1, r);
@@ -308,7 +310,7 @@ int MultiNewton::dampStep(const double* x0, const double* step0,
     }
 }
 
-int MultiNewton::solve(double* x0, double* x1, OneDim& r, MultiJac& jac, int loglevel)
+int MultiNewton::solve(double* x0, double* x1, OneDim& r, int loglevel)
 {
     clock_t t0 = clock();
     int status = 0;
@@ -320,6 +322,7 @@ int MultiNewton::solve(double* x0, double* x1, OneDim& r, MultiJac& jac, int log
 
     double rdt = r.rdt();
     int nJacReeval = 0;
+    auto& jac = r.jacobian();
     while (true) {
         // Check whether the Jacobian should be re-evaluated.
         if (jac.age() > m_maxAge) {
@@ -337,13 +340,13 @@ int MultiNewton::solve(double* x0, double* x1, OneDim& r, MultiJac& jac, int log
         }
 
         // compute the undamped Newton step
-        step(&m_x[0], &m_stp[0], r, jac, loglevel-1);
+        step(&m_x[0], &m_stp[0], r, loglevel-1);
 
         // increment the Jacobian age
         jac.incrementAge();
 
         // damp the Newton step
-        status = dampStep(&m_x[0], &m_stp[0], x1, &m_stp1[0], s1, r, jac, loglevel-1, write_header);
+        status = dampStep(&m_x[0], &m_stp[0], x1, &m_stp1[0], s1, r, loglevel-1, write_header);
         write_header = false;
 
         // Successful step, but not converged yet. Take the damped step, and try
