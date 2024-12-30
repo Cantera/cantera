@@ -213,7 +213,7 @@ int OneDim::solve(double* x, double* xnew, int loglevel)
         m_jac->updateTransient(m_rdt, m_mask.data());
         m_jac_ok = true;
     }
-    return m_newt->solve(x, xnew, *this, *m_jac, loglevel);
+    return m_newt->solve(x, xnew, *this, loglevel);
 }
 
 void OneDim::evalSSJacobian(double* x, double* rsd)
