@@ -82,6 +82,20 @@ class TagDetails(TagInfo):
 class TagFileParser:
     """Class handling contents of doxygen tag file."""
 
+    def __init__(self, bases: dict[str, str]) -> None:
+        tag_file = _tag_path / "Cantera.tag"
+        if not tag_file.exists():
+            msg = (f"Tag file does not exist at expected location:\n    {tag_file}\n"
+                "Run 'scons doxygen' to generate.")
+            _logger.critical(msg)
+            sys.exit(1)
+
+        with tag_file.open() as fid:
+            doxygen_tags = fid.read()
+
+        logging.info("Parsing doxygen tags...")
+        self._parse_doxyfile(doxygen_tags, bases)
+
     def _parse_doxyfile(self, doxygen_tags: str, bases: list[str]):
         """Retrieve class and function information from Cantera namespace."""
 
@@ -136,20 +150,6 @@ class TagFileParser:
         for name, cls in classes.items():
             prefix = f"{name}::"
             self._known.update(xml_members("function", cls, prefix))
-
-    def __init__(self, bases: dict[str, str]) -> None:
-        tag_file = _tag_path / "Cantera.tag"
-        if not tag_file.exists():
-            msg = (f"Tag file does not exist at expected location:\n    {tag_file}\n"
-                "Run 'scons doxygen' to generate.")
-            _logger.critical(msg)
-            sys.exit(1)
-
-        with tag_file.open() as fid:
-            doxygen_tags = fid.read()
-
-        logging.info("Parsing doxygen tags...")
-        self._parse_doxyfile(doxygen_tags, bases)
 
     def tag_info(self, func_string: str) -> TagInfo:
         """Look up tag information based on (partial) function signature."""
