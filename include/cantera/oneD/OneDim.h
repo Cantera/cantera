@@ -195,6 +195,17 @@ public:
      */
     void eval(size_t j, double* x, double* r, double rdt=-1.0, int count = 1);
 
+    /**
+     * Evaluates the Jacobian at x0 using finite differences.
+     *
+     * The Jacobian is computed by perturbing each component of `x0`, evaluating the
+     * residual function, and then estimating the partial derivatives numerically using
+     * finite differences to determine the corresponding column of the Jacobian.
+     *
+     * @param x0  State vector at which to evaluate the Jacobian
+     */
+    void evalJacobian(double* x0);
+
     //! Return a pointer to the domain global point *i* belongs to.
     /*!
      * The domains are scanned right-to-left, and the first one with starting
@@ -370,6 +381,9 @@ protected:
 
     size_t m_bw = 0; //!< Jacobian bandwidth
     size_t m_size = 0; //!< solution vector size
+
+    //! Work arrays used during Jacobian evaluation
+    vector<double> m_work1, m_work2;
 
     //! All domains comprising the system
     vector<shared_ptr<Domain1D>> m_dom;

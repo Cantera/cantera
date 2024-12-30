@@ -7,6 +7,7 @@
 #define CT_MULTIJAC_H
 
 #include "cantera/numerics/BandMatrix.h"
+#include "cantera/numerics/PreconditionerBase.h"
 #include "OneDim.h"
 
 namespace Cantera
@@ -20,7 +21,7 @@ namespace Cantera
  * @ingroup onedUtilsGroup
  * @ingroup derivGroup
  */
-class MultiJac
+class MultiJac : public PreconditionerBase
 {
 public:
     //! Constructor.
@@ -41,17 +42,28 @@ public:
      * @param x0  Solution vector at which to evaluate the Jacobian
      * @param resid0  Residual vector at x0
      * @param rdt  Reciprocal of the time step
+     * @deprecated To be removed after %Cantera 3.2. Jacobian evaluation moved to
+     *     OneDim::evalJacobian().
      */
     void eval(double* x0, double* resid0, double rdt);
+
+    void reset() override;
+    void setValue(size_t row, size_t col, double value) override;
 
     //! Elapsed CPU time spent computing the Jacobian.
     double elapsedTime() const {
         return m_elapsed;
     }
+    void updateElapsed(double evalTime) {
+        m_elapsed += evalTime;
+    }
 
     //! Number of Jacobian evaluations.
     int nEvals() const {
         return m_nevals;
+    }
+    void incrementEvals() {
+        m_nevals++;
     }
 
     //! Number of times 'incrementAge' has been called since the last evaluation

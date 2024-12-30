@@ -333,8 +333,7 @@ int MultiNewton::solve(double* x0, double* x1, OneDim& r, int loglevel)
         }
 
         if (forceNewJac) {
-            r.eval(npos, &m_x[0], &m_stp[0], 0.0, 0);
-            jac.eval(&m_x[0], &m_stp[0], 0.0);
+            r.evalJacobian(&m_x[0]);
             jac.updateTransient(rdt, r.transientMask().data());
             forceNewJac = false;
         }
