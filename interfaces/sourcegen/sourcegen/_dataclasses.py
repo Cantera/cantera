@@ -6,7 +6,7 @@
 from dataclasses import dataclass
 import re
 from pathlib import Path
-from typing import List, Any, Tuple, Iterator
+from typing import Any, Iterator
 
 from ._helpers import with_unpack_iter
 
@@ -63,7 +63,7 @@ class ArgList:
     spec: str = ""  #: Trailing specification (example: `const`)
 
     @staticmethod
-    def _split_arglist(arglist: str) -> Tuple[str, str]:
+    def _split_arglist(arglist: str) -> tuple[str, str]:
         """Split string into text within parentheses and trailing specification."""
         arglist = arglist.strip()
         if not arglist:
@@ -178,8 +178,8 @@ class HeaderFile:
     """Represents information about a parsed C header file"""
 
     path: Path
-    funcs: List[Func]
-    recipes: List[Recipe] = None
+    funcs: list[Func]
+    recipes: list[Recipe] = None
 
     def output_name(self, auto="3", suffix=""):
         """Return updated path."""

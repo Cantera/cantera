@@ -5,7 +5,6 @@
 
 from abc import ABCMeta, abstractmethod
 from pathlib import Path
-from typing import List
 
 from ._dataclasses import HeaderFile
 
@@ -18,5 +17,5 @@ class SourceGenerator(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def generate_source(self, headers_files: List[HeaderFile]):
+    def generate_source(self, headers_files: list[HeaderFile]):
         pass

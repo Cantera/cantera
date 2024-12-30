@@ -6,7 +6,6 @@
 from pathlib import Path
 import logging
 import re
-from typing import List
 
 from ._dataclasses import HeaderFile, Func, Recipe
 from ._helpers import read_config
@@ -20,12 +19,12 @@ _data_path = Path(__file__).parent / "_data"
 
 class HeaderFileParser:
 
-    def __init__(self, path: Path, ignore_funcs: List[str] = None):
+    def __init__(self, path: Path, ignore_funcs: list[str] = None):
         self._path = path
         self._ignore_funcs = ignore_funcs
 
     @classmethod
-    def from_yaml(cls, ignore_files, ignore_funcs) -> List[HeaderFile]:
+    def headers_from_yaml(cls, ignore_files, ignore_funcs) -> list[HeaderFile]:
         """Parse header file YAML configuration."""
         files = [ff for ff in _data_path.glob("*.yaml") if ff.name not in ignore_files]
         files.sort()
@@ -57,7 +56,7 @@ class HeaderFileParser:
         return HeaderFile(self._path, [], recipes)
 
     @classmethod
-    def from_headers(cls, ignore_files, ignore_funcs) -> List[HeaderFile]:
+    def headers_from_h(cls, ignore_files, ignore_funcs) -> list[HeaderFile]:
         """Parse existing header file."""
         files = [ff for ff in _clib_path.glob("*.h")
                  if ff.name not in ignore_files + _clib_ignore]
