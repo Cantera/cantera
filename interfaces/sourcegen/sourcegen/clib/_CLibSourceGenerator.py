@@ -37,7 +37,7 @@ class CLibSourceGenerator(SourceGenerator):
         block = "\n * ".join(block).strip() + "\n */"
         return "\n".join([line.rstrip() for line in block.split('\n')])
 
-    def _scaffold_annotation(self, c_func: CFunc) -> str:
+    def _scaffold_annotation(self, c_func: CFunc, what: str) -> str:
         """Build annotation block via jinja."""
         loader = Environment(loader=BaseLoader)
         par_template = loader.from_string(self._templates["clib-param"])
@@ -47,9 +47,9 @@ class CLibSourceGenerator(SourceGenerator):
             ret = par_template.render(par=item)
             return f"{ret:<20} {item.description}"
 
-        implements = ""
+        implements = what
         if isinstance(c_func.implements, CFunc):
-            implements = c_func.implements.short_declaration()
+            implements += f": {c_func.implements.short_declaration()}"
         block = template.render(
             briefdescription=c_func.brief,
             params=[param(par) for par in c_func.arglist],
@@ -152,19 +152,18 @@ class CLibSourceGenerator(SourceGenerator):
         if not recipe.implements:
             return ";"
 
-        is_method = "::" in recipe.implements
         cxx_ret_type = c_func.implements.ret_type.replace("virtual ", "")
         simple = cxx_ret_type in ["void", "int", "double", "size_t"]
         arg_len = len(c_func.arglist)
 
-        if is_method and simple and arg_len == 1:
+        if recipe.what == "getter" and arg_len == 1 and simple:
             template = loader.from_string(self._templates["clib-simple-getter"])
             error = "ERR" if c_func.ret_type == "int" else "DERR"
             return template.render(base=recipe.base, handle=c_func.arglist[0].name,
                                    method=c_func.implements.name, error=error,
                                    implements=c_func.implements.short_declaration())
 
-        if is_method and simple and arg_len == 2:
+        if recipe.what == "setter" and arg_len == 2 and simple:
             template = loader.from_string(self._templates["clib-simple-setter"])
             return template.render(base=recipe.base, handle=c_func.arglist[0].name,
                                    method=c_func.implements.name,
@@ -173,8 +172,7 @@ class CLibSourceGenerator(SourceGenerator):
 
         return ";"
 
-    def _resolve_clib_header(
-            self, recipe: Recipe, quiet: bool=True) -> tuple[str, str, list[str]]:
+    def _resolve_recipe(self, recipe: Recipe, quiet: bool=True) -> CFunc:
         """Build CLib header from recipe and doxygen annotations."""
         def merge_params(implements, cxx_func: CFunc) -> list[Param]:
             # If class method, add handle as first parameter
@@ -190,12 +188,25 @@ class CLibSourceGenerator(SourceGenerator):
                 args_annotated = args_annotated[:len(args_short)]
             return args_merged + args_annotated
 
+        if not recipe.implements:
+            # autodetection of method
+            for base in [recipe.base] + recipe.parents + recipe.derived:
+                name = f"{base}::{recipe.name}"
+                if self._doxygen_tags.exists(name):
+                    recipe.implements = name
+                    break
+
+        cxx_func = None
+        ret_param = Param("void")
+        args = []
+        brief = ""
+
         if recipe.implements:
             if not quiet:
                 _logger.info(f"    generating {recipe.name!r} -> {recipe.implements}")
             cxx_func = self._doxygen_tags.cxx_func(recipe.implements, recipe.relates)
 
-            # convert XML return type to format suitable for crosswalk
+            # convert C++ return type to format suitable for crosswalk
             ret_param, buffer_params = self._ret_crosswalk(
                 cxx_func.ret_type, recipe.derived)
             par_list = merge_params(recipe.implements, cxx_func)
@@ -203,22 +214,36 @@ class CLibSourceGenerator(SourceGenerator):
             brief = cxx_func.brief
             args = prop_params + buffer_params
 
-        elif recipe.what == "destructor":
+        if cxx_func and not recipe.what:
+            # autodetection of CLib function purpose ("what")
+            cxx_arglen = len(cxx_func.arglist)
+            if recipe.base in cxx_func.ret_type:
+                recipe.what = "constructor"
+            elif "void" not in cxx_func.ret_type and cxx_arglen == 0:
+                recipe.what = "getter"
+            elif "void" in cxx_func.ret_type and cxx_arglen == 1:
+                p_type = cxx_func.arglist[0].p_type
+                if "*" in p_type and not p_type.startswith("const"):
+                    recipe.what = "getter"  # getter assigns to existing array
+                else:
+                    recipe.what = "setter"
+            elif any(recipe.implements.startswith(base)
+                     for base in [recipe.base] + recipe.parents + recipe.derived):
+                recipe.what = "method"
+            else:
+                recipe.what = "function"
+
+        if recipe.what == "destructor":
             if not quiet:
                 _logger.info(f"    generating {recipe.name!r} -> destructor")
             args = [Param("int", "handle", f"Handle to {recipe.base} object.")]
             brief= f"Delete {recipe.base} object."
-            cxx_func = None
             ret_param = Param(
                 "int", "", "Zero for success and -1 for exception handling.")
             buffer_params = []
 
-        else:
-            _logger.critical(f"Unable to build declaration for {recipe.name!r} "
-                             f"with type {recipe.what!r}.")
-            sys.exit(1)
-
-        return CFunc(ret_param.p_type, recipe.name, ArgList(args), brief, cxx_func,
+        func_name = f"{recipe.prefix}_{recipe.name}"
+        return CFunc(ret_param.p_type, func_name, ArgList(args), brief, cxx_func,
                      ret_param.description)
 
     def _scaffold_header(self, header: HeaderFile) -> None:
@@ -227,10 +252,11 @@ class CLibSourceGenerator(SourceGenerator):
 
         template = loader.from_string(self._templates["clib-definition"])
         declarations = []
-        for c_func in header.funcs:
+        for c_func, recipe in zip(header.funcs, header.recipes):
             declarations.append(
-                template.render(declaration=c_func.declaration(),
-                                annotations=self._scaffold_annotation(c_func)))
+                template.render(
+                    declaration=c_func.declaration(),
+                    annotations=self._scaffold_annotation(c_func, recipe.what)))
 
         filename = header.output_name(suffix=".h", auto="3")
         guard = f"__{filename.name.upper().replace('.', '_')}__"
@@ -291,7 +317,7 @@ class CLibSourceGenerator(SourceGenerator):
                 _logger.info(f"  resolving recipes in {header.path.name!r}:")
             c_funcs = []
             for recipe in header.recipes:
-                c_funcs.append(self._resolve_clib_header(recipe, quiet=quiet))
+                c_funcs.append(self._resolve_recipe(recipe, quiet=quiet))
             header.funcs = c_funcs
 
     def generate_source(self, headers_files: list[HeaderFile]):

@@ -96,7 +96,7 @@ class TagFileParser:
         logging.info("Parsing doxygen tags...")
         self._parse_doxyfile(doxygen_tags, bases)
 
-    def _parse_doxyfile(self, doxygen_tags: str, bases: list[str]):
+    def _parse_doxyfile(self, doxygen_tags: str, bases: list[str]) -> None:
         """Retrieve class and function information from Cantera namespace."""
 
         def xml_compounds(kind: str, names: list[str]) -> dict[str,str]:
@@ -150,6 +150,10 @@ class TagFileParser:
         for name, cls in classes.items():
             prefix = f"{name}::"
             self._known.update(xml_members("function", cls, prefix))
+
+    def exists(self, cxx_func: str) -> bool:
+        """Check whether doxygen tag exists."""
+        return cxx_func in self._known
 
     def tag_info(self, func_string: str) -> TagInfo:
         """Look up tag information based on (partial) function signature."""

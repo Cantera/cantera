@@ -13,11 +13,9 @@ cabinet:
   functions:
   - name: newSolution
     implements: newSolution(const string&, const string&, const string&)
-    what: constructor
   - name: newInterface  # currently disabled in CLib's config.yaml
     implements:
       newInterface(const string&, const string&, const vector<shared_ptr<Solution>>&)
-    what: constructor
   - name: del
     what: destructor
     relates:  # methods used to retrieve instances of managed objects
@@ -25,18 +23,11 @@ cabinet:
     - "Solution::kinetics"
     - "Solution::transport"
   - name: name
-    implements: Solution::name
   - name: setName
-    implements: Solution::setName
   - name: thermo
-    implements: Solution::thermo
   - name: kinetics
-    implements: Solution::kinetics
   - name: transport
-    implements: Solution::transport
   - name: setTransport
-    implements: Solution::setTransport
   - name: nAdjacent
-    implements: Solution::nAdjacent
   - name: adjacent
     implements: Solution::adjacent(size_t)
