@@ -208,8 +208,7 @@ void OneDim::resize()
 int OneDim::solve(double* x, double* xnew, int loglevel)
 {
     if (!m_jac_ok) {
-        eval(npos, x, xnew, 0.0, 0);
-        m_jac->eval(x, xnew, 0.0);
+        evalJacobian(x);
         m_jac->updateTransient(m_rdt, m_mask.data());
         m_jac_ok = true;
     }
@@ -221,8 +220,7 @@ void OneDim::evalSSJacobian(double* x, double* rsd)
     double rdt_save = m_rdt;
     m_jac_ok = false;
     setSteadyMode();
-    eval(npos, x, rsd, 0.0, 0);
-    m_jac->eval(x, rsd, 0.0);
+    evalJacobian(x);
     m_rdt = rdt_save;
 }
 
@@ -268,6 +266,56 @@ void OneDim::eval(size_t j, double* x, double* r, double rdt, int count)
         m_evaltime += double(t1 - t0)/CLOCKS_PER_SEC;
         m_nevals++;
     }
+}
+
+void OneDim::evalJacobian(double* x0)
+{
+    m_jac->reset();
+    clock_t t0 = clock();
+    double rtol = 1e-5;
+    double atol = sqrt(std::numeric_limits<double>::epsilon());
+
+    m_work1.resize(size());
+    m_work2.resize(size());
+    eval(npos, x0, m_work1.data(), 0.0, 0);
+    size_t ipt = 0;
+    for (size_t j = 0; j < points(); j++) {
+        size_t nv = nVars(j);
+        for (size_t n = 0; n < nv; n++) {
+            // perturb x(n); preserve sign(x(n))
+            double xsave = x0[ipt];
+            double dx;
+            if (xsave >= 0) {
+                dx = xsave*rtol + atol;
+            } else {
+                dx = xsave*rtol - atol;
+            }
+            x0[ipt] = xsave + dx;
+            dx = x0[ipt] - xsave;
+            double rdx = 1.0/dx;
+
+            // calculate perturbed residual
+            eval(j, x0, m_work2.data(), 0.0, 0);
+
+            // compute nth column of Jacobian
+            for (size_t i = j - 1; i != j+2; i++) {
+                if (i != npos && i < points()) {
+                    size_t mv = nVars(i);
+                    size_t iloc = loc(i);
+                    for (size_t m = 0; m < mv; m++) {
+                        m_jac->setValue(m + iloc, ipt,
+                                        (m_work2[m+iloc] - m_work1[m+iloc]) * rdx);
+                    }
+                }
+            }
+            x0[ipt] = xsave;
+            ipt++;
+        }
+    }
+
+    m_jac->updateElapsed(double(clock() - t0) / CLOCKS_PER_SEC);
+    m_jac->incrementEvals();
+    m_jac->setAge(0);
 }
 
 double OneDim::ssnorm(double* x, double* r)
