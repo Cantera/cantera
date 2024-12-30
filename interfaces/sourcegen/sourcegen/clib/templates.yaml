@@ -25,7 +25,7 @@ clib-comment: |-
 
 clib-definition: |-
   {{ annotations }}
-  CANTERA_CAPI {{ declaration }};
+  {{ declaration }};
 
 clib-header-file: |-
   /**
@@ -48,8 +48,6 @@ clib-header-file: |-
 
   #ifndef {{ guard }}
   #define {{ guard }}
-
-  #include "clib_defs.h"
 
   #ifdef __cplusplus
   extern "C" {
@@ -82,6 +80,7 @@ clib-source-file: |-
   // This file is part of Cantera. See License.txt in the top-level directory or
   // at https://cantera.org/license.txt for license and copyright information.
 
+  #include "../include/clib3_defs.h"
   #include "../include/{{ name }}.h"
 
   using namespace Cantera;
