@@ -176,8 +176,8 @@ class CLibSourceGenerator(SourceGenerator):
         return CFunc(ret_param.p_type, recipe.name, ArgList(args), brief, cxx_func,
                      ret_param.description)
 
-    def _parse_header(self, header: HeaderFile):
-        """Parse header file and generate output."""
+    def build_header(self, header: HeaderFile) -> None:
+        """Parse header specification and generate header file."""
         loader = Environment(loader=BaseLoader)
 
         template = loader.from_string(self._templates["clib-definition"])
@@ -196,7 +196,34 @@ class CLibSourceGenerator(SourceGenerator):
 
         if self._out_dir:
             out = Path(self._out_dir) / "include" / filename.name
-            _logger.info(f"  writing {filename!r}")
+            _logger.info(f"  writing {filename.name!r}")
+            if not out.parent.exists():
+                out.parent.mkdir(parents=True, exist_ok=True)
+            with open(out, "wt", encoding="utf-8") as stream:
+                stream.write(output)
+                stream.write("\n")
+        else:
+            print(output)
+
+    def build_source(self, header: HeaderFile) -> None:
+        """Parse header specification and generate implementation file."""
+        loader = Environment(loader=BaseLoader)
+
+        template = loader.from_string(self._templates["clib-implementation"])
+        implementations = []
+        for recipe in header.recipes:
+            c_func = self.clib_header(recipe)
+            implementations.append(
+                template.render(declaration=c_func.declaration()))
+
+        filename = header.output_name(suffix=".cpp", auto="3")
+        template = loader.from_string(self._templates["clib-source-file"])
+        output = template.render(
+            name=filename.stem, source_entries=implementations)
+
+        if self._out_dir:
+            out = Path(self._out_dir) / "src" / filename.name
+            _logger.info(f"  writing {filename.name!r}")
             if not out.parent.exists():
                 out.parent.mkdir(parents=True, exist_ok=True)
             with open(out, "wt", encoding="utf-8") as stream:
@@ -230,4 +257,5 @@ class CLibSourceGenerator(SourceGenerator):
 
         for header in headers_files:
             _logger.info(f"  parsing recipes in {header.path.name!r}:")
-            self._parse_header(header)
+            self.build_header(header)
+            self.build_source(header)
