@@ -20,6 +20,16 @@ _loader = Environment(loader=BaseLoader)
 class CSharpSourceGenerator(SourceGenerator):
     """The SourceGenerator for scaffolding C# files for the .NET interface"""
 
+    def __init__(self, out_dir: str, config: dict, templates: dict):
+        if not out_dir:
+            _logger.critical("Non-empty string identifying output path required.")
+            sys.exit(1)
+        self._out_dir = Path(out_dir)
+
+        # use the typed config
+        self._config = Config.from_parsed(**config)
+        self._templates = templates
+
     def _get_property_text(self, clib_area: str, c_name: str, cs_name: str,
                            known_funcs: dict[str, CsFunc]) -> str:
         getter = known_funcs.get(clib_area + "_" + c_name)
@@ -55,16 +65,6 @@ class CSharpSourceGenerator(SourceGenerator):
 
         _logger.critical(f"Unable to scaffold properties of type {prop_type!r}!")
         sys.exit(1)
-
-    def __init__(self, out_dir: str, config: dict, templates: dict):
-        if not out_dir:
-            _logger.critical("Non-empty string identifying output path required.")
-            sys.exit(1)
-        self._out_dir = Path(out_dir)
-
-        # use the typed config
-        self._config = Config.from_parsed(**config)
-        self._templates = templates
 
     def _get_wrapper_class_name(self, clib_area: str) -> str:
         return self._config.class_crosswalk[clib_area]

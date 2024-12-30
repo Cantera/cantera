@@ -21,6 +21,15 @@ _logger = logging.getLogger()
 class CLibSourceGenerator(SourceGenerator):
     """The SourceGenerator for generating CLib."""
 
+    def __init__(self, out_dir: str, config: dict, templates: dict):
+        self._out_dir = out_dir or None
+        if self._out_dir is not None:
+            self._out_dir = Path(out_dir)
+            self._out_dir.mkdir(parents=True, exist_ok=True)
+        self._config = Config.from_parsed(**config)  # typed config
+        self._templates = templates
+        self._doxygen_tags = None
+
     @staticmethod
     def _javadoc_comment(block):
         """Build deblanked JavaDoc-style (C-style) comment block."""
@@ -232,15 +241,6 @@ class CLibSourceGenerator(SourceGenerator):
                 stream.write("\n")
         else:
             print(output)
-
-    def __init__(self, out_dir: str, config: dict, templates: dict):
-        self._out_dir = out_dir or None
-        if self._out_dir is not None:
-            self._out_dir = Path(out_dir)
-            self._out_dir.mkdir(parents=True, exist_ok=True)
-        self._config = Config.from_parsed(**config)  # typed config
-        self._templates = templates
-        self._doxygen_tags = None
 
     def resolve_tags(self, headers_files: list[HeaderFile], quiet: bool=True):
         """Resolve recipe information based on doxygen tags."""

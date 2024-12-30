@@ -21,6 +21,14 @@ _logger = logging.getLogger()
 class YamlSourceGenerator(SourceGenerator):
     """The SourceGenerator for generating YAML summaries of header specifications."""
 
+    def __init__(self, out_dir: str, config: dict, templates: dict):
+        self._out_dir = out_dir or None
+        if self._out_dir is not None:
+            self._out_dir = Path(out_dir)
+            self._out_dir.mkdir(parents=True, exist_ok=True)
+        self._config = config
+        self._templates = templates
+
     def _parse_header(self, header: HeaderFile):
         """Parse header file and generate output."""
         loader = Environment(loader=BaseLoader)
@@ -55,14 +63,6 @@ class YamlSourceGenerator(SourceGenerator):
                 stream.write("\n")
         else:
             print(output)
-
-    def __init__(self, out_dir: str, config: dict, templates: dict):
-        self._out_dir = out_dir or None
-        if self._out_dir is not None:
-            self._out_dir = Path(out_dir)
-            self._out_dir.mkdir(parents=True, exist_ok=True)
-        self._config = config
-        self._templates = templates
 
     def generate_source(self, headers_files: list[HeaderFile]):
         """Generate output."""
