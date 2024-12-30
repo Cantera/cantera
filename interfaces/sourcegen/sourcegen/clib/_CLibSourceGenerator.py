@@ -131,7 +131,8 @@ class CLibSourceGenerator(SourceGenerator):
                 sys.exit(1)
         return params
 
-    def clib_header(self, recipe: Recipe) -> tuple[str, str, list[str]]:
+    def clib_header(
+            self, recipe: Recipe, quiet: bool=True) -> tuple[str, str, list[str]]:
         """Build CLib header from recipe and doxygen annotations."""
         def merge_params(implements, cxx_func: CFunc) -> list[Param]:
             # If class method, add handle as first parameter
@@ -148,7 +149,8 @@ class CLibSourceGenerator(SourceGenerator):
             return args_merged + args_annotated
 
         if recipe.implements:
-            _logger.info(f"    generating {recipe.name!r} -> {recipe.implements}")
+            if not quiet:
+                _logger.info(f"    generating {recipe.name!r} -> {recipe.implements}")
             cxx_func = self._doxygen_tags.cxx_func(recipe.implements, recipe.relates)
 
             # convert XML return type to format suitable for crosswalk
@@ -160,7 +162,8 @@ class CLibSourceGenerator(SourceGenerator):
             args = prop_params + buffer_params
 
         elif recipe.what == "destructor":
-            _logger.info(f"    generating {recipe.name!r} -> destructor")
+            if not quiet:
+                _logger.info(f"    generating {recipe.name!r} -> destructor")
             args = [Param("int", "handle", f"Handle to {recipe.base} object.")]
             brief= f"Delete {recipe.base} object."
             cxx_func = None
@@ -182,8 +185,7 @@ class CLibSourceGenerator(SourceGenerator):
 
         template = loader.from_string(self._templates["clib-definition"])
         declarations = []
-        for recipe in header.recipes:
-            c_func = self.clib_header(recipe)
+        for c_func in header.funcs:
             declarations.append(
                 template.render(declaration=c_func.declaration(),
                                 annotations=self._build_annotation(c_func)))
@@ -211,10 +213,9 @@ class CLibSourceGenerator(SourceGenerator):
 
         template = loader.from_string(self._templates["clib-implementation"])
         implementations = []
-        for recipe in header.recipes:
-            c_func = self.clib_header(recipe)
+        for c_func in header.funcs:
             implementations.append(
-                template.render(declaration=c_func.declaration()))
+                template.render(declaration=c_func.declaration(), body=";"))
 
         filename = header.output_name(suffix=".cpp", auto="3")
         template = loader.from_string(self._templates["clib-source-file"])
@@ -241,8 +242,8 @@ class CLibSourceGenerator(SourceGenerator):
         self._templates = templates
         self._doxygen_tags = None
 
-    def parse_tags(self, headers_files: list[HeaderFile]):
-        """Parse doxygen tags."""
+    def resolve_tags(self, headers_files: list[HeaderFile], quiet: bool=True):
+        """Resolve recipe information based on doxygen tags."""
         def get_bases() -> list[str]:
             bases = set()
             for headers in headers_files:
@@ -251,11 +252,18 @@ class CLibSourceGenerator(SourceGenerator):
             return list(bases)
         self._doxygen_tags = TagFileParser(get_bases())
 
+        for header in headers_files:
+            if not quiet:
+                _logger.info(f"  resolving recipes in {header.path.name!r}:")
+            c_funcs = []
+            for recipe in header.recipes:
+                c_funcs.append(self.clib_header(recipe, quiet=quiet))
+            header.funcs = c_funcs
+
     def generate_source(self, headers_files: list[HeaderFile]):
         """Generate output."""
-        self.parse_tags(headers_files)
+        self.resolve_tags(headers_files, quiet=False)
 
         for header in headers_files:
-            _logger.info(f"  parsing recipes in {header.path.name!r}:")
             self.build_header(header)
             self.build_source(header)

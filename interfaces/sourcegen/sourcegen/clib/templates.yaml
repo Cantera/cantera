@@ -66,6 +66,7 @@ clib-header-file: |-
 clib-implementation: |-
   {{ declaration }}
   {
+      {{ body }}
   }
 
 clib-source-file: |-

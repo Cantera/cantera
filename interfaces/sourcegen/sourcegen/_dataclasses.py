@@ -172,8 +172,8 @@ class Recipe:
     what: str = ""  #: Non-empty for special methods: "constructor", "destructor"
 
 
-@dataclass(frozen=True)
-@with_unpack_iter
+@dataclass
+# @with_unpack_iter
 class HeaderFile:
     """Represents information about a parsed C header file"""
 

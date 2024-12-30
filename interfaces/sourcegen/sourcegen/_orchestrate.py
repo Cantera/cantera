@@ -32,7 +32,6 @@ def generate_source(lang: str, out_dir: str=""):
     _logger.handlers.clear()
     _logger.addHandler(loghandler)
     _logger.setLevel(logging.DEBUG)
-    _logger.info(f"Generating {lang!r} source files...")
 
     module = importlib.import_module(__package__ + "." + lang)
     root = Path(module.__file__).parent
@@ -48,18 +47,15 @@ def generate_source(lang: str, out_dir: str=""):
         files = HeaderFileParser.from_headers(ignore_files, ignore_funcs)
     else:
         # generate CLib headers from YAML specifications
-        clib_files = HeaderFileParser.from_yaml(ignore_files, ignore_funcs)
+        files = HeaderFileParser.from_yaml(ignore_files, ignore_funcs)
         clib_config = read_config(Path(__file__).parent / "clib" / "config.yaml")
         for key in ["ignore_files", "ignore_funcs"]:
             clib_config.pop(key)
         clib_scaffolder = CLibSourceGenerator(None, clib_config, {})
-        clib_scaffolder.parse_tags(clib_files)
-        files = []
-        for ff in clib_files:
-            funcs = [clib_scaffolder.clib_header(rr) for rr in ff.recipes]
-            files.append(HeaderFile(ff.path, funcs))
+        clib_scaffolder.resolve_tags(files)
 
     # find and instantiate the language-specific SourceGenerator
+    _logger.info(f"Generating {lang!r} source files...")
     _, scaffolder_type = inspect.getmembers(module,
         lambda m: inspect.isclass(m) and issubclass(m, SourceGenerator))[0]
     scaffolder: SourceGenerator = scaffolder_type(out_dir, config, templates)
