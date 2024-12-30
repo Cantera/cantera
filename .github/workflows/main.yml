@@ -41,8 +41,8 @@ jobs:
       - name: Install Apt dependencies
         run: |
           sudo apt update
-          sudo apt install libboost-dev gfortran libopenmpi-dev libblas-dev \
-            liblapack-dev libhdf5-dev
+          sudo apt install libboost-dev gfortran libopenmpi-dev libopenblas-openmp-dev \
+            libhdf5-dev
           gcc --version
       - name: Upgrade pip
         run: python3 -m pip install -U pip setuptools wheel
@@ -99,8 +99,8 @@ jobs:
     - name: Install Apt dependencies
       run: |
         sudo apt update
-        sudo apt install libboost-dev gfortran libopenmpi-dev libblas-dev \
-          liblapack-dev libhdf5-dev libfmt-dev
+        sudo apt install libboost-dev gfortran libopenmpi-dev libopenblas-openmp-dev \
+          libhdf5-dev libfmt-dev
         gcc --version
     - name: Upgrade pip
       run: python3 -m pip install -U pip setuptools wheel
@@ -156,7 +156,8 @@ jobs:
     - name: Install Apt dependencies
       run: |
         sudo apt update
-        sudo apt install libboost-dev gfortran libomp-dev libomp5 libopenblas-dev libhdf5-dev
+        sudo apt install libboost-dev gfortran libomp-dev libomp5 \
+          libopenblas-openmp-dev  libhdf5-dev
     - name: Upgrade pip
       run: python3 -m pip install -U pip setuptools wheel
     - name: Install Python dependencies
@@ -259,7 +260,8 @@ jobs:
     - name: Install Apt dependencies
       run: |
         sudo apt update
-        sudo apt install libboost-dev gfortran liblapack-dev libblas-dev libsundials-dev libhdf5-dev
+        sudo apt install libboost-dev gfortran libopenblas-openmp-dev libsundials-dev \
+          libhdf5-dev
         gcc --version
     - name: Upgrade pip
       run: python3 -m pip install -U pip setuptools wheel
@@ -349,7 +351,7 @@ jobs:
         run: |
           sudo apt update
           sudo apt install libboost-dev graphviz texlive-bibtex-extra \
-            libblas-dev liblapack-dev libhdf5-dev libfmt-dev libsundials-dev
+            libopenblas-openmp-dev libhdf5-dev libfmt-dev libsundials-dev
       - name: Upgrade pip
         run: pip install -U pip setuptools wheel
       - name: Install Python dependencies
@@ -504,7 +506,7 @@ jobs:
       - name: Install Apt dependencies
         run: |
           sudo apt update
-          sudo apt install graphviz ${{ matrix.libhdf5 }} libfmt-dev
+          sudo apt install graphviz ${{ matrix.libhdf5 }} libfmt-dev libopenblas0-openmp
       - name: Download the wheel artifact
         uses: actions/download-artifact@v4
         with:
@@ -911,7 +913,7 @@ jobs:
     - name: Install Apt dependencies (Ubuntu)
       run: |
         sudo apt update
-        sudo apt install libhdf5-dev libfmt-dev
+        sudo apt install libhdf5-dev libfmt-dev libopenblas0-openmp
       if: matrix.os == 'ubuntu-22.04'
     - name: Setup .NET Core SDK
       uses: actions/setup-dotnet@v4
