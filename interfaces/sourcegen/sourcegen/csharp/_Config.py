@@ -2,7 +2,6 @@
 # at https://cantera.org/license.txt for license and copyright information.
 
 from dataclasses import dataclass
-from typing import Dict
 
 
 @dataclass(frozen=True)
@@ -24,13 +23,13 @@ class Config:
     }
 
     # These we load from the parsed YAML config file
-    class_crosswalk: Dict[str, str]
+    class_crosswalk: dict[str, str]
 
-    class_accessors: Dict[str, str]
+    class_accessors: dict[str, str]
 
-    derived_handles: Dict[str, str]
+    derived_handles: dict[str, str]
 
-    wrapper_classes: Dict[str, Dict[str, str]]
+    wrapper_classes: dict[str, dict[str, str]]
 
     @classmethod
     def from_parsed(cls, *,
