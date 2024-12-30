@@ -6,10 +6,8 @@ import inspect
 from pathlib import Path
 import logging
 import sys
-from typing import List, Dict
 
 from ._HeaderFileParser import HeaderFileParser
-from ._dataclasses import HeaderFile
 from ._SourceGenerator import SourceGenerator
 from .clib import CLibSourceGenerator
 from ._helpers import read_config
@@ -37,17 +35,17 @@ def generate_source(lang: str, out_dir: str=""):
     root = Path(module.__file__).parent
     config = read_config(root / "config.yaml")
     templates = read_config(root / "templates.yaml")
-    ignore_files: List[str] = config.pop("ignore_files", [])
-    ignore_funcs: Dict[str, List[str]] = config.pop("ignore_funcs", {})
+    ignore_files: list[str] = config.pop("ignore_files", [])
+    ignore_funcs: dict[str, list[str]] = config.pop("ignore_funcs", {})
 
     if lang == 'clib':
-        files = HeaderFileParser.from_yaml(ignore_files, ignore_funcs)
+        files = HeaderFileParser.headers_from_yaml(ignore_files, ignore_funcs)
     elif lang == 'csharp':
         # csharp parses existing (traditional) CLib header files
-        files = HeaderFileParser.from_headers(ignore_files, ignore_funcs)
+        files = HeaderFileParser.headers_from_h(ignore_files, ignore_funcs)
     else:
         # generate CLib headers from YAML specifications
-        files = HeaderFileParser.from_yaml(ignore_files, ignore_funcs)
+        files = HeaderFileParser.headers_from_yaml(ignore_files, ignore_funcs)
         clib_config = read_config(Path(__file__).parent / "clib" / "config.yaml")
         for key in ["ignore_files", "ignore_funcs"]:
             clib_config.pop(key)
