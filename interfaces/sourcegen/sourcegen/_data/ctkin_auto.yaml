@@ -12,4 +12,3 @@ cabinet:
   uses: [Solution]  # List of referenced cabinets
   functions:
   - name: nReactions
-    implements: Kinetics::nReactions

@@ -12,30 +12,18 @@ cabinet:
   uses: [Solution]  # List of referenced cabinets
   functions:
   - name: nElements
-    implements: Phase::nElements
   - name: nSpecies
-    implements: Phase::nSpecies
   - name: temperature
-    implements: Phase::temperature
   - name: setTemperature
-    implements: Phase::setTemperature
   - name: density
-    implements: Phase::density
   - name: setDensity
-    implements: Phase::setDensity
   - name: molarDensity
-    implements: Phase::molarDensity
   - name: meanMolecularWeight
-    implements: Phase::meanMolecularWeight
   - name: moleFraction
     implements: Phase::moleFraction(size_t)
   - name: massFraction
     implements: Phase::massFraction(size_t)
   - name: getMoleFractions
-    implements: Phase::getMoleFractions
   - name: getMassFractions
-    implements: Phase::getMassFractions
   - name: setMoleFractions
-    implements: Phase::setMoleFractions
   - name: setMassFractions
-    implements: Phase::setMassFractions

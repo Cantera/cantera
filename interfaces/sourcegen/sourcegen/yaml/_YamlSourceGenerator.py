@@ -38,7 +38,7 @@ class YamlSourceGenerator(SourceGenerator):
         preamble = template.render(filename=filename)
         definition = loader.from_string(self._templates["yaml-definition"])
         declarations = []
-        for c_func in header.funcs:
+        for c_func, recipe in zip(header.funcs, header.recipes):
 
             implements = ""
             if isinstance(c_func.implements, CFunc):
@@ -46,7 +46,7 @@ class YamlSourceGenerator(SourceGenerator):
             declarations.append(
                 definition.render(c_func=c_func,
                                   returns=c_func.returns, implements=implements,
-                                  relates=c_func.relates))
+                                  relates=c_func.relates, what=recipe.what))
 
         guard = f"__{filename.upper().replace('.', '_')}__"
         template = loader.from_string(self._templates["yaml-file"])
