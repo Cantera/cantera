@@ -113,7 +113,7 @@ void Domain1D::setSteadyTolerances(double rtol, double atol, size_t n)
 void Domain1D::needJacUpdate()
 {
     if (m_container) {
-        m_container->jacobian().setAge(10000);
+        m_container->getJacobian()->setAge(10000);
         m_container->saveStats();
     }
 }

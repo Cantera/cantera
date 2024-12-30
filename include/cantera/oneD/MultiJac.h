@@ -26,7 +26,10 @@ class MultiJac : public PreconditionerBase
 public:
     //! Constructor.
     //! @param r  The nonlinear system for which to compute the Jacobian.
+    //! @deprecated To be removed after %Cantera 3.2. Use default constructor instead.
     MultiJac(OneDim& r);
+
+    MultiJac() = default;
 
     /**
      * Evaluates the Jacobian at x0 using finite differences. The unperturbed residual
@@ -49,40 +52,9 @@ public:
 
     void reset() override;
     void setValue(size_t row, size_t col, double value) override;
-
-    //! Elapsed CPU time spent computing the Jacobian.
-    double elapsedTime() const {
-        return m_elapsed;
-    }
-    void updateElapsed(double evalTime) {
-        m_elapsed += evalTime;
-    }
-
-    //! Number of Jacobian evaluations.
-    int nEvals() const {
-        return m_nevals;
-    }
-    void incrementEvals() {
-        m_nevals++;
-    }
-
-    //! Number of times 'incrementAge' has been called since the last evaluation
-    int age() const {
-        return m_age;
-    }
-
-    //! Increment the Jacobian age.
-    void incrementAge() {
-        m_age++;
-    }
-
-    //! Update the transient terms in the Jacobian by using the transient mask.
-    void updateTransient(double rdt, integer* mask);
-
-    //! Set the Jacobian age.
-    void setAge(int age) {
-        m_age = age;
-    }
+    void initialize(size_t nVars) override;
+    void setBandwidth(size_t bw) override;
+    void updateTransient(double rdt, integer* mask) override;
 
     double& value(size_t i, size_t j) {
         return m_mat.value(i, j);
@@ -96,12 +68,18 @@ public:
         m_mat.solve(b, x);
     }
 
-    int info() const {
+    void solve(const size_t stateSize, double* b, double* x) override {
+        m_mat.solve(b, x);
+    }
+
+    int info() const override {
         return m_mat.info();
     }
 
     //! Return the transient mask.
+    //! @deprecated Unused. To be removed after %Cantera 3.2.
     vector<int>& transientMask() {
+        warn_deprecated("MultiJac::transientMask", "To be removed after Cantera 3.2");
         return m_mask;
     }
 
@@ -110,26 +88,17 @@ protected:
     /*!
      * This is a pointer to the residual evaluator. This object isn't owned by
      * this Jacobian object.
+     *
+     * @deprecated Unused. To be removed after %Cantera 3.2.
      */
-    OneDim* m_resid;
+    OneDim* m_resid = nullptr;
 
     BandMatrix m_mat; //!< Underlying matrix storage
-    size_t m_n; //!< Dimension of the (square) matrix
-
-    vector<double> m_r1; //!< Perturbed residual vector
-    double m_rtol = 1e-5; //!< Relative tolerance for perturbing solution components
-
-    //! Absolute tolerance for perturbing solution components
-    double m_atol = sqrt(std::numeric_limits<double>::epsilon());
-
-    double m_elapsed = 0.0; //!< Elapsed CPU time taken to compute the Jacobian
     vector<double> m_ssdiag; //!< Diagonal of the steady-state Jacobian
 
-    //! Transient mask for transient terms, 1 if transient, 0 if steady-state
+    //! Transient mask for transient terms, 1 if transient, 0 if steady-state.
+    //! @deprecated Unused. To be removed after %Cantera 3.2.
     vector<int> m_mask;
-
-    int m_nevals = 0; //!< Number of Jacobian evaluations.
-    int m_age = 100000; //!< Age of the Jacobian (times incrementAge() has been called)
 };
 
 }

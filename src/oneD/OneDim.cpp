@@ -7,6 +7,7 @@
 #include "cantera/numerics/Func1.h"
 #include "cantera/oneD/MultiNewton.h"
 #include "cantera/base/AnyMap.h"
+#include "cantera/numerics/PreconditionerFactory.h"
 
 #include <fstream>
 #include <ctime>
@@ -86,7 +87,14 @@ void OneDim::addDomain(shared_ptr<Domain1D> d)
 
 MultiJac& OneDim::jacobian()
 {
-    return *m_jac;
+    warn_deprecated("OneDim::jacobian",
+                    "Replaced by getJacobian. To be removed after Cantera 3.2.");
+    auto multijac = dynamic_pointer_cast<MultiJac>(m_jac);
+    if (multijac) {
+        return *multijac;
+    } else {
+        throw CanteraError("OneDim::jacobian", "Active Jacobian is not a MultiJac");
+    }
 }
 MultiNewton& OneDim::newton()
 {
@@ -201,7 +209,9 @@ void OneDim::resize()
     m_mask.resize(size());
 
     // delete the current Jacobian evaluator and create a new one
-    m_jac = make_unique<MultiJac>(*this);
+    m_jac = newPreconditioner("banded-direct");
+    m_jac->initialize(size());
+    m_jac->setBandwidth(bandwidth());
     m_jac_ok = false;
 }
 
