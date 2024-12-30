@@ -90,6 +90,9 @@ class ArgList:
             return cls([], spec)
         return cls([Param.from_xml(arg) for arg in arglist.split(",")], spec)
 
+    def __len__(self):
+        return len(self.params)
+
     def __getitem__(self, k):
         return self.params[k]
 
@@ -148,8 +151,8 @@ class CFunc(Func):
         """Return a short string representation."""
         ret = (f"{self.name}{self.arglist.short_str()}").strip()
         if self.base:
-            return f"{self.base}::{ret}"
-        return ret
+            return f"{self.ret_type} {self.base}::{ret}"
+        return f"{self.ret_type} {ret}"
 
 
 @dataclass(frozen=True)
