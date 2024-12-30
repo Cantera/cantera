@@ -62,3 +62,31 @@ clib-header-file: |-
   #endif
 
   #endif // {{ guard }}
+
+clib-implementation: |-
+  {{ declaration }}
+  {
+  }
+
+clib-source-file: |-
+  /**
+   * {{ name.upper() }} - Experimental CLib %Cantera interface library.
+   *
+   * @file {{ name }}.cpp
+   *
+   * @warning  This module is an experimental part of the %Cantera API and
+   *      may be changed or removed without notice.
+   */
+
+  // This file is part of Cantera. See License.txt in the top-level directory or
+  // at https://cantera.org/license.txt for license and copyright information.
+
+  #include "../include/{{ name }}.h"
+
+  using namespace Cantera;
+
+  extern "C" {
+      {% for source_entry in source_entries %}
+      {{ source_entry | indent(4) }}
+      {% endfor %}
+  }
