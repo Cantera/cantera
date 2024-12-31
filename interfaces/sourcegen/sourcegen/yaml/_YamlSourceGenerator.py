@@ -46,7 +46,7 @@ class YamlSourceGenerator(SourceGenerator):
             declarations.append(
                 definition.render(c_func=c_func,
                                   returns=c_func.returns, implements=implements,
-                                  relates=c_func.relates, what=recipe.what))
+                                  relates=c_func.uses, what=recipe.what))
 
         guard = f"__{filename.upper().replace('.', '_')}__"
         template = loader.from_string(self._templates["yaml-file"])

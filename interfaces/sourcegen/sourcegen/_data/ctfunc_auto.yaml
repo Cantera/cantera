@@ -27,10 +27,10 @@ cabinet:
   - name: newRatio
     implements: newRatioFunction
   - name: type
-  - name: value
-    implements: Func1::eval
-  - name: derivative
+  - name: eval
+  - name: newDerivative
     what: constructor
+    implements: Func1::derivative
   - name: write
   - name: del
     what: destructor

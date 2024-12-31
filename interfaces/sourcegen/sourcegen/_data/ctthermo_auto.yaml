@@ -20,17 +20,15 @@ cabinet:
   - name: meanMolecularWeight
   - name: moleFraction
     implements: Phase::moleFraction(size_t)
-    uses: nSpecies()
   - name: massFraction
     implements: Phase::massFraction(size_t)
-    uses: nSpecies()
   - name: getMoleFractions
-    uses: nSpecies()
+    uses: nSpecies
   - name: getMassFractions
-    uses: nSpecies()
+    uses: nSpecies
   - name: setMoleFractions
-    uses: nSpecies()
+    uses: nSpecies
   - name: setMassFractions
-    uses: nSpecies()
+    uses: nSpecies
   - name: del
     what: noop

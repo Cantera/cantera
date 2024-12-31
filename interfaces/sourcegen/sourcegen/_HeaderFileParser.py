@@ -41,6 +41,9 @@ class HeaderFileParser:
         for func in cabinet["functions"]:
             if func['name'] in self._ignore_funcs:
                 continue
+            uses = func.get("uses", [])
+            if not isinstance(uses, list):
+                uses = [uses]
             recipes.append(
                 Recipe(prefix,
                        func['name'],
@@ -48,7 +51,7 @@ class HeaderFileParser:
                        parents,
                        derived,
                        func.get("implements", ""),
-                       func.get("uses"),
+                       uses,
                        func.get("what", "")))
         return HeaderFile(self._path, [], recipes)
 
