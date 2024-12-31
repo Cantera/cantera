@@ -187,6 +187,7 @@ class HeaderFile:
     path: Path
     funcs: list[Func]
     recipes: list[Recipe] = None
+    cabinet: str = ""
 
     def output_name(self, auto="3", suffix=""):
         """Return updated path."""
