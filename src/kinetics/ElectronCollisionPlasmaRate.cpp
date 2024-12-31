@@ -70,17 +70,23 @@ void ElectronCollisionPlasmaRate::getParameters(AnyMap& node) const {
     node["cross-sections"] = m_crossSections;
 }
 
+void ElectronCollisionPlasmaRate::updateInterpolatedCrossSection(
+    const vector<double>& sharedLevels) {
+    m_crossSectionsInterpolated.clear();
+    m_crossSectionsInterpolated.reserve(sharedLevels.size());
+    for (double level : sharedLevels) {
+        m_crossSectionsInterpolated.emplace_back(linearInterp(level,
+                                            m_energyLevels, m_crossSections));
+    }
+}
+
 double ElectronCollisionPlasmaRate::evalFromStruct(
     const ElectronCollisionPlasmaData& shared_data)
 {
     // Interpolate cross-sections data to the energy levels of
     // the electron energy distribution function
     if (shared_data.levelChanged) {
-        m_crossSectionsInterpolated.resize(0);
-        for (double level : shared_data.energyLevels) {
-            m_crossSectionsInterpolated.push_back(linearInterp(level,
-                                                  m_energyLevels, m_crossSections));
-        }
+        updateInterpolatedCrossSection(shared_data.energyLevels);
     }
 
     // Map cross sections to Eigen::ArrayXd
