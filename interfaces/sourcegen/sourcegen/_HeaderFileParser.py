@@ -53,7 +53,7 @@ class HeaderFileParser:
                        func.get("implements", ""),
                        uses,
                        func.get("what", "")))
-        return HeaderFile(self._path, [], recipes)
+        return HeaderFile(self._path, [], recipes, base)
 
     @classmethod
     def headers_from_h(cls, ignore_files, ignore_funcs) -> list[HeaderFile]:
