@@ -24,6 +24,10 @@ cabinet:
   - name: massFraction
     implements: Phase::massFraction(size_t)
   - name: getMoleFractions
+    size-fcn: nSpecies
   - name: getMassFractions
+    size-fcn: nSpecies
   - name: setMoleFractions
+    size-fcn: nSpecies
   - name: setMassFractions
+    size-fcn: nSpecies

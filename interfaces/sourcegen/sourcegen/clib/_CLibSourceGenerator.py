@@ -145,32 +145,97 @@ class CLibSourceGenerator(SourceGenerator):
                 sys.exit(1)
         return params
 
+    @staticmethod
+    def _reverse_crosswalk(
+            c_args: list[Param], cxx_args: list[Param]) -> list[tuple[str, str]]:
+        """Translate CLib arguments back to C++."""
+        ret = []
+        c_ix = 0
+        for cxx_par in cxx_args:
+            c_par = c_args[c_ix]
+            if "shared_ptr" in cxx_par.p_type:
+                # retrieve object from cabinet
+                base = cxx_par.p_type.split("<")[-1].split(">")[0]
+                ret.append((f"{base}Cabinet::at({c_par.name})", None))
+            elif c_par.name.endswith("Len"):
+                # need to create buffer variable
+                ret.append((None, None))
+                c_ix += 1
+            else:
+                # regular parameter
+                ret.append((c_par.name, None))
+            c_ix += 1
+        return ret
+
+    def _scaffold_getter(self, c_func: CFunc, recipe: Recipe) -> tuple[str, list[str]]:
+        """Build getter via jinja."""
+        loader = Environment(loader=BaseLoader)
+        cxx_func = c_func.implements
+        args = {
+            "c_arg": [arg.name for arg in c_func.arglist],
+            "cxx_base": recipe.base, "cxx_name": cxx_func.name,
+            "cxx_implements": cxx_func.short_declaration(),
+            "c_func": c_func.name, "size_fcn": recipe.size_fcn, "obj_base": None,
+        }
+
+        if "string" in cxx_func.ret_type:
+            template = loader.from_string(self._templates["clib-string-getter"])
+        elif "void" in cxx_func.ret_type:
+            template = loader.from_string(self._templates["clib-array-getter"])
+        elif "shared_ptr" in cxx_func.ret_type:
+            args["obj_base"] = cxx_func.ret_type.split("<")[-1].split(">")[0]
+            template = loader.from_string(self._templates["clib-object-getter"])
+        elif "double" in c_func.ret_type:
+            template = loader.from_string(self._templates["clib-double-getter"])
+        elif "int" in c_func.ret_type:
+            template = loader.from_string(self._templates["clib-int-getter"])
+        else:
+            logging.critical(f"Failed to scaffold getter: {args['cxx_implements']}")
+            sys.exit(1)
+
+        return template.render(**args), [args["obj_base"]]
+
+    def _scaffold_setter(self, c_func: CFunc, recipe: Recipe) -> tuple[str, list[str]]:
+        loader = Environment(loader=BaseLoader)
+        cxx_func = c_func.implements
+        args = {
+            "c_arg": [arg.name for arg in c_func.arglist],
+            "cxx_base": recipe.base, "cxx_name": cxx_func.name,
+            "cxx_implements": cxx_func.short_declaration(),
+            "c_func": c_func.name, "size_fcn": recipe.size_fcn, "obj_base": None,
+        }
+
+        p_type = cxx_func.arglist[0].p_type
+        simple = ["string&", "int", "size_t", "double"]
+        if "*" in p_type:
+            template = loader.from_string(self._templates["clib-array-setter"])
+        elif any(typ in p_type.split() for typ in simple):
+            template = loader.from_string(self._templates["clib-simple-setter"])
+        elif "shared_ptr" in p_type:
+            args["obj_base"] = p_type.split("<")[-1].split(">")[0]
+            template = loader.from_string(self._templates["clib-object-setter"])
+        else:
+            logging.critical(f"Failed to scaffold getter: {args['cxx_implements']}")
+            sys.exit(1)
+
+        return template.render(**args), [args["obj_base"]]
+
     def _scaffold_body(self, c_func: CFunc, recipe: Recipe) -> str:
         """Build function body via jinja."""
+
         loader = Environment(loader=BaseLoader)
 
         if not recipe.implements:
-            return ";"
+            return f"// {recipe.what}"
 
-        cxx_ret_type = c_func.implements.ret_type.replace("virtual ", "")
-        simple = cxx_ret_type in ["void", "int", "double", "size_t"]
-        arg_len = len(c_func.arglist)
+        if recipe.what == "getter":
+            return self._scaffold_getter(c_func, recipe)[0]
 
-        if recipe.what == "getter" and arg_len == 1 and simple:
-            template = loader.from_string(self._templates["clib-simple-getter"])
-            error = "ERR" if c_func.ret_type == "int" else "DERR"
-            return template.render(base=recipe.base, handle=c_func.arglist[0].name,
-                                   method=c_func.implements.name, error=error,
-                                   implements=c_func.implements.short_declaration())
+        if recipe.what == "setter":
+            return self._scaffold_setter(c_func, recipe)[0]
 
-        if recipe.what == "setter" and arg_len == 2 and simple:
-            template = loader.from_string(self._templates["clib-simple-setter"])
-            return template.render(base=recipe.base, handle=c_func.arglist[0].name,
-                                   method=c_func.implements.name,
-                                   arg=c_func.arglist[1].name,
-                                   implements=c_func.implements.short_declaration())
-
-        return ";"
+        cxx_func = c_func.implements
+        return f"// {recipe.what}: {cxx_func.short_declaration()}"
 
     def _resolve_recipe(self, recipe: Recipe, quiet: bool=True) -> CFunc:
         """Build CLib header from recipe and doxygen annotations."""
@@ -217,7 +282,9 @@ class CLibSourceGenerator(SourceGenerator):
         if cxx_func and not recipe.what:
             # autodetection of CLib function purpose ("what")
             cxx_arglen = len(cxx_func.arglist)
-            if recipe.base in cxx_func.ret_type:
+            if any(base in cxx_func.ret_type
+                   for base in [recipe.base] + recipe.derived) and \
+                    cxx_func.name.startswith("new"):
                 recipe.what = "constructor"
             elif "void" not in cxx_func.ret_type and cxx_arglen == 0:
                 recipe.what = "getter"

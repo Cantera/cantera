@@ -154,6 +154,11 @@ class CFunc(Func):
             return f"{self.ret_type} {self.base}::{ret}"
         return f"{self.ret_type} {ret}"
 
+    @property
+    def ret_param(self):
+        """Assemble return parameter."""
+        return Param(self.ret_type, "", self.returns)
+
 
 @dataclass
 @with_unpack_iter
@@ -171,7 +176,8 @@ class Recipe:
     derived: list[str]  #: List of C++ specializations
     uses: list[str]  #: List of referenced CLib cabinets
     implements: str  #: Signature of implemented method
-    relates: list[str] = None  #: Methods used to retrieve instances of managed objects
+    relates: list[str]=None  #: Methods used to retrieve instances of managed objects
+    size_fcn: str=""  #: Method used to check array size
     what: str = ""  #: Non-empty for special methods: "constructor", "destructor"
 
 

@@ -51,6 +51,7 @@ class HeaderFileParser:
                        uses,
                        func.get("implements", ""),
                        func.get("relates", []),
+                       func.get("size-fcn", ""),
                        func.get("what", "")))
         return HeaderFile(self._path, [], recipes)
 

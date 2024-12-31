@@ -5,7 +5,7 @@
 # at https://cantera.org/license.txt for license and copyright information.
 
 cabinet:
-  prefix: func3
+  prefix: func13
   base: Func1
   functions:
   - name: check
@@ -30,6 +30,7 @@ cabinet:
   - name: value
     implements: Func1::eval
   - name: derivative
+    what: constructor
     implements: Func1::derivative
   - name: write
   - name: del
