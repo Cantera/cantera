@@ -71,7 +71,11 @@ clib-function: |-
       {{ line }}
       {% endfor %}
       {% if buffer %}
+      {% if buffer[0] %}
       {{ buffer[0] }} = {{ cxx_name }}({{ ', '.join(cxx_args) }});
+      {% else %}
+      {{ cxx_name }}({{ ', '.join(cxx_args) }});
+      {% endif %}
       {% if buffer[1] %}
       {{ buffer[1] }}
       {% endif %}
@@ -142,7 +146,11 @@ clib-method: |-
       {{ line }}
       {% endfor %}
       {% if buffer %}
+      {% if buffer[0] %}
       {{ buffer[0] }} = {{ cxx_base }}Cabinet::at({{ handle }})->{{ cxx_name }}({{ ', '.join(cxx_args) }});
+      {% else %}
+      {{ cxx_base }}Cabinet::at({{ handle }})->{{ cxx_name }}({{ ', '.join(cxx_args) }});
+      {% endif %}
       {% if buffer[1] %}
       {{ buffer[1] }}
       {% endif %}
@@ -154,60 +162,20 @@ clib-method: |-
       return handleAllExceptions({{ error[0] }}, {{ error[1] }});
   }
 
-clib-simple-getter: |-
-  try {
-      // getter: {{ cxx_implements }}
-      return {{ base }}Cabinet::at({{ c_arg[0] }})->{{ cxx_name }}();
-  } catch (...) {
-      {% if is_integer %}
-      return handleAllExceptions(ERR, ERR);
-      {% else %}
-      return handleAllExceptions(DERR, DERR);
-      {% endif %}
-  }
-
-clib-string-getter: |-
-  try {
-      // getter: {{ cxx_implements }}
-      auto out = {{ cxx_base }}Cabinet::at({{ c_arg[0] }})->{{ cxx_name }}();
-      copyString(out, {{ c_arg[2] }}, {{ c_arg[1] }});
-      return int(out.size());
-  } catch (...) {
-      return handleAllExceptions(-1, ERR);
-  }
-
 clib-array-getter: |-
   try {
       // getter: {{ cxx_implements }}
-      auto& obj = {{ cxx_base }}Cabinet::at({{ c_arg[0] }});
-      {% if size_fcn %}
-      if ({{ c_arg[1] }} != obj->{{ size_fcn }}) {
+      auto& obj = {{ cxx_base }}Cabinet::at({{ handle }});
+      {% if uses %}
+      if ({{ c_args[1] }} < obj->{{ uses[0][1] }}()) {
           throw CanteraError("{{ c_func }}",
-              "Invalid output array size; expected size {} but received {}.",
-              obj->{{ size_fcn }}, {{ c_arg[1] }});
+              "Invalid output array size; expected minimum size {} but received {}.",
+              obj->{{ uses[0][1] }}(), {{ c_args[1] }});
       }
       {% else %}
       // no size checking specified
       {% endif %}
-      obj->{{ cxx_name }}({{ c_arg[2] }});
-      return 0;
-  } catch (...) {
-      return handleAllExceptions(-1, ERR);
-  }
-
-clib-object-getter: |-
-  try {
-      // getter: {{ cxx_implements }}
-      auto& obj = {{ cxx_base }}Cabinet::at({{ c_arg[0] }});
-      return {{ obj_base }}Cabinet::index(obj->{{ cxx_name }}(), {{ c_arg[0] }});
-  } catch (...) {
-      return handleAllExceptions(-2, ERR);
-  }
-
-clib-simple-setter: |-
-  try {
-      // setter: {{ cxx_implements }}
-      {{ cxx_base }}Cabinet::at({{ c_arg[0] }})->{{ cxx_name }}({{ c_arg[1] }});
+      obj->{{ cxx_name }}({{ cxx_args[0] }});
       return 0;
   } catch (...) {
       return handleAllExceptions(-1, ERR);
@@ -216,29 +184,20 @@ clib-simple-setter: |-
 clib-array-setter: |-
   try {
       // setter: {{ cxx_implements }}
-      auto& obj = {{ cxx_base }}Cabinet::at({{ c_arg[0] }});
-      {% if size_fcn %}
-      if ({{ c_arg[1] }} != obj->{{ size_fcn }}) {
+      auto& obj = {{ cxx_base }}Cabinet::at({{ handle }});
+      {% if uses %}
+      if ({{ c_args[1] }} != obj->{{ uses[0][1] }}()) {
           throw CanteraError("{{ c_func }}",
               "Invalid input array size; expected size {} but received {}.",
-              obj->{{ size_fcn }}, {{ c_arg[1] }});
+              obj->{{ uses[0][1] }}(), {{ c_args[1] }});
       }
       {% else %}
       // no size checking specified
       {% endif %}
-      obj->{{ cxx_name }}({{ c_arg[2] }});
+      obj->{{ cxx_name }}({{ cxx_args[0] }});
       return 0;
   } catch (...) {
       return handleAllExceptions(-1, ERR);
-  }
-
-clib-object-setter: |-
-  try {
-      // setter: {{ cxx_implements }}
-      {{ cxx_base }}Cabinet::at({{ c_arg[0] }})->{{ cxx_name }}({{ obj_base }}Cabinet::at({{ c_arg[1] }}));
-      return 0;
-  } catch (...) {
-      return handleAllExceptions(-2, ERR);
   }
 
 clib-noop: |-
@@ -272,8 +231,15 @@ clib-source-file: |-
 
   using namespace Cantera;
 
+  typedef Cabinet<{{ base }}> {{ base }}Cabinet;
+  template<> {{ base }}Cabinet* {{ base }}Cabinet::s_storage = 0;
+  {% if other %}
+  {% for entry in other -%}
+  typedef Cabinet<{{ entry }}> {{ entry }}Cabinet; // initialized elsewhere
+  {% endfor -%}
+  {% endif %}
   extern "C" {
-      {% for source_entry in source_entries %}
-      {{ source_entry | indent(4) }}
+      {% for entry in source_entries %}
+      {{ entry | indent(4) }}
       {% endfor %}
   }

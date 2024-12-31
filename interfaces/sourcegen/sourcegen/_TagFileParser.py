@@ -200,8 +200,8 @@ class TagFileParser:
 
         return TagInfo.from_xml(cxx_func, self._known[cxx_func][ix])
 
-    def _cxx_func(self, func_string: str, uses: list[CFunc]) -> CFunc:
-        """Auxiliary generator for annotated C++ function specification."""
+    def cxx_func(self, func_string: str) -> CFunc:
+        """Generate annotated C++ function specification."""
         details = tag_lookup(self.tag_info(func_string))
         ret_param = Param.from_xml(details.type)
 
@@ -221,11 +221,7 @@ class TagFileParser:
 
         return CFunc(ret_param.p_type, details.name, ArgList(args_merged),
                      details.briefdescription, None, ret_param.description,
-                     details.base, uses)
-
-    def cxx_func(self, func_string: str, uses: list[str]=None) -> CFunc:
-        """Generate annotated C++ function specification."""
-        return self._cxx_func(func_string, [self._cxx_func(uu, []) for uu in uses])
+                     details.base, [])
 
 
 def tag_lookup(tag_info: TagInfo) -> TagDetails:
