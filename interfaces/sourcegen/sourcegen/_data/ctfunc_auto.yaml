@@ -31,7 +31,6 @@ cabinet:
     implements: Func1::eval
   - name: derivative
     what: constructor
-    implements: Func1::derivative
   - name: write
   - name: del
     what: destructor

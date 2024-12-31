@@ -9,6 +9,7 @@ cabinet:
   base: Kinetics
   parents: []  # List of parent classes
   derived: []  # List of specializations
-  uses: [Solution]  # List of referenced cabinets
   functions:
   - name: nReactions
+  - name: del
+    what: noop

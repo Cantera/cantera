@@ -95,10 +95,10 @@ clib-array-getter: |-
       // getter: {{ cxx_implements }}
       auto& obj = {{ cxx_base }}Cabinet::at({{ c_arg[0] }});
       {% if size_fcn -%}
-      if ({{ c_arg[1] }} != obj->{{ size_fcn }}()) {
+      if ({{ c_arg[1] }} != obj->{{ size_fcn }}) {
           throw CanteraError("{{ c_func }}",
               "Invalid output array size; expected size {} but received {}.",
-              obj->{{ size_fcn }}(), {{ c_arg[1] }});
+              obj->{{ size_fcn }}, {{ c_arg[1] }});
       }
       {% else %}
       // no size checking specified
@@ -132,10 +132,10 @@ clib-array-setter: |-
       // setter: {{ cxx_implements }}
       auto& obj = {{ cxx_base }}Cabinet::at({{ c_arg[0] }});
       {% if size_fcn -%}
-      if ({{ c_arg[1] }} != obj->{{ size_fcn }}()) {
+      if ({{ c_arg[1] }} != obj->{{ size_fcn }}) {
           throw CanteraError("{{ c_func }}",
               "Invalid input array size; expected size {} but received {}.",
-              obj->{{ size_fcn }}(), {{ c_arg[1] }});
+              obj->{{ size_fcn }}, {{ c_arg[1] }});
       }
       {% else %}
       // no size checking specified
@@ -154,6 +154,19 @@ clib-object-setter: |-
   } catch (...) {
       return handleAllExceptions(-2, ERR);
   }
+
+clib-destructor: |-
+  try {
+      // destructor
+      {{ cxx_base }}Cabinet::del({{ c_arg[0] }});
+      return 0;
+  } catch (...) {
+      return handleAllExceptions(-1, ERR);
+  }
+
+clib-noop: |-
+  // no-op
+  return 0;
 
 clib-implementation: |-
   {{ declaration }}

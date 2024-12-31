@@ -38,7 +38,6 @@ class HeaderFileParser:
         base = cabinet["base"]
         parents = cabinet.get("parents", [])
         derived = cabinet.get("derived", [])
-        uses = cabinet.get("uses", [])
         for func in cabinet["functions"]:
             if func['name'] in self._ignore_funcs:
                 continue
@@ -48,10 +47,8 @@ class HeaderFileParser:
                        base,
                        parents,
                        derived,
-                       uses,
                        func.get("implements", ""),
-                       func.get("relates", []),
-                       func.get("size-fcn", ""),
+                       func.get("uses"),
                        func.get("what", "")))
         return HeaderFile(self._path, [], recipes)
 
