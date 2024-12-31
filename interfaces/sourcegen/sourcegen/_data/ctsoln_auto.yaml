@@ -9,19 +9,16 @@ cabinet:
   base: Solution
   parents: []  # List of parent classes
   derived: [Interface]  # List of specializations
-  uses: [ThermoPhase, Kinetics, Transport]  # List of referenced cabinets
   functions:
   - name: newSolution
     implements: newSolution(const string&, const string&, const string&)
+    uses: [thermo(), kinetics(), transport()]
   - name: newInterface  # currently disabled in CLib's config.yaml
     implements:
       newInterface(const string&, const string&, const vector<shared_ptr<Solution>>&)
+    uses: [thermo(), kinetics()]
   - name: del
-    what: destructor
-    relates:  # methods used to retrieve instances of managed objects
-    - "Solution::thermo"
-    - "Solution::kinetics"
-    - "Solution::transport"
+    uses: [thermo(), kinetics(), transport()]
   - name: name
   - name: setName
   - name: thermo
@@ -31,3 +28,4 @@ cabinet:
   - name: nAdjacent
   - name: adjacent
     implements: Solution::adjacent(size_t)
+    uses: nAdjacent()

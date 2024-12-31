@@ -9,7 +9,6 @@ cabinet:
   base: ThermoPhase
   parents: [Phase]  # List of parent classes
   derived: []  # List of specializations
-  uses: [Solution]  # List of referenced cabinets
   functions:
   - name: nElements
   - name: nSpecies
@@ -21,13 +20,17 @@ cabinet:
   - name: meanMolecularWeight
   - name: moleFraction
     implements: Phase::moleFraction(size_t)
+    uses: nSpecies()
   - name: massFraction
     implements: Phase::massFraction(size_t)
+    uses: nSpecies()
   - name: getMoleFractions
-    size-fcn: nSpecies
+    uses: nSpecies()
   - name: getMassFractions
-    size-fcn: nSpecies
+    uses: nSpecies()
   - name: setMoleFractions
-    size-fcn: nSpecies
+    uses: nSpecies()
   - name: setMassFractions
-    size-fcn: nSpecies
+    uses: nSpecies()
+  - name: del
+    what: noop

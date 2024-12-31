@@ -173,12 +173,10 @@ class Recipe:
     name: str  #: Name of method (without prefix)
     base: str  #: C++ class implementing method
     parents: list[str]  #: List of C++ parent class(es)
-    derived: list[str]  #: List of C++ specializations
-    uses: list[str]  #: List of referenced CLib cabinets
+    derived: list[str]  #: List of C++ specialization(s)
     implements: str  #: Signature of implemented method
-    relates: list[str]=None  #: Methods used to retrieve instances of managed objects
-    size_fcn: str=""  #: Method used to check array size
-    what: str = ""  #: Non-empty for special methods: "constructor", "destructor"
+    uses: str | list[str]  #: Auxiliary methods used by recipe
+    what: str  #: Non-empty for special methods: "constructor", "destructor"
 
 
 @dataclass

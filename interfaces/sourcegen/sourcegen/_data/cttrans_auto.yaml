@@ -9,7 +9,8 @@ cabinet:
   base: Transport
   parents: []  # List of parent classes
   derived: []  # List of specializations
-  uses: [Solution]  # List of referenced cabinets
   functions:
   - name: viscosity
   - name: thermalConductivity
+  - name: del
+    what: noop
