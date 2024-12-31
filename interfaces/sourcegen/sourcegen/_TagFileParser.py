@@ -155,6 +155,19 @@ class TagFileParser:
         """Check whether doxygen tag exists."""
         return cxx_func in self._known
 
+    def detect(self, name, bases, permissive=True):
+        """Detect qualified method name."""
+        for base in bases:
+            name_ = f"{base}::{name}"
+            if self.exists(name_):
+                return name_
+        if self.exists(name):
+            return name
+        if permissive:
+            return None
+        _logger.critical(f"Unable to detect {name!r} in doxygen tags.")
+        exit(1)
+
     def tag_info(self, func_string: str) -> TagInfo:
         """Look up tag information based on (partial) function signature."""
         cxx_func = func_string.split("(")[0].split(" ")[-1]
@@ -187,8 +200,8 @@ class TagFileParser:
 
         return TagInfo.from_xml(cxx_func, self._known[cxx_func][ix])
 
-    def cxx_func(self, func_string: str, relates: list[str]=None) -> CFunc:
-        """Generate annotated C++ function specification."""
+    def _cxx_func(self, func_string: str, uses: list[CFunc]) -> CFunc:
+        """Auxiliary generator for annotated C++ function specification."""
         details = tag_lookup(self.tag_info(func_string))
         ret_param = Param.from_xml(details.type)
 
@@ -208,7 +221,11 @@ class TagFileParser:
 
         return CFunc(ret_param.p_type, details.name, ArgList(args_merged),
                      details.briefdescription, None, ret_param.description,
-                     details.base, relates or [])
+                     details.base, uses)
+
+    def cxx_func(self, func_string: str, uses: list[str]=None) -> CFunc:
+        """Generate annotated C++ function specification."""
+        return self._cxx_func(func_string, [self._cxx_func(uu, []) for uu in uses])
 
 
 def tag_lookup(tag_info: TagInfo) -> TagDetails:

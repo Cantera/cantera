@@ -12,13 +12,13 @@ cabinet:
   functions:
   - name: newSolution
     implements: newSolution(const string&, const string&, const string&)
-    uses: [thermo(), kinetics(), transport()]
+    uses: [thermo, kinetics, transport]
   - name: newInterface  # currently disabled in CLib's config.yaml
     implements:
       newInterface(const string&, const string&, const vector<shared_ptr<Solution>>&)
-    uses: [thermo(), kinetics()]
+    uses: [thermo, kinetics]
   - name: del
-    uses: [thermo(), kinetics(), transport()]
+    uses: [thermo, kinetics, transport]
   - name: name
   - name: setName
   - name: thermo
@@ -28,4 +28,4 @@ cabinet:
   - name: nAdjacent
   - name: adjacent
     implements: Solution::adjacent(size_t)
-    uses: nAdjacent()
+    uses: nAdjacent
