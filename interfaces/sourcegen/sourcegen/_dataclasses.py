@@ -141,11 +141,11 @@ class Func:
 class CFunc(Func):
     """Represents an annotated function declaration in a C/C++ header file."""
 
-    brief: str=""  #: Brief description (optional)
-    implements: 'Func'=None  #: Implemented C++ function/method (optional)
-    returns: str=""  #: Description of returned value (optional)
-    base: str=""  #: Qualified scope of function/method (optional)
-    relates: list[str]=None  #: List of related C++ methods (optional)
+    brief: str = ""  #: Brief description (optional)
+    implements: 'CFunc' = None  #: Implemented C++ function/method (optional)
+    returns: str = ""  #: Description of returned value (optional)
+    base: str = ""  #: Qualified scope of function/method (optional)
+    uses: list['CFunc'] = None  #: List of auxiliary C++ methods (optional)
 
     def short_declaration(self) -> str:
         """Return a short string representation."""

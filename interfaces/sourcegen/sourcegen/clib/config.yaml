@@ -7,7 +7,8 @@
 ignore_files: []
 
 # Ignore these specific functions:
-ignore_funcs: {}
+ignore_funcs:
+  ctsoln_auto.yaml: [newInterface, adjacent]
 
 # Cabinets holding objects
 cabinets:

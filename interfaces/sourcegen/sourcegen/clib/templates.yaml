@@ -64,20 +64,106 @@ clib-header-file: |-
 
   #endif // {{ guard }}
 
-clib-int-getter: |-
+clib-function: |-
   try {
-      // getter: {{ cxx_implements }}
-      return {{ base }}Cabinet::at({{ c_arg[0] }})->{{ cxx_name }}();
+      // function: {{ cxx_implements }}
+      {% for line in lines %}
+      {{ line }}
+      {% endfor %}
+      {% if buffer %}
+      {{ buffer[0] }} = {{ cxx_name }}({{ ', '.join(cxx_args) }});
+      {% if buffer[1] %}
+      {{ buffer[1] }}
+      {% endif %}
+      return {{ buffer[2] }};
+      {% else %}
+      return {{ cxx_name }}({{ ', '.join(cxx_args) }});
+      {% endif %}
   } catch (...) {
-      return handleAllExceptions(ERR, ERR);
+      return handleAllExceptions({{ error[0] }}, {{ error[1] }});
   }
 
-clib-double-getter: |-
+clib-constructor: |-
+  try {
+      // constructor: {{ cxx_implements }}
+      {% for line in lines %}
+      {{ line }}
+      {% endfor %}
+      {% if uses %}
+      {% if handle %}
+      auto obj = {{ cxx_base }}Cabinet::at({{ handle }})->{{ cxx_name }}({{ ', '.join(cxx_args) }});
+      {% else %}
+      auto obj = {{ cxx_name }}({{ ', '.join(cxx_args) }});
+      {% endif %}
+      int id = {{ cxx_base }}Cabinet::add(obj);
+      // add all associated objects
+      {% for typ, getter in uses %}
+      if (obj->{{ getter }}()) {
+          {{ typ }}Cabinet::add(obj->{{ getter }}(), id);
+      }
+      {% endfor %}
+      return id;
+      {% else %}
+      {% if handle %}
+      return {{ cxx_base }}Cabinet::add({{ cxx_base }}Cabinet::at({{ handle }})->{{ cxx_name }}({{ ', '.join(cxx_args) }}));
+      {% else %}
+      return {{ cxx_base }}Cabinet::add({{ cxx_name }}({{ ', '.join(cxx_args) }}));
+      {% endif %}
+      {% endif %}
+  } catch (...) {
+      return handleAllExceptions({{ error[0] }}, {{ error[1] }});
+  }
+
+clib-destructor: |-
+  try {
+      // destructor
+      {% if uses %}
+      auto obj = {{ cxx_base }}Cabinet::at({{ handle }});
+      // remove all associated objects in reversed order
+      {% for typ, getter in uses[-1::-1] %}
+      if (obj->{{ getter }}()) {
+          int index = {{ typ }}Cabinet::index(*(obj->{{ getter }}()), {{ handle }});
+          if (index >= 0) {
+              {{ typ }}Cabinet::del(index);
+          }
+      }
+      {% endfor %}
+      {% endif %}
+      {{ cxx_base }}Cabinet::del({{ handle }});
+      return 0;
+  } catch (...) {
+      return handleAllExceptions(-1, ERR);
+  }
+
+clib-method: |-
+  try {
+      // {{ what }}: {{ cxx_implements }}
+      {% for line in lines %}
+      {{ line }}
+      {% endfor %}
+      {% if buffer %}
+      {{ buffer[0] }} = {{ cxx_base }}Cabinet::at({{ handle }})->{{ cxx_name }}({{ ', '.join(cxx_args) }});
+      {% if buffer[1] %}
+      {{ buffer[1] }}
+      {% endif %}
+      return {{ buffer[2] }};
+      {% else %}
+      return {{ cxx_base }}Cabinet::at({{ handle }})->{{ cxx_name }}({{ ', '.join(cxx_args) }});
+      {% endif %}
+  } catch (...) {
+      return handleAllExceptions({{ error[0] }}, {{ error[1] }});
+  }
+
+clib-simple-getter: |-
   try {
       // getter: {{ cxx_implements }}
       return {{ base }}Cabinet::at({{ c_arg[0] }})->{{ cxx_name }}();
   } catch (...) {
+      {% if is_integer %}
+      return handleAllExceptions(ERR, ERR);
+      {% else %}
       return handleAllExceptions(DERR, DERR);
+      {% endif %}
   }
 
 clib-string-getter: |-
@@ -94,7 +180,7 @@ clib-array-getter: |-
   try {
       // getter: {{ cxx_implements }}
       auto& obj = {{ cxx_base }}Cabinet::at({{ c_arg[0] }});
-      {% if size_fcn -%}
+      {% if size_fcn %}
       if ({{ c_arg[1] }} != obj->{{ size_fcn }}) {
           throw CanteraError("{{ c_func }}",
               "Invalid output array size; expected size {} but received {}.",
@@ -102,7 +188,7 @@ clib-array-getter: |-
       }
       {% else %}
       // no size checking specified
-      {% endif -%}
+      {% endif %}
       obj->{{ cxx_name }}({{ c_arg[2] }});
       return 0;
   } catch (...) {
@@ -131,7 +217,7 @@ clib-array-setter: |-
   try {
       // setter: {{ cxx_implements }}
       auto& obj = {{ cxx_base }}Cabinet::at({{ c_arg[0] }});
-      {% if size_fcn -%}
+      {% if size_fcn %}
       if ({{ c_arg[1] }} != obj->{{ size_fcn }}) {
           throw CanteraError("{{ c_func }}",
               "Invalid input array size; expected size {} but received {}.",
@@ -139,7 +225,7 @@ clib-array-setter: |-
       }
       {% else %}
       // no size checking specified
-      {% endif -%}
+      {% endif %}
       obj->{{ cxx_name }}({{ c_arg[2] }});
       return 0;
   } catch (...) {
@@ -153,15 +239,6 @@ clib-object-setter: |-
       return 0;
   } catch (...) {
       return handleAllExceptions(-2, ERR);
-  }
-
-clib-destructor: |-
-  try {
-      // destructor
-      {{ cxx_base }}Cabinet::del({{ c_arg[0] }});
-      return 0;
-  } catch (...) {
-      return handleAllExceptions(-1, ERR);
   }
 
 clib-noop: |-
