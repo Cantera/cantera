@@ -50,6 +50,7 @@ void MultiJac::updateTransient(double rdt, integer* mask)
     for (size_t n = 0; n < m_dim; n++) {
         m_mat.value(n,n) = m_ssdiag[n] - mask[n]*rdt;
     }
+    factorize();
 }
 
 void MultiJac::eval(double* x0, double* resid0, double rdt)

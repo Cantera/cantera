@@ -51,6 +51,13 @@ public:
     //! Return a reference to the Newton iterator.
     MultiNewton& newton();
 
+    //! Set the linear solver used to hold the Jacobian matrix and solve linear systems
+    //! as part of each Newton iteration. The default is a direct, banded solver.
+    void setLinearSolver(shared_ptr<PreconditionerBase> solver);
+
+    //! Get the type of the linear solver being used.
+    shared_ptr<PreconditionerBase> linearSolver() const { return m_jac; }
+
     /**
      * Solve F(x) = 0, where F(x) is the multi-domain residual function.
      *

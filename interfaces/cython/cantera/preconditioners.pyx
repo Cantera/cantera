@@ -4,6 +4,10 @@
 from ._utils cimport stringify, pystr, py_to_anymap, anymap_to_py
 from .kinetics cimport get_from_sparse
 
+# dictionary to store reaction rate classes
+cdef dict _preconditioner_class_registry = {}
+
+
 cdef class PreconditionerBase:
     """
     Common base class for preconditioners.
@@ -11,8 +15,36 @@ cdef class PreconditionerBase:
     precon_type = "PreconditionerBase"
     precon_linear_solver_type = "GMRES"
 
-    def __cinit__(self, *args, **kwargs):
-        self.pbase = newPreconditioner(stringify(self.precon_type))
+    def __cinit__(self, *args, init=True, **kwargs):
+        if init:
+            self.pbase = newPreconditioner(stringify(self.precon_type))
+
+    @staticmethod
+    cdef wrap(shared_ptr[CxxPreconditionerBase] base):
+        """
+        Wrap a C++ PreconditionerBase object with a Python object of the correct
+        derived type.
+        """
+        # Ensure all derived types are registered
+        if not _preconditioner_class_registry:
+            def register_subclasses(cls):
+                for c in cls.__subclasses__():
+                    _preconditioner_class_registry[getattr(c, "precon_type")] = c
+                    register_subclasses(c)
+
+            # Update global class registry
+            register_subclasses(PreconditionerBase)
+
+        cxx_type = pystr(base.get().type())
+        cls = _preconditioner_class_registry.get(cxx_type, PreconditionerBase)
+        cdef PreconditionerBase precon
+        precon = cls(init=False)
+        precon.pbase = base
+        precon.set_cxx_object()
+        return precon
+
+    cdef set_cxx_object(self):
+        pass
 
     property side:
         """
@@ -32,6 +64,9 @@ cdef class AdaptivePreconditioner(PreconditionerBase):
 
     def __cinit__(self, *args, **kwargs):
         self.preconditioner = <CxxAdaptivePreconditioner*>(self.pbase.get())
+
+    cdef set_cxx_object(self):
+        self.preconditioner = <CxxAdaptivePreconditioner*>self.pbase.get()
 
     property threshold:
         """
@@ -102,3 +137,11 @@ cdef class AdaptivePreconditioner(PreconditionerBase):
         def __get__(self):
             cdef CxxSparseMatrix smat = self.preconditioner.matrix()
             return get_from_sparse(smat, smat.rows(), smat.cols())
+
+
+cdef class BandedJacobian(PreconditionerBase):
+    precon_type = "banded-direct"
+    precon_linear_solver_type = "direct"
+
+    cdef set_cxx_object(self):
+        self.preconditioner = <CxxMultiJac*>self.pbase.get()
