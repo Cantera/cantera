@@ -293,27 +293,25 @@ void OneDim::evalJacobian(double* x0)
 {
     m_jac->reset();
     clock_t t0 = clock();
-    double rtol = 1e-5;
-    double atol = sqrt(std::numeric_limits<double>::epsilon());
+    const double uround = sqrt(std::numeric_limits<double>::epsilon());
 
     m_work1.resize(size());
     m_work2.resize(size());
     eval(npos, x0, m_work1.data(), 0.0, 0);
     size_t ipt = 0;
     for (size_t j = 0; j < points(); j++) {
+        Domain1D* dom = pointDomain(j);
         size_t nv = nVars(j);
         for (size_t n = 0; n < nv; n++) {
             // perturb x(n); preserve sign(x(n))
             double xsave = x0[ipt];
-            double dx;
-            if (xsave >= 0) {
-                dx = xsave*rtol + atol;
-            } else {
-                dx = xsave*rtol - atol;
+            double dx = std::max(sqrt(uround) * fabs(xsave),
+                                 uround * (dom->rtol(n) * fabs(xsave) + dom->atol(n)));
+            if (xsave < 0) {
+                dx = -dx;
             }
             x0[ipt] = xsave + dx;
-            dx = x0[ipt] - xsave;
-            double rdx = 1.0/dx;
+            double rdx = 1.0 / (x0[ipt] - xsave);
 
             // calculate perturbed residual
             eval(j, x0, m_work2.data(), 0.0, 0);
@@ -324,8 +322,10 @@ void OneDim::evalJacobian(double* x0)
                     size_t mv = nVars(i);
                     size_t iloc = loc(i);
                     for (size_t m = 0; m < mv; m++) {
-                        m_jac->setValue(m + iloc, ipt,
-                                        (m_work2[m+iloc] - m_work1[m+iloc]) * rdx);
+                        double delta = m_work2[m+iloc] - m_work1[m+iloc];
+                        if (std::abs(delta) > 1e-10 || m+iloc == ipt) {
+                            m_jac->setValue(m + iloc, ipt, delta * rdx);
+                        }
                     }
                 }
             }
