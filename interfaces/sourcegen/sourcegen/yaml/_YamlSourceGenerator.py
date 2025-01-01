@@ -18,7 +18,7 @@ from .._dataclasses import HeaderFile, CFunc
 from .._SourceGenerator import SourceGenerator
 
 
-_logger = logging.getLogger()
+_LOGGER = logging.getLogger()
 
 class YamlSourceGenerator(SourceGenerator):
     """The SourceGenerator for generating YAML summaries of header specifications."""
@@ -38,7 +38,7 @@ class YamlSourceGenerator(SourceGenerator):
         definition = loader.from_string(self._templates["yaml-definition"])
         declarations = []
         for c_func, recipe in zip(headers.funcs, headers.recipes):
-            _logger.debug(f"   scaffolding {c_func.name!r} implementation")
+            _LOGGER.debug(f"   scaffolding {c_func.name!r} implementation")
             implements = ""
             if isinstance(c_func.implements, CFunc):
                 implements = c_func.implements.short_declaration()
@@ -52,7 +52,7 @@ class YamlSourceGenerator(SourceGenerator):
         output = template.render(filename=filename.name, header_entries=declarations)
 
         out = Path(self._out_dir) / "yaml" / filename.name
-        _logger.info(f"  writing {filename.name!r}")
+        _LOGGER.info(f"  writing {filename.name!r}")
         if not out.parent.exists():
             out.parent.mkdir(parents=True, exist_ok=True)
         with open(out, "wt", encoding="utf-8") as stream:
@@ -62,5 +62,5 @@ class YamlSourceGenerator(SourceGenerator):
     def generate_source(self, headers_files: list[HeaderFile]):
         """Generate output."""
         for headers in headers_files:
-            _logger.info(f"  parsing functions in {headers.path.name!r}")
+            _LOGGER.info(f"  parsing functions in {headers.path.name!r}")
             self._write_yaml(headers)

@@ -4,11 +4,12 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
-cabinet:
+headers:
   prefix: ct3
   base: ""
-  functions:
-  - name: getCanteraVersion  # todo: implement C++ version
+  recipes:
+  - name: getCanteraVersion
+    implements: version
   - name: getGitCommit
     implements: gitCommit
   - name: getCanteraError
