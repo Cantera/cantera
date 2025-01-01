@@ -23,13 +23,17 @@ class CustomFormatter(logging.Formatter):
         return formatter.format(record)
 
 
-def generate_source(lang: str, out_dir: str="", verbose=False):
+def generate_source(lang: str, out_dir: str=None, verbose=False):
     """Main entry point of sourcegen."""
     loghandler = logging.StreamHandler(sys.stdout)
     loghandler.setFormatter(CustomFormatter())
     _logger.handlers.clear()
     _logger.addHandler(loghandler)
     _logger.setLevel(logging.DEBUG if verbose else logging.INFO)
+
+    if not out_dir:
+        _logger.critical("Aborting: sourcegen requires output folder information.")
+        exit(1)
 
     module = importlib.import_module(__package__ + "." + lang)
     root = Path(module.__file__).parent

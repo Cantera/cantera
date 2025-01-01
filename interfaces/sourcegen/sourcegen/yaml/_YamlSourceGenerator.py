@@ -1,7 +1,9 @@
 """
 Generator for YAML output.
 
-Used for debugging purposes only.
+Used for illustration purposes: the `CLibSourceGenerator` is used to preprocess YAML
+header specifications, which yields the `HeaderFile` objects used by this source
+generator.
 """
 
 # This file is part of Cantera. See License.txt in the top-level directory or
@@ -29,17 +31,14 @@ class YamlSourceGenerator(SourceGenerator):
         self._config = config
         self._templates = templates
 
-    def _parse_header(self, header: HeaderFile):
-        """Parse header file and generate output."""
-        loader = Environment(loader=BaseLoader)
+    def _write_yaml(self, headers: HeaderFile):
+        """Parse header file and generate YAML output."""
+        loader = Environment(loader=BaseLoader, trim_blocks=True, lstrip_blocks=True)
 
-        filename = header.path.name
-        template = loader.from_string(self._templates["yaml-preamble"])
-        preamble = template.render(filename=filename)
         definition = loader.from_string(self._templates["yaml-definition"])
         declarations = []
-        for c_func, recipe in zip(header.funcs, header.recipes):
-
+        for c_func, recipe in zip(headers.funcs, headers.recipes):
+            _logger.debug(f"   scaffolding {c_func.name!r} implementation")
             implements = ""
             if isinstance(c_func.implements, CFunc):
                 implements = c_func.implements.short_declaration()
@@ -48,24 +47,20 @@ class YamlSourceGenerator(SourceGenerator):
                                   returns=c_func.returns, implements=implements,
                                   relates=c_func.uses, what=recipe.what))
 
-        guard = f"__{filename.upper().replace('.', '_')}__"
+        filename = headers.output_name(suffix=".yaml", auto="3")
         template = loader.from_string(self._templates["yaml-file"])
-        output = template.render(
-            preamble=preamble, header_entries=declarations, guard=guard)
+        output = template.render(filename=filename.name, header_entries=declarations)
 
-        if self._out_dir:
-            out = Path(self._out_dir) / "yaml" / filename
-            _logger.info(f"  writing {filename!r}")
-            if not out.parent.exists():
-                out.parent.mkdir(parents=True, exist_ok=True)
-            with open(out, "wt", encoding="utf-8") as stream:
-                stream.write(output)
-                stream.write("\n")
-        else:
-            print(output)
+        out = Path(self._out_dir) / "yaml" / filename.name
+        _logger.info(f"  writing {filename.name!r}")
+        if not out.parent.exists():
+            out.parent.mkdir(parents=True, exist_ok=True)
+        with open(out, "wt", encoding="utf-8") as stream:
+            stream.write(output)
+            stream.write("\n")
 
     def generate_source(self, headers_files: list[HeaderFile]):
         """Generate output."""
-        for header in headers_files:
-            _logger.info(f"  parsing functions in {header.path.name!r}:")
-            self._parse_header(header)
+        for headers in headers_files:
+            _logger.info(f"  parsing functions in {headers.path.name!r}")
+            self._write_yaml(headers)
