@@ -34,6 +34,8 @@ public:
 
     virtual ~PreconditionerBase() {}
 
+    virtual const string type() const = 0;
+
     //! Set a value at the specified row and column of the jacobian triplet vector
     //! @param row row in the jacobian matrix
     //! @param col column in the jacobian matrix
@@ -75,6 +77,8 @@ public:
     };
 
     //! Perform preconditioner specific post-reactor setup operations such as factorize.
+    //! @deprecated To be removed after %Cantera 3.2. Use updatePreconditioner() and
+    //!     factorize() instead.
     virtual void setup() {
         throw NotImplementedError("PreconditionerBase::setup");
     };
@@ -161,6 +165,12 @@ public:
     }
 
 protected:
+    //! Factorize the system matrix. This method should be called at the end of
+    //! implementations of updatePreconditioner() and updateTransient().
+    virtual void factorize() {
+        throw NotImplementedError("preconditionerBase::factorize");
+    }
+
     //! Dimension of the preconditioner
     size_t m_dim;
 

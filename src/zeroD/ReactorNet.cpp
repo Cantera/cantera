@@ -593,7 +593,7 @@ void ReactorNet::preconditionerSetup(double t, double* y, double gamma)
         }
     }
     // post reactor setup operations
-    precon->setup();
+    precon->updatePreconditioner();
 }
 
 void ReactorNet::updatePreconditioner(double gamma)

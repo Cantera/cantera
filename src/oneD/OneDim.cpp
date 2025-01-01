@@ -96,9 +96,18 @@ MultiJac& OneDim::jacobian()
         throw CanteraError("OneDim::jacobian", "Active Jacobian is not a MultiJac");
     }
 }
+
 MultiNewton& OneDim::newton()
 {
     return *m_newt;
+}
+
+void OneDim::setLinearSolver(shared_ptr<PreconditionerBase> solver)
+{
+    m_jac = solver;
+    m_jac->initialize(size());
+    m_jac->setBandwidth(bandwidth());
+    m_jac_ok = false;
 }
 
 void OneDim::setJacAge(int ss_age, int ts_age)
@@ -209,7 +218,9 @@ void OneDim::resize()
     m_mask.resize(size());
 
     // delete the current Jacobian evaluator and create a new one
-    m_jac = newPreconditioner("banded-direct");
+    if (!m_jac) {
+        m_jac = newPreconditioner("banded-direct");
+    }
     m_jac->initialize(size());
     m_jac->setBandwidth(bandwidth());
     m_jac_ok = false;
