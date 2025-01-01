@@ -23,7 +23,7 @@ class Param:
     default: Any = None  #: Default value (optional)
 
     @classmethod
-    def from_str(cls, param: str) -> 'Param':
+    def from_str(cls, param: str, doc: str="") -> 'Param':
         """Generate Param from parameter string."""
         param = param.strip()
         default = None
@@ -32,7 +32,14 @@ class Param:
             param = param[:param.rfind("=")]
         parts = param.strip().rsplit(" ", 1)
         if len(parts) == 2 and parts[0] not in ["const", "virtual", "static"]:
-            return cls(*parts, "", "", default)
+            if "@param" not in doc:
+                return cls(*parts, "", "", default)
+            items = doc.split()
+            if items[1] != parts[1]:
+                msg = f"Documented variable {items[1]!r} does not match {parts[1]!r}"
+                raise ValueError(msg)
+            direction = items[0].split("[")[1].split("]")[0] if "[" in items[0] else ""
+            return cls(*parts, " ".join(items[2:]), direction, default)
         return cls(param)
 
     @classmethod
@@ -122,7 +129,7 @@ class Func:
     @classmethod
     def from_str(cls, func: str) -> 'Func':
         """Generate Func from declaration string of a function."""
-        func = func.strip()
+        func = func.rstrip(";").strip()
         # match all characters before an opening parenthesis '(' or end of line
         name = re.findall(r'.*?(?=\(|$)', func)[0]
         arglist = ArgList.from_str(func.replace(name, "").strip())
@@ -146,6 +153,29 @@ class CFunc(Func):
     returns: str = ""  #: Description of returned value (optional)
     base: str = ""  #: Qualified scope of function/method (optional)
     uses: list['CFunc'] = None  #: List of auxiliary C++ methods (optional)
+
+    @classmethod
+    def from_str(cls, func: str) -> 'CFunc':
+        """Generate CFunc from header block of a function."""
+        lines = func.split("\n")
+        func = super().from_str(lines[-1])
+        if len(lines) == 1:
+            return func
+        brief = ""
+        returns = ""
+        args = []
+        for ix, line in enumerate(lines[:-1]):
+            line = line.strip().lstrip("*").strip()
+            if ix == 1:
+                brief = line
+            elif line.startswith("@param"):
+                # assume that variables are documented in order
+                arg = func.arglist[len(args)].long_str()
+                args.append(Param.from_str(arg, line))
+            elif line.startswith("@returns"):
+                returns = line.lstrip("@returns").strip()
+        args = ArgList(args)
+        return cls(func.ret_type, func.name, args, brief, None, returns, "", [])
 
     def short_declaration(self) -> str:
         """Return a short string representation."""

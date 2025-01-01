@@ -29,6 +29,57 @@ clib-definition: |-
   {{ annotations }}
   {{ declaration }};
 
+clib-reserved-parentHandle-h: |-
+  /**
+    * Return handle to parent of {{ base }} object.
+    *
+    * @param handle        Handle to queried {{ base }} object.
+    * @returns             Parent handle or -1 for exception handling.
+    */
+  int {{ prefix }}_parentHandle(int handle);
+
+clib-reserved-cabinetSize-h: |-
+  /**
+    * Return size of {{ base }} storage.
+    *
+    * @returns             Size or -1 for exception handling.
+    */
+  int {{ prefix }}_cabinetSize();
+
+clib-reserved-getCanteraVersion-h: |-
+  /**
+    * Get Cantera version.
+    * @param[in] lenBuf    Length of reserved array.
+    * @param[out] charBuf  String representation of %Cantera version.
+    * @returns             Actual length of string or -1 for exception handling.
+    */
+  int {{ prefix }}_getCanteraVersion(int lenBuf, char* charBuf);
+
+clib-reserved-getCanteraError-h: |-
+  /**
+    * Get %Cantera error.
+    * @param[in] lenBuf    Length of reserved array.
+    * @param[out] charBuf  String containing %Cantera error.
+    * @returns             Actual length of string or -1 for exception handling.
+    */
+  int {{ prefix }}_getCanteraError(int lenBuf, char* charBuf);
+
+clib-reserved-resetStorage-h: |-
+  /**
+    * Delete all objects and erase mapping.
+    *
+    * @returns             Zero if successful or -1 for exception handling.
+    */
+  int {{ prefix }}_resetStorage();
+
+clib-reserved-clearStorage-h: |-
+  /**
+    * Delete all objects with mapping preserved.
+    *
+    * @returns             Zero if successful or -1 for exception handling.
+    */
+  int {{ prefix }}_clearStorage();
+
 clib-header-file: |-
   /**
    * {{ name.upper() }} - Experimental CLib %Cantera interface library.
@@ -60,20 +111,6 @@ clib-header-file: |-
 
       {{ headers | indent(4) }}
 
-      {% if base %}
-      {% if no_constructor %}
-      /**
-       * Return handle to parent of {{ base }} object (if applicable).
-       */
-      int {{ prefix }}_parentHandle(int handle);
-
-      {% endif %}
-      /**
-       * Return size of {{ base }} storage.
-       */
-      int {{ prefix }}_cabinetSize();
-
-      {% endif %}
   #ifdef __cplusplus
   }
   #endif
@@ -226,6 +263,63 @@ clib-implementation: |-
       {{ body | indent(4) }}
   }
 
+clib-reserved-parentHandle-cpp: |-
+  // {{ cxx_base }} cabinet parent
+  try {
+      return {{ base }}Cabinet3::parent(handle);
+  } catch (...) {
+      return handleAllExceptions(-2, ERR);
+  }
+
+clib-reserved-cabinetSize-cpp: |-
+  // {{ cxx_base }} cabinet size
+  try {
+      return {{ base }}Cabinet3::size();
+  } catch (...) {
+      return handleAllExceptions(-1, ERR);
+  }
+
+clib-reserved-getCanteraVersion-cpp: |-
+  // get Cantera version
+  try {
+      string out = CANTERA_VERSION;
+      copyString(out, charBuf, lenBuf);
+      return int(out.size());
+  } catch (...) {
+      return handleAllExceptions(-1, ERR);
+  }
+
+clib-reserved-getCanteraError-cpp: |-
+  try {
+      string err = Application::Instance()->lastErrorMessage();
+      copyString(err, charBuf, lenBuf);
+      return int(err.size());
+  } catch (...) {
+      return handleAllExceptions(-1, ERR);
+  }
+
+clib-reserved-resetStorage-cpp: |-
+  // reset storage
+  try {
+      {% for base in cabinets %}
+      {{ base }}Cabinet3::reset();
+      {% endfor %}
+      return 0;
+  } catch (...) {
+      return handleAllExceptions(-1, ERR);
+  }
+
+clib-reserved-clearStorage-cpp: |-
+  // clear storage
+  try {
+      {% for base in cabinets %}
+      {{ base }}Cabinet3::clear();
+      {% endfor %}
+      return 0;
+  } catch (...) {
+      return handleAllExceptions(-1, ERR);
+  }
+
 clib-source-file: |-
   /**
    * {{ name.upper() }} - Experimental CLib %Cantera interface library.
@@ -269,28 +363,4 @@ clib-source-file: |-
 
       {{ implementations | indent(4) }}
 
-      {% if base %}
-      {% if no_constructor %}
-      int {{ prefix }}_parentHandle(int handle)
-      {
-          // cabinet parent
-          try {
-              return {{ base }}Cabinet3::parent(handle);
-          } catch (...) {
-              return handleAllExceptions(-2, ERR);
-          }
-      }
-
-      {% endif %}
-      int {{ prefix }}_cabinetSize()
-      {
-          // cabinet size
-          try {
-              return {{ base }}Cabinet3::size();
-          } catch (...) {
-              return handleAllExceptions(-1, ERR);
-          }
-      }
-
-      {% endif %}
   } // extern "C"

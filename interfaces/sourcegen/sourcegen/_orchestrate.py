@@ -50,10 +50,12 @@ def generate_source(lang: str, out_dir: str=None, verbose=False):
     else:
         # generate CLib headers from YAML specifications
         files = HeaderFileParser.headers_from_yaml(ignore_files, ignore_funcs)
-        clib_config = read_config(Path(__file__).parent / "clib" / "config.yaml")
+        clib_root = Path(__file__).parent / "clib"
+        clib_config = read_config(clib_root / "config.yaml")
+        clib_templates = read_config(clib_root / "templates.yaml")
         for key in ["ignore_files", "ignore_funcs"]:
             clib_config.pop(key)
-        clib_scaffolder = CLibSourceGenerator(None, clib_config, {})
+        clib_scaffolder = CLibSourceGenerator(None, clib_config, clib_templates)
         clib_scaffolder.resolve_tags(files)
 
     # find and instantiate the language-specific SourceGenerator

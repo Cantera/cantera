@@ -8,21 +8,21 @@ cabinet:
   prefix: ct3
   base: ""
   functions:
-  # - name: getCanteraError(int buflen, char* buf)
+  - name: getCanteraVersion  # todo: implement C++ version
+  - name: getGitCommit
+    implements: gitCommit
+  - name: getCanteraError
   # - name: setLogWriter(void* logger)
   # - name: setLogCallback(LogCallback writer);
   - name: addCanteraDirectory
     implements: addDirectory
   - name: getDataDirectories
   - name: findInputFile
-  # - name: getCanteraVersion
-  - name: getGitCommit
-    implements: gitCommit
   - name: suppress_deprecation_warnings
   - name: make_deprecation_warnings_fatal
   - name: suppress_warnings
   - name: warnings_suppressed
   - name: make_warnings_fatal
   - name: suppress_thermo_warnings
-  # - name: clearStorage();
-  # - name: resetStorage();
+  - name: clearStorage
+  - name: resetStorage
