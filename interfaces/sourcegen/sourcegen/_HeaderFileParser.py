@@ -10,14 +10,21 @@ import re
 from ._dataclasses import HeaderFile, Func, Recipe
 from ._helpers import read_config
 
-_logger = logging.getLogger()
 
-_clib_path = Path(__file__).parents[3] / "include" / "cantera" / "clib"
-_clib_ignore = ["clib_defs.h", "ctmatlab.h"]
+_LOGGER = logging.getLogger()
 
-_data_path = Path(__file__).parent / "_data"
+_CLIB_PATH = Path(__file__).parents[3] / "include" / "cantera" / "clib"
+_CLIB_IGNORE = ["clib_defs.h", "ctmatlab.h"]
+
+_DATA_PATH = Path(__file__).parent / "_data"
 
 class HeaderFileParser:
+    """
+    Parser for header files or corresponding YAML specifications.
+
+    Provides for convenience methods to generate lists of `HeaderFile` objects, which
+    themselves are used for subsequent code scaffolding.
+    """
 
     def __init__(self, path: Path, ignore_funcs: list[str] = None):
         self._path = path
@@ -26,40 +33,43 @@ class HeaderFileParser:
     @classmethod
     def headers_from_yaml(cls, ignore_files, ignore_funcs) -> list[HeaderFile]:
         """Parse header file YAML configuration."""
-        files = [ff for ff in _data_path.glob("*.yaml") if ff.name not in ignore_files]
+        files = [ff for ff in _DATA_PATH.glob("*.yaml") if ff.name not in ignore_files]
         files.sort()
         return [cls(ff, ignore_funcs.get(ff.name, []))._parse_yaml() for ff in files]
 
     def _parse_yaml(self) -> HeaderFile:
         config = read_config(self._path)
         recipes = []
-        cabinet = config.get("cabinet", [])
-        prefix = cabinet["prefix"]
-        base = cabinet["base"]
-        parents = cabinet.get("parents", [])
-        derived = cabinet.get("derived", [])
-        for func in cabinet["functions"]:
-            if func['name'] in self._ignore_funcs:
+        headers = config.get("headers", [])
+        prefix = headers["prefix"]
+        base = headers["base"]
+        parents = headers.get("parents", [])
+        derived = headers.get("derived", [])
+        for recipe in headers["recipes"]:
+            if recipe['name'] in self._ignore_funcs:
                 continue
-            uses = func.get("uses", [])
+            uses = recipe.get("uses", [])
             if not isinstance(uses, list):
                 uses = [uses]
             recipes.append(
-                Recipe(prefix,
-                       func['name'],
+                Recipe(recipe['name'],
+                       recipe.get("implements", ""),
+                       uses,
+                       recipe.get("what", ""),
+                       recipe.get("brief", ""),
+                       recipe.get("code", ""),
+                       prefix,
                        base,
                        parents,
-                       derived,
-                       func.get("implements", ""),
-                       uses,
-                       func.get("what", "")))
-        return HeaderFile(self._path, [], recipes, base, prefix)
+                       derived))
+
+        return HeaderFile(self._path, [], prefix, base, parents, derived, recipes)
 
     @classmethod
     def headers_from_h(cls, ignore_files, ignore_funcs) -> list[HeaderFile]:
         """Parse existing header file."""
-        files = [ff for ff in _clib_path.glob("*.h")
-                 if ff.name not in ignore_files + _clib_ignore]
+        files = [ff for ff in _CLIB_PATH.glob("*.h")
+                 if ff.name not in ignore_files + _CLIB_IGNORE]
         files.sort()
         return [cls(ff, ignore_funcs.get(ff.name, []))._parse_h() for ff in files]
 
@@ -75,9 +85,9 @@ class HeaderFileParser:
 
         parsed = map(Func.from_str, c_functions)
 
-        _logger.info(f"  parsing {self._path.name!r}")
+        _LOGGER.info(f"  parsing {self._path.name!r}")
         if self._ignore_funcs:
-            _logger.info(f"    ignoring {self._ignore_funcs!r}")
+            _LOGGER.info(f"    ignoring {self._ignore_funcs!r}")
 
         parsed = [f for f in parsed if f.name not in self._ignore_funcs]
 
