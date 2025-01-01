@@ -55,9 +55,21 @@ clib-header-file: |-
   #ifdef __cplusplus
   extern "C" {
   #endif
-      {% for header_entry in header_entries %}
-      {{ header_entry | indent(4) }}
-      {% endfor %}
+
+      {{ headers | indent(4) }}
+
+      {% if no_constructor %}
+      /**
+       * Return handle to parent of {{ base }} object (if applicable).
+       */
+      int {{ prefix }}_parentHandle(int handle);
+
+      {% endif %}
+      /**
+       * Return size of {{ base }} storage.
+       */
+      int {{ prefix }}_cabinetSize();
+
   #ifdef __cplusplus
   }
   #endif
@@ -65,8 +77,8 @@ clib-header-file: |-
   #endif // {{ guard }}
 
 clib-function: |-
+  // function: {{ cxx_implements }}
   try {
-      // function: {{ cxx_implements }}
       {% for line in lines %}
       {{ line }}
       {% endfor %}
@@ -88,30 +100,30 @@ clib-function: |-
   }
 
 clib-constructor: |-
+  // constructor: {{ cxx_implements }}
   try {
-      // constructor: {{ cxx_implements }}
       {% for line in lines %}
       {{ line }}
       {% endfor %}
       {% if uses %}
       {% if handle %}
-      auto obj = {{ cxx_base }}Cabinet::at({{ handle }})->{{ cxx_name }}({{ ', '.join(cxx_args) }});
+      auto obj = {{ cxx_base }}Cabinet3::at({{ handle }})->{{ cxx_name }}({{ ', '.join(cxx_args) }});
       {% else %}
       auto obj = {{ cxx_name }}({{ ', '.join(cxx_args) }});
       {% endif %}
-      int id = {{ cxx_base }}Cabinet::add(obj);
+      int id = {{ cxx_base }}Cabinet3::add(obj);
       // add all associated objects
       {% for typ, getter in uses %}
       if (obj->{{ getter }}()) {
-          {{ typ }}Cabinet::add(obj->{{ getter }}(), id);
+          {{ typ }}Cabinet3::add(obj->{{ getter }}(), id);
       }
       {% endfor %}
       return id;
       {% else %}
       {% if handle %}
-      return {{ cxx_base }}Cabinet::add({{ cxx_base }}Cabinet::at({{ handle }})->{{ cxx_name }}({{ ', '.join(cxx_args) }}));
+      return {{ cxx_base }}Cabinet3::add({{ cxx_base }}Cabinet3::at({{ handle }})->{{ cxx_name }}({{ ', '.join(cxx_args) }}));
       {% else %}
-      return {{ cxx_base }}Cabinet::add({{ cxx_name }}({{ ', '.join(cxx_args) }}));
+      return {{ cxx_base }}Cabinet3::add({{ cxx_name }}({{ ', '.join(cxx_args) }}));
       {% endif %}
       {% endif %}
   } catch (...) {
@@ -119,53 +131,53 @@ clib-constructor: |-
   }
 
 clib-destructor: |-
+  // destructor
   try {
-      // destructor
       {% if uses %}
-      auto obj = {{ cxx_base }}Cabinet::at({{ handle }});
+      auto obj = {{ cxx_base }}Cabinet3::at({{ handle }});
       // remove all associated objects in reversed order
       {% for typ, getter in uses[-1::-1] %}
       if (obj->{{ getter }}()) {
-          int index = {{ typ }}Cabinet::index(*(obj->{{ getter }}()), {{ handle }});
+          int index = {{ typ }}Cabinet3::index(*(obj->{{ getter }}()), {{ handle }});
           if (index >= 0) {
-              {{ typ }}Cabinet::del(index);
+              {{ typ }}Cabinet3::del(index);
           }
       }
       {% endfor %}
       {% endif %}
-      {{ cxx_base }}Cabinet::del({{ handle }});
+      {{ cxx_base }}Cabinet3::del({{ handle }});
       return 0;
   } catch (...) {
       return handleAllExceptions(-1, ERR);
   }
 
 clib-method: |-
+  // {{ what }}: {{ cxx_implements }}
   try {
-      // {{ what }}: {{ cxx_implements }}
       {% for line in lines %}
       {{ line }}
       {% endfor %}
       {% if buffer %}
       {% if buffer[0] %}
-      {{ buffer[0] }} = {{ cxx_base }}Cabinet::at({{ handle }})->{{ cxx_name }}({{ ', '.join(cxx_args) }});
+      {{ buffer[0] }} = {{ cxx_base }}Cabinet3::at({{ handle }})->{{ cxx_name }}({{ ', '.join(cxx_args) }});
       {% else %}
-      {{ cxx_base }}Cabinet::at({{ handle }})->{{ cxx_name }}({{ ', '.join(cxx_args) }});
+      {{ cxx_base }}Cabinet3::at({{ handle }})->{{ cxx_name }}({{ ', '.join(cxx_args) }});
       {% endif %}
       {% if buffer[1] %}
       {{ buffer[1] }}
       {% endif %}
       return {{ buffer[2] }};
       {% else %}
-      return {{ cxx_base }}Cabinet::at({{ handle }})->{{ cxx_name }}({{ ', '.join(cxx_args) }});
+      return {{ cxx_base }}Cabinet3::at({{ handle }})->{{ cxx_name }}({{ ', '.join(cxx_args) }});
       {% endif %}
   } catch (...) {
       return handleAllExceptions({{ error[0] }}, {{ error[1] }});
   }
 
 clib-array-getter: |-
+  // getter: {{ cxx_implements }}
   try {
-      // getter: {{ cxx_implements }}
-      auto& obj = {{ cxx_base }}Cabinet::at({{ handle }});
+      auto& obj = {{ cxx_base }}Cabinet3::at({{ handle }});
       {% if uses %}
       if ({{ c_args[1] }} < obj->{{ uses[0][1] }}()) {
           throw CanteraError("{{ c_func }}",
@@ -182,9 +194,9 @@ clib-array-getter: |-
   }
 
 clib-array-setter: |-
+  // setter: {{ cxx_implements }}
   try {
-      // setter: {{ cxx_implements }}
-      auto& obj = {{ cxx_base }}Cabinet::at({{ handle }});
+      auto& obj = {{ cxx_base }}Cabinet3::at({{ handle }});
       {% if uses %}
       if ({{ c_args[1] }} != obj->{{ uses[0][1] }}()) {
           throw CanteraError("{{ c_func }}",
@@ -239,16 +251,39 @@ clib-source-file: |-
 
   using namespace Cantera;
 
-  typedef Cabinet<{{ base }}> {{ base }}Cabinet;
-  template<> {{ base }}Cabinet* {{ base }}Cabinet::s_storage = 0;
+  typedef Cabinet<{{ base }}> {{ base }}Cabinet3;
+  template<> {{ base }}Cabinet3* {{ base }}Cabinet3::s_storage = 0;
   {% if other %}
 
   {% for entry in other %}
-  typedef Cabinet<{{ entry }}> {{ entry }}Cabinet; // initialized elsewhere
+  typedef Cabinet<{{ entry }}> {{ entry }}Cabinet3; // initialized elsewhere
   {% endfor %}
   {% endif %}
 
   extern "C" {
 
       {{ implementations | indent(4) }}
-  }
+
+      {% if no_constructor %}
+      int {{ prefix }}_parentHandle(int handle)
+      {
+          // cabinet parent
+          try {
+              return {{ base }}Cabinet3::parent(handle);
+          } catch (...) {
+              return handleAllExceptions(-2, ERR);
+          }
+      }
+
+      {% endif %}
+      int {{ prefix }}_cabinetSize()
+      {
+          // cabinet size
+          try {
+              return {{ base }}Cabinet3::size();
+          } catch (...) {
+              return handleAllExceptions(-1, ERR);
+          }
+      }
+
+  } // extern "C"

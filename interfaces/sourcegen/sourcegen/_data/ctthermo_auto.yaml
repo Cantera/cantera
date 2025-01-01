@@ -10,6 +10,7 @@ cabinet:
   parents: [Phase]  # List of parent classes
   derived: []  # List of specializations
   functions:
+  - name: report
   - name: nElements
   - name: nSpecies
   - name: temperature
