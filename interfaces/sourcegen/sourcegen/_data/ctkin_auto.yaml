@@ -13,3 +13,5 @@ cabinet:
   - name: nReactions
   - name: del
     what: noop
+  - name: cabinetSize
+  - name: parentHandle

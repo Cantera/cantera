@@ -34,3 +34,4 @@ cabinet:
   - name: write
   - name: del
     what: destructor
+  - name: cabinetSize
