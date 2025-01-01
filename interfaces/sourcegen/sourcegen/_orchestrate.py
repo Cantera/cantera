@@ -23,13 +23,13 @@ class CustomFormatter(logging.Formatter):
         return formatter.format(record)
 
 
-def generate_source(lang: str, out_dir: str=""):
+def generate_source(lang: str, out_dir: str="", verbose=False):
     """Main entry point of sourcegen."""
     loghandler = logging.StreamHandler(sys.stdout)
     loghandler.setFormatter(CustomFormatter())
     _logger.handlers.clear()
     _logger.addHandler(loghandler)
-    _logger.setLevel(logging.DEBUG)
+    _logger.setLevel(logging.DEBUG if verbose else logging.INFO)
 
     module = importlib.import_module(__package__ + "." + lang)
     root = Path(module.__file__).parent
