@@ -226,20 +226,29 @@ clib-source-file: |-
   // This file is part of Cantera. See License.txt in the top-level directory or
   // at https://cantera.org/license.txt for license and copyright information.
 
-  #include "../include/clib3_defs.h"
-  #include "../include/{{ name }}.h"
+  #include "cantera/clib_experimental/{{ name }}.h"
+  #include "cantera/clib_experimental/clib3_defs.h"
+  #include "../clib/Cabinet.h"
+
+  {% if str_utils %}
+  #include "cantera/base/stringUtils.h"
+  {% endif %}
+  {% for entry in includes %}
+  #include "{{ entry }}"
+  {% endfor %}
 
   using namespace Cantera;
 
   typedef Cabinet<{{ base }}> {{ base }}Cabinet;
   template<> {{ base }}Cabinet* {{ base }}Cabinet::s_storage = 0;
   {% if other %}
-  {% for entry in other -%}
+
+  {% for entry in other %}
   typedef Cabinet<{{ entry }}> {{ entry }}Cabinet; // initialized elsewhere
-  {% endfor -%}
+  {% endfor %}
   {% endif %}
+
   extern "C" {
-      {% for entry in source_entries %}
-      {{ entry | indent(4) }}
-      {% endfor %}
+
+      {{ implementations | indent(4) }}
   }
