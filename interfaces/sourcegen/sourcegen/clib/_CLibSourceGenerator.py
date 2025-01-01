@@ -420,16 +420,14 @@ class CLibSourceGenerator(SourceGenerator):
             name=filename.stem, guard=guard, headers=headers,
             base=header.cabinet, prefix=header.prefix, no_constructor=no_constructor)
 
-        if self._out_dir:
-            out = Path(self._out_dir) / "include" / filename.name
-            _logger.info(f"  writing {filename.name!r}")
-            if not out.parent.exists():
-                out.parent.mkdir(parents=True, exist_ok=True)
-            with open(out, "wt", encoding="utf-8") as stream:
-                stream.write(output)
-                stream.write("\n")
-        else:
-            print(output)
+        out = (Path(self._out_dir) /
+               "include" / "cantera" / "clib_experimental" / filename.name)
+        _logger.info(f"  writing {filename.name!r}")
+        if not out.parent.exists():
+            out.parent.mkdir(parents=True, exist_ok=True)
+        with open(out, "wt", encoding="utf-8") as stream:
+            stream.write(output)
+            stream.write("\n")
 
     def _write_implementation(self, header: HeaderFile) -> None:
         """Parse header specification and generate implementation file."""
@@ -462,16 +460,13 @@ class CLibSourceGenerator(SourceGenerator):
             includes=includes, base=header.cabinet, other=other,
             str_utils=str_utils, no_constructor=no_constructor)
 
-        if self._out_dir:
-            out = Path(self._out_dir) / "src" / filename.name
-            _logger.info(f"  writing {filename.name!r}")
-            if not out.parent.exists():
-                out.parent.mkdir(parents=True, exist_ok=True)
-            with open(out, "wt", encoding="utf-8") as stream:
-                stream.write(output)
-                stream.write("\n")
-        else:
-            print(output)
+        out = Path(self._out_dir) / "src" / filename.name
+        _logger.info(f"  writing {filename.name!r}")
+        if not out.parent.exists():
+            out.parent.mkdir(parents=True, exist_ok=True)
+        with open(out, "wt", encoding="utf-8") as stream:
+            stream.write(output)
+            stream.write("\n")
 
     def resolve_tags(self, headers_files: list[HeaderFile], quiet: bool=True):
         """Resolve recipe information based on doxygen tags."""
