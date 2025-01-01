@@ -28,4 +28,3 @@ cabinet:
   - name: nAdjacent
   - name: adjacent
     implements: Solution::adjacent(size_t)
-    uses: nAdjacent

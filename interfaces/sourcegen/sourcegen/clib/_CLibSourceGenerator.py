@@ -38,7 +38,7 @@ class CLibSourceGenerator(SourceGenerator):
         return "\n".join([line.rstrip() for line in block.split('\n')])
 
     def _scaffold_annotation(self, c_func: CFunc, what: str) -> str:
-        """Build annotation block via jinja."""
+        """Build annotation block via Jinja."""
         loader = Environment(loader=BaseLoader, trim_blocks=True, lstrip_blocks=True)
         par_template = loader.from_string(self._templates["clib-param"])
         template = loader.from_string(self._templates["clib-comment"])
@@ -149,7 +149,7 @@ class CLibSourceGenerator(SourceGenerator):
 
     @staticmethod
     def _reverse_crosswalk(c_func: CFunc, base: str) -> tuple[dict[str, str], set[str]]:
-        """Translate CLib arguments back to jinja argument list."""
+        """Translate CLib arguments back to Jinja argument list."""
         handle = ""
         args = []
         lines = []
@@ -222,9 +222,12 @@ class CLibSourceGenerator(SourceGenerator):
             elif "shared_ptr" in cxx_type:
                 # Retrieve object from cabinet
                 obj_base = shared_object(cxx_type)
-                args.append(f"{base}Cabinet::at({c_name})")
+                args.append(f"{base}Cabinet3::at({c_name})")
                 if obj_base != base:
                     bases |= {obj_base}
+            elif cxx_type == "bool":
+                lines.append(f"bool {c_name}_ = ({c_name} != 0);")
+                args.append(f"{c_name}_")
             else:
                 # Regular parameter
                 args.append(c_name)
@@ -244,9 +247,9 @@ class CLibSourceGenerator(SourceGenerator):
         elif "shared_ptr" in cxx_type:
             obj_base = shared_object(cxx_type)
             if obj_base == base:
-                buffer = ["auto& obj", "", f"{obj_base}Cabinet::index(obj)"]
+                buffer = ["auto& obj", "", f"{obj_base}Cabinet3::index(obj)"]
             else:
-                buffer = ["auto& obj", "", f"{obj_base}Cabinet::index(obj, {handle})"]
+                buffer = ["auto& obj", "", f"{obj_base}Cabinet3::index(obj, {handle})"]
                 bases |= {obj_base}
             error = ["-2", "ERR"]
         elif cxx_type.endswith("void"):
@@ -261,7 +264,7 @@ class CLibSourceGenerator(SourceGenerator):
         return ret, bases
 
     def _scaffold_body(self, c_func: CFunc, recipe: Recipe) -> tuple[str, set[str]]:
-        """Scaffold body of generic CLib function via jinja."""
+        """Scaffold body of generic CLib function via Jinja."""
         loader = Environment(loader=BaseLoader, trim_blocks=True, lstrip_blocks=True)
         args, bases = self._reverse_crosswalk(c_func, recipe.base)
         args["what"] = recipe.what
@@ -394,7 +397,8 @@ class CLibSourceGenerator(SourceGenerator):
 
     def _write_header(self, header: HeaderFile) -> None:
         """Parse header specification and generate header file."""
-        loader = Environment(loader=BaseLoader)
+        loader = Environment(loader=BaseLoader, trim_blocks=True, lstrip_blocks=True)
+
         filename = header.output_name(suffix=".h", auto="3")
         _logger.info(f"  scaffolding {filename.name!r}")
 
@@ -406,11 +410,14 @@ class CLibSourceGenerator(SourceGenerator):
                 template.render(
                     declaration=c_func.declaration(),
                     annotations=self._scaffold_annotation(c_func, recipe.what)))
+        headers = "\n\n".join(declarations)
+        no_constructor = "constructor:" not in headers
 
         guard = f"__{filename.name.upper().replace('.', '_')}__"
         template = loader.from_string(self._templates["clib-header-file"])
         output = template.render(
-            name=filename.stem, guard=guard, header_entries=declarations)
+            name=filename.stem, guard=guard, headers=headers,
+            base=header.cabinet, prefix=header.prefix, no_constructor=no_constructor)
 
         if self._out_dir:
             out = Path(self._out_dir) / "include" / filename.name
@@ -441,6 +448,7 @@ class CLibSourceGenerator(SourceGenerator):
             other |= bases
         implementations = "\n\n".join(implementations)
         str_utils = "copyString" in implementations
+        no_constructor = "constructor:" not in implementations
 
         includes = []
         for obj in [header.cabinet] + list(other):
@@ -448,8 +456,9 @@ class CLibSourceGenerator(SourceGenerator):
 
         template = loader.from_string(self._templates["clib-source-file"])
         output = template.render(
-            name=filename.stem, implementations=implementations,
-            includes=includes, base=header.cabinet, other=other, str_utils=str_utils)
+            name=filename.stem, implementations=implementations, prefix=header.prefix,
+            includes=includes, base=header.cabinet, other=other,
+            str_utils=str_utils, no_constructor=no_constructor)
 
         if self._out_dir:
             out = Path(self._out_dir) / "src" / filename.name
