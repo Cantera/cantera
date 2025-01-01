@@ -51,10 +51,14 @@ public:
     void eval(double* x0, double* resid0, double rdt);
 
     void reset() override;
+    const string type() const override { return "banded-direct"; }
     void setValue(size_t row, size_t col, double value) override;
     void initialize(size_t nVars) override;
     void setBandwidth(size_t bw) override;
     void updateTransient(double rdt, integer* mask) override;
+    void factorize() override {
+        m_mat.factor();
+    }
 
     double& value(size_t i, size_t j) {
         return m_mat.value(i, j);

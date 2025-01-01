@@ -44,10 +44,10 @@ void AdaptivePreconditioner::initialize(size_t networkSize)
     m_identity.makeCompressed();
     // setting default ILUT parameters
     if (m_drop_tol == 0) {
-        setIlutDropTol(1e-10);
+        setIlutDropTol(1e-12);
     }
     if (m_drop_tol == 0) {
-        setIlutFillFactor(static_cast<int>(m_dim) / 4);
+        setIlutFillFactor(static_cast<int>(m_dim) / 2);
     }
     // update initialized status
     m_init = true;
@@ -56,28 +56,49 @@ void AdaptivePreconditioner::initialize(size_t networkSize)
 
 void AdaptivePreconditioner::setup()
 {
-    // make into preconditioner as P = (I - gamma * J_bar)
+    warn_deprecated("AdaptivePreconditioner::setup",
+        "To be removed after Cantera 3.2. Use updatePreconditioner() instead.");
     updatePreconditioner();
-    // compressing sparse matrix structure
-    m_precon_matrix.makeCompressed();
-    // analyze and factorize
-    m_solver.compute(m_precon_matrix);
-    // check for errors
-    if (m_solver.info() != Eigen::Success) {
-        throw CanteraError("AdaptivePreconditioner::setup",
-                           "error code: {}", static_cast<int>(m_solver.info()));
-    }
+    factorize();
 }
 
 void AdaptivePreconditioner::updatePreconditioner()
 {
     // set precon to jacobian
     m_precon_matrix.setFromTriplets(m_jac_trips.begin(), m_jac_trips.end());
-    // convert to preconditioner
+    // make into preconditioner as P = (I - gamma * J_bar)
     m_precon_matrix = m_identity - m_gamma * m_precon_matrix;
     // prune by threshold if desired
     if (m_prune_precon) {
         prunePreconditioner();
+    }
+    factorize();
+}
+
+void AdaptivePreconditioner::updateTransient(double rdt, int* mask)
+{
+    // set matrix to steady Jacobian
+    m_precon_matrix.setFromTriplets(m_jac_trips.begin(), m_jac_trips.end());
+    // update transient diagonal terms
+    Eigen::VectorXd diag = Eigen::Map<Eigen::VectorXi>(mask, m_dim).cast<double>();
+    m_precon_matrix -= rdt * diag.matrix().asDiagonal();
+    // prune by threshold if desired
+    // if (m_prune_precon) {
+    //     prunePreconditioner();
+    // }
+    factorize();
+}
+
+void AdaptivePreconditioner::factorize()
+{
+    // compress sparse matrix structure
+    m_precon_matrix.makeCompressed();
+    // analyze and factorize
+    m_solver.compute(m_precon_matrix);
+    // check for errors
+    if (m_solver.info() != Eigen::Success) {
+        throw CanteraError("AdaptivePreconditioner::factorize",
+                           "error code: {}", static_cast<int>(m_solver.info()));
     }
 }
 

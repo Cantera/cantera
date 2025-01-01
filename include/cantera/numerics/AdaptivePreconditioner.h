@@ -35,15 +35,14 @@ public:
         m_jac_trips.clear();
     };
 
-    void setup() override;
-
+    const string type() const override { return "Adaptive"; }
+    void setup() override; // deprecated
+    void factorize() override;
     void solve(const size_t stateSize, double* rhs_vector, double* output) override;
-
     void setValue(size_t row, size_t col, double value) override;
-
     void stateAdjustment(vector<double>& state) override;
-
     void updatePreconditioner() override;
+    void updateTransient(double rdt, int* mask) override;
 
     int info() const override {
         return static_cast<int>(m_solver.info());
