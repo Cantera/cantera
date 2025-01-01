@@ -33,3 +33,5 @@ cabinet:
     uses: nSpecies
   - name: del
     what: noop
+  - name: cabinetSize
+  - name: parentHandle

@@ -14,3 +14,5 @@ cabinet:
   - name: thermalConductivity
   - name: del
     what: noop
+  - name: cabinetSize
+  - name: parentHandle
