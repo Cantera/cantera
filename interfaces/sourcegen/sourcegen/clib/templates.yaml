@@ -243,8 +243,7 @@ clib-source-file: |-
   // at https://cantera.org/license.txt for license and copyright information.
 
   #include "cantera/clib_experimental/{{ name }}.h"
-  #include "cantera/clib_experimental/clib3_defs.h"
-  #include "../clib/Cabinet.h"
+  #include "../clib/clib_utils.h"
 
   {% if str_utils %}
   #include "cantera/base/stringUtils.h"
