@@ -1,0 +1,28 @@
+# Configuration for code generation.
+# Implements portion of replacement for CLib "ct"
+
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at https://cantera.org/license.txt for license and copyright information.
+
+cabinet:
+  prefix: ct3
+  base: ""
+  functions:
+  # - name: getCanteraError(int buflen, char* buf)
+  # - name: setLogWriter(void* logger)
+  # - name: setLogCallback(LogCallback writer);
+  - name: addCanteraDirectory
+    implements: addDirectory
+  - name: getDataDirectories
+  - name: findInputFile
+  # - name: getCanteraVersion
+  - name: getGitCommit
+    implements: gitCommit
+  - name: suppress_deprecation_warnings
+  - name: make_deprecation_warnings_fatal
+  - name: suppress_warnings
+  - name: warnings_suppressed
+  - name: make_warnings_fatal
+  - name: suppress_thermo_warnings
+  # - name: clearStorage();
+  # - name: resetStorage();

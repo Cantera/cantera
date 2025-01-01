@@ -11,6 +11,7 @@ class Config:
     """Provides configuration info for the CLibSourceGenerator class"""
 
     ret_type_crosswalk = {
+        "bool": "int",
         "void": "int",
         "int": "int",
         "size_t": "int",

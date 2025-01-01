@@ -121,7 +121,7 @@ class CLibSourceGenerator(SourceGenerator):
     def _prop_crosswalk(self, par_list: list[Param]) -> list[Param]:
         """Crosswalk for argument type."""
         if not par_list:
-            return [], []
+            return []
         params = []
         for par in par_list:
             what = par.p_type
@@ -297,7 +297,7 @@ class CLibSourceGenerator(SourceGenerator):
                 template = loader.from_string(self._templates["clib-method"])
 
         else:
-            _logger.critical(f"Method not implemented: {cxx_type!r}.")
+            _logger.critical(f"{recipe.what!r} not implemented: {c_func.name!r}.")
             exit(1)
 
         return template.render(**args), bases
@@ -361,14 +361,15 @@ class CLibSourceGenerator(SourceGenerator):
                 recipe.what = "constructor"
             elif "void" not in cxx_func.ret_type and cxx_arglen == 0:
                 recipe.what = "getter"
-            elif "void" in cxx_func.ret_type and cxx_arglen == 1:
+            elif "void" in cxx_func.ret_type and cxx_arglen == 1 and cxx_func.base:
                 p_type = cxx_func.arglist[0].p_type
                 if "*" in p_type and not p_type.startswith("const"):
                     recipe.what = "getter"  # getter assigns to existing array
                 else:
                     recipe.what = "setter"
-            elif any(recipe.implements.startswith(base)
-                     for base in [recipe.base] + recipe.parents + recipe.derived):
+            elif cxx_func.base and \
+                any(recipe.implements.startswith(base)
+                    for base in [recipe.base] + recipe.parents + recipe.derived):
                 recipe.what = "method"
             else:
                 recipe.what = "function"
@@ -452,7 +453,8 @@ class CLibSourceGenerator(SourceGenerator):
 
         includes = []
         for obj in [header.cabinet] + list(other):
-            includes += self._config.includes[obj]
+            if obj:
+                includes += self._config.includes[obj]
 
         template = loader.from_string(self._templates["clib-source-file"])
         output = template.render(

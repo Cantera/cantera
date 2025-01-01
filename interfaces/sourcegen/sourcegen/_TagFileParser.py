@@ -123,10 +123,11 @@ class TagFileParser:
 
         # Handle exceptions for unknown/undocumented classes
         unknown = set(bases) - set(class_names)
-        if unknown:
+        if "', '".join(unknown):
             unknown = "', '".join(unknown)
-            _logger.warning("Class(es) in configuration file are missing "
-                            f"from tag file: {unknown!r}")
+            _logger.critical("Class(es) in configuration file are missing "
+                             f"from tag file: {unknown!r}")
+            exit(1)
 
         # Parse content of classes that are specified by the configuration file
         class_names = set(bases) & set(class_names)
@@ -243,8 +244,8 @@ def tag_lookup(tag_info: TagInfo) -> TagDetails:
         _logger.error(f"No XML matches found for {tag_info.qualified_name!r}")
         return TagDetails()
     if len(matches) != 1:
-        _logger.error(f"Inconclusive XML matches found for {tag_info.qualified_name!r}")
-        return TagDetails()
+        _logger.warning(f"Inconclusive XML matches found for {tag_info.qualified_name!r}")
+        matches = matches[:1]
 
     def cleanup(entry: str) -> str:
         # Remove stray XML markup

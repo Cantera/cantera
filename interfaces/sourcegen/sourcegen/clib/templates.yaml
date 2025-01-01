@@ -9,17 +9,19 @@ clib-param: |-
 clib-comment: |-
   {{ briefdescription }}
 
-  {% for par in params -%}
+  {% for par in params %}
   {{ par }}
-  {% endfor -%}
-  {% if returns -%}
+  {% endfor %}
+  {% if returns %}
   {{ '@returns' + 13*' ' + returns }}
-  {% endif -%}
-  {{ ' ' }}
-  {% if implements -%}
+  {% endif %}
+  {% if params or returns %}
+
+  {% endif %}
+  {% if implements %}
   {{ '@implements ' + implements }}
-  {% endif -%}
-  {% if relates -%}
+  {% endif %}
+  {% if relates %}
   {{ '@relates ' + ', '.join(relates) }}
   {% endif %}
 
@@ -58,6 +60,7 @@ clib-header-file: |-
 
       {{ headers | indent(4) }}
 
+      {% if base %}
       {% if no_constructor %}
       /**
        * Return handle to parent of {{ base }} object (if applicable).
@@ -70,6 +73,7 @@ clib-header-file: |-
        */
       int {{ prefix }}_cabinetSize();
 
+      {% endif %}
   #ifdef __cplusplus
   }
   #endif
@@ -251,8 +255,10 @@ clib-source-file: |-
 
   using namespace Cantera;
 
+  {% if base %}
   typedef Cabinet<{{ base }}> {{ base }}Cabinet3;
   template<> {{ base }}Cabinet3* {{ base }}Cabinet3::s_storage = 0;
+  {% endif %}
   {% if other %}
 
   {% for entry in other %}
@@ -264,6 +270,7 @@ clib-source-file: |-
 
       {{ implementations | indent(4) }}
 
+      {% if base %}
       {% if no_constructor %}
       int {{ prefix }}_parentHandle(int handle)
       {
@@ -286,4 +293,5 @@ clib-source-file: |-
           }
       }
 
+      {% endif %}
   } // extern "C"
