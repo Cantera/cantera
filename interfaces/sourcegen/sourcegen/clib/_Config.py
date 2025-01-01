@@ -35,9 +35,9 @@ class Config:
         "const vector<shared_ptr<T>>&": 'int[]',
     }
 
-    cabinets: list[str]
+    includes: dict[str,list[str]]
 
     @classmethod
-    def from_parsed(cls, *, cabinets=None) -> 'Config':
+    def from_parsed(cls, *, includes=None) -> 'Config':
         """Create dataclass while including information parsed externally."""
-        return cls(cabinets or [])
+        return cls(includes or {})

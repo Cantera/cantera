@@ -60,7 +60,7 @@ class CLibSourceGenerator(SourceGenerator):
     def _handle_crosswalk(self, what: str, crosswalk: dict, derived: list[str]) -> str:
         """Crosswalk for object handle."""
         cabinet = None
-        classes = self._config.cabinets + derived
+        classes = list(self._config.includes.keys()) + derived
         for base in classes:
             ret_type = what.replace(f"<{base}>", "<T>")
             if ret_type in crosswalk:
@@ -107,7 +107,7 @@ class CLibSourceGenerator(SourceGenerator):
             return returns, buffer
 
         if "shared_ptr" in what:
-            # check for crosswalk with object from cabinets
+            # check for crosswalk with object from includes
             handle = self._handle_crosswalk(
                 what, self._config.ret_type_crosswalk, derived)
             returns = Param(
@@ -425,7 +425,8 @@ class CLibSourceGenerator(SourceGenerator):
 
     def _write_implementation(self, header: HeaderFile) -> None:
         """Parse header specification and generate implementation file."""
-        loader = Environment(loader=BaseLoader)
+        loader = Environment(loader=BaseLoader, trim_blocks=True, lstrip_blocks=True)
+
         filename = header.output_name(suffix=".cpp", auto="3")
         _logger.info(f"  scaffolding {filename.name!r}")
 
@@ -438,11 +439,17 @@ class CLibSourceGenerator(SourceGenerator):
             implementations.append(
                 template.render(declaration=c_func.declaration(),body=body))
             other |= bases
+        implementations = "\n\n".join(implementations)
+        str_utils = "copyString" in implementations
+
+        includes = []
+        for obj in [header.cabinet] + list(other):
+            includes += self._config.includes[obj]
 
         template = loader.from_string(self._templates["clib-source-file"])
         output = template.render(
-            name=filename.stem, source_entries=implementations,
-            base=header.cabinet, other=other)
+            name=filename.stem, implementations=implementations,
+            includes=includes, base=header.cabinet, other=other, str_utils=str_utils)
 
         if self._out_dir:
             out = Path(self._out_dir) / "src" / filename.name
