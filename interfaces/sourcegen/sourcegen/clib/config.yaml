@@ -10,10 +10,15 @@ ignore_files: []
 ignore_funcs:
   ctsoln_auto.yaml: [newInterface, adjacent]
 
-# Cabinets holding objects
-cabinets:
-- Solution
-- ThermoPhase
-- Kinetics
-- Transport
-- Func1
+# Cabinets with associated includes
+includes:
+  Solution:
+  - cantera/base/Solution.h
+  ThermoPhase:
+  - cantera/thermo/ThermoFactory.h
+  Kinetics:
+  - cantera/kinetics/KineticsFactory.h
+  Transport:
+  - cantera/transport/TransportFactory.h
+  Func1:
+  - cantera/numerics/Func1Factory.h
