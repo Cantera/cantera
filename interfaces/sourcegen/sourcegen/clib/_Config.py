@@ -22,6 +22,7 @@ class Config:
     }
 
     prop_type_crosswalk = {
+        "bool": "int",
         "int": "int",
         "size_t": "int",
         "double": "double",
