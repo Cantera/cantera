@@ -15,12 +15,13 @@ def main(argv=None):
     args = parser.parse_args(argv)
     lang = args.api
     output = args.output
-    sourcegen.generate_source(lang, output)
+    verbose = args.verbose
+    sourcegen.generate_source(lang, output, verbose=verbose)
 
 def create_argparser():
     parser = argparse.ArgumentParser(
         description=(
-            "Experimental source generator for creating Cantera interface code"),
+            "Experimental source generator for creating Cantera interface code."),
         epilog=textwrap.dedent(
             """
             The **sourcegen** utility is invoked as follows::
@@ -28,16 +29,19 @@ def create_argparser():
                 python path/to/sourcegen/run.py --api=csharp --output=.
 
             where the relative path has to be provided as the utility is not installed.
+            Currently supported API options are: 'csharp', 'clib' and 'yaml'.
             """),
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument(
+        "-v", "--verbose", action="store_true", default=False,
+        help="show additional logging output")
+    parser.add_argument(
         "--api", default="",
-        help=("Language of generated Cantera interface code. Currently supported "
-              "API options are: 'csharp', 'clib' and 'yaml'."))
+        help="language of generated Cantera API code")
     parser.add_argument(
         "--output", default="",
-        help="Specifies the OUTPUT folder name.")
+        help="specifies the OUTPUT folder name")
 
     return parser
 
