@@ -13,7 +13,7 @@ from .clib import CLibSourceGenerator
 from ._helpers import read_config
 
 
-_logger = logging.getLogger()
+_LOGGER = logging.getLogger()
 
 class CustomFormatter(logging.Formatter):
     """Minimalistic logging output"""
@@ -27,12 +27,12 @@ def generate_source(lang: str, out_dir: str=None, verbose=False):
     """Main entry point of sourcegen."""
     loghandler = logging.StreamHandler(sys.stdout)
     loghandler.setFormatter(CustomFormatter())
-    _logger.handlers.clear()
-    _logger.addHandler(loghandler)
-    _logger.setLevel(logging.DEBUG if verbose else logging.INFO)
+    _LOGGER.handlers.clear()
+    _LOGGER.addHandler(loghandler)
+    _LOGGER.setLevel(logging.DEBUG if verbose else logging.INFO)
 
     if not out_dir:
-        _logger.critical("Aborting: sourcegen requires output folder information.")
+        _LOGGER.critical("Aborting: sourcegen requires output folder information.")
         exit(1)
 
     module = importlib.import_module(__package__ + "." + lang)
@@ -59,10 +59,10 @@ def generate_source(lang: str, out_dir: str=None, verbose=False):
         clib_scaffolder.resolve_tags(files)
 
     # find and instantiate the language-specific SourceGenerator
-    _logger.info(f"Generating {lang!r} source files...")
+    _LOGGER.info(f"Generating {lang!r} source files...")
     _, scaffolder_type = inspect.getmembers(module,
         lambda m: inspect.isclass(m) and issubclass(m, SourceGenerator))[0]
     scaffolder: SourceGenerator = scaffolder_type(out_dir, config, templates)
 
     scaffolder.generate_source(files)
-    _logger.info("Done.")
+    _LOGGER.info("Done.")

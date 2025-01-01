@@ -4,14 +4,15 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
-cabinet:
+headers:
   prefix: kin3
   base: Kinetics
   parents: []  # List of parent classes
   derived: []  # List of specializations
-  functions:
+  recipes:
   - name: nReactions
   - name: del
     what: noop
+    brief: Destructor; required by some APIs although object is managed by Solution.
   - name: cabinetSize
   - name: parentHandle
