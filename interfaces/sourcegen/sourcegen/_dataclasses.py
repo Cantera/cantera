@@ -225,6 +225,7 @@ class HeaderFile:
     parents: list[str] = None  #: list of C++ parent class(es)
     derived: list[str] = None  #: list of C++ specialization(s)
     recipes: list[Recipe] = None  #: list of header recipes read from YAML
+    docstring: list[str] = None  #: lines representing docstring of YAML file
 
     def output_name(self, auto="3", suffix=""):
         """Return updated path."""
