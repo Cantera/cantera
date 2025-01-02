@@ -50,6 +50,9 @@ cdef class EigenSparseJacobian(SystemJacobian):
     cdef set_cxx_object(self)
     cdef CxxEigenSparseJacobian* sparse_jac
 
+cdef class EigenSparseDirectJacobian(EigenSparseJacobian):
+    pass
+
 cdef class AdaptivePreconditioner(EigenSparseJacobian):
     cdef set_cxx_object(self)
     cdef CxxAdaptivePreconditioner* adaptive

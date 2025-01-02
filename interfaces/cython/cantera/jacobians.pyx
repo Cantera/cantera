@@ -64,7 +64,7 @@ cdef class SystemJacobian:
 
 
 cdef class EigenSparseJacobian(SystemJacobian):
-    _type = "EigenSparse"
+    _type = "eigen-sparse"
 
     cdef set_cxx_object(self):
         self.sparse_jac = <CxxEigenSparseJacobian*>self._base.get()
@@ -79,6 +79,15 @@ cdef class EigenSparseJacobian(SystemJacobian):
         def __get__(self):
             cdef CxxSparseMatrix smat = self.sparse_jac.matrix()
             return get_from_sparse(smat, smat.rows(), smat.cols())
+
+
+cdef class EigenSparseDirectJacobian(EigenSparseJacobian):
+    """
+    A system matrix solver that uses Eigen's sparse direct (LU) algorithm. Wraps C++
+    class :ct:`EigenSparseDirectJacobian`.
+    """
+
+    _type = "eigen-sparse-direct"
 
 
 cdef class AdaptivePreconditioner(EigenSparseJacobian):
