@@ -361,6 +361,10 @@ class CLibSourceGenerator(SourceGenerator):
         args = []
         brief = ""
 
+        if recipe.code:
+            _LOGGER.warning("Custom code is currently not implemented: "
+                            "continuing with auto-generated code.")
+
         if recipe.implements:
             if not quiet:
                 _LOGGER.debug(f"   generating {func_name!r} -> {recipe.implements}")
@@ -446,8 +450,8 @@ class CLibSourceGenerator(SourceGenerator):
         guard = f"__{filename.name.upper().replace('.', '_')}__"
         template = loader.from_string(self._templates["clib-header-file"])
         output = template.render(
-            name=filename.stem, guard=guard, headers=declarations,
-            base=headers.base, prefix=headers.prefix)
+            name=filename.stem, guard=guard, declarations=declarations,
+            prefix=headers.prefix, base=headers.base, docstring=headers.docstring)
 
         out = (Path(self._out_dir) /
                "include" / "cantera" / "clib_experimental" / filename.name)
@@ -486,9 +490,9 @@ class CLibSourceGenerator(SourceGenerator):
 
         template = loader.from_string(self._templates["clib-source-file"])
         output = template.render(
-            name=filename.stem, implementations=implementations, prefix=headers.prefix,
-            includes=includes, base=headers.base, other=other,
-            str_utils=str_utils)
+            name=filename.stem, implementations=implementations,
+            prefix=headers.prefix, base=headers.base, docstring=headers.docstring,
+            includes=includes, other=other, str_utils=str_utils)
 
         out = Path(self._out_dir) / "src" / "clib_experimental" / filename.name
         _LOGGER.info(f"  writing {filename.name!r}")

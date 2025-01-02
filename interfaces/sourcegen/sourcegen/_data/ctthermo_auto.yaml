@@ -1,38 +1,46 @@
-# Configuration for code generation.
-# Implements portion of replacement for CLib "ct"
+# Auto-generated CLib API for %Cantera's ThermoPhase class.
+# Partially implements a replacement for CLib's traditional @c ct library.
 
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
-headers:
-  prefix: thermo3
-  base: ThermoPhase
-  parents: [Phase]  # List of parent classes
-  derived: []  # List of specializations
-  recipes:
-  - name: report
-  - name: nElements
-  - name: nSpecies
-  - name: temperature
-  - name: setTemperature
-  - name: density
-  - name: setDensity
-  - name: molarDensity
-  - name: meanMolecularWeight
-  - name: moleFraction
-    implements: Phase::moleFraction(size_t)
-  - name: massFraction
-    implements: Phase::massFraction(size_t)
-  - name: getMoleFractions
-    uses: nSpecies
-  - name: getMassFractions
-    uses: nSpecies
-  - name: setMoleFractions
-    uses: nSpecies
-  - name: setMassFractions
-    uses: nSpecies
-  - name: del
-    what: noop
-    brief: Destructor; required by some APIs although object is managed by Solution.
-  - name: cabinetSize
-  - name: parentHandle
+prefix: thermo3
+base: ThermoPhase
+parents: [Phase]  # List of parent classes
+derived: []  # List of specializations
+recipes:
+- name: report
+- name: nElements
+- name: nSpecies
+- name: temperature
+- name: setTemperature
+- name: pressure
+- name: setPressure
+- name: density
+- name: setDensity
+- name: molarDensity
+- name: meanMolecularWeight
+- name: moleFraction
+  implements: Phase::moleFraction(size_t)
+- name: massFraction
+  implements: Phase::massFraction(size_t)
+- name: getMoleFractions
+  uses: nSpecies
+- name: getMassFractions
+  uses: nSpecies
+- name: setMoleFractions
+  uses: nSpecies
+- name: setMassFractions
+  uses: nSpecies
+- name: setMoleFractionsByName
+  implements: Phase::setMoleFractionsByName(const string&)
+- name: setMassFractionsByName
+  implements: Phase::setMassFractionsByName(const string&)
+- name: equilibrate
+  implements:
+    ThermoPhase::equilibrate(const string&, const string&, double, int, int, int)
+- name: del
+  what: noop
+  brief: Destructor; required by some APIs although object is managed by Solution.
+- name: cabinetSize
+- name: parentHandle
