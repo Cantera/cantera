@@ -5,6 +5,7 @@
 
 #include "cantera/numerics/SystemJacobianFactory.h"
 #include "cantera/numerics/AdaptivePreconditioner.h"
+#include "cantera/numerics/EigenSparseDirectJacobian.h"
 #include "cantera/oneD/MultiJac.h"
 
 namespace Cantera
@@ -31,6 +32,7 @@ SystemJacobianFactory::SystemJacobianFactory()
 {
     reg("Adaptive", []() { return new AdaptivePreconditioner(); });
     reg("banded-direct", []() { return new MultiJac(); });
+    reg("eigen-sparse-direct", []() { return new EigenSparseDirectJacobian(); });
 }
 
 shared_ptr<SystemJacobian> newSystemJacobian(const string& type)

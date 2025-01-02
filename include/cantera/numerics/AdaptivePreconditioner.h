@@ -26,12 +26,6 @@ public:
     AdaptivePreconditioner();
 
     void initialize(size_t networkSize) override;
-
-    void reset() override {
-        m_matrix.setZero();
-        m_jac_trips.clear();
-    };
-
     const string type() const override { return "Adaptive"; }
     void setup() override; // deprecated
     void factorize() override;
