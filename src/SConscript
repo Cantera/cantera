@@ -39,6 +39,8 @@ libs = [('base', ['cpp'], baseSetup),
         ('zeroD', ['cpp'], defaultSetup),
         ('clib', ['cpp'], defaultSetup),
         ]
+if env['clib_experimental']:
+    libs.append(('clib_experimental', ['cpp'], defaultSetup))
 
 localenv = env.Clone()
 localenv.Prepend(CPPPATH=[Dir('#include'), Dir('.')])
