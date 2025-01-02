@@ -14,9 +14,16 @@ cdef extern from "cantera/numerics/SystemJacobian.h" namespace "Cantera":
         string type()
         void setPreconditionerSide(string) except +translate_exception
 
+cdef extern from "cantera/numerics/EigenSparseJacobian.h" namespace "Cantera":
+    cdef cppclass CxxEigenSparseJacobian "Cantera::EigenSparseJacobian" \
+        (CxxSystemJacobian):
+        CxxEigenSparseJacobian() except +translate_exception
+        void printPreconditioner()
+        CxxSparseMatrix matrix() except +translate_exception
+
 cdef extern from "cantera/numerics/AdaptivePreconditioner.h" namespace "Cantera":
     cdef cppclass CxxAdaptivePreconditioner "Cantera::AdaptivePreconditioner" \
-        (CxxSystemJacobian):
+        (CxxEigenSparseJacobian):
         CxxAdaptivePreconditioner() except +translate_exception
         void setThreshold(double threshold)
         double threshold()
@@ -24,8 +31,6 @@ cdef extern from "cantera/numerics/AdaptivePreconditioner.h" namespace "Cantera"
         double ilutFillFactor()
         void setIlutDropTol(double droptol)
         double ilutDropTol()
-        void printPreconditioner()
-        CxxSparseMatrix matrix() except +translate_exception
 
 cdef extern from "cantera/oneD/MultiJac.h" namespace "Cantera":
     cdef cppclass CxxMultiJac "Cantera::MultiJac" (CxxSystemJacobian):
@@ -39,12 +44,16 @@ cdef class SystemJacobian:
     @staticmethod
     cdef wrap(shared_ptr[CxxSystemJacobian])
     cdef set_cxx_object(self)
-    cdef shared_ptr[CxxSystemJacobian] pbase
+    cdef shared_ptr[CxxSystemJacobian] _base
 
-cdef class AdaptivePreconditioner(SystemJacobian):
+cdef class EigenSparseJacobian(SystemJacobian):
     cdef set_cxx_object(self)
-    cdef CxxAdaptivePreconditioner* preconditioner
+    cdef CxxEigenSparseJacobian* sparse_jac
+
+cdef class AdaptivePreconditioner(EigenSparseJacobian):
+    cdef set_cxx_object(self)
+    cdef CxxAdaptivePreconditioner* adaptive
 
 cdef class BandedJacobian(SystemJacobian):
     cdef set_cxx_object(self)
-    cdef CxxMultiJac* jacobian
+    cdef CxxMultiJac* band_jac

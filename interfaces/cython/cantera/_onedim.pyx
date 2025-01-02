@@ -1023,7 +1023,7 @@ cdef class Sim1D:
 
     @linear_solver.setter
     def linear_solver(self, SystemJacobian precon):
-        self.sim.setLinearSolver(precon.pbase)
+        self.sim.setLinearSolver(precon._base)
 
     def set_initial_guess(self, *args, **kwargs):
         """

@@ -1984,7 +1984,7 @@ cdef class ReactorNet:
         """Preconditioner associated with integrator"""
         def __set__(self, SystemJacobian precon):
             # set preconditioner
-            self.net.setPreconditioner(precon.pbase)
+            self.net.setPreconditioner(precon._base)
             # set problem type as default of preconditioner
             self.linear_solver_type = precon.linear_solver_type
 

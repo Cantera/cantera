@@ -17,7 +17,11 @@ cdef class SystemJacobian:
 
     def __cinit__(self, *args, init=True, **kwargs):
         if init:
-            self.pbase = newSystemJacobian(stringify(self._type))
+            self._cinit(*args, **kwargs)
+
+    def _cinit(self, *args, **kwargs):
+        self._base = newSystemJacobian(stringify(self._type))
+        self.set_cxx_object()
 
     @staticmethod
     cdef wrap(shared_ptr[CxxSystemJacobian] base):
@@ -39,7 +43,7 @@ cdef class SystemJacobian:
         cls = _class_registry.get(cxx_type, SystemJacobian)
         cdef SystemJacobian jac
         jac = cls(init=False)
-        jac.pbase = base
+        jac._base = base
         jac.set_cxx_object()
         return jac
 
@@ -53,20 +57,36 @@ cdef class SystemJacobian:
         by all solver types.
         """
         def __get__(self):
-            return pystr(self.pbase.get().preconditionerSide())
+            return pystr(self._base.get().preconditionerSide())
 
         def __set__(self, side):
-            self.pbase.get().setPreconditionerSide(stringify(side))
+            self._base.get().setPreconditionerSide(stringify(side))
 
-cdef class AdaptivePreconditioner(SystemJacobian):
+
+cdef class EigenSparseJacobian(SystemJacobian):
+    _type = "EigenSparse"
+
+    cdef set_cxx_object(self):
+        self.sparse_jac = <CxxEigenSparseJacobian*>self._base.get()
+
+    def print_contents(self):
+        self.sparse_jac.printPreconditioner()
+
+    property matrix:
+        """
+        Property to retrieve the latest internal preconditioner matrix.
+        """
+        def __get__(self):
+            cdef CxxSparseMatrix smat = self.sparse_jac.matrix()
+            return get_from_sparse(smat, smat.rows(), smat.cols())
+
+
+cdef class AdaptivePreconditioner(EigenSparseJacobian):
     _type = "Adaptive"
     linear_solver_type = "GMRES"
 
-    def __cinit__(self, *args, **kwargs):
-        self.preconditioner = <CxxAdaptivePreconditioner*>(self.pbase.get())
-
     cdef set_cxx_object(self):
-        self.preconditioner = <CxxAdaptivePreconditioner*>self.pbase.get()
+        self.adaptive = <CxxAdaptivePreconditioner*>self._base.get()
 
     property threshold:
         """
@@ -84,10 +104,10 @@ cdef class AdaptivePreconditioner(SystemJacobian):
         Default is 0.0.
         """
         def __get__(self):
-            return self.preconditioner.threshold()
+            return self.adaptive.threshold()
 
         def __set__(self, val):
-            self.preconditioner.setThreshold(val)
+            self.adaptive.setThreshold(val)
 
     property ilut_fill_factor:
         """
@@ -104,10 +124,10 @@ cdef class AdaptivePreconditioner(SystemJacobian):
         Default is the state size divided by 4.
         """
         def __set__(self, val):
-            self.preconditioner.setIlutFillFactor(val)
+            self.adaptive.setIlutFillFactor(val)
 
         def __get__(self):
-            return self.preconditioner.ilutFillFactor()
+            return self.adaptive.ilutFillFactor()
 
     property ilut_drop_tol:
         """
@@ -122,21 +142,10 @@ cdef class AdaptivePreconditioner(SystemJacobian):
         Default is 1e-10.
         """
         def __set__(self, val):
-            self.preconditioner.setIlutDropTol(val)
+            self.adaptive.setIlutDropTol(val)
 
         def __get__(self):
-            return self.preconditioner.ilutDropTol()
-
-    def print_contents(self):
-        self.preconditioner.printPreconditioner()
-
-    property matrix:
-        """
-        Property to retrieve the latest internal preconditioner matrix.
-        """
-        def __get__(self):
-            cdef CxxSparseMatrix smat = self.preconditioner.matrix()
-            return get_from_sparse(smat, smat.rows(), smat.cols())
+            return self.adaptive.ilutDropTol()
 
 
 cdef class BandedJacobian(SystemJacobian):
@@ -144,4 +153,4 @@ cdef class BandedJacobian(SystemJacobian):
     linear_solver_type = "direct"
 
     cdef set_cxx_object(self):
-        self.jacobian = <CxxMultiJac*>self.pbase.get()
+        self.band_jac = <CxxMultiJac*>self._base.get()
