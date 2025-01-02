@@ -1,6 +1,6 @@
 /**
  *  @file AdaptivePreconditioner.h Declarations for the class
- *   AdaptivePreconditioner which is a child class of PreconditionerBase
+ *   AdaptivePreconditioner which is a child class of SystemJacobian
  *   for preconditioners used by sundials
  */
 
@@ -10,7 +10,7 @@
 #ifndef ADAPTIVEPRECONDITIONER_H
 #define ADAPTIVEPRECONDITIONER_H
 
-#include "cantera/numerics/PreconditionerBase.h"
+#include "cantera/numerics/SystemJacobian.h"
 #include "cantera/numerics/eigen_sparse.h"
 #include "cantera/base/global.h"
 #include <iostream>
@@ -23,7 +23,7 @@ namespace Cantera
 //! the preconditioner by a threshold value. It also neglects pressure
 //! dependence and third body contributions in its formation and has a
 //! finite difference approximation for temperature.
-class AdaptivePreconditioner : public PreconditionerBase
+class AdaptivePreconditioner : public SystemJacobian
 {
 public:
     AdaptivePreconditioner();

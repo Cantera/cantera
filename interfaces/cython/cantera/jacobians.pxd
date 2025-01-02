@@ -7,16 +7,16 @@
 from .ctcxx cimport *
 from .kinetics cimport CxxSparseMatrix
 
-cdef extern from "cantera/numerics/PreconditionerBase.h" namespace "Cantera":
-    cdef cppclass CxxPreconditionerBase "Cantera::PreconditionerBase":
-        CxxPreconditionerBase()
+cdef extern from "cantera/numerics/SystemJacobian.h" namespace "Cantera":
+    cdef cppclass CxxSystemJacobian "Cantera::SystemJacobian":
+        CxxSystemJacobian()
         string preconditionerSide()
         string type()
         void setPreconditionerSide(string) except +translate_exception
 
 cdef extern from "cantera/numerics/AdaptivePreconditioner.h" namespace "Cantera":
     cdef cppclass CxxAdaptivePreconditioner "Cantera::AdaptivePreconditioner" \
-        (CxxPreconditionerBase):
+        (CxxSystemJacobian):
         CxxAdaptivePreconditioner() except +translate_exception
         void setThreshold(double threshold)
         double threshold()
@@ -28,24 +28,23 @@ cdef extern from "cantera/numerics/AdaptivePreconditioner.h" namespace "Cantera"
         CxxSparseMatrix matrix() except +translate_exception
 
 cdef extern from "cantera/oneD/MultiJac.h" namespace "Cantera":
-    cdef cppclass CxxMultiJac "Cantera::MultiJac" (CxxPreconditionerBase):
+    cdef cppclass CxxMultiJac "Cantera::MultiJac" (CxxSystemJacobian):
         CxxMultiJac() except +translate_exception
 
-cdef extern from "cantera/numerics/PreconditionerFactory.h" namespace "Cantera":
-    cdef shared_ptr[CxxPreconditionerBase] newPreconditioner(string) except\
+cdef extern from "cantera/numerics/SystemJacobianFactory.h" namespace "Cantera":
+    cdef shared_ptr[CxxSystemJacobian] newSystemJacobian(string) except\
          +translate_exception
 
-cdef class PreconditionerBase:
+cdef class SystemJacobian:
     @staticmethod
-    cdef wrap(shared_ptr[CxxPreconditionerBase])
+    cdef wrap(shared_ptr[CxxSystemJacobian])
     cdef set_cxx_object(self)
-    cdef shared_ptr[CxxPreconditionerBase] pbase
+    cdef shared_ptr[CxxSystemJacobian] pbase
 
-cdef class AdaptivePreconditioner(PreconditionerBase):
+cdef class AdaptivePreconditioner(SystemJacobian):
     cdef set_cxx_object(self)
     cdef CxxAdaptivePreconditioner* preconditioner
 
-cdef class BandedJacobian(PreconditionerBase):
+cdef class BandedJacobian(SystemJacobian):
     cdef set_cxx_object(self)
-    cdef CxxMultiJac* preconditioner
-
+    cdef CxxMultiJac* jacobian

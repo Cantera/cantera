@@ -7,7 +7,7 @@
 #define CT_MULTIJAC_H
 
 #include "cantera/numerics/BandMatrix.h"
-#include "cantera/numerics/PreconditionerBase.h"
+#include "cantera/numerics/SystemJacobian.h"
 #include "OneDim.h"
 
 namespace Cantera
@@ -21,7 +21,7 @@ namespace Cantera
  * @ingroup onedUtilsGroup
  * @ingroup derivGroup
  */
-class MultiJac : public PreconditionerBase
+class MultiJac : public SystemJacobian
 {
 public:
     //! Constructor.

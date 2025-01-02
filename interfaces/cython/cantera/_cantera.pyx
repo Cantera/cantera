@@ -43,7 +43,7 @@ from .transport import *
 from .units import *
 from .yamlwriter import *
 from .constants import *
-from .preconditioners import *
+from .jacobians import *
 
 # Custom finder/loader no longer needed, so remove it
 sys.meta_path.pop()

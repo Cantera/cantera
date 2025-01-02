@@ -5,43 +5,43 @@ from ._utils cimport stringify, pystr, py_to_anymap, anymap_to_py
 from .kinetics cimport get_from_sparse
 
 # dictionary to store reaction rate classes
-cdef dict _preconditioner_class_registry = {}
+cdef dict _class_registry = {}
 
 
-cdef class PreconditionerBase:
+cdef class SystemJacobian:
     """
-    Common base class for preconditioners.
+    Common base class for Jacobian matrices used in the solution of nonlinear systems.
     """
-    precon_type = "PreconditionerBase"
-    precon_linear_solver_type = "GMRES"
+    _type = "SystemJacobian"
+    linear_solver_type = "GMRES"
 
     def __cinit__(self, *args, init=True, **kwargs):
         if init:
-            self.pbase = newPreconditioner(stringify(self.precon_type))
+            self.pbase = newSystemJacobian(stringify(self._type))
 
     @staticmethod
-    cdef wrap(shared_ptr[CxxPreconditionerBase] base):
+    cdef wrap(shared_ptr[CxxSystemJacobian] base):
         """
-        Wrap a C++ PreconditionerBase object with a Python object of the correct
+        Wrap a C++ SystemJacobian object with a Python object of the correct
         derived type.
         """
         # Ensure all derived types are registered
-        if not _preconditioner_class_registry:
+        if not _class_registry:
             def register_subclasses(cls):
                 for c in cls.__subclasses__():
-                    _preconditioner_class_registry[getattr(c, "precon_type")] = c
+                    _class_registry[getattr(c, "_type")] = c
                     register_subclasses(c)
 
             # Update global class registry
-            register_subclasses(PreconditionerBase)
+            register_subclasses(SystemJacobian)
 
         cxx_type = pystr(base.get().type())
-        cls = _preconditioner_class_registry.get(cxx_type, PreconditionerBase)
-        cdef PreconditionerBase precon
-        precon = cls(init=False)
-        precon.pbase = base
-        precon.set_cxx_object()
-        return precon
+        cls = _class_registry.get(cxx_type, SystemJacobian)
+        cdef SystemJacobian jac
+        jac = cls(init=False)
+        jac.pbase = base
+        jac.set_cxx_object()
+        return jac
 
     cdef set_cxx_object(self):
         pass
@@ -58,9 +58,9 @@ cdef class PreconditionerBase:
         def __set__(self, side):
             self.pbase.get().setPreconditionerSide(stringify(side))
 
-cdef class AdaptivePreconditioner(PreconditionerBase):
-    precon_type = "Adaptive"
-    precon_linear_solver_type = "GMRES"
+cdef class AdaptivePreconditioner(SystemJacobian):
+    _type = "Adaptive"
+    linear_solver_type = "GMRES"
 
     def __cinit__(self, *args, **kwargs):
         self.preconditioner = <CxxAdaptivePreconditioner*>(self.pbase.get())
@@ -139,9 +139,9 @@ cdef class AdaptivePreconditioner(PreconditionerBase):
             return get_from_sparse(smat, smat.rows(), smat.cols())
 
 
-cdef class BandedJacobian(PreconditionerBase):
-    precon_type = "banded-direct"
-    precon_linear_solver_type = "direct"
+cdef class BandedJacobian(SystemJacobian):
+    _type = "banded-direct"
+    linear_solver_type = "direct"
 
     cdef set_cxx_object(self):
-        self.preconditioner = <CxxMultiJac*>self.pbase.get()
+        self.jacobian = <CxxMultiJac*>self.pbase.get()

@@ -4,7 +4,7 @@
 #include "cantera/zerodim.h"
 #include "cantera/base/Interface.h"
 #include "cantera/numerics/eigen_sparse.h"
-#include "cantera/numerics/PreconditionerFactory.h"
+#include "cantera/numerics/SystemJacobianFactory.h"
 #include "cantera/numerics/AdaptivePreconditioner.h"
 
 using namespace Cantera;
@@ -188,7 +188,7 @@ TEST(AdaptivePreconditionerTests, test_precon_solver_stats)
     ReactorNet network;
     network.addReactor(reactor);
     // setup preconditioner
-    shared_ptr<PreconditionerBase> precon_ptr = newPreconditioner("Adaptive");
+    shared_ptr<SystemJacobian> precon_ptr = newSystemJacobian("Adaptive");
     network.setPreconditioner(precon_ptr);
     EXPECT_THROW(network.step(), CanteraError);
     // take a step

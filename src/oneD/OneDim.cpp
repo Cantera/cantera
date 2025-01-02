@@ -7,7 +7,7 @@
 #include "cantera/numerics/Func1.h"
 #include "cantera/oneD/MultiNewton.h"
 #include "cantera/base/AnyMap.h"
-#include "cantera/numerics/PreconditionerFactory.h"
+#include "cantera/numerics/SystemJacobianFactory.h"
 
 #include <fstream>
 #include <ctime>
@@ -102,7 +102,7 @@ MultiNewton& OneDim::newton()
     return *m_newt;
 }
 
-void OneDim::setLinearSolver(shared_ptr<PreconditionerBase> solver)
+void OneDim::setLinearSolver(shared_ptr<SystemJacobian> solver)
 {
     m_jac = solver;
     m_jac->initialize(size());
@@ -219,7 +219,7 @@ void OneDim::resize()
 
     // delete the current Jacobian evaluator and create a new one
     if (!m_jac) {
-        m_jac = newPreconditioner("banded-direct");
+        m_jac = newSystemJacobian("banded-direct");
     }
     m_jac->initialize(size());
     m_jac->setBandwidth(bandwidth());
