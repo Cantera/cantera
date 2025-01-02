@@ -11,6 +11,7 @@
 namespace Cantera
 {
 
+//! A system matrix solver that uses Eigen's sparse direct (LU) algorithm
 class EigenSparseDirectJacobian : public EigenSparseJacobian
 {
 public:

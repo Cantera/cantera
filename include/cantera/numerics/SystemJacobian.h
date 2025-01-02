@@ -25,6 +25,21 @@ enum class PreconditionerSide {
 
 //! Abstract base class representing Jacobian matrices and preconditioners used in
 //! nonlinear solvers.
+//!
+//! The matrix is initially populated with elements of the (steady-state) Jacobian
+//! using the setValue() method.
+//!
+//! If the object is being used for preconditioning, the preconditioner matrix
+//! @f$ M = I - \gamma J @f$ is computed and factorized by calling
+//! updatePreconditioner(). If the object is being used for solving a (pseudo-)transient
+//! problem, the transient Jacobian @f$ M = J - \alpha \Delta t^{-1} @f$ is computed and
+//! factorized by calling the updateTransient() method.
+//!
+//! Once the system is factorized, the solve() method can be used for preconditioning
+//! or solving Newton steps as appropriate.
+//!
+//! Implementations of this class provide different options for how to store the
+//! matrix elements and different algorithms for factorizing the matrix.
 class SystemJacobian
 {
 public:
@@ -59,14 +74,26 @@ public:
         m_precon_side = preconSide;
     }
 
-    //! Update the diagonal terms in the Jacobian by using the transient mask.
+    //! Transform Jacobian vector and write into
+    //! preconditioner, P = (I - gamma * J)
+    virtual void updatePreconditioner() {
+        throw NotImplementedError("SystemJacobian::updatePreconditioner");
+    }
+
+    //! Update the diagonal terms in the Jacobian by using the transient mask
+    //! @f$ \alpha @f$.
     //! @param rdt  Reciprocal of the time step [1/s]
     //! @param mask  Mask for transient terms: 1 if transient, 0 if algebraic.
     virtual void updateTransient(double rdt, int* mask) {
         throw NotImplementedError("SystemJacobian::updateTransient");
     }
 
-    //! Solve a linear system Ax=b where A is the preconditioner
+    //! Solve a linear system using the system matrix *M*
+    //!
+    //! The matrix *M* can either be the preconditioner or the transient Jacobian
+    //! matrix, depending on whether updateTransient() or updatePreconditioner() was
+    //! called last.
+    //!
     //! @param[in] stateSize length of the rhs and output vectors
     //! @param[in] rhs_vector right hand side vector used in linear system
     //! @param[out] output output vector for solution
@@ -101,12 +128,6 @@ public:
     virtual void printPreconditioner() {
         throw NotImplementedError("SystemJacobian::printPreconditioner");
     };
-
-    //! Transform Jacobian vector and write into
-    //! preconditioner, P = (I - gamma * J)
-    virtual void updatePreconditioner() {
-        throw NotImplementedError("SystemJacobian::updatePreconditioner");
-    }
 
     //! Set gamma used in preconditioning
     //! @param gamma used in M = I - gamma*J
