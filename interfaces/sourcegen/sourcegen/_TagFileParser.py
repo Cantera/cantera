@@ -8,6 +8,7 @@ from pathlib import Path
 import re
 import logging
 from dataclasses import dataclass
+import xml.etree.ElementTree as ET
 
 from ._dataclasses import ArgList, Param, CFunc
 from ._helpers import with_unpack_iter
@@ -24,10 +25,10 @@ _XML_PATH = _TAG_PATH / "doxygen" / "xml"
 class TagInfo:
     """Represents information parsed from a doxygen tag file."""
 
-    base: str = ""  #: qualified scope (skipping Cantera namespace)
-    type: str = ""  #: return type
-    name: str = ""  #: function name
-    arglist: str = ""  #: function argument list (original XML string)
+    base: str = ""  #: Qualified scope (skipping Cantera namespace)
+    type: str = ""  #: Return type
+    name: str = ""  #: Function name
+    arglist: str = ""  #: Function argument list (original XML string)
     anchorfile: str = ""  #: doxygen anchor file
     anchor: str = ""  #: doxygen anchor
 
@@ -37,12 +38,14 @@ class TagInfo:
         base = ""
         if "::" in qualified_name:
             base = qualified_name.split("::", 1)[0]
+
+        xml_tree = ET.fromstring(xml)
         return cls(base,
-                   xml_tag("type", xml),
-                   xml_tag("name", xml),
-                   xml_tag("arglist", xml),
-                   xml_tag("anchorfile", xml).replace(".html", ".xml"),
-                   xml_tag("anchor", xml))
+                   xml_tree.find('type').text,
+                   xml_tree.find('name').text,
+                   xml_tree.find('arglist').text,
+                   xml_tree.find('anchorfile').text.replace(".html", ".xml"),
+                   xml_tree.find('anchor').text)
 
     def __bool__(self):
         return all([self.type, self.name, self.arglist, self.anchorfile, self.anchor])
@@ -50,11 +53,7 @@ class TagInfo:
     @property
     def signature(self):
         """Generate function signature based on tag information."""
-        ret = f"{self.type} {self.name}{self.arglist}"
-        replacements = [(" &amp;", "& "), ("&lt; ", "<"), (" &gt;", ">")]
-        for rep in replacements:
-            ret = ret.replace(*rep)
-        return ret
+        return f"{self.type} {self.name}{self.arglist}"
 
     @property
     def id(self):
@@ -74,13 +73,15 @@ class TagInfo:
 class TagDetails(TagInfo):
     """Create tag information based on XML data."""
 
-    location: str = ""  #: file containing doxygen description
-    briefdescription: str = ""  #: brief doxygen description
-    parameterlist: list[Param] = None  #: annotated doxygen parameter list
+    location: str = ""  #: File containing doxygen description
+    briefdescription: str = ""  #: Brief doxygen description
+    parameterlist: list[Param] = None  #: Annotated doxygen parameter list
 
 
 class TagFileParser:
     """Class handling contents of doxygen tag file."""
+
+    _known: dict[str, str]  #: Dictionary of known functions and corresponding XML tags
 
     def __init__(self, bases: dict[str, str]) -> None:
         tag_file = _TAG_PATH / "Cantera.tag"
@@ -104,7 +105,7 @@ class TagFileParser:
             found = []
             compounds = {}
             for compound in re.findall(regex, doxygen_tags):
-                qualified_name = xml_tag("name", compound)
+                qualified_name = ET.fromstring(compound).find("name").text
                 compound_name = qualified_name.split(":")[-1]
                 if compound_name in names:
                     found.append(compound_name)
@@ -118,7 +119,11 @@ class TagFileParser:
 
         # Parse content of namespace Cantera
         namespace = xml_compounds("namespace", ["Cantera"])["Cantera"]
-        qualified_names = xml_tags("class", namespace, suffix='kind="class"')
+        qualified_names = []
+        xml_tree = ET.fromstring(namespace).findall("class")
+        for element in xml_tree:
+            if element.attrib.get("kind", "") == "class":
+                qualified_names.append(element.text)
         class_names = [_.split(":")[-1] for _ in qualified_names]
 
         # Handle exceptions for unknown/undocumented classes
@@ -137,7 +142,7 @@ class TagFileParser:
             regex = re.compile(rf'<member kind="{kind}"[\s\S]*?</member>')
             functions = {}
             for func in re.findall(regex, text):
-                func_name = f'{prefix}{xml_tag("name", func)}'
+                func_name = f'{prefix}{ET.fromstring(func).find("name").text}'
                 if func_name in functions:
                     # tag file may contain duplicates
                     if func not in functions[func_name]:
@@ -178,26 +183,33 @@ class TagFileParser:
         ix = 0
         if len(self._known[cxx_func]) > 1:
             # Disambiguate functions with same name
+            # TODO: current approach does not use information on default arguments
+            known_args = [ET.fromstring(xml).find('arglist').text
+                          for xml in self._known[cxx_func]]
+            known_args = [ArgList.from_xml(al).short_str() for al in known_args]
             args = re.findall(re.compile(r'(?<=\().*(?=\))'), func_string)
-            if not args:
-                known = '\n - '.join(
-                    [""] + [ArgList.from_xml(xml_tag("arglist", xml)).short_str()
-                            for xml in self._known[cxx_func]])
+            if not args and "()" in known_args:
+                # Candidate function without arguments exists
+                ix = known_args.index("()")
+            elif not args:
+                # Function does not use arguments
+                known = '\n - '.join([""] + known_args)
                 _LOGGER.critical(
                     f"Need argument list to disambiguate {func_string!r}. "
                     f"possible matches are:{known}")
                 sys.exit(1)
-            args = f"({args[0]})"
-            ix = -1
-            for i, xml in enumerate(self._known[cxx_func]):
-                arglist = ArgList.from_xml(xml_tag("arglist", xml))
-                if args[:-1] in arglist.short_str():
-                    ix = i
-                    break
-            if ix < 0:
-                _LOGGER.critical(
-                    f"Unable to match {func_string!r} to known functions.")
-                sys.exit(1)
+            else:
+                args = f"({args[0]}"
+                ix = -1
+                for i, known in enumerate(known_args):
+                    if known.startswith(args):
+                        # Detected argument list that uses default arguments
+                        ix = i
+                        break
+                if ix < 0:
+                    _LOGGER.critical(
+                        f"Unable to match {func_string!r} to known functions.")
+                    sys.exit(1)
 
         return TagInfo.from_xml(cxx_func, self._known[cxx_func][ix])
 
@@ -247,10 +259,8 @@ def tag_lookup(tag_info: TagInfo) -> TagDetails:
         _LOGGER.warning(f"Inconclusive XML matches found for {tag_info.qualified_name!r}")
         matches = matches[:1]
 
-    def cleanup(entry: str) -> str:
-        # Remove stray XML markup
-        if entry.startswith("<para>"):
-            entry = xml_tag("para", entry)
+    def no_refs(entry: str) -> str:
+        # Remove stray XML markup that causes problems with xml.etree
         if "<ref" in entry:
             regex = re.compile(r'<ref [\s\S]*?>')
             for ref in re.findall(regex, entry):
@@ -258,64 +268,29 @@ def tag_lookup(tag_info: TagInfo) -> TagDetails:
             entry = entry.replace("<ref>", "").replace("</ref>", "")
         return entry
 
-    def resolve_parameteritem(par_map: str) -> list[Param]:
+    def xml_parameterlist(xml_tree: ET) -> list[Param]:
         # Resolve/flatten parameter list
-        name_lines = xml_tag("parameternamelist", par_map).split("\n")
-        regex = re.compile(r'(?<=<parametername)(.*?)(?=>)')
         names = []
         directions = []
-        for name_line in name_lines:
-            direction = re.findall(regex, name_line)[0]
-            if "=" in direction:
-                name_line = name_line.replace(direction, "")
-                direction = direction.split("=")[1].strip('"')
-            directions.append(direction)
-            names.append(xml_tag("parametername", name_line))
-        description = cleanup(xml_tag("parameterdescription", par_map))
+        for element in xml_tree.find("parameternamelist"):
+            names.append(element.text)
+            directions.append(element.attrib.get("direction", ""))
+        description = xml_tree.find("parameterdescription").find("para").text.strip()
         return [Param("", n, description, d) for n, d in zip(names, directions)]
 
     xml = matches[0]
-    par_list = []
-    par_block = xml_tag("parameterlist", xml, suffix='kind="param"')
-    if par_block:
-        for par_map in xml_tags("parameteritem", par_block):
-            par_list.extend(resolve_parameteritem(par_map))
+    xml_tree = ET.fromstring(no_refs(xml))
 
-    def xml_attribute(attr: str, text: str, *, entry: str) -> str:
-        """Extract XML attribute."""
-        regex = re.compile(rf'(?<=<{attr} )(.*?)(?=/>)', flags=re.DOTALL)
-        match = re.findall(regex, text)
-        if not match:
-            return ""  # not enough matches found
-        entries = dict([tuple(_.split("=")) for _ in match[0].strip().split(" ")])
-        return entries.get(entry, "").strip('"')
+    par_list = []
+    xml_details = xml_tree.find("detaileddescription")
+    if xml_details:
+        # TODO: confirm that this is always the last "para" entry
+        xml_list = xml_details.findall("para")[-1].find("parameterlist")
+        if xml_list:
+            for item in xml_list.findall("parameteritem"):
+                par_list.extend(xml_parameterlist(item))
 
     return TagDetails(*tag_info,
-                      xml_attribute("location", xml, entry="file"),
-                      cleanup(xml_tag("briefdescription", xml)),
+                      xml_tree.find("location").attrib["file"],
+                      xml_tree.find("briefdescription").find("para").text.strip(),
                       par_list)
-
-
-def xml_tag(tag: str, text: str, suffix: str="") -> str:
-    """Extract first match of content enclosed between XML tags."""
-    match = xml_tags(tag, text, suffix, True)
-    if match:
-        return match[0].strip()
-    return ""  # not enough matches found
-
-
-def xml_tags(tag: str, text: str, suffix: str="", permissive: bool=False) -> list[str]:
-    """Extract list of content enclosed by XML tags."""
-    if suffix:
-        suffix = f" {suffix.strip()}"
-    regex = re.compile(rf'(?<=<{tag}{suffix}>)(.*?)(?=</{tag}>)',
-                       flags=re.DOTALL|re.MULTILINE)
-    matched = re.findall(regex, text)
-    if matched or permissive:
-        return matched
-
-    blanks = text.split("\n")[-1].split("<")[0]
-    msg = f"Could not extract {tag!r} from:\n{blanks}{text}\n"
-    msg += f"using regex: {regex}"
-    _LOGGER.error(msg)
-    return []

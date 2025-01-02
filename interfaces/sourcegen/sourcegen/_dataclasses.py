@@ -45,10 +45,12 @@ class Param:
 
     @classmethod
     def from_xml(cls, param: str) -> 'Param':
-        """Generate Param from XML string."""
-        param = param.strip()
-        replacements = [(" &amp;", "& "), ("&lt; ", "<"), (" &gt;", ">")]
-        for rep in replacements:
+        """
+        Generate Param from XML string.
+
+        Note: Converts from doxygen style to simplified C++ whitespace notation.
+        """
+        for rep in [(" &", "& "), ("< ", "<"), (" >", ">")]:
             param = param.replace(*rep)
         return cls.from_str(param.strip())
 
