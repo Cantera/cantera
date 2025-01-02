@@ -10,6 +10,7 @@
 
 #include "Domain1D.h"
 #include "MultiJac.h"
+#include "cantera/numerics/SystemJacobian.h"
 
 namespace Cantera
 {
@@ -43,8 +44,19 @@ public:
     //! @ingroup derivGroup
     MultiJac& jacobian();
 
+    shared_ptr<SystemJacobian> getJacobian() {
+        return m_jac;
+    }
+
     //! Return a reference to the Newton iterator.
     MultiNewton& newton();
+
+    //! Set the linear solver used to hold the Jacobian matrix and solve linear systems
+    //! as part of each Newton iteration. The default is a direct, banded solver.
+    void setLinearSolver(shared_ptr<SystemJacobian> solver);
+
+    //! Get the type of the linear solver being used.
+    shared_ptr<SystemJacobian> linearSolver() const { return m_jac; }
 
     /**
      * Solve F(x) = 0, where F(x) is the multi-domain residual function.
@@ -194,6 +206,17 @@ public:
      * @param count   Set to zero to omit this call from the statistics
      */
     void eval(size_t j, double* x, double* r, double rdt=-1.0, int count = 1);
+
+    /**
+     * Evaluates the Jacobian at x0 using finite differences.
+     *
+     * The Jacobian is computed by perturbing each component of `x0`, evaluating the
+     * residual function, and then estimating the partial derivatives numerically using
+     * finite differences to determine the corresponding column of the Jacobian.
+     *
+     * @param x0  State vector at which to evaluate the Jacobian
+     */
+    void evalJacobian(double* x0);
 
     //! Return a pointer to the domain global point *i* belongs to.
     /*!
@@ -363,13 +386,16 @@ protected:
 
     shared_ptr<vector<double>> m_state; //!< Solution vector
 
-    unique_ptr<MultiJac> m_jac; //!< Jacobian evaluator
+    shared_ptr<SystemJacobian> m_jac; //!< Jacobian evaluator
     unique_ptr<MultiNewton> m_newt; //!< Newton iterator
     double m_rdt = 0.0; //!< reciprocal of time step
     bool m_jac_ok = false; //!< if true, Jacobian is current
 
     size_t m_bw = 0; //!< Jacobian bandwidth
     size_t m_size = 0; //!< solution vector size
+
+    //! Work arrays used during Jacobian evaluation
+    vector<double> m_work1, m_work2;
 
     //! All domains comprising the system
     vector<shared_ptr<Domain1D>> m_dom;

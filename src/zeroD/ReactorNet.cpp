@@ -155,7 +155,7 @@ void ReactorNet::setLinearSolverType(const string& linSolverType)
     m_integrator_init = false;
 }
 
-void ReactorNet::setPreconditioner(shared_ptr<PreconditionerBase> preconditioner)
+void ReactorNet::setPreconditioner(shared_ptr<SystemJacobian> preconditioner)
 {
     m_precon = preconditioner;
     m_integrator_init = false;
@@ -593,7 +593,7 @@ void ReactorNet::preconditionerSetup(double t, double* y, double gamma)
         }
     }
     // post reactor setup operations
-    precon->setup();
+    precon->updatePreconditioner();
 }
 
 void ReactorNet::updatePreconditioner(double gamma)

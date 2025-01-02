@@ -1012,6 +1012,19 @@ cdef class Sim1D:
         def __set__(self, nmax):
             self.sim.setMaxTimeStepCount(nmax)
 
+    @property
+    def linear_solver(self):
+        """
+        Get/Set the the linear solver used to hold the Jacobian matrix and solve linear
+        systems as part of each Newton iteration. The default is a banded, direct
+        solver.
+        """
+        return SystemJacobian.wrap(self.sim.linearSolver())
+
+    @linear_solver.setter
+    def linear_solver(self, SystemJacobian precon):
+        self.sim.setLinearSolver(precon._base)
+
     def set_initial_guess(self, *args, **kwargs):
         """
         Store arguments for initial guess and prepare storage for solution.

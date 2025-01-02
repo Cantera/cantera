@@ -7,7 +7,7 @@
 from .ctcxx cimport *
 from .kinetics cimport *
 from .func1 cimport *
-from .preconditioners cimport *
+from .jacobians cimport *
 
 cdef extern from "cantera/numerics/Integrator.h" namespace "Cantera":
     # SUNDIALS integrator
@@ -204,7 +204,7 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         string sensitivityParameterName(size_t) except +translate_exception
         void setLinearSolverType(string& integratorType) except +translate_exception
         string linearSolverType()
-        void setPreconditioner(shared_ptr[CxxPreconditionerBase] preconditioner)
+        void setPreconditioner(shared_ptr[CxxSystemJacobian] preconditioner)
         void setDerivativeSettings(CxxAnyMap&)
         CxxAnyMap solverStats() except +translate_exception
 
