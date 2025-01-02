@@ -10,7 +10,7 @@ from cantera.delegator cimport *
 from cantera.func1 cimport *
 from cantera.kinetics cimport *
 from cantera.mixture cimport *
-from cantera.preconditioners cimport *
+from cantera.jacobians cimport *
 from cantera.reaction cimport *
 from cantera.reactionpath cimport *
 from cantera.reactor cimport *

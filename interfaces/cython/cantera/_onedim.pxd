@@ -9,7 +9,7 @@ from .solutionbase cimport *
 from .kinetics cimport *
 from .func1 cimport *
 from .thermo cimport *
-from .preconditioners cimport *
+from .jacobians cimport *
 
 
 cdef extern from "cantera/oneD/DomainFactory.h" namespace "Cantera":
@@ -115,8 +115,8 @@ cdef extern from "cantera/oneD/Sim1D.h":
         void restoreSteadySolution() except +translate_exception
         void setMaxTimeStepCount(int)
         int maxTimeStepCount()
-        void setLinearSolver(shared_ptr[CxxPreconditionerBase]) except +translate_exception
-        shared_ptr[CxxPreconditionerBase] linearSolver()
+        void setLinearSolver(shared_ptr[CxxSystemJacobian]) except +translate_exception
+        shared_ptr[CxxSystemJacobian] linearSolver()
         void getInitialSoln() except +translate_exception
         void solve(int, cbool) except +translate_exception
         void refine(int) except +translate_exception

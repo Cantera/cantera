@@ -10,7 +10,7 @@
 
 #include "Domain1D.h"
 #include "MultiJac.h"
-#include "cantera/numerics/PreconditionerBase.h"
+#include "cantera/numerics/SystemJacobian.h"
 
 namespace Cantera
 {
@@ -44,7 +44,7 @@ public:
     //! @ingroup derivGroup
     MultiJac& jacobian();
 
-    shared_ptr<PreconditionerBase> getJacobian() {
+    shared_ptr<SystemJacobian> getJacobian() {
         return m_jac;
     }
 
@@ -53,10 +53,10 @@ public:
 
     //! Set the linear solver used to hold the Jacobian matrix and solve linear systems
     //! as part of each Newton iteration. The default is a direct, banded solver.
-    void setLinearSolver(shared_ptr<PreconditionerBase> solver);
+    void setLinearSolver(shared_ptr<SystemJacobian> solver);
 
     //! Get the type of the linear solver being used.
-    shared_ptr<PreconditionerBase> linearSolver() const { return m_jac; }
+    shared_ptr<SystemJacobian> linearSolver() const { return m_jac; }
 
     /**
      * Solve F(x) = 0, where F(x) is the multi-domain residual function.
@@ -386,7 +386,7 @@ protected:
 
     shared_ptr<vector<double>> m_state; //!< Solution vector
 
-    shared_ptr<PreconditionerBase> m_jac; //!< Jacobian evaluator
+    shared_ptr<SystemJacobian> m_jac; //!< Jacobian evaluator
     unique_ptr<MultiNewton> m_newt; //!< Newton iterator
     double m_rdt = 0.0; //!< reciprocal of time step
     bool m_jac_ok = false; //!< if true, Jacobian is current
