@@ -134,6 +134,10 @@ if "clean" in COMMAND_LINE_TARGETS:
         remove_file(name)
     for name in Path("site_scons").glob("**/*.pyc"):
         remove_file(name)
+    for name in Path("include/cantera/clib_experimental").glob("*.h"):
+        remove_file(name)
+    for name in Path("src/clib_experimental").glob("*.cpp"):
+        remove_file(name)
 
     logger.status("Done removing output files.", print_level=False)
 
@@ -363,6 +367,13 @@ config_options = [
     BoolOption(
         "sphinx_docs",
         "Build HTML documentation for Cantera using Sphinx.",
+        False),
+    BoolOption(
+        "clib_experimental",
+        """Build experimental CLib. Requires running 'scons doxygen' and CLib code
+           generation via 'python3 interfaces/sourcegen/run.py --api=clib --output=.'
+           prior to 'scons build' command.
+           """,
         False),
     BoolOption(
         "run_examples",
