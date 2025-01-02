@@ -1017,7 +1017,7 @@ cdef class Sim1D:
         """
         Get/Set the the linear solver used to hold the Jacobian matrix and solve linear
         systems as part of each Newton iteration. The default is a banded, direct
-        solver.
+        solver. See :ref:`sec-python-jacobians` for available solvers.
         """
         return SystemJacobian.wrap(self.sim.linearSolver())
 

@@ -11,6 +11,7 @@ cdef dict _class_registry = {}
 cdef class SystemJacobian:
     """
     Common base class for Jacobian matrices used in the solution of nonlinear systems.
+    Wraps C++ class :ct:`SystemJacobian`.
     """
     _type = "SystemJacobian"
     linear_solver_type = "GMRES"
@@ -64,6 +65,11 @@ cdef class SystemJacobian:
 
 
 cdef class EigenSparseJacobian(SystemJacobian):
+    """
+    Base class for system Jacobians that use Eigen sparse matrices for storage.
+    Wraps C++ class :ct:`EigenSparseJacobian`.
+    """
+
     _type = "eigen-sparse"
 
     cdef set_cxx_object(self):
@@ -158,6 +164,10 @@ cdef class AdaptivePreconditioner(EigenSparseJacobian):
 
 
 cdef class BandedJacobian(SystemJacobian):
+    """
+    A system matrix solver that uses a direct banded linear solver. Wraps C++
+    class :ct:`MultiJac`.
+    """
     _type = "banded-direct"
     linear_solver_type = "direct"
 
