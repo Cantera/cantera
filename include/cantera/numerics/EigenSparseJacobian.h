@@ -18,6 +18,7 @@ class EigenSparseJacobian : public SystemJacobian
 public:
     EigenSparseJacobian() = default;
     void initialize(size_t networkSize) override;
+    void reset() override;
     void setValue(size_t row, size_t col, double value) override;
     void updatePreconditioner() override;
     void updateTransient(double rdt, int* mask) override;

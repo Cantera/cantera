@@ -27,6 +27,12 @@ void EigenSparseJacobian::initialize(size_t networkSize)
     m_init = true;
 }
 
+void EigenSparseJacobian::reset()
+{
+    m_matrix.setZero();
+    m_jac_trips.clear();
+}
+
 void EigenSparseJacobian::setValue(size_t row, size_t col, double value)
 {
     m_jac_trips.emplace_back(static_cast<int>(row), static_cast<int>(col), value);
