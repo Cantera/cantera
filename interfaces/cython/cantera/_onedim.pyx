@@ -1019,10 +1019,10 @@ cdef class Sim1D:
         systems as part of each Newton iteration. The default is a banded, direct
         solver.
         """
-        return PreconditionerBase.wrap(self.sim.linearSolver())
+        return SystemJacobian.wrap(self.sim.linearSolver())
 
     @linear_solver.setter
-    def linear_solver(self, PreconditionerBase precon):
+    def linear_solver(self, SystemJacobian precon):
         self.sim.setLinearSolver(precon.pbase)
 
     def set_initial_guess(self, *args, **kwargs):

@@ -15,7 +15,7 @@ namespace Cantera
 
 class Array2D;
 class Integrator;
-class PreconditionerBase;
+class SystemJacobian;
 
 //! A class representing a network of connected reactors.
 /*!
@@ -44,7 +44,7 @@ public:
 
     //! Set preconditioner used by the linear solver
     //! @param preconditioner preconditioner object used for the linear solver
-    void setPreconditioner(shared_ptr<PreconditionerBase> preconditioner);
+    void setPreconditioner(shared_ptr<SystemJacobian> preconditioner);
 
     //! Set the initial value of the independent variable (typically time).
     //! Default = 0.0 s. Restarts integration from this value using the current mixture
@@ -341,7 +341,7 @@ protected:
     double m_rtolsens = 1.0e-4;
     double m_atols = 1.0e-15;
     double m_atolsens = 1.0e-6;
-    shared_ptr<PreconditionerBase> m_precon;
+    shared_ptr<SystemJacobian> m_precon;
     string m_linearSolverType;
 
     //! Maximum integrator internal timestep. Default of 0.0 means infinity.

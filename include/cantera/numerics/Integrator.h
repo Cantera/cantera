@@ -8,7 +8,7 @@
 #ifndef CT_INTEGRATOR_H
 #define CT_INTEGRATOR_H
 #include "FuncEval.h"
-#include "PreconditionerBase.h"
+#include "SystemJacobian.h"
 
 #include "cantera/base/global.h"
 #include "cantera/base/AnyMap.h"
@@ -91,7 +91,7 @@ public:
     /*!
      * @param preconditioner preconditioner object used for the linear solver
      */
-    virtual void setPreconditioner(shared_ptr<PreconditionerBase> preconditioner) {
+    virtual void setPreconditioner(shared_ptr<SystemJacobian> preconditioner) {
         m_preconditioner = preconditioner;
         if (preconditioner->preconditionerSide() == "none") {
             m_prec_side = PreconditionerSide::NO_PRECONDITION;
@@ -123,7 +123,7 @@ public:
     }
 
     //! Return preconditioner reference to object
-    virtual shared_ptr<PreconditionerBase> preconditioner() {
+    virtual shared_ptr<SystemJacobian> preconditioner() {
         return m_preconditioner;
     }
 
@@ -296,7 +296,7 @@ protected:
     //! Pointer to preconditioner object used in integration which is
     //! set by setPreconditioner and initialized inside of
     //! ReactorNet::initialize()
-    shared_ptr<PreconditionerBase> m_preconditioner;
+    shared_ptr<SystemJacobian> m_preconditioner;
     //! Type of preconditioning used in applyOptions
     PreconditionerSide m_prec_side = PreconditionerSide::NO_PRECONDITION;
     // methods for DAE solvers
