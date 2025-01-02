@@ -1,29 +1,28 @@
-# Configuration for code generation.
-# Implements portion of replacement for CLib "ct"
+# The main library of the auto-generated CLib API contains %Cantera service functions.
+# Partially implements a replacement for CLib's traditional @c ct library.
 
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
-headers:
-  prefix: ct3
-  base: ""
-  recipes:
-  - name: getCanteraVersion
-    implements: version
-  - name: getGitCommit
-    implements: gitCommit
-  - name: getCanteraError
-  # - name: setLogWriter(void* logger)
-  # - name: setLogCallback(LogCallback writer);
-  - name: addCanteraDirectory
-    implements: addDirectory
-  - name: getDataDirectories
-  - name: findInputFile
-  - name: suppress_deprecation_warnings
-  - name: make_deprecation_warnings_fatal
-  - name: suppress_warnings
-  - name: warnings_suppressed
-  - name: make_warnings_fatal
-  - name: suppress_thermo_warnings
-  - name: clearStorage
-  - name: resetStorage
+prefix: ct3
+base: ""
+recipes:
+- name: getCanteraVersion
+  implements: version
+- name: getGitCommit
+  implements: gitCommit
+- name: getCanteraError
+- name: addCanteraDirectory
+  implements: addDirectory
+- name: getDataDirectories
+- name: findInputFile
+- name: suppress_deprecation_warnings
+- name: make_deprecation_warnings_fatal
+- name: suppress_warnings
+- name: warnings_suppressed
+- name: make_warnings_fatal
+- name: suppress_thermo_warnings
+- name: clearStorage
+- name: resetStorage
+# - name: setLogWriter  # only used by .NET API
+# - name: setLogCallback  # only used by .NET API
