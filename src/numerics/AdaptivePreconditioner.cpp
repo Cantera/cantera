@@ -14,11 +14,6 @@ AdaptivePreconditioner::AdaptivePreconditioner()
     setPreconditionerSide("right");
 }
 
-void AdaptivePreconditioner::setValue(size_t row, size_t col, double value)
-{
-    m_jac_trips.emplace_back(static_cast<int>(row), static_cast<int>(col), value);
-}
-
 void AdaptivePreconditioner::stateAdjustment(vector<double>& state) {
     // Only keep positive composition based on given tol
     for (size_t i = 0; i < state.size(); i++) {
@@ -28,20 +23,9 @@ void AdaptivePreconditioner::stateAdjustment(vector<double>& state) {
 
 void AdaptivePreconditioner::initialize(size_t networkSize)
 {
+    EigenSparseJacobian::initialize(networkSize);
     // don't use legacy rate constants
     use_legacy_rate_constants(false);
-    // reset arrays in case of re-initialization
-    m_jac_trips.clear();
-    // set dimensions of preconditioner from network
-    m_dim = networkSize;
-    // reserve some space for vectors making up SparseMatrix
-    m_jac_trips.reserve(3 * networkSize);
-    // reserve space for preconditioner
-    m_precon_matrix.resize(m_dim, m_dim);
-    // creating sparse identity matrix
-    m_identity.resize(m_dim, m_dim);
-    m_identity.setIdentity();
-    m_identity.makeCompressed();
     // setting default ILUT parameters
     if (m_drop_tol == 0) {
         setIlutDropTol(1e-12);
@@ -53,7 +37,6 @@ void AdaptivePreconditioner::initialize(size_t networkSize)
     m_init = true;
 }
 
-
 void AdaptivePreconditioner::setup()
 {
     warn_deprecated("AdaptivePreconditioner::setup",
@@ -62,39 +45,15 @@ void AdaptivePreconditioner::setup()
     factorize();
 }
 
-void AdaptivePreconditioner::updatePreconditioner()
+void AdaptivePreconditioner::factorize()
 {
-    // set precon to jacobian
-    m_precon_matrix.setFromTriplets(m_jac_trips.begin(), m_jac_trips.end());
-    // make into preconditioner as P = (I - gamma * J_bar)
-    m_precon_matrix = m_identity - m_gamma * m_precon_matrix;
-    // prune by threshold if desired
     if (m_prune_precon) {
         prunePreconditioner();
     }
-    factorize();
-}
-
-void AdaptivePreconditioner::updateTransient(double rdt, int* mask)
-{
-    // set matrix to steady Jacobian
-    m_precon_matrix.setFromTriplets(m_jac_trips.begin(), m_jac_trips.end());
-    // update transient diagonal terms
-    Eigen::VectorXd diag = Eigen::Map<Eigen::VectorXi>(mask, m_dim).cast<double>();
-    m_precon_matrix -= rdt * diag.matrix().asDiagonal();
-    // prune by threshold if desired
-    // if (m_prune_precon) {
-    //     prunePreconditioner();
-    // }
-    factorize();
-}
-
-void AdaptivePreconditioner::factorize()
-{
     // compress sparse matrix structure
-    m_precon_matrix.makeCompressed();
+    m_matrix.makeCompressed();
     // analyze and factorize
-    m_solver.compute(m_precon_matrix);
+    m_solver.compute(m_matrix);
     // check for errors
     if (m_solver.info() != Eigen::Success) {
         throw CanteraError("AdaptivePreconditioner::factorize",
@@ -104,8 +63,8 @@ void AdaptivePreconditioner::factorize()
 
 void AdaptivePreconditioner::prunePreconditioner()
 {
-    for (int k=0; k<m_precon_matrix.outerSize(); ++k) {
-        for (Eigen::SparseMatrix<double>::InnerIterator it(m_precon_matrix, k); it;
+    for (int k=0; k<m_matrix.outerSize(); ++k) {
+        for (Eigen::SparseMatrix<double>::InnerIterator it(m_matrix, k); it;
             ++it) {
             if (std::abs(it.value()) < m_threshold && it.row() != it.col()) {
                 it.valueRef() = 0;
@@ -126,21 +85,6 @@ void AdaptivePreconditioner::solve(const size_t stateSize, double* rhs_vector, d
         throw CanteraError("AdaptivePreconditioner::solve",
                            "error code: {}", static_cast<int>(m_solver.info()));
     }
-}
-
-void AdaptivePreconditioner::printPreconditioner() {
-    std::stringstream ss;
-    Eigen::IOFormat HeavyFmt(Eigen::FullPrecision, 0, ", ", ";\n", "[", "]", "[", "]");
-    ss << Eigen::MatrixXd(m_precon_matrix).format(HeavyFmt);
-    writelog(ss.str());
-}
-
-void AdaptivePreconditioner::printJacobian() {
-    std::stringstream ss;
-    Eigen::SparseMatrix<double> jacobian(m_dim, m_dim);
-    jacobian.setFromTriplets(m_jac_trips.begin(), m_jac_trips.end());
-    ss << Eigen::MatrixXd(jacobian);
-    writelog(ss.str());
 }
 
 }
