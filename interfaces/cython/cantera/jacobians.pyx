@@ -86,6 +86,14 @@ cdef class EigenSparseJacobian(SystemJacobian):
             cdef CxxSparseMatrix smat = self.sparse_jac.matrix()
             return get_from_sparse(smat, smat.rows(), smat.cols())
 
+    property jacobian:
+        """
+        Property to retrieve the latest Jacobian.
+        """
+        def __get__(self):
+            cdef CxxSparseMatrix smat = self.sparse_jac.jacobian()
+            return get_from_sparse(smat, smat.rows(), smat.cols())
+
 
 cdef class EigenSparseDirectJacobian(EigenSparseJacobian):
     """

@@ -20,6 +20,7 @@ cdef extern from "cantera/numerics/EigenSparseJacobian.h" namespace "Cantera":
         CxxEigenSparseJacobian() except +translate_exception
         void printPreconditioner()
         CxxSparseMatrix matrix() except +translate_exception
+        CxxSparseMatrix jacobian() except +translate_exception
 
 cdef extern from "cantera/numerics/AdaptivePreconditioner.h" namespace "Cantera":
     cdef cppclass CxxAdaptivePreconditioner "Cantera::AdaptivePreconditioner" \
