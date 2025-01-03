@@ -1287,6 +1287,7 @@ class TestDiffusionFlame:
 
         # Test - Check if the parameters are saved and restored correctly
         filename = self.test_work_path / "two_point_control.yaml"
+        filename.unlink(missing_ok=True)
 
         original_settings = sim.flame.settings['continuation-method']
         sim.save(filename)
