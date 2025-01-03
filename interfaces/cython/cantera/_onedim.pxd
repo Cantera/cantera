@@ -157,6 +157,8 @@ cdef extern from "cantera/oneD/Sim1D.h":
         void setLeftControlPoint(double) except +translate_exception
         void setRightControlPoint(double) except +translate_exception
 
+        void setJacobianPerturbation(double, double, double)
+
 
 cdef extern from "cantera/thermo/IdealGasPhase.h":
     cdef cppclass CxxIdealGasPhase "Cantera::IdealGasPhase"
