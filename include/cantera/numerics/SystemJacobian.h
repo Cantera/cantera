@@ -183,6 +183,12 @@ public:
         m_age = age;
     }
 
+    void clearStats() {
+        m_elapsed = 0.0;
+        m_nevals = 0;
+        m_age = 100000;
+    }
+
 protected:
     //! Factorize the system matrix. This method should be called at the end of
     //! implementations of updatePreconditioner() and updateTransient().
