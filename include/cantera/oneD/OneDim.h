@@ -372,6 +372,19 @@ public:
         m_time_step_callback = callback;
     }
 
+    //! Configure perturbations used to evaluate finite difference Jacobian
+    //! @param relative  Relative perturbation (multiplied by the absolute value of
+    //!     each component). Default `1.0e-5`.
+    //! @param absolute  Absolute perturbation (independent of component value).
+    //!     Default `1.0e-10`.
+    //! @param threshold  Threshold below which to exclude elements from the Jacobian
+    //!     Default `0.0`.
+    void setJacobianPerturbation(double relative, double absolute, double threshold) {
+        m_jacobianRelPerturb = relative;
+        m_jacobianAbsPerturb = absolute;
+        m_jacobianThreshold = threshold;
+    }
+
 protected:
     //! Evaluate the steady-state Jacobian, accessible via jacobian()
     //! @param[in] x  Current state vector, length size()
@@ -437,6 +450,13 @@ protected:
 
     //! Maximum number of timesteps allowed per call to solve()
     int m_nsteps_max = 500;
+
+    //! Threshold for ignoring small elements in Jacobian
+    double m_jacobianThreshold = 0.0;
+    //! Relative perturbation of each component in finite difference Jacobian
+    double m_jacobianRelPerturb = 1e-5;
+    //! Absolute perturbation of each component in finite difference Jacobian
+    double m_jacobianAbsPerturb = 1e-10;
 
 private:
     //! @name Statistics

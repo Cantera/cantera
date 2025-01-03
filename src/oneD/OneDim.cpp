@@ -294,20 +294,16 @@ void OneDim::evalJacobian(double* x0)
 {
     m_jac->reset();
     clock_t t0 = clock();
-    const double uround = sqrt(std::numeric_limits<double>::epsilon());
-
     m_work1.resize(size());
     m_work2.resize(size());
     eval(npos, x0, m_work1.data(), 0.0, 0);
     size_t ipt = 0;
     for (size_t j = 0; j < points(); j++) {
-        Domain1D* dom = pointDomain(j);
         size_t nv = nVars(j);
         for (size_t n = 0; n < nv; n++) {
             // perturb x(n); preserve sign(x(n))
             double xsave = x0[ipt];
-            double dx = std::max(sqrt(uround) * fabs(xsave),
-                                 uround * (dom->rtol(n) * fabs(xsave) + dom->atol(n)));
+            double dx = fabs(xsave) * m_jacobianRelPerturb + m_jacobianAbsPerturb;
             if (xsave < 0) {
                 dx = -dx;
             }
@@ -324,7 +320,7 @@ void OneDim::evalJacobian(double* x0)
                     size_t iloc = loc(i);
                     for (size_t m = 0; m < mv; m++) {
                         double delta = m_work2[m+iloc] - m_work1[m+iloc];
-                        if (std::abs(delta) > 1e-10 || m+iloc == ipt) {
+                        if (std::abs(delta) > m_jacobianThreshold || m+iloc == ipt) {
                             m_jac->setValue(m + iloc, ipt, delta * rdx);
                         }
                     }
