@@ -107,6 +107,7 @@ void OneDim::setLinearSolver(shared_ptr<SystemJacobian> solver)
     m_jac = solver;
     m_jac->initialize(size());
     m_jac->setBandwidth(bandwidth());
+    m_jac->clearStats();
     m_jac_ok = false;
 }
 
@@ -217,12 +218,12 @@ void OneDim::resize()
     m_newt->resize(size());
     m_mask.resize(size());
 
-    // delete the current Jacobian evaluator and create a new one
     if (!m_jac) {
         m_jac = newSystemJacobian("banded-direct");
     }
     m_jac->initialize(size());
     m_jac->setBandwidth(bandwidth());
+    m_jac->clearStats();
     m_jac_ok = false;
 }
 
