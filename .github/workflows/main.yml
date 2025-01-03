@@ -157,11 +157,11 @@ jobs:
       run: |
         sudo apt update
         sudo apt install libboost-dev gfortran libomp-dev libomp5 \
-          libopenblas-openmp-dev  libhdf5-dev
+          libopenblas-openmp-dev libhdf5-dev doxygen graphviz
     - name: Upgrade pip
       run: python3 -m pip install -U pip setuptools wheel
     - name: Install Python dependencies
-      run: python3 -m pip install ruamel.yaml scons numpy cython pandas pytest
+      run: python3 -m pip install ruamel.yaml scons numpy cython pandas pytest Jinja2
         pytest-xdist pytest-github-actions-annotate-failures pint graphviz
     - name: Build Cantera
       run: python3 `which scons` build env_vars=all
@@ -177,6 +177,13 @@ jobs:
       run: |
         LD_LIBRARY_PATH=build/lib
         python3 -m pytest -raP -v -n auto --durations=50 test/python
+    - name: Generate clib_experimental
+      run: |
+        python3 `which scons` doxygen
+        python3 interfaces/sourcegen/run.py --api=clib --output=.
+        python3 `which scons` build clib_experimental=y
+    - name: Run googletests for clib_experimental
+      run: python3 `which scons` test-clib-experimental --debug=time
 
   macos-multiple-pythons:
     name: ${{ matrix.macos-version }} with Python ${{ matrix.python-version }}
@@ -893,9 +900,16 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       name: Checkout the repository
+    - name: Override default Python (Windows)
+      # Other operating systems use default system Python 3
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.10"
+        architecture: x64
+      if: matrix.os == 'windows-2022'
     - name: Install Python dependencies
-      # Install for the default system Python 3, which is used by 'dotnet build'
-      run: python3 -m pip install ruamel.yaml Jinja2
+      # Install Python dependencies, which are used by 'dotnet build'
+      run: python3 -m pip install ruamel.yaml Jinja2 typing-extensions
     - name: Install library dependencies with micromamba (Windows)
       uses: mamba-org/setup-micromamba@v1
       with:
