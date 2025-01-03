@@ -1,0 +1,26 @@
+# Configuration for CLib code generation.
+
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at https://cantera.org/license.txt for license and copyright information.
+
+# Ignore these files entirely:
+ignore_files: []
+
+# Ignore these specific functions:
+ignore_funcs:
+  ctsol_auto.yaml: [newInterface, setTransport]
+
+# Cabinets with associated includes
+includes:
+  "":
+  - cantera/base/global.h
+  Solution:
+  - cantera/base/Solution.h
+  ThermoPhase:
+  - cantera/thermo/ThermoFactory.h
+  Kinetics:
+  - cantera/kinetics/KineticsFactory.h
+  Transport:
+  - cantera/transport/TransportFactory.h
+  Func1:
+  - cantera/numerics/Func1Factory.h

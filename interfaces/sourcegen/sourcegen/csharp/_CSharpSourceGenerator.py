@@ -4,7 +4,6 @@
 from pathlib import Path
 import sys
 import logging
-from typing import List, Dict
 import re
 
 from jinja2 import Environment, BaseLoader
@@ -21,8 +20,18 @@ _loader = Environment(loader=BaseLoader)
 class CSharpSourceGenerator(SourceGenerator):
     """The SourceGenerator for scaffolding C# files for the .NET interface"""
 
+    def __init__(self, out_dir: str, config: dict, templates: dict):
+        if not out_dir:
+            _logger.critical("Non-empty string identifying output path required.")
+            sys.exit(1)
+        self._out_dir = Path(out_dir)
+
+        # use the typed config
+        self._config = Config.from_parsed(**config)
+        self._templates = templates
+
     def _get_property_text(self, clib_area: str, c_name: str, cs_name: str,
-                           known_funcs: Dict[str, CsFunc]) -> str:
+                           known_funcs: dict[str, CsFunc]) -> str:
         getter = known_funcs.get(clib_area + "_" + c_name)
 
         if getter:
@@ -56,16 +65,6 @@ class CSharpSourceGenerator(SourceGenerator):
 
         _logger.critical(f"Unable to scaffold properties of type {prop_type!r}!")
         sys.exit(1)
-
-    def __init__(self, out_dir: str, config: dict, templates: dict):
-        if not out_dir:
-            _logger.critical("Non-empty string identifying output path required.")
-            sys.exit(1)
-        self._out_dir = Path(out_dir)
-
-        # use the typed config
-        self._config = Config.from_parsed(**config)
-        self._templates = templates
 
     def _get_wrapper_class_name(self, clib_area: str) -> str:
         return self._config.class_crosswalk[clib_area]
@@ -160,7 +159,7 @@ class CSharpSourceGenerator(SourceGenerator):
 
         self._out_dir.joinpath(file_name).write_text(contents, encoding="utf-8")
 
-    def _scaffold_interop(self, header_file_path: Path, cs_funcs: List[CsFunc]):
+    def _scaffold_interop(self, header_file_path: Path, cs_funcs: list[CsFunc]):
         template = _loader.from_string(self._templates["csharp-interop-func"])
         function_list = [
             template.render(unsafe=func.unsafe(), declaration=func.declaration())
@@ -170,7 +169,7 @@ class CSharpSourceGenerator(SourceGenerator):
         self._write_file(
             file_name, "csharp-scaffold-interop", cs_functions=function_list)
 
-    def _scaffold_handles(self, header_file_path: Path, handles: Dict[str, str]):
+    def _scaffold_handles(self, header_file_path: Path, handles: dict[str, str]):
         template = _loader.from_string(self._templates["csharp-base-handle"])
         handle_list = [
             template.render(class_name=key, release_func_name=val)
@@ -190,8 +189,8 @@ class CSharpSourceGenerator(SourceGenerator):
         self._write_file(
             file_name, "csharp-scaffold-handles", cs_handles=handle_list)
 
-    def _scaffold_wrapper_class(self, clib_area: str, props: Dict[str, str],
-                                known_funcs: Dict[str, CsFunc]):
+    def _scaffold_wrapper_class(self, clib_area: str, props: dict[str, str],
+                                known_funcs: dict[str, CsFunc]):
         property_list = [
             self._get_property_text(clib_area, c_name, cs_name, known_funcs)
             for c_name, cs_name in props.items()]
@@ -204,10 +203,10 @@ class CSharpSourceGenerator(SourceGenerator):
             wrapper_class_name=wrapper_class_name, handle_class_name=handle_class_name,
             cs_properties=property_list)
 
-    def generate_source(self, headers_files: List[HeaderFile]):
+    def generate_source(self, headers_files: list[HeaderFile]):
         self._out_dir.mkdir(parents=True, exist_ok=True)
 
-        known_funcs: Dict[str, List[CsFunc]] = {}
+        known_funcs: dict[str, list[CsFunc]] = {}
 
         for header_file in headers_files:
             cs_funcs = list(map(self._convert_func, header_file.funcs))

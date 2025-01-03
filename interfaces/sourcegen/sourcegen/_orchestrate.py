@@ -6,14 +6,14 @@ import inspect
 from pathlib import Path
 import logging
 import sys
-from typing import List, Dict
 
 from ._HeaderFileParser import HeaderFileParser
 from ._SourceGenerator import SourceGenerator
+from .clib import CLibSourceGenerator
 from ._helpers import read_config
 
 
-_logger = logging.getLogger()
+_LOGGER = logging.getLogger()
 
 class CustomFormatter(logging.Formatter):
     """Minimalistic logging output"""
@@ -23,28 +23,46 @@ class CustomFormatter(logging.Formatter):
         return formatter.format(record)
 
 
-def generate_source(lang: str, out_dir: str=""):
+def generate_source(lang: str, out_dir: str=None, verbose=False):
     """Main entry point of sourcegen."""
     loghandler = logging.StreamHandler(sys.stdout)
     loghandler.setFormatter(CustomFormatter())
-    _logger.handlers.clear()
-    _logger.addHandler(loghandler)
-    _logger.setLevel(logging.DEBUG)
-    _logger.info(f"Generating {lang!r} source files...")
+    _LOGGER.handlers.clear()
+    _LOGGER.addHandler(loghandler)
+    _LOGGER.setLevel(logging.DEBUG if verbose else logging.INFO)
+
+    if not out_dir:
+        _LOGGER.critical("Aborting: sourcegen requires output folder information.")
+        exit(1)
 
     module = importlib.import_module(__package__ + "." + lang)
     root = Path(module.__file__).parent
     config = read_config(root / "config.yaml")
     templates = read_config(root / "templates.yaml")
-    ignore_files: List[str] = config.pop("ignore_files", [])
-    ignore_funcs: Dict[str, List[str]] = config.pop("ignore_funcs", {})
+    ignore_files: list[str] = config.pop("ignore_files", [])
+    ignore_funcs: dict[str, list[str]] = config.pop("ignore_funcs", {})
 
-    files = HeaderFileParser.from_headers(ignore_files, ignore_funcs)
+    if lang == 'clib':
+        files = HeaderFileParser.headers_from_yaml(ignore_files, ignore_funcs)
+    elif lang == 'csharp':
+        # csharp parses existing (traditional) CLib header files
+        files = HeaderFileParser.headers_from_h(ignore_files, ignore_funcs)
+    else:
+        # generate CLib headers from YAML specifications
+        files = HeaderFileParser.headers_from_yaml(ignore_files, ignore_funcs)
+        clib_root = Path(__file__).parent / "clib"
+        clib_config = read_config(clib_root / "config.yaml")
+        clib_templates = read_config(clib_root / "templates.yaml")
+        for key in ["ignore_files", "ignore_funcs"]:
+            clib_config.pop(key)
+        clib_scaffolder = CLibSourceGenerator(None, clib_config, clib_templates)
+        clib_scaffolder.resolve_tags(files)
 
     # find and instantiate the language-specific SourceGenerator
+    _LOGGER.info(f"Generating {lang!r} source files...")
     _, scaffolder_type = inspect.getmembers(module,
         lambda m: inspect.isclass(m) and issubclass(m, SourceGenerator))[0]
     scaffolder: SourceGenerator = scaffolder_type(out_dir, config, templates)
 
     scaffolder.generate_source(files)
-    _logger.info("Done.")
+    _LOGGER.info("Done.")

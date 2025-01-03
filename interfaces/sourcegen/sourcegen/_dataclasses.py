@@ -1,10 +1,12 @@
+"""Data classes common to sourcegen scaffolders."""
+
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
 from dataclasses import dataclass
 import re
 from pathlib import Path
-from typing import List, Any, Tuple, Iterator
+from typing import Any, Iterator
 
 from ._helpers import with_unpack_iter
 
@@ -12,18 +14,49 @@ from ._helpers import with_unpack_iter
 @dataclass(frozen=True)
 @with_unpack_iter
 class Param:
-    """Represents a function parameter"""
+    """Class representing a function parameter."""
 
-    p_type: str
-    name: str = ""
+    p_type: str  #: Parameter type
+    name: str = ""  #: Parameter name; may be empty if used for return argument
+
+    description: str = ""  #: Parameter description (optional annotation)
+    direction: str = ""  #: Direction of parameter (optional annotation)
+    default: Any = None  #: Default value (optional)
 
     @classmethod
-    def from_str(cls, param: str) -> 'Param':
-        """Generate Param from string parameter"""
+    def from_str(cls, param: str, doc: str="") -> 'Param':
+        """Generate Param from parameter string."""
+        param = param.strip()
+        default = None
+        if "=" in param:
+            default = param[param.rfind("=")+1:]
+            param = param[:param.rfind("=")]
         parts = param.strip().rsplit(" ", 1)
         if len(parts) == 2 and parts[0] not in ["const", "virtual", "static"]:
-            return cls(*parts)
+            if "@param" not in doc:
+                return cls(*parts, "", "", default)
+            items = doc.split()
+            if items[1] != parts[1]:
+                msg = f"Documented variable {items[1]!r} does not match {parts[1]!r}"
+                raise ValueError(msg)
+            direction = items[0].split("[")[1].split("]")[0] if "[" in items[0] else ""
+            return cls(*parts, " ".join(items[2:]), direction, default)
         return cls(param)
+
+    @classmethod
+    def from_xml(cls, param: str) -> 'Param':
+        """
+        Generate Param from XML string.
+
+        Note: Converts from doxygen style to simplified C++ whitespace notation.
+        """
+        for rep in [(" &", "& "), ("< ", "<"), (" >", ">")]:
+            param = param.replace(*rep)
+        return cls.from_str(param.strip())
+
+    def short_str(self) -> str:
+        """String representation of the parameter without parameter name."""
+        return self.p_type
 
     def long_str(self) -> str:
         """String representation of the parameter with parameter name."""
@@ -34,13 +67,13 @@ class Param:
 
 @dataclass(frozen=True)
 class ArgList:
-    """Represents a function argument list"""
+    """Represents a function argument list."""
 
-    params: List[Param]
-    spec: str = ""  #: trailing Specification (example: `const`)
+    params: list[Param]  #: List of function parameters
+    spec: str = ""  #: Trailing specification (example: `const`)
 
     @staticmethod
-    def _split_arglist(arglist: str) -> Tuple[str, str]:
+    def _split_arglist(arglist: str) -> tuple[str, str]:
         """Split string into text within parentheses and trailing specification."""
         arglist = arglist.strip()
         if not arglist:
@@ -59,11 +92,27 @@ class ArgList:
             return cls([], spec)
         return cls([Param.from_str(arg) for arg in arglist.split(",")], spec)
 
+    @classmethod
+    def from_xml(cls, arglist: str) -> 'ArgList':
+        """Generate ArgList from XML string argument list."""
+        arglist, spec = cls._split_arglist(arglist)
+        if not arglist:
+            return cls([], spec)
+        return cls([Param.from_xml(arg) for arg in arglist.split(",")], spec)
+
+    def __len__(self):
+        return len(self.params)
+
     def __getitem__(self, k):
         return self.params[k]
 
     def __iter__(self) -> "Iterator[Param]":
         return iter(self.params)
+
+    def short_str(self) -> str:
+        """String representation of the argument list without parameter names."""
+        args = ', '.join([par.short_str() for par in self.params])
+        return f"({args}) {self.spec}".strip()
 
     def long_str(self) -> str:
         """String representation of the argument list with parameter names."""
@@ -74,16 +123,16 @@ class ArgList:
 @dataclass(frozen=True)
 @with_unpack_iter
 class Func:
-    """Represents a function parsed from a C header file."""
+    """Represents a function declaration in a C/C++ header file."""
 
-    ret_type: str  # may include leading specifier
-    name: str
-    arglist: ArgList
+    ret_type: str  #: Return type; may include leading specifier
+    name: str  #: Function name
+    arglist: ArgList  #: Argument list
 
     @classmethod
     def from_str(cls, func: str) -> 'Func':
         """Generate Func from declaration string of a function."""
-        func = func.strip()
+        func = func.rstrip(";").strip()
         # match all characters before an opening parenthesis '(' or end of line
         name = re.findall(r'.*?(?=\(|$)', func)[0]
         arglist = ArgList.from_str(func.replace(name, "").strip())
@@ -99,8 +148,88 @@ class Func:
 
 @dataclass(frozen=True)
 @with_unpack_iter
-class HeaderFile:
-    """Represents information about a parsed C header file"""
+class CFunc(Func):
+    """Represents an annotated function declaration in a C/C++ header file."""
 
-    path: Path
-    funcs: List[Func]
+    brief: str = ""  #: Brief description (optional)
+    implements: 'CFunc' = None  #: Implemented C++ function/method (optional)
+    returns: str = ""  #: Description of returned value (optional)
+    base: str = ""  #: Qualified scope of function/method (optional)
+    uses: list['CFunc'] = None  #: List of auxiliary C++ methods (optional)
+
+    @classmethod
+    def from_str(cls, func: str, brief="") -> 'CFunc':
+        """Generate annotated CFunc from header block of a function."""
+        lines = func.split("\n")
+        func = super().from_str(lines[-1])
+        if len(lines) == 1:
+            return func
+        brief = ""
+        returns = ""
+        args = []
+        for ix, line in enumerate(lines[:-1]):
+            line = line.strip().lstrip("*").strip()
+            if ix == 1 and not brief:
+                brief = line
+            elif line.startswith("@param"):
+                # assume that variables are documented in order
+                arg = func.arglist[len(args)].long_str()
+                args.append(Param.from_str(arg, line))
+            elif line.startswith("@returns"):
+                returns = line.lstrip("@returns").strip()
+        args = ArgList(args)
+        return cls(func.ret_type, func.name, args, brief, None, returns, "", [])
+
+    def short_declaration(self) -> str:
+        """Return a short string representation."""
+        ret = (f"{self.name}{self.arglist.short_str()}").strip()
+        if self.base:
+            return f"{self.ret_type} {self.base}::{ret}"
+        return f"{self.ret_type} {ret}"
+
+    @property
+    def ret_param(self):
+        """Assemble return parameter."""
+        return Param(self.ret_type, "", self.returns)
+
+
+@dataclass
+@with_unpack_iter
+class Recipe:
+    """
+    Represents a recipe for a CLib method.
+
+    Class holds contents of YAML header configuration.
+    """
+
+    name: str  #: name of method (without prefix)
+    implements: str  #: signature of implemented C++ function/method
+    uses: str | list[str]  #: auxiliary C++ methods used by recipe
+    what: str  #: override auto-detection of recipe type
+    brief: str  #: override brief description from doxygen documentation
+    code: str  #: custom code to override autogenerated code (stub: to be implemented)
+
+    prefix: str  #: prefix used for CLib access function
+    base: str  #: C++ class implementing method (if applicable)
+    parents: list[str]  #: list of C++ parent classes (if applicable)
+    derived: list[str]  #: list of C++ specializations (if applicable)
+
+
+@dataclass
+class HeaderFile:
+    """Represents information about a parsed C header file."""
+
+    path: Path  #: output folder
+    funcs: list[Func]  #: list of functions to be scaffolded
+
+    prefix: str = ""  #: prefix used for CLib function names
+    base: str = ""  #: base class of C++ methods (if applicable)
+    parents: list[str] = None  #: list of C++ parent class(es)
+    derived: list[str] = None  #: list of C++ specialization(s)
+    recipes: list[Recipe] = None  #: list of header recipes read from YAML
+    docstring: list[str] = None  #: lines representing docstring of YAML file
+
+    def output_name(self, auto="3", suffix=""):
+        """Return updated path."""
+        ret = self.path.parent / self.path.name.replace("_auto", auto)
+        return ret.with_suffix(suffix)

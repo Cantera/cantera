@@ -5,6 +5,7 @@ from dataclasses import fields
 from pathlib import Path
 from ruamel import yaml
 
+
 def read_config(config_file: Path) -> dict:
     """Read YAML configuration file."""
     if config_file.is_file():
