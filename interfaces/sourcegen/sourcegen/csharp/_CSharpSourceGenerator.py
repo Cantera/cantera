@@ -20,7 +20,7 @@ _loader = Environment(loader=BaseLoader)
 class CSharpSourceGenerator(SourceGenerator):
     """The SourceGenerator for scaffolding C# files for the .NET interface"""
 
-    def __init__(self, out_dir: str, config: dict, templates: dict):
+    def __init__(self, out_dir: str, config: dict, templates: dict) -> None:
         if not out_dir:
             _logger.critical("Non-empty string identifying output path required.")
             sys.exit(1)
@@ -159,7 +159,7 @@ class CSharpSourceGenerator(SourceGenerator):
 
         self._out_dir.joinpath(file_name).write_text(contents, encoding="utf-8")
 
-    def _scaffold_interop(self, header_file_path: Path, cs_funcs: list[CsFunc]):
+    def _scaffold_interop(self, header_file_path: Path, cs_funcs: list[CsFunc]) -> None:
         template = _loader.from_string(self._templates["csharp-interop-func"])
         function_list = [
             template.render(unsafe=func.unsafe(), declaration=func.declaration())
@@ -169,7 +169,8 @@ class CSharpSourceGenerator(SourceGenerator):
         self._write_file(
             file_name, "csharp-scaffold-interop", cs_functions=function_list)
 
-    def _scaffold_handles(self, header_file_path: Path, handles: dict[str, str]):
+    def _scaffold_handles(
+            self, header_file_path: Path, handles: dict[str, str]) -> None:
         template = _loader.from_string(self._templates["csharp-base-handle"])
         handle_list = [
             template.render(class_name=key, release_func_name=val)
@@ -179,7 +180,7 @@ class CSharpSourceGenerator(SourceGenerator):
         self._write_file(
             file_name, "csharp-scaffold-handles", cs_handles=handle_list)
 
-    def _scaffold_derived_handles(self):
+    def _scaffold_derived_handles(self) -> None:
         template = _loader.from_string(self._templates["csharp-derived-handle"])
         handle_list = [
             template.render(derived_class_name=key, base_class_name=val)
@@ -190,7 +191,7 @@ class CSharpSourceGenerator(SourceGenerator):
             file_name, "csharp-scaffold-handles", cs_handles=handle_list)
 
     def _scaffold_wrapper_class(self, clib_area: str, props: dict[str, str],
-                                known_funcs: dict[str, CsFunc]):
+                                known_funcs: dict[str, CsFunc]) -> None:
         property_list = [
             self._get_property_text(clib_area, c_name, cs_name, known_funcs)
             for c_name, cs_name in props.items()]
@@ -203,7 +204,7 @@ class CSharpSourceGenerator(SourceGenerator):
             wrapper_class_name=wrapper_class_name, handle_class_name=handle_class_name,
             cs_properties=property_list)
 
-    def generate_source(self, headers_files: list[HeaderFile]):
+    def generate_source(self, headers_files: list[HeaderFile]) -> None:
         self._out_dir.mkdir(parents=True, exist_ok=True)
 
         known_funcs: dict[str, list[CsFunc]] = {}
@@ -224,5 +225,5 @@ class CSharpSourceGenerator(SourceGenerator):
 
         self._scaffold_derived_handles()
 
-        for (clib_area, props) in self._config.wrapper_classes.items():
+        for clib_area, props in self._config.wrapper_classes.items():
             self._scaffold_wrapper_class(clib_area, props, known_funcs)

@@ -23,21 +23,21 @@ class CLibSourceGenerator(SourceGenerator):
 
     _clib_bases: list[str] = None  #: list of bases provided via YAML configurations
 
-    def __init__(self, out_dir: str, config: dict, templates: dict):
+    def __init__(self, out_dir: str, config: dict, templates: dict) -> None:
         self._out_dir = out_dir or None
         if self._out_dir is not None:
             self._out_dir = Path(out_dir)
             self._out_dir.mkdir(parents=True, exist_ok=True)
-        self._config = Config.from_parsed(**config)  # typed config
+        self._config = Config.from_parsed(**config)
         self._templates = templates
         self._doxygen_tags = None
 
     @staticmethod
-    def _javadoc_comment(block):
+    def _javadoc_comment(block: str) -> str:
         """Build deblanked JavaDoc-style (C-style) comment block."""
         block = ["/**"] + block.strip().split("\n")
         block = "\n *  ".join(block).strip() + "\n */"
-        return "\n".join([line.rstrip() for line in block.split('\n')])
+        return "\n".join([line.rstrip() for line in block.split("\n")])
 
     def _scaffold_annotation(self, c_func: CFunc, what: str) -> str:
         """Build annotation block via Jinja."""
@@ -45,7 +45,7 @@ class CLibSourceGenerator(SourceGenerator):
         par_template = loader.from_string(self._templates["clib-param"])
         template = loader.from_string(self._templates["clib-comment"])
 
-        def param(item: Param):
+        def param(item: Param) -> str:
             ret = par_template.render(par=item)
             return f"{ret:<19} {item.description}"
 
@@ -73,7 +73,8 @@ class CLibSourceGenerator(SourceGenerator):
             # successful crosswalk with cabinet object
             return cabinet
 
-        _LOGGER.critical(f"Failed crosswalk for handle type {what!r} using {classes}.")
+        msg = f"Failed crosswalk for handle type {what!r} using {classes}."
+        _LOGGER.critical(msg)
         sys.exit(1)
 
     def _ret_crosswalk(
@@ -117,7 +118,8 @@ class CLibSourceGenerator(SourceGenerator):
                 f"Handle to stored {handle} object or -1 for exception handling.")
             return returns, []
 
-        _LOGGER.critical(f"Failed crosswalk for return type {what!r}.")
+        msg = f"Failed crosswalk for return type {what!r}."
+        _LOGGER.critical(msg)
         sys.exit(1)
 
     def _prop_crosswalk(self, par_list: list[Param]) -> list[Param]:
@@ -155,7 +157,8 @@ class CLibSourceGenerator(SourceGenerator):
                     params.append(
                         Param("int", par.name, description.strip(), par.direction))
             else:
-                _LOGGER.critical(f"Failed crosswalk for argument type {what!r}.")
+                msg = f"Failed crosswalk for argument type {what!r}."
+                _LOGGER.critical(msg)
                 sys.exit(1)
         return params
 
@@ -168,7 +171,7 @@ class CLibSourceGenerator(SourceGenerator):
         buffer = []
         bases = set()
 
-        def shared_object(cxx_type):
+        def shared_object(cxx_type) -> str:
             """Extract object type from shared_ptr."""
             if "shared_ptr<" not in cxx_type:
                 return None
@@ -200,9 +203,9 @@ class CLibSourceGenerator(SourceGenerator):
                               f"{c_args[c_ix].name});",
                               "int(out.size()) + 1"]  # include \0
                 else:
-                    _LOGGER.critical(f"Scaffolding failed for {c_func.name!r}: reverse "
-                                     f"crosswalk not implemented for {cxx_type!r}:\n"
-                                     f"{c_func.declaration()}")
+                    msg = (f"Scaffolding failed for {c_func.name!r}: reverse crosswalk "
+                           f"not implemented for {cxx_type!r}:\n{c_func.declaration()}")
+                    _LOGGER.critical(msg)
                     exit(1)
                 break
 
@@ -214,8 +217,9 @@ class CLibSourceGenerator(SourceGenerator):
                 elif c_name.endswith("Len"):
                     check_array = True
                 else:
-                    _LOGGER.critical(f"Scaffolding failed for {c_func.name!r}: "
-                                     f"unexpected behavior for {c_name!r}.")
+                    msg = (f"Scaffolding failed for {c_func.name!r}: "
+                           f"unexpected behavior for {c_name!r}.")
+                    _LOGGER.critical(msg)
                     exit(1)
                 continue
 
@@ -243,8 +247,9 @@ class CLibSourceGenerator(SourceGenerator):
                     # Can be passed directly; example: double *const
                     args.append(c_name)
                 else:
-                    _LOGGER.critical(f"Scaffolding failed for {c_func.name!r}: reverse "
-                                     f"crosswalk not implemented for {cxx_type!r}.")
+                    msg = (f"Scaffolding failed for {c_func.name!r}: reverse "
+                           f"crosswalk not implemented for {cxx_type!r}.")
+                    _LOGGER.critical(msg)
                     exit(1)
                 check_array = False
             elif "shared_ptr" in cxx_type:
@@ -335,14 +340,15 @@ class CLibSourceGenerator(SourceGenerator):
                 self._templates[f"clib-reserved-{recipe.name}-cpp"])
 
         else:
-            _LOGGER.critical(f"{recipe.what!r} not implemented: {c_func.name!r}.")
+            msg = f"{recipe.what!r} not implemented: {c_func.name!r}."
+            _LOGGER.critical(msg)
             exit(1)
 
         return template.render(**args), bases
 
-    def _resolve_recipe(self, recipe: Recipe, quiet: bool=True) -> CFunc:
+    def _resolve_recipe(self, recipe: Recipe) -> CFunc:
         """Build CLib header from recipe and doxygen annotations."""
-        def merge_params(implements, cxx_func: CFunc) -> tuple[list[Param], int]:
+        def merge_params(implements: str, cxx_func: CFunc) -> tuple[list[Param], int]:
             """Create preliminary CLib argument list."""
             obj_handle = []
             if "::" in implements:
@@ -369,8 +375,8 @@ class CLibSourceGenerator(SourceGenerator):
         if recipe.name in reserved:
             recipe.what = "reserved"
             loader = Environment(loader=BaseLoader)
-            if not quiet:
-                _LOGGER.debug(f"   generating {func_name!r} -> {recipe.what}")
+            msg = f"   generating {func_name!r} -> {recipe.what}"
+            _LOGGER.debug(msg)
             header = loader.from_string(
                 self._templates[f"clib-reserved-{recipe.name}-h"]
                 ).render(base=recipe.base, prefix=recipe.prefix)
@@ -389,8 +395,8 @@ class CLibSourceGenerator(SourceGenerator):
         brief = ""
 
         if recipe.implements:
-            if not quiet:
-                _LOGGER.debug(f"   generating {func_name!r} -> {recipe.implements}")
+            msg = f"   generating {func_name!r} -> {recipe.implements}"
+            _LOGGER.debug(msg)
             cxx_func = self._doxygen_tags.cxx_func(recipe.implements)
 
             # Convert C++ return type to format suitable for crosswalk:
@@ -406,9 +412,9 @@ class CLibSourceGenerator(SourceGenerator):
             # Autodetection of CLib function purpose ("what")
             cxx_arglen = len(cxx_func.arglist)
             if not cxx_func.base:
-                if cxx_func.name.startswith("new") and \
+                if (cxx_func.name.startswith("new") and
                     any(base in cxx_func.ret_type
-                        for base in [recipe.base] + recipe.derived):
+                        for base in [recipe.base] + recipe.derived)):
                     recipe.what = "constructor"
                 else:
                     recipe.what = "function"
@@ -427,7 +433,6 @@ class CLibSourceGenerator(SourceGenerator):
                 recipe.what = "method"
             else:
                 _LOGGER.critical("Unable to auto-detect function type.")
-                # recipe.what = "function"
                 exit(1)
 
         elif recipe.name == "del" and not recipe.what:
@@ -435,8 +440,8 @@ class CLibSourceGenerator(SourceGenerator):
 
         if recipe.what in ["destructor", "noop"]:
             # these function types don't have direct C++ equivalents
-            if not quiet:
-                _LOGGER.debug(f"   generating {func_name!r} -> {recipe.what}")
+            msg = f"   generating {func_name!r} -> {recipe.what}"
+            _LOGGER.debug(msg)
             if recipe.what == "noop":
                 args = []
                 brief= "No operation."
@@ -460,12 +465,14 @@ class CLibSourceGenerator(SourceGenerator):
         loader = Environment(loader=BaseLoader, trim_blocks=True, lstrip_blocks=True)
 
         filename = headers.output_name(suffix=".h", auto="3")
-        _LOGGER.info(f"  scaffolding {filename.name!r}")
+        msg = f"  scaffolding {filename.name!r}"
+        _LOGGER.info(msg)
 
         template = loader.from_string(self._templates["clib-definition"])
         declarations = []
         for c_func, recipe in zip(headers.funcs, headers.recipes):
-            _LOGGER.debug(f"   scaffolding {c_func.name!r} header")
+            msg = f"   scaffolding {c_func.name!r} header"
+            _LOGGER.debug(msg)
             declarations.append(
                 template.render(
                     declaration=c_func.declaration(),
@@ -480,25 +487,25 @@ class CLibSourceGenerator(SourceGenerator):
 
         out = (Path(self._out_dir) /
                "include" / "cantera" / "clib_experimental" / filename.name)
-        _LOGGER.info(f"  writing {filename.name!r}")
-        if not out.parent.exists():
-            out.parent.mkdir(parents=True, exist_ok=True)
-        with open(out, "wt", encoding="utf-8") as stream:
-            stream.write(output)
-            stream.write("\n")
+        msg = f"  writing {filename.name!r}"
+        _LOGGER.info(msg)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(output + "\n")
 
     def _write_implementation(self, headers: HeaderFile) -> None:
         """Parse header specification and generate implementation file."""
         loader = Environment(loader=BaseLoader, trim_blocks=True, lstrip_blocks=True)
 
         filename = headers.output_name(suffix=".cpp", auto="3")
-        _LOGGER.info(f"  scaffolding {filename.name!r}")
+        msg = f"  scaffolding {filename.name!r}"
+        _LOGGER.info(msg)
 
         template = loader.from_string(self._templates["clib-implementation"])
         implementations = []
         other = set()
         for c_func, recipe in zip(headers.funcs, headers.recipes):
-            _LOGGER.debug(f"   scaffolding {c_func.name!r} implementation")
+            msg = f"   scaffolding {c_func.name!r} implementation"
+            _LOGGER.debug(msg)
             body, bases = self._scaffold_body(c_func, recipe)
             implementations.append(
                 template.render(declaration=c_func.declaration(),body=body))
@@ -520,14 +527,12 @@ class CLibSourceGenerator(SourceGenerator):
             includes=includes, other=other, str_utils=str_utils)
 
         out = Path(self._out_dir) / "src" / "clib_experimental" / filename.name
-        _LOGGER.info(f"  writing {filename.name!r}")
-        if not out.parent.exists():
-            out.parent.mkdir(parents=True, exist_ok=True)
-        with open(out, "wt", encoding="utf-8") as stream:
-            stream.write(output)
-            stream.write("\n")
+        msg = f"  writing {filename.name!r}"
+        _LOGGER.info(msg)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(output + "\n")
 
-    def resolve_tags(self, headers_files: list[HeaderFile], quiet: bool=True):
+    def resolve_tags(self, headers_files: list[HeaderFile]) -> None:
         """Resolve recipe information based on doxygen tags."""
         def get_bases() -> tuple[list[str], list[str]]:
             bases = set()
@@ -542,16 +547,16 @@ class CLibSourceGenerator(SourceGenerator):
         self._doxygen_tags = TagFileParser(classes)
 
         for headers in headers_files:
-            if not quiet:
-                _LOGGER.info(f"  resolving recipes in {headers.path.name!r}:")
+            msg = f"  resolving recipes in {headers.path.name!r}:"
+            _LOGGER.info(msg)
             c_funcs = []
             for recipe in headers.recipes:
-                c_funcs.append(self._resolve_recipe(recipe, quiet=quiet))
+                c_funcs.append(self._resolve_recipe(recipe))
             headers.funcs = c_funcs
 
-    def generate_source(self, headers_files: list[HeaderFile]):
+    def generate_source(self, headers_files: list[HeaderFile]) -> None:
         """Generate output."""
-        self.resolve_tags(headers_files, quiet=False)
+        self.resolve_tags(headers_files)
 
         for headers in headers_files:
             self._write_header(headers)
