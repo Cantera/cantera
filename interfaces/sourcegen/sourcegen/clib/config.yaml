@@ -8,7 +8,7 @@ ignore_files: []
 
 # Ignore these specific functions:
 ignore_funcs:
-  ctsol_auto.yaml: [newInterface, setTransport]
+  ctsol_auto.yaml: [setTransport]
 
 # Cabinets with associated includes
 includes:
@@ -16,6 +16,8 @@ includes:
   - cantera/base/global.h
   Solution:
   - cantera/base/Solution.h
+  Interface:
+  - cantera/base/Interface.h
   ThermoPhase:
   - cantera/thermo/ThermoFactory.h
   Kinetics:

@@ -36,6 +36,19 @@ recipes:
   implements: Phase::setMoleFractionsByName(const string&)
 - name: setMassFractionsByName
   implements: Phase::setMassFractionsByName(const string&)
+- name: enthalpy_mole
+- name: enthalpy_mass
+- name: entropy_mole
+- name: entropy_mass
+- name: intEnergy_mole
+- name: intEnergy_mass
+- name: cp_mole
+- name: cp_mass
+- name: getPartialMolarEnthalpies
+- name: getPartialMolarEntropies
+- name: getPartialMolarIntEnergies
+- name: getPartialMolarCp
+- name: getPartialMolarVolumes
 - name: equilibrate
   implements:
     ThermoPhase::equilibrate(const string&, const string&, double, int, int, int)

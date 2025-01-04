@@ -12,6 +12,7 @@ recipes:
 - name: transportModel
 - name: viscosity
 - name: thermalConductivity
+- name: getMixDiffCoeffs
 - name: del
   what: noop
   brief: Destructor; required by some APIs although object is managed by Solution.

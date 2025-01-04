@@ -21,6 +21,8 @@ _LOGGER = logging.getLogger()
 class CLibSourceGenerator(SourceGenerator):
     """The SourceGenerator for generating CLib."""
 
+    _clib_bases: list[str] = None  #: list of bases provided via YAML configurations
+
     def __init__(self, out_dir: str, config: dict, templates: dict):
         self._out_dir = out_dir or None
         if self._out_dir is not None:
@@ -126,11 +128,11 @@ class CLibSourceGenerator(SourceGenerator):
         for par in par_list:
             what = par.p_type
             if what in self._config.prop_type_crosswalk:
-                if "vector" in what:
+                if "vector<" in what:
                     params.append(
                         Param("int", f"{par.name}Len",
                               f"Length of vector reserved for {par.name}.", "in"))
-                elif what.endswith("*const"):
+                elif what.endswith("* const") or what.endswith("double*"):
                     direction = "in" if what.startswith("const") else "out"
                     params.append(
                         Param("int", f"{par.name}Len",
@@ -140,8 +142,18 @@ class CLibSourceGenerator(SourceGenerator):
             elif "shared_ptr" in what:
                 handle = self._handle_crosswalk(
                     what, self._config.prop_type_crosswalk, [])
-                description = f"Integer handle to {handle} object. {par.description}"
-                params.append(Param("int", par.name, description, par.direction))
+                if "vector<" in what:
+                    params.append(
+                        Param("int", f"{par.name}Len",
+                              f"Length of array reserved for {par.name}.", "in"))
+                    description = f"Memory holding {handle} objects. "
+                    description += par.description
+                    params.append(Param("const int*", par.name, description.strip()))
+                else:
+                    description = f"Integer handle to {handle} object. "
+                    description += par.description
+                    params.append(
+                        Param("int", par.name, description.strip(), par.direction))
             else:
                 _LOGGER.critical(f"Failed crosswalk for argument type {what!r}.")
                 sys.exit(1)
@@ -211,7 +223,17 @@ class CLibSourceGenerator(SourceGenerator):
             if check_array:
                 # Need to handle cross-walked parameter with length information
                 c_prev = c_args[c_ix-1].name
-                if "vector" in cxx_type:
+                if "vector<shared_ptr" in cxx_type:
+                    # Example: vector<shared_ptr<Solution>>
+                    cxx_type = cxx_type.lstrip("const ").rstrip("&")
+                    lines.extend([
+                        f"{cxx_type} {c_name}_;",
+                        f"for (int i = 0; i < {c_prev}; i++) {{",
+                        f"    {c_name}_.push_back({base}Cabinet::at({c_name}[i]));",
+                        "}",
+                    ])
+                    args.append(f"{c_name}_")
+                elif "vector" in cxx_type:
                     # Example: vector<double> par_(par, par + parLen);
                     cxx_type = cxx_type.rstrip("&")
                     lines.append(
@@ -303,7 +325,7 @@ class CLibSourceGenerator(SourceGenerator):
                 template = loader.from_string(self._templates["clib-method"])
 
         elif recipe.what == "reserved":
-            args["cabinets"] = [kk for kk in self._config.includes.keys() if kk]
+            args["cabinets"] = [kk for kk in self._clib_bases if kk]
             template = loader.from_string(
                 self._templates[f"clib-reserved-{recipe.name}-cpp"])
 
@@ -393,7 +415,9 @@ class CLibSourceGenerator(SourceGenerator):
                 recipe.what = "getter"
             elif "void" in cxx_func.ret_type and cxx_arglen == 1:
                 p_type = cxx_func.arglist[0].p_type
-                if "*" in p_type and not p_type.startswith("const"):
+                if cxx_func.name.startswith("get"):
+                    recipe.what = "getter"
+                elif "*" in p_type and not p_type.startswith("const"):
                     recipe.what = "getter"  # getter assigns to existing array
                 else:
                     recipe.what = "setter"
@@ -483,7 +507,7 @@ class CLibSourceGenerator(SourceGenerator):
 
         if not headers.base:
             # main CLib file receives references to all cabinets
-            other = [kk for kk in self._config.includes.keys() if kk]
+            other = [kk for kk in self._clib_bases if kk]
         includes = []
         for obj in [headers.base] + list(other):
             includes += self._config.includes[obj]
@@ -504,13 +528,17 @@ class CLibSourceGenerator(SourceGenerator):
 
     def resolve_tags(self, headers_files: list[HeaderFile], quiet: bool=True):
         """Resolve recipe information based on doxygen tags."""
-        def get_bases() -> list[str]:
+        def get_bases() -> tuple[list[str], list[str]]:
             bases = set()
+            classes = set()
             for headers in headers_files:
+                bases |= {headers.base}
                 for recipe in headers.recipes:
-                    bases |= set([recipe.base] + recipe.parents)
-            return list(bases)
-        self._doxygen_tags = TagFileParser(get_bases())
+                    classes |= set([recipe.base] + recipe.parents + recipe.derived)
+            return sorted(bases), sorted(classes)
+
+        self._clib_bases, classes = get_bases()
+        self._doxygen_tags = TagFileParser(classes)
 
         for headers in headers_files:
             if not quiet:

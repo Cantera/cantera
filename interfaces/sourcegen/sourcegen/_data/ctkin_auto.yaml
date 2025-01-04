@@ -10,7 +10,8 @@ parents: []  # List of parent classes
 derived: []  # List of specializations
 recipes:
 - name: nReactions
-# - name: getFwdRatesOfProgress
+- name: kineticsType
+- name: getFwdRatesOfProgress
 - name: del
   what: noop
   brief: Destructor; required by some APIs although object is managed by Solution.
