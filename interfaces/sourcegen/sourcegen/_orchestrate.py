@@ -23,7 +23,7 @@ class CustomFormatter(logging.Formatter):
         return formatter.format(record)
 
 
-def generate_source(lang: str, out_dir: str=None, verbose=False):
+def generate_source(lang: str, out_dir: str = "", verbose = False) -> None:
     """Main entry point of sourcegen."""
     loghandler = logging.StreamHandler(sys.stdout)
     loghandler.setFormatter(CustomFormatter())
@@ -42,13 +42,17 @@ def generate_source(lang: str, out_dir: str=None, verbose=False):
     ignore_files: list[str] = config.pop("ignore_files", [])
     ignore_funcs: dict[str, list[str]] = config.pop("ignore_funcs", {})
 
-    if lang == 'clib':
+    msg = f"Starting sourcegen for {lang!r} API"
+    _LOGGER.info(msg)
+
+    if lang == "clib":
+        # prepare for generation of CLib headers in main processing step
         files = HeaderFileParser.headers_from_yaml(ignore_files, ignore_funcs)
-    elif lang == 'csharp':
+    elif lang == "csharp":
         # csharp parses existing (traditional) CLib header files
         files = HeaderFileParser.headers_from_h(ignore_files, ignore_funcs)
     else:
-        # generate CLib headers from YAML specifications
+        # generate CLib headers from YAML specifications as a preprocessing step
         files = HeaderFileParser.headers_from_yaml(ignore_files, ignore_funcs)
         clib_root = Path(__file__).parent / "clib"
         clib_config = read_config(clib_root / "config.yaml")
@@ -59,7 +63,8 @@ def generate_source(lang: str, out_dir: str=None, verbose=False):
         clib_scaffolder.resolve_tags(files)
 
     # find and instantiate the language-specific SourceGenerator
-    _LOGGER.info(f"Generating {lang!r} source files...")
+    msg = f"Generating {lang!r} source files..."
+    _LOGGER.info(msg)
     _, scaffolder_type = inspect.getmembers(module,
         lambda m: inspect.isclass(m) and issubclass(m, SourceGenerator))[0]
     scaffolder: SourceGenerator = scaffolder_type(out_dir, config, templates)

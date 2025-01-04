@@ -7,6 +7,7 @@ from dataclasses import dataclass
 import re
 from pathlib import Path
 from typing import Any, Iterator
+from typing_extensions import Self
 
 from ._helpers import with_unpack_iter
 
@@ -24,13 +25,12 @@ class Param:
     default: Any = None  #: Default value (optional)
 
     @classmethod
-    def from_str(cls, param: str, doc: str="") -> 'Param':
+    def from_str(cls: Self, param: str, doc: str = "") -> Self:
         """Generate Param from parameter string."""
         param = param.strip()
         default = None
         if "=" in param:
-            default = param[param.rfind("=")+1:]
-            param = param[:param.rfind("=")]
+            param, _, default = param.partition("=")
         parts = param.strip().rsplit(" ", 1)
         if len(parts) == 2 and parts[0] not in ["const", "virtual", "static"]:
             if "@param" not in doc:
@@ -44,7 +44,7 @@ class Param:
         return cls(param)
 
     @classmethod
-    def from_xml(cls, param: str) -> 'Param':
+    def from_xml(cls: Self, param: str) -> Self:
         """
         Generate Param from XML string.
 
@@ -80,12 +80,12 @@ class ArgList:
             return "", ""
         spec = arglist[arglist.rfind(")") + 1:]
         # match text within parentheses
-        regex = re.compile(r'(?<=\().*(?=\))', flags=re.DOTALL)
+        regex = re.compile(r"(?<=\().*(?=\))", flags=re.DOTALL)
         arglist = re.findall(regex, arglist)[0]
         return arglist, spec
 
     @classmethod
-    def from_str(cls, arglist: str) -> 'ArgList':
+    def from_str(cls: Self, arglist: str) -> Self:
         """Generate ArgList from string argument list."""
         arglist, spec = cls._split_arglist(arglist)
         if not arglist:
@@ -93,30 +93,30 @@ class ArgList:
         return cls([Param.from_str(arg) for arg in arglist.split(",")], spec)
 
     @classmethod
-    def from_xml(cls, arglist: str) -> 'ArgList':
+    def from_xml(cls: Self, arglist: str) -> Self:
         """Generate ArgList from XML string argument list."""
         arglist, spec = cls._split_arglist(arglist)
         if not arglist:
             return cls([], spec)
         return cls([Param.from_xml(arg) for arg in arglist.split(",")], spec)
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.params)
 
-    def __getitem__(self, k):
+    def __getitem__(self, k: int) -> Param:
         return self.params[k]
 
-    def __iter__(self) -> "Iterator[Param]":
+    def __iter__(self) -> Iterator[Param]:
         return iter(self.params)
 
     def short_str(self) -> str:
         """String representation of the argument list without parameter names."""
-        args = ', '.join([par.short_str() for par in self.params])
+        args = ", ".join(par.short_str() for par in self.params)
         return f"({args}) {self.spec}".strip()
 
     def long_str(self) -> str:
         """String representation of the argument list with parameter names."""
-        args = ', '.join([par.long_str() for par in self.params])
+        args = ", ".join([par.long_str() for par in self.params])
         return f"({args}) {self.spec}".strip()
 
 
@@ -130,11 +130,11 @@ class Func:
     arglist: ArgList  #: Argument list
 
     @classmethod
-    def from_str(cls, func: str) -> 'Func':
+    def from_str(cls: Self, func: str) -> Self:
         """Generate Func from declaration string of a function."""
         func = func.rstrip(";").strip()
-        # match all characters before an opening parenthesis '(' or end of line
-        name = re.findall(r'.*?(?=\(|$)', func)[0]
+        # match all characters before an opening parenthesis "(" or end of line
+        name = re.findall(r".*?(?=\(|$)", func)[0]
         arglist = ArgList.from_str(func.replace(name, "").strip())
         r_type = ""
         if " " in name:
@@ -152,19 +152,18 @@ class CFunc(Func):
     """Represents an annotated function declaration in a C/C++ header file."""
 
     brief: str = ""  #: Brief description (optional)
-    implements: 'CFunc' = None  #: Implemented C++ function/method (optional)
+    implements: Self = None  #: Implemented C++ function/method (optional)
     returns: str = ""  #: Description of returned value (optional)
     base: str = ""  #: Qualified scope of function/method (optional)
-    uses: list['CFunc'] = None  #: List of auxiliary C++ methods (optional)
+    uses: list[Self] | None = None  #: List of auxiliary C++ methods (optional)
 
     @classmethod
-    def from_str(cls, func: str, brief="") -> 'CFunc':
+    def from_str(cls: Self, func: str, brief: str = "") -> Self:
         """Generate annotated CFunc from header block of a function."""
         lines = func.split("\n")
-        func = super().from_str(lines[-1])
+        func = Func.from_str(lines[-1])
         if len(lines) == 1:
-            return func
-        brief = ""
+            return cls(*func, brief, None, "", "", [])
         returns = ""
         args = []
         for ix, line in enumerate(lines[:-1]):
@@ -188,7 +187,7 @@ class CFunc(Func):
         return f"{self.ret_type} {ret}"
 
     @property
-    def ret_param(self):
+    def ret_param(self) -> Param:
         """Assemble return parameter."""
         return Param(self.ret_type, "", self.returns)
 
@@ -224,12 +223,12 @@ class HeaderFile:
 
     prefix: str = ""  #: prefix used for CLib function names
     base: str = ""  #: base class of C++ methods (if applicable)
-    parents: list[str] = None  #: list of C++ parent class(es)
-    derived: list[str] = None  #: list of C++ specialization(s)
-    recipes: list[Recipe] = None  #: list of header recipes read from YAML
-    docstring: list[str] = None  #: lines representing docstring of YAML file
+    parents: list[str] | None = None  #: list of C++ parent class(es)
+    derived: list[str] | None = None  #: list of C++ specialization(s)
+    recipes: list[Recipe] | None = None  #: list of header recipes read from YAML
+    docstring: list[str] | None = None  #: lines representing docstring of YAML file
 
-    def output_name(self, auto="3", suffix=""):
+    def output_name(self, auto: str = "3", suffix: str = "") -> Path:
         """Return updated path."""
         ret = self.path.parent / self.path.name.replace("_auto", auto)
         return ret.with_suffix(suffix)

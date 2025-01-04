@@ -6,6 +6,8 @@
 import sys
 from pathlib import Path
 import re
+from typing import Sequence, Iterable
+from typing_extensions import Self
 import logging
 from dataclasses import dataclass
 import xml.etree.ElementTree as ET
@@ -33,7 +35,7 @@ class TagInfo:
     anchor: str = ""  #: doxygen anchor
 
     @classmethod
-    def from_xml(cls, qualified_name, xml):
+    def from_xml(cls: Self, qualified_name: str, xml: str) -> Self:
         """Create tag information based on XML data."""
         base = ""
         if "::" in qualified_name:
@@ -41,27 +43,27 @@ class TagInfo:
 
         xml_tree = ET.fromstring(xml)
         return cls(base,
-                   xml_tree.find('type').text,
-                   xml_tree.find('name').text,
-                   xml_tree.find('arglist').text,
-                   xml_tree.find('anchorfile').text.replace(".html", ".xml"),
-                   xml_tree.find('anchor').text)
+                   xml_tree.find("type").text,
+                   xml_tree.find("name").text,
+                   xml_tree.find("arglist").text,
+                   xml_tree.find("anchorfile").text.replace(".html", ".xml"),
+                   xml_tree.find("anchor").text)
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         return all([self.type, self.name, self.arglist, self.anchorfile, self.anchor])
 
     @property
-    def signature(self):
+    def signature(self) -> str:
         """Generate function signature based on tag information."""
         return f"{self.type} {self.name}{self.arglist}"
 
     @property
-    def id(self):
+    def id(self) -> str:
         """Generate doxygen id."""
         return f"{self.anchorfile.replace('.xml', '')}_1{self.anchor}"
 
     @property
-    def qualified_name(self):
+    def qualified_name(self) -> str:
         """Return qualified name."""
         if self.base:
             return f"{self.base}::{self.name}"
@@ -75,7 +77,7 @@ class TagDetails(TagInfo):
 
     location: str = ""  #: File containing doxygen description
     briefdescription: str = ""  #: Brief doxygen description
-    parameterlist: list[Param] = None  #: Annotated doxygen parameter list
+    parameterlist: list[Param] | None = None  #: Annotated doxygen parameter list
 
 
 class TagFileParser:
@@ -91,16 +93,14 @@ class TagFileParser:
             _LOGGER.critical(msg)
             sys.exit(1)
 
-        with tag_file.open() as fid:
-            doxygen_tags = fid.read()
-
         logging.info("Parsing doxygen tags...")
+        doxygen_tags = tag_file.read_text()
         self._parse_doxyfile(doxygen_tags, bases)
 
-    def _parse_doxyfile(self, doxygen_tags: str, bases: list[str]) -> None:
+    def _parse_doxyfile(self, doxygen_tags: str, bases: Sequence[str]) -> None:
         """Retrieve class and function information from Cantera namespace."""
 
-        def xml_compounds(kind: str, names: list[str]) -> dict[str,str]:
+        def xml_compounds(kind: str, names: Sequence[str]) -> dict[str, str]:
             regex = re.compile(rf'<compound kind="{kind}"[\s\S]*?</compound>')
             found = []
             compounds = {}
@@ -110,7 +110,7 @@ class TagFileParser:
                 if compound_name in names:
                     found.append(compound_name)
                     compounds[compound_name] = compound
-                    if not set(names) - set(found):
+                    if not (set(names) - set(found)):
                         return compounds
             missing = '", "'.join(set(names) - set(found))
             msg = f"Missing {kind!r} compound(s):\n    {missing!r}\nusing regex "
@@ -130,15 +130,16 @@ class TagFileParser:
         unknown = set(bases) - set(class_names)
         if "', '".join(unknown):
             unknown = "', '".join(unknown)
-            _LOGGER.critical("Class(es) in configuration file are missing "
-                             f"from tag file: {unknown!r}")
+            msg = ("Class(es) in configuration file are missing "
+                   f"from tag file: {unknown!r}")
+            _LOGGER.critical(msg)
             exit(1)
 
         # Parse content of classes that are specified by the configuration file
         class_names = set(bases) & set(class_names)
         classes = xml_compounds("class", class_names)
 
-        def xml_members(kind: str, text: str, prefix="") -> dict[str, str]:
+        def xml_members(kind: str, text: str, prefix: str = "") -> dict[str, str]:
             regex = re.compile(rf'<member kind="{kind}"[\s\S]*?</member>')
             functions = {}
             for func in re.findall(regex, text):
@@ -161,7 +162,7 @@ class TagFileParser:
         """Check whether doxygen tag exists."""
         return cxx_func in self._known
 
-    def detect(self, name, bases, permissive=True):
+    def detect(self, name: str, bases: Iterable[str], permissive: bool = True) -> str:
         """Detect qualified method name."""
         for base in bases:
             name_ = f"{base}::{name}"
@@ -170,33 +171,35 @@ class TagFileParser:
         if self.exists(name):
             return name
         if permissive:
-            return None
-        _LOGGER.critical(f"Unable to detect {name!r} in doxygen tags.")
+            return ""
+        msg = f"Unable to detect {name!r} in doxygen tags."
+        _LOGGER.critical(msg)
         exit(1)
 
     def tag_info(self, func_string: str) -> TagInfo:
         """Look up tag information based on (partial) function signature."""
         cxx_func = func_string.split("(")[0].split(" ")[-1]
         if cxx_func not in self._known:
-            _LOGGER.critical(f"Could not find {cxx_func!r} in doxygen tag file.")
+            msg = f"Could not find {cxx_func!r} in doxygen tag file."
+            _LOGGER.critical(msg)
             sys.exit(1)
         ix = 0
         if len(self._known[cxx_func]) > 1:
             # Disambiguate functions with same name
             # TODO: current approach does not use information on default arguments
-            known_args = [ET.fromstring(xml).find('arglist').text
+            known_args = [ET.fromstring(xml).find("arglist").text
                           for xml in self._known[cxx_func]]
             known_args = [ArgList.from_xml(al).short_str() for al in known_args]
-            args = re.findall(re.compile(r'(?<=\().*(?=\))'), func_string)
+            args = re.findall(re.compile(r"(?<=\().*(?=\))"), func_string)
             if not args and "()" in known_args:
                 # Candidate function without arguments exists
                 ix = known_args.index("()")
             elif not args:
                 # Function does not use arguments
-                known = '\n - '.join([""] + known_args)
-                _LOGGER.critical(
-                    f"Need argument list to disambiguate {func_string!r}. "
-                    f"possible matches are:{known}")
+                known = "\n - ".join([""] + known_args)
+                msg = (f"Need argument list to disambiguate {func_string!r}. "
+                       f"possible matches are:{known}")
+                _LOGGER.critical(msg)
                 sys.exit(1)
             else:
                 args = f"({args[0]}"
@@ -207,8 +210,8 @@ class TagFileParser:
                         ix = i
                         break
                 if ix < 0:
-                    _LOGGER.critical(
-                        f"Unable to match {func_string!r} to known functions.")
+                    msg = f"Unable to match {func_string!r} to known functions."
+                    _LOGGER.critical(msg)
                     sys.exit(1)
 
         return TagInfo.from_xml(cxx_func, self._known[cxx_func][ix])
@@ -241,28 +244,28 @@ def tag_lookup(tag_info: TagInfo) -> TagDetails:
     """Retrieve tag details from doxygen tree."""
     xml_file = _XML_PATH / tag_info.anchorfile
     if not xml_file.exists():
-        msg = (f"XML file does not exist at expected location: {xml_file}")
+        msg = f"Tag file does not exist at expected location:\n    {xml_file}"
         _LOGGER.error(msg)
         return TagDetails()
 
-    with xml_file.open() as fid:
-        xml_details = fid.read()
-
+    xml_details = xml_file.read_text()
     id_ = tag_info.id
     regex = re.compile(rf'<memberdef kind="function" id="{id_}"[\s\S]*?</memberdef>')
     matches = re.findall(regex, xml_details)
 
     if not matches:
-        _LOGGER.error(f"No XML matches found for {tag_info.qualified_name!r}")
+        msg = f"No XML matches found for {tag_info.qualified_name!r}"
+        _LOGGER.error(msg)
         return TagDetails()
     if len(matches) != 1:
-        _LOGGER.warning(f"Inconclusive XML matches found for {tag_info.qualified_name!r}")
+        msg = f"Inconclusive XML matches found for {tag_info.qualified_name!r}"
+        _LOGGER.warning(msg)
         matches = matches[:1]
 
     def no_refs(entry: str) -> str:
         # Remove stray XML markup that causes problems with xml.etree
         if "<ref" in entry:
-            regex = re.compile(r'<ref [\s\S]*?>')
+            regex = re.compile(r"<ref [\s\S]*?>")
             for ref in re.findall(regex, entry):
                 entry = entry.replace(ref, "<ref>")
             entry = entry.replace("<ref>", "").replace("</ref>", "")

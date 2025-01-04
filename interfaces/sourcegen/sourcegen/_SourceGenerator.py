@@ -13,9 +13,9 @@ class SourceGenerator(metaclass=ABCMeta):
     """Specifies the interface of a language-specific SourceGenerator"""
 
     @abstractmethod
-    def __init__(self, out_dir: Path, config: dict, templates: dict):
+    def __init__(self, out_dir: Path, config: dict, templates: dict) -> None:
         pass
 
     @abstractmethod
-    def generate_source(self, headers_files: list[HeaderFile]):
+    def generate_source(self, headers_files: list[HeaderFile]) -> None:
         pass
