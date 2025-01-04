@@ -50,7 +50,7 @@ class Param:
 
         Note: Converts from doxygen style to simplified C++ whitespace notation.
         """
-        for rep in [(" &", "& "), ("< ", "<"), (" >", ">")]:
+        for rep in [(" &", "& "), ("< ", "<"), (" >", ">"), (" *", "* ")]:
             param = param.replace(*rep)
         return cls.from_str(param.strip())
 

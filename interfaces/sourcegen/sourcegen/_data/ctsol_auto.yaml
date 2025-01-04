@@ -12,7 +12,7 @@ recipes:
 - name: newSolution
   implements: newSolution(const string&, const string&, const string&)
   uses: [thermo, kinetics, transport]
-- name: newInterface  # currently disabled in CLib's config.yaml
+- name: newInterface
   implements:
     newInterface(const string&, const string&, const vector<shared_ptr<Solution>>&)
   uses: [thermo, kinetics]
@@ -23,7 +23,7 @@ recipes:
 - name: thermo
 - name: kinetics
 - name: transport
-- name: setTransport
+- name: setTransport  # currently disabled in CLib's config.yaml
 - name: nAdjacent
 - name: adjacent
   implements: Solution::adjacent(size_t)
