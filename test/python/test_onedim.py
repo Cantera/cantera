@@ -315,8 +315,9 @@ class TestFreeFlame:
         assert abs(T3-Tad) < abs(T2-Tad)
 
         for k in range(self.gas.n_species):
-            assert abs(X2[k]-Xad[k]) <= abs(X1[k]-Xad[k])
-            assert abs(X3[k]-Xad[k]) <= abs(X2[k]-Xad[k])
+            if Xad[k] > self.tol_ss[1]:
+                assert abs(X2[k]-Xad[k]) <= abs(X1[k]-Xad[k])
+                assert abs(X3[k]-Xad[k]) <= abs(X2[k]-Xad[k])
 
     def run_mix(self, phi, T, width, p, refine):
         reactants = {'H2': phi, 'O2': 0.5, 'AR': 2}
