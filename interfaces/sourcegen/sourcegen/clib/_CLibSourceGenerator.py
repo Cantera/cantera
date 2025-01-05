@@ -297,7 +297,12 @@ class CLibSourceGenerator(SourceGenerator):
         args, bases = self._reverse_crosswalk(c_func, recipe.base)
         args["what"] = recipe.what
 
-        if recipe.what == "noop":
+        if recipe.code:
+            # override auto-generated code
+            template = loader.from_string(self._templates["clib-custom-code"])
+            args["lines"] = recipe.code.strip(" \n").split("\n")
+
+        elif recipe.what == "noop":
             template = loader.from_string(self._templates["clib-noop"])
 
         elif recipe.what == "function":
@@ -382,10 +387,6 @@ class CLibSourceGenerator(SourceGenerator):
         ret_param = Param("void")
         args = []
         brief = ""
-
-        if recipe.code:
-            _LOGGER.warning("Custom code is currently not implemented: "
-                            "continuing with auto-generated code.")
 
         if recipe.implements:
             if not quiet:
