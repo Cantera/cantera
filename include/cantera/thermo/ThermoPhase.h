@@ -559,8 +559,16 @@ public:
     }
 
     //! Molar Gibbs function. Units: J/kmol.
+    /*!
+     * Returns the Gibbs free energy per mole,
+     * @f[
+     * \bar{g}(T, P, X_k) = \sum_k X_k \mu_k(T)
+     * @f]
+     * @relates getChemPotentials()
+     */
     virtual double gibbs_mole() const {
-        return enthalpy_mole() - temperature()*entropy_mole();
+        getChemPotentials(m_tmpV.data());
+        return mean_X(m_tmpV);
     }
 
     //! Molar heat capacity at constant pressure. Units: J/kmol/K.

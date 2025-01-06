@@ -103,12 +103,6 @@ double HMWSoln::relative_molal_enthalpy() const
     return L / xuse;
 }
 
-double HMWSoln::gibbs_mole() const
-{
-    getChemPotentials(m_tmpV.data());
-    return mean_X(m_tmpV);
-}
-
 double HMWSoln::cv_mole() const
 {
     double kappa_t = isothermalCompressibility();
