@@ -51,12 +51,6 @@ double DebyeHuckel::gibbs_mole() const
     return mean_X(m_tmpV);
 }
 
-double DebyeHuckel::cp_mole() const
-{
-    getPartialMolarCp(m_tmpV.data());
-    return mean_X(m_tmpV);
-}
-
 // ------- Mechanical Equation of State Properties ------------------------
 
 void DebyeHuckel::calcDensity()

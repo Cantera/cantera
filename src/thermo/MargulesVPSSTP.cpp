@@ -49,18 +49,6 @@ void MargulesVPSSTP::getChemPotentials(double* mu) const
     }
 }
 
-double MargulesVPSSTP::cp_mole() const
-{
-    size_t kk = nSpecies();
-    double cp = 0;
-    vector<double> cpbar(kk);
-    getPartialMolarCp(&cpbar[0]);
-    for (size_t i = 0; i < kk; i++) {
-        cp += moleFractions_[i]*cpbar[i];
-    }
-    return cp;
-}
-
 double MargulesVPSSTP::cv_mole() const
 {
     return cp_mole() - GasConstant;

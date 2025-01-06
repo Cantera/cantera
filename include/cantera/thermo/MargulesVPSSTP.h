@@ -230,7 +230,6 @@ public:
     //! @name  Molar Thermodynamic Properties
     //! @{
 
-    double cp_mole() const override;
     double cv_mole() const override;
 
     //! @}
