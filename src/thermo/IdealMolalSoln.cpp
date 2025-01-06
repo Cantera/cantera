@@ -295,7 +295,6 @@ bool IdealMolalSoln::addSpecies(shared_ptr<Species> spec)
     bool added = MolalityVPSSTP::addSpecies(spec);
     if (added) {
         m_speciesMolarVolume.push_back(0.0);
-        m_tmpV.push_back(0.0);
         IMS_lnActCoeffMolal_.push_back(0.0);
     }
     return added;

@@ -874,6 +874,9 @@ protected:
     //! Flag determining whether case sensitive species names are enforced
     bool m_caseSensitiveSpecies = false;
 
+    //! Vector of size m_kk, used as a temporary holding area.
+    mutable vector<double> m_tmpV;
+
 private:
     //! Find lowercase species name in m_speciesIndices when case sensitive
     //! species names are not enforced and a user specifies a non-canonical

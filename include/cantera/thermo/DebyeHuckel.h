@@ -911,9 +911,6 @@ protected:
     //! Pointer to the water property calculator
     unique_ptr<WaterProps> m_waterProps;
 
-    //! vector of size m_kk, used as a temporary holding area.
-    mutable vector<double> m_tmpV;
-
     /**
      * Stoichiometric species charge -> This is for calculations
      * of the ionic strength which ignore ion-ion pairing into

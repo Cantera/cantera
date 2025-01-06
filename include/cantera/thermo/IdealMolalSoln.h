@@ -404,9 +404,6 @@ protected:
     int IMS_typeCutoff_ = 0;
 
 private:
-    //! vector of size m_kk, used as a temporary holding area.
-    mutable vector<double> m_tmpV;
-
     //! Logarithm of the molal activity coefficients
     /*!
      *   Normally these are all one. However, stability schemes will change that
