@@ -51,12 +51,6 @@ double IdealMolalSoln::intEnergy_mole() const
     return mean_X(m_tmpV);
 }
 
-double IdealMolalSoln::entropy_mole() const
-{
-    getPartialMolarEntropies(m_tmpV.data());
-    return mean_X(m_tmpV);
-}
-
 double IdealMolalSoln::gibbs_mole() const
 {
     getChemPotentials(m_tmpV.data());

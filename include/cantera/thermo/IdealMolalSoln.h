@@ -101,22 +101,6 @@ public:
      */
     double intEnergy_mole() const override;
 
-    //! Molar entropy of the solution. Units: J/kmol/K.
-    /*!
-     * Returns the amount of entropy per mole of solution. For an ideal molal
-     * solution,
-     * @f[
-     * \bar{s}(T, P, X_k) = \sum_k X_k \bar{s}_k(T)
-     * @f]
-     * The formula is written in terms of the partial molar entropies.
-     * @f$ \bar{s}_k(T, p, m_k) @f$.
-     * See the partial molar entropies function, getPartialMolarEntropies(),
-     * for details.
-     *
-     * Units: J/kmol/K.
-     */
-    double entropy_mole() const override;
-
     //! Molar Gibbs function for the solution: Units J/kmol.
     /*!
      * Returns the Gibbs free energy of the solution per mole of the solution.
