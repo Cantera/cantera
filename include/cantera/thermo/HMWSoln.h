@@ -821,25 +821,6 @@ public:
      */
     virtual double relative_molal_enthalpy() const;
 
-    //! Molar entropy. Units: J/kmol/K.
-    /**
-     * Molar entropy of the solution. Units: J/kmol/K. For an ideal, constant
-     * partial molar volume solution mixture with pure species phases which
-     * exhibit zero volume expansivity:
-     * @f[
-     * \hat s(T, P, X_k) = \sum_k X_k \hat s^0_k(T)
-     *      - \hat R  \sum_k X_k \ln(X_k)
-     * @f]
-     * The reference-state pure-species entropies @f$ \hat s^0_k(T,p_{ref}) @f$
-     * are computed by the species thermodynamic property manager. The pure
-     * species entropies are independent of temperature since the volume
-     * expansivities are equal to zero.
-     * @see MultiSpeciesThermo
-     *
-     *      (HKM -> Bump up to Parent object)
-     */
-    double entropy_mole() const override;
-
     double gibbs_mole() const override;
 
     double cp_mole() const override;

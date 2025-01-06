@@ -545,8 +545,18 @@ public:
     }
 
     //! Molar entropy. Units: J/kmol/K.
+    /**
+     * Returns the amount of entropy per mole of solution,
+     * @f[
+     * \bar{s}(T, P, X_k) = \sum_k X_k \bar{s}_k(T)
+     * @f]
+     * The formula is written in terms of the partial molar entropies.
+     * @f$ \bar{s}_k(T, p, m_k) @f$.
+     * @relates getPartialMolarEnthalpies()
+     */
     virtual double entropy_mole() const {
-        throw NotImplementedError("ThermoPhase::entropy_mole");
+        getPartialMolarEntropies(m_tmpV.data());
+        return mean_X(m_tmpV);
     }
 
     //! Molar Gibbs function. Units: J/kmol.

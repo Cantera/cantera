@@ -49,18 +49,6 @@ void MargulesVPSSTP::getChemPotentials(double* mu) const
     }
 }
 
-double MargulesVPSSTP::entropy_mole() const
-{
-    size_t kk = nSpecies();
-    double s = 0;
-    vector<double> sbar(kk);
-    getPartialMolarEntropies(&sbar[0]);
-    for (size_t i = 0; i < kk; i++) {
-        s += moleFractions_[i]*sbar[i];
-    }
-    return s;
-}
-
 double MargulesVPSSTP::cp_mole() const
 {
     size_t kk = nSpecies();
