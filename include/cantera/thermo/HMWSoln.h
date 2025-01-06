@@ -1422,9 +1422,6 @@ private:
     //! Pointer to the water property calculator
     unique_ptr<WaterProps> m_waterProps;
 
-    //! vector of size m_kk, used as a temporary holding area.
-    mutable vector<double> m_tmpV;
-
     /**
      *  Array of 2D data used in the Pitzer/HMW formulation. Beta0_ij[i][j] is
      *  the value of the Beta0 coefficient for the ij salt. It will be nonzero

@@ -649,7 +649,6 @@ bool DebyeHuckel::addSpecies(shared_ptr<Species> spec)
         m_d2lnActCoeffMolaldT2.push_back(0.0);
         m_dlnActCoeffMolaldP.push_back(0.0);
         m_B_Dot.push_back(0.0);
-        m_tmpV.push_back(0.0);
 
         // NAN will be replaced with default value
         double Aionic = NAN;

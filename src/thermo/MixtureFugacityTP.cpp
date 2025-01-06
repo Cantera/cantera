@@ -171,7 +171,6 @@ bool MixtureFugacityTP::addSpecies(shared_ptr<Species> spec)
         m_cp0_R.push_back(0.0);
         m_g0_RT.push_back(0.0);
         m_s0_R.push_back(0.0);
-        m_tmpV.push_back(0.0);
     }
     return added;
 }

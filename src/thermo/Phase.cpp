@@ -806,6 +806,7 @@ bool Phase::addSpecies(shared_ptr<Species> spec)
         m_y.push_back(0.0);
         m_ym.push_back(0.0);
     }
+    m_tmpV.push_back(0.0);
     invalidateCache();
     return true;
 }
