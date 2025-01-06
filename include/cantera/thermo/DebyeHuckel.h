@@ -435,8 +435,6 @@ public:
     //! @name  Molar Thermodynamic Properties of the Solution
     //! @{
 
-    double enthalpy_mole() const override;
-
     //! Molar entropy. Units: J/kmol/K.
     /**
      * For an ideal, constant partial molar volume solution mixture with

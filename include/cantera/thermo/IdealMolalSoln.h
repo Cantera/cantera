@@ -89,22 +89,6 @@ public:
     //! @name  Molar Thermodynamic Properties of the Solution
     //! @{
 
-    //! Molar enthalpy of the solution. Units: J/kmol.
-    /*!
-     * Returns the amount of enthalpy per mole of solution. For an ideal molal
-     * solution,
-     * @f[
-     * \bar{h}(T, P, X_k) = \sum_k X_k \bar{h}_k(T)
-     * @f]
-     * The formula is written in terms of the partial molar enthalpies.
-     * @f$ \bar{h}_k(T, p, m_k) @f$.
-     * See the partial molar enthalpy function, getPartialMolarEnthalpies(),
-     * for details.
-     *
-     * Units: J/kmol
-     */
-    double enthalpy_mole() const override;
-
     //! Molar internal energy of the solution: Units: J/kmol.
     /*!
      * Returns the amount of internal energy per mole of solution. For an ideal

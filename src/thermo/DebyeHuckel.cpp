@@ -45,12 +45,6 @@ DebyeHuckel::~DebyeHuckel()
 
 // -------- Molar Thermodynamic Properties of the Solution ---------------
 
-double DebyeHuckel::enthalpy_mole() const
-{
-    getPartialMolarEnthalpies(m_tmpV.data());
-    return mean_X(m_tmpV);
-}
-
 double DebyeHuckel::entropy_mole() const
 {
     getPartialMolarEntropies(m_tmpV.data());
