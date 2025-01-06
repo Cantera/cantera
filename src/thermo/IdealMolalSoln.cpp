@@ -45,12 +45,6 @@ IdealMolalSoln::IdealMolalSoln(const string& inputFile, const string& id_) :
     initThermoFile(inputFile, id_);
 }
 
-double IdealMolalSoln::enthalpy_mole() const
-{
-    getPartialMolarEnthalpies(m_tmpV.data());
-    return mean_X(m_tmpV);
-}
-
 double IdealMolalSoln::intEnergy_mole() const
 {
     getPartialMolarIntEnergies(m_tmpV.data());

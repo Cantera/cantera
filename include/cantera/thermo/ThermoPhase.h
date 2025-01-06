@@ -524,8 +524,19 @@ public:
     //! @{
 
     //! Molar enthalpy. Units: J/kmol.
+    /**
+     * Returns the amount of enthalpy per mole of solution. For an ideal molal
+     * solution,
+     * @f[
+     * \bar{h}(T, P, X_k) = \sum_k X_k \bar{h}_k(T)
+     * @f]
+     * The formula is written in terms of the partial molar enthalpies.
+     * @f$ \bar{h}_k(T, p, m_k) @f$.
+     * @relates getPartialMolarEnthalpies()
+     */
     virtual double enthalpy_mole() const {
-        throw NotImplementedError("ThermoPhase::enthalpy_mole");
+        getPartialMolarEnthalpies(m_tmpV.data());
+        return mean_X(m_tmpV);
     }
 
     //! Molar internal energy. Units: J/kmol.

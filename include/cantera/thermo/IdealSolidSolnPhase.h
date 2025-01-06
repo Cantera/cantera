@@ -71,20 +71,6 @@ public:
     //! @{
 
     /**
-     * Molar enthalpy of the solution. Units: J/kmol. For an ideal, constant
-     * partial molar volume solution mixture with pure species phases which
-     * exhibit zero volume expansivity and zero isothermal compressibility:
-     * @f[
-     * \hat h(T,P) = \sum_k X_k \hat h^0_k(T) + (P - P_{ref}) (\sum_k X_k \hat V^0_k)
-     * @f]
-     * The reference-state pure-species enthalpies at the reference pressure Pref
-     * @f$ \hat h^0_k(T) @f$, are computed by the species thermodynamic
-     * property manager. They are polynomial functions of temperature.
-     * @see MultiSpeciesThermo
-     */
-    double enthalpy_mole() const override;
-
-    /**
      * Molar entropy of the solution. Units: J/kmol/K. For an ideal, constant
      * partial molar volume solution mixture with pure species phases which
      * exhibit zero volume expansivity:

@@ -51,12 +51,6 @@ HMWSoln::HMWSoln(const string& inputFile, const string& id_) :
 
 // -------- Molar Thermodynamic Properties of the Solution ---------------
 
-double HMWSoln::enthalpy_mole() const
-{
-    getPartialMolarEnthalpies(m_tmpV.data());
-    return mean_X(m_tmpV);
-}
-
 double HMWSoln::relative_enthalpy() const
 {
     getPartialMolarEnthalpies(m_tmpV.data());

@@ -804,8 +804,6 @@ public:
     //! @name  Molar Thermodynamic Properties of the Solution
     //! @{
 
-    double enthalpy_mole() const override;
-
     /**
      * Excess molar enthalpy of the solution from
      * the mixing process. Units: J/ kmol.

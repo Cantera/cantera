@@ -24,12 +24,6 @@ IdealSolidSolnPhase::IdealSolidSolnPhase(const string& inputFile, const string& 
 
 // Molar Thermodynamic Properties of the Solution
 
-double IdealSolidSolnPhase::enthalpy_mole() const
-{
-    double htp = RT() * mean_X(enthalpy_RT_ref());
-    return htp + (pressure() - m_Pref)/molarDensity();
-}
-
 double IdealSolidSolnPhase::entropy_mole() const
 {
     return GasConstant * (mean_X(entropy_R_ref()) - sum_xlogx());
