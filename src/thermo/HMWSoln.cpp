@@ -109,12 +109,6 @@ double HMWSoln::gibbs_mole() const
     return mean_X(m_tmpV);
 }
 
-double HMWSoln::cp_mole() const
-{
-    getPartialMolarCp(m_tmpV.data());
-    return mean_X(m_tmpV);
-}
-
 double HMWSoln::cv_mole() const
 {
     double kappa_t = isothermalCompressibility();

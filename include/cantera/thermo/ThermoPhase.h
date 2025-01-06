@@ -525,8 +525,7 @@ public:
 
     //! Molar enthalpy. Units: J/kmol.
     /**
-     * Returns the amount of enthalpy per mole of solution. For an ideal molal
-     * solution,
+     * Returns the amount of enthalpy per mole,
      * @f[
      * \bar{h}(T, P, X_k) = \sum_k X_k \bar{h}_k(T)
      * @f]
@@ -546,7 +545,7 @@ public:
 
     //! Molar entropy. Units: J/kmol/K.
     /**
-     * Returns the amount of entropy per mole of solution,
+     * Returns the amount of entropy per mole,
      * @f[
      * \bar{s}(T, P, X_k) = \sum_k X_k \bar{s}_k(T)
      * @f]
@@ -565,8 +564,15 @@ public:
     }
 
     //! Molar heat capacity at constant pressure. Units: J/kmol/K.
+    /*!
+     * @f[
+     * \bar{c}_p(T, P, X_k) = \sum_k X_k \bar{c}_{p,k}(T)
+     * @f]
+     * @relates getPartialMolarCp()
+     */
     virtual double cp_mole() const {
-        throw NotImplementedError("ThermoPhase::cp_mole");
+        getPartialMolarCp(m_tmpV.data());
+        return mean_X(m_tmpV);
     }
 
     //! Molar heat capacity at constant volume. Units: J/kmol/K.

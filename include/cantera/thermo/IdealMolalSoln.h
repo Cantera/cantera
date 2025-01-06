@@ -113,16 +113,6 @@ public:
      */
     double gibbs_mole() const override;
 
-    //! Molar heat capacity of the solution at constant pressure. Units: J/kmol/K.
-    /*!
-     * @f[
-     * \bar{c}_p(T, P, X_k) = \sum_k X_k \bar{c}_{p,k}(T)
-     * @f]
-     *
-     * Units: J/kmol/K
-     */
-    double cp_mole() const override;
-
     //! @}
     //! @name Mechanical Equation of State Properties
     //!

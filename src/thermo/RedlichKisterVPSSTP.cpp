@@ -50,17 +50,6 @@ void RedlichKisterVPSSTP::getChemPotentials(double* mu) const
     }
 }
 
-double RedlichKisterVPSSTP::cp_mole() const
-{
-    double cp = 0;
-    vector<double> cpbar(m_kk);
-    getPartialMolarCp(&cpbar[0]);
-    for (size_t i = 0; i < m_kk; i++) {
-        cp += moleFractions_[i]*cpbar[i];
-    }
-    return cp;
-}
-
 double RedlichKisterVPSSTP::cv_mole() const
 {
     return cp_mole();

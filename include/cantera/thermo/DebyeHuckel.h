@@ -436,7 +436,6 @@ public:
     //! @{
 
     double gibbs_mole() const override;
-    double cp_mole() const override;
 
     //! @}
     //! @name Mechanical Equation of State Properties

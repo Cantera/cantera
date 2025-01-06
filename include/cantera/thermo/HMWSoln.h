@@ -823,8 +823,6 @@ public:
 
     double gibbs_mole() const override;
 
-    double cp_mole() const override;
-
     double cv_mole() const override;
 
     //! @}
