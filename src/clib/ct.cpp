@@ -234,10 +234,7 @@ extern "C" {
     {
         try {
             auto soln = SolutionCabinet::at(n);
-            if (a < 0 || a >= static_cast<int>(soln->nAdjacent())) {
-                throw CanteraError("soln_adjacentName", "Invalid index {}.", a);
-            }
-            return static_cast<int>(copyString(soln->adjacent(a)->name(), nm, lennm));
+            return static_cast<int>(copyString(soln->adjacentName(a), nm, lennm));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }

@@ -109,6 +109,11 @@ public:
          return m_adjacent.size();
     }
 
+    //! Get the name of an adjacent phase by index
+    string adjacentName(size_t i) const {
+        return m_adjacent.at(i)->name();
+    }
+
     AnyMap parameters(bool withInput=false) const;
 
     //! Access input data associated with header definition
