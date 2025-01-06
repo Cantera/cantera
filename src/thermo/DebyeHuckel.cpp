@@ -43,14 +43,6 @@ DebyeHuckel::~DebyeHuckel()
     // Defined in .cpp to limit dependence on WaterProps.h
 }
 
-// -------- Molar Thermodynamic Properties of the Solution ---------------
-
-double DebyeHuckel::gibbs_mole() const
-{
-    getChemPotentials(m_tmpV.data());
-    return mean_X(m_tmpV);
-}
-
 // ------- Mechanical Equation of State Properties ------------------------
 
 void DebyeHuckel::calcDensity()

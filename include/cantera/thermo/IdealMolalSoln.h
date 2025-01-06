@@ -101,18 +101,6 @@ public:
      */
     double intEnergy_mole() const override;
 
-    //! Molar Gibbs function for the solution: Units J/kmol.
-    /*!
-     * Returns the Gibbs free energy of the solution per mole of the solution.
-     *
-     * @f[
-     * \bar{g}(T, P, X_k) = \sum_k X_k \mu_k(T)
-     * @f]
-     *
-     * Units: J/kmol
-     */
-    double gibbs_mole() const override;
-
     //! @}
     //! @name Mechanical Equation of State Properties
     //!

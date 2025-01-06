@@ -240,6 +240,12 @@ public:
      */
     double entropy_mole() const override;
 
+    //! Molar Gibbs function of the solution. Units: J/kmol
+    /*!
+     * Uses thermodynamic property relations.
+     */
+    double gibbs_mole() const override;
+
     //! Molar heat capacity at constant pressure of the solution.
     //! Units: J/kmol/K.
     /*!

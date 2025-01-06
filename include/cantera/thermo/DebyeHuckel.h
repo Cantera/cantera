@@ -432,12 +432,6 @@ public:
     }
 
     //! @}
-    //! @name  Molar Thermodynamic Properties of the Solution
-    //! @{
-
-    double gibbs_mole() const override;
-
-    //! @}
     //! @name Mechanical Equation of State Properties
     //!
     //! In this equation of state implementation, the density is a function only

@@ -821,8 +821,6 @@ public:
      */
     virtual double relative_molal_enthalpy() const;
 
-    double gibbs_mole() const override;
-
     double cv_mole() const override;
 
     //! @}
