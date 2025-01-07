@@ -218,7 +218,7 @@ public:
      * computed first by the species reference state thermodynamic property
      * manager and then a small pressure dependent term is added in.
      *
-     * \see MultiSpeciesThermo
+     * @see MultiSpeciesThermo
      */
     double enthalpy_mole() const override;
 
