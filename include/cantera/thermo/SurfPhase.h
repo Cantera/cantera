@@ -124,7 +124,7 @@ public:
      * Enthalpies @f$ \hat h^0_k(T) @f$ are computed by the species
      * thermodynamic property manager.
      *
-     * \see MultiSpeciesThermo
+     * @see MultiSpeciesThermo
      */
     double enthalpy_mole() const override;
 
