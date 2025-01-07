@@ -53,13 +53,6 @@ double IdealMolalSoln::intEnergy_mole() const
 
 // ------- Mechanical Equation of State Properties ------------------------
 
-void IdealMolalSoln::calcDensity()
-{
-    getPartialMolarVolumes(m_tmpV.data());
-    double dd = meanMolecularWeight() / mean_X(m_tmpV);
-    Phase::assignDensity(dd);
-}
-
 double IdealMolalSoln::isothermalCompressibility() const
 {
     return 0.0;

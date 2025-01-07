@@ -52,9 +52,7 @@ void DebyeHuckel::calcDensity()
         // this for all other species if they had pressure dependent properties.
         m_densWaterSS = m_waterSS->density();
     }
-    getPartialMolarVolumes(m_tmpV.data());
-    double dd = meanMolecularWeight() / mean_X(m_tmpV);
-    Phase::assignDensity(dd);
+    VPStandardStateTP::calcDensity();
 }
 
 // ------- Activities and Activity Concentrations

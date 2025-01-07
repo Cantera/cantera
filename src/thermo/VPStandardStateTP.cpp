@@ -199,7 +199,9 @@ void VPStandardStateTP::setPressure(double p)
 
 void VPStandardStateTP::calcDensity()
 {
-    throw NotImplementedError("VPStandardStateTP::calcDensity");
+    getPartialMolarVolumes(m_tmpV.data());
+    double dd = meanMolecularWeight() / mean_X(m_tmpV);
+    Phase::assignDensity(dd);
 }
 
 void VPStandardStateTP::setState_TP(double t, double pres)

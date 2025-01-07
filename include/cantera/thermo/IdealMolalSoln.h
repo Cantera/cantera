@@ -111,9 +111,6 @@ public:
     //! cause an exception to be thrown.
     //! @{
 
-protected:
-    void calcDensity() override;
-
 public:
     //! The isothermal compressibility. Units: 1/Pa.
     /*!
