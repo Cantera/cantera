@@ -123,11 +123,8 @@ void HMWSoln::calcDensity()
         return;
     }
 
-    // Calculate all of the other standard volumes. Note these are constant for
-    // now
-    getPartialMolarVolumes(m_tmpV.data());
-    double dd = meanMolecularWeight() / mean_X(m_tmpV);
-    Phase::assignDensity(dd);
+    // Calculate all of the other standard volumes. Note these are constant for now
+    VPStandardStateTP::calcDensity();
 }
 
 // ------- Activities and Activity Concentrations
