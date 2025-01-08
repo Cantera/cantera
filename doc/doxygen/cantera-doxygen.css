@@ -1,0 +1,39 @@
+/* Colors to match pydata-sphinx-theme */
+html {
+    --primary-color: rgb(10, 125, 145);
+    --pst-color-text-muted: rgb(100, 100, 100);
+}
+
+html.dark-mode {
+    --primary-color: rgb(63, 177, 197);
+    --pst-color-text-muted: rgb(164, 164, 164);
+}
+
+ul#main-menu li a {
+    /* Hide Doxygen navigation tabs that are duplicated in the sidebar */
+    visibility: hidden;
+    display: none !important;
+}
+
+div#top {
+    /* Fix alignment of nav tabs added using header.html */
+    justify-content: left;
+}
+
+/* Re-style the nav bar links to approximate pydata-sphinx-theme */
+.sm-dox a {
+    color: var(--pst-color-text-muted) !important;
+    font-size: 16px;
+    padding: 0 8px;
+}
+
+.sm-dox a#selected {
+    color: var(--primary-color) !important;
+    font-weight: bold;
+}
+
+.sm-dox a:hover {
+    background: unset;
+    color: var(--primary-color) !important;
+    font-size: 16px;
+}
