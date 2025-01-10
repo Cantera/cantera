@@ -20,7 +20,10 @@ namespace Cantera
 
 Flow1D::Flow1D(ThermoPhase* ph, size_t nsp, size_t points) :
     Domain1D(nsp+c_offset_Y, points),
-    m_nsp(nsp)
+    m_nsp(nsp),
+    m_radiation(make_unique<Radiation1D>(ph, ph->pressure(), points,
+                [this](const double* x, size_t j) {return this->T(x,j);},
+                [this](const double* x, size_t k, size_t j) {return this->X(x,k,j);}))
 {
     m_points = points;
 
@@ -82,70 +85,6 @@ Flow1D::Flow1D(ThermoPhase* ph, size_t nsp, size_t points) :
         gr.push_back(1.0*ng/m_points);
     }
     setupGrid(m_points, gr.data());
-
-    // Parse radiation data from the YAML file
-    for (auto& name : m_thermo->speciesNames()) {
-        auto& data = m_thermo->species(name)->input;
-        if (data.hasKey("radiation")) {
-            cout << "Radiation data found for species " << name << endl;
-            m_absorptionSpecies.insert({name, m_thermo->speciesIndex(name)});
-            if (data["radiation"].hasKey("fit-type")) {
-                m_PMAC[name]["fit-type"] = data["radiation"]["fit-type"].asString();
-            } else {
-                throw InputFileError("Flow1D::Flow1D", data,
-                "No 'fit-type' entry found for species '{}'", name);
-            }
-
-            // This is the direct tabulation of the optical path length
-            if (data["radiation"]["fit-type"] == "table") {
-                if (data["radiation"].hasKey("temperatures")) {
-                    cout << "Storing temperatures for species " << name << endl;
-                    // Each species may have a specific set of temperatures that are used
-                    m_PMAC[name]["temperatures"] = data["radiation"]["temperatures"].asVector<double>();
-                } else {
-                    throw InputFileError("Flow1D::Flow1D", data,
-                    "No 'temperatures' entry found for species '{}'", name);
-                }
-                if (data["radiation"].hasKey("data")) {
-                    cout << "Storing data for species " << name << endl;
-                    // This data is the Plank mean absorption coefficient
-                    m_PMAC[name]["coefficients"] = data["radiation"]["data"].asVector<double>();
-                } else {
-                    throw InputFileError("Flow1D::Flow1D", data,
-                    "No 'data' entry found for species '{}'", name);
-                }
-            } else if (data["radiation"]["fit-type"] == "polynomial") {
-                cout << "Polynomial fit found for species " << name << endl;
-                if (data["radiation"].hasKey("data")) {
-                    cout << "Storing data for species " << name << endl;
-                    m_PMAC[name]["coefficients"] = data["radiation"]["data"].asVector<double>();
-                } else {
-                    throw InputFileError("Flow1D::Flow1D", data,
-                    "No 'data' entry found for species '{}'", name);
-                }
-            } else {
-                throw InputFileError("Flow1D::Flow1D", data,
-                "Invalid 'fit-type' entry found for species '{}'", name);
-            }
-        }
-    }
-
-    // Polynomial coefficients for CO2 and H2O (backwards compatibility)
-    // Check if "CO2" is already in the map, if not, add the polynomial fit data
-    if (!m_PMAC.hasKey("CO2")) {
-        const std::vector<double> c_CO2 = {18.741, -121.310, 273.500, -194.050, 56.310,
-                                           -5.8169};
-        m_PMAC["CO2"]["fit-type"] = "polynomial";
-        m_PMAC["CO2"]["coefficients"] = c_CO2;
-    }
-
-    // Check if "H2O" is already in the map, if not, add the polynomial fit data
-    if (!m_PMAC.hasKey("H2O")) {
-        const std::vector<double> c_H2O = {-0.23093, -1.12390, 9.41530, -2.99880,
-                                           0.51382, -1.86840e-5};
-        m_PMAC["H2O"]["fit-type"] = "polynomial";
-        m_PMAC["H2O"]["coefficients"] = c_H2O;
-    }
 }
 
 Flow1D::Flow1D(shared_ptr<ThermoPhase> th, size_t nsp, size_t points)
@@ -527,70 +466,7 @@ void Flow1D::updateDiffFluxes(const double* x, size_t j0, size_t j1)
 
 void Flow1D::computeRadiation(double* x, size_t jmin, size_t jmax)
 {
-    // Variable definitions for the Planck absorption coefficient and the
-    // radiation calculation:
-    double k_P_ref = 1.0*OneAtm;
-
-    // Calculation of the two boundary values
-    double boundary_Rad_left = m_epsilon_left * StefanBoltz * pow(T(x, 0), 4);
-    double boundary_Rad_right = m_epsilon_right * StefanBoltz * pow(T(x, m_points - 1), 4);
-
-    double coef = 0.0;
-    for (size_t j = jmin; j < jmax; j++) {
-        // calculation of the mean Planck absorption coefficient
-        double k_P = 0;
-
-        for(const auto& [sp_name, sp_idx] : m_absorptionSpecies) {
-            if (m_PMAC[sp_name]["fit-type"].asString() == "table") {
-                // temperature table interval search
-                int T_index = 0;
-                const int OPL_table_size = m_PMAC[sp_name]["temperatures"].asVector<double>().size();
-                for (int k = 0; k < OPL_table_size; k++) {
-                    if (T(x, j) < m_PMAC[sp_name]["temperatures"].asVector<double>()[k]) {
-                        if (T(x, j) < m_PMAC[sp_name]["temperatures"].asVector<double>()[0]) {
-                            T_index = 0; //lower table limit
-                        }
-                        else {
-                            T_index = k;
-                        }
-                        break;
-                    }
-                    else {
-                        T_index=OPL_table_size-1; //upper table limit
-                    }
-                }
-
-                // absorption coefficient for specie
-                double k_P_specie = 0.0;
-                if ((T_index == 0) || (T_index == OPL_table_size-1)) {
-                    coef=log(1.0/m_PMAC[sp_name]["coefficients"].asVector<double>()[T_index]);
-                }
-                else {
-                    coef=log(1.0/m_PMAC[sp_name]["coefficients"].asVector<double>()[T_index-1])+
-                    (log(1.0/m_PMAC[sp_name]["coefficients"].asVector<double>()[T_index])-log(1.0/m_PMAC[sp_name]["coefficients"].asVector<double>()[T_index-1]))*
-                    (T(x, j)-m_PMAC[sp_name]["temperatures"].asVector<double>()[T_index-1])/(m_PMAC[sp_name]["temperatures"].asVector<double>()[T_index]-m_PMAC[sp_name]["temperatures"].asVector<double>()[T_index-1]);
-                }
-                k_P_specie = exp(coef);
-
-                k_P_specie /= k_P_ref;
-                k_P += m_press * X(x, m_absorptionSpecies[sp_name], j) * k_P_specie;
-            } else if (m_PMAC[sp_name]["fit-type"].asString() == "polynomial") {
-                double k_P_specie = 0.0;
-                for (size_t n = 0; n <= 5; n++) {
-                    k_P_specie += m_PMAC[sp_name]["coefficients"].asVector<double>()[n] * pow(1000 / T(x, j), (double) n);
-                }
-                k_P_specie /= k_P_ref;
-                k_P += m_press * X(x, m_absorptionSpecies[sp_name], j) * k_P_specie;
-            }
-        }
-
-        // Calculation of the radiative heat loss term
-        double radiative_heat_loss = 2 * k_P *(2 * StefanBoltz * pow(T(x, j), 4)
-                                     - boundary_Rad_left - boundary_Rad_right);
-
-        // set the radiative heat loss vector
-        m_qdotRadiation[j] = radiative_heat_loss;
-    }
+    m_radiation->computeRadiation(x, jmin, jmax, m_qdotRadiation);
 }
 
 void Flow1D::evalContinuity(double* x, double* rsd, int* diag,
@@ -1182,16 +1058,7 @@ bool Flow1D::doElectricField(size_t j) const
 
 void Flow1D::setBoundaryEmissivities(double e_left, double e_right)
 {
-    if (e_left < 0 || e_left > 1) {
-        throw CanteraError("Flow1D::setBoundaryEmissivities",
-            "The left boundary emissivity must be between 0.0 and 1.0!");
-    } else if (e_right < 0 || e_right > 1) {
-        throw CanteraError("Flow1D::setBoundaryEmissivities",
-            "The right boundary emissivity must be between 0.0 and 1.0!");
-    } else {
-        m_epsilon_left = e_left;
-        m_epsilon_right = e_right;
-    }
+    m_radiation->setBoundaryEmissivities(e_left, e_right);
 }
 
 void Flow1D::fixTemperature(size_t j)
