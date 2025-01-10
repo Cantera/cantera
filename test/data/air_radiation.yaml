@@ -17,6 +17,8 @@ phases:
   kinetics: gas
   transport: mixture-averaged
   state: {T: 300.0, P: 1 atm, X: {O2: 0.21, N2: 0.78, AR: 0.01}}
+  radiation:
+  - radiation-parameters.yaml
 
 species:
 - name: O

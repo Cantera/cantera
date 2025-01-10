@@ -33,7 +33,10 @@ const map<string, size_t> componentMap = {
 
 Flow1D::Flow1D(ThermoPhase* ph, size_t nsp, size_t points) :
     Domain1D(nsp+c_offset_Y, points),
-    m_nsp(nsp)
+    m_nsp(nsp),
+    m_radiation(make_unique<Radiation1D>(ph, ph->pressure(), points,
+                [this](const double* x, size_t j) {return this->T(x,j);},
+                [this](const double* x, size_t k, size_t j) {return this->X(x,k,j);}))
 {
     warn_deprecated("Flow1D::Flow1D(ThermoPhase*, size_t, size_t)",
         "To be removed after Cantera 3.2. Use constructor using Solution instead.");
@@ -581,70 +584,7 @@ void Flow1D::updateDiffFluxes(const double* x, size_t j0, size_t j1)
 
 void Flow1D::computeRadiation(double* x, size_t jmin, size_t jmax)
 {
-    // Variable definitions for the Planck absorption coefficient and the
-    // radiation calculation:
-    double k_P_ref = 1.0*OneAtm;
-
-    // Calculation of the two boundary values
-    double boundary_Rad_left = m_epsilon_left * StefanBoltz * pow(T(x, 0), 4);
-    double boundary_Rad_right = m_epsilon_right * StefanBoltz * pow(T(x, m_points - 1), 4);
-
-    double coef = 0.0;
-    for (size_t j = jmin; j < jmax; j++) {
-        // calculation of the mean Planck absorption coefficient
-        double k_P = 0;
-
-        for(const auto& [sp_name, sp_idx] : m_absorptionSpecies) {
-            if (m_PMAC[sp_name]["fit-type"].asString() == "table") {
-                // temperature table interval search
-                int T_index = 0;
-                const int OPL_table_size = m_PMAC[sp_name]["temperatures"].asVector<double>().size();
-                for (int k = 0; k < OPL_table_size; k++) {
-                    if (T(x, j) < m_PMAC[sp_name]["temperatures"].asVector<double>()[k]) {
-                        if (T(x, j) < m_PMAC[sp_name]["temperatures"].asVector<double>()[0]) {
-                            T_index = 0; //lower table limit
-                        }
-                        else {
-                            T_index = k;
-                        }
-                        break;
-                    }
-                    else {
-                        T_index=OPL_table_size-1; //upper table limit
-                    }
-                }
-
-                // absorption coefficient for specie
-                double k_P_specie = 0.0;
-                if ((T_index == 0) || (T_index == OPL_table_size-1)) {
-                    coef=log(1.0/m_PMAC[sp_name]["coefficients"].asVector<double>()[T_index]);
-                }
-                else {
-                    coef=log(1.0/m_PMAC[sp_name]["coefficients"].asVector<double>()[T_index-1])+
-                    (log(1.0/m_PMAC[sp_name]["coefficients"].asVector<double>()[T_index])-log(1.0/m_PMAC[sp_name]["coefficients"].asVector<double>()[T_index-1]))*
-                    (T(x, j)-m_PMAC[sp_name]["temperatures"].asVector<double>()[T_index-1])/(m_PMAC[sp_name]["temperatures"].asVector<double>()[T_index]-m_PMAC[sp_name]["temperatures"].asVector<double>()[T_index-1]);
-                }
-                k_P_specie = exp(coef);
-
-                k_P_specie /= k_P_ref;
-                k_P += m_press * X(x, m_absorptionSpecies[sp_name], j) * k_P_specie;
-            } else if (m_PMAC[sp_name]["fit-type"].asString() == "polynomial") {
-                double k_P_specie = 0.0;
-                for (size_t n = 0; n <= 5; n++) {
-                    k_P_specie += m_PMAC[sp_name]["coefficients"].asVector<double>()[n] * pow(1000 / T(x, j), (double) n);
-                }
-                k_P_specie /= k_P_ref;
-                k_P += m_press * X(x, m_absorptionSpecies[sp_name], j) * k_P_specie;
-            }
-        }
-
-        // Calculation of the radiative heat loss term
-        double radiative_heat_loss = 2 * k_P *(2 * StefanBoltz * pow(T(x, j), 4)
-                                     - boundary_Rad_left - boundary_Rad_right);
-
-        // set the radiative heat loss vector
-        m_qdotRadiation[j] = radiative_heat_loss;
-    }
+    m_radiation->computeRadiation(x, jmin, jmax, m_qdotRadiation);
 }
 
 void Flow1D::evalContinuity(double* x, double* rsd, int* diag,
@@ -1399,16 +1339,7 @@ bool Flow1D::doElectricField(size_t j) const
 
 void Flow1D::setBoundaryEmissivities(double e_left, double e_right)
 {
-    if (e_left < 0 || e_left > 1) {
-        throw CanteraError("Flow1D::setBoundaryEmissivities",
-            "The left boundary emissivity must be between 0.0 and 1.0!");
-    } else if (e_right < 0 || e_right > 1) {
-        throw CanteraError("Flow1D::setBoundaryEmissivities",
-            "The right boundary emissivity must be between 0.0 and 1.0!");
-    } else {
-        m_epsilon_left = e_left;
-        m_epsilon_right = e_right;
-    }
+    m_radiation->setBoundaryEmissivities(e_left, e_right);
 }
 
 void Flow1D::fixTemperature(size_t j)
