@@ -47,11 +47,6 @@ private:
 //! @since Starting in %Cantera 3.1, this method returns a `shared_ptr<FlowDevice>`
 shared_ptr<FlowDevice> newFlowDevice(const string& model, const string& name="(none)");
 
-//! Create a FlowDevice object of the specified type
-//! @since New in %Cantera 3.0.
-//! @deprecated Replaced by newFlowDevice. To be removed after %Cantera 3.1.
-shared_ptr<FlowDevice> newFlowDevice3(const string& model);
-
 //! @}
 }
 

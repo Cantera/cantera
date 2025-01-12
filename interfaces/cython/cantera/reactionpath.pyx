@@ -183,7 +183,7 @@ cdef class ReactionPathDiagram:
     def build(self, verbose=False):
         """
         Build the reaction path diagram. Called automatically by methods which
-        return representations of the diagram, for example write_dot().
+        return representations of the diagram, for example `write_dot()`.
         """
         self.builder.build(deref(self.kinetics.kinetics),
                            stringify(self.element), deref(self._log),

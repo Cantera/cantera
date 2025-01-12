@@ -346,15 +346,9 @@ public:
     }
 
     void init() override;
-
     void eval(size_t jg, double* xg, double* rg, integer* diagg, double rdt) override;
-
     shared_ptr<SolutionArray> asArray(const double* soln) const override;
     void fromArray(SolutionArray& arr, double* soln) override;
-
-    //! @deprecated To be removed after Cantera 3.1.
-    void show(std::ostream& s, const double* x) override;
-
     void show(const double* x) override;
 };
 

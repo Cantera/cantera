@@ -60,14 +60,6 @@ bool Func1::isIdentical(shared_ptr<Func1> other) const
     return true;
 }
 
-bool Func1::isIdentical(Func1& other) const
-{
-    warn_deprecated(
-        "Func1::isIdentical",
-        "Deprecated in Cantera 3.1; replaced by version using shared_ptr<Func1>.");
-    return isIdentical(std::make_shared<Func1>(Func1(other)));
-}
-
 //! accessor function for the returned constant
 double Func1::c() const
 {
@@ -220,10 +212,10 @@ Const1::Const1(const vector<double>& params)
     m_c = params[0];
 }
 
-Poly13::Poly13(const vector<double>& params)
+Poly1::Poly1(const vector<double>& params)
 {
     if (params.size() == 0) {
-        throw CanteraError("Poly13::Poly13",
+        throw CanteraError("Poly1::Poly1",
             "Constructor needs an array that is not empty.");
     }
     size_t n = params.size() - 1;
@@ -231,7 +223,7 @@ Poly13::Poly13(const vector<double>& params)
     copy(params.data(), params.data() + m_cpoly.size(), m_cpoly.begin());
 }
 
-string Poly13::write(const string& arg) const
+string Poly1::write(const string& arg) const
 {
     // write terms in reverse order
     string out = "";
@@ -542,29 +534,6 @@ string PlusConstant1::write(const string& arg) const
         return m_f1->write(arg);
     }
     return fmt::format("{} + {}", m_f1->write(arg), m_c);
-}
-
-double Func1::isProportional(TimesConstant1& other)
-{
-    warn_deprecated(
-        "Func1::isProportional",
-        "Deprecated in Cantera 3.1; replaced by internal function.");
-    if (isIdentical(other.func1_shared())) {
-        return other.c();
-    }
-    return 0.0;
-}
-
-double Func1::isProportional(Func1& other)
-{
-    warn_deprecated(
-        "Func1::isProportional",
-        "Deprecated in Cantera 3.1; replaced by internal function.");
-    if (isIdentical(other)) {
-        return 1.0;
-    } else {
-        return 0.0;
-    }
 }
 
 namespace { // restrict scope of helper functions to local translation unit

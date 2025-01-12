@@ -73,13 +73,6 @@ void Kinetics::checkPhaseArraySize(size_t mm) const
     }
 }
 
-size_t Kinetics::reactionPhaseIndex() const
-{
-    warn_deprecated("Kinetics::reactionPhaseIndex", "The reacting phase is always "
-        "the first phase. To be removed after Cantera 3.1.");
-    return 0;
-}
-
 shared_ptr<ThermoPhase> Kinetics::reactionPhase() const
 {
     return m_thermo[0];

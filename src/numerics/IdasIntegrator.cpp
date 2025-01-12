@@ -350,11 +350,6 @@ void IdasIntegrator::applyOptions()
         #else
             m_linsol_matrix = SUNDenseMatrix(N, N);
         #endif
-        #if SUNDIALS_VERSION_MAJOR >= 6
-            m_linsol_matrix = SUNDenseMatrix(N, N, m_sundials_ctx.get());
-        #else
-            m_linsol_matrix = SUNDenseMatrix(N, N);
-        #endif
         #if CT_SUNDIALS_USE_LAPACK
             #if SUNDIALS_VERSION_MAJOR >= 6
                 m_linsol = SUNLinSol_LapackDense(m_y, (SUNMatrix) m_linsol_matrix,
@@ -382,11 +377,8 @@ void IdasIntegrator::applyOptions()
         #if SUNDIALS_VERSION_MAJOR >= 6
             m_linsol = SUNLinSol_SPGMR(m_y, SUN_PREC_NONE, 0, m_sundials_ctx.get());
             IDASetLinearSolver(m_ida_mem, (SUNLinearSolver) m_linsol, nullptr);
-        #elif SUNDIALS_VERSION_MAJOR >= 4
-            m_linsol = SUNLinSol_SPGMR(m_y, PREC_NONE, 0);
-            IDASpilsSetLinearSolver(m_ida_mem, (SUNLinearSolver) m_linsol);
         #else
-            m_linsol = SUNSPGMR(m_y, PREC_NONE, 0);
+            m_linsol = SUNLinSol_SPGMR(m_y, PREC_NONE, 0);
             IDASpilsSetLinearSolver(m_ida_mem, (SUNLinearSolver) m_linsol);
         #endif
     } else {

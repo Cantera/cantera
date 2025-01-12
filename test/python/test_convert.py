@@ -31,9 +31,7 @@ class Testck2yaml:
         if extra is not None:
             extra = self.test_data_path / extra
         output = self.test_work_path / (output + "-from-ck.yaml")
-        # In Python >= 3.8, this can be replaced by the missing_ok argument
-        if output.is_file():
-            output.unlink()
+        output.unlink(missing_ok=True)
         ck2yaml.convert(inputFile, thermo_file=thermo,
             transport_file=transport, surface_file=surface, out_name=output,
             extra_file=extra, quiet=quiet, **kwargs)

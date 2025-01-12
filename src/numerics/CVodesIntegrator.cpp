@@ -283,9 +283,7 @@ void CVodesIntegrator::initialize(double t0, FuncEval& func)
     //! Specify the method and the iteration type. Cantera Defaults:
     //!        CV_BDF  - Use BDF methods
     //!        CV_NEWTON - use Newton's method
-    #if SUNDIALS_VERSION_MAJOR < 4
-        m_cvode_mem = CVodeCreate(m_method, CV_NEWTON);
-    #elif SUNDIALS_VERSION_MAJOR < 6
+    #if SUNDIALS_VERSION_MAJOR < 6
         m_cvode_mem = CVodeCreate(m_method);
     #else
         m_cvode_mem = CVodeCreate(m_method, m_sundials_ctx.get());
@@ -412,29 +410,17 @@ void CVodesIntegrator::applyOptions()
         #if SUNDIALS_VERSION_MAJOR >= 6
             m_linsol = SUNLinSol_SPGMR(m_y, SUN_PREC_NONE, 0, m_sundials_ctx.get());
             CVodeSetLinearSolver(m_cvode_mem, (SUNLinearSolver) m_linsol, nullptr);
-        #elif SUNDIALS_VERSION_MAJOR >= 4
+        #else
             m_linsol = SUNLinSol_SPGMR(m_y, PREC_NONE, 0);
-            CVSpilsSetLinearSolver(m_cvode_mem, (SUNLinearSolver) m_linsol);
-        # else
-            m_linsol = SUNSPGMR(m_y, PREC_NONE, 0);
             CVSpilsSetLinearSolver(m_cvode_mem, (SUNLinearSolver) m_linsol);
         #endif
         // set preconditioner if used
-        #if SUNDIALS_VERSION_MAJOR >= 4
-            if (m_prec_side != PreconditionerSide::NO_PRECONDITION) {
-                SUNLinSol_SPGMRSetPrecType((SUNLinearSolver) m_linsol,
-                    static_cast<int>(m_prec_side));
-                CVodeSetPreconditioner(m_cvode_mem, cvodes_prec_setup,
-                    cvodes_prec_solve);
-            }
-        #else
-            if (m_prec_side != PreconditionerSide::NO_PRECONDITION) {
-                SUNSPGMRSetPrecType((SUNLinearSolver) m_linsol,
-                    static_cast<int>(m_prec_side));
-                CVSpilsSetPreconditioner(m_cvode_mem, cvodes_prec_setup,
-                    cvodes_prec_solve);
-            }
-        #endif
+        if (m_prec_side != PreconditionerSide::NO_PRECONDITION) {
+            SUNLinSol_SPGMRSetPrecType((SUNLinearSolver) m_linsol,
+                static_cast<int>(m_prec_side));
+            CVodeSetPreconditioner(m_cvode_mem, cvodes_prec_setup,
+                cvodes_prec_solve);
+        }
     } else if (m_type == "BAND") {
         sd_size_t N = static_cast<sd_size_t>(m_neq);
         sd_size_t nu = m_mupper;
@@ -443,10 +429,8 @@ void CVodesIntegrator::applyOptions()
         SUNMatDestroy((SUNMatrix) m_linsol_matrix);
         #if SUNDIALS_VERSION_MAJOR >= 6
             m_linsol_matrix = SUNBandMatrix(N, nu, nl, m_sundials_ctx.get());
-        #elif SUNDIALS_VERSION_MAJOR >= 4
-            m_linsol_matrix = SUNBandMatrix(N, nu, nl);
         #else
-            m_linsol_matrix = SUNBandMatrix(N, nu, nl, nu+nl);
+            m_linsol_matrix = SUNBandMatrix(N, nu, nl);
         #endif
         if (m_linsol_matrix == nullptr) {
             throw CanteraError("CVodesIntegrator::applyOptions",
@@ -590,26 +574,22 @@ AnyMap CVodesIntegrator::solverStats() const
              nonlinConvFails = 0, orderReductions = 0;
     int lastOrder = 0;
 ;
-    #if SUNDIALS_VERSION_MAJOR >= 4
-        CVodeGetNumSteps(m_cvode_mem, &steps);
-        CVodeGetNumRhsEvals(m_cvode_mem, &rhsEvals);
-        CVodeGetNonlinSolvStats(m_cvode_mem, &nonlinIters, &nonlinConvFails);
-        CVodeGetNumErrTestFails(m_cvode_mem, &errTestFails);
-        CVodeGetLastOrder(m_cvode_mem, &lastOrder);
-        CVodeGetNumStabLimOrderReds(m_cvode_mem, &orderReductions);
-        CVodeGetNumJacEvals(m_cvode_mem, &jacEvals);
-        CVodeGetNumLinRhsEvals(m_cvode_mem, &linRhsEvals);
-        CVodeGetNumLinSolvSetups(m_cvode_mem, &linSetup);
-        CVodeGetNumLinIters(m_cvode_mem, &linIters);
-        CVodeGetNumLinConvFails(m_cvode_mem, &linConvFails);
-        CVodeGetNumPrecEvals(m_cvode_mem, &precEvals);
-        CVodeGetNumPrecSolves(m_cvode_mem, &precSolves);
-        CVodeGetNumJTSetupEvals(m_cvode_mem, &jtSetupEvals);
-        CVodeGetNumJtimesEvals(m_cvode_mem, &jTimesEvals);
-    #else
-        warn_user("CVodesIntegrator::solverStats", "Function not"
-                  "supported with sundials versions less than 4.");
-    #endif
+
+    CVodeGetNumSteps(m_cvode_mem, &steps);
+    CVodeGetNumRhsEvals(m_cvode_mem, &rhsEvals);
+    CVodeGetNonlinSolvStats(m_cvode_mem, &nonlinIters, &nonlinConvFails);
+    CVodeGetNumErrTestFails(m_cvode_mem, &errTestFails);
+    CVodeGetLastOrder(m_cvode_mem, &lastOrder);
+    CVodeGetNumStabLimOrderReds(m_cvode_mem, &orderReductions);
+    CVodeGetNumJacEvals(m_cvode_mem, &jacEvals);
+    CVodeGetNumLinRhsEvals(m_cvode_mem, &linRhsEvals);
+    CVodeGetNumLinSolvSetups(m_cvode_mem, &linSetup);
+    CVodeGetNumLinIters(m_cvode_mem, &linIters);
+    CVodeGetNumLinConvFails(m_cvode_mem, &linConvFails);
+    CVodeGetNumPrecEvals(m_cvode_mem, &precEvals);
+    CVodeGetNumPrecSolves(m_cvode_mem, &precSolves);
+    CVodeGetNumJTSetupEvals(m_cvode_mem, &jtSetupEvals);
+    CVodeGetNumJtimesEvals(m_cvode_mem, &jTimesEvals);
 
     #if SUNDIALS_VERSION_MAJOR >= 7 || (SUNDIALS_VERSION_MAJOR == 6 && SUNDIALS_VERSION_MINOR >= 2)
         long int stepSolveFails = 0;

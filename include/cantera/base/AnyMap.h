@@ -34,6 +34,7 @@ namespace Cantera
 class AnyBase {
 public:
     AnyBase() = default;
+    AnyBase(const AnyBase& other) = default;
     virtual ~AnyBase() = default;
     AnyBase& operator=(const AnyBase& other);
 

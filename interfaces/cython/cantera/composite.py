@@ -575,7 +575,7 @@ class SolutionArray(SolutionArrayBase):
         'species', 'n_atoms', 'molecular_weights', 'min_temp', 'max_temp',
         'reference_pressure', 'charges',
         # From Kinetics
-        'n_total_species', 'n_reactions', 'n_phases', 'reaction_phase_index',
+        'n_total_species', 'n_reactions', 'n_phases',
         'kinetics_species_index', 'reaction', 'reactions', 'modify_reaction',
         'multiplier', 'set_multiplier', 'reaction_equations', 'reactant_stoich_coeff',
         'product_stoich_coeff', 'reactant_stoich_coeffs', 'product_stoich_coeffs',
@@ -1194,21 +1194,9 @@ class SolutionArray(SolutionArrayBase):
             pass
 
         # fall back to numpy; this works unless CSV file contains escaped entries
-        if np.lib.NumpyVersion(np.__version__) < "1.14.0":
-            # bytestring needs to be converted for columns containing strings
-            data = np.genfromtxt(filename, delimiter=',', deletechars='',
-                                 dtype=None, names=True)
-            data_dict = {}
-            for label in data.dtype.names:
-                if data[label].dtype.type == np.bytes_:
-                    data_dict[label] = data[label].astype('U')
-                else:
-                    data_dict[label] = data[label]
-        else:
-            # the 'encoding' parameter introduced with NumPy 1.14 simplifies import
-            data = np.genfromtxt(filename, delimiter=',', deletechars='',
-                                 dtype=None, names=True, encoding=None)
-            data_dict = {label: data[label] for label in data.dtype.names}
+        data = np.genfromtxt(filename, delimiter=',', deletechars='',
+                                dtype=None, names=True, encoding=None)
+        data_dict = {label: data[label] for label in data.dtype.names}
         self.restore_data(data_dict, normalize)
 
     def to_pandas(self, cols=None, *args, **kwargs):

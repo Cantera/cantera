@@ -47,29 +47,17 @@ public:
     //! Deletes the statically allocated factory instance.
     void deleteFactory() override;
 
-    //! Build a new transport manager using a transport manager
-    //! that may not be the same as in the phase description
-    //! and return a base class pointer to it
+    //! Build a new transport manager using a transport manager that may not be the same
+    //! as in the phase description and return a base class pointer to it
     /*!
      *  @param model     String name for the transport manager
      *  @param thermo    ThermoPhase object
-     *  @param log_level log level
-     *
-     *  @deprecated The `log_level` parameter is deprecated and will be removed after
-     *      %Cantera 3.1.
      */
-    Transport* newTransport(const string& model, ThermoPhase* thermo, int log_level=-7);
+    Transport* newTransport(const string& model, ThermoPhase* thermo);
 
     //! Build a new transport manager using the default transport manager
     //! in the phase description and return a base class pointer to it
-    /*!
-     * @param thermo    ThermoPhase object
-     * @param log_level log level
-     *
-     * @deprecated The `log_level` parameter is deprecated and will be removed after
-     *     %Cantera 3.1.
-     */
-    Transport* newTransport(ThermoPhase* thermo, int log_level=-7);
+    Transport* newTransport(ThermoPhase* thermo);
 
 private:
     //! Static instance of the factor -> This is the only instance of this

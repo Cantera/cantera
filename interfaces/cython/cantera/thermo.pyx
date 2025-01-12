@@ -2146,9 +2146,8 @@ cdef class PureFluid(ThermoPhase):
         def __get__(self):
             return self.s, self.v, self.Q
 
-# TODO: Remove these helper methods when support for Python 3.8 is dropped. Python 3.9
-# allows the classmethod and property decorators to be chained, so these can be
-# implemented as properties in the Element class.
+# Helper methods for the implementation of properties of class Element.
+# @todo These can be inlined once Support for Cython 0.29 is dropped.
 def _element_symbols():
     syms = elementSymbols()
     return tuple(pystr(s) for s in syms)
@@ -2203,12 +2202,10 @@ class Element:
     #: The number of named elements (not isotopes) defined in Cantera
     num_elements_defined = numElementsDefined()
 
-    #: A list of the symbols of all the elements (not isotopes) defined
-    #: in Cantera
+    #: A list of the symbols of all the elements (not isotopes) defined in Cantera
     element_symbols = _element_symbols()
 
-    #: A list of the names of all the elements (not isotopes) defined
-    #: in Cantera
+    #: A list of the names of all the elements (not isotopes) defined in Cantera
     element_names = _element_names()
 
     def __init__(self, arg):

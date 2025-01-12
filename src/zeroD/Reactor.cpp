@@ -26,11 +26,8 @@ Reactor::Reactor(shared_ptr<Solution> sol, const string& name)
     : ReactorBase(name)
 {
     if (!sol || !(sol->thermo())) {
-        warn_deprecated("Reactor::Reactor",
-            "Creation of empty reactor objects is deprecated in Cantera 3.1 and will "
-            "raise\nexceptions thereafter; reactor contents should be provided in the "
-            "constructor.");
-        return;
+        throw CanteraError("Reactor::Reactor",
+            "Reactor contents must be provided as constructor arguments");
     }
     setSolution(sol);
     setThermo(*sol->thermo());

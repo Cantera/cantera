@@ -44,11 +44,4 @@ shared_ptr<FlowDevice> newFlowDevice(const string& model, const string& name)
     return shared_ptr<FlowDevice>(FlowDeviceFactory::factory()->create(model, name));
 }
 
-shared_ptr<FlowDevice> newFlowDevice3(const string& model)
-{
-    warn_deprecated("newFlowDevice3",
-        "Use newFlowDevice instead; to be removed after Cantera 3.1.");
-    return newFlowDevice(model);
-}
-
 }

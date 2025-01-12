@@ -34,9 +34,9 @@ double Frot(double tr, double sqtr)
 
 //////////////////// class MultiTransport methods //////////////
 
-void MultiTransport::init(ThermoPhase* thermo, int mode, int log_level)
+void MultiTransport::init(ThermoPhase* thermo, int mode)
 {
-    GasTransport::init(thermo, mode, log_level);
+    GasTransport::init(thermo, mode);
 
     // the L matrix
     m_Lmatrix.resize(3*m_nsp, 3*m_nsp);

@@ -96,10 +96,6 @@ class TestFunc1:
                 assert name in func.write()
                 assert func(val) == approx(fcn(coeff * val))
 
-    def test_deprecated(self):
-        with pytest.warns(DeprecationWarning, match="use alternative constructor"):
-            ct.Func1.cxx_functor("cos")
-
     def test_compound(self):
         functors = {
             'sum': lambda x, y: x + y,

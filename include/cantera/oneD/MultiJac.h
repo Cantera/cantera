@@ -77,9 +77,6 @@ public:
         return m_mask;
     }
 
-    //! @deprecated To be removed after Cantera 3.1.
-    void incrementDiagonal(int j, double d);
-
 protected:
     //! Residual evaluator for this Jacobian
     /*!
