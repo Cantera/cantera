@@ -171,6 +171,10 @@ workflow in `.github/workflows/packaging.yml` in the main Cantera repository. Yo
 of these package builds or trigger the workflow manually (in case it fails and requires
 updates after the tag is pushed).
 
+After the workflow successfully builds the packages, it will prompt the Cantera
+maintainers to approve deploying the release to PyPI. Before doing so, download and test
+some of the wheels that are uploaded as "artifacts" on GitHub.
+
 ## Tips
 
 * You can manually run the packaging build in the `pypi-packages` repository by going

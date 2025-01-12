@@ -19,23 +19,16 @@ from collections import OrderedDict
 import numpy as np
 from email.utils import formatdate
 import argparse
-
-try:
-    from ruamel import yaml
-except ImportError:
-    import ruamel_yaml as yaml
+from ruamel import yaml
 
 # yaml.version_info is a tuple with the three parts of the version
 yaml_version = yaml.version_info
-# We choose ruamel.yaml 0.15.34 as the minimum version
-# since it is the highest version available in the Ubuntu
-# 18.04 repositories and seems to work. Older versions such as
-# 0.13.14 on CentOS7 and 0.10.23 on Ubuntu 16.04 raise an exception
-# that they are missing the RoundTripRepresenter
-yaml_min_version = (0, 15, 34)
+# We choose ruamel.yaml 0.17.16 as the minimum version since it is the highest version
+# available in the Ubuntu 22.04 repositories.
+yaml_min_version = (0, 17, 16)
 if yaml_version < yaml_min_version:
     raise RuntimeError(
-        "The minimum supported version of ruamel.yaml is 0.15.34. If you "
+        "The minimum supported version of ruamel.yaml is 0.17.16. If you "
         "installed ruamel.yaml from your operating system's package manager, "
         "please install an updated version using pip or conda."
     )
@@ -67,18 +60,13 @@ def FlowList(*args, **kwargs):
     lst.fa.set_flow_style()
     return lst
 
-# Improved float formatting requires Numpy >= 1.14
-if hasattr(np, 'format_float_positional'):
-    def float2string(data):
-        if data == 0:
-            return '0.0'
-        elif 0.01 <= abs(data) < 10000:
-            return np.format_float_positional(data, trim='0')
-        else:
-            return np.format_float_scientific(data, trim='0')
-else:
-    def float2string(data):
-        return repr(data)
+def float2string(data):
+    if data == 0:
+        return '0.0'
+    elif 0.01 <= abs(data) < 10000:
+        return np.format_float_positional(data, trim='0')
+    else:
+        return np.format_float_scientific(data, trim='0')
 
 def represent_float(self, data):
     if data != data:
@@ -1661,7 +1649,7 @@ def convert(filename=None, output_name=None, text=None, encoding="latin-1"):
         # information regarding conversion
         metadata = BlockMap([
             ("generator", "cti2yaml"),
-            ("cantera-version", "3.1.0"),
+            ("cantera-version", "3.2.0a1"),
             ("date", formatdate(localtime=True)),
         ])
         if filename != "<string>":

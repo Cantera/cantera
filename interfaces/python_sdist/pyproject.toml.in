@@ -1,5 +1,5 @@
 [build-system]
-requires = ["scikit-build-core", "cython", "numpy>=2.0; python_version >= '3.9'", "oldest-supported-numpy; python_version == '3.8'"]
+requires = ["scikit-build-core", "cython", "numpy>=2.0"]
 build-backend = "scikit_build_core.build"
 
 [project]
@@ -22,19 +22,18 @@ classifiers = [
     "Programming Language :: Cython",
     "Programming Language :: Fortran",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: Implementation :: CPython",
     "Topic :: Scientific/Engineering :: Chemistry",
     "Topic :: Scientific/Engineering :: Physics",
 ]
 requires-python = "@py_requires_ver_str@"
 dependencies = [
-    "numpy >= 1.12.0,<3",
-    "ruamel.yaml >= 0.15.34",
+    "numpy >= 1.21.0,<3",
+    "ruamel.yaml >= 0.17.16",
 ]
 
 [project.readme]

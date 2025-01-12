@@ -28,10 +28,7 @@ import textwrap
 import xml.etree.ElementTree as etree
 from typing import Union, Optional, List
 import sys
-try:
-    import ruamel_yaml as yaml
-except ImportError:
-    from ruamel import yaml
+from ruamel import yaml
 try:
     import cantera as ct
     Solution = ct.Solution

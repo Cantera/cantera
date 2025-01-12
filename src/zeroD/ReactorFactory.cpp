@@ -107,10 +107,4 @@ shared_ptr<ReactorBase> newReactor(
         ReactorFactory::factory()->create(model, contents, name));
 }
 
-shared_ptr<ReactorBase> newReactor3(const string& model)
-{
-    warn_deprecated("newReactor3", "To be removed after Cantera 3.1.");
-    return newReactor(model);
-}
-
 }

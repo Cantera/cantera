@@ -66,12 +66,8 @@ void TransportFactory::deleteFactory()
 }
 
 Transport* TransportFactory::newTransport(const string& transportModel,
-        ThermoPhase* phase, int log_level)
+                                          ThermoPhase* phase)
 {
-    if (log_level != -7) {
-        warn_deprecated("TransportFactory::newTransport", "The log_level parameter "
-            "is deprecated and will be removed after Cantera 3.1.");
-    }
     if (transportModel != "DustyGas" && canonicalize(transportModel) == "none") {
         return create(transportModel);
     }
@@ -88,30 +84,26 @@ Transport* TransportFactory::newTransport(const string& transportModel,
     if (transportModel == "DustyGas") {
         tr = new DustyGasTransport;
         Transport* gastr = new MultiTransport;
-        gastr->init(phase, 0, log_level);
+        gastr->init(phase, 0);
         DustyGasTransport* dtr = (DustyGasTransport*)tr;
         dtr->initialize(phase, gastr);
     } else {
         tr = create(transportModel);
         int mode = m_CK_mode[transportModel] ? CK_Mode : 0;
-        tr->init(phase, mode, log_level);
+        tr->init(phase, mode);
     }
     phase->restoreState(state);
     return tr;
 }
 
-Transport* TransportFactory::newTransport(ThermoPhase* phase, int log_level)
+Transport* TransportFactory::newTransport(ThermoPhase* phase)
 {
-    if (log_level != -7) {
-        warn_deprecated("TransportFactory::newTransport", "The log_level parameter "
-            "is deprecated and will be removed after Cantera 3.1.");
-    }
     string transportModel = "none";
     AnyMap& input = phase->input();
     if (input.hasKey("transport")) {
         transportModel = input["transport"].asString();
     }
-    return newTransport(transportModel, phase,log_level);
+    return newTransport(transportModel, phase);
 }
 
 shared_ptr<Transport> newTransport(shared_ptr<ThermoPhase> thermo, const string& model)

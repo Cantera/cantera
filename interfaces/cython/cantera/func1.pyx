@@ -220,26 +220,6 @@ cdef class Func1:
         out.func = out._func.get()
         return out
 
-    @staticmethod
-    def cxx_functor(functor_type, *args):
-        """
-        Retrieve a C++ `Func1` functor (advanced feature).
-
-        For implemented functor types, see the Cantera C++ ``Func1`` documentation.
-
-        .. versionadded:: 3.0
-
-        .. deprecated:: 3.1
-
-            To be removed after Cantera 3.1; replaced by alternative constructor.
-        """
-        warnings.warn(
-            "To be removed after Cantera 3.1; use alternative constructor instead.",
-            DeprecationWarning)
-        cdef shared_ptr[CxxFunc1] func
-        func = Func1._make_cxx_func1(stringify(functor_type), args)
-        return Func1._make_func1(func)
-
     def __add__(self, other):
         if not isinstance(other, Func1):
             other = Func1(other)

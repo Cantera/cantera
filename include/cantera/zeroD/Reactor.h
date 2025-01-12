@@ -66,20 +66,6 @@ public:
         return true;
     }
 
-    /**
-     * Insert something into the reactor. The 'something' must belong to a class
-     * that is a subclass of both ThermoPhase and Kinetics.
-     * @deprecated Unused; to be removed after %Cantera 3.1.
-     */
-    template<class G>
-    void insert(G& contents) {
-        warn_deprecated("Reactor::insert", "Unused; to be removed after Cantera 3.1.");
-        setThermo(contents);
-        setKinetics(contents);
-    }
-
-    using ReactorBase::insert;
-
     void setChemistry(bool cflag=true) override {
         m_chem = cflag;
     }

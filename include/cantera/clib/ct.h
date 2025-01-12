@@ -137,7 +137,6 @@ extern "C" {
     CANTERA_CAPI size_t kin_nReactions(int n);
     CANTERA_CAPI size_t kin_nPhases(int n);
     CANTERA_CAPI size_t kin_phaseIndex(int n, const char* ph);
-    CANTERA_CAPI size_t kin_reactionPhaseIndex(int n);
     CANTERA_CAPI double kin_reactantStoichCoeff(int n, int i, int k);
     CANTERA_CAPI double kin_productStoichCoeff(int n, int i, int k);
     CANTERA_CAPI int kin_getReactionType(int n, int i, size_t len, char* name);

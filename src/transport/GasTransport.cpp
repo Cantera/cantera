@@ -29,7 +29,7 @@ void GasTransport::update_T()
 {
     if (m_thermo->nSpecies() != m_nsp) {
         // Rebuild data structures if number of species has changed
-        init(m_thermo, m_mode, m_log_level != 0 ? m_log_level : -7);
+        init(m_thermo, m_mode);
     }
 
     double T = m_thermo->temperature();
@@ -258,18 +258,11 @@ void GasTransport::getMixDiffCoeffsMass(double* const d)
     }
 }
 
-void GasTransport::init(ThermoPhase* thermo, int mode, int log_level)
+void GasTransport::init(ThermoPhase* thermo, int mode)
 {
     m_thermo = thermo;
     m_nsp = m_thermo->nSpecies();
     m_mode = mode;
-    if (log_level == -7) {
-        log_level = 0;
-    } else {
-        warn_deprecated("Transport::init", "The log_level parameter "
-            "is deprecated and will be removed after Cantera 3.1.");
-    }
-    m_log_level = log_level;
 
     // set up Monchick and Mason collision integrals
     setupCollisionParameters();
@@ -386,15 +379,11 @@ void GasTransport::setupCollisionIntegral()
     }
 
     // initialize the collision integral calculator for the desired T* range
-    debuglog("*** collision_integrals ***\n", m_log_level);
     MMCollisionInt integrals;
-    integrals.init(tstar_min, tstar_max, m_log_level != 0 ? m_log_level : -7);
+    integrals.init(tstar_min, tstar_max);
     fitCollisionIntegrals(integrals);
-    debuglog("*** end of collision_integrals ***\n", m_log_level);
     // make polynomial fits
-    debuglog("*** property fits ***\n", m_log_level);
     fitProperties(integrals);
-    debuglog("*** end of property fits ***\n", m_log_level);
 }
 
 void GasTransport::getTransportData()
@@ -463,14 +452,6 @@ void GasTransport::fitCollisionIntegrals(MMCollisionInt& integrals)
 {
     // Chemkin fits to sixth order polynomials
     int degree = (m_mode == CK_Mode ? 6 : COLL_INT_POLY_DEGREE);
-    if (m_log_level) {
-        writelog("tstar_fits\n"
-                 "fits to A*, B*, and C* vs. log(T*).\n"
-                 "These are done only for the required dstar(j,k) values.\n\n");
-        if (m_log_level < 3) {
-            writelog("*** polynomial coefficients not printed (log_level < 3) ***\n");
-        }
-    }
     vector<double> fitlist;
     m_omega22_poly.clear();
     m_astar_poly.clear();
@@ -532,22 +513,8 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
     vector<double> c(degree + 1), c2(degree + 1);
 
     // fit the pure-species viscosity and thermal conductivity for each species
-    if (m_log_level && m_log_level < 2) {
-        writelog("*** polynomial coefficients not printed (log_level < 2) ***\n");
-    }
     double visc, err, relerr,
                mxerr = 0.0, mxrelerr = 0.0, mxerr_cond = 0.0, mxrelerr_cond = 0.0;
-
-    if (m_log_level) {
-        writelog("Polynomial fits for viscosity:\n");
-        if (m_mode == CK_Mode) {
-            writelog("log(viscosity) fit to cubic polynomial in log(T)\n");
-        } else {
-            writelogf("viscosity/sqrt(T) fit to polynomial of degree "
-                      "%d in log(T)", degree);
-        }
-    }
-
     double T_save = m_thermo->temperature();
     const vector<double>& mw = m_thermo->molecularWeights();
     for (size_t k = 0; k < m_nsp; k++) {
@@ -655,41 +622,8 @@ void GasTransport::fitProperties(MMCollisionInt& integrals)
         m_condcoeffs.push_back(c2);
         m_fittingErrors["conductivity-max-abs-error"] = mxerr_cond;
         m_fittingErrors["conductivity-max-rel-error"] = mxrelerr_cond;
-
-        if (m_log_level >= 2) {
-            writelog(m_thermo->speciesName(k) + ": [" + vec2str(c) + "]\n");
-        }
     }
     m_thermo->setTemperature(T_save);
-
-    if (m_log_level) {
-        writelogf("Maximum viscosity absolute error:  %12.6g\n", mxerr);
-        writelogf("Maximum viscosity relative error:  %12.6g\n", mxrelerr);
-        writelog("\nPolynomial fits for conductivity:\n");
-        if (m_mode == CK_Mode) {
-            writelog("log(conductivity) fit to cubic polynomial in log(T)");
-        } else {
-            writelogf("conductivity/sqrt(T) fit to "
-                      "polynomial of degree %d in log(T)", degree);
-        }
-        if (m_log_level >= 2) {
-            for (size_t k = 0; k < m_nsp; k++) {
-                writelog(m_thermo->speciesName(k) + ": [" +
-                         vec2str(m_condcoeffs[k]) + "]\n");
-            }
-        }
-        writelogf("Maximum conductivity absolute error:  %12.6g\n", mxerr_cond);
-        writelogf("Maximum conductivity relative error:  %12.6g\n", mxrelerr_cond);
-
-        // fit the binary diffusion coefficients for each species pair
-        writelogf("\nbinary diffusion coefficients:\n");
-        if (m_mode == CK_Mode) {
-            writelog("log(D) fit to cubic polynomial in log(T)");
-        } else {
-            writelogf("D/T**(3/2) fit to polynomial of degree %d in log(T)",degree);
-        }
-    }
-
     fitDiffCoeffs(integrals);
 }
 
@@ -757,21 +691,11 @@ void GasTransport::fitDiffCoeffs(MMCollisionInt& integrals)
                 mxrelerr = std::max(mxrelerr, fabs(relerr));
             }
             m_diffcoeffs.push_back(c);
-            if (m_log_level >= 2) {
-                writelog(m_thermo->speciesName(k) + "__" +
-                         m_thermo->speciesName(j) + ": [" + vec2str(c) + "]\n");
-            }
         }
     }
 
     m_fittingErrors["diff-coeff-max-abs-error"] = mxerr;
     m_fittingErrors["diff-coeff-max-rel-error"] = mxrelerr;
-    if (m_log_level) {
-        writelogf("Maximum binary diffusion coefficient absolute error:"
-                 "  %12.6g\n", mxerr);
-        writelogf("Maximum binary diffusion coefficient relative error:"
-                 "%12.6g", mxrelerr);
-    }
 }
 
 void GasTransport::getBinDiffCorrection(double t, MMCollisionInt& integrals,

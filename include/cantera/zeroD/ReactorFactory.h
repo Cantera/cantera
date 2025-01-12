@@ -43,20 +43,11 @@ private:
 //! @ingroup zerodGroup
 //! @{
 
-//! Create a Reactor object of the specified type
-//! @since Starting in %Cantera 3.1, this method returns a `shared_ptr<ReactorBase>`
-//! @deprecated Transitional method. Use newReactor() with contents instead.
-shared_ptr<ReactorBase> newReactor(const string& model);
-
 //! Create a Reactor object of the specified type and contents
-//! @since New in %Cantera 3.1.
+//! @since Starting in %Cantera 3.1, this method requires a valid Solution object and
+//!     returns a `shared_ptr<ReactorBase>` instead of a `ReactorBase*`.
 shared_ptr<ReactorBase> newReactor(
     const string& model, shared_ptr<Solution> contents, const string& name="(none)");
-
-//! Create a Reactor object of the specified type
-//! @since New in %Cantera 3.0.
-//! @deprecated Transitional method. Use newReactor() instead.
-shared_ptr<ReactorBase> newReactor3(const string& model);
 
 //! @}
 

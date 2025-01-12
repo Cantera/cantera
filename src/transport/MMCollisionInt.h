@@ -31,12 +31,8 @@ public:
     /*!
      *  @param tsmin       Minimum value of Tstar to carry out the fitting
      *  @param tsmax       Maximum value of Tstar to carry out the fitting
-     *  @param loglevel    Set the loglevel for the object. The default
-     *                     loglevel is zero, indicating no output.
-     * @deprecated The `log_level` parameter is deprecated and will be removed after
-     *     %Cantera 3.1.
      */
-    void init(double tsmin, double tsmax, int loglevel = -7);
+    void init(double tsmin, double tsmax);
 
     double omega22(double ts, double deltastar);
     double astar(double ts, double deltastar);
@@ -79,9 +75,7 @@ private:
 
     int m_nmin;
     int m_nmax;
-
-    //! loglevel
-    int m_loglevel;
 };
+
 }
 #endif
