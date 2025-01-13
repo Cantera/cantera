@@ -2,8 +2,9 @@ r"""
 Species sensitivity analysis
 ========================================
 
-In this example we simulate an impinging jet, adiabatic, premixed ammonia/hydrogen-air flame,
+In this example we simulate an impinging jet flame, premixed ammonia/hydrogen-air flame,
 calculate the sensitivity of N2O to the A-factor reaction rate constants.
+The input has been set for a given inlet velocity and flame wall temperature.
 
 Requires: cantera >= 3.0.0, pandas
 
