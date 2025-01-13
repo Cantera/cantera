@@ -478,14 +478,15 @@ class TestFreeFlame:
 
     def test_adjoint_sensitivities2(self):
         self.gas = ct.Solution('gri30.yaml')
-        self.gas.TP = 300, ct.one_atm
+        self.gas.TP = 300, 101325
         self.gas.set_equivalence_ratio(1.0, 'CH4', {"O2": 1.0, "N2": 3.76})
 
         self.flame = ct.FreeFlame(self.gas, width = 0.014)
         self.flame.set_refine_criteria(ratio=3, slope=0.07, curve=0.14)
+        self.flame.solve(loglevel=0, refine_grid=False)
 
         # Adjoint sensitivities
-        distance = 0.2
+        distance = 0.14
         species = "NO"
         dk = 1e-4
 
@@ -518,8 +519,8 @@ class TestFreeFlame:
         # Count common reactions
         common_reactions = list(set(top_reactions_fwd) & set(top_reactions_adjoint))
 
-        # Assert that at least 7 reactions match
-        assert len(common_reactions) >= 7, f"Only {len(common_reactions)} Fwd and adjoint based species sensitivities do not match"
+        # Assert that at least 8 reactions match
+        assert len(common_reactions) >= 8, f"Only {len(common_reactions)} Fwd and adjoint based species sensitivities do not match"
 
 
     # @utilities.unittest.skip('sometimes slow')
