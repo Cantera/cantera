@@ -2,19 +2,14 @@ r"""
 Species sensitivity analysis
 ========================================
 
-In this example we simulate an impinging jet, adiabatic, premixed methane-air flame,
-calculate its laminar burning velocity and perform a sensitivity analysis of its
-kinetics with respect to each reaction rate constant.
+In this example we simulate an impinging jet, adiabatic, premixed ammonia/hydrogen-air flame,
+calculate the sensitivity of N2O to the A-factor reaction rate constants.
 
 Requires: cantera >= 3.0.0, pandas
 
-.. tags:: Python, combustion, 1D flow, flame speed, premixed flame,
+.. tags:: Python, combustion, 1D flow, species reaction, premixed flame,
           sensitivity analysis, plotting
 
-The figure below illustrates the setup, in a flame-fixed coordinate system. The
-reactants enter with density :math:`\rho_u`, temperature :math:`T_u` and speed
-:math:`S_u`. The products exit the flame at speed :math:`S_b`, density :math:`\rho_b`
-and temperature :math:`T_b`.
 
 Analysis on ammonia flame is undertaken using the Nakamura mechanism:
 [1] H. Nakamura, S. Hasegawa, T. Tezuka, Kinetic modeling of ammonia/air weak flames in a micro flow reactor with a
