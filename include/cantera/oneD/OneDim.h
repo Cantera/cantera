@@ -377,7 +377,7 @@ protected:
     int m_nsteps = 0;
 
     //! Maximum number of timesteps allowed per call to solve()
-    int m_nsteps_max = 500;
+    int m_nsteps_max = 5000;
 
 private:
     // statistics

@@ -19,7 +19,7 @@ namespace Cantera
 //! ```cpp
 //!     shared_ptr<Domain1D> d1 = newDomain("Inlet", sol, "reactants");
 //! ```
-class DomainFactory : public Factory<Domain1D, shared_ptr<Solution>, const string&>
+class DomainFactory : public Factory<Domain1D, shared_ptr<Solution>, const string&, const size_t&>
 {
 public:
     /**
@@ -51,7 +51,7 @@ private:
 //! @ingroup onedGroup
 template <class T=Domain1D>
 shared_ptr<T> newDomain(
-    const string& domainType, shared_ptr<Solution> solution, const string& id="")
+    const string& domainType, shared_ptr<Solution> solution, const string& id="", const size_t& sections=0)
 {
     string id_ = id;
     if (id_ == "") {
@@ -59,7 +59,7 @@ shared_ptr<T> newDomain(
     }
     auto ret = std::dynamic_pointer_cast<T>(
         shared_ptr<Domain1D>(
-            DomainFactory::factory()->create(domainType, solution, id_)));
+            DomainFactory::factory()->create(domainType, solution, id_, sections)));
     if (!ret) {
         throw CanteraError("newDomain",
             "Invalid cast: unable to access 'Domain1D' as '{}'.", demangle(typeid(T)));
