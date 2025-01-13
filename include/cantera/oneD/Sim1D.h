@@ -217,6 +217,11 @@ public:
     //! Refine the grid in all domains.
     int refine(int loglevel=0);
 
+    /// Remesh the grid in all domains.
+    double remesh(int loglevel, const double dist_min=1e9, const double domain_size=50.0); //from MUTAGEN
+    void addPoint(size_t ndomain, double zpoint, vector<double> xpoint, int loglevel, bool newjac=true); //from MUTAGEN
+    void getRatio(); //from MUTAGEN
+
     //! Add node for fixed temperature point of freely propagating flame
     int setFixedTemperature(double t);
 

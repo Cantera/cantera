@@ -71,6 +71,13 @@ public:
 
     int analyze(size_t n, const double* z, const double* x);
     int getNewGrid(int n, const double* z, int nn, double* znew);
+
+    double remeshFromSolution(int np, const double* z, const double* x, const double dist_min=1e9, const double domain_size=50.0); //from MUTAGEN
+
+    int indxtp(int np,double val,const double* array); //from MUTAGEN
+
+    void getRatio(int np, const double* z, double* x); //from MUTAGEN
+
     int nNewPoints() {
         return static_cast<int>(m_loc.size());
     }
@@ -81,6 +88,29 @@ public:
     bool keepPoint(size_t j) {
         return (m_keep[j] != -1);
     }
+
+
+    double z_new(const int m) //from MUTAGEN
+    {
+      return m_z_new[m];
+    }
+
+    int z_new_size() //from MUTAGEN
+    {
+      return m_z_new.size();
+    }
+
+     double grad_max() //from MUTAGEN
+    {
+      return m_grad_max;
+    }
+
+    double curve_max() //from MUTAGEN
+    {
+      return m_curve_max;
+    }
+
+
     double value(const double* x, size_t i, size_t j);
 
     double maxRatio() {
@@ -111,6 +141,8 @@ protected:
     Domain1D* m_domain;
     size_t m_nv;
     size_t m_npmax = 1000;
+    vector<double> m_z_new; //from MUTAGEN
+    double m_grad_max, m_curve_max; //from MUTAGEN
     double m_thresh = std::sqrt(std::numeric_limits<double>::epsilon());
     double m_gridmin = 1e-10; //!< minimum grid spacing [m]
 };

@@ -179,6 +179,44 @@ typedef map<string, double> Composition;
 //! index returned by functions to indicate "no position"
 const size_t npos = static_cast<size_t>(-1);
 
+//! Soot
+// Thermal accomodation factor
+const double alphaT = 0.9;
+// Active sites : Blanquart and Pitsch (2017) [kmol4/kg4]
+const double Cn_cst = 7.5e-12;
+// Soot particle density [kg/m3]
+const double rho_soot = 1.86e3;
+//C2 molecule volume : 2*Wc/rho_soot/Avogadro [m3]
+const double V_C2 = 2. * 12. / rho_soot / Avogadro;
+// C2 molecule surface area [m2]
+const double S_C2 = Pi * pow(6.0 * V_C2 / Pi, 2.0/3.0);
+// Soot particle fractal dimension
+const double Df = 1.80;
+// Amplification factors
+const double eps_nucl = 2.5;
+const double eps_cond = 1.3;
+const double eps_coag = 2.2;
+// Biggest soot [m-3]
+const double bigSoot = 1.0e-15;
+//Condensation
+const double alphaV = 1.0 - 2.0 / Df;
+const double alphaS = 3.0 / Df - 1.0;
+const double vlim1 = 3.98 * 1.0e-25; // [m3]
+//Coagulation
+const double d_gaz = 2.0e-10; // [m]
+const double Csut1 = 1.4558e-6; // [Pa/s]
+const double Csut2 = 110.4;
+//Surface
+const double alpha_surf = 1.0; // Proportion of active sites at soot surface
+// Radiative
+const double aRadSoot = 1.57;
+const double bRadSoot = 0.56;
+const double CRad0 = 36 * Pi * aRadSoot * bRadSoot / (pow(pow(aRadSoot,2.0) - pow(bRadSoot,2.0)
+                      + 2, 2.0) + pow(2 * aRadSoot * bRadSoot, 2.0));
+const double CRad2 = Planck * lightSpeed / Boltzmann;
+// Soot soret
+const double C_soot_soret = 0.554;
+
 } // namespace
 
 #endif

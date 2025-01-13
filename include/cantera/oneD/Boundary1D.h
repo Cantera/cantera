@@ -80,6 +80,16 @@ public:
         throw NotImplementedError("Boundary1D::setMoleFractions");
     }
 
+    //! Set the mass fractions by specifying a string.
+    virtual void setMassFractions(const std::string& xin) {
+        throw NotImplementedError("Boundary1D::setMassFractions");
+    }
+
+    //! Set the mass fractions by specifying an array.
+    virtual void setMassFractions(const double* xin) {
+        throw NotImplementedError("Boundary1D::setMassFractions");
+    }
+
     //! Mass fraction of species k.
     virtual double massFraction(size_t k) {
         throw NotImplementedError("Boundary1D::massFraction");
@@ -168,6 +178,9 @@ public:
 
     void setMoleFractions(const string& xin) override;
     void setMoleFractions(const double* xin) override;
+    void setMassFractions(const std::string& xin) override;
+    void setMassFractions(const double* xin) override;
+
     double massFraction(size_t k) override {
         return m_yin[k];
     }

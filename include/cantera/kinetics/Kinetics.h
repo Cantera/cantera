@@ -132,6 +132,8 @@ public:
 
     virtual ~Kinetics() = default;
 
+    virtual void closeDynamicLib();
+
     //! Kinetics objects are not copyable or assignable
     Kinetics(const Kinetics&) = delete;
     Kinetics& operator=(const Kinetics&)= delete;

@@ -33,7 +33,7 @@ public:
      * @param points  Number of grid points.
      * @param time    (unused)
      */
-    Domain1D(size_t nv=1, size_t points=1, double time=0.0);
+    Domain1D(size_t nv=1, size_t points=1, double time=0.0, size_t nsoot=0, size_t neq=0);
 
     virtual ~Domain1D();
     Domain1D(const Domain1D&) = delete;
