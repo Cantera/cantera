@@ -110,12 +110,17 @@ _newNames = {
     'GasKinetics': 'gas',
     'Interface': 'surface',
     'Edge': 'edge',
+    'AVBP': 'AVBP',
     'Mix': 'mixture-averaged',
+    'mixture-averaged': 'mixture-averaged',
     'Multi': 'multicomponent',
+    'multicomponent': 'multicomponent',
     'Ion': 'ionized-gas',
     'molar_volume': 'species-molar-volume',
     'solvent_volume': 'solvent-molar-volume',
-    'unity': 'unity'
+    'unity': 'unity',
+    'UnityLewis': 'unity',
+    'custom': 'custom',
 }
 
 # constants that can be used in .cti files

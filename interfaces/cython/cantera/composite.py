@@ -7,6 +7,11 @@ import numpy as np
 import csv as _csv
 import importlib.metadata
 import warnings
+import shutil
+import filecmp
+import subprocess
+import time
+import os
 
 _h5py = None
 def _import_h5py():

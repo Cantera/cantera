@@ -313,11 +313,14 @@ cdef class Boundary1D(Domain1D):
             self.boundary = NULL
         else:
             self._domain = CxxNewDomain1D(
-                stringify(self._domain_type), phase._base, stringify(name))
+                stringify(self._domain_type), phase._base, stringify(name),
+                #add kwargs if kwargs provided
+                kwargs['sections'] if 'sections' in kwargs else 0,
+                )
             self.domain = self._domain.get()
             self.boundary = <CxxBoundary1D*>self.domain
 
-    def __init__(self, phase, name=None):
+    def __init__(self, phase, name=None, **kwargs):
         if self.boundary is NULL:
             raise TypeError("Can't instantiate abstract class Boundary1D.")
         Domain1D.__init__(self, phase, name=name)
@@ -430,7 +433,10 @@ cdef class ReactingSurface1D(Boundary1D):
             self.surf = new CxxReactingSurf1D()
             self.domain = <CxxDomain1D*>(self.surf)
         else:
-            self._domain = CxxNewDomain1D(stringify(self._domain_type), phase._base, stringify(name))
+            self._domain = CxxNewDomain1D(stringify(self._domain_type), phase._base, stringify(name),
+                #add kwargs if kwargs provided
+                kwargs['sections'] if 'sections' in kwargs else 0,
+            )
             self.domain = self._domain.get()
             self.surf = <CxxReactingSurf1D*>self.domain
         self.boundary = <CxxBoundary1D*>(self.surf)
@@ -499,7 +505,10 @@ cdef class _FlowBase(Domain1D):
     """ Base class for 1D flow domains """
     def __cinit__(self, _SolutionBase phase, *args, name="", **kwargs):
         self._domain = CxxNewDomain1D(
-            stringify(self._domain_type), phase._base, stringify(name))
+            stringify(self._domain_type), phase._base, stringify(name),
+            #add kwargs if kwargs provided
+            kwargs['sections'] if 'sections' in kwargs else 0,
+            )
         self.domain = self._domain.get()
         self.flow = <CxxStFlow*>self.domain
 
@@ -710,6 +719,543 @@ cdef class _FlowBase(Domain1D):
                 data[j] = self.flow.radiativeHeatLoss(j)
             return data
 
+    # BEGIN of soot API
+
+    property soot_loglevel:
+        """
+        Outputs soot sections informations.
+
+        :param None
+
+        :return None
+        """
+        def __set__(self, loglevel):
+            self.flow.setSootLoglevel(loglevel)
+        def __get__(self):
+            return self.flow.getSootLoglevel()
+
+    property soot_sections:
+        """
+        Returns number of soot sections.
+
+        :param None
+
+        :return int :
+            Number of sections
+        """
+        def __set__(self, nSec):
+            #self.flow.setSections(nSec)
+            raise KeyError ('/!\ SOOT ERROR : You cannot set sections number this way !')
+        def __get__(self):
+            return self.flow.getSections()
+
+    property soot_precursors:
+        """
+        Sets soot precursors.
+
+        : param precrursors = list[str] :
+            precursors names (in mechanism nomenclature)
+
+        : return None
+        """
+        def __set__(self, precursors):
+            cdef vector[size_t] id_precursors
+            if isinstance(precursors, str):
+                precursors = [precursors]
+            av_precursors = [precursor for precursor in precursors if precursor in self.gas.species_names]
+            id_precursors = [self.component_index(precursor) for precursor in av_precursors]
+            if len(id_precursors) == 0:
+               raise KeyError('/!\ SOOT ERROR : No acceptable precursors !')
+            else:
+                self.flow.setPrecursors(id_precursors)
+        def __get__(self):
+            raise NotImplementedError('Getter not implemented yet.')
+
+    property soot_trash_section:
+        """
+        Gets / sets trash section size (<0 if disabled).
+
+        : param trash_section = float :
+            trash section size [m]
+
+        : return bool :
+            trash section enabled
+        """
+        def __set__(self, trash_section):
+            self.flow.enableTrashSection(trash_section)
+        def __get__(self):
+            return self.flow.trashSectionEnabled()
+
+    property soot_do_retroaction:
+        """
+        Gets / sets whether retroaction on gas phase is activated or not.
+
+        : param do_retroaction = bool :
+            reatroaction enabled
+
+        : return bool :
+            retroaction enabled
+        """
+        def __set__(self, do_retroaction):
+            self.flow.enableRetroaction(<cbool>do_retroaction)
+        def __get__(self):
+            return self.flow.retroactionEnabled()
+
+    property soot_do_condensation:
+        """
+        Gets / sets whether dimer condensation on soot particles is activated or not.
+
+        : param do_condensation = bool :
+            condensation enabled
+
+        : return bool :
+            condensation enabled
+        """
+        def __set__(self, do_condensation):
+            self.flow.enableCondensation(<cbool>do_condensation)
+        def __get__(self):
+            return self.flow.condensationEnabled()
+
+    property soot_do_coagulation:
+        """
+        Gets / sets whether coagulation between soot particles is activated or not.
+
+        : param do_coagulation = bool :
+            coagulation enabled
+
+        : return bool :
+            coagulation enabled
+        """
+        def __set__(self, do_coagulation):
+            self.flow.enableCoagulation(<cbool>do_coagulation)
+        def __get__(self):
+            return self.flow.coagulationEnabled()
+
+    property soot_morphology:
+        """
+        """
+        def __set__(self, morphology_model):
+            self.flow.setSootMorphology(stringify(morphology_model))
+        def __get__(self):
+            self.flow.getSootMorphology()
+
+    property soot_collision_model:
+        """
+        Gets / sets whether coagulation between soot particles is activated or not.
+
+        : return str :
+            coagulation enabled
+        """
+        def __set__(self, collision_model):
+            self.flow.setCollisionModel(stringify(collision_model))
+        def __get__(self):
+            return self.flow.getCollisionModel()
+
+    property soot_haca:
+        """
+        Gets / sets haca model.
+        : param haca_model = str or int :
+           "mauss" : 1
+           "blanquart" : 2
+           "kazakov" : 3
+           "mauss tuned" : 11
+        : return int :
+           haca model
+        """
+        def __set__(self, haca_model):
+            haca = 0
+            if haca_model in [1, 'mauss']:
+                haca = 1
+            if haca_model in [11, 'mauss tuned']:
+                haca = 11
+            elif haca_model in [2, 'blanquart']:
+                haca = 2
+            elif haca_model in [3, 'kazakov']:
+                haca = 3
+            if haca not in [1,11,2,3]:
+                raise KeyError ('/!\ SOOT ERROR : haca_model must be mauss(1), mauss tuned(11), blanquart(2), or kazakov(3)')
+            self.flow.setHaca(haca)
+        def __get__(self):
+            return self.flow.getHaca()
+
+    property soot_do_surface_growth:
+        """
+        Gets / sets whether acetylene condensation on soot particles is activated or not.
+
+        : param do_surface_growth = bool :
+            surface growth enabled
+
+        : return bool :
+            surface growth enabled
+        """
+        def __set__(self, do_surface_growth):
+            self.flow.enableSurfaceGrowth(<cbool>do_surface_growth)
+        def __get__(self):
+            return self.flow.surfaceGrowthEnabled()
+
+    property soot_do_oxidation:
+        """
+        Gets / sets whether soot particles oxidation is activated or not.
+
+        : param do_oxidation =  bool :
+            oxidation enabled
+
+        : return bool :
+            oxidation enabled
+        """
+        def __set__(self, do_oxidation):
+            self.flow.enableOxidation(<cbool>do_oxidation)
+        def __get__(self):
+            return self.flow.oxidationEnabled()
+    
+    property kazakov_flame_temperature :
+        """
+        Gets / sets flame temperature used as reference for Kazakov's surface reactions model
+
+        : param adiabatic_temperature = double :
+            adiabatic temperature (K)
+
+        : return double : 
+            adiabatic temperature (K)
+        """
+        def __set__(self, tad):
+            self.flow.setKazakovTad(tad)
+        def __get__(self):
+            return self.flow.getKazakovTad()
+
+    property soot_do_radiation:
+        """
+        Gets / sets whether soot particles radiative heat losses are considered or not.
+
+        : param do_soot_radiation = bool :
+            soot radiation enabled
+
+        : return bool :
+            soot radiation enabled
+        """
+        def __set__(self,do_soot_radiation):
+            if not self.energy_enabled and do_soot_radiation:
+                if self.soot_loglevel >= 1:
+                    print(' ')
+                    print('SOOT INFO : Energy equation is disabled')
+                    print("            ==> RHL won't be computed")
+                self.radiation_enabled = False
+            if not self.radiation_enabled and do_soot_radiation:
+                if self.soot_loglevel >= 1:
+                    print(' ')
+                    print('SOOT INFO : RHL were disabled')
+                    print("            ==> RHL now enabled")
+                self.radiation_enabled = True
+            self.flow.enableSootRadiation(<cbool>do_soot_radiation)
+        def __get__(self):
+            return self.flow.sootRadiationEnabled()
+
+    property soot_do_soret:
+        """
+        Gets / sets whether soret effect is computed on soot particles.
+
+        : param do_soot_soret = bool :
+            soot soret enabled
+
+        : return bool :
+            soot soret enabled
+        """
+        def __set__(self,do_soot_soret):
+            self.flow.enableSootSoret(<cbool>do_soot_soret)
+        def __get__(self):
+            return self.flow.sootSoretEnabled()
+
+    property soot_finalize:
+        """
+        Generates sections, collision matrix and loads surface reactions constants if needed.
+        To be used after modifications on : collision model, precursors, oxidation or surface growth.
+
+        : param None
+
+        : return None
+        """
+        def __set__(self, dummy):
+            raise KeyError ('/!\ SOOT ERROR : You cannot set such data !')
+        def __get__(self):
+            return self.flow.finalizeSoot()
+
+
+    property sections_min_v:
+        """"
+        Gets soot sections minimal volumes.
+
+        : param None
+
+        : return (sections) numpy array :
+            minimal volume of each section [m-3]
+        """
+        def __set__(self, dummy):
+            raise KeyError ('/!\ SOOT ERROR : You cannot set such data !')
+        def __get__(self):
+            return np.asarray(self.flow.vMin())
+
+    property sections_max_v:
+        """"
+        Gets soot sections maximal volumes.
+
+        : param None
+
+        : return (sections) numpy array :
+            maximal volume of each section [m-3]
+        """
+        def __set__(self, dummy):
+            raise KeyError ('/!\ SOOT ERROR : You cannot set such data !')
+        def __get__(self):
+            return np.asarray(self.flow.vMax())
+
+    property sections_mean_v:
+        """"
+        Gets soot sections mean volumes.
+
+        : param None
+
+        : return (sections) numpy array :
+            mean volume of each section [m-3]
+        """
+        def __set__(self, dummy):
+            raise KeyError ('/!\ SOOT ERROR : You cannot set such data !')
+        def __get__(self):
+            return np.asarray(self.flow.vMean())
+
+    property sections_mean_d:
+        """"
+        Gets soot sections mean diameters.
+
+        : param None
+
+        : return (sections) numpy array :
+            mean diameter of each section [m]
+        """
+        def __set__(self, dummy):
+            raise KeyError ('/!\ SOOT ERROR : You cannot set such data !')
+        def __get__(self):
+            return np.asarray(self.flow.dMean())
+
+    property sections_col_d:
+        """"
+        Gets soot sections colision diameters.
+
+        : param None
+
+        : return (sections) numpy array :
+            colision diameter of each section [m-3]
+        """
+        def __set__(self, dummy):
+            raise KeyError ('/!\ SOOT ERROR : You cannot set such data !')
+        def __get__(self):
+            return np.asarray(self.flow.dCol())
+
+    property sections_col_a:
+        """"
+        Gets soot sections collisional cross-section
+
+        : param None
+
+        : return (sections) numpy array :
+            mean section of each section [m-2]
+        """
+        def __set__(self, dummy):
+            raise KeyError ('/!\ SOOT ERROR : You cannot set such data !')
+        def __get__(self):
+            return np.asarray(self.flow.aCol())
+
+    property sections_mean_s:
+        """"
+        Gets soot sections surface area
+
+        : param None
+
+        : return (sections) numpy array :
+            mean section of each section [m-2]
+        """
+        def __set__(self, dummy):
+            raise KeyError ('/!\ SOOT ERROR : You cannot set such data !')
+        def __get__(self):
+            return np.asarray(self.flow.sMean())
+
+    property sections_fractal_prefactor:
+        """
+        """
+        def __set__(self, dummy):
+            raise KeyError ('/!\ SOOT ERROR : You cannot set such data !')
+        def __get__(self):
+            return np.asarray(self.flow.fractalPrefactor())
+
+    property sections_fractal_dimension:
+        """
+        """
+        def __set__(self, dummy):
+            raise KeyError ('/!\ SOOT ERROR : You cannot set such data !')
+        def __get__(self):
+            return np.asarray(self.flow.fractalDimension())
+
+    property sections_theta:
+        """
+        Gets soot sections theta value (fractality).
+
+        : param None
+
+        : return (sections) numpy array :
+            theta factor of each section
+        """
+        def __set__(self, dummy):
+            raise KeyError ('/!\ SOOT ERROR : You cannot set such data !')
+        def __get__(self):
+            return np.asarray(self.flow.thetaSoot())
+
+    property soot_density:
+        """"
+        Gets soot density.
+
+        : param None
+
+        : return float :
+            soot density [kg.m-3]
+        """
+        def __set__(self, dummy):
+            raise KeyError ('/!\ SOOT ERROR : You cannot set such data !')
+        def __get__(self):
+            return self.flow.rhoSoot()
+
+    # property soot_dump_inception:
+    #     """
+    #     Gets soot nucleation source terms.
+
+    #     : param None
+
+    #     : return (sections x points) numpy array :
+    #         inception source terms [s-1]
+    #     """
+    #     def __set__(self, dummy):
+    #         raise KeyError ('/!\ SOOT ERROR : You cannot set such data !')
+    #     def __get__(self):
+    #         data = np.zeros((self.soot_sections, self.n_points))
+    #         for j in range(self.n_points):
+    #             data[0,j] = self.flow.getSootInception(j)
+    #         return data
+
+    property soot_dump_condensation:
+        """
+        Gets soot condensation source terms.
+
+        : param None
+
+        : return (sections x points) numpy array :
+            condensation source terms [s-1]
+        """
+        def __set__(self, dummy):
+            raise KeyError ('/!\ SOOT ERROR : You cannot set such data !')
+        def __get__(self):
+            data = np.empty((self.soot_sections, self.n_points))
+            for k in range(self.soot_sections):
+                for j in range(self.n_points):
+                    data[k,j] = self.flow.getSootCondensation(k,j)
+            return data
+
+    property soot_dump_coagulation:
+        """
+        Gets soot coagulation source terms.
+
+        : param None
+
+        : return (sections x points) numpy array :
+            coagulation source terms [s-1]
+        """
+        def __set__(self, dummy):
+            raise KeyError ('/!\ SOOT ERROR : You cannot set such data !')
+        def __get__(self):
+            data = np.empty((self.soot_sections, self.n_points))
+            for k in range(self.soot_sections):
+                for j in range(self.n_points):
+                    data[k,j] = self.flow.getSootCoagulation(k,j)
+            return data
+
+    property soot_dump_surface_growth:
+        """
+        Gets soot surface growth source terms.
+
+        : param None
+
+        : return (sections x points) numpy array :
+            surface growth source terms [s-1]
+        """
+        def __set__(self, dummy):
+            raise KeyError ('/!\ SOOT ERROR : You cannot set such data !')
+        def __get__(self):
+            data = np.empty((self.soot_sections, self.n_points))
+            for k in range(self.soot_sections):
+                for j in range(self.n_points):
+                    data[k,j] = self.flow.getSootSg(k,j)
+            return data
+
+    property soot_dump_oxidation:
+        """
+        Gets soot oxidation source terms.
+
+        : param None
+
+        : return (sections x points) numpy array :
+            oxidation source terms [s-1]
+        """
+        def __set__(self, dummy):
+            raise KeyError ('/!\ SOOT ERROR : You cannot set such data !')
+        def __get__(self):
+            data = np.empty((self.soot_sections, self.n_points))
+            for k in range(self.soot_sections):
+                for j in range(self.n_points):
+                    data[k,j] = self.flow.getSootOxidation(k,j)
+            return data
+
+    property sections_np:
+        """
+        Gets number of primary particles per aggregate.
+
+        : param None
+
+        : return (sections) numpy array :
+            number of primary particles per aggregate
+        """
+        def __set__(self, dummy):
+            raise KeyError ('/!\ SOOT ERROR : You cannot set such data !')
+        def __get__(self):
+            data = np.empty(self.soot_sections)
+            for k in range(self.soot_sections):
+                data[k] = self.flow.sootPrimaryPart(k)
+            return data
+
+    property sections_dp:
+        """
+        Gets primary particles diameter.
+
+        : param None
+
+        : return (sections) numpy array :
+            primary particles diameter [m]
+        """
+        def __set__(self, dummy):
+            raise KeyError ('/!\ SOOT ERROR : You cannot set such data !')
+        def __get__(self):
+            data = np.empty(self.soot_sections)
+            for k in range(self.soot_sections):
+                data[k] = self.flow.sootPrimaryDiam(k)
+            return data
+
+    # END of soot API
+
+    property thick:
+        """
+        Thickening that will be applied [JW]
+        """
+        def __set__(self, thickness):
+            self.flow.setThick(thickness)
+        def __get__(self):
+            return self.flow.getThick()
+
     def set_free_flow(self):
         """
         Set flow configuration for freely-propagating flames, using an internal
@@ -724,6 +1270,13 @@ cdef class _FlowBase(Domain1D):
         flames, using specified inlet mass fluxes.
         """
         self.flow.setAxisymmetricFlow()
+
+    def set_flamelet_flow(self):
+        """
+        Set flow configuration for flamelet solutions, using specified inlet
+        mass fluxes.
+        """
+        self.flow.setFlameletFlow()
 
     property flow_type:
         """
@@ -793,6 +1346,37 @@ cdef class FreeFlow(_FlowBase):
         species mass fractions
     """
     _domain_type = "free-flow"
+
+
+cdef class FlameletFlow(_FlowBase):
+    """A flamelet flow domain. The equations solved are standard equations for
+    adiabatic one-dimensional flow in Z-space. The solution variables are:
+
+    *T*
+        temperature
+
+    *Y_k*
+        species mass fractions
+        
+    """
+    _domain_type = "flamelet-flow"
+        
+    def __cinit__(self, _SolutionBase phase, *args, name="", **kwargs):
+        self.flamelet = <CxxFlamelet*>self.flow
+        
+    property ChiSt:
+        """ ChiSt """
+        def __get__(self):
+            return self.flamelet.chiSt()
+        def __set__(self, val):
+            self.flamelet.setChiSt(val)
+
+    property ZSt:
+        """ ZSt """
+        def __get__(self):
+            return self.flamelet.zSt()
+        def __set__(self, val):
+            self.flamelet.setzSt(val)
 
 
 cdef class UnstrainedFlow(_FlowBase):
@@ -1226,8 +1810,8 @@ cdef class Sim1D:
 
     def show(self):
         """ print the current solution. """
-        if not self._initialized:
-            self.set_initial_guess()
+        # if not self._initialized:
+        #     self.set_initial_guess()
         self.sim.show()
 
     def show_solution(self):
@@ -1289,7 +1873,7 @@ cdef class Sim1D:
         """
         return False
 
-    def solve(self, loglevel=1, refine_grid=True, auto=False):
+    def solve(self, loglevel=1, refine_grid='refine', auto=False):
         """
         Solve the problem.
 
@@ -1297,7 +1881,8 @@ cdef class Sim1D:
             integer flag controlling the amount of diagnostic output. Zero
             suppresses all output, and 5 produces very verbose output.
         :param refine_grid:
-            if True, enable grid refinement.
+            if "refine", enable grid refinement,
+            if "remesh", remeshing of the grid.
         :param auto: if True, sequentially execute the different solution stages
             and attempt to automatically recover from errors. Attempts to first
             solve on the initial grid with energy enabled. If that does not
@@ -1308,10 +1893,19 @@ cdef class Sim1D:
             will be calculated.
         """
 
+        if type(refine_grid) == bool:
+            print("WARNING : Keyword status has been changed to string to enable the remesh feature")
+            print("True --> 'refine' or 'remesh'")
+            print("False --> 'disabled'")
+            if refine_grid:
+                refine_grid = 'refine'
+            else:
+                refine_grid = 'disabled'
+
         if not auto:
             if not self._initialized:
                 self.set_initial_guess()
-            self.sim.solve(loglevel, <cbool>refine_grid)
+            self.sim.solve(loglevel, stringify(refine_grid)) 
             return
 
         def set_transport(multi):
@@ -1385,7 +1979,7 @@ cdef class Sim1D:
             log('Solving on {} point grid with energy equation enabled', N)
             self.energy_enabled = True
             try:
-                self.sim.solve(loglevel, <cbool>False)
+                self.sim.solve(loglevel, stringify('disabled'))
                 solved = True
             except CanteraError as e:
                 log(str(e))
@@ -1407,7 +2001,7 @@ cdef class Sim1D:
                 log('Initial solve failed; Retrying with energy equation disabled')
                 self.energy_enabled = False
                 try:
-                    self.sim.solve(loglevel, <cbool>False)
+                    self.sim.solve(loglevel, stringify('disabled'))
                     solved = True
                 except CanteraError as e:
                     log(str(e))
@@ -1423,7 +2017,7 @@ cdef class Sim1D:
                     log('Solving on {} point grid with energy equation re-enabled', N)
                     self.energy_enabled = True
                     try:
-                        self.sim.solve(loglevel, <cbool>False)
+                        self.sim.solve(loglevel, stringify('disabled'))
                         solved = True
                     except CanteraError as e:
                         log(str(e))
@@ -1435,11 +2029,11 @@ cdef class Sim1D:
                         restore_tolerances()
                         raise e
 
-            if solved and not self.extinct() and refine_grid:
+            if solved and not self.extinct() and refine_grid != 'disabled':
                 # Found a non-extinct solution on the fixed grid
                 log('Solving with grid refinement enabled')
                 try:
-                    self.sim.solve(loglevel, <cbool>True)
+                    self.sim.solve(loglevel, stringify('refine'))
                     solved = True
                 except CanteraError as e:
                     log(str(e))
@@ -1458,7 +2052,7 @@ cdef class Sim1D:
             if self.extinct():
                 log('Flame is extinct on {} point grid', N)
 
-            if not refine_grid:
+            if refine_grid == 'disabled':
                 break
 
         if not solved:
@@ -1478,7 +2072,7 @@ cdef class Sim1D:
 
         # Final call with expensive options enabled
         if have_user_tolerances or solve_multi or soret_doms:
-            self.sim.solve(loglevel, <cbool>refine_grid)
+            self.sim.solve(loglevel, stringify('refine'))
 
     def refine(self, loglevel=1):
         """
