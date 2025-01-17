@@ -13,7 +13,7 @@ from .thermo cimport *
 
 cdef extern from "cantera/oneD/DomainFactory.h" namespace "Cantera":
     cdef shared_ptr[CxxDomain1D] CxxNewDomain1D "newDomain" (
-        string, shared_ptr[CxxSolution], string) except +translate_exception
+        string, shared_ptr[CxxSolution], string, size_t) except +translate_exception
 
 
 cdef extern from "cantera/oneD/Domain1D.h":
@@ -38,6 +38,7 @@ cdef extern from "cantera/oneD/Domain1D.h":
         double transient_atol(size_t)
         double grid(size_t)
         void setupGrid(size_t, double*) except +translate_exception
+        void setupGrid(size_t) except +translate_exception
         void setID(string)
         string& id()
         string domainType "type"()
@@ -83,6 +84,8 @@ cdef extern from "cantera/oneD/Flow1D.h":
         void setBoundaryEmissivities(double, double)
         double leftEmissivity()
         double rightEmissivity()
+        void setThick(double)
+        double getThick()
         void solveEnergyEqn()
         void fixTemperature()
         cbool doEnergy(size_t)
@@ -100,7 +103,61 @@ cdef extern from "cantera/oneD/Flow1D.h":
         double rightControlPointTemperature() except +translate_exception
         double rightControlPointCoordinate() except +translate_exception
         void setRightControlPointTemperature(double) except +translate_exception
+        void setSections(size_t)
+        size_t getSections()
+        void setFlameletFlow()
+        string flowType()
 
+
+        void setPrecursors(vector[size_t]&)
+        void showSootSections()
+        void setSootSoret(cbool)
+        void enableCondensation(cbool)
+        cbool condensationEnabled()
+        void enableCoagulation(cbool)
+        cbool coagulationEnabled()
+        void setCollisionModel(string)
+        string getCollisionModel()
+        void enableRetroaction(cbool)
+        cbool retroactionEnabled()
+        void setSootMorphology(string)
+        cbool getSootMorphology()
+        void enableSurfaceGrowth(cbool)
+        cbool surfaceGrowthEnabled()
+        void enableOxidation(cbool)
+        cbool oxidationEnabled()
+        void enableSootRadiation(cbool)
+        cbool sootRadiationEnabled()
+        void enableSootSoret(cbool)
+        cbool sootSoretEnabled()
+        void enableTrashSection(double)
+        cbool trashSectionEnabled()
+        void finalizeSoot()
+        size_t getHaca()
+        void setHaca(size_t)
+        double getKazakovTad()
+        void setKazakovTad(double)
+        size_t getSootLoglevel()
+        void setSootLoglevel(size_t)
+
+        vector[double]& vMin()
+        vector[double]& vMax()
+        vector[double]& vMean()
+        vector[double]& dMean()
+        vector[double]& sMean()
+        vector[double]& dCol()
+        vector[double]& aCol()
+        vector[double]& thetaSoot()
+        vector[double]& fractalPrefactor()
+        vector[double]& fractalDimension()
+        double sootPrimaryPart(size_t)
+        double sootPrimaryDiam(size_t)
+        double rhoSoot()
+        double getSootInception(size_t)
+        double getSootCondensation(size_t, size_t)
+        double getSootCoagulation(size_t, size_t)
+        double getSootSg(size_t, size_t)
+        double getSootOxidation(size_t, size_t)
 
 cdef extern from "cantera/oneD/Sim1D.h":
     cdef cppclass CxxSim1D "Cantera::Sim1D":
@@ -115,7 +172,7 @@ cdef extern from "cantera/oneD/Sim1D.h":
         void setMaxTimeStepCount(int)
         int maxTimeStepCount()
         void getInitialSoln() except +translate_exception
-        void solve(int, cbool) except +translate_exception
+        void solve(int, string&) except +translate_exception
         void refine(int) except +translate_exception
         void setRefineCriteria(size_t, double, double, double, double) except +translate_exception
         vector[double] getRefineCriteria(int) except +translate_exception
@@ -158,6 +215,13 @@ cdef extern from "cantera/oneD/Sim1D.h":
 cdef extern from "cantera/thermo/IdealGasPhase.h":
     cdef cppclass CxxIdealGasPhase "Cantera::IdealGasPhase"
 
+cdef extern from "cantera/oneD/Flamelet.h":
+    cdef cppclass CxxFlamelet "Cantera::Flamelet" (CxxStFlow):
+        CxxFlamelet(CxxStFlow*) 
+        double chiSt() #except +translate_exception
+        double zSt() #except +translate_exception
+        void setChiSt(double) #except +translate_exception
+        void setzSt(double) #except +translate_exception
 
 cdef class Domain1D:
     cdef shared_ptr[CxxDomain1D] _domain
@@ -174,6 +238,9 @@ cdef class ReactingSurface1D(Boundary1D):
 
 cdef class FlowBase(Domain1D):
     cdef CxxFlow1D* flow
+
+cdef class FlameletFlow(_FlowBase):
+    cdef CxxFlamelet* flamelet
 
 cdef class Sim1D:
     cdef CxxSim1D* sim

@@ -5,6 +5,8 @@ from math import erf
 from pathlib import Path
 import warnings
 import numpy as np
+import csv as _csv
+import os
 
 from ._cantera import *
 from .composite import Solution, SolutionArray
@@ -25,11 +27,47 @@ class FlameBase(Sim1D):
         if grid is None:
             grid = np.linspace(0.0, 0.1, 6)
         self.flame.grid = grid
+        # self.flame.soot_sections = sections
         super().__init__(domains)
 
         #: The `Solution` object representing the species and reactions in the flame
         self.gas = gas
         self.flame.P = gas.P
+
+    def other_components(self, domain=None):
+        """
+        The method returns simulation components that are specific to a class
+        derived from `FlameBase` or a specific ``domain`` within the `FlameBase`
+        simulation object. Entries may include:
+
+        * ``grid``: grid point positions along the flame [m]
+        * ``velocity``: normal velocity [m/s]
+        * ``spread_rate``: tangential velocity gradient [1/s]
+        * ``lambda``: radial pressure gradient [N/m^4]
+        * ``eField``: electric field strength
+
+        :param domain:
+            Index of a specific domain within the `Sim1D.domains`
+            list. The default is to return other columns of the `Sim1D` object.
+
+        .. deprecated:: 3.0
+
+            Method to be removed after Cantera 3.0. After moving SolutionArray HDF
+            export to the C++ core, this method is unused.
+        """
+        warnings.warn("FlameBase.other_components: Method to be removed after "
+                      "Cantera 3.0 (unused).", DeprecationWarning, stacklevel=2)
+        if domain is None:
+            return self._other
+
+        dom = self.domains[self.domain_index(domain)]
+        if isinstance(dom, Inlet1D):
+            return tuple([e for e in self._other
+                          if e not in {'grid', 'lambda', 'eField'}])
+        elif isinstance(dom, (FreeFlow, AxisymmetricFlow, IdealGasFlow, FlameletFlow)):
+            return self._other
+        else:
+            return ()
 
     def set_refine_criteria(self, ratio=10.0, slope=0.8, curve=0.8, prune=0.0):
         """
@@ -250,6 +288,476 @@ class FlameBase(Sim1D):
         if len(epsilon) != 2:
             raise ValueError("Boundary emissivities must both be set at the same time.")
         self.flame.boundary_emissivities = epsilon[0], epsilon[1]
+    
+    # BEGIN of soot API
+
+    def soot_setup(self, precursors=["A2"], condensation=True, coagulation=True, morphology='rodrigues', collision_model='rodrigues',
+                    retroaction=True, haca_model = 'mauss', kazakov_temperature = 0, 
+                    surface_growth=True, oxidation=True, radiation=True, trash_section=-1.0,
+                    loglevel = 2):
+        """
+        Sets soot computation up.
+
+        : param precursors = list[str] :
+            list of precursors in mechanism nomenclature (default : ['A2'])
+        : param condensation = bool :
+            condensation enabled (default : True)
+        : param coagulation = bool :
+            coagulation enabled (default : True)
+        : param retroaction = bool :
+            retroaction on gas phase enabled (default : True)
+        : param collision_model = str :
+            Collision model :sphere, rodrigues or thajudeen (default : rodrigues)
+        : param haca_model = string or int :
+            haca_model to use (default : Mauss)
+            1 : Mauss
+            11 : Mauss (tuned as Guo 2016)
+            2 : Blanquart
+            3 : Kazakov
+        : param suface_growth = bool :
+            surface growth enabled (default : True)
+        : param oxidation = bool :
+            oxidation enabled (default : True)
+        : param kazakov = double : 
+           adiabatic flame temperature, only for Kazakov's haca model (default : 0 (automatically computed))
+        : param radiation = bool :
+            soot radiative heat losses enabled (default : True)
+        : param trash_section = float :
+            trash section size, <=0 if no trash section (default : -1.0)
+        : param show_sections = bool :
+            show sections informations (default : False)
+
+        : return None
+        """
+        if self.flame.soot_sections == 0:
+            raise CanteraError('/!\ SOOT ERROR : cannot set sections properties (no sections)')
+        self.flame.soot_loglevel = loglevel
+        # Impacts geomery, need to use "flame.soot_finalize"
+        self.flame.soot_precursors = precursors
+        self.flame.soot_trash_section = trash_section
+        self.flame.soot_morphology = morphology
+        self.flame.soot_collision_model = collision_model
+        # Processes, need to use "flame.soot_finalize"
+        self.flame.soot_haca = haca_model
+        if self.flame.soot_haca == 3 :
+            if kazakov_temperature > 0:
+                self.flame.kazakov_flame_temperature = kazakov_temperature
+            else:
+                self.flame.kazakov_flame_temperature = self.adiabatic_flame_temperature
+        self.flame.soot_do_surface_growth = surface_growth
+        self.flame.soot_do_oxidation = oxidation
+        # Processes, do not impact geometry
+        self.flame.soot_do_retroaction = retroaction
+        self.flame.soot_do_condensation = condensation
+        self.flame.soot_do_coagulation = coagulation
+        self.flame.soot_do_radiation = radiation
+        self.flame.soot_finalize
+
+    @property
+    def soot_Y(self):
+        """
+        Gets soot mass fraction.
+
+        : param None
+
+        : return (sections x points) numpy array :
+            soot mass fraction for each section at each point
+        """
+        data = np.empty((self.flame.soot_sections, self.flame.n_points))
+        ns = self.flame.soot_sections
+        for k in range(ns):
+            data[k,:] = self.profile(self.flame, 'Ys'+str(k))
+        return data
+
+    @property
+    def soot_Q(self):
+        """
+
+        """
+        Ys = self.soot_Y
+        density = self.density
+        soot_density = self.flame.soot_density
+
+        data = np.empty(np.shape(Ys))
+        for section in range(self.flame.soot_sections):
+            data[section,:] = density / soot_density * Ys[section,:]
+
+        return data
+    
+    @property
+    def soot_q(self):
+        """"
+        Gets the volume distribution of the soot volume fraction
+
+        : param None
+
+        : return (sections x points) numpy array :
+            volume distribution of the soot volume fraction for each section at each point [m-3]
+        """
+        Q = self.soot_Q
+        vMin = self.flame.sections_min_v
+        vMax = self.flame.sections_max_v
+
+        data = np.empty(np.shape(Q))
+        for section in range(self.flame.soot_sections):
+            data[section, :] = Q[section,:] / (vMax[section] - vMin[section])
+
+        return data
+        
+    @property
+    def soot_N(self):
+        """"
+        Gets the particles number density relative to each section
+
+        : param None
+
+        : return (sections x points) numpy array :
+            particles number density for each section at each point [m-3]
+        """
+        q = self.soot_q
+        vMin = self.flame.sections_min_v
+        vMax = self.flame.sections_max_v
+
+        data = np.empty(np.shape(q))
+        for section in range(self.flame.soot_sections):
+            data[section, :] = q[section, :] * np.log(vMax[section]/vMin[section])
+        
+        return data
+
+    def soot_fv(self, **kwargs):
+        """
+        Gets the soot volume fraction.
+
+        : param first = int :
+            > 0 :index of first section to take into account (starting at 0)
+        : param last = int :
+            > 0 : index of last section to take into account (starting at 0)
+            < 0 : number of sections to remove, starting from the last one
+        : param min = float :
+            mean diameter of first section to take into account [m]
+        : param max = float :
+            mean diameter of last section to take into account [m]
+
+        : return (points) numpy array :
+            soot volume fraction at each point
+        """
+        first, last = self.getSectionBounds(**kwargs)
+
+        data = np.sum(self.soot_Q[first:last, :], axis=0)
+
+        return data      
+
+    def soot_Np(self, **kwargs):
+        """
+        Gets the soot particles number density.
+
+        : param first = int :
+            > 0 :index of first section to take into account (starting at 0)
+        : param last = int :
+            > 0 : index of last section to take into account (starting at 0)
+            < 0 : number of sections to remove, starting from the last one
+        : param min = float :
+            mean diameter of first section to take into account [m]
+        : param max = float :
+            mean diameter of last section to take into account [m]
+
+        : return (points) numpy array :
+            soot particles number density at each point [m-3]
+        """
+        first, last = self.getSectionBounds(**kwargs)
+
+        data = np.sum(self.soot_N[first:last,:], axis=0)
+
+        return data
+
+    def soot_psdf(self, HAB, out='dNp/dlogd'):
+        """
+        Gets the particles size distribution function at specified HAB.
+
+        : param HAB = float :
+            Height Above the Burner surface at which PSDF shall be taken [m]
+        : param out = str :
+            Output to be computed : 'Np', 'Q' or 'dNp/dlogd' (default)
+
+        : return (sections) numpy array :
+            particle size distribution for each section at specified HAB [m-3]
+        """
+        if out in ['Q', 'dNp/dlogd', 'dV/dlogd']:
+            vals = self.soot_q
+        elif (out == 'Np'):
+            vals = self.soot_N
+        else:
+            raise KeyError("PSDF type should be 'Np', 'Q' or 'dNp/dlogd', not " + out)
+        if out == 'dV/dlogd':
+            vals = np.multiply(vals, np.pi * self.soot_mean_d ** 3 / 6)
+        z = self.flame.grid
+        data = np.asarray([np.interp(HAB,z,vals[k,:]) for k in range(self.flame.soot_sections)])
+        if  out=='dNp/dlogd':
+            data *= 3/(3-self.flame.sections_theta)
+
+        return data
+
+    def soot_mean_d(self, **kwargs):
+        """"
+        Gets soot particles mean diameter.
+
+        : param first = int :
+            > 0 :index of first section to take into account (starting at 0)
+        : param last = int :
+            > 0 : index of last section to take into account (starting at 0)
+            < 0 : number of sections to remove, starting from the last one
+        : param min = float :
+            mean diameter of first section to take into account [m]
+        : param max = float :
+            mean diameter of last section to take into account [m]
+
+        : return (points) numpy array :
+            mean diameter of soot particles at each point [m]
+        """
+        first, last = self.getSectionBounds(**kwargs)
+        Ys = self.soot_Y[first:last,:]
+        dMean = self.flame.sections_mean_d[first:last]
+        data = [sum(Ys[:,i]*dMean)/sum(Ys[:,i]) for i in range(self.flame.n_points)]
+        return np.asarray(data)
+
+    def soot_mean_s(self, **kwargs):
+        """"
+        Gets soot particles mean sections.
+
+        : param first = int :
+            > 0 :index of first section to take into account (starting at 0)
+        : param last = int :
+            > 0 : index of last section to take into account (starting at 0)
+            < 0 : number of sections to remove, starting from the last one
+        : param min = float :
+            mean diameter of first section to take into account [m]
+        : param max = float :
+            mean diameter of last section to take into account [m]
+
+        : return (points) numpy array :
+            mean section of soot particles at each point [m]
+        """
+        first, last = self.getSectionBounds(**kwargs)
+        Ys = self.soot_Y[first:last,:]
+        sMean = self.flame.sections_mean_s[first:last]
+        data = [sum(Ys[:,i]*sMean)/sum(Ys[:,i]) for i in range(self.flame.n_points)]
+        return np.asarray(data)
+
+    def soot_mean_v(self, **kwargs):
+        """"
+        Gets soot particles mean volumes.
+
+        : param first = int :
+            > 0 :index of first section to take into account (starting at 0)
+        : param last = int :
+            > 0 : index of last section to take into account (starting at 0)
+            < 0 : number of sections to remove, starting from the last one
+        : param min = float :
+            mean diameter of first section to take into account [m]
+        : param max = float :
+            mean diameter of last section to take into account [m]
+
+        : return (points) numpy array :
+            mean volume of soot particles at each point [m^3]
+        """
+        first, last = self.getSectionBounds(**kwargs)
+        Ys = self.soot_Y[first:last,:]
+        vMean = self.flame.sections_mean_v[first:last]
+        data = [sum(Ys[:,i]*vMean)/sum(Ys[:,i]) for i in range(self.flame.n_points)]
+        return np.asarray(data)
+
+    def soot_np(self, **kwargs):
+        """
+        Gets number of primary particles per aggregate.
+
+        : param first = int :
+            > 0 :index of first section to take into account (starting at 0)
+        : param last = int :
+            > 0 : index of last section to take into account (starting at 0)
+            < 0 : number of sections to remove, starting from the last one
+        : param min = float :
+            mean diameter of first section to take into account [m]
+        : param max = float :
+            mean diameter of last section to take into account [m]
+
+        : return (points) numpy array :
+            number of primary particles per aggregate
+        """
+        first, last = self.getSectionBounds(**kwargs)
+        Ys = self.soot_Y[first:last,:]
+        npart = self.flame.sections_np[first:last]
+        data = [max(1, sum(Ys[:,i]*npart)/sum(Ys[:,i])) if sum(Ys[:,i])>0 else None for i in range(self.flame.n_points)]
+
+        return np.asarray(data)
+
+    def soot_dp(self, **kwargs):
+        """
+        Gets primary particles diameter.
+
+        : param first = int :
+            > 0 :index of first section to take into account (starting at 0)
+        : param last = int :
+            > 0 : index of last section to take into account (starting at 0)
+            < 0 : number of sections to remove, starting from the last one
+        : param min = float :
+            mean diameter of first section to take into account [m]
+        : param max = float :
+            mean diameter of last section to take into account [m]
+
+        : return (points) numpy array :
+            mean primary particles diameter [m]
+        """
+        first, last = self.getSectionBounds(**kwargs)
+
+        dpart = self.flame.sections_dp[first:last] * 1e7
+        Ys = self.soot_Y[first:last,:]
+        data = [max(dpart[0], sum(Ys[:,i]*dpart)/sum(Ys[:,i])) if sum(Ys[:,i])>0 else None for i in range(self.flame.n_points)]
+
+        return np.asarray(data)
+
+    @property
+    def soot_source(self):
+        """
+        Gets soot source terms.
+
+        : param None
+
+        : return dictionnary of (sections x points) numpy arrays :
+            soot source terms [s-1]
+            keys :
+                ['inception', 'condensation', 'coagulation', 'surface_growth', 'oxidation']
+        """
+        soot_source = {}
+        soot_source['inception'] = self.flame.soot_dump_inception
+        soot_source['condensation'] =  self.flame.soot_dump_condensation
+        soot_source['coagulation'] =  self.flame.soot_dump_coagulation
+        soot_source['surface_growth'] =  self.flame.soot_dump_surface_growth
+        soot_source['oxidation'] =  self.flame.soot_dump_oxidation
+
+        return soot_source
+    
+    def soot_mcac_input(self, output='CANTERA2MCAC.dat', d_min=5e-9, fv_min=1e-10, x_max=0, t_max=0):
+        """
+        Generates inputs for flame coupling with MCAC
+
+        : param output : Output file to write the MCAC input file on
+        : param min_diam : Diameter of the smallest particle considered in MCAC
+        : param min_fv : Minimal volume fraction to consider (remove flame foot)
+        : param max_x : Maximal HAB to consider (remove flame end) (starting from the end if max_x < 0)
+        : param max_t : Maximal residence time to consider (remove flame end) (starting from the end if max_t < 0)
+
+        : return : Dict containing MCAC inputs
+        """
+
+        ##########################
+        # RECOVER LOWER BOUNDARY #
+        ##########################
+        # Soot particles with diameter < min_diam are not considered in MCAC
+        first_section = self.getSectionBounds(d_min=d_min)[0]
+        if first_section == None:
+            first_section = 0
+
+        ##########################
+        # RECOVER RESIDENCE TIME #
+        ##########################
+        velocity = np.where(self.u == 0, 1e-10, self.u) # To avoid integration errors
+        time = [np.trapz(1/velocity[:idx+1], self.grid[:idx+1]) for idx in range(self.flame.n_points)]
+
+        #######################
+        # RECOVER SOURCE TERM #
+        #######################
+        # Get source term for each section at each point
+        soot_source = self.soot_source
+        source_terms = soot_source['inception'][first_section:,:] + soot_source['surface_growth'][first_section:,:] + soot_source['oxidation'][first_section:,:] + soot_source['condensation'][first_section:,:] + soot_source['coagulation'][first_section:,:]
+        source_term = np.sum(source_terms, axis=0)
+
+        # Nucleation is the mass entering the first section
+        nucleation = np.clip(source_terms[0,:], 0., None)
+        # Surface reactions are the rest
+        surface_reactions = source_term - nucleation
+
+        # Recover the expected overall sourceterm dfv/dt to correct (don't )
+        fv = self.soot_fv(first=first_section)
+        target_source_term = np.gradient(fv, time)
+        correction_factor = np.divide(target_source_term, source_term, out=np.zeros(source_term.shape, dtype=float), where=source_term!=0.)
+        nucleation *= correction_factor * self.flame.soot_density
+        surface_reactions *= correction_factor * self.flame.soot_density
+
+        ####################
+        # RECOVER THE REST #
+        ####################
+        temperature = self.T
+        mean_diameter = self.soot_mean_d(first=first_section)
+        
+        #############
+        # CLIP DATA #
+        #############
+        # Clip flame beggining (no soot)
+        first_point = next(idx for idx,val in enumerate(fv) if val >= fv_min)
+        # Clip flame end (long residence times possible)
+        if x_max <= 0:
+            x_max = self.grid[-1] + x_max
+        last_point_x = next(idx for idx,val in enumerate(self.grid) if val >= x_max)
+        if t_max <= 0:
+            t_max = time[-1] + t_max
+        last_point_t = next(idx for idx,val in enumerate(time) if val >= t_max)
+        last_point = min(last_point_x, last_point_t)
+
+        ####################
+        # WRITE INPUT FILE #
+        ####################
+        if output is not None:
+            with open(output, 'w') as f:
+                for index in range(first_point, last_point+1):
+                    f.write('%.4e %.4e %.4e %.4e 0. %.4e %.4e\n' % (time[index], temperature[index], fv[index], mean_diameter[index], surface_reactions[index], nucleation[index]))
+
+        return {'time':time, 'temperature':temperature, 'fv':fv, 'mean_diameter':mean_diameter, 'surface_reactions':surface_reactions, 'nucleation':nucleation}
+
+
+    def getSectionBounds(self, **kwargs):
+        """
+        Gets index of sections given their mean diameter
+        :param first: Index of the first section to consider
+        :param d_min: Mean diameter of the first section to consider [m]
+        :param v_min: Mean volume of the first section to consider [m^3]
+        :param last: Index of the first section to consider
+        :param d_max: Mean diameter of the last section to consider [m]
+        :param v_max: Mean volume of the last section to consider [m^3]
+        """
+        first = None
+        last = None
+
+        if 'first' in kwargs and 'min' in kwargs :
+            raise KeyError('Cannot specify both section indice and diameter')
+        elif 'first' in kwargs :
+            first = kwargs['first']
+        elif 'd_min' in kwargs: 
+            dMean = self.flame.sections_mean_d
+            if kwargs['d_min'] > dMean[0] and kwargs['d_min'] < dMean[-1]:
+                first = next(idx for idx,val in enumerate(dMean) if val >= kwargs['d_min'])
+        elif 'v_min' in kwargs: 
+            vMean = self.flame.sections_mean_v
+            if kwargs['v_min'] > vMean[0] and kwargs['v_min'] < vMean[-1]:
+                first = next(idx for idx,val in enumerate(vMean) if val >= kwargs['v_min'])
+
+        if 'last' in kwargs and 'max' in kwargs:
+            raise KeyError('Cannot specify both section indice and diameter')
+        elif 'last' in kwargs:
+            last = kwargs['last']
+            if last > 0 :
+                last += 1
+        elif 'd_max' in kwargs:
+            dMean = self.flame.sections_mean_d
+            if kwargs['d_max'] > dMean[0] and kwargs['d_max'] < dMean[-1]:
+                last = next(idx for idx,val in enumerate(dMean) if val > kwargs['d_max'])
+        elif 'v_max' in kwargs:
+            vMean = self.flame.sections_mean_v
+            if kwargs['v_max'] > vMean[0] and kwargs['v_max'] < vMean[-1]:
+                last = next(idx for idx,val in enumerate(vMean) if val > kwargs['v_max'])
+
+        return first, last
+
+    # END of soot API
 
     @property
     def grid(self):
@@ -397,6 +905,115 @@ class FlameBase(Sim1D):
              for k in range(k0, k0 + self.gas.n_species)]
         self.gas.set_unnormalized_mass_fractions(Y)
         self.gas.TP = self.value(self.flame, 'T', point), self.P
+
+    def write_csv(self, filename, species='X', quiet=True, normalize=True):
+        """
+        Write the velocity, temperature, density, and species profiles
+        to a CSV file.
+
+        :param filename:
+            Output file name
+        :param species:
+            Attribute to use obtaining species profiles, for example ``X`` for
+            mole fractions or ``Y`` for mass fractions.
+        :param normalize:
+            Boolean flag to indicate whether the mole/mass fractions should
+            be normalized.
+
+        .. deprecated:: 3.0
+
+            Method to be removed after Cantera 3.0; superseded by `save`.
+        """
+        warnings.warn("FlameBase.write_csv: Superseded by 'save'. To be removed "
+                      "after Cantera 3.0.", DeprecationWarning, stacklevel=2)
+
+        # save data
+        cols = ('extra', 'T', 'D', species)
+        self.to_array(normalize=normalize).write_csv(filename, cols=cols)
+
+        if not quiet:
+            print("Solution saved to '{0}'.".format(filename))
+
+    def write_AVBP(self, filename, quiet=True):
+        """
+        Instanciate a solution for can2av
+        to a CSV file.
+
+        :param filename:
+            Output file name
+        """
+        II = self.gas.n_reactions
+        KK = self.gas.n_species
+        JJ = self.flame.n_points
+        z = self.grid
+        T = self.T
+        u = self.velocity
+        Lreac   = list(self.gas.forward_rates_of_progress)
+        for index, object in enumerate(Lreac):
+                Lreac[index] = "FwRate_" +str(index+1)
+        Lreac_r = list(self.gas.reverse_rates_of_progress)
+        for index, object in enumerate(Lreac_r):
+                Lreac_r[index] = "RvRate_" +str(index+1)
+        Wspec = list(self.gas.species_names)
+        for index, object in enumerate(Wspec):
+                Wspec[index] = "w_" +object
+        Lreac_n = list(self.gas.net_rates_of_progress)
+        for index, object in enumerate(Lreac_n):
+                Lreac_n[index] = "NetRate_" +str(index+1)
+        fcsv = open(filename,'w')
+        writer = _csv.writer(fcsv)
+        writer.writerow(['Grid Points: ', str(JJ),' Sl= ',u[0]])
+        writer.writerow(['x_axis','u','Temperature','rho','Pressure']
+               + self.gas.species_names
+               + Wspec
+               + Lreac
+               + Lreac_r
+               + Lreac_n
+               + ['Heat_release'])
+        for n in range(self.flame.n_points):
+                self.set_gas_state(n)
+                HR = 0.0
+                for m in range(KK):
+                        HR = HR - self.gas.standard_enthalpies_RT[m]*self.gas.net_production_rates[m]
+                HR = HR * 8313.608 * T[n]
+                writer.writerow([z[n], u[n], T[n], self.gas.density, self.flame.P]
+               + list(self.gas.Y/np.sum(self.gas.Y))
+               + list(self.gas.molecular_weights)
+               + list(1000*self.gas.forward_rates_of_progress)
+               + list(1000*self.gas.reverse_rates_of_progress)
+               + list(1000*self.gas.net_rates_of_progress)
+               + list([HR]))
+
+        fcsv.close()
+        if not quiet:
+            print("Solution saved to '{0}'.".format(filename))
+
+    def write_AVBP_energy(self, filename='AVBP_energy.csv', quiet = False):
+        """
+        Dumps energy profile to be imposed in AVBP as :
+        Line 1 : number of grid points
+        Next lines : grid | Temperature | density | Cv mass
+
+        : param filename:
+            Output file name
+
+        : returns :
+            File with inputs
+        """
+        f = open(filename,'w')
+        grid = self.grid
+        T = self.T
+        points = len(grid)
+        f.write("%d\n"%(points))
+        for i in range(points):
+            self.set_gas_state(i)
+            density = self.gas.density
+            cv_mass = self.gas.cv_mass
+            f.write("%1.5e %1.5e %1.5e %1.5e \n"%(grid[i], T[i], density, cv_mass))
+        f.close()
+        if not quiet:
+            print("\nAVBP energy inputs saved to '{0}'.".format(filename))
+
 
     def to_array(self, domain=None, normalize=False):
         """
@@ -581,7 +1198,7 @@ class FreeFlame(FlameBase):
     """A freely-propagating flat flame."""
     __slots__ = ('inlet', 'flame', 'outlet')
 
-    def __init__(self, gas, grid=None, width=None):
+    def __init__(self, gas, grid=None, width=None, sections=0):
         """
         A domain of type `FreeFlow` named 'flame' will be created to represent
         the flame. The three domains comprising the stack are stored as ``self.inlet``,
@@ -597,15 +1214,15 @@ class FreeFlame(FlameBase):
         """
 
         #: `Inlet1D` at the left of the domain representing premixed reactants
-        self.inlet = Inlet1D(name='reactants', phase=gas)
+        self.inlet = Inlet1D(name='reactants', phase=gas, sections=sections)
 
         #: `Outlet1D` at the right of the domain representing the burned products
-        self.outlet = Outlet1D(name='products', phase=gas)
+        self.outlet = Outlet1D(name='products', phase=gas, sections=sections)
 
         if not hasattr(self, 'flame'):
             # Create flame domain if not already instantiated by a child class
             #: `FreeFlow` domain representing the flame
-            self.flame = FreeFlow(gas, name='flame')
+            self.flame = FreeFlow(gas, name='flame', sections=sections)
 
         if width is not None:
             if grid is not None:
@@ -776,7 +1393,7 @@ class BurnerFlame(FlameBase):
     """A burner-stabilized flat flame."""
     __slots__ = ('burner', 'flame', 'outlet')
 
-    def __init__(self, gas, grid=None, width=None):
+    def __init__(self, gas, grid=None, width=None, sections=0):
         """
         :param gas:
             `Solution` (using the IdealGas thermodynamic model) used to
@@ -795,15 +1412,15 @@ class BurnerFlame(FlameBase):
         """
         #: `Inlet1D` at the left of the domain representing the burner surface through
         #: which reactants flow
-        self.burner = Inlet1D(name='burner', phase=gas)
+        self.burner = Inlet1D(name='burner', phase=gas, sections=sections)
 
         #: `Outlet1D` at the right of the domain representing the burned gas
-        self.outlet = Outlet1D(name='outlet', phase=gas)
+        self.outlet = Outlet1D(name='outlet', phase=gas, sections=sections)
 
         if not hasattr(self, 'flame'):
             # Create flame domain if not already instantiated by a child class
             #: `UnstrainedFlow` domain representing the flame
-            self.flame = UnstrainedFlow(gas, name='flame')
+            self.flame = UnstrainedFlow(gas, name='flame', sections=sections)
 
         if width is not None:
             if grid is not None:
@@ -914,7 +1531,7 @@ class CounterflowDiffusionFlame(FlameBase):
     """ A counterflow diffusion flame """
     __slots__ = ('fuel_inlet', 'flame', 'oxidizer_inlet')
 
-    def __init__(self, gas, grid=None, width=None):
+    def __init__(self, gas, grid=None, width=None, sections=0):
         """
         :param gas:
             `Solution` (using the IdealGas thermodynamic model) used to
@@ -933,15 +1550,15 @@ class CounterflowDiffusionFlame(FlameBase):
         """
 
         #: `Inlet1D` at the left of the domain representing the fuel mixture
-        self.fuel_inlet = Inlet1D(name='fuel_inlet', phase=gas)
+        self.fuel_inlet = Inlet1D(name='fuel_inlet', phase=gas, sections=sections)
         self.fuel_inlet.T = gas.T
 
         #: `Inlet1D` at the right of the domain representing the oxidizer mixture
-        self.oxidizer_inlet = Inlet1D(name='oxidizer_inlet', phase=gas)
+        self.oxidizer_inlet = Inlet1D(name='oxidizer_inlet', phase=gas, sections=sections)
         self.oxidizer_inlet.T = gas.T
 
         #: `AxisymmetricFlow` domain representing the flame
-        self.flame = AxisymmetricFlow(gas, name='flame')
+        self.flame = AxisymmetricFlow(gas, name='flame', sections=sections)
 
         if width is not None:
             if grid is not None:
@@ -1233,7 +1850,7 @@ class ImpingingJet(FlameBase):
     """An axisymmetric flow impinging on a surface at normal incidence."""
     __slots__ = ('inlet', 'flame', 'surface')
 
-    def __init__(self, gas, grid=None, width=None, surface=None):
+    def __init__(self, gas, grid=None, width=None, surface=None, sections=0):
         """
         :param gas:
             `Solution` (using the IdealGas thermodynamic model) used to
@@ -1254,10 +1871,10 @@ class ImpingingJet(FlameBase):
         """
 
         #: `Inlet1D` at the left of the domain representing the incoming reactants
-        self.inlet = Inlet1D(name='inlet', phase=gas)
+        self.inlet = Inlet1D(name='inlet', phase=gas, sections=sections)
 
         #: `AxisymmetricFlow` domain representing the flame
-        self.flame = AxisymmetricFlow(gas, name='flame')
+        self.flame = AxisymmetricFlow(gas, name='flame', sections=sections)
         self.flame.set_axisymmetric_flow()
 
         if width is not None:
@@ -1323,7 +1940,7 @@ class CounterflowPremixedFlame(FlameBase):
     """ A premixed counterflow flame """
     __slots__ = ('reactants', 'flame', 'products')
 
-    def __init__(self, gas, grid=None, width=None):
+    def __init__(self, gas, grid=None, width=None, sections=0):
         """
         :param gas:
             `Solution` (using the IdealGas thermodynamic model) used to
@@ -1341,15 +1958,15 @@ class CounterflowPremixedFlame(FlameBase):
         """
 
         #: `Inlet1D` at the left of the domain representing premixed reactants
-        self.reactants = Inlet1D(name='reactants', phase=gas)
+        self.reactants = Inlet1D(name='reactants', phase=gas, sections=sections)
         self.reactants.T = gas.T
 
         #: `Inlet1D` at the right of the domain representing burned products
-        self.products = Inlet1D(name='products', phase=gas)
+        self.products = Inlet1D(name='products', phase=gas, sections=sections)
         self.products.T = gas.T
 
         #: `AxisymmetricFlow` domain representing the flame
-        self.flame = AxisymmetricFlow(gas, name='flame')
+        self.flame = AxisymmetricFlow(gas, name='flame', sections=sections)
 
         if width is not None:
             if grid is not None:
@@ -1430,7 +2047,7 @@ class CounterflowTwinPremixedFlame(FlameBase):
     """
     __slots__ = ('reactants', 'flame', 'products')
 
-    def __init__(self, gas, grid=None, width=None):
+    def __init__(self, gas, grid=None, width=None, sections=0):
         """
         :param gas:
             `Solution` (using the IdealGas thermodynamic model) used to
@@ -1446,14 +2063,14 @@ class CounterflowTwinPremixedFlame(FlameBase):
         represent the flame. The three domains comprising the stack are stored as
         ``self.reactants``, ``self.flame``, and ``self.products``.
         """
-        self.reactants = Inlet1D(name='reactants', phase=gas)
+        self.reactants = Inlet1D(name='reactants', phase=gas, sections=sections)
         self.reactants.T = gas.T
 
         #: `AxisymmetricFlow` domain representing the flame
-        self.flame = AxisymmetricFlow(gas, name='flame')
+        self.flame = AxisymmetricFlow(gas, name='flame', sections=sections)
 
         #The right boundary is a symmetry plane
-        self.products = SymmetryPlane1D(name='products', phase=gas)
+        self.products = SymmetryPlane1D(name='products', phase=gas, sections=sections)
 
         if width is not None:
             if grid is not None:
@@ -1505,3 +2122,358 @@ class CounterflowTwinPremixedFlame(FlameBase):
         self.set_profile('velocity', [0.0, 1.0], [uu, 0])
         self.set_profile('spread_rate', [0.0, 1.0], [0.0, a])
         self.set_profile("lambda", [0.0, 1.0], [L, L])
+
+
+class Flamelet(FlameBase):
+    """ A diffusion flamelet (Z-space) """
+    __slots__ = ('oxidizer_inlet', 'flame', 'fuel_inlet')
+    _other = ('grid')
+
+    def __init__(self, gas, grid=None,):
+        """
+        :param gas:
+            `Solution` (using the IdealGas thermodynamic model) used to
+            evaluate all gas properties and reaction rates.
+        :param grid:
+            A list of points to be used as the initial grid. Not recommended
+            unless solving only on a fixed grid; Use the `width` parameter
+            instead.
+
+        A domain of class `FlameletFlow` named ``flame`` will be created to
+        represent the flame. The three domains comprising the stack are stored as
+        ``self.oxidizer_inlet``, ``self.flame``, and ``self.fuel_inlet``.
+        """
+
+        #: `Inlet1D` at the left of the domain representing the fuel mixture
+        self.fuel_inlet = Inlet1D(name='fuel_inlet', phase=gas)
+        self.fuel_inlet.T = gas.T
+
+        #: `Inlet1D` at the right of the domain representing the oxidizer mixture
+        self.oxidizer_inlet = Inlet1D(name='oxidizer_inlet', phase=gas)
+        self.oxidizer_inlet.T = gas.T
+
+        #: `FlameletFlow` domain representing the flame
+        self.flame = FlameletFlow(gas, name='flame')
+
+        if grid is None:
+            grid = np.array([0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0])
+            # Note: flamelet initialisation is very sensitive to the number of grid points.
+            # Do not hesitate to try some: experience shows that between 10 and 20 is often a good guess
+
+        grid = grid / max(grid) # Width of the grid must anyway be 1 because in Z-space
+        
+        super().__init__((self.oxidizer_inlet, self.flame, self.fuel_inlet), gas, grid)
+
+    @property
+    def ChiSt(self):
+        return self.flame.ChiSt
+
+    @ChiSt.setter
+    def ChiSt(self, val):
+        self.flame.ChiSt = val
+
+    @property
+    def ZSt(self):
+        return self.flame.ZSt
+
+    @ZSt.setter
+    def ZSt(self, val):
+        self.flame.ZSt = val
+        
+    def set_initial_guess(self, data=None, group=None):
+        """
+        Set the initial guess for the solution. By default, the initial guess
+        is generated by assuming infinitely-fast chemistry. Alternatively, a
+        previously calculated result can be supplied as an initial guess via
+        'data' and 'key' inputs (see `FlameBase.set_initial_guess`).
+        """
+        super().set_initial_guess(data=data, group=group)
+        if data:
+            return
+
+        moles = lambda el: (self.gas.elemental_mass_fraction(el) /
+                            self.gas.atomic_weight(el))
+
+        # Compute stoichiometric mixture composition
+        Yin_f = self.fuel_inlet.Y
+        self.gas.TPY = self.fuel_inlet.T, self.P, Yin_f
+
+        T0f = self.fuel_inlet.T
+
+        sFuel = moles('O')
+        if 'C' in self.gas.element_names:
+            sFuel -= 2 * moles('C')
+        if 'H' in self.gas.element_names:
+            sFuel -= 0.5 * moles('H')
+
+        Yin_o = self.oxidizer_inlet.Y
+        self.gas.TPY = self.oxidizer_inlet.T, self.P, Yin_o
+
+        T0o = self.oxidizer_inlet.T
+
+        sOx = moles('O')
+        if 'C' in self.gas.element_names:
+            sOx -= 2 * moles('C')
+        if 'H' in self.gas.element_names:
+            sOx -= 0.5 * moles('H')
+
+        zst = 1.0 / (1 - sFuel / sOx)
+        Yst = zst * Yin_f + (1.0 - zst) * Yin_o
+
+        self.flame.ZSt = zst
+
+        # get adiabatic flame temperature and composition
+        Tbar = 0.5 * (T0f + T0o)
+        self.gas.TPY = Tbar, self.P, Yst
+        self.gas.equilibrate('HP')
+        Teq = self.gas.T
+        Yeq = self.gas.Y
+
+        # estimate strain rate
+        zz = self.flame.grid
+        nz = len(zz)
+
+        Y = np.zeros((nz, self.gas.n_species))
+        T = np.zeros(nz)
+        for j, zmix in enumerate(zz):
+            if zmix > zst:
+                Y[j] = Yeq + (Yin_f - Yeq) * (zmix - zst) / (1.0 - zst)
+                T[j] = Teq + (T0f - Teq) * (zmix - zst) / (1.0 - zst)
+            else:
+                Y[j] = Yin_o + zmix * (Yeq - Yin_o) / zst
+                T[j] = T0o + (Teq - T0o) * zmix / zst
+
+        T[0] = T0f
+        T[-1] = T0o
+        
+        self.set_profile('T', zz, T)
+        for k,spec in enumerate(self.gas.species_names):
+            self.set_profile(spec, zz, Y[:,k])
+
+    def extinct(self):
+        return max(self.T) - max(self.fuel_inlet.T, self.oxidizer_inlet.T) < 10
+
+    def solve(self, loglevel=1, refine_grid='refine', auto=False, stage=1):
+        """
+        Solve the problem.
+
+        :param loglevel:
+            integer flag controlling the amount of diagnostic output. Zero
+            suppresses all output, and 5 produces very verbose output.
+        :param refine_grid:
+            if True, enable grid refinement.
+        :param auto: if True, sequentially execute the different solution stages
+            and attempt to automatically recover from errors. Attempts to first
+            solve on the initial grid with energy enabled. If that does not
+            succeed, a fixed-temperature solution will be tried followed by
+            enabling the energy equation, and then with grid refinement enabled.
+            If non-default tolerances have been specified or multicomponent
+            transport is enabled, an additional solution using these options
+            will be calculated.
+        :param stage: solution stage; only used when transport model is ``ionized-gas``.
+        """
+        if self.flame.transport_model == 'ionized-gas':
+            warnings.warn(
+                "The 'ionized-gas' transport model is untested for "
+                "'Flamelet' objects.", UserWarning)
+            self.flame.solving_stage = stage
+
+        super().solve(loglevel, refine_grid, auto)
+        # Do some checks if loglevel is set
+        if loglevel > 0:
+            if self.extinct():
+                print('WARNING: Flame is extinct.')
+            # else:
+            #     # Check if the flame is very thick
+            #     # crude width estimate based on temperature
+            #     z_flame = self.grid[self.T > np.max(self.T) / 2]
+            #     flame_width = z_flame[-1] - z_flame[0]
+            #     domain_width = self.grid[-1] - self.grid[0]
+            #     if flame_width / domain_width > 0.4:
+            #         print('WARNING: The flame is thick compared to the domain '
+            #               'size. The flame might be affected by the plug-flow '
+            #               'boundary conditions. Consider increasing the inlet mass '
+            #               'fluxes or using a larger domain.')
+
+            #     # Check if the temperature peak is close to a boundary
+            #     z_center = (self.grid[np.argmax(self.T)] - self.grid[0]) / domain_width
+            #     if z_center < 0.25:
+            #         print('WARNING: The flame temperature peak is close to the '
+            #               'fuel inlet. Consider increasing the ratio of the '
+            #               'fuel inlet mass flux to the oxidizer inlet mass flux.')
+            #     if z_center > 0.75:
+            #         print('WARNING: The flame temperature peak is close to the '
+            #               'oxidizer inlet. Consider increasing the ratio of the '
+            #               'oxidizer inlet mass flux to the fuel inlet mass flux.')
+                
+    def write_csv(self, filename, species='X', quiet=True):
+        """
+        Write the velocity, temperature, density, and species profiles
+        to a CSV file.
+
+        :param filename:
+            Output file name
+        :param species:
+            Attribute to use obtaining species profiles, e.g. ``X`` for
+            mole fractions or ``Y`` for mass fractions.
+        """
+
+        z = self.grid
+        T = self.T
+
+        csvfile = open(filename, 'w')
+        writer = _csv.writer(csvfile)
+        writer.writerow(['z (m)',
+                         'T (K)', 'rho (kg/m3)'] + self.gas.species_names)
+        for n in range(self.flame.n_points):
+            self.set_gas_state(n)
+            writer.writerow([z[n], T[n], self.gas.density] +
+                            list(getattr(self.gas, species)))
+        csvfile.close()
+        if not quiet:
+            print("Solution saved to '{0}'.".format(filename))
+    # def strain_rate(self, definition, fuel=None, oxidizer='O2', stoich=None):
+    #     r"""
+    #     Return the axial strain rate of the counterflow diffusion flame in 1/s.
+
+    #     :param definition:
+    #         The definition of the strain rate to be calculated. Options are:
+    #         ``mean``, ``max``, ``stoichiometric``, ``potential_flow_fuel``, and
+    #         ``potential_flow_oxidizer``.
+    #     :param fuel: The fuel species. Used only if ``definition`` is
+    #         ``stoichiometric``.
+    #     :param oxidizer: The oxidizer species, default ``O2``. Used only if
+    #         ``definition`` is ``stoichiometric``.
+    #     :param stoich: The molar stoichiometric oxidizer-to-fuel ratio.
+    #         Can be omitted if the oxidizer is ``O2``. Used only if ``definition``
+    #         is ``stoichiometric``.
+
+    #     The parameter ``definition`` sets the method to compute the strain rate.
+    #     Possible options are:
+
+    #     ``mean``:
+    #         The mean axial velocity gradient in the entire domain
+
+    #        .. math:: a_{mean} = \left| \frac{\Delta u}{\Delta z} \right|
+
+    #     ``max``:
+    #         The maximum axial velocity gradient
+
+    #         .. math:: a_{max} = \max \left( \left| \frac{du}{dz} \right| \right)
+
+    #     ``stoichiometric``:
+    #         The axial velocity gradient at the stoichiometric surface.
+
+    #         .. math::
+
+    #             a_{stoichiometric} = \left| \left. \frac{du}{dz}
+    #             \right|_{\phi=1} \right|
+
+    #         This method uses the additional keyword arguments ``fuel``,
+    #         ``oxidizer``, and ``stoich``.
+
+    #         >>> f.strain_rate('stoichiometric', fuel='H2', oxidizer='O2',
+    #                           stoich=0.5)
+
+    #     ``potential_flow_fuel``:
+    #         The corresponding axial strain rate for a potential flow boundary
+    #         condition at the fuel inlet.
+
+    #         .. math:: a_{f} = \sqrt{-\frac{\Lambda}{\rho_{f}}}
+
+    #     ``potential_flow_oxidizer``:
+    #         The corresponding axial strain rate for a potential flow boundary
+    #         condition at the oxidizer inlet.
+
+    #         .. math:: a_{o} = \sqrt{-\frac{\Lambda}{\rho_{o}}}
+    #     """
+    #     if definition == 'mean':
+    #         return - (self.velocity[-1] - self.velocity[0]) / self.grid[-1]
+
+    #     elif definition == 'max':
+    #         return np.max(np.abs(np.gradient(self.velocity) / np.gradient(self.grid)))
+
+    #     elif definition == 'stoichiometric':
+    #         if fuel is None:
+    #             raise KeyError('Required argument "fuel" not defined')
+    #         if oxidizer != 'O2' and stoich is None:
+    #             raise KeyError('Required argument "stoich" not defined')
+
+    #         if stoich is None:
+    #             # oxidizer is O2
+    #             stoich = - 0.5 * self.gas.n_atoms(fuel, 'O')
+    #             if 'H' in self.gas.element_names:
+    #                 stoich += 0.25 * self.gas.n_atoms(fuel, 'H')
+    #             if 'C' in self.gas.element_names:
+    #                 stoich += self.gas.n_atoms(fuel, 'C')
+
+    #         d_u_d_z = np.gradient(self.velocity) / np.gradient(self.grid)
+    #         phi = (self.X[self.gas.species_index(fuel)] * stoich /
+    #                np.maximum(self.X[self.gas.species_index(oxidizer)], 1e-20))
+    #         z_stoich = np.interp(-1., -phi, self.grid)
+    #         return np.abs(np.interp(z_stoich, self.grid, d_u_d_z))
+
+    #     elif definition == 'potential_flow_fuel':
+    #         return np.sqrt(- self.L[0] / self.density[0])
+
+    #     elif definition == 'potential_flow_oxidizer':
+    #         return np.sqrt(- self.L[0] / self.density[-1])
+
+    #     else:
+    #         raise ValueError('Definition "' + definition + '" is not available')
+
+    # def mixture_fraction(self, m):
+    #     r"""
+    #     Compute the mixture fraction based on element ``m`` or from the
+    #     Bilger mixture fraction by setting ``m="Bilger"``
+
+    #     The mixture fraction is computed from the elemental mass fraction of
+    #     element ``m``, normalized by its values on the fuel and oxidizer
+    #     inlets:
+
+    #     .. math:: Z = \frac{Z_{\mathrm{mass},m}(z) -
+    #                         Z_{\mathrm{mass},m}(z_\mathrm{oxidizer})}
+    #                        {Z_{\mathrm{mass},m}(z_\mathrm{fuel}) -
+    #                         Z_{\mathrm{mass},m}(z_\mathrm{oxidizer})}
+
+    #     or from the Bilger mixture fraction:
+
+    #     .. math:: Z = \frac{\beta-\beta_{\mathrm{oxidizer}}}
+    #                        {\beta_{\mathrm{fuel}}-\beta_{\mathrm{oxidizer}}}
+
+    #     with
+
+    #     .. math:: \beta = 2\frac{Z_C}{M_C}+2\frac{Z_S}{M_S}
+    #                       +\frac{1}{2}\frac{Z_H}{M_H}-\frac{Z_O}{M_O}
+
+    #     :param m:
+    #         The element based on which the mixture fraction is computed,
+    #         may be specified by name or by index, or "Bilger" for the
+    #         Bilger mixture fraction, which considers the elements C,
+    #         H, S, and O
+
+    #     >>> f.mixture_fraction('H')
+    #     >>> f.mixture_fraction('Bilger')
+    #     """
+
+    #     Yf = [self.value(self.flame, k, 0) for k in self.gas.species_names]
+    #     Yo = [self.value(self.flame, k, self.flame.n_points - 1)
+    #           for k in self.gas.species_names]
+
+    #     vals = np.empty(self.flame.n_points)
+    #     for i in range(self.flame.n_points):
+    #         self.set_gas_state(i)
+    #         vals[i] = self.gas.mixture_fraction(Yf, Yo, 'mass', m)
+    #     return vals
+
+    # @property
+    # def equivalence_ratio(self):
+    #     Yf = [self.value(self.flame, k, 0) for k in self.gas.species_names]
+    #     Yo = [self.value(self.flame, k, self.flame.n_points - 1)
+    #           for k in self.gas.species_names]
+
+    #     vals = np.empty(self.flame.n_points)
+    #     for i in range(self.flame.n_points):
+    #         self.set_gas_state(i)
+    #         vals[i] = self.gas.equivalence_ratio(Yf, Yo, "mass")
+    #     return vals

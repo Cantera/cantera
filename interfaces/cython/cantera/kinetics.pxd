@@ -40,6 +40,8 @@ cdef extern from "cantera/kinetics/Kinetics.h" namespace "Cantera":
         void invalidateCache() except +translate_exception
         void resizeReactions()
 
+        void closeDynamicLib() except +translate_exception
+
         shared_ptr[CxxReaction] reaction(size_t) except +translate_exception
         double reactantStoichCoeff(int, int) except +translate_exception
         double productStoichCoeff(int, int) except +translate_exception

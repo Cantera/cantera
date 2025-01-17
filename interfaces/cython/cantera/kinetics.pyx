@@ -137,6 +137,13 @@ cdef class Kinetics(_SolutionBase):
         if not 0 <= n < self.n_total_species:
             raise ValueError("Kinetics Species index ({0}) out of range".format(n))
 
+    def reset_custom(self):
+        """
+        Function calling the dlclose in CustomKinetics
+        in order to close the dynamic library (handle)
+        """
+        self.kinetics.closeDynamicLib()
+
     def kinetics_species_index(self, species, int phase=0):
         """
         The index of species ``species`` of phase ``phase`` within arrays returned
