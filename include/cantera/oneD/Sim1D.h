@@ -203,7 +203,7 @@ public:
 
     void setTimeStep(double stepsize, size_t n, const int* tsteps);
 
-    void solve(int loglevel = 0, bool refine_grid = true);
+    void solve(int loglevel = 0, const string& refine_grid = "refine");
 
     void eval(double rdt=-1.0, int count = 1) {
         OneDim::eval(npos, m_state->data(), m_xnew.data(), rdt, count);
