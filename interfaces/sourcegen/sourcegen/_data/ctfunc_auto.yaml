@@ -1,9 +1,9 @@
-# Auto-generated CLib API for %Cantera's Func1 class.
-# Implements a replacement for CLib's traditional @c ctfunc library.
-
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
+docstring: |-
+  Auto-generated CLib API for %Cantera's Func1 class.
+  Implements a replacement for CLib's traditional @c ctfunc library.
 prefix: func13
 base: Func1
 recipes:

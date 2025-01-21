@@ -38,21 +38,9 @@ class HeaderFileParser:
         return [cls(ff, ignore_funcs.get(ff.name, []))._parse_yaml() for ff in files]
 
     def _parse_yaml(self) -> HeaderFile:
-        def read_docstring():
-            doc = []
-            with self._path.open("r", encoding="utf-8") as fid:
-                while True:
-                    line = fid.readline()
-                    if line.startswith("#"):
-                        doc.append(line.lstrip("#").strip())
-                    else:
-                        break
-            if doc and doc[0].startswith("This file is part of "):
-                return []
-            return doc
-
         config = read_config(self._path)
         recipes = []
+        docstring = config["docstring"].split("\n")
         prefix = config["prefix"]
         base = config["base"]
         parents = config.get("parents", [])
@@ -76,7 +64,7 @@ class HeaderFileParser:
                        derived))
 
         return HeaderFile(self._path, [], prefix, base, parents, derived, recipes,
-                          read_docstring())
+                          docstring)
 
     @classmethod
     def headers_from_h(cls, ignore_files, ignore_funcs) -> list[HeaderFile]:

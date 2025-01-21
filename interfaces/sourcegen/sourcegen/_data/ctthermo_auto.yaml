@@ -1,9 +1,9 @@
-# Auto-generated CLib API for %Cantera's ThermoPhase class.
-# Partially implements a replacement for CLib's traditional @c ct library.
-
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
+docstring: |-
+  Auto-generated CLib API for %Cantera's ThermoPhase class.
+  Partially implements a replacement for CLib's traditional @c ct library.
 prefix: thermo3
 base: ThermoPhase
 parents: [Phase]  # List of parent classes
