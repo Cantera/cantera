@@ -1,9 +1,9 @@
-# The main library of the auto-generated CLib API contains %Cantera service functions.
-# Partially implements a replacement for CLib's traditional @c ct library.
-
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
+docstring: |-
+  The main library of the auto-generated CLib API contains %Cantera service functions.
+  Partially implements a replacement for CLib's traditional @c ct library.
 prefix: ct3
 base: ""
 recipes:
