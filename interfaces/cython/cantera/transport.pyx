@@ -195,7 +195,7 @@ cdef class Transport(_SolutionBase):
             return pystr(self.transport.transportModel())
 
         def __set__(self, model):
-            self.base.setTransport(newTransport(self.base.thermo(), stringify(model)))
+            self.base.setTransportModel(stringify(model))
 
     property CK_mode:
         """Boolean to indicate if the chemkin interpretation is used."""
@@ -421,7 +421,7 @@ cdef class DustyGasTransport(Transport):
     coefficients are not implemented.
     """
     def __init__(self, *args, **kwargs):
-        self.base.setTransport(newTransport(self.base.thermo(), stringify("DustyGas")))
+        self.base.setTransportModel(stringify("DustyGas"))
         self.transport = self.base.transport().get()
         super().__init__(*args, **kwargs)
 
