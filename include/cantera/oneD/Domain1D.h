@@ -75,6 +75,13 @@ public:
         throw NotImplementedError("Domain1D::setTransport");
     }
 
+    //! Set transport model by name.
+    //! @param model  String specifying model name.
+    //! @since New in %Cantera 3.2.
+    virtual void setTransportModel(const string& model) {
+        throw NotImplementedError("Domain1D::setTransportModel");
+    }
+
     //! The container holding this domain.
     const OneDim& container() const {
         return *m_container;
