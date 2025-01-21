@@ -59,6 +59,9 @@ TEST(SolutionArray, simple)
     auto gas = newSolution("h2o2.yaml",  "", "none");
     auto arr = SolutionArray::create(gas, 5);
 
+    ASSERT_EQ(gas->transportModel(), "none");
+    ASSERT_EQ(arr->transportModel(), "none");
+
     ASSERT_EQ(arr->size(), 5);
     ASSERT_EQ(arr->meta(), AnyMap());
 

@@ -217,6 +217,15 @@ class TestFreeFlame:
 
         assert self.sim.transport_model == 'multicomponent'
 
+        data = self.test_work_path / f"multicomponent.yaml"
+        data.unlink(missing_ok=True)
+        group = "multicomponent"
+        self.sim.save(data, group)
+
+        arr = ct.SolutionArray(self.sim.gas)
+        arr.restore(data, "multicomponent/flame")
+        assert arr.transport_model == "multicomponent"
+
     def test_flow_type(self):
         Tin = 300
         p = ct.one_atm
