@@ -875,7 +875,7 @@ protected:
     bool m_caseSensitiveSpecies = false;
 
     //! Vector of size m_kk, used as a temporary holding area.
-    mutable vector<double> m_tmpV;
+    mutable vector<double> m_workS;
 
 private:
     //! Find lowercase species name in m_speciesIndices when case sensitive

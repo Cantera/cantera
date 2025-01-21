@@ -527,15 +527,13 @@ public:
     /**
      * Returns the amount of enthalpy per mole,
      * @f[
-     * \bar{h}(T, P, X_k) = \sum_k X_k \bar{h}_k(T)
+     * \hat{h} = \sum_k X_k \hat{h}_k
      * @f]
-     * The formula is written in terms of the partial molar enthalpies.
-     * @f$ \bar{h}_k(T, p, m_k) @f$.
-     * @relates getPartialMolarEnthalpies()
+     * @see getPartialMolarEnthalpies()
      */
     virtual double enthalpy_mole() const {
-        getPartialMolarEnthalpies(m_tmpV.data());
-        return mean_X(m_tmpV);
+        getPartialMolarEnthalpies(m_workS.data());
+        return mean_X(m_workS);
     }
 
     //! Molar internal energy. Units: J/kmol.
@@ -547,40 +545,38 @@ public:
     /**
      * Returns the amount of entropy per mole,
      * @f[
-     * \bar{s}(T, P, X_k) = \sum_k X_k \bar{s}_k(T)
+     * \hat{s} = \sum_k X_k \hat{s}_k
      * @f]
-     * The formula is written in terms of the partial molar entropies.
-     * @f$ \bar{s}_k(T, p, m_k) @f$.
-     * @relates getPartialMolarEnthalpies()
+     * @see getPartialMolarEnthalpies()
      */
     virtual double entropy_mole() const {
-        getPartialMolarEntropies(m_tmpV.data());
-        return mean_X(m_tmpV);
+        getPartialMolarEntropies(m_workS.data());
+        return mean_X(m_workS);
     }
 
     //! Molar Gibbs function. Units: J/kmol.
     /*!
      * Returns the Gibbs free energy per mole,
      * @f[
-     * \bar{g}(T, P, X_k) = \sum_k X_k \mu_k(T)
+     * \hat{g} = \sum_k X_k \mu_k
      * @f]
-     * @relates getChemPotentials()
+     * @see getChemPotentials()
      */
     virtual double gibbs_mole() const {
-        getChemPotentials(m_tmpV.data());
-        return mean_X(m_tmpV);
+        getChemPotentials(m_workS.data());
+        return mean_X(m_workS);
     }
 
     //! Molar heat capacity at constant pressure. Units: J/kmol/K.
     /*!
      * @f[
-     * \bar{c}_p(T, P, X_k) = \sum_k X_k \bar{c}_{p,k}(T)
+     * \hat{c}_p = \sum_k X_k \hat{c}_{p,k}
      * @f]
-     * @relates getPartialMolarCp()
+     * @see getPartialMolarCp()
      */
     virtual double cp_mole() const {
-        getPartialMolarCp(m_tmpV.data());
-        return mean_X(m_tmpV);
+        getPartialMolarCp(m_workS.data());
+        return mean_X(m_workS);
     }
 
     //! Molar heat capacity at constant volume. Units: J/kmol/K.
