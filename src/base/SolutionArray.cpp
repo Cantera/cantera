@@ -561,6 +561,11 @@ shared_ptr<ThermoPhase> SolutionArray::thermo()
     return m_sol->thermo();
 }
 
+string SolutionArray::transportModel()
+{
+    return m_sol->transportModel();
+}
+
 vector<string> SolutionArray::componentNames() const
 {
     vector<string> components;

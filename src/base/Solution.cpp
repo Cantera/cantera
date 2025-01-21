@@ -60,6 +60,15 @@ void Solution::setKinetics(shared_ptr<Kinetics> kinetics) {
     }
 }
 
+string Solution::transportModel()
+{
+    if (!m_transport) {
+        throw CanteraError("Solution::transportModel",
+            "The Transport object is not initialized.");
+    }
+    return m_transport->transportModel();
+}
+
 void Solution::setTransport(shared_ptr<Transport> transport) {
     if (transport == m_transport) {
         return;
@@ -74,6 +83,9 @@ void Solution::setTransportModel(const string& model) {
     if (!m_thermo) {
         throw CanteraError("Solution::setTransportModel",
             "Unable to set Transport model without valid ThermoPhase object.");
+    }
+    if (m_transport && transportModel() == model) {
+        return;
     }
     setTransport(newTransport(m_thermo, model));
 }

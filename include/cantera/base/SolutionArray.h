@@ -119,6 +119,10 @@ public:
     //! Retrieve associated ThermoPhase object
     shared_ptr<ThermoPhase> thermo();
 
+    //! Retrieve associated Transport model
+    //! @since New in %Cantera 3.2
+    string transportModel();
+
     //! Retrieve list of component names
     vector<string> componentNames() const;
 

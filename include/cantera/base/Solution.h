@@ -70,6 +70,10 @@ public:
     //! Set the Transport object directly
     virtual void setTransport(shared_ptr<Transport> transport);
 
+    //! Retrieve transport model name
+    //! @since New in %Cantera 3.2
+    string transportModel();
+
     //! Set the Transport object by name
     //! @param model  name of transport model; if omitted, the default model is used
     //! @since New in %Cantera 3.0
