@@ -475,6 +475,16 @@ class TestSolutionArrayIO:
         assert states[0].P == gas.P
         assert states[0].Y == approx(gas.Y)
 
+    def test_append_scrambled_input(self):
+        gas = ct.Solution("h2o2.yaml")
+        gas.TP = 300, ct.one_atm
+        gas.set_unnormalized_mass_fractions(np.full(gas.n_species, 0.3))
+        states = ct.SolutionArray(gas)
+        states.append(Y=gas.Y, P=gas.P, normalize=False, T=gas.T)
+        assert states[0].T == gas.T
+        assert states[0].P == gas.P
+        assert states[0].Y == approx(gas.Y)
+
     @pytest.mark.skipif("native" not in ct.hdf_support(),
                         reason="Cantera compiled without HDF support")
     def test_import_no_norm_data(self):
