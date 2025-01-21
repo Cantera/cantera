@@ -815,14 +815,14 @@ class SolutionArray(SolutionArrayBase):
                     "the thermodynamic state".format(tuple(kwargs))
                 ) from None
             if normalize or attr.endswith("Q"):
-                setattr(self._phase, attr, list(kwargs.values()))
+                setattr(self._phase, attr, [kwargs[a] for a in attr])
             else:
                 if attr.endswith("X"):
                     self._phase.set_unnormalized_mole_fractions(kwargs.pop("X"))
                 elif attr.endswith("Y"):
                     self._phase.set_unnormalized_mass_fractions(kwargs.pop("Y"))
                 attr = attr[:-1]
-                setattr(self._phase, attr, list(kwargs.values()))
+                setattr(self._phase, attr, [kwargs[a] for a in attr])
 
         self._append(self._phase.state, extra_temp)
         self._indices.append(len(self._indices))
