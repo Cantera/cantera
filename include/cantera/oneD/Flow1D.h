@@ -97,7 +97,7 @@ public:
 
     //! Set the transport model
     //! @since New in %Cantera 3.0.
-    void setTransportModel(const string& trans);
+    void setTransportModel(const string& model) override;
 
     //! Retrieve transport model
     //! @since New in %Cantera 3.0.

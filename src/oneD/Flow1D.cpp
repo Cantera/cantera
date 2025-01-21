@@ -207,9 +207,14 @@ void Flow1D::resetBadValues(double* xg)
     }
 }
 
-void Flow1D::setTransportModel(const string& trans)
+void Flow1D::setTransportModel(const string& model)
 {
-    m_solution->setTransportModel(trans);
+    if (model == "none") {
+        throw CanteraError("Flow1D::setTransportModel",
+            "Invalid Transport model 'none'.");
+    }
+    m_solution->setTransportModel(model);
+    Flow1D::setTransport(m_solution->transport());
 }
 
 string Flow1D::transportModel() const {
@@ -981,7 +986,9 @@ void Flow1D::setMeta(const AnyMap& state)
         }
     }
 
-    setTransportModel(state.getString("transport-model", "mixture-averaged"));
+    if (state.hasKey("transport-model")) {
+        setTransportModel(state["transport-model"].asString());
+    }
 
     if (state.hasKey("Soret-enabled")) {
         m_do_soret = state["Soret-enabled"].asBool();
