@@ -106,11 +106,14 @@ public:
 
     //! Get the number of adjacent phases
     size_t nAdjacent() const {
-         return m_adjacent.size();
+        return m_adjacent.size();
     }
 
     //! Get the name of an adjacent phase by index
     string adjacentName(size_t i) const {
+        if (i < 0 || i >= m_adjacent.size()) {
+            throw CanteraError("Solution::adjacentName", "Invalid index {}.", i);
+        }
         return m_adjacent.at(i)->name();
     }
 

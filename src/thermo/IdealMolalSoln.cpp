@@ -47,8 +47,8 @@ IdealMolalSoln::IdealMolalSoln(const string& inputFile, const string& id_) :
 
 double IdealMolalSoln::intEnergy_mole() const
 {
-    getPartialMolarIntEnergies(m_tmpV.data());
-    return mean_X(m_tmpV);
+    getPartialMolarIntEnergies(m_workS.data());
+    return mean_X(m_workS);
 }
 
 // ------- Mechanical Equation of State Properties ------------------------
