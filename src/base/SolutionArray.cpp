@@ -1160,6 +1160,9 @@ void SolutionArray::writeEntry(const string& fname, const string& name,
     } else {
         more["api-shape"] = m_apiShape;
     }
+    if (!m_meta.hasKey("transport-model") && m_sol->transport()) {
+        more["transport-model"] = m_sol->transportModel();
+    }
     more["components"] = componentNames();
     file.writeAttributes(path, more);
     if (!m_dataSize) {
@@ -1225,6 +1228,9 @@ void SolutionArray::writeEntry(AnyMap& root, const string& name, const string& s
         data["size"] = int(m_dataSize);
     } else {
         data["api-shape"] = m_apiShape;
+    }
+    if (m_sol->transport() && m_sol->transportModel() != "none") {
+        data["transport-model"] = m_sol->transportModel();
     }
     data.update(m_meta);
 
@@ -1814,6 +1820,10 @@ void SolutionArray::readEntry(const string& fname, const string& name,
             }
         }
     }
+
+    if (m_meta.hasKey("transport-model")) {
+        m_sol->setTransportModel(m_meta["transport-model"].asString());
+    }
 }
 
 void SolutionArray::readEntry(const AnyMap& root, const string& name, const string& sub)
@@ -1958,6 +1968,10 @@ void SolutionArray::readEntry(const AnyMap& root, const string& name, const stri
         if (!exclude.count(name)) {
             m_meta[name] = value;
         }
+    }
+
+    if (m_meta.hasKey("transport-model")) {
+        m_sol->setTransportModel(m_meta["transport-model"].asString());
     }
 }
 
