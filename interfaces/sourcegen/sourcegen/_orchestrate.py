@@ -23,7 +23,7 @@ class CustomFormatter(logging.Formatter):
         return formatter.format(record)
 
 
-def generate_source(lang: str, out_dir: str = "", verbose = False) -> None:
+def generate_source(lang: str, out_dir: str, verbose: bool = False) -> None:
     """Main entry point of sourcegen."""
     loghandler = logging.StreamHandler(sys.stdout)
     loghandler.setFormatter(CustomFormatter())
