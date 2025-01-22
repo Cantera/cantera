@@ -342,32 +342,16 @@ protected:
      */
     void initializeCriticalProperties();
 
-    /**
-     * Returns the stored value of the critical temperature.
-     *
-     * @param i  Species index
-     */
+    //! Returns the stored value of the critical temperature for species 'i'.
     double Tcrit_i(size_t i);
 
-    /**
-     * Returns the stored value of the critical pressure.
-     *
-     * @param i  Species index
-     */
+    //! Returns the stored value of the critical pressure for species 'i'.
     double Pcrit_i(size_t i);
 
-    /**
-     * Returns the stored value of the critical volume.
-     *
-     * @param i  Species index
-     */
+    //! Returns the stored value of the critical volume for species 'i'.
     double Vcrit_i(size_t i);
 
-    /**
-     * Returns the stored value of the critical compressibility.
-     *
-     * @param i  Species index
-     */
+    //! Returns the stored value of the critical compressibility for species 'i'.
     double Zcrit_i(size_t i);
 
     /**
@@ -975,32 +959,16 @@ protected:
     //! Computes and stores pure-fluid specific properties each species.
     void initializePureFluidProperties();
 
-    /**
-     * Returns the stored value of the critical temperature.
-     *
-     * @param i  Species index
-     */
+    //! Returns the stored value of the critical temperature for a species 'i'.
     double Tcrit_i(size_t i);
 
-    /**
-     * Returns the stored value of the critical pressure.
-     *
-     * @param i  Species index
-     */
+    //! Returns the stored value of the critical pressure for a species 'i'.
     double Pcrit_i(size_t i);
 
-    /**
-     * Returns the stored value of the critical volume.
-     *
-     * @param i  Species index
-     */
+    //! Returns the stored value of the critical volume for a species 'i'.
     double Vcrit_i(size_t i);
 
-    /**
-     * Returns the stored value of the critical compressibility.
-     *
-     * @param i  Species index
-     */
+    //! Returns the stored value of the critical compressibility for a species 'i'.
     double Zcrit_i(size_t i);
 
     /**
@@ -1374,7 +1342,7 @@ protected:
      * @param acentric_factor  Acentric factor [unitless]
      * @param mu_r  Dipole moment [Debye]
      * @param kappa  Polar correction factor [unitless]
-     * @return double
+     * @return High pressure thermal conductivity [W/m/K]
      */
     double highPressureThermalConductivity(double T, double T_star, double MW,
         double rho, double Cv, double Vc, double Tc, double sigma,
