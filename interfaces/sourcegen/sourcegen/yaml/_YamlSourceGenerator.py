@@ -48,7 +48,7 @@ class YamlSourceGenerator(SourceGenerator):
                                   returns=c_func.returns, implements=implements,
                                   relates=c_func.uses, what=recipe.what))
 
-        filename = headers.output_name(suffix=".yaml", auto="3")
+        filename = headers.output_name(suffix="3.yaml")
         template = loader.from_string(self._templates["yaml-file"])
         output = template.render(filename=filename.name, header_entries=declarations)
 

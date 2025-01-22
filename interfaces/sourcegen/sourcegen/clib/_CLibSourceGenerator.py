@@ -464,7 +464,7 @@ class CLibSourceGenerator(SourceGenerator):
         """Parse header specification and generate header file."""
         loader = Environment(loader=BaseLoader, trim_blocks=True, lstrip_blocks=True)
 
-        filename = headers.output_name(suffix=".h", auto="3")
+        filename = headers.output_name(suffix="3.h")
         msg = f"  scaffolding {filename.name!r}"
         _LOGGER.info(msg)
 
@@ -496,7 +496,7 @@ class CLibSourceGenerator(SourceGenerator):
         """Parse header specification and generate implementation file."""
         loader = Environment(loader=BaseLoader, trim_blocks=True, lstrip_blocks=True)
 
-        filename = headers.output_name(suffix=".cpp", auto="3")
+        filename = headers.output_name(suffix="3.cpp")
         msg = f"  scaffolding {filename.name!r}"
         _LOGGER.info(msg)
 

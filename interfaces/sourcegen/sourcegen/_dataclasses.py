@@ -228,7 +228,14 @@ class HeaderFile:
     recipes: list[Recipe] | None = None  #: list of header recipes read from YAML
     docstring: list[str] | None = None  #: lines representing docstring of YAML file
 
-    def output_name(self, auto: str = "3", suffix: str = "") -> Path:
-        """Return updated path."""
+    def output_name(self, suffix: str = "") -> Path:
+        """
+        Return output path for the generated file.
+
+        The name of the auto-generated file is based on the YAML configuration file
+        name, where ``_auto`` is stripped and a different suffix is used. For example,
+        ``<myfile>_auto.yaml`` becomes ``<myfile>3.cpp`` if the suffix is ``3.cpp``.
+        """
+        auto, sep, suffix = suffix.partition(".")
         ret = self.path.parent / self.path.name.replace("_auto", auto)
-        return ret.with_suffix(suffix)
+        return ret.with_suffix(sep + suffix)
