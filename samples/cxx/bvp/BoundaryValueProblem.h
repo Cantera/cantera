@@ -146,7 +146,7 @@ public:
         if (m_sim == 0) {
             start();
         }
-        bool refine = true;
+        std::string refine = "refine";
         m_sim->solve(loglevel, refine);
     }
 
