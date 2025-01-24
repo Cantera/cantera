@@ -10,6 +10,10 @@ parents: [Phase]  # List of parent classes
 derived: []  # List of specializations
 recipes:
 - name: report
+- name: name  # previously: getName
+- name: setName
+- name: getEosType
+  implements: Phase::type
 - name: nElements
 - name: nSpecies
 - name: temperature
@@ -36,22 +40,91 @@ recipes:
   implements: Phase::setMoleFractionsByName(const string&)
 - name: setMassFractionsByName
   implements: Phase::setMassFractionsByName(const string&)
+# - name: getAtomicWeights
+#   implements: Phase::atomicWeights
+#   uses: nElements
+- name: getMolecularWeights
+  uses: nSpecies
+- name: getCharges
+- name: getElementName
+  implements: Phase::elementName(int)
+- name: getSpeciesName
+  implements: Phase::speciesName(int)
+- name: elementIndex
+- name: speciesIndex
+- name: nAtoms
+- name: addElement
+- name: refPressure
+- name: minTemp
+- name: maxTemp
 - name: enthalpy_mole
 - name: enthalpy_mass
 - name: entropy_mole
 - name: entropy_mass
 - name: intEnergy_mole
 - name: intEnergy_mass
+- name: gibbs_mole
+- name: gibbs_mass
 - name: cp_mole
 - name: cp_mass
+- name: cv_mole
+- name: cv_mass
+- name: chemPotentials
+  implements: ThermoPhase::getChemPotentials
+- name: electroChemPotentials
+  implements: ThermoPhase::getElectrochemPotentials
+- name: electricPotential
+- name: setElectricPotential
+- name: thermalExpansionCoeff
+- name: isothermalCompressibility
 - name: getPartialMolarEnthalpies
 - name: getPartialMolarEntropies
 - name: getPartialMolarIntEnergies
 - name: getPartialMolarCp
 - name: getPartialMolarVolumes
+- name: setState_TPX  # new
+  implements: ThermoPhase::setState_TPX(double, double, const double*)
+- name: setState_TPY  # new
+  implements: ThermoPhase::setState_TPY(double, double, const double*)
+- name: setState_TP  # previously: set_TP
+  implements: ThermoPhase::setState_TP(double, double)
+- name: setState_TD  # previously: set_TD
+  implements: Phase::setState_TD(double, double)
+- name: setState_DP  # previously: set_DP
+  implements: ThermoPhase::setState_DP(double, double)
+- name: setState_HP  # previously: set_HP
+  implements: ThermoPhase::setState_HP(double, double)
+- name: setState_UV  # previously: set_UV
+  implements: ThermoPhase::setState_UV(double, double)
+- name: setState_SV  # previously: set_SV
+  implements: ThermoPhase::setState_SV(double, double)
+- name: setState_SP  # previously: set_SP
+  implements: ThermoPhase::setState_SP(double, double)
+- name: setState_ST  # previously: set_ST
+  implements: ThermoPhase::setState_ST(double, double)
+- name: setState_TV  # previously: set_TV
+  implements: ThermoPhase::setState_TV(double, double)
+- name: setState_PV  # previously: set_PV
+  implements: ThermoPhase::setState_PV(double, double)
+- name: setState_UP  # previously: set_UP
+  implements: ThermoPhase::setState_UP(double, double)
+- name: setState_VH  # previously: set_VH
+  implements: ThermoPhase::setState_VH(double, double)
+- name: setState_TH  # previously: set_TH
+  implements: ThermoPhase::setState_TH(double, double)
+- name: setState_SH  # previously: set_SH
+  implements: ThermoPhase::setState_SH(double, double)
 - name: equilibrate
   implements:
     ThermoPhase::equilibrate(const string&, const string&, double, int, int, int)
+- name: critTemperature
+- name: critPressure
+- name: critDensity
+- name: vaporFraction
+- name: satTemperature
+- name: satPressure
+- name: setState_Psat
+- name: setState_Tsat
 - name: del
   what: noop
   brief: Destructor; required by some APIs although object is managed by Solution.

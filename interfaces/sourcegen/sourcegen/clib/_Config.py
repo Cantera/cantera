@@ -19,8 +19,10 @@ class Config:
         "double": "double",
         "shared_ptr<T>": "int",
         "string": "char*",
+        "const string": "char*",
         "vector<double>": "double[]",
         "vector<int>": "int[]",
+        "const vector<double>&": "double[]",
     }
 
     prop_type_crosswalk = {
@@ -31,6 +33,7 @@ class Config:
         "const double": "double",
         "double*": "double*",
         "double* const": "double*",
+        "const double*": "const double*",
         "const double* const": "const double*",
         "const string&": "const char*",
         "shared_ptr<T>": "int",
