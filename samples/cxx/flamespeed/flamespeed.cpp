@@ -24,7 +24,7 @@
 using namespace Cantera;
 using fmt::print;
 
-int flamespeed(double phi, bool refine_grid, int loglevel)
+int flamespeed(double phi, std::string refine_grid, int loglevel)
 {
     try {
         auto sol = newSolution("gri30.yaml", "gri30", "mixture-averaged");
@@ -199,7 +199,7 @@ int main(int argc, char** argv)
 {
     double phi;
     int loglevel = 1;
-    bool refine_grid = true;
+    std::string refine_grid = "refine";
     if (argc >= 2) {
         phi = fpValue(argv[1]);
     } else {
@@ -207,7 +207,7 @@ int main(int argc, char** argv)
         std::cin >> phi;
     }
     if (argc >= 3) {
-        refine_grid = bool(std::stoi(argv[2]));
+        refine_grid = std::string(argv[2]);
     }
     if (argc >= 4) {
         loglevel = std::stoi(argv[3]);

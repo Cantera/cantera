@@ -1,0 +1,102 @@
+$MIXTURE
+
+!---------------------------------------------------------------------------------------------------------------------
+! Reactive mixture CH4/AIR. Reduced chemistry with PEA formalism, 2S-BFER scheme.
+!---------------------------------------------------------------------------------------------------------------------
+  mixture_name = BFER_nopea
+  validity_info = 300-700K/1-12atm
+  transport = computed
+  combustion_chemistry = reduced_pea
+  species_name = CH4 CO2 CO O2 H2O N2
+  species_Schmidt_number = 0.7d0 0.7d0 0.7d0 0.7d0 0.7d0 0.7d0
+  viscosity_law = power
+  mu_ref = 1.8405d-5
+  T_ref = 300.d0
+  viscosity_law_coeff = 0.6759d0
+  prandtl_number = 0.7d0
+  atom_for_z_calculation = C
+  fuel_tank_composition = 1.d0 0.d0 0.d0 0.d0 0.d0 0.d0
+  oxydizer_tank_composition = 0.d0 0.d0 0.d0 0.233d0 0.d0 0.767d0
+
+  ! 2S-BFER Reaction #1 : CH4 + 1.5 O2 => CO + 2 H2O
+  !-----------------------------------------
+  reac_name = CH4-AIR-2S-BFER-1
+  reac_species_number = 4
+  reac_species_name = CH4 O2 CO H2O
+  reac_stoich_coeff = -1.d0 -1.5d0 1.d0 2.d0
+  reac_Arrh_fwd_coeff = 0.5d0 0.65d0 0.d0 0.d0
+  reac_Arrh_bwd_coeff = 0.d0 0.d0 0.d0 0.d0
+  reac_preexp = 4.9d9
+  reac_act_energ = 35500.0d0
+  reac_temp_exp = 0.d0
+  reac_third_body_number = 0
+  reac_third_body_name = no
+  reac_third_body_eff = 0.d0
+
+  ! 2S-BFER Reaction #2 : CO + 0.5 O2 <=> CO2
+  !----------------------------------
+  reac_name = CH4-AIR-2S-BFER-2
+  reac_species_number = 3
+  reac_species_name = CO O2 CO2
+  reac_stoich_coeff = -1.d0 -0.5d0 1.d0
+  reac_Arrh_fwd_coeff = 1.d0 0.5d0 0.d0
+  reac_Arrh_bwd_coeff = 0.d0 0.d0 1.d0
+  reac_preexp = -2.0d8
+  reac_act_energ = 12000.0d0
+  reac_temp_exp = 0.7d0
+  reac_third_body_number = 0
+  reac_third_body_name = no
+  reac_third_body_eff = 0.d0
+
+!---------------------------------------------------------------------------------------------------------------------
+! Reactive mixture CH4/AIR. Reduced chemistry with PEA formalism, 2S-BFER scheme.
+!---------------------------------------------------------------------------------------------------------------------
+  mixture_name = BFER_pea
+  validity_info = 300-700K/1-12atm
+  transport = computed
+  combustion_chemistry = reduced_pea
+  species_name = CH4 CO2 CO O2 H2O N2
+  species_Schmidt_number = 0.7d0 0.7d0 0.7d0 0.7d0 0.7d0 0.7d0
+  viscosity_law = power
+  mu_ref = 1.8405d-5
+  T_ref = 300.d0
+  viscosity_law_coeff = 0.6759d0
+  prandtl_number = 0.7d0
+  pea_method = pea2
+  pea_coeff = 1.10d0 0.09d0 0.37d0 1.13d0 0.03d0 6.7d0 1.6d0 0.22d0 
+  pea_coeff = 0.95d0 0.08d0 2.5d-5 1.3d0 0.04d0 0.0087d0 1.2d0 0.04d0 1.2d0 0.05d0
+  atom_for_z_calculation = C
+  fuel_tank_composition = 1.d0 0.d0 0.d0 0.d0 0.d0 0.d0
+  oxydizer_tank_composition = 0.d0 0.d0 0.d0 0.233d0 0.d0 0.767d0
+
+  ! 2S-BFER Reaction #1 : CH4 + 1.5 O2 => CO + 2 H2O
+  !-----------------------------------------
+  reac_name = CH4-AIR-2S-BFER-1
+  reac_species_number = 4
+  reac_species_name = CH4 O2 CO H2O
+  reac_stoich_coeff = -1.d0 -1.5d0 1.d0 2.d0
+  reac_Arrh_fwd_coeff = 0.5d0 0.65d0 0.d0 0.d0
+  reac_Arrh_bwd_coeff = 0.d0 0.d0 0.d0 0.d0
+  reac_preexp = 4.9d9
+  reac_act_energ = 35500.0d0
+  reac_temp_exp = 0.d0
+  reac_third_body_number = 0
+  reac_third_body_name = no
+  reac_third_body_eff = 0.d0
+
+  ! 2S-BFER Reaction #2 : CO + 0.5 O2 <=> CO2
+  !----------------------------------
+  reac_name = CH4-AIR-2S-BFER-2
+  reac_species_number = 3
+  reac_species_name = CO O2 CO2
+  reac_stoich_coeff = -1.d0 -0.5d0 1.d0
+  reac_Arrh_fwd_coeff = 1.d0 0.5d0 0.d0
+  reac_Arrh_bwd_coeff = 0.d0 0.d0 1.d0
+  reac_preexp = -2.0d8
+  reac_act_energ = 12000.0d0
+  reac_temp_exp = 0.7d0
+  reac_third_body_number = 0
+  reac_third_body_name = no
+  reac_third_body_eff = 0.d0
+
+$end_MIXTURE
