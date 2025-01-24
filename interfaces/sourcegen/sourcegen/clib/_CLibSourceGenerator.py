@@ -83,31 +83,33 @@ class CLibSourceGenerator(SourceGenerator):
         what = what.replace("virtual ", "")
         if what in self._config.ret_type_crosswalk:
             ret_type = self._config.ret_type_crosswalk[what]
-            if ret_type == "char*":
-                # string expressions require special handling
-                returns = Param(
-                    "int", "",
-                    "Actual length of string or -1 for exception handling.")
-                buffer = [
-                    Param("int", "bufLen", "Length of reserved array.", "in"),
-                    Param(ret_type, "buf", "Returned string value.", "out")]
-                return returns, buffer
             if ret_type == "void":
                 returns = Param(
                     "int", "", "Zero for success or -1 for exception handling.")
                 return returns, []
+            if ret_type == "char*":
+                # string expressions require special handling
+                returns = Param(
+                    "int", "", "Actual length of string including \\0 "
+                    "or -1 for exception handling.")
+                buffer = [
+                    Param("int", "bufLen", "Length of reserved array.", "in"),
+                    Param(ret_type, "buf", "Returned string value.", "out")]
+                return returns, buffer
+            if ret_type.endswith("*"):
+                # return type involves pointer to reserved buffer
+                returns = Param(
+                    "int", "",
+                    "Actual length of value array or -1 for exception handling.")
+                buffer = [
+                    Param("int", "bufLen", "Length of reserved array.", "in"),
+                    Param(ret_type, "buf", "Returned array value.", "out")]
+                return returns, buffer
             if not any([what.startswith("shared_ptr"), ret_type.endswith("[]")]):
                 # direct correspondence
                 return Param(ret_type), []
 
-            # all other types require reserved buffers
-            what = "vector" if what.startswith("vector") else "array"
-            returns = Param(
-                "int", "", f"Actual length of {what} including \0 or -1 for exception handling.")
-            buffer = [
-                Param("int", "bufLen", "Length of reserved array.", "in"),
-                Param(ret_type, "valueBuf", f"Returned {what} value.", "out")]
-            return returns, buffer
+            raise NotImplementedError(f"Crosswalk not implemented for {what!r}.")
 
         if "shared_ptr" in what:
             # check for crosswalk with object from includes
@@ -202,6 +204,11 @@ class CLibSourceGenerator(SourceGenerator):
                               f"copyString(out, {c_args[c_ix+1].name}, "
                               f"{c_args[c_ix].name});",
                               "int(out.size()) + 1"]  # include \0
+                elif "vector" in cxx_type:
+                    buffer = [f"{cxx_type} out",
+                              "std::copy(out.begin(), out.end(), "
+                              f"{c_args[c_ix+1].name});",
+                              "int(out.size())"]
                 else:
                     msg = (f"Scaffolding failed for {c_func.name!r}: reverse crosswalk "
                            f"not implemented for {cxx_type!r}:\n{c_func.declaration()}")
@@ -323,7 +330,8 @@ class CLibSourceGenerator(SourceGenerator):
             template = loader.from_string(self._templates["clib-method"])
 
         elif recipe.what == "getter":
-            if "void" in c_func.implements.ret_type:
+            ret_type = c_func.implements.ret_type
+            if "void" in ret_type or "vector" in ret_type:
                 template = loader.from_string(self._templates["clib-array-getter"])
             else:
                 template = loader.from_string(self._templates["clib-method"])

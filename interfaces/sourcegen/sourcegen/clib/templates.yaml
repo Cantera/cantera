@@ -221,8 +221,16 @@ clib-array-getter: |-
       {% else %}
       // no size checking specified
       {% endif %}
+      {% if buffer and buffer[0] %}
+      {{ buffer[0] }} = obj->{{ cxx_name }}({{ cxx_args[0] }});;
+      {% if buffer[1] %}
+      {{ buffer[1] }}
+      {% endif %}
+      return {{ buffer[2] }};
+      {% else %}
       obj->{{ cxx_name }}({{ cxx_args[0] }});
       return 0;
+      {% endif %}
   } catch (...) {
       return handleAllExceptions(-1, ERR);
   }
