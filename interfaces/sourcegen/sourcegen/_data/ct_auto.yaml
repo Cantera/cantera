@@ -24,5 +24,5 @@ recipes:
 - name: suppress_thermo_warnings
 - name: clearStorage
 - name: resetStorage
-# - name: setLogWriter  # only used by .NET API
-# - name: setLogCallback  # only used by .NET API
+- name: setLogWriter
+- name: setLogCallback

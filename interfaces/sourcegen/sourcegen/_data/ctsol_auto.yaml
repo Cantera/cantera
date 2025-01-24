@@ -23,6 +23,7 @@ recipes:
 - name: thermo
 - name: kinetics
 - name: transport
+- name: transportModel
 - name: setTransportModel
   code: |-
     try {
@@ -40,4 +41,5 @@ recipes:
   uses: [thermo, kinetics, transport]
   what: constructor  # registers object in CLib storage
 - name: adjacentName
+- name: source
 - name: cabinetSize
