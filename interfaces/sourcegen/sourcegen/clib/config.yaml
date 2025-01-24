@@ -20,8 +20,10 @@ includes:
   - cantera/base/Interface.h
   ThermoPhase:
   - cantera/thermo/ThermoFactory.h
+  - cantera/thermo/SurfPhase.h
   Kinetics:
   - cantera/kinetics/KineticsFactory.h
+  - cantera/kinetics/InterfaceKinetics.h
   Transport:
   - cantera/transport/TransportFactory.h
   Func1:

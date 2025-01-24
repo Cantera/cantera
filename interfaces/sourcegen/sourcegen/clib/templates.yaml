@@ -141,11 +141,11 @@ clib-constructor: |-
       {% endfor %}
       {% if uses %}
       {% if handle %}
-      auto obj = {{ cxx_base }}Cabinet::at({{ handle }})->{{ cxx_name }}({{ ', '.join(cxx_args) }});
+      auto obj = {{ base }}Cabinet::at({{ handle }})->{{ cxx_name }}({{ ', '.join(cxx_args) }});
       {% else %}
       auto obj = {{ cxx_name }}({{ ', '.join(cxx_args) }});
       {% endif %}
-      int id = {{ cxx_base }}Cabinet::add(obj);
+      int id = {{ base }}Cabinet::add(obj);
       // add all associated objects
       {% for typ, getter in uses %}
       if (obj->{{ getter }}()) {
@@ -155,9 +155,9 @@ clib-constructor: |-
       return id;
       {% else %}
       {% if handle %}
-      return {{ cxx_base }}Cabinet::add({{ cxx_base }}Cabinet::at({{ handle }})->{{ cxx_name }}({{ ', '.join(cxx_args) }}));
+      return {{ base }}Cabinet::add({{ base }}Cabinet::at({{ handle }})->{{ cxx_name }}({{ ', '.join(cxx_args) }}));
       {% else %}
-      return {{ cxx_base }}Cabinet::add({{ cxx_name }}({{ ', '.join(cxx_args) }}));
+      return {{ base }}Cabinet::add({{ cxx_name }}({{ ', '.join(cxx_args) }}));
       {% endif %}
       {% endif %}
   } catch (...) {
@@ -168,7 +168,7 @@ clib-destructor: |-
   // destructor
   try {
       {% if uses %}
-      auto obj = {{ cxx_base }}Cabinet::at({{ handle }});
+      auto obj = {{ base }}Cabinet::at({{ handle }});
       // remove all associated objects in reversed order
       {% for typ, getter in uses[-1::-1] %}
       if (obj->{{ getter }}()) {
@@ -179,7 +179,7 @@ clib-destructor: |-
       }
       {% endfor %}
       {% endif %}
-      {{ cxx_base }}Cabinet::del({{ handle }});
+      {{ base }}Cabinet::del({{ handle }});
       return 0;
   } catch (...) {
       return handleAllExceptions(-1, ERR);
@@ -193,16 +193,28 @@ clib-method: |-
       {% endfor %}
       {% if buffer %}
       {% if buffer[0] %}
-      {{ buffer[0] }} = {{ cxx_base }}Cabinet::at({{ handle }})->{{ cxx_name }}({{ ', '.join(cxx_args) }});
+      {% if cxx_base == base %}
+      {{ buffer[0] }} = {{ base }}Cabinet::at({{ handle }})->{{ cxx_name }}({{ ', '.join(cxx_args) }});
       {% else %}
-      {{ cxx_base }}Cabinet::at({{ handle }})->{{ cxx_name }}({{ ', '.join(cxx_args) }});
+      {{ buffer[0] }} = {{ base }}Cabinet::as<{{ cxx_base }}>({{ handle }})->{{ cxx_name }}({{ ', '.join(cxx_args) }});
+      {% endif %}
+      {% else %}
+      {% if cxx_base == base %}
+      {{ base }}Cabinet::at({{ handle }})->{{ cxx_name }}({{ ', '.join(cxx_args) }});
+      {% else %}
+      {{ base }}Cabinet::as<{{ cxx_base }}>({{ handle }})->{{ cxx_name }}({{ ', '.join(cxx_args) }});
+      {% endif %}
       {% endif %}
       {% if buffer[1] %}
       {{ buffer[1] }}
       {% endif %}
       return {{ buffer[2] }};
       {% else %}
-      return {{ cxx_base }}Cabinet::at({{ handle }})->{{ cxx_name }}({{ ', '.join(cxx_args) }});
+      {% if cxx_base == base %}
+      return {{ base }}Cabinet::at({{ handle }})->{{ cxx_name }}({{ ', '.join(cxx_args) }});
+      {% else %}
+      return {{ base }}Cabinet::as<{{ cxx_base }}>({{ handle }})->{{ cxx_name }}({{ ', '.join(cxx_args) }});
+      {% endif %}
       {% endif %}
   } catch (...) {
       return handleAllExceptions({{ error[0] }}, {{ error[1] }});
@@ -211,7 +223,11 @@ clib-method: |-
 clib-array-getter: |-
   // getter: {{ cxx_implements }}
   try {
-      auto& obj = {{ cxx_base }}Cabinet::at({{ handle }});
+      {% if cxx_base == base %}
+      auto& obj = {{ base }}Cabinet::at({{ handle }});
+      {% else %}
+      auto obj = {{ base }}Cabinet::as<{{ cxx_base }}>({{ handle }});
+      {% endif %}
       {% if uses %}
       if ({{ c_args[1] }} < obj->{{ uses[0][1] }}()) {
           throw CanteraError("{{ c_func }}",
@@ -238,7 +254,11 @@ clib-array-getter: |-
 clib-array-setter: |-
   // setter: {{ cxx_implements }}
   try {
-      auto& obj = {{ cxx_base }}Cabinet::at({{ handle }});
+      {% if cxx_base == base %}
+      auto& obj = {{ base }}Cabinet::at({{ handle }});
+      {% else %}
+      auto obj = {{ base }}Cabinet::as<{{ cxx_base }}>({{ handle }});
+      {% endif %}
       {% if uses %}
       if ({{ c_args[1] }} != obj->{{ uses[0][1] }}()) {
           throw CanteraError("{{ c_func }}",
@@ -273,17 +293,17 @@ clib-implementation: |-
   }
 
 clib-reserved-parentHandle-cpp: |-
-  // reserved: {{ cxx_base }} cabinet parent
+  // reserved: {{ base }} cabinet parent
   try {
-      return {{ cxx_base }}Cabinet::parent(handle);
+      return {{ base }}Cabinet::parent(handle);
   } catch (...) {
       return handleAllExceptions(-2, ERR);
   }
 
 clib-reserved-cabinetSize-cpp: |-
-  // reserved: int Cabinet<{{ cxx_base }}>.size()
+  // reserved: int Cabinet<{{ base }}>.size()
   try {
-      return {{ cxx_base }}Cabinet::size();
+      return {{ base }}Cabinet::size();
   } catch (...) {
       return handleAllExceptions(-1, ERR);
   }
