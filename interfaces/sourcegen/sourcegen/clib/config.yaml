@@ -7,8 +7,8 @@
 ignore_files: []
 
 # Ignore these specific functions:
-ignore_funcs: {}
-  # ctsol_auto.yaml: [setTransport]
+ignore_funcs:
+  ct_auto.yaml: [setLogWriter, setLogCallback]
 
 # Cabinets with associated includes
 includes:
