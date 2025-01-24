@@ -27,6 +27,7 @@ class Config:
         "bool": "int",
         "int": "int",
         "size_t": "int",
+        "const size_t": "int",
         "double": "double",
         "const double": "double",
         "double*": "double*",
