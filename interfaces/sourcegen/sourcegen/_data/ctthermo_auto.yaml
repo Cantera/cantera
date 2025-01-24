@@ -3,11 +3,12 @@
 
 docstring: |-
   Auto-generated CLib API for %Cantera's ThermoPhase class.
-  Partially implements a replacement for CLib's traditional @c ct library.
+  Partially implements a replacement for CLib's traditional @c ct and
+  @c ctsurf libraries.
 prefix: thermo3
 base: ThermoPhase
 parents: [Phase]  # List of parent classes
-derived: []  # List of specializations
+derived: [SurfPhase]  # List of specializations
 recipes:
 - name: report
 - name: name  # previously: getName
@@ -126,6 +127,14 @@ recipes:
 - name: satPressure
 - name: setState_Psat
 - name: setState_Tsat
+- name: getCoverages  # previously: used 'surf' prefix'
+- name: setCoverages  # previously: used 'surf' prefix'
+- name: getConcentrations  # previously: used 'surf' prefix'
+- name: setConcentrations  # previously: used 'surf' prefix'
+- name: siteDensity  # previously: used 'surf' prefix'
+- name: setSiteDensity  # previously: used 'surf' prefix'
+- name: setCoveragesByName  # previously: used 'surf' prefix'
+  implements: SurfPhase::setCoveragesByName(const string&)
 - name: del
   what: noop
   brief: Destructor; required by some APIs although object is managed by Solution.
