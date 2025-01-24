@@ -40,12 +40,13 @@ recipes:
   implements: Phase::setMoleFractionsByName(const string&)
 - name: setMassFractionsByName
   implements: Phase::setMassFractionsByName(const string&)
-# - name: getAtomicWeights
-#   implements: Phase::atomicWeights
-#   uses: nElements
+- name: getAtomicWeights
+  implements: Phase::atomicWeights
+  uses: nElements
 - name: getMolecularWeights
   uses: nSpecies
 - name: getCharges
+  uses: nElements
 - name: getElementName
   implements: Phase::elementName(int)
 - name: getSpeciesName
