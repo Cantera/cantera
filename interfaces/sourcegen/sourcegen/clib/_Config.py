@@ -20,9 +20,7 @@ class Config:
         "shared_ptr<T>": "int",
         "string": "char*",
         "const string": "char*",
-        "vector<double>": "double[]",
-        "vector<int>": "int[]",
-        "const vector<double>&": "double[]",
+        "const vector<double>&": "double*",
     }
 
     prop_type_crosswalk = {
