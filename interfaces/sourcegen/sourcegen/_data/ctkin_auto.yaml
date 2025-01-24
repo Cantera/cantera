@@ -30,7 +30,8 @@ recipes:
 - name: isReversible
 - name: kineticsSpeciesIndex  # previously: speciesIndex
   implements: Kinetics::kineticsSpeciesIndex(const string&)
-# - name: advanceCoverages  # <--- needs to be implemented
+- name: advanceCoverages
+  implements: InterfaceKinetics::advanceCoverages(double)
 # - name: getReactionString  # <--- needs Reaction interface
 # - name: getReactionType  # <--- needs Reaction interface
 # - name: getSourceTerms  # <--- used by MATLAB interface for "massProdRate"

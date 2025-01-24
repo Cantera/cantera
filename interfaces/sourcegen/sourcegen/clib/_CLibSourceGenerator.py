@@ -297,8 +297,9 @@ class CLibSourceGenerator(SourceGenerator):
 
         ret = {
             "handle": handle, "lines": lines, "buffer": buffer, "uses": uses,
-            "cxx_base": base, "cxx_name": cxx_func.name, "cxx_args": args,
-            "cxx_implements": cxx_func.short_declaration(), "error": error,
+            "base": base, "error": error,
+            "cxx_base": cxx_func.base, "cxx_name": cxx_func.name, "cxx_args": args,
+            "cxx_implements": cxx_func.short_declaration(),
             "c_func": c_func.name, "c_args": [arg.name for arg in c_func.arglist],
         }
         return ret, bases
