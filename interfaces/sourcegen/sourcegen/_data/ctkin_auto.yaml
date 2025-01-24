@@ -7,11 +7,41 @@ docstring: |-
 prefix: kin3
 base: Kinetics
 parents: []  # List of parent classes
-derived: []  # List of specializations
+derived: [InterfaceKinetics]  # List of specializations
 recipes:
 - name: nReactions
-- name: kineticsType
+- name: kineticsType  # previously getType
+- name: nTotalSpecies  # previously: nSpecies
+- name: nPhases
+- name: phaseIndex
+- name: reactantStoichCoeff
+- name: productStoichCoeff
 - name: getFwdRatesOfProgress
+- name: getRevRatesOfProgress
+- name: getNetRatesOfProgress
+- name: getEquilibriumConstants
+- name: getFwdRateConstants
+- name: getRevRateConstants
+- name: getCreationRates
+- name: getDestructionRates
+- name: getNetProductionRates
+- name: multiplier
+- name: setMultiplier
+- name: isReversible
+- name: kineticsSpeciesIndex  # previously: speciesIndex
+  implements: Kinetics::kineticsSpeciesIndex(const string&)
+# - name: advanceCoverages  # <--- needs to be implemented
+# - name: getReactionString  # <--- needs Reaction interface
+# - name: getReactionType  # <--- needs Reaction interface
+# - name: getSourceTerms  # <--- used by MATLAB interface for "massProdRate"
+# - name: phase  # <--- appears to be unused
+- name: getDeltaEnthalpy  # previously: part of getDelta
+- name: getDeltaGibbs  # previously: part of getDelta
+- name: getDeltaEntropy  # previously: part of getDelta
+- name: getDeltaSSEnthalpy  # previously: part of getDelta
+- name: getDeltaSSGibbs  # previously: part of getDelta
+- name: getDeltaSSEntropy  # previously: part of getDelta
+# - name: start  # <--- appears to be unused
 - name: del
   what: noop
   brief: Destructor; required by some APIs although object is managed by Solution.
