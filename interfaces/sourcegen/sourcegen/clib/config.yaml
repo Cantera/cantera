@@ -9,6 +9,7 @@ ignore_files: []
 # Ignore these specific functions:
 ignore_funcs:
   ct_auto.yaml: [setLogWriter, setLogCallback]
+  ctmix_auto.yaml: [addPhase]
 
 # Cabinets with associated includes
 includes:
@@ -26,5 +27,8 @@ includes:
   - cantera/kinetics/InterfaceKinetics.h
   Transport:
   - cantera/transport/TransportFactory.h
+  MultiPhase:
+  - cantera/equil/MultiPhase.h
+  - cantera/thermo/ThermoPhase.h
   Func1:
   - cantera/numerics/Func1Factory.h
