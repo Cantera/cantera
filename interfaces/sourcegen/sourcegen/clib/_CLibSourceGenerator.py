@@ -90,8 +90,8 @@ class CLibSourceGenerator(SourceGenerator):
             if ret_type == "char*":
                 # string expressions require special handling
                 returns = Param(
-                    "int", "", "Actual length of string including \\0 "
-                    "or -1 for exception handling.")
+                    "int", "", "Actual length of string including string-terminating "
+                    "null byte, \\0, or -1 for exception handling.")
                 buffer = [
                     Param("int", "bufLen", "Length of reserved array.", "in"),
                     Param(ret_type, "buf", "Returned string value.", "out")]
