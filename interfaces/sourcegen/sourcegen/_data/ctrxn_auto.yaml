@@ -1,0 +1,17 @@
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at https://cantera.org/license.txt for license and copyright information.
+
+docstring: |-
+  Auto-generated CLib API for %Cantera's Reaction class.
+  Implements an extension of CLib's traditional @c ct library.
+prefix: rxn3
+base: Reaction
+parents: []  # List of parent classes
+derived: []  # List of specializations
+recipes:
+#- name: new
+- name: equation  # previously: ctkin_getReactionString
+- name: type  # previously: ctkin_getReactionType
+- name: del
+- name: cabinetSize
+- name: parentHandle
