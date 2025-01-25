@@ -7,12 +7,10 @@ docstring: |-
 prefix: ct3
 base: ""
 recipes:
-- name: getCanteraVersion
-  implements: version
-- name: getGitCommit
-  implements: gitCommit
+- name: version  # previously: getCanteraVersion
+- name: gitCommit  # previously: getGitCommit
 - name: getCanteraError
-- name: addCanteraDirectory
+- name: addDataDirectory  # previously: addCanteraDirectory
   implements: addDirectory
 - name: getDataDirectories
 - name: findInputFile
@@ -22,6 +20,8 @@ recipes:
 - name: warnings_suppressed
 - name: make_warnings_fatal
 - name: suppress_thermo_warnings
+- name: use_legacy_rate_constants
+- name: appdelete
 - name: clearStorage
 - name: resetStorage
 - name: setLogWriter
