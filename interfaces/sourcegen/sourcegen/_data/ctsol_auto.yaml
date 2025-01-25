@@ -38,7 +38,7 @@ recipes:
 - name: nAdjacent
 - name: adjacent
   implements: Solution::adjacent(size_t)
-  uses: [thermo, kinetics, transport]
+  uses: [nAdjacent, thermo, kinetics, transport]
   what: constructor  # registers object in CLib storage
 - name: adjacentName
 - name: source
