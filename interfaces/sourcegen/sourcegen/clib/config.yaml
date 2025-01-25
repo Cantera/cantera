@@ -3,13 +3,13 @@
 # This file is part of Cantera. See License.txt in the top-level directory or
 # at https://cantera.org/license.txt for license and copyright information.
 
-# Ignore these files entirely:
+# List of files to ignore entirely:
 ignore_files: []
 
-# Ignore these specific functions:
+# Dictionary of file names and list of functions to ignore.
+# Example: ctkin_auto.yaml: [phase]
 ignore_funcs:
   ct_auto.yaml: [setLogWriter, setLogCallback]
-  ctkin_auto.yaml: [phase]
 
 # Cabinets with associated includes
 includes:

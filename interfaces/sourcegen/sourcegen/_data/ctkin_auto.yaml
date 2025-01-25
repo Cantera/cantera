@@ -16,7 +16,6 @@ recipes:
   what: constructor  # registers object in CLib storage
 - name: nPhases
 - name: phase
-  implements: Kinetics::thermo
   uses: nPhases
   what: constructor  # registers object in CLib storage
 - name: phaseIndex
