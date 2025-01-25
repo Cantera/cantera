@@ -9,11 +9,17 @@ base: Kinetics
 parents: []  # List of parent classes
 derived: [InterfaceKinetics]  # List of specializations
 recipes:
-- name: nReactions
 - name: kineticsType  # previously getType
-- name: nTotalSpecies  # previously: nSpecies
+- name: nReactions
+- name: reaction  # new
+  uses: nReactions
+  what: constructor  # registers object in CLib storage
 - name: nPhases
+- name: phase
+  uses: nPhases
+  what: constructor  # registers object in CLib storage
 - name: phaseIndex
+- name: nTotalSpecies  # previously: nSpecies
 - name: reactantStoichCoeff
 - name: productStoichCoeff
 - name: getFwdRatesOfProgress
@@ -32,10 +38,6 @@ recipes:
   implements: Kinetics::kineticsSpeciesIndex(const string&)
 - name: advanceCoverages
   implements: InterfaceKinetics::advanceCoverages(double)
-- name: reaction  # new
-  what: constructor  # registers object in CLib storage
-- name: phase
-  what: constructor
 - name: getDeltaEnthalpy  # previously: part of getDelta
 - name: getDeltaGibbs  # previously: part of getDelta
 - name: getDeltaEntropy  # previously: part of getDelta

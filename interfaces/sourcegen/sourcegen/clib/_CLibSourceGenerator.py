@@ -277,8 +277,15 @@ class CLibSourceGenerator(SourceGenerator):
             cxx_ix += 1
 
         # Obtain class and getter for managed objects
-        uses = [(shared_object(uu.ret_type), uu.name) for uu in c_func.uses]
-        bases |= {uu[0] for uu in uses if uu[0]}
+        shared = []
+        checks = []
+        for uu in c_func.uses:
+            obj = shared_object(uu.ret_type)
+            if obj:
+                shared.append((obj, uu.name))
+                bases |= {obj}
+            else:
+                checks.append(uu.name)
 
         # Ensure that all error codes are set correctly
         error = [-1, "ERR"]
@@ -299,8 +306,8 @@ class CLibSourceGenerator(SourceGenerator):
             buffer = ["", "", "0"]
 
         ret = {
-            "handle": handle, "lines": lines, "buffer": buffer, "uses": uses,
-            "base": base, "error": error,
+            "base": base, "handle": handle, "lines": lines, "buffer": buffer,
+            "shared": shared, "checks": checks, "error": error,
             "cxx_base": cxx_func.base, "cxx_name": cxx_func.name, "cxx_args": args,
             "cxx_implements": cxx_func.short_declaration(),
             "c_func": c_func.name, "c_args": [arg.name for arg in c_func.arglist],

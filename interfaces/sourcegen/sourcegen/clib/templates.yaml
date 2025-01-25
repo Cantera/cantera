@@ -139,7 +139,14 @@ clib-constructor: |-
       {% for line in lines %}
       {{ line }}
       {% endfor %}
-      {% if uses %}
+      {% if handle and checks %}
+      if ({{ c_args[1] }} < 0 || {{ c_args[1] }} >= {{ base }}Cabinet::at({{ handle }})->{{ checks[0] }}()) {
+          throw IndexError("{{ c_func }}", "", {{ c_args[1] }}, {{ base }}Cabinet::at({{ handle }})->{{ checks[0] }}() - 1);
+      }
+      {% else %}
+      // no size checking specified
+      {% endif %}
+      {% if shared %}
       {% if handle %}
       auto obj = {{ base }}Cabinet::at({{ handle }})->{{ cxx_name }}({{ ', '.join(cxx_args) }});
       {% else %}
@@ -147,7 +154,7 @@ clib-constructor: |-
       {% endif %}
       int id = {{ base }}Cabinet::add(obj);
       // add all associated objects
-      {% for typ, getter in uses %}
+      {% for typ, getter in shared %}
       if (obj->{{ getter }}()) {
           {{ typ }}Cabinet::add(obj->{{ getter }}(), id);
       }
@@ -167,10 +174,10 @@ clib-constructor: |-
 clib-destructor: |-
   // destructor
   try {
-      {% if uses %}
+      {% if shared %}
       auto obj = {{ base }}Cabinet::at({{ handle }});
       // remove all associated objects in reversed order
-      {% for typ, getter in uses[-1::-1] %}
+      {% for typ, getter in shared[-1::-1] %}
       if (obj->{{ getter }}()) {
           int index = {{ typ }}Cabinet::index(*(obj->{{ getter }}()), {{ handle }});
           if (index >= 0) {
@@ -228,11 +235,9 @@ clib-array-getter: |-
       {% else %}
       auto obj = {{ base }}Cabinet::as<{{ cxx_base }}>({{ handle }});
       {% endif %}
-      {% if uses %}
-      if ({{ c_args[1] }} < obj->{{ uses[0][1] }}()) {
-          throw CanteraError("{{ c_func }}",
-              "Invalid output array size; expected minimum size {} but received {}.",
-              obj->{{ uses[0][1] }}(), {{ c_args[1] }});
+      {% if checks %}
+      if ({{ c_args[1] }} < obj->{{ checks[0] }}()) {
+          throw ArraySizeError("{{ c_func }}", {{ c_args[1] }}, obj->{{ checks[0] }}());
       }
       {% else %}
       // no size checking specified
@@ -259,11 +264,9 @@ clib-array-setter: |-
       {% else %}
       auto obj = {{ base }}Cabinet::as<{{ cxx_base }}>({{ handle }});
       {% endif %}
-      {% if uses %}
-      if ({{ c_args[1] }} != obj->{{ uses[0][1] }}()) {
-          throw CanteraError("{{ c_func }}",
-              "Invalid input array size; expected size {} but received {}.",
-              obj->{{ uses[0][1] }}(), {{ c_args[1] }});
+      {% if checks %}
+      if ({{ c_args[1] }} != obj->{{ checks[0] }}()) {
+          throw ArraySizeError("{{ c_func }}", {{ c_args[1] }}, obj->{{ checks[0] }}());
       }
       {% else %}
       // no size checking specified
