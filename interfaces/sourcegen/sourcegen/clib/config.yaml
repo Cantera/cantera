@@ -9,8 +9,7 @@ ignore_files: []
 # Ignore these specific functions:
 ignore_funcs:
   ct_auto.yaml: [setLogWriter, setLogCallback]
-  ctkin_auto.yaml: [reaction, phase]
-  ctmix_auto.yaml: [addPhase]
+  ctkin_auto.yaml: [phase]
 
 # Cabinets with associated includes
 includes:

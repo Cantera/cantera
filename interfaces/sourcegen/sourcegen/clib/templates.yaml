@@ -143,16 +143,15 @@ clib-constructor: |-
       if ({{ c_args[1] }} < 0 || {{ c_args[1] }} >= {{ base }}Cabinet::at({{ handle }})->{{ checks[0] }}()) {
           throw IndexError("{{ c_func }}", "", {{ c_args[1] }}, {{ base }}Cabinet::at({{ handle }})->{{ checks[0] }}() - 1);
       }
-      {% else %}
-      // no size checking specified
       {% endif %}
       {% if shared %}
       {% if handle %}
-      auto obj = {{ base }}Cabinet::at({{ handle }})->{{ cxx_name }}({{ ', '.join(cxx_args) }});
+      auto obj = {{ cxx_rbase }}Cabinet::at({{ handle }})->{{ cxx_name }}({{ ', '.join(cxx_args) }});
+      int id = {{ cxx_rbase }}Cabinet::add(obj);
       {% else %}
       auto obj = {{ cxx_name }}({{ ', '.join(cxx_args) }});
-      {% endif %}
       int id = {{ base }}Cabinet::add(obj);
+      {% endif %}
       // add all associated objects
       {% for typ, getter in shared %}
       if (obj->{{ getter }}()) {
@@ -162,7 +161,7 @@ clib-constructor: |-
       return id;
       {% else %}
       {% if handle %}
-      return {{ base }}Cabinet::add({{ base }}Cabinet::at({{ handle }})->{{ cxx_name }}({{ ', '.join(cxx_args) }}));
+      return {{ cxx_rbase }}Cabinet::add({{ base }}Cabinet::at({{ handle }})->{{ cxx_name }}({{ ', '.join(cxx_args) }}));
       {% else %}
       return {{ base }}Cabinet::add({{ cxx_name }}({{ ', '.join(cxx_args) }}));
       {% endif %}
