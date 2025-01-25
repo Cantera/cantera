@@ -218,6 +218,16 @@ public:
     shared_ptr<ThermoPhase> reactionPhase() const;
 
     /**
+     * Return pointer to phase associated with Kinetics by index.
+     * @param n Index of the ThermoPhase being sought.
+     * @since New in %Cantera 3.2.
+     * @see thermo
+     */
+    shared_ptr<ThermoPhase> phase(size_t n=0) const {
+        return m_thermo[n];
+    }
+
+    /**
      * This method returns a reference to the nth ThermoPhase object defined
      * in this kinetics mechanism. It is typically used so that member
      * functions of the ThermoPhase object may be called. For homogeneous
