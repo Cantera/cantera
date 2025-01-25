@@ -677,9 +677,6 @@ private:
     mutable vector<double> m_elemAbundances;
 };
 
-//! Create a new empty MultiPhase object
-shared_ptr<MultiPhase> newMultiPhase();
-
 //! Function to output a MultiPhase description to a stream
 /*!
  *  Writes out a description of the contents of each phase of the

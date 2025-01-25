@@ -10,7 +10,6 @@ parents: []  # List of parent classes
 derived: []  # List of specializations
 recipes:
 - name: new
-  implements: newMultiPhase
 - name: addPhase
   implements: MultiPhase::addPhase(shared_ptr<ThermoPhase>, double)
 - name: init
