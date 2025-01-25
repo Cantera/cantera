@@ -264,10 +264,10 @@ class CLibSourceGenerator(SourceGenerator):
                 check_array = False
             elif "shared_ptr" in cxx_type:
                 # Retrieve object from cabinet
-                obj_base = shared_object(cxx_type)
-                args.append(f"{base}Cabinet::at({c_name})")
-                if obj_base != base:
-                    bases |= {obj_base}
+                cxx_base = shared_object(cxx_type)
+                args.append(f"{cxx_base}Cabinet::at({c_name})")
+                if cxx_base != base:
+                    bases |= {cxx_base}
             elif cxx_type == "bool":
                 lines.append(f"bool {c_name}_ = ({c_name} != 0);")
                 args.append(f"{c_name}_")
@@ -289,25 +289,26 @@ class CLibSourceGenerator(SourceGenerator):
 
         # Ensure that all error codes are set correctly
         error = [-1, "ERR"]
-        cxx_type = cxx_func.ret_type
-        if cxx_type.endswith("int") or cxx_type.endswith("size_t"):
+        cxx_rtype = cxx_func.ret_type
+        cxx_rbase = None
+        if cxx_rtype.endswith(("int", "size_t")):
             error = ["ERR", "ERR"]
-        elif cxx_type.endswith("double"):
+        elif cxx_rtype.endswith("double"):
             error = ["DERR", "DERR"]
-        elif "shared_ptr" in cxx_type:
-            obj_base = shared_object(cxx_type)
-            if obj_base == base:
-                buffer = ["auto obj", "", f"{obj_base}Cabinet::index(*obj)"]
+        elif "shared_ptr" in cxx_rtype:
+            cxx_rbase = shared_object(cxx_rtype)
+            if cxx_rbase == base:
+                buffer = ["auto obj", "", f"{cxx_rbase}Cabinet::index(*obj)"]
             else:
-                buffer = ["auto obj", "", f"{obj_base}Cabinet::index(*obj, {handle})"]
-                bases |= {obj_base}
+                buffer = ["auto obj", "", f"{cxx_rbase}Cabinet::index(*obj, {handle})"]
+                bases |= {cxx_rbase}
             error = ["-2", "ERR"]
-        elif cxx_type.endswith("void"):
+        elif cxx_rtype.endswith("void"):
             buffer = ["", "", "0"]
 
         ret = {
             "base": base, "handle": handle, "lines": lines, "buffer": buffer,
-            "shared": shared, "checks": checks, "error": error,
+            "shared": shared, "checks": checks, "error": error, "cxx_rbase": cxx_rbase,
             "cxx_base": cxx_func.base, "cxx_name": cxx_func.name, "cxx_args": args,
             "cxx_implements": cxx_func.short_declaration(),
             "c_func": c_func.name, "c_args": [arg.name for arg in c_func.arglist],
