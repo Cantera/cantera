@@ -32,16 +32,17 @@ recipes:
   implements: Kinetics::kineticsSpeciesIndex(const string&)
 - name: advanceCoverages
   implements: InterfaceKinetics::advanceCoverages(double)
-# - name: getReactionString  # <--- needs Reaction interface
-# - name: getReactionType  # <--- needs Reaction interface
-# - name: getSourceTerms  # <--- used by MATLAB interface for "massProdRate"
-# - name: phase  # <--- appears to be unused
+- name: reaction  # new
+  what: constructor  # registers object in CLib storage
+- name: phase
+  what: constructor
 - name: getDeltaEnthalpy  # previously: part of getDelta
 - name: getDeltaGibbs  # previously: part of getDelta
 - name: getDeltaEntropy  # previously: part of getDelta
 - name: getDeltaSSEnthalpy  # previously: part of getDelta
 - name: getDeltaSSGibbs  # previously: part of getDelta
 - name: getDeltaSSEntropy  # previously: part of getDelta
+# - name: getSourceTerms  # <--- used by MATLAB interface for "massProdRate"
 # - name: start  # <--- appears to be unused
 - name: del
   what: noop
