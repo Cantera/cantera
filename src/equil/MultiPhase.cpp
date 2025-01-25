@@ -43,6 +43,11 @@ void MultiPhase::addPhases(vector<ThermoPhase*>& phases,
     init();
 }
 
+void MultiPhase::addPhase(shared_ptr<ThermoPhase> p, double moles)
+{
+    addPhase(p.get(), moles);
+}
+
 void MultiPhase::addPhase(ThermoPhase* p, double moles)
 {
     if (m_init) {
@@ -830,6 +835,11 @@ void MultiPhase::updatePhases() const
             m_temp_OK[p] = false;
         }
     }
+}
+
+shared_ptr<MultiPhase> newMultiPhase()
+{
+    return make_shared<MultiPhase>();
 }
 
 std::ostream& operator<<(std::ostream& s, MultiPhase& x)
