@@ -182,7 +182,10 @@ class CLibSourceGenerator(SourceGenerator):
         c_args = c_func.arglist
         cxx_func = c_func.implements
         if not cxx_func:
-            if len(c_args) and "char*" in c_args[-1].p_type:
+            if c_func.name.endswith("new"):
+                # Default constructor
+                cxx_func = CFunc("auto", f"make_shared<{base}>", ArgList([]), "", None)
+            elif len(c_args) and "char*" in c_args[-1].p_type:
                 cxx_func = CFunc("string", "dummy", ArgList([]), "", None, "", "base")
             else:
                 cxx_func = CFunc("void", "dummy", ArgList([]), "", None, "", "base")
@@ -199,7 +202,7 @@ class CLibSourceGenerator(SourceGenerator):
                 cxx_type = cxx_func.ret_type
 
                 # Handle output buffer
-                if "string" in cxx_type: # or cxx_func.name == "dummy":
+                if "string" in cxx_type:
                     buffer = ["string out",
                               f"copyString(out, {c_args[c_ix+1].name}, "
                               f"{c_args[c_ix].name});",
@@ -417,7 +420,11 @@ class CLibSourceGenerator(SourceGenerator):
             brief = cxx_func.brief
             args = prop_params + buffer_params
 
-        if cxx_func and not recipe.what:
+        if recipe.what and cxx_func:
+            # Recipe type and corresponding C++ function are known
+            pass
+
+        elif cxx_func:
             # Autodetection of CLib function purpose ("what")
             cxx_arglen = len(cxx_func.arglist)
             if not cxx_func.base:
@@ -441,27 +448,40 @@ class CLibSourceGenerator(SourceGenerator):
                      for base in [recipe.base] + recipe.parents + recipe.derived):
                 recipe.what = "method"
             else:
-                _LOGGER.critical("Unable to auto-detect function type.")
+                msg = f"Unable to auto-detect function type for recipe {recipe.name!r}."
+                _LOGGER.critical(msg)
                 exit(1)
 
-        elif recipe.name == "del" and not recipe.what:
-            recipe.what = "destructor"
-
-        if recipe.what in ["destructor", "noop"]:
-            # these function types don't have direct C++ equivalents
-            msg = f"   generating {func_name!r} -> {recipe.what}"
+        elif recipe.what == "noop":
+            # No operation
+            msg = f"   generating {func_name!r} -> no-operation"
             _LOGGER.debug(msg)
-            if recipe.what == "noop":
-                args = []
-                brief= "No operation."
-                ret_param = Param(
-                    "int", "", "Always zero.")
-            else:
-                args = [Param("int", "handle", f"Handle to {recipe.base} object.")]
-                brief= f"Delete {recipe.base} object."
-                ret_param = Param(
-                    "int", "", "Zero for success and -1 for exception handling.")
-            buffer_params = []
+            brief = "No operation."
+            ret_param = Param("int", "", "Always zero.")
+
+        elif recipe.name == "new":
+            # Default constructor
+            recipe.what = "constructor"
+            msg = f"   generating {func_name!r} -> default constructor"
+            _LOGGER.debug(msg)
+            brief= f"Instantiate {recipe.base} object using default constructor."
+            ret_param = Param(
+                "int", "", "Object handle if successful and -1 for exception handling.")
+
+        elif recipe.name == "del":
+            # Default destructor
+            recipe.what = "destructor"
+            msg = f"   generating {func_name!r} -> default destructor"
+            _LOGGER.debug(msg)
+            args = [Param("int", "handle", f"Handle to {recipe.base} object.")]
+            brief= f"Delete {recipe.base} object."
+            ret_param = Param(
+                "int", "", "Zero for success and -1 for exception handling.")
+
+        else:
+            msg = f"Unable to resolve recipe type for {recipe.name!r}"
+            _LOGGER.critical(msg)
+            exit(1)
 
         if recipe.brief:
             brief = recipe.brief

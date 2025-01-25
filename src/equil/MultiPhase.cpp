@@ -837,11 +837,6 @@ void MultiPhase::updatePhases() const
     }
 }
 
-shared_ptr<MultiPhase> newMultiPhase()
-{
-    return make_shared<MultiPhase>();
-}
-
 std::ostream& operator<<(std::ostream& s, MultiPhase& x)
 {
     x.updatePhases();
