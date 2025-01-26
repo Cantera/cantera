@@ -27,9 +27,8 @@ recipes:
   implements: newRatioFunction
 - name: type
 - name: eval
-- name: newDerivative
-  what: constructor
-  implements: Func1::derivative
+- name: derivative
+  what: accessor
 - name: write
 - name: del
   what: destructor
