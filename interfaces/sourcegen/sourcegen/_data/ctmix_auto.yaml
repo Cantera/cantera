@@ -11,14 +11,14 @@ derived: []  # List of specializations
 recipes:
 - name: new
 - name: addPhase
-  implements: MultiPhase::addPhase(shared_ptr<ThermoPhase>, double)
+  implements: addPhase(shared_ptr<ThermoPhase>, double)
 - name: init
 - name: updatePhases
 - name: nElements
 - name: elementIndex
 - name: nSpecies
 - name: speciesIndex
-  implements: MultiPhase::speciesIndex(size_t, size_t)
+  implements: speciesIndex(size_t, size_t)
 - name: temperature
 - name: setTemperature
 - name: minTemp
@@ -33,11 +33,11 @@ recipes:
 - name: setPhaseMoles
 - name: setMoles
 - name: setMolesByName
-  implements: MultiPhase::setMolesByName(const string&)
+  implements: setMolesByName(const string&)
 - name: speciesMoles
 - name: elementMoles
 - name: equilibrate
-  implements: MultiPhase::equilibrate(int, const char*, double, int, int, int)
+  implements: equilibrate(int, const char*, double, int, int, int)
 - name: getChemPotentials
 - name: enthalpy
 - name: entropy
