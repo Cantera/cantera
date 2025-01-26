@@ -29,7 +29,7 @@ recipes:
   what: accessor
 - name: nAdjacent
 - name: adjacent
-  implements: Solution::adjacent(size_t)
+  implements: adjacent(size_t)
   uses: [nAdjacent, thermo, kinetics, transport]
   what: accessor
 - name: adjacentName

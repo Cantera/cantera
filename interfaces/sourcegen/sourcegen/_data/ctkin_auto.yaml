@@ -36,9 +36,9 @@ recipes:
 - name: setMultiplier
 - name: isReversible
 - name: kineticsSpeciesIndex  # previously: speciesIndex
-  implements: Kinetics::kineticsSpeciesIndex(const string&)
+  implements: kineticsSpeciesIndex(const string&)
 - name: advanceCoverages
-  implements: InterfaceKinetics::advanceCoverages(double)
+  implements: advanceCoverages(double)
 - name: getDeltaEnthalpy  # previously: part of getDelta
 - name: getDeltaGibbs  # previously: part of getDelta
 - name: getDeltaEntropy  # previously: part of getDelta

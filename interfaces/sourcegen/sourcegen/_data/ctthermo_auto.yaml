@@ -14,7 +14,7 @@ recipes:
 - name: name  # previously: getName
 - name: setName
 - name: getEosType
-  implements: Phase::type
+  implements: type
 - name: nElements
 - name: nSpecies
 - name: temperature
@@ -26,9 +26,9 @@ recipes:
 - name: molarDensity
 - name: meanMolecularWeight
 - name: moleFraction
-  implements: Phase::moleFraction(size_t)
+  implements: moleFraction(size_t)
 - name: massFraction
-  implements: Phase::massFraction(size_t)
+  implements: massFraction(size_t)
 - name: getMoleFractions
   uses: nSpecies
 - name: getMassFractions
@@ -38,20 +38,19 @@ recipes:
 - name: setMassFractions
   uses: nSpecies
 - name: setMoleFractionsByName
-  implements: Phase::setMoleFractionsByName(const string&)
+  implements: setMoleFractionsByName(const string&)
 - name: setMassFractionsByName
-  implements: Phase::setMassFractionsByName(const string&)
-- name: getAtomicWeights
-  implements: Phase::atomicWeights
+  implements: setMassFractionsByName(const string&)
+- name: atomicWeights  # previously: getAtomicWeights
   uses: nElements
 - name: getMolecularWeights
   uses: nSpecies
 - name: getCharges
   uses: nElements
-- name: getElementName
-  implements: Phase::elementName(int)
-- name: getSpeciesName
-  implements: Phase::speciesName(int)
+- name: elementName  # previously: getElementName
+  implements: elementName(int)
+- name: speciesName  # previously: getSpeciesName
+  implements: speciesName(int)
 - name: elementIndex
 - name: speciesIndex
 - name: nAtoms
@@ -72,9 +71,9 @@ recipes:
 - name: cv_mole
 - name: cv_mass
 - name: chemPotentials
-  implements: ThermoPhase::getChemPotentials
+  implements: getChemPotentials
 - name: electroChemPotentials
-  implements: ThermoPhase::getElectrochemPotentials
+  implements: getElectrochemPotentials
 - name: electricPotential
 - name: setElectricPotential
 - name: thermalExpansionCoeff
@@ -85,37 +84,37 @@ recipes:
 - name: getPartialMolarCp
 - name: getPartialMolarVolumes
 - name: setState_TPX  # new
-  implements: ThermoPhase::setState_TPX(double, double, const double*)
+  implements: setState_TPX(double, double, const double*)
 - name: setState_TPY  # new
-  implements: ThermoPhase::setState_TPY(double, double, const double*)
+  implements: setState_TPY(double, double, const double*)
 - name: setState_TP  # previously: set_TP
-  implements: ThermoPhase::setState_TP(double, double)
+  implements: setState_TP(double, double)
 - name: setState_TD  # previously: set_TD
-  implements: Phase::setState_TD(double, double)
+  implements: setState_TD(double, double)
 - name: setState_DP  # previously: set_DP
-  implements: ThermoPhase::setState_DP(double, double)
+  implements: setState_DP(double, double)
 - name: setState_HP  # previously: set_HP
-  implements: ThermoPhase::setState_HP(double, double)
+  implements: setState_HP(double, double)
 - name: setState_UV  # previously: set_UV
-  implements: ThermoPhase::setState_UV(double, double)
+  implements: setState_UV(double, double)
 - name: setState_SV  # previously: set_SV
-  implements: ThermoPhase::setState_SV(double, double)
+  implements: setState_SV(double, double)
 - name: setState_SP  # previously: set_SP
-  implements: ThermoPhase::setState_SP(double, double)
+  implements: setState_SP(double, double)
 - name: setState_ST  # previously: set_ST
-  implements: ThermoPhase::setState_ST(double, double)
+  implements: setState_ST(double, double)
 - name: setState_TV  # previously: set_TV
-  implements: ThermoPhase::setState_TV(double, double)
+  implements: setState_TV(double, double)
 - name: setState_PV  # previously: set_PV
-  implements: ThermoPhase::setState_PV(double, double)
+  implements: setState_PV(double, double)
 - name: setState_UP  # previously: set_UP
-  implements: ThermoPhase::setState_UP(double, double)
+  implements: setState_UP(double, double)
 - name: setState_VH  # previously: set_VH
-  implements: ThermoPhase::setState_VH(double, double)
+  implements: setState_VH(double, double)
 - name: setState_TH  # previously: set_TH
-  implements: ThermoPhase::setState_TH(double, double)
+  implements: setState_TH(double, double)
 - name: setState_SH  # previously: set_SH
-  implements: ThermoPhase::setState_SH(double, double)
+  implements: setState_SH(double, double)
 - name: equilibrate
   implements:
     ThermoPhase::equilibrate(const string&, const string&, double, int, int, int)
@@ -134,7 +133,7 @@ recipes:
 - name: siteDensity  # previously: used 'surf' prefix'
 - name: setSiteDensity  # previously: used 'surf' prefix'
 - name: setCoveragesByName  # previously: used 'surf' prefix'
-  implements: SurfPhase::setCoveragesByName(const string&)
+  implements: setCoveragesByName(const string&)
 - name: del
   what: noop
   brief: Destructor; required by some APIs although object is managed by Solution.

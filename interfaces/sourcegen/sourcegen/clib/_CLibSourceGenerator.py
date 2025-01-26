@@ -425,6 +425,10 @@ class CLibSourceGenerator(SourceGenerator):
         if recipe.implements:
             msg = f"   generating {func_name!r} -> {recipe.implements}"
             _LOGGER.debug(msg)
+            parts = list(recipe.implements.partition("("))
+            if not self._doxygen_tags.exists(parts[0]):
+                parts[0] = self._doxygen_tags.detect(parts[0], bases, False)
+                recipe.implements = "".join(parts)
             cxx_func = self._doxygen_tags.cxx_func(recipe.implements)
 
             # Convert C++ return type to format suitable for crosswalk:
