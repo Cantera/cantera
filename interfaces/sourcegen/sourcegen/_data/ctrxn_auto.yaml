@@ -12,6 +12,9 @@ recipes:
 - name: new
 - name: equation  # previously: ctkin_getReactionString
 - name: type  # previously: ctkin_getReactionType
+- name: usesThirdBody
+- name: valid
+# - name: id  <--- member variable (access not yet implemented)
 - name: del
 - name: cabinetSize
 - name: parentHandle

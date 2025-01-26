@@ -7,28 +7,28 @@ docstring: |-
 prefix: func13
 base: Func1
 recipes:
-- name: check
-  implements: checkFunc1
-- name: newBasic
+- name: checkFunc1  # previously: check
+- name: newBasic  # previously: new_basic
   implements: newFunc1(const string&, double)
-- name: newAdvanced
+- name: newAdvanced  # previously: new_advanced
   implements: newFunc1(const string&, const vector<double>&)
-- name: newCompound
+- name: newCompound  # previously: new_compound
   implements: newFunc1(const string&, const shared_ptr<Func1>, const shared_ptr<Func1>)
-- name: newModified
+- name: newModified  # previously: new_modified
   implements: newFunc1(const string&, const shared_ptr<Func1>, double)
-- name: newSum
+- name: newSum  # previously: new_sum
   implements: newSumFunction
-- name: newDiff
+- name: newDiff  # previously: new_diff
   implements: newDiffFunction
-- name: newProd
+- name: newProd  # previously: new_prod
   implements: newProdFunction
-- name: newRatio
+- name: newRatio  # previously: new_ratio
   implements: newRatioFunction
 - name: type
-- name: eval
+- name: eval  # previously: value
 - name: derivative
   what: accessor
+# - name: duplicate  <--- unnecessary: traditional CLib duplicates function
 - name: write
 - name: del
   what: destructor
