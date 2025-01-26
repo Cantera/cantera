@@ -134,43 +134,80 @@ clib-function: |-
   }
 
 clib-constructor: |-
+  ## CLib constructor template:
+  ## may either instantiate new object or expose existing C++ object to CLib
   // constructor: {{ cxx_implements }}
   try {
       {% for line in lines %}
+      ## add lines used for CLib/C++ variable crosswalk
       {{ line }}
       {% endfor %}
       {% if handle and checks %}
+      ## constructor accesses existing object and uses index checker (see: sol3_adjacent)
       if ({{ c_args[1] }} < 0 || {{ c_args[1] }} >= {{ base }}Cabinet::at({{ handle }})->{{ checks[0] }}()) {
           throw IndexError("{{ c_func }}", "", {{ c_args[1] }}, {{ base }}Cabinet::at({{ handle }})->{{ checks[0] }}() - 1);
       }
-      {% endif %}
+      {% endif %}{# handle and checks #}
       {% if shared %}
+      ## instantiated object manages associated objects (see: sol3_newSolution)
+      ## storage of associated objects requires id (handle) of new object
       {% if handle %}
-      auto obj = {{ cxx_rbase }}Cabinet::at({{ handle }})->{{ cxx_name }}({{ ', '.join(cxx_args) }});
+      ## constructor exposes existing C++ object to CLib
+      ## the accessed C++ object may have a different base
+      {% if cxx_rbase %}
+      ## method returns new object
+      auto obj = {{ cxx_base }}Cabinet::at({{ handle }})->{{ cxx_name }}({{ ', '.join(cxx_args) }});
       int id = {{ cxx_rbase }}Cabinet::add(obj);
-      {% else %}
+      {% else %}{# not cxx_rbase #}
+      ## method modifies associated objects (see: sol3_setTransportModel)
+      auto obj = {{ cxx_base }}Cabinet::at({{ handle }});
+      {% for typ, getter in shared %}
+      ## remove associated objects
+      if (obj->{{ getter }}()) {
+          {{ typ }}Cabinet::del(
+              {{ typ }}Cabinet::index(*(obj->{{ getter }}()), handle));
+      }
+      {% endfor %}
+      obj->{{ cxx_name }}({{ ', '.join(cxx_args) }});
+      {% endif %}{# cxx_rbase #}
+      {% else %}{# not handle #}
+      ## constructor creates new object
       auto obj = {{ cxx_name }}({{ ', '.join(cxx_args) }});
       int id = {{ base }}Cabinet::add(obj);
-      {% endif %}
-      // add all associated objects
+      {% endif %}{# handle #}
+      {% if cxx_rbase %}
+      ## return handle of newly created / accessed object
       {% for typ, getter in shared %}
+      ## add associated objects (see: sol3_newSolution, sol3_adjacent)
       if (obj->{{ getter }}()) {
           {{ typ }}Cabinet::add(obj->{{ getter }}(), id);
       }
       {% endfor %}
       return id;
-      {% else %}
+      {% else %}{# not cxx_rbase #}
+      ## return handle to modified associated object (see: sol3_setTransportModel)
+      {% for typ, getter in shared %}
+      ## shared should have single entry
+      return {{ typ }}Cabinet::add(obj->{{ getter }}(), handle);
+      {% endfor %}
+      {% endif %}{# cxx_rbase #}
+      {% else %}{# not shared #}
+      ## instantiated object has no associated objects; no id is needed
       {% if handle %}
+      ## constructor exposes existing C++ object to CLib
+      ## the accessed C++ object may have a different base
       return {{ cxx_rbase }}Cabinet::add({{ base }}Cabinet::at({{ handle }})->{{ cxx_name }}({{ ', '.join(cxx_args) }}));
-      {% else %}
+      {% else %}{# not handle #}
+      ## constructor creates new object
       return {{ base }}Cabinet::add({{ cxx_name }}({{ ', '.join(cxx_args) }}));
-      {% endif %}
-      {% endif %}
+      {% endif %}{# handle #}
+      {% endif %}{# shared #}
   } catch (...) {
       return handleAllExceptions({{ error[0] }}, {{ error[1] }});
   }
 
 clib-destructor: |-
+  ## CLib destructor template
   // destructor
   try {
       {% if shared %}
@@ -192,9 +229,12 @@ clib-destructor: |-
   }
 
 clib-method: |-
+  ## CLib method template:
+  ## covers methods as well as getters and setters for scalars
   // {{ what }}: {{ cxx_implements }}
   try {
       {% for line in lines %}
+      ## add lines used for CLib/C++ variable crosswalk
       {{ line }}
       {% endfor %}
       {% if buffer %}
@@ -227,11 +267,14 @@ clib-method: |-
   }
 
 clib-array-getter: |-
+  ## CLib array getter template
   // getter: {{ cxx_implements }}
   try {
       {% if cxx_base == base %}
+      ## object can be accessed directly
       auto& obj = {{ base }}Cabinet::at({{ handle }});
       {% else %}
+      ## object needs a cast as method is defined for specialization
       auto obj = {{ base }}Cabinet::as<{{ cxx_base }}>({{ handle }});
       {% endif %}
       {% if checks %}
@@ -256,6 +299,7 @@ clib-array-getter: |-
   }
 
 clib-array-setter: |-
+  ## CLib array setter template
   // setter: {{ cxx_implements }}
   try {
       {% if cxx_base == base %}
