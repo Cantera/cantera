@@ -26,12 +26,12 @@ recipes:
 - name: transportModel
 - name: setTransportModel
   uses: [transport]
-  what: constructor
+  what: accessor
 - name: nAdjacent
 - name: adjacent
   implements: Solution::adjacent(size_t)
   uses: [nAdjacent, thermo, kinetics, transport]
-  what: constructor  # registers object in CLib storage
+  what: accessor
 - name: adjacentName
 - name: source
 - name: cabinetSize

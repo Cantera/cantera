@@ -336,6 +336,9 @@ class CLibSourceGenerator(SourceGenerator):
         elif recipe.what == "constructor":
             template = loader.from_string(self._templates["clib-constructor"])
 
+        elif recipe.what == "accessor":
+            template = loader.from_string(self._templates["clib-accessor"])
+
         elif recipe.what == "destructor":
             template = loader.from_string(self._templates["clib-destructor"])
 
