@@ -486,6 +486,18 @@ class TestFreeFlame:
             fwd = (Suplus-Suminus)/(2*Su0*dk)
             assert fwd == approx(dSdk_adj[m], rel=5e-3, abs=1e-7)
 
+    def test_jacobian_options(self):
+        reactants = {'H2': 0.65, 'O2': 0.5, 'AR': 2}
+        self.create_sim(p=ct.one_atm, Tin=300, reactants=reactants, width=0.03)
+        assert isinstance(self.sim.linear_solver, ct.BandedJacobian)
+        self.sim.linear_solver = ct.EigenSparseDirectJacobian()
+
+        self.sim.set_jacobian_perturbation(1e-7, 1e-12, 1e-20)
+        self.solve_mix(refine=True)
+
+        # regression value matching test_mixture_averaged_case1
+        assert self.sim.velocity[0] == approx(1.693407, rel=1e-4)
+
     # @utilities.unittest.skip('sometimes slow')
     def test_multicomponent(self):
         reactants = 'H2:1.1, O2:1, AR:5.3'
