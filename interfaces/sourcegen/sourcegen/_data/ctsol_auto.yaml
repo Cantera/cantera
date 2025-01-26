@@ -25,16 +25,8 @@ recipes:
 - name: transport
 - name: transportModel
 - name: setTransportModel
-  code: |-
-    try {
-        auto obj = SolutionCabinet::at(handle);
-        TransportCabinet::del(
-            TransportCabinet::index(*(obj->transport()), handle));
-        obj->setTransportModel(model);
-        return TransportCabinet::add(obj->transport(), handle);
-    } catch (...) {
-        return handleAllExceptions(-2, ERR);
-    }
+  uses: [transport]
+  what: constructor
 - name: nAdjacent
 - name: adjacent
   implements: Solution::adjacent(size_t)

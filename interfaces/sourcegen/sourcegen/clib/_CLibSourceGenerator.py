@@ -317,7 +317,8 @@ class CLibSourceGenerator(SourceGenerator):
 
     def _scaffold_body(self, c_func: CFunc, recipe: Recipe) -> tuple[str, set[str]]:
         """Scaffold body of generic CLib function via Jinja."""
-        loader = Environment(loader=BaseLoader, trim_blocks=True, lstrip_blocks=True)
+        loader = Environment(loader=BaseLoader, trim_blocks=True, lstrip_blocks=True,
+                             line_comment_prefix="##")
         args, bases = self._reverse_crosswalk(c_func, recipe.base)
         args["what"] = recipe.what
 
@@ -364,7 +365,11 @@ class CLibSourceGenerator(SourceGenerator):
             _LOGGER.critical(msg)
             exit(1)
 
-        return template.render(**args), bases
+        body = template.render(**args)
+        # remove blank lines left by line comments
+        # see https://github.com/pallets/jinja/issues/204
+        body = "\n".join(line for line in body.split("\n") if line.strip())
+        return body, bases
 
     def _resolve_recipe(self, recipe: Recipe) -> CFunc:
         """Build CLib header from recipe and doxygen annotations."""
