@@ -9,15 +9,16 @@ base: Kinetics
 parents: []  # List of parent classes
 derived: [InterfaceKinetics]  # List of specializations
 recipes:
-- name: kineticsType  # previously getType
+- name: kineticsType  # previously: getType
 - name: nReactions
 - name: reaction  # new
   uses: nReactions
-  what: constructor  # registers object in CLib storage
+  what: accessor
 - name: nPhases
 - name: phase
   uses: nPhases
-  what: constructor  # registers object in CLib storage
+  what: accessor
+- name: reactionPhase  # new
 - name: phaseIndex
 - name: nTotalSpecies  # previously: nSpecies
 - name: reactantStoichCoeff
@@ -45,7 +46,7 @@ recipes:
 - name: getDeltaSSGibbs  # previously: part of getDelta
 - name: getDeltaSSEntropy  # previously: part of getDelta
 # - name: getSourceTerms  # <--- used by MATLAB interface for "massProdRate"
-# - name: start  # <--- appears to be unused
+# - name: start  # <--- unused except for FORTRAN API
 - name: del
   what: noop
   brief: Destructor; required by some APIs although object is managed by Solution.

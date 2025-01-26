@@ -23,7 +23,7 @@ TEST(ctfunc3, sin)
     ASSERT_GE(fcn, 0);
     EXPECT_DOUBLE_EQ(func13_eval(fcn, 0.5), sin(omega * 0.5));
 
-    int dfcn = func13_newDerivative(fcn);
+    int dfcn = func13_derivative(fcn);
     EXPECT_DOUBLE_EQ(func13_eval(dfcn, 0.5), omega * cos(omega * 0.5));
 
     int buflen = func13_write(fcn, "x", 0, 0);
@@ -40,7 +40,7 @@ TEST(ctfunc3, cos)
     ASSERT_GE(fcn, 0);
     EXPECT_DOUBLE_EQ(func13_eval(fcn, 0.5), cos(omega * 0.5));
 
-    int dfcn = func13_newDerivative(fcn);
+    int dfcn = func13_derivative(fcn);
     EXPECT_DOUBLE_EQ(func13_eval(dfcn, 0.5), -omega * sin(omega * 0.5));
 }
 
@@ -51,7 +51,7 @@ TEST(ctfunc3, exp)
     ASSERT_GE(fcn, 0);
     EXPECT_DOUBLE_EQ(func13_eval(fcn, 0.5), exp(omega * 0.5));
 
-    int dfcn = func13_newDerivative(fcn);
+    int dfcn = func13_derivative(fcn);
     EXPECT_DOUBLE_EQ(func13_eval(dfcn, 0.5), omega * exp(omega * 0.5));
 }
 
@@ -62,7 +62,7 @@ TEST(ctfunc3, log)
     ASSERT_GE(fcn, 0);
     EXPECT_DOUBLE_EQ(func13_eval(fcn, 1. / omega), 0.);
 
-    int dfcn = func13_newDerivative(fcn);
+    int dfcn = func13_derivative(fcn);
     EXPECT_DOUBLE_EQ(func13_eval(dfcn, .5), omega / .5);
 }
 
@@ -73,7 +73,7 @@ TEST(ctfunc3, pow)
     ASSERT_GE(fcn, 0);
     EXPECT_DOUBLE_EQ(func13_eval(fcn, 0.5), pow(0.5, exp));
 
-    int dfcn = func13_newDerivative(fcn);
+    int dfcn = func13_derivative(fcn);
     EXPECT_DOUBLE_EQ(func13_eval(dfcn, 0.5), exp * pow(0.5, exp - 1));
 }
 
@@ -84,7 +84,7 @@ TEST(ctfunc3, constant)
     ASSERT_GE(fcn, 0);
     EXPECT_DOUBLE_EQ(func13_eval(fcn, 0.5), a);
 
-    int dfcn = func13_newDerivative(fcn);
+    int dfcn = func13_derivative(fcn);
     EXPECT_DOUBLE_EQ(func13_eval(dfcn, .5), 0.);
 }
 
