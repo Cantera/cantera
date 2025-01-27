@@ -40,6 +40,7 @@ environment.y*
 *.mex*
 *.asv
 *.gv*
+*.mod
 .cproject
 .project
 .pydevproject
