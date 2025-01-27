@@ -9,7 +9,8 @@ base: Kinetics
 parents: []  # List of parent classes
 derived: [InterfaceKinetics]  # List of specializations
 recipes:
-- name: kineticsType  # previously: getType
+- name: getType
+  implements: kineticsType  # inconsistent API (preexisting)
 - name: nReactions
 - name: reaction  # new
   uses: nReactions
@@ -20,7 +21,8 @@ recipes:
   what: accessor
 - name: reactionPhase  # new
 - name: phaseIndex
-- name: nTotalSpecies  # previously: nSpecies
+- name: nSpecies
+  implements: nTotalSpecies  # inconsistent API (preexisting)
 - name: reactantStoichCoeff
 - name: productStoichCoeff
 - name: getFwdRatesOfProgress
@@ -35,8 +37,8 @@ recipes:
 - name: multiplier
 - name: setMultiplier
 - name: isReversible
-- name: kineticsSpeciesIndex  # previously: speciesIndex
-  implements: kineticsSpeciesIndex(const string&)
+- name: speciesIndex
+  implements: kineticsSpeciesIndex(const string&)  # inconsistent API (preexisting)
 - name: advanceCoverages
   implements: advanceCoverages(double)
 - name: getDeltaEnthalpy  # previously: part of getDelta
