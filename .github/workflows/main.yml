@@ -718,7 +718,7 @@ jobs:
     timeout-minutes: 60
     env:
       BOOST_ROOT: ${{github.workspace}}/3rdparty/boost
-      BOOST_URL: https://boostorg.jfrog.io/artifactory/main/release/1.78.0/source/boost_1_78_0.7z
+      BOOST_URL: https://github.com/boostorg/boost/releases/download/boost-1.87.0/boost-1.87.0-b2-nodocs.7z
     strategy:
       matrix:
         vs-toolset: ['14.2']
@@ -743,16 +743,16 @@ jobs:
         id: cache-boost
         with:
           path: ${{env.BOOST_ROOT}}
-          key: boost-178-win
+          key: boost-187-win
 
       - name: Install Boost Headers
         if: steps.cache-boost.outputs.cache-hit != 'true'
         run: |
           BOOST_ROOT=$(echo $BOOST_ROOT | sed 's/\\/\//g')
           mkdir -p $BOOST_ROOT
-          curl --progress-bar --location --output $BOOST_ROOT/download.7z $BOOST_URL
-          7z -o$BOOST_ROOT x $BOOST_ROOT/download.7z -y -bd boost_1_78_0/boost
-          mv $BOOST_ROOT/boost_1_78_0/boost $BOOST_ROOT/boost
+          curl --progress-bar --location --output $BOOST_ROOT/download.7z -L $BOOST_URL
+          7z -o$BOOST_ROOT x $BOOST_ROOT/download.7z -y -bd boost-1.87.0/boost
+          mv $BOOST_ROOT/boost-1.87.0/boost $BOOST_ROOT/boost
           rm $BOOST_ROOT/download.7z
         shell: bash
       - name: Build Cantera
@@ -825,7 +825,7 @@ jobs:
     timeout-minutes: 120 # MinGW is slooooow
     env:
       BOOST_ROOT: ${{github.workspace}}/3rdparty/boost
-      BOOST_URL: https://boostorg.jfrog.io/artifactory/main/release/1.78.0/source/boost_1_78_0.7z
+      BOOST_URL: https://github.com/boostorg/boost/releases/download/boost-1.87.0/boost-1.87.0-b2-nodocs.7z
     steps:
     - uses: actions/checkout@v4
       name: Checkout the repository
@@ -845,7 +845,7 @@ jobs:
       id: cache-boost
       with:
         path: ${{env.BOOST_ROOT}}
-        key: boost-178-win
+        key: boost-187-win
     - name: Set up MinGW
       uses: egor-tensin/setup-mingw@v2
       with:
@@ -857,9 +857,9 @@ jobs:
       run: |
         BOOST_ROOT=$(echo $BOOST_ROOT | sed 's/\\/\//g')
         mkdir -p $BOOST_ROOT
-        curl --progress-bar --location --output $BOOST_ROOT/download.7z $BOOST_URL
-        7z -o$BOOST_ROOT x $BOOST_ROOT/download.7z -y -bd boost_1_78_0/boost
-        mv $BOOST_ROOT/boost_1_78_0/boost $BOOST_ROOT/boost
+        curl --progress-bar --location --output $BOOST_ROOT/download.7z -L $BOOST_URL
+        7z -o$BOOST_ROOT x $BOOST_ROOT/download.7z -y -bd boost-1.87.0/boost
+        mv $BOOST_ROOT/boost-1.87.0/boost $BOOST_ROOT/boost
         rm $BOOST_ROOT/download.7z
       shell: bash
     - name: Build Cantera
