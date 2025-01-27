@@ -7,25 +7,27 @@ docstring: |-
 prefix: func13
 base: Func1
 recipes:
-- name: checkFunc1  # previously: check
-- name: newBasic  # previously: new_basic
+- name: check
+  implements: checkFunc1  # inconsistent API (preexisting)
+- name: new_basic  # inconsistent API (snake_case; preexisting)
   implements: newFunc1(const string&, double)
-- name: newAdvanced  # previously: new_advanced
+- name: new_advanced  # inconsistent API (snake_case; preexisting)
   implements: newFunc1(const string&, const vector<double>&)
-- name: newCompound  # previously: new_compound
+- name: new_compound  # inconsistent API (snake_case; preexisting)
   implements: newFunc1(const string&, const shared_ptr<Func1>, const shared_ptr<Func1>)
-- name: newModified  # previously: new_modified
+- name: new_modified  # inconsistent API (snake_case; preexisting)
   implements: newFunc1(const string&, const shared_ptr<Func1>, double)
-- name: newSum  # previously: new_sum
-  implements: newSumFunction
-- name: newDiff  # previously: new_diff
-  implements: newDiffFunction
-- name: newProd  # previously: new_prod
-  implements: newProdFunction
-- name: newRatio  # previously: new_ratio
-  implements: newRatioFunction
+- name: new_sum
+  implements: newSumFunction  # inconsistent API (preexisting)
+- name: new_diff
+  implements: newDiffFunction  # inconsistent API (preexisting)
+- name: new_prod
+  implements: newProdFunction  # inconsistent API (preexisting)
+- name: new_ratio
+  implements: newRatioFunction  # inconsistent API (preexisting)
 - name: type
-- name: eval  # previously: value
+- name: value
+  implements: eval  # inconsistent API (preexisting)
 - name: derivative
   what: accessor
 # - name: duplicate  <--- unnecessary: traditional CLib duplicates function
