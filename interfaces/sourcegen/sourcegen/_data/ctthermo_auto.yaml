@@ -11,10 +11,11 @@ parents: [Phase]  # List of parent classes
 derived: [SurfPhase]  # List of specializations
 recipes:
 - name: report
-- name: name  # previously: getName
+- name: getName
+  implements: name  # inconsistent API (preexisting)
 - name: setName
 - name: getEosType
-  implements: type
+  implements: type  # inconsistent API (preexisting)
 - name: nElements
 - name: nSpecies
 - name: temperature
@@ -41,16 +42,17 @@ recipes:
   implements: setMoleFractionsByName(const string&)
 - name: setMassFractionsByName
   implements: setMassFractionsByName(const string&)
-- name: atomicWeights  # previously: getAtomicWeights
+- name: getAtomicWeights
   uses: nElements
+  implements: atomicWeights  # inconsistent API (preexisting)
 - name: getMolecularWeights
   uses: nSpecies
 - name: getCharges
   uses: nElements
-- name: elementName  # previously: getElementName
-  implements: elementName(int)
-- name: speciesName  # previously: getSpeciesName
-  implements: speciesName(int)
+- name: getElementName
+  implements: elementName(int)  # inconsistent API (preexisting)
+- name: getSpeciesName
+  implements: speciesName(int)  # inconsistent API (preexisting)
 - name: elementIndex
 - name: speciesIndex
 - name: nAtoms
@@ -71,9 +73,9 @@ recipes:
 - name: cv_mole
 - name: cv_mass
 - name: chemPotentials
-  implements: getChemPotentials
+  implements: getChemPotentials  # inconsistent API (preexisting)
 - name: electroChemPotentials
-  implements: getElectrochemPotentials
+  implements: getElectrochemPotentials  # inconsistent API (preexisting)
 - name: electricPotential
 - name: setElectricPotential
 - name: thermalExpansionCoeff
@@ -83,38 +85,38 @@ recipes:
 - name: getPartialMolarIntEnergies
 - name: getPartialMolarCp
 - name: getPartialMolarVolumes
-- name: setState_TPX  # new
+- name: setState_TPX  # New in Cantera 3.2
   implements: setState_TPX(double, double, const double*)
-- name: setState_TPY  # new
+- name: setState_TPY  # New in Cantera 3.2
   implements: setState_TPY(double, double, const double*)
-- name: setState_TP  # previously: set_TP
-  implements: setState_TP(double, double)
-- name: setState_TD  # previously: set_TD
-  implements: setState_TD(double, double)
-- name: setState_DP  # previously: set_DP
-  implements: setState_DP(double, double)
-- name: setState_HP  # previously: set_HP
-  implements: setState_HP(double, double)
-- name: setState_UV  # previously: set_UV
-  implements: setState_UV(double, double)
-- name: setState_SV  # previously: set_SV
-  implements: setState_SV(double, double)
-- name: setState_SP  # previously: set_SP
-  implements: setState_SP(double, double)
-- name: setState_ST  # previously: set_ST
-  implements: setState_ST(double, double)
-- name: setState_TV  # previously: set_TV
-  implements: setState_TV(double, double)
-- name: setState_PV  # previously: set_PV
-  implements: setState_PV(double, double)
-- name: setState_UP  # previously: set_UP
-  implements: setState_UP(double, double)
-- name: setState_VH  # previously: set_VH
-  implements: setState_VH(double, double)
-- name: setState_TH  # previously: set_TH
-  implements: setState_TH(double, double)
-- name: setState_SH  # previously: set_SH
-  implements: setState_SH(double, double)
+- name: set_TP
+  implements: setState_TP(double, double)  # inconsistent API (preexisting)
+- name: set_TD
+  implements: setState_TD(double, double)  # inconsistent API (preexisting)
+- name: set_DP
+  implements: setState_DP(double, double)  # inconsistent API (preexisting)
+- name: set_HP
+  implements: setState_HP(double, double)  # inconsistent API (preexisting)
+- name: set_UV
+  implements: setState_UV(double, double)  # inconsistent API (preexisting)
+- name: set_SV
+  implements: setState_SV(double, double)  # inconsistent API (preexisting)
+- name: set_SP
+  implements: setState_SP(double, double)  # inconsistent API (preexisting)
+- name: set_ST
+  implements: setState_ST(double, double)  # inconsistent API (preexisting)
+- name: set_TV
+  implements: setState_TV(double, double)  # inconsistent API (preexisting)
+- name: set_PV
+  implements: setState_PV(double, double)  # inconsistent API (preexisting)
+- name: set_UP
+  implements: setState_UP(double, double)  # inconsistent API (preexisting)
+- name: set_VH
+  implements: setState_VH(double, double)  # inconsistent API (preexisting)
+- name: set_TH
+  implements: setState_TH(double, double)  # inconsistent API (preexisting)
+- name: set_SH
+  implements: setState_SH(double, double)  # inconsistent API (preexisting)
 - name: equilibrate
   implements:
     ThermoPhase::equilibrate(const string&, const string&, double, int, int, int)

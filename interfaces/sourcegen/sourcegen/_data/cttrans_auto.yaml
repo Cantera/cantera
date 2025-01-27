@@ -15,7 +15,8 @@ recipes:
 - name: electricalConductivity
 - name: getThermalDiffCoeffs
 - name: getMixDiffCoeffs
-- name: getBinaryDiffCoeffs  # previously: getBinDiffCoeffs
+- name: getBinDiffCoeffs
+  implements: getBinaryDiffCoeffs  # inconsistent API (preexisting)
 - name: getMultiDiffCoeffs
 - name: getMolarFluxes
 - name: getMassFluxes

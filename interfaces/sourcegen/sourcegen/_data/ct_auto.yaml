@@ -7,20 +7,22 @@ docstring: |-
 prefix: ct3
 base: ""
 recipes:
-- name: version  # previously: getCanteraVersion
-- name: gitCommit  # previously: getGitCommit
+- name: getCanteraVersion
+  implements: version  # inconsistent API (preexisting)
+- name: getGitCommit
+  implements: gitCommit  # inconsistent API (preexisting)
 - name: getCanteraError
-- name: addDataDirectory  # previously: addCanteraDirectory
-  implements: addDirectory
+- name: addCanteraDirectory
+  implements: addDirectory  # inconsistent API (preexisting)
 - name: getDataDirectories
 - name: findInputFile
-- name: suppress_deprecation_warnings
-- name: make_deprecation_warnings_fatal
-- name: suppress_warnings
-- name: warnings_suppressed
-- name: make_warnings_fatal
-- name: suppress_thermo_warnings
-- name: use_legacy_rate_constants
+- name: suppress_deprecation_warnings  # inconsistent API (snake_case; preexisting)
+- name: make_deprecation_warnings_fatal  # inconsistent API (snake_case; preexisting)
+- name: suppress_warnings  # inconsistent API (snake_case; preexisting)
+- name: warnings_suppressed  # inconsistent API (snake_case; preexisting)
+- name: make_warnings_fatal  # inconsistent API (snake_case; preexisting)
+- name: suppress_thermo_warnings  # inconsistent API (snake_case; preexisting)
+- name: use_legacy_rate_constants  # inconsistent API (snake_case; preexisting)
 - name: appdelete
 - name: clearStorage
 - name: resetStorage
