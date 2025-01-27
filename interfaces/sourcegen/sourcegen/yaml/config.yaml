@@ -4,7 +4,8 @@
 # at https://cantera.org/license.txt for license and copyright information.
 
 # Ignore these files entirely:
-ignore_files: []
+ignore_files:
+- ctfunc_auto.yaml  # for testing purposes
 
 # Ignore these specific functions:
 ignore_funcs: {}

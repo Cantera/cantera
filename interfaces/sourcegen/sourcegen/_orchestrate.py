@@ -9,7 +9,6 @@ import sys
 
 from ._HeaderFileParser import HeaderFileParser
 from ._SourceGenerator import SourceGenerator
-from .clib import CLibSourceGenerator
 from ._helpers import read_config
 
 
@@ -45,22 +44,12 @@ def generate_source(lang: str, out_dir: str, verbose: bool = False) -> None:
     msg = f"Starting sourcegen for {lang!r} API"
     _LOGGER.info(msg)
 
-    if lang == "clib":
-        # prepare for generation of CLib headers in main processing step
-        files = HeaderFileParser.headers_from_yaml(ignore_files, ignore_funcs)
-    elif lang == "csharp":
+    if lang == "csharp":
         # csharp parses existing (traditional) CLib header files
         files = HeaderFileParser.headers_from_h(ignore_files, ignore_funcs)
     else:
-        # generate CLib headers from YAML specifications as a preprocessing step
+        # generate CLib headers from YAML specifications
         files = HeaderFileParser.headers_from_yaml(ignore_files, ignore_funcs)
-        clib_root = Path(__file__).parent / "clib"
-        clib_config = read_config(clib_root / "config.yaml")
-        clib_templates = read_config(clib_root / "templates.yaml")
-        for key in ["ignore_files", "ignore_funcs"]:
-            clib_config.pop(key)
-        clib_scaffolder = CLibSourceGenerator(None, clib_config, clib_templates)
-        clib_scaffolder.resolve_tags(files)
 
     # find and instantiate the language-specific SourceGenerator
     msg = f"Generating {lang!r} source files..."
