@@ -33,10 +33,7 @@ const map<string, size_t> componentMap = {
 
 Flow1D::Flow1D(ThermoPhase* ph, size_t nsp, size_t points) :
     Domain1D(nsp+c_offset_Y, points),
-    m_nsp(nsp),
-    m_radiation(make_unique<Radiation1D>(ph, ph->pressure(), points,
-                [this](const double* x, size_t j) {return this->T(x,j);},
-                [this](const double* x, size_t k, size_t j) {return this->X(x,k,j);}))
+    m_nsp(nsp)
 {
     warn_deprecated("Flow1D::Flow1D(ThermoPhase*, size_t, size_t)",
         "To be removed after Cantera 3.2. Use constructor using Solution instead.");
@@ -169,6 +166,32 @@ void Flow1D::_init(ThermoPhase* ph, size_t nsp, size_t points)
         m_PMAC["H2O"]["fit-type"] = "polynomial";
         m_PMAC["H2O"]["coefficients"] = c_H2O;
     }
+    
+    // Initialize the radiation object (hardcoded for now)
+    std::string propertyModel = "TabularPlanckMean";
+    std::string solverModel = "OpticallyThin";
+
+    // Define lambdas for T(x, j) and X(x, k, j)
+    auto Tfunc = [this](const double* x, size_t j) {
+        return this->T(x, j);
+    };
+    auto Xfunc = [this](const double* x, size_t k, size_t j) {
+        return this->X(x, k, j);
+    };
+
+    double emissivityLeft = 0.0;
+    double emissivityRight = 0.0;
+    m_radiation = createRadiation1D(
+        propertyModel,
+        solverModel,
+        m_thermo,
+        m_thermo->pressure(),
+        m_points,
+        Tfunc,
+        Xfunc,
+        emissivityLeft,
+        emissivityRight
+    );
 }
 
 Flow1D::Flow1D(shared_ptr<ThermoPhase> th, size_t nsp, size_t points)
