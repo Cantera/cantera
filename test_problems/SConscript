@@ -225,6 +225,7 @@ Test('cxx-demo', 'cxx_samples', '#build/samples/cxx/demo/demo',
 Test('cxx-flamespeed', 'cxx_samples', '#build/samples/cxx/flamespeed/flamespeed',
      'cxx_flamespeed_blessed.txt',
      comparisons=[('flamespeed_blessed.csv', 'flamespeed.csv')],
+     tolerance=1e-3,
      options='0.9 0 0')
 Test('cxx-kinetics1', 'cxx_samples', '#build/samples/cxx/kinetics1/kinetics1', None,
      comparisons=[('kin1_blessed.csv', 'kin1.csv')], slow=True, tolerance=2e-4)

@@ -1012,6 +1012,33 @@ cdef class Sim1D:
         def __set__(self, nmax):
             self.sim.setMaxTimeStepCount(nmax)
 
+    def set_jacobian_perturbation(self, relative, absolute, threshold):
+        """
+        Configure perturbations used to evaluate finite difference Jacobian
+
+        :param relative:
+            Relative perturbation (multiplied by the absolute value of each component).
+            Default ``1.0e-5``.
+        :param absolute:
+            Absolute perturbation (independent of component value). Default ``1.0e-10``.
+        :param threshold:
+            Threshold below which to exclude elements from the Jacobian. Default ``0.0``.
+        """
+        self.sim.setJacobianPerturbation(relative, absolute, threshold)
+
+    @property
+    def linear_solver(self):
+        """
+        Get/Set the the linear solver used to hold the Jacobian matrix and solve linear
+        systems as part of each Newton iteration. The default is a banded, direct
+        solver. See :ref:`sec-python-jacobians` for available solvers.
+        """
+        return SystemJacobian.wrap(self.sim.linearSolver())
+
+    @linear_solver.setter
+    def linear_solver(self, SystemJacobian precon):
+        self.sim.setLinearSolver(precon._base)
+
     def set_initial_guess(self, *args, **kwargs):
         """
         Store arguments for initial guess and prepare storage for solution.

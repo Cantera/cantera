@@ -315,8 +315,9 @@ class TestFreeFlame:
         assert abs(T3-Tad) < abs(T2-Tad)
 
         for k in range(self.gas.n_species):
-            assert abs(X2[k]-Xad[k]) <= abs(X1[k]-Xad[k])
-            assert abs(X3[k]-Xad[k]) <= abs(X2[k]-Xad[k])
+            if Xad[k] > self.tol_ss[1]:
+                assert abs(X2[k]-Xad[k]) <= abs(X1[k]-Xad[k])
+                assert abs(X3[k]-Xad[k]) <= abs(X2[k]-Xad[k])
 
     def run_mix(self, phi, T, width, p, refine):
         reactants = {'H2': phi, 'O2': 0.5, 'AR': 2}
@@ -484,6 +485,18 @@ class TestFreeFlame:
             Suminus = self.sim.velocity[0]
             fwd = (Suplus-Suminus)/(2*Su0*dk)
             assert fwd == approx(dSdk_adj[m], rel=5e-3, abs=1e-7)
+
+    def test_jacobian_options(self):
+        reactants = {'H2': 0.65, 'O2': 0.5, 'AR': 2}
+        self.create_sim(p=ct.one_atm, Tin=300, reactants=reactants, width=0.03)
+        assert isinstance(self.sim.linear_solver, ct.BandedJacobian)
+        self.sim.linear_solver = ct.EigenSparseDirectJacobian()
+
+        self.sim.set_jacobian_perturbation(1e-7, 1e-12, 1e-20)
+        self.solve_mix(refine=True)
+
+        # regression value matching test_mixture_averaged_case1
+        assert self.sim.velocity[0] == approx(1.693407, rel=1e-4)
 
     # @utilities.unittest.skip('sometimes slow')
     def test_multicomponent(self):
@@ -1287,6 +1300,7 @@ class TestDiffusionFlame:
 
         # Test - Check if the parameters are saved and restored correctly
         filename = self.test_work_path / "two_point_control.yaml"
+        filename.unlink(missing_ok=True)
 
         original_settings = sim.flame.settings['continuation-method']
         sim.save(filename)

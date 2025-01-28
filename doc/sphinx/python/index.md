@@ -119,6 +119,10 @@ interacting with input data defined using Cantera's [YAML input format](/yaml/in
 Classes {py:class}`UnitSystem` and {py:class}`Units` are used for expressing dimensional
 quantities in input files.
 
+Several implementations of {py:class}`SystemJacobian` are available for use as
+preconditioners for reactor network simulations or linear solvers for the 1D flame simulations (notably, {py:class}`AdaptivePreconditioner` and
+{py:class}`EigenSparseDirectJacobian`).
+
 A number of [global functions](sec-python-global-funcs) are provided for managing
 locations where Cantera looks for data files, for setting how Cantera handles warnings
 and errors, and how some transitional/legacy features are handled.

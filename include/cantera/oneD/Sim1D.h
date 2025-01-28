@@ -331,6 +331,7 @@ public:
     void getInitialSoln();
 
     //! Get the Jacobian element @f$ J_{ij} = \partial f_i / \partial x_j \f$
+    //! @deprecated To be removed after %Cantera 3.2.
     double jacobian(int i, int j);
 
     //! Evaluate the Jacobian in steady-state mode.

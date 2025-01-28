@@ -31,6 +31,29 @@ Units
 .. autoclass:: Units(name)
    :no-undoc-members:
 
+
+.. _sec-python-jacobians:
+
+Jacobians & Preconditioners
+---------------------------
+
+SystemJacobian
+^^^^^^^^^^^^^^
+.. autoclass:: SystemJacobian()
+
+AdaptivePreconditioner
+^^^^^^^^^^^^^^^^^^^^^^
+.. autoclass:: AdaptivePreconditioner()
+
+BandedJacobian
+^^^^^^^^^^^^^^^^^^^^^^
+.. autoclass:: BandedJacobian()
+
+EigenSparseDirectJacobian
+^^^^^^^^^^^^^^^^^^^^^^^^^
+.. autoclass:: EigenSparseDirectJacobian()
+
+
 .. _sec-python-global-funcs:
 
 Global Functions

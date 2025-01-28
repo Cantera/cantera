@@ -4,7 +4,7 @@
 #include "cantera/zerodim.h"
 #include "cantera/base/Interface.h"
 #include "cantera/numerics/eigen_sparse.h"
-#include "cantera/numerics/PreconditionerFactory.h"
+#include "cantera/numerics/SystemJacobianFactory.h"
 #include "cantera/numerics/AdaptivePreconditioner.h"
 
 using namespace Cantera;
@@ -145,7 +145,7 @@ TEST(AdaptivePreconditionerTests, test_adaptive_precon_utils)
     precon.setGamma(gamma);
     EXPECT_NEAR(precon.gamma(), gamma, tol);
     // test setup and getting the matrix
-    precon.setup();
+    precon.updatePreconditioner();
     Eigen::SparseMatrix<double> identity(testSize, testSize);
     identity.setIdentity();
     EXPECT_TRUE(precon.matrix().isApprox(identity));
@@ -169,11 +169,11 @@ TEST(AdaptivePreconditionerTests, test_adaptive_precon_utils)
     testMat.setIdentity();
     testMat.fill(thresh * 0.9);
     EXPECT_TRUE(precon.jacobian().isApprox(testMat));
-    precon.setup();
+    precon.updatePreconditioner();
     EXPECT_TRUE(precon.matrix().isApprox(identity * (thresh * 1.1)));
     // reset and setup then test again
     precon.reset();
-    precon.setup();
+    precon.updatePreconditioner();
     EXPECT_TRUE(precon.matrix().isApprox(identity));
 }
 
@@ -188,7 +188,7 @@ TEST(AdaptivePreconditionerTests, test_precon_solver_stats)
     ReactorNet network;
     network.addReactor(reactor);
     // setup preconditioner
-    shared_ptr<PreconditionerBase> precon_ptr = newPreconditioner("Adaptive");
+    shared_ptr<SystemJacobian> precon_ptr = newSystemJacobian("Adaptive");
     network.setPreconditioner(precon_ptr);
     EXPECT_THROW(network.step(), CanteraError);
     // take a step
