@@ -20,10 +20,7 @@ namespace Cantera
 
 Flow1D::Flow1D(ThermoPhase* ph, size_t nsp, size_t points) :
     Domain1D(nsp+c_offset_Y, points),
-    m_nsp(nsp),
-    m_radiation(make_unique<Radiation1D>(ph, ph->pressure(), points,
-                [this](const double* x, size_t j) {return this->T(x,j);},
-                [this](const double* x, size_t k, size_t j) {return this->X(x,k,j);}))
+    m_nsp(nsp)
 {
     m_points = points;
 
@@ -85,6 +82,32 @@ Flow1D::Flow1D(ThermoPhase* ph, size_t nsp, size_t points) :
         gr.push_back(1.0*ng/m_points);
     }
     setupGrid(m_points, gr.data());
+
+    // Initialize the radiation object (hardcoded for now)
+    std::string propertyModel = "TabularPlanckMean";
+    std::string solverModel = "OpticallyThin";
+
+    // Define lambdas for T(x, j) and X(x, k, j)
+    auto Tfunc = [this](const double* x, size_t j) {
+        return this->T(x, j);
+    };
+    auto Xfunc = [this](const double* x, size_t k, size_t j) {
+        return this->X(x, k, j);
+    };
+
+    double emissivityLeft = 0.0;
+    double emissivityRight = 0.0;
+    m_radiation = createRadiation1D(
+        propertyModel,
+        solverModel,
+        m_thermo,
+        m_thermo->pressure(),
+        m_points,
+        Tfunc,
+        Xfunc,
+        emissivityLeft,
+        emissivityRight
+    );
 }
 
 Flow1D::Flow1D(shared_ptr<ThermoPhase> th, size_t nsp, size_t points)
