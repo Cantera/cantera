@@ -31,6 +31,8 @@ struct ElectronCollisionPlasmaData : public ReactionData
         ReactionData::invalidateCache();
         energyLevels.resize(0);
         distribution.resize(0);
+        m_dist_number = -1;
+        m_level_number = -1;
     }
 
     vector<double> energyLevels; //!< electron energy levels
@@ -89,6 +91,7 @@ protected:
 class ElectronCollisionPlasmaRate : public ReactionRate
 {
 public:
+
     ElectronCollisionPlasmaRate() = default;
 
     ElectronCollisionPlasmaRate(const AnyMap& node,
@@ -134,6 +137,14 @@ public:
     const vector<double>& crossSections() const {
         return m_crossSections;
     }
+
+    //! The value of #m_crossSectionsInterpolated [m2]
+    const vector<double>& crossSectionInterpolated() const {
+        return m_crossSectionsInterpolated;
+    }
+
+    //! Update the value of #m_crossSectionsInterpolated [m2]
+    void updateInterpolatedCrossSection(const vector<double>&);
 
 private:
     //! electron energy levels [eV]

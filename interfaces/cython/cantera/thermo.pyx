@@ -1904,6 +1904,15 @@ cdef class ThermoPhase(_SolutionBase):
                 raise ThermoModelMethodError(self.thermo_model)
             return pystr(self.plasma.electronSpeciesName())
 
+    property elastic_power_loss:
+        """
+        Elastic power loss (J/s/m3)
+        .. versionadded:: 3.2
+        """
+        def __get__(self):
+            if not self._enable_plasma:
+                raise ThermoModelMethodError(self.thermo_model)
+            return self.plasma.elasticPowerLoss()
 
 cdef class InterfacePhase(ThermoPhase):
     """ A class representing a surface, edge phase """

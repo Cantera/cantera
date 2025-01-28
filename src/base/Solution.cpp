@@ -42,6 +42,7 @@ void Solution::setName(const string& name) {
 
 void Solution::setThermo(shared_ptr<ThermoPhase> thermo) {
     m_thermo = thermo;
+    m_thermo->setSolution(weak_from_this());
     for (const auto& [id, callback] : m_changeCallbacks) {
         callback();
     }
