@@ -11,6 +11,7 @@ from typing_extensions import Self
 
 from ._dataclasses import HeaderFile, Func, Recipe
 from ._helpers import read_config
+from .clib import CLibSourceGenerator
 
 
 _LOGGER = logging.getLogger()
@@ -18,7 +19,7 @@ _LOGGER = logging.getLogger()
 _CLIB_PATH = Path(__file__).parents[3] / "include" / "cantera" / "clib"
 _CLIB_IGNORE = ["clib_defs.h", "ctmatlab.h"]
 
-_DATA_PATH = Path(__file__).parent / "_data"
+_HERE = Path(__file__).parent
 
 class HeaderFileParser:
     """
@@ -38,8 +39,17 @@ class HeaderFileParser:
         ) -> list[HeaderFile]:
         """Parse header file YAML configuration."""
         files = sorted(
-            ff for ff in _DATA_PATH.glob("*.yaml") if ff.name not in ignore_files)
-        return [cls(ff, ignore_funcs.get(ff.name, []))._parse_yaml() for ff in files]
+            ff for ff in (_HERE / "_data").glob("*.yaml")
+            if ff.name not in ignore_files)
+        files = [cls(ff, ignore_funcs.get(ff.name, []))._parse_yaml() for ff in files]
+
+        # preprocess header information (uses CLibSourceGenerator)
+        config = read_config(_HERE / "clib" / "config.yaml")
+        templates = read_config(_HERE / "clib" / "templates.yaml")
+        for key in ["ignore_files", "ignore_funcs"]:
+            config.pop(key)
+        CLibSourceGenerator(None, config, templates).resolve_tags(files)
+        return files
 
     def _parse_yaml(self) -> HeaderFile:
         msg = f"  parsing {self._path.name!r}"

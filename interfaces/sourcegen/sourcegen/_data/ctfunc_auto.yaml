@@ -8,28 +8,29 @@ prefix: func13
 base: Func1
 recipes:
 - name: check
-  implements: checkFunc1
-- name: newBasic
+  implements: checkFunc1  # inconsistent API (preexisting)
+- name: new_basic  # inconsistent API (snake_case; preexisting)
   implements: newFunc1(const string&, double)
-- name: newAdvanced
+- name: new_advanced  # inconsistent API (snake_case; preexisting)
   implements: newFunc1(const string&, const vector<double>&)
-- name: newCompound
+- name: new_compound  # inconsistent API (snake_case; preexisting)
   implements: newFunc1(const string&, const shared_ptr<Func1>, const shared_ptr<Func1>)
-- name: newModified
+- name: new_modified  # inconsistent API (snake_case; preexisting)
   implements: newFunc1(const string&, const shared_ptr<Func1>, double)
-- name: newSum
-  implements: newSumFunction
-- name: newDiff
-  implements: newDiffFunction
-- name: newProd
-  implements: newProdFunction
-- name: newRatio
-  implements: newRatioFunction
+- name: new_sum
+  implements: newSumFunction  # inconsistent API (preexisting)
+- name: new_diff
+  implements: newDiffFunction  # inconsistent API (preexisting)
+- name: new_prod
+  implements: newProdFunction  # inconsistent API (preexisting)
+- name: new_ratio
+  implements: newRatioFunction  # inconsistent API (preexisting)
 - name: type
-- name: eval
-- name: newDerivative
-  what: constructor
-  implements: Func1::derivative
+- name: value
+  implements: eval  # inconsistent API (preexisting)
+- name: derivative
+  what: accessor
+# - name: duplicate  <--- unnecessary: traditional CLib duplicates function
 - name: write
 - name: del
   what: destructor

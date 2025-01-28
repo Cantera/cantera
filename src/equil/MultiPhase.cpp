@@ -43,6 +43,11 @@ void MultiPhase::addPhases(vector<ThermoPhase*>& phases,
     init();
 }
 
+void MultiPhase::addPhase(shared_ptr<ThermoPhase> p, double moles)
+{
+    addPhase(p.get(), moles);
+}
+
 void MultiPhase::addPhase(ThermoPhase* p, double moles)
 {
     if (m_init) {

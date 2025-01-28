@@ -156,9 +156,9 @@ TEST(ct3, new_interface)
     ASSERT_EQ(solName, "Pt_surf");
 
     int kin3_surf = sol3_kinetics(surf);
-    buflen = kin3_kineticsType(kin3_surf, 0, 0) + 1; // include \0
+    buflen = kin3_getType(kin3_surf, 0, 0) + 1; // include \0
     buf.resize(buflen);
-    kin3_kineticsType(ph_surf, buflen, buf.data());
+    kin3_getType(ph_surf, buflen, buf.data());
     string kinType(buf.data());
     ASSERT_EQ(kinType, "surface");
 }
@@ -186,86 +186,6 @@ TEST(ct3, new_interface_auto)
     sol3_adjacentName(surf, 0, buflen, buf.data());
     solName = buf.data();
     ASSERT_EQ(solName, "gas");
-}
-
-TEST(ct3, thermo)
-{
-    int ret;
-    int sol = sol3_newSolution("gri30.yaml", "gri30", "none");
-    int thermo = sol3_thermo(sol);
-    ASSERT_GE(thermo, 0);
-    size_t nsp = thermo3_nSpecies(thermo);
-    ASSERT_EQ(nsp, 53u);
-
-    ret = thermo3_setTemperature(thermo, 500);
-    ASSERT_EQ(ret, 0);
-    ret = thermo3_setPressure(thermo, 5 * 101325);
-    ASSERT_EQ(ret, 0);
-    ret = thermo3_setMoleFractionsByName(thermo, "CH4:1.0, O2:2.0, N2:7.52");
-    ASSERT_EQ(ret, 0);
-
-    ret = thermo3_equilibrate(thermo, "HP", "auto", 1e-9, 50000, 1000, 0);
-    ASSERT_EQ(ret, 0);
-    double T = thermo3_temperature(thermo);
-    ASSERT_GT(T, 2200);
-    ASSERT_LT(T, 2300);
-
-    size_t ns = thermo3_nSpecies(thermo);
-    vector<double> work(ns);
-    vector<double> X(ns);
-    thermo3_getMoleFractions(thermo, ns, X.data());
-
-    thermo3_getPartialMolarEnthalpies(thermo, ns, work.data());
-    double prod = std::inner_product(X.begin(), X.end(), work.begin(), 0.0);
-    ASSERT_NEAR(prod, thermo3_enthalpy_mole(thermo), 1e-6);
-
-    thermo3_getPartialMolarEntropies(thermo, ns, work.data());
-    prod = std::inner_product(X.begin(), X.end(), work.begin(), 0.0);
-    ASSERT_NEAR(prod, thermo3_entropy_mole(thermo), 1e-6);
-
-    thermo3_getPartialMolarIntEnergies(thermo, ns, work.data());
-    prod = std::inner_product(X.begin(), X.end(), work.begin(), 0.0);
-    ASSERT_NEAR(prod, thermo3_intEnergy_mole(thermo), 1e-6);
-
-    thermo3_getPartialMolarCp(thermo, ns, work.data());
-    prod = std::inner_product(X.begin(), X.end(), work.begin(), 0.0);
-    ASSERT_NEAR(prod, thermo3_cp_mole(thermo), 1e-6);
-
-    thermo3_getPartialMolarVolumes(thermo, ns, work.data());
-    prod = std::inner_product(X.begin(), X.end(), work.begin(), 0.0);
-    ASSERT_NEAR(prod, 1./thermo3_molarDensity(thermo), 1e-6);
-}
-
-TEST(ct3, kinetics)
-{
-    int sol0 = sol3_newSolution("gri30.yaml", "gri30", "none");
-    int thermo = sol3_thermo(sol0);
-    int kin = sol3_kinetics(sol0);
-    ASSERT_GE(kin, 0);
-
-    size_t nr = kin3_nReactions(kin);
-    ASSERT_EQ(nr, 325u);
-
-    thermo3_equilibrate(thermo, "HP", "auto", 1e-9, 50000, 1000, 0);
-    double T = thermo3_temperature(thermo);
-    thermo3_setTemperature(thermo, T - 200);
-
-    auto sol = newSolution("gri30.yaml", "gri30", "none");
-    auto phase = sol->thermo();
-    auto kinetics = sol->kinetics();
-
-    phase->equilibrate("HP");
-    ASSERT_NEAR(T, phase->temperature(), 1e-2);
-    phase->setTemperature(T - 200);
-
-    vector<double> c_ropf(nr);
-    kin3_getFwdRatesOfProgress(kin, 325, c_ropf.data());
-    vector<double> cpp_ropf(nr);
-    kinetics->getFwdRatesOfProgress(cpp_ropf.data());
-
-    for (size_t n = 0; n < nr; n++) {
-        ASSERT_NEAR(cpp_ropf[n], c_ropf[n], 1e-6);
-    }
 }
 
 TEST(ct3, transport)

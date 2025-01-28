@@ -83,31 +83,33 @@ class CLibSourceGenerator(SourceGenerator):
         what = what.replace("virtual ", "")
         if what in self._config.ret_type_crosswalk:
             ret_type = self._config.ret_type_crosswalk[what]
-            if ret_type == "char*":
-                # string expressions require special handling
-                returns = Param(
-                    "int", "",
-                    "Actual length of string or -1 for exception handling.")
-                buffer = [
-                    Param("int", "bufLen", "Length of reserved array.", "in"),
-                    Param(ret_type, "buf", "Returned string value.", "out")]
-                return returns, buffer
             if ret_type == "void":
                 returns = Param(
                     "int", "", "Zero for success or -1 for exception handling.")
                 return returns, []
+            if ret_type == "char*":
+                # string expressions require special handling
+                returns = Param(
+                    "int", "", "Actual length of string including string-terminating "
+                    "null byte, \\0, or -1 for exception handling.")
+                buffer = [
+                    Param("int", "bufLen", "Length of reserved array.", "in"),
+                    Param(ret_type, "buf", "Returned string value.", "out")]
+                return returns, buffer
+            if ret_type.endswith("*"):
+                # return type involves pointer to reserved buffer
+                returns = Param(
+                    "int", "",
+                    "Actual length of value array or -1 for exception handling.")
+                buffer = [
+                    Param("int", "bufLen", "Length of reserved array.", "in"),
+                    Param(ret_type, "buf", "Returned array value.", "out")]
+                return returns, buffer
             if not any([what.startswith("shared_ptr"), ret_type.endswith("[]")]):
                 # direct correspondence
                 return Param(ret_type), []
 
-            # all other types require reserved buffers
-            what = "vector" if what.startswith("vector") else "array"
-            returns = Param(
-                "int", "", f"Actual length of {what} including \0 or -1 for exception handling.")
-            buffer = [
-                Param("int", "bufLen", "Length of reserved array.", "in"),
-                Param(ret_type, "valueBuf", f"Returned {what} value.", "out")]
-            return returns, buffer
+            raise NotImplementedError(f"Crosswalk not implemented for {what!r}.")
 
         if "shared_ptr" in what:
             # check for crosswalk with object from includes
@@ -180,7 +182,10 @@ class CLibSourceGenerator(SourceGenerator):
         c_args = c_func.arglist
         cxx_func = c_func.implements
         if not cxx_func:
-            if len(c_args) and "char*" in c_args[-1].p_type:
+            if c_func.name.endswith("new"):
+                # Default constructor
+                cxx_func = CFunc("auto", f"make_shared<{base}>", ArgList([]), "", None)
+            elif len(c_args) and "char*" in c_args[-1].p_type:
                 cxx_func = CFunc("string", "dummy", ArgList([]), "", None, "", "base")
             else:
                 cxx_func = CFunc("void", "dummy", ArgList([]), "", None, "", "base")
@@ -197,11 +202,16 @@ class CLibSourceGenerator(SourceGenerator):
                 cxx_type = cxx_func.ret_type
 
                 # Handle output buffer
-                if "string" in cxx_type: # or cxx_func.name == "dummy":
+                if "string" in cxx_type:
                     buffer = ["string out",
                               f"copyString(out, {c_args[c_ix+1].name}, "
                               f"{c_args[c_ix].name});",
                               "int(out.size()) + 1"]  # include \0
+                elif "vector" in cxx_type:
+                    buffer = [f"{cxx_type} out",
+                              "std::copy(out.begin(), out.end(), "
+                              f"{c_args[c_ix+1].name});",
+                              "int(out.size())"]
                 else:
                     msg = (f"Scaffolding failed for {c_func.name!r}: reverse crosswalk "
                            f"not implemented for {cxx_type!r}:\n{c_func.declaration()}")
@@ -254,10 +264,10 @@ class CLibSourceGenerator(SourceGenerator):
                 check_array = False
             elif "shared_ptr" in cxx_type:
                 # Retrieve object from cabinet
-                obj_base = shared_object(cxx_type)
-                args.append(f"{base}Cabinet::at({c_name})")
-                if obj_base != base:
-                    bases |= {obj_base}
+                cxx_base = shared_object(cxx_type)
+                args.append(f"{cxx_base}Cabinet::at({c_name})")
+                if cxx_base != base:
+                    bases |= {cxx_base}
             elif cxx_type == "bool":
                 lines.append(f"bool {c_name}_ = ({c_name} != 0);")
                 args.append(f"{c_name}_")
@@ -267,38 +277,48 @@ class CLibSourceGenerator(SourceGenerator):
             cxx_ix += 1
 
         # Obtain class and getter for managed objects
-        uses = [(shared_object(uu.ret_type), uu.name) for uu in c_func.uses]
-        bases |= {uu[0] for uu in uses if uu[0]}
+        shared = []
+        checks = []
+        for uu in c_func.uses:
+            obj = shared_object(uu.ret_type)
+            if obj:
+                shared.append((obj, uu.name))
+                bases |= {obj}
+            else:
+                checks.append(uu.name)
 
         # Ensure that all error codes are set correctly
         error = [-1, "ERR"]
-        cxx_type = cxx_func.ret_type
-        if cxx_type.endswith("int") or cxx_type.endswith("size_t"):
+        cxx_rtype = cxx_func.ret_type
+        cxx_rbase = None
+        if cxx_rtype.endswith(("int", "size_t")):
             error = ["ERR", "ERR"]
-        elif cxx_type.endswith("double"):
+        elif cxx_rtype.endswith("double"):
             error = ["DERR", "DERR"]
-        elif "shared_ptr" in cxx_type:
-            obj_base = shared_object(cxx_type)
-            if obj_base == base:
-                buffer = ["auto obj", "", f"{obj_base}Cabinet::index(*obj)"]
+        elif "shared_ptr" in cxx_rtype:
+            cxx_rbase = shared_object(cxx_rtype)
+            if cxx_rbase == base:
+                buffer = ["auto obj", "", f"{cxx_rbase}Cabinet::index(*obj)"]
             else:
-                buffer = ["auto obj", "", f"{obj_base}Cabinet::index(*obj, {handle})"]
-                bases |= {obj_base}
+                buffer = ["auto obj", "", f"{cxx_rbase}Cabinet::index(*obj, {handle})"]
+                bases |= {cxx_rbase}
             error = ["-2", "ERR"]
-        elif cxx_type.endswith("void"):
+        elif cxx_rtype.endswith("void"):
             buffer = ["", "", "0"]
 
         ret = {
-            "handle": handle, "lines": lines, "buffer": buffer, "uses": uses,
-            "cxx_base": base, "cxx_name": cxx_func.name, "cxx_args": args,
-            "cxx_implements": cxx_func.short_declaration(), "error": error,
+            "base": base, "handle": handle, "lines": lines, "buffer": buffer,
+            "shared": shared, "checks": checks, "error": error, "cxx_rbase": cxx_rbase,
+            "cxx_base": cxx_func.base, "cxx_name": cxx_func.name, "cxx_args": args,
+            "cxx_implements": cxx_func.short_declaration(),
             "c_func": c_func.name, "c_args": [arg.name for arg in c_func.arglist],
         }
         return ret, bases
 
     def _scaffold_body(self, c_func: CFunc, recipe: Recipe) -> tuple[str, set[str]]:
         """Scaffold body of generic CLib function via Jinja."""
-        loader = Environment(loader=BaseLoader, trim_blocks=True, lstrip_blocks=True)
+        loader = Environment(loader=BaseLoader, trim_blocks=True, lstrip_blocks=True,
+                             line_comment_prefix="##")
         args, bases = self._reverse_crosswalk(c_func, recipe.base)
         args["what"] = recipe.what
 
@@ -316,6 +336,9 @@ class CLibSourceGenerator(SourceGenerator):
         elif recipe.what == "constructor":
             template = loader.from_string(self._templates["clib-constructor"])
 
+        elif recipe.what == "accessor":
+            template = loader.from_string(self._templates["clib-accessor"])
+
         elif recipe.what == "destructor":
             template = loader.from_string(self._templates["clib-destructor"])
 
@@ -323,7 +346,8 @@ class CLibSourceGenerator(SourceGenerator):
             template = loader.from_string(self._templates["clib-method"])
 
         elif recipe.what == "getter":
-            if "void" in c_func.implements.ret_type:
+            ret_type = c_func.implements.ret_type
+            if "void" in ret_type or "vector" in ret_type:
                 template = loader.from_string(self._templates["clib-array-getter"])
             else:
                 template = loader.from_string(self._templates["clib-method"])
@@ -344,7 +368,11 @@ class CLibSourceGenerator(SourceGenerator):
             _LOGGER.critical(msg)
             exit(1)
 
-        return template.render(**args), bases
+        body = template.render(**args)
+        # remove blank lines left by line comments
+        # see https://github.com/pallets/jinja/issues/204
+        body = "\n".join(line for line in body.split("\n") if line.strip())
+        return body, bases
 
     def _resolve_recipe(self, recipe: Recipe) -> CFunc:
         """Build CLib header from recipe and doxygen annotations."""
@@ -397,6 +425,10 @@ class CLibSourceGenerator(SourceGenerator):
         if recipe.implements:
             msg = f"   generating {func_name!r} -> {recipe.implements}"
             _LOGGER.debug(msg)
+            parts = list(recipe.implements.partition("("))
+            if not self._doxygen_tags.exists(parts[0]):
+                parts[0] = self._doxygen_tags.detect(parts[0], bases, False)
+                recipe.implements = "".join(parts)
             cxx_func = self._doxygen_tags.cxx_func(recipe.implements)
 
             # Convert C++ return type to format suitable for crosswalk:
@@ -408,7 +440,11 @@ class CLibSourceGenerator(SourceGenerator):
             brief = cxx_func.brief
             args = prop_params + buffer_params
 
-        if cxx_func and not recipe.what:
+        if recipe.what and cxx_func:
+            # Recipe type and corresponding C++ function are known
+            pass
+
+        elif cxx_func:
             # Autodetection of CLib function purpose ("what")
             cxx_arglen = len(cxx_func.arglist)
             if not cxx_func.base:
@@ -432,27 +468,40 @@ class CLibSourceGenerator(SourceGenerator):
                      for base in [recipe.base] + recipe.parents + recipe.derived):
                 recipe.what = "method"
             else:
-                _LOGGER.critical("Unable to auto-detect function type.")
+                msg = f"Unable to auto-detect function type for recipe {recipe.name!r}."
+                _LOGGER.critical(msg)
                 exit(1)
 
-        elif recipe.name == "del" and not recipe.what:
-            recipe.what = "destructor"
-
-        if recipe.what in ["destructor", "noop"]:
-            # these function types don't have direct C++ equivalents
-            msg = f"   generating {func_name!r} -> {recipe.what}"
+        elif recipe.what == "noop":
+            # No operation
+            msg = f"   generating {func_name!r} -> no-operation"
             _LOGGER.debug(msg)
-            if recipe.what == "noop":
-                args = []
-                brief= "No operation."
-                ret_param = Param(
-                    "int", "", "Always zero.")
-            else:
-                args = [Param("int", "handle", f"Handle to {recipe.base} object.")]
-                brief= f"Delete {recipe.base} object."
-                ret_param = Param(
-                    "int", "", "Zero for success and -1 for exception handling.")
-            buffer_params = []
+            brief = "No operation."
+            ret_param = Param("int", "", "Always zero.")
+
+        elif recipe.name == "new":
+            # Default constructor
+            recipe.what = "constructor"
+            msg = f"   generating {func_name!r} -> default constructor"
+            _LOGGER.debug(msg)
+            brief= f"Instantiate {recipe.base} object using default constructor."
+            ret_param = Param(
+                "int", "", "Object handle if successful and -1 for exception handling.")
+
+        elif recipe.name == "del":
+            # Default destructor
+            recipe.what = "destructor"
+            msg = f"   generating {func_name!r} -> default destructor"
+            _LOGGER.debug(msg)
+            args = [Param("int", "handle", f"Handle to {recipe.base} object.")]
+            brief= f"Delete {recipe.base} object."
+            ret_param = Param(
+                "int", "", "Zero for success and -1 for exception handling.")
+
+        else:
+            msg = f"Unable to resolve recipe type for {recipe.name!r}"
+            _LOGGER.critical(msg)
+            exit(1)
 
         if recipe.brief:
             brief = recipe.brief

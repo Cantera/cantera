@@ -19,18 +19,20 @@ class Config:
         "double": "double",
         "shared_ptr<T>": "int",
         "string": "char*",
-        "vector<double>": "double[]",
-        "vector<int>": "int[]",
+        "const string": "char*",
+        "const vector<double>&": "double*",
     }
 
     prop_type_crosswalk = {
         "bool": "int",
         "int": "int",
         "size_t": "int",
+        "const size_t": "int",
         "double": "double",
         "const double": "double",
         "double*": "double*",
         "double* const": "double*",
+        "const double*": "const double*",
         "const double* const": "const double*",
         "const string&": "const char*",
         "shared_ptr<T>": "int",

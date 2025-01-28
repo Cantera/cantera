@@ -23,10 +23,11 @@ based on a recipe, which is subsequently used to scaffold API functions using de
 *Jinja* templates. The following recipe/CLib function types are differentiated:
 
 - `function`: Regular function defined in the `Cantera` namespace.
-- `constructor`: A CLib constructor adds new (or existing) C++ objects to CLib storage.
-    As all objects are handled via smart `shared_ptr<>`, a CLib constructor requires a
-    C++ utility functions that returning a pointer to a new object or an object that is
-    not yet added to CLib storage. Constructor names should start with `new`.
+- `constructor`: A CLib constructor adds new C++ objects to CLib storage. Constructor
+    names should start with `new`. As all objects are handled via smart `shared_ptr<>`,
+    CLib constructors require C++ utility functions that return a pointer to a new
+    object. Constructors with the name `new` will use the C++ default constructor.
+- `accessor`: a CLib accessor adds existing or spawned C++ objects to CLib storage.
 - `destructor`: A CLib destructor removes a C++ object from CLib. Destructor names
     should start with `del`.
 - `getter`: Implements a getter method of a C++ class.

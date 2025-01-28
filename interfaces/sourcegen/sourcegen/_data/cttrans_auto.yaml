@@ -12,7 +12,14 @@ recipes:
 - name: transportModel
 - name: viscosity
 - name: thermalConductivity
+- name: electricalConductivity
+- name: getThermalDiffCoeffs
 - name: getMixDiffCoeffs
+- name: getBinDiffCoeffs
+  implements: getBinaryDiffCoeffs  # inconsistent API (preexisting)
+- name: getMultiDiffCoeffs
+- name: getMolarFluxes
+- name: getMassFluxes
 - name: del
   what: noop
   brief: Destructor; required by some APIs although object is managed by Solution.

@@ -7,11 +7,48 @@ docstring: |-
 prefix: kin3
 base: Kinetics
 parents: []  # List of parent classes
-derived: []  # List of specializations
+derived: [InterfaceKinetics]  # List of specializations
 recipes:
+- name: getType
+  implements: kineticsType  # inconsistent API (preexisting)
 - name: nReactions
-- name: kineticsType
+- name: reaction  # new
+  uses: nReactions
+  what: accessor
+- name: nPhases
+- name: phase
+  uses: nPhases
+  what: accessor
+- name: reactionPhase  # new
+- name: phaseIndex
+- name: nSpecies
+  implements: nTotalSpecies  # inconsistent API (preexisting)
+- name: reactantStoichCoeff
+- name: productStoichCoeff
 - name: getFwdRatesOfProgress
+- name: getRevRatesOfProgress
+- name: getNetRatesOfProgress
+- name: getEquilibriumConstants
+- name: getFwdRateConstants
+- name: getRevRateConstants
+- name: getCreationRates
+- name: getDestructionRates
+- name: getNetProductionRates
+- name: multiplier
+- name: setMultiplier
+- name: isReversible
+- name: speciesIndex
+  implements: kineticsSpeciesIndex(const string&)  # inconsistent API (preexisting)
+- name: advanceCoverages
+  implements: advanceCoverages(double)
+- name: getDeltaEnthalpy  # previously: part of getDelta
+- name: getDeltaGibbs  # previously: part of getDelta
+- name: getDeltaEntropy  # previously: part of getDelta
+- name: getDeltaSSEnthalpy  # previously: part of getDelta
+- name: getDeltaSSGibbs  # previously: part of getDelta
+- name: getDeltaSSEntropy  # previously: part of getDelta
+# - name: getSourceTerms  # <--- used by MATLAB interface for "massProdRate"
+# - name: start  # <--- unused except for FORTRAN API
 - name: del
   what: noop
   brief: Destructor; required by some APIs although object is managed by Solution.

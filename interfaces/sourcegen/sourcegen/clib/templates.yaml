@@ -134,43 +134,96 @@ clib-function: |-
   }
 
 clib-constructor: |-
+  ## CLib constructor template: instantiates new object
   // constructor: {{ cxx_implements }}
   try {
       {% for line in lines %}
+      ## add lines used for CLib/C++ variable crosswalk
       {{ line }}
       {% endfor %}
-      {% if uses %}
-      {% if handle %}
-      auto obj = {{ cxx_base }}Cabinet::at({{ handle }})->{{ cxx_name }}({{ ', '.join(cxx_args) }});
-      {% else %}
+      {% if shared %}
+      ## instantiated object manages associated objects (see: sol3_newSolution)
+      ## storage of associated objects requires id (handle) of new object
       auto obj = {{ cxx_name }}({{ ', '.join(cxx_args) }});
-      {% endif %}
-      int id = {{ cxx_base }}Cabinet::add(obj);
-      // add all associated objects
-      {% for typ, getter in uses %}
+      int id = {{ base }}Cabinet::add(obj);
+      {% for typ, getter in shared %}
+      ## add associated objects (see: sol3_newSolution, sol3_adjacent)
       if (obj->{{ getter }}()) {
           {{ typ }}Cabinet::add(obj->{{ getter }}(), id);
       }
       {% endfor %}
       return id;
-      {% else %}
-      {% if handle %}
-      return {{ cxx_base }}Cabinet::add({{ cxx_base }}Cabinet::at({{ handle }})->{{ cxx_name }}({{ ', '.join(cxx_args) }}));
-      {% else %}
-      return {{ cxx_base }}Cabinet::add({{ cxx_name }}({{ ', '.join(cxx_args) }}));
-      {% endif %}
-      {% endif %}
+      {% else %}{# not shared #}
+      ## instantiated object has no associated objects; no id is needed
+      return {{ base }}Cabinet::add({{ cxx_name }}({{ ', '.join(cxx_args) }}));
+      {% endif %}{# shared #}
+  } catch (...) {
+      return handleAllExceptions({{ error[0] }}, {{ error[1] }});
+  }
+
+clib-accessor: |-
+  ## CLib accessor template: exposes existing C++ object to CLib
+  // accessor: {{ cxx_implements }}
+  try {
+      {% for line in lines %}
+      ## add lines used for CLib/C++ variable crosswalk
+      {{ line }}
+      {% endfor %}
+      {% if checks %}
+      ## accessor uses index checker (see: sol3_adjacent)
+      if ({{ c_args[1] }} < 0 || {{ c_args[1] }} >= {{ base }}Cabinet::at({{ handle }})->{{ checks[0] }}()) {
+          throw IndexError("{{ c_func }}", "", {{ c_args[1] }}, {{ base }}Cabinet::at({{ handle }})->{{ checks[0] }}() - 1);
+      }
+      {% endif %}{# checks #}
+      {% if shared %}
+      ## accessed object manages associated objects (see: sol3_newSolution)
+      ## storage of associated objects requires id (handle) of new object
+      {% if cxx_rbase %}
+      ## returned and accessed C++ objects may have a different bases
+      auto obj = {{ cxx_base }}Cabinet::at({{ handle }})->{{ cxx_name }}({{ ', '.join(cxx_args) }});
+      int id = {{ cxx_rbase }}Cabinet::add(obj);
+      ## return handle of newly created / accessed object
+      {% for typ, getter in shared %}
+      ## add associated objects (see: sol3_newSolution, sol3_adjacent)
+      if (obj->{{ getter }}()) {
+          {{ typ }}Cabinet::add(obj->{{ getter }}(), id);
+      }
+      {% endfor %}
+      return id;
+      {% else %}{# not cxx_rbase #}
+      ## method modifies associated objects (see: sol3_setTransportModel)
+      auto obj = {{ cxx_base }}Cabinet::at({{ handle }});
+      {% for typ, getter in shared %}
+      ## remove associated objects
+      if (obj->{{ getter }}()) {
+          {{ typ }}Cabinet::del(
+              {{ typ }}Cabinet::index(*(obj->{{ getter }}()), handle));
+      }
+      {% endfor %}
+      obj->{{ cxx_name }}({{ ', '.join(cxx_args) }});
+      ## return handle to modified associated object (see: sol3_setTransportModel)
+      {% for typ, getter in shared %}
+      ## shared should have single entry
+      return {{ typ }}Cabinet::add(obj->{{ getter }}(), handle);
+      {% endfor %}
+      {% endif %}{# cxx_rbase #}
+      {% else %}{# not shared #}
+      ## instantiated object has no associated objects; no id is needed
+      ## returned and accessed C++ objects may have a different bases
+      return {{ cxx_rbase }}Cabinet::add({{ base }}Cabinet::at({{ handle }})->{{ cxx_name }}({{ ', '.join(cxx_args) }}));
+      {% endif %}{# shared #}
   } catch (...) {
       return handleAllExceptions({{ error[0] }}, {{ error[1] }});
   }
 
 clib-destructor: |-
+  ## CLib destructor template
   // destructor
   try {
-      {% if uses %}
-      auto obj = {{ cxx_base }}Cabinet::at({{ handle }});
+      {% if shared %}
+      auto obj = {{ base }}Cabinet::at({{ handle }});
       // remove all associated objects in reversed order
-      {% for typ, getter in uses[-1::-1] %}
+      {% for typ, getter in shared[-1::-1] %}
       if (obj->{{ getter }}()) {
           int index = {{ typ }}Cabinet::index(*(obj->{{ getter }}()), {{ handle }});
           if (index >= 0) {
@@ -179,63 +232,94 @@ clib-destructor: |-
       }
       {% endfor %}
       {% endif %}
-      {{ cxx_base }}Cabinet::del({{ handle }});
+      {{ base }}Cabinet::del({{ handle }});
       return 0;
   } catch (...) {
       return handleAllExceptions(-1, ERR);
   }
 
 clib-method: |-
+  ## CLib method template:
+  ## covers methods as well as getters and setters for scalars
   // {{ what }}: {{ cxx_implements }}
   try {
       {% for line in lines %}
+      ## add lines used for CLib/C++ variable crosswalk
       {{ line }}
       {% endfor %}
       {% if buffer %}
       {% if buffer[0] %}
-      {{ buffer[0] }} = {{ cxx_base }}Cabinet::at({{ handle }})->{{ cxx_name }}({{ ', '.join(cxx_args) }});
+      {% if cxx_base == base %}
+      {{ buffer[0] }} = {{ base }}Cabinet::at({{ handle }})->{{ cxx_name }}({{ ', '.join(cxx_args) }});
       {% else %}
-      {{ cxx_base }}Cabinet::at({{ handle }})->{{ cxx_name }}({{ ', '.join(cxx_args) }});
+      {{ buffer[0] }} = {{ base }}Cabinet::as<{{ cxx_base }}>({{ handle }})->{{ cxx_name }}({{ ', '.join(cxx_args) }});
+      {% endif %}
+      {% else %}
+      {% if cxx_base == base %}
+      {{ base }}Cabinet::at({{ handle }})->{{ cxx_name }}({{ ', '.join(cxx_args) }});
+      {% else %}
+      {{ base }}Cabinet::as<{{ cxx_base }}>({{ handle }})->{{ cxx_name }}({{ ', '.join(cxx_args) }});
+      {% endif %}
       {% endif %}
       {% if buffer[1] %}
       {{ buffer[1] }}
       {% endif %}
       return {{ buffer[2] }};
       {% else %}
-      return {{ cxx_base }}Cabinet::at({{ handle }})->{{ cxx_name }}({{ ', '.join(cxx_args) }});
+      {% if cxx_base == base %}
+      return {{ base }}Cabinet::at({{ handle }})->{{ cxx_name }}({{ ', '.join(cxx_args) }});
+      {% else %}
+      return {{ base }}Cabinet::as<{{ cxx_base }}>({{ handle }})->{{ cxx_name }}({{ ', '.join(cxx_args) }});
+      {% endif %}
       {% endif %}
   } catch (...) {
       return handleAllExceptions({{ error[0] }}, {{ error[1] }});
   }
 
 clib-array-getter: |-
+  ## CLib array getter template
   // getter: {{ cxx_implements }}
   try {
-      auto& obj = {{ cxx_base }}Cabinet::at({{ handle }});
-      {% if uses %}
-      if ({{ c_args[1] }} < obj->{{ uses[0][1] }}()) {
-          throw CanteraError("{{ c_func }}",
-              "Invalid output array size; expected minimum size {} but received {}.",
-              obj->{{ uses[0][1] }}(), {{ c_args[1] }});
+      {% if cxx_base == base %}
+      ## object can be accessed directly
+      auto& obj = {{ base }}Cabinet::at({{ handle }});
+      {% else %}
+      ## object needs a cast as method is defined for specialization
+      auto obj = {{ base }}Cabinet::as<{{ cxx_base }}>({{ handle }});
+      {% endif %}
+      {% if checks %}
+      if ({{ c_args[1] }} < obj->{{ checks[0] }}()) {
+          throw ArraySizeError("{{ c_func }}", {{ c_args[1] }}, obj->{{ checks[0] }}());
       }
       {% else %}
       // no size checking specified
       {% endif %}
+      {% if buffer and buffer[0] %}
+      {{ buffer[0] }} = obj->{{ cxx_name }}({{ cxx_args[0] }});;
+      {% if buffer[1] %}
+      {{ buffer[1] }}
+      {% endif %}
+      return {{ buffer[2] }};
+      {% else %}
       obj->{{ cxx_name }}({{ cxx_args[0] }});
       return 0;
+      {% endif %}
   } catch (...) {
       return handleAllExceptions(-1, ERR);
   }
 
 clib-array-setter: |-
+  ## CLib array setter template
   // setter: {{ cxx_implements }}
   try {
-      auto& obj = {{ cxx_base }}Cabinet::at({{ handle }});
-      {% if uses %}
-      if ({{ c_args[1] }} != obj->{{ uses[0][1] }}()) {
-          throw CanteraError("{{ c_func }}",
-              "Invalid input array size; expected size {} but received {}.",
-              obj->{{ uses[0][1] }}(), {{ c_args[1] }});
+      {% if cxx_base == base %}
+      auto& obj = {{ base }}Cabinet::at({{ handle }});
+      {% else %}
+      auto obj = {{ base }}Cabinet::as<{{ cxx_base }}>({{ handle }});
+      {% endif %}
+      {% if checks %}
+      if ({{ c_args[1] }} != obj->{{ checks[0] }}()) {
+          throw ArraySizeError("{{ c_func }}", {{ c_args[1] }}, obj->{{ checks[0] }}());
       }
       {% else %}
       // no size checking specified
@@ -265,17 +349,17 @@ clib-implementation: |-
   }
 
 clib-reserved-parentHandle-cpp: |-
-  // reserved: {{ cxx_base }} cabinet parent
+  // reserved: {{ base }} cabinet parent
   try {
-      return {{ cxx_base }}Cabinet::parent(handle);
+      return {{ base }}Cabinet::parent(handle);
   } catch (...) {
       return handleAllExceptions(-2, ERR);
   }
 
 clib-reserved-cabinetSize-cpp: |-
-  // reserved: int Cabinet<{{ cxx_base }}>.size()
+  // reserved: int Cabinet<{{ base }}>.size()
   try {
-      return {{ cxx_base }}Cabinet::size();
+      return {{ base }}Cabinet::size();
   } catch (...) {
       return handleAllExceptions(-1, ERR);
   }

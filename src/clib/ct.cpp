@@ -32,11 +32,13 @@ typedef Cabinet<ThermoPhase> ThermoCabinet;
 typedef Cabinet<Kinetics> KineticsCabinet;
 typedef Cabinet<Transport> TransportCabinet;
 typedef Cabinet<Solution> SolutionCabinet;
+typedef Cabinet<Reaction> ReactionCabinet;
 
 template<> ThermoCabinet* ThermoCabinet::s_storage = 0;
 template<> KineticsCabinet* KineticsCabinet::s_storage = 0;
 template<> TransportCabinet* TransportCabinet::s_storage = 0;
 template<> SolutionCabinet* SolutionCabinet::s_storage = 0;
+template<> ReactionCabinet* ReactionCabinet::s_storage = 0;
 
 /**
  * Exported functions.

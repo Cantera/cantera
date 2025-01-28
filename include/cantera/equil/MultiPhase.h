@@ -95,6 +95,17 @@ public:
      *
      *  @param p pointer to the phase object
      *  @param moles total number of moles of all species in this phase
+     *  @since New in %Cantera 3.2.
+     */
+    void addPhase(shared_ptr<ThermoPhase> p, double moles);
+
+    //! Add a phase to the mixture.
+    /*!
+     *  This function must be called before the init() function is called,
+     *  which serves to freeze the MultiPhase.
+     *
+     *  @param p pointer to the phase object
+     *  @param moles total number of moles of all species in this phase
      */
     void addPhase(ThermoPhase* p, double moles);
 

@@ -23,21 +23,15 @@ recipes:
 - name: thermo
 - name: kinetics
 - name: transport
+- name: transportModel
 - name: setTransportModel
-  code: |-
-    try {
-        auto obj = SolutionCabinet::at(handle);
-        TransportCabinet::del(
-            TransportCabinet::index(*(obj->transport()), handle));
-        obj->setTransportModel(model);
-        return TransportCabinet::add(obj->transport(), handle);
-    } catch (...) {
-        return handleAllExceptions(-2, ERR);
-    }
+  uses: [transport]
+  what: accessor
 - name: nAdjacent
 - name: adjacent
-  implements: Solution::adjacent(size_t)
-  uses: [thermo, kinetics, transport]
-  what: constructor  # registers object in CLib storage
+  implements: adjacent(size_t)
+  uses: [nAdjacent, thermo, kinetics, transport]
+  what: accessor
 - name: adjacentName
+- name: source
 - name: cabinetSize
