@@ -16,9 +16,9 @@
 namespace Cantera
 {
 
-Domain1D::Domain1D(size_t nv, size_t points, double time)
+Domain1D::Domain1D(size_t nv, size_t points, double time, size_t nsoot, size_t neq)
 {
-    resize(nv, points);
+    resize(nv+nsoot+neq, points);
 }
 
 Domain1D::~Domain1D()

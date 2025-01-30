@@ -72,7 +72,7 @@ void loadCanteraPython()
     const char* venv_path = getenv("VIRTUAL_ENV");
     if (venv_path != nullptr) {
         PyConfig pyconf;
-        pyconf.buffered_stdio = 0;
+        // pyconf.buffered_stdio = 0;
         PyConfig_InitPythonConfig(&pyconf);
 
         #ifdef _WIN32

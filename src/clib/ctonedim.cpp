@@ -664,10 +664,11 @@ extern "C" {
         }
     }
 
-    int sim1D_solve(int i, int loglevel, int refine_grid)
+    int sim1D_solve(int i, int loglevel, const char* refine_grid)
     {
         try {
-            bool r = (refine_grid == 0 ? false : true);
+            // bool r = (refine_grid == 0 ? false : true);
+            string r = (std::strcmp(refine_grid, "remesh") ? "disabled" : "refine");
             SimCabinet::item(i).solve(loglevel, r);
             return 0;
         } catch (...) {

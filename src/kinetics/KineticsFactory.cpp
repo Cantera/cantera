@@ -13,6 +13,8 @@
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/base/stringUtils.h"
 #include "cantera/base/Solution.h"
+#include "cantera/kinetics/CustomKinetics.h"
+
 #include <boost/algorithm/string.hpp>
 
 namespace Cantera
@@ -35,6 +37,7 @@ KineticsFactory::KineticsFactory() {
     addDeprecatedAlias("surface", "surf");
     reg("edge", []() { return new EdgeKinetics(); });
     addDeprecatedAlias("edge", "Edge");
+    reg("custom", []() { return new CustomKinetics(); });
 }
 
 KineticsFactory* KineticsFactory::factory() {
