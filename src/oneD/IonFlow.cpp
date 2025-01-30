@@ -16,7 +16,7 @@ namespace Cantera
 {
 
 IonFlow::IonFlow(ThermoPhase* ph, size_t nsp, size_t points) :
-    StFlow(ph, nsp, points)
+    StFlow(ph, nsp, 0, c_offset_Y, points)
 {
     // make a local copy of species charge
     for (size_t k = 0; k < m_nsp; k++) {

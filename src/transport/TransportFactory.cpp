@@ -4,6 +4,7 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 // known transport models
+#include "cantera/transport/AVBPTransport.h"
 #include "cantera/transport/MultiTransport.h"
 #include "cantera/transport/MixTransport.h"
 #include "cantera/transport/UnityLewisTransport.h"
@@ -36,6 +37,11 @@ TransportFactory::TransportFactory()
     addDeprecatedAlias("mixture-averaged", "Mix");
     reg("mixture-averaged-CK", []() { return new MixTransport(); });
     addDeprecatedAlias("mixture-averaged-CK", "CK_Mix");
+
+    reg("AVBP", []() { return new AVBPTransport(); });
+    reg("AVBP-CK", []() { return new AVBPTransport(); });
+    addDeprecatedAlias("AVBP", "CK_AVBP");
+
     reg("multicomponent", []() { return new MultiTransport(); });
     addDeprecatedAlias("multicomponent", "Multi");
     reg("multicomponent-CK", []() { return new MultiTransport(); });
@@ -48,6 +54,7 @@ TransportFactory::TransportFactory()
     addDeprecatedAlias("high-pressure", "HighP");
     m_CK_mode["CK_Mix"] = m_CK_mode["mixture-averaged-CK"] = true;
     m_CK_mode["CK_Multi"] = m_CK_mode["multicomponent-CK"] = true;
+    m_CK_mode["CK_AVBP"] = m_CK_mode["AVBP-CK"] = true;
 }
 
 TransportFactory* TransportFactory::factory() {

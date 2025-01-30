@@ -36,11 +36,21 @@ void Boundary1D::_init(size_t n)
         Domain1D& r = container().domain(m_index-1);
         if (!r.isConnector()) { // multi-point domain
             m_left_nv = r.nComponents();
-            if (m_left_nv > c_offset_Y) {
-                m_left_nsp = m_left_nv - c_offset_Y;
-            } else {
-                m_left_nsp = 0;
+
+            if (m_type == cFlameletFlow) { 
+                if (m_left_nv > c_offset_Yflamelet) {
+                    m_left_nsp = m_left_nv - c_offset_Yflamelet;
+                } else {
+                    m_left_nsp = 0;
+                }
+            }else{
+                if (m_left_nv > c_offset_Y) {
+                    m_left_nsp = m_left_nv - c_offset_Y;
+                } else {
+                    m_left_nsp = 0;
+                }
             }
+
             m_left_loc = container().start(m_index-1);
             m_left_points = r.nPoints();
             m_flow_left = dynamic_cast<StFlow*>(&r);
@@ -59,10 +69,19 @@ void Boundary1D::_init(size_t n)
         Domain1D& r = container().domain(m_index+1);
         if (!r.isConnector()) { // multi-point domain
             m_right_nv = r.nComponents();
-            if (m_right_nv > c_offset_Y) {
-                m_right_nsp = m_right_nv - c_offset_Y;
-            } else {
-                m_right_nsp = 0;
+
+            if (m_type == cFlameletFlow) {  
+                if (m_right_nv > c_offset_Yflamelet) {
+                    m_right_nsp = m_right_nv - c_offset_Yflamelet;
+                } else {
+                    m_right_nsp = 0;
+                }
+            }else{
+                if (m_right_nv > c_offset_Y) {
+                    m_right_nsp = m_right_nv - c_offset_Y;
+                } else {
+                    m_right_nsp = 0;
+                }
             }
             m_right_loc = container().start(m_index+1);
             m_flow_right = dynamic_cast<StFlow*>(&r);
@@ -140,6 +159,25 @@ void Inlet1D::setMoleFractions(const double* xin)
     }
 }
 
+void Inlet1D::setMassFractions(const std::string& xin)
+{
+    m_xstr = xin;
+    if (m_flow) {
+        m_flow->phase().setMassFractionsByName(xin);
+        m_flow->phase().getMassFractions(m_yin.data());
+        needJacUpdate();
+    }
+}
+
+void Inlet1D::setMassFractions(const double* xin)
+{
+    if (m_flow) {
+        m_flow->phase().setMassFractions(xin);
+        m_flow->phase().getMassFractions(m_yin.data());
+        needJacUpdate();
+    }
+}
+
 void Inlet1D::init()
 {
     _init(0);
@@ -184,57 +222,88 @@ void Inlet1D::eval(size_t jg, double* xg, double* rg,
         double* xb = xg + m_flow->loc();
         double* rb = rg + m_flow->loc();
 
-        // The first flow residual is for u. This, however, is not modified by
-        // the inlet, since this is set within the flow domain from the
-        // continuity equation.
+        if ( m_flow->nEq() == 1 ) { // Solving in mixture fraction space
+	        if (m_flow->doEnergy(0)) {
+                // The third flow residual is for T, where it is set to T(0).  Subtract
+                // the local temperature to hold the flow T to the inlet T.
+                rb[c_offset_Tflamelet] -= m_temp;
+            } else {
+                rb[c_offset_Tflamelet] -= m_flow->T_fixed(0);
+            }
+	        for (size_t k = 0; k < m_nsp; k++) {
+                if (k != m_flow_right->leftExcessSpecies()) {
+                    rb[c_offset_Yflamelet+k] -= m_yin[k];	
+              }
+	        } 
+        } else { // Phisical space
+            // The first flow residual is for u. This, however, is not modified by
+            // the inlet, since this is set within the flow domain from the
+            // continuity equation.
 
-        if (m_flow->doEnergy(0)) {
-            // The third flow residual is for T, where it is set to T(0).  Subtract
-            // the local temperature to hold the flow T to the inlet T.
-            rb[c_offset_T] -= m_temp;
-        } else {
-            rb[c_offset_T] -= m_flow->T_fixed(0);
-        }
+            if (m_flow->doEnergy(0)) {
+                // The third flow residual is for T, where it is set to T(0).  Subtract
+                // the local temperature to hold the flow T to the inlet T.
+                rb[c_offset_T] -= m_temp;
+            } else {
+                rb[c_offset_T] -= m_flow->T_fixed(0);
+            }
 
-        if (m_flow->isFree()) {
-            // if the flow is a freely-propagating flame, mdot is not specified.
-            // Set mdot equal to rho*u, and also set lambda to zero.
-            m_mdot = m_flow->density(0) * xb[c_offset_U];
-            rb[c_offset_L] = xb[c_offset_L];
-        } else if (m_flow->isStrained()) {
-            // The flow domain sets this to -rho*u. Add mdot to specify the mass
-            // flow rate
-            rb[c_offset_L] += m_mdot;
+            if (m_flow->isFree()) {
+                // if the flow is a freely-propagating flame, mdot is not specified.
+                // Set mdot equal to rho*u, and also set lambda to zero.
+                m_mdot = m_flow->density(0) * xb[c_offset_U];
+                rb[c_offset_L] = xb[c_offset_L];
+            } else if (m_flow->isStrained()) {
+                // The flow domain sets this to -rho*u. Add mdot to specify the mass
+                // flow rate
+                rb[c_offset_L] += m_mdot;
 
-            // spreading rate. The flow domain sets this to V(0),
-            // so for finite spreading rate subtract m_V0.
-            rb[c_offset_V] -= m_V0;
-        } else {
-            rb[c_offset_U] = m_flow->density(0) * xb[c_offset_U] - m_mdot;
-            rb[c_offset_L] = xb[c_offset_L];
-        }
+                // spreading rate. The flow domain sets this to V(0),
+                // so for finite spreading rate subtract m_V0.
+                rb[c_offset_V] -= m_V0;
+            } else {
+                rb[c_offset_U] = m_flow->density(0) * xb[c_offset_U] - m_mdot;
+                rb[c_offset_L] = xb[c_offset_L];
+            }
 
-        // add the convective term to the species residual equations
-        for (size_t k = 0; k < m_nsp; k++) {
-            if (k != m_flow_right->leftExcessSpecies()) {
-                rb[c_offset_Y+k] += m_mdot*m_yin[k];
+            // add the convective term to the species residual equations
+            for (size_t k = 0; k < m_nsp; k++) {
+                if (k != m_flow_right->leftExcessSpecies()) {
+                    rb[c_offset_Y+k] += m_mdot*m_yin[k];
+                }
             }
         }
 
     } else {
         // right inlet (should only be used for counter-flow flames)
         // Array elements corresponding to the last point in the flow domain
+
         double* rb = rg + loc() - m_flow->nComponents();
-        rb[c_offset_V] -= m_V0;
-        if (m_flow->doEnergy(m_flow->nPoints() - 1)) {
-            rb[c_offset_T] -= m_temp; // T
-        } else {
-            rb[c_offset_T] -= m_flow->T_fixed(m_flow->nPoints() - 1);
-        }
-        rb[c_offset_U] += m_mdot; // u
-        for (size_t k = 0; k < m_nsp; k++) {
-            if (k != m_flow_left->rightExcessSpecies()) {
-                rb[c_offset_Y+k] += m_mdot * m_yin[k];
+
+        if (m_flow->nEq() == 1 ) { // mixture fraction space
+            if (m_flow->doEnergy(m_flow->nPoints() - 1)) {
+                rb[c_offset_Tflamelet] -= m_temp; // T
+            } else {
+                rb[c_offset_Tflamelet] -= m_flow->T_fixed(m_flow->nPoints() - 1);
+            }
+            for (size_t k = 0; k < m_nsp; k++) {
+                    if (k != m_flow_left->rightExcessSpecies()) {
+                    rb[c_offset_Yflamelet+k] -= m_yin[k];
+                    }
+            }
+        } else { // physical space
+
+            rb[c_offset_V] -= m_V0;
+            if (m_flow->doEnergy(m_flow->nPoints() - 1)) {
+                rb[c_offset_T] -= m_temp; // T
+            } else {
+                rb[c_offset_T] -= m_flow->T_fixed(m_flow->nPoints() - 1);
+            }
+            rb[c_offset_U] += m_mdot; // u
+            for (size_t k = 0; k < m_nsp; k++) {
+                if (k != m_flow_left->rightExcessSpecies()) {
+                    rb[c_offset_Y+k] += m_mdot * m_yin[k];
+                }
             }
         }
     }
@@ -392,10 +461,18 @@ void Outlet1D::eval(size_t jg, double* xg, double* rg, integer* diagg,
     int* db = diag - nc;
 
     size_t last = m_flow_left->nPoints() - 1;
-    if (m_flow_left->doEnergy(last)) {
-        rb[c_offset_T] = xb[c_offset_T] - xb[c_offset_T - nc]; // zero T gradient
+    if (m_flow_left->nEq() == 1) { // mixture fraction space 
+        if (m_flow_left->doEnergy(last)) {
+            rb[c_offset_Tflamelet] = xb[c_offset_Tflamelet] - xb[c_offset_Tflamelet - nc]; // zero T gradient
+        } else {
+            rb[c_offset_Tflamelet] = xb[c_offset_Tflamelet] - m_flow_left->T_fixed(last);
+        }
     } else {
-        rb[c_offset_T] = xb[c_offset_T] - m_flow_left->T_fixed(last);
+        if (m_flow_left->doEnergy(last)) {
+            rb[c_offset_T] = xb[c_offset_T] - xb[c_offset_T - nc]; // zero T gradient
+        } else {
+            rb[c_offset_T] = xb[c_offset_T] - m_flow_left->T_fixed(last);
+        }
     }
     size_t kSkip = c_offset_Y + m_flow_left->rightExcessSpecies();
     for (size_t k = c_offset_Y; k < nc; k++) {

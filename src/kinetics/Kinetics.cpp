@@ -32,6 +32,8 @@ void Kinetics::checkReactionIndex(size_t i) const
     }
 }
 
+void Kinetics::closeDynamicLib(){}
+
 void Kinetics::resizeReactions()
 {
     size_t nRxn = nReactions();

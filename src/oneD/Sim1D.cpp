@@ -471,12 +471,30 @@ int Sim1D::newtonSolve(int loglevel)
     }
 }
 
-void Sim1D::solve(int loglevel, bool refine_grid)
+void Sim1D::solve(int loglevel, const string& refine_grid)
 {
     int new_points = 1;
     double dt = m_tstep;
     m_nsteps = 0;
     finalize();
+
+    double domain_size = 0.0;
+    for (size_t n = 0; n < nDomains(); n++)
+    {
+      Domain1D& d = domain(n);
+      size_t length = d.grid().size();
+
+      domain_size += d.grid(length-1);
+    }
+    domain_size = domain_size/2.0;
+
+    const double& criterion=1.0e-4;
+
+    double mesh_distance;
+    // maximum number of remeshes (problem sometimes encountered, eternal loop)
+    int MAX_REMESHES = 20;
+    int n_remeshes = 0;
+
 
     while (new_points > 0) {
         size_t istep = 0;
@@ -560,8 +578,54 @@ void Sim1D::solve(int loglevel, bool refine_grid)
         if (loglevel > 2) {
             show();
         }
+///////////////////////////////////////////////////
 
-        if (refine_grid) {
+        //if (std::strcmp(refine_grid, "remesh") == 0)
+        if (refine_grid == "remesh")
+        {
+            // print new line
+            if (loglevel>=0)
+            {
+              cout<<endl;
+            }
+
+          n_remeshes++;
+
+          size_t mm = 1;
+
+          // old number of points in the flame
+          int np_old = domain(mm).nPoints();
+
+          // remesh
+          mesh_distance = remesh(loglevel,criterion,domain_size);
+
+          // new number of point in the flame
+          int np_new = domain(mm).nPoints();
+
+          // print info
+          if (loglevel>=0)
+          {
+            cout<<"old mesh = ["<<np_old<<"]"<<" new mesh = ["<<np_new<<"]   distance = "<<mesh_distance<<flush<<endl;
+          }
+
+          // we are done!
+          if (mesh_distance < criterion || n_remeshes == MAX_REMESHES)
+          {
+            ok = true;
+            new_points = 0;
+            cout<<".............................................................................." << endl;
+            cout << endl;
+            cout<<"Remeshing finished" << endl;
+            cout << endl;
+            cout<<".............................................................................." << endl;
+          }
+
+
+///////////////////////////////////////////////////
+
+        //} else if (std::strcmp(refine_grid, "refine") == 0)
+        } else if (refine_grid == "refine"){
+
             new_points = refine(loglevel);
             if (new_points) {
                 // If the grid has changed, preemptively reduce the timestep
@@ -575,8 +639,12 @@ void Sim1D::solve(int loglevel, bool refine_grid)
                 saveResidual("debug_sim1d.yaml", "residual",
                              "After regridding");
             }
-        } else {
+        } else if (refine_grid == "disabled"){
             debuglog("grid refinement disabled.\n", loglevel);
+            new_points = 0;
+
+        } else {
+            debuglog("WARNING: wrong keyword for refine_grid\nonly acceptable values being: disabled, refine (default value) or remesh \ngrid refinement disabled.\n", loglevel);
             new_points = 0;
         }
     }
@@ -669,6 +737,256 @@ int Sim1D::refine(int loglevel)
     resize();
     finalize();
     return np;
+}
+/**
+* Remesh the grid in all domains.
+*/
+double Sim1D::remesh(int loglevel, double dist_min, double domain_size) //from MUTAGEN
+{
+    vector<double> znew, xnew;
+    std::vector<size_t> dsize;
+
+    double distance=0.0;
+    for (size_t n = 0; n < nDomains(); n++)
+    {
+      Domain1D& d = domain(n);
+      Refiner& r = d.refiner();
+
+      // proceed with the remeshing
+    //   double this_distance = r.remeshFromSolution( d.grid().size(),
+    //                                                    d.grid().data(), &m_state[start(n)],
+    //                                                    dist_min, domain_size );
+      double this_distance = r.remeshFromSolution( d.grid().size(),
+                                                       d.grid().data(), m_state->data() + start(n),
+                                                       dist_min, domain_size );
+      distance += this_distance;
+
+      // interpolate the solution on the new grid points
+      int np_old = d.nPoints();     // old domain grid points
+      int np_new = r.z_new_size();  // new domain grid points
+      // loop over points in the new grid
+      for (size_t m = 0; m < np_new; m++)
+      {
+          // new position
+          double znew_curr = r.z_new(m);
+          // add it to the global array
+          znew.push_back(znew_curr);
+          // interpolation
+          if (np_new>1)
+          {
+            int m_old = r.indxtp(np_old,znew_curr,d.grid().data());
+            double z0_old = d.grid(m_old  );
+            double z1_old = d.grid(m_old+1);
+            for (size_t i = 0; i < d.nComponents(); i++)
+            {
+              double x0_old = value(n,i,m_old  );
+              double x1_old = value(n,i,m_old+1);
+              double slope = (x1_old-x0_old)/(z1_old-z0_old);
+              double val = x0_old + slope * (znew_curr-z0_old);
+              xnew.push_back(val);
+            }
+          }
+          else
+          {
+            for (size_t i = 0; i < d.nComponents(); i++)
+            {
+              xnew.push_back(value(n,i,0));
+            }
+          }
+      }
+      dsize.push_back(np_new);
+    }
+
+    // At this point, the new grid znew and the new solution
+    // vector xnew have been constructed, but the domains
+    // themselves have not yet been modified.  Now update each
+    // domain with the new grid.
+
+        size_t gridstart = 0, gridsize;
+    for (size_t n = 0; n < nDomains(); n++) {
+        Domain1D& d = domain(n);
+        gridsize = dsize[n];
+        d.setupGrid(gridsize, &znew[gridstart]);
+        gridstart += gridsize;
+    }
+
+    // Replace the current solution vector with the new one
+    *m_state = xnew;
+    resize();
+    finalize();
+    return distance;
+}
+
+
+void Sim1D::getRatio() //from MUTAGEN
+{
+    for (size_t n = 0; n < nDomains(); n++)
+    {
+      Domain1D& d = domain(n);
+      Refiner& r = d.refiner();
+    //   r.getRatio(d.grid().size(), d.grid().data(), &m_state[start(n)]);
+      r.getRatio(d.grid().size(), d.grid().data(), m_state->data() + start(n));
+    }
+}
+
+/**
+* Add a point in a domain
+*/
+void Sim1D::addPoint(size_t ndomain, double zpoint, vector<double> xpoint, int loglevel, bool newjac) //from MUTAGEN
+{
+    vector<double> znew, xnew;
+    vector<size_t> dsize;
+
+    // check the domain number
+    if ((ndomain<0)||(ndomain>=nDomains()))
+    {
+      cout<<"wrong ndomain"<<endl;
+      exit(-1);
+    }
+
+    // loop over domains
+    for (size_t n = 0; n < nDomains(); n++)
+    {
+      Domain1D& d = domain(n);
+      size_t np_old = d.nPoints();
+      size_t np_new = np_old;
+      size_t ncomp  = d.nComponents();
+
+      // if we are in the good domain
+      if (n==ndomain)
+      {
+        // check the number of components in xpoint
+        if (static_cast<int>(xpoint.size())!=ncomp)
+        {
+          cout<<"wrong number of components in xpoint"<<endl;
+          exit(-1);
+        }
+
+        if (np_old>0)
+        {
+          if (zpoint<d.grid(0))
+          {
+            np_new++;
+            // add new position to the znew array
+            znew.push_back(zpoint);
+            // add new data to the xnew array
+            for (size_t i = 0; i < ncomp; i++)
+            {
+              xnew.push_back(xpoint[i]);
+            }
+          }
+
+          // loop over points in the old grid
+          for (size_t m = 0; m < np_old; m++)
+          {
+            // check that zpoint is not in the current grid
+            if (zpoint==d.grid(m))
+            {
+              // add new position to the znew array
+              znew.push_back(zpoint);
+              // add new data to the xnew array
+              for (size_t i = 0; i < ncomp; i++)
+              {
+                xnew.push_back(xpoint[i]);
+              }
+            }
+            else
+            {
+              // add current position to the znew array
+              znew.push_back(d.grid(m));
+              // add current data to the xnew array
+              for (size_t i = 0; i < ncomp; i++)
+              {
+                xnew.push_back(value(n,i,m));
+              }
+              // check that the current point is not the last one
+              if (m!=np_old-1)
+              {
+                // current and next position
+                double z_curr = d.grid(m  );
+                double z_next = d.grid(m+1);
+                // if the new point is in the current interval
+                if ((z_curr<zpoint)&&(zpoint<z_next))
+                {
+                  // add new position to the znew array
+                  np_new++;
+                  znew.push_back(zpoint);
+                  // add new data to the xnew array
+                  for (size_t i = 0; i < ncomp; i++)
+                  {
+                    xnew.push_back(xpoint[i]);
+                  }
+                }
+              }
+            }
+          }
+
+          if (d.grid(np_old-1)<zpoint)
+          {
+            // add new position to the znew array
+            np_new++;
+            znew.push_back(zpoint);
+            // add new data to the xnew array
+            for (size_t i = 0; i < ncomp; i++)
+            {
+              xnew.push_back(xpoint[i]);
+            }
+          }
+        }
+        else
+        {
+          // add new position to the znew array
+          np_new++;
+          znew.push_back(zpoint);
+          // add new data to the xnew array
+          for (size_t i = 0; i < ncomp; i++)
+          {
+            xnew.push_back(xpoint[i]);
+          }
+        }
+      }
+      else
+      {
+        // loop over points in the old grid
+        for (size_t m = 0; m < np_old; m++)
+        {
+          // add current position to the znew array
+          znew.push_back(d.grid(m));
+          // add current data to the xnew array
+          for (size_t i = 0; i < ncomp; i++)
+          {
+            xnew.push_back(value(n,i,m));
+          }
+        }
+      }
+      dsize.push_back(np_new);
+    }
+
+    // At this point, the new grid znew and the new solution
+    // vector xnew have been constructed, but the domains
+    // themselves have not yet been modified.  Now update each
+    // domain with the new grid.
+
+    int gridstart = 0;
+    for (size_t n = 0; n < nDomains(); n++)
+    {
+      Domain1D& d = domain(n);
+      int gridsize = dsize[n];
+      d.setupGrid(gridsize, &znew[gridstart]);
+      gridstart += gridsize;
+    }
+
+    // Replace the current solution vector with the new one
+    // m_state.resize(xnew.size());
+    // copy(xnew.begin(), xnew.end(), m_state.begin());
+    m_state.reset(new vector<double>(xnew.begin(), xnew.end()));
+
+    // resize the work array
+    m_xnew.resize(xnew.size());
+    //    copy(xnew.begin(), xnew.end(), m_xnew.begin());
+
+    resize();
+    finalize();
 }
 
 int Sim1D::setFixedTemperature(double t)
