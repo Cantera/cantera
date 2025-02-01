@@ -33,7 +33,6 @@ public:
         return m_matrix;
     }
 
-    //! Print preconditioner contents
     void printPreconditioner() override;
 
     //! Print jacobian contents

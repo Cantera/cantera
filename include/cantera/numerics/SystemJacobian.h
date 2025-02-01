@@ -47,6 +47,7 @@ public:
 
     virtual ~SystemJacobian() {}
 
+    //! Derived type, corresponding to names registered with SystemJacobianFactory
     virtual const string type() const = 0;
 
     //! Set a value at the specified row and column of the jacobian triplet vector
@@ -70,6 +71,7 @@ public:
         return m_precon_side;
     }
 
+    //! For iterative solvers, set the side where the preconditioner is applied
     virtual void setPreconditionerSide(const string& preconSide) {
         m_precon_side = preconSide;
     }
@@ -156,6 +158,8 @@ public:
     double elapsedTime() const {
         return m_elapsed;
     }
+
+    //! Increase the elapsed time by the specified time.
     void updateElapsed(double evalTime) {
         m_elapsed += evalTime;
     }
@@ -164,6 +168,7 @@ public:
     int nEvals() const {
         return m_nevals;
     }
+    //! Increment the number of times the Jacobian has been evaluated
     void incrementEvals() {
         m_nevals++;
     }
@@ -183,6 +188,9 @@ public:
         m_age = age;
     }
 
+    //! Clear collected stats about number of Jacobian evaluations, CPU time spent on
+    //! Jacobian updates, and the number of Newton steps that have been taken since
+    //! updating the Jacobian.
     void clearStats() {
         m_elapsed = 0.0;
         m_nevals = 0;
@@ -213,6 +221,7 @@ protected:
 
     int m_age = 100000; //!< Age of the Jacobian (times incrementAge() has been called)
 
+    //! For iterative solvers, side of the system to apply the preconditioner on
     string m_precon_side = "none";
 };
 
