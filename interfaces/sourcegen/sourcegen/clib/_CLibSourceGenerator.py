@@ -206,7 +206,11 @@ class CLibSourceGenerator(SourceGenerator):
                 if c_ix == 0 and cxx_func.base and "len" not in c_name.lower():
                     handle = c_name
                     c_ix += 1
-                if c_ix == len(c_args) and not isinstance(cxx_member, Param):
+                if isinstance(cxx_member, Param) and cxx_member.direction == "out":
+                    pass
+                elif isinstance(cxx_member, Param):
+                    break
+                elif c_ix == len(c_args):
                     break
 
                 # Handle output buffer and/or variable assignments
@@ -222,9 +226,7 @@ class CLibSourceGenerator(SourceGenerator):
                               f"{c_args[c_ix+1].name});",
                               "int(out.size())"]
                 elif "bool" in cxx_type:
-                    buffer = [f"{cxx_type} out",
-                              "",
-                              "int(out)"]
+                    buffer = [f"{cxx_type} out", "", "int(out)"]
                 elif cxx_type in self._config.ret_type_crosswalk:
                     # can pass values directly
                     buffer = []
@@ -235,7 +237,10 @@ class CLibSourceGenerator(SourceGenerator):
                     exit(1)
                 break
 
-            cxx_arg = cxx_func.arglist[cxx_ix]
+            if isinstance(cxx_member, Param):
+                cxx_arg = cxx_member
+            else:
+                cxx_arg = cxx_func.arglist[cxx_ix]
             if c_name != cxx_arg.name:
                 # Encountered object handle or length indicator
                 if c_ix == 0:
@@ -322,6 +327,14 @@ class CLibSourceGenerator(SourceGenerator):
         elif cxx_rtype.endswith("void"):
             buffer = ["", "", "0"]
 
+        if isinstance(cxx_member, Param) and cxx_member.direction == "in":
+            c_name = c_func.arglist[-1].name
+            if cxx_rtype.endswith("bool"):
+                lines = [f"bool {c_name}_ = ({c_name} != 0);"]
+                args.append(f"{c_name}_")
+            else:
+                args.append(c_name)
+
         ret = {
             "base": base, "handle": handle, "lines": lines, "buffer": buffer,
             "shared": shared, "checks": checks, "error": error, "cxx_rbase": cxx_rbase,
@@ -351,6 +364,9 @@ class CLibSourceGenerator(SourceGenerator):
 
         elif recipe.what == "variable-getter":
             template = loader.from_string(self._templates["clib-variable-getter"])
+
+        elif recipe.what == "variable-setter":
+            template = loader.from_string(self._templates["clib-variable-setter"])
 
         elif recipe.what == "constructor":
             template = loader.from_string(self._templates["clib-constructor"])
@@ -396,7 +412,8 @@ class CLibSourceGenerator(SourceGenerator):
     def _resolve_recipe(self, recipe: Recipe) -> CFunc:
         """Build CLib header from recipe and doxygen annotations."""
         def merge_params(
-                implements: str, cxx_member: CFunc | Param) -> tuple[list[Param], int]:
+                implements: str, cxx_member: CFunc | Param
+            ) -> tuple[list[Param], CFunc]:
             """Create preliminary CLib argument list."""
             obj_handle = []
             if "::" in implements:
@@ -405,7 +422,10 @@ class CLibSourceGenerator(SourceGenerator):
                 obj_handle.append(
                     Param("int", "handle", f"Handle to queried {what} object."))
             if isinstance(cxx_member, Param):
+                if recipe.what.endswith("setter"):
+                    return obj_handle + [cxx_member], cxx_member
                 return obj_handle, cxx_member
+
             if "(" not in implements:
                 return obj_handle + cxx_member.arglist.params, cxx_member
 
@@ -414,8 +434,8 @@ class CLibSourceGenerator(SourceGenerator):
             if len(args_short) < len(cxx_member.arglist):
                 cxx_arglist = ArgList(cxx_member.arglist[:len(args_short)])
                 cxx_member = CFunc(cxx_member.ret_type, cxx_member.name,
-                                 cxx_arglist, cxx_member.brief, cxx_member.implements,
-                                 cxx_member.returns, cxx_member.base, cxx_member.uses)
+                                   cxx_arglist, cxx_member.brief, cxx_member.implements,
+                                   cxx_member.returns, cxx_member.base, cxx_member.uses)
 
             return obj_handle + cxx_member.arglist.params, cxx_member
 
@@ -436,6 +456,10 @@ class CLibSourceGenerator(SourceGenerator):
         bases = [recipe.base] + recipe.parents + recipe.derived
         if not recipe.implements:
             recipe.implements = self._doxygen_tags.detect(recipe.name, bases)
+        elif recipe.base and "::" not in recipe.implements:
+            parts = list(recipe.implements.partition("("))
+            parts[0] = self._doxygen_tags.detect(parts[0], bases)
+            recipe.implements = "".join(parts)
         recipe.uses = [self._doxygen_tags.detect(uu.split("(")[0], bases, False)
                        for uu in recipe.uses]
 
@@ -447,11 +471,8 @@ class CLibSourceGenerator(SourceGenerator):
         if recipe.implements:
             msg = f"   generating {func_name!r} -> {recipe.implements}"
             _LOGGER.debug(msg)
-            parts = list(recipe.implements.partition("("))
-            if not self._doxygen_tags.exists(parts[0]):
-                parts[0] = self._doxygen_tags.detect(parts[0], bases, False)
-                recipe.implements = "".join(parts)
-            cxx_member = self._doxygen_tags.cxx_member(recipe.implements)
+            cxx_member = self._doxygen_tags.cxx_member(
+                recipe.implements, recipe.what.endswith("setter"))
 
             if isinstance(cxx_member, CFunc):
                 # Convert C++ return type to format suitable for crosswalk:
@@ -460,8 +481,13 @@ class CLibSourceGenerator(SourceGenerator):
                     cxx_member.ret_type, recipe.derived)
                 par_list, cxx_member = merge_params(recipe.implements, cxx_member)
                 prop_params = self._prop_crosswalk(par_list)
-                brief = cxx_member.brief
                 args = prop_params + buffer_params
+                brief = cxx_member.brief
+            elif recipe.what == "variable-setter":
+                ret_param = Param("int")
+                par_list, cxx_member = merge_params(recipe.implements, cxx_member)
+                args = self._prop_crosswalk(par_list)
+                brief = cxx_member.description
             else:
                 # Variable getter
                 prop_params, cxx_member = merge_params(recipe.implements, cxx_member)

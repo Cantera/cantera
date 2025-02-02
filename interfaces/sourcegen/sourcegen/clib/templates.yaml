@@ -157,6 +157,28 @@ clib-variable-getter: |-
       return handleAllExceptions({{ error[0] }}, {{ error[1] }});
   }
 
+clib-variable-setter: |-
+  // variable (setter): {{ cxx_implements }}
+  try {
+      {% for line in lines %}
+      ## add lines used for CLib/C++ variable crosswalk
+      {{ line }}
+      {% endfor %}
+      {% for line in buf %}
+      ## add lines used for CLib/C++ variable crosswalk
+      {{ line }}
+      {% endfor %}
+      {% if cxx_base == base %}
+      auto& obj = {{ base }}Cabinet::at({{ handle }});
+      {% else %}
+      auto obj = {{ base }}Cabinet::as<{{ cxx_base }}>({{ handle }});
+      {% endif %}
+      obj->{{ cxx_name }} = {{ cxx_args[0] }};
+      return 0;
+  } catch (...) {
+      return handleAllExceptions(-1, ERR);
+  }
+
 clib-constructor: |-
   ## CLib constructor template: instantiates new object
   // constructor: {{ cxx_implements }}
