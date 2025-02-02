@@ -34,6 +34,7 @@ class Config:
         "double* const": "double*",
         "const double*": "const double*",
         "const double* const": "const double*",
+        "string": "const char*",
         "const string&": "const char*",
         "shared_ptr<T>": "int",
         "const shared_ptr<T>": "int",
