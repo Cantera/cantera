@@ -23,6 +23,7 @@ class Param:
     description: str = ""  #: Parameter description (optional annotation)
     direction: str = ""  #: Direction of parameter (optional annotation)
     default: Any = None  #: Default value (optional)
+    base: str = ""  #: Base (optional). Only used if param represents a member variable
 
     @classmethod
     def from_str(cls: Self, param: str, doc: str = "") -> Self:
@@ -181,7 +182,10 @@ class CFunc(Func):
 
     def short_declaration(self) -> str:
         """Return a short string representation."""
-        ret = (f"{self.name}{self.arglist.short_str()}").strip()
+        if self.arglist is None:
+            ret = (f"{self.name}").strip()
+        else:
+            ret = (f"{self.name}{self.arglist.short_str()}").strip()
         if self.base:
             return f"{self.ret_type} {self.base}::{ret}"
         return f"{self.ret_type} {ret}"

@@ -14,7 +14,9 @@ recipes:
 - name: type  # previously: ctkin_getReactionType
 - name: usesThirdBody
 - name: valid
-# - name: id  <--- member variable (access not yet implemented)
+- name: id
+- name: allowNonreactantOrders
+  implements: allow_nonreactant_orders
 - name: del
 - name: cabinetSize
 - name: parentHandle
