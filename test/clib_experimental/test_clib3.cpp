@@ -209,6 +209,13 @@ TEST(ct3, transport)
     }
 }
 
+TEST(ct3, constants)
+{
+    ASSERT_EQ(ct3_Avogadro(), Avogadro);
+    ASSERT_EQ(ct3_GasConstant(), GasConstant);
+    ASSERT_EQ(ct3_OneAtm(), OneAtm);
+}
+
 
 int main(int argc, char** argv)
 {
