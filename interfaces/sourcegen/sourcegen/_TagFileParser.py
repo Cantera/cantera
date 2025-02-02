@@ -224,14 +224,17 @@ class TagFileParser:
 
         return TagInfo.from_xml(cxx_member, self._known[cxx_member][ix])
 
-    def cxx_member(self, func_string: str) -> CFunc | Param:
+    def cxx_member(self, func_string: str, setter: bool = False) -> CFunc | Param:
         """Generate annotated C++ function/variable specification."""
         details = tag_lookup(self.tag_info(func_string))
         ret_param = Param.from_xml(details.type)
 
         if details.kind == "variable":
+            if setter:
+                return Param(ret_param.p_type, details.name,
+                             details.briefdescription, "in", None, details.base)
             return Param(ret_param.p_type, details.name,
-                         details.briefdescription, "", None, details.base)
+                         details.briefdescription, "out", None, details.base)
 
         # Merge attributes from doxygen signature and doxygen annotations
         args = ArgList.from_xml(details.arglist).params  # from signature
