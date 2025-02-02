@@ -83,4 +83,21 @@ TEST(ctkin3, reaction)
     ASSERT_EQ(rxnEqn, reaction->equation());
     ASSERT_EQ(rxnEqn, "2 O + M <=> O2 + M");
     ASSERT_EQ(rxn3_usesThirdBody(rxn), 1);
+    ASSERT_EQ(rxn3_allowNonreactantOrders(rxn), 0);
+    ASSERT_EQ(rxn3_allowNonreactantOrders(rxn),
+              int(reaction->allow_nonreactant_orders));
+
+    buflen = rxn3_id(rxn, 0, 0);
+    buf.resize(buflen);
+    rxn3_id(rxn, buflen, buf.data());
+    string rxnId = buf.data();
+    ASSERT_EQ(rxnId, reaction->id);
+    ASSERT_EQ(rxnId, "");
+
+    rxn3_setId(rxn, "spam");
+    buflen = rxn3_id(rxn, 0, 0);
+    buf.resize(buflen);
+    rxn3_id(rxn, buflen, buf.data());
+    rxnId = buf.data();
+    ASSERT_EQ(rxnId, "spam");
 }
