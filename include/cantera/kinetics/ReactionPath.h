@@ -202,6 +202,7 @@ public:
      */
     void exportToDot(std::ostream& s);
 
+    //! Add fluxes from other ReactionPathDiagram to this diagram.
     void add(ReactionPathDiagram& d);
     SpeciesNode* node(size_t k) {
         return m_nodes[k];
@@ -221,6 +222,8 @@ public:
 
     void addNode(size_t k, const string& nm, double x = 0.0);
 
+    //! Include only species and fluxes that are directly connected to a species.
+    //! Set to -1 to include all species.
     void displayOnly(size_t k=npos) {
         m_local = k;
     }
@@ -251,31 +254,50 @@ public:
     }
     vector<size_t> species();
     vector<int> reactions();
+
+    //! Undocumented.
     void findMajorPaths(double threshold, size_t lda, double* a);
+
+    //! Set name of the font used.
     void setFont(const string& font) {
         m_font = font;
     }
-    // public attributes
 
-    string title;
-    string bold_color = "blue";
-    string normal_color = "steelblue";
-    string dashed_color = "gray";
-    string element;
-    string m_font = "Helvetica";
+    //! Get the way flows are drawn. Either 'NetFlow' or 'OneWayFlow'
+    const string flowType() const;
+
+    //! Get the way flows are drawn. Either 'NetFlow' or 'OneWayFlow'
+    void setFlowType(const string& fType);
+
+    //! @name Public Attributes
+    //! @{
+
+    string title;  //!< Reaction path diagram title.
+    string bold_color = "blue";  //!< Color for bold lines.
+    string normal_color = "steelblue";  //!< Color for normal-weight lines.
+    string dashed_color = "gray";  //!< Color for dashed lines.
+    string element;  //!< Element used for the construction of a reaction path diagram.
+    string m_font = "Helvetica";  //!< Reaction path diagram font.
+    //! Threshold for the minimum flux relative value that will be plotted.
     double threshold = 0.005;
-    double bold_min = 0.2;
-    double dashed_max = 0.0;
-    double label_min = 0.0;
-    double x_size = -1.0;
-    double y_size = -1.0;
-    string name = "reaction_paths";
-    string dot_options = "center=1;";
+    double bold_min = 0.2;  //!< Minimum relative flux for bold lines.
+    double dashed_max = 0.0;  //!< Maximum relative flux for dashed lines.
+    double label_min = 0.0;  //!< Minimum relative flux for labels.
+    double x_size = -1.0;  //!< Maximum size (x-dimension).
+    double y_size = -1.0;  //!< Maximum size (y-dimension).
+    string name = "reaction_paths";  //!< Name used for dot export.
+    string dot_options = "center=1;";  //!< Options for the 'dot' program.
+    //! The way flows are drawn. Either 'NetFlow' or 'OneWayFlow'
     flow_t flow_type = NetFlow;
-    double scale = -1;
+    //! The scaling factor for the fluxes.
+    //! Set to -1 to normalize by the maximum net flux.
+    double scale = -1;  //!< Scale to use for normalization.
+    //! The arrow width. If < 0, then scale with flux value.
     double arrow_width = -5.0;
-    bool show_details = false;
-    double arrow_hue = 0.6666;
+    bool show_details = false;  //!< Boolean flag to show details.
+    double arrow_hue = 0.6666;  //!< Unused.
+
+    //! @}
 
 protected:
     double m_flxmax = 0.0;
