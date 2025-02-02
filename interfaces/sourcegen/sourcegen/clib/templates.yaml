@@ -133,6 +133,30 @@ clib-function: |-
       return handleAllExceptions({{ error[0] }}, {{ error[1] }});
   }
 
+clib-variable-getter: |-
+  // variable (getter): {{ cxx_implements }}
+  try {
+      {% if cxx_base == base %}
+      ## object can be accessed directly
+      auto& obj = {{ base }}Cabinet::at({{ handle }});
+      {% else %}
+      ## object needs a cast as method is defined for specialization
+      auto obj = {{ base }}Cabinet::as<{{ cxx_base }}>({{ handle }});
+      {% endif %}
+      {% if buffer and buffer[0] %}
+      {{ buffer[0] }} = obj->{{ cxx_name }};
+      {% if buffer[1] %}
+      {{ buffer[1] }}
+      {% endif %}
+      return {{ buffer[2] }};
+      {% else %}
+      obj->{{ cxx_name }};
+      return 0;
+      {% endif %}
+  } catch (...) {
+      return handleAllExceptions({{ error[0] }}, {{ error[1] }});
+  }
+
 clib-constructor: |-
   ## CLib constructor template: instantiates new object
   // constructor: {{ cxx_implements }}
@@ -295,7 +319,7 @@ clib-array-getter: |-
       // no size checking specified
       {% endif %}
       {% if buffer and buffer[0] %}
-      {{ buffer[0] }} = obj->{{ cxx_name }}({{ cxx_args[0] }});;
+      {{ buffer[0] }} = obj->{{ cxx_name }}({{ cxx_args[0] }});
       {% if buffer[1] %}
       {{ buffer[1] }}
       {% endif %}

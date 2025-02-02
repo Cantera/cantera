@@ -25,14 +25,19 @@ _XML_PATH = _TAG_PATH / "doxygen" / "xml"
 @dataclass(frozen=True)
 @with_unpack_iter
 class TagInfo:
-    """Represents information parsed from a doxygen tag file."""
+    """
+    Represents information parsed from a doxygen tag file.
+
+    May represent a member function or a variable.
+    """
 
     base: str = ""  #: Qualified scope (skipping Cantera namespace)
     type: str = ""  #: Return type
-    name: str = ""  #: Function name
+    name: str = ""  #: Function/variable name
     arglist: str = ""  #: Function argument list (original XML string)
     anchorfile: str = ""  #: doxygen anchor file
     anchor: str = ""  #: doxygen anchor
+    kind: str = ""  #: Member kind
 
     @classmethod
     def from_xml(cls: Self, qualified_name: str, xml: str) -> Self:
@@ -47,7 +52,8 @@ class TagInfo:
                    xml_tree.find("name").text,
                    xml_tree.find("arglist").text,
                    xml_tree.find("anchorfile").text.replace(".html", ".xml"),
-                   xml_tree.find("anchor").text)
+                   xml_tree.find("anchor").text,
+                   xml_tree.attrib.get("kind", ""))
 
     def __bool__(self) -> bool:
         return all([self.type, self.name, self.arglist, self.anchorfile, self.anchor])
@@ -154,13 +160,15 @@ class TagFileParser:
 
         # Get known functions from namespace and methods from classes
         self._known = xml_members("function", namespace)
+        self._known.update(xml_members("variable", namespace))
         for name, cls in classes.items():
             prefix = f"{name}::"
             self._known.update(xml_members("function", cls, prefix))
+            self._known.update(xml_members("variable", cls, prefix))
 
-    def exists(self, cxx_func: str) -> bool:
+    def exists(self, cxx_member: str) -> bool:
         """Check whether doxygen tag exists."""
-        return cxx_func in self._known
+        return cxx_member in self._known
 
     def detect(self, name: str, bases: Iterable[str], permissive: bool = True) -> str:
         """Detect qualified method name."""
@@ -178,17 +186,17 @@ class TagFileParser:
 
     def tag_info(self, func_string: str) -> TagInfo:
         """Look up tag information based on (partial) function signature."""
-        cxx_func = func_string.split("(")[0].split(" ")[-1]
-        if cxx_func not in self._known:
-            msg = f"Could not find {cxx_func!r} in doxygen tag file."
+        cxx_member = func_string.split("(")[0].split(" ")[-1]
+        if cxx_member not in self._known:
+            msg = f"Could not find {cxx_member!r} in doxygen tag file."
             _LOGGER.critical(msg)
             sys.exit(1)
         ix = 0
-        if len(self._known[cxx_func]) > 1:
+        if len(self._known[cxx_member]) > 1:
             # Disambiguate functions with same name
             # TODO: current approach does not use information on default arguments
             known_args = [ET.fromstring(xml).find("arglist").text
-                          for xml in self._known[cxx_func]]
+                          for xml in self._known[cxx_member]]
             known_args = [ArgList.from_xml(al).short_str() for al in known_args]
             args = re.findall(re.compile(r"(?<=\().*(?=\))"), func_string)
             if not args and "()" in known_args:
@@ -214,12 +222,16 @@ class TagFileParser:
                     _LOGGER.critical(msg)
                     sys.exit(1)
 
-        return TagInfo.from_xml(cxx_func, self._known[cxx_func][ix])
+        return TagInfo.from_xml(cxx_member, self._known[cxx_member][ix])
 
-    def cxx_func(self, func_string: str) -> CFunc:
-        """Generate annotated C++ function specification."""
+    def cxx_member(self, func_string: str) -> CFunc | Param:
+        """Generate annotated C++ function/variable specification."""
         details = tag_lookup(self.tag_info(func_string))
         ret_param = Param.from_xml(details.type)
+
+        if details.kind == "variable":
+            return Param(ret_param.p_type, details.name,
+                         details.briefdescription, "", None, details.base)
 
         # Merge attributes from doxygen signature and doxygen annotations
         args = ArgList.from_xml(details.arglist).params  # from signature
@@ -250,7 +262,8 @@ def tag_lookup(tag_info: TagInfo) -> TagDetails:
 
     xml_details = xml_file.read_text()
     id_ = tag_info.id
-    regex = re.compile(rf'<memberdef kind="function" id="{id_}"[\s\S]*?</memberdef>')
+    kind_ = tag_info.kind
+    regex = re.compile(rf'<memberdef kind="{kind_}" id="{id_}"[\s\S]*?</memberdef>')
     matches = re.findall(regex, xml_details)
 
     if not matches:

@@ -164,8 +164,8 @@ class CLibSourceGenerator(SourceGenerator):
                 sys.exit(1)
         return params
 
-    @staticmethod
-    def _reverse_crosswalk(c_func: CFunc, base: str) -> tuple[dict[str, str], set[str]]:
+    def _reverse_crosswalk(
+            self, c_func: CFunc, base: str) -> tuple[dict[str, str], set[str]]:
         """Translate CLib arguments back to Jinja argument list."""
         handle = ""
         args = []
@@ -180,28 +180,37 @@ class CLibSourceGenerator(SourceGenerator):
             return cxx_type.split("<")[-1].split(">")[0]
 
         c_args = c_func.arglist
-        cxx_func = c_func.implements
-        if not cxx_func:
+        cxx_member = c_func.implements
+        if not cxx_member:
             if c_func.name.endswith("new"):
                 # Default constructor
-                cxx_func = CFunc("auto", f"make_shared<{base}>", ArgList([]), "", None)
+                cxx_func = CFunc("auto", f"make_shared<{base}>", ArgList([]))
             elif len(c_args) and "char*" in c_args[-1].p_type:
                 cxx_func = CFunc("string", "dummy", ArgList([]), "", None, "", "base")
             else:
                 cxx_func = CFunc("void", "dummy", ArgList([]), "", None, "", "base")
+        elif isinstance(cxx_member, Param):
+            if len(c_args) and "char*" in c_args[-1].p_type:
+                cxx_func = CFunc("string", cxx_member.name, None,
+                                 "", None, "", cxx_member.base)
+            else:
+                cxx_func = CFunc(cxx_member.p_type, cxx_member.name, None,
+                                 "", None, "", cxx_member.base)
+        else:
+            cxx_func = cxx_member
         cxx_ix = 0
         check_array = False
         for c_ix, c_par in enumerate(c_func.arglist):
             c_name = c_par.name
-            if cxx_ix >= len(cxx_func.arglist):
+            if isinstance(cxx_member, Param) or cxx_ix >= len(cxx_func.arglist):
                 if c_ix == 0 and cxx_func.base and "len" not in c_name.lower():
                     handle = c_name
                     c_ix += 1
-                if c_ix == len(c_args):
+                if c_ix == len(c_args) and not isinstance(cxx_member, Param):
                     break
-                cxx_type = cxx_func.ret_type
 
-                # Handle output buffer
+                # Handle output buffer and/or variable assignments
+                cxx_type = cxx_func.ret_type
                 if "string" in cxx_type:
                     buffer = ["string out",
                               f"copyString(out, {c_args[c_ix+1].name}, "
@@ -212,6 +221,13 @@ class CLibSourceGenerator(SourceGenerator):
                               "std::copy(out.begin(), out.end(), "
                               f"{c_args[c_ix+1].name});",
                               "int(out.size())"]
+                elif "bool" in cxx_type:
+                    buffer = [f"{cxx_type} out",
+                              "",
+                              "int(out)"]
+                elif cxx_type in self._config.ret_type_crosswalk:
+                    # can pass values directly
+                    buffer = []
                 else:
                     msg = (f"Scaffolding failed for {c_func.name!r}: reverse crosswalk "
                            f"not implemented for {cxx_type!r}:\n{c_func.declaration()}")
@@ -333,6 +349,9 @@ class CLibSourceGenerator(SourceGenerator):
         elif recipe.what == "function":
             template = loader.from_string(self._templates["clib-function"])
 
+        elif recipe.what == "variable-getter":
+            template = loader.from_string(self._templates["clib-variable-getter"])
+
         elif recipe.what == "constructor":
             template = loader.from_string(self._templates["clib-constructor"])
 
@@ -376,7 +395,8 @@ class CLibSourceGenerator(SourceGenerator):
 
     def _resolve_recipe(self, recipe: Recipe) -> CFunc:
         """Build CLib header from recipe and doxygen annotations."""
-        def merge_params(implements: str, cxx_func: CFunc) -> tuple[list[Param], int]:
+        def merge_params(
+                implements: str, cxx_member: CFunc | Param) -> tuple[list[Param], int]:
             """Create preliminary CLib argument list."""
             obj_handle = []
             if "::" in implements:
@@ -384,18 +404,20 @@ class CLibSourceGenerator(SourceGenerator):
                 what = implements.split("::")[0]
                 obj_handle.append(
                     Param("int", "handle", f"Handle to queried {what} object."))
+            if isinstance(cxx_member, Param):
+                return obj_handle, cxx_member
             if "(" not in implements:
-                return obj_handle + cxx_func.arglist.params, cxx_func
+                return obj_handle + cxx_member.arglist.params, cxx_member
 
             # Signature may skip C++ default parameters
             args_short = CFunc.from_str(implements).arglist
-            if len(args_short) < len(cxx_func.arglist):
-                cxx_arglist = ArgList(cxx_func.arglist[:len(args_short)])
-                cxx_func = CFunc(cxx_func.ret_type, cxx_func.name,
-                                 cxx_arglist, cxx_func.brief, cxx_func.implements,
-                                 cxx_func.returns, cxx_func.base, cxx_func.uses)
+            if len(args_short) < len(cxx_member.arglist):
+                cxx_arglist = ArgList(cxx_member.arglist[:len(args_short)])
+                cxx_member = CFunc(cxx_member.ret_type, cxx_member.name,
+                                 cxx_arglist, cxx_member.brief, cxx_member.implements,
+                                 cxx_member.returns, cxx_member.base, cxx_member.uses)
 
-            return obj_handle + cxx_func.arglist.params, cxx_func
+            return obj_handle + cxx_member.arglist.params, cxx_member
 
         func_name = f"{recipe.prefix}_{recipe.name}"
         reserved = ["cabinetSize", "parentHandle",
@@ -417,7 +439,7 @@ class CLibSourceGenerator(SourceGenerator):
         recipe.uses = [self._doxygen_tags.detect(uu.split("(")[0], bases, False)
                        for uu in recipe.uses]
 
-        cxx_func = None
+        cxx_member = None
         ret_param = Param("void")
         args = []
         brief = ""
@@ -429,36 +451,48 @@ class CLibSourceGenerator(SourceGenerator):
             if not self._doxygen_tags.exists(parts[0]):
                 parts[0] = self._doxygen_tags.detect(parts[0], bases, False)
                 recipe.implements = "".join(parts)
-            cxx_func = self._doxygen_tags.cxx_func(recipe.implements)
+            cxx_member = self._doxygen_tags.cxx_member(recipe.implements)
 
-            # Convert C++ return type to format suitable for crosswalk:
-            # Incompatible return parameters are buffered and appended to back
-            ret_param, buffer_params = self._ret_crosswalk(
-                cxx_func.ret_type, recipe.derived)
-            par_list, cxx_func = merge_params(recipe.implements, cxx_func)
-            prop_params = self._prop_crosswalk(par_list)
-            brief = cxx_func.brief
-            args = prop_params + buffer_params
+            if isinstance(cxx_member, CFunc):
+                # Convert C++ return type to format suitable for crosswalk:
+                # Incompatible return parameters are buffered and appended to back
+                ret_param, buffer_params = self._ret_crosswalk(
+                    cxx_member.ret_type, recipe.derived)
+                par_list, cxx_member = merge_params(recipe.implements, cxx_member)
+                prop_params = self._prop_crosswalk(par_list)
+                brief = cxx_member.brief
+                args = prop_params + buffer_params
+            else:
+                # Variable getter
+                prop_params, cxx_member = merge_params(recipe.implements, cxx_member)
+                ret_param, buffer_params = self._ret_crosswalk(
+                    cxx_member.p_type, recipe.derived)
+                args = prop_params + buffer_params
+                brief = cxx_member.description
 
-        if recipe.what and cxx_func:
+        if recipe.what and cxx_member:
             # Recipe type and corresponding C++ function are known
             pass
 
-        elif cxx_func:
+        elif cxx_member and isinstance(cxx_member, Param):
+            # Recipe represents a variable getter/setter
+            recipe.what = "variable-getter"
+
+        elif cxx_member:
             # Autodetection of CLib function purpose ("what")
-            cxx_arglen = len(cxx_func.arglist)
-            if not cxx_func.base:
-                if (cxx_func.name.startswith("new") and
-                    any(base in cxx_func.ret_type
+            cxx_arglen = len(cxx_member.arglist)
+            if not cxx_member.base:
+                if (cxx_member.name.startswith("new") and
+                    any(base in cxx_member.ret_type
                         for base in [recipe.base] + recipe.derived)):
                     recipe.what = "constructor"
                 else:
                     recipe.what = "function"
-            elif "void" not in cxx_func.ret_type and cxx_arglen == 0:
+            elif "void" not in cxx_member.ret_type and cxx_arglen == 0:
                 recipe.what = "getter"
-            elif "void" in cxx_func.ret_type and cxx_arglen == 1:
-                p_type = cxx_func.arglist[0].p_type
-                if cxx_func.name.startswith("get"):
+            elif "void" in cxx_member.ret_type and cxx_arglen == 1:
+                p_type = cxx_member.arglist[0].p_type
+                if cxx_member.name.startswith("get"):
                     recipe.what = "getter"
                 elif "*" in p_type and not p_type.startswith("const"):
                     recipe.what = "getter"  # getter assigns to existing array
@@ -505,8 +539,8 @@ class CLibSourceGenerator(SourceGenerator):
 
         if recipe.brief:
             brief = recipe.brief
-        uses = [self._doxygen_tags.cxx_func(uu) for uu in recipe.uses]
-        return CFunc(ret_param.p_type, func_name, ArgList(args), brief, cxx_func,
+        uses = [self._doxygen_tags.cxx_member(uu) for uu in recipe.uses]
+        return CFunc(ret_param.p_type, func_name, ArgList(args), brief, cxx_member,
                      ret_param.description, None, uses)
 
     def _write_header(self, headers: HeaderFile) -> None:
