@@ -6,6 +6,7 @@
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
+#include "cantera/base/ctexceptions.h"
 #include "cantera/kinetics/ReactionPath.h"
 #include "cantera/kinetics/Reaction.h"
 #include "cantera/thermo/ThermoPhase.h"
@@ -145,6 +146,26 @@ void ReactionPathDiagram::findMajorPaths(double athreshold, size_t lda, double* 
                 a[lda*k1 + k2] = 1;
             }
         }
+    }
+}
+
+const string ReactionPathDiagram::flowType() const
+{
+    if (flow_type == OneWayFlow) {
+        return "OneWayFlow";
+    }
+    return "NetFlow";
+}
+
+void ReactionPathDiagram::setFlowType(const string& fType)
+{
+    if (fType == "OneWayFlow") {
+        flow_type = OneWayFlow;
+    } else if (fType == "NetFlow") {
+        flow_type = NetFlow;
+    } else {
+        throw CanteraError("ReactionPathDiagram::setFlowType",
+                           "Unknown flow type '{}'", fType);
     }
 }
 
