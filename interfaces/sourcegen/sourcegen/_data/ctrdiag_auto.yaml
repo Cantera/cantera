@@ -1,0 +1,85 @@
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at https://cantera.org/license.txt for license and copyright information.
+
+docstring: |-
+  Auto-generated CLib API for %Cantera's ReactionPathDiagram class.
+  Implements a replacement for CLib's traditional @c ctrpath library.
+prefix: rdiag3
+base: ReactionPathDiagram
+parents: []  # List of parent classes
+derived: []  # List of specializations
+recipes:
+- name: newReactionPathDiagram  # absorbs rbuild_init
+- name: showDetails
+  implements: show_details
+- name: setShowDetails  # replacement for rdiag_detailed/rdiag_brief
+  implements: show_details
+  what: variable-setter
+- name: threshold
+- name: setThreshold
+  implements: threshold
+  what: variable-setter
+- name: boldThreshold
+  implements: bold_min
+- name: setBoldThreshold
+  implements: bold_min
+  what: variable-setter
+- name: normalThreshold
+  implements: dashed_max
+- name: setNormalThreshold
+  implements: dashed_max
+  what: variable-setter
+- name: labelThreshold
+  implements: label_min
+- name: setLabelThreshold
+  implements: label_min
+  what: variable-setter
+- name: boldColor
+  implements: bold_color
+- name: setBoldColor
+  implements: bold_color
+  what: variable-setter
+- name: normalColor
+  implements: normal_color
+- name: setNormalColor
+  implements: normal_color
+  what: variable-setter
+- name: dashedColor
+  implements: dashed_color
+- name: setDashedColor
+  implements: dashed_color
+  what: variable-setter
+- name: dotOptions
+  implements: dot_options
+- name: setDotOptions
+  implements: dot_options
+  what: variable-setter
+- name: font
+  implements: m_font
+- name: setFont
+- name: scale
+- name: setScale
+  implements: scale
+  what: variable-setter
+- name: flowType
+- name: setFlowType
+- name: arrowWidth
+  implements: arrow_width
+- name: setArrowWidth
+  implements: arrow_width
+  what: variable-setter
+- name: title
+- name: setTitle
+  implements: title
+  what: variable-setter
+- name: add
+- name: displayOnly
+- name: getDot  # previously part of rdiag_write
+- name: getData  # previously part of rdiag_write
+- name: build  # previously rbuild_build
+- name: getLog  # New in Cantera 3.2
+- name: findMajor
+  implements: findMajorPaths
+- name: del
+- name: cabinetSize
+- name: parentHandle
