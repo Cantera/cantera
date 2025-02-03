@@ -834,11 +834,6 @@ int MixtureFugacityTP::solveCubic(double T, double pres, double a, double b,
     //check if y = h
     if (fabs(fabs(h) - fabs(yN)) < 1.0E-10) {
         if (disc > 1e-10) {
-            std::cout<<"yn: "<<yn<<" h: "<<h<<" disc: "<<disc<<std::endl;
-            writelog("MixtureFugacityTP::solveCubic(T ={}, p ={}):"
-                                 "X1: {}, X2: {}\n",
-                                 T, pres
-                                 , moleFractions_[0], moleFractions_[1]);
             throw CanteraError("MixtureFugacityTP::solveCubic",
                 "value of yN and h are too high, unrealistic roots may be obtained"
                 );
