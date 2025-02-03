@@ -8,13 +8,18 @@ ignore_files: []
 
 # Dictionary of file names and list of functions to ignore.
 # Example: ctkin_auto.yaml: [phase]
-ignore_funcs:
-  ct_auto.yaml: [setLogWriter, setLogCallback]
+ignore_funcs: {}
 
-# Cabinets with associated includes
+# Cabinets with associated preambles (headers)
+preambles:
+  "": |-
+    #include "../clib/clib_defs.h"
+
+# Cabinets with associated includes (implementation files)
 includes:
   "":
   - cantera/base/global.h
+  - cantera/base/ExternalLogger.h
   Solution:
   - cantera/base/Solution.h
   Interface:

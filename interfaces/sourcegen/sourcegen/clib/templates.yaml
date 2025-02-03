@@ -53,6 +53,19 @@ clib-reserved-getCanteraError-h: |-
    */
   int {{ prefix }}_getCanteraError(int bufLen, char* buf);
 
+clib-reserved-setLogWriter-h: |-
+  /**
+   *  Undocumented.
+   */
+  int {{ prefix }}_setLogWriter(void* logger);
+
+clib-reserved-setLogCallback-h: |-
+  /**
+   *  Undocumented.
+   *  @param writer  Callback that is invoked to produce log output.
+   */
+  int {{ prefix }}_setLogCallback(LogCallback writer);
+
 clib-reserved-resetStorage-h: |-
   /**
    *  Delete all objects and erase mapping.
@@ -98,6 +111,10 @@ clib-header-file: |-
   #ifndef {{ guard }}
   #define {{ guard }}
 
+  {% if preamble %}
+  {{ preamble }}
+
+  {% endif %}
   #ifdef __cplusplus
   extern "C" {
   #endif
@@ -445,6 +462,27 @@ clib-reserved-getCanteraError-cpp: |-
       string err = Application::Instance()->lastErrorMessage();
       copyString(err, buf, bufLen);
       return int(err.size());
+  } catch (...) {
+      return handleAllExceptions(-1, ERR);
+  }
+
+clib-reserved-setLogWriter-cpp: |-
+  // reserved: setLogger
+  try {
+      Logger* logwriter = (Logger*)logger;
+      setLogger(logwriter);
+      return 0;
+  } catch (...) {
+      return handleAllExceptions(-1, ERR);
+  }
+
+clib-reserved-setLogCallback-cpp: |-
+  // reserved: setLogger
+  static unique_ptr<Logger> logwriter;
+  try {
+      logwriter = make_unique<ExternalLogger>(writer);
+      setLogger(logwriter.get());
+      return 0;
   } catch (...) {
       return handleAllExceptions(-1, ERR);
   }

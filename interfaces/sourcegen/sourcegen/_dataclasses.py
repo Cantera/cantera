@@ -166,18 +166,20 @@ class CFunc(Func):
         if len(lines) == 1:
             return cls(*func, brief, None, "", "", [])
         returns = ""
-        args = []
+        doc_args = {p.name: p for p in func.arglist}
         for ix, line in enumerate(lines[:-1]):
             line = line.strip().lstrip("*").strip()
             if ix == 1 and not brief:
                 brief = line
             elif line.startswith("@param"):
-                # assume that variables are documented in order
-                arg = func.arglist[len(args)].long_str()
-                args.append(Param.from_str(arg, line))
+                # match parameter name
+                keys = [k for k in doc_args.keys() if line.split()[1] == k]
+                if len(keys) == 1:
+                    key = keys[0]
+                    doc_args[key] = Param.from_str(doc_args[key].long_str(), line)
             elif line.startswith("@returns"):
                 returns = line.lstrip("@returns").strip()
-        args = ArgList(args)
+        args = ArgList(list(doc_args.values()))
         return cls(func.ret_type, func.name, args, brief, None, returns, "", [])
 
     def short_declaration(self) -> str:
