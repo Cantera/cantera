@@ -838,4 +838,57 @@ AnyMap PengRobinson::getAuxiliaryData()
     return parameters;
 }
 
+void PengRobinson::setState_DP(double rho, double p, double Tguess) 
+{
+    if (p <= 0 || rho<=0 ) {
+        throw CanteraError("PengRobinson::setState_DP",
+                            "pressure and density must be positive");
+    }
+    //"Yeah its this one"
+    setDensity(rho);
+    double mV =  meanMolecularWeight() / rho;
+
+    // Update individual alpha
+    double aCalc, bCalc, aAlpha;
+    
+
+    int iteration = 0;
+    double T_new = Tguess; //(p + term2) * denum / GasConstant;
+    double p_iter=p;
+    
+    while (iteration < 300) {
+        // Update a, b, and alpha based on the current guess for T
+        updateMixingExpressions(T_new, aCalc, bCalc, aAlpha);
+        // Calculate p using PR EoS
+        double denom = mV * mV + 2 * mV * bCalc - bCalc * bCalc;
+        double mV_b = mV - bCalc;
+        double term2 = (aAlpha) / denom;
+        p_iter = (GasConstant*T_new)/mV_b - term2;
+        //std::cout << "T_ : "<<T_new << "p : "<<p <<std::endl;
+        // Check if the result is within the specified tolerance
+        double error =(p_iter-p)/p;
+        //std::cout << "error: "<< error <<" dpdT: "<<m_dpdT/p <<" T: "<<T_new<<" p: "<<p << " p_iter: "<<p_iter<<" rho: "<<rho<<std::endl;
+        //
+        if (fabs(error)<1e-10) {
+            break;
+        }
+        m_dpdT = (GasConstant / mV_b - daAlpha_dT(T_new) / denom);
+        T_new = T_new - (error/(m_dpdT/p));
+        iteration++;
+    } 
+    if (iteration==300)
+    {
+    throw CanteraError("PengRobinson::DP did not converge at",
+        "negative temperature T = {} p= {} rho={} X1={} X2={}", T_new, p, rho,moleFractions_[0],moleFractions_[1]);
+    }
+    // if ((rho > 50) && (rho<1000))
+    // {   
+    //     std::cout <<"T_new: "<<T_new <<" iteration "<< iteration<<" forcedState "<< forcedState_<<std::endl;
+    // }
+    setDensity(rho);
+    setTemperature(T_new);
+    setState_TP(T_new,p);
+    updateMixingExpressions();
+}
+
 }
