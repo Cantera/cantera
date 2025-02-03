@@ -32,6 +32,8 @@
 enum LogLevel { INFO, WARN , ERROR };
 
 //! Represents a callback that is invoked to produce log output.
+//! TODO: Only needed in the main CLib library. Should be moved once the
+//! traditional CLib is removed.
 typedef void
     (*LogCallback)(enum LogLevel logLevel, const char* category, const char* message);
 

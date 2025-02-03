@@ -43,9 +43,13 @@ class Config:
         "const vector<shared_ptr<T>>&": "int[]",
     }
 
-    includes: dict[str, list[str]]
+    preambles: dict[str, str]  #: Preamble text for each header file
+
+    includes: dict[str, list[str]]  #: Include directives for each implementation file
 
     @classmethod
-    def from_parsed(cls: Self, *, includes: dict[str, list[str]] | None = None) -> Self:
+    def from_parsed(cls: Self, *,
+                    preambles: dict[str, str] | None = None,
+                    includes: dict[str, list[str]] | None = None) -> Self:
         """Create dataclass while including information parsed externally."""
-        return cls(includes or {})
+        return cls(preambles or {}, includes or {})
