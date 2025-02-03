@@ -1334,7 +1334,7 @@ public:
      * @param p   Pressure (Pa)
      * @since New in %Cantera 3.0.
      */
-    virtual void setState_DP(double rho, double p) {
+    virtual void setState_DP(double rho, double p, double Tguess=300) {
         throw NotImplementedError("ThermoPhase::setState_DP");
     }
 

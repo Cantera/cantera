@@ -835,8 +835,14 @@ int MixtureFugacityTP::solveCubic(double T, double pres, double a, double b,
     //check if y = h
     if (fabs(fabs(h) - fabs(yN)) < 1.0E-10) {
         if (disc > 1e-10) {
+            std::cout<<"yn: "<<yn<<" h: "<<h<<" disc: "<<disc<<std::endl;
+            writelog("MixtureFugacityTP::solveCubic(T ={}, p ={}):"
+                                 "X1: {}, X2: {}\n",
+                                 T, pres
+                                 , moleFractions_[0], moleFractions_[1]);
             throw CanteraError("MixtureFugacityTP::solveCubic",
-                "value of yN and h are too high, unrealistic roots may be obtained");
+                "value of yN and h are too high, unrealistic roots may be obtained"
+                );
         }
         disc = 0.0;
     }
@@ -893,8 +899,9 @@ int MixtureFugacityTP::solveCubic(double T, double pres, double a, double b,
                 for (int j = 0; j < 3; j++) {
                     if (j != i && fabs(Vroot[i] - Vroot[j]) < 1.0E-4 * (fabs(Vroot[i]) + fabs(Vroot[j]))) {
                         writelog("MixtureFugacityTP::solveCubic(T ={}, p ={}):"
-                                 " WARNING roots have merged: {}, {}\n",
-                                 T, pres, Vroot[i], Vroot[j]);
+                                 " WARNING roots have merged: {}, {}\n"
+                                 "X1: {}, X2: {}\n",
+                                 T, pres, Vroot[i], Vroot[j], moleFractions_[0], moleFractions_[1]);
                     }
                 }
             }
@@ -955,7 +962,9 @@ int MixtureFugacityTP::solveCubic(double T, double pres, double a, double b,
         }
         if ((fabs(res) > 1.0E-14) && (fabs(res) > 1.0E-14 * fabs(dresdV) * fabs(Vroot[i]))) {
             writelog("MixtureFugacityTP::solveCubic(T = {}, p = {}): "
-                "WARNING root didn't converge V = {}", T, pres, Vroot[i]);
+                "WARNING root didn't converge V = {}\n"
+                "X1: {}, X2: {}\n",
+                 T, pres, Vroot[i],moleFractions_[0],moleFractions_[1]);
             writelogendl();
         }
     }

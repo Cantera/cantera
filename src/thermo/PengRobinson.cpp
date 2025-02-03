@@ -673,6 +673,28 @@ void PengRobinson::updateMixingExpressions()
     calculateAB(m_a,m_b,m_aAlpha_mix);
 }
 
+
+void PengRobinson::updateMixingExpressions(double& temp,double& aCalc, double& bCalc, double& aAlphaCalc)
+{
+    //double temp = temperature();
+
+    // Update individual alpha
+    for (size_t j = 0; j < m_kk; j++) {
+        double critTemp_j = speciesCritTemperature(m_a_coeffs(j,j), m_b_coeffs[j]);
+        double sqt_alpha = 1 + m_kappa[j] * (1 - sqrt(temp / critTemp_j));
+        m_alpha[j] = sqt_alpha*sqt_alpha;
+    }
+
+    // Update aAlpha_i, j
+    for (size_t i = 0; i < m_kk; i++) {
+        for (size_t j = 0; j < m_kk; j++) {
+            m_aAlpha_binary(i, j) = sqrt(m_alpha[i] * m_alpha[j]) * m_a_coeffs(i,j);
+        }
+    }
+    calculateAB(aCalc,bCalc,aAlphaCalc);
+}
+
+
 void PengRobinson::calculateAB(double& aCalc, double& bCalc, double& aAlphaCalc) const
 {
     bCalc = 0.0;
@@ -709,6 +731,30 @@ double PengRobinson::daAlpha_dT() const
     }
     return daAlphadT;
 }
+
+double PengRobinson::daAlpha_dT(double& temp) const
+{
+    double daAlphadT = 0.0, k, Tc, sqtTr, coeff1, coeff2;
+    for (size_t i = 0; i < m_kk; i++) {
+        // Calculate first derivative of alpha for individual species
+        Tc = speciesCritTemperature(m_a_coeffs(i,i), m_b_coeffs[i]);
+        sqtTr = sqrt(temp / Tc);
+        coeff1 = 1 / (Tc*sqtTr);
+        coeff2 = sqtTr - 1;
+        k = m_kappa[i];
+        m_dalphadT[i] = coeff1 * (k*k*coeff2 - k);
+    }
+    // Calculate mixture derivative
+    for (size_t i = 0; i < m_kk; i++) {
+        for (size_t j = 0; j < m_kk; j++) {
+            daAlphadT += moleFractions_[i] * moleFractions_[j] * 0.5
+                         * m_aAlpha_binary(i, j)
+                         * (m_dalphadT[i] / m_alpha[i] + m_dalphadT[j] / m_alpha[j]);
+        }
+    }
+    return daAlphadT;
+}
+
 
 double PengRobinson::d2aAlpha_dT2() const
 {
