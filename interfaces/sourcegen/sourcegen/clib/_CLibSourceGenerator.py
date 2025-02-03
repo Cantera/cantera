@@ -441,7 +441,8 @@ class CLibSourceGenerator(SourceGenerator):
 
         func_name = f"{recipe.prefix}_{recipe.name}"
         reserved = ["cabinetSize", "parentHandle",
-                    "getCanteraError", "clearStorage", "resetStorage"]
+                    "getCanteraError", "setLogWriter", "setLogCallback",
+                    "clearStorage", "resetStorage"]
         if recipe.name in reserved:
             recipe.what = "reserved"
             loader = Environment(loader=BaseLoader)
@@ -588,11 +589,13 @@ class CLibSourceGenerator(SourceGenerator):
                     annotations=self._scaffold_annotation(c_func, recipe.what)))
         declarations = "\n\n".join(declarations)
 
+        preamble = self._config.preambles.get(headers.base)
+
         guard = f"__{filename.name.upper().replace('.', '_')}__"
         template = loader.from_string(self._templates["clib-header-file"])
         output = template.render(
-            name=filename.stem, guard=guard, declarations=declarations,
-            prefix=headers.prefix, base=headers.base, docstring=headers.docstring)
+            name=filename.stem, guard=guard, preamble=preamble, prefix=headers.prefix,
+            declarations=declarations, base=headers.base, docstring=headers.docstring)
 
         out = (Path(self._out_dir) /
                "include" / "cantera" / "clib_experimental" / filename.name)
