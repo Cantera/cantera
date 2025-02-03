@@ -62,7 +62,7 @@ class Solution(Transport, Kinetics, ThermoPhase):
         spec = ct.Species.list_from_file("gri30.yaml")
         spec_gas = ct.Solution(thermo='ideal-gas', species=spec)
         rxns = ct.Reaction.list_from_file("gri30.yaml", spec_gas)
-        gas = ct.Solution(thermo='ideal-tas', kinetics='gas',
+        gas = ct.Solution(thermo='ideal-gas', kinetics='gas',
                           species=spec, reactions=rxns, name='my_custom_name')
 
     where the ``thermo`` and ``kinetics`` keyword arguments are strings
@@ -79,8 +79,8 @@ class Solution(Transport, Kinetics, ThermoPhase):
     models.
 
     For non-trivial uses cases of this functionality, see the examples
-    `extract_submechanism.py <https://cantera.org/examples/python/kinetics/extract_submechanism.py.html>`_
-    and `mechanism_reduction.py <https://cantera.org/examples/python/kinetics/mechanism_reduction.py.html>`_.
+    :doc:`extract_submechanism.py </examples/python/kinetics/extract_submechanism>`
+    :doc:`mechanism_reduction.py </examples/python/kinetics/mechanism_reduction>`.
 
     In addition, `Solution` objects can be constructed by passing the text of
     the YAML phase definition in directly, using the ``yaml`` keyword
@@ -230,7 +230,10 @@ class Quantity:
         else:
             self.mass = 1.0
 
-        assert constant in ('TP','TV','HP','SP','SV','UV')
+        if constant not in ('TP','TV','HP','SP','SV','UV'):
+            raise ValueError(
+                f"Constant {constant} is invalid. "
+                "Must be one of 'TP','TV','HP','SP','SV', or 'UV'")
         self.constant = constant
 
     @property
@@ -314,9 +317,13 @@ class Quantity:
 
     def __iadd__(self, other):
         if self._id != other._id:
-            raise ValueError('Cannot add Quantities with different phase '
-                'definitions.')
-        assert self.constant == other.constant
+            raise ValueError(
+                'Cannot add Quantities with different phase '
+                f'definitions. {self._id} != {other._id}')
+        if self.constant != other.constant:
+            raise ValueError(
+                "Cannot add Quantities with different "
+                f"constant values. {self.constant} != {other.constant}")
 
         m = self.mass + other.mass
         Y = (self.Y * self.mass + other.Y * other.mass)
@@ -331,7 +338,8 @@ class Quantity:
         else:  # self.constant == 'HP'
             dp_rel = 2 * abs(self.P - other.P) / (self.P + other.P)
             if dp_rel > 1.0e-7:
-                raise ValueError('Cannot add Quantities at constant pressure when'
+                raise ValueError(
+                    'Cannot add Quantities at constant pressure when '
                     f'pressure is not equal ({self.P} != {other.P})')
 
             H = self.enthalpy + other.enthalpy
@@ -567,7 +575,7 @@ class SolutionArray(SolutionArrayBase):
         'species', 'n_atoms', 'molecular_weights', 'min_temp', 'max_temp',
         'reference_pressure', 'charges',
         # From Kinetics
-        'n_total_species', 'n_reactions', 'n_phases', 'reaction_phase_index',
+        'n_total_species', 'n_reactions', 'n_phases',
         'kinetics_species_index', 'reaction', 'reactions', 'modify_reaction',
         'multiplier', 'set_multiplier', 'reaction_equations', 'reactant_stoich_coeff',
         'product_stoich_coeff', 'reactant_stoich_coeffs', 'product_stoich_coeffs',
@@ -807,14 +815,14 @@ class SolutionArray(SolutionArrayBase):
                     "the thermodynamic state".format(tuple(kwargs))
                 ) from None
             if normalize or attr.endswith("Q"):
-                setattr(self._phase, attr, list(kwargs.values()))
+                setattr(self._phase, attr, [kwargs[a] for a in attr])
             else:
                 if attr.endswith("X"):
                     self._phase.set_unnormalized_mole_fractions(kwargs.pop("X"))
                 elif attr.endswith("Y"):
                     self._phase.set_unnormalized_mass_fractions(kwargs.pop("Y"))
                 attr = attr[:-1]
-                setattr(self._phase, attr, list(kwargs.values()))
+                setattr(self._phase, attr, [kwargs[a] for a in attr])
 
         self._append(self._phase.state, extra_temp)
         self._indices.append(len(self._indices))
@@ -1186,21 +1194,9 @@ class SolutionArray(SolutionArrayBase):
             pass
 
         # fall back to numpy; this works unless CSV file contains escaped entries
-        if np.lib.NumpyVersion(np.__version__) < "1.14.0":
-            # bytestring needs to be converted for columns containing strings
-            data = np.genfromtxt(filename, delimiter=',', deletechars='',
-                                 dtype=None, names=True)
-            data_dict = {}
-            for label in data.dtype.names:
-                if data[label].dtype.type == np.bytes_:
-                    data_dict[label] = data[label].astype('U')
-                else:
-                    data_dict[label] = data[label]
-        else:
-            # the 'encoding' parameter introduced with NumPy 1.14 simplifies import
-            data = np.genfromtxt(filename, delimiter=',', deletechars='',
-                                 dtype=None, names=True, encoding=None)
-            data_dict = {label: data[label] for label in data.dtype.names}
+        data = np.genfromtxt(filename, delimiter=',', deletechars='',
+                                dtype=None, names=True, encoding=None)
+        data_dict = {label: data[label] for label in data.dtype.names}
         self.restore_data(data_dict, normalize)
 
     def to_pandas(self, cols=None, *args, **kwargs):
@@ -1329,7 +1325,8 @@ def _state2_prop(name, doc_source):
         return a, b
 
     def setter(self, AB):
-        assert len(AB) == 2, "Expected 2 elements, got {}".format(len(AB))
+        if len(AB) != 2:
+            raise ValueError("Expected 2 elements, got {}".format(len(AB)))
         A, B, _ = np.broadcast_arrays(AB[0], AB[1], self._output_dummy)
         for loc, index in enumerate(self._indices):
             self._set_loc(loc)
@@ -1355,7 +1352,8 @@ def _state3_prop(name, doc_source, scalar=False):
         return a, b, c
 
     def setter(self, ABC):
-        assert len(ABC) == 3, "Expected 3 elements, got {}".format(len(ABC))
+        if len(ABC) != 3:
+            raise ValueError("Expected 3 elements, got {}".format(len(ABC)))
         A, B, _ = np.broadcast_arrays(ABC[0], ABC[1], self._output_dummy)
         XY = ABC[2] # composition
         if len(np.shape(XY)) < 2:

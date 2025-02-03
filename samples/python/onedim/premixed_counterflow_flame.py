@@ -5,14 +5,14 @@ Opposed-flow premixed strained flame
 This script simulates a lean hydrogen-oxygen flame stabilized in a strained
 flowfield, with an opposed flow consisting of equilibrium products.
 
-Requires: cantera >= 3.0
+Requires: cantera >= 3.0, matplotlib >= 2.0
 
 .. tags:: Python, combustion, 1D flow, premixed flame, strained flame
 """
 
 from pathlib import Path
+import matplotlib.pyplot as plt
 import cantera as ct
-
 
 # parameter values
 p = 0.05 * ct.one_atm  # pressure
@@ -58,3 +58,38 @@ sim.save(output, name="mix", description="solution with mixture-averaged transpo
 sim.save("premixed_counterflow_flame.csv", basis="mole", overwrite=True)
 sim.show_stats()
 sim.show()
+
+# %%
+# Temperature and Heat Release Rate
+# ---------------------------------
+fig, ax1 = plt.subplots()
+
+ax1.plot(sim.grid, sim.heat_release_rate / 1e6, color='C4')
+ax1.set_ylabel('heat release rate [MW/m³]', color='C4')
+ax1.set(xlabel='flame coordinate [m]')
+
+ax2 = ax1.twinx()
+ax2.plot(sim.grid, sim.T, color='C3')
+ax2.set_ylabel('temperature [K]', color='C3')
+plt.show()
+
+# %%
+# Major Species Profiles
+# ----------------------
+fig, ax = plt.subplots()
+major = ('O2', 'H2', 'H2O')
+states = sim.to_array()
+ax.plot(states.grid, states(*major).X, label=major)
+ax.set(xlabel='flame coordinate [m]', ylabel='mole fractions')
+ax.legend()
+plt.show()
+
+# %%
+# Minor Species Profiles
+# ----------------------
+fig, ax = plt.subplots()
+minor = ('OH', 'H', 'O')
+ax.plot(states.grid, states(*minor).X, label=minor, linestyle='--')
+ax.set(xlabel='flame coordinate [m]', ylabel='mole fractions', )
+ax.legend()
+plt.show()

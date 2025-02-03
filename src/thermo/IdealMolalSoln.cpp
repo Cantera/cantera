@@ -45,44 +45,13 @@ IdealMolalSoln::IdealMolalSoln(const string& inputFile, const string& id_) :
     initThermoFile(inputFile, id_);
 }
 
-double IdealMolalSoln::enthalpy_mole() const
-{
-    getPartialMolarEnthalpies(m_tmpV.data());
-    return mean_X(m_tmpV);
-}
-
 double IdealMolalSoln::intEnergy_mole() const
 {
-    getPartialMolarIntEnergies(m_tmpV.data());
-    return mean_X(m_tmpV);
-}
-
-double IdealMolalSoln::entropy_mole() const
-{
-    getPartialMolarEntropies(m_tmpV.data());
-    return mean_X(m_tmpV);
-}
-
-double IdealMolalSoln::gibbs_mole() const
-{
-    getChemPotentials(m_tmpV.data());
-    return mean_X(m_tmpV);
-}
-
-double IdealMolalSoln::cp_mole() const
-{
-    getPartialMolarCp(m_tmpV.data());
-    return mean_X(m_tmpV);
+    getPartialMolarIntEnergies(m_workS.data());
+    return mean_X(m_workS);
 }
 
 // ------- Mechanical Equation of State Properties ------------------------
-
-void IdealMolalSoln::calcDensity()
-{
-    getPartialMolarVolumes(m_tmpV.data());
-    double dd = meanMolecularWeight() / mean_X(m_tmpV);
-    Phase::assignDensity(dd);
-}
 
 double IdealMolalSoln::isothermalCompressibility() const
 {
@@ -295,7 +264,6 @@ bool IdealMolalSoln::addSpecies(shared_ptr<Species> spec)
     bool added = MolalityVPSSTP::addSpecies(spec);
     if (added) {
         m_speciesMolarVolume.push_back(0.0);
-        m_tmpV.push_back(0.0);
         IMS_lnActCoeffMolal_.push_back(0.0);
     }
     return added;

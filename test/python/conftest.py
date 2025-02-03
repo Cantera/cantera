@@ -4,11 +4,8 @@ import sys
 from pathlib import Path
 import pytest
 import tempfile
+from ruamel import yaml
 
-try:
-    from ruamel import yaml
-except ImportError:
-    import ruamel_yaml as yaml
 
 pytest.register_assert_rewrite("pint.testing")
 

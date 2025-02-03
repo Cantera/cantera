@@ -1,40 +1,45 @@
 [
     {
-        "name": "3.1 (dev)",
-        "version": "3.1",
+        "name": "3.2 (dev)",
+        "version": "3.2",
         "url": "/dev/"
     },
     {
-        "name": "3.0.0 (stable)",
+        "name": "3.1.0 (stable)",
+        "version": "3.1",
+        "url": "/3.1/"
+    },
+    {
+        "name": "3.0.0",
         "version": "3.0.0",
-        "url": "/documentation/docs-3.0/sphinx/html/"
+        "url": "/3.0/sphinx/html/"
     },
     {
         "version": "2.6.0",
-        "url": "/documentation/docs-2.6/sphinx/html/"
+        "url": "/2.6/sphinx/html/"
     },
     {
         "version": "2.5.1",
-        "url": "/documentation/docs-2.5/sphinx/html/"
+        "url": "/2.5/sphinx/html/"
     },
     {
         "version": "2.4.0",
-        "url": "/documentation/docs-2.4/sphinx/html/"
+        "url": "/2.4/sphinx/html/"
     },
     {
         "version": "2.3.0",
-        "url": "/documentation/docs-2.3/sphinx/html/"
+        "url": "/2.3/sphinx/html/"
     },
     {
         "version": "2.2.1",
-        "url": "/documentation/docs-2.2/sphinx/html/"
+        "url": "/2.2/sphinx/html/"
     },
     {
         "version": "2.1.2",
-        "url": "/documentation/docs-2.1/sphinx/html/"
+        "url": "/2.1/sphinx/html/"
     },
     {
         "version": "2.0.2",
-        "url": "/documentation/docs-2.0/sphinx/html/"
+        "url": "/2.0/sphinx/html/"
     }
 ]

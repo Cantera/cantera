@@ -19,23 +19,16 @@ from collections import OrderedDict
 import numpy as np
 from email.utils import formatdate
 import argparse
-
-try:
-    from ruamel import yaml
-except ImportError:
-    import ruamel_yaml as yaml
+from ruamel import yaml
 
 # yaml.version_info is a tuple with the three parts of the version
 yaml_version = yaml.version_info
-# We choose ruamel.yaml 0.15.34 as the minimum version
-# since it is the highest version available in the Ubuntu
-# 18.04 repositories and seems to work. Older versions such as
-# 0.13.14 on CentOS7 and 0.10.23 on Ubuntu 16.04 raise an exception
-# that they are missing the RoundTripRepresenter
-yaml_min_version = (0, 15, 34)
+# We choose ruamel.yaml 0.17.16 as the minimum version since it is the highest version
+# available in the Ubuntu 22.04 repositories.
+yaml_min_version = (0, 17, 16)
 if yaml_version < yaml_min_version:
     raise RuntimeError(
-        "The minimum supported version of ruamel.yaml is 0.15.34. If you "
+        "The minimum supported version of ruamel.yaml is 0.17.16. If you "
         "installed ruamel.yaml from your operating system's package manager, "
         "please install an updated version using pip or conda."
     )
@@ -67,18 +60,13 @@ def FlowList(*args, **kwargs):
     lst.fa.set_flow_style()
     return lst
 
-# Improved float formatting requires Numpy >= 1.14
-if hasattr(np, 'format_float_positional'):
-    def float2string(data):
-        if data == 0:
-            return '0.0'
-        elif 0.01 <= abs(data) < 10000:
-            return np.format_float_positional(data, trim='0')
-        else:
-            return np.format_float_scientific(data, trim='0')
-else:
-    def float2string(data):
-        return repr(data)
+def float2string(data):
+    if data == 0:
+        return '0.0'
+    elif 0.01 <= abs(data) < 10000:
+        return np.format_float_positional(data, trim='0')
+    else:
+        return np.format_float_scientific(data, trim='0')
 
 def represent_float(self, data):
     if data != data:
@@ -266,14 +254,14 @@ class species:
             The parameterization to use to compute the reference-state
             thermodynamic properties. This must be one of the entry types
             described in `Thermodynamic Property Models
-            <https://cantera.org/science/species-thermo.html#sec-thermo-models>`__.
+            <https://github.com/Cantera/cantera-website/blob/v2.6.0/pages/science/species-thermo.rst#thermodynamic-property-models>`__.
             To specify multiple parameterizations, each for a different temperature range,
             group them in parentheses.
         :param transport:
             An entry specifying parameters to compute this species'
             contribution to the transport properties. This must be one of the
             entry types described in `Species Transport Coefficients
-            <https://cantera.org/science/species-thermo.html#species-transport-coefficients>`__,
+            <https://github.com/Cantera/cantera-website/blob/v2.6.0/pages/science/transport.rst#species-transport-coefficients>`__,
             and must be consistent with the transport model of the phase into which
             the species is imported. To specify parameters for multiple
             transport models, group the entries in parentheses.
@@ -649,9 +637,9 @@ class reaction:
             for example, ``"CH4:0.25 O2:1.5"``.
         :param options:
             Processing options, as described in
-            `Options <https://cantera.org/tutorials/cti/reactions.html#options>`__.
+            `Options <https://github.com/Cantera/cantera-website/blob/v2.6.0/pages/tutorials/cti/reactions.rst#options>`__.
             May be one or more (as a list) of the following: ``'duplicate'``,
-            ``'negative_A'``,`` 'negative_orders'``, ``'nonreactant_orders'``.
+            ``'negative_A'``, ``'negative_orders'``, ``'nonreactant_orders'``.
         """
         self.equation = equation
         self.order = get_composition(order)
@@ -713,7 +701,7 @@ class three_body_reaction(reaction):
         :param id:
             An optional identification string.
         :param options: Processing options, as described in
-            `Options <https://cantera.org/tutorials/cti/reactions.html#options>`__.
+            `Options <https://github.com/Cantera/cantera-website/blob/v2.6.0/pages/tutorials/cti/reactions.rst#options>`__.
         """
         super().__init__(equation, kf, id, '', options)
         self.type = 'three-body'
@@ -772,7 +760,7 @@ class falloff_reaction(falloff_base):
             An optional identification string.
         :param options:
             Processing options, as described in
-            `Options <https://cantera.org/tutorials/cti/reactions.html#options>`__.
+            `Options <https://github.com/Cantera/cantera-website/blob/v2.6.0/pages/tutorials/cti/reactions.rst#options>`__.
         """
         super().__init__(equation, kf0, kf, efficiencies, falloff, id, options)
         self.type = 'falloff'
@@ -804,7 +792,7 @@ class chemically_activated_reaction(falloff_base):
             An optional identification string.
         :param options:
             Processing options, as described in
-            `Options <https://cantera.org/tutorials/cti/reactions.html#options>`__.
+            `Options <https://github.com/Cantera/cantera-website/blob/v2.6.0/pages/tutorials/cti/reactions.rst#options>`__.
         """
         super().__init__(equation, kLow, kHigh, efficiencies, falloff, id,
                          options)
@@ -911,7 +899,7 @@ class surface_reaction(reaction):
             the reverse reaction.
         :param options:
             Processing options, as described in
-            `Options <https://cantera.org/tutorials/cti/reactions.html#options>`__.
+            `Options <https://github.com/Cantera/cantera-website/blob/v2.6.0/pages/tutorials/cti/reactions.rst#options>`__.
         """
         super().__init__(equation, kf, id, order, options)
         self.type = 'surface'
@@ -1015,14 +1003,14 @@ class phase:
         :param species:
             The species. A string or sequence of strings in the format
             described in `Defining the Species
-            <https://cantera.org/tutorials/cti/phases.html#defining-the-species>`__.
+            <https://github.com/Cantera/cantera-website/blob/v2.6.0/pages/tutorials/cti/phases.rst#defining-the-species>`__.
         :param note:
             A user-defined comment. Not evaluated by Cantera itself.
         :param reactions:
             The homogeneous reactions. If omitted, no reactions will be
             included. A string or sequence of strings in the format described
             in `Declaring the Reactions
-            <https://cantera.org/tutorials/cti/phases.html#declaring-the-reactions>`__.
+            <https://github.com/Cantera/cantera-website/blob/v2.6.0/pages/tutorials/cti/phases.rst#declaring-the-reactions>`__.
             This field is not allowed for ``stoichiometric_solid`` and
             ``stoichiometric_liquid`` entries.
         :param initial_state:
@@ -1470,7 +1458,7 @@ class ideal_interface(phase):
             The heterogeneous reactions at this interface. If omitted, no
             reactions will be included. A string or sequence of strings in the
             format described in `Declaring the Reactions
-            <https://cantera.org/tutorials/cti/phases.html#declaring-the-reactions>`__.
+            <https://github.com/Cantera/cantera-website/blob/v2.6.0/pages/tutorials/cti/phases.rst#declaring-the-reactions>`__.
         :param site_density:
             The number of adsorption sites per unit area.
         :param phases:
@@ -1661,7 +1649,7 @@ def convert(filename=None, output_name=None, text=None, encoding="latin-1"):
         # information regarding conversion
         metadata = BlockMap([
             ("generator", "cti2yaml"),
-            ("cantera-version", "3.1.0a4"),
+            ("cantera-version", "3.2.0a1"),
             ("date", formatdate(localtime=True)),
         ])
         if filename != "<string>":

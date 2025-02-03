@@ -32,11 +32,13 @@ typedef Cabinet<ThermoPhase> ThermoCabinet;
 typedef Cabinet<Kinetics> KineticsCabinet;
 typedef Cabinet<Transport> TransportCabinet;
 typedef Cabinet<Solution> SolutionCabinet;
+typedef Cabinet<Reaction> ReactionCabinet;
 
 template<> ThermoCabinet* ThermoCabinet::s_storage = 0;
 template<> KineticsCabinet* KineticsCabinet::s_storage = 0;
 template<> TransportCabinet* TransportCabinet::s_storage = 0;
 template<> SolutionCabinet* SolutionCabinet::s_storage = 0;
+template<> ReactionCabinet* ReactionCabinet::s_storage = 0;
 
 /**
  * Exported functions.
@@ -234,10 +236,7 @@ extern "C" {
     {
         try {
             auto soln = SolutionCabinet::at(n);
-            if (a < 0 || a >= static_cast<int>(soln->nAdjacent())) {
-                throw CanteraError("soln_adjacentName", "Invalid index {}.", a);
-            }
-            return static_cast<int>(copyString(soln->adjacent(a)->name(), nm, lennm));
+            return static_cast<int>(copyString(soln->adjacentName(a), nm, lennm));
         } catch (...) {
             return handleAllExceptions(-1, ERR);
         }
@@ -1186,15 +1185,6 @@ extern "C" {
                                    "No such phase {}.", ph);
             }
             return k;
-        } catch (...) {
-            return handleAllExceptions(npos, npos);
-        }
-    }
-
-    size_t kin_reactionPhaseIndex(int n)
-    {
-        try {
-            return KineticsCabinet::at(n)->reactionPhaseIndex();
         } catch (...) {
             return handleAllExceptions(npos, npos);
         }

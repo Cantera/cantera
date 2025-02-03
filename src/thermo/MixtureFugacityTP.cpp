@@ -171,7 +171,6 @@ bool MixtureFugacityTP::addSpecies(shared_ptr<Species> spec)
         m_cp0_R.push_back(0.0);
         m_g0_RT.push_back(0.0);
         m_s0_R.push_back(0.0);
-        m_tmpV.push_back(0.0);
     }
     return added;
 }
@@ -898,10 +897,9 @@ int MixtureFugacityTP::solveCubic(double T, double pres, double a, double b,
             if (fabs(tmp) > 1.0E-4) {
                 for (int j = 0; j < 3; j++) {
                     if (j != i && fabs(Vroot[i] - Vroot[j]) < 1.0E-4 * (fabs(Vroot[i]) + fabs(Vroot[j]))) {
-                        writelog("MixtureFugacityTP::solveCubic(T ={}, p ={}):"
-                                 " WARNING roots have merged: {}, {}\n"
-                                 "X1: {}, X2: {}\n",
-                                 T, pres, Vroot[i], Vroot[j], moleFractions_[0], moleFractions_[1]);
+                        warn_user("MixtureFugacityTP::solveCubic",
+                                  "roots have merged for T = {}, p = {}: {}, {}",
+                                  T, pres, Vroot[i], Vroot[j]);
                     }
                 }
             }
@@ -961,11 +959,9 @@ int MixtureFugacityTP::solveCubic(double T, double pres, double a, double b,
             }
         }
         if ((fabs(res) > 1.0E-14) && (fabs(res) > 1.0E-14 * fabs(dresdV) * fabs(Vroot[i]))) {
-            writelog("MixtureFugacityTP::solveCubic(T = {}, p = {}): "
-                "WARNING root didn't converge V = {}\n"
-                "X1: {}, X2: {}\n",
-                 T, pres, Vroot[i],moleFractions_[0],moleFractions_[1]);
-            writelogendl();
+            throw CanteraError("MixtureFugacityTP::solveCubic",
+                               "root failed to converge for T = {}, p = {} with "
+                               "V = {}", T, pres, Vroot[i]);
         }
     }
 

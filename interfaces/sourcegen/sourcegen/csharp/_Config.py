@@ -2,12 +2,12 @@
 # at https://cantera.org/license.txt for license and copyright information.
 
 from dataclasses import dataclass
-from typing import Dict
+from typing_extensions import Self
 
 
 @dataclass(frozen=True)
 class Config:
-    """Provides configuration info for the CSharpSourceGenerator class"""
+    """Provides configuration info for the CSharpSourceGenerator class."""
 
 
     ret_type_crosswalk = {
@@ -24,17 +24,19 @@ class Config:
     }
 
     # These we load from the parsed YAML config file
-    class_crosswalk: Dict[str, str]
+    class_crosswalk: dict[str, str]
 
-    class_accessors: Dict[str, str]
+    class_accessors: dict[str, str]
 
-    derived_handles: Dict[str, str]
+    derived_handles: dict[str, str]
 
-    wrapper_classes: Dict[str, Dict[str, str]]
+    wrapper_classes: dict[str, dict[str, str]]
 
     @classmethod
-    def from_parsed(cls, *,
-                    class_crosswalk=None, class_accessors=None,
-                    derived_handles=None, wrapper_classes=None):
+    def from_parsed(cls: Self, *,
+                    class_crosswalk: dict[str, str] | None = None,
+                    class_accessors: dict[str, str] | None = None,
+                    derived_handles: dict[str, str] | None = None,
+                    wrapper_classes: dict[str, dict[str, str]] | None = None):
         return cls(class_crosswalk or {}, class_accessors or {},
                    derived_handles or {}, wrapper_classes or {})

@@ -248,9 +248,6 @@ public:
     //! @name  Molar Thermodynamic Properties
     //! @{
 
-    double enthalpy_mole() const override;
-    double entropy_mole() const override;
-    double cp_mole() const override;
     double cv_mole() const override;
 
     //! @}

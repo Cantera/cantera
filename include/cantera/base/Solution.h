@@ -70,6 +70,10 @@ public:
     //! Set the Transport object directly
     virtual void setTransport(shared_ptr<Transport> transport);
 
+    //! Retrieve transport model name
+    //! @since New in %Cantera 3.2
+    string transportModel();
+
     //! Set the Transport object by name
     //! @param model  name of transport model; if omitted, the default model is used
     //! @since New in %Cantera 3.0
@@ -106,7 +110,15 @@ public:
 
     //! Get the number of adjacent phases
     size_t nAdjacent() const {
-         return m_adjacent.size();
+        return m_adjacent.size();
+    }
+
+    //! Get the name of an adjacent phase by index
+    string adjacentName(size_t i) const {
+        if (i < 0 || i >= m_adjacent.size()) {
+            throw CanteraError("Solution::adjacentName", "Invalid index {}.", i);
+        }
+        return m_adjacent.at(i)->name();
     }
 
     AnyMap parameters(bool withInput=false) const;

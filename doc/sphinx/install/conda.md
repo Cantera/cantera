@@ -2,39 +2,18 @@
 
 (sec-install-conda)=
 
-Conda is a package manager built by the Anaconda company. There are several
-distributions of Python that include `conda`, including [Anaconda][anaconda] and
-[miniforge][miniforge]. If you do not have conda installed, we highly recommend using
-[miniforge][miniforge].
+[Conda](https://docs.conda.io/projects/conda/en/stable/) is a package manager that can
+be used to install Python packages and other software. Cantera packages are available
+via the `conda-forge` channel, for use with Conda distributions that use that channel.
+We highly recommend using the [Miniforge](https://conda-forge.org/download/)
+distribution, which configures `conda-forge` as the default channel (in which case you
+can omit the argument `--channel conda-forge` from any of the commands below).
 
-[anaconda]: https://www.anaconda.com/download#Downloads
-[miniforge]: https://github.com/conda-forge/miniforge?tab=readme-ov-file#install
+For more details on how to use Conda, see the
+[Conda documentation](https://docs.conda.io/projects/conda/en/latest/user-guide/index.html).
 
-:::{attention}
-The *legacy* Matlab Cantera interface is discontinued and removed in Cantera 3.1. Users
-requiring support of legacy Matlab Cantera code should continue using Cantera 3.0
-packages, or migrate their code base to the experimental Matlab toolbox that is
-currently under development.
-:::
-
-Both Anaconda and miniforge include the `conda` package manager. The main difference is
-that miniforge configures `conda-forge` as the default channel. The `conda-forge`
-channel includes many more, up-to-date, packages than the default channel in Anaconda.
-For more details on how to use conda, see the
-[conda documentation](https://docs.conda.io/projects/conda/en/latest/user-guide/index.html).
-
-For instructions on upgrading an existing conda-based installation of Cantera, see
+For instructions on upgrading an existing Conda-based installation of Cantera, see
 [Upgrading from an earlier Cantera version](sec-conda-python-upgrade).
-
-:::{tip}
-To dramatically improve install speed, we recommend using the `libmamba` dependency
-solver. To configure the `libmamba` solver, you can run:
-
-```shell
-conda config --set solver libmamba
-```
-
-:::
 
 (sec-conda-python-interface)=
 
@@ -49,9 +28,9 @@ Packages are available for the following platforms:
 
 ### Option 1: Create a new environment for Cantera
 
-The following instructions will create a conda environment where you can use Cantera
+The following instructions will create a Conda environment where you can use Cantera
 from Python. For this example, the environment is named `ct-env`. From the command
-line (or the Anaconda Prompt on Windows), run:
+line (or the Conda Prompt on Windows), run:
 
 ```shell
 conda create --name ct-env --channel conda-forge cantera ipython matplotlib jupyter
@@ -79,7 +58,7 @@ name: ct-env
 channels:
 - conda-forge
 dependencies:
-- python  # Cantera supports Python 3.8 and up
+- python  # Cantera supports Python 3.10 and up
 - cantera
 - ipython  # optional (needed for nicer interactive command line)
 - jupyter  # optional (needed for Jupyter Notebook)
@@ -88,7 +67,7 @@ dependencies:
 - pandas  # optional (needed for pandas interface)
 ```
 
-From the command line (or the Anaconda Prompt on Windows), change directory into the
+From the command line (or the Conda Prompt on Windows), change directory into the
 folder where you saved `environment.yaml`:
 
 ```shell
@@ -135,13 +114,20 @@ to create a new environment.
 
 ## Upgrading from an earlier Cantera version
 
-If you already have Cantera installed in a conda environment (named, for example,
+If you already have Cantera installed in a Conda environment (named, for example,
 `ct-dev`), you can upgrade it to the latest version available by running the commands:
 
 ```shell
 conda activate ct-dev
 conda update --channel conda-forge cantera
 ```
+
+:::{attention}
+This upgrade option will only work if the previous version of Cantera was also installed
+from the `conda-forge` channel. If you used the packages from the `cantera` channel that
+were also provided for Cantera 3.0 and earlier, this upgrade path will not work and you
+should install Cantera in a new Conda environment.
+:::
 
 (sec-conda-development-interface)=
 
@@ -151,7 +137,7 @@ The Cantera development interface provides header files and libraries needed to 
 your own C++, C, or Fortran applications that link to Cantera. It also provides several
 sample programs and build scripts that you can adapt for your own applications.
 
-From the command line (or the Anaconda Prompt on Windows), create a new conda
+From the command line (or the Conda Prompt on Windows), create a new Conda
 environment named `ct-dev` using:
 
 ```shell
@@ -233,7 +219,7 @@ Fortran 90 support is not provided for Windows.
 
 ### Upgrading from an earlier Cantera version
 
-If you already have the Cantera development interface installed in a conda environment
+If you already have the Cantera development interface installed in a Conda environment
 (named, for example, `ct-dev`), you can upgrade it to the latest version available by
 running the commands:
 
@@ -241,3 +227,12 @@ running the commands:
 conda activate ct-dev
 conda update --channel conda-forge libcantera-devel
 ```
+
+## Matlab Interface
+
+:::{attention}
+The *legacy* Matlab Cantera interface is discontinued and removed in Cantera 3.1. Users
+requiring support of legacy Matlab Cantera code should continue using Cantera 3.0
+packages, or migrate their code base to the experimental Matlab toolbox that is
+currently under development.
+:::

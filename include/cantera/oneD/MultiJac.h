@@ -7,6 +7,7 @@
 #define CT_MULTIJAC_H
 
 #include "cantera/numerics/BandMatrix.h"
+#include "cantera/numerics/SystemJacobian.h"
 #include "OneDim.h"
 
 namespace Cantera
@@ -20,12 +21,15 @@ namespace Cantera
  * @ingroup onedUtilsGroup
  * @ingroup derivGroup
  */
-class MultiJac : public BandMatrix
+class MultiJac : public SystemJacobian
 {
 public:
     //! Constructor.
     //! @param r  The nonlinear system for which to compute the Jacobian.
+    //! @deprecated To be removed after %Cantera 3.2. Use default constructor instead.
     MultiJac(OneDim& r);
+
+    MultiJac() = default;
 
     /**
      * Evaluates the Jacobian at x0 using finite differences. The unperturbed residual
@@ -41,68 +45,66 @@ public:
      * @param x0  Solution vector at which to evaluate the Jacobian
      * @param resid0  Residual vector at x0
      * @param rdt  Reciprocal of the time step
+     * @deprecated To be removed after %Cantera 3.2. Jacobian evaluation moved to
+     *     OneDim::evalJacobian().
      */
     void eval(double* x0, double* resid0, double rdt);
 
-    //! Elapsed CPU time spent computing the Jacobian.
-    double elapsedTime() const {
-        return m_elapsed;
+    void reset() override;
+    const string type() const override { return "banded-direct"; }
+    void setValue(size_t row, size_t col, double value) override;
+    void initialize(size_t nVars) override;
+    void setBandwidth(size_t bw) override;
+    void updateTransient(double rdt, integer* mask) override;
+    void factorize() override {
+        m_mat.factor();
     }
 
-    //! Number of Jacobian evaluations.
-    int nEvals() const {
-        return m_nevals;
+    double& value(size_t i, size_t j) {
+        return m_mat.value(i, j);
     }
 
-    //! Number of times 'incrementAge' has been called since the last evaluation
-    int age() const {
-        return m_age;
+    double value(size_t i, size_t j) const {
+        return m_mat.value(i, j);
     }
 
-    //! Increment the Jacobian age.
-    void incrementAge() {
-        m_age++;
+    void solve(const double* const b, double* const x) {
+        m_mat.solve(b, x);
     }
 
-    //! Update the transient terms in the Jacobian by using the transient mask.
-    void updateTransient(double rdt, integer* mask);
+    void solve(const size_t stateSize, double* b, double* x) override {
+        m_mat.solve(b, x);
+    }
 
-    //! Set the Jacobian age.
-    void setAge(int age) {
-        m_age = age;
+    int info() const override {
+        return m_mat.info();
     }
 
     //! Return the transient mask.
+    //! @deprecated Unused. To be removed after %Cantera 3.2.
     vector<int>& transientMask() {
+        warn_deprecated("MultiJac::transientMask", "To be removed after Cantera 3.2");
         return m_mask;
     }
-
-    //! @deprecated To be removed after Cantera 3.1.
-    void incrementDiagonal(int j, double d);
 
 protected:
     //! Residual evaluator for this Jacobian
     /*!
      * This is a pointer to the residual evaluator. This object isn't owned by
      * this Jacobian object.
+     *
+     * @deprecated Unused. To be removed after %Cantera 3.2.
      */
-    OneDim* m_resid;
+    OneDim* m_resid = nullptr;
 
-    vector<double> m_r1; //!< Perturbed residual vector
-    double m_rtol = 1e-5; //!< Relative tolerance for perturbing solution components
-
-    //! Absolute tolerance for perturbing solution components
-    double m_atol = sqrt(std::numeric_limits<double>::epsilon());
-
-    double m_elapsed = 0.0; //!< Elapsed CPU time taken to compute the Jacobian
+    BandMatrix m_mat; //!< Underlying matrix storage
     vector<double> m_ssdiag; //!< Diagonal of the steady-state Jacobian
 
-    //! Transient mask for transient terms, 1 if transient, 0 if steady-state
+    //! Transient mask for transient terms, 1 if transient, 0 if steady-state.
+    //! @deprecated Unused. To be removed after %Cantera 3.2.
     vector<int> m_mask;
-
-    int m_nevals = 0; //!< Number of Jacobian evaluations.
-    int m_age = 100000; //!< Age of the Jacobian (times incrementAge() has been called)
 };
+
 }
 
 #endif

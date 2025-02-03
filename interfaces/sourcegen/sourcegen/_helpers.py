@@ -3,10 +3,7 @@
 
 from dataclasses import fields
 from pathlib import Path
-try:
-    from ruamel import yaml
-except ImportError:
-    import ruamel_yaml as yaml
+from ruamel import yaml
 
 
 def read_config(config_file: Path) -> dict:

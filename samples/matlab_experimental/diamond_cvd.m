@@ -56,7 +56,7 @@ surf_phase = Interface('diamond.yaml', 'diamond_100', gas, dbulk);
 
 %% Advance Coverages
 
-iC = surf_phase.kineticsSpeciesIndex('C(d)', 'diamond');
+iC = surf_phase.kineticsSpeciesIndex('C(d)');
 
 xx = [];
 rr = [];

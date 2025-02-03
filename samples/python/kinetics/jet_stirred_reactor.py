@@ -41,7 +41,7 @@ import matplotlib.pyplot as plt
 
 f, ax = plt.subplots(1, 3)
 plt.subplots_adjust(wspace=0.6)
-colours = ["xkcd:grey",'xkcd:purple']
+colors = ["xkcd:grey",'xkcd:purple']
 file = 'example_data/ammonia-CO-H2-Alzueta-2023.yaml'
 models = {'Original': 'baseline', 'LMR-R': 'linear-Burke'}
 
@@ -108,9 +108,9 @@ for k,m in enumerate(models):
     tempDependence = getTemperatureDependence(gas,inputs)
     ax[0].plot(tempDependence.index,
                np.subtract(tempDependence['temperature'],tempDependence.index),
-               color=colours[k],label=m)
-    ax[1].plot(tempDependence.index, tempDependence['O2']*100, color=colours[k])
-    ax[2].plot(tempDependence.index, tempDependence['H2']*100, color=colours[k])
+               color=colors[k],label=m)
+    ax[1].plot(tempDependence.index, tempDependence['O2']*100, color=colors[k])
+    ax[2].plot(tempDependence.index, tempDependence['H2']*100, color=colors[k])
 ax[0].plot(inputs['data']['T_range'], inputs['data']['deltaT'], 'o', fillstyle='none',
            color='k', label="Sabia et al.")
 ax[1].plot(inputs['data']['T_range'], inputs['data']['X_O2'], 'o', fillstyle='none',

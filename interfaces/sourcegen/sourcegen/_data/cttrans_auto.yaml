@@ -1,0 +1,27 @@
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at https://cantera.org/license.txt for license and copyright information.
+
+docstring: |-
+  Auto-generated CLib API for %Cantera's Transport class.
+  Partially implements a replacement for CLib's traditional @c ct library.
+prefix: trans3
+base: Transport
+parents: []  # List of parent classes
+derived: []  # List of specializations
+recipes:
+- name: transportModel
+- name: viscosity
+- name: thermalConductivity
+- name: electricalConductivity
+- name: getThermalDiffCoeffs
+- name: getMixDiffCoeffs
+- name: getBinDiffCoeffs
+  implements: getBinaryDiffCoeffs  # inconsistent API (preexisting)
+- name: getMultiDiffCoeffs
+- name: getMolarFluxes
+- name: getMassFluxes
+- name: del
+  what: noop
+  brief: Destructor; required by some APIs although object is managed by Solution.
+- name: cabinetSize
+- name: parentHandle

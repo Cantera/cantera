@@ -34,9 +34,9 @@ double Frot(double tr, double sqtr)
 
 //////////////////// class MultiTransport methods //////////////
 
-void MultiTransport::init(ThermoPhase* thermo, int mode, int log_level)
+void MultiTransport::init(ThermoPhase* thermo, int mode)
 {
-    GasTransport::init(thermo, mode, log_level);
+    GasTransport::init(thermo, mode);
 
     // the L matrix
     m_Lmatrix.resize(3*m_nsp, 3*m_nsp);
@@ -54,7 +54,7 @@ void MultiTransport::init(ThermoPhase* thermo, int mode, int log_level)
     // set flags all false
     m_l0000_ok = false;
     m_lmatrix_soln_ok = false;
-    m_thermal_tlast = 0.0;
+    m_thermal_tlast = Undef;
 
     // some work space
     m_spwork1.resize(m_nsp);
@@ -79,6 +79,15 @@ void MultiTransport::init(ThermoPhase* thermo, int mode, int log_level)
         m_sqrt_eps_k[k] = sqrt(m_eps[k]/Boltzmann);
         m_frot_298[k] = Frot(m_eps[k]/kb298, m_sqrt_eps_k[k]/sq298);
     }
+}
+
+void MultiTransport::invalidateCache()
+{
+    GasTransport::invalidateCache();
+    m_thermal_tlast = Undef;
+    m_l0000_ok = false;
+    m_lmatrix_soln_ok = false;
+    m_molefracs_last[0] += 1.23e-4;
 }
 
 double MultiTransport::thermalConductivity()
@@ -304,7 +313,7 @@ void MultiTransport::getMassFluxes(const double* state1, const double* state2,
     double gradmax = -1.0;
     for (size_t j = 0; j < m_nsp; j++) {
         if (fabs(x2[j] - x1[j]) > gradmax) {
-            gradmax = fabs(x1[j] - x2[j]);
+            gradmax = fabs(x1[j] - x2[j]) / delta;
             jmax = j;
         }
     }
@@ -313,7 +322,7 @@ void MultiTransport::getMassFluxes(const double* state1, const double* state2,
     // and set the entry in gradx to zero
     for (size_t j = 0; j < m_nsp; j++) {
         m_aa(jmax,j) = y[j];
-        fluxes[j] = x2[j] - x1[j];
+        fluxes[j] = (x2[j] - x1[j]) / delta;
     }
     fluxes[jmax] = 0.0;
 
@@ -329,7 +338,7 @@ void MultiTransport::getMassFluxes(const double* state1, const double* state2,
 
     // thermal diffusion
     if (addThermalDiffusion) {
-        double grad_logt = (t2 - t1)/m_temp;
+        double grad_logt = (t2 - t1) / m_temp / delta;
         for (size_t i = 0; i < m_nsp; i++) {
             fluxes[i] -= m_spwork[i]*grad_logt;
         }
@@ -365,11 +374,7 @@ void MultiTransport::getMultiDiffCoeffs(const size_t ld, double* const d)
     }
 
     // invert L00,00
-    int ierr = invert(m_Lmatrix, m_nsp);
-    if (ierr != 0) {
-        throw CanteraError("MultiTransport::getMultiDiffCoeffs",
-                           "invert returned ierr = {}", ierr);
-    }
+    invert(m_Lmatrix, m_nsp);
     m_l0000_ok = false; // matrix is overwritten by inverse
     m_lmatrix_soln_ok = false;
 

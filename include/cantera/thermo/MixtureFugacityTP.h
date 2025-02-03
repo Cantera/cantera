@@ -265,8 +265,6 @@ protected:
      */
     virtual void _updateReferenceStateThermo() const;
 
-    //! Temporary storage - length = m_kk.
-    mutable vector<double> m_tmpV;
 public:
 
     //! @name Thermodynamic Values for the Species Reference States

@@ -2,9 +2,9 @@
 
 This directory and its children contain the interface to Cantera for .NET languages
 such as C# and F#. It is written in C# and supports .NET Standard 2.0
-(for the primary project) and .NET 6 (and newer) on all platforms that support both
+(for the primary project) and .NET 8 (and newer) on all platforms that support both
 .NET and the Cantera C++ library. The .NET interface requires an installation of the
-.NET 6.0 SDK.
+.NET 8.0 SDK.
 
 ## Project Layout
 
@@ -14,11 +14,11 @@ interfaces with classes and concepts familiar to a .NET developer. As part of th
 process, it invokes [sourcegen](/interfaces/sourcegen)
 to scaffold the interop code and some of the code for the wrapper objects, such as
 simple properties which can mapped directly to CLib getter and setter functions.
-`Cantera.csproj` targets .NET Standard 2.0 and .NET 6. This project will be released as
+`Cantera.csproj` targets .NET Standard 2.0 and .NET 8. This project will be released as
 a NuGet package.
 
 `Cantera.Tests.csproj` contains the unit tests for the Cantera .NET library and targets
-.Net 6.
+.Net 8.
 
 The examples directory contains separate projects for each Cantera example. These will
 be packaged as a template for use with the .NET CLI, allowing developers to create a
@@ -42,7 +42,7 @@ the use of Windows.
 
 ### Building the .NET Interface.
 
-After [building the main Cantera library](https://cantera.org/install/compiling-install.html),
+After [building the main Cantera library](https://cantera.org/stable/develop/index.html),
 switch to this directory and run `dotnet build`.
 
 In order to force re-import of generated code from sourcegen, a manual deletion of

@@ -140,8 +140,8 @@ double RedlichKwongMFTP::pressure() const
 
 double RedlichKwongMFTP::standardConcentration(size_t k) const
 {
-    getStandardVolumes(m_tmpV.data());
-    return 1.0 / m_tmpV[k];
+    getStandardVolumes(m_workS.data());
+    return 1.0 / m_workS[k];
 }
 
 void RedlichKwongMFTP::getActivityCoefficients(double* ac) const
@@ -237,10 +237,10 @@ void RedlichKwongMFTP::getPartialMolarEnthalpies(double* hbar) const
     double fac = TKelvin * dadt - 3.0 * m_a_current / 2.0;
 
     for (size_t k = 0; k < m_kk; k++) {
-        m_tmpV[k] = 0.0;
+        m_workS[k] = 0.0;
         for (size_t i = 0; i < m_kk; i++) {
             size_t counter = k + m_kk*i;
-            m_tmpV[k] += 2.0 * moleFractions_[i] * TKelvin * a_coeff_vec(1,counter) - 3.0 * moleFractions_[i] * a_vec_Curr_[counter];
+            m_workS[k] += 2.0 * moleFractions_[i] * TKelvin * a_coeff_vec(1,counter) - 3.0 * moleFractions_[i] * a_vec_Curr_[counter];
         }
     }
 
@@ -248,7 +248,7 @@ void RedlichKwongMFTP::getPartialMolarEnthalpies(double* hbar) const
     double fac2 = mv + TKelvin * dpdT_ / dpdV_;
     for (size_t k = 0; k < m_kk; k++) {
         double hE_v = (mv * dpdni_[k] - RT() - b_vec_Curr_[k]/ (m_b_current * m_b_current * sqt) * log(vpb/mv)*fac
-                       + 1.0 / (m_b_current * sqt) * log(vpb/mv) * m_tmpV[k]
+                       + 1.0 / (m_b_current * sqt) * log(vpb/mv) * m_workS[k]
                        +  b_vec_Curr_[k] / vpb / (m_b_current * sqt) * fac);
         hbar[k] = hbar[k] + hE_v;
         hbar[k] -= fac2 * dpdni_[k];
@@ -276,10 +276,10 @@ void RedlichKwongMFTP::getPartialMolarEntropies(double* sbar) const
         }
     }
     for (size_t k = 0; k < m_kk; k++) {
-        m_tmpV[k] = 0.0;
+        m_workS[k] = 0.0;
         for (size_t i = 0; i < m_kk; i++) {
             size_t counter = k + m_kk*i;
-            m_tmpV[k] += moleFractions_[i] * a_coeff_vec(1,counter);
+            m_workS[k] += moleFractions_[i] * a_coeff_vec(1,counter);
         }
     }
 
@@ -293,7 +293,7 @@ void RedlichKwongMFTP::getPartialMolarEntropies(double* sbar) const
                    + GasConstant * log(mv/vmb)
                    + GasConstant * b_vec_Curr_[k]/vmb
                    + m_pp[k]/(m_b_current * TKelvin * sqt) * log(vpb/mv)
-                   - 2.0 * m_tmpV[k]/(m_b_current * sqt) * log(vpb/mv)
+                   - 2.0 * m_workS[k]/(m_b_current * sqt) * log(vpb/mv)
                    + b_vec_Curr_[k] / (m_b_current * m_b_current * sqt) * log(vpb/mv) * fac
                    - 1.0 / (m_b_current * sqt) * b_vec_Curr_[k] / vpb * fac
                   );
@@ -327,10 +327,10 @@ void RedlichKwongMFTP::getPartialMolarVolumes(double* vbar) const
         }
     }
     for (size_t k = 0; k < m_kk; k++) {
-        m_tmpV[k] = 0.0;
+        m_workS[k] = 0.0;
         for (size_t i = 0; i < m_kk; i++) {
             size_t counter = k + m_kk*i;
-            m_tmpV[k] += moleFractions_[i] * a_coeff_vec(1,counter);
+            m_workS[k] += moleFractions_[i] * a_coeff_vec(1,counter);
         }
     }
 

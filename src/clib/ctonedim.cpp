@@ -482,16 +482,10 @@ extern "C" {
         }
     }
 
-    int sim1D_show(int i, const char* fname)
+    int sim1D_show(int i)
     {
         try {
-            string fn = string(fname);
-            if (fn == "-") {
-                SimCabinet::at(i)->show();
-            } else {
-                ofstream fout(fname);
-                SimCabinet::at(i)->show(fout);
-            }
+            SimCabinet::at(i)->show();
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);

@@ -3,8 +3,7 @@ classdef Interface < handle & ThermoPhase & Kinetics
     %
     %     >> s = Interface(src, name, p1, p2)
     %
-    % See `ideal-surface <https://cantera.org/documentation/docs-2.6/sphinx/html/yaml/phases.html#sec-yaml-ideal-surface>`__
-    % and `Declaring adjacent phases <https://cantera.org/tutorials/yaml/phases.html#declaring-adjacent-phases>`__.
+    % See :ref:`sec-yaml-ideal-surface` and :ref:`sec-yaml-guide-adjacent`.
     %
     % :param src: YAML file containing the interface or edge phase.
     % :param name: Name of the interface or edge phase in the YAML file.

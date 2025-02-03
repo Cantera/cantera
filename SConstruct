@@ -68,16 +68,6 @@ Additional command options:
 #                          screen instead of doing <command>, for example
 #                          'scons build dump'. For debugging purposes.
 
-# This f-string is deliberately here to trigger a SyntaxError when
-# SConstruct is parsed by Python 2. This seems to be the most robust
-# and simplest option that will reliably trigger an error in Python 2
-# and provide actionable feedback for users.
-f"""
-Cantera must be built using Python 3.8 or higher. You can invoke SCons by executing
-    python3 `which scons`
-followed by any desired options.
-"""
-
 from pathlib import Path
 import sys
 import os
@@ -99,8 +89,8 @@ from buildutils import (Option, PathOption, BoolOption, EnumOption, Configuratio
                         config_error, run_preprocessor, make_relative_path_absolute)
 
 # ensure that Python and SCons versions are sufficient for the build process
-EnsurePythonVersion(3, 7)
-EnsureSConsVersion(3, 0, 0)
+EnsurePythonVersion(3, 10)
+EnsureSConsVersion(4, 0, 0)
 
 if not COMMAND_LINE_TARGETS:
     # Print usage help
@@ -144,6 +134,10 @@ if "clean" in COMMAND_LINE_TARGETS:
         remove_file(name)
     for name in Path("site_scons").glob("**/*.pyc"):
         remove_file(name)
+    for name in Path("include/cantera/clib_experimental").glob("*.h"):
+        remove_file(name)
+    for name in Path("src/clib_experimental").glob("*.cpp"):
+        remove_file(name)
 
     logger.status("Done removing output files.", print_level=False)
 
@@ -163,7 +157,7 @@ logger.info(
     f"SCons {SCons.__version__} is using the following Python interpreter:\n"
     f"    {sys.executable} (Python {python_version})", print_level=False)
 
-cantera_version = "3.1.0a4"
+cantera_version = "3.2.0a1"
 # For use where pre-release tags are not permitted (MSI, sonames)
 cantera_pure_version = re.match(r'(\d+\.\d+\.\d+)', cantera_version).group(0)
 cantera_short_version = re.match(r'(\d+\.\d+)', cantera_version).group(0)
@@ -180,9 +174,9 @@ else:
 
 
 # Python Package Settings
-python_min_version = parse_version("3.8")
+python_min_version = parse_version("3.10")
 # Newest Python version not supported/tested by Cantera
-python_max_version = parse_version("3.13")
+python_max_version = parse_version("3.14")
 # The string is used to set python_requires in setup.cfg.in
 py_requires_ver_str = f">={python_min_version},<{python_max_version}"
 
@@ -324,14 +318,8 @@ config_options = [
            interface further requires ruamel.yaml and pytest. The default
            behavior is to build the full Python module for whichever version of
            Python is running SCons if the required prerequisites (NumPy and
-           Cython) are installed. Note: 'y' is a synonym for 'full' and 'n' is a
-           synonym for 'none'.""",
-        # TODO: Remove 'minimal' after Cantera 3.1 is released. Leave it here for now
-        # to provide migration information.
-        # TODO: Remove 'none' and 'full' options after Cantera 3.1 is released. Prefer
-        # simpler 'y' and 'n' options, since we don't need to distinguish from the
-        # minimal interface.
-        "default", ("full", "none", "n", "y", "default", "minimal")),
+           Cython) are installed.""",
+        "default", ("n", "y", "default")),
     PathOption(
         "python_cmd",
         """Cantera needs to know where to find the Python interpreter. If
@@ -379,6 +367,13 @@ config_options = [
     BoolOption(
         "sphinx_docs",
         "Build HTML documentation for Cantera using Sphinx.",
+        False),
+    BoolOption(
+        "clib_experimental",
+        """Build experimental CLib. Requires running 'scons doxygen' and CLib code
+           generation via 'python3 interfaces/sourcegen/run.py --api=clib --output=.'
+           prior to 'scons build' command.
+           """,
         False),
     BoolOption(
         "run_examples",
@@ -850,8 +845,6 @@ if os.name == "nt":
     elif windows_compiler_env["toolchain"] == "mingw":
         toolchain = ["mingw", "f90"]
         extraEnvArgs["F77"] = None
-        # Next line fixes https://github.com/SCons/scons/issues/2683
-        extraEnvArgs["WINDOWS_INSERT_DEF"] = 1
 
     elif windows_compiler_env["toolchain"] == "intel":
         toolchain = ["intelc"] # note: untested
@@ -954,16 +947,6 @@ config["python_cmd"].default = sys.executable
 opts.AddVariables(*config.to_scons())
 opts.Update(env)
 opts.Save('cantera.conf', env)
-
-# TODO: Remove after Cantera 3.1, when the minimal option is removed from the
-# configuration.
-if env["python_package"] == "minimal":
-    logger.error(
-        "The 'minimal' option for the Python package was removed in Cantera 3.1. "
-        "Please build the full interface by passing 'python_package=y' or turn off the "
-        "interface with 'python_package=n'"
-    )
-    sys.exit(1)
 
 # Expand ~/ and environment variables used in cantera.conf (variables used on
 # the command line will be expanded by the shell)
@@ -1255,7 +1238,7 @@ if env['system_fmt'] in ('y', 'default'):
     )
     if retcode and fmt_version_text:
         fmt_lib_version = split_version(fmt_version_text)
-        fmt_min_version = "6.1.2"
+        fmt_min_version = "8.0.0"
         if parse_version(fmt_lib_version) < parse_version(fmt_min_version):
             if env['system_fmt'] == 'y':
                 config_error(
@@ -1263,7 +1246,7 @@ if env['system_fmt'] in ('y', 'default'):
                     f"version {fmt_min_version} or higher is required.")
         else:
             env['system_fmt'] = True
-            logger.info(f"Using system installation of fmt library.")
+            logger.info("Using system installation of fmt library.")
     elif env['system_fmt'] == 'y':
         config_error('Expected system installation of fmt library, but it '
             'could not be found.')
@@ -1280,11 +1263,7 @@ if env['system_fmt'] in ('n', 'default'):
 
     fmt_lib_version = split_version(fmt_version_text)
     env['system_fmt'] = False
-    logger.info(f"Using private installation of fmt library.")
-
-if env["OS"] == "Windows" and parse_version(fmt_lib_version) < parse_version("8.0.0"):
-    # Workaround for symbols not exported on Windows in older fmt versions
-    env.Append(CPPDEFINES={"FMT_HEADER_ONLY": 1})
+    logger.info("Using private installation of fmt library.")
 
 logger.info(f"Using fmt version {fmt_lib_version}")
 
@@ -1375,7 +1354,7 @@ env['HAS_OPENMP'] = conf.CheckLibWithHeader(
     ["iomp5", "omp", "gomp"], "omp.h", language="C++"
 )
 
-_, boost_lib_version = run_preprocessor(conf, ["<boost/version.hpp>"], "BOOST_LIB_VERSION")
+retcode, boost_lib_version = run_preprocessor(conf, ["<boost/version.hpp>"], "BOOST_LIB_VERSION")
 if not retcode:
     config_error("Boost could not be found. Install Boost headers or set "
                  "'boost_inc_dir' to point to the boost headers.")
@@ -1648,29 +1627,19 @@ debug_message = [
 logger.debug("\n".join(debug_message), print_level=False)
 
 env['python_cmd_esc'] = quoted(env['python_cmd'])
-
-# TODO: Remove this check when 'full' and 'none' are removed
-if env['python_package'] == 'full':
-    logger.warning("The 'full' specification is deprecated and should be replaced by 'y'")
-    env['python_package'] = 'y'  # Allow 'full' as a synonym for 'y'
-elif env['python_package'] == 'none':
-    logger.warning("The 'none' specification is deprecated and should be replaced by 'n'")
-    env['python_package'] = 'n'  # Allow 'none' as a synonym for 'n'
-
 env["python_min_version"] = python_min_version
 env["python_max_version"] = python_max_version
 env["py_requires_ver_str"] = py_requires_ver_str
 env["cython_version_spec"] = SpecifierSet(">=0.29.31", prereleases=True)
-env["numpy_version_spec"] = SpecifierSet(">=1.12.0,<3", prereleases=True)
+# When updating NumPy spec, also update interfaces/python_sdist/pyproject.toml.in.
+env["numpy_version_spec"] = SpecifierSet(">=1.21.0,<3", prereleases=True)
 env["cython_version_spec_str"] = str(env["cython_version_spec"])
 env["numpy_version_spec_str"] = str(env["numpy_version_spec"])
 
-# We choose ruamel.yaml 0.15.34 as the minimum version
-# since it is the highest version available in the Ubuntu
-# 18.04 repositories and seems to work. Older versions such as
-# 0.13.14 on CentOS7 and 0.10.23 on Ubuntu 16.04 raise an exception
-# that they are missing the RoundTripRepresenter
-env["ruamel_version_spec"] = SpecifierSet(">=0.15.34", prereleases=True)
+# We choose ruamel.yaml 0.17.16 as the minimum version since it is the highest version
+# available in the Ubuntu 22.04 repositories. When updating this, also update the
+# version string in interfaces/python_sdist/pyproject.toml.in.
+env["ruamel_version_spec"] = SpecifierSet(">=0.17.16", prereleases=True)
 env["ruamel_version_spec_str"] = str(env["ruamel_version_spec"])
 
 # Minimum pytest version assumed based on Ubuntu 20.04

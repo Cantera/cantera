@@ -26,8 +26,8 @@ compiler is required only if you plan to build the Fortran module.
 
 - Microsoft compilers (C/C++)
 
-  - Known to work with Visual Studio 2017 (MSVC 14.1), Visual Studio 2019 (MSVC 14.2)
-    and Visual Studio 2022 (MSVC 14.3).
+  - Known to work with Visual Studio 2019 (MSVC 14.2) and Visual Studio 2022
+    (MSVC 14.3).
 
 - MinGW (C/C++/Fortran)
 
@@ -40,14 +40,14 @@ compiler is required only if you plan to build the Fortran module.
 - SCons:
 
   - <http://scons.org/tag/releases.html>
-  - Works with versions >= 3.0.0
+  - Works with versions >= 4.0.0
   - On Windows, more recent SCons versions are required to support each new version of
     the MSVC compiler.
 
 - Python:
 
   - <https://python.org/downloads/>
-  - Works with versions >= 3.8.
+  - Works with versions >= 3.10.
 
 - Boost
 
@@ -63,7 +63,7 @@ compiler is required only if you plan to build the Fortran module.
     Git, SUNDIALS will be automatically downloaded and the necessary portions will be
     compiled and installed with Cantera.
   - <https://computing.llnl.gov/projects/sundials>
-  - Known to work with versions >= 3.0 and \<= 7.0.
+  - Known to work with versions >= 5.0 and \<= 7.2.
   - To use SUNDIALS with Cantera on a Linux/Unix system, it must be compiled
     with the `-fPIC` flag. You can specify this flag when configuring SUNDIALS as
     `cmake -DCMAKE_C_FLAGS=-fPIC <other command-line options>`
@@ -81,7 +81,7 @@ compiler is required only if you plan to build the Fortran module.
     Cantera source code using Git, fmt will be automatically downloaded and the
     necessary portions will be compiled and installed with Cantera.
   - <https://fmt.dev/latest/index.html>
-  - Known to work with versions 6.1.2 through 11.0.
+  - Known to work with versions 8.0 through 11.0.
 
 - yaml-cpp
 
@@ -97,7 +97,7 @@ compiler is required only if you plan to build the Fortran module.
 
   - Required to build the Cantera Python module, and to run significant portions
     of the test suite.
-  - Expected to work with versions >= 1.12.0. 1.16.0 or newer is recommended.
+  - Expected to work with versions >= 1.21.0.
 
 - [Cython](https://cython.org/)
 
@@ -121,8 +121,7 @@ compiler is required only if you plan to build the Fortran module.
 
   - Required to convert input files from Chemkin, {term}`CTI`, and XML to the YAML
     format
-  - Known to work with versions 0.15.42, 0.15.87, and 0.16.5
-  - Expected to work with versions >= 0.15.0
+  - Expected to work with versions >= 0.17.16
 
 - [libhdf5](https://www.hdfgroup.org/solutions/hdf5/)
 
@@ -213,4 +212,4 @@ compiler is required only if you plan to build the Fortran module.
 - [.NET](https://dotnet.microsoft.com/)
 
   - Required for the compilation of the experimental .NET interface
-  - Known to work for the .NET 6.0 SDK
+  - Known to work for the .NET 8.0 SDK

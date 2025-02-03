@@ -218,7 +218,7 @@ public:
      * computed first by the species reference state thermodynamic property
      * manager and then a small pressure dependent term is added in.
      *
-     * \see MultiSpeciesThermo
+     * @see MultiSpeciesThermo
      */
     double enthalpy_mole() const override;
 
@@ -239,6 +239,12 @@ public:
      * @see MultiSpeciesThermo
      */
     double entropy_mole() const override;
+
+    //! Molar Gibbs function of the solution. Units: J/kmol
+    /*!
+     * Uses thermodynamic property relations.
+     */
+    double gibbs_mole() const override;
 
     //! Molar heat capacity at constant pressure of the solution.
     //! Units: J/kmol/K.

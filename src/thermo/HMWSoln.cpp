@@ -51,16 +51,10 @@ HMWSoln::HMWSoln(const string& inputFile, const string& id_) :
 
 // -------- Molar Thermodynamic Properties of the Solution ---------------
 
-double HMWSoln::enthalpy_mole() const
-{
-    getPartialMolarEnthalpies(m_tmpV.data());
-    return mean_X(m_tmpV);
-}
-
 double HMWSoln::relative_enthalpy() const
 {
-    getPartialMolarEnthalpies(m_tmpV.data());
-    double hbar = mean_X(m_tmpV);
+    getPartialMolarEnthalpies(m_workS.data());
+    double hbar = mean_X(m_workS);
     getEnthalpy_RT(m_gamma_tmp.data());
     for (size_t k = 0; k < m_kk; k++) {
         m_gamma_tmp[k] *= RT();
@@ -72,20 +66,20 @@ double HMWSoln::relative_enthalpy() const
 double HMWSoln::relative_molal_enthalpy() const
 {
     double L = relative_enthalpy();
-    getMoleFractions(m_tmpV.data());
+    getMoleFractions(m_workS.data());
     double xanion = 0.0;
     size_t kcation = npos;
     double xcation = 0.0;
     size_t kanion = npos;
     for (size_t k = 0; k < m_kk; k++) {
         if (charge(k) > 0.0) {
-            if (m_tmpV[k] > xanion) {
-                xanion = m_tmpV[k];
+            if (m_workS[k] > xanion) {
+                xanion = m_workS[k];
                 kanion = k;
             }
         } else if (charge(k) < 0.0) {
-            if (m_tmpV[k] > xcation) {
-                xcation = m_tmpV[k];
+            if (m_workS[k] > xcation) {
+                xcation = m_workS[k];
                 kcation = k;
             }
         }
@@ -109,24 +103,6 @@ double HMWSoln::relative_molal_enthalpy() const
     return L / xuse;
 }
 
-double HMWSoln::entropy_mole() const
-{
-    getPartialMolarEntropies(m_tmpV.data());
-    return mean_X(m_tmpV);
-}
-
-double HMWSoln::gibbs_mole() const
-{
-    getChemPotentials(m_tmpV.data());
-    return mean_X(m_tmpV);
-}
-
-double HMWSoln::cp_mole() const
-{
-    getPartialMolarCp(m_tmpV.data());
-    return mean_X(m_tmpV);
-}
-
 double HMWSoln::cv_mole() const
 {
     double kappa_t = isothermalCompressibility();
@@ -147,11 +123,8 @@ void HMWSoln::calcDensity()
         return;
     }
 
-    // Calculate all of the other standard volumes. Note these are constant for
-    // now
-    getPartialMolarVolumes(m_tmpV.data());
-    double dd = meanMolecularWeight() / mean_X(m_tmpV);
-    Phase::assignDensity(dd);
+    // Calculate all of the other standard volumes. Note these are constant for now
+    VPStandardStateTP::calcDensity();
 }
 
 // ------- Activities and Activity Concentrations
@@ -171,8 +144,8 @@ void HMWSoln::getActivityConcentrations(double* c) const
 
 double HMWSoln::standardConcentration(size_t k) const
 {
-    getStandardVolumes(m_tmpV.data());
-    double mvSolvent = m_tmpV[0];
+    getStandardVolumes(m_workS.data());
+    double mvSolvent = m_workS[0];
     if (k > 0) {
         return m_Mnaught / mvSolvent;
     }
@@ -1131,7 +1104,7 @@ double HMWSoln::d2A_DebyedT2_TP(double tempArg, double presArg) const
 
 void HMWSoln::initLengths()
 {
-    m_tmpV.resize(m_kk, 0.0);
+    m_workS.resize(m_kk, 0.0);
     m_molalitiesCropped.resize(m_kk, 0.0);
 
     size_t maxCounterIJlen = 1 + (m_kk-1) * (m_kk-2) / 2;
@@ -3963,7 +3936,7 @@ void HMWSoln::s_updateIMS_lnMolalityActCoeff() const
 void HMWSoln::printCoeffs() const
 {
     calcMolalities();
-    vector<double>& moleF = m_tmpV;
+    vector<double>& moleF = m_workS;
 
     // Update the coefficients wrt Temperature. Calculate the derivatives as well
     s_updatePitzer_CoeffWRTemp(2);

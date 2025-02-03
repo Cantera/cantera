@@ -328,16 +328,6 @@ void Sim1D::setFlatProfile(size_t dom, size_t comp, double v)
     }
 }
 
-void Sim1D::show(ostream& s)
-{
-    warn_deprecated("Sim1D::show(ostream&)", "To be removed after Cantera 3.1.");
-    for (size_t n = 0; n < nDomains(); n++) {
-        if (domain(n).type() != "empty") {
-            domain(n).show(s, m_state->data() + start(n));
-        }
-    }
-}
-
 void Sim1D::show()
 {
     for (size_t n = 0; n < nDomains(); n++) {
@@ -902,6 +892,7 @@ size_t Sim1D::maxGridPoints(size_t dom)
 
 double Sim1D::jacobian(int i, int j)
 {
+    warn_deprecated("Sim1D::jacobian", "To be removed after Cantera 3.2.");
     return OneDim::jacobian().value(i,j);
 }
 
@@ -920,6 +911,10 @@ void Sim1D::solveAdjoint(const double* b, double* lambda)
         D->forceFullUpdate(false);
     }
 
+    auto multijac = dynamic_pointer_cast<MultiJac>(m_jac);
+    if (!multijac) {
+        throw CanteraError("Sim1D::solveAdjoint", "Banded (MultiJac) required");
+    }
     // Form J^T
     size_t bw = bandwidth();
     BandMatrix Jt(size(), bw, bw);
@@ -927,7 +922,7 @@ void Sim1D::solveAdjoint(const double* b, double* lambda)
         size_t j1 = (i > bw) ? i - bw : 0;
         size_t j2 = (i + bw >= size()) ? size() - 1: i + bw;
         for (size_t j = j1; j <= j2; j++) {
-            Jt(j,i) = m_jac->value(i,j);
+            Jt(j,i) = multijac->value(i,j);
         }
     }
 

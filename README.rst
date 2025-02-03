@@ -33,10 +33,10 @@ using the following MyBinder link:
 Installation
 ============
 
-|pip| |anaconda| |conda-forge|
+|pip| |conda-forge|
 
 `Installation instructions for the current release of Cantera
-<https://cantera.org/install/index.html>`_ are available from the main `Cantera
+<https://cantera.org/stable/install/index.html>`_ are available from the main `Cantera
 documentation site <https://cantera.org>`_.
 
 - The Python module can also be installed using pip on Windows, macOS, and Linux.
@@ -48,28 +48,26 @@ documentation site <https://cantera.org>`_.
   RHEL, Gentoo, and FreeBSD.
 
 - For other platforms, or for users wishing to install a development version of
-  Cantera, `compilation instructions <https://cantera.org/install/compiling-install.html#sec-compiling>`_
+  Cantera, `compilation instructions <https://cantera.org/stable/develop/index.html>`_
   are also available.
 
 Documentation
 =============
 
-The `documentation <https://cantera.org/documentation>`_
-offers a number of starting points:
+The `documentation <https://cantera.org>`_ offers a number of starting points:
 
 - `Python tutorial
-  <https://cantera.org/tutorials/python-tutorial.html>`_
+  <https://cantera.org/stable/userguide/python-tutorial.html>`_
 - `Application Examples in Python
-  <https://cantera.org/examples/jupyter/index.html>`_
+  <https://cantera.org/stable/examples/python/index.html>`_
 - `A guide to Cantera's input file format
-  <https://cantera.org/tutorials/input-files.html>`_
+  <https://cantera.org/stable/userguide/input-tutorial.html>`_
+- `User Guide: Tutorials, FAQ, and Task Guides
+  <https://cantera.org/stable/userguide/index.html>`
 - `Information about the Cantera community
   <https://cantera.org/community.html>`_
 - `Affiliated packages
-  <https://cantera.org/affiliated-packages.html>`_
-
-`Documentation for the development version of Cantera
-<https://cantera.org/documentation/dev-docs.html>`_ is also available.
+  <https://cantera.org/affiliated.html>`_
 
 Code of Conduct
 ===============
@@ -94,8 +92,8 @@ possible.
 Development Site
 ================
 
-The current development version is 3.1.0a4. The current stable version is
-3.0.0. The `latest Cantera source code <https://github.com/Cantera/cantera>`_,
+The current development version is 3.2.0a1. The current stable version is
+3.1.0. The `latest Cantera source code <https://github.com/Cantera/cantera>`_,
 the `issue tracker <https://github.com/Cantera/cantera/issues>`_ for bugs and
 enhancement requests, `downloads of Cantera releases and binary installers
 <https://github.com/Cantera/cantera/releases>`_ , and the `Cantera wiki
@@ -125,7 +123,7 @@ development of Cantera through NumFOCUS.
     :target: https://numfocus.org/donate-to-cantera
     :alt: Powered by NumFOCUS
 
-.. |cantera| image:: https://cantera.org/assets/img/cantera-logo.png
+.. |cantera| image:: https://cantera.org/_static/cantera-logo.png
     :target: https://cantera.org
     :alt: cantera logo
     :width: 675px
@@ -134,8 +132,8 @@ development of Cantera through NumFOCUS.
 .. |ci| image:: https://github.com/Cantera/cantera/workflows/CI/badge.svg
     :target: https://github.com/Cantera/cantera/actions?query=workflow%3ACI+event%3Apush
 
-.. |doi| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.8137090.svg
-   :target: https://doi.org/10.5281/zenodo.8137090
+.. |doi| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.14455267.svg
+   :target: https://doi.org/10.5281/zenodo.14455267
 
 .. |codecov| image:: https://img.shields.io/codecov/c/github/Cantera/cantera/main.svg
    :target: https://codecov.io/gh/Cantera/cantera?branch=main
@@ -146,9 +144,6 @@ development of Cantera through NumFOCUS.
 
 .. |pip| image:: https://img.shields.io/pypi/v/cantera
    :target: https://pypi.org/project/Cantera/
-
-.. |anaconda| image:: https://img.shields.io/conda/v/cantera/cantera
-   :target: https://anaconda.org/Cantera/cantera
 
 .. |conda-forge| image:: https://img.shields.io/conda/v/conda-forge/cantera
    :target: https://anaconda.org/conda-forge/cantera

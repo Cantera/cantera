@@ -1309,7 +1309,6 @@ def setup_python_env(env):
         _python_info = json.loads(get_command_output(env["python_cmd"], "-c", script))
 
     info = _python_info
-    module_ext = info["EXT_SUFFIX"]
     inc = info["INCLUDEPY"]
     pylib = info.get("LDLIBRARY")
     prefix = info["prefix"]
@@ -1325,16 +1324,7 @@ def setup_python_env(env):
     add_system_include(env, (inc, numpy_include), 'prepend')
     env.Prepend(LIBS=env['cantera_shared_libs'])
 
-    # Fix the module extension for Windows from the sysconfig library.
-    # See https://github.com/python/cpython/pull/22088 and
-    # https://bugs.python.org/issue39825
-    if (py_version_full < parse_version("3.8.7")
-        and env["OS"] == "Windows"
-        and module_ext == ".pyd"
-    ):
-        module_ext = f".cp{py_version_nodot}-{info['plat'].replace('-', '_')}.pyd"
-
-    env["py_module_ext"] = module_ext
+    env["py_module_ext"] = info["EXT_SUFFIX"]
     env["py_version_nodot"] = py_version_nodot
     env["py_version_short"] = info["py_version_short"]
     env["py_plat"] = plat
@@ -1349,13 +1339,6 @@ def setup_python_env(env):
         py_lib = "python" + py_version_nodot
     env["py_libs"] = [py_lib] + [lib[2:] for lib in info.get("LIBS", "").split()
                                  if lib.startswith("-l")]
-
-    # Don't print deprecation warnings for internal Python changes.
-    # Only applies to Python 3.8. The field that is deprecated in Python 3.8
-    # and causes the warnings to appear will be removed in Python 3.9 so no
-    # further warnings should be issued.
-    if env["HAS_CLANG"] and py_version_short == parse_version("3.8"):
-        env.Append(CXXFLAGS='-Wno-deprecated-declarations')
 
     if env['OS'] == 'Darwin':
         env.Append(LINKFLAGS='-undefined dynamic_lookup')
@@ -1492,12 +1475,7 @@ def check_for_python(
                 from ruamel import yaml
                 versions["ruamel.yaml"] = yaml.__version__
             except ImportError as ru_err:
-                try:
-                    import ruamel_yaml as yaml
-                    versions["ruamel.yaml"] = yaml.__version__
-                except ImportError as ru_err_2:
-                    err += str(ru_err) + "\\n"
-                    err += str(ru_err_2) + "\\n"
+                err += str(ru_err) + "\\n"
         """)
     if check_for_pytest:
         script += check_module("pytest")
@@ -1760,16 +1738,15 @@ def check_sundials(conf: "SConfigure", sundials_version: str) -> Dict[str, Union
         ".".join(sundials_version.strip().replace('"', "").split())
     )
     should_exit_with_error = conf.env["system_sundials"] == "y"
-    if sundials_ver < parse_version("3.0") or sundials_ver >= parse_version("8.0"):
+    if sundials_ver < parse_version("5.0") or sundials_ver >= parse_version("8.0"):
         if should_exit_with_error:
-            config_error(f"Sundials version must be >=3.0,<8.0. Found {sundials_ver}.")
+            config_error(f"Sundials version must be >=5.0,<8.0. Found {sundials_ver}.")
         return {"system_sundials": "n", "sundials_version": "", "has_sundials_lapack": 0}
-    elif sundials_ver > parse_version("7.0.0"):
+    elif sundials_ver > parse_version("7.2.0"):
         logger.warning(f"Sundials version {sundials_ver} has not been tested.")
 
     cvode_checks = {
-        SpecifierSet(">=3.0,<4.0"): ("CVodeCreate(CV_BDF, CV_NEWTON);", ["sundials_cvodes"]),
-        SpecifierSet(">=4.0,<6.0"): ("CVodeCreate(CV_BDF);", ["sundials_cvodes"]),
+        SpecifierSet(">=5.0,<6.0"): ("CVodeCreate(CV_BDF);", ["sundials_cvodes"]),
         SpecifierSet(">=6.0,<7.0"): (
             "SUNContext ctx; SUNContext_Create(0, &ctx);", ["sundials_cvodes"]
         ),

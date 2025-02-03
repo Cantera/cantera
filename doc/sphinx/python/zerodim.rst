@@ -141,13 +141,6 @@ PressureController
 .. autoclass:: PressureController(upstream, downstream, *, name=None, primary=None, K=1.0, edge_attr=None)
    :inherited-members:
 
-Preconditioners
----------------
-
-AdaptivePreconditioner
-^^^^^^^^^^^^^^^^^^^^^^
-.. autoclass:: AdaptivePreconditioner()
-
 Drawing Reactor Networks
 ------------------------
 These functions provide the implementation behind the ``draw`` methods of the

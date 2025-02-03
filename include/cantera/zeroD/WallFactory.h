@@ -47,11 +47,6 @@ private:
 //! @since Starting in %Cantera 3.1, this method returns a `shared_ptr<WallBase>`
 shared_ptr<WallBase> newWall(const string& model, const string& name="(none)");
 
-//! Create a WallBase object of the specified type
-//! @since New in %Cantera 3.0.
-//! @deprecated Replaced by newWall. To be removed after %Cantera 3.1.
-shared_ptr<WallBase> newWall3(const string& model);
-
 //! @}
 
 }

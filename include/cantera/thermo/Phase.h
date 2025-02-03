@@ -18,6 +18,7 @@ namespace Cantera
 
 class Solution;
 class Species;
+class Kinetics;
 
 //! Class Phase is the base class for phases of matter, managing the species and
 //! elements in a phase, as well as the independent variables of temperature,
@@ -873,6 +874,9 @@ protected:
 
     //! Flag determining whether case sensitive species names are enforced
     bool m_caseSensitiveSpecies = false;
+
+    //! Vector of size m_kk, used as a temporary holding area.
+    mutable vector<double> m_workS;
 
 private:
     //! Find lowercase species name in m_speciesIndices when case sensitive

@@ -129,8 +129,8 @@ double PengRobinson::pressure() const
 
 double PengRobinson::standardConcentration(size_t k) const
 {
-    getStandardVolumes(m_tmpV.data());
-    return 1.0 / m_tmpV[k];
+    getStandardVolumes(m_workS.data());
+    return 1.0 / m_workS[k];
 }
 
 void PengRobinson::getActivityCoefficients(double* ac) const
@@ -256,9 +256,9 @@ void PengRobinson::getPartialMolarEntropies(double* sbar) const
     // Using the identity : (hk - T*sk) = gk
     double T = temperature();
     getPartialMolarEnthalpies(sbar);
-    getChemPotentials(m_tmpV.data());
+    getChemPotentials(m_workS.data());
     for (size_t k = 0; k < m_kk; k++) {
-        sbar[k] = (sbar[k] - m_tmpV[k])/T;
+        sbar[k] = (sbar[k] - m_workS[k])/T;
     }
 }
 
@@ -267,9 +267,9 @@ void PengRobinson::getPartialMolarIntEnergies(double* ubar) const
     // u_i = h_i - p*v_i
     double p = pressure();
     getPartialMolarEnthalpies(ubar);
-    getPartialMolarVolumes(m_tmpV.data());
+    getPartialMolarVolumes(m_workS.data());
     for (size_t k = 0; k < m_kk; k++) {
-        ubar[k] = ubar[k] - p*m_tmpV[k];
+        ubar[k] = ubar[k] - p*m_workS[k];
     }
 }
 

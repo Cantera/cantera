@@ -23,16 +23,15 @@ classifiers =
     Programming Language :: Cython
     Programming Language :: Fortran
     Programming Language :: Python :: 3 :: Only
-    Programming Language :: Python :: 3.8
-    Programming Language :: Python :: 3.9
     Programming Language :: Python :: 3.10
     Programming Language :: Python :: 3.11
     Programming Language :: Python :: 3.12
+    Programming Language :: Python :: 3.13
     Programming Language :: Python :: Implementation :: CPython
     Topic :: Scientific/Engineering :: Chemistry
     Topic :: Scientific/Engineering :: Physics
 project_urls =
-    Documentation = https://cantera.org/documentation
+    Documentation = https://cantera.org/stable/reference
     Funding = https://numfocus.org/donate-to-cantera
     Source = https://github.com/Cantera/cantera
     Tracker = https://github.com/Cantera/cantera/issues
@@ -65,7 +64,6 @@ cantera.examples = *.txt
 pandas = pandas
 units =
     pint
-    numpy<2.0; python_version <= '3.9'
 graphviz = graphviz
 
 [options.entry_points]

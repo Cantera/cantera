@@ -148,11 +148,13 @@ public:
                                         double* bstar_coeffs,
                                         double* cstar_coeffs, bool actualT) override;
 
-    void init(ThermoPhase* thermo, int mode=0, int log_level=0) override;
+    void init(ThermoPhase* thermo, int mode=0) override;
 
     bool CKMode() const override {
         return m_mode == CK_Mode;
     }
+
+    void invalidateCache() override;
 
 protected:
     GasTransport();
@@ -540,9 +542,6 @@ protected:
 
     //! Quadrupole polarizability
     vector<double> m_quad_polar;
-
-    //! Level of verbose printing during initialization
-    int m_log_level = 0;
 };
 
 } // namespace Cantera

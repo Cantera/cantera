@@ -22,23 +22,16 @@ import argparse
 import textwrap
 from email.utils import formatdate
 from pathlib import Path
-
-try:
-    from ruamel import yaml
-except ImportError:
-    import ruamel_yaml as yaml
+from ruamel import yaml
 
 # yaml.version_info is a tuple with the three parts of the version
 yaml_version = yaml.version_info
-# We choose ruamel.yaml 0.15.34 as the minimum version
-# since it is the highest version available in the Ubuntu
-# 18.04 repositories and seems to work. Older versions such as
-# 0.13.14 on CentOS7 and 0.10.23 on Ubuntu 16.04 raise an exception
-# that they are missing the RoundTripRepresenter
-yaml_min_version = (0, 15, 34)
+# We choose ruamel.yaml 0.17.16 as the minimum version since it is the highest version
+# available in the Ubuntu 22.04 repositories.
+yaml_min_version = (0, 17, 16)
 if yaml_version < yaml_min_version:
     raise RuntimeError(
-        "The minimum supported version of ruamel.yaml is 0.15.34. If you "
+        "The minimum supported version of ruamel.yaml is 0.17.16. If you "
         "installed ruamel.yaml from your operating system's package manager, "
         "please install an updated version using pip or conda."
     )
@@ -67,19 +60,6 @@ def FlowList(*args, **kwargs):
     lst.fa.set_flow_style()
     return lst
 
-# Improved float formatting requires Numpy >= 1.14
-if hasattr(np, 'format_float_positional'):
-    def float2string(data):
-        if data == 0:
-            return '0.0'
-        elif 0.01 <= abs(data) < 10000:
-            return np.format_float_positional(data, trim='0')
-        else:
-            return np.format_float_scientific(data, trim='0')
-else:
-    def float2string(data):
-        return repr(data)
-
 def represent_float(self, data):
     if data != data:
         value = '.nan'
@@ -87,8 +67,12 @@ def represent_float(self, data):
         value = '.inf'
     elif data == -self.inf_value:
         value = '-.inf'
+    elif data == 0:
+        value = '0.0'
+    elif 0.01 <= abs(data) < 10000:
+        value = np.format_float_positional(data, trim='0')
     else:
-        value = float2string(data)
+        value = np.format_float_scientific(data, trim='0')
 
     return self.represent_scalar(u'tag:yaml.org,2002:float', value)
 
@@ -185,8 +169,7 @@ class Species:
 class Nasa7:
     """
     Thermodynamic data parameterized as two seven-coefficient NASA
-    polynomials.
-    See https://cantera.org/science/species-thermo.html#the-nasa-7-coefficient-polynomial-parameterization
+    polynomials. See :ref:`sec-thermo-nasa7`.
     """
     def __init__(self, *, Tmin, Tmax, Tmid, low_coeffs, high_coeffs, note=''):
         self.Tmin = Tmin
@@ -216,8 +199,7 @@ class Nasa7:
 class Nasa9:
     """
     Thermodynamic data parameterized as any number of nine-coefficient NASA
-    polynomials.
-    See https://cantera.org/science/species-thermo.html#the-nasa-9-coefficient-polynomial-parameterization
+    polynomials. See :ref:`sec-thermo-nasa9`.
 
     :param data:
         List of polynomials, where each polynomial is written as
@@ -388,7 +370,7 @@ class Arrhenius:
 class ElementaryRate(KineticsModel):
     """
     A reaction rate described by a single Arrhenius expression.
-    See https://cantera.org/science/kinetics.html#reactions-with-a-pressure-independent-rate
+    See :ref:`sec-arrhenius-rate`.
 
     :param rate:
         The Arrhenius expression describing this reaction rate.
@@ -407,7 +389,7 @@ class ElementaryRate(KineticsModel):
 class SurfaceRate(KineticsModel):
     """
     An Arrhenius-like reaction occurring on a surface
-    See https://cantera.org/science/kinetics.html#surface-reactions
+    See :ref:`sec-surface-rate`.
 
     :param rate:
         The Arrhenius expression describing this reaction rate.
@@ -454,8 +436,7 @@ class SurfaceRate(KineticsModel):
 class PDepArrhenius(KineticsModel):
     """
     A rate calculated by interpolating between Arrhenius expressions at
-    various pressures.
-    See https://cantera.org/science/kinetics.html#pressure-dependent-arrhenius-rate-expressions-p-log
+    various pressures. See :ref:`sec-plog-rate`.
 
     :param pressures:
         A list of pressures at which Arrhenius expressions are given.
@@ -484,7 +465,7 @@ class PDepArrhenius(KineticsModel):
 class Chebyshev(KineticsModel):
     """
     A rate calculated in terms of a bivariate Chebyshev polynomial.
-    See https://cantera.org/science/kinetics.html#chebyshev-reaction-rate-expressions
+    See :ref:`sec-chebyshev-rate`.
 
     :param coeffs:
         Matrix of Chebyshev coefficients, dimension N_T by N_P
@@ -526,7 +507,7 @@ class Chebyshev(KineticsModel):
 class ThreeBody(KineticsModel):
     """
     A rate calculated for a reaction which includes a third-body collider.
-    See https://cantera.org/science/kinetics.html#three-body-reactions
+    See :ref:`sec-three-body-reaction`.
 
     :param high_rate:
         The Arrhenius kinetics (high-pressure limit)
@@ -555,7 +536,7 @@ class ThreeBody(KineticsModel):
 class Falloff(ThreeBody):
     """
     A rate for a pressure-dependent falloff reaction.
-    See https://cantera.org/science/kinetics.html#falloff-reactions
+    See :ref:`sec-falloff-rate`.
 
     :param low_rate:
         The Arrhenius kinetics at the low-pressure limit
@@ -589,7 +570,7 @@ class Falloff(ThreeBody):
 class ChemicallyActivated(ThreeBody):
     """
     A rate for a chemically-activated reaction.
-    See https://cantera.org/science/kinetics.html#chemically-activated-reactions
+    See :ref:`sec-chemically-activated-rate`.
 
     :param low_rate:
         The Arrhenius kinetics at the low-pressure limit
@@ -623,7 +604,7 @@ class ChemicallyActivated(ThreeBody):
 class Troe:
     """
     The Troe falloff function, described with either 3 or 4 parameters.
-    See https://cantera.org/science/kinetics.html#the-troe-falloff-function
+    See :ref:`sec-troe-falloff`.
     """
     def __init__(self, A=0.0, T3=0.0, T1=0.0, T2=None):
         self.A = A
@@ -641,7 +622,7 @@ class Troe:
 class Sri:
     """
     The SRI falloff function, described with either 3 or 5 parameters.
-    See https://cantera.org/science/kinetics.html#the-sri-falloff-function
+    See :ref:`sec-sri-falloff`.
     """
     def __init__(self, *, A, B, C, D=None, E=None):
         self.A = A
@@ -846,8 +827,7 @@ class Parser:
         the species, the thermodynamics model as a :class:`Nasa7` object, and
         the elemental composition of the species.
 
-        For more details on this format, see `Debugging common errors in CK files
-        <https://cantera.org/tutorials/ck2yaml-tutorial.html#debugging-common-errors-in-ck-files>`__.
+        For more details on this format, see :ref:`sec-debugging-chemkin`.
         """
         identifier = lines[0][0:24].split(maxsplit=1)
         species = identifier[0].strip()
@@ -2055,7 +2035,7 @@ class Parser:
             metadata = BlockMap([
                 ("generator", "ck2yaml"),
                 ("input-files", FlowList(self.files)),
-                ("cantera-version", "3.1.0a4"),
+                ("cantera-version", "3.2.0a1"),
                 ("date", formatdate(localtime=True)),
             ])
             if desc.strip():
@@ -2274,23 +2254,6 @@ def convert(input_file, thermo_file=None, transport_file=None,
             surface_file=None, phase_name='gas', extra_file=None,
             out_name=None, single_intermediate_temperature=False, quiet=False,
             permissive=None, verbose=False):
-    _, surface_names = Parser.convert_mech(
-        input_file, thermo_file, transport_file, surface_file, phase_name, extra_file,
-        out_name, single_intermediate_temperature, quiet, permissive, verbose)
-    return surface_names
-
-
-def convert_mech(input_file, thermo_file=None, transport_file=None,
-                 surface_file=None, phase_name='gas', extra_file=None,
-                 out_name=None, single_intermediate_temperature=False, quiet=False,
-                 permissive=None, verbose=False):
-    """
-    .. deprecated:: 3.0
-
-        To be removed after Cantera 3.1; renamed to :func:`convert`.
-    """
-    warnings.warn(
-        "To be removed after Cantera 3.1; renamed to 'convert'")
     _, surface_names = Parser.convert_mech(
         input_file, thermo_file, transport_file, surface_file, phase_name, extra_file,
         out_name, single_intermediate_temperature, quiet, permissive, verbose)

@@ -7,6 +7,7 @@
 #include "cantera/thermo/VPStandardStateTP.h"
 #include "cantera/thermo/PDSS_Water.h"
 #include "cantera/thermo/WaterSSTP.h"
+#include "cantera/base/global.h"
 
 namespace {
 
@@ -30,7 +31,7 @@ const double Hij[6][7] = {
 namespace Cantera
 {
 
-void WaterTransport::init(ThermoPhase* thermo, int mode, int log_level)
+void WaterTransport::init(ThermoPhase* thermo, int mode)
 {
     m_thermo = thermo;
 }

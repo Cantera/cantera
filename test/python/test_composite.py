@@ -475,13 +475,24 @@ class TestSolutionArrayIO:
         assert states[0].P == gas.P
         assert states[0].Y == approx(gas.Y)
 
+    def test_append_scrambled_input(self):
+        gas = ct.Solution("h2o2.yaml")
+        gas.TP = 300, ct.one_atm
+        gas.set_unnormalized_mass_fractions(np.full(gas.n_species, 0.3))
+        states = ct.SolutionArray(gas)
+        states.append(Y=gas.Y, P=gas.P, normalize=False, T=gas.T)
+        assert states[0].T == gas.T
+        assert states[0].P == gas.P
+        assert states[0].Y == approx(gas.Y)
+
     @pytest.mark.skipif("native" not in ct.hdf_support(),
                         reason="Cantera compiled without HDF support")
-    def test_import_no_norm_data(self):
+    def test_import_no_norm_data_h5(self):
         outfile = self.test_work_path / "solutionarray_no_norm.h5"
         outfile.unlink(missing_ok=True)
 
         gas = ct.Solution("h2o2.yaml")
+        gas.transport_model = "multicomponent"
         gas.set_unnormalized_mole_fractions(np.full(gas.n_species, 0.3))
         states = ct.SolutionArray(gas, 5)
         states.save(outfile, "group0")
@@ -492,6 +503,25 @@ class TestSolutionArrayIO:
         assert states.T == approx(b.T)
         assert states.P == approx(b.P)
         assert states.X == approx(b.X)
+        assert gas_new.transport_model == "multicomponent"
+
+    def test_import_no_norm_data_yaml(self):
+        outfile = self.test_work_path / "solutionarray_no_norm.yaml"
+        outfile.unlink(missing_ok=True)
+
+        gas = ct.Solution("h2o2.yaml")
+        gas.transport_model = "multicomponent"
+        gas.set_unnormalized_mole_fractions(np.full(gas.n_species, 0.3))
+        states = ct.SolutionArray(gas, 5)
+        states.save(outfile, "group0")
+
+        gas_new = ct.Solution("h2o2.yaml")
+        b = ct.SolutionArray(gas_new)
+        b.restore(outfile, "group0") #, normalize=False)
+        assert states.T == approx(b.T)
+        assert states.P == approx(b.P)
+        assert states.X == approx(b.X)
+        assert gas_new.transport_model == "multicomponent"
 
     def check_arrays(self, a, b, rtol=1e-8):
         assert a.T == approx(b.T, rel=rtol)

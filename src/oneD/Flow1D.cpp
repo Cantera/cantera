@@ -207,9 +207,14 @@ void Flow1D::resetBadValues(double* xg)
     }
 }
 
-void Flow1D::setTransportModel(const string& trans)
+void Flow1D::setTransportModel(const string& model)
 {
-    m_solution->setTransportModel(trans);
+    if (model == "none") {
+        throw CanteraError("Flow1D::setTransportModel",
+            "Invalid Transport model 'none'.");
+    }
+    m_solution->setTransportModel(model);
+    Flow1D::setTransport(m_solution->transport());
 }
 
 string Flow1D::transportModel() const {
@@ -773,12 +778,6 @@ void Flow1D::evalElectricField(double* x, double* rsd, int* diag,
     }
 }
 
-void Flow1D::evalContinuity(size_t j, double* x, double* rsd, int* diag, double rdt)
-{
-    throw CanteraError("Flow1D::evalContinuity",
-        "Overloaded by StFlow; to be removed after Cantera 3.1");
-}
-
 void Flow1D::show(const double* x)
 {
     writelog("    Pressure:  {:10.4g} Pa\n", m_press);
@@ -987,7 +986,9 @@ void Flow1D::setMeta(const AnyMap& state)
         }
     }
 
-    setTransportModel(state.getString("transport-model", "mixture-averaged"));
+    if (state.hasKey("transport-model")) {
+        setTransportModel(state["transport-model"].asString());
+    }
 
     if (state.hasKey("Soret-enabled")) {
         m_do_soret = state["Soret-enabled"].asBool();
@@ -1258,6 +1259,9 @@ void Flow1D::enableTwoPointControl(bool twoPointControl)
 {
     if (isStrained()) {
         m_twoPointControl = twoPointControl;
+        // Prevent finding spurious solutions with negative velocity (outflow) at either
+        // inlet.
+        setBounds(c_offset_V, -1e-5, 1e20);
     } else {
         throw CanteraError("Flow1D::enableTwoPointControl",
             "Invalid operation: two-point control can only be used"

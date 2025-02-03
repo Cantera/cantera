@@ -144,10 +144,10 @@ cdef class ConstantCp(SpeciesThermo):
     :param coeffs:
         An array of 4 elements:
 
-             - `coeffs[0]` = :math:`T_0` [K]
-             - `coeffs[1]` = :math:`H^o(T_0, p_{ref})` [J/kmol]
-             - `coeffs[2]` = :math:`S^o(T_0, p_{ref})` [J/kmol-K]
-             - `coeffs[3]` = :math:`c_p^o(T_0, p_{ref})` [J/kmol-K]
+        - `coeffs[0]` = :math:`T_0` [K]
+        - `coeffs[1]` = :math:`H^o(T_0, p_{ref})` [J/kmol]
+        - `coeffs[2]` = :math:`S^o(T_0, p_{ref})` [J/kmol-K]
+        - `coeffs[3]` = :math:`c_p^o(T_0, p_{ref})` [J/kmol-K]
     """
     derived_type = SPECIES_THERMO_CONSTANT_CP
 
@@ -162,15 +162,15 @@ cdef class Mu0Poly(SpeciesThermo):
     capacity approximation. This is a wrapper for the C++ class :ct:`Mu0Poly`.
 
     :param coeffs:
-        An array of 2+2*npoints elements, in the following order:
+        An array of `2 + 2*npoints` elements, in the following order:
 
-            - `coeffs[0]`: number of points (integer)
-            - `coeffs[1]`: h^o(298.15 K) [J/kmol]
-            - `coeffs[2]`: T_1 [Kelvin]
-            - `coeffs[3]`: \mu^o(T_1) [J/kmol]
-            - `coeffs[4]`: T_2 [Kelvin]
-            - `coeffs[5]`: \mu^o(T_2) [J/kmol]
-            - ...
+        - `coeffs[0]`: number of points (integer)
+        - `coeffs[1]`: h^o(298.15 K) [J/kmol]
+        - `coeffs[2]`: T_1 [Kelvin]
+        - `coeffs[3]`: \mu^o(T_1) [J/kmol]
+        - `coeffs[4]`: T_2 [Kelvin]
+        - `coeffs[5]`: \mu^o(T_2) [J/kmol]
+        - ...
     """
     derived_type = SPECIES_THERMO_MU0_INTERP
 
@@ -187,12 +187,12 @@ cdef class NasaPoly2(SpeciesThermo):
     :param coeffs:
         An array of 15 elements, in the following order:
 
-            - `coeffs[0]`: The mid-point temperature [K] between the two
-              parameterizations
-            - `coeffs[1:8]`: The 7 coefficients of the high-temperature
-              parameterization
-            - `coeffs[8:15]`: The 7 coefficients of the low-temperature
-              parameterization
+        - `coeffs[0]`: The mid-point temperature [K] between the two
+          parameterizations
+        - `coeffs[1:8]`: The 7 coefficients of the high-temperature
+          parameterization
+        - `coeffs[8:15]`: The 7 coefficients of the low-temperature
+          parameterization
 
         This is the coefficient order used in the standard fixed-format NASA
         input files.
@@ -210,14 +210,14 @@ cdef class Nasa9PolyMultiTempRegion(SpeciesThermo):
     This is a wrapper for the C++ class :ct:`Nasa9PolyMultiTempRegion`.
 
     :param coeffs:
-        An array of 1 + 11*`nzones` elements, in the following order:
+        An array of `1 + 11*nzones` elements, in the following order:
 
-            - `coeffs[0]`: Number of zones (`nzones`)
-            - `coeffs[1 + 11*zone]`: minimum temperature within zone
-            - `coeffs[2 + 11*zone]`: maximum temperature within zone
-            - `coeffs[3:11 + 11*zone]`: 9 coefficients of the parameterization
+        - `coeffs[0]`: Number of zones (`nzones`)
+        - `coeffs[1 + 11*zone]`: minimum temperature within zone
+        - `coeffs[2 + 11*zone]`: maximum temperature within zone
+        - `coeffs[3:11 + 11*zone]`: 9 coefficients of the parameterization
 
-        where `zone` runs from zero to `nzones`-1.
+        where `zone` runs from zero to `nzones-1`.
     """
     derived_type = SPECIES_THERMO_NASA9MULTITEMP
 
@@ -234,12 +234,12 @@ cdef class ShomatePoly2(SpeciesThermo):
     :param coeffs:
         An array of 15 elements, in the following order:
 
-            - `coeffs[0]`: The mid-point temperature [K] between the two
-              parameterizations
-            - `coeffs[1:8]`: The 7 coefficients of the low-temperature
-              parameterization
-            - `coeffs[8:15]`: The 7 coefficients of the high-temperature
-              parameterization
+        - `coeffs[0]`: The mid-point temperature [K] between the two
+          parameterizations
+        - `coeffs[1:8]`: The 7 coefficients of the low-temperature
+          parameterization
+        - `coeffs[8:15]`: The 7 coefficients of the high-temperature
+          parameterization
 
         These coefficients should be provided in their customary units (that is,
         such that :math:`c_p^o` is in J/gmol-K and :math:`H^o` is in kJ/gmol,

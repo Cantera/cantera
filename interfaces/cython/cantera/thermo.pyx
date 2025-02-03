@@ -749,8 +749,8 @@ cdef class ThermoPhase(_SolutionBase):
         ``basis='mass'`` means mass fractions. The fuel/oxidizer mixture can be
         be diluted by a ``diluent`` based on a mixing ``fraction``. The amount of
         diluent is quantified as a fraction of fuel, oxidizer or the fuel/oxidizer
-        mixture. For more information, see `Python example
-        <https://cantera.org/examples/python/thermo/equivalenceRatio.py.html>`_ ::
+        mixture. For more information, see the :doc:`Python example
+        </examples/python/thermo/equivalenceRatio>` ::
 
             >>> gas.set_equivalence_ratio(0.5, 'CH4', 'O2:1.0, N2:3.76', basis='mole')
             >>> gas.mass_fraction_dict()
@@ -892,9 +892,8 @@ cdef class ThermoPhase(_SolutionBase):
         H to H2O and S to SO2. Other elements are assumed not to participate in
         oxidation (that is, N ends up as N2). The ``basis`` determines the composition
         of fuel and oxidizer: ``basis='mole'`` (default) means mole fractions,
-        ``basis='mass'`` means mass fractions. For more information, see `Python
-        example
-        <https://cantera.org/examples/python/thermo/equivalenceRatio.py.html>`_ ::
+        ``basis='mass'`` means mass fractions. For more information, see the
+        :doc:`Python example </examples/python/thermo/equivalenceRatio>` ::
 
             >>> gas.set_mixture_fraction(0.5, 'CH4', 'O2:1.0, N2:3.76')
             >>> gas.mass_fraction_dict()
@@ -947,8 +946,8 @@ cdef class ThermoPhase(_SolutionBase):
         In case certain species like inert diluents should be ignored, a
         list of species can be provided with ``include_species``. This means that
         only these species are considered for the computation of the equivalence
-        ratio. For more information, see `Python example
-        <https://cantera.org/examples/python/thermo/equivalenceRatio.py.html>`_ ::
+        ratio. For more information, see the
+        :doc:`Python example </examples/python/thermo/equivalenceRatio>` ::
 
             >>> gas.set_equivalence_ratio(0.5, fuel='CH3:0.5, CH3OH:.5, N2:0.125', oxidizer='O2:0.21, N2:0.79, NO:0.01')
             >>> gas.equivalence_ratio(fuel='CH3:0.5, CH3OH:.5, N2:0.125', oxidizer='O2:0.21, N2:0.79, NO:0.01')
@@ -1022,8 +1021,8 @@ cdef class ThermoPhase(_SolutionBase):
             - \frac{Z_O}{M_O}
 
         and :math:`M_m` the atomic weight of element :math:`m`.
-        For more information, see `Python example
-        <https://cantera.org/examples/python/thermo/equivalenceRatio.py.html>`_.::
+        For more information, see the
+        :doc:`Python example </examples/python/thermo/equivalenceRatio>` ::
 
             >>> gas.set_mixture_fraction(0.5, 'CH3:0.5, CH3OH:0.5, N2:0.125', 'O2:0.21, N2:0.79, NO:0.01')
             >>> gas.mixture_fraction('CH3:0.5, CH3OH:0.5, N2:0.125', 'O2:0.21, N2:0.79, NO:.01')
@@ -1905,6 +1904,15 @@ cdef class ThermoPhase(_SolutionBase):
                 raise ThermoModelMethodError(self.thermo_model)
             return pystr(self.plasma.electronSpeciesName())
 
+    property elastic_power_loss:
+        """
+        Elastic power loss (J/s/m3)
+        .. versionadded:: 3.2
+        """
+        def __get__(self):
+            if not self._enable_plasma:
+                raise ThermoModelMethodError(self.thermo_model)
+            return self.plasma.elasticPowerLoss()
 
 cdef class InterfacePhase(ThermoPhase):
     """ A class representing a surface, edge phase """
@@ -2147,9 +2155,8 @@ cdef class PureFluid(ThermoPhase):
         def __get__(self):
             return self.s, self.v, self.Q
 
-# TODO: Remove these helper methods when support for Python 3.8 is dropped. Python 3.9
-# allows the classmethod and property decorators to be chained, so these can be
-# implemented as properties in the Element class.
+# Helper methods for the implementation of properties of class Element.
+# @todo These can be inlined once Support for Cython 0.29 is dropped.
 def _element_symbols():
     syms = elementSymbols()
     return tuple(pystr(s) for s in syms)
@@ -2204,12 +2211,10 @@ class Element:
     #: The number of named elements (not isotopes) defined in Cantera
     num_elements_defined = numElementsDefined()
 
-    #: A list of the symbols of all the elements (not isotopes) defined
-    #: in Cantera
+    #: A list of the symbols of all the elements (not isotopes) defined in Cantera
     element_symbols = _element_symbols()
 
-    #: A list of the names of all the elements (not isotopes) defined
-    #: in Cantera
+    #: A list of the names of all the elements (not isotopes) defined in Cantera
     element_names = _element_names()
 
     def __init__(self, arg):

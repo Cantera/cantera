@@ -16,14 +16,9 @@ cdef class ReactorBase:
     Common base class for reactors and reservoirs.
     """
     reactor_type = "none"
-    def __cinit__(self, _SolutionBase contents=None, *, name="(none)", **kwargs):
-        if isinstance(contents, _SolutionBase):
-            self._reactor = newReactor(stringify(self.reactor_type),
-                                       contents._base, stringify(name))
-        else:
-            # deprecated: will raise warnings in C++ layer
-            self._reactor = newReactor(stringify(self.reactor_type))
-            self._reactor.get().setName(stringify(name))
+    def __cinit__(self, _SolutionBase contents, *, name="(none)", **kwargs):
+        self._reactor = newReactor(stringify(self.reactor_type),
+                                   contents._base, stringify(name))
         self.rbase = self._reactor.get()
 
     def __init__(self, _SolutionBase contents=None, *,
@@ -198,13 +193,11 @@ cdef class Reactor(ReactorBase):
     def __cinit__(self, *args, **kwargs):
         self.reactor = <CxxReactor*>(self.rbase)
 
-    def __init__(self, contents=None, *,
+    def __init__(self, contents, *,
                  name="(none)", energy='on', group_name="", **kwargs):
         """
         :param contents:
-            Reactor contents. If not specified, the reactor is initially empty.
-            In this case, call `insert` to specify the contents. Providing valid
-            contents will become mandatory after Cantera 3.1.
+            A `Solution` object representing the Reactor contents
         :param name:
             Name string. If not specified, the name initially defaults to ``'(none)'``
             and changes to ``'<reactor_type>_n'`` when `Reactor` objects are installed
@@ -345,16 +338,16 @@ cdef class Reactor(ReactorBase):
 
         `Reactor` or `IdealGasReactor`:
 
-          - 0  - mass
-          - 1  - volume
-          - 2  - internal energy or temperature
-          - 3+ - mass fractions of the species
+        - 0  - mass
+        - 1  - volume
+        - 2  - internal energy or temperature
+        - 3+ - mass fractions of the species
 
         `ConstPressureReactor` or `IdealGasConstPressureReactor`:
 
-          - 0  - mass
-          - 1  - enthalpy or temperature
-          - 2+ - mass fractions of the species
+        - 0  - mass
+        - 1  - enthalpy or temperature
+        - 2+ - mass fractions of the species
 
         You can use the function `component_index` to determine the location of
         a specific component from its name, or `component_name` to determine the
@@ -1989,11 +1982,11 @@ cdef class ReactorNet:
 
     property preconditioner:
         """Preconditioner associated with integrator"""
-        def __set__(self, PreconditionerBase precon):
+        def __set__(self, SystemJacobian precon):
             # set preconditioner
-            self.net.setPreconditioner(precon.pbase)
+            self.net.setPreconditioner(precon._base)
             # set problem type as default of preconditioner
-            self.linear_solver_type = precon.precon_linear_solver_type
+            self.linear_solver_type = precon.linear_solver_type
 
     property linear_solver_type:
         """
@@ -2001,10 +1994,10 @@ cdef class ReactorNet:
 
             Options for this property include:
 
-              - `"DENSE"`
-              - `"GMRES"`
-              - `"BAND"`
-              - `"DIAG"`
+            - `"DENSE"`
+            - `"GMRES"`
+            - `"BAND"`
+            - `"DIAG"`
 
         """
         def __set__(self, linear_solver_type):

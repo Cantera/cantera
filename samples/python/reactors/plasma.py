@@ -5,7 +5,9 @@ Solve a constant pressure and constant gas/electron temperature plasma problem,
 which approximates the conditions found in a glow discharge.
 
 This file uses a similar approach as custom.py, where the governing equations are
-implemented in Python, to solve the electron concentration in a plasma
+implemented in Python, to solve the electron concentration in a plasma.
+
+See the input file :doc:`oxygen-plasma-itikawa.yaml <../../input/oxygen-plasma-itikawa>`.
 
 Requires: cantera >= 3.1, matplotlib >= 2.0
 

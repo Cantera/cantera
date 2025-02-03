@@ -7,6 +7,7 @@
 #include "cantera/numerics/Func1.h"
 #include "cantera/oneD/MultiNewton.h"
 #include "cantera/base/AnyMap.h"
+#include "cantera/numerics/SystemJacobianFactory.h"
 
 #include <fstream>
 #include <ctime>
@@ -86,11 +87,28 @@ void OneDim::addDomain(shared_ptr<Domain1D> d)
 
 MultiJac& OneDim::jacobian()
 {
-    return *m_jac;
+    warn_deprecated("OneDim::jacobian",
+                    "Replaced by getJacobian. To be removed after Cantera 3.2.");
+    auto multijac = dynamic_pointer_cast<MultiJac>(m_jac);
+    if (multijac) {
+        return *multijac;
+    } else {
+        throw CanteraError("OneDim::jacobian", "Active Jacobian is not a MultiJac");
+    }
 }
+
 MultiNewton& OneDim::newton()
 {
     return *m_newt;
+}
+
+void OneDim::setLinearSolver(shared_ptr<SystemJacobian> solver)
+{
+    m_jac = solver;
+    m_jac->initialize(size());
+    m_jac->setBandwidth(bandwidth());
+    m_jac->clearStats();
+    m_jac_ok = false;
 }
 
 void OneDim::setJacAge(int ss_age, int ts_age)
@@ -200,20 +218,23 @@ void OneDim::resize()
     m_newt->resize(size());
     m_mask.resize(size());
 
-    // delete the current Jacobian evaluator and create a new one
-    m_jac = make_unique<MultiJac>(*this);
+    if (!m_jac) {
+        m_jac = newSystemJacobian("banded-direct");
+    }
+    m_jac->initialize(size());
+    m_jac->setBandwidth(bandwidth());
+    m_jac->clearStats();
     m_jac_ok = false;
 }
 
 int OneDim::solve(double* x, double* xnew, int loglevel)
 {
     if (!m_jac_ok) {
-        eval(npos, x, xnew, 0.0, 0);
-        m_jac->eval(x, xnew, 0.0);
+        evalJacobian(x);
         m_jac->updateTransient(m_rdt, m_mask.data());
         m_jac_ok = true;
     }
-    return m_newt->solve(x, xnew, *this, *m_jac, loglevel);
+    return m_newt->solve(x, xnew, *this, loglevel);
 }
 
 void OneDim::evalSSJacobian(double* x, double* rsd)
@@ -221,8 +242,7 @@ void OneDim::evalSSJacobian(double* x, double* rsd)
     double rdt_save = m_rdt;
     m_jac_ok = false;
     setSteadyMode();
-    eval(npos, x, rsd, 0.0, 0);
-    m_jac->eval(x, rsd, 0.0);
+    evalJacobian(x);
     m_rdt = rdt_save;
 }
 
@@ -268,6 +288,52 @@ void OneDim::eval(size_t j, double* x, double* r, double rdt, int count)
         m_evaltime += double(t1 - t0)/CLOCKS_PER_SEC;
         m_nevals++;
     }
+}
+
+void OneDim::evalJacobian(double* x0)
+{
+    m_jac->reset();
+    clock_t t0 = clock();
+    m_work1.resize(size());
+    m_work2.resize(size());
+    eval(npos, x0, m_work1.data(), 0.0, 0);
+    size_t ipt = 0;
+    for (size_t j = 0; j < points(); j++) {
+        size_t nv = nVars(j);
+        for (size_t n = 0; n < nv; n++) {
+            // perturb x(n); preserve sign(x(n))
+            double xsave = x0[ipt];
+            double dx = fabs(xsave) * m_jacobianRelPerturb + m_jacobianAbsPerturb;
+            if (xsave < 0) {
+                dx = -dx;
+            }
+            x0[ipt] = xsave + dx;
+            double rdx = 1.0 / (x0[ipt] - xsave);
+
+            // calculate perturbed residual
+            eval(j, x0, m_work2.data(), 0.0, 0);
+
+            // compute nth column of Jacobian
+            for (size_t i = j - 1; i != j+2; i++) {
+                if (i != npos && i < points()) {
+                    size_t mv = nVars(i);
+                    size_t iloc = loc(i);
+                    for (size_t m = 0; m < mv; m++) {
+                        double delta = m_work2[m+iloc] - m_work1[m+iloc];
+                        if (std::abs(delta) > m_jacobianThreshold || m+iloc == ipt) {
+                            m_jac->setValue(m + iloc, ipt, delta * rdx);
+                        }
+                    }
+                }
+            }
+            x0[ipt] = xsave;
+            ipt++;
+        }
+    }
+
+    m_jac->updateElapsed(double(clock() - t0) / CLOCKS_PER_SEC);
+    m_jac->incrementEvals();
+    m_jac->setAge(0);
 }
 
 double OneDim::ssnorm(double* x, double* r)

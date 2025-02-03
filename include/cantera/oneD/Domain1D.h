@@ -75,6 +75,13 @@ public:
         throw NotImplementedError("Domain1D::setTransport");
     }
 
+    //! Set transport model by name.
+    //! @param model  String specifying model name.
+    //! @since New in %Cantera 3.2.
+    virtual void setTransportModel(const string& model) {
+        throw NotImplementedError("Domain1D::setTransportModel");
+    }
+
     //! The container holding this domain.
     const OneDim& container() const {
         return *m_container;
@@ -117,16 +124,6 @@ public:
      * be overloaded.
      */
     virtual void init() {  }
-
-    //! @deprecated Unused. To be removed after Cantera 3.1.
-    virtual void setInitialState(double* xlocal = 0) {
-        warn_deprecated("Domain1D::setInitialState", "To be removed after Cantera 3.1.");
-    }
-
-    //! @deprecated Unused. To be removed after Cantera 3.1.
-    virtual void setState(size_t point, const double* state, double* x) {
-        warn_deprecated("Domain1D::setState", "To be removed after Cantera 3.1.");
-    }
 
     /**
      * When called, this function should reset "bad" values in the state vector
@@ -351,11 +348,6 @@ public:
         return x[index(n,j)];
     }
 
-    //! @deprecated To be removed after Cantera 3.1.
-    virtual void setJac(MultiJac* jac) {
-        warn_deprecated("Domain1D::setJac", "To be removed after Cantera 3.1.");
-    }
-
     //! Save the state of this domain as a SolutionArray.
     /*!
      * @param soln  local solution vector for this domain
@@ -485,13 +477,6 @@ public:
     }
 
     //! Print the solution.
-    //! @deprecated Not implemented. To be removed after Cantera 3.1.
-    virtual void show(std::ostream& s, const double* x) {
-        warn_deprecated("Domain1D::show(std::ostream, double*)",
-                        "Not implemented. To be removed after Cantera 3.1.");
-    }
-
-    //! Print the solution.
     //! @param x  Pointer to the local portion of the system state vector
     virtual void show(const double* x);
 
@@ -524,13 +509,6 @@ public:
     //! Access the array of grid coordinates [m]
     const vector<double>& grid() const {
         return m_z;
-    }
-
-    //! @deprecated To be removed after Cantera 3.1. Use z() instead.
-    double grid(size_t point) const {
-        warn_deprecated("Domain1D::grid",
-            "To be removed after Cantera 3.1. Use z() instead.");
-        return m_z[point];
     }
 
     //! called to set up initial grid, and after grid refinement

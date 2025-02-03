@@ -1,0 +1,36 @@
+# Configuration for CLib code generation.
+
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at https://cantera.org/license.txt for license and copyright information.
+
+# List of files to ignore entirely:
+ignore_files: []
+
+# Dictionary of file names and list of functions to ignore.
+# Example: ctkin_auto.yaml: [phase]
+ignore_funcs:
+  ct_auto.yaml: [setLogWriter, setLogCallback]
+
+# Cabinets with associated includes
+includes:
+  "":
+  - cantera/base/global.h
+  Solution:
+  - cantera/base/Solution.h
+  Interface:
+  - cantera/base/Interface.h
+  ThermoPhase:
+  - cantera/thermo/ThermoFactory.h
+  - cantera/thermo/SurfPhase.h
+  Kinetics:
+  - cantera/kinetics/KineticsFactory.h
+  - cantera/kinetics/InterfaceKinetics.h
+  Transport:
+  - cantera/transport/TransportFactory.h
+  MultiPhase:
+  - cantera/equil/MultiPhase.h
+  - cantera/thermo/ThermoPhase.h
+  Reaction:
+  - cantera/kinetics/Reaction.h
+  Func1:
+  - cantera/numerics/Func1Factory.h

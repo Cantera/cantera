@@ -1,0 +1,37 @@
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at https://cantera.org/license.txt for license and copyright information.
+
+docstring: |-
+  Auto-generated CLib API for %Cantera's Solution class.
+  Partially implements a replacement for CLib's traditional @c ct library.
+prefix: sol3
+base: Solution
+parents: []  # List of parent classes
+derived: [Interface]  # List of specializations
+recipes:
+- name: newSolution
+  implements: newSolution(const string&, const string&, const string&)
+  uses: [thermo, kinetics, transport]
+- name: newInterface
+  implements:
+    newInterface(const string&, const string&, const vector<shared_ptr<Solution>>&)
+  uses: [thermo, kinetics]
+- name: del
+  uses: [thermo, kinetics, transport]
+- name: name
+- name: setName
+- name: thermo
+- name: kinetics
+- name: transport
+- name: transportModel
+- name: setTransportModel
+  uses: [transport]
+  what: accessor
+- name: nAdjacent
+- name: adjacent
+  implements: adjacent(size_t)
+  uses: [nAdjacent, thermo, kinetics, transport]
+  what: accessor
+- name: adjacentName
+- name: source
+- name: cabinetSize

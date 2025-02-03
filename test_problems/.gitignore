@@ -31,8 +31,6 @@ cxx_samples/flamespeed.yaml
 diamondSurf/diamondSurf
 diamondSurf/runDiamond_output.out
 dustyGasTransport/dustyGasTransport
-mixGasTransport/mixGasTransport
-multiGasTransport/multiGasTransport
 pureFluidTest/pureFluid
 surfSolverTest/surfaceSolver
 surfSolverTest/surfaceSolver2

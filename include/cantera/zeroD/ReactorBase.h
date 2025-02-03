@@ -14,11 +14,9 @@ namespace Cantera
 
 //! @defgroup zerodGroup Zero-Dimensional Reactor Networks
 //!
-//! @details See the
-//! [Reactor Science](https://cantera.org/science/reactors/reactors.html)
-//! section of the %Cantera website for a description of the governing equations for
-//! specific reactor types and the methods used for solving networks of interconnected
-//! reactors.
+//! @details See the [Reactor Science](../reference/reactors/index.html) section of the
+//! %Cantera website for a description of the governing equations for specific reactor
+//! types and the methods used for solving networks of interconnected reactors.
 
 class FlowDevice;
 class WallBase;
@@ -91,18 +89,6 @@ public:
     void setInitialVolume(double vol) {
         m_vol = vol;
     }
-
-    //! @deprecated To be removed after %Cantera 3.1. Superseded by setSolution.
-    void insert(shared_ptr<Solution> sol);
-
-    //! Specify the mixture contained in the reactor. Note that a pointer to
-    //! this substance is stored, and as the integration proceeds, the state of
-    //! the substance is modified.
-    //! @deprecated To be removed after %Cantera 3.1. Superseded by setSolution.
-    void setThermoMgr(ThermoPhase& thermo);
-
-    //! @deprecated To be removed after %Cantera 3.1. Superseded by setSolution.
-    void setKineticsMgr(Kinetics& kin);
 
     //! Enable or disable changes in reactor composition due to chemical reactions.
     virtual void setChemistry(bool cflag = true) {

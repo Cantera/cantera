@@ -1,0 +1,143 @@
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at https://cantera.org/license.txt for license and copyright information.
+
+docstring: |-
+  Auto-generated CLib API for %Cantera's ThermoPhase class.
+  Partially implements a replacement for CLib's traditional @c ct and
+  @c ctsurf libraries.
+prefix: thermo3
+base: ThermoPhase
+parents: [Phase]  # List of parent classes
+derived: [SurfPhase]  # List of specializations
+recipes:
+- name: report
+- name: getName
+  implements: name  # inconsistent API (preexisting)
+- name: setName
+- name: getEosType
+  implements: type  # inconsistent API (preexisting)
+- name: nElements
+- name: nSpecies
+- name: temperature
+- name: setTemperature
+- name: pressure
+- name: setPressure
+- name: density
+- name: setDensity
+- name: molarDensity
+- name: meanMolecularWeight
+- name: moleFraction
+  implements: moleFraction(size_t)
+- name: massFraction
+  implements: massFraction(size_t)
+- name: getMoleFractions
+  uses: nSpecies
+- name: getMassFractions
+  uses: nSpecies
+- name: setMoleFractions
+  uses: nSpecies
+- name: setMassFractions
+  uses: nSpecies
+- name: setMoleFractionsByName
+  implements: setMoleFractionsByName(const string&)
+- name: setMassFractionsByName
+  implements: setMassFractionsByName(const string&)
+- name: getAtomicWeights
+  uses: nElements
+  implements: atomicWeights  # inconsistent API (preexisting)
+- name: getMolecularWeights
+  uses: nSpecies
+- name: getCharges
+  uses: nElements
+- name: getElementName
+  implements: elementName(int)  # inconsistent API (preexisting)
+- name: getSpeciesName
+  implements: speciesName(int)  # inconsistent API (preexisting)
+- name: elementIndex
+- name: speciesIndex
+- name: nAtoms
+- name: addElement
+- name: refPressure
+- name: minTemp
+- name: maxTemp
+- name: enthalpy_mole
+- name: enthalpy_mass
+- name: entropy_mole
+- name: entropy_mass
+- name: intEnergy_mole
+- name: intEnergy_mass
+- name: gibbs_mole
+- name: gibbs_mass
+- name: cp_mole
+- name: cp_mass
+- name: cv_mole
+- name: cv_mass
+- name: chemPotentials
+  implements: getChemPotentials  # inconsistent API (preexisting)
+- name: electroChemPotentials
+  implements: getElectrochemPotentials  # inconsistent API (preexisting)
+- name: electricPotential
+- name: setElectricPotential
+- name: thermalExpansionCoeff
+- name: isothermalCompressibility
+- name: getPartialMolarEnthalpies
+- name: getPartialMolarEntropies
+- name: getPartialMolarIntEnergies
+- name: getPartialMolarCp
+- name: getPartialMolarVolumes
+- name: setState_TPX  # New in Cantera 3.2
+  implements: setState_TPX(double, double, const double*)
+- name: setState_TPY  # New in Cantera 3.2
+  implements: setState_TPY(double, double, const double*)
+- name: set_TP
+  implements: setState_TP(double, double)  # inconsistent API (preexisting)
+- name: set_TD
+  implements: setState_TD(double, double)  # inconsistent API (preexisting)
+- name: set_DP
+  implements: setState_DP(double, double)  # inconsistent API (preexisting)
+- name: set_HP
+  implements: setState_HP(double, double)  # inconsistent API (preexisting)
+- name: set_UV
+  implements: setState_UV(double, double)  # inconsistent API (preexisting)
+- name: set_SV
+  implements: setState_SV(double, double)  # inconsistent API (preexisting)
+- name: set_SP
+  implements: setState_SP(double, double)  # inconsistent API (preexisting)
+- name: set_ST
+  implements: setState_ST(double, double)  # inconsistent API (preexisting)
+- name: set_TV
+  implements: setState_TV(double, double)  # inconsistent API (preexisting)
+- name: set_PV
+  implements: setState_PV(double, double)  # inconsistent API (preexisting)
+- name: set_UP
+  implements: setState_UP(double, double)  # inconsistent API (preexisting)
+- name: set_VH
+  implements: setState_VH(double, double)  # inconsistent API (preexisting)
+- name: set_TH
+  implements: setState_TH(double, double)  # inconsistent API (preexisting)
+- name: set_SH
+  implements: setState_SH(double, double)  # inconsistent API (preexisting)
+- name: equilibrate
+  implements:
+    ThermoPhase::equilibrate(const string&, const string&, double, int, int, int)
+- name: critTemperature
+- name: critPressure
+- name: critDensity
+- name: vaporFraction
+- name: satTemperature
+- name: satPressure
+- name: setState_Psat
+- name: setState_Tsat
+- name: getCoverages  # previously: used 'surf' prefix'
+- name: setCoverages  # previously: used 'surf' prefix'
+- name: getConcentrations  # previously: used 'surf' prefix'
+- name: setConcentrations  # previously: used 'surf' prefix'
+- name: siteDensity  # previously: used 'surf' prefix'
+- name: setSiteDensity  # previously: used 'surf' prefix'
+- name: setCoveragesByName  # previously: used 'surf' prefix'
+  implements: setCoveragesByName(const string&)
+- name: del
+  what: noop
+  brief: Destructor; required by some APIs although object is managed by Solution.
+- name: cabinetSize
+- name: parentHandle

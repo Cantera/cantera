@@ -47,7 +47,6 @@ cdef extern from "cantera/base/Solution.h" namespace "Cantera":
         shared_ptr[CxxKinetics] kinetics()
         void setKinetics(shared_ptr[CxxKinetics]) except +translate_exception
         shared_ptr[CxxTransport] transport()
-        void setTransport(shared_ptr[CxxTransport]) except +translate_exception
         void setTransportModel(const string&) except +translate_exception
         CxxAnyMap parameters(cbool) except +translate_exception
         size_t nAdjacent()

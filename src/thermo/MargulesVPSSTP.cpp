@@ -49,42 +49,6 @@ void MargulesVPSSTP::getChemPotentials(double* mu) const
     }
 }
 
-double MargulesVPSSTP::enthalpy_mole() const
-{
-    size_t kk = nSpecies();
-    double h = 0;
-    vector<double> hbar(kk);
-    getPartialMolarEnthalpies(&hbar[0]);
-    for (size_t i = 0; i < kk; i++) {
-        h += moleFractions_[i]*hbar[i];
-    }
-    return h;
-}
-
-double MargulesVPSSTP::entropy_mole() const
-{
-    size_t kk = nSpecies();
-    double s = 0;
-    vector<double> sbar(kk);
-    getPartialMolarEntropies(&sbar[0]);
-    for (size_t i = 0; i < kk; i++) {
-        s += moleFractions_[i]*sbar[i];
-    }
-    return s;
-}
-
-double MargulesVPSSTP::cp_mole() const
-{
-    size_t kk = nSpecies();
-    double cp = 0;
-    vector<double> cpbar(kk);
-    getPartialMolarCp(&cpbar[0]);
-    for (size_t i = 0; i < kk; i++) {
-        cp += moleFractions_[i]*cpbar[i];
-    }
-    return cp;
-}
-
 double MargulesVPSSTP::cv_mole() const
 {
     return cp_mole() - GasConstant;

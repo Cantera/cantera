@@ -97,7 +97,7 @@ public:
 
     //! Set the transport model
     //! @since New in %Cantera 3.0.
-    void setTransportModel(const string& trans);
+    void setTransportModel(const string& model) override;
 
     //! Retrieve transport model
     //! @since New in %Cantera 3.0.
@@ -607,12 +607,6 @@ protected:
                                    double rdt, size_t jmin, size_t jmax);
 
     //! @} End of Governing Equations
-
-    //! Alternate version of evalContinuity with legacy signature.
-    //! Implemented by StFlow; included here to prevent compiler warnings about shadowed
-    //! virtual functions.
-    //! @deprecated To be removed after %Cantera 3.1.
-    virtual void evalContinuity(size_t j, double* x, double* r, int* diag, double rdt);
 
     /**
      * Evaluate the oxidizer axial velocity equation residual.

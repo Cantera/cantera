@@ -34,6 +34,10 @@ double LatticePhase::entropy_mole() const
     return GasConstant * (mean_X(entropy_R_ref()) - sum_xlogx());
 }
 
+double LatticePhase::gibbs_mole() const {
+    return enthalpy_mole() - temperature() * entropy_mole();
+}
+
 double LatticePhase::cp_mole() const
 {
     return GasConstant * mean_X(cp_R_ref());

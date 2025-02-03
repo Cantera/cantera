@@ -39,6 +39,8 @@ libs = [('base', ['cpp'], baseSetup),
         ('zeroD', ['cpp'], defaultSetup),
         ('clib', ['cpp'], defaultSetup),
         ]
+if env['clib_experimental']:
+    libs.append(('clib_experimental', ['cpp'], defaultSetup))
 
 localenv = env.Clone()
 localenv.Prepend(CPPPATH=[Dir('#include'), Dir('.')])
@@ -83,8 +85,6 @@ if env["python_package"] == "y":
     if env["OS"] == "Windows":
         escaped_home = '\\"' + pyenv["py_base"].replace("\\", "\\\\") + '\\"'
         pyenv.Append(CPPDEFINES={"CT_PYTHONHOME": escaped_home})
-        # Workaround for a problem with Boost, Python 3.8 and MSVC
-        pyenv.Append(CPPDEFINES={"HAVE_SNPRINTF": None})
 
     pyenv.Append(LIBS=pyenv["py_libs"], LIBPATH=pyenv["py_libpath"])
     shim = pyenv.SharedObject("extensions/pythonShim.cpp")

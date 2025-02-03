@@ -50,39 +50,6 @@ void RedlichKisterVPSSTP::getChemPotentials(double* mu) const
     }
 }
 
-double RedlichKisterVPSSTP::enthalpy_mole() const
-{
-    double h = 0;
-    vector<double> hbar(m_kk);
-    getPartialMolarEnthalpies(&hbar[0]);
-    for (size_t i = 0; i < m_kk; i++) {
-        h += moleFractions_[i]*hbar[i];
-    }
-    return h;
-}
-
-double RedlichKisterVPSSTP::entropy_mole() const
-{
-    double s = 0;
-    vector<double> sbar(m_kk);
-    getPartialMolarEntropies(&sbar[0]);
-    for (size_t i = 0; i < m_kk; i++) {
-        s += moleFractions_[i]*sbar[i];
-    }
-    return s;
-}
-
-double RedlichKisterVPSSTP::cp_mole() const
-{
-    double cp = 0;
-    vector<double> cpbar(m_kk);
-    getPartialMolarCp(&cpbar[0]);
-    for (size_t i = 0; i < m_kk; i++) {
-        cp += moleFractions_[i]*cpbar[i];
-    }
-    return cp;
-}
-
 double RedlichKisterVPSSTP::cv_mole() const
 {
     return cp_mole();

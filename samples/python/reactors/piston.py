@@ -30,12 +30,12 @@ Requires: cantera >= 2.5.0, matplotlib >= 2.0
 """
 
 import sys
-
 import cantera as ct
+import matplotlib.pyplot as plt
+plt.rcParams['figure.constrained_layout.use'] = True
 
-fmt = '{:10.3f}  {:10.1f}  {:10.4f}  {:10.4g}  {:10.4g}  {:10.4g}  {:10.4g}'
-print('{:10}  {:10}  {:10}  {:10}  {:10}  {:10}  {:10}'.format(
-    'time [s]', 'T1 [K]', 'T2 [K]', 'V1 [m^3]', 'V2 [m^3]', 'V1+V2 [m^3]', 'X(CO)'))
+# %%
+# Create objects representing the gases and reactors
 
 gas1 = ct.Solution('h2o2.yaml')
 gas1.TPX = 900.0, ct.one_atm, 'H2:2, O2:1, AR:20'
@@ -48,7 +48,7 @@ r1.volume = 0.5
 r2 = ct.IdealGasReactor(gas2)
 r2.volume = 0.1
 
-
+# %%
 # The wall is held fixed until t = 0.1 s, then released to allow the pressure to
 # equilibrate.
 def v(t):
@@ -57,14 +57,18 @@ def v(t):
     else:
         return (r1.thermo.P - r2.thermo.P) * 1e-4
 
-
 w = ct.Wall(r1, r2, velocity=v)
 
 net = ct.ReactorNet([r1, r2])
 
+# %%
+# Run the simulation and collect the states of each reactor
 states1 = ct.SolutionArray(r1.thermo, extra=['t', 'volume'])
 states2 = ct.SolutionArray(r2.thermo, extra=['t', 'volume'])
 
+fmt = '{:10.3f}  {:10.1f}  {:10.4f}  {:10.4g}  {:10.4g}  {:10.4g}  {:10.4g}'
+print('{:>10}  {:>10}  {:>10}  {:>10}  {:>10}  {:>10}  {:>10}'.format(
+    'time [s]', 'T1 [K]', 'T2 [K]', 'V1 [m^3]', 'V2 [m^3]', 'Vtot [m^3]', 'X(CO)'))
 for n in range(200):
     time = (n+1)*0.001
     net.advance(time)
@@ -75,28 +79,19 @@ for n in range(200):
     states1.append(r1.thermo.state, t=1000*time, volume=r1.volume)
     states2.append(r2.thermo.state, t=1000*time, volume=r2.volume)
 
-# plot the results if matplotlib is installed.
-if '--plot' in sys.argv:
-    import matplotlib.pyplot as plt
-    plt.subplot(2, 2, 1)
-    plt.plot(states1.t, states1.T, '-', states2.t, states2.T, 'r-')
-    plt.xlabel('Time (ms)')
-    plt.ylabel('Temperature (K)')
-    plt.subplot(2, 2, 2)
-    plt.plot(states1.t, states1.volume, '-', states2.t, states2.volume, 'r-',
-             states1.t, states1.volume + states2.volume, 'g-')
-    plt.xlabel('Time (ms)')
-    plt.ylabel('Volume (m3)')
-    plt.subplot(2, 2, 3)
-    plt.plot(states2.t, states2('CO').X)
-    plt.xlabel('Time (ms)')
-    plt.ylabel('CO Mole Fraction (right)')
-    plt.subplot(2, 2, 4)
-    plt.plot(states1.t, states1('H2').X)
-    plt.xlabel('Time (ms)')
-    plt.ylabel('H2 Mole Fraction (left)')
-    plt.tight_layout()
-    plt.show()
+# %%
+# Plot the results
+fig, ax = plt.subplots(2, 2)
+ax[0,0].plot(states1.t, states1.T, '-', states2.t, states2.T, 'r-')
+ax[0,0].set(xlabel='Time (ms)', ylabel='Temperature (K)')
 
-else:
-    print("""To view a plot of these results, run this script with the option --plot""")
+ax[0,1].plot(states1.t, states1.volume, '-', states2.t, states2.volume, 'r-',
+             states1.t, states1.volume + states2.volume, 'g-')
+ax[0,1].set(xlabel='Time (ms)', ylabel='Volume (m3)')
+
+ax[1,0].plot(states2.t, states2('CO').X)
+ax[1,0].set(xlabel='Time (ms)', ylabel='CO Mole Fraction (right)')
+
+ax[1,1].plot(states1.t, states1('H2').X)
+ax[1,1].set(xlabel='Time (ms)', ylabel='H2 Mole Fraction (left)')
+plt.show()

@@ -212,23 +212,20 @@ public:
     }
 
     /**
-     * Phase where the reactions occur. For heterogeneous mechanisms, one of
-     * the phases in the list of phases represents the 2D interface or 1D edge
-     * at which the reactions take place. This method returns the index of the
-     * phase with the smallest spatial dimension (1, 2, or 3) among the list
-     * of phases. If there is more than one, the index of the first one is
-     * returned. For homogeneous mechanisms, the value 0 is returned.
-     *
-     * @deprecated Starting in %Cantera 3.0, the reacting phase is always be the
-     *     first phase in the InterfaceKinetics object. To be removed after %Cantera 3.1.
-     */
-    size_t reactionPhaseIndex() const;
-
-    /**
      * Return pointer to phase where the reactions occur.
      * @since New in %Cantera 3.0
      */
     shared_ptr<ThermoPhase> reactionPhase() const;
+
+    /**
+     * Return pointer to phase associated with Kinetics by index.
+     * @param n Index of the ThermoPhase being sought.
+     * @since New in %Cantera 3.2.
+     * @see thermo
+     */
+    shared_ptr<ThermoPhase> phase(size_t n=0) const {
+        return m_thermo[n];
+    }
 
     /**
      * This method returns a reference to the nth ThermoPhase object defined
@@ -1407,6 +1404,26 @@ public:
         return m_root.lock();
     }
 
+    //! Register a function to be called if reaction is added.
+    //! @param id  A unique ID corresponding to the object affected by the callback.
+    //!   Typically, this is a pointer to an object that also holds a reference to the
+    //!   Kinetics object.
+    //! @param callback  The callback function to be called after any reaction is added.
+    //! When the callback becomes invalid (for example, the corresponding object is
+    //! being deleted, the removeReactionAddedCallback() method must be invoked.
+    //! @since New in %Cantera 3.1
+    void registerReactionAddedCallback(void* id, const function<void()>& callback)
+    {
+        m_reactionAddedCallbacks[id] = callback;
+    }
+
+    //! Remove the reaction-changed callback function associated with the specified object.
+    //! @since New in %Cantera 3.1
+    void removeReactionAddedCallback(void* id)
+    {
+        m_reactionAddedCallbacks.erase(id);
+    }
+
 protected:
     //! Cache for saved calculations within each Kinetics object.
     ValueCache m_cache;
@@ -1530,6 +1547,9 @@ protected:
 
     //! reference to Solution
     std::weak_ptr<Solution> m_root;
+
+    //! Callback functions that are invoked when the reaction is added.
+    map<void*, function<void()>> m_reactionAddedCallbacks;
 };
 
 }

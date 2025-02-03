@@ -5,7 +5,7 @@ Burner-stabilized flame with imposed temperature profile
 A burner-stabilized, premixed methane/air flat flame with multicomponent
 transport properties and a specified temperature profile.
 
-Requires: cantera >= 3.0
+Requires: cantera >= 3.0, matplotlib >= 2.0
 
 .. tags:: Python, combustion, 1D flow, burner-stabilized flame, premixed flame, plotting,
           saving output
@@ -13,6 +13,7 @@ Requires: cantera >= 3.0
 
 from pathlib import Path
 import numpy as np
+import matplotlib.pyplot as plt
 import cantera as ct
 
 
@@ -116,3 +117,42 @@ f.save(output, name="multi", description="solution with multicomponent transport
 # write the velocity, temperature, density, and mole fractions to a CSV file
 f.save('flame_fixed_T.csv', basis="mole", overwrite=True)
 f.show_stats()
+
+# %%
+# Temperature and Heat Release Rate
+# ---------------------------------
+fig, ax1 = plt.subplots()
+
+ax1.plot(f.grid, f.heat_release_rate / 1e6, color='C4')
+ax1.set_ylabel('heat release rate [MW/m³]', color='C4')
+ax1.set_xlim(0, 0.01)
+ax1.set(xlabel='distance from burner [m]')
+
+ax2 = ax1.twinx()
+ax2.plot(f.grid, f.T, color='C3')
+ax2.set_ylabel('temperature [K]', color='C3')
+plt.show()
+
+# %%
+# Major Species Profiles
+# ----------------------
+fig, ax = plt.subplots()
+major = ('O2', 'H2', 'H2O')
+states = f.to_array()
+ax.plot(states.grid, states(*major).X, label=major)
+ax.set(xlabel='distance from burner [m]', ylabel='mole fractions')
+ax.set_xlim(0, 0.01)
+ax.legend()
+plt.show()
+
+# %%
+# Minor Species Profiles
+# ----------------------
+fig, ax = plt.subplots()
+minor = ('OH', 'H', 'O')
+
+ax.plot(states.grid, states(*minor).X, label=minor, linestyle='--')
+ax.set(xlabel='distance from burner [m]', ylabel='mole fractions', )
+ax.set_xlim(0, 0.01)
+ax.legend()
+plt.show()

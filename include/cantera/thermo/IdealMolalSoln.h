@@ -89,22 +89,6 @@ public:
     //! @name  Molar Thermodynamic Properties of the Solution
     //! @{
 
-    //! Molar enthalpy of the solution. Units: J/kmol.
-    /*!
-     * Returns the amount of enthalpy per mole of solution. For an ideal molal
-     * solution,
-     * @f[
-     * \bar{h}(T, P, X_k) = \sum_k X_k \bar{h}_k(T)
-     * @f]
-     * The formula is written in terms of the partial molar enthalpies.
-     * @f$ \bar{h}_k(T, p, m_k) @f$.
-     * See the partial molar enthalpy function, getPartialMolarEnthalpies(),
-     * for details.
-     *
-     * Units: J/kmol
-     */
-    double enthalpy_mole() const override;
-
     //! Molar internal energy of the solution: Units: J/kmol.
     /*!
      * Returns the amount of internal energy per mole of solution. For an ideal
@@ -117,44 +101,6 @@ public:
      */
     double intEnergy_mole() const override;
 
-    //! Molar entropy of the solution. Units: J/kmol/K.
-    /*!
-     * Returns the amount of entropy per mole of solution. For an ideal molal
-     * solution,
-     * @f[
-     * \bar{s}(T, P, X_k) = \sum_k X_k \bar{s}_k(T)
-     * @f]
-     * The formula is written in terms of the partial molar entropies.
-     * @f$ \bar{s}_k(T, p, m_k) @f$.
-     * See the partial molar entropies function, getPartialMolarEntropies(),
-     * for details.
-     *
-     * Units: J/kmol/K.
-     */
-    double entropy_mole() const override;
-
-    //! Molar Gibbs function for the solution: Units J/kmol.
-    /*!
-     * Returns the Gibbs free energy of the solution per mole of the solution.
-     *
-     * @f[
-     * \bar{g}(T, P, X_k) = \sum_k X_k \mu_k(T)
-     * @f]
-     *
-     * Units: J/kmol
-     */
-    double gibbs_mole() const override;
-
-    //! Molar heat capacity of the solution at constant pressure. Units: J/kmol/K.
-    /*!
-     * @f[
-     * \bar{c}_p(T, P, X_k) = \sum_k X_k \bar{c}_{p,k}(T)
-     * @f]
-     *
-     * Units: J/kmol/K
-     */
-    double cp_mole() const override;
-
     //! @}
     //! @name Mechanical Equation of State Properties
     //!
@@ -164,9 +110,6 @@ public:
     //! which try to set the thermodynamic state by calling setDensity() will
     //! cause an exception to be thrown.
     //! @{
-
-protected:
-    void calcDensity() override;
 
 public:
     //! The isothermal compressibility. Units: 1/Pa.
@@ -404,9 +347,6 @@ protected:
     int IMS_typeCutoff_ = 0;
 
 private:
-    //! vector of size m_kk, used as a temporary holding area.
-    mutable vector<double> m_tmpV;
-
     //! Logarithm of the molal activity coefficients
     /*!
      *   Normally these are all one. However, stability schemes will change that

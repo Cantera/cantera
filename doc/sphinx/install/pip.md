@@ -5,24 +5,18 @@
 to install the Cantera Python module from [PyPI](https://pypi.org/project/Cantera/).
 
 :::{caution}
-There are a few important limitations to note when Cantera is installed from PyPI:
-
-- These packages are compiled without native HDF5 support. The new options for saving
-  and restoring `SolutionArray` and flame objects to/from HDF5 files are not available.
-- These packages are compiled using single-threaded implementations of LAPACK functions,
-  and cannot make use of multiple cores to speed up reactor network or flame
-  simulations.
-
-If you want either of these features, you can install the [Conda](conda) packages
-instead.
+On Windows, the PyPI packages are compiled using a single-threaded implementation of the
+LAPACK library, and cannot make use of multiple cores to speed up reactor network or
+flame simulations. If you want to use a version of Cantera with an optimized LAPACK
+implementation, you can install the [Conda](conda) package instead.
 :::
 
 ## Prerequisites
 
 The first step in installing the Cantera Python module using `pip` is to make sure you
 have a compatible version of Python installed and are able to run `pip` from the command
-line. Packages for Cantera 3.0.0 are available for Python versions 3.8, 3.9, 3.10, and
-3.11.
+line. Packages for Cantera 3.1.0 are available for Python versions 3.8, 3.9, 3.10, 3.11,
+3.12, and 3.13.
 
 If you don't already have Python installed, it can be downloaded from
 [python.org](https://www.python.org/) or installed using your operating system's package

@@ -1,0 +1,30 @@
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at https://cantera.org/license.txt for license and copyright information.
+
+docstring: |-
+  The main library of the auto-generated CLib API contains %Cantera service functions.
+  Partially implements a replacement for CLib's traditional @c ct library.
+prefix: ct3
+base: ""
+recipes:
+- name: getCanteraVersion
+  implements: version  # inconsistent API (preexisting)
+- name: getGitCommit
+  implements: gitCommit  # inconsistent API (preexisting)
+- name: getCanteraError
+- name: addCanteraDirectory
+  implements: addDirectory  # inconsistent API (preexisting)
+- name: getDataDirectories
+- name: findInputFile
+- name: suppress_deprecation_warnings  # inconsistent API (snake_case; preexisting)
+- name: make_deprecation_warnings_fatal  # inconsistent API (snake_case; preexisting)
+- name: suppress_warnings  # inconsistent API (snake_case; preexisting)
+- name: warnings_suppressed  # inconsistent API (snake_case; preexisting)
+- name: make_warnings_fatal  # inconsistent API (snake_case; preexisting)
+- name: suppress_thermo_warnings  # inconsistent API (snake_case; preexisting)
+- name: use_legacy_rate_constants  # inconsistent API (snake_case; preexisting)
+- name: appdelete
+- name: clearStorage
+- name: resetStorage
+- name: setLogWriter
+- name: setLogCallback

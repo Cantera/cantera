@@ -65,7 +65,7 @@ extern "C" {
     CANTERA_CAPI int sim1D_setProfile(int i, int dom, int comp,
                                       size_t np, const double* pos, size_t nv, const double* v);
     CANTERA_CAPI int sim1D_setFlatProfile(int i, int dom, int comp, double v);
-    CANTERA_CAPI int sim1D_show(int i, const char* fname);
+    CANTERA_CAPI int sim1D_show(int i);
     CANTERA_CAPI int sim1D_setTimeStep(int i, double stepsize, size_t ns, const int* nsteps);
     CANTERA_CAPI int sim1D_getInitialSoln(int i);
     CANTERA_CAPI int sim1D_solve(int i, int loglevel, int refine_grid);

@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <LangVersion>10</LangVersion>
-    <TargetFrameworks>net6.0;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net8.0;netstandard2.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -45,7 +45,7 @@
       <GeneratedPath>$([MSBuild]::NormalizePath($(IntermediateOutputPath)/sourcegen/))</GeneratedPath>
     </PropertyGroup>
 
-    <Exec Command="python3 $(Script) csharp $(GeneratedPath)"
+    <Exec Command="python3 $(Script) --api=csharp --output=$(GeneratedPath)"
       Condition="'$(GenerateInterop)' == 'true' Or !Exists('$(GeneratedPath)')"/>
 
     <ItemGroup>

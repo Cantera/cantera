@@ -72,6 +72,9 @@ string ArraySizeError::getMessage() const
 
 string IndexError::getMessage() const
 {
+    if (arrayName_ == "") {
+        return fmt::format("IndexError: {} outside valid range of 0 to {}.", m_, mmax_);
+    }
     return fmt::format("IndexError: {}[{}] outside valid range of 0 to {}.",
                        arrayName_, m_, mmax_);
 }

@@ -4,13 +4,14 @@ Burner-stabilized flame
 
 A burner-stabilized lean premixed hydrogen-oxygen flame at low pressure.
 
-Requires: cantera >= 3.0
+Requires: cantera >= 3.0, matplotlib >= 2.0
 
 .. tags:: Python, combustion, 1D flow, premixed flame, saving output,
           multicomponent transport
 """
 
 from pathlib import Path
+import matplotlib.pyplot as plt
 import cantera as ct
 
 p = 0.05 * ct.one_atm
@@ -45,3 +46,42 @@ f.show()
 f.save(output, name="multi", description="solution with multicomponent transport")
 
 f.save('burner_flame.csv', basis="mole", overwrite=True)
+
+# %%
+# Temperature and Heat Release Rate
+# ---------------------------------
+fig, ax1 = plt.subplots()
+
+ax1.plot(f.grid, f.heat_release_rate / 1e6, color='C4')
+ax1.set_ylabel('heat release rate [MW/m³]', color='C4')
+ax1.set_xlim(0, 0.2)
+ax1.set(xlabel='distance from burner [m]')
+
+ax2 = ax1.twinx()
+ax2.plot(f.grid, f.T, color='C3')
+ax2.set_ylabel('temperature [K]', color='C3')
+plt.show()
+
+# %%
+# Major Species Profiles
+# ----------------------
+fig, ax = plt.subplots()
+major = ('O2', 'H2', 'H2O')
+states = f.to_array()
+ax.plot(states.grid, states(*major).X, label=major)
+ax.set(xlabel='distance from burner [m]', ylabel='mole fractions')
+ax.set_xlim(0, 0.2)
+ax.legend()
+plt.show()
+
+# %%
+# Minor Species Profiles
+# ----------------------
+fig, ax = plt.subplots()
+minor = ('OH', 'H', 'O')
+
+ax.plot(states.grid, states(*minor).X, label=minor, linestyle='--')
+ax.set(xlabel='distance from burner [m]', ylabel='mole fractions', )
+ax.set_xlim(0, 0.2)
+ax.legend()
+plt.show()

@@ -14,9 +14,9 @@
 namespace Cantera
 {
 
-void MixTransport::init(ThermoPhase* thermo, int mode, int log_level)
+void MixTransport::init(ThermoPhase* thermo, int mode)
 {
-    GasTransport::init(thermo, mode, log_level);
+    GasTransport::init(thermo, mode);
     m_cond.resize(m_nsp);
 }
 
@@ -85,10 +85,6 @@ void MixTransport::update_T()
     double t = m_thermo->temperature();
     if (t == m_temp && m_nsp == m_thermo->nSpecies()) {
         return;
-    }
-    if (t < 0.0) {
-        throw CanteraError("MixTransport::update_T",
-                           "negative temperature {}", t);
     }
     GasTransport::update_T();
     // temperature has changed, so polynomial fits will need to be redone.

@@ -29,19 +29,21 @@ References:
 
 Requires: cantera >= 3.1, matplotlib
 
-.. tags:: shock tube, kinetics, combustion
+.. tags:: Python, shock tube, kinetics, combustion
 """
 
 import cantera as ct
 import matplotlib.pyplot as plt
 import numpy as np
 
-fig, ax = plt.subplots()
 file = 'example_data/ammonia-CO-H2-Alzueta-2023.yaml'
 models = {'Original': 'baseline', 'LMR-R': 'linear-Burke'}
-colours = ["xkcd:grey",'xkcd:purple']
+colors = {'Original': "xkcd:grey", 'LMR-R': 'xkcd:purple'}
+results = {}
 
-for k,m in enumerate(models):
+# %%
+# Run simulations with baseline and revised reaction mechanisms
+for k, m in enumerate(models):
     X_H2O2 = 1163e-6
     X_H2O = 1330e-6
     X_O2 = 665e-6
@@ -61,7 +63,12 @@ for k,m in enumerate(models):
         if counter % 10 == 0:
             timeHistory.append(r.thermo.state, t=t)
         counter += 1
-    ax.plot(timeHistory.t*1e6, timeHistory('H2O').X*100, color=colours[k],label=m)
+
+    results[m] = timeHistory
+
+# %%
+# Plot the resulting species profiles and compare with the experimental data from Shao
+# et al.
 expData = {
     't': [12.3,20.3,26.4,39.6,58.5,79.2,96.1,113.8,131.6,145.7,161.2,181.6,195.3,219.9,
           237.2,248.6,262.4,272.2,280.9],
@@ -69,6 +76,12 @@ expData = {
               2.26E-03,2.30E-03,2.39E-03,2.38E-03,2.40E-03,2.42E-03,2.47E-03,2.53E-03,
               2.51E-03,2.50E-03,2.47E-03]
 }
+
+fig, ax = plt.subplots()
+
+for m, timeHistory in results.items():
+    ax.plot(timeHistory.t*1e6, timeHistory('H2O').X*100, color=colors[m], label=m)
+
 ax.plot(expData['t'], np.array(expData['X_H2O'])*100, 'o', fillstyle='none', color='k',
         label='Shao et al.')
 ax.legend(frameon=False, loc='lower right')

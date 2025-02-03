@@ -105,29 +105,6 @@ public:
      */
     int analyze(size_t n, const double* z, const double* x);
 
-    /**
-     * Constructs a new grid based on refinement locations determined by the analyze()
-     * method.
-     *
-     * This function generates a new grid by inserting additional points into the
-     * current grid at locations where the analyze() method has identified a need for
-     * refinement. The new grid points are placed midway between existing points deemed
-     * necessary for increased resolution. If no refinement is needed, the original
-     * grid is copied directly.
-     *
-     * @param[in] n The number of points in the original grid array `z`.
-     * @param[in] z Pointer to the array of original grid points.
-     * @param[in] nn The maximum number of points that the new grid array `znew` can hold.
-     * @param[out] znew Pointer to the array where the new grid points will be stored.
-     *
-     * @return The function returns 0 upon successful creation of the new grid. Throws
-     *         an exception if the provided output array size is insufficient to hold
-     *         the new grid.
-     *
-     * @deprecated Unused. To be removed after %Cantera 3.1.
-     */
-    int getNewGrid(int n, const double* z, int nn, double* znew);
-
     //! Returns the number of new grid points that were needed.
     int nNewPoints() {
         return static_cast<int>(m_insertPts.size());

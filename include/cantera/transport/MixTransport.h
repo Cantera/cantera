@@ -147,7 +147,7 @@ public:
                           size_t ldx, const double* const grad_X,
                           size_t ldf, double* const fluxes) override;
 
-    void init(ThermoPhase* thermo, int mode=0, int log_level=0) override;
+    void init(ThermoPhase* thermo, int mode=0) override;
 
 protected:
     //! Update the temperature dependent parts of the species thermal

@@ -71,14 +71,30 @@ class TestTransport:
 
     def test_CK_mode(self, phase):
         mu_ct = phase.viscosity
+        cond_ct = phase.thermal_conductivity
+        diff_ct = phase.binary_diff_coeffs
+        err_ct = phase.transport_fitting_errors
         phase.transport_model = 'mixture-averaged-CK'
         assert phase.transport_model == 'mixture-averaged-CK'
         mu_ck = phase.viscosity
-        # values should be close, but not identical
-        assert abs(mu_ct - mu_ck) / mu_ct > 1e-8
-        assert abs(mu_ct - mu_ck) / mu_ct < 1e-2
+        cond_ck = phase.thermal_conductivity
+        diff_ck = phase.binary_diff_coeffs
 
-    def test_ionGas(self, phase):
+        err_ck = phase.transport_fitting_errors
+        # values should be close, but not identical
+        assert mu_ck == approx(mu_ct, rel=1e-2)
+        assert mu_ck != approx(mu_ct, rel=1e-8)
+        assert cond_ck == approx(cond_ct, rel=1e-2)
+        assert cond_ck != approx(cond_ct, rel=1e-8)
+        assert diff_ck == approx(diff_ct, rel=1e-2)
+        for (i, j), Dij in np.ndenumerate(diff_ck):
+            assert Dij != approx(diff_ct[i,j], rel=1e-8), (i, j)
+
+        # Cantera's fits should be an improvement in all cases
+        for key in err_ct:
+            assert err_ct[key] < err_ck[key]
+
+    def test_ionized_gas_with_no_ions(self, phase):
         # IonGasTransport gives the same result for a mixture
         # without ionized species
         phase.transport_model = 'ionized-gas'
@@ -90,6 +106,19 @@ class TestTransport:
         Dbin2 = phase.binary_diff_coeffs
         assert Dkm1 == approx(Dkm2)
         assert Dbin1 == approx(Dbin2)
+
+    def test_ionized_low_T(self):
+        """ (C10H8, O2-) interaction exercises low T* range of Stockmayer potential """
+        phase = ct.Solution('ET_test.yaml')
+        kO2m = phase.species_index("O2^-")
+        kNaphthalene = phase.species_index("C10H8")
+        # Regression test values
+        phase.TP = 300, ct.one_atm
+        Dbin = phase.binary_diff_coeffs
+        assert Dbin[kO2m, kNaphthalene] == approx(2.18902175e-06)
+        phase.TP = 350, ct.one_atm
+        Dbin = phase.binary_diff_coeffs
+        assert Dbin[kO2m, kNaphthalene] == approx(2.92899733e-06)
 
     def test_multiComponent(self, phase):
         with pytest.raises(NotImplementedError):
@@ -147,7 +176,7 @@ class TestTransport:
         assert gas1.thermal_conductivity == approx(gas2.thermal_conductivity)
         assert gas1.multi_diff_coeffs == approx(gas2.multi_diff_coeffs)
 
-    def test_species_visosities(self, phase):
+    def test_species_viscosities(self, phase):
         for species_name in phase.species_names:
             # check that species viscosity matches overall for single-species
             # state
@@ -160,6 +189,8 @@ class TestTransport:
             assert phase[species_name].species_viscosities[0] == approx(visc)
 
     def test_transport_polynomial_fits_viscosity(self, phase):
+        with pytest.raises(ct.CanteraError, match='IndexError'):
+            phase.get_viscosity_polynomial(58)
         visc1_h2o = phase['H2O'].species_viscosities[0]
         mu_poly_h2o = phase.get_viscosity_polynomial(phase.species_index("H2O"))
         visc1_h2 = phase['H2'].species_viscosities[0]
@@ -198,6 +229,8 @@ class TestTransport:
         D23mod = phase.binary_diff_coeffs[2, 3]
         phase.set_binary_diff_coeffs_polynomial(1, 2, bd_poly_12)
         phase.set_binary_diff_coeffs_polynomial(2, 3, bd_poly_23)
+        with pytest.raises(ct.CanteraError, match='IndexError'):
+            phase.set_binary_diff_coeffs_polynomial(2, 33, bd_poly_23)
         D12new = phase.binary_diff_coeffs[1, 2]
         D23new = phase.binary_diff_coeffs[2, 3]
         assert D12 != D23
@@ -205,6 +238,26 @@ class TestTransport:
         assert D23 == D12mod
         assert D12 == D12new
         assert D23 == D23new
+
+    def test_transport_polynomial_fits_collision_integrals(self, phase):
+        kO2 = phase.species_index("O2")
+        kH2O = phase.species_index("H2O")  # unique poly because of dipole moment
+        phase.transport_model = 'multicomponent'
+        coll_polys_H2O = phase.get_collision_integral_polynomials(kH2O, kH2O)
+        coll_polys_O2 = phase.get_collision_integral_polynomials(kO2, kO2)
+
+        def get_cond(species):
+            phase.TPX = 400, 2 * ct.one_atm, {species: 1.0}
+            return phase.thermal_conductivity
+
+        cond1_O2 = get_cond("O2")
+        cond1_OH = get_cond("OH")
+        phase.set_collision_integral_polynomial(kO2, kO2, *coll_polys_H2O, actualT=True)
+        assert get_cond("O2") != cond1_O2  # different
+        assert get_cond("OH") == cond1_OH  # unchanged; normally shares poly with O2
+
+        phase.set_collision_integral_polynomial(kO2, kO2, *coll_polys_O2, actualT=False)
+        assert get_cond("O2") == cond1_O2  # back to original
 
 
 class TestIonTransport:
@@ -251,7 +304,36 @@ class TestIonTransport:
         assert mobi != gas.mobilities[H3Op_idx]
 
 
-class TestTransportGeometryFlags:
+@pytest.mark.parametrize(
+    "key,value,message",
+    [
+        ("H_geom", "linear", "invalid geometry"),
+        ("H_geom", "nonlinear", "invalid geometry"),
+        ("H2_geom", "atom", "invalid geometry"),
+        ("H2_geom", "nonsense", "invalid geometry"),
+        ("H2_geom", "nonlinear", "invalid geometry"),
+        ("H2O_geom", "atom", "invalid geometry"),
+        ("OHp_geom", "atom", "invalid geometry"),
+        ("OHp_geom", "nonlinear", "invalid geometry"),
+        ("E_geom", "linear", "invalid geometry"),
+        ("H2_well", -33.4, "negative well depth.*H2"),
+        ("H2O_diam", 0.0, "negative or zero diameter.*H2O"),
+        ("H2O_dipole", -1.84, "negative dipole moment.*H2O"),
+        ("H2_polar", -0.79, "negative polarizability.*H2"),
+        ("OHp_rot", -4, "negative rotation relaxation number.*OHp"),
+        ("H2_disp", -3.1, "negative dispersion coefficient.*H2"),
+        ("H2_quad", -3.1, "negative quadrupole polarizability.*H2"),
+    ]
+)
+def test_bad_transport_input(key, value, message):
+    """ Check that invalid transport inputs raise appropriate exceptions """
+    # Default parameters are valid
+    subs = {"H_geom":"atom", "H2_geom":"linear", "H2O_geom":"nonlinear",
+            "OHp_geom":"linear", "E_geom":"atom", "H2_well": 38.0, "H2O_diam": 2.60,
+            "H2O_dipole": 1.84, "H2_polar": 0.79, "OHp_rot": 4.0, "H2_disp": 2.995,
+            "H2_quad": 3.602}
+    subs[key] = value
+
     species_data = """
     - name: H2
       composition: {{H: 2}}
@@ -259,17 +341,19 @@ class TestTransportGeometryFlags:
         {{model: constant-cp, T0: 1000, h0: 51.7, s0: 19.5, cp0: 8.41}}
       transport:
         model: gas
-        geometry: {H2}
+        geometry: {H2_geom}
         diameter: 2.92
-        well-depth: 38.00
-        polarizability: 0.79
+        well-depth: {H2_well}
+        polarizability: {H2_polar}
         rotational-relaxation: 280.0
+        dispersion-coefficient: {H2_disp}
+        quadrupole-polarizability: {H2_quad}
     - name: H
       composition: {{H: 1}}
       thermo: *dummy-thermo
       transport:
         model: gas
-        geometry: {H}
+        geometry: {H_geom}
         diameter: 2.05
         well-depth: 145.00
     - name: H2O
@@ -277,46 +361,66 @@ class TestTransportGeometryFlags:
       thermo: *dummy-thermo
       transport:
         model: gas
-        geometry: {H2O}
-        diameter: 2.60
+        geometry: {H2O_geom}
+        diameter: {H2O_diam}
         well-depth: 572.40
-        dipole: 1.84
+        dipole: {H2O_dipole}
         rotational-relaxation: 4.0
     - name: OHp
       composition: {{H: 1, O: 1, E: -1}}
       thermo: *dummy-thermo
       transport:
         model: gas
-        geometry: {OHp}
+        geometry: {OHp_geom}
         diameter: 2.60
         well-depth: 572.40
         dipole: 1.84
-        rotational-relaxation: 4.0
+        rotational-relaxation: {OHp_rot}
     - name: E
       composition: {{E: 1}}
       thermo: *dummy-thermo
       transport:
         model: gas
-        geometry: {E}
+        geometry: {E_geom}
         diameter: 0.01
         well-depth: 1.0
+    """.format(**subs)
+
+    with pytest.raises(ct.CanteraError, match=message):
+        ct.Species.list_from_yaml(species_data)
+
+@pytest.mark.parametrize(
+    "model",
+    [
+        "mixture-averaged",
+        "mixture-averaged-CK",
+        "ionized-gas",
+        pytest.param("multicomponent",
+                     marks=pytest.mark.xfail(reason="See Issue #1823"))
+     ]
+)
+def test_single_species_transport(model):
     """
-
-    def test_bad_geometry(self):
-        good = {'H':'atom', 'H2':'linear', 'H2O':'nonlinear', 'OHp':'linear',
-                'E':'atom'}
-        ct.Species.list_from_yaml(self.species_data.format(**good))
-
-        bad = [{'H':'linear'}, {'H':'nonlinear'}, {'H2':'atom'},
-               {'H2':'nonlinear'}, {'H2O':'atom'}, {'OHp':'atom'},
-               {'OHp':'nonlinear'}, {'E':'linear'}]
-        for geoms in bad:
-            test = copy.copy(good)
-            test.update(geoms)
-            with pytest.raises(ct.CanteraError, match='invalid geometry'):
-                ct.Species.list_from_yaml(self.species_data.format(**test))
-
-
+    A phase with only one species defined should have the same transport
+    properties as a pure species state in a multi-species phase definition.
+    """
+    yaml_ref = """
+    phases:
+    - name: gas
+      thermo: ideal-gas
+      species:
+      - gri30.yaml/species: [H2, O2, H2O2, OH]
+    """
+    ref = ct.Solution(yaml=yaml_ref, transport_model=model)
+    single = ct.Solution(thermo='ideal-gas', species=[ref.species('H2O2')],
+                         transport_model=model)
+    single.TPX = ref.TPX = 500, 5 * ct.one_atm, 'H2O2:1.0'
+    assert single.min_temp == ref.min_temp
+    assert single.max_temp == ref.max_temp
+    # assert single.viscosity == approx(ref.viscosity)
+    assert single.thermal_conductivity == approx(ref.thermal_conductivity)
+    k = ref.species_index('H2O2')
+    assert single.mix_diff_coeffs[0] == approx(ref.binary_diff_coeffs[k,k])
 
 class TestDustyGas:
 
@@ -413,6 +517,16 @@ class TestWaterTransport:
     ])
     def test_viscosity_supercritical(self, water, T, P, mu, rtol):
         water.TP = T, P
+        assert water.viscosity == approx(mu, rel=rtol)
+
+    @pytest.mark.parametrize("T, D, mu, rtol", [
+        (647.43, 280.34, 3.7254e-05, 6e-3),
+        (647.43, 318.89, 4.2286e-05, 6e-3),
+        (648.23, 301.34, 3.9136e-05, 6e-3),
+        (648.23, 330.59, 4.2102e-05, 6e-3)
+    ])
+    def test_viscosity_near_critical(self, water, T, D, mu, rtol):
+        water.TD = T, D
         assert water.viscosity == approx(mu, rel=rtol)
 
     @pytest.mark.parametrize("T, P, k, rtol", [
@@ -521,7 +635,6 @@ class TestTransportData:
 
 
 class TestIonGasTransportData:
-
     @pytest.fixture(scope='class')
     def gas(self):
         return ct.Solution("ch4_ion.yaml")
@@ -539,3 +652,10 @@ class TestIonGasTransportData:
         tr2 = gas.species('N2').transport
         assert tr1.dispersion_coefficient == approx(tr2.dispersion_coefficient)
         assert tr1.quadrupole_polarizability == approx(tr2.quadrupole_polarizability)
+
+    def test_serialization(self, gas):
+        data = gas.species('N2').transport.input_data
+        assert data['dispersion-coefficient'] == approx(2.995)
+        assert data['quadrupole-polarizability'] == approx(3.602)
+
+        assert 'dispersion-coefficient' not in gas.species('CO2').transport.input_data

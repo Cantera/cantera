@@ -14,7 +14,7 @@
 namespace Cantera
 {
 
-void IonGasTransport::init(ThermoPhase* thermo, int mode, int log_level)
+void IonGasTransport::init(ThermoPhase* thermo, int mode)
 {
     m_thermo = thermo;
     m_nsp = m_thermo->nSpecies();
@@ -23,7 +23,6 @@ void IonGasTransport::init(ThermoPhase* thermo, int mode, int log_level)
         throw CanteraError("IonGasTransport::init",
                            "mode = CK_Mode, which is an outdated lower-order fit.");
     }
-    m_log_level = log_level;
     // make a local copy of species charge
     for (size_t k = 0; k < m_nsp; k++) {
         m_speciesCharge.push_back(m_thermo->charge(k));
@@ -229,19 +228,14 @@ void IonGasTransport::fitDiffCoeffs(MMCollisionInt& integrals)
             }
             size_t sum = k * (k + 1) / 2;
             m_diffcoeffs[k*m_nsp+j-sum] = c;
-            if (m_log_level >= 2) {
-                writelog(m_thermo->speciesName(k) + "__" +
-                         m_thermo->speciesName(j) + ": [" + vec2str(c) + "]\n");
-            }
         }
     }
-
-    if (m_log_level) {
-        writelogf("Maximum binary diffusion coefficient absolute error:"
-                 "  %12.6g\n", mxerr);
-        writelogf("Maximum binary diffusion coefficient relative error:"
-                 "%12.6g", mxrelerr);
-    }
+    m_fittingErrors["diff-coeff-max-abs-error"] =
+        std::max(m_fittingErrors.getDouble("diff-coeff-max-abs-error", 0.0),
+                 mxerr);
+    m_fittingErrors["diff-coeff-max-rel-error"] =
+        std::max(m_fittingErrors.getDouble("diff-coeff-max-rel-error", 0.0),
+                 mxrelerr);
 }
 
 void IonGasTransport::setupN64()

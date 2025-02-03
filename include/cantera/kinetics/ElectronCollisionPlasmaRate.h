@@ -31,6 +31,8 @@ struct ElectronCollisionPlasmaData : public ReactionData
         ReactionData::invalidateCache();
         energyLevels.resize(0);
         distribution.resize(0);
+        m_dist_number = -1;
+        m_level_number = -1;
     }
 
     vector<double> energyLevels; //!< electron energy levels
@@ -77,7 +79,7 @@ protected:
  *        k_f = \sqrt{\frac{2e}{m_e}} N_A \int_0^{\infty} \epsilon_V \sigma F_0 d\epsilon_V.
  *   @f]
  *
- * For the convience of calculation, the final form becomes,
+ * For the convenience of calculation, the final form becomes,
  *
  *   @f[
  *        k_f = 0.5 \sqrt{\frac{2e}{m_e}} N_A \int_0^{\infty} \sigma F_0 d{{\epsilon_V}^2}.
@@ -89,6 +91,7 @@ protected:
 class ElectronCollisionPlasmaRate : public ReactionRate
 {
 public:
+
     ElectronCollisionPlasmaRate() = default;
 
     ElectronCollisionPlasmaRate(const AnyMap& node,
@@ -134,6 +137,14 @@ public:
     const vector<double>& crossSections() const {
         return m_crossSections;
     }
+
+    //! The value of #m_crossSectionsInterpolated [m2]
+    const vector<double>& crossSectionInterpolated() const {
+        return m_crossSectionsInterpolated;
+    }
+
+    //! Update the value of #m_crossSectionsInterpolated [m2]
+    void updateInterpolatedCrossSection(const vector<double>&);
 
 private:
     //! electron energy levels [eV]
