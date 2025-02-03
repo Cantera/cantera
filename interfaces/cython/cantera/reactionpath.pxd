@@ -4,18 +4,11 @@
 #cython: language_level=3
 #distutils: language = c++
 
-from .ctcxx cimport *
 from .kinetics cimport *
 
-cdef extern from "<sstream>":
-    cdef cppclass CxxStringStream "std::stringstream":
-        string str()
-
-
 cdef extern from "cantera/kinetics/ReactionPath.h":
-    cdef enum CxxFlow_t "flow_t":
-        CxxNetFlow "Cantera::NetFlow"
-        CxxOneWayFlow "Cantera::OneWayFlow"
+    cdef shared_ptr[CxxReactionPathDiagram] CxxNewReactionPathDiagram "Cantera::newReactionPathDiagram"(
+        shared_ptr[CxxKinetics], string) except +translate_exception
 
     cdef cppclass CxxReactionPathDiagram "Cantera::ReactionPathDiagram":
         cbool show_details
@@ -29,24 +22,20 @@ cdef extern from "cantera/kinetics/ReactionPath.h":
         double label_min
         double scale
         double arrow_width
-        CxxFlow_t flow_type
         string title
         void setFont(string)
+        string flowType()
+        void setFlowType(string) except +translate_exception
         string m_font
-        void add(CxxReactionPathDiagram&) except +translate_exception
-        void exportToDot(CxxStringStream&)
-        void writeData(CxxStringStream&)
+        void add(shared_ptr[CxxReactionPathDiagram]) except +translate_exception
         void displayOnly(size_t)
-
-    cdef cppclass CxxReactionPathBuilder "Cantera::ReactionPathBuilder":
-        void init(CxxStringStream&, CxxKinetics&) except +translate_exception
-        void build(CxxKinetics&, string&, CxxStringStream&, CxxReactionPathDiagram&, cbool)
+        void build() except +translate_exception
+        string getDot() except +translate_exception
+        string getData() except +translate_exception
+        string getLog() except +translate_exception
 
 
 cdef class ReactionPathDiagram:
-    cdef CxxReactionPathDiagram diagram
-    cdef CxxReactionPathBuilder builder
+    cdef shared_ptr[CxxReactionPathDiagram] _diagram
+    cdef CxxReactionPathDiagram* diagram
     cdef Kinetics kinetics
-    cdef str element
-    cdef pybool built
-    cdef CxxStringStream* _log
