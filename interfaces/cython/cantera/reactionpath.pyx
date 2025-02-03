@@ -2,32 +2,25 @@
 # at https://cantera.org/license.txt for license and copyright information.
 
 from pathlib import Path
-from cython.operator cimport dereference as deref
 
 from ._utils cimport *
 
+
 cdef class ReactionPathDiagram:
-    def __cinit__(self, *args, **kwargs):
-        self._log = new CxxStringStream()
-
-    def __dealloc__(self):
-        del self._log
-
-    def __init__(self, Kinetics kin, str element):
+    def __cinit__(self, _SolutionBase contents, str element, *args, **kwargs):
         """
         Create a reaction path diagram for the fluxes of the element ``element``
         according the the net reaction rates determined by the `Kinetics` object
         ``kin``.
         """
-        self.kinetics = kin
-        self.builder.init(deref(self._log), deref(kin.kinetics))
-        self.element = element
-        self.built = False
+        self.kinetics = contents
+        cdef shared_ptr[CxxKinetics] cxx_kin = contents.base.kinetics()
+        self._diagram = CxxNewReactionPathDiagram(cxx_kin, stringify(element))
+        self.diagram = self._diagram.get()
 
     property show_details:
         """
-        Get/Set whether to show the details of which reactions contribute to the
-        flux.
+        Get/Set whether to show the details of which reactions contribute to the flux.
         """
         def __get__(self):
             return self.diagram.show_details
@@ -36,8 +29,7 @@ cdef class ReactionPathDiagram:
 
     property threshold:
         """
-        Get/Set the threshold for the minimum flux relative value that will be
-        plotted.
+        Get/Set the threshold for the minimum flux relative value that will be plotted.
         """
         def __get__(self):
             return self.diagram.threshold
@@ -113,18 +105,9 @@ cdef class ReactionPathDiagram:
     property flow_type:
         """ Get/Set the way flows are drawn. Either 'NetFlow' or 'OneWayFlow' """
         def __get__(self):
-            if self.diagram.flow_type == CxxNetFlow:
-                return 'NetFlow'
-            else:
-                return 'OneWayFlow'
-
+            return pystr(self.diagram.flowType())
         def __set__(self, str value):
-            if value == 'OneWayFlow':
-                self.diagram.flow_type = CxxOneWayFlow
-            elif value == 'NetFlow':
-                self.diagram.flow_type = CxxNetFlow
-            else:
-                raise ValueError('Invalid flow_type: {!r}'.format(value))
+            self.diagram.setFlowType(stringify(value))
 
     property arrow_width:
         """ Get/Set the arrow width. If < 0, then scale with flux value. """
@@ -142,7 +125,7 @@ cdef class ReactionPathDiagram:
 
     def add(self, ReactionPathDiagram other):
         """ Add fluxes from `other` to this diagram """
-        self.diagram.add(other.diagram)
+        self.diagram.add(other._diagram)
 
     def display_only(self, int k):
         """
@@ -156,11 +139,7 @@ cdef class ReactionPathDiagram:
         Return a string containing the reaction path diagram formatted for use
         by Graphviz's 'dot' program.
         """
-        if not self.built:
-            self.build()
-        cdef CxxStringStream out
-        self.diagram.exportToDot(out)
-        return pystr(out.str())
+        return pystr(self.diagram.getDot())
 
     def write_dot(self, filename):
         """
@@ -171,24 +150,16 @@ cdef class ReactionPathDiagram:
 
     def get_data(self):
         """
-        Get a (roughly) human-readable representation of the reaction path
-        diagram.
+        Get a (roughly) human-readable representation of the reaction path diagram.
         """
-        if not self.built:
-            self.build()
-        cdef CxxStringStream out
-        self.diagram.writeData(out)
-        return pystr(out.str())
+        return pystr(self.diagram.getData())
 
     def build(self, verbose=False):
         """
         Build the reaction path diagram. Called automatically by methods which
         return representations of the diagram, for example `write_dot()`.
         """
-        self.builder.build(deref(self.kinetics.kinetics),
-                           stringify(self.element), deref(self._log),
-                           self.diagram, True)
-        self.built = True
+        self.diagram.build()
         if verbose:
             print(self.log)
 
@@ -197,4 +168,4 @@ cdef class ReactionPathDiagram:
         Logging messages generated while building the reaction path diagram
         """
         def __get__(self):
-            return pystr(self._log.str())
+            return pystr(self.diagram.getLog())
