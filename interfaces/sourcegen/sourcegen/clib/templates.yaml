@@ -136,23 +136,49 @@ clib-function: |-
 clib-variable-getter: |-
   // variable (getter): {{ cxx_implements }}
   try {
+      {% if handle %}
+      ## access class member variable
       {% if cxx_base == base %}
       ## object can be accessed directly
-      auto& obj = {{ base }}Cabinet::at({{ handle }});
-      {% else %}
-      ## object needs a cast as method is defined for specialization
-      auto obj = {{ base }}Cabinet::as<{{ cxx_base }}>({{ handle }});
-      {% endif %}
       {% if buffer and buffer[0] %}
-      {{ buffer[0] }} = obj->{{ cxx_name }};
+      {{ buffer[0] }} = {{ base }}Cabinet::at({{ handle }})->{{ cxx_name }};
+      ## CLib/C++ variable crosswalk needed
       {% if buffer[1] %}
       {{ buffer[1] }}
       {% endif %}
       return {{ buffer[2] }};
-      {% else %}
-      obj->{{ cxx_name }};
-      return 0;
+      {% else %}{# not buffer[0] #}
+      ## no crosswalk needed
+      return {{ base }}Cabinet::at({{ handle }})->{{ cxx_name }};
+      {% endif %}{# buffer[0] #}
+      {% else %}{# base #}
+      ## object needs a cast as method is defined for specialization
+      {% if buffer and buffer[0] %}
+      {{ buffer[0] }} = {{ base }}Cabinet::as<{{ cxx_base }}>({{ handle }})->{{ cxx_name }};
+      ## CLib/C++ variable crosswalk needed
+      {% if buffer[1] %}
+      {{ buffer[1] }}
       {% endif %}
+      return {{ buffer[2] }};
+      {% else %}{# not buffer[0] #}
+      ## no crosswalk needed
+      return {{ base }}Cabinet::as<{{ cxx_base }}>({{ handle }})->{{ cxx_name }};
+      {% endif %}{# buffer[0] #}
+      {% endif %}{# base #}
+      {% else %}{# not handle #}
+      ## variable is defined in root namespace
+      {% if buffer and buffer[0] %}
+      ## CLib/C++ variable crosswalk needed
+      {{ buffer[0] }} = {{ cxx_name }};
+      {% if buffer[1] %}
+      {{ buffer[1] }}
+      {% endif %}
+      return {{ buffer[2] }};
+      {% else %}{# not buffer[0] #}
+      ## no crosswalk needed
+      return {{ cxx_name }};
+      {% endif %}{# buffer[0] #}
+      {% endif %}{# handle #}
   } catch (...) {
       return handleAllExceptions({{ error[0] }}, {{ error[1] }});
   }
@@ -164,16 +190,19 @@ clib-variable-setter: |-
       ## add lines used for CLib/C++ variable crosswalk
       {{ line }}
       {% endfor %}
-      {% for line in buf %}
-      ## add lines used for CLib/C++ variable crosswalk
-      {{ line }}
-      {% endfor %}
+      {% if handle %}
+      ## access class member variable
       {% if cxx_base == base %}
-      auto& obj = {{ base }}Cabinet::at({{ handle }});
-      {% else %}
-      auto obj = {{ base }}Cabinet::as<{{ cxx_base }}>({{ handle }});
-      {% endif %}
-      obj->{{ cxx_name }} = {{ cxx_args[0] }};
+      ## object can be accessed directly
+      {{ base }}Cabinet::at({{ handle }})->{{ cxx_name }} = {{ cxx_args[0] }};
+      {% else %}{# not base #}
+      ## object needs a cast as method is defined for specialization
+      {{ base }}Cabinet::as<{{ cxx_base }}>({{ handle }})->{{ cxx_name }} = {{ cxx_args[0] }};
+      {% endif %}{# base #}
+      {% else %}{# not handle #}
+      ## variable is defined in root namespace
+      {{ cxx_name }} = {{ cxx_args[0] }};
+      {% endif %}{# handle #}
       return 0;
   } catch (...) {
       return handleAllExceptions(-1, ERR);

@@ -17,6 +17,7 @@ class Config:
         "int": "int",
         "size_t": "int",
         "double": "double",
+        "const double": "double",
         "shared_ptr<T>": "int",
         "string": "char*",
         "const string": "char*",
