@@ -24,6 +24,22 @@ recipes:
 - name: suppress_thermo_warnings  # inconsistent API (snake_case; preexisting)
 - name: use_legacy_rate_constants  # inconsistent API (snake_case; preexisting)
 - name: appdelete
+- name: Avogadro
+- name: Boltzmann
+- name: Planck
+- name: ElectronCharge
+- name: lightSpeed
+- name: OneAtm
+- name: OneBar
+- name: fineStructureConstant
+- name: ElectronMass
+- name: GasConstant
+- name: StefanBoltz
+- name: Faraday
+- name: permeability0
+  implements: permeability_0
+- name: epsilon0
+  implements: epsilon_0
 - name: clearStorage
 - name: resetStorage
 - name: setLogWriter
