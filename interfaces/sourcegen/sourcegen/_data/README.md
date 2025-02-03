@@ -33,6 +33,10 @@ based on a recipe, which is subsequently used to scaffold API functions using de
 - `getter`: Implements a getter method of a C++ class.
 - `setter`: Implements a setter method of a C++ class.
 - `method`: Generic method of a C++ class.
+- `variable-getter`: Implements a getter for a C++ class member variable or a variable
+    defined in the `Cantera` namespace. Functionality is inferred automatically.
+- `variable-setter`: Implements a getter for a C++ class member variable or a variable
+    defined in the `Cantera` namespace. Field disambiguates from a `variable-getter`.
 - `noop`: No operation.
 - `reserved`: Reserved (hard-coded) CLib functions which include service functions for
     CLib storage (examples: `cabinetSize`, `parentHandle`) or functions that do not have
@@ -44,14 +48,15 @@ Recipes include all information required for the auto-generation of a correspond
 CLib function. Each recipe uses the following fields:
 
 - `name`: Name of the CLib function to be generated (without prefix).
-- `implements`: Optional name or signature of the implemented C++ function/method. If
-    left empty, *sourcegen* searches for doxygen tags matching the `name` field.
-    A qualified name is sufficient if C++ functions/methods are unique, for example
-    `Func1::type`. A full signature is required whenever shortened signatures with
-    default arguments are used and/or multiple C++ function/method variants exist, for
-    example `Phase::moleFraction(size_t)`.
+- `implements`: Optional name or signature of the implemented C++ function/method or
+    variable. If left empty, *sourcegen* searches for doxygen tags matching the `name`
+    field. A name is sufficient if C++ functions/methods are unique, for example
+    `Func1::type`. A signature is required whenever shortened signatures with default
+    arguments are used and/or multiple C++ function/method variants exist, for example
+    `Phase::moleFraction(size_t)`. The scope (part preceding `::`) may be omitted, as
+    it can be inferred based on the fields `base`, `parents` or `derived`.
 - `uses`: Optional list of auxiliary C++ class methods used by the CLib function. The
     exact usage depends on the type of the implemented CLib function.
 - `what`: Optional override for auto-detected recipe/CLib function type.
 - `brief`: Optional override for brief description from doxygen documentation.
-- `code`: Optional custom code to override auto-generated code.
+- `code`: Optional custom code to override auto-generated code (experimental).
