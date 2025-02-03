@@ -79,6 +79,17 @@ void Path::writeLabel(ostream& s, double threshold)
     }
 }
 
+ReactionPathDiagram::ReactionPathDiagram(
+    shared_ptr<Kinetics> kin, const string& element_) : element(element_), m_kin(kin)
+{
+    if (!m_kin) {
+        throw CanteraError("ReactionPathDiagram::ReactionPathDiagram",
+                           "Kinetics object must not be empty.");
+    }
+    m_builder = make_shared<ReactionPathBuilder>();
+    m_builder->init(m_log, *m_kin.get());
+}
+
 ReactionPathDiagram::~ReactionPathDiagram()
 {
     // delete the nodes
@@ -126,6 +137,11 @@ void ReactionPathDiagram::add(ReactionPathDiagram& d)
     }
 }
 
+void ReactionPathDiagram::add(shared_ptr<ReactionPathDiagram> d)
+{
+    add(*d.get());
+}
+
 void ReactionPathDiagram::findMajorPaths(double athreshold, size_t lda, double* a)
 {
     double netmax = 0.0;
@@ -167,6 +183,37 @@ void ReactionPathDiagram::setFlowType(const string& fType)
         throw CanteraError("ReactionPathDiagram::setFlowType",
                            "Unknown flow type '{}'", fType);
     }
+}
+
+void ReactionPathDiagram::build()
+{
+    m_builder->build(*m_kin.get(), element, m_log, *this, true);
+    m_isBuilt = true;
+}
+
+string ReactionPathDiagram::getDot()
+{
+    if (!m_isBuilt) {
+        build();
+    }
+    std::stringstream out;
+    exportToDot(out);
+    return out.str();
+}
+
+string ReactionPathDiagram::getData()
+{
+    if (!m_isBuilt) {
+        build();
+    }
+    std::stringstream out;
+    writeData(out);
+    return out.str();
+}
+
+string ReactionPathDiagram::getLog()
+{
+    return m_log.str();
 }
 
 void ReactionPathDiagram::writeData(ostream& s)
@@ -810,6 +857,13 @@ int ReactionPathBuilder::build(Kinetics& s, const string& element,
         }
     }
     return 1;
+}
+
+shared_ptr<ReactionPathDiagram> newReactionPathDiagram(
+    shared_ptr<Kinetics> kin, const string& element)
+{
+    return shared_ptr<ReactionPathDiagram>(
+        new ReactionPathDiagram(kin, element));
 }
 
 }

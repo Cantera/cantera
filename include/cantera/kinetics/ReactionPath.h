@@ -19,6 +19,7 @@ enum flow_t { NetFlow, OneWayFlow };
 
 // forward references
 class Path;
+class ReactionPathBuilder;
 
 /**
  *  Nodes in reaction path graphs.
@@ -161,6 +162,15 @@ class ReactionPathDiagram
 public:
     ReactionPathDiagram() = default;
 
+    //! Construct new reaction path diagram.
+    /**
+     *  The method creates a reaction path diagram for the fluxes of `element`
+     *  according to instantaneous net reaction rates.
+     *  @param kin  Shared pointer to Kinetics object.
+     *  @param element_  Element used for the calculation of net reaction rates.
+     */
+    ReactionPathDiagram(shared_ptr<Kinetics> kin, const string& element_);
+
     /**
      * Destructor. Deletes all nodes and paths in the diagram.
      */
@@ -188,6 +198,12 @@ public:
 
     void writeData(std::ostream& s);
 
+    //! Get a (roughly) human-readable representation of the reaction path diagram.
+    /**
+     *  @see writeData
+     */
+    string getData();
+
     /**
      *  Export the reaction path diagram. This method writes to stream
      *  @c s the commands for the 'dot' program in the @c GraphViz
@@ -202,8 +218,19 @@ public:
      */
     void exportToDot(std::ostream& s);
 
-    //! Add fluxes from other ReactionPathDiagram to this diagram.
+    //! Export string in @c dot format.
+    /**
+     *  Return a string containing the reaction path diagram formatted for use
+     *  by Graphviz's 'dot' program.
+     *  @see exportToDot
+     */
+    string getDot();
+
     void add(ReactionPathDiagram& d);
+
+    //! Add fluxes from other ReactionPathDiagram to this diagram.
+    void add(shared_ptr<ReactionPathDiagram> d);
+
     SpeciesNode* node(size_t k) {
         return m_nodes[k];
     }
@@ -256,6 +283,9 @@ public:
     vector<int> reactions();
 
     //! Undocumented.
+    /**
+     *  @todo Add documentation.
+     */
     void findMajorPaths(double threshold, size_t lda, double* a);
 
     //! Set name of the font used.
@@ -268,6 +298,16 @@ public:
 
     //! Get the way flows are drawn. Either 'NetFlow' or 'OneWayFlow'
     void setFlowType(const string& fType);
+
+    //! Build the reaction path diagram.
+    /**
+     *  Called automatically by methods which return representations of the diagram,
+     *  for example writeDot().
+     */
+    void build();
+
+    //! Get logging messages generated while building the reaction path diagram.
+    string getLog();
 
     //! @name Public Attributes
     //! @{
@@ -313,6 +353,11 @@ protected:
     //! Indices of reactions that are included in the diagram
     set<size_t> m_rxns;
     size_t m_local = npos;
+
+    bool m_isBuilt = false;  //!< Boolean indicating whether diagram is built.
+    shared_ptr<Kinetics> m_kin;  //!< Kinetics used by ReactionPathBuilder
+    shared_ptr<ReactionPathBuilder> m_builder;  //!< Shared pointer to ReactionPathBuilder
+    std::stringstream m_log;  //!< Logging stream.
 };
 
 
@@ -355,6 +400,18 @@ protected:
     Array2D m_atoms;
     map<string, size_t> m_enamemap;
 };
+
+
+//! Create a new reaction path diagram.
+/**
+ *  Returns a shared ReactionPath instance where the fluxes of `element`
+ *  are calculated according to instantaneous net reaction rates.
+ *  @param kin  Shared pointer to Kinetics object.
+ *  @param element  Element used for the calculation of net reaction rates.
+ *  @return shared_ptr<ReactionPathDiagram>
+ */
+shared_ptr<ReactionPathDiagram> newReactionPathDiagram(
+    shared_ptr<Kinetics> kin, const string& element);
 
 }
 
