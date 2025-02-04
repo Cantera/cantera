@@ -16,7 +16,6 @@ class SurfPhase;
 
 //! A surface where reactions can occur that is in contact with the bulk fluid of a
 //! Reactor.
-//! @ingroup wallGroup
 class ReactorSurface
 {
 public:
