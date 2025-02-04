@@ -28,7 +28,7 @@ cdef class ReactorBase:
         self._walls = []
         self._surfaces = []
         if isinstance(contents, _SolutionBase):
-            self._thermo = contents
+            self._contents = contents
 
         if volume is not None:
             self.volume = volume
@@ -43,10 +43,10 @@ cdef class ReactorBase:
         .. deprecated:: 3.2
 
             After Cantera 3.2, a change of reactor contents after instantiation
-            will be disabled.
+            will be disabled and this method will be removed.
         """
-        self._thermo = solution
         self.rbase.setSolution(solution._base)  # raises warning in C++ core
+        self._contents = solution
 
     property type:
         """The type of the reactor."""
@@ -69,10 +69,12 @@ cdef class ReactorBase:
         self.rbase.syncState()
 
     property thermo:
-        """The `ThermoPhase` object representing the reactor's contents."""
+        """
+        The `ThermoPhase` object representing the reactor's contents.
+        """
         def __get__(self):
             self.rbase.restoreState()
-            return self._thermo
+            return self._contents
 
     property volume:
         """The volume [m^3] of the reactor."""
@@ -244,14 +246,6 @@ cdef class Reactor(ReactorBase):
 
         self.group_name = group_name
 
-    def insert(self, _SolutionBase solution):
-        """
-        Set ``solution`` to be the object used to compute thermodynamic
-        properties and kinetic rates for this reactor.
-        """
-        ReactorBase.insert(self, solution)
-        self._kinetics = solution
-
     property kinetics:
         """
         The `Kinetics` object used for calculating kinetic rates in
@@ -259,7 +253,7 @@ cdef class Reactor(ReactorBase):
         """
         def __get__(self):
             self.rbase.restoreState()
-            return self._kinetics
+            return self._contents
 
     property chemistry_enabled:
         """

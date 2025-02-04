@@ -224,7 +224,7 @@ ctypedef CxxReactorAccessor* CxxReactorAccessorPtr
 cdef class ReactorBase:
     cdef shared_ptr[CxxReactorBase] _reactor
     cdef CxxReactorBase* rbase
-    cdef object _thermo
+    cdef object _contents
     cdef list _inlets
     cdef list _outlets
     cdef list _walls
@@ -240,7 +240,6 @@ cdef class ReactorBase:
 
 cdef class Reactor(ReactorBase):
     cdef CxxReactor* reactor
-    cdef object _kinetics
     cdef public str group_name
     """
     Optional name of a grouping of reactors that will be drawn as a cluster in the
