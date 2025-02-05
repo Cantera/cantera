@@ -180,7 +180,8 @@ public:
      * @param arrayName name of the corresponding array
      * @param m   This is the value of the out-of-bounds index.
      * @param mmax This is the maximum allowed value of the index. The
-     *             minimum allowed value is assumed to be 0.
+     *             minimum allowed value is assumed to be 0. The special
+     *             value npos indicates that the array is empty.
      */
     IndexError(const string& func, const string& arrayName, size_t m, size_t mmax) :
         CanteraError(func), arrayName_(arrayName), m_(m), mmax_(mmax) {}
