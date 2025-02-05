@@ -203,6 +203,7 @@ protected:
      *  These are stored internally.
      */
     double daAlpha_dT() const;
+    double daAlpha_dT(double& temp) const;
 
     //! Calculate second derivative @f$ d^2(a \alpha)/dT^2 @f$
     /*!
@@ -211,6 +212,7 @@ protected:
     double d2aAlpha_dT2() const;
 
 public:
+    void setState_DP(double rho, double p, double Tguess=300) override;
 
     double isothermalCompressibility() const override;
     double thermalExpansionCoeff() const override;
@@ -229,7 +231,7 @@ public:
      *  the internal numbers based on the state of the object.
      */
     void updateMixingExpressions() override;
-
+    void updateMixingExpressions(double& temp,double& aCalc, double& bCalc, double& aAlphaCalc);
     //! Calculate the @f$ a @f$, @f$ b @f$, and @f$ \alpha @f$ parameters given the temperature
     /*!
      * This function doesn't change the internal state of the object, so it is a
