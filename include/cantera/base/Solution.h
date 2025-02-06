@@ -116,7 +116,8 @@ public:
     //! Get the name of an adjacent phase by index
     string adjacentName(size_t i) const {
         if (i >= m_adjacent.size()) {
-            throw IndexError("Solution::adjacentName", "m_adjacent", i, m_adjacent.size()-1);
+            throw IndexError("Solution::adjacentName", "m_adjacent",
+                             i, m_adjacent.size());
         }
         return m_adjacent.at(i)->name();
     }

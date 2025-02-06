@@ -89,8 +89,7 @@ public:
     //! Throws an exception if n is greater than nDomains()-1
     void checkDomainIndex(size_t n) const {
         if (n >= m_dom.size()) {
-            throw IndexError("OneDim::checkDomainIndex", "domains", n,
-                             m_dom.size()-1);
+            throw IndexError("OneDim::checkDomainIndex", "domains", n, m_dom.size());
         }
     }
 

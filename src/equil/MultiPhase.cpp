@@ -177,7 +177,7 @@ ThermoPhase& MultiPhase::phase(size_t n)
 void MultiPhase::checkPhaseIndex(size_t m) const
 {
     if (m >= nPhases()) {
-        throw IndexError("MultiPhase::checkPhaseIndex", "phase", m, nPhases()-1);
+        throw IndexError("MultiPhase::checkPhaseIndex", "phase", m, nPhases());
     }
 }
 
@@ -720,7 +720,7 @@ void MultiPhase::setTemperature(const double T)
 void MultiPhase::checkElementIndex(size_t m) const
 {
     if (m >= m_nel) {
-        throw IndexError("MultiPhase::checkElementIndex", "elements", m, m_nel-1);
+        throw IndexError("MultiPhase::checkElementIndex", "elements", m, m_nel);
     }
 }
 
@@ -749,7 +749,7 @@ size_t MultiPhase::elementIndex(const string& name) const
 void MultiPhase::checkSpeciesIndex(size_t k) const
 {
     if (k >= m_nsp) {
-        throw IndexError("MultiPhase::checkSpeciesIndex", "species", k, m_nsp-1);
+        throw IndexError("MultiPhase::checkSpeciesIndex", "species", k, m_nsp);
     }
 }
 
