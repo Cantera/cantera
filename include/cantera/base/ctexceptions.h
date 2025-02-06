@@ -178,13 +178,11 @@ public:
      * @param func String name for the function within which the error was
      *             generated.
      * @param arrayName name of the corresponding array
-     * @param m   This is the value of the out-of-bounds index.
-     * @param mmax This is the maximum allowed value of the index. The
-     *             minimum allowed value is assumed to be 0. The special
-     *             value npos indicates that the array is empty.
+     * @param m    Value of the out-of-bounds index.
+     * @param msize  Size of the array.
      */
-    IndexError(const string& func, const string& arrayName, size_t m, size_t mmax) :
-        CanteraError(func), arrayName_(arrayName), m_(m), mmax_(mmax) {}
+    IndexError(const string& func, const string& arrayName, size_t m, size_t msize) :
+        CanteraError(func), arrayName_(arrayName), m_(m), msize_(msize) {}
 
     ~IndexError() throw() override {};
     string getMessage() const override;
@@ -194,7 +192,8 @@ public:
 
 private:
     string arrayName_;
-    size_t m_, mmax_;
+    size_t m_;
+    size_t msize_;
 };
 
 //! An error indicating that an unimplemented function has been called

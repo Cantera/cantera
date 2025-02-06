@@ -172,7 +172,7 @@ clib-accessor: |-
       {% if checks %}
       ## accessor uses index checker (see: sol3_adjacent)
       if ({{ c_args[1] }} < 0 || {{ c_args[1] }} >= {{ base }}Cabinet::at({{ handle }})->{{ checks[0] }}()) {
-          throw IndexError("{{ c_func }}", "", {{ c_args[1] }}, {{ base }}Cabinet::at({{ handle }})->{{ checks[0] }}() - 1);
+          throw IndexError("{{ c_func }}", "", {{ c_args[1] }}, {{ base }}Cabinet::at({{ handle }})->{{ checks[0] }}());
       }
       {% endif %}{# checks #}
       {% if shared %}

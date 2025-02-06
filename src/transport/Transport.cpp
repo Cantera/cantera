@@ -16,7 +16,7 @@ namespace Cantera
 void Transport::checkSpeciesIndex(size_t k) const
 {
     if (k >= m_nsp) {
-        throw IndexError("Transport::checkSpeciesIndex", "species", k, m_nsp-1);
+        throw IndexError("Transport::checkSpeciesIndex", "species", k, m_nsp);
     }
 }
 

@@ -153,7 +153,7 @@ public:
     //! Throws an exception if n is greater than nComponents()-1
     void checkComponentIndex(size_t n) const {
         if (n >= m_nv) {
-            throw IndexError("Domain1D::checkComponentIndex", "points", n, m_nv-1);
+            throw IndexError("Domain1D::checkComponentIndex", "points", n, m_nv);
         }
     }
 
@@ -175,7 +175,7 @@ public:
     //! Throws an exception if n is greater than nPoints()-1
     void checkPointIndex(size_t n) const {
         if (n >= m_points) {
-            throw IndexError("Domain1D::checkPointIndex", "points", n, m_points-1);
+            throw IndexError("Domain1D::checkPointIndex", "points", n, m_points);
         }
     }
 
