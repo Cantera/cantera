@@ -403,7 +403,7 @@ double ReactorNet::sensitivity(size_t k, size_t p)
     }
     if (p >= m_sens_params.size()) {
         throw IndexError("ReactorNet::sensitivity",
-                         "m_sens_params", p, m_sens_params.size()-1);
+                         "m_sens_params", p, m_sens_params.size());
     }
     double denom = m_integ->solution(k);
     if (denom == 0.0) {

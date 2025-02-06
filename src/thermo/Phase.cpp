@@ -35,7 +35,7 @@ size_t Phase::nElements() const
 void Phase::checkElementIndex(size_t m) const
 {
     if (m >= m_mm) {
-        throw IndexError("Phase::checkElementIndex", "elements", m, m_mm-1);
+        throw IndexError("Phase::checkElementIndex", "elements", m, m_mm);
     }
 }
 
@@ -153,7 +153,7 @@ const vector<string>& Phase::speciesNames() const
 void Phase::checkSpeciesIndex(size_t k) const
 {
     if (k >= m_kk) {
-        throw IndexError("Phase::checkSpeciesIndex", "species", k, m_kk-1);
+        throw IndexError("Phase::checkSpeciesIndex", "species", k, m_kk);
     }
 }
 
