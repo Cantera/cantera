@@ -781,7 +781,7 @@ void SolutionArray::setLoc(int loc, bool restore)
     } else if (static_cast<size_t>(m_active[loc_]) == m_loc) {
         return;
     } else if (loc_ >= m_size) {
-        throw IndexError("SolutionArray::setLoc", "indices", loc_, m_size - 1);
+        throw IndexError("SolutionArray::setLoc", "indices", loc_, m_size);
     }
     m_loc = static_cast<size_t>(m_active[loc_]);
     if (restore) {
