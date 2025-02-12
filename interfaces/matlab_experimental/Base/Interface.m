@@ -24,6 +24,8 @@ classdef Interface < handle & ThermoPhase & Kinetics
         % Unit: kmol/m^2 for surface phases, kmol/m for edge phases.
         siteDensity
 
+        coverages % Surface coverages of the species on an interface.
+
     end
 
     properties (SetAccess = protected)
@@ -82,9 +84,7 @@ classdef Interface < handle & ThermoPhase & Kinetics
             adj = Solution(id);
         end
 
-        function c = coverages(s)
-            % Surface coverages of the species on an interface.
-
+        function c = get.coverages(s)
             surfID = s.tpID;
             nsp = s.nSpecies;
             xx = zeros(1, nsp);
@@ -107,10 +107,10 @@ classdef Interface < handle & ThermoPhase & Kinetics
             c = pt.Value;
         end
 
-        function setCoverages(s, cov, norm)
+        function set.coverages(s, val)
             % Set surface coverages of the species on an interface.
             %
-            % s.setCoverages(cov, norm)
+            % s.coverages = {cov, norm}
             %
             % :param s:
             %      Instance of class :mat:class:`Interface`
@@ -126,10 +126,18 @@ classdef Interface < handle & ThermoPhase & Kinetics
             %      unphysical results, ``'nonorm'`` should be used only in rare cases, such
             %      as computing partial derivatives with respect to a species coverage.
 
-            if nargin == 3 && strcmp(norm, 'nonorm')
-                norm_flag = 0;
-            else
+            if iscell(val) && numel(val) >= 1 && numel(val) <= 2
+                cov = val{1};
                 norm_flag = 1;
+
+                if numel(val) == 2
+                    norm = val{2};
+                    if strcmp(norm, 'nonorm')
+                        norm_flag = 0;
+                    end
+                end
+            else
+                error('Input must be a cell array {cov} or {cov, norm}');
             end
 
             surfID = s.tpID;
