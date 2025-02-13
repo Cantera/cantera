@@ -17,6 +17,8 @@ classdef ctTestKinetics < matlab.unittest.TestCase
                      './air-no-reactions.yaml');
             copyfile('../data/chemically-activated-reaction.yaml', ...
                      './chemically-activated-reaction.yaml');
+            copyfile('../data/addReactions_err_test.yaml', ...
+                     './addReactions_err_test.yaml');
         end
 
     end
@@ -26,6 +28,7 @@ classdef ctTestKinetics < matlab.unittest.TestCase
         function testTearDown(self)
             delete('./air-no-reactions.yaml');
             delete('./chemically-activated-reaction.yaml');
+            delete('./addReactions_err_test.yaml');
             ctCleanUp
             ctTestTearDown
         end
@@ -253,6 +256,16 @@ classdef ctTestKinetics < matlab.unittest.TestCase
             catch ME
                 clear gas
                 rethrow(ME);
+            end
+        end
+
+        function testPdepError(self)
+            try
+                gas = Solution('addReactions_err_test.yaml');
+            catch ME
+                self.verifySubstring(ME.identifier, 'Cantera:ctError');
+                self.verifySubstring(ME.message, 'Invalid rate coefficient');
+                clear gas
             end
         end
 
