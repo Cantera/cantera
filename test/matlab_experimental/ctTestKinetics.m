@@ -10,6 +10,10 @@ classdef ctTestKinetics < matlab.unittest.TestCase
 
         function testSetUp(self)
             ctTestSetUp
+            copyfile('../data/air-no-reactions.yaml', ...
+                     './air-no-reactions.yaml');
+            copyfile('../data/chemically-activated-reaction.yaml', ...
+                     './chemically-activated-reaction.yaml');
         end
 
     end
@@ -17,6 +21,8 @@ classdef ctTestKinetics < matlab.unittest.TestCase
     methods (TestClassTeardown)
 
         function testTearDown(self)
+            delete('./air-no-reactions.yaml');
+            delete('./chemically-activated-reaction.yaml');
             ctCleanUp
             ctTestTearDown
         end
@@ -208,7 +214,6 @@ classdef ctTestKinetics < matlab.unittest.TestCase
         end
 
         function testEmptyKinetics(self)
-            copyfile('../data/air-no-reactions.yaml', './air-no-reactions.yaml');
             try
                 gas = Solution('air-no-reactions.yaml');
                 arr = zeros(1, gas.nSpecies);
@@ -220,18 +225,14 @@ classdef ctTestKinetics < matlab.unittest.TestCase
                 self.verifyEqual(gas.netProdRates, arr, 'AbsTol', tol);
 
                 clear gas
-                delete('./air-no-reactions.yaml');
 
             catch ME
                 clear gas
-                delete('./air-no-reactions.yaml');
                 rethrow(ME);
             end
         end
 
         function testChemicallyActivated(self)
-            copyfile('../data/chemically-activated-reaction.yaml', './chemically-activated-reaction.yaml');
-
             try
                 gas = Solution('chemically-activated-reaction.yaml');
 
@@ -245,11 +246,9 @@ classdef ctTestKinetics < matlab.unittest.TestCase
                 end
 
                 clear gas
-                delete('./chemically-activated-reaction.yaml');
 
             catch ME
                 clear gas
-                delete('./chemically-activated-reaction.yaml');
                 rethrow(ME);
             end
         end
