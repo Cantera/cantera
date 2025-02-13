@@ -172,7 +172,7 @@ classdef ctTestKinetics < matlab.unittest.TestCase
 
             ix = find(kr ~= 0);
             tol = ones(1, l) .* self.rtol;
-            self.verifyEqual(kf ./ kr, Keq, 'RelTol', tol);
+            self.verifyEqual(kf(ix) ./ kr(ix), Keq(ix), 'RelTol', tol);
         end
 
         function testSpeciesRates(self)
@@ -205,6 +205,53 @@ classdef ctTestKinetics < matlab.unittest.TestCase
 
             self.verifyEqual(H - S .* T, G, 'RelTol', tol);
             self.verifyEqual(Hs - Ss .* T, Gs, 'RelTol', tol);
+        end
+
+        function testEmptyKinetics(self)
+            copyfile('../data/air-no-reactions.yaml', './air-no-reactions.yaml');
+            try
+                gas = Solution('air-no-reactions.yaml');
+                arr = zeros(1, gas.nSpecies);
+                tol = ones(1, gas.nSpecies) .* self.atol;
+
+                self.verifyEqual(gas.nReactions, 0);
+                self.verifyEqual(gas.creationRates, arr, 'AbsTol', tol);
+                self.verifyEqual(gas.destructionRates, arr, 'AbsTol', tol);
+                self.verifyEqual(gas.netProdRates, arr, 'AbsTol', tol);
+
+                clear gas
+                delete('./air-no-reactions.yaml');
+
+            catch ME
+                clear gas
+                delete('./air-no-reactions.yaml');
+                rethrow(ME);
+            end
+        end
+
+        function testChemicallyActivated(self)
+            copyfile('../data/chemically-activated-reaction.yaml', './chemically-activated-reaction.yaml');
+
+            try
+                gas = Solution('chemically-activated-reaction.yaml');
+
+                P = [2026.5, 202650.0, 10132500.0];
+                Rf = [2.851022e-04, 2.775924e+00, 2.481792e+03];
+                xx = [0.01, 0.01, 0.04, 0.10, 0.84];
+
+                for i = 1:length(P)
+                    gas.TPX = {900.0, P(i), xx};
+                    self.verifyEqual(gas.forwardRatesOfProgress(1), Rf(i), 'RelTol', 2.0e-05);
+                end
+
+                clear gas
+                delete('./chemically-activated-reaction.yaml');
+
+            catch ME
+                clear gas
+                delete('./chemically-activated-reaction.yaml');
+                rethrow(ME);
+            end
         end
 
     end
