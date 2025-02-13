@@ -23,8 +23,6 @@ classdef ctTestKineticsRepeatability < matlab.unittest.TestCase
             ctTestSetUp
             copyfile('../data/pdep-test.yaml', ...
                      './pdep-test.yaml');
-            copyfile('../data/sticking_coeff_check.yaml', ...
-                     './sticking_coeff_check.yaml');
         end
 
     end
@@ -33,7 +31,6 @@ classdef ctTestKineticsRepeatability < matlab.unittest.TestCase
 
         function testTearDown(self)
             delete('./pdep-test.yaml');
-            delete('./sticking_coeff_check.yaml');
             ctCleanUp
             ctTestTearDown
         end
