@@ -21,3 +21,4 @@ cantera_root = getenv('CANTERA_ROOT');
 % Add the Cantera toolbox to the Matlab path
 addpath(genpath([cantera_root, '/interfaces/matlab_experimental']));
 addpath(genpath([cantera_root, '/test/matlab_experimental']));
+addpath(genpath([cantera_root, '/test/data']));
