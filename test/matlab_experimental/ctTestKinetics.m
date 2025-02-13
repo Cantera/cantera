@@ -2,6 +2,9 @@ classdef ctTestKinetics < matlab.unittest.TestCase
 
     properties
         phase
+    end
+
+    properties (SetAccess = immutable)
         rtol = 1e-6;
         atol = 1e-8;
     end
