@@ -13,149 +13,6 @@ using namespace std;
 namespace Cantera
 {
 
-// unnamed-namespace for local helpers
-namespace
-{
-
-class Indx
-{
-public:
-    Indx(size_t nv, size_t np) : m_nv(nv), m_np(np) {}
-    size_t m_nv, m_np;
-    size_t operator()(size_t m, size_t j) {
-        return j*m_nv + m;
-    }
-};
-
-/**
- * Return a damping coefficient that keeps the solution after taking one
- * Newton step between specified lower and upper bounds. This function only
- * considers one domain.
- */
-double bound_step(const double* x, const double* step, Domain1D& r, int loglevel)
-{
-    size_t np = r.nPoints();
-    size_t nv = r.nComponents();
-    Indx index(nv, np);
-    double fbound = 1.0;
-    bool wroteTitle = false;
-    string separator = fmt::format("\n     {:=>69}", ""); // equals sign separator
-
-    for (size_t m = 0; m < nv; m++) {
-        double above = r.upperBound(m);
-        double below = r.lowerBound(m);
-
-        for (size_t j = 0; j < np; j++) {
-            double val = x[index(m,j)];
-            if (loglevel > 0 && (val > above + 1.0e-12 || val < below - 1.0e-12)) {
-                writelog("\nERROR: solution out of bounds.\n");
-                writelog("domain {:d}: {:>20s}({:d}) = {:10.3e} ({:10.3e}, {:10.3e})\n",
-                         r.domainIndex(), r.componentName(m), j, val, below, above);
-            }
-
-            double newval = val + step[index(m,j)];
-
-            if (newval > above) {
-                fbound = std::max(0.0, std::min(fbound,
-                                                (above - val)/(newval - val)));
-            } else if (newval < below) {
-                fbound = std::min(fbound, (val - below)/(val - newval));
-            }
-
-            if (loglevel > 1 && (newval > above || newval < below)) {
-                if (!wroteTitle){
-                    string header = fmt::format("     {:=>10}","") +
-                                    "Undamped Newton step takes solution out of bounds" +
-                                    fmt::format("{:=>10}", "");
-                    writelog("\n{}", header);
-                    writelog(separator);
-                    // Split header across 2 lines to shorten the line length
-                    writelog("\n     {:<7s}   {:23s}   {:<9s}   {:<9s}   {:<9s}",
-                             "Domain/", "", "Value", "Min", "Max");
-                    writelog("\n     {:8s}  {:<9s}     {:<9s}   {:6s}      {:5s}       {:5s}",
-                             "Grid Loc", "Component", "Value", "Change", "Bound", "Bound");
-                    writelog(separator);
-                    wroteTitle = true;
-                }
-                // This create a dynamic spacing to allow for a nicely formatted output in the
-                // Domain/Grid Loc column
-                int domainLength = to_string(r.domainIndex()).length(); // For adjusting spacing
-                int gridLength = to_string(j).length(); // For adjusting spacing
-                int padding = 9; // Total spacing for first column
-                string formatString = fmt::format("{{:<{}d}} / {{:<{}d}}{:>{}}",
-                                                  domainLength, gridLength, "",
-                                                  padding-3-domainLength-gridLength);
-                writelog(fmt::format("\n     {}", formatString), r.domainIndex(), j);
-                writelog(" {:<12s} {:>10.3e}  {:>10.3e}  {:>10.3e}  {:>10.3e}",
-                         r.componentName(m), val, step[index(m,j)], below, above);
-            }
-        }
-    }
-
-    if (loglevel > 1 && wroteTitle) { // If a title was written, close up the table
-        writelog(separator);
-    }
-    return fbound;
-}
-
-/**
- * This function computes the square of a weighted norm of a step vector for one
- * domain.
- *
- * @param x     Solution vector for this domain.
- * @param step  Newton step vector for this domain.
- * @param r     Object representing the domain. Used to get tolerances,
- *              number of components, and number of points.
- *
- * The return value is
- * @f[
- *    \sum_{n,j} \left(\frac{s_{n,j}}{w_n}\right)^2
- * @f]
- * where the error weight for solution component @f$ n @f$ is given by
- * @f[
- *     w_n = \epsilon_{r,n} \frac{\sum_j |x_{n,j}|}{J} + \epsilon_{a,n}.
- * @f]
- * Here @f$ \epsilon_{r,n} @f$ is the relative error tolerance for component n,
- * and multiplies the average magnitude of solution component n in the domain.
- * The second term, @f$ \epsilon_{a,n} @f$, is the absolute error tolerance for
- * component n.
- *
- * The purpose is to measure the "size" of the step vector @f$ s @f$ in a way that
- * takes into account the relative importance or scale of different solution
- * components.
- *
- * Normalization: Each component of the step vector is normalized by a weight that
- * depends on both the current magnitude of the solution vector and specified
- * tolerances. This makes the norm dimensionless and scaled appropriately, avoiding
- * issues where some components dominate due to differences in their scales.
- */
-double norm_square(const double* x, const double* step, Domain1D& r)
-{
-    double sum = 0.0;
-    double f2max = 0.0;
-    size_t nv = r.nComponents();
-    size_t np = r.nPoints();
-
-    for (size_t n = 0; n < nv; n++) {
-        double esum = 0.0;
-        for (size_t j = 0; j < np; j++) {
-            esum += fabs(x[nv*j + n]);
-        }
-        double ewt = r.rtol(n)*esum/np + r.atol(n);
-        for (size_t j = 0; j < np; j++) {
-            double f = step[nv*j + n]/ewt;
-            sum += f*f;
-            f2max = std::max(f*f, f2max);
-        }
-    }
-    return sum;
-}
-
-} // end unnamed-namespace
-
-
-// ---------------- MultiNewton methods ----------------
-
 MultiNewton::MultiNewton(int sz)
     : m_n(sz)
 {
@@ -169,67 +26,85 @@ void MultiNewton::resize(size_t sz)
     m_stp1.resize(m_n);
 }
 
-double MultiNewton::norm2(const double* x, const double* step, OneDim& r) const
-{
-    double sum = 0.0;
-    size_t nd = r.nDomains();
-    for (size_t n = 0; n < nd; n++) {
-        double f = norm_square(x + r.start(n), step + r.start(n), r.domain(n));
-        sum += f;
-    }
-    sum /= r.size();
-    return sqrt(sum);
-}
-
-void MultiNewton::step(double* x, double* step, OneDim& r, int loglevel)
+void MultiNewton::step(double* x, double* step, SteadyStateSystem& r, int loglevel)
 {
     r.eval(npos, x, step);
     for (size_t n = 0; n < r.size(); n++) {
         step[n] = -step[n];
     }
 
-    auto jac = r.getJacobian();
+    auto jac = r.linearSolver();
     try {
         jac->solve(r.size(), step, step);
     } catch (CanteraError&) {
         if (jac->info() > 0) {
             // Positive value for "info" indicates the row where factorization failed
             size_t row = static_cast<size_t>(jac->info() - 1);
-            // Find the domain, grid point, and solution component corresponding
-            // to this row
-            for (size_t n = 0; n < r.nDomains(); n++) {
-                Domain1D& dom = r.domain(n);
-                size_t nComp = dom.nComponents();
-                if (row >= dom.loc() && row < dom.loc() + nComp * dom.nPoints()) {
-                    size_t offset = row - dom.loc();
-                    size_t pt = offset / nComp;
-                    size_t comp = offset - pt * nComp;
-                    throw CanteraError("MultiNewton::step",
-                        "Jacobian is singular for domain {}, component {} at point {}\n"
-                        "(Matrix row {})",
-                        dom.id(), dom.componentName(comp), pt, row);
-                }
-            }
+            throw CanteraError("MultiNewton::step",
+                "Jacobian is singular for matrix row {}:\n{}",
+                row, r.componentName(row));
         }
         throw;
     }
 }
 
-double MultiNewton::boundStep(const double* x0, const double* step0, const OneDim& r,
+double MultiNewton::boundStep(const double* x0, const double* step0, const SteadyStateSystem& r,
                               int loglevel)
 {
+    const static string separator = fmt::format("\n     {:=>71}", ""); // equals sign separator
     double fbound = 1.0;
-    for (size_t i = 0; i < r.nDomains(); i++) {
-        fbound = std::min(fbound,
-                          bound_step(x0 + r.start(i), step0 + r.start(i),
-                                     r.domain(i), loglevel));
+    bool wroteTitle = false;
+
+    for (size_t i = 0; i < size(); i++) {
+        double above = r.upperBound(i);
+        double below = r.lowerBound(i);
+
+        double val = x0[i];
+        if (loglevel > 0 && (val > above + 1.0e-12 || val < below - 1.0e-12)) {
+            writelog("\nERROR: solution component {} out of bounds.\n", i);
+            writelog("{}: value = {:10.3e} (lower = {:10.3e}, upper = {:10.3e})\n",
+                     r.componentName(i), val, below, above);
+        }
+
+        double newval = val + step0[i];
+
+        if (newval > above) {
+            fbound = std::max(0.0, std::min(fbound,
+                                            (above - val)/(newval - val)));
+        } else if (newval < below) {
+            fbound = std::min(fbound, (val - below)/(val - newval));
+        }
+
+        if (loglevel > 1 && (newval > above || newval < below)) {
+            if (!wroteTitle){
+                string header = fmt::format("     {:=>10}", "") +
+                                " Undamped Newton step takes solution out of bounds " +
+                                fmt::format("{:=>10}", "");
+                writelog("\n{}", header);
+                writelog(separator);
+                const auto& [custom1, custom2] = r.componentTableHeader();
+                // Split header across 2 lines to shorten the line length
+                writelog("\n     {:<24s}    {:<10s}  {:<10s}  {:<9s}  {:<9s}",
+                         custom1, "", "Value", "Min", "Max");
+                writelog("\n     {:<24s}    {:<10s}  {:<10s}  {:<9s}  {:<9s}",
+                         custom2, "Value", "Change", "Bound", "Bound");
+                writelog(separator);
+                wroteTitle = true;
+            }
+            string comp_info = r.componentTableLabel(i);
+            writelog("\n     {:<24s}  {:>10.3e}  {:>10.3e}  {:>9.2e}  {:>9.2e}",
+                     comp_info, val, step0[i], below, above);
+        }
     }
-    return fbound;
+    if (loglevel > 1 && wroteTitle) { // If a title was written, close up the table
+        writelog(separator);
+    }
+return fbound;
 }
 
 int MultiNewton::dampStep(const double* x0, const double* step0,
                           double* x1, double* step1, double& s1,
-                          OneDim& r, int loglevel, bool writetitle)
+                          SteadyStateSystem& r, int loglevel, bool writetitle)
 {
     // write header
     if (loglevel > 0 && writetitle) {
@@ -241,7 +116,7 @@ int MultiNewton::dampStep(const double* x0, const double* step0,
     }
 
     // compute the weighted norm of the undamped step size step0
-    double s0 = norm2(x0, step0, r);
+    double s0 = r.norm2(step0);
 
     // compute the multiplier to keep all components in bounds
     double fbound = boundStep(x0, step0, r, loglevel-1);
@@ -260,7 +135,7 @@ int MultiNewton::dampStep(const double* x0, const double* step0,
     // fbound factor to ensure that the solution remains within bounds.
     double alpha = fbound*1.0;
     size_t m;
-    auto jac = r.getJacobian();
+    auto jac = r.linearSolver();
     for (m = 0; m < m_maxDampIter; m++) {
         // step the solution by the damped step size
         // x_{k+1} = x_k + alpha_k*J(x_k)^-1 F(x_k)
@@ -273,7 +148,7 @@ int MultiNewton::dampStep(const double* x0, const double* step0,
         step(x1, step1, r, loglevel-1);
 
         // compute the weighted norm of step1
-        s1 = norm2(x1, step1, r);
+        s1 = r.norm2(step1);
 
         if (loglevel > 0) {
             double ss = r.ssnorm(x1,step1);
@@ -310,7 +185,7 @@ int MultiNewton::dampStep(const double* x0, const double* step0,
     }
 }
 
-int MultiNewton::solve(double* x0, double* x1, OneDim& r, int loglevel)
+int MultiNewton::solve(double* x0, double* x1, SteadyStateSystem& r, int loglevel)
 {
     clock_t t0 = clock();
     int status = 0;
@@ -322,7 +197,7 @@ int MultiNewton::solve(double* x0, double* x1, OneDim& r, int loglevel)
 
     double rdt = r.rdt();
     int nJacReeval = 0;
-    auto jac = r.getJacobian();
+    auto jac = r.linearSolver();
     while (true) {
         // Check whether the Jacobian should be re-evaluated.
         if (jac->age() > m_maxAge) {

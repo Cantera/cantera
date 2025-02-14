@@ -17,11 +17,6 @@ using namespace std;
 namespace Cantera
 {
 
-OneDim::OneDim()
-{
-    m_newt = make_unique<MultiNewton>(1);
-}
-
 OneDim::OneDim(vector<shared_ptr<Domain1D>>& domains)
 {
     // create a Newton iterator, and add each domain.
@@ -34,10 +29,6 @@ OneDim::OneDim(vector<shared_ptr<Domain1D>>& domains)
     resize();
 }
 
-OneDim::~OneDim()
-{
-}
-
 size_t OneDim::domainIndex(const string& name)
 {
     for (size_t n = 0; n < m_dom.size(); n++) {
@@ -48,10 +39,10 @@ size_t OneDim::domainIndex(const string& name)
     throw CanteraError("OneDim::domainIndex","no domain named >>"+name+"<<");
 }
 
-std::tuple<string, size_t, string> OneDim::component(size_t i) {
+std::tuple<string, size_t, string> OneDim::component(size_t i) const {
     size_t n;
     for (n = nDomains()-1; n != npos; n--) {
-        if (i >= start(n)) {
+        if (domain(n).nComponents() && i >= start(n)) {
             break;
         }
     }
@@ -60,6 +51,52 @@ std::tuple<string, size_t, string> OneDim::component(size_t i) {
     size_t pt = offset / dom.nComponents();
     size_t comp = offset - pt*dom.nComponents();
     return make_tuple(dom.id(), pt, dom.componentName(comp));
+}
+
+string OneDim::componentName(size_t i) const {
+    const auto& [dom, pt, comp] = component(i);
+    return fmt::format("domain {}, component {} at point {}", dom, comp, pt);
+}
+
+pair<string, string> OneDim::componentTableHeader() const
+{
+    return {"", "Domain   Pt. Component"};
+}
+
+string OneDim::componentTableLabel(size_t i) const
+{
+    const auto& [dom, pt, comp] = component(i);
+    return fmt::format("{:8s} {:3d} {:<12s}", dom, pt, comp);
+}
+
+double OneDim::upperBound(size_t i) const
+{
+    size_t n;
+    for (n = nDomains()-1; n != npos; n--) {
+        if (domain(n).nComponents() && i >= start(n)) {
+            break;
+        }
+    }
+    Domain1D& dom = domain(n);
+    size_t offset = i - start(n);
+    size_t pt = offset / dom.nComponents();
+    size_t comp = offset - pt*dom.nComponents();
+    return dom.upperBound(comp);
+}
+
+double OneDim::lowerBound(size_t i) const
+{
+    size_t n;
+    for (n = nDomains()-1; n != npos; n--) {
+        if (domain(n).nComponents() && i >= start(n)) {
+            break;
+        }
+    }
+    Domain1D& dom = domain(n);
+    size_t offset = i - start(n);
+    size_t pt = offset / dom.nComponents();
+    size_t comp = offset - pt*dom.nComponents();
+    return dom.lowerBound(comp);
 }
 
 void OneDim::addDomain(shared_ptr<Domain1D> d)
@@ -85,39 +122,43 @@ void OneDim::addDomain(shared_ptr<Domain1D> d)
     resize();
 }
 
+double OneDim::weightedNorm(const double* step) const
+{
+    double sum = 0.0;
+    const double* x = m_state->data();
+    size_t nd = nDomains();
+    for (size_t n = 0; n < nd; n++) {
+        Domain1D& dom = domain(n);
+        double d_sum = 0.0;
+        size_t nv = dom.nComponents();
+        size_t np = dom.nPoints();
+        size_t dstart = start(n);
+
+        for (size_t i = 0; i < nv; i++) {
+            double esum = 0.0;
+            for (size_t j = 0; j < np; j++) {
+                esum += fabs(x[dstart + nv*j + i]);
+            }
+            double ewt = dom.rtol(i)*esum/np + dom.atol(i);
+            for (size_t j = 0; j < np; j++) {
+                double f = step[dstart + nv*j + i]/ewt;
+                d_sum += f*f;
+            }
+        }
+        sum += d_sum;
+    }
+    return sqrt(sum / size());
+}
+
 MultiJac& OneDim::jacobian()
 {
     warn_deprecated("OneDim::jacobian",
-                    "Replaced by getJacobian. To be removed after Cantera 3.2.");
+                    "Replaced by linearSolver(). To be removed after Cantera 3.2.");
     auto multijac = dynamic_pointer_cast<MultiJac>(m_jac);
     if (multijac) {
         return *multijac;
     } else {
         throw CanteraError("OneDim::jacobian", "Active Jacobian is not a MultiJac");
-    }
-}
-
-MultiNewton& OneDim::newton()
-{
-    return *m_newt;
-}
-
-void OneDim::setLinearSolver(shared_ptr<SystemJacobian> solver)
-{
-    m_jac = solver;
-    m_jac->initialize(size());
-    m_jac->setBandwidth(bandwidth());
-    m_jac->clearStats();
-    m_jac_ok = false;
-}
-
-void OneDim::setJacAge(int ss_age, int ts_age)
-{
-    m_ss_jac_age = ss_age;
-    if (ts_age > 0) {
-        m_ts_jac_age = ts_age;
-    } else {
-        m_ts_jac_age = m_ss_jac_age;
     }
 }
 
@@ -227,25 +268,6 @@ void OneDim::resize()
     m_jac_ok = false;
 }
 
-int OneDim::solve(double* x, double* xnew, int loglevel)
-{
-    if (!m_jac_ok) {
-        evalJacobian(x);
-        m_jac->updateTransient(m_rdt, m_mask.data());
-        m_jac_ok = true;
-    }
-    return m_newt->solve(x, xnew, *this, loglevel);
-}
-
-void OneDim::evalSSJacobian(double* x, double* rsd)
-{
-    double rdt_save = m_rdt;
-    m_jac_ok = false;
-    setSteadyMode();
-    evalJacobian(x);
-    m_rdt = rdt_save;
-}
-
 Domain1D* OneDim::pointDomain(size_t i)
 {
     Domain1D* d = right();
@@ -336,27 +358,9 @@ void OneDim::evalJacobian(double* x0)
     m_jac->setAge(0);
 }
 
-double OneDim::ssnorm(double* x, double* r)
-{
-    eval(npos, x, r, 0.0, 0);
-    double ss = 0.0;
-    for (size_t i = 0; i < m_size; i++) {
-        ss = std::max(fabs(r[i]),ss);
-    }
-    return ss;
-}
-
 void OneDim::initTimeInteg(double dt, double* x)
 {
-    double rdt_old = m_rdt;
-    m_rdt = 1.0/dt;
-
-    // if the stepsize has changed, then update the transient part of the
-    // Jacobian
-    if (fabs(rdt_old - m_rdt) > Tiny) {
-        m_jac->updateTransient(m_rdt, m_mask.data());
-    }
-
+    SteadyStateSystem::initTimeInteg(dt, x);
     // iterate over all domains, preparing each one to begin time stepping
     Domain1D* d = left();
     while (d) {
@@ -370,10 +374,7 @@ void OneDim::setSteadyMode()
     if (m_rdt == 0) {
         return;
     }
-
-    m_rdt = 0.0;
-    m_jac->updateTransient(m_rdt, m_mask.data());
-
+    SteadyStateSystem::setSteadyMode();
     // iterate over all domains, preparing them for steady-state solution
     Domain1D* d = left();
     while (d) {
@@ -392,100 +393,6 @@ void OneDim::init()
         }
     }
     m_init = true;
-}
-
-double OneDim::timeStep(int nsteps, double dt, double* x, double* r, int loglevel)
-{
-    // set the Jacobian age parameter to the transient value
-    newton().setOptions(m_ts_jac_age);
-
-    int n = 0;
-    int successiveFailures = 0;
-
-    // Only output this if nothing else under this function call will be output
-    if (loglevel == 1) {
-        writelog("\n============================");
-        writelog("\n{:<5s}  {:<11s}   {:<7s}\n", "step", "dt (s)", "log(ss)");
-        writelog("============================");
-    }
-    while (n < nsteps) {
-        if (loglevel == 1) { // At level 1, output concise information
-            double ss = ssnorm(x, r);
-            writelog("\n{:<5d}  {:<6.4e}   {:>7.4f}", n, dt, log10(ss));
-        } else if (loglevel > 1) {
-            double ss = ssnorm(x, r);
-            writelog("\nTimestep ({}) dt= {:<11.4e}  log(ss)= {:<7.4f}", n, dt, log10(ss));
-        }
-
-        // set up for time stepping with stepsize dt
-        initTimeInteg(dt,x);
-
-        int j0 = m_jac->nEvals(); // Store the current number of Jacobian evaluations
-
-        // solve the transient problem
-        int status = solve(x, r, loglevel);
-
-        // successful time step. Copy the new solution in r to
-        // the current solution in x.
-        if (status >= 0) {
-            if (loglevel > 1) {
-                writelog("\nTimestep ({}) succeeded", n);
-            }
-            successiveFailures = 0;
-            m_nsteps++;
-            n += 1;
-            copy(r, r + m_size, x);
-            // No Jacobian evaluations were performed, so a larger timestep can be used
-            if (m_jac->nEvals() == j0) {
-                dt *= 1.5;
-            }
-            if (m_time_step_callback) {
-                m_time_step_callback->eval(dt);
-            }
-            dt = std::min(dt, m_tmax);
-            if (m_nsteps >= m_nsteps_max) {
-                throw CanteraError("OneDim::timeStep",
-                    "Took maximum number of timesteps allowed ({}) without "
-                    "reaching steady-state solution.", m_nsteps_max);
-            }
-        } else {
-            // No solution could be found with this time step.
-            // Decrease the stepsize and try again.
-            successiveFailures++;
-            if (loglevel == 1) {
-                writelog("\nTimestep failed");
-            } else if (loglevel > 1) {
-                writelog("\nTimestep ({}) failed", n);
-            }
-            if (successiveFailures > 2) {
-                debuglog("--> Resetting negative species concentrations", loglevel);
-                resetBadValues(x);
-                successiveFailures = 0;
-            } else {
-                debuglog("--> Reducing timestep", loglevel);
-                dt *= m_tfactor;
-                if (dt < m_tmin) {
-                    string err_msg = fmt::format(
-                        "Time integration failed. Minimum timestep ({}) reached.", m_tmin);
-                    throw CanteraError("OneDim::timeStep", err_msg);
-                }
-            }
-        }
-    }
-
-    // Write the final step to the log
-    if (loglevel == 1) {
-        double ss = ssnorm(x, r);
-        writelog("\n{:<5d}  {:<6.4e}   {:>7.4f}", n, dt, log10(ss));
-        writelog("\n============================");
-    } else if (loglevel > 1) {
-        double ss = ssnorm(x, r);
-        writelog("\nTimestep ({}) dt= {:<11.4e} log10(ss)= {:<7.4f}\n", n, dt, log10(ss));
-    }
-
-    // return the value of the last stepsize, which may be smaller
-    // than the initial stepsize
-    return dt;
 }
 
 void OneDim::resetBadValues(double* x)
