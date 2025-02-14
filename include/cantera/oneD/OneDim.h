@@ -11,12 +11,11 @@
 #include "Domain1D.h"
 #include "MultiJac.h"
 #include "cantera/numerics/SystemJacobian.h"
+#include "cantera/numerics/SteadyStateSystem.h"
 
 namespace Cantera
 {
 
-class Func1;
-class MultiNewton;
 class AnyMap;
 
 /**
@@ -24,53 +23,51 @@ class AnyMap;
  * represented by an instance of Domain1D.
  * @ingroup onedGroup
  */
-class OneDim
+class OneDim : public SteadyStateSystem
 {
 public:
     //! Default constructor
-    OneDim();
+    OneDim() = default;
 
     //! Construct a OneDim container for the domains in the list *domains*.
     OneDim(vector<shared_ptr<Domain1D>>& domains);
 
-    virtual ~OneDim();
-    OneDim(const OneDim&) = delete;
-    OneDim& operator=(const OneDim&) = delete;
-
     //! Add a domain. Domains are added left-to-right.
     void addDomain(shared_ptr<Domain1D> d);
 
-    //! Return a reference to the Jacobian evaluator of an OneDim object.
-    //! @ingroup derivGroup
-    MultiJac& jacobian();
-
+    //! @deprecated To be removed after Cantera 3.2. Use linearSolver() instead.
     shared_ptr<SystemJacobian> getJacobian() {
+        warn_deprecated("OneDim::getJacobian",
+                        "To be removed after Cantera 3.2. Use linearSolver() instead.");
         return m_jac;
     }
 
-    //! Return a reference to the Newton iterator.
-    MultiNewton& newton();
+    //! Compute the weighted norm of a step vector
+    //!
+    //! The weighted norm of a step vector @f$ \Delta x @f$ is defined as
+    //! @f[
+    //!   ||\Delta x|| = \sqrt{ \frac{1}{N}
+    //!       \sum_{d,n,j} \left( \frac{\Delta x_{d,n,j}}{w_{d,n}} \right)^2 }
+    //! @f]
+    //! where the error weight for solution component @f$ n @f$ in domain @f$ d @f$ is
+    //! given by
+    //! @f[
+    //!   w_{d,n} = \frac{\epsilon_{{\rm r};d,n}}{J_d} \sum_j |x_{d,n,j}|
+    //!           + \epsilon_{{\rm a};d,n}
+    //! @f]
+    //! Here, @f$ \epsilon_{{\rm r};d,n} @f$ is the relative error tolerance for
+    //! component @f$ n @f$ in domain @f$ d @f$, and multiplies the average magnitude of
+    //! solution component @f$ n @f$ in the domain. The second term,
+    //! @f$ \epsilon_{{\rm a};d,n} @f$, is the absolute error tolerance for component
+    //! @f$ n @f$ in domain @f$ d @f$. @f$ N @f$ is the total number of state variables
+    //! across all domains and @f$ J_d @f$ is the number of grid points in domain
+    //! @f$ d @f$.
+    double weightedNorm(const double* step) const override;
 
-    //! Set the linear solver used to hold the Jacobian matrix and solve linear systems
-    //! as part of each Newton iteration. The default is a direct, banded solver.
-    void setLinearSolver(shared_ptr<SystemJacobian> solver);
-
-    //! Get the type of the linear solver being used.
-    shared_ptr<SystemJacobian> linearSolver() const { return m_jac; }
-
-    /**
-     * Solve F(x) = 0, where F(x) is the multi-domain residual function.
-     *
-     * @param x0         Starting estimate of solution.
-     * @param x1         Final solution satisfying F(x1) = 0.
-     * @param loglevel   Controls amount of diagnostic output.
-     *
-     * @returns
-     * - 1 for success
-     * - -2 failure (maximum number of damping steps was reached)
-     * - -3 failure (solution was up against the bounds
-     */
-    int solve(double* x0, double* x1, int loglevel);
+    //! Return a reference to the Jacobian evaluator of an OneDim object.
+    //! @deprecated To be removed after Cantera 3.2. Superseded by linearSolver()
+    //! @ingroup derivGroup
+    MultiJac& jacobian();
 
     //! Number of domains.
     size_t nDomains() const {
@@ -114,11 +111,6 @@ public:
         }
     }
 
-    //! Total solution vector length;
-    size_t size() const {
-        return m_size;
-    }
-
     //! Pointer to left-most domain (first added).
     Domain1D* left() {
         return m_dom[0].get();
@@ -141,12 +133,13 @@ public:
 
     //! Return the domain, local point index, and component name for the i-th
     //! component of the global solution vector
-    std::tuple<string, size_t, string> component(size_t i);
+    std::tuple<string, size_t, string> component(size_t i) const;
 
-    //! Jacobian bandwidth.
-    size_t bandwidth() const {
-        return m_bw;
-    }
+    string componentName(size_t i) const override;
+    pair<string, string> componentTableHeader() const override;
+    string componentTableLabel(size_t i) const override;
+    double upperBound(size_t i) const override;
+    double lowerBound(size_t i) const override;
 
     /**
      * Initialize all domains. On the first call, this methods calls the init
@@ -160,38 +153,8 @@ public:
         return m_pts;
     }
 
-    /**
-     * Steady-state max norm (infinity norm) of the residual evaluated using
-     * solution x. On return, array r contains the steady-state residual
-     * values. Used only for diagnostic output.
-     */
-    double ssnorm(double* x, double* r);
-
-    //! Reciprocal of the time step.
-    double rdt() const {
-        return m_rdt;
-    }
-
-    //! Prepare for time stepping beginning with solution *x* and timestep *dt*.
-    void initTimeInteg(double dt, double* x);
-
-    //! True if transient mode.
-    bool transient() const {
-        return (m_rdt != 0.0);
-    }
-
-    //! True if steady mode.
-    bool steady() const {
-        return (m_rdt == 0.0);
-    }
-
-    /**
-     * Prepare to solve the steady-state problem. After invoking this method,
-     * subsequent calls to solve() will solve the steady-state problem. Sets
-     * the reciprocal of the time step to zero, and, if it was previously non-
-     * zero, signals that a new Jacobian will be needed.
-     */
-    void setSteadyMode();
+    void initTimeInteg(double dt, double* x) override;
+    void setSteadyMode() override;
 
     /**
      * Evaluate the multi-domain residual function
@@ -204,18 +167,13 @@ public:
      *                  the default value is used.
      * @param count   Set to zero to omit this call from the statistics
      */
-    void eval(size_t j, double* x, double* r, double rdt=-1.0, int count = 1);
+    void eval(size_t j, double* x, double* r, double rdt=-1.0, int count=1);
 
-    /**
-     * Evaluates the Jacobian at x0 using finite differences.
-     *
-     * The Jacobian is computed by perturbing each component of `x0`, evaluating the
-     * residual function, and then estimating the partial derivatives numerically using
-     * finite differences to determine the corresponding column of the Jacobian.
-     *
-     * @param x0  State vector at which to evaluate the Jacobian
-     */
-    void evalJacobian(double* x0);
+    void eval(double* x, double* r, double rdt=-1.0, int count=1) override {
+        return eval(npos, x, r, rdt, count);
+    }
+
+    void evalJacobian(double* x0) override;
 
     //! Return a pointer to the domain global point *i* belongs to.
     /*!
@@ -227,27 +185,7 @@ public:
     //! Call after one or more grids has changed size, for example after being refined.
     virtual void resize();
 
-    //! Access the vector indicating which equations contain a transient term.
-    //! Elements are 1 for equations with a transient terms and 0 otherwise.
-    vector<int>& transientMask() {
-        return m_mask;
-    }
-
-    /**
-     * Take time steps using Backward Euler.
-     *
-     * @param nsteps  number of steps
-     * @param dt  initial step size
-     * @param x  current solution vector
-     * @param r  solution vector after time stepping
-     * @param loglevel  controls amount of printed diagnostics
-     * @returns size of last timestep taken
-     */
-    double timeStep(int nsteps, double dt, double* x, double* r, int loglevel);
-
-    //! Reset values such as negative species concentrations in each domain.
-    //! @see Domain1D::resetBadValues
-    void resetBadValues(double* x);
+    void resetBadValues(double* x) override;
 
     //! Write statistics about the number of iterations and Jacobians at each
     //! grid level
@@ -257,49 +195,6 @@ public:
      *                    problems where we don't want to print any times
      */
     void writeStats(int printTime = 1);
-
-    //! @name Options
-    //! @{
-
-    //! Set the minimum time step allowed during time stepping
-    void setMinTimeStep(double tmin) {
-        m_tmin = tmin;
-    }
-
-    //! Set the maximum time step allowed during time stepping
-    void setMaxTimeStep(double tmax) {
-        m_tmax = tmax;
-    }
-
-    /**
-     * Sets a factor by which the time step is reduced if the time stepping
-     * fails. The default value is 0.5.
-     *
-     * @param tfactor  factor time step is multiplied by if time stepping fails
-     */
-    void setTimeStepFactor(double tfactor) {
-        m_tfactor = tfactor;
-    }
-
-    //! Set the maximum number of timeteps allowed before successful
-    //! steady-state solve
-    void setMaxTimeStepCount(int nmax) {
-        m_nsteps_max = nmax;
-    }
-
-    //! Return the maximum number of timeteps allowed before successful
-    //! steady-state solve
-    int maxTimeStepCount() const {
-        return m_nsteps_max;
-    }
-    //! @}
-
-    //! Set the maximum number of steps that can be taken using the same Jacobian
-    //! before it must be re-evaluated.
-    //! @param ss_age  Age limit during steady-state mode
-    //! @param ts_age  Age limit during time stepping mode. If not specified, the
-    //!     steady-state age is also used during time stepping.
-    void setJacAge(int ss_age, int ts_age=-1);
 
     /**
      * Save statistics on function and Jacobian evaluation, and reset the
@@ -356,59 +251,7 @@ public:
         return m_timeSteps;
     }
 
-    //! Set a function that will be called every time #eval is called.
-    //! Can be used to provide keyboard interrupt support in the high-level
-    //! language interfaces.
-    void setInterrupt(Func1* interrupt) {
-        m_interrupt = interrupt;
-    }
-
-    //! Set a function that will be called after each successful timestep. The
-    //! function will be called with the size of the timestep as the argument.
-    //! Intended to be used for observing solver progress for debugging
-    //! purposes.
-    void setTimeStepCallback(Func1* callback) {
-        m_time_step_callback = callback;
-    }
-
-    //! Configure perturbations used to evaluate finite difference Jacobian
-    //! @param relative  Relative perturbation (multiplied by the absolute value of
-    //!     each component). Default `1.0e-5`.
-    //! @param absolute  Absolute perturbation (independent of component value).
-    //!     Default `1.0e-10`.
-    //! @param threshold  Threshold below which to exclude elements from the Jacobian
-    //!     Default `0.0`.
-    void setJacobianPerturbation(double relative, double absolute, double threshold) {
-        m_jacobianRelPerturb = relative;
-        m_jacobianAbsPerturb = absolute;
-        m_jacobianThreshold = threshold;
-    }
-
 protected:
-    //! Evaluate the steady-state Jacobian, accessible via jacobian()
-    //! @param[in] x  Current state vector, length size()
-    //! @param[out] rsd  Storage for the residual, length size()
-    void evalSSJacobian(double* x, double* rsd);
-
-    double m_tmin = 1e-16; //!< minimum timestep size
-    double m_tmax = 1e+08; //!< maximum timestep size
-
-    //! factor time step is multiplied by  if time stepping fails ( < 1 )
-    double m_tfactor = 0.5;
-
-    shared_ptr<vector<double>> m_state; //!< Solution vector
-
-    shared_ptr<SystemJacobian> m_jac; //!< Jacobian evaluator
-    unique_ptr<MultiNewton> m_newt; //!< Newton iterator
-    double m_rdt = 0.0; //!< reciprocal of time step
-    bool m_jac_ok = false; //!< if true, Jacobian is current
-
-    size_t m_bw = 0; //!< Jacobian bandwidth
-    size_t m_size = 0; //!< solution vector size
-
-    //! Work arrays used during Jacobian evaluation
-    vector<double> m_work1, m_work2;
-
     //! All domains comprising the system
     vector<shared_ptr<Domain1D>> m_dom;
 
@@ -429,33 +272,8 @@ protected:
     //! domains. Accessed with loc().
     vector<size_t> m_loc;
 
-    //! Transient mask. See transientMask().
-    vector<int> m_mask;
-
     //! Total number of points.
     size_t m_pts = 0;
-
-    int m_ss_jac_age = 20; //!< Maximum age of the Jacobian in steady-state mode.
-    int m_ts_jac_age = 20; //!< Maximum age of the Jacobian in time-stepping mode.
-
-    //! Function called at the start of every call to #eval.
-    Func1* m_interrupt = nullptr;
-
-    //! User-supplied function called after each successful timestep.
-    Func1* m_time_step_callback = nullptr;
-
-    //! Number of time steps taken in the current call to solve()
-    int m_nsteps = 0;
-
-    //! Maximum number of timesteps allowed per call to solve()
-    int m_nsteps_max = 500;
-
-    //! Threshold for ignoring small elements in Jacobian
-    double m_jacobianThreshold = 0.0;
-    //! Relative perturbation of each component in finite difference Jacobian
-    double m_jacobianRelPerturb = 1e-5;
-    //! Absolute perturbation of each component in finite difference Jacobian
-    double m_jacobianAbsPerturb = 1e-10;
 
 private:
     //! @name Statistics
