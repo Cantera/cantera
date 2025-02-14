@@ -5,7 +5,7 @@ docstring: |-
   Generated CLib API for Cantera's Sim1D class.
 prefix: sim1D
 base: Sim1D
-parents: [OneDim]  # List of parent classes
+parents: [OneDim, SteadyStateSystem]  # List of parent classes
 recipes:
 - name: newSim1D
   uses: [domain]
@@ -28,6 +28,7 @@ recipes:
 - name: value
 - name: workValue
 - name: eval
+  wraps: eval(double*, double*, double, int)
 - name: setMaxJacAge
   wraps: setJacAge
 - name: setFixedTemperature

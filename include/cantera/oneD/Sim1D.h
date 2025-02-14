@@ -231,6 +231,7 @@ public:
     void eval(double rdt=-1.0, int count = 1) {
         OneDim::eval(npos, m_state->data(), m_xnew.data(), rdt, count);
     }
+    using OneDim::eval;
 
     //! Evaluate the governing equations and return the vector of residuals
     void getResidual(double rdt, double* resid) {
