@@ -55,7 +55,7 @@ private:
 //! @ingroup zerodGroup
 //! @{
 
-//! Create a %ConnectorNode object of the specified type
+//! Create a ConnectorNode object of the specified type
 //! @param model  String specifying reactor type.
 //! @param r0  First reactor.
 //! @param r1  Second reactor.
@@ -68,11 +68,29 @@ shared_ptr<ConnectorNode> newConnectorNode(const string& model,
 
 //! Create a FlowDevice object of the specified type
 //! @since Starting in %Cantera 3.1, this method returns a `shared_ptr<FlowDevice>`
+//! @deprecated To be removed after %Cantera 3.2. Use version that provides reactors
+//!     as parameter instead.
 shared_ptr<FlowDevice> newFlowDevice(const string& model, const string& name="(none)");
+
+//! Create a FlowDevice object of the specified type.
+//! @copydetails newConnectorNode
+shared_ptr<FlowDevice> newFlowDevice(const string& model,
+                                     shared_ptr<ReactorBase> r0,
+                                     shared_ptr<ReactorBase> r1,
+                                     const string& name="(none)");
 
 //! Create a WallBase object of the specified type
 //! @since Starting in %Cantera 3.1, this method returns a `shared_ptr<WallBase>`
+//! @deprecated To be removed after %Cantera 3.2. Use version that provides reactors
+//!     as parameter instead.
 shared_ptr<WallBase> newWall(const string& model, const string& name="(none)");
+
+//! Create a WallBase object of the specified type.
+//! @copydetails newConnectorNode
+shared_ptr<WallBase> newWall(const string& model,
+                             shared_ptr<ReactorBase> r0,
+                             shared_ptr<ReactorBase> r1,
+                             const string& name="(none)");
 
 //! @}
 }

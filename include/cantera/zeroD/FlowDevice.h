@@ -57,7 +57,7 @@ public:
     /*!
      * @param in Upstream reactor.
      * @param out Downstream reactor.
-     * @deprecated To be removed after Cantera 3.2. Reactors should be provided to
+     * @deprecated To be removed after %Cantera 3.2. Reactors should be provided to
      *      constructor instead.
      */
     bool install(ReactorBase& in, ReactorBase& out);
