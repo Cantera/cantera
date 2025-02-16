@@ -52,10 +52,12 @@ shared_ptr<ConnectorNode> newConnectorNode(
         ConnectorFactory::factory()->create(model, r0, r1, name));
 }
 
-shared_ptr<FlowDevice> newFlowDevice(const string& model, const string& name)
+shared_ptr<FlowDevice> newFlowDevice(
+    const string& model,
+    shared_ptr<ReactorBase> r0, shared_ptr<ReactorBase> r1, const string& name)
 {
     auto dev = std::dynamic_pointer_cast<FlowDevice>(
-        newConnectorNode(model, nullptr, nullptr, name));
+        newConnectorNode(model, r0, r1, name));
     if (!dev) {
         throw CanteraError("newFlowDevice",
             "Detected incompatible ConnectorNode type '{}'", model);
@@ -63,15 +65,31 @@ shared_ptr<FlowDevice> newFlowDevice(const string& model, const string& name)
     return dev;
 }
 
-shared_ptr<WallBase> newWall(const string& model, const string& name)
+shared_ptr<FlowDevice> newFlowDevice(const string& model, const string& name)
+{
+    warn_deprecated("newFlowDevice",
+                    "After Cantera 3.1, Reactors must be provided as parameters.");
+    return newFlowDevice(model, nullptr, nullptr, name);
+}
+
+shared_ptr<WallBase> newWall(
+    const string& model,
+    shared_ptr<ReactorBase> r0, shared_ptr<ReactorBase> r1, const string& name)
 {
     auto wall = std::dynamic_pointer_cast<WallBase>(
-        newConnectorNode(model, nullptr, nullptr, name));
+        newConnectorNode(model, r0, r1, name));
     if (!wall) {
         throw CanteraError("newWall",
             "Detected incompatible ConnectorNode type '{}'", model);
     }
     return wall;
+}
+
+shared_ptr<WallBase> newWall(const string& model, const string& name)
+{
+    warn_deprecated("newWall",
+                    "After Cantera 3.1, Reactors must be provided as parameters.");
+    return newWall(model, nullptr, nullptr, name);
 }
 
 }
