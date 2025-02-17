@@ -40,17 +40,9 @@ size_t OneDim::domainIndex(const string& name)
 }
 
 std::tuple<string, size_t, string> OneDim::component(size_t i) const {
-    size_t n;
-    for (n = nDomains()-1; n != npos; n--) {
-        if (domain(n).nComponents() && i >= start(n)) {
-            break;
-        }
-    }
+    const auto& [n, j, k] = m_componentInfo[i];
     Domain1D& dom = domain(n);
-    size_t offset = i - start(n);
-    size_t pt = offset / dom.nComponents();
-    size_t comp = offset - pt*dom.nComponents();
-    return make_tuple(dom.id(), pt, dom.componentName(comp));
+    return make_tuple(dom.id(), j, dom.componentName(k));
 }
 
 string OneDim::componentName(size_t i) const {
@@ -71,32 +63,16 @@ string OneDim::componentTableLabel(size_t i) const
 
 double OneDim::upperBound(size_t i) const
 {
-    size_t n;
-    for (n = nDomains()-1; n != npos; n--) {
-        if (domain(n).nComponents() && i >= start(n)) {
-            break;
-        }
-    }
+    const auto& [n, j, k] = m_componentInfo[i];
     Domain1D& dom = domain(n);
-    size_t offset = i - start(n);
-    size_t pt = offset / dom.nComponents();
-    size_t comp = offset - pt*dom.nComponents();
-    return dom.upperBound(comp);
+    return dom.upperBound(k);
 }
 
 double OneDim::lowerBound(size_t i) const
 {
-    size_t n;
-    for (n = nDomains()-1; n != npos; n--) {
-        if (domain(n).nComponents() && i >= start(n)) {
-            break;
-        }
-    }
+    const auto& [n, j, k] = m_componentInfo[i];
     Domain1D& dom = domain(n);
-    size_t offset = i - start(n);
-    size_t pt = offset / dom.nComponents();
-    size_t comp = offset - pt*dom.nComponents();
-    return dom.lowerBound(comp);
+    return dom.lowerBound(k);
 }
 
 void OneDim::addDomain(shared_ptr<Domain1D> d)
@@ -215,6 +191,7 @@ void OneDim::resize()
     m_bw = 0;
     m_nvars.clear();
     m_loc.clear();
+    m_componentInfo.clear();
     size_t lc = 0;
 
     // save the statistics for the last grid
@@ -230,6 +207,9 @@ void OneDim::resize()
             m_loc.push_back(lc);
             lc += nv;
             m_pts++;
+            for (size_t k = 0; k < nv; k++) {
+                m_componentInfo.emplace_back(i, n, k);
+            }
         }
 
         // update the Jacobian bandwidth
