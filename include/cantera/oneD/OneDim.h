@@ -272,6 +272,10 @@ protected:
     //! domains. Accessed with loc().
     vector<size_t> m_loc;
 
+    //! Domain, grid point, and component indices for each element of the global state
+    //! vector. Length size()
+    vector<std::tuple<size_t, size_t, size_t>>m_componentInfo;
+
     //! Total number of points.
     size_t m_pts = 0;
 
