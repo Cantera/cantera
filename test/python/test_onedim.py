@@ -1801,7 +1801,7 @@ class TestImpingingJet:
 
     @pytest.mark.slow_test
     def test_reacting_surface_case3(self):
-        self.run_reacting_surface(xch4=0.2, tsurf=800.0, mdot=0.1, width=0.2)
+        self.run_reacting_surface(xch4=0.2, tsurf=800.0, mdot=0.1, width=0.08)
 
     @pytest.mark.usefixtures("allow_deprecated")
     @pytest.mark.skipif("native" not in ct.hdf_support(),
