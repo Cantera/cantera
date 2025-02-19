@@ -140,6 +140,9 @@ classdef Reactor < handle
         function delete(r)
             % Delete the :mat:class:`Reactor` object.
 
+            if isempty(r.id)
+                return
+            end
             ctFunc('reactor_del', r.id);
         end
 

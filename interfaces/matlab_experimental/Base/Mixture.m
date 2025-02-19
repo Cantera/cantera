@@ -190,6 +190,9 @@ classdef Mixture < handle
         function delete(m)
             % Delete the :mat:class:`Mixture` object.
 
+            if isempty(m.mixID)
+                return
+            end
             calllib(ct, 'mix_del', m.mixID);
         end
 
