@@ -85,6 +85,9 @@ classdef ReactorNet < handle
         function delete(r)
             % Delete the :mat:class:`ReactorNet` object object.
 
+            if isempty(r.id)
+                return
+            end
             ctFunc('reactornet_del', r.id);
         end
 
