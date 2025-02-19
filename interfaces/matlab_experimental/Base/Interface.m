@@ -56,6 +56,17 @@ classdef Interface < Solution
             end
         end
 
+        %% Interface Class Destructor
+
+        function delete(s)
+            % Delete :mat:class:`Interface` object.
+
+            if isempty(s.solnID)
+                return
+            end
+            ctFunc('soln_del', s.solnID);
+        end
+
         %% Interface Get Methods
 
         function adj = adjacent(s, name)
