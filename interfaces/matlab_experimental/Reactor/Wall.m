@@ -100,6 +100,23 @@ classdef Wall < Connector
             w.expansionRateCoeff = 0.0;
             w.heatTransferCoeff = 0.0;
 
+            % Check whether the wall is ready.
+            ok = ctFunc('wall_ready', w.id);
+            if ~ok
+                error('The wall object is not ready.');
+            end
+
+        end
+
+        %% Wall Class Destructor
+
+        function delete(w)
+            % Clear the :mat:class:`Wall` object.
+
+            if isempty(w.id)
+                return
+            end
+            ctFunc('wall_del', w.id);
         end
 
         %% ReactorNet get methods
