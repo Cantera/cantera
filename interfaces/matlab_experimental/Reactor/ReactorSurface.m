@@ -56,6 +56,9 @@ classdef ReactorSurface < handle
         function delete(s)
             % Delete the :mat:class:`ReactorSurface` object.
 
+            if isempty(s.surfID)
+                return
+            end
             ctFunc('reactorsurface_del', s.surfID);
         end
 
