@@ -4,6 +4,10 @@ classdef Func1 < handle
         id
     end
 
+    properties (SetAccess = protected)
+        type
+    end
+
     methods
         %% Func1 Class Constructor
 
@@ -36,7 +40,7 @@ classdef Func1 < handle
             %     * Advanced functors: ``'polynomial3'``, ``'Fourier'``, ``'Gaussian'``,
             %       ``'Arrhenius'``. Use vector parameter, for example
             %
-            %       >> x = Func('polynomial3', [1 2 3])  % x^2 + 2x + 3
+            %       >> x = Func1('polynomial3', [1 2 3])  % x^2 + 2x + 3
             %
             %     * Tabulation functors: ``'tabulated-linear'``,
             %       ``'tabulated-previous'``. Use pair of vector parameters, for example
@@ -134,6 +138,9 @@ classdef Func1 < handle
         function delete(f)
             % Delete the :mat:class:`Func1` object.
 
+            if isempty(f.id)
+                return
+            end
             ctFunc('func_del', f.id);
         end
 
@@ -179,7 +186,7 @@ classdef Func1 < handle
             r = Func1(id);
         end
 
-        function s = type(f)
+        function s = get.type(f)
             % Return function type.
             s = ctString('func_type', f.id);
         end
