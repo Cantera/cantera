@@ -156,7 +156,7 @@ classdef Mixture < handle
             end
 
             % Create an empty mixture.
-            m.mixID = calllib(ct, 'mix_new');
+            m.mixID = ctFunc('mix_new');
             m.phases = phases;
 
             % If phases are supplied, add them
@@ -172,8 +172,12 @@ classdef Mixture < handle
             % column contains the mole numbers of each phase.
             [np, nc] = size(phases);
 
-            if nc ~= 2
-                error('Cell array of phases should have each phase on a new row');
+            % If mole numbers are not defined, default to 1 for all phases.
+            if nc == 1
+                newColumn = num2cell(ones(np, 1));
+                phases = [phases, newColumn];
+            elseif nc < 1 || nc > 2
+                error('Phases should have one or two columns');
             end
 
             for n = 1:np
@@ -193,7 +197,7 @@ classdef Mixture < handle
             if isempty(m.mixID)
                 return
             end
-            calllib(ct, 'mix_del', m.mixID);
+            ctFunc('mix_del', m.mixID);
         end
 
         %% Mixture Utility methods
@@ -201,13 +205,13 @@ classdef Mixture < handle
         function display(m)
             % Display the state of the mixture on the terminal.
 
-            calllib(ct, 'mix_updatePhases', m.mixID);
+            ctFunc('mix_updatePhases', m.mixID);
             [np, nc] = size(m.phases);
 
             for n = 1:np
                 s = [sprintf('\n*******************    Phase %d', n) ...
                     sprintf('    ******************************\n\n Moles: %12.6g', ...
-                    phaseMoles(m, n))];
+                    m.phaseMoles(n))];
                 disp(s);
                 display(m.phases{n, 1});
             end
@@ -240,54 +244,54 @@ classdef Mixture < handle
                 error('Negative moles');
             end
 
-            calllib(ct, 'mix_addPhase', m.mixID, phase.tp_id, moles);
+            ctFunc('mix_addPhase', m.mixID, phase.tpID, moles);
 
         end
 
         %% Mixture Get methods
 
         function temperature = get.T(m)
-            temperature = calllib(ct, 'mix_temperature', m.mixID);
+            temperature = ctFunc('mix_temperature', m.mixID);
         end
 
         function pressure = get.P(m)
-            pressure = calllib(ct, 'mix_pressure', m.mixID);
+            pressure = ctFunc('mix_pressure', m.mixID);
         end
 
         function n = get.nAtoms(m, e)
-            n = calllib(ct, 'mix_nPhases', m.mixID, k - 1, e - 1);
+            n = ctFunc('mix_nPhases', m.mixID, k - 1, e - 1);
         end
 
         function n = get.nElements(m)
-            n = calllib(ct, 'mix_nElements', m.mixID);
+            n = ctFunc('mix_nElements', m.mixID);
         end
 
         function n = get.nPhases(m)
-            n = calllib(ct, 'mix_nPhases', m.mixID);
+            n = ctFunc('mix_nPhases', m.mixID);
         end
 
         function n = get.nSpecies(m)
-            n = calllib(ct, 'mix_nSpecies', m.mixID);
+            n = ctFunc('mix_nSpecies', m.mixID);
         end
 
         function n = get.elementIndex(m, name)
-            n = calllib(ct, 'mix_elementIndex', m.mixID, name) + 1;
+            n = ctFunc('mix_elementIndex', m.mixID, name) + 1;
         end
 
         function n = get.speciesIndex(m, k, p)
-            n = calllib(ct, 'mix_speciesIndex', m.mixID, k - 1, p - 1) + 1;
+            n = ctFunc('mix_speciesIndex', m.mixID, k - 1, p - 1) + 1;
         end
 
         function moles = get.elementMoles(m, e)
 
             if nargin == 2
-                moles = calllib(ct, 'mix_elementMoles', m.mixID, e)
+                moles = ctFunc('mix_elementMoles', m.mixID, e)
             elseif nargin == 1
                 nel = m.nElements;
                 moles = zeros(1, nel);
 
                 for i = 1:nel
-                    moles(i) = calllib(ct, 'mix_elementMoles', m.mixID, i);
+                    moles(i) = ctFunc('mix_elementMoles', m.mixID, i-1);
                 end
 
             else error('wrong number of arguments');
@@ -298,13 +302,13 @@ classdef Mixture < handle
         function moles = get.phaseMoles(m, n)
 
             if nargin == 2
-                moles = calllib(ct, 'mix_phaseMoles', m.mixID, n);
+                moles = ctFunc('mix_phaseMoles', m.mixID, n);
             elseif nargin == 1
                 np = m.nPhases;
                 moles = zeros(1, np);
 
                 for i = 1:np
-                    moles(i) = calllib(ct, 'mix_phaseMoles', m.mixID, i);
+                    moles(i) = ctFunc('mix_phaseMoles', m.mixID, i-1);
                 end
 
             else error('wrong number of arguments');
@@ -312,16 +316,16 @@ classdef Mixture < handle
 
         end
 
-        function moles = speciesMoles(m, k)
+        function moles = get.speciesMoles(m, k)
 
             if nargin == 2
-                moles = calllib(ct, 'mix_speciesMoles', m.mixID, k);
+                moles = ctFunc('mix_speciesMoles', m.mixID, k);
             elseif nargin == 1
                 nsp = m.nSpecies;
                 moles = zeros(1, nsp);
 
                 for i = 1:nsp
-                    moles(i) = calllib(ct, 'mix_speciesMoles', m.mixID, i);
+                    moles(i) = ctFunc('mix_speciesMoles', m.mixID, i-1);
                 end
 
             else error('wrong number of arguments');
@@ -333,18 +337,18 @@ classdef Mixture < handle
             nsp = m.nSpecies;
             xx = zeros(1, nsp);
             ptr = libpointer('doublePtr', xx);
-            calllib(ct, 'mix_getChemPotential', m.mixID, nsp, ptr);
+            ctFunc('mix_getChemPotentials', m.mixID, nsp, ptr);
             mu = ptr.Value;
         end
 
         %% Mixture Set methods
 
         function m = set.T(m, temp)
-            calllib(ct, 'mix_setTemperature', m.mixID, temp);
+            ctFunc('mix_setTemperature', m.mixID, temp);
         end
 
         function m = set.P(m, pressure)
-            calllib(ct, 'mix_setPressure', m.mixID, pressure);
+            ctFunc('mix_setPressure', m.mixID, pressure);
         end
 
         function setPhaseMoles(m, n, moles)
@@ -359,7 +363,7 @@ classdef Mixture < handle
             % :param moles:
             %     Number of moles to add. Units: kmol.
 
-            calllib(ct, 'mix_setPhaseMoles', m.mixID, n - 1, moles);
+            ctFunc('mix_setPhaseMoles', m.mixID, n - 1, moles);
         end
 
         function setSpeciesMoles(m, moles)
@@ -382,9 +386,9 @@ classdef Mixture < handle
 
             if isa(moles, 'double')
                 l = length(moles);
-                calllib(ct, 'mix_setMoles', m.mixID, l, moles);
-            elseif isa(moles, 'string')
-                calllib(ct, 'mix_setMolesByName', m.mixID, moles);
+                ctFunc('mix_setMoles', m.mixID, l, moles);
+            elseif isa(moles, 'char')
+                ctFunc('mix_setMolesByName', m.mixID, moles);
             else
                 error('The input must be a vector or string!');
             end
@@ -457,7 +461,7 @@ classdef Mixture < handle
                 XY = 'TP'
             end
 
-            r = calllib(ct, 'mix_equilibrate', m.mixID, XY, err, ...
+            r = ctFunc('mix_equilibrate', m.mixID, XY, err, ...
                         maxsteps, maxiter, loglevel);
         end
 
