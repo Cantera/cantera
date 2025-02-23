@@ -683,7 +683,7 @@ exponent, $E_a$ is the activation energy, and $R$ is the gas constant. Rates in 
 form can be written as YAML mappings. For example:
 
 ```yaml
-{A: 1.0e13, b: 0, E: 7.3 kcal/mol}
+{A: 1.0e13, b: 0, Ea: 7.3 kcal/mol}
 ```
 
 The units of $A$ can be specified explicitly if desired. If not specified, they will be
@@ -701,7 +701,7 @@ are really the units for $k_f$. One way to formally express this is to replace $
 by the non-dimensional quantity $[T/(1\;\t{K})]^b$.
 ```
 
-The key `E` is used to specify $E_a$.
+The key `Ea` is used to specify $E_a$.
 
 The following examples show some reaction definitions making use of Arrhenius and
 Arrhenius-like rate parameterizations:
