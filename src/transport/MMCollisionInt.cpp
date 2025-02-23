@@ -19,7 +19,7 @@ double MMCollisionInt::delta[8] = {0.0, 0.25, 0.50, 0.75, 1.0,
                                    1.5, 2.0, 2.5
                                   };
 
-double quadInterp(double x0, double* x, double* y)
+double MMCollisionInt::quadInterp(double x0, double* x, double* y)
 {
     double dx21 = x[1] - x[0];
     double dx32 = x[2] - x[1];
@@ -213,16 +213,16 @@ double MMCollisionInt::cstar_table[39*8] = {
     0.94444, 0.94444,0.94444,0.94444,0.94444,0.94444,0.94444,0.94444
 };
 
-void MMCollisionInt::init(double tsmin, double tsmax)
+void MMCollisionInt::init(double tstar_min, double tstar_max)
 {
     m_nmin = -1;
     m_nmax = -1;
 
     for (int n = 0; n < 37; n++) {
-        if (tsmin > tstar[n+1]) {
+        if (tstar_min > tstar[n+1]) {
             m_nmin = n;
         }
-        if (tsmax > tstar[n+1]) {
+        if (tstar_max > tstar[n+1]) {
             m_nmax = n+1;
         }
     }
@@ -270,7 +270,7 @@ double MMCollisionInt::fitDelta(int table, int ntstar, int degree, double* c)
     default:
         return 0.0;
     }
-    w[0] = -1.0;
+    w[0] = -1.0; // to activate weight values of unity
     return polyfit(8, degree, delta, begin, w.data(), c);
 }
 
