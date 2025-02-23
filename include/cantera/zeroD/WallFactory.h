@@ -6,49 +6,9 @@
 #ifndef WALL_FACTORY_H
 #define WALL_FACTORY_H
 
-#include "cantera/base/FactoryBase.h"
-#include "cantera/zeroD/Wall.h"
+#pragma message("warning: WallFactory.h is deprecated and will be removed " \
+                "after Cantera 3.2. Use ConnectorFactory.h instead.")
 
-namespace Cantera
-{
-
-//! Factory class to create WallBase objects
-//!
-//! This class is mainly used via the newWall() function, for example:
-//!
-//! ```cpp
-//!     shared_ptr<WallBase> piston = newWall("Wall");
-//! ```
-class WallFactory : public Factory<WallBase, const string&>
-{
-public:
-    static WallFactory* factory();
-
-    void deleteFactory() override;
-
-private:
-    static WallFactory* s_factory;
-    static std::mutex wall_mutex;
-    WallFactory();
-};
-
-//! @defgroup wallGroup Walls
-//! Zero-dimensional objects adjacent to reactors.
-//! Wall objects should be instantiated via the newWall function, for
-//! example:
-//!
-//! ```cpp
-//!     shared_ptr<WallBase> piston = newWall("Wall", "my_piston");
-//! ```
-//! @ingroup zerodGroup
-//! @{
-
-//! Create a WallBase object of the specified type
-//! @since Starting in %Cantera 3.1, this method returns a `shared_ptr<WallBase>`
-shared_ptr<WallBase> newWall(const string& model, const string& name="(none)");
-
-//! @}
-
-}
+#include "ConnectorFactory.h"
 
 #endif

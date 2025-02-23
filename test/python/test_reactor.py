@@ -728,13 +728,6 @@ class TestReactor:
         assert self.r1.name.startswith(f"{self.r1.type}_")  # default name
         assert res.name.startswith(f"{res.type}_")  # default name
 
-    def test_valve_errors(self):
-        self.make_reactors()
-        v = ct.Valve(self.r1, self.r2)
-        with pytest.raises(ct.CanteraError, match='Already installed'):
-            # inlet and outlet cannot be reassigned
-            v._install(self.r2, self.r1)
-
     def test_pressure_controller1(self):
         self.make_reactors(n_reactors=1)
         g = ct.Solution('h2o2.yaml', transport_model=None)

@@ -19,16 +19,16 @@ TEST(zerodim, simple)
 
     auto sol = newSolution("gri30.yaml", "gri30", "none");
     sol->thermo()->setState_TPX(T, P, X);
-    auto cppReactor = newReactor("IdealGasReactor", sol, "simple");
-    ASSERT_EQ(cppReactor->name(), "simple");
-    cppReactor->initialize();
+    auto reactor = newReactor("IdealGasReactor", sol, "simple");
+    ASSERT_EQ(reactor->name(), "simple");
+    reactor->initialize();
     ReactorNet network;
-    network.addReactor(dynamic_cast<IdealGasReactor&>(*cppReactor));
+    network.addReactor(dynamic_cast<IdealGasReactor&>(*reactor));
     network.initialize();
 
     double t = 0.0;
     while (t < 0.1) {
-        ASSERT_GE(cppReactor->temperature(), T);
+        ASSERT_GE(reactor->temperature(), T);
         t = network.time() + 5e-3;
         network.advance(t);
     }
@@ -54,6 +54,97 @@ TEST(zerodim, test_guards)
     EXPECT_THROW(MassFlowController().updateMassFlowRate(0.), CanteraError);
     EXPECT_THROW(PressureController().updateMassFlowRate(0.), CanteraError);
     EXPECT_THROW(Valve().updateMassFlowRate(0.), CanteraError);
+}
+
+TEST(zerodim, flowdevice)
+{
+    auto gas = newSolution("gri30.yaml", "gri30", "none");
+
+    auto node0 = newReactor("IdealGasReactor", gas, "upstream");
+    auto node1 = newReactor("IdealGasReactor", gas, "downstream");
+
+    auto valve = newFlowDevice("Valve", node0, node1, "valve");
+    ASSERT_EQ(valve->name(), "valve");
+    ASSERT_EQ(valve->in().name(), "upstream");
+    ASSERT_EQ(valve->out().name(), "downstream");
+
+    ASSERT_EQ(node0->nInlets(), 0);
+    ASSERT_EQ(node0->nOutlets(), 1);
+    ASSERT_EQ(node1->nInlets(), 1);
+    ASSERT_EQ(node1->nOutlets(), 0);
+}
+
+TEST(zerodim, wall)
+{
+    auto gas = newSolution("gri30.yaml", "gri30", "none");
+
+    auto node0 = newReactor("IdealGasReactor", gas, "left");
+    auto node1 = newReactor("IdealGasReactor", gas, "right");
+
+    auto wall = newWall("Wall", node0, node1, "wall");
+    ASSERT_EQ(wall->name(), "wall");
+    ASSERT_EQ(wall->left().name(), "left");
+    ASSERT_EQ(wall->right().name(), "right");
+
+    ASSERT_EQ(node0->nWalls(), 1);
+    ASSERT_EQ(node1->nWalls(), 1);
+}
+
+TEST(zerodim, mole_reactor)
+{
+    // simplified version of continuous_reactor.py
+    auto gas = newSolution("h2o2.yaml", "ohmech", "none");
+
+    auto tank = make_shared<Reservoir>(gas, "fuel-air-tank");
+    auto exhaust = make_shared<Reservoir>(gas, "exhaust");
+
+    auto stirred = make_shared<IdealGasMoleReactor>(gas, "stirred-reactor");
+    stirred->setEnergy(0);
+    stirred->setInitialVolume(30.5 * 1e-6);
+
+    auto mfc = make_shared<MassFlowController>(tank, stirred, "mass-flow-controller");
+    double residenceTime = 2.;
+    double mass = stirred->mass();
+    mfc->setMassFlowRate(mass/residenceTime);
+
+    auto preg = make_shared<PressureController>(stirred, exhaust, "pressure-regulator");
+    preg->setPrimary(mfc.get());
+    preg->setPressureCoeff(1e-3);
+
+    auto net = ReactorNet();
+    net.addReactor(*stirred);
+    net.initialize();
+}
+
+TEST(zerodim, mole_reactor_2)
+{
+    // simplified version of continuous_reactor.py
+    auto gas = newSolution("h2o2.yaml", "ohmech", "none");
+
+    auto tank = std::dynamic_pointer_cast<Reservoir>(
+        newReactor("Reservoir", gas, "fuel-air-tank"));
+    auto exhaust = std::dynamic_pointer_cast<Reservoir>(
+        newReactor("Reservoir", gas, "exhaust"));
+
+    auto stirred = std::dynamic_pointer_cast<IdealGasMoleReactor>(
+        newReactor("IdealGasMoleReactor", gas, "stirred-reactor"));
+    stirred->setEnergy(0);
+    stirred->setInitialVolume(30.5 * 1e-6);
+
+    auto mfc = std::dynamic_pointer_cast<MassFlowController>(
+        newConnectorNode("MassFlowController", tank, stirred, "mass-flow-controller"));
+    double residenceTime = 2.;
+    double mass = stirred->mass();
+    mfc->setMassFlowRate(mass/residenceTime);
+
+    auto preg = std::dynamic_pointer_cast<PressureController>(
+        newConnectorNode("PressureController", stirred, exhaust, "pressure-regulator"));
+    preg->setPrimary(mfc.get());
+    preg->setPressureCoeff(1e-3);
+
+    auto net = ReactorNet();
+    net.addReactor(*stirred);
+    net.initialize();
 }
 
 // This test ensures that prior reactor initialization of a reactor does
