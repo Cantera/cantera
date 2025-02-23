@@ -12,25 +12,22 @@ function calling from Cantera CLib.
    since it's stand-alone.
 3. For first time users, launch Matlab, then navigate to `/path/to/cantera/source/code`
    (the folder containing `interfaces` and `samples`) using "Browse for Folder".
-   Note for Ubuntu users: Matlab must be launched from the terminal
-   using the following command:
-   `LD_PRELOAD='/usr/lib/x86_64-linux-gnu/libstdc++.so.6' matlab -softwareopengl`.
-   This is because Matlab does not load the correct GLIBC++ library on start-up and
-   will return an error when loading the Cantera toolbox.
-4. In the Matlab command window, run
+4. For Linux users: Matlab currently uses Intel MKL which uses 64-bit integer types
+   that are incompatible with the standard 32-bit integers used by the default version
+   of OpenBLAS that comes with Cantera. As such, the correct environment variables
+   need to be set to launch Matlab with the correct BLAS/LAPACK libraries loaded: 
+   `export LD_PRELOAD=/path/to/openblas/library:/path/to/lapack/library`
+   then, launch Matlab in the terminal with:
+   `matlab -softwareopengl`.
+5. In the Matlab command window, run
    `addpath(genpath([pwd, '/interfaces/matlab_experimental']))` to add search path for
    the experimental toolbox.
-5. In the Matlab command window, run
+6. In the Matlab command window, run
    `cd([pwd, '/interfaces/matlab_experimental/Utility'])` to navigate to the Utility
    folder.
-6. Open the file named 'ctRoot.m', in the second line, edit `output=` to
+7. Open the file named 'ctRoot.m', in the second line, edit `output=` to
    `output='/path/to/conda/environment'`, then save the file. This sets the search path
    for the `ctLoad` command to find the shared library file for Cantera.
-7. Make sure the legacy (old) Matlab Toolbox for
-   Cantera (if it's already installed) and samples files are removed from
-   the Matlab search path. Having both the legacy and experimental version
-   of the toolbox in the search path will lead to conflicts.
-   The command to remove search path in Matlab is `rmpath`.
 8. In the Matlab command window, run `savepath` to save all search paths.
 9. To switch back to the legacy Matlab toolbox, revert the search paths.
 

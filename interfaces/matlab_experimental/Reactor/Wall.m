@@ -127,6 +127,9 @@ classdef Wall < handle
         function delete(w)
             % Clear the :mat:class:`Wall` object.
 
+            if isempty(w.id)
+                return
+            end
             ctFunc('wall_del', w.id);
         end
 

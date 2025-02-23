@@ -101,6 +101,9 @@ classdef Domain1D < handle
         function delete(d)
             % Delete the :mat:class:`Domain1D` object.
 
+            if isempty(d.domainID)
+                return
+            end
             ctFunc('domain_del', d.domainID);
         end
 
