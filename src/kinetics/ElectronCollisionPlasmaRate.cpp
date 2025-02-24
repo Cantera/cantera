@@ -111,14 +111,6 @@ double ElectronCollisionPlasmaRate::evalFromStruct(
 
 void ElectronCollisionPlasmaRate::setContext(const Reaction& rxn, const Kinetics& kin)
 {
-    // ElectronCollisionPlasmaReaction is for a non-equilibrium plasma, and the reverse rate
-    // cannot be calculated from the conventional thermochemistry.
-    // @todo implement the reversible rate for non-equilibrium plasma
-    if (rxn.reversible) {
-        throw InputFileError("ElectronCollisionPlasmaRate::setContext", rxn.input,
-            "ElectronCollisionPlasmaRate does not support reversible reactions");
-    }
-
     // get electron species name
     string electronName;
     if (kin.thermo().type() == "plasma") {
@@ -139,6 +131,24 @@ void ElectronCollisionPlasmaRate::setContext(const Reaction& rxn, const Kinetics
     if (rxn.reactants.at(electronName) != 1) {
         throw InputFileError("ElectronCollisionPlasmaRate::setContext", rxn.input,
             "ElectronCollisionPlasmaRate requires one and only one electron");
+    }
+
+    if (!rxn.reversible) {
+        return; // end checking of forward reaction
+    }
+
+    // For super-elastic collisions
+    if (rxn.products.size() != 2) {
+        throw InputFileError("ElectronCollisionPlasmaRate::setContext", rxn.input,
+            "ElectronCollisionPlasmaRate requires exactly two products"
+            "if the reaction is reversible (super-elastic collisions)");
+    }
+
+    // Must have only one electron
+    if (rxn.products.at(electronName) != 1) {
+        throw InputFileError("ElectronCollisionPlasmaRate::setContext", rxn.input,
+            "ElectronCollisionPlasmaRate requires one and only one electron in products"
+            "if the reaction is reversible (super-elastic collisions)");
     }
 }
 
