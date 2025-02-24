@@ -109,6 +109,44 @@ double ElectronCollisionPlasmaRate::evalFromStruct(
            simpson(distribution.cwiseProduct(cs_array), eps.pow(2.0));
 }
 
+void ElectronCollisionPlasmaRate::modifyRateConstants(
+    const ElectronCollisionPlasmaData& shared_data, double& kf, double& kr)
+{
+    // Interpolate cross-sections data to the energy levels of
+    // the electron energy distribution function
+    if (shared_data.levelChanged) {
+        // super elastic collision energy levels and cross-sections
+        vector<double> superElasticEnergyLevels{0.0};
+        m_crossSectionsOffset.resize(shared_data.energyLevels.size());
+        for (size_t i = 1; i < m_energyLevels.size(); i++) {
+            // The energy levels are offset by the first energy level (threshold)
+            superElasticEnergyLevels.push_back(m_energyLevels[i] - m_energyLevels[0]);
+        }
+        for (size_t i = 0; i < shared_data.energyLevels.size(); i++) {
+            // The interpolated super-elastic cross section is evaluated
+            // at the shared energy grid
+            m_crossSectionsOffset[i] = linearInterp(shared_data.energyLevels[i],
+                                                        superElasticEnergyLevels,
+                                                        m_crossSections);
+        }
+    }
+
+    // Map energyLevels in Eigen::ArrayXd
+    auto eps = Eigen::Map<const Eigen::ArrayXd>(
+        shared_data.energyLevels.data(), shared_data.energyLevels.size()
+    );
+
+    // Map energyLevels in Eigen::ArrayXd
+    auto distribution = Eigen::Map<const Eigen::ArrayXd>(
+        shared_data.distribution.data(), shared_data.distribution.size()
+    );
+
+    // unit in kmol/m3/s
+    kr = pow(2.0 * ElectronCharge / ElectronMass, 0.5) * Avogadro *
+         simpson((eps + m_energyLevels[0]).cwiseProduct(
+         distribution.cwiseProduct(m_crossSectionsOffset)), eps);
+}
+
 void ElectronCollisionPlasmaRate::setContext(const Reaction& rxn, const Kinetics& kin)
 {
     // get electron species name

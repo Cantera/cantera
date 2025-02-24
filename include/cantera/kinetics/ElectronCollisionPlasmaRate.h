@@ -121,6 +121,9 @@ public:
      */
     double evalFromStruct(const ElectronCollisionPlasmaData& shared_data);
 
+    void modifyRateConstants(const ElectronCollisionPlasmaData& shared_data,
+                             double& kf, double& kr);
+
     //! Evaluate derivative of reaction rate with respect to temperature
     //! divided by reaction rate
     //! @param shared_data  data shared by all reactions of a given type
@@ -155,6 +158,12 @@ private:
 
     //! collision cross sections [m2] after interpolation
     vector<double> m_crossSectionsInterpolated;
+
+    //! collision cross section [m2] interpolated on #m_energyLevels offset by the
+    //! threshold energy (the first energy level).
+    //! This is used for the calculation of the super-elastic collision reaction
+    //! rate coefficient.
+    Eigen::ArrayXd m_crossSectionsOffset;
 };
 
 }
