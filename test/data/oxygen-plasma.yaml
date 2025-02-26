@@ -51,7 +51,7 @@ reactions:
   type: two-temperature-plasma
   rate-constant: {A: 4.2e-27, b: -1.0, Ea-gas: 600, Ea-electron: 700}
 
-- equation: O2 + E => E + O2
+- equation: O2 + E <=> E + O2
   type: electron-collision-plasma
   note: This is a electron collision process of plasma
   energy-levels: [0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
