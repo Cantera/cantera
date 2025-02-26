@@ -35,14 +35,19 @@ classdef Solution < handle & ThermoPhase & Kinetics & Transport
     %     name of the phase to import as specified in the YAML file.
     % :param transport_model:
     %     String specifying transport model. Possible values are ``'default'``,
-    %     ``'none'``, ``'mixture-averaged'``, or ``'multicomponent'``. If not specified,
-    %     ``'default'`` is used.
+    %     ``'none'``, ``'mixture-averaged'``, ``'mixture-averaged-CK'``,
+    %     ``'ionized-gas'``, or ``'multicomponent'``.
+    %     If not specified, ``'default'`` is used.
     % :return:
     %     Instance of class :mat:class:`Solution`.
 
     properties (SetAccess = immutable)
-        solnID % ID of the solution.
-        solnName % Name of the solution.
+        solnID % ID of the :mat:class:`Solution` object.
+        solnName % Name of the :mat:class:`Solution` object.
+    end
+
+    properties (SetAccess = public)
+        transportModel % Transport model of the :mat:class:`Solution` object.
     end
 
     methods
@@ -91,6 +96,26 @@ classdef Solution < handle & ThermoPhase & Kinetics & Transport
                 return
             end
             ctFunc('soln_del', s.solnID);
+        end
+
+        %% Solution Class Getter Methods
+
+        function str = get.transportModel(soln)
+            str = ctString('trans_transportModel', soln.trID);
+        end
+
+        %% Solution Class Setter Methods
+
+        function set.transportModel(soln, str)
+            if strcmp(str, soln.transportModel)
+                return
+            end
+
+            n = ctFunc('soln_setTransportModel', soln.solnID, str);
+
+            % update the transport ID after setting to a new transport model
+            soln.trID = n;
+
         end
 
     end
