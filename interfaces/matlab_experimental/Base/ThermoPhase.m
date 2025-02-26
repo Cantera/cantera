@@ -18,6 +18,12 @@ classdef ThermoPhase < handle
 
         Y % Mass fractions.
 
+        T % Temperature. Units: K.
+
+        P % Pressure. Units: Pa.
+
+        D % Density depending on the basis. Units: kmol/m^3 (molar) kg/m^3 (mass)
+
         % Basis ::
         %
         %     >> tp.basis = b
@@ -73,12 +79,6 @@ classdef ThermoPhase < handle
         nElements % Number of elements in the phase.
 
         nSpecies % Number of species in the phase.
-
-        T % Temperature. Units: K.
-
-        P % Pressure. Units: Pa.
-
-        D % Density depending on the basis. Units: kmol/m^3 (molar) kg/m^3 (mass)
 
         H % Enthalpy depending on the basis. Units: J/kmol (molar) J/kg (mass).
 
@@ -1391,6 +1391,51 @@ classdef ThermoPhase < handle
                 error('Invalid input.')
             end
 
+        end
+
+        function set.T(tp, t)
+            choice = input(['The single setter method for temperature ', ...
+                            'will not hold other properties such as ', ...
+                            'pressure and vapor fraction constant.\n', ...
+                            'It is recommended to use multi setter methods ', ...
+                            'such as set.TP if you want to keep ', ...
+                            'multiple properties constant.\n', ...
+                            'Are you sure you want to proceed? (Yes/No)\n'], ...
+                            's');
+            if ~strcmp(choice, 'Yes')
+                return
+            end
+            ctFunc('thermo_setTemperature', tp.tpID, t);
+        end
+
+        function set.P(tp, p)
+            choice = input(['The single setter method for pressure ', ...
+                            'will not hold other properties such as ', ...
+                            'density and vapor fraction constant.\n', ...
+                            'It is recommended to use multi setter methods ', ...
+                            'such as set.DP if you want to keep ', ...
+                            'multiple properties constant.\n', ...
+                            'Are you sure you want to proceed? (Yes/No)\n'], ...
+                            's');
+            if ~strcmp(choice, 'Yes')
+                return
+            end
+            ctFunc('thermo_setPressure', tp.tpID, p);
+        end
+
+        function set.D(tp, rho)
+            choice = input(['The single setter method for density ', ...
+                            'will not hold other properties such as ', ...
+                            'pressure and vapor fraction constant.\n', ...
+                            'It is recommended to use multi setter methods ', ...
+                            'such as set.DP if you want to keep ', ...
+                            'multiple properties constant.\n', ...
+                            'Are you sure you want to proceed? (Yes/No)\n'], ...
+                            's');
+            if ~strcmp(choice, 'Yes')
+                return
+            end
+            ctFunc('thermo_setDensity', tp.tpID, rho);
         end
 
         %% Multi-property setter methods
