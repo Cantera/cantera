@@ -2284,9 +2284,9 @@ class TestElectronCollisionPlasmaReaction(ReactionTests):
     # reaction rate is much complicated and depends on electron energy distribution
     # function.
     _rate_cls = ct.ElectronCollisionPlasmaRate
-    _equation = "O2 + E => E + O2"
+    _equation = "O2 + E <=> E + O2"
     _rate = {
-        "equation": "O2 + E => E + O2",
+        "equation": "O2 + E <=> E + O2",
         "type": "electron-collision-plasma",
         "energy-levels": [0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0],
         "cross-sections": [0.0, 5.97e-20, 6.45e-20, 6.74e-20, 6.93e-20, 7.2e-20,
@@ -2295,7 +2295,7 @@ class TestElectronCollisionPlasmaReaction(ReactionTests):
     _index = 1
     _rate_type = "electron-collision-plasma"
     _yaml = """
-        equation: O2 + E => E + O2
+        equation: O2 + E <=> E + O2
         type: electron-collision-plasma
         energy-levels: [0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
         cross-sections: [0.0, 5.97e-20, 6.45e-20, 6.74e-20, 6.93e-20, 7.2e-20,
