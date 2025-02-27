@@ -676,7 +676,10 @@ bool Kinetics::addReaction(shared_ptr<Reaction> r, bool resize)
     // product orders = product stoichiometric coefficients
     m_productStoich.add(irxn, pk, pstoich, pstoich);
     if (r->reversible) {
+        m_revindex.push_back(irxn);
         m_revProductStoich.add(irxn, pk, pstoich, pstoich);
+    } else {
+        m_irrev.push_back(irxn);
     }
 
     m_reactions.push_back(r);
