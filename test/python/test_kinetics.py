@@ -1905,13 +1905,21 @@ class TestStickingCoefficient:
         # M&W toggled on (locally) for reaction 4
         assert k1[4] == approx(k2[4]) # sticking coefficient = 1.0
 
-class TestElectrochemicalReaction:
+class TestElectronCollisionPlasmaReaction:
 
-    def test_electron_collision_plasma(self):
-        gas1 = ct.Solution('oxygen-plasma.yaml',
-                           'isotropic-electron-energy-plasma',
-                           transport_model=None)
-        gas1.TPX = 300, ct.one_atm, {"O2": 1.0, "E": 1.0}
+    def setup_plasma(self):
+        gas = ct.Solution('oxygen-plasma.yaml',
+                          'isotropic-electron-energy-plasma',
+                          transport_model=None)
+        gas.TPX = 300, ct.one_atm, {"O2": 1.0, "E": 1.0}
+        return gas
+
+    def test_ECPR_electron_energy_level(self):
+        # Consistent test of using different electron energy method
+        # This test compares the rate constants calculated from
+        # the method discretized-electron-energy-plasma to
+        # the method isotropic-electron-energy-plasma
+        gas1 = self.setup_plasma()
         electron_energy_levels = gas1.electron_energy_levels
         electron_energy_dist = gas1.electron_energy_distribution
         k1 = gas1.forward_rate_constants[1]
@@ -1924,3 +1932,16 @@ class TestElectrochemicalReaction:
                                                           electron_energy_dist)
         k2 = gas2.forward_rate_constants[1]
         assert k1 == approx(k2)
+
+    def test_ECPR_rate_of_progress(self):
+        # Test of forward and reverse rate of progress
+        # The reverse rate of progress calculates the super-elastic rate coefficient
+        # which equals to the forward rate coefficient when the threshold energy is
+        # zero. Therefore, the reverse rate of progress equals the forward rate of
+        # progress.
+        gas = self.setup_plasma()
+
+        frop = approx(gas.forward_rates_of_progress[1])
+        rrop = approx(gas.reverse_rates_of_progress[1])
+
+        assert frop == rrop
