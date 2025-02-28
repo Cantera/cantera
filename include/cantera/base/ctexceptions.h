@@ -175,15 +175,13 @@ public:
     /*!
      * This class indicates an out-of-bounds array index.
      *
-     * @param func String name for the function within which the error was
-     *             generated.
-     * @param arrayName name of the corresponding array
-     * @param m   This is the value of the out-of-bounds index.
-     * @param mmax This is the maximum allowed value of the index. The
-     *             minimum allowed value is assumed to be 0.
+     * @param func  String name for the function within which the error was generated.
+     * @param arrayName  Name of the corresponding array or empty string @c "".
+     * @param m     Value of the out-of-bounds index.
+     * @param arrSize  Size of the array.
      */
-    IndexError(const string& func, const string& arrayName, size_t m, size_t mmax) :
-        CanteraError(func), arrayName_(arrayName), m_(m), mmax_(mmax) {}
+    IndexError(const string& func, const string& arrayName, size_t m, size_t arrSize) :
+        CanteraError(func), arrayName_(arrayName), m_(m), m_size(arrSize) {}
 
     ~IndexError() throw() override {};
     string getMessage() const override;
@@ -193,7 +191,8 @@ public:
 
 private:
     string arrayName_;
-    size_t m_, mmax_;
+    size_t m_;
+    size_t m_size;
 };
 
 //! An error indicating that an unimplemented function has been called
