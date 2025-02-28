@@ -72,11 +72,16 @@ string ArraySizeError::getMessage() const
 
 string IndexError::getMessage() const
 {
+    if (m_size == 0) {
+        return fmt::format("IndexError: index {} given, but array{} is empty.",
+                           m_, arrayName_.empty() ? arrayName_ : " "+arrayName_);
+    }
     if (arrayName_ == "") {
-        return fmt::format("IndexError: {} outside valid range of 0 to {}.", m_, mmax_);
+        return fmt::format("IndexError: {} outside valid range of 0 to {}.",
+                           m_, m_size - 1);
     }
     return fmt::format("IndexError: {}[{}] outside valid range of 0 to {}.",
-                       arrayName_, m_, mmax_);
+                       arrayName_, m_, m_size - 1);
 }
 
 } // namespace Cantera

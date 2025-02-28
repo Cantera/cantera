@@ -27,8 +27,7 @@ namespace Cantera
 void Kinetics::checkReactionIndex(size_t i) const
 {
     if (i >= nReactions()) {
-        throw IndexError("Kinetics::checkReactionIndex", "reactions", i,
-                         nReactions()-1);
+        throw IndexError("Kinetics::checkReactionIndex", "reactions", i, nReactions());
     }
 }
 
@@ -62,7 +61,7 @@ void Kinetics::checkReactionArraySize(size_t ii) const
 void Kinetics::checkPhaseIndex(size_t m) const
 {
     if (m >= nPhases()) {
-        throw IndexError("Kinetics::checkPhaseIndex", "phase", m, nPhases()-1);
+        throw IndexError("Kinetics::checkPhaseIndex", "phase", m, nPhases());
     }
 }
 
@@ -81,7 +80,7 @@ shared_ptr<ThermoPhase> Kinetics::reactionPhase() const
 void Kinetics::checkSpeciesIndex(size_t k) const
 {
     if (k >= m_kk) {
-        throw IndexError("Kinetics::checkSpeciesIndex", "species", k, m_kk-1);
+        throw IndexError("Kinetics::checkSpeciesIndex", "species", k, m_kk);
     }
 }
 
