@@ -1399,9 +1399,11 @@ public:
      *
      * @param rho Density (kg/m^3)
      * @param p   Pressure (Pa)
+     * @param tol   tolerance for the iterative solver for cubic EoS
+     * @param TGuess   guess for the temperature (K) used as start for the iterative solver for cubic EoS
      * @since New in %Cantera 3.0.
      */
-    virtual void setState_DP(double rho, double p, double Tguess=300) {
+    virtual void setState_DP(double rho, double p, double tol=1e-9, double Tguess=300) {
         throw NotImplementedError("ThermoPhase::setState_DP",
                                   "Not implemented for phase type '{}'", type());
     }

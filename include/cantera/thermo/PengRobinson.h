@@ -212,7 +212,18 @@ protected:
     double d2aAlpha_dT2() const;
 
 public:
-    void setState_DP(double rho, double p, double Tguess=300) override;
+    //! Set the density (kg/m**3) and pressure (Pa) at constant composition
+    /*!
+     * Within %Cantera, the independent variable of the PR-EoS is the density and Temperature. Therefore, this function solves for
+     * the temperature that will yield the desired input pressure at the provided density.
+     * The composition is held constant during this process.
+     *
+     * @param rho Density (kg/m^3)
+     * @param p   Pressure (Pa)
+     * @param tol   tolerance for the iterative solver 
+     * @param TGuess   guess for the temperature (K) used as start for the iterative solver 
+     */
+    void setState_DP(double rho, double p, double tol=1e-9, double Tguess=300) override;
 
     double isothermalCompressibility() const override;
     double thermalExpansionCoeff() const override;

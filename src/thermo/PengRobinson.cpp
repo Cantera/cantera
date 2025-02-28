@@ -838,7 +838,7 @@ AnyMap PengRobinson::getAuxiliaryData()
     return parameters;
 }
 
-void PengRobinson::setState_DP(double rho, double p, double Tguess)
+void PengRobinson::setState_DP(double rho, double p,double tol, double Tguess)
 {
     if (p <= 0 || rho<=0 ) {
         throw CanteraError("PengRobinson::setState_DP",
@@ -861,7 +861,7 @@ void PengRobinson::setState_DP(double rho, double p, double Tguess)
         p_iter = (GasConstant*T_new)/mV_b - term2;
         // Check if the result is within the specified tolerance
         double error =(p_iter-p)/p;
-        if (fabs(error)<1e-10) {
+        if (fabs(error)<tol) {
             break;
         }
         m_dpdT = (GasConstant / mV_b - daAlpha_dT(T_new) / denom);

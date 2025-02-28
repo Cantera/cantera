@@ -203,7 +203,7 @@ TEST_F(PengRobinson_Test, CoolPropValidateDP)
     {
         const double tempReference = 300 + i*25;
         set_r(1.0);
-        test_phase->setState_DP(rhoCoolProp[i], p,300);
+        test_phase->setState_DP(rhoCoolProp[i], p,1e-10,300);
 
         EXPECT_NEAR(test_phase->temperature(),tempReference,1.e-3);
     }
