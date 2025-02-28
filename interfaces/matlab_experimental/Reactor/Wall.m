@@ -54,6 +54,7 @@ classdef Wall < Connector
 
     properties (SetAccess = public)
 
+        name  % Name of wall.
         area % Area of the wall in m^2.
         heatRate % Total heat transfer rate through the wall at current time step in W.
         expansionRate % Rate of volumetric change at current time step in m^3/s.
