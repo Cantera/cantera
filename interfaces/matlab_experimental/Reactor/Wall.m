@@ -54,8 +54,6 @@ classdef Wall < handle
 
     properties (SetAccess = protected)
 
-        name  % Name of wall.
-
         left % Reactor on the left.
         right % Reactor on the right.
 
@@ -63,6 +61,7 @@ classdef Wall < handle
 
     properties (SetAccess = public)
 
+        name  % Name of wall.
         area % Area of the wall in m^2.
         heatRate % Total heat transfer rate through the wall at current time step in W.
         expansionRate % Rate of volumetric change at current time step in m^3/s.
@@ -127,6 +126,9 @@ classdef Wall < handle
         function delete(w)
             % Clear the :mat:class:`Wall` object.
 
+            if isempty(w.id)
+                return
+            end
             ctFunc('wall_del', w.id);
         end
 

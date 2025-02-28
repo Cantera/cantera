@@ -83,6 +83,9 @@ classdef FlowDevice < handle
         function delete(f)
             % Delete the :mat:class:`FlowDevice` object.
 
+            if isempty(f.id)
+                return
+            end
             ctFunc('flowdev_del', f.id);
         end
 
