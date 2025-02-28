@@ -81,6 +81,22 @@ classdef ctTestReactor < matlab.unittest.TestCase
             end
         end
 
+        function addWall(self, varargin)
+            p = inputParser;
+
+            p.addOptional('K', 0.0, @(x) isnumeric(x) && isscalar(x));
+            p.addOptional('A', 1.0, @(x) isnumeric(x) && isscalar(x));
+
+            parse(p, varargin{:});
+
+            K = p.Results.K;
+            A = p.Results.A;
+
+            self.w = Wall(self.r1, self.r2);
+            self.w.area = A;
+            self.w.heatTransferCoeff = K;
+        end
+
     end
 
     methods (Test)
@@ -106,7 +122,7 @@ classdef ctTestReactor < matlab.unittest.TestCase
             self.verifyEqual(self.net.time, 0.0, 'AbsTol', self.atol);
         end
 
-        function testDisjoint(self)
+        function testDisjoint1(self)
             cond1 = {300, 101325, 'O2:1.0'};
             cond2 = {500, 300000, 'O2:1.0'};
 
@@ -117,6 +133,19 @@ classdef ctTestReactor < matlab.unittest.TestCase
             self.verifyEqual(self.gas2.T, 500, 'AbsTol', self.atol);
             self.verifyEqual(self.gas1.P, 101325, 'AbsTol', self.atol);
             self.verifyEqual(self.gas2.P, 300000, 'AbsTol', self.atol);
+        end
+
+        function testDisjoint2(self)
+            cond1 = {300, 101325, 'O2:1.0'};
+            cond2 = {500, 300000, 'O2:1.0'};
+
+            self.makeReactors(false, 2, cond1, cond2);
+            self.net.advance(1.0);
+
+            self.verifyEqual(self.r1.T, 300, 'AbsTol', self.atol);
+            self.verifyEqual(self.r2.T, 500, 'AbsTol', self.atol);
+            self.verifyEqual(self.r1.P, 101325, 'AbsTol', self.atol);
+            self.verifyEqual(self.r2.P, 300000, 'AbsTol', self.atol);
         end
 
         function testTimeStepping(self)
@@ -137,6 +166,17 @@ classdef ctTestReactor < matlab.unittest.TestCase
                 self.verifyLessThanOrEqual(t - tPrev, 1.0001 * dtMax);
                 self.verifyEqual(t, self.net.time, 'AbsTol', self.atol);
             end
+        end
+
+        function testWall1(self)
+            cond1 = {300, 101325, 'O2:1.0'};
+            cond2 = {300, 300000, 'O2:1.0'};
+
+            self.makeReactors(true, 2, cond1, cond2);
+            self.addWall(0.1, 1.0);
+            self.verifyEqual(self.w.type, 'Wall');
+            self.w.name = 'name-of-wall';
+            self.verifyEqual(self.w.name, 'name-of-wall');
         end
 
     end
