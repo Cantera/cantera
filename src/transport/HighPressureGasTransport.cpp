@@ -17,6 +17,84 @@
 namespace Cantera
 {
 
+/**
+ * @brief Returns interpolated value of (DP)_R obtained from the data in Table 2 of
+ * the Takahashi 1975 paper, given a value of the reduced pressure (Pr) and reduced
+ * temperature (Tr).
+ *
+ * @param Pr  Reduced pressure
+ * @param Tr  Reduced temperature
+ */
+double takahashiCorrectionFactor(double Pr, double Tr)
+{
+    // In the low pressure limit, no correction is needed. Interpolate
+    // the value towards 1 as pressure drops below the 0.1 threshold.
+    if (Pr < 0.1) {
+        return 1.0;
+    }
+
+    // Data from Table 2 of Takahashi 1975 paper:
+    const static double Pr_lookup[17] = {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.8, 1.0,
+        1.2, 1.4, 1.6, 1.8, 2.0, 2.5, 3.0, 4.0, 5.0};
+    const static double DP_Rt_lookup[17] = {1.01, 1.01, 1.01, 1.01, 1.01, 1.01,
+        1.01, 1.02, 1.02, 1.02, 1.02, 1.03, 1.03, 1.04, 1.05, 1.06, 1.07};
+    const static double A_ij_lookup[17] = {0.038042, 0.067433, 0.098317,
+        0.137610, 0.175081, 0.216376, 0.314051, 0.385736, 0.514553, 0.599184,
+        0.557725, 0.593007, 0.696001, 0.790770, 0.502100, 0.837452, 0.890390};
+    const static double B_ij_lookup[17] = {1.52267, 2.16794, 2.42910, 2.77605,
+        2.98256, 3.11384, 3.50264, 3.07773, 3.54744, 3.61216, 3.41882, 3.18415,
+        3.37660, 3.27984, 3.39031, 3.23513, 3.13001};
+    const static double C_ij_lookup[17] = {0., 0., 0., 0., 0., 0., 0., 0.141211,
+        0.278407, 0.372683, 0.504894, 0.678469, 0.665702, 0., 0.602907, 0., 0.};
+    const static double E_ij_lookup[17] = {1., 1., 1., 1., 1., 1., 1., 13.45454,
+        14., 10.00900, 8.57519, 10.37483, 11.21674, 1., 6.19043, 1., 1.};
+
+    // Interpolate to obtain the value of (DP)_R at
+    // the provided value of the reduced pressure (Pr).
+    int Pr_lower = 0; // Index of the lower bounding value of Pr
+    int Pr_upper = 0; // Index of the upper bounding value of Pr
+    double frac = 0.0;
+
+    bool found = false;
+    for (int j = 1; j < 17; j++){
+        if (Pr_lookup[j] > Pr) {
+            frac = (Pr - Pr_lookup[j-1])/(Pr_lookup[j] - Pr_lookup[j-1]);
+            found = true;
+            Pr_lower = j-1;
+            Pr_upper = j;
+            break;
+        }
+    }
+    // If this loop completes without finding a bounding value of Pr, use
+    // the final table value.
+    if (!found) {
+        Pr_lower = 16;
+        Pr_upper = 16;
+        frac = 1.0;
+    }
+
+    // Compute the value of (DP)_R at the given Pr value by interpolating the
+    // bounding values of (DP)_R.
+    double A, B, C, E, DP_Rt, DP_R_lower, DP_R_upper;
+    DP_Rt = DP_Rt_lookup[Pr_lower];
+    A = A_ij_lookup[Pr_lower];
+    B = B_ij_lookup[Pr_lower];
+    C = C_ij_lookup[Pr_lower];
+    E = E_ij_lookup[Pr_lower];
+
+    DP_R_lower = DP_Rt*(1.0 - A*pow(Tr,-B))*(1.0 - C*pow(Tr,-E));
+
+    DP_Rt = DP_Rt_lookup[Pr_upper];
+    A = A_ij_lookup[Pr_upper];
+    B = B_ij_lookup[Pr_upper];
+    C = C_ij_lookup[Pr_upper];
+    E = E_ij_lookup[Pr_upper];
+
+    DP_R_upper = DP_Rt*(1.0 - A*pow(Tr,-B))*(1.0 - C*pow(Tr,-E));
+
+    // Linear interpolation of the two bounding values of (DP)_R.
+    return DP_R_lower*(1.0 - frac) + DP_R_upper*frac;
+}
 
 void HighPressureGasTransportBase::getTransportData()
 {
@@ -259,85 +337,6 @@ void HighPressureGasTransportBase::getMixDiffCoeffsMass(double* const d)
             d[i] = 1.0 / (sum1 + sum2);
         }
     }
-}
-
-/**
- * @brief Returns interpolated value of (DP)_R obtained from the data in Table 2 of
- * the Takahashi 1975 paper, given a value of the reduced pressure (Pr) and reduced
- * temperature (Tr).
- *
- * @param Pr  Reduced pressure
- * @param Tr  Reduced temperature
- */
-double takahashiCorrectionFactor(double Pr, double Tr)
-{
-    // In the low pressure limit, no correction is needed. Interpolate
-    // the value towards 1 as pressure drops below the 0.1 threshold.
-    if (Pr < 0.1) {
-        return 1.0;
-    }
-
-    // Data from Table 2 of Takahashi 1975 paper:
-    const static double Pr_lookup[17] = {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.8, 1.0,
-        1.2, 1.4, 1.6, 1.8, 2.0, 2.5, 3.0, 4.0, 5.0};
-    const static double DP_Rt_lookup[17] = {1.01, 1.01, 1.01, 1.01, 1.01, 1.01,
-        1.01, 1.02, 1.02, 1.02, 1.02, 1.03, 1.03, 1.04, 1.05, 1.06, 1.07};
-    const static double A_ij_lookup[17] = {0.038042, 0.067433, 0.098317,
-        0.137610, 0.175081, 0.216376, 0.314051, 0.385736, 0.514553, 0.599184,
-        0.557725, 0.593007, 0.696001, 0.790770, 0.502100, 0.837452, 0.890390};
-    const static double B_ij_lookup[17] = {1.52267, 2.16794, 2.42910, 2.77605,
-        2.98256, 3.11384, 3.50264, 3.07773, 3.54744, 3.61216, 3.41882, 3.18415,
-        3.37660, 3.27984, 3.39031, 3.23513, 3.13001};
-    const static double C_ij_lookup[17] = {0., 0., 0., 0., 0., 0., 0., 0.141211,
-        0.278407, 0.372683, 0.504894, 0.678469, 0.665702, 0., 0.602907, 0., 0.};
-    const static double E_ij_lookup[17] = {1., 1., 1., 1., 1., 1., 1., 13.45454,
-        14., 10.00900, 8.57519, 10.37483, 11.21674, 1., 6.19043, 1., 1.};
-
-    // Interpolate to obtain the value of (DP)_R at
-    // the provided value of the reduced pressure (Pr).
-    int Pr_lower = 0; // Index of the lower bounding value of Pr
-    int Pr_upper = 0; // Index of the upper bounding value of Pr
-    double frac = 0.0;
-
-    bool found = false;
-    for (int j = 1; j < 17; j++){
-        if (Pr_lookup[j] > Pr) {
-            frac = (Pr - Pr_lookup[j-1])/(Pr_lookup[j] - Pr_lookup[j-1]);
-            found = true;
-            Pr_lower = j-1;
-            Pr_upper = j;
-            break;
-        }
-    }
-    // If this loop completes without finding a bounding value of Pr, use
-    // the final table value.
-    if (!found) {
-        Pr_lower = 16;
-        Pr_upper = 16;
-        frac = 1.0;
-    }
-
-    // Compute the value of (DP)_R at the given Pr value by interpolating the
-    // bounding values of (DP)_R.
-    double A, B, C, E, DP_Rt, DP_R_lower, DP_R_upper;
-    DP_Rt = DP_Rt_lookup[Pr_lower];
-    A = A_ij_lookup[Pr_lower];
-    B = B_ij_lookup[Pr_lower];
-    C = C_ij_lookup[Pr_lower];
-    E = E_ij_lookup[Pr_lower];
-
-    DP_R_lower = DP_Rt*(1.0 - A*pow(Tr,-B))*(1.0 - C*pow(Tr,-E));
-
-    DP_Rt = DP_Rt_lookup[Pr_upper];
-    A = A_ij_lookup[Pr_upper];
-    B = B_ij_lookup[Pr_upper];
-    C = C_ij_lookup[Pr_upper];
-    E = E_ij_lookup[Pr_upper];
-
-    DP_R_upper = DP_Rt*(1.0 - A*pow(Tr,-B))*(1.0 - C*pow(Tr,-E));
-
-    // Linear interpolation of the two bounding values of (DP)_R.
-    return DP_R_lower*(1.0 - frac) + DP_R_upper*frac;
 }
 
 // HighPressureGasTransport Implementation
