@@ -160,7 +160,7 @@ protected:
 
     //! vector of species thermal conductivities (W/m /K)
     /*!
-     * These are used in wilke's rule to calculate the viscosity of the
+     * These are used in Wilke's rule to calculate the viscosity of the
      * solution. units = W /m /K = kg m /s^3 /K. length = m_kk.
      */
     vector<double> m_cond;
