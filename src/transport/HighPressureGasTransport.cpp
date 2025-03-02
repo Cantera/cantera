@@ -14,11 +14,252 @@
 #include "cantera/thermo/Species.h"
 #include <boost/algorithm/string.hpp>
 
-
-using namespace std;
-
 namespace Cantera
 {
+
+
+void HighPressureGasTransportBase::getTransportData()
+{
+    // Call the base class's method to fill the properties
+    GasTransport::getTransportData();
+
+    // Contents of 'critical-properties.yaml', loaded later if needed
+    AnyMap critPropsDb;
+    std::unordered_map<string, AnyMap*> dbSpecies;
+
+    // If a species has a zero acentric factor, check the critical-properties.yaml
+    // database to see if it has a value specified for the species.
+    for (size_t k = 0; k < m_thermo->nSpecies(); k++) {
+        if (m_w_ac[k] == 0.0) {
+            // Load 'crit-properties.yaml' file if not already loaded
+            if (critPropsDb.empty()) {
+                critPropsDb = AnyMap::fromYamlFile("critical-properties.yaml");
+                dbSpecies = critPropsDb["species"].asMap("name");
+            }
+
+            // All names in critical-properties.yaml are upper case
+            auto ucName = boost::algorithm::to_upper_copy(m_thermo->species(k)->name);
+            if (dbSpecies.count(ucName)) {
+                auto& spec = *dbSpecies.at(ucName);
+                auto& critProps = spec["critical-parameters"].as<AnyMap>();
+                if (critProps.hasKey("acentric-factor")) {
+                    m_w_ac[k] = critProps.convert("acentric-factor", "1");
+                }
+            }
+        }
+    }
+}
+
+void HighPressureGasTransportBase::initializeCriticalProperties()
+{
+    size_t nSpecies = m_thermo->nSpecies();
+    m_Tcrit.resize(nSpecies);
+    m_Pcrit.resize(nSpecies);
+    m_Vcrit.resize(nSpecies);
+    m_Zcrit.resize(nSpecies);
+
+    std::vector<double> molefracs(nSpecies);
+    m_thermo->getMoleFractions(&molefracs[0]);
+
+    std::vector<double> mf_temp(nSpecies, 0.0);
+
+    for (size_t i = 0; i < nSpecies; ++i) {
+        mf_temp[i] = 1.0;
+        m_thermo->setMoleFractions(&mf_temp[0]);
+
+        if (m_thermo->critTemperature() > 1e4) {
+            throw CanteraError(
+                "HighPressureGasTransport::initializeCriticalProperties",
+                "Species '{}' must have critical properties defined or non-zero "
+                "cubic parameters. Check the species definition or the thermo "
+                "data file.",
+                m_thermo->species(i)->name);
+        }
+        m_Tcrit[i] = m_thermo->critTemperature();
+        m_Pcrit[i] = m_thermo->critPressure();
+        m_Vcrit[i] = m_thermo->critVolume();
+        m_Zcrit[i] = m_thermo->critCompressibility();
+
+        mf_temp[i] = 0.0;  // Reset for the next iteration
+    }
+
+    // Restore actual mole fractions
+    m_thermo->setMoleFractions(&molefracs[0]);
+}
+
+// Pure species critical properties - Tc, Pc, Vc, Zc:
+double HighPressureGasTransportBase::Tcrit_i(size_t i)
+{
+    return m_Tcrit[i];
+}
+
+double HighPressureGasTransportBase::Pcrit_i(size_t i)
+{
+    return m_Pcrit[i];
+}
+
+double HighPressureGasTransportBase::Vcrit_i(size_t i)
+{
+    return m_Vcrit[i];
+}
+
+double HighPressureGasTransportBase::Zcrit_i(size_t i)
+{
+    return m_Zcrit[i];
+}
+
+void HighPressureGasTransportBase::updateCorrectionFactors() {
+    for (size_t i = 0; i < m_nsp; i++) {
+        for (size_t j = 0; j < m_nsp; j++) {
+            // Add an offset to avoid a condition where x_i and x_j both equal
+            // zero (this would lead to Pr_ij = Inf).
+            double x_i = std::max(Tiny, m_molefracs[i]);
+            double x_j = std::max(Tiny, m_molefracs[j]);
+
+            // Weight mole fractions of i and j so that X_i + X_j = 1.0.
+            double sum_x_ij = x_i + x_j;
+            x_i = x_i/(sum_x_ij);
+            x_j = x_j/(sum_x_ij);
+
+            // Calculate Tr and Pr based on mole-fraction-weighted critical constants.
+            double Tr_ij = m_temp/(x_i*Tcrit_i(i) + x_j*Tcrit_i(j));
+            double Pr_ij = m_thermo->pressure()/(x_i*Pcrit_i(i) + x_j*Pcrit_i(j));
+
+            // Calculate the parameters for Takahashi correlation
+            double P_corr_ij;
+            P_corr_ij = takahashiCorrectionFactor(Pr_ij, Tr_ij);
+
+            // If the reduced temperature is too low, the correction factor
+            // P_corr_ij will be < 0.
+            if (P_corr_ij<0) {
+                P_corr_ij = Tiny;
+            }
+            m_P_corr_ij(i, j) = P_corr_ij;
+        }
+    }
+}
+
+void HighPressureGasTransportBase::getBinaryDiffCoeffs(const size_t ld, double* const d)
+{
+    update_C();
+    update_T();
+    updateCorrectionFactors();
+    // If necessary, evaluate the binary diffusion coefficients from the polynomial
+    // fits
+    if (!m_bindiff_ok) {
+        updateDiff_T();
+    }
+    if (ld < m_nsp) {
+        throw CanteraError("HighPressureGasTransport::getBinaryDiffCoeffs",
+                           "ld is too small");
+    }
+
+    double rp = 1.0/m_thermo->pressure();
+    for (size_t i = 0; i < m_nsp; i++) {
+        for (size_t j = 0; j < m_nsp; j++) {
+            // Multiply the standard low-pressure binary diffusion coefficient
+            // (m_bdiff) by the Takahashi correction factor P_corr_ij.
+            d[ld*j + i] = m_P_corr_ij(i,j)*(rp * m_bdiff(i,j));
+        }
+    }
+}
+
+void HighPressureGasTransportBase::getMixDiffCoeffs(double* const d)
+{
+    update_T();
+    update_C();
+    updateCorrectionFactors();
+
+    // update the binary diffusion coefficients if necessary
+    if (!m_bindiff_ok) {
+        updateDiff_T();
+    }
+
+    double mmw = m_thermo->meanMolecularWeight();
+    double p = m_thermo->pressure();
+    if (m_nsp == 1) {
+        d[0] = m_P_corr_ij(0,0)*m_bdiff(0,0) / p;
+    } else {
+        for (size_t i = 0; i < m_nsp; i++) {
+            double sum2 = 0.0;
+            for (size_t j = 0; j < m_nsp; j++) {
+                if (j != i) {
+                    sum2 += m_molefracs[j] / (m_P_corr_ij(i,j)*m_bdiff(j,i));
+                }
+            }
+            if (sum2 <= 0.0) {
+                d[i] = m_P_corr_ij(i,i)*m_bdiff(i,i) / p;
+            } else {
+                d[i] = (mmw - m_molefracs[i] * m_mw[i])/(p * mmw * sum2);
+            }
+        }
+    }
+}
+
+void HighPressureGasTransportBase::getMixDiffCoeffsMole(double* const d)
+{
+    update_T();
+    update_C();
+    updateCorrectionFactors();
+
+    // update the binary diffusion coefficients if necessary
+    if (!m_bindiff_ok) {
+        updateDiff_T();
+    }
+
+    double p = m_thermo->pressure();
+    if (m_nsp == 1) {
+        d[0] = m_P_corr_ij(0,0)*m_bdiff(0,0) / p;
+    } else {
+        for (size_t i = 0; i < m_nsp; i++) {
+            double sum2 = 0.0;
+            for (size_t j = 0; j < m_nsp; j++) {
+                if (j != i) {
+                    sum2 += m_molefracs[j] / (m_P_corr_ij(i,j)*m_bdiff(j,i));
+                }
+            }
+            if (sum2 <= 0.0) {
+                d[i] = m_P_corr_ij(i,i)*m_bdiff(i,i) / p;
+            } else {
+                d[i] = (1 - m_molefracs[i]) / (p * sum2);
+            }
+        }
+    }
+}
+
+void HighPressureGasTransportBase::getMixDiffCoeffsMass(double* const d)
+{
+    update_T();
+    update_C();
+    updateCorrectionFactors();
+
+    // update the binary diffusion coefficients if necessary
+    if (!m_bindiff_ok) {
+        updateDiff_T();
+    }
+
+    double mmw = m_thermo->meanMolecularWeight();
+    double p = m_thermo->pressure();
+
+    if (m_nsp == 1) {
+        d[0] = m_P_corr_ij(0,0)*m_bdiff(0,0) / p;
+    } else {
+        for (size_t i=0; i<m_nsp; i++) {
+            double sum1 = 0.0;
+            double sum2 = 0.0;
+            for (size_t j=0; j<m_nsp; j++) {
+                if (j==i) {
+                    continue;
+                }
+                sum1 += m_molefracs[j] / (m_P_corr_ij(i,j)*m_bdiff(i,j));
+                sum2 += m_molefracs[j] * m_mw[j] / (m_P_corr_ij(i,j)*m_bdiff(i,j));
+            }
+            sum1 *= p;
+            sum2 *= p * m_molefracs[i] / (mmw - m_mw[i]*m_molefracs[i]);
+            d[i] = 1.0 / (sum1 + sum2);
+        }
+    }
+}
 
 /**
  * @brief Returns interpolated value of (DP)_R obtained from the data in Table 2 of
@@ -99,78 +340,13 @@ double takahashiCorrectionFactor(double Pr, double Tr)
     return DP_R_lower*(1.0 - frac) + DP_R_upper*frac;
 }
 
-void HighPressureGasTransport::init(ThermoPhase* thermo, int mode, int log_level)
+// HighPressureGasTransport Implementation
+// ---------------------------------------
+void HighPressureGasTransport::init(ThermoPhase* thermo, int mode)
 {
-    MixTransport::init(thermo, mode, log_level);
+    MixTransport::init(thermo, mode);
     initializeCriticalProperties();
     m_P_corr_ij.resize(m_nsp, m_nsp);
-}
-
-void HighPressureGasTransport::getTransportData()
-{
-    // Call the base class's method to fill the properties
-    GasTransport::getTransportData();
-
-    // Contents of 'critical-properties.yaml', loaded later if needed
-    AnyMap critPropsDb;
-    std::unordered_map<string, AnyMap*> dbSpecies;
-
-    // If a species has a zero acentric factor, check the critical-properties.yaml
-    // database to see if it has a value specified for the species.
-    for (size_t k = 0; k < m_thermo->nSpecies(); k++) {
-        if (m_w_ac[k] == 0.0) {
-            // Load 'crit-properties.yaml' file if not already loaded
-            if (critPropsDb.empty()) {
-                critPropsDb = AnyMap::fromYamlFile("critical-properties.yaml");
-                dbSpecies = critPropsDb["species"].asMap("name");
-            }
-
-            // All names in critical-properties.yaml are upper case
-            auto ucName = boost::algorithm::to_upper_copy(m_thermo->species(k)->name);
-            if (dbSpecies.count(ucName)) {
-                auto& spec = *dbSpecies.at(ucName);
-                auto& critProps = spec["critical-parameters"].as<AnyMap>();
-                if (critProps.hasKey("acentric-factor")) {
-                    m_w_ac[k] = critProps.convert("acentric-factor", "1");
-                }
-            }
-        }
-    }
-}
-
-void HighPressureGasTransport::initializeCriticalProperties()
-{
-    size_t nSpecies = m_thermo->nSpecies();
-    m_Tcrit.resize(nSpecies);
-    m_Pcrit.resize(nSpecies);
-    m_Vcrit.resize(nSpecies);
-    m_Zcrit.resize(nSpecies);
-
-    std::vector<double> molefracs(nSpecies);
-    m_thermo->getMoleFractions(&molefracs[0]);
-
-    std::vector<double> mf_temp(nSpecies, 0.0);
-
-    for (size_t i = 0; i < nSpecies; ++i) {
-        mf_temp[i] = 1.0;
-        m_thermo->setMoleFractions(&mf_temp[0]);
-
-        if (m_thermo->critTemperature() > 1e4) {
-            throw CanteraError("HighPressureGasTransport::initializeCriticalProperties",
-                "Species '{}' must have critical properties defined or non-zero cubic parameters. "
-                "Check the species definition or the thermo data file.",
-                m_thermo->species(i)->name);
-        }
-        m_Tcrit[i] = m_thermo->critTemperature();
-        m_Pcrit[i] = m_thermo->critPressure();
-        m_Vcrit[i] = m_thermo->critVolume();
-        m_Zcrit[i] = m_thermo->critCompressibility();
-
-        mf_temp[i] = 0.0;  // Reset for the next iteration
-    }
-
-    // Restore actual mole fractions
-    m_thermo->setMoleFractions(&molefracs[0]);
 }
 
 double HighPressureGasTransport::thermalConductivity()
@@ -378,159 +554,6 @@ double HighPressureGasTransport::elyHanleyReferenceThermalConductivity(double rh
     return Lambda_ref_star + (Lambda_ref_1 + delta_lambda_ref)*correlation_factor;
 }
 
-void HighPressureGasTransport::updateCorrectionFactors() {
-    for (size_t i = 0; i < m_nsp; i++) {
-        for (size_t j = 0; j < m_nsp; j++) {
-            // Add an offset to avoid a condition where x_i and x_j both equal
-            // zero (this would lead to Pr_ij = Inf).
-            double x_i = std::max(Tiny, m_molefracs[i]);
-            double x_j = std::max(Tiny, m_molefracs[j]);
-
-            // Weight mole fractions of i and j so that X_i + X_j = 1.0.
-            double sum_x_ij = x_i + x_j;
-            x_i = x_i/(sum_x_ij);
-            x_j = x_j/(sum_x_ij);
-
-            // Calculate Tr and Pr based on mole-fraction-weighted critical constants.
-            double Tr_ij = m_temp/(x_i*Tcrit_i(i) + x_j*Tcrit_i(j));
-            double Pr_ij = m_thermo->pressure()/(x_i*Pcrit_i(i) + x_j*Pcrit_i(j));
-
-            // Calculate the parameters for Takahashi correlation
-            double P_corr_ij;
-            P_corr_ij = takahashiCorrectionFactor(Pr_ij, Tr_ij);
-
-            // If the reduced temperature is too low, the correction factor
-            // P_corr_ij will be < 0.
-            if (P_corr_ij<0) {
-                P_corr_ij = Tiny;
-            }
-            m_P_corr_ij(i, j) = P_corr_ij;
-        }
-    }
-}
-
-void HighPressureGasTransport::getBinaryDiffCoeffs(const size_t ld, double* const d)
-{
-    update_C();
-    update_T();
-    updateCorrectionFactors();
-    // If necessary, evaluate the binary diffusion coefficients from the polynomial
-    // fits
-    if (!m_bindiff_ok) {
-        updateDiff_T();
-    }
-    if (ld < m_nsp) {
-        throw CanteraError("HighPressureGasTransport::getBinaryDiffCoeffs",
-                           "ld is too small");
-    }
-
-    double rp = 1.0/m_thermo->pressure();
-    for (size_t i = 0; i < m_nsp; i++) {
-        for (size_t j = 0; j < m_nsp; j++) {
-            // Multiply the standard low-pressure binary diffusion coefficient
-            // (m_bdiff) by the Takahashi correction factor P_corr_ij.
-            d[ld*j + i] = m_P_corr_ij(i,j)*(rp * m_bdiff(i,j));
-        }
-    }
-}
-
-void HighPressureGasTransport::getMixDiffCoeffs(double* const d)
-{
-    update_T();
-    update_C();
-    updateCorrectionFactors();
-
-    // update the binary diffusion coefficients if necessary
-    if (!m_bindiff_ok) {
-        updateDiff_T();
-    }
-
-    double mmw = m_thermo->meanMolecularWeight();
-    double p = m_thermo->pressure();
-    if (m_nsp == 1) {
-        d[0] = m_P_corr_ij(0,0)*m_bdiff(0,0) / p;
-    } else {
-        for (size_t i = 0; i < m_nsp; i++) {
-            double sum2 = 0.0;
-            for (size_t j = 0; j < m_nsp; j++) {
-                if (j != i) {
-                    sum2 += m_molefracs[j] / (m_P_corr_ij(i,j)*m_bdiff(j,i));
-                }
-            }
-            if (sum2 <= 0.0) {
-                d[i] = m_P_corr_ij(i,i)*m_bdiff(i,i) / p;
-            } else {
-                d[i] = (mmw - m_molefracs[i] * m_mw[i])/(p * mmw * sum2);
-            }
-        }
-    }
-}
-
-void HighPressureGasTransport::getMixDiffCoeffsMole(double* const d)
-{
-    update_T();
-    update_C();
-    updateCorrectionFactors();
-
-    // update the binary diffusion coefficients if necessary
-    if (!m_bindiff_ok) {
-        updateDiff_T();
-    }
-
-    double p = m_thermo->pressure();
-    if (m_nsp == 1) {
-        d[0] = m_P_corr_ij(0,0)*m_bdiff(0,0) / p;
-    } else {
-        for (size_t i = 0; i < m_nsp; i++) {
-            double sum2 = 0.0;
-            for (size_t j = 0; j < m_nsp; j++) {
-                if (j != i) {
-                    sum2 += m_molefracs[j] / (m_P_corr_ij(i,j)*m_bdiff(j,i));
-                }
-            }
-            if (sum2 <= 0.0) {
-                d[i] = m_P_corr_ij(i,i)*m_bdiff(i,i) / p;
-            } else {
-                d[i] = (1 - m_molefracs[i]) / (p * sum2);
-            }
-        }
-    }
-}
-
-void HighPressureGasTransport::getMixDiffCoeffsMass(double* const d)
-{
-    update_T();
-    update_C();
-    updateCorrectionFactors();
-
-    // update the binary diffusion coefficients if necessary
-    if (!m_bindiff_ok) {
-        updateDiff_T();
-    }
-
-    double mmw = m_thermo->meanMolecularWeight();
-    double p = m_thermo->pressure();
-
-    if (m_nsp == 1) {
-        d[0] = m_P_corr_ij(0,0)*m_bdiff(0,0) / p;
-    } else {
-        for (size_t i=0; i<m_nsp; i++) {
-            double sum1 = 0.0;
-            double sum2 = 0.0;
-            for (size_t j=0; j<m_nsp; j++) {
-                if (j==i) {
-                    continue;
-                }
-                sum1 += m_molefracs[j] / (m_P_corr_ij(i,j)*m_bdiff(i,j));
-                sum2 += m_molefracs[j] * m_mw[j] / (m_P_corr_ij(i,j)*m_bdiff(i,j));
-            }
-            sum1 *= p;
-            sum2 *= p * m_molefracs[i] / (mmw - m_mw[i]*m_molefracs[i]);
-            d[i] = 1.0 / (sum1 + sum2);
-        }
-    }
-}
-
 double HighPressureGasTransport::viscosity()
 {
     computeMixtureParameters();
@@ -651,27 +674,6 @@ void HighPressureGasTransport::computeMixtureParameters()
     m_P_vap_mix = P_vap_mix;
 }
 
-// Pure species critical properties - Tc, Pc, Vc, Zc:
-double HighPressureGasTransport::Tcrit_i(size_t i)
-{
-    return m_Tcrit[i];
-}
-
-double HighPressureGasTransport::Pcrit_i(size_t i)
-{
-    return m_Pcrit[i];
-}
-
-double HighPressureGasTransport::Vcrit_i(size_t i)
-{
-    return m_Vcrit[i];
-}
-
-double HighPressureGasTransport::Zcrit_i(size_t i)
-{
-    return m_Zcrit[i];
-}
-
 double HighPressureGasTransport::lowPressureNondimensionalViscosity(
     double Tr, double FP, double FQ)
 {
@@ -693,9 +695,10 @@ double HighPressureGasTransport::highPressureNondimensionalViscosity(
             double beta = 1.390 + 5.746*Pr;
             Z_2 = 0.600 + 0.760*pow(Pr,alpha) + (0.6990*pow(Pr,beta) - 0.60) * (1-Tr);
         } else {
-            throw CanteraError("HighPressureGasTransport::highPressureNondimensionalViscosity",
-                               "State is outside the limits of the Lucas model, Pr ({}) >= "
-                               "P_vap / P_crit ({}) when Tr ({}) <= 1.0", Pr, P_vap / P_crit, Tr);
+            throw CanteraError(
+                "HighPressureGasTransport::highPressureNondimensionalViscosity",
+                "State is outside the limits of the Lucas model, Pr ({}) >= "
+                "P_vap / P_crit ({}) when Tr ({}) <= 1.0", Pr, P_vap / P_crit, Tr);
         }
     } else if (Tr > 1.0 && Tr < 40.0) {
         if (Pr > 0.0 && Pr <= 100.0) {
@@ -729,14 +732,16 @@ double HighPressureGasTransport::highPressureNondimensionalViscosity(
 
             Z_2 = Z_1*(1 + (a*pow(Pr,e)) / (b*pow(Pr,f) + pow(1+c*pow(Pr,d),-1)));
         } else {
-            throw CanteraError("HighPressureGasTransport::highPressureNondimensionalViscosity",
-                           "The value of Pr ({}) is outside the limits of the Lucas model, "
-                           "valid values of Pr are: 0.0 < Pr <= 100", Pr);
+            throw CanteraError(
+                "HighPressureGasTransport::highPressureNondimensionalViscosity",
+                "The value of Pr ({}) is outside the limits of the Lucas model, "
+                "valid values of Pr are: 0.0 < Pr <= 100", Pr);
         }
     } else {
-        throw CanteraError("HighPressureGasTransport::highPressureNondimensionalViscosity",
-                           "The value of Tr is outside the limits of the Lucas model, "
-                           "valid  values of Tr are: 1.0 < Tr < 40", Tr);
+        throw CanteraError(
+            "HighPressureGasTransport::highPressureNondimensionalViscosity",
+            "The value of Tr is outside the limits of the Lucas model, "
+            "valid  values of Tr are: 1.0 < Tr < 40", Tr);
     }
 
     double Y = Z_2 / Z_1;
@@ -760,88 +765,22 @@ double HighPressureGasTransport::polarityCorrectionFactor(double mu_r, double Tr
     if (mu_r < 0.022) {
         return 1;
     } else if (mu_r < 0.075) {
-        return 1 + 30.55*pow(max(0.292 - Z_crit,0.0), 1.72);
+        return 1 + 30.55*pow(std::max(0.292 - Z_crit,0.0), 1.72);
     } else {
-        return 1 + 30.55*pow(max(0.292 - Z_crit, 0.0), 1.72)
+        return 1 + 30.55*pow(std::max(0.292 - Z_crit, 0.0), 1.72)
                *fabs(0.96 + 0.1*(Tr - 0.7));
     }
 }
 
 
-// Chung Implementation
-// --------------------
-void ChungHighPressureGasTransport::init(ThermoPhase* thermo, int mode, int log_level)
+// ChungHighPressureGasTransport Implementation
+// --------------------------------------------
+void ChungHighPressureGasTransport::init(ThermoPhase* thermo, int mode)
 {
-    MixTransport::init(thermo, mode, log_level);
+    MixTransport::init(thermo, mode);
     initializeCriticalProperties();
     initializePureFluidProperties();
     m_P_corr_ij.resize(m_nsp, m_nsp);
-}
-
-void ChungHighPressureGasTransport::getTransportData()
-{
-    // Call the base class's method to fill the properties
-    GasTransport::getTransportData();
-
-    // Contents of 'critical-properties.yaml', loaded later if needed
-    AnyMap critPropsDb;
-    std::unordered_map<string, AnyMap*> dbSpecies;
-
-    // If a species has a zero acentric factor, check the critical-properties.yaml
-    // database to see if it has a value specified for the species.
-    for (size_t k = 0; k < m_thermo->nSpecies(); k++) {
-        if (m_w_ac[k] == 0.0) {
-            // Load 'crit-properties.yaml' file if not already loaded
-            if (critPropsDb.empty()) {
-                critPropsDb = AnyMap::fromYamlFile("critical-properties.yaml");
-                dbSpecies = critPropsDb["species"].asMap("name");
-            }
-
-            // All names in critical-properties.yaml are upper case
-            auto ucName = boost::algorithm::to_upper_copy(m_thermo->species(k)->name);
-            if (dbSpecies.count(ucName)) {
-                auto& spec = *dbSpecies.at(ucName);
-                auto& critProps = spec["critical-parameters"].as<AnyMap>();
-                if (critProps.hasKey("acentric-factor")) {
-                    m_w_ac[k] = critProps.convert("acentric-factor", "1");
-                }
-            }
-        }
-    }
-}
-
-void ChungHighPressureGasTransport::initializeCriticalProperties()
-{
-    m_Tcrit.resize(m_nsp);
-    m_Pcrit.resize(m_nsp);
-    m_Vcrit.resize(m_nsp);
-    m_Zcrit.resize(m_nsp);
-
-    std::vector<double> molefracs(m_nsp);
-    m_thermo->getMoleFractions(&molefracs[0]);
-
-    std::vector<double> mf_temp(m_nsp, 0.0);
-
-    for (size_t i = 0; i < m_nsp; ++i) {
-        mf_temp[i] = 1.0;
-        m_thermo->setMoleFractions(&mf_temp[0]);
-
-        if (m_thermo->critTemperature() > 1e4) {
-            throw CanteraError("ChungHighPressureGasTransport::initializeCriticalProperties",
-                "Species '{}' must have critical properties defined or non-zero cubic parameters. "
-                "Check the species definition or the thermo data file.",
-                m_thermo->species(i)->name);
-        }
-        m_Tcrit[i] = m_thermo->critTemperature();
-        m_Pcrit[i] = m_thermo->critPressure();
-        m_Vcrit[i] = m_thermo->critVolume();
-        m_Zcrit[i] = m_thermo->critCompressibility();
-
-        mf_temp[i] = 0.0;  // Reset for the next iteration
-    }
-
-    // Restore actual mole fractions
-    m_thermo->setMoleFractions(&molefracs[0]);
 }
 
 void ChungHighPressureGasTransport::initializePureFluidProperties()
@@ -869,159 +808,6 @@ void ChungHighPressureGasTransport::initializePureFluidProperties()
         // These values are available from the base class
         m_acentric_factor_i[i] = m_w_ac[i];
         m_MW_i[i] = m_mw[i];
-    }
-}
-
-void ChungHighPressureGasTransport::updateCorrectionFactors() {
-    for (size_t i = 0; i < m_nsp; i++) {
-        for (size_t j = 0; j < m_nsp; j++) {
-            // Add an offset to avoid a condition where x_i and x_j both equal
-            // zero (this would lead to Pr_ij = Inf).
-            double x_i = std::max(Tiny, m_molefracs[i]);
-            double x_j = std::max(Tiny, m_molefracs[j]);
-
-            // Weight mole fractions of i and j so that X_i + X_j = 1.0.
-            double sum_x_ij = x_i + x_j;
-            x_i = x_i/(sum_x_ij);
-            x_j = x_j/(sum_x_ij);
-
-            // Calculate Tr and Pr based on mole-fraction-weighted critical constants.
-            double Tr_ij = m_temp/(x_i*Tcrit_i(i) + x_j*Tcrit_i(j));
-            double Pr_ij = m_thermo->pressure()/(x_i*Pcrit_i(i) + x_j*Pcrit_i(j));
-
-            // Calculate the parameters for Takahashi correlation
-            double P_corr_ij;
-            P_corr_ij = takahashiCorrectionFactor(Pr_ij, Tr_ij);
-
-            // If the reduced temperature is too low, the correction factor
-            // P_corr_ij will be < 0.
-            if (P_corr_ij<0) {
-                P_corr_ij = Tiny;
-            }
-            m_P_corr_ij(i, j) = P_corr_ij;
-        }
-    }
-}
-
-void ChungHighPressureGasTransport::getBinaryDiffCoeffs(const size_t ld, double* const d)
-{
-    update_C();
-    update_T();
-    updateCorrectionFactors();
-    // If necessary, evaluate the binary diffusion coefficients from the polynomial
-    // fits
-    if (!m_bindiff_ok) {
-        updateDiff_T();
-    }
-    if (ld < m_nsp) {
-        throw CanteraError("ChungHighPressureGasTransport::getBinaryDiffCoeffs",
-                           "ld is too small");
-    }
-
-    double rp = 1.0/m_thermo->pressure();
-    for (size_t i = 0; i < m_nsp; i++) {
-        for (size_t j = 0; j < m_nsp; j++) {
-            // Multiply the standard low-pressure binary diffusion coefficient
-            // (m_bdiff) by the Takahashi correction factor P_corr_ij.
-            d[ld*j + i] = m_P_corr_ij(i,j)*(rp * m_bdiff(i,j));
-        }
-    }
-}
-
-void ChungHighPressureGasTransport::getMixDiffCoeffs(double* const d)
-{
-    update_T();
-    update_C();
-    updateCorrectionFactors();
-
-    // update the binary diffusion coefficients if necessary
-    if (!m_bindiff_ok) {
-        updateDiff_T();
-    }
-
-    double mmw = m_thermo->meanMolecularWeight();
-    double p = m_thermo->pressure();
-    if (m_nsp == 1) {
-        d[0] = m_P_corr_ij(0,0)*m_bdiff(0,0) / p;
-    } else {
-        for (size_t i = 0; i < m_nsp; i++) {
-            double sum2 = 0.0;
-            for (size_t j = 0; j < m_nsp; j++) {
-                if (j != i) {
-                    sum2 += m_molefracs[j] / (m_P_corr_ij(i,j)*m_bdiff(j,i));
-                }
-            }
-            if (sum2 <= 0.0) {
-                d[i] = m_P_corr_ij(i,i)*m_bdiff(i,i) / p;
-            } else {
-                d[i] = (mmw - m_molefracs[i] * m_mw[i])/(p * mmw * sum2);
-            }
-        }
-    }
-}
-
-void ChungHighPressureGasTransport::getMixDiffCoeffsMole(double* const d)
-{
-    update_T();
-    update_C();
-    updateCorrectionFactors();
-
-    // update the binary diffusion coefficients if necessary
-    if (!m_bindiff_ok) {
-        updateDiff_T();
-    }
-
-    double p = m_thermo->pressure();
-    if (m_nsp == 1) {
-        d[0] = m_P_corr_ij(0,0)*m_bdiff(0,0) / p;
-    } else {
-        for (size_t i = 0; i < m_nsp; i++) {
-            double sum2 = 0.0;
-            for (size_t j = 0; j < m_nsp; j++) {
-                if (j != i) {
-                    sum2 += m_molefracs[j] / (m_P_corr_ij(i,j)*m_bdiff(j,i));
-                }
-            }
-            if (sum2 <= 0.0) {
-                d[i] = m_P_corr_ij(i,i)*m_bdiff(i,i) / p;
-            } else {
-                d[i] = (1 - m_molefracs[i]) / (p * sum2);
-            }
-        }
-    }
-}
-
-void ChungHighPressureGasTransport::getMixDiffCoeffsMass(double* const d)
-{
-    update_T();
-    update_C();
-    updateCorrectionFactors();
-
-    // update the binary diffusion coefficients if necessary
-    if (!m_bindiff_ok) {
-        updateDiff_T();
-    }
-
-    double mmw = m_thermo->meanMolecularWeight();
-    double p = m_thermo->pressure();
-
-    if (m_nsp == 1) {
-        d[0] = m_P_corr_ij(0,0)*m_bdiff(0,0) / p;
-    } else {
-        for (size_t i=0; i<m_nsp; i++) {
-            double sum1 = 0.0;
-            double sum2 = 0.0;
-            for (size_t j=0; j<m_nsp; j++) {
-                if (j==i) {
-                    continue;
-                }
-                sum1 += m_molefracs[j] / (m_P_corr_ij(i,j)*m_bdiff(i,j));
-                sum2 += m_molefracs[j] * m_mw[j] / (m_P_corr_ij(i,j)*m_bdiff(i,j));
-            }
-            sum1 *= p;
-            sum2 *= p * m_molefracs[i] / (mmw - m_mw[i]*m_molefracs[i]);
-            d[i] = 1.0 / (sum1 + sum2);
-        }
     }
 }
 
@@ -1322,27 +1108,5 @@ double ChungHighPressureGasTransport::highPressureViscosity(double T_star, doubl
 
     return eta;
 }
-
-// Pure species critical properties - Tc, Pc, Vc, Zc:
-double ChungHighPressureGasTransport::Tcrit_i(size_t i)
-{
-    return m_Tcrit[i];
-}
-
-double ChungHighPressureGasTransport::Pcrit_i(size_t i)
-{
-    return m_Pcrit[i];
-}
-
-double ChungHighPressureGasTransport::Vcrit_i(size_t i)
-{
-    return m_Vcrit[i];
-}
-
-double ChungHighPressureGasTransport::Zcrit_i(size_t i)
-{
-    return m_Zcrit[i];
-}
-
 
 }

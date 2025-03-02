@@ -17,6 +17,131 @@ namespace Cantera
 {
 
 /**
+ * Base class for high pressure gas transport models. This class handles
+ * common functionality used by high pressure transport models, including
+ * critical property storage and binary diffusion coefficient correction.
+ *
+ * @ingroup tranprops
+ */
+class HighPressureGasTransportBase : public MixTransport
+{
+protected:
+    //! default constructor
+    HighPressureGasTransportBase()=default;
+
+public:
+    /**
+     * Computes the matrix of binary diffusion coefficients using the Takahashi
+     * correction factor. Units are m^2/s.
+     *
+     * The matrix is dimension m_nsp x m_nsp, where m_nsp is the number of
+     * species. The matrix is stored in row-major order, so that d[ld*j + i]
+     * contains the binary diffusion coefficient of species i with respect to
+     * species j.
+     *
+     * d[ld*j + i] = (DP)_R * m_bdiff(i,j) / p
+     *
+     * @param ld  Inner stride for writing the two dimension diffusion
+     *            coefficients into a one dimensional vector
+     * @param d   Diffusion coefficient matrix (must be at least m_nsp * m_nsp
+     *            in length.
+     */
+    void getBinaryDiffCoeffs(const size_t ld, double* const d) override;
+
+    /**
+     * Returns the Mixture-averaged diffusion coefficients [m^2/s].
+     *
+     * This method is the same as GasTransport::getMixDiffCoeffs() with the exception
+     * that the binary diffusion coefficients are multiplied by the Takahashi correction
+     * factor, which is described in takahashiCorrectionFactor() .
+     *
+     * @param[out] d  Vector of mixture diffusion coefficients, @f$ D_{km}' @f$ ,
+     *                for each species (m^2/s). length m_nsp
+     */
+    void getMixDiffCoeffs(double* const d) override;
+
+    /**
+     *  Returns the mixture-averaged diffusion coefficients [m^2/s].
+     *
+     * This method is the same as GasTransport::getMixDiffCoeffsMole() with the exception
+     * that the binary diffusion coefficients are multiplied by the Takahashi correction
+     * factor, which is described in takahashiCorrectionFactor() .
+     *
+     * @param[out] d vector of mixture-averaged diffusion coefficients for
+     *               each species, length m_nsp.
+     */
+    void getMixDiffCoeffsMole(double* const d) override;
+
+    /**
+     * Returns the mixture-averaged diffusion coefficients [m^2/s].
+     *
+     * This method is the same as GasTransport::getMixDiffCoeffsMass() with the exception
+     * that the binary diffusion coefficients are multiplied by the Takahashi correction
+     * factor, which is described in takahashiCorrectionFactor() .
+     *
+     * @param[out] d vector of mixture-averaged diffusion coefficients for
+     *               each species, length m_nsp.
+     */
+    void getMixDiffCoeffsMass(double* const d) override;
+
+    /**
+     * Updates the matrix of species-pair Takahashi correction factors for use in
+     * computing the binary diffusion coefficients, see takahashiCorrectionFactor()
+     */
+    virtual void updateCorrectionFactors() = 0;
+
+protected:
+    /**
+     * Obtain required parameters from the 'critical-parameters' species input section,
+     * and checks the critical-properties.yaml file if an acentric factor is not
+     * specified.
+     *
+     * The way that GasTransport parses the input file is that if an acentric
+     * factor is not specified, it is quietly set to 0.0. A user may have the proper
+     * acentric factor in the critical-properties.yaml file, so that file is checked if
+     * a zero value is present.
+     */
+    void getTransportData() override;
+
+    /**
+     * Computes and stores the estimate of the critical properties for each species.
+     *
+     * This method sets the species composition vector to unity for species i and zero
+     * for all other species, and then queries the thermo object for the critical
+     * properties and stores them. It then resets the composition vector to the original
+     * state. This method only needs to be called once, as the critical properties for
+     * the pure species do not change.
+     *
+     * All species must have critical properties defined in the input file, either via
+     * critical properties or by specific values of the equation of state that are
+     * not zero.
+     */
+    void initializeCriticalProperties();
+
+    //! Returns the stored value of the critical temperature for species 'i'.
+    double Tcrit_i(size_t i);
+
+    //! Returns the stored value of the critical pressure for species 'i'.
+    double Pcrit_i(size_t i);
+
+    //! Returns the stored value of the critical volume for species 'i'.
+    double Vcrit_i(size_t i);
+
+    //! Returns the stored value of the critical compressibility for species 'i'.
+    double Zcrit_i(size_t i);
+
+    vector<double> m_Tcrit; //!< Critical temperature [K] of each species
+    vector<double> m_Pcrit; //!< Critical pressure [Pa] of each species
+    vector<double> m_Vcrit; //!< Critical volume [m^3/kmol] of each species
+    vector<double> m_Zcrit; //!< Critical compressibility [unitless] of each species
+
+    //! Matrix of Takaishi binary diffusion coefficient corrections. Size is nsp x nsp.
+    DenseMatrix m_P_corr_ij;
+
+    friend class TransportFactory;
+};
+
+/**
  * The implementation employs a method of corresponding states, using the Takahashi
  * @cite takahashi1975 approach for binary diffusion coefficients (using mixture
  * averaging rules for the mixture properties), the Lucas method for the viscosity, and
@@ -26,7 +151,7 @@ namespace Cantera
  *
  * @ingroup tranprops
  */
-class HighPressureGasTransport : public MixTransport
+class HighPressureGasTransport : public HighPressureGasTransportBase
 {
 protected:
     //! default constructor
@@ -37,7 +162,7 @@ public:
         return "high-pressure";
     }
 
-    void init(ThermoPhase* thermo, int mode=0, int log_level=0) override;
+    void init(ThermoPhase* thermo, int mode=0) override;
 
     /**
      * Returns the mixture high-pressure thermal conductivity in W/m/K
@@ -251,108 +376,9 @@ public:
      */
     double viscosity() override;
 
-    /**
-     * Computes the matrix of binary diffusion coefficients using the Takahashi
-     * correction factor. Units are m^2/s.
-     *
-     * The matrix is dimension m_nsp x m_nsp, where m_nsp is the number of
-     * species. The matrix is stored in row-major order, so that d[ld*j + i]
-     * contains the binary diffusion coefficient of species i with respect to
-     * species j.
-     *
-     * d[ld*j + i] = (DP)_R * m_bdiff(i,j) / p
-     *
-     * @param ld  Inner stride for writing the two dimension diffusion
-     *            coefficients into a one dimensional vector
-     * @param d   Diffusion coefficient matrix (must be at least m_nsp * m_nsp
-     *            in length.
-     */
-    void getBinaryDiffCoeffs(const size_t ld, double* const d) override;
-
-    /**
-     * Returns the Mixture-averaged diffusion coefficients [m^2/s].
-     *
-     * This method is the same as GasTransport::getMixDiffCoeffs() with the exception
-     * that the binary diffusion coefficients are multiplied by the Takahashi correction
-     * factor, which is described in takahashiCorrectionFactor() .
-     *
-     * @param[out] d  Vector of mixture diffusion coefficients, @f$ D_{km}' @f$ ,
-     *                for each species (m^2/s). length m_nsp
-     */
-    void getMixDiffCoeffs(double* const d) override;
-
-    /**
-     *  Returns the mixture-averaged diffusion coefficients [m^2/s].
-     *
-     * This method is the same as GasTransport::getMixDiffCoeffsMole() with the exception
-     * that the binary diffusion coefficients are multiplied by the Takahashi correction
-     * factor, which is described in takahashiCorrectionFactor() .
-     *
-     * @param[out] d vector of mixture-averaged diffusion coefficients for
-     *               each species, length m_nsp.
-     */
-    void getMixDiffCoeffsMole(double* const d) override;
-
-    /**
-     * Returns the mixture-averaged diffusion coefficients [m^2/s].
-     *
-     * This method is the same as GasTransport::getMixDiffCoeffsMass() with the exception
-     * that the binary diffusion coefficients are multiplied by the Takahashi correction
-     * factor, which is described in takahashiCorrectionFactor() .
-     *
-     * @param[out] d vector of mixture-averaged diffusion coefficients for
-     *               each species, length m_nsp.
-     */
-    void getMixDiffCoeffsMass(double* const d) override;
-
-    /**
-     * Updates the matrix of species-pair Takahashi correction factors for use in
-     * computing the binary diffusion coefficients, see takahashiCorrectionFactor()
-     */
-    void updateCorrectionFactors();
-
     friend class TransportFactory;
 
 protected:
-
-    /**
-     * Obtain required parameters from the 'critical-parameters' species input section,
-     * and checks the critical-properties.yaml file if an acentric factor is not
-     * specified.
-     *
-     * The way that GasTransport parses the input file is that if an acentric
-     * factor is not specified, it is quietly set to 0.0. A user may have the proper
-     * acentric factor in the critical-properties.yaml file, so that file is checked if
-     * a zero value is present.
-     */
-    void getTransportData() override;
-
-    /**
-     * Computes and stores the estimate of the critical properties for each species.
-     *
-     * This method sets the species composition vector to unity for species i and zero
-     * for all other species, and then queries the thermo object for the critical
-     * properties and stores them. It then resets the composition vector to the original
-     * state. This method only needs to be called once, as the critical properties for
-     * the pure species do not change.
-     *
-     * All species must have critical properties defined in the input file, either via
-     * critical properties or by specific values of the equation of state that are
-     * not zero.
-     */
-    void initializeCriticalProperties();
-
-    //! Returns the stored value of the critical temperature for species 'i'.
-    double Tcrit_i(size_t i);
-
-    //! Returns the stored value of the critical pressure for species 'i'.
-    double Pcrit_i(size_t i);
-
-    //! Returns the stored value of the critical volume for species 'i'.
-    double Vcrit_i(size_t i);
-
-    //! Returns the stored value of the critical compressibility for species 'i'.
-    double Zcrit_i(size_t i);
 
     /**
      * Returns the viscosity of a pure species using the method of Ely and Hanley.
@@ -407,7 +433,6 @@ protected:
     double elyHanleyDilutePureSpeciesViscosity(double V, double Tc, double Vc,
                                                double Zc, double acentric_factor,
                                                double mw);
-
 
     /**
      * Returns the theta shape factor of Leach and Leland for a pure species.
@@ -755,13 +780,6 @@ protected:
 
 
 private:
-    vector<double> m_Tcrit; //!< Critical temperature [K] of each species
-    vector<double> m_Pcrit; //!< Critical pressure [Pa] of each species
-    vector<double> m_Vcrit; //!< Critical volume [m^3/kmol] of each species
-    vector<double> m_Zcrit; //!< Critical compressibility [unitless] of each species
-
-    //! Matrix of Takaishi binary diffusion coefficient corrections. Size is nsp x nsp.
-    DenseMatrix m_P_corr_ij;
 
     /**
      * @name Reference fluid properties
@@ -811,7 +829,7 @@ private:
  *
  * @ingroup tranprops
  */
-class ChungHighPressureGasTransport : public MixTransport
+class ChungHighPressureGasTransport : public HighPressureGasTransportBase
 {
 protected:
     //! default constructor
@@ -822,7 +840,7 @@ public:
         return "high-pressure-Chung";
     }
 
-    void init(ThermoPhase* thermo, int mode=0, int log_level=0) override;
+    void init(ThermoPhase* thermo, int mode=0) override;
 
     /**
      * Returns the high-pressure mixture viscosity in Pa*s using the Chung method.
@@ -865,111 +883,12 @@ public:
     */
     double thermalConductivity() override;
 
-    /**
-     * Computes the matrix of binary diffusion coefficients using the Takahashi
-     * correction factor. Units are m^2/s.
-     *
-     * The matrix is dimension m_nsp x m_nsp, where m_nsp is the number of
-     * species. The matrix is stored in row-major order, so that d[ld*j + i]
-     * contains the binary diffusion coefficient of species i with respect to
-     * species j.
-     *
-     * d[ld*j + i] = (DP)_R * m_bdiff(i,j) / p
-     *
-     * @param ld  Inner stride for writing the two dimension diffusion
-     *            coefficients into a one dimensional vector
-     * @param d   Diffusion coefficient matrix (must be at least m_nsp * m_nsp
-     *            in length.
-     */
-    void getBinaryDiffCoeffs(const size_t ld, double* const d) override;
-
-    /**
-     * Returns the Mixture-averaged diffusion coefficients [m^2/s].
-     *
-     * This method is the same as GasTransport::getMixDiffCoeffs() with the exception
-     * that the binary diffusion coefficients are multiplied by the Takahashi correction
-     * factor, which is described in takahashiCorrectionFactor() .
-     *
-     * @param[out] d  Vector of mixture diffusion coefficients, @f$ D_{km}' @f$ ,
-     *                for each species (m^2/s). length m_nsp
-     */
-    void getMixDiffCoeffs(double* const d) override;
-
-    /**
-     *  Returns the mixture-averaged diffusion coefficients [m^2/s].
-     *
-     * This method is the same as GasTransport::getMixDiffCoeffsMole() with the exception
-     * that the binary diffusion coefficients are multiplied by the Takahashi correction
-     * factor, which is described in takahashiCorrectionFactor() .
-     *
-     * @param[out] d vector of mixture-averaged diffusion coefficients for
-     *               each species, length m_nsp.
-     */
-    void getMixDiffCoeffsMole(double* const d) override;
-
-    /**
-     * Returns the mixture-averaged diffusion coefficients [m^2/s].
-     *
-     * This method is the same as GasTransport::getMixDiffCoeffsMass() with the exception
-     * that the binary diffusion coefficients are multiplied by the Takahashi correction
-     * factor, which is described in takahashiCorrectionFactor() .
-     *
-     * @param[out] d vector of mixture-averaged diffusion coefficients for
-     *               each species, length m_nsp.
-     */
-    void getMixDiffCoeffsMass(double* const d) override;
-
-    /**
-     * Updates the matrix of species-pair Takahashi correction factors for use in
-     * computing the binary diffusion coefficients, see takahashiCorrectionFactor()
-     */
-    void updateCorrectionFactors();
-
     friend class TransportFactory;
 
 protected:
 
-    /**
-     * Obtain required parameters from the 'critical-parameters' species input section,
-     * and checks the critical-properties.yaml file if an acentric factor is not
-     * specified.
-     *
-     * The way that GasTransport parses the input file is that if an acentric
-     * factor is not specified, it is quietly set to 0.0. A user may have the proper
-     * acentric factor in the critical-properties.yaml file, so that file is checked if
-     * a zero value is present.
-     */
-    void getTransportData() override;
-
-    /**
-     * Computes and stores the estimate of the critical properties for each species.
-     *
-     * This method sets the species composition vector to unity for species i and zero
-     * for all other species, and then queries the thermo object for the critical
-     * properties and stores them. It then resets the composition vector to the original
-     * state. This method only needs to be called once, as the critical properties for
-     * the pure species do not change.
-     *
-     * All species must have critical properties defined in the input file, either via
-     * critical properties or by specific values of the equation of state that are
-     * not zero.
-     */
-    void initializeCriticalProperties();
-
     //! Computes and stores pure-fluid specific properties each species.
     void initializePureFluidProperties();
-
-    //! Returns the stored value of the critical temperature for a species 'i'.
-    double Tcrit_i(size_t i);
-
-    //! Returns the stored value of the critical pressure for a species 'i'.
-    double Pcrit_i(size_t i);
-
-    //! Returns the stored value of the critical volume for a species 'i'.
-    double Vcrit_i(size_t i);
-
-    //! Returns the stored value of the critical compressibility for a species 'i'.
-    double Zcrit_i(size_t i);
 
     /**
      * Computes the composition-dependent values of the parameters needed for
@@ -1349,13 +1268,6 @@ protected:
         double acentric_factor, double mu_r, double kappa);
 
 private:
-    vector<double> m_Tcrit; //!< Critical temperature [K] of each species
-    vector<double> m_Pcrit; //!< Critical pressure [Pa] of each species
-    vector<double> m_Vcrit; //!< Critical volume [m^3/kmol] of each species
-    vector<double> m_Zcrit; //!< Critical compressibility of each species
-
-    //! Matrix of Takaishi binary diffusion coefficient corrections. Size is nsp x nsp.
-    DenseMatrix m_P_corr_ij;
 
     /**
      * @name Pure fluid properties
