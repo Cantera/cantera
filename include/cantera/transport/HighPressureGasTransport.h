@@ -88,7 +88,7 @@ public:
      * Updates the matrix of species-pair Takahashi correction factors for use in
      * computing the binary diffusion coefficients, see takahashiCorrectionFactor()
      */
-    virtual void updateCorrectionFactors() = 0;
+    virtual void updateCorrectionFactors();
 
 protected:
     /**
