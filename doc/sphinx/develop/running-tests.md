@@ -399,3 +399,25 @@ message printed by any `CanteraError` exceptions, you can call the C++ method
 {ct}`CanteraError::setStackTraceDepth` with a depth of 20 to print the top 20 frames of
 the call stack, or similarly the Python method
 {py:meth}`CanteraError.set_stack_trace_depth`.
+
+## Diagnosing memory errors using Clang's AddressSanitizer
+
+The Clang compiler includes the
+[AddressSanitizer](https://clang.llvm.org/docs/AddressSanitizer.html) tool which
+enables checking for a range of memory errors such as out-of-bounds array access and
+using deleted/freed variables. To compile Cantera in debug mode with these checks
+enabled, run SCons with the following options:
+
+```sh
+scons build CC=clang CXX=clang++ env_vars=all debug_flags="-g -fsanitize=address" debug_linker_flags="-lprofiler -fsanitize=address -shared-libasan"
+```
+
+On macOS, running the Python test suite also requires the following:
+```
+DYLD_INSERT_LIBRARIES=$(clang -print-file-name=libclang_rt.asan_osx_dynamic.dylib)
+```
+
+Or on Linux:
+```
+LD_PRELOAD=$(clang -print-file-name=libclang_rt.asan-x86_64.so)
+```
