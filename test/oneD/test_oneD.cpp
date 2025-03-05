@@ -84,7 +84,7 @@ TEST(onedim, freeflame)
 
     // solve
     flow->solveEnergyEqn();
-    bool refine_grid = false;
+    string refine_grid = "disabled";
     int loglevel = 0;
     flame.solve(loglevel, refine_grid);
     flame.save("gtest-freeflame.yaml", "cpp", "Solution from C++ interface", true);

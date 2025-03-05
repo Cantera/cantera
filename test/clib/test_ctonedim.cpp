@@ -233,7 +233,7 @@ TEST(ctonedim, freeflame_from_parts)
 
     // solve and save
     stflow_solveEnergyEqn(flow, 1);
-    bool refine_grid = false;
+    const char* refine_grid = "disabled";
     int loglevel = 0;
     sim1D_solve(flame, loglevel, refine_grid);
     ret = sim1D_save(flame, "gtest-freeflame.yaml", "clib",
