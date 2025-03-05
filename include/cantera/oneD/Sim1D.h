@@ -170,7 +170,7 @@ public:
      * Deletes a `debug_sim1d.yaml` file if it exists. Used to clear the file for
      * successive calls to the solve() method.
      */
-    void clearDebugFile();
+    void clearDebugFile() override;
 
     /**
      * Write solver debugging information to a YAML file based on the specified log
@@ -194,19 +194,9 @@ public:
      *                         between multiple solution attempts.
      */
      void writeDebugInfo(const string& header_suffix, const string& message, int loglevel,
-                         int attempt_counter);
-
+                         int attempt_counter) override;
 
     //! @}
-
-    //! Set the number of time steps to try when the steady Newton solver is
-    //! unsuccessful.
-    //! @param stepsize  Initial time step size [s]
-    //! @param n  Length of `tsteps` array
-    //! @param tsteps  A sequence of time step counts to take after subsequent failures
-    //!     of the steady-state solver. The last value in `tsteps` will be used again
-    //!     after further unsuccessful solution attempts.
-    void setTimeStep(double stepsize, size_t n, const int* tsteps);
 
     /**
      * Performs the hybrid Newton steady/time-stepping solution.
@@ -363,9 +353,6 @@ public:
     }
 
 protected:
-    //! the solution vector after the last successful timestepping
-    vector<double> m_xlast_ts;
-
     //! the solution vector after the last successful steady-state solve (stored
     //! before grid refinement)
     vector<double> m_xlast_ss;
@@ -374,28 +361,12 @@ protected:
     //! (stored before grid refinement)
     vector<vector<double>> m_grid_last_ss;
 
-    //! a work array used to hold the residual or the new solution
-    vector<double> m_xnew;
-
-    //! timestep
-    double m_tstep;
-
-    //! array of number of steps to take before re-attempting the steady-state
-    //! solution
-    vector<int> m_steps;
-
     //! User-supplied function called after a successful steady-state solve.
     Func1* m_steady_callback;
 
 private:
     //! Calls method _finalize in each domain.
     void finalize();
-
-    //! Wrapper around the Newton solver
-    /*!
-     * @return 0 if successful, -1 on failure
-     */
-    int newtonSolve(int loglevel);
 };
 
 /**
