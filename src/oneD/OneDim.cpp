@@ -19,9 +19,6 @@ namespace Cantera
 
 OneDim::OneDim(vector<shared_ptr<Domain1D>>& domains)
 {
-    // create a Newton iterator, and add each domain.
-    m_newt = make_unique<MultiNewton>(1);
-    m_state = make_shared<vector<double>>();
     for (auto& dom : domains) {
         addDomain(dom);
     }
@@ -233,19 +230,10 @@ void OneDim::resize()
         }
         m_size = d->loc() + d->size();
     }
-
-    m_state->resize(size());
-
-    m_newt->resize(size());
-    m_mask.resize(size());
-
     if (!m_jac) {
         m_jac = newSystemJacobian("banded-direct");
     }
-    m_jac->initialize(size());
-    m_jac->setBandwidth(bandwidth());
-    m_jac->clearStats();
-    m_jac_ok = false;
+    SteadyStateSystem::resize();
 }
 
 Domain1D* OneDim::pointDomain(size_t i)

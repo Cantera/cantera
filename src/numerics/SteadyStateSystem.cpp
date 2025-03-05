@@ -14,6 +14,7 @@ namespace Cantera
 
 SteadyStateSystem::SteadyStateSystem()
 {
+    m_state = make_shared<vector<double>>();
     m_newt = make_unique<MultiNewton>(1);
 }
 
@@ -21,14 +22,84 @@ SteadyStateSystem::~SteadyStateSystem()
 {
 }
 
+void SteadyStateSystem::setInitialGuess(const double* x)
+{
+    clearDebugFile();
+    m_attempt_counter = 0;
+    m_state->assign(x, x + size());
+}
+
+void SteadyStateSystem::getState(double* x) const
+{
+    copy(m_xnew.begin(), m_xnew.end(), x);
+}
+
 int SteadyStateSystem::solve(double* x, double* xnew, int loglevel)
 {
-    if (!m_jac_ok) {
-        evalJacobian(x);
-        m_jac->updateTransient(m_rdt, m_mask.data());
-        m_jac_ok = true;
+    warn_deprecated("SteadyStateSystem::solve(double*, double*, int)",
+        "To be removed after Cantera 3.2. Use setInitialGuess, solve(int), and "
+        "getState instead.");
+    setInitialGuess(x);
+    solve(loglevel);
+    getState(xnew);
+    return 1;
+}
+
+void SteadyStateSystem::solve(int loglevel)
+{
+    size_t istep = 0;
+    int nsteps = m_steps[istep];
+    m_nsteps = 0;
+    double dt = m_tstep;
+
+    while (true) {
+        // Keep the attempt_counter in the range of [1, max_history]
+        m_attempt_counter = (m_attempt_counter % m_max_history) + 1;
+
+        // Attempt to solve the steady problem
+        setSteadyMode();
+        newton().setOptions(m_ss_jac_age);
+        debuglog("\nAttempt Newton solution of steady-state problem.", loglevel);
+        if (!m_jac_ok) {
+            evalJacobian(m_state->data());
+            m_jac->updateTransient(m_rdt, m_mask.data());
+            m_jac_ok = true;
+        }
+        int m = newton().solve(m_state->data(), m_xnew.data(), *this, loglevel);
+        if (m == 1) {
+            *m_state = m_xnew;
+            writeDebugInfo("NewtonSuccess", "After successful Newton solve",
+                           loglevel, m_attempt_counter);
+
+            return;
+        } else {
+            debuglog("\nNewton steady-state solve failed.\n", loglevel);
+            writeDebugInfo("NewtonFail", "After unsuccessful Newton solve",
+                           loglevel, m_attempt_counter);
+
+            if (loglevel > 0) {
+                writelog("\nAttempt {} timesteps.", nsteps);
+            }
+
+            dt = timeStep(nsteps, dt, m_state->data(), m_xnew.data(), loglevel-1);
+            m_xlast_ts = *m_state;
+            writeDebugInfo("Timestepping", "After timestepping", loglevel,
+                           m_attempt_counter);
+
+            // Repeat the last timestep's data for logging purposes
+            if (loglevel == 1) {
+                writelog("\nFinal timestep info: dt= {:<10.4g} log(ss)= {:<10.4g}\n", dt,
+                         log10(ssnorm(m_state->data(), m_xnew.data())));
+            }
+            istep++;
+            if (istep >= m_steps.size()) {
+                nsteps = m_steps.back();
+            } else {
+                nsteps = m_steps[istep];
+            }
+            dt = std::min(dt, m_tmax);
+        }
     }
-    return m_newt->solve(x, xnew, *this, loglevel);
 }
 
 double SteadyStateSystem::timeStep(int nsteps, double dt, double* x, double* r, int loglevel)
@@ -60,7 +131,7 @@ double SteadyStateSystem::timeStep(int nsteps, double dt, double* x, double* r, 
         int j0 = m_jac->nEvals(); // Store the current number of Jacobian evaluations
 
         // solve the transient problem
-        int status = solve(x, r, loglevel);
+        int status = newton().solve(x, r, *this, loglevel);
 
         // successful time step. Copy the new solution in r to
         // the current solution in x.
@@ -133,6 +204,31 @@ double SteadyStateSystem::ssnorm(double* x, double* r)
         ss = std::max(fabs(r[i]),ss);
     }
     return ss;
+}
+
+void SteadyStateSystem::setTimeStep(double stepsize, size_t n, const int* tsteps)
+{
+    m_tstep = stepsize;
+    m_steps.resize(n);
+    for (size_t i = 0; i < n; i++) {
+        m_steps[i] = tsteps[i];
+    }
+}
+
+void SteadyStateSystem::resize()
+{
+    m_state->resize(size());
+    m_xnew.resize(size());
+    m_newt->resize(size());
+    m_mask.resize(size());
+    if (!m_jac) {
+        throw CanteraError("SteadyStateSystem::resize",
+            "Jacobian evaluator must be instantiated before calling resize()");
+    }
+    m_jac->initialize(size());
+    m_jac->setBandwidth(bandwidth());
+    m_jac->clearStats();
+    m_jac_ok = false;
 }
 
 void SteadyStateSystem::setLinearSolver(shared_ptr<SystemJacobian> solver)

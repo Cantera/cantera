@@ -182,9 +182,7 @@ public:
      */
     Domain1D* pointDomain(size_t i);
 
-    //! Call after one or more grids has changed size, for example after being refined.
-    virtual void resize();
-
+    void resize() override;
     void resetBadValues(double* x) override;
 
     //! Write statistics about the number of iterations and Jacobians at each
