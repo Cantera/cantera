@@ -157,4 +157,30 @@ string ConstPressureReactor::componentName(size_t k) {
                        "Index is out of bounds.");
 }
 
+double ConstPressureReactor::upperBound(size_t k) const {
+    if (k == 0) {
+        return BigNumber; // mass
+    } else if (k == 1) {
+        return BigNumber; // enthalpy
+    } else if (k >= 2 && k < m_nv) {
+        return 1.0; // species mass fraction or surface coverage
+    } else {
+        throw CanteraError("ConstPressureReactor::upperBound",
+                           "Index {} is out of bounds.", k);
+    }
+}
+
+double ConstPressureReactor::lowerBound(size_t k) const {
+    if (k == 0) {
+        return 0; // mass
+    } else if (k == 1) {
+        return -BigNumber; // enthalpy
+    } else if (k >= 2 && k < m_nv) {
+        return -Tiny; // species mass fraction or surface coverage
+    } else {
+        throw CanteraError("ConstPressureReactor::lowerBound",
+                           "Index {} is out of bounds.", k);
+    }
+}
+
 }

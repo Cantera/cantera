@@ -1589,6 +1589,12 @@ cdef class ReactorNet:
         """
         return self.net.step()
 
+    def solve_steady(self, int loglevel=0):
+        self.net.solveSteady(loglevel)
+
+    def steady_jacobian(self, float rdt=0.0):
+        return get_from_sparse(self.net.steadyJacobian(rdt), self.n_vars, self.n_vars)
+
     def initialize(self):
         """
         Force initialization of the integrator after initial setup.
