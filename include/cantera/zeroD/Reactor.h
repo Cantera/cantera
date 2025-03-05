@@ -169,6 +169,12 @@ public:
     //! @see componentIndex()
     virtual string componentName(size_t k);
 
+    //! Get the upper bound on the k-th component of the local state vector.
+    virtual double upperBound(size_t k) const;
+
+    //! Get the lower bound on the k-th component of the local state vector.
+    virtual double lowerBound(size_t k) const;
+
     //! Set absolute step size limits during advance
     //! @param limits array of step size limits with length neq
     void setAdvanceLimits(const double* limits);
