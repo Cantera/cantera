@@ -232,8 +232,8 @@ TEST(ctonedim, freeflame_from_parts)
     sim1D_setFixedTemperature(flame, 0.85 * T + .15 * Tad);
 
     // solve and save
-    flow1D_solveEnergyEqn(flow, 1);
-    bool refine_grid = false;
+    stflow_solveEnergyEqn(flow, 1);
+    const char* refine_grid = "disabled";
     int loglevel = 0;
     sim1D_solve(flame, loglevel, refine_grid);
     ret = sim1D_save(flame, "gtest-freeflame.yaml", "clib",
