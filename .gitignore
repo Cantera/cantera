@@ -53,3 +53,6 @@ coverage.info
 .coverage
 doc/sphinx/matlab/*.rst
 !doc/sphinx/matlab/index.rst
+reduced.yaml
+INSTALL_DIR/
+*.code-workspace

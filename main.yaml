@@ -1,0 +1,66 @@
+name: Tests
+
+on:
+  push:
+    branches:
+      - '**'
+
+jobs:
+    ubuntu-multiple-pythons:
+        name: ${{ matrix.os }} with Python ${{ matrix.python-version }}
+        runs-on: ${{ matrix.os }}
+        timeout-minutes: 60
+        strategy:
+          matrix:
+            python-version: ['3.9']
+            os: ['self-hosted']
+          fail-fast: false
+        env:
+          HDF5_LIBDIR: /usr/lib/x86_64-linux-gnu/hdf5/serial
+          HDF5_INCLUDEDIR: /usr/include/hdf5/serial
+        steps:
+        - uses: actions/checkout@v3
+          name: Checkout the repository
+          with:
+            submodules: recursive
+        - name: Setup Python
+          uses: actions/setup-python@v4
+          with:
+            python-version: ${{ matrix.python-version }}
+            architecture: x64
+        - name: Install Apt dependencies
+          run: |
+            sudo apt -y update
+            sudo apt -y install libboost-dev gfortran libopenmpi-dev libpython3-dev \
+            libblas-dev liblapack-dev libhdf5-dev libfmt-dev
+            gcc --version
+        - name: Upgrade pip
+          run: python3 -m pip install -U pip setuptools wheel
+        - name: Install Python dependencies
+          # h5py is optional; some versions don't have binaries (yet)
+          run: |
+            python3 -m pip install ruamel.yaml scons==3.1.2 numpy cython pandas pytest \
+            pytest-github-actions-annotate-failures pint
+            python3 -m pip install h5py
+        - name: Build Cantera
+          run: |
+            python3 `which scons` build env_vars=all -j2 debug=n --debug=time \
+            system_fmt=y hdf_libdir=$HDF5_LIBDIR hdf_include=$HDF5_INCLUDEDIR \
+            cc_flags=-D_GLIBCXX_ASSERTIONS
+        - name: Upload shared library
+          uses: actions/upload-artifact@v3
+          if: matrix.python-version == '3.10'
+          with:
+            path: build/lib/libcantera_shared.so
+            name: libcantera_shared-${{ matrix.os }}.so
+            retention-days: 2
+        - name: Test Cantera
+          run:
+            python3 `which scons` test show_long_tests=yes verbose_tests=yes --debug=time
+        - name: Save the wheel file to install Cantera
+          uses: actions/upload-artifact@v3
+          with:
+            path: build/python/dist/Cantera*.whl
+            retention-days: 2
+            name: cantera-wheel-${{ matrix.python-version }}-${{ matrix.os }}
+            if-no-files-found: error
