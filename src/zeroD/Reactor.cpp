@@ -505,6 +505,34 @@ string Reactor::componentName(size_t k) {
     throw CanteraError("Reactor::componentName", "Index is out of bounds.");
 }
 
+double Reactor::upperBound(size_t k) const {
+    if (k == 0) {
+        return BigNumber; // mass
+    } else if (k == 1) {
+        return BigNumber; // volume
+    } else if (k == 2) {
+        return BigNumber; // internal energy
+    } else if (k >= 3 && k < m_nv) {
+        return 1.0; // species mass fraction or surface coverage
+    } else {
+        throw CanteraError("Reactor::upperBound", "Index {} is out of bounds.", k);
+    }
+}
+
+double Reactor::lowerBound(size_t k) const {
+    if (k == 0) {
+        return 0; // mass
+    } else if (k == 1) {
+        return 0; // volume
+    } else if (k == 2) {
+        return -BigNumber; // internal energy
+    } else if (k >= 3 && k < m_nv) {
+        return -Tiny; // species mass fraction or surface coverage
+    } else {
+        throw CanteraError("Reactor::lowerBound", "Index {} is out of bounds.", k);
+    }
+}
+
 void Reactor::applySensitivity(double* params)
 {
     if (!params) {
