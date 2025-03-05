@@ -139,9 +139,9 @@ public:
 
     //! Compute the weighted 2-norm of `step`.
     double norm2(const double* x, const double* step, OneDim& r) const {
-        warn_deprecated("MultiNewton::norm2", "Implementation moved to "
-                        "SteadyStateSystem. To be removed after Cantera 3.2.");
-        return r.norm2(step);
+        warn_deprecated("MultiNewton::norm2", "Replaced by "
+            "SteadyStateSystem::weightedNorm. To be removed after Cantera 3.2.");
+        return r.weightedNorm(step);
     }
 
     /**

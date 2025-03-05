@@ -28,7 +28,7 @@ void MultiNewton::resize(size_t sz)
 
 void MultiNewton::step(double* x, double* step, SteadyStateSystem& r, int loglevel)
 {
-    r.eval(npos, x, step);
+    r.eval(x, step);
     for (size_t n = 0; n < r.size(); n++) {
         step[n] = -step[n];
     }
@@ -116,7 +116,7 @@ int MultiNewton::dampStep(const double* x0, const double* step0,
     }
 
     // compute the weighted norm of the undamped step size step0
-    double s0 = r.norm2(step0);
+    double s0 = r.weightedNorm(step0);
 
     // compute the multiplier to keep all components in bounds
     double fbound = boundStep(x0, step0, r, loglevel-1);
@@ -148,7 +148,7 @@ int MultiNewton::dampStep(const double* x0, const double* step0,
         step(x1, step1, r, loglevel-1);
 
         // compute the weighted norm of step1
-        s1 = r.norm2(step1);
+        s1 = r.weightedNorm(step1);
 
         if (loglevel > 0) {
             double ss = r.ssnorm(x1,step1);
