@@ -8,7 +8,7 @@
 
 #include "Reactor.h"
 #include "cantera/numerics/FuncEval.h"
-
+#include "cantera/numerics/SteadyStateSystem.h"
 
 namespace Cantera
 {
@@ -141,6 +141,11 @@ public:
     //! (time or space). Returns the new value of the independent variable [s or m].
     double step();
 
+    //! Solve for the steady-state solution
+    void solveSteady(int loglevel=0);
+
+    Eigen::SparseMatrix<double> steadyJacobian(double rdt=0.0);
+
     //! Add the reactor *r* to this reactor network.
     //! @deprecated  To be removed after %Cantera 3.2. Replaceable by reactor net
     //!     instantiation with contents.
@@ -248,6 +253,12 @@ public:
     //! name returned includes both the name of the reactor and the specific
     //! component, for example `'reactor1: CH4'`.
     string componentName(size_t i) const;
+
+    //! Get the upper bound on the i-th component of the global state vector.
+    double upperBound(size_t i) const;
+
+    //! Get the lower bound on the i-th component of the global state vector.
+    double lowerBound(size_t i) const;
 
     //! Used by Reactor and Wall objects to register the addition of
     //! sensitivity parameters so that the ReactorNet can keep track of the
@@ -375,6 +386,25 @@ protected:
     vector<double> m_LHS;
     vector<double> m_RHS;
 };
+
+class SteadyReactorSolver : public SteadyStateSystem
+{
+public:
+    SteadyReactorSolver(ReactorNet* net, double* x0);
+    void eval(double* x, double* r, double rdt=-1.0, int count=1) override;
+    void initTimeInteg(double dt, double* x) override;
+    void evalJacobian(double* x0) override;
+    double weightedNorm(const double* step) const override;
+    string componentName(size_t i) const override;
+    virtual double upperBound(size_t i) const override;
+    virtual double lowerBound(size_t i) const override;
+
+private:
+    ReactorNet* m_net = nullptr;
+    vector<double> m_prev_state;
+    vector<double> m_dxdt;
+};
+
 
 /**
  * Create a reactor network containing one or more coupled reactors.
