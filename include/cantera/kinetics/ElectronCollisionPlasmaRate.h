@@ -61,29 +61,41 @@ protected:
  *
  * where @f$ \gamma = \sqrt{2/m_e} @f$ (Eqn.4 in @cite hagelaar2015),
  * @f$ m_e @f$ [kg] is the electron mass, @f$ \epsilon @f$ [J] is the electron
- * energy, @f$ \sigma @f$ [m2] is the reaction collision cross section,
- * @f$ F_0 @f$ [J^(-3/2)] is the normalized electron energy distribution function,
- * and @f$ k @f$ has the unit of [m3/s]. The collision process is treated as a
- * bimolecular reaction and should have units of [m3/kmol/s]. Therefore the
- * forward reaction coefficient becomes,
+ * energy, @f$ \sigma @f$ [m²] is the reaction collision cross section,
+ * @f$ F_0 @f$ [@f$ \mbox{J}^{-3/2} @f$] is the normalized electron energy
+ * distribution function, and @f$ k @f$ has the unit of [m³/s]. The collision
+ * process is treated as a bimolecular reaction and should have units of [m³/kmol/s].
+ * Therefore the forward reaction coefficient becomes,
  *
  *   @f[
  *        k_f = \gamma N_A \int_0^{\infty} \epsilon \sigma F_0 d\epsilon,
  *   @f]
  *
  * where @f$ N_A @f$ [1/kmol] is the Avogadro's number. Since the unit of the
- * electron energy downloaded from LXCat is in [V], the forward reaction
+ * electron energy downloaded from LXCat is in [eV], the elementary charge, e,
+ * can be taken out of the integral and combine with @f$ \gamma @f$ to get,
+ *
+ *   @f[
+ *        k_f = \sqrt{\frac{2e}{m_e}} N_A \int_0^{\infty} \epsilon_V \sigma F_{0,V} d\epsilon_V.
+ *   @f]
+ *
+ * In addition to the forward reaction coefficient, the reverse (super-elastic) reaction
  * coefficient can be written as,
  *
  *   @f[
- *        k_f = \sqrt{\frac{2e}{m_e}} N_A \int_0^{\infty} \epsilon_V \sigma F_0 d\epsilon_V.
+ *        k_r = \sqrt{\frac{2e}{m_e}} N_A \int_0^{\infty} \epsilon_V \sigma_{super}
+ *              F_{0,V} d\epsilon_V,
  *   @f]
  *
- * For the convenience of calculation, the final form becomes,
+ * where @f$ \sigma_{super} @f$ is the super-elastic cross section, defined by the principle
+ * of detailed balancing as:
  *
  *   @f[
- *        k_f = 0.5 \sqrt{\frac{2e}{m_e}} N_A \int_0^{\infty} \sigma F_0 d{{\epsilon_V}^2}.
+ *        \sigma_{super}(\epsilon) = \frac{\epsilon + U}{\epsilon} \sigma(\epsilon + U),
  *   @f]
+ *
+ * where @f$ U @f$ is the threshold energy [eV], equal to the first energy level of the cross
+ * section (#m_energyLevels).
  *
  * @ingroup otherRateGroup
  * @since New in %Cantera 3.1.

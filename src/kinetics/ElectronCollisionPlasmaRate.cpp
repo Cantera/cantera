@@ -179,14 +179,14 @@ void ElectronCollisionPlasmaRate::setContext(const Reaction& rxn, const Kinetics
     if (rxn.products.size() != 2) {
         throw InputFileError("ElectronCollisionPlasmaRate::setContext", rxn.input,
             "ElectronCollisionPlasmaRate requires exactly two products"
-            "if the reaction is reversible (super-elastic collisions)");
+            " if the reaction is reversible (super-elastic collisions)");
     }
 
     // Must have only one electron
     if (rxn.products.at(electronName) != 1) {
         throw InputFileError("ElectronCollisionPlasmaRate::setContext", rxn.input,
             "ElectronCollisionPlasmaRate requires one and only one electron in products"
-            "if the reaction is reversible (super-elastic collisions)");
+            " if the reaction is reversible (super-elastic collisions)");
     }
 }
 
