@@ -112,6 +112,12 @@ double ElectronCollisionPlasmaRate::evalFromStruct(
 void ElectronCollisionPlasmaRate::modifyRateConstants(
     const ElectronCollisionPlasmaData& shared_data, double& kf, double& kr)
 {
+    if (kr == 0.0) {
+        // The reverse rate constant is only for reversible reactions
+        // kr = 0.0 indicates that the reaction is irreversible
+        return;
+    }
+
     // Interpolate cross-sections data to the energy levels of
     // the electron energy distribution function
     if (shared_data.levelChanged) {
