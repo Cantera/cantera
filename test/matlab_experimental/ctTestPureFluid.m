@@ -55,7 +55,7 @@ classdef ctTestPureFluid < matlab.unittest.TestCase
         function testCriticalProperties(self)
             self.verifyEqual(self.phase.critPressure, 22.089e6, 'RelTol', self.rtol);
             self.verifyEqual(self.phase.critTemperature, 647.286, 'RelTol', self.rtol);
-            self.verifyEqual(self.phase.critPressure, 317.0, 'RelTol', self.rtol);
+            self.verifyEqual(self.phase.critDensity, 317.0, 'RelTol', self.rtol);
         end
 
         function testSetState(self)
@@ -82,6 +82,8 @@ classdef ctTestPureFluid < matlab.unittest.TestCase
             self.phase.PV = {101325, 1.45};
             self.verifyEqual(self.phase.P, 101325, 'RelTol', self.rtol);
             self.verifyEqual(self.phase.V, 1.45, 'RelTol', self.rtol);
+
+            self.phase.basis = 'mass';
 
             self.phase.UP = {-1.45e7, 101325};
             self.verifyEqual(self.phase.U, -1.45e7, 'RelTol', self.rtol);
