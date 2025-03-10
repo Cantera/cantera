@@ -1,4 +1,4 @@
-function w = Water()
+function w = Water(backend)
     % Return an object representing water. ::
     %
     %     >> w = Water()
@@ -17,6 +17,11 @@ function w = Water()
     %
     % :return:
     %     Instance of class :mat:class:`Solution`.
-
-    w = Solution('liquidvapor.yaml', 'water', 'water');
+    if nargin == 0 | strcmp(backend, 'Reynolds')
+        w = Solution('liquidvapor.yaml', 'water', 'water');
+    elseif strcmp(backend, 'IAPWS95')
+        w = Solution('liquidvapor.yaml', 'liquid-water-IAPWS95', 'water');
+    else
+        error(['Unknow backend: ', backend]);
+    end
 end
