@@ -206,11 +206,21 @@ public:
         return m_lowRate;
     }
 
+    //! Get reaction rate in the low-pressure limit
+    const ArrheniusRate& lowRate() const {
+        return m_lowRate;
+    }
+
     //! Set reaction rate in the low-pressure limit
     void setLowRate(const ArrheniusRate& low);
 
     //! Get reaction rate in the high-pressure limit
     ArrheniusRate& highRate() {
+        return m_highRate;
+    }
+
+    //! Get reaction rate in the high-pressure limit
+    const ArrheniusRate& highRate() const {
         return m_highRate;
     }
 
