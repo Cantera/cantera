@@ -15,13 +15,13 @@ classdef Tolerances
         function t = Tolerances(varargin)
             % Set up input parser
             param = inputParser;
-            addParameter(param, 'P', 2e-5, @isnumeric);
-            addParameter(param, 'U', 2e-6, @isnumeric);
-            addParameter(param, 'S', 2e-6, @isnumeric);
-            addParameter(param, 'dUdS', 2e-6, @isnumeric);
-            addParameter(param, 'dAdV', 2e-6, @isnumeric);
-            addParameter(param, 'dPdT', 2e-4, @isnumeric);
-            addParameter(param, 'hTs', 2e-4, @isnumeric);
+            param.addParameter('P', 2e-5, @isnumeric);
+            param.addParameter('U', 2e-6, @isnumeric);
+            param.addParameter('S', 2e-6, @isnumeric);
+            param.addParameter('dUdS', 2e-6, @isnumeric);
+            param.addParameter('dAdV', 2e-6, @isnumeric);
+            param.addParameter('dPdT', 2e-4, @isnumeric);
+            param.addParameter('hTs', 2e-4, @isnumeric);
 
             % Parse inputs
             parse(param, varargin{:});
