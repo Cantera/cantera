@@ -73,8 +73,7 @@ function periodic_cstr
     sccm = 1.25;
     vdot = sccm * 1.0e-6/60.0 * ((OneAtm / gas.P) * (gas.T / 273.15)); % m^3/s
     mdot = gas.D * vdot; % kg/s
-    mfc = MassFlowController;
-    mfc.install(upstream, cstr);
+    mfc = MassFlowController(upstream, cstr);
     mfc.massFlowRate = mdot;
 
     % now create a downstream reservoir to exhaust into.
@@ -83,8 +82,7 @@ function periodic_cstr
     % connect the reactor to the downstream reservoir with a valve, and
     % set the coefficient sufficiently large to keep the reactor pressure
     % close to the downstream pressure of 60 Torr.
-    v = Valve;
-    v.install(cstr, downstream);
+    v = Valve(cstr, downstream);
     v.valveCoeff = 1.0e-9;
 
     % create the network
