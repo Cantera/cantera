@@ -14,15 +14,15 @@ classdef StateData
 
         function statedata = StateData(phase, T, P, varargin)
             param = inputParser;
-            addRequired(param, 'phase', @ischar);
-            addRequired(param, 'T', @isnumeric);
-            addRequired(param, 'P', @isnumeric);
-            addParameter(param, 'D', [], @isnumeric);
-            addParameter(param, 'V', [], @isnumeric);
-            addParameter(param, 'U', [], @isnumeric);
-            addParameter(param, 'H', [], @isnumeric);
-            addParameter(param, 'S', [], @isnumeric);
-            addParameter(param, 'relax', false, @islogical);
+            param.addRequired('phase', @ischar);
+            param.addRequired('T', @isnumeric);
+            param.addRequired('P', @isnumeric);
+            param.addParameter('D', [], @isnumeric);
+            param.addParameter('V', [], @isnumeric);
+            param.addParameter('U', [], @isnumeric);
+            param.addParameter('H', [], @isnumeric);
+            param.addParameter('S', [], @isnumeric);
+            param.addParameter('relax', false, @islogical);
 
             % Parse inputs
             parse(param, phase, T, P, varargin{:});
