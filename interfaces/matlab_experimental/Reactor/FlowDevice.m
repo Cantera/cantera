@@ -114,6 +114,8 @@ classdef FlowDevice < handle
 
                 i = upstream.id;
                 j = downstream.id;
+                f.upstream = i;
+                f.downstream = j;
                 ctFunc('flowdev_install', f.id, i, j);
             else error('install requires 3 arguments');
             end
