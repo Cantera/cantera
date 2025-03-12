@@ -10,9 +10,11 @@
 #include "cantera/clib_experimental/ctthermo3.h"
 #include "cantera/clib_experimental/ctkin3.h"
 #include "cantera/clib_experimental/ctrxn3.h"
+#include "cantera/clib_experimental/ctrdiag3.h"
 
 using namespace Cantera;
 using ::testing::HasSubstr;
+using ::testing::StartsWith;
 
 string reportError();  // forward declaration
 
@@ -59,7 +61,7 @@ TEST(ctkin3, exceptions)
     EXPECT_THAT(err, HasSubstr("IndexError: 998 outside valid range of 0 to 28."));
 }
 
-TEST(ctkin3, reaction)
+TEST(ctrxn3, reaction)
 {
     int sol0 = sol3_newSolution("h2o2.yaml", "", "none");
     int kin = sol3_kinetics(sol0);
@@ -72,15 +74,76 @@ TEST(ctkin3, reaction)
     int buflen = rxn3_type(rxn, 0, 0);
     vector<char> buf(buflen);
     rxn3_type(rxn, buflen, buf.data());
-    string rxnType = buf.data();
-    ASSERT_EQ(rxnType, reaction->type());
-    ASSERT_EQ(rxnType, "three-body-Arrhenius");
+    string text = buf.data();
+    ASSERT_EQ(text, reaction->type());
+    ASSERT_EQ(text, "three-body-Arrhenius");
 
     buflen = rxn3_equation(rxn, 0, 0);
     buf.resize(buflen);
     rxn3_equation(rxn, buflen, buf.data());
-    string rxnEqn = buf.data();
-    ASSERT_EQ(rxnEqn, reaction->equation());
-    ASSERT_EQ(rxnEqn, "2 O + M <=> O2 + M");
+    text = buf.data();
+    ASSERT_EQ(text, reaction->equation());
+    ASSERT_EQ(text, "2 O + M <=> O2 + M");
     ASSERT_EQ(rxn3_usesThirdBody(rxn), 1);
+    ASSERT_EQ(rxn3_allowNonreactantOrders(rxn), 0);
+    ASSERT_EQ(rxn3_allowNonreactantOrders(rxn),
+              int(reaction->allow_nonreactant_orders));
+
+    buflen = rxn3_id(rxn, 0, 0);
+    buf.resize(buflen);
+    rxn3_id(rxn, buflen, buf.data());
+    text = buf.data();
+    ASSERT_EQ(text, reaction->id);
+    ASSERT_EQ(text, "");
+
+    rxn3_setId(rxn, "spam");
+    buflen = rxn3_id(rxn, 0, 0);
+    buf.resize(buflen);
+    rxn3_id(rxn, buflen, buf.data());
+    text = buf.data();
+    ASSERT_EQ(text, "spam");
+}
+
+TEST(ctrdiag3, diagram)
+{
+    int sol = sol3_newSolution("h2o2.yaml", "", "none");
+    int thermo = sol3_thermo(sol);
+    int kin = sol3_kinetics(sol);
+    thermo3_set_TP(thermo, 1000., ct3_OneAtm());
+
+    int diag = rdiag3_newReactionPathDiagram(kin, "H");
+    ASSERT_EQ(rdiag3_boldThreshold(diag), 0.2);
+
+    rdiag3_setFlowType(diag, "spam");
+    string text = reportError();
+    EXPECT_THAT(text, HasSubstr("Unknown flow type 'spam'"));
+    int buflen = rdiag3_flowType(diag, 0, 0);
+    vector<char> buf(buflen);
+    rdiag3_flowType(diag, buflen, buf.data());
+    text = buf.data();
+    ASSERT_EQ(text, "NetFlow");
+    rdiag3_setFlowType(diag, "OneWayFlow");
+    buflen = rdiag3_flowType(diag, 0, 0);
+    buf.resize(buflen);
+    rdiag3_flowType(diag, buflen, buf.data());
+    text = buf.data();
+    ASSERT_EQ(text, "OneWayFlow");
+
+    buflen = rdiag3_getLog(diag, 0, 0);
+    buf.resize(buflen);
+    rdiag3_getLog(diag, buflen, buf.data());
+    text = buf.data();
+    EXPECT_THAT(text, StartsWith("\nReaction 1:"));
+
+    buflen = rdiag3_getData(diag, 0, 0);
+    buf.resize(buflen);
+    rdiag3_getData(diag, buflen, buf.data());
+    text = buf.data();
+    EXPECT_THAT(text, StartsWith("\nH H2 \nH H2"));
+
+    buflen = rdiag3_getDot(diag, 0, 0);
+    buf.resize(buflen);
+    rdiag3_getDot(diag, buflen, buf.data());
+    text = buf.data();
+    EXPECT_THAT(text, StartsWith("digraph reaction_paths"));
 }

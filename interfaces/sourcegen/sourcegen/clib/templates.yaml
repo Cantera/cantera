@@ -53,6 +53,19 @@ clib-reserved-getCanteraError-h: |-
    */
   int {{ prefix }}_getCanteraError(int bufLen, char* buf);
 
+clib-reserved-setLogWriter-h: |-
+  /**
+   *  Undocumented.
+   */
+  int {{ prefix }}_setLogWriter(void* logger);
+
+clib-reserved-setLogCallback-h: |-
+  /**
+   *  Undocumented.
+   *  @param writer  Callback that is invoked to produce log output.
+   */
+  int {{ prefix }}_setLogCallback(LogCallback writer);
+
 clib-reserved-resetStorage-h: |-
   /**
    *  Delete all objects and erase mapping.
@@ -98,6 +111,10 @@ clib-header-file: |-
   #ifndef {{ guard }}
   #define {{ guard }}
 
+  {% if preamble %}
+  {{ preamble }}
+
+  {% endif %}
   #ifdef __cplusplus
   extern "C" {
   #endif
@@ -131,6 +148,81 @@ clib-function: |-
       {% endif %}
   } catch (...) {
       return handleAllExceptions({{ error[0] }}, {{ error[1] }});
+  }
+
+clib-variable-getter: |-
+  // variable (getter): {{ cxx_implements }}
+  try {
+      {% if handle %}
+      ## access class member variable
+      {% if cxx_base == base %}
+      ## object can be accessed directly
+      {% if buffer and buffer[0] %}
+      {{ buffer[0] }} = {{ base }}Cabinet::at({{ handle }})->{{ cxx_name }};
+      ## CLib/C++ variable crosswalk needed
+      {% if buffer[1] %}
+      {{ buffer[1] }}
+      {% endif %}
+      return {{ buffer[2] }};
+      {% else %}{# not buffer[0] #}
+      ## no crosswalk needed
+      return {{ base }}Cabinet::at({{ handle }})->{{ cxx_name }};
+      {% endif %}{# buffer[0] #}
+      {% else %}{# base #}
+      ## object needs a cast as method is defined for specialization
+      {% if buffer and buffer[0] %}
+      {{ buffer[0] }} = {{ base }}Cabinet::as<{{ cxx_base }}>({{ handle }})->{{ cxx_name }};
+      ## CLib/C++ variable crosswalk needed
+      {% if buffer[1] %}
+      {{ buffer[1] }}
+      {% endif %}
+      return {{ buffer[2] }};
+      {% else %}{# not buffer[0] #}
+      ## no crosswalk needed
+      return {{ base }}Cabinet::as<{{ cxx_base }}>({{ handle }})->{{ cxx_name }};
+      {% endif %}{# buffer[0] #}
+      {% endif %}{# base #}
+      {% else %}{# not handle #}
+      ## variable is defined in root namespace
+      {% if buffer and buffer[0] %}
+      ## CLib/C++ variable crosswalk needed
+      {{ buffer[0] }} = {{ cxx_name }};
+      {% if buffer[1] %}
+      {{ buffer[1] }}
+      {% endif %}
+      return {{ buffer[2] }};
+      {% else %}{# not buffer[0] #}
+      ## no crosswalk needed
+      return {{ cxx_name }};
+      {% endif %}{# buffer[0] #}
+      {% endif %}{# handle #}
+  } catch (...) {
+      return handleAllExceptions({{ error[0] }}, {{ error[1] }});
+  }
+
+clib-variable-setter: |-
+  // variable (setter): {{ cxx_implements }}
+  try {
+      {% for line in lines %}
+      ## add lines used for CLib/C++ variable crosswalk
+      {{ line }}
+      {% endfor %}
+      {% if handle %}
+      ## access class member variable
+      {% if cxx_base == base %}
+      ## object can be accessed directly
+      {{ base }}Cabinet::at({{ handle }})->{{ cxx_name }} = {{ cxx_args[0] }};
+      {% else %}{# not base #}
+      ## object needs a cast as method is defined for specialization
+      {{ base }}Cabinet::as<{{ cxx_base }}>({{ handle }})->{{ cxx_name }} = {{ cxx_args[0] }};
+      {% endif %}{# base #}
+      {% else %}{# not handle #}
+      ## variable is defined in root namespace
+      {{ cxx_name }} = {{ cxx_args[0] }};
+      {% endif %}{# handle #}
+      return 0;
+  } catch (...) {
+      return handleAllExceptions(-1, ERR);
   }
 
 clib-constructor: |-
@@ -295,7 +387,7 @@ clib-array-getter: |-
       // no size checking specified
       {% endif %}
       {% if buffer and buffer[0] %}
-      {{ buffer[0] }} = obj->{{ cxx_name }}({{ cxx_args[0] }});;
+      {{ buffer[0] }} = obj->{{ cxx_name }}({{ cxx_args[0] }});
       {% if buffer[1] %}
       {{ buffer[1] }}
       {% endif %}
@@ -370,6 +462,27 @@ clib-reserved-getCanteraError-cpp: |-
       string err = Application::Instance()->lastErrorMessage();
       copyString(err, buf, bufLen);
       return int(err.size());
+  } catch (...) {
+      return handleAllExceptions(-1, ERR);
+  }
+
+clib-reserved-setLogWriter-cpp: |-
+  // reserved: setLogger
+  try {
+      Logger* logwriter = (Logger*)logger;
+      setLogger(logwriter);
+      return 0;
+  } catch (...) {
+      return handleAllExceptions(-1, ERR);
+  }
+
+clib-reserved-setLogCallback-cpp: |-
+  // reserved: setLogger
+  static unique_ptr<Logger> logwriter;
+  try {
+      logwriter = make_unique<ExternalLogger>(writer);
+      setLogger(logwriter.get());
+      return 0;
   } catch (...) {
       return handleAllExceptions(-1, ERR);
   }
