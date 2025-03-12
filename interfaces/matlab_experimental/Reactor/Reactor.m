@@ -2,12 +2,13 @@ classdef Reactor < handle
 
     properties (SetAccess = immutable)
 
-        type % Type of Reactor.
         id % ID of Reactor.
 
     end
 
     properties (SetAccess = public)
+
+        type  % Reactor type.
 
         name  % Name of reactor.
 
@@ -131,8 +132,8 @@ classdef Reactor < handle
                 error('Reactor contents must be an object of type "Solution"');
             end
 
-            r.type = char(typ);
             r.id = ctFunc('reactor_new', typ, content.solnID, name);
+            r.contents = content;
         end
 
         %% Reactor Class Destructor
@@ -159,6 +160,10 @@ classdef Reactor < handle
         end
 
         %% Reactor Get Methods
+
+        function typ = get.type(r)
+            typ = ctString('reactor_type', r.id);
+        end
 
         function name = get.name(r)
             name = ctString('reactor_name', r.id);

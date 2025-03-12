@@ -1,4 +1,4 @@
-classdef Wall < handle
+classdef Wall < Connector
     % Wall Class ::
     %
     %     >> x = Wall(l, r, name)
@@ -47,15 +47,6 @@ classdef Wall < handle
 
     properties (SetAccess = immutable)
 
-        id
-        type
-
-    end
-
-    properties (SetAccess = protected)
-
-        name  % Name of wall.
-
         left % Reactor on the left.
         right % Reactor on the right.
 
@@ -93,48 +84,25 @@ classdef Wall < handle
 
         function w = Wall(l, r, name)
             % Create a :mat:class:`Wall` object.
-            ctIsLoaded;
 
             % At the moment, only one wall type is implemented
-            typ = 'Wall';
             if nargin < 3
                 name = '(none)';
             end
 
-            w.type = char(typ);
-            w.id = ctFunc('wall_new', w.type, name);
-
             % Install the wall between left and right reactors
+            w@Connector('Wall', l, r, name)
             w.left = l;
             w.right = r;
-            ctFunc('wall_install', w.id, l.id, r.id);
 
             % Set default values.
             w.area = 1.0;
             w.expansionRateCoeff = 0.0;
             w.heatTransferCoeff = 0.0;
 
-            % Check whether the wall is ready.
-            ok = ctFunc('wall_ready', w.id);
-            if ~ok
-                error('The wall object is not ready.');
-            end
-
-        end
-
-        %% Wall Class Destructor
-
-        function delete(w)
-            % Clear the :mat:class:`Wall` object.
-
-            ctFunc('wall_del', w.id);
         end
 
         %% ReactorNet get methods
-
-        function name = get.name(w)
-            name = ctString('wall_name', w.id);
-        end
 
         function a = get.area(w)
             a = ctFunc('wall_area', w.id);
@@ -149,10 +117,6 @@ classdef Wall < handle
         end
 
         %% ReactorNet set methods
-
-        function set.name(w, name)
-            ctFunc('wall_setName', w.id, name);
-        end
 
         function set.area(w, a)
             ctFunc('wall_setArea', w.id, a);
