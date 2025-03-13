@@ -47,7 +47,7 @@ classdef Interface < Solution
 
             ID = ctFunc('soln_newInterface', src, name, na, adj);
 
-            % Inherit methods and properties from Solution
+            % Inherit methods and properties from ThermoPhase and Kinetics
             s@Solution(ID);
             s.nAdjacent = ctFunc('soln_nAdjacent', ID);
             s.adjacentNames = {};
@@ -95,7 +95,7 @@ classdef Interface < Solution
         end
 
         function c = get.concentrations(s)
-            surfID = s.tr_id;
+            surfID = s.tpid;
             nsp = s.nSpecies;
             xx = zeros(1, nsp);
             pt = libpointer('doublePtr', xx);
