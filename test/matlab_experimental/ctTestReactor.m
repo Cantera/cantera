@@ -112,7 +112,7 @@ classdef ctTestReactor < matlab.unittest.TestCase
 
     methods (Test)
 
-        function testVolume(self)
+        function testV(self)
             g = Solution('h2o2.yaml', '', 'none');
             r = Reactor(g, '', '');
             self.verifyEqual(r.V, 1.0, 'AbsTol', self.atol);
@@ -224,7 +224,7 @@ classdef ctTestReactor < matlab.unittest.TestCase
         end
 
         function testHeatTransfer2(self)
-            self.assumeFail('Skipping until heatTransferCoeff getter is implemented');
+            self.assumeFail('Skipped until heatTransferCoeff getter is implemented');
             self.makeReactors('T1', 300, 'T2', 1000);
             self.addWall('U', 200, 'A', 1.0);
 
@@ -288,6 +288,157 @@ classdef ctTestReactor < matlab.unittest.TestCase
 
             self.verifyGreaterThan(nbaseline, nrtol);
             self.verifyGreaterThan(nbaseline, natol);
+        end
+
+        function testAdvanceReverse(self)
+            self.makeReactors('nr', 1);
+            self.net.advance(0.1);
+
+            try
+                self.net.advance(0.09);
+            catch ME
+                self.verifySubstring(ME.identifier, 'Cantera:ctError');
+                self.verifySubstring(ME.message, 'backwards in time');
+            end
+        end
+
+        function testEquilibriumUV(self)
+            P0 = 10 * OneAtm;
+            T0 = 1100;
+            X0 = 'H2:1.0, O2:0.5, AR:8.0';
+            self.makeReactors('nr', 1, 'T1', T0, 'P1', P0, 'X1', X0);
+
+            self.net.advance(1.0);
+
+            gas = Solution('h2o2.yaml', '', 'none');
+            gas.TPX = {T0, P0, X0};
+            gas.equilibrate('UV');
+            gas.basis = 'mass';
+
+            self.verifyEqual(self.r1.T, gas.T, 'RelTol', self.rtol);
+            self.verifyEqual(self.r1.D, gas.D, 'RelTol', self.rtol);
+            self.verifyEqual(self.r1.P, gas.P, 'RelTol', self.rtol);
+            self.verifyEqual(self.r1.contents.X, gas.X, 'RelTol', self.rtol);
+
+            clear gas
+        end
+
+        function testEquilibriumHP(self)
+            P0 = 10 * OneAtm;
+            T0 = 1100;
+            X0 = 'H2:1.0, O2:0.5, AR:8.0';
+
+            self.gas1 = Solution('h2o2.yaml', '', 'none');
+            self.gas1.TPX = {T0, P0, X0};
+            self.r1 = IdealGasConstPressureReactor(self.gas1);
+
+            self.net = ReactorNet();
+            self.net.addReactor(self.r1);
+            self.net.time = 0.0;
+            self.net.advance(1.0);
+
+            self.gas2 = Solution('h2o2.yaml', '', 'none');
+            self.gas2.TPX = {T0, P0, X0};
+            self.gas2.equilibrate('HP');
+            self.gas2.basis = 'mass';
+
+            self.verifyEqual(self.r1.T, self.gas2.T, 'RelTol', self.rtol);
+            self.verifyEqual(self.r1.D, self.gas2.D, 'RelTol', self.rtol);
+            self.verifyEqual(self.r1.P, P0, 'RelTol', self.rtol);
+            self.verifyEqual(self.r1.contents.X, self.gas2.X, 'RelTol', self.rtol);
+        end
+
+        function testWallVelocity(self)
+            self.assumeFail('Skipped until velocity getter is implemented');
+
+            self.makeReactors();
+            A = 0.2;
+            V1 = 2.0;
+            V2 = 5.0;
+
+            self.r1.V = V1;
+            self.r2.V = V2;
+            self.addWall('A', A);
+
+            v = Func1('tabulated-linear', [0.0, 1.0, 2.0], [0.0, 1.0, 0.0]);
+            self.w.velocity = v;
+            self.net.advance(1.0);
+
+            self.verifyEqual(self.w.velocity, v(1.0), 'AbsTol', self.atol);
+            self.verifyEqual(self.w.expansionRate, 1.0 * A, 'AbsTol', self.atol);
+
+            self.net.advance(2.0);
+
+            self.verifyEqual(selfw.expansionRate, 0.0, 'AbsTol', self.atol);
+            self.verifyEqual(self.r1.V, V1 + 1.0 * A, 'RelTol', self.rtol);
+            self.verifyEqual(self.r2.V, V2 - 1.0 * A, 'RelTol', self.rtol);
+        end
+
+        function testDisableEnergy(self)
+            self.makeReactors('T1', 500);
+            self.r1.energy = 'off';
+            self.addWall('A', 1.0, 'U', 2500);
+            self.net.advance(11.0);
+
+            self.verifyEqual(self.r1.T, 500, 'RelTol', self.rtol);
+            self.verifyEqual(self.r2.T, 500, 'RelTol', self.rtol);
+        end
+
+        function testDisableChemistry(self)
+            self.makeReactors('T1', 1000, 'nr', 1, 'X1', 'H2:2.0,O2:1.0');
+            self.r1.chemistry = 'off';
+            self.net.advance(11.0);
+            x1 = self.r1.contents.X(self.r1.contents.speciesIndex('H2'));
+            x2 = self.r1.contents.X(self.r1.contents.speciesIndex('O2'));
+
+            self.verifyEqual(self.r1.T, 1000, 'RelTol', self.rtol);
+            self.verifyEqual(x1, 2.0 / 3.0, 'RelTol', self.rtol);
+            self.verifyEqual(x2, 1.0 / 3.0, 'RelTol', self.rtol);
+        end
+
+        function testHeatFluxFunc(self)
+            self.assumeFail('Skipped until anonymous functions can be set as Func1');
+            self.makeReactors('T1', 500, 'T2', 300);
+            self.r1.V = 0.5;
+
+            U1a = self.r1.V * self.r1.D * self.r1.contents.U;
+            U2a = self.r2.V * self.r2.D * self.r2.contents.U;
+            V1a = self.r1.V;
+            V2a = self.r2.V;
+
+            self.add_wall('A', 0.3);
+            f = Func1('polynomial3', [-90000, 0, 90000]);
+            self.w.heatFlux = f;
+            Q = 0.3 * 60000;
+
+            self.net.advance(1.1);
+            self.verifyEqual(self.w.heatFlux, f(1.1), 'RelTol', self.rtol);
+            U1b = self.r1.V * self.r1.D * self.r1.contents.U;
+            U2b = self.r2.V * self.r2.D * self.r2.contents.U;
+
+            self.verifyEqual(V1a, self.r1.V, 'RelTol', self.rtol);
+            self.verifyEqual(V2a, self.r2.V, 'RelTol', self.rtol);
+            self.verifyEqual(U1a - Q, U1b, 'RelTol', self.rtol);
+            self.verifyEqual(U2a + Q, U2b, 'RelTol', self.rtol);
+        end
+
+        function testReinitialize(self)
+            self.assumeFail('Skipped until Reactor.syncState is implemented');
+        end
+
+        function testPreconditionerUnsupported(self)
+            self.assumeFail('Skipped until ReactorNet.preconditioner is implemented');
+        end
+
+        function testInvalidProperty(self)
+            self.makeReactors();
+
+            try
+                self.r1.foobar = 3.14
+            catch ME
+                self.verifySubstring(ME.identifier, 'MATLAB:');
+                self.verifySubstring(ME.message, 'Unrecognized property');
+            end
         end
 
     end
