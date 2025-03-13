@@ -83,6 +83,9 @@ classdef FlowDevice < handle
         function delete(f)
             % Delete the :mat:class:`FlowDevice` object.
 
+            if isempty(f.id)
+                return
+            end
             ctFunc('flowdev_del', f.id);
         end
 
@@ -111,6 +114,8 @@ classdef FlowDevice < handle
 
                 i = upstream.id;
                 j = downstream.id;
+                f.upstream = i;
+                f.downstream = j;
                 ctFunc('flowdev_install', f.id, i, j);
             else error('install requires 3 arguments');
             end

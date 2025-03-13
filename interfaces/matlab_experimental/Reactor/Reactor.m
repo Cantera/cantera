@@ -88,10 +88,10 @@ classdef Reactor < handle
     methods
         %% Reactor Class Constructor
 
-        function r = Reactor(content, typ, name)
+        function r = Reactor(content, typ, name, V0)
             % Reactor Class ::
             %
-            %     >> r = Reactor(content, typ, name)
+            %     >> r = Reactor(content, typ, name, V0)
             %
             % A :mat:class:`Reactor` object simulates a perfectly-stirred reactor.
             % It has a time-dependent state, and may be coupled to other
@@ -111,11 +111,14 @@ classdef Reactor < handle
             %      - `IdealGasConstPressureReactor`
             % :param name:
             %    Reactor name (optional; default is ``(none)``).
+            % :param V0:
+            %    Initial volume of the reactor (optional).
             % :return:
             %    Instance of :mat:class:`Reactor`.
 
             ctIsLoaded;
 
+            V_0 = 1;
             if nargin == 0
                 error('Reactor contents must be specified')
             elseif nargin == 1
@@ -123,7 +126,9 @@ classdef Reactor < handle
                 name = '(none)';
             elseif nargin == 2
                 name = '(none)';
-            elseif nargin > 3
+            elseif nargin == 4
+                V_0 = V0;
+            elseif nargin > 4
                 error('too many arguments');
             end
 
@@ -131,8 +136,18 @@ classdef Reactor < handle
                 error('Reactor contents must be an object of type "Solution"');
             end
 
+            if isempty(typ)
+                typ = 'Reactor';
+            end
+
+            if isempty(name)
+                name = '(none)';
+            end
+
             r.type = char(typ);
             r.id = ctFunc('reactor_new', typ, content.solnID, name);
+            r.contents = content;
+            r.V = V_0;
         end
 
         %% Reactor Class Destructor
@@ -140,6 +155,9 @@ classdef Reactor < handle
         function delete(r)
             % Delete the :mat:class:`Reactor` object.
 
+            if isempty(r.id)
+                return
+            end
             ctFunc('reactor_del', r.id);
         end
 

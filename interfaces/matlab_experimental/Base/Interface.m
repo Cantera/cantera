@@ -14,7 +14,7 @@ classdef Interface < handle & ThermoPhase & Kinetics
     %     Instance of class :mat:class:`Interface`.
 
     properties (SetAccess = immutable)
-        solnID % ID of the interface.
+        interfaceID % ID of the interface.
         interfaceName % Name of the interface.
     end
 
@@ -23,6 +23,8 @@ classdef Interface < handle & ThermoPhase & Kinetics
         % Surface coverages of the species on an interface.
         % Unit: kmol/m^2 for surface phases, kmol/m for edge phases.
         siteDensity
+
+        coverages % Surface coverages of the species on an interface.
 
     end
 
@@ -53,7 +55,7 @@ classdef Interface < handle & ThermoPhase & Kinetics
             % Inherit methods and properties from ThermoPhase and Kinetics
             s@ThermoPhase(ID);
             s@Kinetics(ID);
-            s.solnID = ID;
+            s.interfaceID = ID;
             s.interfaceName = name;
             s.nAdjacent = ctFunc('soln_nAdjacent', ID);
             s.adjacentNames = {};
@@ -66,7 +68,11 @@ classdef Interface < handle & ThermoPhase & Kinetics
 
         function delete(s)
             % Delete :mat:class:`Interface` object.
-            ctFunc('soln_del', s.solnID);
+
+            if isempty(s.interfaceID)
+                return
+            end
+            ctFunc('soln_del', s.interfaceID);
         end
 
         %% Interface Get Methods
@@ -78,13 +84,11 @@ classdef Interface < handle & ThermoPhase & Kinetics
                 error(['No adjacent phase with name ''' name ''' found.'])
             end
             location = find(exact_match);
-            id = ctFunc('soln_adjacent', s.solnID, location-1);
+            id = ctFunc('soln_adjacent', s.interfaceID, location-1);
             adj = Solution(id);
         end
 
-        function c = coverages(s)
-            % Surface coverages of the species on an interface.
-
+        function c = get.coverages(s)
             surfID = s.tpID;
             nsp = s.nSpecies;
             xx = zeros(1, nsp);
@@ -99,7 +103,7 @@ classdef Interface < handle & ThermoPhase & Kinetics
         end
 
         function c = get.concentrations(s)
-            surfID = s.tr_id;
+            surfID = s.tpid;
             nsp = s.nSpecies;
             xx = zeros(1, nsp);
             pt = libpointer('doublePtr', xx);
@@ -107,10 +111,10 @@ classdef Interface < handle & ThermoPhase & Kinetics
             c = pt.Value;
         end
 
-        function setCoverages(s, cov, norm)
+        function set.coverages(s, val)
             % Set surface coverages of the species on an interface.
             %
-            % s.setCoverages(cov, norm)
+            % s.coverages = {cov, norm}
             %
             % :param s:
             %      Instance of class :mat:class:`Interface`
@@ -126,10 +130,18 @@ classdef Interface < handle & ThermoPhase & Kinetics
             %      unphysical results, ``'nonorm'`` should be used only in rare cases, such
             %      as computing partial derivatives with respect to a species coverage.
 
-            if nargin == 3 && strcmp(norm, 'nonorm')
-                norm_flag = 0;
-            else
+            if iscell(val) && numel(val) >= 1 && numel(val) <= 2
+                cov = val{1};
                 norm_flag = 1;
+
+                if numel(val) == 2
+                    norm = val{2};
+                    if strcmp(norm, 'nonorm')
+                        norm_flag = 0;
+                    end
+                end
+            else
+                error('Input must be a cell array {cov} or {cov, norm}');
             end
 
             surfID = s.tpID;
