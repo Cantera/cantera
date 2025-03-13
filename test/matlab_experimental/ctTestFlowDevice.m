@@ -55,7 +55,7 @@ classdef ctTestFlowDevice < matlab.unittest.TestCase
             param.addParameter('P2', 101325, @(x) isnumeric(x) && isscalar(x));
             param.addParameter('X2', 'O2:1.0', @(x) ischar(x));
 
-            parse(param, varargin{:});
+            param.parse(varargin{:});
 
             independent = param.Results.independent;
             nr = param.Results.nr;

@@ -56,7 +56,7 @@ classdef ctTestReactor < matlab.unittest.TestCase
             param.addParameter('P2', 101325, @(x) isnumeric(x) && isscalar(x));
             param.addParameter('X2', 'O2:1.0', @(x) ischar(x));
 
-            parse(param, varargin{:});
+            param.parse(varargin{:});
 
             independent = param.Results.independent;
             nr = param.Results.nr;
@@ -96,7 +96,7 @@ classdef ctTestReactor < matlab.unittest.TestCase
             param.addParameter('U', 0.0, @(x) isnumeric(x) && isscalar(x));
             param.addParameter('A', 1.0, @(x) isnumeric(x) && isscalar(x));
 
-            parse(param, varargin{:});
+            param.parse(varargin{:});
 
             K = param.Results.K;
             U = param.Results.U;
