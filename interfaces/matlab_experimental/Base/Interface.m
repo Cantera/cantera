@@ -14,7 +14,7 @@ classdef Interface < handle & ThermoPhase & Kinetics
     %     Instance of class :mat:class:`Interface`.
 
     properties (SetAccess = immutable)
-        solnID % ID of the interface.
+        interfaceID % ID of the interface.
         interfaceName % Name of the interface.
     end
 
@@ -55,7 +55,7 @@ classdef Interface < handle & ThermoPhase & Kinetics
             % Inherit methods and properties from ThermoPhase and Kinetics
             s@ThermoPhase(ID);
             s@Kinetics(ID);
-            s.solnID = ID;
+            s.interfaceID = ID;
             s.interfaceName = name;
             s.nAdjacent = ctFunc('soln_nAdjacent', ID);
             s.adjacentNames = {};
@@ -69,10 +69,10 @@ classdef Interface < handle & ThermoPhase & Kinetics
         function delete(s)
             % Delete :mat:class:`Interface` object.
 
-            if isempty(s.solnID)
+            if isempty(s.interfaceID)
                 return
             end
-            ctFunc('soln_del', s.solnID);
+            ctFunc('soln_del', s.interfaceID);
         end
 
         %% Interface Get Methods
@@ -84,7 +84,7 @@ classdef Interface < handle & ThermoPhase & Kinetics
                 error(['No adjacent phase with name ''' name ''' found.'])
             end
             location = find(exact_match);
-            id = ctFunc('soln_adjacent', s.solnID, location-1);
+            id = ctFunc('soln_adjacent', s.interfaceID, location-1);
             adj = Solution(id);
         end
 
@@ -103,7 +103,7 @@ classdef Interface < handle & ThermoPhase & Kinetics
         end
 
         function c = get.concentrations(s)
-            surfID = s.tr_id;
+            surfID = s.tpid;
             nsp = s.nSpecies;
             xx = zeros(1, nsp);
             pt = libpointer('doublePtr', xx);
