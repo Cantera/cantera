@@ -54,28 +54,27 @@ classdef ReactorNet < handle
     methods
         %% ReactorNet Class Constructor
 
-        function n = ReactorNet(r)
+        function n = ReactorNet(reactors)
             % Create a :mat:class:`ReactorNet` object.
 
             ctIsLoaded;
 
             if nargin == 0
-                r = {};
+                reactors = {};
             end
 
-            if isa(r, 'Reactor')
+            if isa(reactors, 'Reactor')
                 % Allow simpler syntax for creating a network with one
                 % reactor.
-                r = {r};
+                reactors = {reactors};
             end
 
             n.id = ctFunc('reactornet_new');
 
             % add reactors
-            nr = length(r);
-
+            nr = length(reactors);
             for i = 1:nr
-                ctFunc('reactornet_addreactor', n.id, r{i}.id);
+                ctFunc('reactornet_addreactor', n.id, reactors{i}.id);
             end
 
             n.time = 0;
