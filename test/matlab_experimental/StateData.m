@@ -25,7 +25,7 @@ classdef StateData
             param.addParameter('relax', false, @islogical);
 
             % Parse inputs
-            parse(param, phase, T, P, varargin{:});
+            param.parse(phase, T, P, varargin{:});
             args = param.Results;
 
             % Assign properties

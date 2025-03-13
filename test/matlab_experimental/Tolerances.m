@@ -24,7 +24,7 @@ classdef Tolerances
             param.addParameter('hTs', 2e-4, @isnumeric);
 
             % Parse inputs
-            parse(param, varargin{:});
+            param.parse(varargin{:});
             args = param.Results;
 
             % Assign properties
