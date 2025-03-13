@@ -39,8 +39,8 @@ class ElectronCollisionPlasmaRate;
  *          \exp \left(-c_2 \left(\frac{\epsilon}{\epsilon_m}\right)^x \right),
  *   @f]
  * where @f$ x = 1 @f$ corresponds to a Maxwellian distribution and
- * @f$ x = 2 @f$ corresponds to a Druyvesteyn distribution (which is the
- * default). Here, @f$ \epsilon_m = \frac{3}{2} T_e @f$ [V] represents the
+ * @f$ x = 2 @f$ corresponds to a Druyvesteyn distribution.
+ * Here, @f$ \epsilon_m = \frac{3}{2} T_e @f$ [V] represents the
  * mean electron energy.
  *
  * The total probability distribution integrates to one:
@@ -364,7 +364,7 @@ protected:
     void updateElectronEnergyDistDifference();
 
     // Electron energy order in the exponential term
-    double m_isotropicShapeFactor = 2.0;
+    double m_isotropicShapeFactor = 1.0;
 
     //! Number of points of electron energy levels
     size_t m_nPoints = 1001;
