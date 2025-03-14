@@ -83,10 +83,10 @@ void PlasmaPhase::setIsotropicElectronEnergyDistribution()
 {
     m_electronEnergyDist.resize(m_nPoints);
     double x = m_isotropicShapeFactor;
-    double gamma1 = boost::math::tgamma(3.0 / 2.0 * x);
-    double gamma2 = boost::math::tgamma(5.0 / 2.0 * x);
+    double gamma1 = boost::math::tgamma(3.0 / 2.0 / x);
+    double gamma2 = boost::math::tgamma(5.0 / 2.0 / x);
     double c1 = x * std::pow(gamma2, 1.5) / std::pow(gamma1, 2.5);
-    double c2 = x * std::pow(gamma2 / gamma1, x);
+    double c2 = std::pow(gamma2 / gamma1, x);
     m_electronEnergyDist =
         c1  / std::pow(meanElectronEnergy(), 1.5) *
         (-c2 * (m_electronEnergyLevels /
