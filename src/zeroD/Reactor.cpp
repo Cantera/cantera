@@ -128,6 +128,12 @@ size_t Reactor::nSensParams() const
 void Reactor::syncState()
 {
     ReactorBase::syncState();
+    if (m_energy) {
+        // sync of the thermal properties below is enabled only
+        // if the energy equation is solved.
+        m_enthalpy = m_thermo->enthalpy_mass();
+        m_intEnergy = m_thermo->intEnergy_mass();
+    }
     m_mass = m_thermo->density() * m_vol;
 }
 

@@ -1140,9 +1140,23 @@ class TestMoleReactor(TestReactor):
     def test_tolerances(self, rtol_lim=1e-8, atol_lim=1e-18):
         super().test_tolerances(rtol_lim, atol_lim)
 
+class TestIdealGasMoleReactor(TestReactor):
+    reactorClass = ct.IdealGasMoleReactor
+
+    def test_plasma_reactor(self):
+        plasma = ct.Solution('oxygen-plasma.yaml', transport_model=None)
+        # Use PlasmaPhase for this reactor should throw the error below
+        with pytest.raises(ct.CanteraError, match="Incompatible phase type provided"):
+            self.reactorClass(plasma, energy='off')
+
 class TestIdealGasReactor(TestReactor):
     reactorClass = ct.IdealGasReactor
 
+    def test_plasma_reactor(self):
+        plasma = ct.Solution('oxygen-plasma.yaml', transport_model=None)
+        # Use PlasmaPhase for this reactor should throw the error below
+        with pytest.raises(ct.CanteraError, match="Incompatible phase type provided"):
+            self.reactorClass(plasma, energy='off')
 
 class TestWellStirredReactorIgnition:
     """ Ignition (or not) of a well-stirred reactor """
