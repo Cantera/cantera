@@ -43,69 +43,53 @@ classdef ctTestReactor < matlab.unittest.TestCase
 
     methods
 
-        function makeReactors(self, varargin)
-            param = inputParser;
-
-            param.addParameter('independent', true, ...
-                               @(x) islogical(x) || (isnumeric(x) && isscalar(x)));
-            param.addParameter('nr', 2, @(x) (isnumeric(x) && isscalar(x)));
-            param.addParameter('T1', 300, @(x) isnumeric(x) && isscalar(x));
-            param.addParameter('P1', 101325, @(x) isnumeric(x) && isscalar(x));
-            param.addParameter('X1', 'O2:1.0', @(x) ischar(x));
-            param.addParameter('T2', 300, @(x) isnumeric(x) && isscalar(x));
-            param.addParameter('P2', 101325, @(x) isnumeric(x) && isscalar(x));
-            param.addParameter('X2', 'O2:1.0', @(x) ischar(x));
-
-            param.parse(varargin{:});
-
-            independent = param.Results.independent;
-            nr = param.Results.nr;
-            T1 = param.Results.T1;
-            P1 = param.Results.P1;
-            X1 = param.Results.X1;
-            T2 = param.Results.T2;
-            P2 = param.Results.P2;
-            X2 = param.Results.X2;
+        function makeReactors(self, arg)
+            arguments
+                self
+                arg.independent (1,1) logical = true
+                arg.nr (1,1) double {mustBeInteger} = 2
+                arg.T1 (1,1) double {mustBeNumeric} = 300
+                arg.P1 (1,1) double {mustBeNumeric} = 101325
+                arg.X1 (1,:) char = 'O2:1.0';
+                arg.T2 (1,1) double {mustBeNumeric} = 300
+                arg.P2 (1,1) double {mustBeNumeric} = 101325
+                arg.X2 (1,:) char = 'O2:1.0';
+            end
 
             self.net = ReactorNet();
             self.verifyEqual(self.net.time, 0, 'AbsTol', self.atol);
 
             self.gas1 = Solution('h2o2.yaml', '', 'none');
-            self.gas1.TPX = {T1, P1, X1};
+            self.gas1.TPX = {arg.T1, arg.P1, arg.X1};
             self.r1 = Reactor(self.gas1);
             self.net.addReactor(self.r1);
 
-            if independent
+            if arg.independent
                 self.gas2 = Solution('h2o2.yaml', '', 'none');
             else
                 self.gas2 = self.gas1;
             end
 
-            if nr >= 2
-                self.gas2.TPX = {T2, P2, X2};
+            if arg.nr >= 2
+                self.gas2.TPX = {arg.T2, arg.P2, arg.X2};
                 self.r2 = Reactor(self.gas2);
                 self.r2.energy = 'on';
                 self.net.addReactor(self.r2);
             end
         end
 
-        function addWall(self, varargin)
-            param = inputParser;
-
-            param.addParameter('K', 0.0, @(x) isnumeric(x) && isscalar(x));
-            param.addParameter('U', 0.0, @(x) isnumeric(x) && isscalar(x));
-            param.addParameter('A', 1.0, @(x) isnumeric(x) && isscalar(x));
-
-            param.parse(varargin{:});
-
-            K = param.Results.K;
-            U = param.Results.U;
-            A = param.Results.A;
+        function addWall(self, arg)
+            arguments
+                self
+                arg.K (1,1) double {mustBeNumeric} = 0.0
+                arg.U (1,1) double {mustBeNumeric} = 0.0
+                arg.A (1,1) double {mustBeNumeric} = 1.0
+            end
 
             self.w = Wall(self.r1, self.r2);
-            self.w.area = A;
-            self.w.expansionRateCoeff = K;
-            self.w.heatTransferCoeff = U;
+            self.w.area = arg.A;
+            self.w.expansionRateCoeff = arg.K;
+            self.w.heatTransferCoeff = arg.U;
         end
 
     end
