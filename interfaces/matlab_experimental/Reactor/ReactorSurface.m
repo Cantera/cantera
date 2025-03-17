@@ -44,6 +44,17 @@ classdef ReactorSurface < Reactor
             ctFunc('reactorsurface_install', s.id, reactor.id);
         end
 
+        function install(s, r)
+            % Install this :mat:class:`ReactorSurface` onto specified
+            % :mat:class:`Reactor`. ::
+            %
+            %     >> s.install(r)
+            %
+            % :param r:
+            %    Instance of :mat:class:`Reactor`
+            ctFunc('reactorsurface_install', s.surfID, r.id);
+        end
+
         %% ReactorSurface Get Methods
 
         function a = get.area(s)
