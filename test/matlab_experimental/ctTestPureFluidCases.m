@@ -205,7 +205,6 @@ classdef ctTestPureFluidCases < matlab.unittest.TestCase
                            StateData('super', 600.0, 20.0, ...
                            'V', 0.00554, 'H', 681.94, 'S', 1.8366)
                           ];
-
             self.states = self.states';
             self.refState = StateData('critical', 304.21, 7.3834, ...
                                       'D', 464.0, 'H', 257.31, 'S', 0.9312);

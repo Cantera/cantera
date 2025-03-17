@@ -12,29 +12,25 @@ classdef Tolerances
 
     methods
 
-        function t = Tolerances(varargin)
-            % Set up input parser
-            param = inputParser;
-            param.addParameter('P', 2e-5, @isnumeric);
-            param.addParameter('U', 2e-6, @isnumeric);
-            param.addParameter('S', 2e-6, @isnumeric);
-            param.addParameter('dUdS', 2e-6, @isnumeric);
-            param.addParameter('dAdV', 2e-6, @isnumeric);
-            param.addParameter('dPdT', 2e-4, @isnumeric);
-            param.addParameter('hTs', 2e-4, @isnumeric);
-
-            % Parse inputs
-            param.parse(varargin{:});
-            args = param.Results;
+        function t = Tolerances(arg)
+            arguments
+                arg.P (1,1) double {mustBeNumeric} = 2e-5
+                arg.U (1,1) double {mustBeNumeric} = 2e-6
+                arg.S (1,1) double {mustBeNumeric} = 2e-6
+                arg.dUdS (1,1) double {mustBeNumeric} = 2e-6
+                arg.dAdV (1,1) double {mustBeNumeric} = 2e-6
+                arg.dPdT (1,1) double {mustBeNumeric} = 2e-4
+                arg.hTs (1,1) double {mustBeNumeric} = 2e-4
+            end
 
             % Assign properties
-            t.P = args.P;
-            t.U = args.U;
-            t.S = args.S;
-            t.dUdS = args.dUdS;
-            t.dAdV = args.dAdV;
-            t.dPdT = args.dPdT;
-            t.hTs = args.hTs;
+            t.P = arg.P;
+            t.U = arg.U;
+            t.S = arg.S;
+            t.dUdS = arg.dUdS;
+            t.dAdV = arg.dAdV;
+            t.dPdT = arg.dPdT;
+            t.hTs = arg.hTs;
         end
 
     end
