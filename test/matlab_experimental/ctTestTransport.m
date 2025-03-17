@@ -4,7 +4,7 @@ classdef ctTestTransport < matlab.unittest.TestCase
         phase
     end
 
-    properties (SetAccess = immutable)
+    properties (SetAccess = protected)
         rtol_min = 1e-8;
         rtol_max = 1e-2;
         atol = 1e-8;
@@ -38,11 +38,16 @@ classdef ctTestTransport < matlab.unittest.TestCase
 
     end
 
-
     methods (TestMethodTeardown)
 
-        function deleteSolution(self)
-            clear self.phase;
+        function deleteObjects(self)
+            props = properties(self);
+            for i = 1:length(props)
+                prop = self.(props{i});
+                if isa(prop, 'handle')
+                    delete(prop)
+                end
+            end
         end
 
     end

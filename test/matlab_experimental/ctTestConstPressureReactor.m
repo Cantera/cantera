@@ -38,10 +38,13 @@ classdef ctTestConstPressureReactor < matlab.unittest.TestCase
 
     methods (TestMethodTeardown)
 
-        function deleteSolution(self)
+        function deleteObjects(self)
             props = properties(self);
             for i = 1:length(props)
-                clear self.(props{i})
+                prop = self.(props{i});
+                if isa(prop, 'handle')
+                    delete(prop)
+                end
             end
         end
 
@@ -49,12 +52,12 @@ classdef ctTestConstPressureReactor < matlab.unittest.TestCase
 
     methods
 
-        function makeReactors(self, options)
+        function makeReactors(self, arg)
             arguments
                 self
-                options.addQ (1,1) logical = false
-                options.addMdot (1,1) logical = false
-                options.addSurf (1,1) logical = false
+                arg.addQ (1,1) logical = false
+                arg.addMdot (1,1) logical = false
+                arg.addSurf (1,1) logical = false
             end
 
             self.gas = Solution('testConstPressureReactor.yaml');
@@ -82,16 +85,16 @@ classdef ctTestConstPressureReactor < matlab.unittest.TestCase
             self.resGas.TP = {T0 - 300, P0};
             self.env = Reservoir(self.resGas);
 
-            U = 300 * options.addQ;
+            U = 300 * arg.addQ;
 
-            if options.addMdot
+            if arg.addMdot
                 self.mfc1 = MassFlowController(self.env, self.r1);
                 self.mfc1.massFlowRate = 0.05;
                 self.mfc2 = MassFlowController(self.env, self.r2);
                 self.mfc2.massFlowRate = 0.05;
             end
 
-            if options.addSurf
+            if arg.addSurf
                 self.interface1 = Interface('diamond.yaml', 'diamond_100', ...
                                             self.gas1, self.solid);
                 self.interface2 = Interface('diamond.yaml', 'diamond_100', ...
@@ -117,10 +120,10 @@ classdef ctTestConstPressureReactor < matlab.unittest.TestCase
             % self.net2.maxErrTestFails = 10;
         end
 
-        function integrate(self, options)
+        function integrate(self, arg)
             arguments
                 self
-                options.surf (1,1) logical = false
+                arg.surf (1,1) logical = false
             end
 
             for t = 0.5:1.0:50
@@ -131,7 +134,7 @@ classdef ctTestConstPressureReactor < matlab.unittest.TestCase
                 self.verifyEqual(self.r1.T, self.r2.T, 'RelTol', 5e-5);
                 self.verifyEqual(self.r1.P, self.r2.P, 'RelTol', 1e-6);
 
-                if options.surf
+                if arg.surf
                     self.verifyEqual(self.interface1.coverages, ...
                                      self.interface2.coverages, ...
                                      'RelTol', 1e-4, 'AbsTol', 1e-8);
