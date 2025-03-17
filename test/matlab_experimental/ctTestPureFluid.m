@@ -4,7 +4,7 @@ classdef ctTestPureFluid < matlab.unittest.TestCase
         fluid
     end
 
-    properties (SetAccess = immutable)
+    properties (SetAccess = protected)
         rtol = 1e-6;
         atol = 1e-8;
     end
@@ -36,8 +36,14 @@ classdef ctTestPureFluid < matlab.unittest.TestCase
 
     methods (TestMethodTeardown)
 
-        function deleteSolution(self)
-            clear self.fluid;
+        function deleteObjects(self)
+            props = properties(self);
+            for i = 1:length(props)
+                prop = self.(props{i});
+                if isa(prop, 'handle')
+                    delete(prop)
+                end
+            end
         end
 
     end
