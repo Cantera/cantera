@@ -12,45 +12,42 @@ classdef StateData
 
     methods
 
-        function statedata = StateData(phase, T, P, varargin)
-            param = inputParser;
-            param.addRequired('phase', @ischar);
-            param.addRequired('T', @isnumeric);
-            param.addRequired('P', @isnumeric);
-            param.addParameter('D', [], @isnumeric);
-            param.addParameter('V', [], @isnumeric);
-            param.addParameter('U', [], @isnumeric);
-            param.addParameter('H', [], @isnumeric);
-            param.addParameter('S', [], @isnumeric);
-            param.addParameter('relax', false, @islogical);
-
-            % Parse inputs
-            param.parse(phase, T, P, varargin{:});
-            args = param.Results;
+        function statedata = StateData(phase, T, P, arg)
+            arguments
+                phase char
+                T double
+                P double
+                arg.relax (1,1) logical = false
+                arg.D (1,1) double {mustBeNumeric} = NaN
+                arg.V (1,1) double {mustBeNumeric} = NaN
+                arg.U (1,1) double {mustBeNumeric} = NaN
+                arg.H (1,1) double {mustBeNumeric} = NaN
+                arg.S (1,1) double {mustBeNumeric} = NaN
+            end
 
             % Assign properties
-            statedata.phase = args.phase;
-            statedata.T = args.T;
-            statedata.P = args.P * 1e6;
+            statedata.phase = phase;
+            statedata.T = T;
+            statedata.P = P * 1e6;
 
-            if ~isempty(args.D)
-                statedata.D = args.D;
-            elseif ~isempty(args.V)
-                statedata.D = 1.0 / args.V;
+            if ~isnan(arg.D)
+                statedata.D = arg.D;
+            elseif ~isnan(arg.V)
+                statedata.D = 1.0 / arg.V;
             else
                 statedata.D = NaN;
             end
 
-            if ~isempty(args.U)
-                statedata.U = 1e3 * args.U;
-            elseif ~isempty(args.H)
-                statedata.U = 1e3 * args.H - statedata.P / statedata.D;
+            if ~isnan(arg.U)
+                statedata.U = 1e3 * arg.U;
+            elseif ~isnan(arg.H)
+                statedata.U = 1e3 * arg.H - statedata.P / statedata.D;
             else
                 statedata.U = NaN;
             end
 
-            statedata.S = 1e3 * args.S;
-            statedata.tolMod = args.relax * 10.0 + ~args.relax * 1.0;
+            statedata.S = 1e3 * arg.S;
+            statedata.tolMod = arg.relax * 10.0 + ~arg.relax * 1.0;
         end
 
     end
