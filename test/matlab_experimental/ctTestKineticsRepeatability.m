@@ -6,7 +6,7 @@ classdef ctTestKineticsRepeatability < matlab.unittest.TestCase
         X1
     end
 
-    properties (SetAccess = immutable)
+    properties (SetAccess = protected)
         T0 = 1200;
         T1 = 1300;
         rho0 = 2.4;
@@ -39,8 +39,14 @@ classdef ctTestKineticsRepeatability < matlab.unittest.TestCase
 
     methods (TestMethodTeardown)
 
-        function deleteSolution(self)
-            clear self.phase;
+        function deleteObjects(self)
+            props = properties(self);
+            for i = 1:length(props)
+                prop = self.(props{i});
+                if isa(prop, 'handle')
+                    delete(prop)
+                end
+            end
         end
 
     end

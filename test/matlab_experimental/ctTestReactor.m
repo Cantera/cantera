@@ -9,7 +9,7 @@ classdef ctTestReactor < matlab.unittest.TestCase
         w
     end
 
-    properties (SetAccess = immutable)
+    properties (SetAccess = protected)
         rtol = 1e-6;
         atol = 1e-8;
     end
@@ -35,8 +35,15 @@ classdef ctTestReactor < matlab.unittest.TestCase
 
     methods (TestMethodTeardown)
 
-        function deleteVariable(self)
-            clear self.gas1 self.gas2 self.r1 self.r2 self.net self.w
+
+        function deleteObjects(self)
+            props = properties(self);
+            for i = 1:length(props)
+                prop = self.(props{i});
+                if isa(prop, 'handle')
+                    delete(prop)
+                end
+            end
         end
 
     end
