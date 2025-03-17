@@ -1,6 +1,6 @@
 classdef ctTestFunc1 < matlab.unittest.TestCase
 
-    properties (SetAccess = immutable)
+    properties (SetAccess = protected)
         rtol = 1e-6;
         atol = 1e-8;
     end
@@ -18,6 +18,20 @@ classdef ctTestFunc1 < matlab.unittest.TestCase
         function testTearDown(self)
             ctCleanUp
             ctTestTearDown
+        end
+
+    end
+
+    methods (TestMethodTeardown)
+
+        function deleteObjects(self)
+            props = properties(self);
+            for i = 1:length(props)
+                prop = self.(props{i});
+                if isa(prop, 'handle')
+                    delete(prop)
+                end
+            end
         end
 
     end
