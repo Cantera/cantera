@@ -434,7 +434,7 @@ classdef ctTestReactor < matlab.unittest.TestCase
             self.makeReactors();
 
             try
-                self.r1.foobar = 3.14
+                self.r1.foobar = 3.14;
             catch ME
                 self.verifySubstring(ME.identifier, 'MATLAB:');
                 self.verifySubstring(ME.message, 'Unrecognized property');

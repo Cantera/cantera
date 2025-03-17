@@ -1,0 +1,10 @@
+phases:
+- name: gas
+  species:
+  - gri30.yaml/species: [H2, H, O, O2, OH, H2O, HO2, H2O2, CH2, CH2(S), CH3,
+      CH4, CO, CO2, HCO, CH2O, CH2OH, CH3O, CH3OH, C2H4, C2H5, C2H6, N2, AR]
+  thermo: ideal-gas
+  kinetics: gas
+  reactions:
+  - gri30.yaml/reactions: declared-species
+  skip-undeclared-third-bodies: true
