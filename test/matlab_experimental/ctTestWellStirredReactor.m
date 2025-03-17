@@ -39,7 +39,7 @@ classdef ctTestWellStirredReactor < matlab.unittest.TestCase
     methods
 
         function makeReactors(self, T0, P0, mdot_fuel, mdot_ox)
-            self.gas = Solution('testReactor.yaml');
+            self.gas = Solution('testWellStirredReactor.yaml');
 
             % fuel inlet
             self.gas.TPX = {T0, P0, 'CH4:1.0'};
