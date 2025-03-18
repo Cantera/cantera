@@ -27,7 +27,7 @@ classdef ConstPressureReactor < Reactor
             % Constructor
 
             if nargin < 2
-                name = '(none)'
+                name = '(none)';
             end
 
             r@Reactor(contents, 'ConstPressureReactor', name);
