@@ -25,7 +25,7 @@ classdef FlowReactor < Reactor
             % Constructor
 
             if nargin < 2
-                name = '(none)'
+                name = '(none)';
             end
 
             r@Reactor(contents, 'FlowReactor', name);
