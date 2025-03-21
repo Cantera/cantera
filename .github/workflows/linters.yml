@@ -25,7 +25,7 @@ jobs:
       - name: Get changed C++ files
         if: success() || failure()
         id: changed-cxx-files
-        uses: tj-actions/changed-files@v41
+        uses: tj-actions/changed-files@v46
         with:
           files: |
             **.h
