@@ -134,7 +134,7 @@ jobs:
     - name: Save the wheel file to install Cantera
       uses: actions/upload-artifact@v4
       with:
-        path: build/python/dist/Cantera*.whl
+        path: build/python/dist/cantera*.whl
         retention-days: 2
         name: cantera-wheel-${{ matrix.python-version }}-${{ matrix.os }}
         if-no-files-found: error
@@ -869,8 +869,8 @@ jobs:
     - name: Upload Wheel
       uses: actions/upload-artifact@v4
       with:
-        path: build\python\dist\Cantera*.whl
-        name: Cantera-win_amd64.whl
+        path: build\python\dist\cantera*.whl
+        name: cantera-win_amd64.whl
         retention-days: 2
     - name: Build Tests
       run: scons -j4 build-tests --debug=time
