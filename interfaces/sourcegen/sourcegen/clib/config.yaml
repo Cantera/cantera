@@ -42,7 +42,10 @@ includes:
   Func1:
   - cantera/numerics/Func1Factory.h
   Domain1D:
-  - cantera/OneD/DomainFactory.h
-  - cantera/OneD/Boundary1D.h
+  - cantera/oneD/DomainFactory.h
+  Flow1D:
+  - cantera/oneD/Flow1D.h
+  Boundary1D:
+  - cantera/oneD/Boundary1D.h
   Sim1D:
-  - cantera/OneD/Sim1D.h
+  - cantera/oneD/Sim1D.h
