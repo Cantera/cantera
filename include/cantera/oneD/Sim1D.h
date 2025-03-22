@@ -397,5 +397,15 @@ private:
     int newtonSolve(int loglevel);
 };
 
+/**
+ * Create a Sim1D object with a list of domains.
+ * @param domains  A vector of shared pointers to the domains to be linked together.
+ *     The domain pointers must be entered in left-to-right order --- that is,
+ *     the pointer to the leftmost domain is domain[0], the pointer to the
+ *     domain to its right is domain[1], etc.
+ * @since New in %Cantera 3.2.
+ */
+shared_ptr<Sim1D> newSim1D(vector<shared_ptr<Domain1D>>& domains);
+
 }
 #endif
