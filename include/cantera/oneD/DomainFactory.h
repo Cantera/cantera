@@ -12,6 +12,9 @@
 namespace Cantera
 {
 
+class Flow1D;
+class Boundary1D;
+
 //! Factory class to create domain objects
 //!
 //! This class is mainly used via the newDomain() function, for example:
@@ -66,6 +69,26 @@ shared_ptr<T> newDomain(
     }
     return ret;
 }
+
+//! Create a Boundary1D object of the specified type.
+//! @param domainType  string identifying domain type.
+//! @param solution  Solution holding ThermoPhase, Kinetics and Transport objects.
+//! @param id  string identifier describing domain. If omitted, id defaults to the
+//!     domain type identifier.
+//! @since New in %Cantera 3.2.
+//! @ingroup onedGroup
+shared_ptr<Boundary1D> newBoundary1D(
+    const string& domainType, shared_ptr<Solution> solution, const string& id="");
+
+//! Create a Flow1D object of the specified type.
+//! @param domainType  string identifying domain type.
+//! @param solution  Solution holding ThermoPhase, Kinetics and Transport objects.
+//! @param id  string identifier describing domain. If omitted, id defaults to the
+//!     domain type identifier.
+//! @since New in %Cantera 3.2.
+//! @ingroup onedGroup
+shared_ptr<Flow1D> newFlow1D(
+    const string& domainType, shared_ptr<Solution> solution, const string& id="");
 
 }
 
