@@ -4,28 +4,33 @@
 docstring: |-
   Auto-generated CLib API for %Cantera's Sim1D class.
   Partially implements a replacement for CLib's traditional @c ctonedim library.
-prefix: sim3
+prefix: sim1D3
 base: Sim1D
+parents: [OneDim]  # List of parent classes
 recipes:
-- name: new
+- name: newSim1D
+  uses: [domain]
 - name: setValue
 - name: setProfile
 - name: setFlatProfile
+- name: setInitialGuess  # New in Cantera 3.2
 - name: show
-# - name: setTimeStep
+- name: setTimeStep
 - name: getInitialSoln
 - name: solve
 - name: refine
 - name: setRefineCriteria
 - name: setGridMin
 - name: save
+  implements: save(const string&, const string&, const string&)
 # - name: restore
-# - name: writeStats
-# - name: domainIndex
+- name: writeStats
+- name: domainIndex
 - name: value
 - name: workValue
-# - name: eval
-# - name: setMaxJacAge
+- name: eval
+- name: setMaxJacAge
+  implements: setJacAge
 - name: setFixedTemperature
 - name: del
 - name: cabinetSize
