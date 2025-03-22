@@ -7,13 +7,13 @@ docstring: |-
 prefix: domain3
 base: Domain1D
 parents: []  # List of parent classes
-derived:  # Dictionary of specialization/prefix
-  Boundary1D: bdry1D3
+derived:  # Specialization/prefix dictionary
+  Boundary1D: bdry3
   ReactingSurf1D: reactingsurf3
-  Flow1D: flow1D3
+  Flow1D: flow3
 recipes:
-# - name: newDomain
-- name: new
+- name: newFlow1D
+- name: newBoundary1D
 - name: type
 - name: index
 - name: nComponents
@@ -27,9 +27,11 @@ recipes:
 - name: setTransientTolerances
 - name: rtol
 - name: atol
-- name: setupGrid
+- name: setupGrid  # Changed in Cantera 3.2
+  implements: setupGrid(const vector<double>&)
+- name: setupUniformGrid  # New in Cantera 3.2
 - name: setID
-# - name: grid
+- name: grid
 - name: setMdot
 - name: setTemperature
 - name: setSpreadRate
@@ -43,7 +45,7 @@ recipes:
 - name: enableSoret
 - name: setPressure
 - name: pressure
-# - name: setFixedTempProfile
+- name: setFixedTempProfile
 - name: solveEnergyEqn
 - name: enableCoverageEqs
   implements: enableCoverageEquations

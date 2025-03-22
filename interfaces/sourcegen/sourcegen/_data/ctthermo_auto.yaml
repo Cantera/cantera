@@ -130,8 +130,8 @@ recipes:
 - name: setState_Tsat
 - name: getCoverages
 - name: setCoverages
-- name: getConcentrations
-- name: setConcentrations
+- name: getConcentrations  # previously: used 'surf' prefix'
+- name: setConcentrations  # previously: used 'surf' prefix'
 - name: siteDensity
 - name: setSiteDensity
 - name: setCoveragesByName
