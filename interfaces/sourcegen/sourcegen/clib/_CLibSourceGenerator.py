@@ -244,10 +244,10 @@ class CLibSourceGenerator(SourceGenerator):
                 cxx_arg = cxx_func.arglist[cxx_ix]
             if c_name != cxx_arg.name:
                 # Encountered object handle or length indicator
-                if c_ix == 0:
-                    handle = c_name
-                elif c_name.endswith("Len"):
+                if c_name.endswith("Len"):
                     check_array = True
+                elif c_ix == 0:
+                    handle = c_name
                 else:
                     msg = (f"Scaffolding failed for {c_func.name!r}: "
                            f"unexpected behavior for {c_name!r}.")
@@ -260,12 +260,14 @@ class CLibSourceGenerator(SourceGenerator):
                 # Need to handle cross-walked parameter with length information
                 c_prev = c_args[c_ix-1].name
                 if "vector<shared_ptr" in cxx_type:
-                    # Example: vector<shared_ptr<Solution>>
+                    # Example: vector<shared_ptr<Domain1D>>
                     cxx_type = cxx_type.lstrip("const ").rstrip("&")
+                    cxx_base = cxx_type.rstrip(">").split("<")[-1]
+                    bases |= {cxx_base}
                     lines.extend([
                         f"{cxx_type} {c_name}_;",
                         f"for (int i = 0; i < {c_prev}; i++) {{",
-                        f"    {c_name}_.push_back({base}Cabinet::at({c_name}[i]));",
+                        f"    {c_name}_.push_back({cxx_base}Cabinet::at({c_name}[i]));",
                         "}",
                     ])
                     args.append(f"{c_name}_")
@@ -517,7 +519,8 @@ class CLibSourceGenerator(SourceGenerator):
             cxx_arglen = len(cxx_member.arglist)
             if not cxx_member.base:
                 if (cxx_member.name.startswith("new") and
-                    any(base in cxx_member.ret_type for base in recipe.bases)):
+                    any(base in cxx_member.ret_type
+                        for base in [recipe.base] + list(recipe.derived.keys()))):
                     recipe.what = "constructor"
                 else:
                     recipe.what = "function"
