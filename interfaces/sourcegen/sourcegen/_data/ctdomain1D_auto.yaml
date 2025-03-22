@@ -1,0 +1,52 @@
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at https://cantera.org/license.txt for license and copyright information.
+
+docstring: |-
+  Auto-generated CLib API for %Cantera's Domain1D class.
+  Partially implements a replacement for CLib's traditional @c ctonedim library.
+prefix: domain3
+base: Domain1D
+parents: []  # List of parent classes
+derived:  # Dictionary of specialization/prefix
+  Boundary1D: bdry1D3
+  ReactingSurf1D: reactingsurf3
+  Flow1D: flow1D3
+recipes:
+# - name: newDomain
+- name: new
+- name: type
+- name: index
+- name: nComponents
+- name: nPoints
+- name: componentName
+- name: componentIndex
+- name: setBounds
+- name: lowerBound
+- name: upperBound
+- name: setSteadyTolerances
+- name: setTransientTolerances
+- name: rtol
+- name: atol
+- name: setupGrid
+- name: setID
+# - name: grid
+- name: setMdot
+- name: setTemperature
+- name: setSpreadRate
+- name: setMoleFractions
+  implements: setMoleFractions(const string&)
+- name: mdot
+- name: temperature
+- name: spreadRate
+- name: massFraction
+- name: setTransport
+- name: enableSoret
+- name: setPressure
+- name: pressure
+# - name: setFixedTempProfile
+- name: solveEnergyEqn
+- name: enableCoverageEqs
+  implements: enableCoverageEquations
+- name: del
+- name: cabinetSize
+- name: parentHandle
