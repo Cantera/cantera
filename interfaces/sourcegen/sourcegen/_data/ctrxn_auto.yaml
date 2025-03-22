@@ -7,7 +7,7 @@ docstring: |-
 prefix: rxn3
 base: Reaction
 parents: []  # List of parent classes
-derived: []  # List of specializations
+derived: {}  # Dictionary of specialization/prefix
 recipes:
 - name: new
 - name: equation  # previously: ctkin_getReactionString

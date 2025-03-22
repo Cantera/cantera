@@ -7,7 +7,7 @@ docstring: |-
 prefix: rdiag3
 base: ReactionPathDiagram
 parents: []  # List of parent classes
-derived: []  # List of specializations
+derived: {}  # Dictionary of specialization/prefix
 recipes:
 - name: newReactionPathDiagram  # absorbs rbuild_init
 - name: showDetails

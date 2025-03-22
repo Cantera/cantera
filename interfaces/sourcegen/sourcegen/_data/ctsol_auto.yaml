@@ -7,7 +7,7 @@ docstring: |-
 prefix: sol3
 base: Solution
 parents: []  # List of parent classes
-derived: [Interface]  # List of specializations
+derived: {Interface: sol3}  # Dictionary of specialization/prefix
 recipes:
 - name: newSolution
   implements: newSolution(const string&, const string&, const string&)
