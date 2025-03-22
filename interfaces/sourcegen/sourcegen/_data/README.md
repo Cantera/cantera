@@ -15,7 +15,8 @@ built around a specific Cantera class. The following fields are supported:
 - `base`: Base class of the CLib library; examples: `Solution`, `ThermoPhase`.
     Stand-alone functions defined in the `Cantera` namespace use `""` as a base.
 - `parents`: List of class parents; used to locate C++ methods (default: `[]`).
-- `derived`: List of derived classes; used to locate C++ methods (default: `[]`).
+- `derived`: Dictionary of derived classes and alternative prefixes. Used to locate C++
+    methods and to better differentiate CLib method names (default: `{}`).
 - `recipes`: List of CLib *recipes* (see below).
 
 The *sourcegen* utility implements logic to automatically detect CLib functions types

@@ -64,7 +64,7 @@ class HeaderFileParser:
         prefix = config["prefix"]
         base = config["base"]
         parents = config.get("parents", [])
-        derived = config.get("derived", [])
+        derived = config.get("derived", {})
         for recipe in config["recipes"]:
             if recipe["name"] in self._ignore_funcs:
                 continue
