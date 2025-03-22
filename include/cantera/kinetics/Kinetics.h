@@ -13,6 +13,7 @@
 
 #include "StoichManager.h"
 #include "cantera/base/ValueCache.h"
+#include "MultiRate.h"
 
 namespace Cantera
 {
@@ -1203,7 +1204,7 @@ public:
      * @param i   reaction index
      */
     virtual bool isReversible(size_t i) {
-        throw NotImplementedError("Kinetics::isReversible");
+        return std::find(m_revindex.begin(), m_revindex.end(), i) < m_revindex.end();
     }
 
     /**
@@ -1446,6 +1447,10 @@ protected:
      */
     double checkDuplicateStoich(map<int, double>& r1, map<int, double>& r2) const;
 
+    //! Vector of rate handlers
+    vector<unique_ptr<MultiRateBase>> m_rateHandlers;
+    map<string, size_t> m_rateTypes; //!< Mapping of rate handlers
+
     //! @name Stoichiometry management
     //!
     //! These objects and functions handle turning reaction extents into species
@@ -1526,6 +1531,9 @@ protected:
 
     //! Net rate-of-progress for each reaction
     vector<double> m_ropnet;
+
+    vector<size_t> m_revindex; //!< Indices of reversible reactions
+    vector<size_t> m_irrev; //!< Indices of irreversible reactions
 
     //! The enthalpy change for each reaction to calculate Blowers-Masel rates
     vector<double> m_dH;
