@@ -597,7 +597,8 @@ class CLibSourceGenerator(SourceGenerator):
         preamble = self._config.preambles.get(headers.base)
 
         guard = f"__{filename.name.upper().replace('.', '_')}__"
-        template = loader.from_string(self._templates["clib-header-file"])
+        t_file = Path(__file__).parent / "header_template.h.in"
+        template = loader.from_string(t_file.read_text())
         output = template.render(
             name=filename.stem, guard=guard, preamble=preamble, prefix=headers.prefix,
             declarations=declarations, base=headers.base, docstring=headers.docstring)
@@ -637,7 +638,8 @@ class CLibSourceGenerator(SourceGenerator):
         for obj in [headers.base] + list(other):
             includes += self._config.includes[obj]
 
-        template = loader.from_string(self._templates["clib-source-file"])
+        t_file = Path(__file__).parent / "source_template.cpp.in"
+        template = loader.from_string(t_file.read_text())
         output = template.render(
             name=filename.stem, implementations=implementations,
             prefix=headers.prefix, base=headers.base, docstring=headers.docstring,
