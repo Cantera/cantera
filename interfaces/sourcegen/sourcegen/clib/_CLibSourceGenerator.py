@@ -471,10 +471,16 @@ class CLibSourceGenerator(SourceGenerator):
         brief = ""
 
         if recipe.implements:
-            msg = f"   generating {func_name!r} -> {recipe.implements}"
-            _LOGGER.debug(msg)
             cxx_member = self._doxygen_tags.cxx_member(
                 recipe.implements, recipe.what.endswith("setter"))
+
+            if cxx_member.base in recipe.derived:
+                # Use alternative prefix for class specialization
+                recipe.prefix = recipe.derived.get(cxx_member.base, recipe.prefix)
+                func_name = f"{recipe.prefix}_{recipe.name}"
+
+            msg = f"   generating {func_name!r} -> {recipe.implements}"
+            _LOGGER.debug(msg)
 
             if isinstance(cxx_member, CFunc):
                 # Convert C++ return type to format suitable for crosswalk:
