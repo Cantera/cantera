@@ -1,0 +1,32 @@
+# This file is part of Cantera. See License.txt in the top-level directory or
+# at https://cantera.org/license.txt for license and copyright information.
+
+docstring: |-
+  Auto-generated CLib API for %Cantera's Sim1D class.
+  Partially implements a replacement for CLib's traditional @c ctonedim library.
+prefix: sim3
+base: Sim1D
+recipes:
+- name: new
+- name: setValue
+- name: setProfile
+- name: setFlatProfile
+- name: show
+# - name: setTimeStep
+- name: getInitialSoln
+- name: solve
+- name: refine
+- name: setRefineCriteria
+- name: setGridMin
+- name: save
+# - name: restore
+# - name: writeStats
+# - name: domainIndex
+- name: value
+- name: workValue
+# - name: eval
+# - name: setMaxJacAge
+- name: setFixedTemperature
+- name: del
+- name: cabinetSize
+- name: parentHandle

@@ -44,3 +44,5 @@ includes:
   Domain1D:
   - cantera/OneD/DomainFactory.h
   - cantera/OneD/Boundary1D.h
+  Sim1D:
+  - cantera/OneD/Sim1D.h
