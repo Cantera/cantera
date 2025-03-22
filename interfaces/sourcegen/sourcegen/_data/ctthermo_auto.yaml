@@ -8,7 +8,7 @@ docstring: |-
 prefix: thermo3
 base: ThermoPhase
 parents: [Phase]  # List of parent classes
-derived: [SurfPhase]  # List of specializations
+derived: {SurfPhase: thermo3}  # Dictionary of specialization/prefix
 recipes:
 - name: report
 - name: getName

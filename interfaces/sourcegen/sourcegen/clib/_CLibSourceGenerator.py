@@ -59,10 +59,11 @@ class CLibSourceGenerator(SourceGenerator):
             relates=[f"{uu.base}::{uu.name}()" for uu in c_func.uses])
         return self._javadoc_comment(block)
 
-    def _handle_crosswalk(self, what: str, crosswalk: dict, derived: list[str]) -> str:
+    def _handle_crosswalk(
+            self, what: str, crosswalk: dict, derived: dict[str, str]) -> str:
         """Crosswalk for object handle."""
         cabinet = None
-        classes = list(self._config.includes.keys()) + derived
+        classes = list(self._config.includes.keys()) + list(derived.keys())
         for base in classes:
             ret_type = what.replace(f"<{base}>", "<T>")
             if ret_type in crosswalk:
@@ -145,7 +146,7 @@ class CLibSourceGenerator(SourceGenerator):
                 params.append(Param(ret_type, par.name, par.description, par.direction))
             elif "shared_ptr" in what:
                 handle = self._handle_crosswalk(
-                    what, self._config.prop_type_crosswalk, [])
+                    what, self._config.prop_type_crosswalk, {})
                 if "vector<" in what:
                     params.append(
                         Param("int", f"{par.name}Len",
@@ -454,7 +455,7 @@ class CLibSourceGenerator(SourceGenerator):
             return CFunc.from_str(header, brief=recipe.brief)
 
         # Ensure that all functions/methods referenced in recipe are detected correctly
-        bases = [recipe.base] + recipe.parents + recipe.derived
+        bases = recipe.bases
         if not recipe.implements:
             recipe.implements = self._doxygen_tags.detect(recipe.name, bases)
         elif recipe.base and "::" not in recipe.implements:
@@ -510,8 +511,7 @@ class CLibSourceGenerator(SourceGenerator):
             cxx_arglen = len(cxx_member.arglist)
             if not cxx_member.base:
                 if (cxx_member.name.startswith("new") and
-                    any(base in cxx_member.ret_type
-                        for base in [recipe.base] + recipe.derived)):
+                    any(base in cxx_member.ret_type for base in recipe.bases)):
                     recipe.what = "constructor"
                 else:
                     recipe.what = "function"
@@ -525,8 +525,7 @@ class CLibSourceGenerator(SourceGenerator):
                     recipe.what = "getter"  # getter assigns to existing array
                 else:
                     recipe.what = "setter"
-            elif any(recipe.implements.startswith(base)
-                     for base in [recipe.base] + recipe.parents + recipe.derived):
+            elif any(recipe.implements.startswith(base) for base in recipe.bases):
                 recipe.what = "method"
             else:
                 msg = f"Unable to auto-detect function type for recipe {recipe.name!r}."
@@ -652,7 +651,7 @@ class CLibSourceGenerator(SourceGenerator):
             for headers in headers_files:
                 bases |= {headers.base}
                 for recipe in headers.recipes:
-                    classes |= set([recipe.base] + recipe.parents + recipe.derived)
+                    classes |= set(recipe.bases)
             return sorted(bases), sorted(classes)
 
         self._clib_bases, classes = get_bases()

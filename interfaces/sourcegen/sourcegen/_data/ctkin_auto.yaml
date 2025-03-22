@@ -7,7 +7,7 @@ docstring: |-
 prefix: kin3
 base: Kinetics
 parents: []  # List of parent classes
-derived: [InterfaceKinetics]  # List of specializations
+derived: {InterfaceKinetics: kin3}  # Dictionary of specialization/prefix
 recipes:
 - name: getType
   implements: kineticsType  # inconsistent API (preexisting)

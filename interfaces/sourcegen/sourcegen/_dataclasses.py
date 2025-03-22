@@ -217,7 +217,12 @@ class Recipe:
     prefix: str  #: prefix used for CLib access function
     base: str  #: C++ class implementing method (if applicable)
     parents: list[str]  #: list of C++ parent classes (if applicable)
-    derived: list[str]  #: list of C++ specializations (if applicable)
+    derived: dict[str, str]  #: dictionary of C++ specialization/prefix (if applicable)
+
+    @property
+    def bases(self) -> list[str]:
+        """Return all bases of a recipe."""
+        return [self.base] + self.parents + list(self.derived.keys())
 
 
 @dataclass

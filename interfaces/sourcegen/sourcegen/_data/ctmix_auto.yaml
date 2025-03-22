@@ -7,7 +7,7 @@ docstring: |-
 prefix: mix3
 base: MultiPhase
 parents: []  # List of parent classes
-derived: []  # List of specializations
+derived: {}  # Dictionary of specialization/prefix
 recipes:
 - name: new
 - name: addPhase
