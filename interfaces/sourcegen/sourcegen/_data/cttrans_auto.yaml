@@ -7,7 +7,7 @@ docstring: |-
 prefix: trans3
 base: Transport
 parents: []  # List of parent classes
-derived: {}  # Dictionary of specialization/prefix
+derived: {}  # Specialization/prefix dictionary
 recipes:
 - name: transportModel
 - name: viscosity
