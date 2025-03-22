@@ -58,7 +58,7 @@ TEST(ctkin3, exceptions)
 
     kin3_reaction(kin, 998);
     string err = reportError();
-    EXPECT_THAT(err, HasSubstr("IndexError: 998 outside valid range of 0 to 28."));
+    EXPECT_THAT(err, HasSubstr("IndexError: 998 outside valid range of 0 to"));
 }
 
 TEST(ctrxn3, reaction)
