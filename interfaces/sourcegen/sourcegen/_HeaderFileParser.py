@@ -102,7 +102,7 @@ class HeaderFileParser:
         return [cls(ff, ignore_funcs.get(ff.name, []))._parse_h() for ff in files]
 
     def _parse_h(self) -> HeaderFile:
-        ct = self._path.read_text()
+        ct = self._path.read_text(encoding="utf-8")
 
         matches = re.finditer(r"CANTERA_CAPI.*?;", ct, re.DOTALL)
         c_functions = [re.sub(r"\s+", " ", m.group()).replace("CANTERA_CAPI ", "")
