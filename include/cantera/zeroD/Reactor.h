@@ -6,7 +6,7 @@
 #ifndef CT_REACTOR_H
 #define CT_REACTOR_H
 
-#include "ReactorBase.h"
+#include "ReactorNode.h"
 #include "cantera/numerics/eigen_sparse.h"
 
 
@@ -43,11 +43,11 @@ class AnyMap;
  *
  * @ingroup reactorGroup
  */
-class Reactor : public ReactorBase
+class Reactor : public ReactorNode
 {
 public:
     Reactor(shared_ptr<Solution> sol, const string& name="(none)");
-    using ReactorBase::ReactorBase; // inherit constructors
+    using ReactorNode::ReactorNode; // inherit constructors
 
     string type() const override {
         return "Reactor";

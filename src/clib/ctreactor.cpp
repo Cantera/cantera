@@ -17,7 +17,7 @@
 
 using namespace Cantera;
 
-typedef Cabinet<ReactorBase> ReactorCabinet;
+typedef Cabinet<ReactorNode> ReactorCabinet;
 typedef Cabinet<ReactorNet> NetworkCabinet;
 typedef Cabinet<ConnectorNode> ConnectorCabinet;
 typedef Cabinet<Func1> FuncCabinet;

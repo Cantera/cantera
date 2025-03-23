@@ -34,7 +34,7 @@ def _needs_graphviz(func):
 def draw_reactor(r, graph=None, graph_attr=None, node_attr=None, print_state=False,
                  species=None, species_units="percent"):
     """
-    See `.ReactorBase.draw`.
+    See `.ReactorNode.draw`.
 
     .. versionadded:: 3.1
     """

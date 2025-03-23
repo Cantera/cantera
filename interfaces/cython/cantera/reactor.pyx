@@ -11,7 +11,7 @@ from ._utils import *
 from .delegator cimport *
 from .drawnetwork import *
 
-cdef class ReactorBase:
+cdef class ReactorNode:
     """
     Common base class for reactors and reservoirs.
     """
@@ -188,7 +188,7 @@ cdef class ReactorBase:
         raise NotImplementedError('Reactor object is not copyable')
 
 
-cdef class Reactor(ReactorBase):
+cdef class Reactor(ReactorNode):
     """
     A homogeneous zero-dimensional reactor. By default, they are closed
     (no inlets or outlets), have fixed volume, and have adiabatic,
@@ -411,7 +411,7 @@ cdef class MoleReactor(Reactor):
     """
     reactor_type = "MoleReactor"
 
-cdef class Reservoir(ReactorBase):
+cdef class Reservoir(ReactorNode):
     """
     A reservoir is a reactor with a constant state. The temperature,
     pressure, and chemical composition in a reservoir never change from
@@ -944,13 +944,13 @@ cdef class ConnectorNode:
     """
     node_type = "none"
 
-    def __cinit__(self, ReactorBase left=None, ReactorBase right=None, *,
-                  ReactorBase upstream=None, ReactorBase downstream=None,
+    def __cinit__(self, ReactorNode left=None, ReactorNode right=None, *,
+                  ReactorNode upstream=None, ReactorNode downstream=None,
                   name="(none)", **kwargs):
         # ensure that both naming conventions (Wall and FlowDevice) are covered
-        cdef ReactorBase r0 = left or upstream
-        cdef ReactorBase r1 = right or downstream
-        if isinstance(r0, ReactorBase) and isinstance(r1, ReactorBase):
+        cdef ReactorNode r0 = left or upstream
+        cdef ReactorNode r1 = right or downstream
+        if isinstance(r0, ReactorNode) and isinstance(r1, ReactorNode):
             self._node = newConnectorNode(stringify(self.node_type),
                                           r0._reactor, r1._reactor, stringify(name))
             self.node = self._node.get()

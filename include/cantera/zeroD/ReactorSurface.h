@@ -6,7 +6,7 @@
 #ifndef CT_REACTOR_SURFACE_H
 #define CT_REACTOR_SURFACE_H
 
-#include "cantera/zeroD/ReactorBase.h"
+#include "cantera/zeroD/ReactorNode.h"
 
 namespace Cantera
 {
@@ -62,7 +62,7 @@ public:
     void setKinetics(Kinetics* kin);
 
     //! Set the reactor that this Surface interacts with
-    void setReactor(ReactorBase* reactor);
+    void setReactor(ReactorNode* reactor);
 
     //! Number of sensitivity parameters associated with reactions on this
     //! surface
@@ -111,7 +111,7 @@ protected:
 
     SurfPhase* m_thermo = nullptr;
     Kinetics* m_kinetics = nullptr;
-    ReactorBase* m_reactor = nullptr;
+    ReactorNode* m_reactor = nullptr;
     vector<double> m_cov;
     vector<SensitivityParameter> m_params;
 };

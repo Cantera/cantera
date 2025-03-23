@@ -113,7 +113,7 @@ it easier for others to understand your code in the context of Cantera as a whol
 * To document an attribute of a Cython class, include a docstring *below* the member
   declaration (in the `.pxd` file). For example:
   ```cython
-  cdef class ReactorBase:
+  cdef class ReactorNode:
       cdef public dict node_attr
       """ Attributes of a node """
   ```

@@ -23,7 +23,7 @@ namespace Cantera
 {
 
 Reactor::Reactor(shared_ptr<Solution> sol, const string& name)
-    : ReactorBase(sol, name)
+    : ReactorNode(sol, name)
 {
     setKinetics(*sol->kinetics());
 }
@@ -121,7 +121,7 @@ size_t Reactor::nSensParams() const
 
 void Reactor::syncState()
 {
-    ReactorBase::syncState();
+    ReactorNode::syncState();
     m_mass = m_thermo->density() * m_vol;
 }
 

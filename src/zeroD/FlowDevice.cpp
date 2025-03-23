@@ -4,14 +4,14 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/zeroD/FlowDevice.h"
-#include "cantera/zeroD/ReactorBase.h"
+#include "cantera/zeroD/ReactorNode.h"
 #include "cantera/thermo/ThermoPhase.h"
 #include "cantera/numerics/Func1.h"
 
 namespace Cantera
 {
 
-FlowDevice::FlowDevice(shared_ptr<ReactorBase> r0, shared_ptr<ReactorBase> r1,
+FlowDevice::FlowDevice(shared_ptr<ReactorNode> r0, shared_ptr<ReactorNode> r1,
                        const string& name) : ConnectorNode(r0, r1, name)
 {
     if (!m_nodes.first || !m_nodes.second) {
@@ -45,7 +45,7 @@ FlowDevice::FlowDevice(shared_ptr<ReactorBase> r0, shared_ptr<ReactorBase> r1,
     }
 }
 
-bool FlowDevice::install(ReactorBase& in, ReactorBase& out)
+bool FlowDevice::install(ReactorNode& in, ReactorNode& out)
 {
     warn_deprecated("FlowDevice::install",
         "To be removed after Cantera 3.1. Reactors should be provided to constructor "

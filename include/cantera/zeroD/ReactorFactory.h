@@ -6,7 +6,7 @@
 #ifndef REACTOR_FACTORY_H
 #define REACTOR_FACTORY_H
 
-#include "cantera/zeroD/ReactorBase.h"
+#include "cantera/zeroD/ReactorNode.h"
 #include "cantera/base/FactoryBase.h"
 
 namespace Cantera
@@ -17,9 +17,9 @@ namespace Cantera
 //! This class is mainly used via the newReactor() function, for example:
 //!
 //! ```cpp
-//!     shared_ptr<ReactorBase> r1 = newReactor("IdealGasReactor");
+//!     shared_ptr<ReactorNode> r1 = newReactor("IdealGasReactor");
 //! ```
-class ReactorFactory : public Factory<ReactorBase, shared_ptr<Solution>, const string&>
+class ReactorFactory : public Factory<ReactorNode, shared_ptr<Solution>, const string&>
 {
 public:
     static ReactorFactory* factory();
@@ -38,15 +38,15 @@ private:
 //! Reactor objects should be instantiated via the newReactor() function, for example:
 //!
 //! ```cpp
-//!     shared_ptr<ReactorBase> r1 = newReactor("IdealGasReactor");
+//!     shared_ptr<ReactorNode> r1 = newReactor("IdealGasReactor");
 //! ```
 //! @ingroup zerodGroup
 //! @{
 
 //! Create a Reactor object of the specified type and contents
 //! @since Starting in %Cantera 3.1, this method requires a valid Solution object and
-//!     returns a `shared_ptr<ReactorBase>` instead of a `ReactorBase*`.
-shared_ptr<ReactorBase> newReactor(
+//!     returns a `shared_ptr<ReactorNode>` instead of a `ReactorNode*`.
+shared_ptr<ReactorNode> newReactor(
     const string& model, shared_ptr<Solution> contents, const string& name="(none)");
 
 //! @}

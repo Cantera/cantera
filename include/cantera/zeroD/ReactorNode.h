@@ -1,10 +1,10 @@
-//! @file ReactorBase.h
+//! @file ReactorNode.h
 
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
-#ifndef CT_REACTORBASE_H
-#define CT_REACTORBASE_H
+#ifndef CT_REACTOR_NODE_H
+#define CT_REACTOR_NODE_H
 
 #include "cantera/base/global.h"
 #include "cantera/base/ctexceptions.h"
@@ -43,25 +43,26 @@ struct SensitivityParameter
  * Base class for stirred reactors. Allows using any substance model, with
  * arbitrary inflow, outflow, heat loss/gain, surface chemistry, and volume
  * change.
+ * @since New in %Cantera 3.2. (Renamed from `ReactorBase`)
  * @ingroup reactorGroup
  */
-class ReactorBase
+class ReactorNode
 {
 public:
-    explicit ReactorBase(const string& name="(none)");
-    //! Instantiate a ReactorBase object with Solution contents.
+    explicit ReactorNode(const string& name="(none)");
+    //! Instantiate a ReactorNode object with Solution contents.
     //! @param sol  Solution object to be set.
     //! @param name  Name of the reactor.
     //! @since New in %Cantera 3.1.
-    ReactorBase(shared_ptr<Solution> sol, const string& name="(none)");
-    virtual ~ReactorBase();
-    ReactorBase(const ReactorBase&) = delete;
-    ReactorBase& operator=(const ReactorBase&) = delete;
+    ReactorNode(shared_ptr<Solution> sol, const string& name="(none)");
+    virtual ~ReactorNode();
+    ReactorNode(const ReactorNode&) = delete;
+    ReactorNode& operator=(const ReactorNode&) = delete;
 
     //! String indicating the reactor model implemented. Usually
     //! corresponds to the name of the derived class.
     virtual string type() const {
-        return "ReactorBase";
+        return "ReactorNode";
     }
 
     //! Return the name of this reactor
@@ -77,11 +78,11 @@ public:
     //! Set the default name of a reactor. Returns `false` if it was previously set.
     bool setDefaultName(map<string, int>& counts);
 
-    //! Set the Solution specifying the ReactorBase content.
+    //! Set the Solution specifying the ReactorNode content.
     //! @param sol  Solution object to be set.
     //! @since New in %Cantera 3.1.
     //! @deprecated  To be removed after %Cantera 3.2. Superseded by instantiation of
-    //!              ReactorBase with Solution object.
+    //!              ReactorNode with Solution object.
     void setSolution(shared_ptr<Solution> sol);
 
     //! @name Methods to set up a simulation
@@ -94,19 +95,19 @@ public:
 
     //! Enable or disable changes in reactor composition due to chemical reactions.
     virtual void setChemistry(bool cflag = true) {
-        throw NotImplementedError("ReactorBase::setChemistry");
+        throw NotImplementedError("ReactorNode::setChemistry");
     }
 
     //! Set the energy equation on or off.
     virtual void setEnergy(int eflag = 1) {
-        throw NotImplementedError("ReactorBase::setEnergy");
+        throw NotImplementedError("ReactorNode::setEnergy");
     }
 
     //! Connect an inlet FlowDevice to this reactor
-    void addInlet(FlowDevice& inlet);
+    virtual void addInlet(FlowDevice& inlet);
 
     //! Connect an outlet FlowDevice to this reactor
-    void addOutlet(FlowDevice& outlet);
+    virtual void addOutlet(FlowDevice& outlet);
 
     //! Return a reference to the *n*-th inlet FlowDevice connected to this
     //! reactor.
@@ -158,7 +159,7 @@ public:
      * Initialize the reactor. Called automatically by ReactorNet::initialize.
      */
     virtual void initialize(double t0 = 0.0) {
-        throw NotImplementedError("ReactorBase::initialize");
+        throw NotImplementedError("ReactorNode::initialize");
     }
 
     //! @}
@@ -175,7 +176,7 @@ public:
     //! return a reference to the contents.
     ThermoPhase& contents() {
         if (!m_thermo) {
-            throw CanteraError("ReactorBase::contents",
+            throw CanteraError("ReactorNode::contents",
                                "Reactor contents not defined.");
         }
         return *m_thermo;
@@ -183,7 +184,7 @@ public:
 
     const ThermoPhase& contents() const {
         if (!m_thermo) {
-            throw CanteraError("ReactorBase::contents",
+            throw CanteraError("ReactorNode::contents",
                                "Reactor contents not defined.");
         }
         return *m_thermo;
@@ -207,7 +208,7 @@ public:
     //! Returns the current density (kg/m^3) of the reactor's contents.
     double density() const {
         if (m_state.empty()) {
-            throw CanteraError("ReactorBase::density",
+            throw CanteraError("ReactorNode::density",
                                "Reactor state empty and/or contents not defined.");
         }
         return m_state[1];
@@ -216,7 +217,7 @@ public:
     //! Returns the current temperature (K) of the reactor's contents.
     double temperature() const {
         if (m_state.empty()) {
-            throw CanteraError("ReactorBase::temperature",
+            throw CanteraError("ReactorNode::temperature",
                                "Reactor state empty and/or contents not defined.");
         }
         return m_state[0];
@@ -245,7 +246,7 @@ public:
     //! Return the vector of species mass fractions.
     const double* massFractions() const {
         if (m_state.empty()) {
-            throw CanteraError("ReactorBase::massFractions",
+            throw CanteraError("ReactorNode::massFractions",
                                "Reactor state empty and/or contents not defined.");
         }
         return m_state.data() + 2;
@@ -254,7 +255,7 @@ public:
     //! Return the mass fraction of the *k*-th species.
     double massFraction(size_t k) const {
         if (m_state.empty()) {
-            throw CanteraError("ReactorBase::massFraction",
+            throw CanteraError("ReactorNode::massFraction",
                                "Reactor state empty and/or contents not defined.");
         }
         return m_state[k+2];
@@ -278,7 +279,7 @@ protected:
     //! Specify the kinetics manager for the reactor. Called by setSolution().
     //! @since New in %Cantera 3.1.
     virtual void setKinetics(Kinetics& kin) {
-        throw NotImplementedError("ReactorBase::setKinetics");
+        throw NotImplementedError("ReactorNode::setKinetics");
     }
 
     //! Number of homogeneous species in the mixture
@@ -307,6 +308,11 @@ protected:
     //! Composite thermo/kinetics/transport handler
     shared_ptr<Solution> m_solution;
 };
+
+// TODO: recreate ReactorBase.h with preprocessor warning and the following definition
+// (postponed to a separate PR to ensure the git diff remains intuitive)
+typedef ReactorNode ReactorBase;
+
 }
 
 #endif

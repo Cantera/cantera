@@ -1,9 +1,9 @@
-//! @file ReactorBase.cpp
+//! @file ReactorNode.cpp
 
 // This file is part of Cantera. See License.txt in the top-level directory or
 // at https://cantera.org/license.txt for license and copyright information.
 
-#include "cantera/zeroD/ReactorBase.h"
+#include "cantera/zeroD/ReactorNode.h"
 #include "cantera/zeroD/FlowDevice.h"
 #include "cantera/zeroD/ReactorNet.h"
 #include "cantera/zeroD/ReactorSurface.h"
@@ -13,15 +13,15 @@
 namespace Cantera
 {
 
-ReactorBase::ReactorBase(const string& name) : m_name(name)
+ReactorNode::ReactorNode(const string& name) : m_name(name)
 {
 }
 
-ReactorBase::ReactorBase(shared_ptr<Solution> sol, const string& name)
-    : ReactorBase(name)
+ReactorNode::ReactorNode(shared_ptr<Solution> sol, const string& name)
+    : ReactorNode(name)
 {
     if (!sol || !(sol->thermo())) {
-        throw CanteraError("ReactorBase::ReactorBase",
+        throw CanteraError("ReactorNode::ReactorNode",
                            "Missing or incomplete Solution object.");
     }
     m_solution = sol;
@@ -34,14 +34,14 @@ ReactorBase::ReactorBase(shared_ptr<Solution> sol, const string& name)
     m_solution->thermo()->addSpeciesLock();
 }
 
-ReactorBase::~ReactorBase()
+ReactorNode::~ReactorNode()
 {
     if (m_solution) {
         m_solution->thermo()->removeSpeciesLock();
     }
 }
 
-bool ReactorBase::setDefaultName(map<string, int>& counts)
+bool ReactorNode::setDefaultName(map<string, int>& counts)
 {
     if (m_defaultNameSet) {
         return false;
@@ -54,13 +54,13 @@ bool ReactorBase::setDefaultName(map<string, int>& counts)
     return true;
 }
 
-void ReactorBase::setSolution(shared_ptr<Solution> sol)
+void ReactorNode::setSolution(shared_ptr<Solution> sol)
 {
-    warn_deprecated("ReactorBase::setSolution",
+    warn_deprecated("ReactorNode::setSolution",
         "After Cantera 3.2, a change of reactor contents after instantiation "
         "will be disabled.");
     if (!sol || !(sol->thermo())) {
-        throw CanteraError("ReactorBase::setSolution",
+        throw CanteraError("ReactorNode::setSolution",
             "Missing or incomplete Solution object.");
     }
     if (m_solution) {
@@ -76,7 +76,7 @@ void ReactorBase::setSolution(shared_ptr<Solution> sol)
     m_solution->thermo()->addSpeciesLock();
 }
 
-void ReactorBase::setThermo(ThermoPhase& thermo)
+void ReactorNode::setThermo(ThermoPhase& thermo)
 {
     m_thermo = &thermo;
     m_nsp = m_thermo->nSpecies();
@@ -86,7 +86,7 @@ void ReactorBase::setThermo(ThermoPhase& thermo)
     m_pressure = m_thermo->pressure();
 }
 
-void ReactorBase::syncState()
+void ReactorNode::syncState()
 {
     m_thermo->saveState(m_state);
     m_enthalpy = m_thermo->enthalpy_mass();
@@ -97,17 +97,17 @@ void ReactorBase::syncState()
     }
 }
 
-void ReactorBase::addInlet(FlowDevice& inlet)
+void ReactorNode::addInlet(FlowDevice& inlet)
 {
     m_inlet.push_back(&inlet);
 }
 
-void ReactorBase::addOutlet(FlowDevice& outlet)
+void ReactorNode::addOutlet(FlowDevice& outlet)
 {
     m_outlet.push_back(&outlet);
 }
 
-void ReactorBase::addWall(WallBase& w, int lr)
+void ReactorNode::addWall(WallBase& w, int lr)
 {
     m_wall.push_back(&w);
     if (lr == 0) {
@@ -117,12 +117,12 @@ void ReactorBase::addWall(WallBase& w, int lr)
     }
 }
 
-WallBase& ReactorBase::wall(size_t n)
+WallBase& ReactorNode::wall(size_t n)
 {
     return *m_wall[n];
 }
 
-void ReactorBase::addSurface(ReactorSurface* surf)
+void ReactorNode::addSurface(ReactorSurface* surf)
 {
     if (find(m_surfaces.begin(), m_surfaces.end(), surf) == m_surfaces.end()) {
         m_surfaces.push_back(surf);
@@ -130,34 +130,34 @@ void ReactorBase::addSurface(ReactorSurface* surf)
     }
 }
 
-ReactorSurface* ReactorBase::surface(size_t n)
+ReactorSurface* ReactorNode::surface(size_t n)
 {
     return m_surfaces[n];
 }
 
-void ReactorBase::restoreState() {
+void ReactorNode::restoreState() {
     if (!m_thermo) {
-        throw CanteraError("ReactorBase::restoreState", "No phase defined.");
+        throw CanteraError("ReactorNode::restoreState", "No phase defined.");
     }
     m_thermo->restoreState(m_state);
 }
 
-ReactorNet& ReactorBase::network()
+ReactorNet& ReactorNode::network()
 {
     if (m_net) {
         return *m_net;
     } else {
-        throw CanteraError("ReactorBase::network",
+        throw CanteraError("ReactorNode::network",
                            "Reactor is not part of a ReactorNet");
     }
 }
 
-void ReactorBase::setNetwork(ReactorNet* net)
+void ReactorNode::setNetwork(ReactorNet* net)
 {
     m_net = net;
 }
 
-double ReactorBase::residenceTime()
+double ReactorNode::residenceTime()
 {
     double mout = 0.0;
     for (size_t i = 0; i < m_outlet.size(); i++) {
@@ -166,11 +166,11 @@ double ReactorBase::residenceTime()
     return mass()/mout;
 }
 
-FlowDevice& ReactorBase::inlet(size_t n)
+FlowDevice& ReactorNode::inlet(size_t n)
 {
     return *m_inlet[n];
 }
-FlowDevice& ReactorBase::outlet(size_t n)
+FlowDevice& ReactorNode::outlet(size_t n)
 {
     return *m_outlet[n];
 }

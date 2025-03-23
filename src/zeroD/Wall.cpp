@@ -10,7 +10,7 @@
 namespace Cantera
 {
 
-WallBase::WallBase(shared_ptr<ReactorBase> r0, shared_ptr<ReactorBase> r1,
+WallBase::WallBase(shared_ptr<ReactorNode> r0, shared_ptr<ReactorNode> r1,
                    const string& name) : ConnectorNode(r0, r1, name)
 {
     if (!m_nodes.first || !m_nodes.second) {
@@ -25,7 +25,7 @@ WallBase::WallBase(shared_ptr<ReactorBase> r0, shared_ptr<ReactorBase> r1,
     m_right->addWall(*this, 1);
 }
 
-bool WallBase::install(ReactorBase& rleft, ReactorBase& rright)
+bool WallBase::install(ReactorNode& rleft, ReactorNode& rright)
 {
     warn_deprecated("WallBase::install",
         "To be removed after Cantera 3.2. Reactors should be provided to constructor "

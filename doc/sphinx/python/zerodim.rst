@@ -18,9 +18,9 @@ Defining Functions
 Base Classes
 ------------
 
-ReactorBase
+ReactorNode
 ^^^^^^^^^^^
-.. autoclass:: ReactorBase()
+.. autoclass:: ReactorNode()
 
 FlowDevice
 ^^^^^^^^^^

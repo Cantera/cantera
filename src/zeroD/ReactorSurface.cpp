@@ -52,7 +52,7 @@ void ReactorSurface::setKinetics(Kinetics* kin) {
     m_thermo->getCoverages(m_cov.data());
 }
 
-void ReactorSurface::setReactor(ReactorBase* reactor)
+void ReactorSurface::setReactor(ReactorNode* reactor)
 {
     m_reactor = reactor;
 }
