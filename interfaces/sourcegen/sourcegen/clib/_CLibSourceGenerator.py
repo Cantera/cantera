@@ -601,7 +601,7 @@ class CLibSourceGenerator(SourceGenerator):
 
         guard = f"__{filename.name.upper().replace('.', '_')}__"
         t_file = Path(__file__).parent / "header_template.h.in"
-        template = loader.from_string(t_file.read_text())
+        template = loader.from_string(t_file.read_text(encoding="utf-8"))
         output = template.render(
             name=filename.stem, guard=guard, preamble=preamble, prefix=headers.prefix,
             declarations=declarations, base=headers.base, docstring=headers.docstring)
@@ -642,7 +642,7 @@ class CLibSourceGenerator(SourceGenerator):
             includes += self._config.includes[obj]
 
         t_file = Path(__file__).parent / "source_template.cpp.in"
-        template = loader.from_string(t_file.read_text())
+        template = loader.from_string(t_file.read_text(encoding="utf-8"))
         output = template.render(
             name=filename.stem, implementations=implementations,
             prefix=headers.prefix, base=headers.base, docstring=headers.docstring,
