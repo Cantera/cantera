@@ -76,15 +76,9 @@ extern "C" {
     CANTERA_CAPI int wall_setVelocity(int i, int n);
     CANTERA_CAPI int wall_setEmissivity(int i, double epsilon);
 
-    CANTERA_CAPI int reactorsurface_new(const char* name);
-    CANTERA_CAPI int reactorsurface_del(int i);
-    CANTERA_CAPI int reactorsurface_name(int i, int len, char* nbuf);
-    CANTERA_CAPI int reactorsurface_setName(int i, const char* name);
     CANTERA_CAPI int reactorsurface_install(int i, int n);
-    CANTERA_CAPI int reactorsurface_setkinetics(int i, int n);
     CANTERA_CAPI double reactorsurface_area(int i);
     CANTERA_CAPI int reactorsurface_setArea(int i, double v);
-    CANTERA_CAPI int reactorsurface_addSensitivityReaction(int i, int rxn);
 
     CANTERA_CAPI int ct_clearReactors();
 
