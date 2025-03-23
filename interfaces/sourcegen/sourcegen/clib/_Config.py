@@ -4,8 +4,12 @@
 # at https://cantera.org/license.txt for license and copyright information.
 
 from dataclasses import dataclass
-from typing_extensions import Self
+from sys import version_info
 
+if version_info.minor < 11:
+    from typing_extensions import Self
+else:
+    from typing import Self
 
 @dataclass(frozen=True)
 class Config:
