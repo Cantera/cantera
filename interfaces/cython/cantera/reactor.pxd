@@ -90,7 +90,7 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         void setName(string) except +translate_exception
         double area()
         void setArea(double)
-        void setKinetics(CxxKinetics*)
+        void setKinetics(CxxKinetics*) except +translate_exception
         void setCoverages(double*)
         void setCoverages(Composition&) except +translate_exception
         void syncState()
@@ -222,8 +222,8 @@ cdef extern from "cantera/zeroD/ReactorDelegator.h" namespace "Cantera":
 ctypedef CxxReactorAccessor* CxxReactorAccessorPtr
 
 cdef class ReactorNode:
-    cdef shared_ptr[CxxReactorNode] _reactor
-    cdef CxxReactorNode* rbase
+    cdef shared_ptr[CxxReactorNode] _node
+    cdef CxxReactorNode* node
     cdef object _contents
     cdef list _inlets
     cdef list _outlets
@@ -274,18 +274,9 @@ cdef class ExtensibleReactor(Reactor):
     cdef public _delegates
     cdef CxxReactorAccessor* accessor
 
-cdef class ReactorSurface:
+cdef class ReactorSurface(ReactorNode):
     cdef CxxReactorSurface* surface
-    cdef Kinetics _kinetics
     cdef ReactorNode _reactor
-    cdef public dict node_attr
-    """
-    A dictionary containing draw attributes for the representation of the reactor
-    surface as a graphviz node. See https://graphviz.org/docs/nodes/ for a list of all
-    usable attributes.
-
-    .. versionadded:: 3.1
-    """
 
 cdef class ConnectorNode:
     cdef shared_ptr[CxxConnectorNode] _node

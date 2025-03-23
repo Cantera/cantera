@@ -16,12 +16,12 @@ cdef class ReactorNode:
     Common base class for reactors and reservoirs.
     """
     reactor_type = "none"
-    def __cinit__(self, _SolutionBase contents, *, name="(none)", **kwargs):
-        self._reactor = newReactor(stringify(self.reactor_type),
-                                   contents._base, stringify(name))
-        self.rbase = self._reactor.get()
+    def __cinit__(self, _SolutionBase contents, *args, name="(none)", **kwargs):
+        self._node = newReactor(stringify(self.reactor_type),
+                                contents._base, stringify(name))
+        self.node = self._node.get()
 
-    def __init__(self, _SolutionBase contents=None, *,
+    def __init__(self, _SolutionBase contents=None, *args,
                  name="(none)", volume=None, node_attr=None):
         self._inlets = []
         self._outlets = []
@@ -45,20 +45,20 @@ cdef class ReactorNode:
             After Cantera 3.2, a change of reactor contents after instantiation
             will be disabled and this method will be removed.
         """
-        self.rbase.setSolution(solution._base)  # raises warning in C++ core
+        self.node.setSolution(solution._base)  # raises warning in C++ core
         self._contents = solution
 
     property type:
         """The type of the reactor."""
         def __get__(self):
-            return pystr(self.rbase.type())
+            return pystr(self.node.type())
 
     property name:
         """The name of the reactor."""
         def __get__(self):
-            return pystr(self.rbase.name())
+            return pystr(self.node.name())
         def __set__(self, name):
-            self.rbase.setName(stringify(name))
+            self.node.setName(stringify(name))
 
     def syncState(self):
         """
@@ -66,23 +66,23 @@ cdef class ReactorNode:
         `ThermoPhase` object. After calling syncState(), call
         ReactorNet.reinitialize() before further integration.
         """
-        self.rbase.syncState()
+        self.node.syncState()
 
     property thermo:
         """
         The `ThermoPhase` object representing the reactor's contents.
         """
         def __get__(self):
-            self.rbase.restoreState()
+            self.node.restoreState()
             return self._contents
 
     property volume:
         """The volume [m^3] of the reactor."""
         def __get__(self):
-            return self.rbase.volume()
+            return self.node.volume()
 
         def __set__(self, double value):
-            self.rbase.setInitialVolume(value)
+            self.node.setInitialVolume(value)
 
     property T:
         """The temperature [K] of the reactor's contents."""
@@ -198,7 +198,7 @@ cdef class Reactor(ReactorNode):
     reactor_type = "Reactor"
 
     def __cinit__(self, *args, **kwargs):
-        self.reactor = <CxxReactor*>(self.rbase)
+        self.reactor = <CxxReactor*>(self.node)
 
     def __init__(self, contents, *,
                  name="(none)", energy='on', group_name="", **kwargs):
@@ -252,7 +252,7 @@ cdef class Reactor(ReactorNode):
         this reactor.
         """
         def __get__(self):
-            self.rbase.restoreState()
+            self.node.restoreState()
             return self._contents
 
     property chemistry_enabled:
@@ -657,10 +657,10 @@ cdef class ExtensibleReactor(Reactor):
     }
 
     def __cinit__(self, *args, **kwargs):
-        self.accessor = dynamic_cast[CxxReactorAccessorPtr](self.rbase)
+        self.accessor = dynamic_cast[CxxReactorAccessorPtr](self.node)
 
     def __init__(self, *args, **kwargs):
-        assign_delegates(self, dynamic_cast[CxxDelegatorPtr](self.rbase))
+        assign_delegates(self, dynamic_cast[CxxDelegatorPtr](self.node))
         super().__init__(*args, **kwargs)
 
     property n_vars:
@@ -777,7 +777,7 @@ cdef class ExtensibleIdealGasConstPressureMoleReactor(ExtensibleReactor):
     reactor_type = "ExtensibleIdealGasConstPressureMoleReactor"
 
 
-cdef class ReactorSurface:
+cdef class ReactorSurface(ReactorNode):
     """
     Represents a surface in contact with the contents of a reactor.
 
@@ -800,16 +800,15 @@ cdef class ReactorSurface:
     .. versionadded:: 3.1
        Added the ``node_attr`` parameter.
     """
-    def __cinit__(self, *args, name="(none)", **kwargs):
-        self.surface = new CxxReactorSurface(stringify(name))
+    reactor_type = "ReactorSurface"
 
-    def __dealloc__(self):
-        del self.surface
+    def __cinit__(self, *args, **kwargs):
+        self.surface = <CxxReactorSurface*>(self.node)
 
-    def __init__(self, kin=None, Reactor r=None, *,
+    def __init__(self, contents=None, Reactor r=None, *,
                  name="(none)", A=None, node_attr=None):
-        if kin is not None:
-            self.kinetics = kin
+        super().__init__(contents, name=name)
+
         if r is not None:
             self.install(r)
         if A is not None:
@@ -824,18 +823,6 @@ cdef class ReactorSurface:
         r.reactor.addSurface(self.surface)
         self._reactor = r
 
-    property type:
-        """The type of the reactor surface."""
-        def __get__(self):
-            return pystr(self.surface.type())
-
-    property name:
-        """The name of the reactor surface."""
-        def __get__(self):
-            return pystr(self.surface.name())
-        def __set__(self, name):
-            self.surface.setName(stringify(name))
-
     property area:
         """ Area on which reactions can occur [m^2] """
         def __get__(self):
@@ -849,30 +836,27 @@ cdef class ReactorSurface:
         this surface.
         """
         def __get__(self):
-            self.surface.syncState()
-            return self._kinetics
-        def __set__(self, Kinetics k):
-            self._kinetics = k
-            self.surface.setKinetics(self._kinetics.kinetics)
+            self.syncState()
+            return self._contents
 
     property coverages:
         """
         The fraction of sites covered by each surface species.
         """
         def __get__(self):
-            if self._kinetics is None:
+            if self._contents is None:
                 raise CanteraError('No kinetics manager present')
-            self.surface.syncState()
-            return self._kinetics.coverages
+            self.syncState()
+            return self._contents.coverages
         def __set__(self, coverages):
-            if self._kinetics is None:
+            if self._contents is None:
                 raise CanteraError("Can't set coverages before assigning kinetics manager.")
 
             if isinstance(coverages, (dict, str, bytes)):
                 self.surface.setCoverages(comp_map(coverages))
                 return
 
-            if len(coverages) != self._kinetics.n_species:
+            if len(coverages) != self._contents.n_species:
                 raise ValueError('Incorrect number of site coverages specified')
             cdef np.ndarray[np.double_t, ndim=1] data = \
                     np.ascontiguousarray(coverages, dtype=np.double)
@@ -952,7 +936,7 @@ cdef class ConnectorNode:
         cdef ReactorNode r1 = right or downstream
         if isinstance(r0, ReactorNode) and isinstance(r1, ReactorNode):
             self._node = newConnectorNode(stringify(self.node_type),
-                                          r0._reactor, r1._reactor, stringify(name))
+                                          r0._node, r1._node, stringify(name))
             self.node = self._node.get()
             return
         raise TypeError(f"Invalid reactor types: {r0} and {r1}.")
