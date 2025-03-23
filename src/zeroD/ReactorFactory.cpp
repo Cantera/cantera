@@ -78,6 +78,9 @@ ReactorFactory::ReactorFactory()
     reg("MoleReactor",
         [](shared_ptr<Solution> sol, const string& name)
         { return new MoleReactor(sol, name); });
+    reg("ReactorSurface",
+        [](shared_ptr<Solution> sol, const string& name)
+        { return new ReactorSurface(sol, name); });
 }
 
 ReactorFactory* ReactorFactory::factory() {
