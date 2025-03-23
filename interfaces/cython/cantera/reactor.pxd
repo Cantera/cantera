@@ -45,6 +45,8 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         string name()
         void setName(string)
         void setInitialVolume(double)
+        void addSensitivityReaction(size_t) except +translate_exception
+        size_t nSensParams()
 
     cdef cppclass CxxReactor "Cantera::Reactor" (CxxReactorBase):
         CxxReactor() except +translate_exception
@@ -60,9 +62,7 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         CxxSparseMatrix finiteDifferenceJacobian() except +translate_exception
         void addSurface(CxxReactorSurface*) except +translate_exception
         void setAdvanceLimit(string&, double) except +translate_exception
-        void addSensitivityReaction(size_t) except +translate_exception
         void addSensitivitySpeciesEnthalpy(size_t) except +translate_exception
-        size_t nSensParams()
 
     cdef cppclass CxxFlowReactor "Cantera::FlowReactor" (CxxReactor):
         CxxFlowReactor()
@@ -90,12 +90,10 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         void setName(string) except +translate_exception
         double area()
         void setArea(double)
-        void setKinetics(CxxKinetics*)
+        void setKinetics(CxxKinetics*) except +translate_exception
         void setCoverages(double*)
         void setCoverages(Composition&) except +translate_exception
         void syncState()
-        void addSensitivityReaction(size_t) except +translate_exception
-        size_t nSensParams()
 
     # connectors
 
@@ -118,9 +116,6 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         double vdot(double) except +translate_exception
         double heatRate() except +translate_exception
         double Q(double) except +translate_exception
-
-        void addSensitivityReaction(int, size_t) except +translate_exception
-        size_t nSensParams(int)
 
     cdef cppclass CxxWall "Cantera::Wall" (CxxWallBase):
         CxxWall() except +translate_exception
@@ -222,7 +217,7 @@ cdef extern from "cantera/zeroD/ReactorDelegator.h" namespace "Cantera":
 ctypedef CxxReactorAccessor* CxxReactorAccessorPtr
 
 cdef class ReactorBase:
-    cdef shared_ptr[CxxReactorBase] _reactor
+    cdef shared_ptr[CxxReactorBase] _rbase
     cdef CxxReactorBase* rbase
     cdef object _contents
     cdef list _inlets
@@ -274,18 +269,9 @@ cdef class ExtensibleReactor(Reactor):
     cdef public _delegates
     cdef CxxReactorAccessor* accessor
 
-cdef class ReactorSurface:
+cdef class ReactorSurface(ReactorBase):
     cdef CxxReactorSurface* surface
-    cdef Kinetics _kinetics
     cdef ReactorBase _reactor
-    cdef public dict node_attr
-    """
-    A dictionary containing draw attributes for the representation of the reactor
-    surface as a graphviz node. See https://graphviz.org/docs/nodes/ for a list of all
-    usable attributes.
-
-    .. versionadded:: 3.1
-    """
 
 cdef class ConnectorNode:
     cdef shared_ptr[CxxConnectorNode] _node
