@@ -24,12 +24,10 @@ typedef Cabinet<Func1> FuncCabinet;
 typedef Cabinet<ThermoPhase> ThermoCabinet;
 typedef Cabinet<Kinetics> KineticsCabinet;
 typedef Cabinet<Solution> SolutionCabinet;
-typedef Cabinet<ReactorSurface> ReactorSurfaceCabinet;
 
 template<> ReactorCabinet* ReactorCabinet::s_storage = 0;
 template<> NetworkCabinet* NetworkCabinet::s_storage = 0;
 template<> ConnectorCabinet* ConnectorCabinet::s_storage = 0;
-template<> ReactorSurfaceCabinet* ReactorSurfaceCabinet::s_storage = 0;
 template<> FuncCabinet* FuncCabinet::s_storage; // defined in ctfunc.cpp
 template<> ThermoCabinet* ThermoCabinet::s_storage; // defined in ct.cpp
 template<> KineticsCabinet* KineticsCabinet::s_storage; // defined in ct.cpp
@@ -576,59 +574,10 @@ extern "C" {
 
     // ReactorSurface
 
-    int reactorsurface_new(const char* name)
-    {
-        try {
-            return ReactorSurfaceCabinet::add(make_shared<ReactorSurface>(name));
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int reactorsurface_del(int i)
-    {
-        try {
-            ReactorSurfaceCabinet::del(i);
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int reactorsurface_name(int i, int len, char* nbuf)
-    {
-        try {
-            return static_cast<int>(
-                copyString(ReactorSurfaceCabinet::at(i)->name(), nbuf, len));
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int reactorsurface_setName(int i, const char* name)
-    {
-        try {
-            ReactorSurfaceCabinet::at(i)->setName(name);
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
     int reactorsurface_install(int i, int n)
     {
         try {
-            ReactorCabinet::at(n)->addSurface(ReactorSurfaceCabinet::at(i).get());
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int reactorsurface_setkinetics(int i, int n)
-    {
-        try {
-            ReactorSurfaceCabinet::at(i)->setKinetics(KineticsCabinet::at(n).get());
+            ReactorCabinet::at(n)->addSurface(ReactorCabinet::as<ReactorSurface>(i).get());
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -638,7 +587,7 @@ extern "C" {
     double reactorsurface_area(int i)
     {
         try {
-            return ReactorSurfaceCabinet::at(i)->area();
+            return ReactorCabinet::as<ReactorSurface>(i)->area();
         } catch (...) {
             return handleAllExceptions(DERR, DERR);
         }
@@ -647,17 +596,7 @@ extern "C" {
     int reactorsurface_setArea(int i, double v)
     {
         try {
-            ReactorSurfaceCabinet::at(i)->setArea(v);
-            return 0;
-        } catch (...) {
-            return handleAllExceptions(-1, ERR);
-        }
-    }
-
-    int reactorsurface_addSensitivityReaction(int i, int rxn)
-    {
-        try {
-            ReactorSurfaceCabinet::at(i)->addSensitivityReaction(rxn);
+            ReactorCabinet::as<ReactorSurface>(i)->setArea(v);
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
@@ -670,7 +609,6 @@ extern "C" {
             ReactorCabinet::clear();
             NetworkCabinet::clear();
             ConnectorCabinet::clear();
-            ReactorSurfaceCabinet::clear();
             return 0;
         } catch (...) {
             return handleAllExceptions(-1, ERR);
