@@ -15,9 +15,11 @@ class SurfPhase;
 
 //! A surface where reactions can occur that is in contact with the bulk fluid of a
 //! Reactor.
+//! @ingroup reactorGroup
 class ReactorSurface : public ReactorBase
 {
 public:
+    ReactorSurface(shared_ptr<Solution> sol, const string& name="(none)");
     using ReactorBase::ReactorBase; // inherit constructors
 
     //! String indicating the wall model implemented.
@@ -42,6 +44,8 @@ public:
     }
 
     //! Set the InterfaceKinetics object for this surface
+    //! @deprecated To be removed after %Cantera 3.2. Use constructor with
+    //!     Solution object instead.
     void setKinetics(Kinetics* kin);
 
     //! Set the reactor that this Surface interacts with
