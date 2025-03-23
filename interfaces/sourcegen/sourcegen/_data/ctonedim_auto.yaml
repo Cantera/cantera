@@ -23,7 +23,7 @@ recipes:
 - name: setGridMin
 - name: save
   implements: save(const string&, const string&, const string&)
-# - name: restore
+# - name: restore  # TODO: requires AnyMap
 - name: writeStats
 - name: domainIndex
 - name: value
