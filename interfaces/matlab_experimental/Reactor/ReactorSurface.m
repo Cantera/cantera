@@ -1,4 +1,4 @@
-classdef ReactorSurface < handle
+classdef ReactorSurface < Reactor
     % ReactorSurface Class ::
     %
     %     >> s = ReactorSurface(surf, reactor, name)
@@ -21,13 +21,7 @@ classdef ReactorSurface < handle
     % :return:
     %    Instance of class :mat:class:`ReactorSurface`.
 
-    properties (SetAccess = immutable)
-        surfID
-    end
-
     properties (SetAccess = public)
-        name  % Name of reactor surface.
-
         area % Area of the reactor surface in m^2.
     end
 
@@ -39,62 +33,27 @@ classdef ReactorSurface < handle
 
             ctIsLoaded;
 
-            if ~isa(surf, 'Kinetics') || ~isa(reactor, 'Reactor')
+            if ~isa(surf, 'Solution') || ~isa(reactor, 'Reactor')
                 error('Invalid parameters.')
             end
             if nargin < 3
                 name = '(none)';
             end
 
-            s.surfID = ctFunc('reactorsurface_new', name);
-            ctFunc('reactorsurface_setkinetics', s.surfID, surf.kinID);
-            ctFunc('reactorsurface_install', s.surfID, reactor.id);
-        end
-
-        %% ReactorSurface Class Destructor
-
-        function delete(s)
-            % Delete the :mat:class:`ReactorSurface` object.
-
-            if isempty(s.surfID)
-                return
-            end
-            ctFunc('reactorsurface_del', s.surfID);
-        end
-
-        %% ReactorSurface Utility Methods
-
-        function addSensitivityReaction(s, m)
-            % Specifies that the sensitivity of the state variables with
-            % respect to reaction m should be computed. The surface must be
-            % installed on a reactor and part of a network first. ::
-            %
-            %     >> s.addSensitivityReaction(m)
-            %
-            % :param m:
-            %    Index number of reaction.
-
-            ctFunc('reactorsurface_addSensitivityReaction', s.surfID, m);
+            s.surfID = ctFunc('reactor_new', 'ReactorSurface', surf.solnID, name);
+            ctFunc('reactorsurface_install', s.id, reactor.id);
         end
 
         %% ReactorSurface Get Methods
 
-        function name = get.name(s)
-            name = ctString('reactorsurface_name', s.surfID);
-        end
-
         function a = get.area(s)
-            a = ctFunc('reactorsurface_area', s.surfID);
+            a = ctFunc('reactorsurface_area', s.id);
         end
 
         %% ReactorSurface Set Methods
 
-        function set.name(s, name)
-            ctFunc('reactorsurface_setName', s.surfID, name);
-        end
-
         function set.area(s, a)
-            ctFunc('reactorsurface_setArea', s.surfID, a);
+            ctFunc('reactorsurface_setArea', s.id, a);
         end
 
     end
