@@ -16,12 +16,12 @@ cdef class ReactorBase:
     Common base class for reactors and reservoirs.
     """
     reactor_type = "none"
-    def __cinit__(self, _SolutionBase contents, *, name="(none)", **kwargs):
-        self._reactor = newReactor(stringify(self.reactor_type),
-                                   contents._base, stringify(name))
-        self.rbase = self._reactor.get()
+    def __cinit__(self, _SolutionBase contents, *args, name="(none)", **kwargs):
+        self._rbase = newReactor(stringify(self.reactor_type),
+                                 contents._base, stringify(name))
+        self.rbase = self._rbase.get()
 
-    def __init__(self, _SolutionBase contents=None, *,
+    def __init__(self, _SolutionBase contents=None, *args,
                  name="(none)", volume=None, node_attr=None):
         self._inlets = []
         self._outlets = []
@@ -103,6 +103,15 @@ cdef class ReactorBase:
         """The mass fractions of the reactor's contents."""
         def __get__(self):
             return self.thermo.Y
+
+    def add_sensitivity_reaction(self, int m):
+        """
+        Specifies that the sensitivity of the state variables with respect to
+        reaction ``m`` should be computed. ``m`` is the 0-based reaction index.
+        The reactor must be part of a network first. Specifying the same
+        reaction more than one time raises an exception.
+        """
+        self.rbase.addSensitivityReaction(m)
 
     # Flow devices & walls
     property inlets:
@@ -277,15 +286,6 @@ cdef class Reactor(ReactorBase):
 
         def __set__(self, pybool value):
             self.reactor.setEnergy(int(value))
-
-    def add_sensitivity_reaction(self, m):
-        """
-        Specifies that the sensitivity of the state variables with respect to
-        reaction ``m`` should be computed. ``m`` is the 0-based reaction index.
-        The reactor must be part of a network first. Specifying the same
-        reaction more than one time raises an exception.
-        """
-        self.reactor.addSensitivityReaction(m)
 
     def add_sensitivity_species_enthalpy(self, k):
         """
@@ -777,7 +777,7 @@ cdef class ExtensibleIdealGasConstPressureMoleReactor(ExtensibleReactor):
     reactor_type = "ExtensibleIdealGasConstPressureMoleReactor"
 
 
-cdef class ReactorSurface:
+cdef class ReactorSurface(ReactorBase):
     """
     Represents a surface in contact with the contents of a reactor.
 
@@ -800,16 +800,15 @@ cdef class ReactorSurface:
     .. versionadded:: 3.1
        Added the ``node_attr`` parameter.
     """
-    def __cinit__(self, *args, name="(none)", **kwargs):
-        self.surface = new CxxReactorSurface(stringify(name))
+    reactor_type = "ReactorSurface"
 
-    def __dealloc__(self):
-        del self.surface
+    def __cinit__(self, *args, **kwargs):
+        self.surface = <CxxReactorSurface*>(self.rbase)
 
-    def __init__(self, kin=None, Reactor r=None, *,
+    def __init__(self, contents=None, Reactor r=None, *,
                  name="(none)", A=None, node_attr=None):
-        if kin is not None:
-            self.kinetics = kin
+        super().__init__(contents, name=name)
+
         if r is not None:
             self.install(r)
         if A is not None:
@@ -824,18 +823,6 @@ cdef class ReactorSurface:
         r.reactor.addSurface(self.surface)
         self._reactor = r
 
-    property type:
-        """The type of the reactor surface."""
-        def __get__(self):
-            return pystr(self.surface.type())
-
-    property name:
-        """The name of the reactor surface."""
-        def __get__(self):
-            return pystr(self.surface.name())
-        def __set__(self, name):
-            self.surface.setName(stringify(name))
-
     property area:
         """ Area on which reactions can occur [m^2] """
         def __get__(self):
@@ -849,30 +836,27 @@ cdef class ReactorSurface:
         this surface.
         """
         def __get__(self):
-            self.surface.syncState()
-            return self._kinetics
-        def __set__(self, Kinetics k):
-            self._kinetics = k
-            self.surface.setKinetics(self._kinetics.kinetics)
+            self.syncState()
+            return self._contents
 
     property coverages:
         """
         The fraction of sites covered by each surface species.
         """
         def __get__(self):
-            if self._kinetics is None:
+            if self._contents is None:
                 raise CanteraError('No kinetics manager present')
-            self.surface.syncState()
-            return self._kinetics.coverages
+            self.syncState()
+            return self._contents.coverages
         def __set__(self, coverages):
-            if self._kinetics is None:
+            if self._contents is None:
                 raise CanteraError("Can't set coverages before assigning kinetics manager.")
 
             if isinstance(coverages, (dict, str, bytes)):
                 self.surface.setCoverages(comp_map(coverages))
                 return
 
-            if len(coverages) != self._kinetics.n_species:
+            if len(coverages) != self._contents.n_species:
                 raise ValueError('Incorrect number of site coverages specified')
             cdef np.ndarray[np.double_t, ndim=1] data = \
                     np.ascontiguousarray(coverages, dtype=np.double)
@@ -929,14 +913,6 @@ cdef class ReactorSurface:
         return draw_surface(self, graph, graph_attr, node_attr, surface_edge_attr,
                             print_state, species, species_units)
 
-    def add_sensitivity_reaction(self, int m):
-        """
-        Specifies that the sensitivity of the state variables with respect to
-        reaction ``m`` should be computed. ``m`` is the 0-based reaction index.
-        The Surface must be installed on a reactor and part of a network first.
-        """
-        self.surface.addSensitivityReaction(m)
-
 
 cdef class ConnectorNode:
     """
@@ -952,7 +928,7 @@ cdef class ConnectorNode:
         cdef ReactorBase r1 = right or downstream
         if isinstance(r0, ReactorBase) and isinstance(r1, ReactorBase):
             self._node = newConnectorNode(stringify(self.node_type),
-                                          r0._reactor, r1._reactor, stringify(name))
+                                          r0._rbase, r1._rbase, stringify(name))
             self.node = self._node.get()
             return
         raise TypeError(f"Invalid reactor types: {r0} and {r1}.")
