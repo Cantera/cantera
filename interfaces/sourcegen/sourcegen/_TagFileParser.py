@@ -6,8 +6,14 @@
 import sys
 from pathlib import Path
 import re
-from typing import Sequence, Iterable
-from typing_extensions import Self
+from sys import version_info
+
+if version_info.minor < 11:
+    from typing import Sequence, Iterable
+    from typing_extensions import Self
+else:
+    from typing import Sequence, Iterable, Self
+
 import logging
 from dataclasses import dataclass
 import xml.etree.ElementTree as ET
