@@ -222,6 +222,11 @@ void Domain1D::locate()
     }
 }
 
+void Domain1D::setupGrid(const vector<double>& grid)
+{
+    setupGrid(grid.size(), grid.data());
+}
+
 void Domain1D::setupGrid(size_t n, const double* z)
 {
     if (n > 1) {
@@ -230,6 +235,16 @@ void Domain1D::setupGrid(size_t n, const double* z)
             m_z[j] = z[j];
         }
     }
+}
+
+void Domain1D::setupUniformGrid(size_t points, double length, double start)
+{
+    vector<double> grid(points);
+    double dz = length / (double)(points - 1);
+    for (int iz = 0; iz < points; iz++) {
+        grid[iz] = start + iz * dz;
+    }
+    setupGrid(grid);
 }
 
 void Domain1D::show(const double* x)
