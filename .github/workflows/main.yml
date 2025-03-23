@@ -100,7 +100,7 @@ jobs:
       run: |
         sudo apt update
         sudo apt install libboost-dev gfortran libopenmpi-dev libopenblas-openmp-dev \
-          libhdf5-dev libfmt-dev
+          libhdf5-dev libfmt-dev doxygen
         gcc --version
     - name: Upgrade pip
       run: python3 -m pip install -U pip setuptools wheel
@@ -108,20 +108,11 @@ jobs:
       run: |
         python3 -m pip install ruamel.yaml scons==4.0.1 numpy${{ matrix.numpy }} \
           cython${{ matrix.cython }} pandas pytest \
-          pytest-github-actions-annotate-failures pytest-xdist pint graphviz
+          pytest-github-actions-annotate-failures pytest-xdist pint graphviz Jinja2
     - name: Build Cantera
       run: |
         python3 `which scons` build env_vars=all -j4 debug=n --debug=time \
         system_fmt=y cc_flags=-D_GLIBCXX_ASSERTIONS
-    - name: Upload shared library
-      # Pin to 4.3.4 to resolve errors around only uploading symlinks.
-      # See https://github.com/actions/upload-artifact/issues/589
-      uses: actions/upload-artifact@v4.3.4
-      if: matrix.python-version == '3.11'
-      with:
-        path: build/lib/libcantera_shared.so
-        name: libcantera_shared-${{ matrix.os }}.so
-        retention-days: 2
     - name: Build Tests
       run:
         python3 `which scons` -j4 build-tests --debug=time
@@ -131,6 +122,24 @@ jobs:
       run: |
         LD_LIBRARY_PATH=build/lib
         python3 -m pytest -raP -v -n auto --durations=50 test/python
+    - name: Generate clib_experimental
+      run: |
+        python3 `which scons` doxygen
+        python3 interfaces/sourcegen/run.py --api=clib --output=.
+        python3 `which scons` build clib_experimental=y -j4
+      if: matrix.python-version == '3.11'
+    - name: Run googletests for clib_experimental
+      run: scons test-clib-experimental --debug=time
+      if: matrix.python-version == '3.11'
+    - name: Upload shared library
+      # Pin to 4.3.4 to resolve errors around only uploading symlinks.
+      # See https://github.com/actions/upload-artifact/issues/589
+      uses: actions/upload-artifact@v4.3.4
+      if: matrix.python-version == '3.11'
+      with:
+        path: build/lib/libcantera_shared.so
+        name: libcantera_shared-${{ matrix.os }}.so
+        retention-days: 2
     - name: Save the wheel file to install Cantera
       uses: actions/upload-artifact@v4
       with:
@@ -209,7 +218,7 @@ jobs:
         submodules: recursive
     - name: Write dependencies to a file for caching
       run: |
-        echo "scons ruamel.yaml numpy cython pandas pytest pytest-xdist pytest-github-actions-annotate-failures pint graphviz" | tr " " "\n" > requirements.txt
+        echo "scons ruamel.yaml numpy cython pandas pytest pytest-xdist pytest-github-actions-annotate-failures pint graphviz Jinja2" | tr " " "\n" > requirements.txt
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
@@ -217,7 +226,7 @@ jobs:
         cache: pip
         cache-dependency-path: requirements.txt
     - name: Install Brew dependencies
-      run: brew install --display-times boost libomp hdf5
+      run: brew install --display-times boost libomp hdf5 doxygen
     - name: Set Include folder
       run:
         echo "BOOST_INC_DIR=$(brew --prefix)/include" >> $GITHUB_ENV
@@ -228,6 +237,23 @@ jobs:
     - name: Build Cantera
       run: scons build env_vars=all -j3 debug=n --debug=time
         boost_inc_dir=${BOOST_INC_DIR} ${{ matrix.extra-build-args }}
+    - name: Build Tests
+      run: scons -j3 build-tests --debug=time
+    - name: Run compiled tests
+      run: scons test-gtest test-legacy --debug=time
+    - name: Run Python tests
+      run: |
+        export DYLD_LIBRARY_PATH=build/lib
+        python3 -m pytest -raP -v -n auto --durations=50 test/python
+    - name: Generate clib_experimental
+      run: |
+        scons doxygen
+        python3 interfaces/sourcegen/run.py --api=clib --output=.
+        scons build clib_experimental=y -j3
+      if: matrix.python-version == '3.12' && matrix.macos-version == 'macos-13'
+    - name: Run googletests for clib_experimental
+      run: scons test-clib-experimental --debug=time
+      if: matrix.python-version == '3.12' && matrix.macos-version == 'macos-13'
     - name: Upload shared library
       # Pin to 4.3.4 to resolve errors around only uploading symlinks.
       # See https://github.com/actions/upload-artifact/issues/589
@@ -237,14 +263,6 @@ jobs:
         path: build/lib/libcantera_shared.dylib
         name: libcantera_shared.dylib
         retention-days: 2
-    - name: Build Tests
-      run: scons -j3 build-tests --debug=time
-    - name: Run compiled tests
-      run: scons test-gtest test-legacy --debug=time
-    - name: Run Python tests
-      run: |
-        export DYLD_LIBRARY_PATH=build/lib
-        python3 -m pytest -raP -v -n auto --durations=50 test/python
 
   # Coverage is its own job because macOS builds of the samples
   # use Homebrew gfortran which is not compatible for coverage
@@ -664,22 +682,13 @@ jobs:
         create-args: >-
           python=${{ matrix.python-version }} scons numpy cython ruamel.yaml boost-cpp
           eigen yaml-cpp pandas pytest pytest-xdist highfive pint python-graphviz
-          fmt=${{ matrix.fmt-ver }} setuptools
+          fmt=${{ matrix.fmt-ver }} setuptools Jinja2 doxygen
         post-cleanup: none
         init-shell: powershell
     - name: Build Cantera
       run: scons build system_eigen=y system_yamlcpp=y system_highfive=y logging=debug
         toolchain=msvc f90_interface=n debug=n ${{ matrix.extra-build-args }}
         --debug=time -j4
-    - name: Upload shared library
-      # Pin to 4.3.4 to resolve errors around only uploading symlinks.
-      # See https://github.com/actions/upload-artifact/issues/589
-      uses: actions/upload-artifact@v4.3.4
-      if: matrix.python-version == '3.11'
-      with:
-        path: build/lib/cantera_shared.dll
-        name: cantera_shared.dll
-        retention-days: 2
     - name: Build Tests
       run: scons -j4 build-tests --debug=time
     - name: Run compiled tests
@@ -711,6 +720,24 @@ jobs:
         if (-not (Test-Path ch4_ion-test.yaml)) { exit 1 }
         yaml2ck data/h2o2.yaml --mechanism=h2o2-test.ck
         if (-not (Test-Path h2o2-test.ck)) { exit 1 }
+    - name: Generate clib_experimental
+      run: |
+        scons doxygen
+        python interfaces/sourcegen/run.py --api=clib --output=.
+        scons build clib_experimental=y -j4
+      if: matrix.python-version == '3.11'
+    - name: Run googletests for clib_experimental
+      run: scons test-clib-experimental --debug=time
+      if: matrix.python-version == '3.11'
+    - name: Upload shared library
+      # Pin to 4.3.4 to resolve errors around only uploading symlinks.
+      # See https://github.com/actions/upload-artifact/issues/589
+      uses: actions/upload-artifact@v4.3.4
+      if: matrix.python-version == '3.11'
+      with:
+        path: build/lib/cantera_shared.dll
+        name: cantera_shared.dll
+        retention-days: 2
 
   windows:
     name: "Windows 2019, MSVC ${{ matrix.vs-toolset }}, Python ${{ matrix.python-version }}"
