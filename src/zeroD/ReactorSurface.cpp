@@ -12,19 +12,6 @@
 namespace Cantera
 {
 
-bool ReactorSurface::setDefaultName(map<string, int>& counts)
-{
-    if (m_defaultNameSet) {
-        return false;
-    }
-    m_defaultNameSet = true;
-    if (m_name == "(none)" || m_name == "") {
-        m_name = fmt::format("{}_{}", type(), counts[type()]);
-    }
-    counts[type()]++;
-    return true;
-}
-
 double ReactorSurface::area() const
 {
     return m_area;
@@ -35,7 +22,8 @@ void ReactorSurface::setArea(double a)
     m_area = a;
 }
 
-void ReactorSurface::setKinetics(Kinetics* kin) {
+void ReactorSurface::setKinetics(Kinetics* kin)
+{
     m_kinetics = kin;
     if (kin == nullptr) {
         m_thermo = nullptr;
@@ -50,6 +38,11 @@ void ReactorSurface::setKinetics(Kinetics* kin) {
     }
     m_cov.resize(m_thermo->nSpecies());
     m_thermo->getCoverages(m_cov.data());
+}
+
+void ReactorSurface::setKinetics(Kinetics& kin)
+{
+    throw NotImplementedError("ReactorSurface::setKinetics");
 }
 
 void ReactorSurface::setReactor(ReactorBase* reactor)
