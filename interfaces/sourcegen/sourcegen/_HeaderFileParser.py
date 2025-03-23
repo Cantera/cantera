@@ -6,8 +6,13 @@
 from pathlib import Path
 import logging
 import re
-from typing import Iterable
-from typing_extensions import Self
+from sys import version_info
+
+if version_info.minor < 11:
+    from typing import Iterable
+    from typing_extensions import Self
+else:
+    from typing import Iterable, Self
 
 from ._dataclasses import HeaderFile, Func, Recipe
 from ._helpers import read_config
