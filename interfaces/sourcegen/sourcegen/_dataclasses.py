@@ -6,8 +6,13 @@
 from dataclasses import dataclass
 import re
 from pathlib import Path
-from typing import Any, Iterator
-from typing_extensions import Self
+from sys import version_info
+
+if version_info.minor < 11:
+    from typing import Any, Iterator
+    from typing_extensions import Self
+else:
+    from typing import Any, Iterator, Self
 
 from ._helpers import with_unpack_iter
 
