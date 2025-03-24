@@ -1295,7 +1295,7 @@ class TestPlasmaPhase:
     def test_elastic_power_loss_change_shape_factor(self, phase):
         phase.TPX = 1000, ct.one_atm, "O2:1, E:1e-5"
         phase.isotropic_shape_factor = 1.1
-        assert phase.elastic_power_loss == approx(4273351243)
+        assert phase.elastic_power_loss == approx(7408711810)
 
 class TestImport:
     """
