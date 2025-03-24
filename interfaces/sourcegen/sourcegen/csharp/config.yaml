@@ -45,6 +45,7 @@ derived_handles:
   SurfaceHandle: ThermoPhaseHandle
   WallHandle: ConnectorHandle
   FlowDeviceHandle: ConnectorHandle
+  ReactorSurfaceHandle: ReactorHandle
 
 # Provides info for scaffolding higher-level idiomatic C# classes
 # At this stage, we can scaffold simple properties that follow the
