@@ -107,15 +107,10 @@ classdef Solution < handle & ThermoPhase & Kinetics & Transport
         %% Solution Class Setter Methods
 
         function set.transportModel(soln, str)
-            if strcmp(str, soln.transportModel)
-                return
-            end
-
             n = ctFunc('soln_setTransportModel', soln.solnID, str);
 
             % update the transport ID after setting to a new transport model
             soln.trID = n;
-
         end
 
     end
