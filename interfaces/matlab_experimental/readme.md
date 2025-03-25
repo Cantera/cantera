@@ -29,12 +29,14 @@ function calling from Cantera CLib.
    `output='/path/to/conda/environment'`, then save the file. This sets the search path
    for the `ctLoad` command to find the shared library file for Cantera.
 8. In the Matlab command window, run `savepath` to save all search paths.
-9. To switch back to the legacy Matlab toolbox, revert the search paths.
 
 ## Usage guide:
 
 1. To start using the experimental toolbox, run `ctLoad` command.
 2. Refer to examples in `/samples/matlab_experimental` in your
    Cantera source code directory.
-3. To stop using the new Cantera interface, run the following commands:
-   `ctCleanUp` `ctUnload`.
+3. To run the unit test suite, navigate to `/test/matlab_experimental`,
+   then run the script `runMatlabInterfaceTests.m`.
+4. To stop using the new Cantera interface, run the following commands:
+   `ctCleanUp`
+   `ctUnload`

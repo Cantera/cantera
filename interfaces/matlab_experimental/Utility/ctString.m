@@ -4,6 +4,7 @@ function output = ctString(funcName, varargin)
 
     err1 = -1;
 
+    % Temporary: new Clib will return the correct string length.
     buflen = calllib(ctLib, funcName, varargin{:}, 0, '') + 1;
 
     if buflen > 0
