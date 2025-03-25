@@ -1,4 +1,4 @@
-function phases = ctImportPhases(src, phasenames)
+function phases = ImportPhases(src, phasenames)
     ctIsLoaded;
 
     if nargin < 2
