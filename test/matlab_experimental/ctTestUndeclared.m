@@ -11,8 +11,6 @@ classdef ctTestUndeclared < matlab.unittest.TestCase
     methods (TestClassSetup)
 
         function testSetUp(self)
-            copyfile('../data/undeclared-tests.yaml', ...
-                     './undeclared-tests.yaml');
             ctTestSetUp
         end
 
@@ -21,7 +19,6 @@ classdef ctTestUndeclared < matlab.unittest.TestCase
     methods (TestClassTeardown)
 
         function testTearDown(self)
-            delete('./undeclared-tests.yaml');
             ctCleanUp
             ctTestTearDown
         end
