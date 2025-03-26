@@ -49,7 +49,7 @@ public:
     void getBinaryDiffCoeffs(const size_t ld, double* const d) override;
 
     /**
-     * Returns the Mixture-averaged diffusion coefficients [m^2/s].
+     * Returns the mixture-averaged diffusion coefficients [m^2/s].
      *
      * This method is the same as GasTransport::getMixDiffCoeffs() with the exception
      * that the binary diffusion coefficients are multiplied by the Takahashi correction
@@ -135,7 +135,7 @@ protected:
     vector<double> m_Vcrit; //!< Critical volume [m^3/kmol] of each species
     vector<double> m_Zcrit; //!< Critical compressibility [unitless] of each species
 
-    //! Matrix of Takaishi binary diffusion coefficient corrections. Size is nsp x nsp.
+    //! Matrix of Takahashi binary diffusion coefficient corrections. Size is nsp x nsp.
     DenseMatrix m_P_corr_ij;
 
     friend class TransportFactory;

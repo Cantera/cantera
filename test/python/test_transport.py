@@ -4,9 +4,7 @@ import pytest
 from pytest import approx
 
 import cantera as ct
-from .utilities import (
-    compareProfiles
-)
+from .utilities import compareProfiles
 
 class TestTransport:
 
@@ -663,7 +661,7 @@ class TestIonGasTransportData:
         assert 'dispersion-coefficient' not in gas.species('CO2').transport.input_data
 
 
-class TestHighPressureGasTransport():
+class TestHighPressureGasTransport:
     """
     Note: to re-create the reference file:
     (1) Set PYTHONPATH to build/python.
