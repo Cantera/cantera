@@ -56,9 +56,9 @@ double takahashiCorrectionFactor(double Pr, double Tr)
     double frac = 0.0;
 
     bool found = false;
-    for (int j = 1; j < 17; j++){
+    for (int j = 1; j < 17; j++) {
         if (Pr_lookup[j] > Pr) {
-            frac = (Pr - Pr_lookup[j-1])/(Pr_lookup[j] - Pr_lookup[j-1]);
+            frac = (Pr - Pr_lookup[j-1]) / (Pr_lookup[j] - Pr_lookup[j-1]);
             found = true;
             Pr_lower = j-1;
             Pr_upper = j;
@@ -75,14 +75,13 @@ double takahashiCorrectionFactor(double Pr, double Tr)
 
     // Compute the value of (DP)_R at the given Pr value by interpolating the
     // bounding values of (DP)_R.
-    double A, B, C, E, DP_Rt, DP_R_lower, DP_R_upper;
-    DP_Rt = DP_Rt_lookup[Pr_lower];
-    A = A_ij_lookup[Pr_lower];
-    B = B_ij_lookup[Pr_lower];
-    C = C_ij_lookup[Pr_lower];
-    E = E_ij_lookup[Pr_lower];
+    double DP_Rt = DP_Rt_lookup[Pr_lower];
+    double A = A_ij_lookup[Pr_lower];
+    double B = B_ij_lookup[Pr_lower];
+    double C = C_ij_lookup[Pr_lower];
+    double E = E_ij_lookup[Pr_lower];
 
-    DP_R_lower = DP_Rt*(1.0 - A*pow(Tr,-B))*(1.0 - C*pow(Tr,-E));
+    double DP_R_lower = DP_Rt*(1.0 - A*pow(Tr,-B))*(1.0 - C*pow(Tr,-E));
 
     DP_Rt = DP_Rt_lookup[Pr_upper];
     A = A_ij_lookup[Pr_upper];
@@ -90,7 +89,7 @@ double takahashiCorrectionFactor(double Pr, double Tr)
     C = C_ij_lookup[Pr_upper];
     E = E_ij_lookup[Pr_upper];
 
-    DP_R_upper = DP_Rt*(1.0 - A*pow(Tr,-B))*(1.0 - C*pow(Tr,-E));
+    double DP_R_upper = DP_Rt*(1.0 - A*pow(Tr,-B))*(1.0 - C*pow(Tr,-E));
 
     // Linear interpolation of the two bounding values of (DP)_R.
     return DP_R_lower*(1.0 - frac) + DP_R_upper*frac;
@@ -136,10 +135,10 @@ void HighPressureGasTransportBase::initializeCriticalProperties()
     m_Vcrit.resize(nSpecies);
     m_Zcrit.resize(nSpecies);
 
-    std::vector<double> molefracs(nSpecies);
+    vector<double> molefracs(nSpecies);
     m_thermo->getMoleFractions(&molefracs[0]);
 
-    std::vector<double> mf_temp(nSpecies, 0.0);
+    vector<double> mf_temp(nSpecies, 0.0);
 
     for (size_t i = 0; i < nSpecies; ++i) {
         mf_temp[i] = 1.0;
@@ -508,9 +507,9 @@ double HighPressureGasTransport::elyHanleyDiluteReferenceViscosity(double T0)
     }
 
     // Coefficients for the correlation from Table III of ely-hanley1981
-    const std::vector<double> c = {2.907741307e6, -3.312874033e6, 1.608101838e6,
-                                   -4.331904871e5, 7.062481330e4, -7.116620750e3,
-                                   4.325174400e2, -1.445911210e1, 2.037119479e-1};
+    const vector<double> c = {2.907741307e6, -3.312874033e6, 1.608101838e6,
+                              -4.331904871e5, 7.062481330e4, -7.116620750e3,
+                              4.325174400e2, -1.445911210e1, 2.037119479e-1};
 
     double mu_0 = 0.0;
     for (size_t i = 0; i < 9; i++) {

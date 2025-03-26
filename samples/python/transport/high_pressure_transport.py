@@ -2,13 +2,13 @@
 High-Pressure transport using two models
 ========================================
 
-Two high-pressure gas transport models are available in Cantera: the 'high-pressure'
-and the 'high-pressure-Chung' models. These models utilize critical fluid properties
+Two high-pressure gas transport models are available in Cantera: the ``high-pressure``
+and the ``high-pressure-Chung`` models. These models utilize critical fluid properties
 and other fluid-specific parameters to calculate transport properties at high pressures.
 These models are useful for fluids that are supercritical where ideal gas assumptions
 do not yield accurate results.
 
-Requires:  cantera >= 3.1.0
+Requires: cantera >= 3.1.0
 
 .. tags:: Python, transport, non-ideal fluid
 """
@@ -17,7 +17,7 @@ import numpy as np
 import cantera as ct
 
 
-# Nist data for Methane at 350 K.
+# NIST data for methane at 350 K.
 nist_pressures = np.array([
     5.,  6.,  7.,  8.,  9., 10., 11., 12., 13., 14., 15., 16., 17., 18., 19., 20., 21.,
     22., 23., 24., 25., 26., 27., 28., 29., 30., 31., 32., 33., 34., 35., 36., 37., 38.,
@@ -44,8 +44,8 @@ nist_thermal_conductivities = np.array([
     0.092421, 0.093228, 0.094029, 0.094824, 0.095612, 0.096395, 0.097172, 0.097944])
 
 # %%
-# Create the gas object for the methane-CO2 system using reference state thermo from
-# the gri30 mechanism, species critical properties from `critical-properties.yaml`,
+# Create the gas object for the methane-CO₂ system using reference state thermo from
+# the GRI 3.0 mechanism, species critical properties from ``critical-properties.yaml``,
 # and the Peng-Robinson equation of state.
 phasedef = """
   phases:
@@ -59,7 +59,7 @@ phasedef = """
 gas = ct.Solution(yaml=phasedef)
 
 # Plot the difference between the high-pressure viscosity and thermal conductivity
-# models and the ideal gas model for Methane.
+# models and the ideal gas model for methane.
 
 pressures = np.linspace(101325, 6e7, 100)
 # Collect ideal viscosities and thermal conductivities
@@ -105,9 +105,12 @@ plt.show()
 
 # %%
 fig, ax = plt.subplots()
-ax.plot(pressures, ideal_thermal_conductivities, label='Ideal Thermal Conductivity')
-ax.plot(pressures, real_thermal_conductivities_1, label='High-Pressure Thermal Conductivity (Chung)')
-ax.plot(pressures, real_thermal_conductivities_2, label='High-Pressure Thermal Conductivity')
+ax.plot(pressures, ideal_thermal_conductivities,
+        label='Ideal Thermal Conductivity')
+ax.plot(pressures, real_thermal_conductivities_1,
+        label='High-Pressure Thermal Conductivity (Chung)')
+ax.plot(pressures, real_thermal_conductivities_2,
+        label='High-Pressure Thermal Conductivity')
 ax.plot(nist_pressures*mpa_to_pa, nist_thermal_conductivities, 'o', label='NIST Data')
 ax.set(xlabel='Pressure (Pa)', ylabel ='Thermal Conductivity (W/m·K)',
        title='Methane Thermal Conductivity Model Comparison')
