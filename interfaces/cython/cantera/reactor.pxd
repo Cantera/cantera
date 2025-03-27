@@ -30,13 +30,13 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
     cdef cppclass CxxFlowDevice "Cantera::FlowDevice"
 
     # factories
-    cdef shared_ptr[CxxReactorBase] newReactor(string) except +translate_exception
-    cdef shared_ptr[CxxReactorBase] newReactor(string, shared_ptr[CxxSolution], string) except +translate_exception
-    cdef shared_ptr[CxxConnectorNode] newConnectorNode(string, shared_ptr[CxxReactorBase], shared_ptr[CxxReactorBase], string) except +translate_exception
+    cdef shared_ptr[CxxReactorNode] newReactor(string) except +translate_exception
+    cdef shared_ptr[CxxReactorNode] newReactor(string, shared_ptr[CxxSolution], string) except +translate_exception
+    cdef shared_ptr[CxxConnectorNode] newConnectorNode(string, shared_ptr[CxxReactorNode], shared_ptr[CxxReactorNode], string) except +translate_exception
 
     # reactors
-    cdef cppclass CxxReactorBase "Cantera::ReactorBase":
-        CxxReactorBase() except +translate_exception
+    cdef cppclass CxxReactorNode "Cantera::ReactorNode":
+        CxxReactorNode() except +translate_exception
         string type()
         void setSolution(shared_ptr[CxxSolution]) except +translate_exception
         void restoreState() except +translate_exception
@@ -46,7 +46,7 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         void setName(string)
         void setInitialVolume(double)
 
-    cdef cppclass CxxReactor "Cantera::Reactor" (CxxReactorBase):
+    cdef cppclass CxxReactor "Cantera::Reactor" (CxxReactorNode):
         CxxReactor() except +translate_exception
         void setChemistry(cbool)
         cbool chemistryEnabled()
@@ -90,7 +90,7 @@ cdef extern from "cantera/zerodim.h" namespace "Cantera":
         void setName(string) except +translate_exception
         double area()
         void setArea(double)
-        void setKinetics(CxxKinetics*)
+        void setKinetics(CxxKinetics*) except +translate_exception
         void setCoverages(double*)
         void setCoverages(Composition&) except +translate_exception
         void syncState()
@@ -221,9 +221,9 @@ cdef extern from "cantera/zeroD/ReactorDelegator.h" namespace "Cantera":
 
 ctypedef CxxReactorAccessor* CxxReactorAccessorPtr
 
-cdef class ReactorBase:
-    cdef shared_ptr[CxxReactorBase] _reactor
-    cdef CxxReactorBase* rbase
+cdef class ReactorNode:
+    cdef shared_ptr[CxxReactorNode] _node
+    cdef CxxReactorNode* node
     cdef object _contents
     cdef list _inlets
     cdef list _outlets
@@ -238,7 +238,7 @@ cdef class ReactorBase:
     .. versionadded:: 3.1
     """
 
-cdef class Reactor(ReactorBase):
+cdef class Reactor(ReactorNode):
     cdef CxxReactor* reactor
     cdef public str group_name
     """
@@ -252,7 +252,7 @@ cdef class Reactor(ReactorBase):
 cdef class MoleReactor(Reactor):
     pass
 
-cdef class Reservoir(ReactorBase):
+cdef class Reservoir(ReactorNode):
     pass
 
 cdef class ConstPressureReactor(Reactor):
@@ -274,18 +274,9 @@ cdef class ExtensibleReactor(Reactor):
     cdef public _delegates
     cdef CxxReactorAccessor* accessor
 
-cdef class ReactorSurface:
+cdef class ReactorSurface(ReactorNode):
     cdef CxxReactorSurface* surface
-    cdef Kinetics _kinetics
-    cdef ReactorBase _reactor
-    cdef public dict node_attr
-    """
-    A dictionary containing draw attributes for the representation of the reactor
-    surface as a graphviz node. See https://graphviz.org/docs/nodes/ for a list of all
-    usable attributes.
-
-    .. versionadded:: 3.1
-    """
+    cdef ReactorNode _reactor
 
 cdef class ConnectorNode:
     cdef shared_ptr[CxxConnectorNode] _node
@@ -304,8 +295,8 @@ cdef class WallBase(ConnectorNode):
     cdef CxxWallBase* wall
     cdef object _velocity_func
     cdef object _heat_flux_func
-    cdef ReactorBase _left_reactor
-    cdef ReactorBase _right_reactor
+    cdef ReactorNode _left_reactor
+    cdef ReactorNode _right_reactor
 
 cdef class Wall(WallBase):
     pass
@@ -315,8 +306,8 @@ cdef class FlowDevice(ConnectorNode):
     cdef CxxFlowDevice* dev
     cdef Func1 _rate_func
     cdef Func1 _time_func
-    cdef ReactorBase _upstream
-    cdef ReactorBase _downstream
+    cdef ReactorNode _upstream
+    cdef ReactorNode _downstream
 
 cdef class MassFlowController(FlowDevice):
     pass

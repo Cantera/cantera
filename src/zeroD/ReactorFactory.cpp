@@ -78,6 +78,9 @@ ReactorFactory::ReactorFactory()
     reg("MoleReactor",
         [](shared_ptr<Solution> sol, const string& name)
         { return new MoleReactor(sol, name); });
+    reg("ReactorSurface",
+        [](shared_ptr<Solution> sol, const string& name)
+        { return new ReactorSurface(sol, name); });
 }
 
 ReactorFactory* ReactorFactory::factory() {
@@ -94,16 +97,16 @@ void ReactorFactory::deleteFactory() {
     s_factory = 0;
 }
 
-shared_ptr<ReactorBase> newReactor(const string& model)
+shared_ptr<ReactorNode> newReactor(const string& model)
 {
-    return shared_ptr<ReactorBase>(
+    return shared_ptr<ReactorNode>(
         ReactorFactory::factory()->create(model, nullptr, ""));
 }
 
-shared_ptr<ReactorBase> newReactor(
+shared_ptr<ReactorNode> newReactor(
     const string& model, shared_ptr<Solution> contents, const string& name)
 {
-    return shared_ptr<ReactorBase>(
+    return shared_ptr<ReactorNode>(
         ReactorFactory::factory()->create(model, contents, name));
 }
 

@@ -6,7 +6,7 @@
 #ifndef CT_RESERVOIR_H
 #define CT_RESERVOIR_H
 
-#include "ReactorBase.h"
+#include "ReactorNode.h"
 #include "cantera/base/Solution.h"
 
 namespace Cantera
@@ -15,10 +15,10 @@ namespace Cantera
 //! A source or sink whose state remains constant regardless of any flows or other
 //! interactions with other Reactor objects.
 //! @ingroup reactorGroup
-class Reservoir : public ReactorBase
+class Reservoir : public ReactorNode
 {
 public:
-    using ReactorBase::ReactorBase; // inherit constructors
+    using ReactorNode::ReactorNode; // inherit constructors
 
     string type() const override {
         return "Reservoir";

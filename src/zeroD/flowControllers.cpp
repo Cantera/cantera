@@ -4,7 +4,7 @@
 // at https://cantera.org/license.txt for license and copyright information.
 
 #include "cantera/zeroD/flowControllers.h"
-#include "cantera/zeroD/ReactorBase.h"
+#include "cantera/zeroD/ReactorNode.h"
 #include "cantera/numerics/Func1.h"
 
 namespace Cantera

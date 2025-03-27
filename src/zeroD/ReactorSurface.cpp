@@ -7,22 +7,39 @@
 #include "cantera/zeroD/ReactorNet.h"
 #include "cantera/thermo/SurfPhase.h"
 #include "cantera/kinetics/Kinetics.h"
+#include "cantera/kinetics/InterfaceKinetics.h"
 #include "cantera/kinetics/Reaction.h"
 
 namespace Cantera
 {
 
-bool ReactorSurface::setDefaultName(map<string, int>& counts)
+ReactorSurface::ReactorSurface(shared_ptr<Solution> sol, const string& name)
+    : ReactorNode(sol, name)
 {
-    if (m_defaultNameSet) {
-        return false;
+    if (!std::dynamic_pointer_cast<SurfPhase>(sol->thermo())) {
+        throw CanteraError("ReactorSurface::ReactorSurface",
+            "Solution object must have a SurfPhase object as the thermo manager.");
     }
-    m_defaultNameSet = true;
-    if (m_name == "(none)" || m_name == "") {
-        m_name = fmt::format("{}_{}", type(), counts[type()]);
+
+    if (!sol->kinetics() ) {
+        throw CanteraError("ReactorSurface::ReactorSurface",
+            "Solution object must have kinetics manager.");
+    } else if (!std::dynamic_pointer_cast<InterfaceKinetics>(sol->kinetics())) {
+        throw CanteraError("ReactorSurface::ReactorSurface",
+            "Kinetics manager must be an InterfaceKinetics object.");
     }
-    counts[type()]++;
-    return true;
+    // todo: move all member variables to use shared pointers after Cantera 3.2
+    m_kinetics = m_solution->kinetics().get();
+    m_thermo = dynamic_cast<SurfPhase*>(&m_kinetics->thermo(0));
+    if (m_thermo == nullptr) {
+        // This should never happen, as the Solution should already contain the correct
+        // SurfPhase object
+        throw CanteraError("ReactorSurface::ReactorSurface",
+            "Specified kinetics manager does not represent a surface "
+            "kinetics mechanism.");
+    }
+    m_cov.resize(m_thermo->nSpecies());
+    m_thermo->getCoverages(m_cov.data());
 }
 
 double ReactorSurface::area() const
@@ -35,7 +52,10 @@ void ReactorSurface::setArea(double a)
     m_area = a;
 }
 
-void ReactorSurface::setKinetics(Kinetics* kin) {
+void ReactorSurface::setKinetics(Kinetics* kin)
+{
+    warn_deprecated("ReactorSurface::setKinetics",
+                    "To be removed after Cantera 3.2.");
     m_kinetics = kin;
     if (kin == nullptr) {
         m_thermo = nullptr;
@@ -52,7 +72,12 @@ void ReactorSurface::setKinetics(Kinetics* kin) {
     m_thermo->getCoverages(m_cov.data());
 }
 
-void ReactorSurface::setReactor(ReactorBase* reactor)
+void ReactorSurface::setKinetics(Kinetics& kin)
+{
+    throw NotImplementedError("ReactorSurface::setKinetics");
+}
+
+void ReactorSurface::setReactor(ReactorNode* reactor)
 {
     m_reactor = reactor;
 }

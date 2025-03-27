@@ -14,7 +14,7 @@
 namespace Cantera
 {
 class Func1;
-class ReactorBase;
+class ReactorNode;
 
 /**
  * Base class for 'flow devices' (valves, pressure regulators, etc.)
@@ -24,7 +24,7 @@ class ReactorBase;
 class FlowDevice : public ConnectorNode
 {
 public:
-    FlowDevice(shared_ptr<ReactorBase> r0, shared_ptr<ReactorBase> r1,
+    FlowDevice(shared_ptr<ReactorNode> r0, shared_ptr<ReactorNode> r1,
                const string& name="(none)");
     using ConnectorNode::ConnectorNode;  // inherit constructors
 
@@ -60,24 +60,24 @@ public:
      * @deprecated To be removed after %Cantera 3.2. Reactors should be provided to
      *      constructor instead.
      */
-    bool install(ReactorBase& in, ReactorBase& out);
+    bool install(ReactorNode& in, ReactorNode& out);
 
     virtual bool ready() {
         return (m_in != 0 && m_out != 0);
     }
 
     //! Return a reference to the upstream reactor.
-    ReactorBase& in() const {
+    ReactorNode& in() const {
         return *m_in;
     }
 
     //! Return a const reference to the downstream reactor.
-    const ReactorBase& out() const {
+    const ReactorNode& out() const {
         return *m_out;
     }
 
     //! Return a mutable reference to the downstream reactor.
-    ReactorBase& out() {
+    ReactorNode& out() {
         return *m_out;
     }
 
@@ -136,8 +136,8 @@ protected:
 private:
     size_t m_nspin = 0;
     size_t m_nspout = 0;
-    ReactorBase* m_in = nullptr;
-    ReactorBase* m_out = nullptr;
+    ReactorNode* m_in = nullptr;
+    ReactorNode* m_out = nullptr;
     vector<size_t> m_in2out, m_out2in;
 };
 

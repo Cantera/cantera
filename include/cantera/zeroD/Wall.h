@@ -7,7 +7,7 @@
 #define CT_WALL_H
 
 #include "cantera/base/ctexceptions.h"
-#include "cantera/zeroD/ReactorBase.h"
+#include "cantera/zeroD/ReactorNode.h"
 #include "ConnectorNode.h"
 
 namespace Cantera
@@ -22,7 +22,7 @@ class Func1;
 class WallBase : public ConnectorNode
 {
 public:
-    WallBase(shared_ptr<ReactorBase> r0, shared_ptr<ReactorBase> r1,
+    WallBase(shared_ptr<ReactorNode> r0, shared_ptr<ReactorNode> r1,
              const string& name="(none)");
     using ConnectorNode::ConnectorNode;  // inherit constructors
 
@@ -62,7 +62,7 @@ public:
     //! Install the wall between two reactors or reservoirs
     //! @deprecated To be removed after %Cantera 3.2. Reactors should be provided to
     //!     constructor instead.
-    bool install(ReactorBase& leftReactor, ReactorBase& rightReactor);
+    bool install(ReactorNode& leftReactor, ReactorNode& rightReactor);
 
     //! Called just before the start of integration
     virtual void initialize() {}
@@ -73,12 +73,12 @@ public:
     }
 
     //! Return a reference to the Reactor or Reservoir to the left of the wall.
-    ReactorBase& left() const {
+    ReactorNode& left() const {
         return *m_left;
     }
 
     //! Return a reference to the Reactor or Reservoir to the right of the wall.
-    ReactorBase& right() {
+    ReactorNode& right() {
         return *m_right;
     }
 
@@ -91,8 +91,8 @@ public:
     }
 
 protected:
-    ReactorBase* m_left = nullptr;
-    ReactorBase* m_right = nullptr;
+    ReactorNode* m_left = nullptr;
+    ReactorNode* m_right = nullptr;
 
     //! current reactor network time
     double m_time = 0.0;
@@ -100,7 +100,7 @@ protected:
     double m_area = 1.0;
 };
 
-//! Represents a wall between between two ReactorBase objects.
+//! Represents a wall between between two ReactorNode objects.
 /*!
  * Walls can move (changing the volume of the adjacent reactors) and allow heat
  * transfer between reactors.
