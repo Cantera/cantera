@@ -4,7 +4,8 @@ function output = ctString(funcName, varargin)
 
     err1 = -1;
 
-    buflen = calllib(ctLib, funcName, varargin{:}, 0, '');
+    % Temporary: new Clib will return the correct string length.
+    buflen = calllib(ctLib, funcName, varargin{:}, 0, '') + 1;
 
     if buflen > 0
         aa = char(ones(1, buflen));
@@ -25,7 +26,7 @@ function output = ctString(funcName, varargin)
         error('Cantera:ctError', ctGetErr);
     end
 
-    if iok == -err1
+    if iok == err1
         error('Cantera:ctError', ctGetErr);
     end
 
