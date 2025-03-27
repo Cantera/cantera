@@ -51,3 +51,4 @@ environment.y*
 coverage/
 coverage.info
 .coverage
+yaml/

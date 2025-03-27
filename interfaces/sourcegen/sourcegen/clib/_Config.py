@@ -4,8 +4,12 @@
 # at https://cantera.org/license.txt for license and copyright information.
 
 from dataclasses import dataclass
-from typing_extensions import Self
+from sys import version_info
 
+if version_info.minor < 11:
+    from typing_extensions import Self
+else:
+    from typing import Self
 
 @dataclass(frozen=True)
 class Config:
@@ -21,12 +25,14 @@ class Config:
         "shared_ptr<T>": "int",
         "string": "char*",
         "const string": "char*",
+        "vector<double>&": "double*",
         "const vector<double>&": "double*",
     }
 
     prop_type_crosswalk = {
         "bool": "int",
         "int": "int",
+        "const int*": "const int*",
         "size_t": "int",
         "const size_t": "int",
         "double": "double",
@@ -39,7 +45,9 @@ class Config:
         "const string&": "const char*",
         "shared_ptr<T>": "int",
         "const shared_ptr<T>": "int",
+        "vector<double>&": "double*",
         "const vector<double>&": "const double*",
+        "vector<shared_ptr<T>>&": "int[]",
         "const vector<shared_ptr<T>>&": "int[]",
     }
 

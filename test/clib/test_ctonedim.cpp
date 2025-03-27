@@ -196,7 +196,7 @@ TEST(ctonedim, freeflame)
     }
 
     ASSERT_EQ(domain_nPoints(flow), static_cast<size_t>(nz + 1));
-    comp = static_cast<int>(domain_componentIndex(dom, "T"));
+    comp = static_cast<int>(domain_componentIndex(flow, "T"));
     double Tprev = sim1D_value(flame, dom, comp, 0);
     for (size_t n = 0; n < domain_nPoints(flow); n++) {
         T = sim1D_value(flame, dom, comp, static_cast<int>(n));

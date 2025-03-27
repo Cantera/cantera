@@ -935,4 +935,9 @@ void Sim1D::resize()
     m_xnew.resize(size(), 0.0);
 }
 
+shared_ptr<Sim1D> newSim1D(vector<shared_ptr<Domain1D>>& domains)
+{
+    return make_shared<Sim1D>(domains);
+}
+
 }
