@@ -131,8 +131,10 @@ size_t Reactor::nSensParams() const
 void Reactor::syncState()
 {
     m_thermo->saveState(m_state);
-    m_enthalpy = m_thermo->enthalpy_mass();
-    m_intEnergy = m_thermo->intEnergy_mass();
+    if (m_energy) {
+        m_enthalpy = m_thermo->enthalpy_mass();
+        m_intEnergy = m_thermo->intEnergy_mass();
+    }
     m_pressure = m_thermo->pressure();
     m_mass = m_thermo->density() * m_vol;
     if (m_net) {
