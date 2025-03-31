@@ -226,6 +226,8 @@ public:
     virtual bool preconditionerSupported() const {return false;};
 
 protected:
+    //! @deprecated To be removed after %Cantera 3.2. Use constructor with
+    //!     Solution object instead.
     void setKinetics(Kinetics& kin) override;
 
     //! Return the index in the solution vector for this reactor of the species

@@ -74,7 +74,7 @@ void ReactorSurface::setKinetics(Kinetics* kin)
 
 void ReactorSurface::setKinetics(Kinetics& kin)
 {
-    throw NotImplementedError("ReactorSurface::setKinetics");
+    setKinetics(&kin);
 }
 
 void ReactorSurface::setReactor(ReactorBase* reactor)

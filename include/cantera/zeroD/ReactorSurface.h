@@ -83,6 +83,10 @@ public:
     void resetSensitivityParameters();
 
 protected:
+    //! Methods needed to disambiguate from non-protected variant.
+    //! @since New in %Cantera 3.2.
+    //! @deprecated To be removed after %Cantera 3.2. Use constructor with
+    //!     Solution object instead.
     void setKinetics(Kinetics& kin) override;
 
     double m_area = 1.0;
