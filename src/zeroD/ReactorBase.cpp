@@ -76,9 +76,13 @@ void ReactorBase::setThermo(ThermoPhase& thermo)
     m_thermo = &thermo;
     m_nsp = m_thermo->nSpecies();
     m_thermo->saveState(m_state);
-    m_enthalpy = m_thermo->enthalpy_mass(); // Used by Reservoir
-    m_intEnergy = m_thermo->intEnergy_mass();
-    m_pressure = m_thermo->pressure(); // Used by Reservoir
+    m_enthalpy = m_thermo->enthalpy_mass(); // Needed for flow and wall interactions
+    m_pressure = m_thermo->pressure(); // Needed for flow and wall interactions
+    try {
+        m_intEnergy = m_thermo->intEnergy_mass();
+    } catch (NotImplementedError&) {
+        // some ThermoPhase objects do not implement intEnergy_mass()
+    }
 }
 
 void ReactorBase::addInlet(FlowDevice& inlet)
