@@ -87,9 +87,10 @@ public:
     //! @name Methods to set up a simulation
     //! @{
 
-    //! Set the initial reactor volume. By default, the volume is 1.0 m^3.
-    void setInitialVolume(double vol) {
-        m_vol = vol;
+    //! Set the initial reactor volume.
+    virtual void setInitialVolume(double vol) {
+        throw NotImplementedError("ReactorBase::setInitialVolume",
+            "Volume is undefined for reactors of type '{}'.", type());
     }
 
     //! Enable or disable changes in reactor composition due to chemical reactions.
@@ -297,7 +298,7 @@ protected:
     size_t m_nsp = 0;
 
     ThermoPhase* m_thermo = nullptr;
-    double m_vol = 1.0; //!< Current volume of the reactor [m^3]
+    double m_vol = 0.0; //!< Current volume of the reactor [m^3]
     double m_enthalpy = 0.0; //!< Current specific enthalpy of the reactor [J/kg]
     double m_intEnergy = 0.0; //!< Current internal energy of the reactor [J/kg]
     double m_pressure = 0.0; //!< Current pressure in the reactor [Pa]
