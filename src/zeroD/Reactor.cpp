@@ -25,7 +25,12 @@ namespace Cantera
 Reactor::Reactor(shared_ptr<Solution> sol, const string& name)
     : ReactorBase(sol, name)
 {
-    setKinetics(*sol->kinetics());
+    m_kin = sol->kinetics().get();
+    if (m_kin->nReactions() == 0) {
+        setChemistry(false);
+    } else {
+        setChemistry(true);
+    }
 }
 
 void Reactor::setDerivativeSettings(AnyMap& settings)
@@ -39,6 +44,9 @@ void Reactor::setDerivativeSettings(AnyMap& settings)
 
 void Reactor::setKinetics(Kinetics& kin)
 {
+    warn_deprecated("Reactor::setKinetics",
+        "After Cantera 3.2, a change of reactor contents after instantiation "
+        "will be disabled.");
     m_kin = &kin;
     if (m_kin->nReactions() == 0) {
         setChemistry(false);

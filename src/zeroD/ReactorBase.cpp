@@ -25,13 +25,8 @@ ReactorBase::ReactorBase(shared_ptr<Solution> sol, const string& name)
                            "Missing or incomplete Solution object.");
     }
     m_solution = sol;
-    setThermo(*sol->thermo());
-    try {
-        setKinetics(*sol->kinetics());
-    } catch (NotImplementedError&) {
-        // kinetics not used (example: Reservoir)
-    }
     m_solution->thermo()->addSpeciesLock();
+    setThermo(*sol->thermo());
 }
 
 ReactorBase::~ReactorBase()
@@ -67,13 +62,13 @@ void ReactorBase::setSolution(shared_ptr<Solution> sol)
         m_solution->thermo()->removeSpeciesLock();
     }
     m_solution = sol;
+    m_solution->thermo()->addSpeciesLock();
     setThermo(*sol->thermo());
     try {
         setKinetics(*sol->kinetics());
     } catch (NotImplementedError&) {
         // kinetics not used (example: Reservoir)
     }
-    m_solution->thermo()->addSpeciesLock();
 }
 
 void ReactorBase::setThermo(ThermoPhase& thermo)
