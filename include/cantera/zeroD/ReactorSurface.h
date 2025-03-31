@@ -48,6 +48,24 @@ public:
     //!     Solution object instead.
     void setKinetics(Kinetics* kin);
 
+    void addInlet(FlowDevice& inlet) override {
+        throw NotImplementedError("ReactorSurface::addInlet",
+            "Inlets are undefined for reactors of type '{}'.", type());
+    }
+
+    void addOutlet(FlowDevice& outlet) override {
+        throw NotImplementedError("ReactorSurface::addOutlet",
+            "Outlets are undefined for reactors of type '{}'.", type());
+    }
+
+    void addWall(WallBase& w, int lr) override {
+        throw NotImplementedError("ReactorSurface::addWall");
+    }
+
+    void addSurface(ReactorSurface* surf) override {
+        throw NotImplementedError("ReactorSurface::addSurface");
+    }
+
     //! Set the reactor that this Surface interacts with
     void setReactor(ReactorBase* reactor);
 
