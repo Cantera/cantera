@@ -184,7 +184,7 @@ void FlowReactor::initialize(double t0)
 
 void FlowReactor::syncState()
 {
-    ReactorBase::syncState();
+    Reactor::syncState();
     m_rho = m_thermo->density();
     m_P = m_thermo->pressure();
     m_T = m_thermo->temperature();
