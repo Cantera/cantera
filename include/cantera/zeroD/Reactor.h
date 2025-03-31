@@ -276,7 +276,6 @@ protected:
 
     double m_Qdot = 0.0; //!< net heat transfer into the reactor, through walls [W]
 
-    double m_mass = 0.0; //!< total mass
     vector<double> m_work;
 
     //! Production rates of gas phase species on surfaces [kmol/s]

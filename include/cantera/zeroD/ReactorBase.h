@@ -236,7 +236,7 @@ public:
 
     //! Returns the mass (kg) of the reactor's contents.
     double mass() const {
-        return m_vol * density();
+        return m_mass;
     }
 
     //! Return the vector of species mass fractions.
@@ -295,6 +295,7 @@ protected:
 
     ThermoPhase* m_thermo = nullptr;
     double m_vol = 0.0; //!< Current volume of the reactor [m^3]
+    double m_mass = 0.0; //!< Current mass of the reactor [kg]
     double m_enthalpy = 0.0; //!< Current specific enthalpy of the reactor [J/kg]
     double m_intEnergy = 0.0; //!< Current internal energy of the reactor [J/kg]
     double m_pressure = 0.0; //!< Current pressure in the reactor [Pa]
