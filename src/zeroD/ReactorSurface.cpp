@@ -30,16 +30,10 @@ ReactorSurface::ReactorSurface(shared_ptr<Solution> sol, const string& name)
     }
     // todo: move all member variables to use shared pointers after Cantera 3.2
     m_kinetics = m_solution->kinetics().get();
-    m_thermo = dynamic_cast<SurfPhase*>(&m_kinetics->thermo(0));
-    if (m_thermo == nullptr) {
-        // This should never happen, as the Solution should already contain the correct
-        // SurfPhase object
-        throw CanteraError("ReactorSurface::ReactorSurface",
-            "Specified kinetics manager does not represent a surface "
-            "kinetics mechanism.");
-    }
-    m_cov.resize(m_thermo->nSpecies());
-    m_thermo->getCoverages(m_cov.data());
+    m_thermo = m_solution->thermo().get();
+    m_surf = dynamic_cast<SurfPhase*>(m_thermo);
+    m_cov.resize(m_surf->nSpecies());
+    m_surf->getCoverages(m_cov.data());
 }
 
 double ReactorSurface::area() const
@@ -58,18 +52,18 @@ void ReactorSurface::setKinetics(Kinetics* kin)
                     "To be removed after Cantera 3.2.");
     m_kinetics = kin;
     if (kin == nullptr) {
-        m_thermo = nullptr;
+        m_surf = nullptr;
         return;
     }
 
-    m_thermo = dynamic_cast<SurfPhase*>(&kin->thermo(0));
-    if (m_thermo == nullptr) {
+    m_surf = dynamic_cast<SurfPhase*>(&kin->thermo(0));
+    if (m_surf == nullptr) {
         throw CanteraError("ReactorSurface::setKinetics",
             "Specified kinetics manager does not represent a surface "
             "kinetics mechanism.");
     }
-    m_cov.resize(m_thermo->nSpecies());
-    m_thermo->getCoverages(m_cov.data());
+    m_cov.resize(m_surf->nSpecies());
+    m_surf->getCoverages(m_cov.data());
 }
 
 void ReactorSurface::setKinetics(Kinetics& kin)
@@ -89,14 +83,14 @@ void ReactorSurface::setCoverages(const double* cov)
 
 void ReactorSurface::setCoverages(const Composition& cov)
 {
-    m_thermo->setCoveragesByName(cov);
-    m_thermo->getCoverages(m_cov.data());
+    m_surf->setCoveragesByName(cov);
+    m_surf->getCoverages(m_cov.data());
 }
 
 void ReactorSurface::setCoverages(const string& cov)
 {
-    m_thermo->setCoveragesByName(cov);
-    m_thermo->getCoverages(m_cov.data());
+    m_surf->setCoveragesByName(cov);
+    m_surf->getCoverages(m_cov.data());
 }
 
 void ReactorSurface::getCoverages(double* cov) const
@@ -106,8 +100,8 @@ void ReactorSurface::getCoverages(double* cov) const
 
 void ReactorSurface::syncState()
 {
-    m_thermo->setTemperature(m_reactor->temperature());
-    m_thermo->setCoveragesNoNorm(m_cov.data());
+    m_surf->setTemperature(m_reactor->temperature());
+    m_surf->setCoveragesNoNorm(m_cov.data());
 }
 
 void ReactorSurface::addSensitivityReaction(size_t rxn)
