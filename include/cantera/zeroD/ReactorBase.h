@@ -104,10 +104,10 @@ public:
     }
 
     //! Connect an inlet FlowDevice to this reactor
-    void addInlet(FlowDevice& inlet);
+    virtual void addInlet(FlowDevice& inlet);
 
     //! Connect an outlet FlowDevice to this reactor
-    void addOutlet(FlowDevice& outlet);
+    virtual void addOutlet(FlowDevice& outlet);
 
     //! Return a reference to the *n*-th inlet FlowDevice connected to this
     //! reactor.
@@ -139,7 +139,7 @@ public:
      *  this reactor is to the right of the wall. This method is called
      *  automatically for both the left and right reactors by WallBase::install.
      */
-    void addWall(WallBase& w, int lr);
+    virtual void addWall(WallBase& w, int lr);
 
     //! Return a reference to the *n*-th Wall connected to this reactor.
     WallBase& wall(size_t n);
