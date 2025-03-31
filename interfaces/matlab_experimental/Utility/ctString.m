@@ -4,30 +4,27 @@ function output = ctString(funcName, varargin)
 
     err1 = -1;
 
-    % Temporary: new Clib will return the correct string length.
-    buflen = calllib(ctLib, funcName, varargin{:}, 0, '') + 1;
+    [buflen, ~] = clib.ctMatlab.(funcName)(varargin{:}, 0);
 
     if buflen > 0
-        aa = char(ones(1, buflen));
-        ptr = libpointer('cstring', aa);
+        % Convert all buflen to double for better data type compatibility
+        buflen = double(buflen);
+
         nchar = sum(cellfun(@ischar, varargin));
-        if nchar == 0
-            % varargin does not contain char array
-            [iok, bb] = calllib(ctLib, funcName, varargin{:}, buflen, ptr);
-        elseif nchar == 1
-            % varargin contains one char array, which MATLAB returns in second place
-            [iok, ~, bb] = calllib(ctLib, funcName, varargin{:}, buflen, ptr);
+        if nchar == 0 || nchar == 1
+            [iok, str] = clib.ctMatlab.(funcName)(varargin{:}, buflen);
         else
             error('not implemented - argument list contains more than one char array.')
         end
-        output = bb;
-        clear aa bb ptr;
     else
         error('Cantera:ctError', ctGetErr);
     end
 
+    iok = double(iok);
     if iok == err1
         error('Cantera:ctError', ctGetErr);
     end
+
+    output = str;
 
 end
