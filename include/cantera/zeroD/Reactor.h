@@ -66,6 +66,10 @@ public:
         return true;
     }
 
+    void setInitialVolume(double vol) override {
+        m_vol = vol;
+    }
+
     void setChemistry(bool cflag=true) override {
         m_chem = cflag;
     }

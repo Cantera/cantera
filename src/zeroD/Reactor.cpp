@@ -31,6 +31,7 @@ Reactor::Reactor(shared_ptr<Solution> sol, const string& name)
     } else {
         setChemistry(true);
     }
+    m_vol = 1.0; // By default, the volume is set to 1.0 m^3.
 }
 
 void Reactor::setDerivativeSettings(AnyMap& settings)
