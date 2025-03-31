@@ -35,7 +35,7 @@ public:
 
     //! Accessor for the SurfPhase object
     SurfPhase* thermo() {
-        return m_thermo;
+        return m_surf;
     }
 
     //! Accessor for the InterfaceKinetics object
@@ -101,6 +101,8 @@ public:
     void resetSensitivityParameters();
 
 protected:
+    void setThermo(ThermoPhase& thermo) override {}
+
     //! Set the InterfaceKinetics object for this surface.
     //! Method is needed to prevent compiler warnings by disambiguating from the
     //! non-protected variant.
@@ -111,7 +113,7 @@ protected:
 
     double m_area = 1.0;
 
-    SurfPhase* m_thermo = nullptr;
+    SurfPhase* m_surf = nullptr;
     Kinetics* m_kinetics = nullptr;
     ReactorBase* m_reactor = nullptr;
     vector<double> m_cov;
