@@ -76,20 +76,9 @@ void ReactorBase::setThermo(ThermoPhase& thermo)
     m_thermo = &thermo;
     m_nsp = m_thermo->nSpecies();
     m_thermo->saveState(m_state);
-    m_enthalpy = m_thermo->enthalpy_mass();
+    m_enthalpy = m_thermo->enthalpy_mass(); // Used by Reservoir
     m_intEnergy = m_thermo->intEnergy_mass();
-    m_pressure = m_thermo->pressure();
-}
-
-void ReactorBase::syncState()
-{
-    m_thermo->saveState(m_state);
-    m_enthalpy = m_thermo->enthalpy_mass();
-    m_intEnergy = m_thermo->intEnergy_mass();
-    m_pressure = m_thermo->pressure();
-    if (m_net) {
-        m_net->setNeedsReinit();
-    }
+    m_pressure = m_thermo->pressure(); // Used by Reservoir
 }
 
 void ReactorBase::addInlet(FlowDevice& inlet)

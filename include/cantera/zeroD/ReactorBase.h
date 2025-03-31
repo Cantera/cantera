@@ -164,10 +164,13 @@ public:
     //! reactor's current state.
     void restoreState();
 
-    //! Set the state of the reactor to correspond to the state of the
-    //! associated ThermoPhase object. This is the inverse of restoreState().
-    //! Calling this will trigger integrator reinitialization.
-    virtual void syncState();
+    //! Set the state of the reactor to the associated ThermoPhase object.
+    //! This method is the inverse of restoreState() and will trigger integrator
+    //! reinitialization.
+    //! The method needs to be implemented by a ReactorBase specialization.
+    virtual void syncState() {
+        throw NotImplementedError("ReactorBase::syncState");
+    }
 
     //! return a reference to the contents.
     ThermoPhase& contents() {
