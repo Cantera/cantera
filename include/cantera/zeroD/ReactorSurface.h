@@ -69,8 +69,7 @@ public:
     //! Set the reactor that this Surface interacts with
     void setReactor(ReactorBase* reactor);
 
-    //! Number of sensitivity parameters associated with reactions on this
-    //! surface
+    //! Number of sensitivity parameters associated with reactions on this surface
     size_t nSensParams() const {
         return m_params.size();
     }
@@ -109,7 +108,9 @@ public:
     void resetSensitivityParameters();
 
 protected:
-    //! Methods needed to disambiguate from non-protected variant.
+    //! Set the InterfaceKinetics object for this surface.
+    //! Method is needed to prevent compiler warnings by disambiguating from the
+    //! non-protected variant.
     //! @since New in %Cantera 3.2.
     //! @deprecated To be removed after %Cantera 3.2. Use constructor with
     //!     Solution object instead.

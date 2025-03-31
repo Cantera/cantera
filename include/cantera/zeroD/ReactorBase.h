@@ -40,9 +40,9 @@ struct SensitivityParameter
 };
 
 /**
- * Base class for stirred reactors. Allows using any substance model, with
- * arbitrary inflow, outflow, heat loss/gain, surface chemistry, and volume
- * change.
+ * Base class for reactor objects. Allows using any substance model, with arbitrary
+ * inflow, outflow, heat loss/gain, surface chemistry, and volume change, whenever
+ * defined.
  * @ingroup reactorGroup
  */
 class ReactorBase
@@ -109,12 +109,10 @@ public:
     //! Connect an outlet FlowDevice to this reactor
     virtual void addOutlet(FlowDevice& outlet);
 
-    //! Return a reference to the *n*-th inlet FlowDevice connected to this
-    //! reactor.
+    //! Return a reference to the *n*-th inlet FlowDevice connected to this reactor.
     FlowDevice& inlet(size_t n = 0);
 
-    //! Return a reference to the *n*-th outlet FlowDevice connected to this
-    //! reactor.
+    //! Return a reference to the *n*-th outlet FlowDevice connected to this reactor.
     FlowDevice& outlet(size_t n = 0);
 
     //! Return the number of inlet FlowDevice objects connected to this reactor.
@@ -122,8 +120,7 @@ public:
         return m_inlet.size();
     }
 
-    //! Return the number of outlet FlowDevice objects connected to this
-    //! reactor.
+    //! Return the number of outlet FlowDevice objects connected to this reactor.
     size_t nOutlets() {
         return m_outlet.size();
     }
@@ -146,8 +143,7 @@ public:
 
     virtual void addSurface(ReactorSurface* surf);
 
-    //! Return a reference to the *n*-th ReactorSurface connected to this
-    //! reactor
+    //! Return a reference to the *n*-th ReactorSurface connected to this reactor.
     ReactorSurface* surface(size_t n);
 
     //! Return the number of surfaces in a reactor
