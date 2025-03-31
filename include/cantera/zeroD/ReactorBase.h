@@ -287,6 +287,8 @@ protected:
 
     //! Specify the kinetics manager for the reactor. Called by setSolution().
     //! @since New in %Cantera 3.1.
+    //! @deprecated  To be removed after %Cantera 3.2. Superseded by instantiation of
+    //!              ReactorBase with Solution object.
     virtual void setKinetics(Kinetics& kin) {
         throw NotImplementedError("ReactorBase::setKinetics");
     }
