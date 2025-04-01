@@ -104,6 +104,9 @@ cdef extern from "cantera/oneD/Flow1D.h":
 
 
 cdef extern from "cantera/oneD/Sim1D.h":
+    cdef shared_ptr[CxxSim1D] CxxNewSim1D "newSim1D" (
+        vector[shared_ptr[CxxDomain1D]]&) except +translate_exception
+
     cdef cppclass CxxSim1D "Cantera::Sim1D":
         CxxSim1D(vector[shared_ptr[CxxDomain1D]]&) except +translate_exception
         void setValue(size_t, size_t, size_t, double) except +translate_exception
@@ -181,6 +184,7 @@ cdef class FlowBase(Domain1D):
     cdef CxxFlow1D* flow
 
 cdef class Sim1D:
+    cdef shared_ptr[CxxSim1D] _sim
     cdef CxxSim1D* sim
     cdef readonly object domains
     cdef object _initialized

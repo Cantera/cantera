@@ -511,8 +511,19 @@ public:
         return m_z;
     }
 
+    //! Set up initial grid.
+    //! @since New in %Cantera 3.2.
+    void setupGrid(const vector<double>& grid);
+
     //! called to set up initial grid, and after grid refinement
     virtual void setupGrid(size_t n, const double* z);
+
+    //! Set up uniform grid.
+    //! @param points  Number of grid points
+    //! @param length  Length of domain
+    //! @param start  Start position of domain (default=0.)
+    //! @since New in %Cantera 3.2.
+    void setupUniformGrid(size_t points, double length, double start=0.);
 
     /**
      * Writes some or all initial solution values into the global solution

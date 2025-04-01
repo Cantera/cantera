@@ -6,8 +6,13 @@
 from pathlib import Path
 import logging
 import re
-from typing import Iterable
-from typing_extensions import Self
+from sys import version_info
+
+if version_info.minor < 11:
+    from typing import Iterable
+    from typing_extensions import Self
+else:
+    from typing import Iterable, Self
 
 from ._dataclasses import HeaderFile, Func, Recipe
 from ._helpers import read_config
@@ -64,7 +69,7 @@ class HeaderFileParser:
         prefix = config["prefix"]
         base = config["base"]
         parents = config.get("parents", [])
-        derived = config.get("derived", [])
+        derived = config.get("derived", {})
         for recipe in config["recipes"]:
             if recipe["name"] in self._ignore_funcs:
                 continue
@@ -97,7 +102,7 @@ class HeaderFileParser:
         return [cls(ff, ignore_funcs.get(ff.name, []))._parse_h() for ff in files]
 
     def _parse_h(self) -> HeaderFile:
-        ct = self._path.read_text()
+        ct = self._path.read_text(encoding="utf-8")
 
         matches = re.finditer(r"CANTERA_CAPI.*?;", ct, re.DOTALL)
         c_functions = [re.sub(r"\s+", " ", m.group()).replace("CANTERA_CAPI ", "")

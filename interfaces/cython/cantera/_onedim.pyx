@@ -747,16 +747,14 @@ cdef class Sim1D:
     Domains are ordered left-to-right, with domain number 0 at the left.
     """
 
-    def __cinit__(self, *args, **kwargs):
-        self.sim = NULL
-
     def __init__(self, domains, *args, **kwargs):
         cdef vector[shared_ptr[CxxDomain1D]] cxx_domains
         cdef Domain1D d
         for d in domains:
             cxx_domains.push_back(d._domain)
 
-        self.sim = new CxxSim1D(cxx_domains)
+        self._sim = CxxNewSim1D(cxx_domains)
+        self.sim = self._sim.get()
         self.domains = tuple(domains)
         self.set_interrupt(no_op)
         self._initialized = False
@@ -1602,6 +1600,3 @@ cdef class Sim1D:
         """ Get the maximum number of grid points in the specified domain. """
         idom = self.domain_index(domain)
         return self.sim.maxGridPoints(idom)
-
-    def __dealloc__(self):
-        del self.sim

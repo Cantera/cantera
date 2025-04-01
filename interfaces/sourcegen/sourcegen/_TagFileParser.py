@@ -6,8 +6,14 @@
 import sys
 from pathlib import Path
 import re
-from typing import Sequence, Iterable
-from typing_extensions import Self
+from sys import version_info
+
+if version_info.minor < 11:
+    from typing import Sequence, Iterable
+    from typing_extensions import Self
+else:
+    from typing import Sequence, Iterable, Self
+
 import logging
 from dataclasses import dataclass
 import xml.etree.ElementTree as ET
@@ -100,7 +106,7 @@ class TagFileParser:
             sys.exit(1)
 
         logging.info("Parsing doxygen tags...")
-        doxygen_tags = tag_file.read_text()
+        doxygen_tags = tag_file.read_text(encoding="utf-8")
         self._parse_doxyfile(doxygen_tags, bases)
 
     def _parse_doxyfile(self, doxygen_tags: str, bases: Sequence[str]) -> None:
@@ -261,7 +267,7 @@ def tag_lookup(tag_info: TagInfo) -> TagDetails:
         _LOGGER.error(msg)
         return TagDetails()
 
-    xml_details = xml_file.read_text()
+    xml_details = xml_file.read_text(encoding="utf-8")
     id_ = tag_info.id
     kind_ = tag_info.kind
     regex = re.compile(rf'<memberdef kind="{kind_}" id="{id_}"[\s\S]*?</memberdef>')

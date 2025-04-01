@@ -59,10 +59,11 @@ class CLibSourceGenerator(SourceGenerator):
             relates=[f"{uu.base}::{uu.name}()" for uu in c_func.uses])
         return self._javadoc_comment(block)
 
-    def _handle_crosswalk(self, what: str, crosswalk: dict, derived: list[str]) -> str:
+    def _handle_crosswalk(
+            self, what: str, crosswalk: dict, derived: dict[str, str]) -> str:
         """Crosswalk for object handle."""
         cabinet = None
-        classes = list(self._config.includes.keys()) + derived
+        classes = list(self._config.includes.keys()) + list(derived.keys())
         for base in classes:
             ret_type = what.replace(f"<{base}>", "<T>")
             if ret_type in crosswalk:
@@ -145,7 +146,7 @@ class CLibSourceGenerator(SourceGenerator):
                 params.append(Param(ret_type, par.name, par.description, par.direction))
             elif "shared_ptr" in what:
                 handle = self._handle_crosswalk(
-                    what, self._config.prop_type_crosswalk, [])
+                    what, self._config.prop_type_crosswalk, {})
                 if "vector<" in what:
                     params.append(
                         Param("int", f"{par.name}Len",
@@ -243,10 +244,10 @@ class CLibSourceGenerator(SourceGenerator):
                 cxx_arg = cxx_func.arglist[cxx_ix]
             if c_name != cxx_arg.name:
                 # Encountered object handle or length indicator
-                if c_ix == 0:
-                    handle = c_name
-                elif c_name.endswith("Len"):
+                if c_name.endswith("Len"):
                     check_array = True
+                elif c_ix == 0:
+                    handle = c_name
                 else:
                     msg = (f"Scaffolding failed for {c_func.name!r}: "
                            f"unexpected behavior for {c_name!r}.")
@@ -259,12 +260,14 @@ class CLibSourceGenerator(SourceGenerator):
                 # Need to handle cross-walked parameter with length information
                 c_prev = c_args[c_ix-1].name
                 if "vector<shared_ptr" in cxx_type:
-                    # Example: vector<shared_ptr<Solution>>
+                    # Example: vector<shared_ptr<Domain1D>>
                     cxx_type = cxx_type.lstrip("const ").rstrip("&")
+                    cxx_base = cxx_type.rstrip(">").split("<")[-1]
+                    bases |= {cxx_base}
                     lines.extend([
                         f"{cxx_type} {c_name}_;",
                         f"for (int i = 0; i < {c_prev}; i++) {{",
-                        f"    {c_name}_.push_back({base}Cabinet::at({c_name}[i]));",
+                        f"    {c_name}_.push_back({cxx_base}Cabinet::at({c_name}[i]));",
                         "}",
                     ])
                     args.append(f"{c_name}_")
@@ -454,7 +457,7 @@ class CLibSourceGenerator(SourceGenerator):
             return CFunc.from_str(header, brief=recipe.brief)
 
         # Ensure that all functions/methods referenced in recipe are detected correctly
-        bases = [recipe.base] + recipe.parents + recipe.derived
+        bases = recipe.bases
         if not recipe.implements:
             recipe.implements = self._doxygen_tags.detect(recipe.name, bases)
         elif recipe.base and "::" not in recipe.implements:
@@ -470,10 +473,16 @@ class CLibSourceGenerator(SourceGenerator):
         brief = ""
 
         if recipe.implements:
-            msg = f"   generating {func_name!r} -> {recipe.implements}"
-            _LOGGER.debug(msg)
             cxx_member = self._doxygen_tags.cxx_member(
                 recipe.implements, recipe.what.endswith("setter"))
+
+            if cxx_member.base in recipe.derived:
+                # Use alternative prefix for class specialization
+                recipe.prefix = recipe.derived.get(cxx_member.base, recipe.prefix)
+                func_name = f"{recipe.prefix}_{recipe.name}"
+
+            msg = f"   generating {func_name!r} -> {recipe.implements}"
+            _LOGGER.debug(msg)
 
             if isinstance(cxx_member, CFunc):
                 # Convert C++ return type to format suitable for crosswalk:
@@ -511,7 +520,7 @@ class CLibSourceGenerator(SourceGenerator):
             if not cxx_member.base:
                 if (cxx_member.name.startswith("new") and
                     any(base in cxx_member.ret_type
-                        for base in [recipe.base] + recipe.derived)):
+                        for base in [recipe.base] + list(recipe.derived.keys()))):
                     recipe.what = "constructor"
                 else:
                     recipe.what = "function"
@@ -525,8 +534,7 @@ class CLibSourceGenerator(SourceGenerator):
                     recipe.what = "getter"  # getter assigns to existing array
                 else:
                     recipe.what = "setter"
-            elif any(recipe.implements.startswith(base)
-                     for base in [recipe.base] + recipe.parents + recipe.derived):
+            elif any(recipe.implements.startswith(base) for base in recipe.bases):
                 recipe.what = "method"
             else:
                 msg = f"Unable to auto-detect function type for recipe {recipe.name!r}."
@@ -592,7 +600,8 @@ class CLibSourceGenerator(SourceGenerator):
         preamble = self._config.preambles.get(headers.base)
 
         guard = f"__{filename.name.upper().replace('.', '_')}__"
-        template = loader.from_string(self._templates["clib-header-file"])
+        t_file = Path(__file__).parent / "header_template.h.in"
+        template = loader.from_string(t_file.read_text(encoding="utf-8"))
         output = template.render(
             name=filename.stem, guard=guard, preamble=preamble, prefix=headers.prefix,
             declarations=declarations, base=headers.base, docstring=headers.docstring)
@@ -632,7 +641,8 @@ class CLibSourceGenerator(SourceGenerator):
         for obj in [headers.base] + list(other):
             includes += self._config.includes[obj]
 
-        template = loader.from_string(self._templates["clib-source-file"])
+        t_file = Path(__file__).parent / "source_template.cpp.in"
+        template = loader.from_string(t_file.read_text(encoding="utf-8"))
         output = template.render(
             name=filename.stem, implementations=implementations,
             prefix=headers.prefix, base=headers.base, docstring=headers.docstring,
@@ -652,7 +662,7 @@ class CLibSourceGenerator(SourceGenerator):
             for headers in headers_files:
                 bases |= {headers.base}
                 for recipe in headers.recipes:
-                    classes |= set([recipe.base] + recipe.parents + recipe.derived)
+                    classes |= set(recipe.bases)
             return sorted(bases), sorted(classes)
 
         self._clib_bases, classes = get_bases()

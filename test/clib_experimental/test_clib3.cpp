@@ -224,13 +224,12 @@ int main(int argc, char** argv)
     make_deprecation_warnings_fatal();
     printStackTraceOnSegfault();
     Cantera::CanteraError::setStackTraceDepth(20);
-    /* commented code below is relevant to future PRs */
-    // vector<string> fileNames = {"gtest-freeflame.yaml", "gtest-freeflame.h5"};
-    // for (const auto& fileName : fileNames) {
-    //     if (std::ifstream(fileName).good()) {
-    //         std::remove(fileName.c_str());
-    //     }
-    // }
+    vector<string> fileNames = {"gtest-freeflame.yaml", "gtest-freeflame.h5"};
+    for (const auto& fileName : fileNames) {
+        if (std::ifstream(fileName).good()) {
+            std::remove(fileName.c_str());
+        }
+    }
     int result = RUN_ALL_TESTS();
     appdelete();
     return result;
