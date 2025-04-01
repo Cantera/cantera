@@ -1,0 +1,64 @@
+phases:
+- name: A
+  thermo: ideal-gas
+  species: [{h2o2.yaml/species: all}]
+  kinetics: gas
+  state: {T: 300.0, P: 1 atm, X: {O2: 0.21, N2: 0.79}}
+  reactions: [A-reactions]
+- name: B
+  thermo: ideal-gas
+  species: [{h2o2.yaml/species: all}]
+  kinetics: gas
+  state: {T: 300.0, P: 1 atm, X: {O2: 0.21, N2: 0.79}}
+  reactions: [B-reactions]
+- name: C
+  thermo: ideal-gas
+  species: [{h2o2.yaml/species: all}]
+  kinetics: gas
+  state: {T: 300.0, P: 1 atm, X: {O2: 0.21, N2: 0.79}}
+  reactions: [C-reactions]
+- name: D
+  thermo: ideal-gas
+  species: [{h2o2.yaml/species: all}]
+  kinetics: gas
+  state: {T: 300.0, P: 1 atm, X: {O2: 0.21, N2: 0.79}}
+  reactions: [D-reactions]
+- name: E
+  thermo: ideal-gas
+  species: [{h2o2.yaml/species: all}]
+  kinetics: gas
+  state: {T: 300.0, P: 1 atm, X: {O2: 0.21, N2: 0.79}}
+  reactions: [E-reactions]
+- name: F
+  thermo: ideal-gas
+  species: [{h2o2.yaml/species: all}]
+  kinetics: gas
+  state: {T: 300.0, P: 1 atm, X: {O2: 0.21, N2: 0.79}}
+  reactions: [F-reactions]
+
+A-reactions:
+- equation: O + H2 <=> H + OH  # Reaction 3
+  rate-constant: {A: 3.87e+04 cm^6/mol^2/s, b: 2.7, Ea: 6260.0}
+
+B-reactions:
+- equation: O + H2 <=> H + OH  # Reaction 3
+  rate-constant: {A: 3.87e+04, b: 2.7, Ea: 6260.0 m}
+
+C-reactions:
+- equation: O + H2 <=> H + OH
+
+D-reactions:
+- equation: 2 OH (+M) <=> H2O2 (+M)
+  type: falloff
+
+E-reactions:
+- equation: O + H2 <=> H + OH
+  type: pressure-dependent-Arrhenius
+
+F-reactions:
+- equation: O + H2 <=> H + OH
+  rate-constant: {A: 3.87e+04, b: 2.7, Ea: 6260.0}
+  duplicate: true
+- equation: O + H2 <=> H + OH
+  rate-constant: {A: -3.87e+04, b: 2.7, Ea: 6260.0}
+  duplicate: true

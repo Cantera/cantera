@@ -16,11 +16,9 @@ classdef Transport < handle
         th % ID of the ThermoPhase object used to create the Transport object.
     end
 
-    properties (SetAccess = immutable)
-        trID % ID of Transport object.
-    end
-
     properties (SetAccess = protected)
+
+        trID % ID of :mat:class:`Transport` object.
 
         viscosity % Dynamic viscosity. Unit: Pa*s.
 
